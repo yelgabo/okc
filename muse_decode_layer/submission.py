@@ -112,6 +112,7 @@ class Inputs(TypedDict):
 PORT_MOE = True
 PORT_ROUTER = True
 PORT_PROJ = True
+PORT_ROUTER_MMA = False
 
 HIDDEN = 8192
 RMS_EPS = 1e-5
@@ -1147,7 +1148,7 @@ def kernel_fn(data, state):
             logits = _ext().router_fwd(router_input.contiguous(), state["router"])
         elif not split_router:
             logits = F.linear(router_input, state["router"])
-        elif state["router_ours"] and tokens <= ROUTER_MMA_MAX_TOKENS:
+        elif state["router_ours"] and PORT_ROUTER_MMA and tokens <= ROUTER_MMA_MAX_TOKENS:
             logits = _ext().router_mma_fwd(ffn_input.contiguous(), state["router_packed"])
         else:
             logits = torch.mm(ffn_input, state["router_hi_t"], out_dtype=torch.float32)
