@@ -192,3 +192,13 @@ Update 2026-10-28 (the rewrite push; details in docs/audit-2026-10-28.md, docs/g
   (full verify at batch 16 / 32 on the non-producer flat mode 19). Down on all 12 shapes; full batch 16 / 32
   -41 / -84 us at decode and -83 / -124 at verify. Attention at decode 1 sliding 6.1 us (public 4.9), full
   batch 32 181.9 / 236.2 us (public 170 / 186).
+
+## 2026-10-28 23:25 UTC: unfenced MoE runs withdrawn
+
+An independent review found that the MoE kernel writes x tiles with generic stores that another
+CTA reads through `cp.async.bulk` (async proxy) with no generic-to-async proxy fence, which the
+PTX memory model asks for. Fixed in 1099d9b (standalone and the layer copy); the fenced runs
+scored 1.979x (1b20c5b390f044b2) and 1.985x (8078730bfa434074). The user chose to withdraw the
+unfenced runs that ranked above them so the board shows only code whose ordering we can argue:
+84de5bbafa344b7a (2.009x), 0400cfbdfa2845fe (2.007x), c524612c78454486 (2.002x),
+36b5b559b0344d0f (1.990x). The layer entry a41ace0b94ba4369 (1.782x) already carries the fence.
