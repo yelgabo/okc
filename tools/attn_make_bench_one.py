@@ -43,18 +43,57 @@ def _ob_elapsed():
     return f"t={{_time.time() - _OB_T0:.0f}}s"
 
 
+_OB_STAMP_NAMES = ["idx-commit", "q-commit", "wait1", "bar1", "spec-ok", "kv-issued", "wait2",
+                   "bar2", "rope", "qpass", "newtok", "bar3", "patch", "loop-wait", "loop-bar",
+                   "loop-done", "reds", "ticket-bar", "atom", "ticket-done"]
+
+
+def _ob_stamps(vals):
+    """Stamp deltas in microseconds from the first stamp (0 = not reached)."""
+    base = vals[1]
+    parts = []
+    for k, name in enumerate(_OB_STAMP_NAMES, start=1):
+        v = vals[k]
+        parts.append(f"{{name}}={{'-' if v == 0 or base == 0 else (v - base) & 0xffffffff}}")
+    return " ".join(parts)
+
+
+def _ob_dbg_snapshot(timeout=3.0):
+    """Reads _ONE_DBG through a side stream (the copy engine runs while an SM kernel spins);
+    None if even that does not complete."""
+    if _ONE_DBG is None:
+        return None
+    side = torch.cuda.Stream()
+    host = torch.empty(_ONE_DBG.numel(), dtype=torch.int32, pin_memory=True)
+    with torch.cuda.stream(side):
+        host.copy_(_ONE_DBG, non_blocking=True)
+        ev = torch.cuda.Event()
+        ev.record(side)
+    t0 = _time.time()
+    while not ev.query():
+        if _time.time() - t0 > timeout:
+            return None
+        _time.sleep(0.005)
+    return host.tolist()
+
+
 def _ob_run(fn, label, limit=20.0):
     """Runs fn and waits for the device with a timeout: a hung kernel would otherwise hold the
-    run until the judge's 15-minute kill with nothing in the log, so print what hung and end
-    the process (the attempt is lost either way)."""
+    run until the judge's 15-minute kill with nothing in the log, so print what hung (with the
+    stamps the kernel reached) and end the process (the attempt is lost either way)."""
     import os as _os2
+    if _ONE_DBG is not None:
+        _ONE_DBG[1:].zero_()
     out = fn()
     ev = torch.cuda.Event()
     ev.record()
     t0 = _time.time()
     while not ev.query():
         if _time.time() - t0 > limit:
-            print(f"HANG {{label}} {{_ob_elapsed()}}: device busy for {{limit:.0f}}s", flush=True)
+            snap = _ob_dbg_snapshot()
+            stamps = "stamps unreadable" if snap is None else _ob_stamps(snap)
+            print(f"HANG {{label}} {{_ob_elapsed()}}: device busy for {{limit:.0f}}s; {{stamps}}",
+                  flush=True)
             _os2._exit(3)
         _time.sleep(0.005)
     return out
@@ -319,8 +358,12 @@ def _ob_plan_str(data):
 def _ob_selftest():
     global _ONE_DBG
     if _ONE is not None:
-        _ONE_DBG = torch.zeros(4, dtype=torch.int32, device="cuda")
+        _ONE_DBG = torch.zeros(32, dtype=torch.int32, device="cuda")
         st = _one_state(torch.device("cuda", torch.cuda.current_device()))
+        wok, wmsg = _ob_ws_check(torch.device("cuda", torch.cuda.current_device()))
+        print(f"SELFTEST workspace before the first launch: {{'zero' if wok else 'DIRTY'}} {{wmsg}} "
+              f"acc_sum={{float(st['acc'].abs().sum())}} cnt_sum={{int(st['cnt'].abs().sum())}}",
+              flush=True)
         lim = st["limits"]
         res = " ".join(f"L{{lim[i]}}m{{lim[i + 1]}}:{{lim[i + 2]}}({{lim[i + 4]}}/SM,{{lim[i + 3] // 1024}}KB)"
                        for i in range(0, len(lim), 5))
@@ -337,13 +380,17 @@ def _ob_selftest():
                 for k in range(1, 11):
                     label = f"PHASE b1 sliding L1 mode {{m}} phase {{k}}"
                     _ob_run(lambda: _one(data, mode=m, phase=k), label)
-                    print(f"{{label}} returned {{_ob_elapsed()}}", flush=True)
+                    torch.cuda.synchronize()
+                    print(f"{{label}} returned {{_ob_elapsed()}} {{_ob_stamps(_ONE_DBG.tolist())}}",
+                          flush=True)
             data = None
             data = _ob_inputs(1, 10, "tp8", "sliding", 1, "fixed", "normal", 64, 1.0)
             for k in range(1, 11):
                 label = f"PHASE b1 ctx10 sliding page64 mode 1 phase {{k}}"
                 _ob_run(lambda: _one(data, phase=k), label)
-                print(f"{{label}} returned {{_ob_elapsed()}}", flush=True)
+                torch.cuda.synchronize()
+                print(f"{{label}} returned {{_ob_elapsed()}} {{_ob_stamps(_ONE_DBG.tolist())}}",
+                      flush=True)
             data = None
         except Exception as exc:
             print(f"PHASE FAIL {{type(exc).__name__}}: {{str(exc)[:300]}}", flush=True)
@@ -358,10 +405,12 @@ def _ob_selftest():
                     label = f"MODES b1 sliding L{{q_len}} mode {{m}}"
                     print(f"{{label}} start {{_ob_elapsed()}}", flush=True)
                     out = _ob_run(lambda: _one(data, mode=m), label)
+                    torch.cuda.synchronize()
+                    stamps = _ob_stamps(_ONE_DBG.tolist())
                     ok, msg = _ob_check(data, out)
                     wok, wmsg = _ob_ws_check(data["qkv"].device)
-                    print(f"{{label}} {{'PASS' if ok and wok else 'FAIL'}} {{msg}} {{wmsg}}{{_ob_polls()}}",
-                          flush=True)
+                    print(f"{{label}} {{'PASS' if ok and wok else 'FAIL'}} {{msg}} {{wmsg}}{{_ob_polls()}} "
+                          f"{{stamps}}", flush=True)
                 data = None
             except Exception as exc:
                 print(f"MODES L{{q_len}} FAIL {{type(exc).__name__}}: {{str(exc)[:300]}}", flush=True)

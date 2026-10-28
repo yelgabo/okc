@@ -3176,6 +3176,12 @@ __device__ __forceinline__ float2 fast_sincos(float x) {
     return make_float2(__sinf(r), __cosf(r));
 }
 
+__device__ __forceinline__ uint64_t globaltimer_ns() {
+    uint64_t t;
+    asm volatile("mov.u64 %0, %%globaltimer;\n" : "=l"(t));
+    return t;
+}
+
 __device__ __forceinline__ float sigmoid(float x) {
     return __fdividef(1.f, 1.f + __expf(-x));
 }
@@ -3442,6 +3448,13 @@ attn_one_kernel(const Params p) {
     // only where every thread passes, with the copies drained first.
 #define PHASE_EXIT(k) \
     if (p.phase_limit == (k)) { cp_wait<0>(); return false; }
+    // Diagnostic stamps: thread 0 of CTA (0, 0) records the time in microseconds at point k
+    // into dbg[1 + k] when a dbg buffer is given (the judge's timed path passes none).
+    auto stamp = [&](int k) {
+        if (p.dbg != nullptr && split == 0 && blockIdx.y == 0 && tid == 0) {
+            p.dbg[1 + k] = static_cast<int>(globaltimer_ns() / 1000u);
+        }
+    };
     // Consumer-wide barrier: the whole CTA unless the producer warpgroup has split off.
     auto csync = [&]() {
         if constexpr (PROD) {
@@ -3780,6 +3793,7 @@ attn_one_kernel(const Params p) {
             }
             cp_commit();
         }
+        stamp(1);
         PHASE_EXIT(1)
         // Query rows, the block's new key/value rows (if this range may hold them),
         // constants; the range holding the request's first key prefetches the gate rows.
@@ -3816,11 +3830,14 @@ attn_one_kernel(const Params p) {
             }
         }
         cp_commit();
+        stamp(2);
         PHASE_EXIT(2)
 
         if constexpr (!PROD) {
             cp_wait<1>();
+            stamp(3);
             csync();
+            stamp(4);
             PHASE_EXIT(3)
             if constexpr (SPEC) {
                 if (seq_real != seq) {
@@ -3841,6 +3858,7 @@ attn_one_kernel(const Params p) {
                     return false;
                 }
             }
+            stamp(5);
             PHASE_EXIT(4)
             // K/V of the prologue tiles go out while the query group is still in flight;
             // each later group also carries the page indices STAGES - 1 tiles ahead.
@@ -3852,11 +3870,14 @@ attn_one_kernel(const Params p) {
                 }
                 cp_commit();
             }
+            stamp(6);
             cp_wait<STAGES - 1>();
         } else {
             cp_wait<0>();
         }
+        stamp(7);
         csync();
+        stamp(8);
         PHASE_EXIT(5)
 
         k_scale = *reinterpret_cast<const float*>(smem + S::CONST + C_KS);
@@ -3871,6 +3892,7 @@ attn_one_kernel(const Params p) {
             }
             csync();
         }
+        stamp(9);
         PHASE_EXIT(6)
 
         // Query pass: eight threads per row, eight dims each. q_len 1 keeps f16 queries
@@ -3912,6 +3934,7 @@ attn_one_kernel(const Params p) {
             }
         }
 
+        stamp(10);
         PHASE_EXIT(7)
         // The block's own keys and values: normalized, rotated, rounded, written to the cache
         // by the range that holds the position, and staged for the attention.
@@ -3952,7 +3975,9 @@ attn_one_kernel(const Params p) {
             *reinterpret_cast<uint2*>(smem + (is_k ? S::KN : S::VN) + j * ROWB + hh * D + t8 * 8) =
                 v8;
         }
+        stamp(11);
         csync();
+        stamp(12);
         PHASE_EXIT(8)
         if constexpr (!PROD) {
             // Patch the new rows into the tiles issued before they were staged.
@@ -3975,6 +4000,7 @@ attn_one_kernel(const Params p) {
             }
         }
 
+        stamp(13);
         PHASE_EXIT(9)
         const float sl2k = (L == 1 ? 1.f : p.sl2) * k_scale;
         const int copy = p.nc > 1 ? split % p.nc : 0;
@@ -4003,7 +4029,13 @@ attn_one_kernel(const Params p) {
                 if constexpr (L == 8) {
                     fence_proxy_async();
                 }
+                if (it == 0) {
+                    stamp(14);
+                }
                 __syncthreads();
+                if (it == 0) {
+                    stamp(15);
+                }
                 if constexpr (!ONE) {
                     if (it + STAGES - 1 < ntiles) {
                         issue_kv(it + STAGES - 1, (st + STAGES - 1) % STAGES, true);
@@ -4157,6 +4189,7 @@ attn_one_kernel(const Params p) {
                 release(st);
                 st = PROD ? cst : (st == STAGES - 1 ? 0 : st + 1);
             }
+            stamp(16);
             PHASE_EXIT(10)
             // Fixed-frame merge: this warp's rows scaled by 2^m into the workspace. Thread
             // (g, c) holds dims 16 c .. 16 c + 15 of head hk * 8 + g: o[e][0] is dim 16 c + e,
@@ -4311,6 +4344,7 @@ attn_one_kernel(const Params p) {
                 release(st);
                 st = PROD ? cst : (st == STAGES - 1 ? 0 : st + 1);
             }
+            stamp(16);
             PHASE_EXIT(10)
             // Fixed-frame merge. o[4i + 2hh + e] is column 8i + 2c + e of row (token
             // 2wq + hh, head g), and column n holds dim 16 (n >> 4) + 2 (n & 7) + ((n >> 3) & 1),
@@ -4331,6 +4365,7 @@ attn_one_kernel(const Params p) {
                 }
             }
         }
+        stamp(17);
         return true;
     };
 #undef PHASE_EXIT
@@ -4340,6 +4375,7 @@ attn_one_kernel(const Params p) {
     // bypass L1).
     auto ticket = [&]() {
         csync();
+        stamp(18);
         const int mine = hi - lo;
         if (tid == 0) {
             // >= rather than ==: an overshoot would be a partition bug, and == would then
@@ -4347,6 +4383,7 @@ attn_one_kernel(const Params p) {
             const int old = atom_add_acq_rel(p.ws_cnt + b, mine);
             *flag = old + mine >= n_keys;
         }
+        stamp(19);
         csync();
         if (*flag) {
             finalize_rows<L, NC>(p, b * ROWS, (b + 1) * ROWS, v_scale, tid);
@@ -4354,6 +4391,7 @@ attn_one_kernel(const Params p) {
                 p.ws_cnt[b] = 0;
             }
         }
+        stamp(20);
     };
 
     if constexpr (!FLAT) {
@@ -4442,11 +4480,11 @@ struct Instance {
         return resident;
     }
 
-    static void launch(const Params& p, int gx, int gy, cudaStream_t stream, bool coop) {
+    static cudaError_t launch(const Params& p, int gx, int gy, cudaStream_t stream, bool coop) {
         prepare();
         if (!coop) {
             attn_one_kernel<L, MODE><<<dim3(gx, gy), NT, BYTES, stream>>>(p);
-            return;
+            return cudaGetLastError();
         }
         cudaLaunchConfig_t cfg = {};
         cfg.gridDim = dim3(gx, gy);
@@ -4459,7 +4497,7 @@ struct Instance {
         cfg.attrs = attr;
         cfg.numAttrs = 1;
         const cudaError_t err = cudaLaunchKernelEx(&cfg, attn_one_kernel<L, MODE>, p);
-        TORCH_CHECK(err == cudaSuccess, "attn_one cooperative launch: ", cudaGetErrorString(err));
+        return err != cudaSuccess ? err : cudaGetLastError();
     }
 };
 
@@ -4602,11 +4640,15 @@ torch::Tensor attn_one(torch::Tensor qkv, torch::Tensor page_table, torch::Tenso
     }
     const bool coop = coop_launch && (mode & M_COOP) != 0;
     bool hit = false;
+    cudaError_t err = cudaSuccess;
 #define ONE_LAUNCH(L, M) \
-    if (q_len == L && mode == M) { Instance<L, M>::launch(p, gx, gy, stream, coop); hit = true; }
+    if (q_len == L && mode == M) { err = Instance<L, M>::launch(p, gx, gy, stream, coop); hit = true; }
     ONE_INSTANCES(ONE_LAUNCH)
 #undef ONE_LAUNCH
     TORCH_CHECK(hit, "attn_one: no instance for q_len ", q_len, " mode ", mode);
+    // A launch that fails to start would otherwise look like a hang or produce stale output.
+    TORCH_CHECK(err == cudaSuccess, "attn_one launch (mode ", mode, ", grid ", gx, "x", gy,
+                ", coop ", coop, "): ", cudaGetErrorString(err));
     return out;
 }
 """
@@ -4784,18 +4826,57 @@ def _ob_elapsed():
     return f"t={_time.time() - _OB_T0:.0f}s"
 
 
+_OB_STAMP_NAMES = ["idx-commit", "q-commit", "wait1", "bar1", "spec-ok", "kv-issued", "wait2",
+                   "bar2", "rope", "qpass", "newtok", "bar3", "patch", "loop-wait", "loop-bar",
+                   "loop-done", "reds", "ticket-bar", "atom", "ticket-done"]
+
+
+def _ob_stamps(vals):
+    """Stamp deltas in microseconds from the first stamp (0 = not reached)."""
+    base = vals[1]
+    parts = []
+    for k, name in enumerate(_OB_STAMP_NAMES, start=1):
+        v = vals[k]
+        parts.append(f"{name}={'-' if v == 0 or base == 0 else (v - base) & 0xffffffff}")
+    return " ".join(parts)
+
+
+def _ob_dbg_snapshot(timeout=3.0):
+    """Reads _ONE_DBG through a side stream (the copy engine runs while an SM kernel spins);
+    None if even that does not complete."""
+    if _ONE_DBG is None:
+        return None
+    side = torch.cuda.Stream()
+    host = torch.empty(_ONE_DBG.numel(), dtype=torch.int32, pin_memory=True)
+    with torch.cuda.stream(side):
+        host.copy_(_ONE_DBG, non_blocking=True)
+        ev = torch.cuda.Event()
+        ev.record(side)
+    t0 = _time.time()
+    while not ev.query():
+        if _time.time() - t0 > timeout:
+            return None
+        _time.sleep(0.005)
+    return host.tolist()
+
+
 def _ob_run(fn, label, limit=20.0):
     """Runs fn and waits for the device with a timeout: a hung kernel would otherwise hold the
-    run until the judge's 15-minute kill with nothing in the log, so print what hung and end
-    the process (the attempt is lost either way)."""
+    run until the judge's 15-minute kill with nothing in the log, so print what hung (with the
+    stamps the kernel reached) and end the process (the attempt is lost either way)."""
     import os as _os2
+    if _ONE_DBG is not None:
+        _ONE_DBG[1:].zero_()
     out = fn()
     ev = torch.cuda.Event()
     ev.record()
     t0 = _time.time()
     while not ev.query():
         if _time.time() - t0 > limit:
-            print(f"HANG {label} {_ob_elapsed()}: device busy for {limit:.0f}s", flush=True)
+            snap = _ob_dbg_snapshot()
+            stamps = "stamps unreadable" if snap is None else _ob_stamps(snap)
+            print(f"HANG {label} {_ob_elapsed()}: device busy for {limit:.0f}s; {stamps}",
+                  flush=True)
             _os2._exit(3)
         _time.sleep(0.005)
     return out
@@ -5060,8 +5141,12 @@ def _ob_plan_str(data):
 def _ob_selftest():
     global _ONE_DBG
     if _ONE is not None:
-        _ONE_DBG = torch.zeros(4, dtype=torch.int32, device="cuda")
+        _ONE_DBG = torch.zeros(32, dtype=torch.int32, device="cuda")
         st = _one_state(torch.device("cuda", torch.cuda.current_device()))
+        wok, wmsg = _ob_ws_check(torch.device("cuda", torch.cuda.current_device()))
+        print(f"SELFTEST workspace before the first launch: {'zero' if wok else 'DIRTY'} {wmsg} "
+              f"acc_sum={float(st['acc'].abs().sum())} cnt_sum={int(st['cnt'].abs().sum())}",
+              flush=True)
         lim = st["limits"]
         res = " ".join(f"L{lim[i]}m{lim[i + 1]}:{lim[i + 2]}({lim[i + 4]}/SM,{lim[i + 3] // 1024}KB)"
                        for i in range(0, len(lim), 5))
@@ -5078,13 +5163,17 @@ def _ob_selftest():
                 for k in range(1, 11):
                     label = f"PHASE b1 sliding L1 mode {m} phase {k}"
                     _ob_run(lambda: _one(data, mode=m, phase=k), label)
-                    print(f"{label} returned {_ob_elapsed()}", flush=True)
+                    torch.cuda.synchronize()
+                    print(f"{label} returned {_ob_elapsed()} {_ob_stamps(_ONE_DBG.tolist())}",
+                          flush=True)
             data = None
             data = _ob_inputs(1, 10, "tp8", "sliding", 1, "fixed", "normal", 64, 1.0)
             for k in range(1, 11):
                 label = f"PHASE b1 ctx10 sliding page64 mode 1 phase {k}"
                 _ob_run(lambda: _one(data, phase=k), label)
-                print(f"{label} returned {_ob_elapsed()}", flush=True)
+                torch.cuda.synchronize()
+                print(f"{label} returned {_ob_elapsed()} {_ob_stamps(_ONE_DBG.tolist())}",
+                      flush=True)
             data = None
         except Exception as exc:
             print(f"PHASE FAIL {type(exc).__name__}: {str(exc)[:300]}", flush=True)
@@ -5099,10 +5188,12 @@ def _ob_selftest():
                     label = f"MODES b1 sliding L{q_len} mode {m}"
                     print(f"{label} start {_ob_elapsed()}", flush=True)
                     out = _ob_run(lambda: _one(data, mode=m), label)
+                    torch.cuda.synchronize()
+                    stamps = _ob_stamps(_ONE_DBG.tolist())
                     ok, msg = _ob_check(data, out)
                     wok, wmsg = _ob_ws_check(data["qkv"].device)
-                    print(f"{label} {'PASS' if ok and wok else 'FAIL'} {msg} {wmsg}{_ob_polls()}",
-                          flush=True)
+                    print(f"{label} {'PASS' if ok and wok else 'FAIL'} {msg} {wmsg}{_ob_polls()} "
+                          f"{stamps}", flush=True)
                 data = None
             except Exception as exc:
                 print(f"MODES L{q_len} FAIL {type(exc).__name__}: {str(exc)[:300]}", flush=True)
