@@ -2685,9 +2685,12 @@ def _fused_ok(cfg):
 # layers at batch 1 do, since the f16 kernel measured 40-41 µs there against 38.5 (bench, job
 # 34929136fa004b17). Batch sizes the score does not use (tests) run 16 on sliding layers and 18
 # on full ones above batch 2.
+# Fenced variants only (bit 2 clear): var 18 drops the loader-side fence.proxy.async, and
+# passing tests do not prove that ordering safe (repo CLAUDE.md). It measured about 3% faster
+# on full-context verify b16/b32 in bench a8a4666a91d54d68.
 _WS_VAR = {
     ("sliding", 1): 16, ("sliding", 16): 16, ("sliding", 32): 16,
-    ("full", 1): None, ("full", 16): 18, ("full", 32): 18,
+    ("full", 1): None, ("full", 16): 16, ("full", 32): 16,
 }
 
 
@@ -2698,7 +2701,7 @@ def _ws_var(cfg):
         return _WS_VAR[key]
     if window:
         return 16
-    return 18 if cfg["batch"] > 2 else None
+    return 16 if cfg["batch"] > 2 else None
 
 
 def _ws_ok(cfg):
