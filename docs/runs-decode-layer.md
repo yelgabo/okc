@@ -3,7 +3,8 @@
 Every `okc check` on `muse_decode_layer`, newest last. Scores are the judge's speedup over
 SGLang with its 95% interval. Profiles and logs are in `muse_decode_layer/profiles/`. The
 submission is baseline.py's call sequence with pieces ported from muse_moe_w4a16 and
-muse_bf16_proj, each behind a switch (`PORT_MOE`, `PORT_ROUTER`, `PORT_PROJ`) and a self-test
+muse_bf16_proj and muse_attention_decode, each behind a switch (`PORT_MOE`, `PORT_ROUTER`,
+`PORT_PROJ`, `PORT_ATTN_PREP`, `PORT_ATTN_FUSED`) and a self-test
 against SGLang's path in prepare().
 
 Per-shape columns, in TASK.md's order: d1 = decode 1, d16, d32, v1 = verify 1 (8 tokens), v16
@@ -21,6 +22,14 @@ Per-shape columns, in TASK.md's order: d1 = decode 1, d16, d32, v1 = verify 1 (8
   BF16 FFN input, as on muse_bf16_proj. The router runs on a side stream, overlapping the pooler.
 - Projections: qkv_gate, pooler and the unpooler's 1024-row slice at T <= 8, o at T = 1, as
   `_proj_fused_wins` chose on muse_bf16_proj.
+- Attention: the decode layer feeds attention exactly as muse_attention_decode does (qkv
+  [T, 2304] BF16 from the qkv_gate projection, q 16x64 | k 2x64 | v 2x64 | gate 16x64; RoPE
+  interleaved with theta 500000 on sliding layers only; FP8 caches [pages, page, 2, 64]; the
+  norm-gate has no weight, eps 1e-5). FusedRMSNormGate gives the same bytes as our gate launch
+  (self-test rel diff 0). The kernel source is muse_attention_decode/attn_kernel.cu at 3b84d10,
+  copied in by tools/dl_attn_inline.py inside a nested `attn` namespace; only its q_len 1
+  instances are built. Routing as on muse_attention_decode: fused kernel on q_len 1 except
+  full layers at batch 1-2; idea 1 + FA3 elsewhere.
 
 ## Runs
 
