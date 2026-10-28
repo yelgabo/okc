@@ -56,7 +56,9 @@ class Inputs(TypedDict):
 
 UNPOOL_SLICE = 1024
 BF16_LAYERS = ("qkv_gate", "o", "pooler", "unpooler")
-# A matrix whose escapes exceed this share of its weights stays raw BF16.
+# The 12-bit code covers 8 consecutive values of the top seven exponent bits; a matrix whose
+# escapes exceed 1/MAX_ESCAPE_DENOM of its weights stays raw BF16.
+EXP_WINDOW = 8
 MAX_ESCAPE_DENOM = 200
 # Rows are dealt to CTAs in groups of this size so that escapes balance across row blocks.
 BALANCE_GROUP = 4
@@ -810,7 +812,14 @@ def sk_source(device_only=False):
     # Explicit instantiation must name the template at namespace scope, so the device-only
     # build reopens the anonymous namespace around it.
     src = _SK_SRC.replace("@@DISPATCH@@", dispatch).replace("@@INSTANCES@@", "namespace {\n" + inst + "\n}")
-    return ("#define SK_DEVICE_ONLY 1\n" + src) if device_only else src
+    if not device_only:
+        return src
+    ginst = "".join(
+        f"template void cgemv_launch<{nth}, {cpt}>(const uint4*, const int2*, int, unsigned, "
+        f"const __nv_bfloat16*, __nv_bfloat16*, int, cudaStream_t);\n"
+        for nth, cpt in ((256, 2), (64, 1), (512, 1), (128, 2)))
+    gemv = GEMV_CUDA_SRC.replace("}  // namespace", ginst + "}  // namespace", 1)
+    return "#define SK_DEVICE_ONLY 1\n#define GEMV_DEVICE_ONLY 1\n" + src + gemv
 
 
 # --------------------------------------------------------------------------------------------
@@ -976,6 +985,380 @@ def pack_router(router, geoms):
 
 
 # --------------------------------------------------------------------------------------------
+# m = 1 GEMV candidates: cgemv on a 12-bit row stream (2 rows per CTA), rgemv on the FP32
+# router, sgemv on the raw BF16 unpooler slice. The 12-bit code is the one above, laid out per
+# 16-k chunk of a row pair instead of per tile.
+# --------------------------------------------------------------------------------------------
+_LAYER_THREADS = {(2304, 8192): 256, (8192, 1024): 64, (4096, 8192): 512, (1024, 4096): 128}
+
+
+def pack_cgemv(w):
+    """Stream [N/2, K/16, 48] uint8 and escape table [N/2, pmax, 2] int32 for cgemv_fwd, or None.
+
+    Chunk (c, j) covers rows 2c, 2c+1 and k in [16j, 16j+16): the two rows' low bytes in k
+    order, then each row's 8 code bytes, byte b holding the codes of k = 16j+b (low nibble) and
+    16j+8+b (high nibble). Table row c: entry 0 is (count, 0); entries 1..count are
+    ((row_local << 16) | k, original bits) sorted by k; pmax is even so each row is a multiple
+    of 16 bytes.
+    """
+    n, k = w.shape
+    if w.dtype != torch.bfloat16 or n % 2 or k % 16:
+        raise ValueError(f"pack_cgemv: need bfloat16 [even N, K % 16 == 0], got {w.dtype} {tuple(w.shape)}")
+    bits = w.contiguous().view(torch.int16).to(torch.int32) & 0xFFFF
+    base = window_base(bits)
+    off = ((bits >> 8) & 0x7F) - base
+    escaped = (off < 0) | (off >= EXP_WINDOW)
+    escapes = int(escaped.sum())
+    if escapes > n * k // MAX_ESCAPE_DENOM:
+        return None
+    half, chunks = n // 2, k // 16
+    code = ((bits >> 15) << 3) | off.clamp(0, EXP_WINDOW - 1)
+    lo = (bits & 0xFF).view(half, 2, chunks, 16).transpose(1, 2).reshape(half, chunks, 32)
+    code = code.view(half, 2, chunks, 2, 8)
+    codes = (code[..., 0, :] | (code[..., 1, :] << 4)).transpose(1, 2).reshape(half, chunks, 16)
+    stream = torch.cat([lo, codes], -1).to(torch.uint8).contiguous()
+
+    c_i, r_i, k_i = escaped.view(half, 2, k).nonzero().unbind(1)
+    order = torch.argsort(c_i * (2 * k) + k_i * 2 + r_i)
+    c_i, r_i, k_i = c_i[order], r_i[order], k_i[order]
+    count = torch.bincount(c_i, minlength=half)
+    pmax = int(count.max()) + 1
+    pmax += pmax % 2
+    pos = torch.arange(len(c_i), device=w.device) - (count.cumsum(0) - count)[c_i] + 1
+    table = torch.zeros(half, pmax, 2, dtype=torch.int32, device=w.device)
+    table[:, 0, 0] = count.to(torch.int32)
+    table[c_i, pos, 0] = ((r_i << 16) | k_i).to(torch.int32)
+    table[c_i, pos, 1] = bits.view(half, 2, k)[c_i, r_i, k_i]
+    return {"stream": stream, "table": table, "pmax": pmax, "base4": base * 0x01010101,
+            "base": base, "escapes": escapes}
+
+
+
+def cgemv_threads(n, k):
+    """Compute threads per CTA for cgemv_fwd (the escape warp comes on top)."""
+    if (n, k) in _LAYER_THREADS:
+        return _LAYER_THREADS[(n, k)]
+    chunks = k // 16
+    for nth in (512, 256, 128, 64):
+        if chunks % nth == 0 and chunks // nth >= 1:
+            return nth
+    raise ValueError(f"cgemv_threads: no thread count divides K/16 = {chunks}")
+
+
+
+GEMV_CPP_DECLS = """
+void cgemv_fwd(at::Tensor stream, at::Tensor table, int64_t pmax, int64_t base4, at::Tensor x, at::Tensor out, int64_t nthreads);
+void rgemv_fwd(at::Tensor w, at::Tensor x, at::Tensor out);
+void sgemv_fwd(at::Tensor w, at::Tensor x, at::Tensor out);
+"""
+
+GEMV_CUDA_SRC = r"""
+#ifndef GEMV_DEVICE_ONLY
+#include <ATen/core/Tensor.h>
+#include <ATen/cuda/CUDAContext.h>
+#include <c10/cuda/CUDAException.h>
+#endif
+#include <cuda_runtime.h>
+#include <cuda_bf16.h>
+#include <stdint.h>
+
+namespace {
+
+constexpr int EXP_WINDOW = 8;
+constexpr int ROUTER_K = 8192;
+constexpr int SLICE_K = 4096;
+
+// Weights are read once per call, so they must not displace x from L1.
+__device__ __forceinline__ uint4 ld_stream(const uint4* p) {
+    uint4 v;
+    asm volatile("ld.global.nc.L1::no_allocate.v4.u32 {%0,%1,%2,%3}, [%4];"
+                 : "=r"(v.x), "=r"(v.y), "=r"(v.z), "=r"(v.w) : "l"(p));
+    return v;
+}
+
+__device__ __forceinline__ float lo_f(unsigned u) { return __uint_as_float(u << 16); }
+__device__ __forceinline__ float hi_f(unsigned u) { return __uint_as_float(u & 0xFFFF0000u); }
+
+__device__ __forceinline__ unsigned pack_bf16x2(float a, float b) {
+    __nv_bfloat162 v = __floats2bfloat162_rn(a, b);
+    return *reinterpret_cast<unsigned*>(&v);
+}
+
+__device__ __forceinline__ float warp_sum(float v) {
+#pragma unroll
+    for (int o = 16; o > 0; o >>= 1) v += __shfl_xor_sync(0xFFFFFFFFu, v, o);
+    return v;
+}
+
+// High bytes of the four weights coded in a word's low nibbles, and in its high nibbles.
+__device__ __forceinline__ unsigned hi_bytes_lo(unsigned c, unsigned base4) {
+    return ((c & 0x07070707u) + base4) | ((c << 4) & 0x80808080u);
+}
+__device__ __forceinline__ unsigned hi_bytes_hi(unsigned c, unsigned base4) {
+    return (((c >> 4) & 0x07070707u) + base4) | (c & 0x80808080u);
+}
+
+__device__ __forceinline__ void fma4(unsigned lo, unsigned hi, unsigned x01, unsigned x23, float& acc) {
+    const unsigned p01 = __byte_perm(lo, hi, 0x5140), p23 = __byte_perm(lo, hi, 0x7362);
+    acc = fmaf(lo_f(p01), lo_f(x01), acc);
+    acc = fmaf(hi_f(p01), hi_f(x01), acc);
+    acc = fmaf(lo_f(p23), lo_f(x23), acc);
+    acc = fmaf(hi_f(p23), hi_f(x23), acc);
+}
+
+// One row of a chunk: low-byte words l.x..l.w hold k 0-3, 4-7, 8-11, 12-15; code word c0 holds
+// k 0-3 (low nibbles) and 8-11 (high), c1 holds 4-7 and 12-15.
+__device__ __forceinline__ void chunk_fma(uint4 l, unsigned c0, unsigned c1, uint4 xa, uint4 xb,
+                                          unsigned base4, float& acc) {
+    fma4(l.x, hi_bytes_lo(c0, base4), xa.x, xa.y, acc);
+    fma4(l.y, hi_bytes_lo(c1, base4), xa.z, xa.w, acc);
+    fma4(l.z, hi_bytes_hi(c0, base4), xb.x, xb.y, acc);
+    fma4(l.w, hi_bytes_hi(c1, base4), xb.z, xb.w, acc);
+}
+
+// CTA c computes out[2c] and out[2c+1]. Compute thread t owns chunks t + i*NTH; the extra warp
+// applies the escape table. Every partial sum is combined in a fixed order, so the result is
+// deterministic. The escape terms use separately rounded multiply and add so a CPU emulation
+// in float32 reproduces them bit for bit (the main FMAs are exact products, so they need no such
+// care).
+// The block count in __launch_bounds__ (here and below) is for ptxas: without it ptxas budgets
+// 32 registers for full occupancy and sinks the later loads below the first FMAs; with it every
+// load is in flight before the first FMA. tools/gemv_compile_check.sh checks that in the SASS.
+template <int NTH, int CPT>
+__global__ void __launch_bounds__(NTH + 32, 2)
+cgemv_kernel(const uint4* __restrict__ stream, const int2* __restrict__ table, int pmax,
+             unsigned base4, const __nv_bfloat16* __restrict__ x, __nv_bfloat16* __restrict__ out) {
+    constexpr int NW = NTH / 32, CHUNKS = NTH * CPT;
+    __shared__ float red[2][NW + 1];
+    const int c = blockIdx.x, t = threadIdx.x, lane = t & 31, warp = t >> 5;
+    if (warp < NW) {
+        const uint4* wp = stream + ((size_t)c * CHUNKS + t) * 3;
+        const uint4* xp = reinterpret_cast<const uint4*>(x) + 2 * t;
+        uint4 wa[CPT], wb[CPT], wc[CPT], xa[CPT], xb[CPT];
+#pragma unroll
+        for (int i = 0; i < CPT; ++i) {
+            wa[i] = ld_stream(wp + i * NTH * 3);
+            wb[i] = ld_stream(wp + i * NTH * 3 + 1);
+            wc[i] = ld_stream(wp + i * NTH * 3 + 2);
+        }
+#pragma unroll
+        for (int i = 0; i < CPT; ++i) {
+            xa[i] = __ldg(xp + i * NTH * 2);
+            xb[i] = __ldg(xp + i * NTH * 2 + 1);
+        }
+        float acc0 = 0.f, acc1 = 0.f;
+#pragma unroll
+        for (int i = 0; i < CPT; ++i) {
+            chunk_fma(wa[i], wc[i].x, wc[i].y, xa[i], xb[i], base4, acc0);
+            chunk_fma(wb[i], wc[i].z, wc[i].w, xa[i], xb[i], base4, acc1);
+        }
+        acc0 = warp_sum(acc0);
+        acc1 = warp_sum(acc1);
+        if (lane == 0) {
+            red[0][warp] = acc0;
+            red[1][warp] = acc1;
+        }
+    } else {
+        const int2* tb = table + (size_t)c * pmax;
+        const int count = __ldg(tb).x;
+        // Entries 1..pmax-1 exist for every CTA, so the first batch loads alongside the count.
+        int2 ent = __ldg(tb + min(lane + 1, pmax - 1));
+        const unsigned base = base4 & 0xFFu;
+        float corr0 = 0.f, corr1 = 0.f;
+        for (int e = lane + 1; e <= count; e += 32) {
+            const int row = ent.x >> 16, kk = ent.x & 0xFFFF;
+            const unsigned bits = (unsigned)ent.y;
+            ent = __ldg(tb + min(e + 32, pmax - 1));
+            const int off = min(max((int)((bits >> 8) & 0x7Fu) - (int)base, 0), EXP_WINDOW - 1);
+            const unsigned dec = (bits & 0x80FFu) | ((base + off) << 8);
+            const float delta = __fsub_rn(__uint_as_float(bits << 16), __uint_as_float(dec << 16));
+            const float xv = __uint_as_float(
+                (unsigned)__ldg(reinterpret_cast<const unsigned short*>(x) + kk) << 16);
+            const float d = __fmul_rn(delta, xv);
+            corr0 = __fadd_rn(corr0, row ? 0.f : d);
+            corr1 = __fadd_rn(corr1, row ? d : 0.f);
+        }
+        corr0 = warp_sum(corr0);
+        corr1 = warp_sum(corr1);
+        if (lane == 0) {
+            red[0][NW] = corr0;
+            red[1][NW] = corr1;
+        }
+    }
+    __syncthreads();
+    if (t == 0) {
+        float r0 = 0.f, r1 = 0.f;
+#pragma unroll
+        for (int w = 0; w <= NW; ++w) {
+            r0 += red[0][w];
+            r1 += red[1][w];
+        }
+        *reinterpret_cast<unsigned*>(out + 2 * c) = pack_bf16x2(r0, r1);
+    }
+}
+
+template <int NTH, int CPT>
+void cgemv_launch(const uint4* stream, const int2* table, int pmax, unsigned base4,
+                  const __nv_bfloat16* x, __nv_bfloat16* out, int half_n, cudaStream_t s) {
+    cgemv_kernel<NTH, CPT><<<half_n, NTH + 32, 0, s>>>(stream, table, pmax, base4, x, out);
+}
+
+// FP32 router row per CTA: thread t reads float4 i*256+t, so each warp's load is 512 contiguous
+// bytes, and all 16 loads are in flight before the first FMA.
+__global__ void __launch_bounds__(256, 2)
+rgemv_kernel(const float4* __restrict__ w, const uint2* __restrict__ x, float* __restrict__ out) {
+    __shared__ float red[8];
+    const int row = blockIdx.x, t = threadIdx.x, lane = t & 31, warp = t >> 5;
+    const float4* wp = w + (size_t)row * (ROUTER_K / 4) + t;
+    float4 wv[8];
+    uint2 xv[8];
+#pragma unroll
+    for (int i = 0; i < 8; ++i) wv[i] = __ldcs(wp + i * 256);
+#pragma unroll
+    for (int i = 0; i < 8; ++i) xv[i] = __ldg(x + i * 256 + t);
+    float acc = 0.f;
+#pragma unroll
+    for (int i = 0; i < 8; ++i) {
+        acc = fmaf(wv[i].x, lo_f(xv[i].x), acc);
+        acc = fmaf(wv[i].y, hi_f(xv[i].x), acc);
+        acc = fmaf(wv[i].z, lo_f(xv[i].y), acc);
+        acc = fmaf(wv[i].w, hi_f(xv[i].y), acc);
+    }
+    acc = warp_sum(acc);
+    if (lane == 0) red[warp] = acc;
+    __syncthreads();
+    if (t == 0) {
+        float r = 0.f;
+#pragma unroll
+        for (int i = 0; i < 8; ++i) r += red[i];
+        out[row] = r;
+    }
+}
+
+// BF16 rows as stored, four per CTA, K = 4096: thread t reads 8 weights of each row at column 8t.
+__global__ void __launch_bounds__(512, 2)
+sgemv_kernel(const uint4* __restrict__ w, const uint4* __restrict__ x, __nv_bfloat16* __restrict__ out) {
+    constexpr int KV = SLICE_K / 8;
+    __shared__ float red[4][16];
+    const int c = blockIdx.x, t = threadIdx.x, lane = t & 31, warp = t >> 5;
+    const uint4* wp = w + (size_t)c * 4 * KV + t;
+    uint4 wv[4];
+#pragma unroll
+    for (int r = 0; r < 4; ++r) wv[r] = ld_stream(wp + r * KV);
+    const uint4 xv = __ldg(x + t);
+    float acc[4] = {0.f, 0.f, 0.f, 0.f};
+#pragma unroll
+    for (int r = 0; r < 4; ++r) {
+        acc[r] = fmaf(lo_f(wv[r].x), lo_f(xv.x), acc[r]);
+        acc[r] = fmaf(hi_f(wv[r].x), hi_f(xv.x), acc[r]);
+        acc[r] = fmaf(lo_f(wv[r].y), lo_f(xv.y), acc[r]);
+        acc[r] = fmaf(hi_f(wv[r].y), hi_f(xv.y), acc[r]);
+        acc[r] = fmaf(lo_f(wv[r].z), lo_f(xv.z), acc[r]);
+        acc[r] = fmaf(hi_f(wv[r].z), hi_f(xv.z), acc[r]);
+        acc[r] = fmaf(lo_f(wv[r].w), lo_f(xv.w), acc[r]);
+        acc[r] = fmaf(hi_f(wv[r].w), hi_f(xv.w), acc[r]);
+    }
+#pragma unroll
+    for (int r = 0; r < 4; ++r) {
+        acc[r] = warp_sum(acc[r]);
+        if (lane == 0) red[r][warp] = acc[r];
+    }
+    __syncthreads();
+    if (t == 0) {
+        float s[4] = {0.f, 0.f, 0.f, 0.f};
+#pragma unroll
+        for (int i = 0; i < 16; ++i) {
+#pragma unroll
+            for (int r = 0; r < 4; ++r) s[r] += red[r][i];
+        }
+        uint2 o;
+        o.x = pack_bf16x2(s[0], s[1]);
+        o.y = pack_bf16x2(s[2], s[3]);
+        *reinterpret_cast<uint2*>(out + 4 * c) = o;
+    }
+}
+
+}  // namespace
+
+#ifndef GEMV_DEVICE_ONLY
+static bool aligned_to(const at::Tensor& t, size_t bytes) {
+    return reinterpret_cast<uintptr_t>(t.data_ptr()) % bytes == 0;
+}
+
+static void check_x(const at::Tensor& x, int64_t k) {
+    TORCH_CHECK(x.is_cuda() && x.scalar_type() == at::kBFloat16 && x.is_contiguous() && x.dim() == 2
+                && x.size(0) == 1 && x.size(1) == k && aligned_to(x, 16),
+                "gemv: x must be a contiguous bf16 [1, ", k, "] CUDA tensor, got ", x.sizes());
+}
+
+void cgemv_fwd(at::Tensor stream, at::Tensor table, int64_t pmax, int64_t base4, at::Tensor x,
+               at::Tensor out, int64_t nthreads) {
+    TORCH_CHECK(stream.is_cuda() && stream.scalar_type() == at::kByte && stream.is_contiguous()
+                && stream.dim() == 3 && stream.size(2) == 48 && aligned_to(stream, 16),
+                "cgemv_fwd: stream must be a contiguous uint8 [N/2, K/16, 48] CUDA tensor");
+    const int64_t half_n = stream.size(0), chunks = stream.size(1), k = chunks * 16;
+    TORCH_CHECK(table.is_cuda() && table.scalar_type() == at::kInt && table.is_contiguous()
+                && table.dim() == 3 && table.size(0) == half_n && table.size(1) == pmax
+                && table.size(2) == 2 && pmax >= 2 && aligned_to(table, 8),
+                "cgemv_fwd: table must be a contiguous int32 [N/2, pmax, 2] CUDA tensor");
+    check_x(x, k);
+    TORCH_CHECK(out.is_cuda() && out.scalar_type() == at::kBFloat16 && out.is_contiguous()
+                && out.numel() == 2 * half_n && aligned_to(out, 4),
+                "cgemv_fwd: out must be a contiguous bf16 tensor of ", 2 * half_n, " elements");
+    const uint4* sp = reinterpret_cast<const uint4*>(stream.data_ptr<uint8_t>());
+    const int2* tp = reinterpret_cast<const int2*>(table.data_ptr<int32_t>());
+    const __nv_bfloat16* xp = reinterpret_cast<const __nv_bfloat16*>(x.data_ptr<at::BFloat16>());
+    __nv_bfloat16* op = reinterpret_cast<__nv_bfloat16*>(out.data_ptr<at::BFloat16>());
+    cudaStream_t s = at::cuda::getCurrentCUDAStream().stream();
+#define CGEMV_CASE(NTH, CPT)                                                                       \
+    if (nthreads == NTH && chunks == NTH * CPT) {                                                  \
+        cgemv_launch<NTH, CPT>(sp, tp, (int)pmax, (unsigned)base4, xp, op, (int)half_n, s);       \
+        C10_CUDA_KERNEL_LAUNCH_CHECK();                                                            \
+        return;                                                                                    \
+    }
+    CGEMV_CASE(64, 1) CGEMV_CASE(64, 2) CGEMV_CASE(64, 4)
+    CGEMV_CASE(128, 1) CGEMV_CASE(128, 2) CGEMV_CASE(128, 4)
+    CGEMV_CASE(256, 1) CGEMV_CASE(256, 2) CGEMV_CASE(256, 4)
+    CGEMV_CASE(512, 1) CGEMV_CASE(512, 2) CGEMV_CASE(512, 4)
+#undef CGEMV_CASE
+    TORCH_CHECK(false, "cgemv_fwd: unsupported threads ", nthreads, " for K = ", k,
+                " (need threads in {64,128,256,512} and K/16/threads in {1,2,4})");
+}
+
+void rgemv_fwd(at::Tensor w, at::Tensor x, at::Tensor out) {
+    TORCH_CHECK(w.is_cuda() && w.scalar_type() == at::kFloat && w.is_contiguous() && w.dim() == 2
+                && w.size(1) == ROUTER_K && aligned_to(w, 16),
+                "rgemv_fwd: w must be a contiguous float32 [N, 8192] CUDA tensor");
+    check_x(x, ROUTER_K);
+    TORCH_CHECK(out.is_cuda() && out.scalar_type() == at::kFloat && out.is_contiguous()
+                && out.numel() == w.size(0), "rgemv_fwd: out must be a contiguous float32 [1, N] tensor");
+    cudaStream_t s = at::cuda::getCurrentCUDAStream().stream();
+    rgemv_kernel<<<(unsigned)w.size(0), 256, 0, s>>>(
+        reinterpret_cast<const float4*>(w.data_ptr<float>()),
+        reinterpret_cast<const uint2*>(x.data_ptr<at::BFloat16>()), out.data_ptr<float>());
+    C10_CUDA_KERNEL_LAUNCH_CHECK();
+}
+
+void sgemv_fwd(at::Tensor w, at::Tensor x, at::Tensor out) {
+    TORCH_CHECK(w.is_cuda() && w.scalar_type() == at::kBFloat16 && w.is_contiguous() && w.dim() == 2
+                && w.size(0) % 4 == 0 && w.size(1) == SLICE_K && aligned_to(w, 16),
+                "sgemv_fwd: w must be a contiguous bf16 [N % 4 == 0, 4096] CUDA tensor");
+    check_x(x, SLICE_K);
+    TORCH_CHECK(out.is_cuda() && out.scalar_type() == at::kBFloat16 && out.is_contiguous()
+                && out.numel() == w.size(0) && aligned_to(out, 8),
+                "sgemv_fwd: out must be a contiguous bf16 [1, N] tensor");
+    cudaStream_t s = at::cuda::getCurrentCUDAStream().stream();
+    sgemv_kernel<<<(unsigned)(w.size(0) / 4), 512, 0, s>>>(
+        reinterpret_cast<const uint4*>(w.data_ptr<at::BFloat16>()),
+        reinterpret_cast<const uint4*>(x.data_ptr<at::BFloat16>()),
+        reinterpret_cast<__nv_bfloat16*>(out.data_ptr<at::BFloat16>()));
+    C10_CUDA_KERNEL_LAUNCH_CHECK();
+}
+#endif
+"""
+
+
+# --------------------------------------------------------------------------------------------
 # Candidates, self-test, autotune, dispatch.
 # --------------------------------------------------------------------------------------------
 def bucket_of(m):
@@ -1073,10 +1456,10 @@ def _sk_runner(ext, cfg_name, stream, tab, pmax, base4, n, k, out_dtype, diag):
 
 
 def _build_ext():
-    src = sk_source()
-    kwargs = dict(name="okc_sk_v1", cpp_sources="#include <torch/extension.h>\n" + _SK_CPP, cuda_sources=src,
-                  functions=["sk_fwd"], extra_cuda_cflags=["-O3", "-gencode=arch=compute_90a,code=sm_90a"],
-                  verbose=False)
+    src = sk_source() + GEMV_CUDA_SRC
+    kwargs = dict(name="okc_sk_v1", cpp_sources="#include <torch/extension.h>\n" + _SK_CPP + GEMV_CPP_DECLS,
+                  cuda_sources=src, functions=["sk_fwd", "cgemv_fwd", "rgemv_fwd", "sgemv_fwd"],
+                  extra_cuda_cflags=["-O3", "-gencode=arch=compute_90a,code=sm_90a"], verbose=False)
     try:
         return load_inline(no_implicit_headers=True, **kwargs)
     except TypeError:
@@ -1107,9 +1490,16 @@ def prepare(weights):
     def add(layer, bucket, name, fn, w, nrows, ms, tol):
         try:
             _self_test(f"{layer} {name}", fn, w, nrows, ms, tol, gen, diag)
-            cands.setdefault((layer, bucket), []).append((name, fn))
+            cands.setdefault((layer, bucket), []).append((name, fn, ms == (1,)))
         except Exception as exc:
             print(f"selftest {layer} {name}: disabled ({type(exc).__name__}: {str(exc)[-300:]})")
+
+    def gemv_runner(call, n, dtype):
+        def run(x):
+            out = torch.empty((1, n), dtype=dtype, device=x.device)
+            call(x, out)
+            return out
+        return run
 
     ms_of = {8: (1, 2, 5, 7, 8), 16: (9, 12, 16), 32: (17, 31, 32)}
 
@@ -1149,9 +1539,21 @@ def prepare(weights):
                 nrows = slices[rnm]
                 fn = _sk_runner(ext, rnm, raw[rnm], diag, 0, 0, nrows, k, torch.bfloat16, diag)
                 add(layer, b, rnm, fn, w, nrows, ms_of[b], SELFTEST_TOL["bf16"])
+        w1 = w[:rows_of(8)]
+        cg = pack_cgemv(w1)
+        if cg is not None:
+            nth = cgemv_threads(*w1.shape)
+            fn = gemv_runner(lambda x, out, cg=cg, nth=nth: ext.cgemv_fwd(
+                cg["stream"], cg["table"], cg["pmax"], cg["base4"], x, out, nth), w1.shape[0], torch.bfloat16)
+            add(layer, 8, "cgemv", fn, w, w1.shape[0], (1,), SELFTEST_TOL["bf16"])
+        if layer == "unpooler":
+            fn = gemv_runner(lambda x, out, w1=w1: ext.sgemv_fwd(w1, x, out), w1.shape[0], torch.bfloat16)
+            add(layer, 8, "sgemv", fn, w, w1.shape[0], (1,), SELFTEST_TOL["bf16"])
         for b in (8, 16, 32):
             nrows = rows_of(b)
-            cands.setdefault((layer, b), []).append(("cublas", lambda x, w=w, nrows=nrows: _cublas(x, w[:nrows])))
+            cands.setdefault((layer, b), []).append(("cublas", lambda x, w=w, nrows=nrows: _cublas(x, w[:nrows]), False))
+    fn = gemv_runner(lambda x, out: ext.rgemv_fwd(router, x, out), router.shape[0], torch.float32)
+    add("router", 8, "rgemv", fn, router, router.shape[0], (1,), SELFTEST_TOL["router"])
     rnames = {b: names_of("router", b) for b in (8, 16, 32)}
     rgeoms = {nm: _sk_geom(nm) for lst in rnames.values() for nm in lst}
     _, _, rstreams = pack_router(router, rgeoms)
@@ -1159,18 +1561,19 @@ def prepare(weights):
         for nm in lst:
             fn = _sk_runner(ext, nm, rstreams[nm], diag, 0, 0, router.shape[0], router.shape[1], torch.float32, diag)
             add("router", b, nm, fn, router, router.shape[0], ms_of[b], SELFTEST_TOL["router"])
-        cands.setdefault(("router", b), []).append(("baseline", lambda x: _router_baseline(x, state)))
+        cands.setdefault(("router", b), []).append(("baseline", lambda x: _router_baseline(x, state), False))
     print(f"selftests done {time.time() - t0:.1f} s")
 
     flush = torch.empty(FLUSH_BYTES // 4, dtype=torch.float32, device=dev)
-    for (layer, b), lst in sorted(cands.items()):
+    for (layer, b), all_cands in sorted(cands.items()):
         k = state[layer].shape[1]
         for m in ((1, 8) if b == 8 else (b,)):
+            lst = [c for c in all_cands if m == 1 or not c[2]]
             x, _ = _gen_x(m, k, gen, dev)
             if len(lst) > 1:
-                us = _time_candidates([fn for _, fn in lst], x, flush)
+                us = _time_candidates([fn for _, fn, _ in lst], x, flush)
                 best = min(range(len(lst)), key=lambda i: us[i])
-                print(f"tune {layer:9s} m={m:2d}: " + ", ".join(f"{nm} {t:.1f}" for (nm, _), t in zip(lst, us))
+                print(f"tune {layer:9s} m={m:2d}: " + ", ".join(f"{c[0]} {t:.1f}" for c, t in zip(lst, us))
                       + f" -> {lst[best][0]}")
             else:
                 best = 0
