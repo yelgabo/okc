@@ -1,19 +1,19 @@
 # okc: problem=muse_attention_decode
-"""SGLang's attention for Muse Spark Open on H200 (FA3 backend, FP8 E4M3 KV cache), at SGLang commit
-a55ab7d5ae1bba59ac351e55026fe7f7644ecc5f: the kernels between the QKV and output projections
-(MuseSpark1xAttention.gated_attention), in order:
+"""Gated attention decode for Muse Spark Open on one H200, three paths by shape:
 
-  FusedQKNorm (Triton)                 per-head RMSNorm of q and k from the fused projection
-                                       output, with interleaved RoPE fused in on sliding layers
-  set_kv_buffer                        k and v cast to E4M3 (divided by the cache scales when
-                                       set), stored at the step's cache rows (store_cache)
-  q.to(float8_e4m3fn)                  as prepare_paged_mha_query does for an FP8 cache
-  flash_attn_with_kvcache (FA3)        paged, causal, window (2047, 0) on sliding layers,
-                                       5.473/8 softmax scale
-  rms_norm_gate (JIT CUDA)             per-head RMSNorm x sigmoid(gate)
+  q_len 1, except full layers at batch 1: one fused kernel (attn_fused). Each CTA takes one
+      request and a slice of its context and covers both KV heads, so every gathered 128-byte
+      cache row serves all 16 query heads. It normalizes and rotates its queries, gathers FP8
+      K/V rows through a cp.async pipeline (page entries staged 6 tiles ahead), runs Q.K and
+      P.V on f16 tensor cores and keeps an online softmax. The last split also normalizes,
+      rotates and writes the block's new K/V to the cache and attends them. Sliding layers
+      merge the splits inside a thread-block cluster and apply the norm-gate in the same
+      launch; full layers write partials and merge with the norm-gate in a second launch.
+  everything else (q_len 8, full layers at batch 1, other head counts): one prep launch (norm,
+      RoPE, FP8 query, cache write), SGLang's FA3 call, one norm-gate launch.
+  _sglang: SGLang's own sequence, kept as the fallback if an extension fails to build.
 
-Differs from SGLang: the step's positions, cache rows, FA3 lengths and FA3 scheduler metadata
-come in with the inputs (SGLang builds them once per step for all layers)."""
+Run log and measurements: docs/runs-attention.md."""
 
 from typing import TypedDict
 
@@ -195,8 +195,9 @@ __global__ void prep_kernel(const __nv_bfloat16* __restrict__ qkv, const int64_t
 }
 
 // One warp per (token, head): RMSNorm of the attention output times sigmoid(gate).
-__global__ void gate_kernel(const __nv_bfloat16* __restrict__ o, const __nv_bfloat16* __restrict__ qkv,
-                            __nv_bfloat16* __restrict__ out, int hq, int hkv) {
+__global__ void gate_kernel(const __nv_bfloat16* __restrict__ o,
+                            const __nv_bfloat16* __restrict__ qkv, __nv_bfloat16* __restrict__ out,
+                            int hq, int hkv) {
     const int t = blockIdx.x;
     const int h = blockIdx.y * (blockDim.x / 32) + threadIdx.x / 32;
     const int lane = threadIdx.x & 31;
@@ -205,8 +206,8 @@ __global__ void gate_kernel(const __nv_bfloat16* __restrict__ o, const __nv_bflo
     }
     const size_t row = (size_t)t * hq + h;
     float2 x = __bfloat1622float2(reinterpret_cast<const __nv_bfloat162*>(o)[row * (D / 2) + lane]);
-    const auto* g2 = reinterpret_cast<const __nv_bfloat162*>(qkv + (size_t)t * (2 * hq + 2 * hkv) * D
-                                                              + (hq + 2 * hkv) * D);
+    const auto* g2 = reinterpret_cast<const __nv_bfloat162*>(
+        qkv + (size_t)t * (2 * hq + 2 * hkv) * D + (hq + 2 * hkv) * D);
     const float2 g = __bfloat1622float2(g2[h * (D / 2) + lane]);
     const float r = rsqrtf(warp_sum(x.x * x.x + x.y * x.y) / D + EPS);
     x.x = x.x * r / (1.f + __expf(-g.x));
@@ -260,7 +261,8 @@ def _inv_freq(theta, d, device):
     """RoPE frequencies computed exactly as SGLang's RotaryEmbedding does, so angles match."""
     key = (theta, d)
     if key not in _INV_FREQ:
-        _INV_FREQ[key] = 1.0 / (theta ** (torch.arange(0, d, 2, dtype=torch.float, device=device) / d))
+        exps = torch.arange(0, d, 2, dtype=torch.float, device=device) / d
+        _INV_FREQ[key] = 1.0 / (theta ** exps)
     return _INV_FREQ[key]
 
 
@@ -502,7 +504,9 @@ constexpr int RING = 8;
 constexpr int PT_AHEAD = 6;
 constexpr int SMEM_TOTAL = SMEM_BYTES + RING * BN * 4;
 
-// Without VF16, a stage-shaped tile for the block's new keys and values sits at SMEM_TOTAL.
+// Cluster launches without VF16 stage the block's new keys and values in their own tile at
+// SMEM_TOTAL during the prologue (full-layer launches lost 2-3% to the extra smem, job
+// fa01e4d1a9f54b0f, so they stage them into stage 0 after the loop instead).
 // Receive slots for the push merge sit past everything the main loop uses, since other CTAs
 // of the cluster may push before this one finishes its loop. Row r of CTA s lands in slot
 // (r / S) * S + s of CTA r % S, so ROWS + 16 slots cover any cluster of up to 16.
@@ -649,10 +653,13 @@ attn_kernel(const Params p) {
             const int qh = head * GROUP + g;
             const int pos = seq + j;
             qpos[mt][half] = pos;
-            const __nv_bfloat16* qrow = p.qkv + static_cast<size_t>(b * L + j) * QKV_STRIDE + qh * D;
+            const __nv_bfloat16* qrow =
+                p.qkv + static_cast<size_t>(b * L + j) * QKV_STRIDE + qh * D;
             // Word w holds dims qdim(w), qdim(w) + 1: 16c + 2w for FP8 keys read 16 bytes per
             // thread, 16(w/2) + 2c + 8(w%2) for the mma fragment order ldmatrix gives.
-            auto qdim = [&](int w) { return VF16 ? 16 * (w >> 1) + 2 * c + 8 * (w & 1) : 16 * c + 2 * w; };
+            auto qdim = [&](int w) {
+                return VF16 ? 16 * (w >> 1) + 2 * c + 8 * (w & 1) : 16 * c + 2 * w;
+            };
             float x[16];
 #pragma unroll
             for (int w = 0; w < 8; ++w) {
@@ -699,9 +706,10 @@ attn_kernel(const Params p) {
     constexpr int TASKS_PER_WARP = (TASKS + C::WARPS - 1) / C::WARPS;
     uint16_t newv[TASKS_PER_WARP];
     const bool last_split = split == p.splits - 1;
+    constexpr bool NEWB = CLUSTER && !VF16;
     uint8_t* newb = smem + SMEM_TOTAL;
     if (last_split) {
-        if constexpr (!VF16) {
+        if constexpr (NEWB) {
             for (int i = tid; i < STAGE_BYTES / 16; i += C::THREADS) {
                 reinterpret_cast<uint4*>(newb)[i] = make_uint4(0, 0, 0, 0);
             }
@@ -749,9 +757,9 @@ attn_kernel(const Params p) {
                 x.y *= inv;
                 newv[i] = __nv_cvt_float2_to_fp8x2(x, __NV_SATFINITE, __NV_E4M3);
                 uint8_t* dst = is_k ? p.k_cache : p.v_cache;
-                *reinterpret_cast<uint16_t*>(dst + p.cache_loc[tok] * ROW_BYTES + kh * D + 2 * lane) =
-                    newv[i];
-                if constexpr (!VF16) {
+                uint8_t* row = dst + p.cache_loc[tok] * ROW_BYTES;
+                *reinterpret_cast<uint16_t*>(row + kh * D + 2 * lane) = newv[i];
+                if constexpr (NEWB) {
                     const int byte = kh * D + 2 * lane;
                     const int sw = is_k ? k_chunk(byte >> 4, j) : v_chunk(byte >> 4, j);
                     *reinterpret_cast<uint16_t*>(newb + (is_k ? 0 : BN * ROW_BYTES)
@@ -1081,10 +1089,10 @@ attn_kernel(const Params p) {
     __syncthreads();
     stamp(3);
 
-    if (!VF16 && last_split && tp == 0) {
+    if (NEWB && last_split && tp == 0) {
         chunk(newb, 0, seq, seq + L - 1);
     }
-    if (VF16 && last_split) {
+    if (!NEWB && last_split) {
         uint8_t* st = smem;
         for (int i = tid; i < STAGE_BYTES / 16; i += C::THREADS) {
             reinterpret_cast<uint4*>(st)[i] = make_uint4(0, 0, 0, 0);
@@ -1238,7 +1246,8 @@ template <int L, int MT, int TP, int KC, bool CLUSTER, bool VF16 = false, bool P
 void launch(const Params& p, int batch, cudaStream_t stream) {
     using C = Cfg<L, MT, TP, KC>;
     auto kern = attn_kernel<L, MT, TP, KC, CLUSTER, VF16, PV8>;
-    constexpr int smem_bytes = recv_offset<VF16>() + (CLUSTER ? (C::ROWS + 16) * PART * 4 : 0);
+    constexpr int smem_bytes = CLUSTER ? recv_offset<VF16>() + (C::ROWS + 16) * PART * 4
+                                       : SMEM_TOTAL + (VF16 ? 2 * VH_BYTES : 0);
     static bool configured = false;
     if (!configured) {
         cudaFuncSetAttribute(kern, cudaFuncAttributeMaxDynamicSharedMemorySize, smem_bytes);
@@ -1277,9 +1286,12 @@ void launch(const Params& p, int batch, cudaStream_t stream) {
 // INSTANTIATE: template void launch<8, 1, 1, 4, false, true>(const Params&, int, cudaStream_t);
 // INSTANTIATE: template void launch<8, 2, 1, 2, false, true>(const Params&, int, cudaStream_t);
 // INSTANTIATE: template void launch<8, 1, 1, 2, false, true>(const Params&, int, cudaStream_t);
-// INSTANTIATE: template void launch<8, 1, 1, 4, true, false, true>(const Params&, int, cudaStream_t);
-// INSTANTIATE: template void launch<8, 1, 1, 4, false, false, true>(const Params&, int, cudaStream_t);
-// INSTANTIATE: template void launch<8, 2, 1, 2, false, false, true>(const Params&, int, cudaStream_t);
+// INSTANTIATE: template void launch<8, 1, 1, 4, true, false, true>(const Params&, int,
+// INSTANTIATE:     cudaStream_t);
+// INSTANTIATE: template void launch<8, 1, 1, 4, false, false, true>(const Params&, int,
+// INSTANTIATE:     cudaStream_t);
+// INSTANTIATE: template void launch<8, 2, 1, 2, false, false, true>(const Params&, int,
+// INSTANTIATE:     cudaStream_t);
 
 }  // namespace
 
@@ -1321,7 +1333,8 @@ torch::Tensor attn_fused(torch::Tensor qkv, torch::Tensor page_table, torch::Ten
     }
     torch::Tensor ws;
     if (!cluster) {
-        ws = torch::empty({batch * splits * HQ * q_len * PART}, qkv.options().dtype(torch::kFloat32));
+        ws = torch::empty({batch * splits * HQ * q_len * PART},
+                          qkv.options().dtype(torch::kFloat32));
         p.ws = ws.data_ptr<float>();
     }
     if (q_len == 1) {
@@ -1438,12 +1451,7 @@ def _fused_ok(cfg):
     return cfg["q_len"] == 1 and (bool(cfg["window"]) or cfg["batch"] > 2)
 
 
-def prepare(*args, **kwargs):
-    print(f"prepare called with {len(args)} args, keys {list(kwargs)}")
-    return None
-
-
-def kernel_fn(data, state=None):
+def kernel_fn(data):
     if _fused_ok(data["config"]):
         return _fused(data)
     if _PREP is not None and data["config"]["head_dim"] == 64:

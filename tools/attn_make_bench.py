@@ -96,7 +96,8 @@ def _probe_prep(data):
     hq, hkv, d = cfg["num_q_heads"], cfg["num_kv_heads"], cfg["head_dim"]
     qkv = data["qkv"].view(tokens, -1)
     if cfg["rope_theta"]:
-        q, k = _qk_norm(hq, hkv, d)(qkv, data["positions"], _cos_sin(cfg["rope_theta"], d, qkv.device))
+        cos_sin = _cos_sin(cfg["rope_theta"], d, qkv.device)
+        q, k = _qk_norm(hq, hkv, d)(qkv, data["positions"], cos_sin)
     else:
         q, k = _qk_norm(hq, hkv, d)(qkv)
     v = qkv[:, (hq + hkv) * d:(hq + 2 * hkv) * d]
