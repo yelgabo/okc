@@ -130,6 +130,31 @@ A wait that lasts longer than 2^31 cycles (about a second) marks ctr[8] and give
 of hanging; the result is then wrong. Read ctr[8] after a self-test, never inside the timed
 path.
 
+Both kernels begin with `griddepcontrol.wait`, so a launch with the programmatic dependent
+launch attribute is safe (they do not touch their inputs before the previous kernel has
+completed); without the attribute the instruction does nothing. They never call
+`griddepcontrol.launch_dependents`, so a successor launched with the attribute starts only
+when they finish.
+
+## Measured state (scored run 36b5b559b0344d0f, 1.990x on the standalone problem)
+
+| T | policy | this kernel (us) | previous kernel, same judge (a49578e5c30348bb) |
+|---|---|---|---|
+| 1 | sk8w4s | 29.3 | 46.7 |
+| 8 | sk8w4s | 68.4 | 87.5 |
+| 16 | sk8w4s | 97.3 | 107.4 |
+| 32 | sk8w4s (split jobs) | 133.9 | 145.5 |
+| 128 | legacy128 (the previous kernel's configs) | 255.1 | 250.4 |
+| 256 | main-d2 (fat path) | 308.4 | 366.5 |
+
+Every variant passes the FP32 self-test at M = 1 to 257 on normal and skewed routings, so the
+kernel can be switched on at every T; at T = 128 the policy itself falls back to the previous
+kernel, so the layer loses nothing there. In the layer, keep the bench in `prepare` (its
+routing differs from the standalone problem's, and the choice between `legacy128`, `main-d2`
+and `sk8w4s` at 32 to 256 tokens is within 10%), and trim the build: `MAIN_MODES = (0,)` and
+`SKINNY_VARIANTS = ((8, 4, 0), (16, 4, 0))` cut the 140 s build to about half, which the
+layer's own 300 s prepare budget needs.
+
 ## Where the numbers round to bf16
 
 These follow SGLang's Marlin path, which the activation rule in TASK.md pins:

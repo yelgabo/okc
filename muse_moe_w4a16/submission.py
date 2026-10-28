@@ -1004,6 +1004,7 @@ __global__ void __launch_bounds__(kNTM, 1) moe_main_kernel(const Params p) {
     const int G = gridDim.x;
     const int cta = blockIdx.x;
     const int E = p.M * kTopK;
+    asm volatile("griddepcontrol.wait;" ::: "memory");
     const int gen = *reinterpret_cast<volatile int*>(p.ctr + 3);
     float* ss = p.ss + (gen & 1) * kEmax;
     const uint64_t pol = policy_evict_first();
@@ -1563,6 +1564,9 @@ __global__ void __launch_bounds__(kNTL, 1) moe_fused_kernel(const Params p) {
     const int G = gridDim.x;
     const int cta = blockIdx.x;
     const int E = p.M * kTopK;
+    // Under programmatic dependent launch the inputs are not ready before this; without it
+    // the instruction does nothing.
+    asm volatile("griddepcontrol.wait;" ::: "memory");
     // The generation picks this launch's sum-of-squares copy and barrier counter; the last
     // CTA through the barrier bumps it, after every CTA has read it.
     const int gen = *reinterpret_cast<volatile int*>(p.ctr + 3);
