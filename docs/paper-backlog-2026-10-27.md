@@ -393,3 +393,23 @@ Compiler/SASS checks, layout emulation, byte-budget calculations and the A1 alge
 - **A5, D1, N1, N2, M3: gated** as the backlog says.
 - **B1 compressible allocations: new probe.** Cheap capability query; expect little on Gaussian
   BF16 weights, unmeasured.
+
+### A2 audit result (2026-10-28): closed, no check spent
+
+Compiled with `tools/attn_ws_quick.sh` (CUDA 12.8, sm_90a) at commit 025aaec of the FP32 branch:
+var 0 (f16, fenced) 106 registers, var 16 (FP32, fenced) 115, var 48 (FP32, overlapped) 128; no
+spills. Blocks are 384 threads (256 math + 4 loader warps). Rounded to the 8-register allocation
+unit, one block holds 43,008 / 46,080 / 49,152 registers; two need 86,016-98,304 against 65,536
+per SM. Two blocks require at most 80 registers per thread, about a third below the FP32
+variant, which holds 32 FP32 scores, 32 FP32 output accumulators and 16 P registers per math
+thread before addresses and loop state. Escape routes checked:
+
+- setmaxnreg: launch at 80 (pool 30,720 per block), loaders down to 24 (3,072), leaves 104 per
+  math thread; the variants need 112 (f16) and 120 (FP32) after rounding. Does not fit.
+- Two loader warps (320 threads): limit 96 per thread, still under 112, and loaders already
+  set the pace.
+- One KV head per block: gives up the 128-byte combined-row gather, the source of the gain.
+
+Shared memory could compact to about 104 KB, but registers block a second block first. Within
+one block the freed memory buys nothing measured: 8 stages ran 333.2 us vs 7 stages 333.8 us at
+b32 full (bench a8a4666a91d54d68).
