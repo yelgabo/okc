@@ -14,6 +14,9 @@ self-test in prepare() fails or where it was measured to lose.
 - Router (from muse_bf16_proj): up to 8 tokens one CUDA-core FP32 kernel on the boundary's
   FP32 router input; 9 to 32 tokens the tensor-core kernel on a BF16 hi + lo split of the
   weights with FP32 accumulation (SGLang's own method above 8 tokens).
+- Stream overlap: the router, top-8 and the MoE routing metadata run on a side stream while
+  the main stream runs the pooler and the pre-expert norm; the streams join right before
+  GEMM1.
 - Projections (from muse_bf16_proj): an mma kernel streaming weights repacked into fragment
   order, for qkv_gate, pooler and the unpooler slice up to 8 tokens and o at 1 token.
 
@@ -143,6 +146,10 @@ PORT_ATTN_FUSED = True
 # The warp-specialized q_len 8 kernel from muse_attention_decode (var 16): sliding verify at
 # every batch, full verify above batch 2.
 PORT_ATTN_WS = True
+# The routing metadata (route_align or SGLang's moe_align_block_size) built on the router's
+# side stream right after top-8, and the pre-expert norm on the main stream before the join,
+# so the main stream goes from the norm straight to GEMM1. False: both after the join.
+ROUTE_ON_SIDE = True
 
 HIDDEN = 8192
 RMS_EPS = 1e-5
@@ -4111,20 +4118,19 @@ def _w4_gemm2(w4, cfg, inter, sorted_ids, items, num_items, numel, pdl=False):
     return part
 
 
-def _experts(x, topk_weights, topk_ids, local_start, state, opts):
-    """MuseSpark1xFp4Experts._marlin_expert_outputs and its post-expert-norm finalize.
+def _route_meta(topk_weights, topk_ids, local_start, num_tokens, state, opts):
+    """The part of the MoE call that reads only the routing: block size, GEMM configs and the
+    block-sorted routing metadata (ours, or SGLang's expert_map and moe_align_block_size).
     topk_ids are global expert ids; this GPU's experts start at local_start (a device tensor).
     opts: _moe_opts() (our routing metadata, finalizer and block size, and per GEMM a W4 config
     or None for Marlin), or None for SGLang's calls."""
     bank = state["bank"]
-    num_tokens, size_k = x.shape
-    size_n = bank["size_n"]
-    gemm1_n = 2 * size_n
     numel = num_tokens * TOP_K
     topk_weights = topk_weights.to(torch.float32).contiguous()
     if numel > MAX_ROUTES:
         opts = None
     g1 = g2 = None
+    items = num_items = items2 = num_items2 = None
     if opts is not None:
         block_size_m = opts["bsm"]
         # The buffer size SGLang allocates, so Marlin sizes its FP32 reduce buffer alike.
@@ -4149,15 +4155,39 @@ def _experts(x, topk_weights, topk_ids, local_start, state, opts):
         local_ids = bank["expert_map"][local_ids].contiguous()
         sorted_ids, block_experts, n_padded = moe_align_block_size(
             local_ids, block_size_m, N_EXPERTS)
+    return {
+        "opts": opts, "g1": g1, "g2": g2, "bsm": block_size_m, "topk_weights": topk_weights,
+        "sorted_ids": sorted_ids, "block_experts": block_experts, "n_padded": n_padded,
+        "local_ids": local_ids, "items": items, "num_items": num_items, "items2": items2,
+        "num_items2": num_items2,
+    }
+
+
+def _meta_tensors(meta):
+    return [v for v in meta.values() if isinstance(v, torch.Tensor)]
+
+
+def _experts_run(x, meta, state):
+    """MuseSpark1xFp4Experts._marlin_expert_outputs and its post-expert-norm finalize, on the
+    routing metadata from _route_meta()."""
+    bank = state["bank"]
+    num_tokens, size_k = x.shape
+    size_n = bank["size_n"]
+    gemm1_n = 2 * size_n
+    numel = num_tokens * TOP_K
+    opts, g1, g2 = meta["opts"], meta["g1"], meta["g2"]
+    topk_weights, local_ids = meta["topk_weights"], meta["local_ids"]
+    sorted_ids, block_experts, n_padded = (meta["sorted_ids"], meta["block_experts"],
+                                           meta["n_padded"])
     pdl = bool(opts and opts["pdl"])
     cache2 = torch.empty((numel, size_n), device=x.device, dtype=x.dtype)
-    common = dict(moe_block_size=block_size_m, mul_topk_weights=False, is_ep=True,
+    common = dict(moe_block_size=meta["bsm"], mul_topk_weights=False, is_ep=True,
                   b_q_type=scalar_types.float4_e2m1f, is_k_full=True, use_atomic_add=False,
                   use_fp32_reduce=True, is_zp_float=False)
     ws = bank["workspace"]
     if g1 is not None:
-        _w4_gemm1(state["w4"], g1, x, sorted_ids, items, num_items, local_ids, numel, cache2,
-                  pdl)
+        _w4_gemm1(state["w4"], g1, x, sorted_ids, meta["items"], meta["num_items"], local_ids,
+                  numel, cache2, pdl)
     else:
         cache1 = torch.empty((numel, gemm1_n), device=x.device, dtype=x.dtype)
         cache1 = moe_wna16_marlin_gemm(
@@ -4167,7 +4197,8 @@ def _experts(x, topk_weights, topk_ids, local_start, state, opts):
         silu_and_mul(cache1.view(-1, gemm1_n), cache2, expert_ids=local_ids.view(-1),
                      expert_step=1)
     if g2 is not None:
-        part = _w4_gemm2(state["w4"], g2, cache2, sorted_ids, items2, num_items2, numel, pdl)
+        part = _w4_gemm2(state["w4"], g2, cache2, sorted_ids, meta["items2"],
+                         meta["num_items2"], numel, pdl)
         return _w4_ext().w4_finalize(part, topk_weights, state["post_expert_w"],
                                      local_ids.view(-1), POST_NORM_EPS, pdl, opts["fcl"])
     cache3 = torch.empty((numel, size_k), device=x.device, dtype=x.dtype)
@@ -4181,6 +4212,12 @@ def _experts(x, topk_weights, topk_ids, local_start, state, opts):
     return fused_post_expert_norm_weighted_sum(
         y, topk_weights, norm_weight=state["post_expert_w"], eps=POST_NORM_EPS, weight_first=True,
         slot_expert_ids=local_ids)
+
+
+def _experts(x, topk_weights, topk_ids, local_start, state, opts):
+    """The whole MoE call on one stream: _route_meta() then _experts_run()."""
+    meta = _route_meta(topk_weights, topk_ids, local_start, x.shape[0], state, opts)
+    return _experts_run(x, meta, state)
 
 
 def _attn_sglang(qkv, data, state):
@@ -4744,6 +4781,48 @@ def _proj_self_test(state):
     print("proj self-test: ok")
 
 
+def _route_side_self_test(state):
+    """The MoE call with its routing metadata built on the side stream and joined right before
+    GEMM1, as kernel_fn runs it, eagerly and captured in a CUDA graph (W4 GEMM1 is a PDL
+    launch whose predecessors now include a kernel on another stream), against the one-stream
+    call. Raises on any difference."""
+    side = state["side_stream"]
+    worst = 0.0
+    for tokens in (1, 8, 16, 32, 128, 256):
+        x, tw, ids, local_start = _moe_routing(tokens, 3000 + tokens, 96, True)
+        opts = _moe_opts(tokens, state) if state["moe_ours"] else None
+        ref = _experts(x, tw, ids, local_start, state, opts)
+        res = {}
+
+        def run():
+            main = torch.cuda.current_stream()
+            side.wait_stream(main)
+            # A main-stream kernel producing GEMM1's input, as the pre-expert norm does.
+            xin = x * 1
+            with torch.cuda.stream(side):
+                meta = _route_meta(tw, ids, local_start, tokens, state, opts)
+            main.wait_stream(side)
+            if not torch.cuda.is_current_stream_capturing():
+                for tensor in _meta_tensors(meta):
+                    tensor.record_stream(main)
+            res["out"] = _experts_run(xin, meta, state)
+
+        run()
+        torch.cuda.synchronize()
+        eager = _rel(res["out"], ref)
+        graph = torch.cuda.CUDAGraph()
+        with torch.cuda.graph(graph):
+            run()
+        graph.replay()
+        torch.cuda.synchronize()
+        captured = _rel(res["out"], ref)
+        print(f"route-side self-test T={tokens}: eager {eager:.2e}, graph {captured:.2e}")
+        worst = max(worst, eager, captured)
+        del graph
+    if not worst < 1e-4:
+        raise RuntimeError(f"route-side self-test: rel diff {worst:.2e}")
+
+
 def _try(name, fn):
     t0 = time.time()
     try:
@@ -4753,28 +4832,6 @@ def _try(name, fn):
     except Exception as exc:
         print(f"{name}: SGLang fallback ({type(exc).__name__}: {exc})")
         return False
-
-
-def _describe(obj, name, depth=0):
-    """Prints a module's tensor and scalar attributes (dtype, shape, a few values), to learn
-    which precomputed weights and coefficients SGLang's fused boundary holds."""
-    if depth > 2 or not hasattr(obj, "__dict__"):
-        return
-    for key, val in vars(obj).items():
-        if isinstance(val, torch.Tensor):
-            head = val.flatten()[:3].float().tolist() if val.numel() else []
-            print(f"DESC {name}.{key}: {val.dtype} {tuple(val.shape)} {head}")
-        elif isinstance(val, (bool, int, float, str)):
-            print(f"DESC {name}.{key} = {val!r}")
-        elif isinstance(val, dict) and key in ("_parameters", "_buffers", "_modules"):
-            for sub, item in val.items():
-                if isinstance(item, torch.Tensor):
-                    head = item.flatten()[:3].float().tolist() if item.numel() else []
-                    print(f"DESC {name}.{sub}: {item.dtype} {tuple(item.shape)} {head}")
-                elif item is not None:
-                    _describe(item, f"{name}.{sub}", depth + 1)
-        elif hasattr(val, "__dict__") and (isinstance(val, nn.Module) or not callable(val)):
-            _describe(val, f"{name}.{key}", depth + 1)
 
 
 def prepare(weights):
@@ -4828,6 +4885,7 @@ def prepare(weights):
         "attn_prep_ours": False,
         "attn_fused_ours": False,
         "attn_ws_ours": False,
+        "route_side_ok": False,
         # As SGLang's RotaryEmbedding computes them, so the angles match its cos/sin table.
         "inv_freq": inv_freq,
     }
@@ -4857,13 +4915,11 @@ def prepare(weights):
     if PORT_ATTN_FUSED:
         state["attn_fused_ours"] = True
         state["attn_fused_ours"] = _try("attn fused", lambda: _attn_self_test(state))
+    if ROUTE_ON_SIDE:
+        state["route_side_ok"] = _try("route side", lambda: _route_side_self_test(state))
     if PORT_ATTN_WS:
         state["attn_ws_ours"] = True
         state["attn_ws_ours"] = _try("attn ws", lambda: _attn_self_test(state))
-    try:
-        _describe(state["ffn_boundary"], "ffn_boundary")
-    except Exception as exc:
-        print(f"describe failed: {type(exc).__name__}: {exc}")
     torch.cuda.synchronize()
     print(f"prepare: done ({time.time() - t_start:.1f} s)")
     return state
@@ -4900,6 +4956,11 @@ def kernel_fn(data, state):
     main_stream, side_stream = torch.cuda.current_stream(), state["side_stream"]
     side_stream.wait_stream(main_stream)
     expert_input = _proj(ffn_input, "pooler", D_EXPERT, state)
+    moe_opts = _moe_opts(tokens, state) if state["moe_ours"] else None
+    route_side = ROUTE_ON_SIDE and state["route_side_ok"]
+    if route_side:
+        expert_input = state["pre_expert_norm"](expert_input)
+    meta = None
     with torch.cuda.stream(side_stream):
         if not split_router and state["router_ours"]:
             logits = _ext().router_fwd(router_input.contiguous(), state["router"])
@@ -4911,14 +4972,20 @@ def kernel_fn(data, state):
             logits = torch.mm(ffn_input, state["router_hi_t"], out_dtype=torch.float32)
             logits += torch.mm(ffn_input, state["router_lo_t"], out_dtype=torch.float32)
         topk_weights, topk_ids = state["routing"](None, logits, TOP_K, True)
+        if route_side:
+            meta = _route_meta(topk_weights, topk_ids, data["local_start"], tokens, state,
+                               moe_opts)
     main_stream.wait_stream(side_stream)
     if not torch.cuda.is_current_stream_capturing():
-        for tensor in (topk_weights, topk_ids):
+        crossing = [topk_weights, topk_ids] + (_meta_tensors(meta) if meta else [])
+        for tensor in crossing:
             tensor.record_stream(main_stream)
     # all-reduce: identity
-    moe_opts = _moe_opts(tokens, state) if state["moe_ours"] else None
-    expert_output = _experts(state["pre_expert_norm"](expert_input), topk_weights, topk_ids,
-                             data["local_start"], state, moe_opts)
+    if meta is not None:
+        expert_output = _experts_run(expert_input, meta, state)
+    else:
+        expert_output = _experts(state["pre_expert_norm"](expert_input), topk_weights, topk_ids,
+                                 data["local_start"], state, moe_opts)
     if tokens <= SLICED_UNPOOL_MAX_TOKENS:
         unpooled = _proj(expert_output, "unpooler", UNPOOL_SLICE, state)
         ffn_output = F.pad(unpooled, (0, HIDDEN - UNPOOL_SLICE))  # all-gather: identity
