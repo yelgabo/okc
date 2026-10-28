@@ -1663,6 +1663,28 @@ __device__ __forceinline__ uint32_t f16x2_from_fp8x2(uint32_t two) {
     return static_cast<uint32_t>(h.x) | (static_cast<uint32_t>(h.y) << 16);
 }
 
+// The f16 bit patterns of four E4M3 bytes with the exponent left 8 short of the f16 bias:
+// sign to bit 15, exponent and mantissa to bits 13..7. Each is exactly the E4M3 value times
+// 2^-8 (subnormals included), in three integer ops per pair instead of one F2FP, which shares
+// the conversion/MUFU pipe with the softmax's ex2.
+__device__ __forceinline__ uint2 f16raw_from_fp8x4(uint32_t w) {
+    const uint32_t a = __byte_perm(w, 0, 0x1404);
+    const uint32_t b = __byte_perm(w, 0, 0x3424);
+    return make_uint2((a & 0x80008000u) | ((a >> 1) & 0x3f803f80u),
+                      (b & 0x80008000u) | ((b >> 1) & 0x3f803f80u));
+}
+
+template <int CVT>
+__device__ __forceinline__ uint4 f16_from_fp8x8(uint32_t w0, uint32_t w1) {
+    if constexpr (CVT == 1) {
+        const uint2 a = f16raw_from_fp8x4(w0);
+        const uint2 b = f16raw_from_fp8x4(w1);
+        return make_uint4(a.x, a.y, b.x, b.y);
+    }
+    return make_uint4(f16x2_from_fp8x2(w0 & 0xffffu), f16x2_from_fp8x2(w0 >> 16),
+                      f16x2_from_fp8x2(w1 & 0xffffu), f16x2_from_fp8x2(w1 >> 16));
+}
+
 __device__ __forceinline__ float warp_sum(float v) {
     for (int o = 16; o; o >>= 1) {
         v += __shfl_xor_sync(0xffffffffu, v, o);
@@ -1692,7 +1714,10 @@ __device__ __forceinline__ int kmaj(int r, int kc) {
 //
 // MODE 0: the kernel. MODE 1: loads only (math warps wait for each tile and release it), to
 // separate memory time from math. MODE 2: the kernel plus clock64 phase totals in dbg[1..15].
-template <int NS, int DA, int MODE, int PW>
+//
+// CVT 0: values converted with F2FP. CVT 1: with integer ops into f16 values scaled by 2^-8,
+// which the merge multiplies back.
+template <int NS, int DA, int MODE, int PW, int CVT>
 __global__ void __launch_bounds__(CONSUMERS + 32 * PW, 1) attn_ws_kernel(const Params p) {
     constexpr bool STAMP = MODE == 2;
     constexpr int NV = NS - DA;
@@ -1830,12 +1855,8 @@ __global__ void __launch_bounds__(CONSUMERS + 32 * PW, 1) attn_ws_kernel(const P
                                 vs + t * 128 + (cq + 4 * j) * 16);
                             uint8_t* dst = vb + j * VH_HEAD + ((t >> 3) * 8 + 2 * cq) * 128
                                            + (t & 7) * 16;
-                            *reinterpret_cast<uint4*>(dst) = make_uint4(
-                                f16x2_from_fp8x2(w.x & 0xffffu), f16x2_from_fp8x2(w.x >> 16),
-                                f16x2_from_fp8x2(w.y & 0xffffu), f16x2_from_fp8x2(w.y >> 16));
-                            *reinterpret_cast<uint4*>(dst + 128) = make_uint4(
-                                f16x2_from_fp8x2(w.z & 0xffffu), f16x2_from_fp8x2(w.z >> 16),
-                                f16x2_from_fp8x2(w.w & 0xffffu), f16x2_from_fp8x2(w.w >> 16));
+                            *reinterpret_cast<uint4*>(dst) = f16_from_fp8x8<CVT>(w.x, w.y);
+                            *reinterpret_cast<uint4*>(dst + 128) = f16_from_fp8x8<CVT>(w.z, w.w);
                         }
                     }
                     fence_async_smem();
@@ -1975,7 +1996,8 @@ __global__ void __launch_bounds__(CONSUMERS + 32 * PW, 1) attn_ws_kernel(const P
                                              + (byte & 15)) = v8;
             } else {
                 *reinterpret_cast<uint32_t*>(newv + h * VH_HEAD + (lane >> 2) * 128 + j * 16
-                                             + (lane & 3) * 4) = f16x2_from_fp8x2(v8);
+                                             + (lane & 3) * 4) =
+                    CVT == 1 ? f16raw_from_fp8x4(v8).x : f16x2_from_fp8x2(v8);
             }
         }
     }
@@ -2153,7 +2175,7 @@ __device__ __forceinline__ float2 load_gate(const __nv_bfloat16* qkv, size_t tok
 __global__ void ws_combine_kernel(const float* __restrict__ ws,
                                   const __nv_bfloat16* __restrict__ qkv,
                                   const float* __restrict__ v_scale, __nv_bfloat16* __restrict__ out,
-                                  int nparts) {
+                                  int nparts, float vmul) {
     const int tok = blockIdx.x;
     const int b = tok / L;
     const int j = tok % L;
@@ -2186,7 +2208,7 @@ __global__ void ws_combine_kernel(const float* __restrict__ ws,
         }
     }
     lsum = warp_sum(lsum);
-    const float inv = *v_scale / lsum;
+    const float inv = *v_scale * vmul / lsum;
     acc.x *= inv;
     acc.y *= inv;
     const float r = rsqrtf(warp_sum(acc.x * acc.x + acc.y * acc.y) / D + EPS);
@@ -2196,9 +2218,9 @@ __global__ void ws_combine_kernel(const float* __restrict__ ws,
         __float22bfloat162_rn(acc);
 }
 
-template <int NS, int DA, int MODE, int PW>
+template <int NS, int DA, int MODE, int PW, int CVT>
 void launch_ws(const Params& p, int batch, cudaStream_t stream) {
-    auto kern = attn_ws_kernel<NS, DA, MODE, PW>;
+    auto kern = attn_ws_kernel<NS, DA, MODE, PW, CVT>;
     constexpr int bytes = Smem<NS, DA>::BYTES;
     static bool configured = false;
     if (!configured) {
@@ -2208,25 +2230,27 @@ void launch_ws(const Params& p, int batch, cudaStream_t stream) {
     kern<<<dim3(p.splits, batch), CONSUMERS + 32 * PW, bytes, stream>>>(p);
 }
 
-template <int NS, int DA, int MODE>
+template <int NS, int DA, int MODE, int CVT>
 void launch_pw(const Params& p, int batch, int pw, cudaStream_t stream) {
     if (pw == 8) {
-        launch_ws<NS, DA, MODE, 8>(p, batch, stream);
+        launch_ws<NS, DA, MODE, 8, CVT>(p, batch, stream);
     } else {
-        launch_ws<NS, DA, MODE, 4>(p, batch, stream);
+        launch_ws<NS, DA, MODE, 4, CVT>(p, batch, stream);
     }
 }
 
-// INSTANTIATE: template void launch_pw<6, 2, 0>(const Params&, int, int, cudaStream_t);
-// INSTANTIATE: template void launch_pw<7, 3, 0>(const Params&, int, int, cudaStream_t);
-// INSTANTIATE: template void launch_pw<8, 4, 0>(const Params&, int, int, cudaStream_t);
-// INSTANTIATE: template void launch_pw<7, 3, 1>(const Params&, int, int, cudaStream_t);
-// INSTANTIATE: template void launch_pw<7, 3, 2>(const Params&, int, int, cudaStream_t);
+// INSTANTIATE: template void launch_pw<7, 3, 0, 0>(const Params&, int, int, cudaStream_t);
+// INSTANTIATE: template void launch_pw<6, 2, 0, 1>(const Params&, int, int, cudaStream_t);
+// INSTANTIATE: template void launch_pw<7, 3, 0, 1>(const Params&, int, int, cudaStream_t);
+// INSTANTIATE: template void launch_pw<8, 4, 0, 1>(const Params&, int, int, cudaStream_t);
+// INSTANTIATE: template void launch_pw<7, 3, 1, 1>(const Params&, int, int, cudaStream_t);
+// INSTANTIATE: template void launch_pw<7, 3, 2, 1>(const Params&, int, int, cudaStream_t);
 
 }  // namespace
 
 // stages: FP8 stages, 6, 7 or 8 (anything else runs 7), with values converted 2, 3 or 4 tiles
-// behind their loads; mode: see attn_ws_kernel (1 and 2 with 7 stages); pw: loader warps, 4 or 8.
+// behind their loads; mode: see attn_ws_kernel (1 and 2 with 7 stages); pw: loader warps, 4 or 8;
+// cvt: value conversion, see attn_ws_kernel (0 only with 7 stages and mode 0).
 // dbg: int64 [17] or empty. dbg[0] bit 0: a loader wait timed out; bit 1: a math-warp wait
 // timed out. With mode 2, dbg[1..8] sum math-warp cycles per phase (wait for data, Q.K, mask
 // and softmax, P.V, unused, unused, tail, prologue) and dbg[9..13] loader cycles (wait for a
@@ -2237,7 +2261,7 @@ torch::Tensor attn_ws(torch::Tensor qkv, torch::Tensor page_table, torch::Tensor
                       torch::Tensor v_scale, torch::Tensor k_cache, torch::Tensor v_cache,
                       int64_t batch, int64_t page_size, int64_t window, bool rope,
                       double qk_scale, int64_t splits, int64_t stages, int64_t mode,
-                      int64_t pw, torch::Tensor dbg) {
+                      int64_t pw, int64_t cvt, torch::Tensor dbg) {
     auto stream = at::cuda::getCurrentCUDAStream();
     auto out = torch::empty({batch, L, HQ * D}, qkv.options());
     auto ws = torch::empty({batch * splits * ROWS * PART}, qkv.options().dtype(torch::kFloat32));
@@ -2259,20 +2283,22 @@ torch::Tensor attn_ws(torch::Tensor qkv, torch::Tensor page_table, torch::Tensor
     p.rope = rope ? 1 : 0;
     p.splits = splits;
     p.qk_scale = static_cast<float>(qk_scale);
-    if (mode == 1) {
-        launch_pw<7, 3, 1>(p, batch, pw, stream);
+    if (cvt == 0) {
+        launch_pw<7, 3, 0, 0>(p, batch, pw, stream);
+    } else if (mode == 1) {
+        launch_pw<7, 3, 1, 1>(p, batch, pw, stream);
     } else if (mode == 2) {
-        launch_pw<7, 3, 2>(p, batch, pw, stream);
+        launch_pw<7, 3, 2, 1>(p, batch, pw, stream);
     } else if (stages == 6) {
-        launch_pw<6, 2, 0>(p, batch, pw, stream);
+        launch_pw<6, 2, 0, 1>(p, batch, pw, stream);
     } else if (stages == 8) {
-        launch_pw<8, 4, 0>(p, batch, pw, stream);
+        launch_pw<8, 4, 0, 1>(p, batch, pw, stream);
     } else {
-        launch_pw<7, 3, 0>(p, batch, pw, stream);
+        launch_pw<7, 3, 0, 1>(p, batch, pw, stream);
     }
     ws_combine_kernel<<<batch * L, HQ * 32, 0, stream>>>(p.ws, p.qkv, p.v_scale,
                                                           reinterpret_cast<__nv_bfloat16*>(out.data_ptr()),
-                                                          splits);
+                                                          splits, cvt == 0 ? 1.f : 256.f);
     return out;
 }
 """
@@ -2283,7 +2309,7 @@ torch::Tensor attn_ws(torch::Tensor qkv, torch::Tensor page_table, torch::Tensor
                       torch::Tensor v_scale, torch::Tensor k_cache, torch::Tensor v_cache,
                       int64_t batch, int64_t page_size, int64_t window, bool rope,
                       double qk_scale, int64_t splits, int64_t stages, int64_t mode,
-                      int64_t pw, torch::Tensor dbg);
+                      int64_t pw, int64_t cvt, torch::Tensor dbg);
 """
 
 try:
@@ -2307,7 +2333,7 @@ def _ws_splits(cfg):
     return 128 if batch <= 2 else max(4, 128 // batch)
 
 
-def _ws(data, splits=None, stages=7, mode=0, pw=4, dbg=None):
+def _ws(data, splits=None, stages=7, mode=0, pw=4, cvt=1, dbg=None):
     """q_len 8 on the warp-specialized kernel (attn_ws.cu), then a merge + norm-gate launch."""
     cfg = data["config"]
     batch = cfg["batch"]
@@ -2318,7 +2344,7 @@ def _ws(data, splits=None, stages=7, mode=0, pw=4, dbg=None):
         _inv_freq(theta if theta else 1.0, cfg["head_dim"], qkv.device), data["k_scale"],
         data["v_scale"], data["k_cache"], data["v_cache"], batch, cfg["page_size"],
         cfg["window"], bool(theta), cfg["sm_scale"] * cfg["qk_scale_factor"] * LOG2E,
-        splits or _ws_splits(cfg), stages, mode, pw,
+        splits or _ws_splits(cfg), stages, mode, pw, cvt,
         _no_dbg(qkv.device) if dbg is None else dbg)
 
 
@@ -2331,9 +2357,19 @@ def _fused_ok(cfg):
     return cfg["q_len"] == 1 and (bool(cfg["window"]) or cfg["batch"] > 2)
 
 
+def _ws_ok(cfg):
+    """Verify blocks on the warp-specialized kernel, except full layers at batch 1, where it
+    measured 40-41 µs against 38.5 for prep + FA3 (bench, job 34929136fa004b17)."""
+    if _WS is None or (cfg["num_q_heads"], cfg["num_kv_heads"], cfg["head_dim"]) != (16, 2, 64):
+        return False
+    return cfg["q_len"] == 8 and (bool(cfg["window"]) or cfg["batch"] > 2)
+
+
 def kernel_fn(data):
     if _fused_ok(data["config"]):
         return _fused(data)
+    if _ws_ok(data["config"]):
+        return _ws(data)
     if _PREP is not None and data["config"]["head_dim"] == 64:
         return _fused_prep(data)
     return _sglang(data)
@@ -2530,7 +2566,7 @@ def _run_bench():
 
 
 # Generated by tools/attn_make_bench_ws.py.
-_WSB_VARIANTS = ['_ref32', '_fused_prep', '_probe_fa3', '_ws', '_ws@n=6', '_ws@n=8', '_ws@p=8', '_ws@m=1', '_ws@m=1,p=8', '_ws@s=8', '_ws@s=16']
+_WSB_VARIANTS = ['_ref32', '_fused_prep', '_probe_fa3', '_ws', '_ws@x=0', '_ws@n=6', '_ws@n=8', '_ws@p=8', '_ws@m=1', '_ws@m=1,p=8']
 _WSB_GATHER = False
 _WSB_SHAPES = [
     (32, "full", 8), (16, "full", 8), (1, "full", 8), (32, "sliding", 8), (16, "sliding", 8),
@@ -2679,7 +2715,7 @@ def _ws_bench():
               f"{' | '.join(errs)[:3000]}", flush=True)
     import functools
     keys = {"s": "splits", "n": "stages", "m": "mode", "v": "variant", "c": "cluster",
-            "p": "pw"}
+            "p": "pw", "x": "cvt"}
     fns = {}
     for spec in _WSB_VARIANTS:
         name, _, args = spec.partition("@")

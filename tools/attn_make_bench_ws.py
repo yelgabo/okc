@@ -17,7 +17,7 @@ helpers from tools/attn_make_bench.py, and a sweep run at import with three part
 The GATHER part runs only when "gather" is among the arguments (its 150 lines crowd the
 16,000-character log tail).
 
-VARIANT is name@s=SPLITS,n=STAGES,m=MODE,p=LOADER_WARPS,v=VARIANT,c=CLUSTER (all optional).
+VARIANT is name@s=SPLITS,n=STAGES,m=MODE,p=LOADER_WARPS,x=CVT,v=VARIANT,c=CLUSTER (all optional).
 """
 
 import sys
@@ -337,7 +337,7 @@ def _ws_bench():
               f"{{' | '.join(errs)[:3000]}}", flush=True)
     import functools
     keys = {{"s": "splits", "n": "stages", "m": "mode", "v": "variant", "c": "cluster",
-            "p": "pw"}}
+            "p": "pw", "x": "cvt"}}
     fns = {{}}
     for spec in _WSB_VARIANTS:
         name, _, args = spec.partition("@")
