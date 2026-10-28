@@ -159,6 +159,10 @@ ROUTE_ON_SIDE = True
 # Up to 8 tokens, our FFN boundary on the unpooler slice's 1024 live channels in place of
 # F.pad to 8192 and FusedPostNormResidualPreNorm.
 PORT_FFN_BOUNDARY = True
+# Up to 8 tokens, a kernel on the side stream forked right after the qkv projection prefetches
+# into L2 the weights the chain reads after attention (o, the FP32 router, the unpooler slice:
+# 34 MB) while attention runs, with an evict_last policy.
+PORT_L2_PREFETCH = True
 # Our attention boundary (post-attention norm, residual gate, pre-FFN norm, FP32 router input
 # at T <= 8) with SGLang's one BF16 rounding, as a PDL secondary that loads the stream and the
 # weights before its wait and triggers at entry, so the pooler's weight stream starts earlier.
@@ -195,6 +199,7 @@ torch::Tensor finalize(torch::Tensor y, torch::Tensor scores, torch::Tensor norm
                        torch::Tensor local_ids, double eps);
 torch::Tensor router_fwd(torch::Tensor x, torch::Tensor w);
 torch::Tensor pre_norm(torch::Tensor x, torch::Tensor w, double eps);
+void prefetch_l2(torch::Tensor a, torch::Tensor b, torch::Tensor c);
 torch::Tensor proj_fwd(torch::Tensor x, torch::Tensor wpacked, int64_t n);
 torch::Tensor router_mma_fwd(torch::Tensor x, torch::Tensor wpacked);
 torch::Tensor attn_prep(torch::Tensor qkv, torch::Tensor pos, torch::Tensor loc,
@@ -666,6 +671,42 @@ __global__ void __launch_bounds__(NORM_THREADS) pre_norm_kernel(
     }
 }
 
+// Warms L2 with weights the chain reads after attention (the o projection, the FP32 router and
+// the unpooler slice at T <= 8) while attention runs: bulk prefetches of 4 KB each with an
+// evict_last policy, so the lines outlive the pooler's and the experts' streams. The kernel
+// reads state only, derives nothing from the step's inputs and keeps nothing.
+constexpr int PF_CHUNK = 4096;
+
+__global__ void __launch_bounds__(128) prefetch_kernel(const char* p0, long long n0,
+                                                       const char* p1, long long n1,
+                                                       const char* p2, long long n2) {
+    uint64_t policy;
+    asm volatile("createpolicy.fractional.L2::evict_last.b64 %0, 1.0;" : "=l"(policy));
+    const long long c0 = (n0 + PF_CHUNK - 1) / PF_CHUNK;
+    const long long c1 = (n1 + PF_CHUNK - 1) / PF_CHUNK;
+    const long long c2 = (n2 + PF_CHUNK - 1) / PF_CHUNK;
+    const long long total = c0 + c1 + c2;
+    const long long step = static_cast<long long>(gridDim.x) * blockDim.x;
+    for (long long i = blockIdx.x * blockDim.x + threadIdx.x; i < total; i += step) {
+        const char* base = p0;
+        long long n = n0;
+        long long j = i;
+        if (i >= c0 + c1) {
+            base = p2;
+            n = n2;
+            j = i - c0 - c1;
+        } else if (i >= c0) {
+            base = p1;
+            n = n1;
+            j = i - c0;
+        }
+        const long long off = j * PF_CHUNK;
+        const unsigned bytes = static_cast<unsigned>(min(static_cast<long long>(PF_CHUNK), n - off));
+        asm volatile("cp.async.bulk.prefetch.L2.global.L2::cache_hint [%0], %1, %2;"
+                     :: "l"(base + off), "r"(bytes), "l"(policy) : "memory");
+    }
+}
+
 // BF16 projections on tensor cores, also used for the FP32 router as BF16 hi + lo (HILO).
 // Each warp multiplies R 16-row weight tiles by up to 32 tokens with mma.m16n8k16; the math
 // is padded to 8 tokens, which costs nothing because these shapes are memory-bound. The
@@ -1025,6 +1066,27 @@ torch::Tensor pre_norm(torch::Tensor x, torch::Tensor w, double eps) {
     }
     C10_CUDA_KERNEL_LAUNCH_CHECK();
     return out;
+}
+
+void prefetch_l2(torch::Tensor a, torch::Tensor b, torch::Tensor c) {
+    long long n[3];
+    const char* ptr[3];
+    const torch::Tensor* ts[3] = {&a, &b, &c};
+    long long chunks = 0;
+    for (int i = 0; i < 3; ++i) {
+        TORCH_CHECK(ts[i]->is_contiguous(), "prefetch_l2: contiguous tensors");
+        n[i] = static_cast<long long>(ts[i]->numel()) * ts[i]->element_size();
+        TORCH_CHECK(n[i] % 16 == 0, "prefetch_l2: sizes must be multiples of 16 bytes");
+        ptr[i] = static_cast<const char*>(ts[i]->data_ptr());
+        chunks += (n[i] + PF_CHUNK - 1) / PF_CHUNK;
+    }
+    if (chunks == 0) {
+        return;
+    }
+    const int blocks = static_cast<int>(std::min<long long>((chunks + 127) / 128, 264));
+    prefetch_kernel<<<blocks, 128, 0, at::cuda::getCurrentCUDAStream()>>>(
+        ptr[0], n[0], ptr[1], n[1], ptr[2], n[2]);
+    C10_CUDA_KERNEL_LAUNCH_CHECK();
 }
 
 torch::Tensor proj_fwd(torch::Tensor x, torch::Tensor wpacked, int64_t n) {
@@ -4490,7 +4552,7 @@ def _ext():
                           _WS_HOST_SRC, _BND_SRC],
             functions=["route_align", "finalize", "router_fwd", "proj_fwd", "router_mma_fwd",
                        "attn_prep", "attn_gate", "attn_fused", "attn_verify",
-                       "ffn_boundary_short", "pre_norm", "attn_boundary"],
+                       "ffn_boundary_short", "pre_norm", "attn_boundary", "prefetch_l2"],
             extra_cuda_cflags=["-O3", "-gencode=arch=compute_90a,code=sm_90a"],
         )
     return _EXT
@@ -5375,6 +5437,25 @@ def _pre_norm(x, state):
     return state["pre_expert_norm"](x)
 
 
+def _prefetch_set(tokens, state):
+    """The weights read after attention at T <= 8: the o weights (packed for our kernel at one
+    token, cuBLAS's above), the FP32 router, and the unpooler slice's row tiles (the first 1024
+    rows of the packed layout are its first 8.4 MB)."""
+    packed = state["proj_packed"]
+    o = packed["o"] if _proj_wins("o", tokens) else state["dense"]["o"]
+    tiles = UNPOOL_SLICE // 16 * (D_EXPERT // 16) * 256
+    return o, state["router"], packed["unpooler"].view(-1)[:tiles]
+
+
+def _prefetch_enable(state):
+    if not (state["proj_ours"] and state["router_ours"]):
+        raise RuntimeError("prefetch needs the packed projections and the FP32 router")
+    for tokens in (1, 8):
+        _ext().prefetch_l2(*_prefetch_set(tokens, state))
+    torch.cuda.synchronize()
+    print("prefetch: ok")
+
+
 def _abnd_enable(state):
     """Takes what SGLang's attention boundary holds (the residual gate's FP32 alpha and beta,
     the pre-FFN norm's effective 1 + w in BF16, both eps) and checks our kernel against the
@@ -5649,6 +5730,7 @@ def prepare(weights):
         "route_side_ok": False,
         "bnd_ours": False,
         "abnd_ours": False,
+        "prefetch_ours": False,
         "norm_ours": False,
         "front_policy": {},
         # As SGLang's RotaryEmbedding computes them, so the angles match its cos/sin table.
@@ -5684,6 +5766,8 @@ def prepare(weights):
         state["bnd_ours"] = _try("ffn boundary", lambda: _bnd_enable(state))
     if PORT_ATTN_BOUNDARY:
         state["abnd_ours"] = _try("attention boundary", lambda: _abnd_enable(state))
+    if PORT_L2_PREFETCH:
+        state["prefetch_ours"] = _try("prefetch", lambda: _prefetch_enable(state))
     if PORT_PRE_NORM:
         state["norm_ours"] = _try("pre-expert norm", lambda: _norm_self_test(state))
     if ROUTE_ON_SIDE:
@@ -5723,6 +5807,12 @@ def kernel_fn(data, state):
     tokens = cfg["tokens"]
     dense = state["dense"]
     qkv = _proj(data["attn_input"], "qkv_gate", dense["qkv_gate"].shape[0], state)
+    if state["prefetch_ours"] and tokens <= SLICED_UNPOOL_MAX_TOKENS:
+        # The side stream is in order, so the router later follows this on the same stream.
+        side_stream = state["side_stream"]
+        side_stream.wait_stream(torch.cuda.current_stream())
+        with torch.cuda.stream(side_stream):
+            _ext().prefetch_l2(*_prefetch_set(tokens, state))
     o = _attn_path(cfg, state)(qkv, data, state)
     attn_output = _proj(o, "o", HIDDEN, state)  # all-reduce: identity
 
