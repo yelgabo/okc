@@ -153,6 +153,10 @@ ROUTE_ON_SIDE = True
 # Up to 8 tokens, our FFN boundary on the unpooler slice's 1024 live channels in place of
 # F.pad to 8192 and FusedPostNormResidualPreNorm.
 PORT_FFN_BOUNDARY = True
+# Our pre-expert norm (torch's F.rms_norm math and summation order) as a PDL secondary of the
+# pooler that triggers at entry, so GEMM1 is resident when it ends; torch's kernel cost 6 us
+# on every shape.
+PORT_PRE_NORM = True
 
 HIDDEN = 8192
 RMS_EPS = 1e-5
@@ -180,6 +184,7 @@ std::vector<torch::Tensor> route_align(torch::Tensor topk_ids, torch::Tensor sta
 torch::Tensor finalize(torch::Tensor y, torch::Tensor scores, torch::Tensor norm_w,
                        torch::Tensor local_ids, double eps);
 torch::Tensor router_fwd(torch::Tensor x, torch::Tensor w);
+torch::Tensor pre_norm(torch::Tensor x, torch::Tensor w, double eps);
 torch::Tensor proj_fwd(torch::Tensor x, torch::Tensor wpacked, int64_t n);
 torch::Tensor router_mma_fwd(torch::Tensor x, torch::Tensor wpacked);
 torch::Tensor attn_prep(torch::Tensor qkv, torch::Tensor pos, torch::Tensor loc,
@@ -523,6 +528,113 @@ void router_launch(const float* wp, const float* xp, float* op, int m, cudaStrea
         wp, xp, op, m);
 }
 
+// A launch with programmatic dependent launch: the kernel may start once the kernel before it
+// on the stream executes griddepcontrol.launch_dependents (or ends), and must execute
+// griddepcontrol.wait before it reads that kernel's output. Compile-time cluster dims apply.
+template <typename Kern, typename... Args>
+void launch_ex_pdl(Kern kern, dim3 grid, dim3 block, int smem, cudaStream_t stream,
+                   Args... args) {
+    cudaLaunchConfig_t cfg = {};
+    cfg.gridDim = grid;
+    cfg.blockDim = block;
+    cfg.dynamicSmemBytes = smem;
+    cfg.stream = stream;
+    cudaLaunchAttribute attr[1];
+    attr[0].id = cudaLaunchAttributeProgrammaticStreamSerialization;
+    attr[0].val.programmaticStreamSerializationAllowed = 1;
+    cfg.attrs = attr;
+    cfg.numAttrs = 1;
+    C10_CUDA_CHECK(cudaLaunchKernelEx(&cfg, kern, args...));
+}
+
+__device__ __forceinline__ float round_bf16(float v) {
+    return __bfloat162float(__float2bfloat16(v));
+}
+
+// The pre-expert norm: torch's F.rms_norm of a BF16 [T, 4096] row with the effective 1 + w, in
+// float, in the summation order of torch's vectorized_layer_norm_kernel (4 warps, each thread
+// 8 vectors of 4 channels accumulated by FMA, a shfl_down tree per warp, the warps combined as
+// (w0 + w2) + (w1 + w3), out = w * (rstd * x)), so the output is bitwise torch's. An FP32 input
+// is rounded to BF16 on load, as cuBLAS rounds a BF16 output. A PDL secondary that triggers at
+// entry, so GEMM1 (which waits at entry) is resident when the norm ends.
+constexpr int NORM_N = 4096;
+constexpr int NORM_THREADS = 128;
+constexpr int NORM_PER = NORM_N / NORM_THREADS / 4;
+
+template <typename InT>
+__global__ void __launch_bounds__(NORM_THREADS) pre_norm_kernel(
+        const InT* __restrict__ x, const __nv_bfloat16* __restrict__ w,
+        __nv_bfloat16* __restrict__ out, long long row_stride, float eps) {
+    asm volatile("griddepcontrol.launch_dependents;");
+    __shared__ float red[NORM_THREADS / 32];
+    __shared__ float mean_sq;
+    const int tid = threadIdx.x;
+    const int lane = tid & 31;
+    const int warp = tid >> 5;
+    float wv[NORM_PER][4];
+#pragma unroll
+    for (int i = 0; i < NORM_PER; ++i) {
+        const uint2 u = *reinterpret_cast<const uint2*>(w + (tid + i * NORM_THREADS) * 4);
+        const float2 a = __bfloat1622float2(*reinterpret_cast<const __nv_bfloat162*>(&u.x));
+        const float2 b = __bfloat1622float2(*reinterpret_cast<const __nv_bfloat162*>(&u.y));
+        wv[i][0] = a.x;
+        wv[i][1] = a.y;
+        wv[i][2] = b.x;
+        wv[i][3] = b.y;
+    }
+    asm volatile("griddepcontrol.wait;" ::: "memory");
+    const InT* row = x + static_cast<size_t>(blockIdx.x) * row_stride;
+    float xv[NORM_PER][4];
+    float ss = 0.f;
+#pragma unroll
+    for (int i = 0; i < NORM_PER; ++i) {
+        const int c = (tid + i * NORM_THREADS) * 4;
+        if constexpr (std::is_same_v<InT, float>) {
+            const float4 v = *reinterpret_cast<const float4*>(row + c);
+            xv[i][0] = round_bf16(v.x);
+            xv[i][1] = round_bf16(v.y);
+            xv[i][2] = round_bf16(v.z);
+            xv[i][3] = round_bf16(v.w);
+        } else {
+            const uint2 u = *reinterpret_cast<const uint2*>(row + c);
+            const float2 a = __bfloat1622float2(*reinterpret_cast<const __nv_bfloat162*>(&u.x));
+            const float2 b = __bfloat1622float2(*reinterpret_cast<const __nv_bfloat162*>(&u.y));
+            xv[i][0] = a.x;
+            xv[i][1] = a.y;
+            xv[i][2] = b.x;
+            xv[i][3] = b.y;
+        }
+#pragma unroll
+        for (int j = 0; j < 4; ++j) {
+            ss = fmaf(xv[i][j], xv[i][j], ss);
+        }
+    }
+#pragma unroll
+    for (int o = 16; o > 0; o >>= 1) {
+        ss += __shfl_down_sync(0xffffffffu, ss, o);
+    }
+    if (lane == 0) {
+        red[warp] = ss;
+    }
+    __syncthreads();
+    if (tid == 0) {
+        mean_sq = ((red[0] + red[2]) + (red[1] + red[3])) / static_cast<float>(NORM_N);
+    }
+    __syncthreads();
+    const float rstd = rsqrtf(mean_sq + eps);
+    __nv_bfloat16* orow = out + static_cast<size_t>(blockIdx.x) * NORM_N;
+#pragma unroll
+    for (int i = 0; i < NORM_PER; ++i) {
+        const int c = (tid + i * NORM_THREADS) * 4;
+        const __nv_bfloat162 h0 = __floats2bfloat162_rn(wv[i][0] * (rstd * xv[i][0]),
+                                                        wv[i][1] * (rstd * xv[i][1]));
+        const __nv_bfloat162 h1 = __floats2bfloat162_rn(wv[i][2] * (rstd * xv[i][2]),
+                                                        wv[i][3] * (rstd * xv[i][3]));
+        *reinterpret_cast<uint2*>(orow + c) = make_uint2(
+            *reinterpret_cast<const uint32_t*>(&h0), *reinterpret_cast<const uint32_t*>(&h1));
+    }
+}
+
 // BF16 projections on tensor cores, also used for the FP32 router as BF16 hi + lo (HILO).
 // Each warp multiplies R 16-row weight tiles by up to 32 tokens with mma.m16n8k16; the math
 // is padded to 8 tokens, which costs nothing because these shapes are memory-bound. The
@@ -826,6 +938,33 @@ torch::Tensor router_fwd(torch::Tensor x, torch::Tensor w) {
         router_launch<4>(wp, xp, op, m, stream);
     } else {
         router_launch<8>(wp, xp, op, m, stream);
+    }
+    C10_CUDA_KERNEL_LAUNCH_CHECK();
+    return out;
+}
+
+torch::Tensor pre_norm(torch::Tensor x, torch::Tensor w, double eps) {
+    const int m = x.size(0);
+    TORCH_CHECK(x.dim() == 2 && x.size(1) == NORM_N && x.stride(1) == 1 && x.stride(0) % 4 == 0,
+                "pre_norm: x must be [T, 4096] with unit column stride and 16-byte rows");
+    TORCH_CHECK(w.is_contiguous() && w.numel() == NORM_N && w.scalar_type() == torch::kBFloat16,
+                "pre_norm: weight must be BF16 [4096]");
+    auto out = torch::empty({m, NORM_N}, x.options().dtype(torch::kBFloat16));
+    if (m == 0) {
+        return out;
+    }
+    cudaStream_t stream = at::cuda::getCurrentCUDAStream();
+    const auto* wp = reinterpret_cast<const __nv_bfloat16*>(w.data_ptr());
+    auto* op = reinterpret_cast<__nv_bfloat16*>(out.data_ptr());
+    const long long stride = x.stride(0);
+    const float e = static_cast<float>(eps);
+    if (x.scalar_type() == torch::kFloat32) {
+        launch_ex_pdl(pre_norm_kernel<float>, dim3(m), dim3(NORM_THREADS), 0, stream,
+                      static_cast<const float*>(x.data_ptr()), wp, op, stride, e);
+    } else {
+        TORCH_CHECK(x.scalar_type() == torch::kBFloat16, "pre_norm: x must be BF16 or FP32");
+        launch_ex_pdl(pre_norm_kernel<__nv_bfloat16>, dim3(m), dim3(NORM_THREADS), 0, stream,
+                      reinterpret_cast<const __nv_bfloat16*>(x.data_ptr()), wp, op, stride, e);
     }
     C10_CUDA_KERNEL_LAUNCH_CHECK();
     return out;
@@ -4143,7 +4282,7 @@ def _ext():
                           _WS_HOST_SRC, _BND_SRC],
             functions=["route_align", "finalize", "router_fwd", "proj_fwd", "router_mma_fwd",
                        "attn_prep", "attn_gate", "attn_fused", "attn_verify",
-                       "ffn_boundary_short"],
+                       "ffn_boundary_short", "pre_norm"],
             extra_cuda_cflags=["-O3", "-gencode=arch=compute_90a,code=sm_90a"],
         )
     return _EXT
@@ -4951,14 +5090,16 @@ def _route_side_self_test(state):
     for tokens in (1, 8, 16, 32, 128, 256):
         x, tw, ids, local_start = _moe_routing(tokens, 3000 + tokens, 96, True)
         opts = _moe_opts(tokens, state) if state["moe_ours"] else None
-        ref = _experts(x, tw, ids, local_start, state, opts)
+        ref = _experts(state["pre_expert_norm"](x) if state["norm_ours"] else x, tw, ids,
+                       local_start, state, opts)
         res = {}
 
         def run():
             main = torch.cuda.current_stream()
             side.wait_stream(main)
-            # A main-stream kernel producing GEMM1's input, as the pre-expert norm does.
-            xin = x * 1
+            # The main-stream kernel producing GEMM1's input: our norm (a PDL primary and
+            # secondary) when enabled, else a stand-in for torch's.
+            xin = _pre_norm(x, state) if state["norm_ours"] else x * 1
             with torch.cuda.stream(side):
                 meta = _route_meta(tw, ids, local_start, tokens, state, opts)
             main.wait_stream(side)
@@ -4981,6 +5122,49 @@ def _route_side_self_test(state):
         del graph
     if not worst < 1e-4:
         raise RuntimeError(f"route-side self-test: rel diff {worst:.2e}")
+
+
+def _norm_self_test(state):
+    """Our pre-expert norm against the module (torch's F.rms_norm) at 1-264 tokens, on BF16
+    rows and on the same rows as a strided FP32 view: every element must be bitwise equal or
+    one BF16 ulp off. Prints how many differ."""
+    mod = state["pre_expert_norm"]
+    w = mod._get_effective_weight().detach().to(torch.bfloat16).contiguous()
+    if w.numel() != D_EXPERT or float(mod.eps) != RMS_EPS:
+        raise RuntimeError("pre-expert norm: unexpected configuration")
+    state["pre_expert_w"] = w
+    gen = torch.Generator(device=w.device).manual_seed(7)
+    worst_ulps, differ, total = 0.0, 0, 0
+    for tokens in (1, 2, 3, 5, 8, 16, 32, 33, 128, 256, 264):
+        x = (torch.randn((tokens, D_EXPERT), generator=gen, device=w.device) * 0.5)
+        x = x.to(torch.bfloat16)
+        xf = torch.randn((tokens, D_EXPERT + 512), generator=gen, device=w.device)
+        xf[:, :D_EXPERT] = x.float()
+        ref = mod(x)
+        outs = {"bf16": _ext().pre_norm(x, w, RMS_EPS),
+                "fp32": _ext().pre_norm(xf[:, :D_EXPERT], w, RMS_EPS)}
+        torch.cuda.synchronize()
+        for name, out in outs.items():
+            d = (out.float() - ref.float()).abs()
+            ulp = torch.exp2(torch.floor(torch.log2(ref.float().abs().clamp(min=1e-30))) - 7)
+            ulps = float((d / ulp).max())
+            n = int((d > 0).sum())
+            worst_ulps = max(worst_ulps, ulps)
+            differ += n
+            total += out.numel()
+            if n or tokens in (1, 264):
+                print(f"pre-expert norm self-test T={tokens} {name}: {n} of {out.numel()} "
+                      f"differ, worst {ulps:.2f} ulp")
+    print(f"pre-expert norm self-test: {differ} of {total} elements differ from torch, "
+          f"worst {worst_ulps:.2f} ulp")
+    if not worst_ulps <= 1.0:
+        raise RuntimeError(f"pre-expert norm: {worst_ulps:.2f} ulp from torch")
+
+
+def _pre_norm(x, state):
+    if state["norm_ours"]:
+        return _ext().pre_norm(x, state["pre_expert_w"], RMS_EPS)
+    return state["pre_expert_norm"](x)
 
 
 def _bnd_enable(state):
@@ -5096,6 +5280,7 @@ def prepare(weights):
         "attn_ws_ours": False,
         "route_side_ok": False,
         "bnd_ours": False,
+        "norm_ours": False,
         # As SGLang's RotaryEmbedding computes them, so the angles match its cos/sin table.
         "inv_freq": inv_freq,
     }
@@ -5127,6 +5312,8 @@ def prepare(weights):
         state["attn_fused_ours"] = _try("attn fused", lambda: _attn_self_test(state))
     if PORT_FFN_BOUNDARY:
         state["bnd_ours"] = _try("ffn boundary", lambda: _bnd_enable(state))
+    if PORT_PRE_NORM:
+        state["norm_ours"] = _try("pre-expert norm", lambda: _norm_self_test(state))
     if ROUTE_ON_SIDE:
         state["route_side_ok"] = _try("route side", lambda: _route_side_self_test(state))
     if PORT_ATTN_WS:
@@ -5171,7 +5358,7 @@ def kernel_fn(data, state):
     moe_opts = _moe_opts(tokens, state) if state["moe_ours"] else None
     route_side = ROUTE_ON_SIDE and state["route_side_ok"]
     if route_side:
-        expert_input = state["pre_expert_norm"](expert_input)
+        expert_input = _pre_norm(expert_input, state)
     meta = None
     with torch.cuda.stream(side_stream):
         if not split_router and state["router_ours"]:
@@ -5196,7 +5383,7 @@ def kernel_fn(data, state):
     if meta is not None:
         expert_output = _experts_run(expert_input, meta, state)
     else:
-        expert_output = _experts(state["pre_expert_norm"](expert_input), topk_weights, topk_ids,
+        expert_output = _experts(_pre_norm(expert_input, state), topk_weights, topk_ids,
                                  data["local_start"], state, moe_opts)
     if tokens <= SLICED_UNPOOL_MAX_TOKENS:
         unpooled = _proj(expert_output, "unpooler", UNPOOL_SLICE, state)
