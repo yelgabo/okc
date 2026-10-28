@@ -355,6 +355,7 @@ struct Params {
     int rope;
     int splits;
     float qk_scale;
+    long long* dbg;
 };
 
 __device__ __forceinline__ float warp_sum(float v) {
@@ -528,9 +529,10 @@ __device__ __forceinline__ void merge_row(Get get, int n, int lane, float v_scal
     reinterpret_cast<__nv_bfloat162*>(out)[lane] = __float22bfloat162_rn(acc);
 }
 
-template <int L, int MT, int TP, int KC, bool CLUSTER, bool VF16>
+template <int L, int MT, int TP, int KC, bool CLUSTER, bool VF16, bool PV8>
 __global__ void __launch_bounds__(Cfg<L, MT, TP, KC>::THREADS)
 attn_kernel(const Params p) {
+    static_assert(!PV8 || (KC % 2 == 0 && !VF16), "FP8 P.V takes 32-token steps");
     using C = Cfg<L, MT, TP, KC>;
     extern __shared__ __align__(128) uint8_t smem[];
     const int split = blockIdx.x;
@@ -544,6 +546,15 @@ attn_kernel(const Params p) {
     const int mg = (warp / HKV) % C::MG;
     const int tp = warp / (HKV * C::MG);
 
+    const bool stamp_cta = p.dbg != nullptr && tid == 0 && b == 0
+                           && (split == 0 || split == p.splits - 1);
+    long long* stamps = p.dbg + (split == 0 ? 0 : 8);
+    auto stamp = [&](int i) {
+        if (stamp_cta) {
+            stamps[i] = clock64();
+        }
+    };
+    stamp(0);
     const int seq = p.seq_lens[b];
     const int start = p.window ? max(0, seq - p.window + 1) : 0;
     int per = (seq - start + p.splits - 1) / p.splits;
@@ -595,6 +606,7 @@ attn_kernel(const Params p) {
     cp_commit();
     cp_wait<0>();
     __syncthreads();
+    stamp(1);
 #pragma unroll
     for (int t = 0; t < STAGES - 1; ++t) {
         if (t < ntiles) {
@@ -660,6 +672,7 @@ attn_kernel(const Params p) {
         }
     }
     const float qk_scale = p.qk_scale * *p.k_scale;
+    stamp(2);
 
     float o[MT][8][4];
     float m[MT][2];
@@ -752,13 +765,16 @@ attn_kernel(const Params p) {
                 const float mnew = fmaxf(m[mt][half], mx);
                 const float muse = mnew == NEG_INF ? 0.f : mnew;
                 const float alpha = exp2f(m[mt][half] - muse);
+                // With FP8 probabilities, FA3 scales them by 2^8 so small ones keep E4M3
+                // precision; l carries the same factor, so it cancels.
+                const float mexp = PV8 ? muse - 8.f : muse;
                 m[mt][half] = mnew;
                 float sum = 0.f;
 #pragma unroll
                 for (int sub = 0; sub < 2 * KC; ++sub) {
 #pragma unroll
                     for (int k = 0; k < 2; ++k) {
-                        const float e = exp2f(s[mt][sub][2 * half + k] - muse);
+                        const float e = exp2f(s[mt][sub][2 * half + k] - mexp);
                         s[mt][sub][2 * half + k] = e;
                         sum += e;
                     }
@@ -773,6 +789,22 @@ attn_kernel(const Params p) {
                     }
                 }
             }
+            if constexpr (PV8) {
+                // k32 step kk2 covers subtiles 4kk2..4kk2+3; byte order (2c, 2c+1, 2c+8, 2c+9)
+                // matches the value words built below.
+#pragma unroll
+                for (int kk2 = 0; kk2 < KC / 2; ++kk2) {
+                    const float* s0 = s[mt][4 * kk2];
+                    const float* s1 = s[mt][4 * kk2 + 1];
+                    const float* s2 = s[mt][4 * kk2 + 2];
+                    const float* s3 = s[mt][4 * kk2 + 3];
+                    pa[mt][kk2][0] = fp8x4(s0[0], s0[1], s1[0], s1[1]);
+                    pa[mt][kk2][1] = fp8x4(s0[2], s0[3], s1[2], s1[3]);
+                    pa[mt][kk2][2] = fp8x4(s2[0], s2[1], s3[0], s3[1]);
+                    pa[mt][kk2][3] = fp8x4(s2[2], s2[3], s3[2], s3[3]);
+                }
+                continue;
+            }
 #pragma unroll
             for (int kk = 0; kk < KC; ++kk) {
                 pa[mt][kk][0] = pack_f16(s[mt][2 * kk][0], s[mt][2 * kk][1]);
@@ -780,6 +812,49 @@ attn_kernel(const Params p) {
                 pa[mt][kk][2] = pack_f16(s[mt][2 * kk + 1][0], s[mt][2 * kk + 1][1]);
                 pa[mt][kk][3] = pack_f16(s[mt][2 * kk + 1][2], s[mt][2 * kk + 1][3]);
             }
+        }
+        if constexpr (PV8) {
+            // FP8 values straight from smem: for each dim, a word of the four tokens 2c, 2c+1,
+            // 2c+8, 2c+9 of a 16-token half step. Output column g of n-tile e is dim 8g + e.
+#pragma unroll
+            for (int kk2 = 0; kk2 < KC / 2; ++kk2) {
+                uint32_t bw[2][8];
+#pragma unroll
+                for (int hs = 0; hs < 2; ++hs) {
+                    uint2 vt[4];
+#pragma unroll
+                    for (int k = 0; k < 4; ++k) {
+                        const int t = (ch0 + 2 * kk2 + hs) * 16 + 2 * c + (k & 1) + (k >> 1) * 8;
+                        const int slot = head * 8 + g;
+                        vt[k] = *reinterpret_cast<const uint2*>(
+                            vs + t * ROW_BYTES + v_chunk(slot >> 1, t) * 16 + (slot & 1) * 8);
+                    }
+#pragma unroll
+                    for (int hw = 0; hw < 2; ++hw) {
+                        const uint32_t x0 = hw ? vt[0].y : vt[0].x;
+                        const uint32_t x1 = hw ? vt[1].y : vt[1].x;
+                        const uint32_t x2 = hw ? vt[2].y : vt[2].x;
+                        const uint32_t x3 = hw ? vt[3].y : vt[3].x;
+                        const uint32_t a_lo = __byte_perm(x0, x1, 0x5140u);
+                        const uint32_t b_lo = __byte_perm(x2, x3, 0x5140u);
+                        const uint32_t a_hi = __byte_perm(x0, x1, 0x7362u);
+                        const uint32_t b_hi = __byte_perm(x2, x3, 0x7362u);
+                        bw[hs][hw * 4 + 0] = __byte_perm(a_lo, b_lo, 0x5410u);
+                        bw[hs][hw * 4 + 1] = __byte_perm(a_lo, b_lo, 0x7632u);
+                        bw[hs][hw * 4 + 2] = __byte_perm(a_hi, b_hi, 0x5410u);
+                        bw[hs][hw * 4 + 3] = __byte_perm(a_hi, b_hi, 0x7632u);
+                    }
+                }
+#pragma unroll
+                for (int e = 0; e < 8; ++e) {
+#pragma unroll
+                    for (int mt = 0; mt < MT; ++mt) {
+                        mma_fp8(o[mt][e], pa[mt][kk2][0], pa[mt][kk2][1], pa[mt][kk2][2],
+                                pa[mt][kk2][3], bw[0][e], bw[1][e]);
+                    }
+                }
+            }
+            return;
         }
         if constexpr (VF16) {
             // ldmatrix.trans of the f16 values: n-tile e is head dims 8e..8e+7.
@@ -870,6 +945,7 @@ attn_kernel(const Params p) {
     }
     cp_wait<0>();
     __syncthreads();
+    stamp(3);
 
     // The last split also attends the block's own new keys and values, which it normalizes,
     // rotates, rounds to E4M3, writes to the cache and stages in smem.
@@ -922,6 +998,7 @@ attn_kernel(const Params p) {
         __syncthreads();
     }
 
+    stamp(4);
     // Partials: each warp's rows, l reduced over its quad, into smem [TP][ROWS][PART]; then the
     // TP partials of a row merge into slot 0 so the cross-CTA merge reads one per CTA.
     float* part = reinterpret_cast<float*>(smem);
@@ -987,6 +1064,7 @@ attn_kernel(const Params p) {
         __syncthreads();
     }
 
+    stamp(5);
     if constexpr (!CLUSTER) {
         float* ws = p.ws + (static_cast<size_t>(b) * p.splits + split) * C::ROWS * PART;
         for (int i = tid; i < C::ROWS * PART / 4; i += C::THREADS) {
@@ -995,6 +1073,7 @@ attn_kernel(const Params p) {
     } else {
         cg::cluster_group cluster = cg::this_cluster();
         cluster.sync();
+        stamp(6);
         const float v_scale = *p.v_scale;
         const int nwarps = p.splits * C::WARPS;
         for (int row = split * C::WARPS + warp; row < C::ROWS; row += nwarps) {
@@ -1007,6 +1086,7 @@ attn_kernel(const Params p) {
         }
         cluster.sync();
     }
+    stamp(7);
 }
 
 // Merges the partials in ws and applies the norm-gate: one warp per (token, query head).
@@ -1025,10 +1105,10 @@ __global__ void combine_kernel(const float* __restrict__ ws, const __nv_bfloat16
               out + static_cast<size_t>(tok) * HQ * D + qh * D);
 }
 
-template <int L, int MT, int TP, int KC, bool CLUSTER, bool VF16 = false>
+template <int L, int MT, int TP, int KC, bool CLUSTER, bool VF16 = false, bool PV8 = false>
 void launch(const Params& p, int batch, cudaStream_t stream) {
     using C = Cfg<L, MT, TP, KC>;
-    auto kern = attn_kernel<L, MT, TP, KC, CLUSTER, VF16>;
+    auto kern = attn_kernel<L, MT, TP, KC, CLUSTER, VF16, PV8>;
     constexpr int smem_bytes = SMEM_TOTAL + (VF16 ? VH_BYTES : 0);
     static bool configured = false;
     if (!configured) {
@@ -1068,19 +1148,24 @@ void launch(const Params& p, int batch, cudaStream_t stream) {
 // INSTANTIATE: template void launch<8, 1, 1, 4, false, true>(const Params&, int, cudaStream_t);
 // INSTANTIATE: template void launch<8, 2, 1, 2, false, true>(const Params&, int, cudaStream_t);
 // INSTANTIATE: template void launch<8, 1, 1, 2, false, true>(const Params&, int, cudaStream_t);
+// INSTANTIATE: template void launch<8, 1, 1, 4, true, false, true>(const Params&, int, cudaStream_t);
+// INSTANTIATE: template void launch<8, 1, 1, 4, false, false, true>(const Params&, int, cudaStream_t);
+// INSTANTIATE: template void launch<8, 2, 1, 2, false, false, true>(const Params&, int, cudaStream_t);
 
 }  // namespace
 
 // variant: q_len 1: 0 = 8 warps, 1 chunk each; 1 = 4 warps, 2 chunks each.
 //          q_len 8: 0 = 2 m-tiles x 2 chunks per warp (4 warps); 1 = 1 m-tile x 4 chunks
 //          (8 warps); 2, 3, 4 = values converted to f16 once per stage, with 1 m-tile x 4
-//          chunks (8 warps), 2 m-tiles x 2 chunks (4 warps), 1 m-tile x 2 chunks (8 warps).
+//          chunks (8 warps), 2 m-tiles x 2 chunks (4 warps), 1 m-tile x 2 chunks (8 warps);
+//          5, 6 = FP8 probabilities and values (P scaled by 2^8, as FA3 does) with 1 m-tile x
+//          4 chunks (8 warps), 2 m-tiles x 2 chunks (4 warps).
 torch::Tensor attn_fused(torch::Tensor qkv, torch::Tensor page_table, torch::Tensor seq_lens,
                          torch::Tensor cache_loc, torch::Tensor inv_freq, torch::Tensor k_scale,
                          torch::Tensor v_scale, torch::Tensor k_cache, torch::Tensor v_cache,
                          int64_t batch, int64_t q_len, int64_t page_size, int64_t window,
                          bool rope, double qk_scale, int64_t splits, bool cluster,
-                         int64_t variant) {
+                         int64_t variant, torch::Tensor dbg) {
     auto stream = at::cuda::getCurrentCUDAStream();
     auto out = torch::empty({batch, q_len, HQ * D}, qkv.options());
     Params p;
@@ -1101,7 +1186,8 @@ torch::Tensor attn_fused(torch::Tensor qkv, torch::Tensor page_table, torch::Ten
     p.rope = rope ? 1 : 0;
     p.splits = splits;
     p.qk_scale = static_cast<float>(qk_scale);
-    if (q_len == 8 && variant >= 3) {
+    p.dbg = dbg.numel() ? reinterpret_cast<long long*>(dbg.data_ptr<int64_t>()) : nullptr;
+    if (q_len == 8 && (variant == 3 || variant == 4 || variant == 6)) {
         cluster = false;
     }
     torch::Tensor ws;
@@ -1129,6 +1215,14 @@ torch::Tensor attn_fused(torch::Tensor qkv, torch::Tensor page_table, torch::Ten
         } else {
             launch<8, 1, 1, 4, false, true>(p, batch, stream);
         }
+    } else if (variant == 5) {
+        if (cluster) {
+            launch<8, 1, 1, 4, true, false, true>(p, batch, stream);
+        } else {
+            launch<8, 1, 1, 4, false, false, true>(p, batch, stream);
+        }
+    } else if (variant == 6) {
+        launch<8, 2, 1, 2, false, false, true>(p, batch, stream);
     } else if (variant == 3) {
         launch<8, 2, 1, 2, false, true>(p, batch, stream);
     } else if (variant == 4) {
@@ -1152,7 +1246,7 @@ torch::Tensor attn_fused(torch::Tensor qkv, torch::Tensor page_table, torch::Ten
                          torch::Tensor v_scale, torch::Tensor k_cache, torch::Tensor v_cache,
                          int64_t batch, int64_t q_len, int64_t page_size, int64_t window,
                          bool rope, double qk_scale, int64_t splits, bool cluster,
-                         int64_t variant);
+                         int64_t variant, torch::Tensor dbg);
 """
 
 try:
@@ -1180,7 +1274,10 @@ def _splits(cfg):
     return (128 if batch <= 2 else max(4, 256 // batch)), False
 
 
-def _fused(data, splits=None, cluster=None, variant=0):
+_NO_DBG = {}
+
+
+def _fused(data, splits=None, cluster=None, variant=0, dbg=None):
     cfg = data["config"]
     batch, length = cfg["batch"], cfg["q_len"]
     qkv = data["qkv"].view(batch * length, -1)
@@ -1194,7 +1291,13 @@ def _fused(data, splits=None, cluster=None, variant=0):
         _inv_freq(theta if theta else 1.0, cfg["head_dim"], qkv.device), data["k_scale"],
         data["v_scale"], data["k_cache"], data["v_cache"], batch, length, cfg["page_size"],
         cfg["window"], bool(theta), cfg["sm_scale"] * cfg["qk_scale_factor"] * LOG2E, splits,
-        cluster, variant)
+        cluster, variant, _no_dbg(qkv.device) if dbg is None else dbg)
+
+
+def _no_dbg(device):
+    if device not in _NO_DBG:
+        _NO_DBG[device] = torch.empty(0, dtype=torch.int64, device=device)
+    return _NO_DBG[device]
 
 
 def _fused_ok(cfg):
@@ -1222,7 +1325,8 @@ def kernel_fn(data, state=None):
 
 
 # Generated by tools/attn_make_bench.py: a timing sweep run at import.
-_BENCH_VARIANTS = ['_sglang', '_fused_prep', '_fused', '_fused@s=64', '_fused@v=1', '_fused@v=2', '_fused@v=2,s=16', '_fused@v=2,s=32', '_fused@v=2,c=0', '_fused@v=3', '_fused@v=4', '_fused@v=3,s=32']
+_BENCH_VARIANTS = ['_sglang', '_fused_prep', '_fused', '_fused@v=1', '_fused@v=4', '_fused@v=5', '_fused@v=5,c=0', '_fused@v=6', '_fused@v=5,s=32']
+_BENCH_STAMPS = ['_fused', '_fused@v=5']
 _BENCH_SHAPES = [
     (1, "sliding", 1), (1, "full", 1), (16, "sliding", 1), (16, "full", 1),
     (32, "sliding", 1), (32, "full", 1), (1, "sliding", 8), (1, "full", 8),
@@ -1390,6 +1494,20 @@ def _run_bench():
             except Exception as exc:
                 row.append(f"{name}=FAIL({type(exc).__name__}: {str(exc)[:200]})")
         print(f"BENCH b={batch:2d} {layer:7s} L={q_len} " + " ".join(row), flush=True)
+        for spec in _BENCH_STAMPS:
+            try:
+                name, _, args = spec.partition("@")
+                kw = {keys[k]: int(v) for k, v in (a.split("=") for a in args.split(",") if a)}
+                dbg = torch.zeros(16, dtype=torch.int64, device="cuda")
+                _fused(data, dbg=dbg, **kw)
+                torch.cuda.synchronize()
+                t = dbg.tolist()
+                last = [t[8 + i] - t[8] if t[8 + i] else -1 for i in range(8)]
+                first = [t[i] - t[0] if t[i] else -1 for i in range(8)]
+                print(f"STAMPS b={batch:2d} {layer:7s} L={q_len} {spec} last={last} "
+                      f"first={first}", flush=True)
+            except Exception as exc:
+                print(f"STAMPS {spec} failed: {exc}")
         del data
         torch.cuda.empty_cache()
 
