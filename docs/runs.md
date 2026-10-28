@@ -24,6 +24,7 @@ Every `okc check` and `okc submit`, newest last. Full per-shape output for each 
 | 10-27 | fb7980267f3a4648 | check (bench) | afa92cc | bench: no escaped-tile handling, 4 to 8 stages, max active clusters | 1.048x (1.032-1.064) | per-chunk escape slots made blocks 92 KB: 62 clusters of 4 fit, so pooler's 256 blocks ran in two waves. Without them (60 KB, 92 clusters) pooler 23.0 vs 27.5 bench us, qkv_gate 16.7 vs 18.6 |
 | 10-27 | 4686daf77f2046c9 | check (bench) | 120418e | escaped tiles through a 12-tile ring per warp (72 KB per block) | 1.095x (1.079-1.111) | pooler wins: 1.153x / 1.099x at m = 1 / 8 (uncompressed 1.119x / 1.079x); qkv_gate 0.858x, o 0.865x, unpooler 1.125x at m=1, all below the uncompressed kernel |
 | 10-27 | 135b2743d1194e41 | check (bench) | b65d5a1 | descriptor load issued ahead of the weight prologue | 1.100x (1.083-1.116) | pooler 1.189x / 1.137x; qkv_gate 0.903x / 0.871x, o 0.906x / 0.793x, unpooler 1.144x / 1.002x. Final file keeps compression for the pooler only (not checked as a whole; per-shape estimate 1.136 to 1.141) |
+| 10-28 | 3843af6418a84a72 | **submit** | dfbf010 | skinny-kernel rewrite (12-bit sk at m <= 32, cgemv/rgemv/sgemv at m = 1, hi/lo cluster router, cuBLAS at m >= 128) | **1.349x** (1.329-1.369) | every candidate passed the FP64 self-test; picks: sk compressed on all BF16 shapes at m >= 8 and on qkv/pooler at m = 1, cgemv o m=1, sgemv slice m=1, rgemv router m=1, sk router m 8-32; prepare 16 s; load ratios decode 1/16/32 1.607/1.515/1.357, verify 1/16/32 1.860/0.990/0.991 |
 
 ## Lessons
 
@@ -77,3 +78,87 @@ Every `okc check` and `okc submit`, newest last. Full per-shape output for each 
   on the pooler (18.1 vs 19.4 us at m=1, 18.6 vs 20.0 at m=8, job 135b2743d1194e41); a
   pooler-only file is estimated at 1.136-1.141x, inside the run-to-run noise, and was never run.
   The compressed version is kept at muse_bf16_proj/experiments/compressed_weights.py.
+
+## Rewrite 2026-10-28: skinny kernel from the public memo's design (branch worktree-agent-a3f4197b0217ad8cc)
+
+submission.py was replaced (commits 82a5baf to 3a160e6) by our own implementation of the design
+in the public 1.50x entry's memo: x as the mma A operand, weights as 8-row B tiles, each CTA
+owning R rows over the whole K with K split only across its warps (no cross-CTA reduction),
+weights by one `cp.async.bulk` per stage from a stage-major stream, x by one 3-D TMA box on the
+same mbarrier, 12-bit lossless weights with escapes corrected by dedicated escape warps (qkv rows
+balanced across row blocks), the hi/lo router on the same kernel with a 3-CTA cluster DSMEM
+reduction, m = 1 GEMV candidates (12-bit cgemv, FP32 rgemv, BF16 sgemv), a fused pooler + router
+entry for the layer, an FP64 self-test gate and a cold-L2 graph-replay autotuner over compressed,
+raw, GEMV and cuBLAS candidates per shape. Formats and entry points: docs/proj-port-guide.md.
+
+Local evidence (no GPU here):
+
+- Docker nvcc for sm_90a: all 29 skinny configs (27 + 2 fused; 48 with the bench sweep) and the
+  three GEMV kernels compile with 0 spills, 38 to 112 registers; the GEMVs issue every global
+  load before their first FFMA (SASS check in tools/gemv_compile_check.sh).
+- tools/emulate_proj.py: numpy emulation of the kernel's data flow (stream bytes, the swizzled
+  TMA box, ldmatrix, decode8, mma fragments, NACC sets, escape warps, red/peer partials, row
+  map, the cluster split and the fused tail) for every config at reduced sizes: bf16 outputs
+  equal the bf16-rounded FP64 product except the single element at a forced tiny escape
+  (float32 delta rounding, within the stated tolerance); router paths within 3e-8 of hi + lo.
+  Eight mutations (no swizzle, swapped prmt selectors, swapped fragment halves, dropped
+  corrections, shifted streams, ignored row map) all fail.
+- tools/compress_emulate.py: the 12-bit code restores every weight of the four judge shapes
+  bit for bit (escape share 1.0e-4 to 1.4e-4, byte ratio 0.751, 0 inexact deltas); adversarial
+  1% outlier matrices are rejected by the 1/200 rule.
+- tools/emulate_gemv.py: cgemv decode bit-exact, probe rows exact, products within float32.
+- tools/proj_dryrun.py: prepare() and kernel_fn on CPU with a fake extension that enforces the
+  host interface: packing of all layers, 152 kernel calls, 20 tuned shapes, dispatch for every
+  judge shape (m 1 to 1000), the fused entries.
+- An adversarial review of the synchronization protocol (phase parity, init order, proxy
+  fences, ldmatrix into the 128B-swizzled box, epilogue barriers, tensor map, launch
+  arithmetic) found one bug, fixed in 3a160e6: the fused reduction's shared counter broke when
+  the two fused configs alternated; the counter now resets per launch, with scratch per config.
+
+Checks were exhausted for the day when the rewrite landed. First checks after the reset:
+
+1. `okc check muse_bf16_proj/submission.py --no-wait --json`, then `okc status <job> --wait
+   --json`, confirming the problem and job id. Read the log: `selftest ... disabled` names any
+   kernel that fails against FP64 (with the diag code of a timed-out wait), the `tune` lines
+   give compressed vs raw vs GEMV vs cuBLAS per shape in judge-style timing, the `pack` lines
+   the escapes, `fused pooler+router ...: ok` the layer entries, then the score.
+2. `okc check muse_bf16_proj/bench.py`: the same with the sweep geometries of
+   tools/make_bench.py (R, stage depth and warp-split alternatives per shape).
+3. Fix what the self-test rejects, then re-check.
+
+### Submit 3843af6418a84a72 (2026-10-28, commit dfbf010): what the numbers say
+
+Judged us per shape (kernel us from the profile in parentheses), m = 1: qkv 10.33 (9.1), o 5.42
+(cgemv 5.3), pooler 14.35 (13.2), unpooler slice 3.49 (sgemv 3.2), router 3.56 (rgemv 3.0).
+m = 8: 10.51 (9.1), 5.82 (4.3), 14.35 (14.3), 4.59 (3.6), 5.68 (4.1). m = 16: 10.24 (9.2), 6.03
+(4.8), 14.47 (14.5), 13.77 (13.1), 5.53 (4.4). m = 32: 11.86 (11.1), 6.19 (5.3), 17.73 (17.9),
+15.13 (15.3), 5.98 (5.0). m = 128 and 256: cuBLAS, 0.97 to 1.00x of the baseline.
+
+- Compression wins every shape it was tried on, against the raw-BF16 twin of the same kernel in
+  the autotuner (judge-style timing, same replay overhead on both): pooler 18.4 vs 21.7 (m=1),
+  18.2 vs 21.9 (m=8), 18.6 vs 21.8 (m=16); qkv 14.3 vs 15.5, 14.2 vs 15.6, 14.3 vs 16.2; unpooler
+  18.2 vs 21.8 (m=16), 19.4 vs 21.8 (m=32); o 9.7 vs 10.5. The 2026-10-27 loss of the compressed
+  path came from its escape handling and reductions, not from the code: new evidence for the
+  ruled-out entry (pending merge, see below).
+- The m = 1 sk kernels sit on the streaming line in kernel time (pooler 13.2 us for 48.6 MB:
+  1.3 + 12.0) but carry 1.1 to 1.5 us between kernel time and judged time, while the GEMV
+  kernels carry 0.1 to 0.5 us (o cgemv 5.42 judged, 5.3 kernel). The sk kernels and cuBLAS's
+  nvjet kernels (6.91 judged, 4.7 kernel for o at m=16) both request large shared memory; the
+  GEMVs request almost none. The likely mechanism is the L1/shared-memory carveout switch after
+  the judge's flush kernel; the public entry's m = 1 bars (qkv 9.2, pooler 13.7) match our
+  kernel times, consistent with its cgemv picks paying no such cost. Our cgemv kernels are 1.5
+  us (qkv) to 4 us (pooler) slower than the sk kernels in kernel time (2048 CTAs x 544 threads
+  run 5.2 waves at 3 CTAs per SM), so they lost the autotune except on o and the slice.
+- m = 32 is the weak bucket (decode 32 at 1.357x against 1.515x at decode 16): pooler 17.9 us
+  against 14.5 at m=16 for the same bytes, qkv 11.1 against 9.2, with compressed and raw nearly
+  equal (22.0 vs 22.2 autotune us), so the pooler at m = 32 is not bandwidth-bound: one consumer
+  warp per SM sub-partition (4 warps, 1 CTA per SM) with dependent ldmatrix/mma chains, or the
+  64 MB of x re-reads through L2. The bench sweep (R = 16 at 2 CTAs per SM, deeper rings) and
+  NACC = 2 for the MT = 2 configs are the next experiments.
+- The two m >= 128 loads at 0.99x cap the score: with every other load as measured, lifting
+  them to 1.30x (the audit's t_min-plus-2-us targets, mostly the router at 16.5 us for 8 MB)
+  would give 1.48x; the router alone at 4 to 6 us would give about 1.40x.
+
+### Ruled out
+
+The losers of the sk rewrite runs are in `docs/ruled-out.md` under muse_bf16_proj.

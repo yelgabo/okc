@@ -1,0 +1,29 @@
+sk build 15.2 s
+pack qkv_gate: base 54, 2648 escapes, 0 inexact deltas, 15.4 s
+pack o: base 54, 860 escapes, 0 inexact deltas, 15.5 s
+pack pooler: base 54, 4537 escapes, 0 inexact deltas, 15.6 s
+pack unpooler: base 54, 3319 escapes, 0 inexact deltas, 15.6 s
+fused pooler+router pool8f: ok
+fused pooler+router pool16f: ok
+selftests done 15.6 s
+tune o         m= 1: o8 9.7, o8raw 10.5, cgemv 9.7, cublas 10.9 -> cgemv
+tune o         m= 8: o8 9.8, o8raw 10.5, cublas 10.6 -> o8
+tune o         m=16: o16 9.8, o16raw 10.4, cublas 10.6 -> o16
+tune o         m=32: o32 10.3, o32raw 10.9, cublas 10.7 -> o32
+tune pooler    m= 1: pool8 18.4, pool8raw 21.7, cgemv 22.3, cublas 25.5 -> pool8
+tune pooler    m= 8: pool8 18.2, pool8raw 21.9, cublas 25.0 -> pool8
+tune pooler    m=16: pool16 18.6, pool16raw 21.8, cublas 25.4 -> pool16
+tune pooler    m=32: pool32 22.0, pool32raw 22.2, cublas 25.8 -> pool32
+tune qkv_gate  m= 1: qkv8 14.3, qkv8raw 15.5, cgemv 14.7, cublas 18.6 -> qkv8
+tune qkv_gate  m= 8: qkv8 14.2, qkv8raw 15.6, cublas 18.5 -> qkv8
+tune qkv_gate  m=16: qkv16 14.3, qkv16raw 16.2, cublas 18.5 -> qkv16
+tune qkv_gate  m=32: qkv32 15.6, qkv32raw 16.2, cublas 19.2 -> qkv32
+tune router    m= 1: rgemv 7.8, router8 9.3, baseline 14.9 -> rgemv
+tune router    m= 8: router8 9.4, baseline 30.8 -> router8
+tune router    m=16: router16 9.3, baseline 20.6 -> router16
+tune router    m=32: router32 9.6, baseline 20.6 -> router32
+tune unpooler  m= 1: slice8 8.6, slice8raw 9.1, cgemv 8.1, sgemv 8.0, cublas 11.5 -> sgemv
+tune unpooler  m= 8: slice8 8.6, slice8raw 8.8, cublas 11.6 -> slice8
+tune unpooler  m=16: unp16 18.2, unp16raw 21.8, cublas 22.1 -> unp16
+tune unpooler  m=32: unp32 19.4, unp32raw 21.8, cublas 22.4 -> unp32
+prepare done 16.0 s

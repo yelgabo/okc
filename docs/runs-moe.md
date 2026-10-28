@@ -34,6 +34,11 @@ SGLang with its 95% interval. Profiles and logs are in `muse_moe_w4a16/profiles/
 | 2026-10-28 | 4a8852d513874318 | fbbff53 | bench.py: TMA (bulk-copy) weight kernel and large-tile item lists built in prepare(), benchmarked after the tuner; kernel_fn and tuner unchanged | 1.676x (1.651-1.701) | per shape: bs1 1.771, bs16 1.644, bs32 1.450, bs8 1.722, bs128 1.808, bs256 1.688; a control run of the 84f3975334f048c3 policy. The bench itself failed at its first call (it asked the W4 extension for route_align, which lives in the routing extension), after printing registers, shared memory and occupancy per new config (see the TMA and large-tile section below). Prepare 104 s |
 | 2026-10-28 | e1619f311d3747e3 | 238317a | the same bench, fixed | 1.671x (1.646-1.696) | per shape: bs1 1.771, bs16 1.649, bs32 1.438, bs8 1.738, bs128 1.779, bs256 1.675; control again (same policy). Bench results in the TMA and large-tile section below: TMA wins only at bs256 GEMM1 (NT2 W8 D4, 1.04x on normal routings), large tiles lose on normal routings at every size. Prepare 108 s, the bench itself about 7 s |
 | 2026-10-28 | a49578e5c30348bb | 600e323 | TMA configs are tuner candidates (large tiles benchmark-only) | 1.691x (1.665-1.716) | per shape: bs1 1.764, bs16 1.724, bs32 1.445, bs8 1.734, bs128 1.826, bs256 1.679. The tuner chose TMA only for bs256 GEMM1 (config 49, (1, 2, 16, 4, 8, 4, 7, 1, 0): 233.7 us vs 243.6 for config 37, the previous pick); every other size kept a register-path config. Same as 84f3975334f048c3 (1.683x) and the 1.699x submission within the interval: a 4% gain on one GEMM of one shape is about 0.5% of the geomean. Error vs FP32 4.40e-3. Prepare 101 s, build 52.8 s for 64 kernels |
+| 2026-10-28 | 5bc2b26850514b44 | bdbac38 | rewrite: one persistent launch (grid = SM count): routing prologue in every CTA, phase A (GEMM1 + SwiGLU to bf16 inter), phase B (GEMM2, FP32 y and sums of squares), software grid barrier, final norm and sum; 16-row x 4096-K units of 36,864 B by one bulk copy each into a 3-slot ring, 8 compute warps split K with mma.sync (x in registers), a helper warp sums partials and runs the epilogue; every M on the SPLIT path (jobs of <= 8 tokens, split experts re-stream) | 1.429x (1.408-1.451) | per shape: bs1 34.2 us (2.266x, best so far), bs16 125.7 (1.484), bs32 173.9 (1.180), bs8 92.6 (1.614), bs128 368.0 (1.260), bs256 581.2 (1.057). Every shape runs at 1.9-2.0 us per unit, 2.5 TB/s, against 1.2 us at 4 TB/s: the helper warp fenced (__threadfence, MEMBAR.SC.GPU) and credited done_a after every phase A unit, and under a saturated memory system that fence costs about a microsecond, so with 4 partial buffers of slack the compute warps waited on the helper. Error vs FP32 3.9e-3 to 4.2e-3; prepare 38 s (build 37 s); 140 regs, no spills |
+| 2026-10-28 | 9f1b1b8a9f0d425e | d0dd9ca | done_a credited once per (CTA, job) instead of per unit; weight ring of 4 slots | failed (deadlock, no score) | the helper warp flushed a job's phase A credits only when it reached the next job or its first phase B unit, but it waited for that B unit's partials first, and the compute warps produce none until done_a is complete, which needs this CTA's own credits; the spin timeout fired (flag 1, about 1.09 s per launch) so the run ended instead of hanging. Self-test error 3.94e-3 (results were right once the timeout released the wait). Fix: flush before waiting at the A-to-B transition (commit after this one) |
+| 2026-10-28 | f82a8cf656df4914 | 27986fb | credits flushed before the phase B wait (the deadlock fix); fat path for M >= 17: 64-token jobs, 256-row units in 16 stages of 256 k, four consumer warpgroups on register-A wgmma m64nNk16 (N = 8 x ceil(tokens / 8)), x gathered into the wgmma B layout, stream-K stage ranges by a cost table, last-arriver fixup for cut units; segments grouped by (phase, N) so ptxas pipelines the wgmmas | 1.740x (1.714-1.766) | per shape: bs1 28.7 us (2.706x; bar 30 met), bs16 100.3 (1.876), bs32 203.0 (1.009), bs8 70.2 (2.042; bar 55), bs128 302.7 (1.554), bs256 362.8 (1.708). All tests pass on the fat path (bs 33, 257, 128 skewed), error vs FP32 3.8e-3 to 4.6e-3, no spin timeouts, prepare 36 s (build 35 s). Skinny path now 1.47 us per unit at bs8 (3.0 TB/s plus about 6 us fixed); the fat path streams at 2.4 TB/s (bs32, 2.05 us per 36 KB stage), 2.2 (bs128) and 1.8 (bs256), so its weights ring (3 slots, 108 KB in flight per SM, next to 3 x 32 KB x slots) or its per-stage synchronization is the limit, not re-reads: each expert is read once. Next: a variant bench in prepare (ring depths, 16 compute warps on the skinny path, loads-only modes) |
+| 2026-10-28 | bab82f5f5b974594 (submit, authorized by the user via the coordinator) | cc3c926 | variants bench in prepare with a per-size policy: skinny sk8w4s / sk16w4s / sk8w5s, fat main-d2 / main-d3 (runtime-sized rings, conflict-free codes layout), the previous kernel's configs as legacy32 / legacy128 / legacy256, plus loads-only and no-gate diagnostics | 1.869x (1.841-1.897) | per shape: bs1 28.2 us (2.716x), bs16 105.0 (1.868), bs32 136.9 (1.485), bs8 82.4 (1.837), bs128 254.6 (1.793), bs256 358.5 (1.718). POLICY {1: sk8w4s, 8: sk16w4s, 16: sk8w4s, 32: sk8w4s, 128: legacy128, 256: main-d3}. BENCH (us, mean of 2 routings): bs1 loads-only 40.0 vs sk8w4s 42.0; bs8 70.6 vs 76.0-76.2 (sk8w5s 79.4); bs16 105.4 vs 109.6 (legacy32 119.0); bs32 main-loads 140.4, sk8w4s-loads 146.7, sk8w4s 155.0, legacy32 156.5, main-d3 = main-d2 223.5, main-nogate 221.2; bs128 main-loads 190.6, legacy128 250.3, sk8w4s 269.5, main-d2 301.5; bs256 main-loads 204.8, main-d3 337.3, legacy256 360.4, sk8w4s 440.7. So the skinny path is streaming-bound (loads-only within 2-6 us of computing, about 3.4 TB/s net of about 8 us fixed cost) and the fat path is compute-bound per stage (loads-only 35-40% below its computing modes; depth 3 and removing the readiness waits change nothing). Prepare 143 s (build 139 s for 7 fused kernels and the legacy extensions). Error vs FP32 3.7e-3 to 4.6e-3 |
+| 2026-10-28 | 36b5b559b0344d0f (submit, authorized by the user via the coordinator) | 35baa17 | fat path: k permuted inside each 256-k stage so one scale build covers a lane's four k16 steps, x slab written in that mma-k order by the gather and the phase A epilogue, wgmma descriptors in uniform registers (slot base through a shuffle: R2UR per HGMMA gone), SiLU by MUFU.RCP; diagnostics without wgmma and without dequant; sk8w5s, depth 3 and no-gate dropped | 1.990x (1.960-2.020) | per shape: bs1 29.3 us (2.727x), bs16 97.3 (1.937), bs32 133.9 (1.544), bs8 68.4 (2.106), bs128 255.1 (1.800), bs256 308.4 (2.008). POLICY {1, 8, 16, 32: sk8w4s, 128: legacy128, 256: main-d2}. BENCH (us): bs32 main-loads 139.3, sk8w4s 149.9, legacy32 155.6, main-nowgmma 157.3, main-nodequant 173.1, main-d2 197.3 (was 223.5); bs128 main-loads 189.6, main-nowgmma 211.9, main-nodequant 233.2, legacy128 249.9, main-d2 260.8 (was 301.5), sk8w4s 261.8; bs256 main-loads 203.0, main-nowgmma 237.3, main-nodequant 267.1, main-d2 291.6 (was 337.6), legacy256 360.1. The fat path's two costs add rather than overlap: at bs256 dequant alone +34 us over streaming, wgmma alone +64, both +89; the wgmma side (fence, two HGMMA, commit, wait per group, all warpgroup-collective) is the larger. Prepare 143 s. Error vs FP32 3.9e-3 to 4.6e-3 |
 
 ## W4A16 GEMM (own kernel), 2026-10-28
 
@@ -88,6 +93,34 @@ Lessons:
   dequantized weight would help that shape.
 
 
+## MAIN path, wgmma pipelining, 2026-10-28
+
+The fat path (M >= 17) dequantizes into registers and issues `wgmma.mma_async m64nNk16` with
+A from registers, two k16 steps per commit group and `wait_group 1`. ptxas serializes every
+wgmma of a function (a `WARPGROUP.DEPBAR.LE gsb0, 0x0` after each HGMMA, plus a
+`WARPGROUP.ARRIVE` before each) whenever any of its pipeline checks fails, and the warning
+that names the reason is not always printed. `tools/moe_wgmma_micro/` holds four micro
+kernels that isolate the causes; `tools/moe_compile_fused.sh` prints the full kernel's
+warnings and the SASS counts come from `cuobjdump`. Findings, all on CUDA 12.8 ptxas for
+sm_90a at 576 threads per CTA (112-register cap):
+
+| structure | result |
+|---|---|
+| per-variant `float acc[4 * NTT]` arrays, one per N inside the switch | every accumulator array in local memory (584-byte stack), C7515, serialized |
+| one `float acc[32]` shared by every N variant, the finisher loading the fixup sum into `acc` | C7515: non-wgmma instructions (the `LDG`s) define accumulator registers; serialized |
+| the finisher loads the sum into a separate `fin[32]`; `acc` written only by wgmma | no C7515, but still serialized without a warning |
+| runtime scale-d (`first ? 0 : 1`) inside a runtime stage loop (micro test wg.cu modes 3, 7, 15) | C7515, serialized; the same with a single stage (mode 1) or an immediate scale-d (modes 2, 6, 10) pipelines |
+| zeroed accumulators, immediate scale-d 1, a `switch` over N variants inside an enclosing loop (wg2.cu mode 3, wg3.cu modes 19, 35, 67 with per-variant accumulators, an if-chain, or only two variants) | C7512 "insufficient register resources", serialized; at 384 threads (mode 131, a 168-register cap) it pipelines |
+| one segment loop per N variant, the variants in sequence, no loop around them (wg4.cu modes 2, 10, 14) | pipelined: one `wait 1` per group, 90-96 registers |
+| the full kernel with that structure (16 groups: 8 N variants x 2 phases) | 256 HGMMA, 128 `wait 1`, 16 `wait 0`, no C75xx, 96 registers, 88-byte stack, 156 B spill stores |
+
+Rules kept from this: the accumulators are zeroed once per segment before the first
+`wgmma.fence` and never written by anything else (the fixup finisher reads the slot sum into
+`fin`); the A fragments of a retired group are pinned with an empty `"+r"` asm after the wait
+that retires it (`a_pin`) so the next group's dequant gets fresh registers; and the consumer
+walks its segments grouped by (phase, n-tile count) with one loop per group, the two producers
+walking the same order.
+
 ## TMA weight loads and large token tiles, 2026-10-28
 
 Bench in check e1619f311d3747e3 (`tools/moe_bench_w4x.py` appended to bench.py by `tools/moe_make_bench.py`): per batch size, GEMM and routing seed (normal 11, 12, 13; skewed 21, 22, seed `977 * seed + bs`), the median of 30 CUDA graph replays, each after a 256 MB write that evicts L2. Times include the 5.4 us replay overhead and the SwiGLU reduce (GEMM1 with K splits) or the finalizer (GEMM2), as the tuner times them; GEMM2 reads the current policy's GEMM1 output. "cur" is the policy the tuner picked in that run. Ratios are cur over variant, summed over the three normal seeds (n) and the two skewed ones (s). Every variant matched cur to within 1.0e-4 relative L2 (0 where the K splits match). The best TMA and the best large-tile variant per row are picked by the sum over normal seeds.
@@ -134,3 +167,29 @@ Lessons:
   TMA won only bs256 GEMM1 (about 4%, about 0.5% of the score); large tiles lost on normal
   routing. The final file scored 1.691x (a49578e5c30348bb), overlapping the 1.699x entry. Code
   kept at muse_moe_w4a16/experiments/tma_and_large_tiles.py.
+
+## Prepared for the next checks (not yet run)
+
+Commit after f82a8cf656df4914, local work only (no checks left on 2026-10-28):
+
+- Skinny kernel as per-variant namespaces: `sk8w4s` (the shipped one), `sk16w4s` (16 compute
+  warps, 256 k each, x in 32 registers), `sk8w5s` (5 ring slots, 229 KB smem), and loads-only
+  twins of the first two that stream the units without computing. ptxas: 140 / 96 / 130
+  registers, no spills.
+- Fat kernel: codes repacked as [warpgroup][warp][step quad][lane][4 words] (the first layout
+  gave every lane a 64-byte stride, a 4-way bank conflict on each LDS.128); rings sized at
+  runtime from the launch's largest job (5 weight slots next to 3 x 8 KB x slots when every
+  job is N <= 16, 4 + 3 x 16 KB up to N = 32, 3 + 3 x 32 KB beyond); modes d2 (depth-2 wgmma
+  pipeline, the shipped one), d3 (three A buffers, `wait_group 2`; micro test wg5.cu shows
+  depth 4 trips C7512 at 576 threads), loads-only, and no-gate (no xready / done_as waits,
+  timing only). ptxas: 96 registers each, 136-176 B stack, spills only at segment boundaries,
+  128 `wait_group 1` (d2) or `wait_group 2` (d3) per kernel, no C75xx.
+- The previous kernel's W4 path ported back as `_run_legacy` with its tuned configs at 32,
+  128, 256 (`LEGACY_POLICIES`), a candidate from 16 tokens up.
+- `prepare` self-tests every computing variant, benches all of them per batch size (graph
+  replay, cold L2, two routings) and keeps the fastest as the policy; the BENCH lines carry
+  the loads-only ceilings, which split the fat path's gap into ring versus compute.
+
+## Ruled out
+
+The losers of the fused-kernel runs are in `docs/ruled-out.md` under muse_moe_w4a16.

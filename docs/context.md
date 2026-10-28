@@ -171,3 +171,20 @@ Update 2026-10-28:
   Full verify b16 191.3 -> 193.6 us, b32 357.6 -> 364.7. Skipping rescales (emulated 18% -> 3%
   of steps on full verify) saved nothing, so the rescale is not what the FP32 math costs. The
   entry stays var 16 (submission.py).
+
+Update 2026-10-28 (the rewrite push; details in docs/audit-2026-10-28.md, docs/gap-analysis-2026-10-28.md and the runs logs):
+- Decision: the overall board ranks by the decode-layer entry, so every component rewrite is judged by its
+  effect inside the layer. Target changed from "beat 1.0x" to top 50 (2.135x on 10-28, rising).
+- Orchestration (W0, merged): X5 with SGLang's two BF16 roundings (bitwise), own pre-expert norm and attention
+  boundary kernels, PDL across our chain (no gain of its own inside a captured graph), a front tuner that picks
+  one concatenated pooler + router GEMM above 8 tokens; checks 1.431-1.463x.
+- Re-implemented from the public entry's design memos (vjeux/okc-2026, Apache-2.0; re-implemented, not copied):
+  MoE as one persistent launch (job 36b5b559b0344d0f, 1.990x on its board, from 1.699x), projections on a
+  no-reduction skinny kernel with 12-bit weights and escape warps (job 3843af6418a84a72, 1.349x, from 1.139x),
+  attention as one launch per call (built and emulated; its first judge run hung at batch 1, ctx 10, page 64,
+  under investigation, so the layer keeps the previous attention kernels for now).
+- Layer entry: job f23f1c8171374285, 1.643x (1.618-1.667), rank 362 (from 513), with the fused MoE at every T
+  (sk8w4s at T <= 32, the previous W4 chain at 128 by the tuner, the fat wgmma path at 256) and the sk
+  projections at T <= 32. Decode 1 sliding 116.8 -> 91.8 us. Still open: attention (14.4 us at decode 1 sliding
+  against the public 4.9; 250 and 354 us at full batch 32 against 170 and 186), the MoE at 32-128 tokens, and
+  the dense GEMMs above 32 tokens.

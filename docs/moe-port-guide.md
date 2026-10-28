@@ -1,0 +1,179 @@
+# Porting the fused MoE kernel into muse_decode_layer
+
+The routed-experts block of `muse_moe_w4a16/submission.py` is one CUDA launch per call. This
+guide gives what a layer needs to drop it in: the tensors, the scratch, the prepare steps, the
+launch, and the points where it rounds to bf16. The kernel source is `_CUDA_SRC` in that
+file; the host entry is `moe_run`.
+
+## What one launch does
+
+Grid = SM count (132 on H200), one CTA per SM, no cooperative launch (the shared-memory
+footprint guarantees co-residency). Each CTA:
+
+1. Routing prologue, run redundantly by every CTA from `topk_ids`: local expert id per entry
+   (`id - local_start` when in `[0, local_count)`, else -1), a histogram, pair-row offsets
+   (expert-major; entry i gets pair row `pos[i]`), and a job list.
+2. Phase A: GEMM1 over the job's tokens for the job's expert, SwiGLU applied in the epilogue.
+3. Phase B: GEMM2 over the SwiGLU output, writing FP32 `y * (1 + post_norm_w)` to `ybuf` and
+   accumulating each pair row's sum of squares into `ss`.
+4. A software grid barrier (atomic counter, generation-indexed).
+5. The final pass: `out[t] = sum over local slots s of topk_w[t, s] * rsqrt(ss[q] / 4096 + eps)
+   * ybuf[q]` with `q = pos[8 t + s]`, rounded to bf16. Tokens with no local slot get zeros.
+
+Two kernels share this structure and the routing code:
+
+- `moe_fused_kernel<SPLIT>` (288 threads: 8 compute warps and a helper warp) for M <= 16.
+  Jobs are up to 8 tokens of one expert (an expert with more tokens becomes several jobs that
+  re-stream its weights). A unit is 16 weight rows over the full K, one 36,864-byte bulk copy
+  into a 4-slot ring; the 8 warps split K and use `mma.sync m16n8k16` with the job's x rows in
+  registers; the helper warp sums the warps' partials and runs the epilogue.
+- `moe_main_kernel` (576 threads: 4 consumer warpgroups, a weights producer thread and an x
+  producer thread) for M >= 17. Jobs are up to 64 tokens; a unit is 256 rows streamed in 16
+  stages of 256 k; consumers run register-A `wgmma m64nNk16` (N = 8 x ceil(tokens / 8)) with
+  the stage's x in shared memory; stages are split over CTAs by a cost table (stream-K) and
+  units cut between CTAs are summed through a global fixup slot. The weights ring has 5, 4 or
+  3 slots of 36 KB next to 3 x slots of 8, 16 or 32 KB, chosen per launch from the largest
+  job's N (every CTA derives the same sizes in its routing prologue).
+
+The skinny kernel is built in several variants (`SKINNY_VARIANTS`: 8 or 16 compute warps, 4
+or 5 ring slots, and loads-only diagnostic modes that stream the weights without computing);
+the fat kernel in a computing and a loads-only mode. `prepare` times every computing variant
+per batch size (graph replay, cold L2, synthetic routings) and keeps the fastest as
+`state["policy"]`, keyed by the sizes in `POLICY_BS`; `kernel_fn` looks the variant up by M.
+Without a policy entry, M >= `MAIN_MIN_M` (17) runs the fat kernel when `state["main_ok"]`
+holds (the self-test clears it if the fat path fails), else the split skinny path, which
+handles every size. The previous kernel (per-warp register-path mma.sync GEMMs, check
+a49578e5c30348bb) is kept as `_run_legacy` with its tuned configs for 32, 128 and 256 tokens
+(`LEGACY_POLICIES`, variant ids from `VARIANT_LEGACY0`); it is a bench candidate from 16
+tokens up and needs its own weight layout (`_legacy_prepare`, 906 MB) and two more
+extensions. Once the fused kernel wins everywhere it can be dropped.
+
+## Tensors the layer must pass
+
+Inputs per call (all on the same device, contiguous):
+
+| name | dtype, shape | notes |
+|---|---|---|
+| `x` | bf16 [M, 4096] | the MoE block's input rows |
+| `topk_ids` | int32 [M, 8] | global expert ids; 16-byte aligned (torch allocations are) |
+| `topk_w` | float32 [M, 8] | routing weights as given |
+| `out` | bf16 [M, 4096] | written in full |
+
+Weights and constants prepared once (`prepare`), per local expert range `[lo, lo + nloc)`,
+`nloc <= 32`:
+
+| name | dtype, shape | made by |
+|---|---|---|
+| `w13` | uint8 [nloc, 512, 36864] | `repack_expert(packed, sf, 1)` per expert: 16-row units, 8 gate rows then their 8 up rows |
+| `w2` | uint8 [nloc, 256, 36864] | `repack_expert(packed, sf, 2)` |
+| `w13f` | uint8 [nloc, 32, 16, 36864] | `repack_expert_fat(packed, sf, 1)`: 256-row units x 16 stages |
+| `w2f` | uint8 [nloc, 16, 16, 36864] | `repack_expert_fat(packed, sf, 2)` |
+| `gs13`, `gs2` | float32 [nloc] | the global scales, as given |
+| `nw` | float32 [4096] | `1 + post_norm_w` in FP32 |
+
+The repacks permute bits and bytes only; the values stay NVFP4 (E2M1 codes and E4M3 block
+scales). `scales_ok` must hold (positive normal E4M3 scales), which the challenge's weights
+satisfy; otherwise the dequant's PRMT + IMAD scale trick is inexact and the kernel must not be
+used. The two repacks hold 906 MB each for 32 experts.
+
+Scratch allocated once (`_scratch`), reused by every launch; nothing is reset between
+launches from the host:
+
+| name | dtype, shape | role |
+|---|---|---|
+| `inter` | bf16 [4096, 4096] | SwiGLU output by pair row (skinny path) |
+| `ybuf` | float32 [4096, 4096] | GEMM2 output times (1 + w), by pair row |
+| `ss` | float32 [2, 4096] | sums of squares, double-buffered by the launch generation |
+| `ctr` | int32 [64] | ctr[3] generation, ctr[4], ctr[5] the two barrier counters, ctr[8] spin-timeout flags |
+| `done_a` | int32 [544] | per job, phase A units finished (skinny path) |
+| `xa`, `xb` | uint8 [(512 + 96) x 65536] | fat path: x rows and SwiGLU output in the per-stage wgmma B layout |
+| `fix` | float32 [2 x SMs x 4 x 128 x 32] | fat path: fixup slots for units cut between CTAs |
+| `fixcnt` | int32 [2 x SMs x 4] | their stage counts |
+| `xready` | int32 [96] | fat path: gathered x rows per job |
+| `done_as` | int32 [96 x 16] | fat path: finished phase A units per (job, phase B stage) |
+
+Sizes assume at most 512 tokens per launch (`CHUNK_TOKENS`); `moe_run` splits larger M into
+launches of 512. Every per-launch flag is reset inside the launch (after the grid barrier, or
+by the finisher that used it), and the barrier counter and `ss` copy alternate with the
+generation, so graph replays need no host-side memset.
+
+## Prepare steps
+
+1. `_repack(weights, lo, nloc)`: both layouts and the global scales, about 1 s on GPU.
+2. `nw = (post_norm_w.float() + 1)`.
+3. `_scratch(device)`.
+4. Build the extension once (`_ext()`, one `load_inline`, about 40 s; the fat path's wgmma
+   wrappers are generated by `_wgmma_code()`).
+5. Self-test against the FP32 reference: every computing skinny variant at M = 1, 4, 8, 16
+   and the fat path at 32, 33, 128, 257, normal and skewed routings; the tolerance is 8e-3
+   relative L2 (measured 3.8e-3 to 4.6e-3; the judge allows 1.5e-2). A spin timeout in any
+   launch (ctr[8] != 0) fails the test. A failing fat path sets `main_ok = False`.
+6. The variant bench (`_bench`) and the policy, then the policy's variants once more at every
+   test size.
+
+The judge gives `prepare` 300 s; the whole of the above takes about 60 to 90 s (the build is
+the largest part).
+
+## The launch
+
+`moe_run(x, topk_ids, topk_w, w13, w2, gs13, gs2, nw, inter, ybuf, ss, ctr, done_a, out,
+w13f, w2f, xa, xb, fix, fixcnt, xready, done_as, lo, nloc, eps, variant)` with `variant` an
+index into `SKINNY_VARIANTS` (skinny, split jobs of 8 tokens) or `VARIANT_MAIN0 + mode` (fat;
+mode 0 computes, 1 streams only). `_vname(variant)` gives the name the bench prints. It launches on the current stream, is graph-capturable (no
+host syncs, no allocation, no value-dependent branching on the host), and needs the whole GPU:
+the grid barrier spins until all 132 CTAs arrive, so nothing else may occupy SMs for the
+launch's duration, and a PDL successor that starts early would share SMs with the spinning
+CTAs. In the layer, launch it alone on the main stream, with the router and the pre-expert
+norm complete; the layer's own `topk_ids` and `topk_weights` tensors pass straight through.
+
+A wait that lasts longer than 2^31 cycles (about a second) marks ctr[8] and gives up instead
+of hanging; the result is then wrong. Read ctr[8] after a self-test, never inside the timed
+path.
+
+Both kernels begin with `griddepcontrol.wait`, so a launch with the programmatic dependent
+launch attribute is safe (they do not touch their inputs before the previous kernel has
+completed); without the attribute the instruction does nothing. They never call
+`griddepcontrol.launch_dependents`, so a successor launched with the attribute starts only
+when they finish.
+
+## Measured state (scored run 36b5b559b0344d0f, 1.990x on the standalone problem)
+
+| T | policy | this kernel (us) | previous kernel, same judge (a49578e5c30348bb) |
+|---|---|---|---|
+| 1 | sk8w4s | 29.3 | 46.7 |
+| 8 | sk8w4s | 68.4 | 87.5 |
+| 16 | sk8w4s | 97.3 | 107.4 |
+| 32 | sk8w4s (split jobs) | 133.9 | 145.5 |
+| 128 | legacy128 (the previous kernel's configs) | 255.1 | 250.4 |
+| 256 | main-d2 (fat path) | 308.4 | 366.5 |
+
+Every variant passes the FP32 self-test at M = 1 to 257 on normal and skewed routings, so the
+kernel can be switched on at every T; at T = 128 the policy itself falls back to the previous
+kernel, so the layer loses nothing there. In the layer, keep the bench in `prepare` (its
+routing differs from the standalone problem's, and the choice between `legacy128`, `main-d2`
+and `sk8w4s` at 32 to 256 tokens is within 10%), and trim the build: `MAIN_MODES = (0,)` and
+`SKINNY_VARIANTS = ((8, 4, 0), (16, 4, 0))` cut the 140 s build to about half, which the
+layer's own 300 s prepare budget needs.
+
+## Where the numbers round to bf16
+
+These follow SGLang's Marlin path, which the activation rule in TASK.md pins:
+
+- GEMM1 accumulates in FP32 over the full K (inside one CTA on the skinny path, over the
+  stream-K shares on the fat path). Gate and up are rounded to bf16 before SiLU
+  (`bf16r(acc * gs13 * 128)`), SwiGLU's output is stored as bf16 (`inter` or `xb`).
+- GEMM2 accumulates in FP32; its output is rounded to bf16 before the norm
+  (`bf16r(acc * gs2 * 128)`), then multiplied by `(1 + w)` in FP32 and stored as FP32 in
+  `ybuf`; the sum of squares uses those FP32 values.
+- The final pass sums `topk_w * rsqrt(ss / 4096 + 1e-8) * y` in FP32 and rounds once to
+  bf16.
+- The dequant itself is exact: an E2M1 code times its E4M3 block scale is formed in bf16 with
+  no rounding (at most 6 significant bits), and the global scale times 2^7 is applied in FP32
+  in the epilogue.
+
+## What the layer must not change
+
+- Pair-row order is internal (expert-major, then entry order); outputs do not depend on it.
+- Sums of squares are FP32 atomics, so bitwise results vary run to run at the last bit.
+- The routing prologue assumes `topk_ids` holds global ids and filters to the local range;
+  pass the ids the router emits, not local ids.

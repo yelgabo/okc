@@ -5,6 +5,10 @@ before proposing an experiment; reopen an entry only with new evidence that chan
 measured ceiling, and say what that evidence is. Full details are in the runs logs named per
 entry.
 
+Each row rules out the mechanism as built, in the design it was tested inside, on the judge's
+workload. It does not reject the underlying idea. An idea that lost as a single ingredient in
+the old design can come back as part of a structurally different design.
+
 ## muse_bf16_proj (`docs/runs.md`)
 
 | Experiment | Evidence | Rules out |
@@ -17,6 +21,9 @@ entry.
 | Our mma kernel on BF16 layers above 8 tokens, any config | sweeps 4afc0b73f2a74a69, e378eace83174734 | beating cuBLAS there with mma.sync + cp.async; ties at best |
 | Router hi/lo mma with token groups at 128 / 256 tokens | job 457c09b7f2a04ec3: 28.9 / 48.1 us vs SGLang 16.4 / 17.7 | per-group re-reads of the 8 MB router weights from L2 |
 | Lossless 12-bit BF16 weight compression, decoded in-kernel | job 135b2743d1194e41, 1.100x; only the pooler gained | software weight compression across projections; cost is escape-tile lookup, not decode |
+| experiment | evidence | what it rules out |
+| raw-BF16 sk kernel instead of the 12-bit stream, any shape at m <= 32 | submit 3843af6418a84a72 autotune: raw loses by 0.6 to 3.7 us on every shape (table above) | keeping full-size BF16 weights in the skinny kernel; supersedes the 2026-10-27 "compression stays out" decision, whose kernel put escapes and a cluster reduction on the critical path |
+| cgemv (12-bit CUDA-core GEMV, 2 rows per CTA) for qkv_gate and the pooler at m = 1 | same autotune: cgemv 14.7 vs sk 14.3 (qkv), 22.3 vs 18.4 (pooler) | this cgemv geometry on the two big matrices; it wins on o (equal time, no carveout cost) and is beaten by sgemv on the slice |
 
 ## muse_moe_w4a16 (`docs/runs-moe.md`)
 
@@ -29,6 +36,8 @@ entry.
 | Block-contiguous weight layout, streaming addresses, no L2 prefetch hint, persistent blocks with cross-unit prefetch, cluster finalizer | each moved times about 1 us or less | layout/persistence tweaks to the W4 mainloop |
 | TMA weight loads (M2) | job a49578e5c30348bb, 1.691x; lost 3-11% at bs 1-32, won only bs256 GEMM1 (~4%) | more resident warps as the cure for the gap to streaming bandwidth |
 | Hot-expert large token tiles (M1) | bench e1619f311d3747e3: 1.5x faster on skewed routing, 2x slower on normal | large tiles on the judge's (normal) routing |
+| Per-unit done_a credits from the helper warp (`__threadfence` + atomicAdd after every 36 KB unit) | check 5bc2b26850514b44: every shape at 1.9-2.0 us per unit (2.5 TB/s) against 1.2 us at the streaming rate | a gpu-scope fence on the epilogue path of every unit; credit once per (CTA, job) |
+| Several wgmma shapes dispatched inside one enclosing loop at 576 threads (switch over N inside the segment loop) | tools/moe_wgmma_micro: C7512, every wgmma serialized, with any two shapes; one loop per shape pipelines | per-segment shape dispatch inside a loop on the fat path |
 
 ## muse_attention_decode (`docs/runs-attention.md`)
 
@@ -52,6 +61,10 @@ entry.
 |---|---|---|
 | Tensor-core hi/lo router at 9-32 tokens in the layer | 6ef2d969b6104e10 vs 46dab8fb87274880: decode 16 -0.01 to -0.02 both ways | speeding up the router in the layer: it runs hidden under the pooler |
 | X5 boundary, one block per token | job b57b66f36fb044c6, inconclusive; 0.7 us slower than SGLang at T=8 | (superseded by the cluster version; that one is held for BF16 rounding, not ruled out) |
+| PDL across our own chain (trigger at entry in every kernel, the projection, attention, combine, router, route_align and boundary launches with the programmatic attribute, weight prologues before `griddepcontrol.wait`) | 179cecdac87b4872 (proj + attention) vs 28e6c2fa656f413a: d1 113.1 -> 115.4 / 124.1 -> 123.6, v1 156.4 -> 156.7 / 170.7 -> 167.5 us; e8b74a3519a94bc6 (glue too) vs 179cecda: every shape 0-3 us better at T <= 32, inside noise. The profile shows the early launches (each proj row grew 0.8-1.6 us with the wait inside it) but the step did not shrink | launch latency as a cost in the captured graph: the graph already hides it; what a boundary still costs (about 0.7 us: the predecessor's completion and memory flush before the wait returns) PDL cannot remove, only fusion can. The code stays as structure (the new boundary and norm kernels are PDL secondaries), not as a win |
+| L2 prefetch of the o, router and unpooler-slice weights (34 MB) on the side stream during attention at T <= 8, as `cp.async.bulk.prefetch.L2` with an evict_last policy | 985732949c07474f vs 9cb961d383ab42be: o GEMV row 7.7 -> 7.3 us at decode 1 (bar 3.5), unpooler and router rows unchanged, d1 +0.2 / +2.8 us | the bulk prefetch hint as a way to warm L2 ahead of a GEMV (dropped or too late) |
+| The same prefetch as real 16-byte loads with the `L2::cache_hint` evict_last policy | 34568f495b024c2f vs 98573294: o GEMV 7.3 -> 5.9 us (bar 3.5), unpooler 6.0 -> 5.6, router 4.9 -> 5.0; the step rose on all four T <= 8 shapes: d1 +3.5 / +4.1, v1 +3.3 / +1.9 us; attention 14.0 -> 14.8 beside the 9.5 us, 34 MB stream | warming L2 by streaming weights beside the latency-bound attention: the stream costs more than the L2 hits save. A prefetch that pays would have to touch less (the o weights alone, 16.8 MB) or run where HBM is idle; not tried |
+| Our hi/lo mma router at 16-32 tokens (`PORT_ROUTER_MMA`) against the one-GEMM pooler + router front | tuner in 34568f495b024c2f: T=16 mma 41.5 vs concat 39.8 us, T=32 42.5 vs 40.1 (both beat the split router: 41.0 / 45.2) | the mma router as the side-chain fix once the norm is off the main chain; the concatenated GEMM wins, and the tuner keeps choosing per run |
 
 ## Proposals declined without a run
 
