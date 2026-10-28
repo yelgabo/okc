@@ -181,10 +181,14 @@ Update 2026-10-28 (the rewrite push; details in docs/audit-2026-10-28.md, docs/g
 - Re-implemented from the public entry's design memos (vjeux/okc-2026, Apache-2.0; re-implemented, not copied):
   MoE as one persistent launch (job 36b5b559b0344d0f, 1.990x on its board, from 1.699x), projections on a
   no-reduction skinny kernel with 12-bit weights and escape warps (job 3843af6418a84a72, 1.349x, from 1.139x),
-  attention as one launch per call (built and emulated; its first judge run hung at batch 1, ctx 10, page 64,
-  under investigation, so the layer keeps the previous attention kernels for now).
+  attention as one launch per call (its first judge run hung on a full-mask shuffle inside a K-only branch,
+  fixed in 4352d4e; standalone 2.162x as b458555d3e3e4e9a).
 - Layer entry: job f23f1c8171374285, 1.643x (1.618-1.667), rank 362 (from 513), with the fused MoE at every T
   (sk8w4s at T <= 32, the previous W4 chain at 128 by the tuner, the fat wgmma path at 256) and the sk
   projections at T <= 32. Decode 1 sliding 116.8 -> 91.8 us. Still open: attention (14.4 us at decode 1 sliding
   against the public 4.9; 250 and 354 us at full batch 32 against 170 and 186), the MoE at 32-128 tokens, and
   the dense GEMMs above 32 tokens.
+- Layer entry: job cc7a07e2964a4d67, 1.761x (1.734-1.787), with the one-launch attention on every tp8 shape
+  (full verify at batch 16 / 32 on the non-producer flat mode 19). Down on all 12 shapes; full batch 16 / 32
+  -41 / -84 us at decode and -83 / -124 at verify. Attention at decode 1 sliding 6.1 us (public 4.9), full
+  batch 32 181.9 / 236.2 us (public 170 / 186).
