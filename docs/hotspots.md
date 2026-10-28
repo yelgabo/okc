@@ -234,4 +234,4 @@ SGLang kernels from the baseline-as-submission run in `muse_decode_layer/baselin
 | verify 32 batch=32 ctx=80000 dist=soft layer=full page=1 q_len=8 spread=agentic | 16 | 1106.1 | 860.9 | 267.2 | 4.1x | 3.2x | verify::attn_ws_kernel<7, 3, ... 356.2us 29%<br>verify::ws_combine_kernel 354.9us 29%<br>w4_gemm_kernel<1, 2, 16, 4, 4... 228.0us 19% | sglang::device::marlin_moe::Marlin<__nv_bfloat16 529.5us 48%<br>cutlass::device_kernel<flash::enable_sm90_or_lat 368.4us 33%<br>nvjet_sm90_tst_128x64_64x8_1x2_h_bz_TNT 38.5us 4% |
 
 
-W0's last check (front tuner on, prefetch off except the real-load form that this run measured and dropped). Per shape vs the submitted 0e28c26271c94570: decode 1 sliding 116.8 -> 114.7 here (111.0 in 9cb961d383ab42be without the prefetch), decode 1 full 128.3 -> 125.1; the MoE rows differ by the judge's routing draw.
+W0's last check (front tuner on, prefetch off except the real-load form that this run measured and dropped). Per shape vs the submitted 0e28c26271c94570: decode 1 sliding 116.8 -> 114.7 here (111.0 in 9cb961d383ab42be without the prefetch), decode 1 full 128.3 -> 127.9; the MoE rows differ by the judge's routing draw.
