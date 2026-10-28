@@ -1123,10 +1123,16 @@ __device__ __forceinline__ void run_group(const Params& p, SmemMain& S, float* s
             S.dg[PH * 8 + NTT - 1][7] += 1;
             S.dg[16][1 + PH] += si.partial ? 1 : 0;
         }
+        // Warp 0's cycles inside segments of either path (the per-warp stamps cover the
+        // mma.sync path only): the cost model's work target.
+        const long long cs = MODE == kDiagMode ? clock64() : 0;
         if constexpr (NTT <= mma_max(MODE)) {
             run_segment_mma<NTT, PH, MODE>(p, S, ss, si, rg, G);
         } else {
             run_segment<NTT, PH, MODE>(p, S, ss, si, acc, rg, xrel, G);
+        }
+        if (MODE == kDiagMode && threadIdx.x == 0) {
+            S.dg[17][5 + PH] += clock64() - cs;
         }
     }
 }
@@ -3755,7 +3761,8 @@ def _diag_launch(state, data, cost, flush):
     weights producer's cycles waiting for a free slot, [1..2] cut (partial) segments per
     phase, [3..7] globaltimer at start, consumers start, consumers done, barrier done, end;
     row 17 [0..2] the x producer's cycles waiting for a free slot, for done_as, for xready,
-    [3..4] clock64 at start and end. Returns the stamps and the clock in cycles per us."""
+    [3..4] clock64 at start and end, [5..6] warp 0's cycles inside segments per phase.
+    Returns the stamps and the clock in cycles per us."""
     v = VARIANT_MAIN0 + MAIN_MODES.index(11)
     inter = state["scratch"]["inter"]
     _run(data, state, v, cost=cost)
@@ -3866,7 +3873,7 @@ def _spearman(a, b):
 
 def _cost_model(state):
     """DIAG launches over DIAG_SIZES x {normal, skewed} x seeds x DIAG_TABLES; a nonnegative
-    fit of each CTA's consumer work (compute + epilogue/fixup, mean over its warps) on
+    fit of each CTA's consumer work (warp 0's time inside segments, both paths) on
     COST_TERMS from the training seeds; validation on the held-out seeds against the
     compiled table's prediction (same nonnegative scale + offset fit). Ranks: per launch, the
     Spearman correlation of predicted work with each CTA's measured finish time; per routing
@@ -3882,7 +3889,7 @@ def _cost_model(state):
                 for name, table in DIAG_TABLES:
                     d, cyc = _diag_launch(state, data, table, flush)
                     t = d[:, 16, 3:8]
-                    work = (d[:, :16, 2] + d[:, :16, 3]).mean(1) / cyc
+                    work = (d[:, 17, 5] + d[:, 17, 6]) / cyc
                     finish = (t[:, 2] - t[:, 0].min()) / 1e3
                     runs.append({"bs": bs, "dist": dist, "seed": seed, "table": name,
                                  "x": _cost_features(d), "f": _fixed_feature(d), "work": work,

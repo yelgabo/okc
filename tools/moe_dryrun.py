@@ -77,6 +77,8 @@ def main():
         cyc = 1800.0
         dg[:, :16, 2] = (0.8 * work * cyc).long().unsqueeze(1)
         dg[:, :16, 3] = (0.2 * work * cyc).long().unsqueeze(1)
+        dg[:, 17, 5] = (0.6 * work * cyc).long()
+        dg[:, 17, 6] = (0.4 * work * cyc).long()
         start = 10_000
         done = start + ((work + 5 * torch.rand(g, generator=gen, dtype=torch.float64)) * 1e3).long()
         dg[:, 16, 3] = 0
