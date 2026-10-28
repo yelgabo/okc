@@ -159,6 +159,10 @@ ROUTE_ON_SIDE = True
 # Up to 8 tokens, our FFN boundary on the unpooler slice's 1024 live channels in place of
 # F.pad to 8192 and FusedPostNormResidualPreNorm.
 PORT_FFN_BOUNDARY = True
+# Our attention boundary (post-attention norm, residual gate, pre-FFN norm, FP32 router input
+# at T <= 8) with SGLang's one BF16 rounding, as a PDL secondary that loads the stream and the
+# weights before its wait and triggers at entry, so the pooler's weight stream starts earlier.
+PORT_ATTN_BOUNDARY = True
 # Our pre-expert norm (torch's F.rms_norm math and summation order) as a PDL secondary of the
 # pooler that triggers at entry, so GEMM1 is resident when it ends; torch's kernel cost 6 us
 # on every shape.
@@ -211,6 +215,10 @@ std::vector<torch::Tensor> ffn_boundary_short(torch::Tensor stream, torch::Tenso
                                               torch::Tensor w_post, torch::Tensor alpha,
                                               torch::Tensor beta, torch::Tensor w_next,
                                               double eps_post, double eps_next);
+std::vector<torch::Tensor> attn_boundary(torch::Tensor stream, torch::Tensor branch,
+                                         torch::Tensor alpha, torch::Tensor beta,
+                                         torch::Tensor w_next, double eps_post,
+                                         double eps_next, bool want_router);
 """
 
 _CUDA_SRC = r"""
@@ -3481,8 +3489,127 @@ __global__ void __cluster_dims__(CTAS, 1, 1) __launch_bounds__(THREADS) boundary
                    *reinterpret_cast<const uint32_t*>(&h1));
 }
 
+// The attention boundary: post-attention norm (no weight), residual gate, pre-FFN norm, and up
+// to 8 tokens the FP32 router input. SGLang's kernel rounds the normalized branch to BF16
+// before the residual add, keeps the stream FP32 and writes the router copy unrounded
+// (norm_residual.cuh); bf16r() reproduces the one rounding. A cluster of 8 CTAs per token;
+// both sums of squares are reduced over the cluster through distributed shared memory. The
+// stream (a step input), the gate and the norm weight are loaded before the wait on the o
+// projection, whose output the branch is.
+__global__ void __cluster_dims__(CTAS, 1, 1) __launch_bounds__(THREADS) attn_boundary_kernel(
+    const float* __restrict__ stream, const __nv_bfloat16* __restrict__ branch,
+    const float* __restrict__ alpha, const float* __restrict__ beta,
+    const __nv_bfloat16* __restrict__ w_next, float* __restrict__ stream_out,
+    __nv_bfloat16* __restrict__ next, float* __restrict__ router, float eps_post,
+    float eps_next) {
+    asm volatile("griddepcontrol.launch_dependents;");
+    namespace cg = cooperative_groups;
+    __shared__ float red[THREADS / 32];
+    __shared__ float part[2];
+    cg::cluster_group cluster = cg::this_cluster();
+    const int rank = static_cast<int>(cluster.block_rank());
+    const int tok = blockIdx.y;
+    const int c0 = rank * (H / CTAS) + PER * threadIdx.x;
+    const size_t row = static_cast<size_t>(tok) * H;
+    const float4 sv = *reinterpret_cast<const float4*>(stream + row + c0);
+    const float4 av = *reinterpret_cast<const float4*>(alpha + c0);
+    const float4 bv = *reinterpret_cast<const float4*>(beta + c0);
+    const float4 nv = bf16x4(w_next + c0);
+    asm volatile("griddepcontrol.wait;" ::: "memory");
+    const float4 fv = bf16x4(branch + row + c0);
+    const float fa[PER] = {fv.x, fv.y, fv.z, fv.w};
+    float ss = 0.f;
+#pragma unroll
+    for (int k = 0; k < PER; ++k) {
+        ss += fa[k] * fa[k];
+    }
+    ss = block_sum(ss, red);
+    if (threadIdx.x == 0) {
+        part[0] = ss;
+    }
+    cluster.sync();
+    float total = 0.f;
+#pragma unroll
+    for (int r = 0; r < CTAS; ++r) {
+        total += cluster.map_shared_rank(part, r)[0];
+    }
+    const float rb = rsqrtf(total / H + eps_post);
+    const float sa[PER] = {sv.x, sv.y, sv.z, sv.w};
+    const float aa[PER] = {av.x, av.y, av.z, av.w};
+    const float ba[PER] = {bv.x, bv.y, bv.z, bv.w};
+    float s[PER];
+    float ss2 = 0.f;
+#pragma unroll
+    for (int k = 0; k < PER; ++k) {
+        s[k] = aa[k] * sa[k] + ba[k] * bf16r(fa[k] * rb);
+        ss2 += s[k] * s[k];
+    }
+    ss2 = block_sum(ss2, red);
+    if (threadIdx.x == 0) {
+        part[1] = ss2;
+    }
+    cluster.sync();
+    float total2 = 0.f;
+#pragma unroll
+    for (int r = 0; r < CTAS; ++r) {
+        total2 += cluster.map_shared_rank(part, r)[1];
+    }
+    // No CTA may exit while another can still read its partials.
+    cluster.sync();
+    const float rn = rsqrtf(total2 / H + eps_next);
+    *reinterpret_cast<float4*>(stream_out + row + c0) = make_float4(s[0], s[1], s[2], s[3]);
+    const float na[PER] = {nv.x, nv.y, nv.z, nv.w};
+    float o[PER];
+#pragma unroll
+    for (int k = 0; k < PER; ++k) {
+        o[k] = s[k] * rn * na[k];
+    }
+    const __nv_bfloat162 h0 = __floats2bfloat162_rn(o[0], o[1]);
+    const __nv_bfloat162 h1 = __floats2bfloat162_rn(o[2], o[3]);
+    *reinterpret_cast<uint2*>(next + row + c0) =
+        make_uint2(*reinterpret_cast<const uint32_t*>(&h0),
+                   *reinterpret_cast<const uint32_t*>(&h1));
+    if (router != nullptr) {
+        *reinterpret_cast<float4*>(router + row + c0) = make_float4(o[0], o[1], o[2], o[3]);
+    }
+}
+
 }  // namespace bnd
 }  // namespace
+
+std::vector<torch::Tensor> attn_boundary(torch::Tensor stream, torch::Tensor branch,
+                                         torch::Tensor alpha, torch::Tensor beta,
+                                         torch::Tensor w_next, double eps_post,
+                                         double eps_next, bool want_router) {
+    using namespace bnd;
+    const int tokens = stream.size(0);
+    TORCH_CHECK(stream.is_contiguous() && stream.scalar_type() == torch::kFloat32
+                && stream.size(1) == H, "attn_boundary: stream must be FP32 [T, 8192]");
+    TORCH_CHECK(branch.is_contiguous() && branch.scalar_type() == torch::kBFloat16
+                && branch.size(0) == tokens && branch.size(1) == H,
+                "attn_boundary: branch must be BF16 [T, 8192]");
+    TORCH_CHECK(w_next.is_contiguous() && alpha.is_contiguous() && beta.is_contiguous()
+                && w_next.scalar_type() == torch::kBFloat16
+                && alpha.scalar_type() == torch::kFloat32
+                && beta.scalar_type() == torch::kFloat32 && w_next.numel() == H
+                && alpha.numel() == H && beta.numel() == H, "attn_boundary: weights");
+    auto stream_out = torch::empty_like(stream);
+    auto next = torch::empty({tokens, H}, branch.options());
+    auto router = torch::empty({want_router ? tokens : 0, H}, stream.options());
+    if (tokens == 0) {
+        return {next, stream_out, router};
+    }
+    launch_ex(
+        attn_boundary_kernel, dim3(CTAS, tokens), dim3(THREADS), 0,
+        at::cuda::getCurrentCUDAStream(), kPdlGlue, stream.data_ptr<float>(),
+        reinterpret_cast<const __nv_bfloat16*>(branch.data_ptr()), alpha.data_ptr<float>(),
+        beta.data_ptr<float>(), reinterpret_cast<const __nv_bfloat16*>(w_next.data_ptr()),
+        stream_out.data_ptr<float>(), reinterpret_cast<__nv_bfloat16*>(next.data_ptr()),
+        want_router ? router.data_ptr<float>() : static_cast<float*>(nullptr),
+        static_cast<float>(eps_post), static_cast<float>(eps_next));
+    C10_CUDA_KERNEL_LAUNCH_CHECK();
+    return {next, stream_out, router};
+}
 
 std::vector<torch::Tensor> ffn_boundary_short(torch::Tensor stream, torch::Tensor f,
                                               torch::Tensor w_post, torch::Tensor alpha,
@@ -4363,7 +4490,7 @@ def _ext():
                           _WS_HOST_SRC, _BND_SRC],
             functions=["route_align", "finalize", "router_fwd", "proj_fwd", "router_mma_fwd",
                        "attn_prep", "attn_gate", "attn_fused", "attn_verify",
-                       "ffn_boundary_short", "pre_norm"],
+                       "ffn_boundary_short", "pre_norm", "attn_boundary"],
             extra_cuda_cflags=["-O3", "-gencode=arch=compute_90a,code=sm_90a"],
         )
     return _EXT
@@ -5248,6 +5375,57 @@ def _pre_norm(x, state):
     return state["pre_expert_norm"](x)
 
 
+def _abnd_enable(state):
+    """Takes what SGLang's attention boundary holds (the residual gate's FP32 alpha and beta,
+    the pre-FFN norm's effective 1 + w in BF16, both eps) and checks our kernel against the
+    module at 1-256 tokens, with and without the FP32 router copy. Raises on a mismatch."""
+    mod = state["attn_boundary"]
+    post, res, pre = mod._post_norm, mod._residual_add, mod._pre_norm
+    if not (not mod._post_norm_is_input_scale and not mod._pre_norm_is_input_scale
+            and mod._use_residual_gate and mod._hidden_size == HIDDEN
+            and post.weight is None and pre.weight is not None):
+        raise RuntimeError("attention boundary: unexpected configuration")
+    abnd = {
+        "alpha": res._alpha.float().reshape(-1).contiguous(),
+        "beta": res._beta.float().reshape(-1).contiguous(),
+        "w_next": pre._get_effective_weight().detach().to(torch.bfloat16).contiguous(),
+        "eps_post": float(post.eps),
+        "eps_next": float(pre.eps),
+    }
+    state["abnd"] = abnd
+    gen = torch.Generator(device="cuda").manual_seed(9)
+    worst = 0.0
+    for tokens in (1, 2, 3, 5, 8, 9, 16, 33, 256):
+        stream = torch.randn((tokens, HIDDEN), generator=gen, device="cuda") * 3
+        branch = (torch.randn((tokens, HIDDEN), generator=gen, device="cuda") * 0.5)
+        branch = branch.to(torch.bfloat16)
+        want_router = tokens <= ROUTER_FP32_MAX_TOKENS
+        ref_next, ref_stream, ref_router = mod(
+            stream.clone(), branch, branch_dtype=torch.bfloat16,
+            router_dtype=torch.float32 if want_router else None)
+        nxt, out, router = _abnd(stream.clone(), branch, want_router, state)
+        torch.cuda.synchronize()
+        carried = abnd["alpha"] * stream
+        errs = {"next input": _rel(nxt, ref_next),
+                "update": _rel(out - carried, ref_stream - carried),
+                "stream": _rel(out, ref_stream)}
+        if want_router:
+            errs["router"] = _rel(router, ref_router)
+        print(f"attention boundary self-test T={tokens}: "
+              + ", ".join(f"{k} {v:.2e}" for k, v in errs.items()))
+        worst = max(worst, max(errs.values()))
+    if not worst < 1e-4:
+        raise RuntimeError(f"attention boundary: rel diff {worst:.2e}")
+
+
+def _abnd(stream, branch, want_router, state):
+    abnd = state["abnd"]
+    nxt, out, router = _ext().attn_boundary(stream.contiguous(), branch.contiguous(),
+                                            abnd["alpha"], abnd["beta"], abnd["w_next"],
+                                            abnd["eps_post"], abnd["eps_next"], want_router)
+    return nxt, out, (router if want_router else None)
+
+
 def _bnd_enable(state):
     """Takes the weights and coefficients SGLang's FFN boundary holds (its post-norm's and
     pre-norm's effective 1 + w in BF16, the residual gate's FP32 alpha and beta) and checks our
@@ -5470,6 +5648,7 @@ def prepare(weights):
         "attn_ws_ours": False,
         "route_side_ok": False,
         "bnd_ours": False,
+        "abnd_ours": False,
         "norm_ours": False,
         "front_policy": {},
         # As SGLang's RotaryEmbedding computes them, so the angles match its cos/sin table.
@@ -5503,6 +5682,8 @@ def prepare(weights):
         state["attn_fused_ours"] = _try("attn fused", lambda: _attn_self_test(state))
     if PORT_FFN_BOUNDARY:
         state["bnd_ours"] = _try("ffn boundary", lambda: _bnd_enable(state))
+    if PORT_ATTN_BOUNDARY:
+        state["abnd_ours"] = _try("attention boundary", lambda: _abnd_enable(state))
     if PORT_PRE_NORM:
         state["norm_ours"] = _try("pre-expert norm", lambda: _norm_self_test(state))
     if ROUTE_ON_SIDE:
@@ -5546,9 +5727,13 @@ def kernel_fn(data, state):
     attn_output = _proj(o, "o", HIDDEN, state)  # all-reduce: identity
 
     split_router = tokens > ROUTER_FP32_MAX_TOKENS
-    ffn_input, stream, router_input = state["attn_boundary"](
-        data["stream"], attn_output, branch_dtype=torch.bfloat16,
-        router_dtype=None if split_router else torch.float32)
+    if state["abnd_ours"]:
+        ffn_input, stream, router_input = _abnd(data["stream"], attn_output, not split_router,
+                                                state)
+    else:
+        ffn_input, stream, router_input = state["attn_boundary"](
+            data["stream"], attn_output, branch_dtype=torch.bfloat16,
+            router_dtype=None if split_router else torch.float32)
     # The router and routing run on a side stream, overlapping the pooler on the main one.
     moe_opts = _moe_opts(tokens, state) if state["moe_ours"] else None
     expert_input, topk_weights, topk_ids, meta = _moe_front(
