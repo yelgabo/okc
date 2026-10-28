@@ -9,6 +9,8 @@ subtracts, so compare them within a shape, not against the judge's column.
 | date | job | commit | change | score (95% CI) | notes |
 |---|---|---|---|---|---|
 | 10-27 | 2b3c25820fee4b2d | 99f2d18 | baseline copy + component bench | 1.005x (0.990-1.020) | profile: FA3 main kernel is 94-97% of full-layer time at b16/b32 (195 / 374 µs vs floors 63 / 126); sliding is 7 launches of 1-16 µs each |
+| 10-27 | 43ef868a181e49b2 | 6416ab1 | idea 1: one prep launch (norm, RoPE, FP8 q, cache write) + FA3 + one norm-gate launch; fused kernel failed to build (-std=c++17) so this timed idea 1 alone | 1.128x (1.111-1.145) | sliding 1.24-1.34x, full b1 1.12-1.17x, full b16/b32 1.02-1.03x |
+| 10-27 | 418d8d492c074b88 | 3341f56 | idea 2 v1: one-launch fused kernel (FP8 QK mma, f16 PV mma, cluster merge on sliding, split + merge launch on full) | 0.642x (0.633-0.652) | 16/16 tests pass. Decode full b16/b32 1.14x / 1.19x; everything else slower, verify 0.45-0.53x. Per-CTA rate ~10 GB/s: each tile waited on a dependent page-table load; cluster merge did up to 128 serial DSMEM reads per row |
 
 ## Baseline profile (job 2b3c25820fee4b2d)
 

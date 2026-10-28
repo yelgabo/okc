@@ -130,6 +130,20 @@ __device__ __forceinline__ void cp_async4(uint32_t dst, const void* src, bool va
                  :: "r"(dst), "l"(src), "r"(valid ? 4 : 0));
 }
 
+__device__ __forceinline__ void ldsm_x4_t(uint32_t addr, uint32_t& r0, uint32_t& r1, uint32_t& r2,
+                                          uint32_t& r3) {
+    asm volatile("ldmatrix.sync.aligned.m8n8.x4.trans.shared.b16 {%0,%1,%2,%3}, [%4];\n"
+                 : "=r"(r0), "=r"(r1), "=r"(r2), "=r"(r3) : "r"(addr));
+}
+
+// Value tile converted to f16 once per stage when VF16: [token][128 dims] rows of 256 bytes,
+// 16-byte chunks XOR-swizzled by token so ldmatrix row reads hit distinct banks.
+constexpr int VH_BYTES = BN * ROW_BYTES * 2;
+
+__device__ __forceinline__ int vh_chunk(int chunk, int tok) {
+    return chunk ^ (tok & 7);
+}
+
 __device__ __forceinline__ float warp_max(float v) {
     for (int o = 16; o; o >>= 1) {
         v = fmaxf(v, __shfl_xor_sync(0xffffffffu, v, o));
@@ -202,7 +216,7 @@ __device__ __forceinline__ void merge_row(Get get, int n, int lane, float v_scal
     reinterpret_cast<__nv_bfloat162*>(out)[lane] = __float22bfloat162_rn(acc);
 }
 
-template <int L, int MT, int TP, int KC, bool CLUSTER>
+template <int L, int MT, int TP, int KC, bool CLUSTER, bool VF16>
 __global__ void __launch_bounds__(Cfg<L, MT, TP, KC>::THREADS)
 attn_kernel(const Params p) {
     using C = Cfg<L, MT, TP, KC>;
@@ -353,6 +367,30 @@ attn_kernel(const Params p) {
 
     // KC 16-token chunks from chunk ch0 of smem stage st; token i of the stage sits at position
     // pos0 + i and is visible to a row when lo_row <= pos <= min(lim_all, the row's position).
+    uint8_t* vh = smem + SMEM_TOTAL;
+    // All threads convert a stage's FP8 values to f16 once, instead of each warp converting
+    // the fragments it needs.
+    auto convert_v = [&](const uint8_t* st) {
+        const uint8_t* vs = st + BN * ROW_BYTES;
+        for (int i = tid; i < BN * 8; i += C::THREADS) {
+            const int t = i >> 3;
+            const int ck = i & 7;
+            const uint4 w = *reinterpret_cast<const uint4*>(vs + t * ROW_BYTES + v_chunk(ck, t) * 16);
+            const uint32_t wv[4] = {w.x, w.y, w.z, w.w};
+            uint32_t h[8];
+#pragma unroll
+            for (int e = 0; e < 4; ++e) {
+                h[2 * e] = f16x2_from_fp8x2(wv[e] & 0xffffu);
+                h[2 * e + 1] = f16x2_from_fp8x2(wv[e] >> 16);
+            }
+            uint8_t* row = vh + t * (2 * ROW_BYTES);
+            *reinterpret_cast<uint4*>(row + vh_chunk(2 * ck, t) * 16) =
+                make_uint4(h[0], h[1], h[2], h[3]);
+            *reinterpret_cast<uint4*>(row + vh_chunk(2 * ck + 1, t) * 16) =
+                make_uint4(h[4], h[5], h[6], h[7]);
+        }
+    };
+
     auto chunk = [&](const uint8_t* st, int ch0, int pos0, int lim_all) {
         const uint8_t* ks = st;
         const uint8_t* vs = st + BN * ROW_BYTES;
@@ -371,6 +409,11 @@ attn_kernel(const Params p) {
             }
         }
         uint32_t pa[MT][KC][4];
+        // Interior chunks are visible to every row of the block: no masking needed.
+        const int first = pos0 + ch0 * 16;
+        const int last = first + 16 * KC - 1;
+        const bool interior = last <= min(lim_all, seq)
+                              && (!p.window || first >= seq + L - p.window);
 #pragma unroll
         for (int mt = 0; mt < MT; ++mt) {
 #pragma unroll
@@ -385,7 +428,9 @@ attn_kernel(const Params p) {
                     for (int k = 0; k < 2; ++k) {
                         const int pos = pos0 + ch0 * 16 + sub * 8 + 2 * c + k;
                         float v = s[mt][sub][2 * half + k] * qk_scale;
-                        v = (pos >= lo_row && pos <= lim) ? v : NEG_INF;
+                        if (!interior) {
+                            v = (pos >= lo_row && pos <= lim) ? v : NEG_INF;
+                        }
                         s[mt][sub][2 * half + k] = v;
                         mx = fmaxf(mx, v);
                     }
@@ -407,10 +452,13 @@ attn_kernel(const Params p) {
                     }
                 }
                 l[mt][half] = l[mt][half] * alpha + sum;
+                // Once the running max settles, alpha is 1 for the whole warp; skip the rescale.
+                if (__any_sync(0xffffffffu, alpha != 1.f)) {
 #pragma unroll
-                for (int e = 0; e < 8; ++e) {
-                    o[mt][e][2 * half] *= alpha;
-                    o[mt][e][2 * half + 1] *= alpha;
+                    for (int e = 0; e < 8; ++e) {
+                        o[mt][e][2 * half] *= alpha;
+                        o[mt][e][2 * half + 1] *= alpha;
+                    }
                 }
             }
 #pragma unroll
@@ -420,6 +468,30 @@ attn_kernel(const Params p) {
                 pa[mt][kk][2] = pack_f16(s[mt][2 * kk + 1][0], s[mt][2 * kk + 1][1]);
                 pa[mt][kk][3] = pack_f16(s[mt][2 * kk + 1][2], s[mt][2 * kk + 1][3]);
             }
+        }
+        if constexpr (VF16) {
+            // ldmatrix.trans of the f16 values: n-tile e is head dims 8e..8e+7.
+            const int r = lane & 7;
+            const int mi = lane >> 3;
+#pragma unroll
+            for (int kk = 0; kk < KC; ++kk) {
+                const int t = (ch0 + kk) * 16 + (mi & 1) * 8 + r;
+#pragma unroll
+                for (int q = 0; q < 4; ++q) {
+                    const int ck = head * 8 + 2 * q + (mi >> 1);
+                    uint32_t b0, b1, b2, b3;
+                    ldsm_x4_t(smem_u32(vh + t * (2 * ROW_BYTES) + vh_chunk(ck, t) * 16), b0, b1,
+                              b2, b3);
+#pragma unroll
+                    for (int mt = 0; mt < MT; ++mt) {
+                        mma_f16(o[mt][2 * q], pa[mt][kk][0], pa[mt][kk][1], pa[mt][kk][2],
+                                pa[mt][kk][3], b0, b1);
+                        mma_f16(o[mt][2 * q + 1], pa[mt][kk][0], pa[mt][kk][1], pa[mt][kk][2],
+                                pa[mt][kk][3], b2, b3);
+                    }
+                }
+            }
+            return;
         }
         // Value fragments: tokens 2c, 2c+1, 2c+8, 2c+9 of each 16-token step, dims 8g..8g+7 of
         // the head. Output column g of n-tile e is head dim 8g + e.
@@ -472,6 +544,11 @@ attn_kernel(const Params p) {
         cp_commit();
         const uint8_t* st = smem + (it % STAGES) * STAGE_BYTES;
         const int pos0 = lo + it * BN;
+        if constexpr (VF16) {
+            // The top-of-loop barrier keeps this from overwriting values still being read.
+            convert_v(st);
+            __syncthreads();
+        }
 #pragma unroll
         for (int ch = tp * KC; ch < C::CHUNKS; ch += TP * KC) {
             if (pos0 + ch * 16 < hi) {
@@ -523,6 +600,10 @@ attn_kernel(const Params p) {
                                          + sw * 16 + (byte & 15)) = v8;
         }
         __syncthreads();
+        if constexpr (VF16) {
+            convert_v(st);
+            __syncthreads();
+        }
         if (tp == 0) {
             chunk(st, 0, seq, seq + L - 1);
         }
@@ -552,8 +633,13 @@ attn_kernel(const Params p) {
             }
 #pragma unroll
             for (int e = 0; e < 8; ++e) {
-                dst[2 + 8 * (2 * c) + e] = o[mt][e][2 * half];
-                dst[2 + 8 * (2 * c + 1) + e] = o[mt][e][2 * half + 1];
+                if constexpr (VF16) {
+                    dst[2 + 8 * e + 2 * c] = o[mt][e][2 * half];
+                    dst[2 + 8 * e + 2 * c + 1] = o[mt][e][2 * half + 1];
+                } else {
+                    dst[2 + 8 * (2 * c) + e] = o[mt][e][2 * half];
+                    dst[2 + 8 * (2 * c + 1) + e] = o[mt][e][2 * half + 1];
+                }
             }
         }
     }
@@ -627,13 +713,14 @@ __global__ void combine_kernel(const float* __restrict__ ws, const __nv_bfloat16
               out + static_cast<size_t>(tok) * HQ * D + qh * D);
 }
 
-template <int L, int MT, int TP, int KC, bool CLUSTER>
+template <int L, int MT, int TP, int KC, bool CLUSTER, bool VF16 = false>
 void launch(const Params& p, int batch, cudaStream_t stream) {
     using C = Cfg<L, MT, TP, KC>;
-    auto kern = attn_kernel<L, MT, TP, KC, CLUSTER>;
+    auto kern = attn_kernel<L, MT, TP, KC, CLUSTER, VF16>;
+    constexpr int smem_bytes = SMEM_TOTAL + (VF16 ? VH_BYTES : 0);
     static bool configured = false;
     if (!configured) {
-        cudaFuncSetAttribute(kern, cudaFuncAttributeMaxDynamicSharedMemorySize, SMEM_TOTAL);
+        cudaFuncSetAttribute(kern, cudaFuncAttributeMaxDynamicSharedMemorySize, smem_bytes);
         if (CLUSTER) {
             cudaFuncSetAttribute(kern, cudaFuncAttributeNonPortableClusterSizeAllowed, 1);
         }
@@ -642,7 +729,7 @@ void launch(const Params& p, int batch, cudaStream_t stream) {
     cudaLaunchConfig_t cfg = {};
     cfg.gridDim = dim3(p.splits, batch);
     cfg.blockDim = dim3(C::THREADS);
-    cfg.dynamicSmemBytes = SMEM_TOTAL;
+    cfg.dynamicSmemBytes = smem_bytes;
     cfg.stream = stream;
     cudaLaunchAttribute attr[1];
     cfg.numAttrs = 0;
@@ -665,12 +752,17 @@ void launch(const Params& p, int batch, cudaStream_t stream) {
 // INSTANTIATE: template void launch<8, 1, 1, 4, true>(const Params&, int, cudaStream_t);
 // INSTANTIATE: template void launch<8, 1, 1, 4, false>(const Params&, int, cudaStream_t);
 // INSTANTIATE: template void launch<1, 1, 2, 2, false>(const Params&, int, cudaStream_t);
+// INSTANTIATE: template void launch<8, 1, 1, 4, true, true>(const Params&, int, cudaStream_t);
+// INSTANTIATE: template void launch<8, 1, 1, 4, false, true>(const Params&, int, cudaStream_t);
+// INSTANTIATE: template void launch<8, 2, 1, 2, false, true>(const Params&, int, cudaStream_t);
+// INSTANTIATE: template void launch<8, 1, 1, 2, false, true>(const Params&, int, cudaStream_t);
 
 }  // namespace
 
 // variant: q_len 1: 0 = 8 warps, 1 chunk each; 1 = 4 warps, 2 chunks each.
 //          q_len 8: 0 = 2 m-tiles x 2 chunks per warp (4 warps); 1 = 1 m-tile x 4 chunks
-//          (8 warps).
+//          (8 warps); 2, 3, 4 = values converted to f16 once per stage, with 1 m-tile x 4
+//          chunks (8 warps), 2 m-tiles x 2 chunks (4 warps), 1 m-tile x 2 chunks (8 warps).
 torch::Tensor attn_fused(torch::Tensor qkv, torch::Tensor page_table, torch::Tensor seq_lens,
                          torch::Tensor cache_loc, torch::Tensor inv_freq, torch::Tensor k_scale,
                          torch::Tensor v_scale, torch::Tensor k_cache, torch::Tensor v_cache,
@@ -697,6 +789,9 @@ torch::Tensor attn_fused(torch::Tensor qkv, torch::Tensor page_table, torch::Ten
     p.rope = rope ? 1 : 0;
     p.splits = splits;
     p.qk_scale = static_cast<float>(qk_scale);
+    if (q_len == 8 && variant >= 3) {
+        cluster = false;
+    }
     torch::Tensor ws;
     if (!cluster) {
         ws = torch::empty({batch * splits * HQ * q_len * PART}, qkv.options().dtype(torch::kFloat32));
@@ -716,6 +811,16 @@ torch::Tensor attn_fused(torch::Tensor qkv, torch::Tensor page_table, torch::Ten
         } else {
             launch<8, 1, 1, 4, false>(p, batch, stream);
         }
+    } else if (variant == 2) {
+        if (cluster) {
+            launch<8, 1, 1, 4, true, true>(p, batch, stream);
+        } else {
+            launch<8, 1, 1, 4, false, true>(p, batch, stream);
+        }
+    } else if (variant == 3) {
+        launch<8, 2, 1, 2, false, true>(p, batch, stream);
+    } else if (variant == 4) {
+        launch<8, 1, 1, 2, false, true>(p, batch, stream);
     } else if (cluster) {
         launch<8, 2, 1, 2, true>(p, batch, stream);
     } else {
