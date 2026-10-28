@@ -24,8 +24,9 @@ Per-shape columns, in TASK.md's order: d1 = decode 1, d16, d32, v1 = verify 1 (8
   local_start 0 and 96; the finalizer gets the effective post-expert norm weight, as Marlin's
   path does. Policy key is T (1, 8, 16, 32, 128, 256; other T use the next one up).
 - Fused MoE (`PORT_MOE_FUSED`): muse_moe_w4a16's one-launch kernel, assembled by
-  tools/dl_moe_inline.py for the computing variants only (skinny sk8w4s, sk16w4s, sk8w5s;
-  fat main-d2, main-d3 from 17 tokens) inside a nested `moe1` namespace and built as its own
+  tools/dl_moe_inline.py from source commit 8a8f6e4 for the computing variants only (skinny
+  sk8w4s and sk16w4s; fat main-d2 from 17 tokens; the source's own tables, trimmed as its
+  guide asks) inside a nested `moe1` namespace and built as its own
   extension (`okc_decode_layer_moe1`) on a thread from the top of prepare(). The inliner
   gives Params a `lo_p` pointer so both kernels take the local expert range from the
   layer's `local_start` tensor on the device (as route_align does) and copies the repack
@@ -37,7 +38,8 @@ Per-shape columns, in TASK.md's order: d1 = decode 1, d16, d32, v1 = verify 1 (8
   output before the norm). Wiring: `_moe_opts` carries the chosen variant; `_route_meta`
   then returns only the routing tensors (no route_align on the side stream) and
   `_experts_run` makes the one launch on the main stream after the join, with no PDL
-  attribute and no early trigger, since its grid barrier needs all 132 CTAs resident; the
+  attribute (both kernels begin with `griddepcontrol.wait` since 8a8f6e4, so the attribute
+  would be safe) and no early trigger, since its grid barrier needs all 132 CTAs resident; the
   pre-expert norm stays W0's kernel. Policy: `_moe1_tune` times the W4 chain and every
   passing fused variant per T in (1, 8, 16, 32, 128, 256) as cold-L2 graph replays of the
   main-stream MoE call (metadata built outside the graph, as the side stream builds it) and
