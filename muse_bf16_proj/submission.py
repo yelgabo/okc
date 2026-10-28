@@ -483,7 +483,10 @@ __device__ __forceinline__ unsigned pick(const uint4& v, int j) {
 
 // DUMP writes each decoded A fragment to `dump` in _pack_mma_a's layout instead of multiplying,
 // so prepare() can compare every reconstructed weight bit for bit through this same code.
-template <int WARPS, int S, bool DUMP>
+// ACCS independent accumulators shorten the chain of dependent mma. NODECODE skips the byte
+// shuffle and gives wrong results; only the bench uses it, to time the decode.
+template <int WARPS, int S, bool DUMP, int ACCS = 2, bool EXC_SELECT = true,
+          bool NODECODE = false>
 __global__ void __cluster_dims__(1, S, 1) __launch_bounds__(WARPS * 32)
 cproj_kernel(const uint4* __restrict__ wc, const unsigned* __restrict__ desc,
              const uint4* __restrict__ exc, unsigned base4, const __nv_bfloat16* __restrict__ x,
@@ -557,7 +560,14 @@ cproj_kernel(const uint4* __restrict__ wc, const unsigned* __restrict__ desc,
         asm volatile("cp.async.commit_group;\n");
     }
 
-    float acc[4] = {0.f, 0.f, 0.f, 0.f};
+    float acc[ACCS][4];
+#pragma unroll
+    for (int j = 0; j < ACCS; ++j) {
+#pragma unroll
+        for (int r = 0; r < 4; ++r) {
+            acc[j][r] = 0.f;
+        }
+    }
     const int xrow = (lane & 7) * XS + ((lane >> 3) & 1) * 8;
 
     for (int c = 0; c < chunks; ++c) {
@@ -586,8 +596,9 @@ cproj_kernel(const uint4* __restrict__ wc, const unsigned* __restrict__ desc,
         for (int j = 0; j < 2; ++j) {
             nib[j] = wa[(4 + j) * 32];
         }
-#pragma unroll
-        for (int i = 0; i < CCH; ++i) {
+        // EXC_SELECT: true selects raw high bytes per tile without a branch; false branches per
+        // tile. Either is exact.
+        auto tile_step = [&](int i, bool any_exc) {
             const unsigned l0 = i % 2 == 0 ? lo[i / 2].x : lo[i / 2].z;
             const unsigned l1 = i % 2 == 0 ? lo[i / 2].y : lo[i / 2].w;
             // Byte b of word holds weight b's nibble low and weight b + 4's high. base4 is the
@@ -595,34 +606,64 @@ cproj_kernel(const uint4* __restrict__ wc, const unsigned* __restrict__ desc,
             const unsigned word = pick(nib[i / 4], i % 4);
             unsigned h0 = ((word << 4) & 0x80808080u) | ((word & 0x07070707u) + base4);
             unsigned h1 = (word & 0x80808080u) | (((word >> 4) & 0x07070707u) + base4);
-            if ((mask >> i) & 1) {
-                const uint2 e = ea[__popc(mask & ((1u << i) - 1)) * 32];
-                h0 = e.x;
-                h1 = e.y;
+            if (any_exc) {
+                const bool flagged = (mask >> i) & 1;
+                if (EXC_SELECT) {
+                    const uint2 e = ea[__popc(mask & ((1u << i) - 1)) * 32];
+                    h0 = flagged ? e.x : h0;
+                    h1 = flagged ? e.y : h1;
+                } else if (flagged) {
+                    const uint2 e = ea[__popc(mask & ((1u << i) - 1)) * 32];
+                    h0 = e.x;
+                    h1 = e.y;
+                }
             }
             uint4 a;
-            a.x = __byte_perm(l0, h0, 0x5140);
-            a.y = __byte_perm(l0, h0, 0x7362);
-            a.z = __byte_perm(l1, h1, 0x5140);
-            a.w = __byte_perm(l1, h1, 0x7362);
+            if (NODECODE) {
+                a = make_uint4(l0, l1, h0, h1);
+            } else {
+                a.x = __byte_perm(l0, h0, 0x5140);
+                a.y = __byte_perm(l0, h0, 0x7362);
+                a.z = __byte_perm(l1, h1, 0x5140);
+                a.w = __byte_perm(l1, h1, 0x7362);
+            }
             if (DUMP) {
                 dump[((size_t)tile * kt_total + kt0 + c * CCH + i) * 32 + lane] = a;
             } else {
-                mma_bf16(acc, a, ldmatrix_x2(xb + i * 16));
+                mma_bf16(acc[i % ACCS], a, ldmatrix_x2(xb + i * 16));
+            }
+        };
+        // One warp-uniform branch per chunk: about 3 in 4 chunks have no escaped tile.
+        if (mask == 0) {
+#pragma unroll
+            for (int i = 0; i < CCH; ++i) {
+                tile_step(i, false);
+            }
+        } else {
+#pragma unroll
+            for (int i = 0; i < CCH; ++i) {
+                tile_step(i, true);
             }
         }
     }
     if (DUMP) {
         return;
     }
+#pragma unroll
+    for (int j = 1; j < ACCS; ++j) {
+#pragma unroll
+        for (int r = 0; r < 4; ++r) {
+            acc[0][r] += acc[j][r];
+        }
+    }
 
     cg::cluster_group cluster = cg::this_cluster();
     const int row = warp * 16 + (lane >> 2);
     const int t = (lane & 3) * 2;
-    partial[t * ROWS + row] = acc[0];
-    partial[(t + 1) * ROWS + row] = acc[1];
-    partial[t * ROWS + row + 8] = acc[2];
-    partial[(t + 1) * ROWS + row + 8] = acc[3];
+    partial[t * ROWS + row] = acc[0][0];
+    partial[(t + 1) * ROWS + row] = acc[0][1];
+    partial[t * ROWS + row + 8] = acc[0][2];
+    partial[(t + 1) * ROWS + row + 8] = acc[0][3];
     cluster.sync();
 
     const int rank = cluster.block_rank();
@@ -642,20 +683,20 @@ cproj_kernel(const uint4* __restrict__ wc, const unsigned* __restrict__ desc,
     cluster.sync();
 }
 
-template <int S, bool DUMP>
+template <int S, bool DUMP, int ACCS = 2, bool EXC_SELECT = true, bool NODECODE = false>
 void cproj_launch(const uint4* wc, const unsigned* desc, const uint4* exc, unsigned base4,
                   const __nv_bfloat16* xp, __nv_bfloat16* op, uint4* dump, int m, int n, int k,
                   cudaStream_t stream) {
     constexpr int smem = cproj_smem_bytes<CWARPS>();
+    const auto kernel = cproj_kernel<CWARPS, S, DUMP, ACCS, EXC_SELECT, NODECODE>;
     static bool configured = false;
     if (!configured) {
-        cudaFuncSetAttribute(cproj_kernel<CWARPS, S, DUMP>,
-                             cudaFuncAttributeMaxDynamicSharedMemorySize, smem);
+        cudaFuncSetAttribute(kernel, cudaFuncAttributeMaxDynamicSharedMemorySize, smem);
         configured = true;
     }
     const dim3 grid(n / (CWARPS * 16), S);
-    cproj_kernel<CWARPS, S, DUMP><<<grid, CWARPS * 32, smem, stream>>>(
-        wc, desc, exc, base4, xp, op, dump, m, n, k, k / 16 / S);
+    kernel<<<grid, CWARPS * 32, smem, stream>>>(wc, desc, exc, base4, xp, op, dump, m, n, k,
+                                                k / 16 / S);
 }
 
 // The same k-split per shape as proj_fwd's up-to-8-token path.

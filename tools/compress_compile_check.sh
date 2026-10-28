@@ -18,6 +18,13 @@ extra = "".join(
     f"template void cproj_launch<{s}, {d}>(const uint4*, const unsigned*, const uint4*, unsigned, "
     f"const __nv_bfloat16*, __nv_bfloat16*, uint4*, int, int, int, cudaStream_t);\n"
     for s in (2, 4, 8) for d in ("false", "true"))
+# The bench variants (accs, exc_select, nodecode) of tools/compress_make_bench.py.
+extra += "".join(
+    f"template void cproj_launch<4, false, {a}, {e}, {nd}>(const uint4*, const unsigned*, "
+    f"const uint4*, unsigned, const __nv_bfloat16*, __nv_bfloat16*, uint4*, int, int, int, "
+    f"cudaStream_t);\n"
+    for a, e, nd in ((1, "false", "false"), (1, "true", "false"), (4, "true", "false"),
+                     (8, "true", "false"), (2, "true", "true")))
 extra += "".join(
     f"template void proj_small<{s}>(const uint4*, const __nv_bfloat16*, __nv_bfloat16*, int, int, "
     f"int, cudaStream_t);\n" for s in (2, 4, 8))
