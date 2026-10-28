@@ -17,7 +17,7 @@ helpers from tools/attn_make_bench.py, and a sweep run at import with three part
 The GATHER part runs only when "gather" is among the arguments (its 150 lines crowd the
 16,000-character log tail).
 
-VARIANT is name@s=SPLITS,n=STAGES,m=MODE,p=LOADER_WARPS,x=CVT,v=VARIANT,c=CLUSTER (all optional).
+VARIANT is name@s=SPLITS,n=STAGES,m=MODE,x=VAR,v=VARIANT,c=CLUSTER (all optional).
 """
 
 import sys
@@ -306,9 +306,9 @@ _WS_LOADER = ["wait-free-stage", "cp.async-issue", "page-entries", "wait-own-dat
               "v-convert+release"]
 
 
-def _ws_stamps(data, cfg_splits, pw=4):
+def _ws_stamps(data, cfg_splits):
     dbg = torch.zeros(17, dtype=torch.int64, device="cuda")
-    _ws(data, splits=cfg_splits, mode=2, pw=pw, dbg=dbg)
+    _ws(data, splits=cfg_splits, mode=2, dbg=dbg)
     torch.cuda.synchronize()
     t = dbg.tolist()
     cfg = data["config"]
@@ -337,7 +337,7 @@ def _ws_bench():
               f"{{' | '.join(errs)[:3000]}}", flush=True)
     import functools
     keys = {{"s": "splits", "n": "stages", "m": "mode", "v": "variant", "c": "cluster",
-            "p": "pw", "x": "cvt"}}
+            "x": "var"}}
     fns = {{}}
     for spec in _WSB_VARIANTS:
         name, _, args = spec.partition("@")
@@ -369,12 +369,11 @@ def _ws_bench():
                 row.append(f"{{name}}=FAIL({{type(exc).__name__}}: {{str(exc)[:200]}})")
         print(f"BENCH b={{batch:2d}} {{layer:7s}} L={{q_len}} " + " ".join(row), flush=True)
         if q_len == 8 and _WS is not None:
-            for pw in (4, 8):
-                try:
-                    print(f"STAMPS b={{batch:2d}} {{layer:7s}} L={{q_len}} "
-                          + _ws_stamps(data, None, pw), flush=True)
-                except Exception as exc:
-                    print(f"STAMPS failed: {{type(exc).__name__}}: {{exc}}", flush=True)
+            try:
+                print(f"STAMPS b={{batch:2d}} {{layer:7s}} L={{q_len}} " + _ws_stamps(data, None),
+                      flush=True)
+            except Exception as exc:
+                print(f"STAMPS failed: {{type(exc).__name__}}: {{exc}}", flush=True)
         del data
         torch.cuda.empty_cache()
 

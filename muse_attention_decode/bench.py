@@ -1715,9 +1715,10 @@ __device__ __forceinline__ int kmaj(int r, int kc) {
 // MODE 0: the kernel. MODE 1: loads only (math warps wait for each tile and release it), to
 // separate memory time from math. MODE 2: the kernel plus clock64 phase totals in dbg[1..15].
 //
-// CVT 0: values converted with F2FP. CVT 1: with integer ops into f16 values scaled by 2^-8,
-// which the merge multiplies back.
-template <int NS, int DA, int MODE, int PW, int CVT>
+// VAR bit 0: values converted with integer ops into f16 values scaled by 2^-8, which the merge
+// multiplies back (else F2FP). Bit 1: loaders release a tile without their own proxy fence
+// (the math warps fence after acquiring it either way). Bit 2: math warps take tiles in pairs.
+template <int NS, int DA, int MODE, int PW, int VAR>
 __global__ void __launch_bounds__(CONSUMERS + 32 * PW, 1) attn_ws_kernel(const Params p) {
     constexpr bool STAMP = MODE == 2;
     constexpr int NV = NS - DA;
@@ -1855,11 +1856,13 @@ __global__ void __launch_bounds__(CONSUMERS + 32 * PW, 1) attn_ws_kernel(const P
                                 vs + t * 128 + (cq + 4 * j) * 16);
                             uint8_t* dst = vb + j * VH_HEAD + ((t >> 3) * 8 + 2 * cq) * 128
                                            + (t & 7) * 16;
-                            *reinterpret_cast<uint4*>(dst) = f16_from_fp8x8<CVT>(w.x, w.y);
-                            *reinterpret_cast<uint4*>(dst + 128) = f16_from_fp8x8<CVT>(w.z, w.w);
+                            *reinterpret_cast<uint4*>(dst) = f16_from_fp8x8<VAR & 1>(w.x, w.y);
+                            *reinterpret_cast<uint4*>(dst + 128) = f16_from_fp8x8<VAR & 1>(w.z, w.w);
                         }
                     }
-                    fence_async_smem();
+                    if constexpr ((VAR & 2) == 0) {
+                        fence_async_smem();
+                    }
                     mbar_arrive(full0 + 8 * (f % NS));
                     lap(4);
                 }
@@ -1997,7 +2000,7 @@ __global__ void __launch_bounds__(CONSUMERS + 32 * PW, 1) attn_ws_kernel(const P
             } else {
                 *reinterpret_cast<uint32_t*>(newv + h * VH_HEAD + (lane >> 2) * 128 + j * 16
                                              + (lane & 3) * 4) =
-                    CVT == 1 ? f16raw_from_fp8x4(v8).x : f16x2_from_fp8x2(v8);
+                    (VAR & 1) ? f16raw_from_fp8x4(v8).x : f16x2_from_fp8x2(v8);
             }
         }
     }
@@ -2027,18 +2030,18 @@ __global__ void __launch_bounds__(CONSUMERS + 32 * PW, 1) attn_ws_kernel(const P
     // A fully masked row keeps this floor as its max, so its exponentials are 0, not NaN.
     const __half2 lowest2 = __float2half2_rn(-65504.f);
 
-    // One 64-token tile: S = Q.K^T (FP8 wgmma into f16), online softmax in half2, then
-    // O += P.V (f16 wgmma into f32) from the loaders' f16 values.
-    auto tile = [&](const uint8_t* kt, const uint8_t* vb, int pos0, int lim, uint32_t empty_bar) {
-        uint32_t s[16];
-        wg_fence();
+    // Pieces of one 64-token tile: S = Q.K^T (FP8 wgmma into f16), online softmax in half2,
+    // then O += P.V (f16 wgmma into f32) from the loaders' f16 values.
+    auto qk_issue = [&](const uint8_t* kt, uint32_t (&s)[16]) {
         const uint8_t* ks = kt + h * (BN * D);
         wgmma_qk<0>(s, qd0, desc(ks, 128, 512));
         wgmma_qk<1>(s, qd1, desc(ks + 256, 128, 512));
-        wg_commit();
-        wg_wait<0>();
-        reg_fence16(s);
-        lap(1);
+    };
+    // Turns S into P (f16 A fragments) and updates the row max and sum; returns the factors O
+    // must be scaled by before this tile's P.V, without touching O, so it can run while the
+    // previous P.V is in flight.
+    auto softmax = [&](uint32_t (&s)[16], int pos0, int lim, uint32_t (&pa)[16], float& a0,
+                       float& a1) {
         const bool interior = pos0 + BN - 1 <= lim && (!p.window || pos0 >= seq + L - p.window);
         if (!interior) {
 #pragma unroll
@@ -2075,7 +2078,6 @@ __global__ void __launch_bounds__(CONSUMERS + 32 * PW, 1) attn_ws_kernel(const P
         const __half2 nm = __hneg2(muse);
         const __half2 n0 = __low2half2(nm);
         const __half2 n1 = __high2half2(nm);
-        uint32_t pa[16];
         __half2 sum0 = __float2half2_rn(0.f);
         __half2 sum1 = sum0;
 #pragma unroll
@@ -2085,10 +2087,12 @@ __global__ void __launch_bounds__(CONSUMERS + 32 * PW, 1) attn_ws_kernel(const P
             sum0 = __hadd2(sum0, as_h2(pa[2 * i]));
             sum1 = __hadd2(sum1, as_h2(pa[2 * i + 1]));
         }
-        const float a0 = __low2float(alpha2);
-        const float a1 = __high2float(alpha2);
+        a0 = __low2float(alpha2);
+        a1 = __high2float(alpha2);
         lrow[0] = lrow[0] * a0 + __low2float(sum0) + __high2float(sum0);
         lrow[1] = lrow[1] * a1 + __low2float(sum1) + __high2float(sum1);
+    };
+    auto rescale = [&](float a0, float a1) {
         if (__any_sync(0xffffffffu, a0 != 1.f || a1 != 1.f)) {
 #pragma unroll
             for (int i = 0; i < 8; ++i) {
@@ -2098,20 +2102,15 @@ __global__ void __launch_bounds__(CONSUMERS + 32 * PW, 1) attn_ws_kernel(const P
                 o[4 * i + 3] *= a1;
             }
         }
-        lap(2);
-        reg_fence(o);
-        wg_fence();
+    };
+    auto pv_issue = [&](const uint32_t (&pa)[16], const uint8_t* vb) {
         const uint8_t* vh = vb + h * VH_HEAD;
 #pragma unroll
         for (int k = 0; k < 4; ++k) {
             wgmma_pv(o, pa + 4 * k, desc(vh + k * 2048, 1024, 128));
         }
-        wg_commit();
-        // Leaving P.V in flight across the loop back-edge makes ptxas serialize every wgmma
-        // in the kernel (C7514), so it retires here.
-        wg_wait<0>();
-        reg_fence(o);
-        lap(3);
+    };
+    auto release = [&](uint32_t empty_bar) {
         if (empty_bar != 0) {
             __syncwarp();
             if (lane == 0) {
@@ -2119,25 +2118,108 @@ __global__ void __launch_bounds__(CONSUMERS + 32 * PW, 1) attn_ws_kernel(const P
             }
         }
     };
+    // Every async wgmma retires inside the call that issued it: leaving one in flight across
+    // the loop back-edge makes ptxas serialize every wgmma in the kernel (C7514).
+    auto tile = [&](const uint8_t* kt, const uint8_t* vb, int pos0, int lim, uint32_t empty_bar) {
+        uint32_t s[16];
+        uint32_t pa[16];
+        float a0, a1;
+        wg_fence();
+        qk_issue(kt, s);
+        wg_commit();
+        wg_wait<0>();
+        reg_fence16(s);
+        lap(1);
+        softmax(s, pos0, lim, pa, a0, a1);
+        rescale(a0, a1);
+        lap(2);
+        reg_fence(o);
+        wg_fence();
+        pv_issue(pa, vb);
+        wg_commit();
+        wg_wait<0>();
+        reg_fence(o);
+        lap(3);
+        release(empty_bar);
+    };
+    // Two tiles: the second Q.K runs under the first softmax, and the first P.V under the
+    // second softmax, whose rescale waits until that P.V retires.
+    auto tile2 = [&](const uint8_t* kt0, const uint8_t* vb0, int pos0, uint32_t e0,
+                     const uint8_t* kt1, const uint8_t* vb1, int pos1, uint32_t e1, int lim) {
+        uint32_t s0[16];
+        uint32_t s1[16];
+        uint32_t p0[16];
+        uint32_t p1[16];
+        float a0, a1, b0, b1;
+        wg_fence();
+        qk_issue(kt0, s0);
+        wg_commit();
+        qk_issue(kt1, s1);
+        wg_commit();
+        wg_wait<1>();
+        reg_fence16(s0);
+        lap(1);
+        softmax(s0, pos0, lim, p0, a0, a1);
+        rescale(a0, a1);
+        lap(2);
+        reg_fence(o);
+        wg_fence();
+        pv_issue(p0, vb0);
+        wg_commit();
+        wg_wait<1>();
+        reg_fence16(s1);
+        lap(3);
+        softmax(s1, pos1, lim, p1, b0, b1);
+        lap(2);
+        wg_wait<0>();
+        reg_fence(o);
+        lap(3);
+        release(e0);
+        rescale(b0, b1);
+        reg_fence(o);
+        wg_fence();
+        pv_issue(p1, vb1);
+        wg_commit();
+        wg_wait<0>();
+        reg_fence(o);
+        lap(3);
+        release(e1);
+    };
 
     int it = 0;
-    for (; it < ntiles; ++it) {
-        const int s = it % NS;
-        mbar_wait(full0 + 8 * s, (it / NS) & 1, dead, p.dbg, 2);
-        lap(0);
-        if constexpr (MODE == 1) {
-            __syncwarp();
-            if (lane == 0) {
-                mbar_arrive(empty0 + 8 * s);
-            }
-            continue;
+    if constexpr (MODE == 1) {
+        for (; it < ntiles; ++it) {
+            const int s = it % NS;
+            mbar_wait(full0 + 8 * s, (it / NS) & 1, dead, p.dbg, 2);
+            lap(0);
+            release(empty0 + 8 * s);
         }
-        fence_async_smem();
-        tile(smem + s * STAGE, smem + S::VH + (it % NV) * (HKV * VH_HEAD), lo + it * BN, hi - 1,
-             empty0 + 8 * s);
-    }
-    if (MODE != 1 && last_split) {
-        tile(newk, newv, seq, seq + L - 1, 0);
+    } else {
+        if constexpr ((VAR & 4) != 0) {
+            for (; it + 1 < ntiles; it += 2) {
+                const int s0 = it % NS;
+                const int s1 = (it + 1) % NS;
+                mbar_wait(full0 + 8 * s0, (it / NS) & 1, dead, p.dbg, 2);
+                mbar_wait(full0 + 8 * s1, ((it + 1) / NS) & 1, dead, p.dbg, 2);
+                lap(0);
+                fence_async_smem();
+                tile2(smem + s0 * STAGE, smem + S::VH + (it % NV) * (HKV * VH_HEAD), lo + it * BN,
+                      empty0 + 8 * s0, smem + s1 * STAGE,
+                      smem + S::VH + ((it + 1) % NV) * (HKV * VH_HEAD), lo + (it + 1) * BN,
+                      empty0 + 8 * s1, hi - 1);
+            }
+        }
+        for (; it < ntiles; ++it) {
+            const int s = it % NS;
+            mbar_wait(full0 + 8 * s, (it / NS) & 1, dead, p.dbg, 2);
+            lap(0);
+            fence_async_smem();
+            tile(smem + s * STAGE, smem + S::VH + (it % NV) * (HKV * VH_HEAD), lo + it * BN,
+                 hi - 1, empty0 + 8 * s);
+        }
+        if (last_split) {
+            tile(newk, newv, seq, seq + L - 1, 0);
+        }
     }
     lap(6);
 
@@ -2218,9 +2300,9 @@ __global__ void ws_combine_kernel(const float* __restrict__ ws,
         __float22bfloat162_rn(acc);
 }
 
-template <int NS, int DA, int MODE, int PW, int CVT>
+template <int NS, int DA, int MODE, int PW, int VAR>
 void launch_ws(const Params& p, int batch, cudaStream_t stream) {
-    auto kern = attn_ws_kernel<NS, DA, MODE, PW, CVT>;
+    auto kern = attn_ws_kernel<NS, DA, MODE, PW, VAR>;
     constexpr int bytes = Smem<NS, DA>::BYTES;
     static bool configured = false;
     if (!configured) {
@@ -2230,27 +2312,26 @@ void launch_ws(const Params& p, int batch, cudaStream_t stream) {
     kern<<<dim3(p.splits, batch), CONSUMERS + 32 * PW, bytes, stream>>>(p);
 }
 
-template <int NS, int DA, int MODE, int CVT>
-void launch_pw(const Params& p, int batch, int pw, cudaStream_t stream) {
-    if (pw == 8) {
-        launch_ws<NS, DA, MODE, 8, CVT>(p, batch, stream);
-    } else {
-        launch_ws<NS, DA, MODE, 4, CVT>(p, batch, stream);
-    }
+template <int NS, int DA, int MODE, int VAR>
+void launch_var(const Params& p, int batch, cudaStream_t stream) {
+    launch_ws<NS, DA, MODE, 4, VAR>(p, batch, stream);
 }
 
-// INSTANTIATE: template void launch_pw<7, 3, 0, 0>(const Params&, int, int, cudaStream_t);
-// INSTANTIATE: template void launch_pw<6, 2, 0, 1>(const Params&, int, int, cudaStream_t);
-// INSTANTIATE: template void launch_pw<7, 3, 0, 1>(const Params&, int, int, cudaStream_t);
-// INSTANTIATE: template void launch_pw<8, 4, 0, 1>(const Params&, int, int, cudaStream_t);
-// INSTANTIATE: template void launch_pw<7, 3, 1, 1>(const Params&, int, int, cudaStream_t);
-// INSTANTIATE: template void launch_pw<7, 3, 2, 1>(const Params&, int, int, cudaStream_t);
+// INSTANTIATE: template void launch_var<7, 3, 0, 0>(const Params&, int, cudaStream_t);
+// INSTANTIATE: template void launch_var<7, 3, 0, 2>(const Params&, int, cudaStream_t);
+// INSTANTIATE: template void launch_var<7, 3, 0, 4>(const Params&, int, cudaStream_t);
+// INSTANTIATE: template void launch_var<7, 3, 0, 6>(const Params&, int, cudaStream_t);
+// INSTANTIATE: template void launch_var<6, 2, 0, 6>(const Params&, int, cudaStream_t);
+// INSTANTIATE: template void launch_var<8, 4, 0, 6>(const Params&, int, cudaStream_t);
+// INSTANTIATE: template void launch_var<7, 3, 1, 2>(const Params&, int, cudaStream_t);
+// INSTANTIATE: template void launch_var<7, 3, 2, 6>(const Params&, int, cudaStream_t);
 
 }  // namespace
 
 // stages: FP8 stages, 6, 7 or 8 (anything else runs 7), with values converted 2, 3 or 4 tiles
-// behind their loads; mode: see attn_ws_kernel (1 and 2 with 7 stages); pw: loader warps, 4 or 8;
-// cvt: value conversion, see attn_ws_kernel (0 only with 7 stages and mode 0).
+// behind their loads (6 and 8 with var 6 only); mode: see attn_ws_kernel (1 runs var 2 and 2
+// runs var 6, with 7 stages); var: 0, 2, 4 or 6, see attn_ws_kernel (anything else runs 0).
+// Four loader warps.
 // dbg: int64 [17] or empty. dbg[0] bit 0: a loader wait timed out; bit 1: a math-warp wait
 // timed out. With mode 2, dbg[1..8] sum math-warp cycles per phase (wait for data, Q.K, mask
 // and softmax, P.V, unused, unused, tail, prologue) and dbg[9..13] loader cycles (wait for a
@@ -2261,7 +2342,7 @@ torch::Tensor attn_ws(torch::Tensor qkv, torch::Tensor page_table, torch::Tensor
                       torch::Tensor v_scale, torch::Tensor k_cache, torch::Tensor v_cache,
                       int64_t batch, int64_t page_size, int64_t window, bool rope,
                       double qk_scale, int64_t splits, int64_t stages, int64_t mode,
-                      int64_t pw, int64_t cvt, torch::Tensor dbg) {
+                      int64_t var, torch::Tensor dbg) {
     auto stream = at::cuda::getCurrentCUDAStream();
     auto out = torch::empty({batch, L, HQ * D}, qkv.options());
     auto ws = torch::empty({batch * splits * ROWS * PART}, qkv.options().dtype(torch::kFloat32));
@@ -2283,22 +2364,26 @@ torch::Tensor attn_ws(torch::Tensor qkv, torch::Tensor page_table, torch::Tensor
     p.rope = rope ? 1 : 0;
     p.splits = splits;
     p.qk_scale = static_cast<float>(qk_scale);
-    if (cvt == 0) {
-        launch_pw<7, 3, 0, 0>(p, batch, pw, stream);
-    } else if (mode == 1) {
-        launch_pw<7, 3, 1, 1>(p, batch, pw, stream);
+    if (mode == 1) {
+        launch_var<7, 3, 1, 2>(p, batch, stream);
     } else if (mode == 2) {
-        launch_pw<7, 3, 2, 1>(p, batch, pw, stream);
-    } else if (stages == 6) {
-        launch_pw<6, 2, 0, 1>(p, batch, pw, stream);
-    } else if (stages == 8) {
-        launch_pw<8, 4, 0, 1>(p, batch, pw, stream);
+        launch_var<7, 3, 2, 6>(p, batch, stream);
+    } else if (var == 6 && stages == 6) {
+        launch_var<6, 2, 0, 6>(p, batch, stream);
+    } else if (var == 6 && stages == 8) {
+        launch_var<8, 4, 0, 6>(p, batch, stream);
+    } else if (var == 6) {
+        launch_var<7, 3, 0, 6>(p, batch, stream);
+    } else if (var == 4) {
+        launch_var<7, 3, 0, 4>(p, batch, stream);
+    } else if (var == 2) {
+        launch_var<7, 3, 0, 2>(p, batch, stream);
     } else {
-        launch_pw<7, 3, 0, 1>(p, batch, pw, stream);
+        launch_var<7, 3, 0, 0>(p, batch, stream);
     }
     ws_combine_kernel<<<batch * L, HQ * 32, 0, stream>>>(p.ws, p.qkv, p.v_scale,
                                                           reinterpret_cast<__nv_bfloat16*>(out.data_ptr()),
-                                                          splits, cvt == 0 ? 1.f : 256.f);
+                                                          splits, 1.f);
     return out;
 }
 """
@@ -2309,7 +2394,7 @@ torch::Tensor attn_ws(torch::Tensor qkv, torch::Tensor page_table, torch::Tensor
                       torch::Tensor v_scale, torch::Tensor k_cache, torch::Tensor v_cache,
                       int64_t batch, int64_t page_size, int64_t window, bool rope,
                       double qk_scale, int64_t splits, int64_t stages, int64_t mode,
-                      int64_t pw, int64_t cvt, torch::Tensor dbg);
+                      int64_t var, torch::Tensor dbg);
 """
 
 try:
@@ -2333,7 +2418,7 @@ def _ws_splits(cfg):
     return 128 if batch <= 2 else max(4, 128 // batch)
 
 
-def _ws(data, splits=None, stages=7, mode=0, pw=4, cvt=1, dbg=None):
+def _ws(data, splits=None, stages=7, mode=0, var=0, dbg=None):
     """q_len 8 on the warp-specialized kernel (attn_ws.cu), then a merge + norm-gate launch."""
     cfg = data["config"]
     batch = cfg["batch"]
@@ -2344,7 +2429,7 @@ def _ws(data, splits=None, stages=7, mode=0, pw=4, cvt=1, dbg=None):
         _inv_freq(theta if theta else 1.0, cfg["head_dim"], qkv.device), data["k_scale"],
         data["v_scale"], data["k_cache"], data["v_cache"], batch, cfg["page_size"],
         cfg["window"], bool(theta), cfg["sm_scale"] * cfg["qk_scale_factor"] * LOG2E,
-        splits or _ws_splits(cfg), stages, mode, pw, cvt,
+        splits or _ws_splits(cfg), stages, mode, var,
         _no_dbg(qkv.device) if dbg is None else dbg)
 
 
@@ -2566,7 +2651,7 @@ def _run_bench():
 
 
 # Generated by tools/attn_make_bench_ws.py.
-_WSB_VARIANTS = ['_ref32', '_fused_prep', '_probe_fa3', '_ws', '_ws@x=0', '_ws@n=6', '_ws@n=8', '_ws@p=8', '_ws@m=1', '_ws@m=1,p=8']
+_WSB_VARIANTS = ['_ref32', '_fused_prep', '_probe_fa3', '_ws', '_ws@x=2', '_ws@x=4', '_ws@x=6', '_ws@x=6,n=6', '_ws@x=6,n=8', '_ws@m=1', '_ws@x=6,s=64']
 _WSB_GATHER = False
 _WSB_SHAPES = [
     (32, "full", 8), (16, "full", 8), (1, "full", 8), (32, "sliding", 8), (16, "sliding", 8),
@@ -2684,9 +2769,9 @@ _WS_LOADER = ["wait-free-stage", "cp.async-issue", "page-entries", "wait-own-dat
               "v-convert+release"]
 
 
-def _ws_stamps(data, cfg_splits, pw=4):
+def _ws_stamps(data, cfg_splits):
     dbg = torch.zeros(17, dtype=torch.int64, device="cuda")
-    _ws(data, splits=cfg_splits, mode=2, pw=pw, dbg=dbg)
+    _ws(data, splits=cfg_splits, mode=2, dbg=dbg)
     torch.cuda.synchronize()
     t = dbg.tolist()
     cfg = data["config"]
@@ -2715,7 +2800,7 @@ def _ws_bench():
               f"{' | '.join(errs)[:3000]}", flush=True)
     import functools
     keys = {"s": "splits", "n": "stages", "m": "mode", "v": "variant", "c": "cluster",
-            "p": "pw", "x": "cvt"}
+            "x": "var"}
     fns = {}
     for spec in _WSB_VARIANTS:
         name, _, args = spec.partition("@")
@@ -2747,12 +2832,11 @@ def _ws_bench():
                 row.append(f"{name}=FAIL({type(exc).__name__}: {str(exc)[:200]})")
         print(f"BENCH b={batch:2d} {layer:7s} L={q_len} " + " ".join(row), flush=True)
         if q_len == 8 and _WS is not None:
-            for pw in (4, 8):
-                try:
-                    print(f"STAMPS b={batch:2d} {layer:7s} L={q_len} "
-                          + _ws_stamps(data, None, pw), flush=True)
-                except Exception as exc:
-                    print(f"STAMPS failed: {type(exc).__name__}: {exc}", flush=True)
+            try:
+                print(f"STAMPS b={batch:2d} {layer:7s} L={q_len} " + _ws_stamps(data, None),
+                      flush=True)
+            except Exception as exc:
+                print(f"STAMPS failed: {type(exc).__name__}: {exc}", flush=True)
         del data
         torch.cuda.empty_cache()
 
