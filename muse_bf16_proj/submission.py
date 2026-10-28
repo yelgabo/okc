@@ -1024,7 +1024,7 @@ def sk_source(device_only=False):
         f"const __nv_bfloat16*, __nv_bfloat16*, int, cudaStream_t);\n"
         for nth, cpt in ((256, 2), (64, 1), (512, 1), (128, 2)))
     gemv = GEMV_CUDA_SRC.replace("}  // namespace", ginst + "}  // namespace", 1)
-    return "#define SK_DEVICE_ONLY 1\n#define GEMV_DEVICE_ONLY 1\n" + src + gemv
+    return "#define SK_DEVICE_ONLY 1\n#define GEMV_DEVICE_ONLY 1\n" + src + gemv + wd_source()
 
 
 # --------------------------------------------------------------------------------------------
@@ -1563,11 +1563,403 @@ void sgemv_fwd(at::Tensor w, at::Tensor x, at::Tensor out) {
 """
 
 
+
+# --------------------------------------------------------------------------------------------
+# Wide kernel (wd) for 33 to 256 tokens: TMA + wgmma, swap-AB. A 64-row weight tile per
+# consumer warpgroup is the wgmma A operand and a BN-token x tile is the B operand, both K-major
+# and 128B-swizzled straight from TMA, so the weights need no repack. K is split across the CTAs
+# of a cluster; their FP32 partials are summed over distributed shared memory, each rank
+# writing BN/CL tokens. The router runs on hi and lo tiles into one FP32 accumulator.
+# name -> (WG, BN, CL, HL, NSTAGE). Rows per CTA = 64 * WG.
+# --------------------------------------------------------------------------------------------
+WD_GEOM = {
+    "r64c8": (1, 64, 8, True, 4),
+    "r64c16": (1, 64, 16, True, 4),
+    "r128c8": (1, 128, 8, True, 4),
+    "r128c16": (1, 128, 16, True, 4),
+    "b1n64c2": (1, 64, 2, False, 6),
+    "b1n64c4": (1, 64, 4, False, 6),
+    "b1n128c2": (1, 128, 2, False, 4),
+    "b1n128c4": (1, 128, 4, False, 4),
+    "b2n128c2": (2, 128, 2, False, 5),
+    "b2n128c4": (2, 128, 4, False, 5),
+    "b1n256c2": (1, 256, 2, False, 4),
+    "b2n256c2": (2, 256, 2, False, 4),
+    "b2n256c4": (2, 256, 4, False, 4),
+}
+WD_NAMES = list(WD_GEOM)
+WD_INDEX = {nm: i for i, nm in enumerate(WD_NAMES)}
+# Wide buckets: the pick tuned at the bucket's top m serves every m in (previous top, top].
+WD_BUCKETS = (64, 128, 256)
+WD_SELFTEST_MS = {64: (33, 47, 64), 128: (65, 100, 128), 256: (129, 130, 200, 256)}
+WD_BN = {64: (64,), 128: (64, 128), 256: (128, 256)}
+
+
+def wd_smem(wg, bn, cl, hl, nst):
+    sb = wg * (2 if hl else 1) * 8192 + bn * 128
+    return 1024 + nst * sb + 16 * nst
+
+
+def wd_fits(name, n, k):
+    wg, bn, cl, hl, nst = WD_GEOM[name]
+    return n % (64 * wg) == 0 and k % 64 == 0 and (k // 64) % cl == 0
+
+
+def _wgmma_spec(bn):
+    nreg = bn // 2
+    regs = ", ".join(f"%{i}" for i in range(nreg))
+    outs = ", ".join(f'"+f"(d[{i}])' for i in range(nreg))
+    return (f"template <> __device__ __forceinline__ void wgmma_ss<{bn}>(float* d, uint64_t a, uint64_t b) {{\n"
+            f"    asm volatile(\"{{\\n.reg .pred p;\\nsetp.ne.b32 p, %{nreg + 2}, 0;\\n\"\n"
+            f"                 \"wgmma.mma_async.sync.aligned.m64n{bn}k16.f32.bf16.bf16 {{{regs}}}, \"\n"
+            f"                 \"%{nreg}, %{nreg + 1}, p, 1, 1, 0, 0;\\n}}\\n\"\n"
+            f"                 : {outs}\n"
+            f"                 : \"l\"(a), \"l\"(b), \"r\"(1) : \"memory\");\n}}\n")
+
+
+_WD_SRC = r"""
+namespace {
+
+template <int BN>
+__device__ __forceinline__ void wgmma_ss(float* d, uint64_t a, uint64_t b);
+@@WGMMA@@
+
+// K-major operand in the 128-byte swizzle that TMA wrote: 8-row groups of 128-byte rows sit
+// 1024 B apart (stride byte offset); the leading byte offset is unused for swizzled K-major
+// tiles and set to 1 as CUTLASS does. Advancing K by 16 elements inside the 1024-byte-aligned
+// atom adds 32 B to the start address; the hardware applies the swizzle on address bits.
+__device__ __forceinline__ uint64_t wg_desc(uint32_t addr) {
+    return (uint64_t)((addr & 0x3FFFFu) >> 4) | ((uint64_t)1 << 16) | ((uint64_t)(1024 >> 4) << 32)
+           | ((uint64_t)1 << 62);
+}
+
+__device__ __forceinline__ void wg_fence() {
+    asm volatile("wgmma.fence.sync.aligned;" ::: "memory");
+}
+
+__device__ __forceinline__ void wg_commit() {
+    asm volatile("wgmma.commit_group.sync.aligned;" ::: "memory");
+}
+
+template <int N>
+__device__ __forceinline__ void wg_wait() {
+    asm volatile("wgmma.wait_group.sync.aligned %0;" :: "n"(N) : "memory");
+}
+
+// wgmma writes the accumulators asynchronously; this keeps the compiler from moving their reads
+// or writes across the fence/wait instructions.
+template <int R>
+__device__ __forceinline__ void wg_fence_acc(float* d) {
+#pragma unroll
+    for (int i = 0; i < R; ++i) {
+        asm volatile("" : "+f"(d[i]) :: "memory");
+    }
+}
+
+__device__ __forceinline__ void tma_2d(uint32_t dst, const CUtensorMap* map, uint32_t bar, int c0, int c1) {
+    asm volatile("cp.async.bulk.tensor.2d.shared::cluster.global.tile.mbarrier::complete_tx::bytes"
+                 " [%0], [%1, {%3, %4}], [%2];"
+                 :: "r"(dst), "l"(map), "r"(bar), "r"(c0), "r"(c1) : "memory");
+}
+
+__device__ __forceinline__ uint32_t wd_cluster_rank() {
+    uint32_t r;
+    asm volatile("mov.u32 %0, %%cluster_ctarank;" : "=r"(r));
+    return r;
+}
+
+__device__ __forceinline__ uint32_t wd_mapa(uint32_t addr, uint32_t rank) {
+    uint32_t r;
+    asm volatile("mapa.shared::cluster.u32 %0, %1, %2;" : "=r"(r) : "r"(addr), "r"(rank));
+    return r;
+}
+
+__device__ __forceinline__ float4 wd_ld_cluster(uint32_t addr) {
+    float4 v;
+    asm volatile("ld.shared::cluster.v4.f32 {%0,%1,%2,%3}, [%4];" : "=f"(v.x), "=f"(v.y), "=f"(v.z), "=f"(v.w)
+                 : "r"(addr) : "memory");
+    return v;
+}
+
+__device__ __forceinline__ float4 wd_ld_local(uint32_t addr) {
+    float4 v;
+    asm volatile("ld.shared.v4.f32 {%0,%1,%2,%3}, [%4];" : "=f"(v.x), "=f"(v.y), "=f"(v.z), "=f"(v.w)
+                 : "r"(addr) : "memory");
+    return v;
+}
+
+// Partials written before the arrive must be visible to the peers that read them after the wait.
+__device__ __forceinline__ void wd_cluster_sync() {
+    asm volatile("barrier.cluster.arrive.release.aligned;" ::: "memory");
+    asm volatile("barrier.cluster.wait.acquire.aligned;" ::: "memory");
+}
+
+template <int WG, int BN, int CL, bool HL, int NST>
+struct WdCfg {
+    static constexpr int BM = 64 * WG;
+    static constexpr int ATILE = 64 * 128;
+    static constexpr int NA = HL ? 2 : 1;
+    static constexpr int ABY = WG * NA * ATILE;
+    static constexpr int BBY = BN * 128;
+    static constexpr int SB = ABY + BBY;
+    static constexpr int RING = NST * SB;
+    // Partial rows padded to 4 mod 32 floats: the fragment stores (8 rows x 4 token pairs per
+    // warp) then hit 32 distinct banks.
+    static constexpr int RS = BM + 4;
+    static constexpr int PBY = BN * RS * 4;
+    static constexpr int THREADS = WG * 128 + 32;
+    static constexpr int SMEM = 1024 + RING + 16 * NST;
+    static_assert(PBY <= RING, "wd: partial tile does not fit in the ring");
+    static_assert(BN % CL == 0 && BN % 8 == 0 && BN <= 256, "wd: bad BN");
+    static_assert(SMEM <= 227 * 1024, "wd: shared memory over budget");
+};
+
+template <int WG, int BN, int CL, bool HL, int NST, typename OutT>
+__global__ void __launch_bounds__(WG * 128 + 32, 1)
+wd_kernel(const __grid_constant__ CUtensorMap wmap, const __grid_constant__ CUtensorMap xmap, OutT* __restrict__ out,
+          int M, int N, int K, int* diag) {
+    using C = WdCfg<WG, BN, CL, HL, NST>;
+    extern __shared__ __align__(1024) uint8_t wd_smem[];
+    const uint32_t raw = smem_u32(wd_smem);
+    const uint32_t sbase = (raw + 1023u) & ~1023u;
+    float* part = reinterpret_cast<float*>(wd_smem + (sbase - raw));
+    const uint32_t full0 = sbase + C::RING;
+    const uint32_t empty0 = full0 + 8 * NST;
+    const int tid = threadIdx.x;
+    const int warp = tid >> 5;
+    const int lane = tid & 31;
+    const int rank = CL > 1 ? (int)wd_cluster_rank() : 0;
+    const int rowbase = (int)(blockIdx.x / CL) * C::BM;
+    const int tok0 = (int)blockIdx.y * BN;
+    const int ktl = (K / 64) / CL;
+    const int kt0 = rank * ktl;
+    bool dead = false;
+
+    if (tid == WG * 128) {
+        for (int s = 0; s < NST; ++s) {
+            mbar_init(full0 + 8 * s, 1);
+            mbar_init(empty0 + 8 * s, 4 * WG);
+        }
+        fence_mbar_init();
+    }
+    __syncthreads();
+
+    if (warp == 4 * WG) {
+        if (lane == 0) {
+            for (int i = 0; i < ktl; ++i) {
+                const int s = i % NST;
+                if (i >= NST) {
+                    mbar_wait<true>(empty0 + 8 * s, ((i / NST) - 1) & 1, dead, diag, 1);
+                }
+                const uint32_t fb = full0 + 8 * s;
+                mbar_expect_tx(fb, C::SB);
+                const uint32_t st = sbase + s * C::SB;
+                const int kc = (kt0 + i) * 64;
+#pragma unroll
+                for (int g = 0; g < WG; ++g) {
+                    tma_2d(st + g * C::NA * C::ATILE, &wmap, fb, kc, rowbase + 64 * g);
+                    if constexpr (HL) {
+                        tma_2d(st + (g * C::NA + 1) * C::ATILE, &wmap, fb, kc, N + rowbase + 64 * g);
+                    }
+                }
+                tma_2d(st + C::ABY, &xmap, fb, kc, tok0);
+            }
+        }
+        __syncwarp();
+    } else {
+        const int g = warp >> 2;
+        float acc[BN / 2];
+#pragma unroll
+        for (int j = 0; j < BN / 2; ++j) {
+            acc[j] = 0.f;
+        }
+        for (int i = 0; i < ktl; ++i) {
+            const int s = i % NST;
+            mbar_wait<false>(full0 + 8 * s, (i / NST) & 1, dead, diag, 2);
+            const uint32_t a0 = sbase + s * C::SB + g * C::NA * C::ATILE;
+            const uint32_t b0 = sbase + s * C::SB + C::ABY;
+            wg_fence_acc<BN / 2>(acc);
+            wg_fence();
+#pragma unroll
+            for (int kk = 0; kk < 4; ++kk) {
+                wgmma_ss<BN>(acc, wg_desc(a0 + 32 * kk), wg_desc(b0 + 32 * kk));
+                if constexpr (HL) {
+                    wgmma_ss<BN>(acc, wg_desc(a0 + C::ATILE + 32 * kk), wg_desc(b0 + 32 * kk));
+                }
+            }
+            wg_commit();
+            wg_fence_acc<BN / 2>(acc);
+            // With at most this iteration's group pending, the previous group has finished
+            // reading its stage.
+            wg_wait<1>();
+            if (i > 0 && lane == 0) {
+                mbar_arrive(empty0 + 8 * ((i - 1) % NST));
+            }
+        }
+        wg_wait<0>();
+        wg_fence_acc<BN / 2>(acc);
+        // Another consumer warp may still be reading the ring that the partials overwrite.
+        named_bar(1, WG * 128);
+        const int row = g * 64 + (warp & 3) * 16 + (lane >> 2);
+        const int q = lane & 3;
+#pragma unroll
+        for (int j = 0; j < BN / 8; ++j) {
+            const int t = 8 * j + 2 * q;
+            part[t * C::RS + row] = acc[4 * j];
+            part[(t + 1) * C::RS + row] = acc[4 * j + 1];
+            part[t * C::RS + row + 8] = acc[4 * j + 2];
+            part[(t + 1) * C::RS + row + 8] = acc[4 * j + 3];
+        }
+    }
+
+    if constexpr (CL > 1) {
+        wd_cluster_sync();
+    } else {
+        __syncthreads();
+    }
+
+    constexpr int TPR = BN / CL;
+    constexpr int C4 = C::BM / 4;
+    for (int it = tid; it < TPR * C4; it += C::THREADS) {
+        const int t = rank * TPR + it / C4;
+        const int c4 = it % C4;
+        const int gt = tok0 + t;
+        if (gt >= M) {
+            continue;
+        }
+        const uint32_t a = sbase + (uint32_t)(t * C::RS + 4 * c4) * 4u;
+        float4 v = make_float4(0.f, 0.f, 0.f, 0.f);
+#pragma unroll
+        for (int p = 0; p < CL; ++p) {
+            const float4 u = CL > 1 ? wd_ld_cluster(wd_mapa(a, (uint32_t)p)) : wd_ld_local(a);
+            v.x += u.x;
+            v.y += u.y;
+            v.z += u.z;
+            v.w += u.w;
+        }
+        OutT* o = out + (size_t)gt * N + rowbase + 4 * c4;
+        if constexpr (sizeof(OutT) == 4) {
+            *reinterpret_cast<float4*>(o) = v;
+        } else {
+            __nv_bfloat162 lo2 = __floats2bfloat162_rn(v.x, v.y);
+            __nv_bfloat162 hi2 = __floats2bfloat162_rn(v.z, v.w);
+            uint2 pk;
+            pk.x = *reinterpret_cast<uint32_t*>(&lo2);
+            pk.y = *reinterpret_cast<uint32_t*>(&hi2);
+            *reinterpret_cast<uint2*>(o) = pk;
+        }
+    }
+
+    // No CTA may exit while a peer still reads its partials.
+    if constexpr (CL > 1) {
+        wd_cluster_sync();
+    }
+}
+
+#ifndef SK_DEVICE_ONLY
+// A [rows, k] bf16 matrix as 2-D tiles of {64 k, box_rows} in the 128-byte swizzle; rows past
+// the end read as zeros (the token tail of the last x tile).
+CUtensorMap make_2d_map(const void* p, uint64_t rows, uint64_t k, uint32_t box_rows) {
+    CUtensorMap map;
+    cuuint64_t dims[2] = {k, rows};
+    cuuint64_t strides[1] = {k * 2};
+    cuuint32_t box[2] = {64, box_rows};
+    cuuint32_t estr[2] = {1, 1};
+    const CUresult r = encode_fn()(&map, CU_TENSOR_MAP_DATA_TYPE_BFLOAT16, 2, const_cast<void*>(p), dims, strides, box,
+                                   estr, CU_TENSOR_MAP_INTERLEAVE_NONE, CU_TENSOR_MAP_SWIZZLE_128B,
+                                   CU_TENSOR_MAP_L2_PROMOTION_L2_256B, CU_TENSOR_MAP_FLOAT_OOB_FILL_NONE);
+    TORCH_CHECK(r == CUDA_SUCCESS, "cuTensorMapEncodeTiled failed: ", (int)r);
+    return map;
+}
+
+template <int WG, int BN, int CL, bool HL, int NST, typename OutT>
+void launch_wd(const at::Tensor& w, const at::Tensor& x, at::Tensor& out, int N, int K, int* diag) {
+    using C = WdCfg<WG, BN, CL, HL, NST>;
+    auto kern = wd_kernel<WG, BN, CL, HL, NST, OutT>;
+    static bool configured = false;
+    if (!configured) {
+        C10_CUDA_CHECK(cudaFuncSetAttribute(kern, cudaFuncAttributeMaxDynamicSharedMemorySize, C::SMEM));
+        if (CL > 8) {
+            C10_CUDA_CHECK(cudaFuncSetAttribute(kern, cudaFuncAttributeNonPortableClusterSizeAllowed, 1));
+        }
+        configured = true;
+    }
+    const int M = (int)x.size(0);
+    TORCH_CHECK(x.is_cuda() && x.scalar_type() == at::kBFloat16 && x.is_contiguous() && x.dim() == 2
+                && x.size(1) == K, "wd: x must be a contiguous bf16 [M, K] tensor");
+    TORCH_CHECK(w.is_cuda() && w.scalar_type() == at::kBFloat16 && w.is_contiguous() && w.dim() == 2
+                && w.size(1) == K && w.size(0) >= (HL ? 2 : 1) * N, "wd: w must be a contiguous bf16 [rows, K] tensor");
+    TORCH_CHECK(out.is_contiguous() && out.size(0) == M && out.size(1) == N && out.element_size() == sizeof(OutT),
+                "wd: bad out");
+    TORCH_CHECK(M >= 1 && N % C::BM == 0 && K % 64 == 0 && (K / 64) % CL == 0, "wd: shape does not tile");
+    const CUtensorMap wmap = make_2d_map(w.data_ptr(), (uint64_t)w.size(0), (uint64_t)K, 64);
+    const CUtensorMap xmap = make_2d_map(x.data_ptr(), (uint64_t)M, (uint64_t)K, BN);
+    OutT* op = reinterpret_cast<OutT*>(out.data_ptr());
+    cudaLaunchConfig_t lc = {};
+    lc.gridDim = dim3((unsigned)(N / C::BM * CL), (unsigned)((M + BN - 1) / BN));
+    lc.blockDim = dim3(C::THREADS);
+    lc.dynamicSmemBytes = C::SMEM;
+    lc.stream = at::cuda::getCurrentCUDAStream();
+    cudaLaunchAttribute attr[1];
+    attr[0].id = cudaLaunchAttributeClusterDimension;
+    attr[0].val.clusterDim.x = CL;
+    attr[0].val.clusterDim.y = 1;
+    attr[0].val.clusterDim.z = 1;
+    lc.attrs = attr;
+    lc.numAttrs = CL > 1 ? 1 : 0;
+    C10_CUDA_CHECK(cudaLaunchKernelEx(&lc, kern, wmap, xmap, op, M, N, K, diag));
+}
+#endif
+
+}  // namespace
+
+#ifdef SK_DEVICE_ONLY
+@@WDINSTANCES@@
+#else
+void wd_fwd(int64_t cfg, at::Tensor w, at::Tensor x, at::Tensor out, int64_t n, int64_t k, at::Tensor diag) {
+    int* dg = diag.numel() > 0 ? diag.data_ptr<int>() : nullptr;
+    switch (cfg) {
+@@WDDISPATCH@@
+    default:
+        TORCH_CHECK(false, "wd: unknown config ", cfg);
+    }
+}
+#endif
+"""
+
+_WD_CPP = "void wd_fwd(int64_t cfg, at::Tensor w, at::Tensor x, at::Tensor out, int64_t n, int64_t k, at::Tensor diag);\n"
+
+
+def _wd_targs(name):
+    wg, bn, cl, hl, nst = WD_GEOM[name]
+    return f"{wg}, {bn}, {cl}, {str(hl).lower()}, {nst}, {'float' if hl else '__nv_bfloat16'}"
+
+
+def wd_source():
+    """The wide kernel with its wgmma shapes and config table expanded; under SK_DEVICE_ONLY it
+    emits explicit instantiations instead of the host dispatch."""
+    for name, (wg, bn, cl, hl, nst) in WD_GEOM.items():
+        assert wd_smem(wg, bn, cl, hl, nst) <= SMEM_BUDGET, name
+        assert bn * (64 * wg + 4) * 4 <= nst * (wg * (2 if hl else 1) * 8192 + bn * 128), name
+    wgmma = "".join(_wgmma_spec(bn) for bn in sorted({g[1] for g in WD_GEOM.values()}))
+    dispatch = "\n".join(
+        f"    case {i}: launch_wd<{_wd_targs(nm)}>(w, x, out, (int)n, (int)k, dg); break;"
+        for i, nm in enumerate(WD_NAMES))
+    inst = "\n".join(
+        f"template __global__ void wd_kernel<{_wd_targs(nm)}>(const __grid_constant__ CUtensorMap, "
+        f"const __grid_constant__ CUtensorMap, {'float' if WD_GEOM[nm][3] else '__nv_bfloat16'}*, int, int, int, int*);"
+        for nm in WD_NAMES)
+    return (_WD_SRC.replace("@@WGMMA@@", wgmma).replace("@@WDDISPATCH@@", dispatch)
+            .replace("@@WDINSTANCES@@", "namespace {\n" + inst + "\n}"))
+
+
 # --------------------------------------------------------------------------------------------
 # Candidates, self-test, autotune, dispatch.
 # --------------------------------------------------------------------------------------------
 def bucket_of(m):
-    return 8 if m <= 8 else 16 if m <= 16 else 32 if m <= 32 else None
+    if m <= 32:
+        return 8 if m <= 8 else 16 if m <= 16 else 32
+    return next((b for b in WD_BUCKETS if m <= b), None)
 
 
 def _gen_x(m, k, gen, device):
@@ -1660,10 +2052,21 @@ def _sk_runner(ext, cfg_name, stream, tab, pmax, base4, n, k, out_dtype, diag):
     return run
 
 
+def _wd_runner(ext, name, w, n, k, out_dtype, diag):
+    cid = WD_INDEX[name]
+
+    def run(x):
+        out = torch.empty((x.shape[0], n), dtype=out_dtype, device=x.device)
+        ext.wd_fwd(cid, w, x, out, n, k, diag)
+        return out
+    return run
+
+
 def _build_ext():
-    src = sk_source() + GEMV_CUDA_SRC
-    kwargs = dict(name="okc_sk_v1", cpp_sources="#include <torch/extension.h>\n" + _SK_CPP + GEMV_CPP_DECLS,
-                  cuda_sources=src, functions=["sk_fwd", "skf_fwd", "cgemv_fwd", "rgemv_fwd", "sgemv_fwd"],
+    src = sk_source() + GEMV_CUDA_SRC + wd_source()
+    kwargs = dict(name="okc_sk_v2", cpp_sources="#include <torch/extension.h>\n" + _SK_CPP + GEMV_CPP_DECLS + _WD_CPP,
+                  cuda_sources=src,
+                  functions=["sk_fwd", "skf_fwd", "cgemv_fwd", "rgemv_fwd", "sgemv_fwd", "wd_fwd"],
                   extra_cuda_cflags=["-O3", "-gencode=arch=compute_90a,code=sm_90a"], verbose=False)
     try:
         return load_inline(no_implicit_headers=True, **kwargs)
@@ -1818,6 +2221,24 @@ def prepare(weights):
             fn = _sk_runner(ext, nm, rstreams[nm], diag, 0, 0, router.shape[0], router.shape[1], torch.float32, diag)
             add("router", b, nm, fn, router, router.shape[0], ms_of[b], SELFTEST_TOL["router"])
         cands.setdefault(("router", b), []).append(("baseline", lambda x: _router_baseline(x, state), False))
+    state["router_hilo"] = torch.cat([hi, lo], 0).contiguous()
+    for layer in BF16_LAYERS + ("router",):
+        is_router = layer == "router"
+        w = state[layer]
+        n, k = w.shape
+        wk = state["router_hilo"] if is_router else w
+        for b in WD_BUCKETS:
+            # cuBLAS first: it stands in if timing fails.
+            if is_router:
+                cands.setdefault((layer, b), []).append(("baseline", lambda x: _router_baseline(x, state), False))
+            else:
+                cands.setdefault((layer, b), []).append(("cublas", lambda x, w=w: _cublas(x, w), False))
+            for nm in WD_NAMES:
+                wg, bn, cl, hl, nst = WD_GEOM[nm]
+                if hl != is_router or bn not in WD_BN[b] or not wd_fits(nm, n, k):
+                    continue
+                fn = _wd_runner(ext, nm, wk, n, k, torch.float32 if is_router else torch.bfloat16, diag)
+                add(layer, b, nm, fn, w, n, WD_SELFTEST_MS[b], SELFTEST_TOL["router" if is_router else "bf16"])
     print(f"selftests done {time.time() - t0:.1f} s")
 
     flush = torch.empty(FLUSH_BYTES // 4, dtype=torch.float32, device=dev)
@@ -1844,7 +2265,7 @@ def prepare(weights):
         for m in (2, 3, 4, 5, 6, 7):
             state["pick"][(layer, m)] = state["pick"][(layer, 8)]
     for (layer, b), lst in cands.items():
-        for m in range(9, 33):
+        for m in range(9, WD_BUCKETS[-1] + 1):
             if (layer, m) not in state["pick"]:
                 state["pick"][(layer, m)] = state["pick"][(layer, bucket_of(m))]
     print(f"prepare done {time.time() - t0:.1f} s")

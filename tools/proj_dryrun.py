@@ -90,6 +90,18 @@ class FakeExt:
         self.calls.append(("sgemv", 1))
         out.zero_()
 
+    def wd_fwd(self, cid, w, x, out, n, k, diag):
+        name = self.mod.WD_NAMES[cid]
+        wg, bn, cl, hl, nst = self.mod.WD_GEOM[name]
+        m = x.shape[0]
+        assert x.dtype == torch.bfloat16 and x.is_contiguous() and x.shape == (m, k) and 1 <= m <= 256, name
+        assert w.dtype == torch.bfloat16 and w.is_contiguous() and w.shape == ((2 if hl else 1) * n, k), name
+        assert n % (64 * wg) == 0 and (k // 64) % cl == 0 and k % 64 == 0, name
+        assert out.shape == (m, n) and out.dtype == (torch.float32 if hl else torch.bfloat16), name
+        assert self.mod.wd_smem(wg, bn, cl, hl, nst) <= 227 * 1024, name
+        self.calls.append((name, m))
+        out.zero_()
+
 
 def main():
     path = sys.argv[1] if len(sys.argv) > 1 else ROOT / "muse_bf16_proj/submission.py"
@@ -105,7 +117,8 @@ def main():
         for fn in fns:
             fn(x)
         timed.append(len(fns))
-        return [float(i + 1) for i in range(len(fns))]
+        # Last candidate wins, so the wide buckets dispatch to a wd kernel.
+        return [float(len(fns) - i) for i in range(len(fns))]
     mod._time_candidates = fake_time
     if not torch.cuda.is_available():
         torch.cuda.synchronize = lambda *a, **k: None
@@ -119,7 +132,10 @@ def main():
     print(f"prepare dry run {time.time() - t0:.1f} s, {len(ext.calls)} kernel calls, {len(timed)} tuned shapes")
     assert state["fused"].keys() == {8, 16}, state["fused"].keys()
     picks = state["pick"]
-    assert all((layer, m) in picks for layer in LAYERS for m in range(1, 33)), "every m <= 32 has a pick"
+    assert all((layer, m) in picks for layer in LAYERS for m in range(1, 257)), "every m <= 256 has a pick"
+    wd_calls = sorted({c for c in ext.calls if c[0] in mod.WD_GEOM})
+    print(f"wd self-test/tune calls: {len(wd_calls)} distinct (config, m)")
+    ext.calls.clear()
     shapes = [(m, layer) for layer in LAYERS for m in (1, 2, 5, 7, 8, 9, 16, 31, 32, 33, 128, 130, 256, 512, 1000)]
     for m, layer in shapes:
         n = 1024 if layer == "unpooler" and m <= 8 else LAYERS[layer][0]
@@ -127,6 +143,7 @@ def main():
         out = mod.kernel_fn({"x": x, "config": {"m": m, "n": n, "k": LAYERS[layer][1], "layer": layer}}, state)
         assert out.shape == (m, n), (layer, m, tuple(out.shape))
         assert out.dtype == (torch.float32 if layer == "router" else torch.bfloat16), (layer, m)
+    print("dispatched wd:", sorted({c for c in ext.calls if c[0] in mod.WD_GEOM}))
     for b in (8, 16):
         for m in ((1, 8) if b == 8 else (9, 16)):
             out, rout = state["fused"][b](torch.randn((m, 8192)).to(torch.bfloat16))
