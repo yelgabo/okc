@@ -155,7 +155,40 @@ def layout1(units, experts=3, seed=4):
     return True
 
 
+def tma_layout1(units, experts=3, seed=5):
+    """w4_tma_kernel's bulk copies against the per-lane LAYOUT 1 addressing: the block's stage
+    copy (W * 64 uint4 of values, W * 8 of scales, from the block's first unit) read at the
+    warp's offset in shared memory must give each lane the uint4s w4_gemm_kernel loads."""
+    ns = load_repack()
+    vals = np.arange(experts * units * 64 * 64)
+    scl = np.arange(experts * units * 64 * 8)
+    gv = ns["w4_group_units"](vals, 64 * 64)
+    gs = ns["w4_group_units"](scl, 64 * 8)
+    rng = np.random.default_rng(seed)
+    for _ in range(2000):
+        w = int(rng.choice([4, 8]))
+        e, chunk = int(rng.integers(experts)), int(rng.integers(units // w))
+        splits = int(rng.choice([1, 2, 4, 8]))
+        nst = 64 // splits
+        z, s = int(rng.integers(splits)), int(rng.integers(nst))
+        warp, h, lane = int(rng.integers(w)), int(rng.integers(2)), int(rng.integers(32))
+        g0 = ((e * (units // 8) + chunk * w // 8) * 64 + z * nst) * 8 + (chunk * w) % 8
+        st = g0 + s * 8
+        stage_v = gv[st * 64:st * 64 + w * 64]
+        stage_s = gs[st * 8:st * 8 + w * 8]
+        u = chunk * w + warp
+        ref0 = ((e * (units // 8) + u // 8) * 64 + z * nst) * 8 + (u & 7)
+        want_v = gv[ref0 * 64 + lane + s * 512 + h * 32]
+        want_s = gs[ref0 * 8 + lane // 4 + s * 64]
+        if stage_v[warp * 64 + lane + 32 * h] != want_v or stage_s[warp * 8 + lane // 4] != want_s:
+            print("tma layout 1 mismatch", w, e, chunk, splits, z, s, warp, h, lane)
+            return False
+    print(f"tma bulk-copy addressing ok ({units} units)")
+    return True
+
+
 if __name__ == "__main__":
     ok = check(1, 64, 128, 1) and check(2, 64, 128, 2) and check(1, 128, 192, 3)
     ok = ok and epilogue_rows(1) and epilogue_rows(2) and layout1(256) and layout1(128)
+    ok = ok and tma_layout1(256) and tma_layout1(128)
     print("OK" if ok else "FAILED")

@@ -73,7 +73,8 @@ _CPP_SRC = r"""
 #include <torch/extension.h>
 std::vector<torch::Tensor> route_align(torch::Tensor topk_ids, int64_t start, int64_t count,
                                        int64_t block_size, int64_t max_padded,
-                                       int64_t item_rows, int64_t item_rows2);
+                                       int64_t item_rows, int64_t item_rows2, int64_t big_rows,
+                                       int64_t big_rows2, int64_t big_at, int64_t big_at2);
 torch::Tensor finalize(torch::Tensor y, torch::Tensor scores, torch::Tensor norm_w,
                        torch::Tensor local_ids, int64_t variant, double eps);
 """
@@ -93,14 +94,23 @@ constexpr int kMaxRoutes = 4096;
 constexpr int kTopK = 8;
 constexpr int kHidden = 4096;
 
+// Work-item lists for the W4 GEMMs: 0 and 1 are GEMM1's and GEMM2's, 2 and 3 their large-tile
+// lists. An expert with lo <= routes < hi gets items of up to rows routes in that list.
+struct ItemLists {
+    int rows[4];
+    int lo[4];
+    int hi[4];
+    int off[4];
+};
+
 // Marlin's moe_align layout over local experts only: blocks of block_size rows, experts
 // ascending, pad slots hold numel. Atomic ranks order rows within an expert arbitrarily;
 // Marlin computes each row independently, so the output does not depend on that order.
 __global__ void __launch_bounds__(1024) route_align_kernel(
         const int* __restrict__ topk_ids, int numel, int start, int count, int bs,
         int* __restrict__ sorted_ids, int* __restrict__ expert_ids, int* __restrict__ num_post,
-        int* __restrict__ local_ids, int item_rows, int item_rows2, int items2_at,
-        int2* __restrict__ items, int* __restrict__ num_items) {
+        int* __restrict__ local_ids, ItemLists lists, int2* __restrict__ items,
+        int* __restrict__ num_items) {
     __shared__ int cnt[kMaxLocal];
     __shared__ int off[kMaxLocal];
     __shared__ int total_s;
@@ -139,15 +149,15 @@ __global__ void __launch_bounds__(1024) route_align_kernel(
         for (int b = excl / bs; b < incl / bs; ++b) {
             expert_ids[b] = tid;
         }
-        // Work items for the W4 GEMMs (one list per GEMM, the second at items2_at): up to
-        // ir routes of one expert each, as (expert << 16 | rows, first row in sorted_ids).
-        for (int q = 0; q < 2; ++q) {
-            const int ir = q == 0 ? item_rows : item_rows2;
+        // Work items for the W4 GEMMs: up to ir routes of one expert each, as
+        // (expert << 16 | rows, first row in sorted_ids).
+        for (int q = 0; q < 4; ++q) {
+            const int ir = lists.rows[q];
             if (ir <= 0) {
                 continue;
             }
-            int2* list = items + (q == 0 ? 0 : items2_at);
-            const int nit = (c + ir - 1) / ir;
+            int2* list = items + lists.off[q];
+            const int nit = c >= lists.lo[q] && c < lists.hi[q] ? (c + ir - 1) / ir : 0;
             int iincl = nit;
 #pragma unroll
             for (int d = 1; d < 32; d <<= 1) {
@@ -381,7 +391,7 @@ void launch_cluster(const __nv_bfloat16* y, const float* scores, const __nv_bflo
         cudaLaunchKernelEx(&cfg, finalize_cluster_kernel<S>, y, scores, w, ids, out, eps));
 }
 
-// compile_check: route_align_kernel<<<1, 64>>>(nullptr, 0, 0, 0, 8, 0, 0, 0, 0, 0, 0, 0, 0, 0);
+// compile_check: route_align_kernel<<<1, 64>>>(nullptr, 0, 0, 0, 8, 0, 0, 0, 0, {}, 0, 0);
 // compile_check: finalize_row_kernel<512><<<1, 512>>>(0, 0, 0, 0, 0, 0.f);
 // compile_check: launch_cluster<2>(0, 0, 0, 0, 0, 1, 0.f, 0);
 // compile_check: launch_cluster<4>(0, 0, 0, 0, 0, 1, 0.f, 0);
@@ -390,7 +400,8 @@ void launch_cluster(const __nv_bfloat16* y, const float* scores, const __nv_bflo
 
 std::vector<torch::Tensor> route_align(torch::Tensor topk_ids, int64_t start, int64_t count,
                                        int64_t block_size, int64_t max_padded,
-                                       int64_t item_rows, int64_t item_rows2) {
+                                       int64_t item_rows, int64_t item_rows2, int64_t big_rows,
+                                       int64_t big_rows2, int64_t big_at, int64_t big_at2) {
     const int numel = topk_ids.numel();
     TORCH_CHECK(numel <= kMaxRoutes && count <= kMaxLocal);
     auto opts = topk_ids.options();
@@ -398,22 +409,38 @@ std::vector<torch::Tensor> route_align(torch::Tensor topk_ids, int64_t start, in
     auto expert_ids = torch::empty({(max_padded + block_size - 1) / block_size}, opts);
     auto num_post = torch::empty({1}, opts);
     auto local_ids = torch::empty_like(topk_ids);
-    const int64_t max1 = item_rows > 0 ? count + numel / item_rows + 1 : 1;
-    const int64_t max2 = item_rows2 > 0 ? count + numel / item_rows2 + 1 : 1;
-    auto items = torch::empty({max1 + max2, 2}, opts);
-    auto num_items = torch::empty({2}, opts);
+    const int64_t rows[4] = {item_rows, item_rows2, big_rows, big_rows2};
+    const int64_t big_from[2] = {big_at, big_at2};
+    ItemLists lists;
+    int64_t len[4];
+    int64_t total_items = 0;
+    for (int q = 0; q < 4; ++q) {
+        const bool big = q >= 2;
+        const bool split = rows[q % 2 + 2] > 0;
+        lists.rows[q] = static_cast<int>(rows[q]);
+        lists.lo[q] = big ? static_cast<int>(big_from[q % 2]) : 0;
+        lists.hi[q] = !big && split ? static_cast<int>(big_from[q % 2]) : 1 << 30;
+        lists.off[q] = static_cast<int>(total_items);
+        len[q] = rows[q] > 0 ? count + numel / rows[q] + 1 : 1;
+        total_items += len[q];
+    }
+    auto items = torch::empty({total_items, 2}, opts);
+    auto num_items = torch::empty({4}, opts);
     int threads = ((numel + 31) / 32) * 32;
     threads = threads < 64 ? 64 : (threads > 1024 ? 1024 : threads);
     auto stream = at::cuda::getCurrentCUDAStream();
     route_align_kernel<<<1, threads, 0, stream>>>(
         topk_ids.data_ptr<int>(), numel, static_cast<int>(start), static_cast<int>(count),
         static_cast<int>(block_size), sorted_ids.data_ptr<int>(), expert_ids.data_ptr<int>(),
-        num_post.data_ptr<int>(), local_ids.data_ptr<int>(), static_cast<int>(item_rows),
-        static_cast<int>(item_rows2), static_cast<int>(max1),
+        num_post.data_ptr<int>(), local_ids.data_ptr<int>(), lists,
         reinterpret_cast<int2*>(items.data_ptr<int>()), num_items.data_ptr<int>());
     C10_CUDA_KERNEL_LAUNCH_CHECK();
-    return {sorted_ids, expert_ids, num_post, local_ids, items.narrow(0, 0, max1),
-            num_items.narrow(0, 0, 1), items.narrow(0, max1, max2), num_items.narrow(0, 1, 1)};
+    std::vector<torch::Tensor> res = {sorted_ids, expert_ids, num_post, local_ids};
+    for (int q = 0; q < 4; ++q) {
+        res.push_back(items.narrow(0, lists.off[q], len[q]));
+        res.push_back(num_items.narrow(0, q, 1));
+    }
+    return res;
 }
 
 torch::Tensor finalize(torch::Tensor y, torch::Tensor scores, torch::Tensor norm_w,
@@ -497,6 +524,9 @@ def _ext():
 # inter @ W2^T; nt n8 token tiles per work item; rows of x kept in shared memory
 # (min(8 nt, bs)); s K splits; w warps per block; d register stages of weights in flight per
 # warp; mode, layout and p as in w4_gemm_kernel (mode 0 is the GEMM, the others time only).
+# Mode 7 is the GEMM with weights brought in by bulk copies (w4_tma_kernel), d shared-memory
+# stages per block. A large-tile config runs as a second launch over the work items of the
+# heavily routed experts (opts g1b/g2b, threshold t1/t2 routes).
 # Checks 42924d2c6e314921, 05924173c44046e9 and 0f478ae5371a4b75 pruned the losers (no K split
 # without persistence, 2 warps per block, 2 stages in flight, 32 rows, most of layout 1).
 W4_CONFIGS = [
@@ -518,7 +548,19 @@ W4_CONFIGS = [
     # Timing only (see MODE in w4_gemm_kernel).
     (1, 1, 8, 4, 4, 4, 1, 0, 0), (1, 1, 8, 4, 4, 4, 3, 0, 0), (1, 1, 8, 4, 4, 4, 4, 0, 0),
     (1, 1, 8, 4, 4, 4, 6, 0, 0), (1, 1, 8, 4, 8, 4, 4, 0, 0),
+    # Benchmarked only (W4_TUNED). Mode 7, layout 1: weights by bulk copy (TMA).
+    (1, 1, 8, 4, 4, 4, 7, 1, 0), (1, 1, 8, 4, 4, 8, 7, 1, 0), (1, 1, 8, 4, 8, 4, 7, 1, 0),
+    (1, 1, 8, 2, 8, 4, 7, 1, 0), (1, 1, 8, 2, 4, 8, 7, 1, 0), (1, 2, 16, 4, 4, 8, 7, 1, 0),
+    (1, 2, 16, 4, 8, 4, 7, 1, 0), (1, 1, 1, 4, 4, 8, 7, 1, 0),
+    (2, 1, 8, 4, 4, 8, 7, 1, 0), (2, 1, 8, 4, 8, 4, 7, 1, 0), (2, 1, 8, 2, 4, 8, 7, 1, 0),
+    (2, 2, 16, 4, 4, 8, 7, 1, 0), (2, 2, 16, 4, 8, 4, 7, 1, 0), (2, 1, 1, 4, 4, 8, 7, 1, 0),
+    # Large token tiles (32 or 64 routes per item) for heavily routed experts.
+    (1, 4, 32, 4, 4, 4, 0, 0, 0), (1, 8, 64, 4, 8, 4, 0, 0, 0), (1, 4, 32, 2, 8, 4, 0, 0, 0),
+    (1, 8, 64, 4, 4, 2, 0, 0, 0),
+    (2, 4, 32, 4, 4, 4, 0, 0, 0), (2, 8, 64, 4, 8, 4, 0, 0, 0), (2, 8, 64, 4, 4, 2, 0, 0, 0),
 ]
+# The tuner in prepare() picks among the configs before this one.
+W4_TUNED = W4_CONFIGS.index((1, 1, 8, 4, 4, 4, 7, 1, 0))
 
 _W4_CPP_SRC = r"""
 #include <torch/extension.h>
@@ -898,6 +940,227 @@ __global__ void __launch_bounds__(W * 32) w4_gemm_kernel(
     }
 }
 
+__device__ __forceinline__ unsigned smem_addr(const void* p) {
+    return static_cast<unsigned>(__cvta_generic_to_shared(p));
+}
+
+__device__ __forceinline__ void mbar_init(uint64_t* bar, unsigned count) {
+    asm volatile("mbarrier.init.shared::cta.b64 [%0], %1;" :: "r"(smem_addr(bar)), "r"(count));
+}
+
+__device__ __forceinline__ void mbar_expect_tx(uint64_t* bar, unsigned bytes) {
+    asm volatile("mbarrier.arrive.expect_tx.shared::cta.b64 _, [%0], %1;"
+                 :: "r"(smem_addr(bar)), "r"(bytes) : "memory");
+}
+
+__device__ __forceinline__ void mbar_arrive(uint64_t* bar) {
+    asm volatile("mbarrier.arrive.shared::cta.b64 _, [%0];" :: "r"(smem_addr(bar)) : "memory");
+}
+
+__device__ __forceinline__ void mbar_wait(uint64_t* bar, unsigned parity) {
+    asm volatile("{\n\t.reg .pred p;\n"
+                 "WAIT:\n\t"
+                 "mbarrier.try_wait.parity.shared::cta.b64 p, [%0], %1;\n\t"
+                 "@!p bra WAIT;\n}"
+                 :: "r"(smem_addr(bar)), "r"(parity) : "memory");
+}
+
+__device__ __forceinline__ void bulk_load(void* dst, const void* src, unsigned bytes,
+                                          uint64_t* bar) {
+    asm volatile("cp.async.bulk.shared::cluster.global.mbarrier::complete_tx::bytes "
+                 "[%0], [%1], %2, [%3];"
+                 :: "r"(smem_addr(dst)), "l"(src), "r"(bytes), "r"(smem_addr(bar)) : "memory");
+}
+
+// w4_gemm_kernel (MODE 0, LAYOUT 1, P 0) with the weights brought into shared memory by bulk
+// copies instead of each lane's own loads, testing whether the register-held stages limit
+// resident warps. Layout 1 makes one block's stage of W units one contiguous W KB of values and
+// W * 128 B of scales, so one thread of an extra producer warp issues two copies per stage
+// into a ring of D stages; full barriers count the bytes, empty barriers the consumer lanes.
+template <int KIND, int NT, int ROWS, int S, int W, int D>
+__global__ void __launch_bounds__((W + 1) * 32) w4_tma_kernel(
+        const __nv_bfloat16* __restrict__ act, const uint4* __restrict__ wq,
+        const uint4* __restrict__ wsc, const float* __restrict__ gs,
+        const int* __restrict__ sorted_ids, const int2* __restrict__ items,
+        const int* __restrict__ num_items, int numel, void* __restrict__ out) {
+    constexpr int KC = kK / S;
+    constexpr int NST = KC / 64;
+    constexpr int U = KIND == 1 ? 256 : 128;
+    constexpr int RS = KC + 8;
+    constexpr int TR = 8 * NT;
+    constexpr int VB = W * 1024;
+    constexpr int SB = W * 128;
+    static_assert(8 % W == 0 && D <= NST, "a block's units must share one 8-unit group");
+    extern __shared__ __align__(16) unsigned char smem_raw[];
+    __shared__ int rid[TR];
+    __shared__ __align__(8) uint64_t full[D];
+    __shared__ __align__(8) uint64_t empty[D];
+
+    const int warp = threadIdx.x >> 5;
+    const int lane = threadIdx.x & 31;
+    if (KIND == 1) {
+        asm volatile("griddepcontrol.wait;" ::: "memory");
+        asm volatile("griddepcontrol.launch_dependents;");
+    }
+    if (static_cast<int>(blockIdx.y) >= num_items[0]) {
+        return;
+    }
+    const int2 it = items[blockIdx.y];
+    const int e = it.x >> 16;
+    const int nrows = it.x & 0xffff;
+    const int row0 = it.y;
+    const int chunk = blockIdx.x;
+    const int z = blockIdx.z;
+    unsigned char* wst = smem_raw + ROWS * RS * 2;
+    unsigned char* sst = wst + D * VB;
+
+    if (threadIdx.x == 0) {
+        for (int i = 0; i < D; ++i) {
+            mbar_init(&full[i], 1);
+            mbar_init(&empty[i], W * 32);
+        }
+        asm volatile("fence.mbarrier_init.release.cluster;" ::: "memory");
+        asm volatile("fence.proxy.async.shared::cta;" ::: "memory");
+    }
+    __syncthreads();
+
+    if (warp == W) {
+        if (lane == 0) {
+            const size_t g0 = (static_cast<size_t>(e * (U / 8) + chunk * W / 8) * 64 + z * NST)
+                              * 8 + (chunk * W) % 8;
+#pragma unroll 1
+            for (int s = 0; s < NST; ++s) {
+                const int slot = s % D;
+                if (s >= D) {
+                    mbar_wait(&empty[slot], (s / D - 1) & 1);
+                }
+                mbar_expect_tx(&full[slot], VB + SB);
+                const size_t st = g0 + static_cast<size_t>(s) * 8;
+                bulk_load(wst + slot * VB, wq + st * 64, VB, &full[slot]);
+                bulk_load(sst + slot * SB, wsc + st * 8, SB, &full[slot]);
+            }
+        }
+        return;
+    }
+
+    if (KIND == 2) {
+        asm volatile("griddepcontrol.wait;" ::: "memory");
+        asm volatile("griddepcontrol.launch_dependents;");
+    }
+    __nv_bfloat16* xs = reinterpret_cast<__nv_bfloat16*>(smem_raw);
+    for (int r = threadIdx.x; r < TR; r += W * 32) {
+        rid[r] = r < nrows ? sorted_ids[row0 + r] : -1;
+    }
+    {
+        constexpr int CH = KC / 8;
+        for (int i = threadIdx.x; i < ROWS * CH; i += W * 32) {
+            const int r = i / CH;
+            const int c = i - r * CH;
+            if (r < nrows) {
+                const int p = sorted_ids[row0 + r];
+                const int src_row = KIND == 1 ? p / 8 : p;
+                cp_async16(xs + r * RS + c * 8,
+                           act + static_cast<size_t>(src_row) * kK + z * KC + c * 8);
+            }
+        }
+        asm volatile("cp.async.commit_group;" ::: "memory");
+        asm volatile("cp.async.wait_all;" ::: "memory");
+    }
+    // Consumer warps only: the producer warp has moved on.
+    asm volatile("bar.sync 1, %0;" :: "n"(W * 32) : "memory");
+
+    const int u = chunk * W + warp;
+    const int g = lane >> 2;
+    const int t4 = lane & 3;
+    const __nv_bfloat16* xrow[NT];
+#pragma unroll
+    for (int nt = 0; nt < NT; ++nt) {
+        const int r = nt * 8 + (lane & 7);
+        xrow[nt] = xs + (r < ROWS ? r : 0) * RS + (lane >> 3) * 8;
+    }
+    float acc[2][NT][4];
+#pragma unroll
+    for (int t = 0; t < 2; ++t) {
+#pragma unroll
+        for (int nt = 0; nt < NT; ++nt) {
+#pragma unroll
+            for (int j = 0; j < 4; ++j) {
+                acc[t][nt][j] = 0.f;
+            }
+        }
+    }
+
+#pragma unroll 1
+    for (int s = 0; s < NST; ++s) {
+        const int slot = s % D;
+        mbar_wait(&full[slot], (s / D) & 1);
+        const uint4* vp = reinterpret_cast<const uint4*>(wst + slot * VB) + warp * 64 + lane;
+        uint4 wv[2];
+        wv[0] = vp[0];
+        wv[1] = vp[32];
+        const uint4 sv = reinterpret_cast<const uint4*>(sst + slot * SB)[warp * 8 + (lane >> 2)];
+        mbar_arrive(&empty[slot]);
+#pragma unroll
+        for (int h = 0; h < 2; ++h) {
+            unsigned b[NT][4];
+#pragma unroll
+            for (int nt = 0; nt < NT; ++nt) {
+                ldmatrix_x4(b[nt], xrow[nt] + s * 64 + h * 32);
+            }
+#pragma unroll
+            for (int j1 = 0; j1 < 2; ++j1) {
+                const unsigned sw = word(sv, h * 2 + j1);
+                unsigned a0[4];
+                unsigned a1[4];
+                dequant<0>(word(wv[h], j1 * 2), sw, a0);
+                dequant<1>(word(wv[h], j1 * 2 + 1), sw, a1);
+#pragma unroll
+                for (int nt = 0; nt < NT; ++nt) {
+                    mma_bf16(acc[0][nt], a0, b[nt][j1 * 2], b[nt][j1 * 2 + 1]);
+                    mma_bf16(acc[1][nt], a1, b[nt][j1 * 2], b[nt][j1 * 2 + 1]);
+                }
+            }
+        }
+    }
+
+    const float gscale = gs[e] * 128.f;
+#pragma unroll
+    for (int nt = 0; nt < NT; ++nt) {
+#pragma unroll
+        for (int qq = 0; qq < 2; ++qq) {
+            const int col = nt * 8 + t4 * 2 + qq;
+            const int p = rid[col];
+            if (p < 0) {
+                continue;
+            }
+#pragma unroll
+            for (int hh = 0; hh < 2; ++hh) {
+                const float v0 = acc[0][nt][hh * 2 + qq] * gscale;
+                const float v1 = acc[1][nt][hh * 2 + qq] * gscale;
+                if (KIND == 1 && S == 1) {
+                    // As in w4_gemm_kernel: BF16 gate and up before SwiGLU, BF16 output.
+                    const float gb = bf16r(v0);
+                    const float ub = bf16r(v1);
+                    const float sv0 = gb / (1.f + __expf(-gb));
+                    reinterpret_cast<__nv_bfloat16*>(out)[static_cast<size_t>(p) * kInter
+                                                          + u * 16 + hh * 8 + g] =
+                        __float2bfloat16_rn(sv0 * ub);
+                } else if (KIND == 1) {
+                    float* o = reinterpret_cast<float*>(out)
+                               + (static_cast<size_t>(z) * numel + p) * (2 * kInter);
+                    o[u * 16 + hh * 8 + g] = v0;
+                    o[kInter + u * 16 + hh * 8 + g] = v1;
+                } else {
+                    float* o = reinterpret_cast<float*>(out)
+                               + (static_cast<size_t>(z) * numel + p) * kK;
+                    o[u * 32 + hh * 8 + g] = v0;
+                    o[u * 32 + 16 + hh * 8 + g] = v1;
+                }
+            }
+        }
+    }
+}
+
 // The post-expert norm and weighted sum over GEMM2's FP32 K-split partials. CL blocks per
 // token (a cluster when CL > 1), 512 / CL threads each, 8 channels per thread; the per-slot
 // sums of squares are combined through distributed shared memory. One block per token leaves
@@ -1094,35 +1357,60 @@ void w4_launch(const __nv_bfloat16* act, const uint4* wq, const uint4* wsc, cons
                const int* sorted_ids, const int2* items, const int* num_items, int max_items,
                int numel, void* out, bool pdl, cudaStream_t stream) {
     constexpr int U = KIND == 1 ? 256 : 128;
-    constexpr int smem = (P ? 2 : 1) * ROWS * (kK / S + 8) * 2;
-    auto kern = w4_gemm_kernel<KIND, NT, ROWS, S, W, D, MODE, LAYOUT, P>;
-    static int grid = 0;
-    if (grid == 0) {
-        C10_CUDA_CHECK(cudaFuncSetAttribute(
-            kern, cudaFuncAttributeMaxDynamicSharedMemorySize, smem));
-        int blocks = 0;
-        C10_CUDA_CHECK(cudaOccupancyMaxActiveBlocksPerMultiprocessor(&blocks, kern, W * 32, smem));
-        int sms = 0;
-        C10_CUDA_CHECK(cudaDeviceGetAttribute(&sms, cudaDevAttrMultiProcessorCount, 0));
-        grid = blocks * sms;
+    if constexpr (MODE == 7) {
+        static_assert(LAYOUT == 1 && P == 0, "the bulk-copy path reads layout 1, one unit a warp");
+        constexpr int smem = ROWS * (kK / S + 8) * 2 + D * W * 1152;
+        auto kern = w4_tma_kernel<KIND, NT, ROWS, S, W, D>;
+        static bool ready = false;
+        if (!ready) {
+            C10_CUDA_CHECK(cudaFuncSetAttribute(
+                kern, cudaFuncAttributeMaxDynamicSharedMemorySize, smem));
+            ready = true;
+        }
+        launch_pdl(kern, dim3(U / W, max_items, S), (W + 1) * 32, smem, pdl, stream, act, wq,
+                   wsc, gs, sorted_ids, items, num_items, numel, out);
+    } else {
+        constexpr int smem = (P ? 2 : 1) * ROWS * (kK / S + 8) * 2;
+        auto kern = w4_gemm_kernel<KIND, NT, ROWS, S, W, D, MODE, LAYOUT, P>;
+        static int grid = 0;
+        if (grid == 0) {
+            C10_CUDA_CHECK(cudaFuncSetAttribute(
+                kern, cudaFuncAttributeMaxDynamicSharedMemorySize, smem));
+            int blocks = 0;
+            C10_CUDA_CHECK(
+                cudaOccupancyMaxActiveBlocksPerMultiprocessor(&blocks, kern, W * 32, smem));
+            int sms = 0;
+            C10_CUDA_CHECK(cudaDeviceGetAttribute(&sms, cudaDevAttrMultiProcessorCount, 0));
+            grid = blocks * sms;
+        }
+        const dim3 g = P ? dim3(grid) : dim3(U / W, max_items, S);
+        launch_pdl(kern, g, W * 32, smem, pdl, stream, act, wq, wsc, gs, sorted_ids, items,
+                   num_items, numel, out);
     }
-    const dim3 g = P ? dim3(grid) : dim3(U / W, max_items, S);
-    launch_pdl(kern, g, W * 32, smem, pdl, stream, act, wq, wsc, gs, sorted_ids, items,
-               num_items, numel, out);
 }
 
 // Registers per thread, dynamic shared memory per block, and resident blocks per SM.
 template <int KIND, int NT, int ROWS, int S, int W, int D, int MODE, int LAYOUT, int P>
 std::vector<int64_t> w4_query() {
-    constexpr int smem = (P ? 2 : 1) * ROWS * (kK / S + 8) * 2;
-    auto kern = w4_gemm_kernel<KIND, NT, ROWS, S, W, D, MODE, LAYOUT, P>;
+    constexpr bool tma = MODE == 7;
+    constexpr int smem = tma ? ROWS * (kK / S + 8) * 2 + D * W * 1152
+                             : (P ? 2 : 1) * ROWS * (kK / S + 8) * 2;
+    constexpr int threads = (tma ? W + 1 : W) * 32;
+    auto kern = [] {
+        if constexpr (tma) {
+            return w4_tma_kernel<KIND, NT, ROWS, S, W, D>;
+        } else {
+            return w4_gemm_kernel<KIND, NT, ROWS, S, W, D, MODE, LAYOUT, P>;
+        }
+    }();
     C10_CUDA_CHECK(cudaFuncSetAttribute(
         kern, cudaFuncAttributeMaxDynamicSharedMemorySize, smem));
     cudaFuncAttributes attr;
     C10_CUDA_CHECK(cudaFuncGetAttributes(&attr, kern));
     int blocks = 0;
-    C10_CUDA_CHECK(cudaOccupancyMaxActiveBlocksPerMultiprocessor(&blocks, kern, W * 32, smem));
-    return {attr.numRegs, smem + static_cast<int64_t>(attr.sharedSizeBytes), blocks};
+    C10_CUDA_CHECK(cudaOccupancyMaxActiveBlocksPerMultiprocessor(&blocks, kern, threads, smem));
+    return {attr.numRegs, smem + static_cast<int64_t>(attr.sharedSizeBytes), blocks, threads,
+            static_cast<int64_t>(attr.localSizeBytes)};
 }
 
 template <int CL>
@@ -1226,6 +1514,7 @@ def _w4_source():
                      f"op, pdl, stream); break;")
         checks.append(
             f"// w4_compile_check: w4_launch<{targs}>(0, 0, 0, 0, 0, 0, 0, 1, 1, 0, false, 0);")
+        checks.append(f"// w4_compile_check: (void)w4_query<{targs}>();")
     return (_W4_SRC.replace("//@W4_CASES@", "\n".join(cases))
             .replace("//@W4_INFO@", "\n".join(infos))
             .replace("//@W4_COMPILE_CHECKS@", "\n".join(checks)))
@@ -1433,11 +1722,18 @@ def _forward(data, state, opts):
             g1 = None
         if g2 is not None and not (state.get("w4_ok") and _w4_fits(g2, num_tokens)):
             g2 = None
+        g1b, g2b = (opts.get("g1b") if g1 is not None else None,
+                    opts.get("g2b") if g2 is not None else None)
         rows1 = 8 * W4_CONFIGS[g1][1] if g1 is not None else 0
         rows2 = 8 * W4_CONFIGS[g2][1] if g2 is not None else 0
-        (sorted_ids, block_experts, n_padded, local_ids, items, num_items, items2,
-         num_items2) = _ext().route_align(topk_ids, start, count, block_size_m, max_padded,
-                                          rows1, rows2)
+        big1 = 8 * W4_CONFIGS[g1b][1] if g1b is not None else 0
+        big2 = 8 * W4_CONFIGS[g2b][1] if g2b is not None else 0
+        (sorted_ids, block_experts, n_padded, local_ids, items, num_items, items2, num_items2,
+         items_b1, num_b1, items_b2, num_b2) = _ext().route_align(
+            topk_ids, start, count, block_size_m, max_padded, rows1, rows2, big1, big2,
+            opts.get("t1", 1), opts.get("t2", 1))
+        big_1 = (g1b, items_b1, num_b1) if g1b is not None else None
+        big_2 = (g2b, items_b2, num_b2) if g2b is not None else None
     else:
         g1 = g2 = None
         local_ids = topk_ids
@@ -1458,7 +1754,7 @@ def _forward(data, state, opts):
     pdl = bool(opts.get("pdl"))
     if g1 is not None:
         _w4_gemm1(state["w4"], g1, x, sorted_ids, items, num_items, local_ids, numel, cache2,
-                  pdl)
+                  pdl, big_1)
     else:
         cache1 = moe_wna16_marlin_gemm(
             x, cache1, bank["w13"], None, bank["w13_s"], bank["w13_gs"], None, None, None, ws,
@@ -1467,7 +1763,8 @@ def _forward(data, state, opts):
         silu_and_mul(cache1.view(-1, gemm1_n), cache2, expert_ids=local_ids.view(-1),
                      expert_step=1)
     if g2 is not None:
-        part = _w4_gemm2(state["w4"], g2, cache2, sorted_ids, items2, num_items2, numel, pdl)
+        part = _w4_gemm2(state["w4"], g2, cache2, sorted_ids, items2, num_items2, numel, pdl,
+                         big_2)
         return _w4_ext().w4_finalize(part, topk_weights, state["norm_w"], local_ids.view(-1),
                                      POST_NORM_EPS, pdl, opts.get("fcl", 1))
     y = moe_wna16_marlin_gemm(
@@ -1482,28 +1779,40 @@ def _forward(data, state, opts):
         slot_expert_ids=local_ids)
 
 
-def _w4_gemm1(w4, cfg, x, sorted_ids, items, num_items, local_ids, numel, inter, pdl=False):
+def _w4_launches(cfg, items, num_items, big):
+    """The GEMM launches for one GEMM: big = (config, items, num_items) of the large-tile list,
+    run first, or None. Both write the same K-split partials, so their splits must match."""
+    if big is None:
+        return [(cfg, items, num_items)]
+    if W4_CONFIGS[big[0]][3] != W4_CONFIGS[cfg][3]:
+        raise ValueError("large-tile config must use the same K splits")
+    return [big, (cfg, items, num_items)]
+
+
+def _w4_gemm1(w4, cfg, x, sorted_ids, items, num_items, local_ids, numel, inter, pdl=False,
+              big=None):
     """inter[route] = SwiGLU(x[token] @ W13[expert]^T) for every local route, in bf16."""
     splits = W4_CONFIGS[cfg][3]
-    name = "w13g" if W4_CONFIGS[cfg][7] else "w13"
     ext = _w4_ext()
-    if splits == 1:
-        ext.w4_gemm(cfg, x, w4[name], w4[name + "_s"], w4["w13_gs"], sorted_ids, items,
-                    num_items, numel, inter, pdl)
-        return
-    part = torch.empty((splits, numel, 2 * 4096), device=x.device, dtype=torch.float32)
-    ext.w4_gemm(cfg, x, w4[name], w4[name + "_s"], w4["w13_gs"], sorted_ids, items, num_items,
-                numel, part, pdl)
-    ext.w4_swiglu(part, local_ids.view(-1), splits, inter, pdl)
+    out = inter
+    if splits > 1:
+        out = torch.empty((splits, numel, 2 * 4096), device=x.device, dtype=torch.float32)
+    for c, its, n in _w4_launches(cfg, items, num_items, big):
+        name = "w13g" if W4_CONFIGS[c][7] else "w13"
+        ext.w4_gemm(c, x, w4[name], w4[name + "_s"], w4["w13_gs"], sorted_ids, its, n, numel,
+                    out, pdl)
+    if splits > 1:
+        ext.w4_swiglu(out, local_ids.view(-1), splits, inter, pdl)
 
 
-def _w4_gemm2(w4, cfg, inter, sorted_ids, items, num_items, numel, pdl=False):
+def _w4_gemm2(w4, cfg, inter, sorted_ids, items, num_items, numel, pdl=False, big=None):
     """FP32 K-split partials [splits, routes, 4096] of inter[route] @ W2[expert]^T."""
     splits = W4_CONFIGS[cfg][3]
-    name = "w2g" if W4_CONFIGS[cfg][7] else "w2"
     part = torch.empty((splits, numel, 4096), device=inter.device, dtype=torch.float32)
-    _w4_ext().w4_gemm(cfg, inter, w4[name], w4[name + "_s"], w4["w2_gs"], sorted_ids, items,
-                      num_items, numel, part, pdl)
+    for c, its, n in _w4_launches(cfg, items, num_items, big):
+        name = "w2g" if W4_CONFIGS[c][7] else "w2"
+        _w4_ext().w4_gemm(c, inter, w4[name], w4[name + "_s"], w4["w2_gs"], sorted_ids, its, n,
+                          numel, part, pdl)
     return part
 
 
@@ -1564,7 +1873,7 @@ def _w4_tune(state, seeds=(11, 12)):
             tw = data["topk_weights"].float().contiguous()
             x = data["hidden_states"].contiguous()
             sorted_ids, block_experts, n_padded, local_ids = _ext().route_align(
-                topk_ids, 0, 32, bsm, max_padded, 0, 0)[:4]
+                topk_ids, 0, 32, bsm, max_padded, 0, 0, 0, 0, 1, 1)[:4]
             cache1 = torch.empty((numel, 8192), device="cuda", dtype=torch.bfloat16)
             inter = torch.empty((numel, 4096), device="cuda", dtype=torch.bfloat16)
             cache3 = torch.empty((numel, 4096), device="cuda", dtype=torch.bfloat16)
@@ -1594,11 +1903,11 @@ def _w4_tune(state, seeds=(11, 12)):
             marlin2()
             ref2 = cache3.clone()
             live = local_ids.view(-1) >= 0
-            for i, cfg in enumerate(W4_CONFIGS):
+            for i, cfg in enumerate(W4_CONFIGS[:W4_TUNED]):
                 if not _w4_fits(i, bs) or i in bad:
                     continue
                 sids, _, _, lids, items, nitems = _ext().route_align(
-                    topk_ids, 0, 32, bsm, max_padded, 8 * cfg[1], 0)[:6]
+                    topk_ids, 0, 32, bsm, max_padded, 8 * cfg[1], 0, 0, 0, 1, 1)[:6]
                 res = {}
                 if cfg[0] == 1:
                     out = torch.zeros((numel, 4096), device="cuda", dtype=torch.bfloat16)
