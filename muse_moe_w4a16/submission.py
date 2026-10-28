@@ -182,7 +182,8 @@ __device__ __forceinline__ void load_slots(
     for (int k = 0; k < kTopK; ++k) {
         uint4 raw = make_uint4(0, 0, 0, 0);
         if (live[k]) {
-            raw = *reinterpret_cast<const uint4*>(y + (static_cast<size_t>(t) * kTopK + k) * kHidden + c);
+            const size_t row = static_cast<size_t>(t) * kTopK + k;
+            raw = *reinterpret_cast<const uint4*>(y + row * kHidden + c);
         }
         unpack8(raw, v[k]);
         ss[k] = 0.f;
@@ -347,14 +348,15 @@ void launch_cluster(const __nv_bfloat16* y, const float* scores, const __nv_bflo
     attr[0].val.clusterDim.z = 1;
     cfg.attrs = attr;
     cfg.numAttrs = 1;
-    C10_CUDA_CHECK(cudaLaunchKernelEx(&cfg, finalize_cluster_kernel<S>, y, scores, w, ids, out, eps));
+    C10_CUDA_CHECK(
+        cudaLaunchKernelEx(&cfg, finalize_cluster_kernel<S>, y, scores, w, ids, out, eps));
 }
 
-// compile_check: route_align_kernel<<<1, 64>>>(nullptr, 0, 0, 0, 8, nullptr, nullptr, nullptr, nullptr);
-// compile_check: finalize_row_kernel<512><<<1, 512>>>(nullptr, nullptr, nullptr, nullptr, nullptr, 0.f);
-// compile_check: launch_cluster<2>(nullptr, nullptr, nullptr, nullptr, nullptr, 1, 0.f, 0);
-// compile_check: launch_cluster<4>(nullptr, nullptr, nullptr, nullptr, nullptr, 1, 0.f, 0);
-// compile_check: launch_cluster<8>(nullptr, nullptr, nullptr, nullptr, nullptr, 1, 0.f, 0);
+// compile_check: route_align_kernel<<<1, 64>>>(nullptr, 0, 0, 0, 8, 0, 0, 0, 0);
+// compile_check: finalize_row_kernel<512><<<1, 512>>>(0, 0, 0, 0, 0, 0.f);
+// compile_check: launch_cluster<2>(0, 0, 0, 0, 0, 1, 0.f, 0);
+// compile_check: launch_cluster<4>(0, 0, 0, 0, 0, 1, 0.f, 0);
+// compile_check: launch_cluster<8>(0, 0, 0, 0, 0, 1, 0.f, 0);
 }  // namespace
 
 std::vector<torch::Tensor> route_align(torch::Tensor topk_ids, int64_t start, int64_t count,

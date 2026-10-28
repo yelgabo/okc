@@ -1,0 +1,19 @@
+SRC sglang.kernels.ops.muse_spark_v12.fused_post_expert_norm_weighted_sum_triton md5=eac52b51ff2a75b807a14d2a187b3b85 len=3666
+SRC   _MIN_TOKENS_FOR_FUSED = 32
+SRC   if tokens < _MIN_TOKENS_FOR_FUSED:
+SRC moe_align_block_size md5=1fdca76dd60d833cb0c9560833d8da15 len=5247
+SRC   and topk_ids.numel() <= SMALL_NUMEL_LIMIT
+ENV torch=2.14.1+cu130 gpu=NVIDIA H200
+SELFTEST worst rel diff vs sglang path 4.26e-04
+BENCH bs=  1 sgl=  87.1 cur=  54.0 alignonly=  83.3 fin0=  54.1 fin2=  54.0 fin4=  53.9 fin8=  54.0
+BSM   bs=  1 heur=8 8=  54.6 16=  56.4 32=  57.7 48=  65.2 64=  73.4
+BENCH bs=  8 sgl= 150.6 cur= 108.9 alignonly= 143.2 fin0= 109.0 fin2= 109.0 fin4= 109.2 fin8= 108.9
+BSM   bs=  8 heur=8 8= 109.0 16= 113.7 32= 142.2 48= 171.7 64= 201.1
+BENCH bs= 16 sgl= 145.0 cur=  99.0 alignonly= 136.6 fin0=  99.1 fin2=  98.8 fin4=  98.7 fin8=  99.2
+BSM   bs= 16 heur=8 8=  97.4 16=  92.4 32= 115.4 48= 138.1 64= 161.7
+BENCH bs= 32 sgl= 178.5 cur= 167.7 alignonly= 168.0 fin0= 167.9 fin2= 167.3 fin4= 167.4 fin8= 168.1
+BSM   bs= 32 heur=16 8= 180.9 16= 167.7 32= 201.1 48= 245.3 64= 289.8
+BENCH bs=128 sgl= 495.6 cur= 481.5 alignonly= 482.1 fin0= 481.1 fin2= 478.8 fin4= 478.9 fin8= 481.9
+BSM   bs=128 heur=48 8= 487.7 16= 360.8 32= 405.5 48= 482.5 64= 551.0
+BENCH bs=256 sgl= 649.0 cur= 633.3 alignonly= 635.9 fin0= 636.4 fin2= 636.3 fin4= 636.0 fin8= 637.3
+BSM   bs=256 heur=64 8= 698.0 16= 470.6 32= 470.0 48= 529.5 64= 631.7
