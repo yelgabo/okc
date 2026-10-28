@@ -37,7 +37,8 @@ Per shape, GEMM1 and GEMM2 over the unique weight bytes of the experts that rece
 (18.9 MB for W13, 9.4 MB for W2 per expert, NVFP4 values plus E4M3 scales; global scales
 negligible), routing seeds 11 and 12 (`977 * seed + bs`, the same in check 16fd966f071340eb's
 split and in the tuner). "Stream" is the cold-L2 streaming-read kernel's bandwidth at that
-size (check 16fd966f071340eb). Marlin columns are check 16fd966f071340eb's kernel-only times
+size, interpolated between the sizes measured in check 16fd966f071340eb. Marlin columns are
+that check's kernel-only times
 (replay overhead subtracted). Tuner columns are check c1025175b73548fd's medians, Marlin
 GEMM1 + silu_and_mul vs the best W4 GEMM1 + its split-K SwiGLU reduce, and Marlin GEMM2 +
 finalizer vs W4 GEMM2 + finalizer, same routings, each including about 5 us of graph replay
@@ -52,7 +53,7 @@ overhead.
 | 128 | 24 | 453 | 94.4 / 113.5 | 198.6 | 226 | 47.2 / 57.8 | 103.3 | 207.2 -> 168.1 (1.23x) | 113.7 -> 91.5 (1.24x) |
 | 256 | 22.5 | 425 | 88.5 / 106.8 | 263.8 | 212 | 44.2 / 54.4 | 136.7 | 275.3 -> 244.6 (1.13x) | 150.9 -> 121.8 (1.24x) |
 
-Marlin ran GEMM1 at 1.6-2.5x and GEMM2 at 2.0-2.5x the streaming floor.
+Marlin ran GEMM1 at 1.6-2.5x and GEMM2 at 1.6-2.5x the streaming floor (the 2.5x at bs256).
 
 Lessons:
 - Kernel: swap-AB mma.sync m16n8k16, weights as A (16 rows x 16 k, so one E4M3 scale per row
