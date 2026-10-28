@@ -42,11 +42,11 @@ ROUTER_FUSED_MAX_TOKENS = 8
 
 
 def _proj_fused_wins(layer, m):
-    """Up to 8 tokens: where the mma kernel beat cuBLAS in check run ee65e159c9f54269, every
-    BF16 layer at m=1 and all but o at m=8. 9 to 32 tokens use the large-block config."""
-    if m <= 8:
-        return m == 1 or layer != "o"
-    return m <= 32
+    """Where the mma kernel beat cuBLAS in check run ee65e159c9f54269: every BF16 layer at m=1,
+    and all but o at m=8. Above 8 tokens it loses (runs 04a9c46b48164048 to 17ebe3d9f831439d)."""
+    if layer == "o":
+        return m == 1
+    return m <= 8
 
 # Grid: 16 row groups x 8 k-slices = 128 blocks, one per SM, all loads in flight at once.
 # Each warp owns one weight row and one 1024-wide k-slice. The block's x slice is staged in
@@ -253,7 +253,8 @@ __device__ __forceinline__ void mma_bf16(float* c, const uint4& a, const uint2& 
         : "r"(a.x), "r"(a.y), "r"(a.z), "r"(a.w), "r"(b.x), "r"(b.y));
 }
 
-template <int MT, int WARPS, int R, int CH, int S>
+// REDUCE = false skips the cluster reduction; tools/make_bench.py times it to measure that cost.
+template <int MT, int WARPS, int R, int CH, int S, bool REDUCE = true>
 __global__ void __cluster_dims__(1, S, 1) __launch_bounds__(WARPS * 32)
 proj_kernel(const uint4* __restrict__ wp, const __nv_bfloat16* __restrict__ x,
             __nv_bfloat16* __restrict__ out, int m, int n_out, int k, int t_per_block) {
@@ -364,6 +365,12 @@ proj_kernel(const uint4* __restrict__ wp, const __nv_bfloat16* __restrict__ x,
             partial[(t + 1) * ROWS + row + 8] = acc[r][nt][3];
         }
     }
+    if (!REDUCE) {
+        __syncthreads();
+        out[(size_t)blockIdx.y * gridDim.x * blockDim.x + blockIdx.x * blockDim.x + threadIdx.x] =
+            __float2bfloat16(partial[threadIdx.x]);
+        return;
+    }
     cluster.sync();
 
     const int rank = cluster.block_rank();
@@ -383,18 +390,18 @@ proj_kernel(const uint4* __restrict__ wp, const __nv_bfloat16* __restrict__ x,
     cluster.sync();
 }
 
-template <int MT, int WARPS, int R, int CH, int S>
+template <int MT, int WARPS, int R, int CH, int S, bool REDUCE = true>
 void proj_launch(const uint4* wp, const __nv_bfloat16* xp, __nv_bfloat16* op, int m, int n,
                  int k, cudaStream_t stream) {
     constexpr int smem = proj_smem_bytes<MT, WARPS, R, CH>();
     static bool configured = false;
     if (!configured) {
-        cudaFuncSetAttribute(proj_kernel<MT, WARPS, R, CH, S>,
+        cudaFuncSetAttribute(proj_kernel<MT, WARPS, R, CH, S, REDUCE>,
                              cudaFuncAttributeMaxDynamicSharedMemorySize, smem);
         configured = true;
     }
     const dim3 grid(n / (WARPS * R * 16), S);
-    proj_kernel<MT, WARPS, R, CH, S><<<grid, WARPS * 32, smem, stream>>>(
+    proj_kernel<MT, WARPS, R, CH, S, REDUCE><<<grid, WARPS * 32, smem, stream>>>(
         wp, xp, op, m, n, k, k / 16 / S);
 }
 
