@@ -4,11 +4,13 @@ The source assembles its device code in sk_source(): the kernel template string 
 the config dispatch expanded from SK_CONFIGS, plus GEMV_CUDA_SRC. This tool runs that assembly
 for the configs the layer uses (every SK_GEOM geometry, compressed and raw, and the two fused
 pooler + router configs; the standalone router configs stay out), writes the result as
-_SKP_SRC and _SKP_GEMV_SRC, the declarations as _SKP_CPP_SRC, the config table the dispatch was
-generated from as _SKP_CONFIGS, and copies the packing code (the 12-bit code, tile units,
-stage-major streams, escape tables, the balancing permutation, cgemv's row stream) and the
-geometry helpers verbatim between the @SKP_PY@ markers, with the constants they read. The
-kernel source itself is not patched: it has no griddepcontrol and the layer launches it plain.
+_SKP_SRC and _SKP_GEMV_SRC, the wide TMA + wgmma kernel for the router geometries in
+WD_ROUTER as _SKP_WD_SRC (its geometries, in dispatch order, as _SKP_WD_NAMES), the
+declarations as _SKP_CPP_SRC, the config table the dispatch was generated from as
+_SKP_CONFIGS, and copies the packing code (the 12-bit code, tile units, stage-major streams,
+escape tables, the balancing permutation, cgemv's row stream) and the geometry helpers
+verbatim between the @SKP_PY@ markers, with the constants they read. The kernel source
+itself is not patched: it has no griddepcontrol and the layer launches it plain.
 
     python3 tools/dl_proj_inline.py [path/to/muse_bf16_proj/submission.py]
 """
@@ -23,11 +25,16 @@ SUB = ROOT / "muse_decode_layer/submission.py"
 SRC = ROOT / "muse_bf16_proj/submission.py"
 
 BUILD_NAMES = {"_SK_SRC", "_SK_CPP", "GEMV_CPP_DECLS", "GEMV_CUDA_SRC", "SK_GEOM", "ROUTER_GEOM",
-               "FUSED_GEOM", "SK_USE", "SK_EXTRA", "SMEM_BUDGET", "SMEM_PER_SM", "UNPOOL_SLICE"}
-BUILD_FUNCS = {"_sk_configs", "_sk_smem", "_fit_stages", "_sk_targs"}
+               "FUSED_GEOM", "SK_USE", "SK_EXTRA", "SMEM_BUDGET", "SMEM_PER_SM", "UNPOOL_SLICE",
+               "WD_GEOM", "WD_ABLATE", "WD_ABL", "WD_NAMES", "_WD_SRC", "_WD_CPP"}
+BUILD_FUNCS = {"_sk_configs", "_sk_smem", "_fit_stages", "_sk_targs", "wd_smem", "wd_geom",
+               "_wgmma_spec", "_wd_targs", "wd_source"}
+# The router geometries without x multicast: the multicast ones ran 4 to 10x slower
+# (job 80b89e112bf3447f), and the BF16 ones lost to cuBLAS on the pooler.
+WD_ROUTER = ("r64c8", "r64c16", "r128c8", "r128c16")
 # Copied verbatim, in this order (constants first).
 COPY_CONSTS = ("EXP_WINDOW", "MAX_ESCAPE_DENOM", "BALANCE_GROUP", "BALANCED_LAYERS", "SK_USE",
-               "FUSED_GEOM", "_LAYER_THREADS")
+               "FUSED_GEOM", "_LAYER_THREADS", "WD_BUCKETS", "WD_BN")
 COPY_FUNCS = ("_sk_geom", "_fused_router_geom", "bf16_bits", "tile_values", "window_base",
               "code_bits", "raw_units", "hilo_units", "comp_units", "stage_stream", "balance_perm",
               "escape_table", "pack_layer", "slices_balanced", "pack_raw_layer", "pack_router",
@@ -76,7 +83,20 @@ def device_code(ns):
            .replace("@@INSTANCES@@", ""))
     if "griddepcontrol" in src or "griddepcontrol" in ns["GEMV_CUDA_SRC"]:
         raise SystemExit("the source now carries griddepcontrol; revisit the layer's plain launch")
-    return src, ns["GEMV_CUDA_SRC"], ns["_SK_CPP"] + ns["GEMV_CPP_DECLS"], cfgs
+    return src, ns["GEMV_CUDA_SRC"], ns["_SK_CPP"] + ns["GEMV_CPP_DECLS"] + ns["_WD_CPP"], cfgs
+
+
+def wd_code(ns):
+    """wd_source() over the router geometries alone; it reads WD_GEOM, WD_ABL and WD_NAMES from
+    its module globals, which are ns."""
+    geoms = {nm: ns["WD_GEOM"][nm] for nm in WD_ROUTER}
+    if not all(g[4] for g in geoms.values()):
+        raise SystemExit("a WD_ROUTER geometry is not a hi/lo router")
+    ns["WD_GEOM"], ns["WD_ABL"], ns["WD_NAMES"] = geoms, {}, list(WD_ROUTER)
+    src = ns["wd_source"]()
+    if "griddepcontrol" in src:
+        raise SystemExit("the wd source now carries griddepcontrol; revisit the layer's plain launch")
+    return src, geoms
 
 
 def replace_once(src, pattern, repl, what):
@@ -95,10 +115,15 @@ def main():
     if layer_slice != ns["UNPOOL_SLICE"]:
         raise SystemExit("UNPOOL_SLICE differs between the layer and the source")
     code, gemv, cpp, cfgs = device_code(ns)
+    wd, geoms = wd_code(ns)
     sub = replace_once(sub, r'_SKP_SRC = r""".*?"""', lambda _: f'_SKP_SRC = r"""\n{code}"""',
                        "_SKP_SRC block")
     sub = replace_once(sub, r'_SKP_GEMV_SRC = r""".*?"""',
                        lambda _: f'_SKP_GEMV_SRC = r"""\n{gemv}"""', "_SKP_GEMV_SRC block")
+    sub = replace_once(sub, r'_SKP_WD_SRC = r""".*?"""', lambda _: f'_SKP_WD_SRC = r"""\n{wd}"""',
+                       "_SKP_WD_SRC block")
+    wtable = "_SKP_WD_NAMES = {\n" + "".join(f"    {nm!r}: {g!r},\n" for nm, g in geoms.items()) + "}"
+    sub = replace_once(sub, r"^_SKP_WD_NAMES = \{.*?\n\}$", lambda _: wtable, "_SKP_WD_NAMES table")
     sub = replace_once(sub, r'_SKP_CPP_SRC = r""".*?"""',
                        lambda _: f'_SKP_CPP_SRC = r"""\n#include <torch/extension.h>\n{cpp}"""',
                        "_SKP_CPP_SRC block")
@@ -108,8 +133,8 @@ def main():
     sub = replace_once(sub, r"# @SKP_PY_BEGIN@\n.*?# @SKP_PY_END@\n",
                        lambda _: "# @SKP_PY_BEGIN@\n" + body + "\n# @SKP_PY_END@\n", "@SKP_PY@ region")
     SUB.write_text(sub)
-    print(f"inlined {len(code.splitlines()) + len(gemv.splitlines())} device lines, {len(cfgs)} sk "
-          f"configs ({sum(1 for c in cfgs if c[13])} fused) and {len(COPY_FUNCS)} functions from {src_path}")
+    print(f"inlined {len(code.splitlines()) + len(gemv.splitlines()) + len(wd.splitlines())} device lines, {len(cfgs)} sk "
+          f"configs ({sum(1 for c in cfgs if c[13])} fused), {len(geoms)} wd router configs and {len(COPY_FUNCS)} functions from {src_path}")
 
 
 if __name__ == "__main__":
