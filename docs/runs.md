@@ -188,10 +188,4 @@ Next check (first after 00:00 UTC): the multicast build with the CUTLASS-form re
 the per-k-tile cost drops to the non-multicast level, the multicast configs should land near
 the traffic estimate (pooler m=128: 96 MB at CLR 4, against 128 MB now).
 
-## Ruled out (pending merge)
-
-| experiment | evidence | what it rules out |
-|---|---|---|
-| wd router with a CTA's whole K slice in flight (r64c16d NST 8, r128c16d NST 6) | 8d4b485c8ccf4674: r64c16d 17.3 vs r64c16 14.3, r128c16d 13.0 vs r128c16 13.0 autotune us at m=128 | TMA round trips as the router's limit; deeper rings for this kernel |
-| wd BF16 without multicast (BM 64 or 128, BN 64 to 256, CLK 2 or 4) | 71b1927dca894bc4, 8d4b485c8ccf4674: lost to cuBLAS on every scored BF16 shape (best: pooler m=128 30.2 vs 30.5, judged 0.866x); CLK 4 always slower than CLK 2 | this geometry family at m >= 128; scoped to x re-read per 64-row block, no multicast |
-| wd x multicast with `.release.cluster` remote arrives and an acquire.cluster producer wait | 80b89e112bf3447f: 4 to 10x slower than cuBLAS, cost per k-tile grows with CLR | that barrier form only; the multicast design is retested with the CUTLASS form |
+Losers from the wide-kernel runs moved to docs/ruled-out.md.
