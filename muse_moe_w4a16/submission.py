@@ -608,6 +608,11 @@ __device__ __forceinline__ void dequant(unsigned w, unsigned sw, unsigned (&a)[4
     a[3] = bmul<true>(r3, sc);
 }
 
+// Rounds to the nearest bf16 value, kept in a float register.
+__device__ __forceinline__ float bf16r(float x) {
+    return __bfloat162float(__float2bfloat16_rn(x));
+}
+
 __device__ __forceinline__ unsigned word(const uint4& v, int i) {
     return i == 0 ? v.x : i == 1 ? v.y : i == 2 ? v.z : v.w;
 }
@@ -855,10 +860,15 @@ __global__ void __launch_bounds__(W * 32) w4_gemm_kernel(
                     const float v0 = acc[0][nt][hh * 2 + qq] * gscale;
                     const float v1 = acc[1][nt][hh * 2 + qq] * gscale;
                     if (KIND == 1 && S == 1) {
-                        const float sv0 = v0 / (1.f + __expf(-v0));
+                        // TASK.md: activations stay BF16 wherever SGLang keeps BF16. Marlin
+                        // writes gate and up to its BF16 cache1 before silu_and_mul.
+                        const float gb = bf16r(v0);
+                        const float ub = bf16r(v1);
+                        const float sv0 = gb / (1.f + __expf(-gb));
+                        // SwiGLU's output is GEMM2's BF16 input in SGLang too.
                         reinterpret_cast<__nv_bfloat16*>(out)[static_cast<size_t>(p) * kInter
                                                               + u * 16 + hh * 8 + g] =
-                            __float2bfloat16_rn(sv0 * v1);
+                            __float2bfloat16_rn(sv0 * ub);
                     } else if (KIND == 1) {
                         float* o = reinterpret_cast<float*>(out)
                                    + (static_cast<size_t>(z) * numel + p) * (2 * kInter);
@@ -941,9 +951,12 @@ __global__ void __launch_bounds__(512 / CL) w4_finalize_kernel(
                 v[k][4] += b.x; v[k][5] += b.y; v[k][6] += b.z; v[k][7] += b.w;
             }
         }
+        // TASK.md: activations stay BF16 wherever SGLang keeps BF16. The K-split partials
+        // are GEMM2's own FP32 reduction (Marlin reduces in FP32 too); its output, which
+        // Marlin writes as BF16, is rounded here before the norm.
 #pragma unroll
         for (int j = 0; j < 8; ++j) {
-            v[k][j] *= w[j];
+            v[k][j] = bf16r(v[k][j]) * w[j];
             ss[k] += v[k][j] * v[k][j];
         }
     }
@@ -1048,8 +1061,13 @@ __global__ void __launch_bounds__(64) w4_swiglu_kernel(
     __nv_bfloat162* h = reinterpret_cast<__nv_bfloat162*>(&raw);
 #pragma unroll
     for (int j = 0; j < 4; ++j) {
-        const float a = gv[2 * j] / (1.f + __expf(-gv[2 * j])) * uv[2 * j];
-        const float b = gv[2 * j + 1] / (1.f + __expf(-gv[2 * j + 1])) * uv[2 * j + 1];
+        // TASK.md: activations stay BF16 wherever SGLang keeps BF16. The split-K sum is
+        // GEMM1's own FP32 reduction; its gate and up outputs, which Marlin writes to BF16
+        // cache1, are rounded before SwiGLU, and SwiGLU's output is BF16 like SGLang's.
+        const float g0 = bf16r(gv[2 * j]);
+        const float g1 = bf16r(gv[2 * j + 1]);
+        const float a = g0 / (1.f + __expf(-g0)) * bf16r(uv[2 * j]);
+        const float b = g1 / (1.f + __expf(-g1)) * bf16r(uv[2 * j + 1]);
         h[j] = __floats2bfloat162_rn(a, b);
     }
     *reinterpret_cast<uint4*>(out + static_cast<size_t>(p) * kInter + c) = raw;
