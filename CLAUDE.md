@@ -20,3 +20,8 @@ Background and decisions: `docs/context.md`. Every run: `docs/runs.md` (bf16_pro
   `okc status <job> --wait --json`, and confirm the problem and job id before using a number.
 - **Never `okc submit` without the user's go-ahead.** It posts publicly under their GitHub name.
   `okc check` is free of that.
+- **Never drop a memory-ordering fence or barrier for speed on test results alone.** Passing
+  tests do not prove an ordering safe. Keep the documented pattern (e.g. `fence.proxy.async` on
+  the writing side before an mbarrier arrive, when generic stores feed wgmma or TMA reads)
+  unless the PTX memory model shows the alternative is correct, and cite that section. The
+  attention verify variants with bit 2 (var 2, 18) do this; submissions use the fenced ones.
