@@ -173,6 +173,16 @@ __device__ __forceinline__ void wgmma_qk(uint32_t (&d)[16], uint64_t da, uint64_
                  : "l"(da), "l"(db), "n"(ACC));
 }
 
+// The same product with FP32 accumulators, as FA3 keeps S: register 4i + e holds row g, column
+// 8i + 2c + e, and register 4i + 2 + e row g + 8, the layout of O.
+template <int ACC>
+__device__ __forceinline__ void wgmma_qk32(float (&d)[32], uint64_t da, uint64_t db) {
+    asm volatile("{\n.reg .pred p;\nsetp.ne.b32 p, %34, 0;\n"
+                 "wgmma.mma_async.sync.aligned.m64n64k32.f32.e4m3.e4m3 " WG_D32
+                 ", %32, %33, p, 1, 1;\n}\n"
+                 : WG_OUT32(d) : "l"(da), "l"(db), "n"(ACC));
+}
+
 __device__ __forceinline__ void reg_fence16(uint32_t (&d)[16]) {
 #pragma unroll
     for (int i = 0; i < 16; ++i) {
@@ -206,6 +216,24 @@ __device__ __forceinline__ float ex2(float x) {
     float y;
     asm("ex2.approx.ftz.f32 %0, %1;\n" : "=f"(y) : "f"(x));
     return y;
+}
+
+// 2^x for x <= 0 on the FMA pipe instead of MUFU, as FA4 does for part of its exponentials:
+// x = n + f with n = round(x), f in [-0.5, 0.5], a degree-5 minimax polynomial for 2^f, and n
+// added to the exponent field. Max relative error 1.7e-7 over [-126, 0] in an FP32 emulation
+// (tools/attn_emulate_fp32.py, which fits the coefficients), against 2^-22 for ex2.approx.f32. The clamp keeps that field
+// from borrowing into the sign; below it the result stays under 2^-125, which the P rounding to
+// f16 flushes to 0 as MUFU's ftz result would be.
+__device__ __forceinline__ float ex2_poly(float x) {
+    x = fmaxf(x, -126.f);
+    const float t = x + 12582912.f;
+    const float f = x - (t - 12582912.f);
+    float y = fmaf(1.32647238e-3f, f, 9.67151299e-3f);
+    y = fmaf(y, f, 5.55073358e-2f);
+    y = fmaf(y, f, 2.40222424e-1f);
+    y = fmaf(y, f, 6.93147004e-1f);
+    y = fmaf(y, f, 1.f);
+    return __uint_as_float(__float_as_uint(y) + (__float_as_uint(t) << 23));
 }
 
 __device__ __forceinline__ uint32_t pack_f16(float a, float b) {
@@ -273,10 +301,18 @@ __device__ __forceinline__ int kmaj(int r, int kc) {
 // VAR bit 0: values converted with integer ops into f16 values scaled by 2^-8, which the merge
 // multiplies back (else F2FP). Bit 1: loaders release a tile without their own proxy fence
 // (the math warps fence after acquiring it either way). Bit 2: math warps take tiles in pairs.
-// Bit 3 is read by the host only: eight loader warps instead of four.
+// Bit 3 is read by the host only: eight loader warps instead of four. Bit 4: FA3's precision,
+// that is Q rounded to E4M3 without the softmax scale, Q.K accumulated in FP32, and the running
+// max, sum, rescale factors and exponentials in FP32 (P still goes to P.V as f16, where FA3's
+// FP8 path uses E4M3). Bit 5 (with bit 4): FA3's intra-warpgroup overlap, the P.V of tile i in
+// flight under the Q.K and softmax of tile i + 1. Bit 6 (with bit 4): a quarter of the
+// exponentials on the FMA pipe (ex2_poly) to unload MUFU.
 template <int NS, int DA, int MODE, int PW, int VAR>
 __global__ void __launch_bounds__(CONSUMERS + 32 * PW, 1) attn_ws_kernel(const Params p) {
     constexpr bool STAMP = MODE == 2;
+    constexpr bool F32 = (VAR & 16) != 0;
+    static_assert(F32 || (VAR & 96) == 0, "bits 5 and 6 need bit 4");
+    static_assert(!F32 || (VAR & 5) == 0, "bit 4 does not combine with bits 0 and 2");
     constexpr int NV = NS - DA;
     using S = Smem<NS, DA>;
     long long acc[8] = {0, 0, 0, 0, 0, 0, 0, 0};
@@ -475,9 +511,10 @@ __global__ void __launch_bounds__(CONSUMERS + 32 * PW, 1) attn_ws_kernel(const P
             ss += x[e] * x[e];
         }
         ss += __shfl_xor_sync(0xffffffffu, ss, 1);
-        // The softmax scale (with log2 e) is folded in before the E4M3 rounding, so scores
-        // come out of the f16-accumulating wgmma in log2 units.
-        const float r = rsqrtf(ss / D + EPS) * p.qk_scale;
+        // The f16 path folds the softmax scale (with log2 e) in before the E4M3 rounding, so
+        // scores come out of the f16-accumulating wgmma in log2 units; the FP32 path rounds the
+        // unscaled query, as SGLang hands FA3, and scales the FP32 scores.
+        const float r = rsqrtf(ss / D + EPS) * (F32 ? 1.f : p.qk_scale);
         const float pos = static_cast<float>(seq + j);
 #pragma unroll
         for (int i = 0; i < 16; ++i) {
@@ -587,6 +624,10 @@ __global__ void __launch_bounds__(CONSUMERS + 32 * PW, 1) attn_ws_kernel(const P
     const __half2 ks2 = __float2half2_rn(k_scale);
     // A fully masked row keeps this floor as its max, so its exponentials are 0, not NaN.
     const __half2 lowest2 = __float2half2_rn(-65504.f);
+    // FP32 path: running maxima in log2 units, and the score scale applied in FP32 as FA3's
+    // softmax_scale_log2 (which also carries the key descale).
+    float mrow[2] = {NEG_INF, NEG_INF};
+    const float sl2 = p.qk_scale * k_scale;
 
     // Pieces of one 64-token tile: S = Q.K^T (FP8 wgmma into f16), online softmax in half2,
     // then O += P.V (f16 wgmma into f32) from the loaders' f16 values.
@@ -650,6 +691,70 @@ __global__ void __launch_bounds__(CONSUMERS + 32 * PW, 1) attn_ws_kernel(const P
         lrow[0] = lrow[0] * a0 + __low2float(sum0) + __high2float(sum0);
         lrow[1] = lrow[1] * a1 + __low2float(sum1) + __high2float(sum1);
     };
+    auto qk_issue32 = [&](const uint8_t* kt, float (&s)[32]) {
+        const uint8_t* ks = kt + h * (BN * D);
+        wgmma_qk32<0>(s, qd0, desc(ks, 128, 512));
+        wgmma_qk32<1>(s, qd1, desc(ks + 256, 128, 512));
+    };
+    // FA3's online softmax (hopper/softmax.h): row max over raw FP32 scores, then
+    // exp2(s * scale_log2 - max * scale_log2) as one FFMA and one ex2 per score, FP32 row sums of
+    // the unrounded exponentials. P is rounded to f16 for the P.V wgmma.
+    auto softmax32 = [&](float (&s)[32], int pos0, int lim, uint32_t (&pa)[16], float& a0,
+                         float& a1) {
+        const bool interior = pos0 + BN - 1 <= lim && (!p.window || pos0 >= seq + L - p.window);
+        if (!interior) {
+#pragma unroll
+            for (int hh = 0; hh < 2; ++hh) {
+                const int top = min(lim, qpos[hh]);
+#pragma unroll
+                for (int i = 0; i < 8; ++i) {
+#pragma unroll
+                    for (int e = 0; e < 2; ++e) {
+                        const int pos = pos0 + 8 * i + 2 * c + e;
+                        if (pos < lo_row[hh] || pos > top) {
+                            s[4 * i + 2 * hh + e] = NEG_INF;
+                        }
+                    }
+                }
+            }
+        }
+        float mu[2];
+        float alpha[2];
+#pragma unroll
+        for (int hh = 0; hh < 2; ++hh) {
+            float mx = fmaxf(s[2 * hh], s[2 * hh + 1]);
+#pragma unroll
+            for (int i = 1; i < 8; ++i) {
+                mx = fmaxf(mx, fmaxf(s[4 * i + 2 * hh], s[4 * i + 2 * hh + 1]));
+            }
+            mx = fmaxf(mx, __shfl_xor_sync(0xffffffffu, mx, 1));
+            mx = fmaxf(mx, __shfl_xor_sync(0xffffffffu, mx, 2));
+            // A row with every key masked so far keeps a finite floor as its max, so its
+            // exponentials are 0, not NaN; FA3 does the same with Check_inf.
+            mu[hh] = fmaxf(fmaxf(mrow[hh], mx * sl2), -1e30f);
+            alpha[hh] = ex2(mrow[hh] - mu[hh]);
+            mrow[hh] = mu[hh];
+        }
+        float sum[2] = {0.f, 0.f};
+#pragma unroll
+        for (int i = 0; i < 8; ++i) {
+#pragma unroll
+            for (int hh = 0; hh < 2; ++hh) {
+                float e2[2];
+#pragma unroll
+                for (int e = 0; e < 2; ++e) {
+                    const float x = fmaf(s[4 * i + 2 * hh + e], sl2, -mu[hh]);
+                    e2[e] = ((VAR & 64) != 0 && (i & 3) == 3) ? ex2_poly(x) : ex2(x);
+                }
+                sum[hh] += e2[0] + e2[1];
+                pa[2 * i + hh] = pack_f16(e2[0], e2[1]);
+            }
+        }
+        a0 = alpha[0];
+        a1 = alpha[1];
+        lrow[0] = lrow[0] * a0 + sum[0];
+        lrow[1] = lrow[1] * a1 + sum[1];
+    };
     auto rescale = [&](float a0, float a1) {
         if (__any_sync(0xffffffffu, a0 != 1.f || a1 != 1.f)) {
 #pragma unroll
@@ -689,6 +794,29 @@ __global__ void __launch_bounds__(CONSUMERS + 32 * PW, 1) attn_ws_kernel(const P
         reg_fence16(s);
         lap(1);
         softmax(s, pos0, lim, pa, a0, a1);
+        rescale(a0, a1);
+        lap(2);
+        reg_fence(o);
+        wg_fence();
+        pv_issue(pa, vb);
+        wg_commit();
+        wg_wait<0>();
+        reg_fence(o);
+        lap(3);
+        release(empty_bar);
+    };
+    auto tile32 = [&](const uint8_t* kt, const uint8_t* vb, int pos0, int lim,
+                      uint32_t empty_bar) {
+        float s[32];
+        uint32_t pa[16];
+        float a0, a1;
+        wg_fence();
+        qk_issue32(kt, s);
+        wg_commit();
+        wg_wait<0>();
+        reg_fence(s);
+        lap(1);
+        softmax32(s, pos0, lim, pa, a0, a1);
         rescale(a0, a1);
         lap(2);
         reg_fence(o);
@@ -744,6 +872,9 @@ __global__ void __launch_bounds__(CONSUMERS + 32 * PW, 1) attn_ws_kernel(const P
         release(e1);
     };
 
+    auto vslot = [&](int t) {
+        return smem + S::VH + (t % NV) * (HKV * VH_HEAD);
+    };
     int it = 0;
     if constexpr (MODE == 1) {
         for (; it < ntiles; ++it) {
@@ -753,7 +884,76 @@ __global__ void __launch_bounds__(CONSUMERS + 32 * PW, 1) attn_ws_kernel(const P
             release(empty0 + 8 * s);
         }
     } else {
-        if constexpr ((VAR & 4) != 0) {
+        if constexpr ((VAR & 32) != 0) {
+            // FA3's overlap: P.V of tile it - 1 is issued right behind the Q.K of tile it and
+            // runs under its softmax; both retire before the back-edge (see tile).
+            if (ntiles > 0) {
+                // P of the tile in flight alternates between two arrays, so no copy writes
+                // a wgmma's A registers.
+                uint32_t pa0[16];
+                uint32_t pa1[16];
+                {
+                    float s[32];
+                    float a0, a1;
+                    mbar_wait(full0, 0, dead, p.dbg, 2);
+                    lap(0);
+                    fence_async_smem();
+                    wg_fence();
+                    qk_issue32(smem, s);
+                    wg_commit();
+                    wg_wait<0>();
+                    reg_fence(s);
+                    lap(1);
+                    softmax32(s, lo, hi - 1, pa0, a0, a1);
+                    lap(2);
+                }
+                auto step = [&](int t, uint32_t (&pin)[16], uint32_t (&pout)[16]) {
+                    const int st = t % NS;
+                    float s[32];
+                    float a0, a1;
+                    mbar_wait(full0 + 8 * st, (t / NS) & 1, dead, p.dbg, 2);
+                    lap(0);
+                    fence_async_smem();
+                    reg_fence(o);
+                    wg_fence();
+                    qk_issue32(smem + st * STAGE, s);
+                    wg_commit();
+                    pv_issue(pin, vslot(t - 1));
+                    wg_commit();
+                    wg_wait<1>();
+                    reg_fence(s);
+                    lap(1);
+                    softmax32(s, lo + t * BN, hi - 1, pout, a0, a1);
+                    lap(2);
+                    wg_wait<0>();
+                    reg_fence(o);
+                    lap(3);
+                    release(empty0 + 8 * ((t - 1) % NS));
+                    rescale(a0, a1);
+                };
+                auto drain = [&](const uint32_t (&pin)[16]) {
+                    reg_fence(o);
+                    wg_fence();
+                    pv_issue(pin, vslot(ntiles - 1));
+                    wg_commit();
+                    wg_wait<0>();
+                    reg_fence(o);
+                    lap(3);
+                    release(empty0 + 8 * ((ntiles - 1) % NS));
+                };
+                for (it = 1; it + 1 < ntiles; it += 2) {
+                    step(it, pa0, pa1);
+                    step(it + 1, pa1, pa0);
+                }
+                if (it < ntiles) {
+                    step(it, pa0, pa1);
+                    drain(pa1);
+                } else {
+                    drain(pa0);
+                }
+                it = ntiles;
+            }
+        } else if constexpr ((VAR & 4) != 0) {
             for (; it + 1 < ntiles; it += 2) {
                 const int s0 = it % NS;
                 const int s1 = (it + 1) % NS;
@@ -772,11 +972,18 @@ __global__ void __launch_bounds__(CONSUMERS + 32 * PW, 1) attn_ws_kernel(const P
             mbar_wait(full0 + 8 * s, (it / NS) & 1, dead, p.dbg, 2);
             lap(0);
             fence_async_smem();
-            tile(smem + s * STAGE, smem + S::VH + (it % NV) * (HKV * VH_HEAD), lo + it * BN,
-                 hi - 1, empty0 + 8 * s);
+            if constexpr (F32) {
+                tile32(smem + s * STAGE, vslot(it), lo + it * BN, hi - 1, empty0 + 8 * s);
+            } else {
+                tile(smem + s * STAGE, vslot(it), lo + it * BN, hi - 1, empty0 + 8 * s);
+            }
         }
         if (last_split) {
-            tile(newk, newv, seq, seq + L - 1, 0);
+            if constexpr (F32) {
+                tile32(newk, newv, seq, seq + L - 1, 0);
+            } else {
+                tile(newk, newv, seq, seq + L - 1, 0);
+            }
         }
     }
     lap(6);
@@ -791,7 +998,11 @@ __global__ void __launch_bounds__(CONSUMERS + 32 * PW, 1) attn_ws_kernel(const P
         lsum += __shfl_xor_sync(0xffffffffu, lsum, 1);
         lsum += __shfl_xor_sync(0xffffffffu, lsum, 2);
         if (c == 0) {
-            dst[0] = hh ? __high2float(mrow2) : __low2float(mrow2);
+            if constexpr (F32) {
+                dst[0] = mrow[hh];
+            } else {
+                dst[0] = hh ? __high2float(mrow2) : __low2float(mrow2);
+            }
             dst[1] = lsum;
         }
 #pragma unroll
@@ -873,27 +1084,27 @@ void launch_ws(const Params& p, int batch, cudaStream_t stream) {
 
 template <int NS, int DA, int MODE, int VAR>
 void launch_var(const Params& p, int batch, cudaStream_t stream) {
-    launch_ws<NS, DA, MODE, (VAR & 8) ? 8 : 4, VAR & 7>(p, batch, stream);
+    launch_ws<NS, DA, MODE, (VAR & 8) ? 8 : 4, VAR & ~8>(p, batch, stream);
 }
 
 // INSTANTIATE: template void launch_var<7, 3, 0, 0>(const Params&, int, cudaStream_t);
 // INSTANTIATE: template void launch_var<7, 3, 0, 2>(const Params&, int, cudaStream_t);
-// INSTANTIATE: template void launch_var<7, 3, 0, 4>(const Params&, int, cudaStream_t);
-// INSTANTIATE: template void launch_var<7, 3, 0, 6>(const Params&, int, cudaStream_t);
-// INSTANTIATE: template void launch_var<7, 3, 0, 3>(const Params&, int, cudaStream_t);
-// INSTANTIATE: template void launch_var<7, 3, 0, 10>(const Params&, int, cudaStream_t);
-// INSTANTIATE: template void launch_var<8, 4, 0, 2>(const Params&, int, cudaStream_t);
-// INSTANTIATE: template void launch_var<6, 2, 0, 6>(const Params&, int, cudaStream_t);
-// INSTANTIATE: template void launch_var<8, 4, 0, 6>(const Params&, int, cudaStream_t);
-// INSTANTIATE: template void launch_var<7, 3, 1, 2>(const Params&, int, cudaStream_t);
-// INSTANTIATE: template void launch_var<7, 3, 2, 6>(const Params&, int, cudaStream_t);
+// INSTANTIATE: template void launch_var<7, 3, 0, 16>(const Params&, int, cudaStream_t);
+// INSTANTIATE: template void launch_var<7, 3, 0, 18>(const Params&, int, cudaStream_t);
+// INSTANTIATE: template void launch_var<7, 3, 0, 48>(const Params&, int, cudaStream_t);
+// INSTANTIATE: template void launch_var<7, 3, 0, 50>(const Params&, int, cudaStream_t);
+// INSTANTIATE: template void launch_var<7, 3, 0, 80>(const Params&, int, cudaStream_t);
+// INSTANTIATE: template void launch_var<7, 3, 0, 82>(const Params&, int, cudaStream_t);
+// INSTANTIATE: template void launch_var<7, 3, 0, 112>(const Params&, int, cudaStream_t);
+// INSTANTIATE: template void launch_var<7, 3, 0, 114>(const Params&, int, cudaStream_t);
+// INSTANTIATE: template void launch_var<7, 3, 2, 18>(const Params&, int, cudaStream_t);
 
 }  // namespace
 
-// stages: FP8 stages, 6, 7 or 8 (anything else runs 7), with values converted 2, 3 or 4 tiles
-// behind their loads (6 with var 6 only, 8 with var 2 or 6); mode: see attn_ws_kernel (1 runs
-// var 2 and 2 runs var 6, with 7 stages); var: 0, 2, 3, 4, 6 or 10, see attn_ws_kernel
-// (anything else runs 0).
+// stages: unused, kept for the Python signature (7 FP8 stages, values converted 3 tiles behind
+// their loads); mode: see attn_ws_kernel (2 runs var 18, 1 is not built); var: 0, 2 (f16
+// accumulators) or 16, 18, 48, 50, 80, 82, 112, 114 (FP32), see attn_ws_kernel; anything else
+// runs 0.
 // dbg: int64 [17] or empty. dbg[0] bit 0: a loader wait timed out; bit 1: a math-warp wait
 // timed out. With mode 2, dbg[1..8] sum math-warp cycles per phase (wait for data, Q.K, mask
 // and softmax, P.V, unused, unused, tail, prologue) and dbg[9..13] loader cycles (wait for a
@@ -926,26 +1137,26 @@ torch::Tensor attn_ws(torch::Tensor qkv, torch::Tensor page_table, torch::Tensor
     p.rope = rope ? 1 : 0;
     p.splits = splits;
     p.qk_scale = static_cast<float>(qk_scale);
-    if (mode == 1) {
-        launch_var<7, 3, 1, 2>(p, batch, stream);
-    } else if (mode == 2) {
-        launch_var<7, 3, 2, 6>(p, batch, stream);
-    } else if (var == 6 && stages == 6) {
-        launch_var<6, 2, 0, 6>(p, batch, stream);
-    } else if (var == 6 && stages == 8) {
-        launch_var<8, 4, 0, 6>(p, batch, stream);
-    } else if (var == 6) {
-        launch_var<7, 3, 0, 6>(p, batch, stream);
-    } else if (var == 2 && stages == 8) {
-        launch_var<8, 4, 0, 2>(p, batch, stream);
-    } else if (var == 3) {
-        launch_var<7, 3, 0, 3>(p, batch, stream);
-    } else if (var == 10) {
-        launch_var<7, 3, 0, 10>(p, batch, stream);
-    } else if (var == 4) {
-        launch_var<7, 3, 0, 4>(p, batch, stream);
+    if (mode == 2) {
+        launch_var<7, 3, 2, 18>(p, batch, stream);
     } else if (var == 2) {
         launch_var<7, 3, 0, 2>(p, batch, stream);
+    } else if (var == 16) {
+        launch_var<7, 3, 0, 16>(p, batch, stream);
+    } else if (var == 18) {
+        launch_var<7, 3, 0, 18>(p, batch, stream);
+    } else if (var == 48) {
+        launch_var<7, 3, 0, 48>(p, batch, stream);
+    } else if (var == 50) {
+        launch_var<7, 3, 0, 50>(p, batch, stream);
+    } else if (var == 80) {
+        launch_var<7, 3, 0, 80>(p, batch, stream);
+    } else if (var == 82) {
+        launch_var<7, 3, 0, 82>(p, batch, stream);
+    } else if (var == 112) {
+        launch_var<7, 3, 0, 112>(p, batch, stream);
+    } else if (var == 114) {
+        launch_var<7, 3, 0, 114>(p, batch, stream);
     } else {
         launch_var<7, 3, 0, 0>(p, batch, stream);
     }
