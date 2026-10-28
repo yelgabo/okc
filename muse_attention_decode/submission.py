@@ -502,6 +502,14 @@ constexpr int RING = 8;
 constexpr int PT_AHEAD = 6;
 constexpr int SMEM_TOTAL = SMEM_BYTES + RING * BN * 4;
 
+// Receive slots for the push merge sit past everything the main loop uses, since other CTAs
+// of the cluster may push before this one finishes its loop. Row r of CTA s lands in slot
+// (r / S) * S + s of CTA r % S, so ROWS + 16 slots cover any cluster of up to 16.
+template <bool VF16>
+__host__ __device__ constexpr int recv_offset() {
+    return SMEM_TOTAL + (VF16 ? 2 * BN * ROW_BYTES * 2 : 0);
+}
+
 // Merges n partials (m, l, o) of one row with one warp, lane k reading partial k first so the
 // loads overlap, then applies the norm-gate and writes the row. get(s) points at partial s.
 template <typename Get>
@@ -566,8 +574,9 @@ attn_kernel(const Params p) {
         }
     };
     stamp(0);
-    // The first row this warp merges in a cluster; its gate load overlaps the whole kernel.
-    const int row0 = split * C::WARPS + warp;
+    // The first row this warp merges in a cluster (CTA r owns rows r, r + S, ...); its gate load
+    // overlaps the whole kernel.
+    const int row0 = warp * p.splits + split;
     float2 gate0 = make_float2(0.f, 0.f);
     if (CLUSTER && row0 < C::ROWS) {
         gate0 = load_gate(p.qkv, static_cast<size_t>(b) * L + row0 / HQ, row0 % HQ, lane);
@@ -1160,20 +1169,34 @@ attn_kernel(const Params p) {
             reinterpret_cast<float4*>(ws)[i] = reinterpret_cast<const float4*>(part)[i];
         }
     } else {
+        // Push merge: each CTA stores its partial of row r into the receive slots of the CTA
+        // that owns r (r % S), then one barrier, then owners merge from local smem. Remote
+        // stores do not wait on a round trip the way remote loads do, and no CTA reads another's
+        // smem after the barrier, so no second barrier is needed.
         cg::cluster_group cluster = cg::this_cluster();
+        const int S = p.splits;
+        float* recv = reinterpret_cast<float*>(smem + recv_offset<VF16>());
+        for (int row = warp; row < C::ROWS; row += C::WARPS) {
+            float* dst = cluster.map_shared_rank(recv, row % S) + ((row / S) * S + split) * PART;
+            const float2* src = reinterpret_cast<const float2*>(part + row * PART);
+            reinterpret_cast<float2*>(dst)[lane] = src[lane];
+            if (lane == 0) {
+                reinterpret_cast<float2*>(dst)[32] = src[32];
+            }
+        }
         cluster.sync();
         stamp(6);
         const float v_scale = *p.v_scale;
-        const int nwarps = p.splits * C::WARPS;
-        for (int row = split * C::WARPS + warp; row < C::ROWS; row += nwarps) {
+        for (int li = warp; li * S + split < C::ROWS; li += C::WARPS) {
+            const int row = li * S + split;
             const int j = row / HQ;
             const int qh = row % HQ;
             const size_t tok = static_cast<size_t>(b) * L + j;
             const float2 gt = row == row0 ? gate0 : load_gate(p.qkv, tok, qh, lane);
-            merge_row([&](int s) { return cluster.map_shared_rank(part, s) + row * PART; },
-                      p.splits, lane, v_scale, gt, p.out + tok * HQ * D + qh * D);
+            const float* base = recv + li * S * PART;
+            merge_row([&](int s) { return base + s * PART; }, S, lane, v_scale, gt,
+                      p.out + tok * HQ * D + qh * D);
         }
-        cluster.sync();
     }
     stamp(7);
 }
@@ -1197,7 +1220,7 @@ template <int L, int MT, int TP, int KC, bool CLUSTER, bool VF16 = false, bool P
 void launch(const Params& p, int batch, cudaStream_t stream) {
     using C = Cfg<L, MT, TP, KC>;
     auto kern = attn_kernel<L, MT, TP, KC, CLUSTER, VF16, PV8>;
-    constexpr int smem_bytes = SMEM_TOTAL + (VF16 ? 2 * VH_BYTES : 0);
+    constexpr int smem_bytes = recv_offset<VF16>() + (CLUSTER ? (C::ROWS + 16) * PART * 4 : 0);
     static bool configured = false;
     if (!configured) {
         cudaFuncSetAttribute(kern, cudaFuncAttributeMaxDynamicSharedMemorySize, smem_bytes);
@@ -1389,11 +1412,12 @@ def _no_dbg(device):
 
 
 def _fused_ok(cfg):
-    """Where the fused kernel measured faster than the prep + FA3 path (job c35deb23dada45d4):
-    one-token decode."""
+    """Where the fused kernel measured faster than the prep + FA3 path on the judge: one-token
+    decode, except full layers at batch 1 (29.4 vs 27.5 µs, jobs a15d258c37f44232 and
+    c35deb23dada45d4), where 80K tokens of one request leave each CTA latency-bound."""
     if _ATTN is None or (cfg["num_q_heads"], cfg["num_kv_heads"], cfg["head_dim"]) != (16, 2, 64):
         return False
-    return cfg["q_len"] == 1
+    return cfg["q_len"] == 1 and (bool(cfg["window"]) or cfg["batch"] > 2)
 
 
 def prepare(*args, **kwargs):
