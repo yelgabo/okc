@@ -446,22 +446,24 @@ torch::Tensor finalize(torch::Tensor y, torch::Tensor scores, torch::Tensor norm
 # finalize() variant (0 = one block per token, 2/4/8 = cluster split) or "sgl"; bsm: Marlin
 # moe_block_size, or None for SGLang's heuristic; g1: a W4_CONFIGS index for GEMM1, or None for
 # Marlin's.
-def _opts_for(num_tokens):
+def _opts_for(num_tokens, state=None):
     # SGLang's heuristic picks 48 at 128 tokens and 64 at 256; 16 was 25-35% faster there.
     bsm = 8 if num_tokens < 12 else 16
-    return {"align": "ours", "fin": 0, "bsm": bsm, "g1": _w4_g1_for(num_tokens), "g2": None}
+    g1, g2 = _w4_policy(num_tokens, state)
+    return {"align": "ours", "fin": 0, "bsm": bsm, "g1": g1, "g2": g2}
 
 
-def _w4_g1_for(num_tokens):
-    if num_tokens == 1:
-        return W4_CONFIGS.index((1, 1, 1, 1, 2, 4))
-    if num_tokens <= 8:
-        return W4_CONFIGS.index((1, 1, 8, 1, 4, 4))
-    if num_tokens <= 16:
-        return W4_CONFIGS.index((1, 2, 16, 2, 4, 4))
-    if num_tokens <= 32:
-        return W4_CONFIGS.index((1, 4, 32, 4, 4, 4))
-    return None
+# Batch sizes the W4 configs are tuned at in prepare(); other sizes use the next one up.
+TUNE_BS = (1, 8, 16, 32, 128, 256)
+
+
+def _w4_policy(num_tokens, state):
+    """(GEMM1 config, GEMM2 config) tuned in prepare() for this batch size; None is Marlin."""
+    policy = (state or {}).get("w4_policy")
+    if not policy:
+        return None, None
+    key = next((b for b in TUNE_BS if b >= num_tokens), TUNE_BS[-1])
+    return policy.get(key, (None, None))
 
 
 def _w4_fits(cfg, num_tokens):
@@ -493,16 +495,21 @@ def _ext():
 # (kind, nt, rows, s, w, d): kind 1 is x @ W13^T with SwiGLU, kind 2 is inter @ W2^T; nt n8 token
 # tiles per work item; rows of x kept in shared memory (min(8 nt, bs)); s K splits; w warps per
 # block; d register stages of weights in flight per warp.
+# Check 42924d2c6e314921 dropped the losers: no K split with 16 or more rows, 2 warps per
+# block, 2 stages in flight.
 W4_CONFIGS = [
-    (1, 1, 1, 1, 2, 4), (1, 1, 1, 1, 4, 4), (1, 1, 1, 1, 2, 2), (1, 1, 1, 1, 2, 8),
-    (1, 1, 1, 2, 2, 4), (1, 1, 1, 4, 4, 4),
-    (1, 1, 8, 1, 4, 4), (1, 1, 8, 1, 2, 4), (1, 1, 8, 1, 4, 2), (1, 1, 8, 2, 4, 4),
-    (1, 2, 16, 2, 4, 4), (1, 2, 16, 1, 4, 4), (1, 2, 16, 4, 4, 4),
-    (1, 4, 32, 4, 4, 4), (1, 4, 32, 2, 4, 4), (1, 4, 32, 8, 4, 4),
-    (2, 1, 1, 4, 4, 4), (2, 1, 1, 8, 4, 4), (2, 1, 1, 2, 4, 4), (2, 1, 1, 4, 2, 4),
-    (2, 1, 8, 2, 4, 4), (2, 1, 8, 4, 4, 4), (2, 1, 8, 1, 4, 4),
-    (2, 2, 16, 2, 4, 4), (2, 2, 16, 4, 4, 4),
-    (2, 4, 32, 4, 4, 4), (2, 4, 32, 8, 4, 4), (2, 4, 32, 2, 4, 4),
+    (1, 1, 1, 1, 2, 4), (1, 1, 1, 2, 2, 4), (1, 1, 1, 4, 4, 4), (1, 1, 1, 8, 4, 4),
+    (1, 1, 1, 4, 4, 8),
+    (1, 1, 8, 1, 4, 4), (1, 1, 8, 2, 4, 4), (1, 1, 8, 4, 4, 4), (1, 1, 8, 8, 4, 4),
+    (1, 1, 8, 2, 4, 8), (1, 1, 8, 4, 4, 8), (1, 1, 8, 2, 8, 4),
+    (1, 2, 16, 2, 4, 4), (1, 2, 16, 4, 4, 4), (1, 2, 16, 8, 4, 4), (1, 2, 16, 4, 4, 8),
+    (1, 2, 16, 4, 8, 4),
+    (1, 4, 32, 4, 4, 4), (1, 4, 32, 8, 4, 4),
+    (2, 1, 1, 2, 4, 4), (2, 1, 1, 4, 4, 4), (2, 1, 1, 8, 4, 4), (2, 1, 1, 8, 2, 4),
+    (2, 1, 1, 4, 4, 8),
+    (2, 1, 8, 2, 4, 4), (2, 1, 8, 4, 4, 4), (2, 1, 8, 8, 4, 4), (2, 1, 8, 4, 4, 8),
+    (2, 2, 16, 2, 4, 4), (2, 2, 16, 4, 4, 4), (2, 2, 16, 8, 4, 4), (2, 2, 16, 4, 4, 8),
+    (2, 4, 32, 4, 4, 4), (2, 4, 32, 8, 4, 4),
 ]
 
 _W4_CPP_SRC = r"""
@@ -1257,8 +1264,108 @@ def _w4_gemm2(w4, cfg, inter, sorted_ids, items, num_items, numel):
 def kernel_fn(data, state):
     opts = BASELINE_OPTS
     if state["ours_ok"]:
-        opts = _opts_for(data["hidden_states"].shape[0])
+        opts = _opts_for(data["hidden_states"].shape[0], state)
     return _forward(data, state, opts)
+
+
+def _graph_time(fn, flush, iters=20):
+    """Median of CUDA graph replays of fn, each after a write that evicts L2, as the judge
+    times kernel_fn."""
+    stream = torch.cuda.Stream()
+    stream.wait_stream(torch.cuda.current_stream())
+    with torch.cuda.stream(stream):
+        for _ in range(2):
+            fn()
+    torch.cuda.current_stream().wait_stream(stream)
+    graph = torch.cuda.CUDAGraph()
+    with torch.cuda.graph(graph):
+        fn()
+    times = []
+    for _ in range(iters):
+        flush.zero_()
+        start = torch.cuda.Event(enable_timing=True)
+        end = torch.cuda.Event(enable_timing=True)
+        start.record()
+        graph.replay()
+        end.record()
+        times.append((start, end))
+    torch.cuda.synchronize()
+    ms = sorted(s.elapsed_time(e) for s, e in times)
+    return 1000 * ms[len(ms) // 2]
+
+
+def _w4_tune(state, seeds=(11, 12)):
+    """Per TUNE_BS batch size, times Marlin's GEMM1 + silu_and_mul and every fitting W4 GEMM1
+    config, and Marlin's GEMM2 + finalizer and every W4 GEMM2 config + its finalizer, on
+    synthetic routings like the judge's; keeps the fastest of each (summed over seeds). Only
+    timings are kept, nothing from any input."""
+    flush = torch.empty(256 << 20, dtype=torch.uint8, device="cuda")
+    bank = state["banks"][(0, 32)]
+    ws = state["workspace"]
+    w4 = state["w4"]
+    policy = {}
+    for bs in TUNE_BS:
+        tot = [{}, {}]
+        for seed in seeds:
+            data = _make_inputs(bs, 977 * seed + bs)
+            bsm = _opts_for(bs)["bsm"]
+            numel = bs * TOP_K
+            max_padded = numel * bsm if numel < N_EXPERTS + 1 else numel + (N_EXPERTS + 1) * (bsm - 1)
+            max_padded = (max_padded + 3) // 4 * 4
+            topk_ids = data["topk_ids"].to(torch.int32).contiguous()
+            tw = data["topk_weights"].float().contiguous()
+            x = data["hidden_states"].contiguous()
+            sorted_ids, block_experts, n_padded, local_ids = _ext().route_align(
+                topk_ids, 0, 32, bsm, max_padded, 0, 0)[:4]
+            cache1 = torch.empty((numel, 8192), device="cuda", dtype=torch.bfloat16)
+            inter = torch.empty((numel, 4096), device="cuda", dtype=torch.bfloat16)
+            cache3 = torch.empty((numel, 4096), device="cuda", dtype=torch.bfloat16)
+            common = dict(moe_block_size=bsm, mul_topk_weights=False, is_ep=True,
+                          b_q_type=scalar_types.float4_e2m1f, is_k_full=True,
+                          use_atomic_add=False, use_fp32_reduce=True, is_zp_float=False)
+
+            def marlin1():
+                moe_wna16_marlin_gemm(
+                    x, cache1, bank["w13"], None, bank["w13_s"], bank["w13_gs"], None, None,
+                    None, ws, sorted_ids, block_experts, n_padded, tw, top_k=TOP_K,
+                    size_m=bs, size_n=8192, size_k=4096, **common)
+                silu_and_mul(cache1, inter, expert_ids=local_ids.view(-1), expert_step=1)
+
+            def marlin2():
+                moe_wna16_marlin_gemm(
+                    inter, cache3, bank["w2"], None, bank["w2_s"], bank["w2_gs"], None, None,
+                    None, ws, sorted_ids, block_experts, n_padded, tw, top_k=1,
+                    size_m=numel, size_n=4096, size_k=4096, **common)
+                _ext().finalize(cache3.view(bs, TOP_K, 4096), tw, state["norm_w"],
+                                local_ids.view(bs, TOP_K), 0, POST_NORM_EPS)
+
+            tot[0][None] = tot[0].get(None, 0.0) + _graph_time(marlin1, flush)
+            tot[1][None] = tot[1].get(None, 0.0) + _graph_time(marlin2, flush)
+            for i, cfg in enumerate(W4_CONFIGS):
+                if not _w4_fits(i, bs):
+                    continue
+                sids, _, _, lids, items, nitems = _ext().route_align(
+                    topk_ids, 0, 32, bsm, max_padded, 8 * cfg[1], 0)[:6]
+                if cfg[0] == 1:
+                    out = torch.empty((numel, 4096), device="cuda", dtype=torch.bfloat16)
+
+                    def run():
+                        _w4_gemm1(w4, i, x, sids, items, nitems, lids, numel, out)
+                else:
+                    def run():
+                        part = _w4_gemm2(w4, i, inter, sids, items, nitems, numel)
+                        _w4_ext().w4_finalize(part, tw, state["norm_w"], lids.view(-1),
+                                              POST_NORM_EPS)
+                k = cfg[0] - 1
+                tot[k][i] = tot[k].get(i, 0.0) + _graph_time(run, flush)
+        n = len(seeds)
+        for k in range(2):
+            line = " ".join(f"{'m' if c is None else c}:{t / n:.1f}"
+                            for c, t in sorted(tot[k].items(), key=lambda kv: kv[1]))
+            print(f"TUNE g{k + 1} bs={bs} {line}")
+        policy[bs] = tuple(min(tot[k], key=tot[k].get) for k in range(2))
+    print(f"TUNE policy {policy}")
+    return policy
 
 
 def _make_inputs(bs, seed, dist="normal", device="cuda"):
@@ -1351,7 +1458,7 @@ def _w4_self_test(state, weights, extra=()):
         for dist in ("normal", "skewed"):
             data = _make_inputs(bs, 200 + bs, dist)
             ref = _ref_forward(data, weights)
-            opts = _opts_for(bs)
+            opts = _opts_for(bs, state)
             base = _rel(_forward(data, state, dict(opts, g1=None, g2=None)), ref)
             variants = [("policy", opts)] + [(f"g2={c}", dict(opts, g2=c)) for c in extra
                                              if _w4_fits(c, bs)]
@@ -1384,7 +1491,10 @@ def prepare(weights):
                 print("W4 disabled: block scales outside positive normal E4M3")
             else:
                 _w4_ext()
-                print(f"W4 repack {t1 - t0:.1f} s, extension build {time.time() - t1:.1f} s")
+                t2 = time.time()
+                state["w4_policy"] = _w4_tune(state)
+                print(f"W4 repack {t1 - t0:.1f} s, extension build {t2 - t1:.1f} s, "
+                      f"tuning {time.time() - t2:.1f} s")
                 state["w4_ok"] = True
                 state["w4_ok"] = _w4_self_test(state, weights)
         except Exception as exc:
