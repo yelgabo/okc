@@ -1,5 +1,5 @@
 # okc: problem=muse_attention_decode
-"""Gated attention decode for Muse Spark Open on one H200, three paths by shape:
+"""Gated attention decode for Muse Spark Open on one H200, four paths by shape:
 
   q_len 1, except full layers at batch 1: one fused kernel (attn_fused). Each CTA takes one
       request and a slice of its context and covers both KV heads, so every gathered 128-byte
@@ -9,7 +9,15 @@
       rotates and writes the block's new K/V to the cache and attends them. Sliding layers
       merge the splits inside a thread-block cluster and apply the norm-gate in the same
       launch; full layers write partials and merge with the norm-gate in a second launch.
-  everything else (q_len 8, full layers at batch 1, other head counts): one prep launch (norm,
+  q_len 8, except full layers at batch 1: a warp-specialized kernel (attn_ws). Each CTA takes
+      one request and a slice of its context; one warpgroup per KV head covers its 64 query
+      rows (8 tokens x 8 heads) with FP8 Q.K on wgmma into FP32 accumulators, an FP32 online
+      softmax as FA3's, and f16 P.V into FP32 on wgmma, and four loader warps
+      gather the 128-byte K/V rows by cp.async into a 7-stage ring, convert the values to f16
+      three tiles later and release each tile through an mbarrier, so the loop has no
+      block-wide barrier. The last split writes and attends the block's new K/V. A second
+      launch merges the splits and applies the norm-gate.
+  everything else (full layers at batch 1 or 2, other head counts): one prep launch (norm,
       RoPE, FP8 query, cache write), SGLang's FA3 call, one norm-gate launch.
   _sglang: SGLang's own sequence, kept as the fallback if an extension fails to build.
 
@@ -1618,6 +1626,16 @@ __device__ __forceinline__ void wgmma_qk(uint32_t (&d)[16], uint64_t da, uint64_
                  : "l"(da), "l"(db), "n"(ACC));
 }
 
+// The same product with FP32 accumulators, as FA3 keeps S: register 4i + e holds row g, column
+// 8i + 2c + e, and register 4i + 2 + e row g + 8, the layout of O.
+template <int ACC>
+__device__ __forceinline__ void wgmma_qk32(float (&d)[32], uint64_t da, uint64_t db) {
+    asm volatile("{\n.reg .pred p;\nsetp.ne.b32 p, %34, 0;\n"
+                 "wgmma.mma_async.sync.aligned.m64n64k32.f32.e4m3.e4m3 " WG_D32
+                 ", %32, %33, p, 1, 1;\n}\n"
+                 : WG_OUT32(d) : "l"(da), "l"(db), "n"(ACC));
+}
+
 __device__ __forceinline__ void reg_fence16(uint32_t (&d)[16]) {
 #pragma unroll
     for (int i = 0; i < 16; ++i) {
@@ -1651,6 +1669,24 @@ __device__ __forceinline__ float ex2(float x) {
     float y;
     asm("ex2.approx.ftz.f32 %0, %1;\n" : "=f"(y) : "f"(x));
     return y;
+}
+
+// 2^x for x <= 0 on the FMA pipe instead of MUFU, as FA4 does for part of its exponentials:
+// x = n + f with n = round(x), f in [-0.5, 0.5], a degree-5 minimax polynomial for 2^f, and n
+// added to the exponent field. Max relative error 1.7e-7 over [-126, 0] in an FP32 emulation
+// (tools/attn_emulate_fp32.py, which fits the coefficients), against 2^-22 for ex2.approx.f32. The clamp keeps that field
+// from borrowing into the sign; below it the result stays under 2^-125, which the P rounding to
+// f16 flushes to 0 as MUFU's ftz result would be.
+__device__ __forceinline__ float ex2_poly(float x) {
+    x = fmaxf(x, -126.f);
+    const float t = x + 12582912.f;
+    const float f = x - (t - 12582912.f);
+    float y = fmaf(1.32647238e-3f, f, 9.67151299e-3f);
+    y = fmaf(y, f, 5.55073358e-2f);
+    y = fmaf(y, f, 2.40222424e-1f);
+    y = fmaf(y, f, 6.93147004e-1f);
+    y = fmaf(y, f, 1.f);
+    return __uint_as_float(__float_as_uint(y) + (__float_as_uint(t) << 23));
 }
 
 __device__ __forceinline__ uint32_t pack_f16(float a, float b) {
@@ -1718,10 +1754,18 @@ __device__ __forceinline__ int kmaj(int r, int kc) {
 // VAR bit 0: values converted with integer ops into f16 values scaled by 2^-8, which the merge
 // multiplies back (else F2FP). Bit 1: loaders release a tile without their own proxy fence
 // (the math warps fence after acquiring it either way). Bit 2: math warps take tiles in pairs.
-// Bit 3 is read by the host only: eight loader warps instead of four.
+// Bit 3 is read by the host only: eight loader warps instead of four. Bit 4: FA3's precision,
+// that is Q rounded to E4M3 without the softmax scale, Q.K accumulated in FP32, and the running
+// max, sum, rescale factors and exponentials in FP32 (P still goes to P.V as f16, where FA3's
+// FP8 path uses E4M3). Bit 5 (with bit 4): FA3's intra-warpgroup overlap, the P.V of tile i in
+// flight under the Q.K and softmax of tile i + 1. Bit 6 (with bit 4): a quarter of the
+// exponentials on the FMA pipe (ex2_poly) to unload MUFU.
 template <int NS, int DA, int MODE, int PW, int VAR>
 __global__ void __launch_bounds__(CONSUMERS + 32 * PW, 1) attn_ws_kernel(const Params p) {
     constexpr bool STAMP = MODE == 2;
+    constexpr bool F32 = (VAR & 16) != 0;
+    static_assert(F32 || (VAR & 96) == 0, "bits 5 and 6 need bit 4");
+    static_assert(!F32 || (VAR & 5) == 0, "bit 4 does not combine with bits 0 and 2");
     constexpr int NV = NS - DA;
     using S = Smem<NS, DA>;
     long long acc[8] = {0, 0, 0, 0, 0, 0, 0, 0};
@@ -1858,7 +1902,8 @@ __global__ void __launch_bounds__(CONSUMERS + 32 * PW, 1) attn_ws_kernel(const P
                             uint8_t* dst = vb + j * VH_HEAD + ((t >> 3) * 8 + 2 * cq) * 128
                                            + (t & 7) * 16;
                             *reinterpret_cast<uint4*>(dst) = f16_from_fp8x8<VAR & 1>(w.x, w.y);
-                            *reinterpret_cast<uint4*>(dst + 128) = f16_from_fp8x8<VAR & 1>(w.z, w.w);
+                            *reinterpret_cast<uint4*>(dst + 128) =
+                                f16_from_fp8x8<VAR & 1>(w.z, w.w);
                         }
                     }
                     if constexpr ((VAR & 2) == 0) {
@@ -1907,7 +1952,8 @@ __global__ void __launch_bounds__(CONSUMERS + 32 * PW, 1) attn_ws_kernel(const P
             const uint32_t ws[4] = {w.x, w.y, w.z, w.w};
 #pragma unroll
             for (int e = 0; e < 4; ++e) {
-                const float2 f = __bfloat1622float2(*reinterpret_cast<const __nv_bfloat162*>(&ws[e]));
+                const float2 f =
+                    __bfloat1622float2(*reinterpret_cast<const __nv_bfloat162*>(&ws[e]));
                 x[8 * v + 2 * e] = f.x;
                 x[8 * v + 2 * e + 1] = f.y;
             }
@@ -1918,9 +1964,10 @@ __global__ void __launch_bounds__(CONSUMERS + 32 * PW, 1) attn_ws_kernel(const P
             ss += x[e] * x[e];
         }
         ss += __shfl_xor_sync(0xffffffffu, ss, 1);
-        // The softmax scale (with log2 e) is folded in before the E4M3 rounding, so scores
-        // come out of the f16-accumulating wgmma in log2 units.
-        const float r = rsqrtf(ss / D + EPS) * p.qk_scale;
+        // The f16 path folds the softmax scale (with log2 e) in before the E4M3 rounding, so
+        // scores come out of the f16-accumulating wgmma in log2 units; the FP32 path rounds the
+        // unscaled query, as SGLang hands FA3, and scales the FP32 scores.
+        const float r = rsqrtf(ss / D + EPS) * (F32 ? 1.f : p.qk_scale);
         const float pos = static_cast<float>(seq + j);
 #pragma unroll
         for (int i = 0; i < 16; ++i) {
@@ -2030,6 +2077,10 @@ __global__ void __launch_bounds__(CONSUMERS + 32 * PW, 1) attn_ws_kernel(const P
     const __half2 ks2 = __float2half2_rn(k_scale);
     // A fully masked row keeps this floor as its max, so its exponentials are 0, not NaN.
     const __half2 lowest2 = __float2half2_rn(-65504.f);
+    // FP32 path: running maxima in log2 units, and the score scale applied in FP32 as FA3's
+    // softmax_scale_log2 (which also carries the key descale).
+    float mrow[2] = {NEG_INF, NEG_INF};
+    const float sl2 = p.qk_scale * k_scale;
 
     // Pieces of one 64-token tile: S = Q.K^T (FP8 wgmma into f16), online softmax in half2,
     // then O += P.V (f16 wgmma into f32) from the loaders' f16 values.
@@ -2093,6 +2144,70 @@ __global__ void __launch_bounds__(CONSUMERS + 32 * PW, 1) attn_ws_kernel(const P
         lrow[0] = lrow[0] * a0 + __low2float(sum0) + __high2float(sum0);
         lrow[1] = lrow[1] * a1 + __low2float(sum1) + __high2float(sum1);
     };
+    auto qk_issue32 = [&](const uint8_t* kt, float (&s)[32]) {
+        const uint8_t* ks = kt + h * (BN * D);
+        wgmma_qk32<0>(s, qd0, desc(ks, 128, 512));
+        wgmma_qk32<1>(s, qd1, desc(ks + 256, 128, 512));
+    };
+    // FA3's online softmax (hopper/softmax.h): row max over raw FP32 scores, then
+    // exp2(s * scale_log2 - max * scale_log2) as one FFMA and one ex2 per score, FP32 row sums of
+    // the unrounded exponentials. P is rounded to f16 for the P.V wgmma.
+    auto softmax32 = [&](float (&s)[32], int pos0, int lim, uint32_t (&pa)[16], float& a0,
+                         float& a1) {
+        const bool interior = pos0 + BN - 1 <= lim && (!p.window || pos0 >= seq + L - p.window);
+        if (!interior) {
+#pragma unroll
+            for (int hh = 0; hh < 2; ++hh) {
+                const int top = min(lim, qpos[hh]);
+#pragma unroll
+                for (int i = 0; i < 8; ++i) {
+#pragma unroll
+                    for (int e = 0; e < 2; ++e) {
+                        const int pos = pos0 + 8 * i + 2 * c + e;
+                        if (pos < lo_row[hh] || pos > top) {
+                            s[4 * i + 2 * hh + e] = NEG_INF;
+                        }
+                    }
+                }
+            }
+        }
+        float mu[2];
+        float alpha[2];
+#pragma unroll
+        for (int hh = 0; hh < 2; ++hh) {
+            float mx = fmaxf(s[2 * hh], s[2 * hh + 1]);
+#pragma unroll
+            for (int i = 1; i < 8; ++i) {
+                mx = fmaxf(mx, fmaxf(s[4 * i + 2 * hh], s[4 * i + 2 * hh + 1]));
+            }
+            mx = fmaxf(mx, __shfl_xor_sync(0xffffffffu, mx, 1));
+            mx = fmaxf(mx, __shfl_xor_sync(0xffffffffu, mx, 2));
+            // A row with every key masked so far keeps a finite floor as its max, so its
+            // exponentials are 0, not NaN; FA3 does the same with Check_inf.
+            mu[hh] = fmaxf(fmaxf(mrow[hh], mx * sl2), -1e30f);
+            alpha[hh] = ex2(mrow[hh] - mu[hh]);
+            mrow[hh] = mu[hh];
+        }
+        float sum[2] = {0.f, 0.f};
+#pragma unroll
+        for (int i = 0; i < 8; ++i) {
+#pragma unroll
+            for (int hh = 0; hh < 2; ++hh) {
+                float e2[2];
+#pragma unroll
+                for (int e = 0; e < 2; ++e) {
+                    const float x = fmaf(s[4 * i + 2 * hh + e], sl2, -mu[hh]);
+                    e2[e] = ((VAR & 64) != 0 && (i & 3) == 3) ? ex2_poly(x) : ex2(x);
+                }
+                sum[hh] += e2[0] + e2[1];
+                pa[2 * i + hh] = pack_f16(e2[0], e2[1]);
+            }
+        }
+        a0 = alpha[0];
+        a1 = alpha[1];
+        lrow[0] = lrow[0] * a0 + sum[0];
+        lrow[1] = lrow[1] * a1 + sum[1];
+    };
     auto rescale = [&](float a0, float a1) {
         if (__any_sync(0xffffffffu, a0 != 1.f || a1 != 1.f)) {
 #pragma unroll
@@ -2132,6 +2247,29 @@ __global__ void __launch_bounds__(CONSUMERS + 32 * PW, 1) attn_ws_kernel(const P
         reg_fence16(s);
         lap(1);
         softmax(s, pos0, lim, pa, a0, a1);
+        rescale(a0, a1);
+        lap(2);
+        reg_fence(o);
+        wg_fence();
+        pv_issue(pa, vb);
+        wg_commit();
+        wg_wait<0>();
+        reg_fence(o);
+        lap(3);
+        release(empty_bar);
+    };
+    auto tile32 = [&](const uint8_t* kt, const uint8_t* vb, int pos0, int lim,
+                      uint32_t empty_bar) {
+        float s[32];
+        uint32_t pa[16];
+        float a0, a1;
+        wg_fence();
+        qk_issue32(kt, s);
+        wg_commit();
+        wg_wait<0>();
+        reg_fence(s);
+        lap(1);
+        softmax32(s, pos0, lim, pa, a0, a1);
         rescale(a0, a1);
         lap(2);
         reg_fence(o);
@@ -2187,6 +2325,9 @@ __global__ void __launch_bounds__(CONSUMERS + 32 * PW, 1) attn_ws_kernel(const P
         release(e1);
     };
 
+    auto vslot = [&](int t) {
+        return smem + S::VH + (t % NV) * (HKV * VH_HEAD);
+    };
     int it = 0;
     if constexpr (MODE == 1) {
         for (; it < ntiles; ++it) {
@@ -2196,7 +2337,76 @@ __global__ void __launch_bounds__(CONSUMERS + 32 * PW, 1) attn_ws_kernel(const P
             release(empty0 + 8 * s);
         }
     } else {
-        if constexpr ((VAR & 4) != 0) {
+        if constexpr ((VAR & 32) != 0) {
+            // FA3's overlap: P.V of tile it - 1 is issued right behind the Q.K of tile it and
+            // runs under its softmax; both retire before the back-edge (see tile).
+            if (ntiles > 0) {
+                // P of the tile in flight alternates between two arrays, so no copy writes
+                // a wgmma's A registers.
+                uint32_t pa0[16];
+                uint32_t pa1[16];
+                {
+                    float s[32];
+                    float a0, a1;
+                    mbar_wait(full0, 0, dead, p.dbg, 2);
+                    lap(0);
+                    fence_async_smem();
+                    wg_fence();
+                    qk_issue32(smem, s);
+                    wg_commit();
+                    wg_wait<0>();
+                    reg_fence(s);
+                    lap(1);
+                    softmax32(s, lo, hi - 1, pa0, a0, a1);
+                    lap(2);
+                }
+                auto step = [&](int t, uint32_t (&pin)[16], uint32_t (&pout)[16]) {
+                    const int st = t % NS;
+                    float s[32];
+                    float a0, a1;
+                    mbar_wait(full0 + 8 * st, (t / NS) & 1, dead, p.dbg, 2);
+                    lap(0);
+                    fence_async_smem();
+                    reg_fence(o);
+                    wg_fence();
+                    qk_issue32(smem + st * STAGE, s);
+                    wg_commit();
+                    pv_issue(pin, vslot(t - 1));
+                    wg_commit();
+                    wg_wait<1>();
+                    reg_fence(s);
+                    lap(1);
+                    softmax32(s, lo + t * BN, hi - 1, pout, a0, a1);
+                    lap(2);
+                    wg_wait<0>();
+                    reg_fence(o);
+                    lap(3);
+                    release(empty0 + 8 * ((t - 1) % NS));
+                    rescale(a0, a1);
+                };
+                auto drain = [&](const uint32_t (&pin)[16]) {
+                    reg_fence(o);
+                    wg_fence();
+                    pv_issue(pin, vslot(ntiles - 1));
+                    wg_commit();
+                    wg_wait<0>();
+                    reg_fence(o);
+                    lap(3);
+                    release(empty0 + 8 * ((ntiles - 1) % NS));
+                };
+                for (it = 1; it + 1 < ntiles; it += 2) {
+                    step(it, pa0, pa1);
+                    step(it + 1, pa1, pa0);
+                }
+                if (it < ntiles) {
+                    step(it, pa0, pa1);
+                    drain(pa1);
+                } else {
+                    drain(pa0);
+                }
+                it = ntiles;
+            }
+        } else if constexpr ((VAR & 4) != 0) {
             for (; it + 1 < ntiles; it += 2) {
                 const int s0 = it % NS;
                 const int s1 = (it + 1) % NS;
@@ -2215,11 +2425,18 @@ __global__ void __launch_bounds__(CONSUMERS + 32 * PW, 1) attn_ws_kernel(const P
             mbar_wait(full0 + 8 * s, (it / NS) & 1, dead, p.dbg, 2);
             lap(0);
             fence_async_smem();
-            tile(smem + s * STAGE, smem + S::VH + (it % NV) * (HKV * VH_HEAD), lo + it * BN,
-                 hi - 1, empty0 + 8 * s);
+            if constexpr (F32) {
+                tile32(smem + s * STAGE, vslot(it), lo + it * BN, hi - 1, empty0 + 8 * s);
+            } else {
+                tile(smem + s * STAGE, vslot(it), lo + it * BN, hi - 1, empty0 + 8 * s);
+            }
         }
         if (last_split) {
-            tile(newk, newv, seq, seq + L - 1, 0);
+            if constexpr (F32) {
+                tile32(newk, newv, seq, seq + L - 1, 0);
+            } else {
+                tile(newk, newv, seq, seq + L - 1, 0);
+            }
         }
     }
     lap(6);
@@ -2234,7 +2451,11 @@ __global__ void __launch_bounds__(CONSUMERS + 32 * PW, 1) attn_ws_kernel(const P
         lsum += __shfl_xor_sync(0xffffffffu, lsum, 1);
         lsum += __shfl_xor_sync(0xffffffffu, lsum, 2);
         if (c == 0) {
-            dst[0] = hh ? __high2float(mrow2) : __low2float(mrow2);
+            if constexpr (F32) {
+                dst[0] = mrow[hh];
+            } else {
+                dst[0] = hh ? __high2float(mrow2) : __low2float(mrow2);
+            }
             dst[1] = lsum;
         }
 #pragma unroll
@@ -2257,8 +2478,8 @@ __device__ __forceinline__ float2 load_gate(const __nv_bfloat16* qkv, size_t tok
 // the norm-gate: one warp per (token, query head).
 __global__ void ws_combine_kernel(const float* __restrict__ ws,
                                   const __nv_bfloat16* __restrict__ qkv,
-                                  const float* __restrict__ v_scale, __nv_bfloat16* __restrict__ out,
-                                  int nparts, float vmul) {
+                                  const float* __restrict__ v_scale,
+                                  __nv_bfloat16* __restrict__ out, int nparts, float vmul) {
     const int tok = blockIdx.x;
     const int b = tok / L;
     const int j = tok % L;
@@ -2285,7 +2506,8 @@ __global__ void ws_combine_kernel(const float* __restrict__ ws,
 #pragma unroll 8
         for (int k = 0; k < cnt; ++k) {
             const float wk = __shfl_sync(0xffffffffu, w, k);
-            const float2 v = *reinterpret_cast<const float2*>(base + (s0 + k) * stride + 2 + 2 * lane);
+            const float2 v =
+                *reinterpret_cast<const float2*>(base + (s0 + k) * stride + 2 + 2 * lane);
             acc.x += wk * v.x;
             acc.y += wk * v.y;
         }
@@ -2315,27 +2537,27 @@ void launch_ws(const Params& p, int batch, cudaStream_t stream) {
 
 template <int NS, int DA, int MODE, int VAR>
 void launch_var(const Params& p, int batch, cudaStream_t stream) {
-    launch_ws<NS, DA, MODE, (VAR & 8) ? 8 : 4, VAR & 7>(p, batch, stream);
+    launch_ws<NS, DA, MODE, (VAR & 8) ? 8 : 4, VAR & ~8>(p, batch, stream);
 }
 
 // INSTANTIATE: template void launch_var<7, 3, 0, 0>(const Params&, int, cudaStream_t);
 // INSTANTIATE: template void launch_var<7, 3, 0, 2>(const Params&, int, cudaStream_t);
-// INSTANTIATE: template void launch_var<7, 3, 0, 4>(const Params&, int, cudaStream_t);
-// INSTANTIATE: template void launch_var<7, 3, 0, 6>(const Params&, int, cudaStream_t);
-// INSTANTIATE: template void launch_var<7, 3, 0, 3>(const Params&, int, cudaStream_t);
-// INSTANTIATE: template void launch_var<7, 3, 0, 10>(const Params&, int, cudaStream_t);
-// INSTANTIATE: template void launch_var<8, 4, 0, 2>(const Params&, int, cudaStream_t);
-// INSTANTIATE: template void launch_var<6, 2, 0, 6>(const Params&, int, cudaStream_t);
-// INSTANTIATE: template void launch_var<8, 4, 0, 6>(const Params&, int, cudaStream_t);
-// INSTANTIATE: template void launch_var<7, 3, 1, 2>(const Params&, int, cudaStream_t);
-// INSTANTIATE: template void launch_var<7, 3, 2, 6>(const Params&, int, cudaStream_t);
+// INSTANTIATE: template void launch_var<7, 3, 0, 16>(const Params&, int, cudaStream_t);
+// INSTANTIATE: template void launch_var<7, 3, 0, 18>(const Params&, int, cudaStream_t);
+// INSTANTIATE: template void launch_var<7, 3, 0, 48>(const Params&, int, cudaStream_t);
+// INSTANTIATE: template void launch_var<7, 3, 0, 50>(const Params&, int, cudaStream_t);
+// INSTANTIATE: template void launch_var<7, 3, 0, 80>(const Params&, int, cudaStream_t);
+// INSTANTIATE: template void launch_var<7, 3, 0, 82>(const Params&, int, cudaStream_t);
+// INSTANTIATE: template void launch_var<7, 3, 0, 112>(const Params&, int, cudaStream_t);
+// INSTANTIATE: template void launch_var<7, 3, 0, 114>(const Params&, int, cudaStream_t);
+// INSTANTIATE: template void launch_var<7, 3, 2, 18>(const Params&, int, cudaStream_t);
 
 }  // namespace
 
-// stages: FP8 stages, 6, 7 or 8 (anything else runs 7), with values converted 2, 3 or 4 tiles
-// behind their loads (6 with var 6 only, 8 with var 2 or 6); mode: see attn_ws_kernel (1 runs
-// var 2 and 2 runs var 6, with 7 stages); var: 0, 2, 3, 4, 6 or 10, see attn_ws_kernel
-// (anything else runs 0).
+// stages: unused, kept for the Python signature (7 FP8 stages, values converted 3 tiles behind
+// their loads); mode: see attn_ws_kernel (2 runs var 18, 1 is not built); var: 0, 2 (f16
+// accumulators) or 16, 18, 48, 50, 80, 82, 112, 114 (FP32), see attn_ws_kernel; anything else
+// runs 0.
 // dbg: int64 [17] or empty. dbg[0] bit 0: a loader wait timed out; bit 1: a math-warp wait
 // timed out. With mode 2, dbg[1..8] sum math-warp cycles per phase (wait for data, Q.K, mask
 // and softmax, P.V, unused, unused, tail, prologue) and dbg[9..13] loader cycles (wait for a
@@ -2368,32 +2590,32 @@ torch::Tensor attn_ws(torch::Tensor qkv, torch::Tensor page_table, torch::Tensor
     p.rope = rope ? 1 : 0;
     p.splits = splits;
     p.qk_scale = static_cast<float>(qk_scale);
-    if (mode == 1) {
-        launch_var<7, 3, 1, 2>(p, batch, stream);
-    } else if (mode == 2) {
-        launch_var<7, 3, 2, 6>(p, batch, stream);
-    } else if (var == 6 && stages == 6) {
-        launch_var<6, 2, 0, 6>(p, batch, stream);
-    } else if (var == 6 && stages == 8) {
-        launch_var<8, 4, 0, 6>(p, batch, stream);
-    } else if (var == 6) {
-        launch_var<7, 3, 0, 6>(p, batch, stream);
-    } else if (var == 2 && stages == 8) {
-        launch_var<8, 4, 0, 2>(p, batch, stream);
-    } else if (var == 3) {
-        launch_var<7, 3, 0, 3>(p, batch, stream);
-    } else if (var == 10) {
-        launch_var<7, 3, 0, 10>(p, batch, stream);
-    } else if (var == 4) {
-        launch_var<7, 3, 0, 4>(p, batch, stream);
+    if (mode == 2) {
+        launch_var<7, 3, 2, 18>(p, batch, stream);
     } else if (var == 2) {
         launch_var<7, 3, 0, 2>(p, batch, stream);
+    } else if (var == 16) {
+        launch_var<7, 3, 0, 16>(p, batch, stream);
+    } else if (var == 18) {
+        launch_var<7, 3, 0, 18>(p, batch, stream);
+    } else if (var == 48) {
+        launch_var<7, 3, 0, 48>(p, batch, stream);
+    } else if (var == 50) {
+        launch_var<7, 3, 0, 50>(p, batch, stream);
+    } else if (var == 80) {
+        launch_var<7, 3, 0, 80>(p, batch, stream);
+    } else if (var == 82) {
+        launch_var<7, 3, 0, 82>(p, batch, stream);
+    } else if (var == 112) {
+        launch_var<7, 3, 0, 112>(p, batch, stream);
+    } else if (var == 114) {
+        launch_var<7, 3, 0, 114>(p, batch, stream);
     } else {
         launch_var<7, 3, 0, 0>(p, batch, stream);
     }
-    ws_combine_kernel<<<batch * L, HQ * 32, 0, stream>>>(p.ws, p.qkv, p.v_scale,
-                                                          reinterpret_cast<__nv_bfloat16*>(out.data_ptr()),
-                                                          splits, (var & 1) ? 256.f : 1.f);
+    ws_combine_kernel<<<batch * L, HQ * 32, 0, stream>>>(
+        p.ws, p.qkv, p.v_scale, reinterpret_cast<__nv_bfloat16*>(out.data_ptr()), splits,
+        (var & 1) ? 256.f : 1.f);
     return out;
 }
 """
@@ -2409,7 +2631,7 @@ torch::Tensor attn_ws(torch::Tensor qkv, torch::Tensor page_table, torch::Tensor
 
 try:
     _WS = load_inline(
-        name="okc_attn_ws_v1",
+        name="okc_attn_ws_v2",
         cpp_sources=_WS_CPP,
         cuda_sources=_WS_SRC,
         functions=["attn_ws"],
@@ -2430,11 +2652,13 @@ def _ws_splits(cfg):
 
 def _ws(data, splits=None, stages=7, mode=0, var=None, dbg=None):
     """q_len 8 on the warp-specialized kernel (attn_ws.cu), then a merge + norm-gate launch.
-    Default variant per layer from the bench of job a8a4666a91d54d68: loaders release tiles
-    without their own proxy fence (var 2) on full layers, plus paired tiles (var 6) on sliding."""
+    Default variant from _WS_VAR: FA3's precision (FP32 Q.K accumulators and FP32 softmax).
+    Until the f16-vs-FP32 bench runs, sliding layers keep the loaders' own proxy fence (var 16)
+    and full layers drop it (var 18), the split that measured best for the f16 kernel (jobs
+    1f4f986279834925, a8a4666a91d54d68)."""
     cfg = data["config"]
     if var is None:
-        var = 6 if cfg["window"] else 2
+        var = _ws_var(cfg) or 18
     batch = cfg["batch"]
     qkv = data["qkv"].view(batch * cfg["q_len"], -1)
     theta = cfg["rope_theta"]
@@ -2456,12 +2680,32 @@ def _fused_ok(cfg):
     return cfg["q_len"] == 1 and (bool(cfg["window"]) or cfg["batch"] > 2)
 
 
+# attn_ws variant per scored verify shape, keyed by (layer, batch). All are FP32-accumulator
+# variants (see attn_ws_kernel's VAR bits). A scored shape mapped to None runs prep + FA3; full
+# layers at batch 1 do, since the f16 kernel measured 40-41 µs there against 38.5 (bench, job
+# 34929136fa004b17). Batch sizes the score does not use (tests) run 16 on sliding layers and 18
+# on full ones above batch 2.
+_WS_VAR = {
+    ("sliding", 1): 16, ("sliding", 16): 16, ("sliding", 32): 16,
+    ("full", 1): None, ("full", 16): 18, ("full", 32): 18,
+}
+
+
+def _ws_var(cfg):
+    window = bool(cfg["window"])
+    key = ("sliding" if window else "full", cfg["batch"])
+    if key in _WS_VAR:
+        return _WS_VAR[key]
+    if window:
+        return 16
+    return 18 if cfg["batch"] > 2 else None
+
+
 def _ws_ok(cfg):
-    """Verify blocks on the warp-specialized kernel, except full layers at batch 1, where it
-    measured 40-41 µs against 38.5 for prep + FA3 (bench, job 34929136fa004b17)."""
+    """Verify blocks on the warp-specialized kernel where _ws_var routes them."""
     if _WS is None or (cfg["num_q_heads"], cfg["num_kv_heads"], cfg["head_dim"]) != (16, 2, 64):
         return False
-    return cfg["q_len"] == 8 and (bool(cfg["window"]) or cfg["batch"] > 2)
+    return cfg["q_len"] == 8 and _ws_var(cfg) is not None
 
 
 def kernel_fn(data):
@@ -2665,13 +2909,13 @@ def _run_bench():
 
 
 # Generated by tools/attn_make_bench_ws.py.
-_WSB_VARIANTS = ['_ref32', '_fused_prep', '_probe_fa3', '_ws', '_ws@x=0', '_ws@x=2', '_ws@x=3', '_ws@x=10', '_ws@x=2,n=8', '_ws@x=6']
+_WSB_VARIANTS = ['_ref32', '_fused_prep', '_ws@x=0', '_ws@x=2', '_ws@x=16', '_ws@x=18', '_ws@x=48', '_ws@x=50', '_ws@x=80', '_ws@x=82', '_ws@x=112', '_ws@x=114']
 _WSB_GATHER = False
 _WSB_SHAPES = [
     (32, "full", 8), (16, "full", 8), (1, "full", 8), (32, "sliding", 8), (16, "sliding", 8),
     (1, "sliding", 8), (32, "full", 1),
 ]
-_GATHER_SRC = "\n#include <torch/extension.h>\n#include <ATen/cuda/CUDAContext.h>\n#include <cstdint>\n\nnamespace {\n\n// Each CTA reads its slice of one request's rows, as an attention split would. With ROWB 64,\n// grid.z picks the KV head and the CTA reads that head's half of each row.\ntemplate <int ROWB, int U, bool PREF>\n__global__ void __launch_bounds__(256) gather_kernel(const int* __restrict__ pt, int pt_stride,\n                                                     const int* __restrict__ seq_lens,\n                                                     const uint4* __restrict__ kc,\n                                                     const uint4* __restrict__ vc, int splits,\n                                                     unsigned* out) {\n    constexpr int CH = ROWB / 16;\n    constexpr int RPI = 256 / CH;\n    const int split = blockIdx.x;\n    const int b = blockIdx.y;\n    const int head = blockIdx.z;\n    const int seq = seq_lens[b];\n    const int per = (seq + splits - 1) / splits;\n    const int lo = min(seq, split * per);\n    const int hi = min(seq, lo + per);\n    const int sub = threadIdx.x / CH;\n    const int ck = threadIdx.x % CH + (ROWB == 64 ? head * 4 : 0);\n    const int* ptb = pt + static_cast<size_t>(b) * pt_stride;\n    uint32_t x = 0;\n    int nxt[U];\n    if (PREF) {\n#pragma unroll\n        for (int u = 0; u < U; ++u) {\n            const int pos = lo + u * RPI + sub;\n            nxt[u] = pos < hi ? __ldg(ptb + pos) : -1;\n        }\n    }\n    for (int base = lo; base < hi; base += RPI * U) {\n        int e[U];\n#pragma unroll\n        for (int u = 0; u < U; ++u) {\n            if (PREF) {\n                e[u] = nxt[u];\n                const int pos = base + RPI * U + u * RPI + sub;\n                nxt[u] = pos < hi ? __ldg(ptb + pos) : -1;\n            } else {\n                const int pos = base + u * RPI + sub;\n                e[u] = pos < hi ? __ldg(ptb + pos) : -1;\n            }\n        }\n        uint4 kv[U][2];\n#pragma unroll\n        for (int u = 0; u < U; ++u) {\n            if (e[u] >= 0) {\n                kv[u][0] = __ldcg(kc + static_cast<size_t>(e[u]) * 8 + ck);\n                kv[u][1] = __ldcg(vc + static_cast<size_t>(e[u]) * 8 + ck);\n            } else {\n                kv[u][0] = kv[u][1] = make_uint4(0, 0, 0, 0);\n            }\n        }\n#pragma unroll\n        for (int u = 0; u < U; ++u) {\n            x ^= kv[u][0].x ^ kv[u][0].w ^ kv[u][1].y ^ kv[u][1].z;\n        }\n    }\n    if (x == 0x9e3779b9u) {\n        out[0] = x;\n    }\n}\n\n// One thread walks n steps. ROW_ONLY 0: page entry at position 32 i (a fresh 128-byte line each\n// step), then its K row, each address depending on the previous row's data. ROW_ONLY 1: only\n// the row load, at a hashed row.\ntemplate <int ROW_ONLY>\n__global__ void chase_kernel(const int* __restrict__ pt, const uint32_t* kc, int rows, int n,\n                             int64_t* out) {\n    uint32_t x = 0;\n    int pos = 0;\n    const long long t0 = clock64();\n    for (int i = 0; i < n; ++i) {\n        int e;\n        if (ROW_ONLY) {\n            e = static_cast<int>((static_cast<uint32_t>(i) * 2654435761u + (x & 1)) % rows);\n        } else {\n            e = *(volatile const int*)(pt + pos);\n        }\n        const uint32_t v = *(volatile const uint32_t*)(kc + static_cast<size_t>(e) * 32);\n        x += v;\n        pos += 32 + (v == 0x80000000u ? 1 : 0);\n    }\n    out[0] = clock64() - t0;\n    out[1] = x;\n}\n\n}  // namespace\n\ntemplate <int R, int UU, bool P>\nvoid run_gather(torch::Tensor& pt, torch::Tensor& seq_lens, torch::Tensor& kc, torch::Tensor& vc,\n                int splits, torch::Tensor& out) {\n    const int batch = seq_lens.size(0);\n    dim3 grid(splits, batch, R == 64 ? 2 : 1);\n    gather_kernel<R, UU, P><<<grid, 256, 0, at::cuda::getCurrentCUDAStream()>>>(\n        pt.data_ptr<int>(), static_cast<int>(pt.size(1)), seq_lens.data_ptr<int>(),\n        reinterpret_cast<const uint4*>(kc.data_ptr()), reinterpret_cast<const uint4*>(vc.data_ptr()),\n        splits, reinterpret_cast<unsigned*>(out.data_ptr<int>()));\n}\n\ntemplate <int R, bool P>\nvoid gather_u(torch::Tensor& pt, torch::Tensor& seq_lens, torch::Tensor& kc, torch::Tensor& vc,\n              int64_t u, int splits, torch::Tensor& out) {\n    if (u == 1) {\n        run_gather<R, 1, P>(pt, seq_lens, kc, vc, splits, out);\n    } else if (u == 2) {\n        run_gather<R, 2, P>(pt, seq_lens, kc, vc, splits, out);\n    } else if (u == 4) {\n        run_gather<R, 4, P>(pt, seq_lens, kc, vc, splits, out);\n    } else {\n        run_gather<R, 8, P>(pt, seq_lens, kc, vc, splits, out);\n    }\n}\n\nvoid gather(torch::Tensor pt, torch::Tensor seq_lens, torch::Tensor kc, torch::Tensor vc,\n            int64_t rowb, int64_t u, bool pref, int64_t splits, torch::Tensor out) {\n    const int sp = static_cast<int>(splits);\n    if (rowb == 128) {\n        if (pref) {\n            gather_u<128, true>(pt, seq_lens, kc, vc, u, sp, out);\n        } else {\n            gather_u<128, false>(pt, seq_lens, kc, vc, u, sp, out);\n        }\n    } else {\n        if (pref) {\n            gather_u<64, true>(pt, seq_lens, kc, vc, u, sp, out);\n        } else {\n            gather_u<64, false>(pt, seq_lens, kc, vc, u, sp, out);\n        }\n    }\n}\n\nvoid chase(torch::Tensor pt, torch::Tensor kc, int64_t rows, int64_t n, bool row_only,\n           torch::Tensor out) {\n    auto stream = at::cuda::getCurrentCUDAStream();\n    const auto* k = reinterpret_cast<const uint32_t*>(kc.data_ptr());\n    if (row_only) {\n        chase_kernel<1><<<1, 1, 0, stream>>>(pt.data_ptr<int>(), k, rows, n, out.data_ptr<int64_t>());\n    } else {\n        chase_kernel<0><<<1, 1, 0, stream>>>(pt.data_ptr<int>(), k, rows, n, out.data_ptr<int64_t>());\n    }\n}\n"
+_GATHER_SRC = "\n#include <torch/extension.h>\n#include <ATen/cuda/CUDAContext.h>\n#include <cstdint>\n\nnamespace {\n\n// Each CTA reads its slice of one request's rows, as an attention split would. With ROWB 64,\n// grid.z picks the KV head and the CTA reads that head's half of each row.\ntemplate <int ROWB, int U, bool PREF>\n__global__ void __launch_bounds__(256) gather_kernel(const int* __restrict__ pt, int pt_stride,\n                                                     const int* __restrict__ seq_lens,\n                                                     const uint4* __restrict__ kc,\n                                                     const uint4* __restrict__ vc, int splits,\n                                                     unsigned* out) {\n    constexpr int CH = ROWB / 16;\n    constexpr int RPI = 256 / CH;\n    const int split = blockIdx.x;\n    const int b = blockIdx.y;\n    const int head = blockIdx.z;\n    const int seq = seq_lens[b];\n    const int per = (seq + splits - 1) / splits;\n    const int lo = min(seq, split * per);\n    const int hi = min(seq, lo + per);\n    const int sub = threadIdx.x / CH;\n    const int ck = threadIdx.x % CH + (ROWB == 64 ? head * 4 : 0);\n    const int* ptb = pt + static_cast<size_t>(b) * pt_stride;\n    uint32_t x = 0;\n    int nxt[U];\n    if (PREF) {\n#pragma unroll\n        for (int u = 0; u < U; ++u) {\n            const int pos = lo + u * RPI + sub;\n            nxt[u] = pos < hi ? __ldg(ptb + pos) : -1;\n        }\n    }\n    for (int base = lo; base < hi; base += RPI * U) {\n        int e[U];\n#pragma unroll\n        for (int u = 0; u < U; ++u) {\n            if (PREF) {\n                e[u] = nxt[u];\n                const int pos = base + RPI * U + u * RPI + sub;\n                nxt[u] = pos < hi ? __ldg(ptb + pos) : -1;\n            } else {\n                const int pos = base + u * RPI + sub;\n                e[u] = pos < hi ? __ldg(ptb + pos) : -1;\n            }\n        }\n        uint4 kv[U][2];\n#pragma unroll\n        for (int u = 0; u < U; ++u) {\n            if (e[u] >= 0) {\n                kv[u][0] = __ldcg(kc + static_cast<size_t>(e[u]) * 8 + ck);\n                kv[u][1] = __ldcg(vc + static_cast<size_t>(e[u]) * 8 + ck);\n            } else {\n                kv[u][0] = kv[u][1] = make_uint4(0, 0, 0, 0);\n            }\n        }\n#pragma unroll\n        for (int u = 0; u < U; ++u) {\n            x ^= kv[u][0].x ^ kv[u][0].w ^ kv[u][1].y ^ kv[u][1].z;\n        }\n    }\n    if (x == 0x9e3779b9u) {\n        out[0] = x;\n    }\n}\n\n// One thread walks n steps. ROW_ONLY 0: page entry at position 32 i (a fresh 128-byte line each\n// step), then its K row, each address depending on the previous row's data. ROW_ONLY 1: only\n// the row load, at a hashed row.\ntemplate <int ROW_ONLY>\n__global__ void chase_kernel(const int* __restrict__ pt, const uint32_t* kc, int rows, int n,\n                             int64_t* out) {\n    uint32_t x = 0;\n    int pos = 0;\n    const long long t0 = clock64();\n    for (int i = 0; i < n; ++i) {\n        int e;\n        if (ROW_ONLY) {\n            e = static_cast<int>((static_cast<uint32_t>(i) * 2654435761u + (x & 1)) % rows);\n        } else {\n            e = *(volatile const int*)(pt + pos);\n        }\n        const uint32_t v = *(volatile const uint32_t*)(kc + static_cast<size_t>(e) * 32);\n        x += v;\n        pos += 32 + (v == 0x80000000u ? 1 : 0);\n    }\n    out[0] = clock64() - t0;\n    out[1] = x;\n}\n\n}  // namespace\n\ntemplate <int R, int UU, bool P>\nvoid run_gather(torch::Tensor& pt, torch::Tensor& seq_lens, torch::Tensor& kc, torch::Tensor& vc,\n                int splits, torch::Tensor& out) {\n    const int batch = seq_lens.size(0);\n    dim3 grid(splits, batch, R == 64 ? 2 : 1);\n    gather_kernel<R, UU, P><<<grid, 256, 0, at::cuda::getCurrentCUDAStream()>>>(\n        pt.data_ptr<int>(), static_cast<int>(pt.size(1)), seq_lens.data_ptr<int>(),\n        reinterpret_cast<const uint4*>(kc.data_ptr()),\n        reinterpret_cast<const uint4*>(vc.data_ptr()),\n        splits, reinterpret_cast<unsigned*>(out.data_ptr<int>()));\n}\n\ntemplate <int R, bool P>\nvoid gather_u(torch::Tensor& pt, torch::Tensor& seq_lens, torch::Tensor& kc, torch::Tensor& vc,\n              int64_t u, int splits, torch::Tensor& out) {\n    if (u == 1) {\n        run_gather<R, 1, P>(pt, seq_lens, kc, vc, splits, out);\n    } else if (u == 2) {\n        run_gather<R, 2, P>(pt, seq_lens, kc, vc, splits, out);\n    } else if (u == 4) {\n        run_gather<R, 4, P>(pt, seq_lens, kc, vc, splits, out);\n    } else {\n        run_gather<R, 8, P>(pt, seq_lens, kc, vc, splits, out);\n    }\n}\n\nvoid gather(torch::Tensor pt, torch::Tensor seq_lens, torch::Tensor kc, torch::Tensor vc,\n            int64_t rowb, int64_t u, bool pref, int64_t splits, torch::Tensor out) {\n    const int sp = static_cast<int>(splits);\n    if (rowb == 128) {\n        if (pref) {\n            gather_u<128, true>(pt, seq_lens, kc, vc, u, sp, out);\n        } else {\n            gather_u<128, false>(pt, seq_lens, kc, vc, u, sp, out);\n        }\n    } else {\n        if (pref) {\n            gather_u<64, true>(pt, seq_lens, kc, vc, u, sp, out);\n        } else {\n            gather_u<64, false>(pt, seq_lens, kc, vc, u, sp, out);\n        }\n    }\n}\n\nvoid chase(torch::Tensor pt, torch::Tensor kc, int64_t rows, int64_t n, bool row_only,\n           torch::Tensor out) {\n    auto stream = at::cuda::getCurrentCUDAStream();\n    const auto* k = reinterpret_cast<const uint32_t*>(kc.data_ptr());\n    if (row_only) {\n        chase_kernel<1><<<1, 1, 0, stream>>>(pt.data_ptr<int>(), k, rows, n,\n                                             out.data_ptr<int64_t>());\n    } else {\n        chase_kernel<0><<<1, 1, 0, stream>>>(pt.data_ptr<int>(), k, rows, n,\n                                             out.data_ptr<int64_t>());\n    }\n}\n"
 _GATHER_CPP = '\nvoid gather(torch::Tensor pt, torch::Tensor seq_lens, torch::Tensor kc, torch::Tensor vc,\n            int64_t rowb, int64_t u, bool pref, int64_t splits, torch::Tensor out);\nvoid chase(torch::Tensor pt, torch::Tensor kc, int64_t rows, int64_t n, bool row_only,\n           torch::Tensor out);\n'
 
 
@@ -2798,8 +3042,8 @@ def _ws_stamps(data, cfg_splits):
     nload = max(t[16], 1)
     load = " ".join(f"{n}={t[9 + k] / nload / max(tiles, 1):.0f}"
                     for k, n in enumerate(_WS_LOADER))
-    return (f"pw={t[16]} timeout_flags={t[0]} tiles={tiles} ctas={ctas} cycles per tile per "
-            f"math warp: {math} | per loader warp per tile: {load}")
+    return (f"pw={t[16]} timeout_flags={t[0]} tiles={tiles} ctas={ctas} cycles per tile "
+            f"per math warp: {math} | per loader warp per tile: {load}")
 
 
 def _ws_bench():
