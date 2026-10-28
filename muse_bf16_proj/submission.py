@@ -1590,7 +1590,12 @@ WD_GEOM = {
     "b2n256c2": (2, 256, 2, False, 4),
     "b2n256c4": (2, 256, 4, False, 4),
 }
-WD_NAMES = list(WD_GEOM)
+# Diagnostic builds timed in prepare(), never dispatched: ABL bit 1 skips the wgmma (memory
+# pipeline alone), bit 2 skips the cluster reduction and the stores.
+WD_ABLATE = {("router", 128): "r128c16", ("router", 256): "r128c8", ("o", 256): "b2n256c2",
+             ("pooler", 128): "b1n128c2"}
+WD_ABL = {f"{base}_a{a}": (base, a) for base in WD_ABLATE.values() for a in (1, 2, 3)}
+WD_NAMES = list(WD_GEOM) + list(WD_ABL)
 WD_INDEX = {nm: i for i, nm in enumerate(WD_NAMES)}
 # Wide buckets: the pick tuned at the bucket's top m serves every m in (previous top, top].
 WD_BUCKETS = (64, 128, 256)
@@ -1607,8 +1612,12 @@ def wd_smem(wg, bn, cl, hl, nst):
     return 1024 + nst * sb + 16 * nst
 
 
+def wd_geom(name):
+    return WD_GEOM[WD_ABL[name][0]] if name in WD_ABL else WD_GEOM[name]
+
+
 def wd_fits(name, n, k):
-    wg, bn, cl, hl, nst = WD_GEOM[name]
+    wg, bn, cl, hl, nst = wd_geom(name)
     return n % (64 * wg) == 0 and k % 64 == 0 and (k // 64) % cl == 0
 
 
@@ -1721,7 +1730,7 @@ struct WdCfg {
     static_assert(SMEM <= 227 * 1024, "wd: shared memory over budget");
 };
 
-template <int WG, int BN, int CL, bool HL, int NST, typename OutT>
+template <int WG, int BN, int CL, bool HL, int NST, typename OutT, int ABL>
 __global__ void __launch_bounds__(WG * 128 + 32, 1)
 wd_kernel(const __grid_constant__ CUtensorMap wmap, const __grid_constant__ CUtensorMap xmap, OutT* __restrict__ out,
           int M, int N, int K, int* diag) {
@@ -1788,7 +1797,7 @@ wd_kernel(const __grid_constant__ CUtensorMap wmap, const __grid_constant__ CUte
             wg_fence_acc<BN / 2>(acc);
             wg_fence();
 #pragma unroll
-            for (int kk = 0; kk < 4; ++kk) {
+            for (int kk = 0; kk < ((ABL & 1) ? 0 : 4); ++kk) {
                 wgmma_ss<BN>(acc, wg_desc(a0 + 32 * kk), wg_desc(b0 + 32 * kk));
                 if constexpr (HL) {
                     wgmma_ss<BN>(acc, wg_desc(a0 + C::ATILE + 32 * kk), wg_desc(b0 + 32 * kk));
@@ -1827,7 +1836,7 @@ wd_kernel(const __grid_constant__ CUtensorMap wmap, const __grid_constant__ CUte
 
     constexpr int TPR = BN / CL;
     constexpr int C4 = C::BM / 4;
-    for (int it = tid; it < TPR * C4; it += C::THREADS) {
+    for (int it = tid; it < ((ABL & 2) ? 0 : TPR * C4); it += C::THREADS) {
         const int t = rank * TPR + it / C4;
         const int c4 = it % C4;
         const int gt = tok0 + t;
@@ -1879,10 +1888,10 @@ CUtensorMap make_2d_map(const void* p, uint64_t rows, uint64_t k, uint32_t box_r
     return map;
 }
 
-template <int WG, int BN, int CL, bool HL, int NST, typename OutT>
+template <int WG, int BN, int CL, bool HL, int NST, typename OutT, int ABL>
 void launch_wd(const at::Tensor& w, const at::Tensor& x, at::Tensor& out, int N, int K, int* diag) {
     using C = WdCfg<WG, BN, CL, HL, NST>;
-    auto kern = wd_kernel<WG, BN, CL, HL, NST, OutT>;
+    auto kern = wd_kernel<WG, BN, CL, HL, NST, OutT, ABL>;
     static bool configured = false;
     if (!configured) {
         C10_CUDA_CHECK(cudaFuncSetAttribute(kern, cudaFuncAttributeMaxDynamicSharedMemorySize, C::SMEM));
@@ -1938,8 +1947,9 @@ _WD_CPP = "void wd_fwd(int64_t cfg, at::Tensor w, at::Tensor x, at::Tensor out, 
 
 
 def _wd_targs(name):
-    wg, bn, cl, hl, nst = WD_GEOM[name]
-    return f"{wg}, {bn}, {cl}, {str(hl).lower()}, {nst}, {'float' if hl else '__nv_bfloat16'}"
+    wg, bn, cl, hl, nst = wd_geom(name)
+    abl = WD_ABL[name][1] if name in WD_ABL else 0
+    return f"{wg}, {bn}, {cl}, {str(hl).lower()}, {nst}, {'float' if hl else '__nv_bfloat16'}, {abl}"
 
 
 def wd_source():
@@ -1954,7 +1964,7 @@ def wd_source():
         for i, nm in enumerate(WD_NAMES))
     inst = "\n".join(
         f"template __global__ void wd_kernel<{_wd_targs(nm)}>(const __grid_constant__ CUtensorMap, "
-        f"const __grid_constant__ CUtensorMap, {'float' if WD_GEOM[nm][3] else '__nv_bfloat16'}*, int, int, int, int*);"
+        f"const __grid_constant__ CUtensorMap, {'float' if wd_geom(nm)[3] else '__nv_bfloat16'}*, int, int, int, int*);"
         for nm in WD_NAMES)
     return (_WD_SRC.replace("@@WGMMA@@", wgmma).replace("@@WDDISPATCH@@", dispatch)
             .replace("@@WDINSTANCES@@", "namespace {\n" + inst + "\n}"))
@@ -2240,7 +2250,7 @@ def prepare(weights):
                 cands.setdefault((layer, b), []).append(("baseline", lambda x: _router_baseline(x, state), False))
             else:
                 cands.setdefault((layer, b), []).append(("cublas", lambda x, w=w: _cublas(x, w), False))
-            for nm in WD_NAMES:
+            for nm in WD_GEOM:
                 wg, bn, cl, hl, nst = WD_GEOM[nm]
                 if hl != is_router or bn not in WD_BN[b] or not wd_fits(nm, n, k):
                     continue
@@ -2277,6 +2287,19 @@ def prepare(weights):
         for m in range(9, WD_BUCKETS[-1] + 1):
             if (layer, m) not in state["pick"]:
                 state["pick"][(layer, m)] = state["pick"][(layer, bucket_of(m))]
+    for (layer, m), base in WD_ABLATE.items():
+        is_router = layer == "router"
+        w = state["router_hilo"] if is_router else state[layer]
+        n, k = state[layer].shape
+        dt = torch.float32 if is_router else torch.bfloat16
+        names = [base] + [f"{base}_a{a}" for a in (1, 2, 3)]
+        try:
+            x, _ = _gen_x(m, k, gen, dev)
+            us = _time_candidates([_wd_runner(ext, nm, w, n, k, dt, diag) for nm in names], x, flush)
+            print(f"ablate {layer} m={m}: " + ", ".join(f"{nm} {t:.1f}" for nm, t in zip(names, us)))
+        except Exception as exc:
+            torch.cuda.synchronize()
+            print(f"ablate {layer} m={m}: failed ({type(exc).__name__}: {str(exc)[-200:]})")
     print(f"prepare done {time.time() - t0:.1f} s")
     return state
 

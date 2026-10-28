@@ -92,7 +92,7 @@ class FakeExt:
 
     def wd_fwd(self, cid, w, x, out, n, k, diag):
         name = self.mod.WD_NAMES[cid]
-        wg, bn, cl, hl, nst = self.mod.WD_GEOM[name]
+        wg, bn, cl, hl, nst = self.mod.wd_geom(name)
         m = x.shape[0]
         assert x.dtype == torch.bfloat16 and x.is_contiguous() and x.shape == (m, k) and 1 <= m <= 256, name
         assert w.dtype == torch.bfloat16 and w.is_contiguous() and w.shape == ((2 if hl else 1) * n, k), name
