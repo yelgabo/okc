@@ -1,7 +1,7 @@
 """Build one HTML page that shows every saved run's profile: where each shape's time goes, by
 kernel family, next to SGLang's breakdown and the floor, plus each problem's score history.
 
-    python3 tools/profile_viz.py [--out .build/profiles.html]
+    python3 tools/profile_viz.py [--root <checkout to read runs from>] [--out <html>]
 
 Reads <problem>/profiles/*.json and <problem>/baseline_profile/profiles/*.json, and the change
 column of the docs/runs*.md row that names each job id.
@@ -142,10 +142,15 @@ def collect():
 
 
 def main():
+    global ROOT
     ap = argparse.ArgumentParser()
-    ap.add_argument("--out", default=os.path.join(ROOT, ".build", "profiles.html"))
+    ap.add_argument("--root", default=ROOT)
+    ap.add_argument("--out")
     args = ap.parse_args()
-    template = open(os.path.join(ROOT, "tools", "profile_viz.html")).read()
+    ROOT = os.path.abspath(args.root)
+    args.out = args.out or os.path.join(ROOT, ".build", "profiles.html")
+    here = os.path.dirname(os.path.abspath(__file__))
+    template = open(os.path.join(here, "profile_viz.html")).read()
     data = json.dumps(collect(), separators=(",", ":")).replace("</", "<\\/")
     os.makedirs(os.path.dirname(args.out), exist_ok=True)
     open(args.out, "w").write(template.replace("/*DATA*/null", data))
