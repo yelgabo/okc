@@ -718,3 +718,50 @@ reports no errors; `tools/attn_harness_dry.py` passes on all five shapes. `bench
 generated with `--sched=384`, so SELFTEST, STRESS and the judge's own tests and timings run the
 EARLY schedule on every q_len 8 shape, and BENCH times `_one@x=0` (control), `x=128`,
 `x=384` and `_one` (= 384 again, a noise pair) on the six q_len 8 scored shapes.
+
+### Scored run bf6b8ca9e37341fb (bench.py at c901a3e, `--sched=384`): 2.083x, CI 2.051-2.114
+
+Submitted on 10-28 at 23:07 UTC with the day's last scored run, which would have expired at
+the 00:00 reset (the user asked that it not go unused); checks were at 20 of 20. Every judge
+test passed, SELFTEST 0 failing shapes, every STRESS line PASS with a clean workspace. The board
+entry stays 2.162x (b458555d3e3e4e9a). Profiles: `profiles/bench.bf6b8ca9e37341fb.*`.
+
+Judge medians (us), EARLY (|384) on every q_len 8 shape, against b458555d3e3e4e9a:
+
+| shape | b458555d | bf6b8ca9 | instance |
+|---|---|---|---|
+| decode 1 / 16 / 32 sliding | 6.0 / 10.1 / 12.5 | 6.4 / 9.8 / 12.4 | 13 / 1 / 1 (unchanged) |
+| decode 1 / 16 / 32 full | 15.3 / 93.6 / 180.8 | 16.3 / 93.5 / 179.6 | 11 / 49 / 49 (unchanged) |
+| verify 1 sliding | 8.0 | 7.5 | 399 |
+| verify 16 / 32 sliding | 13.3 / 17.5 | 14.1 / 18.6 | 387 |
+| verify 1 full | 18.2 | 19.1 | 395 |
+| verify 16 / 32 full | 127.1 / 239.1 | 137.4 / 261.2 | 403 |
+
+BENCH lines (graph replays, us; control `x=0`, QKF `x=128`, EARLY `x=384`, `_one` = EARLY again):
+
+| shape | x=0 | x=128 | x=384 | _one |
+|---|---|---|---|---|
+| verify 1 sliding | 11.0 | 11.1 | 11.1 | 11.2 |
+| verify 1 full | 21.9 | 22.2 | 22.5 | 22.3 |
+| verify 16 sliding | 16.8 | 17.3 | 17.6 | 17.6 |
+| verify 16 full | 128.1 | 137.2 | 139.5 | 139.6 |
+| verify 32 sliding | 21.7 | 22.1 | 22.7 | 22.7 |
+| verify 32 full | 237.9 | 257.0 | 260.9 | 261.1 |
+
+Both schedules lose to the control on every q_len 8 shape. Most of the loss is already in QKF
+(Q.K first, copies after it, V transpose under the in-flight Q.K): +7% / +8% on the flat shapes,
++2-3% on sliding b16 / b32. EARLY adds another 1.5-2.5%. The repeated EARLY measurement agrees
+to 0.1-0.2 us, so these gaps are well above the bench's noise. The judge's verify 1 sliding
+7.5 us (from 8.0) is not supported by the bench (11.0 vs 11.1) and sits beside a +0.4 us drift
+on decode 1 sliding, which runs the unchanged instance 13. Why it loses is not measured. One
+candidate is that the transpose's shared-memory traffic and the copy issue compete with the
+Q.K wgmma for the same shared-memory and issue slots, so overlapping them buys nothing. Another
+is that EARLY's CTA-wide barrier ties the two warpgroups together each tile. `submission.py`
+keeps `_ONE_Q8_SCHED = 0`.
+
+## Ruled out (pending merge)
+
+| experiment | evidence | what it rules out |
+|---|---|---|
+| q_len 8 tile loop in the public per-request order (QKF, mode bit 128: Q.K issued before the next copies, V transpose under the in-flight Q.K) | bf6b8ca9e37341fb BENCH: verify 16 / 32 full 137.2 / 257.0 us vs control 128.1 / 237.9; sliding b16 / b32 17.3 / 22.1 vs 16.8 / 21.7 | that copying the public per-request ordering gains anything in our kernel; the sliding gap to the public times is not in this ordering |
+| early raw-stage release (EARLY, mode bit 384: refill a stage once Q.K and the V transpose are done, three tiles in flight on three stages) on flat and per-request q_len 8 | bf6b8ca9e37341fb judge: verify 16 / 32 full 137.4 / 261.2 us vs 127.1 / 239.1 (b458555d3e3e4e9a); sliding verify 16 / 32 14.1 / 18.6 vs 13.3 / 17.5; scored 2.083x vs 2.162x | a deeper prefetch through early release on the consumer-copy loop (mode 19 and the per-request modes); the flat q_len 8 gap to the public 105 / 186 us is not prefetch depth in this design |
