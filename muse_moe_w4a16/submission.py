@@ -90,7 +90,7 @@ constexpr int kLocalMax = 32;
 constexpr int kEmax = 4096;
 constexpr int kJmax = kLocalMax + kEmax / 8;
 constexpr int kUnitBytes = 36864;
-constexpr int kNS = 3;
+constexpr int kNS = 4;
 constexpr int kNW = 8;
 constexpr int kNT = kNW * 32;
 constexpr int kNTL = kNT + 32;
@@ -390,6 +390,18 @@ __device__ __forceinline__ void compute_loop(const Params& p, Smem& S, uint64_t 
     }
 }
 
+// Makes this warp's inter stores for job j visible, then adds n finished units to its counter.
+__device__ __forceinline__ void credit(const Params& p, int j, int n, int lane) {
+    if (n <= 0) {
+        return;
+    }
+    __threadfence();
+    __syncwarp();
+    if (lane == 0) {
+        atomicAdd(p.done_a + j, n);
+    }
+}
+
 // Helper warp: sums the 8 warps' partials of each unit and runs its epilogue.
 __device__ __forceinline__ void helper_loop(const Params& p, Smem& S, float* ss) {
     const int lane = threadIdx.x & 31;
@@ -403,6 +415,8 @@ __device__ __forceinline__ void helper_loop(const Params& p, Smem& S, float* ss)
     for (int bb = 0; bb < kNRB; ++bb) {
         named_arrive(kBarFree + bb, kNTL);
     }
+    int jcred = -1;
+    int ncred = 0;
 #pragma unroll 1
     for (int q = 0; q < n; ++q) {
         const bool phb = q >= na;
@@ -443,12 +457,19 @@ __device__ __forceinline__ void helper_loop(const Params& p, Smem& S, float* ss)
             if (t1) {
                 dst[kI] = __float2bfloat16_rn(h1);
             }
-            __threadfence();
-            __syncwarp();
-            if (lane == 0) {
-                atomicAdd(p.done_a + j, 1);
+            // Credits go out once per job: the fence behind each credit costs about a
+            // microsecond under a saturated memory system, too much for every unit.
+            if (j != jcred) {
+                credit(p, jcred, ncred, lane);
+                jcred = j;
+                ncred = 0;
             }
+            ++ncred;
         } else {
+            if (ncred > 0) {
+                credit(p, jcred, ncred, lane);
+                ncred = 0;
+            }
             // GEMM2's output is bf16 in SGLang; the norm then runs in FP32.
             const float gsb = __ldg(p.gs2 + e) * 128.f;
             const int col0 = rb * 16 + g;
@@ -484,6 +505,9 @@ __device__ __forceinline__ void helper_loop(const Params& p, Smem& S, float* ss)
                 }
             }
         }
+    }
+    if (ncred > 0) {
+        credit(p, jcred, ncred, lane);
     }
 }
 

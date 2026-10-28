@@ -1,0 +1,24 @@
+TEST bs=1 normal: vs fp32 3.96e-03, worst row 3.96e-03
+TEST bs=1 skewed: vs fp32 3.85e-03, worst row 3.85e-03
+TEST bs=4 normal: vs fp32 3.76e-03, worst row 3.87e-03
+TEST bs=4 skewed: vs fp32 3.84e-03, worst row 3.90e-03
+TEST bs=8 normal: vs fp32 3.86e-03, worst row 4.07e-03
+TEST bs=8 skewed: vs fp32 3.85e-03, worst row 3.91e-03
+TEST bs=16 normal: vs fp32 3.87e-03, worst row 4.48e-03
+TEST bs=16 skewed: vs fp32 3.91e-03, worst row 4.16e-03
+TEST bs=32 normal: vs fp32 3.89e-03, worst row 4.18e-03
+TEST bs=32 skewed: vs fp32 3.87e-03, worst row 4.13e-03
+TEST bs=33 normal: vs fp32 3.85e-03, worst row 4.27e-03
+TEST bs=33 skewed: vs fp32 3.90e-03, worst row 4.11e-03
+TEST bs=128 normal: vs fp32 3.88e-03, worst row 4.20e-03
+TEST bs=128 skewed: vs fp32 3.87e-03, worst row 4.11e-03
+TEST bs=257 normal: vs fp32 3.87e-03, worst row 4.16e-03
+TEST bs=257 skewed: vs fp32 3.86e-03, worst row 4.18e-03
+TEST worst rel err vs fp32 3.96e-03, spin flags 0
+PREPARE repack 0.3 s, build 36.8 s, self-test 0.6 s, smem 155520 B, ok True
+BENCH bs=1 46.2 56.1 us (graph replay, cold L2)
+BENCH bs=8 94.5 86.5 us (graph replay, cold L2)
+BENCH bs=16 148.1 138.5 us (graph replay, cold L2)
+BENCH bs=32 217.0 187.2 us (graph replay, cold L2)
+BENCH bs=128 382.2 326.7 us (graph replay, cold L2)
+BENCH bs=256 622.3 554.1 us (graph replay, cold L2)
