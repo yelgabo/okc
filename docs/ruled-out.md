@@ -5,6 +5,10 @@ before proposing an experiment; reopen an entry only with new evidence that chan
 measured ceiling, and say what that evidence is. Full details are in the runs logs named per
 entry.
 
+Each row rules out the mechanism as built, in the design it was tested inside, on the judge's
+workload. It does not reject the underlying idea. An idea that lost as a single ingredient in
+the old design can come back as part of a structurally different design.
+
 ## muse_bf16_proj (`docs/runs.md`)
 
 | Experiment | Evidence | Rules out |
