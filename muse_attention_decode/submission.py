@@ -3205,14 +3205,16 @@ __device__ __forceinline__ void finalize_rows(const Params& p, int r_lo, int r_h
         }
         float acc[8] = {0.f, 0.f, 0.f, 0.f, 0.f, 0.f, 0.f, 0.f};
         float lsum = 0.f;
-        if (act) {
-            for (int copy = 0; copy < p.nc; ++copy) {
-                const int wr = ws_row(b, p.nc, copy, L, j, head);
-                float* row = p.ws_acc + static_cast<size_t>(wr) * D + t8 * 8;
-                float* lp = p.ws_l + wr;
+        // Lane t8 == 0 alone reads and zeroes the row sum and broadcasts it, so no lane reads
+        // what another lane zeroes; the loop is uniform so the shuffle is reached by every lane.
+        for (int copy = 0; copy < p.nc; ++copy) {
+            const int wr = ws_row(b, p.nc, copy, L, j, head);
+            float* row = p.ws_acc + static_cast<size_t>(wr) * D + t8 * 8;
+            float* lp = p.ws_l + wr;
+            float lv = 0.f;
+            if (act) {
                 const float4 a = ld_cg_f4(row);
                 const float4 a2 = ld_cg_f4(row + 4);
-                lsum += __ldcg(lp);
                 acc[0] += a.x;
                 acc[1] += a.y;
                 acc[2] += a.z;
@@ -3221,6 +3223,12 @@ __device__ __forceinline__ void finalize_rows(const Params& p, int r_lo, int r_h
                 acc[5] += a2.y;
                 acc[6] += a2.z;
                 acc[7] += a2.w;
+                if (t8 == 0) {
+                    lv = __ldcg(lp);
+                }
+            }
+            lsum += __shfl_sync(0xffffffffu, lv, (tid & 31) & ~7);
+            if (act) {
                 st_cg_f4(row, make_float4(0.f, 0.f, 0.f, 0.f));
                 st_cg_f4(row + 4, make_float4(0.f, 0.f, 0.f, 0.f));
                 if (t8 == 0) {
@@ -3254,14 +3262,16 @@ __device__ __forceinline__ void finalize_rows(const Params& p, int r_lo, int r_h
     }
 }
 
-// Thread 0 adds `mine` keys to the parity counter of epoch `ep`, the last arriver clears the
-// other parity and bumps the epoch, and every CTA spins until the count reaches `total`.
+// Thread 0 adds `mine` keys to the parity counter of epoch `ep`, the last arriver (the one
+// whose keys complete the count; a CTA with no keys never is) clears the other parity and
+// bumps the epoch, and every CTA spins until the count reaches `total`. dbg[0], when given,
+// records the longest spin in polls.
 template <int NC>
 __device__ __forceinline__ void coop_barrier(int* cnt, int* epoch, int ep, int mine, int total,
-                                             int tid) {
+                                             int tid, int* dbg) {
     if (tid == 0) {
         const int old = atom_add_acq_rel(cnt + (ep & 1), mine);
-        if (old + mine == total) {
+        if (mine > 0 && old + mine == total) {
             __stcg(cnt + ((ep + 1) & 1), 0);
             __stcg(epoch, ep + 1);
         }
@@ -3271,6 +3281,9 @@ __device__ __forceinline__ void coop_barrier(int* cnt, int* epoch, int ep, int m
             if (++polls > COOP_POLL_LIMIT) {
                 __trap();
             }
+        }
+        if (dbg != nullptr) {
+            atomicMax(dbg, polls);
         }
     }
     named_sync(1, NC);
@@ -4198,8 +4211,10 @@ attn_one_kernel(const Params p) {
         csync();
         const int mine = hi - lo;
         if (tid == 0) {
+            // >= rather than ==: an overshoot would be a partition bug, and == would then
+            // leave the ticket non-zero for every later launch using this request index.
             const int old = atom_add_acq_rel(p.ws_cnt + b, mine);
-            *flag = old + mine == n_keys;
+            *flag = old + mine >= n_keys;
         }
         csync();
         if (*flag) {
@@ -4228,7 +4243,7 @@ attn_one_kernel(const Params p) {
             const int ep = *reinterpret_cast<const int*>(smem + S::CONST + C_EPOCH);
             const int rows_per = (ROWS + nact - 1) / nact;
             coop_barrier<NC>(p.ws_cnt + CNT_COOP + 2 * b, p.ws_cnt + CNT_EPOCH + b, ep, hi - lo,
-                             n_keys, tid);
+                             n_keys, tid, p.dbg);
             const int r_lo = split * rows_per;
             const int r_hi = min(ROWS, r_lo + rows_per);
             if (r_lo < r_hi) {
@@ -4236,7 +4251,9 @@ attn_one_kernel(const Params p) {
             }
         }
     } else {
-        const int ep = COOP ? __ldg(p.ws_cnt + CNT_FLAT + 2) : 0;
+        // The previous launch wrote this epoch (stream order makes it visible); a coherent
+        // load, since the same kernel writes it and ld.global.nc is outside the memory model.
+        const int ep = COOP ? __ldcg(p.ws_cnt + CNT_FLAT + 2) : 0;
         const float v_scale_g = __ldg(p.v_scale);
         int mine_total = 0;
         for (b = b_first; b <= b_last; ++b) {
@@ -4253,7 +4270,7 @@ attn_one_kernel(const Params p) {
         if constexpr (COOP) {
             csync();
             coop_barrier<NC>(p.ws_cnt + CNT_FLAT, p.ws_cnt + CNT_FLAT + 2, ep, mine_total,
-                             keys_all, tid);
+                             keys_all, tid, p.dbg);
             const int rows_all = B * ROWS;
             const int rows_per = (rows_all + G - 1) / G;
             const int r_lo = split * rows_per;
@@ -4266,38 +4283,66 @@ attn_one_kernel(const Params p) {
 }
 
 // One instance per launch mode, so each build carries only its own prologue and epilogue.
-// prepare() sets the dynamic smem limit and records how many CTAs of the instance fit on the
-// device at once (the cooperative modes need every active split resident); the host plan
-// reads those limits through attn_one_prepare().
+// prepare() sets the dynamic smem limit and records how many CTAs of the instance fit on an
+// idle device (the cooperative modes need every active split resident); the host plan reads
+// those limits through attn_one_prepare(). With coop, the launch carries
+// cudaLaunchAttributeCooperative, so the driver guarantees co-residency (or refuses the
+// launch) instead of a foreign CTA stalling the grid into the poll-limit trap.
 template <int L, int MODE>
 struct Instance {
     static constexpr int NT = one_threads(L, MODE);
     static constexpr int BYTES = Smem<L, one_ns(L, MODE)>::BYTES;
     static int resident;
+    static int per_sm;
 
     static int prepare() {
         if (resident < 0) {
             auto kern = attn_one_kernel<L, MODE>;
             cudaFuncSetAttribute(kern, cudaFuncAttributeMaxDynamicSharedMemorySize, BYTES);
-            int per_sm = 0;
-            cudaOccupancyMaxActiveBlocksPerMultiprocessor(&per_sm, kern, NT, BYTES);
+            int blocks = 0;
+            cudaOccupancyMaxActiveBlocksPerMultiprocessor(&blocks, kern, NT, BYTES);
             int dev = 0;
             cudaGetDevice(&dev);
             int sms = 0;
             cudaDeviceGetAttribute(&sms, cudaDevAttrMultiProcessorCount, dev);
-            resident = per_sm * sms;
+            per_sm = blocks;
+            resident = blocks * sms;
         }
         return resident;
     }
 
-    static void launch(const Params& p, int gx, int gy, cudaStream_t stream) {
+    static void launch(const Params& p, int gx, int gy, cudaStream_t stream, bool coop) {
         prepare();
-        attn_one_kernel<L, MODE><<<dim3(gx, gy), NT, BYTES, stream>>>(p);
+        if (!coop) {
+            attn_one_kernel<L, MODE><<<dim3(gx, gy), NT, BYTES, stream>>>(p);
+            return;
+        }
+        cudaLaunchConfig_t cfg = {};
+        cfg.gridDim = dim3(gx, gy);
+        cfg.blockDim = dim3(NT);
+        cfg.dynamicSmemBytes = BYTES;
+        cfg.stream = stream;
+        cudaLaunchAttribute attr[1];
+        attr[0].id = cudaLaunchAttributeCooperative;
+        attr[0].val.cooperative = 1;
+        cfg.attrs = attr;
+        cfg.numAttrs = 1;
+        const cudaError_t err = cudaLaunchKernelEx(&cfg, attn_one_kernel<L, MODE>, p);
+        TORCH_CHECK(err == cudaSuccess, "attn_one cooperative launch: ", cudaGetErrorString(err));
     }
 };
 
 template <int L, int MODE>
 int Instance<L, MODE>::resident = -1;
+
+template <int L, int MODE>
+int Instance<L, MODE>::per_sm = 0;
+
+__global__ void coop_probe_kernel(int* out) {
+    if (threadIdx.x == 0) {
+        atomicAdd(out, 1);
+    }
+}
 
 #define ONE_INSTANCES(X) \
     X(1, 1) X(1, 3) X(1, 11) X(1, 13) X(1, 17) X(1, 49) \
@@ -4319,24 +4364,77 @@ int Instance<L, MODE>::resident = -1;
 
 }  // namespace
 
-// Resident-CTA limits of every instance, in ONE_INSTANCES order: [L, mode, limit, smem] x 8.
+// Residency of every instance, in ONE_INSTANCES order: [L, mode, resident CTAs, smem bytes,
+// CTAs per SM] per instance.
 std::vector<int64_t> attn_one_prepare() {
     std::vector<int64_t> out;
 #define ONE_PREP(L, M) out.push_back(L); out.push_back(M); \
-    out.push_back(Instance<L, M>::prepare()); out.push_back(Instance<L, M>::BYTES);
+    out.push_back(Instance<L, M>::prepare()); out.push_back(Instance<L, M>::BYTES); \
+    out.push_back(Instance<L, M>::per_sm);
     ONE_INSTANCES(ONE_PREP)
 #undef ONE_PREP
     return out;
 }
 
+// 1 when a cooperative launch captures into a graph and replays on this driver: one two-block
+// cooperative launch of a counting kernel, captured, instantiated and run. Errors are cleared.
+int64_t attn_one_probe_coop() {
+    int* d = nullptr;
+    if (cudaMalloc(&d, sizeof(int)) != cudaSuccess) {
+        cudaGetLastError();
+        return 0;
+    }
+    cudaMemset(d, 0, sizeof(int));
+    cudaStream_t s = nullptr;
+    cudaStreamCreateWithFlags(&s, cudaStreamNonBlocking);
+    cudaGraph_t graph = nullptr;
+    cudaGraphExec_t exec = nullptr;
+    bool ok = cudaStreamBeginCapture(s, cudaStreamCaptureModeThreadLocal) == cudaSuccess;
+    if (ok) {
+        cudaLaunchConfig_t cfg = {};
+        cfg.gridDim = dim3(2);
+        cfg.blockDim = dim3(32);
+        cfg.stream = s;
+        cudaLaunchAttribute attr[1];
+        attr[0].id = cudaLaunchAttributeCooperative;
+        attr[0].val.cooperative = 1;
+        cfg.attrs = attr;
+        cfg.numAttrs = 1;
+        ok = cudaLaunchKernelEx(&cfg, coop_probe_kernel, d) == cudaSuccess;
+        ok = (cudaStreamEndCapture(s, &graph) == cudaSuccess) && ok;
+    }
+    if (ok) {
+        ok = cudaGraphInstantiate(&exec, graph, 0) == cudaSuccess;
+    }
+    if (ok) {
+        ok = cudaGraphLaunch(exec, s) == cudaSuccess && cudaStreamSynchronize(s) == cudaSuccess;
+    }
+    int h = 0;
+    if (ok) {
+        ok = cudaMemcpy(&h, d, sizeof(int), cudaMemcpyDeviceToHost) == cudaSuccess && h == 2;
+    }
+    if (exec != nullptr) {
+        cudaGraphExecDestroy(exec);
+    }
+    if (graph != nullptr) {
+        cudaGraphDestroy(graph);
+    }
+    cudaStreamDestroy(s);
+    cudaFree(d);
+    cudaGetLastError();
+    return ok ? 1 : 0;
+}
+
 // sl2 = sm_scale * qk_scale_factor * log2(e); the key scale is applied on the device. mode is
-// the instance's MODE (see attn_one_kernel).
+// the instance's MODE (see attn_one_kernel); coop_launch adds the cooperative launch attribute
+// to the cooperative modes; dbg (int32, empty or [4]) receives the longest cooperative spin.
 torch::Tensor attn_one(torch::Tensor qkv, torch::Tensor page_table, torch::Tensor seq_lens,
                        torch::Tensor cache_loc, torch::Tensor inv_freq, torch::Tensor k_scale,
                        torch::Tensor v_scale, torch::Tensor k_cache, torch::Tensor v_cache,
                        torch::Tensor ws_acc, torch::Tensor ws_l, torch::Tensor ws_cnt,
                        int64_t batch, int64_t q_len, int64_t page_size, int64_t window, bool rope,
-                       double sl2, int64_t n_splits, int64_t nc, int64_t mode) {
+                       double sl2, int64_t n_splits, int64_t nc, int64_t mode, bool coop_launch,
+                       torch::Tensor dbg) {
     auto stream = at::cuda::getCurrentCUDAStream();
     auto out = torch::empty({batch, q_len, HQ * D}, qkv.options());
     Params p;
@@ -4353,7 +4451,7 @@ torch::Tensor attn_one(torch::Tensor qkv, torch::Tensor page_table, torch::Tenso
     p.ws_acc = ws_acc.data_ptr<float>();
     p.ws_l = ws_l.data_ptr<float>();
     p.ws_cnt = ws_cnt.data_ptr<int>();
-    p.dbg = nullptr;
+    p.dbg = dbg.numel() ? dbg.data_ptr<int>() : nullptr;
     p.pt_stride = static_cast<int>(page_table.size(1));
     p.page_size = static_cast<int>(page_size);
     p.window = static_cast<int>(window);
@@ -4370,9 +4468,10 @@ torch::Tensor attn_one(torch::Tensor qkv, torch::Tensor page_table, torch::Tenso
         p.n_splits = static_cast<int>(batch);
         gy = 1;
     }
+    const bool coop = coop_launch && (mode & M_COOP) != 0;
     bool hit = false;
 #define ONE_LAUNCH(L, M) \
-    if (q_len == L && mode == M) { Instance<L, M>::launch(p, gx, gy, stream); hit = true; }
+    if (q_len == L && mode == M) { Instance<L, M>::launch(p, gx, gy, stream, coop); hit = true; }
     ONE_INSTANCES(ONE_LAUNCH)
 #undef ONE_LAUNCH
     TORCH_CHECK(hit, "attn_one: no instance for q_len ", q_len, " mode ", mode);
@@ -4382,12 +4481,14 @@ torch::Tensor attn_one(torch::Tensor qkv, torch::Tensor page_table, torch::Tenso
 
 _ONE_CPP = """
 std::vector<int64_t> attn_one_prepare();
+int64_t attn_one_probe_coop();
 torch::Tensor attn_one(torch::Tensor qkv, torch::Tensor page_table, torch::Tensor seq_lens,
                        torch::Tensor cache_loc, torch::Tensor inv_freq, torch::Tensor k_scale,
                        torch::Tensor v_scale, torch::Tensor k_cache, torch::Tensor v_cache,
                        torch::Tensor ws_acc, torch::Tensor ws_l, torch::Tensor ws_cnt,
                        int64_t batch, int64_t q_len, int64_t page_size, int64_t window, bool rope,
-                       double sl2, int64_t n_splits, int64_t nc, int64_t mode);
+                       double sl2, int64_t n_splits, int64_t nc, int64_t mode, bool coop_launch,
+                       torch::Tensor dbg);
 """
 
 try:
@@ -4395,7 +4496,7 @@ try:
         name="okc_attn_one_v1",
         cpp_sources=_ONE_CPP,
         cuda_sources=_ONE_SRC,
-        functions=["attn_one", "attn_one_prepare"],
+        functions=["attn_one", "attn_one_prepare", "attn_one_probe_coop"],
         extra_cuda_cflags=["-O3", "-gencode=arch=compute_90a,code=sm_90a"],
     )
     print("attn one kernel: loaded")
@@ -4408,6 +4509,12 @@ except Exception as _exc:
 _ONE_WS_ROWS = 65536
 _ONE_CNT_INTS = 32768
 _ONE_STATE = {}
+# Cooperative modes launch with cudaLaunchAttributeCooperative when the driver accepts it under
+# graph capture (probed once); otherwise their grids keep one SM of headroom below the idle
+# occupancy limit, so a foreign CTA cannot stall them into the poll-limit trap.
+_ONE_COOP_LAUNCH = True
+# A bench may point this at an int32 [4] tensor to read the longest cooperative spin (polls).
+_ONE_DBG = None
 # Grid target: two CTAs per SM on 132 SMs.
 _ONE_TARGET = 264
 _ONE_BUILT = {1: (1, 3, 11, 13, 17, 49), 8: (1, 3, 11, 15, 19, 51, 115)}
@@ -4420,12 +4527,20 @@ _ONE_PROD = True
 def _one_state(device):
     st = _ONE_STATE.get(device)
     if st is None:
+        assert not torch.cuda.is_current_stream_capturing(), "attn_one state before any capture"
         acc = torch.zeros((_ONE_WS_ROWS, 64), dtype=torch.float32, device=device)
         lsum = torch.zeros((_ONE_WS_ROWS,), dtype=torch.float32, device=device)
         cnt = torch.zeros((_ONE_CNT_INTS,), dtype=torch.int32, device=device)
         lim = _ONE.attn_one_prepare()
-        resident = {(int(lim[i]), int(lim[i + 1])): int(lim[i + 2]) for i in range(0, len(lim), 4)}
-        st = _ONE_STATE[device] = {"acc": acc, "l": lsum, "cnt": cnt, "resident": resident}
+        coop = bool(_ONE.attn_one_probe_coop()) if _ONE_COOP_LAUNCH else False
+        resident = {}
+        for i in range(0, len(lim), 5):
+            length, mode, res, _, per_sm = (int(v) for v in lim[i:i + 5])
+            # Only the cooperative modes depend on co-residency; without the launch attribute
+            # they keep one SM of headroom.
+            resident[(length, mode)] = res if (coop or not mode & 2) else max(0, res - per_sm)
+        st = _ONE_STATE[device] = {"acc": acc, "l": lsum, "cnt": cnt, "resident": resident,
+                                   "coop_launch": coop, "limits": list(lim)}
     return st
 
 
@@ -4474,7 +4589,7 @@ def _one_plan(cfg, pt_width, resident):
     return n, nc, candidates[0]
 
 
-def _one(data, splits=None, nc=None, mode=None):
+def _one(data, splits=None, nc=None, mode=None, dbg=None):
     """One launch: attention, merge and norm-gate (attn_one.cu)."""
     cfg = data["config"]
     batch, length = cfg["batch"], cfg["q_len"]
@@ -4494,7 +4609,8 @@ def _one(data, splits=None, nc=None, mode=None):
         _inv_freq(theta if theta else 1.0, cfg["head_dim"], qkv.device), data["k_scale"],
         data["v_scale"], data["k_cache"], data["v_cache"], st["acc"], st["l"], st["cnt"],
         batch, length, cfg["page_size"], cfg["window"], bool(theta),
-        cfg["sm_scale"] * cfg["qk_scale_factor"] * LOG2E, n, c, m)
+        cfg["sm_scale"] * cfg["qk_scale_factor"] * LOG2E, n, c, m, st["coop_launch"],
+        dbg if dbg is not None else (_ONE_DBG if _ONE_DBG is not None else _no_dbg(qkv.device)))
 
 
 # Where the one-launch kernel runs, by (layer, q_len, batch); True everywhere it is not listed.

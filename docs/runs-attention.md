@@ -366,8 +366,9 @@ cp.async ring with a loop-top barrier, not yet the memo's producer warpgroup.
 
 Local evidence (CUDA 12.8.1 in Docker, sm_90a):
 - ptxas, no spills, no C7513/C7514: q_len 1 modes 1 / 3 / 11 / 13 / 17: 104 / 105 / 107 / 79 /
-  119 registers (4 CTAs per SM, 57.9 KB smem); q_len 8 modes 1 / 3 / 11 / 15 / 19: 104 / 104 /
-  104 / 80 / 110 (2 per SM, 90.6 KB). `tools/attn_host_check.sh`: no errors;
+  119 registers (58.9 KB smem: three CTAs per SM with the 1 KB reservation, 396 resident);
+  q_len 8 modes 1 / 3 / 11 / 15 / 19: 104 / 104 / 104 / 80 / 110 (90.6 KB, two per SM).
+  `tools/attn_host_check.sh`: no errors;
   `tools/attn_compile_check.sh muse_attention_decode/submission.py`: all blocks build.
 - SASS: 29-45 KB per instance (the old fused kernel: 98.6 KB), 2 `MUFU.SIN/COS` per
   instance (one body; the old kernels inlined 17-20), the v4 reds are single `REDG`
@@ -419,3 +420,21 @@ split) is built as the comparison: 113 registers, no spills. `_one_plan` prefers
 times (decode and verify 1 sliding: speculated one-tile launches; verify 16 sliding:
 cooperative; decode 16 full: flat tickets; verify 16 full: grid-wide finalize; decode 1 full:
 252 splits with 8 copies) and read the workspace back.
+
+### Protocol review applied (10-28)
+
+The independent review (scratchpad `audit/attn_one_review.md`; verdict: release/acquire chain,
+key-count targets, cp.async group counts and proxy fences sound under stream ordering) asked
+for six changes, all in: (1) cooperative modes launch through `cudaLaunchKernelEx` with
+`cudaLaunchAttributeCooperative`, probed once under graph capture (`attn_one_probe_coop`),
+with a one-SM residency headroom when the probe fails, and the longest cooperative spin
+reported through `p.dbg` (`_ONE_DBG`, printed per self-test shape as max_polls); (2) the
+self-test asserts the workspace invariant (rows, row sums, tickets, next-parity counters) after
+every shape and after the replay stress, compares replays with a tolerance, and forces the
+SPEC fallback on the batch-1 shapes by shrinking `seq_lens` in place (positions and cache_loc
+updated to match) for 50 replays with the judge-style check; (3) the flat epoch is read with
+`__ldcg`; (4) one lane reads and zeroes a row's sum and broadcasts it by `__shfl_sync` in a
+uniform loop; (5) the port guide states the PDL ordering rule (epoch reads, tickets and reds
+after `griddepcontrol.wait`) and the one-stream rule; (6) q_len 1 residency corrected to three
+CTAs per SM (58.9 KB + 1 KB reserve). Also from the review: the ticket test is `>=` and a
+zero-key CTA never acts as the cooperative last arriver.

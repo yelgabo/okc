@@ -88,9 +88,14 @@ Persistent, allocated once per device, zeroed once (`_one_state` in submission.p
 | verify 16 / 32 full | 264 flat | 51 (producer warpgroup, grid-wide cooperative; 19 without; 115 one CTA per SM) |
 
 Cooperative modes need every active CTA resident: `attn_one_prepare()` reports the limit
-per instance (`cudaOccupancyMaxActiveBlocksPerMultiprocessor` x SMs) and the plan falls back
-to the plain instance, or shrinks the flat grid, when a grid would not fit. The device
-traps after 2^24 polls of a cooperative counter instead of hanging the run.
+per instance (`cudaOccupancyMaxActiveBlocksPerMultiprocessor` x SMs, an idle-device figure)
+and the plan falls back to the plain instance, or shrinks the flat grid, when a grid would
+not fit. Those launches carry `cudaLaunchAttributeCooperative` (via `cudaLaunchKernelEx`), so
+the driver guarantees co-residency or refuses the launch; `attn_one_probe_coop()` checks once
+that the attribute captures into a graph on the driver at hand, and when it does not, the plan
+keeps one SM of headroom below the limit instead. The device traps after 2^24 polls of a
+cooperative counter instead of hanging the run; the self-test reads the longest spin back
+through `_ONE_DBG`.
 
 ## What the layer must pass and keep
 
@@ -100,9 +105,15 @@ traps after 2^24 polls of a cooperative counter instead of hanging the run.
   speculated length) and never input values on the host.
 - The first call on a device allocates the workspace and queries residency: do it outside
   graph capture (the judge's tests do).
-- Under PDL in the layer: everything before the query group (page indices, K/V gather) is
-  independent of the qkv projection; a `griddepcontrol.wait` before the query group and
-  `launch_dependents` after the tile loop are the hooks (not yet in the file).
+- Two launches of this kernel on different streams would share the workspace and corrupt
+  it: one stream, or one workspace per stream.
+- The protocol relies on stream order between launches: a launch starts after the previous
+  one has zeroed its rows and reset its counters. Under PDL in the layer (not yet in the
+  file) everything before the query group (page indices, K/V gather) is independent of the
+  qkv projection, but the epoch reads (the flat `__ldcg` at the kernel start and the
+  per-request `cp.async` in the constants group), the ticket and cooperative atomics and the
+  reds must all follow `griddepcontrol.wait`, with `launch_dependents` after the finalize;
+  otherwise a dependent could add into the parity the previous launch still spins on.
 
 ## Self-test and bench
 
@@ -117,3 +128,8 @@ replays after a 256 MB flush) of `_one` and its mode variants against the earlie
 `tools/attn_host_check.sh muse_attention_decode/attn_one.cu`,
 `tools/attn_compile_check.sh muse_attention_decode/submission.py`,
 `uv run --with numpy python tools/attn_emulate_one.py` (fragment layouts and numerics).
+
+Residency on an H200 (idle device): q_len 1 instances 58.9 KB of smem plus the 1 KB
+reservation, three CTAs per SM (396 resident); q_len 8 instances 90.6 KB (non-producer) or
+107 KB (producer, 4 stages), two per SM (264). The self-test prints what
+`attn_one_prepare()` returns on the judge's device.

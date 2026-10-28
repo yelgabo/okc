@@ -252,6 +252,35 @@ def _ob_check(data, out):
         + ("" if finite else " NONFINITE")
 
 
+def _ob_ws_check(device):
+    """The workspace invariant after a completed launch: every row and row sum zero, every
+    ticket zero, the next parity counter of every request and of the flat kernel zero."""
+    st = _ONE_STATE.get(device)
+    if st is None:
+        return True, "no workspace"
+    cnt = st["cnt"]
+    acc_nz = int((st["acc"] != 0).sum())
+    l_nz = int((st["l"] != 0).sum())
+    tickets_nz = int((cnt[:4096] != 0).sum())
+    ep = cnt[8192:8192 + 2048].long()
+    nxt = 4096 + 2 * torch.arange(2048, device=cnt.device) + (ep & 1)
+    coop_nz = int((cnt[nxt] != 0).sum())
+    flat_nz = int(cnt[16384 + (int(cnt[16386]) & 1)] != 0)
+    ok = acc_nz == 0 and l_nz == 0 and tickets_nz == 0 and coop_nz == 0 and flat_nz == 0
+    return ok, (f"ws_rows_nonzero={{acc_nz}} l_nonzero={{l_nz}} tickets_nonzero={{tickets_nz}} "
+                f"coop_next_parity_nonzero={{coop_nz}} flat_next_parity_nonzero={{flat_nz}}")
+
+
+def _ob_polls():
+    """Longest cooperative spin since the last reset, in polls (from _ONE_DBG)."""
+    if _ONE_DBG is None:
+        return ""
+    torch.cuda.synchronize()
+    v = int(_ONE_DBG[0])
+    _ONE_DBG.zero_()
+    return f" max_polls={{v}}"
+
+
 def _ob_plan_str(data):
     cfg = data["config"]
     if _ONE is None or (cfg["num_q_heads"], cfg["num_kv_heads"]) != (16, 2):
@@ -262,6 +291,14 @@ def _ob_plan_str(data):
 
 
 def _ob_selftest():
+    global _ONE_DBG
+    if _ONE is not None:
+        _ONE_DBG = torch.zeros(4, dtype=torch.int32, device="cuda")
+        st = _one_state(torch.device("cuda"))
+        lim = st["limits"]
+        res = " ".join(f"L{{lim[i]}}m{{lim[i + 1]}}:{{lim[i + 2]}}({{lim[i + 4]}}/SM,{{lim[i + 3] // 1024}}KB)"
+                       for i in range(0, len(lim), 5))
+        print(f"SELFTEST residency cooperative_launch={{st['coop_launch']}} {{res}}", flush=True)
     fails = 0
     shapes = [t + ("test",) for t in _OB_TESTS]
     for batch, layer, q_len in _OB_SCORED:
@@ -276,15 +313,16 @@ def _ob_selftest():
             out = kernel_fn(data)
             torch.cuda.synchronize()
             ok, msg = _ob_check(data, out)
+            wok, wmsg = _ob_ws_check(data["qkv"].device)
             # A second call on the same inputs: the workspace must have been left zero.
             out2 = kernel_fn(data)
             torch.cuda.synchronize()
             ok2, msg2 = _ob_check(data, out2)
             same = _ob_rel(out2, out)
-            status = "PASS" if ok and ok2 else "FAIL"
+            status = "PASS" if ok and ok2 and wok else "FAIL"
             fails += status == "FAIL"
             print(f"SELFTEST {{status}} {{kind}} {{name}} [{{plan}}] {{msg}} rerun: {{msg2}} "
-                  f"(rerun vs first {{same:.1e}})", flush=True)
+                  f"(rerun vs first {{same:.1e}}) {{wmsg}}{{_ob_polls()}}", flush=True)
             del data, out, out2
         except Exception as exc:
             fails += 1
@@ -326,24 +364,31 @@ def _ob_stress(replays=2000):
             torch.cuda.synchronize()
             rel = _ob_rel(replayed, eager)
             finite = bool(torch.isfinite(replayed.float()).all())
-            st = _ONE_STATE.get(data["qkv"].device)
-            if st is not None:
-                acc_nz = int((st["acc"] != 0).sum())
-                l_nz = int((st["l"] != 0).sum())
-                cnt = st["cnt"]
-                tickets_nz = int((cnt[:4096] != 0).sum())
-                coop_nz = int((cnt[4096:8192] != 0).sum())
-                flat_nz = int((cnt[16384:16386] != 0).sum())
-                ws_msg = (f"ws_rows_nonzero={{acc_nz}} l_nonzero={{l_nz}} tickets_nonzero="
-                          f"{{tickets_nz}} coop_counters_nonzero={{coop_nz}} "
-                          f"flat_counters_nonzero={{flat_nz}}")
-                clean = acc_nz == 0 and l_nz == 0 and tickets_nz == 0
-            else:
-                ws_msg = "no workspace (fallback path)"
-                clean = True
+            clean, ws_msg = _ob_ws_check(data["qkv"].device)
             ok = finite and rel < 1e-4 and clean
             print(f"STRESS {{'PASS' if ok else 'FAIL'}} {{name}} [{{plan}}] replays={{replays}} "
-                  f"replayed_vs_eager={{rel:.1e}} finite={{finite}} {{ws_msg}}", flush=True)
+                  f"replayed_vs_eager={{rel:.1e}} finite={{finite}} {{ws_msg}}{{_ob_polls()}}",
+                  flush=True)
+            if batch == 1 and data["config"]["page_size"] == 1:
+                # The speculated length is now wrong by one tile: the device must fall back to
+                # the real length (never exercised by the judge's fixed-length batch-1 shapes).
+                data["seq_lens"].sub_(64)
+                pos = data["seq_lens"].long()[:, None] + torch.arange(q_len, device="cuda")
+                data["positions"].copy_(pos.reshape(-1))
+                data["cache_loc"].copy_(torch.gather(data["page_table"].long(), 1, pos).reshape(-1))
+                for _ in range(50):
+                    graph.replay()
+                torch.cuda.synchronize()
+                replayed = out.clone()
+                eager = kernel_fn(data)
+                torch.cuda.synchronize()
+                rel = _ob_rel(replayed, eager)
+                jok, jmsg = _ob_check(data, replayed)
+                clean, ws_msg = _ob_ws_check(data["qkv"].device)
+                ok = jok and rel < 1e-4 and clean
+                print(f"STRESS {{'PASS' if ok else 'FAIL'}} {{name}} SPEC-fallback (seq_lens - 64, "
+                      f"50 replays) {{jmsg}} replayed_vs_eager={{rel:.1e}} {{ws_msg}}{{_ob_polls()}}",
+                      flush=True)
             del graph, data, out, replayed, eager
         except Exception as exc:
             print(f"STRESS FAIL {{name}} {{type(exc).__name__}}: {{str(exc)[:300]}}", flush=True)
