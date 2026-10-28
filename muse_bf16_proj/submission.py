@@ -36,97 +36,147 @@ class Inputs(TypedDict):
 
 ROUTER_N = 256
 ROUTER_K = 8192
-FUSED_MAX_TOKENS = 16
+FUSED_MAX_TOKENS = 32
 
-# Grid: 16 row groups x 16 k-slices = 256 blocks, which fit in one wave at 2 blocks per SM.
-# Each warp owns one weight row and one 512-wide k-slice: 4 float4 loads per lane, all issued
-# before any math so the loads overlap. Partial sums from the 16 k-slices meet in atomicAdd,
-# so the output must start zeroed.
+# Grid: 16 row groups x 8 k-slices = 128 blocks, one per SM, all loads in flight at once.
+# Each warp owns one weight row and one 1024-wide k-slice. The block's x slice is staged in
+# shared memory once, so the 16 warps stop re-reading it from L1. The 8 k-slice blocks of a row
+# group form a cluster and add their partial sums over distributed shared memory: no atomics,
+# so the output needs no zeroing and the sum order is fixed.
 _CUDA_SRC = r"""
+#include <cooperative_groups.h>
 #include <cuda_bf16.h>
 #include <torch/extension.h>
 #include <ATen/cuda/CUDAContext.h>
 
+namespace cg = cooperative_groups;
+
 constexpr int N = 256;
 constexpr int K = 8192;
 constexpr int ROWS_PER_BLOCK = 16;
-constexpr int K_SLICE = 512;
+constexpr int CLUSTER = 8;
+constexpr int K_SLICE = K / CLUSTER;
+constexpr int STEPS = K_SLICE / 128;
 
 template <int M>
-__global__ void __launch_bounds__(512, 2)
+constexpr int smem_bytes() {
+    return M * K_SLICE * 2 + M * ROWS_PER_BLOCK * 4;
+}
+
+template <int M>
+__global__ void __cluster_dims__(1, CLUSTER, 1) __launch_bounds__(512, 1)
 router_kernel(const float* __restrict__ w, const __nv_bfloat16* __restrict__ x,
               float* __restrict__ out, int m) {
+    extern __shared__ __align__(16) unsigned char smem[];
+    __nv_bfloat16* xs = reinterpret_cast<__nv_bfloat16*>(smem);
+    float* partial = reinterpret_cast<float*>(smem + M * K_SLICE * 2);
+
+    cg::cluster_group cluster = cg::this_cluster();
     const int warp = threadIdx.x >> 5;
     const int lane = threadIdx.x & 31;
     const int n = blockIdx.x * ROWS_PER_BLOCK + warp;
-    const int k0 = blockIdx.y * K_SLICE + lane * 4;
+    const int kbase = blockIdx.y * K_SLICE;
 
-    const float* wrow = w + (size_t)n * K + k0;
-    float4 wv[4];
+    const float* wrow = w + (size_t)n * K + kbase + lane * 4;
+    float4 wv[STEPS];
 #pragma unroll
-    for (int s = 0; s < 4; ++s) {
+    for (int s = 0; s < STEPS; ++s) {
         wv[s] = __ldcs(reinterpret_cast<const float4*>(wrow + s * 128));
     }
+
+    // Rows past m are zero-filled so the inner loop needs no bounds check.
+    constexpr int CHUNKS = K_SLICE / 8;
+    for (int i = threadIdx.x; i < M * CHUNKS; i += blockDim.x) {
+        const int t = i / CHUNKS;
+        const int c = i % CHUNKS;
+        uint4 v = make_uint4(0, 0, 0, 0);
+        if (t < m) {
+            v = __ldg(reinterpret_cast<const uint4*>(x + (size_t)t * K + kbase) + c);
+        }
+        reinterpret_cast<uint4*>(xs)[i] = v;
+    }
+    __syncthreads();
 
     float acc[M];
 #pragma unroll
     for (int t = 0; t < M; ++t) {
         acc[t] = 0.f;
     }
-
 #pragma unroll
-    for (int s = 0; s < 4; ++s) {
-        const int k = k0 + s * 128;
+    for (int s = 0; s < STEPS; ++s) {
+        const int k = s * 128 + lane * 4;
 #pragma unroll
         for (int t = 0; t < M; ++t) {
-            if (t < m) {
-                const uint2 raw = __ldg(reinterpret_cast<const uint2*>(x + (size_t)t * K + k));
-                const float2 a = __bfloat1622float2(*reinterpret_cast<const __nv_bfloat162*>(&raw.x));
-                const float2 b = __bfloat1622float2(*reinterpret_cast<const __nv_bfloat162*>(&raw.y));
-                acc[t] = fmaf(wv[s].x, a.x, acc[t]);
-                acc[t] = fmaf(wv[s].y, a.y, acc[t]);
-                acc[t] = fmaf(wv[s].z, b.x, acc[t]);
-                acc[t] = fmaf(wv[s].w, b.y, acc[t]);
-            }
+            const uint2 raw = *reinterpret_cast<const uint2*>(xs + t * K_SLICE + k);
+            const float2 a = __bfloat1622float2(*reinterpret_cast<const __nv_bfloat162*>(&raw.x));
+            const float2 b = __bfloat1622float2(*reinterpret_cast<const __nv_bfloat162*>(&raw.y));
+            acc[t] = fmaf(wv[s].x, a.x, acc[t]);
+            acc[t] = fmaf(wv[s].y, a.y, acc[t]);
+            acc[t] = fmaf(wv[s].z, b.x, acc[t]);
+            acc[t] = fmaf(wv[s].w, b.y, acc[t]);
         }
     }
 
 #pragma unroll
     for (int t = 0; t < M; ++t) {
-        if (t < m) {
-            float v = acc[t];
+        float v = acc[t];
 #pragma unroll
-            for (int off = 16; off > 0; off >>= 1) {
-                v += __shfl_xor_sync(0xffffffff, v, off);
-            }
-            if (lane == (t & 31)) {
-                atomicAdd(out + (size_t)t * N + n, v);
-            }
+        for (int off = 16; off > 0; off >>= 1) {
+            v += __shfl_xor_sync(0xffffffff, v, off);
+        }
+        if (lane == 0) {
+            partial[t * ROWS_PER_BLOCK + warp] = v;
         }
     }
+    cluster.sync();
+
+    const int rank = cluster.block_rank();
+    for (int j = threadIdx.x; j < M * ROWS_PER_BLOCK; j += blockDim.x) {
+        const int t = j / ROWS_PER_BLOCK;
+        if (j % CLUSTER == rank && t < m) {
+            float sum = 0.f;
+#pragma unroll
+            for (int c = 0; c < CLUSTER; ++c) {
+                sum += cluster.map_shared_rank(partial, c)[j];
+            }
+            out[(size_t)t * N + blockIdx.x * ROWS_PER_BLOCK + j % ROWS_PER_BLOCK] = sum;
+        }
+    }
+    // Peers read this block's shared memory above; it must outlive those reads.
+    cluster.sync();
+}
+
+template <int M>
+void launch(const float* wp, const __nv_bfloat16* xp, float* op, int m, cudaStream_t stream) {
+    static bool configured = false;
+    if (!configured) {
+        cudaFuncSetAttribute(router_kernel<M>, cudaFuncAttributeMaxDynamicSharedMemorySize,
+                             smem_bytes<M>());
+        configured = true;
+    }
+    const dim3 grid(N / ROWS_PER_BLOCK, CLUSTER);
+    router_kernel<M><<<grid, 32 * ROWS_PER_BLOCK, smem_bytes<M>(), stream>>>(wp, xp, op, m);
 }
 
 torch::Tensor router_fwd(torch::Tensor x, torch::Tensor w) {
     const int m = x.size(0);
-    auto out = torch::zeros({m, N}, x.options().dtype(torch::kFloat32));
-    const dim3 grid(N / ROWS_PER_BLOCK, K / K_SLICE);
-    const dim3 block(32 * ROWS_PER_BLOCK);
+    auto out = torch::empty({m, N}, x.options().dtype(torch::kFloat32));
     auto stream = at::cuda::getCurrentCUDAStream();
     const float* wp = w.data_ptr<float>();
     const auto* xp = reinterpret_cast<const __nv_bfloat16*>(x.data_ptr<at::BFloat16>());
     float* op = out.data_ptr<float>();
     if (m <= 1) {
-        router_kernel<1><<<grid, block, 0, stream>>>(wp, xp, op, m);
+        launch<1>(wp, xp, op, m, stream);
     } else if (m <= 2) {
-        router_kernel<2><<<grid, block, 0, stream>>>(wp, xp, op, m);
+        launch<2>(wp, xp, op, m, stream);
     } else if (m <= 4) {
-        router_kernel<4><<<grid, block, 0, stream>>>(wp, xp, op, m);
+        launch<4>(wp, xp, op, m, stream);
     } else if (m <= 8) {
-        router_kernel<8><<<grid, block, 0, stream>>>(wp, xp, op, m);
+        launch<8>(wp, xp, op, m, stream);
     } else if (m <= 16) {
-        router_kernel<16><<<grid, block, 0, stream>>>(wp, xp, op, m);
+        launch<16>(wp, xp, op, m, stream);
     } else {
-        router_kernel<32><<<grid, block, 0, stream>>>(wp, xp, op, m);
+        launch<32>(wp, xp, op, m, stream);
     }
     return out;
 }
@@ -175,7 +225,7 @@ def prepare(weights):
     state["router_fused"] = None
     try:
         ext = load_inline(
-            name="okc_router_v1",
+            name="okc_router_v2",
             cpp_sources=_CPP_SRC,
             cuda_sources=_CUDA_SRC,
             functions=["router_fwd"],

@@ -8,13 +8,15 @@ an FP64 product.
 import numpy as np
 
 N, K = 256, 8192
-ROWS_PER_BLOCK, K_SLICE = 16, 512
-GRID = (N // ROWS_PER_BLOCK, K // K_SLICE)
+ROWS_PER_BLOCK, CLUSTER = 16, 8
+K_SLICE = K // CLUSTER
+STEPS = K_SLICE // 128
+GRID = (N // ROWS_PER_BLOCK, CLUSTER)
 
 
 def emulate(w, x):
     m = x.shape[0]
-    out = np.zeros((m, N), dtype=np.float32)
+    partial = np.zeros((CLUSTER, m, N), dtype=np.float32)
     reads = np.zeros((N, K), dtype=np.int32)
     for bx in range(GRID[0]):
         for by in range(GRID[1]):
@@ -23,12 +25,15 @@ def emulate(w, x):
                 lane_sums = np.zeros((32, m), dtype=np.float32)
                 for lane in range(32):
                     k0 = by * K_SLICE + lane * 4
-                    for s in range(4):
+                    for s in range(STEPS):
                         k = k0 + s * 128
                         reads[n, k:k + 4] += 1
                         for j in range(4):
                             lane_sums[lane] += w[n, k + j] * x[:, k + j]
-                out[:, n] += lane_sums.sum(axis=0, dtype=np.float32)
+                partial[by, :, n] = lane_sums.sum(axis=0, dtype=np.float32)
+    out = np.zeros((m, N), dtype=np.float32)
+    for c in range(CLUSTER):
+        out += partial[c]
     return out, reads
 
 
