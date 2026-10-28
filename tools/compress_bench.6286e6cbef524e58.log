@@ -1,0 +1,17 @@
+router kernel: fused
+proj kernel: fused
+compressed qkv_gate (2304, 8192): 0.7682 of BF16 bytes, base 54, 0.0344 of tiles escaped, decode bit-exact
+compressed o (8192, 1024): 0.7657 of BF16 bytes, base 54, 0.0294 of tiles escaped, decode bit-exact
+compressed pooler (4096, 8192): 0.7684 of BF16 bytes, base 54, 0.0348 of tiles escaped, decode bit-exact
+compressed unpooler (1024, 4096): 0.7639 of BF16 bytes, base 54, 0.0258 of tiles escaped, decode bit-exact
+compressed decode bit-exact on adversarial sets (escaped tiles of 256): {'sorted': 256, 'shuffled': 256, 'window': 0, 'mixed': 45}
+compressed proj kernel: fused
+router mma kernel: fused
+CBENCH qkv_gate  m=1 cublas  20.6 | proj  18.6 | a1b  18.7 ok | a1s  19.0 ok | a2s  19.2 ok | a4s  20.0 ok | a8s  20.1 ok | a2s-nodec  18.8 ok
+CBENCH qkv_gate  m=8 cublas  20.6 | proj  19.0 | a1b  19.4 ok | a1s  19.5 ok | a2s  19.7 ok | a4s  20.6 ok | a8s  20.9 ok | a2s-nodec  19.4 ok
+CBENCH o         m=1 cublas  11.7 | proj  11.7 | a1b  11.8 ok | a1s  11.9 ok | a2s  12.0 ok | a4s  12.2 ok | a8s  12.3 ok | a2s-nodec  12.0 ok
+CBENCH o         m=8 cublas  11.7 | proj  12.0 | a1b  12.6 ok | a1s  12.8 ok | a2s  13.0 ok | a4s  13.1 ok | a8s  13.1 ok | a2s-nodec  12.8 ok
+CBENCH pooler    m=1 cublas  30.0 | proj  27.6 | a1b  33.3 ok | a1s  33.2 ok | a2s  33.6 ok | a4s  34.4 ok | a8s  34.5 ok | a2s-nodec  33.3 ok
+CBENCH pooler    m=8 cublas  29.9 | proj  28.4 | a1b  34.2 ok | a1s  34.1 ok | a2s  34.4 ok | a4s  35.4 ok | a8s  35.8 ok | a2s-nodec  34.0 ok
+CBENCH unpooler  m=1 cublas  11.0 | proj   9.2 | a1b  10.3 ok | a1s  10.4 ok | a2s  10.3 ok | a4s  10.6 ok | a8s  10.6 ok | a2s-nodec  10.4 ok
+CBENCH unpooler  m=8 cublas  11.3 | proj  10.2 | a1b  11.3 ok | a1s  11.3 ok | a2s  11.5 ok | a4s  11.6 ok | a8s  11.6 ok | a2s-nodec  11.4 ok

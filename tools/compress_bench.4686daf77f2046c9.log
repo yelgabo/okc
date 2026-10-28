@@ -1,0 +1,25 @@
+router kernel: fused
+proj kernel: fused
+compressed decode bit-exact on adversarial sets (escaped tiles): {'window': 0, 'mixed': 45, 'dense': 256, 'sorted': 240, 'shuffled': 256}
+compressed qkv_gate (2304, 8192): 0.7682 of BF16 bytes, base 54, 0.0345 of tiles escaped, decode bit-exact
+compressed o (8192, 1024): 0.7648 of BF16 bytes, base 54, 0.0276 of tiles escaped, decode bit-exact
+compressed pooler (4096, 8192): 0.7682 of BF16 bytes, base 54, 0.0345 of tiles escaped, decode bit-exact
+compressed unpooler (1024, 4096): 0.7634 of BF16 bytes, base 54, 0.0248 of tiles escaped, decode bit-exact
+compressed proj kernel: fused
+router mma kernel: fused
+CBENCH qkv_gate  m=1 cublas  20.5 | proj  18.4 | exc-st4  20.3 ok | exc-st4  19.3 ok | noexc-st4  16.9 -
+CBENCH qkv_gate  m=1 max active clusters (proj, variants): [0, 92, 92, 92]
+CBENCH qkv_gate  m=8 cublas  20.5 | proj  19.1 | exc-st4  20.6 ok | exc-st4  19.8 ok | noexc-st4  17.5 -
+CBENCH qkv_gate  m=8 max active clusters (proj, variants): [0, 92, 92, 92]
+CBENCH o         m=1 cublas  11.6 | proj  11.4 | exc-st4  12.3 ok | exc-st4  12.0 ok | noexc-st4  10.8 -
+CBENCH o         m=1 max active clusters (proj, variants): [0, 198, 198, 198]
+CBENCH o         m=8 cublas  11.6 | proj  12.1 | exc-st4  12.6 ok | exc-st4  12.5 ok | noexc-st4  11.5 -
+CBENCH o         m=8 max active clusters (proj, variants): [0, 198, 198, 198]
+CBENCH pooler    m=1 cublas  29.6 | proj  27.3 | exc-st4  24.3 ok | exc-st4  24.0 ok | noexc-st4  22.7 -
+CBENCH pooler    m=1 max active clusters (proj, variants): [0, 92, 92, 92]
+CBENCH pooler    m=8 cublas  29.6 | proj  28.2 | exc-st4  24.9 ok | exc-st4  24.8 ok | noexc-st4  23.6 -
+CBENCH pooler    m=8 max active clusters (proj, variants): [0, 92, 92, 92]
+CBENCH unpooler  m=1 cublas  11.1 | proj   9.3 | exc-st4  10.7 ok | exc-st4  10.6 ok | noexc-st4   9.7 -
+CBENCH unpooler  m=1 max active clusters (proj, variants): [0, 45, 45, 45]
+CBENCH unpooler  m=8 cublas  11.2 | proj  10.2 | exc-st4  11.6 ok | exc-st4  11.4 ok | noexc-st4  10.5 -
+CBENCH unpooler  m=8 max active clusters (proj, variants): [0, 45, 45, 45]

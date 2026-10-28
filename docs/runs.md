@@ -19,6 +19,11 @@ Every `okc check` and `okc submit`, newest last. Full per-shape output for each 
 | 10-27 | 69a452e14dbc4729 | check | e2fa9a1 | router hi/lo on the mma kernel at 9 to 32 tokens | **1.125x** (1.108-1.142) | router 8.1 us at m=16 (SGLang 14.6), 10.5 at m=32 (15.1) |
 | 10-27 | 457c09b7f2a04ec3 | check | 0839cfb | router mma: 16-token groups up to 32, 32-token groups to 256 (grid z) | 1.070x (1.054-1.086) | m=32 router 8.6 us (from 10.5); m=128/256 28.9/48.1 us vs SGLang 16.4/17.7: per-group L2 re-reads of the weights cost too much |
 | 10-27 | c50f83d2b4714d3e | check | f76d95d | router mma capped at 32 tokens (16-token groups) | **1.132x** (1.115-1.149) | best so far; router 5.1 / 8.2 / 8.6 / 8.8 us at m = 1 / 8 / 16 / 32 |
+| 10-27 | 09b80fb7ed974323 | check | b742a6d | compressed weights v1 (lossless 12-bit code, up to 8 escaped tiles staged per chunk) for all BF16 layers at m <= 8 | 1.052x (1.036-1.068) | decode bit-exact on the GPU, 0.763 to 0.768 of BF16 bytes; slower on every shape: pooler 26.52 us at m=1 (was 19.42), qkv_gate 14.91 (12.11) |
+| 10-27 | 6286e6cbef524e58 | check (bench) | 0f97359 | bench: accumulator count, per-tile branch vs select, a no-decode variant | 1.047x (1.031-1.063) | the no-decode variant is as slow as the decoding ones, and 1 to 8 accumulators change nothing: decode ALU is not the cost. Log in tools/compress_bench.6286e6cbef524e58.log |
+| 10-27 | fb7980267f3a4648 | check (bench) | afa92cc | bench: no escaped-tile handling, 4 to 8 stages, max active clusters | 1.048x (1.032-1.064) | per-chunk escape slots made blocks 92 KB: 62 clusters of 4 fit, so pooler's 256 blocks ran in two waves. Without them (60 KB, 92 clusters) pooler 23.0 vs 27.5 bench us, qkv_gate 16.7 vs 18.6 |
+| 10-27 | 4686daf77f2046c9 | check (bench) | 120418e | escaped tiles through a 12-tile ring per warp (72 KB per block) | 1.095x (1.079-1.111) | pooler wins: 1.153x / 1.099x at m = 1 / 8 (uncompressed 1.119x / 1.079x); qkv_gate 0.858x, o 0.865x, unpooler 1.125x at m=1, all below the uncompressed kernel |
+| 10-27 | 135b2743d1194e41 | check (bench) | b65d5a1 | descriptor load issued ahead of the weight prologue | 1.100x (1.083-1.116) | pooler 1.189x / 1.137x; qkv_gate 0.903x / 0.871x, o 0.906x / 0.793x, unpooler 1.144x / 1.002x. Final file keeps compression for the pooler only (not checked as a whole; per-shape estimate 1.136 to 1.141) |
 
 ## Lessons
 
@@ -49,3 +54,26 @@ Every `okc check` and `okc submit`, newest last. Full per-shape output for each 
 - The bench-only launch failures were a symbol clash: bench.py's extension bound to the
   submission's template instances, whose one-time smem attribute flag was already set.
   The kernels now sit in an anonymous namespace.
+- Lossless weight compression (tools/compress_*; bench logs in tools/compress_bench.<job>.*).
+  The "check (bench)" rows score kernel_fn with all four BF16 layers on the compressed kernel
+  at m <= 8; their prepare() also timed kernel variants (cold L2, graph replays; bench
+  microseconds run 4 to 9 above the judge's, so compare within a row). The code stores each
+  weight's low byte as is and its high byte (sign, top 7 exponent bits) as a nibble: the sign
+  and an offset from the 8 most common top-exponent values. That is 0.763 to 0.768 of BF16
+  bytes on the judge's weights; 2.5% to 3.5% of 16x16 tiles hold an out-of-window weight and
+  keep their raw high bytes in a side table.
+- Fewer bytes did not by themselves make the kernel faster. What mattered was blocks per SM
+  and clusters in flight: staging up to 8 escaped tiles per chunk took 92 KB per block, so
+  only 62 clusters of 4 fit and pooler's 256 blocks ran in two waves. A 12-tile ring per warp
+  (72 KB, 92 clusters) fixed that.
+- The escaped-tile path still costs 1 to 3 us against a variant that ignores escapes (qkv_gate
+  20.0 vs 16.8 bench us). Its descriptor is a dependent load that the first chunk waits on;
+  issuing it first recovered only 0.3 to 0.5 us. Removing the remaining cost would need the
+  first chunks' escaped tiles at addresses known without the descriptor.
+- The win showed only on the pooler (64 MB, two blocks per SM). On qkv_gate (one block per
+  SM), o and the unpooler slice, the compressed kernel lost to the uncompressed one, so the
+  file compresses the pooler only.
+- Decision 2026-10-27: compression stays out of submission.py. It only beat the current kernel
+  on the pooler (18.1 vs 19.4 us at m=1, 18.6 vs 20.0 at m=8, job 135b2743d1194e41); a
+  pooler-only file is estimated at 1.136-1.141x, inside the run-to-run noise, and was never run.
+  The compressed version is kept at muse_bf16_proj/experiments/compressed_weights.py.

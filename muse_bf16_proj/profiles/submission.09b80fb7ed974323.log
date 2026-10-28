@@ -1,0 +1,9 @@
+router kernel: fused
+proj kernel: fused
+compressed qkv_gate (2304, 8192): 0.7679 of BF16 bytes, base 54, 0.0338 of tiles escaped, decode bit-exact
+compressed o (8192, 1024): 0.7648 of BF16 bytes, base 54, 0.0277 of tiles escaped, decode bit-exact
+compressed pooler (4096, 8192): 0.7682 of BF16 bytes, base 54, 0.0345 of tiles escaped, decode bit-exact
+compressed unpooler (1024, 4096): 0.7632 of BF16 bytes, base 54, 0.0245 of tiles escaped, decode bit-exact
+compressed decode bit-exact on adversarial sets (escaped tiles of 256): {'sorted': 256, 'shuffled': 256, 'window': 0, 'mixed': 45}
+compressed proj kernel: fused
+router mma kernel: fused

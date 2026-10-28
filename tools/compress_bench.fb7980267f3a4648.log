@@ -1,0 +1,25 @@
+router kernel: fused
+proj kernel: fused
+compressed qkv_gate (2304, 8192): 0.7680 of BF16 bytes, base 54, 0.0341 of tiles escaped, decode bit-exact
+compressed o (8192, 1024): 0.7650 of BF16 bytes, base 54, 0.0281 of tiles escaped, decode bit-exact
+compressed pooler (4096, 8192): 0.7685 of BF16 bytes, base 54, 0.0350 of tiles escaped, decode bit-exact
+compressed unpooler (1024, 4096): 0.7636 of BF16 bytes, base 54, 0.0253 of tiles escaped, decode bit-exact
+compressed decode bit-exact on adversarial sets (escaped tiles of 256): {'sorted': 256, 'shuffled': 256, 'window': 0, 'mixed': 45}
+compressed proj kernel: fused
+router mma kernel: fused
+CBENCH qkv_gate  m=1 cublas  20.7 | proj  18.6 | exc-st4  19.2 ok | noexc-st4  16.7 - | noexc-st5  16.8 - | noexc-st6  16.9 - | noexc-st8  24.5 - | exc-st6  29.1 ok
+CBENCH qkv_gate  m=1 max active clusters (proj, variants): [0, 62, 92, 92, 62, 30, 30]
+CBENCH qkv_gate  m=8 cublas  20.7 | proj  19.1 | exc-st4  19.9 ok | noexc-st4  17.7 - | noexc-st5  17.4 - | noexc-st6  17.7 - | noexc-st8  25.2 - | exc-st6  30.0 ok
+CBENCH qkv_gate  m=8 max active clusters (proj, variants): [0, 62, 92, 92, 62, 30, 30]
+CBENCH o         m=1 cublas  11.6 | proj  11.5 | exc-st4  11.7 ok | noexc-st4  10.9 - | noexc-st5  11.5 - | noexc-st6  11.4 - | noexc-st8  14.2 - | exc-st6  15.5 ok
+CBENCH o         m=1 max active clusters (proj, variants): [0, 132, 198, 198, 132, 66, 66]
+CBENCH o         m=8 cublas  11.5 | proj  11.9 | exc-st4  12.6 ok | noexc-st4  11.5 - | noexc-st5  12.0 - | noexc-st6  12.0 - | noexc-st8  14.8 - | exc-st6  16.2 ok
+CBENCH o         m=8 max active clusters (proj, variants): [0, 132, 198, 198, 132, 66, 66]
+CBENCH pooler    m=1 cublas  30.0 | proj  27.5 | exc-st4  33.4 ok | noexc-st4  23.0 - | noexc-st5  23.3 - | noexc-st6  29.4 - | noexc-st8  35.2 - | exc-st6  42.0 ok
+CBENCH pooler    m=1 max active clusters (proj, variants): [0, 62, 92, 92, 62, 30, 30]
+CBENCH pooler    m=8 cublas  29.7 | proj  28.2 | exc-st4  34.3 ok | noexc-st4  23.9 - | noexc-st5  24.3 - | noexc-st6  29.7 - | noexc-st8  36.3 - | exc-st6  43.1 ok
+CBENCH pooler    m=8 max active clusters (proj, variants): [0, 62, 92, 92, 62, 30, 30]
+CBENCH unpooler  m=1 cublas  11.0 | proj   9.0 | exc-st4  10.3 ok | noexc-st4   9.5 - | noexc-st5   9.7 - | noexc-st6   9.7 - | noexc-st8  12.8 - | exc-st6  14.2 ok
+CBENCH unpooler  m=1 max active clusters (proj, variants): [0, 30, 45, 45, 30, 15, 15]
+CBENCH unpooler  m=8 cublas  11.2 | proj  10.0 | exc-st4  11.3 ok | noexc-st4  10.4 - | noexc-st5  10.8 - | noexc-st6  10.8 - | noexc-st8  14.0 - | exc-st6  15.5 ok
+CBENCH unpooler  m=8 max active clusters (proj, variants): [0, 30, 45, 45, 30, 15, 15]
