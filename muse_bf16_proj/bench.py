@@ -41,12 +41,20 @@ ROUTER_K = 8192
 ROUTER_FUSED_MAX_TOKENS = 8
 
 
+PROJ_MAX_SPLIT = 16
+
+
 def _proj_fused_wins(layer, m):
-    """Where the mma kernel beat cuBLAS in check run ee65e159c9f54269: every BF16 layer at m=1,
-    and all but o at m=8. Above 8 tokens it loses (runs 04a9c46b48164048 to 17ebe3d9f831439d)."""
-    if layer == "o":
-        return m == 1
-    return m <= 8
+    """Measuring every shape up to 32 tokens with the split-K reduction (v5)."""
+    return m <= 32
+
+
+def _proj_split(layer, n, m):
+    """k-slices per row group. Up to 8 tokens these are v3's (check run 3c7c1fa54d1f4ce0); above,
+    the fastest S in bench run 4afc0b73f2a74a69."""
+    if m <= 8:
+        return {"o": 2, "unpooler": 8}.get(layer, 4)
+    return {"qkv_gate": 4}.get(layer, 2)
 
 # Grid: 16 row groups x 8 k-slices = 128 blocks, one per SM, all loads in flight at once.
 # Each warp owns one weight row and one 1024-wide k-slice. The block's x slice is staged in
@@ -198,17 +206,15 @@ _CPP_SRC = "torch::Tensor router_fwd(torch::Tensor x, torch::Tensor w);"
 # tokens with mma.m16n8k16; the math is padded to 8 tokens, which costs nothing because these
 # shapes are memory-bound. prepare() repacks W losslessly into the mma A-fragment order, so each
 # lane's share of a k-tile is 16 contiguous bytes. A 4-stage cp.async pipeline keeps about
-# 96 KB of weights and tokens in flight per SM without holding them in registers. Above 8
-# tokens each block covers more rows (R > 1), because every block re-reads its x slice through
-# L2. The S k-slice blocks of a row group form a cluster and sum their partials over
-# distributed shared memory, like the router kernel.
+# 96 KB of weights and tokens in flight per SM without holding them in registers. The S
+# k-slice blocks of a row group write fp32 partials to a scratch buffer, and the last of them to
+# finish adds them up. That replaced a thread-block-cluster reduction, which made every block
+# wait for the slowest in its cluster and cost 2 to 17 us above 8 tokens (bench run
+# 4afc0b73f2a74a69).
 _PROJ_SRC = r"""
-#include <cooperative_groups.h>
 #include <cuda_bf16.h>
 #include <torch/extension.h>
 #include <ATen/cuda/CUDAContext.h>
-
-namespace cg = cooperative_groups;
 
 constexpr int STAGES = 4;
 
@@ -253,11 +259,14 @@ __device__ __forceinline__ void mma_bf16(float* c, const uint4& a, const uint2& 
         : "r"(a.x), "r"(a.y), "r"(a.z), "r"(a.w), "r"(b.x), "r"(b.y));
 }
 
-// REDUCE = false skips the cluster reduction; tools/make_bench.py times it to measure that cost.
+// REDUCE = false skips the split-K reduction; tools/make_bench.py times it to measure that cost.
+// scratch holds S fp32 partials per row group. counters start at zero and the last block of each
+// row group resets its own, so they are zero again after every call.
 template <int MT, int WARPS, int R, int CH, int S, bool REDUCE = true>
-__global__ void __cluster_dims__(1, S, 1) __launch_bounds__(WARPS * 32)
+__global__ void __launch_bounds__(WARPS * 32)
 proj_kernel(const uint4* __restrict__ wp, const __nv_bfloat16* __restrict__ x,
-            __nv_bfloat16* __restrict__ out, int m, int n_out, int k, int t_per_block) {
+            __nv_bfloat16* __restrict__ out, float* __restrict__ scratch,
+            int* __restrict__ counters, int m, int n_out, int k, int t_per_block) {
     constexpr int TOKENS = MT * 8;
     constexpr int ROWS = WARPS * R * 16;
     constexpr int XS = xs_stride<CH>();
@@ -268,7 +277,6 @@ proj_kernel(const uint4* __restrict__ wp, const __nv_bfloat16* __restrict__ x,
     float* partial = reinterpret_cast<float*>(
         smem + STAGES * W_STAGE_VECS * 16 + STAGES * TOKENS * XS * 2);
 
-    cg::cluster_group cluster = cg::this_cluster();
     const int warp = threadIdx.x >> 5;
     const int lane = threadIdx.x & 31;
     const int kt_total = k / 16;
@@ -365,34 +373,68 @@ proj_kernel(const uint4* __restrict__ wp, const __nv_bfloat16* __restrict__ x,
             partial[(t + 1) * ROWS + row + 8] = acc[r][nt][3];
         }
     }
+    __syncthreads();
     if (!REDUCE) {
-        __syncthreads();
         out[(size_t)blockIdx.y * gridDim.x * blockDim.x + blockIdx.x * blockDim.x + threadIdx.x] =
             __float2bfloat16(partial[threadIdx.x]);
         return;
     }
-    cluster.sync();
 
-    const int rank = cluster.block_rank();
-    for (int i = threadIdx.x; i < TOKENS * ROWS / S; i += blockDim.x) {
-        const int j = i * S + rank;
-        const int t = j / ROWS;
-        if (t < m) {
-            float sum = 0.f;
-#pragma unroll
-            for (int s = 0; s < S; ++s) {
-                sum += cluster.map_shared_rank(partial, s)[j];
+    constexpr int VALS = TOKENS * ROWS;
+    __nv_bfloat16* out_rows = out + blockIdx.x * ROWS;
+    if (S == 1) {
+        for (int j = threadIdx.x; j < VALS; j += blockDim.x) {
+            if (j / ROWS < m) {
+                out_rows[(size_t)(j / ROWS) * n_out + j % ROWS] = __float2bfloat16(partial[j]);
             }
-            out[(size_t)t * n_out + blockIdx.x * ROWS + j % ROWS] = __float2bfloat16(sum);
+        }
+        return;
+    }
+
+    float4* mine =
+        reinterpret_cast<float4*>(scratch + ((size_t)blockIdx.x * S + blockIdx.y) * VALS);
+    for (int j = threadIdx.x; j < VALS / 4; j += blockDim.x) {
+        __stcg(mine + j, reinterpret_cast<const float4*>(partial)[j]);
+    }
+    // Publish this block's partials before counting it as done.
+    __threadfence();
+    __syncthreads();
+    __shared__ bool last;
+    if (threadIdx.x == 0) {
+        last = atomicAdd(counters + blockIdx.x, 1) == S - 1;
+    }
+    __syncthreads();
+    if (!last) {
+        return;
+    }
+    __threadfence();
+    const float4* group = reinterpret_cast<const float4*>(scratch + (size_t)blockIdx.x * S * VALS);
+    for (int j = threadIdx.x; j < VALS / 4; j += blockDim.x) {
+        float4 sum = __ldcg(group + j);
+#pragma unroll
+        for (int s = 1; s < S; ++s) {
+            const float4 v = __ldcg(group + s * (VALS / 4) + j);
+            sum.x += v.x;
+            sum.y += v.y;
+            sum.z += v.z;
+            sum.w += v.w;
+        }
+        const int t = j * 4 / ROWS;
+        if (t < m) {
+            __nv_bfloat162* dst = reinterpret_cast<__nv_bfloat162*>(
+                out_rows + (size_t)t * n_out + j * 4 % ROWS);
+            dst[0] = __floats2bfloat162_rn(sum.x, sum.y);
+            dst[1] = __floats2bfloat162_rn(sum.z, sum.w);
         }
     }
-    // Peers read this block's shared memory above; it must outlive those reads.
-    cluster.sync();
+    if (threadIdx.x == 0) {
+        counters[blockIdx.x] = 0;
+    }
 }
 
 template <int MT, int WARPS, int R, int CH, int S, bool REDUCE = true>
-void proj_launch(const uint4* wp, const __nv_bfloat16* xp, __nv_bfloat16* op, int m, int n,
-                 int k, cudaStream_t stream) {
+void proj_launch(const uint4* wp, const __nv_bfloat16* xp, __nv_bfloat16* op, float* scratch,
+                 int* counters, int m, int n, int k, cudaStream_t stream) {
     constexpr int smem = proj_smem_bytes<MT, WARPS, R, CH>();
     static bool configured = false;
     if (!configured) {
@@ -402,29 +444,26 @@ void proj_launch(const uint4* wp, const __nv_bfloat16* xp, __nv_bfloat16* op, in
     }
     const dim3 grid(n / (WARPS * R * 16), S);
     proj_kernel<MT, WARPS, R, CH, S, REDUCE><<<grid, WARPS * 32, smem, stream>>>(
-        wp, xp, op, m, n, k, k / 16 / S);
+        wp, xp, op, scratch, counters, m, n, k, k / 16 / S);
 }
 
-// Up to 8 tokens: 4 warps of one row tile each, 8 k-tiles per stage, two blocks per SM.
+// 4 warps of one 16-row tile each, 8 k-tiles per stage. Bigger blocks never helped in the
+// sweep.
 template <int S>
-void proj_small(const uint4* wp, const __nv_bfloat16* xp, __nv_bfloat16* op, int m, int n,
-                int k, cudaStream_t stream) {
-    proj_launch<1, 4, 1, 8, S>(wp, xp, op, m, n, k, stream);
-}
-
-// 9 to 32 tokens: WARPS * R row tiles per block and 4 k-tiles per stage, one block per SM.
-template <int WARPS, int R, int S>
-void proj_large(const uint4* wp, const __nv_bfloat16* xp, __nv_bfloat16* op, int m, int n,
-                int k, cudaStream_t stream) {
-    if (m <= 16) {
-        proj_launch<2, WARPS, R, 4, S>(wp, xp, op, m, n, k, stream);
+void proj_s(const uint4* wp, const __nv_bfloat16* xp, __nv_bfloat16* op, float* scratch,
+            int* counters, int m, int n, int k, cudaStream_t stream) {
+    if (m <= 8) {
+        proj_launch<1, 4, 1, 8, S>(wp, xp, op, scratch, counters, m, n, k, stream);
+    } else if (m <= 16) {
+        proj_launch<2, 4, 1, 8, S>(wp, xp, op, scratch, counters, m, n, k, stream);
     } else {
-        proj_launch<4, WARPS, R, 4, S>(wp, xp, op, m, n, k, stream);
+        proj_launch<4, 4, 1, 8, S>(wp, xp, op, scratch, counters, m, n, k, stream);
     }
 }
 
-// Grids: up to 8 tokens 128 to 256 blocks (two per SM); above, 128 blocks (one per SM).
-torch::Tensor proj_fwd(torch::Tensor x, torch::Tensor wpacked, int64_t n) {
+// s is the k-split, chosen per shape on the Python side; scratch needs s * 32 * n floats.
+torch::Tensor proj_fwd(torch::Tensor x, torch::Tensor wpacked, int64_t n, int64_t s,
+                       torch::Tensor scratch, torch::Tensor counters) {
     const int m = x.size(0);
     const int k = x.size(1);
     auto out = torch::empty({m, n}, x.options());
@@ -432,26 +471,23 @@ torch::Tensor proj_fwd(torch::Tensor x, torch::Tensor wpacked, int64_t n) {
     const auto* wp = reinterpret_cast<const uint4*>(wpacked.data_ptr());
     const auto* xp = reinterpret_cast<const __nv_bfloat16*>(x.data_ptr<at::BFloat16>());
     auto* op = reinterpret_cast<__nv_bfloat16*>(out.data_ptr<at::BFloat16>());
-    if (m <= 8) {
-        if (k == 4096 && n == 1024) {
-            proj_small<8>(wp, xp, op, m, n, k, stream);
-        } else if (k == 8192) {
-            proj_small<4>(wp, xp, op, m, n, k, stream);
-        } else {
-            proj_small<2>(wp, xp, op, m, n, k, stream);
-        }
-    } else if (n == 2304) {
-        proj_large<3, 3, 8>(wp, xp, op, m, n, k, stream);
-    } else if (k == 8192) {
-        proj_large<4, 4, 8>(wp, xp, op, m, n, k, stream);
-    } else {
-        proj_large<4, 4, 4>(wp, xp, op, m, n, k, stream);
+    float* sp = scratch.data_ptr<float>();
+    int* cp = counters.data_ptr<int>();
+    switch (s) {
+        case 1: proj_s<1>(wp, xp, op, sp, cp, m, n, k, stream); break;
+        case 2: proj_s<2>(wp, xp, op, sp, cp, m, n, k, stream); break;
+        case 4: proj_s<4>(wp, xp, op, sp, cp, m, n, k, stream); break;
+        case 8: proj_s<8>(wp, xp, op, sp, cp, m, n, k, stream); break;
+        default: proj_s<16>(wp, xp, op, sp, cp, m, n, k, stream); break;
     }
     return out;
 }
 """
 
-_PROJ_CPP_SRC = "torch::Tensor proj_fwd(torch::Tensor x, torch::Tensor wpacked, int64_t n);"
+_PROJ_CPP_SRC = (
+    "torch::Tensor proj_fwd(torch::Tensor x, torch::Tensor wpacked, int64_t n, int64_t s, "
+    "torch::Tensor scratch, torch::Tensor counters);"
+)
 
 
 PROJ_LAYERS = ("qkv_gate", "o", "pooler", "unpooler")
@@ -468,21 +504,26 @@ def _pack_mma_a(w):
 def _proj_self_test(fused, state, packed):
     w0 = state["pooler"]
     gen = torch.Generator(device=w0.device).manual_seed(0)
-    for layer in PROJ_LAYERS:
+    cases = [(layer, m, None) for layer in PROJ_LAYERS for m in (1, 7, 8, 9, 16, 31, 32)]
+    # Every reduction path, including S = 1 (no scratch) and the largest split.
+    cases += [("pooler", 9, s) for s in (1, 2, 4, 8, 16)]
+    for layer, m, split in cases:
         w = state[layer]
-        for m in (1, 7, 8, 9, 16, 31, 32):
-            n = UNPOOL_SLICE if layer == "unpooler" and m <= 8 else w.shape[0]
-            x = torch.randn(m, w.shape[1], generator=gen, device=w.device).to(torch.bfloat16)
-            x[0].zero_()
-            x[0, 777] = 8.0
-            out = fused(x, packed[layer], n)
+        n = UNPOOL_SLICE if layer == "unpooler" and m <= 8 else w.shape[0]
+        x = torch.randn(m, w.shape[1], generator=gen, device=w.device).to(torch.bfloat16)
+        x[0].zero_()
+        x[0, 777] = 8.0
+        split = split or _proj_split(layer, n, m)
+        # Twice, so a counter left nonzero by the first call would break the second.
+        for _ in range(2):
+            out = fused(x, packed[layer], n, split)
             torch.cuda.synchronize()
             ref = x.double() @ w[:n].double().T
             err = ((out.double() - ref).norm() / ref.norm()).item()
             if not err < 5e-3:
-                raise RuntimeError(f"{layer} m={m}: relative L2 error {err:.3e}")
+                raise RuntimeError(f"{layer} m={m} s={split}: relative L2 error {err:.3e}")
             if not torch.equal(out[0], (8.0 * w[:n, 777].float()).to(torch.bfloat16)):
-                raise RuntimeError(f"{layer} m={m}: probe row is not exact")
+                raise RuntimeError(f"{layer} m={m} s={split}: probe row is not exact")
 
 
 def _router_split2(x, state):
@@ -540,16 +581,22 @@ def prepare(weights):
     state["proj_fused"] = None
     try:
         ext = load_inline(
-            name="okc_proj_v4",
+            name="okc_proj_v5",
             cpp_sources=_PROJ_CPP_SRC,
             cuda_sources=_PROJ_SRC,
             functions=["proj_fwd"],
             extra_cuda_cflags=["-O3", "-gencode=arch=compute_90a,code=sm_90a"],
         )
         packed = {name: _pack_mma_a(state[name]) for name in PROJ_LAYERS}
-        _proj_self_test(ext.proj_fwd, state, packed)
+        scratch = torch.empty(PROJ_MAX_SPLIT * 32 * 8192, dtype=torch.float32, device="cuda")
+        counters = torch.zeros(1024, dtype=torch.int32, device="cuda")
+
+        def fused(x, wpacked, n, split):
+            return ext.proj_fwd(x, wpacked, n, split, scratch, counters)
+
+        _proj_self_test(fused, state, packed)
         state["proj_packed"] = packed
-        state["proj_fused"] = ext.proj_fwd
+        state["proj_fused"] = fused
         print("proj kernel: fused")
     except Exception as exc:
         print(f"proj kernel: baseline ({type(exc).__name__}: {exc})")
@@ -561,7 +608,8 @@ def kernel_fn(data, state):
     if layer != "router":
         n = data["config"]["n"]
         if state["proj_fused"] is not None and _proj_fused_wins(layer, x.shape[0]):
-            return state["proj_fused"](x.contiguous(), state["proj_packed"][layer], n)
+            split = _proj_split(layer, n, x.shape[0])
+            return state["proj_fused"](x.contiguous(), state["proj_packed"][layer], n, split)
         return _bf16_gemm_dispatch_impl(x, state[layer][:n], None)
     fused = state["router_fused"]
     if fused is not None and x.shape[0] <= ROUTER_FUSED_MAX_TOKENS:
@@ -570,8 +618,8 @@ def kernel_fn(data, state):
 
 
 # Generated by tools/make_bench.py: a config sweep timed inside prepare().
-_BENCH_SRC = _PROJ_SRC.replace('torch::Tensor proj_fwd(', '\ntorch::Tensor proj_bench(torch::Tensor x, torch::Tensor wpacked, int64_t n, int64_t cfg) {\n    const int m = x.size(0);\n    const int k = x.size(1);\n    auto out = torch::empty({m, n}, x.options());\n    auto stream = at::cuda::getCurrentCUDAStream();\n    const auto* wp = reinterpret_cast<const uint4*>(wpacked.data_ptr());\n    const auto* xp = reinterpret_cast<const __nv_bfloat16*>(x.data_ptr<at::BFloat16>());\n    auto* op = reinterpret_cast<__nv_bfloat16*>(out.data_ptr<at::BFloat16>());\n    switch (cfg) {\n        case 0: proj_launch<1, 2, 1, 8, 8, true>(wp, xp, op, m, n, k, stream); break;\n        case 1: proj_launch<1, 2, 2, 8, 4, true>(wp, xp, op, m, n, k, stream); break;\n        case 2: proj_launch<1, 4, 1, 8, 1, true>(wp, xp, op, m, n, k, stream); break;\n        case 3: proj_launch<1, 4, 1, 8, 2, true>(wp, xp, op, m, n, k, stream); break;\n        case 4: proj_launch<1, 4, 1, 8, 4, false>(wp, xp, op, m, n, k, stream); break;\n        case 5: proj_launch<1, 4, 1, 8, 4, true>(wp, xp, op, m, n, k, stream); break;\n        case 6: proj_launch<1, 4, 1, 8, 8, true>(wp, xp, op, m, n, k, stream); break;\n        case 7: proj_launch<1, 4, 2, 4, 8, true>(wp, xp, op, m, n, k, stream); break;\n        case 8: proj_launch<1, 4, 2, 8, 4, true>(wp, xp, op, m, n, k, stream); break;\n        case 9: proj_launch<1, 8, 1, 8, 4, true>(wp, xp, op, m, n, k, stream); break;\n        case 10: proj_launch<2, 2, 1, 8, 8, true>(wp, xp, op, m, n, k, stream); break;\n        case 11: proj_launch<2, 2, 2, 8, 4, true>(wp, xp, op, m, n, k, stream); break;\n        case 12: proj_launch<2, 4, 1, 8, 1, true>(wp, xp, op, m, n, k, stream); break;\n        case 13: proj_launch<2, 4, 1, 8, 2, true>(wp, xp, op, m, n, k, stream); break;\n        case 14: proj_launch<2, 4, 1, 8, 4, false>(wp, xp, op, m, n, k, stream); break;\n        case 15: proj_launch<2, 4, 1, 8, 4, true>(wp, xp, op, m, n, k, stream); break;\n        case 16: proj_launch<2, 4, 1, 8, 8, true>(wp, xp, op, m, n, k, stream); break;\n        case 17: proj_launch<2, 4, 2, 4, 8, true>(wp, xp, op, m, n, k, stream); break;\n        case 18: proj_launch<2, 4, 2, 8, 4, true>(wp, xp, op, m, n, k, stream); break;\n        case 19: proj_launch<2, 8, 1, 8, 4, true>(wp, xp, op, m, n, k, stream); break;\n        case 20: proj_launch<4, 2, 1, 8, 8, true>(wp, xp, op, m, n, k, stream); break;\n        case 21: proj_launch<4, 2, 2, 8, 4, true>(wp, xp, op, m, n, k, stream); break;\n        case 22: proj_launch<4, 4, 1, 8, 1, true>(wp, xp, op, m, n, k, stream); break;\n        case 23: proj_launch<4, 4, 1, 8, 2, true>(wp, xp, op, m, n, k, stream); break;\n        case 24: proj_launch<4, 4, 1, 8, 4, false>(wp, xp, op, m, n, k, stream); break;\n        case 25: proj_launch<4, 4, 1, 8, 4, true>(wp, xp, op, m, n, k, stream); break;\n        case 26: proj_launch<4, 4, 1, 8, 8, true>(wp, xp, op, m, n, k, stream); break;\n        case 27: proj_launch<4, 4, 2, 4, 8, true>(wp, xp, op, m, n, k, stream); break;\n        case 28: proj_launch<4, 4, 2, 8, 4, true>(wp, xp, op, m, n, k, stream); break;\n        case 29: proj_launch<4, 8, 1, 8, 4, true>(wp, xp, op, m, n, k, stream); break;\n    }\n    return out;\n}\n' + 'torch::Tensor proj_fwd(')
-_BENCH_PLAN = [('qkv_gate', 1, 2, (1, 4, 1, 8, 1, True)), ('qkv_gate', 1, 3, (1, 4, 1, 8, 2, True)), ('qkv_gate', 1, 5, (1, 4, 1, 8, 4, True)), ('qkv_gate', 1, 6, (1, 4, 1, 8, 8, True)), ('qkv_gate', 1, 4, (1, 4, 1, 8, 4, False)), ('qkv_gate', 1, 9, (1, 8, 1, 8, 4, True)), ('qkv_gate', 1, 8, (1, 4, 2, 8, 4, True)), ('qkv_gate', 1, 7, (1, 4, 2, 4, 8, True)), ('qkv_gate', 1, 0, (1, 2, 1, 8, 8, True)), ('qkv_gate', 1, 1, (1, 2, 2, 8, 4, True)), ('qkv_gate', 16, 12, (2, 4, 1, 8, 1, True)), ('qkv_gate', 16, 13, (2, 4, 1, 8, 2, True)), ('qkv_gate', 16, 15, (2, 4, 1, 8, 4, True)), ('qkv_gate', 16, 16, (2, 4, 1, 8, 8, True)), ('qkv_gate', 16, 14, (2, 4, 1, 8, 4, False)), ('qkv_gate', 16, 19, (2, 8, 1, 8, 4, True)), ('qkv_gate', 16, 18, (2, 4, 2, 8, 4, True)), ('qkv_gate', 16, 17, (2, 4, 2, 4, 8, True)), ('qkv_gate', 16, 10, (2, 2, 1, 8, 8, True)), ('qkv_gate', 16, 11, (2, 2, 2, 8, 4, True)), ('qkv_gate', 32, 22, (4, 4, 1, 8, 1, True)), ('qkv_gate', 32, 23, (4, 4, 1, 8, 2, True)), ('qkv_gate', 32, 25, (4, 4, 1, 8, 4, True)), ('qkv_gate', 32, 26, (4, 4, 1, 8, 8, True)), ('qkv_gate', 32, 24, (4, 4, 1, 8, 4, False)), ('qkv_gate', 32, 29, (4, 8, 1, 8, 4, True)), ('qkv_gate', 32, 28, (4, 4, 2, 8, 4, True)), ('qkv_gate', 32, 27, (4, 4, 2, 4, 8, True)), ('qkv_gate', 32, 20, (4, 2, 1, 8, 8, True)), ('qkv_gate', 32, 21, (4, 2, 2, 8, 4, True)), ('o', 1, 2, (1, 4, 1, 8, 1, True)), ('o', 1, 3, (1, 4, 1, 8, 2, True)), ('o', 1, 5, (1, 4, 1, 8, 4, True)), ('o', 1, 6, (1, 4, 1, 8, 8, True)), ('o', 1, 4, (1, 4, 1, 8, 4, False)), ('o', 1, 9, (1, 8, 1, 8, 4, True)), ('o', 1, 8, (1, 4, 2, 8, 4, True)), ('o', 1, 7, (1, 4, 2, 4, 8, True)), ('o', 1, 0, (1, 2, 1, 8, 8, True)), ('o', 1, 1, (1, 2, 2, 8, 4, True)), ('o', 16, 12, (2, 4, 1, 8, 1, True)), ('o', 16, 13, (2, 4, 1, 8, 2, True)), ('o', 16, 15, (2, 4, 1, 8, 4, True)), ('o', 16, 16, (2, 4, 1, 8, 8, True)), ('o', 16, 14, (2, 4, 1, 8, 4, False)), ('o', 16, 19, (2, 8, 1, 8, 4, True)), ('o', 16, 18, (2, 4, 2, 8, 4, True)), ('o', 16, 17, (2, 4, 2, 4, 8, True)), ('o', 16, 10, (2, 2, 1, 8, 8, True)), ('o', 16, 11, (2, 2, 2, 8, 4, True)), ('o', 32, 22, (4, 4, 1, 8, 1, True)), ('o', 32, 23, (4, 4, 1, 8, 2, True)), ('o', 32, 25, (4, 4, 1, 8, 4, True)), ('o', 32, 26, (4, 4, 1, 8, 8, True)), ('o', 32, 24, (4, 4, 1, 8, 4, False)), ('o', 32, 29, (4, 8, 1, 8, 4, True)), ('o', 32, 28, (4, 4, 2, 8, 4, True)), ('o', 32, 27, (4, 4, 2, 4, 8, True)), ('o', 32, 20, (4, 2, 1, 8, 8, True)), ('o', 32, 21, (4, 2, 2, 8, 4, True)), ('pooler', 1, 2, (1, 4, 1, 8, 1, True)), ('pooler', 1, 3, (1, 4, 1, 8, 2, True)), ('pooler', 1, 5, (1, 4, 1, 8, 4, True)), ('pooler', 1, 6, (1, 4, 1, 8, 8, True)), ('pooler', 1, 4, (1, 4, 1, 8, 4, False)), ('pooler', 1, 9, (1, 8, 1, 8, 4, True)), ('pooler', 1, 8, (1, 4, 2, 8, 4, True)), ('pooler', 1, 7, (1, 4, 2, 4, 8, True)), ('pooler', 1, 0, (1, 2, 1, 8, 8, True)), ('pooler', 1, 1, (1, 2, 2, 8, 4, True)), ('pooler', 16, 12, (2, 4, 1, 8, 1, True)), ('pooler', 16, 13, (2, 4, 1, 8, 2, True)), ('pooler', 16, 15, (2, 4, 1, 8, 4, True)), ('pooler', 16, 16, (2, 4, 1, 8, 8, True)), ('pooler', 16, 14, (2, 4, 1, 8, 4, False)), ('pooler', 16, 19, (2, 8, 1, 8, 4, True)), ('pooler', 16, 18, (2, 4, 2, 8, 4, True)), ('pooler', 16, 17, (2, 4, 2, 4, 8, True)), ('pooler', 16, 10, (2, 2, 1, 8, 8, True)), ('pooler', 16, 11, (2, 2, 2, 8, 4, True)), ('pooler', 32, 22, (4, 4, 1, 8, 1, True)), ('pooler', 32, 23, (4, 4, 1, 8, 2, True)), ('pooler', 32, 25, (4, 4, 1, 8, 4, True)), ('pooler', 32, 26, (4, 4, 1, 8, 8, True)), ('pooler', 32, 24, (4, 4, 1, 8, 4, False)), ('pooler', 32, 29, (4, 8, 1, 8, 4, True)), ('pooler', 32, 28, (4, 4, 2, 8, 4, True)), ('pooler', 32, 27, (4, 4, 2, 4, 8, True)), ('pooler', 32, 20, (4, 2, 1, 8, 8, True)), ('pooler', 32, 21, (4, 2, 2, 8, 4, True))]
+_BENCH_SRC = _PROJ_SRC.replace("// s is the k-split", '\ntorch::Tensor proj_bench(torch::Tensor x, torch::Tensor wpacked, int64_t n, int64_t cfg,\n                         torch::Tensor scratch, torch::Tensor counters) {\n    const int m = x.size(0);\n    const int k = x.size(1);\n    auto out = torch::empty({m, n}, x.options());\n    auto stream = at::cuda::getCurrentCUDAStream();\n    const auto* wp = reinterpret_cast<const uint4*>(wpacked.data_ptr());\n    const auto* xp = reinterpret_cast<const __nv_bfloat16*>(x.data_ptr<at::BFloat16>());\n    auto* op = reinterpret_cast<__nv_bfloat16*>(out.data_ptr<at::BFloat16>());\n    float* sp = scratch.data_ptr<float>();\n    int* cp = counters.data_ptr<int>();\n    switch (cfg) {\n        case 0: proj_launch<1, 4, 1, 8, 1, true>(wp, xp, op, sp, cp, m, n, k, stream); break;\n        case 1: proj_launch<1, 4, 1, 8, 2, true>(wp, xp, op, sp, cp, m, n, k, stream); break;\n        case 2: proj_launch<1, 4, 1, 8, 4, false>(wp, xp, op, sp, cp, m, n, k, stream); break;\n        case 3: proj_launch<1, 4, 1, 8, 4, true>(wp, xp, op, sp, cp, m, n, k, stream); break;\n        case 4: proj_launch<1, 4, 1, 8, 8, true>(wp, xp, op, sp, cp, m, n, k, stream); break;\n        case 5: proj_launch<1, 4, 1, 8, 16, true>(wp, xp, op, sp, cp, m, n, k, stream); break;\n        case 6: proj_launch<2, 4, 1, 8, 1, true>(wp, xp, op, sp, cp, m, n, k, stream); break;\n        case 7: proj_launch<2, 4, 1, 8, 2, true>(wp, xp, op, sp, cp, m, n, k, stream); break;\n        case 8: proj_launch<2, 4, 1, 8, 4, false>(wp, xp, op, sp, cp, m, n, k, stream); break;\n        case 9: proj_launch<2, 4, 1, 8, 4, true>(wp, xp, op, sp, cp, m, n, k, stream); break;\n        case 10: proj_launch<2, 4, 1, 8, 8, true>(wp, xp, op, sp, cp, m, n, k, stream); break;\n        case 11: proj_launch<2, 4, 1, 8, 16, true>(wp, xp, op, sp, cp, m, n, k, stream); break;\n        case 12: proj_launch<4, 4, 1, 8, 1, true>(wp, xp, op, sp, cp, m, n, k, stream); break;\n        case 13: proj_launch<4, 4, 1, 8, 2, true>(wp, xp, op, sp, cp, m, n, k, stream); break;\n        case 14: proj_launch<4, 4, 1, 8, 4, false>(wp, xp, op, sp, cp, m, n, k, stream); break;\n        case 15: proj_launch<4, 4, 1, 8, 4, true>(wp, xp, op, sp, cp, m, n, k, stream); break;\n        case 16: proj_launch<4, 4, 1, 8, 8, true>(wp, xp, op, sp, cp, m, n, k, stream); break;\n        case 17: proj_launch<4, 4, 1, 8, 16, true>(wp, xp, op, sp, cp, m, n, k, stream); break;\n    }\n    return out;\n}\n' + "// s is the k-split")
+_BENCH_PLAN = [('qkv_gate', 1, 0, (1, 4, 1, 8, 1, True)), ('qkv_gate', 1, 1, (1, 4, 1, 8, 2, True)), ('qkv_gate', 1, 3, (1, 4, 1, 8, 4, True)), ('qkv_gate', 1, 4, (1, 4, 1, 8, 8, True)), ('qkv_gate', 1, 5, (1, 4, 1, 8, 16, True)), ('qkv_gate', 1, 2, (1, 4, 1, 8, 4, False)), ('qkv_gate', 16, 6, (2, 4, 1, 8, 1, True)), ('qkv_gate', 16, 7, (2, 4, 1, 8, 2, True)), ('qkv_gate', 16, 9, (2, 4, 1, 8, 4, True)), ('qkv_gate', 16, 10, (2, 4, 1, 8, 8, True)), ('qkv_gate', 16, 11, (2, 4, 1, 8, 16, True)), ('qkv_gate', 16, 8, (2, 4, 1, 8, 4, False)), ('qkv_gate', 32, 12, (4, 4, 1, 8, 1, True)), ('qkv_gate', 32, 13, (4, 4, 1, 8, 2, True)), ('qkv_gate', 32, 15, (4, 4, 1, 8, 4, True)), ('qkv_gate', 32, 16, (4, 4, 1, 8, 8, True)), ('qkv_gate', 32, 17, (4, 4, 1, 8, 16, True)), ('qkv_gate', 32, 14, (4, 4, 1, 8, 4, False)), ('o', 1, 0, (1, 4, 1, 8, 1, True)), ('o', 1, 1, (1, 4, 1, 8, 2, True)), ('o', 1, 3, (1, 4, 1, 8, 4, True)), ('o', 1, 4, (1, 4, 1, 8, 8, True)), ('o', 1, 2, (1, 4, 1, 8, 4, False)), ('o', 16, 6, (2, 4, 1, 8, 1, True)), ('o', 16, 7, (2, 4, 1, 8, 2, True)), ('o', 16, 9, (2, 4, 1, 8, 4, True)), ('o', 16, 10, (2, 4, 1, 8, 8, True)), ('o', 16, 8, (2, 4, 1, 8, 4, False)), ('o', 32, 12, (4, 4, 1, 8, 1, True)), ('o', 32, 13, (4, 4, 1, 8, 2, True)), ('o', 32, 15, (4, 4, 1, 8, 4, True)), ('o', 32, 16, (4, 4, 1, 8, 8, True)), ('o', 32, 14, (4, 4, 1, 8, 4, False)), ('pooler', 1, 0, (1, 4, 1, 8, 1, True)), ('pooler', 1, 1, (1, 4, 1, 8, 2, True)), ('pooler', 1, 3, (1, 4, 1, 8, 4, True)), ('pooler', 1, 4, (1, 4, 1, 8, 8, True)), ('pooler', 1, 5, (1, 4, 1, 8, 16, True)), ('pooler', 1, 2, (1, 4, 1, 8, 4, False)), ('pooler', 16, 6, (2, 4, 1, 8, 1, True)), ('pooler', 16, 7, (2, 4, 1, 8, 2, True)), ('pooler', 16, 9, (2, 4, 1, 8, 4, True)), ('pooler', 16, 10, (2, 4, 1, 8, 8, True)), ('pooler', 16, 11, (2, 4, 1, 8, 16, True)), ('pooler', 16, 8, (2, 4, 1, 8, 4, False)), ('pooler', 32, 12, (4, 4, 1, 8, 1, True)), ('pooler', 32, 13, (4, 4, 1, 8, 2, True)), ('pooler', 32, 15, (4, 4, 1, 8, 4, True)), ('pooler', 32, 16, (4, 4, 1, 8, 8, True)), ('pooler', 32, 17, (4, 4, 1, 8, 16, True)), ('pooler', 32, 14, (4, 4, 1, 8, 4, False)), ('unpooler', 16, 6, (2, 4, 1, 8, 1, True)), ('unpooler', 16, 7, (2, 4, 1, 8, 2, True)), ('unpooler', 16, 9, (2, 4, 1, 8, 4, True)), ('unpooler', 16, 10, (2, 4, 1, 8, 8, True)), ('unpooler', 16, 11, (2, 4, 1, 8, 16, True)), ('unpooler', 16, 8, (2, 4, 1, 8, 4, False)), ('unpooler', 32, 12, (4, 4, 1, 8, 1, True)), ('unpooler', 32, 13, (4, 4, 1, 8, 2, True)), ('unpooler', 32, 15, (4, 4, 1, 8, 4, True)), ('unpooler', 32, 16, (4, 4, 1, 8, 8, True)), ('unpooler', 32, 17, (4, 4, 1, 8, 16, True)), ('unpooler', 32, 14, (4, 4, 1, 8, 4, False))]
 
 
 def _bench_time(fn, flush, iters=25):
@@ -599,13 +647,16 @@ def _run_bench(state):
     ext = load_inline(
         name="okc_proj_bench",
         cpp_sources=_PROJ_CPP_SRC
-        + "torch::Tensor proj_bench(torch::Tensor x, torch::Tensor wpacked, int64_t n, int64_t cfg);",
+        + "torch::Tensor proj_bench(torch::Tensor x, torch::Tensor wpacked, int64_t n, "
+        "int64_t cfg, torch::Tensor scratch, torch::Tensor counters);",
         cuda_sources=_BENCH_SRC,
         functions=["proj_bench"],
         extra_cuda_cflags=["-O3", "-gencode=arch=compute_90a,code=sm_90a"],
     )
     flush = torch.empty(256 << 20, dtype=torch.uint8, device="cuda")
     packed = state["proj_packed"]
+    scratch = torch.empty(16 * 32 * 8192, dtype=torch.float32, device="cuda")
+    counters = torch.zeros(1024, dtype=torch.int32, device="cuda")
     last = None
     for layer, m, idx, cfg in _BENCH_PLAN:
         w = state[layer]
@@ -616,10 +667,10 @@ def _run_bench(state):
             print(f"BENCH {layer:9s} m={m:2d} cublas                     {us:6.1f} us")
             last = (layer, m)
         try:
-            us = _bench_time(lambda: ext.proj_bench(x, packed[layer], n, idx), flush)
-            print(f"BENCH {layer:9s} m={m:2d} mt,warps,r,ch,s,red={cfg} {us:6.1f} us")
+            us = _bench_time(lambda: ext.proj_bench(x, packed[layer], n, idx, scratch, counters), flush)
+            print(f"BENCH {layer:9s} m={m:2d} mt,w,r,ch,s,red={cfg} {us:6.1f} us")
         except Exception as exc:
-            print(f"BENCH {layer:9s} m={m:2d} mt,warps,r,ch,s,red={cfg} failed: {exc}")
+            print(f"BENCH {layer:9s} m={m:2d} mt,w,r,ch,s,red={cfg} failed: {exc}")
 
 
 _prepare_without_bench = prepare

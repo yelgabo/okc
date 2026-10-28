@@ -11,11 +11,11 @@ import numpy as np
 # name: (k, n, {m bucket: (warps, r, ch, s)}) for every proj_fwd branch; n is the output width.
 SMALL, LARGE = range(1, 9), range(9, 33)
 CONFIGS = {
-    "o": (1024, 8192, {SMALL: (4, 1, 8, 2), LARGE: (4, 4, 4, 4)}),
+    "o": (1024, 8192, {SMALL: (4, 1, 8, 2), LARGE: (4, 1, 8, 2)}),
     "unpooler sliced": (4096, 1024, {SMALL: (4, 1, 8, 8)}),
-    "unpooler": (4096, 8192, {LARGE: (4, 4, 4, 4)}),
-    "qkv_gate": (8192, 2304, {SMALL: (4, 1, 8, 4), LARGE: (3, 3, 4, 8)}),
-    "pooler": (8192, 4096, {SMALL: (4, 1, 8, 4), LARGE: (4, 4, 4, 8)}),
+    "unpooler": (4096, 8192, {LARGE: (4, 1, 8, 2)}),
+    "qkv_gate": (8192, 2304, {SMALL: (4, 1, 8, 4), LARGE: (4, 1, 8, 4)}),
+    "pooler": (8192, 4096, {SMALL: (4, 1, 8, 4), LARGE: (4, 1, 8, 2), range(9, 10): (4, 1, 8, 16)}),
 }
 
 LANE = np.arange(32)
@@ -103,11 +103,12 @@ def emulate(w, x, n_out, warps, r_tiles, ch, s):
                         partial[tk * rows + row + 8] = c_tile[G + 8, C * 2]
                         partial[(tk + 1) * rows + row + 8] = c_tile[G + 8, C * 2 + 1]
             partials.append(partial)
-        for rank in range(s):
-            for i in range(tokens * rows // s):
-                j = i * s + rank
-                tk = j // rows
-                if tk < m:
+        # The last block of the row group sums the S scratch partials in float4 groups.
+        for j4 in range(tokens * rows // 4):
+            tk = j4 * 4 // rows
+            if tk < m:
+                for e in range(4):
+                    j = j4 * 4 + e
                     out[tk, bx * rows + j % rows] = sum(p[j] for p in partials)
     return out
 
@@ -119,7 +120,7 @@ def main():
         w = rng.standard_normal((n_full, k)) / np.sqrt(k)
         assert np.array_equal(a_tiles(pack(w)[0])[1], w[:16, 16:32]), "A layout"
         for bucket, (warps, r_tiles, ch, s) in buckets.items():
-            for m in (1, 7) if bucket is SMALL else (9, 16, 32):
+            for m in (1, 7) if bucket is SMALL else (9,) if len(bucket) == 1 else (9, 16, 32):
                 x = rng.standard_normal((m, k))
                 out = emulate(w, x, n_out, warps, r_tiles, ch, s)
                 ref = x @ w[:n_out].T

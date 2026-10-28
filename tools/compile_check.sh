@@ -16,11 +16,8 @@ inst = {
         f"template void launch<{s}>(const float*, const __nv_bfloat16*, float*, int, cudaStream_t);\n"
         for s in (1, 2, 4, 8, 16, 32)),
     "_PROJ_SRC": "".join(
-        [f"template void proj_small<{s}>(const uint4*, const __nv_bfloat16*, "
-         f"__nv_bfloat16*, int, int, int, cudaStream_t);\n" for s in (2, 4, 8)]
-        + [f"template void proj_large<{w}, {r}, {s}>(const uint4*, const __nv_bfloat16*, "
-           f"__nv_bfloat16*, int, int, int, cudaStream_t);\n"
-           for w, r, s in ((3, 3, 8), (4, 4, 8), (4, 4, 4))]),
+        f"template void proj_s<{s}>(const uint4*, const __nv_bfloat16*, __nv_bfloat16*, "
+        f"float*, int*, int, int, int, cudaStream_t);\n" for s in (1, 2, 4, 8, 16)),
 }
 for name, extra in inst.items():
     m = re.search(name + r' = r"""(.*?)"""', text, re.S)
