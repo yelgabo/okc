@@ -43,6 +43,8 @@ SGLang with its 95% interval. Profiles and logs are in `muse_moe_w4a16/profiles/
 | 2026-10-28 | c524612c78454486 (submit, authorized by the user via the coordinator) | cd06a9e | mode 11 (mode 6 with clock stamps) and a DIAG report in prepare | 2.002x (1.972-2.032) | per shape: bs1 28.1 us, bs16 95.5, bs32 133.1, bs8 67.7, bs128 255.7, bs256 304.6; same policy and bench as 0400cfbdfa2845fe within 1 us (bs128 main-loads 188.9, legacy128 249.7, main-m2 253.6, main-d2 254.3, main-m2-stamps 258.5). The DIAG report failed on the host (`inter.view(int64)` of the 2-D buffer sliced rows, not elements; the dry run used a flat buffer), so no stamps. Fixed in the next commit, dry run now uses the real shape |
 | 2026-10-28 | 2072795029b7479f (submit, authorized by the user via the coordinator) | a248788 | the DIAG fix | 1.978x (1.948-2.007) | per shape: bs1 29.7 us, bs16 97.1, bs32 136.0, bs8 69.0, bs128 263.0, bs256 301.8; same code and policy as the two runs before, so the 1.978-2.007 spread of these three is run-to-run noise. Bench bs128: main-loads 190.6, legacy128 253.6, main-m2 255.4, main-d2 256.8. Stamps below (section "Where the fat path's time goes at 128 tokens") |
 | 2026-10-28 | 84de5bbafa344b7a (submit, authorized by the user via the coordinator; the current board entry) | 4fed369 | mode 14 (mode 12 with two mma.sync accumulator chains per n8 tile); stage costs per launch (moe_run `cost` argument) fitted from the DIAG stamps by least squares and offered as `-fit` variants of modes 6, 12, 14; modes 12/13 with fence.acq_rel in the epilogue and fixup | 2.009x (1.979-2.039) | per shape: bs1 27.95 us (2.760x), bs16 95.20 (1.954), bs32 133.40 (1.538), bs8 67.76 (2.108), bs128 254.18 (1.829), bs256 300.02 (2.057). POLICY {1, 8, 16, 32: sk8w4s, 128: legacy128, 256: main-m2-ar}. BENCH bs128 (us): main-loads 188.7, legacy128 251.3, main-m2-ar2 252.8, main-m2 254.3, main-m2-ar 254.7, -fit variants 256.5-257.8; bs256: main-m2-ar 283.8, main-m2-ar2 284.0, -fit 284.0-285.1. The least-squares stage-cost fit gave negative phase A coefficients (A1 -0.40, A2 -0.56, A3 -0.56, A7 -0.36, A8 -0.92 us/stage; B 5.6-9.6; residual rms 6.4 us over 396 CTA launches), so the fitted table is not a cost model and its variants did not win anywhere; it is not used to drive partitioning again (plan 2026-10-29 item 4). It is within noise of 0400cfbdfa2845fe (2.007x, 54f7940) and the two runs after it. Stamps at bs128: producers wait 185.8/202.6 us (mean/max) for a free weights slot of about 236 us of consumer time. Profiles and the result JSON in muse_moe_w4a16/profiles/submission.84de5bbafa344b7a.* |
+| 2026-10-28 (before the 00:00 UTC reset) | 1b20c5b390f044b2 (submit by the coordinator, snapshot of 1099d9b) | 1099d9b | the proxy-ordering fix (fence.proxy.async.global by every x writer before its release and by the issuer after its acquire; the gather publishes with red.release after its barrier) | 1.979x (1.949-2.008) | passed 5/5. per shape: bs1 29.48 us (2.696x), bs16 102.99 (1.902), bs32 136.32 (1.508), bs8 72.38 (2.080), bs128 251.48 (1.823), bs256 301.26 (2.046). POLICY {1-32: sk8w4s, 128: legacy128, 256: main-m2-ar-fit}. BENCH bs128 main-loads 191.0, legacy128 251.2, main-m2-ar2 252.8, main-m2-ar 254.4, main-d2 254.4; bs256 main-m2-ar-fit 282.7, main-m2-ar 282.8, main-d2 283.9 (84de5bba: main-m2-ar 283.8, main-d2 284.8): the fences cost nothing measurable on the fat path. The score is within noise of the 2.009x entry (CIs overlap; bs1 and bs16 moved +1.5 and +7.8 us on the skinny path the fix does not touch, so that is run-to-run noise). Board entry stays 84de5bbafa344b7a |
+| 2026-10-28 (before the reset) | 8078730bfa434074 (submit by the coordinator, snapshot of 9755822) | 9755822 | the fix plus the nonnegative cost model in prepare (72 DIAG launches, held-out validation gate) | 1.985x (1.955-2.015) | passed 5/5. per shape: bs1 27.87 us, bs16 100.95, bs32 135.85, bs8 68.66, bs128 258.07 (1.783x), bs256 302.35. The gate failed (section "Cost model, 2026-10-29"), so no -nn variant ran; POLICY {1-32: sk8w4s, 128: legacy128, 256: main-d2}. BENCH bs128 main-loads 191.2, legacy128 251.7, main-m2-ar2 253.2, main-m2-ar 254.1, main-m2 254.3, main-d2 255.5; bs256 main-d2 283.5, main-m2 283.6, main-m2-ar2 284.4. bs128 258.07 against 251.48 the run before with the same legacy128 choice: run-to-run noise on the judge's timing of the same kernel |
 
 ## Proxy ordering of the x tiles, 2026-10-29
 
@@ -144,6 +146,61 @@ extension), mode 0 at the standalone's 80 B stack and 136/236 B spills. The laye
 selects the compiled stage-cost table: the struct is not zero-initialized, and moe_run's `cost`
 argument (empty means the compiled table) has no layer counterpart since the layer fits no
 costs.
+
+## Cost model, 2026-10-29
+
+Replaces the least-squares stage-cost fit (negative coefficients in 84de5bbafa344b7a). Data:
+mode 11 (mode 6 with stamps) on 72 cold-L2 launches, 3 sizes (32, 128, 256 tokens) x normal and
+skewed routing x 4 seeds x 3 partition tables (the compiled one, flat 100 per stage, steep
+20 + 25 n). The compiled table alone gives every CTA nearly the same predicted work, which is
+why the old fit was collinear; the other two put different class mixes and cuts on each CTA.
+Target: warp 0's time inside segments of both paths (the per-warp stamps cover only the
+mma.sync path, so the old fit's target missed every wgmma segment). Terms, each a separate kind
+of work: per stage and per n8 tile of each phase, per segment and per cut (stream-K partial)
+segment of each phase, and a fixed CTA term. Fit: least squares with nonnegative coefficients
+(exact, every support tried) on seeds 11-12; validation on seeds 13-14 against the compiled
+table's prediction with its own nonnegative scale and offset. Gate: better per-launch Spearman
+rank of predicted work against measured CTA finish times on both routings, and no worse
+ordering of the three tables by makespan.
+
+Result (submit 8078730bfa434074, log in muse_moe_w4a16/profiles/):
+
+| term | A (GEMM1) | B (GEMM2) |
+|---|---|---|
+| per stage, us | 1.006 | 1.282 |
+| per n8 tile per stage, us | 0.139 | 0.112 |
+| per segment, us | 0 | 0 |
+| per cut segment, us | 2.55 | 10.45 |
+
+CTA term 0.91 us; fixed table: 0.01153 us per cost unit plus 19.3 us.
+
+| held-out | CTA rank rho, model / fixed | tables ordered right, model / fixed | work rms, model / fixed |
+|---|---|---|---|
+| normal | 0.683 / 0.448 | 18/18 / 17/18 | 22.7 / 23.3 us |
+| skewed | 0.702 / 0.255 | 12/15 / 13/15 | 20.9 / 21.8 us |
+
+Verdict: the model ranks CTAs within a launch much better than the compiled table, but it
+orders partitions no better (one pair worse on skewed routing) and explains the work barely
+better (rms 22 us on a 146 us mean, so most of the per-CTA spread is something neither model
+sees, probably waits on other CTAs' phase A output inside phase B segments). It failed the gate
+and does not drive partitioning; no -nn variant was benched.
+
+What the data says about T=128 anyway:
+- The compiled table had the shortest makespan in 10 of the 12 held-out cases (the exceptions:
+  bs128 skewed seed 13, flat 151.0 vs 156.7 us; bs32 skewed seed 13, steep 69.6 vs 70.4). Its
+  remaining imbalance (slowest CTA's finish minus the mean) at bs128 normal is 12.3 and 9.5 us
+  and at bs256 normal 17.9 and 21.2 us, so a perfect partition is worth at most about 10 us at
+  128 tokens, which would put the fat path (253 us) about 8 us under legacy128 (251.5). That is
+  under 0.5% of the score.
+- The per-stage term dominates: about 1.0 us (A) and 1.3 us (B) per stage against 0.11-0.14 us
+  per n8 tile, so at bs128 (mostly 4 n8 tiles per job) a stage costs the consumers about 1.56 us
+  against about 1.43 us for the ring to stream it (main-loads 191 us over about 134 stages). The
+  consumers are the bottleneck because of the per-stage fixed cost, not the MMA work per token.
+  The earlier ablation (36b5b559b0344d0f: bs128 loads 189.6, dequant without wgmma 211.9, wgmma
+  without dequant 233.2, both 260.8) puts more of that fixed cost on the wgmma side (fence,
+  two HGMMA, commit, wait per group) than on the dequant.
+- A cut segment in phase B costs about 10 us (A: 2.6): the fixup's FP32 global adds, the count,
+  and the last share's read-back. Each CTA has up to two cuts per phase.
 
 ## Where the fat path's time goes at 128 tokens, 2026-10-28
 
@@ -347,3 +404,12 @@ Commit after f82a8cf656df4914, local work only (no checks left on 2026-10-28):
 ## Ruled out
 
 The losers of the fused-kernel runs are in `docs/ruled-out.md` under muse_moe_w4a16.
+
+## Ruled out (pending merge)
+
+Rows for docs/ruled-out.md under muse_moe_w4a16, held here because this branch does not edit that file.
+
+| experiment | evidence | what it rules out |
+|---|---|---|
+| Nonnegative per-term cost model driving the stream-K partition (stage, n8 tile, segment, cut, CTA terms; 72 DIAG launches, held-out seeds) | submit 8078730bfa434074: held-out CTA rank rho 0.68/0.70 vs 0.45/0.26 for the compiled table, but tables ordered 18/18 vs 17/18 (normal) and 12/15 vs 13/15 (skewed), work rms 22 vs 23 us on a 146 us mean; gate failed, never benched | re-partitioning from per-CTA work counts at 32-256 tokens: the compiled table had the shortest makespan in 10 of 12 held-out cases and its imbalance at 128 tokens is about 10 us; reopen only with a model that sees phase B's waits on other CTAs |
+| Least-squares stage-cost fit (-fit variants, 2026-10-28) | submit 84de5bbafa344b7a: negative phase A coefficients, -fit variants 256.5-257.8 us at bs128 vs 252.8-254.7 for the compiled table | fitting per-class stage costs to per-CTA consumer time: under the compiled partition every CTA's time is about the same, so the classes are collinear |
