@@ -459,6 +459,224 @@ void router_mma(const uint4* wp, const __nv_bfloat16* xp, float* op, int m, cuda
     proj_launch<MT, 1, 1, 16, 8, true, true, float>(wp, xp, op, m, 256, 2 * 8192, stream);
 }
 
+// Compressed BF16 weights (prepare's _compress_bf16), for up to 8 tokens. Each weight's low byte
+// (lowest exponent bit and mantissa) is kept as is. Its high byte (sign and top 7 exponent bits)
+// becomes a nibble: the sign in bit 3 and, in bits 0-2, the top exponent bits minus a per-layer
+// base. On N(0, 1/sqrt(k)) weights 8 such values cover all but about 1.4e-4 of the weights; a
+// 16x16 tile holding any other weight keeps its 256 raw high bytes in a side table instead.
+// Per row tile and chunk of CCH k-tiles, each lane's share is 6 contiguous uint4 (4 of low
+// bytes, 2 of nibbles), 384 bytes per tile against 512 raw.
+constexpr int CCH = 8;
+constexpr int CVECS = 6;
+constexpr int CWARPS = 4;
+constexpr int C_EXC_VECS = 16;
+
+template <int WARPS>
+constexpr int cproj_smem_bytes() {
+    return STAGES * WARPS * (CVECS * 32 + CCH * C_EXC_VECS) * 16 +
+           STAGES * 8 * xs_stride<CCH>() * 2 + 8 * WARPS * 16 * 4;
+}
+
+__device__ __forceinline__ unsigned pick(const uint4& v, int j) {
+    return j == 0 ? v.x : j == 1 ? v.y : j == 2 ? v.z : v.w;
+}
+
+// DUMP writes each decoded A fragment to `dump` in _pack_mma_a's layout instead of multiplying,
+// so prepare() can compare every reconstructed weight bit for bit through this same code.
+template <int WARPS, int S, bool DUMP>
+__global__ void __cluster_dims__(1, S, 1) __launch_bounds__(WARPS * 32)
+cproj_kernel(const uint4* __restrict__ wc, const unsigned* __restrict__ desc,
+             const uint4* __restrict__ exc, unsigned base4, const __nv_bfloat16* __restrict__ x,
+             __nv_bfloat16* __restrict__ out, uint4* __restrict__ dump, int m, int n_out, int k,
+             int t_per_block) {
+    constexpr int ROWS = WARPS * 16;
+    constexpr int XS = xs_stride<CCH>();
+    constexpr int W_STAGE_VECS = WARPS * CVECS * 32;
+    constexpr int E_STAGE_VECS = WARPS * CCH * C_EXC_VECS;
+    extern __shared__ __align__(16) unsigned char smem[];
+    uint4* ws = reinterpret_cast<uint4*>(smem);
+    uint4* es = ws + STAGES * W_STAGE_VECS;
+    __nv_bfloat16* xs = reinterpret_cast<__nv_bfloat16*>(es + STAGES * E_STAGE_VECS);
+    float* partial = reinterpret_cast<float*>(xs + STAGES * 8 * XS);
+
+    const int warp = threadIdx.x >> 5;
+    const int lane = threadIdx.x & 31;
+    const int kt_total = k / 16;
+    const int ch_total = kt_total / CCH;
+    const int tile = blockIdx.x * WARPS + warp;
+    const int kt0 = blockIdx.y * t_per_block;
+    const int chunks = t_per_block / CCH;
+    const uint4* wsrc = wc + ((size_t)tile * ch_total + kt0 / CCH) * CVECS * 32 + lane;
+
+    auto load_main = [&](int c, int slot) {
+        uint4* wdst = ws + slot * W_STAGE_VECS + warp * CVECS * 32 + lane;
+#pragma unroll
+        for (int v = 0; v < CVECS; ++v) {
+            cp_async16(wdst + v * 32, wsrc + ((size_t)c * CVECS + v) * 32, true);
+        }
+        if (!DUMP) {
+            __nv_bfloat16* xdst = xs + slot * 8 * XS;
+            const int kcol = (kt0 + c * CCH) * 16;
+            for (int v = threadIdx.x; v < 8 * CCH * 2; v += WARPS * 32) {
+                const int tok = v / (CCH * 2);
+                const int col = (v % (CCH * 2)) * 8;
+                const bool valid = tok < m;
+                cp_async16(xdst + tok * XS + col, valid ? x + (size_t)tok * k + kcol + col : x,
+                           valid);
+            }
+        }
+    };
+    // Lane c holds chunk c's descriptor: bits 0-7 flag its tiles with raw high bytes, bits 8-31
+    // index the first of them in exc (16 uint4 per tile).
+    unsigned my_desc = 0;
+    auto load_exc = [&](int c, int slot) {
+        const unsigned d = __shfl_sync(0xffffffff, my_desc, c);
+        const int count = __popc(d & 0xff);
+        const uint4* src = exc + (size_t)(d >> 8) * C_EXC_VECS;
+        uint4* dst = es + slot * E_STAGE_VECS + warp * CCH * C_EXC_VECS;
+        for (int v = lane; v < count * C_EXC_VECS; v += 32) {
+            cp_async16(dst + v, src + v, true);
+        }
+    };
+
+    // The descriptor load waits behind the first stages' weight loads, not in front of them.
+#pragma unroll
+    for (int s = 0; s < STAGES - 1; ++s) {
+        if (s < chunks) {
+            load_main(s, s);
+        }
+    }
+    if (lane < chunks) {
+        my_desc = desc[(size_t)tile * ch_total + kt0 / CCH + lane];
+    }
+#pragma unroll
+    for (int s = 0; s < STAGES - 1; ++s) {
+        if (s < chunks) {
+            load_exc(s, s);
+        }
+        asm volatile("cp.async.commit_group;\n");
+    }
+
+    float acc[4] = {0.f, 0.f, 0.f, 0.f};
+    const int xrow = (lane & 7) * XS + ((lane >> 3) & 1) * 8;
+
+    for (int c = 0; c < chunks; ++c) {
+        asm volatile("cp.async.wait_group %0;\n" ::"n"(STAGES - 2));
+        __syncthreads();
+        if (c + STAGES - 1 < chunks) {
+            load_main(c + STAGES - 1, (c + STAGES - 1) % STAGES);
+            load_exc(c + STAGES - 1, (c + STAGES - 1) % STAGES);
+        }
+        asm volatile("cp.async.commit_group;\n");
+
+        const int slot = c % STAGES;
+        const uint4* wa = ws + slot * W_STAGE_VECS + warp * CVECS * 32 + lane;
+        const uint2* ea =
+            reinterpret_cast<const uint2*>(es + slot * E_STAGE_VECS + warp * CCH * C_EXC_VECS) +
+            lane;
+        const __nv_bfloat16* xb = xs + slot * 8 * XS + xrow;
+        const unsigned mask = __shfl_sync(0xffffffff, my_desc, c) & 0xff;
+        uint4 lo[4];
+        uint4 nib[2];
+#pragma unroll
+        for (int j = 0; j < 4; ++j) {
+            lo[j] = wa[j * 32];
+        }
+#pragma unroll
+        for (int j = 0; j < 2; ++j) {
+            nib[j] = wa[(4 + j) * 32];
+        }
+#pragma unroll
+        for (int i = 0; i < CCH; ++i) {
+            const unsigned l0 = i % 2 == 0 ? lo[i / 2].x : lo[i / 2].z;
+            const unsigned l1 = i % 2 == 0 ? lo[i / 2].y : lo[i / 2].w;
+            // Byte b of word holds weight b's nibble low and weight b + 4's high. base4 is the
+            // base in every byte; code + base stays below 128, so the add never carries.
+            const unsigned word = pick(nib[i / 4], i % 4);
+            unsigned h0 = ((word << 4) & 0x80808080u) | ((word & 0x07070707u) + base4);
+            unsigned h1 = (word & 0x80808080u) | (((word >> 4) & 0x07070707u) + base4);
+            if ((mask >> i) & 1) {
+                const uint2 e = ea[__popc(mask & ((1u << i) - 1)) * 32];
+                h0 = e.x;
+                h1 = e.y;
+            }
+            uint4 a;
+            a.x = __byte_perm(l0, h0, 0x5140);
+            a.y = __byte_perm(l0, h0, 0x7362);
+            a.z = __byte_perm(l1, h1, 0x5140);
+            a.w = __byte_perm(l1, h1, 0x7362);
+            if (DUMP) {
+                dump[((size_t)tile * kt_total + kt0 + c * CCH + i) * 32 + lane] = a;
+            } else {
+                mma_bf16(acc, a, ldmatrix_x2(xb + i * 16));
+            }
+        }
+    }
+    if (DUMP) {
+        return;
+    }
+
+    cg::cluster_group cluster = cg::this_cluster();
+    const int row = warp * 16 + (lane >> 2);
+    const int t = (lane & 3) * 2;
+    partial[t * ROWS + row] = acc[0];
+    partial[(t + 1) * ROWS + row] = acc[1];
+    partial[t * ROWS + row + 8] = acc[2];
+    partial[(t + 1) * ROWS + row + 8] = acc[3];
+    cluster.sync();
+
+    const int rank = cluster.block_rank();
+    for (int i = threadIdx.x; i < 8 * ROWS / S; i += blockDim.x) {
+        const int j = i * S + rank;
+        const int tok = j / ROWS;
+        if (tok < m) {
+            float sum = 0.f;
+#pragma unroll
+            for (int s = 0; s < S; ++s) {
+                sum += cluster.map_shared_rank(partial, s)[j];
+            }
+            store_out(out + (size_t)tok * n_out + blockIdx.x * ROWS + j % ROWS, sum);
+        }
+    }
+    // Peers read this block's shared memory above; it must outlive those reads.
+    cluster.sync();
+}
+
+template <int S, bool DUMP>
+void cproj_launch(const uint4* wc, const unsigned* desc, const uint4* exc, unsigned base4,
+                  const __nv_bfloat16* xp, __nv_bfloat16* op, uint4* dump, int m, int n, int k,
+                  cudaStream_t stream) {
+    constexpr int smem = cproj_smem_bytes<CWARPS>();
+    static bool configured = false;
+    if (!configured) {
+        cudaFuncSetAttribute(cproj_kernel<CWARPS, S, DUMP>,
+                             cudaFuncAttributeMaxDynamicSharedMemorySize, smem);
+        configured = true;
+    }
+    const dim3 grid(n / (CWARPS * 16), S);
+    cproj_kernel<CWARPS, S, DUMP><<<grid, CWARPS * 32, smem, stream>>>(
+        wc, desc, exc, base4, xp, op, dump, m, n, k, k / 16 / S);
+}
+
+// The same k-split per shape as proj_fwd's up-to-8-token path.
+int cproj_splits(int n, int k) {
+    return (k == 4096 && n == 1024) ? 8 : (k == 8192 ? 4 : 2);
+}
+
+template <bool DUMP>
+void cproj_dispatch(const uint4* wc, const unsigned* desc, const uint4* exc, unsigned base4,
+                    const __nv_bfloat16* xp, __nv_bfloat16* op, uint4* dump, int m, int n, int k,
+                    cudaStream_t stream) {
+    const int s = cproj_splits(n, k);
+    if (s == 8) {
+        cproj_launch<8, DUMP>(wc, desc, exc, base4, xp, op, dump, m, n, k, stream);
+    } else if (s == 4) {
+        cproj_launch<4, DUMP>(wc, desc, exc, base4, xp, op, dump, m, n, k, stream);
+    } else {
+        cproj_launch<2, DUMP>(wc, desc, exc, base4, xp, op, dump, m, n, k, stream);
+    }
+}
+
 }  // namespace
 
 // Grids: up to 8 tokens 128 to 256 blocks (two per SM); above, 128 blocks (one per SM).
@@ -505,16 +723,61 @@ torch::Tensor router_mma_fwd(torch::Tensor x, torch::Tensor wpacked) {
     }
     return out;
 }
+
+// Lane c of a warp holds chunk c's descriptor, so a block's k-slice is at most 32 chunks.
+void cproj_check_shape(int n, int k) {
+    const int s = cproj_splits(n, k);
+    TORCH_CHECK(n % (CWARPS * 16) == 0 && k % (16 * CCH * s) == 0, "cproj: bad shape");
+    TORCH_CHECK(k / 16 / s / CCH <= 32, "cproj: more chunks per block than lanes");
+}
+
+torch::Tensor cproj_fwd(torch::Tensor x, torch::Tensor wc, torch::Tensor desc, torch::Tensor exc,
+                        int64_t base) {
+    const int m = x.size(0);
+    const int k = x.size(1);
+    const int n = wc.size(0) * 16;
+    TORCH_CHECK(m <= 8, "cproj: at most 8 tokens");
+    cproj_check_shape(n, k);
+    auto out = torch::empty({m, n}, x.options());
+    cproj_dispatch<false>(
+        reinterpret_cast<const uint4*>(wc.data_ptr()),
+        reinterpret_cast<const unsigned*>(desc.data_ptr()),
+        reinterpret_cast<const uint4*>(exc.data_ptr()), static_cast<unsigned>(base) * 0x01010101u,
+        reinterpret_cast<const __nv_bfloat16*>(x.data_ptr<at::BFloat16>()),
+        reinterpret_cast<__nv_bfloat16*>(out.data_ptr<at::BFloat16>()), nullptr, m, n, k,
+        at::cuda::getCurrentCUDAStream());
+    return out;
+}
+
+// Decodes every weight through cproj_kernel's own loads and decode, in _pack_mma_a's layout.
+torch::Tensor cproj_dump(torch::Tensor wc, torch::Tensor desc, torch::Tensor exc, int64_t k,
+                         int64_t base) {
+    const int n = wc.size(0) * 16;
+    cproj_check_shape(n, k);
+    auto dump = torch::empty({n / 16, k / 16, 32, 16}, wc.options().dtype(torch::kUInt8));
+    cproj_dispatch<true>(
+        reinterpret_cast<const uint4*>(wc.data_ptr()),
+        reinterpret_cast<const unsigned*>(desc.data_ptr()),
+        reinterpret_cast<const uint4*>(exc.data_ptr()), static_cast<unsigned>(base) * 0x01010101u,
+        nullptr, nullptr, reinterpret_cast<uint4*>(dump.data_ptr()), 0, n, k,
+        at::cuda::getCurrentCUDAStream());
+    return dump;
+}
 """
 
 _PROJ_CPP_SRC = (
     "torch::Tensor proj_fwd(torch::Tensor x, torch::Tensor wpacked, int64_t n);"
     "torch::Tensor router_mma_fwd(torch::Tensor x, torch::Tensor wpacked);"
+    "torch::Tensor cproj_fwd(torch::Tensor x, torch::Tensor wc, torch::Tensor desc,"
+    " torch::Tensor exc, int64_t base);"
+    "torch::Tensor cproj_dump(torch::Tensor wc, torch::Tensor desc, torch::Tensor exc,"
+    " int64_t k, int64_t base);"
 )
 
 
 PROJ_LAYERS = ("qkv_gate", "o", "pooler", "unpooler")
 UNPOOL_SLICE = 1024
+CPROJ_MAX_TOKENS = 8
 
 
 def _pack_mma_a(w):
@@ -522,6 +785,50 @@ def _pack_mma_a(w):
     n, k = w.shape
     tiles = w.view(n // 16, 2, 8, k // 16, 2, 4, 2)
     return tiles.permute(0, 3, 2, 5, 4, 1, 6).contiguous()
+
+
+def _compress_bf16(w):
+    """Lossless 12-bit code for BF16 [n, k] in cproj_kernel's layout (see _PROJ_SRC).
+
+    Returns (main, desc, exc, base). main is uint8 [n/16, k/128, 6, 32, 16]: per row tile and
+    8-k-tile chunk, each lane's 8 low bytes per tile, then a 32-bit nibble word per tile whose
+    byte b holds weight b's nibble low and weight b + 4's high (weights in A-fragment order).
+    desc is int32 [n/16, k/128]: bit i flags tile i as escaped, bits 8 up index its first
+    escaped tile in exc, uint8 [escaped tiles, 32, 8] of raw high bytes. base is the start of
+    the 8 consecutive values of the top 7 exponent bits that cover the most weights.
+    """
+    n, k = w.shape
+    nt, kt, chunks = n // 16, k // 16, k // 128
+    u = _pack_mma_a(w).view(torch.int16).view(nt, kt, 32, 8).to(torch.int32) & 0xFFFF
+    hi = u >> 8
+    top = hi & 0x7F
+    window = torch.bincount(top.flatten(), minlength=128).unfold(0, 8, 1).sum(1)
+    base = int(window.argmax())
+    code = top - base
+    fits = (code >= 0) & (code <= 7)
+    nib = torch.where(fits, ((hi >> 7) << 3) | code, torch.zeros_like(code))
+    word = (nib[..., :4] | (nib[..., 4:] << 4)).to(torch.uint8)
+    lo_vecs = (u & 0xFF).to(torch.uint8).view(nt, chunks, 4, 2, 32, 8).permute(0, 1, 2, 4, 3, 5)
+    nib_vecs = word.view(nt, chunks, 2, 4, 32, 4).permute(0, 1, 2, 4, 3, 5)
+    main = torch.cat([lo_vecs.reshape(nt, chunks, 4, 32, 16),
+                      nib_vecs.reshape(nt, chunks, 2, 32, 16)], dim=2).contiguous()
+    escaped = ~fits.view(nt, kt, 256).all(-1)
+    flags = escaped.view(nt, chunks, 8).to(torch.int64)
+    mask = (flags << torch.arange(8, device=w.device)).sum(-1)
+    per_chunk = flags.sum(-1).flatten()
+    first = (torch.cumsum(per_chunk, 0) - per_chunk).view(nt, chunks)
+    if int(per_chunk.sum()) >= 1 << 23:
+        raise RuntimeError("too many escaped tiles for 24-bit descriptors")
+    desc = (mask | (first << 8)).to(torch.int32).contiguous()
+    exc = hi[escaped].to(torch.uint8).contiguous()
+    if exc.shape[0] == 0:
+        exc = torch.zeros(1, 32, 8, dtype=torch.uint8, device=w.device)
+    return main, desc, exc, base
+
+
+def _compressed_bytes(comp):
+    main, desc, exc, _ = comp
+    return main.numel() + desc.numel() * 4 + exc.numel()
 
 
 def _pack_router_hilo(hi, lo):
@@ -566,6 +873,72 @@ def _proj_self_test(fused, state, packed):
                 raise RuntimeError(f"{layer} m={m}: relative L2 error {err:.3e}")
             if not torch.equal(out[0], (8.0 * w[:n, 777].float()).to(torch.bfloat16)):
                 raise RuntimeError(f"{layer} m={m}: probe row is not exact")
+
+
+def _cproj_dump_test(dump, w, comp):
+    """Every weight, decoded by cproj_kernel on the GPU, must equal the original bits."""
+    n, k = w.shape
+    got = dump(*comp[:3], k, comp[3])
+    torch.cuda.synchronize()
+    want = _pack_mma_a(w).view(torch.uint8).view(n // 16, k // 16, 32, 16)
+    if not torch.equal(got, want):
+        bad = (got != want).sum().item()
+        raise RuntimeError(f"compressed decode differs in {bad} bytes of {want.numel()}")
+
+
+def _adversarial_weights(device):
+    """Named BF16 [64, 1024] matrices: all 65,536 bit patterns (NaN, inf, denormals, zeros) in
+    order, so whole chunks escape, and shuffled; every in-window high byte with every low byte,
+    so nothing escapes; and that plus 50 out-of-window weights, so tiles of both kinds mix."""
+    gen = torch.Generator(device=device).manual_seed(2)
+    pats = torch.arange(65536, dtype=torch.int32, device=device)
+    shuffled = pats[torch.randperm(65536, generator=gen, device=device)]
+    hi = (torch.arange(16, device=device) % 2) * 128 + 54 + torch.arange(16, device=device) // 2
+    window = (hi[:, None] * 256 + torch.arange(256, device=device)).flatten().repeat(16)
+    window = window.int()
+    window = window[torch.randperm(65536, generator=gen, device=device)]
+    mixed = window.clone()
+    spots = torch.randperm(65536, generator=gen, device=device)[:50]
+    mixed[spots] = torch.randint(0, 54 * 256, (50,), generator=gen, device=device).int()
+    out = {}
+    for name, bits in (("sorted", pats), ("shuffled", shuffled), ("window", window),
+                       ("mixed", mixed)):
+        signed = bits - ((bits >> 15) << 16)
+        out[name] = signed.to(torch.int16).view(torch.bfloat16).view(64, 1024)
+    return out
+
+
+def _escaped_tiles(comp):
+    return sum(int(((comp[1] >> i) & 1).sum()) for i in range(8))
+
+
+def _cproj_adversarial_test(dump):
+    counts = {}
+    for name, w in _adversarial_weights("cuda").items():
+        comp = _compress_bf16(w)
+        counts[name] = _escaped_tiles(comp)
+        _cproj_dump_test(dump, w, comp)
+    if counts["window"] != 0 or not 0 < counts["mixed"] < 256:
+        raise RuntimeError(f"adversarial sets missed their escape mix: {counts}")
+    print(f"compressed decode bit-exact on adversarial sets (escaped tiles of 256): {counts}")
+
+
+def _cproj_self_test(fused, state, comp):
+    gen = torch.Generator(device="cuda").manual_seed(3)
+    for layer in PROJ_LAYERS:
+        w = state[layer][:comp[layer][0].shape[0] * 16]
+        for m in (1, 5, 7, 8):
+            x = torch.randn(m, w.shape[1], generator=gen, device="cuda").to(torch.bfloat16)
+            x[0].zero_()
+            x[0, 777] = 8.0
+            out = fused(x, *comp[layer][:3], comp[layer][3])
+            torch.cuda.synchronize()
+            ref = x.double() @ w.double().T
+            err = ((out.double() - ref).norm() / ref.norm()).item()
+            if not err < 5e-3:
+                raise RuntimeError(f"compressed {layer} m={m}: relative L2 error {err:.3e}")
+            if not torch.equal(out[0], (8.0 * w[:, 777].float()).to(torch.bfloat16)):
+                raise RuntimeError(f"compressed {layer} m={m}: probe row is not exact")
 
 
 def _router_split2(x, state):
@@ -623,10 +996,10 @@ def prepare(weights):
     state["proj_fused"] = None
     try:
         ext = load_inline(
-            name="okc_proj_v6",
+            name="okc_proj_v7",
             cpp_sources=_PROJ_CPP_SRC,
             cuda_sources=_PROJ_SRC,
-            functions=["proj_fwd", "router_mma_fwd"],
+            functions=["proj_fwd", "router_mma_fwd", "cproj_fwd", "cproj_dump"],
             extra_cuda_cflags=["-O3", "-gencode=arch=compute_90a,code=sm_90a"],
         )
         packed = {name: _pack_mma_a(state[name]) for name in PROJ_LAYERS}
@@ -636,6 +1009,26 @@ def prepare(weights):
         print("proj kernel: fused")
     except Exception as exc:
         print(f"proj kernel: baseline ({type(exc).__name__}: {exc})")
+
+    state["cproj"] = None
+    if state["proj_fused"] is not None:
+        try:
+            comp = {}
+            for name in PROJ_LAYERS:
+                w = state[name][:UNPOOL_SLICE] if name == "unpooler" else state[name]
+                comp[name] = _compress_bf16(w)
+                _cproj_dump_test(ext.cproj_dump, w, comp[name])
+                ratio = _compressed_bytes(comp[name]) / (w.numel() * 2)
+                escaped = _escaped_tiles(comp[name]) / (w.numel() // 256)
+                print(f"compressed {name} {tuple(w.shape)}: {ratio:.4f} of BF16 bytes, "
+                      f"base {comp[name][3]}, {escaped:.4f} of tiles escaped, decode bit-exact")
+            _cproj_adversarial_test(ext.cproj_dump)
+            _cproj_self_test(ext.cproj_fwd, state, comp)
+            state["cproj_packed"] = comp
+            state["cproj"] = ext.cproj_fwd
+            print("compressed proj kernel: fused")
+        except Exception as exc:
+            print(f"compressed proj kernel: off ({type(exc).__name__}: {exc})")
 
     state["router_mma"] = None
     if state["proj_fused"] is not None:
@@ -654,6 +1047,10 @@ def kernel_fn(data, state):
     x, layer = data["x"], data["config"]["layer"]
     if layer != "router":
         n = data["config"]["n"]
+        if state["cproj"] is not None and x.shape[0] <= CPROJ_MAX_TOKENS:
+            main, desc, exc, base = state["cproj_packed"][layer]
+            if main.shape[0] * 16 == n:
+                return state["cproj"](x.contiguous(), main, desc, exc, base)
         if state["proj_fused"] is not None and _proj_fused_wins(layer, x.shape[0]):
             return state["proj_fused"](x.contiguous(), state["proj_packed"][layer], n)
         return _bf16_gemm_dispatch_impl(x, state[layer][:n], None)
