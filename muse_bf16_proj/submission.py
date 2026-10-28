@@ -190,10 +190,10 @@ _CPP_SRC = "torch::Tensor router_fwd(torch::Tensor x, torch::Tensor w);"
 # BF16 projections at m <= 32 on tensor cores. Each warp multiplies a 16-row weight tile by up
 # to 32 tokens with mma.m16n8k16; the math is padded to 8 tokens, which costs nothing because
 # these shapes are memory-bound. prepare() repacks W losslessly into the mma A-fragment order,
-# so a warp's loads are 512 contiguous bytes per k-tile. Tokens are staged in shared memory
-# row-major with coalesced loads, and ldmatrix builds the B fragments. The S k-slice blocks of a
-# row group form a cluster and sum their partials over distributed shared memory, like the
-# router kernel.
+# so each lane's share of a k-tile is 16 contiguous bytes. A 4-stage cp.async pipeline keeps
+# about 96 KB of weights and tokens in flight per SM without holding them in registers. The S
+# k-slice blocks of a row group form a cluster and sum their partials over distributed shared
+# memory, like the router kernel.
 _PROJ_SRC = r"""
 #include <cooperative_groups.h>
 #include <cuda_bf16.h>
@@ -202,43 +202,58 @@ _PROJ_SRC = r"""
 
 namespace cg = cooperative_groups;
 
-constexpr int CHUNK = 8;
+constexpr int WARPS = 4;
+constexpr int ROWS = WARPS * 16;
+constexpr int CH = 8;
+constexpr int STAGES = 4;
+// Token rows hold one chunk (CH k-tiles) padded by 8 elements, so the 8 row addresses of one
+// ldmatrix fall in different banks.
+constexpr int XS_STRIDE = CH * 16 + 8;
+constexpr int W_STAGE_VECS = WARPS * CH * 32;
 
-// x rows are padded by 8 elements so the 8 row addresses of one ldmatrix land in different
-// banks.
-template <int MT, int WARPS>
-constexpr int proj_smem_bytes(int t) {
-    return MT * 8 * (t * 16 + 8) * 2 + MT * 8 * WARPS * 16 * 4;
+template <int MT>
+constexpr int proj_smem_bytes() {
+    return STAGES * W_STAGE_VECS * 16 + STAGES * MT * 8 * XS_STRIDE * 2 + MT * 8 * ROWS * 4;
+}
+
+__device__ __forceinline__ unsigned smem_addr(const void* p) {
+    return static_cast<unsigned>(__cvta_generic_to_shared(p));
+}
+
+// A source size of 0 makes cp.async write zeros, which pads tokens past m.
+__device__ __forceinline__ void cp_async16(void* dst, const void* src, bool valid) {
+    asm volatile("cp.async.cg.shared.global [%0], [%1], 16, %2;\n"
+                 :
+                 : "r"(smem_addr(dst)), "l"(src), "r"(valid ? 16 : 0));
 }
 
 __device__ __forceinline__ uint2 ldmatrix_x2(const __nv_bfloat16* p) {
     uint2 r;
-    const unsigned addr = static_cast<unsigned>(__cvta_generic_to_shared(p));
     asm volatile("ldmatrix.sync.aligned.m8n8.x2.shared.b16 {%0,%1}, [%2];\n"
                  : "=r"(r.x), "=r"(r.y)
-                 : "r"(addr));
+                 : "r"(smem_addr(p)));
     return r;
 }
 
+// Not volatile: it only reads and writes registers, and the compiler needs to move it to
+// overlap ldmatrix latency.
 __device__ __forceinline__ void mma_bf16(float* c, const uint4& a, const uint2& b) {
-    asm volatile(
-        "mma.sync.aligned.m16n8k16.row.col.f32.bf16.bf16.f32 "
+    asm("mma.sync.aligned.m16n8k16.row.col.f32.bf16.bf16.f32 "
         "{%0,%1,%2,%3}, {%4,%5,%6,%7}, {%8,%9}, {%0,%1,%2,%3};\n"
         : "+f"(c[0]), "+f"(c[1]), "+f"(c[2]), "+f"(c[3])
         : "r"(a.x), "r"(a.y), "r"(a.z), "r"(a.w), "r"(b.x), "r"(b.y));
 }
 
-template <int MT, int WARPS, int S>
+template <int MT, int S>
 __global__ void __cluster_dims__(1, S, 1) __launch_bounds__(WARPS * 32, 2)
 proj_kernel(const uint4* __restrict__ wp, const __nv_bfloat16* __restrict__ x,
             __nv_bfloat16* __restrict__ out, int m, int n_out, int k, int t_per_block) {
-    extern __shared__ __align__(16) unsigned char smem[];
-    constexpr int ROWS = WARPS * 16;
     constexpr int TOKENS = MT * 8;
-    const int ks = t_per_block * 16;
-    const int xs_stride = ks + 8;
-    __nv_bfloat16* xs = reinterpret_cast<__nv_bfloat16*>(smem);
-    float* partial = reinterpret_cast<float*>(smem + TOKENS * xs_stride * 2);
+    extern __shared__ __align__(16) unsigned char smem[];
+    uint4* ws = reinterpret_cast<uint4*>(smem);
+    __nv_bfloat16* xs = reinterpret_cast<__nv_bfloat16*>(smem + STAGES * W_STAGE_VECS * 16);
+    float* partial = reinterpret_cast<float*>(
+        smem + STAGES * W_STAGE_VECS * 16 + STAGES * TOKENS * XS_STRIDE * 2);
 
     cg::cluster_group cluster = cg::this_cluster();
     const int warp = threadIdx.x >> 5;
@@ -246,42 +261,34 @@ proj_kernel(const uint4* __restrict__ wp, const __nv_bfloat16* __restrict__ x,
     const int kt_total = k / 16;
     const int row_tile = blockIdx.x * WARPS + warp;
     const int kt0 = blockIdx.y * t_per_block;
+    const int chunks = t_per_block / CH;
+    const uint4* wsrc = wp + ((size_t)row_tile * kt_total + kt0) * 32 + lane;
 
-    const uint4* src = wp + ((size_t)row_tile * kt_total + kt0) * 32 + lane;
-    uint4 buf0[CHUNK], buf1[CHUNK];
+    auto load_chunk = [&](int c, int slot) {
+        uint4* wdst = ws + slot * W_STAGE_VECS + warp * CH * 32 + lane;
 #pragma unroll
-    for (int i = 0; i < CHUNK; ++i) {
-        buf0[i] = __ldcs(src + i * 32);
-    }
-
-    // Coalesced 16-byte loads, issued in batches so they overlap; rows past m are zero.
-    constexpr int BATCH = 8;
-    const int vecs_per_row = ks / 8;
-    const int vecs = TOKENS * vecs_per_row;
-    for (int base = threadIdx.x; base < vecs; base += BATCH * blockDim.x) {
-        uint4 v[BATCH];
-#pragma unroll
-        for (int b = 0; b < BATCH; ++b) {
-            const int i = base + b * blockDim.x;
-            const int tok = i / vecs_per_row;
-            v[b] = make_uint4(0, 0, 0, 0);
-            if (i < vecs && tok < m) {
-                v[b] = __ldg(reinterpret_cast<const uint4*>(
-                    x + (size_t)tok * k + kt0 * 16 + (i % vecs_per_row) * 8));
-            }
+        for (int i = 0; i < CH; ++i) {
+            cp_async16(wdst + i * 32, wsrc + (c * CH + i) * 32, true);
         }
+        __nv_bfloat16* xdst = xs + slot * TOKENS * XS_STRIDE;
+        const int kcol = (kt0 + c * CH) * 16;
 #pragma unroll
-        for (int b = 0; b < BATCH; ++b) {
-            const int i = base + b * blockDim.x;
-            if (i < vecs) {
-                *reinterpret_cast<uint4*>(
-                    xs + (i / vecs_per_row) * xs_stride + (i % vecs_per_row) * 8) = v[b];
-            }
+        for (int v = threadIdx.x; v < TOKENS * 16; v += WARPS * 32) {
+            const int tok = v >> 4;
+            const int col = (v & 15) * 8;
+            const bool valid = tok < m;
+            cp_async16(xdst + tok * XS_STRIDE + col, valid ? x + (size_t)tok * k + kcol + col : x,
+                       valid);
         }
-    }
-    __syncthreads();
+    };
 
-    const __nv_bfloat16* xrow = xs + (lane & 7) * xs_stride + ((lane >> 3) & 1) * 8;
+#pragma unroll
+    for (int s = 0; s < STAGES - 1; ++s) {
+        if (s < chunks) {
+            load_chunk(s, s);
+        }
+        asm volatile("cp.async.commit_group;\n");
+    }
 
     float acc[MT][4];
 #pragma unroll
@@ -291,32 +298,28 @@ proj_kernel(const uint4* __restrict__ wp, const __nv_bfloat16* __restrict__ x,
             acc[nt][i] = 0.f;
         }
     }
+    // ldmatrix rows: lanes 0-7 give matrix 0 (k 0-7), lanes 8-15 matrix 1 (k 8-15).
+    const int xrow = (lane & 7) * XS_STRIDE + ((lane >> 3) & 1) * 8;
 
-    for (int c = 0; c < t_per_block; c += 2 * CHUNK) {
-#pragma unroll
-        for (int i = 0; i < CHUNK; ++i) {
-            buf1[i] = __ldcs(src + (c + CHUNK + i) * 32);
+    for (int c = 0; c < chunks; ++c) {
+        asm volatile("cp.async.wait_group %0;\n" ::"n"(STAGES - 2));
+        // Also guarantees every warp is done with the slot the next load overwrites.
+        __syncthreads();
+        if (c + STAGES - 1 < chunks) {
+            load_chunk(c + STAGES - 1, (c + STAGES - 1) % STAGES);
         }
+        asm volatile("cp.async.commit_group;\n");
+
+        const int slot = c % STAGES;
+        const uint4* wa = ws + slot * W_STAGE_VECS + warp * CH * 32 + lane;
+        const __nv_bfloat16* xb = xs + slot * TOKENS * XS_STRIDE + xrow;
 #pragma unroll
-        for (int i = 0; i < CHUNK; ++i) {
+        for (int i = 0; i < CH; ++i) {
+            const uint4 a = wa[i * 32];
 #pragma unroll
             for (int nt = 0; nt < MT; ++nt) {
-                const uint2 b = ldmatrix_x2(xrow + nt * 8 * xs_stride + (c + i) * 16);
-                mma_bf16(acc[nt], buf0[i], b);
-            }
-        }
-        if (c + 2 * CHUNK < t_per_block) {
-#pragma unroll
-            for (int i = 0; i < CHUNK; ++i) {
-                buf0[i] = __ldcs(src + (c + 2 * CHUNK + i) * 32);
-            }
-        }
-#pragma unroll
-        for (int i = 0; i < CHUNK; ++i) {
-#pragma unroll
-            for (int nt = 0; nt < MT; ++nt) {
-                const uint2 b = ldmatrix_x2(xrow + nt * 8 * xs_stride + (c + CHUNK + i) * 16);
-                mma_bf16(acc[nt], buf1[i], b);
+                const uint2 b = ldmatrix_x2(xb + nt * 8 * XS_STRIDE + i * 16);
+                mma_bf16(acc[nt], a, b);
             }
         }
     }
@@ -352,35 +355,34 @@ proj_kernel(const uint4* __restrict__ wp, const __nv_bfloat16* __restrict__ x,
     cluster.sync();
 }
 
-template <int MT, int WARPS, int S>
+template <int MT, int S>
 void proj_launch(const uint4* wp, const __nv_bfloat16* xp, __nv_bfloat16* op, int m, int n,
                  int k, cudaStream_t stream) {
-    const int t = k / 16 / S;
-    const int smem = proj_smem_bytes<MT, WARPS>(t);
-    static int configured = 0;
-    if (configured < smem) {
-        cudaFuncSetAttribute(proj_kernel<MT, WARPS, S>,
-                             cudaFuncAttributeMaxDynamicSharedMemorySize, smem);
-        configured = smem;
+    static bool configured = false;
+    if (!configured) {
+        cudaFuncSetAttribute(proj_kernel<MT, S>, cudaFuncAttributeMaxDynamicSharedMemorySize,
+                             proj_smem_bytes<MT>());
+        configured = true;
     }
-    const dim3 grid(n / 16 / WARPS, S);
-    proj_kernel<MT, WARPS, S><<<grid, WARPS * 32, smem, stream>>>(wp, xp, op, m, n, k, t);
+    const dim3 grid(n / ROWS, S);
+    proj_kernel<MT, S><<<grid, WARPS * 32, proj_smem_bytes<MT>(), stream>>>(
+        wp, xp, op, m, n, k, k / 16 / S);
 }
 
-template <int WARPS, int S>
+template <int S>
 void proj_dispatch_m(const uint4* wp, const __nv_bfloat16* xp, __nv_bfloat16* op, int m, int n,
                      int k, cudaStream_t stream) {
     if (m <= 8) {
-        proj_launch<1, WARPS, S>(wp, xp, op, m, n, k, stream);
+        proj_launch<1, S>(wp, xp, op, m, n, k, stream);
     } else if (m <= 16) {
-        proj_launch<2, WARPS, S>(wp, xp, op, m, n, k, stream);
+        proj_launch<2, S>(wp, xp, op, m, n, k, stream);
     } else {
-        proj_launch<4, WARPS, S>(wp, xp, op, m, n, k, stream);
+        proj_launch<4, S>(wp, xp, op, m, n, k, stream);
     }
 }
 
-// Every config gives each warp 32 or 64 k-tiles (a multiple of 2 * CHUNK) and fills 128 to 256
-// blocks, so all SMs stream at once.
+// Each config fills 128 to 256 blocks (two fit per SM) and gives each warp a multiple of CH
+// k-tiles.
 torch::Tensor proj_fwd(torch::Tensor x, torch::Tensor wpacked, int64_t n) {
     const int m = x.size(0);
     const int k = x.size(1);
@@ -389,14 +391,12 @@ torch::Tensor proj_fwd(torch::Tensor x, torch::Tensor wpacked, int64_t n) {
     const auto* wp = reinterpret_cast<const uint4*>(wpacked.data_ptr());
     const auto* xp = reinterpret_cast<const __nv_bfloat16*>(x.data_ptr<at::BFloat16>());
     auto* op = reinterpret_cast<__nv_bfloat16*>(out.data_ptr<at::BFloat16>());
-    if (k == 1024) {
-        proj_dispatch_m<8, 2>(wp, xp, op, m, n, k, stream);
-    } else if (k == 4096 && n == 1024) {
-        proj_dispatch_m<4, 8>(wp, xp, op, m, n, k, stream);
-    } else if (k == 4096) {
-        proj_dispatch_m<8, 4>(wp, xp, op, m, n, k, stream);
+    if (k == 4096 && n == 1024) {
+        proj_dispatch_m<8>(wp, xp, op, m, n, k, stream);
+    } else if (k == 8192) {
+        proj_dispatch_m<4>(wp, xp, op, m, n, k, stream);
     } else {
-        proj_dispatch_m<8, 8>(wp, xp, op, m, n, k, stream);
+        proj_dispatch_m<2>(wp, xp, op, m, n, k, stream);
     }
     return out;
 }
@@ -491,7 +491,7 @@ def prepare(weights):
     state["proj_fused"] = None
     try:
         ext = load_inline(
-            name="okc_proj_v2",
+            name="okc_proj_v3",
             cpp_sources=_PROJ_CPP_SRC,
             cuda_sources=_PROJ_SRC,
             functions=["proj_fwd"],

@@ -10,12 +10,13 @@ import numpy as np
 
 # (k, n, warps, s) for every proj_fwd branch; n is the output width.
 CONFIGS = {
-    "o": (1024, 8192, 8, 2),
+    "o": (1024, 8192, 4, 2),
     "unpooler sliced": (4096, 1024, 4, 8),
-    "unpooler": (4096, 8192, 8, 4),
-    "qkv_gate": (8192, 2304, 8, 8),
-    "pooler": (8192, 4096, 8, 8),
+    "unpooler": (4096, 8192, 4, 2),
+    "qkv_gate": (8192, 2304, 4, 4),
+    "pooler": (8192, 4096, 4, 4),
 }
+CH = 8
 
 LANE = np.arange(32)
 G, C = LANE // 4, LANE % 4
@@ -39,28 +40,28 @@ def a_tiles(packed_rt):
 
 
 def staged_b(x, m, k, kt0, t, mt):
-    """Shared-memory staging as the kernel writes it, then ldmatrix.x2 as PTX documents it.
-
-    Returns what each lane holds: [t, mt, 32 lanes, 4 elements (b.x pair, b.y pair)].
+    """Each chunk's token staging as the kernel's cp.async writes it, then ldmatrix.x2 as PTX
+    documents it. Returns what each lane holds: [t, mt, 32 lanes, 4 (b.x pair, b.y pair)].
     """
-    ks, stride = t * 16, t * 16 + 8
-    xs = np.zeros(mt * 8 * stride, dtype=x.dtype)
-    vecs_per_row = ks // 8
-    for i in range(mt * 8 * vecs_per_row):
-        tok, c = divmod(i, vecs_per_row)
-        if tok < m:
-            xs[tok * stride + c * 8:tok * stride + c * 8 + 8] = x[tok, kt0 * 16 + c * 8:][:8]
-    # Lane l supplies row l % 8 of matrix (l // 8) % 2; lane l receives, from matrix j, row l // 4,
-    # elements (l % 4) * 2 and +1.
+    stride = CH * 16 + 8
+    # Lane l supplies row l % 8 of matrix (l // 8) % 2; lane l receives, from matrix j, row
+    # l // 4, elements (l % 4) * 2 and +1.
     row_addr = (LANE & 7) * stride + ((LANE >> 3) & 1) * 8
     frags = np.zeros((t, mt, 32, 4), dtype=x.dtype)
-    for kt in range(t):
-        for nt in range(mt):
-            addr = row_addr + nt * 8 * stride + kt * 16
-            for j in range(2):
-                rows = addr[j * 8 + G]
-                for e in range(2):
-                    frags[kt, nt, :, j * 2 + e] = xs[rows + C * 2 + e]
+    for c in range(t // CH):
+        xs = np.zeros(mt * 8 * stride, dtype=x.dtype)
+        kcol = (kt0 + c * CH) * 16
+        for v in range(mt * 8 * 16):
+            tok, col = v >> 4, (v & 15) * 8
+            if tok < m:
+                xs[tok * stride + col:tok * stride + col + 8] = x[tok, kcol + col:kcol + col + 8]
+        for i in range(CH):
+            for nt in range(mt):
+                addr = row_addr + nt * 8 * stride + i * 16
+                for j in range(2):
+                    rows = addr[j * 8 + G]
+                    for e in range(2):
+                        frags[c * CH + i, nt, :, j * 2 + e] = xs[rows + C * 2 + e]
     return frags
 
 
