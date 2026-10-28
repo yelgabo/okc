@@ -39,7 +39,8 @@ PATCHES = [
     ),
     (
         "        // The previous launch wrote this epoch (stream order makes it visible); a coherent\n",
-        "        // Under PDL the previous launch's writes are visible only after the wait.\n"
+        "        // Under PDL the previous launch's writes are visible only after the wait (on a\n"
+        "        // plain launch stream order already makes them so).\n"
         f"        {WAIT}\n",
     ),
 ]

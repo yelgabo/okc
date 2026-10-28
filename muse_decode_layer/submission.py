@@ -5000,7 +5000,8 @@ attn_one_kernel(const Params p) {
             }
         }
     } else {
-        // Under PDL the previous launch's writes are visible only after the wait.
+        // Under PDL the previous launch's writes are visible only after the wait (on a
+        // plain launch stream order already makes them so).
         asm volatile("griddepcontrol.wait;" ::: "memory");
         // The previous launch wrote this epoch (stream order makes it visible); a coherent
         // load, since the same kernel writes it and ld.global.nc is outside the memory model.
@@ -5172,12 +5173,13 @@ int64_t attn_one_probe_coop(bool pdl) {
         cudaGetLastError();
         return 0;
     }
-    cudaMemset(d, 0, sizeof(int));
     cudaStream_t s = nullptr;
     cudaStreamCreateWithFlags(&s, cudaStreamNonBlocking);
+    // On the probe's own stream: a non-blocking stream never orders against the legacy one.
+    bool ok = cudaMemsetAsync(d, 0, sizeof(int), s) == cudaSuccess;
     cudaGraph_t graph = nullptr;
     cudaGraphExec_t exec = nullptr;
-    bool ok = cudaStreamBeginCapture(s, cudaStreamCaptureModeThreadLocal) == cudaSuccess;
+    ok = ok && cudaStreamBeginCapture(s, cudaStreamCaptureModeThreadLocal) == cudaSuccess;
     if (ok) {
         coop_probe_kernel<<<1, 32, 0, s>>>(d);
         cudaLaunchConfig_t cfg = {};
@@ -5244,8 +5246,8 @@ torch::Tensor attn_one(torch::Tensor qkv, torch::Tensor page_table, torch::Tenso
                 && inv_freq.numel() == D / 2, "attn_one: inv_freq must be fp32 [32]");
     TORCH_CHECK(k_scale.scalar_type() == torch::kFloat && v_scale.scalar_type() == torch::kFloat,
                 "attn_one: scales must be fp32");
-    // The flat partition keeps 512 request offsets in shared memory and the counter map holds
-    // 4096 requests; the plan clamps nc so the rows fit.
+    // The flat partition keeps 512 request offsets in shared memory (the cooperative counters
+    // would allow 2048); the plan clamps nc so the rows fit.
     TORCH_CHECK(batch >= 1 && batch <= 512 && n_splits >= 1 && n_splits <= 65535,
                 "attn_one: batch or grid out of range");
     TORCH_CHECK(ws_acc.scalar_type() == torch::kFloat && ws_acc.is_contiguous()
@@ -6842,8 +6844,9 @@ _ONE_CNT_INTS = 32768
 _ONE_TARGET = 264
 # The instances _ONE_HOST_SRC builds (DL_ONE_INSTANCES).
 _ONE_BUILT = {1: (1, 3, 11, 13, 49), 8: (1, 3, 11, 15, 51)}
-# Full-context batches on the flat partition (else per request), and whether the flat
-# kernel's tiles come from a producer warpgroup (mode |32) or the consumers' own copies.
+# Full-context batches on the flat partition (else per request). Only the producer-warpgroup
+# flat instances (49, 51) are built here, so _ONE_PROD = False also sends those batches to
+# the per-request kernels.
 _ONE_FLAT = True
 _ONE_PROD = True
 # Cooperative modes launch with cudaLaunchAttributeCooperative when the driver accepts it under

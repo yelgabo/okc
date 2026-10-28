@@ -63,7 +63,8 @@ Per-shape columns, in TASK.md's order: d1 = decode 1, d16, d32, v1 = verify 1 (8
   the workspace invariant (rows, row sums, tickets, next-parity counters zero) after each,
   then 2,000 graph replays on decode 1 sliding, decode 16 full, verify 1 sliding and
   verify 16 full with the replayed output against an eager call (< 1e-4) and SGLang's
-  path (< 5e-2), and the speculated length forced wrong once (seq - 64, 50 replays).
+  path (< 5e-2), and on both batch-1 shapes the speculated length forced wrong (seq - 64,
+  50 replays each).
   Routed on every tp8 shape at q_len 1 and 8 unless `_ONE_ROUTE` excludes a
   (layer, q_len, batch); the fused, ws and prep paths stay as fallbacks.
 - Stream overlap (`ROUTE_ON_SIDE`): route_align runs on the router's side stream after top-8;
