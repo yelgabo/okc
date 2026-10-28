@@ -25,6 +25,10 @@ Every `okc check` and `okc submit`, newest last. Full per-shape output for each 
 | 10-27 | 4686daf77f2046c9 | check (bench) | 120418e | escaped tiles through a 12-tile ring per warp (72 KB per block) | 1.095x (1.079-1.111) | pooler wins: 1.153x / 1.099x at m = 1 / 8 (uncompressed 1.119x / 1.079x); qkv_gate 0.858x, o 0.865x, unpooler 1.125x at m=1, all below the uncompressed kernel |
 | 10-27 | 135b2743d1194e41 | check (bench) | b65d5a1 | descriptor load issued ahead of the weight prologue | 1.100x (1.083-1.116) | pooler 1.189x / 1.137x; qkv_gate 0.903x / 0.871x, o 0.906x / 0.793x, unpooler 1.144x / 1.002x. Final file keeps compression for the pooler only (not checked as a whole; per-shape estimate 1.136 to 1.141) |
 | 10-28 | 3843af6418a84a72 | **submit** | dfbf010 | skinny-kernel rewrite (12-bit sk at m <= 32, cgemv/rgemv/sgemv at m = 1, hi/lo cluster router, cuBLAS at m >= 128) | **1.349x** (1.329-1.369) | every candidate passed the FP64 self-test; picks: sk compressed on all BF16 shapes at m >= 8 and on qkv/pooler at m = 1, cgemv o m=1, sgemv slice m=1, rgemv router m=1, sk router m 8-32; prepare 16 s; load ratios decode 1/16/32 1.607/1.515/1.357, verify 1/16/32 1.860/0.990/0.991 |
+| 10-28 | 71b1927dca894bc4 | **submit** | 58cf59d | wide kernel (wd) for m 33-256: TMA + wgmma swap-AB, cluster DSMEM split-K, router on hi/lo tiles; tuned per (layer, bucket 64/128/256) against cuBLAS | **1.372x** (1.352-1.393) | every wd candidate passed the FP64 self-test; router m=128 16.70 -> 9.27 us (r128c16, kernel 7.6), m=256 17.66 -> 10.77 (r128c8, kernel 8.9); pooler m=128 picked wd on 30.2 vs 30.5 autotune us and judged 0.866x; BF16 wd lost to cuBLAS on every other shape |
+| 10-28 | 8d4b485c8ccf4674 | **submit** | 91b835e | wd router geometries with a CTA's whole K slice in flight (r64c16d, r128c16d); wide picks need a 3% margin over cuBLAS | **1.400x** (1.379-1.421) | margin kept pooler m=128 on cuBLAS (1.047x); router 1.872x / 1.629x at m=128/256 (r128c16 kernel 7.6 us, r128c8 8.7); the deep rings did not help (r64c16d 17.3 vs r64c16 14.3 autotune us at m=128), so the router is not bound by TMA round trips |
+| 10-28 | 6131a4a220d5486e | **submit** | 65bf8bc | same picks; ablation builds timed in prepare (a1 no wgmma, a2 no reduction/stores, a3 neither) | 1.388x (1.367-1.409) | autotune us, full / a1 / a2 / a3: router m=128 r128c16 12.9 / 12.4 / 11.1 / 10.5; router m=256 r128c8 14.8 / 13.7 / 13.4 / 12.1; o m=256 b2n256c2 17.3 / 15.5 / 14.0 / 12.1; pooler m=128 b1n128c2 30.6 / 29.2 / 29.0 / 27.6. The TMA pipeline alone is most of the time: the BF16 shapes move about 5.5 TB/s from L2, dominated by x re-read per 64-row block (pooler m=128: 128 MB for 64 MB of weights) |
+| 10-28 | 80b89e112bf3447f | **submit** | fc9ebbe | wd x multicast across CLR row blocks (cluster = CLK split-K x CLR); losing BF16 configs dropped | 1.372x (1.352-1.393) | every multicast config passed the FP64 self-test but ran 4 to 10x slower than cuBLAS (pooler m=128 m128k4r2 86.7, m128k2r4 127.8, m128k1r8 333 autotune us vs cuBLAS 29.5); about 1.3 to 4 us per k-tile, growing with CLR, with or without wgmma (ablation a3 123.7). Picks unchanged (router wd, the rest cuBLAS) |
 
 ## Lessons
 
@@ -162,3 +166,32 @@ m = 8: 10.51 (9.1), 5.82 (4.3), 14.35 (14.3), 4.59 (3.6), 5.68 (4.1). m = 16: 10
 ### Ruled out
 
 The losers of the sk rewrite runs are in `docs/ruled-out.md` under muse_bf16_proj.
+
+## Wide kernel 2026-10-28 (branch worktree-agent-a5b928823661efbc6)
+
+`wd_kernel` covers m = 33 to 256 (buckets 64 / 128 / 256, tuned at the bucket's top m against
+cuBLAS or SGLang's split router, a 3% margin required). Weights are the wgmma A operand in
+64-row K-major tiles straight from TMA (no repack), x the B operand (BN tokens); K splits across
+the CLK CTAs of a cluster with a DSMEM reduction; the router loads hi and lo tiles from a
+stacked [512, 8192] bf16 copy into one FP32 accumulator. Picks after four scored runs: router
+m 33 to 256 on wd (r64c16 / r128c16 / r128c8), every BF16 shape on cuBLAS; best 1.400x
+(8d4b485c8ccf4674), router 1.87x / 1.63x at m = 128 / 256.
+
+What the ablations say (6131a4a220d5486e, autotune us): the TMA pipeline alone is most of the
+time. BF16 shapes move about 5.5 TB/s from L2, and x is re-read once per 64-row block (pooler
+m=128: 128 MB of traffic for 64 MB of weights), so a BF16 win needs fewer x bytes (multicast)
+or larger row blocks. The router's pipeline alone takes about 4.5 us for 16 MB on 64 CTAs, and
+its DSMEM reduction about 1.8 us.
+
+Next check (first after 00:00 UTC): the multicast build with the CUTLASS-form remote arrive
+(`mbarrier.arrive.shared::cluster`, default `.release.cta`) and the producer's plain wait. If
+the per-k-tile cost drops to the non-multicast level, the multicast configs should land near
+the traffic estimate (pooler m=128: 96 MB at CLR 4, against 128 MB now).
+
+## Ruled out (pending merge)
+
+| experiment | evidence | what it rules out |
+|---|---|---|
+| wd router with a CTA's whole K slice in flight (r64c16d NST 8, r128c16d NST 6) | 8d4b485c8ccf4674: r64c16d 17.3 vs r64c16 14.3, r128c16d 13.0 vs r128c16 13.0 autotune us at m=128 | TMA round trips as the router's limit; deeper rings for this kernel |
+| wd BF16 without multicast (BM 64 or 128, BN 64 to 256, CLK 2 or 4) | 71b1927dca894bc4, 8d4b485c8ccf4674: lost to cuBLAS on every scored BF16 shape (best: pooler m=128 30.2 vs 30.5, judged 0.866x); CLK 4 always slower than CLK 2 | this geometry family at m >= 128; scoped to x re-read per 64-row block, no multicast |
+| wd x multicast with `.release.cluster` remote arrives and an acquire.cluster producer wait | 80b89e112bf3447f: 4 to 10x slower than cuBLAS, cost per k-tile grows with CLR | that barrier form only; the multicast design is retested with the CUTLASS form |

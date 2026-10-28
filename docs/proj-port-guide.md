@@ -131,3 +131,22 @@ is the pooler result as in `sk_fwd`. x is the same `[T, 8192]` tensor for both p
 `prepare()` self-tests both fused configs against FP64 (pooler and router outputs, probe rows)
 and stores `state["fused"][bucket]` = `run(x) -> (out, rout)` for the layer; the standalone
 problem's `kernel_fn` never uses them.
+
+## Wide kernel (`wd_fwd`, m = 33 to 256)
+
+```
+wd_fwd(cfg, w, x, out, n, k, diag)
+```
+
+- `cfg`: index into `WD_NAMES` (`WD_GEOM` name -> `(WG, BN, CLK, CLR, HL, NSTAGE)`).
+- `w`: the weight matrix as given, bf16 `[N, K]` contiguous (no repack); for the router (`HL`)
+  the stacked `[hi; lo]` bf16 `[2N, K]` (`state["router_hilo"]`).
+- `x`: bf16 `[M, K]` contiguous, any M >= 1 (the token tail reads TMA zero fill).
+- `out`: preallocated `[M, n]`, bf16 (f32 for the router).
+
+64 * WG rows per CTA, one consumer warpgroup per 64 rows plus a producer warp; cluster of
+CLK * CLR CTAs (K split across CLK, x multicast across CLR row blocks); grid
+`(N / (64 * WG * CLR) * CLK * CLR, ceil(M / BN))`. Tensor maps are encoded per call from the
+data pointers, so the call is graph-capturable as long as the captured buffers are replayed.
+`cudaFuncSetAttribute` runs on the first call of each config (the self-test does it before any
+capture). prepare() picks per (layer, m) for m in 33..256 from buckets 64 / 128 / 256.
