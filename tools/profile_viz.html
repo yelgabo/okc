@@ -13,7 +13,6 @@
     --text: #0b0b0b;
     --text-2: #52514e;
     --muted: #8a8984;
-    --accent: #2a78d6;
     --f-moe: #2a78d6;
     --f-attn: #eb6834;
     --f-gemm: #1baf7a;
@@ -22,9 +21,12 @@
     --f-moeglue: #008300;
     --f-misc: #6250d6;
     --f-unlisted: #b9b8b2;
-    --gap: #dcdbd6;
-    --good: #008300;
-    --bad: #e34948;
+    --gap: #cfcec8;
+    --on-light: #0b0b0b;
+    --on-dark: #ffffff;
+    --floor: #008300;
+    --good: #007a00;
+    --bad: #c93534;
 }
 @media (prefers-color-scheme: dark) {
     :root:not([data-theme="light"]) {
@@ -35,7 +37,6 @@
         --text: #f0efec;
         --text-2: #c3c2b7;
         --muted: #8f8e86;
-        --accent: #3987e5;
         --f-moe: #3987e5;
         --f-attn: #d95926;
         --f-gemm: #199e70;
@@ -44,9 +45,10 @@
         --f-moeglue: #008300;
         --f-misc: #9085e9;
         --f-unlisted: #5c5b56;
-        --gap: #3a3a36;
-        --good: #3fae3f;
-        --bad: #e66767;
+        --gap: #4a4a45;
+        --floor: #3fae3f;
+        --good: #4cbb4c;
+        --bad: #ee7a7a;
     }
 }
 :root[data-theme="dark"] {
@@ -57,7 +59,6 @@
     --text: #f0efec;
     --text-2: #c3c2b7;
     --muted: #8f8e86;
-    --accent: #3987e5;
     --f-moe: #3987e5;
     --f-attn: #d95926;
     --f-gemm: #199e70;
@@ -66,9 +67,10 @@
     --f-moeglue: #008300;
     --f-misc: #9085e9;
     --f-unlisted: #5c5b56;
-    --gap: #3a3a36;
-    --good: #3fae3f;
-    --bad: #e66767;
+    --gap: #4a4a45;
+    --floor: #3fae3f;
+    --good: #4cbb4c;
+    --bad: #ee7a7a;
 }
 * { box-sizing: border-box; }
 body {
@@ -77,11 +79,13 @@ body {
     color: var(--text);
     font: 14px/1.45 -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
 }
-main { max-width: 1280px; margin: 0 auto; padding: 20px 16px 60px; }
+main { max-width: 1240px; margin: 0 auto; padding: 20px 16px 60px; }
 h1 { font-size: 20px; margin: 0 0 4px; }
-h2 { font-size: 15px; margin: 28px 0 8px; }
-.sub { color: var(--text-2); margin: 0 0 16px; }
-.tabs { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 12px; }
+h2 { font-size: 16px; margin: 32px 0 6px; }
+p { margin: 0 0 10px; }
+.sub { color: var(--text-2); }
+code { font-size: 12px; }
+.tabs { display: flex; gap: 6px; flex-wrap: wrap; margin: 14px 0 6px; }
 .tabs button {
     border: 1px solid var(--grid);
     background: var(--surface);
@@ -90,9 +94,27 @@ h2 { font-size: 15px; margin: 28px 0 8px; }
     border-radius: 6px;
     cursor: pointer;
     font: inherit;
+    text-align: left;
 }
+.tabs button small { display: block; color: var(--muted); font-size: 12px; }
 .tabs button.on { background: var(--text); color: var(--surface); border-color: var(--text); }
-.controls { display: flex; gap: 16px; flex-wrap: wrap; align-items: center; margin: 12px 0; }
+.tabs button.on small { color: var(--surface); opacity: 0.75; }
+details.glossary { margin: 10px 0; }
+details.glossary summary { cursor: pointer; color: var(--text-2); }
+details.glossary dl { display: grid; grid-template-columns: max-content 1fr; gap: 4px 14px;
+                      margin: 8px 0 0; }
+details.glossary dt { font-weight: 600; }
+details.glossary dd { margin: 0; color: var(--text-2); }
+.summary {
+    background: var(--surface-2);
+    border-radius: 10px;
+    padding: 14px 16px;
+    margin: 12px 0;
+    font-size: 15px;
+}
+.summary .big { font-size: 28px; font-weight: 650; margin-right: 6px; }
+.summary .meta { color: var(--text-2); font-size: 13px; margin-top: 6px; }
+.controls { display: flex; gap: 16px; flex-wrap: wrap; align-items: center; margin: 8px 0; }
 .controls label { color: var(--text-2); display: flex; gap: 6px; align-items: center; }
 select {
     font: inherit;
@@ -101,135 +123,250 @@ select {
     border: 1px solid var(--grid);
     border-radius: 6px;
     padding: 4px 6px;
-    max-width: 520px;
+    max-width: 460px;
 }
-.note {
-    background: var(--surface-2);
-    border-radius: 8px;
-    padding: 10px 12px;
-    color: var(--text-2);
-    margin: 8px 0;
+.howto {
+    border: 1px solid var(--grid);
+    border-radius: 10px;
+    padding: 14px 16px;
+    display: grid;
+    grid-template-columns: minmax(280px, 1.1fr) 1fr;
+    gap: 18px;
+    align-items: center;
 }
-.note b { color: var(--text); }
-.legend { display: flex; gap: 14px; flex-wrap: wrap; color: var(--text-2); font-size: 13px; }
+.howto ol { margin: 0; padding-left: 0; list-style: none; color: var(--text-2); }
+.howto li { margin: 0 0 6px; display: flex; gap: 8px; }
+.howto li b { color: var(--text); }
+.pin {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 18px;
+    height: 18px;
+    flex: none;
+    border-radius: 50%;
+    background: var(--text);
+    color: var(--surface);
+    font-size: 11px;
+    font-weight: 700;
+}
+.legend { display: flex; gap: 14px; flex-wrap: wrap; color: var(--text-2); font-size: 13px;
+          margin: 8px 0; }
 .legend span { display: inline-flex; align-items: center; gap: 6px; }
-.sw { width: 12px; height: 12px; border-radius: 3px; display: inline-block; }
+.sw { width: 12px; height: 12px; border-radius: 3px; display: inline-block; flex: none; }
 .sw.gap {
     background: repeating-linear-gradient(45deg, var(--gap) 0 3px, transparent 3px 6px);
     outline: 1px solid var(--gap);
 }
-.mk { width: 2px; height: 14px; display: inline-block; background: var(--text); }
-.mk.floor { background: var(--good); }
-.mk.cmp { background: var(--muted); }
-#history { width: 100%; height: 190px; display: block; }
-.shapes { display: grid; grid-template-columns: minmax(150px, 230px) 44px 1fr 62px 54px 58px;
-          column-gap: 10px; align-items: center; }
+#history { width: 100%; height: 170px; display: block; }
+.shapes { display: grid; grid-template-columns: minmax(170px, 250px) 1fr 104px 92px;
+          column-gap: 14px; align-items: center; }
 .shapes .hd { color: var(--muted); font-size: 12px; padding-bottom: 4px;
               border-bottom: 1px solid var(--grid); }
-.shapes .c { padding: 6px 0; border-bottom: 1px solid var(--grid); }
+.shapes .c { padding: 6px 0; border-bottom: 1px solid var(--grid); min-height: 60px;
+             display: flex; flex-direction: column; justify-content: center; }
 .shapes .row { display: contents; cursor: pointer; }
-.shapes .row:hover .c { background: var(--surface-2); }
-.shapes .row.sel .c { background: var(--surface-2); }
-.num { text-align: right; font-variant-numeric: tabular-nums; }
-.lbl { font-size: 13px; }
-.track { position: relative; height: 34px; }
+.shapes .row:hover .c, .shapes .row.sel .c { background: var(--surface-2); }
+.shapes .row .c:first-child { padding-left: 6px; }
+.lbl b { font-weight: 600; }
+.lbl small { color: var(--muted); font-size: 12px; }
+.num { text-align: right; font-variant-numeric: tabular-nums; align-items: flex-end; }
+.verdict { font-weight: 600; }
+.verdict.good { color: var(--good); }
+.verdict.bad { color: var(--bad); }
+.verdict.even { color: var(--text-2); }
+.num small { color: var(--muted); font-size: 12px; font-weight: 400; }
+.track { position: relative; height: 50px; width: 100%; }
 .bar { position: absolute; left: 0; display: flex; gap: 2px; }
-.bar.ours { top: 3px; height: 16px; }
-.bar.sgl { top: 22px; height: 9px; opacity: 0.85; }
-.seg { height: 100%; min-width: 1px; }
+.bar.ours { top: 16px; height: 20px; }
+.bar.sgl { top: 39px; height: 9px; }
+.seg {
+    height: 100%;
+    min-width: 2px;
+    overflow: hidden;
+    white-space: nowrap;
+    font-size: 11px;
+    line-height: 20px;
+    padding: 0 4px;
+}
+.bar.sgl .seg { padding: 0; }
 .seg:last-child { border-radius: 0 4px 4px 0; }
 .seg.gapseg {
     background: repeating-linear-gradient(45deg, var(--gap) 0 3px, transparent 3px 6px);
 }
-.vline { position: absolute; top: 0; bottom: 0; width: 2px; pointer-events: none; }
+.endlbl { position: absolute; top: 16px; line-height: 20px; font-size: 12px; padding-left: 6px;
+          color: var(--text); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.vline { position: absolute; top: 12px; bottom: 0; width: 2px; pointer-events: none; }
 .vline.base { background: var(--text); }
-.vline.floor { background: var(--good); }
-.vline.cmp { background: var(--muted); width: 2px; }
-.good { color: var(--good); }
-.bad { color: var(--bad); }
+.vline.floor { background: var(--floor); }
+.vline.cmp { background: var(--muted); }
+.vlbl { position: absolute; top: 0; font-size: 11px; line-height: 12px; white-space: nowrap;
+        transform: translateX(-50%); color: var(--text-2); font-variant-numeric: tabular-nums; }
+.vlbl.floor { color: var(--floor); }
+.drill { grid-column: 1 / -1; background: var(--surface-2); border-radius: 0 0 8px 8px;
+         padding: 10px 14px 14px; margin-bottom: 6px; }
+.drill p { color: var(--text-2); }
 table { border-collapse: collapse; width: 100%; font-size: 13px; }
-th, td { padding: 5px 8px; border-bottom: 1px solid var(--grid); text-align: left; }
+th, td { padding: 6px 8px; border-bottom: 1px solid var(--grid); text-align: left;
+         vertical-align: middle; }
 th { color: var(--muted); font-weight: 500; }
 td.num, th.num { text-align: right; }
-.two { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+td.k { display: flex; gap: 8px; align-items: center; }
+td.k small { color: var(--muted); display: block; font-size: 11px; }
+.tag { font-size: 11px; color: var(--text-2); border: 1px solid var(--grid); border-radius: 4px;
+       padding: 0 5px; }
+.lev-bar { display: inline-block; height: 8px; border-radius: 0 4px 4px 0;
+           background: var(--text-2); vertical-align: middle; margin-right: 8px; }
 #tip {
     position: fixed;
     pointer-events: none;
     background: var(--text);
     color: var(--surface);
-    padding: 6px 9px;
+    padding: 7px 10px;
     border-radius: 6px;
     font-size: 12px;
-    max-width: 420px;
+    max-width: 440px;
     display: none;
     z-index: 10;
 }
-.tag { font-size: 11px; color: var(--muted); border: 1px solid var(--grid); border-radius: 4px;
-       padding: 0 4px; margin-left: 4px; }
-@media (max-width: 760px) {
-    .shapes { grid-template-columns: 1fr 52px 48px; }
-    .shapes .hide-sm { display: none; }
+@media (max-width: 800px) {
+    .howto { grid-template-columns: 1fr; }
+    .shapes { grid-template-columns: 1fr 96px; }
     .shapes .track-c { grid-column: 1 / -1; }
-    .two { grid-template-columns: 1fr; }
+    .shapes .hide-sm { display: none; }
 }
 </style>
 </head>
 <body>
 <main>
     <h1>okc profiles</h1>
-    <p class="sub">One row per shape (an input size the judge times). In each row the thick bar
-    is our run and the thin bar under it is SGLang's, both split into the GPU kernels that ran, in
-    order. The bar's length is the time taken. The solid vertical line is SGLang's measured time,
-    the one to beat, and the green line is the floor, the fastest the hardware allows. The score
-    is the weight-averaged geometric mean of the per-shape speedups.</p>
-    <div class="tabs" id="tabs"></div>
+    <p class="sub">Where each of our kernel-challenge runs spends its time, compared with SGLang
+    (the code we have to beat) and with the hardware's speed limit. Pick a problem, then read the
+    rows from the top.</p>
+    <details class="glossary">
+        <summary>What do these words mean?</summary>
+        <dl>
+            <dt>problem</dt>
+            <dd>One piece of the model we rewrite, for example the MoE step or the attention
+            step. Each tab is one problem.</dd>
+            <dt>run</dt>
+            <dd>One <code>okc check</code>: the judge times our code on every shape of the
+            problem and gives it one score.</dd>
+            <dt>shape</dt>
+            <dd>One input size the judge times. "decode, 16 users" means 16 users each
+            generating one token, so the code processes 16 tokens in one call. "verify" means
+            each user checks 8 guessed tokens at once, so 16 users is 128 tokens.</dd>
+            <dt>kernel</dt>
+            <dd>One function that runs on the GPU. Our code for one shape launches several, one
+            after another; each coloured piece of a bar is one kernel.</dd>
+            <dt>floor</dt>
+            <dd>The fastest the shape could possibly run: the bytes it must read divided by the
+            GPU's memory bandwidth (or the maths divided by its peak, if larger).</dd>
+            <dt>score</dt>
+            <dd>How many times faster than SGLang we are, averaged over the shapes (a weighted
+            geometric mean). Above 1.0x beats SGLang.</dd>
+            <dt>sliding / full</dt>
+            <dd>The two kinds of attention layer in Muse: sliding looks back 2,048 tokens, full
+            looks back over the whole 80,000-token context.</dd>
+        </dl>
+    </details>
 
-    <h2>Score history</h2>
-    <svg id="history" role="img" aria-label="Score per run"></svg>
-    <div class="legend" id="hlegend"></div>
+    <div class="tabs" id="tabs"></div>
+    <div class="summary" id="summary"></div>
 
     <div class="controls">
-        <label>Run <select id="run"></select></label>
-        <label>Compare with <select id="cmp"></select></label>
-        <label>Scale <select id="mode">
-            <option value="rel">% of SGLang time</option>
-            <option value="abs">µs</option>
+        <label>Showing run <select id="run"></select></label>
+        <label>Compare with an earlier run <select id="cmp"></select></label>
+        <label>Bar lengths <select id="mode">
+            <option value="rel">as a share of SGLang's time</option>
+            <option value="abs">in microseconds</option>
         </select></label>
     </div>
-    <div class="note" id="runnote"></div>
+
+    <h2>How to read a row</h2>
+    <div class="howto">
+        <div class="track" id="example"></div>
+        <ol>
+            <li><span class="pin">1</span><span><b>Thick bar: our code.</b> Each coloured piece is
+            one GPU kernel, left to right in the order they ran. A longer piece took longer.
+            The number after the bar is our total time.</span></li>
+            <li><span class="pin">2</span><span><b>Thin bar: SGLang's code,</b> split the same
+            way, so you can compare piece by piece.</span></li>
+            <li><span class="pin">3</span><span><b>Solid line: SGLang's total time.</b> If our
+            bar ends left of it, we win that shape.</span></li>
+            <li><span class="pin">4</span><span><b>Green line: the floor.</b> Nothing can end
+            left of it. The space between it and our bar's end is what is left to win.</span></li>
+        </ol>
+    </div>
     <div class="legend" id="legend"></div>
 
-    <h2>Per shape</h2>
+    <h2>Every shape in this run</h2>
+    <p class="sub">Click a row to list its kernels.</p>
     <div class="shapes" id="shapes"></div>
 
-    <div class="two">
-        <div>
-            <h2>Kernel leverage</h2>
-            <p class="sub">Score multiplier if the kernel's time were halved on every shape where
-            it runs. Weight share times the log of the shape's gain, summed.</p>
-            <table id="lev"></table>
-        </div>
-        <div>
-            <h2 id="dtitle">Shape detail</h2>
-            <p class="sub" id="dsub">Click a shape row.</p>
-            <table id="detail"></table>
-        </div>
-    </div>
+    <h2>Which kernel to speed up first</h2>
+    <p class="sub">Each kernel that ran, best target first. The last column is the score this
+    run would get if that one kernel were twice as fast everywhere it runs. The score averages
+    per-shape speedups, so what counts is how much of each shape's time a kernel takes and how
+    much those shapes weigh, not its raw microseconds: 10&nbsp;µs that is all of a short,
+    heavily weighted shape beats 300&nbsp;µs that is part of a long, lightly weighted one.</p>
+    <table id="lev"></table>
+
+    <h2>Score history</h2>
+    <p class="sub">Every saved run of this problem, oldest on the left. Click a dot to open that
+    run. The vertical whisker is the 95% confidence interval.</p>
+    <svg id="history" role="img" aria-label="Score per run"></svg>
+    <div class="legend" id="hlegend"></div>
 </main>
 <div id="tip"></div>
 <script>
 const DATA = /*DATA*/null;
 const FAMS = [
-    ["moe", "MoE GEMM"], ["attn", "attention"], ["gemm", "dense GEMM"], ["router", "router"],
-    ["norm", "norms"], ["moeglue", "MoE routing / finalize"], ["misc", "other kernels"],
-    ["unlisted", "kernels past the report's top 12"],
+    ["moe", "MoE matrix multiply"], ["attn", "attention"], ["gemm", "other matrix multiply"],
+    ["router", "router"], ["norm", "norms"], ["moeglue", "MoE routing / sum"],
+    ["misc", "other kernels"], ["unlisted", "kernels okc did not name"],
 ];
 const FAM_NAME = Object.fromEntries(FAMS);
+const DARK_TEXT = new Set(["gemm", "router", "norm", "unlisted"]);
+const PROBLEM_BLURB = {
+    muse_bf16_proj: "the dense matrix multiplies",
+    muse_moe_w4a16: "the mixture-of-experts step",
+    muse_attention_decode: "the attention step",
+    muse_decode_layer: "a whole decode layer",
+    muse_prefill_layer: "a whole prefill layer",
+};
 const KINDS = { submission: "var(--f-moe)", bench: "var(--f-attn)", baseline: "var(--f-gemm)" };
+const KIND_NAME = { submission: "submission check", bench: "bench check",
+                    baseline: "SGLang baseline" };
+const KERNEL_NAMES = [
+    [/marlin/i, "Marlin MoE GEMM"],
+    [/FlashAttnFwdCombine/, "FA3 combine"],
+    [/prepare_varlen/, "FA3 setup"],
+    [/flash::|FlashAttn/, "FA3 attention"],
+    [/attn_kernel/, "fused attention"],
+    [/combine_kernel/, "attention combine"],
+    [/prep_kernel/, "attention prep"],
+    [/gate_kernel/, "norm-gate"],
+    [/proj_kernel/, "projection GEMM"],
+    [/router_kernel/, "router"],
+    [/routing_kernel/, "MoE routing (top-8 pick)"],
+    [/splitKreduce/, "cuBLAS split-K sum"],
+    [/dot_kernel|gemv|Gemv/i, "cuBLAS dot / GEMV"],
+    [/nvjet|cublas|gemm/i, "cuBLAS GEMM"],
+    [/finalize/, "MoE finalize (sum of experts)"],
+    [/align/, "MoE route align"],
+    [/act_and_mul|silu/i, "SiLU and multiply"],
+    [/norm_residual/, "norm + residual"],
+    [/layer_norm|vectorized_layer/, "layer norm"],
+    [/reduce/i, "PyTorch reduce"],
+    [/elementwise/, "PyTorch elementwise"],
+];
 const $ = id => document.getElementById(id);
 const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;",
                                                       '"': "&quot;" }[c]));
 const fmt = (x, d = 1) => x == null ? "–" : x.toFixed(d);
+const pct = f => `${Math.round(f * 100)}%`;
+const us = x => x >= 100 ? x.toFixed(0) : x.toFixed(1);
 
 const params = new URLSearchParams(location.hash.slice(1));
 const state = {
@@ -240,10 +377,40 @@ const state = {
     shape: null,
 };
 
+function friendly(k) {
+    if (k.fam === "unlisted") {
+        return "kernels okc did not name";
+    }
+    if (k.fam === "gap") {
+        return "GPU idle between kernels";
+    }
+    for (const [re, name] of KERNEL_NAMES) {
+        if (re.test(k.name)) {
+            const variant = k.name.match(/<[^>]*\b(true|false)\b/);
+            return variant && /attn_kernel/.test(k.name) ? `${name} (${variant[1]} variant)`
+                                                         : name;
+        }
+    }
+    return k.name.split("<")[0];
+}
+
+function shapeTitle(s) {
+    const c = s.case;
+    const [kind, n] = (c.load || "").split(" ");
+    const users = c.batch ?? +n;
+    const who = `${users} user${users === 1 ? "" : "s"}`;
+    const layer = c.layer === "sliding" ? "sliding layer" : c.layer === "full" ? "full layer"
+        : c.layer ? `${c.layer} projection` : "";
+    const tokens = c.bs ?? c.m ?? (kind === "verify" ? users * (c.q_len || 8) : users);
+    const title = c.m != null ? `${layer}, ${who}` : layer ? `${who}, ${layer}` : who;
+    const what = kind === "verify" ? "verify (checks 8 guessed tokens per user)"
+                                   : "decode (one new token per user)";
+    return { title, sub: `${what} · ${tokens} token${tokens === 1 ? "" : "s"} per call` };
+}
+
 function runs() { return DATA[state.problem]; }
 function runById(job) { return runs().find(r => r.job === job); }
 function latestBaseline() { return runs().filter(r => r.kind === "baseline").at(-1); }
-function scored() { return runs().filter(r => r.kind !== "baseline"); }
 
 function tip(e, html) {
     const t = $("tip");
@@ -272,11 +439,53 @@ function save() {
     history.replaceState(null, "", "#" + h);
 }
 
+function verdict(spd) {
+    if (Math.abs(spd - 1) < 0.01) {
+        return { cls: "even", text: "same as SGLang" };
+    }
+    return spd > 1 ? { cls: "good", text: `${spd.toFixed(2)}x faster` }
+                   : { cls: "bad", text: `${((1 / spd - 1) * 100).toFixed(0)}% slower` };
+}
+
+function stack(profile) {
+    if (!profile) {
+        return [];
+    }
+    const segs = profile.kernels.map(k => ({ ...k }));
+    if (profile.unlisted > 0.05) {
+        segs.push({ name: "kernels okc did not name", fam: "unlisted", us: profile.unlisted,
+                    calls: profile.more });
+    }
+    return segs;
+}
+
+function leverage(run) {
+    const W = run.shapes.reduce((a, s) => a + s.weight, 0);
+    const agg = {};
+    for (const s of run.shapes) {
+        const segs = stack(s.profile);
+        const total = segs.reduce((a, k) => a + k.us, 0);
+        const items = [...segs, { name: "gap", fam: "gap", us: Math.max(s.ours - total, 0) }];
+        for (const k of items) {
+            const a = agg[k.name] ||= { ...k, lev: 0, wus: 0, shapes: 0, lo: 1, hi: 0 };
+            a.lev += s.weight / W * -Math.log(1 - 0.5 * Math.min(k.us, s.ours) / s.ours);
+            a.wus += s.weight / W * k.us;
+            if (k.us > 0) {
+                const f = Math.min(k.us / s.ours, 1);
+                a.shapes += 1;
+                a.lo = Math.min(a.lo, f);
+                a.hi = Math.max(a.hi, f);
+            }
+        }
+    }
+    return Object.values(agg).filter(a => a.wus > 0).sort((a, b) => b.lev - a.lev);
+}
+
 function renderTabs() {
     $("tabs").innerHTML = "";
     for (const p of Object.keys(DATA)) {
         const b = document.createElement("button");
-        b.textContent = p;
+        b.innerHTML = `${esc(p)}<small>${esc(PROBLEM_BLURB[p] || "")}</small>`;
         b.className = p === state.problem ? "on" : "";
         b.onclick = () => {
             state.problem = p;
@@ -293,7 +502,7 @@ function runLabel(r) {
     const d = new Date(r.time * 1000);
     const when = d.toLocaleString([], { month: "short", day: "numeric", hour: "2-digit",
                                         minute: "2-digit" });
-    return `${r.kind} ${r.job} · ${fmt(r.score, 3)}x · ${when}`;
+    return `${fmt(r.score, 3)}x · ${KIND_NAME[r.kind] || r.kind} ${r.job} · ${when}`;
 }
 
 function renderSelects() {
@@ -310,9 +519,292 @@ function renderSelects() {
     $("mode").value = state.mode;
 }
 
+function renderSummary() {
+    const run = runById(state.run);
+    const lev = leverage(run).filter(a => a.fam !== "gap");
+    const top = lev[0];
+    const shapes = run.shapes.map(s => ({ s, spd: s.base / s.ours }));
+    const worst = shapes.reduce((a, b) => b.spd < a.spd ? b : a);
+    const v = verdict(run.score);
+    let h = `<span class="big">${fmt(run.score, 3)}x</span>`;
+    h += run.kind === "baseline"
+        ? `This is SGLang's own code run as a submission, so it scores about 1.0x by design.
+           Its bars show where SGLang spends its time.`
+        : `On average over the ${run.shapes.length} shapes, this run is
+           <b class="verdict ${v.cls}">${v.text}</b>${v.cls === "even" ? "" : " than SGLang"}.`;
+    if (top && run.kind !== "baseline") {
+        h += ` The biggest single opportunity is <b>${esc(friendly(top))}</b>: making it twice
+              as fast would take the score to <b>${(run.score * Math.exp(top.lev)).toFixed(2)}x
+              </b>.`;
+        h += ` The weakest shape is <b>${esc(shapeTitle(worst.s).title)}</b>
+              (${verdict(worst.spd).text}).`;
+    }
+    const ci = run.ci ? `95% CI ${fmt(run.ci[0], 3)}-${fmt(run.ci[1], 3)} · ` : "";
+    h += `<div class="meta">${KIND_NAME[run.kind] || run.kind} ${run.job} · ${ci}` +
+         `<code>${esc(run.file)}</code>` +
+         (run.note ? `<br>What changed in this run: ${esc(run.note)}` : "") +
+         (latestBaseline() ? "" : `<br>No SGLang baseline profile for this problem yet, so rows
+          show only our bar.`) + `</div>`;
+    $("summary").innerHTML = h;
+}
+
+function drawTrack(tr, spec) {
+    const { ours, sgl, base, floor, cmpUs, measured, sglMeasured, scale, who } = spec;
+    const pos = x => x / scale * 100;
+    const bar = (segs, cls, total, measuredUs, label) => {
+        const b = document.createElement("div");
+        b.className = "bar " + cls;
+        const all = [...segs];
+        if (measuredUs - total > 0.05) {
+            all.push({ name: "gap", fam: "gap", us: measuredUs - total });
+        }
+        const sum = all.reduce((a, k) => a + k.us, 0);
+        b.style.width = pos(sum) + "%";
+        for (const k of all) {
+            const seg = document.createElement("div");
+            seg.className = "seg" + (k.fam === "gap" ? " gapseg" : "");
+            // flex-grow values summing below 1 fill only that fraction of the bar.
+            seg.style.flex = `${k.us / sum * 1000} 0 0`;
+            if (k.fam !== "gap") {
+                seg.style.background = `var(--f-${k.fam})`;
+                seg.style.color = DARK_TEXT.has(k.fam) ? "var(--on-light)" : "var(--on-dark)";
+                seg.dataset.label = friendly(k);
+            }
+            hover(seg, `<b>${label}: ${esc(friendly(k))}</b>${k.ours ? " (ours)" : ""}<br>` +
+                `${fmt(k.us)} µs, ${(k.us / measuredUs * 100).toFixed(0)}% of this shape's ` +
+                `${us(measuredUs)} µs` +
+                (k.calls ? ` · ran ${k.calls} time${k.calls > 1 ? "s" : ""}` : "") +
+                (k.fam === "gap" ? "<br>Time when no kernel was running (launch overhead)."
+                    : `<br><small>${esc(k.name)}</small>`));
+            b.append(seg);
+        }
+        tr.append(b);
+        return sum;
+    };
+    const oursEnd = bar(ours, "ours", ours.reduce((a, k) => a + k.us, 0), measured, who);
+    const end = document.createElement("div");
+    end.className = "endlbl";
+    const endAt = Math.max(oursEnd, measured);
+    const nearBase = Math.abs(pos(endAt) - pos(base)) / 100 * (tr.clientWidth || 600) < 56;
+    end.style.left = `calc(${pos(nearBase ? Math.max(endAt, base) : endAt)}% + 2px)`;
+    end.textContent = `${us(measured)} µs`;
+    tr.append(end);
+    if (sgl) {
+        bar(sgl, "sgl", sgl.reduce((a, k) => a + k.us, 0), sglMeasured, "SGLang");
+    }
+    const lines = [["floor", floor, `floor ${us(floor)}`, `The floor: ${fmt(floor)} µs. No code
+        can be faster than this on this shape.`],
+                   ["base", base, `SGLang ${us(base)}`, `SGLang's measured time: ${fmt(base)}
+        µs. Ending left of this line beats SGLang.`]];
+    if (cmpUs != null) {
+        lines.push(["cmp", cmpUs, "", `The compared run took ${fmt(cmpUs)} µs here.`]);
+    }
+    const width = tr.clientWidth || 600;
+    let lastLabelPx = -1e9;
+    for (const [cls, x, text, help] of lines) {
+        const v = document.createElement("div");
+        v.className = "vline " + cls;
+        v.style.left = pos(x) + "%";
+        tr.append(v);
+        const px = pos(x) / 100 * width;
+        if (text && px - lastLabelPx > 70) {
+            const l = document.createElement("div");
+            l.className = "vlbl " + cls;
+            l.style.left = pos(x) + "%";
+            l.textContent = text;
+            tr.append(l);
+            lastLabelPx = px;
+        }
+        const hit = document.createElement("div");
+        hit.style.cssText = `position:absolute;top:0;bottom:0;width:12px;margin-left:-5px;
+                             left:${pos(x)}%`;
+        hover(hit, help);
+        tr.append(hit);
+    }
+    tr.querySelectorAll(".bar.ours .seg[data-label]").forEach(seg => {
+        if (seg.clientWidth > seg.dataset.label.length * 6.2 + 10) {
+            seg.textContent = seg.dataset.label;
+        }
+    });
+}
+
+function renderExample() {
+    const tr = $("example");
+    tr.innerHTML = "";
+    const ex = [
+        { name: "a", fam: "moe", us: 40 }, { name: "b", fam: "gemm", us: 31 },
+        { name: "c", fam: "attn", us: 14 }, { name: "d", fam: "norm", us: 8 },
+        { name: "e", fam: "misc", us: 9 },
+    ];
+    const sgl = [
+        { name: "a", fam: "moe", us: 41 }, { name: "b", fam: "gemm", us: 44 },
+        { name: "c", fam: "attn", us: 22 }, { name: "d", fam: "norm", us: 14 },
+        { name: "e", fam: "misc", us: 50 },
+    ];
+    drawTrack(tr, { ours: ex, sgl, base: 171, floor: 40, measured: 106, sglMeasured: 171,
+                    scale: 200, who: "example" });
+    tr.querySelectorAll(".vlbl").forEach(l => l.remove());
+    tr.querySelectorAll(".seg").forEach(seg => {
+        seg.textContent = "";
+    });
+    const pin = (n, leftPct, top) => {
+        const p = document.createElement("span");
+        p.className = "pin";
+        p.textContent = n;
+        p.style.cssText = `position:absolute;left:${leftPct}%;top:${top}px;
+                           transform:translate(-50%,0)`;
+        tr.append(p);
+    };
+    pin(1, 106 / 200 * 100 + 13, 17);
+    pin(2, 171 / 200 * 100 + 4, 34);
+    pin(3, 171 / 200 * 100, -8);
+    pin(4, 40 / 200 * 100, -8);
+    tr.style.marginTop = "6px";
+}
+
+function renderLegend() {
+    const run = runById(state.run);
+    const used = new Set();
+    for (const r of [run, latestBaseline()].filter(Boolean)) {
+        for (const s of r.shapes) {
+            stack(s.profile).forEach(k => used.add(k.fam));
+        }
+    }
+    $("legend").innerHTML = "Colours: " + FAMS.filter(([f]) => used.has(f))
+        .map(([f, n]) => `<span><i class="sw" style="background:var(--f-${f})"></i>${n}</span>`)
+        .join("") + `<span><i class="sw gap"></i>GPU idle between kernels</span>`;
+}
+
+function renderShapes() {
+    const run = runById(state.run);
+    const cmp = state.cmp ? runById(state.cmp) : null;
+    const base = latestBaseline();
+    const baseShape = key => base && base.job !== run.job
+        ? base.shapes.find(s => s.key === key) : null;
+    const cmpShape = key => cmp ? cmp.shapes.find(s => s.key === key) : null;
+    const W = run.shapes.reduce((a, s) => a + s.weight, 0);
+    const rel = state.mode === "rel";
+    const extent = s => {
+        const sum = p => stack(p).reduce((a, k) => a + k.us, 0);
+        const b = baseShape(s.key);
+        const c = cmpShape(s.key);
+        return Math.max(sum(s.profile), s.ours, b ? Math.max(sum(b.profile), b.ours) : 0,
+                        s.base, c ? c.ours : 0);
+    };
+    const max = 1.12 * Math.max(...run.shapes.map(s => rel ? extent(s) / s.base : extent(s)));
+
+    let h = `<div class="hd">shape (input size)</div>
+             <div class="hd hide-sm">where the time goes</div>
+             <div class="hd num">vs SGLang</div>
+             <div class="hd num hide-sm">room left</div>`;
+    run.shapes.forEach((s, i) => {
+        const t = shapeTitle(s);
+        const v = verdict(s.base / s.ours);
+        const c = cmpShape(s.key);
+        let delta = "";
+        if (c) {
+            const d = s.base / s.ours - c.base / c.ours;
+            delta = `<small>${d >= 0 ? "+" : ""}${d.toFixed(3)} vs compared run</small>`;
+        }
+        h += `<div class="row${state.shape === s.key ? " sel" : ""}" data-i="${i}">
+            <div class="c lbl"><b>${esc(t.title)}</b><small>${esc(t.sub)}</small>
+                <small>${(s.weight / W * 100).toFixed(1)}% of the score</small></div>
+            <div class="c track-c"><div class="track" data-i="${i}"></div></div>
+            <div class="c num"><span class="verdict ${v.cls}">${v.text}</span>${delta}</div>
+            <div class="c num hide-sm">${(s.ours / s.floor).toFixed(1)}x<small>above the floor
+                </small></div></div>`;
+        if (state.shape === s.key) {
+            h += `<div class="drill" id="drill"></div>`;
+        }
+    });
+    $("shapes").innerHTML = h;
+
+    $("shapes").querySelectorAll(".track").forEach(tr => {
+        const s = run.shapes[+tr.dataset.i];
+        const b = baseShape(s.key);
+        const c = cmpShape(s.key);
+        const k = rel ? s.base : 1;
+        const scaled = arr => arr.map(x => ({ ...x, us: x.us / k }));
+        drawTrack(tr, {
+            ours: scaled(stack(s.profile)),
+            sgl: b && b.profile ? scaled(stack(b.profile)) : null,
+            base: s.base / k,
+            floor: s.floor / k,
+            cmpUs: c ? c.ours / k : null,
+            measured: s.ours / k,
+            sglMeasured: b ? b.ours / k : 0,
+            scale: max,
+            who: run.kind === "baseline" ? "SGLang" : "ours",
+        });
+        if (rel) {
+            tr.querySelector(".endlbl").textContent = `${us(s.ours)} µs`;
+            tr.querySelectorAll(".vlbl").forEach(l => {
+                l.textContent = l.classList.contains("floor") ? `floor ${us(s.floor)}`
+                                                              : `SGLang ${us(s.base)}`;
+            });
+        }
+    });
+    $("shapes").querySelectorAll(".row").forEach(row => {
+        row.onclick = () => {
+            const key = run.shapes[+row.dataset.i].key;
+            state.shape = state.shape === key ? null : key;
+            renderShapes();
+        };
+    });
+    renderDrill();
+}
+
+function renderDrill() {
+    const el = $("drill");
+    if (!el) {
+        return;
+    }
+    const run = runById(state.run);
+    const s = run.shapes.find(x => x.key === state.shape);
+    const base = latestBaseline();
+    const b = base && base.job !== run.job ? base.shapes.find(x => x.key === s.key) : null;
+    const rows = (who, prof, measured) => stack(prof).map(k =>
+        `<tr><td>${who}</td><td class="k"><i class="sw" style="background:var(--f-${k.fam})">
+         </i><span>${esc(friendly(k))} ${k.ours ? '<span class="tag">ours</span>' : ""}
+         <small>${esc(k.name)}</small></span></td>
+         <td class="num">${fmt(k.us)} µs</td>
+         <td class="num">${(k.us / measured * 100).toFixed(0)}%</td>
+         <td class="num">${k.calls ?? ""}</td></tr>`).join("");
+    el.innerHTML = `<p>Kernels in the order they ran. SGLang ${fmt(s.base)} µs, ours
+        ${fmt(s.ours)} µs, floor ${fmt(s.floor)} µs. okc names only the 12 largest kernels per
+        shape; the rest are grouped as "kernels okc did not name".</p>
+        <table><tr><th>code</th><th>kernel</th><th class="num">time</th>
+        <th class="num">share of shape</th><th class="num">times run</th></tr>
+        ${rows(run.kind === "baseline" ? "SGLang" : "ours", s.profile, s.ours)}
+        ${b ? rows("SGLang", b.profile, b.ours) : ""}</table>`;
+}
+
+function renderLeverage() {
+    const run = runById(state.run);
+    const rows = leverage(run).slice(0, 12);
+    const maxLev = Math.max(...rows.map(a => a.lev));
+    $("lev").innerHTML = `<tr><th>kernel</th><th class="num">runs in</th>
+        <th class="num">its share of each of those shapes</th>
+        <th>score if this kernel were 2x faster</th></tr>` +
+        rows.map(a => {
+            const name = a.fam === "gap" ? "GPU idle between kernels" : friendly(a);
+            const sw = a.fam === "gap" ? `<i class="sw gap"></i>`
+                : `<i class="sw" style="background:var(--f-${a.fam})"></i>`;
+            return `<tr><td class="k">${sw}<span>${esc(name)}
+                ${a.ours ? '<span class="tag">ours</span>' : ""}
+                <small>${a.fam === "gap" ? "" : esc(a.name)}</small></span></td>
+                <td class="num">${a.shapes} of ${run.shapes.length} shapes</td>
+                <td class="num">${pct(a.lo)}${a.shapes > 1 && pct(a.hi) !== pct(a.lo)
+                    ? ` to ${pct(a.hi)}` : ""}</td>
+                <td><span class="lev-bar" style="width:${a.lev / maxLev * 120}px"></span>
+                ${fmt(run.score, 3)}x → <b>${(run.score * Math.exp(a.lev)).toFixed(3)}x</b></td>
+                </tr>`;
+        }).join("");
+}
+
 function renderHistory() {
     const svg = $("history");
-    const W = svg.clientWidth || 800, H = 190, L = 44, R = 12, T = 24, B = 26;
+    const W = svg.clientWidth || 800, H = 170, L = 44, R = 12, T = 24, B = 12;
     const rs = runs();
     const lo = Math.min(0.95, ...rs.map(r => r.ci ? r.ci[0] : r.score ?? 1));
     const hi = Math.max(1.1, ...rs.map(r => r.ci ? r.ci[1] : r.score ?? 1));
@@ -328,7 +820,7 @@ function renderHistory() {
     s += `<line x1="${L}" x2="${W - R}" y1="${y(1)}" y2="${y(1)}" stroke="var(--text-2)"/>`;
     s += `<text x="${W - R}" y="${y(1) - 4}" text-anchor="end" font-size="11"
           fill="var(--text-2)">SGLang = 1.0x</text>`;
-    const best = Math.max(...scored().map(r => r.score ?? 0));
+    const best = Math.max(...rs.filter(r => r.kind !== "baseline").map(r => r.score ?? 0));
     rs.forEach((r, i) => {
         if (r.score == null) {
             return;
@@ -352,239 +844,29 @@ function renderHistory() {
     svg.innerHTML = s;
     svg.querySelectorAll("circle").forEach(c => {
         const r = rs[+c.dataset.i];
-        hover(c, `<b>${r.kind} ${r.job}</b> ${fmt(r.score, 3)}x` +
-                 (r.ci ? ` (${fmt(r.ci[0], 3)}-${fmt(r.ci[1], 3)})` : "") +
-                 (r.note ? `<br>${esc(r.note)}` : ""));
+        hover(c, `<b>${fmt(r.score, 3)}x</b> · ${KIND_NAME[r.kind] || r.kind} ${r.job}` +
+                 (r.note ? `<br>${esc(r.note)}` : "") + "<br><i>click to open</i>");
         c.onclick = () => {
             state.run = r.job;
             state.shape = null;
             render();
+            scrollTo({ top: 0, behavior: "smooth" });
         };
     });
     $("hlegend").innerHTML = Object.entries(KINDS).filter(([k]) => rs.some(r => r.kind === k))
-        .map(([k, c]) => `<span><i class="sw" style="background:${c}"></i>${k}</span>`).join("") +
-        `<span>whiskers: 95% CI</span>`;
-}
-
-function stack(profile) {
-    if (!profile) {
-        return [];
-    }
-    const segs = profile.kernels.map(k => ({ ...k }));
-    if (profile.unlisted > 0.05) {
-        segs.push({ name: "kernels okc did not itemize (past its top 12)",
-                    fam: "unlisted", us: profile.unlisted, calls: profile.more });
-    }
-    return segs;
-}
-
-function weightedLog(shapes, f) {
-    const W = shapes.reduce((a, s) => a + s.weight, 0);
-    return shapes.reduce((a, s) => a + s.weight / W * f(s), 0);
-}
-
-function renderShapes() {
-    const run = runById(state.run);
-    const cmp = state.cmp ? runById(state.cmp) : null;
-    const base = latestBaseline();
-    const baseShape = key => base && base.job !== run.job
-        ? base.shapes.find(s => s.key === key) : null;
-    const cmpShape = key => cmp ? cmp.shapes.find(s => s.key === key) : null;
-    const W = run.shapes.reduce((a, s) => a + s.weight, 0);
-
-    const extent = s => {
-        const kernels = stack(s.profile).reduce((a, k) => a + k.us, 0);
-        const b = baseShape(s.key);
-        const sgl = b ? stack(b.profile).reduce((a, k) => a + k.us, 0) : 0;
-        const c = cmpShape(s.key);
-        return Math.max(kernels, s.ours, sgl, s.base, c ? c.ours : 0);
-    };
-    const rel = state.mode === "rel";
-    const max = Math.max(...run.shapes.map(s => rel ? extent(s) / s.base : extent(s)));
-    const pos = (s, us) => `${(rel ? us / s.base : us) / max * 100}%`;
-
-    let h = `<div class="hd">shape</div><div class="hd num hide-sm">weight</div>
-             <div class="hd hide-sm">time (${rel ? "% of SGLang" : "µs"}, scale to
-             ${rel ? (max * 100).toFixed(0) + "%" : max.toFixed(0) + " µs"})</div>
-             <div class="hd num">speedup</div><div class="hd num hide-sm">÷ floor</div>
-             <div class="hd num">${cmp ? "vs cmp" : "to floor"}</div>`;
-    run.shapes.forEach((s, i) => {
-        const spd = s.base / s.ours;
-        const tail = cmp && cmpShape(s.key)
-            ? (() => {
-                const d = s.base / s.ours - cmpShape(s.key).base / cmpShape(s.key).ours;
-                return `<span class="${d >= 0 ? "good" : "bad"}">${d >= 0 ? "+" : ""}${
-                    d.toFixed(3)}</span>`;
-            })()
-            : `×${Math.exp(s.weight / W * Math.log(s.ours / s.floor)).toFixed(3)}`;
-        h += `<div class="row${state.shape === s.key ? " sel" : ""}" data-i="${i}">
-            <div class="c lbl">${esc(s.label)}</div>
-            <div class="c num hide-sm">${(s.weight / W * 100).toFixed(1)}%</div>
-            <div class="c track-c"><div class="track" data-i="${i}"></div></div>
-            <div class="c num ${spd >= 1 ? "" : "bad"}">${spd.toFixed(3)}x</div>
-            <div class="c num hide-sm">${(s.ours / s.floor).toFixed(1)}x</div>
-            <div class="c num">${tail}</div></div>`;
-    });
-    $("shapes").innerHTML = h;
-
-    $("shapes").querySelectorAll(".track").forEach(tr => {
-        const s = run.shapes[+tr.dataset.i];
-        const segsHtml = (segs, cls, total, measured, who) => {
-            const bar = document.createElement("div");
-            bar.className = "bar " + cls;
-            const all = [...segs];
-            const outside = measured - total;
-            if (outside > 0.05) {
-                all.push({ name: "time outside kernels (launch gaps, idle)", fam: "gap",
-                           us: outside });
-            }
-            bar.style.width = pos(s, all.reduce((a, k) => a + k.us, 0));
-            for (const k of all) {
-                const seg = document.createElement("div");
-                seg.className = "seg" + (k.fam === "gap" ? " gapseg" : "");
-                seg.style.flex = `${k.us} 0 0`;
-                if (k.fam !== "gap") {
-                    seg.style.background = `var(--f-${k.fam})`;
-                }
-                hover(seg, `<b>${who}</b> · ${esc(k.name)}${k.ours ? " (ours)" : ""}<br>` +
-                    `${fmt(k.us)} µs · ${(k.us / measured * 100).toFixed(0)}% of ` +
-                    `${fmt(measured)} µs` +
-                    (k.calls ? ` · ${k.calls} call${k.calls > 1 ? "s" : ""}` : "") +
-                    `<br>${FAM_NAME[k.fam] || "not a kernel"}`);
-                bar.append(seg);
-            }
-            tr.append(bar);
-        };
-        const ours = stack(s.profile);
-        segsHtml(ours, "ours", ours.reduce((a, k) => a + k.us, 0), s.ours,
-                 run.kind === "baseline" ? "SGLang" : "ours");
-        const b = baseShape(s.key);
-        if (b && b.profile) {
-            const sg = stack(b.profile);
-            segsHtml(sg, "sgl", sg.reduce((a, k) => a + k.us, 0), b.ours, "SGLang");
-        }
-        const line = (cls, us, text) => {
-            const v = document.createElement("div");
-            v.className = "vline " + cls;
-            v.style.left = pos(s, us);
-            tr.append(v);
-            const hit = document.createElement("div");
-            hit.style.cssText = `position:absolute;top:0;bottom:0;width:10px;margin-left:-4px;
-                                 left:${pos(s, us)}`;
-            hover(hit, text);
-            tr.append(hit);
-        };
-        line("floor", s.floor, `floor ${fmt(s.floor)} µs`);
-        line("base", s.base, `SGLang measured ${fmt(s.base)} µs; ours ${fmt(s.ours)} µs`);
-        const c = cmpShape(s.key);
-        if (c) {
-            line("cmp", c.ours, `compare run ${cmp.job}: ${fmt(c.ours)} µs`);
-        }
-    });
-    $("shapes").querySelectorAll(".row").forEach(row => {
-        row.onclick = () => {
-            state.shape = run.shapes[+row.dataset.i].key;
-            renderShapes();
-            renderDetail();
-        };
-    });
-}
-
-function renderLegend() {
-    const run = runById(state.run);
-    const used = new Set();
-    const base = latestBaseline();
-    for (const r of [run, base].filter(Boolean)) {
-        for (const s of r.shapes) {
-            stack(s.profile).forEach(k => used.add(k.fam));
-        }
-    }
-    $("legend").innerHTML = FAMS.filter(([f]) => used.has(f))
-        .map(([f, n]) => `<span><i class="sw" style="background:var(--f-${f})"></i>${n}</span>`)
-        .join("") +
-        `<span><i class="sw gap"></i>outside kernels</span>` +
-        `<span><i class="mk"></i>SGLang measured</span>` +
-        `<span><i class="mk floor"></i>floor</span>` +
-        (state.cmp ? `<span><i class="mk cmp"></i>compare run, ours</span>` : "");
-}
-
-function renderNote() {
-    const run = runById(state.run);
-    const base = latestBaseline();
-    const ci = run.ci ? ` (95% CI ${fmt(run.ci[0], 3)}-${fmt(run.ci[1], 3)})` : "";
-    const ceil = Math.exp(weightedLog(run.shapes, s => Math.log(s.ours / s.floor)));
-    let t = `<b>${run.kind} ${run.job}: ${fmt(run.score, 3)}x</b>${ci}. ` +
-            `Every shape at its floor would multiply the score by ${ceil.toFixed(2)}. ` +
-            `File <code>${esc(run.file)}</code>.`;
-    if (run.note) {
-        t += `<br>Change: ${esc(run.note)}`;
-    }
-    if (!base) {
-        t += `<br>No SGLang baseline profile for this problem yet, so rows show only our bar.`;
-    }
-    $("runnote").innerHTML = t;
-}
-
-function renderLeverage() {
-    const run = runById(state.run);
-    const W = run.shapes.reduce((a, s) => a + s.weight, 0);
-    const agg = {};
-    for (const s of run.shapes) {
-        const segs = stack(s.profile);
-        const total = segs.reduce((a, k) => a + k.us, 0);
-        const out = Math.max(s.ours - total, 0);
-        const items = [...segs, { name: "time outside kernels", fam: "gap", us: out }];
-        for (const k of items) {
-            const a = agg[k.name] ||= { name: k.name, fam: k.fam, lev: 0, wus: 0, shapes: 0 };
-            a.lev += s.weight / W * -Math.log(1 - 0.5 * Math.min(k.us, s.ours) / s.ours);
-            a.wus += s.weight / W * k.us;
-            a.shapes += 1;
-        }
-    }
-    const rows = Object.values(agg).sort((a, b) => b.lev - a.lev).slice(0, 14);
-    $("lev").innerHTML = `<tr><th>kernel</th><th class="num">shapes</th>
-        <th class="num">weighted µs</th><th class="num">if halved</th></tr>` +
-        rows.map(a => `<tr><td><i class="sw ${a.fam === "gap" ? "gap" : ""}"
-            style="${a.fam === "gap" ? "" : `background:var(--f-${a.fam})`}"></i>
-            ${esc(a.name)}</td><td class="num">${a.shapes}</td>
-            <td class="num">${fmt(a.wus)}</td>
-            <td class="num">×${Math.exp(a.lev).toFixed(3)}</td></tr>`).join("");
-}
-
-function renderDetail() {
-    const run = runById(state.run);
-    const s = run.shapes.find(x => x.key === state.shape);
-    if (!s) {
-        $("dtitle").textContent = "Shape detail";
-        $("dsub").textContent = "Click a shape row.";
-        $("detail").innerHTML = "";
-        return;
-    }
-    const base = latestBaseline();
-    const b = base && base.job !== run.job ? base.shapes.find(x => x.key === s.key) : null;
-    $("dtitle").textContent = s.label;
-    $("dsub").textContent = `SGLang ${fmt(s.base)} µs, ours ${fmt(s.ours)} µs, floor ` +
-        `${fmt(s.floor)} µs, speedup ${(s.base / s.ours).toFixed(3)}x.`;
-    const side = (who, prof, measured) => stack(prof).map(k =>
-        `<tr><td>${who}</td><td><i class="sw" style="background:var(--f-${k.fam})"></i>
-         ${esc(k.name)}${k.ours ? '<span class="tag">ours</span>' : ""}</td>
-         <td class="num">${fmt(k.us)}</td><td class="num">${(k.us / measured * 100).toFixed(0)}%
-         </td><td class="num">${k.calls ?? ""}</td></tr>`).join("");
-    $("detail").innerHTML = `<tr><th></th><th>kernel</th><th class="num">µs</th>
-        <th class="num">share</th><th class="num">calls</th></tr>` +
-        side(run.kind === "baseline" ? "SGLang" : "ours", s.profile, s.ours) +
-        (b ? side("SGLang", b.profile, b.ours) : "");
+        .map(([k, c]) => `<span><i class="sw" style="background:${c}"></i>${KIND_NAME[k]}</span>`)
+        .join("");
 }
 
 function render() {
     renderTabs();
     renderSelects();
-    renderHistory();
-    renderNote();
+    renderSummary();
+    renderExample();
     renderLegend();
     renderShapes();
     renderLeverage();
-    renderDetail();
+    renderHistory();
     save();
 }
 
@@ -601,7 +883,11 @@ $("mode").onchange = e => {
     state.mode = e.target.value;
     render();
 };
-addEventListener("resize", renderHistory);
+addEventListener("resize", () => {
+    renderExample();
+    renderShapes();
+    renderHistory();
+});
 render();
 </script>
 </body>

@@ -105,6 +105,7 @@ def load_run(path, kind, notes):
         shapes.append({
             "key": case_key(case),
             "label": label(case),
+            "case": {k: v for k, v in case.items() if k != "seed"},
             "weight": case.get("weight", 1),
             "base": b["baseline_ns"] / 1e3,
             "ours": b["median_ns"] / 1e3,
