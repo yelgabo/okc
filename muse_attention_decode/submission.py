@@ -1356,42 +1356,15 @@ torch::Tensor attn_fused(torch::Tensor qkv, torch::Tensor page_table, torch::Ten
                           qkv.options().dtype(torch::kFloat32));
         p.ws = ws.data_ptr<float>();
     }
-    if (q_len == 1) {
-        if (cluster) {
-            launch<1, 1, 4, 1, true>(p, batch, stream);
-        } else if (variant == 1) {
-            launch<1, 1, 2, 2, false>(p, batch, stream);
-        } else {
-            launch<1, 1, 4, 1, false>(p, batch, stream);
-        }
+    // q_len 8 builds are no longer routed (the warp-specialized and one-launch kernels took
+    // over) and are left out of the build for compile time.
+    TORCH_CHECK(q_len == 1, "attn_fused: q_len 8 builds are not compiled in");
+    if (cluster) {
+        launch<1, 1, 4, 1, true>(p, batch, stream);
     } else if (variant == 1) {
-        if (cluster) {
-            launch<8, 1, 1, 4, true>(p, batch, stream);
-        } else {
-            launch<8, 1, 1, 4, false>(p, batch, stream);
-        }
-    } else if (variant == 2) {
-        if (cluster) {
-            launch<8, 1, 1, 4, true, true>(p, batch, stream);
-        } else {
-            launch<8, 1, 1, 4, false, true>(p, batch, stream);
-        }
-    } else if (variant == 5) {
-        if (cluster) {
-            launch<8, 1, 1, 4, true, false, true>(p, batch, stream);
-        } else {
-            launch<8, 1, 1, 4, false, false, true>(p, batch, stream);
-        }
-    } else if (variant == 6) {
-        launch<8, 2, 1, 2, false, false, true>(p, batch, stream);
-    } else if (variant == 3) {
-        launch<8, 2, 1, 2, false, true>(p, batch, stream);
-    } else if (variant == 4) {
-        launch<8, 1, 1, 2, false, true>(p, batch, stream);
-    } else if (cluster) {
-        launch<8, 2, 1, 2, true>(p, batch, stream);
+        launch<1, 1, 2, 2, false>(p, batch, stream);
     } else {
-        launch<8, 2, 1, 2, false>(p, batch, stream);
+        launch<1, 1, 4, 1, false>(p, batch, stream);
     }
     if (!cluster) {
         combine_kernel<<<batch * q_len, HQ * 32, 0, stream>>>(p.ws, p.qkv, p.v_scale, p.out, q_len,
@@ -1770,13 +1743,23 @@ __device__ __forceinline__ int kmaj(int r, int kc) {
 // max, sum, rescale factors and exponentials in FP32 (P still goes to P.V as f16, where FA3's
 // FP8 path uses E4M3). Bit 5 (with bit 4): FA3's intra-warpgroup overlap, the P.V of tile i in
 // flight under the Q.K and softmax of tile i + 1. Bit 6 (with bit 4): a quarter of the
-// exponentials on the FMA pipe (ex2_poly) to unload MUFU.
+// exponentials on the FMA pipe (ex2_poly) to unload MUFU. Bits 7-8 (with bit 4): bounded-shift
+// online softmax (backlog A1) with tau 4 (bit 7), 8 (bit 8) or 2 (both): a row keeps its shift c
+// until a tile's max over unmasked scores exceeds c + tau, so O and l are rescaled only then,
+// and P <= 2^tau. With bits 7-8 clear the shift is the running max, as FA3. Bit 9: loaders
+// specialized for page size 1 (cheaper index arithmetic, same loads); the host launches it only
+// when the config's page size is 1.
 template <int NS, int DA, int MODE, int PW, int VAR>
 __global__ void __launch_bounds__(CONSUMERS + 32 * PW, 1) attn_ws_kernel(const Params p) {
     constexpr bool STAMP = MODE == 2;
     constexpr bool F32 = (VAR & 16) != 0;
     static_assert(F32 || (VAR & 96) == 0, "bits 5 and 6 need bit 4");
     static_assert(!F32 || (VAR & 5) == 0, "bit 4 does not combine with bits 0 and 2");
+    constexpr int TAU_CODE = (VAR >> 7) & 3;
+    constexpr float TAU = TAU_CODE == 1 ? 4.f : TAU_CODE == 2 ? 8.f : TAU_CODE == 3 ? 2.f : 0.f;
+    static_assert(F32 || TAU_CODE == 0, "bits 7-8 need bit 4");
+    // ex2_poly is only checked for x <= 0, and a bounded shift lets x reach tau.
+    static_assert(TAU_CODE == 0 || (VAR & 64) == 0, "bits 7-8 do not combine with bit 6");
     constexpr int NV = NS - DA;
     using S = Smem<NS, DA>;
     long long acc[8] = {0, 0, 0, 0, 0, 0, 0, 0};
@@ -1836,6 +1819,123 @@ __global__ void __launch_bounds__(CONSUMERS + 32 * PW, 1) attn_ws_kernel(const P
         const int tt = lane & 7;
         const int cq = lane >> 3;
         const int* pt = p.page_table + static_cast<size_t>(b) * p.pt_stride;
+        if constexpr ((VAR & 512) != 0) {
+            // Page size 1 only (the host routes other page sizes to the generic path below).
+            // Same loads, barriers and fences as the generic path; only the index arithmetic
+            // differs. A cache row is the page entry itself, and lane (cq, tt) always copies
+            // bytes cq * 16 and cq * 16 + 64 of a 128-byte row, so the source address is a
+            // per-lane base plus entry * 128 and the second chunk is an immediate offset. The
+            // product is formed in 64 bits from the 32-bit entry, so it cannot overflow and no
+            // bound on the cache size is needed.
+            constexpr int PF = 4;
+            static_assert((NV & (NV - 1)) == 0, "f % NV is taken as a mask");
+            const int pt0 = tbase + (lane % TPW);
+            // A prefetch entry for tile u is in range iff lo + u * BN + pt0 < hi; that also
+            // implies u < ntiles, so one compare replaces the generic two.
+            const int plim = hi - lo - pt0;
+            const int* ptl = pt + lo + pt0;
+            auto entry1 = [&](int tile) {
+                return tile * BN < plim ? __ldg(ptl + tile * BN) : 0;
+            };
+            const uint8_t* ksrc = p.k_cache + cq * 16;
+            const uint8_t* vsrc = p.v_cache + cq * 16;
+            const uint32_t sbase = smem_u32(smem);
+            // kmaj(t + 8, cq) = kmaj(t, cq) + 512 and the value row of t + 8 is 1,024 bytes on,
+            // so one per-lane offset per buffer serves both rows a lane issues.
+            const uint32_t kdst = sbase + kmaj(tbase + tt, cq);
+            const uint32_t vdst = sbase + K_TILE + (tbase + tt) * 128 + cq * 16;
+            int pe[PF];
+#pragma unroll
+            for (int u = 0; u < PF; ++u) {
+                pe[u] = entry1(u);
+            }
+            if constexpr (STAMP) {
+                tclk = clock64();
+            }
+            // Ring indices kept as counters instead of i % NS, i / NS and f % NS: sl = i % NS,
+            // par = ((i / NS) + 1) & 1, sc = (i - DA) % NS.
+            int sl = 0;
+            uint32_t par = 1;
+            int sc = 0;
+            for (int base = 0; base < ntiles + DA; base += PF) {
+#pragma unroll
+                for (int u = 0; u < PF; ++u) {
+                    const int i = base + u;
+                    if (i >= ntiles + DA) {
+                        break;
+                    }
+                    lap(2);
+                    if (i >= NS) {
+                        mbar_wait(empty0 + 8 * sl, par, dead, p.dbg, 1);
+                    }
+                    lap(0);
+                    if (i < ntiles) {
+                        const uint32_t so = sl * STAGE;
+                        // Row tbase + r of tile i is in range iff r < rem.
+                        const int rem = hi - lo - i * BN - tbase;
+#pragma unroll
+                        for (int tb = 0; tb < TPW; tb += 8) {
+                            const int e = __shfl_sync(0xffffffffu, pe[u], tb + tt);
+                            const bool valid = tb + tt < rem;
+                            // Out-of-range lanes copy zero bytes (src-size 0); row 0 keeps
+                            // their unread source address inside the cache anyway.
+                            const uint64_t row = static_cast<uint32_t>(valid ? e : 0);
+                            const uint8_t* ks = ksrc + row * (HKV * D);
+                            const uint8_t* vs = vsrc + row * (HKV * D);
+                            const uint32_t kd = kdst + so + (tb >> 3) * 512;
+                            const uint32_t vd = vdst + so + tb * 128;
+#pragma unroll
+                            for (int j = 0; j < 2; ++j) {
+                                cp_async16(kd + j * (BN * D), ks + 64 * j, valid);
+                                cp_async16(vd + 64 * j, vs + 64 * j, valid);
+                            }
+                        }
+                        pe[u] = entry1(i + PF);
+                    }
+                    cp_commit();
+                    lap(1);
+                    if (i >= DA) {
+                        const int f = i - DA;
+                        cp_wait<DA>();
+                        lap(3);
+                        const uint8_t* vsm = smem + sc * STAGE + K_TILE;
+                        uint8_t* vb = smem + S::VH + (f & (NV - 1)) * (HKV * VH_HEAD);
+#pragma unroll
+                        for (int tb = 0; tb < TPW; tb += 8) {
+                            const int t = tbase + tb + tt;
+#pragma unroll
+                            for (int j = 0; j < 2; ++j) {
+                                const uint4 w = *reinterpret_cast<const uint4*>(
+                                    vsm + t * 128 + (cq + 4 * j) * 16);
+                                uint8_t* dst = vb + j * VH_HEAD + ((t >> 3) * 8 + 2 * cq) * 128
+                                               + (t & 7) * 16;
+                                *reinterpret_cast<uint4*>(dst) =
+                                    f16_from_fp8x8<VAR & 1>(w.x, w.y);
+                                *reinterpret_cast<uint4*>(dst + 128) =
+                                    f16_from_fp8x8<VAR & 1>(w.z, w.w);
+                            }
+                        }
+                        if constexpr ((VAR & 2) == 0) {
+                            fence_async_smem();
+                        }
+                        mbar_arrive(full0 + 8 * sc);
+                        lap(4);
+                        sc = sc == NS - 1 ? 0 : sc + 1;
+                    }
+                    if (sl == NS - 1) {
+                        sl = 0;
+                        par ^= 1;
+                    } else {
+                        ++sl;
+                    }
+                }
+            }
+            flush_stamps(8, 5);
+            if (STAMP && pw == 0 && lane == 0 && split == 0 && b == 0) {
+                p.dbg[16] = PW;
+            }
+            return;
+        }
         const int psize = p.page_size;
         auto entry = [&](int tile, int t) {
             const int pos = lo + tile * BN + t;
@@ -2195,7 +2295,15 @@ __global__ void __launch_bounds__(CONSUMERS + 32 * PW, 1) attn_ws_kernel(const P
             mx = fmaxf(mx, __shfl_xor_sync(0xffffffffu, mx, 2));
             // A row with every key masked so far keeps a finite floor as its max, so its
             // exponentials are 0, not NaN; FA3 does the same with Check_inf.
-            mu[hh] = fmaxf(fmaxf(mrow[hh], mx * sl2), -1e30f);
+            const float tmax = mx * sl2;
+            if constexpr (TAU_CODE == 0) {
+                mu[hh] = fmaxf(fmaxf(mrow[hh], tmax), -1e30f);
+            } else {
+                // Masked scores are -inf, so a tile with none valid leaves c alone, and the
+                // first valid tile sets c (from -inf or the floor). Every lane of a row's quad
+                // holds the same mx and c, so the row's decision is the same in all four.
+                mu[hh] = fmaxf(tmax > mrow[hh] + TAU ? tmax : mrow[hh], -1e30f);
+            }
             alpha[hh] = ex2(mrow[hh] - mu[hh]);
             mrow[hh] = mu[hh];
         }
@@ -2462,6 +2570,9 @@ __global__ void __launch_bounds__(CONSUMERS + 32 * PW, 1) attn_ws_kernel(const P
         lsum += __shfl_xor_sync(0xffffffffu, lsum, 1);
         lsum += __shfl_xor_sync(0xffffffffu, lsum, 2);
         if (c == 0) {
+            // With bits 7-8 this is the retained shift, not the row max. l and O are both
+            // relative to it, and the merge weights each partial by 2^(shift - max shift), so
+            // it needs no true max.
             if constexpr (F32) {
                 dst[0] = mrow[hh];
             } else {
@@ -2561,14 +2672,23 @@ void launch_var(const Params& p, int batch, cudaStream_t stream) {
 // INSTANTIATE: template void launch_var<7, 3, 0, 82>(const Params&, int, cudaStream_t);
 // INSTANTIATE: template void launch_var<7, 3, 0, 112>(const Params&, int, cudaStream_t);
 // INSTANTIATE: template void launch_var<7, 3, 0, 114>(const Params&, int, cudaStream_t);
-// INSTANTIATE: template void launch_var<7, 3, 2, 18>(const Params&, int, cudaStream_t);
+// INSTANTIATE: template void launch_var<7, 3, 0, 144>(const Params&, int, cudaStream_t);
+// INSTANTIATE: template void launch_var<7, 3, 0, 272>(const Params&, int, cudaStream_t);
+// INSTANTIATE: template void launch_var<7, 3, 1, 16>(const Params&, int, cudaStream_t);
+// INSTANTIATE: template void launch_var<7, 3, 2, 16>(const Params&, int, cudaStream_t);
+// INSTANTIATE: template void launch_var<7, 3, 2, 144>(const Params&, int, cudaStream_t);
+// INSTANTIATE: template void launch_var<7, 3, 2, 272>(const Params&, int, cudaStream_t);
+// INSTANTIATE: template void launch_var<7, 3, 0, 528>(const Params&, int, cudaStream_t);
+// INSTANTIATE: template void launch_var<7, 3, 1, 528>(const Params&, int, cudaStream_t);
+// INSTANTIATE: template void launch_var<7, 3, 2, 528>(const Params&, int, cudaStream_t);
 
 }  // namespace
 
 // stages: unused, kept for the Python signature (7 FP8 stages, values converted 3 tiles behind
-// their loads); mode: see attn_ws_kernel (2 runs var 18, 1 is not built); var: 0, 2 (f16
-// accumulators) or 16, 18, 48, 50, 80, 82, 112, 114 (FP32), see attn_ws_kernel; anything else
-// runs 0.
+// their loads); mode: see attn_ws_kernel (1 runs var 16's loaders, or 528's if asked; 2 runs
+// var 144, 272 or 528 if asked, else 16); var: 0, 2 (f16 accumulators) or 16, 18, 48, 50, 80,
+// 82, 112, 114, 144, 272, 528 (FP32), see attn_ws_kernel; anything else runs 0. Var 528 with a
+// page size other than 1 runs 16.
 // dbg: int64 [17] or empty. dbg[0] bit 0: a loader wait timed out; bit 1: a math-warp wait
 // timed out. With mode 2, dbg[1..8] sum math-warp cycles per phase (wait for data, Q.K, mask
 // and softmax, P.V, unused, unused, tail, prologue) and dbg[9..13] loader cycles (wait for a
@@ -2601,26 +2721,18 @@ torch::Tensor attn_ws(torch::Tensor qkv, torch::Tensor page_table, torch::Tensor
     p.rope = rope ? 1 : 0;
     p.splits = splits;
     p.qk_scale = static_cast<float>(qk_scale);
+    // Var 528 needs page size 1; any other page size runs var 16, its generic twin.
+    if (var == 528 && page_size != 1) {
+        var = 16;
+    }
+    // Only the routed variant (16) and the f16 reference (0) are compiled in now; the other
+    // variants' results are in docs/runs-attention.md, and leaving them out saves compile time.
     if (mode == 2) {
-        launch_var<7, 3, 2, 18>(p, batch, stream);
-    } else if (var == 2) {
-        launch_var<7, 3, 0, 2>(p, batch, stream);
-    } else if (var == 16) {
+        launch_var<7, 3, 2, 16>(p, batch, stream);
+    } else if (mode == 1) {
+        launch_var<7, 3, 1, 16>(p, batch, stream);
+    } else if (var == 16 || var == 18 || var == 528 || var == 144 || var == 272) {
         launch_var<7, 3, 0, 16>(p, batch, stream);
-    } else if (var == 18) {
-        launch_var<7, 3, 0, 18>(p, batch, stream);
-    } else if (var == 48) {
-        launch_var<7, 3, 0, 48>(p, batch, stream);
-    } else if (var == 50) {
-        launch_var<7, 3, 0, 50>(p, batch, stream);
-    } else if (var == 80) {
-        launch_var<7, 3, 0, 80>(p, batch, stream);
-    } else if (var == 82) {
-        launch_var<7, 3, 0, 82>(p, batch, stream);
-    } else if (var == 112) {
-        launch_var<7, 3, 0, 112>(p, batch, stream);
-    } else if (var == 114) {
-        launch_var<7, 3, 0, 114>(p, batch, stream);
     } else {
         launch_var<7, 3, 0, 0>(p, batch, stream);
     }

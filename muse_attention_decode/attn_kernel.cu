@@ -1023,42 +1023,15 @@ torch::Tensor attn_fused(torch::Tensor qkv, torch::Tensor page_table, torch::Ten
                           qkv.options().dtype(torch::kFloat32));
         p.ws = ws.data_ptr<float>();
     }
-    if (q_len == 1) {
-        if (cluster) {
-            launch<1, 1, 4, 1, true>(p, batch, stream);
-        } else if (variant == 1) {
-            launch<1, 1, 2, 2, false>(p, batch, stream);
-        } else {
-            launch<1, 1, 4, 1, false>(p, batch, stream);
-        }
+    // q_len 8 builds are no longer routed (the warp-specialized and one-launch kernels took
+    // over) and are left out of the build for compile time.
+    TORCH_CHECK(q_len == 1, "attn_fused: q_len 8 builds are not compiled in");
+    if (cluster) {
+        launch<1, 1, 4, 1, true>(p, batch, stream);
     } else if (variant == 1) {
-        if (cluster) {
-            launch<8, 1, 1, 4, true>(p, batch, stream);
-        } else {
-            launch<8, 1, 1, 4, false>(p, batch, stream);
-        }
-    } else if (variant == 2) {
-        if (cluster) {
-            launch<8, 1, 1, 4, true, true>(p, batch, stream);
-        } else {
-            launch<8, 1, 1, 4, false, true>(p, batch, stream);
-        }
-    } else if (variant == 5) {
-        if (cluster) {
-            launch<8, 1, 1, 4, true, false, true>(p, batch, stream);
-        } else {
-            launch<8, 1, 1, 4, false, false, true>(p, batch, stream);
-        }
-    } else if (variant == 6) {
-        launch<8, 2, 1, 2, false, false, true>(p, batch, stream);
-    } else if (variant == 3) {
-        launch<8, 2, 1, 2, false, true>(p, batch, stream);
-    } else if (variant == 4) {
-        launch<8, 1, 1, 2, false, true>(p, batch, stream);
-    } else if (cluster) {
-        launch<8, 2, 1, 2, true>(p, batch, stream);
+        launch<1, 1, 2, 2, false>(p, batch, stream);
     } else {
-        launch<8, 2, 1, 2, false>(p, batch, stream);
+        launch<1, 1, 4, 1, false>(p, batch, stream);
     }
     if (!cluster) {
         combine_kernel<<<batch * q_len, HQ * 32, 0, stream>>>(p.ws, p.qkv, p.v_scale, p.out, q_len,
