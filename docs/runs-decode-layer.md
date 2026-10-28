@@ -3,9 +3,9 @@
 Every `okc check` on `muse_decode_layer`, newest last. Scores are the judge's speedup over
 SGLang with its 95% interval. Profiles and logs are in `muse_decode_layer/profiles/`. The
 submission is baseline.py's call sequence with pieces ported from muse_moe_w4a16 and
-muse_bf16_proj and muse_attention_decode, each behind a switch (`PORT_MOE`, `PORT_ROUTER`,
-`PORT_PROJ`, `PORT_ATTN_PREP`, `PORT_ATTN_FUSED`) and a self-test
-against SGLang's path in prepare().
+muse_bf16_proj and muse_attention_decode, each behind a switch (`PORT_MOE`, `PORT_MOE_W4`,
+`PORT_ROUTER`, `PORT_PROJ`, `PORT_ATTN_PREP`, `PORT_ATTN_FUSED`) and a self-test against
+SGLang's path (or, for the W4 GEMMs, an FP32 reference) in prepare().
 
 Per-shape columns, in TASK.md's order: d1 = decode 1, d16, d32, v1 = verify 1 (8 tokens), v16
 (128 tokens), v32 (256 tokens); s = sliding layer, f = full layer.
@@ -16,6 +16,13 @@ Per-shape columns, in TASK.md's order: d1 = decode 1, d16, d32, v1 = verify 1 (8
   `local_start` is a device tensor (the MoE problem had it in the config), so our align kernel
   reads it from device memory; the post-expert norm weight is SGLang's effective weight
   (`post_expert._get_effective_weight()`), passed to both paths.
+- MoE GEMMs (`PORT_MOE_W4`): muse_moe_w4a16's W4A16 kernel source, repack and dequant copied
+  unchanged into a second extension; its 7 configs that lost everywhere in that problem's
+  tuner (check 84f3975334f048c3) and its timing-only modes are left out (31 GEMM configs). The
+  decode layer's route_align (local_start read from the device) now also emits the W4 work
+  items. The tuner and the FP32 self-test run in prepare() on synthetic routings with
+  local_start 0 and 96; the finalizer gets the effective post-expert norm weight, as Marlin's
+  path does. Policy key is T (1, 8, 16, 32, 128, 256; other T use the next one up).
 - Router: up to 8 tokens SGLang routes on the boundary's FP32 router input, not the BF16 FFN
   input, and the reference routes on full-precision h. The muse_bf16_proj router kernel took
   BF16 x, so the port stages FP32 x instead. Above 8 tokens SGLang uses BF16 hi + lo on the
@@ -42,3 +49,4 @@ Per-shape columns, in TASK.md's order: d1 = decode 1, d16, d32, v1 = verify 1 (8
 | 2026-10-28 | 003409c1282043d6 | a45b08c | attention idea 1 (prep launch + FA3 + norm-gate launch, from muse_attention_decode) behind a self-test | 1.205x (1.187-1.223) | self-test failed (output rel diff 5.35e-02, new cache rows 1.72e-02, bound 2e-2), so attention fell back to SGLang: this is a repeat of the e6944460 configuration. Per shape d1 1.267/1.247, d16 1.227/1.129, d32 1.051/1.021, v1 1.363/1.356, v16 1.230/1.162, v32 1.231/1.138 (v16 full -0.04 and v32 sliding +0.03 against 2c49c79b with no code change on their path: per-shape run-to-run noise). The bound was wrong, not the kernel: SGLang's FusedQKNorm rounds k to BF16 before the FP8 cast, and with unit random keys (logit std ~5.5) one-ulp FP8 query differences move the output by several percent |
 | 2026-10-28 | 6b5e79af2654442d | 212350a | attention idea 1 on (self-test conditioned: keys x0.3, values with a per-dim mean; new-cache bound 4e-2, output 5e-2), idea 2 compiled but off | 1.220x (1.202-1.238) | per shape d1 1.301/1.295, d16 1.258/1.143, d32 1.069/1.026, v1 1.413/1.374, v16 1.238/1.166, v32 1.195/1.124. Against the repeat run 003409c1 (same code otherwise): d1 -4.3/-7.1 µs, d16 -9.5/-9.8 µs, v1 -14.3/-1.7 µs; d32 and v16/v32 inside noise (v32 sliding -0.036 vs 003409c1, -0.005 vs 2c49c79b). Self-test: norm-gate identical to FusedRMSNormGate (rel diff 0); whole-path output 0.4-3.6% from SGLang's (one-ulp FP8 query differences), new cache rows 2.8%. The judge's 13 tests pass. Score gain sits inside the 95% interval of the previous runs |
 | 2026-10-28 | 2919e4a616b24e90 | ee4dc77 | + attention idea 2: fused q_len 1 kernel on sliding decode (all batches) and full decode at batch > 2; full batch 1 and all verify stay on idea 1 + FA3 | **1.268x** (1.249-1.287) | per shape d1 1.330/1.287, d16 1.249/1.357, d32 1.089/1.304, v1 1.419/1.394, v16 1.261/1.186, v32 1.229/1.137. Against 6b5e79af (idea 1 only): full d16 378.5 -> 318.0 µs (attention kernel 130.2 µs + 4.3 µs merge vs FA3 191.5), full d32 591.9 -> 478.4 µs (250.2 vs 376.7); sliding d1/d16/d32 129.3/209.0/241.8 vs 131.3/206.3/237.8 µs, inside noise (fused kernel 14.0/15.3/20.9 µs vs FA3 main + combine 13.5/18.3/18.9 plus the prep and gate launches). Shapes not on the fused path moved inside noise. CI clear of the previous best's (1.188-1.225). prepare 47.0 s (extension build 44.6 s) |
+| 2026-10-28 | 6c9eb0ed5d3e464e | d0e69df | + W4A16 expert GEMMs from muse_moe_w4a16 (GEMM1 with SwiGLU, GEMM2 with the FP32 finalizer, PDL), config per T tuned in prepare() with Marlin as a candidate | **1.384x** (1.364-1.405) | per shape d1 1.445/1.369, d16 1.383/1.418, d32 1.165/1.362, v1 1.580/1.560, v16 1.415/1.284, v32 1.364/1.229 (vs 2919e4a6: every shape up, +0.06 to +0.17). Our µs vs 2919e4a6: d1 129.3 -> 119.8 / 142.3 -> 134.4, d16 209.0 -> 189.2 / 318.0 -> 310.5, d32 241.8 -> 224.9 / 478.4 -> 455.7, v1 181.9 -> 169.5 / 195.6 -> 172.9, v16 414.6 -> 376.9 / 605.2 -> 537.6, v32 591.9 -> 527.9 / 937.7 -> 878.1. Marlin won no GEMM at any T. Tuner (synthetic routing, cold L2, graph replay incl. about 5 µs overhead, Marlin -> best W4): GEMM1 + activation T1 37.3 -> 31.0, T8 65.2 -> 51.9, T16 103.2 -> 77.8, T32 138.2 -> 102.5, T128 205.7 -> 165.9, T256 273.3 -> 243.5; GEMM2 + finalizer 29.3 -> 25.2, 42.4 -> 34.5, 61.3 -> 48.0, 79.0 -> 61.3, 112.9 -> 90.7, 149.9 -> 121.0. Policy {1: (27, 21, pdl, cl 8), 8: (26, 24, pdl, 1), 16: (18, 28, pdl, 8), 32: (26, 28, pdl, 4), 128: (4, 29, pdl, 1), 256: (30, 13, pdl, 1)}. W4 vs FP32 3.67e-3 to 3.87e-3 at T 1-264 (Marlin path 4.61e-3 to 4.92e-3). Profile per-kernel MoE times overlap under PDL (`tools/dl_moe_split.py`), so the scored µs are the measure. 13/13 tests; prepare 95.5 s (main extension 42.8 s, W4 extension 46.8 s, tuning 2.7 s) |
