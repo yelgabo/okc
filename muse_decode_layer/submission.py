@@ -127,7 +127,7 @@ PORT_ROUTER_MMA = False
 # Idea 1 from muse_attention_decode: one prep launch and one norm-gate launch around FA3.
 PORT_ATTN_PREP = True
 # Idea 2: the fused q_len 1 attention kernel, on the shapes where it won on its own problem.
-PORT_ATTN_FUSED = False
+PORT_ATTN_FUSED = True
 
 HIDDEN = 8192
 RMS_EPS = 1e-5
