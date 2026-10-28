@@ -1,0 +1,101 @@
+okc run dcea57a9e84f441a on muse_attention_decode
+submission  /Users/gretchengabo/GitHub/okc/.claude/worktrees/agent-a5105fdd9b18d42ed/muse_attention_decode/submission.py
+status      ok
+passed      true
+speedup     1.348133415572037
+speedup_ci  [1.3279114143384565 1.3683554168056176]
+score_us    2793.714595674414
+tests       16/16 passed
+
+scored shapes (µs; speed of light is the reference's bound)
+case                                                         sglang      yours  speedup        sol  
+batch=1 ctx=80000 dist=soft heads=tp8 layer=sliding load=decode 1 page=1      21.02      14.64   1.436x       0.11  
+batch=1 ctx=80000 dist=coherent heads=tp8 layer=full load=decode 1 page=1      31.94      28.37   1.126x       4.27  
+batch=16 ctx=80000 dist=soft heads=tp8 layer=sliding load=decode 16 page=1 spread=agentic      27.18      16.10   1.689x       1.65  
+batch=16 ctx=80000 dist=coherent heads=tp8 layer=full load=decode 16 page=1 spread=agentic     202.05     134.76   1.499x      63.18  
+batch=32 ctx=80000 dist=soft heads=tp8 layer=sliding load=decode 32 page=1 spread=agentic      31.26      21.15   1.478x       3.29  
+batch=32 ctx=80000 dist=coherent heads=tp8 layer=full load=decode 32 page=1 spread=agentic     385.76     252.56   1.527x     126.35  
+batch=1 ctx=80000 dist=soft heads=tp8 layer=sliding load=verify 1 page=1 q_len=8      23.25      17.00   1.368x       0.12  
+batch=1 ctx=80000 dist=coherent heads=tp8 layer=full load=verify 1 page=1 q_len=8      36.42      30.85   1.181x       4.28  
+batch=16 ctx=80000 dist=soft heads=tp8 layer=sliding load=verify 16 page=1 q_len=8 spread=agentic      29.49      20.68   1.426x       1.86  
+batch=16 ctx=80000 dist=coherent heads=tp8 layer=full load=verify 16 page=1 q_len=8 spread=agentic     206.22     175.80   1.173x      63.39  
+batch=32 ctx=80000 dist=soft heads=tp8 layer=sliding load=verify 32 page=1 q_len=8 spread=agentic      35.09      25.42   1.380x       3.72  
+batch=32 ctx=80000 dist=coherent heads=tp8 layer=full load=verify 32 page=1 q_len=8 spread=agentic     391.42     331.68   1.180x     126.78  
+
+profile 0: batch=1 ctx=80000 dist=soft heads=tp8 layer=sliding load=decode 1 page=1
+kernel                                                           GPU time  share  calls
+void (anonymous namespace)::attn_kernel<1, 1, 4, 1, true,...      10.3 µs 100.0%      1
+total                                                             10.3 µs
+
+profile 1: batch=1 ctx=80000 dist=coherent heads=tp8 layer=full load=decode 1 page=1
+kernel                                                           GPU time  share  calls
+void cutlass::device_kernel<flash::enable_sm90_or_later<f...      14.8 µs  60.4%      1
+void cutlass::device_kernel<flash::FlashAttnFwdCombine<cu...       7.3 µs  29.7%      1
+(anonymous namespace)::prep_kernel(__nv_bfloat16 const*, ...       1.3 µs   5.2%      1
+(anonymous namespace)::gate_kernel(__nv_bfloat16 const*, ...       1.2 µs   4.7%      1
+total                                                             24.5 µs
+GPU busy (kernels overlap: PDL or streams)                        23.0 µs
+an overlapping kernel's time includes any wait for the one before it, so the rows add up to more
+
+profile 2: batch=16 ctx=80000 dist=soft heads=tp8 layer=sliding load=decode 16 page=1 spread=agentic
+kernel                                                           GPU time  share  calls
+void (anonymous namespace)::attn_kernel<1, 1, 4, 1, true,...      13.6 µs 100.0%      1
+total                                                             13.6 µs
+
+profile 3: batch=16 ctx=80000 dist=coherent heads=tp8 layer=full load=decode 16 page=1 spread=agentic
+kernel                                                           GPU time  share  calls
+void (anonymous namespace)::attn_kernel<1, 1, 4, 1, false...     125.5 µs  96.5%      1
+(anonymous namespace)::combine_kernel(float const*, __nv_...       4.6 µs   3.5%      1
+total                                                            130.1 µs
+
+profile 4: batch=32 ctx=80000 dist=soft heads=tp8 layer=sliding load=decode 32 page=1 spread=agentic
+kernel                                                           GPU time  share  calls
+void (anonymous namespace)::attn_kernel<1, 1, 4, 1, true,...      20.1 µs 100.0%      1
+total                                                             20.1 µs
+
+profile 5: batch=32 ctx=80000 dist=coherent heads=tp8 layer=full load=decode 32 page=1 spread=agentic
+kernel                                                           GPU time  share  calls
+void (anonymous namespace)::attn_kernel<1, 1, 4, 1, false...     248.2 µs  98.5%      1
+(anonymous namespace)::combine_kernel(float const*, __nv_...       3.7 µs   1.5%      1
+total                                                            251.9 µs
+
+profile 6: batch=1 ctx=80000 dist=soft heads=tp8 layer=sliding load=verify 1 page=1 q_len=8
+kernel                                                           GPU time  share  calls
+void (anonymous namespace)::attn_ws_kernel<7, 3, 0, 4, 0>...      10.8 µs  76.7%      1
+(anonymous namespace)::ws_combine_kernel(float const*, __...       3.3 µs  23.3%      1
+total                                                             14.1 µs
+
+profile 7: batch=1 ctx=80000 dist=coherent heads=tp8 layer=full load=verify 1 page=1 q_len=8
+kernel                                                           GPU time  share  calls
+void cutlass::device_kernel<flash::enable_sm90_or_later<f...      15.2 µs  54.3%      1
+void cutlass::device_kernel<flash::FlashAttnFwdCombine<cu...       7.3 µs  26.2%      1
+void flash::prepare_varlen_num_blocks_kernel<1, true>(int...       2.8 µs  10.0%      1
+(anonymous namespace)::prep_kernel(__nv_bfloat16 const*, ...       1.5 µs   5.3%      1
+(anonymous namespace)::gate_kernel(__nv_bfloat16 const*, ...       1.2 µs   4.2%      1
+total                                                             27.9 µs
+GPU busy (kernels overlap: PDL or streams)                        26.5 µs
+an overlapping kernel's time includes any wait for the one before it, so the rows add up to more
+
+profile 8: batch=16 ctx=80000 dist=soft heads=tp8 layer=sliding load=verify 16 page=1 q_len=8 spread=agentic
+kernel                                                           GPU time  share  calls
+void (anonymous namespace)::attn_ws_kernel<7, 3, 0, 4, 0>...      13.9 µs  83.7%      1
+(anonymous namespace)::ws_combine_kernel(float const*, __...       2.7 µs  16.3%      1
+total                                                             16.6 µs
+
+profile 9: batch=16 ctx=80000 dist=coherent heads=tp8 layer=full load=verify 16 page=1 q_len=8 spread=agentic
+kernel                                                           GPU time  share  calls
+void (anonymous namespace)::attn_ws_kernel<7, 3, 0, 4, 2>...     169.1 µs  98.2%      1
+(anonymous namespace)::ws_combine_kernel(float const*, __...       3.2 µs   1.8%      1
+total                                                            172.3 µs
+
+profile 10: batch=32 ctx=80000 dist=soft heads=tp8 layer=sliding load=verify 32 page=1 q_len=8 spread=agentic
+kernel                                                           GPU time  share  calls
+void (anonymous namespace)::attn_ws_kernel<7, 3, 0, 4, 0>...      18.4 µs  84.9%      1
+(anonymous namespace)::ws_combine_kernel(float const*, __...       3.3 µs  15.1%      1
+total                                                             21.7 µs
+
+profile 11: batch=32 ctx=80000 dist=coherent heads=tp8 layer=full load=verify 32 page=1 q_len=8 spread=agentic
+kernel                                                           GPU time  share  calls
+void (anonymous namespace)::attn_ws_kernel<7, 3, 0, 4, 2>...     326.5 µs  98.6%      1
+(anonymous namespace)::ws_combine_kernel(float const*, __...       4.6 µs   1.4%      1
+total                                                            331.1 µs
