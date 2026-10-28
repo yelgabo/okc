@@ -53,6 +53,7 @@ the old design can come back as part of a structurally different design.
 | A2: smem compaction for two blocks per SM | static audit: 106-128 registers x 384 threads exceed 65,536 for two blocks | occupancy via smem alone; registers block first |
 | A1: bounded-shift softmax, tau 8 (var 272) | submit 06966cba66924747, 1.315x vs 1.321x; full verify +1.2% / +2.0% | the O-rescale as the FP32 math's cost |
 | DS3: cheaper loader index math, page size 1 (var 528) | submit 971e1ef49fc647aa, 1.292x; sliding verify -5%, full verify +6.7% / +11.1% | loader instruction issue as the full-context limit (cause of the full-context slowdown still open) |
+| W2 one-launch, mode 51 (producer warpgroup, two CTAs per SM) at full q_len 8, batch 16 / 32 | submit 16fcddf80a714e0d: 374.8 / 756.8 us vs mode 19 127.1 / 239.1 in b458555d3e3e4e9a; 92 local-memory instructions in the tile loop (80-register cap); mode 115 (same design, one CTA per SM, no spill) 18-20% behind 19 | this producer-warpgroup build at two CTAs per SM, and at one CTA per SM, inside W2; not producer specialization in general |
 | Fused q_len 1 kernel at full decode batch 1 | judge: 29.4 vs 27.5 us | that shape on the fused kernel; stays on FA3 |
 
 ## muse_decode_layer (`docs/runs-decode-layer.md`)
