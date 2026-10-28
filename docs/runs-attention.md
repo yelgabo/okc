@@ -334,3 +334,68 @@ lines logged 5.2K). Read it with the backlog #4 notes above, plus:
   64-byte chunk via immediate offsets) hurts how scattered reads are served. The pending bench
   times var 528 and var 16 loads-only side by side to separate loader speed from interaction.
   Entry stays var 16.
+
+## One-launch kernel, attn_one.cu (10-28, built and checked locally; judge checks from 10-29)
+
+Re-implemented from the public 2.58x entry's design memo (one launch per call, fixed-frame
+merge): `muse_attention_decode/attn_one.cu`, inlined as `_ONE_SRC`, routed for every tp8
+shape by `kernel_fn` (`_one_ok`, `_one_plan`); dp heads stay on prep + FA3. Interface,
+buffers and plans: `docs/attention-port-guide.md`.
+
+What is in the kernel: per-request split-KV with whole-tile chunks by magic-number
+division; a 3-stage cp.async ring with page indices two tiles further ahead; the query
+group (q rows, new k/v rows, constants, gate prefetch) in flight while the first K/V tiles
+are issued; one `sincosf` body (Cody-Waite + `__sinf`/`__cosf`); q_len 1 on f16
+`mma.sync` with K and V converted from E4M3 in registers (one 16-byte LDS per key per
+thread, 4 HMMA per 8 keys, no ldmatrix; values by 8-byte loads + `prmt`); q_len 8 on
+`wgmma.m64n64k32.f32.e4m3.e4m3` reading K in place from the 128B-swizzled stage, P rounded to
+E4M3 under a lazy offset (moved only when a tile's max exceeds it by 8 log2 units),
+`wgmma.m64n72k32` against V transposed per tile by `ldmatrix.x4.trans` + `prmt` +
+`stmatrix.x4` into a 64B-swizzled K-major buffer in P's key order with rows 64..71 of ones
+(the row sums come out of the same wgmma); `fence.proxy.async` before every wgmma read of
+generic-written smem (loader side, kept per the repo rule); merge by `red.global.add.v4.f32`
+of o 2^m and `red.global.add.f32` of l 2^m into a persistent workspace; last-CTA finalize
+through a key-count ticket (`atom.acq_rel.gpu` after a CTA barrier) or cooperative finalize
+(parity counters, epoch, `ld.acquire` spin with `__nanosleep`, trap after 2^24 polls); the
+finalizer zeroes what it read. Modes per instance (MODE bits 1 plain / 3 coop, |4 one tile,
+|8 speculated length from `page_table.shape[1] - L`, |16 flat). Flat mode (full context,
+batch > 1): 264 CTAs share a virtual key axis with 400 / 600 keys per request boundary,
+whole-tile segments per request, per-request tickets at q_len 1 and a grid-wide cooperative
+finalize at q_len 8 (every CTA finalizes B x 128 / 264 rows). The flat loader is the same
+cp.async ring with a loop-top barrier, not yet the memo's producer warpgroup.
+
+Local evidence (CUDA 12.8.1 in Docker, sm_90a):
+- ptxas, no spills, no C7513/C7514: q_len 1 modes 1 / 3 / 11 / 13 / 17: 104 / 105 / 107 / 79 /
+  119 registers (4 CTAs per SM, 57.9 KB smem); q_len 8 modes 1 / 3 / 11 / 15 / 19: 104 / 104 /
+  104 / 80 / 110 (2 per SM, 90.6 KB). `tools/attn_host_check.sh`: no errors;
+  `tools/attn_compile_check.sh muse_attention_decode/submission.py`: all blocks build.
+- SASS: 29-45 KB per instance (the old fused kernel: 98.6 KB), 2 `MUFU.SIN/COS` per
+  instance (one body; the old kernels inlined 17-20), the v4 reds are single `REDG`
+  instructions. Mode 13 (decode 1 sliding) once-path: the `seq_lens` load is instruction 7,
+  the index copies land at 68 with the page-size division branched around, 65 `BRA` in 1872
+  instructions.
+- `tools/attn_emulate_one.py`: the mma.sync / wgmma fragment maps, the SW128 K read, the V^T
+  transpose (key permutation, dim order, ones rows), the P register order and the merge's
+  4-dim groups all agree with Q K^T and P V on random tiles. Numerics vs FP64 (soft keys,
+  33 / 16 splits merged in the fixed frame): sliding q8 5.54e-2 (E4M3-query reference
+  5.53e-2, bound 0.150), q1 4.7e-4; full 16K keys q8 3.20e-2 (reference 3.12e-2, bound
+  0.093), q1 2.4e-4; about one lazy-offset move per (row, split).
+- Plans (`_one_plan`, checked statically for all 16 tests and 12 scored shapes): decode 1
+  sliding 32 CTAs mode 13; verify 1 sliding 33 x mode 15; decode 16 / 32 sliding 16 x 16 /
+  8 x 32 mode 1; verify 16 / 32 sliding 8 x 16 / 4 x 32 mode 3; batch 1 full 252 x nc 8
+  mode 11; batch 16 / 32 full 264 flat (17 / 19); page-64 and short tests on the plain
+  multi-tile instances.
+
+### First checks after the 00:00 UTC reset (10-29), in this order
+
+1. `cd muse_attention_decode && okc check bench.py --no-wait --json`, then
+   `okc status <job> --wait --json`; confirm problem and job id. Read the SELFTEST lines
+   first: every test shape and scored shape with its plan, error, bound, cache-row errors,
+   and a second call on the same inputs (workspace left zero). Then the BENCH lines:
+   `_one` against `_fused`, `_ws`, `_fused_prep` per scored shape with e= columns.
+2. If SELFTEST is clean: `okc check submission.py --no-wait --json` for the judge's
+   per-shape times; log them against the bars (decode 1 sliding 4.9 us, 16: 7.4, 32: 9.3;
+   verify 1 sliding 7.0, 16: 11.9, 32: 15.4; decode 1 full 11.0, verify 1 full 14.7; decode
+   16 / 32 full 88 / 170; verify 16 / 32 full 105 / 186).
+3. Route per shape on judge numbers (`_ONE_ROUTE`: a `(layer, q_len, batch)` key set to
+   False sends that shape back to the previous path), then the next check.
