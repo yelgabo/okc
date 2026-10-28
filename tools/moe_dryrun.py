@@ -44,6 +44,8 @@ def main():
             mode = None
             if variant >= mod.VARIANT_MAIN0:
                 mode = mod.MAIN_MODES[variant - mod.VARIANT_MAIN0]
+            if mode == 11:
+                stamps(rest[5], ids.shape[0], cost)
             ref = current.get("ref")
             if ref is not None and ref.shape == out.shape and mode not in fail_modes:
                 out.copy_(ref.to(out.dtype))
@@ -54,6 +56,37 @@ def main():
 
         def moe_smem_bytes(self):
             return 0
+
+    # Mode 11's stamps from a known work model (us per COST_TERMS unit, the last the CTA term),
+    # so the cost-model fit can be checked against it: random class mixes per CTA, scaled by
+    # the launch's batch size and shifted by the cost table so the tables differ.
+    true = torch.tensor([0.30, 0.05, 2.0, 3.0, 0.25, 0.04, 1.5, 2.5, 20.0], dtype=torch.float64)
+    gen = torch.Generator().manual_seed(1)
+
+    def stamps(inter, bs, cost):
+        g = 132
+        shift = 0 if not cost else (1 if cost[1] == 100 else 2)
+        dg = torch.zeros(g, 18, 8, dtype=torch.int64)
+        w = torch.rand(g, 16, generator=gen) * (bs / 32) * (1 + shift * torch.linspace(0, 1, 16))
+        st = (w * 20).round().long()
+        dg[:, :16, 6] = st
+        dg[:, :16, 7] = (st + 15) // 16
+        dg[:, 16, 1:3] = torch.randint(0, 3, (g, 2), generator=gen)
+        x = mod._cost_features(dg.double())
+        work = x @ true + torch.randn(g, generator=gen, dtype=torch.float64)
+        cyc = 1800.0
+        dg[:, :16, 2] = (0.8 * work * cyc).long().unsqueeze(1)
+        dg[:, :16, 3] = (0.2 * work * cyc).long().unsqueeze(1)
+        start = 10_000
+        done = start + ((work + 5 * torch.rand(g, generator=gen, dtype=torch.float64)) * 1e3).long()
+        dg[:, 16, 3] = 0
+        dg[:, 16, 4] = start
+        dg[:, 16, 5] = done
+        dg[:, 16, 6] = done.max() + 1000
+        dg[:, 16, 7] = done.max() + 2000
+        dg[:, 17, 3] = 0
+        dg[:, 17, 4] = ((done.max() + 2000).double() * cyc / 1e3).long()
+        inter.view(-1).view(torch.int64)[: dg.numel()] = dg.flatten()
 
     mod._ext = lambda: FakeExt()
     mod._legacy_route_ext = lambda: None
@@ -97,9 +130,9 @@ def main():
     mod._ref_forward = ref_forward
     real_run = mod._run
 
-    def run(data, state, variant=None):
+    def run(data, state, variant=None, cost=None):
         current["ref"] = ref_forward(data, None)
-        return real_run(data, state, variant)
+        return real_run(data, state, variant, cost)
 
     mod._run = run
 
@@ -113,6 +146,7 @@ def main():
     torch.empty = lambda *a, device=None, **k: real_empty(*a, **{kk: v for kk, v in k.items()})
     weights = {"w13": torch.zeros(1), "post_norm_w": torch.zeros(mod.HIDDEN, dtype=torch.bfloat16)}
     state = mod.prepare(weights)
+    print("true work model", " ".join(f"{n}:{float(c):.3f}" for n, c in zip(mod.COST_TERMS, true)))
     print("main_bad", sorted(mod._vname(v) for v in state["main_bad"]), "main_ok", state["main_ok"])
     print("references computed", nref[0], "cache left", len(mod._REF_CACHE))
     for bs in (1, 8, 16, 32, 128, 256):

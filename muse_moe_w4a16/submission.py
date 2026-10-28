@@ -1120,6 +1120,8 @@ __device__ __forceinline__ void run_group(const Params& p, SmemMain& S, float* s
         const SegInfo si = seg_info(S, PH, i, cta, G);
         if (MODE == kDiagMode && threadIdx.x == 0) {
             S.dg[PH * 8 + NTT - 1][6] += si.st_e - si.st_b;
+            S.dg[PH * 8 + NTT - 1][7] += 1;
+            S.dg[16][1 + PH] += si.partial ? 1 : 0;
         }
         if constexpr (NTT <= mma_max(MODE)) {
             run_segment_mma<NTT, PH, MODE>(p, S, ss, si, rg, G);
@@ -2289,8 +2291,8 @@ LEGACY_CONFIGS = [
 # (GEMM1 config, GEMM2 config, finalizer cluster size), the tuned policy at 32, 128, 256.
 LEGACY_POLICIES = ((0, 1, 8), (2, 3, 1), (4, 5, 1))
 VARIANT_LEGACY0 = 100
-# A fat variant VARIANT_MAIN0 + i run with the stage costs fitted from the DIAG stamps in
-# prepare (state["fit_cost"]) is VARIANT_FIT0 + i.
+# A fat variant VARIANT_MAIN0 + i run with the stage costs of the validated cost model
+# (_cost_model in prepare, state["fit_cost"]) is VARIANT_FIT0 + i.
 VARIANT_FIT0 = 200
 # Modes the fitted costs are offered for: the stamps time mode 6's segments.
 FIT_MODES = (6, 12, 14)
@@ -3536,7 +3538,7 @@ def _scratch(device):
     }
 
 
-def _run(data, state, variant=None):
+def _run(data, state, variant=None, cost=None):
     cfg = data["config"]
     x = data["hidden_states"]
     m = x.shape[0]
@@ -3553,7 +3555,8 @@ def _run(data, state, variant=None):
     s = state["scratch"]
     if variant is None:
         variant = _policy_variant(state, m)
-    cost = []
+    if cost is None:
+        cost = []
     if variant >= VARIANT_FIT0:
         cost = state["fit_cost"]
         variant = VARIANT_MAIN0 + variant - VARIANT_FIT0
@@ -3744,27 +3747,33 @@ def _bench(state, main_ok, seeds=(11, 12)):
     return policy
 
 
-def _diag_report(state, bs, seed=11):
-    """One cold-L2 launch of mode 11 on the bench's routing; prints where the time went. Per
-    CTA, S.dg (int64 [18][8]) lands in scratch `inter`: rows 0-15 per consumer warp (cycles
-    waiting for weights, waiting for x, computing, epilogue or fixup; stages; segments; mma.sync
-    segments only), row 16 [0] the weights producer's cycles waiting for a free slot, [3..7]
-    globaltimer at start, consumers start, consumers done, barrier done, end; row 17 [0..2] the
-    x producer's cycles waiting for a free slot, for done_as, for xready, [3..4] clock64 at
-    start and end."""
+def _diag_launch(state, data, cost, flush):
+    """One cold-L2 launch of mode 11 with the given stage-cost table. Per CTA, S.dg (int64
+    [18][8]) lands in scratch `inter`: rows 0-15 per consumer warp in columns 0-5 (cycles
+    waiting for weights, waiting for x, computing, epilogue or fixup; stages; segments) and
+    per class (phase * 8 + n-tiles - 1) in columns 6-7 (stages, segments); row 16 [0] the
+    weights producer's cycles waiting for a free slot, [1..2] cut (partial) segments per
+    phase, [3..7] globaltimer at start, consumers start, consumers done, barrier done, end;
+    row 17 [0..2] the x producer's cycles waiting for a free slot, for done_as, for xready,
+    [3..4] clock64 at start and end. Returns the stamps and the clock in cycles per us."""
     v = VARIANT_MAIN0 + MAIN_MODES.index(11)
-    flush = torch.empty(256 << 20, dtype=torch.uint8, device="cuda")
-    data = _make_inputs(bs, 977 * seed + bs)
     inter = state["scratch"]["inter"]
-    _run(data, state, v)
+    _run(data, state, v, cost=cost)
     flush.zero_()
     torch.cuda.synchronize()
-    _run(data, state, v)
+    _run(data, state, v, cost=cost)
     torch.cuda.synchronize()
     g = torch.cuda.get_device_properties(0).multi_processor_count
     d = inter.reshape(-1).view(torch.int64)[: g * 144].view(g, 18, 8).double().cpu()
     ghz = (d[:, 17, 4] - d[:, 17, 3]) / (d[:, 16, 7] - d[:, 16, 3])
-    cyc_us = (ghz * 1e3).unsqueeze(1)
+    return d, ghz * 1e3
+
+
+def _diag_report(state, bs, seed=11):
+    """Where the fat path's time goes on the bench's routing with the compiled costs."""
+    flush = torch.empty(256 << 20, dtype=torch.uint8, device="cuda")
+    d, cyc = _diag_launch(state, _make_inputs(bs, 977 * seed + bs), [], flush)
+    cyc_us = cyc.unsqueeze(1)
     cw = d[:, :16, :4] / cyc_us.unsqueeze(2)
     t = d[:, 16, 3:8]
     t0 = float(t[:, 0].min())
@@ -3773,65 +3782,194 @@ def _diag_report(state, bs, seed=11):
     def mm(x):
         return f"{float(x.mean()):.1f}/{float(x.max()):.1f}"
 
-    print(f"DIAG bs={bs} clock {float(ghz.mean()):.2f} GHz; per CTA mean/max us: "
+    print(f"DIAG bs={bs} clock {float(cyc.mean()) / 1e3:.2f} GHz; per CTA mean/max us: "
           f"route+gather {mm((t[:, 1] - t[:, 0]) / 1e3)}, consumers {mm((t[:, 2] - t[:, 1]) / 1e3)}, "
           f"barrier wait {mm((t[:, 3] - t[:, 2]) / 1e3)}, final {mm((t[:, 4] - t[:, 3]) / 1e3)}; "
           f"consumers done at {mm((t[:, 2] - t0) / 1e3)} after the first start, "
           f"end {mm((t[:, 4] - t0) / 1e3)}")
-    print(f"DIAG bs={bs} mma.sync segments per warp mean/max us: wait weights "
+    print(f"DIAG bs={bs} segments per warp mean/max us: wait weights "
           f"{mm(cw[:, :, 0].mean(1))}, wait x {mm(cw[:, :, 1].mean(1))}, compute "
           f"{mm(cw[:, :, 2].mean(1))}, epilogue+fixup {mm(cw[:, :, 3].mean(1))}; stages "
           f"{mm(stages)}, segments {mm(d[:, :16, 5].mean(1))}")
     print(f"DIAG bs={bs} producers mean/max us: weights wait for a free slot "
           f"{mm(d[:, 16, 0] / cyc_us[:, 0])}, x wait for a free slot {mm(d[:, 17, 0] / cyc_us[:, 0])}, "
           f"x wait done_as {mm(d[:, 17, 1] / cyc_us[:, 0])}, x wait xready {mm(d[:, 17, 2] / cyc_us[:, 0])}")
-    return d[:, :16, 6], (t[:, 2] - t[:, 1]) / 1e3
 
 
 # The compiled stage costs of modes 0 and 6 (kCostA / kCostB in the CUDA source).
 COST_DEFAULT = ((0, 112, 135, 140, 158, 173, 185, 200, 207),
                 (0, 100, 104, 115, 123, 132, 144, 156, 174))
+# Tables the DIAG launches partition with. The compiled table gives every CTA nearly the same
+# predicted work, so on its own it leaves the terms collinear (the 2026-10-28 least-squares
+# fit came out negative); flat and steep tables put other mixes of n-tile classes and cuts on
+# each CTA.
+DIAG_TABLES = (
+    ("compiled", []),
+    ("flat", [0] + [100] * 8 + [0] + [100] * 8),
+    ("steep", [0] + [20 + 25 * n for n in range(1, 9)] + [0] + [20 + 25 * n for n in range(1, 9)]),
+)
+DIAG_SIZES = (32, 128, 256)
+DIAG_TRAIN_SEEDS = (11, 12)
+DIAG_HOLD_SEEDS = (13, 14)
+# One term per kind of work on a CTA: per stage of each phase (the weights a stage streams
+# and dequantizes), per n8 tile of each stage (the MMAs), per segment (the epilogue at a
+# unit's end), per cut segment (the fixup's global adds and count), and a fixed CTA cost.
+COST_TERMS = ("A stage", "A tile", "A seg", "A cut", "B stage", "B tile", "B seg", "B cut", "CTA")
 
 
-def _diag_costs(rows):
-    """Least-squares fit of each CTA's consumer time on its stage counts per (phase, n-tile
-    count), over every DIAG launch: the per-stage cost the stream-K split should use. Returns
-    the 18-entry table moe_run takes, in the compiled table's units: classes with fewer than
-    64 stages in the data, or a fit outside 0.5x to 2x of the compiled ratio, keep the compiled
-    value times the median fitted ratio."""
-    x = torch.cat([r[0] for r in rows])
-    y = torch.cat([r[1] for r in rows])
-    seen = x.sum(0)
-    used = seen > 0
-    sol = torch.linalg.lstsq(x[:, used], y.unsqueeze(1)).solution.squeeze(1)
-    resid = y - x[:, used] @ sol
-    names = [f"{'AB'[c // 8]}{c % 8 + 1}" for c in range(16) if bool(used[c])]
-    fit = " ".join(f"{n}:{float(c):.3f}" for n, c in zip(names, sol))
-    print(f"DIAG cost fit us/stage {fit}; residual rms {float(resid.pow(2).mean().sqrt()):.1f} us "
-          f"over {len(y)} CTA launches (consumer time mean {float(y.mean()):.1f} us)")
-    per = torch.zeros(16, dtype=torch.float64)
-    per[used] = sol.double()
-    dflt = torch.tensor([COST_DEFAULT[c // 8][c % 8 + 1] for c in range(16)], dtype=torch.float64)
-    good = (seen >= 64) & (per > 0)
-    if int(good.sum()) == 0:
+def _cost_features(d):
+    """Per CTA, the COST_TERMS counts from the stamps."""
+    ntt = torch.arange(1, 9, dtype=torch.float64)
+    cols = []
+    for ph in range(2):
+        st = d[:, 8 * ph: 8 * ph + 8, 6]
+        cols += [st.sum(1), (st * ntt).sum(1), d[:, 8 * ph: 8 * ph + 8, 7].sum(1), d[:, 16, 1 + ph]]
+    cols.append(torch.ones(d.shape[0], dtype=torch.float64))
+    return torch.stack(cols, 1)
+
+
+def _fixed_feature(d):
+    """Per CTA, the work the compiled table assigns it (its stages times their compiled cost)."""
+    c = torch.tensor([COST_DEFAULT[c // 8][c % 8 + 1] for c in range(16)], dtype=torch.float64)
+    return torch.stack([(d[:, :16, 6] * c).sum(1), torch.ones(d.shape[0], dtype=torch.float64)], 1)
+
+
+def _nnls(x, y):
+    """Least squares with nonnegative coefficients, exact by trying every support (2^9 at
+    most): the best fit over the supports whose unconstrained solution is nonnegative."""
+    k = x.shape[1]
+    best = (float("inf"), torch.zeros(k, dtype=torch.float64))
+    for mask in range(1, 1 << k):
+        idx = [i for i in range(k) if mask >> i & 1]
+        sub = x[:, idx]
+        if int(torch.linalg.matrix_rank(sub)) < len(idx):
+            continue
+        sol = torch.linalg.lstsq(sub, y.unsqueeze(1)).solution.squeeze(1)
+        if bool((sol < 0).any()):
+            continue
+        err = float((sub @ sol - y).pow(2).sum())
+        if err < best[0]:
+            full = torch.zeros(k, dtype=torch.float64)
+            full[idx] = sol
+            best = (err, full)
+    return best[1]
+
+
+def _spearman(a, b):
+    ra = a.argsort().argsort().double()
+    rb = b.argsort().argsort().double()
+    ra = ra - ra.mean()
+    rb = rb - rb.mean()
+    den = float((ra.pow(2).sum() * rb.pow(2).sum()).sqrt())
+    return float((ra * rb).sum()) / den if den > 0 else 0.0
+
+
+def _cost_model(state):
+    """DIAG launches over DIAG_SIZES x {normal, skewed} x seeds x DIAG_TABLES; a nonnegative
+    fit of each CTA's consumer work (compute + epilogue/fixup, mean over its warps) on
+    COST_TERMS from the training seeds; validation on the held-out seeds against the
+    compiled table's prediction (same nonnegative scale + offset fit). Ranks: per launch, the
+    Spearman correlation of predicted work with each CTA's measured finish time; per routing
+    case, whether the predicted makespans order the three tables as the measured ones do.
+    Returns the 18-entry stage-cost table moe_run takes when the model ranks better on both,
+    else []."""
+    flush = torch.empty(256 << 20, dtype=torch.uint8, device="cuda")
+    runs = []
+    for bs in DIAG_SIZES:
+        for dist in ("normal", "skewed"):
+            for seed in DIAG_TRAIN_SEEDS + DIAG_HOLD_SEEDS:
+                data = _make_inputs(bs, 977 * seed + bs, dist)
+                for name, table in DIAG_TABLES:
+                    d, cyc = _diag_launch(state, data, table, flush)
+                    t = d[:, 16, 3:8]
+                    work = (d[:, :16, 2] + d[:, :16, 3]).mean(1) / cyc
+                    finish = (t[:, 2] - t[:, 0].min()) / 1e3
+                    runs.append({"bs": bs, "dist": dist, "seed": seed, "table": name,
+                                 "x": _cost_features(d), "f": _fixed_feature(d), "work": work,
+                                 "finish": finish, "end": float((t[:, 4] - t[:, 0].min()).max()) / 1e3})
+    flags = int(state["scratch"]["ctr"][8].item())
+    if flags:
+        state["scratch"]["ctr"][8] = 0
+        print(f"COSTMODEL spin flags {flags}; no model")
         return []
-    ratio = float((per[good] / dflt[good]).median())
-    out = dflt * ratio
-    for c in range(16):
-        if bool(good[c]) and 0.5 <= float(per[c] / out[c]) <= 2.0:
-            out[c] = per[c]
-    # Back to the compiled table's units, which keep the prefix sums in range.
-    out = out / ratio
+    train = [r for r in runs if r["seed"] in DIAG_TRAIN_SEEDS]
+    hold = [r for r in runs if r["seed"] in DIAG_HOLD_SEEDS]
+    x = torch.cat([r["x"] for r in train])
+    y = torch.cat([r["work"] for r in train])
+    coef = _nnls(x, y)
+    fcoef = _nnls(torch.cat([r["f"] for r in train]), y)
+    print("COSTMODEL us per unit " + " ".join(f"{n}:{float(c):.3f}" for n, c in zip(COST_TERMS, coef))
+          + f"; fixed table scale {float(fcoef[0]):.5f} offset {float(fcoef[1]):.1f}; "
+          f"train {len(train)} launches, {len(y)} CTAs, work mean {float(y.mean()):.1f} us")
+
+    def rms(rs, key, c):
+        e = torch.cat([r[key] @ c - r["work"] for r in rs])
+        return float(e.pow(2).mean().sqrt())
+
+    result = {}
+    for dist in ("normal", "skewed", "all"):
+        rs = [r for r in hold if dist in ("all", r["dist"])]
+        rho_m = sum(_spearman(r["x"] @ coef, r["finish"]) for r in rs) / len(rs)
+        rho_f = sum(_spearman(r["f"] @ fcoef, r["finish"]) for r in rs) / len(rs)
+        pairs = right_m = right_f = 0
+        for bs in DIAG_SIZES:
+            for seed in DIAG_HOLD_SEEDS:
+                for dd in ("normal", "skewed"):
+                    if dist not in ("all", dd):
+                        continue
+                    case = [r for r in rs if r["bs"] == bs and r["seed"] == seed and r["dist"] == dd]
+                    for i in range(len(case)):
+                        for j in range(i + 1, len(case)):
+                            a, b = case[i], case[j]
+                            meas = float(a["finish"].max() - b["finish"].max())
+                            if abs(meas) < 1.0:
+                                continue
+                            pairs += 1
+                            pm = float((a["x"] @ coef).max() - (b["x"] @ coef).max())
+                            pf = float((a["f"] @ fcoef).max() - (b["f"] @ fcoef).max())
+                            right_m += (pm > 0) == (meas > 0)
+                            right_f += (pf > 0) == (meas > 0)
+        result[dist] = (rho_m, rho_f, right_m, right_f, pairs)
+        print(f"COSTMODEL held-out {dist}: CTA finish rank rho model {rho_m:.3f} fixed {rho_f:.3f}; "
+              f"table order (makespans >= 1 us apart) model {right_m}/{pairs} fixed {right_f}/{pairs}; "
+              f"work rms model {rms(rs, 'x', coef):.1f} fixed {rms(rs, 'f', fcoef):.1f} us")
+    for r in runs:
+        if r["seed"] in DIAG_HOLD_SEEDS:
+            print(f"COSTMODEL run bs={r['bs']} {r['dist']} seed {r['seed']} {r['table']}: finish "
+                  f"max/mean {float(r['finish'].max()):.1f}/{float(r['finish'].mean()):.1f} us, end "
+                  f"{r['end']:.1f}; predicted work max/mean model "
+                  f"{float((r['x'] @ coef).max()):.1f}/{float((r['x'] @ coef).mean()):.1f} fixed "
+                  f"{float((r['f'] @ fcoef).max()):.1f}/{float((r['f'] @ fcoef).mean()):.1f}")
+    # Better CTA ranking on both routings and no worse table ordering: with three tables per
+    # case the ordering often ties at all pairs right.
+    ok = all(result[k][0] > result[k][1] and result[k][2] >= result[k][3]
+             for k in ("normal", "skewed"))
+    if not ok:
+        print("COSTMODEL gate: the model does not rank held-out cases better than the compiled "
+              "table on both routings; it does not drive the partition")
+        return []
+    # A stage's cost as the partition sees it: its stage and tile terms plus one sixteenth of a
+    # segment (a unit is 16 stages and ends in one epilogue). Cuts and the CTA term do not
+    # depend on how a phase's stages are divided, so they stay out of the table.
+    per = [[float(coef[4 * ph] + coef[4 * ph + 1] * n + coef[4 * ph + 2] / 16) for n in range(9)]
+           for ph in range(2)]
+    # Each phase is split by its own prefix sums, so only ratios within a phase matter; each is
+    # scaled to a top cost of 200, inside the compiled table's range (stage_at's unsigned
+    # products stay below 2^32).
     table = [0] * 18
-    for c in range(16):
-        table[(c // 8) * 9 + c % 8 + 1] = max(1, int(round(float(out[c]))))
-    print(f"DIAG fitted table A {table[1:9]} B {table[10:18]}")
+    for ph in range(2):
+        top = max(per[ph][1:])
+        if top <= 0:
+            return []
+        for n in range(1, 9):
+            table[9 * ph + n] = max(1, int(round(200 * per[ph][n] / top)))
+    print(f"COSTMODEL gate passed; table A {table[1:9]} B {table[10:18]}")
     return table
 
 
 def _vname(v):
     if v >= VARIANT_FIT0:
-        return _vname(VARIANT_MAIN0 + v - VARIANT_FIT0) + "-fit"
+        return _vname(VARIANT_MAIN0 + v - VARIANT_FIT0) + "-nn"
     if v >= VARIANT_LEGACY0:
         return f"legacy{(32, 128, 256)[v - VARIANT_LEGACY0]}"
     if v >= VARIANT_MAIN0:
@@ -3890,21 +4028,21 @@ def prepare(weights):
     if not main_ok:
         # The skinny path handles every size (split jobs of 8 tokens); it is the fallback.
         ok = _self_test(state, weights, (32, 33, 128, 257), "fallback", SKINNY_DEFAULT) and ok
-    # Stamps of mode 11 (where the fat path's time goes, printed), a per-stage cost fit from
-    # them, and the fitted table offered to the bench on FIT_MODES after its own self-test.
+    # Stamps of mode 11 (where the fat path's time goes, printed), the nonnegative cost model
+    # fitted and validated on them, and its table offered to the bench on FIT_MODES after its
+    # own self-test, only when it ranks held-out routings better than the compiled table.
     state["fit_ok"] = []
     if main_ok and 11 in MAIN_MODES:
-        rows = []
-        for bs in (32, 128, 256):
+        for bs in DIAG_SIZES:
             try:
-                rows.append(_diag_report(state, bs))
+                _diag_report(state, bs)
             except Exception as exc:
                 print(f"DIAG bs={bs} failed: {type(exc).__name__}: {exc}")
         table = []
         try:
-            table = _diag_costs(rows)
+            table = _cost_model(state)
         except Exception as exc:
-            print(f"DIAG costs failed: {type(exc).__name__}: {exc}")
+            print(f"COSTMODEL failed: {type(exc).__name__}: {exc}")
         if table:
             state["fit_cost"] = table
             for i, m in enumerate(MAIN_MODES):
