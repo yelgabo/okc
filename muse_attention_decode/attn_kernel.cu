@@ -190,12 +190,13 @@ constexpr int RING = 8;
 constexpr int PT_AHEAD = 6;
 constexpr int SMEM_TOTAL = SMEM_BYTES + RING * BN * 4;
 
+// Without VF16, a stage-shaped tile for the block's new keys and values sits at SMEM_TOTAL.
 // Receive slots for the push merge sit past everything the main loop uses, since other CTAs
 // of the cluster may push before this one finishes its loop. Row r of CTA s lands in slot
 // (r / S) * S + s of CTA r % S, so ROWS + 16 slots cover any cluster of up to 16.
 template <bool VF16>
 __host__ __device__ constexpr int recv_offset() {
-    return SMEM_TOTAL + (VF16 ? 2 * BN * ROW_BYTES * 2 : 0);
+    return SMEM_TOTAL + (VF16 ? 2 * BN * ROW_BYTES * 2 : STAGE_BYTES);
 }
 
 // Merges n partials (m, l, o) of one row with one warp, lane k reading partial k first so the
@@ -269,6 +270,8 @@ attn_kernel(const Params p) {
     if (CLUSTER && row0 < C::ROWS) {
         gate0 = load_gate(p.qkv, static_cast<size_t>(b) * L + row0 / HQ, row0 % HQ, lane);
     }
+    const float k_scale = *p.k_scale;
+    const float v_scale = *p.v_scale;
     const int seq = p.seq_lens[b];
     const int start = p.window ? max(0, seq - p.window + 1) : 0;
     int per = (seq - start + p.splits - 1) / p.splits;
@@ -375,7 +378,7 @@ attn_kernel(const Params p) {
             }
         }
     }
-    const float qk_scale = p.qk_scale * *p.k_scale;
+    const float qk_scale = p.qk_scale * k_scale;
 
     // The last split also attends the block's own new keys and values: it normalizes, rotates
     // and rounds them to E4M3 and writes them to the cache here, while page entries load, and
@@ -384,9 +387,16 @@ attn_kernel(const Params p) {
     constexpr int TASKS_PER_WARP = (TASKS + C::WARPS - 1) / C::WARPS;
     uint16_t newv[TASKS_PER_WARP];
     const bool last_split = split == p.splits - 1;
+    uint8_t* newb = smem + SMEM_TOTAL;
     if (last_split) {
-        const float inv_k = 1.f / *p.k_scale;
-        const float inv_v = 1.f / *p.v_scale;
+        if constexpr (!VF16) {
+            for (int i = tid; i < STAGE_BYTES / 16; i += C::THREADS) {
+                reinterpret_cast<uint4*>(newb)[i] = make_uint4(0, 0, 0, 0);
+            }
+            __syncthreads();
+        }
+        const float inv_k = 1.f / k_scale;
+        const float inv_v = 1.f / v_scale;
         float2 xs[TASKS_PER_WARP];
 #pragma unroll
         for (int i = 0; i < TASKS_PER_WARP; ++i) {
@@ -429,6 +439,12 @@ attn_kernel(const Params p) {
                 uint8_t* dst = is_k ? p.k_cache : p.v_cache;
                 *reinterpret_cast<uint16_t*>(dst + p.cache_loc[tok] * ROW_BYTES + kh * D + 2 * lane) =
                     newv[i];
+                if constexpr (!VF16) {
+                    const int byte = kh * D + 2 * lane;
+                    const int sw = is_k ? k_chunk(byte >> 4, j) : v_chunk(byte >> 4, j);
+                    *reinterpret_cast<uint16_t*>(newb + (is_k ? 0 : BN * ROW_BYTES)
+                                                 + j * ROW_BYTES + sw * 16 + (byte & 15)) = newv[i];
+                }
             }
         }
     }
@@ -753,7 +769,10 @@ attn_kernel(const Params p) {
     __syncthreads();
     stamp(3);
 
-    if (last_split) {
+    if (!VF16 && last_split && tp == 0) {
+        chunk(newb, 0, seq, seq + L - 1);
+    }
+    if (VF16 && last_split) {
         uint8_t* st = smem;
         for (int i = tid; i < STAGE_BYTES / 16; i += C::THREADS) {
             reinterpret_cast<uint4*>(st)[i] = make_uint4(0, 0, 0, 0);
@@ -874,7 +893,6 @@ attn_kernel(const Params p) {
         }
         cluster.sync();
         stamp(6);
-        const float v_scale = *p.v_scale;
         for (int li = warp; li * S + split < C::ROWS; li += C::WARPS) {
             const int row = li * S + split;
             const int j = row / HQ;
