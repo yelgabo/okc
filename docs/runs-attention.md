@@ -191,6 +191,8 @@ fenced), `_ws@x=16` (submitted), `_ws@x=16,m=1` (var 16's loaders with math warp
 wait and release), `_ws@x=144` and `_ws@x=272` (A1). Then, per q_len 8 shape, STAMPS lines for
 x=16, 144 and 272: math-warp cycles per tile (wait-data, qk, softmax including the rescale,
 pv, tail, prologue) and loader cycles per tile. No GATHER part.
+Since DS3 (below), bench.py also times var 528 (page-size-1 loaders) and stamps it; written by
+`tools/attn_build_loader.py` instead.
 
 How to read it:
 - Loader-branch vs math-branch: on full verify b16/b32, if x=16 is close to x=16,m=1, the
@@ -200,3 +202,125 @@ How to read it:
 - A1: compare x=144 and x=272 with x=16 per shape; their e= should match x=16's to about
   1e-4. If their STAMPS softmax cycles drop but the BENCH time does not, the loaders still set
   the pace and A1 stops there (backlog gate).
+
+## DS3: loader index arithmetic for page size 1, var 528 (10-28, static audit, not yet checked)
+
+Question: can var 16's loader warps (four warps, about 600 cycles per tile issuing cp.async and
+800 converting V in the clock64 stamps) do the same loads with cheaper address and index
+arithmetic? Static audit only; nothing here is measured on a GPU.
+
+What var 16's loader loop does per tile, page size 1 (`attn_ws.cu`, `if (warp >= 8)`):
+- `i % NS`, `i / NS` and `f % NS` (NS = 7) as magic-number divisions (`IMAD.WIDE.U32 ...,
+  0x24924925` then `LEA.HI`, `SHF`, `IMAD`), recomputed for the empty-barrier wait, the stage
+  address and the full-barrier arrive.
+- Per row a lane issues (two rows, four cp.async each): a runtime `psize != 1` branch around a
+  32-bit division sequence (`I2F.RP`, `MUFU.RCP`, `F2I`, `IMAD.HI`; skipped at run time with page
+  size 1, but its setup and branch are paid), the row and `row * 128 + ck * 16` in 64 bits
+  (`SHF.R.S32.HI`, `SHF.L.U64.HI`, two `LOP3`), four 64-bit adds to the K and V bases (`IADD3`
+  + `IMAD.X` each) and eight `SEL`s for `valid ? ptr : base`, since each of the four pointers
+  keeps its own 64-bit value.
+- The page-entry prefetch (4 tiles ahead) checks `tile >= ntiles || pos >= hi`, branches on
+  `psize == 1` around another division, then sign-extends and scales `pos` into the address.
+
+Var 528 (VAR bit 9 on var 16; bit 2 clear, so the loaders' `fence.proxy.async` stays) keeps every
+load, the 128-byte combined row, the src-size-0 tail mask, the -1 padding treatment (entries past
+`hi` are never read; the prefetch returns 0 there, as before), the cp.async commit/wait sequence,
+the mbarriers and all fences, and changes only the index arithmetic:
+- ring indices as counters (`sl = i % NS`, `par = ((i / NS) + 1) & 1`, `sc = (i - DA) % NS`,
+  `f % NV` as a mask);
+- no page-size division or branch: the cache row is the page entry;
+- one range compare per prefetched entry (`tile * BN < hi - lo - pt0` implies `tile < ntiles`)
+  and a per-lane page-table pointer;
+- per-lane base pointers `k_cache + cq * 16`, `v_cache + cq * 16` and shared offsets hoisted out
+  of the loop; the second 16-byte chunk of a row (+64 bytes) and the second row's shared
+  offsets (+512 K, +1,024 V) become instruction immediates;
+- out-of-range lanes use row 0 instead of the bare base pointer. They still copy zero bytes
+  (src-size 0), and row 0 keeps the unread address inside the cache.
+
+No 32-bit offset was needed: the row offset is `uint64_t(uint32_t(entry)) * 128`, formed in 64
+bits (`IMAD.WIDE.U32 r, e, 0x80`), so it cannot overflow and no bound on the cache size enters.
+A `mad.wide.u32` written in inline PTX saved only 8 instructions per 4 tiles (ptxas splits it
+anyway and shares `row * 128` between K and V), so it was dropped.
+
+The host runs 528 only when `config["page_size"] == 1` (`attn_ws` resets var 528 to 16
+otherwise, for mode 0, 1 and 2), so the page-size-64 tests keep var 16's generic path.
+
+SASS (CUDA 12.8.1, sm_90a, `tools/attn_ws_quick.sh -s`), counted by
+`python3 tools/attn_loader_sass.py .build/ws/k.sass ILi7ELi3ELi0ELi4ELi16E ILi7ELi3ELi0ELi4ELi528E`.
+The loader loop is the backward branch holding the LDGSTS (one trip is PF = 4 tiles). Static is
+every instruction in it; path is one steady-state trip with page size 1 and full tiles (division
+skips and successful try-waits taken, slow paths not):
+
+| class (per 4 tiles) | var 16 static | var 528 static | var 16 path | var 528 path |
+|---|---|---|---|---|
+| integer/address (IMAD, IADD3, LEA, SHF, LOP3, SEL, ISETP, LDC, ...) | 870 | 310 | 519 | 254 |
+| I2F/F2I/MUFU (division) | 36 | 0 | 0 | 0 |
+| LDGSTS + LDGDEPBAR + DEPBAR | 40 | 40 | 40 | 40 |
+| LDG (page entries) | 4 | 4 | 4 | 4 |
+| SHFL.IDX | 8 | 8 | 8 | 8 |
+| LDS/STS (incl. `@!PT LDS` scheduling no-ops) | 88 | 80 | 88 | 80 |
+| F2FP (V to f16) | 128 | 128 | 128 | 128 |
+| SYNCS/MEMBAR/FENCE | 20 | 20 | 16 | 16 |
+| branch/BSSY/BSYNC | 72 | 44 | 56 | 28 |
+| other | 4 | 4 | 0 | 0 |
+| total | 1270 | 638 | 859 | 558 |
+
+Steady-state path: 859 to 558 instructions per 4 tiles (-35%), integer/address 519 to 254
+(-51%). The cp.async issue section of one tile (tile check to LDGDEPBAR) runs 113 instructions
+in var 16 and 53 in var 528. The loads-only builds (mode 1) give the same path counts, 855 to
+558; mode 2 (stamps) 923 to 632. Unchanged in both: 32 LDGSTS.E.BYPASS.128, 16 LDS.128 + 32
+STS.128 and 128 F2FP.F16.E4M3.UNPACK_B (the conversion), 4 x (MEMBAR.ALL.CTA, FENCE.VIEW.ASYNC.S,
+SYNCS.ARRIVE) per trip.
+
+One row (tb = 0) of tile u = 0, executed instructions. Var 16 (division block skipped):
+
+```
+IMAD.WIDE.U32 R32, R17, 0x24924925, RZ ; IMAD.IADD ; LEA.HI ; SHF.R.U32.HI
+IMAD R37, R32, -0x7, R17          (i % 7)
+ISETP.NE.AND P1, PT, R36, 0x1, PT ;  SHFL.IDX ; SHF.R.S32.HI ; IMAD.MOV.U32 ; IMAD.IADD
+LDC.64 (k_cache) ; LDC.64 (v_cache) ; @!P1 BRA (over 30-instruction division)
+IMAD.SHL.U32 R44, R43, 0x80 ; SHF.L.U64.HI R46, R43, 0x7, R46 ; IMAD x3 (stage) ; ISETP (valid)
+LOP3 x2 (| ck*16) ; IADD3 x4 + IMAD.X x4 (64-bit adds) ; SEL x8 (valid ? ptr : base)
+IADD3 x2, VIADD, IMAD.IADD (shared addresses) ; LDGSTS x4
+```
+
+Var 528:
+
+```
+IMAD R29, R17, -0x40, R32        (rem)
+IMAD R33, R28, 0x4000, R13 ; IMAD R35, R28, 0x4000, R21 ; IMAD.IADD R37  (stage offsets)
+SHFL.IDX ; LDC.64 (k base) ; ISETP.GE (valid) ; LDC.64 (v base) ; SEL R26, R26, RZ, !P0
+IMAD.WIDE.U32 R26, R26, 0x80, RZ ; LOP3 (| cq*16) ; IADD3 x2 + IMAD.X x2
+LDGSTS [R33], [R30.64] ; LDGSTS [R37], [R26.64]
+LDGSTS [R33+0x1000], [R30.64+0x40] ; LDGSTS [R37+0x40], [R26.64+0x40]
+```
+
+The second row reuses the stage offsets (`[R33+0x200]`, `[R37+0x400]`, `+0x1200`, `+0x440`).
+
+Registers and spills (ptxas): var 528 uses 115 registers in mode 0 (var 16: 115), 62 in mode 1
+(61), 128 in mode 2 (128); no spills, no C7513/C7514. Var 16's SASS is instruction-identical
+before and after the change (modes 0 and 1). Var 528's math-warp code has the same instructions
+as var 16's apart from register allocation (16 more IMAD.MOV.U32, one more IMAD.IADD and
+VIADD, one IADD3 and one CS2R fewer; the same 8 HGMMA and 4 QGMMA). Host wrapper
+(`tools/attn_host_check.sh`): no errors.
+`tools/attn_compile_check.sh muse_attention_decode/bench.py`: no errors; the two spilling
+entries are the unchanged q_len 1 fused kernel in `attn_src`.
+
+What this does not show: fewer issued instructions need not mean fewer cycles. The loader's
+issue time may be bound by LDGSTS throughput or the memory system rather than by integer issue,
+and the V conversion (128 F2FP + 48 LDS/STS per 4 tiles, about 800 cycles per tile in the
+stamps) is untouched. Decision (drop under 10% would have closed this): the path count fell by
+35%, so var 528 goes into the pending bench.
+
+`muse_attention_decode/bench.py` is now written by `python3 tools/attn_build_loader.py`, which is
+`tools/attn_build_a1.py`'s bench with two more variants and one more stamp variable, and leaves
+`submission_a1.py` and `submission.py` unchanged. It times `_ref32 _fused_prep _ws@x=0 _ws@x=16
+_ws@x=16,m=1 _ws@x=144 _ws@x=272 _ws@x=528 _ws@x=528,m=1` per shape and prints STAMPS for x=16,
+144, 272 and 528 on each q_len 8 shape (24 STAMPS lines of about 360 characters plus 7 BENCH
+lines: about 11.5K characters, under the 16,000-character tail; the last bench with 12 STAMPS
+lines logged 5.2K). Read it with the backlog #4 notes above, plus:
+- x=528 against x=16 and x=528,m=1 against x=16,m=1 per shape: e= of x=528 should equal x=16's
+  (same loads, same math). If loads-only time drops but the full kernel's does not, the math
+  warps set the pace on that shape.
+- STAMPS x=528 against x=16: the `cp.async-issue` and `page-entries` loader columns are the ones
+  this change can move; `v-convert+release` should not change.
