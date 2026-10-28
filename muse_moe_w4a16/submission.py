@@ -449,8 +449,8 @@ torch::Tensor finalize(torch::Tensor y, torch::Tensor scores, torch::Tensor norm
 def _opts_for(num_tokens, state=None):
     # SGLang's heuristic picks 48 at 128 tokens and 64 at 256; 16 was 25-35% faster there.
     bsm = 8 if num_tokens < 12 else 16
-    g1, g2, pdl = _w4_policy(num_tokens, state)
-    return {"align": "ours", "fin": 0, "bsm": bsm, "g1": g1, "g2": g2, "pdl": pdl}
+    g1, g2, pdl, fcl = _w4_policy(num_tokens, state)
+    return {"align": "ours", "fin": 0, "bsm": bsm, "g1": g1, "g2": g2, "pdl": pdl, "fcl": fcl}
 
 
 # Batch sizes the W4 configs are tuned at in prepare(); other sizes use the next one up.
@@ -458,13 +458,13 @@ TUNE_BS = (1, 8, 16, 32, 128, 256)
 
 
 def _w4_policy(num_tokens, state):
-    """(GEMM1 config, GEMM2 config, PDL) tuned in prepare() for this batch size; a None config
-    is Marlin's."""
+    """(GEMM1 config, GEMM2 config, PDL, finalizer cluster size) tuned in prepare() for this
+    batch size; a None config is Marlin's."""
     policy = (state or {}).get("w4_policy")
     if not policy:
-        return None, None, False
+        return None, None, False, 1
     key = next((b for b in TUNE_BS if b >= num_tokens), TUNE_BS[-1])
-    return policy.get(key, (None, None, False))
+    return policy.get(key, (None, None, False, 1))
 
 
 def _w4_fits(cfg, num_tokens):
@@ -528,18 +528,21 @@ void w4_gemm(int64_t cfg, torch::Tensor act, torch::Tensor wq, torch::Tensor wsc
 void w4_swiglu(torch::Tensor part, torch::Tensor local_ids, int64_t splits, torch::Tensor out,
                bool pdl);
 torch::Tensor w4_finalize(torch::Tensor part, torch::Tensor scores, torch::Tensor norm_w,
-                          torch::Tensor local_ids, double eps, bool pdl);
+                          torch::Tensor local_ids, double eps, bool pdl, int64_t cl);
 std::vector<int64_t> w4_info(int64_t cfg);
 """
 
 _W4_SRC = r"""
 #include <torch/extension.h>
 #include <ATen/cuda/CUDAContext.h>
+#include <cooperative_groups.h>
 #include <cuda_bf16.h>
 #include <cstdint>
 #include <vector>
 
 namespace {
+
+namespace cg = cooperative_groups;
 
 constexpr int kK = 4096;
 constexpr int kInter = 4096;
@@ -885,23 +888,28 @@ __global__ void __launch_bounds__(W * 32) w4_gemm_kernel(
     }
 }
 
-// The post-expert norm and weighted sum over GEMM2's FP32 K-split partials: one block of 512
-// threads per token, 8 channels per thread; dead slots are never read.
-__global__ void __launch_bounds__(512) w4_finalize_kernel(
+// The post-expert norm and weighted sum over GEMM2's FP32 K-split partials. CL blocks per
+// token (a cluster when CL > 1), 512 / CL threads each, 8 channels per thread; the per-slot
+// sums of squares are combined through distributed shared memory. One block per token leaves
+// small batches to one SM's bandwidth. Dead slots are never read.
+template <int CL>
+__global__ void __launch_bounds__(512 / CL) w4_finalize_kernel(
         const float* __restrict__ part, int splits, int numel, const float* __restrict__ scores,
         const __nv_bfloat16* __restrict__ norm_w, const int* __restrict__ local_ids,
         __nv_bfloat16* __restrict__ out, float eps) {
     asm volatile("griddepcontrol.launch_dependents;");
     asm volatile("griddepcontrol.wait;" ::: "memory");
     constexpr int kTopK = 8;
-    constexpr int WARPS = 16;
+    constexpr int THREADS = 512 / CL;
+    constexpr int WARPS = THREADS / 32;
     __shared__ float red[kTopK][WARPS];
+    __shared__ float psum[kTopK];
     __shared__ float scale[kTopK];
-    const int t = blockIdx.x;
+    const int t = blockIdx.y;
     const int tid = threadIdx.x;
     const int lane = tid & 31;
     const int warp = tid >> 5;
-    const int c = tid * 8;
+    const int c = (blockIdx.x * THREADS + tid) * 8;
     float w[8];
     {
         const uint4 raw = *reinterpret_cast<const uint4*>(norm_w + c);
@@ -953,20 +961,35 @@ __global__ void __launch_bounds__(512) w4_finalize_kernel(
         }
     }
     __syncthreads();
-    if (warp == 0) {
+    if (tid < kTopK) {
+        float s = 0.f;
 #pragma unroll
-        for (int k = 0; k < kTopK; ++k) {
-            float s = lane < WARPS ? red[k][lane] : 0.f;
-#pragma unroll
-            for (int d = 16; d > 0; d >>= 1) {
-                s += __shfl_xor_sync(0xffffffffu, s, d);
-            }
-            if (lane == 0) {
-                scale[k] = live[k] ? scores[t * kTopK + k] * rsqrtf(s / kK + eps) : 0.f;
-            }
+        for (int i = 0; i < WARPS; ++i) {
+            s += red[tid][i];
         }
+        psum[tid] = s;
     }
-    __syncthreads();
+    if (CL > 1) {
+        cg::cluster_group cluster = cg::this_cluster();
+        cluster.sync();
+        if (tid < kTopK) {
+            float s = 0.f;
+#pragma unroll
+            for (int r = 0; r < CL; ++r) {
+                s += *cluster.map_shared_rank(&psum[tid], r);
+            }
+            scale[tid] = live[tid] ? scores[t * kTopK + tid] * rsqrtf(s / kK + eps) : 0.f;
+        }
+        // Also keeps every block's psum alive until the other blocks have read it.
+        cluster.sync();
+    } else {
+        __syncthreads();
+        if (tid < kTopK) {
+            scale[tid] = live[tid] ? scores[t * kTopK + tid] * rsqrtf(psum[tid] / kK + eps)
+                                   : 0.f;
+        }
+        __syncthreads();
+    }
     float acc[8];
 #pragma unroll
     for (int j = 0; j < 8; ++j) {
@@ -989,9 +1012,9 @@ __global__ void __launch_bounds__(512) w4_finalize_kernel(
     *reinterpret_cast<uint4*>(out + static_cast<size_t>(t) * kK + c) = raw;
 }
 
-// Sums the K-split partials of GEMM1 and applies SwiGLU: one block of 512 threads per route,
+// Sums the K-split partials of GEMM1 and applies SwiGLU: 8 blocks of 64 threads per route,
 // 8 features per thread; routes to other GPUs' experts are skipped.
-__global__ void __launch_bounds__(512) w4_swiglu_kernel(
+__global__ void __launch_bounds__(64) w4_swiglu_kernel(
         const float* __restrict__ part, const int* __restrict__ local_ids, int numel,
         int splits, __nv_bfloat16* __restrict__ out) {
     // GEMM2 may start streaming its weights while this kernel runs; it waits for this
@@ -1002,7 +1025,7 @@ __global__ void __launch_bounds__(512) w4_swiglu_kernel(
     if (local_ids[p] < 0) {
         return;
     }
-    const int c = threadIdx.x * 8;
+    const int c = (blockIdx.y * 64 + threadIdx.x) * 8;
     float gv[8];
     float uv[8];
 #pragma unroll
@@ -1084,8 +1107,32 @@ std::vector<int64_t> w4_query() {
     return {attr.numRegs, smem + static_cast<int64_t>(attr.sharedSizeBytes), blocks};
 }
 
+template <int CL>
+void finalize_launch(const float* part, int splits, int numel, const float* scores,
+                     const __nv_bfloat16* norm_w, const int* local_ids, __nv_bfloat16* out,
+                     float eps, bool pdl, cudaStream_t stream) {
+    cudaLaunchConfig_t cfg = {};
+    cfg.gridDim = dim3(CL, numel / 8, 1);
+    cfg.blockDim = dim3(512 / CL, 1, 1);
+    cfg.dynamicSmemBytes = 0;
+    cfg.stream = stream;
+    cudaLaunchAttribute attr[2];
+    attr[0].id = cudaLaunchAttributeProgrammaticStreamSerialization;
+    attr[0].val.programmaticStreamSerializationAllowed = pdl ? 1 : 0;
+    attr[1].id = cudaLaunchAttributeClusterDimension;
+    attr[1].val.clusterDim.x = CL;
+    attr[1].val.clusterDim.y = 1;
+    attr[1].val.clusterDim.z = 1;
+    cfg.attrs = attr;
+    cfg.numAttrs = CL > 1 ? 2 : 1;
+    C10_CUDA_CHECK(cudaLaunchKernelEx(&cfg, w4_finalize_kernel<CL>, part, splits, numel, scores,
+                                      norm_w, local_ids, out, eps));
+}
+
 // w4_compile_check: w4_swiglu_kernel<<<1, 512>>>(nullptr, nullptr, 0, 1, nullptr);
-// w4_compile_check: w4_finalize_kernel<<<1, 512>>>(0, 1, 8, 0, 0, 0, 0, 0.f);
+// w4_compile_check: finalize_launch<1>(0, 1, 8, 0, 0, 0, 0, 0.f, false, 0);
+// w4_compile_check: finalize_launch<4>(0, 1, 8, 0, 0, 0, 0, 0.f, false, 0);
+// w4_compile_check: finalize_launch<8>(0, 1, 8, 0, 0, 0, 0, 0.f, false, 0);
 //@W4_COMPILE_CHECKS@
 }  // namespace
 
@@ -1118,25 +1165,30 @@ std::vector<int64_t> w4_info(int64_t cfg) {
 }
 
 torch::Tensor w4_finalize(torch::Tensor part, torch::Tensor scores, torch::Tensor norm_w,
-                          torch::Tensor local_ids, double eps, bool pdl) {
+                          torch::Tensor local_ids, double eps, bool pdl, int64_t cl) {
     const int splits = part.size(0);
     const int numel = part.size(1);
-    const int m = numel / 8;
-    auto out = torch::empty({m, kK}, norm_w.options());
-    launch_pdl(w4_finalize_kernel, dim3(m), 512, 0, pdl, at::cuda::getCurrentCUDAStream(),
-               static_cast<const float*>(part.data_ptr<float>()), splits, numel,
-               static_cast<const float*>(scores.data_ptr<float>()),
-               reinterpret_cast<const __nv_bfloat16*>(norm_w.data_ptr<at::BFloat16>()),
-               static_cast<const int*>(local_ids.data_ptr<int>()),
-               reinterpret_cast<__nv_bfloat16*>(out.data_ptr<at::BFloat16>()),
-               static_cast<float>(eps));
+    auto out = torch::empty({numel / 8, kK}, norm_w.options());
+    const float* pp = part.data_ptr<float>();
+    const float* sp = scores.data_ptr<float>();
+    const auto* wp = reinterpret_cast<const __nv_bfloat16*>(norm_w.data_ptr<at::BFloat16>());
+    const int* ip = local_ids.data_ptr<int>();
+    auto* op = reinterpret_cast<__nv_bfloat16*>(out.data_ptr<at::BFloat16>());
+    const float e = static_cast<float>(eps);
+    auto stream = at::cuda::getCurrentCUDAStream();
+    switch (cl) {
+        case 1: finalize_launch<1>(pp, splits, numel, sp, wp, ip, op, e, pdl, stream); break;
+        case 4: finalize_launch<4>(pp, splits, numel, sp, wp, ip, op, e, pdl, stream); break;
+        case 8: finalize_launch<8>(pp, splits, numel, sp, wp, ip, op, e, pdl, stream); break;
+        default: TORCH_CHECK(false, "bad finalize cluster size");
+    }
     return out;
 }
 
 void w4_swiglu(torch::Tensor part, torch::Tensor local_ids, int64_t splits, torch::Tensor out,
                bool pdl) {
     const int numel = local_ids.numel();
-    launch_pdl(w4_swiglu_kernel, dim3(numel), 512, 0, pdl, at::cuda::getCurrentCUDAStream(),
+    launch_pdl(w4_swiglu_kernel, dim3(numel, 8), 64, 0, pdl, at::cuda::getCurrentCUDAStream(),
                static_cast<const float*>(part.data_ptr<float>()),
                static_cast<const int*>(local_ids.data_ptr<int>()), numel,
                static_cast<int>(splits),
@@ -1399,7 +1451,7 @@ def _forward(data, state, opts):
     if g2 is not None:
         part = _w4_gemm2(state["w4"], g2, cache2, sorted_ids, items2, num_items2, numel, pdl)
         return _w4_ext().w4_finalize(part, topk_weights, state["norm_w"], local_ids.view(-1),
-                                     POST_NORM_EPS, pdl)
+                                     POST_NORM_EPS, pdl, opts.get("fcl", 1))
     y = moe_wna16_marlin_gemm(
         cache2, cache3, bank["w2"], None, bank["w2_s"], bank["w2_gs"], None, None, None, ws,
         sorted_ids, block_experts, n_padded, topk_weights, top_k=1,
@@ -1541,7 +1593,7 @@ def _w4_tune(state, seeds=(11, 12)):
                         part = _w4_gemm2(w4, i, inter, sids, items, nitems, numel)
                         res["part"] = part
                         _w4_ext().w4_finalize(part, tw, state["norm_w"], lids.view(-1),
-                                              POST_NORM_EPS, False)
+                                              POST_NORM_EPS, False, 1)
                 k = cfg[0] - 1 + (0 if cfg[6] in (0, 5) else 2)
                 tot[k][i] = tot[k].get(i, 0.0) + _graph_time(run, flush)
                 if cfg[6] not in (0, 5):
@@ -1562,20 +1614,25 @@ def _w4_tune(state, seeds=(11, 12)):
             for i in bad:
                 tot[k].pop(i, None)
         g1, g2 = (min(tot[k], key=tot[k].get) for k in range(2))
-        # Programmatic dependent launch on or off, on the whole forward.
+        # Whole forward: programmatic dependent launch off or on, and the finalizer's cluster
+        # size (only with the W4 GEMM2, whose FP32 partials it reads).
         st = dict(state, w4_ok=True)
-        tp = [0.0, 0.0]
+        variants = [(pdl, fcl) for pdl in (False, True) for fcl in ((1, 4, 8) if g2 is not None
+                                                                     else (1,))]
+        tv = {v: 0.0 for v in variants}
         try:
             for seed in seeds:
                 data = _make_inputs(bs, 977 * seed + bs)
-                for j in range(2):
-                    o = dict(_opts_for(bs), g1=g1, g2=g2, pdl=bool(j))
-                    tp[j] += _graph_time(lambda: _forward(data, st, o), flush)
+                for v in variants:
+                    o = dict(_opts_for(bs), g1=g1, g2=g2, pdl=v[0], fcl=v[1])
+                    tv[v] += _graph_time(lambda: _forward(data, st, o), flush)
         except Exception as exc:
-            print(f"TUNE pdl failed: {type(exc).__name__}: {exc}")
-            tp = [0.0, 1.0]
-        print(f"TUNE pdl bs={bs} forward off {tp[0] / n:.1f} on {tp[1] / n:.1f}")
-        policy[bs] = (g1, g2, tp[1] < tp[0])
+            print(f"TUNE forward variants failed: {type(exc).__name__}: {exc}")
+            tv = {(False, 1): 0.0}
+        line = " ".join(f"pdl={int(v[0])},cl={v[1]}:{t / n:.1f}" for v, t in tv.items())
+        print(f"TUNE forward bs={bs} {line}")
+        pdl, fcl = min(tv, key=tv.get)
+        policy[bs] = (g1, g2, pdl, fcl)
     print(f"TUNE policy {policy}")
     return policy
 
