@@ -80,23 +80,47 @@ Every `okc check` and `okc submit`, newest last. Full per-shape output for each 
 
 ## Rewrite 2026-10-28: skinny kernel from the public memo's design (branch worktree-agent-a3f4197b0217ad8cc)
 
-submission.py was replaced (commit 82a5baf) by our own implementation of the design in the
-public 1.50x entry's memo: x as the mma A operand, weights as 8-row B tiles, each CTA owning R
-rows over the whole K with K split only across its warps (no cross-CTA reduction), weights by
-one `cp.async.bulk` per stage from a stage-major stream, x by one 3-D TMA box on the same
-mbarrier, 12-bit lossless weights with escapes corrected by dedicated escape warps, the hi/lo
-router on the same kernel with a 3-CTA cluster DSMEM reduction, an FP64 self-test gate and a
-cold-L2 graph-replay autotuner over compressed, raw and cuBLAS candidates per shape. Formats and
-entry points: docs/proj-port-guide.md. Local evidence (no GPU here): all 27 instantiations (44
-with the bench sweep) compile for sm_90a with 0 spills, 39 to 112 registers; CPU emulation of
-the packing against the kernel's indexing in tools/emulate_proj.py and tools/compress_emulate.py.
+submission.py was replaced (commits 82a5baf to 3a160e6) by our own implementation of the design
+in the public 1.50x entry's memo: x as the mma A operand, weights as 8-row B tiles, each CTA
+owning R rows over the whole K with K split only across its warps (no cross-CTA reduction),
+weights by one `cp.async.bulk` per stage from a stage-major stream, x by one 3-D TMA box on the
+same mbarrier, 12-bit lossless weights with escapes corrected by dedicated escape warps (qkv rows
+balanced across row blocks), the hi/lo router on the same kernel with a 3-CTA cluster DSMEM
+reduction, m = 1 GEMV candidates (12-bit cgemv, FP32 rgemv, BF16 sgemv), a fused pooler + router
+entry for the layer, an FP64 self-test gate and a cold-L2 graph-replay autotuner over compressed,
+raw, GEMV and cuBLAS candidates per shape. Formats and entry points: docs/proj-port-guide.md.
+
+Local evidence (no GPU here):
+
+- Docker nvcc for sm_90a: all 29 skinny configs (27 + 2 fused; 48 with the bench sweep) and the
+  three GEMV kernels compile with 0 spills, 38 to 112 registers; the GEMVs issue every global
+  load before their first FFMA (SASS check in tools/gemv_compile_check.sh).
+- tools/emulate_proj.py: numpy emulation of the kernel's data flow (stream bytes, the swizzled
+  TMA box, ldmatrix, decode8, mma fragments, NACC sets, escape warps, red/peer partials, row
+  map, the cluster split and the fused tail) for every config at reduced sizes: bf16 outputs
+  equal the bf16-rounded FP64 product except the single element at a forced tiny escape
+  (float32 delta rounding, within the stated tolerance); router paths within 3e-8 of hi + lo.
+  Eight mutations (no swizzle, swapped prmt selectors, swapped fragment halves, dropped
+  corrections, shifted streams, ignored row map) all fail.
+- tools/compress_emulate.py: the 12-bit code restores every weight of the four judge shapes
+  bit for bit (escape share 1.0e-4 to 1.4e-4, byte ratio 0.751, 0 inexact deltas); adversarial
+  1% outlier matrices are rejected by the 1/200 rule.
+- tools/emulate_gemv.py: cgemv decode bit-exact, probe rows exact, products within float32.
+- tools/proj_dryrun.py: prepare() and kernel_fn on CPU with a fake extension that enforces the
+  host interface: packing of all layers, 152 kernel calls, 20 tuned shapes, dispatch for every
+  judge shape (m 1 to 1000), the fused entries.
+- An adversarial review of the synchronization protocol (phase parity, init order, proxy
+  fences, ldmatrix into the 128B-swizzled box, epilogue barriers, tensor map, launch
+  arithmetic) found one bug, fixed in 3a160e6: the fused reduction's shared counter broke when
+  the two fused configs alternated; the counter now resets per launch, with scratch per config.
 
 Checks were exhausted for the day when the rewrite landed. First checks after the reset:
 
-1. `okc check muse_bf16_proj/submission.py --no-wait --json`: the self-test lines
-   (`selftest ... disabled` names any kernel that fails against FP64 and the diag code of a
-   timed-out wait), the `tune` lines (compressed vs raw vs cuBLAS per shape, judge-style
-   timing), the pack lines (escapes, inexact deltas), then the score.
+1. `okc check muse_bf16_proj/submission.py --no-wait --json`, then `okc status <job> --wait
+   --json`, confirming the problem and job id. Read the log: `selftest ... disabled` names any
+   kernel that fails against FP64 (with the diag code of a timed-out wait), the `tune` lines
+   give compressed vs raw vs GEMV vs cuBLAS per shape in judge-style timing, the `pack` lines
+   the escapes, `fused pooler+router ...: ok` the layer entries, then the score.
 2. `okc check muse_bf16_proj/bench.py`: the same with the sweep geometries of
    tools/make_bench.py (R, stage depth and warp-split alternatives per shape).
 3. Fix what the self-test rejects, then re-check.
