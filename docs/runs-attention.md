@@ -458,3 +458,49 @@ line names the phase that hangs. The same run has the cooperative-launch probe d
 kernels never had; if the whole self-test then passes, the probe was the cause and cooperative
 grids keep one SM of headroom instead. The third authorized submit of 10-28 was not used: the
 fix is not certain.
+
+### Cause of the hang: a full-mask shuffle under a lane-divergent branch (10-28)
+
+Phase 8 of the per-request path is the new-token pass (`hi > seq && tid < L * 32`: the block's
+own K and V rows are normalized, rotated, rounded and written to the cache) followed by the
+CTA barrier. In that pass each warp holds K rows in lanes 0..15 and V rows in lanes 16..31
+(`is_k = (rr & 3) < 2`, `rr = tid >> 3`), and the K branch called `oct_sum`, three
+`__shfl_xor_sync(0xffffffff, ...)`. The full mask names the V lanes, which never execute the
+shuffle; that is undefined behaviour, and the SASS of `attn_one<1,13>` shows how it hangs:
+`@P4 BRA` sends the V lanes past the K branch toward the `BAR.SYNC`, so the warp is diverged at
+the shuffle, `BRA.DIV` takes the K lanes to the `WARPSYNC.COLLECTIVE` fallback with mask
+0xffffffff, and that waits for V lanes that are parked at the barrier waiting for the K lanes.
+The pass runs only in the CTA whose range holds the new token, and every per-request instance
+has it (q_len 8 splits each warp the same way), which is why every shape hung on its first
+call. The earlier static reviews checked that every thread reaches each barrier, but not lane
+convergence at warp collectives. The other collectives in `attn_one.cu` sit in warp-uniform
+code (checked: the finalize loop, the flat prefix scan in warp 0, the tile-loop `__any_sync`
+and `quad_*` reductions).
+
+Fix: the sum of squares and `oct_sum` run on every lane of the warp, and only the
+normalization, RoPE and scale choice stay under `is_k` (the 8-lane groups are aligned to
+`is_k`, so the K sums are unchanged). In the rebuilt SASS of every instance the shuffle group
+now precedes the `is_k` branch, with only the warp-uniform `hi > seq && tid < 32` branch before
+it.
+
+Why every stamp printed `-`: `stamp(k)` writes `dbg[1 + k]`, but `_ob_stamps` took `dbg[1]`
+(never written, zeroed before each call) as the base and so printed `-` for everything. Fixed
+in `tools/attn_make_bench_one.py` (base `dbg[2]`, stamp k at `dbg[1 + k]`). Why no HANG line
+appeared: the watchdog's snapshot allocated its pinned host buffer after the hang, and a
+page-locked allocation implicitly synchronizes with the device (CUDA programming guide,
+implicit synchronization), so the process blocked there until the judge killed it. The side
+stream, pinned buffer and event are now made before the first launch.
+
+Local evidence (commit after 8d1789d): `tools/attn_ws_quick.sh -s` builds all 13 instances
+for sm_90a with the registers unchanged from 9221bf9 (mode 13: 78, no spills; mode 51 keeps its
+known 292 bytes of spills at 80 registers); `tools/attn_compile_check.sh` compiles all four
+inlined blocks of `submission.py` without errors; `tools/attn_harness_dry.py` passes (exact
+PASS, perturbed FAIL on all five shapes); a CPU check of `_ob_stamps` on a simulated dbg buffer
+prints deltas for stamps 1..10 and `-` after.
+
+Next check after the reset: `okc check muse_attention_decode/bench.py --no-wait --json`, then
+`okc status <job> --wait --json`. Every `PHASE ... returned` line through phase 10 for both
+mode 13 and mode 1, and `MODES ... PASS`, confirm the cause; the run then goes on to the
+correctness suite, the replay stress and the timings. A `HANG` line names a second hang, with
+the stamps showing the last point thread 0 of CTA 0 reached. A timeout with no `HANG` line
+would mean the snapshot copy itself cannot run beside the hung kernel.

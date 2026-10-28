@@ -49,25 +49,39 @@ _OB_STAMP_NAMES = ["idx-commit", "q-commit", "wait1", "bar1", "spec-ok", "kv-iss
 
 
 def _ob_stamps(vals):
-    """Stamp deltas in microseconds from the first stamp (0 = not reached)."""
-    base = vals[1]
+    """Stamp deltas in microseconds from the first stamp (0 = not reached). stamp(k) writes
+    dbg[1 + k]; dbg[0] holds the cooperative poll count and dbg[1] is never stamped."""
+    base = vals[2]
     parts = []
     for k, name in enumerate(_OB_STAMP_NAMES, start=1):
-        v = vals[k]
+        v = vals[1 + k]
         parts.append(f"{{name}}={{'-' if v == 0 or base == 0 else (v - base) & 0xffffffff}}")
     return " ".join(parts)
 
 
+_OB_SNAP = None
+
+
+def _ob_snap_prepare():
+    """The side stream, pinned buffer and event of the hang snapshot, made before any launch:
+    a pinned allocation implicitly synchronizes with the device, so making it after a hang
+    blocked the third scored attempt until the judge's kill with nothing printed."""
+    global _OB_SNAP
+    if _ONE_DBG is not None and _OB_SNAP is None:
+        _OB_SNAP = (torch.cuda.Stream(),
+                    torch.empty(_ONE_DBG.numel(), dtype=torch.int32, pin_memory=True),
+                    torch.cuda.Event())
+
+
 def _ob_dbg_snapshot(timeout=3.0):
-    """Reads _ONE_DBG through a side stream (the copy engine runs while an SM kernel spins);
-    None if even that does not complete."""
-    if _ONE_DBG is None:
+    """Reads _ONE_DBG through a side stream (non-blocking with respect to the legacy default
+    stream, so the copy engine runs while an SM kernel spins); None if even that does not
+    complete."""
+    if _ONE_DBG is None or _OB_SNAP is None:
         return None
-    side = torch.cuda.Stream()
-    host = torch.empty(_ONE_DBG.numel(), dtype=torch.int32, pin_memory=True)
+    side, host, ev = _OB_SNAP
     with torch.cuda.stream(side):
         host.copy_(_ONE_DBG, non_blocking=True)
-        ev = torch.cuda.Event()
         ev.record(side)
     t0 = _time.time()
     while not ev.query():
@@ -359,6 +373,7 @@ def _ob_selftest():
     global _ONE_DBG
     if _ONE is not None:
         _ONE_DBG = torch.zeros(32, dtype=torch.int32, device="cuda")
+        _ob_snap_prepare()
         st = _one_state(torch.device("cuda", torch.cuda.current_device()))
         wok, wmsg = _ob_ws_check(torch.device("cuda", torch.cuda.current_device()))
         print(f"SELFTEST workspace before the first launch: {{'zero' if wok else 'DIRTY'}} {{wmsg}} "

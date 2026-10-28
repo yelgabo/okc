@@ -3947,13 +3947,17 @@ attn_one_kernel(const Params p) {
             float x[8];
             load8(smem + S::KVST + rr * 128 + t8 * 16, x);
             float inv = __fdividef(1.f, v_scale);
-            if (is_k) {
-                float ss = 0.f;
+            // Every lane of the warp reaches the full-mask shuffle: half of each warp holds V
+            // rows, and a full-mask shfl inside `if (is_k)` deadlocked on the judge (the K
+            // lanes wait in WARPSYNC for V lanes already parked at the next bar.sync).
+            float ss = 0.f;
 #pragma unroll
-                for (int e = 0; e < 8; ++e) {
-                    ss += x[e] * x[e];
-                }
-                const float r = rsqrtf(oct_sum(ss) * (1.f / D) + EPS);
+            for (int e = 0; e < 8; ++e) {
+                ss += x[e] * x[e];
+            }
+            ss = oct_sum(ss);
+            if (is_k) {
+                const float r = rsqrtf(ss * (1.f / D) + EPS);
 #pragma unroll
                 for (int e = 0; e < 8; ++e) {
                     x[e] *= r;
