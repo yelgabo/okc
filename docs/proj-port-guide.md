@@ -109,9 +109,24 @@ share the bucket's pick. Picks are printed as `tune <layer> m=<m>: ...`.
 - Launch order: nothing in the kernel reads global memory other than the stream, the table and
   x; PDL (`griddepcontrol.wait`) could go in before the first x read if the layer adopts it.
 
-## Fused pooler + router
+## Fused pooler + router (`skf_fwd`)
 
-Planned entry `skf_fwd` (not yet built): after its pooler stages each CTA streams one router
-piece (8 rows x K/pieces, hi and lo) through the same ring; quarter partials go to a small
-global buffer; the last CTA of a row block (release/acquire counter, monotonic) writes the
-FP32 router output.
+```
+skf_fwd(cfg, ws, rws, x, out, rout, ptab, pmax, base4, n, k, rpart, rcount, diag)
+```
+
+`cfg` is a fused pooler config (`pool8f` for T <= 8, `pool16f` for 9 <= T <= 16): the pooler
+geometry with a `FUSE` flag. After its pooler stages each CTA streams one router piece through
+the same ring: row block `blockIdx % 32` (8 of the 256 router rows), K piece `blockIdx / 32`
+of `pieces = ncta / 32` (8 pieces of 2 stages at T <= 8, 4 of 4 at T <= 16), hi and lo tiles
+(2048 B per 64-k unit, `rws` = `stage_stream(hilo_units, _fused_router_geom(name), 256)`),
+every consumer warp taking `UPS / NW` units. The piece's per-warp partials go through the ring,
+one float4 per (token, 4 rows) is stored to `rpart[piece][T][256]` (f32 scratch, at least
+`[8, 16, 256]`), `__threadfence`, then one `atomicAdd` on `rcount[row block]` (int32[32],
+monotonic, never reset: the last arrival of each launch is `(old + 1) % pieces == 0`); the last
+CTA of a row block sums the pieces through L2 (`__ldcg`) and writes `rout[T][256]` f32. `out`
+is the pooler result as in `sk_fwd`. x is the same `[T, 8192]` tensor for both products.
+
+`prepare()` self-tests both fused configs against FP64 (pooler and router outputs, probe rows)
+and stores `state["fused"][bucket]` = `run(x) -> (out, rout)` for the layer; the standalone
+problem's `kernel_fn` never uses them.
