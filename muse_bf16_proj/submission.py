@@ -1577,6 +1577,9 @@ WD_GEOM = {
     "r64c16": (1, 64, 16, True, 4),
     "r128c8": (1, 128, 8, True, 4),
     "r128c16": (1, 128, 16, True, 4),
+    # A CTA's whole K slice (8 tiles at CL = 16) in flight at once: one TMA round trip.
+    "r64c16d": (1, 64, 16, True, 8),
+    "r128c16d": (1, 128, 16, True, 6),
     "b1n64c2": (1, 64, 2, False, 6),
     "b1n64c4": (1, 64, 4, False, 6),
     "b1n128c2": (1, 128, 2, False, 4),
@@ -1593,6 +1596,10 @@ WD_INDEX = {nm: i for i, nm in enumerate(WD_NAMES)}
 WD_BUCKETS = (64, 128, 256)
 WD_SELFTEST_MS = {64: (33, 47, 64), 128: (65, 100, 128), 256: (129, 130, 200, 256)}
 WD_BN = {64: (64,), 128: (64, 128), 256: (128, 256)}
+# A wide kernel replaces cuBLAS only if it is this much faster in the autotune: the tuner's
+# medians carry about 1% noise, and job 71b1927dca894bc4 picked pooler m=128 on 30.2 vs 30.5 us
+# that the judge then timed at 0.87x.
+WD_MARGIN = 0.97
 
 
 def wd_smem(wg, bn, cl, hl, nst):
@@ -2252,6 +2259,8 @@ def prepare(weights):
                 try:
                     us = _time_candidates([fn for _, fn, _ in lst], x, flush)
                     best = min(range(len(lst)), key=lambda i: us[i])
+                    if b in WD_BUCKETS and us[best] > WD_MARGIN * us[0]:
+                        best = 0
                     print(f"tune {layer:9s} m={m:2d}: " + ", ".join(f"{c[0]} {t:.1f}" for c, t in zip(lst, us))
                           + f" -> {lst[best][0]}")
                 except Exception as exc:
