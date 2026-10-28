@@ -1,0 +1,150 @@
+uter kernel: fused
+proj kernel: fused
+BENCH qkv_gate  m= 1 cublas                       20.7 us
+BENCH qkv_gate  m= 1 mt,w,r,ch,s,red=(1, 4, 1, 8, 1, True)   29.8 us
+/opt/sglang/lib/python3.12/site-packages/torch/cuda/graphs.py:630: UserWarning: The CUDA Graph is empty. This usually means that the graph was attempted to be captured on wrong device or stream. (Triggered internally at /__w/pytorch/pytorch/aten/src/ATen/cuda/CUDAGraph.cpp:249.)
+  super().capture_end_pre()
+BENCH qkv_gate  m= 1 mt,w,r,ch,s,red=(1, 4, 1, 8, 2, True) failed: CUDA error: invalid argument
+Search for `cudaErrorInvalidValue' in https://docs.nvidia.com/cuda/cuda-runtime-api/group__CUDART__TYPES.html for more information.
+
+BENCH qkv_gate  m= 1 mt,w,r,ch,s,red=(1, 4, 1, 8, 4, True) failed: CUDA error: invalid argument
+Search for `cudaErrorInvalidValue' in https://docs.nvidia.com/cuda/cuda-runtime-api/group__CUDART__TYPES.html for more information.
+
+BENCH qkv_gate  m= 1 mt,w,r,ch,s,red=(1, 4, 1, 8, 8, True) failed: CUDA error: invalid argument
+Search for `cudaErrorInvalidValue' in https://docs.nvidia.com/cuda/cuda-runtime-api/group__CUDART__TYPES.html for more information.
+
+BENCH qkv_gate  m= 1 mt,w,r,ch,s,red=(1, 4, 1, 8, 16, True)   23.3 us
+BENCH qkv_gate  m= 1 mt,w,r,ch,s,red=(1, 4, 1, 8, 4, False)   17.8 us
+BENCH qkv_gate  m=16 cublas                       20.6 us
+BENCH qkv_gate  m=16 mt,w,r,ch,s,red=(2, 4, 1, 8, 1, True) failed: CUDA error: invalid argument
+Search for `cudaErrorInvalidValue' in https://docs.nvidia.com/cuda/cuda-runtime-api/group__CUDART__TYPES.html for more information.
+
+BENCH qkv_gate  m=16 mt,w,r,ch,s,red=(2, 4, 1, 8, 2, True) failed: CUDA error: invalid argument
+Search for `cudaErrorInvalidValue' in https://docs.nvidia.com/cuda/cuda-runtime-api/group__CUDART__TYPES.html for more information.
+
+BENCH qkv_gate  m=16 mt,w,r,ch,s,red=(2, 4, 1, 8, 4, True) failed: CUDA error: invalid argument
+Search for `cudaErrorInvalidValue' in https://docs.nvidia.com/cuda/cuda-runtime-api/group__CUDART__TYPES.html for more information.
+
+BENCH qkv_gate  m=16 mt,w,r,ch,s,red=(2, 4, 1, 8, 8, True) failed: CUDA error: invalid argument
+Search for `cudaErrorInvalidValue' in https://docs.nvidia.com/cuda/cuda-runtime-api/group__CUDART__TYPES.html for more information.
+
+BENCH qkv_gate  m=16 mt,w,r,ch,s,red=(2, 4, 1, 8, 16, True) failed: CUDA error: invalid argument
+Search for `cudaErrorInvalidValue' in https://docs.nvidia.com/cuda/cuda-runtime-api/group__CUDART__TYPES.html for more information.
+
+BENCH qkv_gate  m=16 mt,w,r,ch,s,red=(2, 4, 1, 8, 4, False)   18.9 us
+BENCH qkv_gate  m=32 cublas                       20.9 us
+BENCH qkv_gate  m=32 mt,w,r,ch,s,red=(4, 4, 1, 8, 1, True)   45.1 us
+BENCH qkv_gate  m=32 mt,w,r,ch,s,red=(4, 4, 1, 8, 2, True) failed: CUDA error: invalid argument
+Search for `cudaErrorInvalidValue' in https://docs.nvidia.com/cuda/cuda-runtime-api/group__CUDART__TYPES.html for more information.
+
+BENCH qkv_gate  m=32 mt,w,r,ch,s,red=(4, 4, 1, 8, 4, True) failed: CUDA error: invalid argument
+Search for `cudaErrorInvalidValue' in https://docs.nvidia.com/cuda/cuda-runtime-api/group__CUDART__TYPES.html for more information.
+
+BENCH qkv_gate  m=32 mt,w,r,ch,s,red=(4, 4, 1, 8, 8, True)   30.7 us
+BENCH qkv_gate  m=32 mt,w,r,ch,s,red=(4, 4, 1, 8, 16, True)   31.2 us
+BENCH qkv_gate  m=32 mt,w,r,ch,s,red=(4, 4, 1, 8, 4, False)   21.1 us
+BENCH o         m= 1 cublas                       11.6 us
+BENCH o         m= 1 mt,w,r,ch,s,red=(1, 4, 1, 8, 1, True)   11.0 us
+BENCH o         m= 1 mt,w,r,ch,s,red=(1, 4, 1, 8, 2, True) failed: CUDA error: invalid argument
+Search for `cudaErrorInvalidValue' in https://docs.nvidia.com/cuda/cuda-runtime-api/group__CUDART__TYPES.html for more information.
+
+BENCH o         m= 1 mt,w,r,ch,s,red=(1, 4, 1, 8, 4, True) failed: CUDA error: invalid argument
+Search for `cudaErrorInvalidValue' in https://docs.nvidia.com/cuda/cuda-runtime-api/group__CUDART__TYPES.html for more information.
+
+BENCH o         m= 1 mt,w,r,ch,s,red=(1, 4, 1, 8, 8, True) failed: CUDA error: invalid argument
+Search for `cudaErrorInvalidValue' in https://docs.nvidia.com/cuda/cuda-runtime-api/group__CUDART__TYPES.html for more information.
+
+BENCH o         m= 1 mt,w,r,ch,s,red=(1, 4, 1, 8, 4, False)   11.4 us
+BENCH o         m=16 cublas                       11.6 us
+BENCH o         m=16 mt,w,r,ch,s,red=(2, 4, 1, 8, 1, True) failed: CUDA error: invalid argument
+Search for `cudaErrorInvalidValue' in https://docs.nvidia.com/cuda/cuda-runtime-api/group__CUDART__TYPES.html for more information.
+
+BENCH o         m=16 mt,w,r,ch,s,red=(2, 4, 1, 8, 2, True) failed: CUDA error: invalid argument
+Search for `cudaErrorInvalidValue' in https://docs.nvidia.com/cuda/cuda-runtime-api/group__CUDART__TYPES.html for more information.
+
+BENCH o         m=16 mt,w,r,ch,s,red=(2, 4, 1, 8, 4, True) failed: CUDA error: invalid argument
+Search for `cudaErrorInvalidValue' in https://docs.nvidia.com/cuda/cuda-runtime-api/group__CUDART__TYPES.html for more information.
+
+BENCH o         m=16 mt,w,r,ch,s,red=(2, 4, 1, 8, 8, True) failed: CUDA error: invalid argument
+Search for `cudaErrorInvalidValue' in https://docs.nvidia.com/cuda/cuda-runtime-api/group__CUDART__TYPES.html for more information.
+
+BENCH o         m=16 mt,w,r,ch,s,red=(2, 4, 1, 8, 4, False)   12.6 us
+BENCH o         m=32 cublas                       11.7 us
+BENCH o         m=32 mt,w,r,ch,s,red=(4, 4, 1, 8, 1, True)   13.4 us
+BENCH o         m=32 mt,w,r,ch,s,red=(4, 4, 1, 8, 2, True) failed: CUDA error: invalid argument
+Search for `cudaErrorInvalidValue' in https://docs.nvidia.com/cuda/cuda-runtime-api/group__CUDART__TYPES.html for more information.
+
+BENCH o         m=32 mt,w,r,ch,s,red=(4, 4, 1, 8, 4, True) failed: CUDA error: invalid argument
+Search for `cudaErrorInvalidValue' in https://docs.nvidia.com/cuda/cuda-runtime-api/group__CUDART__TYPES.html for more information.
+
+BENCH o         m=32 mt,w,r,ch,s,red=(4, 4, 1, 8, 8, True)   23.7 us
+BENCH o         m=32 mt,w,r,ch,s,red=(4, 4, 1, 8, 4, False)   13.5 us
+BENCH pooler    m= 1 cublas                       29.7 us
+BENCH pooler    m= 1 mt,w,r,ch,s,red=(1, 4, 1, 8, 1, True)   34.9 us
+BENCH pooler    m= 1 mt,w,r,ch,s,red=(1, 4, 1, 8, 2, True) failed: CUDA error: invalid argument
+Search for `cudaErrorInvalidValue' in https://docs.nvidia.com/cuda/cuda-runtime-api/group__CUDART__TYPES.html for more information.
+
+BENCH pooler    m= 1 mt,w,r,ch,s,red=(1, 4, 1, 8, 4, True) failed: CUDA error: invalid argument
+Search for `cudaErrorInvalidValue' in https://docs.nvidia.com/cuda/cuda-runtime-api/group__CUDART__TYPES.html for more information.
+
+BENCH pooler    m= 1 mt,w,r,ch,s,red=(1, 4, 1, 8, 8, True) failed: CUDA error: invalid argument
+Search for `cudaErrorInvalidValue' in https://docs.nvidia.com/cuda/cuda-runtime-api/group__CUDART__TYPES.html for more information.
+
+BENCH pooler    m= 1 mt,w,r,ch,s,red=(1, 4, 1, 8, 16, True)   33.5 us
+BENCH pooler    m= 1 mt,w,r,ch,s,red=(1, 4, 1, 8, 4, False)   26.7 us
+BENCH pooler    m=16 cublas                       29.9 us
+BENCH pooler    m=16 mt,w,r,ch,s,red=(2, 4, 1, 8, 1, True) failed: CUDA error: invalid argument
+Search for `cudaErrorInvalidValue' in https://docs.nvidia.com/cuda/cuda-runtime-api/group__CUDART__TYPES.html for more information.
+
+BENCH pooler    m=16 mt,w,r,ch,s,red=(2, 4, 1, 8, 2, True) failed: CUDA error: invalid argument
+Search for `cudaErrorInvalidValue' in https://docs.nvidia.com/cuda/cuda-runtime-api/group__CUDART__TYPES.html for more information.
+
+BENCH pooler    m=16 mt,w,r,ch,s,red=(2, 4, 1, 8, 4, True) failed: CUDA error: invalid argument
+Search for `cudaErrorInvalidValue' in https://docs.nvidia.com/cuda/cuda-runtime-api/group__CUDART__TYPES.html for more information.
+
+BENCH pooler    m=16 mt,w,r,ch,s,red=(2, 4, 1, 8, 8, True) failed: CUDA error: invalid argument
+Search for `cudaErrorInvalidValue' in https://docs.nvidia.com/cuda/cuda-runtime-api/group__CUDART__TYPES.html for more information.
+
+BENCH pooler    m=16 mt,w,r,ch,s,red=(2, 4, 1, 8, 16, True) failed: CUDA error: invalid argument
+Search for `cudaErrorInvalidValue' in https://docs.nvidia.com/cuda/cuda-runtime-api/group__CUDART__TYPES.html for more information.
+
+BENCH pooler    m=16 mt,w,r,ch,s,red=(2, 4, 1, 8, 4, False)   27.3 us
+BENCH pooler    m=32 cublas                       30.4 us
+BENCH pooler    m=32 mt,w,r,ch,s,red=(4, 4, 1, 8, 1, True)   46.2 us
+BENCH pooler    m=32 mt,w,r,ch,s,red=(4, 4, 1, 8, 2, True) failed: CUDA error: invalid argument
+Search for `cudaErrorInvalidValue' in https://docs.nvidia.com/cuda/cuda-runtime-api/group__CUDART__TYPES.html for more information.
+
+BENCH pooler    m=32 mt,w,r,ch,s,red=(4, 4, 1, 8, 4, True) failed: CUDA error: invalid argument
+Search for `cudaErrorInvalidValue' in https://docs.nvidia.com/cuda/cuda-runtime-api/group__CUDART__TYPES.html for more information.
+
+BENCH pooler    m=32 mt,w,r,ch,s,red=(4, 4, 1, 8, 8, True)   40.3 us
+BENCH pooler    m=32 mt,w,r,ch,s,red=(4, 4, 1, 8, 16, True)   44.2 us
+BENCH pooler    m=32 mt,w,r,ch,s,red=(4, 4, 1, 8, 4, False)   28.6 us
+BENCH unpooler  m=16 cublas                       27.6 us
+BENCH unpooler  m=16 mt,w,r,ch,s,red=(2, 4, 1, 8, 1, True) failed: CUDA error: invalid argument
+Search for `cudaErrorInvalidValue' in https://docs.nvidia.com/cuda/cuda-runtime-api/group__CUDART__TYPES.html for more information.
+
+BENCH unpooler  m=16 mt,w,r,ch,s,red=(2, 4, 1, 8, 2, True) failed: CUDA error: invalid argument
+Search for `cudaErrorInvalidValue' in https://docs.nvidia.com/cuda/cuda-runtime-api/group__CUDART__TYPES.html for more information.
+
+BENCH unpooler  m=16 mt,w,r,ch,s,red=(2, 4, 1, 8, 4, True) failed: CUDA error: invalid argument
+Search for `cudaErrorInvalidValue' in https://docs.nvidia.com/cuda/cuda-runtime-api/group__CUDART__TYPES.html for more information.
+
+BENCH unpooler  m=16 mt,w,r,ch,s,red=(2, 4, 1, 8, 8, True) failed: CUDA error: invalid argument
+Search for `cudaErrorInvalidValue' in https://docs.nvidia.com/cuda/cuda-runtime-api/group__CUDART__TYPES.html for more information.
+
+BENCH unpooler  m=16 mt,w,r,ch,s,red=(2, 4, 1, 8, 16, True) failed: CUDA error: invalid argument
+Search for `cudaErrorInvalidValue' in https://docs.nvidia.com/cuda/cuda-runtime-api/group__CUDART__TYPES.html for more information.
+
+BENCH unpooler  m=16 mt,w,r,ch,s,red=(2, 4, 1, 8, 4, False)   28.3 us
+BENCH unpooler  m=32 cublas                       27.8 us
+BENCH unpooler  m=32 mt,w,r,ch,s,red=(4, 4, 1, 8, 1, True)   31.6 us
+BENCH unpooler  m=32 mt,w,r,ch,s,red=(4, 4, 1, 8, 2, True) failed: CUDA error: invalid argument
+Search for `cudaErrorInvalidValue' in https://docs.nvidia.com/cuda/cuda-runtime-api/group__CUDART__TYPES.html for more information.
+
+BENCH unpooler  m=32 mt,w,r,ch,s,red=(4, 4, 1, 8, 4, True) failed: CUDA error: invalid argument
+Search for `cudaErrorInvalidValue' in https://docs.nvidia.com/cuda/cuda-runtime-api/group__CUDART__TYPES.html for more information.
+
+BENCH unpooler  m=32 mt,w,r,ch,s,red=(4, 4, 1, 8, 8, True)   43.2 us
+BENCH unpooler  m=32 mt,w,r,ch,s,red=(4, 4, 1, 8, 16, True)   51.4 us
+BENCH unpooler  m=32 mt,w,r,ch,s,red=(4, 4, 1, 8, 4, False)   29.6 us

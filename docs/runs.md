@@ -15,6 +15,7 @@ Every `okc check` and `okc submit`, newest last. Full per-shape output for each 
 | 10-27 | 17ebe3d9f831439d | check | 3aa7660 | proj v4: R row tiles per warp above 8 tokens (one block/SM) | 0.952x (0.938-0.966) | worse at m >= 16 than v3 (pooler m=32 44 us vs 29): the L2 re-read theory was wrong or minor |
 | 10-27 | 21c23f799dc64ca1 | check | 280afc4 | bench.py sweep, first try | 1.100x | sweep stopped at the first launch error; timed Python launches (cuBLAS 20.9 us vs judge 14.4) |
 | 10-27 | 4afc0b73f2a74a69 | check | cecb216 | bench.py sweep with graph replays | (bench) | see profiles/bench.4afc0b73f2a74a69.log; findings below |
+| 10-27 | e378eace83174734 | check | 14c3851 | proj v5: split-K via scratch buffer, last block reduces; mma at every m <= 32 | 0.945x (0.931-0.960) | slower than the cluster version even at m=1 (qkv_gate 16.1 vs 11.8 us): write, fence, atomic, then read adds a fixed L2-latency tail. Reverted to v4 (cluster) at m <= 8 |
 
 ## Lessons
 
@@ -38,3 +39,10 @@ Every `okc check` and `okc submit`, newest last. Full per-shape output for each 
   m >= 16 roughly ties cuBLAS at best (S=2), so something besides the reduction limits it.
 - In bench.py only, MT=1 configs with S >= 2 fail to launch (invalid argument); the same
   configs run in the submission. Unexplained.
+- The scratch-buffer split-K reduction (write partials, threadfence, atomic counter, last
+  block reads) adds several microseconds of serial L2 latency at the end of the kernel; the
+  cluster reduction is cheaper at m <= 8. Even with no reduction at all, the mma kernel only
+  ties cuBLAS above 8 tokens on the BF16 layers (bench e378eace83174734, red=False rows).
+- The bench-only launch failures were a symbol clash: bench.py's extension bound to the
+  submission's template instances, whose one-time smem attribute flag was already set.
+  The kernels now sit in an anonymous namespace.
