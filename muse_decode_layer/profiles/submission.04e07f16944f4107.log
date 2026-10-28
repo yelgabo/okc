@@ -1,0 +1,146 @@
+prepare: SGLang state built (0.2 s)
+extension build: on (43.8 s)
+moe self-test: worst rel diff vs SGLang path 3.95e-04
+moe: on (1.5 s)
+TUNE g1 T=1 27:31.0 17:31.2 3:32.0 18:32.4 0:32.4 15:32.4 2:32.5 26:32.5 16:32.8 30:33.9 5:34.5 19:34.7 6:34.7 4:35.6 7:36.5 8:36.8 m:37.5 1:37.7
+TUNE g2 T=1 21:25.3 9:25.5 23:25.5 10:26.6 11:26.6 28:26.8 25:26.9 13:27.1 29:27.2 20:28.5 22:29.2 m:29.4 14:30.0 12:30.8 24:31.5
+TUNE MoE T=1 pdl=0,cl=1:54.1 pdl=0,cl=4:53.4 pdl=0,cl=8:53.5 pdl=1,cl=1:52.7 pdl=1,cl=4:52.1 pdl=1,cl=8:52.2
+TUNE g1 T=8 26:52.1 2:52.3 17:52.3 16:52.5 27:52.6 30:53.6 3:53.7 5:53.7 18:53.9 1:55.0 4:56.4 7:59.3 19:59.9 8:60.1 6:61.7 m:65.0
+TUNE g2 T=8 24:34.4 11:35.9 28:36.2 13:36.6 23:36.7 29:37.0 25:40.6 12:41.0 14:42.3 22:42.3 m:42.4
+TUNE MoE T=8 pdl=0,cl=1:83.5 pdl=0,cl=4:83.7 pdl=0,cl=8:83.9 pdl=1,cl=1:80.7 pdl=1,cl=4:80.8 pdl=1,cl=8:80.7
+TUNE g1 T=16 18:77.6 26:77.9 27:78.1 17:78.2 2:78.2 3:78.8 16:79.1 4:79.9 1:79.9 5:81.1 30:81.4 6:86.2 7:90.1 19:90.1 8:90.4 m:102.7
+TUNE g2 T=16 28:47.9 11:48.0 23:49.3 12:49.3 29:49.6 13:49.7 22:53.1 24:53.3 14:53.8 25:53.9 m:61.5
+TUNE MoE T=16 pdl=0,cl=1:123.3 pdl=0,cl=4:122.4 pdl=0,cl=8:122.6 pdl=1,cl=1:120.6 pdl=1,cl=4:120.4 pdl=1,cl=8:120.3
+TUNE g1 T=32 26:101.7 2:102.0 4:105.6 1:106.3 5:106.5 30:106.7 17:108.3 27:108.3 3:108.5 18:109.8 16:110.4 6:116.6 7:118.7 8:119.2 19:122.5 m:138.6
+TUNE g2 T=32 28:61.4 11:61.4 29:62.5 13:62.6 23:64.0 12:64.3 14:70.0 24:70.0 22:70.6 25:71.1 m:79.5
+TUNE MoE T=32 pdl=0,cl=1:159.7 pdl=0,cl=4:160.0 pdl=0,cl=8:159.6 pdl=1,cl=1:157.3 pdl=1,cl=4:157.0 pdl=1,cl=8:156.8
+TUNE g1 T=128 4:166.6 30:169.0 5:169.7 1:174.0 3:181.3 6:183.1 26:184.4 2:185.2 7:187.4 27:187.9 17:188.3 8:188.9 18:195.3 16:195.6 19:195.7 m:207.0
+TUNE g2 T=128 29:91.0 13:91.1 28:93.1 11:93.6 12:94.0 14:98.0 24:102.2 25:102.4 23:102.5 22:111.0 m:113.4
+TUNE MoE T=128 pdl=0,cl=1:254.1 pdl=0,cl=4:256.7 pdl=0,cl=8:256.5 pdl=1,cl=1:250.9 pdl=1,cl=4:252.9 pdl=1,cl=8:253.5
+TUNE g1 T=256 30:243.9 5:245.4 6:255.3 7:258.7 8:259.9 4:271.9 19:274.4 m:274.7 1:289.9 3:304.5 27:306.7 17:307.5 26:322.0 2:323.8 18:327.0 16:328.6
+TUNE g2 T=256 29:121.7 13:121.7 14:127.6 25:141.0 12:143.8 28:149.2 11:150.0 m:150.7 24:161.8 23:168.6 22:178.3
+TUNE MoE T=256 pdl=0,cl=1:362.2 pdl=0,cl=4:365.1 pdl=0,cl=8:365.2 pdl=1,cl=1:360.5 pdl=1,cl=4:362.9 pdl=1,cl=8:364.0
+TUNE policy {1: (27, 21, True, 4), 8: (26, 24, True, 1), 16: (18, 28, True, 8), 32: (26, 28, True, 8), 128: (4, 29, True, 1), 256: (30, 29, True, 1)}
+W4 repack 0.2 s, extension build 46.7 s, tuning 2.7 s
+W4TEST T=1 start=0 g1=27 g2=21: vs fp32 3.84e-03 (marlin path 4.91e-03)
+W4TEST T=1 start=96 g1=27 g2=21: vs fp32 3.80e-03 (marlin path 4.92e-03)
+W4TEST T=3 start=0 g1=26 g2=24: vs fp32 3.83e-03 (marlin path 4.87e-03)
+W4TEST T=3 start=96 g1=26 g2=24: vs fp32 3.85e-03 (marlin path 4.99e-03)
+W4TEST T=8 start=0 g1=26 g2=24: vs fp32 3.82e-03 (marlin path 4.76e-03)
+W4TEST T=8 start=96 g1=26 g2=24: vs fp32 3.81e-03 (marlin path 4.90e-03)
+W4TEST T=9 start=0 g1=18 g2=28: vs fp32 3.78e-03 (marlin path 4.74e-03)
+W4TEST T=9 start=96 g1=18 g2=28: vs fp32 3.76e-03 (marlin path 4.63e-03)
+W4TEST T=16 start=0 g1=18 g2=28: vs fp32 3.75e-03 (marlin path 4.83e-03)
+W4TEST T=16 start=96 g1=18 g2=28: vs fp32 3.80e-03 (marlin path 4.87e-03)
+W4TEST T=24 start=0 g1=26 g2=28: vs fp32 3.84e-03 (marlin path 4.85e-03)
+W4TEST T=24 start=96 g1=26 g2=28: vs fp32 3.77e-03 (marlin path 4.73e-03)
+W4TEST T=32 start=0 g1=26 g2=28: vs fp32 3.80e-03 (marlin path 4.82e-03)
+W4TEST T=32 start=96 g1=26 g2=28: vs fp32 3.82e-03 (marlin path 4.84e-03)
+W4TEST T=33 start=0 g1=4 g2=29: vs fp32 3.83e-03 (marlin path 4.90e-03)
+W4TEST T=33 start=96 g1=4 g2=29: vs fp32 3.82e-03 (marlin path 4.87e-03)
+W4TEST T=40 start=0 g1=4 g2=29: vs fp32 3.84e-03 (marlin path 4.85e-03)
+W4TEST T=40 start=96 g1=4 g2=29: vs fp32 3.85e-03 (marlin path 4.90e-03)
+W4TEST T=64 start=0 g1=4 g2=29: vs fp32 3.80e-03 (marlin path 4.85e-03)
+W4TEST T=64 start=96 g1=4 g2=29: vs fp32 3.83e-03 (marlin path 4.86e-03)
+W4TEST T=128 start=0 g1=4 g2=29: vs fp32 3.80e-03 (marlin path 4.82e-03)
+W4TEST T=128 start=96 g1=4 g2=29: vs fp32 3.83e-03 (marlin path 4.84e-03)
+W4TEST T=256 start=0 g1=30 g2=29: vs fp32 3.79e-03 (marlin path 4.79e-03)
+W4TEST T=256 start=96 g1=30 g2=29: vs fp32 3.82e-03 (marlin path 4.70e-03)
+W4TEST T=264 start=0 g1=30 g2=29: vs fp32 3.84e-03 (marlin path 4.86e-03)
+W4TEST T=264 start=96 g1=30 g2=29: vs fp32 3.79e-03 (marlin path 4.84e-03)
+W4TEST worst rel err vs fp32 3.85e-03
+moe w4: on (50.2 s)
+router self-test: ok
+router: on (0.0 s)
+proj self-test: ok
+proj: on (0.0 s)
+attn self-test case 0 1x1 sliding page 1 _attn_prep: output rel diff 3.95e-03
+attn self-test case 1 3x1 full page 1 _attn_prep: output rel diff 1.12e-02
+attn self-test case 2 5x1 sliding page 1 _attn_prep: output rel diff 1.81e-02
+attn self-test case 3 2x8 sliding page 1 _attn_prep: output rel diff 3.55e-02
+attn self-test case 4 3x8 full page 1 _attn_prep: output rel diff 2.68e-02
+attn self-test case 5 4x1 full page 64 _attn_prep: output rel diff 2.06e-02
+attn self-test case 6 2x8 sliding page 64 _attn_prep: output rel diff 2.82e-02
+attn self-test case 7 33x1 full page 1 _attn_prep: output rel diff 1.30e-02
+attn self-test case 8 2x1 full page 1 _attn_prep: output rel diff 3.92e-03
+attn self-test case 9 32x1 sliding page 1 _attn_prep: output rel diff 1.32e-02
+attn self-test case 10 16x1 full page 1 _attn_prep: output rel diff 1.16e-02
+attn self-test case 11 1x8 sliding page 1 _attn_prep: output rel diff 2.26e-02
+attn self-test case 12 16x8 full page 1 _attn_prep: output rel diff 2.79e-02
+attn self-test case 13 32x8 sliding page 1 _attn_prep: output rel diff 2.67e-02
+attn self-test case 14 4x8 sliding page 1 _attn_prep: output rel diff 3.62e-02
+attn self-test case 15 3x8 full page 64 _attn_prep: output rel diff 2.60e-02
+attn self-test case 16 5x8 full page 1 _attn_prep: output rel diff 3.01e-02
+attn self-test: norm-gate alone 0.00e+00
+attn self-test: worst rel diff vs SGLang path: output 3.62e-02, new cache rows 2.76e-02
+attn prep: on (0.9 s)
+attn self-test case 0 1x1 sliding page 1 _attn_fused: output rel diff 1.45e-02
+attn self-test case 1 3x1 full page 1 _attn_fused: output rel diff 1.98e-02
+attn self-test case 2 5x1 sliding page 1 _attn_fused: output rel diff 3.61e-02
+attn self-test case 3 2x8 sliding page 1 _attn_prep: output rel diff 3.55e-02
+attn self-test case 4 3x8 full page 1 _attn_prep: output rel diff 2.68e-02
+attn self-test case 5 4x1 full page 64 _attn_fused: output rel diff 2.09e-02
+attn self-test case 6 2x8 sliding page 64 _attn_prep: output rel diff 2.82e-02
+attn self-test case 7 33x1 full page 1 _attn_fused: output rel diff 1.81e-02
+attn self-test case 8 2x1 full page 1 _attn_prep: output rel diff 3.92e-03
+attn self-test case 9 32x1 sliding page 1 _attn_fused: output rel diff 2.11e-02
+attn self-test case 10 16x1 full page 1 _attn_fused: output rel diff 1.78e-02
+attn self-test case 11 1x8 sliding page 1 _attn_prep: output rel diff 2.26e-02
+attn self-test case 12 16x8 full page 1 _attn_prep: output rel diff 2.79e-02
+attn self-test case 13 32x8 sliding page 1 _attn_prep: output rel diff 2.67e-02
+attn self-test case 14 4x8 sliding page 1 _attn_prep: output rel diff 3.62e-02
+attn self-test case 15 3x8 full page 64 _attn_prep: output rel diff 2.60e-02
+attn self-test case 16 5x8 full page 1 _attn_prep: output rel diff 3.01e-02
+attn self-test: norm-gate alone 0.00e+00
+attn self-test: worst rel diff vs SGLang path: output 3.62e-02, new cache rows 2.76e-02
+attn fused: on (0.0 s)
+attn self-test case 0 1x1 sliding page 1 _attn_fused: output rel diff 1.45e-02
+attn self-test case 1 3x1 full page 1 _attn_fused: output rel diff 1.98e-02
+attn self-test case 2 5x1 sliding page 1 _attn_fused: output rel diff 3.61e-02
+attn self-test case 3 2x8 sliding page 1 _attn_ws: output rel diff 3.53e-02
+attn self-test case 4 3x8 full page 1 _attn_ws: output rel diff 2.67e-02
+attn self-test case 5 4x1 full page 64 _attn_fused: output rel diff 2.09e-02
+attn self-test case 6 2x8 sliding page 64 _attn_ws: output rel diff 2.80e-02
+attn self-test case 7 33x1 full page 1 _attn_fused: output rel diff 1.81e-02
+attn self-test case 8 2x1 full page 1 _attn_prep: output rel diff 3.92e-03
+attn self-test case 9 32x1 sliding page 1 _attn_fused: output rel diff 2.11e-02
+attn self-test case 10 16x1 full page 1 _attn_fused: output rel diff 1.78e-02
+attn self-test case 11 1x8 sliding page 1 _attn_ws: output rel diff 2.25e-02
+attn self-test case 12 16x8 full page 1 _attn_ws: output rel diff 2.80e-02
+attn self-test case 13 32x8 sliding page 1 _attn_ws: output rel diff 2.77e-02
+attn self-test case 14 4x8 sliding page 1 _attn_ws: output rel diff 3.66e-02
+attn self-test case 15 3x8 full page 64 _attn_ws: output rel diff 2.57e-02
+attn self-test case 16 5x8 full page 1 _attn_ws: output rel diff 3.02e-02
+attn self-test: norm-gate alone 0.00e+00
+attn self-test: worst rel diff vs SGLang path: output 3.66e-02, new cache rows 2.76e-02
+attn ws: on (0.0 s)
+DESC ffn_boundary.training = True
+DESC ffn_boundary.is_torch_compile = False
+DESC ffn_boundary._post_norm.training = True
+DESC ffn_boundary._post_norm.weight: torch.bfloat16 (8192,) [-0.1552734375, 0.1533203125, -0.1376953125]
+DESC ffn_boundary._post_norm.hidden_size = 8192
+DESC ffn_boundary._post_norm.eps = 1e-08
+DESC ffn_boundary._post_norm.has_weight = True
+DESC ffn_boundary._post_norm.zero_centered_gamma = True
+DESC ffn_boundary._post_norm._frozen_weight: torch.bfloat16 (8192,) [0.84375, 1.15625, 0.86328125]
+DESC ffn_boundary._post_norm.gain_center = 1.0
+DESC ffn_boundary._residual_add.training = True
+DESC ffn_boundary._residual_add.gate: torch.bfloat16 (8192,) [0.042236328125, -0.1416015625, -0.1826171875]
+DESC ffn_boundary._residual_add._alpha: torch.float32 (1, 8192) [0.8447640538215637, 0.9232740998268127, 0.9358682036399841]
+DESC ffn_boundary._residual_add._beta: torch.float32 (1, 8192) [0.5351389050483704, 0.384141743183136, 0.3523503541946411]
+DESC ffn_boundary._residual_add.temperature = 0.3
+DESC ffn_boundary._residual_add.use_stream_gate = True
+DESC ffn_boundary._residual_add.eps = 0.001
+DESC ffn_boundary._pre_norm.training = True
+DESC ffn_boundary._pre_norm.weight: torch.bfloat16 (8192,) [-0.244140625, 0.05908203125, 0.032470703125]
+DESC ffn_boundary._pre_norm.hidden_size = 8192
+DESC ffn_boundary._pre_norm.eps = 1e-05
+DESC ffn_boundary._pre_norm.has_weight = True
+DESC ffn_boundary._pre_norm.zero_centered_gamma = True
+DESC ffn_boundary._pre_norm._frozen_weight: torch.bfloat16 (8192,) [0.7578125, 1.0625, 1.03125]
+DESC ffn_boundary._pre_norm.gain_center = 1.0
+DESC ffn_boundary._post_norm_is_input_scale = True
+DESC ffn_boundary._use_residual_gate = True
+DESC ffn_boundary._pre_norm_is_input_scale = False
+DESC ffn_boundary._hidden_size = 8192
+prepare: done (96.6 s)
