@@ -107,3 +107,23 @@ own per-shape times.
 - There is no NVIDIA GPU here. Kernels are checked locally in two ways: a CPU emulation of
   the work split (`tools/emulate_router.py`) and an `sm_90a` compile in Docker
   (`tools/compile_check.sh`). Real timing comes only from `okc check`.
+
+## Leads from ChatGPT's DeepSeek review (2026-10-27)
+
+Source: https://chatgpt.com/share/6ae15b95-3b30-83e8-942d-321b6fd22d8b. Status as checked
+against our local baseline files:
+
+- **MoE finalizer below 32 tokens** (`muse_moe_w4a16`, `muse_decode_layer`): ChatGPT read in
+  the pinned SGLang source that `fused_post_expert_norm_weighted_sum` falls back to separate
+  PyTorch ops below `_MIN_TOKENS_FOR_FUSED = 32`. Not confirmed here; the function is inside the
+  image, not in our files.
+- **Single-token MoE shortcut skipped** (`muse_moe_w4a16`): confirmed.
+  `muse_moe_w4a16/baseline.py:124` takes the shortcut only when `expert_map is None`, and lines
+  88-91 build an expert map for the local experts.
+- **Per-expert tile choice** for skewed routing (MoE): unexplored.
+- **Gate/up paired layout with fused SwiGLU** (MoE): unexplored; ChatGPT estimates 1.03-1.10x.
+- **K/V reuse across 8 query heads x 8 verify tokens** (`muse_attention_decode`): unexplored.
+- **Lossless BF16 compression decoded in-kernel** (`muse_bf16_proj`): same idea as our 12-bit
+  exponent code (about 25% smaller on the judge's Gaussian weights); not built.
+- **Router split-K / orientation**: done differently on `muse_bf16_proj` (own kernels up to 32
+  tokens). The split-K 32 setting it cites may be in `muse_decode_layer`'s fused routing.
