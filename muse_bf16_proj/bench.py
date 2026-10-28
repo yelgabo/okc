@@ -575,13 +575,19 @@ _BENCH_PLAN = [('qkv_gate', 1, 2, (1, 4, 1, 8, 1, True)), ('qkv_gate', 1, 3, (1,
 
 
 def _bench_time(fn, flush, iters=25):
+    """Median of CUDA graph replays, each after an L2 flush, as the judge times kernel_fn."""
+    fn()
+    torch.cuda.synchronize()
+    graph = torch.cuda.CUDAGraph()
+    with torch.cuda.graph(graph):
+        fn()
     times = []
     for _ in range(iters):
         flush.zero_()
         start = torch.cuda.Event(enable_timing=True)
         end = torch.cuda.Event(enable_timing=True)
         start.record()
-        fn()
+        graph.replay()
         end.record()
         times.append((start, end))
     torch.cuda.synchronize()
@@ -609,8 +615,11 @@ def _run_bench(state):
             us = _bench_time(lambda: _bf16_gemm_dispatch_impl(x, w, None), flush)
             print(f"BENCH {layer:9s} m={m:2d} cublas                     {us:6.1f} us")
             last = (layer, m)
-        us = _bench_time(lambda: ext.proj_bench(x, packed[layer], n, idx), flush)
-        print(f"BENCH {layer:9s} m={m:2d} mt,warps,r,ch,s,red={cfg} {us:6.1f} us")
+        try:
+            us = _bench_time(lambda: ext.proj_bench(x, packed[layer], n, idx), flush)
+            print(f"BENCH {layer:9s} m={m:2d} mt,warps,r,ch,s,red={cfg} {us:6.1f} us")
+        except Exception as exc:
+            print(f"BENCH {layer:9s} m={m:2d} mt,warps,r,ch,s,red={cfg} failed: {exc}")
 
 
 _prepare_without_bench = prepare

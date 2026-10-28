@@ -1,0 +1,7 @@
+router kernel: fused
+proj kernel: fused
+BENCH qkv_gate  m= 1 cublas                       20.9 us
+BENCH qkv_gate  m= 1 mt,warps,r,ch,s,red=(1, 4, 1, 8, 1, True)   31.0 us
+BENCH failed: AcceleratorError: CUDA error: invalid argument
+Search for `cudaErrorInvalidValue' in https://docs.nvidia.com/cuda/cuda-runtime-api/group__CUDART__TYPES.html for more information.
+
