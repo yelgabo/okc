@@ -1569,32 +1569,38 @@ void sgemv_fwd(at::Tensor w, at::Tensor x, at::Tensor out) {
 # consumer warpgroup is the wgmma A operand and a BN-token x tile is the B operand, both K-major
 # and 128B-swizzled straight from TMA, so the weights need no repack. K is split across the CTAs
 # of a cluster; their FP32 partials are summed over distributed shared memory, each rank
-# writing BN/CL tokens. The router runs on hi and lo tiles into one FP32 accumulator.
-# name -> (WG, BN, CL, HL, NSTAGE). Rows per CTA = 64 * WG.
+# writing BN/CLK tokens; CLR row blocks of a cluster share one multicast x tile. The router runs
+# on hi and lo tiles into one FP32 accumulator.
+# name -> (WG, BN, CLK, CLR, HL, NSTAGE). Rows per CTA = 64 * WG; cluster = CLK * CLR CTAs.
 # --------------------------------------------------------------------------------------------
 WD_GEOM = {
-    "r64c8": (1, 64, 8, True, 4),
-    "r64c16": (1, 64, 16, True, 4),
-    "r128c8": (1, 128, 8, True, 4),
-    "r128c16": (1, 128, 16, True, 4),
-    # A CTA's whole K slice (8 tiles at CL = 16) in flight at once: one TMA round trip.
-    "r64c16d": (1, 64, 16, True, 8),
-    "r128c16d": (1, 128, 16, True, 6),
-    "b1n64c2": (1, 64, 2, False, 6),
-    "b1n64c4": (1, 64, 4, False, 6),
-    "b1n128c2": (1, 128, 2, False, 4),
-    "b1n128c4": (1, 128, 4, False, 4),
-    "b2n128c2": (2, 128, 2, False, 5),
-    "b2n128c4": (2, 128, 4, False, 5),
-    "b1n256c2": (1, 256, 2, False, 4),
-    "b2n256c2": (2, 256, 2, False, 4),
-    "b2n256c4": (2, 256, 4, False, 4),
+    "r64c8": (1, 64, 8, 1, True, 4),
+    "r64c16": (1, 64, 16, 1, True, 4),
+    "r128c8": (1, 128, 8, 1, True, 4),
+    "r128c16": (1, 128, 16, 1, True, 4),
+    "b1n64c2": (1, 64, 2, 1, False, 6),
+    "b1n128c2": (1, 128, 2, 1, False, 4),
+    "b2n256c2": (2, 256, 2, 1, False, 4),
+    # x multicast across CLR row blocks (job 6131a4a220d5486e: x re-reads dominate L2 traffic).
+    "m64k2r4": (1, 64, 2, 4, False, 6),
+    "m64k1r8": (1, 64, 1, 8, False, 6),
+    "m128k2r4": (1, 128, 2, 4, False, 4),
+    "m128k1r4": (1, 128, 1, 4, False, 4),
+    "m128k1r8": (1, 128, 1, 8, False, 4),
+    "m128k2r8": (1, 128, 2, 8, False, 4),
+    "m128k4r2": (1, 128, 4, 2, False, 4),
+    "m256k2r4": (1, 256, 2, 4, False, 4),
+    "m256k1r4": (1, 256, 1, 4, False, 4),
+    "m256k1r8": (1, 256, 1, 8, False, 4),
+    "m256k2r8": (1, 256, 2, 8, False, 4),
+    "m256k2r2": (1, 256, 2, 2, False, 4),
+    "rm64k4r4": (1, 64, 4, 4, True, 6),
+    "rm128k4r4": (1, 128, 4, 4, True, 4),
 }
 # Diagnostic builds timed in prepare(), never dispatched: ABL bit 1 skips the wgmma (memory
 # pipeline alone), bit 2 skips the cluster reduction and the stores.
-WD_ABLATE = {("router", 128): "r128c16", ("router", 256): "r128c8", ("o", 256): "b2n256c2",
-             ("pooler", 128): "b1n128c2"}
-WD_ABL = {f"{base}_a{a}": (base, a) for base in WD_ABLATE.values() for a in (1, 2, 3)}
+WD_ABLATE = {("pooler", 128): "m128k2r4", ("o", 256): "m256k1r4"}
+WD_ABL = {f"{base}_a{a}": (base, a) for base in WD_ABLATE.values() for a in (1, 3)}
 WD_NAMES = list(WD_GEOM) + list(WD_ABL)
 WD_INDEX = {nm: i for i, nm in enumerate(WD_NAMES)}
 # Wide buckets: the pick tuned at the bucket's top m serves every m in (previous top, top].
@@ -1607,7 +1613,7 @@ WD_BN = {64: (64,), 128: (64, 128), 256: (128, 256)}
 WD_MARGIN = 0.97
 
 
-def wd_smem(wg, bn, cl, hl, nst):
+def wd_smem(wg, bn, clk, clr, hl, nst):
     sb = wg * (2 if hl else 1) * 8192 + bn * 128
     return 1024 + nst * sb + 16 * nst
 
@@ -1617,8 +1623,8 @@ def wd_geom(name):
 
 
 def wd_fits(name, n, k):
-    wg, bn, cl, hl, nst = wd_geom(name)
-    return n % (64 * wg) == 0 and k % 64 == 0 and (k // 64) % cl == 0
+    wg, bn, clk, clr, hl, nst = wd_geom(name)
+    return n % (64 * wg * clr) == 0 and k % 64 == 0 and (k // 64) % clk == 0
 
 
 def _wgmma_spec(bn):
@@ -1710,13 +1716,32 @@ __device__ __forceinline__ void wd_cluster_sync() {
     asm volatile("barrier.cluster.wait.acquire.aligned;" ::: "memory");
 }
 
-template <int WG, int BN, int CL, bool HL, int NST>
+__device__ __forceinline__ void tma_2d_mc(uint32_t dst, const CUtensorMap* map, uint32_t bar, int c0, int c1,
+                                          uint16_t mask) {
+    asm volatile("cp.async.bulk.tensor.2d.shared::cluster.global.tile.mbarrier::complete_tx::bytes.multicast::cluster"
+                 " [%0], [%1, {%3, %4}], [%2], %5;"
+                 :: "r"(dst), "l"(map), "r"(bar), "r"(c0), "r"(c1), "h"(mask) : "memory");
+}
+
+__device__ __forceinline__ void mbar_arrive_remote(uint32_t cluster_addr) {
+    asm volatile("mbarrier.arrive.release.cluster.shared::cluster.b64 _, [%0];" :: "r"(cluster_addr) : "memory");
+}
+
+// Cluster of CLK * CLR CTAs, rank = rk + CLK * rr: the CLK ranks with one rr split K for one
+// row block and sum their partials over DSMEM; the CLR ranks with one rk hold CLR consecutive
+// row blocks over the same K range and token tile, so each loads BN / CLR token rows of the x
+// tile and multicasts them to all CLR. A stage is refilled only after the consumers of all CLR
+// CTAs released it, so every consumer warp arrives on the empty barrier of each CTA it shares
+// x with.
+template <int WG, int BN, int CLK, int CLR, bool HL, int NST>
 struct WdCfg {
+    static constexpr int CL = CLK * CLR;
     static constexpr int BM = 64 * WG;
     static constexpr int ATILE = 64 * 128;
     static constexpr int NA = HL ? 2 : 1;
     static constexpr int ABY = WG * NA * ATILE;
     static constexpr int BBY = BN * 128;
+    static constexpr int XS = BN / CLR;
     static constexpr int SB = ABY + BBY;
     static constexpr int RING = NST * SB;
     // Partial rows padded to 4 mod 32 floats: the fragment stores (8 rows x 4 token pairs per
@@ -1726,15 +1751,20 @@ struct WdCfg {
     static constexpr int THREADS = WG * 128 + 32;
     static constexpr int SMEM = 1024 + RING + 16 * NST;
     static_assert(PBY <= RING, "wd: partial tile does not fit in the ring");
-    static_assert(BN % CL == 0 && BN % 8 == 0 && BN <= 256, "wd: bad BN");
+    static_assert(BN % CLK == 0 && BN % 8 == 0 && BN <= 256, "wd: bad BN");
+    // Each multicast slice must start on a 1024-byte swizzle atom so the slices tile exactly
+    // like one box.
+    static_assert(BN % CLR == 0 && XS % 8 == 0, "wd: bad x slice");
+    static_assert(CL <= 16, "wd: cluster too large");
     static_assert(SMEM <= 227 * 1024, "wd: shared memory over budget");
 };
 
-template <int WG, int BN, int CL, bool HL, int NST, typename OutT, int ABL>
+template <int WG, int BN, int CLK, int CLR, bool HL, int NST, typename OutT, int ABL>
 __global__ void __launch_bounds__(WG * 128 + 32, 1)
 wd_kernel(const __grid_constant__ CUtensorMap wmap, const __grid_constant__ CUtensorMap xmap, OutT* __restrict__ out,
           int M, int N, int K, int* diag) {
-    using C = WdCfg<WG, BN, CL, HL, NST>;
+    using C = WdCfg<WG, BN, CLK, CLR, HL, NST>;
+    constexpr int CL = C::CL;
     extern __shared__ __align__(1024) uint8_t wd_smem[];
     const uint32_t raw = smem_u32(wd_smem);
     const uint32_t sbase = (raw + 1023u) & ~1023u;
@@ -1745,27 +1775,44 @@ wd_kernel(const __grid_constant__ CUtensorMap wmap, const __grid_constant__ CUte
     const int warp = tid >> 5;
     const int lane = tid & 31;
     const int rank = CL > 1 ? (int)wd_cluster_rank() : 0;
-    const int rowbase = (int)(blockIdx.x / CL) * C::BM;
+    const int rk = rank % CLK;
+    const int rr = rank / CLK;
+    const int rowbase = ((int)(blockIdx.x / CL) * CLR + rr) * C::BM;
     const int tok0 = (int)blockIdx.y * BN;
-    const int ktl = (K / 64) / CL;
-    const int kt0 = rank * ktl;
+    const int ktl = (K / 64) / CLK;
+    const int kt0 = rk * ktl;
     bool dead = false;
 
     if (tid == WG * 128) {
         for (int s = 0; s < NST; ++s) {
             mbar_init(full0 + 8 * s, 1);
-            mbar_init(empty0 + 8 * s, 4 * WG);
+            mbar_init(empty0 + 8 * s, 4 * WG * CLR);
         }
         fence_mbar_init();
     }
-    __syncthreads();
+    // Peers multicast into this CTA's ring and arrive on its barriers: they must be initialized
+    // cluster-wide first.
+    if constexpr (CLR > 1) {
+        wd_cluster_sync();
+    } else {
+        __syncthreads();
+    }
 
     if (warp == 4 * WG) {
         if (lane == 0) {
+            uint16_t mask = 0;
+#pragma unroll
+            for (int r = 0; r < CLR; ++r) {
+                mask |= (uint16_t)(1u << (rk + CLK * r));
+            }
             for (int i = 0; i < ktl; ++i) {
                 const int s = i % NST;
                 if (i >= NST) {
-                    mbar_wait<true>(empty0 + 8 * s, ((i / NST) - 1) & 1, dead, diag, 1);
+                    if constexpr (CLR > 1) {
+                        mbar_wait_cluster(empty0 + 8 * s, ((i / NST) - 1) & 1, dead, diag, 1);
+                    } else {
+                        mbar_wait<true>(empty0 + 8 * s, ((i / NST) - 1) & 1, dead, diag, 1);
+                    }
                 }
                 const uint32_t fb = full0 + 8 * s;
                 mbar_expect_tx(fb, C::SB);
@@ -1778,7 +1825,11 @@ wd_kernel(const __grid_constant__ CUtensorMap wmap, const __grid_constant__ CUte
                         tma_2d(st + (g * C::NA + 1) * C::ATILE, &wmap, fb, kc, N + rowbase + 64 * g);
                     }
                 }
-                tma_2d(st + C::ABY, &xmap, fb, kc, tok0);
+                if constexpr (CLR > 1) {
+                    tma_2d_mc(st + C::ABY + rr * C::XS * 128, &xmap, fb, kc, tok0 + rr * C::XS, mask);
+                } else {
+                    tma_2d(st + C::ABY, &xmap, fb, kc, tok0);
+                }
             }
         }
         __syncwarp();
@@ -1809,7 +1860,15 @@ wd_kernel(const __grid_constant__ CUtensorMap wmap, const __grid_constant__ CUte
             // reading its stage.
             wg_wait<1>();
             if (i > 0 && lane == 0) {
-                mbar_arrive(empty0 + 8 * ((i - 1) % NST));
+                const uint32_t eb = empty0 + 8 * ((i - 1) % NST);
+                if constexpr (CLR > 1) {
+#pragma unroll
+                    for (int r = 0; r < CLR; ++r) {
+                        mbar_arrive_remote(wd_mapa(eb, (uint32_t)(rk + CLK * r)));
+                    }
+                } else {
+                    mbar_arrive(eb);
+                }
             }
         }
         wg_wait<0>();
@@ -1828,16 +1887,18 @@ wd_kernel(const __grid_constant__ CUtensorMap wmap, const __grid_constant__ CUte
         }
     }
 
+    // Also keeps a CTA's ring alive until every peer's multicast into it and every remote
+    // arrive on it has landed: all of them precede the peers' arrival here.
     if constexpr (CL > 1) {
         wd_cluster_sync();
     } else {
         __syncthreads();
     }
 
-    constexpr int TPR = BN / CL;
+    constexpr int TPR = BN / CLK;
     constexpr int C4 = C::BM / 4;
     for (int it = tid; it < ((ABL & 2) ? 0 : TPR * C4); it += C::THREADS) {
-        const int t = rank * TPR + it / C4;
+        const int t = rk * TPR + it / C4;
         const int c4 = it % C4;
         const int gt = tok0 + t;
         if (gt >= M) {
@@ -1846,8 +1907,8 @@ wd_kernel(const __grid_constant__ CUtensorMap wmap, const __grid_constant__ CUte
         const uint32_t a = sbase + (uint32_t)(t * C::RS + 4 * c4) * 4u;
         float4 v = make_float4(0.f, 0.f, 0.f, 0.f);
 #pragma unroll
-        for (int p = 0; p < CL; ++p) {
-            const float4 u = CL > 1 ? wd_ld_cluster(wd_mapa(a, (uint32_t)p)) : wd_ld_local(a);
+        for (int p = 0; p < CLK; ++p) {
+            const float4 u = CLK > 1 ? wd_ld_cluster(wd_mapa(a, (uint32_t)(p + CLK * rr))) : wd_ld_local(a);
             v.x += u.x;
             v.y += u.y;
             v.z += u.z;
@@ -1888,14 +1949,14 @@ CUtensorMap make_2d_map(const void* p, uint64_t rows, uint64_t k, uint32_t box_r
     return map;
 }
 
-template <int WG, int BN, int CL, bool HL, int NST, typename OutT, int ABL>
+template <int WG, int BN, int CLK, int CLR, bool HL, int NST, typename OutT, int ABL>
 void launch_wd(const at::Tensor& w, const at::Tensor& x, at::Tensor& out, int N, int K, int* diag) {
-    using C = WdCfg<WG, BN, CL, HL, NST>;
-    auto kern = wd_kernel<WG, BN, CL, HL, NST, OutT, ABL>;
+    using C = WdCfg<WG, BN, CLK, CLR, HL, NST>;
+    auto kern = wd_kernel<WG, BN, CLK, CLR, HL, NST, OutT, ABL>;
     static bool configured = false;
     if (!configured) {
         C10_CUDA_CHECK(cudaFuncSetAttribute(kern, cudaFuncAttributeMaxDynamicSharedMemorySize, C::SMEM));
-        if (CL > 8) {
+        if (C::CL > 8) {
             C10_CUDA_CHECK(cudaFuncSetAttribute(kern, cudaFuncAttributeNonPortableClusterSizeAllowed, 1));
         }
         configured = true;
@@ -1907,22 +1968,22 @@ void launch_wd(const at::Tensor& w, const at::Tensor& x, at::Tensor& out, int N,
                 && w.size(1) == K && w.size(0) >= (HL ? 2 : 1) * N, "wd: w must be a contiguous bf16 [rows, K] tensor");
     TORCH_CHECK(out.is_contiguous() && out.size(0) == M && out.size(1) == N && out.element_size() == sizeof(OutT),
                 "wd: bad out");
-    TORCH_CHECK(M >= 1 && N % C::BM == 0 && K % 64 == 0 && (K / 64) % CL == 0, "wd: shape does not tile");
+    TORCH_CHECK(M >= 1 && N % (C::BM * CLR) == 0 && K % 64 == 0 && (K / 64) % CLK == 0, "wd: shape does not tile");
     const CUtensorMap wmap = make_2d_map(w.data_ptr(), (uint64_t)w.size(0), (uint64_t)K, 64);
-    const CUtensorMap xmap = make_2d_map(x.data_ptr(), (uint64_t)M, (uint64_t)K, BN);
+    const CUtensorMap xmap = make_2d_map(x.data_ptr(), (uint64_t)M, (uint64_t)K, C::XS);
     OutT* op = reinterpret_cast<OutT*>(out.data_ptr());
     cudaLaunchConfig_t lc = {};
-    lc.gridDim = dim3((unsigned)(N / C::BM * CL), (unsigned)((M + BN - 1) / BN));
+    lc.gridDim = dim3((unsigned)(N / (C::BM * CLR) * C::CL), (unsigned)((M + BN - 1) / BN));
     lc.blockDim = dim3(C::THREADS);
     lc.dynamicSmemBytes = C::SMEM;
     lc.stream = at::cuda::getCurrentCUDAStream();
     cudaLaunchAttribute attr[1];
     attr[0].id = cudaLaunchAttributeClusterDimension;
-    attr[0].val.clusterDim.x = CL;
+    attr[0].val.clusterDim.x = C::CL;
     attr[0].val.clusterDim.y = 1;
     attr[0].val.clusterDim.z = 1;
     lc.attrs = attr;
-    lc.numAttrs = CL > 1 ? 1 : 0;
+    lc.numAttrs = C::CL > 1 ? 1 : 0;
     C10_CUDA_CHECK(cudaLaunchKernelEx(&lc, kern, wmap, xmap, op, M, N, K, diag));
 }
 #endif
@@ -1947,16 +2008,17 @@ _WD_CPP = "void wd_fwd(int64_t cfg, at::Tensor w, at::Tensor x, at::Tensor out, 
 
 
 def _wd_targs(name):
-    wg, bn, cl, hl, nst = wd_geom(name)
+    wg, bn, clk, clr, hl, nst = wd_geom(name)
     abl = WD_ABL[name][1] if name in WD_ABL else 0
-    return f"{wg}, {bn}, {cl}, {str(hl).lower()}, {nst}, {'float' if hl else '__nv_bfloat16'}, {abl}"
+    return f"{wg}, {bn}, {clk}, {clr}, {str(hl).lower()}, {nst}, {'float' if hl else '__nv_bfloat16'}, {abl}"
 
 
 def wd_source():
     """The wide kernel with its wgmma shapes and config table expanded; under SK_DEVICE_ONLY it
     emits explicit instantiations instead of the host dispatch."""
-    for name, (wg, bn, cl, hl, nst) in WD_GEOM.items():
-        assert wd_smem(wg, bn, cl, hl, nst) <= SMEM_BUDGET, name
+    for name, (wg, bn, clk, clr, hl, nst) in WD_GEOM.items():
+        assert wd_smem(wg, bn, clk, clr, hl, nst) <= SMEM_BUDGET and clk * clr <= 16, name
+        assert bn % clk == 0 and bn % clr == 0 and (bn // clr) % 8 == 0, name
         assert bn * (64 * wg + 4) * 4 <= nst * (wg * (2 if hl else 1) * 8192 + bn * 128), name
     wgmma = "".join(_wgmma_spec(bn) for bn in sorted({g[1] for g in WD_GEOM.values()}))
     dispatch = "\n".join(
@@ -1964,7 +2026,7 @@ def wd_source():
         for i, nm in enumerate(WD_NAMES))
     inst = "\n".join(
         f"template __global__ void wd_kernel<{_wd_targs(nm)}>(const __grid_constant__ CUtensorMap, "
-        f"const __grid_constant__ CUtensorMap, {'float' if wd_geom(nm)[3] else '__nv_bfloat16'}*, int, int, int, int*);"
+        f"const __grid_constant__ CUtensorMap, {'float' if wd_geom(nm)[4] else '__nv_bfloat16'}*, int, int, int, int*);"
         for nm in WD_NAMES)
     return (_WD_SRC.replace("@@WGMMA@@", wgmma).replace("@@WDDISPATCH@@", dispatch)
             .replace("@@WDINSTANCES@@", "namespace {\n" + inst + "\n}"))
@@ -2251,7 +2313,7 @@ def prepare(weights):
             else:
                 cands.setdefault((layer, b), []).append(("cublas", lambda x, w=w: _cublas(x, w), False))
             for nm in WD_GEOM:
-                wg, bn, cl, hl, nst = WD_GEOM[nm]
+                wg, bn, clk, clr, hl, nst = WD_GEOM[nm]
                 if hl != is_router or bn not in WD_BN[b] or not wd_fits(nm, n, k):
                     continue
                 fn = _wd_runner(ext, nm, wk, n, k, torch.float32 if is_router else torch.bfloat16, diag)
@@ -2292,7 +2354,7 @@ def prepare(weights):
         w = state["router_hilo"] if is_router else state[layer]
         n, k = state[layer].shape
         dt = torch.float32 if is_router else torch.bfloat16
-        names = [base] + [f"{base}_a{a}" for a in (1, 2, 3)]
+        names = [base] + [nm for nm, (b, _) in WD_ABL.items() if b == base]
         try:
             x, _ = _gen_x(m, k, gen, dev)
             us = _time_candidates([_wd_runner(ext, nm, w, n, k, dt, diag) for nm in names], x, flush)
