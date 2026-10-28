@@ -190,9 +190,6 @@ Commit after f82a8cf656df4914, local work only (no checks left on 2026-10-28):
   replay, cold L2, two routings) and keeps the fastest as the policy; the BENCH lines carry
   the loads-only ceilings, which split the fat path's gap into ring versus compute.
 
-## Ruled out (pending merge into docs/ruled-out.md)
+## Ruled out
 
-| Experiment | Evidence | Rules out |
-|---|---|---|
-| Per-unit done_a credits from the helper warp (`__threadfence` + atomicAdd after every 36 KB unit) | check 5bc2b26850514b44: every shape at 1.9-2.0 us per unit (2.5 TB/s) against 1.2 us at the streaming rate | a gpu-scope fence on the epilogue path of every unit; credit once per (CTA, job) |
-| Several wgmma shapes dispatched inside one enclosing loop at 576 threads (switch over N inside the segment loop) | tools/moe_wgmma_micro: C7512, every wgmma serialized, with any two shapes; one loop per shape pipelines | per-segment shape dispatch inside a loop on the fat path |
+The losers of the fused-kernel runs are in `docs/ruled-out.md` under muse_moe_w4a16.
