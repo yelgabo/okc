@@ -77,3 +77,26 @@ Every `okc check` and `okc submit`, newest last. Full per-shape output for each 
   on the pooler (18.1 vs 19.4 us at m=1, 18.6 vs 20.0 at m=8, job 135b2743d1194e41); a
   pooler-only file is estimated at 1.136-1.141x, inside the run-to-run noise, and was never run.
   The compressed version is kept at muse_bf16_proj/experiments/compressed_weights.py.
+
+## Rewrite 2026-10-28: skinny kernel from the public memo's design (branch worktree-agent-a3f4197b0217ad8cc)
+
+submission.py was replaced (commit 82a5baf) by our own implementation of the design in the
+public 1.50x entry's memo: x as the mma A operand, weights as 8-row B tiles, each CTA owning R
+rows over the whole K with K split only across its warps (no cross-CTA reduction), weights by
+one `cp.async.bulk` per stage from a stage-major stream, x by one 3-D TMA box on the same
+mbarrier, 12-bit lossless weights with escapes corrected by dedicated escape warps, the hi/lo
+router on the same kernel with a 3-CTA cluster DSMEM reduction, an FP64 self-test gate and a
+cold-L2 graph-replay autotuner over compressed, raw and cuBLAS candidates per shape. Formats and
+entry points: docs/proj-port-guide.md. Local evidence (no GPU here): all 27 instantiations (44
+with the bench sweep) compile for sm_90a with 0 spills, 39 to 112 registers; CPU emulation of
+the packing against the kernel's indexing in tools/emulate_proj.py and tools/compress_emulate.py.
+
+Checks were exhausted for the day when the rewrite landed. First checks after the reset:
+
+1. `okc check muse_bf16_proj/submission.py --no-wait --json`: the self-test lines
+   (`selftest ... disabled` names any kernel that fails against FP64 and the diag code of a
+   timed-out wait), the `tune` lines (compressed vs raw vs cuBLAS per shape, judge-style
+   timing), the pack lines (escapes, inexact deltas), then the score.
+2. `okc check muse_bf16_proj/bench.py`: the same with the sweep geometries of
+   tools/make_bench.py (R, stage depth and warp-split alternatives per shape).
+3. Fix what the self-test rejects, then re-check.
