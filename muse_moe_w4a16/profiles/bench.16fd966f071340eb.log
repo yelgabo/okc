@@ -1,0 +1,31 @@
+SELFTEST worst rel diff vs sglang path 3.27e-04
+PREP base 43.7 s
+STREAM empty graph replay 5.0 us (subtract from the times below)
+STREAM    9 MB 132x512:   3.6us/2.61TB/s 264x512:   3.5us/2.68TB/s 528x512:   3.8us/2.48TB/s 1056x256:   3.8us/2.48TB/s 2112x256:   3.7us/2.52TB/s best 2.68 TB/s
+STREAM   18 MB 132x512:   6.6us/2.85TB/s 264x512:   6.3us/2.98TB/s 528x512:   6.3us/2.99TB/s 1056x256:   6.2us/3.06TB/s 2112x256:   6.6us/2.85TB/s best 3.06 TB/s
+STREAM   28 MB 132x512:   9.4us/3.13TB/s 264x512:   9.0us/3.28TB/s 528x512:   9.1us/3.23TB/s 1056x256:   9.0us/3.28TB/s 2112x256:   9.3us/3.15TB/s best 3.28 TB/s
+STREAM   57 MB 132x512:  17.1us/3.50TB/s 264x512:  16.7us/3.58TB/s 528x512:  16.6us/3.60TB/s 1056x256:  16.4us/3.65TB/s 2112x256:  17.7us/3.38TB/s best 3.65 TB/s
+STREAM  113 MB 132x512:  31.5us/3.77TB/s 264x512:  31.2us/3.80TB/s 528x512:  31.2us/3.79TB/s 1056x256:  31.3us/3.79TB/s 2112x256:  31.7us/3.73TB/s best 3.80 TB/s
+STREAM  170 MB 132x512:  46.8us/3.81TB/s 264x512:  46.0us/3.88TB/s 528x512:  46.1us/3.87TB/s 1056x256:  46.2us/3.86TB/s 2112x256:  46.0us/3.87TB/s best 3.88 TB/s
+STREAM  283 MB 132x512:  76.5us/3.88TB/s 264x512:  75.2us/3.95TB/s 528x512:  75.7us/3.92TB/s 1056x256:  75.4us/3.94TB/s 2112x256:  75.8us/3.92TB/s best 3.95 TB/s
+STREAM  453 MB 132x512: 121.0us/3.93TB/s 264x512: 119.5us/3.98TB/s 528x512: 119.9us/3.96TB/s 1056x256: 119.5us/3.98TB/s 2112x256: 119.0us/3.99TB/s best 3.99 TB/s
+STREAM  640 MB 132x512: 168.6us/3.98TB/s 264x512: 166.9us/4.02TB/s 528x512: 167.4us/4.01TB/s 1056x256: 167.6us/4.01TB/s 2112x256: 165.2us/4.06TB/s best 4.06 TB/s
+SPLIT bs=  1 seed=11 active= 3 routes=   3 top=[1, 1, 1, 0, 0, 0] padded_rows=24 | g1   26.6us 2.13TB/s | act   0.9 | g2   18.0us 1.58TB/s | fin   3.1 | all   54.0 | floor@4.8 g1  11.8 g2   5.9
+SPLIT bs=  1 seed=12 active= 4 routes=   4 top=[1, 1, 1, 1, 0, 0] padded_rows=32 | g1   33.9us 2.23TB/s | act   1.0 | g2   21.7us 1.74TB/s | fin   3.3 | all   65.2 | floor@4.8 g1  15.7 g2   7.9
+SPLIT bs=  1 seed=13 active= 2 routes=   2 top=[1, 1, 0, 0, 0, 0] padded_rows=16 | g1   21.3us 1.77TB/s | act   1.0 | g2   17.7us 1.07TB/s | fin   2.9 | all   49.1 | floor@4.8 g1   7.9 g2   3.9
+SPLIT bs= 16 seed=11 active=13 routes=  26 top=[7, 4, 2, 2, 2, 2] padded_rows=208 | g1   99.0us 2.48TB/s | act   1.4 | g2   53.1us 2.31TB/s | fin   3.1 | all  162.3 | floor@4.8 g1  51.1 g2  25.6
+SPLIT bs= 16 seed=12 active=12 routes=  25 top=[4, 4, 3, 3, 2, 2] padded_rows=192 | g1   91.3us 2.48TB/s | act   1.3 | g2   49.7us 2.28TB/s | fin   3.3 | all  151.3 | floor@4.8 g1  47.2 g2  23.6
+SPLIT bs= 16 seed=13 active=11 routes=  25 top=[8, 6, 2, 2, 1, 1] padded_rows=176 | g1   84.6us 2.45TB/s | act   1.4 | g2   46.2us 2.25TB/s | fin   3.3 | all  140.4 | floor@4.8 g1  43.3 g2  21.6
+SPLIT bs= 32 seed=11 active=20 routes=  41 top=[5, 4, 3, 3, 3, 3] padded_rows=320 | g1  149.2us 2.53TB/s | act   1.8 | g2   78.1us 2.42TB/s | fin   3.6 | all  236.8 | floor@4.8 g1  78.6 g2  39.3
+SPLIT bs= 32 seed=12 active=15 routes=  54 top=[12, 11, 5, 5, 4, 3] padded_rows=240 | g1  114.2us 2.48TB/s | act   1.6 | g2   61.1us 2.32TB/s | fin   3.4 | all  183.6 | floor@4.8 g1  59.0 g2  29.5
+SPLIT bs= 32 seed=13 active=14 routes=  47 top=[10, 7, 6, 4, 4, 3] padded_rows=224 | g1  106.5us 2.48TB/s | act   1.7 | g2   57.2us 2.31TB/s | fin   3.5 | all  173.7 | floor@4.8 g1  55.1 g2  27.5
+SPLIT bs=  8 seed=11 active= 8 routes=  11 top=[2, 2, 2, 1, 1, 1] padded_rows=64 | g1   60.6us 2.49TB/s | act   1.2 | g2   34.1us 2.21TB/s | fin   2.9 | all  104.1 | floor@4.8 g1  31.5 g2  15.7
+SPLIT bs=  8 seed=12 active= 7 routes=  16 top=[8, 3, 1, 1, 1, 1] padded_rows=56 | g1   54.6us 2.42TB/s | act   1.2 | g2   31.3us 2.11TB/s | fin   3.1 | all   95.1 | floor@4.8 g1  27.5 g2  13.8
+SPLIT bs=  8 seed=13 active=10 routes=  13 top=[4, 1, 1, 1, 1, 1] padded_rows=80 | g1   73.9us 2.55TB/s | act   1.3 | g2   40.9us 2.31TB/s | fin   3.3 | all  124.8 | floor@4.8 g1  39.3 g2  19.7
+SPLIT bs=128 seed=11 active=25 routes= 168 top=[52, 20, 15, 10, 10, 9] padded_rows=464 | g1  212.1us 2.22TB/s | act   2.9 | g2  110.2us 2.14TB/s | fin   4.1 | all  333.1 | floor@4.8 g1  98.3 g2  49.2
+SPLIT bs=128 seed=12 active=23 routes= 159 top=[30, 17, 13, 11, 10, 8] padded_rows=400 | g1  185.1us 2.35TB/s | act   3.0 | g2   96.4us 2.25TB/s | fin   3.7 | all  292.1 | floor@4.8 g1  90.4 g2  45.2
+SPLIT bs=128 seed=13 active=25 routes= 257 top=[124, 23, 22, 12, 8, 7] padded_rows=544 | g1  244.3us 1.93TB/s | act   3.4 | g2  128.1us 1.84TB/s | fin   4.3 | all  382.1 | floor@4.8 g1  98.3 g2  49.2
+SPLIT bs=256 seed=11 active=21 routes= 404 top=[256, 24, 21, 18, 17, 16] padded_rows=640 | g1  288.8us 1.37TB/s | act   5.1 | g2  149.2us 1.33TB/s | fin   7.6 | all  453.8 | floor@4.8 g1  82.6 g2  41.3
+SPLIT bs=256 seed=12 active=24 routes= 341 top=[48, 43, 32, 30, 25, 23] padded_rows=528 | g1  238.8us 1.90TB/s | act   4.9 | g2  124.1us 1.83TB/s | fin   7.4 | all  379.7 | floor@4.8 g1  94.4 g2  47.2
+SPLIT bs=256 seed=13 active=25 routes= 385 top=[84, 34, 26, 26, 24, 21] padded_rows=624 | g1  282.6us 1.67TB/s | act   5.0 | g2  146.9us 1.61TB/s | fin   7.8 | all  444.6 | floor@4.8 g1  98.3 g2  49.2
+PREP total 82.1 s
