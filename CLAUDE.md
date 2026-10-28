@@ -25,3 +25,6 @@ Background and decisions: `docs/context.md`. Every run: `docs/runs.md` (bf16_pro
   the writing side before an mbarrier arrive, when generic stores feed wgmma or TMA reads)
   unless the PTX memory model shows the alternative is correct, and cite that section. The
   attention verify variants with bit 2 (var 2, 18) do this; submissions use the fenced ones.
+- **Record losers in `docs/ruled-out.md`.** Every experiment that loses or is closed gets a row
+  there (evidence with job id, and what it rules out), in addition to its runs-log entry. Read
+  it before proposing an experiment; reopening one needs new evidence, stated explicitly.
