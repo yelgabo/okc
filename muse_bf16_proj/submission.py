@@ -1723,8 +1723,12 @@ __device__ __forceinline__ void tma_2d_mc(uint32_t dst, const CUtensorMap* map, 
                  :: "r"(dst), "l"(map), "r"(bar), "r"(c0), "r"(c1), "h"(mask) : "memory");
 }
 
+// CUTLASS's ClusterBarrier::arrive(cta_id) form: default .release.cta semantics. The stage's
+// readers are wgmma operations already retired by wgmma.wait_group, so there are no generic
+// writes to publish; job 80b89e112bf3447f ran the .release.cluster form at 1.3 to 4 us per k-tile,
+// growing with the number of remote arrives per stage.
 __device__ __forceinline__ void mbar_arrive_remote(uint32_t cluster_addr) {
-    asm volatile("mbarrier.arrive.release.cluster.shared::cluster.b64 _, [%0];" :: "r"(cluster_addr) : "memory");
+    asm volatile("mbarrier.arrive.shared::cluster.b64 _, [%0];" :: "r"(cluster_addr) : "memory");
 }
 
 // Cluster of CLK * CLR CTAs, rank = rk + CLK * rr: the CLK ranks with one rr split K for one
@@ -1808,11 +1812,7 @@ wd_kernel(const __grid_constant__ CUtensorMap wmap, const __grid_constant__ CUte
             for (int i = 0; i < ktl; ++i) {
                 const int s = i % NST;
                 if (i >= NST) {
-                    if constexpr (CLR > 1) {
-                        mbar_wait_cluster(empty0 + 8 * s, ((i / NST) - 1) & 1, dead, diag, 1);
-                    } else {
-                        mbar_wait<true>(empty0 + 8 * s, ((i / NST) - 1) & 1, dead, diag, 1);
-                    }
+                    mbar_wait<true>(empty0 + 8 * s, ((i / NST) - 1) & 1, dead, diag, 1);
                 }
                 const uint32_t fb = full0 + 8 * s;
                 mbar_expect_tx(fb, C::SB);

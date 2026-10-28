@@ -1,0 +1,46 @@
+sk build 19.7 s
+pack qkv_gate: base 54, 2621 escapes, 0 inexact deltas, 19.9 s
+pack o: base 54, 960 escapes, 0 inexact deltas, 20.1 s
+pack pooler: base 54, 4603 escapes, 0 inexact deltas, 20.1 s
+pack unpooler: base 54, 3330 escapes, 0 inexact deltas, 20.1 s
+fused pooler+router pool8f: ok
+fused pooler+router pool16f: ok
+selftests done 20.4 s
+tune o         m= 1: o8 10.1, o8raw 10.7, cgemv 9.8, cublas 10.9 -> cgemv
+tune o         m= 8: o8 10.0, o8raw 10.5, cublas 10.8 -> o8
+tune o         m=16: o16 10.2, o16raw 10.8, cublas 10.7 -> o16
+tune o         m=32: o32 10.5, o32raw 11.1, cublas 10.9 -> o32
+tune o         m=64: cublas 11.1, b1n64c2 12.6, m64k2r4 33.5, m64k1r8 51.7 -> cublas
+tune o         m=128: cublas 11.6, b1n64c2 18.8, b1n128c2 14.0, m64k2r4 47.9, m64k1r8 86.3, m128k2r4 35.8, m128k1r4 35.6, m128k1r8 54.4, m128k2r8 55.4, m128k4r2 27.4 -> cublas
+tune o         m=256: cublas 13.5, b1n128c2 21.5, b2n256c2 17.5, m128k2r4 50.4, m128k1r4 58.9, m128k1r8 94.6, m128k2r8 80.0, m128k4r2 43.2, m256k2r4 47.9, m256k1r4 55.5, m256k1r8 80.7, m256k2r8 65.8, m256k2r2 39.7 -> cublas
+tune pooler    m= 1: pool8 18.4, pool8raw 21.9, cgemv 22.5, cublas 25.5 -> pool8
+tune pooler    m= 8: pool8 18.4, pool8raw 22.0, cublas 25.5 -> pool8
+tune pooler    m=16: pool16 18.8, pool16raw 22.0, cublas 25.4 -> pool16
+tune pooler    m=32: pool32 22.4, pool32raw 22.2, cublas 26.1 -> pool32raw
+tune pooler    m=64: cublas 27.3, b1n64c2 26.1, m64k2r4 126.5, m64k1r8 337.8 -> b1n64c2
+tune pooler    m=128: cublas 29.5, b1n64c2 30.7, b1n128c2 30.6, m64k2r4 210.1, m64k1r8 367.0, m128k2r4 127.8, m128k1r4 199.3, m128k1r8 333.2, m128k2r8 197.5, m128k4r2 86.7 -> cublas
+tune pooler    m=256: cublas 31.5, b1n128c2 38.0, b2n256c2 50.2, m128k2r4 227.6, m128k1r4 215.2, m128k1r8 387.1, m128k2r8 383.6, m128k4r2 132.1, m256k2r4 200.1, m256k1r4 201.1, m256k1r8 331.8, m256k2r8 315.0, m256k2r2 146.2 -> cublas
+tune qkv_gate  m= 1: qkv8 14.5, qkv8raw 15.8, cgemv 14.9, cublas 18.7 -> qkv8
+tune qkv_gate  m= 8: qkv8 14.3, qkv8raw 15.6, cublas 18.5 -> qkv8
+tune qkv_gate  m=16: qkv16 14.3, qkv16raw 16.5, cublas 18.4 -> qkv16
+tune qkv_gate  m=32: qkv32 15.8, qkv32raw 16.4, cublas 18.7 -> qkv32
+tune qkv_gate  m=64: cublas 19.3, b1n64c2 24.2, m64k2r4 103.3 -> cublas
+tune qkv_gate  m=128: cublas 21.8, b1n64c2 28.5, b1n128c2 28.6, m64k2r4 114.0, m128k2r4 100.8, m128k1r4 205.1, m128k4r2 47.5 -> cublas
+tune qkv_gate  m=256: cublas 23.8, b1n128c2 33.7, b2n256c2 49.0, m128k2r4 117.7, m128k1r4 192.9, m128k4r2 85.6, m256k2r4 105.3, m256k1r4 202.9, m256k2r2 81.3 -> cublas
+tune router    m= 1: rgemv 7.9, router8 9.4, baseline 15.0 -> rgemv
+tune router    m= 8: router8 9.6, baseline 31.3 -> router8
+tune router    m=16: router16 9.6, baseline 20.4 -> router16
+tune router    m=32: router32 9.8, baseline 20.6 -> router32
+tune router    m=64: baseline 21.3, r64c8 13.2, r64c16 11.4, rm64k4r4 54.3 -> r64c16
+tune router    m=128: baseline 22.3, r64c8 13.4, r64c16 14.4, r128c8 14.4, r128c16 12.9, rm64k4r4 53.6, rm128k4r4 58.2 -> r128c16
+tune router    m=256: baseline 22.8, r128c8 14.7, r128c16 20.0, rm128k4r4 57.9 -> r128c8
+tune unpooler  m= 1: slice8 8.7, slice8raw 9.1, cgemv 8.4, sgemv 8.0, cublas 11.8 -> sgemv
+tune unpooler  m= 8: slice8 8.9, slice8raw 9.0, cublas 11.5 -> slice8
+tune unpooler  m=16: unp16 18.2, unp16raw 21.9, cublas 22.4 -> unp16
+tune unpooler  m=32: unp32 19.5, unp32raw 21.9, cublas 22.8 -> unp32
+tune unpooler  m=64: cublas 24.0, b1n64c2 24.4, m64k2r4 117.4, m64k1r8 193.2 -> cublas
+tune unpooler  m=128: cublas 24.5, b1n64c2 43.3, b1n128c2 25.9, m64k2r4 175.8, m64k1r8 342.8, m128k2r4 123.3, m128k1r4 126.9, m128k1r8 198.9, m128k2r8 198.0, m128k4r2 72.5 -> cublas
+tune unpooler  m=256: cublas 28.7, b1n128c2 47.0, b2n256c2 33.0, m128k2r4 183.1, m128k1r4 220.4, m128k1r8 368.2, m128k2r8 296.3, m128k4r2 119.2, m256k2r4 155.8, m256k1r4 194.9, m256k1r8 307.4, m256k2r8 238.1, m256k2r2 117.3 -> cublas
+ablate pooler m=128: m128k2r4 127.5, m128k2r4_a1 126.2, m128k2r4_a3 123.7
+ablate o m=256: m256k1r4 55.1, m256k1r4_a1 52.5, m256k1r4_a3 48.0
+prepare done 21.5 s
