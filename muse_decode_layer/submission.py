@@ -161,8 +161,10 @@ ROUTE_ON_SIDE = True
 PORT_FFN_BOUNDARY = True
 # Up to 8 tokens, a kernel on the side stream forked right after the qkv projection prefetches
 # into L2 the weights the chain reads after attention (o, the FP32 router, the unpooler slice:
-# 34 MB) while attention runs, with an evict_last policy.
-PORT_L2_PREFETCH = True
+# 34 MB) while attention runs, with an evict_last policy. Off: the bulk prefetch hint left the o
+# GEMV at 7.3 us (check 985732949c07474f) and real loads brought it only to 5.9 while the 34 MB
+# stream during attention cost 2-4 us on every T <= 8 shape (check 34568f495b024c2f).
+PORT_L2_PREFETCH = False
 # Our attention boundary (post-attention norm, residual gate, pre-FFN norm, FP32 router input
 # at T <= 8) with SGLang's one BF16 rounding, as a PDL secondary that loads the stream and the
 # weights before its wait and triggers at entry, so the pooler's weight stream starts earlier.
