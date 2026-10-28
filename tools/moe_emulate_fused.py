@@ -17,7 +17,7 @@ import torch
 
 ROOT = Path(__file__).resolve().parent.parent
 GRID = np.array([0.0, 0.5, 1.0, 1.5, 2.0, 3.0, 4.0, 6.0])
-NAMES = ("W4_BITPOS", "unit_rows", "repack_expert", "_perm", "_stack_last", "_to_i64",
+NAMES = ("W4_BITPOS", "unit_rows", "repack_expert", "repack_expert_fat", "_perm", "_stack_last", "_to_i64",
          "_to_u8_words", "_cat_last", "scales_ok")
 
 
@@ -109,3 +109,55 @@ def check(kind, n, seed):
 if __name__ == "__main__":
     ok = check(1, 64, 1) and check(2, 48, 2)
     print("OK" if ok else "FAILED")
+
+
+def check_fat(kind, n, seed):
+    """repack_expert_fat against plain dequantization, decoded as the fat path's consumer
+    warps read it: warp (wg, w) of unit u holds 16-row block 16 u + 4 wg + w; word (lane, step)
+    of stage st is K = 256 st + 16 step + 8 khi + 2 t4 + jlo; scales [wg][w][g][step][h]."""
+    k = 4096
+    ns = load_repack()
+    rng = np.random.default_rng(seed)
+    packed = rng.integers(0, 256, size=(n, k // 2), dtype=np.uint8)
+    exp = rng.integers(1, 16, size=(n, k // 16))
+    man = rng.integers(0, 8, size=(n, k // 16))
+    sf = (exp << 3 | man).astype(np.uint8)
+    sf[sf == 0x7F] = 0x7E
+    codes = np.stack((packed & 15, packed >> 4), axis=-1).reshape(n, k).astype(np.int64)
+    val = GRID[codes & 7] * np.where(codes & 8, -1.0, 1.0)
+    scale = (2.0 ** ((sf >> 3).astype(np.int64) - 7)) * (1 + (sf & 7) / 8.0)
+    ref = val * np.repeat(scale, 16, axis=1)
+    units = ns["repack_expert_fat"](torch.from_numpy(packed), torch.from_numpy(sf), kind).numpy()
+    assert units.shape == (n // 256, 16, 36864), units.shape
+    got = np.full((n, k), np.nan)
+    for u in range(n // 256):
+        for st in range(16):
+            stage = units[u, st]
+            words = stage[:32768].view(np.uint32)
+            for wg in range(4):
+                for w in range(4):
+                    rb = 16 * u + 4 * wg + w
+                    for lane in range(32):
+                        g, t4 = lane // 4, lane % 4
+                        sb = stage[32768 + (wg * 4 + w) * 256 + g * 32: 32768 + (wg * 4 + w) * 256 + g * 32 + 32]
+                        for step in range(16):
+                            sg, sg8 = scale_word(sb[2 * step]), scale_word(sb[2 * step + 1])
+                            regs = dequant(words[(wg * 4 + w) * 512 + lane * 16 + step], sg, sg8)
+                            for j, (lo, hi) in enumerate(regs):
+                                h, khi = j & 1, j >> 1
+                                row = (h * (n // 2) + rb * 8 + g) if kind == 1 else (rb * 16 + h * 8 + g)
+                                col = 256 * st + 16 * step + 8 * khi + 2 * t4
+                                got[row, col] = lo * 128
+                                got[row, col + 1] = hi * 128
+    assert not np.isnan(got).any(), "some weights were never produced"
+    bad = np.argwhere(got != ref)
+    print(f"fat kind {kind} n={n}: {len(bad)} mismatches of {n * k}")
+    if len(bad):
+        r, c = bad[0]
+        print("  first at", r, c, got[r, c], ref[r, c])
+    return not len(bad)
+
+
+if __name__ == "__main__":
+    ok = check_fat(1, 512, 3) and check_fat(2, 256, 4)
+    print("FAT OK" if ok else "FAT FAILED")
