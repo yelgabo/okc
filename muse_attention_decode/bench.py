@@ -1468,7 +1468,6 @@ constexpr int VH_HEAD = BN * D * 2;
 constexpr int Q_HEAD = GROUP * L * D;
 constexpr int PART = 2 + D;
 constexpr int CONSUMERS = 256;
-constexpr int THREADS = CONSUMERS + 32;
 constexpr float EPS = 1e-5f;
 constexpr float NEG_INF = -INFINITY;
 
@@ -1597,13 +1596,40 @@ __device__ __forceinline__ void reg_fence(float (&d)[32]) {
     "+f"(d[20]), "+f"(d[21]), "+f"(d[22]), "+f"(d[23]), "+f"(d[24]), "+f"(d[25]), "+f"(d[26]), \
     "+f"(d[27]), "+f"(d[28]), "+f"(d[29]), "+f"(d[30]), "+f"(d[31])
 
-// S (64 x 64 f32) = A (64 x 32 E4M3, smem) . B (64 tokens x 32 E4M3, smem, K-major).
+// S (64 x 64, f16 accumulators packed in pairs) = A (64 x 32 E4M3, smem) . B (64 tokens x 32
+// E4M3, smem, K-major). Register 2i holds row g, columns 8i + 2c and 8i + 2c + 1; register
+// 2i + 1 the same columns of row g + 8, which is also the f16 A-fragment order of P.V.
 template <int ACC>
-__device__ __forceinline__ void wgmma_qk(float (&d)[32], uint64_t da, uint64_t db) {
-    asm volatile("{\n.reg .pred p;\nsetp.ne.b32 p, %34, 0;\n"
-                 "wgmma.mma_async.sync.aligned.m64n64k32.f32.e4m3.e4m3 " WG_D32
-                 ", %32, %33, p, 1, 1;\n}\n"
-                 : WG_OUT32(d) : "l"(da), "l"(db), "n"(ACC));
+__device__ __forceinline__ void wgmma_qk(uint32_t (&d)[16], uint64_t da, uint64_t db) {
+    asm volatile("{\n.reg .pred p;\nsetp.ne.b32 p, %18, 0;\n"
+                 "wgmma.mma_async.sync.aligned.m64n64k32.f16.e4m3.e4m3 "
+                 "{%0, %1, %2, %3, %4, %5, %6, %7, %8, %9, %10, %11, %12, %13, %14, %15}"
+                 ", %16, %17, p, 1, 1;\n}\n"
+                 : "+r"(d[0]), "+r"(d[1]), "+r"(d[2]), "+r"(d[3]), "+r"(d[4]), "+r"(d[5]),
+                   "+r"(d[6]), "+r"(d[7]), "+r"(d[8]), "+r"(d[9]), "+r"(d[10]), "+r"(d[11]),
+                   "+r"(d[12]), "+r"(d[13]), "+r"(d[14]), "+r"(d[15])
+                 : "l"(da), "l"(db), "n"(ACC));
+}
+
+__device__ __forceinline__ void reg_fence16(uint32_t (&d)[16]) {
+#pragma unroll
+    for (int i = 0; i < 16; ++i) {
+        asm volatile("" : "+r"(d[i]) :: "memory");
+    }
+}
+
+__device__ __forceinline__ uint32_t ex2_h2(uint32_t x) {
+    uint32_t y;
+    asm("ex2.approx.f16x2 %0, %1;\n" : "=r"(y) : "r"(x));
+    return y;
+}
+
+__device__ __forceinline__ __half2 as_h2(uint32_t x) {
+    return *reinterpret_cast<__half2*>(&x);
+}
+
+__device__ __forceinline__ uint32_t as_u32(__half2 x) {
+    return *reinterpret_cast<uint32_t*>(&x);
 }
 
 // O (64 x 64 f32) += P (64 x 16 f16, registers) . V (16 tokens x 64 dims f16, smem, MN-major).
@@ -1659,8 +1685,8 @@ __device__ __forceinline__ int vchunk(int t, int ch) {
 // through an NS-stage ring guarded by mbarriers. No block-wide barrier inside the loop.
 // MODE 0: the kernel. MODE 1: loads only (math warps wait for each stage and release it), to
 // separate memory time from math. MODE 2: the kernel plus clock64 phase totals in dbg[1..].
-template <int NS, int MODE>
-__global__ void __launch_bounds__(THREADS, 1) attn_ws_kernel(const Params p) {
+template <int NS, int MODE, int PW>
+__global__ void __launch_bounds__(CONSUMERS + 32 * PW, 1) attn_ws_kernel(const Params p) {
     constexpr bool STAMP = MODE == 2;
     long long acc[8] = {0, 0, 0, 0, 0, 0, 0, 0};
     long long tclk = 0;
@@ -1704,14 +1730,19 @@ __global__ void __launch_bounds__(THREADS, 1) attn_ws_kernel(const Params p) {
 
     if (tid == 0) {
         for (int s = 0; s < NS; ++s) {
-            mbar_init(full0 + 8 * s, 32);
+            mbar_init(full0 + 8 * s, 32 * PW);
             mbar_init(empty0 + 8 * s, 8);
         }
         asm volatile("fence.mbarrier_init.release.cluster;\n" ::: "memory");
     }
     __syncthreads();
 
-    if (warp == 8) {
+    if (warp >= 8) {
+        // Loader warp pw fills tokens TPW * pw .. TPW * pw + TPW - 1 of every tile; one warp
+        // alone took 2735 cycles per tile to issue them (job e2816b2cfe2e409e).
+        constexpr int TPW = BN / PW;
+        const int pw = warp - 8;
+        const int tbase = TPW * pw;
         const int* pt = p.page_table + static_cast<size_t>(b) * p.pt_stride;
         const int psize = p.page_size;
         auto entry = [&](int tile, int t) {
@@ -1724,11 +1755,10 @@ __global__ void __launch_bounds__(THREADS, 1) attn_ws_kernel(const Params p) {
         // Page entries run PF tiles ahead in registers, so a tile's cp.async never waits on
         // the dependent page-table load (job 418d8d492c074b88 lost 6x to that wait).
         constexpr int PF = 4;
-        int pe[PF][2];
+        int pe[PF];
 #pragma unroll
         for (int u = 0; u < PF; ++u) {
-            pe[u][0] = entry(u, lane);
-            pe[u][1] = entry(u, lane + 32);
+            pe[u] = entry(u, tbase + lane % TPW);
         }
         if constexpr (STAMP) {
             tclk = clock64();
@@ -1751,9 +1781,9 @@ __global__ void __launch_bounds__(THREADS, 1) attn_ws_kernel(const Params p) {
                 uint8_t* st = smem + s * STAGE;
                 const int pos0 = lo + i * BN;
 #pragma unroll
-                for (int k = 0; k < 16; ++k) {
-                    const int t = 4 * k + rsub;
-                    const int e = __shfl_sync(0xffffffffu, k < 8 ? pe[u][0] : pe[u][1], t & 31);
+                for (int k = 0; k < TPW / 4; ++k) {
+                    const int t = tbase + 4 * k + rsub;
+                    const int e = __shfl_sync(0xffffffffu, pe[u], 4 * k + rsub);
                     const int pos = pos0 + t;
                     const bool valid = pos < hi;
                     size_t row = static_cast<size_t>(e);
@@ -1768,13 +1798,15 @@ __global__ void __launch_bounds__(THREADS, 1) attn_ws_kernel(const Params p) {
                 }
                 mbar_arrive_cp_async(full0 + 8 * s);
                 lap(1);
-                pe[u][0] = entry(i + PF, lane);
-                pe[u][1] = entry(i + PF, lane + 32);
+                pe[u] = entry(i + PF, tbase + lane % TPW);
             }
         }
         asm volatile("cp.async.wait_all;\n" ::: "memory");
         lap(3);
         flush_stamps(8);
+        if (STAMP && pw == 0 && lane == 0 && split == 0 && b == 0) {
+            p.dbg[16] = PW;
+        }
         return;
     }
 
@@ -1819,7 +1851,9 @@ __global__ void __launch_bounds__(THREADS, 1) attn_ws_kernel(const Params p) {
             ss += x[e] * x[e];
         }
         ss += __shfl_xor_sync(0xffffffffu, ss, 1);
-        const float r = rsqrtf(ss / D + EPS);
+        // The softmax scale (with log2 e) is folded in before the E4M3 rounding, so scores
+        // come out of the f16-accumulating wgmma in log2 units.
+        const float r = rsqrtf(ss / D + EPS) * p.qk_scale;
         const float pos = static_cast<float>(seq + j);
 #pragma unroll
         for (int i = 0; i < 16; ++i) {
@@ -1909,7 +1943,6 @@ __global__ void __launch_bounds__(THREADS, 1) attn_ws_kernel(const Params p) {
     float mrow[2] = {NEG_INF, NEG_INF};
     float lrow[2] = {0.f, 0.f};
     lap(7);
-    const float qk_scale = p.qk_scale * k_scale;
     int qpos[2];
     int lo_row[2];
 #pragma unroll
@@ -1929,18 +1962,17 @@ __global__ void __launch_bounds__(THREADS, 1) attn_ws_kernel(const Params p) {
     const int ct = ckb * 8 + ctt;
 
     // One 64-token tile: S = Q.K^T (FP8 wgmma), the f16 values converted while it runs, online
-    // softmax in registers, then O += P.V (f16 wgmma) left in flight into the next tile.
+    // softmax in registers, then O += P.V (f16 wgmma).
     auto tile = [&](const uint8_t* st, int it, int pos0, int lim, uint32_t empty_bar) {
-        float s[32];
+        uint32_t s[16];
         wg_fence();
         const uint8_t* ks = st + h * (BN * D);
         wgmma_qk<0>(s, qd0, desc(ks, 128, 512));
         wgmma_qk<1>(s, qd1, desc(ks + 256, 128, 512));
         wg_commit();
         lap(1);
-        // Two groups may be pending: the previous tile's P.V, then this Q.K. Waiting down to
-        // one retires the P.V, so its value buffer can be overwritten two tiles later.
-        wg_wait<1>();
+        // The value buffers alternate by tile: a warp's P.V wait does not formally cover the
+        // other warps' share of the warpgroup's reads.
         uint8_t* vb = smem + S::VH + (h * 2 + (it & 1)) * VH_HEAD;
         const uint8_t* vs = st + K_TILE;
 #pragma unroll
@@ -1955,8 +1987,7 @@ __global__ void __launch_bounds__(THREADS, 1) attn_ws_kernel(const Params p) {
         named_sync(bar_id, 128);
         lap(3);
         wg_wait<0>();
-        reg_fence(s);
-        reg_fence(o);
+        reg_fence16(s);
         if (empty_bar != 0) {
             __syncwarp();
             if (lane == 0) {
@@ -1964,40 +1995,50 @@ __global__ void __launch_bounds__(THREADS, 1) attn_ws_kernel(const Params p) {
             }
         }
         const bool interior = pos0 + BN - 1 <= lim && (!p.window || pos0 >= seq + L - p.window);
+        if (!interior) {
 #pragma unroll
-        for (int hh = 0; hh < 2; ++hh) {
-            const int top = min(lim, qpos[hh]);
-            float mx = NEG_INF;
+            for (int hh = 0; hh < 2; ++hh) {
+                const int top = min(lim, qpos[hh]);
 #pragma unroll
-            for (int i = 0; i < 8; ++i) {
-#pragma unroll
-                for (int k = 0; k < 2; ++k) {
-                    float v = s[4 * i + 2 * hh + k] * qk_scale;
-                    if (!interior) {
-                        const int pos = pos0 + 8 * i + 2 * c + k;
-                        v = (pos >= lo_row[hh] && pos <= top) ? v : NEG_INF;
-                    }
-                    s[4 * i + 2 * hh + k] = v;
-                    mx = fmaxf(mx, v);
+                for (int i = 0; i < 8; ++i) {
+                    const int pos = pos0 + 8 * i + 2 * c;
+                    const uint32_t keep0 = pos >= lo_row[hh] && pos <= top ? 0xffffu : 0u;
+                    const uint32_t keep1 = pos + 1 >= lo_row[hh] && pos + 1 <= top ? 0xffffu : 0u;
+                    const uint32_t keep = keep0 | (keep1 << 16);
+                    // -inf in f16 is 0xfc00.
+                    s[2 * i + hh] = (s[2 * i + hh] & keep) | (0xfc00fc00u & ~keep);
                 }
             }
+        }
+        // Scores are already in log2 units over k_scale (the softmax scale is folded into Q),
+        // so each probability is one HFMA2 and one f16x2 ex2. The running max is kept rounded
+        // to f16 so the P values and the rescale use the same reference.
+        uint32_t pa[16];
+#pragma unroll
+        for (int hh = 0; hh < 2; ++hh) {
+            __half2 mx2 = as_h2(s[hh]);
+#pragma unroll
+            for (int i = 1; i < 8; ++i) {
+                mx2 = __hmax2(mx2, as_h2(s[2 * i + hh]));
+            }
+            float mx = fmaxf(__low2float(mx2), __high2float(mx2)) * k_scale;
             mx = fmaxf(mx, __shfl_xor_sync(0xffffffffu, mx, 1));
             mx = fmaxf(mx, __shfl_xor_sync(0xffffffffu, mx, 2));
             const float mnew = fmaxf(mrow[hh], mx);
-            const float muse = mnew == NEG_INF ? 0.f : mnew;
+            const __half mh = __float2half_rn(mnew == NEG_INF ? 0.f : mnew);
+            const float muse = __half2float(mh);
             const float alpha = ex2(mrow[hh] - muse);
-            mrow[hh] = mnew;
-            float sum = 0.f;
+            mrow[hh] = mnew == NEG_INF ? NEG_INF : muse;
+            const __half2 ks2 = __float2half2_rn(k_scale);
+            const __half2 nm2 = __halves2half2(__hneg(mh), __hneg(mh));
+            __half2 sum2 = __float2half2_rn(0.f);
 #pragma unroll
             for (int i = 0; i < 8; ++i) {
-#pragma unroll
-                for (int k = 0; k < 2; ++k) {
-                    const float e = ex2(s[4 * i + 2 * hh + k] - muse);
-                    s[4 * i + 2 * hh + k] = e;
-                    sum += e;
-                }
+                const uint32_t e = ex2_h2(as_u32(__hfma2(as_h2(s[2 * i + hh]), ks2, nm2)));
+                pa[2 * i + hh] = e;
+                sum2 = __hadd2(sum2, as_h2(e));
             }
-            lrow[hh] = lrow[hh] * alpha + sum;
+            lrow[hh] = lrow[hh] * alpha + __low2float(sum2) + __high2float(sum2);
             if (__any_sync(0xffffffffu, alpha != 1.f)) {
 #pragma unroll
                 for (int i = 0; i < 8; ++i) {
@@ -2007,21 +2048,16 @@ __global__ void __launch_bounds__(THREADS, 1) attn_ws_kernel(const Params p) {
             }
         }
         lap(4);
-        uint32_t pa[4][4];
-#pragma unroll
-        for (int k = 0; k < 4; ++k) {
-            pa[k][0] = pack_f16(s[8 * k + 0], s[8 * k + 1]);
-            pa[k][1] = pack_f16(s[8 * k + 2], s[8 * k + 3]);
-            pa[k][2] = pack_f16(s[8 * k + 4], s[8 * k + 5]);
-            pa[k][3] = pack_f16(s[8 * k + 6], s[8 * k + 7]);
-        }
         reg_fence(o);
         wg_fence();
 #pragma unroll
         for (int k = 0; k < 4; ++k) {
-            wgmma_pv(o, pa[k], desc(vb + k * 2048, 1024, 128));
+            wgmma_pv(o, pa + 4 * k, desc(vb + k * 2048, 1024, 128));
         }
         wg_commit();
+        // Leaving P.V in flight across the loop back-edge makes ptxas serialize every wgmma
+        // in the kernel (C7514), so it retires here.
+        wg_wait<0>();
         lap(5);
     };
 
@@ -2124,37 +2160,49 @@ __global__ void ws_combine_kernel(const float* __restrict__ ws,
         __float22bfloat162_rn(acc);
 }
 
-template <int NS, int MODE>
+template <int NS, int MODE, int PW>
 void launch_ws(const Params& p, int batch, cudaStream_t stream) {
-    auto kern = attn_ws_kernel<NS, MODE>;
+    auto kern = attn_ws_kernel<NS, MODE, PW>;
     constexpr int bytes = Smem<NS>::BYTES;
     static bool configured = false;
     if (!configured) {
         cudaFuncSetAttribute(kern, cudaFuncAttributeMaxDynamicSharedMemorySize, bytes);
         configured = true;
     }
-    kern<<<dim3(p.splits, batch), THREADS, bytes, stream>>>(p);
+    kern<<<dim3(p.splits, batch), CONSUMERS + 32 * PW, bytes, stream>>>(p);
 }
 
-// INSTANTIATE: template void launch_ws<2, 0>(const Params&, int, cudaStream_t);
-// INSTANTIATE: template void launch_ws<4, 0>(const Params&, int, cudaStream_t);
-// INSTANTIATE: template void launch_ws<8, 0>(const Params&, int, cudaStream_t);
-// INSTANTIATE: template void launch_ws<8, 1>(const Params&, int, cudaStream_t);
-// INSTANTIATE: template void launch_ws<8, 2>(const Params&, int, cudaStream_t);
+template <int NS, int MODE>
+void launch_pw(const Params& p, int batch, int pw, cudaStream_t stream) {
+    if (pw == 2) {
+        launch_ws<NS, MODE, 2>(p, batch, stream);
+    } else if (pw == 8) {
+        launch_ws<NS, MODE, 8>(p, batch, stream);
+    } else {
+        launch_ws<NS, MODE, 4>(p, batch, stream);
+    }
+}
+
+// INSTANTIATE: template void launch_pw<4, 0>(const Params&, int, int, cudaStream_t);
+// INSTANTIATE: template void launch_pw<8, 0>(const Params&, int, int, cudaStream_t);
+// INSTANTIATE: template void launch_pw<8, 1>(const Params&, int, int, cudaStream_t);
+// INSTANTIATE: template void launch_pw<8, 2>(const Params&, int, int, cudaStream_t);
 
 }  // namespace
 
-// stages: 2, 4 or 8 (anything else runs 8); mode: see attn_ws_kernel (1 and 2 with 8 stages).
+// stages: 4 or 8 (anything else runs 8); mode: see attn_ws_kernel (1 and 2 with 8 stages);
+// pw: loader warps, 2, 4 or 8 (anything else runs 4).
 // dbg: int64 [17] or empty. dbg[0] bit 0: a loader wait timed out; bit 1: a math-warp wait
 // timed out. With mode 2, dbg[1..8] sum math-warp cycles per phase (wait for data, Q.K issue,
 // V convert, warpgroup barrier, softmax, P.V issue, tail, prologue) and dbg[9..12] loader
-// cycles (wait for a free stage, cp.async issue, page-entry loads, drain), over all warps.
+// cycles (wait for a free stage, cp.async issue, page-entry loads, drain), over all warps;
+// dbg[16] is the loader warp count.
 torch::Tensor attn_ws(torch::Tensor qkv, torch::Tensor page_table, torch::Tensor seq_lens,
                       torch::Tensor cache_loc, torch::Tensor inv_freq, torch::Tensor k_scale,
                       torch::Tensor v_scale, torch::Tensor k_cache, torch::Tensor v_cache,
                       int64_t batch, int64_t page_size, int64_t window, bool rope,
                       double qk_scale, int64_t splits, int64_t stages, int64_t mode,
-                      torch::Tensor dbg) {
+                      int64_t pw, torch::Tensor dbg) {
     auto stream = at::cuda::getCurrentCUDAStream();
     auto out = torch::empty({batch, L, HQ * D}, qkv.options());
     auto ws = torch::empty({batch * splits * ROWS * PART}, qkv.options().dtype(torch::kFloat32));
@@ -2177,15 +2225,13 @@ torch::Tensor attn_ws(torch::Tensor qkv, torch::Tensor page_table, torch::Tensor
     p.splits = splits;
     p.qk_scale = static_cast<float>(qk_scale);
     if (mode == 1) {
-        launch_ws<8, 1>(p, batch, stream);
+        launch_pw<8, 1>(p, batch, pw, stream);
     } else if (mode == 2) {
-        launch_ws<8, 2>(p, batch, stream);
-    } else if (stages == 2) {
-        launch_ws<2, 0>(p, batch, stream);
+        launch_pw<8, 2>(p, batch, pw, stream);
     } else if (stages == 4) {
-        launch_ws<4, 0>(p, batch, stream);
+        launch_pw<4, 0>(p, batch, pw, stream);
     } else {
-        launch_ws<8, 0>(p, batch, stream);
+        launch_pw<8, 0>(p, batch, pw, stream);
     }
     ws_combine_kernel<<<batch * L, HQ * 32, 0, stream>>>(p.ws, p.qkv, p.v_scale,
                                                           reinterpret_cast<__nv_bfloat16*>(out.data_ptr()),
@@ -2200,7 +2246,7 @@ torch::Tensor attn_ws(torch::Tensor qkv, torch::Tensor page_table, torch::Tensor
                       torch::Tensor v_scale, torch::Tensor k_cache, torch::Tensor v_cache,
                       int64_t batch, int64_t page_size, int64_t window, bool rope,
                       double qk_scale, int64_t splits, int64_t stages, int64_t mode,
-                      torch::Tensor dbg);
+                      int64_t pw, torch::Tensor dbg);
 """
 
 try:
@@ -2224,7 +2270,7 @@ def _ws_splits(cfg):
     return 128 if batch <= 2 else max(4, 128 // batch)
 
 
-def _ws(data, splits=None, stages=8, mode=0, dbg=None):
+def _ws(data, splits=None, stages=8, mode=0, pw=4, dbg=None):
     """q_len 8 on the warp-specialized kernel (attn_ws.cu), then a merge + norm-gate launch."""
     cfg = data["config"]
     batch = cfg["batch"]
@@ -2235,7 +2281,8 @@ def _ws(data, splits=None, stages=8, mode=0, dbg=None):
         _inv_freq(theta if theta else 1.0, cfg["head_dim"], qkv.device), data["k_scale"],
         data["v_scale"], data["k_cache"], data["v_cache"], batch, cfg["page_size"],
         cfg["window"], bool(theta), cfg["sm_scale"] * cfg["qk_scale_factor"] * LOG2E,
-        splits or _ws_splits(cfg), stages, mode, _no_dbg(qkv.device) if dbg is None else dbg)
+        splits or _ws_splits(cfg), stages, mode, pw,
+        _no_dbg(qkv.device) if dbg is None else dbg)
 
 
 def _fused_ok(cfg):
@@ -2446,12 +2493,12 @@ def _run_bench():
 
 
 # Generated by tools/attn_make_bench_ws.py.
-_WSB_VARIANTS = ['_fused_prep', '_probe_fa3', '_ws', '_ws@n=4', '_ws@n=2', '_ws@m=1', '_ws@s=8', '_ws@s=16', '_ws@s=132', '_fused@v=4']
+_WSB_VARIANTS = ['_fused_prep', '_probe_fa3', '_ws', '_ws@p=2', '_ws@p=8', '_ws@n=4', '_ws@m=1', '_ws@m=1,p=8', '_ws@s=8', '_ws@s=16', '_ws@p=8,s=8']
 _WSB_SHAPES = [
     (32, "full", 8), (16, "full", 8), (1, "full", 8), (32, "sliding", 8), (16, "sliding", 8),
     (1, "sliding", 8), (32, "full", 1),
 ]
-_GATHER_SRC = '\n#include <torch/extension.h>\n#include <ATen/cuda/CUDAContext.h>\n#include <cstdint>\n\nnamespace {\n\n// Each CTA reads its slice of one request\'s rows, as an attention split would. With ROWB 64,\n// grid.z picks the KV head and the CTA reads that head\'s half of each row.\ntemplate <int ROWB, int U, bool PREF>\n__global__ void __launch_bounds__(256) gather_kernel(const int* __restrict__ pt, int pt_stride,\n                                                     const int* __restrict__ seq_lens,\n                                                     const uint4* __restrict__ kc,\n                                                     const uint4* __restrict__ vc, int splits,\n                                                     unsigned* out) {\n    constexpr int CH = ROWB / 16;\n    constexpr int RPI = 256 / CH;\n    const int split = blockIdx.x;\n    const int b = blockIdx.y;\n    const int head = blockIdx.z;\n    const int seq = seq_lens[b];\n    const int per = (seq + splits - 1) / splits;\n    const int lo = min(seq, split * per);\n    const int hi = min(seq, lo + per);\n    const int sub = threadIdx.x / CH;\n    const int ck = threadIdx.x % CH + (ROWB == 64 ? head * 4 : 0);\n    const int* ptb = pt + static_cast<size_t>(b) * pt_stride;\n    uint32_t x = 0;\n    int nxt[U];\n    if (PREF) {\n#pragma unroll\n        for (int u = 0; u < U; ++u) {\n            const int pos = lo + u * RPI + sub;\n            nxt[u] = pos < hi ? __ldg(ptb + pos) : -1;\n        }\n    }\n    for (int base = lo; base < hi; base += RPI * U) {\n        int e[U];\n#pragma unroll\n        for (int u = 0; u < U; ++u) {\n            if (PREF) {\n                e[u] = nxt[u];\n                const int pos = base + RPI * U + u * RPI + sub;\n                nxt[u] = pos < hi ? __ldg(ptb + pos) : -1;\n            } else {\n                const int pos = base + u * RPI + sub;\n                e[u] = pos < hi ? __ldg(ptb + pos) : -1;\n            }\n        }\n        uint4 kv[U][2];\n#pragma unroll\n        for (int u = 0; u < U; ++u) {\n            if (e[u] >= 0) {\n                kv[u][0] = __ldcg(kc + static_cast<size_t>(e[u]) * 8 + ck);\n                kv[u][1] = __ldcg(vc + static_cast<size_t>(e[u]) * 8 + ck);\n            } else {\n                kv[u][0] = kv[u][1] = make_uint4(0, 0, 0, 0);\n            }\n        }\n#pragma unroll\n        for (int u = 0; u < U; ++u) {\n            x ^= kv[u][0].x ^ kv[u][0].w ^ kv[u][1].y ^ kv[u][1].z;\n        }\n    }\n    if (x == 0x9e3779b9u) {\n        out[0] = x;\n    }\n}\n\n// One thread walks n steps. ROW_ONLY 0: page entry at position 32 i (a fresh 128-byte line each\n// step), then its K row, each address depending on the previous row\'s data. ROW_ONLY 1: only\n// the row load, at a hashed row.\ntemplate <int ROW_ONLY>\n__global__ void chase_kernel(const int* __restrict__ pt, const uint32_t* kc, int rows, int n,\n                             long long* out) {\n    uint32_t x = 0;\n    int pos = 0;\n    const long long t0 = clock64();\n    for (int i = 0; i < n; ++i) {\n        int e;\n        if (ROW_ONLY) {\n            e = static_cast<int>((static_cast<uint32_t>(i) * 2654435761u + (x & 1)) % rows);\n        } else {\n            e = *(volatile const int*)(pt + pos);\n        }\n        const uint32_t v = *(volatile const uint32_t*)(kc + static_cast<size_t>(e) * 32);\n        x += v;\n        pos += 32 + (v == 0x80000000u ? 1 : 0);\n    }\n    out[0] = clock64() - t0;\n    out[1] = x;\n}\n\n}  // namespace\n\nvoid gather(torch::Tensor pt, torch::Tensor seq_lens, torch::Tensor kc, torch::Tensor vc,\n            int64_t rowb, int64_t u, bool pref, int64_t splits, torch::Tensor out) {\n    const int batch = seq_lens.size(0);\n    auto stream = at::cuda::getCurrentCUDAStream();\n    dim3 grid(splits, batch, rowb == 64 ? 2 : 1);\n    auto args = [&](auto kern) {\n        kern<<<grid, 256, 0, stream>>>(pt.data_ptr<int>(), pt.size(1), seq_lens.data_ptr<int>(),\n                                       reinterpret_cast<const uint4*>(kc.data_ptr()),\n                                       reinterpret_cast<const uint4*>(vc.data_ptr()), splits,\n                                       reinterpret_cast<unsigned*>(out.data_ptr<int>()));\n    };\n#define G(R, UU, P) if (rowb == R && u == UU && pref == P) { args(gather_kernel<R, UU, P>); return; }\n    G(128, 1, false) G(128, 2, false) G(128, 4, false) G(128, 8, false)\n    G(128, 1, true) G(128, 2, true) G(128, 4, true) G(128, 8, true)\n    G(64, 1, false) G(64, 2, false) G(64, 4, false) G(64, 8, false)\n    G(64, 1, true) G(64, 2, true) G(64, 4, true) G(64, 8, true)\n#undef G\n    TORCH_CHECK(false, "no gather config");\n}\n\nvoid chase(torch::Tensor pt, torch::Tensor kc, int64_t rows, int64_t n, bool row_only,\n           torch::Tensor out) {\n    auto stream = at::cuda::getCurrentCUDAStream();\n    const auto* k = reinterpret_cast<const uint32_t*>(kc.data_ptr());\n    if (row_only) {\n        chase_kernel<1><<<1, 1, 0, stream>>>(pt.data_ptr<int>(), k, rows, n, out.data_ptr<int64_t>());\n    } else {\n        chase_kernel<0><<<1, 1, 0, stream>>>(pt.data_ptr<int>(), k, rows, n, out.data_ptr<int64_t>());\n    }\n}\n'
+_GATHER_SRC = "\n#include <torch/extension.h>\n#include <ATen/cuda/CUDAContext.h>\n#include <cstdint>\n\nnamespace {\n\n// Each CTA reads its slice of one request's rows, as an attention split would. With ROWB 64,\n// grid.z picks the KV head and the CTA reads that head's half of each row.\ntemplate <int ROWB, int U, bool PREF>\n__global__ void __launch_bounds__(256) gather_kernel(const int* __restrict__ pt, int pt_stride,\n                                                     const int* __restrict__ seq_lens,\n                                                     const uint4* __restrict__ kc,\n                                                     const uint4* __restrict__ vc, int splits,\n                                                     unsigned* out) {\n    constexpr int CH = ROWB / 16;\n    constexpr int RPI = 256 / CH;\n    const int split = blockIdx.x;\n    const int b = blockIdx.y;\n    const int head = blockIdx.z;\n    const int seq = seq_lens[b];\n    const int per = (seq + splits - 1) / splits;\n    const int lo = min(seq, split * per);\n    const int hi = min(seq, lo + per);\n    const int sub = threadIdx.x / CH;\n    const int ck = threadIdx.x % CH + (ROWB == 64 ? head * 4 : 0);\n    const int* ptb = pt + static_cast<size_t>(b) * pt_stride;\n    uint32_t x = 0;\n    int nxt[U];\n    if (PREF) {\n#pragma unroll\n        for (int u = 0; u < U; ++u) {\n            const int pos = lo + u * RPI + sub;\n            nxt[u] = pos < hi ? __ldg(ptb + pos) : -1;\n        }\n    }\n    for (int base = lo; base < hi; base += RPI * U) {\n        int e[U];\n#pragma unroll\n        for (int u = 0; u < U; ++u) {\n            if (PREF) {\n                e[u] = nxt[u];\n                const int pos = base + RPI * U + u * RPI + sub;\n                nxt[u] = pos < hi ? __ldg(ptb + pos) : -1;\n            } else {\n                const int pos = base + u * RPI + sub;\n                e[u] = pos < hi ? __ldg(ptb + pos) : -1;\n            }\n        }\n        uint4 kv[U][2];\n#pragma unroll\n        for (int u = 0; u < U; ++u) {\n            if (e[u] >= 0) {\n                kv[u][0] = __ldcg(kc + static_cast<size_t>(e[u]) * 8 + ck);\n                kv[u][1] = __ldcg(vc + static_cast<size_t>(e[u]) * 8 + ck);\n            } else {\n                kv[u][0] = kv[u][1] = make_uint4(0, 0, 0, 0);\n            }\n        }\n#pragma unroll\n        for (int u = 0; u < U; ++u) {\n            x ^= kv[u][0].x ^ kv[u][0].w ^ kv[u][1].y ^ kv[u][1].z;\n        }\n    }\n    if (x == 0x9e3779b9u) {\n        out[0] = x;\n    }\n}\n\n// One thread walks n steps. ROW_ONLY 0: page entry at position 32 i (a fresh 128-byte line each\n// step), then its K row, each address depending on the previous row's data. ROW_ONLY 1: only\n// the row load, at a hashed row.\ntemplate <int ROW_ONLY>\n__global__ void chase_kernel(const int* __restrict__ pt, const uint32_t* kc, int rows, int n,\n                             int64_t* out) {\n    uint32_t x = 0;\n    int pos = 0;\n    const long long t0 = clock64();\n    for (int i = 0; i < n; ++i) {\n        int e;\n        if (ROW_ONLY) {\n            e = static_cast<int>((static_cast<uint32_t>(i) * 2654435761u + (x & 1)) % rows);\n        } else {\n            e = *(volatile const int*)(pt + pos);\n        }\n        const uint32_t v = *(volatile const uint32_t*)(kc + static_cast<size_t>(e) * 32);\n        x += v;\n        pos += 32 + (v == 0x80000000u ? 1 : 0);\n    }\n    out[0] = clock64() - t0;\n    out[1] = x;\n}\n\n}  // namespace\n\ntemplate <int R, int UU, bool P>\nvoid run_gather(torch::Tensor& pt, torch::Tensor& seq_lens, torch::Tensor& kc, torch::Tensor& vc,\n                int splits, torch::Tensor& out) {\n    const int batch = seq_lens.size(0);\n    dim3 grid(splits, batch, R == 64 ? 2 : 1);\n    gather_kernel<R, UU, P><<<grid, 256, 0, at::cuda::getCurrentCUDAStream()>>>(\n        pt.data_ptr<int>(), static_cast<int>(pt.size(1)), seq_lens.data_ptr<int>(),\n        reinterpret_cast<const uint4*>(kc.data_ptr()), reinterpret_cast<const uint4*>(vc.data_ptr()),\n        splits, reinterpret_cast<unsigned*>(out.data_ptr<int>()));\n}\n\ntemplate <int R, bool P>\nvoid gather_u(torch::Tensor& pt, torch::Tensor& seq_lens, torch::Tensor& kc, torch::Tensor& vc,\n              int64_t u, int splits, torch::Tensor& out) {\n    if (u == 1) {\n        run_gather<R, 1, P>(pt, seq_lens, kc, vc, splits, out);\n    } else if (u == 2) {\n        run_gather<R, 2, P>(pt, seq_lens, kc, vc, splits, out);\n    } else if (u == 4) {\n        run_gather<R, 4, P>(pt, seq_lens, kc, vc, splits, out);\n    } else {\n        run_gather<R, 8, P>(pt, seq_lens, kc, vc, splits, out);\n    }\n}\n\nvoid gather(torch::Tensor pt, torch::Tensor seq_lens, torch::Tensor kc, torch::Tensor vc,\n            int64_t rowb, int64_t u, bool pref, int64_t splits, torch::Tensor out) {\n    const int sp = static_cast<int>(splits);\n    if (rowb == 128) {\n        if (pref) {\n            gather_u<128, true>(pt, seq_lens, kc, vc, u, sp, out);\n        } else {\n            gather_u<128, false>(pt, seq_lens, kc, vc, u, sp, out);\n        }\n    } else {\n        if (pref) {\n            gather_u<64, true>(pt, seq_lens, kc, vc, u, sp, out);\n        } else {\n            gather_u<64, false>(pt, seq_lens, kc, vc, u, sp, out);\n        }\n    }\n}\n\nvoid chase(torch::Tensor pt, torch::Tensor kc, int64_t rows, int64_t n, bool row_only,\n           torch::Tensor out) {\n    auto stream = at::cuda::getCurrentCUDAStream();\n    const auto* k = reinterpret_cast<const uint32_t*>(kc.data_ptr());\n    if (row_only) {\n        chase_kernel<1><<<1, 1, 0, stream>>>(pt.data_ptr<int>(), k, rows, n, out.data_ptr<int64_t>());\n    } else {\n        chase_kernel<0><<<1, 1, 0, stream>>>(pt.data_ptr<int>(), k, rows, n, out.data_ptr<int64_t>());\n    }\n}\n"
 _GATHER_CPP = '\nvoid gather(torch::Tensor pt, torch::Tensor seq_lens, torch::Tensor kc, torch::Tensor vc,\n            int64_t rowb, int64_t u, bool pref, int64_t splits, torch::Tensor out);\nvoid chase(torch::Tensor pt, torch::Tensor kc, int64_t rows, int64_t n, bool row_only,\n           torch::Tensor out);\n'
 
 
@@ -2519,9 +2566,9 @@ _WS_PHASES = ["wait-data", "qk-issue", "v-convert", "wg-barrier", "qk-wait+softm
 _WS_LOADER = ["wait-free-stage", "cp.async-issue", "page-entries", "drain"]
 
 
-def _ws_stamps(data, cfg_splits):
+def _ws_stamps(data, cfg_splits, pw=4):
     dbg = torch.zeros(17, dtype=torch.int64, device="cuda")
-    _ws(data, splits=cfg_splits, mode=2, dbg=dbg)
+    _ws(data, splits=cfg_splits, mode=2, pw=pw, dbg=dbg)
     torch.cuda.synchronize()
     t = dbg.tolist()
     cfg = data["config"]
@@ -2531,9 +2578,11 @@ def _ws_stamps(data, cfg_splits):
     tiles = sum((s - a + 63) // 64 for s, a in zip(seq, start)) + cfg["batch"] * 0
     ctas = splits * cfg["batch"]
     math = " ".join(f"{n}={t[1 + k] / 8 / max(tiles, 1):.0f}" for k, n in enumerate(_WS_PHASES))
-    load = " ".join(f"{n}={t[9 + k] / max(tiles, 1):.0f}" for k, n in enumerate(_WS_LOADER))
-    return (f"timeout_flags={t[0]} tiles={tiles} ctas={ctas} cycles per tile per math warp: "
-            f"{math} | loader warp per tile: {load}")
+    nload = max(t[16], 1)
+    load = " ".join(f"{n}={t[9 + k] / nload / max(tiles, 1):.0f}"
+                    for k, n in enumerate(_WS_LOADER))
+    return (f"pw={t[16]} timeout_flags={t[0]} tiles={tiles} ctas={ctas} cycles per tile per "
+            f"math warp: {math} | per loader warp per tile: {load}")
 
 
 def _ws_bench():
@@ -2541,9 +2590,13 @@ def _ws_bench():
     try:
         _gather_bench(flush)
     except Exception as exc:
-        print(f"GATHER failed: {type(exc).__name__}: {str(exc)[:400]}", flush=True)
+        msg = str(exc)
+        errs = [ln for ln in msg.splitlines() if "error" in ln.lower()]
+        print(f"GATHER failed: {type(exc).__name__}: {msg[:300]} ... "
+              f"{' | '.join(errs)[:3000]}", flush=True)
     import functools
-    keys = {"s": "splits", "n": "stages", "m": "mode", "v": "variant", "c": "cluster"}
+    keys = {"s": "splits", "n": "stages", "m": "mode", "v": "variant", "c": "cluster",
+            "p": "pw"}
     fns = {}
     for spec in _WSB_VARIANTS:
         name, _, args = spec.partition("@")
@@ -2575,11 +2628,12 @@ def _ws_bench():
                 row.append(f"{name}=FAIL({type(exc).__name__}: {str(exc)[:200]})")
         print(f"BENCH b={batch:2d} {layer:7s} L={q_len} " + " ".join(row), flush=True)
         if q_len == 8 and _WS is not None:
-            try:
-                print(f"STAMPS b={batch:2d} {layer:7s} L={q_len} " + _ws_stamps(data, None),
-                      flush=True)
-            except Exception as exc:
-                print(f"STAMPS failed: {type(exc).__name__}: {exc}", flush=True)
+            for pw in (4, 8):
+                try:
+                    print(f"STAMPS b={batch:2d} {layer:7s} L={q_len} "
+                          + _ws_stamps(data, None, pw), flush=True)
+                except Exception as exc:
+                    print(f"STAMPS failed: {type(exc).__name__}: {exc}", flush=True)
         del data
         torch.cuda.empty_cache()
 

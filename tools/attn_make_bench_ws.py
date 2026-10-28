@@ -14,7 +14,7 @@ helpers from tools/attn_make_bench.py, and a sweep run at import with three part
 
     python3 tools/attn_make_bench_ws.py VARIANT [VARIANT ...]
 
-VARIANT is name@s=SPLITS,n=STAGES,m=MODE,v=VARIANT,c=CLUSTER (all optional).
+VARIANT is name@s=SPLITS,n=STAGES,m=MODE,p=LOADER_WARPS,v=VARIANT,c=CLUSTER (all optional).
 """
 
 import sys
@@ -99,7 +99,7 @@ __global__ void __launch_bounds__(256) gather_kernel(const int* __restrict__ pt,
 // the row load, at a hashed row.
 template <int ROW_ONLY>
 __global__ void chase_kernel(const int* __restrict__ pt, const uint32_t* kc, int rows, int n,
-                             long long* out) {
+                             int64_t* out) {
     uint32_t x = 0;
     int pos = 0;
     const long long t0 = clock64();
@@ -120,24 +120,47 @@ __global__ void chase_kernel(const int* __restrict__ pt, const uint32_t* kc, int
 
 }  // namespace
 
+template <int R, int UU, bool P>
+void run_gather(torch::Tensor& pt, torch::Tensor& seq_lens, torch::Tensor& kc, torch::Tensor& vc,
+                int splits, torch::Tensor& out) {
+    const int batch = seq_lens.size(0);
+    dim3 grid(splits, batch, R == 64 ? 2 : 1);
+    gather_kernel<R, UU, P><<<grid, 256, 0, at::cuda::getCurrentCUDAStream()>>>(
+        pt.data_ptr<int>(), static_cast<int>(pt.size(1)), seq_lens.data_ptr<int>(),
+        reinterpret_cast<const uint4*>(kc.data_ptr()), reinterpret_cast<const uint4*>(vc.data_ptr()),
+        splits, reinterpret_cast<unsigned*>(out.data_ptr<int>()));
+}
+
+template <int R, bool P>
+void gather_u(torch::Tensor& pt, torch::Tensor& seq_lens, torch::Tensor& kc, torch::Tensor& vc,
+              int64_t u, int splits, torch::Tensor& out) {
+    if (u == 1) {
+        run_gather<R, 1, P>(pt, seq_lens, kc, vc, splits, out);
+    } else if (u == 2) {
+        run_gather<R, 2, P>(pt, seq_lens, kc, vc, splits, out);
+    } else if (u == 4) {
+        run_gather<R, 4, P>(pt, seq_lens, kc, vc, splits, out);
+    } else {
+        run_gather<R, 8, P>(pt, seq_lens, kc, vc, splits, out);
+    }
+}
+
 void gather(torch::Tensor pt, torch::Tensor seq_lens, torch::Tensor kc, torch::Tensor vc,
             int64_t rowb, int64_t u, bool pref, int64_t splits, torch::Tensor out) {
-    const int batch = seq_lens.size(0);
-    auto stream = at::cuda::getCurrentCUDAStream();
-    dim3 grid(splits, batch, rowb == 64 ? 2 : 1);
-    auto args = [&](auto kern) {
-        kern<<<grid, 256, 0, stream>>>(pt.data_ptr<int>(), pt.size(1), seq_lens.data_ptr<int>(),
-                                       reinterpret_cast<const uint4*>(kc.data_ptr()),
-                                       reinterpret_cast<const uint4*>(vc.data_ptr()), splits,
-                                       reinterpret_cast<unsigned*>(out.data_ptr<int>()));
-    };
-#define G(R, UU, P) if (rowb == R && u == UU && pref == P) { args(gather_kernel<R, UU, P>); return; }
-    G(128, 1, false) G(128, 2, false) G(128, 4, false) G(128, 8, false)
-    G(128, 1, true) G(128, 2, true) G(128, 4, true) G(128, 8, true)
-    G(64, 1, false) G(64, 2, false) G(64, 4, false) G(64, 8, false)
-    G(64, 1, true) G(64, 2, true) G(64, 4, true) G(64, 8, true)
-#undef G
-    TORCH_CHECK(false, "no gather config");
+    const int sp = static_cast<int>(splits);
+    if (rowb == 128) {
+        if (pref) {
+            gather_u<128, true>(pt, seq_lens, kc, vc, u, sp, out);
+        } else {
+            gather_u<128, false>(pt, seq_lens, kc, vc, u, sp, out);
+        }
+    } else {
+        if (pref) {
+            gather_u<64, true>(pt, seq_lens, kc, vc, u, sp, out);
+        } else {
+            gather_u<64, false>(pt, seq_lens, kc, vc, u, sp, out);
+        }
+    }
 }
 
 void chase(torch::Tensor pt, torch::Tensor kc, int64_t rows, int64_t n, bool row_only,
@@ -235,9 +258,9 @@ _WS_PHASES = ["wait-data", "qk-issue", "v-convert", "wg-barrier", "qk-wait+softm
 _WS_LOADER = ["wait-free-stage", "cp.async-issue", "page-entries", "drain"]
 
 
-def _ws_stamps(data, cfg_splits):
+def _ws_stamps(data, cfg_splits, pw=4):
     dbg = torch.zeros(17, dtype=torch.int64, device="cuda")
-    _ws(data, splits=cfg_splits, mode=2, dbg=dbg)
+    _ws(data, splits=cfg_splits, mode=2, pw=pw, dbg=dbg)
     torch.cuda.synchronize()
     t = dbg.tolist()
     cfg = data["config"]
@@ -247,9 +270,11 @@ def _ws_stamps(data, cfg_splits):
     tiles = sum((s - a + 63) // 64 for s, a in zip(seq, start)) + cfg["batch"] * 0
     ctas = splits * cfg["batch"]
     math = " ".join(f"{{n}}={{t[1 + k] / 8 / max(tiles, 1):.0f}}" for k, n in enumerate(_WS_PHASES))
-    load = " ".join(f"{{n}}={{t[9 + k] / max(tiles, 1):.0f}}" for k, n in enumerate(_WS_LOADER))
-    return (f"timeout_flags={{t[0]}} tiles={{tiles}} ctas={{ctas}} cycles per tile per math warp: "
-            f"{{math}} | loader warp per tile: {{load}}")
+    nload = max(t[16], 1)
+    load = " ".join(f"{{n}}={{t[9 + k] / nload / max(tiles, 1):.0f}}"
+                    for k, n in enumerate(_WS_LOADER))
+    return (f"pw={{t[16]}} timeout_flags={{t[0]}} tiles={{tiles}} ctas={{ctas}} cycles per tile per "
+            f"math warp: {{math}} | per loader warp per tile: {{load}}")
 
 
 def _ws_bench():
@@ -257,9 +282,13 @@ def _ws_bench():
     try:
         _gather_bench(flush)
     except Exception as exc:
-        print(f"GATHER failed: {{type(exc).__name__}}: {{str(exc)[:400]}}", flush=True)
+        msg = str(exc)
+        errs = [ln for ln in msg.splitlines() if "error" in ln.lower()]
+        print(f"GATHER failed: {{type(exc).__name__}}: {{msg[:300]}} ... "
+              f"{{' | '.join(errs)[:3000]}}", flush=True)
     import functools
-    keys = {{"s": "splits", "n": "stages", "m": "mode", "v": "variant", "c": "cluster"}}
+    keys = {{"s": "splits", "n": "stages", "m": "mode", "v": "variant", "c": "cluster",
+            "p": "pw"}}
     fns = {{}}
     for spec in _WSB_VARIANTS:
         name, _, args = spec.partition("@")
@@ -291,11 +320,12 @@ def _ws_bench():
                 row.append(f"{{name}}=FAIL({{type(exc).__name__}}: {{str(exc)[:200]}})")
         print(f"BENCH b={{batch:2d}} {{layer:7s}} L={{q_len}} " + " ".join(row), flush=True)
         if q_len == 8 and _WS is not None:
-            try:
-                print(f"STAMPS b={{batch:2d}} {{layer:7s}} L={{q_len}} " + _ws_stamps(data, None),
-                      flush=True)
-            except Exception as exc:
-                print(f"STAMPS failed: {{type(exc).__name__}}: {{exc}}", flush=True)
+            for pw in (4, 8):
+                try:
+                    print(f"STAMPS b={{batch:2d}} {{layer:7s}} L={{q_len}} "
+                          + _ws_stamps(data, None, pw), flush=True)
+                except Exception as exc:
+                    print(f"STAMPS failed: {{type(exc).__name__}}: {{exc}}", flush=True)
         del data
         torch.cuda.empty_cache()
 
