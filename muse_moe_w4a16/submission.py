@@ -470,7 +470,7 @@ def _w4_policy(num_tokens, state):
 def _w4_fits(cfg, num_tokens):
     """A work item holds at most 8 * nt routes of one expert, and an expert gets at most
     num_tokens routes, so shared memory must hold min(8 * nt, num_tokens) rows."""
-    _, nt, rows, _, _, _, _, _ = W4_CONFIGS[cfg]
+    _, nt, rows, _, _, _, _, _, _ = W4_CONFIGS[cfg]
     return rows >= min(8 * nt, num_tokens)
 
 
@@ -493,27 +493,27 @@ def _ext():
 
 
 # W4A16 grouped GEMM for the routed experts (see _W4_SRC). A config is
-# (kind, nt, rows, s, w, d, mode, layout): kind 1 is x @ W13^T with SwiGLU, kind 2 is
+# (kind, nt, rows, s, w, d, mode, layout, p): kind 1 is x @ W13^T with SwiGLU, kind 2 is
 # inter @ W2^T; nt n8 token tiles per work item; rows of x kept in shared memory
 # (min(8 nt, bs)); s K splits; w warps per block; d register stages of weights in flight per
-# warp; mode 0 is the GEMM and 1 and 2 are timing-only variants (see w4_gemm_kernel); layout 0
-# or 1 as in w4_gemm_kernel. Checks 42924d2c6e314921 and 05924173c44046e9 pruned the losers
-# (no K split, 2 warps per block, 2 stages in flight, 32 rows).
+# warp; mode, layout and p as in w4_gemm_kernel (mode 0 is the GEMM, the others time only).
+# Checks 42924d2c6e314921, 05924173c44046e9 and 0f478ae5371a4b75 pruned the losers (no K split
+# without persistence, 2 warps per block, 2 stages in flight, 32 rows, most of layout 1).
 W4_CONFIGS = [
-    (1, 1, 1, 4, 4, 4, 0, 0), (1, 1, 8, 2, 4, 4, 0, 0), (1, 1, 8, 4, 4, 4, 0, 0),
-    (1, 1, 8, 2, 4, 8, 0, 0), (1, 1, 8, 2, 8, 4, 0, 0), (1, 2, 16, 4, 4, 4, 0, 0),
-    (1, 2, 16, 2, 4, 4, 0, 0), (1, 2, 16, 4, 8, 4, 0, 0),
-    (2, 1, 1, 4, 4, 8, 0, 0), (2, 1, 1, 4, 4, 4, 0, 0), (2, 1, 8, 4, 4, 4, 0, 0),
-    (2, 1, 8, 2, 4, 4, 0, 0), (2, 2, 16, 4, 4, 4, 0, 0), (2, 2, 16, 2, 4, 4, 0, 0),
-    (2, 4, 32, 4, 4, 4, 0, 0),
-    (1, 1, 8, 2, 4, 4, 0, 1), (1, 1, 8, 4, 4, 4, 0, 1), (1, 1, 8, 2, 4, 8, 0, 1),
-    (1, 1, 8, 2, 8, 4, 0, 1), (1, 1, 8, 4, 8, 4, 0, 1), (1, 1, 8, 8, 8, 4, 0, 1),
-    (1, 2, 16, 4, 4, 4, 0, 1), (1, 2, 16, 4, 8, 4, 0, 1), (1, 2, 16, 2, 8, 4, 0, 1),
-    (2, 1, 1, 4, 4, 8, 0, 1), (2, 1, 1, 4, 8, 4, 0, 1), (2, 1, 8, 4, 4, 4, 0, 1),
-    (2, 1, 8, 4, 8, 4, 0, 1), (2, 1, 8, 8, 8, 4, 0, 1), (2, 2, 16, 4, 4, 4, 0, 1),
-    (2, 2, 16, 4, 8, 4, 0, 1),
-    # Timing only: weight and activation loads without dequant or mma, in both layouts.
-    (1, 1, 8, 4, 4, 4, 1, 0), (1, 1, 8, 4, 4, 4, 1, 1), (1, 1, 8, 4, 8, 4, 1, 1),
+    (1, 1, 1, 4, 4, 4, 0, 0, 0), (1, 1, 8, 2, 4, 4, 0, 0, 0), (1, 1, 8, 4, 4, 4, 0, 0, 0),
+    (1, 1, 8, 2, 4, 8, 0, 0, 0), (1, 1, 8, 2, 8, 4, 0, 0, 0), (1, 2, 16, 4, 4, 4, 0, 0, 0),
+    (1, 2, 16, 2, 4, 4, 0, 0, 0), (1, 2, 16, 4, 8, 4, 0, 0, 0), (1, 2, 16, 4, 8, 4, 0, 1, 0),
+    (2, 1, 1, 4, 4, 8, 0, 0, 0), (2, 1, 1, 4, 4, 4, 0, 0, 0), (2, 1, 8, 4, 4, 4, 0, 0, 0),
+    (2, 1, 8, 2, 4, 4, 0, 0, 0), (2, 2, 16, 4, 4, 4, 0, 0, 0), (2, 2, 16, 2, 4, 4, 0, 0, 0),
+    (1, 1, 1, 1, 4, 4, 0, 0, 1), (1, 1, 1, 2, 4, 4, 0, 0, 1), (1, 1, 8, 1, 8, 4, 0, 0, 1),
+    (1, 1, 8, 2, 4, 4, 0, 0, 1), (1, 1, 8, 4, 4, 4, 0, 0, 1), (1, 1, 8, 2, 8, 4, 0, 0, 1),
+    (1, 1, 8, 4, 8, 4, 0, 0, 1), (1, 2, 16, 2, 4, 4, 0, 0, 1), (1, 2, 16, 4, 4, 4, 0, 0, 1),
+    (1, 2, 16, 2, 8, 4, 0, 0, 1),
+    (2, 1, 1, 2, 4, 4, 0, 0, 1), (2, 1, 1, 4, 4, 4, 0, 0, 1), (2, 1, 8, 1, 4, 4, 0, 0, 1),
+    (2, 1, 8, 2, 4, 4, 0, 0, 1), (2, 1, 8, 4, 4, 4, 0, 0, 1), (2, 1, 8, 2, 8, 4, 0, 0, 1),
+    (2, 2, 16, 2, 4, 4, 0, 0, 1), (2, 2, 16, 4, 4, 4, 0, 0, 1),
+    # Timing only: weight and activation loads without dequant or mma.
+    (1, 1, 8, 4, 4, 4, 1, 0, 0), (1, 1, 8, 4, 4, 4, 1, 0, 1),
 ]
 
 _W4_CPP_SRC = r"""
@@ -599,16 +599,19 @@ __device__ __forceinline__ unsigned word(const uint4& v, int i) {
     return i == 0 ? v.x : i == 1 ? v.y : i == 2 ? v.z : v.w;
 }
 
-// Grid (units / W, max items, S). A unit is 32 weight rows: for KIND 1, 16 gate rows and the
+// A unit is 32 weight rows of one expert over one K split: for KIND 1, 16 gate rows and the
 // 16 up rows of the same intermediate features, so the SwiGLU pairs sit in one thread's
-// accumulators; for KIND 2, 32 output rows. Each warp owns one unit and streams its weights
-// straight into registers (each lane reads only its own fragments) D stages of 64 k ahead;
-// the item's activation rows for this K split sit in shared memory and feed mma as B.
+// accumulators; for KIND 2, 32 output rows. Each warp owns one unit at a time and streams its
+// weights straight into registers (each lane reads only its own fragments) D stages of 64 k
+// ahead; the item's activation rows for the K split sit in shared memory and feed mma as B.
+// P 0: grid (units / W, max items, S), one unit per warp. P 1: a persistent grid that walks
+// (item, chunk, split) units; the next unit's activations are staged into the other buffer
+// during this one, and its first D weight stages are loaded during this unit's last D.
 // MODE 0 is the GEMM. MODE 1 (timing only) streams the same weights and activations but
 // skips dequant and mma; MODE 2 (timing only) runs mma on the raw words without dequant.
 // LAYOUT 0 stores each unit's 64 k stages contiguously; LAYOUT 1 interleaves 8 neighbouring
 // units stage by stage, so the warps of a block read one contiguous stretch per stage.
-template <int KIND, int NT, int ROWS, int S, int W, int D, int MODE, int LAYOUT>
+template <int KIND, int NT, int ROWS, int S, int W, int D, int MODE, int LAYOUT, int P>
 __global__ void __launch_bounds__(W * 32) w4_gemm_kernel(
         const __nv_bfloat16* __restrict__ act, const uint4* __restrict__ wq,
         const uint4* __restrict__ wsc, const float* __restrict__ gs,
@@ -619,34 +622,76 @@ __global__ void __launch_bounds__(W * 32) w4_gemm_kernel(
     constexpr int U = KIND == 1 ? 256 : 128;
     constexpr int RS = KC + 8;
     constexpr int TR = 8 * NT;
-    extern __shared__ __align__(16) unsigned char smem_raw[];
-    __nv_bfloat16* xs = reinterpret_cast<__nv_bfloat16*>(smem_raw);
-    __shared__ int rid[TR];
-
-    // With programmatic dependent launch this block may start before the previous kernel
-    // ends; everything below reads its outputs.
-    asm volatile("griddepcontrol.wait;" ::: "memory");
-    asm volatile("griddepcontrol.launch_dependents;");
-    const int item = blockIdx.y;
-    if (item >= num_items[0]) {
-        return;
-    }
-    const int2 it = items[item];
-    const int e = it.x >> 16;
-    const int nrows = it.x & 0xffff;
-    const int row0 = it.y;
-    const int z = blockIdx.z;
-    const int warp = threadIdx.x >> 5;
-    const int lane = threadIdx.x & 31;
-    const int u = blockIdx.x * W + warp;
-
+    constexpr int PER_ITEM = U / W * S;
     constexpr int WSTR = LAYOUT ? 8 * 64 : 64;
     constexpr int SSTR = LAYOUT ? 8 * 8 : 8;
-    const size_t stage0 = LAYOUT
-        ? (static_cast<size_t>(e * (U / 8) + u / 8) * 64 + z * NST) * 8 + (u & 7)
-        : static_cast<size_t>(e * U + u) * 64 + z * NST;
-    const uint4* wp = wq + stage0 * 64 + lane;
-    const uint4* sp = wsc + stage0 * 8 + (lane >> 2);
+    static_assert(!P || NST % D == 0, "cross-unit prefetch needs whole groups of D stages");
+    extern __shared__ __align__(16) unsigned char smem_raw[];
+    __shared__ int rid[2][TR];
+
+    const int warp = threadIdx.x >> 5;
+    const int lane = threadIdx.x & 31;
+
+    // GEMM1 needs route_align's items before it can address any weights. GEMM2's items come
+    // from route_align too, which finished before GEMM1 passed its own wait, so GEMM2 starts
+    // its weight stream first and waits only before reading GEMM1's output.
+    if (KIND == 1) {
+        asm volatile("griddepcontrol.wait;" ::: "memory");
+        asm volatile("griddepcontrol.launch_dependents;");
+    }
+    const int total = P ? num_items[0] * PER_ITEM : num_items[0];
+    int q = P ? blockIdx.x : blockIdx.y;
+    if (q >= total) {
+        return;
+    }
+
+    int e, nrows, row0, u, z;
+    auto decode = [&](int unit, int& e_, int& nrows_, int& row0_, int& u_, int& z_) {
+        int item = blockIdx.y;
+        int chunk = blockIdx.x;
+        z_ = blockIdx.z;
+        if (P) {
+            item = unit / PER_ITEM;
+            const int r = unit - item * PER_ITEM;
+            chunk = r / S;
+            z_ = r - chunk * S;
+        }
+        const int2 it = items[item];
+        e_ = it.x >> 16;
+        nrows_ = it.x & 0xffff;
+        row0_ = it.y;
+        u_ = chunk * W + warp;
+    };
+    auto weights_at = [&](int e_, int u_, int z_, const uint4*& wp_, const uint4*& sp_) {
+        const size_t stage0 = LAYOUT
+            ? (static_cast<size_t>(e_ * (U / 8) + u_ / 8) * 64 + z_ * NST) * 8 + (u_ & 7)
+            : static_cast<size_t>(e_ * U + u_) * 64 + z_ * NST;
+        wp_ = wq + stage0 * 64 + lane;
+        sp_ = wsc + stage0 * 8 + (lane >> 2);
+    };
+    auto stage_x = [&](int buf, int nrows_, int row0_, int z_) {
+        __nv_bfloat16* xs = reinterpret_cast<__nv_bfloat16*>(smem_raw) + buf * ROWS * RS;
+        for (int r = threadIdx.x; r < TR; r += W * 32) {
+            rid[buf][r] = r < nrows_ ? sorted_ids[row0_ + r] : -1;
+        }
+        constexpr int CH = KC / 8;
+        for (int i = threadIdx.x; i < ROWS * CH; i += W * 32) {
+            const int r = i / CH;
+            const int c = i - r * CH;
+            if (r < nrows_) {
+                const int p = sorted_ids[row0_ + r];
+                const int src_row = KIND == 1 ? p / 8 : p;
+                cp_async16(xs + r * RS + c * 8,
+                           act + static_cast<size_t>(src_row) * kK + z_ * KC + c * 8);
+            }
+        }
+        asm volatile("cp.async.commit_group;" ::: "memory");
+    };
+
+    decode(q, e, nrows, row0, u, z);
+    const uint4* wp;
+    const uint4* sp;
+    weights_at(e, u, z, wp, sp);
     uint4 wv[D][2];
     uint4 sv[D];
 #pragma unroll
@@ -657,127 +702,149 @@ __global__ void __launch_bounds__(W * 32) w4_gemm_kernel(
             sv[d] = ld_stream(sp + d * SSTR);
         }
     }
-
-    for (int r = threadIdx.x; r < TR; r += W * 32) {
-        rid[r] = r < nrows ? sorted_ids[row0 + r] : -1;
+    if (KIND == 2) {
+        asm volatile("griddepcontrol.wait;" ::: "memory");
+        asm volatile("griddepcontrol.launch_dependents;");
     }
-    __syncthreads();
-    constexpr int CH = KC / 8;
-    for (int i = threadIdx.x; i < ROWS * CH; i += W * 32) {
-        const int r = i / CH;
-        const int c = i - r * CH;
-        if (r < nrows) {
-            const int p = rid[r];
-            const int src_row = KIND == 1 ? p / 8 : p;
-            cp_async16(xs + r * RS + c * 8,
-                       act + static_cast<size_t>(src_row) * kK + z * KC + c * 8);
+    stage_x(0, nrows, row0, z);
+
+    const int g = lane >> 2;
+    const int t4 = lane & 3;
+    int buf = 0;
+#pragma unroll 1
+    for (;;) {
+        asm volatile("cp.async.wait_all;" ::: "memory");
+        __syncthreads();
+        const int qn = q + gridDim.x;
+        const bool has_next = P && qn < total;
+        int en = 0, nrowsn = 0, row0n = 0, un = 0, zn = 0;
+        const uint4* wpn = wp;
+        const uint4* spn = sp;
+        if (has_next) {
+            decode(qn, en, nrowsn, row0n, un, zn);
+            weights_at(en, un, zn, wpn, spn);
+            stage_x(buf ^ 1, nrowsn, row0n, zn);
         }
-    }
-    asm volatile("cp.async.wait_all;" ::: "memory");
-    __syncthreads();
 
-    // ldmatrix row address for this lane: matrix lane / 8 (k offset 8 * that), tile row lane % 8.
-    const __nv_bfloat16* xrow[NT];
+        const __nv_bfloat16* xs = reinterpret_cast<const __nv_bfloat16*>(smem_raw)
+                                  + buf * ROWS * RS;
+        // ldmatrix row address: matrix lane / 8 (k offset 8 * that), tile row lane % 8.
+        const __nv_bfloat16* xrow[NT];
 #pragma unroll
-    for (int nt = 0; nt < NT; ++nt) {
-        const int r = nt * 8 + (lane & 7);
-        xrow[nt] = xs + (r < ROWS ? r : 0) * RS + (lane >> 3) * 8;
-    }
+        for (int nt = 0; nt < NT; ++nt) {
+            const int r = nt * 8 + (lane & 7);
+            xrow[nt] = xs + (r < ROWS ? r : 0) * RS + (lane >> 3) * 8;
+        }
+        float acc[2][NT][4];
+#pragma unroll
+        for (int t = 0; t < 2; ++t) {
+#pragma unroll
+            for (int nt = 0; nt < NT; ++nt) {
+#pragma unroll
+                for (int j = 0; j < 4; ++j) {
+                    acc[t][nt][j] = 0.f;
+                }
+            }
+        }
 
-    float acc[2][NT][4];
+#pragma unroll 1
+        for (int s0 = 0; s0 < NST; s0 += D) {
 #pragma unroll
-    for (int t = 0; t < 2; ++t) {
+            for (int d = 0; d < D; ++d) {
+                const int s = s0 + d;
+                if (s < NST && MODE == 1) {
+                    acc[0][0][0] += __uint_as_float(
+                        (wv[d][0].x ^ wv[d][0].w ^ wv[d][1].x ^ wv[d][1].w ^ sv[d].x)
+                        & 0x3f800000u);
+                } else if (s < NST) {
+#pragma unroll
+                    for (int h = 0; h < 2; ++h) {
+                        unsigned b[NT][4];
+#pragma unroll
+                        for (int nt = 0; nt < NT; ++nt) {
+                            ldmatrix_x4(b[nt], xrow[nt] + s * 64 + h * 32);
+                        }
+#pragma unroll
+                        for (int j1 = 0; j1 < 2; ++j1) {
+                            const unsigned sw = word(sv[d], h * 2 + j1);
+                            unsigned a0[4];
+                            unsigned a1[4];
+                            if (MODE == 2) {
+                                const unsigned r0 = word(wv[d][h], j1 * 2);
+                                const unsigned r1 = word(wv[d][h], j1 * 2 + 1);
+                                a0[0] = r0; a0[1] = r0 ^ sw; a0[2] = r0 >> 1; a0[3] = r0 << 1;
+                                a1[0] = r1; a1[1] = r1 ^ sw; a1[2] = r1 >> 1; a1[3] = r1 << 1;
+                            } else {
+                                dequant<0>(word(wv[d][h], j1 * 2), sw, a0);
+                                dequant<1>(word(wv[d][h], j1 * 2 + 1), sw, a1);
+                            }
+#pragma unroll
+                            for (int nt = 0; nt < NT; ++nt) {
+                                mma_bf16(acc[0][nt], a0, b[nt][j1 * 2], b[nt][j1 * 2 + 1]);
+                                mma_bf16(acc[1][nt], a1, b[nt][j1 * 2], b[nt][j1 * 2 + 1]);
+                            }
+                        }
+                    }
+                }
+                if (s < NST) {
+                    if (s + D < NST) {
+                        wv[d][0] = ld_stream(wp + (s + D) * WSTR);
+                        wv[d][1] = ld_stream(wp + (s + D) * WSTR + 32);
+                        sv[d] = ld_stream(sp + (s + D) * SSTR);
+                    } else if (has_next) {
+                        wv[d][0] = ld_stream(wpn + (s + D - NST) * WSTR);
+                        wv[d][1] = ld_stream(wpn + (s + D - NST) * WSTR + 32);
+                        sv[d] = ld_stream(spn + (s + D - NST) * SSTR);
+                    }
+                }
+            }
+        }
+
+        const float gscale = gs[e] * 128.f;
 #pragma unroll
         for (int nt = 0; nt < NT; ++nt) {
 #pragma unroll
-            for (int j = 0; j < 4; ++j) {
-                acc[t][nt][j] = 0.f;
-            }
-        }
-    }
-
-#pragma unroll 1
-    for (int s0 = 0; s0 < NST; s0 += D) {
+            for (int qq = 0; qq < 2; ++qq) {
+                const int col = nt * 8 + t4 * 2 + qq;
+                const int p = rid[buf][col];
+                if (p < 0) {
+                    continue;
+                }
 #pragma unroll
-        for (int d = 0; d < D; ++d) {
-            const int s = s0 + d;
-            if (s < NST && MODE == 1) {
-                acc[0][0][0] += __uint_as_float(
-                    (wv[d][0].x ^ wv[d][0].w ^ wv[d][1].x ^ wv[d][1].w ^ sv[d].x) & 0x3f800000u);
-            } else if (s < NST) {
-#pragma unroll
-                for (int h = 0; h < 2; ++h) {
-                    unsigned b[NT][4];
-#pragma unroll
-                    for (int nt = 0; nt < NT; ++nt) {
-                        ldmatrix_x4(b[nt], xrow[nt] + s * 64 + h * 32);
-                    }
-#pragma unroll
-                    for (int j1 = 0; j1 < 2; ++j1) {
-                        const unsigned sw = word(sv[d], h * 2 + j1);
-                        unsigned a0[4];
-                        unsigned a1[4];
-                        if (MODE == 2) {
-                            const unsigned r0 = word(wv[d][h], j1 * 2);
-                            const unsigned r1 = word(wv[d][h], j1 * 2 + 1);
-                            a0[0] = r0; a0[1] = r0 ^ sw; a0[2] = r0 >> 1; a0[3] = r0 << 1;
-                            a1[0] = r1; a1[1] = r1 ^ sw; a1[2] = r1 >> 1; a1[3] = r1 << 1;
-                        } else {
-                            dequant<0>(word(wv[d][h], j1 * 2), sw, a0);
-                            dequant<1>(word(wv[d][h], j1 * 2 + 1), sw, a1);
-                        }
-#pragma unroll
-                        for (int nt = 0; nt < NT; ++nt) {
-                            mma_bf16(acc[0][nt], a0, b[nt][j1 * 2], b[nt][j1 * 2 + 1]);
-                            mma_bf16(acc[1][nt], a1, b[nt][j1 * 2], b[nt][j1 * 2 + 1]);
-                        }
+                for (int hh = 0; hh < 2; ++hh) {
+                    const float v0 = acc[0][nt][hh * 2 + qq] * gscale;
+                    const float v1 = acc[1][nt][hh * 2 + qq] * gscale;
+                    if (KIND == 1 && S == 1) {
+                        const float sv0 = v0 / (1.f + __expf(-v0));
+                        reinterpret_cast<__nv_bfloat16*>(out)[static_cast<size_t>(p) * kInter
+                                                              + u * 16 + hh * 8 + g] =
+                            __float2bfloat16_rn(sv0 * v1);
+                    } else if (KIND == 1) {
+                        float* o = reinterpret_cast<float*>(out)
+                                   + (static_cast<size_t>(z) * numel + p) * (2 * kInter);
+                        o[u * 16 + hh * 8 + g] = v0;
+                        o[kInter + u * 16 + hh * 8 + g] = v1;
+                    } else {
+                        float* o = reinterpret_cast<float*>(out)
+                                   + (static_cast<size_t>(z) * numel + p) * kK;
+                        o[u * 32 + hh * 8 + g] = v0;
+                        o[u * 32 + 16 + hh * 8 + g] = v1;
                     }
                 }
             }
-            if (s < NST) {
-                if (s + D < NST) {
-                    wv[d][0] = ld_stream(wp + (s + D) * WSTR);
-                    wv[d][1] = ld_stream(wp + (s + D) * WSTR + 32);
-                    sv[d] = ld_stream(sp + (s + D) * SSTR);
-                }
-            }
         }
-    }
-
-    const float gscale = gs[e] * 128.f;
-    const int g = lane >> 2;
-    const int t4 = lane & 3;
-#pragma unroll
-    for (int nt = 0; nt < NT; ++nt) {
-#pragma unroll
-        for (int q = 0; q < 2; ++q) {
-            const int col = nt * 8 + t4 * 2 + q;
-            const int p = rid[col];
-            if (p < 0) {
-                continue;
-            }
-#pragma unroll
-            for (int hh = 0; hh < 2; ++hh) {
-                const float v0 = acc[0][nt][hh * 2 + q] * gscale;
-                const float v1 = acc[1][nt][hh * 2 + q] * gscale;
-                if (KIND == 1 && S == 1) {
-                    const float sv0 = v0 / (1.f + __expf(-v0));
-                    reinterpret_cast<__nv_bfloat16*>(out)[static_cast<size_t>(p) * kInter
-                                                          + u * 16 + hh * 8 + g] =
-                        __float2bfloat16_rn(sv0 * v1);
-                } else if (KIND == 1) {
-                    float* o = reinterpret_cast<float*>(out)
-                               + (static_cast<size_t>(z) * numel + p) * (2 * kInter);
-                    o[u * 16 + hh * 8 + g] = v0;
-                    o[kInter + u * 16 + hh * 8 + g] = v1;
-                } else {
-                    float* o = reinterpret_cast<float*>(out)
-                               + (static_cast<size_t>(z) * numel + p) * kK;
-                    o[u * 32 + hh * 8 + g] = v0;
-                    o[u * 32 + 16 + hh * 8 + g] = v1;
-                }
-            }
+        if (!has_next) {
+            break;
         }
+        q = qn;
+        e = en;
+        nrows = nrowsn;
+        row0 = row0n;
+        u = un;
+        z = zn;
+        wp = wpn;
+        sp = spn;
+        buf ^= 1;
     }
 }
 
@@ -787,8 +854,8 @@ __global__ void __launch_bounds__(512) w4_finalize_kernel(
         const float* __restrict__ part, int splits, int numel, const float* __restrict__ scores,
         const __nv_bfloat16* __restrict__ norm_w, const int* __restrict__ local_ids,
         __nv_bfloat16* __restrict__ out, float eps) {
-    asm volatile("griddepcontrol.wait;" ::: "memory");
     asm volatile("griddepcontrol.launch_dependents;");
+    asm volatile("griddepcontrol.wait;" ::: "memory");
     constexpr int kTopK = 8;
     constexpr int WARPS = 16;
     __shared__ float red[kTopK][WARPS];
@@ -890,8 +957,10 @@ __global__ void __launch_bounds__(512) w4_finalize_kernel(
 __global__ void __launch_bounds__(512) w4_swiglu_kernel(
         const float* __restrict__ part, const int* __restrict__ local_ids, int numel,
         int splits, __nv_bfloat16* __restrict__ out) {
-    asm volatile("griddepcontrol.wait;" ::: "memory");
+    // GEMM2 may start streaming its weights while this kernel runs; it waits for this
+    // kernel's output itself.
     asm volatile("griddepcontrol.launch_dependents;");
+    asm volatile("griddepcontrol.wait;" ::: "memory");
     const int p = blockIdx.x;
     if (local_ids[p] < 0) {
         return;
@@ -942,28 +1011,33 @@ void launch_pdl(Kern kern, dim3 grid, int threads, int smem, bool pdl, cudaStrea
     C10_CUDA_CHECK(cudaLaunchKernelEx(&cfg, kern, args...));
 }
 
-template <int KIND, int NT, int ROWS, int S, int W, int D, int MODE, int LAYOUT>
+template <int KIND, int NT, int ROWS, int S, int W, int D, int MODE, int LAYOUT, int P>
 void w4_launch(const __nv_bfloat16* act, const uint4* wq, const uint4* wsc, const float* gs,
                const int* sorted_ids, const int2* items, const int* num_items, int max_items,
                int numel, void* out, bool pdl, cudaStream_t stream) {
     constexpr int U = KIND == 1 ? 256 : 128;
-    constexpr int smem = ROWS * (kK / S + 8) * 2;
-    auto kern = w4_gemm_kernel<KIND, NT, ROWS, S, W, D, MODE, LAYOUT>;
-    static bool attr = false;
-    if (!attr) {
+    constexpr int smem = (P ? 2 : 1) * ROWS * (kK / S + 8) * 2;
+    auto kern = w4_gemm_kernel<KIND, NT, ROWS, S, W, D, MODE, LAYOUT, P>;
+    static int grid = 0;
+    if (grid == 0) {
         C10_CUDA_CHECK(cudaFuncSetAttribute(
             kern, cudaFuncAttributeMaxDynamicSharedMemorySize, smem));
-        attr = true;
+        int blocks = 0;
+        C10_CUDA_CHECK(cudaOccupancyMaxActiveBlocksPerMultiprocessor(&blocks, kern, W * 32, smem));
+        int sms = 0;
+        C10_CUDA_CHECK(cudaDeviceGetAttribute(&sms, cudaDevAttrMultiProcessorCount, 0));
+        grid = blocks * sms;
     }
-    launch_pdl(kern, dim3(U / W, max_items, S), W * 32, smem, pdl, stream, act, wq, wsc, gs,
-               sorted_ids, items, num_items, numel, out);
+    const dim3 g = P ? dim3(grid) : dim3(U / W, max_items, S);
+    launch_pdl(kern, g, W * 32, smem, pdl, stream, act, wq, wsc, gs, sorted_ids, items,
+               num_items, numel, out);
 }
 
 // Registers per thread, dynamic shared memory per block, and resident blocks per SM.
-template <int KIND, int NT, int ROWS, int S, int W, int D, int MODE, int LAYOUT>
+template <int KIND, int NT, int ROWS, int S, int W, int D, int MODE, int LAYOUT, int P>
 std::vector<int64_t> w4_query() {
-    constexpr int smem = ROWS * (kK / S + 8) * 2;
-    auto kern = w4_gemm_kernel<KIND, NT, ROWS, S, W, D, MODE, LAYOUT>;
+    constexpr int smem = (P ? 2 : 1) * ROWS * (kK / S + 8) * 2;
+    auto kern = w4_gemm_kernel<KIND, NT, ROWS, S, W, D, MODE, LAYOUT, P>;
     C10_CUDA_CHECK(cudaFuncSetAttribute(
         kern, cudaFuncAttributeMaxDynamicSharedMemorySize, smem));
     cudaFuncAttributes attr;
@@ -1369,6 +1443,7 @@ def _w4_tune(state, seeds=(11, 12)):
     ws = state["workspace"]
     w4 = state["w4"]
     policy = {}
+    bad = set()
     for bs in TUNE_BS:
         tot = [{}, {}, {}, {}]
         for seed in seeds:
@@ -1407,28 +1482,48 @@ def _w4_tune(state, seeds=(11, 12)):
 
             tot[0][None] = tot[0].get(None, 0.0) + _graph_time(marlin1, flush)
             tot[1][None] = tot[1].get(None, 0.0) + _graph_time(marlin2, flush)
+            marlin1()
+            ref1 = inter.clone()
+            marlin2()
+            ref2 = cache3.clone()
+            live = local_ids.view(-1) >= 0
             for i, cfg in enumerate(W4_CONFIGS):
-                if not _w4_fits(i, bs):
+                if not _w4_fits(i, bs) or i in bad:
                     continue
                 sids, _, _, lids, items, nitems = _ext().route_align(
                     topk_ids, 0, 32, bsm, max_padded, 8 * cfg[1], 0)[:6]
+                res = {}
                 if cfg[0] == 1:
-                    out = torch.empty((numel, 4096), device="cuda", dtype=torch.bfloat16)
+                    out = torch.zeros((numel, 4096), device="cuda", dtype=torch.bfloat16)
 
                     def run():
                         _w4_gemm1(w4, i, x, sids, items, nitems, lids, numel, out)
+                        res["out"] = out
                 else:
                     def run():
                         part = _w4_gemm2(w4, i, inter, sids, items, nitems, numel)
+                        res["part"] = part
                         _w4_ext().w4_finalize(part, tw, state["norm_w"], lids.view(-1),
                                               POST_NORM_EPS, False)
                 k = cfg[0] - 1 + (2 if cfg[6] else 0)
                 tot[k][i] = tot[k].get(i, 0.0) + _graph_time(run, flush)
+                if cfg[6]:
+                    continue
+                run()
+                ref = ref1 if cfg[0] == 1 else ref2
+                got = res["out"] if cfg[0] == 1 else res["part"].sum(0)
+                err = _rel(got[live], ref[live])
+                if not err < 2e-2:
+                    print(f"TUNE bad cfg {i} {cfg} bs={bs} seed={seed}: rel diff {err:.2e}")
+                    bad.add(i)
         n = len(seeds)
         for k in range(4):
             line = " ".join(f"{'m' if c is None else c}:{t / n:.1f}"
                             for c, t in sorted(tot[k].items(), key=lambda kv: kv[1]))
             print(f"TUNE {'diag ' if k >= 2 else ''}g{k % 2 + 1} bs={bs} {line}")
+        for k in range(2):
+            for i in bad:
+                tot[k].pop(i, None)
         g1, g2 = (min(tot[k], key=tot[k].get) for k in range(2))
         # Programmatic dependent launch on or off, on the whole forward.
         st = dict(state, w4_ok=True)
