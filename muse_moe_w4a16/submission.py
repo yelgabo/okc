@@ -1,5 +1,5 @@
 # okc: problem=muse_moe_w4a16
-"""SGLang's Marlin NVFP4 expert path with two launches-worth of overhead removed.
+"""SGLang's Marlin NVFP4 expert path with its overheads cut and a better Marlin tile.
 
 - Routing metadata: one CUDA kernel maps topk_ids to local expert ids and builds Marlin's
   block-sorted layout over the 32 local experts only. SGLang gathers through an expert map
@@ -8,8 +8,10 @@
   then scans past.
 - Finalizer: SGLang's fused post-expert norm + weighted sum falls back to about ten
   PyTorch ops below 32 tokens. One CUDA kernel does it in a single pass.
+- Marlin moe_block_size: 8 below 12 tokens, else 16. SGLang's heuristic picks 48 or 64 at
+  128 and 256 tokens, which pads the many lightly loaded experts' blocks.
 
-The Marlin GEMMs and silu_and_mul are SGLang's, called exactly as baseline.py does.
+The Marlin GEMMs and silu_and_mul are SGLang's, called as baseline.py does.
 """
 
 from typing import TypedDict
@@ -407,15 +409,14 @@ torch::Tensor finalize(torch::Tensor y, torch::Tensor scores, torch::Tensor norm
 
 # Choices measured with okc check (see docs/runs-moe.md). align: "ours" or "sgl"; fin: a
 # finalize() variant (0 = one block per token, 2/4/8 = cluster split) or "sgl"; bsm: Marlin
-# moe_block_size, or None for SGLang's heuristic; ep: Marlin's expert-parallel template, which
-# our align does not need since it emits no filtered blocks.
+# moe_block_size, or None for SGLang's heuristic.
 def _opts_for(num_tokens):
     # SGLang's heuristic picks 48 at 128 tokens and 64 at 256; 16 was 25-35% faster there.
     bsm = 8 if num_tokens < 12 else 16
-    return {"align": "ours", "fin": 0, "bsm": bsm, "ep": True}
+    return {"align": "ours", "fin": 0, "bsm": bsm}
 
 
-BASELINE_OPTS = {"align": "sgl", "fin": "sgl", "bsm": None, "ep": True}
+BASELINE_OPTS = {"align": "sgl", "fin": "sgl", "bsm": None}
 
 _EXT = None
 
@@ -523,8 +524,8 @@ def _forward(data, state, opts):
     cache1 = cache13[: numel * gemm1_n].view(-1, gemm1_n)
     cache3 = cache13[: numel * size_k].view(-1, size_k)
     common = dict(moe_block_size=block_size_m, mul_topk_weights=False,
-                  is_ep=expert_map is not None and (opts["ep"] or not ours),
-                  b_q_type=scalar_types.float4_e2m1f, is_k_full=True, use_atomic_add=False, use_fp32_reduce=True, is_zp_float=False)
+                  is_ep=expert_map is not None, b_q_type=scalar_types.float4_e2m1f,
+                  is_k_full=True, use_atomic_add=False, use_fp32_reduce=True, is_zp_float=False)
     ws = state["workspace"]
     cache1 = moe_wna16_marlin_gemm(
         x, cache1, bank["w13"], None, bank["w13_s"], bank["w13_gs"], None, None, None, ws,
@@ -586,86 +587,18 @@ def _self_test(state):
         for dist in ("normal", "skewed"):
             data = _make_inputs(bs, 100 + bs, dist)
             ref = _forward(data, state, BASELINE_OPTS)
-            for opts in [_opts_for(bs), dict(_opts_for(bs), ep=False),
-                         dict(_opts_for(bs), fin=4, bsm=32)]:
-                out = _forward(data, state, opts)
-                if not torch.isfinite(out).all():
-                    print(f"SELFTEST bs={bs} {dist} {opts}: non-finite")
-                    return False
-                worst = max(worst, _rel(out, ref))
+            out = _forward(data, state, _opts_for(bs))
+            if not torch.isfinite(out).all():
+                print(f"SELFTEST bs={bs} {dist}: non-finite")
+                return False
+            worst = max(worst, _rel(out, ref))
     torch.cuda.synchronize()
     print(f"SELFTEST worst rel diff vs sglang path {worst:.2e}")
     return worst < 5e-3
 
 
-def _graph_time(fn, flush, iters=30):
-    stream = torch.cuda.Stream()
-    stream.wait_stream(torch.cuda.current_stream())
-    with torch.cuda.stream(stream):
-        for _ in range(2):
-            fn()
-    torch.cuda.current_stream().wait_stream(stream)
-    graph = torch.cuda.CUDAGraph()
-    with torch.cuda.graph(graph):
-        fn()
-    times = []
-    for _ in range(iters):
-        flush.zero_()
-        start = torch.cuda.Event(enable_timing=True)
-        end = torch.cuda.Event(enable_timing=True)
-        start.record()
-        graph.replay()
-        end.record()
-        times.append((start, end))
-    torch.cuda.synchronize()
-    ms = sorted(s.elapsed_time(e) for s, e in times)
-    return 1000 * ms[len(ms) // 2]
-
-
-def _source_probe():
-    import hashlib
-    import inspect
-
-    import sglang.kernels.ops.muse_spark_v12.fused_post_expert_norm_weighted_sum_triton as fin
-    import sglang.srt.layers.moe.moe_runner.triton_utils.moe_align_block_size as mab
-
-    for mod in (fin, mab):
-        src = inspect.getsource(mod)
-        print(f"SRC {mod.__name__} md5={hashlib.md5(src.encode()).hexdigest()} len={len(src)}")
-        for line in src.splitlines():
-            if "_MIN_TOKENS_FOR_FUSED" in line or "SMALL_NUMEL_LIMIT" in line:
-                print("SRC   " + line.strip())
-    print(f"ENV torch={torch.__version__} gpu={torch.cuda.get_device_name()}")
-
-
-def _bench(state):
-    flush = torch.empty(256 << 20, dtype=torch.uint8, device="cuda")
-    for bs in (1, 8, 16, 32, 128, 256):
-        data = _make_inputs(bs, 7 + bs)
-        cur = _opts_for(bs)
-        line = f"BENCH bs={bs:3d}"
-        for name, opts in [("sgl", BASELINE_OPTS), ("cur", cur), ("noep", dict(cur, ep=False)),
-                           ("sglfin", dict(cur, fin="sgl"))]:
-            line += f" {name}={_graph_time(lambda: _forward(data, state, opts), flush):6.1f}"
-        print(line)
-    for bs in (12, 16, 24, 32, 48, 64, 96, 128, 192, 256):
-        line = f"BSM bs={bs:3d}"
-        for bsm in (8, 16, 32):
-            ts = []
-            for seed in (1, 2, 3):
-                data = _make_inputs(bs, 1000 * seed + bs)
-                opts = dict(_opts_for(bs), bsm=bsm)
-                ts.append(_graph_time(lambda: _forward(data, state, opts), flush, iters=15))
-            line += f" {bsm}:" + "/".join(f"{t:.0f}" for t in ts)
-        print(line)
-
-
 def prepare(weights):
     state = _prepare_base(weights)
-    try:
-        _source_probe()
-    except Exception as exc:
-        print(f"SRC probe failed: {type(exc).__name__}: {exc}")
     try:
         _ext()
         state["ours_ok"] = True
@@ -673,10 +606,5 @@ def prepare(weights):
     except Exception as exc:
         state["ours_ok"] = False
         print(f"OURS disabled: {type(exc).__name__}: {exc}")
-    if state["ours_ok"]:
-        try:
-            _bench(state)
-        except Exception as exc:
-            print(f"BENCH failed: {type(exc).__name__}: {exc}")
     torch.cuda.synchronize()
     return state

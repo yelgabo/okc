@@ -1,0 +1,23 @@
+SRC sglang.kernels.ops.muse_spark_v12.fused_post_expert_norm_weighted_sum_triton md5=eac52b51ff2a75b807a14d2a187b3b85 len=3666
+SRC   _MIN_TOKENS_FOR_FUSED = 32
+SRC   if tokens < _MIN_TOKENS_FOR_FUSED:
+SRC moe_align_block_size md5=1fdca76dd60d833cb0c9560833d8da15 len=5247
+SRC   and topk_ids.numel() <= SMALL_NUMEL_LIMIT
+ENV torch=2.14.1+cu130 gpu=NVIDIA H200
+SELFTEST worst rel diff vs sglang path 5.70e-04
+BENCH bs=  1 sgl=  87.9 cur=  54.3 noep=  54.2 sglfin=  83.6
+BENCH bs=  8 sgl= 151.9 cur= 109.9 noep= 110.1 sglfin= 144.1
+BENCH bs= 16 sgl= 146.3 cur=  93.5 noep=  91.7 sglfin= 130.8
+BENCH bs= 32 sgl= 178.2 cur= 168.5 noep= 165.3 sglfin= 168.4
+BENCH bs=128 sgl= 496.9 cur= 362.0 noep= 356.5 sglfin= 363.9
+BENCH bs=256 sgl= 647.8 cur= 472.3 noep= 465.2 sglfin= 470.6
+BSM bs= 12 8:130/121/130 16:136/126/125 32:171/159/159
+BSM bs= 16 8:131/161/161 16:127/168/158 32:158/213/201
+BSM bs= 24 8:200/160/199 16:210/168/198 32:269/214/245
+BSM bs= 32 8:211/170/220 16:211/180/221 32:270/229/269
+BSM bs= 48 8:241/281/211 16:233/273/211 32:300/356/270
+BSM bs= 64 8:281/221/251 16:264/223/254 32:342/286/328
+BSM bs= 96 8:292/302/282 16:235/286/256 32:276/372/330
+BSM bs=128 8:383/430/388 16:319/350/338 32:390/376/404
+BSM bs=192 8:570/495/603 16:416/368/451 32:443/397/500
+BSM bs=256 8:633/535/749 16:463/398/501 32:504/455/500
