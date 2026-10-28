@@ -1786,13 +1786,18 @@ def prepare(weights):
         for m in ((1, 8) if b == 8 else (b,)):
             lst = [c for c in all_cands if m == 1 or not c[2]]
             x, _ = _gen_x(m, k, gen, dev)
+            best = 0
             if len(lst) > 1:
-                us = _time_candidates([fn for _, fn, _ in lst], x, flush)
-                best = min(range(len(lst)), key=lambda i: us[i])
-                print(f"tune {layer:9s} m={m:2d}: " + ", ".join(f"{c[0]} {t:.1f}" for c, t in zip(lst, us))
-                      + f" -> {lst[best][0]}")
-            else:
-                best = 0
+                try:
+                    us = _time_candidates([fn for _, fn, _ in lst], x, flush)
+                    best = min(range(len(lst)), key=lambda i: us[i])
+                    print(f"tune {layer:9s} m={m:2d}: " + ", ".join(f"{c[0]} {t:.1f}" for c, t in zip(lst, us))
+                          + f" -> {lst[best][0]}")
+                except Exception as exc:
+                    # Candidates are listed fastest-expected first, so the first one stands in.
+                    torch.cuda.synchronize()
+                    print(f"tune {layer:9s} m={m:2d}: timing failed ({type(exc).__name__}: {str(exc)[-200:]}),"
+                          f" using {lst[0][0]}")
             state["pick"][(layer, m)] = lst[best][1]
         if b != 8:
             continue
