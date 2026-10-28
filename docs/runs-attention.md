@@ -144,3 +144,59 @@ Local checks (commit 72acd7c + routing table):
    `tools/attn_compile_check.sh muse_attention_decode/submission.py`. Then
    `okc check submission.py --no-wait --json` and `okc status <job> --wait --json`. Compare
    with 1.291x (leaderboard, fd376b11ca9b49ef) and 1.348x (f16 ws, dcea57a9e84f441a).
+
+## Pending bench: backlog #4 plus A1 bounded-shift softmax (10-28, not yet checked)
+
+A1 (backlog section 5) is in `attn_ws.cu` as VAR bits 7-8 on top of var 16 (FP32 path, loader
+fence kept): var 144 is tau 4, var 272 is tau 8. Each math thread keeps its two rows' retained
+shift c in `mrow` (log2 units, FP32). Per tile it takes the max over unmasked scores; if that
+max exceeds c + tau (or the row had no valid key yet), c moves to it and l and O are rescaled
+together by 2^(c_old - c_new), else c stays and P = 2^(S * sl2 - c) can reach 2^tau. The O
+rescale stays behind var 16's `__any_sync` vote, so a warp skips it only when none of its 16
+rows moved c. Partials store c instead of the row max; `ws_combine_kernel` already weights
+each partial by 2^(c_s - max c), and l_s and O_s are both relative to c_s, so the merge needs
+no change. Bits 7-8 clear compile to var 16 unchanged (SASS of var 16 is instruction-identical
+to commit 1f49f32's).
+
+Range: P <= 2^tau (plus one FP32 rounding of c), so with tau 8 P rounds to at most 256 in f16
+(max 65504). Per-thread l <= keys x 2^8 and |O| <= keys x 2^8 x 448 (E4M3 max, before
+v_scale): over 1,048,584 keys that is 2.7e8 and 1.2e11, against FP32's 3.4e38. The merge
+weights are at most 1, so the merged sums stay within 128 times those.
+
+Local checks (CUDA 12.8, sm_90a):
+- ptxas: var 144 and 272 use 113 registers in mode 0 (var 16: 115), 128 in mode 2; mode 1
+  (loads only) 61. No spills in any ws kernel, no C7513 or C7514.
+- SASS of var 272: the A1 decision is `FADD c, 8` / `FSETP.GT` / `FSEL` per row, then var 16's
+  `FSETP.NEU alpha, 1` x2, `VOTE.ANY` and `@!P0 BRA` over the 32 `FMUL`s of the O rescale, in
+  both tile32 call sites (loop and new-token tile).
+- Numerics (`uv run --with numpy python tools/attn_emulate_a1.py --seeds 3`): the tiled
+  recurrence with FP32/f16 rounding, splits and merge, rel L2 against FP64. Total error is the
+  same to three digits for tau 0, 4 and 8 in every case (worst 8.41e-2, full outlier, judge
+  bound there ~0.15). Error against FP64 with the same E4M3 queries (accumulators, softmax and
+  P rounding only), worst over cases: var 16 9.8e-5, tau 4 1.5e-4, tau 8 2.0e-4; the rise is
+  the dominant key's P no longer being exactly 1 in f16. Share of (warp, tile) steps that run
+  the O rescale, var 16 / tau 4 / tau 8: sliding soft 0.96 / 0.68 / 0.24, full coherent 80K
+  0.18 / 0.06 / 0.03, full edges 6K 1.00 / 0.95 / 0.71, full ramp 0.19 / 0.05 / 0.02. Max P
+  seen at tau 8: 255.2.
+
+`muse_attention_decode/submission_a1.py` (written by `python3 tools/attn_build_a1.py`) is
+submission.py with this attn_ws.cu and var 272 wherever var 16 was routed (sliding verify at
+every batch, full verify above batch 2). submission.py is unchanged (var 16).
+
+`muse_attention_decode/bench.py` (same tool) is submission.py with this attn_ws.cu, routing
+unchanged, and an import-time sweep on each scored shape (b32/b16/b1 full and sliding verify,
+plus b32 full decode), each a CUDA-graph replay after a 256 MB flush, median of 40:
+`_ref32` (FP32 torch reference, the e= baseline), `_fused_prep` (prep + FA3), `_ws@x=0` (f16,
+fenced), `_ws@x=16` (submitted), `_ws@x=16,m=1` (var 16's loaders with math warps that only
+wait and release), `_ws@x=144` and `_ws@x=272` (A1). Then, per q_len 8 shape, STAMPS lines for
+x=16, 144 and 272: math-warp cycles per tile (wait-data, qk, softmax including the rescale,
+pv, tail, prologue) and loader cycles per tile. No GATHER part.
+
+How to read it:
+- Loader-branch vs math-branch: on full verify b16/b32, if x=16 is close to x=16,m=1, the
+  loaders set the pace (loader-branch: N2, A4). If x=16 is clearly slower, the math warps do
+  (math-branch: A1, A5). Var 16's STAMPS agree if wait-data is small and softmax large
+  (math-bound) or wait-data dominates (starved by the loaders).
+- A1: compare x=144 and x=272 with x=16 per shape; their e= should match x=16's to about
+  1e-4. If their STAMPS softmax cycles drop but the BENCH time does not, the loaders still set
+  the pace and A1 stops there (backlog gate).

@@ -306,13 +306,21 @@ __device__ __forceinline__ int kmaj(int r, int kc) {
 // max, sum, rescale factors and exponentials in FP32 (P still goes to P.V as f16, where FA3's
 // FP8 path uses E4M3). Bit 5 (with bit 4): FA3's intra-warpgroup overlap, the P.V of tile i in
 // flight under the Q.K and softmax of tile i + 1. Bit 6 (with bit 4): a quarter of the
-// exponentials on the FMA pipe (ex2_poly) to unload MUFU.
+// exponentials on the FMA pipe (ex2_poly) to unload MUFU. Bits 7-8 (with bit 4): bounded-shift
+// online softmax (backlog A1) with tau 4 (bit 7), 8 (bit 8) or 2 (both): a row keeps its shift c
+// until a tile's max over unmasked scores exceeds c + tau, so O and l are rescaled only then,
+// and P <= 2^tau. With bits 7-8 clear the shift is the running max, as FA3.
 template <int NS, int DA, int MODE, int PW, int VAR>
 __global__ void __launch_bounds__(CONSUMERS + 32 * PW, 1) attn_ws_kernel(const Params p) {
     constexpr bool STAMP = MODE == 2;
     constexpr bool F32 = (VAR & 16) != 0;
     static_assert(F32 || (VAR & 96) == 0, "bits 5 and 6 need bit 4");
     static_assert(!F32 || (VAR & 5) == 0, "bit 4 does not combine with bits 0 and 2");
+    constexpr int TAU_CODE = (VAR >> 7) & 3;
+    constexpr float TAU = TAU_CODE == 1 ? 4.f : TAU_CODE == 2 ? 8.f : TAU_CODE == 3 ? 2.f : 0.f;
+    static_assert(F32 || TAU_CODE == 0, "bits 7-8 need bit 4");
+    // ex2_poly is only checked for x <= 0, and a bounded shift lets x reach tau.
+    static_assert(TAU_CODE == 0 || (VAR & 64) == 0, "bits 7-8 do not combine with bit 6");
     constexpr int NV = NS - DA;
     using S = Smem<NS, DA>;
     long long acc[8] = {0, 0, 0, 0, 0, 0, 0, 0};
@@ -731,7 +739,15 @@ __global__ void __launch_bounds__(CONSUMERS + 32 * PW, 1) attn_ws_kernel(const P
             mx = fmaxf(mx, __shfl_xor_sync(0xffffffffu, mx, 2));
             // A row with every key masked so far keeps a finite floor as its max, so its
             // exponentials are 0, not NaN; FA3 does the same with Check_inf.
-            mu[hh] = fmaxf(fmaxf(mrow[hh], mx * sl2), -1e30f);
+            const float tmax = mx * sl2;
+            if constexpr (TAU_CODE == 0) {
+                mu[hh] = fmaxf(fmaxf(mrow[hh], tmax), -1e30f);
+            } else {
+                // Masked scores are -inf, so a tile with none valid leaves c alone, and the
+                // first valid tile sets c (from -inf or the floor). Every lane of a row's quad
+                // holds the same mx and c, so the row's decision is the same in all four.
+                mu[hh] = fmaxf(tmax > mrow[hh] + TAU ? tmax : mrow[hh], -1e30f);
+            }
             alpha[hh] = ex2(mrow[hh] - mu[hh]);
             mrow[hh] = mu[hh];
         }
@@ -998,6 +1014,9 @@ __global__ void __launch_bounds__(CONSUMERS + 32 * PW, 1) attn_ws_kernel(const P
         lsum += __shfl_xor_sync(0xffffffffu, lsum, 1);
         lsum += __shfl_xor_sync(0xffffffffu, lsum, 2);
         if (c == 0) {
+            // With bits 7-8 this is the retained shift, not the row max. l and O are both
+            // relative to it, and the merge weights each partial by 2^(shift - max shift), so
+            // it needs no true max.
             if constexpr (F32) {
                 dst[0] = mrow[hh];
             } else {
@@ -1097,14 +1116,19 @@ void launch_var(const Params& p, int batch, cudaStream_t stream) {
 // INSTANTIATE: template void launch_var<7, 3, 0, 82>(const Params&, int, cudaStream_t);
 // INSTANTIATE: template void launch_var<7, 3, 0, 112>(const Params&, int, cudaStream_t);
 // INSTANTIATE: template void launch_var<7, 3, 0, 114>(const Params&, int, cudaStream_t);
-// INSTANTIATE: template void launch_var<7, 3, 2, 18>(const Params&, int, cudaStream_t);
+// INSTANTIATE: template void launch_var<7, 3, 0, 144>(const Params&, int, cudaStream_t);
+// INSTANTIATE: template void launch_var<7, 3, 0, 272>(const Params&, int, cudaStream_t);
+// INSTANTIATE: template void launch_var<7, 3, 1, 16>(const Params&, int, cudaStream_t);
+// INSTANTIATE: template void launch_var<7, 3, 2, 16>(const Params&, int, cudaStream_t);
+// INSTANTIATE: template void launch_var<7, 3, 2, 144>(const Params&, int, cudaStream_t);
+// INSTANTIATE: template void launch_var<7, 3, 2, 272>(const Params&, int, cudaStream_t);
 
 }  // namespace
 
 // stages: unused, kept for the Python signature (7 FP8 stages, values converted 3 tiles behind
-// their loads); mode: see attn_ws_kernel (2 runs var 18, 1 is not built); var: 0, 2 (f16
-// accumulators) or 16, 18, 48, 50, 80, 82, 112, 114 (FP32), see attn_ws_kernel; anything else
-// runs 0.
+// their loads); mode: see attn_ws_kernel (1 runs var 16's loaders; 2 runs var 144 or 272 if
+// asked, else 16); var: 0, 2 (f16 accumulators) or 16, 18, 48, 50, 80, 82, 112, 114, 144, 272
+// (FP32), see attn_ws_kernel; anything else runs 0.
 // dbg: int64 [17] or empty. dbg[0] bit 0: a loader wait timed out; bit 1: a math-warp wait
 // timed out. With mode 2, dbg[1..8] sum math-warp cycles per phase (wait for data, Q.K, mask
 // and softmax, P.V, unused, unused, tail, prologue) and dbg[9..13] loader cycles (wait for a
@@ -1138,7 +1162,15 @@ torch::Tensor attn_ws(torch::Tensor qkv, torch::Tensor page_table, torch::Tensor
     p.splits = splits;
     p.qk_scale = static_cast<float>(qk_scale);
     if (mode == 2) {
-        launch_var<7, 3, 2, 18>(p, batch, stream);
+        if (var == 144) {
+            launch_var<7, 3, 2, 144>(p, batch, stream);
+        } else if (var == 272) {
+            launch_var<7, 3, 2, 272>(p, batch, stream);
+        } else {
+            launch_var<7, 3, 2, 16>(p, batch, stream);
+        }
+    } else if (mode == 1) {
+        launch_var<7, 3, 1, 16>(p, batch, stream);
     } else if (var == 2) {
         launch_var<7, 3, 0, 2>(p, batch, stream);
     } else if (var == 16) {
@@ -1157,6 +1189,10 @@ torch::Tensor attn_ws(torch::Tensor qkv, torch::Tensor page_table, torch::Tensor
         launch_var<7, 3, 0, 112>(p, batch, stream);
     } else if (var == 114) {
         launch_var<7, 3, 0, 114>(p, batch, stream);
+    } else if (var == 144) {
+        launch_var<7, 3, 0, 144>(p, batch, stream);
+    } else if (var == 272) {
+        launch_var<7, 3, 0, 272>(p, batch, stream);
     } else {
         launch_var<7, 3, 0, 0>(p, batch, stream);
     }
