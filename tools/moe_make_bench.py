@@ -279,7 +279,7 @@ def _w4_bench(state, flush, base, sizes=(1, 16, 32, 8, 128, 256), seeds=(11, 12)
                 def run2():
                     part = _w4_gemm2(w4, i, ref_inter, sids, items, nitems, numel)
                     outs.append(_w4_ext().w4_finalize(part, tw, state["norm_w"], lids.view(-1),
-                                                      POST_NORM_EPS))
+                                                      POST_NORM_EPS, False, 1))
 
                 t = _graph_time(run2, flush) - base
                 run2()
