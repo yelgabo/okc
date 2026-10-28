@@ -3151,14 +3151,17 @@ torch::Tensor attn_verify(torch::Tensor qkv, torch::Tensor page_table, torch::Te
 # zero pad; replaces FusedPostNormResidualPreNorm there when its self-test passes.
 _BND_SRC = r"""
 #include <cuda_bf16.h>
+#include <cooperative_groups.h>
 
 namespace {
 namespace bnd {
 
 constexpr int H = 8192;
 constexpr int LIVE = 1024;
-constexpr int THREADS = 1024;
-constexpr int PER = H / THREADS;
+constexpr int CTAS = 8;
+constexpr int THREADS = 256;
+constexpr int PER = H / CTAS / THREADS;
+static_assert(PER * THREADS == LIVE, "each thread owns the same 4 channels of every slice");
 
 __device__ __forceinline__ float block_sum(float v, float* red) {
     for (int o = 16; o; o >>= 1) {
@@ -3178,98 +3181,79 @@ __device__ __forceinline__ float block_sum(float v, float* red) {
     return v;
 }
 
+__device__ __forceinline__ float4 bf16x4(const __nv_bfloat16* p) {
+    const uint2 u = *reinterpret_cast<const uint2*>(p);
+    const float2 a = __bfloat1622float2(*reinterpret_cast<const __nv_bfloat162*>(&u.x));
+    const float2 b = __bfloat1622float2(*reinterpret_cast<const __nv_bfloat162*>(&u.y));
+    return make_float4(a.x, a.y, b.x, b.y);
+}
+
 // The FFN boundary at T <= 8, where the unpooler's output has 1024 live channels and the
 // other 7168 are the all-gather's exact zeros: branch = f * w_post over the live channels,
 // normalized by its RMS over all 8192 (the zeros add nothing to the sum of squares but count in
 // the mean); stream = alpha * stream + beta * branch; next = RMS-normalized stream * w_next in
-// BF16. One block per token, eight channels per thread.
-__global__ void __launch_bounds__(THREADS) boundary_kernel(
+// BF16. A cluster of 8 CTAs per token, 1024 channels each; every CTA reads the 1024 live
+// channels for the branch RMS (4 KB), and the stream's sum of squares is reduced over the
+// cluster through distributed shared memory.
+__global__ void __cluster_dims__(CTAS, 1, 1) __launch_bounds__(THREADS) boundary_kernel(
     const float* __restrict__ stream, const __nv_bfloat16* __restrict__ f,
     const __nv_bfloat16* __restrict__ w_post, const float* __restrict__ alpha,
     const float* __restrict__ beta, const __nv_bfloat16* __restrict__ w_next,
     float* __restrict__ stream_out, __nv_bfloat16* __restrict__ next, float eps_post,
     float eps_next) {
+    namespace cg = cooperative_groups;
     __shared__ float red[THREADS / 32];
-    const int tok = blockIdx.x;
-    const int c0 = threadIdx.x * PER;
-    const float* srow = stream + static_cast<size_t>(tok) * H;
-    float s[PER];
-    float a[PER];
-    float bt[PER];
-    float wn[PER];
-#pragma unroll
-    for (int k = 0; k < PER; k += 4) {
-        const float4 sv = *reinterpret_cast<const float4*>(srow + c0 + k);
-        const float4 av = *reinterpret_cast<const float4*>(alpha + c0 + k);
-        const float4 bv = *reinterpret_cast<const float4*>(beta + c0 + k);
-        const float4 vals[3] = {sv, av, bv};
-        float* dsts[3] = {s + k, a + k, bt + k};
-#pragma unroll
-        for (int v = 0; v < 3; ++v) {
-            dsts[v][0] = vals[v].x;
-            dsts[v][1] = vals[v].y;
-            dsts[v][2] = vals[v].z;
-            dsts[v][3] = vals[v].w;
-        }
-    }
-    {
-        const uint4 nv = *reinterpret_cast<const uint4*>(w_next + c0);
-        const uint32_t nw[4] = {nv.x, nv.y, nv.z, nv.w};
-#pragma unroll
-        for (int e = 0; e < 4; ++e) {
-            const float2 x = __bfloat1622float2(*reinterpret_cast<const __nv_bfloat162*>(&nw[e]));
-            wn[2 * e] = x.x;
-            wn[2 * e + 1] = x.y;
-        }
-    }
-    const bool live = c0 < LIVE;
-    float br[PER];
+    __shared__ float part;
+    cg::cluster_group cluster = cg::this_cluster();
+    const int rank = static_cast<int>(cluster.block_rank());
+    const int tok = blockIdx.y;
+    const int lc = PER * threadIdx.x;
+    const int c0 = rank * (H / CTAS) + lc;
+    const size_t row = static_cast<size_t>(tok) * H;
+    const float4 sv = *reinterpret_cast<const float4*>(stream + row + c0);
+    const float4 av = *reinterpret_cast<const float4*>(alpha + c0);
+    const float4 bv = *reinterpret_cast<const float4*>(beta + c0);
+    const float4 nv = bf16x4(w_next + c0);
+    const float4 fv = bf16x4(f + static_cast<size_t>(tok) * LIVE + lc);
+    const float4 pv = bf16x4(w_post + lc);
+    float br[PER] = {fv.x * pv.x, fv.y * pv.y, fv.z * pv.z, fv.w * pv.w};
     float ss = 0.f;
 #pragma unroll
     for (int k = 0; k < PER; ++k) {
-        br[k] = 0.f;
-    }
-    if (live) {
-        const uint4 fv =
-            *reinterpret_cast<const uint4*>(f + static_cast<size_t>(tok) * LIVE + c0);
-        const uint4 pv = *reinterpret_cast<const uint4*>(w_post + c0);
-        const uint32_t fw[4] = {fv.x, fv.y, fv.z, fv.w};
-        const uint32_t pw[4] = {pv.x, pv.y, pv.z, pv.w};
-#pragma unroll
-        for (int e = 0; e < 4; ++e) {
-            const float2 x = __bfloat1622float2(*reinterpret_cast<const __nv_bfloat162*>(&fw[e]));
-            const float2 w = __bfloat1622float2(*reinterpret_cast<const __nv_bfloat162*>(&pw[e]));
-            br[2 * e] = x.x * w.x;
-            br[2 * e + 1] = x.y * w.y;
-        }
-#pragma unroll
-        for (int k = 0; k < PER; ++k) {
-            ss += br[k] * br[k];
-        }
+        ss += br[k] * br[k];
     }
     const float rb = rsqrtf(block_sum(ss, red) / H + eps_post);
+    const float sa[PER] = {sv.x, sv.y, sv.z, sv.w};
+    const float aa[PER] = {av.x, av.y, av.z, av.w};
+    const float ba[PER] = {bv.x, bv.y, bv.z, bv.w};
+    float s[PER];
     float ss2 = 0.f;
 #pragma unroll
     for (int k = 0; k < PER; ++k) {
-        s[k] = a[k] * s[k] + bt[k] * (br[k] * rb);
+        // Only rank 0's slice holds live channels; elsewhere the branch is an exact zero.
+        const float b = rank == 0 ? br[k] * rb : 0.f;
+        s[k] = aa[k] * sa[k] + ba[k] * b;
         ss2 += s[k] * s[k];
     }
-    const float rn = rsqrtf(block_sum(ss2, red) / H + eps_next);
-    float* orow = stream_out + static_cast<size_t>(tok) * H;
-    __nv_bfloat16* nrow = next + static_cast<size_t>(tok) * H;
-#pragma unroll
-    for (int k = 0; k < PER; k += 4) {
-        *reinterpret_cast<float4*>(orow + c0 + k) =
-            make_float4(s[k], s[k + 1], s[k + 2], s[k + 3]);
+    ss2 = block_sum(ss2, red);
+    if (threadIdx.x == 0) {
+        part = ss2;
     }
-    uint32_t packed[PER / 2];
+    cluster.sync();
+    float total = 0.f;
 #pragma unroll
-    for (int k = 0; k < PER; k += 2) {
-        const __nv_bfloat162 h =
-            __floats2bfloat162_rn(s[k] * rn * wn[k], s[k + 1] * rn * wn[k + 1]);
-        packed[k / 2] = *reinterpret_cast<const uint32_t*>(&h);
+    for (int r = 0; r < CTAS; ++r) {
+        total += *cluster.map_shared_rank(&part, r);
     }
-    *reinterpret_cast<uint4*>(nrow + c0) = make_uint4(packed[0], packed[1], packed[2], packed[3]);
+    // No CTA may exit while another can still read its partial.
+    cluster.sync();
+    const float rn = rsqrtf(total / H + eps_next);
+    *reinterpret_cast<float4*>(stream_out + row + c0) = make_float4(s[0], s[1], s[2], s[3]);
+    const __nv_bfloat162 h0 = __floats2bfloat162_rn(s[0] * rn * nv.x, s[1] * rn * nv.y);
+    const __nv_bfloat162 h1 = __floats2bfloat162_rn(s[2] * rn * nv.z, s[3] * rn * nv.w);
+    *reinterpret_cast<uint2*>(next + row + c0) =
+        make_uint2(*reinterpret_cast<const uint32_t*>(&h0),
+                   *reinterpret_cast<const uint32_t*>(&h1));
 }
 
 }  // namespace bnd
@@ -3297,7 +3281,7 @@ std::vector<torch::Tensor> ffn_boundary_short(torch::Tensor stream, torch::Tenso
     if (tokens == 0) {
         return {next, stream_out};
     }
-    boundary_kernel<<<tokens, THREADS, 0, at::cuda::getCurrentCUDAStream()>>>(
+    boundary_kernel<<<dim3(CTAS, tokens), THREADS, 0, at::cuda::getCurrentCUDAStream()>>>(
         stream.data_ptr<float>(), reinterpret_cast<const __nv_bfloat16*>(f.data_ptr()),
         reinterpret_cast<const __nv_bfloat16*>(w_post.data_ptr()), alpha.data_ptr<float>(),
         beta.data_ptr<float>(), reinterpret_cast<const __nv_bfloat16*>(w_next.data_ptr()),
