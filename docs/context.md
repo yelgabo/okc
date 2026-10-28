@@ -144,3 +144,12 @@ Update 2026-10-27: muse_decode_layer resubmitted with the attention port, job d1
 
 Update 2026-10-27: muse_moe_w4a16 resubmitted with our own NVFP4 W4A16 GEMM kernels (BF16 at
 SGLang's boundaries), job 49af3c0930e24ff2, 1.699x (1.673-1.724), from 1.324x. Overall rank 596 of 1394.
+
+Update 2026-10-27: muse_decode_layer resubmitted with the W4A16 MoE port, job 9846e29b2d664091,
+1.390x (1.369-1.411), from 1.269x. Overall rank 597 of 1395.
+
+muse_attention_decode: warp-specialized q_len 8 kernel checked at 1.348x (dcea57a9e84f441a) and
+1.347x (dc37819eef384acb), NOT submitted: its Q.K accumulates in f16 and the softmax runs in half2,
+where FA3 accumulates in FP32. TASK.md does not specify accumulator precision, but AGENTS.md warns
+against computing at lower precision than the rules allow. Pending a decision or an FP32-accumulator
+variant.

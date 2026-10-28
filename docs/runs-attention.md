@@ -19,6 +19,15 @@ subtracts, so compare them within a shape, not against the judge's column.
 | 10-27 | c2a8b716effb4512 | 8499f13 | push-based cluster merge (each CTA stores partials into the owning CTA's smem, one barrier, local merge); b1 full decode back on idea 1 | **1.285x** (1.265-1.308) | sliding decode b1 15.08 µs (1.40x), b16 1.61x, b32 1.47x |
 | 10-27 | fa01e4d1a9f54b0f | 9a15913 | new tokens staged in their own tile during the prologue; scales read at kernel start | 1.276x (1.257-1.295) | sliding decode faster (b1 14.26 µs, 1.44x; b16 1.64x; b32 1.51x) but full decode b16/b32 2-3% slower on judge and bench; the extra tile now applies to cluster launches only |
 | 10-27 | 944b519698894c2a | 3b84d10 | submission.py itself (no bench): new-token tile on cluster launches only | **1.289x** (1.269-1.308) | best. Decode: sliding 1.45 / 1.66 / 1.47x, full 1.13 (idea 1) / 1.48 / 1.51x. Verify (idea 1 + FA3): sliding 1.36 / 1.35 / 1.25x, full 1.19 / 1.03 / 1.02x |
+| 10-28 | 24daba2202e547d6 | 9d7e3bf | baseline.py as the submission (`baseline_profile/`), SGLang's kernels per shape | 0.997x (0.982-1.011) | FA3 main kernel 376 µs = 95% of verify b32 full; the profiler put decode b32 full's at 499 µs (timed total 385), so profiler numbers are rough |
+| 10-28 | e2816b2cfe2e409e | 9d7e3bf | bench: warp-specialized q_len 8 kernel (attn_ws.cu: 2 consumer warpgroups, FP8 Q.K and f16 P.V on wgmma, 1 loader warp, 8-stage mbarrier ring, no block barrier in the loop); gather microbenchmark failed to build | 1.291x (1.272-1.310), routing unchanged | correct (e=1.3e-2 vs prep+FA3) but slow: b32 full 594-628 µs (FA3 392), b16 305-320 (209), b1 52-56 (38). Loads-only mode 523 µs at b32: the one loader warp spent 2735 cycles per tile issuing cp.async. Math warps ~2600 cycles per tile, 1341 of them in softmax (MUFU-bound: 8192 f32 ex2 per tile per SM) |
+| 10-28 | 8cb557afaeab4e08 | dbe1fdd | bench: ws v2 (2-8 loader warps; Q.K accumulates in f16, half2 softmax with f16x2 ex2; scale folded into Q before E4M3) + gather microbenchmark | 1.280x (1.261-1.302), routing unchanged | ws b32 full 364 µs vs FA3 path 392 (load-only 231); b16 full 190 vs 210; b1 full 39 vs 39; sliding b32 29-30 vs 32, b16 24 vs 25.5, b1 21 vs 21. Error vs prep+FA3 rose to 8.4e-2 (v1 1.3e-2): v2 rounds a scaled Q, so it no longer shares FA3's FP8 rounding; needs an FP32 reference to judge. Gather (cold L2, page table, b32): 128-byte rows 3.6 TB/s (181 µs for 655 MB), 64-byte rows (FA3's per-head reads) 1.8-2.2 TB/s; b16 3.4 TB/s; b1 1.6 TB/s (13.8 µs). Dependent page entry + row: 1343 cycles; row alone 741. Stamps: loader waits 1143 cycles per tile for free stages, math warps ~1930 per tile (softmax 925, V convert + barrier 418, P.V 310): math-bound |
+| 10-28 | 34929136fa004b17 | f0251de | bench: ws v3 (loader warps convert values to f16 into a 4-slot ring, DA = 3 tiles behind the loads; math warps have no barrier at all; both rows' softmax in shared half2 ops) + FP32 reference | 1.290x (1.271-1.309), routing unchanged | error vs FP32: ws 7.0e-2 at b32 full vs 7.1e-2 for prep+FA3 (6.2e-2 vs 6.5e-2 sliding), so v2's gap to FA3 was FA3's own error. ws b32 full 339-343 µs (FA3 391), b16 183-186 (209), b1 40-41 (38), sliding b32 27.8 (32.3-32.9), b16 23.5 (25.2-26.0), b1 20.3 (20.2-21.0). Loader warps now spend 965 cycles per tile on F2FP conversion; load-only mode rose to 282-302 µs |
+| 10-28 | 13b7b297c1f34b29 | 6374644 | ws routed for q_len 8 except full b1 (integer E4M3-to-f16 conversion as default) + bench | **1.297x** (1.278-1.321) | 16/16 tests. Judge, verify: full b16 193.3 µs (1.061x, was 1.032), b32 363.8 (1.074x, was 1.017); sliding b1 1.354x, b16 1.359x, b32 1.244x (was 1.277). Bench: integer conversion lost to F2FP (b32 full 361 vs 344 µs, b16 192.5 vs 186.7). Loader conversion time stayed ~950 cycles per tile with 8 loader warps as with 4, which points at the loader's fence.proxy.async waiting for its in-flight cp.async, not at the conversion work |
+| 10-28 | a8a4666a91d54d68 | a5016ee | ws var 0 (F2FP conversion) routed; bench: paired tiles (var 4), loader release without its own proxy fence (var 2), both (var 6), stages 6/8 | **1.327x** (1.307-1.346) | 16/16 tests. Judge, verify: full b16 185.9 µs (1.101x), b32 347.4 (1.122x); sliding b1 1.354x, b16 1.421x, b32 1.340x. Bench b32/b16 full: var 0 344.6/186.8, var 2 333.8/178.8, var 4 347.3/186.0, var 6 339.4/181.8 (8 stages 333.2/178.6). Pairs cut the Q.K wait (296 to 186 cycles per tile) but not the total. Load-only mode 301 µs: the loaders (cp.async issue ~660 + conversion ~790 cycles per tile) now set the pace |
+| 10-28 | 1f4f986279834925 | 203eb4e | ws var 2 routed on full layers, var 6 (paired tiles, no loader fence) on sliding; bench var 3 (integer conversion, no fence), var 10 (8 loader warps), 8 stages | 1.307x (1.288-1.332) | 16/16 tests. Full verify gained: b16 176.3 µs (1.167x), b32 331.6 (1.177x). Sliding verify lost on the judge although the bench had var 6 level with var 0: b1 19.30 µs (1.174x, was 1.354x), b16 1.247x (was 1.421x), b32 1.264x (was 1.340x). Bench b32 full: var 2 333.9, 8 stages 331.7, var 3 349.3, var 10 342.5 |
+| 10-28 | dc37819eef384acb | c326dcc | submission.py: ws var 0 on sliding verify, var 2 on full verify (b16, b32); everything else as before | **1.347x** (1.327-1.368) | best. 16/16 tests. Verify: sliding b1 16.64 µs (1.388x), b16 1.420x, b32 1.358x; full b1 1.191x (prep+FA3), b16 176.99 µs (1.162x), b32 333.42 (1.174x). Decode unchanged (1.48 / 1.14 / 1.67 / 1.48 / 1.49 / 1.51x) |
+| 10-28 | dcea57a9e84f441a | 6f6179f | same routing as dc37819eef384acb; docstring and line wrapping only | **1.348x** (1.328-1.368) | best, final. 16/16 tests. Verify: sliding 1.368 / 1.426 / 1.380x, full 1.181x (prep+FA3) / 1.173x (175.80 µs) / 1.180x (331.68 µs) |
 
 ## Baseline profile (job 2b3c25820fee4b2d)
 
@@ -57,3 +66,30 @@ gather, not by math.
   untested next step. Verify stays on idea 1 + FA3.
 - The bench (import-time graph replays) and the judge disagreed on b1 full decode (bench:
   fused 34.0 vs idea 1 35.5 µs; judge: 29.4 vs 27.5). Route on judge numbers.
+
+- Scattered-gather ceiling on H200 (cold L2, rows through a shuffled page table, b32 at 80K):
+  128-byte rows reach 3.6 TB/s (181 µs for the 655 MB of K and V), 64-byte rows 1.8-2.2 TB/s.
+  FA3 reads 64 bytes per KV head, which is why it sits near 375 µs at b32 whatever q_len is.
+  One dependent page entry + row costs 1343 cycles cold; a row alone 741 (job 8cb557afaeab4e08).
+- K/V reuse: every 128-byte row is read once per split and serves 2 x 64 query rows (8 tokens x
+  8 heads per KV head). FA3 also reuses across the block, so bytes are equal; the gain is the
+  row size of the gather, not fewer bytes.
+- q_len 8 on wgmma (attn_ws.cu): Q.K in FP8 with f16 accumulators, softmax in half2 with
+  f16x2 ex2, P.V in f16 with the values converted by the loader warps. Error vs an FP32
+  reference matches FA3's (7.0e-2 vs 7.1e-2 on the bench inputs).
+- A wgmma left in flight across a loop back-edge made ptxas serialize every wgmma in the kernel
+  (C7514). Retiring each async group inside the iteration avoids it; two tiles per iteration
+  can still overlap (Q.K of the second under the first softmax).
+- One loader warp could not issue a tile's 1024 cp.async in time (2735 cycles per tile); four
+  can. A loader-side fence.proxy.async after its own cp.async.wait_group cost ~3% at b32 full;
+  the math warps' fence after acquiring the full barrier is enough (var 2, errors unchanged).
+- E4M3-to-f16 by integer ops (PRMT, SHF, LOP3, exact, scaled by 2^-8) was slower than F2FP.
+- The bench and the judge disagreed again: paired tiles tied var 0 in the bench on sliding
+  verify but lost 6-13% on the judge (1f4f986279834925). Route on judge numbers.
+- Where the time still goes (b32 full verify, 333 µs vs 181 µs gather ceiling): the loader
+  warps' cp.async issue (~600 cycles per tile) and value conversion (~800) now set the pace
+  (load-only mode alone is ~300 µs); the math warps spend ~1500 cycles per tile (softmax ~900).
+  Untested next steps: TMA row loads (a 1-row box per K/V row with 128-byte swizzle lands rows
+  in the SW128 K-major layout and removes the per-lane cp.async issue), FP8 P.V with values
+  transposed instead of converted, and merging sliding-layer splits inside the kernel (the
+  merge launch is 16-24% of sliding verify time).

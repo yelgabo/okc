@@ -1,0 +1,170 @@
+wb=128 pref=0 splits=32 u=2 182.1us 3.59TB/s
+GATHER b=32 rowb=128 pref=0 splits=32 u=4 180.9us 3.62TB/s
+GATHER b=32 rowb=128 pref=0 splits=32 u=8 181.6us 3.60TB/s
+GATHER b=32 rowb=128 pref=1 splits=4 u=1 248.7us 2.63TB/s
+GATHER b=32 rowb=128 pref=1 splits=4 u=2 238.8us 2.74TB/s
+GATHER b=32 rowb=128 pref=1 splits=4 u=4 245.8us 2.66TB/s
+GATHER b=32 rowb=128 pref=1 splits=4 u=8 219.4us 2.98TB/s
+GATHER b=32 rowb=128 pref=1 splits=8 u=1 188.4us 3.47TB/s
+GATHER b=32 rowb=128 pref=1 splits=8 u=2 184.7us 3.54TB/s
+GATHER b=32 rowb=128 pref=1 splits=8 u=4 185.9us 3.52TB/s
+GATHER b=32 rowb=128 pref=1 splits=8 u=8 180.0us 3.64TB/s
+GATHER b=32 rowb=128 pref=1 splits=16 u=1 182.7us 3.58TB/s
+GATHER b=32 rowb=128 pref=1 splits=16 u=2 180.6us 3.62TB/s
+GATHER b=32 rowb=128 pref=1 splits=16 u=4 182.4us 3.59TB/s
+GATHER b=32 rowb=128 pref=1 splits=16 u=8 182.4us 3.59TB/s
+GATHER b=32 rowb=128 pref=1 splits=32 u=1 182.2us 3.59TB/s
+GATHER b=32 rowb=128 pref=1 splits=32 u=2 181.1us 3.61TB/s
+GATHER b=32 rowb=128 pref=1 splits=32 u=4 181.6us 3.60TB/s
+GATHER b=32 rowb=128 pref=1 splits=32 u=8 186.1us 3.52TB/s
+GATHER b=32 rowb=64 pref=0 splits=4 u=1 304.5us 2.15TB/s
+GATHER b=32 rowb=64 pref=0 splits=4 u=2 247.1us 2.65TB/s
+GATHER b=32 rowb=64 pref=0 splits=4 u=4 365.2us 1.79TB/s
+GATHER b=32 rowb=64 pref=0 splits=4 u=8 290.8us 2.25TB/s
+GATHER b=32 rowb=64 pref=0 splits=8 u=1 369.7us 1.77TB/s
+GATHER b=32 rowb=64 pref=0 splits=8 u=2 351.8us 1.86TB/s
+GATHER b=32 rowb=64 pref=0 splits=8 u=4 368.1us 1.78TB/s
+GATHER b=32 rowb=64 pref=0 splits=8 u=8 352.8us 1.86TB/s
+GATHER b=32 rowb=64 pref=0 splits=16 u=1 372.4us 1.76TB/s
+GATHER b=32 rowb=64 pref=0 splits=16 u=2 356.3us 1.84TB/s
+GATHER b=32 rowb=64 pref=0 splits=16 u=4 368.3us 1.78TB/s
+GATHER b=32 rowb=64 pref=0 splits=16 u=8 359.8us 1.82TB/s
+GATHER b=32 rowb=64 pref=0 splits=32 u=1 361.2us 1.81TB/s
+GATHER b=32 rowb=64 pref=0 splits=32 u=2 349.7us 1.87TB/s
+GATHER b=32 rowb=64 pref=0 splits=32 u=4 356.9us 1.83TB/s
+GATHER b=32 rowb=64 pref=0 splits=32 u=8 348.7us 1.88TB/s
+GATHER b=32 rowb=64 pref=1 splits=4 u=1 291.6us 2.24TB/s
+GATHER b=32 rowb=64 pref=1 splits=4 u=2 296.8us 2.20TB/s
+GATHER b=32 rowb=64 pref=1 splits=4 u=4 300.3us 2.18TB/s
+GATHER b=32 rowb=64 pref=1 splits=4 u=8 313.4us 2.09TB/s
+GATHER b=32 rowb=64 pref=1 splits=8 u=1 355.7us 1.84TB/s
+GATHER b=32 rowb=64 pref=1 splits=8 u=2 359.0us 1.82TB/s
+GATHER b=32 rowb=64 pref=1 splits=8 u=4 361.2us 1.81TB/s
+GATHER b=32 rowb=64 pref=1 splits=8 u=8 346.6us 1.89TB/s
+GATHER b=32 rowb=64 pref=1 splits=16 u=1 367.6us 1.78TB/s
+GATHER b=32 rowb=64 pref=1 splits=16 u=2 370.5us 1.77TB/s
+GATHER b=32 rowb=64 pref=1 splits=16 u=4 366.0us 1.79TB/s
+GATHER b=32 rowb=64 pref=1 splits=16 u=8 351.5us 1.86TB/s
+GATHER b=32 rowb=64 pref=1 splits=32 u=1 353.0us 1.85TB/s
+GATHER b=32 rowb=64 pref=1 splits=32 u=2 358.7us 1.82TB/s
+GATHER b=32 rowb=64 pref=1 splits=32 u=4 356.7us 1.83TB/s
+GATHER b=32 rowb=64 pref=1 splits=32 u=8 334.2us 1.96TB/s
+GATHER latency entry+row: 1343 cycles per dependent step (cold, one thread)
+GATHER latency row: 741 cycles per dependent step (cold, one thread)
+GATHER b=16 bytes=328MB floor@4.8TB/s=68.4us best=97.0us (3.39 TB/s rowb=128 pref=0 splits=16 u=8)
+GATHER b=16 rowb=128 pref=0 splits=8 u=1 145.0us 2.26TB/s
+GATHER b=16 rowb=128 pref=0 splits=8 u=2 145.3us 2.26TB/s
+GATHER b=16 rowb=128 pref=0 splits=8 u=4 125.3us 2.62TB/s
+GATHER b=16 rowb=128 pref=0 splits=8 u=8 113.5us 2.89TB/s
+GATHER b=16 rowb=128 pref=0 splits=16 u=1 104.9us 3.13TB/s
+GATHER b=16 rowb=128 pref=0 splits=16 u=2 104.2us 3.15TB/s
+GATHER b=16 rowb=128 pref=0 splits=16 u=4 99.7us 3.29TB/s
+GATHER b=16 rowb=128 pref=0 splits=16 u=8 97.0us 3.39TB/s
+GATHER b=16 rowb=128 pref=0 splits=32 u=1 99.7us 3.29TB/s
+GATHER b=16 rowb=128 pref=0 splits=32 u=2 98.2us 3.34TB/s
+GATHER b=16 rowb=128 pref=0 splits=32 u=4 98.1us 3.35TB/s
+GATHER b=16 rowb=128 pref=0 splits=32 u=8 98.1us 3.35TB/s
+GATHER b=16 rowb=128 pref=1 splits=8 u=1 132.3us 2.48TB/s
+GATHER b=16 rowb=128 pref=1 splits=8 u=2 127.4us 2.58TB/s
+GATHER b=16 rowb=128 pref=1 splits=8 u=4 130.3us 2.52TB/s
+GATHER b=16 rowb=128 pref=1 splits=8 u=8 117.8us 2.79TB/s
+GATHER b=16 rowb=128 pref=1 splits=16 u=1 101.7us 3.23TB/s
+GATHER b=16 rowb=128 pref=1 splits=16 u=2 100.0us 3.28TB/s
+GATHER b=16 rowb=128 pref=1 splits=16 u=4 100.9us 3.25TB/s
+GATHER b=16 rowb=128 pref=1 splits=16 u=8 97.8us 3.36TB/s
+GATHER b=16 rowb=128 pref=1 splits=32 u=1 99.3us 3.31TB/s
+GATHER b=16 rowb=128 pref=1 splits=32 u=2 98.0us 3.35TB/s
+GATHER b=16 rowb=128 pref=1 splits=32 u=4 98.2us 3.34TB/s
+GATHER b=16 rowb=128 pref=1 splits=32 u=8 98.4us 3.34TB/s
+GATHER b=16 rowb=64 pref=0 splits=8 u=1 121.4us 2.71TB/s
+GATHER b=16 rowb=64 pref=0 splits=8 u=2 117.4us 2.80TB/s
+GATHER b=16 rowb=64 pref=0 splits=8 u=4 139.1us 2.36TB/s
+GATHER b=16 rowb=64 pref=0 splits=8 u=8 136.8us 2.40TB/s
+GATHER b=16 rowb=64 pref=0 splits=16 u=1 146.0us 2.25TB/s
+GATHER b=16 rowb=64 pref=0 splits=16 u=2 140.0us 2.35TB/s
+GATHER b=16 rowb=64 pref=0 splits=16 u=4 149.8us 2.19TB/s
+GATHER b=16 rowb=64 pref=0 splits=16 u=8 148.9us 2.21TB/s
+GATHER b=16 rowb=64 pref=0 splits=32 u=1 149.7us 2.19TB/s
+GATHER b=16 rowb=64 pref=0 splits=32 u=2 150.0us 2.19TB/s
+GATHER b=16 rowb=64 pref=0 splits=32 u=4 150.0us 2.19TB/s
+GATHER b=16 rowb=64 pref=0 splits=32 u=8 150.0us 2.19TB/s
+GATHER b=16 rowb=64 pref=1 splits=8 u=1 136.1us 2.41TB/s
+GATHER b=16 rowb=64 pref=1 splits=8 u=2 136.7us 2.40TB/s
+GATHER b=16 rowb=64 pref=1 splits=8 u=4 139.4us 2.36TB/s
+GATHER b=16 rowb=64 pref=1 splits=8 u=8 140.5us 2.34TB/s
+GATHER b=16 rowb=64 pref=1 splits=16 u=1 153.6us 2.14TB/s
+GATHER b=16 rowb=64 pref=1 splits=16 u=2 154.2us 2.13TB/s
+GATHER b=16 rowb=64 pref=1 splits=16 u=4 153.5us 2.14TB/s
+GATHER b=16 rowb=64 pref=1 splits=16 u=8 151.5us 2.17TB/s
+GATHER b=16 rowb=64 pref=1 splits=32 u=1 149.9us 2.19TB/s
+GATHER b=16 rowb=64 pref=1 splits=32 u=2 149.2us 2.20TB/s
+GATHER b=16 rowb=64 pref=1 splits=32 u=4 151.1us 2.17TB/s
+GATHER b=16 rowb=64 pref=1 splits=32 u=8 158.2us 2.08TB/s
+GATHER b=1 bytes=22MB floor@4.8TB/s=4.5us best=13.8us (1.57 TB/s rowb=128 pref=0 splits=264 u=8)
+GATHER b=1 rowb=128 pref=0 splits=64 u=1 24.8us 0.88TB/s
+GATHER b=1 rowb=128 pref=0 splits=64 u=2 24.2us 0.90TB/s
+GATHER b=1 rowb=128 pref=0 splits=64 u=4 21.2us 1.02TB/s
+GATHER b=1 rowb=128 pref=0 splits=64 u=8 19.2us 1.13TB/s
+GATHER b=1 rowb=128 pref=0 splits=132 u=1 17.0us 1.28TB/s
+GATHER b=1 rowb=128 pref=0 splits=132 u=2 17.2us 1.26TB/s
+GATHER b=1 rowb=128 pref=0 splits=132 u=4 15.9us 1.36TB/s
+GATHER b=1 rowb=128 pref=0 splits=132 u=8 15.1us 1.44TB/s
+GATHER b=1 rowb=128 pref=0 splits=264 u=1 15.3us 1.42TB/s
+GATHER b=1 rowb=128 pref=0 splits=264 u=2 14.7us 1.48TB/s
+GATHER b=1 rowb=128 pref=0 splits=264 u=4 14.1us 1.54TB/s
+GATHER b=1 rowb=128 pref=0 splits=264 u=8 13.8us 1.57TB/s
+GATHER b=1 rowb=128 pref=1 splits=64 u=1 22.3us 0.97TB/s
+GATHER b=1 rowb=128 pref=1 splits=64 u=2 21.2us 1.02TB/s
+GATHER b=1 rowb=128 pref=1 splits=64 u=4 21.8us 0.99TB/s
+GATHER b=1 rowb=128 pref=1 splits=64 u=8 20.0us 1.08TB/s
+GATHER b=1 rowb=128 pref=1 splits=132 u=1 16.4us 1.32TB/s
+GATHER b=1 rowb=128 pref=1 splits=132 u=2 16.0us 1.35TB/s
+GATHER b=1 rowb=128 pref=1 splits=132 u=4 16.6us 1.31TB/s
+GATHER b=1 rowb=128 pref=1 splits=132 u=8 15.5us 1.40TB/s
+GATHER b=1 rowb=128 pref=1 splits=264 u=1 14.6us 1.48TB/s
+GATHER b=1 rowb=128 pref=1 splits=264 u=2 13.9us 1.56TB/s
+GATHER b=1 rowb=128 pref=1 splits=264 u=4 14.2us 1.52TB/s
+GATHER b=1 rowb=128 pref=1 splits=264 u=8 14.0us 1.55TB/s
+GATHER b=1 rowb=64 pref=0 splits=64 u=1 20.4us 1.06TB/s
+GATHER b=1 rowb=64 pref=0 splits=64 u=2 20.4us 1.07TB/s
+GATHER b=1 rowb=64 pref=0 splits=64 u=4 19.1us 1.14TB/s
+GATHER b=1 rowb=64 pref=0 splits=64 u=8 18.6us 1.17TB/s
+GATHER b=1 rowb=64 pref=0 splits=132 u=1 17.3us 1.25TB/s
+GATHER b=1 rowb=64 pref=0 splits=132 u=2 16.7us 1.30TB/s
+GATHER b=1 rowb=64 pref=0 splits=132 u=4 16.4us 1.33TB/s
+GATHER b=1 rowb=64 pref=0 splits=132 u=8 16.3us 1.33TB/s
+GATHER b=1 rowb=64 pref=0 splits=264 u=1 16.1us 1.34TB/s
+GATHER b=1 rowb=64 pref=0 splits=264 u=2 15.5us 1.40TB/s
+GATHER b=1 rowb=64 pref=0 splits=264 u=4 16.0us 1.35TB/s
+GATHER b=1 rowb=64 pref=0 splits=264 u=8 15.8us 1.37TB/s
+GATHER b=1 rowb=64 pref=1 splits=64 u=1 19.4us 1.12TB/s
+GATHER b=1 rowb=64 pref=1 splits=64 u=2 18.9us 1.15TB/s
+GATHER b=1 rowb=64 pref=1 splits=64 u=4 19.3us 1.13TB/s
+GATHER b=1 rowb=64 pref=1 splits=64 u=8 17.9us 1.21TB/s
+GATHER b=1 rowb=64 pref=1 splits=132 u=1 16.5us 1.32TB/s
+GATHER b=1 rowb=64 pref=1 splits=132 u=2 15.9us 1.37TB/s
+GATHER b=1 rowb=64 pref=1 splits=132 u=4 16.4us 1.33TB/s
+GATHER b=1 rowb=64 pref=1 splits=132 u=8 16.1us 1.35TB/s
+GATHER b=1 rowb=64 pref=1 splits=264 u=1 16.2us 1.34TB/s
+GATHER b=1 rowb=64 pref=1 splits=264 u=2 15.9us 1.36TB/s
+GATHER b=1 rowb=64 pref=1 splits=264 u=4 16.2us 1.34TB/s
+GATHER b=1 rowb=64 pref=1 splits=264 u=8 16.2us 1.34TB/s
+BENCH b=32 full    L=8 _fused_prep=392.4 _probe_fa3=392.3 _ws=365.6 e=8.4e-02 _ws@p=2=376.7 e=8.4e-02 _ws@p=8=370.2 e=8.4e-02 _ws@n=4=363.6 e=8.4e-02 _ws@m=1=232.8 e=nan _ws@m=1,p=8=230.9 e=nan _ws@s=8=367.8 e=8.4e-02 _ws@s=16=368.4 e=8.4e-02 _ws@p=8,s=8=370.4 e=8.4e-02
+STAMPS b=32 full    L=8 pw=4 timeout_flags=0 tiles=39962 ctas=128 cycles per tile per math warp: wait-data=155 qk-issue=123 v-convert=322 wg-barrier=96 qk-wait+softmax=925 pack+pv=310 tail=6 prologue=24 | per loader warp per tile: wait-free-stage=1143 cp.async-issue=590 page-entries=165 drain=3
+STAMPS b=32 full    L=8 pw=8 timeout_flags=0 tiles=39962 ctas=128 cycles per tile per math warp: wait-data=152 qk-issue=120 v-convert=331 wg-barrier=88 qk-wait+softmax=981 pack+pv=307 tail=6 prologue=17 | per loader warp per tile: wait-free-stage=1238 cp.async-issue=507 page-entries=192 drain=3
+BENCH b=16 full    L=8 _fused_prep=209.5 _probe_fa3=208.5 _ws=190.0 e=8.5e-02 _ws@p=2=195.5 e=8.5e-02 _ws@p=8=196.8 e=8.5e-02 _ws@n=4=190.0 e=8.5e-02 _ws@m=1=127.2 e=nan _ws@m=1,p=8=126.8 e=nan _ws@s=8=191.3 e=8.5e-02 _ws@s=16=195.5 e=8.5e-02 _ws@p=8,s=8=197.5 e=8.5e-02
+STAMPS b=16 full    L=8 pw=4 timeout_flags=0 tiles=20051 ctas=128 cycles per tile per math warp: wait-data=186 qk-issue=123 v-convert=324 wg-barrier=95 qk-wait+softmax=927 pack+pv=309 tail=12 prologue=36 | per loader warp per tile: wait-free-stage=1063 cp.async-issue=659 page-entries=169 drain=7
+STAMPS b=16 full    L=8 pw=8 timeout_flags=0 tiles=20051 ctas=128 cycles per tile per math warp: wait-data=161 qk-issue=118 v-convert=334 wg-barrier=90 qk-wait+softmax=990 pack+pv=310 tail=12 prologue=28 | per loader warp per tile: wait-free-stage=1191 cp.async-issue=538 page-entries=190 drain=6
+BENCH b= 1 full    L=8 _fused_prep=38.9 _probe_fa3=38.0 _ws=39.4 e=8.3e-02 _ws@p=2=40.1 e=8.3e-02 _ws@p=8=39.4 e=8.3e-02 _ws@n=4=39.2 e=8.3e-02 _ws@m=1=35.9 e=nan _ws@m=1,p=8=35.5 e=nan _ws@s=8=187.8 e=8.3e-02 _ws@s=16=111.0 e=8.3e-02 _ws@p=8,s=8=194.6 e=8.3e-02
+STAMPS b= 1 full    L=8 pw=4 timeout_flags=0 tiles=1324 ctas=128 cycles per tile per math warp: wait-data=726 qk-issue=136 v-convert=345 wg-barrier=99 qk-wait+softmax=947 pack+pv=306 tail=220 prologue=382 | per loader warp per tile: wait-free-stage=206 cp.async-issue=1340 page-entries=333 drain=104
+STAMPS b= 1 full    L=8 pw=8 timeout_flags=0 tiles=1324 ctas=128 cycles per tile per math warp: wait-data=378 qk-issue=143 v-convert=375 wg-barrier=108 qk-wait+softmax=1016 pack+pv=323 tail=219 prologue=343 | per loader warp per tile: wait-free-stage=230 cp.async-issue=784 page-entries=332 drain=87
+BENCH b=32 sliding L=8 _fused_prep=32.1 _probe_fa3=31.1 _ws=30.8 e=7.6e-02 _ws@p=2=29.3 e=7.6e-02 _ws@p=8=31.6 e=7.6e-02 _ws@n=4=29.9 e=7.6e-02 _ws@m=1=22.3 e=nan _ws@m=1,p=8=22.9 e=nan _ws@s=8=38.6 e=7.6e-02 _ws@s=16=52.0 e=7.6e-02 _ws@p=8,s=8=39.8 e=7.6e-02
+STAMPS b=32 sliding L=8 pw=4 timeout_flags=0 tiles=1024 ctas=128 cycles per tile per math warp: wait-data=433 qk-issue=152 v-convert=359 wg-barrier=108 qk-wait+softmax=1030 pack+pv=318 tail=259 prologue=1538 | per loader warp per tile: wait-free-stage=219 cp.async-issue=2099 page-entries=497 drain=222
+STAMPS b=32 sliding L=8 pw=8 timeout_flags=0 tiles=1024 ctas=128 cycles per tile per math warp: wait-data=180 qk-issue=173 v-convert=408 wg-barrier=124 qk-wait+softmax=1072 pack+pv=331 tail=250 prologue=948 | per loader warp per tile: wait-free-stage=269 cp.async-issue=1011 page-entries=455 drain=149
+BENCH b=16 sliding L=8 _fused_prep=25.5 _probe_fa3=24.6 _ws=24.2 e=7.4e-02 _ws@p=2=24.1 e=7.4e-02 _ws@p=8=24.1 e=7.4e-02 _ws@n=4=24.0 e=7.4e-02 _ws@m=1=18.7 e=nan _ws@m=1,p=8=19.8 e=nan _ws@s=8=24.0 e=7.4e-02 _ws@s=16=32.4 e=7.4e-02 _ws@p=8,s=8=24.2 e=7.4e-02
+STAMPS b=16 sliding L=8 pw=4 timeout_flags=0 tiles=512 ctas=128 cycles per tile per math warp: wait-data=860 qk-issue=152 v-convert=351 wg-barrier=103 qk-wait+softmax=1035 pack+pv=325 tail=808 prologue=2336 | per loader warp per tile: wait-free-stage=347 cp.async-issue=3182 page-entries=487 drain=247
+STAMPS b=16 sliding L=8 pw=8 timeout_flags=0 tiles=512 ctas=128 cycles per tile per math warp: wait-data=220 qk-issue=159 v-convert=406 wg-barrier=112 qk-wait+softmax=1094 pack+pv=327 tail=1322 prologue=1760 | per loader warp per tile: wait-free-stage=465 cp.async-issue=1581 page-entries=608 drain=168
+BENCH b= 1 sliding L=8 _fused_prep=21.3 _probe_fa3=20.0 _ws=21.4 e=7.7e-02 _ws@p=2=21.1 e=7.7e-02 _ws@p=8=21.4 e=7.7e-02 _ws@n=4=21.3 e=7.7e-02 _ws@m=1=17.1 e=nan _ws@m=1,p=8=17.2 e=nan _ws@s=8=22.5 e=7.7e-02 _ws@s=16=21.3 e=7.7e-02 _ws@p=8,s=8=22.6 e=7.7e-02
+STAMPS b= 1 sliding L=8 pw=4 timeout_flags=0 tiles=32 ctas=16 cycles per tile per math warp: wait-data=836 qk-issue=142 v-convert=342 wg-barrier=101 qk-wait+softmax=1032 pack+pv=320 tail=989 prologue=3159 | per loader warp per tile: wait-free-stage=479 cp.async-issue=2645 page-entries=670 drain=560
+STAMPS b= 1 sliding L=8 pw=8 timeout_flags=0 tiles=32 ctas=16 cycles per tile per math warp: wait-data=220 qk-issue=154 v-convert=408 wg-barrier=111 qk-wait+softmax=1079 pack+pv=314 tail=950 prologue=3036 | per loader warp per tile: wait-free-stage=498 cp.async-issue=1596 page-entries=582 drain=638
+BENCH b=32 full    L=1 _fused_prep=388.6 _probe_fa3=387.2
