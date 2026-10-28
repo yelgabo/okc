@@ -1,0 +1,65 @@
+okc run 947c28a7dd3d4de9 on muse_moe_w4a16
+submission  /Users/gretchengabo/GitHub/okc/.claude/worktrees/agent-abcbbb14112d5bddc/muse_moe_w4a16/submission.py
+status      ok
+passed      true
+speedup     1.322684633430847
+speedup_ci  [1.3028443639293843 1.3425249029323096]
+score_us    10167.578620095248
+tests       5/5 passed
+
+scored shapes (µs; speed of light is the reference's bound)
+case                                                         sglang      yours  speedup        sol  
+bs=1 load=decode 1 sharding=ep8                               79.65      52.17   1.527x      11.42  
+bs=16 load=decode 16 sharding=ep8                            190.78     153.60   1.242x      52.52  
+bs=32 load=decode 32 sharding=ep8                            204.53     195.59   1.046x      70.76  
+bs=8 load=verify 1 sharding=ep8                              142.22     106.04   1.341x      37.32  
+bs=128 load=verify 16 sharding=ep8                           470.61     326.09   1.443x     101.34  
+bs=256 load=verify 32 sharding=ep8                           614.35     440.41   1.395x     108.94  
+
+profile 0: bs=1 load=decode 1 sharding=ep8
+kernel                                                           GPU time  share  calls
+void sglang::device::marlin_moe::Marlin<__nv_bfloat16, 56...      39.5 µs  85.3%      2
+void (anonymous namespace)::finalize_row_kernel<512>(__nv...       3.7 µs   8.1%      1
+(anonymous namespace)::route_align_kernel(int const*, int...       1.6 µs   3.4%      1
+void sglang::act_and_mul_kernel<__nv_bfloat16, (sglang::A...       1.5 µs   3.3%      1
+total                                                             46.3 µs
+
+profile 1: bs=16 load=decode 16 sharding=ep8
+kernel                                                           GPU time  share  calls
+void sglang::device::marlin_moe::Marlin<__nv_bfloat16, 56...     110.3 µs  93.1%      2
+void (anonymous namespace)::finalize_row_kernel<512>(__nv...       4.1 µs   3.5%      1
+void sglang::act_and_mul_kernel<__nv_bfloat16, (sglang::A...       2.2 µs   1.8%      1
+(anonymous namespace)::route_align_kernel(int const*, int...       1.9 µs   1.6%      1
+total                                                            118.4 µs
+
+profile 2: bs=32 load=decode 32 sharding=ep8
+kernel                                                           GPU time  share  calls
+void sglang::device::marlin_moe::Marlin<__nv_bfloat16, 56...     176.0 µs  95.6%      2
+void (anonymous namespace)::finalize_row_kernel<512>(__nv...       4.0 µs   2.2%      1
+void sglang::act_and_mul_kernel<__nv_bfloat16, (sglang::A...       2.3 µs   1.3%      1
+(anonymous namespace)::route_align_kernel(int const*, int...       1.8 µs   1.0%      1
+total                                                            184.1 µs
+
+profile 3: bs=8 load=verify 1 sharding=ep8
+kernel                                                           GPU time  share  calls
+void sglang::device::marlin_moe::Marlin<__nv_bfloat16, 56...     104.4 µs  93.4%      2
+void (anonymous namespace)::finalize_row_kernel<512>(__nv...       3.8 µs   3.4%      1
+void sglang::act_and_mul_kernel<__nv_bfloat16, (sglang::A...       2.0 µs   1.7%      1
+(anonymous namespace)::route_align_kernel(int const*, int...       1.6 µs   1.5%      1
+total                                                            111.8 µs
+
+profile 4: bs=128 load=verify 16 sharding=ep8
+kernel                                                           GPU time  share  calls
+void sglang::device::marlin_moe::Marlin<__nv_bfloat16, 56...     292.9 µs  96.5%      2
+void (anonymous namespace)::finalize_row_kernel<512>(__nv...       4.8 µs   1.6%      1
+void sglang::act_and_mul_kernel<__nv_bfloat16, (sglang::A...       3.6 µs   1.2%      1
+(anonymous namespace)::route_align_kernel(int const*, int...       2.2 µs   0.7%      1
+total                                                            303.5 µs
+
+profile 5: bs=256 load=verify 32 sharding=ep8
+kernel                                                           GPU time  share  calls
+void sglang::device::marlin_moe::Marlin<__nv_bfloat16, 56...     395.9 µs  96.0%      2
+void (anonymous namespace)::finalize_row_kernel<512>(__nv...       8.1 µs   2.0%      1
+void sglang::act_and_mul_kernel<__nv_bfloat16, (sglang::A...       5.9 µs   1.4%      1
+(anonymous namespace)::route_align_kernel(int const*, int...       2.7 µs   0.7%      1
+total                                                            412.6 µs
