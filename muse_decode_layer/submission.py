@@ -112,6 +112,9 @@ class Inputs(TypedDict):
 PORT_MOE = True
 PORT_ROUTER = True
 PORT_PROJ = True
+# The hi/lo mma router at 9-32 tokens runs on the side stream under the pooler: switching it
+# on and off moved decode 16 by -0.01 to -0.02 both times, within noise (checks 6ef2d969b6104e10,
+# 46dab8fb87274880), so SGLang's split router stays there.
 PORT_ROUTER_MMA = False
 
 HIDDEN = 8192
