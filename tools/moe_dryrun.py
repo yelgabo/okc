@@ -67,8 +67,8 @@ def main():
         dg[:, 16, 3:8] = torch.tensor([0, 10_000, 180_000, 190_000, 200_000])
         dg[:, 17, 3] = 0
         dg[:, 17, 4] = 360_000
-        sc["inter"] = torch.zeros(4096 * 4096, dtype=torch.bfloat16)
-        sc["inter"].view(torch.int64)[: dg.numel()] = dg.flatten()
+        sc["inter"] = torch.zeros(4096, 4096, dtype=torch.bfloat16)
+        sc["inter"].view(-1).view(torch.int64)[: dg.numel()] = dg.flatten()
         return sc
 
     mod._scratch = scratch

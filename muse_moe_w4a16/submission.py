@@ -3653,7 +3653,7 @@ def _diag_report(state, bs, seed=11):
     _run(data, state, v)
     torch.cuda.synchronize()
     g = torch.cuda.get_device_properties(0).multi_processor_count
-    d = inter.view(torch.int64)[: g * 144].view(g, 18, 8).double().cpu()
+    d = inter.reshape(-1).view(torch.int64)[: g * 144].view(g, 18, 8).double().cpu()
     ghz = (d[:, 17, 4] - d[:, 17, 3]) / (d[:, 16, 7] - d[:, 16, 3])
     cyc_us = (ghz * 1e3).unsqueeze(1)
     cw = d[:, :16, :4] / cyc_us.unsqueeze(2)
