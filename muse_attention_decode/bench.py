@@ -4901,7 +4901,7 @@ def _ob_selftest():
     global _ONE_DBG
     if _ONE is not None:
         _ONE_DBG = torch.zeros(4, dtype=torch.int32, device="cuda")
-        st = _one_state(torch.device("cuda"))
+        st = _one_state(torch.device("cuda", torch.cuda.current_device()))
         lim = st["limits"]
         res = " ".join(f"L{lim[i]}m{lim[i + 1]}:{lim[i + 2]}({lim[i + 4]}/SM,{lim[i + 3] // 1024}KB)"
                        for i in range(0, len(lim), 5))
