@@ -1,0 +1,164 @@
+7TB/s) x1.19 vs marlin  rel diff 6.1e-03
+W4BENCH   cfg 11 (1, 2, 16, 1, 4, 4)  212.2us (1.78TB/s) x0.71 vs marlin  rel diff 6.1e-03
+W4BENCH   cfg 12 (1, 2, 16, 4, 4, 4)  116.2us (3.25TB/s) x1.30 vs marlin  rel diff 6.1e-03
+W4BENCH   cfg 13 (1, 4, 32, 4, 4, 4)  164.8us (2.29TB/s) x0.91 vs marlin  rel diff 6.1e-03
+W4BENCH   cfg 14 (1, 4, 32, 2, 4, 4)  275.4us (1.37TB/s) x0.55 vs marlin  rel diff 6.1e-03
+W4BENCH   cfg 15 (1, 4, 32, 8, 4, 4)  158.9us (2.38TB/s) x0.95 vs marlin  rel diff 6.1e-03
+W4BENCH2 bs= 32 seed=11 floor@4.8= 39.3 marlin2+fin=  83.2us(2.27TB/s)
+W4BENCH2   cfg 20 (2, 1, 8, 2, 4, 4)   63.2us (2.99TB/s) x1.32 vs marlin  rel diff 3.3e-03
+W4BENCH2   cfg 21 (2, 1, 8, 4, 4, 4)   61.3us (3.08TB/s) x1.36 vs marlin  rel diff 3.3e-03
+W4BENCH2   cfg 22 (2, 1, 8, 1, 4, 4)   68.8us (2.74TB/s) x1.21 vs marlin  rel diff 3.3e-03
+W4BENCH2   cfg 23 (2, 2, 16, 2, 4, 4)   71.9us (2.62TB/s) x1.16 vs marlin  rel diff 3.3e-03
+W4BENCH2   cfg 24 (2, 2, 16, 4, 4, 4)   65.2us (2.89TB/s) x1.28 vs marlin  rel diff 3.3e-03
+W4BENCH2   cfg 25 (2, 4, 32, 4, 4, 4)   89.1us (2.12TB/s) x0.93 vs marlin  rel diff 3.3e-03
+W4BENCH2   cfg 26 (2, 4, 32, 8, 4, 4)   86.6us (2.18TB/s) x0.96 vs marlin  rel diff 3.3e-03
+W4BENCH2   cfg 27 (2, 4, 32, 2, 4, 4)  141.2us (1.34TB/s) x0.59 vs marlin  rel diff 3.3e-03
+W4BENCH   full forward: marlin both  237.0us, policy g1=13 g2=None  251.4us, best g1=9 g2=21  172.1us (rel err vs fp32 2.94e-03)
+W4BENCH bs= 32 seed=12 active=15 top=[12, 11, 5, 5] floor@4.8= 59.0 marlin+act= 116.4us(2.43TB/s)
+W4BENCH   cfg  6 (1, 1, 8, 1, 4, 4)   92.8us (3.05TB/s) x1.25 vs marlin  rel diff 6.2e-03
+W4BENCH   cfg  7 (1, 1, 8, 1, 2, 4)  139.7us (2.03TB/s) x0.83 vs marlin  rel diff 6.2e-03
+W4BENCH   cfg  8 (1, 1, 8, 1, 4, 2)  103.1us (2.75TB/s) x1.13 vs marlin  rel diff 6.2e-03
+W4BENCH   cfg  9 (1, 1, 8, 2, 4, 4)   91.5us (3.09TB/s) x1.27 vs marlin  rel diff 6.2e-03
+W4BENCH   cfg 10 (1, 2, 16, 2, 4, 4)   98.9us (2.86TB/s) x1.18 vs marlin  rel diff 6.2e-03
+W4BENCH   cfg 11 (1, 2, 16, 1, 4, 4)  170.1us (1.66TB/s) x0.68 vs marlin  rel diff 6.2e-03
+W4BENCH   cfg 12 (1, 2, 16, 4, 4, 4)   92.3us (3.07TB/s) x1.26 vs marlin  rel diff 6.2e-03
+W4BENCH   cfg 13 (1, 4, 32, 4, 4, 4)  129.6us (2.18TB/s) x0.90 vs marlin  rel diff 6.2e-03
+W4BENCH   cfg 14 (1, 4, 32, 2, 4, 4)  213.5us (1.33TB/s) x0.55 vs marlin  rel diff 6.2e-03
+W4BENCH   cfg 15 (1, 4, 32, 8, 4, 4)  126.6us (2.24TB/s) x0.92 vs marlin  rel diff 6.2e-03
+W4BENCH2 bs= 32 seed=12 floor@4.8= 29.5 marlin2+fin=  65.6us(2.16TB/s)
+W4BENCH2   cfg 20 (2, 1, 8, 2, 4, 4)   55.7us (2.54TB/s) x1.18 vs marlin  rel diff 3.3e-03
+W4BENCH2   cfg 21 (2, 1, 8, 4, 4, 4)   52.8us (2.68TB/s) x1.24 vs marlin  rel diff 3.3e-03
+W4BENCH2   cfg 22 (2, 1, 8, 1, 4, 4)   65.3us (2.17TB/s) x1.00 vs marlin  rel diff 3.3e-03
+W4BENCH2   cfg 23 (2, 2, 16, 2, 4, 4)   59.6us (2.38TB/s) x1.10 vs marlin  rel diff 3.3e-03
+W4BENCH2   cfg 24 (2, 2, 16, 4, 4, 4)   52.4us (2.70TB/s) x1.25 vs marlin  rel diff 3.3e-03
+W4BENCH2   cfg 25 (2, 4, 32, 4, 4, 4)   72.1us (1.96TB/s) x0.91 vs marlin  rel diff 3.3e-03
+W4BENCH2   cfg 26 (2, 4, 32, 8, 4, 4)   69.8us (2.03TB/s) x0.94 vs marlin  rel diff 3.3e-03
+W4BENCH2   cfg 27 (2, 4, 32, 2, 4, 4)  114.5us (1.24TB/s) x0.57 vs marlin  rel diff 3.3e-03
+W4BENCH   full forward: marlin both  185.5us, policy g1=13 g2=None  199.6us, best g1=9 g2=24  147.7us (rel err vs fp32 2.93e-03)
+W4BENCH bs=  8 seed=11 active= 8 top=[2, 2, 2, 1] floor@4.8= 31.5 marlin+act=  63.5us(2.38TB/s)
+W4BENCH   cfg  6 (1, 1, 8, 1, 4, 4)   59.1us (2.55TB/s) x1.07 vs marlin  rel diff 6.1e-03
+W4BENCH   cfg  7 (1, 1, 8, 1, 2, 4)   68.3us (2.21TB/s) x0.93 vs marlin  rel diff 6.1e-03
+W4BENCH   cfg  8 (1, 1, 8, 1, 4, 2)   65.4us (2.31TB/s) x0.97 vs marlin  rel diff 6.1e-03
+W4BENCH   cfg  9 (1, 1, 8, 2, 4, 4)   51.7us (2.92TB/s) x1.23 vs marlin  rel diff 6.1e-03
+W4BENCH   cfg 10 (1, 2, 16, 2, 4, 4)   59.4us (2.54TB/s) x1.07 vs marlin  rel diff 6.1e-03
+W4BENCH   cfg 11 (1, 2, 16, 1, 4, 4)   86.1us (1.75TB/s) x0.74 vs marlin  rel diff 6.1e-03
+W4BENCH   cfg 12 (1, 2, 16, 4, 4, 4)   51.9us (2.91TB/s) x1.22 vs marlin  rel diff 6.1e-03
+W4BENCH   cfg 13 (1, 4, 32, 4, 4, 4)   74.3us (2.03TB/s) x0.85 vs marlin  rel diff 6.1e-03
+W4BENCH   cfg 14 (1, 4, 32, 2, 4, 4)  115.1us (1.31TB/s) x0.55 vs marlin  rel diff 6.1e-03
+W4BENCH   cfg 15 (1, 4, 32, 8, 4, 4)   72.8us (2.07TB/s) x0.87 vs marlin  rel diff 6.1e-03
+W4BENCH2 bs=  8 seed=11 floor@4.8= 15.7 marlin2+fin=  39.3us(1.92TB/s)
+W4BENCH2   cfg 20 (2, 1, 8, 2, 4, 4)   37.0us (2.04TB/s) x1.06 vs marlin  rel diff 3.3e-03
+W4BENCH2   cfg 21 (2, 1, 8, 4, 4, 4)   33.0us (2.29TB/s) x1.19 vs marlin  rel diff 3.3e-03
+W4BENCH2   cfg 22 (2, 1, 8, 1, 4, 4)   36.4us (2.08TB/s) x1.08 vs marlin  rel diff 3.3e-03
+W4BENCH2   cfg 23 (2, 2, 16, 2, 4, 4)   38.6us (1.96TB/s) x1.02 vs marlin  rel diff 3.3e-03
+W4BENCH2   cfg 24 (2, 2, 16, 4, 4, 4)   33.4us (2.26TB/s) x1.18 vs marlin  rel diff 3.3e-03
+W4BENCH2   cfg 25 (2, 4, 32, 4, 4, 4)   43.6us (1.73TB/s) x0.90 vs marlin  rel diff 3.3e-03
+W4BENCH2   cfg 26 (2, 4, 32, 8, 4, 4)   43.6us (1.73TB/s) x0.90 vs marlin  rel diff 3.3e-03
+W4BENCH2   cfg 27 (2, 4, 32, 2, 4, 4)   62.0us (1.22TB/s) x0.63 vs marlin  rel diff 3.3e-03
+W4BENCH   full forward: marlin both  105.3us, policy g1=6 g2=None  102.0us, best g1=9 g2=21   86.4us (rel err vs fp32 2.93e-03)
+W4BENCH bs=  8 seed=12 active= 7 top=[8, 3, 1, 1] floor@4.8= 27.5 marlin+act=  57.2us(2.31TB/s)
+W4BENCH   cfg  6 (1, 1, 8, 1, 4, 4)   55.2us (2.39TB/s) x1.04 vs marlin  rel diff 6.1e-03
+W4BENCH   cfg  7 (1, 1, 8, 1, 2, 4)   66.7us (1.98TB/s) x0.86 vs marlin  rel diff 6.1e-03
+W4BENCH   cfg  8 (1, 1, 8, 1, 4, 2)   62.3us (2.12TB/s) x0.92 vs marlin  rel diff 6.1e-03
+W4BENCH   cfg  9 (1, 1, 8, 2, 4, 4)   49.6us (2.67TB/s) x1.15 vs marlin  rel diff 6.1e-03
+W4BENCH   cfg 10 (1, 2, 16, 2, 4, 4)   55.4us (2.39TB/s) x1.03 vs marlin  rel diff 6.1e-03
+W4BENCH   cfg 11 (1, 2, 16, 1, 4, 4)   85.3us (1.55TB/s) x0.67 vs marlin  rel diff 6.1e-03
+W4BENCH   cfg 12 (1, 2, 16, 4, 4, 4)   47.1us (2.80TB/s) x1.21 vs marlin  rel diff 6.1e-03
+W4BENCH   cfg 13 (1, 4, 32, 4, 4, 4)   69.0us (1.91TB/s) x0.83 vs marlin  rel diff 6.1e-03
+W4BENCH   cfg 14 (1, 4, 32, 2, 4, 4)  105.2us (1.26TB/s) x0.54 vs marlin  rel diff 6.1e-03
+W4BENCH   cfg 15 (1, 4, 32, 8, 4, 4)   63.8us (2.07TB/s) x0.90 vs marlin  rel diff 6.1e-03
+W4BENCH2 bs=  8 seed=12 floor@4.8= 13.8 marlin2+fin=  36.3us(1.82TB/s)
+W4BENCH2   cfg 20 (2, 1, 8, 2, 4, 4)   36.5us (1.81TB/s) x0.99 vs marlin  rel diff 3.3e-03
+W4BENCH2   cfg 21 (2, 1, 8, 4, 4, 4)   30.5us (2.17TB/s) x1.19 vs marlin  rel diff 3.3e-03
+W4BENCH2   cfg 22 (2, 1, 8, 1, 4, 4)   36.2us (1.83TB/s) x1.00 vs marlin  rel diff 3.3e-03
+W4BENCH2   cfg 23 (2, 2, 16, 2, 4, 4)   37.2us (1.78TB/s) x0.98 vs marlin  rel diff 3.3e-03
+W4BENCH2   cfg 24 (2, 2, 16, 4, 4, 4)   31.9us (2.07TB/s) x1.14 vs marlin  rel diff 3.3e-03
+W4BENCH2   cfg 25 (2, 4, 32, 4, 4, 4)   41.1us (1.61TB/s) x0.88 vs marlin  rel diff 3.3e-03
+W4BENCH2   cfg 26 (2, 4, 32, 8, 4, 4)   40.5us (1.63TB/s) x0.90 vs marlin  rel diff 3.3e-03
+W4BENCH2   cfg 27 (2, 4, 32, 2, 4, 4)   60.7us (1.09TB/s) x0.60 vs marlin  rel diff 3.3e-03
+W4BENCH   full forward: marlin both   95.9us, policy g1=6 g2=None   95.0us, best g1=12 g2=21   80.4us (rel err vs fp32 2.96e-03)
+W4BENCH bs=128 seed=11 active=25 top=[52, 20, 15, 10] floor@4.8= 98.3 marlin+act= 215.2us(2.19TB/s)
+W4BENCH   cfg  6 (1, 1, 8, 1, 4, 4)  185.1us (2.55TB/s) x1.16 vs marlin  rel diff 6.1e-03
+W4BENCH   cfg  7 (1, 1, 8, 1, 2, 4)  299.4us (1.58TB/s) x0.72 vs marlin  rel diff 6.1e-03
+W4BENCH   cfg  8 (1, 1, 8, 1, 4, 2)  206.8us (2.28TB/s) x1.04 vs marlin  rel diff 6.1e-03
+W4BENCH   cfg  9 (1, 1, 8, 2, 4, 4)  173.1us (2.73TB/s) x1.24 vs marlin  rel diff 6.1e-03
+W4BENCH   cfg 10 (1, 2, 16, 2, 4, 4)  182.4us (2.59TB/s) x1.18 vs marlin  rel diff 6.1e-03
+W4BENCH   cfg 11 (1, 2, 16, 1, 4, 4)  318.2us (1.48TB/s) x0.68 vs marlin  rel diff 6.1e-03
+W4BENCH   cfg 12 (1, 2, 16, 4, 4, 4)  170.9us (2.76TB/s) x1.26 vs marlin  rel diff 6.1e-03
+W4BENCH   cfg 13 (1, 4, 32, 4, 4, 4)  221.2us (2.13TB/s) x0.97 vs marlin  rel diff 6.1e-03
+W4BENCH   cfg 14 (1, 4, 32, 2, 4, 4)  365.3us (1.29TB/s) x0.59 vs marlin  rel diff 6.1e-03
+W4BENCH   cfg 15 (1, 4, 32, 8, 4, 4)  224.0us (2.11TB/s) x0.96 vs marlin  rel diff 6.1e-03
+W4BENCH2 bs=128 seed=11 floor@4.8= 49.2 marlin2+fin= 116.2us(2.03TB/s)
+W4BENCH2   cfg 20 (2, 1, 8, 2, 4, 4)   93.8us (2.52TB/s) x1.24 vs marlin  rel diff 3.3e-03
+W4BENCH2   cfg 21 (2, 1, 8, 4, 4, 4)   95.4us (2.47TB/s) x1.22 vs marlin  rel diff 3.3e-03
+W4BENCH2   cfg 22 (2, 1, 8, 1, 4, 4)   99.2us (2.38TB/s) x1.17 vs marlin  rel diff 3.3e-03
+W4BENCH2   cfg 23 (2, 2, 16, 2, 4, 4)   98.6us (2.39TB/s) x1.18 vs marlin  rel diff 3.3e-03
+W4BENCH2   cfg 24 (2, 2, 16, 4, 4, 4)   92.4us (2.55TB/s) x1.26 vs marlin  rel diff 3.3e-03
+W4BENCH2   cfg 25 (2, 4, 32, 4, 4, 4)  116.1us (2.03TB/s) x1.00 vs marlin  rel diff 3.3e-03
+W4BENCH2   cfg 26 (2, 4, 32, 8, 4, 4)  115.6us (2.04TB/s) x1.00 vs marlin  rel diff 3.3e-03
+W4BENCH2   cfg 27 (2, 4, 32, 2, 4, 4)  187.3us (1.26TB/s) x0.62 vs marlin  rel diff 3.3e-03
+W4BENCH   full forward: marlin both  333.8us, policy g1=None g2=None  333.4us, best g1=12 g2=24  265.3us (rel err vs fp32 2.94e-03)
+W4BENCH bs=128 seed=12 active=23 top=[30, 17, 13, 11] floor@4.8= 90.4 marlin+act= 189.5us(2.29TB/s)
+W4BENCH   cfg  6 (1, 1, 8, 1, 4, 4)  169.2us (2.57TB/s) x1.12 vs marlin  rel diff 6.2e-03
+W4BENCH   cfg  7 (1, 1, 8, 1, 2, 4)  255.4us (1.70TB/s) x0.74 vs marlin  rel diff 6.2e-03
+W4BENCH   cfg  8 (1, 1, 8, 1, 4, 2)  192.3us (2.26TB/s) x0.99 vs marlin  rel diff 6.2e-03
+W4BENCH   cfg  9 (1, 1, 8, 2, 4, 4)  152.2us (2.85TB/s) x1.24 vs marlin  rel diff 6.2e-03
+W4BENCH   cfg 10 (1, 2, 16, 2, 4, 4)  163.5us (2.65TB/s) x1.16 vs marlin  rel diff 6.2e-03
+W4BENCH   cfg 11 (1, 2, 16, 1, 4, 4)  276.6us (1.57TB/s) x0.68 vs marlin  rel diff 6.2e-03
+W4BENCH   cfg 12 (1, 2, 16, 4, 4, 4)  150.8us (2.88TB/s) x1.26 vs marlin  rel diff 6.2e-03
+W4BENCH   cfg 13 (1, 4, 32, 4, 4, 4)  198.4us (2.19TB/s) x0.96 vs marlin  rel diff 6.2e-03
+W4BENCH   cfg 14 (1, 4, 32, 2, 4, 4)  328.3us (1.32TB/s) x0.58 vs marlin  rel diff 6.2e-03
+W4BENCH   cfg 15 (1, 4, 32, 8, 4, 4)  200.8us (2.16TB/s) x0.94 vs marlin  rel diff 6.2e-03
+W4BENCH2 bs=128 seed=12 floor@4.8= 45.2 marlin2+fin= 101.7us(2.13TB/s)
+W4BENCH2   cfg 20 (2, 1, 8, 2, 4, 4)   85.2us (2.55TB/s) x1.19 vs marlin  rel diff 3.3e-03
+W4BENCH2   cfg 21 (2, 1, 8, 4, 4, 4)   84.7us (2.56TB/s) x1.20 vs marlin  rel diff 3.3e-03
+W4BENCH2   cfg 22 (2, 1, 8, 1, 4, 4)   91.4us (2.37TB/s) x1.11 vs marlin  rel diff 3.3e-03
+W4BENCH2   cfg 23 (2, 2, 16, 2, 4, 4)   90.3us (2.40TB/s) x1.13 vs marlin  rel diff 3.3e-03
+W4BENCH2   cfg 24 (2, 2, 16, 4, 4, 4)   82.4us (2.64TB/s) x1.23 vs marlin  rel diff 3.3e-03
+W4BENCH2   cfg 25 (2, 4, 32, 4, 4, 4)  103.9us (2.09TB/s) x0.98 vs marlin  rel diff 3.3e-03
+W4BENCH2   cfg 26 (2, 4, 32, 8, 4, 4)  105.2us (2.06TB/s) x0.97 vs marlin  rel diff 3.3e-03
+W4BENCH2   cfg 27 (2, 4, 32, 2, 4, 4)  169.0us (1.28TB/s) x0.60 vs marlin  rel diff 3.3e-03
+W4BENCH   full forward: marlin both  292.0us, policy g1=None g2=None  292.1us, best g1=12 g2=24  234.4us (rel err vs fp32 2.95e-03)
+W4BENCH bs=256 seed=11 active=21 top=[256, 24, 21, 18] floor@4.8= 82.6 marlin+act= 294.6us(1.35TB/s)
+W4BENCH   cfg  6 (1, 1, 8, 1, 4, 4)  306.8us (1.29TB/s) x0.96 vs marlin  rel diff 6.2e-03
+W4BENCH   cfg  7 (1, 1, 8, 1, 2, 4)  512.5us (0.77TB/s) x0.57 vs marlin  rel diff 6.2e-03
+W4BENCH   cfg  8 (1, 1, 8, 1, 4, 2)  346.0us (1.15TB/s) x0.85 vs marlin  rel diff 6.2e-03
+W4BENCH   cfg  9 (1, 1, 8, 2, 4, 4)  281.4us (1.41TB/s) x1.05 vs marlin  rel diff 6.2e-03
+W4BENCH   cfg 10 (1, 2, 16, 2, 4, 4)  253.1us (1.57TB/s) x1.16 vs marlin  rel diff 6.2e-03
+W4BENCH   cfg 11 (1, 2, 16, 1, 4, 4)  428.7us (0.92TB/s) x0.69 vs marlin  rel diff 6.2e-03
+W4BENCH   cfg 12 (1, 2, 16, 4, 4, 4)  240.8us (1.65TB/s) x1.22 vs marlin  rel diff 6.2e-03
+W4BENCH   cfg 13 (1, 4, 32, 4, 4, 4)  257.5us (1.54TB/s) x1.14 vs marlin  rel diff 6.2e-03
+W4BENCH   cfg 14 (1, 4, 32, 2, 4, 4)  409.6us (0.97TB/s) x0.72 vs marlin  rel diff 6.2e-03
+W4BENCH   cfg 15 (1, 4, 32, 8, 4, 4)  278.4us (1.42TB/s) x1.06 vs marlin  rel diff 6.2e-03
+W4BENCH2 bs=256 seed=11 floor@4.8= 41.3 marlin2+fin= 159.0us(1.25TB/s)
+W4BENCH2   cfg 20 (2, 1, 8, 2, 4, 4)  146.4us (1.35TB/s) x1.09 vs marlin  rel diff 3.3e-03
+W4BENCH2   cfg 21 (2, 1, 8, 4, 4, 4)  153.4us (1.29TB/s) x1.04 vs marlin  rel diff 3.3e-03
+W4BENCH2   cfg 22 (2, 1, 8, 1, 4, 4)  168.0us (1.18TB/s) x0.95 vs marlin  rel diff 3.3e-03
+W4BENCH2   cfg 23 (2, 2, 16, 2, 4, 4)  132.7us (1.49TB/s) x1.20 vs marlin  rel diff 3.3e-03
+W4BENCH2   cfg 24 (2, 2, 16, 4, 4, 4)  126.4us (1.57TB/s) x1.26 vs marlin  rel diff 3.3e-03
+W4BENCH2   cfg 25 (2, 4, 32, 4, 4, 4)  133.8us (1.48TB/s) x1.19 vs marlin  rel diff 3.3e-03
+W4BENCH2   cfg 26 (2, 4, 32, 8, 4, 4)  145.2us (1.37TB/s) x1.10 vs marlin  rel diff 3.3e-03
+W4BENCH2   cfg 27 (2, 4, 32, 2, 4, 4)  206.5us (0.96TB/s) x0.77 vs marlin  rel diff 3.3e-03
+W4BENCH   full forward: marlin both  454.3us, policy g1=None g2=None  451.5us, best g1=12 g2=24  367.8us (rel err vs fp32 2.95e-03)
+W4BENCH bs=256 seed=12 active=24 top=[48, 43, 32, 30] floor@4.8= 94.4 marlin+act= 243.2us(1.86TB/s)
+W4BENCH   cfg  6 (1, 1, 8, 1, 4, 4)  267.6us (1.69TB/s) x0.91 vs marlin  rel diff 6.2e-03
+W4BENCH   cfg  7 (1, 1, 8, 1, 2, 4)  443.4us (1.02TB/s) x0.55 vs marlin  rel diff 6.2e-03
+W4BENCH   cfg  8 (1, 1, 8, 1, 4, 2)  297.1us (1.52TB/s) x0.82 vs marlin  rel diff 6.2e-03
+W4BENCH   cfg  9 (1, 1, 8, 2, 4, 4)  247.9us (1.83TB/s) x0.98 vs marlin  rel diff 6.2e-03
+W4BENCH   cfg 10 (1, 2, 16, 2, 4, 4)  215.8us (2.10TB/s) x1.13 vs marlin  rel diff 6.2e-03
+W4BENCH   cfg 11 (1, 2, 16, 1, 4, 4)  357.7us (1.27TB/s) x0.68 vs marlin  rel diff 6.2e-03
+W4BENCH   cfg 12 (1, 2, 16, 4, 4, 4)  207.3us (2.18TB/s) x1.17 vs marlin  rel diff 6.2e-03
+W4BENCH   cfg 13 (1, 4, 32, 4, 4, 4)  238.7us (1.90TB/s) x1.02 vs marlin  rel diff 6.2e-03
+W4BENCH   cfg 14 (1, 4, 32, 2, 4, 4)  379.1us (1.19TB/s) x0.64 vs marlin  rel diff 6.2e-03
+W4BENCH   cfg 15 (1, 4, 32, 8, 4, 4)  260.6us (1.74TB/s) x0.93 vs marlin  rel diff 6.2e-03
+W4BENCH2 bs=256 seed=12 floor@4.8= 47.2 marlin2+fin= 133.3us(1.70TB/s)
+W4BENCH2   cfg 20 (2, 1, 8, 2, 4, 4)  132.8us (1.71TB/s) x1.00 vs marlin  rel diff 3.3e-03
+W4BENCH2   cfg 21 (2, 1, 8, 4, 4, 4)  138.2us (1.64TB/s) x0.96 vs marlin  rel diff 3.3e-03
+W4BENCH2   cfg 22 (2, 1, 8, 1, 4, 4)  146.8us (1.54TB/s) x0.91 vs marlin  rel diff 3.3e-03
+W4BENCH2   cfg 23 (2, 2, 16, 2, 4, 4)  116.3us (1.95TB/s) x1.15 vs marlin  rel diff 3.3e-03
+W4BENCH2   cfg 24 (2, 2, 16, 4, 4, 4)  110.7us (2.05TB/s) x1.20 vs marlin  rel diff 3.3e-03
+W4BENCH2   cfg 25 (2, 4, 32, 4, 4, 4)  126.6us (1.79TB/s) x1.05 vs marlin  rel diff 3.3e-03
+W4BENCH2   cfg 26 (2, 4, 32, 8, 4, 4)  133.1us (1.70TB/s) x1.00 vs marlin  rel diff 3.3e-03
+W4BENCH2   cfg 27 (2, 4, 32, 2, 4, 4)  195.9us (1.16TB/s) x0.68 vs marlin  rel diff 3.3e-03
+W4BENCH   full forward: marlin both  377.7us, policy g1=None g2=None  378.4us, best g1=12 g2=24  319.4us (rel err vs fp32 2.95e-03)
+PREP total 92.1 s

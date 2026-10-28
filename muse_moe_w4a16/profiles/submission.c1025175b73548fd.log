@@ -1,0 +1,50 @@
+SELFTEST worst rel diff vs sglang path 2.84e-04
+TUNE g1 bs=1 20:30.8 34:30.9 3:31.8 33:32.0 21:32.1 16:32.3 0:32.4 17:32.5 19:32.5 2:32.6 18:33.9 23:34.3 6:34.4 5:34.5 37:34.6 4:35.3 7:36.3 8:36.3 m:37.2 1:37.4 15:37.5 24:38.4 22:48.6
+TUNE g2 bs=1 26:24.6 29:25.1 9:25.4 10:26.2 35:26.3 11:26.5 36:26.7 13:26.7 32:26.8 25:27.7 28:28.2 14:29.1 m:29.3 12:30.0 30:30.7 27:32.2 31:34.4
+TUNE diag g1 bs=1 42:31.2 41:41.0 40:41.0 38:41.9 39:43.7
+TUNE diag g2 bs=1 
+TUNE forward bs=1 pdl=0,cl=1:54.0 pdl=0,cl=4:53.4 pdl=0,cl=8:53.6 pdl=1,cl=1:52.3 pdl=1,cl=4:52.0 pdl=1,cl=8:52.0
+TUNE g1 bs=8 33:51.4 2:51.6 20:52.0 34:52.1 19:52.6 3:53.0 5:53.2 37:53.3 21:53.9 1:55.7 4:56.4 17:57.8 18:58.7 7:59.2 23:59.7 8:59.9 6:61.3 m:65.0 24:67.9 22:93.5
+TUNE g2 bs=8 30:33.8 11:35.5 35:36.0 13:36.3 29:36.3 36:36.6 32:40.1 12:40.3 28:41.3 14:41.8 m:42.5 27:52.8 31:56.7
+TUNE diag g1 bs=8 42:49.8 41:58.0 40:58.0 39:58.7 38:59.3
+TUNE diag g2 bs=8 
+TUNE forward bs=8 pdl=0,cl=1:83.1 pdl=0,cl=4:83.3 pdl=0,cl=8:83.4 pdl=1,cl=1:79.6 pdl=1,cl=4:80.0 pdl=1,cl=8:80.3
+TUNE g1 bs=16 21:77.6 33:77.6 20:77.9 2:78.0 34:78.3 19:78.6 3:78.8 1:79.2 4:79.4 5:80.9 37:81.0 18:83.6 6:86.0 7:89.6 23:89.7 8:90.1 17:94.1 m:102.3 24:104.0 22:149.2
+TUNE g2 bs=16 35:47.6 11:47.8 12:48.9 29:49.1 13:49.2 36:49.4 28:52.5 14:53.0 30:53.1 32:53.9 m:60.9 27:83.6 31:84.9
+TUNE diag g1 bs=16 42:72.2 41:82.2 40:82.5 39:83.9 38:86.3
+TUNE diag g2 bs=16 
+TUNE forward bs=16 pdl=0,cl=1:122.7 pdl=0,cl=4:122.3 pdl=0,cl=8:122.5 pdl=1,cl=1:120.5 pdl=1,cl=4:120.0 pdl=1,cl=8:120.0
+TUNE g1 bs=32 33:101.4 2:102.1 4:105.2 1:105.6 5:107.4 37:107.5 3:108.4 20:108.7 34:108.7 21:110.3 19:110.6 6:116.6 7:118.5 8:119.4 18:120.5 23:122.4 17:131.9 m:139.1 24:141.1 22:206.6
+TUNE g2 bs=32 35:60.3 11:60.8 36:62.0 13:62.2 29:63.2 12:63.3 14:69.1 30:69.1 28:69.8 32:70.2 m:79.2 31:113.8 27:115.2
+TUNE diag g1 bs=32 42:100.7 41:111.6 40:112.4 39:113.7 38:119.3
+TUNE diag g2 bs=32 
+TUNE forward bs=32 pdl=0,cl=1:159.4 pdl=0,cl=4:159.5 pdl=0,cl=8:158.8 pdl=1,cl=1:156.4 pdl=1,cl=4:156.1 pdl=1,cl=8:156.2
+TUNE g1 bs=128 4:168.1 37:170.6 5:171.2 1:175.4 3:182.0 6:183.4 33:185.7 2:186.5 7:187.5 20:188.1 34:188.5 8:189.1 23:194.9 21:195.0 19:197.2 m:207.2 18:209.6 17:214.7 24:222.2 22:330.6
+TUNE g2 bs=128 36:91.5 13:91.6 35:93.7 12:94.3 11:94.4 14:97.8 30:101.7 32:102.3 29:102.5 28:110.1 m:113.7 31:174.2 27:187.6
+TUNE diag g1 bs=128 42:177.7 39:197.0 41:206.4 40:207.6 38:209.4
+TUNE diag g2 bs=128 
+TUNE forward bs=128 pdl=0,cl=1:257.2 pdl=0,cl=4:258.6 pdl=0,cl=8:258.9 pdl=1,cl=1:253.3 pdl=1,cl=4:255.0 pdl=1,cl=8:255.4
+TUNE g1 bs=256 37:244.6 5:245.0 6:255.2 7:258.2 8:259.2 4:273.8 23:274.7 m:275.3 1:292.0 24:295.8 20:305.1 34:306.2 3:306.4 33:323.1 2:323.9 21:327.6 19:333.5 18:348.2 17:363.7 22:463.5
+TUNE g2 bs=256 36:121.8 13:122.2 14:127.2 32:140.8 12:144.0 35:149.2 11:149.3 m:150.9 30:161.3 29:168.8 28:177.0 31:232.8 27:324.6
+TUNE diag g1 bs=256 42:299.5 39:328.3 38:356.1 41:370.3 40:372.5
+TUNE diag g2 bs=256 
+TUNE forward bs=256 pdl=0,cl=1:364.3 pdl=0,cl=4:366.6 pdl=0,cl=8:366.8 pdl=1,cl=1:362.2 pdl=1,cl=4:364.7 pdl=1,cl=8:366.1
+TUNE policy {1: (20, 26, True, 4), 8: (33, 30, True, 1), 16: (21, 35, True, 4), 32: (33, 35, True, 4), 128: (4, 36, True, 1), 256: (37, 36, True, 1)}
+W4 repack 0.2 s, extension build 49.2 s, tuning 3.8 s
+W4TEST bs=1 normal policy: vs fp32 2.93e-03 (marlin path 5.29e-03)
+W4TEST bs=1 skewed policy: vs fp32 3.00e-03 (marlin path 5.25e-03)
+W4TEST bs=4 normal policy: vs fp32 2.92e-03 (marlin path 5.27e-03)
+W4TEST bs=4 skewed policy: vs fp32 2.95e-03 (marlin path 5.30e-03)
+W4TEST bs=8 normal policy: vs fp32 2.93e-03 (marlin path 5.29e-03)
+W4TEST bs=8 skewed policy: vs fp32 2.96e-03 (marlin path 5.32e-03)
+W4TEST bs=16 normal policy: vs fp32 2.96e-03 (marlin path 5.30e-03)
+W4TEST bs=16 skewed policy: vs fp32 2.95e-03 (marlin path 5.29e-03)
+W4TEST bs=32 normal policy: vs fp32 2.95e-03 (marlin path 5.34e-03)
+W4TEST bs=32 skewed policy: vs fp32 2.93e-03 (marlin path 5.26e-03)
+W4TEST bs=33 normal policy: vs fp32 2.96e-03 (marlin path 5.32e-03)
+W4TEST bs=33 skewed policy: vs fp32 2.95e-03 (marlin path 5.31e-03)
+W4TEST bs=128 normal policy: vs fp32 2.95e-03 (marlin path 5.32e-03)
+W4TEST bs=128 skewed policy: vs fp32 2.95e-03 (marlin path 5.30e-03)
+W4TEST bs=257 normal policy: vs fp32 2.95e-03 (marlin path 5.31e-03)
+W4TEST bs=257 skewed policy: vs fp32 2.95e-03 (marlin path 5.30e-03)
+W4TEST worst rel err vs fp32 3.00e-03

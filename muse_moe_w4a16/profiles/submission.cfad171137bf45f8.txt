@@ -1,0 +1,71 @@
+okc run cfad171137bf45f8 on muse_moe_w4a16
+submission  /Users/gretchengabo/GitHub/okc/.claude/worktrees/agent-a82876e03f20fe296/muse_moe_w4a16/submission.py
+status      ok
+passed      true
+speedup     1.6720897510402735
+speedup_ci  [1.6470084047746694 1.6971710973058773]
+score_us    8042.929508797691
+tests       5/5 passed
+
+scored shapes (µs; speed of light is the reference's bound)
+case                                                         sglang      yours  speedup        sol  
+bs=1 load=decode 1 sharding=ep8                               77.01      45.44   1.695x      11.42  
+bs=16 load=decode 16 sharding=ep8                            195.30     116.70   1.674x      52.52  
+bs=32 load=decode 32 sharding=ep8                            205.95     144.87   1.422x      70.76  
+bs=8 load=verify 1 sharding=ep8                              151.36      87.45   1.731x      37.32  
+bs=128 load=verify 16 sharding=ep8                           467.22     256.79   1.819x     101.34  
+bs=256 load=verify 32 sharding=ep8                           621.38     360.97   1.721x     108.94  
+
+profile 0: bs=1 load=decode 1 sharding=ep8
+kernel                                                           GPU time  share  calls
+void (anonymous namespace)::w4_gemm_kernel<1, 1, 8, 2, 4,...      20.5 µs  48.7%      1
+void (anonymous namespace)::w4_gemm_kernel<2, 1, 1, 4, 4,...      12.3 µs  29.1%      1
+(anonymous namespace)::w4_finalize_kernel(float const*, i...       4.7 µs  11.2%      1
+(anonymous namespace)::route_align_kernel(int const*, int...       2.4 µs   5.7%      1
+(anonymous namespace)::w4_swiglu_kernel(float const*, int...       2.2 µs   5.3%      1
+total                                                             42.2 µs
+
+profile 1: bs=16 load=decode 16 sharding=ep8
+kernel                                                           GPU time  share  calls
+void (anonymous namespace)::w4_gemm_kernel<1, 1, 8, 2, 4,...      77.5 µs  60.8%      1
+void (anonymous namespace)::w4_gemm_kernel<2, 1, 8, 4, 4,...      39.4 µs  30.9%      1
+(anonymous namespace)::w4_finalize_kernel(float const*, i...       5.8 µs   4.5%      1
+(anonymous namespace)::w4_swiglu_kernel(float const*, int...       2.7 µs   2.1%      1
+(anonymous namespace)::route_align_kernel(int const*, int...       2.1 µs   1.7%      1
+total                                                            127.5 µs
+
+profile 2: bs=32 load=decode 32 sharding=ep8
+kernel                                                           GPU time  share  calls
+void (anonymous namespace)::w4_gemm_kernel<1, 1, 8, 4, 4,...      85.1 µs  60.0%      1
+void (anonymous namespace)::w4_gemm_kernel<2, 1, 8, 4, 4,...      44.6 µs  31.4%      1
+(anonymous namespace)::w4_finalize_kernel(float const*, i...       5.4 µs   3.8%      1
+(anonymous namespace)::w4_swiglu_kernel(float const*, int...       4.5 µs   3.2%      1
+(anonymous namespace)::route_align_kernel(int const*, int...       2.3 µs   1.6%      1
+total                                                            142.0 µs
+
+profile 3: bs=8 load=verify 1 sharding=ep8
+kernel                                                           GPU time  share  calls
+void (anonymous namespace)::w4_gemm_kernel<1, 1, 8, 4, 4,...      57.3 µs  56.8%      1
+void (anonymous namespace)::w4_gemm_kernel<2, 1, 8, 4, 4,...      33.1 µs  32.8%      1
+(anonymous namespace)::w4_finalize_kernel(float const*, i...       5.3 µs   5.3%      1
+(anonymous namespace)::w4_swiglu_kernel(float const*, int...       3.1 µs   3.0%      1
+(anonymous namespace)::route_align_kernel(int const*, int...       2.1 µs   2.1%      1
+total                                                            100.9 µs
+
+profile 4: bs=128 load=verify 16 sharding=ep8
+kernel                                                           GPU time  share  calls
+void (anonymous namespace)::w4_gemm_kernel<1, 1, 8, 2, 8,...     179.9 µs  64.4%      1
+void (anonymous namespace)::w4_gemm_kernel<2, 2, 16, 4, 4...      85.1 µs  30.5%      1
+(anonymous namespace)::w4_finalize_kernel(float const*, i...       6.2 µs   2.2%      1
+(anonymous namespace)::w4_swiglu_kernel(float const*, int...       5.2 µs   1.9%      1
+(anonymous namespace)::route_align_kernel(int const*, int...       2.9 µs   1.0%      1
+total                                                            279.3 µs
+
+profile 5: bs=256 load=verify 32 sharding=ep8
+kernel                                                           GPU time  share  calls
+void (anonymous namespace)::w4_gemm_kernel<1, 2, 16, 4, 4...     195.5 µs  61.6%      1
+void (anonymous namespace)::w4_gemm_kernel<2, 2, 16, 4, 4...      95.9 µs  30.2%      1
+(anonymous namespace)::w4_swiglu_kernel(float const*, int...      11.4 µs   3.6%      1
+(anonymous namespace)::w4_finalize_kernel(float const*, i...      11.0 µs   3.5%      1
+(anonymous namespace)::route_align_kernel(int const*, int...       3.4 µs   1.1%      1
+total                                                            317.2 µs

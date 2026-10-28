@@ -1,0 +1,13 @@
+SELFTEST worst rel diff vs sglang path 3.00e-04
+W4 repack 0.2 s, extension build 39.5 s
+W4TEST bs=1 normal: vs marlin path 5.95e-03; vs fp32: ours 3.73e-03, marlin path 5.22e-03
+W4TEST bs=1 skewed: vs marlin path 5.96e-03; vs fp32: ours 3.78e-03, marlin path 5.45e-03
+W4TEST bs=8 normal: vs marlin path 5.95e-03; vs fp32: ours 3.81e-03, marlin path 5.31e-03
+W4TEST bs=8 skewed: vs marlin path 5.90e-03; vs fp32: ours 3.72e-03, marlin path 5.28e-03
+W4TEST bs=32 normal: vs marlin path 5.97e-03; vs fp32: ours 3.77e-03, marlin path 5.30e-03
+W4TEST bs=32 skewed: vs marlin path 5.96e-03; vs fp32: ours 3.78e-03, marlin path 5.32e-03
+W4TEST worst rel diff vs marlin path 6.01e-03
+PREP base 82.7 s
+BENCH empty graph replay 4.8 us, subtracted below
+W4BENCH skipped: w4 path disabled
+PREP total 82.7 s
