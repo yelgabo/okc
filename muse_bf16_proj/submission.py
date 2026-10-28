@@ -1581,25 +1581,17 @@ WD_GEOM = {
     "b1n64c2": (1, 64, 2, 1, False, 6),
     "b1n128c2": (1, 128, 2, 1, False, 4),
     "b2n256c2": (2, 256, 2, 1, False, 4),
-    # x multicast across CLR row blocks (job 6131a4a220d5486e: x re-reads dominate L2 traffic).
-    "m64k2r4": (1, 64, 2, 4, False, 6),
-    "m64k1r8": (1, 64, 1, 8, False, 6),
-    "m128k2r4": (1, 128, 2, 4, False, 4),
-    "m128k1r4": (1, 128, 1, 4, False, 4),
-    "m128k1r8": (1, 128, 1, 8, False, 4),
-    "m128k2r8": (1, 128, 2, 8, False, 4),
-    "m128k4r2": (1, 128, 4, 2, False, 4),
-    "m256k2r4": (1, 256, 2, 4, False, 4),
-    "m256k1r4": (1, 256, 1, 4, False, 4),
-    "m256k1r8": (1, 256, 1, 8, False, 4),
-    "m256k2r8": (1, 256, 2, 8, False, 4),
-    "m256k2r2": (1, 256, 2, 2, False, 4),
+    # One x read per 128 or 256 output rows (BF16 multicast lost in 4f0a49118f3f40a4): K split
+    # across the cluster keeps 128 CTAs in flight on the pooler at m = 128.
+    "w4n128k8": (4, 128, 8, 1, False, 4),
+    "w4n128k4": (4, 128, 4, 1, False, 4),
+    "w2n256k4": (2, 256, 4, 1, False, 4),
     "rm64k4r4": (1, 64, 4, 4, True, 6),
     "rm128k4r4": (1, 128, 4, 4, True, 4),
 }
 # Diagnostic builds timed in prepare(), never dispatched: ABL bit 1 skips the wgmma (memory
 # pipeline alone), bit 2 skips the cluster reduction and the stores.
-WD_ABLATE = {("pooler", 128): "m128k2r4", ("o", 256): "m256k1r4"}
+WD_ABLATE = {("pooler", 128): "w4n128k8"}
 WD_ABL = {f"{base}_a{a}": (base, a) for base in WD_ABLATE.values() for a in (1, 3)}
 WD_NAMES = list(WD_GEOM) + list(WD_ABL)
 WD_INDEX = {nm: i for i, nm in enumerate(WD_NAMES)}
@@ -1607,6 +1599,8 @@ WD_INDEX = {nm: i for i, nm in enumerate(WD_NAMES)}
 WD_BUCKETS = (64, 128, 256)
 WD_SELFTEST_MS = {64: (33, 47, 64), 128: (65, 100, 128), 256: (129, 130, 200, 256)}
 WD_BN = {64: (64,), 128: (64, 128), 256: (128, 256)}
+# BN 64 doubles the router's CTAs at m = 256 (r64c16: 256 CTAs, r64c8: 128).
+WD_BN_ROUTER = {64: (64,), 128: (64, 128), 256: (64, 128, 256)}
 # A wide kernel replaces cuBLAS only if it is this much faster in the autotune: the tuner's
 # medians carry about 1% noise, and job 71b1927dca894bc4 picked pooler m=128 on 30.2 vs 30.5 us
 # that the judge then timed at 0.87x.
@@ -2312,9 +2306,10 @@ def prepare(weights):
                 cands.setdefault((layer, b), []).append(("baseline", lambda x: _router_baseline(x, state), False))
             else:
                 cands.setdefault((layer, b), []).append(("cublas", lambda x, w=w: _cublas(x, w), False))
+            bns = (WD_BN_ROUTER if is_router else WD_BN)[b]
             for nm in WD_GEOM:
                 wg, bn, clk, clr, hl, nst = WD_GEOM[nm]
-                if hl != is_router or bn not in WD_BN[b] or not wd_fits(nm, n, k):
+                if hl != is_router or bn not in bns or not wd_fits(nm, n, k):
                     continue
                 fn = _wd_runner(ext, nm, wk, n, k, torch.float32 if is_router else torch.bfloat16, diag)
                 add(layer, b, nm, fn, w, n, WD_SELFTEST_MS[b], SELFTEST_TOL["router" if is_router else "bf16"])
