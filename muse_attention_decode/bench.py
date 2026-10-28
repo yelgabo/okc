@@ -457,6 +457,12 @@ __device__ __forceinline__ int vh_chunk(int chunk, int tok) {
     return chunk ^ (tok & 7);
 }
 
+__device__ __forceinline__ float2 load_gate(const __nv_bfloat16* qkv, size_t tok, int qh,
+                                            int lane) {
+    return __bfloat1622float2(reinterpret_cast<const __nv_bfloat162*>(
+        qkv + tok * QKV_STRIDE + (HQ + 2 * HKV + qh) * D)[lane]);
+}
+
 __device__ __forceinline__ float warp_max(float v) {
     for (int o = 16; o; o >>= 1) {
         v = fmaxf(v, __shfl_xor_sync(0xffffffffu, v, o));
@@ -489,12 +495,14 @@ struct Cfg {
 constexpr int RING = 8;
 constexpr int PT_AHEAD = 6;
 constexpr int SMEM_TOTAL = SMEM_BYTES + RING * BN * 4;
+// The block's new keys and values, laid out like a stage.
+constexpr int NEWB_BYTES = STAGE_BYTES;
 
 // Merges n partials (m, l, o) of one row with one warp, lane k reading partial k first so the
 // loads overlap, then applies the norm-gate and writes the row. get(s) points at partial s.
 template <typename Get>
-__device__ __forceinline__ void merge_row(Get get, int n, int lane, float v_scale,
-                                          const __nv_bfloat16* gate, __nv_bfloat16* out) {
+__device__ __forceinline__ void merge_row(Get get, int n, int lane, float v_scale, float2 gt,
+                                          __nv_bfloat16* out) {
     float mmax = NEG_INF;
     for (int s = lane; s < n; s += 32) {
         mmax = fmaxf(mmax, get(s)[0]);
@@ -523,7 +531,6 @@ __device__ __forceinline__ void merge_row(Get get, int n, int lane, float v_scal
     acc.x *= inv;
     acc.y *= inv;
     const float r = rsqrtf(warp_sum(acc.x * acc.x + acc.y * acc.y) / D + EPS);
-    const float2 gt = __bfloat1622float2(reinterpret_cast<const __nv_bfloat162*>(gate)[lane]);
     acc.x = acc.x * r / (1.f + __expf(-gt.x));
     acc.y = acc.y * r / (1.f + __expf(-gt.y));
     reinterpret_cast<__nv_bfloat162*>(out)[lane] = __float22bfloat162_rn(acc);
@@ -555,6 +562,12 @@ attn_kernel(const Params p) {
         }
     };
     stamp(0);
+    // The first row this warp merges in a cluster; its gate load overlaps the whole kernel.
+    const int row0 = split * C::WARPS + warp;
+    float2 gate0 = make_float2(0.f, 0.f);
+    if (CLUSTER && row0 < C::ROWS) {
+        gate0 = load_gate(p.qkv, static_cast<size_t>(b) * L + row0 / HQ, row0 % HQ, lane);
+    }
     const int seq = p.seq_lens[b];
     const int start = p.window ? max(0, seq - p.window + 1) : 0;
     int per = (seq - start + p.splits - 1) / p.splits;
@@ -604,21 +617,12 @@ attn_kernel(const Params p) {
         stage_pt(t);
     }
     cp_commit();
-    cp_wait<0>();
-    __syncthreads();
-    stamp(1);
-#pragma unroll
-    for (int t = 0; t < STAGES - 1; ++t) {
-        if (t < ntiles) {
-            issue(t);
-        }
-        cp_commit();
-    }
 
-    // Query fragments: rows g and g + 8 of each tile, dims 16c..16c+15, normalized, RoPE'd and
-    // rounded to E4M3 as FA3's path does. Key dims are read in the same permuted order, so the
-    // dot products are unchanged.
-    uint4 qf[MT][2];
+    // Query fragments as f16 pairs: rows g and g + 8 of each tile, dims 16c..16c+15,
+    // normalized and RoPE'd. Key dims are read in the same permuted order, so the dot products
+    // are unchanged. (FP8 mma.sync is emulated on sm_90 by unpacking both operands to f16 on
+    // every call, so f16 operands converted once are cheaper and no less precise.)
+    uint32_t qf[MT][2][8];
     int qpos[MT][2];
 #pragma unroll
     for (int mt = 0; mt < MT; ++mt) {
@@ -666,12 +670,67 @@ attn_kernel(const Params p) {
                     x[2 * i + 1] = a * sn + bb * cs;
                 }
             }
-            qf[mt][half] = make_uint4(fp8x4(x[0], x[1], x[2], x[3]), fp8x4(x[4], x[5], x[6], x[7]),
-                                      fp8x4(x[8], x[9], x[10], x[11]),
-                                      fp8x4(x[12], x[13], x[14], x[15]));
+#pragma unroll
+            for (int w = 0; w < 8; ++w) {
+                qf[mt][half][w] = pack_f16(x[2 * w], x[2 * w + 1]);
+            }
         }
     }
     const float qk_scale = p.qk_scale * *p.k_scale;
+
+    // The last split also attends the block's own new keys and values: it normalizes, rotates
+    // and rounds them to E4M3, writes them to the cache and stages them in their own smem tile.
+    uint8_t* newb = smem + SMEM_TOTAL;
+    const bool last_split = split == p.splits - 1;
+    if (last_split) {
+        for (int i = tid; i < NEWB_BYTES / 16; i += C::THREADS) {
+            reinterpret_cast<uint4*>(newb)[i] = make_uint4(0, 0, 0, 0);
+        }
+        __syncthreads();
+        const float inv_k = 1.f / *p.k_scale;
+        const float inv_v = 1.f / *p.v_scale;
+        for (int task = warp; task < L * HKV * 2; task += C::WARPS) {
+            const int j = task / (HKV * 2);
+            const int kh = (task / 2) % HKV;
+            const bool is_k = (task & 1) == 0;
+            const size_t tok = static_cast<size_t>(b) * L + j;
+            const __nv_bfloat162* src = reinterpret_cast<const __nv_bfloat162*>(
+                p.qkv + tok * QKV_STRIDE + (HQ + (is_k ? 0 : HKV) + kh) * D);
+            float2 x = __bfloat1622float2(src[lane]);
+            float inv = inv_v;
+            if (is_k) {
+                const float r = rsqrtf(warp_sum(x.x * x.x + x.y * x.y) / D + EPS);
+                x.x *= r;
+                x.y *= r;
+                if (p.rope) {
+                    float sn, cs;
+                    sincosf(static_cast<float>(seq + j) * p.inv_freq[lane], &sn, &cs);
+                    x = make_float2(x.x * cs - x.y * sn, x.x * sn + x.y * cs);
+                }
+                inv = inv_k;
+            }
+            x.x *= inv;
+            x.y *= inv;
+            const uint16_t v8 = __nv_cvt_float2_to_fp8x2(x, __NV_SATFINITE, __NV_E4M3);
+            const int byte = kh * D + 2 * lane;
+            uint8_t* dst = is_k ? p.k_cache : p.v_cache;
+            *reinterpret_cast<uint16_t*>(dst + p.cache_loc[tok] * ROW_BYTES + byte) = v8;
+            const int sw = is_k ? k_chunk(byte >> 4, j) : v_chunk(byte >> 4, j);
+            *reinterpret_cast<uint16_t*>(newb + (is_k ? 0 : BN * ROW_BYTES) + j * ROW_BYTES
+                                         + sw * 16 + (byte & 15)) = v8;
+        }
+    }
+
+    cp_wait<0>();
+    __syncthreads();
+    stamp(1);
+#pragma unroll
+    for (int t = 0; t < STAGES - 1; ++t) {
+        if (t < ntiles) {
+            issue(t);
+        }
+        cp_commit();
+    }
     stamp(2);
 
     float o[MT][8][4];
@@ -692,7 +751,7 @@ attn_kernel(const Params p) {
 
     // KC 16-token chunks from chunk ch0 of smem stage st; token i of the stage sits at position
     // pos0 + i and is visible to a row when lo_row <= pos <= min(lim_all, the row's position).
-    uint8_t* vh = smem + SMEM_TOTAL;
+    uint8_t* vh = smem + SMEM_TOTAL + NEWB_BYTES;
     // All threads convert a stage's FP8 values to f16 once, instead of each warp converting
     // the fragments it needs.
     auto convert_v = [&](const uint8_t* st) {
@@ -725,12 +784,22 @@ attn_kernel(const Params p) {
             const int t = ch0 * 16 + sub * 8 + g;
             const uint4 kf = *reinterpret_cast<const uint4*>(
                 ks + t * ROW_BYTES + k_chunk(head * 4 + c, t) * 16);
+            const uint32_t kw[4] = {kf.x, kf.y, kf.z, kf.w};
+            uint32_t kb[8];
+#pragma unroll
+            for (int st4 = 0; st4 < 4; ++st4) {
+                kb[2 * st4] = f16x2_from_fp8x2(kw[st4] & 0xffffu);
+                kb[2 * st4 + 1] = f16x2_from_fp8x2(kw[st4] >> 16);
+            }
 #pragma unroll
             for (int mt = 0; mt < MT; ++mt) {
                 float* acc = s[mt][sub];
                 acc[0] = acc[1] = acc[2] = acc[3] = 0.f;
-                mma_fp8(acc, qf[mt][0].x, qf[mt][1].x, qf[mt][0].y, qf[mt][1].y, kf.x, kf.y);
-                mma_fp8(acc, qf[mt][0].z, qf[mt][1].z, qf[mt][0].w, qf[mt][1].w, kf.z, kf.w);
+#pragma unroll
+                for (int st4 = 0; st4 < 4; ++st4) {
+                    mma_f16(acc, qf[mt][0][2 * st4], qf[mt][1][2 * st4], qf[mt][0][2 * st4 + 1],
+                            qf[mt][1][2 * st4 + 1], kb[2 * st4], kb[2 * st4 + 1]);
+                }
             }
         }
         uint32_t pa[MT][KC][4];
@@ -947,55 +1016,14 @@ attn_kernel(const Params p) {
     __syncthreads();
     stamp(3);
 
-    // The last split also attends the block's own new keys and values, which it normalizes,
-    // rotates, rounds to E4M3, writes to the cache and stages in smem.
-    if (split == p.splits - 1) {
-        uint8_t* st = smem;
-        for (int i = tid; i < STAGE_BYTES / 16; i += C::THREADS) {
-            reinterpret_cast<uint4*>(st)[i] = make_uint4(0, 0, 0, 0);
-        }
-        __syncthreads();
-        const float inv_k = 1.f / *p.k_scale;
-        const float inv_v = 1.f / *p.v_scale;
-        for (int task = warp; task < L * HKV * 2; task += C::WARPS) {
-            const int j = task / (HKV * 2);
-            const int kh = (task / 2) % HKV;
-            const bool is_k = (task & 1) == 0;
-            const size_t tok = static_cast<size_t>(b) * L + j;
-            const __nv_bfloat162* src = reinterpret_cast<const __nv_bfloat162*>(
-                p.qkv + tok * QKV_STRIDE + (HQ + (is_k ? 0 : HKV) + kh) * D);
-            float2 x = __bfloat1622float2(src[lane]);
-            float inv = inv_v;
-            if (is_k) {
-                const float r = rsqrtf(warp_sum(x.x * x.x + x.y * x.y) / D + EPS);
-                x.x *= r;
-                x.y *= r;
-                if (p.rope) {
-                    float sn, cs;
-                    sincosf(static_cast<float>(seq + j) * p.inv_freq[lane], &sn, &cs);
-                    x = make_float2(x.x * cs - x.y * sn, x.x * sn + x.y * cs);
-                }
-                inv = inv_k;
-            }
-            x.x *= inv;
-            x.y *= inv;
-            const uint16_t v8 = __nv_cvt_float2_to_fp8x2(x, __NV_SATFINITE, __NV_E4M3);
-            const int byte = kh * D + 2 * lane;
-            uint8_t* dst = is_k ? p.k_cache : p.v_cache;
-            *reinterpret_cast<uint16_t*>(dst + p.cache_loc[tok] * ROW_BYTES + byte) = v8;
-            const int sw = is_k ? k_chunk(byte >> 4, j) : v_chunk(byte >> 4, j);
-            *reinterpret_cast<uint16_t*>(st + (is_k ? 0 : BN * ROW_BYTES) + j * ROW_BYTES
-                                         + sw * 16 + (byte & 15)) = v8;
-        }
-        __syncthreads();
+    if (last_split) {
         if constexpr (VF16) {
-            convert_v(st);
+            convert_v(newb);
             __syncthreads();
         }
         if (tp == 0) {
-            chunk(st, 0, seq, seq + L - 1);
+            chunk(newb, 0, seq, seq + L - 1);
         }
-        __syncthreads();
     }
 
     stamp(4);
@@ -1080,9 +1108,9 @@ attn_kernel(const Params p) {
             const int j = row / HQ;
             const int qh = row % HQ;
             const size_t tok = static_cast<size_t>(b) * L + j;
+            const float2 gt = row == row0 ? gate0 : load_gate(p.qkv, tok, qh, lane);
             merge_row([&](int s) { return cluster.map_shared_rank(part, s) + row * PART; },
-                      p.splits, lane, v_scale, p.qkv + tok * QKV_STRIDE + (HQ + 2 * HKV + qh) * D,
-                      p.out + tok * HQ * D + qh * D);
+                      p.splits, lane, v_scale, gt, p.out + tok * HQ * D + qh * D);
         }
         cluster.sync();
     }
@@ -1101,15 +1129,14 @@ __global__ void combine_kernel(const float* __restrict__ ws, const __nv_bfloat16
     const size_t stride = static_cast<size_t>(HQ) * L * PART;
     const float* base = ws + b * nparts * stride + (j * HQ + qh) * PART;
     merge_row([&](int s) { return base + s * stride; }, nparts, lane, *v_scale,
-              qkv + static_cast<size_t>(tok) * QKV_STRIDE + (HQ + 2 * HKV + qh) * D,
-              out + static_cast<size_t>(tok) * HQ * D + qh * D);
+              load_gate(qkv, tok, qh, lane), out + static_cast<size_t>(tok) * HQ * D + qh * D);
 }
 
 template <int L, int MT, int TP, int KC, bool CLUSTER, bool VF16 = false, bool PV8 = false>
 void launch(const Params& p, int batch, cudaStream_t stream) {
     using C = Cfg<L, MT, TP, KC>;
     auto kern = attn_kernel<L, MT, TP, KC, CLUSTER, VF16, PV8>;
-    constexpr int smem_bytes = SMEM_TOTAL + (VF16 ? VH_BYTES : 0);
+    constexpr int smem_bytes = SMEM_TOTAL + NEWB_BYTES + (VF16 ? VH_BYTES : 0);
     static bool configured = false;
     if (!configured) {
         cudaFuncSetAttribute(kern, cudaFuncAttributeMaxDynamicSharedMemorySize, smem_bytes);
@@ -1325,8 +1352,8 @@ def kernel_fn(data, state=None):
 
 
 # Generated by tools/attn_make_bench.py: a timing sweep run at import.
-_BENCH_VARIANTS = ['_sglang', '_fused_prep', '_fused', '_fused@v=1', '_fused@v=4', '_fused@v=5', '_fused@v=5,c=0', '_fused@v=6', '_fused@v=5,s=32']
-_BENCH_STAMPS = ['_fused', '_fused@v=5']
+_BENCH_VARIANTS = ['_sglang', '_fused_prep', '_fused', '_fused@c=0', '_fused@v=1', '_fused@v=1,c=0', '_fused@v=4', '_fused@v=3', '_fused@s=64', '_fused@s=32']
+_BENCH_STAMPS = ['_fused', '_fused@v=1']
 _BENCH_SHAPES = [
     (1, "sliding", 1), (1, "full", 1), (16, "sliding", 1), (16, "full", 1),
     (32, "sliding", 1), (32, "full", 1), (1, "sliding", 8), (1, "full", 8),

@@ -1,0 +1,38 @@
+attn prep kernels: loaded
+attn fused kernel: loaded
+BENCH b= 1 sliding L=1 _sglang=22.4 _fused_prep=19.5 e=3.2e-02 _fused=17.0 e=3.1e-02 _fused@v=1=17.0 e=3.1e-02 _fused@v=4=17.0 e=3.1e-02 _fused@v=5=16.9 e=3.1e-02 _fused@v=5,c=0=19.4 e=3.1e-02 _fused@v=6=17.0 e=3.1e-02 _fused@v=5,s=32=22.0 e=3.1e-02
+STAMPS b= 1 sliding L=1 _fused last=[0, 2218, 8681, 11566, 17549, 18393, 19175, 27785] first=[0, 2169, 8813, 11742, 12273, 14590, 19314, 27920]
+STAMPS b= 1 sliding L=1 _fused@v=5 last=[0, 2095, 7417, 10308, 12654, 13504, 14271, 18965] first=[0, 2129, 7694, 10641, 10778, 11615, 14239, 18940]
+BENCH b= 1 full    L=1 _sglang=41.0 _fused_prep=35.7 e=7.2e-02 _fused=49.4 e=7.2e-02 _fused@v=1=53.0 e=7.2e-02 _fused@v=4=49.6 e=7.2e-02 _fused@v=5=49.6 e=7.2e-02 _fused@v=5,c=0=49.4 e=7.2e-02 _fused@v=6=49.6 e=7.2e-02 _fused@v=5,s=32=59.6 e=7.2e-02
+STAMPS b= 1 full    L=1 _fused last=[0, 2032, 3486, 3587, 7605, 9148, -1, 9483] first=[0, 2490, 5755, 24515, 24804, 26493, -1, 27387]
+STAMPS b= 1 full    L=1 _fused@v=5 last=[0, 1946, 3368, 3469, 5861, 6704, -1, 7036] first=[0, 2404, 5351, 24169, 24325, 25164, -1, 25514]
+BENCH b=16 sliding L=1 _sglang=32.8 _fused_prep=23.6 e=4.3e-02 _fused=21.0 e=4.3e-02 _fused@v=1=21.0 e=4.3e-02 _fused@v=4=21.1 e=4.3e-02 _fused@v=5=21.1 e=4.3e-02 _fused@v=5,c=0=22.1 e=4.3e-02 _fused@v=6=21.0 e=4.3e-02 _fused@v=5,s=32=31.6 e=4.3e-02
+STAMPS b=16 sliding L=1 _fused last=[0, 2342, 10541, 16529, 20926, 21772, 22551, 29709] first=[0, 2373, 10705, 16686, 16870, 17861, 22581, 29738]
+STAMPS b=16 sliding L=1 _fused@v=5 last=[0, 2273, 8054, 14087, 16441, 17287, 18064, 22101] first=[0, 2252, 8184, 14233, 14385, 15219, 17982, 22012]
+BENCH b=16 full    L=1 _sglang=214.8 _fused_prep=207.1 e=4.7e-02 _fused=145.2 e=4.6e-02 _fused@v=1=156.0 e=4.6e-02 _fused@v=4=145.4 e=4.6e-02 _fused@v=5=145.1 e=4.6e-02 _fused@v=5,c=0=145.2 e=4.6e-02 _fused@v=6=145.4 e=4.6e-02 _fused@v=5,s=32=151.8 e=4.6e-02
+STAMPS b=16 full    L=1 _fused last=[0, 3266, 12940, 183159, 188758, 189942, -1, 190328] first=[0, 3626, 13216, 192579, 192750, 193667, -1, 194159]
+STAMPS b=16 full    L=1 _fused@v=5 last=[0, 2936, 10650, 181839, 185381, 186463, -1, 186794] first=[0, 3053, 10773, 190030, 190123, 191162, -1, 191522]
+BENCH b=32 sliding L=1 _sglang=39.3 _fused_prep=30.1 e=3.9e-02 _fused=27.9 e=3.8e-02 _fused@v=1=28.0 e=3.8e-02 _fused@v=4=28.0 e=3.8e-02 _fused@v=5=28.1 e=3.8e-02 _fused@v=5,c=0=26.0 e=3.8e-02 _fused@v=6=28.1 e=3.8e-02 _fused@v=5,s=32=45.0 e=3.8e-02
+STAMPS b=32 sliding L=1 _fused last=[0, 2838, 11552, 24593, 29589, 30439, 31259, 37779] first=[0, 2634, 11318, 24387, 24736, 26100, 31360, 37877]
+STAMPS b=32 sliding L=1 _fused@v=5 last=[0, 2530, 8868, 22011, 24533, 25382, 26179, 30511] first=[0, 2780, 8894, 21992, 22174, 22966, 26206, 30528]
+BENCH b=32 full    L=1 _sglang=398.2 _fused_prep=390.5 e=4.7e-02 _fused=260.4 e=4.6e-02 _fused@v=1=289.6 e=4.6e-02 _fused@v=4=259.2 e=4.6e-02 _fused@v=5=259.3 e=4.6e-02 _fused@v=5,c=0=259.3 e=4.6e-02 _fused@v=6=259.4 e=4.6e-02 _fused@v=5,s=32=268.4 e=4.6e-02
+STAMPS b=32 full    L=1 _fused last=[0, 3421, 13195, 362667, 365697, 366729, -1, 367211] first=[0, 3291, 13634, 371294, 371473, 372554, -1, 372964]
+STAMPS b=32 full    L=1 _fused@v=5 last=[0, 2965, 9974, 359463, 362432, 363542, -1, 363973] first=[0, 3039, 10290, 368365, 368684, 369668, -1, 370073]
+BENCH b= 1 sliding L=8 _sglang=28.3 _fused_prep=20.5 e=4.2e-02 _fused=42.0 e=4.2e-02 _fused@v=1=23.8 e=4.2e-02 _fused@v=4=26.0 e=4.2e-02 _fused@v=5=24.4 e=4.2e-02 _fused@v=5,c=0=26.8 e=4.2e-02 _fused@v=6=42.2 e=4.2e-02 _fused@v=5,s=32=28.6 e=4.2e-02
+STAMPS b= 1 sliding L=8 _fused last=[0, 2145, 22865, 45056, 65213, 65810, 66603, 78821] first=[0, 2209, 23021, 45171, 45907, 47294, 66761, 78979]
+STAMPS b= 1 sliding L=8 _fused@v=5 last=[0, 2208, 7878, 21502, 40026, 40560, 41367, 50739] first=[0, 2139, 8016, 21638, 22235, 23018, 41408, 50789]
+BENCH b= 1 full    L=8 _sglang=45.5 _fused_prep=38.9 e=5.0e-02 _fused=74.8 e=4.9e-02 _fused@v=1=64.9 e=4.9e-02 _fused@v=4=66.9 e=4.9e-02 _fused@v=5=65.9 e=5.0e-02 _fused@v=5,c=0=65.8 e=5.0e-02 _fused@v=6=75.5 e=5.0e-02 _fused@v=5,s=32=113.6 e=5.0e-02
+STAMPS b= 1 full    L=8 _fused last=[0, 2178, 6676, 7899, 29238, 29764, -1, 31051] first=[0, 2571, 8779, 77037, 77343, 77983, -1, 79421]
+STAMPS b= 1 full    L=8 _fused@v=5 last=[0, 2240, 4208, 4848, 21450, 22008, -1, 23357] first=[0, 2626, 5793, 55852, 56075, 56609, -1, 58193]
+BENCH b=16 sliding L=8 _sglang=35.5 _fused_prep=26.2 e=4.5e-02 _fused=53.4 e=4.4e-02 _fused@v=1=38.1 e=4.4e-02 _fused@v=4=31.1 e=4.4e-02 _fused@v=5=54.2 e=4.5e-02 _fused@v=5,c=0=32.1 e=4.5e-02 _fused@v=6=53.0 e=4.5e-02 _fused@v=5,s=32=53.0 e=4.4e-02
+STAMPS b=16 sliding L=8 _fused last=[0, 2288, 23999, 56151, 74314, 74921, 75688, 90656] first=[0, 2400, 24057, 56259, 56856, 57867, 75746, 90714]
+STAMPS b=16 sliding L=8 _fused@v=5 last=[0, 2280, 8995, 28401, 44549, 45085, 45899, 56419] first=[0, 2262, 9005, 28407, 29012, 29773, 45910, 56417]
+BENCH b=16 full    L=8 _sglang=218.0 _fused_prep=210.0 e=4.5e-02 _fused=348.1 e=4.5e-02 _fused@v=1=334.4 e=4.5e-02 _fused@v=4=338.9 e=4.5e-02 _fused@v=5=391.1 e=4.5e-02 _fused@v=5,c=0=391.2 e=4.5e-02 _fused@v=6=365.8 e=4.5e-02 _fused@v=5,s=32=403.0 e=4.5e-02
+STAMPS b=16 full    L=8 _fused last=[0, 3606, 16183, 524767, 547314, 548500, -1, 551724] first=[0, 3479, 16296, 551447, 551790, 552364, -1, 553758]
+STAMPS b=16 full    L=8 _fused@v=5 last=[0, 3042, 8345, 330341, 343031, 343561, -1, 345189] first=[0, 3264, 8311, 346048, 346263, 346806, -1, 348156]
+BENCH b=32 sliding L=8 _sglang=42.3 _fused_prep=32.5 e=4.5e-02 _fused=74.0 e=4.4e-02 _fused@v=1=58.0 e=4.4e-02 _fused@v=4=41.0 e=4.4e-02 _fused@v=5=79.9 e=4.5e-02 _fused@v=5,c=0=41.9 e=4.5e-02 _fused@v=6=66.6 e=4.5e-02 _fused@v=5,s=32=93.6 e=4.4e-02
+STAMPS b=32 sliding L=8 _fused last=[0, 2784, 28780, 80950, 101036, 101639, 102454, 128912] first=[0, 2950, 28923, 81030, 81422, 82135, 102609, 129067]
+STAMPS b=32 sliding L=8 _fused@v=5 last=[0, 2792, 9704, 44821, 60658, 61184, 62063, 77931] first=[0, 2609, 9456, 44650, 45075, 45843, 62078, 77938]
+BENCH b=32 full    L=8 _sglang=402.7 _fused_prep=395.6 e=4.7e-02 _fused=661.9 e=4.7e-02 _fused@v=1=631.2 e=4.7e-02 _fused@v=4=640.3 e=4.7e-02 _fused@v=5=762.7 e=4.8e-02 _fused@v=5,c=0=762.9 e=4.8e-02 _fused@v=6=692.5 e=4.8e-02 _fused@v=5,s=32=761.8 e=4.7e-02
+STAMPS b=32 full    L=8 _fused last=[0, 4048, 18168, 1048563, 1061920, 1062462, -1, 1063923] first=[0, 4004, 18032, 1073917, 1074105, 1074617, -1, 1076025]
+STAMPS b=32 full    L=8 _fused@v=5 last=[0, 3073, 9086, 660182, 668666, 669240, -1, 670623] first=[0, 3345, 9172, 676976, 677059, 677554, -1, 678842]
