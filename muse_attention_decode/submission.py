@@ -989,7 +989,7 @@ try:
         cpp_sources=_ATTN_CPP,
         cuda_sources=_ATTN_SRC,
         functions=["attn_fused"],
-        extra_cuda_cflags=["-O3", "-std=c++17", "-gencode=arch=compute_90a,code=sm_90a"],
+        extra_cuda_cflags=["-O3", "-gencode=arch=compute_90a,code=sm_90a"],
     )
     print("attn fused kernel: loaded")
 except Exception as _exc:

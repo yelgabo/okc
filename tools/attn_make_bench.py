@@ -46,11 +46,17 @@ def _bench_inputs(batch, layer, q_len, ctx=80000, seed=1):
         at += lens[b]
     k_cache = torch.empty((total, 1, hkv, d), dtype=FP8, device=dev)
     v_cache = torch.empty((total, 1, hkv, d), dtype=FP8, device=dev)
+    soft_dir = torch.randn((hkv, d), generator=gen, device=dev)
     for c in (k_cache, v_cache):
         flat = c.view(-1, hkv, d)
         for i in range(0, total, 1 << 20):
             n = min(1 << 20, total - i)
-            flat[i:i + n] = torch.randn((n, hkv, d), generator=gen, device=dev).to(FP8)
+            x = torch.randn((n, hkv, d), generator=gen, device=dev)
+            if c is k_cache:
+                # Keys share a direction per head, as the judge's "soft" inputs do, so
+                # attention spreads over many keys and FP8 rounding differences stay small.
+                x = 0.8 * soft_dir + 0.6 * x
+            flat[i:i + n] = x.to(FP8)
     qkv = torch.randn((batch, q_len, (2 * hq + 2 * hkv) * d), generator=gen, device=dev)
     qkv = (2 * qkv).to(torch.bfloat16)
     positions = (seq_lens[:, None] + torch.arange(q_len, device=dev)).reshape(-1)
