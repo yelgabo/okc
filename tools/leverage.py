@@ -1,9 +1,10 @@
 """Which shapes and kernels can move the score, per run.
 
-The score is the weight-averaged geometric mean of per-shape speedups, so a kernel's leverage is
-its weight share times the log of how much faster its shape gets. For each kernel this prints the
-score multiplier if that kernel's time were halved on every shape where it runs, and per shape
-the multiplier if the shape reached its floor.
+TASK.md's score: a load's time is the weighted sum of its shapes' times, and the score is the
+geometric mean over loads (each load counts equally) of SGLang's load time over ours. So cutting
+d us from one shape multiplies the score by (load / (load - weight * d)) ** (1 / loads). For each
+kernel this prints the score multiplier if that kernel's time were halved on every shape where it
+runs, and per shape the multiplier if the shape reached its floor.
 
     python3 tools/leverage.py <problem>/profiles/submission.<job>.json [...]
 """
@@ -44,19 +45,28 @@ def kernels(report):
 def report(path):
     run = load(path)
     benchmarks = run["benchmarks"]
-    total_weight = sum(b["case"]["weight"] for b in benchmarks)
+    load_us = defaultdict(float)
+    for b in benchmarks:
+        load_us[b["case"]["load"]] += b["case"]["weight"] * b["median_ns"] / 1e3
+    n_loads = len(load_us)
     profiles = {case_key(p["case"]): p["report"] for p in run.get("profiles", [])}
     print(f"\n## {run['problem']} {run['job_id']} {run['summary']['speedup']:.3f}x")
-    print(f"{'shape':40} {'w%':>5} {'base':>7} {'ours':>7} {'floor':>7} {'spd':>6} "
+    print(f"{'shape':40} {'load%':>5} {'base':>7} {'ours':>7} {'floor':>7} {'spd':>6} "
           f"{'o/fl':>5} {'ceil':>6} {'gpu':>6} {'gap':>5}")
     leverage = defaultdict(float)
     ceiling = 0.0
     for b in benchmarks:
         case = b["case"]
-        share = case["weight"] / total_weight
+        load_total = load_us[case["load"]]
+        weight = case["weight"]
+        share = weight * b["median_ns"] / 1e3 / load_total
         base, ours, floor = (b[k] / 1e3 for k in ("baseline_ns", "median_ns",
                                                    "speed_of_light_ns"))
-        shape_ceiling = share * math.log(ours / floor)
+
+        def gain(saved_us):
+            return -math.log(1 - weight * saved_us / load_total) / n_loads
+
+        shape_ceiling = gain(ours - floor)
         ceiling += shape_ceiling
         rows = kernels(profiles.get(case_key(case), ""))
         gpu = sum(t for _, t in rows)
@@ -64,11 +74,16 @@ def report(path):
               f"{base / ours:6.3f} {ours / floor:5.1f} {math.exp(shape_ceiling):6.3f} "
               f"{gpu:6.1f} {ours - gpu:5.1f}")
         for name, t in rows:
-            leverage[name] += share * -math.log(1 - 0.5 * t / ours)
+            leverage[name] += gain(0.5 * t)
         # Negative gaps come from overlapping kernels (PDL), whose rows double-count waits.
-        leverage["(time outside kernels)"] += share * -math.log(1 - 0.5 * max(ours - gpu, 0)
-                                                                 / ours)
-    print(f"every shape at its floor: x{math.exp(ceiling):.2f}")
+        leverage["(time outside kernels)"] += gain(0.5 * max(ours - gpu, 0))
+    # Per-shape gains add in log space only to first order; the exact all-at-floor figure is
+    # the geometric mean of each load's ratio to its floor.
+    floors = defaultdict(float)
+    for b in benchmarks:
+        floors[b["case"]["load"]] += b["case"]["weight"] * b["speed_of_light_ns"] / 1e3
+    exact = math.exp(sum(math.log(load_us[k] / floors[k]) for k in load_us) / n_loads)
+    print(f"every shape at its floor: x{exact:.2f}")
     print("score multiplier if the kernel's time were halved on every shape:")
     for name, value in sorted(leverage.items(), key=lambda x: -x[1])[:8]:
         print(f"  {math.exp(value):.4f}  {name}")
