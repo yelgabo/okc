@@ -109,3 +109,19 @@ SGLang kernels from the baseline-as-submission run in `muse_moe_w4a16/baseline_p
 | verify 16 bs=128 sharding=ep8 | 60 | 467.2 | 256.8 | 101.3 | 4.6x | 2.5x | w4_gemm_kernel<1, 1, 8, 2, 8,... 179.9us 64%<br>w4_gemm_kernel<2, 2, 16, 4, 4... 85.1us 30%<br>w4_finalize_kernel 6.2us 2% | sglang::device::marlin_moe::Marlin<__nv_bfloat16 420.5us 96%<br>_post_expert_norm_weighted_sum_kernel 5.1us 1%<br>sglang::act_and_mul_kernel<__nv_bfloat16, 3.5us 1% |
 | verify 32 bs=256 sharding=ep8 | 60 | 621.4 | 361.0 | 108.9 | 5.7x | 3.3x | w4_gemm_kernel<1, 2, 16, 4, 4... 195.5us 62%<br>w4_gemm_kernel<2, 2, 16, 4, 4... 95.9us 30%<br>w4_swiglu_kernel 11.4us 4% | sglang::device::marlin_moe::Marlin<__nv_bfloat16 583.8us 96%<br>_post_expert_norm_weighted_sum_kernel 5.6us 1%<br>sglang::act_and_mul_kernel<__nv_bfloat16, 5.5us 1% |
 
+
+### muse_moe_w4a16: job c4b1b5366bc54857, 1.690x (1.664-1.715)
+
+SGLang kernels from the baseline-as-submission run in `muse_moe_w4a16/baseline_profile/profiles/baseline.eae9a6b7d5dd4809.json`.
+
+| shape | weight | SGLang us | ours us | floor us | SGLang/floor | ours/floor | our top kernels | SGLang top kernels |
+|---|---|---|---|---|---|---|---|---|
+| decode 1 bs=1 sharding=ep8 | 60 | 80.4 | 46.7 | 11.4 | 7.0x | 4.1x | w4_gemm_kernel<1, 1, 8, 2, 8,... 21.2us 49%<br>w4_gemm_kernel<2, 1, 1, 4, 4,... 10.6us 25%<br>w4_finalize_kernel 4.7us 11% | sglang::device::marlin_moe::Marlin<__nv_bfloat16 56.9us 62%<br>at::native::unrolled_elementwise_kernel<at::nati 5.8us 6%<br>at::native::reduce_kernel<512, 1, at::native::Re 5.4us 6% |
+| decode 16 bs=16 sharding=ep8 | 60 | 187.8 | 107.4 | 52.5 | 3.6x | 2.0x | w4_gemm_kernel<1, 1, 8, 4, 4,... 75.6us 51%<br>w4_gemm_kernel<2, 1, 8, 4, 4,... 49.1us 33%<br>w4_finalize_kernel 12.3us 8% | sglang::device::marlin_moe::Marlin<__nv_bfloat16 159.0us 77%<br>at::native::reduce_kernel<512, 1, at::native::Re 8.9us 4%<br>at::native::elementwise_kernel<128, 2, at::nativ 8.6us 4% |
+| decode 32 bs=32 sharding=ep8 | 60 | 212.6 | 145.5 | 70.8 | 3.0x | 2.1x | w4_gemm_kernel<1, 1, 8, 4, 4,... 77.5us 54%<br>w4_gemm_kernel<2, 1, 8, 4, 4,... 44.7us 31%<br>w4_finalize_kernel 10.0us 7% | sglang::device::marlin_moe::Marlin<__nv_bfloat16 178.5us 92%<br>_post_expert_norm_weighted_sum_kernel 4.5us 2%<br>moe_align_block_size_kernel<int> 2.7us 1% |
+| verify 1 bs=8 sharding=ep8 | 60 | 150.5 | 88.0 | 37.3 | 4.0x | 2.4x | w4_gemm_kernel<1, 1, 8, 4, 4,... 47.2us 40%<br>w4_gemm_kernel<2, 1, 8, 2, 8,... 42.8us 36%<br>w4_finalize_kernel 18.0us 15% | sglang::device::marlin_moe::Marlin<__nv_bfloat16 74.9us 64%<br>at::native::reduce_kernel<512, 1, at::native::Re 8.7us 7%<br>at::native::elementwise_kernel<128, 2, at::nativ 6.6us 6% |
+| verify 16 bs=128 sharding=ep8 | 60 | 456.4 | 250.4 | 101.3 | 4.5x | 2.5x | w4_gemm_kernel<1, 1, 8, 2, 8,... 141.4us 59%<br>w4_gemm_kernel<2, 2, 16, 4, 4... 75.2us 31%<br>w4_finalize_kernel 11.4us 5% | sglang::device::marlin_moe::Marlin<__nv_bfloat16 420.5us 96%<br>_post_expert_norm_weighted_sum_kernel 5.1us 1%<br>sglang::act_and_mul_kernel<__nv_bfloat16, 3.5us 1% |
+| verify 32 bs=256 sharding=ep8 | 60 | 622.2 | 366.5 | 108.9 | 5.7x | 3.4x | w4_gemm_kernel<1, 2, 16, 4, 4... 219.6us 61%<br>w4_gemm_kernel<2, 2, 16, 4, 4... 107.3us 30%<br>w4_swiglu_kernel 14.2us 4% | sglang::device::marlin_moe::Marlin<__nv_bfloat16 583.8us 96%<br>_post_expert_norm_weighted_sum_kernel 5.6us 1%<br>sglang::act_and_mul_kernel<__nv_bfloat16, 5.5us 1% |
+
+
+From check 05924173c44046e9 on, the W4 kernels use programmatic dependent launch: a kernel can start early and wait inside, and the profiler counts that wait as GPU time, so per-kernel times in these tables overstate the later kernels (the judge's per-shape totals are unaffected). Compare GEMMs with the tuner's same-routing timings in docs/runs-moe.md instead.
