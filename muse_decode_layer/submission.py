@@ -224,6 +224,35 @@ constexpr int kMaxRoutes = 4096;
 constexpr int kTopK = 8;
 constexpr int kExpertHidden = 4096;
 
+// A launch with programmatic dependent launch: the kernel may start once the kernel before it
+// on the stream executes griddepcontrol.launch_dependents (or ends), and must execute
+// griddepcontrol.wait before it reads that kernel's output. Compile-time cluster dims apply.
+template <typename Kern, typename... Args>
+void launch_ex(Kern kern, dim3 grid, dim3 block, int smem, cudaStream_t stream, bool pdl,
+               Args... args) {
+    cudaLaunchConfig_t cfg = {};
+    cfg.gridDim = grid;
+    cfg.blockDim = block;
+    cfg.dynamicSmemBytes = smem;
+    cfg.stream = stream;
+    cudaLaunchAttribute attr[1];
+    attr[0].id = cudaLaunchAttributeProgrammaticStreamSerialization;
+    attr[0].val.programmaticStreamSerializationAllowed = pdl ? 1 : 0;
+    cfg.attrs = attr;
+    cfg.numAttrs = 1;
+    C10_CUDA_CHECK(cudaLaunchKernelEx(&cfg, kern, args...));
+}
+
+template <typename Kern, typename... Args>
+void launch_ex_pdl(Kern kern, dim3 grid, dim3 block, int smem, cudaStream_t stream,
+                   Args... args) {
+    launch_ex(kern, grid, block, smem, stream, true, args...);
+}
+
+// PDL on the glue launches (router, route_align, finalize_row, the FFN boundary); the
+// projection, norm and attention launches always carry it. Off for the proj + attention check.
+constexpr bool kPdlGlue = false;
+
 // Marlin's moe_align layout over this GPU's 32 experts only: blocks of block_size rows,
 // experts ascending, pad slots hold numel. SGLang aligns over 257 buckets instead and emits
 // blocks of other GPUs' routes that Marlin then scans past. The first local expert is read
@@ -234,11 +263,13 @@ __global__ void __launch_bounds__(1024) route_align_kernel(
         int* __restrict__ sorted_ids, int* __restrict__ expert_ids, int* __restrict__ num_post,
         int* __restrict__ local_ids, int item_rows, int item_rows2, int items2_at,
         int2* __restrict__ items, int* __restrict__ num_items) {
+    asm volatile("griddepcontrol.launch_dependents;");
     __shared__ int cnt[kMaxLocal];
     __shared__ int off[kMaxLocal];
     __shared__ int total_s;
     __shared__ short rank_s[kMaxRoutes];
     const int tid = threadIdx.x;
+    asm volatile("griddepcontrol.wait;" ::: "memory");
     const int start = *start_p;
     if (tid < kMaxLocal) {
         cnt[tid] = 0;
@@ -338,6 +369,8 @@ __global__ void __launch_bounds__(512) finalize_row_kernel(
         const __nv_bfloat16* __restrict__ y, const float* __restrict__ scores,
         const __nv_bfloat16* __restrict__ norm_w, const int* __restrict__ local_ids,
         __nv_bfloat16* __restrict__ out, float eps) {
+    asm volatile("griddepcontrol.launch_dependents;");
+    asm volatile("griddepcontrol.wait;" ::: "memory");
     constexpr int THREADS = 512;
     static_assert(THREADS * 8 == kExpertHidden);
     constexpr int WARPS = THREADS / 32;
@@ -438,6 +471,7 @@ template <int M>
 __global__ void __cluster_dims__(1, R_CLUSTER, 1) __launch_bounds__(512, 1)
 router_kernel(const float* __restrict__ w, const float* __restrict__ x,
               float* __restrict__ out, int m) {
+    asm volatile("griddepcontrol.launch_dependents;");
     extern __shared__ __align__(16) unsigned char smem[];
     float* xs = reinterpret_cast<float*>(smem);
     float* partial = reinterpret_cast<float*>(smem + M * R_K_SLICE * 4);
@@ -455,6 +489,8 @@ router_kernel(const float* __restrict__ w, const float* __restrict__ x,
         wv[s] = __ldcs(reinterpret_cast<const float4*>(wrow + s * 128));
     }
 
+    // x is the output of the kernel before this one; the weights above are state.
+    asm volatile("griddepcontrol.wait;" ::: "memory");
     // Rows past m are zero-filled so the inner loop needs no bounds check.
     constexpr int CHUNKS = R_K_SLICE / 4;
     for (int i = threadIdx.x; i < M * CHUNKS; i += blockDim.x) {
@@ -524,27 +560,8 @@ void router_launch(const float* wp, const float* xp, float* op, int m, cudaStrea
         configured = true;
     }
     const dim3 grid(RN / R_ROWS_PER_BLOCK, R_CLUSTER);
-    router_kernel<M><<<grid, 32 * R_ROWS_PER_BLOCK, router_smem_bytes<M>(), stream>>>(
-        wp, xp, op, m);
-}
-
-// A launch with programmatic dependent launch: the kernel may start once the kernel before it
-// on the stream executes griddepcontrol.launch_dependents (or ends), and must execute
-// griddepcontrol.wait before it reads that kernel's output. Compile-time cluster dims apply.
-template <typename Kern, typename... Args>
-void launch_ex_pdl(Kern kern, dim3 grid, dim3 block, int smem, cudaStream_t stream,
-                   Args... args) {
-    cudaLaunchConfig_t cfg = {};
-    cfg.gridDim = grid;
-    cfg.blockDim = block;
-    cfg.dynamicSmemBytes = smem;
-    cfg.stream = stream;
-    cudaLaunchAttribute attr[1];
-    attr[0].id = cudaLaunchAttributeProgrammaticStreamSerialization;
-    attr[0].val.programmaticStreamSerializationAllowed = 1;
-    cfg.attrs = attr;
-    cfg.numAttrs = 1;
-    C10_CUDA_CHECK(cudaLaunchKernelEx(&cfg, kern, args...));
+    launch_ex(router_kernel<M>, grid, dim3(32 * R_ROWS_PER_BLOCK), router_smem_bytes<M>(),
+              stream, kPdlGlue, wp, xp, op, m);
 }
 
 __device__ __forceinline__ float round_bf16(float v) {
@@ -701,6 +718,7 @@ template <int MT, int WARPS, int R, int CH, int S, bool HILO = false,
 __global__ void __cluster_dims__(1, S, 1) __launch_bounds__(WARPS * 32)
 proj_kernel(const uint4* __restrict__ wp, const __nv_bfloat16* __restrict__ x,
             OutT* __restrict__ out, int m, int n_out, int k, int t_per_block) {
+    asm volatile("griddepcontrol.launch_dependents;");
     constexpr int TOKENS = MT * 8;
     constexpr int ROWS = WARPS * R * 16;
     constexpr int XS = xs_stride<CH>();
@@ -725,7 +743,7 @@ proj_kernel(const uint4* __restrict__ wp, const __nv_bfloat16* __restrict__ x,
     const int chunks = t_per_block / CH;
     const uint4* wsrc = wp + ((size_t)tile0 * kt_total + kt0) * 32 + lane;
 
-    auto load_chunk = [&](int c, int slot) {
+    auto load_w = [&](int c, int slot) {
         uint4* wdst = ws + slot * W_STAGE_VECS + warp * R * CH * 32 + lane;
 #pragma unroll
         for (int r = 0; r < R; ++r) {
@@ -735,24 +753,48 @@ proj_kernel(const uint4* __restrict__ wp, const __nv_bfloat16* __restrict__ x,
                            wsrc + ((size_t)r * kt_total + c * CH + i) * 32, true);
             }
         }
-        __nv_bfloat16* xdst = xs + slot * TOKENS * XS;
+    };
+    constexpr int VECS_PER_ROW = HILO ? CH : CH * 2;
+    auto x_src = [&](int c, int v) -> const __nv_bfloat16* {
+        const int tok = v / VECS_PER_ROW;
+        const int col = (v % VECS_PER_ROW) * 8;
         const int kcol = (HILO ? (kt0 + c * CH) / 2 : kt0 + c * CH) * 16;
-        constexpr int VECS_PER_ROW = HILO ? CH : CH * 2;
+        return x + (size_t)tok * xk + kcol + col;
+    };
+    auto load_chunk = [&](int c, int slot) {
+        load_w(c, slot);
+        __nv_bfloat16* xdst = xs + slot * TOKENS * XS;
         for (int v = threadIdx.x; v < TOKENS * VECS_PER_ROW; v += WARPS * 32) {
             const int tok = v / VECS_PER_ROW;
             const int col = (v % VECS_PER_ROW) * 8;
             const bool valid = tok < m;
-            cp_async16(xdst + tok * XS + col, valid ? x + (size_t)tok * xk + kcol + col : x,
-                       valid);
+            cp_async16(xdst + tok * XS + col, valid ? x_src(c, v) : x, valid);
         }
     };
 
+    // The first weight stages stream before the wait on the kernel before this one, whose
+    // output x is. The x rows of those stages are then staged with plain loads, so the
+    // cp.async groups are the same three as before and the loop's wait_group count holds.
 #pragma unroll
     for (int s = 0; s < STAGES - 1; ++s) {
         if (s < chunks) {
-            load_chunk(s, s);
+            load_w(s, s);
         }
         asm volatile("cp.async.commit_group;\n");
+    }
+    asm volatile("griddepcontrol.wait;" ::: "memory");
+#pragma unroll
+    for (int s = 0; s < STAGES - 1; ++s) {
+        if (s < chunks) {
+            __nv_bfloat16* xdst = xs + s * TOKENS * XS;
+            for (int v = threadIdx.x; v < TOKENS * VECS_PER_ROW; v += WARPS * 32) {
+                const int tok = v / VECS_PER_ROW;
+                const int col = (v % VECS_PER_ROW) * 8;
+                const uint4 val = tok < m ? *reinterpret_cast<const uint4*>(x_src(s, v))
+                                          : make_uint4(0, 0, 0, 0);
+                *reinterpret_cast<uint4*>(xdst + tok * XS + col) = val;
+            }
+        }
     }
 
     float acc[R][MT][4];
@@ -845,8 +887,8 @@ void proj_launch(const uint4* wp, const __nv_bfloat16* xp, OutT* op, int m, int 
         configured = true;
     }
     const dim3 grid(n / (WARPS * R * 16), S, (m + MT * 8 - 1) / (MT * 8));
-    proj_kernel<MT, WARPS, R, CH, S, HILO, OutT><<<grid, WARPS * 32, smem, stream>>>(
-        wp, xp, op, m, n, k, k / 16 / S);
+    launch_ex_pdl(proj_kernel<MT, WARPS, R, CH, S, HILO, OutT>, grid, dim3(WARPS * 32), smem,
+                  stream, wp, xp, op, m, n, k, k / 16 / S);
 }
 
 // Up to 8 tokens: 4 warps of one row tile each, 8 k-tiles per stage, two blocks per SM.
@@ -894,12 +936,12 @@ std::vector<torch::Tensor> route_align(torch::Tensor topk_ids, torch::Tensor sta
     int threads = ((numel + 31) / 32) * 32;
     threads = threads < 64 ? 64 : (threads > 1024 ? 1024 : threads);
     auto stream = at::cuda::getCurrentCUDAStream();
-    route_align_kernel<<<1, threads, 0, stream>>>(
-        topk_ids.data_ptr<int>(), start.data_ptr<int>(), numel, static_cast<int>(block_size),
-        sorted_ids.data_ptr<int>(), expert_ids.data_ptr<int>(), num_post.data_ptr<int>(),
-        local_ids.data_ptr<int>(), static_cast<int>(item_rows), static_cast<int>(item_rows2),
-        static_cast<int>(max1), reinterpret_cast<int2*>(items.data_ptr<int>()),
-        num_items.data_ptr<int>());
+    launch_ex(
+        route_align_kernel, dim3(1), dim3(threads), 0, stream, kPdlGlue, topk_ids.data_ptr<int>(),
+        start.data_ptr<int>(), numel, static_cast<int>(block_size), sorted_ids.data_ptr<int>(),
+        expert_ids.data_ptr<int>(), num_post.data_ptr<int>(), local_ids.data_ptr<int>(),
+        static_cast<int>(item_rows), static_cast<int>(item_rows2), static_cast<int>(max1),
+        reinterpret_cast<int2*>(items.data_ptr<int>()), num_items.data_ptr<int>());
     C10_CUDA_KERNEL_LAUNCH_CHECK();
     return {sorted_ids, expert_ids, num_post, local_ids, items.narrow(0, 0, max1),
             num_items.narrow(0, 0, 1), items.narrow(0, max1, max2), num_items.narrow(0, 1, 1)};
@@ -911,7 +953,8 @@ torch::Tensor finalize(torch::Tensor y, torch::Tensor scores, torch::Tensor norm
     TORCH_CHECK(y.size(1) == kTopK && y.size(2) == kExpertHidden);
     auto out = torch::empty({m, kExpertHidden}, y.options());
     auto stream = at::cuda::getCurrentCUDAStream();
-    finalize_row_kernel<<<m, 512, 0, stream>>>(
+    launch_ex(
+        finalize_row_kernel, dim3(m), dim3(512), 0, stream, kPdlGlue,
         reinterpret_cast<const __nv_bfloat16*>(y.data_ptr<at::BFloat16>()),
         scores.data_ptr<float>(),
         reinterpret_cast<const __nv_bfloat16*>(norm_w.data_ptr<at::BFloat16>()),
@@ -1033,6 +1076,7 @@ __global__ void prep_kernel(const __nv_bfloat16* __restrict__ qkv, const int64_t
                             const float* __restrict__ k_scale, const float* __restrict__ v_scale,
                             uint16_t* __restrict__ q_out, uint16_t* k_cache, uint16_t* v_cache,
                             int rope) {
+    asm volatile("griddepcontrol.launch_dependents;");
     const int t = blockIdx.x;
     const int h = blockIdx.y * (blockDim.x / 32) + threadIdx.x / 32;
     const int lane = threadIdx.x & 31;
@@ -1040,6 +1084,7 @@ __global__ void prep_kernel(const __nv_bfloat16* __restrict__ qkv, const int64_t
     if (h >= heads) {
         return;
     }
+    asm volatile("griddepcontrol.wait;" ::: "memory");
     const auto* src = reinterpret_cast<const __nv_bfloat162*>(qkv + (size_t)t * (heads + HQ) * D);
     float2 x = __bfloat1622float2(src[h * (D / 2) + lane]);
     if (h < HQ + HKV) {
@@ -1069,6 +1114,7 @@ __global__ void prep_kernel(const __nv_bfloat16* __restrict__ qkv, const int64_t
 __global__ void gate_kernel(const __nv_bfloat16* __restrict__ o,
                             const __nv_bfloat16* __restrict__ qkv,
                             __nv_bfloat16* __restrict__ out) {
+    asm volatile("griddepcontrol.launch_dependents;");
     const int t = blockIdx.x;
     const int h = blockIdx.y * (blockDim.x / 32) + threadIdx.x / 32;
     const int lane = threadIdx.x & 31;
@@ -1076,6 +1122,7 @@ __global__ void gate_kernel(const __nv_bfloat16* __restrict__ o,
         return;
     }
     const size_t row = (size_t)t * HQ + h;
+    asm volatile("griddepcontrol.wait;" ::: "memory");
     float2 x = __bfloat1622float2(reinterpret_cast<const __nv_bfloat162*>(o)[row * (D / 2) + lane]);
     const auto* g2 = reinterpret_cast<const __nv_bfloat162*>(
         qkv + (size_t)t * (2 * HQ + 2 * HKV) * D + (HQ + 2 * HKV) * D);
@@ -1097,7 +1144,8 @@ torch::Tensor attn_prep(torch::Tensor qkv, torch::Tensor pos, torch::Tensor loc,
     const int tokens = qkv.size(0);
     auto q = torch::empty({tokens, HQ, D}, qkv.options().dtype(torch::kFloat8_e4m3fn));
     dim3 grid(tokens, (HQ + 2 * HKV + 7) / 8);
-    prep_kernel<<<grid, 256, 0, at::cuda::getCurrentCUDAStream()>>>(
+    launch_ex_pdl(
+        prep_kernel, grid, dim3(256), 0, at::cuda::getCurrentCUDAStream(),
         reinterpret_cast<const __nv_bfloat16*>(qkv.data_ptr()), pos.data_ptr<int64_t>(),
         loc.data_ptr<int64_t>(), inv_freq.data_ptr<float>(), k_scale.data_ptr<float>(),
         v_scale.data_ptr<float>(), reinterpret_cast<uint16_t*>(q.data_ptr()),
@@ -1113,7 +1161,8 @@ torch::Tensor attn_gate(torch::Tensor o, torch::Tensor qkv) {
     const int tokens = qkv.size(0);
     auto out = torch::empty({tokens, HQ * D}, qkv.options());
     dim3 grid(tokens, (HQ + 7) / 8);
-    gate_kernel<<<grid, 256, 0, at::cuda::getCurrentCUDAStream()>>>(
+    launch_ex_pdl(
+        gate_kernel, grid, dim3(256), 0, at::cuda::getCurrentCUDAStream(),
         reinterpret_cast<const __nv_bfloat16*>(o.data_ptr()),
         reinterpret_cast<const __nv_bfloat16*>(qkv.data_ptr()),
         reinterpret_cast<__nv_bfloat16*>(out.data_ptr()));
@@ -1370,6 +1419,7 @@ __device__ __forceinline__ void merge_row(Get get, int n, int lane, float v_scal
 template <int L, int MT, int TP, int KC, bool CLUSTER, bool VF16, bool PV8>
 __global__ void __launch_bounds__(Cfg<L, MT, TP, KC>::THREADS, VF16 ? 2 : 1)
 attn_kernel(const Params p) {
+    asm volatile("griddepcontrol.launch_dependents;");
     static_assert(!PV8 || (KC % 2 == 0 && !VF16), "FP8 P.V takes 32-token steps");
     using C = Cfg<L, MT, TP, KC>;
     extern __shared__ __align__(128) uint8_t smem[];
@@ -1393,13 +1443,6 @@ attn_kernel(const Params p) {
         }
     };
     stamp(0);
-    // The first row this warp merges in a cluster (CTA r owns rows r, r + S, ...); its gate load
-    // overlaps the whole kernel.
-    const int row0 = warp * p.splits + split;
-    float2 gate0 = make_float2(0.f, 0.f);
-    if (CLUSTER && row0 < C::ROWS) {
-        gate0 = load_gate(p.qkv, static_cast<size_t>(b) * L + row0 / HQ, row0 % HQ, lane);
-    }
     const float k_scale = *p.k_scale;
     const float v_scale = *p.v_scale;
     const int seq = p.seq_lens[b];
@@ -1452,6 +1495,29 @@ attn_kernel(const Params p) {
     }
     cp_commit();
 
+    cp_wait<0>();
+    __syncthreads();
+    stamp(1);
+#pragma unroll
+    for (int t = 0; t < STAGES - 1; ++t) {
+        if (t < ntiles) {
+            issue(t);
+        }
+        cp_commit();
+    }
+    stamp(2);
+
+    // Everything above reads inputs (page table, lengths, the cache); the page entries and the
+    // first key and value tiles are in flight before the wait on the qkv projection, whose
+    // output every read below depends on.
+    asm volatile("griddepcontrol.wait;" ::: "memory");
+    // The first row this warp merges in a cluster (CTA r owns rows r, r + S, ...); its gate load
+    // overlaps the main loop.
+    const int row0 = warp * p.splits + split;
+    float2 gate0 = make_float2(0.f, 0.f);
+    if (CLUSTER && row0 < C::ROWS) {
+        gate0 = load_gate(p.qkv, static_cast<size_t>(b) * L + row0 / HQ, row0 % HQ, lane);
+    }
     // Query fragments as f16 pairs: rows g and g + 8 of each tile, dims 16c..16c+15,
     // normalized and RoPE'd. Key dims are read in the same permuted order, so the dot products
     // are unchanged. (FP8 mma.sync is emulated on sm_90 by unpacking both operands to f16 on
@@ -1583,17 +1649,6 @@ attn_kernel(const Params p) {
         }
     }
 
-    cp_wait<0>();
-    __syncthreads();
-    stamp(1);
-#pragma unroll
-    for (int t = 0; t < STAGES - 1; ++t) {
-        if (t < ntiles) {
-            issue(t);
-        }
-        cp_commit();
-    }
-    stamp(2);
 
     float o[MT][8][4];
     float m[MT][2];
@@ -2045,6 +2100,8 @@ attn_kernel(const Params p) {
 __global__ void combine_kernel(const float* __restrict__ ws, const __nv_bfloat16* __restrict__ qkv,
                                const float* __restrict__ v_scale, __nv_bfloat16* __restrict__ out,
                                int L, int nparts) {
+    asm volatile("griddepcontrol.launch_dependents;");
+    asm volatile("griddepcontrol.wait;" ::: "memory");
     const int tok = blockIdx.x;
     const int b = tok / L;
     const int j = tok % L;
@@ -2075,15 +2132,17 @@ void launch(const Params& p, int batch, cudaStream_t stream) {
     cfg.blockDim = dim3(C::THREADS);
     cfg.dynamicSmemBytes = smem_bytes;
     cfg.stream = stream;
-    cudaLaunchAttribute attr[1];
-    cfg.numAttrs = 0;
+    cudaLaunchAttribute attr[2];
+    attr[0].id = cudaLaunchAttributeProgrammaticStreamSerialization;
+    attr[0].val.programmaticStreamSerializationAllowed = 1;
+    cfg.attrs = attr;
+    cfg.numAttrs = 1;
     if (CLUSTER) {
-        attr[0].id = cudaLaunchAttributeClusterDimension;
-        attr[0].val.clusterDim.x = p.splits;
-        attr[0].val.clusterDim.y = 1;
-        attr[0].val.clusterDim.z = 1;
-        cfg.attrs = attr;
-        cfg.numAttrs = 1;
+        attr[1].id = cudaLaunchAttributeClusterDimension;
+        attr[1].val.clusterDim.x = p.splits;
+        attr[1].val.clusterDim.y = 1;
+        attr[1].val.clusterDim.z = 1;
+        cfg.numAttrs = 2;
     }
     const cudaError_t err = cudaLaunchKernelEx(&cfg, kern, p);
     TORCH_CHECK(err == cudaSuccess, "attn_kernel launch: ", cudaGetErrorString(err));
@@ -2134,7 +2193,8 @@ torch::Tensor attn_fused(torch::Tensor qkv, torch::Tensor page_table, torch::Ten
     ws = torch::empty({batch * splits * HQ * PART}, qkv.options().dtype(torch::kFloat32));
     p.ws = ws.data_ptr<float>();
     launch<1, 1, 4, 1, false>(p, batch, stream);
-    combine_kernel<<<batch, HQ * 32, 0, stream>>>(p.ws, p.qkv, p.v_scale, p.out, 1, splits);
+    launch_ex_pdl(combine_kernel, dim3(batch), dim3(HQ * 32), 0, stream, p.ws, p.qkv, p.v_scale,
+                  p.out, 1, splits);
     C10_CUDA_KERNEL_LAUNCH_CHECK();
     return out;
 }
@@ -2455,6 +2515,7 @@ __device__ __forceinline__ int kmaj(int r, int kc) {
 // exponentials on the FMA pipe (ex2_poly) to unload MUFU.
 template <int NS, int DA, int MODE, int PW, int VAR>
 __global__ void __launch_bounds__(CONSUMERS + 32 * PW, 1) attn_ws_kernel(const Params p) {
+    asm volatile("griddepcontrol.launch_dependents;");
     constexpr bool STAMP = MODE == 2;
     constexpr bool F32 = (VAR & 16) != 0;
     static_assert(F32 || (VAR & 96) == 0, "bits 5 and 6 need bit 4");
@@ -2629,6 +2690,10 @@ __global__ void __launch_bounds__(CONSUMERS + 32 * PW, 1) attn_ws_kernel(const P
     uint8_t* newk = smem + S::NEWK;
     uint8_t* newv = smem + S::NEWV;
 
+    // The loader warps above read only inputs (page table, lengths, the cache rows of earlier
+    // tokens), so they never wait; the queries, gates and new keys and values below are the qkv
+    // projection's output.
+    asm volatile("griddepcontrol.wait;" ::: "memory");
     // Query prep: two threads per row (row m = 8j + g'), 32 dims each, normalized, rotated and
     // rounded to E4M3 into the K-major A tile.
     {
@@ -3173,6 +3238,8 @@ __global__ void ws_combine_kernel(const float* __restrict__ ws,
                                   const __nv_bfloat16* __restrict__ qkv,
                                   const float* __restrict__ v_scale,
                                   __nv_bfloat16* __restrict__ out, int nparts, float vmul) {
+    asm volatile("griddepcontrol.launch_dependents;");
+    asm volatile("griddepcontrol.wait;" ::: "memory");
     const int tok = blockIdx.x;
     const int b = tok / L;
     const int j = tok % L;
@@ -3225,7 +3292,7 @@ void launch_ws(const Params& p, int batch, cudaStream_t stream) {
         cudaFuncSetAttribute(kern, cudaFuncAttributeMaxDynamicSharedMemorySize, bytes);
         configured = true;
     }
-    kern<<<dim3(p.splits, batch), CONSUMERS + 32 * PW, bytes, stream>>>(p);
+    launch_ex_pdl(kern, dim3(p.splits, batch), dim3(CONSUMERS + 32 * PW), bytes, stream, p);
 }
 
 template <int NS, int DA, int MODE, int VAR>
@@ -3279,8 +3346,8 @@ torch::Tensor attn_verify(torch::Tensor qkv, torch::Tensor page_table, torch::Te
     p.qk_scale = static_cast<float>(qk_scale);
     launch_var<7, 3, 0, 16>(p, batch, stream);
     C10_CUDA_KERNEL_LAUNCH_CHECK();
-    ws_combine_kernel<<<batch * L, HQ * 32, 0, stream>>>(
-        p.ws, p.qkv, p.v_scale, reinterpret_cast<__nv_bfloat16*>(out.data_ptr()), splits, 1.f);
+    launch_ex_pdl(ws_combine_kernel, dim3(batch * L), dim3(HQ * 32), 0, stream, p.ws, p.qkv,
+                  p.v_scale, reinterpret_cast<__nv_bfloat16*>(out.data_ptr()), splits, 1.f);
     C10_CUDA_KERNEL_LAUNCH_CHECK();
     return out;
 }
@@ -3346,6 +3413,7 @@ __global__ void __cluster_dims__(CTAS, 1, 1) __launch_bounds__(THREADS) boundary
     const float* __restrict__ beta, const __nv_bfloat16* __restrict__ w_next,
     float* __restrict__ stream_out, __nv_bfloat16* __restrict__ next, float eps_post,
     float eps_next) {
+    asm volatile("griddepcontrol.launch_dependents;");
     namespace cg = cooperative_groups;
     __shared__ float red[THREADS / 32];
     __shared__ float part;
@@ -3355,12 +3423,17 @@ __global__ void __cluster_dims__(CTAS, 1, 1) __launch_bounds__(THREADS) boundary
     const int lc = PER * threadIdx.x;
     const int c0 = rank * (H / CTAS) + lc;
     const size_t row = static_cast<size_t>(tok) * H;
+    // Loaded before the wait on the unpooler: the gate and norm weights are state, and the
+    // stream was written by the attention boundary, which is complete before this kernel can
+    // start (every path from it to here passes GEMM1 or Marlin, which wait before they
+    // trigger). Only the branch f is the unpooler's output.
     const float4 sv = *reinterpret_cast<const float4*>(stream + row + c0);
     const float4 av = *reinterpret_cast<const float4*>(alpha + c0);
     const float4 bv = *reinterpret_cast<const float4*>(beta + c0);
     const float4 nv = bf16x4(w_next + c0);
-    const float4 fv = bf16x4(f + static_cast<size_t>(tok) * LIVE + lc);
     const float4 pv = bf16x4(w_post + lc);
+    asm volatile("griddepcontrol.wait;" ::: "memory");
+    const float4 fv = bf16x4(f + static_cast<size_t>(tok) * LIVE + lc);
     float br[PER] = {bf16r(fv.x * pv.x), bf16r(fv.y * pv.y), bf16r(fv.z * pv.z),
                      bf16r(fv.w * pv.w)};
     float ss = 0.f;
@@ -3427,7 +3500,9 @@ std::vector<torch::Tensor> ffn_boundary_short(torch::Tensor stream, torch::Tenso
     if (tokens == 0) {
         return {next, stream_out};
     }
-    boundary_kernel<<<dim3(CTAS, tokens), THREADS, 0, at::cuda::getCurrentCUDAStream()>>>(
+    launch_ex(
+        boundary_kernel, dim3(CTAS, tokens), dim3(THREADS), 0, at::cuda::getCurrentCUDAStream(),
+        kPdlGlue,
         stream.data_ptr<float>(), reinterpret_cast<const __nv_bfloat16*>(f.data_ptr()),
         reinterpret_cast<const __nv_bfloat16*>(w_post.data_ptr()), alpha.data_ptr<float>(),
         beta.data_ptr<float>(), reinterpret_cast<const __nv_bfloat16*>(w_next.data_ptr()),
