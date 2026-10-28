@@ -1,0 +1,606 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>okc profiles</title>
+<style>
+:root {
+    color-scheme: light;
+    --surface: #fcfcfb;
+    --surface-2: #f2f1ee;
+    --grid: #e4e3df;
+    --text: #0b0b0b;
+    --text-2: #52514e;
+    --muted: #8a8984;
+    --accent: #2a78d6;
+    --f-moe: #2a78d6;
+    --f-attn: #eb6834;
+    --f-gemm: #1baf7a;
+    --f-router: #eda100;
+    --f-norm: #e87ba4;
+    --f-moeglue: #008300;
+    --f-misc: #6250d6;
+    --f-unlisted: #b9b8b2;
+    --gap: #dcdbd6;
+    --good: #008300;
+    --bad: #e34948;
+}
+@media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+        color-scheme: dark;
+        --surface: #1a1a19;
+        --surface-2: #242423;
+        --grid: #34342f;
+        --text: #f0efec;
+        --text-2: #c3c2b7;
+        --muted: #8f8e86;
+        --accent: #3987e5;
+        --f-moe: #3987e5;
+        --f-attn: #d95926;
+        --f-gemm: #199e70;
+        --f-router: #c98500;
+        --f-norm: #d55181;
+        --f-moeglue: #008300;
+        --f-misc: #9085e9;
+        --f-unlisted: #5c5b56;
+        --gap: #3a3a36;
+        --good: #3fae3f;
+        --bad: #e66767;
+    }
+}
+:root[data-theme="dark"] {
+    color-scheme: dark;
+    --surface: #1a1a19;
+    --surface-2: #242423;
+    --grid: #34342f;
+    --text: #f0efec;
+    --text-2: #c3c2b7;
+    --muted: #8f8e86;
+    --accent: #3987e5;
+    --f-moe: #3987e5;
+    --f-attn: #d95926;
+    --f-gemm: #199e70;
+    --f-router: #c98500;
+    --f-norm: #d55181;
+    --f-moeglue: #008300;
+    --f-misc: #9085e9;
+    --f-unlisted: #5c5b56;
+    --gap: #3a3a36;
+    --good: #3fae3f;
+    --bad: #e66767;
+}
+* { box-sizing: border-box; }
+body {
+    margin: 0;
+    background: var(--surface);
+    color: var(--text);
+    font: 14px/1.45 -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+main { max-width: 1280px; margin: 0 auto; padding: 20px 16px 60px; }
+h1 { font-size: 20px; margin: 0 0 4px; }
+h2 { font-size: 15px; margin: 28px 0 8px; }
+.sub { color: var(--text-2); margin: 0 0 16px; }
+.tabs { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 12px; }
+.tabs button {
+    border: 1px solid var(--grid);
+    background: var(--surface);
+    color: var(--text);
+    padding: 6px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    font: inherit;
+}
+.tabs button.on { background: var(--text); color: var(--surface); border-color: var(--text); }
+.controls { display: flex; gap: 16px; flex-wrap: wrap; align-items: center; margin: 12px 0; }
+.controls label { color: var(--text-2); display: flex; gap: 6px; align-items: center; }
+select {
+    font: inherit;
+    color: var(--text);
+    background: var(--surface);
+    border: 1px solid var(--grid);
+    border-radius: 6px;
+    padding: 4px 6px;
+    max-width: 520px;
+}
+.note {
+    background: var(--surface-2);
+    border-radius: 8px;
+    padding: 10px 12px;
+    color: var(--text-2);
+    margin: 8px 0;
+}
+.note b { color: var(--text); }
+.legend { display: flex; gap: 14px; flex-wrap: wrap; color: var(--text-2); font-size: 13px; }
+.legend span { display: inline-flex; align-items: center; gap: 6px; }
+.sw { width: 12px; height: 12px; border-radius: 3px; display: inline-block; }
+.sw.gap {
+    background: repeating-linear-gradient(45deg, var(--gap) 0 3px, transparent 3px 6px);
+    outline: 1px solid var(--gap);
+}
+.mk { width: 2px; height: 14px; display: inline-block; background: var(--text); }
+.mk.floor { background: var(--good); }
+.mk.cmp { background: var(--muted); }
+#history { width: 100%; height: 190px; display: block; }
+.shapes { display: grid; grid-template-columns: minmax(150px, 230px) 44px 1fr 62px 54px 58px;
+          column-gap: 10px; align-items: center; }
+.shapes .hd { color: var(--muted); font-size: 12px; padding-bottom: 4px;
+              border-bottom: 1px solid var(--grid); }
+.shapes .c { padding: 6px 0; border-bottom: 1px solid var(--grid); }
+.shapes .row { display: contents; cursor: pointer; }
+.shapes .row:hover .c { background: var(--surface-2); }
+.shapes .row.sel .c { background: var(--surface-2); }
+.num { text-align: right; font-variant-numeric: tabular-nums; }
+.lbl { font-size: 13px; }
+.track { position: relative; height: 34px; }
+.bar { position: absolute; left: 0; display: flex; gap: 2px; }
+.bar.ours { top: 3px; height: 16px; }
+.bar.sgl { top: 22px; height: 9px; opacity: 0.85; }
+.seg { height: 100%; min-width: 1px; }
+.seg:last-child { border-radius: 0 4px 4px 0; }
+.seg.gapseg {
+    background: repeating-linear-gradient(45deg, var(--gap) 0 3px, transparent 3px 6px);
+}
+.vline { position: absolute; top: 0; bottom: 0; width: 2px; pointer-events: none; }
+.vline.base { background: var(--text); }
+.vline.floor { background: var(--good); }
+.vline.cmp { background: var(--muted); width: 2px; }
+.good { color: var(--good); }
+.bad { color: var(--bad); }
+table { border-collapse: collapse; width: 100%; font-size: 13px; }
+th, td { padding: 5px 8px; border-bottom: 1px solid var(--grid); text-align: left; }
+th { color: var(--muted); font-weight: 500; }
+td.num, th.num { text-align: right; }
+.two { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+#tip {
+    position: fixed;
+    pointer-events: none;
+    background: var(--text);
+    color: var(--surface);
+    padding: 6px 9px;
+    border-radius: 6px;
+    font-size: 12px;
+    max-width: 420px;
+    display: none;
+    z-index: 10;
+}
+.tag { font-size: 11px; color: var(--muted); border: 1px solid var(--grid); border-radius: 4px;
+       padding: 0 4px; margin-left: 4px; }
+@media (max-width: 760px) {
+    .shapes { grid-template-columns: 1fr 52px 48px; }
+    .shapes .hide-sm { display: none; }
+    .shapes .track-c { grid-column: 1 / -1; }
+    .two { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+<main>
+    <h1>okc profiles</h1>
+    <p class="sub">Each saved run, shape by shape: our kernels by family (top bar), SGLang's from
+    the baseline profile (thin bar), SGLang's measured time (black line) and the floor (green line).
+    The score is the weight-averaged geometric mean of the per-shape speedups.</p>
+    <div class="tabs" id="tabs"></div>
+
+    <h2>Score history</h2>
+    <svg id="history" role="img" aria-label="Score per run"></svg>
+    <div class="legend" id="hlegend"></div>
+
+    <div class="controls">
+        <label>Run <select id="run"></select></label>
+        <label>Compare with <select id="cmp"></select></label>
+        <label>Scale <select id="mode">
+            <option value="rel">% of SGLang time</option>
+            <option value="abs">µs</option>
+        </select></label>
+    </div>
+    <div class="note" id="runnote"></div>
+    <div class="legend" id="legend"></div>
+
+    <h2>Per shape</h2>
+    <div class="shapes" id="shapes"></div>
+
+    <div class="two">
+        <div>
+            <h2>Kernel leverage</h2>
+            <p class="sub">Score multiplier if the kernel's time were halved on every shape where
+            it runs. Weight share times the log of the shape's gain, summed.</p>
+            <table id="lev"></table>
+        </div>
+        <div>
+            <h2 id="dtitle">Shape detail</h2>
+            <p class="sub" id="dsub">Click a shape row.</p>
+            <table id="detail"></table>
+        </div>
+    </div>
+</main>
+<div id="tip"></div>
+<script>
+const DATA = /*DATA*/null;
+const FAMS = [
+    ["moe", "MoE GEMM"], ["attn", "attention"], ["gemm", "dense GEMM"], ["router", "router"],
+    ["norm", "norms"], ["moeglue", "MoE routing / finalize"], ["misc", "other kernels"],
+    ["unlisted", "kernels past the report's top 12"],
+];
+const FAM_NAME = Object.fromEntries(FAMS);
+const KINDS = { submission: "var(--f-moe)", bench: "var(--f-attn)", baseline: "var(--f-gemm)" };
+const $ = id => document.getElementById(id);
+const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;",
+                                                      '"': "&quot;" }[c]));
+const fmt = (x, d = 1) => x == null ? "–" : x.toFixed(d);
+
+const params = new URLSearchParams(location.hash.slice(1));
+const state = {
+    problem: params.get("p") || Object.keys(DATA)[0],
+    run: params.get("r"),
+    cmp: params.get("c") || "",
+    mode: params.get("m") || "rel",
+    shape: null,
+};
+
+function runs() { return DATA[state.problem]; }
+function runById(job) { return runs().find(r => r.job === job); }
+function latestBaseline() { return runs().filter(r => r.kind === "baseline").at(-1); }
+function scored() { return runs().filter(r => r.kind !== "baseline"); }
+
+function tip(e, html) {
+    const t = $("tip");
+    if (!html) {
+        t.style.display = "none";
+        return;
+    }
+    t.innerHTML = html;
+    t.style.display = "block";
+    const x = Math.min(e.clientX + 14, innerWidth - t.offsetWidth - 8);
+    const y = e.clientY + 16 + t.offsetHeight > innerHeight ? e.clientY - t.offsetHeight - 10
+                                                           : e.clientY + 16;
+    t.style.left = x + "px";
+    t.style.top = y + "px";
+}
+function hover(el, html) {
+    el.addEventListener("mousemove", e => tip(e, html));
+    el.addEventListener("mouseleave", () => tip(null));
+}
+
+function save() {
+    const h = new URLSearchParams({ p: state.problem, r: state.run, m: state.mode });
+    if (state.cmp) {
+        h.set("c", state.cmp);
+    }
+    history.replaceState(null, "", "#" + h);
+}
+
+function renderTabs() {
+    $("tabs").innerHTML = "";
+    for (const p of Object.keys(DATA)) {
+        const b = document.createElement("button");
+        b.textContent = p;
+        b.className = p === state.problem ? "on" : "";
+        b.onclick = () => {
+            state.problem = p;
+            state.run = null;
+            state.cmp = "";
+            state.shape = null;
+            render();
+        };
+        $("tabs").append(b);
+    }
+}
+
+function runLabel(r) {
+    const d = new Date(r.time * 1000);
+    const when = d.toLocaleString([], { month: "short", day: "numeric", hour: "2-digit",
+                                        minute: "2-digit" });
+    return `${r.kind} ${r.job} · ${fmt(r.score, 3)}x · ${when}`;
+}
+
+function renderSelects() {
+    const all = runs();
+    if (!state.run || !runById(state.run)) {
+        state.run = (all.filter(r => r.kind === "submission").at(-1) || all.at(-1)).job;
+    }
+    $("run").innerHTML = all.map(r => `<option value="${r.job}">${esc(runLabel(r))}</option>`)
+        .reverse().join("");
+    $("run").value = state.run;
+    $("cmp").innerHTML = `<option value="">none</option>` + all.filter(r => r.job !== state.run)
+        .map(r => `<option value="${r.job}">${esc(runLabel(r))}</option>`).reverse().join("");
+    $("cmp").value = state.cmp;
+    $("mode").value = state.mode;
+}
+
+function renderHistory() {
+    const svg = $("history");
+    const W = svg.clientWidth || 800, H = 190, L = 44, R = 12, T = 24, B = 26;
+    const rs = runs();
+    const lo = Math.min(0.95, ...rs.map(r => r.ci ? r.ci[0] : r.score ?? 1));
+    const hi = Math.max(1.1, ...rs.map(r => r.ci ? r.ci[1] : r.score ?? 1));
+    const y = v => T + (H - T - B) * (1 - (v - lo) / (hi - lo));
+    const x = i => L + (W - L - R) * (rs.length === 1 ? 0.5 : i / (rs.length - 1));
+    let s = "";
+    const step = hi - lo > 1 ? 0.5 : hi - lo > 0.4 ? 0.2 : 0.1;
+    for (let v = Math.ceil(lo / step) * step; v <= hi + 1e-9; v += step) {
+        s += `<line x1="${L}" x2="${W - R}" y1="${y(v)}" y2="${y(v)}" stroke="var(--grid)"/>`;
+        s += `<text x="${L - 6}" y="${y(v) + 4}" text-anchor="end" font-size="11"
+              fill="var(--muted)">${v.toFixed(1)}x</text>`;
+    }
+    s += `<line x1="${L}" x2="${W - R}" y1="${y(1)}" y2="${y(1)}" stroke="var(--text-2)"/>`;
+    s += `<text x="${W - R}" y="${y(1) - 4}" text-anchor="end" font-size="11"
+          fill="var(--text-2)">SGLang = 1.0x</text>`;
+    const best = Math.max(...scored().map(r => r.score ?? 0));
+    rs.forEach((r, i) => {
+        if (r.score == null) {
+            return;
+        }
+        const c = KINDS[r.kind] || "var(--f-misc)";
+        if (r.ci) {
+            s += `<line x1="${x(i)}" x2="${x(i)}" y1="${y(r.ci[0])}" y2="${y(r.ci[1])}"
+                  stroke="${c}" stroke-width="2" stroke-linecap="round"/>`;
+        }
+        const sel = r.job === state.run;
+        s += `<circle data-i="${i}" cx="${x(i)}" cy="${y(r.score)}" r="${sel ? 6 : 4.5}"
+              fill="${c}" stroke="${sel ? "var(--text)" : "var(--surface)"}" stroke-width="2"
+              style="cursor:pointer"/>`;
+        if (r.score === best && r.kind !== "baseline") {
+            const anchor = x(i) > W - 60 ? "end" : x(i) < L + 40 ? "start" : "middle";
+            s += `<text x="${x(i)}" y="${y(r.score) - 10}" text-anchor="${anchor}" font-size="11"
+                  fill="var(--text)">best ${r.score.toFixed(3)}x</text>`;
+        }
+    });
+    svg.setAttribute("viewBox", `0 0 ${W} ${H}`);
+    svg.innerHTML = s;
+    svg.querySelectorAll("circle").forEach(c => {
+        const r = rs[+c.dataset.i];
+        hover(c, `<b>${r.kind} ${r.job}</b> ${fmt(r.score, 3)}x` +
+                 (r.ci ? ` (${fmt(r.ci[0], 3)}-${fmt(r.ci[1], 3)})` : "") +
+                 (r.note ? `<br>${esc(r.note)}` : ""));
+        c.onclick = () => {
+            state.run = r.job;
+            state.shape = null;
+            render();
+        };
+    });
+    $("hlegend").innerHTML = Object.entries(KINDS).filter(([k]) => rs.some(r => r.kind === k))
+        .map(([k, c]) => `<span><i class="sw" style="background:${c}"></i>${k}</span>`).join("") +
+        `<span>whiskers: 95% CI</span>`;
+}
+
+function stack(profile) {
+    if (!profile) {
+        return [];
+    }
+    const segs = profile.kernels.map(k => ({ ...k }));
+    if (profile.unlisted > 0.05) {
+        segs.push({ name: "kernels okc did not itemize (past its top 12)",
+                    fam: "unlisted", us: profile.unlisted, calls: profile.more });
+    }
+    return segs;
+}
+
+function weightedLog(shapes, f) {
+    const W = shapes.reduce((a, s) => a + s.weight, 0);
+    return shapes.reduce((a, s) => a + s.weight / W * f(s), 0);
+}
+
+function renderShapes() {
+    const run = runById(state.run);
+    const cmp = state.cmp ? runById(state.cmp) : null;
+    const base = latestBaseline();
+    const baseShape = key => base && base.job !== run.job
+        ? base.shapes.find(s => s.key === key) : null;
+    const cmpShape = key => cmp ? cmp.shapes.find(s => s.key === key) : null;
+    const W = run.shapes.reduce((a, s) => a + s.weight, 0);
+
+    const extent = s => {
+        const kernels = stack(s.profile).reduce((a, k) => a + k.us, 0);
+        const b = baseShape(s.key);
+        const sgl = b ? stack(b.profile).reduce((a, k) => a + k.us, 0) : 0;
+        const c = cmpShape(s.key);
+        return Math.max(kernels, s.ours, sgl, s.base, c ? c.ours : 0);
+    };
+    const rel = state.mode === "rel";
+    const max = Math.max(...run.shapes.map(s => rel ? extent(s) / s.base : extent(s)));
+    const pos = (s, us) => `${(rel ? us / s.base : us) / max * 100}%`;
+
+    let h = `<div class="hd">shape</div><div class="hd num hide-sm">weight</div>
+             <div class="hd hide-sm">time (${rel ? "% of SGLang" : "µs"}, scale to
+             ${rel ? (max * 100).toFixed(0) + "%" : max.toFixed(0) + " µs"})</div>
+             <div class="hd num">speedup</div><div class="hd num hide-sm">÷ floor</div>
+             <div class="hd num">${cmp ? "vs cmp" : "to floor"}</div>`;
+    run.shapes.forEach((s, i) => {
+        const spd = s.base / s.ours;
+        const tail = cmp && cmpShape(s.key)
+            ? (() => {
+                const d = s.base / s.ours - cmpShape(s.key).base / cmpShape(s.key).ours;
+                return `<span class="${d >= 0 ? "good" : "bad"}">${d >= 0 ? "+" : ""}${
+                    d.toFixed(3)}</span>`;
+            })()
+            : `×${Math.exp(s.weight / W * Math.log(s.ours / s.floor)).toFixed(3)}`;
+        h += `<div class="row${state.shape === s.key ? " sel" : ""}" data-i="${i}">
+            <div class="c lbl">${esc(s.label)}</div>
+            <div class="c num hide-sm">${(s.weight / W * 100).toFixed(1)}%</div>
+            <div class="c track-c"><div class="track" data-i="${i}"></div></div>
+            <div class="c num ${spd >= 1 ? "" : "bad"}">${spd.toFixed(3)}x</div>
+            <div class="c num hide-sm">${(s.ours / s.floor).toFixed(1)}x</div>
+            <div class="c num">${tail}</div></div>`;
+    });
+    $("shapes").innerHTML = h;
+
+    $("shapes").querySelectorAll(".track").forEach(tr => {
+        const s = run.shapes[+tr.dataset.i];
+        const segsHtml = (segs, cls, total, measured, who) => {
+            const bar = document.createElement("div");
+            bar.className = "bar " + cls;
+            const all = [...segs];
+            const outside = measured - total;
+            if (outside > 0.05) {
+                all.push({ name: "time outside kernels (launch gaps, idle)", fam: "gap",
+                           us: outside });
+            }
+            bar.style.width = pos(s, all.reduce((a, k) => a + k.us, 0));
+            for (const k of all) {
+                const seg = document.createElement("div");
+                seg.className = "seg" + (k.fam === "gap" ? " gapseg" : "");
+                seg.style.flex = `${k.us} 0 0`;
+                if (k.fam !== "gap") {
+                    seg.style.background = `var(--f-${k.fam})`;
+                }
+                hover(seg, `<b>${who}</b> · ${esc(k.name)}${k.ours ? " (ours)" : ""}<br>` +
+                    `${fmt(k.us)} µs · ${(k.us / measured * 100).toFixed(0)}% of ` +
+                    `${fmt(measured)} µs` +
+                    (k.calls ? ` · ${k.calls} call${k.calls > 1 ? "s" : ""}` : "") +
+                    `<br>${FAM_NAME[k.fam] || "not a kernel"}`);
+                bar.append(seg);
+            }
+            tr.append(bar);
+        };
+        const ours = stack(s.profile);
+        segsHtml(ours, "ours", ours.reduce((a, k) => a + k.us, 0), s.ours,
+                 run.kind === "baseline" ? "SGLang" : "ours");
+        const b = baseShape(s.key);
+        if (b && b.profile) {
+            const sg = stack(b.profile);
+            segsHtml(sg, "sgl", sg.reduce((a, k) => a + k.us, 0), b.ours, "SGLang");
+        }
+        const line = (cls, us, text) => {
+            const v = document.createElement("div");
+            v.className = "vline " + cls;
+            v.style.left = pos(s, us);
+            tr.append(v);
+            const hit = document.createElement("div");
+            hit.style.cssText = `position:absolute;top:0;bottom:0;width:10px;margin-left:-4px;
+                                 left:${pos(s, us)}`;
+            hover(hit, text);
+            tr.append(hit);
+        };
+        line("floor", s.floor, `floor ${fmt(s.floor)} µs`);
+        line("base", s.base, `SGLang measured ${fmt(s.base)} µs; ours ${fmt(s.ours)} µs`);
+        const c = cmpShape(s.key);
+        if (c) {
+            line("cmp", c.ours, `compare run ${cmp.job}: ${fmt(c.ours)} µs`);
+        }
+    });
+    $("shapes").querySelectorAll(".row").forEach(row => {
+        row.onclick = () => {
+            state.shape = run.shapes[+row.dataset.i].key;
+            renderShapes();
+            renderDetail();
+        };
+    });
+}
+
+function renderLegend() {
+    const run = runById(state.run);
+    const used = new Set();
+    const base = latestBaseline();
+    for (const r of [run, base].filter(Boolean)) {
+        for (const s of r.shapes) {
+            stack(s.profile).forEach(k => used.add(k.fam));
+        }
+    }
+    $("legend").innerHTML = FAMS.filter(([f]) => used.has(f))
+        .map(([f, n]) => `<span><i class="sw" style="background:var(--f-${f})"></i>${n}</span>`)
+        .join("") +
+        `<span><i class="sw gap"></i>outside kernels</span>` +
+        `<span><i class="mk"></i>SGLang measured</span>` +
+        `<span><i class="mk floor"></i>floor</span>` +
+        (state.cmp ? `<span><i class="mk cmp"></i>compare run, ours</span>` : "");
+}
+
+function renderNote() {
+    const run = runById(state.run);
+    const base = latestBaseline();
+    const ci = run.ci ? ` (95% CI ${fmt(run.ci[0], 3)}-${fmt(run.ci[1], 3)})` : "";
+    const ceil = Math.exp(weightedLog(run.shapes, s => Math.log(s.ours / s.floor)));
+    let t = `<b>${run.kind} ${run.job}: ${fmt(run.score, 3)}x</b>${ci}. ` +
+            `Every shape at its floor would multiply the score by ${ceil.toFixed(2)}. ` +
+            `File <code>${esc(run.file)}</code>.`;
+    if (run.note) {
+        t += `<br>Change: ${esc(run.note)}`;
+    }
+    if (!base) {
+        t += `<br>No baseline profile for this problem, so there is no SGLang breakdown bar.`;
+    }
+    $("runnote").innerHTML = t;
+}
+
+function renderLeverage() {
+    const run = runById(state.run);
+    const W = run.shapes.reduce((a, s) => a + s.weight, 0);
+    const agg = {};
+    for (const s of run.shapes) {
+        const segs = stack(s.profile);
+        const total = segs.reduce((a, k) => a + k.us, 0);
+        const out = Math.max(s.ours - total, 0);
+        const items = [...segs, { name: "time outside kernels", fam: "gap", us: out }];
+        for (const k of items) {
+            const a = agg[k.name] ||= { name: k.name, fam: k.fam, lev: 0, wus: 0, shapes: 0 };
+            a.lev += s.weight / W * -Math.log(1 - 0.5 * Math.min(k.us, s.ours) / s.ours);
+            a.wus += s.weight / W * k.us;
+            a.shapes += 1;
+        }
+    }
+    const rows = Object.values(agg).sort((a, b) => b.lev - a.lev).slice(0, 14);
+    $("lev").innerHTML = `<tr><th>kernel</th><th class="num">shapes</th>
+        <th class="num">weighted µs</th><th class="num">if halved</th></tr>` +
+        rows.map(a => `<tr><td><i class="sw ${a.fam === "gap" ? "gap" : ""}"
+            style="${a.fam === "gap" ? "" : `background:var(--f-${a.fam})`}"></i>
+            ${esc(a.name)}</td><td class="num">${a.shapes}</td>
+            <td class="num">${fmt(a.wus)}</td>
+            <td class="num">×${Math.exp(a.lev).toFixed(3)}</td></tr>`).join("");
+}
+
+function renderDetail() {
+    const run = runById(state.run);
+    const s = run.shapes.find(x => x.key === state.shape);
+    if (!s) {
+        $("dtitle").textContent = "Shape detail";
+        $("dsub").textContent = "Click a shape row.";
+        $("detail").innerHTML = "";
+        return;
+    }
+    const base = latestBaseline();
+    const b = base && base.job !== run.job ? base.shapes.find(x => x.key === s.key) : null;
+    $("dtitle").textContent = s.label;
+    $("dsub").textContent = `SGLang ${fmt(s.base)} µs, ours ${fmt(s.ours)} µs, floor ` +
+        `${fmt(s.floor)} µs, speedup ${(s.base / s.ours).toFixed(3)}x.`;
+    const side = (who, prof, measured) => stack(prof).map(k =>
+        `<tr><td>${who}</td><td><i class="sw" style="background:var(--f-${k.fam})"></i>
+         ${esc(k.name)}${k.ours ? '<span class="tag">ours</span>' : ""}</td>
+         <td class="num">${fmt(k.us)}</td><td class="num">${(k.us / measured * 100).toFixed(0)}%
+         </td><td class="num">${k.calls ?? ""}</td></tr>`).join("");
+    $("detail").innerHTML = `<tr><th></th><th>kernel</th><th class="num">µs</th>
+        <th class="num">share</th><th class="num">calls</th></tr>` +
+        side(run.kind === "baseline" ? "SGLang" : "ours", s.profile, s.ours) +
+        (b ? side("SGLang", b.profile, b.ours) : "");
+}
+
+function render() {
+    renderTabs();
+    renderSelects();
+    renderHistory();
+    renderNote();
+    renderLegend();
+    renderShapes();
+    renderLeverage();
+    renderDetail();
+    save();
+}
+
+$("run").onchange = e => {
+    state.run = e.target.value;
+    state.shape = null;
+    render();
+};
+$("cmp").onchange = e => {
+    state.cmp = e.target.value;
+    render();
+};
+$("mode").onchange = e => {
+    state.mode = e.target.value;
+    render();
+};
+addEventListener("resize", renderHistory);
+render();
+</script>
+</body>
+</html>
