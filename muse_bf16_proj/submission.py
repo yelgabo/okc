@@ -471,10 +471,10 @@ constexpr int CVECS = 6;
 constexpr int CWARPS = 4;
 constexpr int C_EXC_VECS = 16;
 
-template <int WARPS>
+template <int WARPS, bool EXC, int NST>
 constexpr int cproj_smem_bytes() {
-    return STAGES * WARPS * (CVECS * 32 + CCH * C_EXC_VECS) * 16 +
-           STAGES * 8 * xs_stride<CCH>() * 2 + 8 * WARPS * 16 * 4;
+    return NST * WARPS * (CVECS * 32 + (EXC ? CCH * C_EXC_VECS : 0)) * 16 +
+           NST * 8 * xs_stride<CCH>() * 2 + 8 * WARPS * 16 * 4;
 }
 
 __device__ __forceinline__ unsigned pick(const uint4& v, int j) {
@@ -484,9 +484,10 @@ __device__ __forceinline__ unsigned pick(const uint4& v, int j) {
 // DUMP writes each decoded A fragment to `dump` in _pack_mma_a's layout instead of multiplying,
 // so prepare() can compare every reconstructed weight bit for bit through this same code.
 // ACCS independent accumulators shorten the chain of dependent mma. NODECODE skips the byte
-// shuffle and gives wrong results; only the bench uses it, to time the decode.
+// shuffle and gives wrong results; only the bench uses it, to time the decode. So does
+// EXC = false, which ignores escaped tiles and drops their shared memory. NST: pipeline stages.
 template <int WARPS, int S, bool DUMP, int ACCS = 2, bool EXC_SELECT = true,
-          bool NODECODE = false>
+          bool NODECODE = false, bool EXC = true, int NST = STAGES>
 __global__ void __cluster_dims__(1, S, 1) __launch_bounds__(WARPS * 32)
 cproj_kernel(const uint4* __restrict__ wc, const unsigned* __restrict__ desc,
              const uint4* __restrict__ exc, unsigned base4, const __nv_bfloat16* __restrict__ x,
@@ -495,12 +496,12 @@ cproj_kernel(const uint4* __restrict__ wc, const unsigned* __restrict__ desc,
     constexpr int ROWS = WARPS * 16;
     constexpr int XS = xs_stride<CCH>();
     constexpr int W_STAGE_VECS = WARPS * CVECS * 32;
-    constexpr int E_STAGE_VECS = WARPS * CCH * C_EXC_VECS;
+    constexpr int E_STAGE_VECS = EXC ? WARPS * CCH * C_EXC_VECS : 0;
     extern __shared__ __align__(16) unsigned char smem[];
     uint4* ws = reinterpret_cast<uint4*>(smem);
-    uint4* es = ws + STAGES * W_STAGE_VECS;
-    __nv_bfloat16* xs = reinterpret_cast<__nv_bfloat16*>(es + STAGES * E_STAGE_VECS);
-    float* partial = reinterpret_cast<float*>(xs + STAGES * 8 * XS);
+    uint4* es = ws + NST * W_STAGE_VECS;
+    __nv_bfloat16* xs = reinterpret_cast<__nv_bfloat16*>(es + NST * E_STAGE_VECS);
+    float* partial = reinterpret_cast<float*>(xs + NST * 8 * XS);
 
     const int warp = threadIdx.x >> 5;
     const int lane = threadIdx.x & 31;
@@ -544,17 +545,17 @@ cproj_kernel(const uint4* __restrict__ wc, const unsigned* __restrict__ desc,
 
     // The descriptor load waits behind the first stages' weight loads, not in front of them.
 #pragma unroll
-    for (int s = 0; s < STAGES - 1; ++s) {
+    for (int s = 0; s < NST - 1; ++s) {
         if (s < chunks) {
             load_main(s, s);
         }
     }
-    if (lane < chunks) {
+    if (EXC && lane < chunks) {
         my_desc = desc[(size_t)tile * ch_total + kt0 / CCH + lane];
     }
 #pragma unroll
-    for (int s = 0; s < STAGES - 1; ++s) {
-        if (s < chunks) {
+    for (int s = 0; s < NST - 1; ++s) {
+        if (EXC && s < chunks) {
             load_exc(s, s);
         }
         asm volatile("cp.async.commit_group;\n");
@@ -571,15 +572,17 @@ cproj_kernel(const uint4* __restrict__ wc, const unsigned* __restrict__ desc,
     const int xrow = (lane & 7) * XS + ((lane >> 3) & 1) * 8;
 
     for (int c = 0; c < chunks; ++c) {
-        asm volatile("cp.async.wait_group %0;\n" ::"n"(STAGES - 2));
+        asm volatile("cp.async.wait_group %0;\n" ::"n"(NST - 2));
         __syncthreads();
-        if (c + STAGES - 1 < chunks) {
-            load_main(c + STAGES - 1, (c + STAGES - 1) % STAGES);
-            load_exc(c + STAGES - 1, (c + STAGES - 1) % STAGES);
+        if (c + NST - 1 < chunks) {
+            load_main(c + NST - 1, (c + NST - 1) % NST);
+            if (EXC) {
+                load_exc(c + NST - 1, (c + NST - 1) % NST);
+            }
         }
         asm volatile("cp.async.commit_group;\n");
 
-        const int slot = c % STAGES;
+        const int slot = c % NST;
         const uint4* wa = ws + slot * W_STAGE_VECS + warp * CVECS * 32 + lane;
         const uint2* ea =
             reinterpret_cast<const uint2*>(es + slot * E_STAGE_VECS + warp * CCH * C_EXC_VECS) +
@@ -683,12 +686,13 @@ cproj_kernel(const uint4* __restrict__ wc, const unsigned* __restrict__ desc,
     cluster.sync();
 }
 
-template <int S, bool DUMP, int ACCS = 2, bool EXC_SELECT = true, bool NODECODE = false>
+template <int S, bool DUMP, int ACCS = 2, bool EXC_SELECT = true, bool NODECODE = false,
+          bool EXC = true, int NST = STAGES>
 void cproj_launch(const uint4* wc, const unsigned* desc, const uint4* exc, unsigned base4,
                   const __nv_bfloat16* xp, __nv_bfloat16* op, uint4* dump, int m, int n, int k,
                   cudaStream_t stream) {
-    constexpr int smem = cproj_smem_bytes<CWARPS>();
-    const auto kernel = cproj_kernel<CWARPS, S, DUMP, ACCS, EXC_SELECT, NODECODE>;
+    constexpr int smem = cproj_smem_bytes<CWARPS, EXC, NST>();
+    const auto kernel = cproj_kernel<CWARPS, S, DUMP, ACCS, EXC_SELECT, NODECODE, EXC, NST>;
     static bool configured = false;
     if (!configured) {
         cudaFuncSetAttribute(kernel, cudaFuncAttributeMaxDynamicSharedMemorySize, smem);

@@ -11,16 +11,22 @@ import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
-# (accs, exc_select, nodecode); NODECODE gives wrong results and only times the decode.
-VARIANTS = [(1, "false", "false"), (1, "true", "false"), (2, "true", "false"),
-            (4, "true", "false"), (8, "true", "false"), (2, "true", "true")]
+# (accs, exc_select, nodecode, exc, stages). NODECODE and EXC = false give wrong results; they
+# time the decode and the escaped-tile handling (and its shared memory).
+VARIANTS = [(2, "true", "false", "true", 4), (2, "true", "false", "false", 4),
+            (2, "true", "false", "false", 5), (2, "true", "false", "false", 6),
+            (2, "true", "false", "false", 8), (2, "true", "false", "true", 6)]
 
 
 def main(out):
     cases = "\n".join(
-        f"        case {i}: cproj_launch<S, false, {a}, {e}, {nd}>"
+        f"        case {i}: cproj_launch<S, false, {a}, {e}, {nd}, {ex}, {st}>"
         f"(wc, desc, exc, base4, xp, op, nullptr, m, n, k, stream); break;"
-        for i, (a, e, nd) in enumerate(VARIANTS))
+        for i, (a, e, nd, ex, st) in enumerate(VARIANTS))
+    occ_cases = "\n".join(
+        f"        case {i}: return max_clusters(cproj_kernel<CWARPS, S, false, {a}, {e}, {nd}, "
+        f"{ex}, {st}>, n / (CWARPS * 16), S, CWARPS * 32, cproj_smem_bytes<CWARPS, {ex}, {st}>());"
+        for i, (a, e, nd, ex, st) in enumerate(VARIANTS))
     bench_fn = f'''
 namespace {{
 template <int S>
@@ -31,7 +37,38 @@ void cproj_bench_s(int v, const uint4* wc, const unsigned* desc, const uint4* ex
 {cases}
     }}
 }}
+
+template <typename K>
+int max_clusters(K kernel, int gx, int s, int threads, int smem) {{
+    cudaLaunchConfig_t cfg = {{}};
+    cfg.gridDim = dim3(gx, s);
+    cfg.blockDim = dim3(threads);
+    cfg.dynamicSmemBytes = smem;
+    int count = -1;
+    const cudaError_t err = cudaOccupancyMaxActiveClusters(&count, (const void*)kernel, &cfg);
+    return err == cudaSuccess ? count : -1000 - (int)err;
+}}
+
+// Variant -1 is the uncompressed proj_small. Call after a launch, which sets the smem limit.
+template <int S>
+int clusters_s(int v, int n) {{
+    switch (v) {{
+{occ_cases}
+    }}
+    return max_clusters(proj_kernel<1, 4, 1, 8, S>, n / 64, S, 128,
+                        proj_smem_bytes<1, 4, 1, 8>());
+}}
 }}  // namespace
+
+int64_t cproj_clusters(int64_t v, int64_t n, int64_t k) {{
+    const int s = cproj_splits(n, k);
+    if (s == 8) {{
+        return clusters_s<8>(v, n);
+    }} else if (s == 4) {{
+        return clusters_s<4>(v, n);
+    }}
+    return clusters_s<2>(v, n);
+}}
 
 torch::Tensor cproj_bench(torch::Tensor x, torch::Tensor wc, torch::Tensor desc,
                           torch::Tensor exc, int64_t base, int64_t v) {{
@@ -89,9 +126,10 @@ def _run_cbench(state):
     ext = load_inline(
         name="okc_cproj_bench",
         cpp_sources=_PROJ_CPP_SRC + "torch::Tensor cproj_bench(torch::Tensor x, torch::Tensor wc,"
-        " torch::Tensor desc, torch::Tensor exc, int64_t base, int64_t v);",
+        " torch::Tensor desc, torch::Tensor exc, int64_t base, int64_t v);"
+        "int64_t cproj_clusters(int64_t v, int64_t n, int64_t k);",
         cuda_sources=_CBENCH_SRC,
-        functions=["cproj_bench"],
+        functions=["cproj_bench", "cproj_clusters"],
         extra_cuda_cflags=["-O3", "-gencode=arch=compute_90a,code=sm_90a"],
     )
     flush = torch.empty(256 << 20, dtype=torch.uint8, device="cuda")
@@ -107,14 +145,18 @@ def _run_cbench(state):
             row.append(f"cublas {{us:5.1f}}")
             us = _cbench_time(lambda: state["proj_fused"](x, state["proj_packed"][layer], n), flush)
             row.append(f"proj {{us:5.1f}}")
-            for v, (accs, sel, nodecode) in enumerate(_CBENCH_VARIANTS):
+            clusters = [ext.cproj_clusters(-1, n, w.shape[1])]
+            for v, (accs, sel, nodecode, use_exc, stages) in enumerate(_CBENCH_VARIANTS):
                 out = ext.cproj_bench(x, main, desc, exc, base, v)
                 err = ((out.double() - ref).norm() / ref.norm()).item()
-                ok = "ok" if err < 5e-3 or nodecode == "true" else f"BAD {{err:.1e}}"
+                exact = nodecode == "false" and use_exc == "true"
+                ok = "ok" if err < 5e-3 else f"err {{err:.1e}}"
                 us = _cbench_time(lambda: ext.cproj_bench(x, main, desc, exc, base, v), flush)
-                tag = f"a{{accs}}{{'s' if sel == 'true' else 'b'}}{{'-nodec' if nodecode == 'true' else ''}}"
-                row.append(f"{{tag}} {{us:5.1f}} {{ok}}")
+                tag = f"{{'exc' if use_exc == 'true' else 'noexc'}}-st{{stages}}"
+                row.append(f"{{tag}} {{us:5.1f}} {{ok if exact else '-'}}")
+                clusters.append(ext.cproj_clusters(v, n, w.shape[1]))
             print(f"CBENCH {{layer:9s}} m={{m}} " + " | ".join(row))
+            print(f"CBENCH {{layer:9s}} m={{m}} max active clusters (proj, variants): {{clusters}}")
 
 
 _prepare_without_cbench = prepare
