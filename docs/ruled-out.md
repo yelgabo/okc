@@ -61,3 +61,19 @@ entry.
 | Sparse or compressed attention, stale routing or coefficients, token-rounding routers | change the model's math, not its speed |
 | Moving normalization across a GEMM | BF16 rounding between them makes it non-equivalent |
 | Blackwell-only instructions (tcgen05, TMEM, TMA gather4) | not on H200 |
+
+## Reopened 2026-10-28
+
+Entries above whose mechanism was wrong rather than the idea. Each reopening names the new
+mechanism and the evidence, per the rule at the top. Sources: the five component audits and
+the public entry vjeux/okc-2026 with its design memos (see `docs/gap-analysis-2026-10-28.md`).
+
+| Entry | New mechanism | New evidence |
+|---|---|---|
+| Our mma kernel on BF16 layers above 8 tokens; cluster split-K above 8 tokens; larger row groups | swap-AB with x as the mma A operand and 8-row weight tiles as B, K split only across the warps of one CTA and reduced through the idle smem ring, weights by one bulk copy per stage, x by a 3-D TMA box; no cross-CTA reduction at m <= 32. Separately, a TMA + wgmma skinny GEMM with S <= 4 cluster split-K (projection audit item 1) | the ruled-out sweeps' own no-reduce rows capped at cuBLAS level, so the mma.sync + cp.async mainloop was the limit; the public entry's dense block is 51 / 60 us at decode 16 / 32 against our 74 / 77 on cuBLAS |
+| Lossless 12-bit BF16 weight compression | escapes applied by 3-4 dedicated warps that take turns on stages, with private accumulators and an uncapped per-CTA table arriving by one bulk copy; rows permuted to balance escapes | the public entry's pooler GEMV at m = 1 takes 13.7 us on 12-bit weights against our 18.2 on BF16, which sits on the measured 4.05 TB/s streaming line; our own compressed kernel only lost on the escape-tile lookup |
+| Hot-expert large token tiles (M1) | register-A `wgmma m64nNk16` with the dequantized weights in registers and x through a descriptor, N up to 64 (public kernel); or dequant once per CTA into swizzled smem with cluster multicast of the token slab (MoE audit P1) | the MoE audit's shared-memory-port argument (mma.sync with tokens as B through `ldmatrix` saturates at NT = 8), the skewed-vs-normal rows showing time follows L2-to-SM bytes, and the public MoE at 163 / 198 us on verify 16 / 32 against our 246 / 381 |
+| TMA weight loads (M2) | bulk copies of whole 36 KB units into a 3-slot ring consumed through registers by mma.sync warps, in one persistent launch, the first units issued before routing | the public kernel's design; our TMA variant fed an smem pipeline with a barrier round trip per stage |
+| Speeding up the router in the layer (hidden under the pooler) | once the pre-expert norm leaves the main chain the side chain is co-critical at T >= 8; at T > 32 run pooler + router hi + router lo as one concatenated cuBLAS GEMM | the layer audit's margin analysis (14 / 7 / 5 us at T = 1 / 8 / >= 16); our router rows at verify 32 are 43 us on the side stream |
+| Scratch-buffer split-K, last block reduces (proj v5) | not reopened for projections; the MoE audit's P2 (per-unit last-split SwiGLU) is a different shape: the reduction is per unit and spread over the kernel, with `__ldcg` reads after a fence and an atomic | one launch hop (2-3 us) per MoE call in every profile |
+| Fused-shift / bounded-shift softmax (A1) | fixed reference frame for the whole merge: splits add o x 2^m and l x 2^m with FP32 atomics and no running max is exchanged | QK-norm bounds every logit (unit-RMS q and k, scale 5.473 / 8), so 2^s stays inside FP32 range; the public kernel runs every scored shape this way in one launch |
