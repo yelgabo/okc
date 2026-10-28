@@ -1,0 +1,7 @@
+prepare: SGLang state built (0.2 s)
+extension build: on (40.9 s)
+moe self-test: worst rel diff vs SGLang path 3.26e-04
+moe: on (1.5 s)
+router self-test: ok
+router: on (0.0 s)
+prepare: done (42.6 s)
