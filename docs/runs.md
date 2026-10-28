@@ -187,5 +187,6 @@ Next check (first after 00:00 UTC): the multicast build with the CUTLASS-form re
 (`mbarrier.arrive.shared::cluster`, default `.release.cta`) and the producer's plain wait. If
 the per-k-tile cost drops to the non-multicast level, the multicast configs should land near
 the traffic estimate (pooler m=128: 96 MB at CLR 4, against 128 MB now).
+| 2026-10-28 | 4f0a49118f3f40a4 (submit, authorized by the user) | 28e9082 | wd x multicast with the CUTLASS remote-arrive form (6dc6f9e), otherwise as 8d4b485c8ccf4674 | 1.392x (1.371-1.413) | tuner kept cuBLAS on every BF16 shape again. Best multicast config vs cuBLAS (us): pooler m=128 m128k2r4 35.1 vs 30.0, m=256 m128k1r4 52.7 vs 31.6; unpooler m=128 m128k1r4 34.7 vs 24.6; qkv_gate m=128 m128k4r2 22.9 vs 21.8; o m=128 m128k1r4 15.4 vs 11.6. Multicast is now 1.1-1.7x cuBLAS instead of 4-10x, so the barrier form was most of the earlier loss, but it still loses. Router picks r128c16 at m=128 (12.8 vs baseline 22.2) and r128c8 at m=256 (14.6 vs 22.6). Score within noise of 8d4b485c8ccf4674 |
 
 Losers from the wide-kernel runs moved to docs/ruled-out.md.
