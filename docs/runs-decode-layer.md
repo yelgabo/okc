@@ -44,6 +44,28 @@ Per-shape columns, in TASK.md's order: d1 = decode 1, d16, d32, v1 = verify 1 (8
   rows from its last split, and its combine launch merges the splits (FP32 partials in a
   per-call buffer) and applies the norm-gate. Routed on sliding verify at every batch and full
   verify above batch 2.
+- One-launch attention (`PORT_ATTN_ONE`): muse_attention_decode/attn_one.cu copied in by
+  tools/dl_one_inline.py inside a nested `one` namespace, built as a third extension
+  (`okc_decode_layer_one`) on a thread started at the top of prepare() so its compile
+  overlaps the main and W4 builds. Ten instances: q_len 1 modes 1, 3, 11, 13, 49 and q_len 8
+  modes 1, 3, 11, 15, 51 (the plan's modes for the 12 scored shapes and the 13 tests; the
+  non-producer flat 17 / 19 and the one-CTA-per-SM 115 are left out). The inliner adds two
+  `griddepcontrol.wait` lines (before the query group, whose rows are the projection's
+  output and whose constants group reads the epoch; before the flat kernel's epoch read),
+  so the launch is correct with or without the PDL attribute; `_ONE_PDL = False` keeps the
+  plain stream semantics the standalone checks exercise, and the kernel sets no early
+  trigger (the o projection, a PDL secondary, starts at completion). Persistent workspace
+  in `state["one"]` (16 MB of FP32 rows, row sums, 32K counters), allocated and zeroed once
+  in prepare; the cooperative modes launch through cudaLaunchKernelEx with
+  cudaLaunchAttributeCooperative after a graph-capture probe (a plain launch then a
+  cooperative one, as attention follows the projection). Self-test (`attn one`): the shared
+  cases plus batch 1 full at page 1 and 64 for both q_len and the ctx-10 sliding case,
+  the workspace invariant (rows, row sums, tickets, next-parity counters zero) after each,
+  then 2,000 graph replays on decode 1 sliding, decode 16 full, verify 1 sliding and
+  verify 16 full with the replayed output against an eager call (< 1e-4) and SGLang's
+  path (< 5e-2), and the speculated length forced wrong once (seq - 64, 50 replays).
+  Routed on every tp8 shape at q_len 1 and 8 unless `_ONE_ROUTE` excludes a
+  (layer, q_len, batch); the fused, ws and prep paths stay as fallbacks.
 - Stream overlap (`ROUTE_ON_SIDE`): route_align runs on the router's side stream after top-8;
   the pre-expert norm runs on main before the join; a graph-capture self-test guards it.
 - FFN boundary at T <= 8 (`PORT_FFN_BOUNDARY`): reads SGLang's module tensors
