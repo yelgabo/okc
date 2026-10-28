@@ -117,9 +117,17 @@ the largest part).
 ## The launch
 
 `moe_run(x, topk_ids, topk_w, w13, w2, gs13, gs2, nw, inter, ybuf, ss, ctr, done_a, out,
-w13f, w2f, xa, xb, fix, fixcnt, xready, done_as, lo, nloc, eps, variant)` with `variant` an
-index into `SKINNY_VARIANTS` (skinny, split jobs of 8 tokens) or `VARIANT_MAIN0 + mode` (fat;
-mode 0 computes, 1 streams only). `_vname(variant)` gives the name the bench prints. It launches on the current stream, is graph-capturable (no
+w13f, w2f, xa, xb, fix, fixcnt, xready, done_as, lo, nloc, eps, variant, cost)` with `variant`
+an index into `SKINNY_VARIANTS` (skinny, split jobs of 8 tokens) or `VARIANT_MAIN0 + i` with
+`MAIN_MODES[i]` the fat mode, and `cost` either `[]` (the compiled stream-K stage costs) or 18
+ints, `cost[9 * phase + ntt]` for ntt 1 to 8 (entries 0 and 9 unused). Since 2026-10-28 (commit
+068b3ce) the cost argument is required; a layer port made from an earlier file passes `[]`.
+Fat modes: 0 wgmma for every job; 6 jobs of up to 2 n8 tiles on mma.sync, the rest on wgmma;
+12, 13, 14 are 6, 0 and 6 with fence.acq_rel.gpu in place of fence.sc.gpu in the epilogue and
+fixup, 14 also with two mma.sync accumulator chains; 1 streams only; 11 is 6 with clock stamps
+written to `inter` (never a policy choice). `VARIANT_FIT0 + i` in Python runs `VARIANT_MAIN0 +
+i` with the costs fitted from the stamps in prepare (`state["fit_cost"]`).
+`_vname(variant)` gives the name the bench prints. It launches on the current stream, is graph-capturable (no
 host syncs, no allocation, no value-dependent branching on the host), and needs the whole GPU:
 the grid barrier spins until all 132 CTAs arrive, so nothing else may occupy SMs for the
 launch's duration, and a PDL successor that starts early would share SMs with the spinning
