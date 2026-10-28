@@ -141,3 +141,6 @@ Overall kernel board: rank 787 of 1384. Leaders: 1.637x, 2.685x, 3.032x, 2.399x.
 
 Update 2026-10-27: muse_decode_layer resubmitted with the attention port, job d156c66614694f25,
 1.269x (1.250-1.288), rank 695 of 829 (from 1.207x). Overall rank 791 of 1391.
+
+Update 2026-10-27: muse_moe_w4a16 resubmitted with our own NVFP4 W4A16 GEMM kernels (BF16 at
+SGLang's boundaries), job 49af3c0930e24ff2, 1.699x (1.673-1.724), from 1.324x. Overall rank 596 of 1394.
