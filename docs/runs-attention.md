@@ -760,3 +760,42 @@ is that EARLY's CTA-wide barrier ties the two warpgroups together each tile. `su
 keeps `_ONE_Q8_SCHED = 0`.
 
 Losers from these runs are in docs/ruled-out.md.
+
+### Mode 51 register cap: the producer's `return` (10-29)
+
+Cause, from the SASS of `attn_one_kernel<8, 51>` (CUDA 12.8.1, `tools/attn_one_sass.sh`):
+the producer arm ended in `return`, which in PTX is a branch to the kernel's single `ret`
+block at the end of the consumer code. ptxas therefore opens one convergence region around
+both roles, `BSSY B0, 0x11990` at 0x15a0 just before the role branch (`ISETP.GT tid, 0xff`,
+`@P0 BRA` to the producer at 0x9d30), with both roles meeting at `BSYNC B0` + one `EXIT` at
+0x11980. Inside that shared region the consumer code after `USETMAXREG.TRY_ALLOC.CTAPOOL 0x68`
+(0x1650-0x9d30) never goes above R77, and ptxas spills 292 / 304 bytes (107 LDL/STL in the
+kernel, most of them in the tile loop at 0x5000-0x6000); even the value carried across the
+branch is spilled (`STL [R1+0x50]` before the branch, `LDL` after the `TRY_ALLOC`). The public
+flat q_len 8 kernel has no such region: its role branch at 0x4240 is a plain `@P0 BRA`, the
+consumers end in their own `EXIT` (0x150c0) and the producer, after `USETMAXREG.DEALLOC 0x20`,
+in another (0x16da0). Its producer and consumer paths share no block after the split, and its
+segment list lives in shared memory, so only one uniform register crosses the branch.
+
+Change: the producer arm ends in `asm volatile("exit;")` instead of `return`. Nothing else;
+no numerics, fence or barrier changes. SASS after: producer first (`DEALLOC` at 0x15e0, its own
+`EXIT` at 0x91a0), consumers from `TRY_ALLOC` at 0x9240 to their own `EXIT` at 0x11080, no
+convergence region across the split.
+
+| build (mode 51) | ptxas regs | spill stores / loads | LDL/STL | consumer region top | instrs |
+|---|---|---|---|---|---|
+| `return` (main at 1185ff1) | 80 | 292 / 304 B | 107 | R77 | 5040 |
+| `exit` | 80 | 0 / 0 | 0 | R95 | 4904 |
+| `exit` + `__builtin_unreachable()` | 80 | 292 / 304 B | 107 | R77 | 5040 |
+
+The third row is a control: with the unreachable hint the PTX still has `exit` before
+`setmaxnreg.inc`, but ptxas again joins both roles at one `BSYNC B0` + `EXIT` and the cap
+returns, so the shared exit block (not the PTX instruction) is what moves the cap. Modes 49 /
+115 / 17 / 19 compile as before (128 / 115 / 120 / 113 registers, no spills; mode 49's
+consumer region top R114, was R113).
+
+`submission.py` gains `_ONE_Q8_PROD` (False: q_len 8 flat stays on mode 19);
+`tools/attn_make_bench_one.py --q8-prod` sets it in `bench.py` only, so SELFTEST, STRESS and the
+judge's own timing run mode 51 on verify 16 / 32 full, and BENCH times `_one@m=19`,
+`_one@m=51`, `_one` (= 51 again, a noise pair) and `_one@m=115`. Bench generated with
+`--no-probe --q8-prod`, control schedule (no |128 / |384 bits).
