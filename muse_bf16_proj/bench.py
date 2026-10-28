@@ -19,7 +19,6 @@ Design (docs/proj-port-guide.md has the full host interface and formats):
   replay from a cold L2; kernel_fn runs the pick for the shape, cuBLAS where nothing won.
 """
 
-import math
 import statistics
 import time
 from typing import TypedDict
