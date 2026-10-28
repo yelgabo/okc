@@ -1,0 +1,26 @@
+attn prep kernels: loaded
+attn fused kernel: loaded
+BENCH b= 1 sliding L=1 _sglang=23.4 _fused_prep=20.2 e=3.2e-02 _fused=14.8 e=5.7e-02
+STAMPS b= 1 sliding L=1 _fused last=[0, 7039, 8077, 11382, 14725, 15441, 17142, 23064] first=[0, 6025, 7366, 11352, 12176, 13949, 17182, 23089]
+BENCH b= 1 full    L=1 _sglang=40.9 _fused_prep=36.2 e=7.2e-02 _fused=34.1 e=8.4e-02
+STAMPS b= 1 full    L=1 _fused last=[0, 4341, 4611, 4779, 6229, 6942, -1, 7294] first=[0, 3490, 5097, 25462, 25888, 27468, -1, 28374]
+BENCH b=16 sliding L=1 _sglang=32.9 _fused_prep=23.8 e=4.3e-02 _fused=19.6 e=6.7e-02
+STAMPS b=16 sliding L=1 _fused last=[0, 6924, 8401, 15244, 18179, 18885, 20202, 25144] first=[0, 5866, 8310, 15280, 16048, 17899, 20222, 25157]
+BENCH b=16 full    L=1 _sglang=214.5 _fused_prep=207.3 e=4.7e-02 _fused=140.1 e=7.1e-02
+STAMPS b=16 full    L=1 _fused last=[0, 7537, 9086, 187951, 189790, 190596, -1, 191053] first=[0, 4341, 7317, 197283, 197459, 198448, -1, 198943]
+BENCH b=32 sliding L=1 _sglang=39.5 _fused_prep=31.2 e=3.9e-02 _fused=25.9 e=6.2e-02
+STAMPS b=32 sliding L=1 _fused last=[0, 8107, 10901, 24498, 27388, 28093, 29438, 34344] first=[0, 7017, 10766, 24558, 25263, 26603, 29495, 34387]
+BENCH b=32 full    L=1 _sglang=397.9 _fused_prep=390.4 e=4.7e-02 _fused=258.4 e=6.7e-02
+STAMPS b=32 full    L=1 _fused last=[0, 8501, 10020, 375890, 379432, 380333, -1, 380739] first=[0, 4210, 9729, 384658, 384840, 385894, -1, 386359]
+BENCH b= 1 sliding L=8 _sglang=29.4 _fused_prep=21.2 e=4.2e-02 _fused=38.0 e=6.7e-02
+STAMPS b= 1 sliding L=8 _fused last=[0, 21331, 23061, 34108, 40353, 40979, 45355, 50085] first=[0, 10727, 19393, 34193, 34527, 35230, 45431, 50159]
+BENCH b= 1 full    L=8 _sglang=46.1 _fused_prep=39.3 e=5.0e-02 _fused=64.1 e=7.8e-02
+STAMPS b= 1 full    L=8 _fused last=[0, 12735, 13061, 13508, 19654, 20279, -1, 21511] first=[0, 5023, 12847, 69462, 69877, 70555, -1, 71941]
+BENCH b=16 sliding L=8 _sglang=35.5 _fused_prep=26.3 e=4.5e-02 _fused=86.3 e=6.6e-02
+STAMPS b=16 sliding L=8 _fused last=[0, 20534, 23743, 41333, 46030, 46751, 51143, 59321] first=[0, 10692, 19194, 41410, 41719, 42428, 51203, 59374]
+BENCH b=16 full    L=8 _sglang=218.3 _fused_prep=210.1 e=4.5e-02 _fused=335.8 e=7.2e-02
+STAMPS b=16 full    L=8 _fused last=[0, 24151, 27076, 499287, 505600, 506267, -1, 507583] first=[0, 6699, 23640, 524169, 524507, 525089, -1, 526550]
+BENCH b=32 sliding L=8 _sglang=42.5 _fused_prep=33.5 e=4.5e-02 _fused=119.3 e=6.6e-02
+STAMPS b=32 sliding L=8 _fused last=[0, 21772, 26112, 61533, 65933, 66562, 71006, 86076] first=[0, 11593, 19873, 61099, 61284, 61948, 71074, 86178]
+BENCH b=32 full    L=8 _sglang=402.8 _fused_prep=395.0 e=4.7e-02 _fused=634.1 e=7.2e-02
+STAMPS b=32 full    L=8 _fused last=[0, 24188, 27095, 988918, 991310, 991942, -1, 993259] first=[0, 7430, 24580, 1012565, 1012755, 1013423, -1, 1014801]
