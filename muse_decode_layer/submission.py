@@ -181,7 +181,7 @@ PORT_ATTN_WS = True
 # shape, q_len 1 and 8, sliding and full, when its self-test passes (the shared cases, the
 # workspace invariant after each, a replay stress); the kernels above stay as fallbacks and
 # for the shapes _ONE_ROUTE excludes.
-PORT_ATTN_ONE = True
+PORT_ATTN_ONE = False
 # The routing metadata (route_align or SGLang's moe_align_block_size) built on the router's
 # side stream right after top-8, and the pre-expert norm on the main stream before the join,
 # so the main stream goes from the norm straight to GEMM1. False: both after the join.
