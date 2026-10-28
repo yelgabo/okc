@@ -6,7 +6,7 @@
 - FP32 router at m <= 8: one CUDA-core kernel that reads the 8 MB weight once, with plain FP32
   FMAs, so the math matches F.linear without TF32. SGLang takes 10 to 26 us here against a
   1.8 us memory floor.
-- FP32 router at 9 to 32 tokens: the tensor-core kernel on a BF16 hi + lo split of the weights
+- FP32 router at 9 to 256 tokens: the tensor-core kernel on a BF16 hi + lo split of the weights
   with FP32 accumulation, which is SGLang's own method above 8 tokens.
 """
 
@@ -41,7 +41,7 @@ class Inputs(TypedDict):
 ROUTER_N = 256
 ROUTER_K = 8192
 ROUTER_FUSED_MAX_TOKENS = 8
-ROUTER_MMA_MAX_TOKENS = 32
+ROUTER_MMA_MAX_TOKENS = 256
 
 
 def _proj_fused_wins(layer, m):
@@ -197,14 +197,14 @@ torch::Tensor router_fwd(torch::Tensor x, torch::Tensor w) {
 
 _CPP_SRC = "torch::Tensor router_fwd(torch::Tensor x, torch::Tensor w);"
 
-# BF16 projections on tensor cores. Each warp multiplies R 16-row weight tiles by up to 32
-# tokens with mma.m16n8k16; the math is padded to 8 tokens, which costs nothing because these
-# shapes are memory-bound. prepare() repacks W losslessly into the mma A-fragment order, so each
-# lane's share of a k-tile is 16 contiguous bytes. A 4-stage cp.async pipeline keeps about
-# 96 KB of weights and tokens in flight per SM without holding them in registers. Above 8
-# tokens each block covers more rows (R > 1), because every block re-reads its x slice through
-# L2. The S k-slice blocks of a row group form a cluster and sum their partials over
-# distributed shared memory, like the router kernel.
+# BF16 projections on tensor cores, also used for the FP32 router (HILO mode). Each warp
+# multiplies R 16-row weight tiles by up to 32 tokens with mma.m16n8k16; the math is padded to 8
+# tokens, which costs nothing because these shapes are memory-bound. prepare() repacks W
+# losslessly into the mma A-fragment order, so each lane's share of a k-tile is 16 contiguous
+# bytes. A 4-stage cp.async pipeline keeps about 96 KB of weights and tokens in flight per SM
+# without holding them in registers. The S k-slice blocks of a row group form a cluster and sum
+# their partials over distributed shared memory. kernel_fn uses it for the BF16 layers only up to
+# 8 tokens; above that it ties cuBLAS at best (bench runs in docs/runs.md).
 _PROJ_SRC = r"""
 #include <cooperative_groups.h>
 #include <cuda_bf16.h>
@@ -272,11 +272,13 @@ __device__ __forceinline__ void mma_bf16(float* c, const uint4& a, const uint2& 
 // HILO: the router's FP32 weights as BF16 hi and lo tiles interleaved along k (k-tile 2j is hi,
 // 2j + 1 is lo of x's k-tile j), so both multiply the same x fragment into one FP32 accumulator.
 // k is then the interleaved width, twice x's row length.
+// blockIdx.z picks a group of TOKENS tokens, for m above what one block stages.
 template <int MT, int WARPS, int R, int CH, int S, bool REDUCE = true, bool HILO = false,
           typename OutT = __nv_bfloat16>
 __global__ void __cluster_dims__(1, S, 1) __launch_bounds__(WARPS * 32)
 proj_kernel(const uint4* __restrict__ wp, const __nv_bfloat16* __restrict__ x,
             OutT* __restrict__ out, int m, int n_out, int k, int t_per_block) {
+    constexpr int TOKENS_PER_BLOCK = MT * 8;
     constexpr int TOKENS = MT * 8;
     constexpr int ROWS = WARPS * R * 16;
     constexpr int XS = xs_stride<CH>();
@@ -292,6 +294,10 @@ proj_kernel(const uint4* __restrict__ wp, const __nv_bfloat16* __restrict__ x,
     const int lane = threadIdx.x & 31;
     const int kt_total = k / 16;
     const int xk = HILO ? k / 2 : k;
+    const int tok0 = blockIdx.z * TOKENS_PER_BLOCK;
+    x += (size_t)tok0 * xk;
+    out += (size_t)tok0 * n_out;
+    m -= tok0;
     const int tile0 = (blockIdx.x * WARPS + warp) * R;
     const int kt0 = blockIdx.y * t_per_block;
     const int chunks = t_per_block / CH;
@@ -423,7 +429,7 @@ void proj_launch(const uint4* wp, const __nv_bfloat16* xp, OutT* op, int m, int 
                              cudaFuncAttributeMaxDynamicSharedMemorySize, smem);
         configured = true;
     }
-    const dim3 grid(n / (WARPS * R * 16), S);
+    const dim3 grid(n / (WARPS * R * 16), S, (m + MT * 8 - 1) / (MT * 8));
     proj_kernel<MT, WARPS, R, CH, S, REDUCE, HILO, OutT><<<grid, WARPS * 32, smem, stream>>>(
         wp, xp, op, m, n, k, k / 16 / S);
 }
@@ -482,6 +488,8 @@ torch::Tensor proj_fwd(torch::Tensor x, torch::Tensor wpacked, int64_t n) {
     return out;
 }
 
+// Up to 32 tokens in 16-token groups (16 tokens ran 8.1 us, 32 in one group 10.5 us, in check
+// run 69a452e14dbc4729); above, 32-token groups, the weights coming from L2 after the first.
 torch::Tensor router_mma_fwd(torch::Tensor x, torch::Tensor wpacked) {
     const int m = x.size(0);
     auto out = torch::empty({m, 256}, x.options().dtype(torch::kFloat32));
@@ -489,9 +497,7 @@ torch::Tensor router_mma_fwd(torch::Tensor x, torch::Tensor wpacked) {
     const auto* wp = reinterpret_cast<const uint4*>(wpacked.data_ptr());
     const auto* xp = reinterpret_cast<const __nv_bfloat16*>(x.data_ptr<at::BFloat16>());
     float* op = out.data_ptr<float>();
-    if (m <= 8) {
-        router_mma<1>(wp, xp, op, m, stream);
-    } else if (m <= 16) {
+    if (m <= 32) {
         router_mma<2>(wp, xp, op, m, stream);
     } else {
         router_mma<4>(wp, xp, op, m, stream);
@@ -526,7 +532,7 @@ def _pack_router_hilo(hi, lo):
 
 def _router_mma_self_test(fused, w, packed):
     gen = torch.Generator(device=w.device).manual_seed(1)
-    for m in (9, 16, 31, 32):
+    for m in (9, 16, 31, 32, 33, 128, 130, 256):
         x = torch.randn(m, ROUTER_K, generator=gen, device=w.device).to(torch.bfloat16)
         x[0].zero_()
         x[0, 4097] = 2.0

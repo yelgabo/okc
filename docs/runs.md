@@ -16,6 +16,7 @@ Every `okc check` and `okc submit`, newest last. Full per-shape output for each 
 | 10-27 | 21c23f799dc64ca1 | check | 280afc4 | bench.py sweep, first try | 1.100x | sweep stopped at the first launch error; timed Python launches (cuBLAS 20.9 us vs judge 14.4) |
 | 10-27 | 4afc0b73f2a74a69 | check | cecb216 | bench.py sweep with graph replays | (bench) | see profiles/bench.4afc0b73f2a74a69.log; findings below |
 | 10-27 | e378eace83174734 | check | 14c3851 | proj v5: split-K via scratch buffer, last block reduces; mma at every m <= 32 | 0.945x (0.931-0.960) | slower than the cluster version even at m=1 (qkv_gate 16.1 vs 11.8 us): write, fence, atomic, then read adds a fixed L2-latency tail. Reverted to v4 (cluster) at m <= 8 |
+| 10-27 | 69a452e14dbc4729 | check | e2fa9a1 | router hi/lo on the mma kernel at 9 to 32 tokens | **1.125x** (1.108-1.142) | router 8.1 us at m=16 (SGLang 14.6), 10.5 at m=32 (15.1) |
 
 ## Lessons
 
