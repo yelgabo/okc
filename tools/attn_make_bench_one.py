@@ -8,6 +8,12 @@ import with two parts, printed into the run log (the judge's own tests and timin
             reference error + 1.5% (3-15%), the new cache rows within 8%, worst row within
             5x. Prints one line per shape with the plan (splits, nc, mode) and PASS/FAIL, so
             one check run reports every failing shape instead of the first.
+  STRESS    2,000 back-to-back graph replays of kernel_fn on a few shapes (the speculated
+            one-tile launch, cooperative and flat tickets, the grid-wide finalize), then the
+            replayed output against an eager run on the same inputs (relative L2; the
+            workspace atomics make the sums order-dependent at the 1e-7 level, so bitwise
+            equality is not expected), a NaN check, and the workspace and counters read back:
+            every row zero and every ticket zero after the replays.
   BENCH     CUDA-graph replays after a 256 MB flush (median of 40) of each variant per scored
             shape, with the relative error against the first variant.
 
@@ -288,6 +294,62 @@ def _ob_selftest():
     print(f"SELFTEST done: {{fails}} failing shapes", flush=True)
 
 
+_OB_STRESS = [
+    (1, "sliding", 1), (1, "sliding", 8), (16, "sliding", 8), (16, "full", 1), (16, "full", 8),
+    (1, "full", 1),
+]
+
+
+def _ob_stress(replays=2000):
+    for batch, layer, q_len in _OB_STRESS:
+        name = f"b{{batch}} {{layer}} L{{q_len}}"
+        try:
+            data = _ob_inputs(batch, 80000, "tp8", layer, q_len,
+                              "fixed" if batch == 1 else "agentic",
+                              "soft" if layer == "sliding" else "coherent", 1, 1.0)
+            plan = _ob_plan_str(data)
+            stream = torch.cuda.Stream()
+            stream.wait_stream(torch.cuda.current_stream())
+            with torch.cuda.stream(stream):
+                for _ in range(2):
+                    kernel_fn(data)
+            torch.cuda.current_stream().wait_stream(stream)
+            graph = torch.cuda.CUDAGraph()
+            with torch.cuda.graph(graph):
+                out = kernel_fn(data)
+            torch.cuda.synchronize()
+            for _ in range(replays):
+                graph.replay()
+            torch.cuda.synchronize()
+            replayed = out.clone()
+            eager = kernel_fn(data)
+            torch.cuda.synchronize()
+            rel = _ob_rel(replayed, eager)
+            finite = bool(torch.isfinite(replayed.float()).all())
+            st = _ONE_STATE.get(data["qkv"].device)
+            if st is not None:
+                acc_nz = int((st["acc"] != 0).sum())
+                l_nz = int((st["l"] != 0).sum())
+                cnt = st["cnt"]
+                tickets_nz = int((cnt[:4096] != 0).sum())
+                coop_nz = int((cnt[4096:8192] != 0).sum())
+                flat_nz = int((cnt[16384:16386] != 0).sum())
+                ws_msg = (f"ws_rows_nonzero={{acc_nz}} l_nonzero={{l_nz}} tickets_nonzero="
+                          f"{{tickets_nz}} coop_counters_nonzero={{coop_nz}} "
+                          f"flat_counters_nonzero={{flat_nz}}")
+                clean = acc_nz == 0 and l_nz == 0 and tickets_nz == 0
+            else:
+                ws_msg = "no workspace (fallback path)"
+                clean = True
+            ok = finite and rel < 1e-4 and clean
+            print(f"STRESS {{'PASS' if ok else 'FAIL'}} {{name}} [{{plan}}] replays={{replays}} "
+                  f"replayed_vs_eager={{rel:.1e}} finite={{finite}} {{ws_msg}}", flush=True)
+            del graph, data, out, replayed, eager
+        except Exception as exc:
+            print(f"STRESS FAIL {{name}} {{type(exc).__name__}}: {{str(exc)[:300]}}", flush=True)
+        torch.cuda.empty_cache()
+
+
 def _ob_bench():
     flush = torch.empty(256 << 20, dtype=torch.uint8, device="cuda")
     import functools
@@ -308,6 +370,14 @@ def _ob_bench():
             if (name.startswith("_ws") and q_len != 8) or (name.startswith("_fused@") and q_len != 1) \
                     or (name == "_fused" and (q_len != 1 or (layer == "full" and batch == 1))):
                 continue
+            if name.startswith("_one@m="):
+                m = int(name.split("=")[1])
+                flat = bool(m & 16)
+                q8_only = m in (3, 15, 19, 51, 115) or (m & 2 and flat)
+                q1_only = m in (17, 49)
+                if (flat and (layer != "full" or batch == 1)) or (q8_only and q_len != 8) \
+                        or (q1_only and q_len != 1) or (not flat and layer == "full" and batch > 1):
+                    continue
             try:
                 stream = torch.cuda.Stream()
                 stream.wait_stream(torch.cuda.current_stream())
@@ -354,6 +424,10 @@ if not _os.environ.get("ATTN_BENCH_DONE"):
         _ob_selftest()
     except Exception as _exc:
         print(f"SELFTEST failed: {{type(_exc).__name__}}: {{_exc}}")
+    try:
+        _ob_stress()
+    except Exception as _exc:
+        print(f"STRESS failed: {{type(_exc).__name__}}: {{_exc}}")
     try:
         _ob_bench()
     except Exception as _exc:

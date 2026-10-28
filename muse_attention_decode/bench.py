@@ -2763,7 +2763,8 @@ constexpr int COOP_POLL_LIMIT = 1 << 24;
 // MODE bits: 1 = last-CTA finalize, 3 = cooperative finalize (every CTA a slice of rows),
 // |4 = at most one tile per CTA (straight-line prologue), |8 = the sequence length is taken
 // from the page table's width (batch 1, page size 1) and verified on the device, |16 = flat:
-// the grid shares all requests' keys equally (n_splits carries the batch size).
+// the grid shares all requests' keys equally (n_splits carries the batch size), |32 = flat
+// with a producer warpgroup feeding an mbarrier ring.
 constexpr int M_COOP = 2;
 constexpr int M_ONE = 4;
 constexpr int M_SPEC = 8;
@@ -2773,6 +2774,35 @@ constexpr int M_FLAT = 16;
 // costs about that many keys' worth of loads (the public entry measured 400 / 600).
 constexpr int SEGK1 = 400;
 constexpr int SEGK8 = 600;
+// |32 (flat only): a producer warpgroup gathers the tiles into an mbarrier ring (3 stages at
+// q_len 1, 4 at q_len 8) and the consumers never issue a copy.
+constexpr int M_PROD = 32;
+// |64 (with M_PROD): one CTA per SM and no register split, so ptxas compiles the consumers
+// with the full 168-register budget instead of 80 with spills.
+constexpr int M_SOLO = 64;
+
+__host__ __device__ constexpr int one_ns(int L, int mode) {
+    return (mode & M_PROD) && L == 8 ? 4 : STAGES;
+}
+
+__host__ __device__ constexpr int one_threads(int L, int mode) {
+    return (L == 8 ? 256 : 128) + ((mode & M_PROD) ? 128 : 0);
+}
+
+__host__ __device__ constexpr int one_minb(int L, int mode) {
+    return (mode & M_SOLO) ? 1 : (L == 8 || (mode & M_PROD) ? 2 : 4);
+}
+
+// Register split in producer mode, two CTAs per SM: the launch allots 128 (q_len 1, 256
+// threads) or 80 (q_len 8, 384 threads) per thread; the producers give up what the consumers
+// take, so the sums stay inside the allotment.
+__host__ __device__ constexpr int one_prod_regs(int L) {
+    return L == 8 ? 32 : 56;
+}
+
+__host__ __device__ constexpr int one_cons_regs(int L) {
+    return L == 8 ? 104 : 200;
+}
 
 // ws_cnt map (ints): [b] last-CTA key ticket; [CNT_COOP + 2 b + e] cooperative key counters of
 // parity e; [CNT_EPOCH + b] the request's launch parity; [CNT_FLAT ..] flat-kernel counters.
@@ -2806,11 +2836,11 @@ struct Params {
     float sl2;
 };
 
-template <int L>
+template <int L, int NS>
 struct Smem {
     static constexpr int ROWS = HQ * L;
     static constexpr int KV = 0;
-    static constexpr int Q = KV + STAGES * 2 * TILE_BYTES;
+    static constexpr int Q = KV + NS * 2 * TILE_BYTES;
     static constexpr int Q_BYTES = L == 8 ? HKV * 4096 : HQ * 128;
     static constexpr int VT = Q + Q_BYTES;
     static constexpr int VT_BYTES = L == 8 ? 4 * VT_STRIDE : 0;
@@ -2826,7 +2856,9 @@ struct Smem {
     static constexpr int FLAG = CONST + 256;
     // Flat mode: virtual offsets of up to 512 requests plus the total.
     static constexpr int OFF = FLAG + 32;
-    static constexpr int BYTES = OFF + 2304;
+    // Producer mode: NS full and NS empty mbarriers.
+    static constexpr int BAR = OFF + 2304;
+    static constexpr int BYTES = BAR + 2 * NS * 8;
     static_assert(Q % 1024 == 0 && VT % 1024 == 0, "swizzled tiles need 1024-byte bases");
 };
 
@@ -2872,6 +2904,53 @@ __device__ __forceinline__ void fence_proxy_async() {
 
 __device__ __forceinline__ void named_sync(int id, int count) {
     asm volatile("bar.sync %0, %1;\n" :: "r"(id), "r"(count) : "memory");
+}
+
+__device__ __forceinline__ void mbar_init(uint32_t bar, int count) {
+    asm volatile("mbarrier.init.shared::cta.b64 [%0], %1;\n" :: "r"(bar), "r"(count) : "memory");
+}
+
+__device__ __forceinline__ void mbar_arrive(uint32_t bar) {
+    asm volatile("mbarrier.arrive.shared::cta.b64 _, [%0];\n" :: "r"(bar) : "memory");
+}
+
+// Arrives on the barrier once every cp.async this thread issued before has landed; .noinc
+// means the arrival counts against the barrier's expected count.
+__device__ __forceinline__ void cp_async_mbar_arrive_noinc(uint32_t bar) {
+    asm volatile("cp.async.mbarrier.arrive.noinc.shared::cta.b64 [%0];\n" :: "r"(bar) : "memory");
+}
+
+__device__ __forceinline__ bool mbar_try(uint32_t bar, uint32_t parity) {
+    uint32_t ok;
+    asm volatile("{\n.reg .pred p;\n"
+                 "mbarrier.try_wait.parity.shared::cta.b64 p, [%1], %2;\n"
+                 "selp.u32 %0, 1, 0, p;\n}\n"
+                 : "=r"(ok) : "r"(bar), "r"(parity) : "memory");
+    return ok != 0;
+}
+
+// Waits for the phase with the given parity; traps after about a second so a broken ring
+// fails the run instead of hanging it.
+__device__ __forceinline__ void mbar_wait(uint32_t bar, uint32_t parity) {
+    if (mbar_try(bar, parity)) {
+        return;
+    }
+    int polls = 0;
+    while (!mbar_try(bar, parity)) {
+        if (++polls > (1 << 26)) {
+            __trap();
+        }
+    }
+}
+
+template <int N>
+__device__ __forceinline__ void setmaxnreg_inc() {
+    asm volatile("setmaxnreg.inc.sync.aligned.u32 %0;\n" :: "n"(N));
+}
+
+template <int N>
+__device__ __forceinline__ void setmaxnreg_dec() {
+    asm volatile("setmaxnreg.dec.sync.aligned.u32 %0;\n" :: "n"(N));
 }
 
 __device__ __forceinline__ void prefetch_l2(const void* p) {
@@ -3177,6 +3256,7 @@ __device__ __forceinline__ void finalize_rows(const Params& p, int r_lo, int r_h
 
 // Thread 0 adds `mine` keys to the parity counter of epoch `ep`, the last arriver clears the
 // other parity and bumps the epoch, and every CTA spins until the count reaches `total`.
+template <int NC>
 __device__ __forceinline__ void coop_barrier(int* cnt, int* epoch, int ep, int mine, int total,
                                              int tid) {
     if (tid == 0) {
@@ -3193,21 +3273,29 @@ __device__ __forceinline__ void coop_barrier(int* cnt, int* epoch, int ep, int m
             }
         }
     }
-    __syncthreads();
+    named_sync(1, NC);
 }
 
 template <int L, int MODE>
-__global__ void __launch_bounds__(L == 8 ? 256 : 128, L == 8 ? 2 : 4)
+__global__ void __launch_bounds__(one_threads(L, MODE), one_minb(L, MODE))
 attn_one_kernel(const Params p) {
     constexpr bool COOP = (MODE & M_COOP) != 0;
     constexpr bool ONE = (MODE & M_ONE) != 0;
     constexpr bool SPEC = (MODE & M_SPEC) != 0;
     constexpr bool FLAT = (MODE & M_FLAT) != 0;
+    constexpr bool PROD = (MODE & M_PROD) != 0;
+    constexpr bool SOLO = (MODE & M_SOLO) != 0;
     static_assert(!FLAT || !(ONE || SPEC), "flat mode partitions its own ranges");
-    constexpr int NT = L == 8 ? 256 : 128;
+    static_assert(!PROD || FLAT, "the producer warpgroup belongs to the flat kernel");
+    static_assert(!SOLO || PROD, "SOLO is a producer-mode variant");
+    // NC consumer threads (one warpgroup per KV head at q_len 8, four warps at q_len 1); in
+    // producer mode one more warpgroup gathers the tiles.
+    constexpr int NC = L == 8 ? 256 : 128;
+    constexpr int NS = one_ns(L, MODE);
     constexpr int ROWS = HQ * L;
     constexpr int SEGK = L == 8 ? SEGK8 : SEGK1;
-    using S = Smem<L>;
+    constexpr int PF = 3;
+    using S = Smem<L, NS>;
     extern __shared__ __align__(1024) uint8_t smem[];
     const int split = blockIdx.x;
     const int tid = threadIdx.x;
@@ -3219,6 +3307,17 @@ attn_one_kernel(const Params p) {
     const uint32_t smem_base = smem_u32(smem);
     int* idx_ring = reinterpret_cast<int*>(smem + S::IDX);
     int* flag = reinterpret_cast<int*>(smem + S::FLAG);
+    const uint32_t full0 = smem_base + S::BAR;
+    const uint32_t empty0 = full0 + NS * 8;
+
+    // Consumer-wide barrier: the whole CTA unless the producer warpgroup has split off.
+    auto csync = [&]() {
+        if constexpr (PROD) {
+            named_sync(1, NC);
+        } else {
+            __syncthreads();
+        }
+    };
 
     // The current segment: request b, positions [lo, hi) of its range [start, end).
     int b = FLAT ? 0 : blockIdx.y;
@@ -3243,6 +3342,195 @@ attn_one_kernel(const Params p) {
         nact = COOP ? min(p.n_splits, (ntl + chunk - 1) / chunk) : 0;
     };
 
+    // Flat partition (both roles compute the same segment list): every CTA takes an equal
+    // share of a virtual key axis that holds all requests' keys with SEGK extra keys at each
+    // request boundary (a boundary costs a segment prologue), mapped back to whole-tile
+    // ranges inside each request, so the grid finishes together whatever the lengths.
+    int* offs = reinterpret_cast<int*>(smem + S::OFF);
+    int v0 = 0, v1 = 0, b_first = 0, b_last = -1, keys_all = 0;
+    const int B = FLAT ? p.n_splits : 1;
+    const int G = gridDim.x;
+    // Positions [lo, hi) of request bb inside the CTA's share; false when the rounded range
+    // is empty. Neighbours round the same split point the same way, so the ranges tile each
+    // request exactly.
+    auto seg_bounds = [&](int bb) -> bool {
+        const int a = offs[bb];
+        const int n_b = offs[bb + 1] - a - SEGK;
+        const int s0 = max(v0, a) - a;
+        const int s1 = min(v1, a + n_b) - a;
+        const int lo_k = s0 > 0 ? (s0 & ~(BN - 1)) : 0;
+        const int hi_k = s1 < n_b ? (s1 & ~(BN - 1)) : n_b;
+        if (lo_k >= hi_k) {
+            return false;
+        }
+        pt = p.page_table + static_cast<size_t>(bb) * p.pt_stride;
+        seq = n_b - L;
+        start = 0;
+        end = n_b;
+        n_keys = n_b;
+        lo = lo_k;
+        hi = hi_k;
+        ntiles = (hi - lo + BN - 1) >> 6;
+        return true;
+    };
+    if constexpr (FLAT) {
+        if (warp == 0) {
+            int carry = 0;
+            for (int base = 0; base < B; base += 32) {
+                const int bb = base + lane;
+                const int n = bb < B ? __ldg(p.seq_lens + bb) + L + SEGK : 0;
+                int inc = n;
+#pragma unroll
+                for (int o = 1; o < 32; o <<= 1) {
+                    const int t = __shfl_up_sync(0xffffffffu, inc, o);
+                    if (lane >= o) {
+                        inc += t;
+                    }
+                }
+                if (bb < B) {
+                    offs[bb] = carry + inc - n;
+                }
+                carry += __shfl_sync(0xffffffffu, inc, 31);
+            }
+            if (lane == 0) {
+                offs[B] = carry;
+            }
+        }
+        if (tid == 0) {
+            flag[1] = B;
+            flag[2] = -1;
+            if constexpr (PROD) {
+#pragma unroll
+                for (int s = 0; s < NS; ++s) {
+                    mbar_init(full0 + 8 * s, 128);
+                    mbar_init(empty0 + 8 * s, NC);
+                }
+                asm volatile("fence.mbarrier_init.release.cluster;\n" ::: "memory");
+            }
+        }
+        __syncthreads();
+        const long long total_v = offs[B] - SEGK;
+        v0 = static_cast<int>(total_v * split / G);
+        v1 = static_cast<int>(total_v * (split + 1) / G);
+        keys_all = offs[B] - B * SEGK;
+        // Requests touched: the first with an end past v0 and the last starting before v1.
+        {
+            int first = B;
+            int last = -1;
+            for (int bb = tid; bb < B; bb += blockDim.x) {
+                const int a = offs[bb];
+                const int e = offs[bb + 1] - SEGK;
+                if (e > v0 && a < v1) {
+                    first = min(first, bb);
+                    last = max(last, bb);
+                }
+            }
+            first = __reduce_min_sync(0xffffffffu, first);
+            last = __reduce_max_sync(0xffffffffu, last);
+            if (lane == 0) {
+                atomicMin(flag + 1, first);
+                atomicMax(flag + 2, last);
+            }
+        }
+        __syncthreads();
+        b_first = flag[1];
+        b_last = flag[2];
+    }
+
+    // ------------------------------------------------------------------ producer warpgroup
+    if constexpr (PROD) {
+        if (tid >= NC) {
+            if constexpr (!SOLO) {
+                setmaxnreg_dec<one_prod_regs(L)>();
+            }
+            // Thread (r0, ch): chunk ch of rows r0 + 16 i of every tile. Page entries run PF
+            // tiles ahead in registers. A stage is published by cp.async.mbarrier.arrive.noinc
+            // (one arrival per producer thread, when its copies have landed); the block's own
+            // rows are left for the consumers to patch.
+            const int ptid = tid - NC;
+            const int ch = ptid & 7;
+            const int r0 = ptid >> 3;
+            int pst = 0;
+            uint32_t pph = 0;
+            auto entry = [&](int tile, int r) -> int {
+                const int pos = lo + tile * BN + r;
+                if (tile >= ntiles || pos >= seq) {
+                    return 0;
+                }
+                return __ldg(pt + (psize == 1 ? pos : pos / psize));
+            };
+            for (int bb = b_first; bb <= b_last; ++bb) {
+                if (!seg_bounds(bb)) {
+                    continue;
+                }
+                int pe[PF][4];
+#pragma unroll
+                for (int u = 0; u < PF; ++u) {
+#pragma unroll
+                    for (int i = 0; i < 4; ++i) {
+                        pe[u][i] = entry(u, r0 + 16 * i);
+                    }
+                }
+                for (int base = 0; base < ntiles; base += PF) {
+#pragma unroll
+                    for (int u = 0; u < PF; ++u) {
+                        const int t = base + u;
+                        if (t >= ntiles) {
+                            break;
+                        }
+                        mbar_wait(empty0 + 8 * pst, pph ^ 1u);
+                        const int pos0 = lo + t * BN;
+                        const uint32_t kdst = smem_base + S::KV + pst * 2 * TILE_BYTES;
+                        const uint32_t vdst = kdst + TILE_BYTES;
+#pragma unroll
+                        for (int i = 0; i < 4; ++i) {
+                            const int r = r0 + 16 * i;
+                            const int pos = pos0 + r;
+                            const uint32_t kd = kdst + r * ROWB + k_swz<L>(ch, r) * 16;
+                            const uint32_t vd = vdst + r * ROWB + v_swz<L>(ch, r) * 16;
+                            if (pos < seq) {
+                                int64_t row = pe[u][i];
+                                if (psize != 1) {
+                                    row = row * psize + pos % psize;
+                                }
+                                const int64_t off = row * ROWB + ch * 16;
+                                cp_async16(kd, p.k_cache + off, 16);
+                                cp_async16(vd, p.v_cache + off, 16);
+                            } else if (pos >= hi) {
+                                cp_async16(kd, p.k_cache, 0);
+                                cp_async16(vd, p.v_cache, 0);
+                            }
+                        }
+                        cp_async_mbar_arrive_noinc(full0 + 8 * pst);
+#pragma unroll
+                        for (int i = 0; i < 4; ++i) {
+                            pe[u][i] = entry(t + PF, r0 + 16 * i);
+                        }
+                        if (++pst == NS) {
+                            pst = 0;
+                            pph ^= 1u;
+                        }
+                    }
+                }
+            }
+            // Leave only once every stage has been released: no copy of this thread is then
+            // in flight and the consumers no longer need the ring.
+#pragma unroll
+            for (int s = 0; s < NS; ++s) {
+                mbar_wait(empty0 + 8 * pst, pph ^ 1u);
+                if (++pst == NS) {
+                    pst = 0;
+                    pph ^= 1u;
+                }
+            }
+            return;
+        }
+        if constexpr (!SOLO) {
+            setmaxnreg_inc<one_cons_regs(L)>();
+        }
+    }
+
+    // ------------------------------------------------------------------ consumers
     auto issue_idx = [&](int tile) {
         if (tid < BN) {
             const int pos = lo + tile * BN + tid;
@@ -3255,12 +3543,13 @@ attn_one_kernel(const Params p) {
                       ok ? 4 : 0);
         }
     };
-    // Rows of tile `tile` into stage `st`: cached rows by cp.async, rows past the range
-    // zero-filled, the block's own rows (positions seq .. end - 1) from S.KN / S.VN by st.shared
-    // once those are staged (patch == true); before that they are left for the patch below.
+    // Rows of tile `tile` into stage `st` (non-producer modes): cached rows by cp.async, rows
+    // past the range zero-filled, the block's own rows (positions seq .. end - 1) from
+    // S.KN / S.VN by st.shared once those are staged (patch == true); before that they are
+    // left for patch_tile.
     const int ch = tid & 7;
     const int r0 = tid >> 3;
-    constexpr int RSTEP = NT / 8;
+    constexpr int RSTEP = NC / 8;
     auto issue_kv = [&](int tile, int st, bool patch) {
         const int* idx = idx_ring + (tile & (NIDX - 1)) * BN;
         const int pos0 = lo + tile * BN;
@@ -3294,6 +3583,25 @@ attn_one_kernel(const Params p) {
             }
         }
     };
+    // The block's own rows of the tile at pos0 in stage st, from S.KN / S.VN (16 chunks per
+    // token, one thread each).
+    auto patch_tile = [&](int st, int pos0) {
+        if (tid < L * 16) {
+            const int j = tid >> 4;
+            const int cc = tid & 15;
+            const int pos = seq + j;
+            if (pos >= max(lo, pos0) && pos < min(hi, pos0 + BN)) {
+                const int r = pos - pos0;
+                const bool is_v = cc >= 8;
+                const int c8 = cc & 7;
+                const int sw = is_v ? v_swz<L>(c8, r) : k_swz<L>(c8, r);
+                *reinterpret_cast<uint4*>(smem + S::KV + st * 2 * TILE_BYTES
+                                          + (is_v ? TILE_BYTES : 0) + r * ROWB + sw * 16) =
+                    *reinterpret_cast<const uint4*>(smem + (is_v ? S::VN : S::KN) + j * ROWB
+                                                    + c8 * 16);
+            }
+        }
+    };
     auto load8 = [&](const uint8_t* src, float (&x)[8]) {
         const uint4 w = *reinterpret_cast<const uint4*>(src);
         const uint32_t ws[4] = {w.x, w.y, w.z, w.w};
@@ -3320,6 +3628,9 @@ attn_one_kernel(const Params p) {
 
     float k_scale = 0.f;
     float v_scale = 0.f;
+    // Ring position of the consumers in producer mode: continuous over segments.
+    int cst = 0;
+    uint32_t cph = 0;
 
     // One (request, range) segment: loads, query and new-token preparation, the tile loop
     // and the reds into the workspace. Returns false when SPEC found the segment empty.
@@ -3327,19 +3638,21 @@ attn_one_kernel(const Params p) {
         if constexpr (FLAT) {
             // The previous segment's tiles, Q staging and V^T buffers are all consumed.
             cp_wait<0>();
-            __syncthreads();
+            csync();
         }
-        // Group 0: page indices of the prologue tiles.
+        if constexpr (!PROD) {
+            // Group 0: page indices of the prologue tiles.
 #pragma unroll
-        for (int t = 0; t < STAGES - 1; ++t) {
-            issue_idx(t);
+            for (int t = 0; t < STAGES - 1; ++t) {
+                issue_idx(t);
+            }
+            cp_commit();
         }
-        cp_commit();
-        // Group 1: query rows, the block's new key/value rows (if this range may hold them),
-        // constants; split 0 prefetches the gate rows for the finalizer.
+        // Query rows, the block's new key/value rows (if this range may hold them),
+        // constants; the range holding the request's first key prefetches the gate rows.
         {
             const __nv_bfloat16* qbase = p.qkv + static_cast<size_t>(b) * L * QKV_STRIDE;
-            for (int i = tid; i < ROWS * 8; i += NT) {
+            for (int i = tid; i < ROWS * 8; i += NC) {
                 const int row = i >> 3;
                 const int cc = i & 7;
                 cp_async16(smem_base + S::QST + row * 128 + cc * 16,
@@ -3371,40 +3684,43 @@ attn_one_kernel(const Params p) {
         }
         cp_commit();
 
-        cp_wait<1>();
-        __syncthreads();
-        if constexpr (SPEC) {
-            if (seq_real != seq) {
-                cp_wait<0>();
-                __syncthreads();
-                seq = seq_real;
-                derive();
+        if constexpr (!PROD) {
+            cp_wait<1>();
+            csync();
+            if constexpr (SPEC) {
+                if (seq_real != seq) {
+                    cp_wait<0>();
+                    __syncthreads();
+                    seq = seq_real;
+                    derive();
 #pragma unroll
-                for (int t = 0; t < STAGES - 1; ++t) {
-                    issue_idx(t);
+                    for (int t = 0; t < STAGES - 1; ++t) {
+                        issue_idx(t);
+                    }
+                    cp_commit();
+                    cp_wait<0>();
+                    __syncthreads();
+                }
+                if (lo >= end) {
+                    cp_wait<0>();
+                    return false;
+                }
+            }
+            // K/V of the prologue tiles go out while the query group is still in flight;
+            // each later group also carries the page indices STAGES - 1 tiles ahead.
+#pragma unroll
+            for (int t = 0; t < STAGES - 1; ++t) {
+                if (t < ntiles) {
+                    issue_kv(t, t, false);
+                    issue_idx(t + STAGES - 1);
                 }
                 cp_commit();
-                cp_wait<0>();
-                __syncthreads();
             }
-            if (lo >= end) {
-                cp_wait<0>();
-                return false;
-            }
+            cp_wait<STAGES - 1>();
+        } else {
+            cp_wait<0>();
         }
-
-        // K/V of the prologue tiles go out while the query group is still in flight; each
-        // later group also carries the page indices STAGES - 1 tiles ahead.
-#pragma unroll
-        for (int t = 0; t < STAGES - 1; ++t) {
-            if (t < ntiles) {
-                issue_kv(t, t, false);
-                issue_idx(t + STAGES - 1);
-            }
-            cp_commit();
-        }
-        cp_wait<STAGES - 1>();
-        __syncthreads();
+        csync();
 
         k_scale = *reinterpret_cast<const float*>(smem + S::CONST + C_KS);
         v_scale = *reinterpret_cast<const float*>(smem + S::CONST + C_VS);
@@ -3416,13 +3732,13 @@ attn_one_kernel(const Params p) {
                 rope_sin[tid] = sc.x;
                 rope_cos[tid] = sc.y;
             }
-            __syncthreads();
+            csync();
         }
 
         // Query pass: eight threads per row, eight dims each. q_len 1 keeps f16 queries
         // pre-scaled into log2 units (the key scale is applied to the scores); q_len 8 rounds
         // the unit-RMS query to E4M3 and scales in the exponent.
-        for (int piece = tid; piece < ROWS * 8; piece += NT) {
+        for (int piece = tid; piece < ROWS * 8; piece += NC) {
             const int row = piece >> 3;
             const int t8 = piece & 7;
             const int j = row >> 4;
@@ -3497,23 +3813,15 @@ attn_one_kernel(const Params p) {
             *reinterpret_cast<uint2*>(smem + (is_k ? S::KN : S::VN) + j * ROWB + hh * D + t8 * 8) =
                 v8;
         }
-        __syncthreads();
-        // Patch the new rows into the tiles issued before they were staged.
-        if (hi > seq && tid < L * 16) {
-            const int j = tid >> 4;
-            const int cc = tid & 15;
-            const int pos = seq + j;
-            if (pos >= lo && pos < hi) {
-                const int t = (pos - lo) >> 6;
-                if (t < STAGES - 1) {
-                    const int r = (pos - lo) & (BN - 1);
-                    const bool is_v = cc >= 8;
-                    const int c8 = cc & 7;
-                    const int sw = is_v ? v_swz<L>(c8, r) : k_swz<L>(c8, r);
-                    *reinterpret_cast<uint4*>(smem + S::KV + t * 2 * TILE_BYTES
-                                              + (is_v ? TILE_BYTES : 0) + r * ROWB + sw * 16) =
-                        *reinterpret_cast<const uint4*>(smem + (is_v ? S::VN : S::KN) + j * ROWB
-                                                        + c8 * 16);
+        csync();
+        if constexpr (!PROD) {
+            // Patch the new rows into the tiles issued before they were staged.
+            if (hi > seq) {
+#pragma unroll
+                for (int t = 0; t < STAGES - 1; ++t) {
+                    if (t < ntiles) {
+                        patch_tile(t, lo + t * BN);
+                    }
                 }
             }
         }
@@ -3529,6 +3837,50 @@ attn_one_kernel(const Params p) {
 
         const float sl2k = (L == 1 ? 1.f : p.sl2) * k_scale;
         const int copy = p.nc > 1 ? split % p.nc : 0;
+
+        // Tile it of this segment becomes readable in stage `st` (every consumer thread calls
+        // this; the generic writes above and the gathered rows are fenced for the wgmma
+        // reads at q_len 8).
+        auto acquire = [&](int it, int st) {
+            if constexpr (PROD) {
+                mbar_wait(full0 + 8 * st, cph);
+                if constexpr (L == 8) {
+                    fence_proxy_async();
+                }
+                const int pos0 = lo + it * BN;
+                if (hi > seq && pos0 + BN > seq) {
+                    patch_tile(st, pos0);
+                    if constexpr (L == 8) {
+                        fence_proxy_async();
+                    }
+                    csync();
+                } else if (it == 0) {
+                    csync();
+                }
+            } else {
+                cp_wait<STAGES - 2>();
+                if constexpr (L == 8) {
+                    fence_proxy_async();
+                }
+                __syncthreads();
+                if constexpr (!ONE) {
+                    if (it + STAGES - 1 < ntiles) {
+                        issue_kv(it + STAGES - 1, (st + STAGES - 1) % STAGES, true);
+                        issue_idx(it + 2 * STAGES - 2);
+                    }
+                    cp_commit();
+                }
+            }
+        };
+        auto release = [&](int st) {
+            if constexpr (PROD) {
+                mbar_arrive(empty0 + 8 * st);
+                if (++cst == NS) {
+                    cst = 0;
+                    cph ^= 1u;
+                }
+            }
+        };
 
         if constexpr (L == 1) {
             // Warp (hk, wsub): KV head hk, keys 32 wsub .. 32 wsub + 31 of each tile. Thread
@@ -3557,17 +3909,9 @@ attn_one_kernel(const Params p) {
             }
             float m = NEG_INF;
             float l = 0.f;
-            int st = 0;
+            int st = PROD ? cst : 0;
             for (int it = 0; it < ntiles; ++it) {
-                cp_wait<STAGES - 2>();
-                __syncthreads();
-                if constexpr (!ONE) {
-                    if (it + STAGES - 1 < ntiles) {
-                        issue_kv(it + STAGES - 1, (st + STAGES - 1) % STAGES, true);
-                        issue_idx(it + 2 * STAGES - 2);
-                    }
-                    cp_commit();
-                }
+                acquire(it, st);
                 const uint8_t* ks = smem + S::KV + st * 2 * TILE_BYTES;
                 const uint8_t* vs = ks + TILE_BYTES;
                 const int pos0 = lo + it * BN;
@@ -3669,7 +4013,8 @@ attn_one_kernel(const Params p) {
                         }
                     }
                 }
-                st = st == STAGES - 1 ? 0 : st + 1;
+                release(st);
+                st = PROD ? cst : (st == STAGES - 1 ? 0 : st + 1);
             }
             // Fixed-frame merge: this warp's rows scaled by 2^m into the workspace. Thread
             // (g, c) holds dims 16 c .. 16 c + 15 of head hk * 8 + g: o[e][0] is dim 16 c + e,
@@ -3700,18 +4045,9 @@ attn_one_kernel(const Params p) {
             }
             float off[2] = {OFF_FLOOR, OFF_FLOOR};
             const int qp0 = seq + 2 * wq;
-            int st = 0;
+            int st = PROD ? cst : 0;
             for (int it = 0; it < ntiles; ++it) {
-                cp_wait<STAGES - 2>();
-                fence_proxy_async();
-                __syncthreads();
-                if constexpr (!ONE) {
-                    if (it + STAGES - 1 < ntiles) {
-                        issue_kv(it + STAGES - 1, (st + STAGES - 1) % STAGES, true);
-                        issue_idx(it + 2 * STAGES - 2);
-                    }
-                    cp_commit();
-                }
+                acquire(it, st);
                 const uint8_t* vs = smem + S::KV + st * 2 * TILE_BYTES + TILE_BYTES;
                 const int pos0 = lo + it * BN;
                 const bool interior =
@@ -3820,7 +4156,7 @@ attn_one_kernel(const Params p) {
                     }
                 }
                 fence_proxy_async();
-                named_sync(1 + hk, 128);
+                named_sync(2 + hk, 128);
                 {
                     const uint64_t vd = desc_sw64(smem_u32(vt));
                     wg_fence();
@@ -3830,7 +4166,8 @@ attn_one_kernel(const Params p) {
                     wg_wait<0>();
                     reg_fence(o);
                 }
-                st = st == STAGES - 1 ? 0 : st + 1;
+                release(st);
+                st = PROD ? cst : (st == STAGES - 1 ? 0 : st + 1);
             }
             // Fixed-frame merge. o[4i + 2hh + e] is column 8i + 2c + e of row (token
             // 2wq + hh, head g), and column n holds dim 16 (n >> 4) + 2 (n & 7) + ((n >> 3) & 1),
@@ -3858,15 +4195,15 @@ attn_one_kernel(const Params p) {
     // by the barrier, and the last arriver's acquire makes them visible to its reads (which
     // bypass L1).
     auto ticket = [&]() {
-        __syncthreads();
+        csync();
         const int mine = hi - lo;
         if (tid == 0) {
             const int old = atom_add_acq_rel(p.ws_cnt + b, mine);
             *flag = old + mine == n_keys;
         }
-        __syncthreads();
+        csync();
         if (*flag) {
-            finalize_rows<L, NT>(p, b * ROWS, (b + 1) * ROWS, v_scale, tid);
+            finalize_rows<L, NC>(p, b * ROWS, (b + 1) * ROWS, v_scale, tid);
             if (tid == 0) {
                 p.ws_cnt[b] = 0;
             }
@@ -3890,97 +4227,22 @@ attn_one_kernel(const Params p) {
             __syncthreads();
             const int ep = *reinterpret_cast<const int*>(smem + S::CONST + C_EPOCH);
             const int rows_per = (ROWS + nact - 1) / nact;
-            coop_barrier(p.ws_cnt + CNT_COOP + 2 * b, p.ws_cnt + CNT_EPOCH + b, ep, hi - lo,
-                         n_keys, tid);
+            coop_barrier<NC>(p.ws_cnt + CNT_COOP + 2 * b, p.ws_cnt + CNT_EPOCH + b, ep, hi - lo,
+                             n_keys, tid);
             const int r_lo = split * rows_per;
             const int r_hi = min(ROWS, r_lo + rows_per);
             if (r_lo < r_hi) {
-                finalize_rows<L, NT>(p, b * ROWS + r_lo, b * ROWS + r_hi, v_scale, tid);
+                finalize_rows<L, NC>(p, b * ROWS + r_lo, b * ROWS + r_hi, v_scale, tid);
             }
         }
     } else {
-        // Flat partition: every CTA takes an equal share of a virtual key axis that holds all
-        // requests' keys with SEGK extra keys at each request boundary (a boundary costs a
-        // segment prologue), mapped back to whole-tile ranges inside each request, so the
-        // grid finishes together whatever the per-request lengths.
-        const int B = p.n_splits;
-        const int G = gridDim.x;
-        int* offs = reinterpret_cast<int*>(smem + S::OFF);
         const int ep = COOP ? __ldg(p.ws_cnt + CNT_FLAT + 2) : 0;
         const float v_scale_g = __ldg(p.v_scale);
-        if (warp == 0) {
-            int carry = 0;
-            for (int base = 0; base < B; base += 32) {
-                const int bb = base + lane;
-                const int n = bb < B ? __ldg(p.seq_lens + bb) + L + SEGK : 0;
-                int inc = n;
-#pragma unroll
-                for (int o = 1; o < 32; o <<= 1) {
-                    const int t = __shfl_up_sync(0xffffffffu, inc, o);
-                    if (lane >= o) {
-                        inc += t;
-                    }
-                }
-                if (bb < B) {
-                    offs[bb] = carry + inc - n;
-                }
-                carry += __shfl_sync(0xffffffffu, inc, 31);
-            }
-            if (lane == 0) {
-                offs[B] = carry;
-            }
-        }
-        __syncthreads();
-        const long long total_v = offs[B] - SEGK;
-        const int v0 = static_cast<int>(total_v * split / G);
-        const int v1 = static_cast<int>(total_v * (split + 1) / G);
-        const int keys_all = offs[B] - B * SEGK;
-        // Requests touched: the first with an end past v0 and the last starting before v1.
-        if (tid == 0) {
-            flag[1] = B;
-            flag[2] = -1;
-        }
-        __syncthreads();
-        {
-            int first = B;
-            int last = -1;
-            for (int bb = tid; bb < B; bb += NT) {
-                const int a = offs[bb];
-                const int e = offs[bb + 1] - SEGK;
-                if (e > v0 && a < v1) {
-                    first = min(first, bb);
-                    last = max(last, bb);
-                }
-            }
-            first = __reduce_min_sync(0xffffffffu, first);
-            last = __reduce_max_sync(0xffffffffu, last);
-            if (lane == 0) {
-                atomicMin(flag + 1, first);
-                atomicMax(flag + 2, last);
-            }
-        }
-        __syncthreads();
-        const int b_first = flag[1];
-        const int b_last = flag[2];
         int mine_total = 0;
         for (b = b_first; b <= b_last; ++b) {
-            const int a = offs[b];
-            const int n_b = offs[b + 1] - a - SEGK;
-            const int s0 = max(v0, a) - a;
-            const int s1 = min(v1, a + n_b) - a;
-            const int lo_k = s0 > 0 ? (s0 & ~(BN - 1)) : 0;
-            const int hi_k = s1 < n_b ? (s1 & ~(BN - 1)) : n_b;
-            if (lo_k >= hi_k) {
+            if (!seg_bounds(b)) {
                 continue;
             }
-            pt = p.page_table + static_cast<size_t>(b) * p.pt_stride;
-            seq = n_b - L;
-            start = 0;
-            end = n_b;
-            n_keys = n_b;
-            lo = lo_k;
-            hi = hi_k;
-            ntiles = (hi - lo + BN - 1) >> 6;
             run_segment();
             if constexpr (!COOP) {
                 ticket();
@@ -3989,15 +4251,15 @@ attn_one_kernel(const Params p) {
             }
         }
         if constexpr (COOP) {
-            __syncthreads();
-            coop_barrier(p.ws_cnt + CNT_FLAT, p.ws_cnt + CNT_FLAT + 2, ep, mine_total, keys_all,
-                         tid);
+            csync();
+            coop_barrier<NC>(p.ws_cnt + CNT_FLAT, p.ws_cnt + CNT_FLAT + 2, ep, mine_total,
+                             keys_all, tid);
             const int rows_all = B * ROWS;
             const int rows_per = (rows_all + G - 1) / G;
             const int r_lo = split * rows_per;
             const int r_hi = min(rows_all, r_lo + rows_per);
             if (r_lo < r_hi) {
-                finalize_rows<L, NT>(p, r_lo, r_hi, v_scale_g, tid);
+                finalize_rows<L, NC>(p, r_lo, r_hi, v_scale_g, tid);
             }
         }
     }
@@ -4009,8 +4271,8 @@ attn_one_kernel(const Params p) {
 // reads those limits through attn_one_prepare().
 template <int L, int MODE>
 struct Instance {
-    static constexpr int NT = L == 8 ? 256 : 128;
-    static constexpr int BYTES = Smem<L>::BYTES;
+    static constexpr int NT = one_threads(L, MODE);
+    static constexpr int BYTES = Smem<L, one_ns(L, MODE)>::BYTES;
     static int resident;
 
     static int prepare() {
@@ -4038,7 +4300,8 @@ template <int L, int MODE>
 int Instance<L, MODE>::resident = -1;
 
 #define ONE_INSTANCES(X) \
-    X(1, 1) X(1, 3) X(1, 11) X(1, 13) X(1, 17) X(8, 1) X(8, 3) X(8, 11) X(8, 15) X(8, 19)
+    X(1, 1) X(1, 3) X(1, 11) X(1, 13) X(1, 17) X(1, 49) \
+    X(8, 1) X(8, 3) X(8, 11) X(8, 15) X(8, 19) X(8, 51) X(8, 115)
 
 // INSTANTIATE: template struct Instance<1, 1>;
 // INSTANTIATE: template struct Instance<1, 3>;
@@ -4050,6 +4313,9 @@ int Instance<L, MODE>::resident = -1;
 // INSTANTIATE: template struct Instance<8, 15>;
 // INSTANTIATE: template struct Instance<1, 17>;
 // INSTANTIATE: template struct Instance<8, 19>;
+// INSTANTIATE: template struct Instance<1, 49>;
+// INSTANTIATE: template struct Instance<8, 51>;
+// INSTANTIATE: template struct Instance<8, 115>;
 
 }  // namespace
 
@@ -4144,9 +4410,11 @@ _ONE_CNT_INTS = 32768
 _ONE_STATE = {}
 # Grid target: two CTAs per SM on 132 SMs.
 _ONE_TARGET = 264
-_ONE_BUILT = {1: (1, 3, 11, 13, 17), 8: (1, 3, 11, 15, 19)}
-# Full-context batches on the flat partition (else per request).
+_ONE_BUILT = {1: (1, 3, 11, 13, 17, 49), 8: (1, 3, 11, 15, 19, 51, 115)}
+# Full-context batches on the flat partition (else per request), and whether the flat
+# kernel's tiles come from a producer warpgroup (mode |32) or the consumers' own copies.
 _ONE_FLAT = True
+_ONE_PROD = True
 
 
 def _one_state(device):
@@ -4171,10 +4439,11 @@ def _one_plan(cfg, pt_width, resident):
     tiles = (kmax + 63) // 64
     nc = 1
     if not window and batch > 1 and _ONE_FLAT:
-        mode = 17 if length == 1 else 19
-        grid = min(_ONE_TARGET, resident.get((length, mode), 0))
-        if grid >= 2 * batch:
-            return grid, 1, mode
+        for mode in ((49, 17) if length == 1 else (51, 19)) if _ONE_PROD else \
+                ((17,) if length == 1 else (19,)):
+            grid = min(_ONE_TARGET, resident.get((length, mode), 0))
+            if grid >= 2 * batch:
+                return grid, 1, mode
     if window:
         if length == 1:
             n = min(tiles, max(1, _ONE_TARGET // batch))
@@ -4213,9 +4482,13 @@ def _one(data, splits=None, nc=None, mode=None):
     theta = cfg["rope_theta"]
     st = _one_state(qkv.device)
     n, c, m = _one_plan(cfg, data["page_table"].shape[1], st["resident"])
+    if mode and mode != m:
+        # A flat mode's grid must stay within that instance's residency (grid-wide barrier).
+        m = mode
+        if m & 16:
+            n = min(_ONE_TARGET, st["resident"].get((length, m), 0))
     n = splits or n
     c = nc or c
-    m = mode or m
     return _ONE.attn_one(
         qkv, data["page_table"], data["seq_lens"], data["cache_loc"],
         _inv_freq(theta if theta else 1.0, cfg["head_dim"], qkv.device), data["k_scale"],
@@ -4249,7 +4522,7 @@ def kernel_fn(data):
 
 
 # Generated by tools/attn_make_bench_one.py: a self-test and a timing sweep run at import.
-_OB_VARIANTS = ['_one', '_fused', '_ws', '_fused_prep']
+_OB_VARIANTS = ['_one', '_one@m=17', '_one@m=49', '_one@m=19', '_one@m=51', '_one@m=115', '_fused', '_ws', '_fused_prep']
 _OB_TESTS = [
     # (batch, ctx, heads, layer, q_len, spread, dist, page, kv_scale)
     (1, 10, "tp8", "sliding", 1, "fixed", "normal", 64, 1.0),
@@ -4512,6 +4785,62 @@ def _ob_selftest():
     print(f"SELFTEST done: {fails} failing shapes", flush=True)
 
 
+_OB_STRESS = [
+    (1, "sliding", 1), (1, "sliding", 8), (16, "sliding", 8), (16, "full", 1), (16, "full", 8),
+    (1, "full", 1),
+]
+
+
+def _ob_stress(replays=2000):
+    for batch, layer, q_len in _OB_STRESS:
+        name = f"b{batch} {layer} L{q_len}"
+        try:
+            data = _ob_inputs(batch, 80000, "tp8", layer, q_len,
+                              "fixed" if batch == 1 else "agentic",
+                              "soft" if layer == "sliding" else "coherent", 1, 1.0)
+            plan = _ob_plan_str(data)
+            stream = torch.cuda.Stream()
+            stream.wait_stream(torch.cuda.current_stream())
+            with torch.cuda.stream(stream):
+                for _ in range(2):
+                    kernel_fn(data)
+            torch.cuda.current_stream().wait_stream(stream)
+            graph = torch.cuda.CUDAGraph()
+            with torch.cuda.graph(graph):
+                out = kernel_fn(data)
+            torch.cuda.synchronize()
+            for _ in range(replays):
+                graph.replay()
+            torch.cuda.synchronize()
+            replayed = out.clone()
+            eager = kernel_fn(data)
+            torch.cuda.synchronize()
+            rel = _ob_rel(replayed, eager)
+            finite = bool(torch.isfinite(replayed.float()).all())
+            st = _ONE_STATE.get(data["qkv"].device)
+            if st is not None:
+                acc_nz = int((st["acc"] != 0).sum())
+                l_nz = int((st["l"] != 0).sum())
+                cnt = st["cnt"]
+                tickets_nz = int((cnt[:4096] != 0).sum())
+                coop_nz = int((cnt[4096:8192] != 0).sum())
+                flat_nz = int((cnt[16384:16386] != 0).sum())
+                ws_msg = (f"ws_rows_nonzero={acc_nz} l_nonzero={l_nz} tickets_nonzero="
+                          f"{tickets_nz} coop_counters_nonzero={coop_nz} "
+                          f"flat_counters_nonzero={flat_nz}")
+                clean = acc_nz == 0 and l_nz == 0 and tickets_nz == 0
+            else:
+                ws_msg = "no workspace (fallback path)"
+                clean = True
+            ok = finite and rel < 1e-4 and clean
+            print(f"STRESS {'PASS' if ok else 'FAIL'} {name} [{plan}] replays={replays} "
+                  f"replayed_vs_eager={rel:.1e} finite={finite} {ws_msg}", flush=True)
+            del graph, data, out, replayed, eager
+        except Exception as exc:
+            print(f"STRESS FAIL {name} {type(exc).__name__}: {str(exc)[:300]}", flush=True)
+        torch.cuda.empty_cache()
+
+
 def _ob_bench():
     flush = torch.empty(256 << 20, dtype=torch.uint8, device="cuda")
     import functools
@@ -4532,6 +4861,14 @@ def _ob_bench():
             if (name.startswith("_ws") and q_len != 8) or (name.startswith("_fused@") and q_len != 1) \
                     or (name == "_fused" and (q_len != 1 or (layer == "full" and batch == 1))):
                 continue
+            if name.startswith("_one@m="):
+                m = int(name.split("=")[1])
+                flat = bool(m & 16)
+                q8_only = m in (3, 15, 19, 51, 115) or (m & 2 and flat)
+                q1_only = m in (17, 49)
+                if (flat and (layer != "full" or batch == 1)) or (q8_only and q_len != 8) \
+                        or (q1_only and q_len != 1) or (not flat and layer == "full" and batch > 1):
+                    continue
             try:
                 stream = torch.cuda.Stream()
                 stream.wait_stream(torch.cuda.current_stream())
@@ -4578,6 +4915,10 @@ if not _os.environ.get("ATTN_BENCH_DONE"):
         _ob_selftest()
     except Exception as _exc:
         print(f"SELFTEST failed: {type(_exc).__name__}: {_exc}")
+    try:
+        _ob_stress()
+    except Exception as _exc:
+        print(f"STRESS failed: {type(_exc).__name__}: {_exc}")
     try:
         _ob_bench()
     except Exception as _exc:

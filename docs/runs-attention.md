@@ -399,3 +399,23 @@ Local evidence (CUDA 12.8.1 in Docker, sm_90a):
    16 / 32 full 88 / 170; verify 16 / 32 full 105 / 186).
 3. Route per shape on judge numbers (`_ONE_ROUTE`: a `(layer, q_len, batch)` key set to
    False sends that shape back to the previous path), then the next check.
+
+### Producer-warpgroup loader for the flat kernel (10-28, compiled, not yet checked)
+
+Mode |32 (instances 49 for q_len 1, 51 for q_len 8): a 128-thread producer warpgroup gathers
+tiles into an mbarrier ring (3 stages at q_len 1, 4 at q_len 8; full barriers count the 128
+producer arrivals by `cp.async.mbarrier.arrive.noinc`, empty barriers the consumer threads'
+`mbarrier.arrive`), page entries three tiles ahead in registers, the block's own rows patched
+by the consumers after the full wait with a `fence.proxy.async` and a consumer barrier,
+counters continuous across a CTA's segments, producers leave only after every stage was
+released. Register split `setmaxnreg.dec 56 / .inc 200` (q_len 1) and `32 / 104` (q_len 8)
+at two CTAs per SM. ptxas (CUDA 12.8.1): mode 49 128 registers, no spills; mode 51 80
+registers with 168 bytes of spills, and its SASS shows the consumer region never using a
+register above R78 after `USETMAXREG.TRY_ALLOC 0x68`: ptxas caps every region at the
+launch-bounds count and pads the kernel's count to it. So mode 115 (|64: one CTA per SM, no
+split) is built as the comparison: 113 registers, no spills. `_one_plan` prefers 49 / 51 with
+`_ONE_PROD = True` and falls back to 17 / 19; `bench.py` times `_one` and the explicit modes
+17 / 49 / 19 / 51 / 115 per full-context shape, and its STRESS lines replay six shapes 2,000
+times (decode and verify 1 sliding: speculated one-tile launches; verify 16 sliding:
+cooperative; decode 16 full: flat tickets; verify 16 full: grid-wide finalize; decode 1 full:
+252 splits with 8 copies) and read the workspace back.

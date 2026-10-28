@@ -32,6 +32,15 @@ Flat mode (full context, batch > 1): the grid (up to 264 CTAs, two per SM) share
 key axis holding every request's keys plus 400 (q_len 1) or 600 (q_len 8) keys per request
 boundary; each CTA maps its share back to whole-tile ranges per request, runs them as
 segments, and the finalize is per request (q_len 1, last CTA) or grid-wide (q_len 8).
+With |32 a producer warpgroup gathers the tiles into an mbarrier ring (3 stages at q_len 1,
+4 at q_len 8): producers wait on the stage's empty barrier, issue 8 x 16-byte cp.async per
+128-byte row (page entries three tiles ahead in registers), and publish the stage with
+`cp.async.mbarrier.arrive.noinc`; consumers wait on the full barrier, fence the async proxy,
+patch the block's own rows if the tile holds them, compute, and every consumer thread
+arrives on the empty barrier. Registers: `setmaxnreg.dec 56 / .inc 200` (q_len 1) and
+`32 / 104` (q_len 8) at two CTAs per SM; ptxas caps every region at the launch-bounds
+count, so the q_len 8 consumers compile at 80 registers with 168 bytes of spills; |64 is the
+one-CTA-per-SM variant without the split (113 registers, no spills), for the judge to compare.
 
 ## Host interface
 
@@ -48,7 +57,8 @@ attn_one_prepare() -> [L, mode, resident CTAs, smem bytes] x instances
 - `sl2 = sm_scale * qk_scale_factor * log2(e)`; the key scale is applied on the device.
 - `mode`: 1 last-CTA finalize, 3 cooperative, |4 one tile per CTA, |8 sequence length
   speculated as `page_table.shape[1] - L` and verified on the device (batch 1, page size 1),
-  |16 flat. Built instances: q_len 1: 1, 3, 11, 13, 17; q_len 8: 1, 3, 11, 15, 19.
+  |16 flat, |32 producer warpgroup, |64 one CTA per SM. Built instances: q_len 1: 1, 3, 11,
+  13, 17, 49; q_len 8: 1, 3, 11, 15, 19, 51, 115.
 - Per-request modes launch `(n_splits, batch)` CTAs; flat modes launch `n_splits` CTAs.
 - `nc` copies of each workspace row spread same-address atomics (8 at batch 1 full).
 
@@ -74,8 +84,8 @@ Persistent, allocated once per device, zeroed once (`_one_state` in submission.p
 | verify 1 sliding, page 1 | 33 x 1 | 15 (cooperative, one tile, speculated) |
 | verify 16 / 32 sliding | 8 x 16 / 4 x 32 | 3 |
 | decode / verify 1 full, page 1 | 252 x 1, nc 8 | 11 (cooperative, speculated) |
-| decode 16 / 32 full | 264 flat | 17 |
-| verify 16 / 32 full | 264 flat | 19 (grid-wide cooperative) |
+| decode 16 / 32 full | 264 flat | 49 (producer warpgroup; 17 without) |
+| verify 16 / 32 full | 264 flat | 51 (producer warpgroup, grid-wide cooperative; 19 without; 115 one CTA per SM) |
 
 Cooperative modes need every active CTA resident: `attn_one_prepare()` reports the limit
 per instance (`cudaOccupancyMaxActiveBlocksPerMultiprocessor` x SMs) and the plan falls back
@@ -99,8 +109,10 @@ traps after 2^24 polls of a cooperative counter instead of hanging the run.
 `python3 tools/attn_make_bench_one.py` writes `muse_attention_decode/bench.py`: the
 submission plus, at import, SELFTEST lines for every judge test shape and the scored shapes
 (the judge's own check recomputed in FP32: output bound, cache rows, worst row, and a second
-call on the same inputs to prove the workspace was left zero), then BENCH lines (graph
-replays after a 256 MB flush) of `_one` against the earlier paths. Local checks:
+call on the same inputs to prove the workspace was left zero), STRESS lines (2,000
+back-to-back graph replays on six shapes, the replayed output against an eager run, a NaN
+check, and the workspace rows and counters read back as zero), then BENCH lines (graph
+replays after a 256 MB flush) of `_one` and its mode variants against the earlier paths. Local checks:
 `tools/attn_ws_quick.sh -s muse_attention_decode/attn_one.cu` (ptxas, SASS),
 `tools/attn_host_check.sh muse_attention_decode/attn_one.cu`,
 `tools/attn_compile_check.sh muse_attention_decode/submission.py`,
