@@ -73,7 +73,7 @@ _CPP_SRC = r"""
 #include <torch/extension.h>
 std::vector<torch::Tensor> route_align(torch::Tensor topk_ids, int64_t start, int64_t count,
                                        int64_t block_size, int64_t max_padded,
-                                       int64_t item_rows);
+                                       int64_t item_rows, int64_t item_rows2);
 torch::Tensor finalize(torch::Tensor y, torch::Tensor scores, torch::Tensor norm_w,
                        torch::Tensor local_ids, int64_t variant, double eps);
 """
@@ -99,8 +99,8 @@ constexpr int kHidden = 4096;
 __global__ void __launch_bounds__(1024) route_align_kernel(
         const int* __restrict__ topk_ids, int numel, int start, int count, int bs,
         int* __restrict__ sorted_ids, int* __restrict__ expert_ids, int* __restrict__ num_post,
-        int* __restrict__ local_ids, int item_rows, int2* __restrict__ items,
-        int* __restrict__ num_items) {
+        int* __restrict__ local_ids, int item_rows, int item_rows2, int items2_at,
+        int2* __restrict__ items, int* __restrict__ num_items) {
     __shared__ int cnt[kMaxLocal];
     __shared__ int off[kMaxLocal];
     __shared__ int total_s;
@@ -139,10 +139,15 @@ __global__ void __launch_bounds__(1024) route_align_kernel(
         for (int b = excl / bs; b < incl / bs; ++b) {
             expert_ids[b] = tid;
         }
-        // Work items for the W4 GEMM: up to item_rows routes of one expert each, as
-        // (expert << 16 | rows, first row in sorted_ids).
-        if (item_rows > 0) {
-            const int nit = (c + item_rows - 1) / item_rows;
+        // Work items for the W4 GEMMs (one list per GEMM, the second at items2_at): up to
+        // ir routes of one expert each, as (expert << 16 | rows, first row in sorted_ids).
+        for (int q = 0; q < 2; ++q) {
+            const int ir = q == 0 ? item_rows : item_rows2;
+            if (ir <= 0) {
+                continue;
+            }
+            int2* list = items + (q == 0 ? 0 : items2_at);
+            const int nit = (c + ir - 1) / ir;
             int iincl = nit;
 #pragma unroll
             for (int d = 1; d < 32; d <<= 1) {
@@ -152,11 +157,10 @@ __global__ void __launch_bounds__(1024) route_align_kernel(
                 }
             }
             for (int j = 0; j < nit; ++j) {
-                const int rows = min(item_rows, c - j * item_rows);
-                items[iincl - nit + j] = make_int2((tid << 16) | rows, excl + j * item_rows);
+                list[iincl - nit + j] = make_int2((tid << 16) | min(ir, c - j * ir), excl + j * ir);
             }
             if (tid == 31) {
-                num_items[0] = iincl;
+                num_items[q] = iincl;
             }
         }
     }
@@ -377,7 +381,7 @@ void launch_cluster(const __nv_bfloat16* y, const float* scores, const __nv_bflo
         cudaLaunchKernelEx(&cfg, finalize_cluster_kernel<S>, y, scores, w, ids, out, eps));
 }
 
-// compile_check: route_align_kernel<<<1, 64>>>(nullptr, 0, 0, 0, 8, 0, 0, 0, 0, 0, 0, 0);
+// compile_check: route_align_kernel<<<1, 64>>>(nullptr, 0, 0, 0, 8, 0, 0, 0, 0, 0, 0, 0, 0, 0);
 // compile_check: finalize_row_kernel<512><<<1, 512>>>(0, 0, 0, 0, 0, 0.f);
 // compile_check: launch_cluster<2>(0, 0, 0, 0, 0, 1, 0.f, 0);
 // compile_check: launch_cluster<4>(0, 0, 0, 0, 0, 1, 0.f, 0);
@@ -386,7 +390,7 @@ void launch_cluster(const __nv_bfloat16* y, const float* scores, const __nv_bflo
 
 std::vector<torch::Tensor> route_align(torch::Tensor topk_ids, int64_t start, int64_t count,
                                        int64_t block_size, int64_t max_padded,
-                                       int64_t item_rows) {
+                                       int64_t item_rows, int64_t item_rows2) {
     const int numel = topk_ids.numel();
     TORCH_CHECK(numel <= kMaxRoutes && count <= kMaxLocal);
     auto opts = topk_ids.options();
@@ -394,9 +398,10 @@ std::vector<torch::Tensor> route_align(torch::Tensor topk_ids, int64_t start, in
     auto expert_ids = torch::empty({(max_padded + block_size - 1) / block_size}, opts);
     auto num_post = torch::empty({1}, opts);
     auto local_ids = torch::empty_like(topk_ids);
-    const int64_t max_items = item_rows > 0 ? count + numel / item_rows + 1 : 1;
-    auto items = torch::empty({max_items, 2}, opts);
-    auto num_items = torch::empty({1}, opts);
+    const int64_t max1 = item_rows > 0 ? count + numel / item_rows + 1 : 1;
+    const int64_t max2 = item_rows2 > 0 ? count + numel / item_rows2 + 1 : 1;
+    auto items = torch::empty({max1 + max2, 2}, opts);
+    auto num_items = torch::empty({2}, opts);
     int threads = ((numel + 31) / 32) * 32;
     threads = threads < 64 ? 64 : (threads > 1024 ? 1024 : threads);
     auto stream = at::cuda::getCurrentCUDAStream();
@@ -404,9 +409,11 @@ std::vector<torch::Tensor> route_align(torch::Tensor topk_ids, int64_t start, in
         topk_ids.data_ptr<int>(), numel, static_cast<int>(start), static_cast<int>(count),
         static_cast<int>(block_size), sorted_ids.data_ptr<int>(), expert_ids.data_ptr<int>(),
         num_post.data_ptr<int>(), local_ids.data_ptr<int>(), static_cast<int>(item_rows),
+        static_cast<int>(item_rows2), static_cast<int>(max1),
         reinterpret_cast<int2*>(items.data_ptr<int>()), num_items.data_ptr<int>());
     C10_CUDA_KERNEL_LAUNCH_CHECK();
-    return {sorted_ids, expert_ids, num_post, local_ids, items, num_items};
+    return {sorted_ids, expert_ids, num_post, local_ids, items.narrow(0, 0, max1),
+            num_items.narrow(0, 0, 1), items.narrow(0, max1, max2), num_items.narrow(0, 1, 1)};
 }
 
 torch::Tensor finalize(torch::Tensor y, torch::Tensor scores, torch::Tensor norm_w,
@@ -442,7 +449,7 @@ torch::Tensor finalize(torch::Tensor y, torch::Tensor scores, torch::Tensor norm
 def _opts_for(num_tokens):
     # SGLang's heuristic picks 48 at 128 tokens and 64 at 256; 16 was 25-35% faster there.
     bsm = 8 if num_tokens < 12 else 16
-    return {"align": "ours", "fin": 0, "bsm": bsm, "g1": _w4_g1_for(num_tokens)}
+    return {"align": "ours", "fin": 0, "bsm": bsm, "g1": _w4_g1_for(num_tokens), "g2": None}
 
 
 def _w4_g1_for(num_tokens):
@@ -492,6 +499,10 @@ W4_CONFIGS = [
     (1, 1, 8, 1, 4, 4), (1, 1, 8, 1, 2, 4), (1, 1, 8, 1, 4, 2), (1, 1, 8, 2, 4, 4),
     (1, 2, 16, 2, 4, 4), (1, 2, 16, 1, 4, 4), (1, 2, 16, 4, 4, 4),
     (1, 4, 32, 4, 4, 4), (1, 4, 32, 2, 4, 4), (1, 4, 32, 8, 4, 4),
+    (2, 1, 1, 4, 4, 4), (2, 1, 1, 8, 4, 4), (2, 1, 1, 2, 4, 4), (2, 1, 1, 4, 2, 4),
+    (2, 1, 8, 2, 4, 4), (2, 1, 8, 4, 4, 4), (2, 1, 8, 1, 4, 4),
+    (2, 2, 16, 2, 4, 4), (2, 2, 16, 4, 4, 4),
+    (2, 4, 32, 4, 4, 4), (2, 4, 32, 8, 4, 4), (2, 4, 32, 2, 4, 4),
 ]
 
 _W4_CPP_SRC = r"""
@@ -500,6 +511,8 @@ void w4_gemm(int64_t cfg, torch::Tensor act, torch::Tensor wq, torch::Tensor wsc
              torch::Tensor gs, torch::Tensor sorted_ids, torch::Tensor items,
              torch::Tensor num_items, int64_t numel, torch::Tensor out);
 void w4_swiglu(torch::Tensor part, torch::Tensor local_ids, int64_t splits, torch::Tensor out);
+torch::Tensor w4_finalize(torch::Tensor part, torch::Tensor scores, torch::Tensor norm_w,
+                          torch::Tensor local_ids, double eps);
 std::vector<int64_t> w4_info(int64_t cfg);
 """
 
@@ -732,6 +745,108 @@ __global__ void __launch_bounds__(W * 32) w4_gemm_kernel(
     }
 }
 
+// The post-expert norm and weighted sum over GEMM2's FP32 K-split partials: one block of 512
+// threads per token, 8 channels per thread; dead slots are never read.
+__global__ void __launch_bounds__(512) w4_finalize_kernel(
+        const float* __restrict__ part, int splits, int numel, const float* __restrict__ scores,
+        const __nv_bfloat16* __restrict__ norm_w, const int* __restrict__ local_ids,
+        __nv_bfloat16* __restrict__ out, float eps) {
+    constexpr int kTopK = 8;
+    constexpr int WARPS = 16;
+    __shared__ float red[kTopK][WARPS];
+    __shared__ float scale[kTopK];
+    const int t = blockIdx.x;
+    const int tid = threadIdx.x;
+    const int lane = tid & 31;
+    const int warp = tid >> 5;
+    const int c = tid * 8;
+    float w[8];
+    {
+        const uint4 raw = *reinterpret_cast<const uint4*>(norm_w + c);
+        const __nv_bfloat162* h = reinterpret_cast<const __nv_bfloat162*>(&raw);
+#pragma unroll
+        for (int i = 0; i < 4; ++i) {
+            const float2 f = __bfloat1622float2(h[i]);
+            w[2 * i] = f.x;
+            w[2 * i + 1] = f.y;
+        }
+    }
+    bool live[kTopK];
+    float v[kTopK][8];
+    float ss[kTopK];
+#pragma unroll
+    for (int k = 0; k < kTopK; ++k) {
+        live[k] = local_ids[t * kTopK + k] >= 0;
+        ss[k] = 0.f;
+#pragma unroll
+        for (int j = 0; j < 8; ++j) {
+            v[k][j] = 0.f;
+        }
+        if (live[k]) {
+            for (int z = 0; z < splits; ++z) {
+                const float* row = part + (static_cast<size_t>(z) * numel + t * kTopK + k) * kK + c;
+                const float4 a = *reinterpret_cast<const float4*>(row);
+                const float4 b = *reinterpret_cast<const float4*>(row + 4);
+                v[k][0] += a.x; v[k][1] += a.y; v[k][2] += a.z; v[k][3] += a.w;
+                v[k][4] += b.x; v[k][5] += b.y; v[k][6] += b.z; v[k][7] += b.w;
+            }
+        }
+#pragma unroll
+        for (int j = 0; j < 8; ++j) {
+            v[k][j] *= w[j];
+            ss[k] += v[k][j] * v[k][j];
+        }
+    }
+#pragma unroll
+    for (int k = 0; k < kTopK; ++k) {
+#pragma unroll
+        for (int d = 16; d > 0; d >>= 1) {
+            ss[k] += __shfl_xor_sync(0xffffffffu, ss[k], d);
+        }
+    }
+    if (lane == 0) {
+#pragma unroll
+        for (int k = 0; k < kTopK; ++k) {
+            red[k][warp] = ss[k];
+        }
+    }
+    __syncthreads();
+    if (warp == 0) {
+#pragma unroll
+        for (int k = 0; k < kTopK; ++k) {
+            float s = lane < WARPS ? red[k][lane] : 0.f;
+#pragma unroll
+            for (int d = 16; d > 0; d >>= 1) {
+                s += __shfl_xor_sync(0xffffffffu, s, d);
+            }
+            if (lane == 0) {
+                scale[k] = live[k] ? scores[t * kTopK + k] * rsqrtf(s / kK + eps) : 0.f;
+            }
+        }
+    }
+    __syncthreads();
+    float acc[8];
+#pragma unroll
+    for (int j = 0; j < 8; ++j) {
+        acc[j] = 0.f;
+    }
+#pragma unroll
+    for (int k = 0; k < kTopK; ++k) {
+        const float s = scale[k];
+#pragma unroll
+        for (int j = 0; j < 8; ++j) {
+            acc[j] += s * v[k][j];
+        }
+    }
+    uint4 raw;
+    __nv_bfloat162* h = reinterpret_cast<__nv_bfloat162*>(&raw);
+#pragma unroll
+    for (int i = 0; i < 4; ++i) {
+        h[i] = __floats2bfloat162_rn(acc[2 * i], acc[2 * i + 1]);
+    }
+    *reinterpret_cast<uint4*>(out + static_cast<size_t>(t) * kK + c) = raw;
+}
+
 // Sums the K-split partials of GEMM1 and applies SwiGLU: one block of 512 threads per route,
 // 8 features per thread; routes to other GPUs' experts are skipped.
 __global__ void __launch_bounds__(512) w4_swiglu_kernel(
@@ -804,6 +919,7 @@ std::vector<int64_t> w4_query() {
 }
 
 // w4_compile_check: w4_swiglu_kernel<<<1, 512>>>(nullptr, nullptr, 0, 1, nullptr);
+// w4_compile_check: w4_finalize_kernel<<<1, 512>>>(nullptr, 1, 8, nullptr, nullptr, nullptr, nullptr, 0.f);
 //@W4_COMPILE_CHECKS@
 }  // namespace
 
@@ -833,6 +949,21 @@ std::vector<int64_t> w4_info(int64_t cfg) {
         default: TORCH_CHECK(false, "bad w4 config");
     }
     return {};
+}
+
+torch::Tensor w4_finalize(torch::Tensor part, torch::Tensor scores, torch::Tensor norm_w,
+                          torch::Tensor local_ids, double eps) {
+    const int splits = part.size(0);
+    const int numel = part.size(1);
+    const int m = numel / 8;
+    auto out = torch::empty({m, kK}, norm_w.options());
+    w4_finalize_kernel<<<m, 512, 0, at::cuda::getCurrentCUDAStream()>>>(
+        part.data_ptr<float>(), splits, numel, scores.data_ptr<float>(),
+        reinterpret_cast<const __nv_bfloat16*>(norm_w.data_ptr<at::BFloat16>()),
+        local_ids.data_ptr<int>(), reinterpret_cast<__nv_bfloat16*>(out.data_ptr<at::BFloat16>()),
+        static_cast<float>(eps));
+    C10_CUDA_KERNEL_LAUNCH_CHECK();
+    return out;
 }
 
 void w4_swiglu(torch::Tensor part, torch::Tensor local_ids, int64_t splits, torch::Tensor out) {
@@ -870,7 +1001,7 @@ def _w4_ext():
             name="okc_moe_w4",
             cpp_sources=_W4_CPP_SRC,
             cuda_sources=_w4_source(),
-            functions=["w4_gemm", "w4_swiglu", "w4_info"],
+            functions=["w4_gemm", "w4_swiglu", "w4_info", "w4_finalize"],
             extra_cuda_cflags=["-O3", "-gencode=arch=compute_90a,code=sm_90a"],
         )
     return _W4_EXT
@@ -1048,14 +1179,18 @@ def _forward(data, state, opts):
         else:
             max_padded = numel + (N_EXPERTS + 1) * (block_size_m - 1)
         max_padded = (max_padded + 3) // 4 * 4
-        g1 = opts.get("g1")
+        g1, g2 = opts.get("g1"), opts.get("g2")
         if g1 is not None and not (state.get("w4_ok") and _w4_fits(g1, num_tokens)):
             g1 = None
-        item_rows = 8 * W4_CONFIGS[g1][1] if g1 is not None else 0
-        sorted_ids, block_experts, n_padded, local_ids, items, num_items = _ext().route_align(
-            topk_ids, start, count, block_size_m, max_padded, item_rows)
+        if g2 is not None and not (state.get("w4_ok") and _w4_fits(g2, num_tokens)):
+            g2 = None
+        rows1 = 8 * W4_CONFIGS[g1][1] if g1 is not None else 0
+        rows2 = 8 * W4_CONFIGS[g2][1] if g2 is not None else 0
+        (sorted_ids, block_experts, n_padded, local_ids, items, num_items, items2,
+         num_items2) = _ext().route_align(topk_ids, start, count, block_size_m, max_padded,
+                                          rows1, rows2)
     else:
-        g1 = None
+        g1 = g2 = None
         local_ids = topk_ids
         if expert_map is not None:
             local_ids = expert_map[local_ids]
@@ -1080,6 +1215,10 @@ def _forward(data, state, opts):
             size_m=num_tokens, size_n=gemm1_n, size_k=size_k, **common)
         silu_and_mul(cache1.view(-1, gemm1_n), cache2, expert_ids=local_ids.view(-1),
                      expert_step=1)
+    if g2 is not None:
+        part = _w4_gemm2(state["w4"], g2, cache2, sorted_ids, items2, num_items2, numel)
+        return _w4_ext().w4_finalize(part, topk_weights, state["norm_w"], local_ids.view(-1),
+                                     POST_NORM_EPS)
     y = moe_wna16_marlin_gemm(
         cache2, cache3, bank["w2"], None, bank["w2_s"], bank["w2_gs"], None, None, None, ws,
         sorted_ids, block_experts, n_padded, topk_weights, top_k=1,
@@ -1104,6 +1243,15 @@ def _w4_gemm1(w4, cfg, x, sorted_ids, items, num_items, local_ids, numel, inter)
     ext.w4_gemm(cfg, x, w4["w13"], w4["w13_s"], w4["w13_gs"], sorted_ids, items, num_items,
                 numel, part)
     ext.w4_swiglu(part, local_ids.view(-1), splits, inter)
+
+
+def _w4_gemm2(w4, cfg, inter, sorted_ids, items, num_items, numel):
+    """FP32 K-split partials [splits, routes, 4096] of inter[route] @ W2[expert]^T."""
+    splits = W4_CONFIGS[cfg][3]
+    part = torch.empty((splits, numel, 4096), device=inter.device, dtype=torch.float32)
+    _w4_ext().w4_gemm(cfg, inter, w4["w2"], w4["w2_s"], w4["w2_gs"], sorted_ids, items,
+                      num_items, numel, part)
+    return part
 
 
 def kernel_fn(data, state):
@@ -1190,27 +1338,31 @@ def _ref_forward(data, weights):
     return out
 
 
-def _w4_self_test(state, weights):
-    """The W4 GEMM1 path against the Marlin one and against FP32, at every size it serves."""
+# The judge allows 1.5e-2 relative L2 against FP32; Marlin's path measured 5.2e-3 to 5.5e-3 on
+# the self-test inputs (check 5dea75d7c668473b), ours 3.7e-3 to 3.8e-3.
+W4_TEST_TOL = 8e-3
+
+
+def _w4_self_test(state, weights, extra=()):
+    """Each W4 config the policy uses (and any in extra) against FP32, at the judge's test
+    sizes; the Marlin path's error is printed beside it."""
     worst = 0.0
-    for bs in (1, 4, 8, 16, 32, 33):
+    for bs in (1, 4, 8, 16, 32, 33, 128, 257):
         for dist in ("normal", "skewed"):
             data = _make_inputs(bs, 200 + bs, dist)
+            ref = _ref_forward(data, weights)
             opts = _opts_for(bs)
-            base = _forward(data, state, dict(opts, g1=None))
-            out = _forward(data, state, opts)
-            if not torch.isfinite(out).all():
-                print(f"W4TEST bs={bs} {dist}: non-finite")
-                return False
-            diff = _rel(out, base)
-            worst = max(worst, diff)
-            if bs in (1, 8, 32):
-                ref = _ref_forward(data, weights)
-                print(f"W4TEST bs={bs} {dist}: vs marlin path {diff:.2e}; vs fp32: ours "
-                      f"{_rel(out, ref):.2e}, marlin path {_rel(base, ref):.2e}")
+            base = _rel(_forward(data, state, dict(opts, g1=None, g2=None)), ref)
+            variants = [("policy", opts)] + [(f"g2={c}", dict(opts, g2=c)) for c in extra
+                                             if _w4_fits(c, bs)]
+            for name, o in variants:
+                out = _forward(data, state, o)
+                err = _rel(out, ref) if torch.isfinite(out).all() else float("inf")
+                worst = max(worst, err)
+                print(f"W4TEST bs={bs} {dist} {name}: vs fp32 {err:.2e} (marlin path {base:.2e})")
     torch.cuda.synchronize()
-    print(f"W4TEST worst rel diff vs marlin path {worst:.2e}")
-    return worst < 5e-3
+    print(f"W4TEST worst rel err vs fp32 {worst:.2e}")
+    return worst < W4_TEST_TOL
 
 
 def prepare(weights):
@@ -1362,8 +1514,8 @@ def _split_bench(state, flush, base):
             max_padded = (max_padded + 3) // 4 * 4
             topk_ids = ids.to(torch.int32).contiguous()
             tw = data["topk_weights"].float().contiguous()
-            sorted_ids, block_experts, n_padded, local_ids, _, _ = _ext().route_align(
-                topk_ids, 0, 32, bsm, max_padded, 0)
+            sorted_ids, block_experts, n_padded, local_ids = _ext().route_align(
+                topk_ids, 0, 32, bsm, max_padded, 0, 0)[:4]
             padded_rows = int(n_padded[0])
             x = data["hidden_states"].contiguous()
             cache1 = torch.empty((numel, 2 * size_n), device="cuda", dtype=torch.bfloat16)
@@ -1436,8 +1588,8 @@ def _w4_bench(state, flush, base, sizes=(1, 16, 32, 8, 128, 256), seeds=(11, 12)
             topk_ids = ids.to(torch.int32).contiguous()
             tw = data["topk_weights"].float().contiguous()
             x = data["hidden_states"].contiguous()
-            sorted_ids, block_experts, n_padded, local_ids, _, _ = _ext().route_align(
-                topk_ids, 0, 32, bsm, max_padded, 0)
+            sorted_ids, block_experts, n_padded, local_ids = _ext().route_align(
+                topk_ids, 0, 32, bsm, max_padded, 0, 0)[:4]
             cache1 = torch.empty((numel, 2 * size_n), device="cuda", dtype=torch.bfloat16)
             cache2 = torch.empty((numel, size_n), device="cuda", dtype=torch.bfloat16)
             common = dict(moe_block_size=bsm, mul_topk_weights=False, is_ep=True,
@@ -1460,10 +1612,10 @@ def _w4_bench(state, flush, base, sizes=(1, 16, 32, 8, 128, 256), seeds=(11, 12)
             live = local_ids.view(-1) >= 0
             results = []
             for i, cfg in enumerate(W4_CONFIGS):
-                if not _w4_fits(i, bs):
+                if cfg[0] != 1 or not _w4_fits(i, bs):
                     continue
                 sids, _, _, lids, items, nitems = _ext().route_align(
-                    topk_ids, 0, 32, bsm, max_padded, 8 * cfg[1])
+                    topk_ids, 0, 32, bsm, max_padded, 8 * cfg[1], 0)[:6]
                 inter = torch.zeros((numel, size_n), device="cuda", dtype=torch.bfloat16)
 
                 def run():
@@ -1475,11 +1627,54 @@ def _w4_bench(state, flush, base, sizes=(1, 16, 32, 8, 128, 256), seeds=(11, 12)
                 print(f"W4BENCH   cfg {i:2d} {cfg} {t:6.1f}us ({b1 / t / 1e6:4.2f}TB/s) "
                       f"x{tm / t:4.2f} vs marlin  rel diff {err:.1e}")
             best = min(results)
-            tcur = _graph_time(lambda: _forward(data, state, dict(opts, g1=None)), flush) - base
+
+            # GEMM2 + finalizer on Marlin's intermediate: Marlin GEMM2 and the bf16 finalizer
+            # against each W4 GEMM2 config and the FP32-partials finalizer.
+            cache3 = torch.empty((numel, 4096), device="cuda", dtype=torch.bfloat16)
+
+            def marlin2():
+                moe_wna16_marlin_gemm(
+                    ref_inter, cache3, bank["w2"], None, bank["w2_s"], bank["w2_gs"], None, None,
+                    None, ws, sorted_ids, block_experts, n_padded, tw, top_k=1,
+                    size_m=numel, size_n=4096, size_k=size_n, **common)
+                return _ext().finalize(cache3.view(bs, TOP_K, 4096), tw, state["norm_w"],
+                                       local_ids.view(bs, TOP_K), 0, POST_NORM_EPS)
+
+            b2 = active * _W2_EXPERT_BYTES
+            tm2 = _graph_time(marlin2, flush) - base
+            ref_out = marlin2()
+            print(f"W4BENCH2 bs={bs:3d} seed={seed} floor@4.8={b2 / 4.8e6:5.1f} "
+                  f"marlin2+fin={tm2:6.1f}us({b2 / tm2 / 1e6:4.2f}TB/s)")
+            results2 = []
+            for i, cfg in enumerate(W4_CONFIGS):
+                if cfg[0] != 2 or not _w4_fits(i, bs):
+                    continue
+                sids, _, _, lids, items, nitems = _ext().route_align(
+                    topk_ids, 0, 32, bsm, max_padded, 8 * cfg[1], 0)[:6]
+                outs = []
+
+                def run2():
+                    part = _w4_gemm2(w4, i, ref_inter, sids, items, nitems, numel)
+                    outs.append(_w4_ext().w4_finalize(part, tw, state["norm_w"], lids.view(-1),
+                                                      POST_NORM_EPS))
+
+                t = _graph_time(run2, flush) - base
+                run2()
+                err = _rel(outs[-1], ref_out)
+                results2.append((t, i))
+                print(f"W4BENCH2   cfg {i:2d} {cfg} {t:6.1f}us ({b2 / t / 1e6:4.2f}TB/s) "
+                      f"x{tm2 / t:4.2f} vs marlin  rel diff {err:.1e}")
+            best2 = min(results2)
+            tcur = _graph_time(lambda: _forward(data, state, dict(opts, g1=None, g2=None)),
+                               flush) - base
             tpol = _graph_time(lambda: _forward(data, state, opts), flush) - base
-            tbest = _graph_time(lambda: _forward(data, state, dict(opts, g1=best[1])), flush) - base
-            print(f"W4BENCH   full forward: marlin g1 {tcur:6.1f}us, policy g1={opts['g1']} "
-                  f"{tpol:6.1f}us, best cfg {best[1]} {tbest:6.1f}us")
+            both = dict(opts, g1=best[1], g2=best2[1])
+            tbest = _graph_time(lambda: _forward(data, state, both), flush) - base
+            ref = _ref_forward(data, state["_weights"]) if "_weights" in state else None
+            err = _rel(_forward(data, state, both), ref) if ref is not None else float("nan")
+            print(f"W4BENCH   full forward: marlin both {tcur:6.1f}us, policy g1={opts['g1']} "
+                  f"g2={opts['g2']} {tpol:6.1f}us, best g1={best[1]} g2={best2[1]} "
+                  f"{tbest:6.1f}us (rel err vs fp32 {err:.2e})")
 
 
 BENCH_PARTS = ("w4",)
@@ -1506,10 +1701,12 @@ def prepare(weights):
     state = _prepare_without_bench(weights)
     print(f"PREP base {time.time() - t0:.1f} s")
     try:
+        state["_weights"] = weights
         _run_bench(state)
     except Exception as exc:
         import traceback
         traceback.print_exc()
         print(f"BENCH failed: {type(exc).__name__}: {exc}")
+    state.pop("_weights", None)
     print(f"PREP total {time.time() - t0:.1f} s")
     return state

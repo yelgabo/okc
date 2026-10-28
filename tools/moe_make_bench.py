@@ -137,8 +137,8 @@ def _split_bench(state, flush, base):
             max_padded = (max_padded + 3) // 4 * 4
             topk_ids = ids.to(torch.int32).contiguous()
             tw = data["topk_weights"].float().contiguous()
-            sorted_ids, block_experts, n_padded, local_ids, _, _ = _ext().route_align(
-                topk_ids, 0, 32, bsm, max_padded, 0)
+            sorted_ids, block_experts, n_padded, local_ids = _ext().route_align(
+                topk_ids, 0, 32, bsm, max_padded, 0, 0)[:4]
             padded_rows = int(n_padded[0])
             x = data["hidden_states"].contiguous()
             cache1 = torch.empty((numel, 2 * size_n), device="cuda", dtype=torch.bfloat16)
@@ -211,8 +211,8 @@ def _w4_bench(state, flush, base, sizes=(1, 16, 32, 8, 128, 256), seeds=(11, 12)
             topk_ids = ids.to(torch.int32).contiguous()
             tw = data["topk_weights"].float().contiguous()
             x = data["hidden_states"].contiguous()
-            sorted_ids, block_experts, n_padded, local_ids, _, _ = _ext().route_align(
-                topk_ids, 0, 32, bsm, max_padded, 0)
+            sorted_ids, block_experts, n_padded, local_ids = _ext().route_align(
+                topk_ids, 0, 32, bsm, max_padded, 0, 0)[:4]
             cache1 = torch.empty((numel, 2 * size_n), device="cuda", dtype=torch.bfloat16)
             cache2 = torch.empty((numel, size_n), device="cuda", dtype=torch.bfloat16)
             common = dict(moe_block_size=bsm, mul_topk_weights=False, is_ep=True,
@@ -235,10 +235,10 @@ def _w4_bench(state, flush, base, sizes=(1, 16, 32, 8, 128, 256), seeds=(11, 12)
             live = local_ids.view(-1) >= 0
             results = []
             for i, cfg in enumerate(W4_CONFIGS):
-                if not _w4_fits(i, bs):
+                if cfg[0] != 1 or not _w4_fits(i, bs):
                     continue
                 sids, _, _, lids, items, nitems = _ext().route_align(
-                    topk_ids, 0, 32, bsm, max_padded, 8 * cfg[1])
+                    topk_ids, 0, 32, bsm, max_padded, 8 * cfg[1], 0)[:6]
                 inter = torch.zeros((numel, size_n), device="cuda", dtype=torch.bfloat16)
 
                 def run():
@@ -250,11 +250,54 @@ def _w4_bench(state, flush, base, sizes=(1, 16, 32, 8, 128, 256), seeds=(11, 12)
                 print(f"W4BENCH   cfg {i:2d} {cfg} {t:6.1f}us ({b1 / t / 1e6:4.2f}TB/s) "
                       f"x{tm / t:4.2f} vs marlin  rel diff {err:.1e}")
             best = min(results)
-            tcur = _graph_time(lambda: _forward(data, state, dict(opts, g1=None)), flush) - base
+
+            # GEMM2 + finalizer on Marlin's intermediate: Marlin GEMM2 and the bf16 finalizer
+            # against each W4 GEMM2 config and the FP32-partials finalizer.
+            cache3 = torch.empty((numel, 4096), device="cuda", dtype=torch.bfloat16)
+
+            def marlin2():
+                moe_wna16_marlin_gemm(
+                    ref_inter, cache3, bank["w2"], None, bank["w2_s"], bank["w2_gs"], None, None,
+                    None, ws, sorted_ids, block_experts, n_padded, tw, top_k=1,
+                    size_m=numel, size_n=4096, size_k=size_n, **common)
+                return _ext().finalize(cache3.view(bs, TOP_K, 4096), tw, state["norm_w"],
+                                       local_ids.view(bs, TOP_K), 0, POST_NORM_EPS)
+
+            b2 = active * _W2_EXPERT_BYTES
+            tm2 = _graph_time(marlin2, flush) - base
+            ref_out = marlin2()
+            print(f"W4BENCH2 bs={bs:3d} seed={seed} floor@4.8={b2 / 4.8e6:5.1f} "
+                  f"marlin2+fin={tm2:6.1f}us({b2 / tm2 / 1e6:4.2f}TB/s)")
+            results2 = []
+            for i, cfg in enumerate(W4_CONFIGS):
+                if cfg[0] != 2 or not _w4_fits(i, bs):
+                    continue
+                sids, _, _, lids, items, nitems = _ext().route_align(
+                    topk_ids, 0, 32, bsm, max_padded, 8 * cfg[1], 0)[:6]
+                outs = []
+
+                def run2():
+                    part = _w4_gemm2(w4, i, ref_inter, sids, items, nitems, numel)
+                    outs.append(_w4_ext().w4_finalize(part, tw, state["norm_w"], lids.view(-1),
+                                                      POST_NORM_EPS))
+
+                t = _graph_time(run2, flush) - base
+                run2()
+                err = _rel(outs[-1], ref_out)
+                results2.append((t, i))
+                print(f"W4BENCH2   cfg {i:2d} {cfg} {t:6.1f}us ({b2 / t / 1e6:4.2f}TB/s) "
+                      f"x{tm2 / t:4.2f} vs marlin  rel diff {err:.1e}")
+            best2 = min(results2)
+            tcur = _graph_time(lambda: _forward(data, state, dict(opts, g1=None, g2=None)),
+                               flush) - base
             tpol = _graph_time(lambda: _forward(data, state, opts), flush) - base
-            tbest = _graph_time(lambda: _forward(data, state, dict(opts, g1=best[1])), flush) - base
-            print(f"W4BENCH   full forward: marlin g1 {tcur:6.1f}us, policy g1={opts['g1']} "
-                  f"{tpol:6.1f}us, best cfg {best[1]} {tbest:6.1f}us")
+            both = dict(opts, g1=best[1], g2=best2[1])
+            tbest = _graph_time(lambda: _forward(data, state, both), flush) - base
+            ref = _ref_forward(data, state["_weights"]) if "_weights" in state else None
+            err = _rel(_forward(data, state, both), ref) if ref is not None else float("nan")
+            print(f"W4BENCH   full forward: marlin both {tcur:6.1f}us, policy g1={opts['g1']} "
+                  f"g2={opts['g2']} {tpol:6.1f}us, best g1={best[1]} g2={best2[1]} "
+                  f"{tbest:6.1f}us (rel err vs fp32 {err:.2e})")
 
 
 BENCH_PARTS = ("w4",)
@@ -281,11 +324,13 @@ def prepare(weights):
     state = _prepare_without_bench(weights)
     print(f"PREP base {time.time() - t0:.1f} s")
     try:
+        state["_weights"] = weights
         _run_bench(state)
     except Exception as exc:
         import traceback
         traceback.print_exc()
         print(f"BENCH failed: {type(exc).__name__}: {exc}")
+    state.pop("_weights", None)
     print(f"PREP total {time.time() - t0:.1f} s")
     return state
 '''
