@@ -59,8 +59,24 @@ def main():
     mod._legacy_w4_ext = lambda: None
     mod._legacy_prepare = lambda *a: None
     mod._repack = lambda *a: {k: torch.zeros(1) for k in ("w13", "w2", "w13_gs", "w2_gs", "w13f", "w2f")}
-    mod._scratch = lambda dev: {k: torch.zeros(16, dtype=torch.int32) for k in (
-        "inter", "ybuf", "ss", "ctr", "done_a", "xa", "xb", "fix", "fixcnt", "xready", "done_as")}
+    def scratch(dev):
+        sc = {k: torch.zeros(16, dtype=torch.int32) for k in (
+            "ybuf", "ss", "ctr", "done_a", "xa", "xb", "fix", "fixcnt", "xready", "done_as")}
+        # Mode 11's stamps as the kernel would leave them: 1.8 GHz, 200 us per CTA.
+        dg = torch.randint(0, 100000, (132, 18, 8), dtype=torch.int64)
+        dg[:, 16, 3:8] = torch.tensor([0, 10_000, 180_000, 190_000, 200_000])
+        dg[:, 17, 3] = 0
+        dg[:, 17, 4] = 360_000
+        sc["inter"] = torch.zeros(4096 * 4096, dtype=torch.bfloat16)
+        sc["inter"].view(torch.int64)[: dg.numel()] = dg.flatten()
+        return sc
+
+    mod._scratch = scratch
+
+    class Props:
+        multi_processor_count = 132
+
+    torch.cuda.get_device_properties = lambda i: Props()
     legacy_calls = []
 
     def run_legacy(data, state, pol):

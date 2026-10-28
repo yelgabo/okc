@@ -392,12 +392,25 @@ __constant__ int kCostBm[9] = {0, 85, 92, 104, 115, 130, 145, 160, 175};
 // (bench 36b5b559b0344d0f: main-d2 197 us at bs32 against 139 loads-only and 150 for the
 // mma.sync skinny kernel).
 __host__ __device__ constexpr int mma_max(int mode) {
-    return mode == 6 || mode == 9 ? 2 : mode == 7 || mode == 10 ? 4 : mode == 8 ? 8 : 0;
+    return mode == 6 || mode == 9 || mode == 11 ? 2 : mode == 7 || mode == 10 ? 4
+           : mode == 8 ? 8 : 0;
+}
+
+// Mode 11 is mode 6 with clock stamps (timing only, never a policy choice): each consumer
+// warp sums its cycles waiting for weights, waiting for x, computing and in the epilogue or
+// fixup over its mma.sync segments; the producers sum their waits; thread 0 records
+// globaltimer and clock64 at the kernel's phase boundaries. S.dg goes to p.inter (unused on
+// the fat path) at the end, 18 x 8 int64 per CTA; _diag_report has the layout.
+constexpr int kDiagMode = 11;
+__device__ __forceinline__ long long gtimer() {
+    long long t;
+    asm volatile("mov.u64 %0, %globaltimer;" : "=l"(t));
+    return t;
 }
 
 template <int MODE>
 __device__ __forceinline__ int stage_cost(int ph, int ntt) {
-    constexpr bool kFlat = MODE >= 8;
+    constexpr bool kFlat = MODE >= 8 && MODE <= 10;
     if (kFlat && ntt <= mma_max(MODE)) {
         return ph ? kCostBm[ntt] : kCostAm[ntt];
     }
@@ -431,6 +444,7 @@ struct __align__(128) SmemMain {
     int gse[2];
     int fix_last[4];
     int cost[2][9];
+    long long dg[18][8];
 };
 
 // Ring positions shared by the consumers and the producers: slot and lap per ring, the lap
@@ -906,10 +920,15 @@ __device__ __forceinline__ void ldsm_x4(unsigned (&r)[4], unsigned addr) {
 // epilogues are shared with the wgmma path. B comes from the x slot by ldmatrix: one x4 covers
 // two k16 steps of one n8 tile (step s's two 8-k core matrices at 256 s and 256 s + 128).
 // Each warp runs on its own; no warpgroup-wide wgmma sync.
-template <int NTT, int PH>
+template <int NTT, int PH, int MODE>
 __device__ __forceinline__ void run_segment_mma(const Params& p, SmemMain& S, float* ss,
                                                 const SegInfo& si, Ring& rg, int G) {
     constexpr int ph = PH;
+    constexpr bool kDiag = MODE == kDiagMode;
+    long long tw = 0;
+    long long tx = 0;
+    long long tc = 0;
+    long long c0 = 0;
     const int tid = threadIdx.x;
     const int lane = tid & 31;
     const int warp = tid >> 5;
@@ -925,7 +944,15 @@ __device__ __forceinline__ void run_segment_mma(const Params& p, SmemMain& S, fl
 #pragma unroll 1
     for (int st = si.st_b; st < si.st_e; ++st) {
         const int ws = rg.ws;
+        if constexpr (kDiag) {
+            c0 = clock64();
+        }
         mbar_wait_to(&S.wfull[ws], rg.wlap & 1, p.ctr, 2);
+        if constexpr (kDiag) {
+            const long long c1 = clock64();
+            tw += c1 - c0;
+            c0 = c1;
+        }
         const unsigned char* wslot = S.rings + ws * kUnitBytes;
         const uint4* cp = reinterpret_cast<const uint4*>(wslot + (wg * 4 + w) * 2048) + lane;
         uint4 cw[4];
@@ -942,7 +969,17 @@ __device__ __forceinline__ void run_segment_mma(const Params& p, SmemMain& S, fl
         }
         ring_next_w(rg, S.nsw);
         const int xs = rg.xs;
+        if constexpr (kDiag) {
+            const long long c1 = clock64();
+            tc += c1 - c0;
+            c0 = c1;
+        }
         mbar_wait_to(&S.xfull[xs], rg.xlap & 1, p.ctr, 8);
+        if constexpr (kDiag) {
+            const long long c1 = clock64();
+            tx += c1 - c0;
+            c0 = c1;
+        }
         const unsigned xbase = __shfl_sync(0xffffffffu,
                                            smem_u32(S.rings + S.xoff + xs * S.xsz), 0) + lrow;
 #pragma unroll
@@ -971,6 +1008,14 @@ __device__ __forceinline__ void run_segment_mma(const Params& p, SmemMain& S, fl
             mbar_arrive(&S.xempty[xs]);
         }
         ring_next_x(rg);
+        if constexpr (kDiag) {
+            // Reading acc makes the stamp wait for this stage's mma chain.
+            const long long c1 = clock64() + (acc[0] == 1e30f ? 1 : 0);
+            tc += c1 - c0;
+        }
+    }
+    if constexpr (kDiag) {
+        c0 = clock64();
     }
     if (si.partial) {
         float fin[32];
@@ -985,6 +1030,17 @@ __device__ __forceinline__ void run_segment_mma(const Params& p, SmemMain& S, fl
         epilogue_a<NTT>(p, S, acc, si.j, si.u, wg, w, tid_wg);
     } else {
         epilogue_b<NTT>(p, S, ss, acc, si.j, si.u, wg, w, tid_wg);
+    }
+    if constexpr (kDiag) {
+        if (lane == 0) {
+            long long* d = S.dg[warp];
+            d[0] += tw;
+            d[1] += tx;
+            d[2] += tc;
+            d[3] += clock64() - c0;
+            d[4] += si.st_e - si.st_b;
+            d[5] += 1;
+        }
     }
 }
 
@@ -1006,7 +1062,7 @@ __device__ __forceinline__ void run_group(const Params& p, SmemMain& S, float* s
         }
         const SegInfo si = seg_info(S, PH, i, cta, G);
         if constexpr (NTT <= mma_max(MODE)) {
-            run_segment_mma<NTT, PH>(p, S, ss, si, rg, G);
+            run_segment_mma<NTT, PH, MODE>(p, S, ss, si, rg, G);
         } else {
             run_segment<NTT, PH, MODE>(p, S, ss, si, acc, rg, xrel, G);
         }
@@ -1037,8 +1093,10 @@ __device__ __forceinline__ void consumers(const Params& p, SmemMain& S, float* s
     consumer_phase<1, MODE>(p, S, ss, acc, rg, xrel, cta, G);
 }
 
+template <int MODE>
 __device__ __forceinline__ void wproducer(const Params& p, SmemMain& S, int cta, int G,
                                           uint64_t pol) {
+    long long twe = 0;
     Ring rg = {0, 0, 0, 0};
     for (int ph = 0; ph < 2; ++ph) {
         const int ns = seg_count(S.gsb[ph], S.gse[ph]);
@@ -1060,7 +1118,11 @@ __device__ __forceinline__ void wproducer(const Params& p, SmemMain& S, int cta,
             for (int st = gb & 15; st < st_e; ++st) {
                 const int ws = rg.ws;
                 if (rg.wlap > 0) {
+                    const long long c0 = MODE == kDiagMode ? clock64() : 0;
                     mbar_wait_to(&S.wempty[ws], (rg.wlap - 1) & 1, p.ctr, 16);
+                    if (MODE == kDiagMode) {
+                        twe += clock64() - c0;
+                    }
                 }
                 mbar_expect_tx(&S.wfull[ws], kUnitBytes);
                 bulk_load(S.rings + ws * kUnitBytes, base + static_cast<size_t>(st) * kUnitBytes,
@@ -1070,6 +1132,9 @@ __device__ __forceinline__ void wproducer(const Params& p, SmemMain& S, int cta,
         }
         }
     }
+    if (MODE == kDiagMode) {
+        S.dg[16][0] = twe;
+    }
 }
 
 // Phase A stages come from the gathered x rows once the job's rows are all in; phase B
@@ -1077,6 +1142,9 @@ __device__ __forceinline__ void wproducer(const Params& p, SmemMain& S, int cta,
 template <int MODE>
 __device__ __forceinline__ void xproducer(const Params& p, SmemMain& S, int cta, int G) {
     Ring rg = {0, 0, 0, 0};
+    long long txe = 0;
+    long long tda = 0;
+    long long txr = 0;
     for (int ph = 0; ph < 2; ++ph) {
         const int ns = seg_count(S.gsb[ph], S.gse[ph]);
         for (int ntt = 1; ntt <= 8; ++ntt) {
@@ -1088,20 +1156,36 @@ __device__ __forceinline__ void xproducer(const Params& p, SmemMain& S, int cta,
             if (S.job_ntt[j] != ntt) {
                 continue;
             }
+            constexpr bool kDiag = MODE == kDiagMode;
             const unsigned bytes = ntt * 4096;
             const unsigned char* base = (ph ? p.xb : p.xa)
                                         + static_cast<size_t>(S.job_xo[j]) * 65536;
+            long long c0 = kDiag ? clock64() : 0;
             if (ph == 0 && MODE != 1 && MODE != 4) {
                 spin_ge(p.xready + j, S.job_n[j], p.ctr, 32);
+            }
+            if (kDiag) {
+                txr += clock64() - c0;
             }
             const int st_e = ((ge - 1) & 15) + 1;
             for (int st = gb & 15; st < st_e; ++st) {
                 const int xs = rg.xs;
+                if (kDiag) {
+                    c0 = clock64();
+                }
                 if (rg.xlap > 0) {
                     mbar_wait_to(&S.xempty[xs], (rg.xlap - 1) & 1, p.ctr, 64);
                 }
+                if (kDiag) {
+                    const long long c1 = clock64();
+                    txe += c1 - c0;
+                    c0 = c1;
+                }
                 if (ph == 1 && MODE != 1 && MODE != 4) {
                     spin_ge(p.done_as + j * 16 + st, 8, p.ctr, 128);
+                }
+                if (kDiag) {
+                    tda += clock64() - c0;
                 }
                 mbar_expect_tx(&S.xfull[xs], bytes);
                 bulk_load_plain(S.rings + S.xoff + xs * S.xsz,
@@ -1110,6 +1194,11 @@ __device__ __forceinline__ void xproducer(const Params& p, SmemMain& S, int cta,
             }
         }
         }
+    }
+    if (MODE == kDiagMode) {
+        S.dg[17][0] = txe;
+        S.dg[17][1] = tda;
+        S.dg[17][2] = txr;
     }
 }
 
@@ -1124,6 +1213,16 @@ __global__ void __launch_bounds__(kNTM, 1) moe_main_kernel(const Params p) {
     const int cta = blockIdx.x;
     const int E = p.M * kTopK;
     asm volatile("griddepcontrol.wait;" ::: "memory");
+    constexpr bool kDiag = MODE == kDiagMode;
+    long long dt[5] = {0, 0, 0, 0, 0};
+    long long dc0 = 0;
+    if constexpr (kDiag) {
+        dt[0] = gtimer();
+        dc0 = clock64();
+        if (tid < 18 * 8) {
+            (&S.dg[0][0])[tid] = 0;
+        }
+    }
     const int gen = *reinterpret_cast<volatile int*>(p.ctr + 3);
     float* ss = p.ss + (gen & 1) * kEmax;
     const uint64_t pol = policy_evict_first();
@@ -1277,16 +1376,22 @@ __global__ void __launch_bounds__(kNTM, 1) moe_main_kernel(const Params p) {
         }
     }
 
+    if constexpr (kDiag) {
+        dt[1] = gtimer();
+    }
     if (warp < kNC) {
         consumers<MODE>(p, S, ss, cta, G);
     } else if (warp == kNC) {
         if (lane == 0) {
-            wproducer(p, S, cta, G, pol);
+            wproducer<MODE>(p, S, cta, G, pol);
         }
     } else if (lane == 0) {
         xproducer<MODE>(p, S, cta, G);
     }
     __syncthreads();
+    if constexpr (kDiag) {
+        dt[2] = gtimer();
+    }
 
     if (tid == 0) {
         int* bc = p.ctr + 4 + (gen & 1);
@@ -1306,6 +1411,9 @@ __global__ void __launch_bounds__(kNTM, 1) moe_main_kernel(const Params p) {
         }
     }
     __syncthreads();
+    if constexpr (kDiag) {
+        dt[3] = gtimer();
+    }
     for (int i = cta * kNTM + tid; i < kJmaxM * 16; i += G * kNTM) {
         p.done_as[i] = 0;
     }
@@ -1317,6 +1425,22 @@ __global__ void __launch_bounds__(kNTM, 1) moe_main_kernel(const Params p) {
     }
     if (warp < kNC) {
         final_pass<kNC * 32>(p, S.pos, ss, cta, G);
+    }
+    if constexpr (kDiag) {
+        __syncthreads();
+        if (tid == 0) {
+            dt[4] = gtimer();
+            for (int i = 0; i < 5; ++i) {
+                S.dg[16][3 + i] = dt[i];
+            }
+            S.dg[17][3] = dc0;
+            S.dg[17][4] = clock64();
+        }
+        __syncthreads();
+        long long* out = reinterpret_cast<long long*>(p.inter) + cta * 18 * 8;
+        if (tid < 18 * 8) {
+            out[tid] = (&S.dg[0][0])[tid];
+        }
     }
 }
 
@@ -1894,11 +2018,11 @@ __device__ __forceinline__ void a_pin(unsigned (&a)[2][4]) {{
 SKINNY_VARIANTS = ((8, 4, 0), (16, 4, 0), (8, 4, 1))
 # 0: depth-2 wgmma pipeline; 6 and 7: jobs of up to 2 or 4 n8 tiles on mma.sync, the rest on
 # wgmma, mode 0's stage costs; 9 and 10: the same with the flatter mma.sync stage costs; 8:
-# every job on mma.sync, flatter costs. Timing-only diagnostic 1 streams the weights only (the
-# ring's ceiling). Also in the source, not built: 2 dequantizes without wgmma, 3 runs wgmma on
+# every job on mma.sync, flatter costs. Timing-only diagnostics: 1 streams the weights only
+# (the ring's ceiling), 11 is mode 6 with clock stamps (_diag_report). Also in the source, not built: 2 dequantizes without wgmma, 3 runs wgmma on
 # the raw words (run 36b5b559b0344d0f has their numbers), depth 3 (mode 5) and no readiness
 # waits (mode 4), which run bab82f5f5b974594 showed do not move the fat path.
-MAIN_MODES = (0, 1, 6, 7, 8, 9, 10)
+MAIN_MODES = (0, 1, 6, 7, 8, 9, 10, 11)
 MAIN_CANDIDATES = (0, 6, 7, 8, 9, 10)
 VARIANT_MAIN0 = len(SKINNY_VARIANTS)
 
@@ -3511,6 +3635,49 @@ def _bench(state, main_ok, seeds=(11, 12)):
     return policy
 
 
+def _diag_report(state, bs, seed=11):
+    """One cold-L2 launch of mode 11 on the bench's routing; prints where the time went. Per
+    CTA, S.dg (int64 [18][8]) lands in scratch `inter`: rows 0-15 per consumer warp (cycles
+    waiting for weights, waiting for x, computing, epilogue or fixup; stages; segments; mma.sync
+    segments only), row 16 [0] the weights producer's cycles waiting for a free slot, [3..7]
+    globaltimer at start, consumers start, consumers done, barrier done, end; row 17 [0..2] the
+    x producer's cycles waiting for a free slot, for done_as, for xready, [3..4] clock64 at
+    start and end."""
+    v = VARIANT_MAIN0 + MAIN_MODES.index(11)
+    flush = torch.empty(256 << 20, dtype=torch.uint8, device="cuda")
+    data = _make_inputs(bs, 977 * seed + bs)
+    inter = state["scratch"]["inter"]
+    _run(data, state, v)
+    flush.zero_()
+    torch.cuda.synchronize()
+    _run(data, state, v)
+    torch.cuda.synchronize()
+    g = torch.cuda.get_device_properties(0).multi_processor_count
+    d = inter.view(torch.int64)[: g * 144].view(g, 18, 8).double().cpu()
+    ghz = (d[:, 17, 4] - d[:, 17, 3]) / (d[:, 16, 7] - d[:, 16, 3])
+    cyc_us = (ghz * 1e3).unsqueeze(1)
+    cw = d[:, :16, :4] / cyc_us.unsqueeze(2)
+    t = d[:, 16, 3:8]
+    t0 = float(t[:, 0].min())
+    stages = d[:, :16, 4].mean(1)
+
+    def mm(x):
+        return f"{float(x.mean()):.1f}/{float(x.max()):.1f}"
+
+    print(f"DIAG bs={bs} clock {float(ghz.mean()):.2f} GHz; per CTA mean/max us: "
+          f"route+gather {mm((t[:, 1] - t[:, 0]) / 1e3)}, consumers {mm((t[:, 2] - t[:, 1]) / 1e3)}, "
+          f"barrier wait {mm((t[:, 3] - t[:, 2]) / 1e3)}, final {mm((t[:, 4] - t[:, 3]) / 1e3)}; "
+          f"consumers done at {mm((t[:, 2] - t0) / 1e3)} after the first start, "
+          f"end {mm((t[:, 4] - t0) / 1e3)}")
+    print(f"DIAG bs={bs} mma.sync segments per warp mean/max us: wait weights "
+          f"{mm(cw[:, :, 0].mean(1))}, wait x {mm(cw[:, :, 1].mean(1))}, compute "
+          f"{mm(cw[:, :, 2].mean(1))}, epilogue+fixup {mm(cw[:, :, 3].mean(1))}; stages "
+          f"{mm(stages)}, segments {mm(d[:, :16, 5].mean(1))}")
+    print(f"DIAG bs={bs} producers mean/max us: weights wait for a free slot "
+          f"{mm(d[:, 16, 0] / cyc_us[:, 0])}, x wait for a free slot {mm(d[:, 17, 0] / cyc_us[:, 0])}, "
+          f"x wait done_as {mm(d[:, 17, 1] / cyc_us[:, 0])}, x wait xready {mm(d[:, 17, 2] / cyc_us[:, 0])}")
+
+
 def _vname(v):
     if v >= VARIANT_LEGACY0:
         return f"legacy{(32, 128, 256)[v - VARIANT_LEGACY0]}"
@@ -3518,7 +3685,7 @@ def _vname(v):
         m = MAIN_MODES[v - VARIANT_MAIN0]
         return {0: "main-d2", 5: "main-d3", 1: "main-loads", 4: "main-nogate", 2: "main-nowgmma",
                 3: "main-nodequant", 6: "main-m2", 7: "main-m4", 8: "main-m8f", 9: "main-m2f",
-                10: "main-m4f"}[m]
+                10: "main-m4f", 11: "main-m2-stamps"}[m]
     nw, ns, mode = SKINNY_VARIANTS[v]
     return f"sk{nw}w{ns}s{'-loads' if mode else ''}"
 
@@ -3571,6 +3738,12 @@ def prepare(weights):
         ok = _self_test(state, weights, (32, 33, 128, 257), "fallback", SKINNY_DEFAULT) and ok
     t3 = time.time()
     state["policy"] = _bench(state, main_ok)
+    if main_ok and 11 in MAIN_MODES:
+        for bs in (32, 128, 256):
+            try:
+                _diag_report(state, bs)
+            except Exception as exc:
+                print(f"DIAG bs={bs} failed: {type(exc).__name__}: {exc}")
     t4 = time.time()
     # The chosen variants once more at every test size, on the policy as kernel_fn runs it.
     ok = _self_test(state, weights, (1, 4, 8, 16, 32, 33, 128, 257), "policy") and ok
