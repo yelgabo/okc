@@ -548,19 +548,20 @@ W4_CONFIGS = [
     # Timing only (see MODE in w4_gemm_kernel).
     (1, 1, 8, 4, 4, 4, 1, 0, 0), (1, 1, 8, 4, 4, 4, 3, 0, 0), (1, 1, 8, 4, 4, 4, 4, 0, 0),
     (1, 1, 8, 4, 4, 4, 6, 0, 0), (1, 1, 8, 4, 8, 4, 4, 0, 0),
-    # Benchmarked only (W4_TUNED). Mode 7, layout 1: weights by bulk copy (TMA).
+    # Mode 7, layout 1: weights by bulk copy (TMA).
     (1, 1, 8, 4, 4, 4, 7, 1, 0), (1, 1, 8, 4, 4, 8, 7, 1, 0), (1, 1, 8, 4, 8, 4, 7, 1, 0),
     (1, 1, 8, 2, 8, 4, 7, 1, 0), (1, 1, 8, 2, 4, 8, 7, 1, 0), (1, 2, 16, 4, 4, 8, 7, 1, 0),
     (1, 2, 16, 4, 8, 4, 7, 1, 0), (1, 1, 1, 4, 4, 8, 7, 1, 0),
     (2, 1, 8, 4, 4, 8, 7, 1, 0), (2, 1, 8, 4, 8, 4, 7, 1, 0), (2, 1, 8, 2, 4, 8, 7, 1, 0),
     (2, 2, 16, 4, 4, 8, 7, 1, 0), (2, 2, 16, 4, 8, 4, 7, 1, 0), (2, 1, 1, 4, 4, 8, 7, 1, 0),
-    # Large token tiles (32 or 64 routes per item) for heavily routed experts.
+    # Benchmarked only (W4_TUNED): large token tiles (32 or 64 routes per item) for heavily
+    # routed experts, which lost to the tuned policy on normal routings (check e1619f311d3747e3).
     (1, 4, 32, 4, 4, 4, 0, 0, 0), (1, 8, 64, 4, 8, 4, 0, 0, 0), (1, 4, 32, 2, 8, 4, 0, 0, 0),
     (1, 8, 64, 4, 4, 2, 0, 0, 0),
     (2, 4, 32, 4, 4, 4, 0, 0, 0), (2, 8, 64, 4, 8, 4, 0, 0, 0), (2, 8, 64, 4, 4, 2, 0, 0, 0),
 ]
 # The tuner in prepare() picks among the configs before this one.
-W4_TUNED = W4_CONFIGS.index((1, 1, 8, 4, 4, 4, 7, 1, 0))
+W4_TUNED = W4_CONFIGS.index((1, 4, 32, 4, 4, 4, 0, 0, 0))
 
 _W4_CPP_SRC = r"""
 #include <torch/extension.h>
@@ -1921,9 +1922,9 @@ def _w4_tune(state, seeds=(11, 12)):
                         res["part"] = part
                         _w4_ext().w4_finalize(part, tw, state["norm_w"], lids.view(-1),
                                               POST_NORM_EPS, False, 1)
-                k = cfg[0] - 1 + (0 if cfg[6] in (0, 5) else 2)
+                k = cfg[0] - 1 + (0 if cfg[6] in (0, 5, 7) else 2)
                 tot[k][i] = tot[k].get(i, 0.0) + _graph_time(run, flush)
-                if cfg[6] not in (0, 5):
+                if cfg[6] not in (0, 5, 7):
                     continue
                 run()
                 ref = ref1 if cfg[0] == 1 else ref2
