@@ -831,7 +831,14 @@ attn_one_kernel(const Params p) {
                     pph ^= 1u;
                 }
             }
-            return;
+            // PTX exit, not return: a return branches to the kernel's one ret block, which the
+            // consumers also reach, and ptxas then wraps both roles in a single convergence
+            // region (BSSY before the role branch, BSYNC + EXIT at the end) and caps the
+            // consumer code after setmaxnreg.inc at the launch-bounds count (80 at q_len 8:
+            // 304 bytes of spills). With exit the roles share no block and the consumers get
+            // the 104 registers. No __builtin_unreachable after it: with that hint the shared
+            // block comes back (CUDA 12.8.1). docs/runs-attention.md, 10-29.
+            asm volatile("exit;\n" ::: "memory");
         }
         if constexpr (!SOLO) {
             setmaxnreg_inc<one_cons_regs(L)>();
