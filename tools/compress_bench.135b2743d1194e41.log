@@ -1,0 +1,25 @@
+router kernel: fused
+proj kernel: fused
+compressed decode bit-exact on adversarial sets (escaped tiles): {'window': 0, 'mixed': 45, 'dense': 256, 'sorted': 240, 'shuffled': 256}
+compressed qkv_gate (2304, 8192): 0.7685 of BF16 bytes, base 54, 0.0350 of tiles escaped, decode bit-exact
+compressed o (8192, 1024): 0.7650 of BF16 bytes, base 54, 0.0281 of tiles escaped, decode bit-exact
+compressed pooler (4096, 8192): 0.7685 of BF16 bytes, base 54, 0.0350 of tiles escaped, decode bit-exact
+compressed unpooler (1024, 4096): 0.7639 of BF16 bytes, base 54, 0.0258 of tiles escaped, decode bit-exact
+compressed proj kernel: fused
+router mma kernel: fused
+CBENCH qkv_gate  m=1 cublas  20.7 | proj  18.4 | exc-st4-dft  20.0 ok | exc-st4-dff  20.3 ok | noexc-st4-dft  16.8 -
+CBENCH qkv_gate  m=1 max active clusters (proj, variants): [0, 92, 92, 92]
+CBENCH qkv_gate  m=8 cublas  20.8 | proj  19.0 | exc-st4-dft  20.5 ok | exc-st4-dff  20.8 ok | noexc-st4-dft  17.7 -
+CBENCH qkv_gate  m=8 max active clusters (proj, variants): [0, 92, 92, 92]
+CBENCH o         m=1 cublas  11.6 | proj  11.6 | exc-st4-dft  11.9 ok | exc-st4-dff  12.1 ok | noexc-st4-dft  10.8 -
+CBENCH o         m=1 max active clusters (proj, variants): [0, 198, 198, 198]
+CBENCH o         m=8 cublas  11.6 | proj  12.0 | exc-st4-dft  12.4 ok | exc-st4-dff  12.7 ok | noexc-st4-dft  11.4 -
+CBENCH o         m=8 max active clusters (proj, variants): [0, 198, 198, 198]
+CBENCH pooler    m=1 cublas  29.7 | proj  27.6 | exc-st4-dft  24.2 ok | exc-st4-dff  24.8 ok | noexc-st4-dft  23.1 -
+CBENCH pooler    m=1 max active clusters (proj, variants): [0, 92, 92, 92]
+CBENCH pooler    m=8 cublas  29.9 | proj  28.9 | exc-st4-dft  25.2 ok | exc-st4-dff  25.7 ok | noexc-st4-dft  24.3 -
+CBENCH pooler    m=8 max active clusters (proj, variants): [0, 92, 92, 92]
+CBENCH unpooler  m=1 cublas  11.1 | proj   9.2 | exc-st4-dft  10.3 ok | exc-st4-dff  10.8 ok | noexc-st4-dft   9.6 -
+CBENCH unpooler  m=1 max active clusters (proj, variants): [0, 45, 45, 45]
+CBENCH unpooler  m=8 cublas  11.2 | proj  10.2 | exc-st4-dft  11.4 ok | exc-st4-dff  11.7 ok | noexc-st4-dft  10.8 -
+CBENCH unpooler  m=8 max active clusters (proj, variants): [0, 45, 45, 45]

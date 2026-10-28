@@ -3,6 +3,8 @@
 
 - BF16 layers (qkv_gate, o, pooler, unpooler): one tensor-core kernel that streams weights
   repacked into mma fragment order, replacing cuBLAS's split-K GEMM plus its reduce kernel.
+- The pooler at m <= 8: the same kernel on weights compressed losslessly to about 77% of their
+  BF16 bytes (a 4-bit code for each weight's high byte), decoded to exact BF16 in registers.
 - FP32 router at m <= 8: one CUDA-core kernel that reads the 8 MB weight once, with plain FP32
   FMAs, so the math matches F.linear without TF32. SGLang takes 10 to 26 us here against a
   1.8 us memory floor.
@@ -846,7 +848,9 @@ _PROJ_CPP_SRC = (
 PROJ_LAYERS = ("qkv_gate", "o", "pooler", "unpooler")
 UNPOOL_SLICE = 1024
 CPROJ_MAX_TOKENS = 8
-CPROJ_LAYERS = ("qkv_gate", "o", "pooler", "unpooler")
+# The compressed kernel beat the uncompressed one only on the pooler, at m=1 and m=8, in check
+# runs 4686daf77f2046c9 and 135b2743d1194e41; on qkv_gate, o and unpooler it lost.
+CPROJ_LAYERS = ("pooler",)
 # cproj_kernel's C_RING and pipeline stages (STAGES).
 CPROJ_RING = 12
 CPROJ_STAGES = 4
