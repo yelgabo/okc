@@ -166,6 +166,28 @@ Lessons:
   routing. The final file scored 1.691x (a49578e5c30348bb), overlapping the 1.699x entry. Code
   kept at muse_moe_w4a16/experiments/tma_and_large_tiles.py.
 
+## Prepared for the next checks (not yet run)
+
+Commit after f82a8cf656df4914, local work only (no checks left on 2026-10-28):
+
+- Skinny kernel as per-variant namespaces: `sk8w4s` (the shipped one), `sk16w4s` (16 compute
+  warps, 256 k each, x in 32 registers), `sk8w5s` (5 ring slots, 229 KB smem), and loads-only
+  twins of the first two that stream the units without computing. ptxas: 140 / 96 / 130
+  registers, no spills.
+- Fat kernel: codes repacked as [warpgroup][warp][step quad][lane][4 words] (the first layout
+  gave every lane a 64-byte stride, a 4-way bank conflict on each LDS.128); rings sized at
+  runtime from the launch's largest job (5 weight slots next to 3 x 8 KB x slots when every
+  job is N <= 16, 4 + 3 x 16 KB up to N = 32, 3 + 3 x 32 KB beyond); modes d2 (depth-2 wgmma
+  pipeline, the shipped one), d3 (three A buffers, `wait_group 2`; micro test wg5.cu shows
+  depth 4 trips C7512 at 576 threads), loads-only, and no-gate (no xready / done_as waits,
+  timing only). ptxas: 96 registers each, 136-176 B stack, spills only at segment boundaries,
+  128 `wait_group 1` (d2) or `wait_group 2` (d3) per kernel, no C75xx.
+- The previous kernel's W4 path ported back as `_run_legacy` with its tuned configs at 32,
+  128, 256 (`LEGACY_POLICIES`), a candidate from 16 tokens up.
+- `prepare` self-tests every computing variant, benches all of them per batch size (graph
+  replay, cold L2, two routings) and keeps the fastest as the policy; the BENCH lines carry
+  the loads-only ceilings, which split the fat path's gap into ring versus compute.
+
 ## Ruled out (pending merge into docs/ruled-out.md)
 
 | Experiment | Evidence | Rules out |

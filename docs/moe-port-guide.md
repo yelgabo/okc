@@ -42,7 +42,11 @@ per batch size (graph replay, cold L2, synthetic routings) and keeps the fastest
 `state["policy"]`, keyed by the sizes in `POLICY_BS`; `kernel_fn` looks the variant up by M.
 Without a policy entry, M >= `MAIN_MIN_M` (17) runs the fat kernel when `state["main_ok"]`
 holds (the self-test clears it if the fat path fails), else the split skinny path, which
-handles every size.
+handles every size. The previous kernel (per-warp register-path mma.sync GEMMs, check
+a49578e5c30348bb) is kept as `_run_legacy` with its tuned configs for 32, 128 and 256 tokens
+(`LEGACY_POLICIES`, variant ids from `VARIANT_LEGACY0`); it is a bench candidate from 16
+tokens up and needs its own weight layout (`_legacy_prepare`, 906 MB) and two more
+extensions. Once the fused kernel wins everywhere it can be dropped.
 
 ## Tensors the layer must pass
 

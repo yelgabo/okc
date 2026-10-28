@@ -733,6 +733,7 @@ __device__ __forceinline__ void run_segment(const Params& p, SmemMain& S, float*
                                             const SegInfo& si, float (&acc)[32], Ring& rg,
                                             int& xrel, int G) {
     constexpr int ph = PH;
+    constexpr int DEPTH = MODE == 5 ? 3 : 2;
     const int tid = threadIdx.x;
     const int lane = tid & 31;
     const int warp = tid >> 5;
@@ -740,7 +741,7 @@ __device__ __forceinline__ void run_segment(const Params& p, SmemMain& S, float*
     const int w = warp & 3;
     const int tid_wg = tid & 127;
     const int g = lane >> 2;
-    unsigned af[2][2][4];
+    unsigned af[DEPTH][2][4];
 #pragma unroll
     for (int i = 0; i < 4 * NTT; ++i) {
         acc[i] = 0.f;
@@ -785,7 +786,7 @@ __device__ __forceinline__ void run_segment(const Params& p, SmemMain& S, float*
         }
 #pragma unroll
         for (int s = 0; s < 16; s += 2) {
-            const int b = (s >> 1) & 1;
+            const int b = (s >> 1) % DEPTH;
             {
                 const unsigned scw = word(sc[s >> 3], (s >> 1) & 3);
                 dequant(word(cw[s >> 2], s & 3), scale_word(scw, 2 * (s & 1)),
@@ -799,9 +800,11 @@ __device__ __forceinline__ void run_segment(const Params& p, SmemMain& S, float*
             wgmma<NTT>(acc, af[b][0], d0 + s * 16);
             wgmma<NTT>(acc, af[b][1], d0 + (s + 1) * 16);
             wg_commit();
-            wg_wait<1>();
-            a_pin(af[b ^ 1]);
-            if (s == 0 && xrel >= 0) {
+            wg_wait<DEPTH - 1>();
+            a_pin(af[(b + 1) % DEPTH]);
+            // The previous stage's last group has retired once DEPTH - 1 groups of this
+            // stage are committed.
+            if (s == 2 * (DEPTH - 1) - 2 && xrel >= 0) {
                 if (lane == 0) {
                     mbar_arrive(&S.xempty[xrel]);
                 }
@@ -812,8 +815,10 @@ __device__ __forceinline__ void run_segment(const Params& p, SmemMain& S, float*
         ring_next_x(rg);
     }
     wg_wait<0>();
-    a_pin(af[0]);
-    a_pin(af[1]);
+#pragma unroll
+    for (int b = 0; b < DEPTH; ++b) {
+        a_pin(af[b]);
+    }
     acc_fence<NTT>(acc);
     if (xrel >= 0) {
         if (lane == 0) {
@@ -939,7 +944,7 @@ __device__ __forceinline__ void xproducer(const Params& p, SmemMain& S, int cta,
             const unsigned bytes = ntt * 4096;
             const unsigned char* base = (ph ? p.xb : p.xa)
                                         + static_cast<size_t>(S.job_xo[j]) * 65536;
-            if (ph == 0 && MODE == 0) {
+            if (ph == 0 && MODE != 1 && MODE != 4) {
                 spin_ge(p.xready + j, S.job_n[j], p.ctr, 32);
             }
             const int st_e = ((ge - 1) & 15) + 1;
@@ -948,7 +953,7 @@ __device__ __forceinline__ void xproducer(const Params& p, SmemMain& S, int cta,
                 if (rg.xlap > 0) {
                     mbar_wait_to(&S.xempty[xs], (rg.xlap - 1) & 1, p.ctr, 64);
                 }
-                if (ph == 1 && MODE == 0) {
+                if (ph == 1 && MODE != 1 && MODE != 4) {
                     spin_ge(p.done_as + j * 16 + st, 8, p.ctr, 128);
                 }
                 mbar_expect_tx(&S.xfull[xs], bytes);
@@ -1726,7 +1731,10 @@ __device__ __forceinline__ void a_pin(unsigned (&a)[2][4]) {{
 # Skinny kernel variants (compute warps, ring slots, mode: 0 computes, 1 streams only), each
 # a namespace of its own in the source, and fat kernel modes; a variant id indexes this table.
 SKINNY_VARIANTS = ((8, 4, 0), (16, 4, 0), (8, 5, 0), (8, 4, 1), (16, 4, 1))
-MAIN_MODES = (0, 1)
+# 0: depth-2 wgmma pipeline; 5: depth 3; 1: streams the weights only; 4: depth 2 without the
+# phase readiness waits (timing only, results wrong).
+MAIN_MODES = (0, 5, 1, 4)
+MAIN_CANDIDATES = (0, 5)
 VARIANT_MAIN0 = len(SKINNY_VARIANTS)
 
 
@@ -1741,8 +1749,8 @@ def _cuda_source():
                        for nw, ns, mode in SKINNY_VARIANTS)
     cases = [f"            case {i}: sk_{_skinny_tag(nw, ns, mode)}::launch<1>(p, sms, stream); break;"
              for i, (nw, ns, mode) in enumerate(SKINNY_VARIANTS)]
-    cases += [f"            case {VARIANT_MAIN0 + m}: launch_main<{m}>(p, sms, stream); break;"
-              for m in MAIN_MODES]
+    cases += [f"            case {VARIANT_MAIN0 + i}: launch_main<{m}>(p, sms, stream); break;"
+              for i, m in enumerate(MAIN_MODES)]
     return (_CUDA_SRC.replace("//@WGMMA@", _wgmma_code()).replace("//@SKINNY@", skinny)
             .replace("//@DISPATCH@", "\n".join(cases)))
 
@@ -1879,6 +1887,1242 @@ def _repack(weights, start, count):
     return out
 
 
+# ---- The previous kernel (check a49578e5c30348bb, 1.691x): per-warp register-path mma.sync
+# GEMMs with K splits, a SwiGLU reduce and an FP32 finalizer, as fallback candidates where
+# the fused kernel loses. Only the configs its tuner picked at 32, 128 and 256 tokens are
+# built: (kind, nt, rows, s, w, d, mode, layout, p) as in w4_gemm_kernel.
+LEGACY_CONFIGS = [
+    (1, 1, 8, 4, 4, 4, 5, 0, 0), (2, 1, 8, 4, 4, 4, 5, 0, 0),
+    (1, 1, 8, 2, 8, 4, 0, 0, 0), (2, 2, 16, 4, 4, 4, 0, 0, 0),
+    (1, 2, 16, 4, 4, 4, 5, 0, 0), (2, 2, 16, 4, 4, 4, 5, 0, 0),
+]
+# (GEMM1 config, GEMM2 config, finalizer cluster size), the tuned policy at 32, 128, 256.
+LEGACY_POLICIES = ((0, 1, 8), (2, 3, 1), (4, 5, 1))
+VARIANT_LEGACY0 = 100
+
+_LEGACY_ROUTE_CPP = r"""
+#include <torch/extension.h>
+std::vector<torch::Tensor> route_align(torch::Tensor topk_ids, int64_t start, int64_t count,
+                                       int64_t block_size, int64_t max_padded,
+                                       int64_t item_rows, int64_t item_rows2);
+torch::Tensor finalize(torch::Tensor y, torch::Tensor scores, torch::Tensor norm_w,
+                       torch::Tensor local_ids, int64_t variant, double eps);
+"""
+
+_LEGACY_ROUTE_SRC = r"""
+#include <torch/extension.h>
+#include <ATen/cuda/CUDAContext.h>
+#include <cooperative_groups.h>
+#include <cuda_bf16.h>
+
+namespace cg = cooperative_groups;
+
+namespace {
+
+constexpr int kMaxLocal = 32;
+constexpr int kMaxRoutes = 4096;
+constexpr int kTopK = 8;
+constexpr int kHidden = 4096;
+
+// Marlin's moe_align layout over local experts only: blocks of block_size rows, experts
+// ascending, pad slots hold numel. Atomic ranks order rows within an expert arbitrarily;
+// Marlin computes each row independently, so the output does not depend on that order.
+__global__ void __launch_bounds__(1024) route_align_kernel(
+        const int* __restrict__ topk_ids, int numel, int start, int count, int bs,
+        int* __restrict__ sorted_ids, int* __restrict__ expert_ids, int* __restrict__ num_post,
+        int* __restrict__ local_ids, int item_rows, int item_rows2, int items2_at,
+        int2* __restrict__ items, int* __restrict__ num_items) {
+    __shared__ int cnt[kMaxLocal];
+    __shared__ int off[kMaxLocal];
+    __shared__ int total_s;
+    __shared__ short rank_s[kMaxRoutes];
+    const int tid = threadIdx.x;
+    if (tid < kMaxLocal) {
+        cnt[tid] = 0;
+    }
+    __syncthreads();
+    for (int p = tid; p < numel; p += blockDim.x) {
+        const int e = topk_ids[p] - start;
+        const int loc = (e >= 0 && e < count) ? e : -1;
+        local_ids[p] = loc;
+        if (loc >= 0) {
+            rank_s[p] = static_cast<short>(atomicAdd(&cnt[loc], 1));
+        }
+    }
+    __syncthreads();
+    if (tid < 32) {
+        const int c = tid < count ? cnt[tid] : 0;
+        const int padded = (c + bs - 1) / bs * bs;
+        int incl = padded;
+#pragma unroll
+        for (int d = 1; d < 32; d <<= 1) {
+            const int v = __shfl_up_sync(0xffffffffu, incl, d);
+            if (tid >= d) {
+                incl += v;
+            }
+        }
+        const int excl = incl - padded;
+        off[tid] = excl;
+        if (tid == 31) {
+            total_s = incl;
+            num_post[0] = incl;
+        }
+        for (int b = excl / bs; b < incl / bs; ++b) {
+            expert_ids[b] = tid;
+        }
+        // Work items for the W4 GEMMs (one list per GEMM, the second at items2_at): up to
+        // ir routes of one expert each, as (expert << 16 | rows, first row in sorted_ids).
+        for (int q = 0; q < 2; ++q) {
+            const int ir = q == 0 ? item_rows : item_rows2;
+            if (ir <= 0) {
+                continue;
+            }
+            int2* list = items + (q == 0 ? 0 : items2_at);
+            const int nit = (c + ir - 1) / ir;
+            int iincl = nit;
+#pragma unroll
+            for (int d = 1; d < 32; d <<= 1) {
+                const int v = __shfl_up_sync(0xffffffffu, iincl, d);
+                if (tid >= d) {
+                    iincl += v;
+                }
+            }
+            for (int j = 0; j < nit; ++j) {
+                list[iincl - nit + j] = make_int2((tid << 16) | min(ir, c - j * ir), excl + j * ir);
+            }
+            if (tid == 31) {
+                num_items[q] = iincl;
+            }
+        }
+    }
+    __syncthreads();
+    const int total = total_s;
+    for (int i = tid; i < total; i += blockDim.x) {
+        sorted_ids[i] = numel;
+    }
+    __syncthreads();
+    for (int p = tid; p < numel; p += blockDim.x) {
+        const int e = topk_ids[p] - start;
+        if (e >= 0 && e < count) {
+            sorted_ids[off[e] + rank_s[p]] = p;
+        }
+    }
+}
+
+__device__ __forceinline__ void unpack8(uint4 raw, float* f) {
+    const __nv_bfloat162* h = reinterpret_cast<const __nv_bfloat162*>(&raw);
+#pragma unroll
+    for (int i = 0; i < 4; ++i) {
+        const float2 v = __bfloat1622float2(h[i]);
+        f[2 * i] = v.x;
+        f[2 * i + 1] = v.y;
+    }
+}
+
+__device__ __forceinline__ uint4 pack8(const float* f) {
+    uint4 raw;
+    __nv_bfloat162* h = reinterpret_cast<__nv_bfloat162*>(&raw);
+#pragma unroll
+    for (int i = 0; i < 4; ++i) {
+        h[i] = __floats2bfloat162_rn(f[2 * i], f[2 * i + 1]);
+    }
+    return raw;
+}
+
+// Loads this thread's 8 channels of every live slot (dead slots may hold garbage, even NaN,
+// so they are never read) and returns the per-slot partial sums of squares.
+__device__ __forceinline__ void load_slots(
+        const __nv_bfloat16* __restrict__ y, const int* __restrict__ local_ids,
+        const float* w, int t, int c, bool* live, float (*v)[8], float* ss) {
+#pragma unroll
+    for (int k = 0; k < kTopK; ++k) {
+        live[k] = local_ids[t * kTopK + k] >= 0;
+    }
+#pragma unroll
+    for (int k = 0; k < kTopK; ++k) {
+        uint4 raw = make_uint4(0, 0, 0, 0);
+        if (live[k]) {
+            const size_t row = static_cast<size_t>(t) * kTopK + k;
+            raw = *reinterpret_cast<const uint4*>(y + row * kHidden + c);
+        }
+        unpack8(raw, v[k]);
+        ss[k] = 0.f;
+#pragma unroll
+        for (int j = 0; j < 8; ++j) {
+            v[k][j] *= w[j];
+            ss[k] += v[k][j] * v[k][j];
+        }
+    }
+}
+
+// One block per token: 512 threads x 8 channels.
+template <int THREADS>
+__global__ void __launch_bounds__(THREADS) finalize_row_kernel(
+        const __nv_bfloat16* __restrict__ y, const float* __restrict__ scores,
+        const __nv_bfloat16* __restrict__ norm_w, const int* __restrict__ local_ids,
+        __nv_bfloat16* __restrict__ out, float eps) {
+    static_assert(THREADS * 8 == kHidden);
+    constexpr int WARPS = THREADS / 32;
+    __shared__ float red[kTopK][WARPS];
+    __shared__ float scale[kTopK];
+    const int t = blockIdx.x;
+    const int tid = threadIdx.x;
+    const int lane = tid & 31;
+    const int warp = tid >> 5;
+    const int c = tid * 8;
+    float w[8];
+    unpack8(*reinterpret_cast<const uint4*>(norm_w + c), w);
+    bool live[kTopK];
+    float v[kTopK][8];
+    float ss[kTopK];
+    load_slots(y, local_ids, w, t, c, live, v, ss);
+#pragma unroll
+    for (int k = 0; k < kTopK; ++k) {
+#pragma unroll
+        for (int d = 16; d > 0; d >>= 1) {
+            ss[k] += __shfl_xor_sync(0xffffffffu, ss[k], d);
+        }
+    }
+    if (lane == 0) {
+#pragma unroll
+        for (int k = 0; k < kTopK; ++k) {
+            red[k][warp] = ss[k];
+        }
+    }
+    __syncthreads();
+    if (warp == 0) {
+#pragma unroll
+        for (int k = 0; k < kTopK; ++k) {
+            float s = lane < WARPS ? red[k][lane] : 0.f;
+#pragma unroll
+            for (int d = 16; d > 0; d >>= 1) {
+                s += __shfl_xor_sync(0xffffffffu, s, d);
+            }
+            if (lane == 0) {
+                scale[k] = live[k] ? scores[t * kTopK + k] * rsqrtf(s / kHidden + eps) : 0.f;
+            }
+        }
+    }
+    __syncthreads();
+    float acc[8];
+#pragma unroll
+    for (int j = 0; j < 8; ++j) {
+        acc[j] = 0.f;
+    }
+#pragma unroll
+    for (int k = 0; k < kTopK; ++k) {
+        const float s = scale[k];
+#pragma unroll
+        for (int j = 0; j < 8; ++j) {
+            acc[j] += s * v[k][j];
+        }
+    }
+    *reinterpret_cast<uint4*>(out + static_cast<size_t>(t) * kHidden + c) = pack8(acc);
+}
+
+// S blocks per token in a cluster, each over kHidden / S channels; the per-slot sums of
+// squares are exchanged through distributed shared memory.
+template <int S>
+__global__ void __launch_bounds__(kHidden / 8 / S) finalize_cluster_kernel(
+        const __nv_bfloat16* __restrict__ y, const float* __restrict__ scores,
+        const __nv_bfloat16* __restrict__ norm_w, const int* __restrict__ local_ids,
+        __nv_bfloat16* __restrict__ out, float eps) {
+    constexpr int THREADS = kHidden / 8 / S;
+    constexpr int WARPS = THREADS / 32;
+    __shared__ float red[kTopK][WARPS];
+    __shared__ float part[kTopK];
+    __shared__ float scale[kTopK];
+    cg::cluster_group cluster = cg::this_cluster();
+    const int t = blockIdx.y;
+    const int tid = threadIdx.x;
+    const int lane = tid & 31;
+    const int warp = tid >> 5;
+    const int c = (blockIdx.x * THREADS + tid) * 8;
+    float w[8];
+    unpack8(*reinterpret_cast<const uint4*>(norm_w + c), w);
+    bool live[kTopK];
+    float v[kTopK][8];
+    float ss[kTopK];
+    load_slots(y, local_ids, w, t, c, live, v, ss);
+#pragma unroll
+    for (int k = 0; k < kTopK; ++k) {
+#pragma unroll
+        for (int d = 16; d > 0; d >>= 1) {
+            ss[k] += __shfl_xor_sync(0xffffffffu, ss[k], d);
+        }
+    }
+    if (lane == 0) {
+#pragma unroll
+        for (int k = 0; k < kTopK; ++k) {
+            red[k][warp] = ss[k];
+        }
+    }
+    __syncthreads();
+    if (tid < kTopK) {
+        float s = 0.f;
+#pragma unroll
+        for (int i = 0; i < WARPS; ++i) {
+            s += red[tid][i];
+        }
+        part[tid] = s;
+    }
+    cluster.sync();
+    if (tid < kTopK) {
+        float s = 0.f;
+#pragma unroll
+        for (int r = 0; r < S; ++r) {
+            s += *cluster.map_shared_rank(&part[tid], r);
+        }
+        scale[tid] = live[tid] ? scores[t * kTopK + tid] * rsqrtf(s / kHidden + eps) : 0.f;
+    }
+    // Also keeps every block's part[] alive until the other blocks have read it.
+    cluster.sync();
+    float acc[8];
+#pragma unroll
+    for (int j = 0; j < 8; ++j) {
+        acc[j] = 0.f;
+    }
+#pragma unroll
+    for (int k = 0; k < kTopK; ++k) {
+        const float s = scale[k];
+#pragma unroll
+        for (int j = 0; j < 8; ++j) {
+            acc[j] += s * v[k][j];
+        }
+    }
+    *reinterpret_cast<uint4*>(out + static_cast<size_t>(t) * kHidden + c) = pack8(acc);
+}
+
+template <int S>
+void launch_cluster(const __nv_bfloat16* y, const float* scores, const __nv_bfloat16* w,
+                    const int* ids, __nv_bfloat16* out, int m, float eps, cudaStream_t stream) {
+    cudaLaunchConfig_t cfg = {};
+    cfg.gridDim = dim3(S, m, 1);
+    cfg.blockDim = dim3(kHidden / 8 / S, 1, 1);
+    cfg.dynamicSmemBytes = 0;
+    cfg.stream = stream;
+    cudaLaunchAttribute attr[1];
+    attr[0].id = cudaLaunchAttributeClusterDimension;
+    attr[0].val.clusterDim.x = S;
+    attr[0].val.clusterDim.y = 1;
+    attr[0].val.clusterDim.z = 1;
+    cfg.attrs = attr;
+    cfg.numAttrs = 1;
+    C10_CUDA_CHECK(
+        cudaLaunchKernelEx(&cfg, finalize_cluster_kernel<S>, y, scores, w, ids, out, eps));
+}
+
+// compile_check: route_align_kernel<<<1, 64>>>(nullptr, 0, 0, 0, 8, 0, 0, 0, 0, 0, 0, 0, 0, 0);
+// compile_check: finalize_row_kernel<512><<<1, 512>>>(0, 0, 0, 0, 0, 0.f);
+// compile_check: launch_cluster<2>(0, 0, 0, 0, 0, 1, 0.f, 0);
+// compile_check: launch_cluster<4>(0, 0, 0, 0, 0, 1, 0.f, 0);
+// compile_check: launch_cluster<8>(0, 0, 0, 0, 0, 1, 0.f, 0);
+}  // namespace
+
+std::vector<torch::Tensor> route_align(torch::Tensor topk_ids, int64_t start, int64_t count,
+                                       int64_t block_size, int64_t max_padded,
+                                       int64_t item_rows, int64_t item_rows2) {
+    const int numel = topk_ids.numel();
+    TORCH_CHECK(numel <= kMaxRoutes && count <= kMaxLocal);
+    auto opts = topk_ids.options();
+    auto sorted_ids = torch::empty({max_padded}, opts);
+    auto expert_ids = torch::empty({(max_padded + block_size - 1) / block_size}, opts);
+    auto num_post = torch::empty({1}, opts);
+    auto local_ids = torch::empty_like(topk_ids);
+    const int64_t max1 = item_rows > 0 ? count + numel / item_rows + 1 : 1;
+    const int64_t max2 = item_rows2 > 0 ? count + numel / item_rows2 + 1 : 1;
+    auto items = torch::empty({max1 + max2, 2}, opts);
+    auto num_items = torch::empty({2}, opts);
+    int threads = ((numel + 31) / 32) * 32;
+    threads = threads < 64 ? 64 : (threads > 1024 ? 1024 : threads);
+    auto stream = at::cuda::getCurrentCUDAStream();
+    route_align_kernel<<<1, threads, 0, stream>>>(
+        topk_ids.data_ptr<int>(), numel, static_cast<int>(start), static_cast<int>(count),
+        static_cast<int>(block_size), sorted_ids.data_ptr<int>(), expert_ids.data_ptr<int>(),
+        num_post.data_ptr<int>(), local_ids.data_ptr<int>(), static_cast<int>(item_rows),
+        static_cast<int>(item_rows2), static_cast<int>(max1),
+        reinterpret_cast<int2*>(items.data_ptr<int>()), num_items.data_ptr<int>());
+    C10_CUDA_KERNEL_LAUNCH_CHECK();
+    return {sorted_ids, expert_ids, num_post, local_ids, items.narrow(0, 0, max1),
+            num_items.narrow(0, 0, 1), items.narrow(0, max1, max2), num_items.narrow(0, 1, 1)};
+}
+
+torch::Tensor finalize(torch::Tensor y, torch::Tensor scores, torch::Tensor norm_w,
+                       torch::Tensor local_ids, int64_t variant, double eps) {
+    const int m = y.size(0);
+    TORCH_CHECK(y.size(1) == kTopK && y.size(2) == kHidden);
+    auto out = torch::empty({m, kHidden}, y.options());
+    auto stream = at::cuda::getCurrentCUDAStream();
+    const auto* yp = reinterpret_cast<const __nv_bfloat16*>(y.data_ptr<at::BFloat16>());
+    const auto* wp = reinterpret_cast<const __nv_bfloat16*>(norm_w.data_ptr<at::BFloat16>());
+    auto* op = reinterpret_cast<__nv_bfloat16*>(out.data_ptr<at::BFloat16>());
+    const float* sp = scores.data_ptr<float>();
+    const int* ip = local_ids.data_ptr<int>();
+    const float e = static_cast<float>(eps);
+    switch (variant) {
+        case 0:
+            finalize_row_kernel<512><<<m, 512, 0, stream>>>(yp, sp, wp, ip, op, e);
+            C10_CUDA_KERNEL_LAUNCH_CHECK();
+            break;
+        case 2: launch_cluster<2>(yp, sp, wp, ip, op, m, e, stream); break;
+        case 4: launch_cluster<4>(yp, sp, wp, ip, op, m, e, stream); break;
+        case 8: launch_cluster<8>(yp, sp, wp, ip, op, m, e, stream); break;
+        default: TORCH_CHECK(false, "bad finalize variant");
+    }
+    return out;
+}
+"""
+
+_LEGACY_W4_CPP = r"""
+#include <torch/extension.h>
+void w4_gemm(int64_t cfg, torch::Tensor act, torch::Tensor wq, torch::Tensor wsc,
+             torch::Tensor gs, torch::Tensor sorted_ids, torch::Tensor items,
+             torch::Tensor num_items, int64_t numel, torch::Tensor out, bool pdl);
+void w4_swiglu(torch::Tensor part, torch::Tensor local_ids, int64_t splits, torch::Tensor out,
+               bool pdl);
+torch::Tensor w4_finalize(torch::Tensor part, torch::Tensor scores, torch::Tensor norm_w,
+                          torch::Tensor local_ids, double eps, bool pdl, int64_t cl);
+std::vector<int64_t> w4_info(int64_t cfg);
+"""
+
+_LEGACY_W4_SRC = r"""
+#include <torch/extension.h>
+#include <ATen/cuda/CUDAContext.h>
+#include <cooperative_groups.h>
+#include <cuda_bf16.h>
+#include <cstdint>
+#include <vector>
+
+namespace {
+
+namespace cg = cooperative_groups;
+
+constexpr int kK = 4096;
+constexpr int kInter = 4096;
+
+template <bool HINT>
+__device__ __forceinline__ uint4 ld_stream(const uint4* p) {
+    uint4 v;
+    if (HINT) {
+        asm volatile("ld.global.nc.L1::no_allocate.L2::256B.v4.u32 {%0,%1,%2,%3}, [%4];"
+                     : "=r"(v.x), "=r"(v.y), "=r"(v.z), "=r"(v.w) : "l"(p));
+    } else {
+        asm volatile("ld.global.nc.L1::no_allocate.v4.u32 {%0,%1,%2,%3}, [%4];"
+                     : "=r"(v.x), "=r"(v.y), "=r"(v.z), "=r"(v.w) : "l"(p));
+    }
+    return v;
+}
+
+__device__ __forceinline__ void cp_async16(void* smem, const void* gmem) {
+    const unsigned s = static_cast<unsigned>(__cvta_generic_to_shared(smem));
+    asm volatile("cp.async.cg.shared.global [%0], [%1], 16;" :: "r"(s), "l"(gmem));
+}
+
+__device__ __forceinline__ void ldmatrix_x4(unsigned (&r)[4], const void* smem) {
+    const unsigned s = static_cast<unsigned>(__cvta_generic_to_shared(smem));
+    asm volatile("ldmatrix.sync.aligned.m8n8.x4.shared.b16 {%0,%1,%2,%3}, [%4];"
+                 : "=r"(r[0]), "=r"(r[1]), "=r"(r[2]), "=r"(r[3]) : "r"(s));
+}
+
+__device__ __forceinline__ void mma_bf16(float (&c)[4], const unsigned (&a)[4], unsigned b0,
+                                         unsigned b1) {
+    asm("mma.sync.aligned.m16n8k16.row.col.f32.bf16.bf16.f32 "
+        "{%0,%1,%2,%3}, {%4,%5,%6,%7}, {%8,%9}, {%0,%1,%2,%3};"
+        : "+f"(c[0]), "+f"(c[1]), "+f"(c[2]), "+f"(c[3])
+        : "r"(a[0]), "r"(a[1]), "r"(a[2]), "r"(a[3]), "r"(b0), "r"(b1));
+}
+
+template <bool HIGH>
+__device__ __forceinline__ unsigned bmul(unsigned a, unsigned s) {
+    const __nv_bfloat162 s2 = *reinterpret_cast<__nv_bfloat162*>(&s);
+    const __nv_bfloat162 r = __hmul2(*reinterpret_cast<__nv_bfloat162*>(&a),
+                                     HIGH ? __high2bfloat162(s2) : __low2bfloat162(s2));
+    return *reinterpret_cast<const unsigned*>(&r);
+}
+
+// One A fragment (16 rows x 16 k) of NVFP4 to bf16, block scale applied. The repack in
+// prepare() permutes each word's 32 bits so that register j's two E2M1 codes land on bf16
+// bits {15, 8, 7, 6} (sign, exponent, mantissa) after at most one shift or rotate; the code
+// then reads as its value times 2^-126. The block scale byte (positive, normal E4M3, checked
+// in prepare) becomes bf16 scale * 2^119 by shifting it into place and adding 112 to the
+// exponent, so the product is value * scale * 2^-7, exact in bf16. The epilogue multiplies by
+// the global scale * 2^7.
+template <int TILE>
+__device__ __forceinline__ void dequant(unsigned w, unsigned sw, unsigned (&a)[4]) {
+    constexpr unsigned kM = 0x81C081C0u;
+    const unsigned r0 = w & kM;
+    const unsigned r1 = (w << 6) & kM;
+    const unsigned r2 = __funnelshift_r(w, w, 6) & kM;
+    const unsigned r3 = ((w >> 4) & 0x00400040u) | ((w << 4) & 0x81808180u);
+    const unsigned sc = __byte_perm(sw, 0u, TILE ? 0x4342 : 0x4140) * 16u + 0x77807780u;
+    a[0] = bmul<false>(r0, sc);
+    a[1] = bmul<true>(r1, sc);
+    a[2] = bmul<false>(r2, sc);
+    a[3] = bmul<true>(r3, sc);
+}
+
+// Rounds to the nearest bf16 value, kept in a float register.
+__device__ __forceinline__ float bf16r(float x) {
+    return __bfloat162float(__float2bfloat16_rn(x));
+}
+
+__device__ __forceinline__ unsigned word(const uint4& v, int i) {
+    return i == 0 ? v.x : i == 1 ? v.y : i == 2 ? v.z : v.w;
+}
+
+// A unit is 32 weight rows of one expert over one K split: for KIND 1, 16 gate rows and the
+// 16 up rows of the same intermediate features, so the SwiGLU pairs sit in one thread's
+// accumulators; for KIND 2, 32 output rows. Each warp owns one unit at a time and streams its
+// weights straight into registers (each lane reads only its own fragments) D stages of 64 k
+// ahead; the item's activation rows for the K split sit in shared memory and feed mma as B.
+// P 0: grid (units / W, max items, S), one unit per warp. P 1: a persistent grid that walks
+// (item, chunk, split) units; the next unit's activations are staged into the other buffer
+// during this one, and its first D weight stages are loaded during this unit's last D.
+// MODE 0 is the GEMM and MODE 5 the GEMM without the L2 256-byte prefetch hint. The rest
+// time only: 1 streams the same weights and activations without dequant or mma; 2 runs mma
+// on the raw words without dequant; 3 streams the weights only (no activation staging);
+// 4 streams the same number of weight bytes with every warp reading consecutive 1 KB chunks
+// at each stage, like a plain streaming kernel; 6 is 4 without the hint.
+// LAYOUT 0 stores each unit's 64 k stages contiguously; LAYOUT 1 interleaves 8 neighbouring
+// units stage by stage, so the warps of a block read one contiguous stretch per stage.
+template <int KIND, int NT, int ROWS, int S, int W, int D, int MODE, int LAYOUT, int P>
+__global__ void __launch_bounds__(W * 32) w4_gemm_kernel(
+        const __nv_bfloat16* __restrict__ act, const uint4* __restrict__ wq,
+        const uint4* __restrict__ wsc, const float* __restrict__ gs,
+        const int* __restrict__ sorted_ids, const int2* __restrict__ items,
+        const int* __restrict__ num_items, int numel, void* __restrict__ out) {
+    constexpr int KC = kK / S;
+    constexpr int NST = KC / 64;
+    constexpr int U = KIND == 1 ? 256 : 128;
+    constexpr int RS = KC + 8;
+    constexpr int TR = 8 * NT;
+    constexpr int PER_ITEM = U / W * S;
+    constexpr int WSTR = LAYOUT ? 8 * 64 : 64;
+    constexpr int SSTR = LAYOUT ? 8 * 8 : 8;
+    static_assert(!P || NST % D == 0, "cross-unit prefetch needs whole groups of D stages");
+    constexpr bool HINT = MODE != 5 && MODE != 6;
+    constexpr bool LOADS_ONLY = MODE == 1 || MODE == 3 || MODE == 4 || MODE == 6;
+    constexpr bool STAGE_X = !(MODE == 3 || MODE == 4 || MODE == 6);
+    constexpr bool STREAMLIKE = MODE == 4 || MODE == 6;
+    static_assert(!STREAMLIKE || !P, "streaming diagnostic is for one unit per warp");
+    extern __shared__ __align__(16) unsigned char smem_raw[];
+    __shared__ int rid[2][TR];
+
+    const int warp = threadIdx.x >> 5;
+    const int lane = threadIdx.x & 31;
+
+    // GEMM1 needs route_align's items before it can address any weights. GEMM2's items come
+    // from route_align too, which finished before GEMM1 passed its own wait, so GEMM2 starts
+    // its weight stream first and waits only before reading GEMM1's output.
+    if (KIND == 1) {
+        asm volatile("griddepcontrol.wait;" ::: "memory");
+        asm volatile("griddepcontrol.launch_dependents;");
+    }
+    const int total = P ? num_items[0] * PER_ITEM : num_items[0];
+    int q = P ? blockIdx.x : blockIdx.y;
+    if (q >= total) {
+        return;
+    }
+
+    int e, nrows, row0, u, z;
+    auto decode = [&](int unit, int& e_, int& nrows_, int& row0_, int& u_, int& z_) {
+        int item = blockIdx.y;
+        int chunk = blockIdx.x;
+        z_ = blockIdx.z;
+        if (P) {
+            item = unit / PER_ITEM;
+            const int r = unit - item * PER_ITEM;
+            chunk = r / S;
+            z_ = r - chunk * S;
+        }
+        const int2 it = items[item];
+        e_ = it.x >> 16;
+        nrows_ = it.x & 0xffff;
+        row0_ = it.y;
+        u_ = chunk * W + warp;
+    };
+    int wstr = WSTR;
+    int sstr = SSTR;
+    auto weights_at = [&](int e_, int u_, int z_, const uint4*& wp_, const uint4*& sp_) {
+        if (STREAMLIKE) {
+            const int warps = num_items[0] * (U / W) * S * W;
+            const int gw = ((blockIdx.z * num_items[0] + blockIdx.y) * (U / W) + blockIdx.x) * W
+                           + warp;
+            wp_ = wq + static_cast<size_t>(gw) * 64 + lane;
+            sp_ = wsc + static_cast<size_t>(gw) * 8 + (lane >> 2);
+            wstr = warps * 64;
+            sstr = warps * 8;
+            return;
+        }
+        const size_t stage0 = LAYOUT
+            ? (static_cast<size_t>(e_ * (U / 8) + u_ / 8) * 64 + z_ * NST) * 8 + (u_ & 7)
+            : static_cast<size_t>(e_ * U + u_) * 64 + z_ * NST;
+        wp_ = wq + stage0 * 64 + lane;
+        sp_ = wsc + stage0 * 8 + (lane >> 2);
+    };
+    auto stage_x = [&](int buf, int nrows_, int row0_, int z_) {
+        __nv_bfloat16* xs = reinterpret_cast<__nv_bfloat16*>(smem_raw) + buf * ROWS * RS;
+        for (int r = threadIdx.x; r < TR; r += W * 32) {
+            rid[buf][r] = r < nrows_ ? sorted_ids[row0_ + r] : -1;
+        }
+        constexpr int CH = KC / 8;
+        for (int i = threadIdx.x; i < ROWS * CH; i += W * 32) {
+            const int r = i / CH;
+            const int c = i - r * CH;
+            if (r < nrows_) {
+                const int p = sorted_ids[row0_ + r];
+                const int src_row = KIND == 1 ? p / 8 : p;
+                cp_async16(xs + r * RS + c * 8,
+                           act + static_cast<size_t>(src_row) * kK + z_ * KC + c * 8);
+            }
+        }
+        asm volatile("cp.async.commit_group;" ::: "memory");
+    };
+    if (!STAGE_X) {
+        for (int r = threadIdx.x; r < 2 * TR; r += W * 32) {
+            rid[r / TR][r % TR] = -1;
+        }
+    }
+
+    decode(q, e, nrows, row0, u, z);
+    const uint4* wp;
+    const uint4* sp;
+    weights_at(e, u, z, wp, sp);
+    uint4 wv[D][2];
+    uint4 sv[D];
+#pragma unroll
+    for (int d = 0; d < D; ++d) {
+        if (d < NST) {
+            wv[d][0] = ld_stream<HINT>(wp + d * wstr);
+            wv[d][1] = ld_stream<HINT>(wp + d * wstr + 32);
+            sv[d] = ld_stream<HINT>(sp + d * sstr);
+        }
+    }
+    if (KIND == 2) {
+        asm volatile("griddepcontrol.wait;" ::: "memory");
+        asm volatile("griddepcontrol.launch_dependents;");
+    }
+    if (STAGE_X) {
+        stage_x(0, nrows, row0, z);
+    }
+
+    const int g = lane >> 2;
+    const int t4 = lane & 3;
+    int buf = 0;
+#pragma unroll 1
+    for (;;) {
+        asm volatile("cp.async.wait_all;" ::: "memory");
+        __syncthreads();
+        const int qn = q + gridDim.x;
+        const bool has_next = P && qn < total;
+        int en = 0, nrowsn = 0, row0n = 0, un = 0, zn = 0;
+        const uint4* wpn = wp;
+        const uint4* spn = sp;
+        if (has_next) {
+            decode(qn, en, nrowsn, row0n, un, zn);
+            weights_at(en, un, zn, wpn, spn);
+            stage_x(buf ^ 1, nrowsn, row0n, zn);
+        }
+
+        const __nv_bfloat16* xs = reinterpret_cast<const __nv_bfloat16*>(smem_raw)
+                                  + buf * ROWS * RS;
+        // ldmatrix row address: matrix lane / 8 (k offset 8 * that), tile row lane % 8.
+        const __nv_bfloat16* xrow[NT];
+#pragma unroll
+        for (int nt = 0; nt < NT; ++nt) {
+            const int r = nt * 8 + (lane & 7);
+            xrow[nt] = xs + (r < ROWS ? r : 0) * RS + (lane >> 3) * 8;
+        }
+        float acc[2][NT][4];
+#pragma unroll
+        for (int t = 0; t < 2; ++t) {
+#pragma unroll
+            for (int nt = 0; nt < NT; ++nt) {
+#pragma unroll
+                for (int j = 0; j < 4; ++j) {
+                    acc[t][nt][j] = 0.f;
+                }
+            }
+        }
+
+#pragma unroll 1
+        for (int s0 = 0; s0 < NST; s0 += D) {
+#pragma unroll
+            for (int d = 0; d < D; ++d) {
+                const int s = s0 + d;
+                if (s < NST && LOADS_ONLY) {
+                    acc[0][0][0] += __uint_as_float(
+                        (wv[d][0].x ^ wv[d][0].w ^ wv[d][1].x ^ wv[d][1].w ^ sv[d].x)
+                        & 0x3f800000u);
+                } else if (s < NST) {
+#pragma unroll
+                    for (int h = 0; h < 2; ++h) {
+                        unsigned b[NT][4];
+#pragma unroll
+                        for (int nt = 0; nt < NT; ++nt) {
+                            ldmatrix_x4(b[nt], xrow[nt] + s * 64 + h * 32);
+                        }
+#pragma unroll
+                        for (int j1 = 0; j1 < 2; ++j1) {
+                            const unsigned sw = word(sv[d], h * 2 + j1);
+                            unsigned a0[4];
+                            unsigned a1[4];
+                            if (MODE == 2) {
+                                const unsigned r0 = word(wv[d][h], j1 * 2);
+                                const unsigned r1 = word(wv[d][h], j1 * 2 + 1);
+                                a0[0] = r0; a0[1] = r0 ^ sw; a0[2] = r0 >> 1; a0[3] = r0 << 1;
+                                a1[0] = r1; a1[1] = r1 ^ sw; a1[2] = r1 >> 1; a1[3] = r1 << 1;
+                            } else {
+                                dequant<0>(word(wv[d][h], j1 * 2), sw, a0);
+                                dequant<1>(word(wv[d][h], j1 * 2 + 1), sw, a1);
+                            }
+#pragma unroll
+                            for (int nt = 0; nt < NT; ++nt) {
+                                mma_bf16(acc[0][nt], a0, b[nt][j1 * 2], b[nt][j1 * 2 + 1]);
+                                mma_bf16(acc[1][nt], a1, b[nt][j1 * 2], b[nt][j1 * 2 + 1]);
+                            }
+                        }
+                    }
+                }
+                if (s < NST) {
+                    if (s + D < NST) {
+                        wv[d][0] = ld_stream<HINT>(wp + (s + D) * wstr);
+                        wv[d][1] = ld_stream<HINT>(wp + (s + D) * wstr + 32);
+                        sv[d] = ld_stream<HINT>(sp + (s + D) * sstr);
+                    } else if (has_next) {
+                        wv[d][0] = ld_stream<HINT>(wpn + (s + D - NST) * wstr);
+                        wv[d][1] = ld_stream<HINT>(wpn + (s + D - NST) * wstr + 32);
+                        sv[d] = ld_stream<HINT>(spn + (s + D - NST) * sstr);
+                    }
+                }
+            }
+        }
+
+        const float gscale = gs[e] * 128.f;
+#pragma unroll
+        for (int nt = 0; nt < NT; ++nt) {
+#pragma unroll
+            for (int qq = 0; qq < 2; ++qq) {
+                const int col = nt * 8 + t4 * 2 + qq;
+                const int p = rid[buf][col];
+                if (p < 0) {
+                    continue;
+                }
+#pragma unroll
+                for (int hh = 0; hh < 2; ++hh) {
+                    const float v0 = acc[0][nt][hh * 2 + qq] * gscale;
+                    const float v1 = acc[1][nt][hh * 2 + qq] * gscale;
+                    if (KIND == 1 && S == 1) {
+                        // TASK.md: activations stay BF16 wherever SGLang keeps BF16. Marlin
+                        // writes gate and up to its BF16 cache1 before silu_and_mul.
+                        const float gb = bf16r(v0);
+                        const float ub = bf16r(v1);
+                        const float sv0 = gb / (1.f + __expf(-gb));
+                        // SwiGLU's output is GEMM2's BF16 input in SGLang too.
+                        reinterpret_cast<__nv_bfloat16*>(out)[static_cast<size_t>(p) * kInter
+                                                              + u * 16 + hh * 8 + g] =
+                            __float2bfloat16_rn(sv0 * ub);
+                    } else if (KIND == 1) {
+                        float* o = reinterpret_cast<float*>(out)
+                                   + (static_cast<size_t>(z) * numel + p) * (2 * kInter);
+                        o[u * 16 + hh * 8 + g] = v0;
+                        o[kInter + u * 16 + hh * 8 + g] = v1;
+                    } else {
+                        float* o = reinterpret_cast<float*>(out)
+                                   + (static_cast<size_t>(z) * numel + p) * kK;
+                        o[u * 32 + hh * 8 + g] = v0;
+                        o[u * 32 + 16 + hh * 8 + g] = v1;
+                    }
+                }
+            }
+        }
+        if (!has_next) {
+            break;
+        }
+        q = qn;
+        e = en;
+        nrows = nrowsn;
+        row0 = row0n;
+        u = un;
+        z = zn;
+        wp = wpn;
+        sp = spn;
+        buf ^= 1;
+    }
+}
+
+// The post-expert norm and weighted sum over GEMM2's FP32 K-split partials. CL blocks per
+// token (a cluster when CL > 1), 512 / CL threads each, 8 channels per thread; the per-slot
+// sums of squares are combined through distributed shared memory. One block per token leaves
+// small batches to one SM's bandwidth. Dead slots are never read.
+template <int CL>
+__global__ void __launch_bounds__(512 / CL) w4_finalize_kernel(
+        const float* __restrict__ part, int splits, int numel, const float* __restrict__ scores,
+        const __nv_bfloat16* __restrict__ norm_w, const int* __restrict__ local_ids,
+        __nv_bfloat16* __restrict__ out, float eps) {
+    asm volatile("griddepcontrol.launch_dependents;");
+    asm volatile("griddepcontrol.wait;" ::: "memory");
+    constexpr int kTopK = 8;
+    constexpr int THREADS = 512 / CL;
+    constexpr int WARPS = THREADS / 32;
+    __shared__ float red[kTopK][WARPS];
+    __shared__ float psum[kTopK];
+    __shared__ float scale[kTopK];
+    const int t = blockIdx.y;
+    const int tid = threadIdx.x;
+    const int lane = tid & 31;
+    const int warp = tid >> 5;
+    const int c = (blockIdx.x * THREADS + tid) * 8;
+    float w[8];
+    {
+        const uint4 raw = *reinterpret_cast<const uint4*>(norm_w + c);
+        const __nv_bfloat162* h = reinterpret_cast<const __nv_bfloat162*>(&raw);
+#pragma unroll
+        for (int i = 0; i < 4; ++i) {
+            const float2 f = __bfloat1622float2(h[i]);
+            w[2 * i] = f.x;
+            w[2 * i + 1] = f.y;
+        }
+    }
+    bool live[kTopK];
+    float v[kTopK][8];
+    float ss[kTopK];
+#pragma unroll
+    for (int k = 0; k < kTopK; ++k) {
+        live[k] = local_ids[t * kTopK + k] >= 0;
+        ss[k] = 0.f;
+#pragma unroll
+        for (int j = 0; j < 8; ++j) {
+            v[k][j] = 0.f;
+        }
+        if (live[k]) {
+            for (int z = 0; z < splits; ++z) {
+                const float* row = part + (static_cast<size_t>(z) * numel + t * kTopK + k) * kK + c;
+                const float4 a = *reinterpret_cast<const float4*>(row);
+                const float4 b = *reinterpret_cast<const float4*>(row + 4);
+                v[k][0] += a.x; v[k][1] += a.y; v[k][2] += a.z; v[k][3] += a.w;
+                v[k][4] += b.x; v[k][5] += b.y; v[k][6] += b.z; v[k][7] += b.w;
+            }
+        }
+        // TASK.md: activations stay BF16 wherever SGLang keeps BF16. The K-split partials
+        // are GEMM2's own FP32 reduction (Marlin reduces in FP32 too); its output, which
+        // Marlin writes as BF16, is rounded here before the norm.
+#pragma unroll
+        for (int j = 0; j < 8; ++j) {
+            v[k][j] = bf16r(v[k][j]) * w[j];
+            ss[k] += v[k][j] * v[k][j];
+        }
+    }
+#pragma unroll
+    for (int k = 0; k < kTopK; ++k) {
+#pragma unroll
+        for (int d = 16; d > 0; d >>= 1) {
+            ss[k] += __shfl_xor_sync(0xffffffffu, ss[k], d);
+        }
+    }
+    if (lane == 0) {
+#pragma unroll
+        for (int k = 0; k < kTopK; ++k) {
+            red[k][warp] = ss[k];
+        }
+    }
+    __syncthreads();
+    if (tid < kTopK) {
+        float s = 0.f;
+#pragma unroll
+        for (int i = 0; i < WARPS; ++i) {
+            s += red[tid][i];
+        }
+        psum[tid] = s;
+    }
+    if (CL > 1) {
+        cg::cluster_group cluster = cg::this_cluster();
+        cluster.sync();
+        if (tid < kTopK) {
+            float s = 0.f;
+#pragma unroll
+            for (int r = 0; r < CL; ++r) {
+                s += *cluster.map_shared_rank(&psum[tid], r);
+            }
+            scale[tid] = live[tid] ? scores[t * kTopK + tid] * rsqrtf(s / kK + eps) : 0.f;
+        }
+        // Also keeps every block's psum alive until the other blocks have read it.
+        cluster.sync();
+    } else {
+        __syncthreads();
+        if (tid < kTopK) {
+            scale[tid] = live[tid] ? scores[t * kTopK + tid] * rsqrtf(psum[tid] / kK + eps)
+                                   : 0.f;
+        }
+        __syncthreads();
+    }
+    float acc[8];
+#pragma unroll
+    for (int j = 0; j < 8; ++j) {
+        acc[j] = 0.f;
+    }
+#pragma unroll
+    for (int k = 0; k < kTopK; ++k) {
+        const float s = scale[k];
+#pragma unroll
+        for (int j = 0; j < 8; ++j) {
+            acc[j] += s * v[k][j];
+        }
+    }
+    uint4 raw;
+    __nv_bfloat162* h = reinterpret_cast<__nv_bfloat162*>(&raw);
+#pragma unroll
+    for (int i = 0; i < 4; ++i) {
+        h[i] = __floats2bfloat162_rn(acc[2 * i], acc[2 * i + 1]);
+    }
+    *reinterpret_cast<uint4*>(out + static_cast<size_t>(t) * kK + c) = raw;
+}
+
+// Sums the K-split partials of GEMM1 and applies SwiGLU: 8 blocks of 64 threads per route,
+// 8 features per thread; routes to other GPUs' experts are skipped.
+__global__ void __launch_bounds__(64) w4_swiglu_kernel(
+        const float* __restrict__ part, const int* __restrict__ local_ids, int numel,
+        int splits, __nv_bfloat16* __restrict__ out) {
+    // GEMM2 may start streaming its weights while this kernel runs; it waits for this
+    // kernel's output itself.
+    asm volatile("griddepcontrol.launch_dependents;");
+    asm volatile("griddepcontrol.wait;" ::: "memory");
+    const int p = blockIdx.x;
+    if (local_ids[p] < 0) {
+        return;
+    }
+    const int c = (blockIdx.y * 64 + threadIdx.x) * 8;
+    float gv[8];
+    float uv[8];
+#pragma unroll
+    for (int j = 0; j < 8; ++j) {
+        gv[j] = 0.f;
+        uv[j] = 0.f;
+    }
+    for (int z = 0; z < splits; ++z) {
+        const float* row = part + (static_cast<size_t>(z) * numel + p) * (2 * kInter);
+        const float4 g0 = *reinterpret_cast<const float4*>(row + c);
+        const float4 g1 = *reinterpret_cast<const float4*>(row + c + 4);
+        const float4 u0 = *reinterpret_cast<const float4*>(row + kInter + c);
+        const float4 u1 = *reinterpret_cast<const float4*>(row + kInter + c + 4);
+        gv[0] += g0.x; gv[1] += g0.y; gv[2] += g0.z; gv[3] += g0.w;
+        gv[4] += g1.x; gv[5] += g1.y; gv[6] += g1.z; gv[7] += g1.w;
+        uv[0] += u0.x; uv[1] += u0.y; uv[2] += u0.z; uv[3] += u0.w;
+        uv[4] += u1.x; uv[5] += u1.y; uv[6] += u1.z; uv[7] += u1.w;
+    }
+    uint4 raw;
+    __nv_bfloat162* h = reinterpret_cast<__nv_bfloat162*>(&raw);
+#pragma unroll
+    for (int j = 0; j < 4; ++j) {
+        // TASK.md: activations stay BF16 wherever SGLang keeps BF16. The split-K sum is
+        // GEMM1's own FP32 reduction; its gate and up outputs, which Marlin writes to BF16
+        // cache1, are rounded before SwiGLU, and SwiGLU's output is BF16 like SGLang's.
+        const float g0 = bf16r(gv[2 * j]);
+        const float g1 = bf16r(gv[2 * j + 1]);
+        const float a = g0 / (1.f + __expf(-g0)) * bf16r(uv[2 * j]);
+        const float b = g1 / (1.f + __expf(-g1)) * bf16r(uv[2 * j + 1]);
+        h[j] = __floats2bfloat162_rn(a, b);
+    }
+    *reinterpret_cast<uint4*>(out + static_cast<size_t>(p) * kInter + c) = raw;
+}
+
+template <typename Kern, typename... Args>
+void launch_pdl(Kern kern, dim3 grid, int threads, int smem, bool pdl, cudaStream_t stream,
+                Args... args) {
+    cudaLaunchConfig_t cfg = {};
+    cfg.gridDim = grid;
+    cfg.blockDim = dim3(threads, 1, 1);
+    cfg.dynamicSmemBytes = smem;
+    cfg.stream = stream;
+    cudaLaunchAttribute attr[1];
+    attr[0].id = cudaLaunchAttributeProgrammaticStreamSerialization;
+    attr[0].val.programmaticStreamSerializationAllowed = pdl ? 1 : 0;
+    cfg.attrs = attr;
+    cfg.numAttrs = 1;
+    C10_CUDA_CHECK(cudaLaunchKernelEx(&cfg, kern, args...));
+}
+
+template <int KIND, int NT, int ROWS, int S, int W, int D, int MODE, int LAYOUT, int P>
+void w4_launch(const __nv_bfloat16* act, const uint4* wq, const uint4* wsc, const float* gs,
+               const int* sorted_ids, const int2* items, const int* num_items, int max_items,
+               int numel, void* out, bool pdl, cudaStream_t stream) {
+    constexpr int U = KIND == 1 ? 256 : 128;
+    constexpr int smem = (P ? 2 : 1) * ROWS * (kK / S + 8) * 2;
+    auto kern = w4_gemm_kernel<KIND, NT, ROWS, S, W, D, MODE, LAYOUT, P>;
+    static int grid = 0;
+    if (grid == 0) {
+        C10_CUDA_CHECK(cudaFuncSetAttribute(
+            kern, cudaFuncAttributeMaxDynamicSharedMemorySize, smem));
+        int blocks = 0;
+        C10_CUDA_CHECK(cudaOccupancyMaxActiveBlocksPerMultiprocessor(&blocks, kern, W * 32, smem));
+        int sms = 0;
+        C10_CUDA_CHECK(cudaDeviceGetAttribute(&sms, cudaDevAttrMultiProcessorCount, 0));
+        grid = blocks * sms;
+    }
+    const dim3 g = P ? dim3(grid) : dim3(U / W, max_items, S);
+    launch_pdl(kern, g, W * 32, smem, pdl, stream, act, wq, wsc, gs, sorted_ids, items,
+               num_items, numel, out);
+}
+
+// Registers per thread, dynamic shared memory per block, and resident blocks per SM.
+template <int KIND, int NT, int ROWS, int S, int W, int D, int MODE, int LAYOUT, int P>
+std::vector<int64_t> w4_query() {
+    constexpr int smem = (P ? 2 : 1) * ROWS * (kK / S + 8) * 2;
+    auto kern = w4_gemm_kernel<KIND, NT, ROWS, S, W, D, MODE, LAYOUT, P>;
+    C10_CUDA_CHECK(cudaFuncSetAttribute(
+        kern, cudaFuncAttributeMaxDynamicSharedMemorySize, smem));
+    cudaFuncAttributes attr;
+    C10_CUDA_CHECK(cudaFuncGetAttributes(&attr, kern));
+    int blocks = 0;
+    C10_CUDA_CHECK(cudaOccupancyMaxActiveBlocksPerMultiprocessor(&blocks, kern, W * 32, smem));
+    return {attr.numRegs, smem + static_cast<int64_t>(attr.sharedSizeBytes), blocks};
+}
+
+template <int CL>
+void finalize_launch(const float* part, int splits, int numel, const float* scores,
+                     const __nv_bfloat16* norm_w, const int* local_ids, __nv_bfloat16* out,
+                     float eps, bool pdl, cudaStream_t stream) {
+    cudaLaunchConfig_t cfg = {};
+    cfg.gridDim = dim3(CL, numel / 8, 1);
+    cfg.blockDim = dim3(512 / CL, 1, 1);
+    cfg.dynamicSmemBytes = 0;
+    cfg.stream = stream;
+    cudaLaunchAttribute attr[2];
+    attr[0].id = cudaLaunchAttributeProgrammaticStreamSerialization;
+    attr[0].val.programmaticStreamSerializationAllowed = pdl ? 1 : 0;
+    attr[1].id = cudaLaunchAttributeClusterDimension;
+    attr[1].val.clusterDim.x = CL;
+    attr[1].val.clusterDim.y = 1;
+    attr[1].val.clusterDim.z = 1;
+    cfg.attrs = attr;
+    cfg.numAttrs = CL > 1 ? 2 : 1;
+    C10_CUDA_CHECK(cudaLaunchKernelEx(&cfg, w4_finalize_kernel<CL>, part, splits, numel, scores,
+                                      norm_w, local_ids, out, eps));
+}
+
+// w4_compile_check: w4_swiglu_kernel<<<1, 512>>>(nullptr, nullptr, 0, 1, nullptr);
+// w4_compile_check: finalize_launch<1>(0, 1, 8, 0, 0, 0, 0, 0.f, false, 0);
+// w4_compile_check: finalize_launch<4>(0, 1, 8, 0, 0, 0, 0, 0.f, false, 0);
+// w4_compile_check: finalize_launch<8>(0, 1, 8, 0, 0, 0, 0, 0.f, false, 0);
+//@W4_COMPILE_CHECKS@
+}  // namespace
+
+void w4_gemm(int64_t cfg, torch::Tensor act, torch::Tensor wq, torch::Tensor wsc,
+             torch::Tensor gs, torch::Tensor sorted_ids, torch::Tensor items,
+             torch::Tensor num_items, int64_t numel, torch::Tensor out, bool pdl) {
+    auto stream = at::cuda::getCurrentCUDAStream();
+    const auto* ap = reinterpret_cast<const __nv_bfloat16*>(act.data_ptr<at::BFloat16>());
+    const auto* wp = reinterpret_cast<const uint4*>(wq.data_ptr());
+    const auto* sp = reinterpret_cast<const uint4*>(wsc.data_ptr());
+    const float* gp = gs.data_ptr<float>();
+    const int* ip = sorted_ids.data_ptr<int>();
+    const auto* itp = reinterpret_cast<const int2*>(items.data_ptr<int>());
+    const int* np = num_items.data_ptr<int>();
+    const int mi = items.size(0);
+    const int n = static_cast<int>(numel);
+    void* op = out.data_ptr();
+    switch (cfg) {
+//@W4_CASES@
+        default: TORCH_CHECK(false, "bad w4 config");
+    }
+}
+
+std::vector<int64_t> w4_info(int64_t cfg) {
+    switch (cfg) {
+//@W4_INFO@
+        default: TORCH_CHECK(false, "bad w4 config");
+    }
+    return {};
+}
+
+torch::Tensor w4_finalize(torch::Tensor part, torch::Tensor scores, torch::Tensor norm_w,
+                          torch::Tensor local_ids, double eps, bool pdl, int64_t cl) {
+    const int splits = part.size(0);
+    const int numel = part.size(1);
+    auto out = torch::empty({numel / 8, kK}, norm_w.options());
+    const float* pp = part.data_ptr<float>();
+    const float* sp = scores.data_ptr<float>();
+    const auto* wp = reinterpret_cast<const __nv_bfloat16*>(norm_w.data_ptr<at::BFloat16>());
+    const int* ip = local_ids.data_ptr<int>();
+    auto* op = reinterpret_cast<__nv_bfloat16*>(out.data_ptr<at::BFloat16>());
+    const float e = static_cast<float>(eps);
+    auto stream = at::cuda::getCurrentCUDAStream();
+    switch (cl) {
+        case 1: finalize_launch<1>(pp, splits, numel, sp, wp, ip, op, e, pdl, stream); break;
+        case 4: finalize_launch<4>(pp, splits, numel, sp, wp, ip, op, e, pdl, stream); break;
+        case 8: finalize_launch<8>(pp, splits, numel, sp, wp, ip, op, e, pdl, stream); break;
+        default: TORCH_CHECK(false, "bad finalize cluster size");
+    }
+    return out;
+}
+
+void w4_swiglu(torch::Tensor part, torch::Tensor local_ids, int64_t splits, torch::Tensor out,
+               bool pdl) {
+    const int numel = local_ids.numel();
+    launch_pdl(w4_swiglu_kernel, dim3(numel, 8), 64, 0, pdl, at::cuda::getCurrentCUDAStream(),
+               static_cast<const float*>(part.data_ptr<float>()),
+               static_cast<const int*>(local_ids.data_ptr<int>()), numel,
+               static_cast<int>(splits),
+               reinterpret_cast<__nv_bfloat16*>(out.data_ptr<at::BFloat16>()));
+}
+"""
+
+
+def _legacy_w4_source():
+    cases = []
+    checks = []
+    infos = []
+    for i, cfg in enumerate(LEGACY_CONFIGS):
+        targs = ", ".join(str(v) for v in cfg)
+        infos.append(f"        case {i}: return w4_query<{targs}>();")
+        cases.append(f"        case {i}: w4_launch<{targs}>(ap, wp, sp, gp, ip, itp, np, mi, n, "
+                     f"op, pdl, stream); break;")
+        checks.append(
+            f"// w4_compile_check: w4_launch<{targs}>(0, 0, 0, 0, 0, 0, 0, 1, 1, 0, false, 0);")
+    return (_LEGACY_W4_SRC.replace("//@W4_CASES@", "\n".join(cases))
+            .replace("//@W4_INFO@", "\n".join(infos))
+            .replace("//@W4_COMPILE_CHECKS@", "\n".join(checks)))
+
+
+_LEGACY_EXTS = {}
+
+
+def _legacy_route_ext():
+    if "route" not in _LEGACY_EXTS:
+        _LEGACY_EXTS["route"] = load_inline(
+            name="okc_moe_legacy_route", cpp_sources=_LEGACY_ROUTE_CPP,
+            cuda_sources=_LEGACY_ROUTE_SRC, functions=["route_align", "finalize"],
+            extra_cuda_cflags=["-O3", "-gencode=arch=compute_90a,code=sm_90a"])
+    return _LEGACY_EXTS["route"]
+
+
+def _legacy_w4_ext():
+    if "w4" not in _LEGACY_EXTS:
+        _LEGACY_EXTS["w4"] = load_inline(
+            name="okc_moe_legacy_w4", cpp_sources=_LEGACY_W4_CPP, cuda_sources=_legacy_w4_source(),
+            functions=["w4_gemm", "w4_swiglu", "w4_info", "w4_finalize"],
+            extra_cuda_cflags=["-O3", "-gencode=arch=compute_90a,code=sm_90a"])
+    return _LEGACY_EXTS["w4"]
+
+
+def w4_unit_rows(codes, kind):
+    """[N, K] per-row data -> [U, tile, hi8, g, K]: the 32 rows of each unit. Kind 1 pairs gate
+    rows 16u.. with up rows N/2 + 16u..; kind 2 takes 32 consecutive rows."""
+    n = codes.shape[0]
+    rest = codes.shape[1]
+    if kind == 1:
+        return _perm(codes.reshape(2, n // 32, 2, 8, rest), (1, 0, 2, 3, 4))
+    return codes.reshape(n // 32, 2, 2, 8, rest)
+
+
+def w4_repack_values(packed, kind):
+    """One expert's E2M1 bytes [N, K/2] (low nibble first) -> int64 words [N * K / 8], in the
+    order [unit][k stage of 64][half][lane][4 words], each word one A fragment of one tile and
+    one 16-wide k block: word i of a lane's 16 bytes is k block 2 * half + i // 2, tile i % 2."""
+    n = packed.shape[0]
+    k = packed.shape[1] * 2
+    lo = packed & 15
+    hi = packed >> 4
+    codes = _stack_last(lo, hi).reshape(n, k)
+    c = w4_unit_rows(codes, 1 if kind == 1 else 2)
+    # [u, tile, hi8, g, stage, half, j1, khi, t, q]
+    c = c.reshape(n // 32, 2, 2, 8, k // 64, 2, 2, 2, 4, 2)
+    # -> [u, stage, half, g, t, j1, tile, khi, hi8, q]: lane = 4 g + t, register = 2 khi + hi8
+    c = _perm(c, (0, 4, 5, 3, 8, 6, 1, 7, 2, 9)).reshape(-1, 8)
+    c = _to_i64(c)
+    out = c[:, 0] * 0
+    for v in range(8):
+        for b in range(4):
+            out = out | (((c[:, v] >> b) & 1) << W4_BITPOS[v][b])
+    return out
+
+
+def w4_repack_scales(sf, kind):
+    """One expert's E4M3 block-scale bytes [N, K/16] -> bytes in the order
+    [unit][stage][g][k block 0-3][tile][row g or g + 8]: 16 bytes per lane group per stage."""
+    n = sf.shape[0]
+    kb = sf.shape[1]
+    s = w4_unit_rows(sf, 1 if kind == 1 else 2)
+    # [u, tile, hi8, g, stage, half, j1]
+    s = s.reshape(n // 32, 2, 2, 8, kb // 4, 2, 2)
+    return _perm(s, (0, 4, 3, 5, 6, 1, 2)).reshape(-1)
+
+
+def _legacy_prepare(weights, start, count):
+    """The previous kernel's weight layout (32-row units, 64-k stages, per-lane fragments)."""
+    out = {}
+    for name, kind in (("w13", 1), ("w2", 2)):
+        packed = weights[name][start:start + count]
+        sf = weights[name + "_sf"][start:start + count].view(torch.uint8)
+        words = []
+        scales = []
+        for e in range(count):
+            w = w4_repack_values(packed[e], kind)
+            w = torch.where(w >= 2 ** 31, w - 2 ** 32, w).to(torch.int32)
+            words.append(w)
+            scales.append(w4_repack_scales(sf[e], kind).contiguous())
+        out[name] = torch.cat(words).contiguous()
+        out[name + "_s"] = torch.cat(scales).contiguous()
+        out[name + "_gs"] = weights[name + "_gs"][start:start + count].float().contiguous()
+    return out
+
+
+def _w4_gemm1(w4, cfg, x, sorted_ids, items, num_items, local_ids, numel, inter, pdl=False):
+    """inter[route] = SwiGLU(x[token] @ W13[expert]^T) for every local route, in bf16."""
+    splits = LEGACY_CONFIGS[cfg][3]
+    name = "w13"
+    ext = _legacy_w4_ext()
+    if splits == 1:
+        ext.w4_gemm(cfg, x, w4[name], w4[name + "_s"], w4["w13_gs"], sorted_ids, items,
+                    num_items, numel, inter, pdl)
+        return
+    part = torch.empty((splits, numel, 2 * 4096), device=x.device, dtype=torch.float32)
+    ext.w4_gemm(cfg, x, w4[name], w4[name + "_s"], w4["w13_gs"], sorted_ids, items, num_items,
+                numel, part, pdl)
+    ext.w4_swiglu(part, local_ids.view(-1), splits, inter, pdl)
+
+
+def _w4_gemm2(w4, cfg, inter, sorted_ids, items, num_items, numel, pdl=False):
+    """FP32 K-split partials [splits, routes, 4096] of inter[route] @ W2[expert]^T."""
+    splits = LEGACY_CONFIGS[cfg][3]
+    name = "w2"
+    part = torch.empty((splits, numel, 4096), device=inter.device, dtype=torch.float32)
+    _legacy_w4_ext().w4_gemm(cfg, inter, w4[name], w4[name + "_s"], w4["w2_gs"], sorted_ids, items,
+                      num_items, numel, part, pdl)
+    return part
+
+
+def _run_legacy(data, state, pol):
+    """route_align, W4 GEMM1 with its SwiGLU reduce, W4 GEMM2, FP32 finalizer; PDL on."""
+    g1, g2, fcl = pol
+    cfg = data["config"]
+    start, count = cfg["local_start"], cfg["local_count"]
+    x = data["hidden_states"]
+    if not x.is_contiguous():
+        x = x.contiguous()
+    m = x.shape[0]
+    numel = m * TOP_K
+    ids = data["topk_ids"]
+    if ids.dtype != torch.int32 or not ids.is_contiguous():
+        ids = ids.to(torch.int32).contiguous()
+    tw = data["topk_weights"]
+    if tw.dtype != torch.float32 or not tw.is_contiguous():
+        tw = tw.to(torch.float32).contiguous()
+    bsm = 16
+    max_padded = numel * bsm if numel < N_EXPERTS + 1 else numel + (N_EXPERTS + 1) * (bsm - 1)
+    max_padded = (max_padded + 3) // 4 * 4
+    rows1 = 8 * LEGACY_CONFIGS[g1][1]
+    rows2 = 8 * LEGACY_CONFIGS[g2][1]
+    (sorted_ids, _, _, local_ids, items, num_items, items2,
+     num_items2) = _legacy_route_ext().route_align(ids, start, count, bsm, max_padded, rows1, rows2)
+    w4 = state["legacy"]
+    inter = torch.empty((numel, HIDDEN), device=x.device, dtype=torch.bfloat16)
+    _w4_gemm1(w4, g1, x, sorted_ids, items, num_items, local_ids, numel, inter, True)
+    part = _w4_gemm2(w4, g2, inter, sorted_ids, items2, num_items2, numel, True)
+    return _legacy_w4_ext().w4_finalize(part, tw, state["nw_bf16"], local_ids.view(-1),
+                                        POST_NORM_EPS, True, fcl)
+
+
 def _scratch(device):
     sms = torch.cuda.get_device_properties(device).multi_processor_count
     xbytes = (EMAX // 8 + JMAX_MAIN) * 65536
@@ -1914,6 +3158,8 @@ def _run(data, state, variant=None):
     s = state["scratch"]
     if variant is None:
         variant = _policy_variant(state, m)
+    if variant >= VARIANT_LEGACY0:
+        return _run_legacy(data, state, LEGACY_POLICIES[variant - VARIANT_LEGACY0])
     _ext().moe_run(x, ids, tw, w["w13"], w["w2"], w["w13_gs"], w["w2_gs"], state["nw"],
                    s["inter"], s["ybuf"], s["ss"], s["ctr"], s["done_a"], out,
                    w["w13f"], w["w2f"], s["xa"], s["xb"], s["fix"], s["fixcnt"], s["xready"],
@@ -2063,10 +3309,13 @@ def _bench(state, main_ok, seeds=(11, 12)):
     flush = torch.empty(256 << 20, dtype=torch.uint8, device="cuda")
     policy = {}
     for bs in POLICY_BS:
-        cands = list(SKINNY_CANDIDATES) + ([VARIANT_MAIN0] if main_ok and bs >= MAIN_MIN_M else [])
+        cands = list(SKINNY_CANDIDATES)
         diag = [i for i, v in enumerate(SKINNY_VARIANTS) if v[2] == 1]
         if main_ok and bs >= MAIN_MIN_M:
-            diag.append(VARIANT_MAIN0 + 1)
+            cands += [VARIANT_MAIN0 + i for i, m in enumerate(MAIN_MODES) if m in MAIN_CANDIDATES]
+            diag += [VARIANT_MAIN0 + i for i, m in enumerate(MAIN_MODES) if m not in MAIN_CANDIDATES]
+        if state.get("legacy_ok") and bs >= 16:
+            cands += [VARIANT_LEGACY0 + i for i in range(len(LEGACY_POLICIES))]
         tot = {}
         for seed in seeds:
             data = _make_inputs(bs, 977 * seed + bs)
@@ -2086,8 +3335,11 @@ def _bench(state, main_ok, seeds=(11, 12)):
 
 
 def _vname(v):
+    if v >= VARIANT_LEGACY0:
+        return f"legacy{(32, 128, 256)[v - VARIANT_LEGACY0]}"
     if v >= VARIANT_MAIN0:
-        return f"main{'' if v == VARIANT_MAIN0 else '-loads'}"
+        m = MAIN_MODES[v - VARIANT_MAIN0]
+        return {0: "main-d2", 5: "main-d3", 1: "main-loads", 4: "main-nogate"}[m]
     nw, ns, mode = SKINNY_VARIANTS[v]
     return f"sk{nw}w{ns}s{'-loads' if mode else ''}"
 
@@ -2098,11 +3350,20 @@ def prepare(weights):
     state = {
         "w": _repack(weights, 0, MAX_LOCAL),
         "nw": (weights["post_norm_w"].float() + 1.0).contiguous(),
+        "nw_bf16": (weights["post_norm_w"].float() + 1.0).to(torch.bfloat16).contiguous(),
         "scratch": _scratch(device),
+        "legacy": _legacy_prepare(weights, 0, MAX_LOCAL),
+        "legacy_ok": False,
     }
     torch.cuda.synchronize()
     t1 = time.time()
     _ext()
+    try:
+        _legacy_route_ext()
+        _legacy_w4_ext()
+        state["legacy_ok"] = True
+    except Exception as exc:
+        print(f"LEGACY build failed: {type(exc).__name__}: {exc}")
     t2 = time.time()
     state["main_ok"] = False
     state["policy"] = {}
@@ -2110,8 +3371,17 @@ def prepare(weights):
     ok = True
     for v in SKINNY_CANDIDATES:
         ok = _self_test(state, weights, (1, 4, 8, 16), _vname(v), v) and ok
-    main_ok = _self_test(state, weights, (32, 33, 128, 257), "main", VARIANT_MAIN0)
+    main_ok = True
+    for i, m in enumerate(MAIN_MODES):
+        if m in MAIN_CANDIDATES:
+            main_ok = _self_test(state, weights, (32, 33, 128, 257), _vname(VARIANT_MAIN0 + i),
+                                 VARIANT_MAIN0 + i) and main_ok
     state["main_ok"] = main_ok
+    if state["legacy_ok"]:
+        for i in range(len(LEGACY_POLICIES)):
+            state["legacy_ok"] = _self_test(state, weights, (32, 33, 128, 257),
+                                            _vname(VARIANT_LEGACY0 + i), VARIANT_LEGACY0 + i) \
+                and state["legacy_ok"]
     if not main_ok:
         # The skinny path handles every size (split jobs of 8 tokens); it is the fallback.
         ok = _self_test(state, weights, (32, 33, 128, 257), "fallback", SKINNY_DEFAULT) and ok
