@@ -6439,6 +6439,8 @@ struct Params {
     int lo;
     int nloc;
     float eps;
+    // Fat path stage costs by (phase, n-tile count); cost[0][1] == 0 means the compiled table.
+    int cost[2][9];
     // The layer's local_start is an input tensor, read here instead of the host value.
     const int* lo_p;
 };
@@ -6506,6 +6508,18 @@ __device__ __forceinline__ void prefetch_l2(const void* p) {
 
 __device__ __forceinline__ void fence_proxy_async() {
     asm volatile("fence.proxy.async.shared::cta;" ::: "memory");
+}
+
+// x tiles in global memory (xa from the gather, xb from phase A's epilogue) are written with
+// generic stores and read by other CTAs through cp.async.bulk, which is the async proxy (PTX
+// ISA 8.6, 9.7.10.28.2). Proxy-preserved base causality (8.9.5) does not carry a generic write
+// to an async-proxy read without a proxy fence on the path, so every writer fences its own
+// stores before the release, and the issuing thread fences again after its acquire: the
+// bidirectional fence acts within one thread (9.7.15.4), and the second one keeps the chain
+// valid under the reading where only the issuer's own later async operations are ordered.
+// docs/runs-moe.md, "Proxy ordering of the x tiles", has the whole chain.
+__device__ __forceinline__ void fence_proxy_async_global() {
+    asm volatile("fence.proxy.async.global;" ::: "memory");
 }
 
 __device__ __forceinline__ void mma_bf16(float (&c)[4], const unsigned (&a)[4], unsigned b0,
@@ -7572,10 +7586,66 @@ constexpr int kJmaxM = kLocalMax + kEmax / 64;
 constexpr int kUAM = 512;
 constexpr int kUBM = 256;
 constexpr int kBarWg = 3;
+constexpr int kBarGather = 7;
 // Relative cost of one stage by n8-tile count: the wgmma work grows with N while the bytes
 // stay the same.
 __constant__ int kCostA[9] = {0, 112, 135, 140, 158, 173, 185, 200, 207};
 __constant__ int kCostB[9] = {0, 100, 104, 115, 123, 132, 144, 156, 174};
+// The same for stages run on mma.sync (modes 8 to 10): at small N the consumers keep up with
+// the weights stream, so the cost is closer to flat. First guesses, ranked by the bench.
+__constant__ int kCostAm[9] = {0, 90, 100, 115, 130, 150, 170, 190, 210};
+__constant__ int kCostBm[9] = {0, 85, 92, 104, 115, 130, 145, 160, 175};
+
+// Modes 6 to 10 run jobs of at most mma_max(MODE) n8 tiles on mma.sync instead of wgmma: an
+// RS wgmma group at N = 8 or 16 costs the consumers more than the stage takes to stream
+// (bench 36b5b559b0344d0f: main-d2 197 us at bs32 against 139 loads-only and 150 for the
+// mma.sync skinny kernel).
+__host__ __device__ constexpr int mma_max(int mode) {
+    return mode == 6 || mode == 9 || mode == 11 || mode == 12 || mode == 14 ? 2
+           : mode == 7 || mode == 10 ? 4
+           : mode == 8 ? 8 : 0;
+}
+
+// Modes 12 and 13 (modes 6 and 0 otherwise) order the epilogue's and the fixup's global
+// writes before their gpu-scope release or acquire with fence.acq_rel.gpu instead of
+// __threadfence (fence.sc.gpu). The pattern stays fence, then bar.sync among the warpgroup,
+// then one thread's red.release / atom.acq_rel: a fence.acq_rel followed by a strong write is
+// a release pattern and a strong read followed by fence.acq_rel an acquire pattern (PTX ISA,
+// Memory Consistency Model, "Release and Acquire Patterns"); fence.sc adds only the SC order,
+// which no reader here relies on. The SASS is MEMBAR.ALL.GPU instead of MEMBAR.SC.GPU.
+__host__ __device__ constexpr bool fence_ar(int mode) {
+    return mode == 12 || mode == 13 || mode == 14;
+}
+
+template <bool AR>
+__device__ __forceinline__ void fence_gpu() {
+    if constexpr (AR) {
+        asm volatile("fence.acq_rel.gpu;" ::: "memory");
+    } else {
+        __threadfence();
+    }
+}
+
+// Mode 11 is mode 6 with clock stamps (timing only, never a policy choice): each consumer
+// warp sums its cycles waiting for weights, waiting for x, computing and in the epilogue or
+// fixup over its mma.sync segments; the producers sum their waits; thread 0 records
+// globaltimer and clock64 at the kernel's phase boundaries. S.dg goes to p.inter (unused on
+// the fat path) at the end, 18 x 8 int64 per CTA; _diag_report has the layout.
+constexpr int kDiagMode = 11;
+__device__ __forceinline__ long long gtimer() {
+    long long t;
+    asm volatile("mov.u64 %0, %globaltimer;" : "=l"(t));
+    return t;
+}
+
+template <int MODE>
+__device__ __forceinline__ int stage_cost(int ph, int ntt) {
+    constexpr bool kFlat = MODE >= 8 && MODE <= 10;
+    if (kFlat && ntt <= mma_max(MODE)) {
+        return ph ? kCostBm[ntt] : kCostAm[ntt];
+    }
+    return ph ? kCostB[ntt] : kCostA[ntt];
+}
 
 struct __align__(128) SmemMain {
     unsigned char rings[kRingBytes];
@@ -7603,6 +7673,8 @@ struct __align__(128) SmemMain {
     int gsb[2];
     int gse[2];
     int fix_last[4];
+    int cost[2][9];
+    long long dg[18][8];
 };
 
 // Ring positions shared by the consumers and the producers: slot and lap per ring, the lap
@@ -7825,7 +7897,7 @@ __device__ __forceinline__ int stage_at(const SmemMain& S, int ph, int k, int G)
     while (j + 1 < nj && static_cast<unsigned>(pre[j + 1]) <= target) {
         ++j;
     }
-    const int cost = ph ? kCostB[S.job_ntt[j]] : kCostA[S.job_ntt[j]];
+    const int cost = S.cost[ph][S.job_ntt[j]];
     return j * spj + static_cast<int>((target - static_cast<unsigned>(pre[j]))
                                       / static_cast<unsigned>(cost));
 }
@@ -7897,7 +7969,7 @@ __device__ __forceinline__ SegInfo seg_info(const SmemMain& S, int ph, int i, in
 // SwiGLU of a finished phase A unit straight into phase B's x layout (stage u / 2 of the job,
 // 16-byte row per token and 8-feature chunk), then one release per warpgroup on the stage's
 // readiness counter.
-template <int NTT>
+template <int NTT, bool AR>
 __device__ __forceinline__ void epilogue_a(const Params& p, SmemMain& S,
                                            const float (&acc)[32], int j, int u, int wg,
                                            int w, int tid_wg) {
@@ -7934,7 +8006,8 @@ __device__ __forceinline__ void epilogue_a(const Params& p, SmemMain& S,
             d[8] = __float2bfloat16_rn(h1);
         }
     }
-    __threadfence();
+    fence_proxy_async_global();
+    fence_gpu<AR>();
     named_sync(kBarWg + wg, 128);
     if (tid_wg == 0) {
         red_release_add(p.done_as + j * 16 + st, 1);
@@ -7993,7 +8066,7 @@ __device__ __forceinline__ void epilogue_b(const Params& p, SmemMain& S, float* 
 // Every share of a cut unit adds its partial into the owner's slot and counts its stages; the
 // share that completes the count reads the sum back into fin, clears the slot and finishes
 // the unit. acc itself is never written by anything but wgmma (ptxas C7515).
-template <int NTT>
+template <int NTT, bool AR>
 __device__ __forceinline__ bool fixup(const Params& p, SmemMain& S, const float (&acc)[32],
                                       float (&fin)[32], int ph, int slot, int nst, int wg,
                                       int tid_wg, int G) {
@@ -8004,7 +8077,7 @@ __device__ __forceinline__ bool fixup(const Params& p, SmemMain& S, const float 
         red_add_v4(fp + i, make_float4(acc[4 * i], acc[4 * i + 1], acc[4 * i + 2],
                                        acc[4 * i + 3]));
     }
-    __threadfence();
+    fence_gpu<AR>();
     named_sync(kBarWg + wg, 128);
     int* cp = p.fixcnt + (ph * G + slot) * 4 + wg;
     if (tid_wg == 0) {
@@ -8015,7 +8088,7 @@ __device__ __forceinline__ bool fixup(const Params& p, SmemMain& S, const float 
     if (S.fix_last[wg] == 0) {
         return false;
     }
-    __threadfence();
+    fence_gpu<AR>();
 #pragma unroll
     for (int i = 0; i < NTT; ++i) {
         const float4 v = __ldcg(fp + i);
@@ -8159,17 +8232,172 @@ __device__ __forceinline__ void run_segment(const Params& p, SmemMain& S, float*
     }
     if (si.partial) {
         float fin[32];
-        if (fixup<NTT>(p, S, acc, fin, ph, si.slot, si.st_e - si.st_b, wg, tid_wg, G)) {
+        if (fixup<NTT, fence_ar(MODE)>(p, S, acc, fin, ph, si.slot, si.st_e - si.st_b, wg, tid_wg, G)) {
             if (ph == 0) {
-                epilogue_a<NTT>(p, S, fin, si.j, si.u, wg, w, tid_wg);
+                epilogue_a<NTT, fence_ar(MODE)>(p, S, fin, si.j, si.u, wg, w, tid_wg);
             } else {
                 epilogue_b<NTT>(p, S, ss, fin, si.j, si.u, wg, w, tid_wg);
             }
         }
     } else if (ph == 0) {
-        epilogue_a<NTT>(p, S, acc, si.j, si.u, wg, w, tid_wg);
+        epilogue_a<NTT, fence_ar(MODE)>(p, S, acc, si.j, si.u, wg, w, tid_wg);
     } else {
         epilogue_b<NTT>(p, S, ss, acc, si.j, si.u, wg, w, tid_wg);
+    }
+}
+
+__device__ __forceinline__ void ldsm_x4(unsigned (&r)[4], unsigned addr) {
+    asm volatile("ldmatrix.sync.aligned.m8n8.x4.shared.b16 {%0,%1,%2,%3}, [%4];"
+                 : "=r"(r[0]), "=r"(r[1]), "=r"(r[2]), "=r"(r[3]) : "r"(addr) : "memory");
+}
+
+// run_segment on mma.sync m16n8k16 for small N. A warp's wgmma m64 A fragment is the
+// mma.sync A fragment of its 16 rows, and the m64nN accumulator per warp is NTT m16n8
+// accumulators in the same order, so the ring layouts, the dequant, the fixup and the
+// epilogues are shared with the wgmma path. B comes from the x slot by ldmatrix: one x4 covers
+// two k16 steps of one n8 tile (step s's two 8-k core matrices at 256 s and 256 s + 128).
+// Each warp runs on its own; no warpgroup-wide wgmma sync.
+template <int NTT, int PH, int MODE>
+__device__ __forceinline__ void run_segment_mma(const Params& p, SmemMain& S, float* ss,
+                                                const SegInfo& si, Ring& rg, int G) {
+    constexpr int ph = PH;
+    constexpr bool kDiag = MODE == kDiagMode;
+    long long tw = 0;
+    long long tx = 0;
+    long long tc = 0;
+    long long c0 = 0;
+    const int tid = threadIdx.x;
+    const int lane = tid & 31;
+    const int warp = tid >> 5;
+    const int wg = warp >> 2;
+    const int w = warp & 3;
+    const int tid_wg = tid & 127;
+    // Mode 14 splits each n8 tile's 16-step mma.sync chain into two accumulators (even and odd
+    // k16 steps), halving the dependent chain per stage; the stamps put a stage's compute at
+    // 1.02 us against about 0.66 us of issue for its four warps per scheduler.
+    constexpr bool kDual = MODE == 14;
+    float acc[32];
+    float acc2[kDual ? 4 * NTT : 1];
+#pragma unroll
+    for (int i = 0; i < 32; ++i) {
+        acc[i] = 0.f;
+    }
+#pragma unroll
+    for (int i = 0; i < (kDual ? 4 * NTT : 1); ++i) {
+        acc2[i] = 0.f;
+    }
+    const unsigned lrow = static_cast<unsigned>((lane >> 3) * 128 + (lane & 7) * 16);
+#pragma unroll 1
+    for (int st = si.st_b; st < si.st_e; ++st) {
+        const int ws = rg.ws;
+        if constexpr (kDiag) {
+            c0 = clock64();
+        }
+        mbar_wait_to(&S.wfull[ws], rg.wlap & 1, p.ctr, 2);
+        if constexpr (kDiag) {
+            const long long c1 = clock64();
+            tw += c1 - c0;
+            c0 = c1;
+        }
+        const unsigned char* wslot = S.rings + ws * kUnitBytes;
+        const uint4* cp = reinterpret_cast<const uint4*>(wslot + (wg * 4 + w) * 2048) + lane;
+        uint4 cw[4];
+#pragma unroll
+        for (int i = 0; i < 4; ++i) {
+            cw[i] = cp[i * 32];
+        }
+        const uint2 sc = *reinterpret_cast<const uint2*>(wslot + 32768 + (wg * 4 + w) * 256
+                                                         + lane * 8);
+        __syncwarp();
+        if (lane == 0) {
+            fence_proxy_async();
+            mbar_arrive(&S.wempty[ws]);
+        }
+        ring_next_w(rg, S.nsw);
+        const int xs = rg.xs;
+        if constexpr (kDiag) {
+            const long long c1 = clock64();
+            tc += c1 - c0;
+            c0 = c1;
+        }
+        mbar_wait_to(&S.xfull[xs], rg.xlap & 1, p.ctr, 8);
+        if constexpr (kDiag) {
+            const long long c1 = clock64();
+            tx += c1 - c0;
+            c0 = c1;
+        }
+        const unsigned xbase = __shfl_sync(0xffffffffu,
+                                           smem_u32(S.rings + S.xoff + xs * S.xsz), 0) + lrow;
+#pragma unroll
+        for (int s = 0; s < 16; s += 2) {
+            const int c = s >> 2;
+            const unsigned scw = c < 2 ? sc.x : sc.y;
+            const unsigned sg = scale_word(scw, (2 * c) & 3);
+            const unsigned sg8 = scale_word(scw, (2 * c + 1) & 3);
+            unsigned a0[4];
+            unsigned a1[4];
+            dequant(word(cw[c], s & 3), sg, sg8, a0);
+            dequant(word(cw[c], (s + 1) & 3), sg, sg8, a1);
+#pragma unroll
+            for (int nt = 0; nt < NTT; ++nt) {
+                unsigned b[4];
+                ldsm_x4(b, xbase + nt * 4096 + s * 256);
+                float (&c4)[4] = *reinterpret_cast<float (*)[4]>(acc + 4 * nt);
+                mma_bf16(c4, a0, b[0], b[1]);
+                if constexpr (kDual) {
+                    float (&d4)[4] = *reinterpret_cast<float (*)[4]>(acc2 + 4 * nt);
+                    mma_bf16(d4, a1, b[2], b[3]);
+                } else {
+                    mma_bf16(c4, a1, b[2], b[3]);
+                }
+            }
+        }
+        // The x slot is refilled by the async proxy after these generic-proxy reads.
+        __syncwarp();
+        if (lane == 0) {
+            fence_proxy_async();
+            mbar_arrive(&S.xempty[xs]);
+        }
+        ring_next_x(rg);
+        if constexpr (kDiag) {
+            // Reading acc makes the stamp wait for this stage's mma chain.
+            const long long c1 = clock64() + (acc[0] == 1e30f ? 1 : 0);
+            tc += c1 - c0;
+        }
+    }
+    if constexpr (kDual) {
+#pragma unroll
+        for (int i = 0; i < 4 * NTT; ++i) {
+            acc[i] += acc2[i];
+        }
+    }
+    if constexpr (kDiag) {
+        c0 = clock64();
+    }
+    if (si.partial) {
+        float fin[32];
+        if (fixup<NTT, fence_ar(MODE)>(p, S, acc, fin, ph, si.slot, si.st_e - si.st_b, wg, tid_wg, G)) {
+            if (ph == 0) {
+                epilogue_a<NTT, fence_ar(MODE)>(p, S, fin, si.j, si.u, wg, w, tid_wg);
+            } else {
+                epilogue_b<NTT>(p, S, ss, fin, si.j, si.u, wg, w, tid_wg);
+            }
+        }
+    } else if (ph == 0) {
+        epilogue_a<NTT, fence_ar(MODE)>(p, S, acc, si.j, si.u, wg, w, tid_wg);
+    } else {
+        epilogue_b<NTT>(p, S, ss, acc, si.j, si.u, wg, w, tid_wg);
+    }
+    if constexpr (kDiag) {
+        if (lane == 0) {
+            long long* d = S.dg[warp];
+            d[0] += tw;
+            d[1] += tx;
+            d[2] += tc;
+            d[3] += clock64() - c0;
+            d[4] += si.st_e - si.st_b;
+            d[5] += 1;
+        }
     }
 }
 
@@ -8190,7 +8418,14 @@ __device__ __forceinline__ void run_group(const Params& p, SmemMain& S, float* s
             continue;
         }
         const SegInfo si = seg_info(S, PH, i, cta, G);
-        run_segment<NTT, PH, MODE>(p, S, ss, si, acc, rg, xrel, G);
+        if (MODE == kDiagMode && threadIdx.x == 0) {
+            S.dg[PH * 8 + NTT - 1][6] += si.st_e - si.st_b;
+        }
+        if constexpr (NTT <= mma_max(MODE)) {
+            run_segment_mma<NTT, PH, MODE>(p, S, ss, si, rg, G);
+        } else {
+            run_segment<NTT, PH, MODE>(p, S, ss, si, acc, rg, xrel, G);
+        }
     }
 }
 
@@ -8218,8 +8453,10 @@ __device__ __forceinline__ void consumers(const Params& p, SmemMain& S, float* s
     consumer_phase<1, MODE>(p, S, ss, acc, rg, xrel, cta, G);
 }
 
+template <int MODE>
 __device__ __forceinline__ void wproducer(const Params& p, SmemMain& S, int cta, int G,
                                           uint64_t pol) {
+    long long twe = 0;
     Ring rg = {0, 0, 0, 0};
     for (int ph = 0; ph < 2; ++ph) {
         const int ns = seg_count(S.gsb[ph], S.gse[ph]);
@@ -8241,7 +8478,11 @@ __device__ __forceinline__ void wproducer(const Params& p, SmemMain& S, int cta,
             for (int st = gb & 15; st < st_e; ++st) {
                 const int ws = rg.ws;
                 if (rg.wlap > 0) {
+                    const long long c0 = MODE == kDiagMode ? clock64() : 0;
                     mbar_wait_to(&S.wempty[ws], (rg.wlap - 1) & 1, p.ctr, 16);
+                    if (MODE == kDiagMode) {
+                        twe += clock64() - c0;
+                    }
                 }
                 mbar_expect_tx(&S.wfull[ws], kUnitBytes);
                 bulk_load(S.rings + ws * kUnitBytes, base + static_cast<size_t>(st) * kUnitBytes,
@@ -8251,6 +8492,9 @@ __device__ __forceinline__ void wproducer(const Params& p, SmemMain& S, int cta,
         }
         }
     }
+    if (MODE == kDiagMode) {
+        S.dg[16][0] = twe;
+    }
 }
 
 // Phase A stages come from the gathered x rows once the job's rows are all in; phase B
@@ -8258,6 +8502,9 @@ __device__ __forceinline__ void wproducer(const Params& p, SmemMain& S, int cta,
 template <int MODE>
 __device__ __forceinline__ void xproducer(const Params& p, SmemMain& S, int cta, int G) {
     Ring rg = {0, 0, 0, 0};
+    long long txe = 0;
+    long long tda = 0;
+    long long txr = 0;
     for (int ph = 0; ph < 2; ++ph) {
         const int ns = seg_count(S.gsb[ph], S.gse[ph]);
         for (int ntt = 1; ntt <= 8; ++ntt) {
@@ -8269,20 +8516,38 @@ __device__ __forceinline__ void xproducer(const Params& p, SmemMain& S, int cta,
             if (S.job_ntt[j] != ntt) {
                 continue;
             }
+            constexpr bool kDiag = MODE == kDiagMode;
             const unsigned bytes = ntt * 4096;
             const unsigned char* base = (ph ? p.xb : p.xa)
                                         + static_cast<size_t>(S.job_xo[j]) * 65536;
+            long long c0 = kDiag ? clock64() : 0;
             if (ph == 0 && MODE != 1 && MODE != 4) {
                 spin_ge(p.xready + j, S.job_n[j], p.ctr, 32);
+                fence_proxy_async_global();
+            }
+            if (kDiag) {
+                txr += clock64() - c0;
             }
             const int st_e = ((ge - 1) & 15) + 1;
             for (int st = gb & 15; st < st_e; ++st) {
                 const int xs = rg.xs;
+                if (kDiag) {
+                    c0 = clock64();
+                }
                 if (rg.xlap > 0) {
                     mbar_wait_to(&S.xempty[xs], (rg.xlap - 1) & 1, p.ctr, 64);
                 }
+                if (kDiag) {
+                    const long long c1 = clock64();
+                    txe += c1 - c0;
+                    c0 = c1;
+                }
                 if (ph == 1 && MODE != 1 && MODE != 4) {
                     spin_ge(p.done_as + j * 16 + st, 8, p.ctr, 128);
+                    fence_proxy_async_global();
+                }
+                if (kDiag) {
+                    tda += clock64() - c0;
                 }
                 mbar_expect_tx(&S.xfull[xs], bytes);
                 bulk_load_plain(S.rings + S.xoff + xs * S.xsz,
@@ -8291,6 +8556,11 @@ __device__ __forceinline__ void xproducer(const Params& p, SmemMain& S, int cta,
             }
         }
         }
+    }
+    if (MODE == kDiagMode) {
+        S.dg[17][0] = txe;
+        S.dg[17][1] = tda;
+        S.dg[17][2] = txr;
     }
 }
 
@@ -8305,27 +8575,62 @@ __global__ void __launch_bounds__(kNTM, 1) moe_main_kernel(const Params p) {
     const int cta = blockIdx.x;
     const int E = p.M * kTopK;
     asm volatile("griddepcontrol.wait;" ::: "memory");
+    constexpr bool kDiag = MODE == kDiagMode;
+    long long dt[5] = {0, 0, 0, 0, 0};
+    long long dc0 = 0;
+    if constexpr (kDiag) {
+        dt[0] = gtimer();
+        dc0 = clock64();
+        if (tid < 18 * 8) {
+            (&S.dg[0][0])[tid] = 0;
+        }
+    }
     const int gen = *reinterpret_cast<volatile int*>(p.ctr + 3);
     float* ss = p.ss + (gen & 1) * kEmax;
     const uint64_t pol = policy_evict_first();
 
+    // Every thread's topk_ids loads issued before any store (E / 4 <= 1024 int4 over 576
+    // threads): one memory round trip instead of one per 128 entries in the routing warp,
+    // stage-stamped at 12 us of prologue at 128 tokens and 18 at 256 (check 2072795029b7479f).
+    {
+        constexpr int kLd = (kEmax / 4 + kNTM - 1) / kNTM;
+        int4 v[kLd];
+#pragma unroll
+        for (int k = 0; k < kLd; ++k) {
+            const int i4 = tid + k * kNTM;
+            v[k] = i4 < (E >> 2) ? __ldg(reinterpret_cast<const int4*>(p.topk_ids) + i4)
+                                 : make_int4(-1, -1, -1, -1);
+        }
+#pragma unroll
+        for (int k = 0; k < kLd; ++k) {
+            const int i4 = tid + k * kNTM;
+            if (i4 < (E >> 2)) {
+                const int lo = ld_lo(p.lo_p);
+                const int ev[4] = {v[k].x - lo, v[k].y - lo, v[k].z - lo, v[k].w - lo};
+                char4 c;
+                c.x = static_cast<signed char>(ev[0] >= 0 && ev[0] < p.nloc ? ev[0] : -1);
+                c.y = static_cast<signed char>(ev[1] >= 0 && ev[1] < p.nloc ? ev[1] : -1);
+                c.z = static_cast<signed char>(ev[2] >= 0 && ev[2] < p.nloc ? ev[2] : -1);
+                c.w = static_cast<signed char>(ev[3] >= 0 && ev[3] < p.nloc ? ev[3] : -1);
+                *reinterpret_cast<char4*>(S.eid + 4 * i4) = c;
+            }
+        }
+    }
+    __syncthreads();
+
     if (warp == kNWarpsM - 1) {
+        if (lane < 9) {
+            const bool given = p.cost[0][1] > 0;
+            S.cost[0][lane] = given ? p.cost[0][lane] : stage_cost<MODE>(0, lane);
+            S.cost[1][lane] = given ? p.cost[1][lane] : stage_cost<MODE>(1, lane);
+        }
         S.cnt[lane] = 0;
         __syncwarp();
         for (int base = 0; base < E; base += 128) {
             const int i = base + 4 * lane;
-            int4 v = make_int4(-1, -1, -1, -1);
-            if (i < E) {
-                v = __ldg(reinterpret_cast<const int4*>(p.topk_ids + i));
-            }
-            const int ev[4] = {v.x, v.y, v.z, v.w};
 #pragma unroll
             for (int k = 0; k < 4; ++k) {
-                const int e = ev[k] - ld_lo(p.lo_p);
-                const int eid = (i < E && e >= 0 && e < p.nloc) ? e : -1;
-                if (i < E) {
-                    S.eid[i + k] = static_cast<signed char>(eid);
-                }
+                const int eid = i < E ? S.eid[i + k] : -1;
                 const unsigned peers = __match_any_sync(0xffffffffu, eid);
                 if (eid >= 0 && lane == __ffs(peers) - 1) {
                     S.cnt[eid] += __popc(peers);
@@ -8346,8 +8651,8 @@ __global__ void __launch_bounds__(kNTM, 1) moe_main_kernel(const Params p) {
         for (int k = 0; k < nj; ++k) {
             const int ntt = (min(64, tot - 64 * k) + 7) >> 3;
             xo_sum += ntt;
-            ca_sum += kUAM * kCostA[ntt];
-            cb_sum += kUBM * kCostB[ntt];
+            ca_sum += kUAM * S.cost[0][ntt];
+            cb_sum += kUBM * S.cost[1][ntt];
         }
         const int xo_incl = warp_scan(xo_sum, lane);
         const int ca_incl = warp_scan(ca_sum, lane);
@@ -8367,8 +8672,8 @@ __global__ void __launch_bounds__(kNTM, 1) moe_main_kernel(const Params p) {
             S.pa[j] = ca;
             S.pb[j] = cb;
             xo += ntt;
-            ca += kUAM * kCostA[ntt];
-            cb += kUBM * kCostB[ntt];
+            ca += kUAM * S.cost[0][ntt];
+            cb += kUBM * S.cost[1][ntt];
         }
         int mx = tot > 0 ? (min(64, tot) + 7) >> 3 : 0;
 #pragma unroll
@@ -8418,6 +8723,16 @@ __global__ void __launch_bounds__(kNTM, 1) moe_main_kernel(const Params p) {
             S.gse[ph] = stage_at(S, ph, cta + 1, G);
         }
     }
+    // The weights producer needs only the stage ranges, so it starts streaming here while the
+    // other warps gather x; they sync on their own named barrier.
+    __syncthreads();
+    if (warp == kNC) {
+        if (lane == 0) {
+            wproducer<MODE>(p, S, cta, G, pol);
+        }
+    } else {
+    const int gt = warp < kNC ? tid : tid - 32;
+    constexpr int kNG = kNTM - 32;
     // Phase A's x: every token row of every job into the per-stage wgmma layout, this CTA
     // taking entries cta, cta + G, ...; one release per row.
     for (int i = cta; i < E; i += G) {
@@ -8435,7 +8750,7 @@ __global__ void __launch_bounds__(kNTM, 1) moe_main_kernel(const Params p) {
                              + (n & 7) * 16;
         // Pair q holds K = 2 q, 2 q + 1; its stage is q / 128 and its slab position follows
         // the fat layout's k order (epilogue_a has the same mapping).
-        for (int q = tid; q < 2048; q += kNTM) {
+        for (int q = gt; q < 2048; q += kNG) {
             const int kk = (q & 127) * 2;
             const int step = 4 * (kk >> 6) + ((kk >> 2) & 3);
             const int chunk8 = 2 * step + ((kk & 3) >> 1);
@@ -8444,26 +8759,32 @@ __global__ void __launch_bounds__(kNTM, 1) moe_main_kernel(const Params p) {
                 __ldg(src + q);
         }
     }
+    fence_proxy_async_global();
     __threadfence();
-    __syncthreads();
-    {
-        const int i = cta + tid * G;
-        if (i < E && S.pos[i] >= 0) {
+    named_sync(kBarGather, kNG);
+    // A release after the barrier: a fence before bar.sync followed by a relaxed atomic is a
+    // release pattern only for the atomic thread's own earlier writes (PTX ISA 8.8), not for
+    // the rows other threads stored; red.release after bar.sync covers them by cumulativity.
+    for (int i = cta + gt * G; i < E; i += kNG * G) {
+        if (S.pos[i] >= 0) {
             const int e = S.eid[i];
-            atomicAdd(p.xready + S.job0[e] + ((S.pos[i] - S.off[e]) >> 6), 1);
+            red_release_add(p.xready + S.job0[e] + ((S.pos[i] - S.off[e]) >> 6), 1);
         }
     }
 
+    if constexpr (kDiag) {
+        dt[1] = gtimer();
+    }
     if (warp < kNC) {
         consumers<MODE>(p, S, ss, cta, G);
-    } else if (warp == kNC) {
-        if (lane == 0) {
-            wproducer(p, S, cta, G, pol);
-        }
     } else if (lane == 0) {
         xproducer<MODE>(p, S, cta, G);
     }
+    }
     __syncthreads();
+    if constexpr (kDiag) {
+        dt[2] = gtimer();
+    }
 
     if (tid == 0) {
         int* bc = p.ctr + 4 + (gen & 1);
@@ -8483,6 +8804,9 @@ __global__ void __launch_bounds__(kNTM, 1) moe_main_kernel(const Params p) {
         }
     }
     __syncthreads();
+    if constexpr (kDiag) {
+        dt[3] = gtimer();
+    }
     for (int i = cta * kNTM + tid; i < kJmaxM * 16; i += G * kNTM) {
         p.done_as[i] = 0;
     }
@@ -8494,6 +8818,22 @@ __global__ void __launch_bounds__(kNTM, 1) moe_main_kernel(const Params p) {
     }
     if (warp < kNC) {
         final_pass<kNC * 32>(p, S.pos, ss, cta, G);
+    }
+    if constexpr (kDiag) {
+        __syncthreads();
+        if (tid == 0) {
+            dt[4] = gtimer();
+            for (int i = 0; i < 5; ++i) {
+                S.dg[16][3 + i] = dt[i];
+            }
+            S.dg[17][3] = dc0;
+            S.dg[17][4] = clock64();
+        }
+        __syncthreads();
+        long long* out = reinterpret_cast<long long*>(p.inter) + cta * 18 * 8;
+        if (tid < 18 * 8) {
+            out[tid] = (&S.dg[0][0])[tid];
+        }
     }
 }
 
@@ -8600,6 +8940,11 @@ torch::Tensor moe_fused_run(torch::Tensor x, torch::Tensor topk_ids, torch::Tens
     p.lo_p = local_start.data_ptr<int>();
     p.nloc = static_cast<int>(nloc);
     p.eps = static_cast<float>(eps);
+    // Params is not zero-initialized; cost[0][1] == 0 selects the compiled stage-cost table
+    // (the layer runs no DIAG fit), any other value would be taken as a fitted table.
+    for (int i = 0; i < 18; ++i) {
+        p.cost[i / 9][i % 9] = 0;
+    }
     for (int64_t m0 = 0; m0 < m; m0 += kEmax / kTopK) {
         p.M = static_cast<int>(std::min<int64_t>(kEmax / kTopK, m - m0));
         p.x = reinterpret_cast<const __nv_bfloat16*>(x.data_ptr<at::BFloat16>())

@@ -197,6 +197,18 @@ __device__ __forceinline__ void fence_proxy_async() {
     asm volatile("fence.proxy.async.shared::cta;" ::: "memory");
 }
 
+// x tiles in global memory (xa from the gather, xb from phase A's epilogue) are written with
+// generic stores and read by other CTAs through cp.async.bulk, which is the async proxy (PTX
+// ISA 8.6, 9.7.10.28.2). Proxy-preserved base causality (8.9.5) does not carry a generic write
+// to an async-proxy read without a proxy fence on the path, so every writer fences its own
+// stores before the release, and the issuing thread fences again after its acquire: the
+// bidirectional fence acts within one thread (9.7.15.4), and the second one keeps the chain
+// valid under the reading where only the issuer's own later async operations are ordered.
+// docs/runs-moe.md, "Proxy ordering of the x tiles", has the whole chain.
+__device__ __forceinline__ void fence_proxy_async_global() {
+    asm volatile("fence.proxy.async.global;" ::: "memory");
+}
+
 __device__ __forceinline__ void mma_bf16(float (&c)[4], const unsigned (&a)[4], unsigned b0,
                                          unsigned b1) {
     asm("mma.sync.aligned.m16n8k16.row.col.f32.bf16.bf16.f32 "
@@ -694,6 +706,7 @@ __device__ __forceinline__ void epilogue_a(const Params& p, SmemMain& S,
             d[8] = __float2bfloat16_rn(h1);
         }
     }
+    fence_proxy_async_global();
     fence_gpu<AR>();
     named_sync(kBarWg + wg, 128);
     if (tid_wg == 0) {
@@ -1210,6 +1223,7 @@ __device__ __forceinline__ void xproducer(const Params& p, SmemMain& S, int cta,
             long long c0 = kDiag ? clock64() : 0;
             if (ph == 0 && MODE != 1 && MODE != 4) {
                 spin_ge(p.xready + j, S.job_n[j], p.ctr, 32);
+                fence_proxy_async_global();
             }
             if (kDiag) {
                 txr += clock64() - c0;
@@ -1230,6 +1244,7 @@ __device__ __forceinline__ void xproducer(const Params& p, SmemMain& S, int cta,
                 }
                 if (ph == 1 && MODE != 1 && MODE != 4) {
                     spin_ge(p.done_as + j * 16 + st, 8, p.ctr, 128);
+                    fence_proxy_async_global();
                 }
                 if (kDiag) {
                     tda += clock64() - c0;
@@ -1443,12 +1458,16 @@ __global__ void __launch_bounds__(kNTM, 1) moe_main_kernel(const Params p) {
                 __ldg(src + q);
         }
     }
+    fence_proxy_async_global();
     __threadfence();
     named_sync(kBarGather, kNG);
+    // A release after the barrier: a fence before bar.sync followed by a relaxed atomic is a
+    // release pattern only for the atomic thread's own earlier writes (PTX ISA 8.8), not for
+    // the rows other threads stored; red.release after bar.sync covers them by cumulativity.
     for (int i = cta + gt * G; i < E; i += kNG * G) {
         if (S.pos[i] >= 0) {
             const int e = S.eid[i];
-            atomicAdd(p.xready + S.job0[e] + ((S.pos[i] - S.off[e]) >> 6), 1);
+            red_release_add(p.xready + S.job0[e] + ((S.pos[i] - S.off[e]) >> 6), 1);
         }
     }
 

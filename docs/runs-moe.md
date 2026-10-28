@@ -42,6 +42,108 @@ SGLang with its 95% interval. Profiles and logs are in `muse_moe_w4a16/profiles/
 | 2026-10-28 | 0400cfbdfa2845fe (submit, authorized by the user via the coordinator) | 54f7940 | fat path: jobs of up to 2 (modes 6, 9) or 4 (7, 10) n8 tiles, or all jobs (8), on mma.sync m16n8k16 instead of RS wgmma (same A fragments, accumulators, epilogue and fixup; B by ldmatrix.x4 from the x slot), modes 9, 10, 8 with flatter stage costs; diagnostics 2 and 3 no longer built; a mode that fails its self-test only leaves the bench | 2.007x (1.977-2.038) | per shape: bs1 27.4 us (2.796x), bs16 96.9 (1.938), bs32 133.4 (1.544), bs8 71.3 (2.100), bs128 261.9 (1.804), bs256 301.5 (2.060). POLICY {1, 8, 16, 32: sk8w4s, 128: legacy128, 256: main-m2}. BENCH (us): bs32 main-loads 140.6, sk8w4s 151.6, main-d2 189.3, main-m2 190.0, main-m2f 190.0, main-m8f 190.6, main-m4 191.2; bs128 main-loads 190.9, legacy128 250.9, main-m2 253.5, main-d2 254.4, main-m2f 261.5, main-m4 266.6, main-m8f 279.8; bs256 main-loads 202.6, main-m2 283.1, main-d2 285.3, main-m4 298.7, main-m8f 327.7. So mma.sync and RS wgmma cost the same at N = 8 and 16 (bs32, where nearly every job is one n8 tile: 190.0 vs 189.3): the MMA instruction is not what keeps the fat path 50 us above its streaming time at bs32 and 63 us at bs128. mma.sync loses above N = 16 (m4, m8f). Error vs FP32 3.88e-3 every fat mode. Build 154 s (was 139) |
 | 2026-10-28 | c524612c78454486 (submit, authorized by the user via the coordinator) | cd06a9e | mode 11 (mode 6 with clock stamps) and a DIAG report in prepare | 2.002x (1.972-2.032) | per shape: bs1 28.1 us, bs16 95.5, bs32 133.1, bs8 67.7, bs128 255.7, bs256 304.6; same policy and bench as 0400cfbdfa2845fe within 1 us (bs128 main-loads 188.9, legacy128 249.7, main-m2 253.6, main-d2 254.3, main-m2-stamps 258.5). The DIAG report failed on the host (`inter.view(int64)` of the 2-D buffer sliced rows, not elements; the dry run used a flat buffer), so no stamps. Fixed in the next commit, dry run now uses the real shape |
 | 2026-10-28 | 2072795029b7479f (submit, authorized by the user via the coordinator) | a248788 | the DIAG fix | 1.978x (1.948-2.007) | per shape: bs1 29.7 us, bs16 97.1, bs32 136.0, bs8 69.0, bs128 263.0, bs256 301.8; same code and policy as the two runs before, so the 1.978-2.007 spread of these three is run-to-run noise. Bench bs128: main-loads 190.6, legacy128 253.6, main-m2 255.4, main-d2 256.8. Stamps below (section "Where the fat path's time goes at 128 tokens") |
+| 2026-10-28 | 84de5bbafa344b7a (submit, authorized by the user via the coordinator; the current board entry) | 4fed369 | mode 14 (mode 12 with two mma.sync accumulator chains per n8 tile); stage costs per launch (moe_run `cost` argument) fitted from the DIAG stamps by least squares and offered as `-fit` variants of modes 6, 12, 14; modes 12/13 with fence.acq_rel in the epilogue and fixup | 2.009x (1.979-2.039) | per shape: bs1 27.95 us (2.760x), bs16 95.20 (1.954), bs32 133.40 (1.538), bs8 67.76 (2.108), bs128 254.18 (1.829), bs256 300.02 (2.057). POLICY {1, 8, 16, 32: sk8w4s, 128: legacy128, 256: main-m2-ar}. BENCH bs128 (us): main-loads 188.7, legacy128 251.3, main-m2-ar2 252.8, main-m2 254.3, main-m2-ar 254.7, -fit variants 256.5-257.8; bs256: main-m2-ar 283.8, main-m2-ar2 284.0, -fit 284.0-285.1. The least-squares stage-cost fit gave negative phase A coefficients (A1 -0.40, A2 -0.56, A3 -0.56, A7 -0.36, A8 -0.92 us/stage; B 5.6-9.6; residual rms 6.4 us over 396 CTA launches), so the fitted table is not a cost model and its variants did not win anywhere; it is not used to drive partitioning again (plan 2026-10-29 item 4). It is within noise of 0400cfbdfa2845fe (2.007x, 54f7940) and the two runs after it. Stamps at bs128: producers wait 185.8/202.6 us (mean/max) for a free weights slot of about 236 us of consumer time. Profiles and the result JSON in muse_moe_w4a16/profiles/submission.84de5bbafa344b7a.* |
+
+## Proxy ordering of the x tiles, 2026-10-29
+
+An independent review found that the fat path (modes 0, 6, 11, 12, 13, 14, and the layer's
+inlined copy, which builds mode 0) writes the x tiles in global memory with generic stores and
+has other CTAs read them with `cp.async.bulk`, with no generic-to-async proxy fence on that
+path. The only proxy fence was `fence.proxy.async.shared::cta` on the shared-memory ring. The
+review is right, and the gather's readiness counter had a second, smaller defect. Sections are
+from the PTX ISA 9.4 documentation (docs.nvidia.com/cuda/parallel-thread-execution), read
+2026-10-28: 8.4 Operation types, 8.6 Proxies, 8.8 Release and Acquire Patterns, 8.9.1.1
+Asynchronous Operations, 8.9.2 Observation Order, 8.9.4 Memory synchronization, 8.9.5 Causality
+Order, 9.7.10.28.2 Async Proxy, 9.7.15.4 membar / fence, 9.7.15.14 griddepcontrol.
+
+What the model requires. `cp.async.bulk` runs in the async proxy (9.7.10.28.2: "Accessing the
+same memory location across multiple proxies needs a cross-proxy fence. For the async proxy,
+fence.proxy.async should be used"). A generic write X reaches a later read Y through causality
+order only along proxy-preserved base causality order (8.9.5), which holds when X and Y use the
+generic proxy, or the same proxy within one thread block, or are aliases with a proxy fence on
+the path. A generic store read by another CTA's bulk copy fits none of these without a proxy
+fence. Bidirectional proxy fences "take effect within a single thread" and their effect
+"composes with other forms of synchronization" (9.7.15.4).
+
+Phase A input (xa), after the fix:
+
+1. Writers. In each CTA, every thread except the weights producer warp (kNTM - 32 threads)
+   copies its share of the token rows of the entries `cta, cta + G, ...` into the job's xa slab
+   with 4-byte `st.global` (generic, weak). One job's tile collects rows from several CTAs.
+2. Each writer then runs `fence.proxy.async.global` (new), so its own generic stores are ordered
+   before async-proxy accesses that follow in causality order, then `__threadfence` (fence.sc.gpu,
+   kept), then `bar.sync kBarGather, kNG`. A `bar.sync` synchronizes with the `bar.sync` of every
+   other thread on that barrier (8.9.4), so every writer's stores precede, in base causality
+   order, everything after the barrier in every participating thread.
+3. Publish. After the barrier, one thread per entry does `red.release.gpu.global.add` on
+   `xready[job]` (new; it was a relaxed `atomicAdd`). A release operation is a release pattern
+   by itself (8.8), and its effect extends to the other threads' stores that precede it through
+   the barrier (8.8 footnote 1, transitivity of base causality order in 8.9.5). The old form had
+   the thread's fence before the barrier and a relaxed atomic after it: that pattern "only
+   affects operations occurring in program order before the first instruction in that pattern"
+   (8.8), so it covered the atomic thread's own stores, and the other threads' rows were
+   published only because every thread happened to run MEMBAR.SC.GPU before the barrier, which
+   the model does not promise.
+4. The count. `xready[j]` gets one increment per token row from whichever CTAs gathered them. The
+   consumer's acquire reads the last value of a chain of atomic adds, and observation order runs
+   through atomic read-modify-writes (8.9.2), so it synchronizes with every contributing release
+   (8.9.4: a release pattern synchronizes with an acquire pattern when a write in the first
+   precedes a read in the second in observation order, both morally strong; all are gpu scope).
+5. Consumer acquire. The x producer thread (lane 0 of the producer warp) of every CTA that holds
+   a stage of job j spins on `ld.acquire.gpu` until `xready[j] == job_n[j]` (an acquire
+   operation, 8.8), then runs `fence.proxy.async.global` (new).
+6. Bulk copy. Then `mbarrier.arrive.expect_tx` on `xfull[slot]` and
+   `cp.async.bulk.shared::cluster.global.mbarrier::complete_tx::bytes` from the xa stage. The bulk
+   operation is ordered after the prior instructions of the issuing thread (8.9.1.1), so after
+   the acquire and both fences.
+7. Completion. The consumer warps wait on `xfull[slot]` with `mbarrier.try_wait.parity`
+   (acquire.cta by default) before `ldmatrix`. "The completion of a cp{.reduce}.async.bulk
+   operation is followed by an implicit generic-async proxy fence" (9.7.10.28.2), so the
+   generic reads of the slot see the copy.
+8. Reuse. The shared-memory slot: the consumer warps' generic reads, then
+   `fence.proxy.async.shared::cta`, then `mbarrier.arrive` (release.cta) on `xempty[slot]`; the
+   producer's acquire wait on it comes before the next bulk write into the slot (unchanged). The
+   global xa and xb tiles are written once per launch. Every bulk read of a launch completes
+   before its CTAs reach the grid barrier (the consumers wait on every `xfull` they use), and the
+   next writes come from the next launch, which begins with `griddepcontrol.wait` ("wait until
+   all prerequisite grids in flight have completed and all the memory operations from the
+   prerequisite grids are performed and made visible", 9.7.15.14) or follows in stream order (8.9.4
+   API synchronization, which also takes part in proxy-preserved base causality order). The
+   counters are reset after the grid barrier, after their last reader.
+
+Phase B input (xb): the writers are the 128 threads of the consumer warpgroup that finished a
+phase A unit; each stores its SwiGLU outputs into the xb stage with `st.global`, then
+`fence.proxy.async.global` (new), then `fence_gpu` (fence.sc.gpu, or fence.acq_rel.gpu in modes
+12-14), then `bar.sync` on the warpgroup's barrier, and thread 0 does `red.release.gpu.add` on
+`done_as[j * 16 + st]` (this release was already after the barrier). The x producer of the CTA
+that holds the phase B stage spins with `ld.acquire.gpu` until the count reaches 8, then
+`fence.proxy.async.global` (new), then the bulk copy, with steps 6-8 as above.
+
+Why fences on both sides. The writer-side fence is the documented pattern (CLAUDE.md: proxy
+fence on the writing side before the release). 9.7.15.4 says a bidirectional proxy fence acts
+within one thread and composes with other synchronization, without saying whether a fence in
+the writer orders that write against another thread's later async operation or whether the
+issuing thread must fence its own async operation. The consumer-side fence covers the second
+reading: the generic writes precede the acquire in causality order, then the issuer's proxy
+fence, then its bulk copy. It costs one fence per issued segment in one thread.
+
+Other paths. The skinny kernel's bulk copies read only the repacked weights, written before the
+launch and ordered by stream order. The legacy W4 GEMMs use non-bulk `cp.async`, which is not an
+async-proxy operation (9.7.10.28.2 names only the bulk forms). Neither needs a change.
+
+Build evidence (Docker, CUDA 12.8.1, sm_90a, `tools/moe_compile_fused.sh`): registers, stack and
+spills of every kernel are identical before and after; the SASS gains 115 `FENCE.VIEW.ASYNC.G`
+(the global proxy fence, per epilogue instantiation and per producer wait) and 7 `MEMBAR.ALL.GPU`
+(the release before the gather's red, one per fat kernel instance). The layer copy is
+regenerated by `tools/dl_moe_inline.py` (now restricted to the layer's mode 0 by `LAYER_MODES`,
+and patched for the int4 topk read); `diff` against the previous layer file shows all four fix
+sites (`fence_proxy_async_global` in epilogue_a, the gather and both producer waits, and
+`red_release_add` on `xready`). The layer's MoE extension compiles with torch's headers
+(`tools/dl_moe_compile_check.sh`, new: `tools/dl_compile_check.sh` builds only the main
+extension), mode 0 at the standalone's 80 B stack and 136/236 B spills. The layer's host wrapper now zeroes `Params::cost`, which
+selects the compiled stage-cost table: the struct is not zero-initialized, and moe_run's `cost`
+argument (empty means the compiled table) has no layer counterpart since the layer fits no
+costs.
 
 ## Where the fat path's time goes at 128 tokens, 2026-10-28
 

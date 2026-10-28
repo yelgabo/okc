@@ -34,6 +34,10 @@ REPACK = ("unit_rows", "repack_expert", "repack_expert_fat", "_to_u8_words", "_c
 RENAME = (("repack_expert_fat", "moe1_repack_expert_fat"), ("repack_expert", "moe1_repack_expert"),
           ("unit_rows", "moe1_unit_rows"))
 MAIN_NAMES = {0: "main-d2", 5: "main-d3"}
+# Each fat mode is another kernel instance in the layer's build. The standalone bench has the
+# other candidates within 1-3 us of mode 0 at 128 and 256 tokens (run 84de5bbafa344b7a), so
+# the layer builds mode 0 only until one of them wins by more than that.
+LAYER_MODES = (0,)
 
 # The load is a per-use ld.global.nc in inline asm, consumed where the host value was: a value
 # loaded once and kept in a register doubled the fat d2 kernel's spills (1268 B against 604),
@@ -46,16 +50,20 @@ LO_HELPER = (
     "}\n\n"
 )
 CUDA_PATCHES = [
-    ("    float eps;\n};\n",
-     "    float eps;\n"
+    ("    int cost[2][9];\n};\n",
+     "    int cost[2][9];\n"
      "    // The layer's local_start is an input tensor, read here instead of the host value.\n"
      "    const int* lo_p;\n};\n"),
     ("__device__ __forceinline__ int ld_acquire(const int* p) {\n",
      LO_HELPER + "__device__ __forceinline__ int ld_acquire(const int* p) {\n"),
+    ("                const int ev[4] = {v[k].x - p.lo, v[k].y - p.lo, v[k].z - p.lo, v[k].w - p.lo};\n",
+     "                const int lo = ld_lo(p.lo_p);\n"
+     "                const int ev[4] = {v[k].x - lo, v[k].y - lo, v[k].z - lo, v[k].w - lo};\n"),
+]
+SKINNY_PATCHES = [
     ("                const int e = ev[k] - p.lo;\n",
      "                const int e = ev[k] - ld_lo(p.lo_p);\n"),
 ]
-SKINNY_PATCHES = CUDA_PATCHES[2:]
 
 
 def patch(text, patches):
@@ -86,7 +94,9 @@ def device_code(ns):
     block = patch(ns["_SKINNY_BLOCK"], SKINNY_PATCHES)
     tag = ns["_skinny_tag"]
     skinny_variants = [v for v in ns["SKINNY_VARIANTS"] if v[2] == 0]
-    main_modes = [m for m in ns["MAIN_MODES"] if m in ns["MAIN_CANDIDATES"]]
+    main_modes = [m for m in ns["MAIN_MODES"] if m in ns["MAIN_CANDIDATES"] and m in LAYER_MODES]
+    if not main_modes:
+        raise SystemExit(f"none of LAYER_MODES {LAYER_MODES} is a fat candidate in the source")
     skinny = "\n".join(block.replace("@TAG@", tag(nw, ns_, mode)).replace("@NW@", str(nw))
                        .replace("@NS@", str(ns_)).replace("@MODE@", str(mode))
                        for nw, ns_, mode in skinny_variants)
