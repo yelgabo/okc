@@ -1,0 +1,13 @@
+attn prep kernels: loaded
+attn fused kernel: loaded
+attn ws kernel: loaded
+attn one kernel: loaded
+SELFTEST workspace before the first launch: zero ws_rows_nonzero=0 l_nonzero=0 tickets_nonzero=0 coop_next_parity_nonzero=0 flat_next_parity_nonzero=0 acc_sum=0.0 cnt_sum=0
+SELFTEST residency cooperative_launch=False L1m1:396(3/SM,57KB) L1m3:396(3/SM,57KB) L1m11:396(3/SM,57KB) L1m13:396(3/SM,57KB) L1m17:396(3/SM,57KB) L1m49:264(2/SM,57KB) L8m1:264(2/SM,88KB) L8m3:264(2/SM,88KB) L8m11:264(2/SM,88KB) L8m15:264(2/SM,88KB) L8m19:264(2/SM,88KB) L8m51:264(2/SM,104KB) L8m115:132(1/SM,104KB) t=0s
+PHASE b1 sliding L1 mode 13 phase 1 returned t=0s idx-commit=- q-commit=- wait1=- bar1=- spec-ok=- kv-issued=- wait2=- bar2=- rope=- qpass=- newtok=- bar3=- patch=- loop-wait=- loop-bar=- loop-done=- reds=- ticket-bar=- atom=- ticket-done=-
+PHASE b1 sliding L1 mode 13 phase 2 returned t=0s idx-commit=- q-commit=- wait1=- bar1=- spec-ok=- kv-issued=- wait2=- bar2=- rope=- qpass=- newtok=- bar3=- patch=- loop-wait=- loop-bar=- loop-done=- reds=- ticket-bar=- atom=- ticket-done=-
+PHASE b1 sliding L1 mode 13 phase 3 returned t=0s idx-commit=- q-commit=- wait1=- bar1=- spec-ok=- kv-issued=- wait2=- bar2=- rope=- qpass=- newtok=- bar3=- patch=- loop-wait=- loop-bar=- loop-done=- reds=- ticket-bar=- atom=- ticket-done=-
+PHASE b1 sliding L1 mode 13 phase 4 returned t=0s idx-commit=- q-commit=- wait1=- bar1=- spec-ok=- kv-issued=- wait2=- bar2=- rope=- qpass=- newtok=- bar3=- patch=- loop-wait=- loop-bar=- loop-done=- reds=- ticket-bar=- atom=- ticket-done=-
+PHASE b1 sliding L1 mode 13 phase 5 returned t=0s idx-commit=- q-commit=- wait1=- bar1=- spec-ok=- kv-issued=- wait2=- bar2=- rope=- qpass=- newtok=- bar3=- patch=- loop-wait=- loop-bar=- loop-done=- reds=- ticket-bar=- atom=- ticket-done=-
+PHASE b1 sliding L1 mode 13 phase 6 returned t=0s idx-commit=- q-commit=- wait1=- bar1=- spec-ok=- kv-issued=- wait2=- bar2=- rope=- qpass=- newtok=- bar3=- patch=- loop-wait=- loop-bar=- loop-done=- reds=- ticket-bar=- atom=- ticket-done=-
+PHASE b1 sliding L1 mode 13 phase 7 returned t=0s idx-commit=- q-commit=- wait1=- bar1=- spec-ok=- kv-issued=- wait2=- bar2=- rope=- qpass=- newtok=- bar3=- patch=- loop-wait=- loop-bar=- loop-done=- reds=- ticket-bar=- atom=- ticket-done=-
