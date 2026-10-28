@@ -36,7 +36,7 @@ class Inputs(TypedDict):
 
 ROUTER_N = 256
 ROUTER_K = 8192
-FUSED_MAX_TOKENS = 32
+FUSED_MAX_TOKENS = 16
 
 # Grid: 16 row groups x 16 k-slices = 256 blocks, which fit in one wave at 2 blocks per SM.
 # Each warp owns one weight row and one 512-wide k-slice: 4 float4 loads per lane, all issued
