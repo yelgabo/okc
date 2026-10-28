@@ -382,6 +382,27 @@ constexpr int kBarWg = 3;
 // stay the same.
 __constant__ int kCostA[9] = {0, 112, 135, 140, 158, 173, 185, 200, 207};
 __constant__ int kCostB[9] = {0, 100, 104, 115, 123, 132, 144, 156, 174};
+// The same for stages run on mma.sync (modes 8 to 10): at small N the consumers keep up with
+// the weights stream, so the cost is closer to flat. First guesses, ranked by the bench.
+__constant__ int kCostAm[9] = {0, 90, 100, 115, 130, 150, 170, 190, 210};
+__constant__ int kCostBm[9] = {0, 85, 92, 104, 115, 130, 145, 160, 175};
+
+// Modes 6 to 10 run jobs of at most mma_max(MODE) n8 tiles on mma.sync instead of wgmma: an
+// RS wgmma group at N = 8 or 16 costs the consumers more than the stage takes to stream
+// (bench 36b5b559b0344d0f: main-d2 197 us at bs32 against 139 loads-only and 150 for the
+// mma.sync skinny kernel).
+__host__ __device__ constexpr int mma_max(int mode) {
+    return mode == 6 || mode == 9 ? 2 : mode == 7 || mode == 10 ? 4 : mode == 8 ? 8 : 0;
+}
+
+template <int MODE>
+__device__ __forceinline__ int stage_cost(int ph, int ntt) {
+    constexpr bool kFlat = MODE >= 8;
+    if (kFlat && ntt <= mma_max(MODE)) {
+        return ph ? kCostBm[ntt] : kCostAm[ntt];
+    }
+    return ph ? kCostB[ntt] : kCostA[ntt];
+}
 
 struct __align__(128) SmemMain {
     unsigned char rings[kRingBytes];
@@ -409,6 +430,7 @@ struct __align__(128) SmemMain {
     int gsb[2];
     int gse[2];
     int fix_last[4];
+    int cost[2][9];
 };
 
 // Ring positions shared by the consumers and the producers: slot and lap per ring, the lap
@@ -525,7 +547,7 @@ __device__ __forceinline__ int stage_at(const SmemMain& S, int ph, int k, int G)
     while (j + 1 < nj && static_cast<unsigned>(pre[j + 1]) <= target) {
         ++j;
     }
-    const int cost = ph ? kCostB[S.job_ntt[j]] : kCostA[S.job_ntt[j]];
+    const int cost = S.cost[ph][S.job_ntt[j]];
     return j * spj + static_cast<int>((target - static_cast<unsigned>(pre[j]))
                                       / static_cast<unsigned>(cost));
 }
@@ -873,6 +895,99 @@ __device__ __forceinline__ void run_segment(const Params& p, SmemMain& S, float*
     }
 }
 
+__device__ __forceinline__ void ldsm_x4(unsigned (&r)[4], unsigned addr) {
+    asm volatile("ldmatrix.sync.aligned.m8n8.x4.shared.b16 {%0,%1,%2,%3}, [%4];"
+                 : "=r"(r[0]), "=r"(r[1]), "=r"(r[2]), "=r"(r[3]) : "r"(addr) : "memory");
+}
+
+// run_segment on mma.sync m16n8k16 for small N. A warp's wgmma m64 A fragment is the
+// mma.sync A fragment of its 16 rows, and the m64nN accumulator per warp is NTT m16n8
+// accumulators in the same order, so the ring layouts, the dequant, the fixup and the
+// epilogues are shared with the wgmma path. B comes from the x slot by ldmatrix: one x4 covers
+// two k16 steps of one n8 tile (step s's two 8-k core matrices at 256 s and 256 s + 128).
+// Each warp runs on its own; no warpgroup-wide wgmma sync.
+template <int NTT, int PH>
+__device__ __forceinline__ void run_segment_mma(const Params& p, SmemMain& S, float* ss,
+                                                const SegInfo& si, Ring& rg, int G) {
+    constexpr int ph = PH;
+    const int tid = threadIdx.x;
+    const int lane = tid & 31;
+    const int warp = tid >> 5;
+    const int wg = warp >> 2;
+    const int w = warp & 3;
+    const int tid_wg = tid & 127;
+    float acc[32];
+#pragma unroll
+    for (int i = 0; i < 32; ++i) {
+        acc[i] = 0.f;
+    }
+    const unsigned lrow = static_cast<unsigned>((lane >> 3) * 128 + (lane & 7) * 16);
+#pragma unroll 1
+    for (int st = si.st_b; st < si.st_e; ++st) {
+        const int ws = rg.ws;
+        mbar_wait_to(&S.wfull[ws], rg.wlap & 1, p.ctr, 2);
+        const unsigned char* wslot = S.rings + ws * kUnitBytes;
+        const uint4* cp = reinterpret_cast<const uint4*>(wslot + (wg * 4 + w) * 2048) + lane;
+        uint4 cw[4];
+#pragma unroll
+        for (int i = 0; i < 4; ++i) {
+            cw[i] = cp[i * 32];
+        }
+        const uint2 sc = *reinterpret_cast<const uint2*>(wslot + 32768 + (wg * 4 + w) * 256
+                                                         + lane * 8);
+        __syncwarp();
+        if (lane == 0) {
+            fence_proxy_async();
+            mbar_arrive(&S.wempty[ws]);
+        }
+        ring_next_w(rg, S.nsw);
+        const int xs = rg.xs;
+        mbar_wait_to(&S.xfull[xs], rg.xlap & 1, p.ctr, 8);
+        const unsigned xbase = __shfl_sync(0xffffffffu,
+                                           smem_u32(S.rings + S.xoff + xs * S.xsz), 0) + lrow;
+#pragma unroll
+        for (int s = 0; s < 16; s += 2) {
+            const int c = s >> 2;
+            const unsigned scw = c < 2 ? sc.x : sc.y;
+            const unsigned sg = scale_word(scw, (2 * c) & 3);
+            const unsigned sg8 = scale_word(scw, (2 * c + 1) & 3);
+            unsigned a0[4];
+            unsigned a1[4];
+            dequant(word(cw[c], s & 3), sg, sg8, a0);
+            dequant(word(cw[c], (s + 1) & 3), sg, sg8, a1);
+#pragma unroll
+            for (int nt = 0; nt < NTT; ++nt) {
+                unsigned b[4];
+                ldsm_x4(b, xbase + nt * 4096 + s * 256);
+                float (&c4)[4] = *reinterpret_cast<float (*)[4]>(acc + 4 * nt);
+                mma_bf16(c4, a0, b[0], b[1]);
+                mma_bf16(c4, a1, b[2], b[3]);
+            }
+        }
+        // The x slot is refilled by the async proxy after these generic-proxy reads.
+        __syncwarp();
+        if (lane == 0) {
+            fence_proxy_async();
+            mbar_arrive(&S.xempty[xs]);
+        }
+        ring_next_x(rg);
+    }
+    if (si.partial) {
+        float fin[32];
+        if (fixup<NTT>(p, S, acc, fin, ph, si.slot, si.st_e - si.st_b, wg, tid_wg, G)) {
+            if (ph == 0) {
+                epilogue_a<NTT>(p, S, fin, si.j, si.u, wg, w, tid_wg);
+            } else {
+                epilogue_b<NTT>(p, S, ss, fin, si.j, si.u, wg, w, tid_wg);
+            }
+        }
+    } else if (ph == 0) {
+        epilogue_a<NTT>(p, S, acc, si.j, si.u, wg, w, tid_wg);
+    } else {
+        epilogue_b<NTT>(p, S, ss, acc, si.j, si.u, wg, w, tid_wg);
+    }
+}
+
 // Segments run grouped by (phase, n-tile count), each group its own loop: with several
 // wgmma shapes inside one enclosing loop ptxas serializes every wgmma (C7512, see the
 // micro tests in docs/runs-moe.md); the producers walk the same order.
@@ -890,7 +1005,11 @@ __device__ __forceinline__ void run_group(const Params& p, SmemMain& S, float* s
             continue;
         }
         const SegInfo si = seg_info(S, PH, i, cta, G);
-        run_segment<NTT, PH, MODE>(p, S, ss, si, acc, rg, xrel, G);
+        if constexpr (NTT <= mma_max(MODE)) {
+            run_segment_mma<NTT, PH>(p, S, ss, si, rg, G);
+        } else {
+            run_segment<NTT, PH, MODE>(p, S, ss, si, acc, rg, xrel, G);
+        }
     }
 }
 
@@ -1010,6 +1129,10 @@ __global__ void __launch_bounds__(kNTM, 1) moe_main_kernel(const Params p) {
     const uint64_t pol = policy_evict_first();
 
     if (warp == kNWarpsM - 1) {
+        if (lane < 9) {
+            S.cost[0][lane] = stage_cost<MODE>(0, lane);
+            S.cost[1][lane] = stage_cost<MODE>(1, lane);
+        }
         S.cnt[lane] = 0;
         __syncwarp();
         for (int base = 0; base < E; base += 128) {
@@ -1046,8 +1169,8 @@ __global__ void __launch_bounds__(kNTM, 1) moe_main_kernel(const Params p) {
         for (int k = 0; k < nj; ++k) {
             const int ntt = (min(64, tot - 64 * k) + 7) >> 3;
             xo_sum += ntt;
-            ca_sum += kUAM * kCostA[ntt];
-            cb_sum += kUBM * kCostB[ntt];
+            ca_sum += kUAM * stage_cost<MODE>(0, ntt);
+            cb_sum += kUBM * stage_cost<MODE>(1, ntt);
         }
         const int xo_incl = warp_scan(xo_sum, lane);
         const int ca_incl = warp_scan(ca_sum, lane);
@@ -1067,8 +1190,8 @@ __global__ void __launch_bounds__(kNTM, 1) moe_main_kernel(const Params p) {
             S.pa[j] = ca;
             S.pb[j] = cb;
             xo += ntt;
-            ca += kUAM * kCostA[ntt];
-            cb += kUBM * kCostB[ntt];
+            ca += kUAM * stage_cost<MODE>(0, ntt);
+            cb += kUBM * stage_cost<MODE>(1, ntt);
         }
         int mx = tot > 0 ? (min(64, tot) + 7) >> 3 : 0;
 #pragma unroll
@@ -1769,13 +1892,14 @@ __device__ __forceinline__ void a_pin(unsigned (&a)[2][4]) {{
 # Skinny kernel variants (compute warps, ring slots, mode: 0 computes, 1 streams only), each
 # a namespace of its own in the source, and fat kernel modes; a variant id indexes this table.
 SKINNY_VARIANTS = ((8, 4, 0), (16, 4, 0), (8, 4, 1))
-# 0: depth-2 wgmma pipeline; timing-only diagnostics: 1 streams the weights only (the
-# ring's ceiling), 2 dequantizes without wgmma, 3 runs wgmma on the raw words without the
-# dequant. Depth 3 (mode 5) and no readiness waits (mode 4) exist in the source but are not
-# built: run bab82f5f5b974594 showed neither moves the fat path, and depth 3 trips C7512 with
-# the permuted-k layout.
-MAIN_MODES = (0, 1, 2, 3)
-MAIN_CANDIDATES = (0,)
+# 0: depth-2 wgmma pipeline; 6 and 7: jobs of up to 2 or 4 n8 tiles on mma.sync, the rest on
+# wgmma, mode 0's stage costs; 9 and 10: the same with the flatter mma.sync stage costs; 8:
+# every job on mma.sync, flatter costs. Timing-only diagnostic 1 streams the weights only (the
+# ring's ceiling). Also in the source, not built: 2 dequantizes without wgmma, 3 runs wgmma on
+# the raw words (run 36b5b559b0344d0f has their numbers), depth 3 (mode 5) and no readiness
+# waits (mode 4), which run bab82f5f5b974594 showed do not move the fat path.
+MAIN_MODES = (0, 1, 6, 7, 8, 9, 10)
+MAIN_CANDIDATES = (0, 6, 7, 8, 9, 10)
 VARIANT_MAIN0 = len(SKINNY_VARIANTS)
 
 
@@ -3323,14 +3447,22 @@ def _graph_time(fn, flush, iters=20):
 TEST_TOL = 8e-3
 
 
+# FP32 references of the self-test inputs, shared by every variant's test in prepare and
+# cleared at its end (the reference dequantizes whole experts; recomputing it per variant
+# would cost about as much as the build).
+_REF_CACHE = {}
+
+
 def _self_test(state, weights, sizes, label, variant=None):
     """Every size against the FP32 reference on normal and skewed routings; a spin timeout in
     any launch (ctr[8]) fails the test too."""
     worst = 0.0
     for bs in sizes:
         for dist in ("normal", "skewed"):
-            data = _make_inputs(bs, 200 + bs, dist)
-            ref = _ref_forward(data, weights)
+            if (bs, dist) not in _REF_CACHE:
+                data = _make_inputs(bs, 200 + bs, dist)
+                _REF_CACHE[bs, dist] = (data, _ref_forward(data, weights))
+            data, ref = _REF_CACHE[bs, dist]
             out = _run(data, state, variant)
             err = _rel(out, ref) if torch.isfinite(out).all() else float("inf")
             rows = (out.float() - ref).norm(dim=-1) / ref.norm(dim=-1).clamp(
@@ -3356,7 +3488,8 @@ def _bench(state, main_ok, seeds=(11, 12)):
         cands = list(SKINNY_CANDIDATES)
         diag = [i for i, v in enumerate(SKINNY_VARIANTS) if v[2] == 1]
         if main_ok and bs >= MAIN_MIN_M:
-            cands += [VARIANT_MAIN0 + i for i, m in enumerate(MAIN_MODES) if m in MAIN_CANDIDATES]
+            cands += [VARIANT_MAIN0 + i for i, m in enumerate(MAIN_MODES)
+                      if m in MAIN_CANDIDATES and VARIANT_MAIN0 + i not in state["main_bad"]]
             diag += [VARIANT_MAIN0 + i for i, m in enumerate(MAIN_MODES) if m not in MAIN_CANDIDATES]
         if state.get("legacy_ok") and bs >= 16:
             cands += [VARIANT_LEGACY0 + i for i in range(len(LEGACY_POLICIES))]
@@ -3384,7 +3517,8 @@ def _vname(v):
     if v >= VARIANT_MAIN0:
         m = MAIN_MODES[v - VARIANT_MAIN0]
         return {0: "main-d2", 5: "main-d3", 1: "main-loads", 4: "main-nogate", 2: "main-nowgmma",
-                3: "main-nodequant"}[m]
+                3: "main-nodequant", 6: "main-m2", 7: "main-m4", 8: "main-m8f", 9: "main-m2f",
+                10: "main-m4f"}[m]
     nw, ns, mode = SKINNY_VARIANTS[v]
     return f"sk{nw}w{ns}s{'-loads' if mode else ''}"
 
@@ -3416,11 +3550,16 @@ def prepare(weights):
     ok = True
     for v in SKINNY_CANDIDATES:
         ok = _self_test(state, weights, (1, 4, 8, 16), _vname(v), v) and ok
+    # main_ok is mode 0's result (kernel_fn's fallback above 16 tokens); another mode that
+    # fails only leaves the bench.
     main_ok = True
+    state["main_bad"] = set()
     for i, m in enumerate(MAIN_MODES):
         if m in MAIN_CANDIDATES:
-            main_ok = _self_test(state, weights, (32, 33, 128, 257), _vname(VARIANT_MAIN0 + i),
-                                 VARIANT_MAIN0 + i) and main_ok
+            v = VARIANT_MAIN0 + i
+            if not _self_test(state, weights, (32, 33, 128, 257), _vname(v), v):
+                state["main_bad"].add(v)
+                main_ok = main_ok and m != 0
     state["main_ok"] = main_ok
     if state["legacy_ok"]:
         for i in range(len(LEGACY_POLICIES)):
@@ -3435,6 +3574,7 @@ def prepare(weights):
     t4 = time.time()
     # The chosen variants once more at every test size, on the policy as kernel_fn runs it.
     ok = _self_test(state, weights, (1, 4, 8, 16, 32, 33, 128, 257), "policy") and ok
+    _REF_CACHE.clear()
     print(f"PREPARE repack {t1 - t0:.1f} s, build {t2 - t1:.1f} s, self-test {t3 - t2:.1f} s, "
           f"bench {t4 - t3:.1f} s, smem {_ext().moe_smem_bytes()} B, ok {ok}, main {main_ok}")
     torch.cuda.synchronize()
