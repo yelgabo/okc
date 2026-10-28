@@ -608,9 +608,15 @@ __device__ __forceinline__ void epilogue_a(const Params& p, SmemMain& S,
     const float gsa = __ldg(p.gs13 + S.job_e[j]) * 128.f;
     const int rb = 16 * u + 4 * wg + w;
     const int st = u >> 1;
+    // Feature kk of the stage sits at mma-k position 16 (4 c + s) + (j < 2 ? 2 t4k + j :
+    // 8 + 2 t4k + j - 2) with kk = 64 c + 16 t4k + 4 s + j (the fat layout's k order).
+    const int kk = 8 * (rb & 31) + g;
+    const int step = 4 * (kk >> 6) + ((kk >> 2) & 3);
+    const int chunk8 = 2 * step + ((kk & 3) >> 1);
+    const int elem = 2 * ((kk >> 4) & 3) + (kk & 1);
     unsigned char* base = p.xb + static_cast<size_t>(S.job_xo[j]) * 65536
-                          + static_cast<size_t>(st) * NTT * 4096 + (rb & 31) * 128
-                          + (2 * t4) * 16 + g * 2;
+                          + static_cast<size_t>(st) * NTT * 4096 + chunk8 * 128
+                          + (2 * t4) * 16 + elem * 2;
 #pragma unroll
     for (int nt = 0; nt < NTT; ++nt) {
         const int tok = 8 * nt + 2 * t4;
@@ -618,8 +624,8 @@ __device__ __forceinline__ void epilogue_a(const Params& p, SmemMain& S,
         const float g1 = bf16r(acc[4 * nt + 1] * gsa);
         const float u0 = bf16r(acc[4 * nt + 2] * gsa);
         const float u1 = bf16r(acc[4 * nt + 3] * gsa);
-        const float h0 = g0 / (1.f + __expf(-g0)) * u0;
-        const float h1 = g1 / (1.f + __expf(-g1)) * u1;
+        const float h0 = g0 * __frcp_rn(1.f + __expf(-g0)) * u0;
+        const float h1 = g1 * __frcp_rn(1.f + __expf(-g1)) * u1;
         __nv_bfloat16* d = reinterpret_cast<__nv_bfloat16*>(base + nt * 4096);
         if (tok < ntok) {
             d[0] = __float2bfloat16_rn(h0);
@@ -758,11 +764,8 @@ __device__ __forceinline__ void run_segment(const Params& p, SmemMain& S, float*
         for (int i = 0; i < 4; ++i) {
             cw[i] = cp[i * 32];
         }
-        const uint4* sp = reinterpret_cast<const uint4*>(wslot + 32768 + (wg * 4 + w) * 256
-                                                         + g * 32);
-        uint4 sc[2];
-        sc[0] = sp[0];
-        sc[1] = sp[1];
+        const uint2 sc = *reinterpret_cast<const uint2*>(wslot + 32768 + (wg * 4 + w) * 256
+                                                         + lane * 8);
         __syncwarp();
         if (lane == 0) {
             fence_proxy_async();
@@ -771,10 +774,16 @@ __device__ __forceinline__ void run_segment(const Params& p, SmemMain& S, float*
         ring_next_w(rg, S.nsw);
         const int xs = rg.xs;
         mbar_wait_to(&S.xfull[xs], rg.xlap & 1, p.ctr, 8);
-        const uint64_t d0 = make_desc(S.rings + S.xoff + xs * S.xsz, 128, 4096);
+        // The slot base goes through a shuffle so ptxas knows it is warp-uniform and keeps
+        // the descriptors in uniform registers (one UIADD3 per step instead of a 64-bit add
+        // and two R2UR moves on every wgmma's critical path).
+        const unsigned xbase = __shfl_sync(0xffffffffu,
+                                           smem_u32(S.rings + S.xoff + xs * S.xsz), 0);
+        const uint64_t d0 = ((xbase & 0x3ffffu) >> 4) | (static_cast<uint64_t>(128 >> 4) << 16)
+                            | (static_cast<uint64_t>(4096 >> 4) << 32);
         if (MODE == 1) {
             // Timing only: the stage's bytes arrive and one word of each is read.
-            acc[0] += __uint_as_float((cw[0].x ^ sc[0].x) & 0x3f800000u);
+            acc[0] += __uint_as_float((cw[0].x ^ sc.x) & 0x3f800000u);
             if (xrel >= 0) {
                 if (lane == 0) {
                     mbar_arrive(&S.xempty[xrel]);
@@ -788,13 +797,32 @@ __device__ __forceinline__ void run_segment(const Params& p, SmemMain& S, float*
         for (int s = 0; s < 16; s += 2) {
             const int b = (s >> 1) % DEPTH;
             {
-                const unsigned scw = word(sc[s >> 3], (s >> 1) & 3);
-                dequant(word(cw[s >> 2], s & 3), scale_word(scw, 2 * (s & 1)),
-                        scale_word(scw, 2 * (s & 1) + 1), af[b][0]);
-                const int s1 = s + 1;
-                const unsigned scw1 = word(sc[s1 >> 3], (s1 >> 1) & 3);
-                dequant(word(cw[s1 >> 2], s1 & 3), scale_word(scw1, 2 * (s1 & 1)),
-                        scale_word(scw1, 2 * (s1 & 1) + 1), af[b][1]);
+                const int c = s >> 2;
+                const unsigned scw = c < 2 ? sc.x : sc.y;
+                const unsigned sg = scale_word(scw, (2 * c) & 3);
+                const unsigned sg8 = scale_word(scw, (2 * c + 1) & 3);
+                if (MODE == 3) {
+                    // Timing only: the raw words stand in for the fragments.
+#pragma unroll
+                    for (int i = 0; i < 4; ++i) {
+                        af[b][0][i] = word(cw[c], i) ^ sg;
+                        af[b][1][i] = word(cw[c], i) ^ sg8;
+                    }
+                } else {
+                    dequant(word(cw[c], s & 3), sg, sg8, af[b][0]);
+                    dequant(word(cw[c], (s + 1) & 3), sg, sg8, af[b][1]);
+                }
+            }
+            if (MODE == 2) {
+                // Timing only: the fragments are consumed by one add instead of a wgmma.
+                acc[0] += __uint_as_float((af[b][0][0] ^ af[b][1][3]) & 0x3f800000u);
+                if (s == 2 * (DEPTH - 1) - 2 && xrel >= 0) {
+                    if (lane == 0) {
+                        mbar_arrive(&S.xempty[xrel]);
+                    }
+                    xrel = -1;
+                }
+                continue;
             }
             wg_fence();
             wgmma<NTT>(acc, af[b][0], d0 + s * 16);
@@ -1101,12 +1129,18 @@ __global__ void __launch_bounds__(kNTM, 1) moe_main_kernel(const Params p) {
         const int jj = S.job0[e] + (r >> 6);
         const int n = r & 63;
         const int ntt = S.job_ntt[jj];
-        const __nv_bfloat16* src = p.x + static_cast<size_t>(i >> 3) * kH;
+        const unsigned* src = reinterpret_cast<const unsigned*>(p.x + static_cast<size_t>(i >> 3) * kH);
         unsigned char* dst = p.xa + static_cast<size_t>(S.job_xo[jj]) * 65536 + (n >> 3) * 4096
                              + (n & 7) * 16;
-        for (int pc = tid; pc < 512; pc += kNTM) {
-            *reinterpret_cast<uint4*>(dst + (pc >> 5) * ntt * 4096 + (pc & 31) * 128) =
-                __ldg(reinterpret_cast<const uint4*>(src + pc * 8));
+        // Pair q holds K = 2 q, 2 q + 1; its stage is q / 128 and its slab position follows
+        // the fat layout's k order (epilogue_a has the same mapping).
+        for (int q = tid; q < 2048; q += kNTM) {
+            const int kk = (q & 127) * 2;
+            const int step = 4 * (kk >> 6) + ((kk >> 2) & 3);
+            const int chunk8 = 2 * step + ((kk & 3) >> 1);
+            const int elem = 2 * ((kk >> 4) & 3);
+            *reinterpret_cast<unsigned*>(dst + (q >> 7) * ntt * 4096 + chunk8 * 128 + elem * 2) =
+                __ldg(src + q);
         }
     }
     __threadfence();
@@ -1460,8 +1494,8 @@ __device__ __forceinline__ void helper_loop(const Params& p, Smem& S, float* ss)
             const float g1 = bf16r(r.y * gsa);
             const float u0 = bf16r(r.z * gsa);
             const float u1 = bf16r(r.w * gsa);
-            const float h0 = g0 / (1.f + __expf(-g0)) * u0;
-            const float h1 = g1 / (1.f + __expf(-g1)) * u1;
+            const float h0 = g0 * __frcp_rn(1.f + __expf(-g0)) * u0;
+            const float h1 = g1 * __frcp_rn(1.f + __expf(-g1)) * u1;
             __nv_bfloat16* dst = p.inter + static_cast<size_t>(q0 + 2 * t4) * kI + rb * 8 + g;
             if (t0) {
                 dst[0] = __float2bfloat16_rn(h0);
@@ -1730,11 +1764,14 @@ __device__ __forceinline__ void a_pin(unsigned (&a)[2][4]) {{
 
 # Skinny kernel variants (compute warps, ring slots, mode: 0 computes, 1 streams only), each
 # a namespace of its own in the source, and fat kernel modes; a variant id indexes this table.
-SKINNY_VARIANTS = ((8, 4, 0), (16, 4, 0), (8, 5, 0), (8, 4, 1), (16, 4, 1))
-# 0: depth-2 wgmma pipeline; 5: depth 3; 1: streams the weights only; 4: depth 2 without the
-# phase readiness waits (timing only, results wrong).
-MAIN_MODES = (0, 5, 1, 4)
-MAIN_CANDIDATES = (0, 5)
+SKINNY_VARIANTS = ((8, 4, 0), (16, 4, 0), (8, 4, 1))
+# 0: depth-2 wgmma pipeline; timing-only diagnostics: 1 streams the weights only (the
+# ring's ceiling), 2 dequantizes without wgmma, 3 runs wgmma on the raw words without the
+# dequant. Depth 3 (mode 5) and no readiness waits (mode 4) exist in the source but are not
+# built: run bab82f5f5b974594 showed neither moves the fat path, and depth 3 trips C7512 with
+# the permuted-k layout.
+MAIN_MODES = (0, 1, 2, 3)
+MAIN_CANDIDATES = (0,)
 VARIANT_MAIN0 = len(SKINNY_VARIANTS)
 
 
@@ -1820,26 +1857,29 @@ def repack_expert(packed, sf, kind):
 
 def repack_expert_fat(packed, sf, kind):
     """The same expert for the fat path: uint8 [N/256, 16, 36864], one 256-row unit x 256-K
-    stage per entry. Codes are words [warpgroup 4][warp 4][step quad 4][lane 32][step 4]: the
-    fragment of 16-row block 16 u + 4 wg + w (rows as in unit_rows) at K = 256 st + 16 step +
-    (mma k), natural k order (reg 0 covers k 2 t4, 2 t4 + 1, reg 2 covers k + 8), each lane's
-    four consecutive steps one 16-byte load next to its neighbours' (no bank conflicts); then
-    scales [warpgroup][warp][g][step][h], one byte per row and 16-K block."""
+    stage per entry. Codes are words [warpgroup 4][warp 4][chunk 4][lane 32][step 4]: the
+    fragment of 16-row block 16 u + 4 wg + w (rows as in unit_rows) for k16 step 4 chunk + step
+    at K = 256 st + 64 chunk + 16 t4 + 4 step + j (mma k 2 t4 + j for j < 2, 8 + 2 t4 + j - 2
+    above), so a lane's four steps of a chunk share one 16-K scale block and its 16-byte load
+    sits next to its neighbours' (no bank conflicts); then scales [warpgroup][warp][lane]
+    [chunk][h], one byte per row and 16-K block. The x slab holds each stage in the same mma-k
+    order (see the gather and epilogue_a)."""
     n, k2 = packed.shape
     k = 2 * k2
     codes = _stack_last(packed & 15, packed >> 4).reshape(n, k)
     c = unit_rows(codes, kind)
     nu = c.shape[0] // 16
-    # (u, wg, w, h, g, st, sq, s4, khi, t4, jlo) -> (u, st, wg, w, sq, g, t4, s4, khi, h, jlo)
-    c = c.reshape(nu, 4, 4, 2, 8, 16, 4, 4, 2, 4, 2)
-    c = _to_i64(_perm(c, (0, 5, 1, 2, 6, 4, 9, 7, 8, 3, 10)).reshape(-1, 8))
+    # (u, wg, w, h, g, st, c, t4, s, jhi, jlo) -> (u, st, wg, w, c, g, t4, s, jhi, h, jlo)
+    c = c.reshape(nu, 4, 4, 2, 8, 16, 4, 4, 4, 2, 2)
+    c = _to_i64(_perm(c, (0, 5, 1, 2, 6, 4, 7, 8, 9, 3, 10)).reshape(-1, 8))
     words = c[:, 0] * 0
     for v in range(8):
         for b in range(4):
             words = words | (((c[:, v] >> b) & 1) << W4_BITPOS[v][b])
     words = _to_u8_words(words).reshape(nu * 16, 32768)
-    sc = unit_rows(sf, kind).reshape(nu, 4, 4, 2, 8, 16, 16)
-    sc = _perm(sc, (0, 5, 1, 2, 4, 6, 3)).reshape(nu * 16, 4096)
+    # (u, wg, w, h, g, st, c, t4) -> (u, st, wg, w, g, t4, c, h)
+    sc = unit_rows(sf, kind).reshape(nu, 4, 4, 2, 8, 16, 4, 4)
+    sc = _perm(sc, (0, 5, 1, 2, 4, 7, 6, 3)).reshape(nu * 16, 4096)
     return _cat_last(words, sc).reshape(nu, 16, 36864)
 
 
@@ -3339,7 +3379,8 @@ def _vname(v):
         return f"legacy{(32, 128, 256)[v - VARIANT_LEGACY0]}"
     if v >= VARIANT_MAIN0:
         m = MAIN_MODES[v - VARIANT_MAIN0]
-        return {0: "main-d2", 5: "main-d3", 1: "main-loads", 4: "main-nogate"}[m]
+        return {0: "main-d2", 5: "main-d3", 1: "main-loads", 4: "main-nogate", 2: "main-nowgmma",
+                3: "main-nodequant"}[m]
     nw, ns, mode = SKINNY_VARIANTS[v]
     return f"sk{nw}w{ns}s{'-loads' if mode else ''}"
 

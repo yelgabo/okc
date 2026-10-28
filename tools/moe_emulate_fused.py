@@ -114,8 +114,8 @@ if __name__ == "__main__":
 def check_fat(kind, n, seed):
     """repack_expert_fat against plain dequantization, decoded as the fat path's consumer
     warps read it: warp (wg, w) of unit u holds 16-row block 16 u + 4 wg + w; the word for
-    (lane, step) of stage st sits at [wg][w][step / 4][lane][step % 4] and holds
-    K = 256 st + 16 step + 8 khi + 2 t4 + jlo; scales [wg][w][g][step][h]."""
+    (lane, chunk c, step s) of stage st sits at [wg][w][c][lane][s] and holds
+    K = 256 st + 64 c + 16 t4 + 4 s + 2 khi + jlo; scales [wg][w][lane][c][h]."""
     k = 4096
     ns = load_repack()
     rng = np.random.default_rng(seed)
@@ -140,17 +140,18 @@ def check_fat(kind, n, seed):
                     rb = 16 * u + 4 * wg + w
                     for lane in range(32):
                         g, t4 = lane // 4, lane % 4
-                        sb = stage[32768 + (wg * 4 + w) * 256 + g * 32: 32768 + (wg * 4 + w) * 256 + g * 32 + 32]
-                        for step in range(16):
-                            sg, sg8 = scale_word(sb[2 * step]), scale_word(sb[2 * step + 1])
-                            widx = (wg * 4 + w) * 512 + (step // 4) * 128 + lane * 4 + step % 4
-                            regs = dequant(words[widx], sg, sg8)
-                            for j, (lo, hi) in enumerate(regs):
-                                h, khi = j & 1, j >> 1
-                                row = (h * (n // 2) + rb * 8 + g) if kind == 1 else (rb * 16 + h * 8 + g)
-                                col = 256 * st + 16 * step + 8 * khi + 2 * t4
-                                got[row, col] = lo * 128
-                                got[row, col + 1] = hi * 128
+                        sb = stage[32768 + (wg * 4 + w) * 256 + lane * 8: 32768 + (wg * 4 + w) * 256 + lane * 8 + 8]
+                        for c in range(4):
+                            sg, sg8 = scale_word(sb[2 * c]), scale_word(sb[2 * c + 1])
+                            for sidx in range(4):
+                                widx = (wg * 4 + w) * 512 + c * 128 + lane * 4 + sidx
+                                regs = dequant(words[widx], sg, sg8)
+                                for j, (lo, hi) in enumerate(regs):
+                                    h, khi = j & 1, j >> 1
+                                    row = (h * (n // 2) + rb * 8 + g) if kind == 1 else (rb * 16 + h * 8 + g)
+                                    col = 256 * st + 64 * c + 16 * t4 + 4 * sidx + 2 * khi
+                                    got[row, col] = lo * 128
+                                    got[row, col + 1] = hi * 128
     assert not np.isnan(got).any(), "some weights were never produced"
     bad = np.argwhere(got != ref)
     print(f"fat kind {kind} n={n}: {len(bad)} mismatches of {n * k}")
@@ -163,3 +164,28 @@ def check_fat(kind, n, seed):
 if __name__ == "__main__":
     ok = check_fat(1, 512, 3) and check_fat(2, 256, 4)
     print("FAT OK" if ok else "FAT FAILED")
+
+
+def check_slab_order():
+    """The x slab position the gather / epilogue_a use for natural k must be the mma-k
+    position of that k in the A fragment (K = 64 c + 16 t4 + 4 s + j <-> mma-k 2 t4 + j or
+    8 + 2 t4 + j - 2 of k16 step 4 c + s), and the mapping must be a bijection."""
+    seen = set()
+    for kk in range(256):
+        step = 4 * (kk >> 6) + ((kk >> 2) & 3)
+        chunk8 = 2 * step + ((kk & 3) >> 1)
+        elem = 2 * ((kk >> 4) & 3) + (kk & 1)
+        pos = chunk8 * 8 + elem
+        # From the fragment side: c, t4, s, j of this k.
+        c, t4, sidx, j = kk >> 6, (kk >> 4) & 3, (kk >> 2) & 3, kk & 3
+        mma_k = (2 * t4 + j) if j < 2 else (8 + 2 * t4 + j - 2)
+        want = (4 * c + sidx) * 16 + mma_k
+        assert pos == want, (kk, pos, want)
+        seen.add(pos)
+    assert len(seen) == 256
+    print("x slab order ok")
+    return True
+
+
+if __name__ == "__main__":
+    check_slab_order()
