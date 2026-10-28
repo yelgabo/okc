@@ -118,7 +118,7 @@ def _probe_gate(data):
     cfg = data["config"]
     tokens = cfg["batch"] * cfg["q_len"]
     qkv = data["qkv"].view(tokens, -1)
-    return rms_norm_gate(qkv[:, :1024].contiguous(), qkv[:, 1152:], None, head_dim=64, eps=RMS_EPS,
+    return rms_norm_gate(qkv[:, :1024].contiguous(), qkv[:, 1280:], None, head_dim=64, eps=RMS_EPS,
                          has_norm=True)
 
 
@@ -152,7 +152,15 @@ def _bench_graph(fn, data):
 
 def _run_bench():
     flush = torch.empty(256 << 20, dtype=torch.uint8, device="cuda")
-    fns = {{name: globals()[name] for name in _BENCH_VARIANTS}}
+    import functools
+    fns = {{}}
+    for spec in _BENCH_VARIANTS:
+        name, _, args = spec.partition("@")
+        keys = {{"s": "splits", "c": "cluster", "v": "variant"}}
+        kw = {{keys[k]: int(v) for k, v in (a.split("=") for a in args.split(",") if a)}}
+        if "cluster" in kw:
+            kw["cluster"] = bool(kw["cluster"])
+        fns[spec] = functools.partial(globals()[name], **kw)
     for batch, layer, q_len in _BENCH_SHAPES:
         data = _bench_inputs(batch, layer, q_len)
         ref = None
@@ -192,6 +200,7 @@ if not _os.environ.get("ATTN_BENCH_DONE"):
 def main():
     variants = sys.argv[1:] or ["_sglang", "_probe_prep", "_probe_fa3", "_probe_gate",
                                 "_probe_empty"]
+    # Variant specs: name@s=SPLITS,c=CLUSTER,v=VARIANT pass keyword arguments.
     src = (ROOT / "muse_attention_decode/submission.py").read_text()
     src += HARNESS.format(variants=variants)
     (ROOT / "muse_attention_decode/bench.py").write_text(src)

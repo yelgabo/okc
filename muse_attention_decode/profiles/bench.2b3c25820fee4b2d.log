@@ -1,0 +1,12 @@
+BENCH b= 1 sliding L=1 _sglang=23.2 _probe_prep=11.8 _probe_fa3=17.2 _probe_gate=FAIL(AssertionError: flat gate shape must match x) _probe_empty=5.1
+BENCH b= 1 full    L=1 _sglang=40.8 _probe_prep=12.1 _probe_fa3=33.0 _probe_gate=FAIL(AssertionError: flat gate shape must match x) _probe_empty=5.3
+BENCH b=16 sliding L=1 _sglang=32.4 _probe_prep=14.2 _probe_fa3=23.7 _probe_gate=FAIL(AssertionError: flat gate shape must match x) _probe_empty=5.4
+BENCH b=16 full    L=1 _sglang=216.3 _probe_prep=14.2 _probe_fa3=207.9 _probe_gate=FAIL(AssertionError: flat gate shape must match x) _probe_empty=5.3
+BENCH b=32 sliding L=1 _sglang=39.2 _probe_prep=14.2 _probe_fa3=30.0 _probe_gate=FAIL(AssertionError: flat gate shape must match x) _probe_empty=5.4
+BENCH b=32 full    L=1 _sglang=401.2 _probe_prep=13.8 _probe_fa3=392.3 _probe_gate=FAIL(AssertionError: flat gate shape must match x) _probe_empty=5.4
+BENCH b= 1 sliding L=8 _sglang=28.9 _probe_prep=13.6 _probe_fa3=19.7 _probe_gate=FAIL(AssertionError: flat gate shape must match x) _probe_empty=5.5
+BENCH b= 1 full    L=8 _sglang=46.8 _probe_prep=13.8 _probe_fa3=38.2 _probe_gate=FAIL(AssertionError: flat gate shape must match x) _probe_empty=5.3
+BENCH b=16 sliding L=8 _sglang=35.2 _probe_prep=15.0 _probe_fa3=25.0 _probe_gate=FAIL(AssertionError: flat gate shape must match x) _probe_empty=5.5
+BENCH b=16 full    L=8 _sglang=220.2 _probe_prep=15.0 _probe_fa3=210.3 _probe_gate=FAIL(AssertionError: flat gate shape must match x) _probe_empty=5.2
+BENCH b=32 sliding L=8 _sglang=42.2 _probe_prep=16.0 _probe_fa3=32.5 _probe_gate=FAIL(AssertionError: flat gate shape must match x) _probe_empty=5.6
+BENCH b=32 full    L=8 _sglang=405.5 _probe_prep=15.2 _probe_fa3=397.0 _probe_gate=FAIL(AssertionError: flat gate shape must match x) _probe_empty=5.5
