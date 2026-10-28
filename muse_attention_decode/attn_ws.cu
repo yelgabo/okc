@@ -273,6 +273,7 @@ __device__ __forceinline__ int kmaj(int r, int kc) {
 // VAR bit 0: values converted with integer ops into f16 values scaled by 2^-8, which the merge
 // multiplies back (else F2FP). Bit 1: loaders release a tile without their own proxy fence
 // (the math warps fence after acquiring it either way). Bit 2: math warps take tiles in pairs.
+// Bit 3 is read by the host only: eight loader warps instead of four.
 template <int NS, int DA, int MODE, int PW, int VAR>
 __global__ void __launch_bounds__(CONSUMERS + 32 * PW, 1) attn_ws_kernel(const Params p) {
     constexpr bool STAMP = MODE == 2;
@@ -869,13 +870,16 @@ void launch_ws(const Params& p, int batch, cudaStream_t stream) {
 
 template <int NS, int DA, int MODE, int VAR>
 void launch_var(const Params& p, int batch, cudaStream_t stream) {
-    launch_ws<NS, DA, MODE, 4, VAR>(p, batch, stream);
+    launch_ws<NS, DA, MODE, (VAR & 8) ? 8 : 4, VAR & 7>(p, batch, stream);
 }
 
 // INSTANTIATE: template void launch_var<7, 3, 0, 0>(const Params&, int, cudaStream_t);
 // INSTANTIATE: template void launch_var<7, 3, 0, 2>(const Params&, int, cudaStream_t);
 // INSTANTIATE: template void launch_var<7, 3, 0, 4>(const Params&, int, cudaStream_t);
 // INSTANTIATE: template void launch_var<7, 3, 0, 6>(const Params&, int, cudaStream_t);
+// INSTANTIATE: template void launch_var<7, 3, 0, 3>(const Params&, int, cudaStream_t);
+// INSTANTIATE: template void launch_var<7, 3, 0, 10>(const Params&, int, cudaStream_t);
+// INSTANTIATE: template void launch_var<8, 4, 0, 2>(const Params&, int, cudaStream_t);
 // INSTANTIATE: template void launch_var<6, 2, 0, 6>(const Params&, int, cudaStream_t);
 // INSTANTIATE: template void launch_var<8, 4, 0, 6>(const Params&, int, cudaStream_t);
 // INSTANTIATE: template void launch_var<7, 3, 1, 2>(const Params&, int, cudaStream_t);
@@ -884,9 +888,9 @@ void launch_var(const Params& p, int batch, cudaStream_t stream) {
 }  // namespace
 
 // stages: FP8 stages, 6, 7 or 8 (anything else runs 7), with values converted 2, 3 or 4 tiles
-// behind their loads (6 and 8 with var 6 only); mode: see attn_ws_kernel (1 runs var 2 and 2
-// runs var 6, with 7 stages); var: 0, 2, 4 or 6, see attn_ws_kernel (anything else runs 0).
-// Four loader warps.
+// behind their loads (6 with var 6 only, 8 with var 2 or 6); mode: see attn_ws_kernel (1 runs
+// var 2 and 2 runs var 6, with 7 stages); var: 0, 2, 3, 4, 6 or 10, see attn_ws_kernel
+// (anything else runs 0).
 // dbg: int64 [17] or empty. dbg[0] bit 0: a loader wait timed out; bit 1: a math-warp wait
 // timed out. With mode 2, dbg[1..8] sum math-warp cycles per phase (wait for data, Q.K, mask
 // and softmax, P.V, unused, unused, tail, prologue) and dbg[9..13] loader cycles (wait for a
@@ -929,6 +933,12 @@ torch::Tensor attn_ws(torch::Tensor qkv, torch::Tensor page_table, torch::Tensor
         launch_var<8, 4, 0, 6>(p, batch, stream);
     } else if (var == 6) {
         launch_var<7, 3, 0, 6>(p, batch, stream);
+    } else if (var == 2 && stages == 8) {
+        launch_var<8, 4, 0, 2>(p, batch, stream);
+    } else if (var == 3) {
+        launch_var<7, 3, 0, 3>(p, batch, stream);
+    } else if (var == 10) {
+        launch_var<7, 3, 0, 10>(p, batch, stream);
     } else if (var == 4) {
         launch_var<7, 3, 0, 4>(p, batch, stream);
     } else if (var == 2) {
@@ -938,6 +948,6 @@ torch::Tensor attn_ws(torch::Tensor qkv, torch::Tensor page_table, torch::Tensor
     }
     ws_combine_kernel<<<batch * L, HQ * 32, 0, stream>>>(p.ws, p.qkv, p.v_scale,
                                                           reinterpret_cast<__nv_bfloat16*>(out.data_ptr()),
-                                                          splits, 1.f);
+                                                          splits, (var & 1) ? 256.f : 1.f);
     return out;
 }
