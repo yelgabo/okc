@@ -52,6 +52,25 @@ Per-shape columns, in TASK.md's order: d1 = decode 1, d16, d32, v1 = verify 1 (8
   BF16 FFN input, as on muse_bf16_proj. The router runs on a side stream, overlapping the pooler.
 - Projections: qkv_gate, pooler and the unpooler's 1024-row slice at T <= 8, o at T = 1, as
   `_proj_fused_wins` chose on muse_bf16_proj.
+- Skinny projections (`PORT_PROJ_SK`): muse_bf16_proj's sk kernel and GEMVs, assembled by
+  tools/dl_proj_inline.py for the layer's 26 configs (12 geometries compressed and raw, the
+  two fused pooler + router configs; the standalone router configs stay out) as a fifth
+  extension (`okc_decode_layer_skp`) on a thread from the top of prepare(); the packing
+  code is copied verbatim. The kernel has no griddepcontrol, so every launch is plain (the
+  PDL secondaries after it start at its completion). Prepare packs qkv_gate (rows balanced),
+  o, pooler and the unpooler (full and the 1024-row slice) in 12 bits with the 1/200 escape
+  rule and raw BF16 fallback streams, one stage-major stream per geometry, escape tables per
+  (R, rows), cgemv's row stream and sgemv at m = 1, and the router's hi/lo stream for the
+  fused entry. Self-test (`proj sk`): every candidate against FP64 at the bucket's token
+  counts (1, 2, 5, 7, 8; 9, 12, 16; 17, 31, 32) with probe rows (relative L2 < 5e-3, probe
+  rows bitwise, no timed-out wait), the fused entries at 1, 3, 8 and 9, 16 (router < 2e-5);
+  failures are dropped with a printed reason. Autotune: per (layer, m) for m in 1, 8, 16, 32,
+  the survivors against today's path (proj_fwd or cuBLAS) as cold-L2 graph replays; the pick
+  (None keeps today's path) is used by `_proj` for every m <= 32, other m sharing the
+  bucket's pick; the full unpooler above 8 tokens now also goes through `_proj`. The fused
+  pooler + router is the `skf` front variant, tuned at T 1, 8 and 16 beside fp32 (T <= 8) or
+  split / mma / concat; a variant that disagrees with the reference is dropped at that T
+  instead of failing the tuner.
 - Attention: the decode layer feeds attention exactly as muse_attention_decode does (qkv
   [T, 2304] BF16 from the qkv_gate projection, q 16x64 | k 2x64 | v 2x64 | gate 16x64; RoPE
   interleaved with theta 500000 on sliding layers only; FP8 caches [pages, page, 2, 64]; the
