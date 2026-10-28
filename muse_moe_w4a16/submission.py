@@ -512,8 +512,12 @@ W4_CONFIGS = [
     (2, 1, 1, 2, 4, 4, 0, 0, 1), (2, 1, 1, 4, 4, 4, 0, 0, 1), (2, 1, 8, 1, 4, 4, 0, 0, 1),
     (2, 1, 8, 2, 4, 4, 0, 0, 1), (2, 1, 8, 4, 4, 4, 0, 0, 1), (2, 1, 8, 2, 8, 4, 0, 0, 1),
     (2, 2, 16, 2, 4, 4, 0, 0, 1), (2, 2, 16, 4, 4, 4, 0, 0, 1),
-    # Timing only: weight and activation loads without dequant or mma.
-    (1, 1, 8, 4, 4, 4, 1, 0, 0), (1, 1, 8, 4, 4, 4, 1, 0, 1),
+    # Without the L2 prefetch hint.
+    (1, 1, 8, 4, 4, 4, 5, 0, 0), (1, 1, 8, 2, 8, 4, 5, 0, 1), (2, 1, 8, 4, 4, 4, 5, 0, 0),
+    (2, 2, 16, 4, 4, 4, 5, 0, 0), (1, 2, 16, 4, 4, 4, 5, 0, 0),
+    # Timing only (see MODE in w4_gemm_kernel).
+    (1, 1, 8, 4, 4, 4, 1, 0, 0), (1, 1, 8, 4, 4, 4, 3, 0, 0), (1, 1, 8, 4, 4, 4, 4, 0, 0),
+    (1, 1, 8, 4, 4, 4, 6, 0, 0), (1, 1, 8, 4, 8, 4, 4, 0, 0),
 ]
 
 _W4_CPP_SRC = r"""
@@ -540,10 +544,16 @@ namespace {
 constexpr int kK = 4096;
 constexpr int kInter = 4096;
 
+template <bool HINT>
 __device__ __forceinline__ uint4 ld_stream(const uint4* p) {
     uint4 v;
-    asm volatile("ld.global.nc.L1::no_allocate.L2::256B.v4.u32 {%0,%1,%2,%3}, [%4];"
-                 : "=r"(v.x), "=r"(v.y), "=r"(v.z), "=r"(v.w) : "l"(p));
+    if (HINT) {
+        asm volatile("ld.global.nc.L1::no_allocate.L2::256B.v4.u32 {%0,%1,%2,%3}, [%4];"
+                     : "=r"(v.x), "=r"(v.y), "=r"(v.z), "=r"(v.w) : "l"(p));
+    } else {
+        asm volatile("ld.global.nc.L1::no_allocate.v4.u32 {%0,%1,%2,%3}, [%4];"
+                     : "=r"(v.x), "=r"(v.y), "=r"(v.z), "=r"(v.w) : "l"(p));
+    }
     return v;
 }
 
@@ -607,8 +617,11 @@ __device__ __forceinline__ unsigned word(const uint4& v, int i) {
 // P 0: grid (units / W, max items, S), one unit per warp. P 1: a persistent grid that walks
 // (item, chunk, split) units; the next unit's activations are staged into the other buffer
 // during this one, and its first D weight stages are loaded during this unit's last D.
-// MODE 0 is the GEMM. MODE 1 (timing only) streams the same weights and activations but
-// skips dequant and mma; MODE 2 (timing only) runs mma on the raw words without dequant.
+// MODE 0 is the GEMM and MODE 5 the GEMM without the L2 256-byte prefetch hint. The rest
+// time only: 1 streams the same weights and activations without dequant or mma; 2 runs mma
+// on the raw words without dequant; 3 streams the weights only (no activation staging);
+// 4 streams the same number of weight bytes with every warp reading consecutive 1 KB chunks
+// at each stage, like a plain streaming kernel; 6 is 4 without the hint.
 // LAYOUT 0 stores each unit's 64 k stages contiguously; LAYOUT 1 interleaves 8 neighbouring
 // units stage by stage, so the warps of a block read one contiguous stretch per stage.
 template <int KIND, int NT, int ROWS, int S, int W, int D, int MODE, int LAYOUT, int P>
@@ -626,6 +639,11 @@ __global__ void __launch_bounds__(W * 32) w4_gemm_kernel(
     constexpr int WSTR = LAYOUT ? 8 * 64 : 64;
     constexpr int SSTR = LAYOUT ? 8 * 8 : 8;
     static_assert(!P || NST % D == 0, "cross-unit prefetch needs whole groups of D stages");
+    constexpr bool HINT = MODE != 5 && MODE != 6;
+    constexpr bool LOADS_ONLY = MODE == 1 || MODE == 3 || MODE == 4 || MODE == 6;
+    constexpr bool STAGE_X = !(MODE == 3 || MODE == 4 || MODE == 6);
+    constexpr bool STREAMLIKE = MODE == 4 || MODE == 6;
+    static_assert(!STREAMLIKE || !P, "streaming diagnostic is for one unit per warp");
     extern __shared__ __align__(16) unsigned char smem_raw[];
     __shared__ int rid[2][TR];
 
@@ -662,7 +680,19 @@ __global__ void __launch_bounds__(W * 32) w4_gemm_kernel(
         row0_ = it.y;
         u_ = chunk * W + warp;
     };
+    int wstr = WSTR;
+    int sstr = SSTR;
     auto weights_at = [&](int e_, int u_, int z_, const uint4*& wp_, const uint4*& sp_) {
+        if (STREAMLIKE) {
+            const int warps = num_items[0] * (U / W) * S * W;
+            const int gw = ((blockIdx.z * num_items[0] + blockIdx.y) * (U / W) + blockIdx.x) * W
+                           + warp;
+            wp_ = wq + static_cast<size_t>(gw) * 64 + lane;
+            sp_ = wsc + static_cast<size_t>(gw) * 8 + (lane >> 2);
+            wstr = warps * 64;
+            sstr = warps * 8;
+            return;
+        }
         const size_t stage0 = LAYOUT
             ? (static_cast<size_t>(e_ * (U / 8) + u_ / 8) * 64 + z_ * NST) * 8 + (u_ & 7)
             : static_cast<size_t>(e_ * U + u_) * 64 + z_ * NST;
@@ -687,6 +717,11 @@ __global__ void __launch_bounds__(W * 32) w4_gemm_kernel(
         }
         asm volatile("cp.async.commit_group;" ::: "memory");
     };
+    if (!STAGE_X) {
+        for (int r = threadIdx.x; r < 2 * TR; r += W * 32) {
+            rid[r / TR][r % TR] = -1;
+        }
+    }
 
     decode(q, e, nrows, row0, u, z);
     const uint4* wp;
@@ -697,16 +732,18 @@ __global__ void __launch_bounds__(W * 32) w4_gemm_kernel(
 #pragma unroll
     for (int d = 0; d < D; ++d) {
         if (d < NST) {
-            wv[d][0] = ld_stream(wp + d * WSTR);
-            wv[d][1] = ld_stream(wp + d * WSTR + 32);
-            sv[d] = ld_stream(sp + d * SSTR);
+            wv[d][0] = ld_stream<HINT>(wp + d * wstr);
+            wv[d][1] = ld_stream<HINT>(wp + d * wstr + 32);
+            sv[d] = ld_stream<HINT>(sp + d * sstr);
         }
     }
     if (KIND == 2) {
         asm volatile("griddepcontrol.wait;" ::: "memory");
         asm volatile("griddepcontrol.launch_dependents;");
     }
-    stage_x(0, nrows, row0, z);
+    if (STAGE_X) {
+        stage_x(0, nrows, row0, z);
+    }
 
     const int g = lane >> 2;
     const int t4 = lane & 3;
@@ -752,7 +789,7 @@ __global__ void __launch_bounds__(W * 32) w4_gemm_kernel(
 #pragma unroll
             for (int d = 0; d < D; ++d) {
                 const int s = s0 + d;
-                if (s < NST && MODE == 1) {
+                if (s < NST && LOADS_ONLY) {
                     acc[0][0][0] += __uint_as_float(
                         (wv[d][0].x ^ wv[d][0].w ^ wv[d][1].x ^ wv[d][1].w ^ sv[d].x)
                         & 0x3f800000u);
@@ -788,13 +825,13 @@ __global__ void __launch_bounds__(W * 32) w4_gemm_kernel(
                 }
                 if (s < NST) {
                     if (s + D < NST) {
-                        wv[d][0] = ld_stream(wp + (s + D) * WSTR);
-                        wv[d][1] = ld_stream(wp + (s + D) * WSTR + 32);
-                        sv[d] = ld_stream(sp + (s + D) * SSTR);
+                        wv[d][0] = ld_stream<HINT>(wp + (s + D) * wstr);
+                        wv[d][1] = ld_stream<HINT>(wp + (s + D) * wstr + 32);
+                        sv[d] = ld_stream<HINT>(sp + (s + D) * sstr);
                     } else if (has_next) {
-                        wv[d][0] = ld_stream(wpn + (s + D - NST) * WSTR);
-                        wv[d][1] = ld_stream(wpn + (s + D - NST) * WSTR + 32);
-                        sv[d] = ld_stream(spn + (s + D - NST) * SSTR);
+                        wv[d][0] = ld_stream<HINT>(wpn + (s + D - NST) * wstr);
+                        wv[d][1] = ld_stream<HINT>(wpn + (s + D - NST) * wstr + 32);
+                        sv[d] = ld_stream<HINT>(spn + (s + D - NST) * sstr);
                     }
                 }
             }
@@ -1505,9 +1542,9 @@ def _w4_tune(state, seeds=(11, 12)):
                         res["part"] = part
                         _w4_ext().w4_finalize(part, tw, state["norm_w"], lids.view(-1),
                                               POST_NORM_EPS, False)
-                k = cfg[0] - 1 + (2 if cfg[6] else 0)
+                k = cfg[0] - 1 + (0 if cfg[6] in (0, 5) else 2)
                 tot[k][i] = tot[k].get(i, 0.0) + _graph_time(run, flush)
-                if cfg[6]:
+                if cfg[6] not in (0, 5):
                     continue
                 run()
                 ref = ref1 if cfg[0] == 1 else ref2
