@@ -405,16 +405,17 @@ torch::Tensor finalize(torch::Tensor y, torch::Tensor scores, torch::Tensor norm
 }
 """
 
-# Per-bs choices, measured with okc check (see docs/runs-moe.md). align: "ours" or "sgl";
-# fin: a finalize() variant (0 = one block per token, 2/4/8 = cluster split) or "sgl";
-# bsm: Marlin moe_block_size, or None for SGLang's heuristic.
-DEFAULT_OPTS = {"align": "ours", "fin": "sgl", "bsm": None}
-OPTS_BY_BS = {
-    1: {"align": "ours", "fin": 0, "bsm": None},
-    8: {"align": "ours", "fin": 0, "bsm": None},
-    16: {"align": "ours", "fin": 0, "bsm": None},
-}
-BASELINE_OPTS = {"align": "sgl", "fin": "sgl", "bsm": None}
+# Choices measured with okc check (see docs/runs-moe.md). align: "ours" or "sgl"; fin: a
+# finalize() variant (0 = one block per token, 2/4/8 = cluster split) or "sgl"; bsm: Marlin
+# moe_block_size, or None for SGLang's heuristic; ep: Marlin's expert-parallel template, which
+# our align does not need since it emits no filtered blocks.
+def _opts_for(num_tokens):
+    # SGLang's heuristic picks 48 at 128 tokens and 64 at 256; 16 was 25-35% faster there.
+    bsm = 8 if num_tokens < 12 else 16
+    return {"align": "ours", "fin": 0, "bsm": bsm, "ep": True}
+
+
+BASELINE_OPTS = {"align": "sgl", "fin": "sgl", "bsm": None, "ep": True}
 
 _EXT = None
 
@@ -522,8 +523,8 @@ def _forward(data, state, opts):
     cache1 = cache13[: numel * gemm1_n].view(-1, gemm1_n)
     cache3 = cache13[: numel * size_k].view(-1, size_k)
     common = dict(moe_block_size=block_size_m, mul_topk_weights=False,
-                  is_ep=expert_map is not None, b_q_type=scalar_types.float4_e2m1f,
-                  is_k_full=True, use_atomic_add=False, use_fp32_reduce=True, is_zp_float=False)
+                  is_ep=expert_map is not None and (opts["ep"] or not ours),
+                  b_q_type=scalar_types.float4_e2m1f, is_k_full=True, use_atomic_add=False, use_fp32_reduce=True, is_zp_float=False)
     ws = state["workspace"]
     cache1 = moe_wna16_marlin_gemm(
         x, cache1, bank["w13"], None, bank["w13_s"], bank["w13_gs"], None, None, None, ws,
@@ -545,7 +546,7 @@ def _forward(data, state, opts):
 def kernel_fn(data, state):
     opts = BASELINE_OPTS
     if state["ours_ok"]:
-        opts = OPTS_BY_BS.get(data["hidden_states"].shape[0], DEFAULT_OPTS)
+        opts = _opts_for(data["hidden_states"].shape[0])
     return _forward(data, state, opts)
 
 
@@ -585,9 +586,8 @@ def _self_test(state):
         for dist in ("normal", "skewed"):
             data = _make_inputs(bs, 100 + bs, dist)
             ref = _forward(data, state, BASELINE_OPTS)
-            for opts in [OPTS_BY_BS.get(bs, DEFAULT_OPTS),
-                         {"align": "ours", "fin": 0, "bsm": None},
-                         {"align": "ours", "fin": 4, "bsm": None}]:
+            for opts in [_opts_for(bs), dict(_opts_for(bs), ep=False),
+                         dict(_opts_for(bs), fin=4, bsm=32)]:
                 out = _forward(data, state, opts)
                 if not torch.isfinite(out).all():
                     print(f"SELFTEST bs={bs} {dist} {opts}: non-finite")
@@ -642,21 +642,21 @@ def _bench(state):
     flush = torch.empty(256 << 20, dtype=torch.uint8, device="cuda")
     for bs in (1, 8, 16, 32, 128, 256):
         data = _make_inputs(bs, 7 + bs)
-        base = _graph_time(lambda: _forward(data, state, BASELINE_OPTS), flush)
-        cur = OPTS_BY_BS.get(bs, DEFAULT_OPTS)
-        line = f"BENCH bs={bs:3d} sgl={base:6.1f}"
-        for name, opts in [("cur", cur),
-                           ("alignonly", {"align": "ours", "fin": "sgl", "bsm": None}),
-                           ("fin0", {"align": "ours", "fin": 0, "bsm": None}),
-                           ("fin2", {"align": "ours", "fin": 2, "bsm": None}),
-                           ("fin4", {"align": "ours", "fin": 4, "bsm": None}),
-                           ("fin8", {"align": "ours", "fin": 8, "bsm": None})]:
+        cur = _opts_for(bs)
+        line = f"BENCH bs={bs:3d}"
+        for name, opts in [("sgl", BASELINE_OPTS), ("cur", cur), ("noep", dict(cur, ep=False)),
+                           ("sglfin", dict(cur, fin="sgl"))]:
             line += f" {name}={_graph_time(lambda: _forward(data, state, opts), flush):6.1f}"
         print(line)
-        line = f"BSM   bs={bs:3d} heur={_heuristic_bsm(bs, 32)}"
-        for bsm in BLOCK_SIZE_M_CANDIDATES:
-            opts = {"align": "ours", "fin": cur["fin"], "bsm": bsm}
-            line += f" {bsm}={_graph_time(lambda: _forward(data, state, opts), flush):6.1f}"
+    for bs in (12, 16, 24, 32, 48, 64, 96, 128, 192, 256):
+        line = f"BSM bs={bs:3d}"
+        for bsm in (8, 16, 32):
+            ts = []
+            for seed in (1, 2, 3):
+                data = _make_inputs(bs, 1000 * seed + bs)
+                opts = dict(_opts_for(bs), bsm=bsm)
+                ts.append(_graph_time(lambda: _forward(data, state, opts), flush, iters=15))
+            line += f" {bsm}:" + "/".join(f"{t:.0f}" for t in ts)
         print(line)
 
 
