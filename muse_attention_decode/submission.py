@@ -2430,11 +2430,13 @@ def _ws_splits(cfg):
 
 def _ws(data, splits=None, stages=7, mode=0, var=None, dbg=None):
     """q_len 8 on the warp-specialized kernel (attn_ws.cu), then a merge + norm-gate launch.
-    Default variant per layer from the bench of job a8a4666a91d54d68: loaders release tiles
-    without their own proxy fence (var 2) on full layers, plus paired tiles (var 6) on sliding."""
+    Default variant per layer from judge runs: on full layers the loaders release tiles without
+    their own proxy fence (var 2: b16 1.167x, b32 1.177x in job 1f4f986279834925, against
+    1.101x / 1.122x for var 0 in a8a4666a91d54d68); sliding layers keep var 0, which paired
+    tiles (var 6) lost to by 6-13% in 1f4f986279834925."""
     cfg = data["config"]
     if var is None:
-        var = 6 if cfg["window"] else 2
+        var = 0 if cfg["window"] else 2
     batch = cfg["batch"]
     qkv = data["qkv"].view(batch * cfg["q_len"], -1)
     theta = cfg["rope_theta"]
