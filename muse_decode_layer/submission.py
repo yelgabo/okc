@@ -672,38 +672,55 @@ __global__ void __launch_bounds__(NORM_THREADS) pre_norm_kernel(
 }
 
 // Warms L2 with weights the chain reads after attention (the o projection, the FP32 router and
-// the unpooler slice at T <= 8) while attention runs: bulk prefetches of 4 KB each with an
-// evict_last policy, so the lines outlive the pooler's and the experts' streams. The kernel
-// reads state only, derives nothing from the step's inputs and keeps nothing.
-constexpr int PF_CHUNK = 4096;
+// the unpooler slice at T <= 8) while attention runs: 16-byte loads with an evict_last policy,
+// so the lines outlive the pooler's and the experts' streams, eight in flight per thread. Real
+// loads, not prefetch hints: cp.async.bulk.prefetch.L2 left the o GEMV at 7.3 us (job
+// 985732949c07474f). The kernel reads state only, derives nothing from the step's inputs and
+// keeps nothing; the values go to a store that never happens.
+constexpr int PF_CHUNK = 16;
+constexpr int PF_THREADS = 256;
+constexpr int PF_UNROLL = 8;
 
-__global__ void __launch_bounds__(128) prefetch_kernel(const char* p0, long long n0,
-                                                       const char* p1, long long n1,
-                                                       const char* p2, long long n2) {
+__global__ void __launch_bounds__(PF_THREADS) prefetch_kernel(const char* p0, long long n0,
+                                                              const char* p1, long long n1,
+                                                              const char* p2, long long n2,
+                                                              unsigned* sink) {
     uint64_t policy;
     asm volatile("createpolicy.fractional.L2::evict_last.b64 %0, 1.0;" : "=l"(policy));
-    const long long c0 = (n0 + PF_CHUNK - 1) / PF_CHUNK;
-    const long long c1 = (n1 + PF_CHUNK - 1) / PF_CHUNK;
-    const long long c2 = (n2 + PF_CHUNK - 1) / PF_CHUNK;
+    const long long c0 = n0 / PF_CHUNK;
+    const long long c1 = n1 / PF_CHUNK;
+    const long long c2 = n2 / PF_CHUNK;
     const long long total = c0 + c1 + c2;
     const long long step = static_cast<long long>(gridDim.x) * blockDim.x;
-    for (long long i = blockIdx.x * blockDim.x + threadIdx.x; i < total; i += step) {
-        const char* base = p0;
-        long long n = n0;
-        long long j = i;
-        if (i >= c0 + c1) {
-            base = p2;
-            n = n2;
-            j = i - c0 - c1;
-        } else if (i >= c0) {
-            base = p1;
-            n = n1;
-            j = i - c0;
+    unsigned acc = 0;
+    for (long long i = blockIdx.x * blockDim.x + threadIdx.x; i < total; i += PF_UNROLL * step) {
+        unsigned v[PF_UNROLL][4];
+#pragma unroll
+        for (int u = 0; u < PF_UNROLL; ++u) {
+            const long long j = i + u * step;
+            v[u][0] = v[u][1] = v[u][2] = v[u][3] = 0u;
+            if (j < total) {
+                const char* base = p0;
+                long long k = j;
+                if (j >= c0 + c1) {
+                    base = p2;
+                    k = j - c0 - c1;
+                } else if (j >= c0) {
+                    base = p1;
+                    k = j - c0;
+                }
+                asm volatile("ld.global.L2::cache_hint.v4.u32 {%0,%1,%2,%3}, [%4], %5;"
+                             : "=r"(v[u][0]), "=r"(v[u][1]), "=r"(v[u][2]), "=r"(v[u][3])
+                             : "l"(base + k * PF_CHUNK), "l"(policy));
+            }
         }
-        const long long off = j * PF_CHUNK;
-        const unsigned bytes = static_cast<unsigned>(min(static_cast<long long>(PF_CHUNK), n - off));
-        asm volatile("cp.async.bulk.prefetch.L2.global.L2::cache_hint [%0], %1, %2;"
-                     :: "l"(base + off), "r"(bytes), "l"(policy) : "memory");
+#pragma unroll
+        for (int u = 0; u < PF_UNROLL; ++u) {
+            acc ^= v[u][0] ^ v[u][1] ^ v[u][2] ^ v[u][3];
+        }
+    }
+    if (acc == 0x9e3779b9u && sink != nullptr) {
+        *sink = acc;
     }
 }
 
@@ -1083,9 +1100,10 @@ void prefetch_l2(torch::Tensor a, torch::Tensor b, torch::Tensor c) {
     if (chunks == 0) {
         return;
     }
-    const int blocks = static_cast<int>(std::min<long long>((chunks + 127) / 128, 264));
-    prefetch_kernel<<<blocks, 128, 0, at::cuda::getCurrentCUDAStream()>>>(
-        ptr[0], n[0], ptr[1], n[1], ptr[2], n[2]);
+    const int blocks = static_cast<int>(
+        std::min<long long>((chunks + PF_THREADS * PF_UNROLL - 1) / (PF_THREADS * PF_UNROLL), 264));
+    prefetch_kernel<<<blocks, PF_THREADS, 0, at::cuda::getCurrentCUDAStream()>>>(
+        ptr[0], n[0], ptr[1], n[1], ptr[2], n[2], static_cast<unsigned*>(nullptr));
     C10_CUDA_KERNEL_LAUNCH_CHECK();
 }
 
@@ -5626,7 +5644,8 @@ def _moe_front(ffn_input, router_input, local_start, state, moe_opts, variant):
 def _front_tune(state):
     """Times the MoE front per token count above 8, as a CUDA graph replayed after an L2 flush
     as the judge times it, for every side-chain variant, and keeps the fastest. The variants
-    must agree: the normalized expert input within 2 BF16 ulp of the split variant's and at
+    must agree: the normalized expert input within 1e-3 (relative L2) of the split variant's,
+    which is the level of BF16 rounding flips from a different FP32 summation order, and at
     least 99% of the routes equal."""
     flush = torch.empty(256 << 20, dtype=torch.uint8, device="cuda")
     gen = torch.Generator(device="cuda").manual_seed(21)
@@ -5650,18 +5669,20 @@ def _front_tune(state):
             torch.cuda.synchronize()
             outs[variant] = (res["x"].clone(), res["ids"].clone())
         ref_x, ref_ids = outs["split"]
+        agree = {}
         for variant, (x, ids) in outs.items():
-            d = (x.float() - ref_x.float()).abs()
-            ulp = torch.exp2(torch.floor(torch.log2(ref_x.float().abs().clamp(min=1e-30))) - 7)
-            ulps = float((d / ulp).max())
+            err = _rel(x, ref_x)
             same = float((ids == ref_ids).float().mean())
-            if not (ulps <= 2.0 and same >= 0.99):
-                raise RuntimeError(f"front T={tokens} {variant}: {ulps:.1f} ulp, routes {same:.3f}")
+            agree[variant] = f"{err:.1e}/{same:.3f}"
+            if not (err < 1e-3 and same >= 0.99):
+                raise RuntimeError(f"front T={tokens} {variant}: rel diff {err:.2e}, "
+                                   f"routes {same:.3f}")
         best = min(times, key=times.get)
         policy[tokens] = best
         print(f"TUNE front T={tokens} "
               + " ".join(f"{v}:{t:.1f}" for v, t in sorted(times.items(), key=lambda kv: kv[1]))
-              + f" -> {best}")
+              + f" -> {best} (vs split: "
+              + " ".join(f"{v} {a}" for v, a in agree.items()) + ")")
     state["front_policy"] = policy
 
 
