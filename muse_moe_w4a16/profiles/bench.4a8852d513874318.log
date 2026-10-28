@@ -1,0 +1,93 @@
+SELFTEST worst rel diff vs sglang path 4.20e-04
+TUNE g1 bs=1 20:31.1 34:31.1 3:31.8 33:32.3 21:32.3 2:32.4 17:32.5 0:32.6 16:32.6 19:32.7 18:34.2 23:34.5 6:34.5 37:35.0 5:35.1 4:35.6 8:36.6 7:36.7 m:37.3 15:37.4 1:37.6 24:38.8 22:48.9
+TUNE g2 bs=1 26:25.1 29:25.5 9:25.5 10:26.5 11:26.5 35:26.6 32:27.0 13:27.1 36:27.2 25:28.3 28:28.9 m:29.3 14:30.0 12:30.6 30:31.3 27:32.8 31:35.0
+TUNE diag g1 bs=1 42:31.2 41:41.6 40:42.0 38:42.4 39:43.8
+TUNE diag g2 bs=1 
+TUNE forward bs=1 pdl=0,cl=1:54.4 pdl=0,cl=4:54.1 pdl=0,cl=8:54.0 pdl=1,cl=1:52.9 pdl=1,cl=4:52.7 pdl=1,cl=8:52.5
+TUNE g1 bs=8 33:51.8 2:51.9 34:52.2 20:52.4 19:53.1 3:53.1 37:53.6 5:53.6 21:54.4 1:55.4 4:56.5 17:58.1 18:59.2 7:59.4 8:60.0 23:60.2 6:61.7 m:65.1 24:68.3 22:94.2
+TUNE g2 bs=8 30:34.5 11:36.3 29:36.7 13:37.1 35:37.1 36:37.3 32:40.6 12:41.1 28:42.2 14:42.4 m:42.7 27:53.5 31:57.6
+TUNE diag g1 bs=8 42:50.2 41:58.5 40:58.6 39:58.9 38:59.6
+TUNE diag g2 bs=8 
+TUNE forward bs=8 pdl=0,cl=1:84.1 pdl=0,cl=4:84.3 pdl=0,cl=8:84.0 pdl=1,cl=1:80.9 pdl=1,cl=4:81.1 pdl=1,cl=8:81.2
+TUNE g1 bs=16 21:77.8 33:77.9 20:78.2 19:78.4 2:78.6 34:78.6 3:78.6 1:79.2 4:79.8 5:81.0 37:81.2 18:84.0 6:85.9 7:90.1 23:90.3 8:90.7 17:94.4 m:103.0 24:104.8 22:150.2
+TUNE g2 bs=16 35:47.6 11:47.9 12:49.3 36:49.6 13:49.7 29:49.8 28:52.8 30:53.7 14:53.8 32:54.7 m:61.5 27:84.4 31:86.0
+TUNE diag g1 bs=16 42:72.9 41:82.6 40:82.9 39:84.4 38:86.4
+TUNE diag g2 bs=16 
+TUNE forward bs=16 pdl=0,cl=1:123.3 pdl=0,cl=4:123.0 pdl=0,cl=8:123.1 pdl=1,cl=1:121.2 pdl=1,cl=4:120.8 pdl=1,cl=8:120.8
+TUNE g1 bs=32 33:101.6 2:102.5 4:105.2 1:105.7 5:106.6 37:106.7 34:108.3 3:108.3 20:108.4 21:110.0 19:110.2 6:116.4 7:118.6 8:119.4 18:120.5 23:123.0 17:132.0 m:138.9 24:141.7 22:207.8
+TUNE g2 bs=32 35:61.0 11:61.1 13:62.5 36:62.6 29:63.8 12:64.1 30:69.7 14:70.0 32:70.3 28:70.5 m:79.5 31:114.8 27:116.5
+TUNE diag g1 bs=32 42:101.3 41:112.1 40:112.7 39:114.1 38:119.6
+TUNE diag g2 bs=32 
+TUNE forward bs=32 pdl=0,cl=1:159.6 pdl=0,cl=4:159.6 pdl=0,cl=8:159.4 pdl=1,cl=1:157.0 pdl=1,cl=4:156.8 pdl=1,cl=8:156.8
+TUNE g1 bs=128 4:166.0 37:168.9 5:169.4 1:174.4 3:180.9 6:182.9 33:184.8 2:185.3 7:187.3 20:187.6 34:187.7 8:188.4 21:194.9 23:195.2 19:195.3 m:207.0 18:209.6 17:215.1 24:222.7 22:332.4
+TUNE g2 bs=128 36:90.8 13:91.0 35:93.1 11:93.7 12:93.9 14:98.0 30:101.5 32:102.0 29:102.1 28:110.6 m:113.6 31:176.0 27:189.0
+TUNE diag g1 bs=128 42:177.7 39:197.0 41:206.9 40:208.1 38:209.5
+TUNE diag g2 bs=128 
+TUNE forward bs=128 pdl=0,cl=1:254.5 pdl=0,cl=4:256.0 pdl=0,cl=8:256.2 pdl=1,cl=1:249.8 pdl=1,cl=4:252.4 pdl=1,cl=8:253.0
+TUNE g1 bs=256 37:244.2 5:244.3 6:253.9 7:258.3 8:259.7 4:271.3 m:274.1 23:274.3 1:288.0 24:295.1 3:303.7 20:305.1 34:306.1 33:322.3 2:323.0 21:326.5 19:328.4 18:347.2 17:363.3 22:463.2
+TUNE g2 bs=256 13:121.2 36:121.2 14:127.7 32:141.3 12:144.0 35:149.5 11:149.8 m:149.8 30:161.0 29:167.8 28:177.2 31:233.6 27:325.2
+TUNE diag g1 bs=256 42:299.8 39:329.5 38:356.7 41:370.8 40:372.8
+TUNE diag g2 bs=256 
+TUNE forward bs=256 pdl=0,cl=1:362.1 pdl=0,cl=4:364.6 pdl=0,cl=8:365.0 pdl=1,cl=1:360.4 pdl=1,cl=4:362.7 pdl=1,cl=8:363.3
+TUNE policy {1: (20, 26, True, 8), 8: (33, 30, True, 1), 16: (21, 35, True, 8), 32: (33, 35, True, 8), 128: (4, 36, True, 1), 256: (37, 13, True, 1)}
+W4 repack 0.2 s, extension build 53.3 s, tuning 6.2 s
+W4TEST bs=1 normal policy: vs fp32 4.30e-03 (marlin path 5.36e-03)
+W4TEST bs=1 skewed policy: vs fp32 4.36e-03 (marlin path 5.48e-03)
+W4TEST bs=4 normal policy: vs fp32 4.21e-03 (marlin path 5.22e-03)
+W4TEST bs=4 skewed policy: vs fp32 4.25e-03 (marlin path 5.20e-03)
+W4TEST bs=8 normal policy: vs fp32 4.32e-03 (marlin path 5.33e-03)
+W4TEST bs=8 skewed policy: vs fp32 4.24e-03 (marlin path 5.29e-03)
+W4TEST bs=16 normal policy: vs fp32 4.27e-03 (marlin path 5.30e-03)
+W4TEST bs=16 skewed policy: vs fp32 4.27e-03 (marlin path 5.28e-03)
+W4TEST bs=32 normal policy: vs fp32 4.34e-03 (marlin path 5.33e-03)
+W4TEST bs=32 skewed policy: vs fp32 4.23e-03 (marlin path 5.28e-03)
+W4TEST bs=33 normal policy: vs fp32 4.27e-03 (marlin path 5.31e-03)
+W4TEST bs=33 skewed policy: vs fp32 4.27e-03 (marlin path 5.30e-03)
+W4TEST bs=128 normal policy: vs fp32 4.27e-03 (marlin path 5.32e-03)
+W4TEST bs=128 skewed policy: vs fp32 4.28e-03 (marlin path 5.31e-03)
+W4TEST bs=257 normal policy: vs fp32 4.28e-03 (marlin path 5.31e-03)
+W4TEST bs=257 skewed policy: vs fp32 4.28e-03 (marlin path 5.31e-03)
+W4TEST worst rel err vs fp32 4.36e-03
+PREP base 104.3 s
+XB empty graph replay 5.3 us
+XINFO (1, 1, 8, 4, 4, 4, 0, 0, 0): regs 76 smem 16576 blocks/SM 6 warps/SM 24 local 0
+XINFO (1, 2, 16, 4, 8, 4, 0, 1, 0): regs 98 smem 33152 blocks/SM 2 warps/SM 16 local 0
+XINFO (1, 1, 8, 4, 4, 4, 7, 1, 0): regs 40 smem 35040 blocks/SM 6 warps/SM 30 local 0
+XINFO (1, 1, 8, 4, 4, 8, 7, 1, 0): regs 40 smem 53536 blocks/SM 4 warps/SM 20 local 0
+XINFO (1, 1, 8, 4, 8, 4, 7, 1, 0): regs 40 smem 53472 blocks/SM 4 warps/SM 36 local 0
+XINFO (1, 1, 8, 2, 8, 4, 7, 1, 0): regs 40 smem 69856 blocks/SM 3 warps/SM 27 local 0
+XINFO (1, 1, 8, 2, 4, 8, 7, 1, 0): regs 40 smem 69920 blocks/SM 3 warps/SM 15 local 0
+XINFO (1, 2, 16, 4, 4, 8, 7, 1, 0): regs 52 smem 70080 blocks/SM 3 warps/SM 15 local 0
+XINFO (1, 2, 16, 4, 8, 4, 7, 1, 0): regs 56 smem 70016 blocks/SM 3 warps/SM 27 local 0
+XINFO (1, 1, 1, 4, 4, 8, 7, 1, 0): regs 40 smem 39088 blocks/SM 5 warps/SM 25 local 0
+XINFO (1, 4, 32, 4, 4, 4, 0, 0, 0): regs 124 smem 66304 blocks/SM 3 warps/SM 12 local 0
+XINFO (1, 8, 64, 4, 8, 4, 0, 0, 0): regs 190 smem 132608 blocks/SM 1 warps/SM 8 local 0
+XINFO (1, 2, 16, 4, 4, 4, 0, 0, 0): regs 92 smem 33152 blocks/SM 5 warps/SM 20 local 0
+XINFO (1, 8, 64, 4, 4, 2, 0, 0, 0): regs 146 smem 132608 blocks/SM 1 warps/SM 4 local 0
+XINFO (1, 1, 8, 2, 8, 4, 0, 0, 0): regs 76 smem 32960 blocks/SM 3 warps/SM 24 local 0
+XINFO (1, 4, 32, 2, 8, 4, 0, 0, 0): regs 128 smem 131840 blocks/SM 1 warps/SM 8 local 0
+XINFO (2, 1, 8, 4, 4, 4, 0, 0, 0): regs 77 smem 16576 blocks/SM 6 warps/SM 24 local 0
+XINFO (2, 2, 16, 4, 4, 4, 0, 0, 0): regs 92 smem 33152 blocks/SM 5 warps/SM 20 local 0
+XINFO (2, 1, 8, 4, 4, 8, 7, 1, 0): regs 40 smem 53536 blocks/SM 4 warps/SM 20 local 0
+XINFO (2, 1, 8, 4, 8, 4, 7, 1, 0): regs 40 smem 53472 blocks/SM 4 warps/SM 36 local 0
+XINFO (2, 1, 8, 2, 4, 8, 7, 1, 0): regs 40 smem 69920 blocks/SM 3 warps/SM 15 local 0
+XINFO (2, 2, 16, 4, 4, 8, 7, 1, 0): regs 52 smem 70080 blocks/SM 3 warps/SM 15 local 0
+XINFO (2, 2, 16, 4, 8, 4, 7, 1, 0): regs 56 smem 70016 blocks/SM 3 warps/SM 27 local 0
+XINFO (2, 1, 1, 4, 4, 8, 7, 1, 0): regs 40 smem 39088 blocks/SM 5 warps/SM 25 local 0
+XINFO (2, 4, 32, 4, 4, 4, 0, 0, 0): regs 124 smem 66304 blocks/SM 3 warps/SM 12 local 0
+XINFO (2, 8, 64, 4, 8, 4, 0, 0, 0): regs 190 smem 132608 blocks/SM 1 warps/SM 8 local 0
+XINFO (2, 8, 64, 4, 4, 2, 0, 0, 0): regs 146 smem 132608 blocks/SM 1 warps/SM 4 local 0
+Traceback (most recent call last):
+  File "/tmp/muse_moe_w4a16-uwb38y3j/run/submission.py", line 2411, in prepare
+    _run_bench(state)
+  File "/tmp/muse_moe_w4a16-uwb38y3j/run/submission.py", line 2588, in _run_bench
+    _xb_run_bench(state)
+  File "/tmp/muse_moe_w4a16-uwb38y3j/run/submission.py", line 2543, in _xb_run_bench
+    sids, lids, its, n, b = lists(small, big, at, gemm)
+                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/muse_moe_w4a16-uwb38y3j/run/submission.py", line 2523, in lists
+    r = ext.route_align(topk_ids, 0, 32, bsm, max_padded,
+        ^^^^^^^^^^^^^^^
+AttributeError: module 'okc_moe_w4' has no attribute 'route_align'
+BENCH failed: AttributeError: module 'okc_moe_w4' has no attribute 'route_align'
+PREP total 104.3 s

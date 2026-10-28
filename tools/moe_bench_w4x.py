@@ -8,6 +8,9 @@
 
 XB_SEEDS = (("normal", 11), ("normal", 12), ("normal", 13), ("skewed", 21), ("skewed", 22))
 XB_BS = (1, 8, 16, 32, 128, 256)
+# Registers, shared memory and occupancy per config were printed by check 4a8852d513874318;
+# off to keep the log tail inside its 16,000 characters.
+XB_INFO = False
 
 
 def _xb_cfg(t):
@@ -73,7 +76,8 @@ def _xb_info():
 def _xb_run_bench(state):
     flush = torch.empty(256 << 20, dtype=torch.uint8, device="cuda")
     print(f"XB empty graph replay {_empty_graph_us(flush):.1f} us")
-    _xb_info()
+    if XB_INFO:
+        _xb_info()
     w4 = state["w4"]
     ext = _w4_ext()
     policy = state["w4_policy"]
@@ -102,7 +106,7 @@ def _xb_run_bench(state):
             def lists(small, big, at, gemm):
                 rows = 8 * small[1]
                 brow = 8 * big[1] if big is not None else 0
-                r = ext.route_align(topk_ids, 0, 32, bsm, max_padded,
+                r = _ext().route_align(topk_ids, 0, 32, bsm, max_padded,
                                     rows if gemm == 1 else 0, rows if gemm == 2 else 0,
                                     brow if gemm == 1 else 0, brow if gemm == 2 else 0,
                                     max(at, 1), max(at, 1))
@@ -156,7 +160,8 @@ def _xb_run_bench(state):
             line = " ".join(f"{lab}:" + "/".join(_xb_fmt(t) for t in ts)
                             for lab, ts in times[k].items())
             print(f"XB g{k + 1} bs={bs} cur={cur} {line}")
-    print("XERR " + " ".join(f"g{g}:{lab}:{e:.1e}" for (g, lab), e in worst.items()))
+        print(f"XERR bs={bs} " + " ".join(f"g{g}:{lab}:{e:.0e}" for (g, lab), e in worst.items()))
+        worst = {}
 
 
 def _w4_key(bs):
