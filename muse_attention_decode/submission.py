@@ -4761,7 +4761,7 @@ _ONE_BUILT = {1: (1, 3, 11, 13, 17, 49),
 # Tile-loop schedule bits OR'd onto every q_len 8 consumer-copy mode (3, 11, 15, 19): 128
 # issues Q.K before the next tile's copies with the V transpose under it, 384 also refills a
 # raw stage once Q.K and the transpose are done instead of after P.V. 0 keeps the loop that
-# scored b458555d3e3e4e9a.
+# scored b458555d3e3e4e9a. A dict maps ("sliding" | "full", batch) to bits, 0 where missing.
 _ONE_Q8_SCHED = 0
 # Full-context batches on the flat partition (else per request), and whether the flat
 # kernel's tiles come from a producer warpgroup (mode |32) or the consumers' own copies.
@@ -4836,7 +4836,10 @@ def _one_plan(cfg, pt_width, resident):
     return n, nc, candidates[0]
 
 
-def _one_sched(length, mode, sched):
+def _one_sched(cfg, mode, sched):
+    length = cfg["q_len"]
+    if isinstance(sched, dict):
+        sched = sched.get(("sliding" if cfg["window"] else "full", cfg["batch"]), 0)
     m = mode | sched if length == 8 and not mode & 32 else mode
     return m if m in _ONE_BUILT[length] else mode
 
@@ -4855,7 +4858,7 @@ def _one(data, splits=None, nc=None, mode=None, dbg=None, phase=0, var=None):
         m = mode
         if m & 16:
             n = min(_ONE_TARGET, st["resident"].get((length, m), 0))
-    m = _one_sched(length, m & ~384, _ONE_Q8_SCHED if var is None else var)
+    m = _one_sched(cfg, m & ~384, _ONE_Q8_SCHED if var is None else var)
     n = splits or n
     c = nc or c
     return _ONE.attn_one(

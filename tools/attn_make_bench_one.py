@@ -385,7 +385,7 @@ def _ob_plan_str(data):
         return "fallback"
     st = _one_state(data["qkv"].device)
     n, c, m = _one_plan(cfg, data["page_table"].shape[1], st["resident"])
-    m = _one_sched(cfg["q_len"], m, _ONE_Q8_SCHED)
+    m = _one_sched(cfg, m, _ONE_Q8_SCHED)
     return f"splits={{n}} nc={{c}} mode={{m}}"
 
 
