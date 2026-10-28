@@ -334,3 +334,255 @@ lines logged 5.2K). Read it with the backlog #4 notes above, plus:
   64-byte chunk via immediate offsets) hurts how scattered reads are served. The pending bench
   times var 528 and var 16 loads-only side by side to separate loader speed from interaction.
   Entry stays var 16.
+
+## One-launch kernel, attn_one.cu (10-28, built and checked locally; judge checks from 10-29)
+
+Re-implemented from the public 2.58x entry's design memo (one launch per call, fixed-frame
+merge): `muse_attention_decode/attn_one.cu`, inlined as `_ONE_SRC`, routed for every tp8
+shape by `kernel_fn` (`_one_ok`, `_one_plan`); dp heads stay on prep + FA3. Interface,
+buffers and plans: `docs/attention-port-guide.md`.
+
+What is in the kernel: per-request split-KV with whole-tile chunks by magic-number
+division; a 3-stage cp.async ring with page indices two tiles further ahead; the query
+group (q rows, new k/v rows, constants, gate prefetch) in flight while the first K/V tiles
+are issued; one `sincosf` body (Cody-Waite + `__sinf`/`__cosf`); q_len 1 on f16
+`mma.sync` with K and V converted from E4M3 in registers (one 16-byte LDS per key per
+thread, 4 HMMA per 8 keys, no ldmatrix; values by 8-byte loads + `prmt`); q_len 8 on
+`wgmma.m64n64k32.f32.e4m3.e4m3` reading K in place from the 128B-swizzled stage, P rounded to
+E4M3 under a lazy offset (moved only when a tile's max exceeds it by 8 log2 units),
+`wgmma.m64n72k32` against V transposed per tile by `ldmatrix.x4.trans` + `prmt` +
+`stmatrix.x4` into a 64B-swizzled K-major buffer in P's key order with rows 64..71 of ones
+(the row sums come out of the same wgmma); `fence.proxy.async` before every wgmma read of
+generic-written smem (loader side, kept per the repo rule); merge by `red.global.add.v4.f32`
+of o 2^m and `red.global.add.f32` of l 2^m into a persistent workspace; last-CTA finalize
+through a key-count ticket (`atom.acq_rel.gpu` after a CTA barrier) or cooperative finalize
+(parity counters, epoch, `ld.acquire` spin with `__nanosleep`, trap after 2^24 polls); the
+finalizer zeroes what it read. Modes per instance (MODE bits 1 plain / 3 coop, |4 one tile,
+|8 speculated length from `page_table.shape[1] - L`, |16 flat). Flat mode (full context,
+batch > 1): 264 CTAs share a virtual key axis with 400 / 600 keys per request boundary,
+whole-tile segments per request, per-request tickets at q_len 1 and a grid-wide cooperative
+finalize at q_len 8 (every CTA finalizes B x 128 / 264 rows). The flat loader is the same
+cp.async ring with a loop-top barrier, not yet the memo's producer warpgroup.
+
+Local evidence (CUDA 12.8.1 in Docker, sm_90a):
+- ptxas, no spills, no C7513/C7514: q_len 1 modes 1 / 3 / 11 / 13 / 17: 104 / 105 / 107 / 79 /
+  119 registers (58.9 KB smem: three CTAs per SM with the 1 KB reservation, 396 resident);
+  q_len 8 modes 1 / 3 / 11 / 15 / 19: 104 / 104 / 104 / 80 / 110 (90.6 KB, two per SM).
+  `tools/attn_host_check.sh`: no errors;
+  `tools/attn_compile_check.sh muse_attention_decode/submission.py`: all blocks build.
+- SASS: 29-45 KB per instance (the old fused kernel: 98.6 KB), 2 `MUFU.SIN/COS` per
+  instance (one body; the old kernels inlined 17-20), the v4 reds are single `REDG`
+  instructions. Mode 13 (decode 1 sliding) once-path: the `seq_lens` load is instruction 7,
+  the index copies land at 68 with the page-size division branched around, 65 `BRA` in 1872
+  instructions.
+- `tools/attn_emulate_one.py`: the mma.sync / wgmma fragment maps, the SW128 K read, the V^T
+  transpose (key permutation, dim order, ones rows), the P register order and the merge's
+  4-dim groups all agree with Q K^T and P V on random tiles. Numerics vs FP64 (soft keys,
+  33 / 16 splits merged in the fixed frame): sliding q8 5.54e-2 (E4M3-query reference
+  5.53e-2, bound 0.150), q1 4.7e-4; full 16K keys q8 3.20e-2 (reference 3.12e-2, bound
+  0.093), q1 2.4e-4; about one lazy-offset move per (row, split).
+- Plans (`_one_plan`, checked statically for all 16 tests and 12 scored shapes): decode 1
+  sliding 32 CTAs mode 13; verify 1 sliding 33 x mode 15; decode 16 / 32 sliding 16 x 16 /
+  8 x 32 mode 1; verify 16 / 32 sliding 8 x 16 / 4 x 32 mode 3; batch 1 full 252 x nc 8
+  mode 11; batch 16 / 32 full 264 flat (17 / 19); page-64 and short tests on the plain
+  multi-tile instances.
+
+### First checks after the 00:00 UTC reset (10-29), in this order
+
+1. `cd muse_attention_decode && okc check bench.py --no-wait --json`, then
+   `okc status <job> --wait --json`; confirm problem and job id. Read the SELFTEST lines
+   first: every test shape and scored shape with its plan, error, bound, cache-row errors,
+   and a second call on the same inputs (workspace left zero). Then the BENCH lines:
+   `_one` against `_fused`, `_ws`, `_fused_prep` per scored shape with e= columns.
+2. If SELFTEST is clean: `okc check submission.py --no-wait --json` for the judge's
+   per-shape times; log them against the bars (decode 1 sliding 4.9 us, 16: 7.4, 32: 9.3;
+   verify 1 sliding 7.0, 16: 11.9, 32: 15.4; decode 1 full 11.0, verify 1 full 14.7; decode
+   16 / 32 full 88 / 170; verify 16 / 32 full 105 / 186).
+3. Route per shape on judge numbers (`_ONE_ROUTE`: a `(layer, q_len, batch)` key set to
+   False sends that shape back to the previous path), then the next check.
+
+### Producer-warpgroup loader for the flat kernel (10-28, compiled, not yet checked)
+
+Mode |32 (instances 49 for q_len 1, 51 for q_len 8): a 128-thread producer warpgroup gathers
+tiles into an mbarrier ring (3 stages at q_len 1, 4 at q_len 8; full barriers count the 128
+producer arrivals by `cp.async.mbarrier.arrive.noinc`, empty barriers the consumer threads'
+`mbarrier.arrive`), page entries three tiles ahead in registers, the block's own rows patched
+by the consumers after the full wait with a `fence.proxy.async` and a consumer barrier,
+counters continuous across a CTA's segments, producers leave only after every stage was
+released. Register split `setmaxnreg.dec 56 / .inc 200` (q_len 1) and `32 / 104` (q_len 8)
+at two CTAs per SM. ptxas (CUDA 12.8.1): mode 49 128 registers, no spills; mode 51 80
+registers with 168 bytes of spills, and its SASS shows the consumer region never using a
+register above R78 after `USETMAXREG.TRY_ALLOC 0x68`: ptxas caps every region at the
+launch-bounds count and pads the kernel's count to it. So mode 115 (|64: one CTA per SM, no
+split) is built as the comparison: 113 registers, no spills. `_one_plan` prefers 49 / 51 with
+`_ONE_PROD = True` and falls back to 17 / 19; `bench.py` times `_one` and the explicit modes
+17 / 49 / 19 / 51 / 115 per full-context shape, and its STRESS lines replay six shapes 2,000
+times (decode and verify 1 sliding: speculated one-tile launches; verify 16 sliding:
+cooperative; decode 16 full: flat tickets; verify 16 full: grid-wide finalize; decode 1 full:
+252 splits with 8 copies) and read the workspace back.
+
+### Protocol review applied (10-28)
+
+The independent review (scratchpad `audit/attn_one_review.md`; verdict: release/acquire chain,
+key-count targets, cp.async group counts and proxy fences sound under stream ordering) asked
+for six changes, all in: (1) cooperative modes launch through `cudaLaunchKernelEx` with
+`cudaLaunchAttributeCooperative`, probed once under graph capture (`attn_one_probe_coop`),
+with a one-SM residency headroom when the probe fails, and the longest cooperative spin
+reported through `p.dbg` (`_ONE_DBG`, printed per self-test shape as max_polls); (2) the
+self-test asserts the workspace invariant (rows, row sums, tickets, next-parity counters) after
+every shape and after the replay stress, compares replays with a tolerance, and forces the
+SPEC fallback on the batch-1 shapes by shrinking `seq_lens` in place (positions and cache_loc
+updated to match) for 50 replays with the judge-style check; (3) the flat epoch is read with
+`__ldcg`; (4) one lane reads and zeroes a row's sum and broadcasts it by `__shfl_sync` in a
+uniform loop; (5) the port guide states the PDL ordering rule (epoch reads, tickets and reds
+after `griddepcontrol.wait`) and the one-stream rule; (6) q_len 1 residency corrected to three
+CTAs per SM (58.9 KB + 1 KB reserve). Also from the review: the ticket test is `>=` and a
+zero-key CTA never acts as the cooperative last arriver.
+
+### Scored submits of 10-28 (authorized in place of the exhausted checks)
+
+| date | job | commit | file | result | notes |
+|---|---|---|---|---|---|
+| 10-28 | e9138b431fc3461f | 2f0a1b9 | bench.py (submit) | timeout at the 15-minute cap, returncode -9, no score | All four extensions compiled, `cooperative_launch=True` (the probe captured a cooperative launch into a graph), residency as computed (q_len 1: 396 = 3/SM, q_len 8: 264 = 2/SM, mode 115: 132). The first self-test shape (batch 1, ctx 10, sliding, page 64; plan 32 x mode 1) never printed, so its kernel hung; earlier runs of the whole suite took 422-447 s, so compile time is not the explanation. The SASS of that instance shows no barrier reachable by part of a CTA and no unbounded loop. Log: `profiles/bench.e9138b431fc3461f.log`. |
+| 10-28 | a9c92e9ff8d048b0 | 766cab6 | bench.py (submit) | the first kernel call hung; the watchdog ended the run after 226 s (returncode 112), no score | Compile of the four extensions took about 3 minutes (the bench clock read t=0 at the residency line, 226 s into the run). First call: `MODES b1 sliding L1 mode 13` (32 CTAs, one tile each, speculated length; every CTA non-empty) was still running after 20 s with no fault raised, so the hang is a spin or deadlock on the common per-request path, not an empty-CTA or page-64 effect. Static checks of that instance's SASS: the two cp.async commits, `wait 1`, barrier; the K/V commits, `wait 2`, barrier; RoPE barrier; new-token barrier; loop-top `wait 1` + barrier; ticket barriers, all reached by every thread; every guarded exit reconverges (the speculative empty return jumps to the exit with its predicate forced true, the fall-through forces it false); no loop with a data-dependent bound. Unexplained by inspection. Log: `profiles/bench.a9c92e9ff8d048b0.log`. |
+| 10-28 | 9c4d3c649f944742 | 9221bf9 | bench.py (submit, `--no-probe`) | timeout at the 15-minute cap, returncode -9, no score | `cooperative_launch=False`; the workspace read zero before the first launch. The phase sweep on batch 1 sliding q_len 1 mode 13 printed `phase 1` through `phase 7 returned` at t=0s, then nothing: the phase-8 call (the new-token pass and the barrier after it) never returned and the watchdog never printed its HANG line. Every stamp column printed `-` even for phases that returned. Log: `profiles/bench.9c4d3c649f944742.log`. |
+
+Diagnostic for the first check of 10-29 (`bench.py` at commit after 766cab6, generated with
+`--no-probe`): `Params.phase_limit` makes every thread drain its copies and return after phase
+1..10 of the per-request path (index group, query group, first wait + barrier, speculation
+check, K/V prologue + wait + barrier, RoPE, query pass, new tokens + barrier, patch, tile loop)
+without writing anything; the self-test sweeps the phases on batch 1 sliding (modes 13 and 1)
+and on the ctx-10 page-64 shape under the 20-second watchdog, so the last `PHASE ... returned`
+line names the phase that hangs. The same run has the cooperative-launch probe disabled
+(`_ONE_COOP_LAUNCH = False`), the only device activity before the first launch that the earlier
+kernels never had; if the whole self-test then passes, the probe was the cause and cooperative
+grids keep one SM of headroom instead. The third authorized submit of 10-28 was not used: the
+fix is not certain.
+
+### Cause of the hang: a full-mask shuffle under a lane-divergent branch (10-28)
+
+Phase 8 of the per-request path is the new-token pass (`hi > seq && tid < L * 32`: the block's
+own K and V rows are normalized, rotated, rounded and written to the cache) followed by the
+CTA barrier. In that pass each warp holds K rows in lanes 0..15 and V rows in lanes 16..31
+(`is_k = (rr & 3) < 2`, `rr = tid >> 3`), and the K branch called `oct_sum`, three
+`__shfl_xor_sync(0xffffffff, ...)`. The full mask names the V lanes, which never execute the
+shuffle; that is undefined behaviour, and the SASS of `attn_one<1,13>` shows how it hangs:
+`@P4 BRA` sends the V lanes past the K branch toward the `BAR.SYNC`, so the warp is diverged at
+the shuffle, `BRA.DIV` takes the K lanes to the `WARPSYNC.COLLECTIVE` fallback with mask
+0xffffffff, and that waits for V lanes that are parked at the barrier waiting for the K lanes.
+The pass runs only in the CTA whose range holds the new token, and every per-request instance
+has it (q_len 8 splits each warp the same way), which is why every shape hung on its first
+call. The earlier static reviews checked that every thread reaches each barrier, but not lane
+convergence at warp collectives. The other collectives in `attn_one.cu` sit in warp-uniform
+code (checked: the finalize loop, the flat prefix scan in warp 0, the tile-loop `__any_sync`
+and `quad_*` reductions).
+
+Fix: the sum of squares and `oct_sum` run on every lane of the warp, and only the
+normalization, RoPE and scale choice stay under `is_k` (the 8-lane groups are aligned to
+`is_k`, so the K sums are unchanged). In the rebuilt SASS of every instance the shuffle group
+now precedes the `is_k` branch, with only the warp-uniform `hi > seq && tid < 32` branch before
+it.
+
+Why every stamp printed `-`: `stamp(k)` writes `dbg[1 + k]`, but `_ob_stamps` took `dbg[1]`
+(never written, zeroed before each call) as the base and so printed `-` for everything. Fixed
+in `tools/attn_make_bench_one.py` (base `dbg[2]`, stamp k at `dbg[1 + k]`). Why no HANG line
+appeared: the watchdog's snapshot allocated its pinned host buffer after the hang, and a
+page-locked allocation implicitly synchronizes with the device (CUDA programming guide,
+implicit synchronization), so the process blocked there until the judge killed it. The side
+stream, pinned buffer and event are now made before the first launch.
+
+Local evidence (commit after 8d1789d): `tools/attn_ws_quick.sh -s` builds all 13 instances
+for sm_90a (mode 13: 78 registers, no spills; only mode 51 spills, 292 bytes of stores at 80
+registers; the producer-loader entry above recorded 168 bytes at an earlier commit); `tools/attn_compile_check.sh` compiles all four
+inlined blocks of `submission.py` without errors; `tools/attn_harness_dry.py` passes (exact
+PASS, perturbed FAIL on all five shapes); a CPU check of `_ob_stamps` on a simulated dbg buffer
+prints deltas for stamps 1..10 and `-` after.
+
+Next check after the reset: `okc check muse_attention_decode/bench.py --no-wait --json`, then
+`okc status <job> --wait --json`. Every `PHASE ... returned` line through phase 10 for both
+mode 13 and mode 1, and `MODES ... PASS`, confirm the cause; the run then goes on to the
+correctness suite, the replay stress and the timings. A `HANG` line names a second hang, with
+the stamps showing the last point thread 0 of CTA 0 reached. A timeout with no `HANG` line
+would mean the snapshot copy itself cannot run beside the hung kernel.
+
+### Scored run 16fcddf80a714e0d (bench.py at 29bc072): 1.594x, CI 1.570-1.618
+
+The first run of the one-launch kernel to finish: every judge test passed, SELFTEST had 0
+failing shapes, the phase sweep returned through phase 10, and the result is on the board
+(submitted with the user's authorization). Profiles: `profiles/bench.16fcddf80a714e0d.*`.
+Per shape (judge medians, us; weight from the task):
+
+| shape | SGLang | ours | speedup | weight |
+|---|---|---|---|---|
+| decode 1 sliding | 21.1 | 6.0 | 3.5 | 46 |
+| decode 1 full | 31.6 | 15.4 | 2.06 | 16 |
+| decode 16 sliding | 26.9 | 9.7 | 2.79 | 46 |
+| decode 16 full | 202.7 | 91.8 | 2.21 | 16 |
+| decode 32 sliding | 31.5 | 12.4 | 2.55 | 46 |
+| decode 32 full | 388.0 | 176.7 | 2.2 | 16 |
+| verify 1 sliding | 23.2 | 7.8 | 2.97 | 46 |
+| verify 1 full | 36.8 | 18.1 | 2.03 | 16 |
+| verify 16 sliding | 29.4 | 13.2 | 2.23 | 46 |
+| verify 16 full | 206.6 | 374.8 | 0.55 | 16 |
+| verify 32 sliding | 34.8 | 17.6 | 1.98 | 46 |
+| verify 32 full | 392.8 | 756.8 | 0.52 | 16 |
+
+Instances on the scored path (profiled): decode 1 sliding mode 13 (6.0 us), decode 1 full 11
+(14.6), decode 16 / 32 sliding 1 (10.0 / 11.4), decode 16 / 32 full 49 (89.4 / 173.5), verify 1
+sliding 15 (7.3), verify 1 full 11 (17.7), verify 16 / 32 sliding 3 (12.7 / 16.9), verify 16 / 32
+full 51 (374 / 759). The two verify full shapes at batch 16 / 32 are the only ones below 1x.
+
+Mode choice for the flat (full context, batch 16 / 32) shapes, from the run's BENCH lines (us):
+
+| shape | mode 17 / 19 (consumers copy) | mode 49 / 51 (producer warpgroup) | mode 115 (producer, 1 CTA/SM) | ws kernel |
+|---|---|---|---|---|
+| decode 16 full | 103.5 | 100.9 | - | 137.1 (fused) |
+| decode 32 full | 189.3 | 183.4 | - | 252.1 (fused) |
+| verify 16 full | 127.4 | 389.8 | 150.1 | 189.2 |
+| verify 32 full | 236.3 | 773.8 | 282.7 | 352.7 |
+
+Routing change: q_len 8 flat shapes go to mode 19 (`_one_plan` no longer tries 51); q_len 1
+stays on 49, which is 3% ahead of 17. Expected on the judge: verify 16 full about 127 us
+(1.62x against SGLang's 206.6, from 0.55x), verify 32 full about 236 us (1.66x against 392.8,
+from 0.52x); the profiled times ran 4% below the bench times for mode 51, so these may land
+slightly lower. The other ten shapes are unchanged.
+
+Why mode 51 is three times slower than 19: its SASS (sm_90a, CUDA 12.8.1) has 105 local-memory
+instructions (LDL/STL), 92 of them inside the per-tile loop that holds the four wgmmas; mode 19
+has none, and mode 115 (the same producer design at 113 registers, one CTA per SM) has none
+and runs 18-20% behind 19. So most of the gap is the spill: ptxas caps every region of the
+two-CTA-per-SM producer build at 80 registers (the launch-bounds count), and the consumers'
+score and accumulator fragments (32 + 36 floats per thread) do not fit, so each tile goes
+through local memory. The rest is the producer design itself at q_len 8 (115 vs 19). Not fixed:
+it needs the consumer register budget raised above what two CTAs per SM allow, which is the
+same trade 115 already measures and loses.
+
+STRESS FAIL on b1 sliding L1 mode 13 (`replayed_vs_eager=2.3e-04` against the 1e-4 bound,
+finite, workspace clean): judged to be FP32 merge-order nondeterminism, not an ordering bug,
+on this evidence. (1) Size: the output is 1024 BF16 elements (16 heads x 64), the smallest of
+any stress shape, so one element moving by one BF16 ulp (2^-8 relative) already gives a
+relative L2 of order 1e-4; the larger stress shapes (8,192 to 131,072 elements) dilute the same
+event to 2e-5 or less. (2) Model: `/private/tmp/claude-501/-Users-gretchengabo-GitHub/4e9778d1-55dc-4e88-9d29-4844bd573620/scratchpad/w2/order_nondet.py` (session scratchpad) takes the emulator's q_len 1
+arithmetic (`tools/attn_emulate_one.py`) for 32 one-tile partials on 2,048-key sliding cases,
+sums them into the FP32 workspace in random arrival orders, finalizes (1/l, per-head RMS norm,
+sigmoid gate, BF16) and compares order against order with the stress metric: over 4,000 pairs,
+11% differ at all, never in more than 2 of 1,024 elements, and the largest relative L2 was
+2.2e-4 from a single element (P(rel >= 1e-4) = 0.1% in the model). The model's partials are less
+peaked than the judge-style soft inputs, so it likely understates how often a large element
+sits near a rounding boundary. (3) What a real ordering bug would look like: a finalizer that
+read the workspace before another CTA's red landed would lose a whole tile (about 1/32 of the
+mass, relative error of order 1e-2 across all 64 elements of a head), and the late red would
+land after the zeroing and leave the workspace nonzero; after 2,000 replays and an eager run
+the workspace check reads zero rows, zero row sums and zero tickets. The same 2.3e-4 also
+appears in a passing SELFTEST rerun (b4 ctx80000 full L1 mode 49, 4096 elements), where the
+merge is also atomic. The bound is not loosened: the stress and SELFTEST lines now also print
+`diff_elems=n/total max_ulp=... max_abs=...` (elements that differ, largest gap in BF16 ulps of
+the larger magnitude), so the next run shows directly whether the difference is a few elements
+at about one ulp (merge order) or many elements (a lost or stale contribution).
+
+Local checks of the routing change (commit after 29bc072): `submission.py` and `bench.py`
+regenerated and parse; pyflakes clean apart from unused imports; `_one_plan` on a CPU replica
+of the residency table returns mode 19 for full context q_len 8 at batch 16 / 32 and leaves
+every other shape's plan as profiled; `tools/attn_compile_check.sh` compiles all four inlined
+blocks with no errors; `tools/attn_harness_dry.py` passes; `_ob_diffstat` reads 0 differences
+on identical tensors and `1/1024 max_ulp=1.0` for a one-ulp change.

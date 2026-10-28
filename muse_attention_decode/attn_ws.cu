@@ -1288,46 +1288,14 @@ torch::Tensor attn_ws(torch::Tensor qkv, torch::Tensor page_table, torch::Tensor
     if (var == 528 && page_size != 1) {
         var = 16;
     }
+    // Only the routed variant (16) and the f16 reference (0) are compiled in now; the other
+    // variants' results are in docs/runs-attention.md, and leaving them out saves compile time.
     if (mode == 2) {
-        if (var == 528) {
-            launch_var<7, 3, 2, 528>(p, batch, stream);
-        } else if (var == 144) {
-            launch_var<7, 3, 2, 144>(p, batch, stream);
-        } else if (var == 272) {
-            launch_var<7, 3, 2, 272>(p, batch, stream);
-        } else {
-            launch_var<7, 3, 2, 16>(p, batch, stream);
-        }
+        launch_var<7, 3, 2, 16>(p, batch, stream);
     } else if (mode == 1) {
-        if (var == 528) {
-            launch_var<7, 3, 1, 528>(p, batch, stream);
-        } else {
-            launch_var<7, 3, 1, 16>(p, batch, stream);
-        }
-    } else if (var == 2) {
-        launch_var<7, 3, 0, 2>(p, batch, stream);
-    } else if (var == 16) {
+        launch_var<7, 3, 1, 16>(p, batch, stream);
+    } else if (var == 16 || var == 18 || var == 528 || var == 144 || var == 272) {
         launch_var<7, 3, 0, 16>(p, batch, stream);
-    } else if (var == 18) {
-        launch_var<7, 3, 0, 18>(p, batch, stream);
-    } else if (var == 48) {
-        launch_var<7, 3, 0, 48>(p, batch, stream);
-    } else if (var == 50) {
-        launch_var<7, 3, 0, 50>(p, batch, stream);
-    } else if (var == 80) {
-        launch_var<7, 3, 0, 80>(p, batch, stream);
-    } else if (var == 82) {
-        launch_var<7, 3, 0, 82>(p, batch, stream);
-    } else if (var == 112) {
-        launch_var<7, 3, 0, 112>(p, batch, stream);
-    } else if (var == 114) {
-        launch_var<7, 3, 0, 114>(p, batch, stream);
-    } else if (var == 144) {
-        launch_var<7, 3, 0, 144>(p, batch, stream);
-    } else if (var == 272) {
-        launch_var<7, 3, 0, 272>(p, batch, stream);
-    } else if (var == 528) {
-        launch_var<7, 3, 0, 528>(p, batch, stream);
     } else {
         launch_var<7, 3, 0, 0>(p, batch, stream);
     }
