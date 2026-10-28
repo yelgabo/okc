@@ -92,8 +92,10 @@ Per-shape columns, in TASK.md's order: d1 = decode 1, d16, d32, v1 = verify 1 (8
   tools/dl_one_inline.py inside a nested `one` namespace, built as a third extension
   (`okc_decode_layer_one`) on a thread started at the top of prepare() so its compile
   overlaps the main and W4 builds. Ten instances: q_len 1 modes 1, 3, 11, 13, 49 and q_len 8
-  modes 1, 3, 11, 15, 51 (the plan's modes for the 12 scored shapes and the 13 tests; the
-  non-producer flat 17 / 19 and the one-CTA-per-SM 115 are left out). The inliner adds two
+  modes 1, 3, 11, 15, 19 (the plan's modes for the 12 scored shapes and the 13 tests; full
+  verify at batch 16 / 32 takes the non-producer flat 19, since the producer build 51 spills
+  and timed 3x slower in muse_attention_decode's 16fcddf80a714e0d; 17, 51 and 115 are left
+  out). The inliner adds two
   `griddepcontrol.wait` lines (before the query group, whose rows are the projection's
   output and whose constants group reads the epoch; before the flat kernel's epoch read),
   so the launch is correct with or without the PDL attribute; `_ONE_PDL = False` keeps the

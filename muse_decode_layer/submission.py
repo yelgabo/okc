@@ -181,7 +181,7 @@ PORT_ATTN_WS = True
 # shape, q_len 1 and 8, sliding and full, when its self-test passes (the shared cases, the
 # workspace invariant after each, a replay stress); the kernels above stay as fallbacks and
 # for the shapes _ONE_ROUTE excludes.
-PORT_ATTN_ONE = False
+PORT_ATTN_ONE = True
 # The routing metadata (route_align or SGLang's moe_align_block_size) built on the router's
 # side stream right after top-8, and the pre-expert norm on the main stream before the join,
 # so the main stream goes from the norm straight to GEMM1. False: both after the join.
@@ -3598,6 +3598,9 @@ struct Params {
     uint32_t magic;
     int nc;
     float sl2;
+    // Diagnostic: > 0 makes the per-request path drain and return after that phase (see
+    // PHASE_EXIT in attn_one_kernel); 0 runs the whole kernel.
+    int phase_limit;
 };
 
 template <int L, int NS>
@@ -3823,6 +3826,12 @@ __device__ __forceinline__ float2 fast_sincos(float x) {
     float r = fmaf(-k, 6.2831854820251465f, x);
     r = fmaf(-k, -1.7484555314695172e-7f, r);
     return make_float2(__sinf(r), __cosf(r));
+}
+
+__device__ __forceinline__ uint64_t globaltimer_ns() {
+    uint64_t t;
+    asm volatile("mov.u64 %0, %%globaltimer;\n" : "=l"(t));
+    return t;
 }
 
 __device__ __forceinline__ float sigmoid(float x) {
@@ -4087,6 +4096,17 @@ attn_one_kernel(const Params p) {
     const uint32_t full0 = smem_base + S::BAR;
     const uint32_t empty0 = full0 + NS * 8;
 
+    // Diagnostic early exit after phase k: uniform across the CTA (a kernel parameter), placed
+    // only where every thread passes, with the copies drained first.
+#define PHASE_EXIT(k) \
+    if (p.phase_limit == (k)) { cp_wait<0>(); return false; }
+    // Diagnostic stamps: thread 0 of CTA (0, 0) records the time in microseconds at point k
+    // into dbg[1 + k] when a dbg buffer is given (the judge's timed path passes none).
+    auto stamp = [&](int k) {
+        if (p.dbg != nullptr && split == 0 && blockIdx.y == 0 && tid == 0) {
+            p.dbg[1 + k] = static_cast<int>(globaltimer_ns() / 1000u);
+        }
+    };
     // Consumer-wide barrier: the whole CTA unless the producer warpgroup has split off.
     auto csync = [&]() {
         if constexpr (PROD) {
@@ -4425,6 +4445,8 @@ attn_one_kernel(const Params p) {
             }
             cp_commit();
         }
+        stamp(1);
+        PHASE_EXIT(1)
         // Everything above reads inputs. The query rows are the qkv projection's output
         // and the constants group reads the epoch the previous launch wrote, so under PDL
         // both follow the wait (which returns at once on a plain launch).
@@ -4464,10 +4486,15 @@ attn_one_kernel(const Params p) {
             }
         }
         cp_commit();
+        stamp(2);
+        PHASE_EXIT(2)
 
         if constexpr (!PROD) {
             cp_wait<1>();
+            stamp(3);
             csync();
+            stamp(4);
+            PHASE_EXIT(3)
             if constexpr (SPEC) {
                 if (seq_real != seq) {
                     cp_wait<0>();
@@ -4487,6 +4514,8 @@ attn_one_kernel(const Params p) {
                     return false;
                 }
             }
+            stamp(5);
+            PHASE_EXIT(4)
             // K/V of the prologue tiles go out while the query group is still in flight;
             // each later group also carries the page indices STAGES - 1 tiles ahead.
 #pragma unroll
@@ -4497,11 +4526,15 @@ attn_one_kernel(const Params p) {
                 }
                 cp_commit();
             }
+            stamp(6);
             cp_wait<STAGES - 1>();
         } else {
             cp_wait<0>();
         }
+        stamp(7);
         csync();
+        stamp(8);
+        PHASE_EXIT(5)
 
         k_scale = *reinterpret_cast<const float*>(smem + S::CONST + C_KS);
         v_scale = *reinterpret_cast<const float*>(smem + S::CONST + C_VS);
@@ -4515,6 +4548,8 @@ attn_one_kernel(const Params p) {
             }
             csync();
         }
+        stamp(9);
+        PHASE_EXIT(6)
 
         // Query pass: eight threads per row, eight dims each. q_len 1 keeps f16 queries
         // pre-scaled into log2 units (the key scale is applied to the scores); q_len 8 rounds
@@ -4555,6 +4590,8 @@ attn_one_kernel(const Params p) {
             }
         }
 
+        stamp(10);
+        PHASE_EXIT(7)
         // The block's own keys and values: normalized, rotated, rounded, written to the cache
         // by the range that holds the position, and staged for the attention.
         if (hi > seq && tid < L * 32) {
@@ -4566,13 +4603,17 @@ attn_one_kernel(const Params p) {
             float x[8];
             load8(smem + S::KVST + rr * 128 + t8 * 16, x);
             float inv = __fdividef(1.f, v_scale);
-            if (is_k) {
-                float ss = 0.f;
+            // Every lane of the warp reaches the full-mask shuffle: half of each warp holds V
+            // rows, and a full-mask shfl inside `if (is_k)` deadlocked on the judge (the K
+            // lanes wait in WARPSYNC for V lanes already parked at the next bar.sync).
+            float ss = 0.f;
 #pragma unroll
-                for (int e = 0; e < 8; ++e) {
-                    ss += x[e] * x[e];
-                }
-                const float r = rsqrtf(oct_sum(ss) * (1.f / D) + EPS);
+            for (int e = 0; e < 8; ++e) {
+                ss += x[e] * x[e];
+            }
+            ss = oct_sum(ss);
+            if (is_k) {
+                const float r = rsqrtf(ss * (1.f / D) + EPS);
 #pragma unroll
                 for (int e = 0; e < 8; ++e) {
                     x[e] *= r;
@@ -4594,7 +4635,10 @@ attn_one_kernel(const Params p) {
             *reinterpret_cast<uint2*>(smem + (is_k ? S::KN : S::VN) + j * ROWB + hh * D + t8 * 8) =
                 v8;
         }
+        stamp(11);
         csync();
+        stamp(12);
+        PHASE_EXIT(8)
         if constexpr (!PROD) {
             // Patch the new rows into the tiles issued before they were staged.
             if (hi > seq) {
@@ -4616,6 +4660,8 @@ attn_one_kernel(const Params p) {
             }
         }
 
+        stamp(13);
+        PHASE_EXIT(9)
         const float sl2k = (L == 1 ? 1.f : p.sl2) * k_scale;
         const int copy = p.nc > 1 ? split % p.nc : 0;
 
@@ -4643,7 +4689,13 @@ attn_one_kernel(const Params p) {
                 if constexpr (L == 8) {
                     fence_proxy_async();
                 }
+                if (it == 0) {
+                    stamp(14);
+                }
                 __syncthreads();
+                if (it == 0) {
+                    stamp(15);
+                }
                 if constexpr (!ONE) {
                     if (it + STAGES - 1 < ntiles) {
                         issue_kv(it + STAGES - 1, (st + STAGES - 1) % STAGES, true);
@@ -4797,6 +4849,8 @@ attn_one_kernel(const Params p) {
                 release(st);
                 st = PROD ? cst : (st == STAGES - 1 ? 0 : st + 1);
             }
+            stamp(16);
+            PHASE_EXIT(10)
             // Fixed-frame merge: this warp's rows scaled by 2^m into the workspace. Thread
             // (g, c) holds dims 16 c .. 16 c + 15 of head hk * 8 + g: o[e][0] is dim 16 c + e,
             // o[e][1] dim 16 c + 8 + e.
@@ -4950,6 +5004,8 @@ attn_one_kernel(const Params p) {
                 release(st);
                 st = PROD ? cst : (st == STAGES - 1 ? 0 : st + 1);
             }
+            stamp(16);
+            PHASE_EXIT(10)
             // Fixed-frame merge. o[4i + 2hh + e] is column 8i + 2c + e of row (token
             // 2wq + hh, head g), and column n holds dim 16 (n >> 4) + 2 (n & 7) + ((n >> 3) & 1),
             // so (o[8p + 2hh], o[8p + 4 + 2hh], o[8p + 1 + 2hh], o[8p + 5 + 2hh]) are dims
@@ -4969,14 +5025,17 @@ attn_one_kernel(const Params p) {
                 }
             }
         }
+        stamp(17);
         return true;
     };
+#undef PHASE_EXIT
 
     // Last-CTA finalize of request b: every red above is ordered before thread 0's release
     // by the barrier, and the last arriver's acquire makes them visible to its reads (which
     // bypass L1).
     auto ticket = [&]() {
         csync();
+        stamp(18);
         const int mine = hi - lo;
         if (tid == 0) {
             // >= rather than ==: an overshoot would be a partition bug, and == would then
@@ -4984,6 +5043,7 @@ attn_one_kernel(const Params p) {
             const int old = atom_add_acq_rel(p.ws_cnt + b, mine);
             *flag = old + mine >= n_keys;
         }
+        stamp(19);
         csync();
         if (*flag) {
             finalize_rows<L, NC>(p, b * ROWS, (b + 1) * ROWS, v_scale, tid);
@@ -4991,6 +5051,7 @@ attn_one_kernel(const Params p) {
                 p.ws_cnt[b] = 0;
             }
         }
+        stamp(20);
     };
 
     if constexpr (!FLAT) {
@@ -5082,11 +5143,11 @@ struct Instance {
         return resident;
     }
 
-    static void launch(const Params& p, int gx, int gy, cudaStream_t stream, bool coop) {
+    static cudaError_t launch(const Params& p, int gx, int gy, cudaStream_t stream, bool coop) {
         prepare();
         if (!coop) {
             attn_one_kernel<L, MODE><<<dim3(gx, gy), NT, BYTES, stream>>>(p);
-            return;
+            return cudaGetLastError();
         }
         cudaLaunchConfig_t cfg = {};
         cfg.gridDim = dim3(gx, gy);
@@ -5099,7 +5160,7 @@ struct Instance {
         cfg.attrs = attr;
         cfg.numAttrs = 1;
         const cudaError_t err = cudaLaunchKernelEx(&cfg, attn_one_kernel<L, MODE>, p);
-        TORCH_CHECK(err == cudaSuccess, "attn_one cooperative launch: ", cudaGetErrorString(err));
+        return err != cudaSuccess ? err : cudaGetLastError();
     }
 };
 
@@ -5132,10 +5193,12 @@ namespace one {
 
 // q_len 1: 13 (decode 1 sliding), 1 (decode 16 / 32 sliding, page-64 and short tests), 11
 // (decode 1 full, page 1), 3 (batch 1 full at page 64), 49 (full decode at batch > 1, producer
-// warpgroup); q_len 8: 15, 3, 11, 1 and 51 likewise. The |64 and non-producer flat variants
-// (115, 17, 19) stay out: the plan falls back to the per-request instances without them.
+// warpgroup); q_len 8: 15, 3, 11, 1 likewise, and 19 (full verify at batch > 1, flat without the
+// producer warpgroup: the producer build 51 spills and timed 389 / 774 us against 19's
+// 127 / 236 at batch 16 / 32 in muse_attention_decode's 16fcddf80a714e0d). 17, 51 and 115 stay
+// out for compile time.
 #define DL_ONE_INSTANCES(X) \
-    X(1, 1) X(1, 3) X(1, 11) X(1, 13) X(1, 49) X(8, 1) X(8, 3) X(8, 11) X(8, 15) X(8, 51)
+    X(1, 1) X(1, 3) X(1, 11) X(1, 13) X(1, 49) X(8, 1) X(8, 3) X(8, 11) X(8, 15) X(8, 19)
 
 template <int L, int MODE>
 void one_launch(const Params& p, int gx, int gy, cudaStream_t stream, bool coop, bool pdl) {
@@ -5239,8 +5302,8 @@ int64_t attn_one_probe_coop(bool pdl) {
 
 // sl2 = sm_scale * qk_scale_factor * log2(e); the key scale is applied on the device. mode is
 // the instance's MODE (see attn_one_kernel); coop_launch adds the cooperative attribute to the
-// cooperative modes and pdl the programmatic one to every launch; dbg (int32, empty or [4])
-// receives the longest cooperative spin. Output [batch * q_len, 1024] BF16.
+// cooperative modes and pdl the programmatic one to every launch; dbg (int32, empty or [32])
+// receives the longest cooperative spin in [0] and the phase stamps in [1 .. 21]. Output [batch * q_len, 1024] BF16.
 torch::Tensor attn_one(torch::Tensor qkv, torch::Tensor page_table, torch::Tensor seq_lens,
                        torch::Tensor cache_loc, torch::Tensor inv_freq, torch::Tensor k_scale,
                        torch::Tensor v_scale, torch::Tensor k_cache, torch::Tensor v_cache,
@@ -5299,6 +5362,7 @@ torch::Tensor attn_one(torch::Tensor qkv, torch::Tensor page_table, torch::Tenso
     p.magic = n_splits > 1 ? static_cast<uint32_t>(((1ull << 32) + n_splits - 1) / n_splits) : 0u;
     p.nc = static_cast<int>(nc);
     p.sl2 = static_cast<float>(sl2);
+    p.phase_limit = 0;
     // Per-request modes launch (n_splits, batch) CTAs; flat modes launch n_splits CTAs that
     // share the batch's keys, with the batch size carried in Params::n_splits.
     int gx = static_cast<int>(n_splits);
@@ -11190,10 +11254,10 @@ _ONE_CNT_INTS = 32768
 # Grid target: two CTAs per SM on 132 SMs.
 _ONE_TARGET = 264
 # The instances _ONE_HOST_SRC builds (DL_ONE_INSTANCES).
-_ONE_BUILT = {1: (1, 3, 11, 13, 49), 8: (1, 3, 11, 15, 51)}
-# Full-context batches on the flat partition (else per request). Only the producer-warpgroup
-# flat instances (49, 51) are built here, so _ONE_PROD = False also sends those batches to
-# the per-request kernels.
+_ONE_BUILT = {1: (1, 3, 11, 13, 49), 8: (1, 3, 11, 15, 19)}
+# Full-context batches on the flat partition (else per request). The flat instances built here
+# are 49 (q_len 1, producer warpgroup) and 19 (q_len 8, none), so _ONE_PROD = False sends full
+# decode at batch > 1 to the per-request kernels.
 _ONE_FLAT = True
 _ONE_PROD = True
 # Cooperative modes launch with cudaLaunchAttributeCooperative when the driver accepts it under
@@ -11234,7 +11298,7 @@ def _one_setup(state):
         "l": torch.zeros((_ONE_WS_ROWS,), dtype=torch.float32, device=device),
         "cnt": torch.zeros((_ONE_CNT_INTS,), dtype=torch.int32, device=device),
         "resident": resident, "coop_launch": coop, "pdl": pdl, "limits": lim,
-        "dbg": torch.zeros(4, dtype=torch.int32, device=device),
+        "dbg": torch.zeros(32, dtype=torch.int32, device=device),
         "nodbg": torch.empty(0, dtype=torch.int32, device=device),
     }
     return state["one"]
@@ -11251,7 +11315,9 @@ def _one_plan(cfg, pt_width, resident):
     tiles = (kmax + 63) // 64
     nc = 1
     if not window and batch > 1 and _ONE_FLAT:
-        for mode in ((49, 17) if length == 1 else (51, 19)) if _ONE_PROD else \
+        # q_len 8 skips the producer build 51: at 80 registers it spills inside the tile loop
+        # and timed 389 / 774 us against mode 19's 127 / 236 at batch 16 / 32 (16fcddf80a714e0d).
+        for mode in ((49, 17) if length == 1 else (19,)) if _ONE_PROD else \
                 ((17,) if length == 1 else (19,)):
             grid = min(_ONE_TARGET, resident.get((length, mode), 0))
             if grid >= 2 * batch:
