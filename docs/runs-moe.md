@@ -83,3 +83,7 @@ Lessons:
 - bs256's hottest expert gets up to all 256 tokens; items of 8-16 tokens re-read its weights
   (through L2), which is why W4 GEMM1 gains least there (1.13x). A tile with more tokens per
   dequantized weight would help that shape.
+- Decision 2026-10-28: TMA weight loads and hot-expert large tiles stay out of submission.py.
+  TMA won only bs256 GEMM1 (about 4%, about 0.5% of the score); large tiles lost on normal
+  routing. The final file scored 1.691x (a49578e5c30348bb), overlapping the 1.699x entry. Code
+  kept at muse_moe_w4a16/experiments/tma_and_large_tiles.py.
