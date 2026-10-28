@@ -13,6 +13,8 @@ Every `okc check` and `okc submit`, newest last. Full per-shape output for each 
 | 10-27 | ee65e159c9f54269 | check | 24c9405 | proj v3: 4-stage cp.async pipeline | 1.053x (1.037-1.068) | beats cuBLAS at m=1 on all four layers and at m=8 on all but o; loses at m >= 16 |
 | 10-27 | 3c7c1fa54d1f4ce0 | check | e221e6e | route BF16 layers to mma only where v3 won (m=1 all, m=8 all but o) | **1.099x** (1.082-1.115) | best so far; qkv_gate 1.20x and unpooler 1.38x at m=1 |
 | 10-27 | 17ebe3d9f831439d | check | 3aa7660 | proj v4: R row tiles per warp above 8 tokens (one block/SM) | 0.952x (0.938-0.966) | worse at m >= 16 than v3 (pooler m=32 44 us vs 29): the L2 re-read theory was wrong or minor |
+| 10-27 | 21c23f799dc64ca1 | check | 280afc4 | bench.py sweep, first try | 1.100x | sweep stopped at the first launch error; timed Python launches (cuBLAS 20.9 us vs judge 14.4) |
+| 10-27 | 4afc0b73f2a74a69 | check | cecb216 | bench.py sweep with graph replays | (bench) | see profiles/bench.4afc0b73f2a74a69.log; findings below |
 
 ## Lessons
 
@@ -29,3 +31,10 @@ Every `okc check` and `okc submit`, newest last. Full per-shape output for each 
 - With 64 weight rows per block, every block re-reads its x slice through L2: for the
   pooler at m=32 that is about 32 MB of x on top of 67 MB of weights. Bigger row groups
   per block cut the re-reads.
+- Sweep 4afc0b73f2a74a69 (absolute numbers sit 6 to 9 us above the judge's; compare within
+  a shape): the cluster reduction is the main cost above 8 tokens and grows with S
+  (o m=16: 12.9 us at S=2, 17.4 at S=4, 29.8 at S=8; qkv_gate S=4 m=16: 20.2 with the
+  reduction, 18.4 without). More warps or row tiles per block never helped. The pooler at
+  m >= 16 roughly ties cuBLAS at best (S=2), so something besides the reduction limits it.
+- In bench.py only, MT=1 configs with S >= 2 fail to launch (invalid argument); the same
+  configs run in the submission. Unexplained.
