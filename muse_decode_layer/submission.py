@@ -150,6 +150,9 @@ PORT_ATTN_WS = True
 # side stream right after top-8, and the pre-expert norm on the main stream before the join,
 # so the main stream goes from the norm straight to GEMM1. False: both after the join.
 ROUTE_ON_SIDE = True
+# Up to 8 tokens, our FFN boundary on the unpooler slice's 1024 live channels in place of
+# F.pad to 8192 and FusedPostNormResidualPreNorm.
+PORT_FFN_BOUNDARY = True
 
 HIDDEN = 8192
 RMS_EPS = 1e-5
@@ -193,6 +196,10 @@ torch::Tensor attn_verify(torch::Tensor qkv, torch::Tensor page_table, torch::Te
                           torch::Tensor v_scale, torch::Tensor k_cache, torch::Tensor v_cache,
                           int64_t page_size, int64_t window, bool rope, double qk_scale,
                           int64_t splits);
+std::vector<torch::Tensor> ffn_boundary_short(torch::Tensor stream, torch::Tensor f,
+                                              torch::Tensor w_post, torch::Tensor alpha,
+                                              torch::Tensor beta, torch::Tensor w_next,
+                                              double eps_post, double eps_next);
 """
 
 _CUDA_SRC = r"""
@@ -3140,6 +3147,167 @@ torch::Tensor attn_verify(torch::Tensor qkv, torch::Tensor page_table, torch::Te
 }
 """
 
+# X5: the FFN boundary at T <= 8 on the unpooler's 1024 live channels, without the all-gather's
+# zero pad; replaces FusedPostNormResidualPreNorm there when its self-test passes.
+_BND_SRC = r"""
+#include <cuda_bf16.h>
+
+namespace {
+namespace bnd {
+
+constexpr int H = 8192;
+constexpr int LIVE = 1024;
+constexpr int THREADS = 1024;
+constexpr int PER = H / THREADS;
+
+__device__ __forceinline__ float block_sum(float v, float* red) {
+    for (int o = 16; o; o >>= 1) {
+        v += __shfl_xor_sync(0xffffffffu, v, o);
+    }
+    const int warp = threadIdx.x >> 5;
+    const int lane = threadIdx.x & 31;
+    __syncthreads();
+    if (lane == 0) {
+        red[warp] = v;
+    }
+    __syncthreads();
+    v = lane < THREADS / 32 ? red[lane] : 0.f;
+    for (int o = 16; o; o >>= 1) {
+        v += __shfl_xor_sync(0xffffffffu, v, o);
+    }
+    return v;
+}
+
+// The FFN boundary at T <= 8, where the unpooler's output has 1024 live channels and the
+// other 7168 are the all-gather's exact zeros: branch = f * w_post over the live channels,
+// normalized by its RMS over all 8192 (the zeros add nothing to the sum of squares but count in
+// the mean); stream = alpha * stream + beta * branch; next = RMS-normalized stream * w_next in
+// BF16. One block per token, eight channels per thread.
+__global__ void __launch_bounds__(THREADS) boundary_kernel(
+    const float* __restrict__ stream, const __nv_bfloat16* __restrict__ f,
+    const __nv_bfloat16* __restrict__ w_post, const float* __restrict__ alpha,
+    const float* __restrict__ beta, const __nv_bfloat16* __restrict__ w_next,
+    float* __restrict__ stream_out, __nv_bfloat16* __restrict__ next, float eps_post,
+    float eps_next) {
+    __shared__ float red[THREADS / 32];
+    const int tok = blockIdx.x;
+    const int c0 = threadIdx.x * PER;
+    const float* srow = stream + static_cast<size_t>(tok) * H;
+    float s[PER];
+    float a[PER];
+    float bt[PER];
+    float wn[PER];
+#pragma unroll
+    for (int k = 0; k < PER; k += 4) {
+        const float4 sv = *reinterpret_cast<const float4*>(srow + c0 + k);
+        const float4 av = *reinterpret_cast<const float4*>(alpha + c0 + k);
+        const float4 bv = *reinterpret_cast<const float4*>(beta + c0 + k);
+        const float4 vals[3] = {sv, av, bv};
+        float* dsts[3] = {s + k, a + k, bt + k};
+#pragma unroll
+        for (int v = 0; v < 3; ++v) {
+            dsts[v][0] = vals[v].x;
+            dsts[v][1] = vals[v].y;
+            dsts[v][2] = vals[v].z;
+            dsts[v][3] = vals[v].w;
+        }
+    }
+    {
+        const uint4 nv = *reinterpret_cast<const uint4*>(w_next + c0);
+        const uint32_t nw[4] = {nv.x, nv.y, nv.z, nv.w};
+#pragma unroll
+        for (int e = 0; e < 4; ++e) {
+            const float2 x = __bfloat1622float2(*reinterpret_cast<const __nv_bfloat162*>(&nw[e]));
+            wn[2 * e] = x.x;
+            wn[2 * e + 1] = x.y;
+        }
+    }
+    const bool live = c0 < LIVE;
+    float br[PER];
+    float ss = 0.f;
+#pragma unroll
+    for (int k = 0; k < PER; ++k) {
+        br[k] = 0.f;
+    }
+    if (live) {
+        const uint4 fv =
+            *reinterpret_cast<const uint4*>(f + static_cast<size_t>(tok) * LIVE + c0);
+        const uint4 pv = *reinterpret_cast<const uint4*>(w_post + c0);
+        const uint32_t fw[4] = {fv.x, fv.y, fv.z, fv.w};
+        const uint32_t pw[4] = {pv.x, pv.y, pv.z, pv.w};
+#pragma unroll
+        for (int e = 0; e < 4; ++e) {
+            const float2 x = __bfloat1622float2(*reinterpret_cast<const __nv_bfloat162*>(&fw[e]));
+            const float2 w = __bfloat1622float2(*reinterpret_cast<const __nv_bfloat162*>(&pw[e]));
+            br[2 * e] = x.x * w.x;
+            br[2 * e + 1] = x.y * w.y;
+        }
+#pragma unroll
+        for (int k = 0; k < PER; ++k) {
+            ss += br[k] * br[k];
+        }
+    }
+    const float rb = rsqrtf(block_sum(ss, red) / H + eps_post);
+    float ss2 = 0.f;
+#pragma unroll
+    for (int k = 0; k < PER; ++k) {
+        s[k] = a[k] * s[k] + bt[k] * (br[k] * rb);
+        ss2 += s[k] * s[k];
+    }
+    const float rn = rsqrtf(block_sum(ss2, red) / H + eps_next);
+    float* orow = stream_out + static_cast<size_t>(tok) * H;
+    __nv_bfloat16* nrow = next + static_cast<size_t>(tok) * H;
+#pragma unroll
+    for (int k = 0; k < PER; k += 4) {
+        *reinterpret_cast<float4*>(orow + c0 + k) =
+            make_float4(s[k], s[k + 1], s[k + 2], s[k + 3]);
+    }
+    uint32_t packed[PER / 2];
+#pragma unroll
+    for (int k = 0; k < PER; k += 2) {
+        const __nv_bfloat162 h =
+            __floats2bfloat162_rn(s[k] * rn * wn[k], s[k + 1] * rn * wn[k + 1]);
+        packed[k / 2] = *reinterpret_cast<const uint32_t*>(&h);
+    }
+    *reinterpret_cast<uint4*>(nrow + c0) = make_uint4(packed[0], packed[1], packed[2], packed[3]);
+}
+
+}  // namespace bnd
+}  // namespace
+
+std::vector<torch::Tensor> ffn_boundary_short(torch::Tensor stream, torch::Tensor f,
+                                              torch::Tensor w_post, torch::Tensor alpha,
+                                              torch::Tensor beta, torch::Tensor w_next,
+                                              double eps_post, double eps_next) {
+    using namespace bnd;
+    const int tokens = stream.size(0);
+    TORCH_CHECK(stream.is_contiguous() && stream.scalar_type() == torch::kFloat32
+                && stream.size(1) == H, "ffn_boundary_short: stream must be FP32 [T, 8192]");
+    TORCH_CHECK(f.is_contiguous() && f.scalar_type() == torch::kBFloat16 && f.size(0) == tokens
+                && f.size(1) == LIVE, "ffn_boundary_short: f must be BF16 [T, 1024]");
+    TORCH_CHECK(w_post.is_contiguous() && w_next.is_contiguous() && alpha.is_contiguous()
+                && beta.is_contiguous() && w_post.scalar_type() == torch::kBFloat16
+                && w_next.scalar_type() == torch::kBFloat16
+                && alpha.scalar_type() == torch::kFloat32
+                && beta.scalar_type() == torch::kFloat32 && w_post.numel() >= LIVE
+                && w_next.numel() == H && alpha.numel() == H && beta.numel() == H,
+                "ffn_boundary_short: weights");
+    auto stream_out = torch::empty_like(stream);
+    auto next = torch::empty({tokens, H}, f.options());
+    if (tokens == 0) {
+        return {next, stream_out};
+    }
+    boundary_kernel<<<tokens, THREADS, 0, at::cuda::getCurrentCUDAStream()>>>(
+        stream.data_ptr<float>(), reinterpret_cast<const __nv_bfloat16*>(f.data_ptr()),
+        reinterpret_cast<const __nv_bfloat16*>(w_post.data_ptr()), alpha.data_ptr<float>(),
+        beta.data_ptr<float>(), reinterpret_cast<const __nv_bfloat16*>(w_next.data_ptr()),
+        stream_out.data_ptr<float>(), reinterpret_cast<__nv_bfloat16*>(next.data_ptr()),
+        static_cast<float>(eps_post), static_cast<float>(eps_next));
+    C10_CUDA_KERNEL_LAUNCH_CHECK();
+    return {next, stream_out};
+}
+"""
+
 # The W4A16 grouped GEMM from muse_moe_w4a16 (submission at 0a917ae; kernel source, repack
 # and dequant copied unchanged). A config is (kind, nt, rows, s, w, d, mode, layout, p): kind
 # 1 is x @ W13^T with SwiGLU, kind 2 is inter @ W2^T; nt n8 token tiles per work item; rows of
@@ -3981,9 +4149,10 @@ def _ext():
             name="okc_decode_layer_v1",
             cpp_sources=_CPP_SRC,
             cuda_sources=[_CUDA_SRC, _PREP_SRC, _ATTN_SRC, _ATTN_HOST_SRC, _WS_SRC,
-                          _WS_HOST_SRC],
+                          _WS_HOST_SRC, _BND_SRC],
             functions=["route_align", "finalize", "router_fwd", "proj_fwd", "router_mma_fwd",
-                       "attn_prep", "attn_gate", "attn_fused", "attn_verify"],
+                       "attn_prep", "attn_gate", "attn_fused", "attn_verify",
+                       "ffn_boundary_short"],
             extra_cuda_cflags=["-O3", "-gencode=arch=compute_90a,code=sm_90a"],
         )
     return _EXT
@@ -4823,6 +4992,54 @@ def _route_side_self_test(state):
         raise RuntimeError(f"route-side self-test: rel diff {worst:.2e}")
 
 
+def _bnd_enable(state):
+    """Takes the weights and coefficients SGLang's FFN boundary holds (its post-norm's and
+    pre-norm's effective 1 + w in BF16, the residual gate's FP32 alpha and beta) and checks our
+    short boundary against the padded SGLang call at 1-8 tokens. Raises on a mismatch."""
+    mod = state["ffn_boundary"]
+    post, res, pre = mod._post_norm, mod._residual_add, mod._pre_norm
+    if not (mod._post_norm_is_input_scale and not mod._pre_norm_is_input_scale
+            and mod._use_residual_gate and mod._hidden_size == HIDDEN):
+        raise RuntimeError("ffn boundary: unexpected configuration")
+    bnd = {
+        "w_post": post._frozen_weight.to(torch.bfloat16).contiguous(),
+        "alpha": res._alpha.float().reshape(-1).contiguous(),
+        "beta": res._beta.float().reshape(-1).contiguous(),
+        "w_next": pre._frozen_weight.to(torch.bfloat16).contiguous(),
+        "eps_post": float(post.eps),
+        "eps_next": float(pre.eps),
+    }
+    state["bnd"] = bnd
+    gen = torch.Generator(device="cuda").manual_seed(5)
+    worst_next, worst_update = 0.0, 0.0
+    for tokens in (1, 2, 3, 5, 8):
+        stream = torch.randn((tokens, HIDDEN), generator=gen, device="cuda") * 3
+        f = (torch.randn((tokens, UNPOOL_SLICE), generator=gen, device="cuda") * 0.02)
+        f = f.to(torch.bfloat16)
+        if tokens == 3:
+            f[1].zero_()
+        ref_next, ref_stream, _ = mod(stream.clone(), F.pad(f, (0, HIDDEN - UNPOOL_SLICE)),
+                                      branch_dtype=torch.bfloat16)
+        nxt, out = _bnd(stream.clone(), f, state)
+        torch.cuda.synchronize()
+        carried = bnd["alpha"] * stream
+        err_next = _rel(nxt, ref_next)
+        err_update = _rel(out - carried, ref_stream - carried)
+        print(f"ffn boundary self-test T={tokens}: next input {err_next:.2e}, "
+              f"update {err_update:.2e}, stream {_rel(out, ref_stream):.2e}")
+        worst_next = max(worst_next, err_next)
+        worst_update = max(worst_update, err_update)
+    if not (worst_next < 1e-2 and worst_update < 5e-3):
+        raise RuntimeError(f"ffn boundary: next {worst_next:.2e}, update {worst_update:.2e}")
+
+
+def _bnd(stream, f, state):
+    bnd = state["bnd"]
+    return _ext().ffn_boundary_short(stream.contiguous(), f.contiguous(), bnd["w_post"],
+                                     bnd["alpha"], bnd["beta"], bnd["w_next"],
+                                     bnd["eps_post"], bnd["eps_next"])
+
+
 def _try(name, fn):
     t0 = time.time()
     try:
@@ -4886,6 +5103,7 @@ def prepare(weights):
         "attn_fused_ours": False,
         "attn_ws_ours": False,
         "route_side_ok": False,
+        "bnd_ours": False,
         # As SGLang's RotaryEmbedding computes them, so the angles match its cos/sin table.
         "inv_freq": inv_freq,
     }
@@ -4915,6 +5133,8 @@ def prepare(weights):
     if PORT_ATTN_FUSED:
         state["attn_fused_ours"] = True
         state["attn_fused_ours"] = _try("attn fused", lambda: _attn_self_test(state))
+    if PORT_FFN_BOUNDARY:
+        state["bnd_ours"] = _try("ffn boundary", lambda: _bnd_enable(state))
     if ROUTE_ON_SIDE:
         state["route_side_ok"] = _try("route side", lambda: _route_side_self_test(state))
     if PORT_ATTN_WS:
@@ -4988,6 +5208,11 @@ def kernel_fn(data, state):
                                  data["local_start"], state, moe_opts)
     if tokens <= SLICED_UNPOOL_MAX_TOKENS:
         unpooled = _proj(expert_output, "unpooler", UNPOOL_SLICE, state)
+        if state["bnd_ours"]:
+            # The all-gather's other 7168 channels are exact zeros; the boundary reads only
+            # the live 1024 and still normalizes the branch over all 8192.
+            next_attn_input, stream = _bnd(stream, unpooled, state)
+            return next_attn_input, stream, topk_ids
         ffn_output = F.pad(unpooled, (0, HIDDEN - UNPOOL_SLICE))  # all-gather: identity
     else:
         ffn_output = _gemm(expert_output, dense["unpooler"])
