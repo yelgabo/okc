@@ -413,3 +413,18 @@ thread before addresses and loop state. Escape routes checked:
 Shared memory could compact to about 104 KB, but registers block a second block first. Within
 one block the freed memory buys nothing measured: 8 stages ran 333.2 us vs 7 stages 333.8 us at
 b32 full (bench a8a4666a91d54d68).
+
+## Attention fork: loader-branch vs math-branch (decided by backlog #4)
+
+The #4 bench (`muse_attention_decode/bench.py`, commit 75a4eaa; runs at the next attention
+check reset) times var 16 in full and loads-only mode, plus its math-warp phase cycles, on
+full-context verify.
+
+- **loader-branch** (var 16 full time close to its loads-only time: the loader warps set the
+  pace): N2 (P.V on FP8 wgmma, removing the loaders' V-to-f16 conversion; needs V transposed
+  for FP8 wgmma's K-major operand) and A4 (one TMA command per 128-byte row).
+- **math-branch** (var 16 clearly slower than loads-only: the math warps set the pace): A1
+  (bounded-shift softmax), then A5 (stagger the two math warpgroups).
+
+Fixing one side can move the bottleneck to the other, so after a win on either branch, re-run
+the #4 bench before choosing the next item.
