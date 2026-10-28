@@ -135,10 +135,16 @@ PORT_MOE = True
 PORT_MOE_W4 = True
 PORT_ROUTER = True
 PORT_PROJ = True
-# The hi/lo mma router at 9-32 tokens runs on the side stream under the pooler: switching it
-# on and off moved decode 16 by -0.01 to -0.02 both times, within noise (checks 6ef2d969b6104e10,
-# 46dab8fb87274880), so SGLang's split router stays there.
-PORT_ROUTER_MMA = False
+# The hi/lo mma router at 9-32 tokens as a candidate for the MoE-front tuner in prepare(),
+# which times each side-chain variant as a graph with a cold L2 and keeps the fastest per token
+# count (SGLang's split router, our mma router, or one GEMM for the pooler and both router
+# halves). Flipping it blind moved decode 16 by -0.01 to -0.02 both ways (checks 6ef2d969b6104e10,
+# 46dab8fb87274880): the side chain was hidden under the pooler then; with our norm it is not.
+PORT_ROUTER_MMA = True
+# One cuBLAS GEMM with FP32 output for the pooler and the router's hi and lo halves at 9+ tokens,
+# as a candidate for the same tuner: the pooled columns feed the norm (rounded to BF16 on load),
+# the router columns are summed as SGLang sums hi + lo.
+PORT_FRONT_CONCAT = True
 # Idea 1 from muse_attention_decode: one prep launch and one norm-gate launch around FA3.
 PORT_ATTN_PREP = True
 # Idea 2: the fused q_len 1 attention kernel, on the shapes where it won on its own problem.
@@ -249,9 +255,9 @@ void launch_ex_pdl(Kern kern, dim3 grid, dim3 block, int smem, cudaStream_t stre
     launch_ex(kern, grid, block, smem, stream, true, args...);
 }
 
-// PDL on the glue launches (router, route_align, finalize_row, the FFN boundary); the
-// projection, norm and attention launches always carry it. Off for the proj + attention check.
-constexpr bool kPdlGlue = false;
+// PDL on the glue launches (router, route_align, finalize_row, the boundaries); the
+// projection, norm and attention launches always carry it.
+constexpr bool kPdlGlue = true;
 
 // Marlin's moe_align layout over this GPU's 32 experts only: blocks of block_size rows,
 // experts ascending, pad slots hold numel. SGLang aligns over 257 buckets instead and emits
@@ -5291,6 +5297,115 @@ def _bnd(stream, f, state):
                                      bnd["eps_post"], bnd["eps_next"])
 
 
+# Token counts the MoE-front tuner times (the scored T above 8); other counts use the next one
+# up.
+FRONT_TOKENS = (16, 32, 128, 256)
+
+
+def _front_variants(tokens, state):
+    """The side-chain variants the tuner may pick at this token count: "split" is SGLang's hi/lo
+    torch.mm pair (two GEMMs, two split-K reduces and an add) under the pooler, "mma" our hi/lo
+    mma router (up to 32 tokens), "concat" one cuBLAS GEMM for the pooler and both router halves
+    with FP32 output (needs our norm, which rounds the pooled columns on load)."""
+    out = ["split"]
+    if PORT_ROUTER_MMA and state["router_ours"] and tokens <= ROUTER_MMA_MAX_TOKENS:
+        out.append("mma")
+    if PORT_FRONT_CONCAT and state["norm_ours"] and "pool_router" in state:
+        out.append("concat")
+    return out
+
+
+def _front_variant(tokens, state):
+    if tokens <= ROUTER_FP32_MAX_TOKENS:
+        return "fp32"
+    key = next((t for t in FRONT_TOKENS if t >= tokens), FRONT_TOKENS[-1])
+    return state["front_policy"].get(key, "split")
+
+
+def _moe_front(ffn_input, router_input, local_start, state, moe_opts, variant):
+    """From the FFN input to GEMM1's inputs: the pooler and the pre-expert norm on the main
+    stream; the router, routing and (with ROUTE_ON_SIDE) the routing metadata on the side
+    stream, joined before GEMM1. Returns (expert input, topk_weights, topk_ids, meta); the
+    expert input is normalized when meta is not None, else the caller normalizes it."""
+    tokens = ffn_input.shape[0]
+    main_stream, side_stream = torch.cuda.current_stream(), state["side_stream"]
+    route_side = ROUTE_ON_SIDE and state["route_side_ok"]
+    if variant == "concat":
+        out32 = torch.mm(ffn_input, state["pool_router"].t(), out_dtype=torch.float32)
+        # The side stream reads the router columns, so it forks after the GEMM.
+        side_stream.wait_stream(main_stream)
+        expert_input = out32[:, :D_EXPERT]
+    else:
+        side_stream.wait_stream(main_stream)
+        expert_input = _proj(ffn_input, "pooler", D_EXPERT, state)
+    if route_side:
+        expert_input = _pre_norm(expert_input, state)
+    meta = None
+    with torch.cuda.stream(side_stream):
+        if variant == "concat":
+            logits = out32[:, D_EXPERT:D_EXPERT + N_EXPERTS] + out32[:, D_EXPERT + N_EXPERTS:]
+        elif variant == "fp32" and state["router_ours"]:
+            logits = _ext().router_fwd(router_input.contiguous(), state["router"])
+        elif variant == "fp32":
+            logits = F.linear(router_input, state["router"])
+        elif variant == "mma":
+            logits = _ext().router_mma_fwd(ffn_input.contiguous(), state["router_packed"])
+        else:
+            logits = torch.mm(ffn_input, state["router_hi_t"], out_dtype=torch.float32)
+            logits += torch.mm(ffn_input, state["router_lo_t"], out_dtype=torch.float32)
+        topk_weights, topk_ids = state["routing"](None, logits, TOP_K, True)
+        if route_side:
+            meta = _route_meta(topk_weights, topk_ids, local_start, tokens, state, moe_opts)
+    main_stream.wait_stream(side_stream)
+    if not torch.cuda.is_current_stream_capturing():
+        crossing = [topk_weights, topk_ids] + (_meta_tensors(meta) if meta else [])
+        for tensor in crossing:
+            tensor.record_stream(main_stream)
+    return expert_input, topk_weights, topk_ids, meta
+
+
+def _front_tune(state):
+    """Times the MoE front per token count above 8, as a CUDA graph replayed after an L2 flush
+    as the judge times it, for every side-chain variant, and keeps the fastest. The variants
+    must agree: the normalized expert input within 2 BF16 ulp of the split variant's and at
+    least 99% of the routes equal."""
+    flush = torch.empty(256 << 20, dtype=torch.uint8, device="cuda")
+    gen = torch.Generator(device="cuda").manual_seed(21)
+    local_start = torch.tensor([96], dtype=torch.int32, device="cuda")
+    policy = {}
+    for tokens in FRONT_TOKENS:
+        ffn_input = torch.randn((tokens, HIDDEN), generator=gen, device="cuda")
+        ffn_input = ffn_input.to(torch.bfloat16)
+        opts = _moe_opts(tokens, state) if state["moe_ours"] else None
+        times, outs = {}, {}
+        for variant in _front_variants(tokens, state):
+            res = {}
+
+            def run():
+                ei, _, ids, meta = _moe_front(ffn_input, None, local_start, state, opts,
+                                              variant)
+                res["x"] = ei if meta is not None else _pre_norm(ei, state)
+                res["ids"] = ids
+
+            times[variant] = _graph_time(run, flush)
+            torch.cuda.synchronize()
+            outs[variant] = (res["x"].clone(), res["ids"].clone())
+        ref_x, ref_ids = outs["split"]
+        for variant, (x, ids) in outs.items():
+            d = (x.float() - ref_x.float()).abs()
+            ulp = torch.exp2(torch.floor(torch.log2(ref_x.float().abs().clamp(min=1e-30))) - 7)
+            ulps = float((d / ulp).max())
+            same = float((ids == ref_ids).float().mean())
+            if not (ulps <= 2.0 and same >= 0.99):
+                raise RuntimeError(f"front T={tokens} {variant}: {ulps:.1f} ulp, routes {same:.3f}")
+        best = min(times, key=times.get)
+        policy[tokens] = best
+        print(f"TUNE front T={tokens} "
+              + " ".join(f"{v}:{t:.1f}" for v, t in sorted(times.items(), key=lambda kv: kv[1]))
+              + f" -> {best}")
+    state["front_policy"] = policy
+
+
 def _try(name, fn):
     t0 = time.time()
     try:
@@ -5356,6 +5471,7 @@ def prepare(weights):
         "route_side_ok": False,
         "bnd_ours": False,
         "norm_ours": False,
+        "front_policy": {},
         # As SGLang's RotaryEmbedding computes them, so the angles match its cos/sin table.
         "inv_freq": inv_freq,
     }
@@ -5394,6 +5510,13 @@ def prepare(weights):
     if PORT_ATTN_WS:
         state["attn_ws_ours"] = True
         state["attn_ws_ours"] = _try("attn ws", lambda: _attn_self_test(state))
+    if PORT_FRONT_CONCAT and state["norm_ours"]:
+        # [4096 + 256 + 256, 8192]: the pooler, then the router's BF16 hi and lo halves; its
+        # transpose is the second operand of one torch.mm with FP32 output, the layout the
+        # pooler's own GEMM reads.
+        state["pool_router"] = torch.cat((state["dense"]["pooler"], hi, lo), 0).contiguous()
+    if state["w4_ok"] and (PORT_ROUTER_MMA or PORT_FRONT_CONCAT):
+        _try("moe front tuner", lambda: _front_tune(state))
     torch.cuda.synchronize()
     print(f"prepare: done ({time.time() - t_start:.1f} s)")
     return state
@@ -5427,33 +5550,10 @@ def kernel_fn(data, state):
         data["stream"], attn_output, branch_dtype=torch.bfloat16,
         router_dtype=None if split_router else torch.float32)
     # The router and routing run on a side stream, overlapping the pooler on the main one.
-    main_stream, side_stream = torch.cuda.current_stream(), state["side_stream"]
-    side_stream.wait_stream(main_stream)
-    expert_input = _proj(ffn_input, "pooler", D_EXPERT, state)
     moe_opts = _moe_opts(tokens, state) if state["moe_ours"] else None
-    route_side = ROUTE_ON_SIDE and state["route_side_ok"]
-    if route_side:
-        expert_input = _pre_norm(expert_input, state)
-    meta = None
-    with torch.cuda.stream(side_stream):
-        if not split_router and state["router_ours"]:
-            logits = _ext().router_fwd(router_input.contiguous(), state["router"])
-        elif not split_router:
-            logits = F.linear(router_input, state["router"])
-        elif state["router_ours"] and PORT_ROUTER_MMA and tokens <= ROUTER_MMA_MAX_TOKENS:
-            logits = _ext().router_mma_fwd(ffn_input.contiguous(), state["router_packed"])
-        else:
-            logits = torch.mm(ffn_input, state["router_hi_t"], out_dtype=torch.float32)
-            logits += torch.mm(ffn_input, state["router_lo_t"], out_dtype=torch.float32)
-        topk_weights, topk_ids = state["routing"](None, logits, TOP_K, True)
-        if route_side:
-            meta = _route_meta(topk_weights, topk_ids, data["local_start"], tokens, state,
-                               moe_opts)
-    main_stream.wait_stream(side_stream)
-    if not torch.cuda.is_current_stream_capturing():
-        crossing = [topk_weights, topk_ids] + (_meta_tensors(meta) if meta else [])
-        for tensor in crossing:
-            tensor.record_stream(main_stream)
+    expert_input, topk_weights, topk_ids, meta = _moe_front(
+        ffn_input, router_input, data["local_start"], state, moe_opts,
+        _front_variant(tokens, state))
     # all-reduce: identity
     if meta is not None:
         expert_output = _experts_run(expert_input, meta, state)
