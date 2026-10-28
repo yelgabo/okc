@@ -31,6 +31,9 @@ SGLang with its 95% interval. Profiles and logs are in `muse_moe_w4a16/profiles/
 | 2026-10-28 | c4b1b5366bc54857 | 8811b31 | diagnostics: loads-only kernels with no activation staging, with streaming-style addresses (every warp reads consecutive 1 KB chunks at each stage), with and without the L2 256-byte prefetch hint; GEMM configs without the hint as candidates | 1.690x (1.664-1.715) | per shape: bs1 1.722, bs16 1.749, bs32 1.461, bs8 1.710, bs128 1.823, bs256 1.698. Loads-only at bs8 (tuner timings incl. ~5 us replay overhead and the ~3 us SwiGLU-reduce kernel that split-K adds): real addresses 60.4 us, no activation staging 59.7, streaming addresses 59.6, streaming without hint 59.3, streaming with 8 warps per block 50.8. So the access pattern, the activation staging and the hint are not the limit; resident warps are. Net of overhead and the reduce kernel, GEMM1 at bs8 moves 141 MB in about 43.6 us, 3.25 TB/s, against about 3.85 TB/s for the plain streaming kernel at that size (85%). The no-hint GEMM variants won narrowly at most sizes (policy {1: (34, 26), 8: (33, 30), 16: (33, 11), 32: (33, 35), 128: (4, 36), 256: (37, 36)}, PDL on). Per-forward small kernels at bs1 (profile cfad171137bf45f8): finalizer 4.7 us on one block, SwiGLU reduce 2.2, route_align 2.4, against 32.8 us of GEMMs |
 | 2026-10-28 | c1025175b73548fd | b911811 | finalizer over FP32 partials as 1, 4 or 8 blocks per token (a cluster sharing the per-slot sums of squares through distributed shared memory), tuned per size with PDL on/off; SwiGLU reduce over 8 blocks per route | 1.682x (1.656-1.707) | per shape: bs1 1.809, bs16 1.645, bs32 1.461, bs8 1.770, bs128 1.794, bs256 1.638; same as c4b1b5366bc54857 within the interval (per-shape swings of +-0.06 between runs follow the judge's per-run routing seeds). Whole forward, tuner: cluster finalizer saves at most 0.5 us (bs1 52.3 -> 52.0), PDL 2-4 us. Stop rule: four controlled iterations (layout, persistent blocks, access-pattern diagnostics, finalizer) moved nothing outside the interval. Superseded by 84f3975334f048c3 (BF16 boundaries) |
 | 2026-10-28 | 84f3975334f048c3 | 965e415 | BF16 at SGLang's boundaries (TASK.md: activations stay BF16 wherever SGLang keeps BF16): gate and up rounded to bf16 before SwiGLU (Marlin's cache1), SwiGLU output bf16 (GEMM2 input), GEMM2 output rounded to bf16 after its FP32 split-K sum and before the norm (Marlin's cache3); rounding in registers | 1.683x (1.658-1.708) | per shape (vs c1025175b73548fd): bs1 1.780 (1.809), bs16 1.753 (1.645), bs32 1.430 (1.461), bs8 1.728 (1.770), bs128 1.795 (1.794), bs256 1.645 (1.638); same within the interval. Error vs FP32 in the self-test rose from 3.0e-3 to 4.2e-3 to 4.4e-3, still below the Marlin path's 5.2e-3 to 5.5e-3. This is the final file |
+| 2026-10-28 | 4a8852d513874318 | fbbff53 | bench.py: TMA (bulk-copy) weight kernel and large-tile item lists built in prepare(), benchmarked after the tuner; kernel_fn and tuner unchanged | 1.676x (1.651-1.701) | per shape: bs1 1.771, bs16 1.644, bs32 1.450, bs8 1.722, bs128 1.808, bs256 1.688; a control run of the 84f3975334f048c3 policy. The bench itself failed at its first call (it asked the W4 extension for route_align, which lives in the routing extension), after printing registers, shared memory and occupancy per new config (see the TMA and large-tile section below). Prepare 104 s |
+| 2026-10-28 | e1619f311d3747e3 | 238317a | the same bench, fixed | 1.671x (1.646-1.696) | per shape: bs1 1.771, bs16 1.649, bs32 1.438, bs8 1.738, bs128 1.779, bs256 1.675; control again (same policy). Bench results in the TMA and large-tile section below: TMA wins only at bs256 GEMM1 (NT2 W8 D4, 1.04x on normal routings), large tiles lose on normal routings at every size. Prepare 108 s, the bench itself about 7 s |
+| 2026-10-28 | a49578e5c30348bb | 600e323 | TMA configs are tuner candidates (large tiles benchmark-only) | 1.691x (1.665-1.716) | per shape: bs1 1.764, bs16 1.724, bs32 1.445, bs8 1.734, bs128 1.826, bs256 1.679. The tuner chose TMA only for bs256 GEMM1 (config 49, (1, 2, 16, 4, 8, 4, 7, 1, 0): 233.7 us vs 243.6 for config 37, the previous pick); every other size kept a register-path config. Same as 84f3975334f048c3 (1.683x) and the 1.699x submission within the interval: a 4% gain on one GEMM of one shape is about 0.5% of the geomean. Error vs FP32 4.40e-3. Prepare 101 s, build 52.8 s for 64 kernels |
 
 ## W4A16 GEMM (own kernel), 2026-10-28
 
@@ -83,6 +86,50 @@ Lessons:
 - bs256's hottest expert gets up to all 256 tokens; items of 8-16 tokens re-read its weights
   (through L2), which is why W4 GEMM1 gains least there (1.13x). A tile with more tokens per
   dequantized weight would help that shape.
+
+
+## TMA weight loads and large token tiles, 2026-10-28
+
+Bench in check e1619f311d3747e3 (`tools/moe_bench_w4x.py` appended to bench.py by `tools/moe_make_bench.py`): per batch size, GEMM and routing seed (normal 11, 12, 13; skewed 21, 22, seed `977 * seed + bs`), the median of 30 CUDA graph replays, each after a 256 MB write that evicts L2. Times include the 5.4 us replay overhead and the SwiGLU reduce (GEMM1 with K splits) or the finalizer (GEMM2), as the tuner times them; GEMM2 reads the current policy's GEMM1 output. "cur" is the policy the tuner picked in that run. Ratios are cur over variant, summed over the three normal seeds (n) and the two skewed ones (s). Every variant matched cur to within 1.0e-4 relative L2 (0 where the K splits match). The best TMA and the best large-tile variant per row are picked by the sum over normal seeds.
+
+| bs | GEMM | cur us (n11/n12/n13/s21/s22) | best TMA | best large tile |
+|---|---|---|---|---|
+| 1 | g1 | cfg 20: 29.8/32.3/28.5/30/29.9 | tE 30.5/42.4/27.1/30.7/30.7 (0.91x n, 0.98x s) | - |
+| 1 | g2 | cfg 26: 23.9/26.8/20.8/23.7/23.6 | tA 26.8/30.3/23.5/27.2/27.4 (0.89x n, 0.87x s) | - |
+| 8 | g1 | cfg 33: 53.3/50/61.4/36.7/31 | tG 59.8/56/68.3/43.3/33.4 (0.89x n, 0.88x s) | - |
+| 8 | g2 | cfg 30: 35/34.1/46.3/31.7/31.3 | tA 42.1/38.7/47.3/30.6/28 (0.90x n, 1.08x s) | - |
+| 16 | g1 | cfg 21: 79.9/76/74/43.5/52.4 | tC 84.2/79.3/73.5/43.9/50.5 (0.97x n, 1.02x s) | - |
+| 16 | g2 | cfg 35: 49.9/45.6/43.8/27.7/32.3 | tE 55/50.8/49/30.1/31.6 (0.90x n, 0.97x s) | - |
+| 32 | g1 | cfg 33: 110/93.7/91.7/79.6/62 | tG 123/98.1/92.4/56.8/49.8 (0.94x n, 1.33x s) | h8s2+32 120/102/100/78/60.5 (0.92x n, 1.02x s) |
+| 32 | g2 | cfg 35: 65.4/56.2/53.7/47.9/38.4 | tE 70.4/60.5/59.2/37.8/32.4 (0.92x n, 1.23x s) | h8+32 70.9/61.5/59.3/55/43.2 (0.91x n, 0.88x s) |
+| 128 | g1 | cfg 4: 176/157/213/182/142 | tG 180/160/206/133/109 (1.00x n, 1.34x s) | h8s2+32 181/166/198/137/108 (1.00x n, 1.32x s) |
+| 128 | g2 | cfg 36: 96.1/86.1/108/73.2/59.5 | tE 98.3/88.3/111/71.7/59.5 (0.98x n, 1.01x s) | h16+64 103/92.4/115/73.5/58.5 (0.93x n, 1.01x s) |
+| 256 | g1 | cfg 37: 258/229/254/285/224 | tG 248/219/246/272/207 (1.04x n, 1.06x s) | h16+64 255/245/269/253/219 (0.96x n, 1.08x s) |
+| 256 | g2 | cfg 13: 129/114/129/143/106 | tE 131/113/129/143/108 (1.00x n, 0.99x s) | h16+64 131/122/139/136/100 (0.95x n, 1.06x s) |
+
+Labels: TMA tA (1,1,8,4,4,4), tB (1,1,8,4,4,8), tC (1,1,8,4,8,4), tD (1,1,8,2,8,4), tE (1,1,8,2,4,8), tF (1,2,16,4,4,8), tG (1,2,16,4,8,4) for GEMM1 and tA (2,1,8,4,4,8), tB (2,1,8,4,8,4), tC (2,1,8,2,4,8), tD (2,2,16,4,4,8), tE (2,2,16,4,8,4) for GEMM2, all mode 7 layout 1, d = shared-memory stages. Large tiles: u32/u64 every item 32/64 routes; hA+B items of A routes for experts below the threshold and B routes (a second launch, run first) for experts at or above it (32 for +32, 64 for +64); h8s2+32 uses 2 K splits.
+
+Registers, shared memory and occupancy (cudaFuncGetAttributes and the occupancy API in check 4a8852d513874318; warps per SM count the TMA kernel's producer warp; no spills in ptxas for any of them):
+
+| config | regs | smem B | blocks/SM | warps/SM |
+|---|---|---|---|---|
+| register (1,1,8,4,4,4) | 76 | 16576 | 6 | 24 |
+| register (1,2,16,4,4,4) | 92 | 33152 | 5 | 20 |
+| register (1,2,16,4,8,4) layout 1 | 98 | 33152 | 2 | 16 |
+| TMA (1,1,8,4,4,4) | 40 | 35040 | 6 | 30 (24 consumer) |
+| TMA (1,1,8,4,4,8) | 40 | 53536 | 4 | 20 (16) |
+| TMA (1,1,8,4,8,4) | 40 | 53472 | 4 | 36 (32) |
+| TMA (1,2,16,4,8,4) (tG) | 56 | 70016 | 3 | 27 (24) |
+| TMA (2,2,16,4,8,4) (GEMM2 tE) | 56 | 70016 | 3 | 27 (24) |
+| large (1,4,32,4,4,4) | 124 | 66304 | 3 | 12 |
+| large (1,8,64,4,8,4) | 190 | 132608 | 1 | 8 |
+| large (1,8,64,4,4,2) | 146 | 132608 | 1 | 4 |
+| large (1,4,32,2,8,4) | 128 | 131840 | 1 | 8 |
+
+Lessons:
+- TMA weight loads (one producer thread, two bulk copies per stage of a block's W units, full and empty mbarriers) cut registers from 76-98 to 40-56 and raised resident warps (36 per SM at W8 D4 against 16-24), yet lost 3-11% at bs 1-32 and tied at bs128 on normal routings. It won only at bs256 GEMM1 (tG, 1.04x, all five seeds) and against its own register twin (1,2,16,4,8,4) layout 1 by 6-10% at bs 8-256. So more resident warps, by themselves, do not close the gap to the streaming kernel; the loads-only result (50.8 us with 8 warps per block vs 59.6 with 4) did not carry over to the real GEMM. One likely reason, not measured: each stage is now a serial wait on a full barrier, then shared-memory loads, then the arrive, and the register path overlaps D stages of global loads per warp without that round trip.
+- Large token tiles cut weight traffic where routing is concentrated: uniform 64-route items were 1.5x faster at bs128 skewed (120/91 us vs 182/142) but 2x slower on normal routings, where most experts get far fewer than 64 routes. The device-side split (large items for experts at or above a threshold, a second launch run first) kept part of the skewed gain (h8s2+32 1.32x at bs128 skewed) but lost or tied on normal routings at every size, including n11 at bs256 whose hottest expert has all 256 tokens (h16+64 255 vs 258 us). The large-tile kernel runs at 4-12 warps per SM (124-190 registers, 66-132 KB of activations) and the two launches serialize, which together cost about what the fewer weight re-reads save. The scored shapes use the normal routing (TASK.md: skewed appears only as a correctness test), so this is not wired in.
+- The tuner now includes the TMA configs; it picked one (bs256 GEMM1) in check a49578e5c30348bb, which scored 1.691x (1.665-1.716), the same as before within the interval.
 - Decision 2026-10-28: TMA weight loads and hot-expert large tiles stay out of submission.py.
   TMA won only bs256 GEMM1 (about 4%, about 0.5% of the score); large tiles lost on normal
   routing. The final file scored 1.691x (a49578e5c30348bb), overlapping the 1.699x entry. Code
