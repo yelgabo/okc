@@ -13,9 +13,8 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 # (accs, exc_select, nodecode, exc, stages). NODECODE and EXC = false give wrong results; they
 # time the decode and the escaped-tile handling (and its shared memory).
-VARIANTS = [(2, "true", "false", "true", 4), (2, "true", "false", "false", 4),
-            (2, "true", "false", "false", 5), (2, "true", "false", "false", 6),
-            (2, "true", "false", "false", 8), (2, "true", "false", "true", 6)]
+VARIANTS = [(2, "true", "false", "true", 4), (1, "true", "false", "true", 4),
+            (2, "true", "false", "false", 4)]
 
 
 def main(out):

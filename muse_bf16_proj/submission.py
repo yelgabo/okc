@@ -466,14 +466,19 @@ void router_mma(const uint4* wp, const __nv_bfloat16* xp, float* op, int m, cuda
 // 16x16 tile holding any other weight keeps its 256 raw high bytes in a side table instead.
 // Per row tile and chunk of CCH k-tiles, each lane's share is 6 contiguous uint4 (4 of low
 // bytes, 2 of nibbles), 384 bytes per tile against 512 raw.
+// Escaped tiles go through a per-warp ring of C_RING tiles in shared memory; prepare() checks
+// that no NST consecutive chunks of a row tile escape more than C_RING tiles. One staging slot
+// per chunk for up to 8 escaped tiles took 92 KB per block, which let only 62 clusters of 4
+// run at once: pooler's 256 blocks then needed a second wave (bench fb7980267f3a4648).
 constexpr int CCH = 8;
 constexpr int CVECS = 6;
 constexpr int CWARPS = 4;
 constexpr int C_EXC_VECS = 16;
+constexpr int C_RING = 12;
 
 template <int WARPS, bool EXC, int NST>
 constexpr int cproj_smem_bytes() {
-    return NST * WARPS * (CVECS * 32 + (EXC ? CCH * C_EXC_VECS : 0)) * 16 +
+    return NST * WARPS * CVECS * 32 * 16 + (EXC ? WARPS * C_RING * C_EXC_VECS * 16 : 0) +
            NST * 8 * xs_stride<CCH>() * 2 + 8 * WARPS * 16 * 4;
 }
 
@@ -496,11 +501,11 @@ cproj_kernel(const uint4* __restrict__ wc, const unsigned* __restrict__ desc,
     constexpr int ROWS = WARPS * 16;
     constexpr int XS = xs_stride<CCH>();
     constexpr int W_STAGE_VECS = WARPS * CVECS * 32;
-    constexpr int E_STAGE_VECS = EXC ? WARPS * CCH * C_EXC_VECS : 0;
+    constexpr int RING_VECS = EXC ? C_RING * C_EXC_VECS : 0;
     extern __shared__ __align__(16) unsigned char smem[];
     uint4* ws = reinterpret_cast<uint4*>(smem);
     uint4* es = ws + NST * W_STAGE_VECS;
-    __nv_bfloat16* xs = reinterpret_cast<__nv_bfloat16*>(es + NST * E_STAGE_VECS);
+    __nv_bfloat16* xs = reinterpret_cast<__nv_bfloat16*>(es + WARPS * RING_VECS);
     float* partial = reinterpret_cast<float*>(xs + NST * 8 * XS);
 
     const int warp = threadIdx.x >> 5;
@@ -531,15 +536,19 @@ cproj_kernel(const uint4* __restrict__ wc, const unsigned* __restrict__ desc,
         }
     };
     // Lane c holds chunk c's descriptor: bits 0-7 flag its tiles with raw high bytes, bits 8-31
-    // index the first of them in exc (16 uint4 per tile).
+    // index the first of them in exc (16 uint4 per tile). Escaped tile j of this warp, counted
+    // from its first chunk, sits in ring slot j % C_RING.
     unsigned my_desc = 0;
-    auto load_exc = [&](int c, int slot) {
+    unsigned warp_first = 0;
+    uint4* ring = es + warp * RING_VECS;
+    auto load_exc = [&](int c) {
         const unsigned d = __shfl_sync(0xffffffff, my_desc, c);
         const int count = __popc(d & 0xff);
         const uint4* src = exc + (size_t)(d >> 8) * C_EXC_VECS;
-        uint4* dst = es + slot * E_STAGE_VECS + warp * CCH * C_EXC_VECS;
+        const int j0 = (d >> 8) - warp_first;
         for (int v = lane; v < count * C_EXC_VECS; v += 32) {
-            cp_async16(dst + v, src + v, true);
+            cp_async16(ring + ((j0 + v / C_EXC_VECS) % C_RING) * C_EXC_VECS + v % C_EXC_VECS,
+                       src + v, true);
         }
     };
 
@@ -553,10 +562,11 @@ cproj_kernel(const uint4* __restrict__ wc, const unsigned* __restrict__ desc,
     if (EXC && lane < chunks) {
         my_desc = desc[(size_t)tile * ch_total + kt0 / CCH + lane];
     }
+    warp_first = __shfl_sync(0xffffffff, my_desc, 0) >> 8;
 #pragma unroll
     for (int s = 0; s < NST - 1; ++s) {
         if (EXC && s < chunks) {
-            load_exc(s, s);
+            load_exc(s);
         }
         asm volatile("cp.async.commit_group;\n");
     }
@@ -577,18 +587,18 @@ cproj_kernel(const uint4* __restrict__ wc, const unsigned* __restrict__ desc,
         if (c + NST - 1 < chunks) {
             load_main(c + NST - 1, (c + NST - 1) % NST);
             if (EXC) {
-                load_exc(c + NST - 1, (c + NST - 1) % NST);
+                load_exc(c + NST - 1);
             }
         }
         asm volatile("cp.async.commit_group;\n");
 
         const int slot = c % NST;
         const uint4* wa = ws + slot * W_STAGE_VECS + warp * CVECS * 32 + lane;
-        const uint2* ea =
-            reinterpret_cast<const uint2*>(es + slot * E_STAGE_VECS + warp * CCH * C_EXC_VECS) +
-            lane;
+        const uint2* ea = reinterpret_cast<const uint2*>(ring) + lane;
         const __nv_bfloat16* xb = xs + slot * 8 * XS + xrow;
-        const unsigned mask = __shfl_sync(0xffffffff, my_desc, c) & 0xff;
+        const unsigned d = __shfl_sync(0xffffffff, my_desc, c);
+        const unsigned mask = d & 0xff;
+        const int j0 = (d >> 8) - warp_first;
         uint4 lo[4];
         uint4 nib[2];
 #pragma unroll
@@ -612,11 +622,11 @@ cproj_kernel(const uint4* __restrict__ wc, const unsigned* __restrict__ desc,
             if (any_exc) {
                 const bool flagged = (mask >> i) & 1;
                 if (EXC_SELECT) {
-                    const uint2 e = ea[__popc(mask & ((1u << i) - 1)) * 32];
+                    const uint2 e = ea[((j0 + __popc(mask & ((1u << i) - 1))) % C_RING) * 32];
                     h0 = flagged ? e.x : h0;
                     h1 = flagged ? e.y : h1;
                 } else if (flagged) {
-                    const uint2 e = ea[__popc(mask & ((1u << i) - 1)) * 32];
+                    const uint2 e = ea[((j0 + __popc(mask & ((1u << i) - 1))) % C_RING) * 32];
                     h0 = e.x;
                     h1 = e.y;
                 }
@@ -823,6 +833,10 @@ _PROJ_CPP_SRC = (
 PROJ_LAYERS = ("qkv_gate", "o", "pooler", "unpooler")
 UNPOOL_SLICE = 1024
 CPROJ_MAX_TOKENS = 8
+CPROJ_LAYERS = ("qkv_gate", "o", "pooler", "unpooler")
+# cproj_kernel's C_RING and pipeline stages (STAGES).
+CPROJ_RING = 12
+CPROJ_STAGES = 4
 
 
 def _pack_mma_a(w):
@@ -931,25 +945,37 @@ def _cproj_dump_test(dump, w, comp):
         raise RuntimeError(f"compressed decode differs in {bad} bytes of {want.numel()}")
 
 
+def _bits_to_bf16(bits, n, k):
+    return (bits - ((bits >> 15) << 16)).to(torch.int16).view(torch.bfloat16).view(n, k)
+
+
 def _adversarial_weights(device):
-    """Named BF16 [64, 1024] matrices: all 65,536 bit patterns (NaN, inf, denormals, zeros) in
-    order, so whole chunks escape, and shuffled; every in-window high byte with every low byte,
-    so nothing escapes; and that plus 50 out-of-window weights, so tiles of both kinds mix."""
+    """Named BF16 matrices for the decode test.
+
+    sorted, shuffled: all 65,536 bit patterns (NaN, inf, denormals, zeros), in order and
+    shuffled, filling every 4th chunk of a [64, 4096] matrix (so the ring holds them) whose
+    other tiles take in-window values. window: every in-window high byte with every low byte,
+    so nothing escapes. mixed: that plus 50 out-of-window weights. dense: all patterns shuffled
+    in [64, 1024], every tile escaped, which must fail _ring_fits.
+    """
     gen = torch.Generator(device=device).manual_seed(2)
     pats = torch.arange(65536, dtype=torch.int32, device=device)
     shuffled = pats[torch.randperm(65536, generator=gen, device=device)]
     hi = (torch.arange(16, device=device) % 2) * 128 + 54 + torch.arange(16, device=device) // 2
-    window = (hi[:, None] * 256 + torch.arange(256, device=device)).flatten().repeat(16)
-    window = window.int()
+    window = (hi[:, None] * 256 + torch.arange(256, device=device)).flatten().repeat(16).int()
     window = window[torch.randperm(65536, generator=gen, device=device)]
     mixed = window.clone()
     spots = torch.randperm(65536, generator=gen, device=device)[:50]
     mixed[spots] = torch.randint(0, 54 * 256, (50,), generator=gen, device=device).int()
-    out = {}
-    for name, bits in (("sorted", pats), ("shuffled", shuffled), ("window", window),
-                       ("mixed", mixed)):
-        signed = bits - ((bits >> 15) << 16)
-        out[name] = signed.to(torch.int16).view(torch.bfloat16).view(64, 1024)
+    out = {"window": _bits_to_bf16(window, 64, 1024), "mixed": _bits_to_bf16(mixed, 64, 1024),
+           "dense": _bits_to_bf16(shuffled, 64, 1024)}
+    kts = torch.arange(256, device=device)
+    every4th = kts[(kts // 8) % 4 == 0]
+    for name, bits in (("sorted", pats), ("shuffled", shuffled)):
+        background = window.repeat(4)[torch.randperm(262144, generator=gen, device=device)]
+        w = background.view(4, 16, 256, 16).clone()
+        w[:, :, every4th, :] = bits.view(4, 64, 16, 16).permute(0, 2, 1, 3)
+        out[name] = _bits_to_bf16(w.flatten(), 64, 4096)
     return out
 
 
@@ -957,20 +983,33 @@ def _escaped_tiles(comp):
     return sum(int(((comp[1] >> i) & 1).sum()) for i in range(8))
 
 
+def _ring_fits(comp):
+    """cproj_kernel's ring holds the escaped tiles of CPROJ_STAGES consecutive chunks."""
+    counts = sum((comp[1] >> i) & 1 for i in range(8)).float()
+    windows = torch.nn.functional.avg_pool1d(counts[:, None, :], CPROJ_STAGES, 1) * CPROJ_STAGES
+    return int(windows.round().max()) <= CPROJ_RING
+
+
 def _cproj_adversarial_test(dump):
     counts = {}
     for name, w in _adversarial_weights("cuda").items():
         comp = _compress_bf16(w)
         counts[name] = _escaped_tiles(comp)
+        if name == "dense":
+            if _ring_fits(comp):
+                raise RuntimeError("an all-escaped matrix passed the ring check")
+            continue
+        if not _ring_fits(comp):
+            raise RuntimeError(f"adversarial set {name} overflows the ring")
         _cproj_dump_test(dump, w, comp)
-    if counts["window"] != 0 or not 0 < counts["mixed"] < 256:
+    if counts["window"] != 0 or not 0 < counts["mixed"] < 256 or counts["dense"] != 256:
         raise RuntimeError(f"adversarial sets missed their escape mix: {counts}")
-    print(f"compressed decode bit-exact on adversarial sets (escaped tiles of 256): {counts}")
+    print(f"compressed decode bit-exact on adversarial sets (escaped tiles): {counts}")
 
 
 def _cproj_self_test(fused, state, comp):
     gen = torch.Generator(device="cuda").manual_seed(3)
-    for layer in PROJ_LAYERS:
+    for layer in comp:
         w = state[layer][:comp[layer][0].shape[0] * 16]
         for m in (1, 5, 7, 8):
             x = torch.randn(m, w.shape[1], generator=gen, device="cuda").to(torch.bfloat16)
@@ -1056,18 +1095,23 @@ def prepare(weights):
         print(f"proj kernel: baseline ({type(exc).__name__}: {exc})")
 
     state["cproj"] = None
+    state["cproj_packed"] = {}
     if state["proj_fused"] is not None:
         try:
-            comp = {}
-            for name in PROJ_LAYERS:
-                w = state[name][:UNPOOL_SLICE] if name == "unpooler" else state[name]
-                comp[name] = _compress_bf16(w)
-                _cproj_dump_test(ext.cproj_dump, w, comp[name])
-                ratio = _compressed_bytes(comp[name]) / (w.numel() * 2)
-                escaped = _escaped_tiles(comp[name]) / (w.numel() // 256)
-                print(f"compressed {name} {tuple(w.shape)}: {ratio:.4f} of BF16 bytes, "
-                      f"base {comp[name][3]}, {escaped:.4f} of tiles escaped, decode bit-exact")
             _cproj_adversarial_test(ext.cproj_dump)
+            comp = {}
+            for name in CPROJ_LAYERS:
+                w = state[name][:UNPOOL_SLICE] if name == "unpooler" else state[name]
+                c = _compress_bf16(w)
+                if not _ring_fits(c):
+                    print(f"compressed {name}: escaped tiles overflow the ring; uncompressed")
+                    continue
+                _cproj_dump_test(ext.cproj_dump, w, c)
+                comp[name] = c
+                ratio = _compressed_bytes(c) / (w.numel() * 2)
+                escaped = _escaped_tiles(c) / (w.numel() // 256)
+                print(f"compressed {name} {tuple(w.shape)}: {ratio:.4f} of BF16 bytes, "
+                      f"base {c[3]}, {escaped:.4f} of tiles escaped, decode bit-exact")
             _cproj_self_test(ext.cproj_fwd, state, comp)
             state["cproj_packed"] = comp
             state["cproj"] = ext.cproj_fwd
@@ -1092,10 +1136,9 @@ def kernel_fn(data, state):
     x, layer = data["x"], data["config"]["layer"]
     if layer != "router":
         n = data["config"]["n"]
-        if state["cproj"] is not None and x.shape[0] <= CPROJ_MAX_TOKENS:
-            main, desc, exc, base = state["cproj_packed"][layer]
-            if main.shape[0] * 16 == n:
-                return state["cproj"](x.contiguous(), main, desc, exc, base)
+        packed = state["cproj_packed"].get(layer)
+        if packed is not None and x.shape[0] <= CPROJ_MAX_TOKENS and packed[0].shape[0] * 16 == n:
+            return state["cproj"](x.contiguous(), *packed)
         if state["proj_fused"] is not None and _proj_fused_wins(layer, x.shape[0]):
             return state["proj_fused"](x.contiguous(), state["proj_packed"][layer], n)
         return _bf16_gemm_dispatch_impl(x, state[layer][:n], None)
