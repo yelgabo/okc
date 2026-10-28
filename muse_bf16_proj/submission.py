@@ -219,6 +219,32 @@ __device__ __forceinline__ bool mbar_test_sleep(uint32_t bar, uint32_t parity) {
     return ok != 0;
 }
 
+__device__ __forceinline__ bool mbar_test_cluster(uint32_t bar, uint32_t parity) {
+    uint32_t ok;
+    asm volatile("{\n.reg .pred p;\nmbarrier.try_wait.parity.acquire.cluster.shared::cta.b64 p, [%1], %2;\n"
+                 "selp.u32 %0, 1, 0, p;\n}"
+                 : "=r"(ok) : "r"(bar), "r"(parity) : "memory");
+    return ok != 0;
+}
+
+// Remote st.async completions release at cluster scope, so the receiving wait acquires there.
+__device__ __forceinline__ bool mbar_wait_cluster(uint32_t bar, uint32_t parity, bool& dead, int* diag, int code) {
+    if (dead) {
+        return false;
+    }
+    const long long t0 = clock64();
+    while (!mbar_test_cluster(bar, parity)) {
+        if (clock64() - t0 > WAIT_LIMIT) {
+            dead = true;
+            if (diag != nullptr) {
+                atomicOr(diag, code);
+            }
+            return false;
+        }
+    }
+    return true;
+}
+
 template <bool SLEEP>
 __device__ __forceinline__ bool mbar_wait(uint32_t bar, uint32_t parity, bool& dead, int* diag, int code) {
     if (dead) {
@@ -240,8 +266,11 @@ __device__ __forceinline__ bool mbar_wait(uint32_t bar, uint32_t parity, bool& d
     return true;
 }
 
+// Initialized barriers must be visible to the cluster and to the async proxy before a copy
+// can complete on them (CUDA programming guide, TMA example).
 __device__ __forceinline__ void fence_mbar_init() {
     asm volatile("fence.mbarrier_init.release.cluster;" ::: "memory");
+    asm volatile("fence.proxy.async.shared::cta;" ::: "memory");
 }
 
 __device__ __forceinline__ void fence_proxy_async() {
@@ -273,25 +302,26 @@ __device__ __forceinline__ void tma_3d(uint32_t dst, const CUtensorMap* map, uin
 
 __device__ __forceinline__ uint4 lds128(uint32_t a) {
     uint4 v;
-    asm volatile("ld.shared.v4.u32 {%0,%1,%2,%3}, [%4];" : "=r"(v.x), "=r"(v.y), "=r"(v.z), "=r"(v.w) : "r"(a));
+    asm volatile("ld.shared.v4.u32 {%0,%1,%2,%3}, [%4];" : "=r"(v.x), "=r"(v.y), "=r"(v.z), "=r"(v.w) : "r"(a)
+                 : "memory");
     return v;
 }
 
 __device__ __forceinline__ uint2 lds64(uint32_t a) {
     uint2 v;
-    asm volatile("ld.shared.v2.u32 {%0,%1}, [%2];" : "=r"(v.x), "=r"(v.y) : "r"(a));
+    asm volatile("ld.shared.v2.u32 {%0,%1}, [%2];" : "=r"(v.x), "=r"(v.y) : "r"(a) : "memory");
     return v;
 }
 
 __device__ __forceinline__ float lds_bf16(uint32_t a) {
     uint16_t v;
-    asm volatile("ld.shared.u16 %0, [%1];" : "=h"(v) : "r"(a));
+    asm volatile("ld.shared.u16 %0, [%1];" : "=h"(v) : "r"(a) : "memory");
     return __uint_as_float(static_cast<uint32_t>(v) << 16);
 }
 
 __device__ __forceinline__ void ldsm_x4(uint32_t a, uint32_t* r) {
     asm volatile("ldmatrix.sync.aligned.m8n8.x4.shared.b16 {%0,%1,%2,%3}, [%4];"
-                 : "=r"(r[0]), "=r"(r[1]), "=r"(r[2]), "=r"(r[3]) : "r"(a));
+                 : "=r"(r[0]), "=r"(r[1]), "=r"(r[2]), "=r"(r[3]) : "r"(a) : "memory");
 }
 
 // Registers only, so not volatile: the compiler may move it to overlap the loads.
@@ -491,13 +521,16 @@ sk_kernel(const __grid_constant__ CUtensorMap xmap, const uint8_t* __restrict__ 
             }
             __syncwarp();
             bool dead = false;
-            mbar_wait<true>(pbar, 0, dead, diag, 2);
+            if (!__all_sync(0xffffffffu, mbar_wait<true>(pbar, 0, dead, diag, 2))) {
+                dead = true;
+            }
             const int cnt = dead ? 0 : tab[0];
             int pe = 1;
             for (int st = 0; st < nst_tot; ++st) {
                 const int slot = st % NSTAGE;
                 const int kbeg = (gs0 + st) * KST, kend = kbeg + KST;
-                if (!mbar_wait<true>(full0 + 8 * slot, (st / NSTAGE) & 1, dead, diag, 4)) {
+                if (!__all_sync(0xffffffffu, mbar_wait<true>(full0 + 8 * slot, (st / NSTAGE) & 1, dead, diag, 4))) {
+                    dead = true;
                     break;
                 }
                 if (st % NESC != ew) {
@@ -570,7 +603,8 @@ sk_kernel(const __grid_constant__ CUtensorMap xmap, const uint8_t* __restrict__ 
     bool dead = false;
     for (int st = 0; st < nst; ++st) {
         const int slot = st % NSTAGE;
-        if (!mbar_wait<false>(full0 + 8 * slot, (st / NSTAGE) & 1, dead, diag, 8)) {
+        if (!__all_sync(0xffffffffu, mbar_wait<false>(full0 + 8 * slot, (st / NSTAGE) & 1, dead, diag, 8))) {
+            dead = true;
             break;
         }
         const uint32_t s0 = sbase + slot * SST;
@@ -646,7 +680,8 @@ sk_kernel(const __grid_constant__ CUtensorMap xmap, const uint8_t* __restrict__ 
     if constexpr (FUSE) {
         for (int st = nst; st < nst_tot; ++st) {
             const int slot = st % NSTAGE;
-            if (!mbar_wait<false>(full0 + 8 * slot, (st / NSTAGE) & 1, dead, diag, 64)) {
+            if (!__all_sync(0xffffffffu, mbar_wait<false>(full0 + 8 * slot, (st / NSTAGE) & 1, dead, diag, 64))) {
+                dead = true;
                 break;
             }
             const uint32_t s0 = sbase + slot * SST;
@@ -740,7 +775,7 @@ sk_kernel(const __grid_constant__ CUtensorMap xmap, const uint8_t* __restrict__ 
     named_bar(1, NC);
     if constexpr (CL > 1) {
         cluster_wait();
-        mbar_wait<false>(qbar, 0, dead, diag, 32);
+        mbar_wait_cluster(qbar, 0, dead, diag, 32);
     }
     constexpr int R4 = R / 4;
     for (int idx = tid; idx < R4 * M; idx += NC) {
@@ -803,13 +838,17 @@ sk_kernel(const __grid_constant__ CUtensorMap xmap, const uint8_t* __restrict__ 
             *reinterpret_cast<float4*>(rpart + ((size_t)rq * M + tt) * 256 + rbk * 8 + row) = v;
         }
         // Classic last-block reduction: every writer fences before the counter, the last
-        // arrival fences again before reading the other pieces through L2. The counter is
-        // monotonic (launches are stream-ordered), so it needs no reset.
+        // arrival fences again before reading the other pieces through L2, and zeroes the
+        // counter for the next launch (stream-ordered, so every piece has arrived by then).
         __threadfence();
         named_bar(1, NC);
         if (tid == 0) {
             const int old = atomicAdd(rcount + rbk, 1);
-            *last_flag = ((old + 1) % npiece == 0) ? 1 : 0;
+            const int last = old + 1 == npiece;
+            if (last) {
+                rcount[rbk] = 0;
+            }
+            *last_flag = last;
         }
         named_bar(1, NC);
         if (*last_flag) {
@@ -1643,17 +1682,18 @@ def _build_fused(ext, state, packed_pooler, gen, diag):
     hi = router.to(torch.bfloat16)
     lo = (router - hi.float()).to(torch.bfloat16)
     units = hilo_units(bf16_bits(hi), bf16_bits(lo))
-    rpart = torch.zeros((8, 16, 256), dtype=torch.float32, device=dev)
-    rcount = torch.zeros(32, dtype=torch.int32, device=dev)
     fused = {}
     for b, nm in ((8, "pool8"), (16, "pool16")):
+        rpart = torch.zeros((8, 16, 256), dtype=torch.float32, device=dev)
+        rcount = torch.zeros(32, dtype=torch.int32, device=dev)
         g = _sk_geom(nm)
         rstream = stage_stream(units, _fused_router_geom(nm), router.shape[0])
         tab, pmax = packed_pooler["tabs"][(g["R"], pooler.shape[0])]
         stream, base4 = packed_pooler["streams"][nm], packed_pooler["base4"]
         cid = SK_INDEX[nm + "f"]
 
-        def run(x, cid=cid, stream=stream, rstream=rstream, tab=tab, pmax=pmax, base4=base4):
+        def run(x, cid=cid, stream=stream, rstream=rstream, tab=tab, pmax=pmax, base4=base4, rpart=rpart,
+                rcount=rcount):
             m = x.shape[0]
             out = torch.empty((m, pooler.shape[0]), dtype=torch.bfloat16, device=x.device)
             rout = torch.empty((m, router.shape[0]), dtype=torch.float32, device=x.device)

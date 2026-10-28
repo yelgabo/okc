@@ -122,8 +122,9 @@ of `pieces = ncta / 32` (8 pieces of 2 stages at T <= 8, 4 of 4 at T <= 16), hi 
 (2048 B per 64-k unit, `rws` = `stage_stream(hilo_units, _fused_router_geom(name), 256)`),
 every consumer warp taking `UPS / NW` units. The piece's per-warp partials go through the ring,
 one float4 per (token, 4 rows) is stored to `rpart[piece][T][256]` (f32 scratch, at least
-`[8, 16, 256]`), `__threadfence`, then one `atomicAdd` on `rcount[row block]` (int32[32],
-monotonic, never reset: the last arrival of each launch is `(old + 1) % pieces == 0`); the last
+`[8, 16, 256]`), `__threadfence`, then one `atomicAdd` on `rcount[row block]` (int32[32]; the last arrival,
+`old + 1 == pieces`, zeroes the counter for the next launch, so configs with different piece
+counts may alternate; scratch is allocated per config); the last
 CTA of a row block sums the pieces through L2 (`__ldcg`) and writes `rout[T][256]` f32. `out`
 is the pooler result as in `sk_fwd`. x is the same `[T, 8192]` tensor for both products.
 
