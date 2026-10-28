@@ -482,6 +482,13 @@ constexpr int cproj_smem_bytes() {
            NST * 8 * xs_stride<CCH>() * 2 + 8 * WARPS * 16 * 4;
 }
 
+// Volatile, so the compiler keeps it ahead of the cp.async prologue.
+__device__ __forceinline__ unsigned ld_u32_inorder(const unsigned* p) {
+    unsigned v;
+    asm volatile("ld.global.nc.u32 %0, [%1];\n" : "=r"(v) : "l"(p));
+    return v;
+}
+
 __device__ __forceinline__ unsigned pick(const uint4& v, int j) {
     return j == 0 ? v.x : j == 1 ? v.y : j == 2 ? v.z : v.w;
 }
@@ -492,7 +499,7 @@ __device__ __forceinline__ unsigned pick(const uint4& v, int j) {
 // shuffle and gives wrong results; only the bench uses it, to time the decode. So does
 // EXC = false, which ignores escaped tiles and drops their shared memory. NST: pipeline stages.
 template <int WARPS, int S, bool DUMP, int ACCS = 2, bool EXC_SELECT = true,
-          bool NODECODE = false, bool EXC = true, int NST = STAGES>
+          bool NODECODE = false, bool EXC = true, int NST = STAGES, bool DESC_FIRST = true>
 __global__ void __cluster_dims__(1, S, 1) __launch_bounds__(WARPS * 32)
 cproj_kernel(const uint4* __restrict__ wc, const unsigned* __restrict__ desc,
              const uint4* __restrict__ exc, unsigned base4, const __nv_bfloat16* __restrict__ x,
@@ -552,14 +559,19 @@ cproj_kernel(const uint4* __restrict__ wc, const unsigned* __restrict__ desc,
         }
     };
 
-    // The descriptor load waits behind the first stages' weight loads, not in front of them.
+    // DESC_FIRST issues the descriptor load ahead of the first stages' weights. Behind them it
+    // returns only after that flood, and chunk 0 then also waits for the escaped tiles it
+    // points to: one more loaded-memory latency before the pipeline starts.
+    if (DESC_FIRST && EXC && lane < chunks) {
+        my_desc = ld_u32_inorder(desc + (size_t)tile * ch_total + kt0 / CCH + lane);
+    }
 #pragma unroll
     for (int s = 0; s < NST - 1; ++s) {
         if (s < chunks) {
             load_main(s, s);
         }
     }
-    if (EXC && lane < chunks) {
+    if (!DESC_FIRST && EXC && lane < chunks) {
         my_desc = desc[(size_t)tile * ch_total + kt0 / CCH + lane];
     }
     warp_first = __shfl_sync(0xffffffff, my_desc, 0) >> 8;
@@ -697,12 +709,13 @@ cproj_kernel(const uint4* __restrict__ wc, const unsigned* __restrict__ desc,
 }
 
 template <int S, bool DUMP, int ACCS = 2, bool EXC_SELECT = true, bool NODECODE = false,
-          bool EXC = true, int NST = STAGES>
+          bool EXC = true, int NST = STAGES, bool DESC_FIRST = true>
 void cproj_launch(const uint4* wc, const unsigned* desc, const uint4* exc, unsigned base4,
                   const __nv_bfloat16* xp, __nv_bfloat16* op, uint4* dump, int m, int n, int k,
                   cudaStream_t stream) {
     constexpr int smem = cproj_smem_bytes<CWARPS, EXC, NST>();
-    const auto kernel = cproj_kernel<CWARPS, S, DUMP, ACCS, EXC_SELECT, NODECODE, EXC, NST>;
+    const auto kernel =
+        cproj_kernel<CWARPS, S, DUMP, ACCS, EXC_SELECT, NODECODE, EXC, NST, DESC_FIRST>;
     static bool configured = false;
     if (!configured) {
         cudaFuncSetAttribute(kernel, cudaFuncAttributeMaxDynamicSharedMemorySize, smem);

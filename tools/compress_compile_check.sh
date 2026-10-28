@@ -18,10 +18,10 @@ extra = "".join(
     f"template void cproj_launch<{s}, {d}>(const uint4*, const unsigned*, const uint4*, unsigned, "
     f"const __nv_bfloat16*, __nv_bfloat16*, uint4*, int, int, int, cudaStream_t);\n"
     for s in (2, 4, 8) for d in ("false", "true"))
-# Other variants (accs, exc_select, nodecode, exc, stages) that tools/compress_make_bench.py
-# can time.
+# Other variants (accs, exc_select, nodecode, exc, stages; descriptor after the weights) that
+# tools/compress_make_bench.py can time.
 extra += "".join(
-    f"template void cproj_launch<4, false, {a}, {e}, {nd}, {ex}, {st}>(const uint4*, "
+    f"template void cproj_launch<4, false, {a}, {e}, {nd}, {ex}, {st}, false>(const uint4*, "
     f"const unsigned*, const uint4*, unsigned, const __nv_bfloat16*, __nv_bfloat16*, uint4*, "
     f"int, int, int, cudaStream_t);\n"
     for a, e, nd, ex, st in ((1, "true", "false", "true", 4), (1, "false", "false", "true", 4),

@@ -11,21 +11,22 @@ import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
-# (accs, exc_select, nodecode, exc, stages). NODECODE and EXC = false give wrong results; they
-# time the decode and the escaped-tile handling (and its shared memory).
-VARIANTS = [(2, "true", "false", "true", 4), (1, "true", "false", "true", 4),
-            (2, "true", "false", "false", 4)]
+# (accs, exc_select, nodecode, exc, stages, desc_first). NODECODE and EXC = false give wrong
+# results; they time the decode and the escaped-tile handling (and its shared memory).
+VARIANTS = [(2, "true", "false", "true", 4, "true"), (2, "true", "false", "true", 4, "false"),
+            (2, "true", "false", "false", 4, "true")]
 
 
 def main(out):
     cases = "\n".join(
-        f"        case {i}: cproj_launch<S, false, {a}, {e}, {nd}, {ex}, {st}>"
+        f"        case {i}: cproj_launch<S, false, {a}, {e}, {nd}, {ex}, {st}, {df}>"
         f"(wc, desc, exc, base4, xp, op, nullptr, m, n, k, stream); break;"
-        for i, (a, e, nd, ex, st) in enumerate(VARIANTS))
+        for i, (a, e, nd, ex, st, df) in enumerate(VARIANTS))
     occ_cases = "\n".join(
         f"        case {i}: return max_clusters(cproj_kernel<CWARPS, S, false, {a}, {e}, {nd}, "
-        f"{ex}, {st}>, n / (CWARPS * 16), S, CWARPS * 32, cproj_smem_bytes<CWARPS, {ex}, {st}>());"
-        for i, (a, e, nd, ex, st) in enumerate(VARIANTS))
+        f"{ex}, {st}, {df}>, n / (CWARPS * 16), S, CWARPS * 32, "
+        f"cproj_smem_bytes<CWARPS, {ex}, {st}>());"
+        for i, (a, e, nd, ex, st, df) in enumerate(VARIANTS))
     bench_fn = f'''
 namespace {{
 template <int S>
@@ -145,13 +146,13 @@ def _run_cbench(state):
             us = _cbench_time(lambda: state["proj_fused"](x, state["proj_packed"][layer], n), flush)
             row.append(f"proj {{us:5.1f}}")
             clusters = [ext.cproj_clusters(-1, n, w.shape[1])]
-            for v, (accs, sel, nodecode, use_exc, stages) in enumerate(_CBENCH_VARIANTS):
+            for v, (accs, sel, nodecode, use_exc, stages, df) in enumerate(_CBENCH_VARIANTS):
                 out = ext.cproj_bench(x, main, desc, exc, base, v)
                 err = ((out.double() - ref).norm() / ref.norm()).item()
                 exact = nodecode == "false" and use_exc == "true"
                 ok = "ok" if err < 5e-3 else f"err {{err:.1e}}"
                 us = _cbench_time(lambda: ext.cproj_bench(x, main, desc, exc, base, v), flush)
-                tag = f"{{'exc' if use_exc == 'true' else 'noexc'}}-st{{stages}}"
+                tag = f"{{'exc' if use_exc == 'true' else 'noexc'}}-st{{stages}}-df{{df[0]}}"
                 row.append(f"{{tag}} {{us:5.1f}} {{ok if exact else '-'}}")
                 clusters.append(ext.cproj_clusters(v, n, w.shape[1]))
             print(f"CBENCH {{layer:9s}} m={{m}} " + " | ".join(row))
