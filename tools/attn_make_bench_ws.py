@@ -130,7 +130,8 @@ void run_gather(torch::Tensor& pt, torch::Tensor& seq_lens, torch::Tensor& kc, t
     dim3 grid(splits, batch, R == 64 ? 2 : 1);
     gather_kernel<R, UU, P><<<grid, 256, 0, at::cuda::getCurrentCUDAStream()>>>(
         pt.data_ptr<int>(), static_cast<int>(pt.size(1)), seq_lens.data_ptr<int>(),
-        reinterpret_cast<const uint4*>(kc.data_ptr()), reinterpret_cast<const uint4*>(vc.data_ptr()),
+        reinterpret_cast<const uint4*>(kc.data_ptr()),
+        reinterpret_cast<const uint4*>(vc.data_ptr()),
         splits, reinterpret_cast<unsigned*>(out.data_ptr<int>()));
 }
 
@@ -171,9 +172,11 @@ void chase(torch::Tensor pt, torch::Tensor kc, int64_t rows, int64_t n, bool row
     auto stream = at::cuda::getCurrentCUDAStream();
     const auto* k = reinterpret_cast<const uint32_t*>(kc.data_ptr());
     if (row_only) {
-        chase_kernel<1><<<1, 1, 0, stream>>>(pt.data_ptr<int>(), k, rows, n, out.data_ptr<int64_t>());
+        chase_kernel<1><<<1, 1, 0, stream>>>(pt.data_ptr<int>(), k, rows, n,
+                                             out.data_ptr<int64_t>());
     } else {
-        chase_kernel<0><<<1, 1, 0, stream>>>(pt.data_ptr<int>(), k, rows, n, out.data_ptr<int64_t>());
+        chase_kernel<0><<<1, 1, 0, stream>>>(pt.data_ptr<int>(), k, rows, n,
+                                             out.data_ptr<int64_t>());
     }
 }
 '''
@@ -321,8 +324,8 @@ def _ws_stamps(data, cfg_splits):
     nload = max(t[16], 1)
     load = " ".join(f"{{n}}={{t[9 + k] / nload / max(tiles, 1):.0f}}"
                     for k, n in enumerate(_WS_LOADER))
-    return (f"pw={{t[16]}} timeout_flags={{t[0]}} tiles={{tiles}} ctas={{ctas}} cycles per tile per "
-            f"math warp: {{math}} | per loader warp per tile: {{load}}")
+    return (f"pw={{t[16]}} timeout_flags={{t[0]}} tiles={{tiles}} ctas={{ctas}} cycles per tile "
+            f"per math warp: {{math}} | per loader warp per tile: {{load}}")
 
 
 def _ws_bench():

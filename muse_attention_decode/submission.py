@@ -1,5 +1,5 @@
 # okc: problem=muse_attention_decode
-"""Gated attention decode for Muse Spark Open on one H200, three paths by shape:
+"""Gated attention decode for Muse Spark Open on one H200, four paths by shape:
 
   q_len 1, except full layers at batch 1: one fused kernel (attn_fused). Each CTA takes one
       request and a slice of its context and covers both KV heads, so every gathered 128-byte
@@ -9,7 +9,14 @@
       rotates and writes the block's new K/V to the cache and attends them. Sliding layers
       merge the splits inside a thread-block cluster and apply the norm-gate in the same
       launch; full layers write partials and merge with the norm-gate in a second launch.
-  everything else (q_len 8, full layers at batch 1, other head counts): one prep launch (norm,
+  q_len 8, except full layers at batch 1: a warp-specialized kernel (attn_ws). Each CTA takes
+      one request and a slice of its context; one warpgroup per KV head covers its 64 query
+      rows (8 tokens x 8 heads) with FP8 Q.K and f16 P.V on wgmma, and four loader warps
+      gather the 128-byte K/V rows by cp.async into a 7-stage ring, convert the values to f16
+      three tiles later and release each tile through an mbarrier, so the loop has no
+      block-wide barrier. The last split writes and attends the block's new K/V. A second
+      launch merges the splits and applies the norm-gate.
+  everything else (full layers at batch 1 or 2, other head counts): one prep launch (norm,
       RoPE, FP8 query, cache write), SGLang's FA3 call, one norm-gate launch.
   _sglang: SGLang's own sequence, kept as the fallback if an extension fails to build.
 
@@ -1858,7 +1865,8 @@ __global__ void __launch_bounds__(CONSUMERS + 32 * PW, 1) attn_ws_kernel(const P
                             uint8_t* dst = vb + j * VH_HEAD + ((t >> 3) * 8 + 2 * cq) * 128
                                            + (t & 7) * 16;
                             *reinterpret_cast<uint4*>(dst) = f16_from_fp8x8<VAR & 1>(w.x, w.y);
-                            *reinterpret_cast<uint4*>(dst + 128) = f16_from_fp8x8<VAR & 1>(w.z, w.w);
+                            *reinterpret_cast<uint4*>(dst + 128) =
+                                f16_from_fp8x8<VAR & 1>(w.z, w.w);
                         }
                     }
                     if constexpr ((VAR & 2) == 0) {
@@ -1907,7 +1915,8 @@ __global__ void __launch_bounds__(CONSUMERS + 32 * PW, 1) attn_ws_kernel(const P
             const uint32_t ws[4] = {w.x, w.y, w.z, w.w};
 #pragma unroll
             for (int e = 0; e < 4; ++e) {
-                const float2 f = __bfloat1622float2(*reinterpret_cast<const __nv_bfloat162*>(&ws[e]));
+                const float2 f =
+                    __bfloat1622float2(*reinterpret_cast<const __nv_bfloat162*>(&ws[e]));
                 x[8 * v + 2 * e] = f.x;
                 x[8 * v + 2 * e + 1] = f.y;
             }
@@ -2257,8 +2266,8 @@ __device__ __forceinline__ float2 load_gate(const __nv_bfloat16* qkv, size_t tok
 // the norm-gate: one warp per (token, query head).
 __global__ void ws_combine_kernel(const float* __restrict__ ws,
                                   const __nv_bfloat16* __restrict__ qkv,
-                                  const float* __restrict__ v_scale, __nv_bfloat16* __restrict__ out,
-                                  int nparts, float vmul) {
+                                  const float* __restrict__ v_scale,
+                                  __nv_bfloat16* __restrict__ out, int nparts, float vmul) {
     const int tok = blockIdx.x;
     const int b = tok / L;
     const int j = tok % L;
@@ -2285,7 +2294,8 @@ __global__ void ws_combine_kernel(const float* __restrict__ ws,
 #pragma unroll 8
         for (int k = 0; k < cnt; ++k) {
             const float wk = __shfl_sync(0xffffffffu, w, k);
-            const float2 v = *reinterpret_cast<const float2*>(base + (s0 + k) * stride + 2 + 2 * lane);
+            const float2 v =
+                *reinterpret_cast<const float2*>(base + (s0 + k) * stride + 2 + 2 * lane);
             acc.x += wk * v.x;
             acc.y += wk * v.y;
         }
@@ -2391,9 +2401,9 @@ torch::Tensor attn_ws(torch::Tensor qkv, torch::Tensor page_table, torch::Tensor
     } else {
         launch_var<7, 3, 0, 0>(p, batch, stream);
     }
-    ws_combine_kernel<<<batch * L, HQ * 32, 0, stream>>>(p.ws, p.qkv, p.v_scale,
-                                                          reinterpret_cast<__nv_bfloat16*>(out.data_ptr()),
-                                                          splits, (var & 1) ? 256.f : 1.f);
+    ws_combine_kernel<<<batch * L, HQ * 32, 0, stream>>>(
+        p.ws, p.qkv, p.v_scale, reinterpret_cast<__nv_bfloat16*>(out.data_ptr()), splits,
+        (var & 1) ? 256.f : 1.f);
     return out;
 }
 """

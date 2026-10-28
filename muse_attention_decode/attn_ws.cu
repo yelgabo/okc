@@ -413,7 +413,8 @@ __global__ void __launch_bounds__(CONSUMERS + 32 * PW, 1) attn_ws_kernel(const P
                             uint8_t* dst = vb + j * VH_HEAD + ((t >> 3) * 8 + 2 * cq) * 128
                                            + (t & 7) * 16;
                             *reinterpret_cast<uint4*>(dst) = f16_from_fp8x8<VAR & 1>(w.x, w.y);
-                            *reinterpret_cast<uint4*>(dst + 128) = f16_from_fp8x8<VAR & 1>(w.z, w.w);
+                            *reinterpret_cast<uint4*>(dst + 128) =
+                                f16_from_fp8x8<VAR & 1>(w.z, w.w);
                         }
                     }
                     if constexpr ((VAR & 2) == 0) {
@@ -462,7 +463,8 @@ __global__ void __launch_bounds__(CONSUMERS + 32 * PW, 1) attn_ws_kernel(const P
             const uint32_t ws[4] = {w.x, w.y, w.z, w.w};
 #pragma unroll
             for (int e = 0; e < 4; ++e) {
-                const float2 f = __bfloat1622float2(*reinterpret_cast<const __nv_bfloat162*>(&ws[e]));
+                const float2 f =
+                    __bfloat1622float2(*reinterpret_cast<const __nv_bfloat162*>(&ws[e]));
                 x[8 * v + 2 * e] = f.x;
                 x[8 * v + 2 * e + 1] = f.y;
             }
@@ -812,8 +814,8 @@ __device__ __forceinline__ float2 load_gate(const __nv_bfloat16* qkv, size_t tok
 // the norm-gate: one warp per (token, query head).
 __global__ void ws_combine_kernel(const float* __restrict__ ws,
                                   const __nv_bfloat16* __restrict__ qkv,
-                                  const float* __restrict__ v_scale, __nv_bfloat16* __restrict__ out,
-                                  int nparts, float vmul) {
+                                  const float* __restrict__ v_scale,
+                                  __nv_bfloat16* __restrict__ out, int nparts, float vmul) {
     const int tok = blockIdx.x;
     const int b = tok / L;
     const int j = tok % L;
@@ -840,7 +842,8 @@ __global__ void ws_combine_kernel(const float* __restrict__ ws,
 #pragma unroll 8
         for (int k = 0; k < cnt; ++k) {
             const float wk = __shfl_sync(0xffffffffu, w, k);
-            const float2 v = *reinterpret_cast<const float2*>(base + (s0 + k) * stride + 2 + 2 * lane);
+            const float2 v =
+                *reinterpret_cast<const float2*>(base + (s0 + k) * stride + 2 + 2 * lane);
             acc.x += wk * v.x;
             acc.y += wk * v.y;
         }
@@ -946,8 +949,8 @@ torch::Tensor attn_ws(torch::Tensor qkv, torch::Tensor page_table, torch::Tensor
     } else {
         launch_var<7, 3, 0, 0>(p, batch, stream);
     }
-    ws_combine_kernel<<<batch * L, HQ * 32, 0, stream>>>(p.ws, p.qkv, p.v_scale,
-                                                          reinterpret_cast<__nv_bfloat16*>(out.data_ptr()),
-                                                          splits, (var & 1) ? 256.f : 1.f);
+    ws_combine_kernel<<<batch * L, HQ * 32, 0, stream>>>(
+        p.ws, p.qkv, p.v_scale, reinterpret_cast<__nv_bfloat16*>(out.data_ptr()), splits,
+        (var & 1) ? 256.f : 1.f);
     return out;
 }
