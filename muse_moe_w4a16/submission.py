@@ -470,7 +470,7 @@ def _w4_policy(num_tokens, state):
 def _w4_fits(cfg, num_tokens):
     """A work item holds at most 8 * nt routes of one expert, and an expert gets at most
     num_tokens routes, so shared memory must hold min(8 * nt, num_tokens) rows."""
-    _, nt, rows, _, _, _, _ = W4_CONFIGS[cfg]
+    _, nt, rows, _, _, _, _, _ = W4_CONFIGS[cfg]
     return rows >= min(8 * nt, num_tokens)
 
 
@@ -493,27 +493,27 @@ def _ext():
 
 
 # W4A16 grouped GEMM for the routed experts (see _W4_SRC). A config is
-# (kind, nt, rows, s, w, d, mode): kind 1 is x @ W13^T with SwiGLU, kind 2 is inter @ W2^T;
-# nt n8 token tiles per work item; rows of x kept in shared memory (min(8 nt, bs)); s K splits;
-# w warps per block; d register stages of weights in flight per warp.
-# Check 42924d2c6e314921 dropped the losers: no K split with 16 or more rows, 2 warps per
-# block, 2 stages in flight.
+# (kind, nt, rows, s, w, d, mode, layout): kind 1 is x @ W13^T with SwiGLU, kind 2 is
+# inter @ W2^T; nt n8 token tiles per work item; rows of x kept in shared memory
+# (min(8 nt, bs)); s K splits; w warps per block; d register stages of weights in flight per
+# warp; mode 0 is the GEMM and 1 and 2 are timing-only variants (see w4_gemm_kernel); layout 0
+# or 1 as in w4_gemm_kernel. Checks 42924d2c6e314921 and 05924173c44046e9 pruned the losers
+# (no K split, 2 warps per block, 2 stages in flight, 32 rows).
 W4_CONFIGS = [
-    (1, 1, 1, 1, 2, 4, 0), (1, 1, 1, 2, 2, 4, 0), (1, 1, 1, 4, 4, 4, 0), (1, 1, 1, 8, 4, 4, 0),
-    (1, 1, 1, 4, 4, 8, 0),
-    (1, 1, 8, 1, 4, 4, 0), (1, 1, 8, 2, 4, 4, 0), (1, 1, 8, 4, 4, 4, 0), (1, 1, 8, 8, 4, 4, 0),
-    (1, 1, 8, 2, 4, 8, 0), (1, 1, 8, 4, 4, 8, 0), (1, 1, 8, 2, 8, 4, 0),
-    (1, 2, 16, 2, 4, 4, 0), (1, 2, 16, 4, 4, 4, 0), (1, 2, 16, 8, 4, 4, 0), (1, 2, 16, 4, 4, 8, 0),
-    (1, 2, 16, 4, 8, 4, 0),
-    (1, 4, 32, 4, 4, 4, 0), (1, 4, 32, 8, 4, 4, 0),
-    (2, 1, 1, 2, 4, 4, 0), (2, 1, 1, 4, 4, 4, 0), (2, 1, 1, 8, 4, 4, 0), (2, 1, 1, 8, 2, 4, 0),
-    (2, 1, 1, 4, 4, 8, 0),
-    (2, 1, 8, 2, 4, 4, 0), (2, 1, 8, 4, 4, 4, 0), (2, 1, 8, 8, 4, 4, 0), (2, 1, 8, 4, 4, 8, 0),
-    (2, 2, 16, 2, 4, 4, 0), (2, 2, 16, 4, 4, 4, 0), (2, 2, 16, 8, 4, 4, 0), (2, 2, 16, 4, 4, 8, 0),
-    (2, 4, 32, 4, 4, 4, 0), (2, 4, 32, 8, 4, 4, 0),
-    # Timing only (wrong results): mode 1 loads without dequant or mma, mode 2 skips dequant.
-    (1, 1, 8, 2, 4, 4, 1), (1, 1, 8, 4, 4, 4, 1), (1, 1, 8, 2, 4, 4, 2), (1, 1, 8, 4, 4, 4, 2),
-    (2, 1, 8, 4, 4, 4, 1), (2, 1, 8, 4, 4, 4, 2), (1, 2, 16, 4, 4, 4, 1), (1, 2, 16, 4, 4, 4, 2),
+    (1, 1, 1, 4, 4, 4, 0, 0), (1, 1, 8, 2, 4, 4, 0, 0), (1, 1, 8, 4, 4, 4, 0, 0),
+    (1, 1, 8, 2, 4, 8, 0, 0), (1, 1, 8, 2, 8, 4, 0, 0), (1, 2, 16, 4, 4, 4, 0, 0),
+    (1, 2, 16, 2, 4, 4, 0, 0), (1, 2, 16, 4, 8, 4, 0, 0),
+    (2, 1, 1, 4, 4, 8, 0, 0), (2, 1, 1, 4, 4, 4, 0, 0), (2, 1, 8, 4, 4, 4, 0, 0),
+    (2, 1, 8, 2, 4, 4, 0, 0), (2, 2, 16, 4, 4, 4, 0, 0), (2, 2, 16, 2, 4, 4, 0, 0),
+    (2, 4, 32, 4, 4, 4, 0, 0),
+    (1, 1, 8, 2, 4, 4, 0, 1), (1, 1, 8, 4, 4, 4, 0, 1), (1, 1, 8, 2, 4, 8, 0, 1),
+    (1, 1, 8, 2, 8, 4, 0, 1), (1, 1, 8, 4, 8, 4, 0, 1), (1, 1, 8, 8, 8, 4, 0, 1),
+    (1, 2, 16, 4, 4, 4, 0, 1), (1, 2, 16, 4, 8, 4, 0, 1), (1, 2, 16, 2, 8, 4, 0, 1),
+    (2, 1, 1, 4, 4, 8, 0, 1), (2, 1, 1, 4, 8, 4, 0, 1), (2, 1, 8, 4, 4, 4, 0, 1),
+    (2, 1, 8, 4, 8, 4, 0, 1), (2, 1, 8, 8, 8, 4, 0, 1), (2, 2, 16, 4, 4, 4, 0, 1),
+    (2, 2, 16, 4, 8, 4, 0, 1),
+    # Timing only: weight and activation loads without dequant or mma, in both layouts.
+    (1, 1, 8, 4, 4, 4, 1, 0), (1, 1, 8, 4, 4, 4, 1, 1), (1, 1, 8, 4, 8, 4, 1, 1),
 ]
 
 _W4_CPP_SRC = r"""
@@ -606,7 +606,9 @@ __device__ __forceinline__ unsigned word(const uint4& v, int i) {
 // the item's activation rows for this K split sit in shared memory and feed mma as B.
 // MODE 0 is the GEMM. MODE 1 (timing only) streams the same weights and activations but
 // skips dequant and mma; MODE 2 (timing only) runs mma on the raw words without dequant.
-template <int KIND, int NT, int ROWS, int S, int W, int D, int MODE>
+// LAYOUT 0 stores each unit's 64 k stages contiguously; LAYOUT 1 interleaves 8 neighbouring
+// units stage by stage, so the warps of a block read one contiguous stretch per stage.
+template <int KIND, int NT, int ROWS, int S, int W, int D, int MODE, int LAYOUT>
 __global__ void __launch_bounds__(W * 32) w4_gemm_kernel(
         const __nv_bfloat16* __restrict__ act, const uint4* __restrict__ wq,
         const uint4* __restrict__ wsc, const float* __restrict__ gs,
@@ -638,7 +640,11 @@ __global__ void __launch_bounds__(W * 32) w4_gemm_kernel(
     const int lane = threadIdx.x & 31;
     const int u = blockIdx.x * W + warp;
 
-    const size_t stage0 = static_cast<size_t>(e * U + u) * 64 + z * NST;
+    constexpr int WSTR = LAYOUT ? 8 * 64 : 64;
+    constexpr int SSTR = LAYOUT ? 8 * 8 : 8;
+    const size_t stage0 = LAYOUT
+        ? (static_cast<size_t>(e * (U / 8) + u / 8) * 64 + z * NST) * 8 + (u & 7)
+        : static_cast<size_t>(e * U + u) * 64 + z * NST;
     const uint4* wp = wq + stage0 * 64 + lane;
     const uint4* sp = wsc + stage0 * 8 + (lane >> 2);
     uint4 wv[D][2];
@@ -646,9 +652,9 @@ __global__ void __launch_bounds__(W * 32) w4_gemm_kernel(
 #pragma unroll
     for (int d = 0; d < D; ++d) {
         if (d < NST) {
-            wv[d][0] = ld_stream(wp + d * 64);
-            wv[d][1] = ld_stream(wp + d * 64 + 32);
-            sv[d] = ld_stream(sp + d * 8);
+            wv[d][0] = ld_stream(wp + d * WSTR);
+            wv[d][1] = ld_stream(wp + d * WSTR + 32);
+            sv[d] = ld_stream(sp + d * SSTR);
         }
     }
 
@@ -730,9 +736,9 @@ __global__ void __launch_bounds__(W * 32) w4_gemm_kernel(
             }
             if (s < NST) {
                 if (s + D < NST) {
-                    wv[d][0] = ld_stream(wp + (s + D) * 64);
-                    wv[d][1] = ld_stream(wp + (s + D) * 64 + 32);
-                    sv[d] = ld_stream(sp + (s + D) * 8);
+                    wv[d][0] = ld_stream(wp + (s + D) * WSTR);
+                    wv[d][1] = ld_stream(wp + (s + D) * WSTR + 32);
+                    sv[d] = ld_stream(sp + (s + D) * SSTR);
                 }
             }
         }
@@ -936,13 +942,13 @@ void launch_pdl(Kern kern, dim3 grid, int threads, int smem, bool pdl, cudaStrea
     C10_CUDA_CHECK(cudaLaunchKernelEx(&cfg, kern, args...));
 }
 
-template <int KIND, int NT, int ROWS, int S, int W, int D, int MODE>
+template <int KIND, int NT, int ROWS, int S, int W, int D, int MODE, int LAYOUT>
 void w4_launch(const __nv_bfloat16* act, const uint4* wq, const uint4* wsc, const float* gs,
                const int* sorted_ids, const int2* items, const int* num_items, int max_items,
                int numel, void* out, bool pdl, cudaStream_t stream) {
     constexpr int U = KIND == 1 ? 256 : 128;
     constexpr int smem = ROWS * (kK / S + 8) * 2;
-    auto kern = w4_gemm_kernel<KIND, NT, ROWS, S, W, D, MODE>;
+    auto kern = w4_gemm_kernel<KIND, NT, ROWS, S, W, D, MODE, LAYOUT>;
     static bool attr = false;
     if (!attr) {
         C10_CUDA_CHECK(cudaFuncSetAttribute(
@@ -954,10 +960,10 @@ void w4_launch(const __nv_bfloat16* act, const uint4* wq, const uint4* wsc, cons
 }
 
 // Registers per thread, dynamic shared memory per block, and resident blocks per SM.
-template <int KIND, int NT, int ROWS, int S, int W, int D, int MODE>
+template <int KIND, int NT, int ROWS, int S, int W, int D, int MODE, int LAYOUT>
 std::vector<int64_t> w4_query() {
     constexpr int smem = ROWS * (kK / S + 8) * 2;
-    auto kern = w4_gemm_kernel<KIND, NT, ROWS, S, W, D, MODE>;
+    auto kern = w4_gemm_kernel<KIND, NT, ROWS, S, W, D, MODE, LAYOUT>;
     C10_CUDA_CHECK(cudaFuncSetAttribute(
         kern, cudaFuncAttributeMaxDynamicSharedMemorySize, smem));
     cudaFuncAttributes attr;
@@ -1104,6 +1110,13 @@ def w4_repack_values(packed, kind):
     return out
 
 
+def w4_group_units(a, per_unit):
+    """Layout 0 [unit][stage][...] -> layout 1 [unit / 8][stage][unit % 8][...] (a flat array
+    of whole experts; per_unit elements per unit, 64 stages each)."""
+    per_stage = per_unit // 64
+    return _perm(a.reshape(-1, 8, 64, per_stage), (0, 2, 1, 3)).reshape(-1)
+
+
 def w4_repack_scales(sf, kind):
     """One expert's E4M3 block-scale bytes [N, K/16] -> bytes in the order
     [unit][stage][g][k block 0-3][tile][row g or g + 8]: 16 bytes per lane group per stage."""
@@ -1152,6 +1165,8 @@ def _w4_prepare(weights, start, count):
             scales.append(w4_repack_scales(sf[e], kind).contiguous())
         out[name] = torch.cat(words).contiguous()
         out[name + "_s"] = torch.cat(scales).contiguous()
+        out[name + "g"] = w4_group_units(out[name], 64 * 256)
+        out[name + "g_s"] = w4_group_units(out[name + "_s"], 64 * 128)
         out[name + "_gs"] = weights[name + "_gs"][start:start + count].float().contiguous()
     torch.cuda.synchronize(device)
     return out
@@ -1289,13 +1304,14 @@ def _forward(data, state, opts):
 def _w4_gemm1(w4, cfg, x, sorted_ids, items, num_items, local_ids, numel, inter, pdl=False):
     """inter[route] = SwiGLU(x[token] @ W13[expert]^T) for every local route, in bf16."""
     splits = W4_CONFIGS[cfg][3]
+    name = "w13g" if W4_CONFIGS[cfg][7] else "w13"
     ext = _w4_ext()
     if splits == 1:
-        ext.w4_gemm(cfg, x, w4["w13"], w4["w13_s"], w4["w13_gs"], sorted_ids, items, num_items,
-                    numel, inter, pdl)
+        ext.w4_gemm(cfg, x, w4[name], w4[name + "_s"], w4["w13_gs"], sorted_ids, items,
+                    num_items, numel, inter, pdl)
         return
     part = torch.empty((splits, numel, 2 * 4096), device=x.device, dtype=torch.float32)
-    ext.w4_gemm(cfg, x, w4["w13"], w4["w13_s"], w4["w13_gs"], sorted_ids, items, num_items,
+    ext.w4_gemm(cfg, x, w4[name], w4[name + "_s"], w4["w13_gs"], sorted_ids, items, num_items,
                 numel, part, pdl)
     ext.w4_swiglu(part, local_ids.view(-1), splits, inter, pdl)
 
@@ -1303,8 +1319,9 @@ def _w4_gemm1(w4, cfg, x, sorted_ids, items, num_items, local_ids, numel, inter,
 def _w4_gemm2(w4, cfg, inter, sorted_ids, items, num_items, numel, pdl=False):
     """FP32 K-split partials [splits, routes, 4096] of inter[route] @ W2[expert]^T."""
     splits = W4_CONFIGS[cfg][3]
+    name = "w2g" if W4_CONFIGS[cfg][7] else "w2"
     part = torch.empty((splits, numel, 4096), device=inter.device, dtype=torch.float32)
-    _w4_ext().w4_gemm(cfg, inter, w4["w2"], w4["w2_s"], w4["w2_gs"], sorted_ids, items,
+    _w4_ext().w4_gemm(cfg, inter, w4[name], w4[name + "_s"], w4["w2_gs"], sorted_ids, items,
                       num_items, numel, part, pdl)
     return part
 

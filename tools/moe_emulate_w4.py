@@ -16,7 +16,7 @@ import numpy as np
 
 ROOT = Path(__file__).resolve().parent.parent
 GRID = np.array([0.0, 0.5, 1.0, 1.5, 2.0, 3.0, 4.0, 6.0])
-NAMES = ("W4_BITPOS", "w4_unit_rows", "w4_repack_values", "w4_repack_scales")
+NAMES = ("W4_BITPOS", "w4_unit_rows", "w4_repack_values", "w4_repack_scales", "w4_group_units")
 
 
 def load_repack():
@@ -128,7 +128,34 @@ def epilogue_rows(kind):
     return ok
 
 
+def layout1(units, experts=3, seed=4):
+    """w4_group_units against the kernel's LAYOUT 1 addressing: the uint4 a warp loads for
+    (expert, unit, K split z of S, stage, half, lane), and its scale uint4, must be the ones
+    layout 0 puts at that unit's stage."""
+    ns = load_repack()
+    vals = np.arange(experts * units * 64 * 64)
+    scl = np.arange(experts * units * 64 * 8)
+    gv = ns["w4_group_units"](vals, 64 * 64)
+    gs = ns["w4_group_units"](scl, 64 * 8)
+    rng = np.random.default_rng(seed)
+    for _ in range(2000):
+        e, u = int(rng.integers(experts)), int(rng.integers(units))
+        splits = int(rng.choice([1, 2, 4, 8]))
+        nst = 64 // splits
+        z, s = int(rng.integers(splits)), int(rng.integers(nst))
+        h, lane = int(rng.integers(2)), int(rng.integers(32))
+        st0 = ((e * (units // 8) + u // 8) * 64 + z * nst) * 8 + (u & 7)
+        w1 = gv[st0 * 64 + lane + s * 512 + h * 32]
+        s1 = gs[st0 * 8 + lane // 4 + s * 64]
+        st = (e * units + u) * 64 + z * nst + s
+        if w1 != vals[st * 64 + h * 32 + lane] or s1 != scl[st * 8 + lane // 4]:
+            print("layout 1 mismatch", e, u, splits, z, s, h, lane)
+            return False
+    print(f"layout 1 addressing ok ({units} units)")
+    return True
+
+
 if __name__ == "__main__":
     ok = check(1, 64, 128, 1) and check(2, 64, 128, 2) and check(1, 128, 192, 3)
-    ok = ok and epilogue_rows(1) and epilogue_rows(2)
+    ok = ok and epilogue_rows(1) and epilogue_rows(2) and layout1(256) and layout1(128)
     print("OK" if ok else "FAILED")
