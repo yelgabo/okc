@@ -159,3 +159,15 @@ verify kernel, fenced variants only (var 16), job cb42811004a9440c, 1.321x (1.30
 from 1.291x. Sliding verify unchanged vs the f16 kernel; full verify about 8% slower (b16
 191.3 vs 175.8 us, b32 357.6 vs 331.7): about 3% is the fence, the rest the FP32 math, so the
 math warps are now at least partly on the critical path on full layers. Next: backlog A1.
+
+Update 2026-10-28:
+- muse_decode_layer resubmitted: verify kernel port + X1 (routing metadata on the side stream),
+  job 0e28c26271c94570, 1.403x (1.382-1.424), from 1.390x (its check bd28a84740ac4b84 was 1.433x).
+  X5 (no zero pad before the FFN boundary, check b216cf4adb0d4033 1.449x) is held back: its
+  boundary kernel keeps FP32 where SGLang's appears to round the branch to BF16, against
+  TASK.md's activation rule. Saved at muse_decode_layer/experiments/x5_unpadded_boundary.py.
+- muse_attention_decode: A1 (bounded-shift softmax, tau 8, var 272) submitted as
+  submission_a1.py, job 06966cba66924747, 1.315x (1.295-1.338): no gain over var 16's 1.321x.
+  Full verify b16 191.3 -> 193.6 us, b32 357.6 -> 364.7. Skipping rescales (emulated 18% -> 3%
+  of steps on full verify) saved nothing, so the rescale is not what the FP32 math costs. The
+  entry stays var 16 (submission.py).

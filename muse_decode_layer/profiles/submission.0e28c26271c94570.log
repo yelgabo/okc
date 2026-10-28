@@ -1,0 +1,124 @@
+prepare: SGLang state built (0.2 s)
+extension build: on (43.2 s)
+moe self-test: worst rel diff vs SGLang path 5.66e-04
+moe: on (1.5 s)
+TUNE g1 T=1 27:31.0 17:31.2 3:32.2 15:32.4 26:32.4 18:32.6 16:32.8 0:32.9 2:33.1 6:34.4 5:34.7 19:34.7 30:34.9 4:35.6 8:36.7 7:36.7 m:37.0 1:37.7
+TUNE g2 T=1 21:25.2 23:25.4 9:25.5 10:26.6 28:26.7 11:26.7 25:26.9 13:27.0 29:27.2 20:28.5 m:29.2 22:29.2 14:30.0 12:30.4 24:31.4
+TUNE MoE T=1 pdl=0,cl=1:54.3 pdl=0,cl=4:53.6 pdl=0,cl=8:53.8 pdl=1,cl=1:52.6 pdl=1,cl=4:52.6 pdl=1,cl=8:52.3
+TUNE g1 T=8 2:51.6 26:51.8 17:52.2 27:52.2 16:52.7 3:53.2 30:53.5 5:53.5 18:54.1 1:55.9 4:56.4 7:59.3 19:59.7 8:59.9 6:61.6 m:65.3
+TUNE g2 T=8 24:34.4 11:36.6 28:36.7 23:36.8 29:37.0 13:37.5 25:40.5 12:40.6 14:42.1 22:42.2 m:42.4
+TUNE MoE T=8 pdl=0,cl=1:83.8 pdl=0,cl=4:84.0 pdl=0,cl=8:84.3 pdl=1,cl=1:81.3 pdl=1,cl=4:81.2 pdl=1,cl=8:81.3
+TUNE g1 T=16 26:77.5 18:77.7 17:78.0 27:78.2 2:78.3 3:78.3 16:78.9 4:79.5 1:79.7 5:81.1 30:81.2 6:86.1 19:89.8 7:89.9 8:90.3 m:103.2
+TUNE g2 T=16 28:48.1 11:48.1 12:49.4 29:49.7 13:49.8 23:49.9 22:53.2 24:53.5 25:53.9 14:54.1 m:61.7
+TUNE MoE T=16 pdl=0,cl=1:122.9 pdl=0,cl=4:122.2 pdl=0,cl=8:122.3 pdl=1,cl=1:119.7 pdl=1,cl=4:119.8 pdl=1,cl=8:119.6
+TUNE g1 T=32 26:102.1 2:102.8 4:105.7 1:106.7 30:107.4 5:107.4 17:108.2 27:108.4 3:108.8 18:109.9 16:110.7 6:116.7 7:119.1 8:119.5 19:122.5 m:139.0
+TUNE g2 T=32 28:61.0 11:61.3 13:62.5 29:62.5 23:63.7 12:64.0 14:70.1 24:70.2 22:70.3 25:71.2 m:79.5
+TUNE MoE T=32 pdl=0,cl=1:159.8 pdl=0,cl=4:159.9 pdl=0,cl=8:159.8 pdl=1,cl=1:157.6 pdl=1,cl=4:157.4 pdl=1,cl=8:157.2
+TUNE g1 T=128 4:166.4 30:169.1 5:169.6 1:174.4 3:181.3 6:182.7 26:184.5 2:185.5 7:187.0 17:187.8 27:188.0 8:188.5 18:194.7 19:195.1 16:195.8 m:207.2
+TUNE g2 T=128 29:91.0 13:91.2 28:93.3 11:93.9 12:94.4 14:97.9 25:101.9 24:102.0 23:102.8 22:111.7 m:114.1
+TUNE MoE T=128 pdl=0,cl=1:254.5 pdl=0,cl=4:256.6 pdl=0,cl=8:256.4 pdl=1,cl=1:250.6 pdl=1,cl=4:252.8 pdl=1,cl=8:253.5
+TUNE g1 T=256 30:242.8 5:244.1 6:253.6 7:257.1 8:258.4 4:271.2 19:272.8 m:273.4 1:289.3 3:303.7 27:304.6 17:305.1 26:321.1 2:322.3 18:325.6 16:328.9
+TUNE g2 T=256 13:121.5 29:121.6 14:127.7 25:140.8 12:143.9 28:149.0 11:149.7 m:150.0 24:160.6 23:167.6 22:177.1
+TUNE MoE T=256 pdl=0,cl=1:361.8 pdl=0,cl=4:364.8 pdl=0,cl=8:365.4 pdl=1,cl=1:360.5 pdl=1,cl=4:362.6 pdl=1,cl=8:364.0
+TUNE policy {1: (27, 21, True, 8), 8: (2, 24, True, 4), 16: (26, 28, True, 8), 32: (26, 28, True, 8), 128: (4, 29, True, 1), 256: (30, 13, True, 1)}
+W4 repack 0.2 s, extension build 46.1 s, tuning 2.7 s
+W4TEST T=1 start=0 g1=27 g2=21: vs fp32 3.75e-03 (marlin path 4.83e-03)
+W4TEST T=1 start=96 g1=27 g2=21: vs fp32 3.98e-03 (marlin path 4.78e-03)
+W4TEST T=3 start=0 g1=2 g2=24: vs fp32 3.80e-03 (marlin path 4.81e-03)
+W4TEST T=3 start=96 g1=2 g2=24: vs fp32 3.83e-03 (marlin path 4.83e-03)
+W4TEST T=8 start=0 g1=2 g2=24: vs fp32 3.85e-03 (marlin path 4.86e-03)
+W4TEST T=8 start=96 g1=2 g2=24: vs fp32 3.83e-03 (marlin path 4.89e-03)
+W4TEST T=9 start=0 g1=26 g2=28: vs fp32 3.82e-03 (marlin path 4.87e-03)
+W4TEST T=9 start=96 g1=26 g2=28: vs fp32 3.86e-03 (marlin path 4.89e-03)
+W4TEST T=16 start=0 g1=26 g2=28: vs fp32 3.88e-03 (marlin path 4.86e-03)
+W4TEST T=16 start=96 g1=26 g2=28: vs fp32 3.77e-03 (marlin path 4.93e-03)
+W4TEST T=24 start=0 g1=26 g2=28: vs fp32 3.80e-03 (marlin path 4.88e-03)
+W4TEST T=24 start=96 g1=26 g2=28: vs fp32 3.84e-03 (marlin path 4.92e-03)
+W4TEST T=32 start=0 g1=26 g2=28: vs fp32 3.81e-03 (marlin path 4.92e-03)
+W4TEST T=32 start=96 g1=26 g2=28: vs fp32 3.83e-03 (marlin path 4.85e-03)
+W4TEST T=33 start=0 g1=4 g2=29: vs fp32 3.81e-03 (marlin path 4.85e-03)
+W4TEST T=33 start=96 g1=4 g2=29: vs fp32 3.81e-03 (marlin path 4.88e-03)
+W4TEST T=40 start=0 g1=4 g2=29: vs fp32 3.84e-03 (marlin path 4.89e-03)
+W4TEST T=40 start=96 g1=4 g2=29: vs fp32 3.79e-03 (marlin path 4.76e-03)
+W4TEST T=64 start=0 g1=4 g2=29: vs fp32 3.81e-03 (marlin path 4.85e-03)
+W4TEST T=64 start=96 g1=4 g2=29: vs fp32 3.82e-03 (marlin path 4.94e-03)
+W4TEST T=128 start=0 g1=4 g2=29: vs fp32 3.82e-03 (marlin path 4.88e-03)
+W4TEST T=128 start=96 g1=4 g2=29: vs fp32 3.84e-03 (marlin path 4.88e-03)
+W4TEST T=256 start=0 g1=30 g2=13: vs fp32 3.81e-03 (marlin path 4.88e-03)
+W4TEST T=256 start=96 g1=30 g2=13: vs fp32 3.86e-03 (marlin path 4.96e-03)
+W4TEST T=264 start=0 g1=30 g2=13: vs fp32 3.78e-03 (marlin path 4.80e-03)
+W4TEST T=264 start=96 g1=30 g2=13: vs fp32 3.82e-03 (marlin path 4.93e-03)
+W4TEST worst rel err vs fp32 3.98e-03
+moe w4: on (49.6 s)
+router self-test: ok
+router: on (0.0 s)
+proj self-test: ok
+proj: on (0.0 s)
+attn self-test case 0 1x1 sliding page 1 _attn_prep: output rel diff 3.95e-03
+attn self-test case 1 3x1 full page 1 _attn_prep: output rel diff 1.12e-02
+attn self-test case 2 5x1 sliding page 1 _attn_prep: output rel diff 1.81e-02
+attn self-test case 3 2x8 sliding page 1 _attn_prep: output rel diff 3.55e-02
+attn self-test case 4 3x8 full page 1 _attn_prep: output rel diff 2.68e-02
+attn self-test case 5 4x1 full page 64 _attn_prep: output rel diff 2.06e-02
+attn self-test case 6 2x8 sliding page 64 _attn_prep: output rel diff 2.82e-02
+attn self-test case 7 33x1 full page 1 _attn_prep: output rel diff 1.30e-02
+attn self-test case 8 2x1 full page 1 _attn_prep: output rel diff 3.92e-03
+attn self-test case 9 32x1 sliding page 1 _attn_prep: output rel diff 1.32e-02
+attn self-test case 10 16x1 full page 1 _attn_prep: output rel diff 1.16e-02
+attn self-test case 11 1x8 sliding page 1 _attn_prep: output rel diff 2.26e-02
+attn self-test case 12 16x8 full page 1 _attn_prep: output rel diff 2.79e-02
+attn self-test case 13 32x8 sliding page 1 _attn_prep: output rel diff 2.67e-02
+attn self-test case 14 4x8 sliding page 1 _attn_prep: output rel diff 3.62e-02
+attn self-test case 15 3x8 full page 64 _attn_prep: output rel diff 2.60e-02
+attn self-test case 16 5x8 full page 1 _attn_prep: output rel diff 3.01e-02
+attn self-test: norm-gate alone 0.00e+00
+attn self-test: worst rel diff vs SGLang path: output 3.62e-02, new cache rows 2.76e-02
+attn prep: on (0.9 s)
+attn self-test case 0 1x1 sliding page 1 _attn_fused: output rel diff 1.45e-02
+attn self-test case 1 3x1 full page 1 _attn_fused: output rel diff 1.98e-02
+attn self-test case 2 5x1 sliding page 1 _attn_fused: output rel diff 3.61e-02
+attn self-test case 3 2x8 sliding page 1 _attn_prep: output rel diff 3.55e-02
+attn self-test case 4 3x8 full page 1 _attn_prep: output rel diff 2.68e-02
+attn self-test case 5 4x1 full page 64 _attn_fused: output rel diff 2.09e-02
+attn self-test case 6 2x8 sliding page 64 _attn_prep: output rel diff 2.82e-02
+attn self-test case 7 33x1 full page 1 _attn_fused: output rel diff 1.81e-02
+attn self-test case 8 2x1 full page 1 _attn_prep: output rel diff 3.92e-03
+attn self-test case 9 32x1 sliding page 1 _attn_fused: output rel diff 2.11e-02
+attn self-test case 10 16x1 full page 1 _attn_fused: output rel diff 1.78e-02
+attn self-test case 11 1x8 sliding page 1 _attn_prep: output rel diff 2.26e-02
+attn self-test case 12 16x8 full page 1 _attn_prep: output rel diff 2.79e-02
+attn self-test case 13 32x8 sliding page 1 _attn_prep: output rel diff 2.67e-02
+attn self-test case 14 4x8 sliding page 1 _attn_prep: output rel diff 3.62e-02
+attn self-test case 15 3x8 full page 64 _attn_prep: output rel diff 2.60e-02
+attn self-test case 16 5x8 full page 1 _attn_prep: output rel diff 3.01e-02
+attn self-test: norm-gate alone 0.00e+00
+attn self-test: worst rel diff vs SGLang path: output 3.62e-02, new cache rows 2.76e-02
+attn fused: on (0.0 s)
+route-side self-test T=1: eager 0.00e+00, graph 0.00e+00
+route-side self-test T=8: eager 0.00e+00, graph 0.00e+00
+route-side self-test T=16: eager 0.00e+00, graph 0.00e+00
+route-side self-test T=32: eager 0.00e+00, graph 0.00e+00
+route-side self-test T=128: eager 0.00e+00, graph 0.00e+00
+route-side self-test T=256: eager 0.00e+00, graph 0.00e+00
+route side: on (0.0 s)
+attn self-test case 0 1x1 sliding page 1 _attn_fused: output rel diff 1.45e-02
+attn self-test case 1 3x1 full page 1 _attn_fused: output rel diff 1.98e-02
+attn self-test case 2 5x1 sliding page 1 _attn_fused: output rel diff 3.61e-02
+attn self-test case 3 2x8 sliding page 1 _attn_ws: output rel diff 3.53e-02
+attn self-test case 4 3x8 full page 1 _attn_ws: output rel diff 2.67e-02
+attn self-test case 5 4x1 full page 64 _attn_fused: output rel diff 2.09e-02
+attn self-test case 6 2x8 sliding page 64 _attn_ws: output rel diff 2.80e-02
+attn self-test case 7 33x1 full page 1 _attn_fused: output rel diff 1.81e-02
+attn self-test case 8 2x1 full page 1 _attn_prep: output rel diff 3.92e-03
+attn self-test case 9 32x1 sliding page 1 _attn_fused: output rel diff 2.11e-02
+attn self-test case 10 16x1 full page 1 _attn_fused: output rel diff 1.78e-02
+attn self-test case 11 1x8 sliding page 1 _attn_ws: output rel diff 2.25e-02
+attn self-test case 12 16x8 full page 1 _attn_ws: output rel diff 2.80e-02
+attn self-test case 13 32x8 sliding page 1 _attn_ws: output rel diff 2.77e-02
+attn self-test case 14 4x8 sliding page 1 _attn_ws: output rel diff 3.66e-02
+attn self-test case 15 3x8 full page 64 _attn_ws: output rel diff 2.57e-02
+attn self-test case 16 5x8 full page 1 _attn_ws: output rel diff 3.02e-02
+attn self-test: norm-gate alone 0.00e+00
+attn self-test: worst rel diff vs SGLang path: output 3.66e-02, new cache rows 2.76e-02
+attn ws: on (0.0 s)
+prepare: done (95.4 s)
