@@ -35,16 +35,27 @@ RENAME = (("repack_expert_fat", "moe1_repack_expert_fat"), ("repack_expert", "mo
           ("unit_rows", "moe1_unit_rows"))
 MAIN_NAMES = {0: "main-d2", 5: "main-d3"}
 
+# The load is a per-use ld.global.nc in inline asm, consumed where the host value was: a value
+# loaded once and kept in a register doubled the fat d2 kernel's spills (1268 B against 604),
+# whichever block held it, while this form leaves every kernel's allocation as in the source.
+LO_HELPER = (
+    "__device__ __forceinline__ int ld_lo(const int* p) {\n"
+    "    int v;\n"
+    "    asm volatile(\"ld.global.nc.s32 %0, [%1];\" : \"=r\"(v) : \"l\"(p));\n"
+    "    return v;\n"
+    "}\n\n"
+)
 CUDA_PATCHES = [
-    ("    int lo;\n    int nloc;\n",
-     "    int lo;\n    int nloc;\n"
+    ("    float eps;\n};\n",
+     "    float eps;\n"
      "    // The layer's local_start is an input tensor, read here instead of the host value.\n"
-     "    const int* lo_p;\n"),
-    ("    const int E = p.M * kTopK;\n",
-     "    const int E = p.M * kTopK;\n    const int lo_v = __ldg(p.lo_p);\n"),
-    ("                const int e = ev[k] - p.lo;\n", "                const int e = ev[k] - lo_v;\n"),
+     "    const int* lo_p;\n};\n"),
+    ("__device__ __forceinline__ int ld_acquire(const int* p) {\n",
+     LO_HELPER + "__device__ __forceinline__ int ld_acquire(const int* p) {\n"),
+    ("                const int e = ev[k] - p.lo;\n",
+     "                const int e = ev[k] - ld_lo(p.lo_p);\n"),
 ]
-SKINNY_PATCHES = CUDA_PATCHES[1:]
+SKINNY_PATCHES = CUDA_PATCHES[2:]
 
 
 def patch(text, patches):

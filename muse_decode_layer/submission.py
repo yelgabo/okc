@@ -6364,9 +6364,9 @@ struct Params {
     int M;
     int lo;
     int nloc;
+    float eps;
     // The layer's local_start is an input tensor, read here instead of the host value.
     const int* lo_p;
-    float eps;
 };
 
 
@@ -6412,6 +6412,12 @@ __device__ __forceinline__ void named_sync(int id, int count) {
 
 __device__ __forceinline__ void named_arrive(int id, int count) {
     asm volatile("bar.arrive %0, %1;" :: "r"(id), "r"(count) : "memory");
+}
+
+__device__ __forceinline__ int ld_lo(const int* p) {
+    int v;
+    asm volatile("ld.global.nc.s32 %0, [%1];" : "=r"(v) : "l"(p));
+    return v;
 }
 
 __device__ __forceinline__ int ld_acquire(const int* p) {
@@ -6887,7 +6893,6 @@ __global__ void __launch_bounds__(kNTL, 1) moe_fused_kernel(const Params p) {
     const int G = gridDim.x;
     const int cta = blockIdx.x;
     const int E = p.M * kTopK;
-    const int lo_v = __ldg(p.lo_p);
     // The generation picks this launch's sum-of-squares copy and barrier counter; the last
     // CTA through the barrier bumps it, after every CTA has read it.
     const int gen = *reinterpret_cast<volatile int*>(p.ctr + 3);
@@ -6915,7 +6920,7 @@ __global__ void __launch_bounds__(kNTL, 1) moe_fused_kernel(const Params p) {
             const int ev[4] = {v.x, v.y, v.z, v.w};
 #pragma unroll
             for (int k = 0; k < 4; ++k) {
-                const int e = ev[k] - lo_v;
+                const int e = ev[k] - ld_lo(p.lo_p);
                 const int eid = (i < E && e >= 0 && e < p.nloc) ? e : -1;
                 if (i < E) {
                     S.eid[i + k] = static_cast<signed char>(eid);
@@ -7326,7 +7331,6 @@ __global__ void __launch_bounds__(kNTL, 1) moe_fused_kernel(const Params p) {
     const int G = gridDim.x;
     const int cta = blockIdx.x;
     const int E = p.M * kTopK;
-    const int lo_v = __ldg(p.lo_p);
     // The generation picks this launch's sum-of-squares copy and barrier counter; the last
     // CTA through the barrier bumps it, after every CTA has read it.
     const int gen = *reinterpret_cast<volatile int*>(p.ctr + 3);
@@ -7354,7 +7358,7 @@ __global__ void __launch_bounds__(kNTL, 1) moe_fused_kernel(const Params p) {
             const int ev[4] = {v.x, v.y, v.z, v.w};
 #pragma unroll
             for (int k = 0; k < 4; ++k) {
-                const int e = ev[k] - lo_v;
+                const int e = ev[k] - ld_lo(p.lo_p);
                 const int eid = (i < E && e >= 0 && e < p.nloc) ? e : -1;
                 if (i < E) {
                     S.eid[i + k] = static_cast<signed char>(eid);
@@ -7765,7 +7769,6 @@ __global__ void __launch_bounds__(kNTL, 1) moe_fused_kernel(const Params p) {
     const int G = gridDim.x;
     const int cta = blockIdx.x;
     const int E = p.M * kTopK;
-    const int lo_v = __ldg(p.lo_p);
     // The generation picks this launch's sum-of-squares copy and barrier counter; the last
     // CTA through the barrier bumps it, after every CTA has read it.
     const int gen = *reinterpret_cast<volatile int*>(p.ctr + 3);
@@ -7793,7 +7796,7 @@ __global__ void __launch_bounds__(kNTL, 1) moe_fused_kernel(const Params p) {
             const int ev[4] = {v.x, v.y, v.z, v.w};
 #pragma unroll
             for (int k = 0; k < 4; ++k) {
-                const int e = ev[k] - lo_v;
+                const int e = ev[k] - ld_lo(p.lo_p);
                 const int eid = (i < E && e >= 0 && e < p.nloc) ? e : -1;
                 if (i < E) {
                     S.eid[i + k] = static_cast<signed char>(eid);
@@ -8631,7 +8634,6 @@ __global__ void __launch_bounds__(kNTM, 1) moe_main_kernel(const Params p) {
     const int G = gridDim.x;
     const int cta = blockIdx.x;
     const int E = p.M * kTopK;
-    const int lo_v = __ldg(p.lo_p);
     const int gen = *reinterpret_cast<volatile int*>(p.ctr + 3);
     float* ss = p.ss + (gen & 1) * kEmax;
     const uint64_t pol = policy_evict_first();
@@ -8648,7 +8650,7 @@ __global__ void __launch_bounds__(kNTM, 1) moe_main_kernel(const Params p) {
             const int ev[4] = {v.x, v.y, v.z, v.w};
 #pragma unroll
             for (int k = 0; k < 4; ++k) {
-                const int e = ev[k] - lo_v;
+                const int e = ev[k] - ld_lo(p.lo_p);
                 const int eid = (i < E && e >= 0 && e < p.nloc) ? e : -1;
                 if (i < E) {
                     S.eid[i + k] = static_cast<signed char>(eid);
