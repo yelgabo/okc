@@ -378,6 +378,7 @@ constexpr int kJmaxM = kLocalMax + kEmax / 64;
 constexpr int kUAM = 512;
 constexpr int kUBM = 256;
 constexpr int kBarWg = 3;
+constexpr int kBarGather = 7;
 // Relative cost of one stage by n8-tile count: the wgmma work grows with N while the bytes
 // stay the same.
 __constant__ int kCostA[9] = {0, 112, 135, 140, 158, 173, 185, 200, 207};
@@ -392,8 +393,28 @@ __constant__ int kCostBm[9] = {0, 85, 92, 104, 115, 130, 145, 160, 175};
 // (bench 36b5b559b0344d0f: main-d2 197 us at bs32 against 139 loads-only and 150 for the
 // mma.sync skinny kernel).
 __host__ __device__ constexpr int mma_max(int mode) {
-    return mode == 6 || mode == 9 || mode == 11 ? 2 : mode == 7 || mode == 10 ? 4
+    return mode == 6 || mode == 9 || mode == 11 || mode == 12 ? 2 : mode == 7 || mode == 10 ? 4
            : mode == 8 ? 8 : 0;
+}
+
+// Modes 12 and 13 (modes 6 and 0 otherwise) order the epilogue's and the fixup's global
+// writes before their gpu-scope release or acquire with fence.acq_rel.gpu instead of
+// __threadfence (fence.sc.gpu). The pattern stays fence, then bar.sync among the warpgroup,
+// then one thread's red.release / atom.acq_rel: a fence.acq_rel followed by a strong write is
+// a release pattern and a strong read followed by fence.acq_rel an acquire pattern (PTX ISA,
+// Memory Consistency Model, "Release and Acquire Patterns"); fence.sc adds only the SC order,
+// which no reader here relies on. The SASS is MEMBAR.ALL.GPU instead of MEMBAR.SC.GPU.
+__host__ __device__ constexpr bool fence_ar(int mode) {
+    return mode == 12 || mode == 13;
+}
+
+template <bool AR>
+__device__ __forceinline__ void fence_gpu() {
+    if constexpr (AR) {
+        asm volatile("fence.acq_rel.gpu;" ::: "memory");
+    } else {
+        __threadfence();
+    }
 }
 
 // Mode 11 is mode 6 with clock stamps (timing only, never a policy choice): each consumer
@@ -633,7 +654,7 @@ __device__ __forceinline__ SegInfo seg_info(const SmemMain& S, int ph, int i, in
 // SwiGLU of a finished phase A unit straight into phase B's x layout (stage u / 2 of the job,
 // 16-byte row per token and 8-feature chunk), then one release per warpgroup on the stage's
 // readiness counter.
-template <int NTT>
+template <int NTT, bool AR>
 __device__ __forceinline__ void epilogue_a(const Params& p, SmemMain& S,
                                            const float (&acc)[32], int j, int u, int wg,
                                            int w, int tid_wg) {
@@ -670,7 +691,7 @@ __device__ __forceinline__ void epilogue_a(const Params& p, SmemMain& S,
             d[8] = __float2bfloat16_rn(h1);
         }
     }
-    __threadfence();
+    fence_gpu<AR>();
     named_sync(kBarWg + wg, 128);
     if (tid_wg == 0) {
         red_release_add(p.done_as + j * 16 + st, 1);
@@ -729,7 +750,7 @@ __device__ __forceinline__ void epilogue_b(const Params& p, SmemMain& S, float* 
 // Every share of a cut unit adds its partial into the owner's slot and counts its stages; the
 // share that completes the count reads the sum back into fin, clears the slot and finishes
 // the unit. acc itself is never written by anything but wgmma (ptxas C7515).
-template <int NTT>
+template <int NTT, bool AR>
 __device__ __forceinline__ bool fixup(const Params& p, SmemMain& S, const float (&acc)[32],
                                       float (&fin)[32], int ph, int slot, int nst, int wg,
                                       int tid_wg, int G) {
@@ -740,7 +761,7 @@ __device__ __forceinline__ bool fixup(const Params& p, SmemMain& S, const float 
         red_add_v4(fp + i, make_float4(acc[4 * i], acc[4 * i + 1], acc[4 * i + 2],
                                        acc[4 * i + 3]));
     }
-    __threadfence();
+    fence_gpu<AR>();
     named_sync(kBarWg + wg, 128);
     int* cp = p.fixcnt + (ph * G + slot) * 4 + wg;
     if (tid_wg == 0) {
@@ -751,7 +772,7 @@ __device__ __forceinline__ bool fixup(const Params& p, SmemMain& S, const float 
     if (S.fix_last[wg] == 0) {
         return false;
     }
-    __threadfence();
+    fence_gpu<AR>();
 #pragma unroll
     for (int i = 0; i < NTT; ++i) {
         const float4 v = __ldcg(fp + i);
@@ -895,15 +916,15 @@ __device__ __forceinline__ void run_segment(const Params& p, SmemMain& S, float*
     }
     if (si.partial) {
         float fin[32];
-        if (fixup<NTT>(p, S, acc, fin, ph, si.slot, si.st_e - si.st_b, wg, tid_wg, G)) {
+        if (fixup<NTT, fence_ar(MODE)>(p, S, acc, fin, ph, si.slot, si.st_e - si.st_b, wg, tid_wg, G)) {
             if (ph == 0) {
-                epilogue_a<NTT>(p, S, fin, si.j, si.u, wg, w, tid_wg);
+                epilogue_a<NTT, fence_ar(MODE)>(p, S, fin, si.j, si.u, wg, w, tid_wg);
             } else {
                 epilogue_b<NTT>(p, S, ss, fin, si.j, si.u, wg, w, tid_wg);
             }
         }
     } else if (ph == 0) {
-        epilogue_a<NTT>(p, S, acc, si.j, si.u, wg, w, tid_wg);
+        epilogue_a<NTT, fence_ar(MODE)>(p, S, acc, si.j, si.u, wg, w, tid_wg);
     } else {
         epilogue_b<NTT>(p, S, ss, acc, si.j, si.u, wg, w, tid_wg);
     }
@@ -1019,15 +1040,15 @@ __device__ __forceinline__ void run_segment_mma(const Params& p, SmemMain& S, fl
     }
     if (si.partial) {
         float fin[32];
-        if (fixup<NTT>(p, S, acc, fin, ph, si.slot, si.st_e - si.st_b, wg, tid_wg, G)) {
+        if (fixup<NTT, fence_ar(MODE)>(p, S, acc, fin, ph, si.slot, si.st_e - si.st_b, wg, tid_wg, G)) {
             if (ph == 0) {
-                epilogue_a<NTT>(p, S, fin, si.j, si.u, wg, w, tid_wg);
+                epilogue_a<NTT, fence_ar(MODE)>(p, S, fin, si.j, si.u, wg, w, tid_wg);
             } else {
                 epilogue_b<NTT>(p, S, ss, fin, si.j, si.u, wg, w, tid_wg);
             }
         }
     } else if (ph == 0) {
-        epilogue_a<NTT>(p, S, acc, si.j, si.u, wg, w, tid_wg);
+        epilogue_a<NTT, fence_ar(MODE)>(p, S, acc, si.j, si.u, wg, w, tid_wg);
     } else {
         epilogue_b<NTT>(p, S, ss, acc, si.j, si.u, wg, w, tid_wg);
     }
@@ -1061,6 +1082,9 @@ __device__ __forceinline__ void run_group(const Params& p, SmemMain& S, float* s
             continue;
         }
         const SegInfo si = seg_info(S, PH, i, cta, G);
+        if (MODE == kDiagMode && threadIdx.x == 0) {
+            S.dg[PH * 8 + NTT - 1][6] += si.st_e - si.st_b;
+        }
         if constexpr (NTT <= mma_max(MODE)) {
             run_segment_mma<NTT, PH, MODE>(p, S, ss, si, rg, G);
         } else {
@@ -1227,6 +1251,34 @@ __global__ void __launch_bounds__(kNTM, 1) moe_main_kernel(const Params p) {
     float* ss = p.ss + (gen & 1) * kEmax;
     const uint64_t pol = policy_evict_first();
 
+    // Every thread's topk_ids loads issued before any store (E / 4 <= 1024 int4 over 576
+    // threads): one memory round trip instead of one per 128 entries in the routing warp,
+    // stage-stamped at 12 us of prologue at 128 tokens and 18 at 256 (check 2072795029b7479f).
+    {
+        constexpr int kLd = (kEmax / 4 + kNTM - 1) / kNTM;
+        int4 v[kLd];
+#pragma unroll
+        for (int k = 0; k < kLd; ++k) {
+            const int i4 = tid + k * kNTM;
+            v[k] = i4 < (E >> 2) ? __ldg(reinterpret_cast<const int4*>(p.topk_ids) + i4)
+                                 : make_int4(-1, -1, -1, -1);
+        }
+#pragma unroll
+        for (int k = 0; k < kLd; ++k) {
+            const int i4 = tid + k * kNTM;
+            if (i4 < (E >> 2)) {
+                const int ev[4] = {v[k].x - p.lo, v[k].y - p.lo, v[k].z - p.lo, v[k].w - p.lo};
+                char4 c;
+                c.x = static_cast<signed char>(ev[0] >= 0 && ev[0] < p.nloc ? ev[0] : -1);
+                c.y = static_cast<signed char>(ev[1] >= 0 && ev[1] < p.nloc ? ev[1] : -1);
+                c.z = static_cast<signed char>(ev[2] >= 0 && ev[2] < p.nloc ? ev[2] : -1);
+                c.w = static_cast<signed char>(ev[3] >= 0 && ev[3] < p.nloc ? ev[3] : -1);
+                *reinterpret_cast<char4*>(S.eid + 4 * i4) = c;
+            }
+        }
+    }
+    __syncthreads();
+
     if (warp == kNWarpsM - 1) {
         if (lane < 9) {
             S.cost[0][lane] = stage_cost<MODE>(0, lane);
@@ -1236,18 +1288,9 @@ __global__ void __launch_bounds__(kNTM, 1) moe_main_kernel(const Params p) {
         __syncwarp();
         for (int base = 0; base < E; base += 128) {
             const int i = base + 4 * lane;
-            int4 v = make_int4(-1, -1, -1, -1);
-            if (i < E) {
-                v = __ldg(reinterpret_cast<const int4*>(p.topk_ids + i));
-            }
-            const int ev[4] = {v.x, v.y, v.z, v.w};
 #pragma unroll
             for (int k = 0; k < 4; ++k) {
-                const int e = ev[k] - p.lo;
-                const int eid = (i < E && e >= 0 && e < p.nloc) ? e : -1;
-                if (i < E) {
-                    S.eid[i + k] = static_cast<signed char>(eid);
-                }
+                const int eid = i < E ? S.eid[i + k] : -1;
                 const unsigned peers = __match_any_sync(0xffffffffu, eid);
                 if (eid >= 0 && lane == __ffs(peers) - 1) {
                     S.cnt[eid] += __popc(peers);
@@ -1340,6 +1383,16 @@ __global__ void __launch_bounds__(kNTM, 1) moe_main_kernel(const Params p) {
             S.gse[ph] = stage_at(S, ph, cta + 1, G);
         }
     }
+    // The weights producer needs only the stage ranges, so it starts streaming here while the
+    // other warps gather x; they sync on their own named barrier.
+    __syncthreads();
+    if (warp == kNC) {
+        if (lane == 0) {
+            wproducer<MODE>(p, S, cta, G, pol);
+        }
+    } else {
+    const int gt = warp < kNC ? tid : tid - 32;
+    constexpr int kNG = kNTM - 32;
     // Phase A's x: every token row of every job into the per-stage wgmma layout, this CTA
     // taking entries cta, cta + G, ...; one release per row.
     for (int i = cta; i < E; i += G) {
@@ -1357,7 +1410,7 @@ __global__ void __launch_bounds__(kNTM, 1) moe_main_kernel(const Params p) {
                              + (n & 7) * 16;
         // Pair q holds K = 2 q, 2 q + 1; its stage is q / 128 and its slab position follows
         // the fat layout's k order (epilogue_a has the same mapping).
-        for (int q = tid; q < 2048; q += kNTM) {
+        for (int q = gt; q < 2048; q += kNG) {
             const int kk = (q & 127) * 2;
             const int step = 4 * (kk >> 6) + ((kk >> 2) & 3);
             const int chunk8 = 2 * step + ((kk & 3) >> 1);
@@ -1367,10 +1420,9 @@ __global__ void __launch_bounds__(kNTM, 1) moe_main_kernel(const Params p) {
         }
     }
     __threadfence();
-    __syncthreads();
-    {
-        const int i = cta + tid * G;
-        if (i < E && S.pos[i] >= 0) {
+    named_sync(kBarGather, kNG);
+    for (int i = cta + gt * G; i < E; i += kNG * G) {
+        if (S.pos[i] >= 0) {
             const int e = S.eid[i];
             atomicAdd(p.xready + S.job0[e] + ((S.pos[i] - S.off[e]) >> 6), 1);
         }
@@ -1381,12 +1433,9 @@ __global__ void __launch_bounds__(kNTM, 1) moe_main_kernel(const Params p) {
     }
     if (warp < kNC) {
         consumers<MODE>(p, S, ss, cta, G);
-    } else if (warp == kNC) {
-        if (lane == 0) {
-            wproducer<MODE>(p, S, cta, G, pol);
-        }
     } else if (lane == 0) {
         xproducer<MODE>(p, S, cta, G);
+    }
     }
     __syncthreads();
     if constexpr (kDiag) {
@@ -2016,14 +2065,15 @@ __device__ __forceinline__ void a_pin(unsigned (&a)[2][4]) {{
 # Skinny kernel variants (compute warps, ring slots, mode: 0 computes, 1 streams only), each
 # a namespace of its own in the source, and fat kernel modes; a variant id indexes this table.
 SKINNY_VARIANTS = ((8, 4, 0), (16, 4, 0), (8, 4, 1))
-# 0: depth-2 wgmma pipeline; 6 and 7: jobs of up to 2 or 4 n8 tiles on mma.sync, the rest on
-# wgmma, mode 0's stage costs; 9 and 10: the same with the flatter mma.sync stage costs; 8:
-# every job on mma.sync, flatter costs. Timing-only diagnostics: 1 streams the weights only
-# (the ring's ceiling), 11 is mode 6 with clock stamps (_diag_report). Also in the source, not built: 2 dequantizes without wgmma, 3 runs wgmma on
+# 0: depth-2 wgmma pipeline; 6: jobs of up to 2 n8 tiles on mma.sync, the rest on wgmma; 12
+# and 13: modes 6 and 0 with fence.acq_rel in place of fence.sc (fence_ar in the source).
+# Timing-only diagnostics: 1 streams the weights only (the ring's ceiling), 11 is mode 6 with
+# clock stamps (_diag_report). Also in the source, not built: 7 to 10 (more jobs on mma.sync,
+# flatter stage costs; all lost in submit 0400cfbdfa2845fe). Also in the source, not built: 2 dequantizes without wgmma, 3 runs wgmma on
 # the raw words (run 36b5b559b0344d0f has their numbers), depth 3 (mode 5) and no readiness
 # waits (mode 4), which run bab82f5f5b974594 showed do not move the fat path.
-MAIN_MODES = (0, 1, 6, 7, 8, 9, 10, 11)
-MAIN_CANDIDATES = (0, 6, 7, 8, 9, 10)
+MAIN_MODES = (0, 1, 6, 11, 12, 13)
+MAIN_CANDIDATES = (0, 6, 12, 13)
 VARIANT_MAIN0 = len(SKINNY_VARIANTS)
 
 
@@ -3676,6 +3726,21 @@ def _diag_report(state, bs, seed=11):
     print(f"DIAG bs={bs} producers mean/max us: weights wait for a free slot "
           f"{mm(d[:, 16, 0] / cyc_us[:, 0])}, x wait for a free slot {mm(d[:, 17, 0] / cyc_us[:, 0])}, "
           f"x wait done_as {mm(d[:, 17, 1] / cyc_us[:, 0])}, x wait xready {mm(d[:, 17, 2] / cyc_us[:, 0])}")
+    return d[:, :16, 6], (t[:, 2] - t[:, 1]) / 1e3
+
+
+def _diag_costs(rows):
+    """Least-squares fit of each CTA's consumer time on its stage counts per (phase, n-tile
+    count), over every DIAG launch: the per-stage cost the stream-K table should use."""
+    x = torch.cat([r[0] for r in rows])
+    y = torch.cat([r[1] for r in rows])
+    used = x.sum(0) > 0
+    sol = torch.linalg.lstsq(x[:, used], y.unsqueeze(1)).solution.squeeze(1)
+    resid = y - x[:, used] @ sol
+    names = [f"{'AB'[c // 8]}{c % 8 + 1}" for c in range(16) if bool(used[c])]
+    fit = " ".join(f"{n}:{float(c):.3f}" for n, c in zip(names, sol))
+    print(f"DIAG cost fit us/stage {fit}; residual rms {float(resid.pow(2).mean().sqrt()):.1f} us "
+          f"over {len(y)} CTA launches (consumer time mean {float(y.mean()):.1f} us)")
 
 
 def _vname(v):
@@ -3685,7 +3750,7 @@ def _vname(v):
         m = MAIN_MODES[v - VARIANT_MAIN0]
         return {0: "main-d2", 5: "main-d3", 1: "main-loads", 4: "main-nogate", 2: "main-nowgmma",
                 3: "main-nodequant", 6: "main-m2", 7: "main-m4", 8: "main-m8f", 9: "main-m2f",
-                10: "main-m4f", 11: "main-m2-stamps"}[m]
+                10: "main-m4f", 11: "main-m2-stamps", 12: "main-m2-ar", 13: "main-d2-ar"}[m]
     nw, ns, mode = SKINNY_VARIANTS[v]
     return f"sk{nw}w{ns}s{'-loads' if mode else ''}"
 
@@ -3739,11 +3804,16 @@ def prepare(weights):
     t3 = time.time()
     state["policy"] = _bench(state, main_ok)
     if main_ok and 11 in MAIN_MODES:
+        rows = []
         for bs in (32, 128, 256):
             try:
-                _diag_report(state, bs)
+                rows.append(_diag_report(state, bs))
             except Exception as exc:
                 print(f"DIAG bs={bs} failed: {type(exc).__name__}: {exc}")
+        try:
+            _diag_costs(rows)
+        except Exception as exc:
+            print(f"DIAG costs failed: {type(exc).__name__}: {exc}")
     t4 = time.time()
     # The chosen variants once more at every test size, on the policy as kernel_fn runs it.
     ok = _self_test(state, weights, (1, 4, 8, 16, 32, 33, 128, 257), "policy") and ok
