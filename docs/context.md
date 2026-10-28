@@ -153,3 +153,9 @@ muse_attention_decode: warp-specialized q_len 8 kernel checked at 1.348x (dcea57
 where FA3 accumulates in FP32. TASK.md does not specify accumulator precision, but AGENTS.md warns
 against computing at lower precision than the rules allow. Pending a decision or an FP32-accumulator
 variant.
+
+Update 2026-10-28: muse_attention_decode resubmitted with the FP32-accumulator warp-specialized
+verify kernel, fenced variants only (var 16), job cb42811004a9440c, 1.321x (1.302-1.341), 16/16,
+from 1.291x. Sliding verify unchanged vs the f16 kernel; full verify about 8% slower (b16
+191.3 vs 175.8 us, b32 357.6 vs 331.7): about 3% is the fence, the rest the FP32 math, so the
+math warps are now at least partly on the critical path on full layers. Next: backlog A1.
