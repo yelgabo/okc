@@ -23,6 +23,29 @@ Per-shape columns, in TASK.md's order: d1 = decode 1, d16, d32, v1 = verify 1 (8
   items. The tuner and the FP32 self-test run in prepare() on synthetic routings with
   local_start 0 and 96; the finalizer gets the effective post-expert norm weight, as Marlin's
   path does. Policy key is T (1, 8, 16, 32, 128, 256; other T use the next one up).
+- Fused MoE (`PORT_MOE_FUSED`): muse_moe_w4a16's one-launch kernel, assembled by
+  tools/dl_moe_inline.py for the computing variants only (skinny sk8w4s, sk16w4s, sk8w5s;
+  fat main-d2, main-d3 from 17 tokens) inside a nested `moe1` namespace and built as its own
+  extension (`okc_decode_layer_moe1`) on a thread from the top of prepare(). The inliner
+  gives Params a `lo_p` pointer so both kernels take the local expert range from the
+  layer's `local_start` tensor on the device (as route_align does) and copies the repack
+  (16-row units and 256-row x 16-stage units, 906 MB each for the 32 experts) under a
+  moe1_ prefix. Scratch in `state["moe1"]`, allocated once; the kernel resets its own
+  flags and alternates the barrier counter and sums of squares by generation. The post-expert
+  weight is the layer's effective 1 + w (`post_expert_w`) widened to FP32; the kernel rounds
+  to BF16 where the Marlin path does (gate and up before SiLU, the SwiGLU output, GEMM2's
+  output before the norm). Wiring: `_moe_opts` carries the chosen variant; `_route_meta`
+  then returns only the routing tensors (no route_align on the side stream) and
+  `_experts_run` makes the one launch on the main stream after the join, with no PDL
+  attribute and no early trigger, since its grid barrier needs all 132 CTAs resident; the
+  pre-expert norm stays W0's kernel. Policy: `_moe1_tune` times the W4 chain and every
+  passing fused variant per T in (1, 8, 16, 32, 128, 256) as cold-L2 graph replays of the
+  main-stream MoE call (metadata built outside the graph, as the side stream builds it) and
+  keeps the fastest. Self-test (`moe fused`): every variant vs the FP32 reference at T 1-264
+  including 257 (normal at local_start 0, skewed at 96; bound 8e-3) with the W4 chain's
+  distance printed, the scratch invariant (spin flags, next barrier counter, next sums of
+  squares, per-job flags) after each, then 2,000 graph replays at T 8 (skinny) and 128 (fat)
+  with the generation count, the replayed output against an eager call and the invariant.
 - Router: up to 8 tokens SGLang routes on the boundary's FP32 router input, not the BF16 FFN
   input, and the reference routes on full-precision h. The muse_bf16_proj router kernel took
   BF16 x, so the port stages FP32 x instead. Above 8 tokens SGLang uses BF16 hi + lo on the
