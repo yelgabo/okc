@@ -110,7 +110,7 @@ class Inputs(TypedDict):
 
 # Which ported pieces kernel_fn may use; each was turned on in its own check run.
 PORT_MOE = True
-PORT_ROUTER = False
+PORT_ROUTER = True
 PORT_PROJ = False
 
 HIDDEN = 8192
