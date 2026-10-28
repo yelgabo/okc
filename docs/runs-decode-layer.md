@@ -23,12 +23,56 @@ Per-shape columns, in TASK.md's order: d1 = decode 1, d16, d32, v1 = verify 1 (8
   items. The tuner and the FP32 self-test run in prepare() on synthetic routings with
   local_start 0 and 96; the finalizer gets the effective post-expert norm weight, as Marlin's
   path does. Policy key is T (1, 8, 16, 32, 128, 256; other T use the next one up).
+- Fused MoE (`PORT_MOE_FUSED`): muse_moe_w4a16's one-launch kernel, assembled by
+  tools/dl_moe_inline.py from source commit 8a8f6e4 for the computing variants only (skinny
+  sk8w4s and sk16w4s; fat main-d2 from 17 tokens; the source's own tables, trimmed as its
+  guide asks) inside a nested `moe1` namespace and built as its own
+  extension (`okc_decode_layer_moe1`) on a thread from the top of prepare(). The inliner
+  gives Params a `lo_p` pointer so both kernels take the local expert range from the
+  layer's `local_start` tensor on the device (as route_align does) and copies the repack
+  (16-row units and 256-row x 16-stage units, 906 MB each for the 32 experts) under a
+  moe1_ prefix. Scratch in `state["moe1"]`, allocated once; the kernel resets its own
+  flags and alternates the barrier counter and sums of squares by generation. The post-expert
+  weight is the layer's effective 1 + w (`post_expert_w`) widened to FP32; the kernel rounds
+  to BF16 where the Marlin path does (gate and up before SiLU, the SwiGLU output, GEMM2's
+  output before the norm). Wiring: `_moe_opts` carries the chosen variant; `_route_meta`
+  then returns only the routing tensors (no route_align on the side stream) and
+  `_experts_run` makes the one launch on the main stream after the join, with no PDL
+  attribute (both kernels begin with `griddepcontrol.wait` since 8a8f6e4, so the attribute
+  would be safe) and no early trigger, since its grid barrier needs all 132 CTAs resident; the
+  pre-expert norm stays W0's kernel. Policy: `_moe1_tune` times the W4 chain and every
+  passing fused variant per T in (1, 8, 16, 32, 128, 256) as cold-L2 graph replays of the
+  main-stream MoE call (metadata built outside the graph, as the side stream builds it) and
+  keeps the fastest. Self-test (`moe fused`): every variant vs the FP32 reference at T 1-264
+  including 257 (normal at local_start 0, skewed at 96; bound 8e-3) with the W4 chain's
+  distance printed, the scratch invariant (spin flags, next barrier counter, next sums of
+  squares, per-job flags) after each, then 2,000 graph replays at T 8 (skinny) and 128 (fat)
+  with the generation count, the replayed output against an eager call and the invariant.
 - Router: up to 8 tokens SGLang routes on the boundary's FP32 router input, not the BF16 FFN
   input, and the reference routes on full-precision h. The muse_bf16_proj router kernel took
   BF16 x, so the port stages FP32 x instead. Above 8 tokens SGLang uses BF16 hi + lo on the
   BF16 FFN input, as on muse_bf16_proj. The router runs on a side stream, overlapping the pooler.
 - Projections: qkv_gate, pooler and the unpooler's 1024-row slice at T <= 8, o at T = 1, as
   `_proj_fused_wins` chose on muse_bf16_proj.
+- Skinny projections (`PORT_PROJ_SK`): muse_bf16_proj's sk kernel and GEMVs, assembled by
+  tools/dl_proj_inline.py for the layer's 26 configs (12 geometries compressed and raw, the
+  two fused pooler + router configs; the standalone router configs stay out) as a fifth
+  extension (`okc_decode_layer_skp`) on a thread from the top of prepare(); the packing
+  code is copied verbatim. The kernel has no griddepcontrol, so every launch is plain (the
+  PDL secondaries after it start at its completion). Prepare packs qkv_gate (rows balanced),
+  o, pooler and the unpooler (full and the 1024-row slice) in 12 bits with the 1/200 escape
+  rule and raw BF16 fallback streams, one stage-major stream per geometry, escape tables per
+  (R, rows), cgemv's row stream and sgemv at m = 1, and the router's hi/lo stream for the
+  fused entry. Self-test (`proj sk`): every candidate against FP64 at the bucket's token
+  counts (1, 2, 5, 7, 8; 9, 12, 16; 17, 31, 32) with probe rows (relative L2 < 5e-3, probe
+  rows bitwise, no timed-out wait), the fused entries at 1, 3, 8 and 9, 16 (router < 2e-5);
+  failures are dropped with a printed reason. Autotune: per (layer, m) for m in 1, 8, 16, 32,
+  the survivors against today's path (proj_fwd or cuBLAS) as cold-L2 graph replays; the pick
+  (None keeps today's path) is used by `_proj` for every m <= 32, other m sharing the
+  bucket's pick; the full unpooler above 8 tokens now also goes through `_proj`. The fused
+  pooler + router is the `skf` front variant, tuned at T 1, 8 and 16 beside fp32 (T <= 8) or
+  split / mma / concat; a variant that disagrees with the reference is dropped at that T
+  instead of failing the tuner.
 - Attention: the decode layer feeds attention exactly as muse_attention_decode does (qkv
   [T, 2304] BF16 from the qkv_gate projection, q 16x64 | k 2x64 | v 2x64 | gate 16x64; RoPE
   interleaved with theta 500000 on sliding layers only; FP8 caches [pages, page, 2, 64]; the
@@ -44,6 +88,29 @@ Per-shape columns, in TASK.md's order: d1 = decode 1, d16, d32, v1 = verify 1 (8
   rows from its last split, and its combine launch merges the splits (FP32 partials in a
   per-call buffer) and applies the norm-gate. Routed on sliding verify at every batch and full
   verify above batch 2.
+- One-launch attention (`PORT_ATTN_ONE`): muse_attention_decode/attn_one.cu copied in by
+  tools/dl_one_inline.py inside a nested `one` namespace, built as a third extension
+  (`okc_decode_layer_one`) on a thread started at the top of prepare() so its compile
+  overlaps the main and W4 builds. Ten instances: q_len 1 modes 1, 3, 11, 13, 49 and q_len 8
+  modes 1, 3, 11, 15, 51 (the plan's modes for the 12 scored shapes and the 13 tests; the
+  non-producer flat 17 / 19 and the one-CTA-per-SM 115 are left out). The inliner adds two
+  `griddepcontrol.wait` lines (before the query group, whose rows are the projection's
+  output and whose constants group reads the epoch; before the flat kernel's epoch read),
+  so the launch is correct with or without the PDL attribute; `_ONE_PDL = False` keeps the
+  plain stream semantics the standalone checks exercise, and the kernel sets no early
+  trigger (the o projection, a PDL secondary, starts at completion). Persistent workspace
+  in `state["one"]` (16 MB of FP32 rows, row sums, 32K counters), allocated and zeroed once
+  in prepare; the cooperative modes launch through cudaLaunchKernelEx with
+  cudaLaunchAttributeCooperative after a graph-capture probe (a plain launch then a
+  cooperative one, as attention follows the projection). Self-test (`attn one`): the shared
+  cases plus batch 1 full at page 1 and 64 for both q_len and the ctx-10 sliding case,
+  the workspace invariant (rows, row sums, tickets, next-parity counters zero) after each,
+  then 2,000 graph replays on decode 1 sliding, decode 16 full, verify 1 sliding and
+  verify 16 full with the replayed output against an eager call (< 1e-4) and SGLang's
+  path (< 5e-2), and on both batch-1 shapes the speculated length forced wrong (seq - 64,
+  50 replays each).
+  Routed on every tp8 shape at q_len 1 and 8 unless `_ONE_ROUTE` excludes a
+  (layer, q_len, batch); the fused, ws and prep paths stay as fallbacks.
 - Stream overlap (`ROUTE_ON_SIDE`): route_align runs on the router's side stream after top-8;
   the pre-expert norm runs on main before the join; a graph-capture self-test guards it.
 - FFN boundary at T <= 8 (`PORT_FFN_BOUNDARY`): reads SGLang's module tensors
@@ -73,6 +140,7 @@ Per-shape columns, in TASK.md's order: d1 = decode 1, d16, d32, v1 = verify 1 (8
 | 2026-10-28 | 9cb961d383ab42be | 218e810 | W0 item 5: own attention boundary kernel (post-attention norm without weight, residual gate, pre-FFN norm, the FP32 router copy at T <= 8) with SGLang's one BF16 rounding of the normalized branch; a cluster of 8 CTAs per token with both sums of squares reduced through distributed shared memory, a PDL secondary that loads the stream, alpha, beta and the norm weight before its wait on the o projection and triggers at entry (so the pooler's weight stream starts during it) | 1.438x (1.416-1.460) | per shape d1 1.541/1.489, d16 1.475/1.472, d32 1.213/1.363, v1 1.718/1.636, v16 1.410/1.316, v32 1.359/1.246. Self-test vs FusedPostNormResidualPreNorm at T 1-9: next input, update, stream 0.00e+00 (router copy 4e-8); at T 16/33/256 next input 3e-6 to 1.5e-5 (SGLang's kernel changes its block shape there; the stream stays bitwise). Our us vs e8b74a35 (same code otherwise): d1 112.8 -> 111.0 / 124.2 -> 121.0, d16 177.9 -> 174.8 / 296.6 -> 296.8, d32 215.9 -> 216.6 / 444.8 -> 452.4, v1 156.1 -> 157.8 / 166.8 -> 177.6, v16 366.1 -> 365.7 / 523.9 -> 543.7, v32 513.1 -> 517.8 / 843.6 -> 841.1; decode 1 is the clean signal (-1.8 / -3.2 us; -4.4 / -2.6 vs 179cecda), the boundary row 3.9 us against SGLang's 4.4 (its wait on the o projection is inside the row now). The geomean fell because SGLang's own times fell back 2-7% on the verify shapes (v16 sliding 523.8 -> 515.6, v32 sliding 706.0 -> 703.6, v32 full 1055.6 -> 1048.3). Kept. 13/13 tests; prepare 81.1 s |
 | 2026-10-28 | 985732949c07474f | 5f0dc0f | W0 item 6 (first form): at T <= 8 a kernel on the side stream, forked right after the qkv projection, issues cp.async.bulk.prefetch.L2 with an evict_last policy over the o weights (packed at T = 1, cuBLAS's above), the FP32 router and the unpooler slice's 8.4 MB of packed tiles while attention runs | 1.446x (1.424-1.468) | per shape d1 1.534/1.456, d16 1.477/1.481, d32 1.173/1.478, v1 1.731/1.638, v16 1.436/1.303, v32 1.369/1.262. The o GEMV row did not fall: 7.7 -> 7.3 us at decode 1 sliding (the bar was about 3.5), unpooler 6.0 -> 6.0, router 5.2 -> 4.9; the prefetch kernel itself shows 5.4-5.8 us. Our us vs 9cb961d3: d1 111.0 -> 111.2 / 121.0 -> 123.8, v1 157.8 -> 149.8 / 177.6 -> 169.7 (verify 1 moved 8 us with no row moving: the W4 configs and routing differ per run), the eight shapes off the change +/- 5-30 us of MoE noise. The bulk prefetch hint does not fill L2 in time or at all; replaced by real 16-byte loads with the evict_last cache hint in the next run. 13/13 tests; prepare 99.0 s |
 | 2026-10-28 | 34568f495b024c2f | 40ecc07 | W0 items 4 and 6 again: the MoE-front tuner's agreement test on a row-relative bound (1e-3 relative L2, routes >= 99%), and the L2 prefetch as real 16-byte loads with the evict_last cache hint, eight in flight per thread | 1.447x (1.425-1.469) | per shape d1 1.504/1.409, d16 1.491/1.490, d32 1.212/1.372, v1 1.740/1.592, v16 1.442/1.327, v32 1.411/1.285. The tuner ran: T=16 concat 39.8 us, split 41.0, mma 41.5; T=32 concat 40.1, mma 42.5, split 45.2; T=128 concat 41.6, split 51.5; T=256 concat 48.2, split 62.4 (the front from the FFN input to the join, as a graph with a cold L2), so the one-GEMM pooler + router variant runs at every T above 8; it agrees with the split path to 8e-5 (T=16) or 0 and routes 100% equal. Our us vs 98573294: d1 111.2 -> 114.7 / 123.8 -> 127.9, d16 175.4 -> 177.4 / 293.3 -> 294.2, d32 222.1 -> 211.0 / 422.9 -> 444.1 (the 422.9 was the day's outlier; 441-452 in every other run), v1 149.8 -> 153.1 / 169.7 -> 171.6, v16 371.7 -> 372.5 / 546.1 -> 538.7, v32 539.9 -> 531.2 / 868.5 -> 860.9. At T <= 8 only the prefetch changed and all four shapes rose 2-4 us: the o GEMV row fell 7.3 -> 5.9 us (the bar was 3.5), the unpooler 6.0 -> 5.6, the router did not move, and the prefetch kernel itself streams 34 MB for 9.5 us beside the latency-bound attention (14.0 -> 14.8). Prefetch dropped (PORT_L2_PREFETCH = False). Above 8 tokens the concat variant's gain sits inside the MoE noise at the step level (d32 sliding the day's best, v32 sliding and full mid-pack); the tuner's A/B on identical inputs is the evidence, kept. 13/13 tests; prepare 98.9 s |
+| 2026-10-28 | f23f1c8171374285 (submit) | 4721074 | three ports behind their own switches: fused MoE (muse_moe_w4a16 at 8a8f6e4, variants sk8w4s / sk16w4s / main-d2, one launch with device-side routing, no PDL attribute), skinny projections (muse_bf16_proj at dfbf010, 26 configs, 12-bit weights with escape warps, cgemv / sgemv at m = 1, the fused pooler + router as the skf front variant), attention one-launch compiled but off (PORT_ATTN_ONE = False pending its standalone verdict) | **1.643x** (1.618-1.667) | best. per shape d1 1.876/1.738, d16 1.751/1.650, d32 1.323/1.446, v1 2.056/1.925, v16 1.471/1.342, v32 1.670/1.425. Our us vs 34568f495b024c2f: d1 114.7 -> 91.8 / 127.9 -> 105.1, d16 177.4 -> 148.2 / 294.2 -> 264.4, d32 211.1 -> 203.8 / 444.1 -> 433.0, v1 153.1 -> 127.5 / 171.6 -> 141.8, v16 372.5 -> 361.6 / 538.7 -> 540.4, v32 531.2 -> 427.8 / 860.9 -> 757.6; vs the board entry 0e28c26271c94570 (1.403x): d1 116.8 -> 91.8 / 128.3 -> 105.1, d16 177.0 -> 148.2 / 293.4 -> 264.4, d32 217.5 -> 203.8 / 448.0 -> 433.0, v1 155.3 -> 127.5 / 173.7 -> 141.8, v16 360.0 -> 361.6 / 535.1 -> 540.4, v32 514.0 -> 427.8 / 854.4 -> 757.6. Decode 1, decode 16 and verify 1 fall 23-30 us each (fused MoE and the 12-bit projections), decode 32 7-11, verify 32 103 (main-d2 at 256 tokens, 275 us against the W4 chain's GEMMs); verify 16 inside noise, where the policy keeps the W4 chain. MOE1POLICY {1: sk8w4s, 8: sk8w4s, 16: sk8w4s, 32: sk8w4s, 128: w4, 256: main-d2} (MOE1BENCH T=1 sk8w4s 41.7 vs w4 49.9, T=8 73.8 vs 78.4, T=16 107.5 vs 116.1, T=32 150.4 vs 153.2, T=128 w4 247.2 vs main-d2 255.4, T=256 main-d2 288.7 vs w4 356.5 us). SKP tune: cgemv at m = 1 for qkv_gate (14.9 vs proj_fwd 19.8), o (10.0 vs 12.6) and the unpooler slice (8.4 vs 11.1), pool8 for the pooler (22.1 vs 28.4), the compressed sk config at every other (layer, m): qkv 16.1/16.4/17.9 us at m 8/16/32 against 20.7/21.1/21.6, pooler 22.2/22.8/24.7 vs 29.7/30.2/30.8, o 10.9/10.8/10.8 vs 11.9/12.0/12.1, unpooler 9.0/22.0/23.2 vs 11.9/27.4/27.6; raw BF16 lost to compressed everywhere. TUNE front: T=1 fp32 28.0 vs skf 29.8 -> fp32; T=8 skf 30.0 vs fp32 37.7 -> skf; T=16 skf 30.4 vs mma 35.4, concat 37.2, split 40.2 -> skf; T=32/128/256 concat; every variant routes 100% equal to its reference. Self-tests: MOE1TEST all three variants 3.89e-3 vs FP32 (within 7.8e-4 of the W4 chain), both 2,000-replay stresses clean (generations 2003, no spin flags, scratch invariant held); SKP 30 candidates pass (GEMVs 0 error, worst 2.5e-4), 0 inexact escape deltas, both fused configs ok. Profile decode 1 sliding: fused MoE 25.0 us (the W4 chain was GEMM1 21.3 + GEMM2 10.8 + swiglu + finalize 4.2), pooler sk 16.0, qkv cgemv 10.5, o cgemv 5.6, unpooler cgemv 4.0, attention 14.4 (the fused kernel, since the one-launch port is off). 13/13 tests; prepare 102.5 s (fused MoE build 47.5 s and sk build 15.1 s on their threads, both finished before they were needed; moe fused 1.8 s and proj sk 0.4 s on the main thread); the whole run 216 s |
 
 ## Ruled out
 
