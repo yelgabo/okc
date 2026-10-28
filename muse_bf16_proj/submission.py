@@ -39,7 +39,14 @@ class Inputs(TypedDict):
 ROUTER_N = 256
 ROUTER_K = 8192
 ROUTER_FUSED_MAX_TOKENS = 8
-PROJ_FUSED_MAX_TOKENS = 32
+
+
+def _proj_fused_wins(layer, m):
+    """Where the mma kernel beat cuBLAS in check run ee65e159c9f54269: every BF16 layer at m=1,
+    and all but o at m=8. Above 8 tokens each block re-reads too much of x through L2."""
+    if layer == "o":
+        return m == 1
+    return m <= 8
 
 # Grid: 16 row groups x 8 k-slices = 128 blocks, one per SM, all loads in flight at once.
 # Each warp owns one weight row and one 1024-wide k-slice. The block's x slice is staged in
@@ -511,7 +518,7 @@ def kernel_fn(data, state):
     x, layer = data["x"], data["config"]["layer"]
     if layer != "router":
         n = data["config"]["n"]
-        if state["proj_fused"] is not None and x.shape[0] <= PROJ_FUSED_MAX_TOKENS:
+        if state["proj_fused"] is not None and _proj_fused_wins(layer, x.shape[0]):
             return state["proj_fused"](x.contiguous(), state["proj_packed"][layer], n)
         return _bf16_gemm_dispatch_impl(x, state[layer][:n], None)
     fused = state["router_fused"]
