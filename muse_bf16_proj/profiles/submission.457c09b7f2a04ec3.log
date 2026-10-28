@@ -1,0 +1,3 @@
+router kernel: fused
+proj kernel: fused
+router mma kernel: fused

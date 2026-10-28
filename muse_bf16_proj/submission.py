@@ -6,7 +6,7 @@
 - FP32 router at m <= 8: one CUDA-core kernel that reads the 8 MB weight once, with plain FP32
   FMAs, so the math matches F.linear without TF32. SGLang takes 10 to 26 us here against a
   1.8 us memory floor.
-- FP32 router at 9 to 256 tokens: the tensor-core kernel on a BF16 hi + lo split of the weights
+- FP32 router at 9 to 32 tokens: the tensor-core kernel on a BF16 hi + lo split of the weights
   with FP32 accumulation, which is SGLang's own method above 8 tokens.
 """
 
@@ -41,7 +41,7 @@ class Inputs(TypedDict):
 ROUTER_N = 256
 ROUTER_K = 8192
 ROUTER_FUSED_MAX_TOKENS = 8
-ROUTER_MMA_MAX_TOKENS = 256
+ROUTER_MMA_MAX_TOKENS = 32
 
 
 def _proj_fused_wins(layer, m):
@@ -488,8 +488,9 @@ torch::Tensor proj_fwd(torch::Tensor x, torch::Tensor wpacked, int64_t n) {
     return out;
 }
 
-// Up to 32 tokens in 16-token groups (16 tokens ran 8.1 us, 32 in one group 10.5 us, in check
-// run 69a452e14dbc4729); above, 32-token groups, the weights coming from L2 after the first.
+// 16-token groups: 32 tokens ran 8.6 us as two groups and 10.5 us as one (check runs
+// 457c09b7f2a04ec3, 69a452e14dbc4729). kernel_fn stops at 32: 128 and 256 tokens took 28.9 and
+// 48.1 us re-reading the weights from L2 per group, against SGLang's 16.4 and 17.7.
 torch::Tensor router_mma_fwd(torch::Tensor x, torch::Tensor wpacked) {
     const int m = x.size(0);
     auto out = torch::empty({m, 256}, x.options().dtype(torch::kFloat32));
