@@ -127,3 +127,14 @@ against our local baseline files:
   exponent code (about 25% smaller on the judge's Gaussian weights); not built.
 - **Router split-K / orientation**: done differently on `muse_bf16_proj` (own kernels up to 32
   tokens). The split-K 32 setting it cites may be in `muse_decode_layer`'s fused routing.
+
+## First leaderboard submissions (2026-10-27)
+
+| problem | job | score (95% CI) | rank |
+|---|---|---|---|
+| muse_bf16_proj | ee4dd1b9e36e4910 | 1.139x (1.122-1.156) | 986 of 1202 |
+| muse_moe_w4a16 | ebf5711b1b4f46ee | 1.324x (1.304-1.344) | 715 of 952 |
+| muse_attention_decode | fd376b11ca9b49ef | 1.291x (1.272-1.315) | 735 of 911 |
+| muse_decode_layer | 2c49c79bafcd4b56 | 1.207x (1.189-1.225) | 692 of 827 |
+
+Overall kernel board: rank 787 of 1384. Leaders: 1.637x, 2.685x, 3.032x, 2.399x.
