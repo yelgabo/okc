@@ -17,7 +17,9 @@ import with two parts, printed into the run log (the judge's own tests and timin
   BENCH     CUDA-graph replays after a 256 MB flush (median of 40) of each variant per scored
             shape, with the relative error against the first variant.
 
-    python3 tools/attn_make_bench_one.py [VARIANT ...]
+    python3 tools/attn_make_bench_one.py [--no-probe] [--sched=BITS] [VARIANT ...]
+
+--sched sets _ONE_Q8_SCHED (the q_len 8 tile-loop schedule bits) for kernel_fn in the bench.
 
 VARIANT is name@s=SPLITS,n=NC,m=MODE,x=VAR,v=VARIANT,c=CLUSTER (all optional); the default
 compares _one with the paths the submission used before it.
@@ -37,6 +39,8 @@ _OB_T0 = _time.time()
 _OB_VARIANTS = {variants!r}
 # Cooperative-launch probe on or off for this bench (the first run that hung had it on).
 _ONE_COOP_LAUNCH = {coop_probe!r}
+# q_len 8 tile-loop schedule for kernel_fn in this bench (SELFTEST, STRESS, the judge's run).
+_ONE_Q8_SCHED = {sched!r}
 
 
 def _ob_elapsed():
@@ -381,6 +385,7 @@ def _ob_plan_str(data):
         return "fallback"
     st = _one_state(data["qkv"].device)
     n, c, m = _one_plan(cfg, data["page_table"].shape[1], st["resident"])
+    m = _one_sched(cfg["q_len"], m, _ONE_Q8_SCHED)
     return f"splits={{n}} nc={{c}} mode={{m}}"
 
 
@@ -565,6 +570,8 @@ def _ob_bench():
             if (name.startswith("_ws") and q_len != 8) or (name.startswith("_fused@") and q_len != 1) \
                     or (name == "_fused" and (q_len != 1 or (layer == "full" and batch == 1))):
                 continue
+            if name.startswith("_one@x=") and q_len != 8:
+                continue
             if name.startswith("_one@m="):
                 m = int(name.split("=")[1])
                 flat = bool(m & 16)
@@ -632,10 +639,17 @@ if not _os.environ.get("ATTN_BENCH_DONE"):
 
 
 def main():
-    args = [a for a in sys.argv[1:] if a != "--no-probe"]
+    sched = 0
+    args = []
+    for a in sys.argv[1:]:
+        if a.startswith("--sched="):
+            sched = int(a.split("=", 1)[1])
+        elif a != "--no-probe":
+            args.append(a)
     variants = args or ["_one", "_fused", "_ws", "_fused_prep"]
     src = (ROOT / "muse_attention_decode/submission.py").read_text()
-    src += RUNNER.format(variants=variants, coop_probe="--no-probe" not in sys.argv[1:])
+    src += RUNNER.format(variants=variants, coop_probe="--no-probe" not in sys.argv[1:],
+                         sched=sched)
     (ROOT / "muse_attention_decode/bench.py").write_text(src)
     print(f"wrote bench.py with {variants}")
 

@@ -623,3 +623,98 @@ cancellation in the FP32 sum turns a last-bit difference into several ulps of a 
 The 1e-4 relative bound stays as it is; on a 1024-element output it trips on a single one-ulp
 element, so read the mode 13 STRESS line by its per-element numbers (a real lost or stale
 contribution would change most of a head's 64 elements, by far more than one ulp).
+
+### Sliding plan parity with the public entry (10-28, static)
+
+Public plans read from `_plan`, `_TUNED` and `launch<L>` in the Apache-2.0
+`muse_attention_decode.py` (132 SMs, target 264, tp8: one KV pair). Ours from `_one_plan`.
+
+| shape | ours: splits x batch, mode, finalize | public: splits x batch, instance, finalize | stages | threads | regs ours / public |
+|---|---|---|---|---|---|
+| decode 1 sliding | 32 x 1, mode 13 (one tile, speculated length), last CTA | 32 x 1, MODE 13 (one tile, speculated), last CTA | 3 / 3 | 128 / 128 | 78 / 96 |
+| decode 16 sliding | 16 x 16, mode 1, last CTA | 16 x 16, MODE 1, last CTA (no clusters: q_len 1 with 16 requests) | 3 / 3 | 128 / 128 | 109 / 123 |
+| decode 32 sliding | 8 x 32, mode 1, last CTA | 8 x 32, MODE 1, last CTA | 3 / 3 | 128 / 128 | 109 / 123 |
+| verify 1 sliding | 33 x 1, mode 15 (one tile, speculated, cooperative) | 33 x 1, MODE 15, cooperative | 3 / 3 | 256 / 256 | 70 / 96 |
+| verify 16 sliding | 8 x 16, mode 3, cooperative | 8 x 16 (`sms // reqs`), MODE 3, cooperative | 3 / 3 | 256 / 256 | 110 / 119 |
+| verify 32 sliding | 4 x 32, mode 3, cooperative | 4 x 32 (`_TUNED`), MODE 3, cooperative | 3 / 3 | 256 / 256 | 110 / 119 |
+
+The launch plans are the same on all six shapes (split counts, one-tile and speculated
+instances, cooperative or last-CTA finalize, stages, threads; neither uses clusters on a scored
+shape). So there is no plan variant to test, and the 1.1-2.1 us per shape that separates us from
+the public times sits inside the kernel body. Register counts are ours at CUDA 12.8.1 and theirs
+from `tools/attn_pub_compile.sh`; none spill.
+
+### Per-request q_len 8 tile loop: ours against the public one
+
+| step, per tile i | ours (modes 3 / 15 / 19) | public per-request (3 / 15) | public flat (producer warpgroup) |
+|---|---|---|---|
+| tile i ready | `cp.async.wait_group 1`, `fence.proxy.async`, `bar.sync` | `cp.async.wait_group 1`, `bar.sync` (no proxy fence) | full mbarrier wait |
+| copies of tile i + 2 | right after the barrier, before Q.K | after the Q.K wgmma is issued | producer warpgroup |
+| V transpose (raw V to V^T) | after the Q.K wait, softmax and P packing | while Q.K is in flight | while Q.K is in flight |
+| V^T sync | `fence.proxy.async` + warpgroup barrier, then P.V | the same, before the Q.K wait | the same |
+| raw stage released | next tile's loop-top barrier, after P.V | the same | empty-mbarrier arrive after the Q.K wait and the transpose, before softmax |
+| P.V | both k-halves after all exponentials, waited in the tile | each half issued as soon as it is packed, waited at the tile's end | in flight across the loop edge, waited by the next tile's `wgmma.wait_group 1` |
+
+At q_len 1 the question does not arise: the mma.sync loop reads K and V straight from the raw
+stage (V in the P.V step itself), so P.V is the stage's last raw reader, and both kernels issue
+the next copies right after the loop-top barrier.
+
+### Public flat q_len 8 compile (10-28): the consumer region goes above R79
+
+`tools/attn_pub_compile.sh <public .py>`: CUDA_SRC up to the host `launch`, torch includes
+dropped, kernels instantiated inside their anonymous namespace, `nvcc -O3 -std=c++17
+-gencode=arch=compute_90a,code=sm_90a --expt-relaxed-constexpr` plus torch's
+`-D__CUDA_NO_HALF*` / `-D__CUDA_NO_BFLOAT16_CONVERSIONS__` defines, CUDA 12.8.1 in Docker.
+
+| instance | registers | spills |
+|---|---|---|
+| flat q_len 8 (`attn_kernel<8, true, 0>`: 256 consumers + 128 producers, 4 stages, 2 CTAs per SM, `setmaxnreg` 32 / 104) | 80 | 0 |
+| flat q_len 1 (`<1, true, 0>`) | 128 | 0 |
+| per-request q_len 8 MODE 1 / 3 / 7 / 15 | 125 / 119 / 96 / 96 | 0 |
+| per-request q_len 1 MODE 1 / 13 | 123 / 96 | 0 |
+
+In the flat q_len 8 SASS the consumer region (after `USETMAXREG.TRY_ALLOC.CTAPOOL 0x68`, up to
+`USETMAXREG.DEALLOC`) uses registers up to R100; outside it the highest is R76. So ptxas does
+give a `setmaxnreg.inc` region more than the launch-bounds count. That contradicts the 10-28
+reading of our mode 51 ("ptxas caps every region at the launch-bounds count"): our mode 51,
+with the same thread split, register split and stage count, stays at R78 or below in its
+consumer region and spills 304 bytes. The cap comes from how our kernel is built, not from
+ptxas. One structural difference: the public kernel runs each role as its own instantiation
+of the segment loop, called from the two arms of an if/else around `setmaxnreg`, while ours
+returns from the producer arm and continues the consumers inline after `setmaxnreg.inc`. Not
+yet tested as the cause.
+
+### q_len 8 schedule variants (10-28, compiled, not yet checked)
+
+Two new schedule bits on the consumer-copy q_len 8 modes (3, 11, 15, 19), chosen in
+`_one` by `_ONE_Q8_SCHED` (0 in `submission.py`):
+
+- |128 (QKF): the public per-request order. Q.K is issued, then the copies of tile i + 2,
+  then the V transpose runs under the in-flight Q.K, then `fence.proxy.async` + warpgroup
+  barrier + Q.K wait. Stage release unchanged.
+- |384 (QKF + EARLY): Q.K issued, V transpose under it, Q.K wait, `fence.proxy.async`, one
+  CTA barrier, then the raw stage just read is refilled with tile i + 3. With the same three
+  stages, three tiles are in flight instead of two (prologue, index ring and waits moved to a
+  depth of 3: `PRE` in `attn_one.cu`). The CTA barrier replaces the warpgroup barrier because a
+  cache row holds both KV heads, so both warpgroups must be done with the stage.
+
+Fences and barriers: none removed. The loop-top `cp.async.wait_group`, `fence.proxy.async`
+and barrier before the Q.K wgmma stay; the V^T writes keep their `fence.proxy.async` before
+the barrier that precedes P.V. The early refill is ordered the same way the control's
+loop-top refill is (the stage's async-proxy reads by Q.K are complete at `wgmma.wait_group`,
+PTX ISA "Asynchronous Warpgroup Level Matrix Instructions: wgmma.wait_group"; generic reads by
+the transpose; then a CTA barrier, then the new `cp.async` writes), and in EARLY the
+`fence.proxy.async` (PTX ISA "membar / fence", proxy fences) also sits between the Q.K wait and
+that barrier. ptxas 12.8.1 segfaults when `fence.proxy.async` is followed directly by
+`wgmma.wait_group` in this loop, so EARLY waits first and fences after; the order of the two
+does not change what the fence orders (the thread's earlier generic V^T writes).
+
+Local evidence: all 21 instances of `attn_one.cu` build for sm_90a with no spills except mode
+51 (unchanged: 304 bytes): 131 / 387: 115 / 111 registers, 139 / 395: 113 / 112, 143 / 399: 71 /
+71, 147 / 403: 118 / 117 (control 19: 115). The control instances' SASS differs from the
+previous build only by a few integer ALU instructions (mode 19: 3624 vs 3632). No C7514/C7515.
+`tools/attn_compile_check.sh` compiles every block of `bench.py`; `tools/attn_host_check.sh`
+reports no errors; `tools/attn_harness_dry.py` passes on all five shapes. `bench.py` is
+generated with `--sched=384`, so SELFTEST, STRESS and the judge's own tests and timings run the
+EARLY schedule on every q_len 8 shape, and BENCH times `_one@x=0` (control), `x=128`,
+`x=384` and `_one` (= 384 again, a noise pair) on the six q_len 8 scored shapes.

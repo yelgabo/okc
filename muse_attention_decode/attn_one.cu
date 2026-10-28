@@ -55,6 +55,13 @@ constexpr int M_PROD = 32;
 // |64 (with M_PROD): one CTA per SM and no register split, so ptxas compiles the consumers
 // with the full 168-register budget instead of 80 with spills.
 constexpr int M_SOLO = 64;
+// |128 (q_len 8, consumer copies): Q.K is issued before the next tile's copies and the V
+// transpose runs while it is in flight, as in the public entry's per-request loop.
+constexpr int M_QKF = 128;
+// |256 (with |128): a raw K/V stage is refilled as soon as its last raw readers are done
+// (Q.K complete, V transposed into V^T) instead of after P.V, so with the same three stages
+// one more tile is in flight.
+constexpr int M_EARLY = 256;
 
 __host__ __device__ constexpr int one_ns(int L, int mode) {
     return (mode & M_PROD) && L == 8 ? 4 : STAGES;
@@ -582,6 +589,12 @@ attn_one_kernel(const Params p) {
     constexpr bool FLAT = (MODE & M_FLAT) != 0;
     constexpr bool PROD = (MODE & M_PROD) != 0;
     constexpr bool SOLO = (MODE & M_SOLO) != 0;
+    constexpr bool QKF = L == 8 && !PROD && (MODE & M_QKF) != 0;
+    constexpr bool EARLY = QKF && (MODE & M_EARLY) != 0;
+    static_assert(!(MODE & M_EARLY) || (MODE & M_QKF), "EARLY builds on the QKF order");
+    // Tiles in flight ahead of the one being read: STAGES - 1 when a stage is released after
+    // P.V, STAGES when it is released before.
+    constexpr int PRE = EARLY ? STAGES : STAGES - 1;
     static_assert(!FLAT || !(ONE || SPEC), "flat mode partitions its own ranges");
     static_assert(!PROD || FLAT, "the producer warpgroup belongs to the flat kernel");
     static_assert(!SOLO || PROD, "SOLO is a producer-mode variant");
@@ -951,7 +964,7 @@ attn_one_kernel(const Params p) {
         if constexpr (!PROD) {
             // Group 0: page indices of the prologue tiles.
 #pragma unroll
-            for (int t = 0; t < STAGES - 1; ++t) {
+            for (int t = 0; t < PRE; ++t) {
                 issue_idx(t);
             }
             cp_commit();
@@ -1009,7 +1022,7 @@ attn_one_kernel(const Params p) {
                     seq = seq_real;
                     derive();
 #pragma unroll
-                    for (int t = 0; t < STAGES - 1; ++t) {
+                    for (int t = 0; t < PRE; ++t) {
                         issue_idx(t);
                     }
                     cp_commit();
@@ -1024,17 +1037,17 @@ attn_one_kernel(const Params p) {
             stamp(5);
             PHASE_EXIT(4)
             // K/V of the prologue tiles go out while the query group is still in flight;
-            // each later group also carries the page indices STAGES - 1 tiles ahead.
+            // each later group also carries the page indices PRE tiles ahead.
 #pragma unroll
-            for (int t = 0; t < STAGES - 1; ++t) {
+            for (int t = 0; t < PRE; ++t) {
                 if (t < ntiles) {
                     issue_kv(t, t, false);
-                    issue_idx(t + STAGES - 1);
+                    issue_idx(t + PRE);
                 }
                 cp_commit();
             }
             stamp(6);
-            cp_wait<STAGES - 1>();
+            cp_wait<PRE>();
         } else {
             cp_wait<0>();
         }
@@ -1150,7 +1163,7 @@ attn_one_kernel(const Params p) {
             // Patch the new rows into the tiles issued before they were staged.
             if (hi > seq) {
 #pragma unroll
-                for (int t = 0; t < STAGES - 1; ++t) {
+                for (int t = 0; t < PRE; ++t) {
                     if (t < ntiles) {
                         patch_tile(t, lo + t * BN);
                     }
@@ -1172,6 +1185,17 @@ attn_one_kernel(const Params p) {
         const float sl2k = (L == 1 ? 1.f : p.sl2) * k_scale;
         const int copy = p.nc > 1 ? split % p.nc : 0;
 
+        // Copies of tile it + PRE into the stage it will occupy (consumer-copy modes; with EARLY
+        // that is tile it's own stage, whose raw readers are then done).
+        auto refill = [&](int it, int st) {
+            if constexpr (!ONE && !PROD) {
+                if (it + PRE < ntiles) {
+                    issue_kv(it + PRE, (st + PRE) % STAGES, true);
+                    issue_idx(it + 2 * PRE);
+                }
+                cp_commit();
+            }
+        };
         // Tile it of this segment becomes readable in stage `st` (every consumer thread calls
         // this; the generic writes above and the gathered rows are fenced for the wgmma
         // reads at q_len 8).
@@ -1192,7 +1216,7 @@ attn_one_kernel(const Params p) {
                     csync();
                 }
             } else {
-                cp_wait<STAGES - 2>();
+                cp_wait<PRE - 1>();
                 if constexpr (L == 8) {
                     fence_proxy_async();
                 }
@@ -1203,12 +1227,8 @@ attn_one_kernel(const Params p) {
                 if (it == 0) {
                     stamp(15);
                 }
-                if constexpr (!ONE) {
-                    if (it + STAGES - 1 < ntiles) {
-                        issue_kv(it + STAGES - 1, (st + STAGES - 1) % STAGES, true);
-                        issue_idx(it + 2 * STAGES - 2);
-                    }
-                    cp_commit();
+                if constexpr (!QKF) {
+                    refill(it, st);
                 }
             }
         };
@@ -1394,6 +1414,31 @@ attn_one_kernel(const Params p) {
                 const int pos0 = lo + it * BN;
                 const bool interior =
                     pos0 + BN - 1 <= seq && (!p.window || pos0 >= seq + L - p.window);
+                // V^T for this warp's 16 dims: per 32-key half, one ldmatrix.x4.trans over
+                // the four 8-key groups (b16 = two dims), byte permutes into P's key order,
+                // one stmatrix.x4 into the 64B-swizzled K-major buffer; V^T row
+                // 8 (2 dg + e) + r holds dim 16 dg + 2 r + e, so the merge below sees dims
+                // in natural order.
+                uint8_t* vt = smem + S::VT + (2 * (it & 1) + hk) * VT_STRIDE;
+                auto transpose_v = [&]() {
+                    const int h4 = lane >> 3;
+                    const int r8 = lane & 7;
+#pragma unroll
+                    for (int half = 0; half < 2; ++half) {
+                        const int key = half * 32 + h4 * 8 + r8;
+                        uint32_t t0, t1, t2, t3;
+                        ldsm_x4_trans(smem_u32(vs + key * ROWB + ((hk * 4 + wq) ^ r8) * 16), t0,
+                                      t1, t2, t3);
+                        const uint32_t m0 = __byte_perm(t0, t1, 0x6420);
+                        const uint32_t m1 = __byte_perm(t0, t1, 0x7531);
+                        const uint32_t m2 = __byte_perm(t2, t3, 0x6420);
+                        const uint32_t m3 = __byte_perm(t2, t3, 0x7531);
+                        const int n = 8 * (2 * wq + (h4 & 1)) + r8;
+                        const int chunk = 2 * half + (h4 >> 1);
+                        stsm_x4(smem_u32(vt + n * 64 + ((chunk ^ ((n >> 1) & 3)) << 4)), m0, m1,
+                                m2, m3);
+                    }
+                };
                 float s[32];
                 {
                     const uint64_t kd =
@@ -1402,8 +1447,37 @@ attn_one_kernel(const Params p) {
                     wgmma_qk<0>(s, qd0, kd);
                     wgmma_qk<1>(s, qd1, kd + 2);
                     wg_commit();
-                    wg_wait<0>();
-                    reg_fence(s);
+                    if constexpr (QKF) {
+                        if constexpr (!EARLY) {
+                            refill(it, st);
+                        }
+                        // The transpose reads the raw V stage and writes V^T, neither of
+                        // which the in-flight Q.K touches.
+                        transpose_v();
+                        if constexpr (EARLY) {
+                            // The wait precedes the fence because ptxas 12.8.1 segfaults on
+                            // fence.proxy.async followed directly by wgmma.wait_group here.
+                            wg_wait<0>();
+                            reg_fence(s);
+                            // V^T is read by the P.V wgmma (async proxy) after the barrier.
+                            fence_proxy_async();
+                            // Every warp's Q.K (wgmma.wait_group: its shared-memory operands
+                            // are read) and V transpose of this stage are done, so the stage
+                            // can take tile it + STAGES. Same release as the !EARLY loop-top
+                            // barrier, earlier in the iteration; it also publishes V^T to
+                            // both warpgroups.
+                            __syncthreads();
+                            refill(it, st);
+                        } else {
+                            fence_proxy_async();
+                            named_sync(2 + hk, 128);
+                            wg_wait<0>();
+                            reg_fence(s);
+                        }
+                    } else {
+                        wg_wait<0>();
+                        reg_fence(s);
+                    }
                 }
                 if (!interior) {
 #pragma unroll
@@ -1472,33 +1546,11 @@ attn_one_kernel(const Params p) {
                     pa[kk][2] = e4m3x4(q0[8], q0[9], q0[12], q0[13]);
                     pa[kk][3] = e4m3x4(q0[10], q0[11], q0[14], q0[15]);
                 }
-                // V^T for this warp's 16 dims: per 32-key half, one ldmatrix.x4.trans over
-                // the four 8-key groups (b16 = two dims), byte permutes into P's key order,
-                // one stmatrix.x4 into the 64B-swizzled K-major buffer; V^T row
-                // 8 (2 dg + e) + r holds dim 16 dg + 2 r + e, so the merge below sees dims
-                // in natural order.
-                uint8_t* vt = smem + S::VT + (2 * (it & 1) + hk) * VT_STRIDE;
-                {
-                    const int h4 = lane >> 3;
-                    const int r8 = lane & 7;
-#pragma unroll
-                    for (int half = 0; half < 2; ++half) {
-                        const int key = half * 32 + h4 * 8 + r8;
-                        uint32_t t0, t1, t2, t3;
-                        ldsm_x4_trans(smem_u32(vs + key * ROWB + ((hk * 4 + wq) ^ r8) * 16), t0,
-                                      t1, t2, t3);
-                        const uint32_t m0 = __byte_perm(t0, t1, 0x6420);
-                        const uint32_t m1 = __byte_perm(t0, t1, 0x7531);
-                        const uint32_t m2 = __byte_perm(t2, t3, 0x6420);
-                        const uint32_t m3 = __byte_perm(t2, t3, 0x7531);
-                        const int n = 8 * (2 * wq + (h4 & 1)) + r8;
-                        const int chunk = 2 * half + (h4 >> 1);
-                        stsm_x4(smem_u32(vt + n * 64 + ((chunk ^ ((n >> 1) & 3)) << 4)), m0, m1,
-                                m2, m3);
-                    }
+                if constexpr (!QKF) {
+                    transpose_v();
+                    fence_proxy_async();
+                    named_sync(2 + hk, 128);
                 }
-                fence_proxy_async();
-                named_sync(2 + hk, 128);
                 {
                     const uint64_t vd = desc_sw64(smem_u32(vt));
                     wg_fence();
@@ -1682,7 +1734,8 @@ __global__ void coop_probe_kernel(int* out) {
 
 #define ONE_INSTANCES(X) \
     X(1, 1) X(1, 3) X(1, 11) X(1, 13) X(1, 17) X(1, 49) \
-    X(8, 1) X(8, 3) X(8, 11) X(8, 15) X(8, 19) X(8, 51) X(8, 115)
+    X(8, 1) X(8, 3) X(8, 11) X(8, 15) X(8, 19) X(8, 51) X(8, 115) \
+    X(8, 131) X(8, 387) X(8, 139) X(8, 395) X(8, 143) X(8, 399) X(8, 147) X(8, 403)
 
 // INSTANTIATE: template struct Instance<1, 1>;
 // INSTANTIATE: template struct Instance<1, 3>;
@@ -1697,6 +1750,14 @@ __global__ void coop_probe_kernel(int* out) {
 // INSTANTIATE: template struct Instance<1, 49>;
 // INSTANTIATE: template struct Instance<8, 51>;
 // INSTANTIATE: template struct Instance<8, 115>;
+// INSTANTIATE: template struct Instance<8, 131>;
+// INSTANTIATE: template struct Instance<8, 387>;
+// INSTANTIATE: template struct Instance<8, 139>;
+// INSTANTIATE: template struct Instance<8, 395>;
+// INSTANTIATE: template struct Instance<8, 143>;
+// INSTANTIATE: template struct Instance<8, 399>;
+// INSTANTIATE: template struct Instance<8, 147>;
+// INSTANTIATE: template struct Instance<8, 403>;
 
 }  // namespace
 
