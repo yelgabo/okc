@@ -13,7 +13,11 @@ self-test in prepare() fails or where it was measured to lose.
 - Projections (from muse_bf16_proj): an mma kernel streaming weights repacked into fragment
   order, for qkv_gate, pooler and the unpooler slice up to 8 tokens and o at 1 token.
 
-Attention and the fused norms are SGLang's, called as baseline.py does.
+- Attention prep (idea 1 from muse_attention_decode): one launch for QK-norm, RoPE, the FP8
+  query and the FP8 cache write in place of FusedQKNorm, three casts and store_cache, and one
+  launch for the norm-gate; FA3 stays SGLang's.
+
+The fused norms around attention and the MoE are SGLang's, called as baseline.py does.
 """
 
 from typing import TypedDict
@@ -116,6 +120,8 @@ PORT_PROJ = True
 # on and off moved decode 16 by -0.01 to -0.02 both times, within noise (checks 6ef2d969b6104e10,
 # 46dab8fb87274880), so SGLang's split router stays there.
 PORT_ROUTER_MMA = False
+# Idea 1 from muse_attention_decode: one prep launch and one norm-gate launch around FA3.
+PORT_ATTN_PREP = True
 
 HIDDEN = 8192
 RMS_EPS = 1e-5
@@ -144,6 +150,10 @@ torch::Tensor finalize(torch::Tensor y, torch::Tensor scores, torch::Tensor norm
 torch::Tensor router_fwd(torch::Tensor x, torch::Tensor w);
 torch::Tensor proj_fwd(torch::Tensor x, torch::Tensor wpacked, int64_t n);
 torch::Tensor router_mma_fwd(torch::Tensor x, torch::Tensor wpacked);
+torch::Tensor attn_prep(torch::Tensor qkv, torch::Tensor pos, torch::Tensor loc,
+                        torch::Tensor inv_freq, torch::Tensor k_scale, torch::Tensor v_scale,
+                        torch::Tensor k_cache, torch::Tensor v_cache, bool rope);
+torch::Tensor attn_gate(torch::Tensor o, torch::Tensor qkv);
 """
 
 _CUDA_SRC = r"""
@@ -775,6 +785,125 @@ torch::Tensor router_mma_fwd(torch::Tensor x, torch::Tensor wpacked) {
 }
 """
 
+# Idea 1 from muse_attention_decode (docs/runs-attention.md): one launch for QK-norm, RoPE, the
+# FP8 query and the FP8 cache write, and one for the per-head norm-gate after FA3.
+_PREP_SRC = r"""
+#include <cuda_fp8.h>
+
+namespace {
+namespace prep {
+
+constexpr int D = 64;
+constexpr int HQ = 16;
+constexpr int HKV = 2;
+constexpr float EPS = 1e-5f;
+
+__device__ __forceinline__ float warp_sum(float v) {
+    for (int o = 16; o; o >>= 1) {
+        v += __shfl_xor_sync(0xffffffffu, v, o);
+    }
+    return v;
+}
+
+__device__ __forceinline__ uint16_t to_fp8x2(float2 x) {
+    return __nv_cvt_float2_to_fp8x2(x, __NV_SATFINITE, __NV_E4M3);
+}
+
+// One warp per (token, head); lane i holds dims 2i and 2i+1, which is also RoPE pair i.
+__global__ void prep_kernel(const __nv_bfloat16* __restrict__ qkv, const int64_t* __restrict__ pos,
+                            const int64_t* __restrict__ loc, const float* __restrict__ inv_freq,
+                            const float* __restrict__ k_scale, const float* __restrict__ v_scale,
+                            uint16_t* __restrict__ q_out, uint16_t* k_cache, uint16_t* v_cache,
+                            int rope) {
+    const int t = blockIdx.x;
+    const int h = blockIdx.y * (blockDim.x / 32) + threadIdx.x / 32;
+    const int lane = threadIdx.x & 31;
+    constexpr int heads = HQ + 2 * HKV;
+    if (h >= heads) {
+        return;
+    }
+    const auto* src = reinterpret_cast<const __nv_bfloat162*>(qkv + (size_t)t * (heads + HQ) * D);
+    float2 x = __bfloat1622float2(src[h * (D / 2) + lane]);
+    if (h < HQ + HKV) {
+        const float r = rsqrtf(warp_sum(x.x * x.x + x.y * x.y) / D + EPS);
+        x.x *= r;
+        x.y *= r;
+        if (rope) {
+            float s, c;
+            sincosf((float)pos[t] * inv_freq[lane], &s, &c);
+            x = make_float2(x.x * c - x.y * s, x.x * s + x.y * c);
+        }
+    }
+    if (h < HQ) {
+        q_out[((size_t)t * HQ + h) * (D / 2) + lane] = to_fp8x2(x);
+        return;
+    }
+    const bool is_k = h < HQ + HKV;
+    const int kh = is_k ? h - HQ : h - HQ - HKV;
+    const float inv = 1.f / (is_k ? *k_scale : *v_scale);
+    x.x *= inv;
+    x.y *= inv;
+    uint16_t* dst = is_k ? k_cache : v_cache;
+    dst[((size_t)loc[t] * HKV + kh) * (D / 2) + lane] = to_fp8x2(x);
+}
+
+// One warp per (token, head): RMSNorm of the attention output times sigmoid(gate).
+__global__ void gate_kernel(const __nv_bfloat16* __restrict__ o,
+                            const __nv_bfloat16* __restrict__ qkv,
+                            __nv_bfloat16* __restrict__ out) {
+    const int t = blockIdx.x;
+    const int h = blockIdx.y * (blockDim.x / 32) + threadIdx.x / 32;
+    const int lane = threadIdx.x & 31;
+    if (h >= HQ) {
+        return;
+    }
+    const size_t row = (size_t)t * HQ + h;
+    float2 x = __bfloat1622float2(reinterpret_cast<const __nv_bfloat162*>(o)[row * (D / 2) + lane]);
+    const auto* g2 = reinterpret_cast<const __nv_bfloat162*>(
+        qkv + (size_t)t * (2 * HQ + 2 * HKV) * D + (HQ + 2 * HKV) * D);
+    const float2 g = __bfloat1622float2(g2[h * (D / 2) + lane]);
+    const float r = rsqrtf(warp_sum(x.x * x.x + x.y * x.y) / D + EPS);
+    x.x = x.x * r / (1.f + __expf(-g.x));
+    x.y = x.y * r / (1.f + __expf(-g.y));
+    reinterpret_cast<__nv_bfloat162*>(out)[row * (D / 2) + lane] = __float22bfloat162_rn(x);
+}
+
+}  // namespace prep
+}  // namespace
+
+torch::Tensor attn_prep(torch::Tensor qkv, torch::Tensor pos, torch::Tensor loc,
+                        torch::Tensor inv_freq, torch::Tensor k_scale, torch::Tensor v_scale,
+                        torch::Tensor k_cache, torch::Tensor v_cache, bool rope) {
+    using namespace prep;
+    TORCH_CHECK(qkv.is_contiguous() && qkv.size(1) == (2 * HQ + 2 * HKV) * D, "qkv layout");
+    const int tokens = qkv.size(0);
+    auto q = torch::empty({tokens, HQ, D}, qkv.options().dtype(torch::kFloat8_e4m3fn));
+    dim3 grid(tokens, (HQ + 2 * HKV + 7) / 8);
+    prep_kernel<<<grid, 256, 0, at::cuda::getCurrentCUDAStream()>>>(
+        reinterpret_cast<const __nv_bfloat16*>(qkv.data_ptr()), pos.data_ptr<int64_t>(),
+        loc.data_ptr<int64_t>(), inv_freq.data_ptr<float>(), k_scale.data_ptr<float>(),
+        v_scale.data_ptr<float>(), reinterpret_cast<uint16_t*>(q.data_ptr()),
+        reinterpret_cast<uint16_t*>(k_cache.data_ptr()),
+        reinterpret_cast<uint16_t*>(v_cache.data_ptr()), rope ? 1 : 0);
+    C10_CUDA_KERNEL_LAUNCH_CHECK();
+    return q;
+}
+
+torch::Tensor attn_gate(torch::Tensor o, torch::Tensor qkv) {
+    using namespace prep;
+    TORCH_CHECK(o.is_contiguous() && qkv.is_contiguous(), "attn_gate layout");
+    const int tokens = qkv.size(0);
+    auto out = torch::empty({tokens, HQ * D}, qkv.options());
+    dim3 grid(tokens, (HQ + 7) / 8);
+    gate_kernel<<<grid, 256, 0, at::cuda::getCurrentCUDAStream()>>>(
+        reinterpret_cast<const __nv_bfloat16*>(o.data_ptr()),
+        reinterpret_cast<const __nv_bfloat16*>(qkv.data_ptr()),
+        reinterpret_cast<__nv_bfloat16*>(out.data_ptr()));
+    C10_CUDA_KERNEL_LAUNCH_CHECK();
+    return out;
+}
+"""
+
 _EXT = None
 
 
@@ -784,8 +913,9 @@ def _ext():
         _EXT = load_inline(
             name="okc_decode_layer_v1",
             cpp_sources=_CPP_SRC,
-            cuda_sources=_CUDA_SRC,
-            functions=["route_align", "finalize", "router_fwd", "proj_fwd", "router_mma_fwd"],
+            cuda_sources=[_CUDA_SRC, _PREP_SRC],
+            functions=["route_align", "finalize", "router_fwd", "proj_fwd", "router_mma_fwd",
+                       "attn_prep", "attn_gate"],
             extra_cuda_cflags=["-O3", "-gencode=arch=compute_90a,code=sm_90a"],
         )
     return _EXT
@@ -916,6 +1046,151 @@ def _experts(x, topk_weights, topk_ids, local_start, state, ours):
     return fused_post_expert_norm_weighted_sum(
         y, topk_weights, norm_weight=state["post_expert_w"], eps=POST_NORM_EPS, weight_first=True,
         slot_expert_ids=local_ids)
+
+
+def _attn_sglang(qkv, data, state):
+    """FusedQKNorm, the FP8 casts and store_cache, FA3, FusedRMSNormGate: baseline.py's calls."""
+    cfg = data["config"]
+    tokens = cfg["tokens"]
+    hq, hkv, d = cfg["num_q_heads"], cfg["num_kv_heads"], cfg["head_dim"]
+    if cfg["rope_theta"]:
+        q, k = state["qk_norm"](qkv, data["positions"], state["cos_sin"])
+    else:
+        q, k = state["qk_norm"](qkv)
+    v = qkv[:, hq * d + hkv * d: hq * d + 2 * hkv * d]
+    gate = qkv[:, hq * d + 2 * hkv * d:]
+    k_cache, v_cache = data["k_cache"], data["v_cache"]
+    scaled = cfg["kv_scale"] != 1.0
+    k = k.reshape(tokens, hkv * d)
+    if scaled:
+        k, v = k / data["k_scale"], v / data["v_scale"]
+    # The pool keeps FP8 rows as bytes; slot 0 is a live row here (SGLang reserves it for padding).
+    store_cache(k.to(FP8).view(torch.uint8), v.to(FP8).view(torch.uint8),
+                k_cache.view(-1, hkv * d).view(torch.uint8),
+                v_cache.view(-1, hkv * d).view(torch.uint8),
+                data["cache_loc"], reserved_skip_index=-1)
+    out = _fa3(q.view(tokens, hq, d).to(FP8), data)
+    return state["o_norm_gate"](out.reshape(tokens, hq * d).to(torch.bfloat16), gate)
+
+
+def _fa3(q, data):
+    cfg = data["config"]
+    batch, hkv, window = cfg["batch"], cfg["num_kv_heads"], cfg["window"]
+    descale = {}
+    if cfg["kv_scale"] != 1.0:
+        descale = dict(k_descale=data["k_scale"].reshape(1, 1).expand(batch, hkv),
+                       v_descale=data["v_scale"].reshape(1, 1).expand(batch, hkv))
+    out = flash_attn_with_kvcache(
+        q=q,
+        k_cache=data["k_cache"],
+        v_cache=data["v_cache"],
+        page_table=data["page_table"],
+        cache_seqlens=data["cache_seqlens"],
+        cu_seqlens_q=data["cu_seqlens_q"],
+        max_seqlen_q=cfg["q_len"],
+        softmax_scale=cfg["sm_scale"] * cfg["qk_scale_factor"],
+        causal=True,
+        window_size=(window - 1, 0) if window else (-1, -1),
+        scheduler_metadata=data["scheduler_metadata"],
+        **descale,
+    )
+    return out[0] if isinstance(out, tuple) else out
+
+
+def _attn_prep(qkv, data, state):
+    """Idea 1: our prep launch, SGLang's FA3 on our FP8 queries, our norm-gate launch."""
+    cfg = data["config"]
+    tokens = cfg["tokens"]
+    q = _ext().attn_prep(qkv, data["positions"], data["cache_loc"], state["inv_freq"],
+                         data["k_scale"], data["v_scale"], data["k_cache"], data["v_cache"],
+                         bool(cfg["rope_theta"]))
+    out = _fa3(q, data)
+    if out.dtype != torch.bfloat16:
+        out = out.to(torch.bfloat16)
+    return _ext().attn_gate(out.reshape(tokens, -1).contiguous(), qkv)
+
+
+def _attn_path(cfg, state):
+    heads = (cfg["num_q_heads"], cfg["num_kv_heads"], cfg["head_dim"])
+    if heads == (16, 2, 64) and state["attn_prep_ours"]:
+        return _attn_prep
+    return _attn_sglang
+
+
+def _attn_case(device, batch, length, layer, page, kv_scale, seed):
+    """A synthetic attention step in the judge's input layout: random caches and a shuffled
+    page table, ctx 1500-5000 per request."""
+    gen = torch.Generator(device=device).manual_seed(seed)
+    seq = torch.randint(1500, 5000, (batch,), generator=gen, device=device, dtype=torch.int32)
+    pages_per = (seq + length + page - 1) // page
+    total = int(pages_per.sum())
+    max_pages = int(pages_per.max())
+    perm = torch.randperm(total + 7, generator=gen, device=device)[:total].to(torch.int32)
+    page_table = torch.full((batch, max_pages), -1, dtype=torch.int32, device=device)
+    at = 0
+    for b in range(batch):
+        n = int(pages_per[b])
+        page_table[b, :n] = perm[at:at + n]
+        at += n
+    shape = (total + 7, page, 2, 64)
+    k_cache = torch.randn(shape, generator=gen, device=device).to(FP8)
+    v_cache = torch.randn(shape, generator=gen, device=device).to(FP8)
+    steps = torch.arange(length, device=device)
+    positions = (seq.long()[:, None] + steps).reshape(-1)
+    rows = page_table.long().repeat_interleave(length, 0)
+    rows = rows.gather(1, (positions // page)[:, None])[:, 0] * page + positions % page
+    tokens = batch * length
+    qkv = (torch.randn((tokens, 2304), generator=gen, device=device) * 2).to(torch.bfloat16)
+    scale = torch.tensor(kv_scale, dtype=torch.float32, device=device)
+    data = {
+        "k_cache": k_cache, "v_cache": v_cache, "positions": positions, "cache_loc": rows,
+        "cache_seqlens": seq + length,
+        "cu_seqlens_q": torch.arange(0, tokens + 1, length, dtype=torch.int32, device=device),
+        "scheduler_metadata": None, "k_scale": scale, "v_scale": scale.clone(),
+        "page_table": page_table, "seq_lens": seq,
+        "config": {"batch": batch, "q_len": length, "tokens": tokens, "num_q_heads": 16,
+                   "num_kv_heads": 2, "head_dim": 64, "page_size": page,
+                   "window": 2048 if layer == "sliding" else 0,
+                   "rope_theta": ROPE_THETA if layer == "sliding" else 0.0,
+                   "qk_scale_factor": 5.4730064863875, "sm_scale": 0.125,
+                   "kv_scale": kv_scale},
+    }
+    return qkv, data
+
+
+def _attn_self_test(state):
+    """Each attention path against SGLang's on synthetic steps: the output and the new cache
+    rows. Raises on a mismatch."""
+    device = state["inv_freq"].device
+    cases = [(1, 1, "sliding", 1, 1.0), (3, 1, "full", 1, 1.0), (5, 1, "sliding", 1, 1.0),
+             (2, 8, "sliding", 1, 1.0), (3, 8, "full", 1, 1.0), (4, 1, "full", 64, 0.5),
+             (2, 8, "sliding", 64, 1.0), (33, 1, "full", 1, 1.0)]
+    worst_out, worst_cache = 0.0, 0.0
+    for i, (batch, length, layer, page, kv_scale) in enumerate(cases):
+        qkv, data = _attn_case(device, batch, length, layer, page, kv_scale, 7000 + i)
+        path = _attn_path(data["config"], state)
+        if path is _attn_sglang:
+            continue
+        ours = dict(data, k_cache=data["k_cache"].clone(), v_cache=data["v_cache"].clone())
+        # Separate copies of qkv, in case either path normalizes q and k in place.
+        out = path(qkv.clone(), ours, state)
+        ref = _attn_sglang(qkv.clone(), data, state)
+        torch.cuda.synchronize()
+        if not torch.isfinite(out.float()).all():
+            raise RuntimeError(f"attn case {i}: non-finite output")
+        worst_out = max(worst_out, _rel(out, ref))
+        rows = data["cache_loc"]
+        for name in ("k_cache", "v_cache"):
+            a = ours[name].view(-1, 128)[rows].float()
+            b = data[name].view(-1, 128)[rows].float()
+            worst_cache = max(worst_cache, _rel(a, b))
+            ours[name].view(-1, 128)[rows] = data[name].view(-1, 128)[rows]
+            if not torch.equal(ours[name].view(torch.uint8), data[name].view(torch.uint8)):
+                raise RuntimeError(f"attn case {i}: {name} written outside the step's rows")
+    print(f"attn self-test: worst rel diff vs SGLang path: output {worst_out:.2e}, "
+          f"new cache rows {worst_cache:.2e}")
+    if not (worst_out < 2e-2 and worst_cache < 2e-2):
+        raise RuntimeError("attn self-test: mismatch")
 
 
 def _rel(a, b):
@@ -1055,12 +1330,15 @@ def prepare(weights):
         "moe_ours": False,
         "router_ours": False,
         "proj_ours": False,
+        "attn_prep_ours": False,
+        # As SGLang's RotaryEmbedding computes them, so the angles match its cos/sin table.
+        "inv_freq": inv_freq,
     }
     del freqs
     torch.cuda.synchronize()
     print(f"prepare: SGLang state built ({time.time() - t_start:.1f} s)")
 
-    if not (PORT_MOE or PORT_ROUTER or PORT_PROJ):
+    if not (PORT_MOE or PORT_ROUTER or PORT_PROJ or PORT_ATTN_PREP):
         return state
     if not _try("extension build", _ext):
         return state
@@ -1072,6 +1350,9 @@ def prepare(weights):
     if PORT_PROJ:
         state["proj_packed"] = {name: _pack_mma_a(w) for name, w in state["dense"].items()}
         state["proj_ours"] = _try("proj", lambda: _proj_self_test(state))
+    if PORT_ATTN_PREP:
+        state["attn_prep_ours"] = True
+        state["attn_prep_ours"] = _try("attn prep", lambda: _attn_self_test(state))
     torch.cuda.synchronize()
     print(f"prepare: done ({time.time() - t_start:.1f} s)")
     return state
@@ -1094,48 +1375,10 @@ def _proj(x, layer, n, state):
 
 def kernel_fn(data, state):
     cfg = data["config"]
-    batch, length, tokens = cfg["batch"], cfg["q_len"], cfg["tokens"]
-    hq, hkv, d = cfg["num_q_heads"], cfg["num_kv_heads"], cfg["head_dim"]
+    tokens = cfg["tokens"]
     dense = state["dense"]
     qkv = _proj(data["attn_input"], "qkv_gate", dense["qkv_gate"].shape[0], state)
-    if cfg["rope_theta"]:
-        q, k = state["qk_norm"](qkv, data["positions"], state["cos_sin"])
-    else:
-        q, k = state["qk_norm"](qkv)
-    v = qkv[:, hq * d + hkv * d: hq * d + 2 * hkv * d]
-    gate = qkv[:, hq * d + 2 * hkv * d:]
-    k_cache, v_cache = data["k_cache"], data["v_cache"]
-    scaled = cfg["kv_scale"] != 1.0
-    k = k.reshape(tokens, hkv * d)
-    if scaled:
-        k, v = k / data["k_scale"], v / data["v_scale"]
-    # The pool keeps FP8 rows as bytes; slot 0 is a live row here (SGLang reserves it for padding).
-    store_cache(k.to(FP8).view(torch.uint8), v.to(FP8).view(torch.uint8),
-                k_cache.view(-1, hkv * d).view(torch.uint8),
-                v_cache.view(-1, hkv * d).view(torch.uint8),
-                data["cache_loc"], reserved_skip_index=-1)
-    window = cfg["window"]
-    descale = {}
-    if scaled:
-        descale = dict(k_descale=data["k_scale"].reshape(1, 1).expand(batch, hkv),
-                       v_descale=data["v_scale"].reshape(1, 1).expand(batch, hkv))
-    out = flash_attn_with_kvcache(
-        q=q.view(tokens, hq, d).to(FP8),
-        k_cache=k_cache,
-        v_cache=v_cache,
-        page_table=data["page_table"],
-        cache_seqlens=data["cache_seqlens"],
-        cu_seqlens_q=data["cu_seqlens_q"],
-        max_seqlen_q=length,
-        softmax_scale=cfg["sm_scale"] * cfg["qk_scale_factor"],
-        causal=True,
-        window_size=(window - 1, 0) if window else (-1, -1),
-        scheduler_metadata=data["scheduler_metadata"],
-        **descale,
-    )
-    if isinstance(out, tuple):
-        out = out[0]
-    o = state["o_norm_gate"](out.reshape(tokens, hq * d).to(torch.bfloat16), gate)
+    o = _attn_path(cfg, state)(qkv, data, state)
     attn_output = _proj(o, "o", HIDDEN, state)  # all-reduce: identity
 
     split_router = tokens > ROUTER_FP32_MAX_TOKENS
