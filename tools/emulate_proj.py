@@ -8,15 +8,15 @@ repacking, the token staging or the output indexing shows up as a mismatch again
 
 import numpy as np
 
-# (k, n, warps, s) for every proj_fwd branch; n is the output width.
+# name: (k, n, {m bucket: (warps, r, ch, s)}) for every proj_fwd branch; n is the output width.
+SMALL, LARGE = range(1, 9), range(9, 33)
 CONFIGS = {
-    "o": (1024, 8192, 4, 2),
-    "unpooler sliced": (4096, 1024, 4, 8),
-    "unpooler": (4096, 8192, 4, 2),
-    "qkv_gate": (8192, 2304, 4, 4),
-    "pooler": (8192, 4096, 4, 4),
+    "o": (1024, 8192, {SMALL: (4, 1, 8, 2), LARGE: (4, 4, 4, 4)}),
+    "unpooler sliced": (4096, 1024, {SMALL: (4, 1, 8, 8)}),
+    "unpooler": (4096, 8192, {LARGE: (4, 4, 4, 4)}),
+    "qkv_gate": (8192, 2304, {SMALL: (4, 1, 8, 4), LARGE: (3, 3, 4, 8)}),
+    "pooler": (8192, 4096, {SMALL: (4, 1, 8, 4), LARGE: (4, 4, 4, 8)}),
 }
-CH = 8
 
 LANE = np.arange(32)
 G, C = LANE // 4, LANE % 4
@@ -39,29 +39,29 @@ def a_tiles(packed_rt):
     return a
 
 
-def staged_b(x, m, k, kt0, t, mt):
+def staged_b(x, m, k, kt0, t, mt, ch):
     """Each chunk's token staging as the kernel's cp.async writes it, then ldmatrix.x2 as PTX
     documents it. Returns what each lane holds: [t, mt, 32 lanes, 4 (b.x pair, b.y pair)].
     """
-    stride = CH * 16 + 8
+    stride = ch * 16 + 8
     # Lane l supplies row l % 8 of matrix (l // 8) % 2; lane l receives, from matrix j, row
     # l // 4, elements (l % 4) * 2 and +1.
     row_addr = (LANE & 7) * stride + ((LANE >> 3) & 1) * 8
     frags = np.zeros((t, mt, 32, 4), dtype=x.dtype)
-    for c in range(t // CH):
+    for c in range(t // ch):
         xs = np.zeros(mt * 8 * stride, dtype=x.dtype)
-        kcol = (kt0 + c * CH) * 16
-        for v in range(mt * 8 * 16):
-            tok, col = v >> 4, (v & 15) * 8
+        kcol = (kt0 + c * ch) * 16
+        for v in range(mt * 8 * ch * 2):
+            tok, col = v // (ch * 2), (v % (ch * 2)) * 8
             if tok < m:
                 xs[tok * stride + col:tok * stride + col + 8] = x[tok, kcol + col:kcol + col + 8]
-        for i in range(CH):
+        for i in range(ch):
             for nt in range(mt):
                 addr = row_addr + nt * 8 * stride + i * 16
                 for j in range(2):
                     rows = addr[j * 8 + G]
                     for e in range(2):
-                        frags[c * CH + i, nt, :, j * 2 + e] = xs[rows + C * 2 + e]
+                        frags[c * ch + i, nt, :, j * 2 + e] = xs[rows + C * 2 + e]
     return frags
 
 
@@ -75,10 +75,10 @@ def b_tiles(xs):
     return b
 
 
-def emulate(w, x, n_out, warps, s):
+def emulate(w, x, n_out, warps, r_tiles, ch, s):
     m, k = x.shape
     mt = 1 if m <= 8 else 2 if m <= 16 else 4
-    rows, tokens = warps * 16, mt * 8
+    rows, tokens = warps * r_tiles * 16, mt * 8
     kt_total = k // 16
     t = kt_total // s
     packed = pack(w[:n_out])
@@ -87,20 +87,21 @@ def emulate(w, x, n_out, warps, s):
         partials = []
         for by in range(s):
             kt0 = by * t
-            b = b_tiles(staged_b(x, m, k, kt0, t, mt))
+            b = b_tiles(staged_b(x, m, k, kt0, t, mt, ch))
             partial = np.zeros(tokens * rows)
             for warp in range(warps):
-                rt = bx * warps + warp
-                a = a_tiles(packed[rt, kt0:kt0 + t])
-                for nt in range(mt):
-                    c_tile = np.einsum("tij,tjn->in", a, b[:, nt])
-                    # Documented C layout, then the kernel's partial[t * ROWS + r] writes.
-                    r = warp * 16 + G
-                    tk = nt * 8 + C * 2
-                    partial[tk * rows + r] = c_tile[G, C * 2]
-                    partial[(tk + 1) * rows + r] = c_tile[G, C * 2 + 1]
-                    partial[tk * rows + r + 8] = c_tile[G + 8, C * 2]
-                    partial[(tk + 1) * rows + r + 8] = c_tile[G + 8, C * 2 + 1]
+                for r in range(r_tiles):
+                    rt = (bx * warps + warp) * r_tiles + r
+                    a = a_tiles(packed[rt, kt0:kt0 + t])
+                    for nt in range(mt):
+                        c_tile = np.einsum("tij,tjn->in", a, b[:, nt])
+                        # Documented C layout, then the kernel's partial[t * ROWS + row] writes.
+                        row = (warp * r_tiles + r) * 16 + G
+                        tk = nt * 8 + C * 2
+                        partial[tk * rows + row] = c_tile[G, C * 2]
+                        partial[(tk + 1) * rows + row] = c_tile[G, C * 2 + 1]
+                        partial[tk * rows + row + 8] = c_tile[G + 8, C * 2]
+                        partial[(tk + 1) * rows + row + 8] = c_tile[G + 8, C * 2 + 1]
             partials.append(partial)
         for rank in range(s):
             for i in range(tokens * rows // s):
@@ -113,22 +114,18 @@ def emulate(w, x, n_out, warps, s):
 
 def main():
     rng = np.random.default_rng(0)
-    for name, (k, n_out, warps, s) in CONFIGS.items():
-        n_full = max(n_out, 8192) if name.startswith("unpooler") else n_out
+    for name, (k, n_out, buckets) in CONFIGS.items():
+        n_full = 8192 if name.startswith("unpooler") else n_out
         w = rng.standard_normal((n_full, k)) / np.sqrt(k)
-        assert np.array_equal(
-            np.concatenate([a_tiles(p) for p in pack(w)[:1]], axis=0)[1],
-            w[:16, 16:32]), "A layout"
-        for m in (1, 7, 16, 32):
-            if name == "unpooler sliced" and m > 8 or name == "unpooler" and m <= 8:
-                continue
-            x = rng.standard_normal((m, k))
-            out = emulate(w, x, n_out, warps, s)
-            ref = x @ w[:n_out].T
-            err = np.linalg.norm(out - ref) / np.linalg.norm(ref)
-            print(f"{name:16s} m={m:2d}  rel err {err:.1e}")
-            assert err < 1e-12, name
-
+        assert np.array_equal(a_tiles(pack(w)[0])[1], w[:16, 16:32]), "A layout"
+        for bucket, (warps, r_tiles, ch, s) in buckets.items():
+            for m in (1, 7) if bucket is SMALL else (9, 16, 32):
+                x = rng.standard_normal((m, k))
+                out = emulate(w, x, n_out, warps, r_tiles, ch, s)
+                ref = x @ w[:n_out].T
+                err = np.linalg.norm(out - ref) / np.linalg.norm(ref)
+                print(f"{name:16s} m={m:2d}  rel err {err:.1e}")
+                assert err < 1e-12, name
 
 if __name__ == "__main__":
     main()
