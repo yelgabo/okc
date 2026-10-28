@@ -1,0 +1,79 @@
+okc run 84f3975334f048c3 on muse_moe_w4a16
+submission  /Users/gretchengabo/GitHub/okc/.claude/worktrees/agent-a82876e03f20fe296/muse_moe_w4a16/submission.py
+status      ok
+passed      true
+speedup     1.6832732135817934
+speedup_ci  [1.6580241153780664 1.7085223117855202]
+score_us    7989.493263178166
+tests       5/5 passed
+
+scored shapes (µs; speed of light is the reference's bound)
+case                                                         sglang      yours  speedup        sol  
+bs=1 load=decode 1 sharding=ep8                               77.26      43.41   1.780x      11.42  
+bs=16 load=decode 16 sharding=ep8                            188.77     107.70   1.753x      52.52  
+bs=32 load=decode 32 sharding=ep8                            204.45     142.98   1.430x      70.76  
+bs=8 load=verify 1 sharding=ep8                              142.50      82.47   1.728x      37.32  
+bs=128 load=verify 16 sharding=ep8                           456.59     254.42   1.795x     101.34  
+bs=256 load=verify 32 sharding=ep8                           621.49     377.90   1.645x     108.94  
+
+profile 0: bs=1 load=decode 1 sharding=ep8
+kernel                                                           GPU time  share  calls
+void (anonymous namespace)::w4_gemm_kernel<1, 1, 8, 2, 8,...      20.3 µs  48.5%      1
+void (anonymous namespace)::w4_gemm_kernel<2, 1, 1, 4, 4,...      12.8 µs  30.6%      1
+void (anonymous namespace)::w4_finalize_kernel<8>(float c...       4.2 µs   9.9%      1
+(anonymous namespace)::route_align_kernel(int const*, int...       2.4 µs   5.7%      1
+(anonymous namespace)::w4_swiglu_kernel(float const*, int...       2.2 µs   5.2%      1
+total                                                             41.9 µs
+
+profile 1: bs=16 load=decode 16 sharding=ep8
+kernel                                                           GPU time  share  calls
+void (anonymous namespace)::w4_gemm_kernel<1, 1, 8, 4, 4,...      65.8 µs  55.0%      1
+void (anonymous namespace)::w4_gemm_kernel<2, 1, 8, 4, 4,...      38.7 µs  32.3%      1
+void (anonymous namespace)::w4_finalize_kernel<8>(float c...       8.7 µs   7.3%      1
+(anonymous namespace)::w4_swiglu_kernel(float const*, int...       4.3 µs   3.6%      1
+(anonymous namespace)::route_align_kernel(int const*, int...       2.2 µs   1.8%      1
+total                                                            119.7 µs
+GPU busy (kernels overlap: PDL or streams)                       110.8 µs
+an overlapping kernel's time includes any wait for the one before it, so the rows add up to more
+
+profile 2: bs=32 load=decode 32 sharding=ep8
+kernel                                                           GPU time  share  calls
+void (anonymous namespace)::w4_gemm_kernel<1, 1, 8, 4, 4,...      84.7 µs  54.6%      1
+void (anonymous namespace)::w4_gemm_kernel<2, 1, 8, 4, 4,...      50.1 µs  32.3%      1
+void (anonymous namespace)::w4_finalize_kernel<8>(float c...       9.4 µs   6.0%      1
+(anonymous namespace)::w4_swiglu_kernel(float const*, int...       8.8 µs   5.6%      1
+(anonymous namespace)::route_align_kernel(int const*, int...       2.3 µs   1.5%      1
+total                                                            155.3 µs
+GPU busy (kernels overlap: PDL or streams)                       138.9 µs
+an overlapping kernel's time includes any wait for the one before it, so the rows add up to more
+
+profile 3: bs=8 load=verify 1 sharding=ep8
+kernel                                                           GPU time  share  calls
+void (anonymous namespace)::w4_gemm_kernel<1, 1, 8, 4, 4,...      43.6 µs  46.5%      1
+void (anonymous namespace)::w4_gemm_kernel<2, 1, 8, 2, 8,...      27.5 µs  29.3%      1
+void (anonymous namespace)::w4_finalize_kernel<1>(float c...      11.4 µs  12.2%      1
+(anonymous namespace)::w4_swiglu_kernel(float const*, int...       9.2 µs   9.8%      1
+(anonymous namespace)::route_align_kernel(int const*, int...       2.1 µs   2.3%      1
+total                                                             93.8 µs
+GPU busy (kernels overlap: PDL or streams)                        77.9 µs
+an overlapping kernel's time includes any wait for the one before it, so the rows add up to more
+
+profile 4: bs=128 load=verify 16 sharding=ep8
+kernel                                                           GPU time  share  calls
+void (anonymous namespace)::w4_gemm_kernel<1, 1, 8, 2, 8,...     174.3 µs  60.4%      1
+void (anonymous namespace)::w4_gemm_kernel<2, 2, 16, 4, 4...      85.1 µs  29.5%      1
+(anonymous namespace)::w4_swiglu_kernel(float const*, int...      15.8 µs   5.5%      1
+void (anonymous namespace)::w4_finalize_kernel<1>(float c...      10.1 µs   3.5%      1
+(anonymous namespace)::route_align_kernel(int const*, int...       3.1 µs   1.1%      1
+total                                                            288.4 µs
+GPU busy (kernels overlap: PDL or streams)                       277.2 µs
+an overlapping kernel's time includes any wait for the one before it, so the rows add up to more
+
+profile 5: bs=256 load=verify 32 sharding=ep8
+kernel                                                           GPU time  share  calls
+void (anonymous namespace)::w4_gemm_kernel<1, 2, 16, 4, 4...     235.8 µs  60.9%      1
+void (anonymous namespace)::w4_gemm_kernel<2, 2, 16, 4, 4...     113.0 µs  29.2%      1
+(anonymous namespace)::w4_swiglu_kernel(float const*, int...      21.3 µs   5.5%      1
+void (anonymous namespace)::w4_finalize_kernel<1>(float c...      13.2 µs   3.4%      1
+(anonymous namespace)::route_align_kernel(int const*, int...       3.8 µs   1.0%      1
+total                                                            387.0 µs
