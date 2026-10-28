@@ -106,6 +106,8 @@ ROUTER_GEOM = {
     "router16b": (1, 16, 1, 1, 8, 1, 3),
     "router32b": (2, 32, 1, 1, 8, 1, 3),
 }
+# Pooler geometries that also get a fused pooler + router instantiation (name + "f").
+FUSED_GEOM = ("pool8", "pool16")
 # Which geometry each (layer, token bucket) uses; buckets are 8 (m <= 8), 16 (9..16), 32 (17..32).
 SK_USE = {
     ("qkv_gate", 8): "qkv8", ("qkv_gate", 16): "qkv16", ("qkv_gate", 32): "qkv32",
@@ -121,35 +123,42 @@ SMEM_PER_SM = 228 * 1024
 
 
 def _sk_configs():
-    """Every kernel instantiation: (name, MT, TOKR, NT, NWR, WSK, UPW, NSTAGE, COMP, HL, NACC, CL, out)."""
+    """Every kernel instantiation: (name, MT, TOKR, NT, NWR, WSK, UPW, NSTAGE, COMP, HL, NACC, CL, out, fuse)."""
     cfgs = []
     for name, (mt, tokr, nt, nwr, wsk, upw, nstage) in SK_GEOM.items():
         for comp in (True, False):
             cname = name if comp else name + "raw"
-            cfgs.append((cname, mt, tokr, nt, nwr, wsk, upw, _fit_stages(mt, tokr, nt, nwr, wsk, upw, nstage, comp, False, 1),
-                         comp, False, 1, 1, "bf16"))
+            cfgs.append((cname, mt, tokr, nt, nwr, wsk, upw,
+                         _fit_stages(mt, tokr, nt, nwr, wsk, upw, nstage, comp, False, 1), comp, False, 1, 1, "bf16",
+                         False))
     for name, (mt, tokr, nt, nwr, wsk, upw, nstage) in ROUTER_GEOM.items():
-        cfgs.append((name, mt, tokr, nt, nwr, wsk, upw, _fit_stages(mt, tokr, nt, nwr, wsk, upw, nstage, False, True, 3),
-                     False, True, 2, 3, "f32"))
+        cfgs.append((name, mt, tokr, nt, nwr, wsk, upw,
+                     _fit_stages(mt, tokr, nt, nwr, wsk, upw, nstage, False, True, 3), False, True, 2, 3, "f32",
+                     False))
+    for name in FUSED_GEOM:
+        mt, tokr, nt, nwr, wsk, upw, nstage = SK_GEOM[name]
+        cfgs.append((name + "f", mt, tokr, nt, nwr, wsk, upw,
+                     _fit_stages(mt, tokr, nt, nwr, wsk, upw, nstage, True, False, 1, True), True, False, 1, 1,
+                     "bf16", True))
     return cfgs
 
 
-def _sk_smem(mt, tokr, nt, nwr, wsk, upw, nstage, comp, hl, cl, pmax=64):
+def _sk_smem(mt, tokr, nt, nwr, wsk, upw, nstage, comp, hl, cl, fuse=False, pmax=64):
     """Mirror of the kernel's constexpr layout, with a pmax guess for the escape table."""
     nw, r, ups = nwr * wsk, nwr * nt * 8, wsk * upw
     tu = 768 if comp else (2048 if hl else 1024)
     wby, xby = nw * upw * nt * tu, ups * tokr * 128
-    sst = (xby + wby + 1023) & ~1023
+    sst = (xby + max(wby, ups * 2048 if fuse else 0) + 1023) & ~1023
     toks, rp, cp = 16 * mt, r + ((40 - (r % 32)) % 32), r + 1
     nesc = (4 if nstage >= 4 else nstage) if comp else 0
     corr = nesc * ((toks * cp + 3) & ~3) * 4 if comp else 0
     peer = (cl - 1) * wsk * toks * rp * 4 if cl > 1 else 0
     tab = (pmax * 8 + r * 4) if comp else 0
-    return 1024 + nstage * sst + 16 * nstage + 32 + corr + peer + tab + 128
+    return 1024 + nstage * sst + 16 * nstage + 32 + corr + peer + tab + 128 + 16
 
 
-def _fit_stages(mt, tokr, nt, nwr, wsk, upw, nstage, comp, hl, cl):
-    while nstage > 2 and _sk_smem(mt, tokr, nt, nwr, wsk, upw, nstage, comp, hl, cl) > SMEM_BUDGET:
+def _fit_stages(mt, tokr, nt, nwr, wsk, upw, nstage, comp, hl, cl, fuse=False):
+    while nstage > 2 and _sk_smem(mt, tokr, nt, nwr, wsk, upw, nstage, comp, hl, cl, fuse) > SMEM_BUDGET:
         nstage -= 1
     return nstage
 
@@ -162,7 +171,14 @@ def _sk_geom(name):
     c = SK_CONFIGS[SK_INDEX[name]]
     mt, tokr, nt, nwr, wsk, upw = c[1:7]
     return {"R": nwr * nt * 8, "NT": nt, "NWR": nwr, "WSK": wsk, "UPW": upw, "NW": nwr * wsk,
-            "UPS": wsk * upw, "comp": c[8], "hl": c[9], "cl": c[11], "tokr": tokr}
+            "UPS": wsk * upw, "comp": c[8], "hl": c[9], "cl": c[11], "tokr": tokr, "fuse": c[13]}
+
+
+def _fused_router_geom(name):
+    """The router piece's stream geometry for a fused pooler config: every consumer warp splits
+    the stage's units, one 8-row tile each."""
+    g = _sk_geom(name)
+    return {"R": 8, "NT": 1, "NWR": 1, "WSK": g["NW"], "UPW": g["UPS"] // g["NW"], "NW": g["NW"], "UPS": g["UPS"]}
 
 
 _SK_SRC = r"""
@@ -315,7 +331,8 @@ __device__ __forceinline__ void decode8(uint32_t lw0, uint32_t lw1, uint32_t cod
     r[3] = prmt(lw1, hb, 0x7362);
 }
 
-template <int MT, int TOKR, int NT, int NWR, int WSK, int UPW, int NSTAGE, bool COMP, bool HL, int NACC, int CL>
+template <int MT, int TOKR, int NT, int NWR, int WSK, int UPW, int NSTAGE, bool COMP, bool HL, int NACC, int CL,
+          bool FUSE>
 struct SkCfg {
     static constexpr int NW = NWR * WSK;
     static constexpr int NC = NW * 32;
@@ -324,7 +341,11 @@ struct SkCfg {
     static constexpr int TU = COMP ? 768 : (HL ? 2048 : 1024);
     static constexpr int WBY = NW * UPW * NT * TU;
     static constexpr int XBY = UPS * TOKR * 128;
-    static constexpr int SST = (XBY + WBY + 1023) & ~1023;
+    // Fused pooler + router: after its pooler stages a CTA streams one 8-row router piece (hi
+    // and lo tiles, 2048 B per unit) through the same ring, every consumer warp taking RUPW units.
+    static constexpr int RUPW = FUSE ? UPS / NW : 1;
+    static constexpr int RWBY = FUSE ? UPS * 2048 : 0;
+    static constexpr int SST = (XBY + (WBY > RWBY ? WBY : RWBY) + 1023) & ~1023;
     static constexpr int TOKS = 16 * MT;
     // Partial-sum row stride, 8 mod 32 so the float2 stores of a warp hit distinct banks.
     static constexpr int RP = R + ((40 - (R % 32)) % 32);
@@ -336,24 +357,28 @@ struct SkCfg {
     static constexpr int CORR_FLOATS = COMP ? NESC * CSZ : 0;
     static constexpr int PEER_FLOATS = CL > 1 ? (CL - 1) * WSK * TOKS * RP : 0;
     static constexpr int BAR_BYTES = 16 * NSTAGE + 32;
-    static constexpr int FIXED = 1024 + NSTAGE * SST + BAR_BYTES + 4 * (CORR_FLOATS + PEER_FLOATS) + 128;
+    static constexpr int FIXED = 1024 + NSTAGE * SST + BAR_BYTES + 4 * (CORR_FLOATS + PEER_FLOATS) + 128 + 16;
     static constexpr int MINB = 2 * (FIXED + 2048) <= 228 * 1024 ? 2 : 1;
     static_assert(WSK * TOKS * RP * 4 <= NSTAGE * SST, "epilogue partials must fit in the ring");
+    static_assert(!FUSE || (COMP && CL == 1 && NW * RUPW == UPS && NW * TOKS * 8 * 4 <= NSTAGE * SST),
+                  "fused piece geometry");
     static_assert(TOKR == 16 * MT || (TOKR == 8 && MT == 1), "TOKR must match MT");
     static_assert(!(COMP && CL > 1), "escape warps are not clustered");
     static_assert(NESC <= NSTAGE, "escape warps take turns on stages");
 };
 
 template <int MT, int TOKR, int NT, int NWR, int WSK, int UPW, int NSTAGE, bool COMP, bool HL, int NACC, int CL,
-          typename OutT>
-__global__ void __launch_bounds__((SkCfg<MT, TOKR, NT, NWR, WSK, UPW, NSTAGE, COMP, HL, NACC, CL>::THREADS),
-                                  (SkCfg<MT, TOKR, NT, NWR, WSK, UPW, NSTAGE, COMP, HL, NACC, CL>::MINB))
+          typename OutT, bool FUSE>
+__global__ void __launch_bounds__((SkCfg<MT, TOKR, NT, NWR, WSK, UPW, NSTAGE, COMP, HL, NACC, CL, FUSE>::THREADS),
+                                  (SkCfg<MT, TOKR, NT, NWR, WSK, UPW, NSTAGE, COMP, HL, NACC, CL, FUSE>::MINB))
 sk_kernel(const __grid_constant__ CUtensorMap xmap, const uint8_t* __restrict__ ws, OutT* __restrict__ out,
-          const int32_t* __restrict__ ptab, int pmax, uint32_t base4, int M, int N, int K, int* __restrict__ diag) {
-    using C = SkCfg<MT, TOKR, NT, NWR, WSK, UPW, NSTAGE, COMP, HL, NACC, CL>;
+          const int32_t* __restrict__ ptab, int pmax, uint32_t base4, int M, int N, int K, int* __restrict__ diag,
+          const uint8_t* __restrict__ rws, float* __restrict__ rpart, int* __restrict__ rcount,
+          float* __restrict__ rout) {
+    using C = SkCfg<MT, TOKR, NT, NWR, WSK, UPW, NSTAGE, COMP, HL, NACC, CL, FUSE>;
     constexpr int NW = C::NW, NC = C::NC, R = C::R, UPS = C::UPS, TU = C::TU, WBY = C::WBY, XBY = C::XBY;
     constexpr int SST = C::SST, TOKS = C::TOKS, RP = C::RP, CP = C::CP, NESC = C::NESC, CSZ = C::CSZ;
-    constexpr int KST = UPS * 64;
+    constexpr int KST = UPS * 64, RUPW = C::RUPW, RWBY = C::RWBY;
 
     extern __shared__ __align__(1024) unsigned char smem_raw[];
     const uint32_t sraw = smem_u32(smem_raw);
@@ -367,6 +392,7 @@ sk_kernel(const __grid_constant__ CUtensorMap xmap, const uint8_t* __restrict__ 
     const int tab_ints = COMP ? pmax * 2 + R : 0;
     uint32_t* zrow_p = reinterpret_cast<uint32_t*>(tab + tab_ints);
     const uint32_t zrow = smem_u32(zrow_p);
+    int* last_flag = reinterpret_cast<int*>(zrow_p + 32);
     float* red = reinterpret_cast<float*>(gbase);
 
     const int tid = threadIdx.x, warp = tid >> 5, lane = tid & 31;
@@ -380,10 +406,23 @@ sk_kernel(const __grid_constant__ CUtensorMap xmap, const uint8_t* __restrict__ 
     const size_t wstride = (size_t)nrb * WBY;
     const uint32_t XU = (uint32_t)M * 128u;
     const uint32_t stage_tx = UPS * XU + WBY;
+    // Fused router piece: row block rbk (8 rows of 256), K piece rq of npiece, spp stages each.
+    const int npiece = FUSE ? (int)gridDim.x / 32 : 1;
+    const int spp = FUSE ? tst / npiece : 0;
+    const int rbk = FUSE ? (int)blockIdx.x % 32 : 0;
+    const int rq = FUSE ? (int)blockIdx.x / 32 : 0;
+    const int nst_tot = nst + spp;
 
     auto issue = [&](int st) {
         const int slot = st % NSTAGE;
         const uint32_t s0 = sbase + slot * SST;
+        if (FUSE && st >= nst) {
+            const int rs = rq * spp + (st - nst);
+            mbar_expect_tx(full0 + 8 * slot, UPS * XU + RWBY);
+            bulk_g2s(s0 + XBY, rws + ((size_t)rs * 32 + rbk) * RWBY, RWBY, full0 + 8 * slot);
+            tma_3d(s0, &xmap, full0 + 8 * slot, 0, 0, rs * UPS);
+            return;
+        }
         mbar_expect_tx(full0 + 8 * slot, stage_tx);
         bulk_g2s(s0 + XBY, wsrc + (size_t)(gs0 + st) * wstride, WBY, full0 + 8 * slot);
         tma_3d(s0, &xmap, full0 + 8 * slot, 0, 0, (gs0 + st) * UPS);
@@ -436,7 +475,7 @@ sk_kernel(const __grid_constant__ CUtensorMap xmap, const uint8_t* __restrict__ 
     if (warp == NW) {
         if (lane == 0) {
             bool dead = false;
-            for (int st = 1; st < nst; ++st) {
+            for (int st = 1; st < nst_tot; ++st) {
                 const int slot = st % NSTAGE;
                 if (st >= NSTAGE && !mbar_wait<true>(empty0 + 8 * slot, ((st / NSTAGE) - 1) & 1, dead, diag, 1)) {
                     break;
@@ -467,7 +506,7 @@ sk_kernel(const __grid_constant__ CUtensorMap xmap, const uint8_t* __restrict__ 
             mbar_wait<true>(pbar, 0, dead, diag, 2);
             const int cnt = dead ? 0 : tab[0];
             int pe = 1;
-            for (int st = 0; st < nst; ++st) {
+            for (int st = 0; st < nst_tot; ++st) {
                 const int slot = st % NSTAGE;
                 const int kbeg = (gs0 + st) * KST, kend = kbeg + KST;
                 if (!mbar_wait<true>(full0 + 8 * slot, (st / NSTAGE) & 1, dead, diag, 4)) {
@@ -517,6 +556,18 @@ sk_kernel(const __grid_constant__ CUtensorMap xmap, const uint8_t* __restrict__ 
     // A fragments (tokens 0-7, k 0-7), (8-15, 0-7), (0-7, 8-15), (8-15, 8-15).
     const int lrow = (lane & 7) + ((lane >> 3) & 1) * 8;
     const int lchunk = lane >> 4;
+    auto load_a = [&](uint32_t xt, int ui, uint32_t (&a)[4][MT][4]) {
+#pragma unroll
+        for (int mt = 0; mt < MT; ++mt) {
+            const int trow = mt * 16 + lrow;
+            const uint32_t rbase = xt + trow * 128;
+            const int sw = (ui * M + trow) & 7;
+#pragma unroll
+            for (int j = 0; j < 4; ++j) {
+                ldsm_x4(trow < M ? rbase + (((2 * j + lchunk) ^ sw) << 4) : zrow, a[j][mt]);
+            }
+        }
+    };
     float acc[NACC][MT][NT][4];
 #pragma unroll
     for (int c = 0; c < NACC; ++c) {
@@ -562,16 +613,7 @@ sk_kernel(const __grid_constant__ CUtensorMap xmap, const uint8_t* __restrict__ 
                 }
             }
             uint32_t a[4][MT][4];
-#pragma unroll
-            for (int mt = 0; mt < MT; ++mt) {
-                const int trow = mt * 16 + lrow;
-                const uint32_t rbase = xt + trow * 128;
-                const int sw = (ui * M + trow) & 7;
-#pragma unroll
-                for (int j = 0; j < 4; ++j) {
-                    ldsm_x4(trow < M ? rbase + (((2 * j + lchunk) ^ sw) << 4) : zrow, a[j][mt]);
-                }
-            }
+            load_a(xt, ui, a);
             if (uu == UPW - 1) {
                 // Everything this warp needs from the slot is in registers.
                 fence_proxy_async();
@@ -599,6 +641,49 @@ sk_kernel(const __grid_constant__ CUtensorMap xmap, const uint8_t* __restrict__ 
                             mma_bf16(acc[((uu * 4 + j) * HM + 1) % NACC][mt][nt], a[j][mt], bl[nt][2 * j],
                                      bl[nt][2 * j + 1]);
                         }
+                    }
+                }
+            }
+        }
+    }
+
+    float racc[2][MT][4];
+#pragma unroll
+    for (int h = 0; h < 2; ++h) {
+#pragma unroll
+        for (int mt = 0; mt < MT; ++mt) {
+            racc[h][mt][0] = racc[h][mt][1] = racc[h][mt][2] = racc[h][mt][3] = 0.f;
+        }
+    }
+    if constexpr (FUSE) {
+        for (int st = nst; st < nst_tot; ++st) {
+            const int slot = st % NSTAGE;
+            if (!mbar_wait<false>(full0 + 8 * slot, (st / NSTAGE) & 1, dead, diag, 64)) {
+                break;
+            }
+            const uint32_t s0 = sbase + slot * SST;
+#pragma unroll
+            for (int uu = 0; uu < RUPW; ++uu) {
+                const int ui = warp * RUPW + uu;
+                const uint32_t wb = s0 + XBY + ui * 2048 + lane * 32;
+                const uint4 h0 = lds128(wb), h1 = lds128(wb + 16), l0 = lds128(wb + 1024), l1 = lds128(wb + 1040);
+                const uint32_t bh[8] = {h0.x, h0.y, h0.z, h0.w, h1.x, h1.y, h1.z, h1.w};
+                const uint32_t bl[8] = {l0.x, l0.y, l0.z, l0.w, l1.x, l1.y, l1.z, l1.w};
+                uint32_t a[4][MT][4];
+                load_a(s0 + ui * XU, ui, a);
+                if (uu == RUPW - 1) {
+                    fence_proxy_async();
+                    __syncwarp();
+                    if (lane == 0) {
+                        mbar_arrive(empty0 + 8 * slot);
+                    }
+                }
+#pragma unroll
+                for (int j = 0; j < 4; ++j) {
+#pragma unroll
+                    for (int mt = 0; mt < MT; ++mt) {
+                        mma_bf16(racc[0][mt], a[j][mt], bh[2 * j], bh[2 * j + 1]);
+                        mma_bf16(racc[1][mt], a[j][mt], bl[2 * j], bl[2 * j + 1]);
                     }
                 }
             }
@@ -707,6 +792,52 @@ sk_kernel(const __grid_constant__ CUtensorMap xmap, const uint8_t* __restrict__ 
             *reinterpret_cast<uint2*>(o) = pk;
         }
     }
+    if constexpr (FUSE) {
+        named_bar(1, NC);
+#pragma unroll
+        for (int mt = 0; mt < MT; ++mt) {
+            const int tok = mt * 16 + g;
+            float* r0 = red + (warp * TOKS + tok) * 8 + 2 * t4;
+            *reinterpret_cast<float2*>(r0) =
+                make_float2(racc[0][mt][0] + racc[1][mt][0], racc[0][mt][1] + racc[1][mt][1]);
+            *reinterpret_cast<float2*>(r0 + 64) =
+                make_float2(racc[0][mt][2] + racc[1][mt][2], racc[0][mt][3] + racc[1][mt][3]);
+        }
+        named_bar(1, NC);
+        for (int idx = tid; idx < 2 * M; idx += NC) {
+            const int tt = idx >> 1, row = (idx & 1) * 4;
+            float4 v = make_float4(0.f, 0.f, 0.f, 0.f);
+#pragma unroll
+            for (int w = 0; w < NW; ++w) {
+                const float4 p = *reinterpret_cast<const float4*>(red + (w * TOKS + tt) * 8 + row);
+                v.x += p.x; v.y += p.y; v.z += p.z; v.w += p.w;
+            }
+            *reinterpret_cast<float4*>(rpart + ((size_t)rq * M + tt) * 256 + rbk * 8 + row) = v;
+        }
+        // Classic last-block reduction: every writer fences before the counter, the last
+        // arrival fences again before reading the other pieces through L2. The counter is
+        // monotonic (launches are stream-ordered), so it needs no reset.
+        __threadfence();
+        named_bar(1, NC);
+        if (tid == 0) {
+            const int old = atomicAdd(rcount + rbk, 1);
+            *last_flag = ((old + 1) % npiece == 0) ? 1 : 0;
+        }
+        named_bar(1, NC);
+        if (*last_flag) {
+            __threadfence();
+            for (int idx = tid; idx < 2 * M; idx += NC) {
+                const int tt = idx >> 1, row = (idx & 1) * 4;
+                float4 v = make_float4(0.f, 0.f, 0.f, 0.f);
+                for (int pc = 0; pc < npiece; ++pc) {
+                    const float4 q = __ldcg(reinterpret_cast<const float4*>(
+                        rpart + ((size_t)pc * M + tt) * 256 + rbk * 8 + row));
+                    v.x += q.x; v.y += q.y; v.z += q.z; v.w += q.w;
+                }
+                *reinterpret_cast<float4*>(rout + (size_t)tt * 256 + rbk * 8 + row) = v;
+            }
+        }
+    }
 }
 
 #ifndef SK_DEVICE_ONLY
@@ -742,11 +873,12 @@ CUtensorMap make_xmap(const void* x, uint64_t m, uint64_t k, uint32_t units) {
 }
 
 template <int MT, int TOKR, int NT, int NWR, int WSK, int UPW, int NSTAGE, bool COMP, bool HL, int NACC, int CL,
-          typename OutT>
+          typename OutT, bool FUSE>
 void launch_sk(const at::Tensor& ws, const at::Tensor& x, at::Tensor& out, const at::Tensor& ptab, int pmax,
-               uint32_t base4, int M, int N, int K, int* diag) {
-    using C = SkCfg<MT, TOKR, NT, NWR, WSK, UPW, NSTAGE, COMP, HL, NACC, CL>;
-    auto kern = sk_kernel<MT, TOKR, NT, NWR, WSK, UPW, NSTAGE, COMP, HL, NACC, CL, OutT>;
+               uint32_t base4, int M, int N, int K, int* diag, const uint8_t* rws, float* rpart, int* rcount,
+               float* rout) {
+    using C = SkCfg<MT, TOKR, NT, NWR, WSK, UPW, NSTAGE, COMP, HL, NACC, CL, FUSE>;
+    auto kern = sk_kernel<MT, TOKR, NT, NWR, WSK, UPW, NSTAGE, COMP, HL, NACC, CL, OutT, FUSE>;
     const int tab_bytes = COMP ? (pmax * 2 + C::R) * 4 : 0;
     const size_t smem = (size_t)C::FIXED + tab_bytes;
     static bool configured = false;
@@ -756,6 +888,11 @@ void launch_sk(const at::Tensor& ws, const at::Tensor& x, at::Tensor& out, const
     }
     TORCH_CHECK(M >= 1 && M <= TOKR, "sk: M out of range for this config");
     TORCH_CHECK(N % C::R == 0 && K % (C::UPS * 64) == 0, "sk: shape does not tile");
+    if constexpr (FUSE) {
+        const int ncta = N / C::R;
+        TORCH_CHECK(ncta % 32 == 0 && (K / (C::UPS * 64)) % (ncta / 32) == 0 && rws != nullptr,
+                    "skf: the router pieces do not tile");
+    }
     TORCH_CHECK(smem <= 227 * 1024, "sk: shared memory over budget");
     const CUtensorMap xmap = make_xmap(x.data_ptr(), (uint64_t)M, (uint64_t)K, C::UPS);
     const uint8_t* wsp = reinterpret_cast<const uint8_t*>(ws.data_ptr());
@@ -775,9 +912,11 @@ void launch_sk(const at::Tensor& ws, const at::Tensor& x, at::Tensor& out, const
         attr[0].val.clusterDim.z = 1;
         lc.attrs = attr;
         lc.numAttrs = 1;
-        C10_CUDA_CHECK(cudaLaunchKernelEx(&lc, kern, xmap, wsp, op, tp, pmax, base4, M, N, K, diag));
+        C10_CUDA_CHECK(cudaLaunchKernelEx(&lc, kern, xmap, wsp, op, tp, pmax, base4, M, N, K, diag, rws, rpart,
+                                          rcount, rout));
     } else {
-        kern<<<N / C::R, C::THREADS, smem, stream>>>(xmap, wsp, op, tp, pmax, base4, M, N, K, diag);
+        kern<<<N / C::R, C::THREADS, smem, stream>>>(xmap, wsp, op, tp, pmax, base4, M, N, K, diag, rws, rpart,
+                                                     rcount, rout);
         C10_CUDA_KERNEL_LAUNCH_CHECK();
     }
 }
@@ -798,31 +937,59 @@ void sk_fwd(int64_t cfg, at::Tensor ws, at::Tensor x, at::Tensor out, at::Tensor
         TORCH_CHECK(false, "sk: unknown config ", cfg);
     }
 }
+
+// Fused pooler + router: out [M, n] bf16 from the pooler stream, rout [M, 256] f32 from the
+// router hi/lo stream; rpart is [pieces, M, 256] f32 scratch and rcount int32[32] counters.
+void skf_fwd(int64_t cfg, at::Tensor ws, at::Tensor rws, at::Tensor x, at::Tensor out, at::Tensor rout,
+             at::Tensor ptab, int64_t pmax, int64_t base4, int64_t n, int64_t k, at::Tensor rpart, at::Tensor rcount,
+             at::Tensor diag) {
+    const int M = x.size(0);
+    int* dg = diag.numel() > 0 ? diag.data_ptr<int>() : nullptr;
+    const uint8_t* rw = reinterpret_cast<const uint8_t*>(rws.data_ptr());
+    switch (cfg) {
+@@FDISPATCH@@
+    default:
+        TORCH_CHECK(false, "skf: unknown config ", cfg);
+    }
+}
 #endif
 """
 
-_SK_CPP = "void sk_fwd(int64_t cfg, at::Tensor ws, at::Tensor x, at::Tensor out, at::Tensor ptab, int64_t pmax, int64_t base4, int64_t n, int64_t k, at::Tensor diag);"
+_SK_CPP = (
+    "void sk_fwd(int64_t cfg, at::Tensor ws, at::Tensor x, at::Tensor out, at::Tensor ptab, int64_t pmax, "
+    "int64_t base4, int64_t n, int64_t k, at::Tensor diag);\n"
+    "void skf_fwd(int64_t cfg, at::Tensor ws, at::Tensor rws, at::Tensor x, at::Tensor out, at::Tensor rout, "
+    "at::Tensor ptab, int64_t pmax, int64_t base4, int64_t n, int64_t k, at::Tensor rpart, at::Tensor rcount, "
+    "at::Tensor diag);\n")
 
 
 def _sk_targs(c):
-    name, mt, tokr, nt, nwr, wsk, upw, nstage, comp, hl, nacc, cl, outt = c
+    name, mt, tokr, nt, nwr, wsk, upw, nstage, comp, hl, nacc, cl, outt, fuse = c
     ot = "float" if outt == "f32" else "__nv_bfloat16"
-    return f"{mt}, {tokr}, {nt}, {nwr}, {wsk}, {upw}, {nstage}, {str(comp).lower()}, {str(hl).lower()}, {nacc}, {cl}, {ot}"
+    return (f"{mt}, {tokr}, {nt}, {nwr}, {wsk}, {upw}, {nstage}, {str(comp).lower()}, {str(hl).lower()}, {nacc}, "
+            f"{cl}, {ot}, {str(fuse).lower()}")
 
 
 def sk_source(device_only=False):
     """The kernel source with the config table expanded; device_only adds explicit
     instantiations for a host-less compile (tools/compile_check.sh)."""
     dispatch = "\n".join(
-        f"    case {i}: launch_sk<{_sk_targs(c)}>(ws, x, out, ptab, (int)pmax, (uint32_t)base4, M, (int)n, (int)k, dg); break;"
-        for i, c in enumerate(SK_CONFIGS))
+        f"    case {i}: launch_sk<{_sk_targs(c)}>(ws, x, out, ptab, (int)pmax, (uint32_t)base4, M, (int)n, (int)k, dg, "
+        f"nullptr, nullptr, nullptr, nullptr); break;"
+        for i, c in enumerate(SK_CONFIGS) if not c[13])
+    fdispatch = "\n".join(
+        f"    case {i}: launch_sk<{_sk_targs(c)}>(ws, x, out, ptab, (int)pmax, (uint32_t)base4, M, (int)n, (int)k, dg, "
+        f"rw, rpart.data_ptr<float>(), rcount.data_ptr<int>(), rout.data_ptr<float>()); break;"
+        for i, c in enumerate(SK_CONFIGS) if c[13])
     inst = "\n".join(
         f"template __global__ void sk_kernel<{targs}>(const __grid_constant__ CUtensorMap, const uint8_t*, "
-        f"{'float' if c[12] == 'f32' else '__nv_bfloat16'}*, const int32_t*, int, uint32_t, int, int, int, int*);"
+        f"{'float' if c[12] == 'f32' else '__nv_bfloat16'}*, const int32_t*, int, uint32_t, int, int, int, int*, "
+        f"const uint8_t*, float*, int*, float*);"
         for targs, c in {_sk_targs(c): c for c in SK_CONFIGS}.items())
     # Explicit instantiation must name the template at namespace scope, so the device-only
     # build reopens the anonymous namespace around it.
-    src = _SK_SRC.replace("@@DISPATCH@@", dispatch).replace("@@INSTANCES@@", "namespace {\n" + inst + "\n}")
+    src = (_SK_SRC.replace("@@DISPATCH@@", dispatch).replace("@@FDISPATCH@@", fdispatch)
+           .replace("@@INSTANCES@@", "namespace {\n" + inst + "\n}"))
     if not device_only:
         return src
     ginst = "".join(
@@ -1469,13 +1636,60 @@ def _sk_runner(ext, cfg_name, stream, tab, pmax, base4, n, k, out_dtype, diag):
 def _build_ext():
     src = sk_source() + GEMV_CUDA_SRC
     kwargs = dict(name="okc_sk_v1", cpp_sources="#include <torch/extension.h>\n" + _SK_CPP + GEMV_CPP_DECLS,
-                  cuda_sources=src, functions=["sk_fwd", "cgemv_fwd", "rgemv_fwd", "sgemv_fwd"],
+                  cuda_sources=src, functions=["sk_fwd", "skf_fwd", "cgemv_fwd", "rgemv_fwd", "sgemv_fwd"],
                   extra_cuda_cflags=["-O3", "-gencode=arch=compute_90a,code=sm_90a"], verbose=False)
     try:
         return load_inline(no_implicit_headers=True, **kwargs)
     except TypeError:
         kwargs["cuda_sources"] = src.replace("#include <ATen/core/Tensor.h>", "#include <torch/types.h>")
         return load_inline(**kwargs)
+
+
+def _build_fused(ext, state, packed_pooler, gen, diag):
+    """The layer's fused pooler + router entry per token bucket (8 and 16), self-tested here:
+    run(x) -> (pooler out [M, 4096] bf16, router out [M, 256] f32)."""
+    if packed_pooler is None:
+        return {}
+    router, pooler = state["router"], state["pooler"]
+    dev = router.device
+    hi = router.to(torch.bfloat16)
+    lo = (router - hi.float()).to(torch.bfloat16)
+    units = hilo_units(bf16_bits(hi), bf16_bits(lo))
+    rpart = torch.zeros((8, 16, 256), dtype=torch.float32, device=dev)
+    rcount = torch.zeros(32, dtype=torch.int32, device=dev)
+    fused = {}
+    for b, nm in ((8, "pool8"), (16, "pool16")):
+        g = _sk_geom(nm)
+        rstream = stage_stream(units, _fused_router_geom(nm), router.shape[0])
+        tab, pmax = packed_pooler["tabs"][(g["R"], pooler.shape[0])]
+        stream, base4 = packed_pooler["streams"][nm], packed_pooler["base4"]
+        cid = SK_INDEX[nm + "f"]
+
+        def run(x, cid=cid, stream=stream, rstream=rstream, tab=tab, pmax=pmax, base4=base4):
+            m = x.shape[0]
+            out = torch.empty((m, pooler.shape[0]), dtype=torch.bfloat16, device=x.device)
+            rout = torch.empty((m, router.shape[0]), dtype=torch.float32, device=x.device)
+            ext.skf_fwd(cid, stream, rstream, x, out, rout, tab, pmax, base4, pooler.shape[0], pooler.shape[1],
+                        rpart, rcount, diag)
+            return out, rout
+        try:
+            for m in ((1, 3, 8) if b == 8 else (9, 16)):
+                diag.zero_()
+                x, probes = _gen_x(m, pooler.shape[1], gen, dev)
+                out, rout = run(x)
+                torch.cuda.synchronize()
+                ref = (x.double() @ pooler.double().T).to(torch.bfloat16).double()
+                ok, err, perr = _check(out, ref, probes, SELFTEST_TOL["bf16"])
+                rref = x.double() @ router.double().T
+                rok, rerr, rperr = _check(rout, rref, probes, SELFTEST_TOL["router"])
+                if not (ok and rok):
+                    raise RuntimeError(f"m={m}: pooler err {err:.3e}/{perr:.3e}, router err {rerr:.3e}/{rperr:.3e},"
+                                       f" diag {int(diag[0])}")
+            fused[b] = run
+            print(f"fused pooler+router {nm}f: ok")
+        except Exception as exc:
+            print(f"fused pooler+router {nm}f: disabled ({type(exc).__name__}: {str(exc)[-300:]})")
+    return fused
 
 
 def prepare(weights):
@@ -1529,6 +1743,8 @@ def prepare(weights):
         slices.update({nm + "raw": rows_of(b) for b, lst in names.items() for nm in lst})
         geoms = {nm: _sk_geom(nm) for nm in comp_names}
         packed = pack_layer(w, geoms, slices, balance=layer in BALANCED_LAYERS) if comp_names else None
+        if layer == "pooler":
+            packed_pooler = packed
         if packed is not None:
             print(f"pack {layer}: base {packed['base']}, {packed['escapes']} escapes, "
                   f"{packed['inexact']} inexact deltas, {time.time() - t0:.1f} s")
@@ -1565,6 +1781,7 @@ def prepare(weights):
             cands.setdefault((layer, b), []).append(("cublas", lambda x, w=w, nrows=nrows: _cublas(x, w[:nrows]), False))
     fn = gemv_runner(lambda x, out: ext.rgemv_fwd(router, x, out), router.shape[0], torch.float32)
     add("router", 8, "rgemv", fn, router, router.shape[0], (1,), SELFTEST_TOL["router"])
+    state["fused"] = _build_fused(ext, state, packed_pooler, gen, diag)
     rnames = {b: names_of("router", b) for b in (8, 16, 32)}
     rgeoms = {nm: _sk_geom(nm) for lst in rnames.values() for nm in lst}
     _, _, rstreams = pack_router(router, rgeoms)

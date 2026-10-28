@@ -38,9 +38,9 @@ def main():
     src = (ROOT / "muse_bf16_proj/submission.py").read_text()
     geom = "".join(f'    "{k}": {v},\n' for k, v in SWEEP_GEOM.items())
     rgeom = "".join(f'    "{k}": {v},\n' for k, v in SWEEP_ROUTER.items())
-    assert src.count("}\nROUTER_GEOM = {\n") == 1 and src.count("}\n# Which geometry") == 1
+    assert src.count("}\nROUTER_GEOM = {\n") == 1 and src.count("}\n# Pooler geometries") == 1
     src = src.replace("}\nROUTER_GEOM = {\n", geom + "}\nROUTER_GEOM = {\n", 1)
-    src = src.replace("}\n# Which geometry", rgeom + "}\n# Which geometry", 1)
+    src = src.replace("}\n# Pooler geometries", rgeom + "}\n# Pooler geometries", 1)
     assert src.count("SK_EXTRA = {}\n") == 1
     src = src.replace("SK_EXTRA = {}\n", f"SK_EXTRA = {SWEEP_USE!r}\n", 1)
     (ROOT / "muse_bf16_proj/bench.py").write_text(src)
