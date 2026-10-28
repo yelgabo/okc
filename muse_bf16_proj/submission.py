@@ -6,6 +6,8 @@
 - FP32 router at m <= 8: one CUDA-core kernel that reads the 8 MB weight once, with plain FP32
   FMAs, so the math matches F.linear without TF32. SGLang takes 10 to 26 us here against a
   1.8 us memory floor.
+- FP32 router at 9 to 32 tokens: the tensor-core kernel on a BF16 hi + lo split of the weights
+  with FP32 accumulation, which is SGLang's own method above 8 tokens.
 """
 
 from typing import TypedDict
@@ -39,6 +41,7 @@ class Inputs(TypedDict):
 ROUTER_N = 256
 ROUTER_K = 8192
 ROUTER_FUSED_MAX_TOKENS = 8
+ROUTER_MMA_MAX_TOKENS = 32
 
 
 def _proj_fused_wins(layer, m):
@@ -248,6 +251,14 @@ __device__ __forceinline__ uint2 ldmatrix_x2(const __nv_bfloat16* p) {
     return r;
 }
 
+__device__ __forceinline__ void store_out(__nv_bfloat16* p, float v) {
+    *p = __float2bfloat16(v);
+}
+
+__device__ __forceinline__ void store_out(float* p, float v) {
+    *p = v;
+}
+
 // Not volatile: it only reads and writes registers, and the compiler needs to move it to
 // overlap ldmatrix latency.
 __device__ __forceinline__ void mma_bf16(float* c, const uint4& a, const uint2& b) {
@@ -258,10 +269,14 @@ __device__ __forceinline__ void mma_bf16(float* c, const uint4& a, const uint2& 
 }
 
 // REDUCE = false skips the cluster reduction; tools/make_bench.py times it to measure that cost.
-template <int MT, int WARPS, int R, int CH, int S, bool REDUCE = true>
+// HILO: the router's FP32 weights as BF16 hi and lo tiles interleaved along k (k-tile 2j is hi,
+// 2j + 1 is lo of x's k-tile j), so both multiply the same x fragment into one FP32 accumulator.
+// k is then the interleaved width, twice x's row length.
+template <int MT, int WARPS, int R, int CH, int S, bool REDUCE = true, bool HILO = false,
+          typename OutT = __nv_bfloat16>
 __global__ void __cluster_dims__(1, S, 1) __launch_bounds__(WARPS * 32)
 proj_kernel(const uint4* __restrict__ wp, const __nv_bfloat16* __restrict__ x,
-            __nv_bfloat16* __restrict__ out, int m, int n_out, int k, int t_per_block) {
+            OutT* __restrict__ out, int m, int n_out, int k, int t_per_block) {
     constexpr int TOKENS = MT * 8;
     constexpr int ROWS = WARPS * R * 16;
     constexpr int XS = xs_stride<CH>();
@@ -276,6 +291,7 @@ proj_kernel(const uint4* __restrict__ wp, const __nv_bfloat16* __restrict__ x,
     const int warp = threadIdx.x >> 5;
     const int lane = threadIdx.x & 31;
     const int kt_total = k / 16;
+    const int xk = HILO ? k / 2 : k;
     const int tile0 = (blockIdx.x * WARPS + warp) * R;
     const int kt0 = blockIdx.y * t_per_block;
     const int chunks = t_per_block / CH;
@@ -292,13 +308,14 @@ proj_kernel(const uint4* __restrict__ wp, const __nv_bfloat16* __restrict__ x,
             }
         }
         __nv_bfloat16* xdst = xs + slot * TOKENS * XS;
-        const int kcol = (kt0 + c * CH) * 16;
-        constexpr int VECS_PER_ROW = CH * 2;
+        const int kcol = (HILO ? (kt0 + c * CH) / 2 : kt0 + c * CH) * 16;
+        constexpr int VECS_PER_ROW = HILO ? CH : CH * 2;
         for (int v = threadIdx.x; v < TOKENS * VECS_PER_ROW; v += WARPS * 32) {
             const int tok = v / VECS_PER_ROW;
             const int col = (v % VECS_PER_ROW) * 8;
             const bool valid = tok < m;
-            cp_async16(xdst + tok * XS + col, valid ? x + (size_t)tok * k + kcol + col : x, valid);
+            cp_async16(xdst + tok * XS + col, valid ? x + (size_t)tok * xk + kcol + col : x,
+                       valid);
         }
     };
 
@@ -345,7 +362,7 @@ proj_kernel(const uint4* __restrict__ wp, const __nv_bfloat16* __restrict__ x,
             }
 #pragma unroll
             for (int nt = 0; nt < MT; ++nt) {
-                const uint2 b = ldmatrix_x2(xb + nt * 8 * XS + i * 16);
+                const uint2 b = ldmatrix_x2(xb + nt * 8 * XS + (HILO ? i / 2 : i) * 16);
 #pragma unroll
                 for (int r = 0; r < R; ++r) {
                     mma_bf16(acc[r][nt], a[r], b);
@@ -371,8 +388,9 @@ proj_kernel(const uint4* __restrict__ wp, const __nv_bfloat16* __restrict__ x,
     }
     if (!REDUCE) {
         __syncthreads();
-        out[(size_t)blockIdx.y * gridDim.x * blockDim.x + blockIdx.x * blockDim.x + threadIdx.x] =
-            __float2bfloat16(partial[threadIdx.x]);
+        store_out(out + (size_t)blockIdx.y * gridDim.x * blockDim.x + blockIdx.x * blockDim.x +
+                      threadIdx.x,
+                  partial[threadIdx.x]);
         return;
     }
     cluster.sync();
@@ -387,25 +405,26 @@ proj_kernel(const uint4* __restrict__ wp, const __nv_bfloat16* __restrict__ x,
             for (int s = 0; s < S; ++s) {
                 sum += cluster.map_shared_rank(partial, s)[j];
             }
-            out[(size_t)t * n_out + blockIdx.x * ROWS + j % ROWS] = __float2bfloat16(sum);
+            store_out(out + (size_t)t * n_out + blockIdx.x * ROWS + j % ROWS, sum);
         }
     }
     // Peers read this block's shared memory above; it must outlive those reads.
     cluster.sync();
 }
 
-template <int MT, int WARPS, int R, int CH, int S, bool REDUCE = true>
-void proj_launch(const uint4* wp, const __nv_bfloat16* xp, __nv_bfloat16* op, int m, int n,
-                 int k, cudaStream_t stream) {
+template <int MT, int WARPS, int R, int CH, int S, bool REDUCE = true, bool HILO = false,
+          typename OutT = __nv_bfloat16>
+void proj_launch(const uint4* wp, const __nv_bfloat16* xp, OutT* op, int m, int n, int k,
+                 cudaStream_t stream) {
     constexpr int smem = proj_smem_bytes<MT, WARPS, R, CH>();
     static bool configured = false;
     if (!configured) {
-        cudaFuncSetAttribute(proj_kernel<MT, WARPS, R, CH, S, REDUCE>,
+        cudaFuncSetAttribute(proj_kernel<MT, WARPS, R, CH, S, REDUCE, HILO, OutT>,
                              cudaFuncAttributeMaxDynamicSharedMemorySize, smem);
         configured = true;
     }
     const dim3 grid(n / (WARPS * R * 16), S);
-    proj_kernel<MT, WARPS, R, CH, S, REDUCE><<<grid, WARPS * 32, smem, stream>>>(
+    proj_kernel<MT, WARPS, R, CH, S, REDUCE, HILO, OutT><<<grid, WARPS * 32, smem, stream>>>(
         wp, xp, op, m, n, k, k / 16 / S);
 }
 
@@ -425,6 +444,13 @@ void proj_large(const uint4* wp, const __nv_bfloat16* xp, __nv_bfloat16* op, int
     } else {
         proj_launch<4, WARPS, R, 4, S>(wp, xp, op, m, n, k, stream);
     }
+}
+
+// The router above 8 tokens: 256 rows as 16 one-warp row groups x 8 k-slices = 128 blocks.
+// wpacked is hi and lo interleaved along k, so k here is twice x's row length.
+template <int MT>
+void router_mma(const uint4* wp, const __nv_bfloat16* xp, float* op, int m, cudaStream_t stream) {
+    proj_launch<MT, 1, 1, 16, 8, true, true, float>(wp, xp, op, m, 256, 2 * 8192, stream);
 }
 
 }  // namespace
@@ -455,9 +481,29 @@ torch::Tensor proj_fwd(torch::Tensor x, torch::Tensor wpacked, int64_t n) {
     }
     return out;
 }
+
+torch::Tensor router_mma_fwd(torch::Tensor x, torch::Tensor wpacked) {
+    const int m = x.size(0);
+    auto out = torch::empty({m, 256}, x.options().dtype(torch::kFloat32));
+    auto stream = at::cuda::getCurrentCUDAStream();
+    const auto* wp = reinterpret_cast<const uint4*>(wpacked.data_ptr());
+    const auto* xp = reinterpret_cast<const __nv_bfloat16*>(x.data_ptr<at::BFloat16>());
+    float* op = out.data_ptr<float>();
+    if (m <= 8) {
+        router_mma<1>(wp, xp, op, m, stream);
+    } else if (m <= 16) {
+        router_mma<2>(wp, xp, op, m, stream);
+    } else {
+        router_mma<4>(wp, xp, op, m, stream);
+    }
+    return out;
+}
 """
 
-_PROJ_CPP_SRC = "torch::Tensor proj_fwd(torch::Tensor x, torch::Tensor wpacked, int64_t n);"
+_PROJ_CPP_SRC = (
+    "torch::Tensor proj_fwd(torch::Tensor x, torch::Tensor wpacked, int64_t n);"
+    "torch::Tensor router_mma_fwd(torch::Tensor x, torch::Tensor wpacked);"
+)
 
 
 PROJ_LAYERS = ("qkv_gate", "o", "pooler", "unpooler")
@@ -469,6 +515,30 @@ def _pack_mma_a(w):
     n, k = w.shape
     tiles = w.view(n // 16, 2, 8, k // 16, 2, 4, 2)
     return tiles.permute(0, 3, 2, 5, 4, 1, 6).contiguous()
+
+
+def _pack_router_hilo(hi, lo):
+    """hi and lo [n, k] BF16 -> A fragments with each k-tile's hi tile followed by its lo tile."""
+    n, k = hi.shape
+    tiles = [_pack_mma_a(w).view(n // 16, k // 16, 256) for w in (hi, lo)]
+    return torch.stack(tiles, dim=2).contiguous()
+
+
+def _router_mma_self_test(fused, w, packed):
+    gen = torch.Generator(device=w.device).manual_seed(1)
+    for m in (9, 16, 31, 32):
+        x = torch.randn(m, ROUTER_K, generator=gen, device=w.device).to(torch.bfloat16)
+        x[0].zero_()
+        x[0, 4097] = 2.0
+        out = fused(x, packed)
+        torch.cuda.synchronize()
+        ref = x.double() @ w.double().T
+        err = ((out.double() - ref).norm() / ref.norm()).item()
+        if not err < 5e-5:
+            raise RuntimeError(f"router mma m={m}: relative L2 error {err:.3e}")
+        probe = ((out[0].double() - ref[0]).norm() / ref[0].norm()).item()
+        if not probe < 1e-4:
+            raise RuntimeError(f"router mma m={m}: probe row off by {probe:.3e}")
 
 
 def _proj_self_test(fused, state, packed):
@@ -546,10 +616,10 @@ def prepare(weights):
     state["proj_fused"] = None
     try:
         ext = load_inline(
-            name="okc_proj_v4",
+            name="okc_proj_v6",
             cpp_sources=_PROJ_CPP_SRC,
             cuda_sources=_PROJ_SRC,
-            functions=["proj_fwd"],
+            functions=["proj_fwd", "router_mma_fwd"],
             extra_cuda_cflags=["-O3", "-gencode=arch=compute_90a,code=sm_90a"],
         )
         packed = {name: _pack_mma_a(state[name]) for name in PROJ_LAYERS}
@@ -559,6 +629,17 @@ def prepare(weights):
         print("proj kernel: fused")
     except Exception as exc:
         print(f"proj kernel: baseline ({type(exc).__name__}: {exc})")
+
+    state["router_mma"] = None
+    if state["proj_fused"] is not None:
+        try:
+            router_packed = _pack_router_hilo(hi, lo)
+            _router_mma_self_test(ext.router_mma_fwd, router, router_packed)
+            state["router_packed"] = router_packed
+            state["router_mma"] = ext.router_mma_fwd
+            print("router mma kernel: fused")
+        except Exception as exc:
+            print(f"router mma kernel: baseline ({type(exc).__name__}: {exc})")
     return state
 
 
@@ -569,7 +650,9 @@ def kernel_fn(data, state):
         if state["proj_fused"] is not None and _proj_fused_wins(layer, x.shape[0]):
             return state["proj_fused"](x.contiguous(), state["proj_packed"][layer], n)
         return _bf16_gemm_dispatch_impl(x, state[layer][:n], None)
-    fused = state["router_fused"]
-    if fused is not None and x.shape[0] <= ROUTER_FUSED_MAX_TOKENS:
-        return fused(x.contiguous(), state["router"])
+    m = x.shape[0]
+    if state["router_fused"] is not None and m <= ROUTER_FUSED_MAX_TOKENS:
+        return state["router_fused"](x.contiguous(), state["router"])
+    if state["router_mma"] is not None and ROUTER_FUSED_MAX_TOKENS < m <= ROUTER_MMA_MAX_TOKENS:
+        return state["router_mma"](x.contiguous(), state["router_packed"])
     return _router_baseline(x, state)

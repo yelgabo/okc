@@ -39,7 +39,7 @@ def a_tiles(packed_rt):
     return a
 
 
-def staged_b(x, m, k, kt0, t, mt, ch):
+def staged_b(x, m, k, kt0, t, mt, ch, hilo=False):
     """Each chunk's token staging as the kernel's cp.async writes it, then ldmatrix.x2 as PTX
     documents it. Returns what each lane holds: [t, mt, 32 lanes, 4 (b.x pair, b.y pair)].
     """
@@ -48,16 +48,17 @@ def staged_b(x, m, k, kt0, t, mt, ch):
     # l // 4, elements (l % 4) * 2 and +1.
     row_addr = (LANE & 7) * stride + ((LANE >> 3) & 1) * 8
     frags = np.zeros((t, mt, 32, 4), dtype=x.dtype)
+    vecs_per_row = ch if hilo else ch * 2
     for c in range(t // ch):
         xs = np.zeros(mt * 8 * stride, dtype=x.dtype)
-        kcol = (kt0 + c * ch) * 16
-        for v in range(mt * 8 * ch * 2):
-            tok, col = v // (ch * 2), (v % (ch * 2)) * 8
+        kcol = ((kt0 + c * ch) // 2 if hilo else kt0 + c * ch) * 16
+        for v in range(mt * 8 * vecs_per_row):
+            tok, col = v // vecs_per_row, (v % vecs_per_row) * 8
             if tok < m:
                 xs[tok * stride + col:tok * stride + col + 8] = x[tok, kcol + col:kcol + col + 8]
         for i in range(ch):
             for nt in range(mt):
-                addr = row_addr + nt * 8 * stride + i * 16
+                addr = row_addr + nt * 8 * stride + (i // 2 if hilo else i) * 16
                 for j in range(2):
                     rows = addr[j * 8 + G]
                     for e in range(2):
@@ -75,19 +76,23 @@ def b_tiles(xs):
     return b
 
 
-def emulate(w, x, n_out, warps, r_tiles, ch, s):
-    m, k = x.shape
+def emulate(w, x, n_out, warps, r_tiles, ch, s, packed=None):
+    """packed given: HILO mode, with w's k twice x's (hi and lo k-tiles interleaved)."""
+    hilo = packed is not None
+    m = x.shape[0]
+    k = 2 * x.shape[1] if hilo else x.shape[1]
     mt = 1 if m <= 8 else 2 if m <= 16 else 4
     rows, tokens = warps * r_tiles * 16, mt * 8
     kt_total = k // 16
     t = kt_total // s
-    packed = pack(w[:n_out])
+    if not hilo:
+        packed = pack(w[:n_out])
     out = np.zeros((m, n_out))
     for bx in range(n_out // rows):
         partials = []
         for by in range(s):
             kt0 = by * t
-            b = b_tiles(staged_b(x, m, k, kt0, t, mt, ch))
+            b = b_tiles(staged_b(x, m, k, kt0, t, mt, ch, hilo))
             partial = np.zeros(tokens * rows)
             for warp in range(warps):
                 for r in range(r_tiles):
@@ -112,8 +117,23 @@ def emulate(w, x, n_out, warps, r_tiles, ch, s):
     return out
 
 
+def pack_hilo(hi, lo):
+    """The same stacking as _pack_router_hilo: each k-tile's hi tile, then its lo tile."""
+    n, k = hi.shape
+    return np.stack([pack(hi), pack(lo)], axis=2).reshape(n // 16, k // 8, 32, 8)
+
+
 def main():
     rng = np.random.default_rng(0)
+    hi = rng.standard_normal((256, 8192)) / 90
+    lo = rng.standard_normal((256, 8192)) / 9e4
+    for m in (9, 16, 32):
+        x = rng.standard_normal((m, 8192))
+        out = emulate(None, x, 256, 1, 1, 16, 8, packed=pack_hilo(hi, lo))
+        ref = x @ (hi + lo).T
+        err = np.linalg.norm(out - ref) / np.linalg.norm(ref)
+        print(f"router hilo      m={m:2d}  rel err {err:.1e}")
+        assert err < 1e-12, "router hilo"
     for name, (k, n_out, buckets) in CONFIGS.items():
         n_full = 8192 if name.startswith("unpooler") else n_out
         w = rng.standard_normal((n_full, k)) / np.sqrt(k)
