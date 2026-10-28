@@ -1,0 +1,7 @@
+attn prep kernels: loaded
+attn fused kernel: loaded
+attn ws kernel: loaded
+attn one kernel: loaded
+SELFTEST residency cooperative_launch=True L1m1:396(3/SM,57KB) L1m3:396(3/SM,57KB) L1m11:396(3/SM,57KB) L1m13:396(3/SM,57KB) L1m17:396(3/SM,57KB) L1m49:264(2/SM,57KB) L8m1:264(2/SM,88KB) L8m3:264(2/SM,88KB) L8m11:264(2/SM,88KB) L8m15:264(2/SM,88KB) L8m19:264(2/SM,88KB) L8m51:264(2/SM,104KB) L8m115:132(1/SM,104KB) t=0s
+MODES b1 sliding L1 mode 13 start t=0s
+HANG MODES b1 sliding L1 mode 13 t=20s: device busy for 20s

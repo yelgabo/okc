@@ -35,6 +35,8 @@ import time as _time
 
 _OB_T0 = _time.time()
 _OB_VARIANTS = {variants!r}
+# Cooperative-launch probe on or off for this bench (the first run that hung had it on).
+_ONE_COOP_LAUNCH = {coop_probe!r}
 
 
 def _ob_elapsed():
@@ -325,6 +327,27 @@ def _ob_selftest():
         print(f"SELFTEST residency cooperative_launch={{st['coop_launch']}} {{res}} {{_ob_elapsed()}}",
               flush=True)
     fails = 0
+    # Phase bisection: the per-request path of the first scored shape, returning after phase
+    # 1..10 (copies drained, nothing written), each call under the watchdog; the last line
+    # printed names the phase that hangs.
+    if _ONE is not None:
+        try:
+            data = _ob_inputs(1, 80000, "tp8", "sliding", 1, "fixed", "soft", 1, 1.0)
+            for m in (13, 1):
+                for k in range(1, 11):
+                    label = f"PHASE b1 sliding L1 mode {{m}} phase {{k}}"
+                    _ob_run(lambda: _one(data, mode=m, phase=k), label)
+                    print(f"{{label}} returned {{_ob_elapsed()}}", flush=True)
+            data = None
+            data = _ob_inputs(1, 10, "tp8", "sliding", 1, "fixed", "normal", 64, 1.0)
+            for k in range(1, 11):
+                label = f"PHASE b1 ctx10 sliding page64 mode 1 phase {{k}}"
+                _ob_run(lambda: _one(data, phase=k), label)
+                print(f"{{label}} returned {{_ob_elapsed()}}", flush=True)
+            data = None
+        except Exception as exc:
+            print(f"PHASE FAIL {{type(exc).__name__}}: {{str(exc)[:300]}}", flush=True)
+        torch.cuda.empty_cache()
     # Mode bisection on the batch-1 sliding shapes: the one-tile speculated builds, then the
     # plain and cooperative multi-tile builds, each checked against the reference.
     if _ONE is not None:
@@ -527,9 +550,10 @@ if not _os.environ.get("ATTN_BENCH_DONE"):
 
 
 def main():
-    variants = sys.argv[1:] or ["_one", "_fused", "_ws", "_fused_prep"]
+    args = [a for a in sys.argv[1:] if a != "--no-probe"]
+    variants = args or ["_one", "_fused", "_ws", "_fused_prep"]
     src = (ROOT / "muse_attention_decode/submission.py").read_text()
-    src += RUNNER.format(variants=variants)
+    src += RUNNER.format(variants=variants, coop_probe="--no-probe" not in sys.argv[1:])
     (ROOT / "muse_attention_decode/bench.py").write_text(src)
     print(f"wrote bench.py with {variants}")
 

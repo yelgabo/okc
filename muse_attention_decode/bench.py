@@ -2946,6 +2946,9 @@ struct Params {
     uint32_t magic;
     int nc;
     float sl2;
+    // Diagnostic: > 0 makes the per-request path drain and return after that phase (see
+    // PHASE_EXIT in attn_one_kernel); 0 runs the whole kernel.
+    int phase_limit;
 };
 
 template <int L, int NS>
@@ -3435,6 +3438,10 @@ attn_one_kernel(const Params p) {
     const uint32_t full0 = smem_base + S::BAR;
     const uint32_t empty0 = full0 + NS * 8;
 
+    // Diagnostic early exit after phase k: uniform across the CTA (a kernel parameter), placed
+    // only where every thread passes, with the copies drained first.
+#define PHASE_EXIT(k) \
+    if (p.phase_limit == (k)) { cp_wait<0>(); return false; }
     // Consumer-wide barrier: the whole CTA unless the producer warpgroup has split off.
     auto csync = [&]() {
         if constexpr (PROD) {
@@ -3773,6 +3780,7 @@ attn_one_kernel(const Params p) {
             }
             cp_commit();
         }
+        PHASE_EXIT(1)
         // Query rows, the block's new key/value rows (if this range may hold them),
         // constants; the range holding the request's first key prefetches the gate rows.
         {
@@ -3808,10 +3816,12 @@ attn_one_kernel(const Params p) {
             }
         }
         cp_commit();
+        PHASE_EXIT(2)
 
         if constexpr (!PROD) {
             cp_wait<1>();
             csync();
+            PHASE_EXIT(3)
             if constexpr (SPEC) {
                 if (seq_real != seq) {
                     cp_wait<0>();
@@ -3831,6 +3841,7 @@ attn_one_kernel(const Params p) {
                     return false;
                 }
             }
+            PHASE_EXIT(4)
             // K/V of the prologue tiles go out while the query group is still in flight;
             // each later group also carries the page indices STAGES - 1 tiles ahead.
 #pragma unroll
@@ -3846,6 +3857,7 @@ attn_one_kernel(const Params p) {
             cp_wait<0>();
         }
         csync();
+        PHASE_EXIT(5)
 
         k_scale = *reinterpret_cast<const float*>(smem + S::CONST + C_KS);
         v_scale = *reinterpret_cast<const float*>(smem + S::CONST + C_VS);
@@ -3859,6 +3871,7 @@ attn_one_kernel(const Params p) {
             }
             csync();
         }
+        PHASE_EXIT(6)
 
         // Query pass: eight threads per row, eight dims each. q_len 1 keeps f16 queries
         // pre-scaled into log2 units (the key scale is applied to the scores); q_len 8 rounds
@@ -3899,6 +3912,7 @@ attn_one_kernel(const Params p) {
             }
         }
 
+        PHASE_EXIT(7)
         // The block's own keys and values: normalized, rotated, rounded, written to the cache
         // by the range that holds the position, and staged for the attention.
         if (hi > seq && tid < L * 32) {
@@ -3939,6 +3953,7 @@ attn_one_kernel(const Params p) {
                 v8;
         }
         csync();
+        PHASE_EXIT(8)
         if constexpr (!PROD) {
             // Patch the new rows into the tiles issued before they were staged.
             if (hi > seq) {
@@ -3960,6 +3975,7 @@ attn_one_kernel(const Params p) {
             }
         }
 
+        PHASE_EXIT(9)
         const float sl2k = (L == 1 ? 1.f : p.sl2) * k_scale;
         const int copy = p.nc > 1 ? split % p.nc : 0;
 
@@ -4141,6 +4157,7 @@ attn_one_kernel(const Params p) {
                 release(st);
                 st = PROD ? cst : (st == STAGES - 1 ? 0 : st + 1);
             }
+            PHASE_EXIT(10)
             // Fixed-frame merge: this warp's rows scaled by 2^m into the workspace. Thread
             // (g, c) holds dims 16 c .. 16 c + 15 of head hk * 8 + g: o[e][0] is dim 16 c + e,
             // o[e][1] dim 16 c + 8 + e.
@@ -4294,6 +4311,7 @@ attn_one_kernel(const Params p) {
                 release(st);
                 st = PROD ? cst : (st == STAGES - 1 ? 0 : st + 1);
             }
+            PHASE_EXIT(10)
             // Fixed-frame merge. o[4i + 2hh + e] is column 8i + 2c + e of row (token
             // 2wq + hh, head g), and column n holds dim 16 (n >> 4) + 2 (n & 7) + ((n >> 3) & 1),
             // so (o[8p + 2hh], o[8p + 4 + 2hh], o[8p + 1 + 2hh], o[8p + 5 + 2hh]) are dims
@@ -4315,6 +4333,7 @@ attn_one_kernel(const Params p) {
         }
         return true;
     };
+#undef PHASE_EXIT
 
     // Last-CTA finalize of request b: every red above is ordered before thread 0's release
     // by the barrier, and the last arriver's acquire makes them visible to its reads (which
@@ -4546,7 +4565,7 @@ torch::Tensor attn_one(torch::Tensor qkv, torch::Tensor page_table, torch::Tenso
                        torch::Tensor ws_acc, torch::Tensor ws_l, torch::Tensor ws_cnt,
                        int64_t batch, int64_t q_len, int64_t page_size, int64_t window, bool rope,
                        double sl2, int64_t n_splits, int64_t nc, int64_t mode, bool coop_launch,
-                       torch::Tensor dbg) {
+                       torch::Tensor dbg, int64_t phase_limit) {
     auto stream = at::cuda::getCurrentCUDAStream();
     auto out = torch::empty({batch, q_len, HQ * D}, qkv.options());
     Params p;
@@ -4572,6 +4591,7 @@ torch::Tensor attn_one(torch::Tensor qkv, torch::Tensor page_table, torch::Tenso
     p.magic = n_splits > 1 ? static_cast<uint32_t>(((1ull << 32) + n_splits - 1) / n_splits) : 0u;
     p.nc = static_cast<int>(nc);
     p.sl2 = static_cast<float>(sl2);
+    p.phase_limit = static_cast<int>(phase_limit);
     // Per-request modes launch (n_splits, batch) CTAs; flat modes launch n_splits CTAs that
     // share the batch's keys, with the batch size carried in Params::n_splits.
     int gx = static_cast<int>(n_splits);
@@ -4600,7 +4620,7 @@ torch::Tensor attn_one(torch::Tensor qkv, torch::Tensor page_table, torch::Tenso
                        torch::Tensor ws_acc, torch::Tensor ws_l, torch::Tensor ws_cnt,
                        int64_t batch, int64_t q_len, int64_t page_size, int64_t window, bool rope,
                        double sl2, int64_t n_splits, int64_t nc, int64_t mode, bool coop_launch,
-                       torch::Tensor dbg);
+                       torch::Tensor dbg, int64_t phase_limit);
 """
 
 try:
@@ -4701,8 +4721,9 @@ def _one_plan(cfg, pt_width, resident):
     return n, nc, candidates[0]
 
 
-def _one(data, splits=None, nc=None, mode=None, dbg=None):
-    """One launch: attention, merge and norm-gate (attn_one.cu)."""
+def _one(data, splits=None, nc=None, mode=None, dbg=None, phase=0):
+    """One launch: attention, merge and norm-gate (attn_one.cu). phase > 0 is the diagnostic
+    early exit after that phase of the per-request path (no output is produced)."""
     cfg = data["config"]
     batch, length = cfg["batch"], cfg["q_len"]
     qkv = data["qkv"].view(batch * length, -1)
@@ -4722,7 +4743,8 @@ def _one(data, splits=None, nc=None, mode=None, dbg=None):
         data["v_scale"], data["k_cache"], data["v_cache"], st["acc"], st["l"], st["cnt"],
         batch, length, cfg["page_size"], cfg["window"], bool(theta),
         cfg["sm_scale"] * cfg["qk_scale_factor"] * LOG2E, n, c, m, st["coop_launch"],
-        dbg if dbg is not None else (_ONE_DBG if _ONE_DBG is not None else _no_dbg(qkv.device)))
+        dbg if dbg is not None else (_ONE_DBG if _ONE_DBG is not None else _no_dbg(qkv.device)),
+        phase)
 
 
 # Where the one-launch kernel runs, by (layer, q_len, batch); True everywhere it is not listed.
@@ -4754,6 +4776,8 @@ import time as _time
 
 _OB_T0 = _time.time()
 _OB_VARIANTS = ['_one', '_one@m=17', '_one@m=49', '_one@m=19', '_one@m=51', '_one@m=115', '_fused', '_ws', '_fused_prep']
+# Cooperative-launch probe on or off for this bench (the first run that hung had it on).
+_ONE_COOP_LAUNCH = False
 
 
 def _ob_elapsed():
@@ -5044,6 +5068,27 @@ def _ob_selftest():
         print(f"SELFTEST residency cooperative_launch={st['coop_launch']} {res} {_ob_elapsed()}",
               flush=True)
     fails = 0
+    # Phase bisection: the per-request path of the first scored shape, returning after phase
+    # 1..10 (copies drained, nothing written), each call under the watchdog; the last line
+    # printed names the phase that hangs.
+    if _ONE is not None:
+        try:
+            data = _ob_inputs(1, 80000, "tp8", "sliding", 1, "fixed", "soft", 1, 1.0)
+            for m in (13, 1):
+                for k in range(1, 11):
+                    label = f"PHASE b1 sliding L1 mode {m} phase {k}"
+                    _ob_run(lambda: _one(data, mode=m, phase=k), label)
+                    print(f"{label} returned {_ob_elapsed()}", flush=True)
+            data = None
+            data = _ob_inputs(1, 10, "tp8", "sliding", 1, "fixed", "normal", 64, 1.0)
+            for k in range(1, 11):
+                label = f"PHASE b1 ctx10 sliding page64 mode 1 phase {k}"
+                _ob_run(lambda: _one(data, phase=k), label)
+                print(f"{label} returned {_ob_elapsed()}", flush=True)
+            data = None
+        except Exception as exc:
+            print(f"PHASE FAIL {type(exc).__name__}: {str(exc)[:300]}", flush=True)
+        torch.cuda.empty_cache()
     # Mode bisection on the batch-1 sliding shapes: the one-tile speculated builds, then the
     # plain and cooperative multi-tile builds, each checked against the reference.
     if _ONE is not None:

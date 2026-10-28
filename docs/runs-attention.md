@@ -438,3 +438,22 @@ uniform loop; (5) the port guide states the PDL ordering rule (epoch reads, tick
 after `griddepcontrol.wait`) and the one-stream rule; (6) q_len 1 residency corrected to three
 CTAs per SM (58.9 KB + 1 KB reserve). Also from the review: the ticket test is `>=` and a
 zero-key CTA never acts as the cooperative last arriver.
+
+### Scored submits of 10-28 (authorized in place of the exhausted checks)
+
+| date | job | commit | file | result | notes |
+|---|---|---|---|---|---|
+| 10-28 | e9138b431fc3461f | 2f0a1b9 | bench.py (submit) | timeout at the 15-minute cap, returncode -9, no score | All four extensions compiled, `cooperative_launch=True` (the probe captured a cooperative launch into a graph), residency as computed (q_len 1: 396 = 3/SM, q_len 8: 264 = 2/SM, mode 115: 132). The first self-test shape (batch 1, ctx 10, sliding, page 64; plan 32 x mode 1) never printed, so its kernel hung; earlier runs of the whole suite took 422-447 s, so compile time is not the explanation. The SASS of that instance shows no barrier reachable by part of a CTA and no unbounded loop. Log: `profiles/bench.e9138b431fc3461f.log`. |
+| 10-28 | a9c92e9ff8d048b0 | 766cab6 | bench.py (submit) | the first kernel call hung; the watchdog ended the run after 226 s (returncode 112), no score | Compile of the four extensions took about 3 minutes (the bench clock read t=0 at the residency line, 226 s into the run). First call: `MODES b1 sliding L1 mode 13` (32 CTAs, one tile each, speculated length; every CTA non-empty) was still running after 20 s with no fault raised, so the hang is a spin or deadlock on the common per-request path, not an empty-CTA or page-64 effect. Static checks of that instance's SASS: the two cp.async commits, `wait 1`, barrier; the K/V commits, `wait 2`, barrier; RoPE barrier; new-token barrier; loop-top `wait 1` + barrier; ticket barriers, all reached by every thread; every guarded exit reconverges (the speculative empty return jumps to the exit with its predicate forced true, the fall-through forces it false); no loop with a data-dependent bound. Unexplained by inspection. Log: `profiles/bench.a9c92e9ff8d048b0.log`. |
+
+Diagnostic for the first check of 10-29 (`bench.py` at commit after 766cab6, generated with
+`--no-probe`): `Params.phase_limit` makes every thread drain its copies and return after phase
+1..10 of the per-request path (index group, query group, first wait + barrier, speculation
+check, K/V prologue + wait + barrier, RoPE, query pass, new tokens + barrier, patch, tile loop)
+without writing anything; the self-test sweeps the phases on batch 1 sliding (modes 13 and 1)
+and on the ctx-10 page-64 shape under the 20-second watchdog, so the last `PHASE ... returned`
+line names the phase that hangs. The same run has the cooperative-launch probe disabled
+(`_ONE_COOP_LAUNCH = False`), the only device activity before the first launch that the earlier
+kernels never had; if the whole self-test then passes, the probe was the cause and cooperative
+grids keep one SM of headroom instead. The third authorized submit of 10-28 was not used: the
+fix is not certain.
