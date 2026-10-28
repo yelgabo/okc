@@ -492,8 +492,8 @@ implicit synchronization), so the process blocked there until the judge killed i
 stream, pinned buffer and event are now made before the first launch.
 
 Local evidence (commit after 8d1789d): `tools/attn_ws_quick.sh -s` builds all 13 instances
-for sm_90a (mode 13: 78 registers, no spills; only mode 51 spills, 292 bytes at 80 registers,
-as logged for the producer build); `tools/attn_compile_check.sh` compiles all four
+for sm_90a (mode 13: 78 registers, no spills; only mode 51 spills, 292 bytes of stores at 80
+registers; the producer-loader entry above recorded 168 bytes at an earlier commit); `tools/attn_compile_check.sh` compiles all four
 inlined blocks of `submission.py` without errors; `tools/attn_harness_dry.py` passes (exact
 PASS, perturbed FAIL on all five shapes); a CPU check of `_ob_stamps` on a simulated dbg buffer
 prints deltas for stamps 1..10 and `-` after.
