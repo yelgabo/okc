@@ -2652,12 +2652,13 @@ def _ws_splits(cfg):
 
 def _ws(data, splits=None, stages=7, mode=0, var=None, dbg=None):
     """q_len 8 on the warp-specialized kernel (attn_ws.cu), then a merge + norm-gate launch.
-    Default variant: FA3's precision (var 16: FP32 Q.K accumulators and FP32 softmax), with the
-    loaders' own proxy fence on sliding layers and without it on full layers (var 18), the
-    split that measured best for the f16 kernel (jobs 1f4f986279834925, a8a4666a91d54d68)."""
+    Default variant from _WS_VAR: FA3's precision (FP32 Q.K accumulators and FP32 softmax).
+    Until the f16-vs-FP32 bench runs, sliding layers keep the loaders' own proxy fence (var 16)
+    and full layers drop it (var 18), the split that measured best for the f16 kernel (jobs
+    1f4f986279834925, a8a4666a91d54d68)."""
     cfg = data["config"]
     if var is None:
-        var = 16 if cfg["window"] else 18
+        var = _ws_var(cfg) or 18
     batch = cfg["batch"]
     qkv = data["qkv"].view(batch * cfg["q_len"], -1)
     theta = cfg["rope_theta"]
@@ -2679,12 +2680,32 @@ def _fused_ok(cfg):
     return cfg["q_len"] == 1 and (bool(cfg["window"]) or cfg["batch"] > 2)
 
 
+# attn_ws variant per scored verify shape, keyed by (layer, batch). All are FP32-accumulator
+# variants (see attn_ws_kernel's VAR bits). A scored shape mapped to None runs prep + FA3; full
+# layers at batch 1 do, since the f16 kernel measured 40-41 µs there against 38.5 (bench, job
+# 34929136fa004b17). Batch sizes the score does not use (tests) run 16 on sliding layers and 18
+# on full ones above batch 2.
+_WS_VAR = {
+    ("sliding", 1): 16, ("sliding", 16): 16, ("sliding", 32): 16,
+    ("full", 1): None, ("full", 16): 18, ("full", 32): 18,
+}
+
+
+def _ws_var(cfg):
+    window = bool(cfg["window"])
+    key = ("sliding" if window else "full", cfg["batch"])
+    if key in _WS_VAR:
+        return _WS_VAR[key]
+    if window:
+        return 16
+    return 18 if cfg["batch"] > 2 else None
+
+
 def _ws_ok(cfg):
-    """Verify blocks on the warp-specialized kernel, except full layers at batch 1, where it
-    measured 40-41 µs against 38.5 for prep + FA3 (bench, job 34929136fa004b17)."""
+    """Verify blocks on the warp-specialized kernel where _ws_var routes them."""
     if _WS is None or (cfg["num_q_heads"], cfg["num_kv_heads"], cfg["head_dim"]) != (16, 2, 64):
         return False
-    return cfg["q_len"] == 8 and (bool(cfg["window"]) or cfg["batch"] > 2)
+    return cfg["q_len"] == 8 and _ws_var(cfg) is not None
 
 
 def kernel_fn(data):
