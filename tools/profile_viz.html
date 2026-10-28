@@ -177,9 +177,11 @@ td.num, th.num { text-align: right; }
 <body>
 <main>
     <h1>okc profiles</h1>
-    <p class="sub">Each saved run, shape by shape: our kernels by family (top bar), SGLang's from
-    the baseline profile (thin bar), SGLang's measured time (black line) and the floor (green line).
-    The score is the weight-averaged geometric mean of the per-shape speedups.</p>
+    <p class="sub">One row per shape (an input size the judge times). In each row the thick bar
+    is our run and the thin bar under it is SGLang's, both split into the GPU kernels that ran, in
+    order. The bar's length is the time taken. The solid vertical line is SGLang's measured time,
+    the one to beat, and the green line is the floor, the fastest the hardware allows. The score
+    is the weight-averaged geometric mean of the per-shape speedups.</p>
     <div class="tabs" id="tabs"></div>
 
     <h2>Score history</h2>
@@ -518,7 +520,7 @@ function renderNote() {
         t += `<br>Change: ${esc(run.note)}`;
     }
     if (!base) {
-        t += `<br>No baseline profile for this problem, so there is no SGLang breakdown bar.`;
+        t += `<br>No SGLang baseline profile for this problem yet, so rows show only our bar.`;
     }
     $("runnote").innerHTML = t;
 }
