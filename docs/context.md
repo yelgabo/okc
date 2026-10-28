@@ -138,3 +138,6 @@ against our local baseline files:
 | muse_decode_layer | 2c49c79bafcd4b56 | 1.207x (1.189-1.225) | 692 of 827 |
 
 Overall kernel board: rank 787 of 1384. Leaders: 1.637x, 2.685x, 3.032x, 2.399x.
+
+Update 2026-10-27: muse_decode_layer resubmitted with the attention port, job d156c66614694f25,
+1.269x (1.250-1.288), rank 695 of 829 (from 1.207x). Overall rank 791 of 1391.
