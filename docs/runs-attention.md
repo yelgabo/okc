@@ -324,3 +324,13 @@ lines logged 5.2K). Read it with the backlog #4 notes above, plus:
   warps set the pace on that shape.
 - STAMPS x=528 against x=16: the `cp.async-issue` and `page-entries` loader columns are the ones
   this change can move; `v-convert+release` should not change.
+
+- 10-28 submit 971e1ef49fc647aa: `submission_528.py` (var 16 with DS3's page-size-1 loaders,
+  var 528), 1.292x (1.273-1.317), 16/16, vs var 16's 1.321x (cb42811004a9440c). Verify sliding
+  b16 20.1 -> 19.1 us (-4.7%), b32 25.7 -> 24.2 (-5.6%); verify full b16 191.3 -> 204.2 (+6.7%),
+  b32 357.6 -> 397.4 (+11.1%). Decode shapes (not on this kernel) moved +-1-3%. Fewer loader
+  instructions (859 -> 558 per 4 tiles) helped short windows and hurt 80K contexts, so issue
+  cost alone is not the full-context limit; untested guess: the changed LDGSTS order (second
+  64-byte chunk via immediate offsets) hurts how scattered reads are served. The pending bench
+  times var 528 and var 16 loads-only side by side to separate loader speed from interaction.
+  Entry stays var 16.
