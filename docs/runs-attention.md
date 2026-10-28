@@ -16,6 +16,7 @@ subtracts, so compare them within a shape, not against the judge's column.
 | 10-27 | 5d1187f90830484b | 4135442 | same routing; bench FP8 P.V variants (P x 2^8 as FA3) and per-phase clock64 stamps | 1.243x (1.225-1.265) | FP8 P.V slower (b32 full 763 vs 662 µs). SASS shows why: FP8 mma.sync on sm_90 is F2FP unpack x12 + 2 HMMA per call, so the FP8 Q.K re-converted Q every call. Stamps (b1 sliding, cycles): Q prep ~6k, new-token tail ~6k, cluster merge ~8.6k, loop ~3k |
 | 10-27 | c35deb23dada45d4 | 37e8cc3 | f16 Q.K (Q converted once), Q and new tokens prepared while page entries load, gate prefetch for the merge | **1.254x** (1.235-1.275) | decode sliding 1.28-1.53x, full 1.13-1.47x; fused b1 full now 34.0 µs bench vs 35.5 for idea 1. q_len 8 still ~630 µs at b32 full: variants with more warps per KV head get slower, which points at each warp re-converting the same FP8 K/V |
 | 10-27 | a15d258c37f44232 | 062b027 | q_len 8 variants with K and V converted to f16 once per stage (ldmatrix for both mmas); fused path for all q_len 1 | **1.263x** (1.244-1.282) | conversion was not the q_len 8 limit (b32 full 631-655 µs, unchanged). Judge put fused b1 full at 29.4 µs vs 27.5 for idea 1, though the bench had fused ahead |
+| 10-27 | c2a8b716effb4512 | 8499f13 | push-based cluster merge (each CTA stores partials into the owning CTA's smem, one barrier, local merge); b1 full decode back on idea 1 | **1.285x** (1.265-1.308) | sliding decode b1 15.08 µs (1.40x), b16 1.61x, b32 1.47x |
 
 ## Baseline profile (job 2b3c25820fee4b2d)
 
