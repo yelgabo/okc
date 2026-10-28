@@ -18,6 +18,7 @@ subtracts, so compare them within a shape, not against the judge's column.
 | 10-27 | a15d258c37f44232 | 062b027 | q_len 8 variants with K and V converted to f16 once per stage (ldmatrix for both mmas); fused path for all q_len 1 | **1.263x** (1.244-1.282) | conversion was not the q_len 8 limit (b32 full 631-655 µs, unchanged). Judge put fused b1 full at 29.4 µs vs 27.5 for idea 1, though the bench had fused ahead |
 | 10-27 | c2a8b716effb4512 | 8499f13 | push-based cluster merge (each CTA stores partials into the owning CTA's smem, one barrier, local merge); b1 full decode back on idea 1 | **1.285x** (1.265-1.308) | sliding decode b1 15.08 µs (1.40x), b16 1.61x, b32 1.47x |
 | 10-27 | fa01e4d1a9f54b0f | 9a15913 | new tokens staged in their own tile during the prologue; scales read at kernel start | 1.276x (1.257-1.295) | sliding decode faster (b1 14.26 µs, 1.44x; b16 1.64x; b32 1.51x) but full decode b16/b32 2-3% slower on judge and bench; the extra tile now applies to cluster launches only |
+| 10-27 | 944b519698894c2a | 3b84d10 | submission.py itself (no bench): new-token tile on cluster launches only | **1.289x** (1.269-1.308) | best. Decode: sliding 1.45 / 1.66 / 1.47x, full 1.13 (idea 1) / 1.48 / 1.51x. Verify (idea 1 + FA3): sliding 1.36 / 1.35 / 1.25x, full 1.19 / 1.03 / 1.02x |
 
 ## Baseline profile (job 2b3c25820fee4b2d)
 
@@ -31,3 +32,28 @@ subtracts, so compare them within a shape, not against the judge's column.
 
 FA3 takes the same time at q_len 1 and 8 on full layers, so it is bound by its page-size-1
 gather, not by math.
+
+## Lessons
+
+- FP8 `mma.sync` (m16n8k32 e4m3) on sm_90 compiles to 12 `F2FP.F16.E4M3.UNPACK_B` plus 2
+  `HMMA.16816` per call (checked in SASS). Hopper has native FP8 math only through wgmma. With
+  mma.sync, convert reused operands to f16 once; FP8 P.V buys nothing.
+- With page size 1, every token's K and V row is a random 128-byte read. Reading both KV heads
+  per row (one CTA per request covers both) gets decode full layers to ~50% of HBM peak
+  (b32: 252 µs vs a 126 µs floor; FA3 reads 64 bytes per head and sits near 33%). Time stayed
+  flat from 8 to 32 splits, which points at the gather itself as the ceiling.
+- A dependent page-table load before each tile's cp.async serialized the pipeline (~10 GB/s
+  per CTA). Staging page entries by cp.async 6 tiles ahead fixed it.
+- Remote DSMEM loads in a cluster merge cost microseconds per row on b1 sliding. Pushing
+  partials into the owner CTA's smem with remote stores, then one barrier, then a local
+  merge, is cheaper, and no second barrier is needed.
+- Cold global scalar loads (scales, gate) sit on the critical path of a ~10 µs kernel; read
+  them at kernel start.
+- q_len 8 in the fused kernel stayed at ~630 µs for b32 full (FA3: 383) across six variants:
+  more or fewer warps per KV head, FP8 vs f16 P.V, K/V converted once per stage. The loop runs
+  at ~3.6k SM-cycles per 64-token tile, with tensor, MUFU and conversion pipes each 15-30%
+  busy and IPC near 1. It looks latency-bound by the per-tile barrier structure; a
+  warp-specialized pipeline (producer warps, mbarriers, no block-wide barrier per tile) is the
+  untested next step. Verify stays on idea 1 + FA3.
+- The bench (import-time graph replays) and the judge disagreed on b1 full decode (bench:
+  fused 34.0 vs idea 1 35.5 µs; judge: 29.4 vs 27.5). Route on judge numbers.
