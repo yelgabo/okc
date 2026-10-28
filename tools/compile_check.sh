@@ -1,27 +1,38 @@
 #!/bin/sh
-# Compile the router kernel in a submission's _CUDA_SRC for H200 (sm_90a) and print ptxas register
-# and spill counts. Needs Docker; the host wrapper (torch headers) is left out, so only the
-# kernels are checked.
+# Compile the kernels in muse_bf16_proj/submission.py (_CUDA_SRC and _PROJ_SRC) for H200
+# (sm_90a) and print ptxas register and spill counts. Needs Docker. The torch host wrappers are
+# left out, so this checks device code only.
 #   tools/compile_check.sh muse_bf16_proj/submission.py
 set -eu
 src=$1
 mkdir -p .build && work=$(mktemp -d "$PWD/.build/compile.XXXXXX")
 trap 'rm -rf "$work"' EXIT
 
-python3 - "$src" "$work/kernel.cu" <<'EOF'
+python3 - "$src" "$work" <<'PY'
 import re, sys
 text = open(sys.argv[1]).read()
-cuda = re.search(r'_CUDA_SRC = r"""(.*?)"""', text, re.S).group(1)
-cuda = re.sub(r'#include <(torch|ATen)/[^>]*>\n', '', cuda)
-# Drop the torch host wrapper, keep the kernels, and instantiate every template size.
-cuda = cuda.split('torch::Tensor ')[0]
-sizes = (1, 2, 4, 8, 16, 32)
-inst = ''.join(
-    f'template __global__ void router_kernel<{s}>(const float*, const __nv_bfloat16*, float*, int);\n'
-    for s in sizes)
-open(sys.argv[2], 'w').write(cuda + inst)
-EOF
+inst = {
+    "_CUDA_SRC": "".join(
+        f"template void launch<{s}>(const float*, const __nv_bfloat16*, float*, int, cudaStream_t);\n"
+        for s in (1, 2, 4, 8, 16, 32)),
+    "_PROJ_SRC": "".join(
+        f"template void proj_dispatch_m<{w}, {s}>(const uint4*, const __nv_bfloat16*, "
+        f"__nv_bfloat16*, int, int, int, cudaStream_t);\n"
+        for w, s in ((8, 2), (4, 8), (8, 4), (8, 8))),
+}
+for name, extra in inst.items():
+    m = re.search(name + r' = r"""(.*?)"""', text, re.S)
+    if not m:
+        continue
+    cuda = re.sub(r'#include <(torch|ATen)/[^>]*>\n', '', m.group(1))
+    cuda = cuda.split('torch::Tensor ')[0]
+    open(f"{sys.argv[2]}/{name.strip('_').lower()}.cu", "w").write(cuda + extra)
+PY
 
-docker run --rm --platform linux/arm64 -v "$work:/w" nvidia/cuda:12.8.1-devel-ubuntu24.04 \
-    nvcc -O3 -gencode=arch=compute_90a,code=sm_90a -Xptxas -v -c /w/kernel.cu -o /w/kernel.o 2>&1 \
-    | grep -E 'error|warning|Compiling entry|registers|spill'
+for f in "$work"/*.cu; do
+    echo "== $(basename "$f")"
+    docker run --rm --platform linux/arm64 -v "$work:/w" nvidia/cuda:12.8.1-devel-ubuntu24.04 \
+        nvcc -O3 -gencode=arch=compute_90a,code=sm_90a -Xptxas -v -c "/w/$(basename "$f")" \
+        -o /dev/null 2>&1 | grep -E 'error|warning|Compiling entry|registers|spill' \
+        | sed -E 's/ptxas info *: //'
+done

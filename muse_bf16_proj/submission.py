@@ -1,9 +1,11 @@
 # okc: problem=muse_bf16_proj
-"""SGLang's projections, with the FP32 router replaced by one fused CUDA kernel up to 32 tokens.
+"""Custom kernels for the projections at m <= 32, SGLang's cuBLAS calls above that.
 
-At m <= 32 SGLang runs the router as FP32 F.linear (m <= 8) or two BF16 GEMMs plus an add,
-taking 10 to 26 us against a 1.8 us memory floor. The kernel here reads the 8 MB FP32 weight
-once and does FP32 FMAs on CUDA cores, so the math matches F.linear without TF32.
+- BF16 layers (qkv_gate, o, pooler, unpooler): one tensor-core kernel that streams weights
+  repacked into mma fragment order, replacing cuBLAS's split-K GEMM plus its reduce kernel.
+- FP32 router at m <= 8: one CUDA-core kernel that reads the 8 MB weight once, with plain FP32
+  FMAs, so the math matches F.linear without TF32. SGLang takes 10 to 26 us here against a
+  1.8 us memory floor.
 """
 
 from typing import TypedDict
@@ -36,7 +38,8 @@ class Inputs(TypedDict):
 
 ROUTER_N = 256
 ROUTER_K = 8192
-FUSED_MAX_TOKENS = 32
+ROUTER_FUSED_MAX_TOKENS = 8
+PROJ_FUSED_MAX_TOKENS = 32
 
 # Grid: 16 row groups x 8 k-slices = 128 blocks, one per SM, all loads in flight at once.
 # Each warp owns one weight row and one 1024-wide k-slice. The block's x slice is staged in
@@ -184,6 +187,226 @@ torch::Tensor router_fwd(torch::Tensor x, torch::Tensor w) {
 
 _CPP_SRC = "torch::Tensor router_fwd(torch::Tensor x, torch::Tensor w);"
 
+# BF16 projections at m <= 32 on tensor cores. Each warp multiplies a 16-row weight tile by up
+# to 32 tokens with mma.m16n8k16; the math is padded to 8 tokens, which costs nothing because
+# these shapes are memory-bound. prepare() repacks W losslessly into the mma A-fragment order,
+# so a warp's loads are 512 contiguous bytes per k-tile. Tokens are staged in shared memory in
+# B-fragment order. The S k-slice blocks of a row group form a cluster and sum their partials
+# over distributed shared memory, like the router kernel.
+_PROJ_SRC = r"""
+#include <cooperative_groups.h>
+#include <cuda_bf16.h>
+#include <torch/extension.h>
+#include <ATen/cuda/CUDAContext.h>
+
+namespace cg = cooperative_groups;
+
+constexpr int CHUNK = 8;
+
+template <int MT, int WARPS>
+constexpr int proj_smem_bytes(int t) {
+    return t * MT * 32 * 8 + MT * 8 * WARPS * 16 * 4;
+}
+
+__device__ __forceinline__ void mma_bf16(float* c, const uint4& a, const uint2& b) {
+    asm volatile(
+        "mma.sync.aligned.m16n8k16.row.col.f32.bf16.bf16.f32 "
+        "{%0,%1,%2,%3}, {%4,%5,%6,%7}, {%8,%9}, {%0,%1,%2,%3};\n"
+        : "+f"(c[0]), "+f"(c[1]), "+f"(c[2]), "+f"(c[3])
+        : "r"(a.x), "r"(a.y), "r"(a.z), "r"(a.w), "r"(b.x), "r"(b.y));
+}
+
+template <int MT, int WARPS, int S>
+__global__ void __cluster_dims__(1, S, 1) __launch_bounds__(WARPS * 32, 2)
+proj_kernel(const uint4* __restrict__ wp, const __nv_bfloat16* __restrict__ x,
+            __nv_bfloat16* __restrict__ out, int m, int n_out, int k, int t_per_block) {
+    extern __shared__ __align__(16) unsigned char smem[];
+    uint2* xs = reinterpret_cast<uint2*>(smem);
+    float* partial = reinterpret_cast<float*>(smem + t_per_block * MT * 32 * 8);
+    constexpr int ROWS = WARPS * 16;
+    constexpr int TOKENS = MT * 8;
+
+    cg::cluster_group cluster = cg::this_cluster();
+    const int warp = threadIdx.x >> 5;
+    const int lane = threadIdx.x & 31;
+    const int kt_total = k / 16;
+    const int row_tile = blockIdx.x * WARPS + warp;
+    const int kt0 = blockIdx.y * t_per_block;
+
+    const uint4* src = wp + ((size_t)row_tile * kt_total + kt0) * 32 + lane;
+    uint4 buf0[CHUNK], buf1[CHUNK];
+#pragma unroll
+    for (int i = 0; i < CHUNK; ++i) {
+        buf0[i] = __ldcs(src + i * 32);
+    }
+
+    // B fragment for token column nt*8 + lane/4: k pairs at (lane%4)*2 and (lane%4)*2 + 8.
+    const int entries = t_per_block * MT * 32;
+    for (int e = threadIdx.x; e < entries; e += blockDim.x) {
+        const int l = e & 31;
+        const int nt = (e >> 5) % MT;
+        const int kt = (e >> 5) / MT;
+        const int tok = nt * 8 + (l >> 2);
+        uint2 v = make_uint2(0, 0);
+        if (tok < m) {
+            const __nv_bfloat16* p = x + (size_t)tok * k + (kt0 + kt) * 16 + (l & 3) * 2;
+            v.x = __ldg(reinterpret_cast<const unsigned*>(p));
+            v.y = __ldg(reinterpret_cast<const unsigned*>(p + 8));
+        }
+        xs[e] = v;
+    }
+    __syncthreads();
+
+    float acc[MT][4];
+#pragma unroll
+    for (int nt = 0; nt < MT; ++nt) {
+#pragma unroll
+        for (int i = 0; i < 4; ++i) {
+            acc[nt][i] = 0.f;
+        }
+    }
+
+    for (int c = 0; c < t_per_block; c += 2 * CHUNK) {
+#pragma unroll
+        for (int i = 0; i < CHUNK; ++i) {
+            buf1[i] = __ldcs(src + (c + CHUNK + i) * 32);
+        }
+#pragma unroll
+        for (int i = 0; i < CHUNK; ++i) {
+#pragma unroll
+            for (int nt = 0; nt < MT; ++nt) {
+                mma_bf16(acc[nt], buf0[i], xs[((c + i) * MT + nt) * 32 + lane]);
+            }
+        }
+        if (c + 2 * CHUNK < t_per_block) {
+#pragma unroll
+            for (int i = 0; i < CHUNK; ++i) {
+                buf0[i] = __ldcs(src + (c + 2 * CHUNK + i) * 32);
+            }
+        }
+#pragma unroll
+        for (int i = 0; i < CHUNK; ++i) {
+#pragma unroll
+            for (int nt = 0; nt < MT; ++nt) {
+                mma_bf16(acc[nt], buf1[i], xs[((c + CHUNK + i) * MT + nt) * 32 + lane]);
+            }
+        }
+    }
+
+    // C fragment: rows lane/4 and lane/4 + 8, token columns (lane%4)*2 and +1.
+    const int g = lane >> 2;
+    const int q = (lane & 3) * 2;
+#pragma unroll
+    for (int nt = 0; nt < MT; ++nt) {
+        const int r = warp * 16 + g;
+        const int t = nt * 8 + q;
+        partial[t * ROWS + r] = acc[nt][0];
+        partial[(t + 1) * ROWS + r] = acc[nt][1];
+        partial[t * ROWS + r + 8] = acc[nt][2];
+        partial[(t + 1) * ROWS + r + 8] = acc[nt][3];
+    }
+    cluster.sync();
+
+    const int rank = cluster.block_rank();
+    for (int i = threadIdx.x; i < TOKENS * ROWS / S; i += blockDim.x) {
+        const int j = i * S + rank;
+        const int t = j / ROWS;
+        if (t < m) {
+            float sum = 0.f;
+#pragma unroll
+            for (int s = 0; s < S; ++s) {
+                sum += cluster.map_shared_rank(partial, s)[j];
+            }
+            out[(size_t)t * n_out + blockIdx.x * ROWS + j % ROWS] = __float2bfloat16(sum);
+        }
+    }
+    // Peers read this block's shared memory above; it must outlive those reads.
+    cluster.sync();
+}
+
+template <int MT, int WARPS, int S>
+void proj_launch(const uint4* wp, const __nv_bfloat16* xp, __nv_bfloat16* op, int m, int n,
+                 int k, cudaStream_t stream) {
+    const int t = k / 16 / S;
+    const int smem = proj_smem_bytes<MT, WARPS>(t);
+    static int configured = 0;
+    if (configured < smem) {
+        cudaFuncSetAttribute(proj_kernel<MT, WARPS, S>,
+                             cudaFuncAttributeMaxDynamicSharedMemorySize, smem);
+        configured = smem;
+    }
+    const dim3 grid(n / 16 / WARPS, S);
+    proj_kernel<MT, WARPS, S><<<grid, WARPS * 32, smem, stream>>>(wp, xp, op, m, n, k, t);
+}
+
+template <int WARPS, int S>
+void proj_dispatch_m(const uint4* wp, const __nv_bfloat16* xp, __nv_bfloat16* op, int m, int n,
+                     int k, cudaStream_t stream) {
+    if (m <= 8) {
+        proj_launch<1, WARPS, S>(wp, xp, op, m, n, k, stream);
+    } else if (m <= 16) {
+        proj_launch<2, WARPS, S>(wp, xp, op, m, n, k, stream);
+    } else {
+        proj_launch<4, WARPS, S>(wp, xp, op, m, n, k, stream);
+    }
+}
+
+// Every config gives each warp 32 or 64 k-tiles (a multiple of 2 * CHUNK) and fills 128 to 256
+// blocks, so all SMs stream at once.
+torch::Tensor proj_fwd(torch::Tensor x, torch::Tensor wpacked, int64_t n) {
+    const int m = x.size(0);
+    const int k = x.size(1);
+    auto out = torch::empty({m, n}, x.options());
+    auto stream = at::cuda::getCurrentCUDAStream();
+    const auto* wp = reinterpret_cast<const uint4*>(wpacked.data_ptr());
+    const auto* xp = reinterpret_cast<const __nv_bfloat16*>(x.data_ptr<at::BFloat16>());
+    auto* op = reinterpret_cast<__nv_bfloat16*>(out.data_ptr<at::BFloat16>());
+    if (k == 1024) {
+        proj_dispatch_m<8, 2>(wp, xp, op, m, n, k, stream);
+    } else if (k == 4096 && n == 1024) {
+        proj_dispatch_m<4, 8>(wp, xp, op, m, n, k, stream);
+    } else if (k == 4096) {
+        proj_dispatch_m<8, 4>(wp, xp, op, m, n, k, stream);
+    } else {
+        proj_dispatch_m<8, 8>(wp, xp, op, m, n, k, stream);
+    }
+    return out;
+}
+"""
+
+_PROJ_CPP_SRC = "torch::Tensor proj_fwd(torch::Tensor x, torch::Tensor wpacked, int64_t n);"
+
+
+PROJ_LAYERS = ("qkv_gate", "o", "pooler", "unpooler")
+UNPOOL_SLICE = 1024
+
+
+def _pack_mma_a(w):
+    """[n, k] -> mma.m16n8k16 A fragments: [n/16 row tile][k/16 k-tile][lane g*4+c][reg][2]."""
+    n, k = w.shape
+    tiles = w.view(n // 16, 2, 8, k // 16, 2, 4, 2)
+    return tiles.permute(0, 3, 2, 5, 4, 1, 6).contiguous()
+
+
+def _proj_self_test(fused, state, packed):
+    w0 = state["pooler"]
+    gen = torch.Generator(device=w0.device).manual_seed(0)
+    for layer in PROJ_LAYERS:
+        w = state[layer]
+        for m in (1, 7, 8, 9, 16, 31, 32):
+            n = UNPOOL_SLICE if layer == "unpooler" and m <= 8 else w.shape[0]
+            x = torch.randn(m, w.shape[1], generator=gen, device=w.device).to(torch.bfloat16)
+            x[0].zero_()
+            x[0, 777] = 8.0
+            out = fused(x, packed[layer], n)
+            torch.cuda.synchronize()
+            ref = x.double() @ w[:n].double().T
+            err = ((out.double() - ref).norm() / ref.norm()).item()
+            if not err < 5e-3:
+                raise RuntimeError(f"{layer} m={m}: relative L2 error {err:.3e}")
+            if not torch.equal(out[0], (8.0 * w[:n, 777].float()).to(torch.bfloat16)):
+                raise RuntimeError(f"{layer} m={m}: probe row is not exact")
+
 
 def _router_split2(x, state):
     acc = torch.mm(x, state["router_hi_t"], out_dtype=torch.float32)
@@ -199,7 +422,7 @@ def _router_baseline(x, state):
 
 def _self_test(fused, w):
     gen = torch.Generator(device=w.device).manual_seed(0)
-    for m in (1, 3, 8, 9, 16, 31, 32):
+    for m in (1, 3, 8):
         x = torch.randn(m, ROUTER_K, generator=gen, device=w.device).to(torch.bfloat16)
         # The judge's probe rows: one power-of-two entry, so the exact answer is a weight column.
         x[0].zero_()
@@ -236,14 +459,34 @@ def prepare(weights):
         print("router kernel: fused")
     except Exception as exc:
         print(f"router kernel: baseline ({type(exc).__name__}: {exc})")
+
+    state["proj_fused"] = None
+    try:
+        ext = load_inline(
+            name="okc_proj_v1",
+            cpp_sources=_PROJ_CPP_SRC,
+            cuda_sources=_PROJ_SRC,
+            functions=["proj_fwd"],
+            extra_cuda_cflags=["-O3", "-gencode=arch=compute_90a,code=sm_90a"],
+        )
+        packed = {name: _pack_mma_a(state[name]) for name in PROJ_LAYERS}
+        _proj_self_test(ext.proj_fwd, state, packed)
+        state["proj_packed"] = packed
+        state["proj_fused"] = ext.proj_fwd
+        print("proj kernel: fused")
+    except Exception as exc:
+        print(f"proj kernel: baseline ({type(exc).__name__}: {exc})")
     return state
 
 
 def kernel_fn(data, state):
     x, layer = data["x"], data["config"]["layer"]
     if layer != "router":
-        return _bf16_gemm_dispatch_impl(x, state[layer][: data["config"]["n"]], None)
+        n = data["config"]["n"]
+        if state["proj_fused"] is not None and x.shape[0] <= PROJ_FUSED_MAX_TOKENS:
+            return state["proj_fused"](x.contiguous(), state["proj_packed"][layer], n)
+        return _bf16_gemm_dispatch_impl(x, state[layer][:n], None)
     fused = state["router_fused"]
-    if fused is not None and x.shape[0] <= FUSED_MAX_TOKENS:
+    if fused is not None and x.shape[0] <= ROUTER_FUSED_MAX_TOKENS:
         return fused(x.contiguous(), state["router"])
     return _router_baseline(x, state)
