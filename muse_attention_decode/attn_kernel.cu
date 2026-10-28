@@ -125,7 +125,24 @@ __device__ __forceinline__ size_t cache_row(const int* pt, int pos, int page_siz
 // tiles of one KV head; tile row g < 8 is query head h * 8 + g. With L = 1 tile rows 8..15
 // repeat rows 0..7 and are dropped; with L = 8 tile t of the head holds tokens 2t (rows
 // 0..7) and 2t + 1 (rows 8..15).
-template <int L, int MT, int TP>
+__device__ __forceinline__ void cp_async4(uint32_t dst, const void* src, bool valid) {
+    asm volatile("cp.async.ca.shared.global [%0], [%1], 4, %2;\n"
+                 :: "r"(dst), "l"(src), "r"(valid ? 4 : 0));
+}
+
+__device__ __forceinline__ float warp_max(float v) {
+    for (int o = 16; o; o >>= 1) {
+        v = fmaxf(v, __shfl_xor_sync(0xffffffffu, v, o));
+    }
+    return v;
+}
+
+// Rows of a CTA: r = j * HQ + qh for block token j and query head qh. A warp owns MT m16
+// tiles of one KV head; tile row g < 8 is query head h * 8 + g. With L = 1 tile rows 8..15
+// repeat rows 0..7 and are dropped; with L = 8 tile t of the head holds tokens 2t (rows
+// 0..7) and 2t + 1 (rows 8..15). TP warps per (head, tile group) split each stage's 16-token
+// chunks; each warp takes KC adjacent chunks per softmax update.
+template <int L, int MT, int TP, int KC>
 struct Cfg {
     static constexpr int TILES_PER_HEAD = L == 1 ? 1 : GROUP * L / 16;
     static constexpr int MG = TILES_PER_HEAD / MT;
@@ -135,12 +152,60 @@ struct Cfg {
     static constexpr int TOK_PER_THREAD = BN * 16 / THREADS;
     static constexpr int TOK_STEP = THREADS / 16;
     static constexpr int CHUNKS = BN / 16;
+    static_assert(CHUNKS % (TP * KC) == 0, "chunks must split evenly over warps");
+    static_assert(TP * ROWS * PART * 4 <= SMEM_BYTES, "partials must fit in smem");
 };
 
-template <int L, int MT, int TP, bool CLUSTER>
-__global__ void __launch_bounds__(Cfg<L, MT, TP>::THREADS)
+// Page-table ring: entries for tile t sit in slot t % RING. Group k of the main loop carries
+// tile k + 3's data and tile k + 6's page entries, so a tile's entries have landed three
+// iterations before its data load reads them.
+constexpr int RING = 8;
+constexpr int PT_AHEAD = 6;
+constexpr int SMEM_TOTAL = SMEM_BYTES + RING * BN * 4;
+
+// Merges n partials (m, l, o) of one row with one warp, lane k reading partial k first so the
+// loads overlap, then applies the norm-gate and writes the row. get(s) points at partial s.
+template <typename Get>
+__device__ __forceinline__ void merge_row(Get get, int n, int lane, float v_scale,
+                                          const __nv_bfloat16* gate, __nv_bfloat16* out) {
+    float mmax = NEG_INF;
+    for (int s = lane; s < n; s += 32) {
+        mmax = fmaxf(mmax, get(s)[0]);
+    }
+    mmax = warp_max(mmax);
+    float lsum = 0.f;
+    float2 acc = make_float2(0.f, 0.f);
+    for (int base = 0; base < n; base += 32) {
+        float w = 0.f;
+        if (base + lane < n) {
+            const float* q = get(base + lane);
+            w = q[0] == NEG_INF ? 0.f : exp2f(q[0] - mmax);
+            lsum += w * q[1];
+        }
+        const int cnt = min(32, n - base);
+#pragma unroll 8
+        for (int k = 0; k < cnt; ++k) {
+            const float wk = __shfl_sync(0xffffffffu, w, k);
+            const float2 v = *reinterpret_cast<const float2*>(get(base + k) + 2 + 2 * lane);
+            acc.x += wk * v.x;
+            acc.y += wk * v.y;
+        }
+    }
+    lsum = warp_sum(lsum);
+    const float inv = v_scale / lsum;
+    acc.x *= inv;
+    acc.y *= inv;
+    const float r = rsqrtf(warp_sum(acc.x * acc.x + acc.y * acc.y) / D + EPS);
+    const float2 gt = __bfloat1622float2(reinterpret_cast<const __nv_bfloat162*>(gate)[lane]);
+    acc.x = acc.x * r / (1.f + __expf(-gt.x));
+    acc.y = acc.y * r / (1.f + __expf(-gt.y));
+    reinterpret_cast<__nv_bfloat162*>(out)[lane] = __float22bfloat162_rn(acc);
+}
+
+template <int L, int MT, int TP, int KC, bool CLUSTER>
+__global__ void __launch_bounds__(Cfg<L, MT, TP, KC>::THREADS)
 attn_kernel(const Params p) {
-    using C = Cfg<L, MT, TP>;
+    using C = Cfg<L, MT, TP, KC>;
     extern __shared__ __align__(128) uint8_t smem[];
     const int split = blockIdx.x;
     const int b = blockIdx.y;
@@ -161,6 +226,8 @@ attn_kernel(const Params p) {
     const int hi = min(seq, lo + per);
     const int ntiles = (hi - lo + BN - 1) / BN;
     const int* pt = p.page_table + static_cast<size_t>(b) * p.pt_stride;
+    const int psize = p.page_size;
+    int* ring = reinterpret_cast<int*>(smem + SMEM_BYTES);
 
     // Loader role: chunk lc (0..7 key, 8..15 value) of tokens lt + i * TOK_STEP.
     const int lc = tid & 15;
@@ -168,47 +235,47 @@ attn_kernel(const Params p) {
     const uint8_t* lsrc = lc < 8 ? p.k_cache : p.v_cache;
     const int lchunk = lc & 7;
 
-    auto issue = [&](int tile, const size_t* rows) {
+    auto issue = [&](int tile) {
         uint8_t* st = smem + (tile % STAGES) * STAGE_BYTES + (lc < 8 ? 0 : BN * ROW_BYTES);
         const int base = lo + tile * BN;
+        const int* rp = ring + (tile % RING) * BN;
 #pragma unroll
         for (int i = 0; i < C::TOK_PER_THREAD; ++i) {
             const int t = lt + i * C::TOK_STEP;
-            const bool valid = base + t < hi;
+            const int pos = base + t;
+            const bool valid = pos < hi;
+            size_t row = static_cast<size_t>(rp[t]);
+            if (psize != 1) {
+                row = row * psize + pos % psize;
+            }
             const int sw = lc < 8 ? k_chunk(lchunk, t) : v_chunk(lchunk, t);
-            const uint8_t* src = valid ? lsrc + rows[i] * ROW_BYTES + lchunk * 16 : lsrc;
+            const uint8_t* src = valid ? lsrc + row * ROW_BYTES + lchunk * 16 : lsrc;
             cp_async16(smem_u32(st + t * ROW_BYTES + sw * 16), src, valid);
         }
     };
-    auto fetch_rows = [&](int tile, size_t* rows) {
-        const int base = lo + tile * BN;
-#pragma unroll
-        for (int i = 0; i < C::TOK_PER_THREAD; ++i) {
-            const int pos = base + lt + i * C::TOK_STEP;
-            rows[i] = (tile < ntiles && pos < hi) ? cache_row(pt, pos, p.page_size) : 0;
+    auto stage_pt = [&](int tile) {
+        for (int t = tid; t < BN; t += C::THREADS) {
+            const int pos = lo + tile * BN + t;
+            const bool valid = tile < ntiles && pos < hi;
+            const int* src = valid ? pt + (psize == 1 ? pos : pos / psize) : pt;
+            cp_async4(smem_u32(ring + (tile % RING) * BN + t), src, valid);
         }
     };
 
-    size_t rows_a[C::TOK_PER_THREAD];
-    size_t rows_b[C::TOK_PER_THREAD];
-    size_t rows_c[C::TOK_PER_THREAD];
-    static_assert(STAGES == 4, "prologue below issues three tiles");
-    fetch_rows(0, rows_a);
-    fetch_rows(1, rows_b);
-    fetch_rows(2, rows_c);
-    if (0 < ntiles) {
-        issue(0, rows_a);
+    static_assert(STAGES == 4 && PT_AHEAD == 6 && RING >= PT_AHEAD + 2, "ring schedule");
+    for (int t = 0; t < PT_AHEAD; ++t) {
+        stage_pt(t);
     }
     cp_commit();
-    if (1 < ntiles) {
-        issue(1, rows_b);
+    cp_wait<0>();
+    __syncthreads();
+#pragma unroll
+    for (int t = 0; t < STAGES - 1; ++t) {
+        if (t < ntiles) {
+            issue(t);
+        }
+        cp_commit();
     }
-    cp_commit();
-    if (2 < ntiles) {
-        issue(2, rows_c);
-    }
-    cp_commit();
-    fetch_rows(3, rows_a);
 
     // Query fragments: rows g and g + 8 of each tile, dims 16c..16c+15, normalized, RoPE'd and
     // rounded to E4M3 as FA3's path does. Key dims are read in the same permuted order, so the
@@ -284,15 +351,15 @@ attn_kernel(const Params p) {
         l[mt][0] = l[mt][1] = 0.f;
     }
 
-    // One 16-token chunk at smem stage st; tokens sit at positions pos0 + 0..15 and are visible
-    // to row (mt, half) when lo_row <= pos <= lim (lim also caps at the row's own position).
-    auto chunk = [&](const uint8_t* st, int ch, int pos0, int lim_all) {
+    // KC 16-token chunks from chunk ch0 of smem stage st; token i of the stage sits at position
+    // pos0 + i and is visible to a row when lo_row <= pos <= min(lim_all, the row's position).
+    auto chunk = [&](const uint8_t* st, int ch0, int pos0, int lim_all) {
         const uint8_t* ks = st;
         const uint8_t* vs = st + BN * ROW_BYTES;
-        float s[MT][2][4];
+        float s[MT][2 * KC][4];
 #pragma unroll
-        for (int sub = 0; sub < 2; ++sub) {
-            const int t = ch * 16 + sub * 8 + g;
+        for (int sub = 0; sub < 2 * KC; ++sub) {
+            const int t = ch0 * 16 + sub * 8 + g;
             const uint4 kf = *reinterpret_cast<const uint4*>(
                 ks + t * ROW_BYTES + k_chunk(head * 4 + c, t) * 16);
 #pragma unroll
@@ -303,7 +370,7 @@ attn_kernel(const Params p) {
                 mma_fp8(acc, qf[mt][0].z, qf[mt][1].z, qf[mt][0].w, qf[mt][1].w, kf.z, kf.w);
             }
         }
-        uint32_t pa[MT][4];
+        uint32_t pa[MT][KC][4];
 #pragma unroll
         for (int mt = 0; mt < MT; ++mt) {
 #pragma unroll
@@ -313,10 +380,10 @@ attn_kernel(const Params p) {
                 const int lim = min(lim_all, qp);
                 float mx = NEG_INF;
 #pragma unroll
-                for (int sub = 0; sub < 2; ++sub) {
+                for (int sub = 0; sub < 2 * KC; ++sub) {
 #pragma unroll
                     for (int k = 0; k < 2; ++k) {
-                        const int pos = pos0 + ch * 16 + sub * 8 + 2 * c + k;
+                        const int pos = pos0 + ch0 * 16 + sub * 8 + 2 * c + k;
                         float v = s[mt][sub][2 * half + k] * qk_scale;
                         v = (pos >= lo_row && pos <= lim) ? v : NEG_INF;
                         s[mt][sub][2 * half + k] = v;
@@ -331,7 +398,7 @@ attn_kernel(const Params p) {
                 m[mt][half] = mnew;
                 float sum = 0.f;
 #pragma unroll
-                for (int sub = 0; sub < 2; ++sub) {
+                for (int sub = 0; sub < 2 * KC; ++sub) {
 #pragma unroll
                     for (int k = 0; k < 2; ++k) {
                         const float e = exp2f(s[mt][sub][2 * half + k] - muse);
@@ -346,40 +413,47 @@ attn_kernel(const Params p) {
                     o[mt][e][2 * half + 1] *= alpha;
                 }
             }
-            pa[mt][0] = pack_f16(s[mt][0][0], s[mt][0][1]);
-            pa[mt][1] = pack_f16(s[mt][0][2], s[mt][0][3]);
-            pa[mt][2] = pack_f16(s[mt][1][0], s[mt][1][1]);
-            pa[mt][3] = pack_f16(s[mt][1][2], s[mt][1][3]);
+#pragma unroll
+            for (int kk = 0; kk < KC; ++kk) {
+                pa[mt][kk][0] = pack_f16(s[mt][2 * kk][0], s[mt][2 * kk][1]);
+                pa[mt][kk][1] = pack_f16(s[mt][2 * kk][2], s[mt][2 * kk][3]);
+                pa[mt][kk][2] = pack_f16(s[mt][2 * kk + 1][0], s[mt][2 * kk + 1][1]);
+                pa[mt][kk][3] = pack_f16(s[mt][2 * kk + 1][2], s[mt][2 * kk + 1][3]);
+            }
         }
-        // Value fragments: tokens 2c, 2c+1, 2c+8, 2c+9 of the chunk, dims 8g..8g+7 of the head.
-        // Output column g of n-tile e is head dim 8g + e.
-        uint2 vt[4];
+        // Value fragments: tokens 2c, 2c+1, 2c+8, 2c+9 of each 16-token step, dims 8g..8g+7 of
+        // the head. Output column g of n-tile e is head dim 8g + e.
 #pragma unroll
-        for (int k = 0; k < 4; ++k) {
-            const int t = ch * 16 + 2 * c + (k & 1) + (k >> 1) * 8;
-            const int slot = head * 8 + g;
-            vt[k] = *reinterpret_cast<const uint2*>(
-                vs + t * ROW_BYTES + v_chunk(slot >> 1, t) * 16 + (slot & 1) * 8);
-        }
+        for (int kk = 0; kk < KC; ++kk) {
+            uint2 vt[4];
 #pragma unroll
-        for (int hw = 0; hw < 2; ++hw) {
-            const uint32_t x0 = hw ? vt[0].y : vt[0].x;
-            const uint32_t x1 = hw ? vt[1].y : vt[1].x;
-            const uint32_t x2 = hw ? vt[2].y : vt[2].x;
-            const uint32_t x3 = hw ? vt[3].y : vt[3].x;
+            for (int k = 0; k < 4; ++k) {
+                const int t = (ch0 + kk) * 16 + 2 * c + (k & 1) + (k >> 1) * 8;
+                const int slot = head * 8 + g;
+                vt[k] = *reinterpret_cast<const uint2*>(
+                    vs + t * ROW_BYTES + v_chunk(slot >> 1, t) * 16 + (slot & 1) * 8);
+            }
 #pragma unroll
-            for (int pr = 0; pr < 2; ++pr) {
-                const uint32_t sel = pr ? 0x7362u : 0x5140u;
-                const uint32_t w01 = __byte_perm(x0, x1, sel);
-                const uint32_t w23 = __byte_perm(x2, x3, sel);
+            for (int hw = 0; hw < 2; ++hw) {
+                const uint32_t x0 = hw ? vt[0].y : vt[0].x;
+                const uint32_t x1 = hw ? vt[1].y : vt[1].x;
+                const uint32_t x2 = hw ? vt[2].y : vt[2].x;
+                const uint32_t x3 = hw ? vt[3].y : vt[3].x;
 #pragma unroll
-                for (int q = 0; q < 2; ++q) {
-                    const int e = hw * 4 + pr * 2 + q;
-                    const uint32_t b0 = f16x2_from_fp8x2(q ? w01 >> 16 : w01 & 0xffffu);
-                    const uint32_t b1 = f16x2_from_fp8x2(q ? w23 >> 16 : w23 & 0xffffu);
+                for (int pr = 0; pr < 2; ++pr) {
+                    const uint32_t sel = pr ? 0x7362u : 0x5140u;
+                    const uint32_t w01 = __byte_perm(x0, x1, sel);
+                    const uint32_t w23 = __byte_perm(x2, x3, sel);
 #pragma unroll
-                    for (int mt = 0; mt < MT; ++mt) {
-                        mma_f16(o[mt][e], pa[mt][0], pa[mt][1], pa[mt][2], pa[mt][3], b0, b1);
+                    for (int q = 0; q < 2; ++q) {
+                        const int e = hw * 4 + pr * 2 + q;
+                        const uint32_t b0 = f16x2_from_fp8x2(q ? w01 >> 16 : w01 & 0xffffu);
+                        const uint32_t b1 = f16x2_from_fp8x2(q ? w23 >> 16 : w23 & 0xffffu);
+#pragma unroll
+                        for (int mt = 0; mt < MT; ++mt) {
+                            mma_f16(o[mt][e], pa[mt][kk][0], pa[mt][kk][1], pa[mt][kk][2],
+                                    pa[mt][kk][3], b0, b1);
+                        }
                     }
                 }
             }
@@ -390,14 +464,16 @@ attn_kernel(const Params p) {
         cp_wait<STAGES - 2>();
         __syncthreads();
         if (it + STAGES - 1 < ntiles) {
-            issue(it + STAGES - 1, rows_a);
+            issue(it + STAGES - 1);
+        }
+        if (it + PT_AHEAD < ntiles) {
+            stage_pt(it + PT_AHEAD);
         }
         cp_commit();
-        fetch_rows(it + STAGES, rows_a);
         const uint8_t* st = smem + (it % STAGES) * STAGE_BYTES;
         const int pos0 = lo + it * BN;
 #pragma unroll
-        for (int ch = tp; ch < C::CHUNKS; ch += TP) {
+        for (int ch = tp * KC; ch < C::CHUNKS; ch += TP * KC) {
             if (pos0 + ch * 16 < hi) {
                 chunk(st, ch, pos0, hi - 1);
             }
@@ -453,7 +529,8 @@ attn_kernel(const Params p) {
         __syncthreads();
     }
 
-    // Partials: each warp's rows, m and l reduced over its quad, into smem [TP][ROWS][PART].
+    // Partials: each warp's rows, l reduced over its quad, into smem [TP][ROWS][PART]; then the
+    // TP partials of a row merge into slot 0 so the cross-CTA merge reads one per CTA.
     float* part = reinterpret_cast<float*>(smem);
 #pragma unroll
     for (int mt = 0; mt < MT; ++mt) {
@@ -480,52 +557,55 @@ attn_kernel(const Params p) {
             }
         }
     }
+    __syncthreads();
+    if constexpr (TP > 1) {
+        for (int row = warp; row < C::ROWS; row += C::WARPS) {
+            float mt_[TP];
+            float mmax = NEG_INF;
+#pragma unroll
+            for (int t = 0; t < TP; ++t) {
+                mt_[t] = part[(t * C::ROWS + row) * PART];
+                mmax = fmaxf(mmax, mt_[t]);
+            }
+            float lsum = 0.f;
+            float2 acc = make_float2(0.f, 0.f);
+#pragma unroll
+            for (int t = 0; t < TP; ++t) {
+                const float* q = part + (t * C::ROWS + row) * PART;
+                const float w = mt_[t] == NEG_INF ? 0.f : exp2f(mt_[t] - mmax);
+                lsum += w * q[1];
+                acc.x += w * q[2 + 2 * lane];
+                acc.y += w * q[3 + 2 * lane];
+            }
+            __syncwarp();
+            float* dst = part + row * PART;
+            if (lane == 0) {
+                dst[0] = mmax;
+                dst[1] = lsum;
+            }
+            dst[2 + 2 * lane] = acc.x;
+            dst[3 + 2 * lane] = acc.y;
+        }
+        __syncthreads();
+    }
 
     if constexpr (!CLUSTER) {
-        __syncthreads();
-        float* ws = p.ws + (static_cast<size_t>(b) * p.splits + split) * TP * C::ROWS * PART;
-        for (int i = tid; i < TP * C::ROWS * PART; i += C::THREADS) {
-            ws[i] = part[i];
+        float* ws = p.ws + (static_cast<size_t>(b) * p.splits + split) * C::ROWS * PART;
+        for (int i = tid; i < C::ROWS * PART / 4; i += C::THREADS) {
+            reinterpret_cast<float4*>(ws)[i] = reinterpret_cast<const float4*>(part)[i];
         }
-        return;
     } else {
         cg::cluster_group cluster = cg::this_cluster();
         cluster.sync();
         const float v_scale = *p.v_scale;
         const int nwarps = p.splits * C::WARPS;
         for (int row = split * C::WARPS + warp; row < C::ROWS; row += nwarps) {
-            float mmax = NEG_INF;
-            for (int s = 0; s < p.splits; ++s) {
-                const float* rp = cluster.map_shared_rank(part, s);
-                for (int t = 0; t < TP; ++t) {
-                    mmax = fmaxf(mmax, rp[(t * C::ROWS + row) * PART]);
-                }
-            }
-            float lsum = 0.f;
-            float2 acc = make_float2(0.f, 0.f);
-            for (int s = 0; s < p.splits; ++s) {
-                const float* rp = cluster.map_shared_rank(part, s);
-                for (int t = 0; t < TP; ++t) {
-                    const float* q = rp + (t * C::ROWS + row) * PART;
-                    const float w = q[0] == NEG_INF ? 0.f : exp2f(q[0] - mmax);
-                    lsum += w * q[1];
-                    acc.x += w * q[2 + 2 * lane];
-                    acc.y += w * q[3 + 2 * lane];
-                }
-            }
-            const float inv = v_scale / lsum;
-            acc.x *= inv;
-            acc.y *= inv;
             const int j = row / HQ;
             const int qh = row % HQ;
             const size_t tok = static_cast<size_t>(b) * L + j;
-            const float r = rsqrtf(warp_sum(acc.x * acc.x + acc.y * acc.y) / D + EPS);
-            const float2 gt = __bfloat1622float2(reinterpret_cast<const __nv_bfloat162*>(
-                p.qkv + tok * QKV_STRIDE + (HQ + 2 * HKV + qh) * D)[lane]);
-            acc.x = acc.x * r / (1.f + __expf(-gt.x));
-            acc.y = acc.y * r / (1.f + __expf(-gt.y));
-            reinterpret_cast<__nv_bfloat162*>(p.out + tok * HQ * D + qh * D)[lane] =
-                __float22bfloat162_rn(acc);
+            merge_row([&](int s) { return cluster.map_shared_rank(part, s) + row * PART; },
+                      p.splits, lane, v_scale, p.qkv + tok * QKV_STRIDE + (HQ + 2 * HKV + qh) * D,
+                      p.out + tok * HQ * D + qh * D);
         }
         cluster.sync();
     }
@@ -540,41 +620,20 @@ __global__ void combine_kernel(const float* __restrict__ ws, const __nv_bfloat16
     const int j = tok % L;
     const int qh = threadIdx.x / 32;
     const int lane = threadIdx.x & 31;
-    const int rows = HQ * L;
-    const int row = j * HQ + qh;
-    const float* base = ws + static_cast<size_t>(b) * nparts * rows * PART + row * PART;
-    float mmax = NEG_INF;
-    for (int s = 0; s < nparts; ++s) {
-        mmax = fmaxf(mmax, base[static_cast<size_t>(s) * rows * PART]);
-    }
-    float lsum = 0.f;
-    float2 acc = make_float2(0.f, 0.f);
-    for (int s = 0; s < nparts; ++s) {
-        const float* q = base + static_cast<size_t>(s) * rows * PART;
-        const float w = q[0] == NEG_INF ? 0.f : exp2f(q[0] - mmax);
-        lsum += w * q[1];
-        acc.x += w * q[2 + 2 * lane];
-        acc.y += w * q[3 + 2 * lane];
-    }
-    const float inv = *v_scale / lsum;
-    acc.x *= inv;
-    acc.y *= inv;
-    const float r = rsqrtf(warp_sum(acc.x * acc.x + acc.y * acc.y) / D + EPS);
-    const float2 gt = __bfloat1622float2(reinterpret_cast<const __nv_bfloat162*>(
-        qkv + static_cast<size_t>(tok) * QKV_STRIDE + (HQ + 2 * HKV + qh) * D)[lane]);
-    acc.x = acc.x * r / (1.f + __expf(-gt.x));
-    acc.y = acc.y * r / (1.f + __expf(-gt.y));
-    reinterpret_cast<__nv_bfloat162*>(out + static_cast<size_t>(tok) * HQ * D + qh * D)[lane] =
-        __float22bfloat162_rn(acc);
+    const size_t stride = static_cast<size_t>(HQ) * L * PART;
+    const float* base = ws + b * nparts * stride + (j * HQ + qh) * PART;
+    merge_row([&](int s) { return base + s * stride; }, nparts, lane, *v_scale,
+              qkv + static_cast<size_t>(tok) * QKV_STRIDE + (HQ + 2 * HKV + qh) * D,
+              out + static_cast<size_t>(tok) * HQ * D + qh * D);
 }
 
-template <int L, int MT, int TP, bool CLUSTER>
+template <int L, int MT, int TP, int KC, bool CLUSTER>
 void launch(const Params& p, int batch, cudaStream_t stream) {
-    using C = Cfg<L, MT, TP>;
-    auto kern = attn_kernel<L, MT, TP, CLUSTER>;
+    using C = Cfg<L, MT, TP, KC>;
+    auto kern = attn_kernel<L, MT, TP, KC, CLUSTER>;
     static bool configured = false;
     if (!configured) {
-        cudaFuncSetAttribute(kern, cudaFuncAttributeMaxDynamicSharedMemorySize, SMEM_BYTES);
+        cudaFuncSetAttribute(kern, cudaFuncAttributeMaxDynamicSharedMemorySize, SMEM_TOTAL);
         if (CLUSTER) {
             cudaFuncSetAttribute(kern, cudaFuncAttributeNonPortableClusterSizeAllowed, 1);
         }
@@ -583,7 +642,7 @@ void launch(const Params& p, int batch, cudaStream_t stream) {
     cudaLaunchConfig_t cfg = {};
     cfg.gridDim = dim3(p.splits, batch);
     cfg.blockDim = dim3(C::THREADS);
-    cfg.dynamicSmemBytes = SMEM_BYTES;
+    cfg.dynamicSmemBytes = SMEM_TOTAL;
     cfg.stream = stream;
     cudaLaunchAttribute attr[1];
     cfg.numAttrs = 0;
@@ -599,15 +658,19 @@ void launch(const Params& p, int batch, cudaStream_t stream) {
     TORCH_CHECK(err == cudaSuccess, "attn_kernel launch: ", cudaGetErrorString(err));
 }
 
-// INSTANTIATE: template void launch<1, 1, 4, true>(const Params&, int, cudaStream_t);
-// INSTANTIATE: template void launch<1, 1, 4, false>(const Params&, int, cudaStream_t);
-// INSTANTIATE: template void launch<8, 2, 1, true>(const Params&, int, cudaStream_t);
-// INSTANTIATE: template void launch<8, 2, 1, false>(const Params&, int, cudaStream_t);
-// INSTANTIATE: template void launch<8, 1, 1, false>(const Params&, int, cudaStream_t);
+// INSTANTIATE: template void launch<1, 1, 4, 1, true>(const Params&, int, cudaStream_t);
+// INSTANTIATE: template void launch<1, 1, 4, 1, false>(const Params&, int, cudaStream_t);
+// INSTANTIATE: template void launch<8, 2, 1, 2, true>(const Params&, int, cudaStream_t);
+// INSTANTIATE: template void launch<8, 2, 1, 2, false>(const Params&, int, cudaStream_t);
+// INSTANTIATE: template void launch<8, 1, 1, 4, true>(const Params&, int, cudaStream_t);
+// INSTANTIATE: template void launch<8, 1, 1, 4, false>(const Params&, int, cudaStream_t);
+// INSTANTIATE: template void launch<1, 1, 2, 2, false>(const Params&, int, cudaStream_t);
 
 }  // namespace
 
-// variant: 0 = (L1: TP 4 | L8: MT 2 TP 1), 1 = L8 MT 1 TP 1
+// variant: q_len 1: 0 = 8 warps, 1 chunk each; 1 = 4 warps, 2 chunks each.
+//          q_len 8: 0 = 2 m-tiles x 2 chunks per warp (4 warps); 1 = 1 m-tile x 4 chunks
+//          (8 warps).
 torch::Tensor attn_fused(torch::Tensor qkv, torch::Tensor page_table, torch::Tensor seq_lens,
                          torch::Tensor cache_loc, torch::Tensor inv_freq, torch::Tensor k_scale,
                          torch::Tensor v_scale, torch::Tensor k_cache, torch::Tensor v_cache,
@@ -634,29 +697,33 @@ torch::Tensor attn_fused(torch::Tensor qkv, torch::Tensor page_table, torch::Ten
     p.rope = rope ? 1 : 0;
     p.splits = splits;
     p.qk_scale = static_cast<float>(qk_scale);
-    const int tp = q_len == 1 ? 4 : 1;
     torch::Tensor ws;
     if (!cluster) {
-        ws = torch::empty({batch * splits * tp * HQ * q_len * PART},
-                          qkv.options().dtype(torch::kFloat32));
+        ws = torch::empty({batch * splits * HQ * q_len * PART}, qkv.options().dtype(torch::kFloat32));
         p.ws = ws.data_ptr<float>();
     }
     if (q_len == 1) {
         if (cluster) {
-            launch<1, 1, 4, true>(p, batch, stream);
+            launch<1, 1, 4, 1, true>(p, batch, stream);
+        } else if (variant == 1) {
+            launch<1, 1, 2, 2, false>(p, batch, stream);
         } else {
-            launch<1, 1, 4, false>(p, batch, stream);
+            launch<1, 1, 4, 1, false>(p, batch, stream);
+        }
+    } else if (variant == 1) {
+        if (cluster) {
+            launch<8, 1, 1, 4, true>(p, batch, stream);
+        } else {
+            launch<8, 1, 1, 4, false>(p, batch, stream);
         }
     } else if (cluster) {
-        launch<8, 2, 1, true>(p, batch, stream);
-    } else if (variant == 1) {
-        launch<8, 1, 1, false>(p, batch, stream);
+        launch<8, 2, 1, 2, true>(p, batch, stream);
     } else {
-        launch<8, 2, 1, false>(p, batch, stream);
+        launch<8, 2, 1, 2, false>(p, batch, stream);
     }
     if (!cluster) {
-        combine_kernel<<<batch * q_len, HQ * 32, 0, stream>>>(
-            p.ws, p.qkv, p.v_scale, p.out, q_len, splits * tp);
+        combine_kernel<<<batch * q_len, HQ * 32, 0, stream>>>(p.ws, p.qkv, p.v_scale, p.out, q_len,
+                                                               splits);
     }
     return out;
 }

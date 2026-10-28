@@ -13,7 +13,8 @@ python3 - "$src" "$work" <<'PY'
 import re, sys
 text = open(sys.argv[1]).read()
 for name, body in re.findall(r'(_\w+_SRC) = r"""(.*?)"""', text, re.S):
-    cuda = re.sub(r'#include <(torch|ATen)/[^>]*>\n', '', body)
+    cuda = "#define TORCH_CHECK(cond, ...) (void)(cond)\n" + re.sub(
+        r'#include <(torch|ATen)/[^>]*>\n', '', body)
     head, sep, _ = cuda.rpartition("}  // namespace")
     if not sep:
         continue
