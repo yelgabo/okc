@@ -395,7 +395,8 @@ __constant__ int kCostBm[9] = {0, 85, 92, 104, 115, 130, 145, 160, 175};
 // (bench 36b5b559b0344d0f: main-d2 197 us at bs32 against 139 loads-only and 150 for the
 // mma.sync skinny kernel).
 __host__ __device__ constexpr int mma_max(int mode) {
-    return mode == 6 || mode == 9 || mode == 11 || mode == 12 ? 2 : mode == 7 || mode == 10 ? 4
+    return mode == 6 || mode == 9 || mode == 11 || mode == 12 || mode == 14 ? 2
+           : mode == 7 || mode == 10 ? 4
            : mode == 8 ? 8 : 0;
 }
 
@@ -407,7 +408,7 @@ __host__ __device__ constexpr int mma_max(int mode) {
 // Memory Consistency Model, "Release and Acquire Patterns"); fence.sc adds only the SC order,
 // which no reader here relies on. The SASS is MEMBAR.ALL.GPU instead of MEMBAR.SC.GPU.
 __host__ __device__ constexpr bool fence_ar(int mode) {
-    return mode == 12 || mode == 13;
+    return mode == 12 || mode == 13 || mode == 14;
 }
 
 template <bool AR>
@@ -958,10 +959,19 @@ __device__ __forceinline__ void run_segment_mma(const Params& p, SmemMain& S, fl
     const int wg = warp >> 2;
     const int w = warp & 3;
     const int tid_wg = tid & 127;
+    // Mode 14 splits each n8 tile's 16-step mma.sync chain into two accumulators (even and odd
+    // k16 steps), halving the dependent chain per stage; the stamps put a stage's compute at
+    // 1.02 us against about 0.66 us of issue for its four warps per scheduler.
+    constexpr bool kDual = MODE == 14;
     float acc[32];
+    float acc2[kDual ? 4 * NTT : 1];
 #pragma unroll
     for (int i = 0; i < 32; ++i) {
         acc[i] = 0.f;
+    }
+#pragma unroll
+    for (int i = 0; i < (kDual ? 4 * NTT : 1); ++i) {
+        acc2[i] = 0.f;
     }
     const unsigned lrow = static_cast<unsigned>((lane >> 3) * 128 + (lane & 7) * 16);
 #pragma unroll 1
@@ -1021,7 +1031,12 @@ __device__ __forceinline__ void run_segment_mma(const Params& p, SmemMain& S, fl
                 ldsm_x4(b, xbase + nt * 4096 + s * 256);
                 float (&c4)[4] = *reinterpret_cast<float (*)[4]>(acc + 4 * nt);
                 mma_bf16(c4, a0, b[0], b[1]);
-                mma_bf16(c4, a1, b[2], b[3]);
+                if constexpr (kDual) {
+                    float (&d4)[4] = *reinterpret_cast<float (*)[4]>(acc2 + 4 * nt);
+                    mma_bf16(d4, a1, b[2], b[3]);
+                } else {
+                    mma_bf16(c4, a1, b[2], b[3]);
+                }
             }
         }
         // The x slot is refilled by the async proxy after these generic-proxy reads.
@@ -1035,6 +1050,12 @@ __device__ __forceinline__ void run_segment_mma(const Params& p, SmemMain& S, fl
             // Reading acc makes the stamp wait for this stage's mma chain.
             const long long c1 = clock64() + (acc[0] == 1e30f ? 1 : 0);
             tc += c1 - c0;
+        }
+    }
+    if constexpr (kDual) {
+#pragma unroll
+        for (int i = 0; i < 4 * NTT; ++i) {
+            acc[i] += acc2[i];
         }
     }
     if constexpr (kDiag) {
@@ -2073,14 +2094,15 @@ __device__ __forceinline__ void a_pin(unsigned (&a)[2][4]) {{
 # a namespace of its own in the source, and fat kernel modes; a variant id indexes this table.
 SKINNY_VARIANTS = ((8, 4, 0), (16, 4, 0), (8, 4, 1))
 # 0: depth-2 wgmma pipeline; 6: jobs of up to 2 n8 tiles on mma.sync, the rest on wgmma; 12
-# and 13: modes 6 and 0 with fence.acq_rel in place of fence.sc (fence_ar in the source).
+# and 13: modes 6 and 0 with fence.acq_rel in place of fence.sc (fence_ar in the source); 14:
+# mode 12 with two accumulator chains per n8 tile on mma.sync.
 # Timing-only diagnostics: 1 streams the weights only (the ring's ceiling), 11 is mode 6 with
 # clock stamps (_diag_report). Also in the source, not built: 7 to 10 (more jobs on mma.sync,
 # flatter stage costs; all lost in submit 0400cfbdfa2845fe). Also in the source, not built: 2 dequantizes without wgmma, 3 runs wgmma on
 # the raw words (run 36b5b559b0344d0f has their numbers), depth 3 (mode 5) and no readiness
 # waits (mode 4), which run bab82f5f5b974594 showed do not move the fat path.
-MAIN_MODES = (0, 1, 6, 11, 12, 13)
-MAIN_CANDIDATES = (0, 6, 12, 13)
+MAIN_MODES = (0, 1, 6, 11, 12, 13, 14)
+MAIN_CANDIDATES = (0, 6, 12, 13, 14)
 VARIANT_MAIN0 = len(SKINNY_VARIANTS)
 
 
@@ -2252,7 +2274,7 @@ VARIANT_LEGACY0 = 100
 # prepare (state["fit_cost"]) is VARIANT_FIT0 + i.
 VARIANT_FIT0 = 200
 # Modes the fitted costs are offered for: the stamps time mode 6's segments.
-FIT_MODES = (6, 12)
+FIT_MODES = (6, 12, 14)
 
 _LEGACY_ROUTE_CPP = r"""
 #include <torch/extension.h>
@@ -3797,7 +3819,8 @@ def _vname(v):
         m = MAIN_MODES[v - VARIANT_MAIN0]
         return {0: "main-d2", 5: "main-d3", 1: "main-loads", 4: "main-nogate", 2: "main-nowgmma",
                 3: "main-nodequant", 6: "main-m2", 7: "main-m4", 8: "main-m8f", 9: "main-m2f",
-                10: "main-m4f", 11: "main-m2-stamps", 12: "main-m2-ar", 13: "main-d2-ar"}[m]
+                10: "main-m4f", 11: "main-m2-stamps", 12: "main-m2-ar", 13: "main-d2-ar",
+                14: "main-m2-ar2"}[m]
     nw, ns, mode = SKINNY_VARIANTS[v]
     return f"sk{nw}w{ns}s{'-loads' if mode else ''}"
 
