@@ -586,3 +586,40 @@ of the residency table returns mode 19 for full context q_len 8 at batch 16 / 32
 every other shape's plan as profiled; `tools/attn_compile_check.sh` compiles all four inlined
 blocks with no errors; `tools/attn_harness_dry.py` passes; `_ob_diffstat` reads 0 differences
 on identical tensors and `1/1024 max_ulp=1.0` for a one-ulp change.
+
+### Scored run b458555d3e3e4e9a (bench.py at 83e0112): 2.162x, CI 2.129-2.202
+
+Mode 19 on the full-context q_len 8 shapes at batch 16 / 32; everything else as in
+16fcddf80a714e0d. Every judge test passed, SELFTEST 0 failing shapes; now the attention board
+entry (submitted with the user's authorization). Profiles: `profiles/bench.b458555d3e3e4e9a.*`.
+
+| shape | SGLang | ours | speedup | weight |
+|---|---|---|---|---|
+| decode 1 sliding | 20.7 | 6.0 | 3.45 | 46 |
+| decode 1 full | 31.4 | 15.3 | 2.05 | 16 |
+| decode 16 sliding | 26.9 | 10.1 | 2.65 | 46 |
+| decode 16 full | 200.8 | 93.6 | 2.15 | 16 |
+| decode 32 sliding | 31.3 | 12.5 | 2.51 | 46 |
+| decode 32 full | 385.2 | 180.8 | 2.13 | 16 |
+| verify 1 sliding | 23.0 | 8.0 | 2.87 | 46 |
+| verify 1 full | 36.4 | 18.2 | 2.00 | 16 |
+| verify 16 sliding | 29.1 | 13.3 | 2.18 | 46 |
+| verify 16 full | 205.9 | 127.1 | 1.62 | 16 |
+| verify 32 sliding | 34.3 | 17.5 | 1.96 | 46 |
+| verify 32 full | 390.0 | 239.1 | 1.63 | 16 |
+
+The routing change landed as the bench predicted (127.4 / 236.3 us): verify 16 / 32 full went
+from 374.8 / 756.8 us to 127.1 / 239.1. The other shapes are within the judge's run-to-run drift
+of 16fcddf80a714e0d.
+
+Stress verdict confirmed. STRESS b1 sliding L1 mode 13 again reads `replayed_vs_eager=2.3e-04`
+(FAIL against 1e-4), and the new per-element line shows `diff_elems=1/1024 max_ulp=1.0
+max_abs=3.9e-03`, workspace clean: one element one BF16 ulp apart, the merge-order signature the
+model predicted. Mode 3 (b16 sliding L8) shows 7/131072 and mode 19 (b16 full L8) 6/131072, both
+at one ulp and under the bound only because their outputs are larger. Across the log, 14 lines
+report a one-ulp maximum and one SELFTEST rerun (b2 ctx100000 full L8 mode 19) reports 2/16384
+elements at 10.5 ulps of the larger magnitude but 4.9e-04 absolute: a near-zero element, where
+cancellation in the FP32 sum turns a last-bit difference into several ulps of a small value.
+The 1e-4 relative bound stays as it is; on a 1024-element output it trips on a single one-ulp
+element, so read the mode 13 STRESS line by its per-element numbers (a real lost or stale
+contribution would change most of a head's 64 elements, by far more than one ulp).
