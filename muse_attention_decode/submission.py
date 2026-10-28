@@ -18,6 +18,7 @@ come in with the inputs (SGLang builds them once per step for all layers)."""
 from typing import TypedDict
 
 import torch
+from torch.utils.cpp_extension import load_inline
 from sgl_kernel.flash_attn import flash_attn_with_kvcache
 
 from sglang.kernels.ops.kvcache.kvcache import store_cache
@@ -132,10 +133,188 @@ def _sglang(data):
     return o.view(batch, length, hq * d)
 
 
+_PREP_SRC = r"""
+#include <torch/extension.h>
+#include <ATen/cuda/CUDAContext.h>
+#include <cuda_bf16.h>
+#include <cuda_fp8.h>
+#include <cstdint>
+
+namespace {
+
+constexpr int D = 64;
+constexpr float EPS = 1e-5f;
+
+__device__ __forceinline__ float warp_sum(float v) {
+    for (int o = 16; o; o >>= 1) {
+        v += __shfl_xor_sync(0xffffffffu, v, o);
+    }
+    return v;
+}
+
+__device__ __forceinline__ uint16_t to_fp8x2(float2 x) {
+    return __nv_cvt_float2_to_fp8x2(x, __NV_SATFINITE, __NV_E4M3);
+}
+
+// One warp per (token, head); lane i holds dims 2i and 2i+1, which is also RoPE pair i.
+__global__ void prep_kernel(const __nv_bfloat16* __restrict__ qkv, const int64_t* __restrict__ pos,
+                            const int64_t* __restrict__ loc, const float* __restrict__ inv_freq,
+                            const float* __restrict__ k_scale, const float* __restrict__ v_scale,
+                            uint16_t* __restrict__ q_out, uint16_t* k_cache, uint16_t* v_cache,
+                            int hq, int hkv, int rope) {
+    const int t = blockIdx.x;
+    const int h = blockIdx.y * (blockDim.x / 32) + threadIdx.x / 32;
+    const int lane = threadIdx.x & 31;
+    const int heads = hq + 2 * hkv;
+    if (h >= heads) {
+        return;
+    }
+    const auto* src = reinterpret_cast<const __nv_bfloat162*>(qkv + (size_t)t * (heads + hq) * D);
+    float2 x = __bfloat1622float2(src[h * (D / 2) + lane]);
+    if (h < hq + hkv) {
+        const float r = rsqrtf(warp_sum(x.x * x.x + x.y * x.y) / D + EPS);
+        x.x *= r;
+        x.y *= r;
+        if (rope) {
+            float s, c;
+            sincosf((float)pos[t] * inv_freq[lane], &s, &c);
+            x = make_float2(x.x * c - x.y * s, x.x * s + x.y * c);
+        }
+    }
+    if (h < hq) {
+        q_out[((size_t)t * hq + h) * (D / 2) + lane] = to_fp8x2(x);
+        return;
+    }
+    const bool is_k = h < hq + hkv;
+    const int kh = is_k ? h - hq : h - hq - hkv;
+    const float inv = 1.f / (is_k ? *k_scale : *v_scale);
+    x.x *= inv;
+    x.y *= inv;
+    uint16_t* dst = is_k ? k_cache : v_cache;
+    dst[((size_t)loc[t] * hkv + kh) * (D / 2) + lane] = to_fp8x2(x);
+}
+
+// One warp per (token, head): RMSNorm of the attention output times sigmoid(gate).
+__global__ void gate_kernel(const __nv_bfloat16* __restrict__ o, const __nv_bfloat16* __restrict__ qkv,
+                            __nv_bfloat16* __restrict__ out, int hq, int hkv) {
+    const int t = blockIdx.x;
+    const int h = blockIdx.y * (blockDim.x / 32) + threadIdx.x / 32;
+    const int lane = threadIdx.x & 31;
+    if (h >= hq) {
+        return;
+    }
+    const size_t row = (size_t)t * hq + h;
+    float2 x = __bfloat1622float2(reinterpret_cast<const __nv_bfloat162*>(o)[row * (D / 2) + lane]);
+    const auto* g2 = reinterpret_cast<const __nv_bfloat162*>(qkv + (size_t)t * (2 * hq + 2 * hkv) * D
+                                                              + (hq + 2 * hkv) * D);
+    const float2 g = __bfloat1622float2(g2[h * (D / 2) + lane]);
+    const float r = rsqrtf(warp_sum(x.x * x.x + x.y * x.y) / D + EPS);
+    x.x = x.x * r / (1.f + __expf(-g.x));
+    x.y = x.y * r / (1.f + __expf(-g.y));
+    reinterpret_cast<__nv_bfloat162*>(out)[row * (D / 2) + lane] = __float22bfloat162_rn(x);
+}
+
+}  // namespace
+
+torch::Tensor attn_prep(torch::Tensor qkv, torch::Tensor pos, torch::Tensor loc,
+                        torch::Tensor inv_freq, torch::Tensor k_scale, torch::Tensor v_scale,
+                        torch::Tensor k_cache, torch::Tensor v_cache, int64_t hq, int64_t hkv,
+                        bool rope) {
+    const int tokens = qkv.size(0);
+    auto q = torch::empty({tokens, hq, D}, qkv.options().dtype(torch::kFloat8_e4m3fn));
+    const int heads = hq + 2 * hkv;
+    dim3 grid(tokens, (heads + 7) / 8);
+    prep_kernel<<<grid, 256, 0, at::cuda::getCurrentCUDAStream()>>>(
+        reinterpret_cast<const __nv_bfloat16*>(qkv.data_ptr()), pos.data_ptr<int64_t>(),
+        loc.data_ptr<int64_t>(), inv_freq.data_ptr<float>(), k_scale.data_ptr<float>(),
+        v_scale.data_ptr<float>(), reinterpret_cast<uint16_t*>(q.data_ptr()),
+        reinterpret_cast<uint16_t*>(k_cache.data_ptr()),
+        reinterpret_cast<uint16_t*>(v_cache.data_ptr()), hq, hkv, rope ? 1 : 0);
+    return q;
+}
+
+torch::Tensor attn_gate(torch::Tensor o, torch::Tensor qkv, int64_t hq, int64_t hkv) {
+    const int tokens = qkv.size(0);
+    auto out = torch::empty({tokens, hq * D}, qkv.options());
+    dim3 grid(tokens, (hq + 7) / 8);
+    gate_kernel<<<grid, 256, 0, at::cuda::getCurrentCUDAStream()>>>(
+        reinterpret_cast<const __nv_bfloat16*>(o.data_ptr()),
+        reinterpret_cast<const __nv_bfloat16*>(qkv.data_ptr()),
+        reinterpret_cast<__nv_bfloat16*>(out.data_ptr()), hq, hkv);
+    return out;
+}
+"""
+
+_PREP_CPP = """
+torch::Tensor attn_prep(torch::Tensor qkv, torch::Tensor pos, torch::Tensor loc,
+                        torch::Tensor inv_freq, torch::Tensor k_scale, torch::Tensor v_scale,
+                        torch::Tensor k_cache, torch::Tensor v_cache, int64_t hq, int64_t hkv,
+                        bool rope);
+torch::Tensor attn_gate(torch::Tensor o, torch::Tensor qkv, int64_t hq, int64_t hkv);
+"""
+
+_INV_FREQ = {}
+
+
+def _inv_freq(theta, d, device):
+    """RoPE frequencies computed exactly as SGLang's RotaryEmbedding does, so angles match."""
+    key = (theta, d)
+    if key not in _INV_FREQ:
+        _INV_FREQ[key] = 1.0 / (theta ** (torch.arange(0, d, 2, dtype=torch.float, device=device) / d))
+    return _INV_FREQ[key]
+
+
+try:
+    _PREP = load_inline(
+        name="okc_attn_prep_v1",
+        cpp_sources=_PREP_CPP,
+        cuda_sources=_PREP_SRC,
+        functions=["attn_prep", "attn_gate"],
+        extra_cuda_cflags=["-O3", "-gencode=arch=compute_90a,code=sm_90a"],
+    )
+    print("attn prep kernels: loaded")
+except Exception as _exc:
+    _PREP = None
+    print(f"attn prep kernels: unavailable ({type(_exc).__name__}: {_exc})")
+
+
+def _fused_prep(data):
+    """One launch for QK-norm, RoPE, the FP8 cache write and the FP8 query, then FA3, then one
+    launch for the norm-gate."""
+    cfg = data["config"]
+    batch, length = cfg["batch"], cfg["q_len"]
+    hq, hkv, d = cfg["num_q_heads"], cfg["num_kv_heads"], cfg["head_dim"]
+    tokens = batch * length
+    qkv = data["qkv"].view(tokens, -1)
+    theta = cfg["rope_theta"]
+    inv_freq = _inv_freq(theta if theta else 1.0, d, qkv.device)
+    q = _PREP.attn_prep(qkv, data["positions"], data["cache_loc"], inv_freq, data["k_scale"],
+                        data["v_scale"], data["k_cache"], data["v_cache"], hq, hkv, bool(theta))
+    window = cfg["window"]
+    descale = {}
+    if cfg["kv_scale"] != 1.0:
+        descale = dict(k_descale=data["k_scale"].reshape(1, 1).expand(batch, hkv),
+                       v_descale=data["v_scale"].reshape(1, 1).expand(batch, hkv))
+    out = flash_attn_with_kvcache(
+        q=q, k_cache=data["k_cache"], v_cache=data["v_cache"], page_table=data["page_table"],
+        cache_seqlens=data["cache_seqlens"], cu_seqlens_q=data["cu_seqlens_q"],
+        max_seqlen_q=length, softmax_scale=cfg["sm_scale"] * cfg["qk_scale_factor"], causal=True,
+        window_size=(window - 1, 0) if window else (-1, -1),
+        scheduler_metadata=data["scheduler_metadata"], **descale)
+    if isinstance(out, tuple):
+        out = out[0]
+    if out.dtype != torch.bfloat16:
+        out = out.to(torch.bfloat16)
+    o = _PREP.attn_gate(out.reshape(tokens, hq * d), qkv, hq, hkv)
+    return o.view(batch, length, hq * d)
+
+
 def prepare(*args, **kwargs):
     print(f"prepare called with {len(args)} args, keys {list(kwargs)}")
     return None
 
 
 def kernel_fn(data, state=None):
+    if _PREP is not None and data["config"]["head_dim"] == 64:
+        return _fused_prep(data)
     return _sglang(data)
