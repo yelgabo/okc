@@ -21,6 +21,9 @@ the old design can come back as part of a structurally different design.
 | Our mma kernel on BF16 layers above 8 tokens, any config | sweeps 4afc0b73f2a74a69, e378eace83174734 | beating cuBLAS there with mma.sync + cp.async; ties at best |
 | Router hi/lo mma with token groups at 128 / 256 tokens | job 457c09b7f2a04ec3: 28.9 / 48.1 us vs SGLang 16.4 / 17.7 | per-group re-reads of the 8 MB router weights from L2 |
 | Lossless 12-bit BF16 weight compression, decoded in-kernel | job 135b2743d1194e41, 1.100x; only the pooler gained | software weight compression across projections; cost is escape-tile lookup, not decode |
+| experiment | evidence | what it rules out |
+| raw-BF16 sk kernel instead of the 12-bit stream, any shape at m <= 32 | submit 3843af6418a84a72 autotune: raw loses by 0.6 to 3.7 us on every shape (table above) | keeping full-size BF16 weights in the skinny kernel; supersedes the 2026-10-27 "compression stays out" decision, whose kernel put escapes and a cluster reduction on the critical path |
+| cgemv (12-bit CUDA-core GEMV, 2 rows per CTA) for qkv_gate and the pooler at m = 1 | same autotune: cgemv 14.7 vs sk 14.3 (qkv), 22.3 vs 18.4 (pooler) | this cgemv geometry on the two big matrices; it wins on o (equal time, no carveout cost) and is beaten by sgemv on the slice |
 
 ## muse_moe_w4a16 (`docs/runs-moe.md`)
 

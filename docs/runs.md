@@ -159,9 +159,6 @@ m = 8: 10.51 (9.1), 5.82 (4.3), 14.35 (14.3), 4.59 (3.6), 5.68 (4.1). m = 16: 10
   them to 1.30x (the audit's t_min-plus-2-us targets, mostly the router at 16.5 us for 8 MB)
   would give 1.48x; the router alone at 4 to 6 us would give about 1.40x.
 
-### Ruled out (pending merge)
+### Ruled out
 
-| experiment | evidence | what it rules out |
-|---|---|---|
-| raw-BF16 sk kernel instead of the 12-bit stream, any shape at m <= 32 | submit 3843af6418a84a72 autotune: raw loses by 0.6 to 3.7 us on every shape (table above) | keeping full-size BF16 weights in the skinny kernel; supersedes the 2026-10-27 "compression stays out" decision, whose kernel put escapes and a cluster reduction on the critical path |
-| cgemv (12-bit CUDA-core GEMV, 2 rows per CTA) for qkv_gate and the pooler at m = 1 | same autotune: cgemv 14.7 vs sk 14.3 (qkv), 22.3 vs 18.4 (pooler) | this cgemv geometry on the two big matrices; it wins on o (equal time, no carveout cost) and is beaten by sgemv on the slice |
+The losers of the sk rewrite runs are in `docs/ruled-out.md` under muse_bf16_proj.
