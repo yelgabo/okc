@@ -95,11 +95,6 @@ constexpr int kLocalMax = 32;
 constexpr int kEmax = 4096;
 constexpr int kJmax = kLocalMax + kEmax / 8;
 constexpr int kUnitBytes = 36864;
-constexpr int kNS = 4;
-constexpr int kNW = 8;
-constexpr int kNT = kNW * 32;
-constexpr int kNTL = kNT + 32;
-constexpr int kNWarps = kNTL / 32;
 constexpr int kUA = 512;
 constexpr int kUB = 256;
 constexpr int kNRB = 4;
@@ -141,22 +136,6 @@ struct Params {
     float eps;
 };
 
-struct __align__(128) Smem {
-    unsigned char ring[kNS][kUnitBytes];
-    float4 red[kNRB][kNW][32];
-    uint64_t full[kNS];
-    int cnt[kLocalMax];
-    int off[kLocalMax];
-    int wc[kNWarps][kLocalMax];
-    int job_e[kJmax];
-    int job_q[kJmax];
-    int job_n[kJmax];
-    short pos[kEmax];
-    short ent[kEmax];
-    signed char eid[kEmax];
-    int njobs;
-    int a0, na, b0, nb;
-};
 
 __device__ __forceinline__ unsigned smem_u32(const void* p) {
     return static_cast<unsigned>(__cvta_generic_to_shared(p));
@@ -271,20 +250,6 @@ __device__ __forceinline__ int warp_scan(int v, int lane) {
     return v;
 }
 
-// Unit q of this CTA's list (its phase A units, then its phase B units) into ring slot q % 3.
-__device__ __forceinline__ void issue_unit(const Params& p, Smem& S, int q, uint64_t pol) {
-    const int slot = q % kNS;
-    const unsigned char* src;
-    if (q < S.na) {
-        const int v = S.a0 + q;
-        src = p.w13 + (static_cast<size_t>(S.job_e[v >> 9]) * kUA + (v & 511)) * kUnitBytes;
-    } else {
-        const int v = S.b0 + (q - S.na);
-        src = p.w2 + (static_cast<size_t>(S.job_e[v >> 8]) * kUB + (v & 255)) * kUnitBytes;
-    }
-    mbar_expect_tx(&S.full[slot], kUnitBytes);
-    bulk_load(S.ring[slot], src, kUnitBytes, &S.full[slot], pol);
-}
 
 __device__ __forceinline__ bool spin_failed(long long t0, int* ctr, int code) {
     if (clock64() - t0 < kSpinLimit) {
@@ -292,238 +257,6 @@ __device__ __forceinline__ bool spin_failed(long long t0, int* ctr, int code) {
     }
     atomicOr(ctr + 8, code);
     return true;
-}
-
-// Compute warps: for each unit, 8 chunks of 64 k (4 mma k16 steps each) over this warp's
-// 512-k slice, the job's x rows kept in registers.
-__device__ __forceinline__ void compute_loop(const Params& p, Smem& S, uint64_t pol) {
-    const int tid = threadIdx.x;
-    const int lane = tid & 31;
-    const int warp = tid >> 5;
-    const int g = lane >> 2;
-    const int t4 = lane & 3;
-    const int na = S.na;
-    const int n = na + S.nb;
-    const int a0 = S.a0;
-    const int b0 = S.b0;
-    uint4 xr[8][2];
-    int jcur = -1;
-    bool bcur = false;
-#pragma unroll 1
-    for (int q = 0; q < n; ++q) {
-        const bool phb = q >= na;
-        const int v = phb ? b0 + (q - na) : a0 + q;
-        const int j = phb ? (v >> 8) : (v >> 9);
-        if (j != jcur || phb != bcur) {
-            jcur = j;
-            bcur = phb;
-            const int q0 = S.job_q[j];
-            const bool have = g < S.job_n[j];
-            if (!phb) {
-                const int tok = have ? (S.ent[q0 + g] >> 3) : 0;
-                const __nv_bfloat16* src = p.x + static_cast<size_t>(tok) * kH + warp * 512 + t4 * 16;
-#pragma unroll
-                for (int c = 0; c < 8; ++c) {
-                    xr[c][0] = have ? __ldg(reinterpret_cast<const uint4*>(src + c * 64))
-                                    : make_uint4(0u, 0u, 0u, 0u);
-                    xr[c][1] = have ? __ldg(reinterpret_cast<const uint4*>(src + c * 64 + 8))
-                                    : make_uint4(0u, 0u, 0u, 0u);
-                }
-            } else {
-                if (ld_acquire(p.done_a + j) < kUA) {
-                    const long long t0 = clock64();
-                    while (ld_acquire(p.done_a + j) < kUA) {
-                        __nanosleep(64);
-                        if (spin_failed(t0, p.ctr, 1)) {
-                            break;
-                        }
-                    }
-                }
-                const __nv_bfloat16* src = p.inter + static_cast<size_t>(q0 + (have ? g : 0)) * kI
-                                           + warp * 512 + t4 * 16;
-#pragma unroll
-                for (int c = 0; c < 8; ++c) {
-                    xr[c][0] = have ? __ldcg(reinterpret_cast<const uint4*>(src + c * 64))
-                                    : make_uint4(0u, 0u, 0u, 0u);
-                    xr[c][1] = have ? __ldcg(reinterpret_cast<const uint4*>(src + c * 64 + 8))
-                                    : make_uint4(0u, 0u, 0u, 0u);
-                }
-            }
-        }
-        const int slot = q % kNS;
-        if (!mbar_try(&S.full[slot], (q / kNS) & 1)) {
-            const long long t0 = clock64();
-            while (!mbar_try(&S.full[slot], (q / kNS) & 1)) {
-                if (spin_failed(t0, p.ctr, 2)) {
-                    break;
-                }
-            }
-        }
-        const unsigned char* sl = S.ring[slot];
-        const uint4* codes = reinterpret_cast<const uint4*>(sl + warp * 4096) + lane;
-        const uint4 sc = *(reinterpret_cast<const uint4*>(sl + 32768 + warp * 512) + lane);
-        float acc[4][4];
-#pragma unroll
-        for (int s = 0; s < 4; ++s) {
-#pragma unroll
-            for (int i = 0; i < 4; ++i) {
-                acc[s][i] = 0.f;
-            }
-        }
-#pragma unroll
-        for (int c = 0; c < 8; ++c) {
-            const uint4 w = codes[c * 32];
-            const unsigned scw = word(sc, c >> 1);
-            const unsigned sg = scale_word(scw, (2 * c) & 3);
-            const unsigned sg8 = scale_word(scw, (2 * c + 1) & 3);
-#pragma unroll
-            for (int s = 0; s < 4; ++s) {
-                unsigned a[4];
-                dequant(word(w, s), sg, sg8, a);
-                mma_bf16(acc[s], a, word(xr[c][s >> 1], 2 * (s & 1)),
-                         word(xr[c][s >> 1], 2 * (s & 1) + 1));
-            }
-        }
-        float4 r;
-        r.x = (acc[0][0] + acc[1][0]) + (acc[2][0] + acc[3][0]);
-        r.y = (acc[0][1] + acc[1][1]) + (acc[2][1] + acc[3][1]);
-        r.z = (acc[0][2] + acc[1][2]) + (acc[2][2] + acc[3][2]);
-        r.w = (acc[0][3] + acc[1][3]) + (acc[2][3] + acc[3][3]);
-        const int bb = q & (kNRB - 1);
-        named_sync(kBarFree + bb, kNTL);
-        S.red[bb][warp][lane] = r;
-        named_arrive(kBarFull + bb, kNTL);
-        named_sync(kBarUnit, kNT);
-        if (tid == 0 && q + kNS < n) {
-            // The slot's generic-proxy reads are complete (the barrier above); order them
-            // before the async-proxy write that refills it.
-            fence_proxy_async();
-            issue_unit(p, S, q + kNS, pol);
-        }
-    }
-}
-
-// Makes this warp's inter stores for job j visible, then adds n finished units to its counter.
-__device__ __forceinline__ void credit(const Params& p, int j, int n, int lane) {
-    if (n <= 0) {
-        return;
-    }
-    __threadfence();
-    __syncwarp();
-    if (lane == 0) {
-        atomicAdd(p.done_a + j, n);
-    }
-}
-
-// Helper warp: sums the 8 warps' partials of each unit and runs its epilogue.
-__device__ __forceinline__ void helper_loop(const Params& p, Smem& S, float* ss) {
-    const int lane = threadIdx.x & 31;
-    const int g = lane >> 2;
-    const int t4 = lane & 3;
-    const int na = S.na;
-    const int n = na + S.nb;
-    const int a0 = S.a0;
-    const int b0 = S.b0;
-#pragma unroll
-    for (int bb = 0; bb < kNRB; ++bb) {
-        named_arrive(kBarFree + bb, kNTL);
-    }
-    int jcred = -1;
-    int ncred = 0;
-#pragma unroll 1
-    for (int q = 0; q < n; ++q) {
-        const bool phb = q >= na;
-        const int v = phb ? b0 + (q - na) : a0 + q;
-        const int j = phb ? (v >> 8) : (v >> 9);
-        const int rb = phb ? (v & 255) : (v & 511);
-        const int e = S.job_e[j];
-        const int q0 = S.job_q[j];
-        const int ntok = S.job_n[j];
-        const int bb = q & (kNRB - 1);
-        // Phase A's last credits go out before waiting on any phase B partials: the compute
-        // warps produce none until done_a is complete, which needs these credits.
-        if (phb && ncred > 0) {
-            credit(p, jcred, ncred, lane);
-            ncred = 0;
-        }
-        named_sync(kBarFull + bb, kNTL);
-        float4 r = S.red[bb][0][lane];
-#pragma unroll
-        for (int w = 1; w < kNW; ++w) {
-            const float4 t = S.red[bb][w][lane];
-            r.x += t.x;
-            r.y += t.y;
-            r.z += t.z;
-            r.w += t.w;
-        }
-        named_arrive(kBarFree + bb, kNTL);
-        const bool t0 = 2 * t4 < ntok;
-        const bool t1 = 2 * t4 + 1 < ntok;
-        if (!phb) {
-            // Marlin writes gate and up to bf16 before silu_and_mul, and SwiGLU's output is
-            // GEMM2's bf16 input.
-            const float gsa = __ldg(p.gs13 + e) * 128.f;
-            const float g0 = bf16r(r.x * gsa);
-            const float g1 = bf16r(r.y * gsa);
-            const float u0 = bf16r(r.z * gsa);
-            const float u1 = bf16r(r.w * gsa);
-            const float h0 = g0 / (1.f + __expf(-g0)) * u0;
-            const float h1 = g1 / (1.f + __expf(-g1)) * u1;
-            __nv_bfloat16* dst = p.inter + static_cast<size_t>(q0 + 2 * t4) * kI + rb * 8 + g;
-            if (t0) {
-                dst[0] = __float2bfloat16_rn(h0);
-            }
-            if (t1) {
-                dst[kI] = __float2bfloat16_rn(h1);
-            }
-            // Credits go out once per job: the fence behind each credit costs about a
-            // microsecond under a saturated memory system, too much for every unit.
-            if (j != jcred) {
-                credit(p, jcred, ncred, lane);
-                jcred = j;
-                ncred = 0;
-            }
-            ++ncred;
-        } else {
-            // GEMM2's output is bf16 in SGLang; the norm then runs in FP32.
-            const float gsb = __ldg(p.gs2 + e) * 128.f;
-            const int col0 = rb * 16 + g;
-            const int col1 = col0 + 8;
-            const float w0 = __ldg(p.nw + col0);
-            const float w1 = __ldg(p.nw + col1);
-            const float y00 = bf16r(r.x * gsb) * w0;
-            const float y01 = bf16r(r.y * gsb) * w0;
-            const float y10 = bf16r(r.z * gsb) * w1;
-            const float y11 = bf16r(r.w * gsb) * w1;
-            float* dst = p.ybuf + static_cast<size_t>(q0 + 2 * t4) * kH;
-            if (t0) {
-                dst[col0] = y00;
-                dst[col1] = y10;
-            }
-            if (t1) {
-                dst[kH + col0] = y01;
-                dst[kH + col1] = y11;
-            }
-            float s0 = y00 * y00 + y10 * y10;
-            float s1 = y01 * y01 + y11 * y11;
-#pragma unroll
-            for (int d = 4; d < 32; d <<= 1) {
-                s0 += __shfl_xor_sync(0xffffffffu, s0, d);
-                s1 += __shfl_xor_sync(0xffffffffu, s1, d);
-            }
-            if (g == 0) {
-                if (t0) {
-                    atomicAdd(ss + q0 + 2 * t4, s0);
-                }
-                if (t1) {
-                    atomicAdd(ss + q0 + 2 * t4 + 1, s1);
-                }
-            }
-        }
-    }
-    if (ncred > 0) {
-        credit(p, jcred, ncred, lane);
-    }
 }
 
 
@@ -626,145 +359,8 @@ __device__ __forceinline__ void final_pass(const Params& p, const short* pos, co
     }
 }
 
-template <int SPLIT>
-__global__ void __launch_bounds__(kNTL, 1) moe_fused_kernel(const Params p) {
-    extern __shared__ __align__(128) unsigned char smem_raw[];
-    Smem& S = *reinterpret_cast<Smem*>(smem_raw);
-    const int tid = threadIdx.x;
-    const int lane = tid & 31;
-    const int warp = tid >> 5;
-    const int G = gridDim.x;
-    const int cta = blockIdx.x;
-    const int E = p.M * kTopK;
-    // The generation picks this launch's sum-of-squares copy and barrier counter; the last
-    // CTA through the barrier bumps it, after every CTA has read it.
-    const int gen = *reinterpret_cast<volatile int*>(p.ctr + 3);
-    float* ss = p.ss + (gen & 1) * kEmax;
-    const uint64_t pol = policy_evict_first();
 
-    if (warp == kNW) {
-        // Histogram and job list by one warp, so this CTA's first unit copies can be issued
-        // before the full routing; the copies' cold start then overlaps it.
-        if (lane == 0) {
-#pragma unroll
-            for (int s = 0; s < kNS; ++s) {
-                mbar_init(&S.full[s], 1);
-            }
-            asm volatile("fence.mbarrier_init.release.cluster;" ::: "memory");
-        }
-        S.cnt[lane] = 0;
-        __syncwarp();
-        for (int base = 0; base < E; base += 128) {
-            const int i = base + 4 * lane;
-            int4 v = make_int4(-1, -1, -1, -1);
-            if (i < E) {
-                v = __ldg(reinterpret_cast<const int4*>(p.topk_ids + i));
-            }
-            const int ev[4] = {v.x, v.y, v.z, v.w};
-#pragma unroll
-            for (int k = 0; k < 4; ++k) {
-                const int e = ev[k] - p.lo;
-                const int eid = (i < E && e >= 0 && e < p.nloc) ? e : -1;
-                if (i < E) {
-                    S.eid[i + k] = static_cast<signed char>(eid);
-                }
-                const unsigned peers = __match_any_sync(0xffffffffu, eid);
-                if (eid >= 0 && lane == __ffs(peers) - 1) {
-                    S.cnt[eid] += __popc(peers);
-                }
-                __syncwarp();
-            }
-        }
-        const int tot = lane < p.nloc ? S.cnt[lane] : 0;
-        const int off = warp_scan(tot, lane) - tot;
-        S.off[lane] = off;
-        const int nj = SPLIT ? (tot + 7) >> 3 : (tot > 0 ? 1 : 0);
-        const int jincl = warp_scan(nj, lane);
-        const int j0 = jincl - nj;
-        const int njobs = __shfl_sync(0xffffffffu, jincl, 31);
-        for (int k = 0; k < nj; ++k) {
-            S.job_e[j0 + k] = lane;
-            S.job_q[j0 + k] = off + 8 * k;
-            S.job_n[j0 + k] = min(8, tot - 8 * k);
-        }
-        __syncwarp();
-        if (lane == 0) {
-            const unsigned ua = njobs * kUA;
-            const unsigned ub = njobs * kUB;
-            const int a0 = ua * cta / G;
-            const int a1 = ua * (cta + 1) / G;
-            const int b0 = ub * cta / G;
-            const int b1 = ub * (cta + 1) / G;
-            S.njobs = njobs;
-            S.a0 = a0;
-            S.na = a1 - a0;
-            S.b0 = b0;
-            S.nb = b1 - b0;
-            __threadfence_block();
-            const int n = (a1 - a0) + (b1 - b0);
-            for (int q = 0; q < min(kNS, n); ++q) {
-                issue_unit(p, S, q, pol);
-            }
-        }
-    } else {
-        const int ctid = cta * kNT + tid;
-        const int cstride = G * kNT;
-        for (int i = ctid; i < p.M * 64; i += cstride) {
-            prefetch_l2(p.x + i * 64);
-        }
-        for (int i = ctid; i < (E + 31) / 32; i += cstride) {
-            prefetch_l2(p.topk_w + i * 32);
-        }
-        // The next launch's sum-of-squares copy and barrier counter; nothing reads them in
-        // this launch.
-        float* ss_next = p.ss + ((gen + 1) & 1) * kEmax;
-        for (int i = ctid; i < kEmax; i += cstride) {
-            ss_next[i] = 0.f;
-        }
-        if (ctid == 0) {
-            p.ctr[4 + ((gen + 1) & 1)] = 0;
-        }
-    }
-    __syncthreads();
-
-    position_pass<kNWarps>(S.eid, S.pos, S.ent, S.wc, S.off, E);
-
-    if (warp < kNW) {
-        compute_loop(p, S, pol);
-    } else {
-        helper_loop(p, S, ss);
-    }
-    __syncthreads();
-
-    // Grid barrier. The counter alternates with the generation, so the one this launch
-    // uses was zeroed by the previous launch and nothing is reset between launches.
-    if (tid == 0) {
-        int* bc = p.ctr + 4 + (gen & 1);
-        __threadfence();
-        const int old = atomicAdd(bc, 1);
-        if (old == G - 1) {
-            atomicAdd(p.ctr + 3, 1);
-        }
-        if (ld_acquire(bc) < G) {
-            const long long t0 = clock64();
-            while (ld_acquire(bc) < G) {
-                __nanosleep(64);
-                if (spin_failed(t0, p.ctr, 4)) {
-                    break;
-                }
-            }
-        }
-    }
-    __syncthreads();
-    for (int j = cta * kNTL + tid; j < kJmax; j += G * kNTL) {
-        p.done_a[j] = 0;
-    }
-
-    if (warp < kNW) {
-        final_pass<kNT>(p, S.pos, ss, cta, G);
-    }
-}
-
+//@SKINNY@
 
 // ---- Fat path (M >= 17): jobs of up to 64 tokens, 256-row units streamed in 16 stages of
 // 256 k, four consumer warpgroups (64 rows each) on register-A wgmma with the job's x stage
@@ -773,8 +369,11 @@ __global__ void __launch_bounds__(kNTL, 1) moe_fused_kernel(const Params p) {
 constexpr int kNC = 16;
 constexpr int kNTM = kNC * 32 + 64;
 constexpr int kNWarpsM = kNTM / 32;
-constexpr int kNSM = 3;
-constexpr int kXSlot = 32768;
+constexpr int kNSWMax = 5;
+constexpr int kNSX = 3;
+// 5 weight slots + 3 x 8 KB x slots, 4 + 3 x 16 KB, or 3 + 3 x 32 KB: the x slot size follows
+// the launch's largest job (max n-tile count), the weights ring takes the rest.
+constexpr int kRingBytes = kNSWMax * kUnitBytes + kNSX * 8192;
 constexpr int kJmaxM = kLocalMax + kEmax / 64;
 constexpr int kUAM = 512;
 constexpr int kUBM = 256;
@@ -785,12 +384,11 @@ __constant__ int kCostA[9] = {0, 112, 135, 140, 158, 173, 185, 200, 207};
 __constant__ int kCostB[9] = {0, 100, 104, 115, 123, 132, 144, 156, 174};
 
 struct __align__(128) SmemMain {
-    unsigned char wring[kNSM][kUnitBytes];
-    unsigned char xring[kNSM][kXSlot];
-    uint64_t wfull[kNSM];
-    uint64_t wempty[kNSM];
-    uint64_t xfull[kNSM];
-    uint64_t xempty[kNSM];
+    unsigned char rings[kRingBytes];
+    uint64_t wfull[kNSWMax];
+    uint64_t wempty[kNSWMax];
+    uint64_t xfull[kNSX];
+    uint64_t xempty[kNSX];
     int cnt[kLocalMax];
     int off[kLocalMax];
     int job0[kLocalMax];
@@ -805,10 +403,36 @@ struct __align__(128) SmemMain {
     short pos[kEmax];
     signed char eid[kEmax];
     int njobs;
+    int nsw;
+    int xsz;
+    int xoff;
     int gsb[2];
     int gse[2];
     int fix_last[4];
 };
+
+// Ring positions shared by the consumers and the producers: slot and lap per ring, the lap
+// parity being the mbarrier phase to wait for.
+struct Ring {
+    int ws;
+    int wlap;
+    int xs;
+    int xlap;
+};
+
+__device__ __forceinline__ void ring_next_w(Ring& r, int nsw) {
+    if (++r.ws == nsw) {
+        r.ws = 0;
+        ++r.wlap;
+    }
+}
+
+__device__ __forceinline__ void ring_next_x(Ring& r) {
+    if (++r.xs == kNSX) {
+        r.xs = 0;
+        ++r.xlap;
+    }
+}
 
 __device__ __forceinline__ void mbar_arrive(uint64_t* bar) {
     asm volatile("mbarrier.arrive.shared::cta.b64 _, [%0];" :: "r"(smem_u32(bar)) : "memory");
@@ -1104,10 +728,10 @@ __device__ __forceinline__ bool fixup(const Params& p, SmemMain& S, const float 
 // One segment (stages st_b..st_e of one unit) on a consumer warpgroup: per stage the warp's
 // 16 words and 32 scale bytes come out of the weights ring into registers, then 16 k16 steps
 // of dequant and wgmma in groups of two, one group kept in flight.
-template <int NTT, int PH>
+template <int NTT, int PH, int MODE>
 __device__ __forceinline__ void run_segment(const Params& p, SmemMain& S, float* ss,
-                                            const SegInfo& si, float (&acc)[32], int& wq,
-                                            int& xq, int& xrel, int G) {
+                                            const SegInfo& si, float (&acc)[32], Ring& rg,
+                                            int& xrel, int G) {
     constexpr int ph = PH;
     const int tid = threadIdx.x;
     const int lane = tid & 31;
@@ -1124,16 +748,16 @@ __device__ __forceinline__ void run_segment(const Params& p, SmemMain& S, float*
     acc_fence<NTT>(acc);
 #pragma unroll 1
     for (int st = si.st_b; st < si.st_e; ++st) {
-        const int ws = wq % kNSM;
-        mbar_wait_to(&S.wfull[ws], (wq / kNSM) & 1, p.ctr, 2);
-        const uint4* cp = reinterpret_cast<const uint4*>(S.wring[ws] + (wg * 4 + w) * 2048)
-                          + lane * 4;
+        const int ws = rg.ws;
+        mbar_wait_to(&S.wfull[ws], rg.wlap & 1, p.ctr, 2);
+        const unsigned char* wslot = S.rings + ws * kUnitBytes;
+        const uint4* cp = reinterpret_cast<const uint4*>(wslot + (wg * 4 + w) * 2048) + lane;
         uint4 cw[4];
 #pragma unroll
         for (int i = 0; i < 4; ++i) {
-            cw[i] = cp[i];
+            cw[i] = cp[i * 32];
         }
-        const uint4* sp = reinterpret_cast<const uint4*>(S.wring[ws] + 32768 + (wg * 4 + w) * 256
+        const uint4* sp = reinterpret_cast<const uint4*>(wslot + 32768 + (wg * 4 + w) * 256
                                                          + g * 32);
         uint4 sc[2];
         sc[0] = sp[0];
@@ -1143,10 +767,22 @@ __device__ __forceinline__ void run_segment(const Params& p, SmemMain& S, float*
             fence_proxy_async();
             mbar_arrive(&S.wempty[ws]);
         }
-        ++wq;
-        const int xs = xq % kNSM;
-        mbar_wait_to(&S.xfull[xs], (xq / kNSM) & 1, p.ctr, 8);
-        const uint64_t d0 = make_desc(S.xring[xs], 128, 4096);
+        ring_next_w(rg, S.nsw);
+        const int xs = rg.xs;
+        mbar_wait_to(&S.xfull[xs], rg.xlap & 1, p.ctr, 8);
+        const uint64_t d0 = make_desc(S.rings + S.xoff + xs * S.xsz, 128, 4096);
+        if (MODE == 1) {
+            // Timing only: the stage's bytes arrive and one word of each is read.
+            acc[0] += __uint_as_float((cw[0].x ^ sc[0].x) & 0x3f800000u);
+            if (xrel >= 0) {
+                if (lane == 0) {
+                    mbar_arrive(&S.xempty[xrel]);
+                }
+            }
+            xrel = xs;
+            ring_next_x(rg);
+            continue;
+        }
 #pragma unroll
         for (int s = 0; s < 16; s += 2) {
             const int b = (s >> 1) & 1;
@@ -1173,7 +809,7 @@ __device__ __forceinline__ void run_segment(const Params& p, SmemMain& S, float*
             }
         }
         xrel = xs;
-        ++xq;
+        ring_next_x(rg);
     }
     wg_wait<0>();
     a_pin(af[0]);
@@ -1184,6 +820,9 @@ __device__ __forceinline__ void run_segment(const Params& p, SmemMain& S, float*
             mbar_arrive(&S.xempty[xrel]);
         }
         xrel = -1;
+    }
+    if (MODE == 1) {
+        return;
     }
     if (si.partial) {
         float fin[32];
@@ -1204,9 +843,9 @@ __device__ __forceinline__ void run_segment(const Params& p, SmemMain& S, float*
 // Segments run grouped by (phase, n-tile count), each group its own loop: with several
 // wgmma shapes inside one enclosing loop ptxas serializes every wgmma (C7512, see the
 // micro tests in docs/runs-moe.md); the producers walk the same order.
-template <int NTT, int PH>
+template <int NTT, int PH, int MODE>
 __device__ __forceinline__ void run_group(const Params& p, SmemMain& S, float* ss,
-                                          float (&acc)[32], int& wq, int& xq, int& xrel, int cta,
+                                          float (&acc)[32], Ring& rg, int& xrel, int cta,
                                           int G) {
     const int ns = seg_count(S.gsb[PH], S.gse[PH]);
 #pragma unroll 1
@@ -1218,37 +857,37 @@ __device__ __forceinline__ void run_group(const Params& p, SmemMain& S, float* s
             continue;
         }
         const SegInfo si = seg_info(S, PH, i, cta, G);
-        run_segment<NTT, PH>(p, S, ss, si, acc, wq, xq, xrel, G);
+        run_segment<NTT, PH, MODE>(p, S, ss, si, acc, rg, xrel, G);
     }
 }
 
-template <int PH>
+template <int PH, int MODE>
 __device__ __forceinline__ void consumer_phase(const Params& p, SmemMain& S, float* ss,
-                                               float (&acc)[32], int& wq, int& xq, int& xrel,
-                                               int cta, int G) {
-    run_group<1, PH>(p, S, ss, acc, wq, xq, xrel, cta, G);
-    run_group<2, PH>(p, S, ss, acc, wq, xq, xrel, cta, G);
-    run_group<3, PH>(p, S, ss, acc, wq, xq, xrel, cta, G);
-    run_group<4, PH>(p, S, ss, acc, wq, xq, xrel, cta, G);
-    run_group<5, PH>(p, S, ss, acc, wq, xq, xrel, cta, G);
-    run_group<6, PH>(p, S, ss, acc, wq, xq, xrel, cta, G);
-    run_group<7, PH>(p, S, ss, acc, wq, xq, xrel, cta, G);
-    run_group<8, PH>(p, S, ss, acc, wq, xq, xrel, cta, G);
+                                               float (&acc)[32], Ring& rg, int& xrel, int cta,
+                                               int G) {
+    run_group<1, PH, MODE>(p, S, ss, acc, rg, xrel, cta, G);
+    run_group<2, PH, MODE>(p, S, ss, acc, rg, xrel, cta, G);
+    run_group<3, PH, MODE>(p, S, ss, acc, rg, xrel, cta, G);
+    run_group<4, PH, MODE>(p, S, ss, acc, rg, xrel, cta, G);
+    run_group<5, PH, MODE>(p, S, ss, acc, rg, xrel, cta, G);
+    run_group<6, PH, MODE>(p, S, ss, acc, rg, xrel, cta, G);
+    run_group<7, PH, MODE>(p, S, ss, acc, rg, xrel, cta, G);
+    run_group<8, PH, MODE>(p, S, ss, acc, rg, xrel, cta, G);
 }
 
+template <int MODE>
 __device__ __forceinline__ void consumers(const Params& p, SmemMain& S, float* ss, int cta,
                                           int G) {
-    int wq = 0;
-    int xq = 0;
+    Ring rg = {0, 0, 0, 0};
     int xrel = -1;
     float acc[32];
-    consumer_phase<0>(p, S, ss, acc, wq, xq, xrel, cta, G);
-    consumer_phase<1>(p, S, ss, acc, wq, xq, xrel, cta, G);
+    consumer_phase<0, MODE>(p, S, ss, acc, rg, xrel, cta, G);
+    consumer_phase<1, MODE>(p, S, ss, acc, rg, xrel, cta, G);
 }
 
 __device__ __forceinline__ void wproducer(const Params& p, SmemMain& S, int cta, int G,
                                           uint64_t pol) {
-    int wq = 0;
+    Ring rg = {0, 0, 0, 0};
     for (int ph = 0; ph < 2; ++ph) {
         const int ns = seg_count(S.gsb[ph], S.gse[ph]);
         for (int ntt = 1; ntt <= 8; ++ntt) {
@@ -1267,14 +906,14 @@ __device__ __forceinline__ void wproducer(const Params& p, SmemMain& S, int cta,
                    : p.w13f + static_cast<size_t>(e * 32 + u) * 16 * kUnitBytes;
             const int st_e = ((ge - 1) & 15) + 1;
             for (int st = gb & 15; st < st_e; ++st) {
-                const int ws = wq % kNSM;
-                if (wq >= kNSM) {
-                    mbar_wait_to(&S.wempty[ws], ((wq / kNSM) - 1) & 1, p.ctr, 16);
+                const int ws = rg.ws;
+                if (rg.wlap > 0) {
+                    mbar_wait_to(&S.wempty[ws], (rg.wlap - 1) & 1, p.ctr, 16);
                 }
                 mbar_expect_tx(&S.wfull[ws], kUnitBytes);
-                bulk_load(S.wring[ws], base + static_cast<size_t>(st) * kUnitBytes, kUnitBytes,
-                          &S.wfull[ws], pol);
-                ++wq;
+                bulk_load(S.rings + ws * kUnitBytes, base + static_cast<size_t>(st) * kUnitBytes,
+                          kUnitBytes, &S.wfull[ws], pol);
+                ring_next_w(rg, S.nsw);
             }
         }
         }
@@ -1283,8 +922,9 @@ __device__ __forceinline__ void wproducer(const Params& p, SmemMain& S, int cta,
 
 // Phase A stages come from the gathered x rows once the job's rows are all in; phase B
 // stages from the SwiGLU output once the stage's 8 warpgroup units have released it.
+template <int MODE>
 __device__ __forceinline__ void xproducer(const Params& p, SmemMain& S, int cta, int G) {
-    int xq = 0;
+    Ring rg = {0, 0, 0, 0};
     for (int ph = 0; ph < 2; ++ph) {
         const int ns = seg_count(S.gsb[ph], S.gse[ph]);
         for (int ntt = 1; ntt <= 8; ++ntt) {
@@ -1299,28 +939,29 @@ __device__ __forceinline__ void xproducer(const Params& p, SmemMain& S, int cta,
             const unsigned bytes = ntt * 4096;
             const unsigned char* base = (ph ? p.xb : p.xa)
                                         + static_cast<size_t>(S.job_xo[j]) * 65536;
-            if (ph == 0) {
+            if (ph == 0 && MODE == 0) {
                 spin_ge(p.xready + j, S.job_n[j], p.ctr, 32);
             }
             const int st_e = ((ge - 1) & 15) + 1;
             for (int st = gb & 15; st < st_e; ++st) {
-                const int xs = xq % kNSM;
-                if (xq >= kNSM) {
-                    mbar_wait_to(&S.xempty[xs], ((xq / kNSM) - 1) & 1, p.ctr, 64);
+                const int xs = rg.xs;
+                if (rg.xlap > 0) {
+                    mbar_wait_to(&S.xempty[xs], (rg.xlap - 1) & 1, p.ctr, 64);
                 }
-                if (ph == 1) {
+                if (ph == 1 && MODE == 0) {
                     spin_ge(p.done_as + j * 16 + st, 8, p.ctr, 128);
                 }
                 mbar_expect_tx(&S.xfull[xs], bytes);
-                bulk_load_plain(S.xring[xs], base + static_cast<size_t>(st) * bytes, bytes,
-                                &S.xfull[xs]);
-                ++xq;
+                bulk_load_plain(S.rings + S.xoff + xs * S.xsz,
+                                base + static_cast<size_t>(st) * bytes, bytes, &S.xfull[xs]);
+                ring_next_x(rg);
             }
         }
         }
     }
 }
 
+template <int MODE>
 __global__ void __launch_bounds__(kNTM, 1) moe_main_kernel(const Params p) {
     extern __shared__ __align__(128) unsigned char smem_raw[];
     SmemMain& S = *reinterpret_cast<SmemMain*>(smem_raw);
@@ -1395,17 +1036,29 @@ __global__ void __launch_bounds__(kNTM, 1) moe_main_kernel(const Params p) {
             ca += kUAM * kCostA[ntt];
             cb += kUBM * kCostB[ntt];
         }
+        int mx = tot > 0 ? (min(64, tot) + 7) >> 3 : 0;
+#pragma unroll
+        for (int d = 16; d > 0; d >>= 1) {
+            mx = max(mx, __shfl_xor_sync(0xffffffffu, mx, d));
+        }
         if (lane == 31) {
             S.njobs = jincl;
             S.pa[jincl] = ca_incl;
             S.pb[jincl] = cb_incl;
+            const int xsz = mx <= 2 ? 8192 : mx <= 4 ? 16384 : 32768;
+            S.xsz = xsz;
+            S.nsw = (kRingBytes - kNSX * xsz) / kUnitBytes;
+            S.xoff = S.nsw * kUnitBytes;
         }
     } else if (warp == kNWarpsM - 2) {
         if (lane == 0) {
 #pragma unroll
-            for (int s = 0; s < kNSM; ++s) {
+            for (int s = 0; s < kNSWMax; ++s) {
                 mbar_init(&S.wfull[s], 1);
                 mbar_init(&S.wempty[s], kNC);
+            }
+#pragma unroll
+            for (int s = 0; s < kNSX; ++s) {
                 mbar_init(&S.xfull[s], 1);
                 mbar_init(&S.xempty[s], kNC);
             }
@@ -1462,13 +1115,13 @@ __global__ void __launch_bounds__(kNTM, 1) moe_main_kernel(const Params p) {
     }
 
     if (warp < kNC) {
-        consumers(p, S, ss, cta, G);
+        consumers<MODE>(p, S, ss, cta, G);
     } else if (warp == kNC) {
         if (lane == 0) {
             wproducer(p, S, cta, G, pol);
         }
     } else if (lane == 0) {
-        xproducer(p, S, cta, G);
+        xproducer<MODE>(p, S, cta, G);
     }
     __syncthreads();
 
@@ -1504,35 +1157,24 @@ __global__ void __launch_bounds__(kNTM, 1) moe_main_kernel(const Params p) {
     }
 }
 
+template <int MODE>
 void launch_main(const Params& p, int sms, cudaStream_t stream) {
     static bool ready = false;
     if (!ready) {
-        C10_CUDA_CHECK(cudaFuncSetAttribute(moe_main_kernel,
+        C10_CUDA_CHECK(cudaFuncSetAttribute(moe_main_kernel<MODE>,
                                             cudaFuncAttributeMaxDynamicSharedMemorySize,
                                             static_cast<int>(sizeof(SmemMain))));
         ready = true;
     }
-    moe_main_kernel<<<sms, kNTM, sizeof(SmemMain), stream>>>(p);
+    moe_main_kernel<MODE><<<sms, kNTM, sizeof(SmemMain), stream>>>(p);
     C10_CUDA_KERNEL_LAUNCH_CHECK();
 }
 
-template <int SPLIT>
-void launch(const Params& p, int sms, cudaStream_t stream) {
-    static bool ready = false;
-    if (!ready) {
-        C10_CUDA_CHECK(cudaFuncSetAttribute(moe_fused_kernel<SPLIT>,
-                                            cudaFuncAttributeMaxDynamicSharedMemorySize,
-                                            static_cast<int>(sizeof(Smem))));
-        ready = true;
-    }
-    moe_fused_kernel<SPLIT><<<sms, kNTL, sizeof(Smem), stream>>>(p);
-    C10_CUDA_KERNEL_LAUNCH_CHECK();
-}
 
 }  // namespace
 
 int64_t moe_smem_bytes() {
-    return sizeof(Smem);
+    return sizeof(SmemMain);
 }
 
 void moe_run(torch::Tensor x, torch::Tensor topk_ids, torch::Tensor topk_w, torch::Tensor w13,
@@ -1580,16 +1222,453 @@ void moe_run(torch::Tensor x, torch::Tensor topk_ids, torch::Tensor topk_w, torc
         p.topk_w = topk_w.data_ptr<float>() + static_cast<size_t>(m0) * kTopK;
         p.out = reinterpret_cast<__nv_bfloat16*>(out.data_ptr<at::BFloat16>())
                 + static_cast<size_t>(m0) * kH;
-        if (variant == 2) {
-            launch_main(p, sms, stream);
-        } else if (variant == 1) {
-            launch<1>(p, sms, stream);
-        } else {
-            launch<0>(p, sms, stream);
+        switch (variant) {
+//@DISPATCH@
+            default: TORCH_CHECK(false, "bad variant");
         }
     }
 }
 """
+
+_SKINNY_BLOCK = r"""
+namespace sk_@TAG@ {
+
+constexpr int kNS = @NS@;
+constexpr int kNW = @NW@;
+constexpr int kMode = @MODE@;
+constexpr int kNT = kNW * 32;
+constexpr int kNTL = kNT + 32;
+constexpr int kNWarps = kNTL / 32;
+
+struct __align__(128) Smem {
+    unsigned char ring[kNS][kUnitBytes];
+    float4 red[kNRB][kNW][32];
+    uint64_t full[kNS];
+    int cnt[kLocalMax];
+    int off[kLocalMax];
+    int wc[kNWarps][kLocalMax];
+    int job_e[kJmax];
+    int job_q[kJmax];
+    int job_n[kJmax];
+    short pos[kEmax];
+    short ent[kEmax];
+    signed char eid[kEmax];
+    int njobs;
+    int a0, na, b0, nb;
+};
+
+// Unit q of this CTA's list (its phase A units, then its phase B units) into ring slot q % 3.
+__device__ __forceinline__ void issue_unit(const Params& p, Smem& S, int q, uint64_t pol) {
+    const int slot = q % kNS;
+    const unsigned char* src;
+    if (q < S.na) {
+        const int v = S.a0 + q;
+        src = p.w13 + (static_cast<size_t>(S.job_e[v >> 9]) * kUA + (v & 511)) * kUnitBytes;
+    } else {
+        const int v = S.b0 + (q - S.na);
+        src = p.w2 + (static_cast<size_t>(S.job_e[v >> 8]) * kUB + (v & 255)) * kUnitBytes;
+    }
+    mbar_expect_tx(&S.full[slot], kUnitBytes);
+    bulk_load(S.ring[slot], src, kUnitBytes, &S.full[slot], pol);
+}
+
+// Compute warps: for each unit, 8 chunks of 64 k (4 mma k16 steps each) over this warp's
+// 512-k slice, the job's x rows kept in registers.
+__device__ __forceinline__ void compute_loop(const Params& p, Smem& S, uint64_t pol) {
+    const int tid = threadIdx.x;
+    const int lane = tid & 31;
+    const int warp = tid >> 5;
+    const int g = lane >> 2;
+    const int t4 = lane & 3;
+    const int na = S.na;
+    const int n = na + S.nb;
+    const int a0 = S.a0;
+    const int b0 = S.b0;
+    // The unit layout holds 8 k-lanes of 512 (8 chunks of 64); NW warps split them.
+    constexpr int kCPW = 64 / kNW;
+    const int w8 = warp / (kNW / 8);
+    const int c0 = (warp % (kNW / 8)) * kCPW;
+    uint4 xr[kCPW][2];
+    int jcur = -1;
+    bool bcur = false;
+#pragma unroll 1
+    for (int q = 0; q < n; ++q) {
+        const bool phb = q >= na;
+        const int v = phb ? b0 + (q - na) : a0 + q;
+        const int j = phb ? (v >> 8) : (v >> 9);
+        if (j != jcur || phb != bcur) {
+            jcur = j;
+            bcur = phb;
+            const int q0 = S.job_q[j];
+            const bool have = g < S.job_n[j];
+            if (!phb) {
+                const int tok = have ? (S.ent[q0 + g] >> 3) : 0;
+                const __nv_bfloat16* src = p.x + static_cast<size_t>(tok) * kH + w8 * 512 + c0 * 64
+                                           + t4 * 16;
+#pragma unroll
+                for (int c = 0; c < kCPW; ++c) {
+                    xr[c][0] = have ? __ldg(reinterpret_cast<const uint4*>(src + c * 64))
+                                    : make_uint4(0u, 0u, 0u, 0u);
+                    xr[c][1] = have ? __ldg(reinterpret_cast<const uint4*>(src + c * 64 + 8))
+                                    : make_uint4(0u, 0u, 0u, 0u);
+                }
+            } else {
+                if (ld_acquire(p.done_a + j) < kUA) {
+                    const long long t0 = clock64();
+                    while (ld_acquire(p.done_a + j) < kUA) {
+                        __nanosleep(64);
+                        if (spin_failed(t0, p.ctr, 1)) {
+                            break;
+                        }
+                    }
+                }
+                const __nv_bfloat16* src = p.inter + static_cast<size_t>(q0 + (have ? g : 0)) * kI
+                                           + w8 * 512 + c0 * 64 + t4 * 16;
+#pragma unroll
+                for (int c = 0; c < kCPW; ++c) {
+                    xr[c][0] = have ? __ldcg(reinterpret_cast<const uint4*>(src + c * 64))
+                                    : make_uint4(0u, 0u, 0u, 0u);
+                    xr[c][1] = have ? __ldcg(reinterpret_cast<const uint4*>(src + c * 64 + 8))
+                                    : make_uint4(0u, 0u, 0u, 0u);
+                }
+            }
+        }
+        const int slot = q % kNS;
+        if (!mbar_try(&S.full[slot], (q / kNS) & 1)) {
+            const long long t0 = clock64();
+            while (!mbar_try(&S.full[slot], (q / kNS) & 1)) {
+                if (spin_failed(t0, p.ctr, 2)) {
+                    break;
+                }
+            }
+        }
+        const unsigned char* sl = S.ring[slot];
+        const uint4* codes = reinterpret_cast<const uint4*>(sl + w8 * 4096 + c0 * 512) + lane;
+        const uint4 sc = *(reinterpret_cast<const uint4*>(sl + 32768 + w8 * 512) + lane);
+        float acc[4][4];
+#pragma unroll
+        for (int s = 0; s < 4; ++s) {
+#pragma unroll
+            for (int i = 0; i < 4; ++i) {
+                acc[s][i] = 0.f;
+            }
+        }
+        if (kMode == 1) {
+            // Timing only: the unit's bytes arrive and one word is read, nothing is computed.
+            acc[0][0] = __uint_as_float(codes[0].x & 0x3f800000u);
+        } else {
+#pragma unroll
+            for (int c = 0; c < kCPW; ++c) {
+                const uint4 w = codes[c * 32];
+                const unsigned scw = word(sc, (c0 + c) >> 1);
+                const unsigned sg = scale_word(scw, (2 * (c0 + c)) & 3);
+                const unsigned sg8 = scale_word(scw, (2 * (c0 + c) + 1) & 3);
+#pragma unroll
+                for (int s = 0; s < 4; ++s) {
+                    unsigned a[4];
+                    dequant(word(w, s), sg, sg8, a);
+                    mma_bf16(acc[s], a, word(xr[c][s >> 1], 2 * (s & 1)),
+                             word(xr[c][s >> 1], 2 * (s & 1) + 1));
+                }
+            }
+        }
+        float4 r;
+        r.x = (acc[0][0] + acc[1][0]) + (acc[2][0] + acc[3][0]);
+        r.y = (acc[0][1] + acc[1][1]) + (acc[2][1] + acc[3][1]);
+        r.z = (acc[0][2] + acc[1][2]) + (acc[2][2] + acc[3][2]);
+        r.w = (acc[0][3] + acc[1][3]) + (acc[2][3] + acc[3][3]);
+        const int bb = q & (kNRB - 1);
+        named_sync(kBarFree + bb, kNTL);
+        S.red[bb][warp][lane] = r;
+        named_arrive(kBarFull + bb, kNTL);
+        named_sync(kBarUnit, kNT);
+        if (tid == 0 && q + kNS < n) {
+            // The slot's generic-proxy reads are complete (the barrier above); order them
+            // before the async-proxy write that refills it.
+            fence_proxy_async();
+            issue_unit(p, S, q + kNS, pol);
+        }
+    }
+}
+
+// Makes this warp's inter stores for job j visible, then adds n finished units to its counter.
+__device__ __forceinline__ void credit(const Params& p, int j, int n, int lane) {
+    if (n <= 0) {
+        return;
+    }
+    __threadfence();
+    __syncwarp();
+    if (lane == 0) {
+        atomicAdd(p.done_a + j, n);
+    }
+}
+
+// Helper warp: sums the 8 warps' partials of each unit and runs its epilogue.
+__device__ __forceinline__ void helper_loop(const Params& p, Smem& S, float* ss) {
+    const int lane = threadIdx.x & 31;
+    const int g = lane >> 2;
+    const int t4 = lane & 3;
+    const int na = S.na;
+    const int n = na + S.nb;
+    const int a0 = S.a0;
+    const int b0 = S.b0;
+#pragma unroll
+    for (int bb = 0; bb < kNRB; ++bb) {
+        named_arrive(kBarFree + bb, kNTL);
+    }
+    int jcred = -1;
+    int ncred = 0;
+#pragma unroll 1
+    for (int q = 0; q < n; ++q) {
+        const bool phb = q >= na;
+        const int v = phb ? b0 + (q - na) : a0 + q;
+        const int j = phb ? (v >> 8) : (v >> 9);
+        const int rb = phb ? (v & 255) : (v & 511);
+        const int e = S.job_e[j];
+        const int q0 = S.job_q[j];
+        const int ntok = S.job_n[j];
+        const int bb = q & (kNRB - 1);
+        // Phase A's last credits go out before waiting on any phase B partials: the compute
+        // warps produce none until done_a is complete, which needs these credits.
+        if (phb && ncred > 0) {
+            credit(p, jcred, ncred, lane);
+            ncred = 0;
+        }
+        named_sync(kBarFull + bb, kNTL);
+        float4 r = S.red[bb][0][lane];
+#pragma unroll
+        for (int w = 1; w < kNW; ++w) {
+            const float4 t = S.red[bb][w][lane];
+            r.x += t.x;
+            r.y += t.y;
+            r.z += t.z;
+            r.w += t.w;
+        }
+        named_arrive(kBarFree + bb, kNTL);
+        const bool t0 = 2 * t4 < ntok;
+        const bool t1 = 2 * t4 + 1 < ntok;
+        if (!phb) {
+            // Marlin writes gate and up to bf16 before silu_and_mul, and SwiGLU's output is
+            // GEMM2's bf16 input.
+            const float gsa = __ldg(p.gs13 + e) * 128.f;
+            const float g0 = bf16r(r.x * gsa);
+            const float g1 = bf16r(r.y * gsa);
+            const float u0 = bf16r(r.z * gsa);
+            const float u1 = bf16r(r.w * gsa);
+            const float h0 = g0 / (1.f + __expf(-g0)) * u0;
+            const float h1 = g1 / (1.f + __expf(-g1)) * u1;
+            __nv_bfloat16* dst = p.inter + static_cast<size_t>(q0 + 2 * t4) * kI + rb * 8 + g;
+            if (t0) {
+                dst[0] = __float2bfloat16_rn(h0);
+            }
+            if (t1) {
+                dst[kI] = __float2bfloat16_rn(h1);
+            }
+            // Credits go out once per job: the fence behind each credit costs about a
+            // microsecond under a saturated memory system, too much for every unit.
+            if (j != jcred) {
+                credit(p, jcred, ncred, lane);
+                jcred = j;
+                ncred = 0;
+            }
+            ++ncred;
+        } else {
+            // GEMM2's output is bf16 in SGLang; the norm then runs in FP32.
+            const float gsb = __ldg(p.gs2 + e) * 128.f;
+            const int col0 = rb * 16 + g;
+            const int col1 = col0 + 8;
+            const float w0 = __ldg(p.nw + col0);
+            const float w1 = __ldg(p.nw + col1);
+            const float y00 = bf16r(r.x * gsb) * w0;
+            const float y01 = bf16r(r.y * gsb) * w0;
+            const float y10 = bf16r(r.z * gsb) * w1;
+            const float y11 = bf16r(r.w * gsb) * w1;
+            float* dst = p.ybuf + static_cast<size_t>(q0 + 2 * t4) * kH;
+            if (t0) {
+                dst[col0] = y00;
+                dst[col1] = y10;
+            }
+            if (t1) {
+                dst[kH + col0] = y01;
+                dst[kH + col1] = y11;
+            }
+            float s0 = y00 * y00 + y10 * y10;
+            float s1 = y01 * y01 + y11 * y11;
+#pragma unroll
+            for (int d = 4; d < 32; d <<= 1) {
+                s0 += __shfl_xor_sync(0xffffffffu, s0, d);
+                s1 += __shfl_xor_sync(0xffffffffu, s1, d);
+            }
+            if (g == 0) {
+                if (t0) {
+                    atomicAdd(ss + q0 + 2 * t4, s0);
+                }
+                if (t1) {
+                    atomicAdd(ss + q0 + 2 * t4 + 1, s1);
+                }
+            }
+        }
+    }
+    if (ncred > 0) {
+        credit(p, jcred, ncred, lane);
+    }
+}
+
+template <int SPLIT>
+__global__ void __launch_bounds__(kNTL, 1) moe_fused_kernel(const Params p) {
+    extern __shared__ __align__(128) unsigned char smem_raw[];
+    Smem& S = *reinterpret_cast<Smem*>(smem_raw);
+    const int tid = threadIdx.x;
+    const int lane = tid & 31;
+    const int warp = tid >> 5;
+    const int G = gridDim.x;
+    const int cta = blockIdx.x;
+    const int E = p.M * kTopK;
+    // The generation picks this launch's sum-of-squares copy and barrier counter; the last
+    // CTA through the barrier bumps it, after every CTA has read it.
+    const int gen = *reinterpret_cast<volatile int*>(p.ctr + 3);
+    float* ss = p.ss + (gen & 1) * kEmax;
+    const uint64_t pol = policy_evict_first();
+
+    if (warp == kNW) {
+        // Histogram and job list by one warp, so this CTA's first unit copies can be issued
+        // before the full routing; the copies' cold start then overlaps it.
+        if (lane == 0) {
+#pragma unroll
+            for (int s = 0; s < kNS; ++s) {
+                mbar_init(&S.full[s], 1);
+            }
+            asm volatile("fence.mbarrier_init.release.cluster;" ::: "memory");
+        }
+        S.cnt[lane] = 0;
+        __syncwarp();
+        for (int base = 0; base < E; base += 128) {
+            const int i = base + 4 * lane;
+            int4 v = make_int4(-1, -1, -1, -1);
+            if (i < E) {
+                v = __ldg(reinterpret_cast<const int4*>(p.topk_ids + i));
+            }
+            const int ev[4] = {v.x, v.y, v.z, v.w};
+#pragma unroll
+            for (int k = 0; k < 4; ++k) {
+                const int e = ev[k] - p.lo;
+                const int eid = (i < E && e >= 0 && e < p.nloc) ? e : -1;
+                if (i < E) {
+                    S.eid[i + k] = static_cast<signed char>(eid);
+                }
+                const unsigned peers = __match_any_sync(0xffffffffu, eid);
+                if (eid >= 0 && lane == __ffs(peers) - 1) {
+                    S.cnt[eid] += __popc(peers);
+                }
+                __syncwarp();
+            }
+        }
+        const int tot = lane < p.nloc ? S.cnt[lane] : 0;
+        const int off = warp_scan(tot, lane) - tot;
+        S.off[lane] = off;
+        const int nj = SPLIT ? (tot + 7) >> 3 : (tot > 0 ? 1 : 0);
+        const int jincl = warp_scan(nj, lane);
+        const int j0 = jincl - nj;
+        const int njobs = __shfl_sync(0xffffffffu, jincl, 31);
+        for (int k = 0; k < nj; ++k) {
+            S.job_e[j0 + k] = lane;
+            S.job_q[j0 + k] = off + 8 * k;
+            S.job_n[j0 + k] = min(8, tot - 8 * k);
+        }
+        __syncwarp();
+        if (lane == 0) {
+            const unsigned ua = njobs * kUA;
+            const unsigned ub = njobs * kUB;
+            const int a0 = ua * cta / G;
+            const int a1 = ua * (cta + 1) / G;
+            const int b0 = ub * cta / G;
+            const int b1 = ub * (cta + 1) / G;
+            S.njobs = njobs;
+            S.a0 = a0;
+            S.na = a1 - a0;
+            S.b0 = b0;
+            S.nb = b1 - b0;
+            __threadfence_block();
+            const int n = (a1 - a0) + (b1 - b0);
+            for (int q = 0; q < min(kNS, n); ++q) {
+                issue_unit(p, S, q, pol);
+            }
+        }
+    } else {
+        const int ctid = cta * kNT + tid;
+        const int cstride = G * kNT;
+        for (int i = ctid; i < p.M * 64; i += cstride) {
+            prefetch_l2(p.x + i * 64);
+        }
+        for (int i = ctid; i < (E + 31) / 32; i += cstride) {
+            prefetch_l2(p.topk_w + i * 32);
+        }
+        // The next launch's sum-of-squares copy and barrier counter; nothing reads them in
+        // this launch.
+        float* ss_next = p.ss + ((gen + 1) & 1) * kEmax;
+        for (int i = ctid; i < kEmax; i += cstride) {
+            ss_next[i] = 0.f;
+        }
+        if (ctid == 0) {
+            p.ctr[4 + ((gen + 1) & 1)] = 0;
+        }
+    }
+    __syncthreads();
+
+    position_pass<kNWarps>(S.eid, S.pos, S.ent, S.wc, S.off, E);
+
+    if (warp < kNW) {
+        compute_loop(p, S, pol);
+    } else {
+        helper_loop(p, S, ss);
+    }
+    __syncthreads();
+
+    // Grid barrier. The counter alternates with the generation, so the one this launch
+    // uses was zeroed by the previous launch and nothing is reset between launches.
+    if (tid == 0) {
+        int* bc = p.ctr + 4 + (gen & 1);
+        __threadfence();
+        const int old = atomicAdd(bc, 1);
+        if (old == G - 1) {
+            atomicAdd(p.ctr + 3, 1);
+        }
+        if (ld_acquire(bc) < G) {
+            const long long t0 = clock64();
+            while (ld_acquire(bc) < G) {
+                __nanosleep(64);
+                if (spin_failed(t0, p.ctr, 4)) {
+                    break;
+                }
+            }
+        }
+    }
+    __syncthreads();
+    for (int j = cta * kNTL + tid; j < kJmax; j += G * kNTL) {
+        p.done_a[j] = 0;
+    }
+
+    if (warp < kNW) {
+        final_pass<kNT>(p, S.pos, ss, cta, G);
+    }
+}
+
+template <int SPLIT>
+void launch(const Params& p, int sms, cudaStream_t stream) {
+    static bool ready = false;
+    if (!ready) {
+        C10_CUDA_CHECK(cudaFuncSetAttribute(moe_fused_kernel<SPLIT>,
+                                            cudaFuncAttributeMaxDynamicSharedMemorySize,
+                                            static_cast<int>(sizeof(Smem))));
+        ready = true;
+    }
+    moe_fused_kernel<SPLIT><<<sms, kNTL, sizeof(Smem), stream>>>(p);
+    C10_CUDA_KERNEL_LAUNCH_CHECK();
+}
+
+}  // namespace sk_@TAG@
+"""
+
 
 def _wgmma_code():
     """wgmma.mma_async m64nNk16 bf16 with A in registers, N = 8..64, FP32 accumulators,
@@ -1644,8 +1723,28 @@ __device__ __forceinline__ void a_pin(unsigned (&a)[2][4]) {{
     return "\n".join(out)
 
 
+# Skinny kernel variants (compute warps, ring slots, mode: 0 computes, 1 streams only), each
+# a namespace of its own in the source, and fat kernel modes; a variant id indexes this table.
+SKINNY_VARIANTS = ((8, 4, 0), (16, 4, 0), (8, 5, 0), (8, 4, 1), (16, 4, 1))
+MAIN_MODES = (0, 1)
+VARIANT_MAIN0 = len(SKINNY_VARIANTS)
+
+
+def _skinny_tag(nw, ns, mode):
+    return f"{nw}_{ns}_{mode}"
+
+
 def _cuda_source():
-    return _CUDA_SRC.replace("//@WGMMA@", _wgmma_code())
+    block = _SKINNY_BLOCK
+    skinny = "\n".join(block.replace("@TAG@", _skinny_tag(nw, ns, mode)).replace("@NW@", str(nw))
+                       .replace("@NS@", str(ns)).replace("@MODE@", str(mode))
+                       for nw, ns, mode in SKINNY_VARIANTS)
+    cases = [f"            case {i}: sk_{_skinny_tag(nw, ns, mode)}::launch<1>(p, sms, stream); break;"
+             for i, (nw, ns, mode) in enumerate(SKINNY_VARIANTS)]
+    cases += [f"            case {VARIANT_MAIN0 + m}: launch_main<{m}>(p, sms, stream); break;"
+              for m in MAIN_MODES]
+    return (_CUDA_SRC.replace("//@WGMMA@", _wgmma_code()).replace("//@SKINNY@", skinny)
+            .replace("//@DISPATCH@", "\n".join(cases)))
 
 
 _EXT = None
@@ -1713,18 +1812,19 @@ def repack_expert(packed, sf, kind):
 
 def repack_expert_fat(packed, sf, kind):
     """The same expert for the fat path: uint8 [N/256, 16, 36864], one 256-row unit x 256-K
-    stage per entry. Codes are words [warpgroup 4][warp 4][lane 32][k16 step 16]: the fragment
-    of 16-row block 16 u + 4 wg + w (rows as in unit_rows) at K = 256 st + 16 step + (mma k),
-    natural k order (reg 0 covers k 2 t4, 2 t4 + 1, reg 2 covers k + 8); then scales
-    [warpgroup][warp][g][step][h], one byte per row and 16-K block."""
+    stage per entry. Codes are words [warpgroup 4][warp 4][step quad 4][lane 32][step 4]: the
+    fragment of 16-row block 16 u + 4 wg + w (rows as in unit_rows) at K = 256 st + 16 step +
+    (mma k), natural k order (reg 0 covers k 2 t4, 2 t4 + 1, reg 2 covers k + 8), each lane's
+    four consecutive steps one 16-byte load next to its neighbours' (no bank conflicts); then
+    scales [warpgroup][warp][g][step][h], one byte per row and 16-K block."""
     n, k2 = packed.shape
     k = 2 * k2
     codes = _stack_last(packed & 15, packed >> 4).reshape(n, k)
     c = unit_rows(codes, kind)
     nu = c.shape[0] // 16
-    # (u, wg, w, h, g, st, step, khi, t4, jlo) -> (u, st, wg, w, g, t4, step, khi, h, jlo)
-    c = c.reshape(nu, 4, 4, 2, 8, 16, 16, 2, 4, 2)
-    c = _to_i64(_perm(c, (0, 5, 1, 2, 4, 8, 6, 7, 3, 9)).reshape(-1, 8))
+    # (u, wg, w, h, g, st, sq, s4, khi, t4, jlo) -> (u, st, wg, w, sq, g, t4, s4, khi, h, jlo)
+    c = c.reshape(nu, 4, 4, 2, 8, 16, 4, 4, 2, 4, 2)
+    c = _to_i64(_perm(c, (0, 5, 1, 2, 6, 4, 9, 7, 8, 3, 10)).reshape(-1, 8))
     words = c[:, 0] * 0
     for v in range(8):
         for b in range(4):
@@ -1797,7 +1897,7 @@ def _scratch(device):
     }
 
 
-def _run(data, state):
+def _run(data, state, variant=None):
     cfg = data["config"]
     x = data["hidden_states"]
     m = x.shape[0]
@@ -1812,7 +1912,8 @@ def _run(data, state):
     out = torch.empty((m, HIDDEN), dtype=torch.bfloat16, device=x.device)
     w = state["w"]
     s = state["scratch"]
-    variant = 2 if (m >= MAIN_MIN_M and state["main_ok"]) else 1
+    if variant is None:
+        variant = _policy_variant(state, m)
     _ext().moe_run(x, ids, tw, w["w13"], w["w2"], w["w13_gs"], w["w2_gs"], state["nw"],
                    s["inter"], s["ybuf"], s["ss"], s["ctr"], s["done_a"], out,
                    w["w13f"], w["w2f"], s["xa"], s["xb"], s["fix"], s["fixcnt"], s["xready"],
@@ -1822,6 +1923,23 @@ def _run(data, state):
 
 def kernel_fn(data, state):
     return _run(data, state)
+
+
+# Batch sizes the policy is keyed by; a batch uses the entry of the next size up.
+POLICY_BS = (1, 8, 16, 32, 128, 256)
+SKINNY_DEFAULT = 0
+# Computing variants only: the loads-only ones time the rings and are never a policy choice.
+SKINNY_CANDIDATES = tuple(i for i, v in enumerate(SKINNY_VARIANTS) if v[2] == 0)
+
+
+def _policy_variant(state, m):
+    key = next((b for b in POLICY_BS if b >= m), POLICY_BS[-1])
+    policy = state.get("policy") or {}
+    if key in policy:
+        return policy[key]
+    if m >= MAIN_MIN_M and state.get("main_ok"):
+        return VARIANT_MAIN0
+    return SKINNY_DEFAULT
 
 
 def _make_inputs(bs, seed, dist="normal", device="cuda"):
@@ -1915,7 +2033,7 @@ def _graph_time(fn, flush, iters=20):
 TEST_TOL = 8e-3
 
 
-def _self_test(state, weights, sizes, label):
+def _self_test(state, weights, sizes, label, variant=None):
     """Every size against the FP32 reference on normal and skewed routings; a spin timeout in
     any launch (ctr[8]) fails the test too."""
     worst = 0.0
@@ -1923,7 +2041,7 @@ def _self_test(state, weights, sizes, label):
         for dist in ("normal", "skewed"):
             data = _make_inputs(bs, 200 + bs, dist)
             ref = _ref_forward(data, weights)
-            out = _run(data, state)
+            out = _run(data, state, variant)
             err = _rel(out, ref) if torch.isfinite(out).all() else float("inf")
             rows = (out.float() - ref).norm(dim=-1) / ref.norm(dim=-1).clamp(
                 min=0.1 * ref.norm(dim=-1).mean())
@@ -1938,14 +2056,40 @@ def _self_test(state, weights, sizes, label):
     return worst < TEST_TOL and flags == 0
 
 
-def _bench(state):
+def _bench(state, main_ok, seeds=(11, 12)):
+    """Times every variant per batch size (graph replay, cold L2, judge-like routings) and
+    returns the policy: the fastest computing variant per size. Loads-only variants are
+    timed for the record only. Nothing from any input is kept."""
     flush = torch.empty(256 << 20, dtype=torch.uint8, device="cuda")
-    for bs in (1, 8, 16, 32, 128, 256):
-        ts = []
-        for seed in (11, 12):
+    policy = {}
+    for bs in POLICY_BS:
+        cands = list(SKINNY_CANDIDATES) + ([VARIANT_MAIN0] if main_ok and bs >= MAIN_MIN_M else [])
+        diag = [i for i, v in enumerate(SKINNY_VARIANTS) if v[2] == 1]
+        if main_ok and bs >= MAIN_MIN_M:
+            diag.append(VARIANT_MAIN0 + 1)
+        tot = {}
+        for seed in seeds:
             data = _make_inputs(bs, 977 * seed + bs)
-            ts.append(_graph_time(lambda: _run(data, state), flush))
-        print(f"BENCH bs={bs} " + " ".join(f"{t:.1f}" for t in ts) + " us (graph replay, cold L2)")
+            for v in cands + diag:
+                tot[v] = tot.get(v, 0.0) + _graph_time(lambda: _run(data, state, v), flush)
+        n = len(seeds)
+        line = " ".join(f"{_vname(v)}:{tot[v] / n:.1f}" for v in sorted(tot, key=tot.get))
+        print(f"BENCH bs={bs} {line} us (graph replay, cold L2, mean of {n} routings)")
+        policy[bs] = min(cands, key=lambda v: tot[v])
+    print(f"POLICY {{{', '.join(f'{b}: {_vname(v)}' for b, v in policy.items())}}}")
+    flags = int(state["scratch"]["ctr"][8].item())
+    state["scratch"]["ctr"][8] = 0
+    if flags:
+        print(f"BENCH spin flags {flags}; policy discarded")
+        return {}
+    return policy
+
+
+def _vname(v):
+    if v >= VARIANT_MAIN0:
+        return f"main{'' if v == VARIANT_MAIN0 else '-loads'}"
+    nw, ns, mode = SKINNY_VARIANTS[v]
+    return f"sk{nw}w{ns}s{'-loads' if mode else ''}"
 
 
 def prepare(weights):
@@ -1961,16 +2105,22 @@ def prepare(weights):
     _ext()
     t2 = time.time()
     state["main_ok"] = False
-    ok = _self_test(state, weights, (1, 4, 8, 16), "skinny")
-    state["main_ok"] = True
-    main_ok = _self_test(state, weights, (32, 33, 128, 257), "main")
+    state["policy"] = {}
+    # Every computing skinny variant on the small sizes, the fat path on the large ones.
+    ok = True
+    for v in SKINNY_CANDIDATES:
+        ok = _self_test(state, weights, (1, 4, 8, 16), _vname(v), v) and ok
+    main_ok = _self_test(state, weights, (32, 33, 128, 257), "main", VARIANT_MAIN0)
+    state["main_ok"] = main_ok
     if not main_ok:
         # The skinny path handles every size (split jobs of 8 tokens); it is the fallback.
-        state["main_ok"] = False
-        ok = _self_test(state, weights, (32, 33, 128, 257), "fallback") and ok
+        ok = _self_test(state, weights, (32, 33, 128, 257), "fallback", SKINNY_DEFAULT) and ok
     t3 = time.time()
+    state["policy"] = _bench(state, main_ok)
+    t4 = time.time()
+    # The chosen variants once more at every test size, on the policy as kernel_fn runs it.
+    ok = _self_test(state, weights, (1, 4, 8, 16, 32, 33, 128, 257), "policy") and ok
     print(f"PREPARE repack {t1 - t0:.1f} s, build {t2 - t1:.1f} s, self-test {t3 - t2:.1f} s, "
-          f"smem {_ext().moe_smem_bytes()} B, ok {ok}, main {main_ok}")
-    _bench(state)
+          f"bench {t4 - t3:.1f} s, smem {_ext().moe_smem_bytes()} B, ok {ok}, main {main_ok}")
     torch.cuda.synchronize()
     return state

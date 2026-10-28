@@ -113,8 +113,9 @@ if __name__ == "__main__":
 
 def check_fat(kind, n, seed):
     """repack_expert_fat against plain dequantization, decoded as the fat path's consumer
-    warps read it: warp (wg, w) of unit u holds 16-row block 16 u + 4 wg + w; word (lane, step)
-    of stage st is K = 256 st + 16 step + 8 khi + 2 t4 + jlo; scales [wg][w][g][step][h]."""
+    warps read it: warp (wg, w) of unit u holds 16-row block 16 u + 4 wg + w; the word for
+    (lane, step) of stage st sits at [wg][w][step / 4][lane][step % 4] and holds
+    K = 256 st + 16 step + 8 khi + 2 t4 + jlo; scales [wg][w][g][step][h]."""
     k = 4096
     ns = load_repack()
     rng = np.random.default_rng(seed)
@@ -142,7 +143,8 @@ def check_fat(kind, n, seed):
                         sb = stage[32768 + (wg * 4 + w) * 256 + g * 32: 32768 + (wg * 4 + w) * 256 + g * 32 + 32]
                         for step in range(16):
                             sg, sg8 = scale_word(sb[2 * step]), scale_word(sb[2 * step + 1])
-                            regs = dequant(words[(wg * 4 + w) * 512 + lane * 16 + step], sg, sg8)
+                            widx = (wg * 4 + w) * 512 + (step // 4) * 128 + lane * 4 + step % 4
+                            regs = dequant(words[widx], sg, sg8)
                             for j, (lo, hi) in enumerate(regs):
                                 h, khi = j & 1, j >> 1
                                 row = (h * (n // 2) + rb * 8 + g) if kind == 1 else (rb * 16 + h * 8 + g)

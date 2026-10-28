@@ -14,17 +14,21 @@ import ast, re, sys
 text = open(sys.argv[1]).read()
 tree = ast.parse(text)
 ns = {}
+names = {"_CUDA_SRC", "_SKINNY_BLOCK", "SKINNY_VARIANTS", "MAIN_MODES", "VARIANT_MAIN0"}
+funcs = {"_wgmma_code", "_cuda_source", "_skinny_tag"}
 keep = [n for n in tree.body
-        if (isinstance(n, ast.FunctionDef) and n.name in ("_wgmma_code", "_cuda_source"))
-        or (isinstance(n, ast.Assign) and any(getattr(t, "id", "") == "_CUDA_SRC" for t in n.targets))]
+        if (isinstance(n, ast.FunctionDef) and n.name in funcs)
+        or (isinstance(n, ast.Assign) and any(getattr(t, "id", "") in names for t in n.targets))]
 exec(compile(ast.Module(body=keep, type_ignores=[]), "submission", "exec"), ns)
 cuda = ns["_cuda_source"]()
+uses = [f"  sk_{ns['_skinny_tag'](*v)}::launch<1>(p, 1, 0);" for v in ns["SKINNY_VARIANTS"]]
+uses += [f"  launch_main<{m}>(p, 1, 0);" for m in ns["MAIN_MODES"]]
 cuda = re.sub(r'#include <(torch|ATen)/[^>]*>\n', '', cuda)
-cuda = cuda.split("}  // namespace")[0]
+cuda = cuda[:cuda.rindex("}  // namespace\n")]
 prelude = ("#include <cstdio>\n#include <algorithm>\n#define C10_CUDA_CHECK(x) (void)(x)\n"
            "#define C10_CUDA_KERNEL_LAUNCH_CHECK() (void)0\n")
 cuda = (prelude + cuda + "void compile_check_uses() {\n  Params p = {};\n"
-        "  launch<0>(p, 1, 0);\n  launch<1>(p, 1, 0);\n  launch_main(p, 1, 0);\n}\n}  // namespace\n")
+        + "\n".join(uses) + "\n}\n}  // namespace\n")
 open(f"{sys.argv[2]}/moe.cu", "w").write(cuda)
 PY
 
