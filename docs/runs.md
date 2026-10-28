@@ -190,3 +190,13 @@ the traffic estimate (pooler m=128: 96 MB at CLR 4, against 128 MB now).
 | 2026-10-28 | 4f0a49118f3f40a4 (submit, authorized by the user) | 28e9082 | wd x multicast with the CUTLASS remote-arrive form (6dc6f9e), otherwise as 8d4b485c8ccf4674 | 1.392x (1.371-1.413) | tuner kept cuBLAS on every BF16 shape again. Best multicast config vs cuBLAS (us): pooler m=128 m128k2r4 35.1 vs 30.0, m=256 m128k1r4 52.7 vs 31.6; unpooler m=128 m128k1r4 34.7 vs 24.6; qkv_gate m=128 m128k4r2 22.9 vs 21.8; o m=128 m128k1r4 15.4 vs 11.6. Multicast is now 1.1-1.7x cuBLAS instead of 4-10x, so the barrier form was most of the earlier loss, but it still loses. Router picks r128c16 at m=128 (12.8 vs baseline 22.2) and r128c8 at m=256 (14.6 vs 22.6). Score within noise of 8d4b485c8ccf4674 |
 
 Losers from the wide-kernel runs moved to docs/ruled-out.md.
+| 2026-10-28 | b052544c8c2946f6 (submit by the coordinator, 23:11 UTC, before the check reset) | 1d2909c | Close-out test (plan 2026-10-29 item 5): wide-row wd geometries w4n128k8, w4n128k4, w2n256k4 (one x read per 128 or 256 output rows, K split 4-8 across the cluster); router BN 64 at m=256; BF16 multicast configs dropped | 1.390x (1.369-1.411) | Tuner kept cuBLAS on every BF16 shape at m=128/256. Best wide-row vs cuBLAS (us): pooler m=128 w4n128k4 33.1 vs 30.0, m=256 w2n256k4 58.0 vs 32.6; unpooler m=128 w4n128k4 42.5 vs 24.9, m=256 w2n256k4 55.6 vs 29.0; qkv_gate m=128 w4n128k8 25.2 vs 21.3, m=256 w2n256k4 31.5 vs 23.7; o m=128 w4n128k4 25.0 vs 11.7, m=256 w2n256k4 33.7 vs 13.7. The existing b1n128c2 stays the closest wd config (pooler m=128 30.5 vs 30.0). Ablation pooler m=128 w4n128k8: full 45.4, memory pipeline alone 39.3, without reduction and stores 30.2, so the cluster reduction across 8 CTAs costs about 15 us. Router picks r128c16 at m=128 (13.1 vs baseline 22.2) and r128c8 at m=256 (14.8 vs 23.4); r64c8 at m=256 is 15.1, so BN 64 does not help. Score within noise of 8d4b485c8ccf4674. Verdict: close generic BF16 at m=128/256 (cuBLAS), keep the wd router |
+
+## Ruled out (pending merge)
+
+- Wide-row wd geometries for BF16 at m=128/256 (w4n128k8, w4n128k4, w2n256k4), job
+  b052544c8c2946f6: slower than cuBLAS on all four BF16 shapes, 1.1-2.5x. At m=128 the K-split
+  reduction outweighs the halved x traffic; at m=256 there are too few CTAs. Together with the
+  multicast result (4f0a49118f3f40a4), this closes generic BF16 projections at m=128/256.
+- Router BN 64 at m=256 (r64c8 15.1, r64c16 22.5 us), job b052544c8c2946f6: no gain over r128c8
+  (14.8 us).
