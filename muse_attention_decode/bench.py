@@ -4732,7 +4732,9 @@ def _one_plan(cfg, pt_width, resident):
     tiles = (kmax + 63) // 64
     nc = 1
     if not window and batch > 1 and _ONE_FLAT:
-        for mode in ((49, 17) if length == 1 else (51, 19)) if _ONE_PROD else \
+        # q_len 8 skips the producer build 51: at 80 registers it spills inside the tile loop
+        # and timed 389 / 774 us against mode 19's 127 / 236 at batch 16 / 32 (16fcddf80a714e0d).
+        for mode in ((49, 17) if length == 1 else (19,)) if _ONE_PROD else \
                 ((17,) if length == 1 else (19,)):
             grid = min(_ONE_TARGET, resident.get((length, mode), 0))
             if grid >= 2 * batch:
@@ -5086,6 +5088,21 @@ def _ob_rel(a, b):
     return float((a.float() - b.float()).norm() / b.float().norm().clamp(min=1e-12))
 
 
+def _ob_diffstat(a, b):
+    """Elements that differ and their largest gap in BF16 ulps of the larger magnitude. FP32
+    atomic merge order alone moves a handful of elements by about one ulp; a lost or stale
+    contribution moves most of a head's 64 elements."""
+    a, b = a.float().flatten(), b.float().flatten()
+    ne = a != b
+    n = int(ne.sum())
+    if n == 0:
+        return f"diff_elems=0/{a.numel()}"
+    big = torch.maximum(a[ne].abs(), b[ne].abs()).clamp(min=1e-30)
+    ulp = torch.exp2(torch.floor(torch.log2(big)) - 7)
+    gap = float(((a[ne] - b[ne]).abs() / ulp).max())
+    return f"diff_elems={n}/{a.numel()} max_ulp={gap:.1f} max_abs={float((a - b).abs().max()):.1e}"
+
+
 def _ob_check(data, out):
     cfg = data["config"]
     hkv = cfg["num_kv_heads"]
@@ -5239,7 +5256,8 @@ def _ob_selftest():
             status = "PASS" if ok and ok2 and wok else "FAIL"
             fails += status == "FAIL"
             print(f"SELFTEST {status} {kind} {name} [{plan}] {msg} rerun: {msg2} "
-                  f"(rerun vs first {same:.1e}) {wmsg}{_ob_polls()}", flush=True)
+                  f"(rerun vs first {same:.1e} {_ob_diffstat(out2, out)}) {wmsg}{_ob_polls()}",
+                  flush=True)
             data = out = out2 = None
         except Exception as exc:
             fails += 1
@@ -5286,7 +5304,8 @@ def _ob_stress(replays=2000):
             clean, ws_msg = _ob_ws_check(data["qkv"].device)
             ok = finite and rel < 1e-4 and clean
             print(f"STRESS {'PASS' if ok else 'FAIL'} {name} [{plan}] replays={replays} "
-                  f"replayed_vs_eager={rel:.1e} finite={finite} {ws_msg}{_ob_polls()}",
+                  f"replayed_vs_eager={rel:.1e} {_ob_diffstat(replayed, eager)} finite={finite} "
+                  f"{ws_msg}{_ob_polls()}",
                   flush=True)
             if batch == 1 and data["config"]["page_size"] == 1:
                 # The speculated length is now wrong by one tile: the device must fall back to
@@ -5306,7 +5325,8 @@ def _ob_stress(replays=2000):
                 clean, ws_msg = _ob_ws_check(data["qkv"].device)
                 ok = jok and rel < 1e-4 and clean
                 print(f"STRESS {'PASS' if ok else 'FAIL'} {name} SPEC-fallback (seq_lens - 64, "
-                      f"50 replays) {jmsg} replayed_vs_eager={rel:.1e} {ws_msg}{_ob_polls()}",
+                      f"50 replays) {jmsg} replayed_vs_eager={rel:.1e} "
+                      f"{_ob_diffstat(replayed, eager)} {ws_msg}{_ob_polls()}",
                       flush=True)
             graph = data = out = replayed = eager = None
         except Exception as exc:

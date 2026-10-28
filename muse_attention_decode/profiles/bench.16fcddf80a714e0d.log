@@ -1,0 +1,71 @@
+-01 k=0.00e+00 v=0.00e+00 rerun: err=6.963e-02 bound=0.150 worst_row=1.813e-01 k=0.00e+00 v=0.00e+00 (rerun vs first 0.0e+00) ws_rows_nonzero=0 l_nonzero=0 tickets_nonzero=0 coop_next_parity_nonzero=0 flat_next_parity_nonzero=0 max_polls=2
+SELFTEST start scored b1 ctx80000 tp8 full L8 fixed coherent page1 scale1 [splits=252 nc=8 mode=11] t=1s
+SELFTEST PASS scored b1 ctx80000 tp8 full L8 fixed coherent page1 scale1 [splits=252 nc=8 mode=11] err=2.102e-02 bound=0.068 worst_row=1.053e-01 k=0.00e+00 v=0.00e+00 rerun: err=2.102e-02 bound=0.068 worst_row=1.053e-01 k=0.00e+00 v=0.00e+00 (rerun vs first 0.0e+00) ws_rows_nonzero=0 l_nonzero=0 tickets_nonzero=0 coop_next_parity_nonzero=0 flat_next_parity_nonzero=0 max_polls=17
+SELFTEST start scored b16 ctx80000 tp8 sliding L8 agentic soft page1 scale1 [splits=8 nc=1 mode=3] t=1s
+SELFTEST PASS scored b16 ctx80000 tp8 sliding L8 agentic soft page1 scale1 [splits=8 nc=1 mode=3] err=7.202e-02 bound=0.150 worst_row=3.509e-01 k=0.00e+00 v=0.00e+00 rerun: err=7.202e-02 bound=0.150 worst_row=3.509e-01 k=0.00e+00 v=0.00e+00 (rerun vs first 4.0e-08) ws_rows_nonzero=0 l_nonzero=0 tickets_nonzero=0 coop_next_parity_nonzero=0 flat_next_parity_nonzero=0 max_polls=7
+SELFTEST start scored b16 ctx80000 tp8 full L8 agentic coherent page1 scale1 [splits=262 nc=1 mode=51] t=1s
+SELFTEST PASS scored b16 ctx80000 tp8 full L8 agentic coherent page1 scale1 [splits=262 nc=1 mode=51] err=2.054e-02 bound=0.064 worst_row=2.424e-01 k=0.00e+00 v=0.00e+00 rerun: err=2.054e-02 bound=0.064 worst_row=2.424e-01 k=0.00e+00 v=0.00e+00 (rerun vs first 2.5e-06) ws_rows_nonzero=0 l_nonzero=0 tickets_nonzero=0 coop_next_parity_nonzero=0 flat_next_parity_nonzero=0 max_polls=430
+SELFTEST start scored b32 ctx80000 tp8 sliding L8 agentic soft page1 scale1 [splits=4 nc=1 mode=3] t=3s
+SELFTEST PASS scored b32 ctx80000 tp8 sliding L8 agentic soft page1 scale1 [splits=4 nc=1 mode=3] err=6.971e-02 bound=0.150 worst_row=3.052e-01 k=0.00e+00 v=0.00e+00 rerun: err=6.971e-02 bound=0.150 worst_row=3.052e-01 k=0.00e+00 v=0.00e+00 (rerun vs first 3.5e-06) ws_rows_nonzero=0 l_nonzero=0 tickets_nonzero=0 coop_next_parity_nonzero=0 flat_next_parity_nonzero=0 max_polls=9
+SELFTEST start scored b32 ctx80000 tp8 full L8 agentic coherent page1 scale1 [splits=262 nc=1 mode=51] t=3s
+SELFTEST PASS scored b32 ctx80000 tp8 full L8 agentic coherent page1 scale1 [splits=262 nc=1 mode=51] err=2.120e-02 bound=0.065 worst_row=2.392e-01 k=0.00e+00 v=0.00e+00 rerun: err=2.120e-02 bound=0.065 worst_row=2.392e-01 k=0.00e+00 v=0.00e+00 (rerun vs first 1.8e-06) ws_rows_nonzero=0 l_nonzero=0 tickets_nonzero=0 coop_next_parity_nonzero=0 flat_next_parity_nonzero=0 max_polls=880
+SELFTEST start test b1 ctx10 tp8 sliding L1 fixed normal page64 scale1 [splits=32 nc=1 mode=1] t=6s
+SELFTEST PASS test b1 ctx10 tp8 sliding L1 fixed normal page64 scale1 [splits=32 nc=1 mode=1] err=2.668e-03 bound=0.133 worst_row=5.738e-03 k=0.00e+00 v=0.00e+00 rerun: err=2.668e-03 bound=0.133 worst_row=5.738e-03 k=0.00e+00 v=0.00e+00 (rerun vs first 0.0e+00) ws_rows_nonzero=0 l_nonzero=0 tickets_nonzero=0 coop_next_parity_nonzero=0 flat_next_parity_nonzero=0 max_polls=0
+SELFTEST start test b3 ctx2047 tp8 sliding L1 fixed normal page64 scale1 [splits=32 nc=1 mode=1] t=6s
+SELFTEST PASS test b3 ctx2047 tp8 sliding L1 fixed normal page64 scale1 [splits=32 nc=1 mode=1] err=4.489e-03 bound=0.150 worst_row=1.282e-02 k=0.00e+00 v=0.00e+00 rerun: err=4.489e-03 bound=0.150 worst_row=1.282e-02 k=0.00e+00 v=0.00e+00 (rerun vs first 1.3e-07) ws_rows_nonzero=0 l_nonzero=0 tickets_nonzero=0 coop_next_parity_nonzero=0 flat_next_parity_nonzero=0 max_polls=0
+SELFTEST start test b5 ctx5000 tp8 sliding L8 mixed normal page1 scale1 [splits=26 nc=1 mode=3] t=6s
+SELFTEST PASS test b5 ctx5000 tp8 sliding L8 mixed normal page1 scale1 [splits=26 nc=1 mode=3] err=7.850e-02 bound=0.150 worst_row=3.085e-01 k=0.00e+00 v=0.00e+00 rerun: err=7.850e-02 bound=0.150 worst_row=3.085e-01 k=0.00e+00 v=0.00e+00 (rerun vs first 3.7e-05) ws_rows_nonzero=0 l_nonzero=0 tickets_nonzero=0 coop_next_parity_nonzero=0 flat_next_parity_nonzero=0 max_polls=4
+SELFTEST start test b4 ctx3000 tp8 full L1 fixed normal page64 scale1 [splits=264 nc=1 mode=49] t=6s
+SELFTEST PASS test b4 ctx3000 tp8 full L1 fixed normal page64 scale1 [splits=264 nc=1 mode=49] err=5.673e-03 bound=0.150 worst_row=1.375e-02 k=0.00e+00 v=0.00e+00 rerun: err=5.673e-03 bound=0.150 worst_row=1.375e-02 k=0.00e+00 v=0.00e+00 (rerun vs first 1.4e-05) ws_rows_nonzero=0 l_nonzero=0 tickets_nonzero=0 coop_next_parity_nonzero=0 flat_next_parity_nonzero=0 max_polls=0
+SELFTEST start test b8 ctx8192 dp full L1 mixed normal page64 scale1 [fallback] t=6s
+SELFTEST PASS test b8 ctx8192 dp full L1 mixed normal page64 scale1 [fallback] err=8.201e-02 bound=0.150 worst_row=3.000e-01 k=0.00e+00 v=0.00e+00 rerun: err=8.201e-02 bound=0.150 worst_row=3.000e-01 k=0.00e+00 v=0.00e+00 (rerun vs first 0.0e+00) ws_rows_nonzero=0 l_nonzero=0 tickets_nonzero=0 coop_next_parity_nonzero=0 flat_next_parity_nonzero=0 max_polls=0
+SELFTEST start test b2 ctx100000 tp8 full L8 fixed normal page1 scale1 [splits=262 nc=1 mode=51] t=6s
+SELFTEST PASS test b2 ctx100000 tp8 full L8 fixed normal page1 scale1 [splits=262 nc=1 mode=51] err=9.131e-02 bound=0.150 worst_row=2.307e-01 k=0.00e+00 v=0.00e+00 rerun: err=9.131e-02 bound=0.150 worst_row=2.307e-01 k=0.00e+00 v=0.00e+00 (rerun vs first 1.3e-09) ws_rows_nonzero=0 l_nonzero=0 tickets_nonzero=0 coop_next_parity_nonzero=0 flat_next_parity_nonzero=0 max_polls=76
+SELFTEST start test b4 ctx6000 tp8 sliding L1 fixed edges page1 scale1 [splits=32 nc=1 mode=1] t=6s
+SELFTEST PASS test b4 ctx6000 tp8 sliding L1 fixed edges page1 scale1 [splits=32 nc=1 mode=1] err=4.890e-03 bound=0.150 worst_row=1.581e-02 k=0.00e+00 v=0.00e+00 rerun: err=4.890e-03 bound=0.150 worst_row=1.581e-02 k=0.00e+00 v=0.00e+00 (rerun vs first 0.0e+00) ws_rows_nonzero=0 l_nonzero=0 tickets_nonzero=0 coop_next_parity_nonzero=0 flat_next_parity_nonzero=0 max_polls=0
+SELFTEST start test b4 ctx6000 tp8 full L8 fixed edges page64 scale1 [splits=262 nc=1 mode=51] t=6s
+SELFTEST PASS test b4 ctx6000 tp8 full L8 fixed edges page64 scale1 [splits=262 nc=1 mode=51] err=8.160e-02 bound=0.150 worst_row=2.595e-01 k=0.00e+00 v=0.00e+00 rerun: err=8.160e-02 bound=0.150 worst_row=2.595e-01 k=0.00e+00 v=0.00e+00 (rerun vs first 2.5e-06) ws_rows_nonzero=0 l_nonzero=0 tickets_nonzero=0 coop_next_parity_nonzero=0 flat_next_parity_nonzero=0 max_polls=41
+SELFTEST start test b1 ctx1048576 tp8 full L8 fixed normal page64 scale1 [splits=252 nc=8 mode=3] t=6s
+SELFTEST PASS test b1 ctx1048576 tp8 full L8 fixed normal page64 scale1 [splits=252 nc=8 mode=3] err=9.795e-02 bound=0.150 worst_row=2.437e-01 k=0.00e+00 v=0.00e+00 rerun: err=9.795e-02 bound=0.150 worst_row=2.437e-01 k=0.00e+00 v=0.00e+00 (rerun vs first 3.9e-08) ws_rows_nonzero=0 l_nonzero=0 tickets_nonzero=0 coop_next_parity_nonzero=0 flat_next_parity_nonzero=0 max_polls=223
+SELFTEST start test b3 ctx4000 tp8 sliding L8 fixed normal page1 scale0.015625 [splits=33 nc=1 mode=3] t=7s
+SELFTEST PASS test b3 ctx4000 tp8 sliding L8 fixed normal page1 scale0.015625 [splits=33 nc=1 mode=3] err=7.403e-02 bound=0.150 worst_row=2.450e-01 k=0.00e+00 v=0.00e+00 rerun: err=7.403e-02 bound=0.150 worst_row=2.450e-01 k=0.00e+00 v=0.00e+00 (rerun vs first 0.0e+00) ws_rows_nonzero=0 l_nonzero=0 tickets_nonzero=0 coop_next_parity_nonzero=0 flat_next_parity_nonzero=0 max_polls=2
+SELFTEST start test b2 ctx9000 tp8 full L1 fixed normal page64 scale0.015625 [splits=264 nc=1 mode=49] t=7s
+SELFTEST PASS test b2 ctx9000 tp8 full L1 fixed normal page64 scale0.015625 [splits=264 nc=1 mode=49] err=5.338e-03 bound=0.150 worst_row=1.226e-02 k=0.00e+00 v=0.00e+00 rerun: err=5.338e-03 bound=0.150 worst_row=1.226e-02 k=0.00e+00 v=0.00e+00 (rerun vs first 0.0e+00) ws_rows_nonzero=0 l_nonzero=0 tickets_nonzero=0 coop_next_parity_nonzero=0 flat_next_parity_nonzero=0 max_polls=0
+SELFTEST start test b4 ctx80000 tp8 full L1 mixed soft page64 scale1 [splits=264 nc=1 mode=49] t=7s
+SELFTEST PASS test b4 ctx80000 tp8 full L1 mixed soft page64 scale1 [splits=264 nc=1 mode=49] err=4.514e-03 bound=0.150 worst_row=7.835e-03 k=0.00e+00 v=0.00e+00 rerun: err=4.514e-03 bound=0.150 worst_row=7.835e-03 k=0.00e+00 v=0.00e+00 (rerun vs first 0.0e+00) ws_rows_nonzero=0 l_nonzero=0 tickets_nonzero=0 coop_next_parity_nonzero=0 flat_next_parity_nonzero=0 max_polls=0
+SELFTEST start test b4 ctx6000 tp8 sliding L8 fixed soft page1 scale1 [splits=33 nc=1 mode=3] t=7s
+SELFTEST PASS test b4 ctx6000 tp8 sliding L8 fixed soft page1 scale1 [splits=33 nc=1 mode=3] err=6.223e-02 bound=0.150 worst_row=2.331e-01 k=0.00e+00 v=0.00e+00 rerun: err=6.223e-02 bound=0.150 worst_row=2.331e-01 k=0.00e+00 v=0.00e+00 (rerun vs first 6.2e-07) ws_rows_nonzero=0 l_nonzero=0 tickets_nonzero=0 coop_next_parity_nonzero=0 flat_next_parity_nonzero=0 max_polls=4
+SELFTEST start test b2 ctx20000 dp full L8 fixed soft page64 scale1 [fallback] t=7s
+SELFTEST PASS test b2 ctx20000 dp full L8 fixed soft page64 scale1 [fallback] err=7.045e-02 bound=0.150 worst_row=3.137e-01 k=0.00e+00 v=0.00e+00 rerun: err=7.045e-02 bound=0.150 worst_row=3.137e-01 k=0.00e+00 v=0.00e+00 (rerun vs first 0.0e+00) ws_rows_nonzero=0 l_nonzero=0 tickets_nonzero=0 coop_next_parity_nonzero=0 flat_next_parity_nonzero=0 max_polls=0
+SELFTEST start test b4 ctx80000 tp8 full L1 mixed coherent page1 scale1 [splits=264 nc=1 mode=49] t=7s
+SELFTEST PASS test b4 ctx80000 tp8 full L1 mixed coherent page1 scale1 [splits=264 nc=1 mode=49] err=2.015e-03 bound=0.066 worst_row=4.607e-03 k=0.00e+00 v=0.00e+00 rerun: err=2.002e-03 bound=0.066 worst_row=4.607e-03 k=0.00e+00 v=0.00e+00 (rerun vs first 2.3e-04) ws_rows_nonzero=0 l_nonzero=0 tickets_nonzero=0 coop_next_parity_nonzero=0 flat_next_parity_nonzero=0 max_polls=0
+SELFTEST start test b2 ctx20000 dp full L8 fixed coherent page64 scale1 [fallback] t=8s
+SELFTEST PASS test b2 ctx20000 dp full L8 fixed coherent page64 scale1 [fallback] err=2.607e-02 bound=0.079 worst_row=2.460e-01 k=0.00e+00 v=0.00e+00 rerun: err=2.607e-02 bound=0.079 worst_row=2.460e-01 k=0.00e+00 v=0.00e+00 (rerun vs first 0.0e+00) ws_rows_nonzero=0 l_nonzero=0 tickets_nonzero=0 coop_next_parity_nonzero=0 flat_next_parity_nonzero=0 max_polls=0
+SELFTEST done: 0 failing shapes t=8s
+STRESS start b1 sliding L1 [splits=32 nc=1 mode=13] t=8s
+STRESS FAIL b1 sliding L1 [splits=32 nc=1 mode=13] replays=2000 replayed_vs_eager=2.3e-04 finite=True ws_rows_nonzero=0 l_nonzero=0 tickets_nonzero=0 coop_next_parity_nonzero=0 flat_next_parity_nonzero=0 max_polls=0
+STRESS PASS b1 sliding L1 SPEC-fallback (seq_lens - 64, 50 replays) err=4.951e-03 bound=0.150 worst_row=1.052e-02 k=0.00e+00 v=0.00e+00 replayed_vs_eager=0.0e+00 ws_rows_nonzero=0 l_nonzero=0 tickets_nonzero=0 coop_next_parity_nonzero=0 flat_next_parity_nonzero=0 max_polls=0
+STRESS start b1 sliding L8 [splits=33 nc=1 mode=15] t=8s
+STRESS PASS b1 sliding L8 [splits=33 nc=1 mode=15] replays=2000 replayed_vs_eager=0.0e+00 finite=True ws_rows_nonzero=0 l_nonzero=0 tickets_nonzero=0 coop_next_parity_nonzero=0 flat_next_parity_nonzero=0 max_polls=3
+STRESS PASS b1 sliding L8 SPEC-fallback (seq_lens - 64, 50 replays) err=6.276e-02 bound=0.150 worst_row=1.599e-01 k=0.00e+00 v=0.00e+00 replayed_vs_eager=0.0e+00 ws_rows_nonzero=0 l_nonzero=0 tickets_nonzero=0 coop_next_parity_nonzero=0 flat_next_parity_nonzero=0 max_polls=3
+STRESS start b16 sliding L8 [splits=8 nc=1 mode=3] t=8s
+STRESS PASS b16 sliding L8 [splits=8 nc=1 mode=3] replays=2000 replayed_vs_eager=2.0e-05 finite=True ws_rows_nonzero=0 l_nonzero=0 tickets_nonzero=0 coop_next_parity_nonzero=0 flat_next_parity_nonzero=0 max_polls=11
+STRESS start b16 full L1 [splits=264 nc=1 mode=49] t=8s
+STRESS PASS b16 full L1 [splits=264 nc=1 mode=49] replays=2000 replayed_vs_eager=0.0e+00 finite=True ws_rows_nonzero=0 l_nonzero=0 tickets_nonzero=0 coop_next_parity_nonzero=0 flat_next_parity_nonzero=0 max_polls=0
+STRESS start b16 full L8 [splits=262 nc=1 mode=51] t=8s
+STRESS PASS b16 full L8 [splits=262 nc=1 mode=51] replays=2000 replayed_vs_eager=2.0e-05 finite=True ws_rows_nonzero=0 l_nonzero=0 tickets_nonzero=0 coop_next_parity_nonzero=0 flat_next_parity_nonzero=0 max_polls=448
+STRESS start b1 full L1 [splits=252 nc=8 mode=11] t=9s
+STRESS PASS b1 full L1 [splits=252 nc=8 mode=11] replays=2000 replayed_vs_eager=0.0e+00 finite=True ws_rows_nonzero=0 l_nonzero=0 tickets_nonzero=0 coop_next_parity_nonzero=0 flat_next_parity_nonzero=0 max_polls=18
+STRESS PASS b1 full L1 SPEC-fallback (seq_lens - 64, 50 replays) err=2.514e-03 bound=0.056 worst_row=6.532e-03 k=0.00e+00 v=0.00e+00 replayed_vs_eager=0.0e+00 ws_rows_nonzero=0 l_nonzero=0 tickets_nonzero=0 coop_next_parity_nonzero=0 flat_next_parity_nonzero=0 max_polls=13
+BENCH b= 1 sliding L=1 _one=9.8 _fused=14.6 e=1.3e-03 _fused_prep=20.1 e=6.6e-02 t=9s
+BENCH b= 1 full    L=1 _one=19.5 _fused_prep=34.2 e=1.6e-02 t=9s
+BENCH b=16 sliding L=1 _one=14.3 _fused=19.2 e=1.5e-03 _fused_prep=24.0 e=6.6e-02 t=9s
+BENCH b=16 full    L=1 _one=101.3 _one@m=17=103.5 e=0.0e+00 _one@m=49=100.9 e=0.0e+00 _fused=137.1 e=7.1e-04 _fused_prep=209.1 e=1.7e-02 t=9s
+BENCH b=32 sliding L=1 _one=17.2 _fused=25.5 e=1.4e-03 _fused_prep=30.5 e=6.0e-02 t=9s
+BENCH b=32 full    L=1 _one=183.5 _one@m=17=189.3 e=1.0e-05 _one@m=49=183.4 e=0.0e+00 _fused=252.1 e=7.3e-04 _fused_prep=392.2 e=1.9e-02 t=9s
+BENCH b= 1 sliding L=8 _one=10.9 _ws=19.9 e=5.3e-03 _fused_prep=20.7 e=6.6e-03 t=9s
+BENCH b= 1 full    L=8 _one=21.6 _ws=39.8 e=2.6e-03 _fused_prep=37.8 e=3.5e-03 t=9s
+BENCH b=16 sliding L=8 _one=16.6 _ws=23.7 e=1.5e-02 _fused_prep=26.5 e=1.6e-02 t=9s
+BENCH b=16 full    L=8 _one=389.2 _one@m=19=127.4 e=1.1e-05 _one@m=51=389.8 e=1.1e-05 _one@m=115=150.1 e=4.6e-03 _ws=189.2 e=5.4e-03 _fused_prep=211.3 e=6.3e-03 t=9s
+BENCH b=32 sliding L=8 _one=21.2 _ws=27.6 e=1.5e-02 _fused_prep=32.8 e=1.8e-02 t=9s
+BENCH b=32 full    L=8 _one=768.8 _one@m=19=236.3 e=3.3e-05 _one@m=51=773.8 e=0.0e+00 _one@m=115=282.7 e=5.4e-03 _ws=352.7 e=7.3e-03 _fused_prep=396.6 e=8.4e-03 t=10s

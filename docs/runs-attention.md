@@ -504,3 +504,85 @@ mode 13 and mode 1, and `MODES ... PASS`, confirm the cause; the run then goes o
 correctness suite, the replay stress and the timings. A `HANG` line names a second hang, with
 the stamps showing the last point thread 0 of CTA 0 reached. A timeout with no `HANG` line
 would mean the snapshot copy itself cannot run beside the hung kernel.
+
+### Scored run 16fcddf80a714e0d (bench.py at 29bc072): 1.594x, CI 1.570-1.618
+
+The first run of the one-launch kernel to finish: every judge test passed, SELFTEST had 0
+failing shapes, the phase sweep returned through phase 10, and the result is on the board
+(submitted with the user's authorization). Profiles: `profiles/bench.16fcddf80a714e0d.*`.
+Per shape (judge medians, us; weight from the task):
+
+| shape | SGLang | ours | speedup | weight |
+|---|---|---|---|---|
+| decode 1 sliding | 21.1 | 6.0 | 3.5 | 46 |
+| decode 1 full | 31.6 | 15.4 | 2.06 | 16 |
+| decode 16 sliding | 26.9 | 9.7 | 2.79 | 46 |
+| decode 16 full | 202.7 | 91.8 | 2.21 | 16 |
+| decode 32 sliding | 31.5 | 12.4 | 2.55 | 46 |
+| decode 32 full | 388.0 | 176.7 | 2.2 | 16 |
+| verify 1 sliding | 23.2 | 7.8 | 2.97 | 46 |
+| verify 1 full | 36.8 | 18.1 | 2.03 | 16 |
+| verify 16 sliding | 29.4 | 13.2 | 2.23 | 46 |
+| verify 16 full | 206.6 | 374.8 | 0.55 | 16 |
+| verify 32 sliding | 34.8 | 17.6 | 1.98 | 46 |
+| verify 32 full | 392.8 | 756.8 | 0.52 | 16 |
+
+Instances on the scored path (profiled): decode 1 sliding mode 13 (6.0 us), decode 1 full 11
+(14.6), decode 16 / 32 sliding 1 (10.0 / 11.4), decode 16 / 32 full 49 (89.4 / 173.5), verify 1
+sliding 15 (7.3), verify 1 full 11 (17.7), verify 16 / 32 sliding 3 (12.7 / 16.9), verify 16 / 32
+full 51 (374 / 759). The two verify full shapes at batch 16 / 32 are the only ones below 1x.
+
+Mode choice for the flat (full context, batch 16 / 32) shapes, from the run's BENCH lines (us):
+
+| shape | mode 17 / 19 (consumers copy) | mode 49 / 51 (producer warpgroup) | mode 115 (producer, 1 CTA/SM) | ws kernel |
+|---|---|---|---|---|
+| decode 16 full | 103.5 | 100.9 | - | 137.1 (fused) |
+| decode 32 full | 189.3 | 183.4 | - | 252.1 (fused) |
+| verify 16 full | 127.4 | 389.8 | 150.1 | 189.2 |
+| verify 32 full | 236.3 | 773.8 | 282.7 | 352.7 |
+
+Routing change: q_len 8 flat shapes go to mode 19 (`_one_plan` no longer tries 51); q_len 1
+stays on 49, which is 3% ahead of 17. Expected on the judge: verify 16 full about 127 us
+(1.62x against SGLang's 206.6, from 0.55x), verify 32 full about 236 us (1.66x against 392.8,
+from 0.52x); the profiled times ran 4% below the bench times for mode 51, so these may land
+slightly lower. The other ten shapes are unchanged.
+
+Why mode 51 is three times slower than 19: its SASS (sm_90a, CUDA 12.8.1) has 105 local-memory
+instructions (LDL/STL), 92 of them inside the per-tile loop that holds the four wgmmas; mode 19
+has none, and mode 115 (the same producer design at 113 registers, one CTA per SM) has none
+and runs 18-20% behind 19. So most of the gap is the spill: ptxas caps every region of the
+two-CTA-per-SM producer build at 80 registers (the launch-bounds count), and the consumers'
+score and accumulator fragments (32 + 36 floats per thread) do not fit, so each tile goes
+through local memory. The rest is the producer design itself at q_len 8 (115 vs 19). Not fixed:
+it needs the consumer register budget raised above what two CTAs per SM allow, which is the
+same trade 115 already measures and loses.
+
+STRESS FAIL on b1 sliding L1 mode 13 (`replayed_vs_eager=2.3e-04` against the 1e-4 bound,
+finite, workspace clean): judged to be FP32 merge-order nondeterminism, not an ordering bug,
+on this evidence. (1) Size: the output is 1024 BF16 elements (16 heads x 64), the smallest of
+any stress shape, so one element moving by one BF16 ulp (2^-8 relative) already gives a
+relative L2 of order 1e-4; the larger stress shapes (8,192 to 131,072 elements) dilute the same
+event to 2e-5 or less. (2) Model: `/private/tmp/claude-501/-Users-gretchengabo-GitHub/4e9778d1-55dc-4e88-9d29-4844bd573620/scratchpad/w2/order_nondet.py` (session scratchpad) takes the emulator's q_len 1
+arithmetic (`tools/attn_emulate_one.py`) for 32 one-tile partials on 2,048-key sliding cases,
+sums them into the FP32 workspace in random arrival orders, finalizes (1/l, per-head RMS norm,
+sigmoid gate, BF16) and compares order against order with the stress metric: over 4,000 pairs,
+11% differ at all, never in more than 2 of 1,024 elements, and the largest relative L2 was
+2.2e-4 from a single element (P(rel >= 1e-4) = 0.1% in the model). The model's partials are less
+peaked than the judge-style soft inputs, so it likely understates how often a large element
+sits near a rounding boundary. (3) What a real ordering bug would look like: a finalizer that
+read the workspace before another CTA's red landed would lose a whole tile (about 1/32 of the
+mass, relative error of order 1e-2 across all 64 elements of a head), and the late red would
+land after the zeroing and leave the workspace nonzero; after 2,000 replays and an eager run
+the workspace check reads zero rows, zero row sums and zero tickets. The same 2.3e-4 also
+appears in a passing SELFTEST rerun (b4 ctx80000 full L1 mode 49, 4096 elements), where the
+merge is also atomic. The bound is not loosened: the stress and SELFTEST lines now also print
+`diff_elems=n/total max_ulp=... max_abs=...` (elements that differ, largest gap in BF16 ulps of
+the larger magnitude), so the next run shows directly whether the difference is a few elements
+at about one ulp (merge order) or many elements (a lost or stale contribution).
+
+Local checks of the routing change (commit after 29bc072): `submission.py` and `bench.py`
+regenerated and parse; pyflakes clean apart from unused imports; `_one_plan` on a CPU replica
+of the residency table returns mode 19 for full context q_len 8 at batch 16 / 32 and leaves
+every other shape's plan as profiled; `tools/attn_compile_check.sh` compiles all four inlined
+blocks with no errors; `tools/attn_harness_dry.py` passes; `_ob_diffstat` reads 0 differences
+on identical tensors and `1/1024 max_ulp=1.0` for a one-ulp change.

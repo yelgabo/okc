@@ -4732,7 +4732,9 @@ def _one_plan(cfg, pt_width, resident):
     tiles = (kmax + 63) // 64
     nc = 1
     if not window and batch > 1 and _ONE_FLAT:
-        for mode in ((49, 17) if length == 1 else (51, 19)) if _ONE_PROD else \
+        # q_len 8 skips the producer build 51: at 80 registers it spills inside the tile loop
+        # and timed 389 / 774 us against mode 19's 127 / 236 at batch 16 / 32 (16fcddf80a714e0d).
+        for mode in ((49, 17) if length == 1 else (19,)) if _ONE_PROD else \
                 ((17,) if length == 1 else (19,)):
             grid = min(_ONE_TARGET, resident.get((length, mode), 0))
             if grid >= 2 * batch:
