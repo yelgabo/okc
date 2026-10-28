@@ -38,7 +38,8 @@ def main():
     class FakeExt:
         def moe_run(self, x, ids, tw, *rest):
             out = rest[10]
-            variant = rest[-1]
+            variant, cost = rest[-2], rest[-1]
+            assert len(cost) in (0, 18) and all(c > 0 for c in cost[1:9] + cost[10:18]), cost
             assert 0 <= variant < n_variants, variant
             mode = None
             if variant >= mod.VARIANT_MAIN0:

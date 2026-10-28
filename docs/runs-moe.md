@@ -41,6 +41,56 @@ SGLang with its 95% interval. Profiles and logs are in `muse_moe_w4a16/profiles/
 | 2026-10-28 | 36b5b559b0344d0f (submit, authorized by the user via the coordinator) | 35baa17 | fat path: k permuted inside each 256-k stage so one scale build covers a lane's four k16 steps, x slab written in that mma-k order by the gather and the phase A epilogue, wgmma descriptors in uniform registers (slot base through a shuffle: R2UR per HGMMA gone), SiLU by MUFU.RCP; diagnostics without wgmma and without dequant; sk8w5s, depth 3 and no-gate dropped | 1.990x (1.960-2.020) | per shape: bs1 29.3 us (2.727x), bs16 97.3 (1.937), bs32 133.9 (1.544), bs8 68.4 (2.106), bs128 255.1 (1.800), bs256 308.4 (2.008). POLICY {1, 8, 16, 32: sk8w4s, 128: legacy128, 256: main-d2}. BENCH (us): bs32 main-loads 139.3, sk8w4s 149.9, legacy32 155.6, main-nowgmma 157.3, main-nodequant 173.1, main-d2 197.3 (was 223.5); bs128 main-loads 189.6, main-nowgmma 211.9, main-nodequant 233.2, legacy128 249.9, main-d2 260.8 (was 301.5), sk8w4s 261.8; bs256 main-loads 203.0, main-nowgmma 237.3, main-nodequant 267.1, main-d2 291.6 (was 337.6), legacy256 360.1. The fat path's two costs add rather than overlap: at bs256 dequant alone +34 us over streaming, wgmma alone +64, both +89; the wgmma side (fence, two HGMMA, commit, wait per group, all warpgroup-collective) is the larger. Prepare 143 s. Error vs FP32 3.9e-3 to 4.6e-3 |
 | 2026-10-28 | 0400cfbdfa2845fe (submit, authorized by the user via the coordinator) | 54f7940 | fat path: jobs of up to 2 (modes 6, 9) or 4 (7, 10) n8 tiles, or all jobs (8), on mma.sync m16n8k16 instead of RS wgmma (same A fragments, accumulators, epilogue and fixup; B by ldmatrix.x4 from the x slot), modes 9, 10, 8 with flatter stage costs; diagnostics 2 and 3 no longer built; a mode that fails its self-test only leaves the bench | 2.007x (1.977-2.038) | per shape: bs1 27.4 us (2.796x), bs16 96.9 (1.938), bs32 133.4 (1.544), bs8 71.3 (2.100), bs128 261.9 (1.804), bs256 301.5 (2.060). POLICY {1, 8, 16, 32: sk8w4s, 128: legacy128, 256: main-m2}. BENCH (us): bs32 main-loads 140.6, sk8w4s 151.6, main-d2 189.3, main-m2 190.0, main-m2f 190.0, main-m8f 190.6, main-m4 191.2; bs128 main-loads 190.9, legacy128 250.9, main-m2 253.5, main-d2 254.4, main-m2f 261.5, main-m4 266.6, main-m8f 279.8; bs256 main-loads 202.6, main-m2 283.1, main-d2 285.3, main-m4 298.7, main-m8f 327.7. So mma.sync and RS wgmma cost the same at N = 8 and 16 (bs32, where nearly every job is one n8 tile: 190.0 vs 189.3): the MMA instruction is not what keeps the fat path 50 us above its streaming time at bs32 and 63 us at bs128. mma.sync loses above N = 16 (m4, m8f). Error vs FP32 3.88e-3 every fat mode. Build 154 s (was 139) |
 | 2026-10-28 | c524612c78454486 (submit, authorized by the user via the coordinator) | cd06a9e | mode 11 (mode 6 with clock stamps) and a DIAG report in prepare | 2.002x (1.972-2.032) | per shape: bs1 28.1 us, bs16 95.5, bs32 133.1, bs8 67.7, bs128 255.7, bs256 304.6; same policy and bench as 0400cfbdfa2845fe within 1 us (bs128 main-loads 188.9, legacy128 249.7, main-m2 253.6, main-d2 254.3, main-m2-stamps 258.5). The DIAG report failed on the host (`inter.view(int64)` of the 2-D buffer sliced rows, not elements; the dry run used a flat buffer), so no stamps. Fixed in the next commit, dry run now uses the real shape |
+| 2026-10-28 | 2072795029b7479f (submit, authorized by the user via the coordinator) | a248788 | the DIAG fix | 1.978x (1.948-2.007) | per shape: bs1 29.7 us, bs16 97.1, bs32 136.0, bs8 69.0, bs128 263.0, bs256 301.8; same code and policy as the two runs before, so the 1.978-2.007 spread of these three is run-to-run noise. Bench bs128: main-loads 190.6, legacy128 253.6, main-m2 255.4, main-d2 256.8. Stamps below (section "Where the fat path's time goes at 128 tokens") |
+
+## Where the fat path's time goes at 128 tokens, 2026-10-28
+
+Clock stamps of mode 11 (mode 6, jobs of up to 2 n8 tiles on mma.sync, the rest on wgmma) in
+check 2072795029b7479f: one cold-L2 launch per size on the bench's routing (seed 11), all 132
+CTAs, us at the measured 1.75 GHz. "Per warp" sums over a consumer warp's mma.sync segments
+only (at 128 tokens the jobs of 3 or more n8 tiles run on wgmma and are not split out; their
+share is the consumer time the four buckets leave over). Mean / max over CTAs.
+
+| | bs32 | bs128 | bs256 |
+|---|---|---|---|
+| launch end (last CTA) | 209.7 | 264.4 | 289.8 |
+| routing + x gather, before any weight load | 7.4 / 13.6 | 12.0 / 16.9 | 18.4 / 24.3 |
+| consumers (first stage to last epilogue) | 190.4 / 198.9 | 236.1 / 247.8 | 247.4 / 263.2 |
+| grid barrier wait | 9.7 / 24.6 | 12.8 / 48.1 | 16.7 / 50.9 |
+| final norm and sum | 1.1 / 2.3 | 3.0 / 3.3 | 5.9 / 6.7 |
+| per warp: computing (dequant + mma.sync) | 116.2 | 136.2 | 93.3 |
+| per warp: waiting for weights | 11.8 | 12.3 | 8.2 |
+| per warp: waiting for x | 11.2 | 9.6 | 7.5 |
+| per warp: epilogue and fixup | 24.1 | 24.4 | 16.4 |
+| per warp: stages on mma.sync, segments | 116.4, 9.1 | 133.8, 10.0 | 93.1, 6.9 |
+| weights producer waiting for a free ring slot | 136.8 | 171.7 | 179.6 |
+| x producer waiting for a free slot / done_as / xready | 121.8 / 12.0 / 7.2 | 152.8 / 15.8 / 3.9 | 157.2 / 17.5 / 3.9 |
+
+Reading, at 128 tokens (bench: main-loads 190.6, main-m2 255.4, legacy128 253.6):
+
+- The decomposition is not the limit. Streamed alone, the expert-local jobs take 190.6 us
+  against 250-254 for the legacy W4 chain; every expert's weights are read once.
+- The consumers are. The weights producer spends 172 of the consumers' 236 us waiting for a
+  free slot: the ring is full and the 16 consumer warps drain it. A warp computes a 36 KB stage
+  in 1.02 us (136.2 / 133.8) against about 1.2 us to stream one at the loads-only rate, so the
+  compute alone nearly matches the stream, and everything else on the consumer's path adds:
+  epilogue and fixup 24 us per warp (about 2.4 us per segment: a fence.sc.gpu, two named
+  barriers and up to three L2 round trips on the fixup path), 22 us of waits for weights and x
+  (ring fill at the start, x behind phase B's done_as gate).
+- mma.sync in place of wgmma changed nothing (submit 0400cfbdfa2845fe), and the SASS of the
+  mma.sync stage is about 13 instructions per 8 weights with no waste (9 integer, 4 HMUL2; the
+  E2M1 bit layout leaves no 1-shift form for the fourth register), so the per-stage compute is
+  close to its floor for this dequant; the gains are in the overheads.
+- Around the consumers: 12 us of routing and gather before the first weight load (the routing
+  warp read topk_ids in 8 serial rounds at E = 1024), and stream-K imbalance: the slowest CTA's
+  consumers end 11 us after the mean, and the barrier wait reaches 48 us.
+
+So the loss at 128 tokens is implementation: per-stage consumer work at about the stream rate
+plus serial overheads (prologue 12, epilogue and fixup 24, imbalance 11 us), not the job
+decomposition. Changes made from this (commit after a248788, not yet run): topk_ids loaded by
+all threads at once; the weights producer starts before the x gather; fence.acq_rel.gpu in
+place of fence.sc.gpu in the epilogue and fixup (modes 12, 13); per-class stage counts in the
+stamps and a least-squares fit of per-stage costs, offered to the bench as a fitted table.
 
 ## W4A16 GEMM (own kernel), 2026-10-28
 

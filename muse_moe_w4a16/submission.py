@@ -76,7 +76,7 @@ void moe_run(torch::Tensor x, torch::Tensor topk_ids, torch::Tensor topk_w, torc
              torch::Tensor done_a, torch::Tensor out, torch::Tensor w13f, torch::Tensor w2f,
              torch::Tensor xa, torch::Tensor xb, torch::Tensor fix, torch::Tensor fixcnt,
              torch::Tensor xready, torch::Tensor done_as, int64_t lo, int64_t nloc, double eps,
-             int64_t variant);
+             int64_t variant, std::vector<int64_t> cost);
 int64_t moe_smem_bytes();
 """
 
@@ -134,6 +134,8 @@ struct Params {
     int lo;
     int nloc;
     float eps;
+    // Fat path stage costs by (phase, n-tile count); cost[0][1] == 0 means the compiled table.
+    int cost[2][9];
 };
 
 
@@ -1281,8 +1283,9 @@ __global__ void __launch_bounds__(kNTM, 1) moe_main_kernel(const Params p) {
 
     if (warp == kNWarpsM - 1) {
         if (lane < 9) {
-            S.cost[0][lane] = stage_cost<MODE>(0, lane);
-            S.cost[1][lane] = stage_cost<MODE>(1, lane);
+            const bool given = p.cost[0][1] > 0;
+            S.cost[0][lane] = given ? p.cost[0][lane] : stage_cost<MODE>(0, lane);
+            S.cost[1][lane] = given ? p.cost[1][lane] : stage_cost<MODE>(1, lane);
         }
         S.cnt[lane] = 0;
         __syncwarp();
@@ -1311,8 +1314,8 @@ __global__ void __launch_bounds__(kNTM, 1) moe_main_kernel(const Params p) {
         for (int k = 0; k < nj; ++k) {
             const int ntt = (min(64, tot - 64 * k) + 7) >> 3;
             xo_sum += ntt;
-            ca_sum += kUAM * stage_cost<MODE>(0, ntt);
-            cb_sum += kUBM * stage_cost<MODE>(1, ntt);
+            ca_sum += kUAM * S.cost[0][ntt];
+            cb_sum += kUBM * S.cost[1][ntt];
         }
         const int xo_incl = warp_scan(xo_sum, lane);
         const int ca_incl = warp_scan(ca_sum, lane);
@@ -1332,8 +1335,8 @@ __global__ void __launch_bounds__(kNTM, 1) moe_main_kernel(const Params p) {
             S.pa[j] = ca;
             S.pb[j] = cb;
             xo += ntt;
-            ca += kUAM * stage_cost<MODE>(0, ntt);
-            cb += kUBM * stage_cost<MODE>(1, ntt);
+            ca += kUAM * S.cost[0][ntt];
+            cb += kUBM * S.cost[1][ntt];
         }
         int mx = tot > 0 ? (min(64, tot) + 7) >> 3 : 0;
 #pragma unroll
@@ -1519,7 +1522,7 @@ void moe_run(torch::Tensor x, torch::Tensor topk_ids, torch::Tensor topk_w, torc
              torch::Tensor done_a, torch::Tensor out, torch::Tensor w13f, torch::Tensor w2f,
              torch::Tensor xa, torch::Tensor xb, torch::Tensor fix, torch::Tensor fixcnt,
              torch::Tensor xready, torch::Tensor done_as, int64_t lo, int64_t nloc, double eps,
-             int64_t variant) {
+             int64_t variant, std::vector<int64_t> cost) {
     static int sms = 0;
     if (sms == 0) {
         C10_CUDA_CHECK(cudaDeviceGetAttribute(&sms, cudaDevAttrMultiProcessorCount, x.get_device()));
@@ -1550,6 +1553,10 @@ void moe_run(torch::Tensor x, torch::Tensor topk_ids, torch::Tensor topk_w, torc
     p.lo = static_cast<int>(lo);
     p.nloc = static_cast<int>(nloc);
     p.eps = static_cast<float>(eps);
+    TORCH_CHECK(cost.empty() || cost.size() == 18);
+    for (int i = 0; i < 18; ++i) {
+        p.cost[i / 9][i % 9] = cost.empty() ? 0 : static_cast<int>(cost[i]);
+    }
     for (int m0 = 0; m0 < m; m0 += kEmax / kTopK) {
         p.M = std::min(kEmax / kTopK, m - m0);
         p.x = reinterpret_cast<const __nv_bfloat16*>(x.data_ptr<at::BFloat16>())
@@ -2241,6 +2248,11 @@ LEGACY_CONFIGS = [
 # (GEMM1 config, GEMM2 config, finalizer cluster size), the tuned policy at 32, 128, 256.
 LEGACY_POLICIES = ((0, 1, 8), (2, 3, 1), (4, 5, 1))
 VARIANT_LEGACY0 = 100
+# A fat variant VARIANT_MAIN0 + i run with the stage costs fitted from the DIAG stamps in
+# prepare (state["fit_cost"]) is VARIANT_FIT0 + i.
+VARIANT_FIT0 = 200
+# Modes the fitted costs are offered for: the stamps time mode 6's segments.
+FIT_MODES = (6, 12)
 
 _LEGACY_ROUTE_CPP = r"""
 #include <torch/extension.h>
@@ -3500,12 +3512,17 @@ def _run(data, state, variant=None):
     s = state["scratch"]
     if variant is None:
         variant = _policy_variant(state, m)
+    cost = []
+    if variant >= VARIANT_FIT0:
+        cost = state["fit_cost"]
+        variant = VARIANT_MAIN0 + variant - VARIANT_FIT0
     if variant >= VARIANT_LEGACY0:
         return _run_legacy(data, state, LEGACY_POLICIES[variant - VARIANT_LEGACY0])
     _ext().moe_run(x, ids, tw, w["w13"], w["w2"], w["w13_gs"], w["w2_gs"], state["nw"],
                    s["inter"], s["ybuf"], s["ss"], s["ctr"], s["done_a"], out,
                    w["w13f"], w["w2f"], s["xa"], s["xb"], s["fix"], s["fixcnt"], s["xready"],
-                   s["done_as"], cfg["local_start"], cfg["local_count"], POST_NORM_EPS, variant)
+                   s["done_as"], cfg["local_start"], cfg["local_count"], POST_NORM_EPS, variant,
+                   cost)
     return out
 
 
@@ -3665,6 +3682,7 @@ def _bench(state, main_ok, seeds=(11, 12)):
             cands += [VARIANT_MAIN0 + i for i, m in enumerate(MAIN_MODES)
                       if m in MAIN_CANDIDATES and VARIANT_MAIN0 + i not in state["main_bad"]]
             diag += [VARIANT_MAIN0 + i for i, m in enumerate(MAIN_MODES) if m not in MAIN_CANDIDATES]
+            cands += [v for v in state.get("fit_ok", ())]
         if state.get("legacy_ok") and bs >= 16:
             cands += [VARIANT_LEGACY0 + i for i in range(len(LEGACY_POLICIES))]
         tot = {}
@@ -3729,21 +3747,50 @@ def _diag_report(state, bs, seed=11):
     return d[:, :16, 6], (t[:, 2] - t[:, 1]) / 1e3
 
 
+# The compiled stage costs of modes 0 and 6 (kCostA / kCostB in the CUDA source).
+COST_DEFAULT = ((0, 112, 135, 140, 158, 173, 185, 200, 207),
+                (0, 100, 104, 115, 123, 132, 144, 156, 174))
+
+
 def _diag_costs(rows):
     """Least-squares fit of each CTA's consumer time on its stage counts per (phase, n-tile
-    count), over every DIAG launch: the per-stage cost the stream-K table should use."""
+    count), over every DIAG launch: the per-stage cost the stream-K split should use. Returns
+    the 18-entry table moe_run takes, in the compiled table's units: classes with fewer than
+    64 stages in the data, or a fit outside 0.5x to 2x of the compiled ratio, keep the compiled
+    value times the median fitted ratio."""
     x = torch.cat([r[0] for r in rows])
     y = torch.cat([r[1] for r in rows])
-    used = x.sum(0) > 0
+    seen = x.sum(0)
+    used = seen > 0
     sol = torch.linalg.lstsq(x[:, used], y.unsqueeze(1)).solution.squeeze(1)
     resid = y - x[:, used] @ sol
     names = [f"{'AB'[c // 8]}{c % 8 + 1}" for c in range(16) if bool(used[c])]
     fit = " ".join(f"{n}:{float(c):.3f}" for n, c in zip(names, sol))
     print(f"DIAG cost fit us/stage {fit}; residual rms {float(resid.pow(2).mean().sqrt()):.1f} us "
           f"over {len(y)} CTA launches (consumer time mean {float(y.mean()):.1f} us)")
+    per = torch.zeros(16, dtype=torch.float64)
+    per[used] = sol.double()
+    dflt = torch.tensor([COST_DEFAULT[c // 8][c % 8 + 1] for c in range(16)], dtype=torch.float64)
+    good = (seen >= 64) & (per > 0)
+    if int(good.sum()) == 0:
+        return []
+    ratio = float((per[good] / dflt[good]).median())
+    out = dflt * ratio
+    for c in range(16):
+        if bool(good[c]) and 0.5 <= float(per[c] / out[c]) <= 2.0:
+            out[c] = per[c]
+    # Back to the compiled table's units, which keep the prefix sums in range.
+    out = out / ratio
+    table = [0] * 18
+    for c in range(16):
+        table[(c // 8) * 9 + c % 8 + 1] = max(1, int(round(float(out[c]))))
+    print(f"DIAG fitted table A {table[1:9]} B {table[10:18]}")
+    return table
 
 
 def _vname(v):
+    if v >= VARIANT_FIT0:
+        return _vname(VARIANT_MAIN0 + v - VARIANT_FIT0) + "-fit"
     if v >= VARIANT_LEGACY0:
         return f"legacy{(32, 128, 256)[v - VARIANT_LEGACY0]}"
     if v >= VARIANT_MAIN0:
@@ -3801,8 +3848,9 @@ def prepare(weights):
     if not main_ok:
         # The skinny path handles every size (split jobs of 8 tokens); it is the fallback.
         ok = _self_test(state, weights, (32, 33, 128, 257), "fallback", SKINNY_DEFAULT) and ok
-    t3 = time.time()
-    state["policy"] = _bench(state, main_ok)
+    # Stamps of mode 11 (where the fat path's time goes, printed), a per-stage cost fit from
+    # them, and the fitted table offered to the bench on FIT_MODES after its own self-test.
+    state["fit_ok"] = []
     if main_ok and 11 in MAIN_MODES:
         rows = []
         for bs in (32, 128, 256):
@@ -3810,10 +3858,20 @@ def prepare(weights):
                 rows.append(_diag_report(state, bs))
             except Exception as exc:
                 print(f"DIAG bs={bs} failed: {type(exc).__name__}: {exc}")
+        table = []
         try:
-            _diag_costs(rows)
+            table = _diag_costs(rows)
         except Exception as exc:
             print(f"DIAG costs failed: {type(exc).__name__}: {exc}")
+        if table:
+            state["fit_cost"] = table
+            for i, m in enumerate(MAIN_MODES):
+                v = VARIANT_FIT0 + i
+                if m in FIT_MODES and VARIANT_MAIN0 + i not in state["main_bad"]:
+                    if _self_test(state, weights, (32, 33, 128, 257), _vname(v), v):
+                        state["fit_ok"].append(v)
+    t3 = time.time()
+    state["policy"] = _bench(state, main_ok)
     t4 = time.time()
     # The chosen variants once more at every test size, on the policy as kernel_fn runs it.
     ok = _self_test(state, weights, (1, 4, 8, 16, 32, 33, 128, 257), "policy") and ok
