@@ -85,7 +85,9 @@ SK_GEOM = {
     "qkv16": (1, 16, 3, 1, 4, 2, 5),
     "qkv32": (2, 32, 3, 1, 4, 2, 4),
     "o8": (1, 8, 4, 1, 4, 1, 4),
-    "o16": (1, 16, 2, 2, 1, 4, 3),
+    # Four consumer warps (K split 2 ways) instead of two: K = 1024 is only four stages, and
+    # -0.22 / -0.43 / -0.38 / -0.35 us paired (benches 01703396ea1a409e, 3678bfd3ef1c4ce6).
+    "o16": (1, 16, 2, 2, 2, 2, 3),
     "o32": (2, 32, 2, 2, 2, 2, 3),
     "pool8": (1, 8, 1, 2, 2, 4, 3),
     "pool16": (1, 16, 2, 2, 2, 4, 4),
@@ -96,7 +98,9 @@ SK_GEOM = {
     "pool32": (2, 32, 2, 2, 2, 4, 4),
     "slice8": (1, 8, 1, 1, 8, 2, 4),
     "unp16": (1, 16, 2, 2, 2, 2, 3),
-    "unp32": (2, 32, 4, 2, 2, 2, 3),
+    # 32 rows per CTA, 256 CTAs at 2 per SM (98 KB) instead of 64 rows at 1: -0.54 / -0.16 /
+    # -0.32 / -0.27 us paired (benches 01703396ea1a409e, 3678bfd3ef1c4ce6).
+    "unp32": (2, 32, 2, 2, 2, 2, 3),
 }
 ROUTER_GEOM = {
     "router8": (1, 8, 1, 1, 8, 1, 6),

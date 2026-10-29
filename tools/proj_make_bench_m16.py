@@ -89,15 +89,21 @@ EXTRA_USE2 = {
 
 def _geo_patch(geoms, use):
     return (
-        ("    \"unp32\": (2, 32, 4, 2, 2, 2, 3),\n}\n",
-         "    \"unp32\": (2, 32, 4, 2, 2, 2, 3),\n"
-         + "".join(f"    {nm!r}: {g!r},\n".replace("'", "\"") for nm, g in geoms.items()) + "}\n"),
+        ("}\nROUTER_GEOM = {\n",
+         "".join(f"    {nm!r}: {g!r},\n".replace("'", "\"") for nm, g in geoms.items())
+         + "}\nROUTER_GEOM = {\n"),
         ("SK_EXTRA = {}\n", f"SK_EXTRA = {use!r}\n"),
     )
 
 
 GEO = _geo_patch(EXTRA_GEOM, EXTRA_USE)
-VARIANTS = {"geo": (GEO, EXTRA_USE), "geo2": (_geo_patch(EXTRA_GEOM2, EXTRA_USE2), EXTRA_USE2)}
+# The pre-change o16 and unp32 geometries (main f61d8d9), as the paired control of the change.
+OLD = (
+    ("    \"o16\": (1, 16, 2, 2, 2, 2, 3),\n", "    \"o16\": (1, 16, 2, 2, 1, 4, 3),\n"),
+    ("    \"unp32\": (2, 32, 2, 2, 2, 2, 3),\n", "    \"unp32\": (2, 32, 4, 2, 2, 2, 3),\n"),
+)
+VARIANTS = {"geo": (GEO, EXTRA_USE), "geo2": (_geo_patch(EXTRA_GEOM2, EXTRA_USE2), EXTRA_USE2),
+            "old": (OLD, {})}
 
 AB = r'''
 
