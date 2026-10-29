@@ -88,12 +88,14 @@ SK_GEOM = {
     "slice8": (1, 8, 1, 1, 8, 2, 4),
     "unp16": (1, 16, 2, 2, 2, 2, 3),
     "unp32": (2, 32, 4, 2, 2, 2, 3),
-    # An optional eighth field CL splits K across a cluster of CL CTAs that share one row block
-    # (DSMEM reduction into rank 0). At 32 tokens each CTA then streams 1/CL of x for twice the
-    # rows: the per-CTA x bytes (512 KB for the pooler, more than its 384 KB of weights) halve.
-    "pool32c": (2, 32, 4, 2, 2, 2, 5, 2),
-    "pool32cw": (2, 32, 4, 2, 4, 1, 5, 2),
-    "unp32c": (2, 32, 8, 2, 2, 1, 4, 2),
+    # Optional fields 8 and 9: CL splits K across a cluster of CL CTAs sharing one row block
+    # (DSMEM reduction into rank 0); NACC accumulator sets. Factor split of pool32's extra cost
+    # over pool16: pool32's ring with MT = 1, pool16's ring with MT = 2, two accumulator sets,
+    # two consumer warps per SM sub-partition.
+    "p32mt1": (1, 16, 2, 2, 2, 2, 5),
+    "p16mt2": (2, 32, 2, 2, 2, 4, 4),
+    "pool32a2": (2, 32, 2, 2, 2, 2, 5, 1, 2),
+    "pool32w8": (2, 32, 2, 2, 4, 1, 5),
 }
 ROUTER_GEOM = {
     "router8": (1, 8, 1, 1, 8, 1, 6),
@@ -111,13 +113,12 @@ SK_USE = {
     ("router", 8): "router8", ("router", 16): "router16", ("router", 32): "router32",
 }
 # tools/make_bench.py adds alternative geometries here; prepare() times them beside the picks.
-SK_EXTRA = {("pooler", 32): ["pool32c", "pool32cw"], ("unpooler", 32): ["unp32c"]}
+SK_EXTRA = {("pooler", 16): ["p32mt1"], ("pooler", 32): ["p16mt2", "pool32a2", "pool32w8"]}
 # Diagnostic timings printed by prepare(): (layer, ((config, bucket, token counts), ...)).
 SK_SWEEP = (
-    ("pooler", (("pool32", 32, (1, 8, 16, 24, 32)), ("pool32raw", 32, (16, 32)), ("pool16", 16, (16,)),
-                ("pool32c", 32, (16, 32)), ("pool32craw", 32, (16, 32)), ("pool32cw", 32, (32,)))),
-    ("unpooler", (("unp32", 32, (16, 32)), ("unp16", 16, (16,)), ("unp32c", 32, (16, 32)))),
-    ("qkv_gate", (("qkv32", 32, (1, 16, 32)), ("qkv32raw", 32, (16, 32)), ("qkv16", 16, (16,)))),
+    ("pooler", (("pool32", 32, (16, 32)), ("pool16", 16, (16,)), ("p32mt1", 16, (16,)), ("pool32raw", 32, (16, 32)),
+                ("pool16raw", 16, (16,)), ("p32mt1raw", 16, (16,)), ("p16mt2", 32, (16, 32)),
+                ("pool32a2", 32, (32,)), ("pool32w8", 32, (32,)))),
 )
 SMEM_BUDGET = 227 * 1024
 SMEM_PER_SM = 228 * 1024
@@ -129,10 +130,11 @@ def _sk_configs():
     for name, geom in SK_GEOM.items():
         mt, tokr, nt, nwr, wsk, upw, nstage = geom[:7]
         cl = geom[7] if len(geom) > 7 else 1
+        nacc = geom[8] if len(geom) > 8 else 1
         for comp in (True, False):
             cname = name if comp else name + "raw"
             cfgs.append((cname, mt, tokr, nt, nwr, wsk, upw,
-                         _fit_stages(mt, tokr, nt, nwr, wsk, upw, nstage, comp, False, cl), comp, False, 1, cl,
+                         _fit_stages(mt, tokr, nt, nwr, wsk, upw, nstage, comp, False, cl), comp, False, nacc, cl,
                          "bf16", False))
     for name, (mt, tokr, nt, nwr, wsk, upw, nstage) in ROUTER_GEOM.items():
         cfgs.append((name, mt, tokr, nt, nwr, wsk, upw,
