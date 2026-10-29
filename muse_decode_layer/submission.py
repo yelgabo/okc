@@ -10546,6 +10546,7 @@ void skf_fwd(int64_t cfg, at::Tensor ws, at::Tensor rws, at::Tensor x, at::Tenso
     switch (cfg) {
     case 24: launch_sk<1, 8, 1, 2, 2, 4, 3, true, false, 1, 1, __nv_bfloat16, true>(ws, x, out, ptab, (int)pmax, (uint32_t)base4, M, (int)n, (int)k, dg, rw, rpart.data_ptr<float>(), rcount.data_ptr<int>(), rout.data_ptr<float>()); break;
     case 25: launch_sk<1, 16, 2, 2, 2, 4, 4, true, false, 1, 1, __nv_bfloat16, true>(ws, x, out, ptab, (int)pmax, (uint32_t)base4, M, (int)n, (int)k, dg, rw, rpart.data_ptr<float>(), rcount.data_ptr<int>(), rout.data_ptr<float>()); break;
+    case 26: launch_sk<2, 32, 2, 2, 2, 4, 3, true, false, 1, 1, __nv_bfloat16, true>(ws, x, out, ptab, (int)pmax, (uint32_t)base4, M, (int)n, (int)k, dg, rw, rpart.data_ptr<float>(), rcount.data_ptr<int>(), rout.data_ptr<float>()); break;
     default:
         TORCH_CHECK(false, "skf: unknown config ", cfg);
     }
@@ -10898,6 +10899,7 @@ _SKP_CONFIGS = (
     ('unp32raw', 2, 32, 4, 2, 2, 2, 3, False, False, 1, 1, 'bf16', False),
     ('pool8f', 1, 8, 1, 2, 2, 4, 3, True, False, 1, 1, 'bf16', True),
     ('pool16f', 1, 16, 2, 2, 2, 4, 4, True, False, 1, 1, 'bf16', True),
+    ('pool32f', 2, 32, 2, 2, 2, 4, 3, True, False, 1, 1, 'bf16', True),
 )
 SK_CONFIGS = list(_SKP_CONFIGS)
 SK_INDEX = {c[0]: i for i, c in enumerate(SK_CONFIGS)}
@@ -10924,7 +10926,7 @@ SK_USE = {
 }
 
 
-FUSED_GEOM = ("pool8", "pool16")
+FUSED_GEOM = ("pool8", "pool16", "pool32")
 
 
 _LAYER_THREADS = {(2304, 8192): 256, (8192, 1024): 64, (4096, 8192): 512, (1024, 4096): 128}
@@ -12050,7 +12052,7 @@ def _skp_self_test(state, cands):
 
 
 def _skp_fused(state, packed_pooler):
-    """The fused pooler + router entry per token bucket (8 and 16): run(x) -> (pooler out
+    """The fused pooler + router entry per token bucket (8, 16 and 32): run(x) -> (pooler out
     bf16 [M, 4096], router logits fp32 [M, 256]) from the pooler's 12-bit stream and the
     router's hi/lo stream in one launch, self-tested against FP64 here (pooler within 5e-3
     with bitwise probe rows, router within 2e-5)."""
@@ -12065,9 +12067,9 @@ def _skp_fused(state, packed_pooler):
     lo = (router - hi.float()).to(torch.bfloat16)
     units = hilo_units(bf16_bits(hi), bf16_bits(lo))
     fused = {}
-    for b, nm in ((8, "pool8"), (16, "pool16")):
-        # Scratch per config: the piece counter resets itself per launch, so the two configs
-        # may alternate.
+    for b, nm in ((8, "pool8"), (16, "pool16"), (32, "pool32")):
+        # Scratch per config: the piece counter resets itself per launch, so the configs may
+        # alternate. [8, 16, 256] holds 4 pieces x 32 tokens, pool32f's 128 CTAs at M = 32.
         rpart = torch.zeros((8, 16, 256), dtype=torch.float32, device=dev)
         rcount = torch.zeros(32, dtype=torch.int32, device=dev)
         g = _sk_geom(nm)
@@ -12085,7 +12087,7 @@ def _skp_fused(state, packed_pooler):
                         pooler.shape[1], rpart, rcount, diag)
             return out, rout
         try:
-            for m in ((1, 3, 8) if b == 8 else (9, 16)):
+            for m in {8: (1, 3, 8), 16: (9, 16), 32: (17, 32)}[b]:
                 diag.zero_()
                 x, probes = _skp_gen_x(m, pooler.shape[1], gen, dev)
                 out, rout = run(x)
@@ -13520,7 +13522,7 @@ def _front_variants(tokens, state):
     our hi/lo mma router (up to 32 tokens), "concat" one cuBLAS GEMM for the pooler and both
     router halves with FP32 output (needs our norm, which rounds the pooled columns on load).
     "skf" is muse_bf16_proj's fused pooler + router launch (12-bit pooler, hi/lo router on the
-    BF16 FFN input) up to 16 tokens."""
+    BF16 FFN input) up to 32 tokens."""
     if tokens <= ROUTER_FP32_MAX_TOKENS:
         out = ["fp32"]
     else:
