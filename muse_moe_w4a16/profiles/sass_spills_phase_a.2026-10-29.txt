@@ -1,0 +1,14 @@
+# Spill accesses (STL/LDL) of the fat kernel by enclosing loop: stage loops (under 600
+# instructions, 16 HGMMA or 16/32 HMMA), per-unit loops (the next level), elsewhere. cuobjdump
+# SASS of tools/moe_compile_fused.sh (local nvcc 12.8, sm_90a) on muse_moe_w4a16/submission.py
+# at d6cccf0 (modes 28, 37, 39) and 1d962e6 (32, 35); the counter is spillsum.py in the session
+# scratchpad.
+mode 28: spill accesses in stage loops 7, per-unit loops 114, elsewhere 53
+mode 37: spill accesses in stage loops 9, per-unit loops 90, elsewhere 44
+mode 39: spill accesses in stage loops 9, per-unit loops 105, elsewhere 50
+mode 32: spill accesses in stage loops 10, per-unit loops 112, elsewhere 55
+mode 35: spill accesses in stage loops 13, per-unit loops 46, elsewhere 37
+# ptxas (frame, spill stores / loads): 28 80 B 184/512; 37 56 B 156/416; 39 64 B 192/464;
+# 32 80 B 192/516; 35 48 B 104/280. All at 96 registers, wgmma pipelining intact (96 wait1,
+# 12 wait0 per kernel instance). 28's spilled values in phase A: the owned unit count and the x
+# ring base, reloaded once per unit; in phase B, the per-tile sum-of-squares pointers.

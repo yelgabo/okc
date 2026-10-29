@@ -1,29 +1,41 @@
 """Write a same-process A/B bench of the fused MoE kernel against the public entry's MoE file.
 
-    python3 tools/moe_make_bench_ab.py OUT.py PUBLIC.py [--seeds=1,2,...] [--pairs=A-B,...]
-        [ARM=MODE ...]
+    python3 tools/moe_make_bench_ab.py OUT.py PUBLIC.py [--base=28] [--seeds=1,2,...]
+        [--sizes=32,128,256] [--routings=layer,std] [--pairs=A-B,...] [ARM=MODE ...]
 
-OUT.py is muse_moe_w4a16/submission.py with MAIN_MODES = (0, 23, 25) plus the extra modes
-named as ARM=MODE (timed beside mode 23), the gate and the stamped diagnostics off, and a
-block that runs at import, before the judge's prepare(), on random NVFP4 weights (32 experts):
+OUT.py is muse_moe_w4a16/submission.py with MAIN_MODES = (0, base, the arms, their stamped
+twins), the gate and the stamped diagnostics off, and a block that runs at import, before the
+judge's prepare(), on random NVFP4 weights (32 experts):
 
   ABROUTE  busiest local expert per seed for each routing: "std" is reference.py's
            generate_input (the standalone board), "layer" a port of the layer's judge routing
            (reference.py of muse_decode_layer: residual stream, boundary, sigmoid router with
            bias, busiest 32-expert range), with the router seed picked from 1-40 whose busiest
            expert matches the layer's SUMMARY lines (21 / 53 / 107 at 32 / 128 / 256 tokens).
-  ABCHECK  per size and routing: mode 23 and the public kernel against the FP32 reference.
-  ABTIME   per size, routing and seed: graph replay after a 256 MB L2 flush, median of 20,
-           arms interleaved and reversed on every other seed; then means and paired deltas.
-  ABSTAMP  per size and routing, mean over the six seeds of one cold launch each: thread 0's
-           globaltimer at the phase boundaries of mode 25 (23 with light stamps) and of the
+  ABCHECK  per size and routing: the base mode and the public kernel against the FP32
+           reference, every arm against the base.
+  ABTIME   per size and routing: graph replay after a 256 MB L2 flush, median of 20, arms
+           interleaved and reversed on every other seed; the mean per arm.
+  ABPAIR   per-seed paired deltas of every arm against the base, the public kernel against
+           the base, and the --pairs.
+  ABSTAMP  per size and routing, mean over the seeds of one cold launch each: thread 0's
+           globaltimer at the phase boundaries of the stamped twins (light stamps) and of the
            public kernel built with its own OKC_DEBUG stamps (DBG(3) moved to the CTA-wide
            point before the grid barrier).
+  ABDIAG   for the phase A counter twins (31, 33, 38, 40 of 28, 32, 36, 39): per-CTA time
+           (consumers start to phase A end) as mean / p10 / p50 / p90 / max, owned units, MB
+           streamed (36,864 B of weights per stage plus 4,096 B of x per n-tile per stage) and
+           the rank correlation of time with MB across CTAs; per consumer warp, us in weights
+           waits and x waits that missed their first try, the rest of the units (compute and
+           ring bookkeeping), the epilogue (per unit too) and the deferred publish; the
+           producers' phase A waits for a free slot.
+  ABPUB    the public kernel's per-CTA phase A time, its stream-K stage ranges (patched to land
+           in DBG slot 7) and the number of cut units per CTA.
 
---pairs adds per-seed paired deltas between two arms (for example o28-o26). Mode 26 also
-builds 27 and mode 28 also builds 29 (their stamped twins, in ABSTAMP). The judge's prepare()
-that follows runs with its output filtered to its summary lines (POLICY, PREPARE, BENCH at 128
-and 256 tokens, each variant's worst self-test error), so the run log's tail keeps the A/B.
+The judge's prepare() that follows runs with its output filtered to its summary lines (POLICY,
+PREPARE, BENCH at 128 and 256 tokens, each variant's worst self-test error), so the run log's
+15 KB tail keeps the A/B. Twins: 26 -> 27 (light stamps), 28 -> 31, 32 -> 33, 36 -> 38, 39 -> 40 (light
+stamps and phase A counters, also timed so their cost shows).
 
 The public file is embedded as a string; OUT.py belongs in the session scratchpad, never in
 the repository (only the logs of its runs are committed).
@@ -34,10 +46,12 @@ import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
+LIGHT_TWINS = {26: 27}
+PA_TWINS = {28: 31, 32: 33, 36: 38, 39: 40}
 
 
-def patch_public(src):
-    for name in ("TINY_DEFINES", "TINY2_DEFINES", "MID_DEFINES"):
+def patch_public(src, small=False, ranges=False):
+    for name in () if small else ("TINY_DEFINES", "TINY2_DEFINES", "MID_DEFINES"):
         src, n = re.subn(rf"^{name} = \(.*?\)\n(?=\S)", f"{name} = ()\n", src, count=1,
                          flags=re.S | re.M)
         assert n == 1, name
@@ -48,6 +62,15 @@ def patch_public(src):
         ("  CTA_SYNC();\n  if (tid == 0) {\n    int* bc = p.ctr + 4 + (S.gen & 1);",
          "  CTA_SYNC();\n  DBG(3);\n  if (tid == 0) {\n    int* bc = p.ctr + 4 + (S.gen & 1);"),
     ]
+    # The stream-K stage ranges of both phases, 16 bits each, over DBG(7)'s stamp. Timing is
+    # not usable with it: the DEBUG MAIN build then spills 392 / 896 B (none without it) and
+    # ran 30 us over its replay in checks c7db20e053254b52, 0b684d5db0834dbc, 473d87d03de94e96.
+    pairs += [] if not ranges else [
+        ("  WS_JOIN();\n  DBG(6);\n",
+         "  WS_JOIN();\n  DBG(6);\n  if (OKC_DEBUG && threadIdx.x == 0 && p.dbg) {\n"
+         "    p.dbg[blockIdx.x * 8 + 7] = (long long)S.wgr[0] | ((long long)S.wgr[1] << 16)\n"
+         "        | ((long long)S.wgr[2] << 32) | ((long long)S.wgr[3] << 48);\n  }\n"),
+    ]
     for a, b in pairs:
         assert src.count(a) == 1, a[:60]
         src = src.replace(a, b)
@@ -57,9 +80,16 @@ def patch_public(src):
 AB = r'''
 
 # Generated by tools/moe_make_bench_ab.py: the same-process A/B against the public MoE file.
-_AB_PUB_SRC = {pub_src!r}
-_AB_ARMS = {arms!r}
-_AB_PAIRS = {pairs!r}
+_AB_PUB_SRC = @PUB_SRC@
+_AB_BASE = @BASE@
+_AB_ARMS = @ARMS@
+_AB_PAIRS = @PAIRS@
+_AB_SEEDS = @SEEDS@
+_AB_SIZES = @SIZES@
+_AB_ROUTINGS = @ROUTINGS@
+_AB_LIGHT = @LIGHT@
+_AB_PA = @PA@
+_AB_SMALL = @SMALL@
 
 
 def _ab_main():
@@ -75,7 +105,7 @@ def _ab_main():
         e = torch.randint(-3, 4, (32, n, k // 16), generator=g, device=dev).float()
         return torch.exp2(e).to(torch.float8_e4m3fn)
 
-    weights = {{
+    weights = {
         "w13": torch.randint(0, 256, (32, 8192, 2048), generator=g, device=dev,
                              dtype=torch.uint8),
         "w13_sf": sf(8192, 4096),
@@ -86,23 +116,41 @@ def _ab_main():
         "w2_gs": torch.full((N_EXPERTS,), 1e-3, device=dev),
         "post_norm_w": (0.1 * torch.randn((HIDDEN,), generator=g, device=dev)).to(
             torch.bfloat16),
-    }}
+    }
     torch.cuda.empty_cache()
-    state = {{"w": _repack(weights, 0, MAX_LOCAL),
+    state = {"w": _repack(weights, 0, MAX_LOCAL),
              "nw": (weights["post_norm_w"].float() + 1.0).contiguous(),
-             "scratch": _scratch(dev), "main_ok": True, "policy": {{}}, "main_bad": set()}}
+             "scratch": _scratch(dev), "main_ok": True, "policy": {}, "main_bad": set()}
     _ext()
-    print(f"ABBUILD ours {{time.time() - t_start:.0f}} s", flush=True)
+    print(f"ABBUILD ours {time.time() - t_start:.0f} s", flush=True)
     pub = types.ModuleType("okc_ab_public")
     exec(compile(_AB_PUB_SRC, "public_moe.py", "exec"), pub.__dict__)
     pstate = pub.prepare(weights)
     dbg_defs = tuple(pub._main_defines(pstate["sfx"])) + pstate["sfx"] + ("-DOKC_DEBUG=1",)
     pdbg = pub._ext(dbg_defs)
-    print(f"ABBUILD pub {{time.time() - t_start:.0f}} s", flush=True)
+
+    def pub_defs(m):
+        # kernel_fn's build choice by token count, with the debug stamps.
+        sfx = pstate["sfx"]
+        if pub.TINY_DEFINES and m <= pub.TINY_MAX_M:
+            d = tuple(pub.TINY_DEFINES)
+        elif pub.TINY2_DEFINES and m <= pub.TINY2_MAX_M:
+            d = tuple(pub.TINY2_DEFINES)
+        elif pub.MID_DEFINES and m <= pub.MID_MAX_M:
+            d = tuple(pub.MID_DEFINES)
+        else:
+            return dbg_defs
+        return d + sfx + ("-DOKC_DEBUG=1",)
+
+    pdbgs = {t: pub._ext(pub_defs(t)) for t in _AB_SIZES} if _AB_SMALL else {}
+    print(f"ABBUILD pub {time.time() - t_start:.0f} s", flush=True)
     G = torch.cuda.get_device_properties(0).multi_processor_count
     flush = torch.empty(256 << 20, dtype=torch.uint8, device=dev)
-    v23 = VARIANT_MAIN0 + MAIN_MODES.index(23)
-    v25 = VARIANT_MAIN0 + MAIN_MODES.index(25)
+    def vmode(m):
+        # An int is a fat mode, "vN" a variant index (the skinny variants).
+        return int(m[1:]) if isinstance(m, str) else VARIANT_MAIN0 + MAIN_MODES.index(m)
+
+    base = f"o{_AB_BASE}"
 
     # The layer's judge routing (muse_decode_layer/reference.py), its constants restated.
     H8 = 8192
@@ -154,134 +202,241 @@ def _ab_main():
         loc = ids.long().flatten()
         return int(torch.bincount(loc[loc < 32], minlength=32).max())
 
-    sizes = ((32, 1), (128, 8), (256, 8))
-    target = {{32: 21.0, 128: 53.0, 256: 107.0}}
-    seeds = {seeds!r}
-    hs = {{(t, s): layer_h(t, q, 1000 * t + s) for t, q in sizes for s in seeds}}
+    # The router seed is picked on all three sizes and seeds 1-6, as in the earlier checks, so
+    # the layer routing stays the same whatever --sizes and --seeds say.
+    sizes_all = ((32, 1), (128, 8), (256, 8))
+    # The layer's loads: decode 1 and 16 (q_len 1), verify 1 (8 tokens, q_len 8).
+    qlen = {**dict(sizes_all), 1: 1, 8: 8, 16: 1}
+    target = {32: 21.0, 128: 53.0, 256: 107.0}
+    pick_seeds = (1, 2, 3, 4, 5, 6)
+    hs = {}
+
+    def hget(t, s):
+        if (t, s) not in hs:
+            hs[t, s] = layer_h(t, qlen[t], 1000 * t + s)
+        return hs[t, s]
+
     best = None
     for rs in range(1, 41):
         rt = router(rs)
         err = 0.0
-        for t, _ in sizes:
-            b = sum(busiest(route(hs[t, s][0], rt)[0]) for s in seeds) / len(seeds)
+        for t, _ in sizes_all:
+            b = sum(busiest(route(hget(t, s)[0], rt)[0]) for s in pick_seeds) / len(pick_seeds)
             err += abs(b / target[t] - 1)
         if best is None or err < best[0]:
             best = (err, rs)
     rt = router(best[1])
-    print(f"ABROUTE layer router seed {{best[1]}} (mean relative miss {{best[0] / 3:.3f}})")
+    print(f"ABROUTE layer router seed {best[1]} (mean relative miss {best[0] / 3:.3f})")
 
     def inputs(t, routing, s):
         if routing == "std":
             return _make_inputs(t, 977 * s + t)
-        h, x = hs[t, s]
+        if routing == "skewed":
+            return _make_inputs(t, 977 * s + t, "skewed")
+        h, x = hget(t, s)
         ids, tw = route(h, rt)
-        return {{"hidden_states": x, "topk_ids": ids, "topk_weights": tw,
-                 "config": {{"bs": t, "d_hidden": HIDDEN, "d_expert": HIDDEN,
-                            "n_experts": N_EXPERTS, "local_start": 0, "local_count": 32,
-                            "top_k": TOP_K, "sharding": "ep8"}}}}
+        return {"hidden_states": x, "topk_ids": ids, "topk_weights": tw,
+                "config": {"bs": t, "d_hidden": HIDDEN, "d_expert": HIDDEN,
+                           "n_experts": N_EXPERTS, "local_start": 0, "local_count": 32,
+                           "top_k": TOP_K, "sharding": "ep8"}}
 
     def pub_stamped(data):
         dbg = torch.zeros(G * 8, dtype=torch.int64, device=dev)
         x = data["hidden_states"]
         out = torch.empty((x.shape[0], HIDDEN), dtype=torch.bfloat16, device=dev)
+        ext = pdbgs.get(x.shape[0], pdbg)
         for k in range(2):
             if k:
                 flush.zero_()
                 torch.cuda.synchronize()
-            pdbg.okc_run(pstate["w"], pstate["scratch"] + [dbg], x, data["topk_ids"],
+            ext.okc_run(pstate["w"], pstate["scratch"] + [dbg], x, data["topk_ids"],
                          data["topk_weights"], out, 0, 32, G)
         torch.cuda.synchronize()
-        d = dbg.view(G, 8).double().cpu()
-        return d[:, [0, 1, 6, 2, 3, 4, 5]]
+        raw = dbg.view(G, 8).cpu()
+        return raw[:, [0, 1, 6, 2, 3, 4, 5]].double(), raw[:, 7].clone()
 
-    def ours_stamped(data, v):
+    def ours_stamped(data, v, width):
         _run(data, state, v)
         flush.zero_()
         torch.cuda.synchronize()
         _run(data, state, v)
         torch.cuda.synchronize()
         inter = state["scratch"]["inter"]
-        d = inter.reshape(-1).view(torch.int64)[: G * 16].view(G, 16).double().cpu()
-        return torch.cat([d[:, :7], d[:, 8:14]], 1)
+        d = inter.reshape(-1).view(torch.int64)[: G * width].view(G, width).double().cpu()
+        if width == 16:
+            light = d
+            full = None
+        else:
+            full = d.view(G, 18, 8)
+            light = full[:, 16:18, :].reshape(G, 16)
+        return torch.cat([light[:, :7], light[:, 8:14]], 1), full
 
     def summarize(d):
         t0 = float(d[:, 0].min())
         r = (d - t0) / 1e3
-        c4 = r[:, 4]
-        row = [float((r[:, 1] - r[:, 0]).mean()), float(r[:, 2].mean()), float(r[:, 2].max()),
-               float(r[:, 3].mean()), float(r[:, 3].max()), float(c4.mean()), float(c4.max()),
-               float(c4.max() - c4.mean()), float(r[:, 5].max()),
-               float((r[:, 6] - r[:, 5]).mean()), float(r[:, 6].max())]
-        if d.shape[1] > 7:
-            # ids loaded, routing warp (counts, jobs, order), positions, stage ranges
-            row += [float((r[:, 7] - r[:, 0]).mean()), float((r[:, 8] - r[:, 7]).mean()),
-                    float((r[:, 9] - r[:, 8]).mean()), float((r[:, 1] - r[:, 9]).mean()),
-                    float((r[:, 10] - r[:, 7]).mean()), float((r[:, 11] - r[:, 10]).mean()),
-                    float((r[:, 12] - r[:, 11]).mean())]
-        return row
+        return [float((r[:, 1] - r[:, 0]).mean()), float(r[:, 2].mean()),
+                float((r[:, 3] - r[:, 2]).mean()), float(r[:, 3].max()),
+                float((r[:, 4] - r[:, 3]).mean()), float(r[:, 4].max() - r[:, 4].mean()),
+                float((r[:, 6] - r[:, 4]).mean()), float(r[:, 6].max())]
 
-    cols = ("route", "consumers start mean", "max", "phase A done (t0) mean", "max",
-            "consumers done mean", "max", "tail", "barrier done", "final", "end",
-            "ids", "route warp", "positions", "ranges", "rw counts+offsets", "rw jobs",
-            "rw order")
-    stamped = {{"o25": v25}}
-    for m in (27, 29):
-        if m in MAIN_MODES:
-            stamped[f"o{{m}}"] = VARIANT_MAIN0 + MAIN_MODES.index(m)
-    for t, q in sizes:
-        for routing in ("std", "layer"):
-            tag = f"T={{t}} {{routing}}"
-            b = [busiest(inputs(t, routing, s)["topk_ids"]) for s in seeds]
-            print(f"ABROUTE {{tag}} busiest local expert routes {{b}}", flush=True)
-            data = inputs(t, routing, seeds[0])
+    cols = ("route", "start", "phase A", "A done max", "phase B", "tail", "barrier+final",
+            "end")
+
+    def spearman(a, b):
+        ra = a.argsort().argsort().double()
+        rb = b.argsort().argsort().double()
+        ra = ra - ra.mean()
+        rb = rb - rb.mean()
+        den = float((ra.pow(2).sum() * rb.pow(2).sum()).sqrt())
+        return float((ra * rb).sum()) / den if den > 0 else 0.0
+
+    def dist(x):
+        q = torch.quantile(x, torch.tensor([0.1, 0.5, 0.9], dtype=x.dtype))
+        return [float(x.mean()), float(q[0]), float(q[1]), float(q[2]), float(x.max())]
+
+    def pa_summary(light, full):
+        pa = (light[:, 3] - light[:, 2]) / 1e3
+        ghz = float((full[:, 17, 7] / (light[:, 3] - light[:, 2])).mean())
+        us = lambda c: c / ghz / 1e3
+        w = full[:, :16, :]
+        units = w[:, 0, 5]
+        mb = (36864 * w[:, 0, 4] + 65536 * w[:, 0, 6]) / 1e6
+        ww = float(us(w[:, :, 0]).mean())
+        xw = float(us(w[:, :, 1]).mean())
+        seg = float(us(w[:, :, 2]).mean())
+        epi = float(us(w[:, :, 3]).mean())
+        pubc = float(us(w[:, :, 7]).mean())
+        return (dist(pa) + [float(units.min()), float(units.mean()), float(units.max()),
+                            float(mb.mean()), float(mb.max()), spearman(pa, mb),
+                            ww, xw, seg - ww - xw, epi, epi / max(float(units.mean()), 1.0),
+                            pubc, float(us(full[:, 16, 7]).mean()),
+                            float(us(full[:, 17, 6]).mean()), ghz])
+
+    pa_cols = ("phase A mean", "p10", "p50", "p90", "max", "units min", "mean", "max",
+               "MB mean", "max", "rho(time, MB)", "warp: w-wait", "x-wait", "compute",
+               "epilogue", "per unit", "publish", "wproducer wait", "xproducer wait", "GHz")
+
+    def pub_summary(d, rng):
+        pa = (d[:, 3] - d[:, 2]) / 1e3
+        a0 = (rng & 0xffff).double()
+        a1 = ((rng >> 16) & 0xffff).double()
+        st = a1 - a0
+        cuts = ((a0.long() % 16) != 0).double() + ((a1.long() % 16) != 0).double()
+        return dist(pa) + [float(st.min()), float(st.mean()), float(st.max()),
+                           float(cuts.mean()), spearman(pa, st)]
+
+    pub_cols = ("phase A mean", "p10", "p50", "p90", "max", "stages min", "mean", "max",
+                "cut units per CTA", "rho(time, stages)")
+
+    def sk_summary(d):
+        # Our skinny stamps (kMode 2): see the kernel; cycles to us by the CTA's own clock.
+        r = (d[:, :8] - float(d[:, 0].min())) / 1e3
+        ghz = (d[:, 13] - d[:, 12]) / (d[:, 7] - d[:, 0])
+        us = lambda c: float((c / ghz / 1e3).mean())
+        seg = [r[:, 1] - r[:, 0], r[:, 2] - r[:, 1], r[:, 3] - r[:, 2], r[:, 4] - r[:, 3],
+               r[:, 5] - r[:, 4], r[:, 6] - r[:, 5], r[:, 7] - r[:, 6]]
+        return ([float(x.mean()) for x in seg] + [float(r[:, 3].max()), float(r[:, 5].max()),
+                float(r[:, 7].max())] + [us(d[:, 8]), us(d[:, 9]), us(d[:, 10]), us(d[:, 11])])
+
+    sk_cols = ("route", "positions", "phase A", "A->B wait", "phase B", "barrier", "final",
+               "A done max", "B done max", "end", "t0 weights wait A", "B", "helper idle",
+               "credits")
+
+    def pubsk_summary(d):
+        # Public small builds: DBG 0 start, 1 routed, 2 phase A done, 3 before the barrier,
+        # 4 after it, 5 end (columns 0, 1, 3, 4, 5, 6 of pub_stamped's order).
+        r = (d - float(d[:, 0].min())) / 1e3
+        seg = [r[:, 1] - r[:, 0], r[:, 3] - r[:, 1], r[:, 4] - r[:, 3], r[:, 5] - r[:, 4],
+               r[:, 6] - r[:, 5]]
+        return [float(x.mean()) for x in seg] + [float(r[:, 3].max()), float(r[:, 4].max()),
+                                                 float(r[:, 6].max())]
+
+    pubsk_cols = ("route", "phase A", "phase B", "barrier", "final", "A done max",
+                  "B done max", "end")
+
+    timed = {base: vmode(_AB_BASE)}
+    for name, m in _AB_ARMS.items():
+        timed[name] = vmode(m)
+    light = {n: vmode(m) for n, m in _AB_LIGHT.items()}
+    padiag = {n: vmode(m) for n, m in _AB_PA.items()}
+    for t in _AB_SIZES:
+        for routing in _AB_ROUTINGS:
+            tag = f"T={t} {routing}"
+            b = [busiest(inputs(t, routing, s)["topk_ids"]) for s in _AB_SEEDS]
+            print(f"ABROUTE {tag} busiest local expert routes {b}", flush=True)
+            data = inputs(t, routing, _AB_SEEDS[0])
             ref = _ref_forward(data, weights)
-            o23 = _run(data, state, v23).float()
+            ob = _run(data, state, timed[base]).float()
             op = pub.kernel_fn(data, pstate).float()
-            print(f"ABCHECK {{tag}} vs fp32: ours23 {{_rel(o23, ref):.2e}} pub {{_rel(op, ref):.2e}}; "
-                  f"ours23 vs pub {{_rel(o23, op):.2e}}", flush=True)
-            for name, m in _AB_ARMS.items():
-                om = _run(data, state, VARIANT_MAIN0 + MAIN_MODES.index(m)).float()
-                print(f"ABCHECK {{tag}} {{name}} vs fp32 {{_rel(om, ref):.2e}}, vs ours23 "
-                      f"{{_rel(om, o23):.2e}}", flush=True)
-            arms = {{"o23": lambda d: _run(d, state, v23), "pub": lambda d: pub.kernel_fn(d, pstate)}}
-            for name, m in _AB_ARMS.items():
-                vv = VARIANT_MAIN0 + MAIN_MODES.index(m)
-                arms[name] = (lambda vv: lambda d: _run(d, state, vv))(vv)
-            if t <= 32:
+            line = (f"ABCHECK {tag} vs fp32 {base} {_rel(ob, ref):.2e} pub {_rel(op, ref):.2e};"
+                    f" vs {base}:")
+            for name, v in {**timed, **padiag}.items():
+                if name != base:
+                    line += f" {name} {_rel(_run(data, state, v).float(), ob):.1e}"
+            print(line, flush=True)
+            arms = {n: (lambda vv: lambda d: _run(d, state, vv))(v) for n, v in timed.items()}
+            arms["pub"] = lambda d: pub.kernel_fn(d, pstate)
+            if t <= 32 and not _AB_SMALL:
                 arms["sk8w4s"] = lambda d: _run(d, state, 0)
-            tim = {{a: [] for a in arms}}
-            stamps = {{a: [] for a in [*stamped, "pub"]}}
-            for si, s in enumerate(seeds):
+            tim = {a: [] for a in arms}
+            stamps = {a: [] for a in [*light, *padiag, "pub"]}
+            diags = {a: [] for a in padiag}
+            pubd = []
+            skst = [i for i, v in enumerate(SKINNY_VARIANTS) if v[2] in (2, 4)]
+            skd = {**{i: [] for i in skst}, "pub": []}
+            for si, s in enumerate(_AB_SEEDS):
                 d = inputs(t, routing, s)
                 order = list(arms.items())
                 if si % 2:
                     order.reverse()
                 for a, fn in order:
                     tim[a].append(_graph_time(lambda: fn(d), flush))
-                for a, v in stamped.items():
-                    stamps[a].append(summarize(ours_stamped(d, v)))
-                stamps["pub"].append(summarize(pub_stamped(d)))
-                print(f"ABTIME {{tag}} seed {{s}} " + " ".join(f"{{a}} {{tim[a][-1]:.1f}}" for a in arms),
-                      flush=True)
-            n = len(seeds)
-            print(f"ABTIME {{tag}} mean " + " ".join(f"{{a}} {{sum(v) / n:.1f}}" for a, v in tim.items()))
-            for a in arms:
-                if a != "o23":
-                    dd = [x - y for x, y in zip(tim[a], tim["o23"])]
-                    print(f"ABTIME {{tag}} {{a}} minus o23 per seed " + " ".join(f"{{x:+.1f}}" for x in dd)
-                          + f" (mean {{sum(dd) / n:+.1f}})")
-            for a, b in _AB_PAIRS:
-                if a in tim and b in tim:
-                    dd = [x - y for x, y in zip(tim[a], tim[b])]
-                    print(f"ABPAIR {{tag}} {{a}} minus {{b}} per seed "
-                          + " ".join(f"{{x:+.1f}}" for x in dd)
-                          + f" (mean {{sum(dd) / n:+.1f}}, {{sum(x < 0 for x in dd)}} of {{n}} lower)")
+                for a, v in light.items():
+                    stamps[a].append(summarize(ours_stamped(d, v, 16)[0]))
+                for a, v in padiag.items():
+                    lt, full = ours_stamped(d, v, 144)
+                    stamps[a].append(summarize(lt))
+                    diags[a].append(pa_summary(lt, full))
+                pd, prng = pub_stamped(d)
+                if _AB_SMALL:
+                    for i in skst:
+                        _run(d, state, i)
+                        flush.zero_()
+                        torch.cuda.synchronize()
+                        _run(d, state, i)
+                        torch.cuda.synchronize()
+                        sd = state["scratch"]["inter"].reshape(-1).view(torch.int64)[: G * 16]
+                        skd[i].append(sk_summary(sd.view(G, 16).double().cpu()))
+                    skd["pub"].append(pubsk_summary(pd))
+                    continue
+                stamps["pub"].append(summarize(pd))
+                pubd.append(pub_summary(pd, prng))
+            n = len(_AB_SEEDS)
+            print(f"ABTIME {tag} mean of {n} " + " ".join(f"{a} {sum(v) / n:.1f}"
+                                                         for a, v in tim.items()))
+            pairs = [(a, base) for a in arms if a != base] + list(_AB_PAIRS)
+            for a, bb in pairs:
+                if a in tim and bb in tim:
+                    dd = [x - y for x, y in zip(tim[a], tim[bb])]
+                    print(f"ABPAIR {tag} {a} minus {bb} " + " ".join(f"{x:+.1f}" for x in dd)
+                          + f" (mean {sum(dd) / n:+.1f}, {sum(x < 0 for x in dd)} of {n} lower)")
+            if _AB_SMALL:
+                for a, rows, cc in ([(_vname(i), skd[i], sk_cols) for i in skst]
+                                    + [("pub", skd["pub"], pubsk_cols)]):
+                    m = [sum(r[i] for r in rows) / n for i in range(len(rows[0]))]
+                    print(f"ABSK {tag} {a} " + ", ".join(f"{c} {v:.1f}" for c, v in zip(cc, m)))
+                continue
             for a, rows in stamps.items():
                 m = [sum(r[i] for r in rows) / n for i in range(len(rows[0]))]
-                print(f"ABSTAMP {{tag}} {{a}} " + ", ".join(f"{{c}} {{v:.1f}}" for c, v in zip(cols, m)))
+                print(f"ABSTAMP {tag} {a} " + ", ".join(f"{c} {v:.1f}" for c, v in zip(cols, m)))
+            for a, rows in diags.items():
+                m = [sum(r[i] for r in rows) / n for i in range(len(rows[0]))]
+                print(f"ABDIAG {tag} {a} " + ", ".join(f"{c} {v:.2f}" for c, v in zip(pa_cols, m)))
+            m = [sum(r[i] for r in pubd) / n for i in range(len(pubd[0]))]
+            print(f"ABPUB {tag} " + ", ".join(f"{c} {v:.2f}" for c, v in zip(pub_cols, m)))
     flags = int(state["scratch"]["ctr"][8].item())
     state["scratch"]["ctr"][8] = 0
-    print(f"ABMOE spin flags {{flags}}; total {{time.time() - t_start:.0f}} s", flush=True)
+    print(f"ABMOE spin flags {flags}; total {time.time() - t_start:.0f} s", flush=True)
     del state, pstate, weights
     torch.cuda.empty_cache()
 
@@ -290,7 +445,7 @@ try:
     _ab_main()
 except Exception as _exc:
     import traceback
-    print(f"ABMOE FAIL {{type(_exc).__name__}}: {{_exc}}", flush=True)
+    print(f"ABMOE FAIL {type(_exc).__name__}: {_exc}", flush=True)
     traceback.print_exc()
 
 _ab_prepare = prepare
@@ -313,23 +468,48 @@ def prepare(weights):
 def main():
     out, pub = sys.argv[1], sys.argv[2]
     rest = sys.argv[3:]
-    seeds = (1, 2, 3, 4, 5, 6)
-    if rest and rest[0].startswith("--seeds="):
-        seeds = tuple(int(x) for x in rest.pop(0).split("=")[1].split(","))
-    pairs = ()
-    if rest and rest[0].startswith("--pairs="):
-        pairs = tuple(tuple(x.split("-")) for x in rest.pop(0).split("=")[1].split(","))
-    arms = dict(a.split("=") for a in rest)
-    arms = {k: int(v) for k, v in arms.items()}
+    opts = {"base": "28", "seeds": "1,2,3,4,5,6", "sizes": "32,128,256", "routings": "layer,std",
+            "pairs": "", "small": "", "pubranges": "", "skextra": ""}
+    arms = {}
+    for a in rest:
+        if a.startswith("--"):
+            k, v = a[2:].split("=", 1)
+            assert k in opts, k
+            opts[k] = v
+        else:
+            k, v = a.split("=")
+            arms[k] = v if v.startswith("v") else int(v)
+    small = bool(opts["small"])
+    base = opts["base"] if opts["base"].startswith("v") else int(opts["base"])
+    ints = lambda s: tuple(int(x) for x in s.split(","))
+    pairs = tuple(tuple(x.split("-")) for x in opts["pairs"].split(",") if x)
+    named = {m for m in (base, *arms.values()) if isinstance(m, int)}
+    light = {f"o{LIGHT_TWINS[m]}": LIGHT_TWINS[m] for m in named if m in LIGHT_TWINS}
+    pa = {f"o{PA_TWINS[m]}": PA_TWINS[m] for m in named if m in PA_TWINS}
+    # A counter twin that is also an arm is timed and stamped; it is not built twice.
+    modes = sorted({0, *named, *light.values(), *pa.values()})
     src = (ROOT / "muse_moe_w4a16" / "submission.py").read_text()
-    twins = {26: 27, 28: 29}
-    modes = sorted({0, 23, 25, *arms.values(), *(twins[m] for m in arms.values() if m in twins)})
+    extra = "".join(f"({x.replace(':', ', ')}), " for x in opts["skextra"].split(",") if x)
+    if small:
+        # The stamped skinny variant (kMode 2) goes last; ABSK runs it.
+        src, n = re.subn(r"^SKINNY_VARIANTS = \(\((.*)\)\)$",
+                         lambda mm: f"SKINNY_VARIANTS = (({mm.group(1)}), {extra}(8, 4, 2))", src,
+                         flags=re.M)
+        assert n == 1
     src, n = re.subn(r"^MAIN_MODES = \(.*?\)$", f"MAIN_MODES = {tuple(modes)}", src, flags=re.M)
     assert n == 1
     src, n = re.subn(r"^GATE_RUNS = \(.*?\)$", "GATE_RUNS = ()", src, flags=re.M)
     assert n == 1
-    pub_src = patch_public(Path(pub).read_text())
-    Path(out).write_text(src + AB.format(pub_src=pub_src, arms=arms, seeds=seeds, pairs=pairs))
+    pub_src = patch_public(Path(pub).read_text(), small, bool(opts["pubranges"]))
+    block = AB
+    for key, val in (("@PUB_SRC@", repr(pub_src)), ("@BASE@", repr(base)),
+                     ("@ARMS@", repr(arms)), ("@PAIRS@", repr(pairs)),
+                     ("@SEEDS@", repr(ints(opts["seeds"]))), ("@SIZES@", repr(ints(opts["sizes"]))),
+                     ("@ROUTINGS@", repr(tuple(opts["routings"].split(",")))),
+                     ("@LIGHT@", repr(light)), ("@PA@", repr(pa)), ("@SMALL@", repr(small))):
+        assert block.count(key) == 1, key
+        block = block.replace(key, val)
+    Path(out).write_text(src + block)
 
 
 if __name__ == "__main__":

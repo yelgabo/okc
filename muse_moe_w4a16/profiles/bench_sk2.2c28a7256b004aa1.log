@@ -1,0 +1,70 @@
+ABBUILD ours 44 s
+ABBUILD pub 376 s
+ABROUTE layer router seed 8 (mean relative miss 0.030)
+ABROUTE T=1 layer busiest local expert routes [1, 1, 1, 1, 1, 1]
+ABCHECK T=1 layer vs fp32 ov0 3.83e-03 pub 2.35e-03; vs ov0: er 0.0e+00 loads 1.5e+00
+ABTIME T=1 layer mean of 6 ov0 35.7 er 36.1 loads 33.2 pub 36.1
+ABPAIR T=1 layer er minus ov0 +0.5 +0.3 +0.5 +0.4 +0.1 +0.7 (mean +0.4, 0 of 6 lower)
+ABPAIR T=1 layer loads minus ov0 -2.3 -2.9 -2.6 -2.0 -3.0 -2.6 (mean -2.6, 6 of 6 lower)
+ABPAIR T=1 layer pub minus ov0 +1.0 -0.1 +0.1 +0.3 +0.2 +0.4 (mean +0.3, 1 of 6 lower)
+ABSK T=1 layer sk8w4s-er-stamps route 0.3, positions 1.7, phase A 18.1, A->B wait 2.2, phase B 7.4, barrier 1.2, final 0.2, A done max 21.4, B done max 30.5, end 32.5, t0 weights wait A 0.0, B 0.0, helper idle 12.7, credits 0.5
+ABSK T=1 layer sk8w4s-stamps route 0.4, positions 1.7, phase A 16.8, A->B wait 2.7, phase B 6.9, barrier 1.3, final 0.1, A done max 19.7, B done max 29.0, end 31.0, t0 weights wait A 0.0, B 0.0, helper idle 12.5, credits 1.3
+ABSK T=1 layer pub route 2.1, phase A 16.8, phase B 10.3, barrier 1.3, final 0.2, A done max 21.2, B done max 29.8, end 31.3
+ABROUTE T=1 std busiest local expert routes [1, 1, 1, 1, 1, 1]
+ABCHECK T=1 std vs fp32 ov0 3.83e-03 pub 2.31e-03; vs ov0: er 1.4e-10 loads 1.5e+00
+ABTIME T=1 std mean of 6 ov0 32.0 er 32.4 loads 29.3 pub 32.2
+ABPAIR T=1 std er minus ov0 +0.2 +0.6 +0.4 +0.5 +0.6 +0.4 (mean +0.4, 0 of 6 lower)
+ABPAIR T=1 std loads minus ov0 -2.7 -2.8 -2.7 -2.8 -2.7 -2.7 (mean -2.7, 6 of 6 lower)
+ABPAIR T=1 std pub minus ov0 +0.7 +0.0 +0.0 +0.2 -0.1 +0.2 (mean +0.2, 1 of 6 lower)
+ABSK T=1 std sk8w4s-er-stamps route 0.3, positions 1.7, phase A 15.7, A->B wait 2.1, phase B 6.1, barrier 1.2, final 0.1, A done max 18.8, B done max 26.6, end 28.4, t0 weights wait A 0.0, B 0.0, helper idle 11.9, credits 0.4
+ABSK T=1 std sk8w4s-stamps route 0.3, positions 1.7, phase A 14.7, A->B wait 2.6, phase B 5.6, barrier 1.2, final 0.2, A done max 17.5, B done max 25.5, end 27.5, t0 weights wait A 0.0, B 0.0, helper idle 11.8, credits 1.3
+ABSK T=1 std pub route 2.1, phase A 14.2, phase B 9.3, barrier 1.2, final 0.2, A done max 18.5, B done max 26.2, end 27.8
+ABROUTE T=8 layer busiest local expert routes [4, 5, 5, 3, 4, 3]
+ABCHECK T=8 layer vs fp32 ov0 3.85e-03 pub 2.33e-03; vs ov0: er 2.7e-10 loads 1.4e+00
+ABTIME T=8 layer mean of 6 ov0 66.9 er 65.9 loads 63.1 pub 62.8
+ABPAIR T=8 layer er minus ov0 -1.2 -1.1 -1.0 -1.2 -1.3 -0.5 (mean -1.0, 6 of 6 lower)
+ABPAIR T=8 layer loads minus ov0 -4.0 -4.8 -2.6 -4.0 -4.1 -3.3 (mean -3.8, 6 of 6 lower)
+ABPAIR T=8 layer pub minus ov0 -3.9 -3.8 -3.6 -4.7 -4.4 -4.3 (mean -4.1, 6 of 6 lower)
+ABSK T=8 layer sk8w4s-er-stamps route 0.4, positions 1.7, phase A 38.0, A->B wait 2.5, phase B 17.2, barrier 2.2, final 0.3, A done max 41.8, B done max 61.3, end 63.3, t0 weights wait A 0.0, B 0.0, helper idle 21.9, credits 0.5
+ABSK T=8 layer sk8w4s-stamps route 0.4, positions 1.7, phase A 34.9, A->B wait 4.0, phase B 16.0, barrier 3.9, final 0.3, A done max 39.1, B done max 60.2, end 62.3, t0 weights wait A 0.0, B 0.0, helper idle 22.1, credits 2.3
+ABSK T=8 layer pub route 2.2, phase A 33.4, phase B 18.9, barrier 2.9, final 0.3, A done max 39.0, B done max 56.9, end 58.4
+ABROUTE T=8 std busiest local expert routes [6, 2, 2, 2, 7, 2]
+ABCHECK T=8 std vs fp32 ov0 3.88e-03 pub 2.33e-03; vs ov0: er 2.9e-05 loads 1.4e+00
+ABTIME T=8 std mean of 6 ov0 93.0 er 93.7 loads 90.0 pub 90.2
+ABPAIR T=8 std er minus ov0 -1.1 +1.8 -0.0 +1.3 +0.8 +1.3 (mean +0.7, 2 of 6 lower)
+ABPAIR T=8 std loads minus ov0 -4.2 -1.3 -4.5 -1.8 -4.1 -2.1 (mean -3.0, 6 of 6 lower)
+ABPAIR T=8 std pub minus ov0 -2.9 -1.2 -5.1 -1.3 -3.7 -2.8 (mean -2.8, 6 of 6 lower)
+ABSK T=8 std sk8w4s-er-stamps route 0.3, positions 1.8, phase A 57.1, A->B wait 2.3, phase B 27.7, barrier 2.3, final 0.3, A done max 60.7, B done max 90.8, end 92.8, t0 weights wait A 0.0, B 0.0, helper idle 30.5, credits 0.6
+ABSK T=8 std sk8w4s-stamps route 0.5, positions 1.7, phase A 52.4, A->B wait 3.5, phase B 25.7, barrier 3.5, final 0.4, A done max 57.8, B done max 86.7, end 88.7, t0 weights wait A 0.0, B 0.0, helper idle 32.2, credits 1.7
+ABSK T=8 std pub route 2.1, phase A 51.2, phase B 28.1, barrier 3.4, final 0.3, A done max 57.0, B done max 84.3, end 85.8
+ABROUTE T=16 layer busiest local expert routes [12, 9, 10, 8, 12, 10]
+ABCHECK T=16 layer vs fp32 ov0 3.83e-03 pub 2.33e-03; vs ov0: er 1.3e-06 loads 1.3e+00
+ABTIME T=16 layer mean of 6 ov0 85.5 er 84.6 loads 80.4 pub 82.4
+ABPAIR T=16 layer er minus ov0 -1.3 -0.9 -0.6 +0.2 -1.2 -1.5 (mean -0.9, 5 of 6 lower)
+ABPAIR T=16 layer loads minus ov0 -5.7 -5.0 -5.1 -3.5 -5.6 -6.0 (mean -5.1, 6 of 6 lower)
+ABPAIR T=16 layer pub minus ov0 -4.1 -2.6 -2.8 -1.5 -3.9 -3.6 (mean -3.1, 6 of 6 lower)
+ABSK T=16 layer sk8w4s-er-stamps route 0.4, positions 1.8, phase A 50.4, A->B wait 2.3, phase B 24.2, barrier 2.6, final 0.6, A done max 54.0, B done max 80.8, end 83.0, t0 weights wait A 0.0, B 0.0, helper idle 27.5, credits 0.6
+ABSK T=16 layer sk8w4s-stamps route 0.4, positions 1.7, phase A 46.8, A->B wait 3.9, phase B 22.6, barrier 4.4, final 0.6, A done max 52.9, B done max 79.1, end 81.3, t0 weights wait A 0.0, B 0.0, helper idle 30.6, credits 1.9
+ABSK T=16 layer pub route 2.6, phase A 45.1, phase B 25.3, barrier 3.6, final 0.5, A done max 51.0, B done max 75.9, end 77.7
+ABROUTE T=16 std busiest local expert routes [15, 5, 9, 4, 4, 3]
+ABCHECK T=16 std vs fp32 ov0 3.85e-03 pub 2.36e-03; vs ov0: er 0.0e+00 loads 1.3e+00
+ABTIME T=16 std mean of 6 ov0 109.8 er 111.4 loads 105.7 pub 106.9
+ABPAIR T=16 std er minus ov0 +4.0 +1.4 -0.8 +1.1 +2.8 +1.2 (mean +1.6, 1 of 6 lower)
+ABPAIR T=16 std loads minus ov0 -1.1 -5.1 -5.5 -4.0 -4.6 -4.5 (mean -4.1, 6 of 6 lower)
+ABPAIR T=16 std pub minus ov0 -1.2 -3.0 -3.5 -3.2 -3.6 -2.7 (mean -2.9, 6 of 6 lower)
+ABSK T=16 std sk8w4s-er-stamps route 0.4, positions 1.8, phase A 69.2, A->B wait 2.8, phase B 33.7, barrier 2.7, final 0.5, A done max 73.1, B done max 109.7, end 112.0, t0 weights wait A 0.0, B 0.0, helper idle 37.0, credits 0.7
+ABSK T=16 std sk8w4s-stamps route 0.3, positions 1.8, phase A 63.6, A->B wait 3.6, phase B 31.1, barrier 4.5, final 0.5, A done max 70.4, B done max 104.4, end 106.5, t0 weights wait A 0.0, B 0.0, helper idle 40.4, credits 1.4
+ABSK T=16 std pub route 2.6, phase A 61.6, phase B 33.7, barrier 3.2, final 0.4, A done max 67.6, B done max 100.4, end 102.1
+ABMOE spin flags 0; total 378 s
+TEST sk8w4s worst rel err vs fp32 3.93e-03, spin flags 0
+TEST sk16w4s worst rel err vs fp32 3.93e-03, spin flags 0
+TEST sk8w4s-er worst rel err vs fp32 3.93e-03, spin flags 0
+TEST main-d2 worst rel err vs fp32 3.89e-03, spin flags 0
+TEST legacy32 worst rel err vs fp32 4.30e-03, spin flags 0
+TEST legacy128 worst rel err vs fp32 4.29e-03, spin flags 0
+TEST legacy256 worst rel err vs fp32 4.30e-03, spin flags 0
+BENCH bs=128 legacy128:252.9 main-d2:254.4 legacy256:254.8 sk8w4s-loads:255.9 sk8w4s:264.4 sk8w4s-er:272.1 legacy32:277.0 sk16w4s:283.6 us (graph replay, cold L2, mean of 2 routings)
+BENCH bs=256 main-d2:283.5 legacy256:360.5 legacy128:389.2 sk8w4s-loads:400.6 sk8w4s:431.6 sk8w4s-er:448.2 sk16w4s:466.3 legacy32:469.8 us (graph replay, cold L2, mean of 2 routings)
+POLICY {1: sk8w4s, 8: sk8w4s-er, 16: sk8w4s, 32: sk8w4s, 128: legacy128, 256: main-d2}
+TEST policy worst rel err vs fp32 4.28e-03, spin flags 0
+PREPARE repack 0.7 s, build 85.7 s, self-test 0.3 s, bench 0.6 s, smem 228736 B, ok True, main True
