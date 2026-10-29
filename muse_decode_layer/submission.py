@@ -12673,7 +12673,8 @@ _FAILED = []
 
 # The judge keeps only the last 16,000 characters of the log (result.json log_tail), so the
 # per-stage lines printed early in prepare are lost (check e87fcb1ed5c64a62 has no MOE1BENCH
-# or MOE1POLICY). This summary is printed last and kept short so the tail always holds it.
+# or MOE1POLICY). This summary is printed last and kept short (about 2.5 KB) so the tail
+# always holds it.
 _SCORED = [(load, b, q, layer) for load, b, q in
            (("d1", 1, 1), ("d16", 16, 1), ("d32", 32, 1), ("v1", 1, 8), ("v16", 16, 8),
             ("v32", 32, 8)) for layer in ("sliding", "full")]

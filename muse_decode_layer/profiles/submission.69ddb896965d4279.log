@@ -1,0 +1,166 @@
+1.5 -> qkv32
+SKP tune o m=1: cgemv:9.9 o8:10.4 o8raw:11.6 proj_fwd:12.7 -> cgemv
+SKP tune o m=8: o8:10.5 o8raw:11.6 cublas:12.1 -> o8
+SKP tune o m=16: o16:10.6 o16raw:11.5 cublas:12.0 -> o16
+SKP tune o m=32: o32:10.6 o32raw:11.6 cublas:12.0 -> o32
+SKP tune pooler m=1: pool8:22.0 cgemv:22.7 pool8raw:27.5 proj_fwd:28.6 -> pool8
+SKP tune pooler m=8: pool8:22.2 pool8raw:27.5 proj_fwd:30.0 -> pool8
+SKP tune pooler m=16: pool16:22.8 pool16raw:27.2 cublas:30.4 -> pool16
+SKP tune pooler m=32: pool32:24.6 pool32raw:28.1 cublas:31.3 -> pool32
+SKP tune unpooler m=1: cgemv:8.4 sgemv:8.6 slice8:9.1 slice8raw:9.6 proj_fwd:11.0 -> cgemv
+SKP tune unpooler m=8: slice8:9.0 slice8raw:9.6 proj_fwd:11.9 -> slice8
+SKP tune unpooler m=16: unp16:22.0 unp16raw:27.0 cublas:27.9 -> unp16
+SKP tune unpooler m=32: unp32:23.6 unp32raw:27.6 cublas:28.0 -> unp32
+SKP: extension build 12.6 s on its thread (waited 0.0 s), pack 0.1 s, self-test 0.1 s, tune 0.2 s; picked [('o', 'cgemv'), ('o', 'o16'), ('o', 'o32'), ('o', 'o8'), ('pooler', 'pool16'), ('pooler', 'pool32'), ('pooler', 'pool8'), ('qkv_gate', 'cgemv'), ('qkv_gate', 'qkv16'), ('qkv_gate', 'qkv32'), ('qkv_gate', 'qkv8'), ('unpooler', 'cgemv'), ('unpooler', 'slice8'), ('unpooler', 'unp16'), ('unpooler', 'unp32')]
+proj sk: on (0.4 s)
+attn self-test case 0 1x1 sliding page 1 _attn_prep: output rel diff 3.95e-03
+attn self-test case 1 3x1 full page 1 _attn_prep: output rel diff 1.12e-02
+attn self-test case 2 5x1 sliding page 1 _attn_prep: output rel diff 1.81e-02
+attn self-test case 3 2x8 sliding page 1 _attn_prep: output rel diff 3.55e-02
+attn self-test case 4 3x8 full page 1 _attn_prep: output rel diff 2.68e-02
+attn self-test case 5 4x1 full page 64 _attn_prep: output rel diff 2.06e-02
+attn self-test case 6 2x8 sliding page 64 _attn_prep: output rel diff 2.82e-02
+attn self-test case 7 33x1 full page 1 _attn_prep: output rel diff 1.30e-02
+attn self-test case 8 2x1 full page 1 _attn_prep: output rel diff 3.92e-03
+attn self-test case 9 32x1 sliding page 1 _attn_prep: output rel diff 1.32e-02
+attn self-test case 10 16x1 full page 1 _attn_prep: output rel diff 1.16e-02
+attn self-test case 11 1x8 sliding page 1 _attn_prep: output rel diff 2.26e-02
+attn self-test case 12 16x8 full page 1 _attn_prep: output rel diff 2.79e-02
+attn self-test case 13 32x8 sliding page 1 _attn_prep: output rel diff 2.67e-02
+attn self-test case 14 4x8 sliding page 1 _attn_prep: output rel diff 3.62e-02
+attn self-test case 15 3x8 full page 64 _attn_prep: output rel diff 2.60e-02
+attn self-test case 16 5x8 full page 1 _attn_prep: output rel diff 3.01e-02
+attn self-test: norm-gate alone 0.00e+00
+attn self-test: worst rel diff vs SGLang path: output 3.62e-02, new cache rows 2.76e-02
+attn prep: on (0.7 s)
+attn self-test case 0 1x1 sliding page 1 _attn_fused: output rel diff 1.45e-02
+attn self-test case 1 3x1 full page 1 _attn_fused: output rel diff 1.98e-02
+attn self-test case 2 5x1 sliding page 1 _attn_fused: output rel diff 3.61e-02
+attn self-test case 3 2x8 sliding page 1 _attn_prep: output rel diff 3.55e-02
+attn self-test case 4 3x8 full page 1 _attn_prep: output rel diff 2.68e-02
+attn self-test case 5 4x1 full page 64 _attn_fused: output rel diff 2.09e-02
+attn self-test case 6 2x8 sliding page 64 _attn_prep: output rel diff 2.82e-02
+attn self-test case 7 33x1 full page 1 _attn_fused: output rel diff 1.81e-02
+attn self-test case 8 2x1 full page 1 _attn_prep: output rel diff 3.92e-03
+attn self-test case 9 32x1 sliding page 1 _attn_fused: output rel diff 2.11e-02
+attn self-test case 10 16x1 full page 1 _attn_fused: output rel diff 1.78e-02
+attn self-test case 11 1x8 sliding page 1 _attn_prep: output rel diff 2.26e-02
+attn self-test case 12 16x8 full page 1 _attn_prep: output rel diff 2.79e-02
+attn self-test case 13 32x8 sliding page 1 _attn_prep: output rel diff 2.67e-02
+attn self-test case 14 4x8 sliding page 1 _attn_prep: output rel diff 3.62e-02
+attn self-test case 15 3x8 full page 64 _attn_prep: output rel diff 2.60e-02
+attn self-test case 16 5x8 full page 1 _attn_prep: output rel diff 3.01e-02
+attn self-test: norm-gate alone 0.00e+00
+attn self-test: worst rel diff vs SGLang path: output 3.62e-02, new cache rows 2.76e-02
+attn fused: on (0.0 s)
+ffn boundary self-test T=1: next input 0.00e+00, update 0.00e+00, stream 0.00e+00
+ffn boundary self-test T=2: next input 0.00e+00, update 0.00e+00, stream 0.00e+00
+ffn boundary self-test T=3: next input 0.00e+00, update 0.00e+00, stream 0.00e+00
+ffn boundary self-test T=5: next input 0.00e+00, update 0.00e+00, stream 0.00e+00
+ffn boundary self-test T=8: next input 0.00e+00, update 0.00e+00, stream 0.00e+00
+ffn boundary: on (0.0 s)
+attention boundary self-test T=1: next input 0.00e+00, update 0.00e+00, stream 0.00e+00, router 0.00e+00
+attention boundary self-test T=2: next input 0.00e+00, update 0.00e+00, stream 0.00e+00, router 0.00e+00
+attention boundary self-test T=3: next input 0.00e+00, update 0.00e+00, stream 0.00e+00, router 5.05e-08
+attention boundary self-test T=5: next input 0.00e+00, update 0.00e+00, stream 0.00e+00, router 0.00e+00
+attention boundary self-test T=8: next input 0.00e+00, update 0.00e+00, stream 0.00e+00, router 3.10e-08
+attention boundary self-test T=9: next input 2.86e-05, update 0.00e+00, stream 0.00e+00
+attention boundary self-test T=16: next input 0.00e+00, update 0.00e+00, stream 0.00e+00
+attention boundary self-test T=33: next input 1.71e-05, update 0.00e+00, stream 0.00e+00
+attention boundary self-test T=256: next input 2.76e-06, update 0.00e+00, stream 0.00e+00
+attention boundary: on (0.0 s)
+pre-expert norm self-test T=1 bf16: 0 of 4096 differ, worst 0.00 ulp
+pre-expert norm self-test T=1 fp32: 0 of 4096 differ, worst 0.00 ulp
+pre-expert norm self-test T=264 bf16: 0 of 1081344 differ, worst 0.00 ulp
+pre-expert norm self-test T=264 fp32: 0 of 1081344 differ, worst 0.00 ulp
+pre-expert norm self-test: 0 of 6127616 elements differ from torch, worst 0.00 ulp
+pre-expert norm: on (0.0 s)
+route-side self-test T=1: eager 0.00e+00, graph 0.00e+00
+route-side self-test T=8: eager 0.00e+00, graph 1.88e-06
+route-side self-test T=16: eager 1.82e-05, graph 3.63e-05
+route-side self-test T=32: eager 2.74e-05, graph 2.74e-05
+route-side self-test T=128: eager 0.00e+00, graph 0.00e+00
+route-side self-test T=256: eager 1.66e-05, graph 1.60e-05
+route side: on (0.0 s)
+attn self-test case 0 1x1 sliding page 1 _attn_fused: output rel diff 1.45e-02
+attn self-test case 1 3x1 full page 1 _attn_fused: output rel diff 1.98e-02
+attn self-test case 2 5x1 sliding page 1 _attn_fused: output rel diff 3.61e-02
+attn self-test case 3 2x8 sliding page 1 _attn_ws: output rel diff 3.53e-02
+attn self-test case 4 3x8 full page 1 _attn_ws: output rel diff 2.67e-02
+attn self-test case 5 4x1 full page 64 _attn_fused: output rel diff 2.09e-02
+attn self-test case 6 2x8 sliding page 64 _attn_ws: output rel diff 2.80e-02
+attn self-test case 7 33x1 full page 1 _attn_fused: output rel diff 1.81e-02
+attn self-test case 8 2x1 full page 1 _attn_prep: output rel diff 3.92e-03
+attn self-test case 9 32x1 sliding page 1 _attn_fused: output rel diff 2.11e-02
+attn self-test case 10 16x1 full page 1 _attn_fused: output rel diff 1.78e-02
+attn self-test case 11 1x8 sliding page 1 _attn_ws: output rel diff 2.25e-02
+attn self-test case 12 16x8 full page 1 _attn_ws: output rel diff 2.80e-02
+attn self-test case 13 32x8 sliding page 1 _attn_ws: output rel diff 2.77e-02
+attn self-test case 14 4x8 sliding page 1 _attn_ws: output rel diff 3.66e-02
+attn self-test case 15 3x8 full page 64 _attn_ws: output rel diff 2.57e-02
+attn self-test case 16 5x8 full page 1 _attn_ws: output rel diff 3.02e-02
+attn self-test: norm-gate alone 0.00e+00
+attn self-test: worst rel diff vs SGLang path: output 3.66e-02, new cache rows 2.76e-02
+attn ws: on (0.0 s)
+attn one: extension build 38.3 s on its thread, setup 0.0 s; cooperative_launch=True pdl=False L1m1:396(3/SM,57KB) L1m3:396(3/SM,57KB) L1m11:396(3/SM,57KB) L1m13:396(3/SM,57KB) L1m49:264(2/SM,57KB) L8m1:264(2/SM,88KB) L8m3:264(2/SM,88KB) L8m11:264(2/SM,88KB) L8m15:264(2/SM,88KB) L8m19:264(2/SM,88KB) L8m51:264(2/SM,104KB)
+attn self-test case 0 1x1 sliding page 1 _attn_one: output rel diff 1.44e-02
+attn self-test case 1 3x1 full page 1 _attn_one: output rel diff 1.97e-02
+attn self-test case 2 5x1 sliding page 1 _attn_one: output rel diff 3.62e-02
+attn self-test case 3 2x8 sliding page 1 _attn_one: output rel diff 3.53e-02
+attn self-test case 4 3x8 full page 1 _attn_one: output rel diff 2.68e-02
+attn self-test case 5 4x1 full page 64 _attn_one: output rel diff 2.08e-02
+attn self-test case 6 2x8 sliding page 64 _attn_one: output rel diff 2.81e-02
+attn self-test case 7 33x1 full page 1 _attn_one: output rel diff 1.81e-02
+attn self-test case 8 2x1 full page 1 _attn_one: output rel diff 6.83e-03
+attn self-test case 9 32x1 sliding page 1 _attn_one: output rel diff 2.10e-02
+attn self-test case 10 16x1 full page 1 _attn_one: output rel diff 1.79e-02
+attn self-test case 11 1x8 sliding page 1 _attn_one: output rel diff 2.27e-02
+attn self-test case 12 16x8 full page 1 _attn_one: output rel diff 2.87e-02
+attn self-test case 13 32x8 sliding page 1 _attn_one: output rel diff 2.78e-02
+attn self-test case 14 4x8 sliding page 1 _attn_one: output rel diff 3.62e-02
+attn self-test case 15 3x8 full page 64 _attn_one: output rel diff 2.59e-02
+attn self-test case 16 5x8 full page 1 _attn_one: output rel diff 3.00e-02
+attn self-test case 17 1x1 full page 1 _attn_one: output rel diff 6.16e-03
+attn self-test case 18 1x8 full page 1 _attn_one: output rel diff 4.08e-02
+attn self-test case 19 1x1 full page 64 _attn_one: output rel diff 4.84e-02
+attn self-test case 20 1x8 full page 64 _attn_one: output rel diff 2.44e-02
+attn self-test case 21 1x1 sliding page 64 ctx 10 _attn_one: output rel diff 2.63e-02
+attn self-test: norm-gate alone 0.00e+00
+attn self-test: worst rel diff vs SGLang path: output 4.84e-02, new cache rows 2.76e-02
+attn one: cases 0.0 s
+attn one: stress 1x1 sliding plan=(32, 1, 13): replays=2000 replayed_vs_eager=0.0e+00 vs_sglang=3.44e-03 max_polls=0 ws rows_nonzero=0 l_nonzero=0 tickets_nonzero=0 coop_next_parity_nonzero=0 flat_next_parity_nonzero=0; spec fallback (seq - 64): replays=50 replayed_vs_eager=0.0e+00 vs_sglang=4.67e-03 max_polls=0 ws rows_nonzero=0 l_nonzero=0 tickets_nonzero=0 coop_next_parity_nonzero=0 flat_next_parity_nonzero=0 (0.0 s)
+attn one: stress 16x1 full plan=(264, 1, 49): replays=2000 replayed_vs_eager=0.0e+00 vs_sglang=1.73e-02 max_polls=0 ws rows_nonzero=0 l_nonzero=0 tickets_nonzero=0 coop_next_parity_nonzero=0 flat_next_parity_nonzero=0 (0.0 s)
+attn one: stress 1x8 sliding plan=(33, 1, 15): replays=2000 replayed_vs_eager=0.0e+00 vs_sglang=2.32e-02 max_polls=3 ws rows_nonzero=0 l_nonzero=0 tickets_nonzero=0 coop_next_parity_nonzero=0 flat_next_parity_nonzero=0; spec fallback (seq - 64): replays=50 replayed_vs_eager=0.0e+00 vs_sglang=2.35e-02 max_polls=2 ws rows_nonzero=0 l_nonzero=0 tickets_nonzero=0 coop_next_parity_nonzero=0 flat_next_parity_nonzero=0 (0.0 s)
+attn one: stress 16x8 full plan=(264, 1, 51): replays=2000 replayed_vs_eager=3.7e-05 vs_sglang=2.48e-02 max_polls=28 ws rows_nonzero=0 l_nonzero=0 tickets_nonzero=0 coop_next_parity_nonzero=0 flat_next_parity_nonzero=0 (0.0 s)
+attn one: stress 32x8 full plan=(264, 1, 51): replays=2000 replayed_vs_eager=2.9e-05 vs_sglang=2.98e-02 max_polls=49 ws rows_nonzero=0 l_nonzero=0 tickets_nonzero=0 coop_next_parity_nonzero=0 flat_next_parity_nonzero=0 (0.0 s)
+attn one: on (0.2 s)
+TUNE front T=1 fp32:29.0 skf:30.0 -> fp32 (vs fp32: fp32 0.0e+00/1.000 skf 0.0e+00/1.000)
+TUNE front T=8 skf:30.3 fp32:37.4 -> skf (vs fp32: fp32 0.0e+00/1.000 skf 0.0e+00/1.000)
+TUNE front T=16 skf:30.6 mma:35.3 concat:37.9 split:40.4 -> skf (vs split: split 0.0e+00/1.000 mma 0.0e+00/1.000 concat 1.4e-04/1.000 skf 0.0e+00/1.000)
+TUNE front T=32 mma:37.9 concat:38.5 split:43.5 -> mma (vs split: split 0.0e+00/1.000 mma 0.0e+00/1.000 concat 1.4e-04/1.000)
+TUNE front T=128 concat:42.2 split:52.1 -> concat (vs split: split 0.0e+00/1.000 concat 0.0e+00/1.000)
+TUNE front T=256 concat:46.0 split:59.7 -> concat (vs split: split 0.0e+00/1.000 concat 0.0e+00/1.000)
+moe front tuner: on (0.1 s)
+prepare: done (85.8 s)
+SUMMARY source digest ade14376fd244cf0
+SUMMARY components main=d7858baaa081 one=d339f4a905ed w4=069518f7252d moe1=01db35a474d9 skp=efaaff28e049
+SUMMARY stages moe_ours=1 w4_ok=1 moe1_ok=1 router_ours=1 proj_ours=1 skp_ok=1 attn_one_ours=1 attn_ws_ours=1 attn_fused_ours=1 bnd_ours=1 abnd_ours=1 norm_ours=1 route_side_ok=1
+SUMMARY moe T=1: sk8w4s [sk8w4s 42.2 sk16w4s 44.4 w4 50.0] w4 g1=27 g2=21 pdl=1 cl=4 front fp32
+SUMMARY moe T=8: sk8w4s [sk8w4s 74.5 sk16w4s 75.2 w4 79.2] w4 g1=2 g2=24 pdl=1 cl=1 front skf
+SUMMARY moe T=16: sk8w4s [sk8w4s 108.2 sk16w4s 114.3 w4 118.3] w4 g1=18 g2=28 pdl=1 cl=8 front skf
+SUMMARY moe T=32: sk8w4s [sk8w4s 151.5 w4 154.7 sk16w4s 160.8 main-m2-ar2-ub 182.6 main-d2 194.3] w4 g1=26 g2=28 pdl=1 cl=8 front mma
+SUMMARY moe T=128: w4 [w4 249.0 main-m2-ar2-ub 250.7 main-d2 260.6 sk8w4s 264.1 sk16w4s 283.9] w4 g1=4 g2=13 pdl=1 cl=1 front concat
+SUMMARY moe T=256: main-m2-ar2-ub [main-m2-ar2-ub 282.3 main-d2 290.7 w4 357.0 sk8w4s 432.2 sk16w4s 468.6] w4 g1=30 g2=29 pdl=1 cl=1 front concat
+SUMMARY attn d1 sliding: attn_one plan(splits,nc,mode)=(32, 1, 13)
+SUMMARY attn d1 full: attn_one plan(splits,nc,mode)=(252, 8, 11)
+SUMMARY attn d16 sliding: attn_one plan(splits,nc,mode)=(16, 1, 1)
+SUMMARY attn d16 full: attn_one plan(splits,nc,mode)=(264, 1, 49)
+SUMMARY attn d32 sliding: attn_one plan(splits,nc,mode)=(8, 1, 1)
+SUMMARY attn d32 full: attn_one plan(splits,nc,mode)=(264, 1, 49)
+SUMMARY attn v1 sliding: attn_one plan(splits,nc,mode)=(33, 1, 15)
+SUMMARY attn v1 full: attn_one plan(splits,nc,mode)=(252, 8, 11)
+SUMMARY attn v16 sliding: attn_one plan(splits,nc,mode)=(8, 1, 3)
+SUMMARY attn v16 full: attn_one plan(splits,nc,mode)=(264, 1, 51)
+SUMMARY attn v32 sliding: attn_one plan(splits,nc,mode)=(4, 1, 3)
+SUMMARY attn v32 full: attn_one plan(splits,nc,mode)=(264, 1, 51)
+SUMMARY failed 0: none
