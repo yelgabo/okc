@@ -1,0 +1,23 @@
+{
+  "schema_version": 1,
+  "source_revision": "30b2dfff3758a11cd86e0c1a3b8b685a11e1f3d1",
+  "query": "Find the HTML document with diagrams comparing our old and new kernel architectures.",
+  "historical_search_term": "html",
+  "verification_groups": {
+    "our_implementation": "\\b(?:ours|our entry|old)\\b",
+    "other_implementation": "\\b(?:theirs|public entry|new)\\b",
+    "kernel_architecture": "\\b(?:kernel|launch|architecture)\\w*\\b",
+    "diagram": "<(?:svg|canvas)\\b|class=[\"'][^\"']*mermaid"
+  },
+  "expected_path_for_scorer_only": "docs/gap-analysis-2026-10-28.html",
+  "cases": [
+    {"name": "reported_empty_search", "provider": "injected_empty", "mutation": "none", "expected_status": "found"},
+    {"name": "local_content_control", "provider": "local_rg", "mutation": "none", "expected_status": "found"},
+    {"name": "opaque_filename", "provider": "injected_empty", "mutation": "rename", "expected_status": "found"},
+    {"name": "outside_docs", "provider": "injected_empty", "mutation": "move", "expected_status": "found"},
+    {"name": "hidden_ignored_html", "provider": "injected_empty", "mutation": "hide_ignore", "expected_status": "found"},
+    {"name": "absent_with_decoy", "provider": "injected_empty", "mutation": "remove", "expected_status": "unresolved"},
+    {"name": "ambiguous_copy", "provider": "injected_empty", "mutation": "duplicate", "expected_status": "ambiguous"}
+  ],
+  "acceptance": "All after cases must satisfy status and exact candidate-set checks; both methods must find the real HTML in the live local content control. Baseline failures in the injected-empty positive cases are expected observations, not a failed test runner."
+}

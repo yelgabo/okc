@@ -1,0 +1,16 @@
+{
+  "checks": {
+    "repeat_matches": true,
+    "acceptance_passed": true,
+    "final_runner_hash_matches": true,
+    "final_design_hash_matches": true,
+    "initial_runner_hash_matches": true,
+    "initial_design_hash_matches": true
+  },
+  "all_passed": true,
+  "totals": {
+    "before": 2,
+    "after": 8
+  },
+  "case_count": 8
+}

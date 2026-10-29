@@ -1,0 +1,176 @@
+#!/usr/bin/env python3
+import argparse
+import hashlib
+import json
+import platform
+import re
+import subprocess
+import tempfile
+from datetime import datetime, timezone
+from pathlib import Path
+
+
+def sha256(data):
+    return hashlib.sha256(data).hexdigest()
+
+
+def command(argv, cwd, log, allowed=(0,)):
+    result = subprocess.run(argv, cwd=cwd, text=True, capture_output=True)
+    log.append({"argv": argv, "exit_code": result.returncode,
+                "stdout": result.stdout, "stderr": result.stderr})
+    if result.returncode not in allowed:
+        raise RuntimeError(f"Command failed: {argv}: {result.stderr}")
+    return result.stdout
+
+
+def verify(root, paths, groups, reads):
+    matches = []
+    for name in sorted(set(paths)):
+        path = root / name
+        if path.suffix.lower() not in {".html", ".htm"}:
+            continue
+        source = path.read_text(encoding="utf-8")
+        evidence = {}
+        for group, pattern in groups.items():
+            hit = re.search(pattern, source, re.IGNORECASE)
+            if hit:
+                line = source.count("\n", 0, hit.start()) + 1
+                evidence[group] = {"line": line, "text": source.splitlines()[line - 1]}
+        title = re.search(r"<title[^>]*>(.*?)</title>", source, re.I | re.S)
+        accepted = len(evidence) == len(groups) and title is not None
+        reads.append({"path": name, "sha256": sha256(source.encode()),
+                      "title": title.group(1) if title else None,
+                      "evidence": evidence, "accepted": accepted})
+        if accepted:
+            matches.append(name)
+    return matches
+
+
+def outcome(matches, commands, reads, provider):
+    status = "found" if len(matches) == 1 else "ambiguous" if matches else "unresolved"
+    return {"status": status, "candidates": matches, "provider": provider,
+            "commands": commands, "reads": reads}
+
+
+def discover(root, request, provider_kind, fallback):
+    commands, reads = [], []
+    if provider_kind == "injected_empty":
+        paths = []
+        provider = {"kind": provider_kind, "query": request["query"],
+                    "search_term": request["historical_search_term"], "results": [],
+                    "note": "Injected reported failure condition; no GitHub request was made."}
+    else:
+        output = command(["rg", "--files-with-matches", "--ignore-case", "--",
+                          request["historical_search_term"], "docs"], root, commands, (0, 1))
+        paths = output.splitlines()
+        provider = {"kind": provider_kind, "query": request["query"], "results": paths}
+    matches = verify(root, paths, request["verification_groups"], reads)
+    if matches or not fallback:
+        return outcome(matches, commands, reads, provider)
+    for scope in ("docs", "."):
+        output = command(["rg", "--files", "--hidden", "--no-ignore", "-g", "!.git", scope],
+                         root, commands, (0, 1))
+        paths = [str(Path(name)) for name in output.splitlines()]
+        matches = verify(root, paths, request["verification_groups"], reads)
+        if matches:
+            break
+    return outcome(matches, commands, reads, provider)
+
+
+def mutate(root, mutation, target):
+    original = root / target
+    if mutation in {"rename", "move", "hide_ignore"}:
+        destination = {"rename": "docs/untitled-7.html", "move": "archive/untitled-7.html",
+                       "hide_ignore": "docs/.archive/untitled-7.html"}[mutation]
+        renamed = root / destination
+        renamed.parent.mkdir(parents=True, exist_ok=True)
+        original.rename(renamed)
+        if mutation == "hide_ignore":
+            (root / ".ignore").write_text("*.html\n", encoding="utf-8")
+        return [destination]
+    if mutation == "remove":
+        original.unlink()
+        (root / "docs/research.html").write_text(
+            "<title>Kernel research</title><p>Background on kernel performance.</p>\n",
+            encoding="utf-8")
+        return []
+    if mutation == "duplicate":
+        duplicate = "docs/alternative.html"
+        (root / duplicate).write_bytes(original.read_bytes())
+        return sorted([target, duplicate])
+    if mutation != "none":
+        raise ValueError(mutation)
+    return [target]
+
+
+def evaluate(repo, design):
+    setup_log = []
+    revision = design["source_revision"]
+    names = command(["git", "ls-tree", "-r", "--name-only", revision, "docs"],
+                    repo, setup_log).splitlines()
+    corpus = {name: command(["git", "show", f"{revision}:{name}"], repo, setup_log)
+              for name in names}
+    manifest = {name: sha256(source.encode()) for name, source in corpus.items()}
+    target = design["expected_path_for_scorer_only"]
+    if target not in corpus:
+        raise ValueError("Expected file missing from pinned source revision")
+    request = {key: design[key] for key in
+               ("query", "historical_search_term", "verification_groups")}
+    rows = []
+    for case in design["cases"]:
+        with tempfile.TemporaryDirectory(prefix="okc-discovery-") as directory:
+            root = Path(directory)
+            for name, source in corpus.items():
+                path = root / name
+                path.parent.mkdir(parents=True, exist_ok=True)
+                path.write_text(source, encoding="utf-8")
+            expected = mutate(root, case["mutation"], target)
+            row = {"case": case, "expected_candidates": expected}
+            case_request = dict(request)
+            case_request["historical_search_term"] = case.get(
+                "search_term", request["historical_search_term"])
+            for strategy in ("before", "after"):
+                result = discover(root, case_request, case["provider"], strategy == "after")
+                result["passed"] = (result["status"] == case["expected_status"]
+                                    and result["candidates"] == expected)
+                row[strategy] = result
+            rows.append(row)
+    totals = {strategy: sum(row[strategy]["passed"] for row in rows)
+              for strategy in ("before", "after")}
+    control = next(row for row in rows if row["case"]["name"] == "broad_content_control")
+    accepted = totals["after"] == len(rows) and control["before"]["passed"]
+    return {"source_revision": revision, "corpus_manifest": manifest,
+            "setup_commands": setup_log, "rows": rows, "totals": totals,
+            "case_count": len(rows), "acceptance_passed": accepted}
+
+
+def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--output", type=Path, required=True)
+    args = parser.parse_args()
+    here = Path(__file__).resolve().parent
+    repo = here.parents[1]
+    design_path = here / "design.json"
+    design = json.loads(design_path.read_text())
+    results = evaluate(repo, design)
+    version_log = []
+    results["environment"] = {
+        "executed_at_utc": datetime.now(timezone.utc).isoformat(),
+        "python": platform.python_version(), "platform": platform.platform(),
+        "git": command(["git", "--version"], repo, version_log).strip(),
+        "rg": command(["rg", "--version"], repo, version_log).strip(),
+        "runner_sha256": sha256(Path(__file__).read_bytes()),
+        "design_sha256": sha256(design_path.read_bytes()),
+        "version_commands": version_log}
+    args.output.parent.mkdir(parents=True, exist_ok=True)
+    args.output.write_text(json.dumps(results, indent=2) + "\n", encoding="utf-8")
+    for row in results["rows"]:
+        print(f"{row['case']['name']}: before={row['before']['passed']} "
+              f"after={row['after']['passed']}")
+    print(json.dumps({key: results[key] for key in
+                      ("totals", "case_count", "acceptance_passed")}))
+    raise SystemExit(0 if results["acceptance_passed"] else 1)
+
+
+if __name__ == "__main__":
+    main()
