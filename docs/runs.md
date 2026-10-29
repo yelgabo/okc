@@ -761,6 +761,8 @@ well, since qkv8 went to 8 stages (fee7249), so that failure predates this chang
 | 10-29 | 3678bfd3ef1c4ce6 | submit (bench, by the coordinator) | 977afb3 bench on f61d8d9 | round 2: o warps, unp32n2 repeat, no public arm | 1.435x (1.414-1.457) | table above; tuner picked o16w2 (9.7 vs o16 10.0) |
 | 10-29 | 2048b59099f3435d | submit (bench, by the coordinator) | 4d53658 (+ bench, `--variants old`) | the change as the judged path, paired against the pre-change geometries | **1.450x** (1.428-1.471) | new board entry (was 1.444x, 81254e8aed794eab), rank 302 on muse_bf16_proj. old minus new: o m=16 +0.16 / +0.26, unpooler m=32 +0.27 / +0.45; o m=32 and unpooler m=16 (unchanged) +0.00 to +0.16. Judged o m=16 5.68 us (5.83, 6.05 in the two runs above), unpooler m=32 14.57 (14.88, 15.30) |
 
+| 10-29 | d2c9cb6997794859 | submit (bench, by the coordinator) | 4d53658 (+ bench, `--variants acc`, d467abb) | NACC 2 on qkv16, qkv32, o16, o32, pool32, unp16, unp32 | 1.443x (1.421-1.465) | acc minus ours: qkv 16 +0.10 / +0.00, 32 +0.48 / +0.32; o 16 +0.21 / +0.06, 32 +0.10 / +0.06; pooler 16 +0.00 / -0.03, 32 +0.78 / +0.61; unpooler 16 +0.16 / +0.11, 32 +0.06 / +0.19. Second judged sample of 4d53658: o m=16 5.65, unpooler m=32 15.02 |
+
 Third paired sample of each change: o16 +0.16 / +0.26 and unp32 +0.27 / +0.45 for the old
 geometry. Across the three runs the gain is about 0.3 us per shape (six passes each, all on the
 same side). The whole-file score moved 1.444x -> 1.450x, inside the CI as two shapes of thirty
