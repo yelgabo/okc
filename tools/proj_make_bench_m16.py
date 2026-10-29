@@ -102,8 +102,18 @@ OLD = (
     ("    \"o16\": (1, 16, 2, 2, 2, 2, 3),\n", "    \"o16\": (1, 16, 2, 2, 1, 4, 3),\n"),
     ("    \"unp32\": (2, 32, 2, 2, 2, 2, 3),\n", "    \"unp32\": (2, 32, 4, 2, 2, 2, 3),\n"),
 )
+# Two accumulator sets per consumer warp at 16 / 32 tokens (the public uses NACC 2 on qkv16t
+# and o16t); the runs log proposed it for the MT = 2 configs on 2026-10-28.
+ACC = (
+    ("SK_EXTRA = {}\n",
+     "SK_EXTRA = {}\nSK_NACC = {\"qkv16\": 2, \"qkv32\": 2, \"o16\": 2, \"o32\": 2, \"pool32\": 2, "
+     "\"unp16\": 2, \"unp32\": 2}\n"),
+    ("_fit_stages(mt, tokr, nt, nwr, wsk, upw, nstage, comp, False, 1), comp, False, 1, 1, \"bf16\",",
+     "_fit_stages(mt, tokr, nt, nwr, wsk, upw, nstage, comp, False, 1), comp, False, "
+     "SK_NACC.get(name, 1), 1, \"bf16\","),
+)
 VARIANTS = {"geo": (GEO, EXTRA_USE), "geo2": (_geo_patch(EXTRA_GEOM2, EXTRA_USE2), EXTRA_USE2),
-            "old": (OLD, {})}
+            "old": (OLD, {}), "acc": (ACC, {})}
 
 AB = r'''
 
