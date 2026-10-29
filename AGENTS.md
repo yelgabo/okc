@@ -1,6 +1,7 @@
 # okc: Open Kernel Challenge work
 
-Background and decisions: `docs/context.md`. Every run: `docs/runs.md` (bf16_proj),
+Background and decisions: `docs/context.md`. Coordinator working method (agents, quota,
+submits, porting, traps): `.claude/agents/okc-coordinator.md`. Every run: `docs/runs.md` (bf16_proj),
 `docs/runs-moe.md`, `docs/runs-attention.md`.
 
 ## Steering reports and cross-session handoffs
@@ -62,6 +63,9 @@ so future sessions load the correction without needing the original conversation
   the writing side before an mbarrier arrive, when generic stores feed wgmma or TMA reads)
   unless the PTX memory model shows the alternative is correct, and cite that section. The
   attention verify variants with bit 2 (var 2, 18) do this; submissions use the fenced ones.
+- **Keep audit attribution exact.** Verify every cited run ID against its owning receipt or
+  run-log row. Distinguish what an uploaded report says from what its cited sources say;
+  do not attribute a source recommendation to the upload without checking the upload text.
 - **Record losers in `docs/ruled-out.md`.** Every experiment that loses or is closed gets a row
   there (evidence with job id, and what it rules out), in addition to its runs-log entry. Read
   it before proposing an experiment; reopening one needs new evidence, stated explicitly.

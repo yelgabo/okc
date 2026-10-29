@@ -96,16 +96,19 @@ Every mbarrier wait gives up after 2^28 cycles, marks the thread dead and ORs a 
 cgemv_fwd(stream, table, pmax, base4, x, out, nthreads)
 ```
 
-- `stream`: `pack_cgemv(w)["stream"]`, uint8 `[N/2, K/16, 48]`. Chunk j of row pair c holds k in
-  [16j, 16j+16): the two rows' low bytes, then 8 code bytes per row (the 12-bit code above).
-  Within CTA c the bytes are ordered [i][p][t][16] with j = i*nth + t and p the 16-byte part, so
-  each warp load reads 512 contiguous bytes; `nth = cgemv_threads(N, K)` fixes the order, and
-  the same `nth` must be passed as `nthreads`.
+- `stream`: `pack_cgemv(w)["stream"]`, uint8 `[N/2, K/16, 48]`; the shape only fixes the byte
+  count. The bytes are two row-major planes: every row's low bytes `[N, K]`, then every row's
+  codes `[N, K/2]`, byte b of a row's 16-k chunk j holding the codes of k = 16j+b (low nibble)
+  and 16j+8+b (high nibble). Thread t of CTA c loads, per row and chunk j = i*nth + t, 16 B of
+  low bytes and 8 B of codes, so each warp load is 512 or 256 contiguous bytes. `nthreads` must
+  be `cgemv_threads(N, K)`.
 - `table`: int32 `[N/2, pmax, 2]`, entry 0 = (count, 0), then ((row_local << 16) | k, original
-  BF16 bits); one escape warp forms the corrections.
-- One CTA per row pair, `nth + 32` threads, `__maxnreg__(32)`: registers are allocated per warp
-  from one SM sub-partition's 16384, so 32 registers keep 16 warps per sub-partition (3 pooler
-  CTAs per SM, 7 qkv_gate) where 33-40 keep 12.
+  BF16 bits); one escape warp forms the corrections, lane i loading entry i, so the count comes
+  with the first batch in one load (worth about 1 us on the pooler, 5ff76a62b0044378).
+- One CTA per row pair, `nth + 32` threads. One chunk per thread (pooler, o): `__maxnreg__(32)`,
+  because registers are allocated per warp from one SM sub-partition's 16384, so 32 registers
+  keep 16 warps per sub-partition (3 pooler CTAs per SM) where 33-40 keep 12. Two chunks per
+  thread (qkv_gate, the slice): `__maxnreg__(40)` (`cgemv40_kernel`), 0.2-0.3 us faster there.
 
 `rgemv_fwd` is the FP32 router (one row per CTA), `sgemv_fwd` the raw BF16 unpooler slice (four
 rows per CTA).
@@ -199,3 +202,14 @@ For the layer: not ported. The layer's T = 128 / 256 front computes the pooler i
 (pooler + router hi + lo, one cuBLAS GEMM with FP32 output), and no CUTLASS config beats cuBLAS
 on that shape (best 42.3 vs 33.3 us at T = 256). A separate CUTLASS pooler holds 128 of 132
 SMs and leaves the router no room to hide (docs/ruled-out.md, declined proposals).
+
+## `SK_PDL`: sk weight prefill before `griddepcontrol.wait` (2026-10-29, not judged)
+
+Off by default (`#define SK_PDL 0` in `_SK_SRC`); with 0 the device code is SASS-identical to the
+judged build. With 1, single-CTA sk configs stream the first ring's worth of weight stages (and
+fused router pieces) before `griddepcontrol.wait`, and x after it; `sk_fwd` / `skf_fwd` launch
+with the programmatic-serialization attribute when bit 16 of `cfg` is set. For the layer:
+re-inline with `tools/dl_proj_inline.py`, build the skp extension with `-DSK_PDL=1`, set the bit
+only on the o (and front) calls at T <= 32, and pair it with `ONE_TRIG=1` in `attn_one.cu` so
+attention triggers its dependents early. Rationale, compile gate and stop rule:
+[docs/steering/2026-10-29-v1-d32-breakdown.md](steering/2026-10-29-v1-d32-breakdown.md).

@@ -2,8 +2,8 @@
 # Compile the kernels in muse_bf16_proj/submission.py (GEMV_CUDA_SRC) for H200 (sm_90a), print ptxas
 # register and spill counts, and count the global loads each kernel issues after its first FFMA
 # (rgemv and sgemv are written to issue every load first; ptxas can undo that; cgemv is capped
-# at 32 registers for occupancy, so at 2 chunks per thread its second chunk's loads follow the
-# first chunk's FMAs by design). Needs Docker. The
+# at 32 registers at one chunk per thread for occupancy and at 40 at two, where some of the
+# second chunk's loads still follow the first chunk's FMAs). Needs Docker. The
 # image has no ATen, so GEMV_DEVICE_ONLY leaves out the torch entry points and the cgemv variants
 # each layer uses are instantiated here; rgemv and sgemv are then unreferenced, hence the
 # suppressed warning 177.
@@ -18,7 +18,7 @@ import re, sys
 text = open(sys.argv[1]).read()
 cuda = re.search(r'GEMV_CUDA_SRC = r"""(.*?)"""', text, re.S).group(1)
 extra = "".join(
-    f"template void cgemv_launch<{nth}, {cpt}>(const uint4*, const int2*, int, unsigned, "
+    f"template void cgemv_launch<{nth}, {cpt}>(const uint8_t*, const int2*, int, unsigned, "
     f"const __nv_bfloat16*, __nv_bfloat16*, int, cudaStream_t);\n"
     for nth, cpt in ((256, 2), (64, 1), (512, 1), (128, 2)))
 cuda = cuda.replace("}  // namespace", extra + "}  // namespace", 1)

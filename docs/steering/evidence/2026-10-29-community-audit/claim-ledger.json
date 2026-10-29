@@ -1,0 +1,747 @@
+{
+  "report": "docs/steering/2026-10-29-community-audit.md",
+  "report_sha256": "779ccf36db29631c858da689574a75b754ff9e44eda5fc4a77fd8608bc1eabc1",
+  "conclusion_depends_on": "all sections and local evidence hashes; external findings remain qualified by their linked sources",
+  "evidence_sha256": {
+    "docs/runs.md": "5d510d61220cc214fd6750824e41319430adff4ba1736b9ceac55e8f48ff02b6",
+    "docs/runs-moe.md": "ece96ab019aa38103a18b902520e6fe141ce5954971a5c7342746d0d9bc21d56",
+    "docs/runs-attention.md": "39daf07cbb6349acf14c7341a51274a4382473bd02f9b9cd81bcf5cbe3f34f81",
+    "docs/runs-decode-layer.md": "9e5fad5316d06a65fe3ba9a85097e6255e8bb0257678610e851c848f6d297659",
+    "docs/ruled-out.md": "58b0497977b2fe5f5877ed0385a1cd9db64607f3a4680c0769b73b5c6d173578",
+    "docs/steering/2026-10-29-fat-moe-waits.md": "19ff7f3386129a5ef6fe0d78cca53ac1ec3d5ec87f595db27d5f629520dc1a7a",
+    "docs/review-mode37-ordering-2026-10-29.md": "cdd0145943422b87798477ab3f95db29a1049e86546a4d2ace6ff65a146ff650",
+    "muse_decode_layer/submission.py": "3e9ba3df33f4b8e6fc5d26e17a33ad1c9c0e3ebd669b87e89c8681ce1eae5b16",
+    "muse_attention_decode/attn_one.cu": "1dbc6025b22553c32db943e4f0f3ff0a00067c7a4d8a0faab43496233e6b8265",
+    "muse_bf16_proj/submission.py": "ac110ec0bc30e87f384f78571d6efcdac3d615276977088653a98ef03c430313",
+    "muse_moe_w4a16/submission.py": "473a0791cc256f80033114dccc7b03d423b33fea7b36413b99305a31d4800805",
+    "tools/dl_make_bench_pub.py": "b2dd717fe3a562ee7960d72c753a8e56a912c31be5621d410239dcc7661257a1",
+    "tools/dl_moe_inline.py": "12e8fed358843b7b0cb3b954449cefc213806d6689cc10056f368ddfacfbae71",
+    "muse_decode_layer/TASK.md": "22cae4f18fe204ab9d5a4aa34dae4e839363beb1f5967f33668a39d173507c46",
+    "docs/steering/evidence/2026-10-29-community-audit/quota.json": "e3d3c76716b60147ca32f53d14f5d8ec17e20dbaa57b285bc18d0d82143aa639",
+    "docs/steering/evidence/2026-10-29-community-audit/status-ca43908f02874886.json": "adbd175de020c226cbecda71d80412f63f9a56b411986a0e455cc9fc80cb62be",
+    "docs/steering/evidence/2026-10-29-community-audit/muse_bf16_proj-board.json": "5f8f1029a102c5f1aa4d106e34cbcf441a1801225b742099d07576a50eb8e366",
+    "docs/steering/evidence/2026-10-29-community-audit/muse_attention_decode-board.json": "420b1a1646e7379759faab55b3f3e5d1de6b0ec0b60bd8b4ec825f46f8c201e2",
+    "docs/steering/evidence/2026-10-29-community-audit/status-81254e8aed794eab.json": "6ebb5af12784b81a0355f5b6ea4c5f6544cf574603944adac652373c87253529",
+    "docs/steering/evidence/2026-10-29-community-audit/capture.json": "c0179e1e681c1ee631e4aa20b1c904b4deb6dcb6fd661f3d63838882a2e8b3b8",
+    "docs/steering/evidence/2026-10-29-community-audit/status-6307d0c91c8d4ada.json": "2ae86bc6327d5c0f9214837ea9fee96a1f012a7d449c13ed11d298eda0445f15",
+    "docs/steering/evidence/2026-10-29-community-audit/layer-board.json": "583200030ac082f26f97bee20e523474bbbad11028b774224bdd3c8dc73d2498",
+    "docs/steering/evidence/2026-10-29-community-audit/status-e9085c86d89449c2.json": "3170a0173642b2351252f6963e2eb26168b93cb55f053588181bdb79bf881453",
+    "docs/steering/evidence/2026-10-29-community-audit/status-9b921febc7ad4140.json": "cb9bce838d33effc94ac139f24c293dde5d199a18cc042342fc003a42836f6cb",
+    "docs/steering/evidence/2026-10-29-community-audit/muse_moe_w4a16-board.json": "35c4204f96b4bb81f4b50f0d793fc9963782e18e409d1c75eaebc1246cc428f2",
+    "docs/steering/evidence/2026-10-29-community-audit/overall-board.json": "717dc51a4811a394819f8715693aa385921c7ed96ba15845480aa62259ea9f72",
+    "docs/steering/evidence/2026-10-29-community-audit/receipt-summary.json": "30dbbfc072aa3c9ef785d187b7e6bf6655de370074d8a1638fe7bc7a5aa61dcd",
+    "docs/steering/evidence/2026-10-29-community-audit/status-75bca9775f6f4b0b.json": "1cb79d3dcb22aacbfc9e09d38a3c7ad9b4becf3c975707d1e0f58cfdc97e10d2",
+    "docs/steering/evidence/2026-10-29-community-audit/jobs.json": "c5ba65a098de40921867a3ca7147a157447a478d8116001b9fa5f9d2b61531af",
+    "docs/steering/evidence/2026-10-29-community-audit/pinned-sglang-source.json": "e8d8b6e24f321e03cc6f579e141ef2483826f80af0169c962da422739fd01d03"
+  },
+  "units": [
+    {
+      "line": 1,
+      "section": "Title",
+      "sha256": "72791c750b0dbbeb6c0a09fe3aac2fbc6f589f60e77cd3576b632e54e249d8b8",
+      "evidence": "section inline citations; all local evidence hashes conservatively invalidate the conclusion"
+    },
+    {
+      "line": 3,
+      "section": "Decision",
+      "sha256": "a15c7c13f167e5ac9204c02acb3f22d9fffdadf996618ee0e068a4b27e4c1511",
+      "evidence": "section inline citations; all local evidence hashes conservatively invalidate the conclusion"
+    },
+    {
+      "line": 5,
+      "section": "Decision",
+      "sha256": "e883469e7f0b0bf18c0b604f1bd0adb93a72485a2532ce4534d19e628fcf5ff7",
+      "evidence": "section inline citations; all local evidence hashes conservatively invalidate the conclusion"
+    },
+    {
+      "line": 7,
+      "section": "Decision",
+      "sha256": "589b92bdcdd97c4f90afc978979a8266b7afec72190c664794351d0d3778009c",
+      "evidence": "section inline citations; all local evidence hashes conservatively invalidate the conclusion"
+    },
+    {
+      "line": 9,
+      "section": "Decision",
+      "sha256": "afa4eac0a344f45e170d4d1b2768c9833ded03f402c68648bc41cae4b3fdbe4d",
+      "evidence": "section inline citations; all local evidence hashes conservatively invalidate the conclusion"
+    },
+    {
+      "line": 11,
+      "section": "Decision",
+      "sha256": "4c31106b11d5574e7a34e66eee32c767b7f6a73ee0356b8e8fe90d7e8b176d99",
+      "evidence": "section inline citations; all local evidence hashes conservatively invalidate the conclusion"
+    },
+    {
+      "line": 12,
+      "section": "Decision",
+      "sha256": "4794b7abf137ca9bb0c54ef0064c97c8207188825cbf668d05f043d54449fae5",
+      "evidence": "section inline citations; all local evidence hashes conservatively invalidate the conclusion"
+    },
+    {
+      "line": 13,
+      "section": "Decision",
+      "sha256": "b606b82bbb3585f4358b8e50d53a60b524ffd4d80fc4ac0f0939200c1409641d",
+      "evidence": "section inline citations; all local evidence hashes conservatively invalidate the conclusion"
+    },
+    {
+      "line": 14,
+      "section": "Decision",
+      "sha256": "d36578c742ae7da7a305e7022560023cdfcd81484ef1a9a824d7dad3d2aeabea",
+      "evidence": "section inline citations; all local evidence hashes conservatively invalidate the conclusion"
+    },
+    {
+      "line": 16,
+      "section": "Decision",
+      "sha256": "ddf17e3a462cb479bca0108048f66abaa4096235382847a94faa5d56840330d7",
+      "evidence": "section inline citations; all local evidence hashes conservatively invalidate the conclusion"
+    },
+    {
+      "line": 18,
+      "section": "Scope and evidence labels",
+      "sha256": "6b1b25c63de969219b2097feb8a4753c4abfd791589c4a02ee30ec84c0db047f",
+      "evidence": "section inline citations; all local evidence hashes conservatively invalidate the conclusion"
+    },
+    {
+      "line": 20,
+      "section": "Scope and evidence labels",
+      "sha256": "0c57ec39fcfefdf86e977c42911288e9893e88cc9f95d799adc43677df676118",
+      "evidence": "section inline citations; all local evidence hashes conservatively invalidate the conclusion"
+    },
+    {
+      "line": 22,
+      "section": "Scope and evidence labels",
+      "sha256": "3636ed669ab1f811257d091e59593593b33c9055967a447ce0f9c4b5219ac427",
+      "evidence": "section inline citations; all local evidence hashes conservatively invalidate the conclusion"
+    },
+    {
+      "line": 24,
+      "section": "Scope and evidence labels",
+      "sha256": "f903e4813300a2d2716b6c8cd7f674e05bba42d83e3936525322e6dc7846420b",
+      "evidence": "section inline citations; all local evidence hashes conservatively invalidate the conclusion"
+    },
+    {
+      "line": 25,
+      "section": "Scope and evidence labels",
+      "sha256": "a362233f4a26d8a01d6088fb2df3fb0ff88c531e4ff5f2db12c1b3b0ba5bd0bc",
+      "evidence": "section inline citations; all local evidence hashes conservatively invalidate the conclusion"
+    },
+    {
+      "line": 26,
+      "section": "Scope and evidence labels",
+      "sha256": "059ed1d59fa707e5b93392e83f643a158e597204627201aa37a67085986b23b3",
+      "evidence": "section inline citations; all local evidence hashes conservatively invalidate the conclusion"
+    },
+    {
+      "line": 27,
+      "section": "Scope and evidence labels",
+      "sha256": "a16c7a1db67fb26ba73a01f8f33c95fd5b08318e0dc0f8835067949c06032a2a",
+      "evidence": "section inline citations; all local evidence hashes conservatively invalidate the conclusion"
+    },
+    {
+      "line": 28,
+      "section": "Scope and evidence labels",
+      "sha256": "8516a8fbe4aaa306cdc91618d69b420007b8bae8956e1d17e0278ca17d21ebc1",
+      "evidence": "section inline citations; all local evidence hashes conservatively invalidate the conclusion"
+    },
+    {
+      "line": 30,
+      "section": "Scope and evidence labels",
+      "sha256": "2b28ebc0a3656adfe17ddf7413e40ad08ed2fe3b085e4e6c85925020b9ec37a5",
+      "evidence": "section inline citations; all local evidence hashes conservatively invalidate the conclusion"
+    },
+    {
+      "line": 32,
+      "section": "Current scores and available quota",
+      "sha256": "4b067e8d32ae7faea046de293ac74e5b253b4acf9056c2beec81d06da5c9e217",
+      "evidence": "section inline citations; all local evidence hashes conservatively invalidate the conclusion"
+    },
+    {
+      "line": 34,
+      "section": "Current scores and available quota",
+      "sha256": "829128933b53c755f1c50cb45134b1da0a3218006b6f5c772a4d4061a798e09c",
+      "evidence": "section inline citations; all local evidence hashes conservatively invalidate the conclusion"
+    },
+    {
+      "line": 36,
+      "section": "Current scores and available quota",
+      "sha256": "18b58c5e42aeefb11e693e4bb12375f294d596a32f79facac45c73852cb6456d",
+      "evidence": "section inline citations; all local evidence hashes conservatively invalidate the conclusion"
+    },
+    {
+      "line": 37,
+      "section": "Current scores and available quota",
+      "sha256": "12af00ef4beed04e98324a76d971f94419a92b77311cf21629020e3449b8f457",
+      "evidence": "section inline citations; all local evidence hashes conservatively invalidate the conclusion"
+    },
+    {
+      "line": 38,
+      "section": "Current scores and available quota",
+      "sha256": "500b5dcae23f6d75902f23c1658cce5881ca37f8a94c784f0ccc09e8513a9d46",
+      "evidence": "section inline citations; all local evidence hashes conservatively invalidate the conclusion"
+    },
+    {
+      "line": 39,
+      "section": "Current scores and available quota",
+      "sha256": "14ac7dedea098f49f966a01e675192286f4784467bfb5a3cb8d51194e5fc2990",
+      "evidence": "section inline citations; all local evidence hashes conservatively invalidate the conclusion"
+    },
+    {
+      "line": 40,
+      "section": "Current scores and available quota",
+      "sha256": "8c655b42e7b0c0a94a0180685680087067b298f6fa73eb7cf70fce98be5257cf",
+      "evidence": "section inline citations; all local evidence hashes conservatively invalidate the conclusion"
+    },
+    {
+      "line": 41,
+      "section": "Current scores and available quota",
+      "sha256": "475ecd9279fb405b1b71d04df4821cbbaadb803eff7825d965276da7c67419ae",
+      "evidence": "section inline citations; all local evidence hashes conservatively invalidate the conclusion"
+    },
+    {
+      "line": 43,
+      "section": "Current scores and available quota",
+      "sha256": "3c7bec5f8be3363300166bd3168ed3db63f5e2caa09c1a7fec374cf39d56e09b",
+      "evidence": "section inline citations; all local evidence hashes conservatively invalidate the conclusion"
+    },
+    {
+      "line": 45,
+      "section": "Current scores and available quota",
+      "sha256": "117485b80ce9d77f542f5e940f82c971371dd99ff14ad436f09d6b6de753279a",
+      "evidence": "section inline citations; all local evidence hashes conservatively invalidate the conclusion"
+    },
+    {
+      "line": 47,
+      "section": "Current scores and available quota",
+      "sha256": "55545357c3f469a94fbe6952a82b98a1cddf6c78a7e113a88ee278f82405685d",
+      "evidence": "section inline citations; all local evidence hashes conservatively invalidate the conclusion"
+    },
+    {
+      "line": 48,
+      "section": "Current scores and available quota",
+      "sha256": "23cca02b74f386463efa24796c7a9011b0d2c93f0c38b4d15d5d276205b59b43",
+      "evidence": "section inline citations; all local evidence hashes conservatively invalidate the conclusion"
+    },
+    {
+      "line": 49,
+      "section": "Current scores and available quota",
+      "sha256": "126391680e06919bc053abe331e73997bbd2dd2d7387804bb56b459a8c6ad0ca",
+      "evidence": "section inline citations; all local evidence hashes conservatively invalidate the conclusion"
+    },
+    {
+      "line": 50,
+      "section": "Current scores and available quota",
+      "sha256": "7113b92d41b0116da38ff90774e5a7ca1e0cd06eca7994f3f622f1c665299bf5",
+      "evidence": "section inline citations; all local evidence hashes conservatively invalidate the conclusion"
+    },
+    {
+      "line": 51,
+      "section": "Current scores and available quota",
+      "sha256": "c03bf4fcfd1501b73dfa579867efa130ac9ef1656bdde54c288bee167b104243",
+      "evidence": "section inline citations; all local evidence hashes conservatively invalidate the conclusion"
+    },
+    {
+      "line": 52,
+      "section": "Current scores and available quota",
+      "sha256": "8b4b6f1e600f1301667b8ed4efbfb26030a5611720d9d5f1fbde986bd6799484",
+      "evidence": "section inline citations; all local evidence hashes conservatively invalidate the conclusion"
+    },
+    {
+      "line": 53,
+      "section": "Current scores and available quota",
+      "sha256": "297228475b5d3c79e0feedc84b39690408c12550cb96408e69c77809f24a63dc",
+      "evidence": "section inline citations; all local evidence hashes conservatively invalidate the conclusion"
+    },
+    {
+      "line": 55,
+      "section": "Current scores and available quota",
+      "sha256": "4707c7c5f79f55c92cb8c1399bf972e7c61945ef44d11d8539537f27831bc4db",
+      "evidence": "section inline citations; all local evidence hashes conservatively invalidate the conclusion"
+    },
+    {
+      "line": 57,
+      "section": "Current scores and available quota",
+      "sha256": "e74b20d46a416d21cb93358c82394caf0ca90c6e47c86e6afa9f85012149cb57",
+      "evidence": "section inline citations; all local evidence hashes conservatively invalidate the conclusion"
+    },
+    {
+      "line": 59,
+      "section": "Audit of the uploaded findings",
+      "sha256": "26b9d454a568254cb8a5b23e7bd46812ef408d918819fdc9622c3d038801d77c",
+      "evidence": "section inline citations; all local evidence hashes conservatively invalidate the conclusion"
+    },
+    {
+      "line": 61,
+      "section": "Audit of the uploaded findings",
+      "sha256": "a67f129afdafb36a3f5081a3dedf17f6f90c867631ea41e114fd922b018256f1",
+      "evidence": "section inline citations; all local evidence hashes conservatively invalidate the conclusion"
+    },
+    {
+      "line": 62,
+      "section": "Audit of the uploaded findings",
+      "sha256": "23cca02b74f386463efa24796c7a9011b0d2c93f0c38b4d15d5d276205b59b43",
+      "evidence": "section inline citations; all local evidence hashes conservatively invalidate the conclusion"
+    },
+    {
+      "line": 63,
+      "section": "Audit of the uploaded findings",
+      "sha256": "bf0849e25f27cb2767e6f6604c71a9ee036cb5fbd92741aa0a9ba7bb2abe9438",
+      "evidence": "section inline citations; all local evidence hashes conservatively invalidate the conclusion"
+    },
+    {
+      "line": 64,
+      "section": "Audit of the uploaded findings",
+      "sha256": "f38f120b23731d1732fe7e54481fcdd4a8c7deaf944bee04c5c2859d7b177f61",
+      "evidence": "section inline citations; all local evidence hashes conservatively invalidate the conclusion"
+    },
+    {
+      "line": 65,
+      "section": "Audit of the uploaded findings",
+      "sha256": "09073a809ce0eeec9540cf2ae96f10a6c905807d50c08ee97f63bd9a34b6f4d4",
+      "evidence": "section inline citations; all local evidence hashes conservatively invalidate the conclusion"
+    },
+    {
+      "line": 66,
+      "section": "Audit of the uploaded findings",
+      "sha256": "384689ba442f06dc046433915758ffe96c9fa544db5c942c5190162d18faadba",
+      "evidence": "section inline citations; all local evidence hashes conservatively invalidate the conclusion"
+    },
+    {
+      "line": 67,
+      "section": "Audit of the uploaded findings",
+      "sha256": "63d93167e00a579a6c7aeb312bdd1db841fa8568ecaa8fc89f03aed266e8aa03",
+      "evidence": "section inline citations; all local evidence hashes conservatively invalidate the conclusion"
+    },
+    {
+      "line": 68,
+      "section": "Audit of the uploaded findings",
+      "sha256": "579641c2c998b760b90bb83125d2ce6a0c9aaea074f24aa0c0d8e6ba747d9fbe",
+      "evidence": "section inline citations; all local evidence hashes conservatively invalidate the conclusion"
+    },
+    {
+      "line": 69,
+      "section": "Audit of the uploaded findings",
+      "sha256": "e5782adbb73dba62a18226f58d8b04531ea9dee3b88e140379d09a959e641aab",
+      "evidence": "section inline citations; all local evidence hashes conservatively invalidate the conclusion"
+    },
+    {
+      "line": 70,
+      "section": "Audit of the uploaded findings",
+      "sha256": "c61e768838d379464fbfaa4c7c0aa728449fa3d7b7fb0fae1642573c3993924e",
+      "evidence": "section inline citations; all local evidence hashes conservatively invalidate the conclusion"
+    },
+    {
+      "line": 71,
+      "section": "Audit of the uploaded findings",
+      "sha256": "1e1c879f51b7281a0f6109af5c2f421a1c78164205acfe5fbb981f4515c6b676",
+      "evidence": "section inline citations; all local evidence hashes conservatively invalidate the conclusion"
+    },
+    {
+      "line": 72,
+      "section": "Audit of the uploaded findings",
+      "sha256": "9f6a03073219c0a4351530799ae7ab2a4579d3b1f56e95c39e959065652e4ef1",
+      "evidence": "section inline citations; all local evidence hashes conservatively invalidate the conclusion"
+    },
+    {
+      "line": 74,
+      "section": "Audit of the uploaded findings",
+      "sha256": "db1f9a4d203d77d3dcead0be1f5a03b7aa25e09a87da46fff0aa59bc6785bd44",
+      "evidence": "section inline citations; all local evidence hashes conservatively invalidate the conclusion"
+    },
+    {
+      "line": 76,
+      "section": "Integration manifest",
+      "sha256": "9656e05e30b1bd7109e1081248292f188ee0593b57e18e72d44000fcdedb044a",
+      "evidence": "section inline citations; all local evidence hashes conservatively invalidate the conclusion"
+    },
+    {
+      "line": 78,
+      "section": "Integration manifest",
+      "sha256": "21f24191ed15ac4535b452d18d236a658b63041ceb3e37f15690e172dd9546be",
+      "evidence": "section inline citations; all local evidence hashes conservatively invalidate the conclusion"
+    },
+    {
+      "line": 80,
+      "section": "Integration manifest",
+      "sha256": "194e795f12c5eac35ac6ff37194381d6517aea3daba870e4cf995f9a42ff1683",
+      "evidence": "section inline citations; all local evidence hashes conservatively invalidate the conclusion"
+    },
+    {
+      "line": 81,
+      "section": "Integration manifest",
+      "sha256": "23cca02b74f386463efa24796c7a9011b0d2c93f0c38b4d15d5d276205b59b43",
+      "evidence": "section inline citations; all local evidence hashes conservatively invalidate the conclusion"
+    },
+    {
+      "line": 82,
+      "section": "Integration manifest",
+      "sha256": "963cd7495e773e1f40382287cb2f179dde09b9198306022d12d0fc737b9a6eb6",
+      "evidence": "section inline citations; all local evidence hashes conservatively invalidate the conclusion"
+    },
+    {
+      "line": 83,
+      "section": "Integration manifest",
+      "sha256": "f312321d5840f68850dbad3763316187bb2be1f64a91e58df05fee16639a6eff",
+      "evidence": "section inline citations; all local evidence hashes conservatively invalidate the conclusion"
+    },
+    {
+      "line": 84,
+      "section": "Integration manifest",
+      "sha256": "700d2572ce3df954e1340d34b5a44de9579007402186bb298f765aed73a8466f",
+      "evidence": "section inline citations; all local evidence hashes conservatively invalidate the conclusion"
+    },
+    {
+      "line": 85,
+      "section": "Integration manifest",
+      "sha256": "59765e551a29b4af6f9a4740eab42b21d4e80931b866698ba36b6307936cb352",
+      "evidence": "section inline citations; all local evidence hashes conservatively invalidate the conclusion"
+    },
+    {
+      "line": 86,
+      "section": "Integration manifest",
+      "sha256": "41ffba63e9fa09bf8a92cfb98cf225685b613df5d2e8487f4e898b96ff0bc93e",
+      "evidence": "section inline citations; all local evidence hashes conservatively invalidate the conclusion"
+    },
+    {
+      "line": 88,
+      "section": "Integration manifest",
+      "sha256": "289eab3088599d41966733809da5e11edfe6e04409ff9746e74ec558d41c190d",
+      "evidence": "section inline citations; all local evidence hashes conservatively invalidate the conclusion"
+    },
+    {
+      "line": 90,
+      "section": "Integration manifest",
+      "sha256": "de3fc1164d259e41d17dd30955519251275cc52e6f4d064e8351133617fb3784",
+      "evidence": "section inline citations; all local evidence hashes conservatively invalidate the conclusion"
+    },
+    {
+      "line": 92,
+      "section": "Integration manifest",
+      "sha256": "9ca16fd548f77626d79abe030dc27581b65d9e7ba61c27776ba1b80d0d9a7aba",
+      "evidence": "section inline citations; all local evidence hashes conservatively invalidate the conclusion"
+    },
+    {
+      "line": 94,
+      "section": "Correctness and measurement work that remains",
+      "sha256": "4bd54d99a04f5ecc795dd56c0b15e28286752524daab1ff5008119b61d93b694",
+      "evidence": "section inline citations; all local evidence hashes conservatively invalidate the conclusion"
+    },
+    {
+      "line": 96,
+      "section": "Correctness and measurement work that remains",
+      "sha256": "6d43063efec3e2822e625c49deb4314043ef49405019ee1972325f062de177d7",
+      "evidence": "section inline citations; all local evidence hashes conservatively invalidate the conclusion"
+    },
+    {
+      "line": 98,
+      "section": "Correctness and measurement work that remains",
+      "sha256": "f916777997dafcd97f17d75db617791c51d1641d5bf59b3ab33c3a04b7e9840c",
+      "evidence": "section inline citations; all local evidence hashes conservatively invalidate the conclusion"
+    },
+    {
+      "line": 100,
+      "section": "Correctness and measurement work that remains",
+      "sha256": "cfb6e128780bd2f381258f7413da1f5e02361f3ec50842ebf46dd89fc1dedab1",
+      "evidence": "section inline citations; all local evidence hashes conservatively invalidate the conclusion"
+    },
+    {
+      "line": 102,
+      "section": "Correctness and measurement work that remains",
+      "sha256": "b1e3c6affd594a25c105e71c266b5d8a4a78230a6575102cdbe2bc4b925335ce",
+      "evidence": "section inline citations; all local evidence hashes conservatively invalidate the conclusion"
+    },
+    {
+      "line": 104,
+      "section": "Correctness and measurement work that remains",
+      "sha256": "d1bfff2488b0ad83552d865e62d0a79a43166a2d155c553d4bb93936aa1723a6",
+      "evidence": "section inline citations; all local evidence hashes conservatively invalidate the conclusion"
+    },
+    {
+      "line": 106,
+      "section": "Correctness and measurement work that remains",
+      "sha256": "2cbb3b8815a3fdab39754017d13e43f349ac2a702ca25c68690beaa738410457",
+      "evidence": "section inline citations; all local evidence hashes conservatively invalidate the conclusion"
+    },
+    {
+      "line": 108,
+      "section": "Correctness and measurement work that remains",
+      "sha256": "393daf2ae1bd1ae75b51401b2d42d18c8ba76541e279e59dac8b422afb95b114",
+      "evidence": "section inline citations; all local evidence hashes conservatively invalidate the conclusion"
+    },
+    {
+      "line": 110,
+      "section": "Correctness and measurement work that remains",
+      "sha256": "1ed3bb0006215ae1ad24edc79237ee951d32da7549ba0afb2fa8c7a46f7c8881",
+      "evidence": "section inline citations; all local evidence hashes conservatively invalidate the conclusion"
+    },
+    {
+      "line": 112,
+      "section": "Correctness and measurement work that remains",
+      "sha256": "2e6668cb0ce21889326a49b9ac66fbe1b4f8510aa437c884a7640a92cf52f324",
+      "evidence": "section inline citations; all local evidence hashes conservatively invalidate the conclusion"
+    },
+    {
+      "line": 114,
+      "section": "Correctness and measurement work that remains",
+      "sha256": "5d430c9660b0c31c63853db8f91a2f1ba1d5cfd0e220b1669b2d20b1366c8d7f",
+      "evidence": "section inline citations; all local evidence hashes conservatively invalidate the conclusion"
+    },
+    {
+      "line": 116,
+      "section": "Correctness and measurement work that remains",
+      "sha256": "cf32e44ae173d13e6e28b106eb11f179c2fee93b7a65bf5a159190f7cc38b595",
+      "evidence": "section inline citations; all local evidence hashes conservatively invalidate the conclusion"
+    },
+    {
+      "line": 118,
+      "section": "Correctness and measurement work that remains",
+      "sha256": "c71f1fb1288d6ab458d8db0b7f2e7f79f68c19f4afc14e59c57e615c4f54d4da",
+      "evidence": "section inline citations; all local evidence hashes conservatively invalidate the conclusion"
+    },
+    {
+      "line": 120,
+      "section": "Correctness and measurement work that remains",
+      "sha256": "8fcc08fb99dbaf807f613a3f9b93205480918c100f9e080baa666c831b6513bf",
+      "evidence": "section inline citations; all local evidence hashes conservatively invalidate the conclusion"
+    },
+    {
+      "line": 122,
+      "section": "Correctness and measurement work that remains",
+      "sha256": "5c28f7a269180aced0ac462519c6385551c7677923f1388671d99e8115e9f681",
+      "evidence": "section inline citations; all local evidence hashes conservatively invalidate the conclusion"
+    },
+    {
+      "line": 124,
+      "section": "Correctness and measurement work that remains",
+      "sha256": "841bf24e91dec9b253b313ccb597c546c4b8d0ff7503b67854c4c87660ce4fb7",
+      "evidence": "section inline citations; all local evidence hashes conservatively invalidate the conclusion"
+    },
+    {
+      "line": 126,
+      "section": "Correctness and measurement work that remains",
+      "sha256": "d7c2b76b2115fc98432ad1808741a98e4b80f3dcb009ef186e81a0d833988ee1",
+      "evidence": "section inline citations; all local evidence hashes conservatively invalidate the conclusion"
+    },
+    {
+      "line": 128,
+      "section": "Completed experiments and closed mechanisms",
+      "sha256": "354b902a182b5d9f351b465fde69ddebd013308552e43708d0f10f746fdcf9b9",
+      "evidence": "section inline citations; all local evidence hashes conservatively invalidate the conclusion"
+    },
+    {
+      "line": 130,
+      "section": "Completed experiments and closed mechanisms",
+      "sha256": "653829aece4aa91fee77e844d12350b9302064c75586c8655aba5b98aa72d3dd",
+      "evidence": "section inline citations; all local evidence hashes conservatively invalidate the conclusion"
+    },
+    {
+      "line": 132,
+      "section": "Completed experiments and closed mechanisms",
+      "sha256": "577227f745d2eb978a0cccc9d1044f61259b645a41a3a89a120c77aee4badcac",
+      "evidence": "section inline citations; all local evidence hashes conservatively invalidate the conclusion"
+    },
+    {
+      "line": 133,
+      "section": "Completed experiments and closed mechanisms",
+      "sha256": "23cca02b74f386463efa24796c7a9011b0d2c93f0c38b4d15d5d276205b59b43",
+      "evidence": "section inline citations; all local evidence hashes conservatively invalidate the conclusion"
+    },
+    {
+      "line": 134,
+      "section": "Completed experiments and closed mechanisms",
+      "sha256": "86732c855c2170ea264fa6e706216ff24e1c9d17f93deb8a36ad799e1b34f449",
+      "evidence": "section inline citations; all local evidence hashes conservatively invalidate the conclusion"
+    },
+    {
+      "line": 135,
+      "section": "Completed experiments and closed mechanisms",
+      "sha256": "3cefcf8f8884bad2f815577e7e0c29ee1dfeb2721ca6081d8d127d326fa847fe",
+      "evidence": "section inline citations; all local evidence hashes conservatively invalidate the conclusion"
+    },
+    {
+      "line": 136,
+      "section": "Completed experiments and closed mechanisms",
+      "sha256": "a198e8bc4fa5ddf476b333f53b4b5678a7dbaf174b4d38c885b1fa50d7dad7db",
+      "evidence": "section inline citations; all local evidence hashes conservatively invalidate the conclusion"
+    },
+    {
+      "line": 137,
+      "section": "Completed experiments and closed mechanisms",
+      "sha256": "5ad7a7bafb9bd2c9fffbd28b37fa21001424240323350bf9f0d4ce6f8fd1993b",
+      "evidence": "section inline citations; all local evidence hashes conservatively invalidate the conclusion"
+    },
+    {
+      "line": 138,
+      "section": "Completed experiments and closed mechanisms",
+      "sha256": "bb0497fda19e3687dd202ff712377a7d9eb8bc2e4182069fd65c810972948925",
+      "evidence": "section inline citations; all local evidence hashes conservatively invalidate the conclusion"
+    },
+    {
+      "line": 139,
+      "section": "Completed experiments and closed mechanisms",
+      "sha256": "0abaa92c51605c35e18502aab2e2153ad733536aab209ae96cc23fb8625c123e",
+      "evidence": "section inline citations; all local evidence hashes conservatively invalidate the conclusion"
+    },
+    {
+      "line": 140,
+      "section": "Completed experiments and closed mechanisms",
+      "sha256": "4e55f35c693da3fa6bda184d4a68c95ff1183cbec431d2c3e1c7ba88021e1cb4",
+      "evidence": "section inline citations; all local evidence hashes conservatively invalidate the conclusion"
+    },
+    {
+      "line": 141,
+      "section": "Completed experiments and closed mechanisms",
+      "sha256": "ca7c8e5802991ebfa14d0a5687bb161677cf22d10fc713af48d01b3c06f5b290",
+      "evidence": "section inline citations; all local evidence hashes conservatively invalidate the conclusion"
+    },
+    {
+      "line": 142,
+      "section": "Completed experiments and closed mechanisms",
+      "sha256": "2a156fbba00b3e57b6c0a7419e51de60788a3119604f9722586dc2e5837e9523",
+      "evidence": "section inline citations; all local evidence hashes conservatively invalidate the conclusion"
+    },
+    {
+      "line": 144,
+      "section": "The bounded research slot",
+      "sha256": "cca6c451d50f183156f6cff35497fb5f6a022b9087279dc8587a031de374cac0",
+      "evidence": "section inline citations; all local evidence hashes conservatively invalidate the conclusion"
+    },
+    {
+      "line": 146,
+      "section": "The bounded research slot",
+      "sha256": "3e70eb50e5cedc7bdb367bbfa480ee692cbccdd5d8d29d024749721a7f5b5a0e",
+      "evidence": "section inline citations; all local evidence hashes conservatively invalidate the conclusion"
+    },
+    {
+      "line": 148,
+      "section": "The bounded research slot",
+      "sha256": "765ad168d4ebd8891d6fef6b273334e4ab8a4d34519ef6d2b010f9d43c36851f",
+      "evidence": "section inline citations; all local evidence hashes conservatively invalidate the conclusion"
+    },
+    {
+      "line": 150,
+      "section": "The bounded research slot",
+      "sha256": "db4e4705e5a41b97d839fd9ac735a4ccd759abe2af9f52d88835b1a181ca5ccf",
+      "evidence": "section inline citations; all local evidence hashes conservatively invalidate the conclusion"
+    },
+    {
+      "line": 152,
+      "section": "The bounded research slot",
+      "sha256": "d31c2d88b9870dff7e175958fd9f60c847b3de68a8854ed5f4f6f783f03c3c43",
+      "evidence": "section inline citations; all local evidence hashes conservatively invalidate the conclusion"
+    },
+    {
+      "line": 154,
+      "section": "Execution and stopping plan",
+      "sha256": "b16e7f52dd0cd5b47b851d427776048f2e3b52244b61abb3eaf833cadfa28b9f",
+      "evidence": "section inline citations; all local evidence hashes conservatively invalidate the conclusion"
+    },
+    {
+      "line": 156,
+      "section": "Execution and stopping plan",
+      "sha256": "6cdf1f6c781eb5f2ad6b5e34891f554c5dcb61904b084327430cda831d2ec0b0",
+      "evidence": "section inline citations; all local evidence hashes conservatively invalidate the conclusion"
+    },
+    {
+      "line": 158,
+      "section": "Execution and stopping plan",
+      "sha256": "094e6dc6762e7a45de4a1339f04a685c903bd056a7b660e40dcee6ff5d973702",
+      "evidence": "section inline citations; all local evidence hashes conservatively invalidate the conclusion"
+    },
+    {
+      "line": 160,
+      "section": "Execution and stopping plan",
+      "sha256": "218eca20e663b48bdffd41f349ccf76644ce2bf317b9cbe3b16dd2e9c882e953",
+      "evidence": "section inline citations; all local evidence hashes conservatively invalidate the conclusion"
+    },
+    {
+      "line": 161,
+      "section": "Execution and stopping plan",
+      "sha256": "23cca02b74f386463efa24796c7a9011b0d2c93f0c38b4d15d5d276205b59b43",
+      "evidence": "section inline citations; all local evidence hashes conservatively invalidate the conclusion"
+    },
+    {
+      "line": 162,
+      "section": "Execution and stopping plan",
+      "sha256": "704aa49bdb311f8592bae0dede8803703ebb211e825301e4740257e5e5e366ad",
+      "evidence": "section inline citations; all local evidence hashes conservatively invalidate the conclusion"
+    },
+    {
+      "line": 163,
+      "section": "Execution and stopping plan",
+      "sha256": "8cc004adc8e5b03337d7d1c59d873fdbe26e7ce59e738f0240d27a4045852047",
+      "evidence": "section inline citations; all local evidence hashes conservatively invalidate the conclusion"
+    },
+    {
+      "line": 164,
+      "section": "Execution and stopping plan",
+      "sha256": "53a6fcec29007d7ad92e4e341b38b1e169eda3de195966be0e95bc85900ba0c5",
+      "evidence": "section inline citations; all local evidence hashes conservatively invalidate the conclusion"
+    },
+    {
+      "line": 165,
+      "section": "Execution and stopping plan",
+      "sha256": "2921f1236f32e8d5cf8bc7847efd0bd297efeac48bea5ab11d2ac4efa15e8cb6",
+      "evidence": "section inline citations; all local evidence hashes conservatively invalidate the conclusion"
+    },
+    {
+      "line": 166,
+      "section": "Execution and stopping plan",
+      "sha256": "42727b3a66021619b57d210c31c9ae1efaf6303dc791236bec39b2f7d8967321",
+      "evidence": "section inline citations; all local evidence hashes conservatively invalidate the conclusion"
+    },
+    {
+      "line": 167,
+      "section": "Execution and stopping plan",
+      "sha256": "037e30f80637213f1829b43a4c8638c23f6231ed128378c941cfad58fbb2e8e3",
+      "evidence": "section inline citations; all local evidence hashes conservatively invalidate the conclusion"
+    },
+    {
+      "line": 168,
+      "section": "Execution and stopping plan",
+      "sha256": "580b7ca35ca4ed626d7e5c16b3a1d530e842ab0053c059c3a1dee95b48c22911",
+      "evidence": "section inline citations; all local evidence hashes conservatively invalidate the conclusion"
+    },
+    {
+      "line": 170,
+      "section": "Execution and stopping plan",
+      "sha256": "5d0cea318e11bd67f35aa98394a3821e0ee788c4189006f81d426faf5194e8ec",
+      "evidence": "section inline citations; all local evidence hashes conservatively invalidate the conclusion"
+    },
+    {
+      "line": 172,
+      "section": "Execution and stopping plan",
+      "sha256": "5444941944d1a64f72d66ab332793cb2572b2847cf753830954ee76763afd079",
+      "evidence": "section inline citations; all local evidence hashes conservatively invalidate the conclusion"
+    },
+    {
+      "line": 174,
+      "section": "Execution and stopping plan",
+      "sha256": "46347edb677cf19c308d224ffbc0aa9c508386943f049d93d33fdf5e00f8f2a8",
+      "evidence": "section inline citations; all local evidence hashes conservatively invalidate the conclusion"
+    },
+    {
+      "line": 176,
+      "section": "Execution and stopping plan",
+      "sha256": "b4f76553b1968ea36e3c304d123b547f94970f842a438de86670cb38c7eccaa3",
+      "evidence": "section inline citations; all local evidence hashes conservatively invalidate the conclusion"
+    },
+    {
+      "line": 178,
+      "section": "Audit limits and handoff",
+      "sha256": "f7ea71f9171049c0ed02845c3da89a80ea8c0c173dfc8f90f5debc7d6a32c173",
+      "evidence": "section inline citations; all local evidence hashes conservatively invalidate the conclusion"
+    },
+    {
+      "line": 180,
+      "section": "Audit limits and handoff",
+      "sha256": "4794c4884d9d86a962bec0af702dc0583a2000c00052bb99d4a98870746f4e79",
+      "evidence": "section inline citations; all local evidence hashes conservatively invalidate the conclusion"
+    },
+    {
+      "line": 182,
+      "section": "Audit limits and handoff",
+      "sha256": "9434c8a747f99631da8bfd2576bbfcebfa41b4ed0d315acc4c7e1a81aac97e6a",
+      "evidence": "section inline citations; all local evidence hashes conservatively invalidate the conclusion"
+    }
+  ]
+}

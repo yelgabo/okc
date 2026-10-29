@@ -1,0 +1,40 @@
+base: ptxas C75xx/ptxas warnings: 0
+new0: ptxas C75xx/ptxas warnings: 0
+new1: ptxas C75xx/ptxas warnings: 0
+new0 vs base: 15 / 15 kernels, 15 SASS-identical
+  new0: kernels with spill stores/loads: 0
+new1 vs base: 15 / 15 kernels, 7 SASS-identical
+  attn_one_kernelILi8ELi15EEEvNS_6ParamsE
+    instrs 1920 -> 1920, regs 80 -> 80, spill (0, 0, 0) -> (0, 0, 0)
+    opcode count changes: {'NOP': (14, 13), 'PREEXIT': (0, 1)}
+  attn_one_kernelILi8ELi11EEEvNS_6ParamsE
+    instrs 2504 -> 2504, regs 109 -> 109, spill (0, 0, 0) -> (0, 0, 0)
+    opcode count changes: {'NOP': (11, 10), 'PREEXIT': (0, 1)}
+  attn_one_kernelILi1ELi49EEEvNS_6ParamsE
+    instrs 3448 -> 3448, regs 128 -> 128, spill (0, 0, 0) -> (0, 0, 0)
+    opcode count changes: {'NOP': (27, 26), 'PREEXIT': (0, 1)}
+  attn_one_kernelILi1ELi17EEEvNS_6ParamsE
+    instrs 2648 -> 2656, regs 116 -> 116, spill (0, 0, 0) -> (0, 0, 0)
+    opcode count changes: {'NOP': (11, 18), 'PREEXIT': (0, 1)}
+  attn_one_kernelILi1ELi13EEEvNS_6ParamsE
+    instrs 1544 -> 1544, regs 76 -> 76, spill (0, 0, 0) -> (0, 0, 0)
+    opcode count changes: {'@!P3': (41, 50), '@!P5': (29, 20), '@P3': (6, 7), '@P4': (5, 1), '@P5': (7, 10), 'IADD3.X': (9, 10), 'IMAD': (36, 34), 'IMAD.IADD': (14, 15), 'IMAD.MOV': (1, 2), 'IMAD.SHL.U32': (24, 25), 'IMAD.X': (2, 1), 'LDC': (5, 6), 'LEA.HI.SX32': (8, 7), 'NOP': (9, 11), 'PREEXIT': (0, 1), 'SHF.L.U32': (9, 7), 'ULDC': (7, 6), 'VIADD': (23, 22)}
+  attn_one_kernelILi1ELi11EEEvNS_6ParamsE
+    instrs 2384 -> 2384, regs 115 -> 115, spill (0, 0, 0) -> (0, 0, 0)
+    opcode count changes: {'NOP': (20, 19), 'PREEXIT': (0, 1)}
+  attn_one_kernelILi1ELi3EEEvNS_6ParamsE
+    instrs 2024 -> 2032, regs 109 -> 109, spill (0, 0, 0) -> (0, 0, 0)
+    opcode count changes: {'@P1': (4, 3), '@P2': (34, 35), 'CS2R': (35, 34), 'IMAD.MOV.U32': (104, 107), 'NOP': (13, 18), 'PREEXIT': (0, 1)}
+  attn_one_kernelILi1ELi1EEEvNS_6ParamsE
+    instrs 1936 -> 1944, regs 108 -> 108, spill (0, 0, 0) -> (0, 0, 0)
+    opcode count changes: {'@P1': (6, 5), '@P2': (7, 8), 'NOP': (12, 19), 'PREEXIT': (0, 1)}
+  new1: kernels with spill stores/loads: 0
+attn_one_kernelILi8ELi15EEEvNS_6ParamsE {'PREEXIT': (0, 1)}
+attn_one_kernelILi8ELi11EEEvNS_6ParamsE {'PREEXIT': (0, 1)}
+attn_one_kernelILi1ELi49EEEvNS_6ParamsE {'PREEXIT': (0, 1)}
+attn_one_kernelILi1ELi17EEEvNS_6ParamsE {'PREEXIT': (0, 1)}
+attn_one_kernelILi1ELi13EEEvNS_6ParamsE {'PREEXIT': (0, 1)}
+attn_one_kernelILi1ELi11EEEvNS_6ParamsE {'PREEXIT': (0, 1)}
+attn_one_kernelILi1ELi3EEEvNS_6ParamsE {'PREEXIT': (0, 1)}
+attn_one_kernelILi1ELi1EEEvNS_6ParamsE {'PREEXIT': (0, 1)}
+kernels with differing counts: 8 of 15
