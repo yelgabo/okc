@@ -1,0 +1,92 @@
+14.5, qkv8raw 15.6, cgemv 13.5, cublas 17.9 -> cgemv
+ours| tune qkv_gate  m= 8: qkv8 14.4, qkv8raw 16.1, cublas 18.1 -> qkv8
+ours| tune router    m= 1: rgemv 7.9, router8 9.4, baseline 15.0 -> rgemv
+ours| tune router    m= 8: router8 9.6, baseline 31.0 -> router8
+ours| tune unpooler  m= 1: slice8 8.6, slice8raw 9.1, cgemv 8.1, sgemv 8.0, cublas 11.6 -> sgemv
+ours| tune unpooler  m= 8: slice8 8.9, slice8raw 9.1, cublas 11.8 -> slice8
+ABPREP ours 72.9 s
+pub| [okc] tune qkv_gate m=1: cgemv=12.42 sk2=13.06 torch=17.28 -> cgemv
+pub| [okc] tune o m=1: cgemv=8.48 sk2=9.02 torch=9.98 -> cgemv
+pub| [okc] tune pooler m=1: cgemv=17.25 sk2=17.95 torch=25.09 -> cgemv
+pub| [okc] tune unpooler m=1: cgemv=7.07 sgemv=7.26 sk2=7.87 torch=10.43 -> cgemv
+pub| [okc] tune router m=1: rgemv=7.14 sk2=8.32 torch=17.86 -> rgemv
+pub| [okc] tune qkv_gate m=8: sk2=13.28 torch=17.66 -> sk2
+pub| [okc] tune o m=8: sk2=9.15 torch=9.89 -> sk2
+pub| [okc] tune pooler m=8: sk2=18.02 torch=24.93 -> sk2
+pub| [okc] tune unpooler m=8: sk2=7.97 torch=10.59 -> sk2
+pub| [okc] tune router m=8: sk2=8.58 torch=18.21 -> sk2
+pub| [okc] disabled: []
+ABPREP pub 89.0 s
+base| tune o         m= 1: o8 10.1, o8raw 10.5, cgemv 9.6, cublas 10.8 -> cgemv
+base| tune o         m= 8: o8 10.0, o8raw 10.4, cublas 10.7 -> o8
+base| tune pooler    m= 1: pool8 18.5, pool8raw 21.9, cgemv 22.7, cublas 25.5 -> pool8
+base| tune pooler    m= 8: pool8 18.6, pool8raw 22.0, cublas 25.3 -> pool8
+base| tune qkv_gate  m= 1: qkv8 14.3, qkv8raw 15.6, cgemv 14.6, cublas 18.4 -> qkv8
+base| tune qkv_gate  m= 8: qkv8 14.4, qkv8raw 15.8, cublas 18.2 -> qkv8
+base| tune router    m= 1: rgemv 7.9, router8 9.4, baseline 15.3 -> rgemv
+base| tune router    m= 8: router8 9.5, baseline 31.2 -> router8
+base| tune unpooler  m= 1: slice8 8.6, slice8raw 9.0, cgemv 8.1, sgemv 7.9, cublas 11.2 -> sgemv
+base| tune unpooler  m= 8: slice8 8.6, slice8raw 9.0, cublas 11.5 -> slice8
+ABPREP base 21.3 s
+lb2| tune o         m= 1: o8 10.0, o8raw 10.5, cgemv 9.4, cublas 11.0 -> cgemv
+lb2| tune o         m= 8: o8 10.1, o8raw 10.5, cublas 10.7 -> o8
+lb2| tune pooler    m= 1: pool8 18.5, pool8raw 21.8, cgemv 20.6, cublas 25.4 -> pool8
+lb2| tune pooler    m= 8: pool8 18.2, pool8raw 22.0, cublas 25.5 -> pool8
+lb2| tune qkv_gate  m= 1: qkv8 14.3, qkv8raw 15.4, cgemv 13.7, cublas 18.2 -> cgemv
+lb2| tune qkv_gate  m= 8: qkv8 14.2, qkv8raw 16.0, cublas 18.4 -> qkv8
+lb2| tune router    m= 1: rgemv 7.9, router8 9.4, baseline 15.2 -> rgemv
+lb2| tune router    m= 8: router8 9.6, baseline 31.2 -> router8
+lb2| tune unpooler  m= 1: slice8 8.7, slice8raw 9.0, cgemv 8.0, sgemv 8.0, cublas 11.4 -> cgemv
+lb2| tune unpooler  m= 8: slice8 8.7, slice8raw 8.9, cublas 11.5 -> slice8
+ABPREP lb2 21.2 s
+nomin| tune o         m= 1: o8 10.0, o8raw 10.5, cgemv 9.3, cublas 10.9 -> cgemv
+nomin| tune o         m= 8: o8 9.9, o8raw 10.6, cublas 10.7 -> o8
+nomin| tune pooler    m= 1: pool8 18.4, pool8raw 21.8, cgemv 21.1, cublas 25.1 -> pool8
+nomin| tune pooler    m= 8: pool8 18.5, pool8raw 21.8, cublas 25.6 -> pool8
+nomin| tune qkv_gate  m= 1: qkv8 14.2, qkv8raw 15.4, cgemv 13.4, cublas 18.2 -> cgemv
+nomin| tune qkv_gate  m= 8: qkv8 14.2, qkv8raw 15.8, cublas 18.1 -> qkv8
+nomin| tune router    m= 1: rgemv 8.0, router8 9.4, baseline 15.0 -> rgemv
+nomin| tune router    m= 8: router8 9.5, baseline 30.9 -> router8
+nomin| tune unpooler  m= 1: slice8 8.7, slice8raw 9.0, cgemv 8.1, sgemv 7.9, cublas 11.2 -> sgemv
+nomin| tune unpooler  m= 8: slice8 8.8, slice8raw 8.9, cublas 11.6 -> slice8
+ABPREP nomin 21.3 s
+ABCOLD qkv_gate m=1 p0 sgl=18.30 ours=13.23 ours.qkv8=14.30 ours.cgemv=13.25 base=14.24 base.qkv8=13.92 base.cgemv=14.59 lb2=13.55 lb2.qkv8=14.27 lb2.cgemv=13.60 nomin=13.22 nomin.qkv8=14.27 nomin.cgemv=13.17 pub=12.96 pub.cgemv=12.78
+ABPAIR qkv_gate m=1 p0 ours.cgemv-base.cgemv=-1.31[-1.63,-0.96] ours.cgemv-pub.cgemv=+0.48[+0.19,+0.77] base.cgemv-pub.cgemv=+1.79[+1.50,+2.11] lb2.cgemv-ours.cgemv=+0.35[-0.03,+0.67] nomin.cgemv-ours.cgemv=-0.05[-0.42,+0.29] ours-pub=+0.22[-0.06,+0.58] base-pub=+1.28[+0.90,+1.66] ours-base=-0.99[-1.34,-0.74]
+ABCOLD qkv_gate m=1 p1 sgl=18.27 ours=13.31 ours.qkv8=14.27 ours.cgemv=13.12 base=14.11 base.qkv8=13.79 base.cgemv=14.40 lb2=13.47 lb2.qkv8=14.18 lb2.cgemv=13.47 nomin=13.15 nomin.qkv8=14.21 nomin.cgemv=13.09 pub=12.90 pub.cgemv=12.70
+ABPAIR qkv_gate m=1 p1 ours.cgemv-base.cgemv=-1.25[-1.50,-0.96] ours.cgemv-pub.cgemv=+0.35[+0.00,+0.67] base.cgemv-pub.cgemv=+1.63[+1.22,+1.98] lb2.cgemv-ours.cgemv=+0.32[+0.00,+0.67] nomin.cgemv-ours.cgemv=+0.00[-0.32,+0.38] ours-pub=+0.42[+0.10,+0.83] base-pub=+1.23[+0.96,+1.57] ours-base=-0.77[-1.02,-0.45]
+ABCOLD o m=1 p0 sgl=10.75 ours=9.22 ours.o8=9.92 ours.cgemv=9.22 base=9.47 base.o8=9.89 base.cgemv=9.44 lb2=9.38 lb2.o8=9.89 lb2.cgemv=9.31 nomin=9.12 nomin.o8=9.73 nomin.cgemv=9.10 pub=8.96 pub.cgemv=8.90
+ABPAIR o m=1 p0 ours.cgemv-base.cgemv=-0.16[-0.42,+0.10] ours.cgemv-pub.cgemv=+0.30[+0.03,+0.70] base.cgemv-pub.cgemv=+0.58[+0.19,+0.83] lb2.cgemv-ours.cgemv=+0.10[-0.29,+0.35] nomin.cgemv-ours.cgemv=-0.11[-0.48,+0.26] ours-pub=+0.26[-0.03,+0.58] base-pub=+0.54[+0.19,+0.80] ours-base=-0.21[-0.48,+0.10]
+ABCOLD o m=1 p1 sgl=10.85 ours=9.18 ours.o8=9.92 ours.cgemv=9.25 base=9.47 base.o8=9.95 base.cgemv=9.47 lb2=9.34 lb2.o8=9.92 lb2.cgemv=9.34 nomin=9.22 nomin.o8=9.89 nomin.cgemv=9.18 pub=9.12 pub.cgemv=8.99
+ABPAIR o m=1 p1 ours.cgemv-base.cgemv=-0.16[-0.38,+0.03] ours.cgemv-pub.cgemv=+0.18[-0.03,+0.51] base.cgemv-pub.cgemv=+0.45[+0.16,+0.77] lb2.cgemv-ours.cgemv=+0.06[-0.19,+0.38] nomin.cgemv-ours.cgemv=-0.03[-0.35,+0.22] ours-pub=+0.03[-0.22,+0.32] base-pub=+0.40[+0.10,+0.70] ours-base=-0.29[-0.64,-0.06]
+ABCOLD pooler m=1 p0 sgl=25.70 ours=18.69 ours.pool8=18.34 ours.cgemv=18.72 base=18.66 base.pool8=18.40 base.cgemv=22.08 lb2=18.62 lb2.pool8=18.42 lb2.cgemv=20.74 nomin=18.61 nomin.pool8=18.43 nomin.cgemv=20.54 pub=17.63 pub.cgemv=17.50
+ABPAIR pooler m=1 p0 ours.cgemv-base.cgemv=-3.41[-3.94,-3.01] ours.cgemv-pub.cgemv=+1.17[+0.80,+1.70] base.cgemv-pub.cgemv=+4.54[+4.19,+4.93] lb2.cgemv-ours.cgemv=+1.98[+1.60,+2.46] nomin.cgemv-ours.cgemv=+1.86[+1.44,+2.24] ours-pub=+1.06[+0.74,+1.44] base-pub=+1.02[+0.61,+1.44] ours-base=+0.06[-0.42,+0.48]
+ABCOLD pooler m=1 p1 sgl=25.62 ours=18.59 ours.pool8=18.46 ours.cgemv=18.85 base=18.66 base.pool8=18.50 base.cgemv=22.27 lb2=18.66 lb2.pool8=18.46 lb2.cgemv=20.86 nomin=18.75 nomin.pool8=18.50 nomin.cgemv=20.64 pub=17.66 pub.cgemv=17.60
+ABPAIR pooler m=1 p1 ours.cgemv-base.cgemv=-3.36[-3.84,-3.01] ours.cgemv-pub.cgemv=+1.26[+0.83,+1.79] base.cgemv-pub.cgemv=+4.64[+4.29,+5.06] lb2.cgemv-ours.cgemv=+1.95[+1.50,+2.53] nomin.cgemv-ours.cgemv=+1.78[+1.34,+2.24] ours-pub=+0.90[+0.54,+1.44] base-pub=+1.02[+0.64,+1.31] ours-base=-0.06[-0.45,+0.32]
+ABCOLD unpooler m=1 p0 sgl=11.26 ours=7.65 ours.slice8=8.48 ours.cgemv=7.84 ours.sgemv=7.55 base=7.65 base.slice8=8.48 base.cgemv=7.87 base.sgemv=7.62 lb2=7.68 lb2.slice8=8.77 lb2.cgemv=7.68 lb2.sgemv=7.68 nomin=7.73 nomin.slice8=8.58 nomin.cgemv=7.94 nomin.sgemv=7.71 pub=7.49 pub.cgemv=7.26
+ABPAIR unpooler m=1 p0 ours.cgemv-base.cgemv=-0.03[-0.26,+0.22] ours.cgemv-pub.cgemv=+0.54[+0.32,+0.83] base.cgemv-pub.cgemv=+0.58[+0.29,+0.93] lb2.cgemv-ours.cgemv=-0.19[-0.42,+0.10] nomin.cgemv-ours.cgemv=+0.10[-0.16,+0.38] ours-pub=+0.16[-0.06,+0.38] base-pub=+0.10[-0.10,+0.48] ours-base=+0.06[-0.19,+0.29]
+ABCOLD unpooler m=1 p1 sgl=11.04 ours=7.58 ours.slice8=8.54 ours.cgemv=7.84 ours.sgemv=7.55 base=7.65 base.slice8=8.48 base.cgemv=7.87 base.sgemv=7.58 lb2=7.62 lb2.slice8=8.67 lb2.cgemv=7.62 lb2.sgemv=7.60 nomin=7.55 nomin.slice8=8.58 nomin.cgemv=7.97 nomin.sgemv=7.65 pub=7.46 pub.cgemv=7.41
+ABPAIR unpooler m=1 p1 ours.cgemv-base.cgemv=+0.00[-0.22,+0.19] ours.cgemv-pub.cgemv=+0.45[+0.19,+0.70] base.cgemv-pub.cgemv=+0.45[+0.22,+0.77] lb2.cgemv-ours.cgemv=-0.22[-0.51,+0.03] nomin.cgemv-ours.cgemv=+0.14[-0.19,+0.38] ours-pub=+0.13[-0.13,+0.32] base-pub=+0.19[-0.03,+0.45] ours-base=-0.03[-0.29,+0.16]
+ABCOLD router m=1 p0 sgl=15.23 ours=7.62 ours.rgemv=7.62 ours.router8=9.38 base=7.68 base.rgemv=7.65 base.router8=9.31 lb2=7.68 lb2.rgemv=7.52 lb2.router8=9.22 nomin=7.52 nomin.rgemv=7.55 nomin.router8=9.28 pub=7.58
+ABPAIR router m=1 p0 ours-pub=+0.03[-0.19,+0.29] base-pub=+0.10[-0.16,+0.35] ours-base=+0.00[-0.32,+0.19]
+ABCOLD router m=1 p1 sgl=14.93 ours=7.57 ours.rgemv=7.52 ours.router8=9.22 base=7.62 base.rgemv=7.49 base.router8=9.18 lb2=7.68 lb2.rgemv=7.58 lb2.router8=9.31 nomin=7.68 nomin.rgemv=7.58 nomin.router8=9.34 pub=7.68
+ABPAIR router m=1 p1 ours-pub=-0.14[-0.42,+0.10] base-pub=-0.11[-0.35,+0.26] ours-base=-0.03[-0.35,+0.26]
+ABCOLD qkv_gate m=8 p0 sgl=18.69 ours=14.62 ours.qkv8=14.34 base=14.66 base.qkv8=14.34 lb2=14.66 lb2.qkv8=14.40 nomin=14.59 nomin.qkv8=14.24 pub=13.79
+ABPAIR qkv_gate m=8 p0 ours-pub=+0.80[+0.58,+1.09] base-pub=+0.83[+0.54,+1.09] ours-base=-0.03[-0.19,+0.29]
+ABCOLD qkv_gate m=8 p1 sgl=18.62 ours=14.53 ours.qkv8=14.27 base=14.56 base.qkv8=14.19 lb2=14.53 lb2.qkv8=14.32 nomin=14.46 nomin.qkv8=14.27 pub=13.82
+ABPAIR qkv_gate m=8 p1 ours-pub=+0.67[+0.42,+0.93] base-pub=+0.74[+0.42,+1.02] ours-base=-0.02[-0.26,+0.22]
+ABCOLD o m=8 p0 sgl=10.91 ours=10.05 ours.o8=9.86 base=10.18 base.o8=9.98 lb2=10.14 lb2.o8=9.95 nomin=10.05 nomin.o8=9.95 pub=9.95
+ABPAIR o m=8 p0 ours-pub=+0.10[-0.13,+0.32] base-pub=+0.22[-0.06,+0.48] ours-base=-0.10[-0.29,+0.13]
+ABCOLD o m=8 p1 sgl=10.98 ours=10.13 ours.o8=9.92 base=10.14 base.o8=9.98 lb2=10.11 lb2.o8=9.95 nomin=10.02 nomin.o8=9.92 pub=9.79
+ABPAIR o m=8 p1 ours-pub=+0.32[+0.10,+0.54] base-pub=+0.35[+0.10,+0.61] ours-base=-0.02[-0.22,+0.16]
+ABCOLD pooler m=8 p0 sgl=25.94 ours=18.83 ours.pool8=18.62 base=18.83 base.pool8=18.66 lb2=18.78 lb2.pool8=18.69 nomin=18.80 nomin.pool8=18.69 pub=18.56
+ABPAIR pooler m=8 p0 ours-pub=+0.27[-0.10,+0.64] base-pub=+0.22[-0.16,+0.61] ours-base=-0.03[-0.32,+0.32]
+ABCOLD pooler m=8 p1 sgl=25.86 ours=18.80 ours.pool8=18.64 base=18.91 base.pool8=18.78 lb2=18.85 lb2.pool8=18.72 nomin=18.93 nomin.pool8=18.75 pub=18.66
+ABPAIR pooler m=8 p1 ours-pub=+0.13[-0.22,+0.48] base-pub=+0.18[-0.16,+0.61] ours-base=-0.10[-0.48,+0.26]
+ABCOLD unpooler m=8 p0 sgl=11.52 ours=8.77 ours.slice8=8.61 base=8.80 base.slice8=8.61 lb2=8.70 lb2.slice8=8.61 nomin=8.75 nomin.slice8=8.74 pub=8.61
+ABPAIR unpooler m=8 p0 ours-pub=+0.16[+0.00,+0.42] base-pub=+0.19[-0.03,+0.42] ours-base=+0.02[-0.16,+0.19]
+ABCOLD unpooler m=8 p1 sgl=11.65 ours=8.90 ours.slice8=8.74 base=8.93 base.slice8=8.74 lb2=8.83 lb2.slice8=8.70 nomin=8.86 nomin.slice8=8.72 pub=8.61
+ABPAIR unpooler m=8 p1 ours-pub=+0.29[+0.06,+0.48] base-pub=+0.35[+0.06,+0.54] ours-base=-0.03[-0.22,+0.16]
+ABCOLD router m=8 p0 sgl=30.99 ours=9.50 ours.router8=9.26 base=9.47 base.router8=9.28 lb2=9.47 lb2.router8=9.25 nomin=9.54 nomin.router8=9.22 pub=9.22
+ABPAIR router m=8 p0 ours-pub=+0.26[+0.06,+0.48] base-pub=+0.26[+0.00,+0.48] ours-base=-0.03[-0.19,+0.19]
+ABCOLD router m=8 p1 sgl=30.82 ours=9.47 ours.router8=9.25 base=9.57 base.router8=9.41 lb2=9.57 lb2.router8=9.34 nomin=9.60 nomin.router8=9.41 pub=9.31
+ABPAIR router m=8 p1 ours-pub=+0.13[-0.06,+0.35] base-pub=+0.22[+0.00,+0.45] ours-base=-0.10[-0.26,+0.10]
