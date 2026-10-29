@@ -45,7 +45,8 @@ The judge's prepare() that follows runs with its output filtered to its summary 
 PREPARE, BENCH at 128 and 256 tokens, each variant's worst self-test error), so the run log's
 15 KB tail keeps the A/B. Twins: 26 -> 27 and 37 -> 42 (light stamps), 28 -> 31, 32 -> 33, 36 -> 38,
 39 -> 40, 37 -> 41 and 43 -> 44 (light stamps and phase A counters, 41 and 44 with phase B
-counters too; name a twin as an arm to time it so its cost shows).
+counters too; name a twin as an arm to time it so its cost shows). An arm "v301" (the staged pair on 37's components) also
+builds modes 45 and 46 and needs 37 built (its fallback above 512 tokens).
 
 The public file is embedded as a string; OUT.py belongs in the session scratchpad, never in
 the repository (only the logs of its runs are committed).
@@ -59,6 +60,8 @@ ROOT = Path(__file__).resolve().parent.parent
 LIGHT_TWINS = {26: 27, 37: 42}
 PA_TWINS = {28: 31, 32: 33, 36: 38, 39: 40, 37: 41, 43: 44}
 PB_TWINS = (41, 44)
+# Variant arms that need fat modes built: v301 is the staged pair on 37's components (45 then 46).
+VARIANT_MODES = {"v301": (45, 46)}
 
 
 # Per-unit stamps of the skinny ring (--unitstamps), the same events and layout as our kMode 16:
@@ -638,7 +641,8 @@ def main():
     light = {f"o{LIGHT_TWINS[m]}": LIGHT_TWINS[m] for m in named if m in LIGHT_TWINS}
     pa = {f"o{PA_TWINS[m]}": PA_TWINS[m] for m in named if m in PA_TWINS}
     # A counter twin that is also an arm is timed and stamped; it is not built twice.
-    modes = sorted({0, *named, *light.values(), *pa.values()})
+    staged = {m for a in arms.values() for m in VARIANT_MODES.get(a, ())}
+    modes = sorted({0, *named, *light.values(), *pa.values(), *staged})
     src = (ROOT / "muse_moe_w4a16" / "submission.py").read_text()
     extra = "".join(f"({x.replace(':', ', ')}), " for x in opts["skextra"].split(",") if x)
     if small:

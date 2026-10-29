@@ -53,3 +53,13 @@ code and scale pointers had no spill at all but 406 instructions per loop; it wa
 The layer copy (tools/dl_moe_inline.py on a scratch copy of muse_decode_layer/submission.py with
 LAYER_MODES = (0, 16, 26, 28, 37, 43), compiled by tools/dl_moe_compile_check.sh) builds
 moe1::moe_main_kernel<43> with the same 8 / 100 B spill and the PDL preamble patch applied.
+
+Addendum, same day: modes 45 and 46, the staged pair (19 then 21) rebuilt on 37's components for
+the parked-design re-test (docs/ruled-out.md trigger). Build with MAIN_MODES = (0, 16, 26, 28, 37,
+41, 42, 43, 44, 45, 46): every kernel listed above is identical to this record's after build
+(0, 16, 26, 28, 37, the skinny kernels, 41 to 44). No C75xx warning.
+mode 45 (phase A alone, owned units, 37's stage loop, phase B loops compiled out): 96 registers,
+48 bytes stack frame, 92 bytes spill stores, 164 bytes spill loads; HGMMA 96, wait1 48, wait0 6.
+With the empty phase B loops still compiled it was 268 / 656 B and 22272 instructions; not kept.
+mode 46 (phase B and the final pass alone, claimed units, no done_as wait): 96 registers, 48 bytes
+stack frame, 156 bytes spill stores, 412 bytes spill loads; HGMMA 192, wait1 96, wait0 12.
