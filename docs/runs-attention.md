@@ -1159,3 +1159,55 @@ repeat fe08878a7e0c46f4 at 8860211). Attention checks used this round: 4 of 5.
 ### Scored: 9104344cb757454e 2.334x (2026-10-29)
 
 Submit of submission.py at aedad22 (the ONE_FIN8 build judged in b0b146dfbb4841b2), under the standing replace-when-demonstrably-better authorization. Passed. Board entry before: da872fcdb70445c3 (2.281x).
+
+## Gap map E2, FP8 P.V on wgmma in mode 51: already in the board build (10-29, static, no check)
+
+Question from [gap-map-2026-10-29.md](gap-map-2026-10-29.md) E2: does the public flat q_len 8
+kernel win its 23.6 / 53.4 us at verify 16 / 32 full (d57d1fe064164611) by running P.V in e4m3
+on wgmma with ones rows in V^T, where ours rounds P to f16? Answer: no. Both kernels already
+run the same P.V path, so E2 has nothing to build.
+
+Public source (the Apache-2.0 `muse_attention_decode.py` timed as `pub` in d57d1fe0, sha1
+0e9d4c78), L == 8 path: P is packed from the FP32 exponentials by `e4m3x4f`
+(`cvt.rn.satfinite.e4m3x2.f32`) into wgmma A registers; P.V is
+`wgmma.mma_async.sync.aligned.m64n72k32.f32.e4m3.e4m3` (`wgmma_m64n72k32_e4m3`, issued per
+32-key half, and in the PCHK build both halves together) against V^T in shared memory, K-major,
+64B swizzle, keys permuted to P's register order, written per tile by `ldmatrix.x4.trans` +
+`prmt` + `stmatrix.x4`; rows 64..71 of each V^T buffer are e4m3 ones (0x38), so accumulator
+columns 64..71 (`lacc`) are the row sums of the same rounded P. The comment above that block
+("PV with f16 mma.sync from a per-tile f16 copy of V") is stale: the only `mma_f16` calls are
+on the q_len 1 path.
+
+Ours (`attn_one.cu`, since 464ef7e, 10-28 03:32): the same design (`wgmma_pv`,
+m64n72k32 e4m3, ones rows, `ldmatrix.trans` + `prmt` + `stmatrix`). The f16 P.V that the
+gap map's mechanism describes (gap-analysis-2026-10-28.md 3.1, written at 02:26 on 10-28) is
+the older `attn_ws.cu` (`wgmma ... m64n64k16.f32.f16.f16`), which no board shape runs.
+
+SASS, CUDA 12.8.1, sm_90a (`tools/attn_pub_compile.sh`, `tools/attn_one_sass.sh ... 8,51`):
+
+| | public flat q_len 8 (`attn_kernel<8, true, 0>`) | ours, mode 51 |
+|---|---|---|
+| registers / spills | 80 / 0, consumer region to R100 | 80 / 0, consumer region to R91 |
+| instructions | 6432 | 4688 |
+| Q.K | 6 x `QGMMA.64x64x32.F32.E4M3.E4M3` | 2 x the same |
+| P.V | 6 x `QGMMA.64x72x32.F32.E4M3.E4M3` (P in registers) | 2 x the same |
+| P to e4m3 (`F2FP.SATFINITE.E4M3.F32.PACK_AB_MERGE_C`) | 104 | 24 |
+| `MUFU.EX2` | 240 | 44 |
+| `LDSM` / `STSM` | 6 / 0 (flat build writes V^T with 4-byte `st.shared`: `STSM_ON = !FLAT`, its comment says stmatrix cost the flat kernel 0-1.5%) | 2 / 2 |
+| `FENCE.VIEW.ASYNC.S` / `BAR.SYNC` / `SYNCS` | 6 / 21 / 19 | 4 / 11 / 33 |
+
+Precision and instruction match. The public kernel carries three copies of the tile body
+(the PCHK pack-both-halves path, the per-half path and the rare offset-move repack), which is
+where its larger counts come from; whether that code layout matters to time is not measured.
+One real difference in the V^T path: the public flat build stores V^T with per-thread 4-byte
+stores and keeps `stmatrix` for its per-request kernels only; ours uses `stmatrix.x4` in mode
+51. By the public author's own comment that is worth 0-1.5% on their flat kernel, far below
+the gap; a lead, not tested.
+
+Rules check, for the record: TASK.md allows FP8 queries "as FA3 does, and no coarser" and BF16
+wherever SGLang's kernel keeps BF16; the reference's SGLang path is FA3 with `qkv_dtype` FP8,
+whose FP8 forward also feeds P.V with e4m3 P. Our board build (judged 16/16 in
+b0b146dfbb4841b2 and scored 9104344cb757454e) and the public entry both already do this.
+
+The 23.6 / 53.4 us flat q_len 8 gap stays open and is not in the P.V operand type. No check
+used.
