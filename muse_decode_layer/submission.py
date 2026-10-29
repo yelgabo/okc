@@ -3525,6 +3525,25 @@ constexpr float NEG_INF = -INFINITY;
 constexpr float OFF_FLOOR = -1e30f;
 constexpr int COOP_POLL_LIMIT = 1 << 24;
 
+// ONE_DIAG (off by default; a bench builds it with -DONE_DIAG=1): the phase exits and timer
+// stamps. Each one is a test and a taken branch on the once-per-launch path, which runs from a
+// cold instruction cache.
+#ifndef ONE_DIAG
+#define ONE_DIAG 0
+#endif
+// ONE_DIET: once-path code without integer division by the page size (shift and mask by its
+// log2), with straight-line query copies and query pass, branch-free predicated row copies in
+// the prologue issue, and no page-index copies for tiles past the CTA's range. Off and on are
+// timed side by side in bench d57d1fe064164611 (docs/runs-attention.md, 10-29).
+#ifndef ONE_DIET
+#define ONE_DIET 1
+#endif
+// ONE_FIN8: the finalize issues all eight workspace copies' loads (nc = 8, batch-1 full
+// context) before zeroing any, as one L2 round trip instead of eight dependent ones.
+#ifndef ONE_FIN8
+#define ONE_FIN8 0
+#endif
+
 // MODE bits: 1 = last-CTA finalize, 3 = cooperative finalize (every CTA a slice of rows),
 // |4 = at most one tile per CTA (straight-line prologue), |8 = the sequence length is taken
 // from the page table's width (batch 1, page size 1) and verified on the device, |16 = flat:
@@ -3602,6 +3621,8 @@ struct Params {
     // Diagnostic: > 0 makes the per-request path drain and return after that phase (see
     // PHASE_EXIT in attn_one_kernel); 0 runs the whole kernel.
     int phase_limit;
+    // log2 of page_size (a power of two; the host checks).
+    int lp;
 };
 
 template <int L, int NS>
@@ -3645,6 +3666,14 @@ __device__ __forceinline__ uint32_t smem_u32(const void* p) {
 __device__ __forceinline__ void cp_async16(uint32_t dst, const void* src, uint32_t bytes) {
     asm volatile("cp.async.cg.shared.global [%0], [%1], 16, %2;\n"
                  :: "r"(dst), "l"(src), "r"(bytes) : "memory");
+}
+
+// cp_async16 under a predicate, so a per-row choice needs no branch.
+__device__ __forceinline__ void cp_async16_if(uint32_t dst, const void* src, uint32_t bytes,
+                                              bool doit) {
+    asm volatile("{\n.reg .pred p;\nsetp.ne.b32 p, %3, 0;\n"
+                 "@p cp.async.cg.shared.global [%0], [%1], 16, %2;\n}\n"
+                 :: "r"(dst), "l"(src), "r"(bytes), "r"(static_cast<int>(doit)) : "memory");
 }
 
 __device__ __forceinline__ void cp_async4(uint32_t dst, const void* src, uint32_t bytes) {
@@ -3958,7 +3987,7 @@ __device__ __forceinline__ int ws_row(int b, int nc, int copy, int L, int j, int
 
 // Normalizes, scales and writes rows [r_lo, r_hi) of the flat row space (row = (b * L + j) * 16
 // + head) from the workspace, then zeroes exactly what it read. Eight threads per row.
-template <int L, int NT>
+template <int L, int NT, bool NC8 = false>
 __device__ __forceinline__ void finalize_rows(const Params& p, int r_lo, int r_hi, float v_scale,
                                               int tid) {
     constexpr int RPP = NT / 8;
@@ -3979,9 +4008,49 @@ __device__ __forceinline__ void finalize_rows(const Params& p, int r_lo, int r_h
         }
         float acc[8] = {0.f, 0.f, 0.f, 0.f, 0.f, 0.f, 0.f, 0.f};
         float lsum = 0.f;
+        if (NC8 && p.nc == 8) {
+            // All eight copies' loads before any store: in the loop below each copy's loads
+            // wait behind the previous copy's stores, eight dependent L2 round trips.
+            float4 a[8], a2[8];
+            float lv[8];
+#pragma unroll
+            for (int copy = 0; copy < 8; ++copy) {
+                const int wr = ws_row(b, 8, copy, L, j, head);
+                const float* row = p.ws_acc + static_cast<size_t>(wr) * D + t8 * 8;
+                a[copy] = act ? ld_cg_f4(row) : make_float4(0.f, 0.f, 0.f, 0.f);
+                a2[copy] = act ? ld_cg_f4(row + 4) : make_float4(0.f, 0.f, 0.f, 0.f);
+                lv[copy] = act && t8 == 0 ? __ldcg(p.ws_l + wr) : 0.f;
+            }
+            float lsum8 = 0.f;
+#pragma unroll
+            for (int copy = 0; copy < 8; ++copy) {
+                acc[0] += a[copy].x;
+                acc[1] += a[copy].y;
+                acc[2] += a[copy].z;
+                acc[3] += a[copy].w;
+                acc[4] += a2[copy].x;
+                acc[5] += a2[copy].y;
+                acc[6] += a2[copy].z;
+                acc[7] += a2[copy].w;
+                lsum8 += lv[copy];
+            }
+            lsum = __shfl_sync(0xffffffffu, lsum8, (tid & 31) & ~7);
+            if (act) {
+#pragma unroll
+                for (int copy = 0; copy < 8; ++copy) {
+                    const int wr = ws_row(b, 8, copy, L, j, head);
+                    float* row = p.ws_acc + static_cast<size_t>(wr) * D + t8 * 8;
+                    st_cg_f4(row, make_float4(0.f, 0.f, 0.f, 0.f));
+                    st_cg_f4(row + 4, make_float4(0.f, 0.f, 0.f, 0.f));
+                    if (t8 == 0) {
+                        __stcg(p.ws_l + wr, 0.f);
+                    }
+                }
+            }
+        }
         // Lane t8 == 0 alone reads and zeroes the row sum and broadcasts it, so no lane reads
         // what another lane zeroes; the loop is uniform so the shuffle is reached by every lane.
-        for (int copy = 0; copy < p.nc; ++copy) {
+        for (int copy = 0; copy < (NC8 && p.nc == 8 ? 0 : p.nc); ++copy) {
             const int wr = ws_row(b, p.nc, copy, L, j, head);
             float* row = p.ws_acc + static_cast<size_t>(wr) * D + t8 * 8;
             float* lp = p.ws_l + wr;
@@ -4075,6 +4144,13 @@ attn_one_kernel(const Params p) {
     static_assert(!FLAT || !(ONE || SPEC), "flat mode partitions its own ranges");
     static_assert(!PROD || FLAT, "the producer warpgroup belongs to the flat kernel");
     static_assert(!SOLO || PROD, "SOLO is a producer-mode variant");
+    // The q_len 8 producer builds keep the plain once-path: with the diet, mode 51 timed 0.9-1.9
+    // us slower than without it at full verify b16 / b32 in all four samples of bench
+    // d57d1fe064164611 (docs/runs-attention.md, 10-29).
+    constexpr bool DIET = ONE_DIET && !(PROD && L == 8);
+    // Eight workspace copies come only with the batch-1 full-context plan (cooperative,
+    // speculated length, several tiles per CTA); other instances keep the rolled loop.
+    constexpr bool FIN8 = ONE_FIN8 && COOP && SPEC && !ONE;
     // NC consumer threads (one warpgroup per KV head at q_len 8, four warps at q_len 1); in
     // producer mode one more warpgroup gathers the tiles.
     constexpr int NC = L == 8 ? 256 : 128;
@@ -4100,12 +4176,14 @@ attn_one_kernel(const Params p) {
     // Diagnostic early exit after phase k: uniform across the CTA (a kernel parameter), placed
     // only where every thread passes, with the copies drained first.
 #define PHASE_EXIT(k) \
-    if (p.phase_limit == (k)) { cp_wait<0>(); return false; }
+    if (ONE_DIAG && p.phase_limit == (k)) { cp_wait<0>(); return false; }
     // Diagnostic stamps: thread 0 of CTA (0, 0) records the time in microseconds at point k
     // into dbg[1 + k] when a dbg buffer is given (the judge's timed path passes none).
     auto stamp = [&](int k) {
-        if (p.dbg != nullptr && split == 0 && blockIdx.y == 0 && tid == 0) {
-            p.dbg[1 + k] = static_cast<int>(globaltimer_ns() / 1000u);
+        if constexpr (ONE_DIAG) {
+            if (p.dbg != nullptr && split == 0 && blockIdx.y == 0 && tid == 0) {
+                p.dbg[1 + k] = static_cast<int>(globaltimer_ns() / 1000u);
+            }
         }
     };
     // Consumer-wide barrier: the whole CTA unless the producer warpgroup has split off.
@@ -4255,6 +4333,9 @@ attn_one_kernel(const Params p) {
                 if (tile >= ntiles || pos >= seq) {
                     return 0;
                 }
+                if constexpr (DIET) {
+                    return __ldg(pt + (pos >> p.lp));
+                }
                 return __ldg(pt + (psize == 1 ? pos : pos / psize));
             };
             for (int bb = b_first; bb <= b_last; ++bb) {
@@ -4288,7 +4369,9 @@ attn_one_kernel(const Params p) {
                             const uint32_t vd = vdst + r * ROWB + v_swz<L>(ch, r) * 16;
                             if (pos < seq) {
                                 int64_t row = pe[u][i];
-                                if (psize != 1) {
+                                if constexpr (DIET) {
+                                    row = (row << p.lp) + (pos & (psize - 1));
+                                } else if (psize != 1) {
                                     row = row * psize + pos % psize;
                                 }
                                 const int64_t off = row * ROWB + ch * 16;
@@ -4337,6 +4420,17 @@ attn_one_kernel(const Params p) {
 
     // ------------------------------------------------------------------ consumers
     auto issue_idx = [&](int tile) {
+        if constexpr (DIET) {
+            // Entries of tiles past the range are never read (issue_kv reads an entry only
+            // for a cached row of a tile below ntiles), so they need no zero-filling copy.
+            if (tid < BN && tile < ntiles) {
+                const int pos = lo + tile * BN + tid;
+                const bool ok = pos < seq;
+                cp_async4(smem_base + S::IDX + (tile & (NIDX - 1)) * 256 + tid * 4,
+                          pt + (ok ? pos >> p.lp : 0), ok ? 4 : 0);
+            }
+            return;
+        }
         if (tid < BN) {
             const int pos = lo + tile * BN + tid;
             const bool ok = tile < ntiles && pos < seq;
@@ -4360,6 +4454,29 @@ attn_one_kernel(const Params p) {
         const int pos0 = lo + tile * BN;
         const uint32_t kdst = smem_base + S::KV + st * 2 * TILE_BYTES;
         const uint32_t vdst = kdst + TILE_BYTES;
+        if constexpr (DIET) {
+            if (!patch) {
+                // Prologue issue, branch-free: cached rows copy, rows past the range
+                // zero-fill, the block's own rows are left for patch_tile.
+#pragma unroll
+                for (int i = 0; i < BN / RSTEP; ++i) {
+                    const int r = r0 + i * RSTEP;
+                    const int pos = pos0 + r;
+                    const bool cached = pos < seq;
+                    const int64_t row = cached ? (static_cast<int64_t>(idx[r]) << p.lp)
+                                                     + (pos & (psize - 1))
+                                               : 0;
+                    const int64_t off = row * ROWB + ch * 16;
+                    const bool doit = cached || pos >= hi;
+                    const uint32_t bytes = cached ? 16u : 0u;
+                    cp_async16_if(kdst + r * ROWB + k_swz<L>(ch, r) * 16, p.k_cache + off, bytes,
+                                  doit);
+                    cp_async16_if(vdst + r * ROWB + v_swz<L>(ch, r) * 16, p.v_cache + off, bytes,
+                                  doit);
+                }
+                return;
+            }
+        }
 #pragma unroll
         for (int i = 0; i < BN / RSTEP; ++i) {
             const int r = r0 + i * RSTEP;
@@ -4368,7 +4485,9 @@ attn_one_kernel(const Params p) {
             const uint32_t vd = vdst + r * ROWB + v_swz<L>(ch, r) * 16;
             if (pos < seq) {
                 int64_t row = idx[r];
-                if (psize != 1) {
+                if constexpr (DIET) {
+                    row = (row << p.lp) + (pos & (psize - 1));
+                } else if (psize != 1) {
                     row = row * psize + pos % psize;
                 }
                 const int64_t off = row * ROWB + ch * 16;
@@ -4463,11 +4582,23 @@ attn_one_kernel(const Params p) {
         // constants; the range holding the request's first key prefetches the gate rows.
         {
             const __nv_bfloat16* qbase = p.qkv + static_cast<size_t>(b) * L * QKV_STRIDE;
-            for (int i = tid; i < ROWS * 8; i += NC) {
-                const int row = i >> 3;
-                const int cc = i & 7;
-                cp_async16(smem_base + S::QST + row * 128 + cc * 16,
-                           qbase + (row >> 4) * QKV_STRIDE + (row & 15) * D + cc * 8, 16);
+            if constexpr (DIET) {
+                static_assert(ROWS * 8 % NC == 0, "whole passes of the consumer threads");
+#pragma unroll
+                for (int k = 0; k < ROWS * 8 / NC; ++k) {
+                    const int i = tid + k * NC;
+                    const int row = i >> 3;
+                    const int cc = i & 7;
+                    cp_async16(smem_base + S::QST + row * 128 + cc * 16,
+                               qbase + (row >> 4) * QKV_STRIDE + (row & 15) * D + cc * 8, 16);
+                }
+            } else {
+                for (int i = tid; i < ROWS * 8; i += NC) {
+                    const int row = i >> 3;
+                    const int cc = i & 7;
+                    cp_async16(smem_base + S::QST + row * 128 + cc * 16,
+                               qbase + (row >> 4) * QKV_STRIDE + (row & 15) * D + cc * 8, 16);
+                }
             }
             const bool has_new = hi > seq || SPEC;
             if (has_new && tid < L * 32) {
@@ -4562,7 +4693,7 @@ attn_one_kernel(const Params p) {
         // Query pass: eight threads per row, eight dims each. q_len 1 keeps f16 queries
         // pre-scaled into log2 units (the key scale is applied to the scores); q_len 8 rounds
         // the unit-RMS query to E4M3 and scales in the exponent.
-        for (int piece = tid; piece < ROWS * 8; piece += NC) {
+        auto q_piece = [&](int piece) {
             const int row = piece >> 3;
             const int t8 = piece & 7;
             const int j = row >> 4;
@@ -4595,6 +4726,16 @@ attn_one_kernel(const Params p) {
                 *reinterpret_cast<uint2*>(smem + S::Q + (head >> 3) * 4096 + kmaj(r64, t8 >> 1)
                                           + (t8 & 1) * 8) =
                     make_uint2(e4m3x4(x[0], x[1], x[2], x[3]), e4m3x4(x[4], x[5], x[6], x[7]));
+            }
+        };
+        if constexpr (DIET) {
+#pragma unroll
+            for (int k = 0; k < ROWS * 8 / NC; ++k) {
+                q_piece(tid + k * NC);
+            }
+        } else {
+            for (int piece = tid; piece < ROWS * 8; piece += NC) {
+                q_piece(piece);
             }
         }
 
@@ -5084,7 +5225,7 @@ attn_one_kernel(const Params p) {
             const int r_lo = split * rows_per;
             const int r_hi = min(ROWS, r_lo + rows_per);
             if (r_lo < r_hi) {
-                finalize_rows<L, NC>(p, b * ROWS + r_lo, b * ROWS + r_hi, v_scale, tid);
+                finalize_rows<L, NC, FIN8>(p, b * ROWS + r_lo, b * ROWS + r_hi, v_scale, tid);
             }
         }
     } else {
@@ -5312,7 +5453,8 @@ int64_t attn_one_probe_coop(bool pdl) {
 // sl2 = sm_scale * qk_scale_factor * log2(e); the key scale is applied on the device. mode is
 // the instance's MODE (see attn_one_kernel); coop_launch adds the cooperative attribute to the
 // cooperative modes and pdl the programmatic one to every launch; dbg (int32, empty or [32])
-// receives the longest cooperative spin in [0] and the phase stamps in [1 .. 21]. Output [batch * q_len, 1024] BF16.
+// receives the longest cooperative spin in [0] and, in a -DONE_DIAG=1 build, the phase stamps in
+// [1 .. 21]. Output [batch * q_len, 1024] BF16.
 torch::Tensor attn_one(torch::Tensor qkv, torch::Tensor page_table, torch::Tensor seq_lens,
                        torch::Tensor cache_loc, torch::Tensor inv_freq, torch::Tensor k_scale,
                        torch::Tensor v_scale, torch::Tensor k_cache, torch::Tensor v_cache,
@@ -5372,6 +5514,13 @@ torch::Tensor attn_one(torch::Tensor qkv, torch::Tensor page_table, torch::Tenso
     p.nc = static_cast<int>(nc);
     p.sl2 = static_cast<float>(sl2);
     p.phase_limit = 0;
+    p.lp = 0;
+    while ((1 << p.lp) < page_size) {
+        ++p.lp;
+    }
+    // The diet builds index pages by shift and mask; _one_wins keeps other sizes off this path.
+    TORCH_CHECK(!ONE_DIET || (1 << p.lp) == page_size, "attn_one: page size ", page_size,
+                " is not a power of two");
     // Per-request modes launch (n_splits, batch) CTAs; flat modes launch n_splits CTAs that
     // share the batch's keys, with the batch size carried in Params::n_splits.
     int gx = static_cast<int>(n_splits);
@@ -12096,6 +12245,9 @@ def _one_wins(cfg):
     """Every decode and verify shape with tp8 heads (checked by the caller), unless _ONE_ROUTE
     excludes it. The flat partition keeps 512 request offsets in shared memory."""
     if cfg["q_len"] not in (1, 8) or cfg["batch"] > 512:
+        return False
+    # The kernel indexes pages by shift and mask (attn_one.cu, ONE_DIET).
+    if cfg["page_size"] & (cfg["page_size"] - 1):
         return False
     key = ("sliding" if cfg["window"] else "full", cfg["q_len"], cfg["batch"])
     return _ONE_ROUTE.get(key, True)
