@@ -4707,7 +4707,9 @@ _ONE_BUILT = {1: (1, 3, 11, 13, 17, 49), 8: (1, 3, 11, 15, 19, 51, 115)}
 # kernel's tiles come from a producer warpgroup (mode |32) or the consumers' own copies.
 _ONE_FLAT = True
 _ONE_PROD = True
-# q_len 8 on the producer build 51 before mode 19 (a bench sets it to time 51 on the judge's path).
+# q_len 8 full-context batches on the producer build 51, mode 19 as its fallback: since the
+# producer exits by PTX exit, 51 has no spills and timed 125.0 / 232.4 us against 19's
+# 128.2 / 238.8 at batch 16 / 32 (d90a73871d8e4481).
 _ONE_Q8_PROD = True
 
 
@@ -4741,8 +4743,7 @@ def _one_plan(cfg, pt_width, resident):
     tiles = (kmax + 63) // 64
     nc = 1
     if not window and batch > 1 and _ONE_FLAT:
-        # q_len 8 skips the producer build 51 unless _ONE_Q8_PROD: while it spilled it timed
-        # 389 / 774 us against mode 19's 127 / 236 at batch 16 / 32 (16fcddf80a714e0d).
+        # Without _ONE_Q8_PROD q_len 8 skips the producer build 51.
         q8 = (51, 19) if _ONE_Q8_PROD else (19,)
         for mode in ((49, 17) if length == 1 else q8) if _ONE_PROD else \
                 ((17,) if length == 1 else (19,)):
