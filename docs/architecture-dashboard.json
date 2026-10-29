@@ -1,11 +1,11 @@
 {
-  "reviewed_at": "2026-10-29T14:25:00-07:00",
-  "snapshot": "efddc84",
+  "reviewed_at": "2026-10-29T16:27:00-07:00",
+  "snapshot": "f61d8d9",
   "layer": {
     "score": "1.964\u00d7",
     "interval": "1.935\u20131.994",
     "job": "9b921febc7ad4140",
-    "note": "No new layer result. Attention PK16/VHOIST has new component wins; the full package awaits integration. FIN8 replay selection and layer comparison validation remain open."
+    "note": "Combined A/E and projection bundle b694b4a is assembled but unjudged. No new layer result. FIN8 coverage checks are implemented in that branch, awaiting execution."
   },
   "families": [
     {
@@ -16,7 +16,7 @@
       "metric": "36 / 36",
       "unit": "paired seeds favor the skinny 3-slot ring",
       "summary": "Skinny ring and mode 37 wins stand. Corrected diagnostics now show about 20% of fat-path stage-loop time in waits; this is attribution, not a new speedup.",
-      "layer": "Earlier persistent modes tested in layer",
+      "layer": "Latest bundle assembled; layer tests pending",
       "pending": [
         "sk8w3s: 3-slot skinny ring",
         "Mode 37: phase A epilogue"
@@ -28,13 +28,13 @@
       "id": "B",
       "name": "Staged grouped MoE",
       "status": "loss",
-      "label": "Tested loss",
+      "label": "Past loss; retest due",
       "metric": "+27.9 / +24.2 \u00b5s",
       "unit": "128 / 256 tokens versus mode 16",
-      "summary": "The two-launch prototype passed its GEMM1 gate, then lost on complete MoE timing.",
+      "summary": "The old two-launch pair lost. Later phase B and setup improvements meet its revisit trigger.",
       "layer": "Stopped at component gate",
       "pending": [],
-      "limit": "Applies to the tested pair, not every possible staged design.",
+      "limit": "Repeat A versus B at 128/256 with current components. The historical loss does not measure today's staged design.",
       "source": "runs-moe.md#staged-gemm1-gate-2026-10-29"
     },
     {
@@ -71,11 +71,11 @@
       "metric": "\u22125.35 / \u22129.63 \u00b5s",
       "unit": "128 / 256 tokens, cold paired bench versus DCARRY",
       "summary": "PK16 + VHOIST improves full verification beyond DCARRY. Candidate and repeat pass 16/16; latest component score is 2.504\u00d7.",
-      "layer": "Earlier producer fast path tested in layer",
+      "layer": "Latest bundle assembled; layer tests pending",
       "pending": [
         "DCARRY + PK16 + VHOIST: attention package"
       ],
-      "limit": "Layer confirmation is pending. The 2.504\u00d7 repeat also benefited from a faster machine. FIN8 targeted replay selection and whole-layer comparison validation need repair.",
+      "limit": "Bundle b694b4a is unjudged. FIN8 plan assertions and replay changes await execution. Default-off ONE_TRIG + SK_PDL has compile evidence only, no runtime gain.",
       "source": "runs-attention.md"
     }
   ]

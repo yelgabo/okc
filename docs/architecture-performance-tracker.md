@@ -1,6 +1,6 @@
 # Architecture performance tracker
 
-Last review: 2026-10-29 14:25 PDT. Evidence snapshot: `efddc84`.
+Last review: 2026-10-29 16:27 PDT. Evidence snapshot: `f61d8d9`.
 First review reconciles progress since `aab7d75`, the snapshot in the
 [architecture-family guide](architecture-families-2026-10-29.md).
 This is a review of recorded experiments, not a new benchmark run.
@@ -13,12 +13,40 @@ named control, not changes in aggregate score. Families overlap; their gains can
 | Family | Current result | What has actually been measured | Visibility gap |
 |---|---|---|---|
 | A. Hybrid persistent/legacy MoE | Improving | Skinny 3-slot ring beats 4-slot control on 36/36 paired seeds at 1/8/16 tokens. Large-token mode 37 also beats mode 28. | New skinny and mode 37 results need layer integration evidence. |
-| B. Staged grouped MoE | Tested loss | Two-launch pair is +27.9 us at 128 and +24.2 us at 256 versus mode 16. | No newer winning staged design in reviewed evidence. |
+| B. Staged grouped MoE | Historical tested loss; retest due | Two-launch pair is +27.9 us at 128 and +24.2 us at 256 versus mode 16. | Retest with current components at 128/256; no new staged timing yet. |
 | C. Owner-completes tiles | Retained in the persistent descendants | Mode 20's owned phase A saves about 2-3 us at 128 and 4 us at 256 over mode 16. Later modes combine ownership with other changes. | Later gains cannot be credited to ownership alone. |
 | D. Dependency-aware scheduling | Dynamic claiming wins; full ready-only scheduler remains untested | Mode 23 claims whole phase B units at run time, beating mode 20 on every normal paired seed across two checks. | It still waits on done_as. This is dynamic work allocation, not a demonstrated queue of exclusively ready jobs. |
 | E. Attention producer-consumer pipeline | Component gains; scheduling losses also recorded | DCARRY and the newer PK16/VHOIST package improve full verify at 128/256; run-time CTA pair weighting loses. | DCARRY/PK16/VHOIST awaits layer integration; FIN8 selected-mode replay coverage also needs repair. |
 
-## Latest review: family E improves again
+## Latest review: staged retest and assembled layer bundle
+
+No new scored run or paired timing appears in `dbd99c3..f61d8d9`. The
+[rejection register](ruled-out.md) now parks the staged design with an explicit revisit trigger:
+cheaper phase B/setup or a changed overlap tail. Modes 23, 26 and 28/37 landed after the old
+staged comparison. That trigger is met, so repeat A versus B at 128/256 with current components
+in one process. Preserve the old +27.9/+24.2 us losses as historical measurements; they do not
+establish the result against today's A. No new winning B implementation has been measured.
+
+The [layer breakdown](steering/2026-10-29-v1-d32-breakdown.md) reports an assembled bundle at
+`b694b4a`: mode 37 + sk8w3s (A, retaining C/D mechanisms), DCARRY/PK16/VHOIST (E), plus qkv8
+and single-token cgemv projection changes outside A-E. It is unjudged. Its branch log and
+source were inspected locally; FIN8 expected-plan assertions and fresh-qkv replay checks are
+implemented there, but no completed runtime result closes that coverage gap. Whole-layer
+score remains 1.964x from `9b921febc7ad4140`. Do not add standalone savings into a layer gain.
+
+Separate layer context: `3da50e5` adds default-off SK_PDL projection-weight prefill and
+ONE_TRIG attention launch-dependent signaling. This is a proposed attention-to-projection
+chain, not D's ready-job scheduler or a measured E gain. Recorded compile checks show the
+disabled paths SASS-identical (58/58 projection kernels, 15/15 attention kernels); enabled
+builds have no recorded spills. The host launch path was not compiled in that gate, and
+runtime correctness, replay stress and timing remain untested. No job ID or timing delta
+exists for this proposal. [Compile evidence and test plan](steering/2026-10-29-v1-d32-breakdown.md#6-built-sk_pdl-and-one_trig-compile-gated-off-by-default).
+
+The new score-weighted hotspot tool in `f61d8d9` ranks existing profile evidence. Its rankings
+are analysis, not fresh benchmark measurements. The layer breakdown's bundle projections
+and remaining-gap estimates are also hypotheses or cross-run arithmetic, not isolated family gains.
+
+## Previous review: family E improves again
 
 PK16 changes probability packing and VHOIST carries transpose addresses/descriptors per
 segment. The combined attention candidate improves full verification beyond DCARRY.
@@ -189,8 +217,9 @@ including qkv8 staging, are tracked separately in [projection runs](runs.md).
 
 ## Decision and next evidence needed
 
-Retain A with ownership and dynamic phase B claiming. B's measured loss still requires a new
-mechanism before another staged test is useful. D's useful dynamic claiming result narrows the
+Retain A with ownership and dynamic phase B claiming as the measured baseline. Re-test B
+with current components at 128/256: the cheaper phase B/setup revisit trigger is met. Use
+same-process paired complete-MoE timings, correctness gates and repeated routing seeds. D's useful dynamic claiming result narrows the
 next question: whether dispatching only ready jobs can improve on claiming followed by waiting.
 The recorded mean dependency wait did not disappear with mode 23.
 
@@ -200,6 +229,19 @@ those changes attributable when possible. Preserve the whole-layer control when 
 Read the existing [rejection register](ruled-out.md) before treating any old candidate as new.
 
 ## Review history and checkpoint
+
+- 2026-10-29 16:27 PDT: inspected `dbd99c3..f61d8d9`, all four run logs, the updated
+  rejection register, compile-gate reports and bundle `b694b4a`. Fetched origin/main with
+  no remote-only commits. All 18 untracked profile JSONs are already logged jobs.
+  No new timing jobs; newest attention remains `e9085c86d89449c2`, layer remains
+  `9b921febc7ad4140`. B retest trigger is met; bundle assembled but unjudged.
+
+- 2026-10-29 15:24 PDT: inspected through `dbd99c3`; fetched origin/main with no
+  remote-only commits. Run logs and rejection register are unchanged since `efddc84`.
+  All 18 untracked profile JSONs correspond to already logged jobs; no new provisional
+  measurement found. Accessible chat inventory shows no newer relevant activity.
+  A-E standings, pending layer tests and run checkpoints are unchanged. Refreshed review
+  metadata and generated output locally; no commit because there is no new evidence.
 
 - 2026-10-29 14:25 PDT: reviewed `615539c..efddc84`, including attention jobs
   `025ccaf9c57a4ba2`, `569b233dfe08414f`, `e9085c86d89449c2` and community-audit validation
