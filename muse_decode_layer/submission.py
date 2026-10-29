@@ -10899,6 +10899,9 @@ _SKP_CONFIGS = (
     ('unp32raw', 2, 32, 4, 2, 2, 2, 3, False, False, 1, 1, 'bf16', False),
     ('pool8f', 1, 8, 1, 2, 2, 4, 3, True, False, 1, 1, 'bf16', True),
     ('pool16f', 1, 16, 2, 2, 2, 4, 4, True, False, 1, 1, 'bf16', True),
+    # At 32 tokens the side-stream router stretched the pooler from 17 to 26 us (timeline in
+    # check 181ab39f1bd84912); one launch for both took the front chain from 37.6 to 32.4 us
+    # (5869cc624a394904).
     ('pool32f', 2, 32, 2, 2, 2, 4, 3, True, False, 1, 1, 'bf16', True),
 )
 SK_CONFIGS = list(_SKP_CONFIGS)
