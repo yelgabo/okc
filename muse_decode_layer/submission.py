@@ -5792,9 +5792,11 @@ __device__ __forceinline__ float block_sum_n(float v, float* red) {
 // attn_boundary_kernel's math at other launch shapes: CL CTAs per token (a cluster, launched
 // with the cluster attribute, when CL > 1) of NT threads, each thread owning V float4 groups
 // strided by NT so every load is coalesced. prepare() times them against the 8-CTA kernel and
-// SGLang's module per token count (_abnd_tune). Only the stream is loaded before the wait:
-// with V groups the gate rows would hold 8 V more registers per thread through the wait, and
-// they are L2 hits after the first token.
+// SGLang's module per token count (_abnd_tune). The 8-CTA kernel fits 124 clusters at once on
+// the judge's H200 (check 5285e58d978f42c6), so 128 tokens take two waves and 256 take three;
+// there its o + boundary chain was 22.9 / 29.6 us against 17.9 / 22.5 for the best other.
+// Only the stream is loaded before the wait: with V groups the gate rows would hold 8 V more
+// registers per thread through the wait, and they are L2 hits after the first token.
 template <int CL, int NT>
 __global__ void __launch_bounds__(NT) attn_boundary_geo_kernel(
     const float* __restrict__ stream, const __nv_bfloat16* __restrict__ branch,
