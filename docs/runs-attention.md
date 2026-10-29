@@ -1627,3 +1627,7 @@ session: 7631033a0c93485d, 4ff339332fef4aff, f64e8680b3e441be, bf49eceb15a64f81.
 Submit candidate for the verify full rows: `muse_attention_decode/submission.py` at 503c0f4
 (judged bf49eceb15a64f81; 0d76acc, judged f64e8680b3e441be, differs only by the comment line).
 Not submitted. Left at verify 32 full, cold in bench 4ff339332fef4aff: 203.3 vs 191.8 (11.5 us).
+
+### Scored: 4c12b0199efd4b8c 2.412x (2026-10-29)
+
+Submit of submission.py at 503c0f4 (ONE_DCARRY, as checked in bf49eceb15a64f81), submitted by the coordinator under the user's instruction to use expiring scored runs. Passed. Board entry before: 51d4d137b9d14254 (2.416x).
