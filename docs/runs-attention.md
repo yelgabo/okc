@@ -1495,3 +1495,135 @@ is not known; a partition weighted per SM slot is untested).
 ### Scored: 51d4d137b9d14254 2.416x (2026-10-29)
 
 Submit of submission.py at 46b1708 (ONE_PFAST, as checked in 0d05f9b2df1e4834), under the standing replace-when-demonstrably-better authorization. Passed. Board entry before: df988353208245f7 (2.354x).
+## Per-CTA finish spread in both flat kernels, and two switches for mode 51 (10-29)
+
+Question: is the spread between the two CTAs of an SM a piece of the verify full gap to the
+public kernel, and is it larger than the consumer path before the Q.K issue?
+
+### Bench 7631033a0c93485d (check, `tools/attn_make_bench_ab.py --shapes full`)
+
+Arms in one process: `ctrl` (board build 0d05f9b2df1e4834 code, `ONE_PFAST=1`), `stamp`
+(`ONE_STAMP=1`), `w115` / `w130` (`ONE_WAVE` as first built: CTAs 0 .. 131 take 1.15 / 1.30 of a
+CTA 132 .. 263 share), `stampw130`, `pub`, and `pubstamp`: a scratchpad copy of the public file
+with `%globaltimer` stamps per CTA at kernel entry, at the consumers' loop end and after the
+grid-wide finalize, plus `%smid` and the tile count (into its own `dbg` argument; output
+unchanged). New bench lines: `STAMPWAVE` (loop ends by dispatch half and by SM: the gap between
+the two CTAs of an SM, and each SM's later end) and `PUBSTAMP`. Judge tests 16/16, run score
+2.373x (CI 2.337-2.409; the bench's own arms do not enter it). The log keeps its last 16,000
+characters: the ABCHECK rows and the `stamp` arm's first four repetitions are cut, so the wave
+arms' output check is not on record (they are losers either way). Profiles:
+`profiles/bench_wave.7631033a0c93485d.*`. Microseconds:
+
+| | shape | ctrl | stamp | w115 | w130 | stampw130 | pub | pubstamp |
+|---|---|---|---|---|---|---|---|---|
+| cold | decode 16 full | 100.06 | 100.32 | 100.03 | 100.03 | 100.26 | 98.94 | 99.01 |
+| cold | decode 32 full | 179.90 | 180.26 | 180.13 | 179.78 | 180.29 | 178.14 | 178.14 |
+| cold | verify 16 full | 121.76 | 123.17 | 126.62 | 132.06 | 133.66 | 111.20 | 111.78 |
+| cold | verify 32 full | 212.48 | 214.30 | 222.30 | 232.83 | 234.62 | 193.25 | 192.64 |
+| warm | verify 16 full | 116.36 | 118.06 | 121.69 | 127.38 | 129.21 | 101.47 | 100.88 |
+| warm | verify 32 full | 221.96 | 223.28 | 232.94 | 249.83 | 253.13 | 193.61 | 192.78 |
+
+Loop ends at verify 32 full, cold, microseconds from the grid's first start (min / median /
+max over CTAs or SMs; ours one repetition, the public kernel five):
+
+| | mode 51 (`stamp`) | public (`pubstamp`, 5 reps) | mode 51, `w130` (5 reps) |
+|---|---|---|---|
+| all CTAs | 158.2 / 195.4 / 205.6 | 156.3-158.8 / 173.9-174.9 / 182.8-184.6 | 141.0-144.9 / 186.8-188.2 / 223.3-228.4 |
+| gap within an SM (later minus earlier CTA) | 28.8 / 35.5 / 41.1 | 1.0-2.6 / 11.2-12.2 / 19.9-23.8 | 2.3-5.5 / 10.8-11.7 / 42.9-45.8 |
+| lower block index ends first | 132 of 132 SMs | 130-132 of 132 | 132 of 132 |
+| each SM's later end | 195.4 / 200.5 / 205.6 | 171.9-174.4 / 177.7-179.1 / 182.8-184.6 | 174.6-176.4 / 192.9-195.8 / 223.3-228.4 |
+
+Verify 16 full, public: within-SM gap median 5.4-6.3 us, SM ends 91.8-94.1 / 96.4-98.4 /
+102.6-104.9.
+
+What this measures:
+
+- The public kernel has the same pattern (the lower block index of an SM ends first on 130-132
+  of 132 SMs) with a third of the gap (12 vs 35 us). Its SMs end within 11-12 us of each other,
+  ours within 10. The two kernels differ by 22 us in the median SM's end (178 vs 200.5), the
+  same size as the cold gap (193.3 vs 212.5 here): the gap is per-SM throughput, not spread
+  across SMs.
+- Weighting by block index lost: +9.8 / +20.4 us cold at verify 32 full (w115 / w130), +4.9 /
+  +10.3 at verify 16. Block dispatch does not put CTAs 0 .. 131 on distinct SMs: under w130 the
+  last SMs to finish (124-131) held two of the heavy CTAs (173 tiles each, ending 224-228 us),
+  while SMs holding two light ones ended at 144. On SMs that got one of each, the pair gap fell
+  from 35 to 11 us and the SM's end from 200.5 to about 193 (median over all SMs 193.4).
+- Bound for a correct pair split, inferred from those SMs: the earlier CTA's end rises about
+  0.9 us per tile moved to it and the later one's falls about 0.26, so equal ends come near 192
+  us, about 8 us before today's median SM end, at a weight near 1.5.
+
+### The two switches (not judged yet)
+
+`ONE_WAVE=w` (rebuilt after this bench): the pair is found at run time. One thread per CTA
+takes a rank from a per-SM counter (`ws_cnt[CNT_SMR + smid]`, RMW, the CTA that sees an odd
+value resets it to 0, so the counter is zero between launches whatever it held); slot
+`2 smid + rank` sets the CTA's share, rank 0 weighted w / 1024 against its partner. The host
+enables it only for cooperative q_len 8 flat launches (co-residency of 2 x SMs CTAs at two per
+SM puts exactly two on every SM) and only when a one-time probe saw every `%smid` below the SM
+count. Ordering argument: coherence and atomicity of one location (PTX ISA 8.10.1, 8.10.3); the
+counter feeds only the partition, which both roles compute before they split, and no fence or
+barrier moves.
+
+`ONE_DCARRY`: the tiles whose keys all lie below the block's own positions (`it < (seq - lo) /
+64`, window 0) skip the patch test and the mask test with one uniform compare; the Q descriptor
+low words and the K descriptor base are broadcast from lane 0 (uniform registers), the K
+descriptor of a stage is base + 1024 x stage. SASS, mode 51 unrolled body: full-barrier wait to
+the Q.K issue about 25 instructions on a common tile (from about 50), function 6512
+instructions (from 6632), no spills, consumer region R101. The fence after the full barrier and
+the patch path of the other tiles are unchanged.
+
+With both switches at 0 all 13 instances are SASS-identical to the board build
+(`tools/attn_one_sass.sh`, per-function compare). Next: one bench of `dc`, `wv140`, `wv150`,
+`stampwv150`, `dcwv150` against `ctrl` and `pub` after the 00:00 UTC reset, then judge the best
+if it saves at least 4 us cold at verify 32 full.
+
+### Bench 4ff339332fef4aff (check, `--shapes full`): ONE_DCARRY and the run-time pair split
+
+Arms: `ctrl` (board code), `dc` (`ONE_DCARRY=1`), `wv140` / `wv150` (`ONE_WAVE` with the per-SM rank
+counter, weight 1.40 / 1.50), `stampwv150`, `dcwv150`, `pub`. ABCHECKSUM 11/0 pass/fail for every
+arm (`dc`, `wv*` compared with `ctrl` on the scored and seven tp8 test shapes). Judge tests 16/16,
+run score 2.400x (CI 2.364-2.436; the arms do not enter it). Profiles:
+`profiles/bench_dc.4ff339332fef4aff.*`. Microseconds:
+
+| | shape | ctrl | dc | wv140 | wv150 | stampwv150 | dcwv150 | pub |
+|---|---|---|---|---|---|---|---|---|
+| cold | decode 16 full | 100.03 | 100.13 | 100.03 | 100.03 | 100.26 | 100.13 | 99.01 |
+| cold | decode 32 full | 180.03 | 180.06 | 180.29 | 180.22 | 180.51 | 180.10 | 178.78 |
+| cold | verify 16 full | 120.03 | 116.38 | 125.50 | 125.15 | 127.39 | 122.24 | 110.40 |
+| cold | verify 32 full | 210.59 | 203.26 | 219.58 | 222.59 | 223.97 | 215.55 | 191.78 |
+| warm | verify 16 full | 113.63 | 108.54 | 119.62 | 120.79 | 122.54 | 114.92 | 99.07 |
+| warm | verify 32 full | 221.05 | 207.37 | 230.33 | 232.11 | 235.17 | 221.05 | 192.14 |
+
+- `dc`: -7.3 / -3.7 us cold, -13.7 / -5.1 warm at verify 32 / 16 full; decode full (mode 49)
+  unchanged, as the SASS says. It closes about a third of the cold gap to the public kernel at
+  verify 32 full (19.0 -> 11.5 us). Promoted for judging.
+- Run-time pair split: loses (+9.0 / +12.0 cold at verify 32 full for 1.40 / 1.50). Stamps
+  (`stampwv150`, five reps): the rank counter did not pick the favoured CTA; the lower block
+  index now ends first on only 21-63 of 132 SMs, the median pair gap is -1.5 to -3.9 us but the
+  worst pair is 72-83 us apart, and the latest SM ends at 212-215 us against 205.6 unweighted.
+  Arrival order at the counter does not follow the warp schedulers' priority.
+
+### Judged: check f64e8680b3e441be 2.395x (CI 2.359-2.431), repeat bf49eceb15a64f81 2.413x (CI 2.377-2.461)
+
+`submission.py` at 0d76acc (`ONE_DCARRY=1`); the repeat, 503c0f4, adds one comment line. 16/16
+tests in both. Profiles: `profiles/submission.f64e8680b3e441be.*`,
+`profiles/submission.bf49eceb15a64f81.*`. Judge medians (us) against the ONE_PFAST pair
+(ca0f13d324ef48e8 / 0d05f9b2df1e4834, the same code without the switch):
+
+| shape | ca0f13d3 | 0d05f9b2 | f64e8680 | bf49eceb | change (mean vs mean) |
+|---|---|---|---|---|---|
+| decode 16 full | 88.29 | 85.08 | 88.00 | 88.37 | +1.5 (mode 49, SASS unchanged) |
+| decode 32 full | 157.49 | 162.84 | 168.87 | 168.78 | +8.7 (mode 49, SASS unchanged) |
+| verify 16 full | 114.49 | 114.33 | 111.05 | 110.49 | -3.6 (-3.2%) |
+| verify 32 full | 206.86 | 205.69 | 197.83 | 198.91 | -7.9 (-3.8%) |
+
+Verify 16 / 32 full moved by the sizes the bench measured cold (-3.7 / -7.3). Decode 32 full rose
+8.7 us on a kernel whose SASS is identical to the previous pair's (all instances but 51 and 115
+compare equal); five checks before ONE_PFAST sat at 170.5-171.4, so the 157-163 of the previous
+pair, not this one, is the outlier there. That row is why the scores (2.395x / 2.413x) do not
+rise over the previous pair (2.393x / 2.450x). Checks run in this
+session: 7631033a0c93485d, 4ff339332fef4aff, f64e8680b3e441be, bf49eceb15a64f81.
+
+Submit candidate for the verify full rows: `muse_attention_decode/submission.py` at 503c0f4
+(judged bf49eceb15a64f81; 0d76acc, judged f64e8680b3e441be, differs only by the comment line).
+Not submitted. Left at verify 32 full, cold in bench 4ff339332fef4aff: 203.3 vs 191.8 (11.5 us).

@@ -22,10 +22,14 @@ At import the bench prints, before the judge's own tests and timing:
             divided by 16 (L2 warm, launch gaps of a captured graph).
 
 Arms whose name ends in `_probe` are timing probes with wrong or unguaranteed output: ABCHECK
-prints PROBE for them and does not count them as failures. An arm named `stamp` (built with
--DONE_STAMP=1) also gets STAMP lines: per-CTA records of five cold calls per full-context
+prints PROBE for them and does not count them as failures. An arm whose name starts with `stamp`
+(built with -DONE_STAMP=1) also gets STAMP and STAMPWAVE lines: per-CTA records of five cold calls per full-context
 q_len 8 shape (attn_one.cu, ONE_STAMP). `--nocoop` adds the arm `nocoop`: the control's module
 launched without cudaLaunchAttributeCooperative, same grid.
+
+A public arm whose name starts with
+`pubstamp` (a copy of the public file with globaltimer stamps written to dbg[8192 + 8 c ..]) gets
+PUBSTAMP and STAMPWAVE lines: the same loop-end spread by dispatch wave and by SM.
 
 --pub may repeat; each public file is an arm (default name `pub`; its names must start with
 `pub`, and a second file needs its own load_inline name). --shapes full keeps the full-context
@@ -115,6 +119,9 @@ def _ab_scored():
         yield batch, layer, q_len
 
 
+_AB_TALLY = {{}}
+
+
 def _ab_check():
     fns = _ab_fns()
     dev = torch.device("cuda", torch.cuda.current_device())
@@ -151,6 +158,8 @@ def _ab_check():
                 if vname.endswith("_probe"):
                     status = "PROBE"
                 fails += status == "FAIL"
+                tally = _AB_TALLY.setdefault(vname, {{"PASS": 0, "FAIL": 0, "PROBE": 0}})
+                tally[status] += 1
                 print(f"ABCHECK {{status}} {{vname}} {{name}} [{{plan}}] {{msg}}{{vs}} {{wmsg}}",
                       flush=True)
             data = None
@@ -236,6 +245,75 @@ def _ab_bench(rounds=120, warm_calls=16, warm_reps=25):
 _ST_BASE, _ST_W = 1024, 16
 
 
+def _ab_wave(tag, name, rep, ends, sms):
+    """Loop-end spread by dispatch wave and by SM: ends[c] in us for CTA c, sms[c] its SM."""
+    n = len(ends)
+    h = n // 2
+
+    def q(xs):
+        xs = sorted(xs)
+        if not xs:
+            return "-"
+        return "{{:.1f}}/{{:.1f}}/{{:.1f}}".format(xs[0], xs[len(xs) // 2], xs[-1])
+    by_sm = {{}}
+    for c in range(n):
+        by_sm.setdefault(int(sms[c]), []).append(c)
+    pairs = [sorted(v) for v in by_sm.values() if len(v) == 2]
+    gaps = [ends[b] - ends[a] for a, b in pairs]
+    low_first = sum(1 for g in gaps if g > 0)
+    sm_end = [max(ends[c] for c in v) for v in by_sm.values()]
+    print(f"STAMPWAVE {{tag}} {{name}} rep={{rep}} ctas={{n}} sms={{len(by_sm)}} pairs={{len(pairs)}} "
+          f"wave1_end={{q(ends[:h])}} wave2_end={{q(ends[h:])}} "
+          f"pair_gap_hi_minus_lo={{q(gaps)}} abs_gap={{q([abs(g) for g in gaps])}} "
+          f"lo_first={{low_first}}/{{len(pairs)}} sm_end={{q(sm_end)}} "
+          f"mean_end={{sum(ends) / max(n, 1):.1f}} max_end={{max(ends):.1f}}", flush=True)
+
+
+def _ab_pubstamps(reps=5):
+    """Per-CTA records of the public flat kernel's stamp copy (arms named pubstamp*): dbg
+    int64 [8192 + 8 c + k]: 0 start, 1 consumer loop end, 2 finalize done (globaltimer ns),
+    3 SM id, 4 tiles, 5 segments."""
+    flush = torch.empty(256 << 20, dtype=torch.uint8, device="cuda")
+    for name, mod in _AB_PUBS.items():
+        if not name.startswith("pubstamp"):
+            continue
+        for batch, layer, q_len in _ab_scored():
+            if layer == "sliding" or q_len != 8:
+                continue
+            data = _ob_inputs(batch, 80000, "tp8", layer, q_len, "agentic", "coherent", 1, 1.0)
+            tag = f"b={{batch:2d}} {{layer:7s}} L={{q_len}}"
+            for r in range(reps):
+                buf = torch.zeros(8192 + 8 * 1024, dtype=torch.int64, device="cuda")
+                flush.zero_()
+                mod._launch(data, dbg=buf)
+                torch.cuda.synchronize()
+                rec = buf[8192:].view(1024, 8).cpu()
+                n = int((rec[:, 0] != 0).sum())
+                rec = rec[:n]
+                ref = int(rec[:, 0].min())
+                start = [(int(x) - ref) / 1000.0 for x in rec[:, 0]]
+                ends = [(int(x) - ref) / 1000.0 for x in rec[:, 1]]
+                fin = [(int(x) - ref) / 1000.0 for x in rec[:, 2]]
+
+                def q(xs):
+                    xs = sorted(xs)
+                    return "{{:.1f}}/{{:.1f}}/{{:.1f}}".format(xs[0], xs[len(xs) // 2], xs[-1])
+                print(f"PUBSTAMP {{tag}} {{name}} rep={{r}} ctas={{n}} span={{max(fin):.1f}} "
+                      f"start={{q(start)}} loop_end={{q(ends)}} "
+                      f"barrier_fin={{q([f - e for f, e in zip(fin, ends)])}} "
+                      f"tiles={{q([int(x) for x in rec[:, 4]])}} segs={{q([int(x) for x in rec[:, 5]])}} "
+                      f"{{_ob_elapsed()}}", flush=True)
+                _ab_wave(tag, name, r, ends, [int(x) for x in rec[:, 3]])
+                if r == 0:
+                    order = sorted(range(n), key=lambda i: ends[i])
+                    pick = order[:4] + order[n // 2 - 2:n // 2 + 2] + order[-4:]
+                    print(f"PUBSTAMPCTA {{tag}} {{name}} " + " ".join(
+                        "c{{}}:sm{{}}:t{{}}:end{{:.1f}}".format(i, int(rec[i, 3]), int(rec[i, 4]), ends[i])
+                        for i in pick), flush=True)
+            data = None
+            torch.cuda.empty_cache()
+
+
 def _ab_stamps(reps=5):
     """Per-CTA records of the ONE_STAMP build on the full-context q_len 8 shapes, cold calls.
     Fields: 0 start, 1 partition done, 2 first tile ready, 3 tile loops done, 4 grid barrier
@@ -243,9 +321,13 @@ def _ab_stamps(reps=5):
     full-barrier wait, 9 segment prologues, 10 tile loops, 11 producer empty-barrier wait,
     12 producer lifetime, 13 / 14 consumer cycles to loop end / to kernel end; 15 SM id."""
     global _ONE
-    mod = _AB_MODS.get("stamp")
-    if mod is None:
-        return
+    for sname, mod in _AB_MODS.items():
+        if sname.startswith("stamp"):
+            _ab_stamps_one(sname, mod, reps)
+
+
+def _ab_stamps_one(sname, mod, reps):
+    global _ONE
     flush = torch.empty(256 << 20, dtype=torch.uint8, device="cuda")
     for batch, layer, q_len in _ab_scored():
         if layer == "sliding" or q_len != 8:
@@ -275,7 +357,8 @@ def _ab_stamps(reps=5):
             def q(x):
                 xs = sorted(float(v) for v in x)
                 return "{{:.1f}}/{{:.1f}}/{{:.1f}}".format(xs[0], xs[len(xs) // 2], xs[-1])
-            print(f"STAMP {{tag}} rep={{r}} ctas={{n}} ghz={{ghz:.3f}} "
+            _ab_wave(tag, sname, r, [float(x) for x in ns[:, 3]], [int(x) for x in rec[:, 15]])
+            print(f"STAMP {{tag}} {{sname}} rep={{r}} ctas={{n}} ghz={{ghz:.3f}} "
                   f"span={{float(ns[:, 5].max()):.1f}} start={{q(ns[:, 0])}} "
                   f"part={{q(ns[:, 1] - ns[:, 0])}} first_tile={{q(ns[:, 2] - ns[:, 0])}} "
                   f"loop_end={{q(ns[:, 3])}} barrier_wait={{q(ns[:, 4] - ns[:, 3])}} "
@@ -287,7 +370,7 @@ def _ab_stamps(reps=5):
                 # Loop-end time next to tiles, so imbalance can be told from per-tile speed.
                 order = sorted(range(n), key=lambda i: float(ns[i, 3]))
                 pick = order[:4] + order[n // 2 - 2:n // 2 + 2] + order[-4:]
-                print(f"STAMPCTA {{tag}} " + " ".join(
+                print(f"STAMPCTA {{tag}} {{sname}} " + " ".join(
                     "c{{}}:sm{{}}:t{{}}:s{{}}:end{{:.1f}}:pro{{:.1f}}:fw{{:.1f}}".format(
                         i, int(rec[i, 15]), int(rec[i, 6]), int(rec[i, 7]), float(ns[i, 3]),
                         float(us[i, 1]), float(us[i, 0])) for i in pick), flush=True)
@@ -309,9 +392,17 @@ if not _os.environ.get("ATTN_AB_DONE"):
         except Exception as _exc:
             print(f"STAMP failed: {{type(_exc).__name__}}: {{_exc}}", flush=True)
         try:
+            _ab_pubstamps()
+        except Exception as _exc:
+            print(f"PUBSTAMP failed: {{type(_exc).__name__}}: {{_exc}}", flush=True)
+        try:
             _ab_bench()
         except Exception as _exc:
             print(f"ABBENCH failed: {{type(_exc).__name__}}: {{_exc}}", flush=True)
+        # Repeated last: the run log keeps only its final 16,000 characters.
+        print("ABCHECKSUM " + " ".join(f"{{n}}={{t['PASS']}}/{{t['FAIL']}}/{{t['PROBE']}}"
+                                       for n, t in _AB_TALLY.items()) + " (pass/fail/probe)",
+              flush=True)
 '''
 
 

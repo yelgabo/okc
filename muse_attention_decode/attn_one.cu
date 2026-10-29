@@ -105,6 +105,26 @@ constexpr int COOP_POLL_LIMIT = 1 << 24;
 #ifndef ONE_PROBE
 #define ONE_PROBE 0
 #endif
+// ONE_WAVE=w (mode 51, cooperative launch of exactly two CTAs per SM): the CTA that reaches its
+// SM's rank counter first takes w / 1024 of its SM partner's share of the virtual key axis, and
+// the two take adjacent ranges (slot 2 smid + rank). Stamps of 7631033a0c93485d at verify 32 full:
+// on all 132 SMs the lower-index CTA ends its tile loop first, 29-41 us before its partner
+// (median 35), with equal tiles; a split by block index instead (first 132 CTAs heavier) lost
+// because some SMs hold two of them (docs/runs-attention.md, 10-29). 0 keeps equal shares.
+#ifndef ONE_WAVE
+#define ONE_WAVE 0
+#endif
+// ONE_DCARRY (mode 51 tile loop): the public flat kernel's consumer path before the Q.K issue,
+// 37 SASS instructions against 94 in mode 51 (docs/runs-attention.md, 10-29). The tiles whose
+// keys all lie below the block's own positions (no mask, no patch) are found once per segment
+// and tested with one compare; the Q and K descriptor low words are broadcast from lane 0, which
+// keeps them in uniform registers, and the K descriptor of a stage is base + 1024 * stage (the
+// 14-bit address field never carries: shared memory is below 256 KB). The full-barrier wait, the
+// per-tile fence.proxy.async and the patch path of the other tiles are unchanged.
+// Judged -8.4 us at verify 32 full in f64e8680b3e441be (bench 4ff339332fef4aff: -7.3 cold).
+#ifndef ONE_DCARRY
+#define ONE_DCARRY 1
+#endif
 constexpr int STAMP_BASE = 1024;
 constexpr int STAMP_W = 16;
 
@@ -157,6 +177,8 @@ __host__ __device__ constexpr int one_cons_regs(int L) {
 constexpr int CNT_COOP = 4096;
 constexpr int CNT_EPOCH = 8192;
 constexpr int CNT_FLAT = 16384;
+// [CNT_SMR + smid]: ONE_WAVE's per-SM rank counters, zero between launches.
+constexpr int CNT_SMR = CNT_FLAT + 4096;
 constexpr int CNT_INTS = 32768;
 
 struct Params {
@@ -189,6 +211,8 @@ struct Params {
     int lp;
     // Both caches below 4 GB: byte offsets fit 32 bits (ONE_PFAST).
     int off32;
+    // SM count of the device (ONE_WAVE).
+    int wave_n;
 };
 
 template <int L, int NS>
@@ -721,6 +745,8 @@ attn_one_kernel(const Params p) {
     constexpr bool EREL = ONE_EREL && PROD && L == 8;
     constexpr bool PCHK = ONE_PCHK && PROD && L == 8;
     constexpr int UNR8 = ONE_UNR2 && PROD && L == 8 ? 2 : 1;
+    constexpr bool DCARRY = ONE_DCARRY && PROD && L == 8;
+    constexpr bool WAVE = ONE_WAVE > 0 && PROD && !SOLO && L == 8;
     // NC consumer threads (one warpgroup per KV head at q_len 8, four warps at q_len 1); in
     // producer mode one more warpgroup gathers the tiles.
     constexpr int NC = L == 8 ? 256 : 128;
@@ -848,7 +874,23 @@ attn_one_kernel(const Params p) {
         ntiles = (hi - lo + BN - 1) >> 6;
         return true;
     };
+    const bool wave_on = WAVE && G == 2 * p.wave_n;
     if constexpr (FLAT) {
+        if (wave_on && tid == 32) {
+            // The two RMWs of an SM's pair return distinct parities whatever the counter held,
+            // and the one that sees an odd value resets it: both RMWs precede that store in the
+            // location's coherence order (PTX ISA 8.10.1, 8.10.3), so the next launch, stream
+            // ordered after this one, starts from zero. Exactly two CTAs per SM is what the
+            // cooperative launch of 2 x SMs CTAs at two resident per SM implies; the host sets
+            // wave_n only for such launches, on a device whose SM ids run 0 .. SMs - 1.
+            uint32_t smid;
+            asm volatile("mov.u32 %0, %%smid;\n" : "=r"(smid));
+            const int old = atomicAdd(p.ws_cnt + CNT_SMR + smid, 1);
+            if (old & 1) {
+                atomicExch(p.ws_cnt + CNT_SMR + smid, 0);
+            }
+            flag[3] = 2 * static_cast<int>(smid) + (old & 1);
+        }
         if (warp == 0) {
             int carry = 0;
             for (int base = 0; base < B; base += 32) {
@@ -885,8 +927,19 @@ attn_one_kernel(const Params p) {
         }
         __syncthreads();
         const long long total_v = offs[B] - SEGK;
-        v0 = static_cast<int>(total_v * split / G);
-        v1 = static_cast<int>(total_v * (split + 1) / G);
+        if (wave_on) {
+            const int slot = flag[3];
+            auto wsum = [&](int k) -> long long {
+                return static_cast<long long>(k >> 1) * (ONE_WAVE + 1024)
+                       + static_cast<long long>(k & 1) * ONE_WAVE;
+            };
+            const long long wg = wsum(G);
+            v0 = static_cast<int>(total_v * wsum(slot) / wg);
+            v1 = static_cast<int>(total_v * wsum(slot + 1) / wg);
+        } else {
+            v0 = static_cast<int>(total_v * split / G);
+            v1 = static_cast<int>(total_v * (split + 1) / G);
+        }
         keys_all = offs[B] - B * SEGK;
         // Requests touched: the first with an end past v0 and the last starting before v1.
         {
@@ -1469,7 +1522,8 @@ attn_one_kernel(const Params p) {
         // Tile it of this segment becomes readable in stage `st` (every consumer thread calls
         // this; the generic writes above and the gathered rows are fenced for the wgmma
         // reads at q_len 8).
-        auto acquire = [&](int it, int st) {
+        // common: the caller knows the tile holds none of the block's own rows (ONE_DCARRY).
+        auto acquire = [&](int it, int st, bool common = false) {
             if constexpr (PROD) {
                 const long long s_w0 = STAMPS ? clock64() : 0;
                 mbar_wait(full0 + 8 * st, cph);
@@ -1488,7 +1542,11 @@ attn_one_kernel(const Params p) {
                     fence_proxy_async();
                 }
                 const int pos0 = lo + it * BN;
-                if (hi > seq && pos0 + BN > seq) {
+                if (common) {
+                    if (it == 0) {
+                        csync();
+                    }
+                } else if (hi > seq && pos0 + BN > seq) {
                     patch_tile(st, pos0);
                     if constexpr (L == 8) {
                         fence_proxy_async();
@@ -1684,8 +1742,22 @@ attn_one_kernel(const Params p) {
             // 2 wq) and g + 8 (token 2 wq + 1), head g.
             const int hk = warp >> 2;
             const int wq = warp & 3;
-            const uint64_t qd0 = desc_kmaj(smem_base + S::Q + hk * 4096, 128, 512);
-            const uint64_t qd1 = desc_kmaj(smem_base + S::Q + hk * 4096 + 256, 128, 512);
+            uint64_t qd0 = desc_kmaj(smem_base + S::Q + hk * 4096, 128, 512);
+            uint64_t qd1 = desc_kmaj(smem_base + S::Q + hk * 4096 + 256, 128, 512);
+            uint32_t klo0 = 0;
+            int it_c = 0;
+            if constexpr (DCARRY) {
+                qd0 = (qd0 & ~0xffffffffull)
+                      | __shfl_sync(0xffffffffu, static_cast<uint32_t>(qd0), 0);
+                qd1 = (qd1 & ~0xffffffffull)
+                      | __shfl_sync(0xffffffffu, static_cast<uint32_t>(qd1), 0);
+                klo0 = __shfl_sync(0xffffffffu,
+                                   static_cast<uint32_t>(desc_sw128(smem_base + S::KV + hk * 64)),
+                                   0);
+                // Tiles [0, it_c) end at or below seq: every key is cached and visible to every
+                // query row (window 0), so they need no mask and no patch.
+                it_c = __shfl_sync(0xffffffffu, !p.window && seq > lo ? (seq - lo) >> 6 : 0, 0);
+            }
             float o[36];
 #pragma unroll
             for (int i = 0; i < 36; ++i) {
@@ -1697,11 +1769,13 @@ attn_one_kernel(const Params p) {
                 int st = PROD ? cst : 0;
 #pragma unroll (UNR8)
                 for (int it = 0; it < ntiles; ++it) {
-                    acquire(it, st);
+                    const bool common = DCARRY && it < it_c;
+                    acquire(it, st, common);
                     const uint8_t* vs = smem + S::KV + st * 2 * TILE_BYTES + TILE_BYTES;
                     const int pos0 = lo + it * BN;
                     const bool interior =
-                        pos0 + BN - 1 <= seq && (!p.window || pos0 >= seq + L - p.window);
+                        common
+                        || (pos0 + BN - 1 <= seq && (!p.window || pos0 >= seq + L - p.window));
                     // V^T for this warp's 16 dims: per 32-key half, one ldmatrix.x4.trans over
                     // the four 8-key groups (b16 = two dims), byte permutes into P's key order,
                     // one stmatrix.x4 into the 64B-swizzled K-major buffer; V^T row
@@ -1731,7 +1805,9 @@ attn_one_kernel(const Params p) {
                     float s[32];
                     {
                         const uint64_t kd =
-                            desc_sw128(smem_base + S::KV + st * 2 * TILE_BYTES + hk * 64);
+                            DCARRY ? (desc_sw128(0) & ~0xffffffffull)
+                                         | (klo0 + static_cast<uint32_t>(st) * (2 * TILE_BYTES >> 4))
+                                   : desc_sw128(smem_base + S::KV + st * 2 * TILE_BYTES + hk * 64);
                         wg_fence();
                         wgmma_qk<0>(s, qd0, kd);
                         wgmma_qk<1>(s, qd1, kd + 2);
@@ -2190,6 +2266,46 @@ int Instance<L, MODE>::resident = -1;
 template <int L, int MODE>
 int Instance<L, MODE>::per_sm = 0;
 
+__global__ void smid_probe_kernel(int* out) {
+    if (threadIdx.x == 0) {
+        uint32_t smid;
+        asm volatile("mov.u32 %0, %%smid;\n" : "=r"(smid));
+        atomicMax(out, static_cast<int>(smid));
+    }
+}
+
+// ONE_WAVE: the SM count when every %smid seen on this device lies below it (the kernel's slot
+// 2 smid + rank must tile 0 .. 2 SMs - 1), else 0. Probed once, outside graph capture.
+int wave_sms(cudaStream_t stream) {
+    static int cached = -1;
+    if (cached >= 0) {
+        return cached;
+    }
+    cudaStreamCaptureStatus cs = cudaStreamCaptureStatusNone;
+    cudaStreamIsCapturing(stream, &cs);
+    if (cs != cudaStreamCaptureStatusNone) {
+        return 0;
+    }
+    int dev = 0;
+    int n = 0;
+    cudaGetDevice(&dev);
+    cudaDeviceGetAttribute(&n, cudaDevAttrMultiProcessorCount, dev);
+    int* d = nullptr;
+    int h = 1 << 30;
+    if (cudaMalloc(&d, sizeof(int)) == cudaSuccess) {
+        cudaMemset(d, 0, sizeof(int));
+        smid_probe_kernel<<<16 * n, 32>>>(d);
+        if (cudaDeviceSynchronize() != cudaSuccess
+            || cudaMemcpy(&h, d, sizeof(int), cudaMemcpyDeviceToHost) != cudaSuccess) {
+            h = 1 << 30;
+        }
+        cudaFree(d);
+    }
+    cudaGetLastError();
+    cached = h < n ? n : 0;
+    return cached;
+}
+
 __global__ void coop_probe_kernel(int* out) {
     if (threadIdx.x == 0) {
         atomicAdd(out, 1);
@@ -2323,6 +2439,7 @@ torch::Tensor attn_one(torch::Tensor qkv, torch::Tensor page_table, torch::Tenso
     // One byte per cache element (e4m3).
     const int64_t cache_bytes = std::max<int64_t>(k_cache.numel(), v_cache.numel());
     p.off32 = (1 << p.lp) == page_size && cache_bytes <= (int64_t{1} << 32) ? 1 : 0;
+    p.wave_n = 0;
     // Per-request modes launch (n_splits, batch) CTAs; flat modes launch n_splits CTAs that
     // share the batch's keys, with the batch size carried in Params::n_splits.
     int gx = static_cast<int>(n_splits);
@@ -2332,6 +2449,9 @@ torch::Tensor attn_one(torch::Tensor qkv, torch::Tensor page_table, torch::Tenso
         gy = 1;
     }
     const bool coop = coop_launch && (mode & M_COOP) != 0;
+    if (ONE_WAVE > 0 && coop && (mode & M_FLAT) && q_len == 8) {
+        p.wave_n = wave_sms(stream);
+    }
     bool hit = false;
     cudaError_t err = cudaSuccess;
 #define ONE_LAUNCH(L, M) \
