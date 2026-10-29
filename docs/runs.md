@@ -305,3 +305,85 @@ SGLang's `_bf16_gemm_dispatch_impl` above, so its verify 16 load (T = 128) runs 
 qkv_gate on cuBLAS. The port is the wd kernel (not yet in the layer) with these two configs,
 picked at T = 128 only. Expected: about 3.5 us (pooler) + 2.8 us (qkv_gate) of standalone
 kernel time per verify-16 step, unverified in the layer.
+
+## CUTLASS sweep at the decode layer's large-token shapes 2026-10-29 (branch worktree-agent-a2cd7a53020c36f7a)
+
+Target: the dense projections the decode layer runs at T = 256 (verify 32). In
+muse_decode_layer/submission.py, `_proj` sends qkv_gate, o and the unpooler to cuBLAS above 32
+tokens, and the MoE front's tuner picks "concat" at T = 128 and 256 (one `torch.mm` of the FFN
+input against `[pooler; router hi; router lo]`, 4608 x 8192, FP32 output; front tuner 45.2 vs
+split 59.5 us at T = 256 in layer run 725d34e9511c4370). So the layer's T = 256 GEMMs are
+qkv_gate 2304 x 8192, o 8192 x 1024, concat 4608 x 8192 FP32 out and unpooler 8192 x 4096, all
+on the main stream. In layer run 2fed900548ec4d5b they are 92.6 us of the 417 / 637 us verify 32
+steps (nvjet 128x128 two calls 36.4, nvjet 80x128 33.2, nvjet 96x64 23.0).
+
+`tools/proj_make_bench_cut.py` appends a sweep to the unchanged submission: 11 CUTLASS sm90
+swap-AB GEMMs (the public's composition), one `.cu` per config built by `cpp_extension.load`
+so ninja compiles them in parallel, timed against cuBLAS, torchT and our pick at T = 256 and
+128 as cold-L2 graph replays, 100 rotating rounds, paired ratios against cuBLAS. Configs: pingpong
+128x64 (the public's), pingpong 128x64 cluster 2, pingpong 128x128, and cooperative stream-K
+128x128, 128x64, 256x128, each at BF16 and FP32 output; every stream-K kernel run at heuristic,
+stream-K, and split-K 2 / 3 / 4.
+
+Sweep 8bea43d605c74546 (judge: 192 CPUs, FlashInfer's CUTLASS 4.5.0, 11 configs built in
+64.5 s). Kernel us cold (replay overhead 3.9 us included), best CUTLASS config per shape:
+
+| shape (T = 256) | cuBLAS | torchT | ours | best CUTLASS | its ratio |
+|---|---|---|---|---|---|
+| qkv_gate | 24.03 | 25.02 | 23.94 | co128x64 stream-K 27.81 | 0.845 |
+| o | 13.25 | 13.06 | 13.01 | pp128x64 14.62 | 0.871 |
+| pooler (BF16, standalone only) | 34.22 | 33.07 | 33.82 | **pp128x64 31.86** | **1.081** |
+| unpooler | 28.45 | 27.87 | 28.06 | pp128x128 29.97 | 0.946 |
+| concat (FP32 out, layer) | 33.31 | 37.38 | - | co128x128 stream-K 42.30 | 0.767 |
+
+| shape (T = 128) | cuBLAS | torchT | ours | best CUTLASS | its ratio |
+|---|---|---|---|---|---|
+| qkv_gate | 21.66 | 21.28 | 18.80 (wd) | co128x64 split-K 3 24.85 | 0.853 |
+| o | 11.49 | 11.20 | 11.15 | pp128x64 12.50 | 0.884 |
+| pooler | 29.31 | 27.68 | 26.29 (wd) | co128x64 split-K 2 29.97 | 0.972 |
+| unpooler | 23.78 | 23.17 | 23.68 | pp128x64 24.91 | 0.946 |
+| concat (FP32 out, layer) | 27.94 | 28.91 | - | pp128x64f 32.13 | 0.853 |
+
+What it shows. The public's sweep finding reproduces: CUTLASS wins only the standalone pooler at
+m = 256, where 4096 / 128 x 256 / 64 = 128 tiles fill one wave on 132 SMs. The layer does not
+run that shape. Its concat has 144 tiles at 128x64, a second partial wave; pp128x64f takes 51.3
+us there against 31.9 for the BF16 pooler (measured), and stream-K's fixups do not recover it.
+At T = 256, torchT moves o and unpooler by -1.3 to +2.1% across runs (0d9f0e5b8617471b,
+8bea43d605c74546, 316d451b80034264, d6ff8305da474848), inside the paired noise. At T = 128 the
+unpooler on torchT is ahead in all four (1.041, 1.030, 1.044, 1.052), about 1 us; the public
+picks it there. A hypothesis, not measured: the
+T = 256 GEMMs sit near the practical tensor-core rate already. From cold medians minus the
+3.9 us overhead, cuBLAS runs concat at about 650 TFLOP/s and the unpooler at about 700;
+qkv_gate (about 480) and o (about 460) are the only shapes with headroom, and both are small.
+
+The candidate: the public's pooler m=256 kernel as a tuner candidate (`CUT_SRC`, `cut128x64`,
+offered only for pooler bucket 256, kept only under WD_MARGIN). The first build put the torch
+wrapper in the CUTLASS unit with `-std=c++17`; the judge's torch needs C++20 (reproduced with a
+local torch: `#error C++20 or later compatible compiler is required to use ATen`), so the route
+silently stayed off in 316d451b80034264. The fix keeps the CUTLASS unit free of torch headers
+(raw pointers and a `cudaStream_t`, the sweep's structure) and puts the wrapper in
+`cpp_sources`; `load_inline` compiles them as separate files, so no temp files are needed.
+
+| date | job | commit | change | score (95% CI) | notes |
+|---|---|---|---|---|---|
+| 2026-10-29 | 8bea43d605c74546 | 87e9850 + sweep | CUTLASS sweep bench (table above), judged path unchanged | 1.411x (1.390-1.433) | judged pooler m=256 0.972x |
+| 2026-10-29 | 316d451b80034264 | candidate v1 + A/B bench | paired A/B: new file vs HEAD vs public | 1.429x (1.407-1.450) | the cut route did not build (`-std=c++17` against the judge's C++20 torch), so new = HEAD: bench 1.4238 vs 1.4260 |
+| 2026-10-29 | d6ff8305da474848 | c7311d7 + A/B bench | paired A/B, CUTLASS unit split from the torch wrapper | 1.423x (1.402-1.445) | tune pooler m=256: cut128x64 30.6 vs cuBLAS 31.7 -> cut128x64. Paired: pooler m=256 base 0.986 -> new 1.110 (public 1.112); verify 32 load 1.081 -> 1.121; bench score 1.4322 -> 1.4375. Judged pooler m=256 1.117x |
+| 2026-10-29 | 76051953a96a4168 | c7311d7 | final file, judged | **1.427x** (1.406-1.449) | cut build 48.9 s, prepare 70.6 s; tune pooler m=256 cut128x64 30.9 vs cuBLAS 32.5; judged pooler m=256 1.125x (27.47 vs 30.91 us) |
+
+Two judged runs of the candidate (1.423, 1.427) against 1.408-1.416 for c09dc54; the CIs
+overlap, the pooler m=256 gain (0.97-1.01x before, 1.117 / 1.125x now) reproduces in both.
+
+Port to the layer: none for verify 32. Predicted savings in the layer's verify 32 shapes from
+this work: 0 us. The CUTLASS pooler kernel does not apply, because the layer computes the pooler
+inside concat. Running it as a separate pooler would need the router to hide beside a persistent
+kernel holding 128 of 132 SMs. Run serially, it costs about 31.9 + 11 to 15 us (rk or r128c8)
+against concat's 33.3 cold, a predicted loss of about 10 us per step. qkv_gate, o and unpooler
+stay on cuBLAS. The same caveat applies to the verify 16 port in the previous section: the
+layer's T = 128 pooler also runs inside concat (cuBLAS 27.9 us), so the wd pooler pick
+(b1n128c2s8h, 26.3 us, 128 CTAs) wins in the layer only if the router hides, which a 128-CTA
+kernel does not allow. The qkv_gate m=128 pick (b1n128c3s8h, 18.8 vs 21.7) is unaffected and
+remains the T = 128 port, with the unpooler on torchT (`torch.mm(x, W.t().contiguous())`, a
+lossless repack made once in prepare) as a second, about 1 us. The remaining dense lever at T = 128 / 256 is a hypothesis: concat as
+one wd launch (64 pooler row blocks at BF16 plus 4 router hi/lo row blocks at FP32, K split 2,
+136 CTAs).
