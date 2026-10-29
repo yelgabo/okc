@@ -52,6 +52,7 @@ The fused norms around attention and the MoE are SGLang's, called as baseline.py
 
 from typing import TypedDict
 
+import hashlib
 import threading
 import time
 import types
@@ -4320,7 +4321,14 @@ attn_one_kernel(const Params p) {
                     pph ^= 1u;
                 }
             }
-            return;
+            // PTX exit, not return: a return branches to the kernel's one ret block, which the
+            // consumers also reach, and ptxas then wraps both roles in a single convergence
+            // region (BSSY before the role branch, BSYNC + EXIT at the end) and caps the
+            // consumer code after setmaxnreg.inc at the launch-bounds count (80 at q_len 8:
+            // 304 bytes of spills). With exit the roles share no block and the consumers get
+            // the 104 registers. No __builtin_unreachable after it: with that hint the shared
+            // block comes back (CUDA 12.8.1). docs/runs-attention.md, 10-29.
+            asm volatile("exit;\n" ::: "memory");
         }
         if constexpr (!SOLO) {
             setmaxnreg_inc<one_cons_regs(L)>();
@@ -5193,12 +5201,13 @@ namespace one {
 
 // q_len 1: 13 (decode 1 sliding), 1 (decode 16 / 32 sliding, page-64 and short tests), 11
 // (decode 1 full, page 1), 3 (batch 1 full at page 64), 49 (full decode at batch > 1, producer
-// warpgroup); q_len 8: 15, 3, 11, 1 likewise, and 19 (full verify at batch > 1, flat without the
-// producer warpgroup: the producer build 51 spills and timed 389 / 774 us against 19's
-// 127 / 236 at batch 16 / 32 in muse_attention_decode's 16fcddf80a714e0d). 17, 51 and 115 stay
-// out for compile time.
+// warpgroup); q_len 8: 15, 3, 11, 1 likewise, 51 (full verify at batch > 1, producer warpgroup)
+// and 19 as its fallback when 51's residency is short. Since the producer leaves by PTX exit,
+// 51 does not spill and timed 125.0 / 232.4 us against 19's 128.2 / 238.8 at batch 16 / 32 in
+// muse_attention_decode's d90a73871d8e4481. 17 and 115 stay out for compile time.
 #define DL_ONE_INSTANCES(X) \
-    X(1, 1) X(1, 3) X(1, 11) X(1, 13) X(1, 49) X(8, 1) X(8, 3) X(8, 11) X(8, 15) X(8, 19)
+    X(1, 1) X(1, 3) X(1, 11) X(1, 13) X(1, 49) X(8, 1) X(8, 3) X(8, 11) X(8, 15) X(8, 19) \
+    X(8, 51)
 
 template <int L, int MODE>
 void one_launch(const Params& p, int gx, int gy, cudaStream_t stream, bool coop, bool pdl) {
@@ -11043,6 +11052,8 @@ def _moe1_self_test(state, weights):
         ok = worst < W4_TEST_TOL and clean
         print(f"MOE1TEST {name}: worst vs fp32 {worst:.2e}, vs the W4 chain {worst_w4:.2e}, "
               f"{msg}: {'ok' if ok else 'FAIL'}")
+        if not ok:
+            _FAILED.append(f"moe1 {name} (fp32 {worst:.1e}, {msg})")
         ctr[8] = 0
         if ok:
             passed.append(variant)
@@ -11107,10 +11118,12 @@ def _moe1_tune(state, variants, seeds=(11, 12)):
         line = " ".join(f"{_moe1_name(v)}:{t / n:.1f}"
                         for v, t in sorted(tot.items(), key=lambda kv: kv[1]))
         print(f"MOE1BENCH T={bs} {line} us (graph replay, cold L2, mean of {n} routings)")
+        state.setdefault("moe1_bench", {})[bs] = {_moe1_name(v): t / n for v, t in tot.items()}
         policy[bs] = min(tot, key=tot.get)
     clean, msg = _moe1_check(state)
     if not clean:
         print(f"MOE1BENCH scratch dirty after the bench ({msg}); fused policy discarded")
+        _FAILED.append(f"moe1 bench: scratch dirty ({msg}), policy discarded")
         return {}
     print(f"MOE1POLICY {{{', '.join(f'{b}: {_moe1_name(v)}' for b, v in policy.items())}}}")
     return policy
@@ -11305,6 +11318,7 @@ def _skp_self_test(state, cands):
             except Exception as exc:
                 print(f"SKP selftest {layer} {name}: disabled ({type(exc).__name__}: "
                       f"{str(exc)[-300:]})")
+                _FAILED.append(f"skp {layer} {name} ({type(exc).__name__})")
     return survivors
 
 
@@ -11362,6 +11376,7 @@ def _skp_fused(state, packed_pooler):
         except Exception as exc:
             print(f"SKP fused pooler+router {nm}f: disabled ({type(exc).__name__}: "
                   f"{str(exc)[-300:]})")
+            _FAILED.append(f"skp fused {nm}f ({type(exc).__name__})")
     return fused
 
 
@@ -11615,10 +11630,11 @@ _ONE_CNT_INTS = 32768
 # Grid target: two CTAs per SM on 132 SMs.
 _ONE_TARGET = 264
 # The instances _ONE_HOST_SRC builds (DL_ONE_INSTANCES).
-_ONE_BUILT = {1: (1, 3, 11, 13, 49), 8: (1, 3, 11, 15, 19)}
+_ONE_BUILT = {1: (1, 3, 11, 13, 49), 8: (1, 3, 11, 15, 19, 51)}
 # Full-context batches on the flat partition (else per request). The flat instances built here
-# are 49 (q_len 1, producer warpgroup) and 19 (q_len 8, none), so _ONE_PROD = False sends full
-# decode at batch > 1 to the per-request kernels.
+# are 49 (q_len 1, producer warpgroup), 51 (q_len 8, producer warpgroup) and 19 (q_len 8,
+# none), so _ONE_PROD = False sends full decode at batch > 1 to the per-request kernels and
+# full verify to 19.
 _ONE_FLAT = True
 _ONE_PROD = True
 # Cooperative modes launch with cudaLaunchAttributeCooperative when the driver accepts it under
@@ -11676,9 +11692,9 @@ def _one_plan(cfg, pt_width, resident):
     tiles = (kmax + 63) // 64
     nc = 1
     if not window and batch > 1 and _ONE_FLAT:
-        # q_len 8 skips the producer build 51: at 80 registers it spills inside the tile loop
-        # and timed 389 / 774 us against mode 19's 127 / 236 at batch 16 / 32 (16fcddf80a714e0d).
-        for mode in ((49, 17) if length == 1 else (19,)) if _ONE_PROD else \
+        # 17 is not built in the layer, so a short q_len 1 residency falls to the per-request
+        # plan below.
+        for mode in ((49, 17) if length == 1 else (51, 19)) if _ONE_PROD else \
                 ((17,) if length == 1 else (19,)):
             grid = min(_ONE_TARGET, resident.get((length, mode), 0))
             if grid >= 2 * batch:
@@ -11812,8 +11828,9 @@ def _one_stress(state, batch, length, layer, replays, seed):
 def _attn_one_self_test(state):
     """The one-launch kernel on the shared attention cases against SGLang's path (the shared
     bounds) with the workspace invariant after every case, then the replay stress on decode 1
-    sliding (the speculated one-tile launch), decode 16 full (flat tickets) and their verify
-    counterparts (cooperative counters). Prints each step's time; raises on any failure."""
+    sliding (the speculated one-tile launch), decode 16 full (flat tickets), their verify
+    counterparts (cooperative counters) and verify 32 full (the producer build 51 at the
+    scored batch). Prints each step's time; raises on any failure."""
     t0 = time.time()
     st = _one_setup(state)
     lim = st["limits"]
@@ -11838,7 +11855,8 @@ def _attn_one_self_test(state):
     _attn_self_test(state, after_case=after_case, extra_cases=extra)
     print(f"attn one: cases {time.time() - t1:.1f} s")
     for i, (batch, length, layer) in enumerate(((1, 1, "sliding"), (16, 1, "full"),
-                                                (1, 8, "sliding"), (16, 8, "full"))):
+                                                (1, 8, "sliding"), (16, 8, "full"),
+                                                (32, 8, "full"))):
         t2 = time.time()
         msg = _one_stress(state, batch, length, layer, 2000, 8000 + i)
         print(f"attn one: stress {batch}x{length} {layer} {msg} ({time.time() - t2:.1f} s)")
@@ -12141,6 +12159,7 @@ def _w4_tune(state, seeds=(11, 12)):
                 err = _rel(got[live], ref[live])
                 if not err < 2e-2:
                     print(f"TUNE bad cfg {i} {cfg} T={bs} seed={seed}: rel diff {err:.2e}")
+                    _FAILED.append(f"w4 config {i} T={bs} ({err:.1e})")
                     bad.add(i)
         n = len(seeds)
         for k in range(2):
@@ -12162,6 +12181,7 @@ def _w4_tune(state, seeds=(11, 12)):
                     tv[v] += _graph_time(lambda: _experts(x, tw, topk_ids, start, st, o), flush)
         except Exception as exc:
             print(f"TUNE MoE variants failed: {type(exc).__name__}: {exc}")
+            _FAILED.append(f"w4 pdl/cluster variants T={bs} ({type(exc).__name__})")
             tv = {(False, 1): 0.0}
         line = " ".join(f"pdl={int(v[0])},cl={v[1]}:{t / n:.1f}" for v, t in tv.items())
         print(f"TUNE MoE T={bs} {line}")
@@ -12624,6 +12644,7 @@ def _front_tune(state):
             if not (err < 1e-3 and same >= 0.99):
                 print(f"TUNE front T={tokens} {variant} dropped: rel diff {err:.2e}, "
                       f"routes {same:.3f} against {reference}")
+                _FAILED.append(f"front {variant} T={tokens} ({err:.1e}, routes {same:.3f})")
                 times.pop(variant)
         best = min(times, key=times.get)
         policy[tokens] = best
@@ -12642,7 +12663,82 @@ def _try(name, fn):
         return True
     except Exception as exc:
         print(f"{name}: SGLang fallback ({type(exc).__name__}: {exc})")
+        _FAILED.append(f"{name}: fallback ({type(exc).__name__}: {str(exc)[:120]})")
         return False
+
+
+# Candidates that failed a self-test or tuner check and the stages that fell back, for the
+# summary at the end of prepare.
+_FAILED = []
+
+# The judge keeps only the last 16,000 characters of the log (result.json log_tail), so the
+# per-stage lines printed early in prepare are lost (check e87fcb1ed5c64a62 has no MOE1BENCH
+# or MOE1POLICY). This summary is printed last and kept short so the tail always holds it.
+_SCORED = [(load, b, q, layer) for load, b, q in
+           (("d1", 1, 1), ("d16", 16, 1), ("d32", 32, 1), ("v1", 1, 8), ("v16", 16, 8),
+            ("v32", 32, 8)) for layer in ("sliding", "full")]
+
+
+def _short_hash(text):
+    return hashlib.sha256(text.encode()).hexdigest()[:12]
+
+
+def _code_bytes(code):
+    # Bytecode, names and constants, without the file name or line numbers, so the same source
+    # gives the same digest wherever the judge stores the payload.
+    out = [code.co_code, repr(code.co_names).encode()]
+    for c in code.co_consts:
+        out.append(_code_bytes(c) if isinstance(c, types.CodeType) else repr(c).encode())
+    return b"|".join(out)
+
+
+def _source_digest():
+    # The module's own functions and string constants, read from memory: the submission
+    # opens no files. The judge's result.json content_hash identifies the payload itself.
+    h = hashlib.sha256()
+    for name, value in sorted(globals().items()):
+        if isinstance(value, types.FunctionType) and value.__module__ == __name__:
+            h.update(name.encode() + _code_bytes(value.__code__))
+        elif isinstance(value, str) and name.isupper():
+            h.update(name.encode() + repr(value).encode())
+    return h.hexdigest()[:16]
+
+
+def _selection_summary(state):
+    lines = [f"source digest {_source_digest()}"]
+    gen = {"main": _CPP_SRC + _CUDA_SRC + _PREP_SRC + _ATTN_SRC + _ATTN_HOST_SRC + _WS_SRC
+           + _WS_HOST_SRC + _BND_SRC, "one": _ONE_SRC + _ONE_HOST_SRC + _ONE_CPP_SRC,
+           "w4": _W4_CPP_SRC + _w4_source(), "moe1": _MOE1_SRC + _moe1_source() + _MOE1_CPP_SRC,
+           "skp": _SKP_SRC + _SKP_GEMV_SRC + _SKP_CPP_SRC}
+    lines.append("components " + " ".join(f"{k}={_short_hash(v)}" for k, v in gen.items()))
+    flags = ("moe_ours", "w4_ok", "moe1_ok", "router_ours", "proj_ours", "skp_ok",
+             "attn_one_ours", "attn_ws_ours", "attn_fused_ours", "bnd_ours", "abnd_ours",
+             "norm_ours", "route_side_ok")
+    lines.append("stages " + " ".join(f"{k}={int(bool(state.get(k)))}" for k in flags))
+    bench = state.get("moe1_bench", {})
+    for bs in TUNE_TOKENS:
+        opts = _moe_opts(bs, state)
+        pick = _moe1_name(opts["fused"])
+        times = " ".join(f"{v} {t:.1f}" for v, t in sorted(bench.get(bs, {}).items(),
+                                                           key=lambda kv: kv[1]))
+        w4 = f"g1={opts['g1']} g2={opts['g2']} pdl={int(opts['pdl'])} cl={opts['fcl']}"
+        front = state.get("front_policy", {}).get(bs, "-")
+        lines.append(f"moe T={bs}: {pick} [{times or 'no bench'}] w4 {w4} front {front}")
+    one = state.get("one")
+    for load, batch, length, layer in _SCORED:
+        cfg = {"batch": batch, "q_len": length, "tokens": batch * length, "num_q_heads": 16,
+               "num_kv_heads": 2, "head_dim": 64, "page_size": 1,
+               "window": 2048 if layer == "sliding" else 0}
+        path = _attn_path(cfg, state)
+        how = path.__name__.lstrip("_")
+        if path is _attn_one and one is not None:
+            # Planned at ctx 80000; only batch 1 full reads the width (as tiles).
+            plan = _one_plan(cfg, 80000 + length, one["resident"])
+            how += f" plan(splits,nc,mode)={plan}"
+        lines.append(f"attn {load} {layer}: {how}")
+    lines.append(f"failed {len(_FAILED)}: " + ("; ".join(_FAILED)[:1500] if _FAILED else "none"))
+    for line in lines:
+        print(f"SUMMARY {line}")
 
 
 def prepare(weights):
@@ -12772,6 +12868,10 @@ def prepare(weights):
         _try("moe front tuner", lambda: _front_tune(state))
     torch.cuda.synchronize()
     print(f"prepare: done ({time.time() - t_start:.1f} s)")
+    try:
+        _selection_summary(state)
+    except Exception as exc:
+        print(f"SUMMARY failed: {type(exc).__name__}: {exc}")
     return state
 
 
