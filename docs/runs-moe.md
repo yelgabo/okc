@@ -52,6 +52,8 @@ SGLang with its 95% interval. Profiles and logs are in `muse_moe_w4a16/profiles/
 | 2026-10-29 | 9332e2a49aff4ff2 (check) | d90ad14 without mode 21 and the staged pair (built modes 0, 1, 16, 17, 18, 19, 20) | modes 17 (16 with stamps, wgmma segments stamped too), 18 (16's phase A alone), 19 (phase A alone on owned whole units, snake order by n-tile count: the GEMM1-only prototype), 20 (19's phase A, then 16's phase B and final pass); a GATE report (6 seeds, same process); modes 6, 11-15 not built | 2.044x (2.013-2.074) | per shape: bs1 28.07 us, bs16 97.21, bs32 133.31, bs8 68.03, bs128 239.63 (main-own), bs256 283.75 (main-own). POLICY {1-32: sk8w4s, 128: main-own, 256: main-own}. GATE (us, mean of 6 seeds): bs128 mode 16 248.3, 18 175.6, 19 170.1, 20 245.6; 19 minus 18 per seed +1.9 -7.4 -6.1 -8.2 -9.1 -4.1 (mean -5.5), 20 minus 16 mean -2.7 (5 of 6 seeds lower); bs256 16 286.4, 18 205.6, 19 189.2, 20 282.0; 19 minus 18 mean -16.4 (6 of 6), 20 minus 16 mean -4.4. xb of 19 vs 18 rel L2 4e-6 to 7e-5 (FP32 sum order of the fixups); output of 20 vs 16 1e-4 to 3e-4; every self-test 3.9e-3 vs FP32. Stamps in section "Mode 16 at 128 and 256 tokens" below; mode 17 costs 14-18 us over 16 (263.3 vs 248.9 at 128) |
 | 2026-10-29 | e221858b020c4dee (check) | d90ad14 | adds mode 21 (phase B and the final pass alone, no done_as wait, no gather) and the staged pair VARIANT_STAGED (19 then 21, two launches), self-tested and benched; modes 0, 1, 16, 18, 19, 20, 21 built | 2.026x (1.995-2.056) | per shape: bs1 27.98, bs16 97.30, bs32 136.88, bs8 69.03, bs128 245.85 (main-own), bs256 288.66 (main-own). GATE: bs128 16 249.4, 18 176.9, 19 171.3, 20 247.3, 21 109.6, staged 277.3; staged minus 16 +21.2 to +32.0 (mean +27.9), staged minus 20 mean +30.0; 19 minus 18 mean -5.6; 20 minus 16 mean -2.1. bs256 16 287.3, 18 206.1, 19 190.4, 20 283.5, 21 124.3, staged 311.6; staged minus 16 mean +24.2, minus 20 mean +28.1; 19 minus 18 mean -15.7; 20 minus 16 mean -3.8. Staged self-test 3.88e-3, output vs 16 1.3e-4 to 2.0e-4. The staged pair loses (ruled-out.md) |
 | 2026-10-29 | 72b7a5a9c511446a (check) | 308ed5b | the shippable build: modes 0, 1, 16, 20 (the phase-only modes and the staged pair stay in the source, unbuilt) | 2.022x (1.992-2.053) | per shape: bs1 28.29, bs16 97.70, bs32 141.43, bs8 69.26, bs128 247.68 (main-own), bs256 291.36 (main-own). GATE: 20 minus 16 per seed bs128 -2.9 -2.3 -3.9 +0.6 -8.9 -1.2 (mean -3.1), bs256 -10.8 -10.6 +5.0 -5.0 +0.1 -4.1 (mean -4.2). BENCH bs128 main-own 247.7, main-m2-ar2-ub 251.6, legacy128 251.7; bs256 main-own 270.8, main-m2-ar2-ub 281.3. Three runs of mode 20: 2.044x, 2.026x, 2.022x against 2.019x, 2.011x, 2.003x for mode 16's three; the intervals overlap, the same-process A/B (three times, 18 seeds per size) puts 20 ahead by 2-3 us at 128 and 4 us at 256. Prepare build 137 s |
+| 2026-10-29 | a9dbec1d98334943 (check) | 10375cb | modes 22 (20 with stamps), 23 (20 with phase B units claimed at run time from a global counter in S.ord order, both phases walked largest n-tile count first) and 24 (23 with stamps); GATE 16 / 20 / 23 on seeds 11-16 with the variant order reversed on every other seed; built modes 0, 1, 16, 20, 22, 23, 24 | 2.076x (2.045-2.107) | per shape: bs1 29.17, bs16 97.20, bs32 137.53, bs8 72.30, bs128 219.92 (2.083x, main-own-dynb), bs256 269.21 (2.289x, main-own-dynb). GATE (us, mean of 6 seeds): bs128 16 248.1, 20 246.2, 23 230.0; 23 minus 20 per seed -15.9 -14.2 -14.9 -18.3 -14.4 -19.2 (mean -16.2); bs256 16 287.4, 20 283.7, 23 267.6; 23 minus 20 -9.2 -17.8 -26.3 -13.8 -20.3 -9.4 (mean -16.1). Output of 23 vs 16 1.1e-4 to 2.4e-4 (same as 20 vs 16); self-tests 3.9e-3 vs FP32; spin flags 0. BENCH bs128 main-own-dynb 231.2, main-own 246.0; bs256 257.0 vs 268.8. Stamps in section "Phase B claimed at run time" below. The log is a tail: the DIAG22 lines for bs128 seed 11 were cut. Build 149 s |
+| 2026-10-29 | 36812632dae242ba (check) | ec219f0 | the shippable build: modes 0, 1, 16, 20, 23; GATE on held-out seeds 17-22 and on skewed routing (seeds 11-13) | 2.077x (2.046-2.108) | per shape: bs1 28.05, bs16 101.53, bs32 133.82, bs8 66.30, bs128 221.07 (2.072x, main-own-dynb), bs256 270.57 (2.278x, main-own-dynb). GATE held-out normal: bs128 16 259.9, 20 263.3, 23 240.4; 23 minus 20 -26.7 -19.8 -28.6 -11.8 -30.4 -20.2 (mean -22.9), 23 minus 16 mean -19.5; bs256 16 310.7, 20 304.6, 23 285.9; 23 minus 20 -21.3 -12.6 -25.3 -26.1 -13.4 -13.4 (mean -18.7), minus 16 mean -24.8. Skewed: bs128 23 minus 20 -4.4 -1.9 -8.3 (mean -4.8); bs256 -26.0 -26.4 -16.3 (mean -22.9). 24 of 24 paired seeds favour 23 over 20 across both checks. Judge bs128 219.9 / 221.1 us against 239.6 / 245.9 / 247.7 for mode 20's three runs, bs256 269.2 / 270.6 against 283.8 / 288.7 / 291.4. Build 146 s |
 
 ## Why the layer keeps the W4 chain at 128 tokens, 2026-10-29
 
@@ -142,6 +144,103 @@ full kernel (mode 20 against mode 16) the saving is -2.7, -2.1, -3.1 us at 128 a
 at 128 and 256 in 72b7a5a9c511446a. The next cost in line is the completion tail (14-32 us), a
 hypothesis-level target: phase B's stream-K boundaries come from the cost table and its stages
 start only as other CTAs' phase A units release them.
+
+## Phase B claimed at run time (mode 23), 2026-10-29
+
+Target: phase B's critical path and the completion tail at 128 and 256 tokens (the steering
+plan's 128/256 loads hold about 53% of the layer's remaining log gap).
+
+Attribution first, on mode 22 (mode 20 plus the stamps of 17; check a9dbec1d98334943, cold L2,
+one launch per seed, stamps add 14-18 us so compare rows with each other). Mode 20 deals phase A
+whole units in snake order, so CTAs end phase A with 5 or 6 units (80 or 96 stages), while
+phase B keeps mode 16's static ranges cut from the cost table, which do not see that:
+
+| mode 22 (20 with stamps) | 128, seed 12 | 256, seed 11 | 256, seed 12 |
+|---|---|---|---|
+| CTAs with 80 A stages: count, phase A done, B stages, consumers done mean/max | 56, 141.2, 44.3, 207.4/231.9 | 24, 159.3, 51.3, 234.9/249.1 | 24, 154.7, 47.3, 235.3/257.0 |
+| CTAs with 96 A stages: count, phase A done, B stages, consumers done mean/max | 76, 164.6, 44.8, 225.6/240.1 | 108, 179.5, 45.5, 254.1/278.5 | 108, 177.5, 46.4, 248.4/273.4 |
+| slowest CTAs: A stages / B stages / B span after their phase A | 96 / 48 / 72 | 96 / 64 / 85-97 | 96 / 48-64 / 84-96 |
+| completion tail (slowest consumers done minus mean) | (line cut from the log) | 27.9 | 27.4 |
+| x producer waiting on done_as, mean/max | 13.7/33.1 | 15.6/28.1 | 16.2/36.5 |
+
+The CTAs that start phase B 20 us early get no more phase B work than the others (44.3 against
+44.8 stages at 128), and the slowest CTAs are those with a full phase A and a fourth phase B
+unit. That is the removable cost: a phase B partition that ignores each CTA's phase A load.
+
+Hypothesis: if each CTA takes its next phase B unit when its weights ring frees a slot, the
+CTAs that leave phase A early absorb the difference and the tail shrinks to about the
+granularity of one unit. Taking units in S.ord order puts the jobs whose phase A units are dealt
+in the first snake rounds at the front of the queue, so a claimed unit finds its inputs
+published. A CPU list-scheduling model (cost-table stage times, judge-like routing, seeds 11-16)
+put a greedy assignment 10-30 us under mode 20's partition, a hypothesis, not a measurement.
+
+Mode 23 is mode 20 with two changes. The weights producer claims phase B units one at a time
+from a global counter (ctr[10]) in S.ord order, 16 units per job, once its ring has a free slot,
+and passes each claim to the x producer and the consumers through a shared-memory queue (S.bq).
+Both phases are walked largest n-tile count first, so a CTA runs its phase A units in snake
+round order and its claimed units in claim order (S.ord's n-tile counts never rise, so one loop
+per count still covers them; each loop keeps a single wgmma shape). Every phase B unit stays
+whole on one CTA: no phase B fixup, as in mode 16.
+
+| mode 24 (23 with stamps) | 128, seed 11 | 128, seed 12 | 256, seed 11 | 256, seed 12 |
+|---|---|---|---|---|
+| phase A done, mean / max | 161.6 / 188.4 | 149.5 / 164.4 | 178.0 / 185.6 | 172.2 / 179.5 |
+| consumers done, mean / max | 229.4 / 245.0 | 212.5 / 223.2 | 250.5 / 260.6 | 243.8 / 251.1 |
+| completion tail | 15.6 | 10.7 | 10.2 | 7.4 |
+| launch end | 250.1 | 227.8 | 267.5 | 258.6 |
+| x producer waiting on done_as, mean/max | 15.2/23.5 | 15.5/19.8 | 15.5/23.3 | 14.6/18.1 |
+
+At 128 seed 12 the 80-stage CTAs now take 48.0 phase B stages against 42.1 for the 96-stage
+ones; the tail falls from about 28 us to 7-16 us, and at 256 the launch ends 17-21 us earlier
+on the same seeds. The mean done_as wait does not move (13.7-16.2 against 14.6-15.5 us), so the
+gain is balance, not fewer dependency waits.
+
+Same-process paired A/B (graph replay after an L2 flush, variant order reversed on every other
+seed), 23 minus 20, us:
+
+| routing | 128 tokens | 256 tokens |
+|---|---|---|
+| seeds 11-16 (a9dbec1d98334943) | -16.2 (6 of 6 lower) | -16.1 (6 of 6) |
+| held-out seeds 17-22 (36812632dae242ba) | -22.9 (6 of 6) | -18.7 (6 of 6) |
+| skewed, seeds 11-13 (36812632dae242ba) | -4.8 (3 of 3) | -22.9 (3 of 3) |
+
+Against mode 16 the held-out means are -19.5 and -24.8 us. Outputs match mode 16 to 1e-4 to
+4e-4 relative L2 (FP32 atomic order), every self-test is 3.9e-3 against FP32, no spin flags.
+The bench picks main-own-dynb at 128 and 256 in both checks.
+
+Ordering obligations. The data handoffs are mode 16's, unchanged: x rows through xready, phase
+A's SwiGLU output through done_as with fence.proxy.async.global on both sides ("Proxy ordering
+of the x tiles" below), weights through wfull/wempty. Two new handoffs carry only indices:
+
+1. The claim counter (cross-CTA). Writers: each weights producer's atomicAdd on ctr[10]
+   (relaxed). Publication and observation: the value an RMW returns; atomicity (PTX ISA Memory
+   Consistency Model, Axioms, "Atomicity") gives each value to exactly one claimant. No data is
+   published through it, so no release or acquire is needed: the claimed unit's inputs are
+   still observed per stage through done_as (ld.acquire.gpu, then fence.proxy.async.global by
+   the issuing thread before its cp.async.bulk, 9.7.10.28.2). Completion and use: complete_tx
+   on xfull and wfull, consumers' mbarrier.try_wait (acquire.cta), unchanged. Reuse: CTA 0
+   zeroes ctr[10] after the grid barrier. Every claim precedes its CTA's bar.sync and thread 0's
+   __threadfence plus barrier atomicAdd (a release pattern, 8.8); CTA 0's ld.acquire of the
+   full count synchronizes with it (8.9.4), so the zeroing is causally after every claim and
+   later in coherence order. The next launch starts after this one completes (stream order, or
+   griddepcontrol.wait under PDL, 9.7.15.14).
+2. The claim queue S.bq (inside one CTA). Writer: the weights producer thread,
+   st.release.cta.shared. Observers: the x producer and every consumer thread,
+   ld.acquire.cta.shared on the same word, morally strong (8.7), so the acquire synchronizes
+   with the release (8.8, 8.9.4). Use: the index selects S.ord, S.job_* entries written in the
+   prologue before __syncthreads. No async-proxy operation reads S.bq. Reuse: each entry is
+   written once per launch and set back to empty in the next launch's prologue, before the
+   __syncthreads that precedes every role.
+
+Every fence and barrier of mode 20 is kept.
+
+Verdict: mode 23 wins at 128 and 256 tokens on 24 of 24 paired normal-routing seeds and 6 of 6
+skewed ones; it is the standalone policy at both sizes. Port it to the layer: add 23 to
+`LAYER_MODES` in `tools/dl_moe_inline.py` (the layer's ctr is already int32 [64], zeroed at
+allocation; SmemMain grows by 256 bytes to 228,736) and let the layer's judge-like routing bench
+choose. What is left of the tail (7-16 us stamped) is about half a phase B unit (16 stages of
+1.3-1.4 us at one n8 tile). Splitting only the last units with split-K would cut it at most in
+half, and the cost model put a phase B cut at about 10 us, so it was not tried.
 
 ## Staged GEMM1 gate, 2026-10-29
 
