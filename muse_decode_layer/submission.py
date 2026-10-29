@@ -12352,8 +12352,10 @@ def _attn_one_self_test(state):
     """The one-launch kernel on the shared attention cases against SGLang's path (the shared
     bounds) with the workspace invariant after every case, then the replay stress on decode 1
     sliding (the speculated one-tile launch), decode 16 full (flat tickets), their verify
-    counterparts (cooperative counters) and verify 32 full (the producer build 51 at the
-    scored batch). Prints each step's time; raises on any failure."""
+    counterparts (cooperative counters), verify 32 full (the producer build 51 at the
+    scored batch) and decode / verify 1 full (mode 11 with eight copies, whose finalize loads
+    every copy before zeroing any under ONE_FIN8). Prints each step's time; raises on any
+    failure."""
     t0 = time.time()
     st = _one_setup(state)
     lim = st["limits"]
@@ -12379,7 +12381,8 @@ def _attn_one_self_test(state):
     print(f"attn one: cases {time.time() - t1:.1f} s")
     for i, (batch, length, layer) in enumerate(((1, 1, "sliding"), (16, 1, "full"),
                                                 (1, 8, "sliding"), (16, 8, "full"),
-                                                (32, 8, "full"))):
+                                                (32, 8, "full"), (1, 1, "full"),
+                                                (1, 8, "full"))):
         t2 = time.time()
         msg = _one_stress(state, batch, length, layer, 2000, 8000 + i)
         print(f"attn one: stress {batch}x{length} {layer} {msg} ({time.time() - t2:.1f} s)")
