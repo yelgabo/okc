@@ -256,7 +256,8 @@ std::vector<torch::Tensor> ffn_boundary_short(torch::Tensor stream, torch::Tenso
 std::vector<torch::Tensor> attn_boundary(torch::Tensor stream, torch::Tensor branch,
                                          torch::Tensor alpha, torch::Tensor beta,
                                          torch::Tensor w_next, double eps_post,
-                                         double eps_next, bool want_router);
+                                         double eps_next, bool want_router, int64_t geo);
+std::vector<int64_t> attn_boundary_occupancy(int64_t geo);
 """
 
 _CUDA_SRC = r"""
@@ -5769,14 +5770,208 @@ __global__ void __cluster_dims__(CTAS, 1, 1) __launch_bounds__(THREADS) attn_bou
     }
 }
 
+template <int NT>
+__device__ __forceinline__ float block_sum_n(float v, float* red) {
+    for (int o = 16; o; o >>= 1) {
+        v += __shfl_xor_sync(0xffffffffu, v, o);
+    }
+    const int warp = threadIdx.x >> 5;
+    const int lane = threadIdx.x & 31;
+    __syncthreads();
+    if (lane == 0) {
+        red[warp] = v;
+    }
+    __syncthreads();
+    v = lane < NT / 32 ? red[lane] : 0.f;
+    for (int o = 16; o; o >>= 1) {
+        v += __shfl_xor_sync(0xffffffffu, v, o);
+    }
+    return v;
+}
+
+// attn_boundary_kernel's math at other launch shapes: CL CTAs per token (a cluster, launched
+// with the cluster attribute, when CL > 1) of NT threads, each thread owning V float4 groups
+// strided by NT so every load is coalesced. prepare() times them against the 8-CTA kernel and
+// SGLang's module per token count (_abnd_tune). The 8-CTA kernel fits 124 clusters at once on
+// the judge's H200 (check 5285e58d978f42c6), so 128 tokens take two waves and 256 take three;
+// there its o + boundary chain was 22.9 / 29.6 us against 17.9 / 22.5 for the best other.
+// Only the stream is loaded before the wait: with V groups the gate rows would hold 8 V more
+// registers per thread through the wait, and they are L2 hits after the first token.
+template <int CL, int NT>
+__global__ void __launch_bounds__(NT) attn_boundary_geo_kernel(
+    const float* __restrict__ stream, const __nv_bfloat16* __restrict__ branch,
+    const float* __restrict__ alpha, const float* __restrict__ beta,
+    const __nv_bfloat16* __restrict__ w_next, float* __restrict__ stream_out,
+    __nv_bfloat16* __restrict__ next, float* __restrict__ router, float eps_post,
+    float eps_next) {
+    asm volatile("griddepcontrol.launch_dependents;");
+    constexpr int SLICE = H / CL;
+    constexpr int V = SLICE / (4 * NT);
+    static_assert(V >= 1 && V * 4 * NT == SLICE, "whole float4 groups per thread");
+    namespace cg = cooperative_groups;
+    __shared__ float red[NT / 32];
+    __shared__ float part[2];
+    int rank = 0;
+    if constexpr (CL > 1) {
+        rank = static_cast<int>(cg::this_cluster().block_rank());
+    }
+    const size_t row = static_cast<size_t>(blockIdx.y) * H;
+    const int base = rank * SLICE + 4 * threadIdx.x;
+    float4 s[V];
+#pragma unroll
+    for (int j = 0; j < V; ++j) {
+        s[j] = *reinterpret_cast<const float4*>(stream + row + base + 4 * NT * j);
+    }
+    asm volatile("griddepcontrol.wait;" ::: "memory");
+    float4 f[V];
+    float ss = 0.f;
+#pragma unroll
+    for (int j = 0; j < V; ++j) {
+        f[j] = bf16x4(branch + row + base + 4 * NT * j);
+        ss += f[j].x * f[j].x + f[j].y * f[j].y + f[j].z * f[j].z + f[j].w * f[j].w;
+    }
+    ss = block_sum_n<NT>(ss, red);
+    if constexpr (CL > 1) {
+        cg::cluster_group cluster = cg::this_cluster();
+        if (threadIdx.x == 0) {
+            part[0] = ss;
+        }
+        cluster.sync();
+        ss = 0.f;
+#pragma unroll
+        for (int r = 0; r < CL; ++r) {
+            ss += cluster.map_shared_rank(part, r)[0];
+        }
+    }
+    const float rb = rsqrtf(ss / H + eps_post);
+    float ss2 = 0.f;
+#pragma unroll
+    for (int j = 0; j < V; ++j) {
+        const int c = base + 4 * NT * j;
+        const float4 a = *reinterpret_cast<const float4*>(alpha + c);
+        const float4 b = *reinterpret_cast<const float4*>(beta + c);
+        s[j].x = a.x * s[j].x + b.x * bf16r(f[j].x * rb);
+        s[j].y = a.y * s[j].y + b.y * bf16r(f[j].y * rb);
+        s[j].z = a.z * s[j].z + b.z * bf16r(f[j].z * rb);
+        s[j].w = a.w * s[j].w + b.w * bf16r(f[j].w * rb);
+        ss2 += s[j].x * s[j].x + s[j].y * s[j].y + s[j].z * s[j].z + s[j].w * s[j].w;
+    }
+    ss2 = block_sum_n<NT>(ss2, red);
+    if constexpr (CL > 1) {
+        cg::cluster_group cluster = cg::this_cluster();
+        if (threadIdx.x == 0) {
+            part[1] = ss2;
+        }
+        cluster.sync();
+        ss2 = 0.f;
+#pragma unroll
+        for (int r = 0; r < CL; ++r) {
+            ss2 += cluster.map_shared_rank(part, r)[1];
+        }
+        // No CTA may exit while another can still read its partials.
+        cluster.sync();
+    }
+    const float rn = rsqrtf(ss2 / H + eps_next);
+#pragma unroll
+    for (int j = 0; j < V; ++j) {
+        const int c = base + 4 * NT * j;
+        const float4 nv = bf16x4(w_next + c);
+        const float4 o = make_float4(s[j].x * rn * nv.x, s[j].y * rn * nv.y,
+                                     s[j].z * rn * nv.z, s[j].w * rn * nv.w);
+        *reinterpret_cast<float4*>(stream_out + row + c) = s[j];
+        const __nv_bfloat162 h0 = __floats2bfloat162_rn(o.x, o.y);
+        const __nv_bfloat162 h1 = __floats2bfloat162_rn(o.z, o.w);
+        *reinterpret_cast<uint2*>(next + row + c) =
+            make_uint2(*reinterpret_cast<const uint32_t*>(&h0),
+                       *reinterpret_cast<const uint32_t*>(&h1));
+        if (router != nullptr) {
+            *reinterpret_cast<float4*>(router + row + c) = o;
+        }
+    }
+}
+
+// launch_ex with a runtime cluster size; the geometry kernels carry no __cluster_dims__.
+template <typename Kern, typename... Args>
+void launch_cl(Kern kern, dim3 grid, dim3 block, int cluster, cudaStream_t stream,
+               Args... args) {
+    cudaLaunchConfig_t cfg = {};
+    cfg.gridDim = grid;
+    cfg.blockDim = block;
+    cfg.dynamicSmemBytes = 0;
+    cfg.stream = stream;
+    cudaLaunchAttribute attr[2];
+    attr[0].id = cudaLaunchAttributeProgrammaticStreamSerialization;
+    attr[0].val.programmaticStreamSerializationAllowed = kPdlGlue ? 1 : 0;
+    attr[1].id = cudaLaunchAttributeClusterDimension;
+    attr[1].val.clusterDim.x = cluster;
+    attr[1].val.clusterDim.y = 1;
+    attr[1].val.clusterDim.z = 1;
+    cfg.attrs = attr;
+    cfg.numAttrs = cluster > 1 ? 2 : 1;
+    C10_CUDA_CHECK(cudaLaunchKernelEx(&cfg, kern, args...));
+}
+
+// Geometry ids, in the order of ABND_GEOS in the Python: {CTAs per token, threads per CTA}.
+constexpr int kGeoCl[] = {8, 2, 4, 1, 1, 1};
+constexpr int kGeoNt[] = {256, 512, 256, 256, 512, 1024};
+constexpr int kGeos = 6;
+
+template <typename F>
+void with_geo(int geo, F fn) {
+    switch (geo) {
+        case 1: fn(attn_boundary_geo_kernel<2, 512>); break;
+        case 2: fn(attn_boundary_geo_kernel<4, 256>); break;
+        case 3: fn(attn_boundary_geo_kernel<1, 256>); break;
+        case 4: fn(attn_boundary_geo_kernel<1, 512>); break;
+        case 5: fn(attn_boundary_geo_kernel<1, 1024>); break;
+        default: fn(attn_boundary_kernel); break;
+    }
+}
+
 }  // namespace bnd
 }  // namespace
+
+// Per geometry id: resident CTAs per SM, and the clusters (CTAs when the geometry has no
+// cluster) the whole GPU holds at once, for the prepare log.
+std::vector<int64_t> attn_boundary_occupancy(int64_t geo) {
+    using namespace bnd;
+    TORCH_CHECK(geo >= 0 && geo < kGeos, "attn_boundary_occupancy: geometry id");
+    const int cl = kGeoCl[geo];
+    const int nt = kGeoNt[geo];
+    int dev = 0;
+    C10_CUDA_CHECK(cudaGetDevice(&dev));
+    int sms = 0;
+    C10_CUDA_CHECK(cudaDeviceGetAttribute(&sms, cudaDevAttrMultiProcessorCount, dev));
+    int per_sm = 0;
+    int clusters = 0;
+    with_geo(static_cast<int>(geo), [&](auto kern) {
+        C10_CUDA_CHECK(cudaOccupancyMaxActiveBlocksPerMultiprocessor(&per_sm, kern, nt, 0));
+        if (cl == 1) {
+            clusters = per_sm * sms;
+            return;
+        }
+        cudaLaunchConfig_t cfg = {};
+        cfg.gridDim = dim3(cl, 2048);
+        cfg.blockDim = dim3(nt);
+        cudaLaunchAttribute attr[1];
+        attr[0].id = cudaLaunchAttributeClusterDimension;
+        attr[0].val.clusterDim.x = cl;
+        attr[0].val.clusterDim.y = 1;
+        attr[0].val.clusterDim.z = 1;
+        cfg.attrs = attr;
+        // The 8-CTA kernel's dims are compiled in; the attribute must then be absent.
+        cfg.numAttrs = geo == 0 ? 0 : 1;
+        C10_CUDA_CHECK(cudaOccupancyMaxActiveClusters(&clusters, kern, &cfg));
+    });
+    return {per_sm, clusters};
+}
 
 std::vector<torch::Tensor> attn_boundary(torch::Tensor stream, torch::Tensor branch,
                                          torch::Tensor alpha, torch::Tensor beta,
                                          torch::Tensor w_next, double eps_post,
-                                         double eps_next, bool want_router) {
+                                         double eps_next, bool want_router, int64_t geo) {
     using namespace bnd;
+    TORCH_CHECK(geo >= 0 && geo < kGeos, "attn_boundary: geometry id");
     const int tokens = stream.size(0);
     TORCH_CHECK(stream.is_contiguous() && stream.scalar_type() == torch::kFloat32
                 && stream.size(1) == H, "attn_boundary: stream must be FP32 [T, 8192]");
@@ -5794,14 +5989,25 @@ std::vector<torch::Tensor> attn_boundary(torch::Tensor stream, torch::Tensor bra
     if (tokens == 0) {
         return {next, stream_out, router};
     }
-    launch_ex(
-        attn_boundary_kernel, dim3(CTAS, tokens), dim3(THREADS), 0,
-        at::cuda::getCurrentCUDAStream(), kPdlGlue, stream.data_ptr<float>(),
-        reinterpret_cast<const __nv_bfloat16*>(branch.data_ptr()), alpha.data_ptr<float>(),
-        beta.data_ptr<float>(), reinterpret_cast<const __nv_bfloat16*>(w_next.data_ptr()),
-        stream_out.data_ptr<float>(), reinterpret_cast<__nv_bfloat16*>(next.data_ptr()),
-        want_router ? router.data_ptr<float>() : static_cast<float*>(nullptr),
-        static_cast<float>(eps_post), static_cast<float>(eps_next));
+    const float* sp = stream.data_ptr<float>();
+    const auto* bp = reinterpret_cast<const __nv_bfloat16*>(branch.data_ptr());
+    const auto* np = reinterpret_cast<const __nv_bfloat16*>(w_next.data_ptr());
+    auto* op = reinterpret_cast<__nv_bfloat16*>(next.data_ptr());
+    float* rp = want_router ? router.data_ptr<float>() : static_cast<float*>(nullptr);
+    const auto cs = at::cuda::getCurrentCUDAStream();
+    if (geo == 0) {
+        launch_ex(attn_boundary_kernel, dim3(CTAS, tokens), dim3(THREADS), 0, cs, kPdlGlue, sp,
+                  bp, alpha.data_ptr<float>(), beta.data_ptr<float>(), np,
+                  stream_out.data_ptr<float>(), op, rp, static_cast<float>(eps_post),
+                  static_cast<float>(eps_next));
+    } else {
+        with_geo(static_cast<int>(geo), [&](auto kern) {
+            launch_cl(kern, dim3(kGeoCl[geo], tokens), dim3(kGeoNt[geo]), kGeoCl[geo], cs, sp,
+                      bp, alpha.data_ptr<float>(), beta.data_ptr<float>(), np,
+                      stream_out.data_ptr<float>(), op, rp, static_cast<float>(eps_post),
+                      static_cast<float>(eps_next));
+        });
+    }
     C10_CUDA_KERNEL_LAUNCH_CHECK();
     return {next, stream_out, router};
 }
@@ -11081,7 +11287,8 @@ def _ext():
                           _WS_HOST_SRC, _BND_SRC],
             functions=["route_align", "finalize", "router_fwd", "proj_fwd", "router_mma_fwd",
                        "attn_prep", "attn_gate", "attn_fused", "attn_verify",
-                       "ffn_boundary_short", "pre_norm", "attn_boundary", "prefetch_l2"],
+                       "ffn_boundary_short", "pre_norm", "attn_boundary",
+                       "attn_boundary_occupancy", "prefetch_l2"],
             extra_cuda_cflags=["-O3", "-gencode=arch=compute_90a,code=sm_90a"],
         )
     return _EXT
@@ -12630,6 +12837,10 @@ def _w4_prepare(weights):
 def _graph_time(fn, flush, iters=20):
     """Median of CUDA graph replays of fn, each after a write that evicts L2, as the judge
     times kernel_fn."""
+    return _graph_median(_graph_build(fn), flush, iters)
+
+
+def _graph_build(fn):
     stream = torch.cuda.Stream()
     stream.wait_stream(torch.cuda.current_stream())
     with torch.cuda.stream(stream):
@@ -12639,6 +12850,10 @@ def _graph_time(fn, flush, iters=20):
     graph = torch.cuda.CUDAGraph()
     with torch.cuda.graph(graph):
         fn()
+    return graph
+
+
+def _graph_median(graph, flush, iters=20):
     times = []
     for _ in range(iters):
         flush.zero_()
@@ -12994,10 +13209,16 @@ def _prefetch_enable(state):
     print("prefetch: ok")
 
 
+# Launch shapes of our attention boundary, {CTAs per token}x{threads}, in the order of the
+# extension's geometry ids (kGeoCl / kGeoNt); "sglang" is FusedPostNormResidualPreNorm.
+ABND_GEOS = ("c8x256", "c2x512", "c4x256", "c1x256", "c1x512", "c1x1024")
+
+
 def _abnd_enable(state):
     """Takes what SGLang's attention boundary holds (the residual gate's FP32 alpha and beta,
-    the pre-FFN norm's effective 1 + w in BF16, both eps) and checks our kernel against the
-    module at 1-256 tokens, with and without the FP32 router copy. Raises on a mismatch."""
+    the pre-FFN norm's effective 1 + w in BF16, both eps) and checks every geometry of our
+    kernel against the module at 1-256 tokens, with and without the FP32 router copy. A
+    geometry that mismatches is dropped; raises if the 8-CTA one does."""
     mod = state["attn_boundary"]
     post, res, pre = mod._post_norm, mod._residual_add, mod._pre_norm
     if not (not mod._post_norm_is_input_scale and not mod._pre_norm_is_input_scale
@@ -13012,9 +13233,33 @@ def _abnd_enable(state):
         "eps_next": float(pre.eps),
     }
     state["abnd"] = abnd
+    try:
+        state["abnd_occ"] = {name: _ext().attn_boundary_occupancy(geo)
+                             for geo, name in enumerate(ABND_GEOS)}
+    except RuntimeError as exc:
+        # A diagnostic only; it must not take the kernel down with it.
+        print(f"attention boundary occupancy query failed: {exc}")
+    for name, (per_sm, resident) in state.get("abnd_occ", {}).items():
+        print(f"attention boundary {name}: {per_sm} CTAs per SM, {resident} "
+              f"{'CTAs' if name.startswith('c1x') else 'clusters'} resident")
+    ok = []
+    for name in ABND_GEOS:
+        try:
+            _abnd_check(mod, name, state)
+            ok.append(name)
+        except RuntimeError as exc:
+            if name == ABND_GEOS[0]:
+                raise
+            print(f"attention boundary {name} dropped: {exc}")
+            _FAILED.append(f"abnd {name}: {str(exc)[:80]}")
+    state["abnd_geos"] = ok
+
+
+def _abnd_check(mod, name, state):
+    abnd = state["abnd"]
     gen = torch.Generator(device="cuda").manual_seed(9)
     worst = 0.0
-    for tokens in (1, 2, 3, 5, 8, 9, 16, 33, 256):
+    for tokens in (1, 2, 3, 5, 8, 9, 16, 33, 128, 256):
         stream = torch.randn((tokens, HIDDEN), generator=gen, device="cuda") * 3
         branch = (torch.randn((tokens, HIDDEN), generator=gen, device="cuda") * 0.5)
         branch = branch.to(torch.bfloat16)
@@ -13022,7 +13267,7 @@ def _abnd_enable(state):
         ref_next, ref_stream, ref_router = mod(
             stream.clone(), branch, branch_dtype=torch.bfloat16,
             router_dtype=torch.float32 if want_router else None)
-        nxt, out, router = _abnd(stream.clone(), branch, want_router, state)
+        nxt, out, router = _abnd(stream.clone(), branch, want_router, state, name)
         torch.cuda.synchronize()
         carried = abnd["alpha"] * stream
         errs = {"next input": _rel(nxt, ref_next),
@@ -13030,19 +13275,93 @@ def _abnd_enable(state):
                 "stream": _rel(out, ref_stream)}
         if want_router:
             errs["router"] = _rel(router, ref_router)
-        print(f"attention boundary self-test T={tokens}: "
-              + ", ".join(f"{k} {v:.2e}" for k, v in errs.items()))
+        if name == ABND_GEOS[0] or tokens == 256:
+            print(f"attention boundary self-test {name} T={tokens}: "
+                  + ", ".join(f"{k} {v:.2e}" for k, v in errs.items()))
         worst = max(worst, max(errs.values()))
+    print(f"attention boundary self-test {name}: worst {worst:.2e}")
     if not worst < 1e-4:
-        raise RuntimeError(f"attention boundary: rel diff {worst:.2e}")
+        raise RuntimeError(f"attention boundary {name}: rel diff {worst:.2e}")
 
 
-def _abnd(stream, branch, want_router, state):
+def _abnd(stream, branch, want_router, state, geo="c8x256"):
+    if geo == "sglang":
+        return state["attn_boundary"](stream, branch, branch_dtype=torch.bfloat16,
+                                      router_dtype=torch.float32 if want_router else None)
     abnd = state["abnd"]
     nxt, out, router = _ext().attn_boundary(stream.contiguous(), branch.contiguous(),
                                             abnd["alpha"], abnd["beta"], abnd["w_next"],
-                                            abnd["eps_post"], abnd["eps_next"], want_router)
+                                            abnd["eps_post"], abnd["eps_next"], want_router,
+                                            ABND_GEOS.index(geo))
     return nxt, out, (router if want_router else None)
+
+
+def _abnd_geo(tokens, state):
+    key = next((t for t in FRONT_TOKENS if t >= tokens), FRONT_TOKENS[-1])
+    return state.get("abnd_policy", {}).get(key, ABND_GEOS[0])
+
+
+# A challenger must beat the 8-CTA kernel by this much (us, median chain time) to take a
+# bucket, so equal kernels do not flip between runs on replay noise.
+ABND_MARGIN_US = 0.3
+
+
+def _abnd_tune(state):
+    """Per token count, times the o projection followed by each attention boundary (every
+    geometry that passed its self-test, and SGLang's module) as CUDA graphs replayed after an
+    L2 flush, in six rounds with the order rotated each round, and keeps the candidate whose
+    median over the six round medians is lowest. The o projection is in the chain because
+    the boundary is its PDL secondary and preloads the stream during its tail. Every
+    candidate's outputs on the projection's output must match the module's within the
+    self-test bound. The module gets its own copy of the stream, since it may update the
+    stream in place (the self-test clones it too)."""
+    flush = torch.empty(256 << 20, dtype=torch.uint8, device="cuda")
+    gen = torch.Generator(device="cuda").manual_seed(31)
+    k_o = state["dense"]["o"].shape[1]
+    names = list(state["abnd_geos"]) + ["sglang"]
+    policy, report = {}, {}
+    for tokens in FRONT_TOKENS:
+        want_router = tokens <= ROUTER_FP32_MAX_TOKENS
+        o_in = (torch.randn((tokens, k_o), generator=gen, device="cuda") * 0.05)
+        o_in = o_in.to(torch.bfloat16)
+        stream = torch.randn((tokens, HIDDEN), generator=gen, device="cuda") * 3
+        branch = _proj(o_in, "o", HIDDEN, state)
+        outs = {name: [x for x in _abnd(stream.clone(), branch, want_router, state, name)
+                       if x is not None] for name in names}
+        torch.cuda.synchronize()
+        graphs = {}
+        for name in names:
+            own = stream.clone() if name == "sglang" else stream
+
+            def run(name=name, own=own):
+                _abnd(own, _proj(o_in, "o", HIDDEN, state), want_router, state, name)
+
+            graphs[name] = _graph_build(run)
+        ref = outs["sglang"]
+        for name in names:
+            err = max(_rel(a, b) for a, b in zip(outs[name], ref))
+            if not err < 1e-4:
+                print(f"TUNE abnd T={tokens} {name} dropped: rel diff {err:.2e}")
+                _FAILED.append(f"abnd {name} T={tokens} ({err:.1e})")
+                graphs.pop(name)
+        rounds = {name: [] for name in graphs}
+        order = list(graphs)
+        for r in range(6):
+            for name in order[r % len(order):] + order[:r % len(order)]:
+                rounds[name].append(_graph_median(graphs[name], flush))
+        times = {name: sorted(v)[len(v) // 2] for name, v in rounds.items()}
+        best = min(times, key=times.get)
+        incumbent = ABND_GEOS[0]
+        if incumbent in times and times[best] > times[incumbent] - ABND_MARGIN_US:
+            best = incumbent
+        policy[tokens] = best
+        report[tokens] = times
+        print(f"TUNE abnd T={tokens} "
+              + " ".join(f"{v}:{t:.2f}" for v, t in sorted(times.items(), key=lambda kv: kv[1]))
+              + f" -> {best}")
+        del graphs
+    state["abnd_policy"] = policy
+    state["abnd_times"] = report
 
 
 def _bnd_enable(state):
@@ -13302,6 +13621,13 @@ def _selection_summary(state):
         busy = state.get("moe1_busiest", {}).get(bs, "-")
         lines.append(f"moe T={bs}: {pick} [{times or 'no bench'}] judge-like routing, busiest "
                      f"expert {busy} w4 {w4} front {front}")
+    occ = state.get("abnd_occ", {})
+    lines.append("abnd occupancy (CTAs/SM, resident clusters) "
+                 + " ".join(f"{k}={v[0]},{v[1]}" for k, v in occ.items()))
+    for bs, times in state.get("abnd_times", {}).items():
+        ranked = sorted(times.items(), key=lambda kv: kv[1])
+        lines.append(f"abnd T={bs}: {state['abnd_policy'][bs]} ["
+                     + " ".join(f"{v} {t:.2f}" for v, t in ranked) + "]")
     one = state.get("one")
     for load, batch, length, layer in _SCORED:
         cfg = {"batch": batch, "q_len": length, "tokens": batch * length, "num_q_heads": 16,
@@ -13424,6 +13750,8 @@ def prepare(weights):
         state["bnd_ours"] = _try("ffn boundary", lambda: _bnd_enable(state))
     if PORT_ATTN_BOUNDARY:
         state["abnd_ours"] = _try("attention boundary", lambda: _abnd_enable(state))
+        if state["abnd_ours"]:
+            _try("attention boundary tuner", lambda: _abnd_tune(state))
     if PORT_L2_PREFETCH:
         state["prefetch_ours"] = _try("prefetch", lambda: _prefetch_enable(state))
     if PORT_PRE_NORM:
@@ -13490,7 +13818,7 @@ def kernel_fn(data, state):
     split_router = tokens > ROUTER_FP32_MAX_TOKENS
     if state["abnd_ours"]:
         ffn_input, stream, router_input = _abnd(data["stream"], attn_output, not split_router,
-                                                state)
+                                                state, _abnd_geo(tokens, state))
     else:
         ffn_input, stream, router_input = state["attn_boundary"](
             data["stream"], attn_output, branch_dtype=torch.bfloat16,
