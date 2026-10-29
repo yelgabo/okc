@@ -89,6 +89,10 @@ def _ab_import():
         _bg_start("moe1", _moe1_load)
     if PORT_PROJ_SK:
         _bg_start("skp", _skp_load)
+    # The W4 extension is built on the main thread in prepare(); here it runs beside the rest
+    # and sets _W4_EXT, which prepare() then finds.
+    if PORT_MOE and PORT_MOE_W4:
+        _bg_start("w4", _w4_ext)
     # The public builds go on the same build threads as ours (_bg_start, which the judge
     # accepts in every layer run), so the import costs about the longest build.
     pub_builds = ("_att7", "_moe", "_moe_tiny", "_moe_tiny2", "_moe_mid", "bfp__get_ext")
@@ -97,6 +101,12 @@ def _ab_import():
     t = time.time()
     _ext()
     _ab_print(f"ABBUILD ours main extension {{time.time() - t:.0f}} s")
+    if PORT_MOE and PORT_MOE_W4:
+        try:
+            _bg_ext("w4", _w4_ext)
+            _ab_print(f"ABBUILD ours w4 {{_bg_seconds('w4'):.0f}} s")
+        except Exception as exc:
+            _ab_print(f"ABBUILD ours w4 failed: {{type(exc).__name__}}: {{str(exc)[:200]}}")
     for name in pub_builds:
         try:
             _bg_ext("pub" + name, getattr(pub, name))
