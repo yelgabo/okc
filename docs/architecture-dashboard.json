@@ -1,11 +1,11 @@
 {
-  "reviewed_at": "2026-10-29T13:27:00-07:00",
-  "snapshot": "615539c",
+  "reviewed_at": "2026-10-29T14:25:00-07:00",
+  "snapshot": "efddc84",
   "layer": {
     "score": "1.964\u00d7",
     "interval": "1.935\u20131.994",
     "job": "9b921febc7ad4140",
-    "note": "No new layer result. Separate projection update: single-token qkv/pooler/slice improve in paired tests; their layer port is pending. A-E standings are unchanged."
+    "note": "No new layer result. Attention PK16/VHOIST has new component wins; the full package awaits integration. FIN8 replay selection and layer comparison validation remain open."
   },
   "families": [
     {
@@ -68,14 +68,14 @@
       "name": "Attention producer / consumer",
       "status": "win",
       "label": "Component wins",
-      "metric": "\u22123.6 / \u22127.9 \u00b5s",
-      "unit": "128 / 256 tokens, full verify, judged comparisons",
-      "summary": "DCARRY improves the target shapes. Runtime CTA pair weighting loses 9\u201312 \u00b5s at 256 tokens.",
+      "metric": "\u22125.35 / \u22129.63 \u00b5s",
+      "unit": "128 / 256 tokens, cold paired bench versus DCARRY",
+      "summary": "PK16 + VHOIST improves full verification beyond DCARRY. Candidate and repeat pass 16/16; latest component score is 2.504\u00d7.",
       "layer": "Earlier producer fast path tested in layer",
       "pending": [
-        "ONE_DCARRY: attention accumulation"
+        "DCARRY + PK16 + VHOIST: attention package"
       ],
-      "limit": "DCARRY layer confirmation is pending. Its targeted gain is distinct from aggregate attention score.",
+      "limit": "Layer confirmation is pending. The 2.504\u00d7 repeat also benefited from a faster machine. FIN8 targeted replay selection and whole-layer comparison validation need repair.",
       "source": "runs-attention.md"
     }
   ]

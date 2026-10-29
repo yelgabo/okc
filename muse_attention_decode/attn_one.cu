@@ -142,6 +142,15 @@ constexpr int COOP_POLL_LIMIT = 1 << 24;
 #ifndef ONE_VHOIST
 #define ONE_VHOIST 1
 #endif
+// ONE_TRIG: griddepcontrol.launch_dependents at kernel entry (q_len 1 and batch-1 q_len 8
+// instances only), so a following launch with the
+// programmatic-serialization attribute (the layer's o projection built with SK_PDL) can start
+// streaming its static weights on the SMs this grid leaves idle. It is a no-op for a plain
+// successor, and a PDL successor still reads this grid's output only after griddepcontrol.wait,
+// which waits for this grid's completion and memory flush (PTX ISA 9.7.15.14). Off by default.
+#ifndef ONE_TRIG
+#define ONE_TRIG 0
+#endif
 constexpr int STAMP_BASE = 1024;
 constexpr int STAMP_W = 16;
 
@@ -790,6 +799,11 @@ attn_one_kernel(const Params p) {
     int* flag = reinterpret_cast<int*>(smem + S::FLAG);
     const uint32_t full0 = smem_base + S::BAR;
     const uint32_t empty0 = full0 + NS * 8;
+    // Only the plans whose layer successor is the skinny o projection (T <= 32: q_len 1, and
+    // q_len 8 at batch 1); above 32 tokens o runs on cuBLAS and mode 51's schedule stays as judged.
+    if constexpr (ONE_TRIG != 0 && (L == 1 || SPEC)) {
+        asm volatile("griddepcontrol.launch_dependents;");
+    }
 
     // Diagnostic early exit after phase k: uniform across the CTA (a kernel parameter), placed
     // only where every thread passes, with the copies drained first.
