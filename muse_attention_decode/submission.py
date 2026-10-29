@@ -2872,6 +2872,18 @@ constexpr float NEG_INF = -INFINITY;
 constexpr float OFF_FLOOR = -1e30f;
 constexpr int COOP_POLL_LIMIT = 1 << 24;
 
+// ONE_DIAG: the phase exits and timer stamps (bench-only diagnostics). Each one is a test and a
+// taken branch on the once-per-launch path, which runs from a cold instruction cache.
+#ifndef ONE_DIAG
+#define ONE_DIAG 1
+#endif
+// ONE_DIET: once-path code without integer division by the page size (shift and mask by its
+// log2), with straight-line query copies and query pass, branch-free predicated row copies in
+// the prologue issue, and no page-index copies for tiles past the CTA's range.
+#ifndef ONE_DIET
+#define ONE_DIET 0
+#endif
+
 // MODE bits: 1 = last-CTA finalize, 3 = cooperative finalize (every CTA a slice of rows),
 // |4 = at most one tile per CTA (straight-line prologue), |8 = the sequence length is taken
 // from the page table's width (batch 1, page size 1) and verified on the device, |16 = flat:
@@ -2949,6 +2961,8 @@ struct Params {
     // Diagnostic: > 0 makes the per-request path drain and return after that phase (see
     // PHASE_EXIT in attn_one_kernel); 0 runs the whole kernel.
     int phase_limit;
+    // log2 of page_size (a power of two; the host checks).
+    int lp;
 };
 
 template <int L, int NS>
@@ -2992,6 +3006,14 @@ __device__ __forceinline__ uint32_t smem_u32(const void* p) {
 __device__ __forceinline__ void cp_async16(uint32_t dst, const void* src, uint32_t bytes) {
     asm volatile("cp.async.cg.shared.global [%0], [%1], 16, %2;\n"
                  :: "r"(dst), "l"(src), "r"(bytes) : "memory");
+}
+
+// cp_async16 under a predicate, so a per-row choice needs no branch.
+__device__ __forceinline__ void cp_async16_if(uint32_t dst, const void* src, uint32_t bytes,
+                                              bool doit) {
+    asm volatile("{\n.reg .pred p;\nsetp.ne.b32 p, %3, 0;\n"
+                 "@p cp.async.cg.shared.global [%0], [%1], 16, %2;\n}\n"
+                 :: "r"(dst), "l"(src), "r"(bytes), "r"(static_cast<int>(doit)) : "memory");
 }
 
 __device__ __forceinline__ void cp_async4(uint32_t dst, const void* src, uint32_t bytes) {
@@ -3447,12 +3469,14 @@ attn_one_kernel(const Params p) {
     // Diagnostic early exit after phase k: uniform across the CTA (a kernel parameter), placed
     // only where every thread passes, with the copies drained first.
 #define PHASE_EXIT(k) \
-    if (p.phase_limit == (k)) { cp_wait<0>(); return false; }
+    if (ONE_DIAG && p.phase_limit == (k)) { cp_wait<0>(); return false; }
     // Diagnostic stamps: thread 0 of CTA (0, 0) records the time in microseconds at point k
     // into dbg[1 + k] when a dbg buffer is given (the judge's timed path passes none).
     auto stamp = [&](int k) {
-        if (p.dbg != nullptr && split == 0 && blockIdx.y == 0 && tid == 0) {
-            p.dbg[1 + k] = static_cast<int>(globaltimer_ns() / 1000u);
+        if constexpr (ONE_DIAG) {
+            if (p.dbg != nullptr && split == 0 && blockIdx.y == 0 && tid == 0) {
+                p.dbg[1 + k] = static_cast<int>(globaltimer_ns() / 1000u);
+            }
         }
     };
     // Consumer-wide barrier: the whole CTA unless the producer warpgroup has split off.
@@ -3602,6 +3626,9 @@ attn_one_kernel(const Params p) {
                 if (tile >= ntiles || pos >= seq) {
                     return 0;
                 }
+                if constexpr (ONE_DIET) {
+                    return __ldg(pt + (pos >> p.lp));
+                }
                 return __ldg(pt + (psize == 1 ? pos : pos / psize));
             };
             for (int bb = b_first; bb <= b_last; ++bb) {
@@ -3635,7 +3662,9 @@ attn_one_kernel(const Params p) {
                             const uint32_t vd = vdst + r * ROWB + v_swz<L>(ch, r) * 16;
                             if (pos < seq) {
                                 int64_t row = pe[u][i];
-                                if (psize != 1) {
+                                if constexpr (ONE_DIET) {
+                                    row = (row << p.lp) + (pos & (psize - 1));
+                                } else if (psize != 1) {
                                     row = row * psize + pos % psize;
                                 }
                                 const int64_t off = row * ROWB + ch * 16;
@@ -3684,6 +3713,17 @@ attn_one_kernel(const Params p) {
 
     // ------------------------------------------------------------------ consumers
     auto issue_idx = [&](int tile) {
+        if constexpr (ONE_DIET) {
+            // Entries of tiles past the range are never read (issue_kv reads an entry only
+            // for a cached row of a tile below ntiles), so they need no zero-filling copy.
+            if (tid < BN && tile < ntiles) {
+                const int pos = lo + tile * BN + tid;
+                const bool ok = pos < seq;
+                cp_async4(smem_base + S::IDX + (tile & (NIDX - 1)) * 256 + tid * 4,
+                          pt + (ok ? pos >> p.lp : 0), ok ? 4 : 0);
+            }
+            return;
+        }
         if (tid < BN) {
             const int pos = lo + tile * BN + tid;
             const bool ok = tile < ntiles && pos < seq;
@@ -3707,6 +3747,29 @@ attn_one_kernel(const Params p) {
         const int pos0 = lo + tile * BN;
         const uint32_t kdst = smem_base + S::KV + st * 2 * TILE_BYTES;
         const uint32_t vdst = kdst + TILE_BYTES;
+        if constexpr (ONE_DIET) {
+            if (!patch) {
+                // Prologue issue, branch-free: cached rows copy, rows past the range
+                // zero-fill, the block's own rows are left for patch_tile.
+#pragma unroll
+                for (int i = 0; i < BN / RSTEP; ++i) {
+                    const int r = r0 + i * RSTEP;
+                    const int pos = pos0 + r;
+                    const bool cached = pos < seq;
+                    const int64_t row = cached ? (static_cast<int64_t>(idx[r]) << p.lp)
+                                                     + (pos & (psize - 1))
+                                               : 0;
+                    const int64_t off = row * ROWB + ch * 16;
+                    const bool doit = cached || pos >= hi;
+                    const uint32_t bytes = cached ? 16u : 0u;
+                    cp_async16_if(kdst + r * ROWB + k_swz<L>(ch, r) * 16, p.k_cache + off, bytes,
+                                  doit);
+                    cp_async16_if(vdst + r * ROWB + v_swz<L>(ch, r) * 16, p.v_cache + off, bytes,
+                                  doit);
+                }
+                return;
+            }
+        }
 #pragma unroll
         for (int i = 0; i < BN / RSTEP; ++i) {
             const int r = r0 + i * RSTEP;
@@ -3715,7 +3778,9 @@ attn_one_kernel(const Params p) {
             const uint32_t vd = vdst + r * ROWB + v_swz<L>(ch, r) * 16;
             if (pos < seq) {
                 int64_t row = idx[r];
-                if (psize != 1) {
+                if constexpr (ONE_DIET) {
+                    row = (row << p.lp) + (pos & (psize - 1));
+                } else if (psize != 1) {
                     row = row * psize + pos % psize;
                 }
                 const int64_t off = row * ROWB + ch * 16;
@@ -3806,11 +3871,23 @@ attn_one_kernel(const Params p) {
         // constants; the range holding the request's first key prefetches the gate rows.
         {
             const __nv_bfloat16* qbase = p.qkv + static_cast<size_t>(b) * L * QKV_STRIDE;
-            for (int i = tid; i < ROWS * 8; i += NC) {
-                const int row = i >> 3;
-                const int cc = i & 7;
-                cp_async16(smem_base + S::QST + row * 128 + cc * 16,
-                           qbase + (row >> 4) * QKV_STRIDE + (row & 15) * D + cc * 8, 16);
+            if constexpr (ONE_DIET) {
+                static_assert(ROWS * 8 % NC == 0, "whole passes of the consumer threads");
+#pragma unroll
+                for (int k = 0; k < ROWS * 8 / NC; ++k) {
+                    const int i = tid + k * NC;
+                    const int row = i >> 3;
+                    const int cc = i & 7;
+                    cp_async16(smem_base + S::QST + row * 128 + cc * 16,
+                               qbase + (row >> 4) * QKV_STRIDE + (row & 15) * D + cc * 8, 16);
+                }
+            } else {
+                for (int i = tid; i < ROWS * 8; i += NC) {
+                    const int row = i >> 3;
+                    const int cc = i & 7;
+                    cp_async16(smem_base + S::QST + row * 128 + cc * 16,
+                               qbase + (row >> 4) * QKV_STRIDE + (row & 15) * D + cc * 8, 16);
+                }
             }
             const bool has_new = hi > seq || SPEC;
             if (has_new && tid < L * 32) {
@@ -3905,7 +3982,7 @@ attn_one_kernel(const Params p) {
         // Query pass: eight threads per row, eight dims each. q_len 1 keeps f16 queries
         // pre-scaled into log2 units (the key scale is applied to the scores); q_len 8 rounds
         // the unit-RMS query to E4M3 and scales in the exponent.
-        for (int piece = tid; piece < ROWS * 8; piece += NC) {
+        auto q_piece = [&](int piece) {
             const int row = piece >> 3;
             const int t8 = piece & 7;
             const int j = row >> 4;
@@ -3938,6 +4015,16 @@ attn_one_kernel(const Params p) {
                 *reinterpret_cast<uint2*>(smem + S::Q + (head >> 3) * 4096 + kmaj(r64, t8 >> 1)
                                           + (t8 & 1) * 8) =
                     make_uint2(e4m3x4(x[0], x[1], x[2], x[3]), e4m3x4(x[4], x[5], x[6], x[7]));
+            }
+        };
+        if constexpr (ONE_DIET) {
+#pragma unroll
+            for (int k = 0; k < ROWS * 8 / NC; ++k) {
+                q_piece(tid + k * NC);
+            }
+        } else {
+            for (int piece = tid; piece < ROWS * 8; piece += NC) {
+                q_piece(piece);
             }
         }
 
@@ -4641,6 +4728,13 @@ torch::Tensor attn_one(torch::Tensor qkv, torch::Tensor page_table, torch::Tenso
     p.nc = static_cast<int>(nc);
     p.sl2 = static_cast<float>(sl2);
     p.phase_limit = static_cast<int>(phase_limit);
+    TORCH_CHECK(ONE_DIAG || phase_limit == 0, "attn_one: phase exits need a ONE_DIAG build");
+    p.lp = 0;
+    while ((1 << p.lp) < page_size) {
+        ++p.lp;
+    }
+    TORCH_CHECK(!ONE_DIET || (1 << p.lp) == page_size, "attn_one: page size ", page_size,
+                " is not a power of two");
     // Per-request modes launch (n_splits, batch) CTAs; flat modes launch n_splits CTAs that
     // share the batch's keys, with the batch size carried in Params::n_splits.
     int gx = static_cast<int>(n_splits);
