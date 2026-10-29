@@ -123,6 +123,11 @@ through `_ONE_DBG`.
   `off32` itself from the cache sizes and the page size; judged -5.8 / -12.3 us at verify
   16 / 32 full and -2.6 / -10.4 at decode 16 / 32 full in ca0f13d324ef48e8 /
   0d05f9b2df1e4834). The layer gets it by re-inlining; nothing it passes or owns changes.
+  `ONE_DCARRY=1` (modes 51 and 115: tiles below the block's own positions tested with one
+  compare, Q and K descriptors carried in uniform registers; judged -3.6 / -7.9 us at verify 16 /
+  32 full in f64e8680b3e441be / bf49eceb15a64f81). The layer gets it by re-inlining; nothing it
+  passes or owns changes. `ONE_WAVE=0` (a per-SM pair split of the flat partition; lost, off; when
+  on, the host probes `%smid` once and the kernel uses `ws_cnt[CNT_FLAT + 4096 + smid]`).
   `ONE_STAMP=0 ONE_PROBE=0`: bench-only attribution builds (per-CTA stamps into `dbg`, timing
   probes with wrong output); never set them in a judged file.
   A layer copy that inlines `attn_one.cu` gets FIN8 by re-inlining; it changes nothing the

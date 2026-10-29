@@ -1599,3 +1599,28 @@ run score 2.400x (CI 2.364-2.436; the arms do not enter it). Profiles:
   index now ends first on only 21-63 of 132 SMs, the median pair gap is -1.5 to -3.9 us but the
   worst pair is 72-83 us apart, and the latest SM ends at 212-215 us against 205.6 unweighted.
   Arrival order at the counter does not follow the warp schedulers' priority.
+
+### Judged: check f64e8680b3e441be 2.395x (CI 2.359-2.431), repeat bf49eceb15a64f81 2.413x (CI 2.377-2.461)
+
+`submission.py` at 0d76acc (`ONE_DCARRY=1`); the repeat, 503c0f4, adds one comment line. 16/16
+tests in both. Profiles: `profiles/submission.f64e8680b3e441be.*`,
+`profiles/submission.bf49eceb15a64f81.*`. Judge medians (us) against the ONE_PFAST pair
+(ca0f13d324ef48e8 / 0d05f9b2df1e4834, the same code without the switch):
+
+| shape | ca0f13d3 | 0d05f9b2 | f64e8680 | bf49eceb | change (mean vs mean) |
+|---|---|---|---|---|---|
+| decode 16 full | 88.29 | 85.08 | 88.00 | 88.37 | +1.5 (mode 49, SASS unchanged) |
+| decode 32 full | 157.49 | 162.84 | 168.87 | 168.78 | +8.7 (mode 49, SASS unchanged) |
+| verify 16 full | 114.49 | 114.33 | 111.05 | 110.49 | -3.6 (-3.2%) |
+| verify 32 full | 206.86 | 205.69 | 197.83 | 198.91 | -7.9 (-3.8%) |
+
+Verify 16 / 32 full moved by the sizes the bench measured cold (-3.7 / -7.3). Decode 32 full rose
+8.7 us on a kernel whose SASS is identical to the previous pair's (all instances but 51 and 115
+compare equal); five checks before ONE_PFAST sat at 170.5-171.4, so the 157-163 of the previous
+pair, not this one, is the outlier there. That row is why the scores (2.395x / 2.413x) do not
+rise over the previous pair (2.393x / 2.450x). Checks run in this
+session: 7631033a0c93485d, 4ff339332fef4aff, f64e8680b3e441be, bf49eceb15a64f81.
+
+Submit candidate for the verify full rows: `muse_attention_decode/submission.py` at 503c0f4
+(judged bf49eceb15a64f81; 0d76acc, judged f64e8680b3e441be, differs only by the comment line).
+Not submitted. Left at verify 32 full, cold in bench 4ff339332fef4aff: 203.3 vs 191.8 (11.5 us).
