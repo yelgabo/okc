@@ -2496,10 +2496,22 @@ constexpr int kMode = @MODE@;
 // per unit, so the compute warps meet once per unit (kBarUnit) instead of twice. The ordering
 // chain is in docs/runs-moe.md, "Skinny partial handoff through mbarriers". kMode 8: 7 with
 // the stamps.
-constexpr bool kStamp = kMode == 2 || kMode == 4 || kMode == 8;
-constexpr bool kEarly = kMode == 3 || kMode == 4;
-constexpr bool kScaleFma = kMode == 5 || kMode == 7 || kMode == 8;
-constexpr bool kHand = kMode >= 6;
+// Modes 16 and up are flags over mode kLow (docs/runs-moe.md, "Skinny weight stream against the
+// public kernel"). 16: thread 0's clock64 per unit (issue, wait start, wait end, slot free) and
+// a header, written to p.inter from 16 MB on (pair rows >= 2048, which the skinny sizes never
+// use). 32: the unit barrier and the refill move ahead of the partial-buffer handoff, so a refill
+// no longer waits for the helper to free a buffer. 64: weight copies without the L2 hint.
+constexpr int kLow = kMode & 15;
+constexpr bool kStamp = kLow == 2 || kLow == 4 || kLow == 8;
+constexpr bool kEarly = kLow == 3 || kLow == 4;
+constexpr bool kScaleFma = kLow == 5 || kLow == 7 || kLow == 8;
+constexpr bool kHand = kLow >= 6;
+constexpr bool kUnitStamp = (kMode & 16) != 0;
+constexpr bool kRefillFirst = (kMode & 32) != 0;
+constexpr bool kNoHint = (kMode & 64) != 0;
+static_assert(!kRefillFirst || (!kEarly && !kHand), "refill-first is a mode 0 / 5 change");
+constexpr int kUSMax = 256;
+constexpr int kUSPer = 8 + 4 * kUSMax;
 constexpr int kNT = kNW * 32;
 constexpr int kNTL = kNT + 32;
 constexpr int kNWarps = kNTL / 32;
@@ -2541,7 +2553,19 @@ __device__ __forceinline__ void hand_arrive(uint64_t* bar) {
     asm volatile("mbarrier.arrive.shared::cta.b64 _, [%0];" :: "r"(smem_u32(bar)) : "memory");
 }
 
-// Unit q of this CTA's list (its phase A units, then its phase B units) into ring slot q % 3.
+__device__ __forceinline__ long long* ustamps(const Params& p) {
+    return reinterpret_cast<long long*>(p.inter) + (1 << 21) + blockIdx.x * kUSPer;
+}
+
+// Event k of unit q: 0 copy issued, 1 thread 0 starts waiting for it, 2 the wait ends, 3 the
+// slot is free (unit barrier passed; the refill follows).
+__device__ __forceinline__ void ustamp(const Params& p, int q, int k) {
+    if (kUnitStamp && q < kUSMax) {
+        ustamps(p)[8 + 4 * q + k] = clock64();
+    }
+}
+
+// Unit q of this CTA's list (its phase A units, then its phase B units) into ring slot q % kNS.
 __device__ __forceinline__ void issue_unit(const Params& p, Smem& S, int q, uint64_t pol) {
     const int slot = q % kNS;
     const unsigned char* src;
@@ -2553,7 +2577,15 @@ __device__ __forceinline__ void issue_unit(const Params& p, Smem& S, int q, uint
         src = p.w2 + (static_cast<size_t>(S.job_e[v >> 8]) * kUB + (v & 255)) * kUnitBytes;
     }
     mbar_expect_tx(&S.full[slot], kUnitBytes);
-    bulk_load(S.ring[slot], src, kUnitBytes, &S.full[slot], pol);
+    ustamp(p, q, 0);
+    if constexpr (kNoHint) {
+        asm volatile("cp.async.bulk.shared::cluster.global.mbarrier::complete_tx::bytes"
+                     " [%0], [%1], %2, [%3];"
+                     :: "r"(smem_u32(S.ring[slot])), "l"(src), "r"(kUnitBytes),
+                        "r"(smem_u32(&S.full[slot])) : "memory");
+    } else {
+        bulk_load(S.ring[slot], src, kUnitBytes, &S.full[slot], pol);
+    }
 }
 
 // Compute warps: for each unit, 8 chunks of 64 k (4 mma k16 steps each) over this warp's
@@ -2578,6 +2610,10 @@ __device__ __forceinline__ void compute_loop(const Params& p, Smem& S, uint64_t 
     long long wfull = 0;
     // 16, from a kernel parameter (nloc <= kLocalMax = 32) so ptxas cannot fold it into a LEA.
     const unsigned k16 = 16u + (static_cast<unsigned>(p.nloc) >> 6);
+    if (kUnitStamp && tid == 0) {
+        ustamps(p)[0] = na;
+        ustamps(p)[1] = n;
+    }
 #pragma unroll 1
     for (int q = 0; q < n; ++q) {
         const bool phb = q >= na;
@@ -2632,6 +2668,9 @@ __device__ __forceinline__ void compute_loop(const Params& p, Smem& S, uint64_t 
         // The stamps time the first try too: try_wait may suspend the thread for a
         // system-dependent time before it returns false (PTX ISA, mbarrier.try_wait).
         const long long tw = kStamp ? clock64() : 0;
+        if (tid == 0) {
+            ustamp(p, q, 1);
+        }
         if (!mbar_try(&S.full[slot], (q / kNS) & 1)) {
             const long long t0 = clock64();
             while (!mbar_try(&S.full[slot], (q / kNS) & 1)) {
@@ -2642,6 +2681,9 @@ __device__ __forceinline__ void compute_loop(const Params& p, Smem& S, uint64_t 
         }
         if (kStamp) {
             wfull += clock64() - tw;
+        }
+        if (tid == 0) {
+            ustamp(p, q, 2);
         }
         const unsigned char* sl = S.ring[slot];
         const uint4* codes = reinterpret_cast<const uint4*>(sl + w8 * 4096 + c0 * 512) + lane;
@@ -2679,7 +2721,7 @@ __device__ __forceinline__ void compute_loop(const Params& p, Smem& S, uint64_t 
                 issue_unit(p, S, q + kNS, pol);
             }
         }
-        if (kMode == 1) {
+        if (kLow == 1) {
             // Timing only: the unit's bytes arrive and one word is read, nothing is computed.
             acc[0][0] = __uint_as_float(codes[0].x & 0x3f800000u);
         } else {
@@ -2706,6 +2748,18 @@ __device__ __forceinline__ void compute_loop(const Params& p, Smem& S, uint64_t 
         r.z = (acc[0][2] + acc[1][2]) + (acc[2][2] + acc[3][2]);
         r.w = (acc[0][3] + acc[1][3]) + (acc[2][3] + acc[3][3]);
         const int bb = q & (kNRB - 1);
+        if constexpr (kRefillFirst) {
+            // Every compute thread's reads of the slot are done once its MMAs have their
+            // operands; the barrier and the fence are the same chain as below, earlier.
+            named_sync(kBarUnit, kNT);
+            if (tid == 0) {
+                ustamp(p, q, 3);
+                if (q + kNS < n) {
+                    fence_proxy_async();
+                    issue_unit(p, S, q + kNS, pol);
+                }
+            }
+        }
         const long long tb = kStamp ? clock64() : 0;
         if constexpr (kHand) {
             // Buffer bb was last read by the helper for unit q - kNRB: completion number
@@ -2726,13 +2780,16 @@ __device__ __forceinline__ void compute_loop(const Params& p, Smem& S, uint64_t 
             S.red[bb][warp][lane] = r;
             named_arrive(kBarFull + bb, kNTL);
         }
-        if constexpr (kEarly) {
+        if constexpr (kEarly || kRefillFirst) {
             continue;
         }
         const long long tu = kStamp ? clock64() : 0;
         named_sync(kBarUnit, kNT);
         if (kStamp && tid == 0) {
             S.dg[15] += clock64() - tu;
+        }
+        if (tid == 0) {
+            ustamp(p, q, 3);
         }
         if (tid == 0 && q + kNS < n) {
             // The slot's generic-proxy reads are complete (the barrier above); order them
@@ -2914,6 +2971,10 @@ __global__ void __launch_bounds__(kNTL, 1) moe_fused_kernel(const Params p) {
     if (kStamp && tid < 16) {
         S.dg[tid] = tid == 0 ? gtimer() : tid == 12 ? clock64() : 0;
     }
+    if (kUnitStamp && tid == 0) {
+        ustamps(p)[2] = clock64();
+        ustamps(p)[3] = gtimer();
+    }
 
     if (warp == kNW) {
         // Histogram and job list by one warp, so this CTA's first unit copies can be issued
@@ -3055,6 +3116,10 @@ __global__ void __launch_bounds__(kNTL, 1) moe_fused_kernel(const Params p) {
 
     if (warp < kNW) {
         final_pass<kNT>(p, S.pos, ss, cta, G);
+    }
+    if (kUnitStamp && tid == 0) {
+        ustamps(p)[4] = clock64();
+        ustamps(p)[5] = gtimer();
     }
     if constexpr (kStamp) {
         __syncthreads();
@@ -5161,7 +5226,8 @@ def _vname(v):
                 38: "main-lean-silu-pa", 39: "main-lean-epi", 40: "main-lean-epi-pa"}[m]
     nw, ns, mode = SKINNY_VARIANTS[v]
     tags = ('', '-loads', '-stamps', '-er', '-er-stamps', '-sf', '-hand', '-sfh', '-sfh-stamps')
-    return f"sk{nw}w{ns}s{tags[mode]}"
+    flags = "".join(t for b, t in ((32, "-rf"), (64, "-nh"), (16, "-us")) if mode & b)
+    return f"sk{nw}w{ns}s{tags[mode & 15]}{flags}"
 
 
 def prepare(weights):
