@@ -759,3 +759,29 @@ well, since qkv8 went to 8 stages (fee7249), so that failure predates this chang
 |---|---|---|---|---|---|---|
 | 10-29 | 01703396ea1a409e | submit (bench, by the coordinator) | dd67954 bench on f61d8d9 | m = 16 / 32 bench, 21 extra geometries, no public arm | 1.430x (1.409-1.452) | table above; judged path is the board file |
 | 10-29 | 3678bfd3ef1c4ce6 | submit (bench, by the coordinator) | 977afb3 bench on f61d8d9 | round 2: o warps, unp32n2 repeat, no public arm | 1.435x (1.414-1.457) | table above; tuner picked o16w2 (9.7 vs o16 10.0) |
+| 10-29 | 2048b59099f3435d | submit (bench, by the coordinator) | 4d53658 (+ bench, `--variants old`) | the change as the judged path, paired against the pre-change geometries | **1.450x** (1.428-1.471) | new board entry (was 1.444x, 81254e8aed794eab), rank 302 on muse_bf16_proj. old minus new: o m=16 +0.16 / +0.26, unpooler m=32 +0.27 / +0.45; o m=32 and unpooler m=16 (unchanged) +0.00 to +0.16. Judged o m=16 5.68 us (5.83, 6.05 in the two runs above), unpooler m=32 14.57 (14.88, 15.30) |
+
+Third paired sample of each change: o16 +0.16 / +0.26 and unp32 +0.27 / +0.45 for the old
+geometry. Across the three runs the gain is about 0.3 us per shape (six passes each, all on the
+same side). The whole-file score moved 1.444x -> 1.450x, inside the CI as two shapes of thirty
+should.
+
+Port to the layer (the layer agent owns it; its b1e620a lets `tools/dl_proj_inline.py` past the
+SK_PDL griddepcontrol guard). By hand it is eight lines of muse_decode_layer/submission.py, all
+index-stable (o16 is config 8 / o16raw 9, unp32 22 / unp32raw 23 in both files):
+
+1. `_SKP_SRC` dispatch: `case 8` and `case 9` become `launch_sk<1, 16, 2, 2, 2, 2, 3, true|false,
+   ...>` (from `<1, 16, 2, 2, 1, 4, 3, ...>`); `case 22` and `case 23` become `launch_sk<2, 32,
+   2, 2, 2, 2, 3, true|false, ...>` (from `<2, 32, 4, 2, 2, 2, 3, ...>`).
+2. `_SKP_CONFIGS`: `('o16', 1, 16, 2, 2, 2, 2, 3, True, False, 1, 1, 'bf16', False)`, the same
+   with `False` for o16raw; `('unp32', 2, 32, 2, 2, 2, 2, 3, True, ...)` and unp32raw.
+3. Through the inliner instead: from a checkout with 4d53658 and b1e620a, `python3
+   tools/dl_proj_inline.py`; the diff should contain these eight lines plus the pending cgemv and
+   qkv8 ports.
+4. Check: Docker compile (`tools/dl_compile_check.sh`), no new template instances (both
+   geometries already exist as unp16 / o32). In the layer log, `SKP selftest o o16: ok` and
+   `SKP selftest unpooler unp32: ok`, then `SKP tune o m=16` and `SKP tune unpooler m=32`.
+5. Prediction (hypothesis): the in-layer o row at decode 16 (sk_kernel<1, 16, 2, 2, 1, 4, ...>,
+   6.5 / 6.2 us in 9b921febc7ad4140) and the unpooler row at decode 32 (<2, 32, 4, 2, 2, 2, ...>,
+   17.5 / 17.6) each fall by about 0.3 us: about +0.03% (decode 16) and +0.02% (decode 32) of
+   layer score at 0.102% / 0.079% per us.
