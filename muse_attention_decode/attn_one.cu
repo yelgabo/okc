@@ -57,10 +57,11 @@ constexpr int COOP_POLL_LIMIT = 1 << 24;
 #define ONE_FIN8 1
 #endif
 // ONE_KVFAST: the in-loop copy of a tile whose rows are all cached (every tile but the one that
-// reaches the block's own positions) runs without the per-row three-way branch. Bench
-// 82e52f7b23ec49da: -0.27 / -0.36 us warm at decode / verify 32 sliding, near zero at 16.
+// reaches the block's own positions) runs without the per-row three-way branch. Off: bench
+// 82e52f7b23ec49da had it 0.04-0.36 us ahead on sliding, but judged check 422f81a11f384deb
+// scored below the ONE_FIN8 pair (docs/ruled-out.md).
 #ifndef ONE_KVFAST
-#define ONE_KVFAST 1
+#define ONE_KVFAST 0
 #endif
 
 // MODE bits: 1 = last-CTA finalize, 3 = cooperative finalize (every CTA a slice of rows),

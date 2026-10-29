@@ -1011,3 +1011,144 @@ in-loop `issue_kv` (`patch == true`) still takes a three-way branch and 64-bit o
 where the public in-loop issue has a branch-free shift-add path for fully cached tiles. The
 public Q.K-first order at q_len 8 is already ruled out for our kernel (bf6b8ca9e37341fb). The
 full-context q_len 8 flat gap (23 / 53 us at batch 16 / 32) is unchanged by this work.
+
+## Batch-1 full finalize (ONE_FIN8) judged, and a branch-free in-loop copy (ONE_KVFAST) (10-29)
+
+Control: the diet build, checks 03a21fbc99cf445f (2.299x) and d0adceb5f83b4e1e (2.291x).
+
+### Ordering argument for ONE_FIN8
+
+`ONE_FIN8` compiles only into mode 11 (`FIN8 = ONE_FIN8 && COOP && SPEC && !ONE`), the
+cooperative batch-1 full plan with eight workspace copies. In that mode no single last CTA
+finalizes: every active split waits at the cooperative barrier, then finalizes its own slice
+of rows. The last-CTA ticket path (`ticket()`, modes 1 and 13) calls `finalize_rows` without
+`NC8` and does not change. Sections are from the PTX ISA 9.4 documentation
+(docs.nvidia.com/cuda/parallel-thread-execution, read 10-29): 8.7.1 Conflict and Data-races,
+8.8 Release and Acquire Patterns, 8.9.2 Observation Order, 8.9.4 Memory synchronization, 8.9.5
+Causality Order, 8.9.6 Coherence Order, 8.10.3 Atomicity, 8.10.6 Causality, and the `atom` /
+`red` instruction pages (with no `.sem` or `.scope`, `.relaxed` and `.gpu` are assumed).
+
+The chain, the same in both orderings up to step 5:
+
+1. Writers. Each active split adds its partial `o * 2^m` and `l * 2^m` into copy
+   `split % 8` of the request's rows with `red.global.add.v4.f32` and `red.global.add.f32`
+   (relaxed, gpu scope). Different splits add into the same addresses; the reds are strong
+   operations at gpu scope, so they are morally strong with each other, and Atomicity (8.10.3)
+   keeps every addition.
+2. Publication. `__syncthreads()` (`bar.sync 0`), then thread 0's `atom.acq_rel.gpu.add` on the
+   parity counter. A `bar.sync` synchronizes with every other `bar.sync` on that barrier
+   (8.9.4), so every thread's reds precede thread 0's atom in base causality order (8.9.5:
+   program order, then synchronizes-with, then program order). The atom is a release operation,
+   a release pattern by itself (8.8), and base causality is transitive (8.9.5 footnote 1,
+   cumulativity), so the release covers the other threads' reds too. A split whose range is
+   empty returns before step 1 (`lo >= end` after the length check), so no CTA adds after the
+   count is complete.
+3. Observation. Thread 0 of every split spins on `ld.acquire.gpu` until the counter reaches
+   the request's key count. That value ends a chain of atomic adds, and observation order runs
+   through atomic read-modify-writes (8.9.2), so each split's atom precedes the poller's acquire
+   in observation order and its release synchronizes with that acquire (8.9.4: a write in the
+   release pattern precedes a read in the acquire pattern in observation order, both morally
+   strong, both gpu scope).
+4. Hand-off inside the CTA. Thread 0 then runs `bar.sync 1, NC` (`named_sync`), which
+   synchronizes with the other consumer threads' `bar.sync 1` (8.9.4). Every red of every split
+   now precedes, in causality order, every finalizer thread's later operations. Reds and loads
+   use the generic proxy on the same addresses, so the order is proxy-preserved (8.9.5).
+5. Loads. Each finalizer thread reads its eight floats of a row (and lane `t8 == 0` the row
+   sum) with `ld.global.cg` (weak). A weak load and a red to the same address that are ordered
+   by causality are not a data race (8.7.1), and by Causality (8.10.6) the load reads the last
+   red or a later write in coherence order. Nothing else writes these addresses in this launch:
+   rows are split between CTAs by slice, the eight lanes of a row own disjoint 32-byte pieces,
+   and only lane 0 touches `ws_l`. Each address is read and zeroed by exactly one thread.
+6. Zeroing. That thread stores zeros to exactly the addresses it read, with `st.global.cg`
+   (weak). Default ordering: load copy c, shuffle, store copy c, then copy c + 1. FIN8: load
+   all eight copies, shuffle once, store all eight. In both, each store follows the load of the
+   same address in program order, hence in causality order, and Causality (8.10.6: a read that
+   precedes an overlapping write in causality order cannot read from it) forbids the load from
+   seeing its own zero. Each store also follows every red to that address in causality order
+   (steps 2-4), so it comes after them in coherence order (8.9.6) and the row ends the launch at
+   zero.
+7. Reuse. The next launch is the next task in the stream. "Completion of a task enqueued in a
+   CUDA stream synchronizes with the start of the following task in the same stream" (8.9.4,
+   API synchronization), so its reds follow this launch's zero stores and loads in causality
+   order: they add onto zero, and this launch's loads cannot see them. The counter reset (the
+   last arriver clears the other parity and bumps the epoch) is outside the changed code.
+
+What FIN8 changes: in one thread, the loads of copies 1..7 now come before the stores of copies
+0..6. Those touch different addresses that no other thread accesses after step 4, so no rule
+relates them, and steps 1-5 and 7 do not change. The obligation that matters, each load before
+the store to the same address, still holds by program order. FIN8 needs no new fence, and
+every existing fence and barrier stays. The SASS agrees: building all 13 instances with
+`-DONE_FIN8=0` and `=1` (`tools/attn_one_sass.sh`, CUDA 12.8.1), only mode 11 (q_len 1 and 8)
+changes, and its `BAR.SYNC`, `FENCE.VIEW.ASYNC`, `MEMBAR`, `ATOMG`, `REDG` and `CCTL` counts are
+identical; only `LDG` and `STG` grow (the unrolled eight-copy block beside the rolled loop that
+`nc != 8` still uses).
+
+### Judged: check b0b146dfbb4841b2 2.347x (CI 2.312-2.382), repeat fe08878a7e0c46f4 2.316x (CI 2.281-2.351)
+
+`submission.py` at aedad22 (`ONE_FIN8` default 1); the repeat, 8860211, adds one comment line.
+16/16 tests in both. Profiles: `profiles/submission.b0b146dfbb4841b2.*`,
+`profiles/submission.fe08878a7e0c46f4.*`. Judge medians (us), with the kvfast check described
+below:
+
+| shape | diet 03a21fbc | diet d0adceb5 | fin8 b0b146df | fin8 fe08878a | fin8 - diet (means) | kvfast 422f81a1 | kvfast - fin8 mean |
+|---|---|---|---|---|---|---|---|
+| decode 1 sliding | 5.78 | 5.91 | 5.92 | 6.01 | +0.12 (+2.1%) | 5.69 | -0.27 |
+| decode 1 full | 14.72 | 15.34 | 13.41 | 13.78 | -1.44 (-9.5%) | 13.21 | -0.38 |
+| decode 16 sliding | 9.24 | 9.08 | 9.27 | 9.18 | +0.06 (+0.7%) | 10.09 | +0.87 |
+| decode 16 full | 89.95 | 89.41 | 89.30 | 89.53 | -0.27 (-0.3%) | 89.80 | +0.39 |
+| decode 32 sliding | 11.08 | 11.52 | 11.19 | 11.50 | +0.04 (+0.4%) | 11.45 | +0.11 |
+| decode 32 full | 170.21 | 171.55 | 171.44 | 170.54 | +0.11 (+0.1%) | 170.46 | -0.53 |
+| verify 1 sliding | 6.83 | 7.03 | 6.65 | 7.24 | +0.02 (+0.2%) | 6.87 | -0.08 |
+| verify 1 full | 17.47 | 17.61 | 15.71 | 16.00 | -1.68 (-9.6%) | 15.59 | -0.27 |
+| verify 16 sliding | 12.07 | 11.85 | 11.84 | 12.15 | +0.04 (+0.3%) | 12.22 | +0.22 |
+| verify 16 full | 120.18 | 119.93 | 120.49 | 119.99 | +0.18 (+0.2%) | 120.85 | +0.61 |
+| verify 32 sliding | 15.94 | 15.96 | 16.40 | 16.26 | +0.38 (+2.4%) | 15.67 | -0.66 |
+| verify 32 full | 226.68 | 226.57 | 226.90 | 226.68 | +0.17 (+0.1%) | 227.47 | +0.68 |
+
+Both FIN8 runs beat both diet runs on decode 1 full and verify 1 full, and both scores are
+above both diet scores (+0.7% to +2.4%). The other ten shapes run SASS-identical code; their
+spread here (up to 0.4 us) is run-to-run noise. Promoted: `ONE_FIN8` is the default. Judged
+gain on the score: +1.6% (mean 2.331x vs 2.295x), close to the +1.7% predicted from bench
+0c4b4923d4b44b79.
+
+### ONE_KVFAST: the in-loop copy without the per-row three-way branch
+
+The gap analysis above named the in-loop `issue_kv` (`patch == true`) as a suspect for the
+remaining sliding gap. `ONE_KVFAST` gives a tile whose rows all lie below `seq` (every tile but
+the one that reaches the block's own positions) an unrolled path with unconditional `cp.async`;
+the tile that holds the new rows keeps the three-way path. It applies to modes 1, 3 and 11 (the
+per-request builds with several tiles); 13 and 15 (one tile) and the producer builds do not use
+it. No fence or barrier change: the copies are the same `cp.async` into the same commit groups,
+and the SASS sync counts are identical with it on and off.
+
+Bench 82e52f7b23ec49da (`tools/attn_make_bench_ab.py`, arm `kvfast` against the FIN8 default,
+paired in one process; ABCHECK 39 lines, 0 failing; tests 16/16). Profiles:
+`profiles/bench_kvfast.82e52f7b23ec49da.*`. Warm / cold (us):
+
+| shape (mode) | ctrl warm | kvfast warm | ctrl cold | kvfast cold |
+|---|---|---|---|---|
+| decode 1 full (11) | 13.07 | 12.84 | 18.82 | 18.78 |
+| decode 16 sliding (1) | 9.48 | 9.44 | 14.30 | 14.18 |
+| decode 32 sliding (1) | 11.05 | 10.78 | 16.74 | 16.67 |
+| verify 1 full (11) | 15.63 | 15.44 | 20.03 | 19.90 |
+| verify 16 sliding (3) | 11.60 | 11.49 | 16.03 | 15.84 |
+| verify 32 sliding (3) | 15.99 | 15.63 | 21.18 | 20.74 |
+
+Shapes whose code does not change moved by -0.30 to +0.25 us between the arms, so only the
+32-batch sliding deltas (-0.27 / -0.36 warm) stand clear of that, and decode 16 sliding
+(-0.04) does not move. The branch is not the 1.3-2.0 us decode 16 gap to the public kernel:
+that hypothesis is rejected for this build.
+
+Judged: check 422f81a11f384deb (a18937b, `ONE_KVFAST` default 1) 2.322x (CI 2.287-2.370),
+16/16 tests, profiles `profiles/submission.422f81a11f384deb.*`, per shape in the table above.
+It is below b0b146dfbb4841b2 on the score and slower on decode 32 sliding (11.45 vs 11.19);
+decode 16 sliding read 10.09 us (all four earlier runs 9.08-9.27); verify 32 sliding was the
+fastest yet (15.67). The judge's spread on shapes whose code is identical in this check (up to
+0.68 us) is larger than the effect the bench measured, so one check cannot confirm the bench,
+and a repeat could not have met the promotion rule (both checks ahead of the FIN8 pair on the
+changed shapes, score not lower), so the fifth check was not spent. `ONE_KVFAST` stays in the
+source at 0. The branch head (`ONE_FIN8` 1, `ONE_KVFAST` 0) compiles to SASS identical to
+aedad22's on all 13 instances (only the anonymous-namespace hash in the mangled names differs).
+
+Submit candidate: `muse_attention_decode/submission.py` at aedad22 (judged b0b146dfbb4841b2;
+repeat fe08878a7e0c46f4 at 8860211). Attention checks used this round: 4 of 5.
