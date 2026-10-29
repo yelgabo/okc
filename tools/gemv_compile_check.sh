@@ -1,7 +1,9 @@
 #!/bin/sh
 # Compile the kernels in muse_bf16_proj/submission.py (GEMV_CUDA_SRC) for H200 (sm_90a), print ptxas
 # register and spill counts, and count the global loads each kernel issues after its first FFMA
-# (the kernels are written to issue every load first; ptxas can undo that). Needs Docker. The
+# (rgemv and sgemv are written to issue every load first; ptxas can undo that; cgemv is capped
+# at 32 registers for occupancy, so at 2 chunks per thread its second chunk's loads follow the
+# first chunk's FMAs by design). Needs Docker. The
 # image has no ATen, so GEMV_DEVICE_ONLY leaves out the torch entry points and the cgemv variants
 # each layer uses are instantiated here; rgemv and sgemv are then unreferenced, hence the
 # suppressed warning 177.
@@ -41,5 +43,5 @@ for body in re.split(r"\n\s*Function : ", text)[1:]:
     loads = [i for i, o in enumerate(ops) if o.startswith("LDG")]
     late = sum(i > first for i in loads)
     print(f"{short.group(1) if short else name}: {len(loads)} global loads, {late} after the first FFMA"
-          + ("" if late == 0 else "  <-- loads sunk below FMAs"))
+          + ("" if late == 0 or "cgemv" in name else "  <-- loads sunk below FMAs"))
 PY

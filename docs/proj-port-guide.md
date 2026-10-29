@@ -90,6 +90,26 @@ Router (`CL = 3`): three CTAs per 8-row block split the stages unevenly (5, 5, 6
 Every mbarrier wait gives up after 2^28 cycles, marks the thread dead and ORs a code into
 `diag[0]`, so a broken pipeline fails the self-test instead of hanging the run.
 
+## m = 1 GEMVs (`cgemv_fwd`, `rgemv_fwd`, `sgemv_fwd`)
+
+```
+cgemv_fwd(stream, table, pmax, base4, x, out, nthreads)
+```
+
+- `stream`: `pack_cgemv(w)["stream"]`, uint8 `[N/2, K/16, 48]`. Chunk j of row pair c holds k in
+  [16j, 16j+16): the two rows' low bytes, then 8 code bytes per row (the 12-bit code above).
+  Within CTA c the bytes are ordered [i][p][t][16] with j = i*nth + t and p the 16-byte part, so
+  each warp load reads 512 contiguous bytes; `nth = cgemv_threads(N, K)` fixes the order, and
+  the same `nth` must be passed as `nthreads`.
+- `table`: int32 `[N/2, pmax, 2]`, entry 0 = (count, 0), then ((row_local << 16) | k, original
+  BF16 bits); one escape warp forms the corrections.
+- One CTA per row pair, `nth + 32` threads, `__maxnreg__(32)`: registers are allocated per warp
+  from one SM sub-partition's 16384, so 32 registers keep 16 warps per sub-partition (3 pooler
+  CTAs per SM, 7 qkv_gate) where 33-40 keep 12.
+
+`rgemv_fwd` is the FP32 router (one row per CTA), `sgemv_fwd` the raw BF16 unpooler slice (four
+rows per CTA).
+
 ## Self-test and autotune
 
 `prepare()` self-tests every candidate (compressed and raw sk configs, GEMVs, router configs)

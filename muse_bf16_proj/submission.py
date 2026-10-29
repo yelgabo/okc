@@ -1208,9 +1208,10 @@ def pack_cgemv(w):
 
     Chunk (c, j) covers rows 2c, 2c+1 and k in [16j, 16j+16): the two rows' low bytes in k
     order, then each row's 8 code bytes, byte b holding the codes of k = 16j+b (low nibble) and
-    16j+8+b (high nibble). Table row c: entry 0 is (count, 0); entries 1..count are
-    ((row_local << 16) | k, original bits) sorted by k; pmax is even so each row is a multiple
-    of 16 bytes.
+    16j+8+b (high nibble). With nth = cgemv_threads(N, K), j = i*nth + t and the 16-byte part
+    p in 0..2, CTA c's bytes are ordered [i][p][t][16] (a lossless permutation of the chunks).
+    Table row c: entry 0 is (count, 0); entries 1..count are ((row_local << 16) | k, original
+    bits) sorted by k; pmax is even so each row is a multiple of 16 bytes.
     """
     n, k = w.shape
     if w.dtype != torch.bfloat16 or n % 2 or k % 16:
@@ -1227,7 +1228,9 @@ def pack_cgemv(w):
     lo = (bits & 0xFF).view(half, 2, chunks, 16).transpose(1, 2).reshape(half, chunks, 32)
     code = code.view(half, 2, chunks, 2, 8)
     codes = (code[..., 0, :] | (code[..., 1, :] << 4)).transpose(1, 2).reshape(half, chunks, 16)
-    stream = torch.cat([lo, codes], -1).to(torch.uint8).contiguous()
+    nth = cgemv_threads(n, k)
+    stream = torch.cat([lo, codes], -1).to(torch.uint8).view(half, chunks // nth, nth, 3, 16)
+    stream = stream.transpose(2, 3).reshape(half, chunks, 48).contiguous()
 
     c_i, r_i, k_i = escaped.view(half, 2, k).nonzero().unbind(1)
     order = torch.argsort(c_i * (2 * k) + k_i * 2 + r_i)
@@ -1328,29 +1331,34 @@ __device__ __forceinline__ void chunk_fma(uint4 l, unsigned c0, unsigned c1, uin
 }
 
 // CTA c computes out[2c] and out[2c+1]. Compute thread t owns chunks t + i*NTH; the extra warp
-// applies the escape table. Every partial sum is combined in a fixed order, so the result is
-// deterministic. The escape terms use separately rounded multiply and add so a CPU emulation
-// in float32 reproduces them bit for bit (the main FMAs are exact products, so they need no such
-// care).
-// The block count in __launch_bounds__ (here and below) is for ptxas: without it ptxas budgets
-// 32 registers for full occupancy and sinks the later loads below the first FMAs; with it every
-// load is in flight before the first FMA. tools/gemv_compile_check.sh checks that in the SASS.
+// applies the escape table. The stream stores each 48-byte chunk as three 16-byte planes of NTH
+// lanes, so every warp load is 512 contiguous bytes; with one 48-byte chunk per lane each load
+// touched two of every three 32-byte sectors (job c53d2b47c1a24934: qkv 1.1 us faster planar).
+// Every partial sum is combined in a fixed order, so the result is deterministic. The escape
+// terms use separately rounded multiply and add so a CPU emulation in float32 reproduces them
+// bit for bit (the main FMAs are exact products, so they need no such care).
+// Registers set the occupancy here, not loads in flight: a warp takes its registers in units of
+// 256 from one SM sub-partition's 16384 (cuda_occupancy.h), so at 33-40 registers a
+// sub-partition holds 12 warps and at 32 it holds 16. That is 2 against 3 CTAs per SM for the
+// 17-warp pooler CTA and 3 (at the 59 registers __launch_bounds__(NTH + 32, 2) gave) against 7
+// for the 9-warp qkv CTA. The cap leaves the second chunk's loads behind the first chunk's FMAs
+// at CPT = 2, as in the public kernel.
 template <int NTH, int CPT>
-__global__ void __launch_bounds__(NTH + 32, 2)
+__global__ void __maxnreg__(32)
 cgemv_kernel(const uint4* __restrict__ stream, const int2* __restrict__ table, int pmax,
              unsigned base4, const __nv_bfloat16* __restrict__ x, __nv_bfloat16* __restrict__ out) {
     constexpr int NW = NTH / 32, CHUNKS = NTH * CPT;
     __shared__ float red[2][NW + 1];
     const int c = blockIdx.x, t = threadIdx.x, lane = t & 31, warp = t >> 5;
     if (warp < NW) {
-        const uint4* wp = stream + ((size_t)c * CHUNKS + t) * 3;
+        const uint4* wp = stream + (size_t)c * CHUNKS * 3 + t;
         const uint4* xp = reinterpret_cast<const uint4*>(x) + 2 * t;
         uint4 wa[CPT], wb[CPT], wc[CPT], xa[CPT], xb[CPT];
 #pragma unroll
         for (int i = 0; i < CPT; ++i) {
-            wa[i] = ld_stream(wp + i * NTH * 3);
-            wb[i] = ld_stream(wp + i * NTH * 3 + 1);
-            wc[i] = ld_stream(wp + i * NTH * 3 + 2);
+            wa[i] = ld_stream(wp + (3 * i) * NTH);
+            wb[i] = ld_stream(wp + (3 * i + 1) * NTH);
+            wc[i] = ld_stream(wp + (3 * i + 2) * NTH);
         }
 #pragma unroll
         for (int i = 0; i < CPT; ++i) {
@@ -1415,7 +1423,9 @@ void cgemv_launch(const uint4* stream, const int2* table, int pmax, unsigned bas
 }
 
 // FP32 router row per CTA: thread t reads float4 i*256+t, so each warp's load is 512 contiguous
-// bytes, and all 16 loads are in flight before the first FMA.
+// bytes, and all 16 loads are in flight before the first FMA. The block count in
+// __launch_bounds__ (here and in sgemv) keeps ptxas from budgeting 32 registers, which sinks the
+// later loads below the first FMAs; tools/gemv_compile_check.sh checks the SASS.
 __global__ void __launch_bounds__(256, 2)
 rgemv_kernel(const float4* __restrict__ w, const uint2* __restrict__ x, float* __restrict__ out) {
     __shared__ float red[8];

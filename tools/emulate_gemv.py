@@ -1,7 +1,7 @@
 """CPU check of the m = 1 compressed GEMV in muse_bf16_proj/submission.py.
 
 Packs each layer's weights with pack_cgemv, decodes the stream in numpy the way cgemv_kernel
-does (48-byte chunks, the two high-byte formulas on uint32 words, byte_perm with the kernel's
+does (48-byte chunks read as three 16-byte planes per CTA, the two high-byte formulas on uint32 words, byte_perm with the kernel's
 selectors, shift and mask to fp32, the escape table's corrections) and requires every weight
 back exactly. Then it runs the kernel's summation order in float32 (per-thread chunk sums,
 warp butterflies, warp order, the escape warp's terms, one bf16 rounding) for a Gaussian x, an
@@ -45,10 +45,13 @@ def byte_perm(a, b, sel):
     return out
 
 
-def decode_stream(stream, base4, n, k):
+def decode_stream(stream, base4, n, k, nth):
     """The kernel's decode of every weight, before corrections: float32 [n, k]."""
     half, chunks = n // 2, k // 16
-    words = np.ascontiguousarray(stream).reshape(half * chunks, 48).view(np.uint32)
+    cpt = chunks // nth
+    # Thread t's part p of chunk i sits at uint4 (3i + p) * nth + t of its CTA's stream.
+    words = np.ascontiguousarray(stream).reshape(half, cpt, 3, nth, 16).transpose(0, 1, 3, 2, 4)
+    words = np.ascontiguousarray(words).reshape(half * chunks, 48).view(np.uint32)
     words = words.reshape(half, chunks, 12)
     b4 = np.uint32(base4)
 
@@ -186,7 +189,7 @@ def check(mod, name, w, gen):
     stream, table, pmax = packed["stream"].numpy(), packed["table"].numpy(), packed["pmax"]
     ok &= stream.shape == (n // 2, k // 16, 48) and stream.dtype == np.uint8
     ok &= table.shape == (n // 2, pmax, 2) and table.dtype == np.int32
-    dec = decode_stream(stream, packed["base4"], n, k)
+    dec = decode_stream(stream, packed["base4"], n, k, mod.cgemv_threads(n, k))
     ents = table_entries(table, base, escapes)
     cs, es, rows, kks, delta = ents
     rec = dec.copy()

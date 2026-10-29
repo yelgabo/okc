@@ -388,3 +388,122 @@ remains the T = 128 port, with the unpooler on torchT (`torch.mm(x, W.t().contig
 lossless repack made once in prepare) as a second, about 1 us. The remaining dense lever at T = 128 / 256 is a hypothesis: concat as
 one wd launch (64 pooler row blocks at BF16 plus 4 router hi/lo row blocks at FP32, K split 2,
 136 CTAs).
+
+## m = 1 GEMV against the public cgemv, 2026-10-29 (branch worktree-agent-a1c11338ebdf59102)
+
+Gap map 2026-10-30 experiment 3. At decode 1 the layer's in-layer qkv / o / unpooler-slice rows
+were 11.1 / 6.0 / 4.5 us against the public's 9.2 / 5.2 / 3.5. `tools/proj_make_bench_gemv.py`
+appends a kernel-level bench to submission.py: every self-tested candidate of our modules (from
+`state["cands"]`, which the generator makes prepare() keep), the public's tuned pick and its
+cgemv, and SGLang, as cold-L2 graph replays (256 MB read before each, 200 rotating rounds, two
+passes with different x), plus paired per-round differences (median, 25th and 75th
+percentiles). Weights come from the reference formula (seed 5151); the public file (vjeux v141)
+is loaded from the session scratchpad and not committed. Every arm passed ABCHECK against FP64.
+
+Bench b135dd8ee10f4b24, cold medians in us including about 3.9 us of replay overhead, pass 0 /
+pass 1. "ours" is the final file (planar stream, 32-register cap); lb2 is the planar stream with
+the old `__launch_bounds__(NTH + 32, 2)`; nomin is the planar stream with
+`__launch_bounds__(NTH + 32)`; base is c7311d7 (HEAD before this work). Columns without a
+suffix are each module's tuned pick.
+
+| shape | m | SGLang | ours | base | public | ours cgemv | lb2 cgemv | nomin cgemv | base cgemv | public cgemv |
+|---|---|---|---|---|---|---|---|---|---|---|
+| qkv_gate | 1 | 18.30 / 18.27 | 13.23 / 13.31 | 14.24 / 14.11 | 12.96 / 12.90 | 13.25 / 13.12 | 13.60 / 13.47 | 13.17 / 13.09 | 14.59 / 14.40 | 12.78 / 12.70 |
+| o | 1 | 10.75 / 10.85 | 9.22 / 9.18 | 9.47 / 9.47 | 8.96 / 9.12 | 9.22 / 9.25 | 9.31 / 9.34 | 9.10 / 9.18 | 9.44 / 9.47 | 8.90 / 8.99 |
+| pooler | 1 | 25.70 / 25.62 | 18.69 / 18.59 | 18.66 / 18.66 | 17.63 / 17.66 | 18.72 / 18.85 | 20.74 / 20.86 | 20.54 / 20.64 | 22.08 / 22.27 | 17.50 / 17.60 |
+| unpooler slice | 1 | 11.26 / 11.04 | 7.65 / 7.58 (sgemv) | 7.65 / 7.65 | 7.49 / 7.46 | 7.84 / 7.84 | 7.68 / 7.62 | 7.94 / 7.97 | 7.87 / 7.87 | 7.26 / 7.41 |
+| router | 1 | 15.23 / 14.93 | 7.62 / 7.57 | 7.68 / 7.62 | 7.58 / 7.68 | | | | | |
+| qkv_gate | 8 | 18.69 / 18.62 | 14.62 / 14.53 | 14.66 / 14.56 | 13.79 / 13.82 (sk2) | | | | | |
+| o | 8 | 10.91 / 10.98 | 10.05 / 10.13 | 10.18 / 10.14 | 9.95 / 9.79 (sk2) | | | | | |
+| pooler | 8 | 25.94 / 25.86 | 18.83 / 18.80 | 18.83 / 18.91 | 18.56 / 18.66 (sk2) | | | | | |
+| unpooler slice | 8 | 11.52 / 11.65 | 8.77 / 8.90 | 8.80 / 8.93 | 8.61 / 8.61 (sk2) | | | | | |
+| router | 8 | 30.99 / 30.82 | 9.50 / 9.47 | 9.47 / 9.57 | 9.22 / 9.31 (sk2) | | | | | |
+
+Paired differences (us, pass 0 / pass 1). Base cgemv minus public cgemv: qkv_gate +1.79 / +1.63
+(above the stop rule's 1 us), o +0.58 / +0.45, pooler +4.54 / +4.64, slice +0.58 / +0.45. Ours
+minus base cgemv: qkv_gate -1.31 / -1.25, o -0.16 / -0.16, pooler -3.41 / -3.36, slice -0.03 /
++0.00. Ours cgemv minus public cgemv: qkv_gate +0.48 / +0.35, o +0.30 / +0.18, pooler +1.17 /
++1.26, slice +0.54 / +0.45. At m = 8 the public sk2 leads our pick by +0.80 / +0.67 (qkv_gate),
++0.10 / +0.32 (o), +0.27 / +0.13 (pooler), +0.16 / +0.29 (slice) and +0.26 / +0.13 (router);
+this work leaves m = 8 alone (ours minus base -0.10 to +0.02).
+
+The public mechanism. Its cgemv has our geometry: 2 rows per CTA, the whole K per CTA split
+across NTH threads (256 qkv_gate, 64 o, 512 pooler, 128 slice) plus one escape warp, N/2 CTAs,
+no split-K across CTAs, a fixed-order shared-memory reduction, the same 12-bit code (low-byte
+plane plus 4-bit sign and exponent codes, escapes corrected from a per-CTA table, never raw
+BF16), and plain `__ldg` with no L2 policy. Two differences matter:
+
+1. Layout. The public keeps a row-major low-byte plane [N][K] and a code plane [N][K/2], so a
+   warp's load is 512 (or 256) contiguous bytes. Ours stored one 48-byte chunk per lane (two
+   rows' low bytes, then their codes), so each of a lane's three 16-byte loads touched two of
+   every three 32-byte sectors, and with L1 bypassed every sector was fetched twice.
+2. Registers. The public uses 40 / 32 / 32 / 40 (qkv_gate / o / pooler / slice, no min-blocks);
+   ours used 59 / 39 / 39 / 59 under `__launch_bounds__(NTH + 32, 2)`. Registers are allocated
+   per warp in 256-register units from one SM sub-partition's 16384
+   (`cudaOccMaxBlocksPerSMRegsLimit` in cuda_occupancy.h), so at 33-40 registers a sub-partition
+   holds 12 warps and at 32 it holds 16. CTAs per SM: public 5 / 21 / 3 / 9, ours 3 / 16 / 2 / 6.
+
+The change (f321d44). `pack_cgemv` orders each CTA's chunks as [chunk i][16-byte part p][lane
+t], a lossless permutation that keeps the tensor shape and the table; the kernel reads part p of
+chunk i at `stream + c*CHUNKS*3 + (3i + p)*NTH + t`; and `cgemv_kernel` takes `__maxnreg__(32)`
+in place of the launch bounds (32 registers and no spills in nvcc 12.8; at CPT = 2 the second
+chunk's loads now follow the first chunk's FMAs, as in the public SASS). CTAs per SM become 7 /
+21 / 3 / 12. The factor split in one process: the layout alone (lb2 minus base) moves qkv_gate
+-0.99 / -0.93 and the pooler -1.34 / -1.41; the cap on top (lb2 minus ours, paired) is worth
++0.35 / +0.32 on qkv_gate and +1.98 / +1.95 on the pooler. nomin (35 registers, still 12 warps
+per sub-partition) ties ours on qkv_gate (-0.05 / +0.00; 5 CTAs against 7) and loses the pooler
+by 1.86 / 1.78 (2 CTAs against 3), which is the sub-partition rule at work. The L1 hint is not a
+factor: `ld.global.nc` without `L1::no_allocate` against ours is +0.00 / +0.13 on qkv_gate
+(c53d2b47c1a24934).
+
+| date | job | kind | commit | change | score (95% CI) | notes |
+|---|---|---|---|---|---|---|
+| 10-29 | c53d2b47c1a24934 | check (bench) | f321d44 without the register cap (+ bench) | GEMV bench: planar vs base vs planar without the L1 hint vs public | 1.436x (1.415-1.458) | qkv_gate cgemv -1.12 / -1.12 us vs base and +0.62 / +0.61 vs the public; L1 hint +0.00 / +0.13 |
+| 10-29 | b135dd8ee10f4b24 | check (bench) | f321d44 (+ bench) | GEMV bench: final vs lb2 vs nomin vs base vs public | 1.419x (1.398-1.440) | table above |
+| 10-29 | 0b539e62f7b34b34 | check | f321d44 | planar cgemv stream, 32-register cap | 1.413x (1.392-1.435) | judged qkv_gate m=1 9.31 us (1.541x) against 10.19 / 9.89 / 10.18 in 76051953a96a4168, 0135dd541fa94f8e, 39d6bfa9834f4a96; tune qkv_gate m=1 cgemv 13.4 vs qkv8 14.3, picked (the old file picked qkv8). Unpooler m=1 picked cgemv on a tie (8.0 vs sgemv 8.1) and judged 4.16 us, against 3.12-3.73 with sgemv |
+| 10-29 | cc7930ee5a634731 | check | f321d44 | repeat | - | deduplicated by the judge (same bytes as 0b539e62f7b34b34): not run, not counted |
+| 10-29 | a86f1a2f900847d5 | check | f321d44 plus a trailing comment | repeat | 1.440x (1.419-1.462) | qkv_gate m=1 9.40 us (1.522x); unpooler m=1 picked sgemv, 3.38 us; o m=1 5.24 us (cgemv; 5.19-5.39 before) |
+
+Judged delta at qkv_gate m=1: 9.31 and 9.40 us against a mean of 10.09 over the three previous
+runs of the old file, about -0.7 us, and a shape ratio of 1.52-1.54x against 1.37-1.39x. The
+whole-file scores (1.413x, 1.440x) overlap the old file's (1.408-1.427x); m = 1 qkv_gate is one
+shape of thirty.
+
+Still open, measured in one process: the public cgemv leads ours by 0.2-0.5 us on qkv_gate, o
+and the slice, and by 1.2 us on the pooler, where our pick stays pool8, 1.0 us behind the
+public. With layout and occupancy matched, the remaining differences are the public's two
+separate planes (a 16-byte low-byte load and an 8-byte code load per row) and its escape warp,
+which reads entry 0 and the first entries in one load; neither is measured. At m = 8 the public
+sk2 qkv8t has our qkv8 geometry (24 rows, NT 3, WSK 4, UPW 2, 5 stages) plus NACC 2 and a
+suspend-hint wait for the consumers; its 0.7-0.8 us lead is not attributed. On the slice the
+32-register cgemv is 0.2-0.3 us behind sgemv and ties it in the tuner, so the pick can flip
+between runs (0b539e62f7b34b34 against a86f1a2f900847d5).
+
+Port to the layer. `tools/dl_proj_inline.py` copies `GEMV_CUDA_SRC` and `pack_cgemv` verbatim,
+and the layer calls `cgemv_fwd(..., nth)` with `nth = cgemv_threads(*w1.shape)`, the function
+`pack_cgemv` now uses for the layout, so the host code needs no change:
+
+1. From a checkout whose muse_bf16_proj/submission.py contains f321d44, run
+   `python3 tools/dl_proj_inline.py`. Expected output: `inlined 1555 device lines, 27 sk configs
+   (3 fused), wide configs ['b1n128c2s8h', 'b1n128c3s8h'] and 19 functions from
+   .../muse_bf16_proj/submission.py`.
+2. Against the layer at af4736b the diff is 44 lines and touches only `_SKP_GEMV_SRC` (the cgemv
+   comment, `__maxnreg__(32)` in place of `__launch_bounds__(NTH + 32, 2)`, the three `ld_stream`
+   addresses, the rgemv comment) and `pack_cgemv` between the `@SKP_PY` markers (the docstring,
+   and `nth = cgemv_threads(n, k)` with the planar transpose). `bucket_of` stays the layer's,
+   since the tool pins it. Any other line in the diff comes from another pending inline.
+   Verified on a copy: the regenerated `_SKP_SRC + _SKP_GEMV_SRC + _SKP_WD_SRC` compiles with
+   torch's headers and flags (tools/dl_compile_check.sh with a cuda_sources hook, nvcc 12.8),
+   with cgemv at 32 registers and no spills on the four instances the layer runs (256x2, 64x1,
+   512x1, 128x2).
+3. Before the layer check, run `uv run --with torch --with numpy python tools/emulate_gemv.py`
+   (ALL CHECKS PASSED means a bit-exact decode through the planar addressing on all four shapes)
+   and `sh tools/gemv_compile_check.sh` (cgemv 32 registers, 0 spills).
+4. In the layer log, look for `SKP selftest <layer> cgemv: ok` on all four layers (probe rows
+   bitwise), then `SKP tune qkv_gate m=1`, where cgemv was 14.9 in e87fcb1ed5c64a62 and should
+   drop by about 1 us; `SKP tune pooler m=1` (cgemv 22.6 against pool8 22.3 there; the
+   standalone cgemv is now 3.4 us faster, so the tuner may move the T = 1 pooler to cgemv); and
+   `SKP tune unpooler m=1` (cgemv 8.5 against sgemv 8.8 there; expect a near tie). The
+   prediction for decode 1 is a hypothesis: the in-layer qkv row falls from 11.1 to about
+   10.1-10.4 us on both shapes and o moves by less than 0.2, which is about +0.15% to +0.2% of
+   layer score at 0.199% per us (gap map 2026-10-30, section 0).
