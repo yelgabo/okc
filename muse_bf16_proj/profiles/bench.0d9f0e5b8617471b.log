@@ -1,0 +1,281 @@
+e-03
+ABPICK qkv_gate m=256 pub=None
+ABCOLD qkv_gate m=256 sgl=23.78 ours=23.71 pub=23.71
+ABRATIO qkv_gate m=256 ours=1.005 pub=1.002
+ABCHECK ok o m=256 sgl=1.7e-03 ours=1.7e-03 pub=1.7e-03
+ABPICK o m=256 pub=torchT
+ABCOLD o m=256 sgl=13.22 ours=13.07 pub=13.34
+ABRATIO o m=256 ours=1.011 pub=0.987
+ABCHECK ok pooler m=256 sgl=1.7e-03 ours=1.7e-03 pub=1.7e-03
+ABPICK pooler m=256 pub=cutlass
+ABCOLD pooler m=256 sgl=34.99 ours=35.23 pub=32.34
+ABRATIO pooler m=256 ours=0.998 pub=1.092
+ABCHECK ok unpooler m=256 sgl=1.7e-03 ours=1.7e-03 pub=1.7e-03
+ABPICK unpooler m=256 pub=torchT
+ABCOLD unpooler m=256 sgl=28.67 ours=28.58 pub=28.51
+ABRATIO unpooler m=256 ours=1.006 pub=1.004
+ABCHECK ok router m=256 sgl=3.2e-06 ours=3.3e-06 pub=3.3e-06
+ABPICK router m=256 pub=rk
+ABCOLD router m=256 sgl=23.23 ours=14.78 pub=11.38
+ABRATIO router m=256 ours=1.798 pub=2.665
+ABLOAD ours score=1.4159 decode 1=1.608 decode 16=1.533 decode 32=1.408 verify 1=1.891 verify 16=1.124 verify 32=1.093
+ABLOAD pub score=1.5156 decode 1=1.743 decode 16=1.594 decode 32=1.498 verify 1=1.968 verify 16=1.271 verify 32=1.164
+ABSWAP qkv_gate m=1 ours->pub +0.0058
+ABSWAP o m=1 ours->pub +0.0013
+ABSWAP pooler m=1 ours->pub +0.0048
+ABSWAP unpooler m=1 ours->pub +0.0012
+ABSWAP router m=1 ours->pub -0.0000
+ABSWAP qkv_gate m=16 ours->pub +0.0022
+ABSWAP o m=16 ours->pub +0.0014
+ABSWAP pooler m=16 ours->pub +0.0012
+ABSWAP unpooler m=16 ours->pub +0.0014
+ABSWAP router m=16 ours->pub +0.0002
+ABSWAP qkv_gate m=32 ours->pub +0.0024
+ABSWAP o m=32 ours->pub +0.0011
+ABSWAP pooler m=32 ours->pub +0.0019
+ABSWAP unpooler m=32 ours->pub +0.0045
+ABSWAP router m=32 ours->pub +0.0002
+ABSWAP qkv_gate m=8 ours->pub +0.0025
+ABSWAP o m=8 ours->pub +0.0007
+ABSWAP pooler m=8 ours->pub +0.0009
+ABSWAP unpooler m=8 ours->pub +0.0012
+ABSWAP router m=8 ours->pub +0.0014
+ABSWAP qkv_gate m=128 ours->pub +0.0044
+ABSWAP o m=128 ours->pub +0.0000
+ABSWAP pooler m=128 ours->pub +0.0079
+ABSWAP unpooler m=128 ours->pub +0.0017
+ABSWAP router m=128 ours->pub +0.0058
+ABSWAP qkv_gate m=256 ours->pub -0.0001
+ABSWAP o m=256 ours->pub -0.0004
+ABSWAP pooler m=256 ours->pub +0.0048
+ABSWAP unpooler m=256 ours->pub -0.0001
+ABSWAP router m=256 ours->pub +0.0062
+sk build 0.0 s
+pack qkv_gate: base 54, 2572 escapes, 0 inexact deltas, 0.0 s
+pack o: base 54, 916 escapes, 0 inexact deltas, 0.0 s
+pack pooler: base 54, 4590 escapes, 0 inexact deltas, 0.0 s
+pack unpooler: base 54, 3357 escapes, 0 inexact deltas, 0.1 s
+fused pooler+router pool8f: ok
+fused pooler+router pool16f: ok
+selftests done 0.3 s
+tune o         m= 1: o8 10.1, o8raw 10.5, cgemv 9.6, cublas 10.8 -> cgemv
+tune o         m= 8: o8 9.9, o8raw 10.6, cublas 10.6 -> o8
+tune o         m=16: o16 9.9, o16raw 10.5, cublas 10.6 -> o16
+tune o         m=32: o32 10.3, o32raw 11.0, cublas 10.8 -> o32
+tune o         m=64: cublas 11.2, b1n64c2 12.7, m64k2r4 17.8, m64k1r8 13.7 -> cublas
+tune o         m=128: cublas 11.5, b1n64c2 19.0, b1n128c2 14.0, m64k2r4 23.3, m64k1r8 21.2, m128k2r4 19.9, m128k1r4 15.4, m128k1r8 15.8, m128k2r8 19.9, m128k4r2 22.9 -> cublas
+tune o         m=256: cublas 13.3, b1n128c2 21.5, b2n256c2 17.5, m128k2r4 26.8, m128k1r4 22.0, m128k1r8 24.5, m128k2r8 27.8, m128k4r2 35.3, m256k2r4 29.0, m256k1r4 25.3, m256k1r8 25.6, m256k2r8 30.0, m256k2r2 28.9 -> cublas
+tune pooler    m= 1: pool8 18.4, pool8raw 21.9, cgemv 22.4, cublas 24.6 -> pool8
+tune pooler    m= 8: pool8 18.2, pool8raw 21.9, cublas 24.5 -> pool8
+tune pooler    m=16: pool16 18.6, pool16raw 21.8, cublas 24.6 -> pool16
+tune pooler    m=32: pool32 19.6, pool32raw 22.4, cublas 25.1 -> pool32
+tune pooler    m=64: cublas 26.2, b1n64c2 25.8, m64k2r4 29.1, m64k1r8 38.9 -> cublas
+tune pooler    m=128: cublas 30.6, b1n64c2 31.7, b1n128c2 30.7, m64k2r4 47.6, m64k1r8 50.6, m128k2r4 34.7, m128k1r4 48.3, m128k1r8 51.1, m128k2r8 36.4, m128k4r2 37.3 -> cublas
+tune pooler    m=256: cublas 35.6, b1n128c2 39.5, b2n256c2 49.5, m128k2r4 57.1, m128k1r4 52.3, m128k1r8 54.2, m128k2r8 61.5, m128k4r2 61.6, m256k2r4 60.9, m256k1r4 54.6, m256k1r8 55.2, m256k2r8 63.2, m256k2r2 61.0 -> cublas
+tune qkv_gate  m= 1: qkv8 14.3, qkv8raw 15.6, cgemv 14.8, cublas 18.4 -> qkv8
+tune qkv_gate  m= 8: qkv8 14.2, qkv8raw 15.8, cublas 18.4 -> qkv8
+tune qkv_gate  m=16: qkv16 14.1, qkv16raw 16.5, cublas 18.4 -> qkv16
+tune qkv_gate  m=32: qkv32 15.7, qkv32raw 16.8, cublas 18.8 -> qkv32
+tune qkv_gate  m=64: cublas 19.3, b1n64c2 23.7, m64k2r4 23.2 -> cublas
+tune qkv_gate  m=128: cublas 21.7, b1n64c2 28.1, b1n128c2 28.6, m64k2r4 28.8, m128k2r4 29.2, m128k1r4 46.9, m128k4r2 22.8 -> cublas
+tune qkv_gate  m=256: cublas 23.4, b1n128c2 30.9, b2n256c2 48.9, m128k2r4 32.8, m128k1r4 46.7, m128k4r2 38.8, m256k2r4 33.3, m256k1r4 53.8, m256k2r2 32.8 -> cublas
+tune router    m= 1: rgemv 7.7, router8 9.2, baseline 14.9 -> rgemv
+tune router    m= 8: router8 9.3, baseline 30.8 -> router8
+tune router    m=16: router16 9.3, baseline 20.6 -> router16
+tune router    m=32: router32 9.8, baseline 21.0 -> router32
+tune router    m=64: baseline 21.3, r64c8 13.1, r64c16 11.3, rm64k4r4 18.2 -> r64c16
+tune router    m=128: baseline 22.1, r64c8 13.2, r64c16 14.0, r128c8 14.3, r128c16 12.8, rm64k4r4 18.3, rm128k4r4 21.2 -> r128c16
+tune router    m=256: baseline 22.6, r128c8 14.7, r128c16 20.6, rm128k4r4 21.5 -> r128c8
+tune unpooler  m= 1: slice8 8.8, slice8raw 9.0, cgemv 8.1, sgemv 8.0, cublas 11.5 -> sgemv
+tune unpooler  m= 8: slice8 8.8, slice8raw 8.8, cublas 11.5 -> slice8
+tune unpooler  m=16: unp16 18.2, unp16raw 21.8, cublas 22.4 -> unp16
+tune unpooler  m=32: unp32 19.3, unp32raw 22.0, cublas 22.4 -> unp32
+tune unpooler  m=64: cublas 23.6, b1n64c2 24.4, m64k2r4 35.0, m64k1r8 29.9 -> cublas
+tune unpooler  m=128: cublas 24.0, b1n64c2 43.1, b1n128c2 25.9, m64k2r4 53.0, m64k1r8 48.2, m128k2r4 40.2, m128k1r4 34.4, m128k1r8 35.7, m128k2r8 40.3, m128k4r2 39.1 -> cublas
+tune unpooler  m=256: cublas 28.6, b1n128c2 46.8, b2n256c2 32.8, m128k2r4 60.5, m128k1r4 56.3, m128k1r8 60.9, m128k2r8 62.6, m128k4r2 65.6, m256k2r4 54.8, m256k1r4 59.8, m256k1r8 60.2, m256k2r8 57.4, m256k2r2 54.4 -> cublas
+ablate pooler m=128: m128k2r4 34.8, m128k2r4_a1 30.6, m128k2r4_a3 28.5
+ablate o m=256: m256k1r4 25.3, m256k1r4_a1 23.3, m256k1r4_a3 18.5
+prepare done 0.9 s
+ABOVH one 5.62 two 7.01 overhead 4.22 us
+ABPICK qkv_gate m=1 pub=cgemv
+ABCOLD qkv_gate m=1 sgl=18.69 ours=14.43 pub=13.12
+ABRATIO qkv_gate m=1 ours=1.419 pub=1.623
+ABPICK o m=1 pub=cgemv
+ABCOLD o m=1 sgl=10.75 ours=9.60 pub=9.28
+ABRATIO o m=1 ours=1.225 pub=1.294
+ABPICK pooler m=1 pub=cgemv
+ABCOLD pooler m=1 sgl=25.57 ours=18.83 pub=17.74
+ABRATIO pooler m=1 ours=1.460 pub=1.573
+ABPICK unpooler m=1 pub=cgemv
+ABCOLD unpooler m=1 sgl=11.26 ours=7.87 pub=7.58
+ABRATIO unpooler m=1 ours=1.909 pub=2.065
+ABPICK router m=1 pub=rgemv
+ABCOLD router m=1 sgl=15.01 ours=7.81 pub=7.79
+ABRATIO router m=1 ours=3.018 pub=3.013
+ABPICK qkv_gate m=16 pub=sk2
+ABCOLD qkv_gate m=16 sgl=18.46 ours=14.40 pub=13.73
+ABRATIO qkv_gate m=16 ours=1.408 pub=1.508
+ABPICK o m=16 pub=sk2
+ABCOLD o m=16 sgl=10.98 ours=10.30 pub=9.82
+ABRATIO o m=16 ours=1.120 pub=1.207
+ABPICK pooler m=16 pub=sk2
+ABCOLD pooler m=16 sgl=25.66 ours=19.17 pub=18.82
+ABRATIO pooler m=16 ours=1.437 pub=1.473
+ABPICK unpooler m=16 pub=sk2
+ABCOLD unpooler m=16 sgl=23.07 ours=18.59 pub=18.14
+ABRATIO unpooler m=16 ours=1.315 pub=1.355
+ABPICK router m=16 pub=sk2
+ABCOLD router m=16 sgl=20.35 ours=9.34 pub=9.33
+ABRATIO router m=16 ours=3.154 pub=3.187
+ABPICK qkv_gate m=32 pub=sk2
+ABCOLD qkv_gate m=32 sgl=18.98 ours=15.90 pub=15.14
+ABRATIO qkv_gate m=32 ours=1.265 pub=1.356
+ABPICK o m=32 pub=sk2
+ABCOLD o m=32 sgl=11.14 ours=10.48 pub=10.11
+ABRATIO o m=32 ours=1.104 pub=1.175
+ABPICK pooler m=32 pub=sk2
+ABCOLD pooler m=32 sgl=25.89 ours=20.10 pub=19.49
+ABRATIO pooler m=32 ours=1.366 pub=1.423
+ABPICK unpooler m=32 pub=sk2
+ABCOLD unpooler m=32 sgl=23.14 ours=20.75 pub=19.34
+ABRATIO unpooler m=32 ours=1.142 pub=1.254
+ABPICK router m=32 pub=sk2
+ABCOLD router m=32 sgl=20.61 ours=9.74 pub=9.66
+ABRATIO router m=32 ours=2.980 pub=3.015
+ABPICK qkv_gate m=8 pub=sk2
+ABCOLD qkv_gate m=8 sgl=18.56 ours=14.37 pub=13.76
+ABRATIO qkv_gate m=8 ours=1.420 pub=1.510
+ABPICK o m=8 pub=sk2
+ABCOLD o m=8 sgl=10.82 ours=9.95 pub=9.81
+ABRATIO o m=8 ours=1.153 pub=1.186
+ABPICK pooler m=8 pub=sk2
+ABCOLD pooler m=8 sgl=25.60 ours=18.99 pub=18.78
+ABRATIO pooler m=8 ours=1.451 pub=1.472
+ABPICK unpooler m=8 pub=sk2
+ABCOLD unpooler m=8 sgl=11.52 ours=8.80 pub=8.54
+ABRATIO unpooler m=8 ours=1.601 pub=1.705
+ABPICK router m=8 pub=sk2
+ABCOLD router m=8 sgl=31.17 ours=9.63 pub=9.28
+ABRATIO router m=8 ours=5.003 pub=5.335
+ABPICK qkv_gate m=128 pub=gqx
+ABCOLD qkv_gate m=128 sgl=21.34 ours=21.02 pub=19.07
+ABRATIO qkv_gate m=128 ours=1.015 pub=1.155
+ABPICK o m=128 pub=torch
+ABCOLD o m=128 sgl=11.26 ours=11.17 pub=11.15
+ABRATIO o m=128 ours=1.019 pub=1.019
+ABPICK pooler m=128 pub=gq
+ABCOLD pooler m=128 sgl=30.21 ours=30.21 pub=26.50
+ABRATIO pooler m=128 ours=1.004 pub=1.167
+ABPICK unpooler m=128 pub=torchT
+ABCOLD unpooler m=128 sgl=24.51 ours=24.45 pub=23.68
+ABRATIO unpooler m=128 ours=1.000 pub=1.041
+ABPICK router m=128 pub=rk
+ABCOLD router m=128 sgl=22.02 ours=12.83 pub=10.14
+ABRATIO router m=128 ours=2.075 pub=3.011
+ABPICK qkv_gate m=256 pub=None
+ABCOLD qkv_gate m=256 sgl=23.78 ours=23.71 pub=23.71
+ABRATIO qkv_gate m=256 ours=1.005 pub=1.002
+ABPICK o m=256 pub=torchT
+ABCOLD o m=256 sgl=13.22 ours=13.07 pub=13.34
+ABRATIO o m=256 ours=1.011 pub=0.987
+ABPICK pooler m=256 pub=cutlass
+ABCOLD pooler m=256 sgl=34.99 ours=35.23 pub=32.34
+ABRATIO pooler m=256 ours=0.998 pub=1.092
+ABPICK unpooler m=256 pub=torchT
+ABCOLD unpooler m=256 sgl=28.67 ours=28.58 pub=28.51
+ABRATIO unpooler m=256 ours=1.006 pub=1.004
+ABPICK router m=256 pub=rk
+ABCOLD router m=256 sgl=23.23 ours=14.78 pub=11.38
+ABRATIO router m=256 ours=1.798 pub=2.665
+ABLOAD ours score=1.4159 decode 1=1.608 decode 16=1.533 decode 32=1.408 verify 1=1.891 verify 16=1.124 verify 32=1.093
+ABLOAD pub score=1.5156 decode 1=1.743 decode 16=1.594 decode 32=1.498 verify 1=1.968 verify 16=1.271 verify 32=1.164
+ABSWAP qkv_gate m=1 ours->pub +0.0058
+ABSWAP o m=1 ours->pub +0.0013
+ABSWAP pooler m=1 ours->pub +0.0048
+ABSWAP unpooler m=1 ours->pub +0.0012
+ABSWAP router m=1 ours->pub -0.0000
+ABSWAP qkv_gate m=16 ours->pub +0.0022
+ABSWAP o m=16 ours->pub +0.0014
+ABSWAP pooler m=16 ours->pub +0.0012
+ABSWAP unpooler m=16 ours->pub +0.0014
+ABSWAP router m=16 ours->pub +0.0002
+ABSWAP qkv_gate m=32 ours->pub +0.0024
+ABSWAP o m=32 ours->pub +0.0011
+ABSWAP pooler m=32 ours->pub +0.0019
+ABSWAP unpooler m=32 ours->pub +0.0045
+ABSWAP router m=32 ours->pub +0.0002
+ABSWAP qkv_gate m=8 ours->pub +0.0025
+ABSWAP o m=8 ours->pub +0.0007
+ABSWAP pooler m=8 ours->pub +0.0009
+ABSWAP unpooler m=8 ours->pub +0.0012
+ABSWAP router m=8 ours->pub +0.0014
+ABSWAP qkv_gate m=128 ours->pub +0.0044
+ABSWAP o m=128 ours->pub +0.0000
+ABSWAP pooler m=128 ours->pub +0.0079
+ABSWAP unpooler m=128 ours->pub +0.0017
+ABSWAP router m=128 ours->pub +0.0058
+ABSWAP qkv_gate m=256 ours->pub -0.0001
+ABSWAP o m=256 ours->pub -0.0004
+ABSWAP pooler m=256 ours->pub +0.0048
+ABSWAP unpooler m=256 ours->pub -0.0001
+ABSWAP router m=256 ours->pub +0.0062
+USDT:2026-10-29 10:28:00 76:76 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-10-29 10:28:00 76:76 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-10-29 10:28:00 76:76 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-10-29 10:28:00 76:76 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-10-29 10:28:00 76:76 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-10-29 10:28:00 76:76 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-10-29 10:28:00 76:76 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-10-29 10:28:00 76:76 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-10-29 10:28:00 76:76 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-10-29 10:28:00 76:76 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-10-29 10:28:00 76:76 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-10-29 10:28:00 76:76 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-10-29 10:28:00 76:76 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-10-29 10:28:00 76:76 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-10-29 10:28:00 76:76 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-10-29 10:28:00 76:76 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-10-29 10:28:00 76:76 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-10-29 10:28:00 76:76 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-10-29 10:28:00 76:76 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-10-29 10:28:00 76:76 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-10-29 10:28:00 76:76 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-10-29 10:28:00 76:76 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-10-29 10:28:00 76:76 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-10-29 10:28:00 76:76 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-10-29 10:28:00 76:76 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-10-29 10:28:00 76:76 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-10-29 10:28:00 76:76 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-10-29 10:28:00 76:76 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-10-29 10:28:00 76:76 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-10-29 10:28:00 76:76 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-10-29 10:28:00 76:76 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-10-29 10:28:00 76:76 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-10-29 10:28:00 76:76 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-10-29 10:28:00 76:76 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-10-29 10:28:00 76:76 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-10-29 10:28:00 76:76 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-10-29 10:28:00 76:76 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-10-29 10:28:00 76:76 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-10-29 10:28:00 76:76 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-10-29 10:28:00 76:76 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-10-29 10:28:00 76:76 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-10-29 10:28:00 76:76 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-10-29 10:28:00 76:76 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-10-29 10:28:00 76:76 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-10-29 10:28:00 76:76 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-10-29 10:28:00 76:76 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-10-29 10:28:00 76:76 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-10-29 10:28:00 76:76 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-10-29 10:28:00 76:76 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-10-29 10:28:00 76:76 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-10-29 10:28:00 76:76 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-10-29 10:28:00 76:76 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-10-29 10:28:00 76:76 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-10-29 10:28:00 76:76 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-10-29 10:28:00 76:76 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-10-29 10:28:00 76:76 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-10-29 10:28:00 76:76 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-10-29 10:28:00 76:76 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-10-29 10:28:00 76:76 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-10-29 10:28:00 76:76 SyncActivityProfilerHandler.cpp:46] profiler_stop
