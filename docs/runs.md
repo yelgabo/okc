@@ -710,3 +710,52 @@ needs no change.
    the in-layer pooler row (cgemv<512,1>, 14.6 / 14.9 us in 9b921febc7ad4140) falls by 0.3-1.0
    us and the qkv row (10.1 / 9.5) by 0.3-0.5; the slice row moves to cgemv at sgemv's time or
    0.1-0.3 below. That is about +0.1% to +0.3% of layer score at 0.199% per us.
+
+## 16 / 32-token skinny projections, 2026-10-29 (branch worktree-agent-aa1e7ced542e0303e)
+
+Hotspot pick: `tools/dl_hotspots.py` on the layer incumbent 9b921febc7ad4140 (1.964x) puts dense
+projections at 30.9% of score-weighted time. With the m = 1 cgemv (a35709c) and qkv8 (fee7249)
+already done but not yet in that profile, the next projection rows are the 16 / 32-token sk
+kernels: pooler 19.2 / 19.9 us (with the fused router), unpooler 14.9 / 17.5, qkv 10.4 / 12.0,
+o 6.5 / 6.6 at decode 16 / 32. Judged standalone (01703396ea1a409e) the worst ratios against
+SGLang at these sizes are o (1.12x / 1.10x) and qkv_gate at 32 tokens (1.21x).
+
+`tools/proj_make_bench_m16.py` appends a bench like the m = 8 one (random arm order, cold L2,
+200 rounds, two passes with different x, paired medians with quartiles) at m = 16 and 32 over
+the four BF16 layers: the control's kernel_fn twice, its pick called directly, a copy with
+extra SK_GEOM geometries as SK_EXTRA candidates (each extra also called directly), and
+optionally the public kernel_fn (`--pub`, scratchpad copy, never committed). The two rounds
+below ran without `--pub`, so the coordinator could spend expiring scored runs on them; their
+judged path is the unchanged board file. All arms passed ABCHECK. The new instantiations
+compile with nvcc 12.8 sm_90a with no spills and no new warnings, and the CPU dry run passes.
+
+Hypotheses tested (us, arm minus ours, pass 0 / pass 1):
+
+| shape | mechanism | arms | result |
+|---|---|---|---|
+| qkv_gate 16 | 8 stages instead of 16 (the qkv8 lever) | qkv16u4 (ring 3) | +0.22 / +0.24 |
+| qkv_gate 16 / 32 | more consumer warps per sub-partition | w8, w8u1, r3 (8-12 warps) | +0.75 to +2.91 |
+| qkv_gate 16 / 32 | 96 CTAs on 132 SMs: 16 rows per CTA at 2 CTAs per SM | n2, n2b | +1.34 to +5.22 |
+| pooler 16 / 32 | consumer warps, 16 rows per CTA | w8, n1, n1b | +0.00 to +4.32 |
+| o 16 | 4 consumer warps instead of 2 (K split 2 ways, 2 units each) | o16w2 | **-0.22 / -0.43, repeat -0.38 / -0.35** |
+| o 16 / 32 | 8 or 16 consumer warps; 8 stages | o16w4, o16r4, o16r4w4, o32w4, o32r4, o16u2 | -0.06 to +0.93 |
+| unpooler 32 | 32 rows per CTA, 256 CTAs at 2 per SM (98 KB) | unp32n2 | **-0.54 / -0.16, repeat -0.32 / -0.27** |
+| unpooler 16 / 32 | 64 rows, 8 warps | unp16n4, unp16n4u4, unp16w4, unp32w8, unp32n2w4 | -0.06 to +0.86 |
+
+Nulls (ours2 - ours) were inside +-0.10 everywhere. Measured: none of stage count, consumer-warp
+count or CTA count moves qkv_gate or the pooler at 16 / 32 tokens. Hypothesis, not tested: a
+qkv_gate K split that fills all 132 SMs needs clustered escape warps (the kernel forbids
+COMP with CL > 1). The o projection has only K = 1024 (four stages), so two consumer warps
+leave the CTA's short pipeline under-used; four warps fix that and eight do not add more.
+
+The change (4d53658): `SK_GEOM["o16"]` (1, 16, 2, 2, 1, 4, 3) -> (1, 16, 2, 2, 2, 2, 3) and
+`SK_GEOM["unp32"]` (2, 32, 4, 2, 2, 2, 3) -> (2, 32, 2, 2, 2, 2, 3). Both new geometries were
+already compiled kernels (unp16's and o32's templates), so there is no new instantiation; same
+fences and barriers. `tools/emulate_proj.py` passes every per-config check, including o16 and
+unp32 (71 ok); its balanced qkv group (qkv8 + qkv16 + qkv32) fails an assert on main f61d8d9 as
+well, since qkv8 went to 8 stages (fee7249), so that failure predates this change.
+
+| date | job | kind | commit | change | score (95% CI) | notes |
+|---|---|---|---|---|---|---|
+| 10-29 | 01703396ea1a409e | submit (bench, by the coordinator) | dd67954 bench on f61d8d9 | m = 16 / 32 bench, 21 extra geometries, no public arm | 1.430x (1.409-1.452) | table above; judged path is the board file |
+| 10-29 | 3678bfd3ef1c4ce6 | submit (bench, by the coordinator) | 977afb3 bench on f61d8d9 | round 2: o warps, unp32n2 repeat, no public arm | 1.435x (1.414-1.457) | table above; tuner picked o16w2 (9.7 vs o16 10.0) |
