@@ -69,3 +69,11 @@ State the bottleneck, the mechanism that changes, why prior negative evidence do
 reject it (cite the ruled-out row), which scored loads benefit, which correctness obligations
 change (writers, publication, observation, async copy, completion, use, reuse), and the
 measurement that stops it. Decide on same-process, same-input A/B runs; confirm on the layer.
+
+## Architecture-family diagrams and evaluation
+
+See [Architecture families, 2026-10-29](architecture-families-2026-10-29.md) for the five
+Mermaid visualizations, trade-offs, tested versus speculative status, combinations and the
+128/256-token A-versus-B evaluation. It includes later staged-pair, ownership and attention
+results at `aab7d75`, plus the whole-pipeline qualification to step 5's GEMM1-only gate.
+The original plan above is preserved.
