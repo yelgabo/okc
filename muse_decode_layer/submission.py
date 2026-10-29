@@ -3539,9 +3539,19 @@ constexpr int COOP_POLL_LIMIT = 1 << 24;
 #define ONE_DIET 1
 #endif
 // ONE_FIN8: the finalize issues all eight workspace copies' loads (nc = 8, batch-1 full
-// context) before zeroing any, as one L2 round trip instead of eight dependent ones.
+// context) before zeroing any, as one L2 round trip instead of eight dependent ones. Each thread
+// still loads an address before it zeroes it and no other thread touches that address after the
+// cooperative barrier, so moving the other copies' loads ahead of the stores needs no fence
+// (PTX memory model, docs/runs-attention.md, 10-29).
 #ifndef ONE_FIN8
-#define ONE_FIN8 0
+#define ONE_FIN8 1
+#endif
+// ONE_KVFAST: the in-loop copy of a tile whose rows are all cached (every tile but the one that
+// reaches the block's own positions) runs without the per-row three-way branch. Off: bench
+// 82e52f7b23ec49da had it 0.04-0.36 us ahead on sliding, but judged check 422f81a11f384deb
+// scored below the ONE_FIN8 pair (docs/ruled-out.md).
+#ifndef ONE_KVFAST
+#define ONE_KVFAST 0
 #endif
 
 // MODE bits: 1 = last-CTA finalize, 3 = cooperative finalize (every CTA a slice of rows),
@@ -4473,6 +4483,18 @@ attn_one_kernel(const Params p) {
                                   doit);
                     cp_async16_if(vdst + r * ROWB + v_swz<L>(ch, r) * 16, p.v_cache + off, bytes,
                                   doit);
+                }
+                return;
+            }
+            if (ONE_KVFAST && pos0 + BN <= seq) {
+#pragma unroll
+                for (int i = 0; i < BN / RSTEP; ++i) {
+                    const int r = r0 + i * RSTEP;
+                    const int64_t row = (static_cast<int64_t>(idx[r]) << p.lp)
+                                        + ((pos0 + r) & (psize - 1));
+                    const int64_t off = row * ROWB + ch * 16;
+                    cp_async16(kdst + r * ROWB + k_swz<L>(ch, r) * 16, p.k_cache + off, 16);
+                    cp_async16(vdst + r * ROWB + v_swz<L>(ch, r) * 16, p.v_cache + off, 16);
                 }
                 return;
             }
@@ -12330,8 +12352,10 @@ def _attn_one_self_test(state):
     """The one-launch kernel on the shared attention cases against SGLang's path (the shared
     bounds) with the workspace invariant after every case, then the replay stress on decode 1
     sliding (the speculated one-tile launch), decode 16 full (flat tickets), their verify
-    counterparts (cooperative counters) and verify 32 full (the producer build 51 at the
-    scored batch). Prints each step's time; raises on any failure."""
+    counterparts (cooperative counters), verify 32 full (the producer build 51 at the
+    scored batch) and decode / verify 1 full (mode 11 with eight copies, whose finalize loads
+    every copy before zeroing any under ONE_FIN8). Prints each step's time; raises on any
+    failure."""
     t0 = time.time()
     st = _one_setup(state)
     lim = st["limits"]
@@ -12357,7 +12381,8 @@ def _attn_one_self_test(state):
     print(f"attn one: cases {time.time() - t1:.1f} s")
     for i, (batch, length, layer) in enumerate(((1, 1, "sliding"), (16, 1, "full"),
                                                 (1, 8, "sliding"), (16, 8, "full"),
-                                                (32, 8, "full"))):
+                                                (32, 8, "full"), (1, 1, "full"),
+                                                (1, 8, "full"))):
         t2 = time.time()
         msg = _one_stress(state, batch, length, layer, 2000, 8000 + i)
         print(f"attn one: stress {batch}x{length} {layer} {msg} ({time.time() - t2:.1f} s)")
