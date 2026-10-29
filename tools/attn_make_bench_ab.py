@@ -21,6 +21,12 @@ At import the bench prints, before the judge's own tests and timing:
   ABWARM    per scored shape: a graph of 16 back-to-back calls, median over 25 replays,
             divided by 16 (L2 warm, launch gaps of a captured graph).
 
+Arms whose name ends in `_probe` are timing probes with wrong or unguaranteed output: ABCHECK
+prints PROBE for them and does not count them as failures. An arm named `stamp` (built with
+-DONE_STAMP=1) also gets STAMP lines: per-CTA records of five cold calls per full-context
+q_len 8 shape (attn_one.cu, ONE_STAMP). `--nocoop` adds the arm `nocoop`: the control's module
+launched without cudaLaunchAttributeCooperative, same grid.
+
 --pub may repeat; each public file is an arm (default name `pub`; its names must start with
 `pub`, and a second file needs its own load_inline name). --shapes full keeps the full-context
 shapes with batch > 1 (modes 49 and 51). The public files are read at generation time and embedded as a string; the output belongs in the
@@ -40,6 +46,7 @@ AB = r'''
 _AB_FLAGS = {flags!r}
 _AB_PUB_SRCS = {pub_srcs!r}
 _AB_SHAPES = {shapes!r}
+_AB_NOCOOP = {nocoop!r}
 _AB_MODS = {{}}
 for _name, _fl in _AB_FLAGS.items():
     try:
@@ -78,8 +85,20 @@ def _ab_via(mod):
     return call
 
 
+def _ab_nocoop(data):
+    st = _one_state(data["qkv"].device)
+    saved = st["coop_launch"]
+    st["coop_launch"] = False
+    try:
+        return _one(data)
+    finally:
+        st["coop_launch"] = saved
+
+
 def _ab_fns():
     fns = {{"ctrl": _one}}
+    if _AB_NOCOOP:
+        fns["nocoop"] = _ab_nocoop
     for name, mod in _AB_MODS.items():
         fns[name] = _ab_via(mod)
     for name, mod in _AB_PUBS.items():
@@ -129,6 +148,8 @@ def _ab_check():
                     ok, msg = rel < 2e-2, ""
                     vs = f"vs_ctrl={{rel:.1e}} {{_ob_diffstat(out, ref)}}"
                 status = "PASS" if ok and wok else "FAIL"
+                if vname.endswith("_probe"):
+                    status = "PROBE"
                 fails += status == "FAIL"
                 print(f"ABCHECK {{status}} {{vname}} {{name}} [{{plan}}] {{msg}}{{vs}} {{wmsg}}",
                       flush=True)
@@ -212,6 +233,68 @@ def _ab_bench(rounds=120, warm_calls=16, warm_reps=25):
         torch.cuda.empty_cache()
 
 
+_ST_BASE, _ST_W = 1024, 16
+
+
+def _ab_stamps(reps=5):
+    """Per-CTA records of the ONE_STAMP build on the full-context q_len 8 shapes, cold calls.
+    Fields: 0 start, 1 partition done, 2 first tile ready, 3 tile loops done, 4 grid barrier
+    passed, 5 finalize done (globaltimer ns, low 32 bits); 6 tiles, 7 segments, 8 consumer
+    full-barrier wait, 9 segment prologues, 10 tile loops, 11 producer empty-barrier wait,
+    12 producer lifetime, 13 / 14 consumer cycles to loop end / to kernel end; 15 SM id."""
+    global _ONE
+    mod = _AB_MODS.get("stamp")
+    if mod is None:
+        return
+    flush = torch.empty(256 << 20, dtype=torch.uint8, device="cuda")
+    for batch, layer, q_len in _ab_scored():
+        if layer == "sliding" or q_len != 8:
+            continue
+        data = _ob_inputs(batch, 80000, "tp8", layer, q_len, "agentic", "coherent", 1, 1.0)
+        tag = f"b={{batch:2d}} {{layer:7s}} L={{q_len}}"
+        for r in range(reps):
+            buf = torch.zeros(_ST_BASE + 512 * _ST_W, dtype=torch.int32, device="cuda")
+            flush.zero_()
+            saved = _ONE
+            _ONE = mod
+            try:
+                _one(data, dbg=buf)
+                n = _one_plan(data["config"], data["page_table"].shape[1],
+                              _one_state(data["qkv"].device)["resident"])[0]
+            finally:
+                _ONE = saved
+            torch.cuda.synchronize()
+            rec = buf[_ST_BASE:_ST_BASE + n * _ST_W].view(n, _ST_W).cpu().long()
+            ref = int(rec[:, 0].min())
+            ns = ((rec[:, :6] - ref + (1 << 31)) % (1 << 32)) - (1 << 31)
+            ns = ns.double() / 1000.0
+            cyc = rec[:, 8:15].double()
+            ghz = float((cyc[:, 5] / (ns[:, 3] - ns[:, 0]).clamp(min=1e-3) / 1000.0).median())
+            us = cyc / (ghz * 1000.0)
+
+            def q(x):
+                xs = sorted(float(v) for v in x)
+                return "{{:.1f}}/{{:.1f}}/{{:.1f}}".format(xs[0], xs[len(xs) // 2], xs[-1])
+            print(f"STAMP {{tag}} rep={{r}} ctas={{n}} ghz={{ghz:.3f}} "
+                  f"span={{float(ns[:, 5].max()):.1f}} start={{q(ns[:, 0])}} "
+                  f"part={{q(ns[:, 1] - ns[:, 0])}} first_tile={{q(ns[:, 2] - ns[:, 0])}} "
+                  f"loop_end={{q(ns[:, 3])}} barrier_wait={{q(ns[:, 4] - ns[:, 3])}} "
+                  f"fin={{q(ns[:, 5] - ns[:, 4])}} tiles={{q(rec[:, 6])}} segs={{q(rec[:, 7])}} "
+                  f"fullwait_us={{q(us[:, 0])}} prologue_us={{q(us[:, 1])}} "
+                  f"loop_us={{q(us[:, 2])}} prod_emptywait_us={{q(us[:, 3])}} "
+                  f"prod_life_us={{q(us[:, 4])}} {{_ob_elapsed()}}", flush=True)
+            if r == 0:
+                # Loop-end time next to tiles, so imbalance can be told from per-tile speed.
+                order = sorted(range(n), key=lambda i: float(ns[i, 3]))
+                pick = order[:4] + order[n // 2 - 2:n // 2 + 2] + order[-4:]
+                print(f"STAMPCTA {{tag}} " + " ".join(
+                    "c{{}}:sm{{}}:t{{}}:s{{}}:end{{:.1f}}:pro{{:.1f}}:fw{{:.1f}}".format(
+                        i, int(rec[i, 15]), int(rec[i, 6]), int(rec[i, 7]), float(ns[i, 3]),
+                        float(us[i, 1]), float(us[i, 0])) for i in pick), flush=True)
+        data = None
+        torch.cuda.empty_cache()
+
+
 if not _os.environ.get("ATTN_AB_DONE"):
     _os.environ["ATTN_AB_DONE"] = "1"
     global_ok = _ONE is not None
@@ -221,6 +304,10 @@ if not _os.environ.get("ATTN_AB_DONE"):
             _ab_check()
         except Exception as _exc:
             print(f"ABCHECK failed: {{type(_exc).__name__}}: {{_exc}}", flush=True)
+        try:
+            _ab_stamps()
+        except Exception as _exc:
+            print(f"STAMP failed: {{type(_exc).__name__}}: {{_exc}}", flush=True)
         try:
             _ab_bench()
         except Exception as _exc:
@@ -235,6 +322,7 @@ def main():
     out = Path(args.pop(0))
     pub_srcs = {}
     shapes = "all"
+    nocoop = False
     flags = {}
     while args:
         a = args.pop(0)
@@ -246,6 +334,8 @@ def main():
             pub_srcs[name] = Path(path).read_text()
         elif a == "--shapes":
             shapes = args.pop(0)
+        elif a == "--nocoop":
+            nocoop = True
         else:
             name, _, fl = a.partition("=")
             flags[name] = [f for f in fl.split(",") if f]
@@ -256,7 +346,7 @@ def main():
     head, sep, _ = runner.rpartition("\nimport os as _os\n")
     if not sep:
         raise SystemExit("runner layout changed: no 'import os as _os' block")
-    src += head + sep + AB.format(flags=flags, pub_srcs=pub_srcs, shapes=shapes)
+    src += head + sep + AB.format(flags=flags, pub_srcs=pub_srcs, shapes=shapes, nocoop=nocoop)
     out.write_text(src)
     print(f"wrote {out} with variants {list(flags)}{' + ' + str(list(pub_srcs)) if pub_srcs else ''}, shapes {shapes}")
 

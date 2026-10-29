@@ -3,6 +3,7 @@
 #include <cuda_bf16.h>
 #include <cuda_fp16.h>
 #include <cuda_fp8.h>
+#include <algorithm>
 #include <cstdint>
 #include <vector>
 
@@ -83,6 +84,29 @@ constexpr int COOP_POLL_LIMIT = 1 << 24;
 #ifndef ONE_UNR2
 #define ONE_UNR2 1
 #endif
+// ONE_PFAST (producer builds 49, 51, 115): a tile whose rows are all cached is gathered without
+// the per-row branches, with 32-bit cache offsets (the host passes off32 only when both caches
+// are below 4 GB) and the page index by shift; its page entries are refilled the same way. The
+// public flat producer has this fast path (about 115 SASS instructions per tile per thread on
+// its common path against about 230 without it), and the producer warps issue on the consumers'
+// SMSPs. Bench 1e6626a427454f9a, cold / warm: verify 32 full -11.5 / -16.1 us, verify 16 full
+// -5.6 / -8.2, decode 16 / 32 full -0.6 / -1.8 cold; output bit-identical to the slow path.
+#ifndef ONE_PFAST
+#define ONE_PFAST 1
+#endif
+// Bench-only attribution builds (docs/runs-attention.md, 10-29), never judged:
+// ONE_STAMP=1 records per-CTA times and wait cycles into dbg[STAMP_BASE ..] (flat producer
+// builds); ONE_PROBE=1 makes the producer's cached-row copies zero-fill without reading the cache
+// (consumer-bound time, wrong output); ONE_PROBE=2 drops the consumers' per-tile
+// fence.proxy.async after the full barrier (its cost, ordering not guaranteed).
+#ifndef ONE_STAMP
+#define ONE_STAMP 0
+#endif
+#ifndef ONE_PROBE
+#define ONE_PROBE 0
+#endif
+constexpr int STAMP_BASE = 1024;
+constexpr int STAMP_W = 16;
 
 // MODE bits: 1 = last-CTA finalize, 3 = cooperative finalize (every CTA a slice of rows),
 // |4 = at most one tile per CTA (straight-line prologue), |8 = the sequence length is taken
@@ -163,6 +187,8 @@ struct Params {
     int phase_limit;
     // log2 of page_size (a power of two; the host checks).
     int lp;
+    // Both caches below 4 GB: byte offsets fit 32 bits (ONE_PFAST).
+    int off32;
 };
 
 template <int L, int NS>
@@ -730,6 +756,35 @@ attn_one_kernel(const Params p) {
             }
         }
     };
+    // ONE_STAMP: record k of this CTA's row (thread 0 of the consumers, or of the producers for
+    // their fields). Times are %globaltimer ns (low 32 bits, comparable across SMs); the *_cyc
+    // sums are clock64 cycles of one thread.
+    constexpr bool STAMPS = ONE_STAMP && PROD;
+    int* const srow = STAMPS && p.dbg != nullptr ? p.dbg + STAMP_BASE + split * STAMP_W : nullptr;
+    auto srec = [&](int k, long long v) {
+        if constexpr (STAMPS) {
+            if (srow != nullptr) {
+                srow[k] = static_cast<int>(v);
+            }
+        }
+    };
+    auto snow = [&]() -> long long {
+        if constexpr (STAMPS) {
+            return static_cast<long long>(globaltimer_ns() & 0xffffffffull);
+        }
+        return 0;
+    };
+    long long s_fullw = 0, s_pro = 0, s_loop = 0, s_seg0 = 0, s_l0 = 0;
+    const long long s_k0 = STAMPS ? clock64() : 0;
+    int s_tiles = 0, s_nseg = 0;
+    if constexpr (STAMPS) {
+        if (tid == 0) {
+            srec(0, snow());
+            uint32_t smid;
+            asm volatile("mov.u32 %0, %%smid;\n" : "=r"(smid));
+            srec(15, smid);
+        }
+    }
     // Consumer-wide barrier: the whole CTA unless the producer warpgroup has split off.
     auto csync = [&]() {
         if constexpr (PROD) {
@@ -855,6 +910,11 @@ attn_one_kernel(const Params p) {
         __syncthreads();
         b_first = flag[1];
         b_last = flag[2];
+        if constexpr (STAMPS) {
+            if (tid == 0) {
+                srec(1, snow());
+            }
+        }
     }
 
     // ------------------------------------------------------------------ producer warpgroup
@@ -882,6 +942,10 @@ attn_one_kernel(const Params p) {
                 }
                 return __ldg(pt + (psize == 1 ? pos : pos / psize));
             };
+            constexpr uint32_t CPB = ONE_PROBE == 1 ? 0u : 16u;
+            const bool fast32 = ONE_PFAST && p.off32 != 0;
+            long long s_emw = 0;
+            const long long s_p0 = STAMPS ? clock64() : 0;
             for (int bb = b_first; bb <= b_last; ++bb) {
                 if (!seg_bounds(bb)) {
                     continue;
@@ -901,35 +965,62 @@ attn_one_kernel(const Params p) {
                         if (t >= ntiles) {
                             break;
                         }
+                        const long long s_w0 = STAMPS ? clock64() : 0;
                         mbar_wait(empty0 + 8 * pst, pph ^ 1u);
+                        if constexpr (STAMPS) {
+                            s_emw += clock64() - s_w0;
+                        }
                         const int pos0 = lo + t * BN;
                         const uint32_t kdst = smem_base + S::KV + pst * 2 * TILE_BYTES;
                         const uint32_t vdst = kdst + TILE_BYTES;
+                        if (fast32 && pos0 + BN <= seq) {
+                            // Every row is cached (pos0 + BN <= seq < hi).
 #pragma unroll
-                        for (int i = 0; i < 4; ++i) {
-                            const int r = r0 + 16 * i;
-                            const int pos = pos0 + r;
-                            const uint32_t kd = kdst + r * ROWB + k_swz<L>(ch, r) * 16;
-                            const uint32_t vd = vdst + r * ROWB + v_swz<L>(ch, r) * 16;
-                            if (pos < seq) {
-                                int64_t row = pe[u][i];
-                                if constexpr (DIET) {
-                                    row = (row << p.lp) + (pos & (psize - 1));
-                                } else if (psize != 1) {
-                                    row = row * psize + pos % psize;
+                            for (int i = 0; i < 4; ++i) {
+                                const int r = r0 + 16 * i;
+                                const uint32_t row = (static_cast<uint32_t>(pe[u][i]) << p.lp)
+                                                     + (static_cast<uint32_t>(pos0 + r) & (psize - 1));
+                                const uint32_t off = (row << 7) + ch * 16;
+                                cp_async16(kdst + r * ROWB + k_swz<L>(ch, r) * 16, p.k_cache + off,
+                                           CPB);
+                                cp_async16(vdst + r * ROWB + v_swz<L>(ch, r) * 16, p.v_cache + off,
+                                           CPB);
+                            }
+                        } else {
+#pragma unroll
+                            for (int i = 0; i < 4; ++i) {
+                                const int r = r0 + 16 * i;
+                                const int pos = pos0 + r;
+                                const uint32_t kd = kdst + r * ROWB + k_swz<L>(ch, r) * 16;
+                                const uint32_t vd = vdst + r * ROWB + v_swz<L>(ch, r) * 16;
+                                if (pos < seq) {
+                                    int64_t row = pe[u][i];
+                                    if constexpr (DIET) {
+                                        row = (row << p.lp) + (pos & (psize - 1));
+                                    } else if (psize != 1) {
+                                        row = row * psize + pos % psize;
+                                    }
+                                    const int64_t off = row * ROWB + ch * 16;
+                                    cp_async16(kd, p.k_cache + off, CPB);
+                                    cp_async16(vd, p.v_cache + off, CPB);
+                                } else if (pos >= hi) {
+                                    cp_async16(kd, p.k_cache, 0);
+                                    cp_async16(vd, p.v_cache, 0);
                                 }
-                                const int64_t off = row * ROWB + ch * 16;
-                                cp_async16(kd, p.k_cache + off, 16);
-                                cp_async16(vd, p.v_cache + off, 16);
-                            } else if (pos >= hi) {
-                                cp_async16(kd, p.k_cache, 0);
-                                cp_async16(vd, p.v_cache, 0);
                             }
                         }
                         cp_async_mbar_arrive_noinc(full0 + 8 * pst);
+                        const int tn = t + PF;
+                        if (fast32 && tn < ntiles && lo + tn * BN + BN <= seq) {
 #pragma unroll
-                        for (int i = 0; i < 4; ++i) {
-                            pe[u][i] = entry(t + PF, r0 + 16 * i);
+                            for (int i = 0; i < 4; ++i) {
+                                pe[u][i] = __ldg(pt + ((lo + tn * BN + r0 + 16 * i) >> p.lp));
+                            }
+                        } else {
+#pragma unroll
+                            for (int i = 0; i < 4; ++i) {
+                                pe[u][i] = entry(tn, r0 + 16 * i);
+                            }
                         }
                         if (++pst == NS) {
                             pst = 0;
@@ -946,6 +1037,12 @@ attn_one_kernel(const Params p) {
                 if (++pst == NS) {
                     pst = 0;
                     pph ^= 1u;
+                }
+            }
+            if constexpr (STAMPS) {
+                if (ptid == 0) {
+                    srec(11, s_emw);
+                    srec(12, clock64() - s_p0);
                 }
             }
             // PTX exit, not return: a return branches to the kernel's one ret block, which the
@@ -1115,6 +1212,9 @@ attn_one_kernel(const Params p) {
     // One (request, range) segment: loads, query and new-token preparation, the tile loop
     // and the reds into the workspace. Returns false when SPEC found the segment empty.
     auto run_segment = [&]() -> bool {
+        if constexpr (STAMPS) {
+            s_seg0 = clock64();
+        }
         if constexpr (FLAT) {
             // The previous segment's tiles, Q staging and V^T buffers are all consumed.
             cp_wait<0>();
@@ -1371,8 +1471,20 @@ attn_one_kernel(const Params p) {
         // reads at q_len 8).
         auto acquire = [&](int it, int st) {
             if constexpr (PROD) {
+                const long long s_w0 = STAMPS ? clock64() : 0;
                 mbar_wait(full0 + 8 * st, cph);
-                if constexpr (L == 8) {
+                if constexpr (STAMPS) {
+                    const long long now = clock64();
+                    s_fullw += now - s_w0;
+                    if (it == 0) {
+                        s_pro += now - s_seg0;
+                        s_l0 = now;
+                        if (s_nseg == 0 && tid == 0) {
+                            srec(2, snow());
+                        }
+                    }
+                }
+                if constexpr (L == 8 && ONE_PROBE != 2) {
                     fence_proxy_async();
                 }
                 const int pos0 = lo + it * BN;
@@ -1888,6 +2000,11 @@ attn_one_kernel(const Params p) {
                     st = PROD ? cst : (st == STAGES - 1 ? 0 : st + 1);
                 }
             }
+            if constexpr (STAMPS) {
+                s_loop += clock64() - s_l0;
+                s_tiles += ntiles;
+                ++s_nseg;
+            }
             stamp(16);
             PHASE_EXIT(10)
             // Fixed-frame merge. o[4i + 2hh + e] is column 8i + 2c + e of row (token
@@ -1981,15 +2098,37 @@ attn_one_kernel(const Params p) {
             }
         }
         if constexpr (COOP) {
+            if constexpr (STAMPS) {
+                if (tid == 0) {
+                    srec(3, snow());
+                    srec(6, s_tiles);
+                    srec(7, s_nseg);
+                    srec(8, s_fullw);
+                    srec(9, s_pro);
+                    srec(10, s_loop);
+                    srec(13, clock64() - s_k0);
+                }
+            }
             csync();
             coop_barrier<NC>(p.ws_cnt + CNT_FLAT, p.ws_cnt + CNT_FLAT + 2, ep, mine_total,
                              keys_all, tid, p.dbg);
+            if constexpr (STAMPS) {
+                if (tid == 0) {
+                    srec(4, snow());
+                }
+            }
             const int rows_all = B * ROWS;
             const int rows_per = (rows_all + G - 1) / G;
             const int r_lo = split * rows_per;
             const int r_hi = min(rows_all, r_lo + rows_per);
             if (r_lo < r_hi) {
                 finalize_rows<L, NC>(p, r_lo, r_hi, v_scale_g, tid);
+            }
+            if constexpr (STAMPS) {
+                if (tid == 0) {
+                    srec(5, snow());
+                    srec(14, clock64() - s_k0);
+                }
             }
         }
     }
@@ -2181,6 +2320,9 @@ torch::Tensor attn_one(torch::Tensor qkv, torch::Tensor page_table, torch::Tenso
     }
     TORCH_CHECK(!ONE_DIET || (1 << p.lp) == page_size, "attn_one: page size ", page_size,
                 " is not a power of two");
+    // One byte per cache element (e4m3).
+    const int64_t cache_bytes = std::max<int64_t>(k_cache.numel(), v_cache.numel());
+    p.off32 = (1 << p.lp) == page_size && cache_bytes <= (int64_t{1} << 32) ? 1 : 0;
     // Per-request modes launch (n_splits, batch) CTAs; flat modes launch n_splits CTAs that
     // share the batch's keys, with the batch size carried in Params::n_splits.
     int gx = static_cast<int>(n_splits);

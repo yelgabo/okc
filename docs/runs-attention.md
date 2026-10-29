@@ -1366,3 +1366,128 @@ EREL release placed after the transpose without QKOV (QKOV alone was slower here
 ### Scored: df988353208245f7 2.354x (2026-10-29)
 
 Submit of submission.py at bc59f08 (public tile order in mode 51, as checked in 6f75235c0d364a7a), under the standing replace-when-demonstrably-better authorization. Passed. Board entry before: 9104344cb757454e (2.334x).
+## Attributing the flat q_len 8 gap, and the producer fast path (ONE_PFAST) (10-29)
+
+Question: where do the remaining verify 16 / 32 full microseconds between mode 51 and the public
+flat kernel go, now that both run the same tile order?
+
+### Which bench number predicts the judge
+
+The judge flushes L2 before every timed replay (TASK.md, "How a run is timed"), so the bench's
+ABCOLD row is the judged quantity and ABWARM is not. The board build measured 222.24 / 217.86 us
+cold at verify 32 full in e1d8a55eaa2f455c / 1e6626a427454f9a but 241.54 / 213.27 warm: the warm
+row moved 28 us between two processes, the cold row 4.4. The "46 us" gap of the previous entry was
+a warm figure. Cold, in the same process (1e6626a427454f9a), mode 51 trails the public kernel by
+31.5 us at verify 32 full and 16.5 at verify 16 full, close to the judged gap (218-220 vs 186,
+120 vs 105).
+
+### Static comparison (SASS, CUDA 12.8.1, `tools/attn_one_sass.sh`, `tools/attn_pub_compile.sh`)
+
+- Producer, per tile per thread on the common path: mode 51 about 230 instructions (per cached
+  row about 28: the page-size branch, BSSY / BSYNC, a 64-bit offset, `LDC` reloads of the cache
+  bases; then about 90 to refill the page entries three tiles ahead, each with its own
+  page-size branch). The public producer about 115 (one predicated page load per row one tile
+  ahead, then a branch-free fast path of 32-bit offsets for tiles whose rows are all cached).
+  With 4 producer warps and 8 consumer warps per CTA, the producer's issue slots come out of
+  the consumers' SMSPs.
+- Consumer, full-barrier wait to the Q.K issue: 94 instructions in mode 51 (the per-tile
+  `fence.proxy.async`, the patch test, the descriptors rebuilt per tile), 37 in the public kernel
+  (no fence on unpatched tiles, descriptors carried in uniform registers). The fence stays
+  (CLAUDE.md); the descriptors are untested.
+
+### Bench 1e6626a427454f9a (check, `tools/attn_make_bench_ab.py --shapes full --nocoop`)
+
+Arms, one process, same inputs: `ctrl` (board build 6f75235c0d364a7a), `nocoop` (same module,
+launched without `cudaLaunchAttributeCooperative`, same 264-CTA grid), `stamp` (`ONE_STAMP=1`:
+per-CTA records, five cold calls per verify full shape; 4 bytes of spill on 51),
+`nocopy_probe` (`ONE_PROBE=1`: the producer's cached-row copies zero-fill, no cache reads),
+`nofence_probe` (`ONE_PROBE=2`: no per-tile consumer `fence.proxy.async`; timing only),
+`pfast` (`ONE_PFAST=1`), `pub`, `pubnc_probe` (the public file with its producer's cached-row
+copies at src-size 0, the same probe). ABCHECK 0 failing (the log keeps its last 16,000
+characters, so only the test-shape rows survive; `pfast` matches `ctrl` with 0 differing
+elements on the three surviving full-context rows (modes 49, 51, 49, page size 64), and differs
+by one element of 1 ulp on a sliding row whose code it does not change, the order of the float
+reds). Profiles: `profiles/bench_attr.1e6626a427454f9a.*`. Microseconds:
+
+| | shape | ctrl | nocoop | stamp | nocopy | nofence | pfast | pub | pubnc |
+|---|---|---|---|---|---|---|---|---|---|
+| cold | decode 16 full | 98.02 | 97.70 | 98.53 | 79.58 | 98.02 | 97.38 | 96.29 | 65.73 |
+| cold | decode 32 full | 175.52 | 175.26 | 176.29 | 148.06 | 175.58 | 173.76 | 172.00 | 121.63 |
+| cold | verify 16 full | 124.38 | 122.59 | 126.46 | 107.68 | 122.56 | 118.82 | 107.87 | 89.28 |
+| cold | verify 32 full | 217.86 | 216.48 | 221.28 | 195.84 | 216.00 | 206.37 | 186.40 | 157.54 |
+| warm | verify 16 full | 114.33 | 114.14 | 116.13 | 101.64 | 113.26 | 106.09 | 93.10 | 83.24 |
+| warm | verify 32 full | 213.27 | 213.06 | 217.03 | 197.11 | 211.06 | 197.21 | 175.35 | 158.99 |
+
+Stamps (`stamp` build, verify 32 full, five cold calls; first / median / last CTA; times from
+the earliest CTA start): first tile ready 4.0-4.1 / 4.9-5.0 / 6.0-6.8 us; tile loops done
+167.5-173.9 / 205.2-205.8 / 215.9-218.8 us; wait at the grid barrier median 27.4-30.0, max
+42.9-52.1 us; finalize after the barrier median 1.1-1.9 us; tiles per CTA 143 / 152 / 153, one or
+two segments. Consumer thread 0 waits on the full barrier 13.6-17.2 us (median) of a 194 us tile
+loop; producer thread 0 waits on the empty barrier 24.1-27.1 us of its 202 us. Verify 16 full:
+loops done 86.5-89.9 / 106.5-108.8 / 116.0-117.8 us, tiles 67 / 76 / 78. The two CTAs of one SM
+finish apart: in the first verify 32 call CTA 22 (SM 62, 153 tiles) finished its loop at 192.1 us
+and CTA 146 (SM 62, 152 tiles) at 218.8.
+
+### Attribution at verify 32 full, cold (gap 31.5 us)
+
+| piece | evidence | size | status |
+|---|---|---|---|
+| Gather rate or memory | without cache reads both kernels keep the gap: 195.84 vs 157.54 (38.3 us) | none of the gap | measured: the gap is in the instruction streams, not in DRAM |
+| Producer instruction issue | `pfast` 206.37 vs 217.86 | 11.5 cold, 16.1 warm | measured, the largest named piece |
+| Consumer per-tile proxy fence | `nofence_probe` 216.00 | 1.9 cold, 2.2 warm | measured; the fence stays |
+| Cooperative launch attribute | `nocoop` 216.48 | 1.4 cold, 0.2 warm | measured, at the noise floor |
+| Prologue to the first tile, finalize | stamps: about 5 us and 1-2 us | under 7 us, and the public kernel runs the same steps | measured for mode 51; the public share not measured |
+| Imbalance between co-resident CTAs | stamps: loops end 167-219 us with equal tiles; same-SM pairs 27 us apart | upper bound about 13 us (last CTA vs median) | inferred; the public kernel's spread not measured |
+| Remaining consumer instruction path | 38.3 us no-copy gap minus the producer's share | the rest | inferred, not split further (descriptors, the pre-Q.K path) |
+
+The verify 16 full gap (16.5 us cold) splits the same way: pfast -5.6 cold, -8.2 warm; no-copy
+gap 18.4 us.
+
+### The change: `ONE_PFAST` (modes 49, 51, 115)
+
+`attn_one.cu`, producer warpgroup: a tile whose rows are all cached (`pos0 + BN <= seq`, which
+also puts every row below `hi`) is gathered without the per-row branches, with the byte offset
+`(((pe << lp) + ((pos0 + r) & (psize - 1))) << 7) + 16 ch` in 32 bits; its page entries three
+tiles ahead are refilled by shift when that tile is also fully cached. Every other tile takes
+the old code. The host sets `Params::off32` only when the page size is a power of two and
+both caches hold at most 2^32 bytes, so the offsets fit. Producer path about 125 instructions
+per tile (from about 230). With the switch on, only 49, 51 and 115 change
+(`tools/attn_one_sass.sh` over all 13 instances, per-function diff); no spills, mode 51's
+consumer region still tops out at R101, its producer at R29. With `ONE_PFAST=0`, `ONE_STAMP=0`,
+`ONE_PROBE=0` all 13 instances are SASS-identical to the board build.
+
+Ordering: the fast path issues the same `cp.async` set into the same stage addresses as the
+slow path would for such a tile (every row cached, no zero-fill, no patch), followed by the same
+`cp.async.mbarrier.arrive.noinc`. No fence, barrier or arrive moves; only address arithmetic
+and branch structure change.
+
+### Judged: check ca0f13d324ef48e8 2.393x (CI 2.357-2.429), repeat 0d05f9b2df1e4834 2.450x (CI 2.413-2.487)
+
+`submission.py` at 70323d2 (`ONE_PFAST=1`); the repeat, 46b1708, adds one comment line. 16/16
+tests in both. Profiles: `profiles/submission.ca0f13d324ef48e8.*`,
+`profiles/submission.0d05f9b2df1e4834.*`. Judge medians (us), against the previous pair
+(cb85d590c301410e / 6f75235c0d364a7a, the same code without the switch):
+
+| shape | cb85d590 | 6f75235c | ca0f13d3 | 0d05f9b2 | change (mean vs mean) |
+|---|---|---|---|---|---|
+| decode 16 full | 88.91 | 89.60 | 88.29 | 85.08 | -2.6 |
+| decode 32 full | 170.68 | 170.52 | 157.49 | 162.84 | -10.4 |
+| verify 16 full | 119.95 | 120.49 | 114.49 | 114.33 | -5.8 (-4.8%) |
+| verify 32 full | 217.72 | 219.50 | 206.86 | 205.69 | -12.3 (-5.6%) |
+
+Verify 16 / 32 full moved by the sizes the bench measured cold (-5.6 / -11.5). Decode 32 full
+dropped by more than the bench predicted (-1.8 cold): five earlier checks of mode 49 sat at
+170.5-171.4, both of these are 7.7-13 us below. That gain is measured twice; why the judge sees
+more of it than the bench is not measured. Scores 2.393x and 2.450x, the highest attention
+checks in this log (previous pair 2.311x / 2.361x). Attention checks used today: 3 of 4
+(1e6626a427454f9a, ca0f13d324ef48e8, 0d05f9b2df1e4834).
+
+Submit candidate: `muse_attention_decode/submission.py` at 46b1708 (judged 0d05f9b2df1e4834;
+70323d2, judged ca0f13d324ef48e8, differs only by the comment line). Not submitted.
+
+What is left at verify 32 full, cold in the bench: 206.4 vs 186.4 (20 us); verify 16 full 118.8
+vs 107.9. Leads in order of the evidence: the consumer path before the Q.K issue (94 vs 37
+instructions; descriptors carried in uniform registers, the patch test by one compare as the
+public `r_lo` / `r_span` does), and the spread between the two CTAs of an SM (stamps above; the
+public q_len 8 flat path cuts equal shares too, `cpart = c`, so whether it shows the same spread
+is not known; a partition weighted per SM slot is untested).
