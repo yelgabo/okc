@@ -1,0 +1,123 @@
+iff 1.44e-02
+attn self-test case 1 3x1 full page 1 _attn_one: output rel diff 1.97e-02
+attn self-test case 2 5x1 sliding page 1 _attn_one: output rel diff 3.62e-02
+attn self-test case 3 2x8 sliding page 1 _attn_one: output rel diff 3.53e-02
+attn self-test case 4 3x8 full page 1 _attn_one: output rel diff 2.68e-02
+attn self-test case 5 4x1 full page 64 _attn_one: output rel diff 2.08e-02
+attn self-test case 6 2x8 sliding page 64 _attn_one: output rel diff 2.81e-02
+attn self-test case 7 33x1 full page 1 _attn_one: output rel diff 1.81e-02
+attn self-test case 8 2x1 full page 1 _attn_one: output rel diff 6.83e-03
+attn self-test case 9 32x1 sliding page 1 _attn_one: output rel diff 2.10e-02
+attn self-test case 10 16x1 full page 1 _attn_one: output rel diff 1.79e-02
+attn self-test case 11 1x8 sliding page 1 _attn_one: output rel diff 2.27e-02
+attn self-test case 12 16x8 full page 1 _attn_one: output rel diff 2.87e-02
+attn self-test case 13 32x8 sliding page 1 _attn_one: output rel diff 2.78e-02
+attn self-test case 14 4x8 sliding page 1 _attn_one: output rel diff 3.62e-02
+attn self-test case 15 3x8 full page 64 _attn_one: output rel diff 2.59e-02
+attn self-test case 16 5x8 full page 1 _attn_one: output rel diff 3.00e-02
+attn self-test case 17 1x1 full page 1 _attn_one: output rel diff 6.16e-03
+attn self-test case 18 1x8 full page 1 _attn_one: output rel diff 4.08e-02
+attn self-test case 19 1x1 full page 64 _attn_one: output rel diff 4.84e-02
+attn self-test case 20 1x8 full page 64 _attn_one: output rel diff 2.44e-02
+attn self-test case 21 1x1 sliding page 64 ctx 10 _attn_one: output rel diff 2.63e-02
+attn self-test: norm-gate alone 0.00e+00
+attn self-test: worst rel diff vs SGLang path: output 4.84e-02, new cache rows 2.76e-02
+attn one: cases 0.0 s
+attn one: stress 1x1 sliding plan=(32, 1, 13): replays=2000 replayed_vs_eager=0.0e+00 vs_sglang=3.44e-03 max_polls=0 ws rows_nonzero=0 l_nonzero=0 tickets_nonzero=0 coop_next_parity_nonzero=0 flat_next_parity_nonzero=0; spec fallback (seq - 64): replays=50 replayed_vs_eager=0.0e+00 vs_sglang=4.67e-03 max_polls=0 ws rows_nonzero=0 l_nonzero=0 tickets_nonzero=0 coop_next_parity_nonzero=0 flat_next_parity_nonzero=0 (0.0 s)
+attn one: stress 16x1 full plan=(264, 1, 49): replays=2000 replayed_vs_eager=0.0e+00 vs_sglang=1.73e-02 max_polls=0 ws rows_nonzero=0 l_nonzero=0 tickets_nonzero=0 coop_next_parity_nonzero=0 flat_next_parity_nonzero=0 (0.0 s)
+attn one: stress 1x8 sliding plan=(33, 1, 15): replays=2000 replayed_vs_eager=0.0e+00 vs_sglang=2.32e-02 max_polls=2 ws rows_nonzero=0 l_nonzero=0 tickets_nonzero=0 coop_next_parity_nonzero=0 flat_next_parity_nonzero=0; spec fallback (seq - 64): replays=50 replayed_vs_eager=0.0e+00 vs_sglang=2.35e-02 max_polls=2 ws rows_nonzero=0 l_nonzero=0 tickets_nonzero=0 coop_next_parity_nonzero=0 flat_next_parity_nonzero=0 (0.0 s)
+attn one: stress 16x8 full plan=(264, 1, 51): replays=2000 replayed_vs_eager=3.8e-05 vs_sglang=2.48e-02 max_polls=28 ws rows_nonzero=0 l_nonzero=0 tickets_nonzero=0 coop_next_parity_nonzero=0 flat_next_parity_nonzero=0 (0.0 s)
+attn one: stress 32x8 full plan=(264, 1, 51): replays=2000 replayed_vs_eager=0.0e+00 vs_sglang=2.98e-02 max_polls=51 ws rows_nonzero=0 l_nonzero=0 tickets_nonzero=0 coop_next_parity_nonzero=0 flat_next_parity_nonzero=0 (0.0 s)
+attn one: stress 1x1 full plan=(44, 8, 11): replays=2000 replayed_vs_eager=0.0e+00 vs_sglang=1.90e-02 max_polls=1 ws rows_nonzero=0 l_nonzero=0 tickets_nonzero=0 coop_next_parity_nonzero=0 flat_next_parity_nonzero=0; spec fallback (seq - 64): replays=50 replayed_vs_eager=0.0e+00 vs_sglang=1.90e-02 max_polls=1 ws rows_nonzero=0 l_nonzero=0 tickets_nonzero=0 coop_next_parity_nonzero=0 flat_next_parity_nonzero=0 (0.0 s)
+attn one: stress 1x8 full plan=(62, 8, 15): replays=2000 replayed_vs_eager=0.0e+00 vs_sglang=2.18e-02 max_polls=2 ws rows_nonzero=0 l_nonzero=0 tickets_nonzero=0 coop_next_parity_nonzero=0 flat_next_parity_nonzero=0; spec fallback (seq - 64): replays=50 replayed_vs_eager=0.0e+00 vs_sglang=2.18e-02 max_polls=2 ws rows_nonzero=0 l_nonzero=0 tickets_nonzero=0 coop_next_parity_nonzero=0 flat_next_parity_nonzero=0 (0.0 s)
+attn one: on (0.2 s)
+TUNE front T=1 fp32:28.1 skf:29.6 -> fp32 (vs fp32: fp32 0.0e+00/1.000 skf 0.0e+00/1.000)
+TUNE front T=8 skf:29.9 fp32:37.4 -> skf (vs fp32: fp32 0.0e+00/1.000 skf 0.0e+00/1.000)
+TUNE front T=16 skf:30.6 mma:35.1 concat:37.8 split:40.1 -> skf (vs split: split 0.0e+00/1.000 mma 0.0e+00/1.000 concat 1.7e-04/1.000 skf 0.0e+00/1.000)
+TUNE front T=32 skf:32.4 mma:37.3 concat:38.0 split:42.5 -> skf (vs split: split 0.0e+00/1.000 mma 0.0e+00/1.000 concat 1.5e-04/1.000 skf 0.0e+00/1.000)
+TUNE front T=128 concat:39.8 split:50.0 -> concat (vs split: split 0.0e+00/1.000 concat 0.0e+00/1.000)
+TUNE front T=256 concat:45.5 split:58.7 -> concat (vs split: split 0.0e+00/1.000 concat 0.0e+00/1.000)
+moe front tuner: on (0.1 s)
+prepare: done (103.5 s)
+SUMMARY source digest 5fa4712d318808d7
+SUMMARY components main=b0cc8be83290 one=0baa6e453cb6 w4=069518f7252d moe1=56e62362797d skp=64c9067db303
+SUMMARY stages moe_ours=1 w4_ok=1 moe1_ok=1 router_ours=1 proj_ours=1 skp_ok=1 attn_one_ours=1 attn_ws_ours=1 attn_fused_ours=1 bnd_ours=1 abnd_ours=1 norm_ours=1 route_side_ok=1
+SUMMARY moe stress sk8w4s=ok main-d2=ok main-m2-ar2-ub=ok main-own=ok main-own-dynb=ok
+SUMMARY moe T=1: sk8w4s [sk8w4s 36.2 sk16w4s 39.3 w4 45.8] judge-like routing, busiest expert [1, 1, 1, 1] w4 g1=27 g2=21 pdl=1 cl=8 front fp32
+SUMMARY moe T=8: sk8w4s [sk8w4s 71.2 sk16w4s 73.7 w4 79.4] judge-like routing, busiest expert [4, 3, 2, 5] w4 g1=2 g2=24 pdl=1 cl=1 front skf
+SUMMARY moe T=16: sk8w4s [sk8w4s 80.0 sk16w4s 83.8 w4 87.3] judge-like routing, busiest expert [10, 7, 10, 9] w4 g1=26 g2=28 pdl=1 cl=8 front skf
+SUMMARY moe T=32: sk8w4s [sk8w4s 94.6 main-own-dynb 95.0 w4 100.2 sk16w4s 103.7 main-own 104.7 main-m2-ar2-ub 105.6 main-d2 109.5] judge-like routing, busiest expert [17, 18, 15, 17] w4 g1=26 g2=28 pdl=1 cl=4 front skf
+SUMMARY moe T=128: main-own-dynb [main-own-dynb 203.7 main-own 219.8 main-m2-ar2-ub 221.9 main-d2 224.3 w4 248.3 sk8w4s 272.5 sk16w4s 297.0] judge-like routing, busiest expert [46, 41, 41, 34] w4 g1=4 g2=13 pdl=1 cl=1 front concat
+SUMMARY moe T=256: main-own-dynb [main-own-dynb 238.3 main-own 256.4 main-m2-ar2-ub 259.6 main-d2 272.2 w4 357.3 sk8w4s 448.0 sk16w4s 486.9] judge-like routing, busiest expert [67, 69, 107, 73] w4 g1=30 g2=13 pdl=1 cl=1 front concat
+SUMMARY abnd occupancy (CTAs/SM, resident clusters) c8x256=8,124 c2x512=2,132 c4x256=5,154 c1x256=3,396 c1x512=2,264 c1x1024=1,132
+SUMMARY abnd T=1: c8x256 [c8x256 13.92 c1x1024 14.24 sglang 14.69 c4x256 14.78 c2x512 14.94 c1x512 14.94 c1x256 16.54]
+SUMMARY abnd T=8: c8x256 [c1x1024 14.66 c8x256 14.75 c4x256 15.33 c1x512 15.33 sglang 15.46 c2x512 16.35 c1x256 16.74]
+SUMMARY abnd T=16: sglang [sglang 14.72 c1x1024 14.78 c8x256 15.17 c1x512 15.49 c4x256 15.81 c2x512 16.06 c1x256 16.80]
+SUMMARY abnd T=32: sglang [sglang 14.78 c1x1024 14.82 c8x256 15.55 c1x512 15.55 c4x256 15.90 c2x512 16.00 c1x256 16.86]
+SUMMARY abnd T=128: sglang [sglang 17.70 c1x1024 18.37 c1x512 18.69 c4x256 19.49 c2x512 19.55 c1x256 19.90 c8x256 22.53]
+SUMMARY abnd T=256: c1x512 [c1x512 22.27 sglang 22.62 c1x256 23.26 c1x1024 23.52 c2x512 26.24 c4x256 26.50 c8x256 29.54]
+SUMMARY attn d1 sliding: attn_one plan(splits,nc,mode)=(32, 1, 13)
+SUMMARY attn d1 full: attn_one plan(splits,nc,mode)=(252, 8, 11)
+SUMMARY attn d16 sliding: attn_one plan(splits,nc,mode)=(16, 1, 1)
+SUMMARY attn d16 full: attn_one plan(splits,nc,mode)=(264, 1, 49)
+SUMMARY attn d32 sliding: attn_one plan(splits,nc,mode)=(8, 1, 1)
+SUMMARY attn d32 full: attn_one plan(splits,nc,mode)=(264, 1, 49)
+SUMMARY attn v1 sliding: attn_one plan(splits,nc,mode)=(33, 1, 15)
+SUMMARY attn v1 full: attn_one plan(splits,nc,mode)=(252, 8, 11)
+SUMMARY attn v16 sliding: attn_one plan(splits,nc,mode)=(8, 1, 3)
+SUMMARY attn v16 full: attn_one plan(splits,nc,mode)=(264, 1, 51)
+SUMMARY attn v32 sliding: attn_one plan(splits,nc,mode)=(4, 1, 3)
+SUMMARY attn v32 full: attn_one plan(splits,nc,mode)=(264, 1, 51)
+SUMMARY failed 0: none
+TL v16s: span 404.3 us (replays 7: 310.7 318.3 402.4 404.3 404.7 406.4 406.9), device busy 387.4, idle 16.9, kernel sum 389.5
+TL v16s s0    0.0   17.9  17.9 st-gap  0.0 dev-gap  0.0 nvjet_sm90_tst_96x64_64x10_4x2_h_bz_splitK_T
+TL v16s s0   18.9   22.1   3.2 st-gap  1.0 dev-gap  1.0 cublasLt::splitKreduce_kernel<32, 16, int, f
+TL v16s s0   22.5   34.0  11.5 st-gap  0.4 dev-gap  0.4 one::attn_one_kernel<8, 3>(one::Params)
+TL v16s s0   34.5   42.4   7.9 st-gap  0.4 dev-gap  0.4 nvjet_sm90_tst_128x64_64x8_1x2_h_bz_TNT
+TL v16s s0   43.1   47.5   4.4 st-gap  0.6 dev-gap  0.6 sglang::muse_spark_norm_residual_kernel<8192
+TL v16s s0   47.9   75.6  27.6 st-gap  0.4 dev-gap  0.4 nvjet_sm90_tss_96x64_64x10_4x2_h_bz_TNN
+TL v16s s0   75.4   77.5   2.2 st-gap -0.2 dev-gap  0.0 pre_norm_kernel<float>(float const*, __nv_bf
+TL v16s s1   75.6   77.8   2.2 st-gap  0.0 dev-gap  0.0 at::native::elementwise_kernel<128, 2, at::n
+TL v16s s1   78.2   81.1   2.8 st-gap  0.4 dev-gap  0.4 sglang::muse_spark::routing_kernel<sglang::m
+TL v16s s0   81.7  283.6 201.9 st-gap  4.2 dev-gap  0.7 moe1::moe_main_kernel<23>(moe1::Params)
+TL v16s s0  284.4  307.2  22.8 st-gap  0.8 dev-gap  0.8 nvjet_sm90_tst_128x64_64x8_1x2_h_bz_TNT
+TL v16s s0  307.3  312.3   5.0 st-gap  0.0 dev-gap  0.0 sglang::muse_spark_norm_residual_kernel<8192
+TL v16s s0  324.3  404.3  80.0 st-gap 12.0 dev-gap 12.0 at::native::vectorized_elementwise_kernel<8,
+TL v16f: span 512.5 us (replays 7: 419.5 425.3 511.6 512.5 513.9 514.1 514.3), device busy 495.3, idle 17.2, kernel sum 497.4
+TL v16f s0    0.0   17.5  17.5 st-gap  0.0 dev-gap  0.0 nvjet_sm90_tst_96x64_64x10_4x2_h_bz_splitK_T
+TL v16f s0   18.2   21.2   3.0 st-gap  0.6 dev-gap  0.6 cublasLt::splitKreduce_kernel<32, 16, int, f
+TL v16f s0   21.8  141.0 119.2 st-gap  0.6 dev-gap  0.6 one::attn_one_kernel<8, 51>(one::Params)
+TL v16f s0  141.2  148.5   7.2 st-gap  0.3 dev-gap  0.3 nvjet_sm90_tst_128x64_64x8_1x2_h_bz_TNT
+TL v16f s0  149.1  153.4   4.3 st-gap  0.6 dev-gap  0.6 sglang::muse_spark_norm_residual_kernel<8192
+TL v16f s0  153.9  179.9  26.1 st-gap  0.4 dev-gap  0.4 nvjet_sm90_tss_96x64_64x10_4x2_h_bz_TNN
+TL v16f s0  179.8  182.0   2.2 st-gap -0.2 dev-gap  0.0 pre_norm_kernel<float>(float const*, __nv_bf
+TL v16f s1  180.1  182.1   2.1 st-gap  0.0 dev-gap  0.0 at::native::elementwise_kernel<128, 2, at::n
+TL v16f s1  182.6  185.6   3.0 st-gap  0.4 dev-gap  0.4 sglang::muse_spark::routing_kernel<sglang::m
+TL v16f s0  186.0  390.7 204.7 st-gap  4.1 dev-gap  0.4 moe1::moe_main_kernel<23>(moe1::Params)
+TL v16f s0  391.5  414.6  23.1 st-gap  0.8 dev-gap  0.8 nvjet_sm90_tst_128x64_64x8_1x2_h_bz_TNT
+TL v16f s0  414.6  419.5   4.9 st-gap  0.0 dev-gap  0.0 sglang::muse_spark_norm_residual_kernel<8192
+TL v16f s0  432.5  512.5  80.0 st-gap 13.0 dev-gap 13.0 at::native::vectorized_elementwise_kernel<8,
+TL d32s: span 253.0 us (replays 7: 160.7 165.0 252.5 253.0 253.1 254.0 256.3), device busy 236.7, idle 16.3, kernel sum 238.3
+TL d32s s0    0.0   14.2  14.2 st-gap  0.0 dev-gap  0.0 sk_kernel<2, 32, 3, 1, 4, 2, 4, true, false,
+TL d32s s0   14.6   26.7  12.1 st-gap  0.4 dev-gap  0.4 one::attn_one_kernel<1, 1>(one::Params)
+TL d32s s0   27.2   34.4   7.2 st-gap  0.5 dev-gap  0.5 sk_kernel<2, 32, 2, 2, 2, 2, 3, true, false,
+TL d32s s0   35.0   39.1   4.0 st-gap  0.7 dev-gap  0.7 sglang::muse_spark_norm_residual_kernel<8192
+TL d32s s0   39.5   60.3  20.8 st-gap  0.4 dev-gap  0.4 sk_kernel<2, 32, 2, 2, 2, 4, 3, true, false,
+TL d32s s0   61.0   62.8   1.8 st-gap  0.7 dev-gap  0.7 pre_norm_kernel<__nv_bfloat16>(__nv_bfloat16
+TL d32s s1   61.2   64.0   2.8 st-gap  0.0 dev-gap  0.0 sglang::muse_spark::routing_kernel<sglang::m
+TL d32s s0   64.4  140.2  75.8 st-gap  1.7 dev-gap  0.4 moe1::sk_8_4_0::moe_fused_kernel<1>(moe1::Pa
+TL d32s s0  141.0  156.4  15.4 st-gap  0.8 dev-gap  0.8 sk_kernel<2, 32, 4, 2, 2, 2, 3, true, false,
+TL d32s s0  156.4  160.6   4.2 st-gap  0.0 dev-gap  0.0 sglang::muse_spark_norm_residual_kernel<8192
+TL d32s s0  173.0  253.0  80.0 st-gap 12.4 dev-gap 12.4 at::native::vectorized_elementwise_kernel<8,
+TL d32f: span 405.3 us (replays 7: 314.2 315.5 405.3 405.3 405.4 405.7 406.0), device busy 388.5, idle 16.9, kernel sum 390.0
+TL d32f s0    0.0   13.8  13.8 st-gap  0.0 dev-gap  0.0 sk_kernel<2, 32, 3, 1, 4, 2, 4, true, false,
+TL d32f s0   14.2  188.8 174.6 st-gap  0.4 dev-gap  0.4 one::attn_one_kernel<1, 49>(one::Params)
+TL d32f s0  189.1  195.1   6.0 st-gap  0.3 dev-gap  0.3 sk_kernel<2, 32, 2, 2, 2, 2, 3, true, false,
+TL d32f s0  195.7  199.6   3.8 st-gap  0.6 dev-gap  0.6 sglang::muse_spark_norm_residual_kernel<8192
+TL d32f s0  200.0  220.0  20.1 st-gap  0.4 dev-gap  0.4 sk_kernel<2, 32, 2, 2, 2, 4, 3, true, false,
+TL d32f s0  220.6  222.3   1.7 st-gap  0.6 dev-gap  0.6 pre_norm_kernel<__nv_bfloat16>(__nv_bfloat16
+TL d32f s1  220.8  223.5   2.7 st-gap  0.0 dev-gap  0.0 sglang::muse_spark::routing_kernel<sglang::m
+TL d32f s0  223.9  291.3  67.4 st-gap  1.6 dev-gap  0.4 moe1::sk_8_4_0::moe_fused_kernel<1>(moe1::Pa
+TL d32f s0  292.1  307.4  15.3 st-gap  0.8 dev-gap  0.8 sk_kernel<2, 32, 4, 2, 2, 2, 3, true, false,
+TL d32f s0  307.4  311.9   4.5 st-gap  0.0 dev-gap  0.0 sglang::muse_spark_norm_residual_kernel<8192
+TL d32f s0  325.2  405.3  80.1 st-gap 13.3 dev-gap 13.3 at::native::vectorized_elementwise_kernel<8,
