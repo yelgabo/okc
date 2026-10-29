@@ -1,7 +1,7 @@
 """CPU check of the m = 1 compressed GEMV in muse_bf16_proj/submission.py.
 
 Packs each layer's weights with pack_cgemv, decodes the stream in numpy the way cgemv_kernel
-does (48-byte chunks read as three 16-byte planes per CTA, the two high-byte formulas on uint32 words, byte_perm with the kernel's
+does (row-major low-byte and code planes, the two high-byte formulas on uint32 words, byte_perm with the kernel's
 selectors, shift and mask to fp32, the escape table's corrections) and requires every weight
 back exactly. Then it runs the kernel's summation order in float32 (per-thread chunk sums,
 warp butterflies, warp order, the escape warp's terms, one bf16 rounding) for a Gaussian x, an
@@ -49,10 +49,12 @@ def decode_stream(stream, base4, n, k, nth):
     """The kernel's decode of every weight, before corrections: float32 [n, k]."""
     half, chunks = n // 2, k // 16
     cpt = chunks // nth
-    # Thread t's part p of chunk i sits at uint4 (3i + p) * nth + t of its CTA's stream.
-    words = np.ascontiguousarray(stream).reshape(half, cpt, 3, nth, 16).transpose(0, 1, 3, 2, 4)
-    words = np.ascontiguousarray(words).reshape(half * chunks, 48).view(np.uint32)
-    words = words.reshape(half, chunks, 12)
+    # Two row-major planes: low bytes [n, k], then codes [n, k / 2]. Regrouped per row pair and
+    # chunk as row 0's and row 1's four low-byte words, then each row's two code words.
+    flat = np.ascontiguousarray(stream).reshape(-1)
+    lo = flat[:n * k].reshape(half, 2, chunks, 16).view(np.uint32)
+    codes = flat[n * k:].reshape(half, 2, chunks, 8).view(np.uint32)
+    words = np.concatenate([lo[:, 0], lo[:, 1], codes[:, 0], codes[:, 1]], axis=-1)
     b4 = np.uint32(base4)
 
     def hi_lo(c):
@@ -115,7 +117,7 @@ def product(dec, ents, x, nth, cpt):
     cs, es, rows, kks, delta = ents
     corr = np.zeros((half, 2, 32), np.float32)
     prod = delta * x[kks]
-    lane, it = (es - 1) % 32, (es - 1) // 32
+    lane, it = es % 32, es // 32
     for i in range(int(it.max()) + 1 if len(it) else 0):
         sel = it == i
         corr[cs[sel], rows[sel], lane[sel]] = corr[cs[sel], rows[sel], lane[sel]] + prod[sel]
