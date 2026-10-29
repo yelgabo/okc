@@ -88,7 +88,7 @@ Persistent, allocated once per device, zeroed once (`_one_state` in submission.p
 | verify 16 / 32 sliding | 8 x 16 / 4 x 32 | 3 |
 | decode / verify 1 full, page 1 | 252 x 1, nc 8 | 11 (cooperative, speculated) |
 | decode 16 / 32 full | 264 flat | 49 (producer warpgroup; 17 without) |
-| verify 16 / 32 full | 264 flat | 19 (51 with `_ONE_Q8_PROD`: producer warpgroup, grid-wide cooperative; 115 one CTA per SM) |
+| verify 16 / 32 full | 264 flat | 51 (producer warpgroup, grid-wide cooperative; 19 when 51's residency is short; 115 one CTA per SM). The layer builds 51 and routes it the same way since 075525d |
 
 Cooperative modes need every active CTA resident: `attn_one_prepare()` reports the limit
 per instance (`cudaOccupancyMaxActiveBlocksPerMultiprocessor` x SMs, an idle-device figure)
