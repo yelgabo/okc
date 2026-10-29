@@ -34,8 +34,12 @@ EXTRA_GEOM = {
     "qkv16w8": (1, 16, 3, 1, 8, 2, 4),     # 8 consumer warps, 8 stages, ring 3
     "qkv16w8u1": (1, 16, 3, 1, 8, 1, 5),   # 8 consumer warps, 16 stages, ring 5
     "qkv16r3": (1, 16, 1, 3, 4, 2, 5),     # 12 consumer warps, one 8-row tile each, ring 5
+    # R = 16: 144 CTAs at 2 per SM (89 KB), every SM busy if the limit is per CTA, not per SM.
+    "qkv16n2": (1, 16, 2, 1, 4, 2, 3),
+    "qkv16n2b": (1, 16, 1, 2, 4, 2, 3),    # the same rows as 8 warps of one tile
     "qkv32w8u1": (2, 32, 3, 1, 8, 1, 4),   # 8 consumer warps, 16 stages, ring 4
     "qkv32r3": (2, 32, 1, 3, 4, 2, 4),     # 12 consumer warps, one tile each, ring 4
+    "qkv32n2b": (2, 32, 2, 1, 4, 1, 4),    # R = 16, 32 stages, 98 KB: 2 CTAs per SM
     # o: K = 1024, 4 stages, 256 CTAs at 2-3 per SM.
     "o16u2": (1, 16, 2, 2, 1, 2, 4),       # 8 stages, ring 4, 4 CTAs per SM
     "o16w2": (1, 16, 2, 2, 2, 2, 3),       # 4 consumer warps
@@ -44,19 +48,23 @@ EXTRA_GEOM = {
     "unp16n4": (1, 16, 4, 2, 2, 2, 3),     # R = 64: 128 CTAs, 2 per SM fit
     "unp16n4u4": (1, 16, 4, 2, 2, 4, 3),   # R = 64, 8 stages, ring 3
     "unp32w8": (2, 32, 4, 2, 4, 1, 3),     # 8 consumer warps
-    # pooler: 128 CTAs, 16 stages.
+    "unp32n2": (2, 32, 2, 2, 2, 2, 3),     # R = 32: 256 CTAs at 2 per SM (98 KB)
+    # pooler: 128 CTAs at 1 per SM, 16 stages.
     "pool16w8": (1, 16, 2, 2, 4, 2, 4),    # 8 consumer warps, same stage size
+    "pool16n1": (1, 16, 1, 2, 2, 4, 3),    # R = 16: 256 CTAs at 2 per SM (89 KB)
+    "pool16n1b": (1, 16, 2, 1, 2, 4, 3),   # the same with 2 consumer warps of two tiles
     "pool32w8": (2, 32, 2, 2, 4, 2, 4),    # 8 consumer warps, same stage size
+    "pool32n1b": (2, 32, 1, 2, 2, 2, 4),   # R = 16, 32 stages, 98 KB: 2 CTAs per SM
 }
 EXTRA_USE = {
-    ("qkv_gate", 16): ["qkv16u4", "qkv16w8", "qkv16w8u1", "qkv16r3"],
-    ("qkv_gate", 32): ["qkv32w8u1", "qkv32r3"],
+    ("qkv_gate", 16): ["qkv16u4", "qkv16w8", "qkv16w8u1", "qkv16r3", "qkv16n2", "qkv16n2b"],
+    ("qkv_gate", 32): ["qkv32w8u1", "qkv32r3", "qkv32n2b"],
     ("o", 16): ["o16u2", "o16w2"],
     ("o", 32): ["o32w1"],
     ("unpooler", 16): ["unp16n4", "unp16n4u4"],
-    ("unpooler", 32): ["unp32w8"],
-    ("pooler", 16): ["pool16w8"],
-    ("pooler", 32): ["pool32w8"],
+    ("unpooler", 32): ["unp32w8", "unp32n2"],
+    ("pooler", 16): ["pool16w8", "pool16n1", "pool16n1b"],
+    ("pooler", 32): ["pool32w8", "pool32n1b"],
 }
 GEO = (
     ("    \"unp32\": (2, 32, 4, 2, 2, 2, 3),\n}\n",
