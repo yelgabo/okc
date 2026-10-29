@@ -1,6 +1,6 @@
 """Write a same-process A/B bench of the fused MoE kernel against the public entry's MoE file.
 
-    python3 tools/moe_make_bench_ab.py OUT.py PUBLIC.py [ARM=MODE ...]
+    python3 tools/moe_make_bench_ab.py OUT.py PUBLIC.py [--seeds=1,2,...] [ARM=MODE ...]
 
 OUT.py is muse_moe_w4a16/submission.py with MAIN_MODES = (0, 23, 25) plus the extra modes
 named as ARM=MODE (timed beside mode 23), the gate and the stamped diagnostics off, and a
@@ -149,7 +149,7 @@ def _ab_main():
 
     sizes = ((32, 1), (128, 8), (256, 8))
     target = {{32: 21.0, 128: 53.0, 256: 107.0}}
-    seeds = (1, 2, 3, 4, 5, 6)
+    seeds = {seeds!r}
     hs = {{(t, s): layer_h(t, q, 1000 * t + s) for t, q in sizes for s in seeds}}
     best = None
     for rs in range(1, 41):
@@ -195,7 +195,7 @@ def _ab_main():
         torch.cuda.synchronize()
         inter = state["scratch"]["inter"]
         d = inter.reshape(-1).view(torch.int64)[: G * 16].view(G, 16).double().cpu()
-        return torch.cat([d[:, :7], d[:, 8:11]], 1)
+        return torch.cat([d[:, :7], d[:, 8:14]], 1)
 
     def summarize(d):
         t0 = float(d[:, 0].min())
@@ -208,12 +208,15 @@ def _ab_main():
         if d.shape[1] > 7:
             # ids loaded, routing warp (counts, jobs, order), positions, stage ranges
             row += [float((r[:, 7] - r[:, 0]).mean()), float((r[:, 8] - r[:, 7]).mean()),
-                    float((r[:, 9] - r[:, 8]).mean()), float((r[:, 1] - r[:, 9]).mean())]
+                    float((r[:, 9] - r[:, 8]).mean()), float((r[:, 1] - r[:, 9]).mean()),
+                    float((r[:, 10] - r[:, 7]).mean()), float((r[:, 11] - r[:, 10]).mean()),
+                    float((r[:, 12] - r[:, 11]).mean())]
         return row
 
     cols = ("route", "consumers start mean", "max", "phase A done (t0) mean", "max",
             "consumers done mean", "max", "tail", "barrier done", "final", "end",
-            "ids", "route warp", "positions", "ranges")
+            "ids", "route warp", "positions", "ranges", "rw counts+offsets", "rw jobs",
+            "rw order")
     stamped = {{"o25": v25}}
     if 27 in MAIN_MODES:
         stamped["o27"] = VARIANT_MAIN0 + MAIN_MODES.index(27)
@@ -280,7 +283,11 @@ except Exception as _exc:
 
 def main():
     out, pub = sys.argv[1], sys.argv[2]
-    arms = dict(a.split("=") for a in sys.argv[3:])
+    rest = sys.argv[3:]
+    seeds = (1, 2, 3, 4, 5, 6)
+    if rest and rest[0].startswith("--seeds="):
+        seeds = tuple(int(x) for x in rest.pop(0).split("=")[1].split(","))
+    arms = dict(a.split("=") for a in rest)
     arms = {k: int(v) for k, v in arms.items()}
     src = (ROOT / "muse_moe_w4a16" / "submission.py").read_text()
     modes = sorted({0, 23, 25, *arms.values(), *(27 for m in arms.values() if m == 26)})
@@ -289,7 +296,7 @@ def main():
     src, n = re.subn(r"^GATE_RUNS = \(.*?\)$", "GATE_RUNS = ()", src, flags=re.M)
     assert n == 1
     pub_src = patch_public(Path(pub).read_text())
-    Path(out).write_text(src + AB.format(pub_src=pub_src, arms=arms))
+    Path(out).write_text(src + AB.format(pub_src=pub_src, arms=arms, seeds=seeds))
 
 
 if __name__ == "__main__":

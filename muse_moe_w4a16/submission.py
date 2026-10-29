@@ -1714,6 +1714,9 @@ __global__ void __launch_bounds__(kNTM, 1) moe_main_kernel(const Params p) {
         const int tot = lane < p.nloc ? S.cnt[lane] : 0;
         const int off = warp_scan(tot, lane) - tot;
         S.off[lane] = off;
+        if (kLight && lane == 0) {
+            S.dg[17][3] = gtimer();
+        }
         if constexpr (fast_setup(MODE)) {
             // Each warp's first pair row per expert, as position_pass's warp 0 forms it.
             int run = off;
@@ -1758,6 +1761,9 @@ __global__ void __launch_bounds__(kNTM, 1) moe_main_kernel(const Params p) {
             ca += kUAM * S.cost[0][ntt];
             cb += kUBM * S.cost[1][ntt];
         }
+        if (kLight && lane == 0) {
+            S.dg[17][4] = gtimer();
+        }
         if constexpr (own_a(MODE)) {
             // Counting sort of the jobs by n-tile count, largest first; within a count, by
             // expert then job, so every CTA derives the same order.
@@ -1776,6 +1782,9 @@ __global__ void __launch_bounds__(kNTM, 1) moe_main_kernel(const Params p) {
                 }
                 base += __shfl_sync(0xffffffffu, incl, 31);
             }
+        }
+        if (kLight && lane == 0) {
+            S.dg[17][5] = gtimer();
         }
         int mx = tot > 0 ? (min(64, tot) + 7) >> 3 : 0;
 #pragma unroll
@@ -1832,10 +1841,13 @@ __global__ void __launch_bounds__(kNTM, 1) moe_main_kernel(const Params p) {
         S.dg[17][2] = gtimer();
     }
     if (tid == 0) {
+        // Owned phase A and claimed phase B read no stage range (seg_n and seg_at take own_n
+        // and S.ord, the claims come through S.bq), so fast_setup leaves out the four
+        // stage_at searches, 2.3-3.1 us on thread 0 in mode 27's stamps (39c365c34cd74559).
 #pragma unroll
         for (int ph = 0; ph < 2; ++ph) {
-            S.gsb[ph] = stage_at(S, ph, cta, G);
-            S.gse[ph] = stage_at(S, ph, cta + 1, G);
+            S.gsb[ph] = fast_setup(MODE) ? 0 : stage_at(S, ph, cta, G);
+            S.gse[ph] = fast_setup(MODE) ? 0 : stage_at(S, ph, cta + 1, G);
         }
         if (a_only(MODE)) {
             S.gsb[1] = 0;
