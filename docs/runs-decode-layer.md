@@ -216,6 +216,16 @@ previous replay, by prepare(), or by the harness before the step is complete.
 | attention `attn_one_kernel` (launched without the PDL attribute: `_ONE_PDL = False`) | `page_table`, `seq_lens`, cached K/V rows at positions below `seq_lens` (cp.async), page indices | harness inputs written before the step | no |
 | attention | query rows (`qkv`), the constants group, the flat kernel's epoch | qkv projection; previous attention launch | after the two inserted waits (tools/dl_one_inline.py) |
 
+M1 candidate (not in the bundle; built after it, `PORT_SK_PDL`): with the bit set, the sk o
+projection (PDL secondary of attention built with ONE_TRIG) and the skf front (PDL secondary of
+the attention boundary) load before their wait only: the weight units of the first
+min(NSTAGE, stages) stages and the fused router pieces (`bulk_g2s` from the repacked streams,
+prepare), the escape table (`ptab`, prepare), the tensor map (a kernel parameter built on the
+host; `prefetch.tensormap`); writer not live. x (attention's or the boundary's output) is
+copied by TMA only after every thread's `griddepcontrol.wait` (`issue_x` in the
+`if constexpr (PDL)` block after the wait), and each stage's full barrier expects the weight and
+x bytes together, so no stage completes on the weights alone.
+
 The attention waits return at once today because the launch carries no PDL attribute; the
 table records what would hold if `_ONE_PDL` were turned on. The cache rows the kernel itself
 writes (positions `seq_lens` onward) are written in-kernel, not by a predecessor. Every

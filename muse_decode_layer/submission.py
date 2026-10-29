@@ -192,6 +192,14 @@ ROUTE_ON_SIDE = True
 # stream, and the fused MoE launches as its PDL secondary. The front tuner picks per token
 # count against the side-stream fronts, timing the front and the MoE together.
 PORT_ROUTE_KERNEL = True
+# M1 (docs/steering/2026-10-29-v1-d32-breakdown.md): the projections built with SK_PDL, so a
+# single-CTA sk config streams its first ring of weights before griddepcontrol.wait and launches
+# as a PDL secondary when bit 16 of its cfg is set, and the q_len 1 / batch-1 q_len 8 attention
+# instances built with ONE_TRIG (launch_dependents at entry). _m1_tune picks per token bucket
+# (8, 16, 32) among off, the o projection, and the o projection plus the skf front.
+PORT_SK_PDL = True
+SK_PDL_BIT = 1 << 16
+M1_BUCKETS = (8, 16, 32)
 ROUTE_VARIANTS = {"concat-r": "concat", "skf-r": "skf"}
 # Up to 8 tokens, our FFN boundary on the unpooler slice's 1024 live channels in place of
 # F.pad to 8192 and FusedPostNormResidualPreNorm.
@@ -3872,6 +3880,15 @@ constexpr int COOP_POLL_LIMIT = 1 << 24;
 #ifndef ONE_VHOIST
 #define ONE_VHOIST 1
 #endif
+// ONE_TRIG: griddepcontrol.launch_dependents at kernel entry (q_len 1 and batch-1 q_len 8
+// instances only), so a following launch with the
+// programmatic-serialization attribute (the layer's o projection built with SK_PDL) can start
+// streaming its static weights on the SMs this grid leaves idle. It is a no-op for a plain
+// successor, and a PDL successor still reads this grid's output only after griddepcontrol.wait,
+// which waits for this grid's completion and memory flush (PTX ISA 9.7.15.14). Off by default.
+#ifndef ONE_TRIG
+#define ONE_TRIG 0
+#endif
 constexpr int STAMP_BASE = 1024;
 constexpr int STAMP_W = 16;
 
@@ -4520,6 +4537,11 @@ attn_one_kernel(const Params p) {
     int* flag = reinterpret_cast<int*>(smem + S::FLAG);
     const uint32_t full0 = smem_base + S::BAR;
     const uint32_t empty0 = full0 + NS * 8;
+    // Only the plans whose layer successor is the skinny o projection (T <= 32: q_len 1, and
+    // q_len 8 at batch 1); above 32 tokens o runs on cuBLAS and mode 51's schedule stays as judged.
+    if constexpr (ONE_TRIG != 0 && (L == 1 || SPEC)) {
+        asm volatile("griddepcontrol.launch_dependents;");
+    }
 
     // Diagnostic early exit after phase k: uniform across the CTA (a kernel parameter), placed
     // only where every thread passes, with the copies drained first.
@@ -13006,6 +13028,13 @@ _SKP_SRC = r"""
 #include <c10/util/Exception.h>
 #endif
 
+// SK_PDL 1 builds every single-CTA config to stream its first ring of weights before
+// griddepcontrol.wait, and lets sk_fwd / skf_fwd launch as a PDL secondary when bit 16 of cfg
+// is set. Off by default: the default build's device code is the one judged so far.
+#ifndef SK_PDL
+#define SK_PDL 0
+#endif
+
 namespace {
 
 constexpr uint32_t SUSPEND_HINT = 0x989680u;
@@ -13270,7 +13299,55 @@ sk_kernel(const __grid_constant__ CUtensorMap xmap, const uint8_t* __restrict__ 
         tma_3d(s0, &xmap, full0 + 8 * slot, 0, 0, (gs0 + st) * UPS);
     };
 
-    if (tid == 0) {
+#if SK_PDL
+    constexpr bool PDL = CL == 1;
+#else
+    constexpr bool PDL = false;
+#endif
+    // Under PDL the weights (and router pieces) of the first ring's worth of stages are static,
+    // so they stream while the predecessor still runs; x is the predecessor's output and is
+    // copied only after griddepcontrol.wait. Each stage's expect_tx covers both copies, so the
+    // full barrier cannot complete on the weights alone.
+    const int npre = PDL ? (nst_tot < NSTAGE ? nst_tot : NSTAGE) : 1;
+    auto issue_w = [&](int st) {
+        const int slot = st % NSTAGE;
+        const uint32_t s0 = sbase + slot * SST;
+        if (FUSE && st >= nst) {
+            const int rs = rq * spp + (st - nst);
+            mbar_expect_tx(full0 + 8 * slot, UPS * XU + RWBY);
+            bulk_g2s(s0 + XBY, rws + ((size_t)rs * 32 + rbk) * RWBY, RWBY, full0 + 8 * slot);
+            return;
+        }
+        mbar_expect_tx(full0 + 8 * slot, stage_tx);
+        bulk_g2s(s0 + XBY, wsrc + (size_t)(gs0 + st) * wstride, WBY, full0 + 8 * slot);
+    };
+    auto issue_x = [&](int st) {
+        const int slot = st % NSTAGE;
+        const int xu = FUSE && st >= nst ? (rq * spp + (st - nst)) * UPS : (gs0 + st) * UPS;
+        tma_3d(sbase + slot * SST, &xmap, full0 + 8 * slot, 0, 0, xu);
+    };
+
+    if (PDL && tid == 0) {
+        asm volatile("prefetch.tensormap [%0];" :: "l"(&xmap) : "memory");
+        for (int i = 0; i < NSTAGE; ++i) {
+            mbar_init(full0 + 8 * i, 1);
+        }
+        fence_mbar_init();
+        for (int st = 0; st < npre; ++st) {
+            issue_w(st);
+        }
+        if constexpr (COMP) {
+            mbar_init(pbar, 1);
+            fence_mbar_init();
+            mbar_expect_tx(pbar, tab_ints * 4);
+            bulk_g2s(smem_u32(tab), ptab + (size_t)rb * tab_ints, tab_ints * 4, pbar);
+        }
+        for (int i = 0; i < NSTAGE; ++i) {
+            mbar_init(empty0 + 8 * i, NW + NESC);
+        }
+        mbar_init(cbar, NESC > 0 ? NESC : 1);
+        fence_mbar_init();
+    } else if (tid == 0) {
         asm volatile("prefetch.tensormap [%0];" :: "l"(&xmap) : "memory");
         if constexpr (CL > 1) {
             // A cluster-scope release after a copy is in flight waits for it, so every barrier
@@ -13310,6 +13387,15 @@ sk_kernel(const __grid_constant__ CUtensorMap xmap, const uint8_t* __restrict__ 
         zrow_p[lane] = 0u;
     }
     __syncthreads();
+    if constexpr (PDL) {
+        // Every thread waits, so no global write of this kernel can pass a predecessor's read.
+        asm volatile("griddepcontrol.wait;" ::: "memory");
+        if (tid == 0) {
+            for (int st = 0; st < npre; ++st) {
+                issue_x(st);
+            }
+        }
+    }
     if constexpr (CL > 1) {
         cluster_arrive();
     }
@@ -13317,7 +13403,7 @@ sk_kernel(const __grid_constant__ CUtensorMap xmap, const uint8_t* __restrict__ 
     if (warp == NW) {
         if (lane == 0) {
             bool dead = false;
-            for (int st = 1; st < nst_tot; ++st) {
+            for (int st = npre; st < nst_tot; ++st) {
                 const int slot = st % NSTAGE;
                 if (st >= NSTAGE && !mbar_wait<true>(empty0 + 8 * slot, ((st / NSTAGE) - 1) & 1, dead, diag, 1)) {
                     break;
@@ -13723,6 +13809,12 @@ CUtensorMap make_xmap(const void* x, uint64_t m, uint64_t k, uint32_t units) {
     return map;
 }
 
+#if SK_PDL
+// Set by sk_fwd / skf_fwd for the one launch they dispatch. A file-scope flag instead of a
+// launch_sk argument keeps the dispatch lines that tools/dl_proj_inline.py generates valid.
+bool sk_pdl_launch = false;
+#endif
+
 template <int MT, int TOKR, int NT, int NWR, int WSK, int UPW, int NSTAGE, bool COMP, bool HL, int NACC, int CL,
           typename OutT, bool FUSE>
 void launch_sk(const at::Tensor& ws, const at::Tensor& x, at::Tensor& out, const at::Tensor& ptab, int pmax,
@@ -13766,6 +13858,23 @@ void launch_sk(const at::Tensor& ws, const at::Tensor& x, at::Tensor& out, const
         C10_CUDA_CHECK(cudaLaunchKernelEx(&lc, kern, xmap, wsp, op, tp, pmax, base4, M, N, K, diag, rws, rpart,
                                           rcount, rout));
     } else {
+#if SK_PDL
+        if (sk_pdl_launch) {
+            cudaLaunchConfig_t lc = {};
+            lc.gridDim = dim3(N / C::R);
+            lc.blockDim = dim3(C::THREADS);
+            lc.dynamicSmemBytes = smem;
+            lc.stream = stream;
+            cudaLaunchAttribute attr[1];
+            attr[0].id = cudaLaunchAttributeProgrammaticStreamSerialization;
+            attr[0].val.programmaticStreamSerializationAllowed = 1;
+            lc.attrs = attr;
+            lc.numAttrs = 1;
+            C10_CUDA_CHECK(cudaLaunchKernelEx(&lc, kern, xmap, wsp, op, tp, pmax, base4, M, N, K, diag, rws, rpart,
+                                              rcount, rout));
+            return;
+        }
+#endif
         kern<<<N / C::R, C::THREADS, smem, stream>>>(xmap, wsp, op, tp, pmax, base4, M, N, K, diag, rws, rpart,
                                                      rcount, rout);
         C10_CUDA_KERNEL_LAUNCH_CHECK();
@@ -13782,6 +13891,10 @@ void sk_fwd(int64_t cfg, at::Tensor ws, at::Tensor x, at::Tensor out, at::Tensor
             int64_t n, int64_t k, at::Tensor diag) {
     const int M = x.size(0);
     int* dg = diag.numel() > 0 ? diag.data_ptr<int>() : nullptr;
+#if SK_PDL
+    sk_pdl_launch = ((cfg >> 16) & 1) != 0;
+    cfg &= 0xffff;
+#endif
     switch (cfg) {
     case 0: launch_sk<1, 8, 3, 1, 4, 4, 4, true, false, 1, 1, __nv_bfloat16, false>(ws, x, out, ptab, (int)pmax, (uint32_t)base4, M, (int)n, (int)k, dg, nullptr, nullptr, nullptr, nullptr); break;
     case 1: launch_sk<1, 8, 3, 1, 4, 4, 3, false, false, 1, 1, __nv_bfloat16, false>(ws, x, out, ptab, (int)pmax, (uint32_t)base4, M, (int)n, (int)k, dg, nullptr, nullptr, nullptr, nullptr); break;
@@ -13820,6 +13933,10 @@ void skf_fwd(int64_t cfg, at::Tensor ws, at::Tensor rws, at::Tensor x, at::Tenso
     const int M = x.size(0);
     int* dg = diag.numel() > 0 ? diag.data_ptr<int>() : nullptr;
     const uint8_t* rw = reinterpret_cast<const uint8_t*>(rws.data_ptr());
+#if SK_PDL
+    sk_pdl_launch = ((cfg >> 16) & 1) != 0;
+    cfg &= 0xffff;
+#endif
     switch (cfg) {
     case 24: launch_sk<1, 8, 1, 2, 2, 4, 3, true, false, 1, 1, __nv_bfloat16, true>(ws, x, out, ptab, (int)pmax, (uint32_t)base4, M, (int)n, (int)k, dg, rw, rpart.data_ptr<float>(), rcount.data_ptr<int>(), rout.data_ptr<float>()); break;
     case 25: launch_sk<1, 16, 2, 2, 2, 4, 4, true, false, 1, 1, __nv_bfloat16, true>(ws, x, out, ptab, (int)pmax, (uint32_t)base4, M, (int)n, (int)k, dg, rw, rpart.data_ptr<float>(), rcount.data_ptr<int>(), rout.data_ptr<float>()); break;
@@ -15639,7 +15756,8 @@ def _skp_load():
     kwargs = dict(name="okc_decode_layer_skp", cpp_sources=_SKP_CPP_SRC, cuda_sources=src,
                   functions=["sk_fwd", "skf_fwd", "cgemv_fwd", "rgemv_fwd", "sgemv_fwd",
                              "wd_fwd"],
-                  extra_cuda_cflags=["-O3", "-gencode=arch=compute_90a,code=sm_90a"])
+                  extra_cuda_cflags=["-O3", "-gencode=arch=compute_90a,code=sm_90a"]
+                  + (["-DSK_PDL=1"] if PORT_SK_PDL else []))
     try:
         return load_inline(no_implicit_headers=True, **kwargs)
     except TypeError:
@@ -15673,10 +15791,13 @@ def _skp_rows(layer, bucket, n):
 def _skp_runner(ext, name, stream, tab, pmax, base4, n, k, diag):
     cid = SK_INDEX[name]
 
-    def run(x):
+    def run(x, pdl=False):
+        # Bit 16 of the config: a PDL launch (built with SK_PDL, M1); without the switch the
+        # extension masks nothing and would reject the config, so it is set only then.
         out = torch.empty((x.shape[0], n), dtype=torch.bfloat16, device=x.device)
-        ext.sk_fwd(cid, stream, x, out, tab, pmax, base4, n, k, diag)
+        ext.sk_fwd(cid | (SK_PDL_BIT if pdl else 0), stream, x, out, tab, pmax, base4, n, k, diag)
         return out
+    run.sk = True
     return run
 
 
@@ -15827,12 +15948,13 @@ def _skp_fused(state, packed_pooler):
         stream, base4 = packed_pooler["streams"][nm], packed_pooler["base4"]
         cid = SK_INDEX[nm + "f"]
 
-        def run(x, cid=cid, stream=stream, rstream=rstream, tab=tab, pmax=pmax, base4=base4,
-                rpart=rpart, rcount=rcount):
+        def run(x, pdl=False, cid=cid, stream=stream, rstream=rstream, tab=tab, pmax=pmax,
+                base4=base4, rpart=rpart, rcount=rcount):
             m = x.shape[0]
             out = torch.empty((m, pooler.shape[0]), dtype=torch.bfloat16, device=x.device)
             rout = torch.empty((m, router.shape[0]), dtype=torch.float32, device=x.device)
-            ext.skf_fwd(cid, stream, rstream, x, out, rout, tab, pmax, base4, pooler.shape[0],
+            ext.skf_fwd(cid | (SK_PDL_BIT if pdl else 0), stream, rstream, x, out, rout, tab,
+                        pmax, base4, pooler.shape[0],
                         pooler.shape[1], rpart, rcount, diag)
             return out, rout
         try:
@@ -16194,7 +16316,8 @@ def _one_load():
         cpp_sources=_ONE_CPP_SRC,
         cuda_sources=[_ONE_SRC, _ONE_HOST_SRC],
         functions=["attn_one", "attn_one_prepare", "attn_one_probe_coop"],
-        extra_cuda_cflags=["-O3", "-gencode=arch=compute_90a,code=sm_90a"],
+        extra_cuda_cflags=["-O3", "-gencode=arch=compute_90a,code=sm_90a"]
+        + (["-DONE_TRIG=1"] if PORT_SK_PDL else []),
     )
 
 
@@ -16742,7 +16865,8 @@ def _graph_median(graph, flush, iters=20):
 
 # Shapes the prepare-time timeline traces: (label, batch, q_len, layer). The judge's profile
 # gives per-kernel sums only, and its rows hide where the step waits between kernels.
-TIMELINE_SHAPES = (("v16s", 16, 8, "sliding"), ("v16f", 16, 8, "full"),
+TIMELINE_SHAPES = (("v1s", 1, 8, "sliding"), ("v1f", 1, 8, "full"),
+                   ("v16s", 16, 8, "sliding"), ("v16f", 16, 8, "full"),
                    ("d32s", 32, 1, "sliding"), ("d32f", 32, 1, "full"))
 TIMELINE_REPS = 7
 
@@ -17431,7 +17555,8 @@ def _moe_front(ffn_input, router_input, local_start, state, moe_opts, variant):
     route_side = ROUTE_ON_SIDE and state["route_side_ok"]
     if variant == "skf":
         # One launch for the pooler and the router logits; the side stream reads the logits.
-        expert_input, logits32 = state["skp"]["fused"][bucket_of(tokens)](ffn_input.contiguous())
+        expert_input, logits32 = state["skp"]["fused"][bucket_of(tokens)](
+            ffn_input.contiguous(), _m1_mode(tokens, state) == "o+front")
         side_stream.wait_stream(main_stream)
     elif variant == "concat":
         out32 = torch.mm(ffn_input, state["pool_router"].t(), out_dtype=torch.float32)
@@ -17483,7 +17608,8 @@ def _moe_front_route(ffn_input, local_start, state, moe_opts, variant):
     the route kernel, no side stream. The meta asks the fused MoE for a PDL launch."""
     tokens = ffn_input.shape[0]
     if variant == "skf-r":
-        pooled, logits = state["skp"]["fused"][bucket_of(tokens)](ffn_input.contiguous())
+        pooled, logits = state["skp"]["fused"][bucket_of(tokens)](
+            ffn_input.contiguous(), _m1_mode(tokens, state) == "o+front")
         x, topk_ids, topk_weights = _route_fwd(logits, 0, pooled, state)
     else:
         out32 = torch.mm(ffn_input, state["pool_router"].t(), out_dtype=torch.float32)
@@ -17751,6 +17877,175 @@ def _route_variant_check(got, base, state):
     return None
 
 
+def _m1_mode(tokens, state):
+    """M1's choice for this token count: "off", "o" or "o+front"."""
+    if not state.get("m1_ok") or tokens > M1_BUCKETS[-1]:
+        return "off"
+    key = next(b for b in M1_BUCKETS if b >= tokens)
+    return state.get("m1_policy", {}).get(key, "off")
+
+
+M1_STRESS_REPLAYS = 2000
+M1_CHAIN_GATE_US = 1.0
+
+
+def _m1_selftest(state):
+    """The SKP self-test with bit 16 set: every o pick at 1-32 tokens that is an sk config and
+    every fused pooler + router config, launched as a PDL secondary, against the plain launch on
+    the same x: bitwise equal (the same kernel and arithmetic; only the launch and the order of
+    the first copies differ). Raises on a difference."""
+    dev = state["dense"]["o"].device
+    gen = torch.Generator(device=dev).manual_seed(4545)
+    checked = []
+    for m in (1, 2, 5, 8, 9, 16, 17, 32):
+        pick = state["skp_pick"].get(("o", m))
+        if pick is not None and getattr(pick[1], "sk", False):
+            x = torch.randn((m, state["dense"]["o"].shape[1]), generator=gen, device=dev)
+            x = x.to(torch.bfloat16)
+            a, b = pick[1](x, False), pick[1](x, True)
+            torch.cuda.synchronize()
+            if not torch.equal(a, b):
+                raise RuntimeError(f"o {pick[0]} m={m}: PDL launch differs from the plain one")
+            checked.append(f"o:{pick[0]}@{m}")
+        fused = state.get("skp", {}).get("fused", {}).get(bucket_of(m)) if m > 1 else None
+        if fused is not None:
+            x = torch.randn((m, HIDDEN), generator=gen, device=dev).to(torch.bfloat16)
+            (a, ar), (b, br) = fused(x, False), fused(x, True)
+            torch.cuda.synchronize()
+            if not (torch.equal(a, b) and torch.equal(ar, br)):
+                raise RuntimeError(f"skf bucket {bucket_of(m)} m={m}: PDL launch differs")
+            checked.append(f"skf{bucket_of(m)}@{m}")
+    return checked
+
+
+def _m1_stress(state):
+    """kernel_fn with M1 forced on (o and front) at every scored T <= 32 shape, captured and
+    replayed M1_STRESS_REPLAYS times with one host sync after them; the last replay's three
+    outputs against kernel_fn with M1 off on the same inputs (hidden and stream within 1e-4,
+    the MoE's sums of squares and attention's merges being FP32 atomics; ids equal). Returns
+    per-shape lines; raises on a mismatch."""
+    lines = []
+    saved = dict(state.get("m1_policy", {}))
+    try:
+        for batch, length, layer in ((1, 1, "sliding"), (1, 1, "full"), (1, 8, "sliding"),
+                                     (1, 8, "full"), (16, 1, "sliding"), (16, 1, "full"),
+                                     (32, 1, "sliding"), (32, 1, "full")):
+            data = _timeline_case(state, batch, length, layer, 9300 + batch * length)
+            state["m1_policy"] = {}
+            ref = [t.clone() for t in kernel_fn(data, state)]
+            state["m1_policy"] = {b: "o+front" for b in M1_BUCKETS}
+            res = {}
+
+            def run():
+                res["o"] = kernel_fn(data, state)
+
+            graph = _graph_build(run)
+            for _ in range(M1_STRESS_REPLAYS):
+                graph.replay()
+            torch.cuda.synchronize()
+            got = [t.clone() for t in res["o"]]
+            del graph
+            rh, rs = _rel(got[0], ref[0]), _rel(got[1], ref[1])
+            same = bool(torch.equal(got[2], ref[2]))
+            finite = all(bool(torch.isfinite(t.float()).all()) for t in got[:2])
+            ok = finite and rh < 1e-4 and rs < 1e-4 and same
+            lines.append(f"{batch}x{length}{layer[0]} {'ok' if ok else 'FAIL'} hidden {rh:.1e} "
+                         f"stream {rs:.1e} ids {'=' if same else '!='}")
+            if not ok:
+                raise RuntimeError("M1 replay mismatch: " + lines[-1])
+    finally:
+        state["m1_policy"] = saved
+    return lines
+
+
+def _m1_chain(state, batch, length, layer, flush, rounds=5):
+    """attention -> o -> attention boundary as a CUDA graph, o plain against o as a PDL
+    secondary, cold L2, interleaved rounds of graph medians; returns (plain, pdl) in us."""
+    data = _timeline_case(state, batch, length, layer, 9500 + batch * length)
+    cfg = data["config"]
+    tokens = cfg["tokens"]
+    qkv = _proj(data["attn_input"], "qkv_gate", state["dense"]["qkv_gate"].shape[0], state)
+    path = _attn_path(cfg, state)
+
+    def chain():
+        o = path(qkv, data, state)
+        a = _proj(o, "o", HIDDEN, state)
+        if state["abnd_ours"]:
+            _abnd(data["stream"], a, tokens <= ROUTER_FP32_MAX_TOKENS, state,
+                  _abnd_geo(tokens, state))
+        else:
+            state["attn_boundary"](data["stream"], a, branch_dtype=torch.bfloat16,
+                                   router_dtype=None)
+
+    saved = dict(state.get("m1_policy", {}))
+    graphs = {}
+    for mode in ("off", "o"):
+        state["m1_policy"] = {b: mode for b in M1_BUCKETS}
+        graphs[mode] = _graph_build(chain)
+    state["m1_policy"] = saved
+    times = {"off": [], "o": []}
+    for r in range(rounds):
+        for mode in (("off", "o") if r % 2 == 0 else ("o", "off")):
+            times[mode].append(_graph_median(graphs[mode], flush, 10))
+    return tuple(sorted(times[m])[len(times[m]) // 2] for m in ("off", "o"))
+
+
+def _m1_tune(state):
+    """M1 per token bucket: the self-test with the bit set and the replay stress first (any
+    difference blocks M1), then the attention -> o -> boundary chain at 8 tokens sliding (under
+    M1_CHAIN_GATE_US saved closes M1), then per bucket the whole step (kernel_fn, 46 x sliding
+    + 16 x full, cold L2, interleaved rounds) for off, o and o + front; the fastest wins."""
+    state["m1_report"] = []
+    rep = state["m1_report"]
+    checked = _m1_selftest(state)
+    rep.append(f"selftest PDL = plain bitwise on {len(checked)} launches")
+    state["m1_ok"] = True
+    rep.append("stress " + "; ".join(_m1_stress(state)))
+    flush = torch.empty(256 << 20, dtype=torch.uint8, device="cuda")
+    chains = {}
+    for batch, length in ((1, 8), (16, 1), (32, 1)):
+        chains[batch * length] = _m1_chain(state, batch, length, "sliding", flush)
+    rep.append("chain attn->o->bnd sliding (plain/pdl us) " + " ".join(
+        f"T={t} {a:.1f}/{b:.1f}" for t, (a, b) in chains.items()))
+    plain8, pdl8 = chains[8]
+    if plain8 - pdl8 < M1_CHAIN_GATE_US:
+        state["m1_policy"] = {}
+        rep.append(f"closed: chain at 8 tokens saves {plain8 - pdl8:.2f} us < {M1_CHAIN_GATE_US}")
+        return
+    policy = {}
+    for bucket, (batch, length) in zip(M1_BUCKETS, ((1, 8), (16, 1), (32, 1))):
+        datas = {layer: _timeline_case(state, batch, length, layer, 9700 + batch * length)
+                 for layer in ("sliding", "full")}
+        graphs = {}
+        for mode in ("off", "o", "o+front"):
+            state["m1_policy"] = {bucket: mode}
+            for layer, data in datas.items():
+                graphs[(mode, layer)] = _graph_build(lambda d=data: kernel_fn(d, state))
+        times = {k: [] for k in graphs}
+        for r in range(5):
+            keys = list(graphs) if r % 2 == 0 else list(graphs)[::-1]
+            for k in keys:
+                times[k].append(_graph_median(graphs[k], flush, 10))
+        med = {k: sorted(v)[2] for k, v in times.items()}
+        load = {mode: (46 * med[(mode, "sliding")] + 16 * med[(mode, "full")]) / 62
+                for mode in ("off", "o", "o+front")}
+        best = min(load, key=load.get)
+        policy[bucket] = best
+        rep.append(f"T={bucket} step (46s+16f)/62 " + " ".join(f"{m} {t:.1f}" for m, t in
+                                                             load.items()) + f" -> {best}")
+        del graphs
+    state["m1_policy"] = policy
+
+
+def _m1_enable(state):
+    try:
+        _m1_tune(state)
+    except Exception:
+        state["m1_ok"] = False
+        state["m1_policy"] = {}
+        raise
+
+
 def _try(name, fn):
     t0 = time.time()
     try:
@@ -17824,6 +18119,9 @@ def _selection_summary(state):
     for key in ("tune m=1", "tune m=8"):
         lines.append(f"skp {key}: " + "; ".join(_SKP_REPORT.get(key, [])))
     lines.append("moe pdl " + state.get("moe1_pdl_report", "not run"))
+    lines.append(f"m1 ok={int(bool(state.get('m1_ok')))} policy {state.get('m1_policy', {})}")
+    for item in state.get("m1_report", []):
+        lines.append("m1 " + item)
     bench = state.get("moe1_bench", {})
     for bs in TUNE_TOKENS:
         opts = _moe_opts(bs, state)
@@ -17920,6 +18218,7 @@ def prepare(weights):
         "attn_one_ours": False,
         "route_side_ok": False,
         "route_ours": False,
+        "m1_ok": False,
         "bnd_ours": False,
         "abnd_ours": False,
         "prefetch_ours": False,
@@ -17998,6 +18297,8 @@ def prepare(weights):
     fused_front = bool(state.get("skp", {}).get("fused"))
     if (state["w4_ok"] and (PORT_ROUTER_MMA or PORT_FRONT_CONCAT)) or fused_front:
         _try("moe front tuner", lambda: _front_tune(state))
+    if PORT_SK_PDL and state["skp_ok"] and state["attn_one_ours"]:
+        _try("M1 sk pdl tuner", lambda: _m1_enable(state))
     torch.cuda.synchronize()
     print(f"prepare: done ({time.time() - t_start:.1f} s)")
     try:
@@ -18026,6 +18327,8 @@ def _proj(x, layer, n, state):
     if state["skp_ok"] and m <= 32:
         pick = state["skp_pick"].get((layer, m))
         if pick is not None and pick[2] == n:
+            if layer == "o" and getattr(pick[1], "sk", False) and _m1_mode(m, state) != "off":
+                return pick[1](x.contiguous(), True)
             return pick[1](x.contiguous())
     if state["skp_ok"] and SKP_WD_MIN <= m <= SKP_WD_MAX and n == w.shape[0]:
         wide = state["skp_wide"].get(layer)

@@ -8,7 +8,9 @@ _SKP_SRC and _SKP_GEMV_SRC, the declarations as _SKP_CPP_SRC, the config table t
 generated from as _SKP_CONFIGS, and copies the packing code (the 12-bit code, tile units,
 stage-major streams, escape tables, the balancing permutation, cgemv's row stream) and the
 geometry helpers verbatim between the @SKP_PY@ markers, with the constants they read. The
-kernel source itself is not patched: it has no griddepcontrol and the layer launches it plain.
+kernel source itself is not patched. Its griddepcontrol sits behind SK_PDL (default 0, checked
+here); the layer builds with -DSK_PDL=1 only when PORT_SK_PDL is set, and then launches an sk
+config as a PDL secondary only when bit 16 of its cfg is set.
 
 The wide kernel (wd_source()) goes in as _SKP_WD_SRC, built for the configs in LAYER_WD only,
 with its geometry table as _SKP_WD_GEOM; the layer compiles it into the same extension after
@@ -111,13 +113,30 @@ def device_code(ns):
             raise SystemExit(f"marker {marker} found {src.count(marker)} times in _SK_SRC")
     src = (src.replace("@@DISPATCH@@", dispatch).replace("@@FDISPATCH@@", fdispatch)
            .replace("@@INSTANCES@@", ""))
-    if "griddepcontrol" in src or "griddepcontrol" in ns["GEMV_CUDA_SRC"]:
-        raise SystemExit("the source now carries griddepcontrol; revisit the layer's plain launch")
+    if "griddepcontrol" in ns["GEMV_CUDA_SRC"]:
+        raise SystemExit("the GEMV source now carries griddepcontrol; revisit the layer's plain launch")
+    check_sk_pdl(src)
     wd = ns["wd_source"]()
     if "griddepcontrol" in wd:
         raise SystemExit("the wide kernel now carries griddepcontrol; revisit the layer's plain launch")
     cpp = ns["_SK_CPP"] + ns["GEMV_CPP_DECLS"] + ns["_WD_CPP"]
     return src, ns["GEMV_CUDA_SRC"], wd, cpp, cfgs, ns["WD_GEOM"]
+
+
+def check_sk_pdl(src):
+    """The sk source may carry griddepcontrol only behind SK_PDL (default 0, so the layer's
+    default build is unchanged): every non-comment use must sit inside an `if constexpr (PDL)`
+    block opened on one of the three lines before it, with PDL false unless SK_PDL is set."""
+    if "#ifndef SK_PDL\n#define SK_PDL 0\n#endif" not in src:
+        if "griddepcontrol" in src:
+            raise SystemExit("griddepcontrol in the sk source without the SK_PDL switch")
+        return
+    lines = src.splitlines()
+    for i, line in enumerate(lines):
+        code = line.split("//")[0]
+        if "griddepcontrol" in code and not any("if constexpr (PDL)" in prev
+                                                 for prev in lines[max(0, i - 3):i]):
+            raise SystemExit(f"griddepcontrol outside an `if constexpr (PDL)` block: {line.strip()}")
 
 
 def replace_once(src, pattern, repl, what):
