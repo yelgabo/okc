@@ -10546,6 +10546,7 @@ void skf_fwd(int64_t cfg, at::Tensor ws, at::Tensor rws, at::Tensor x, at::Tenso
     switch (cfg) {
     case 24: launch_sk<1, 8, 1, 2, 2, 4, 3, true, false, 1, 1, __nv_bfloat16, true>(ws, x, out, ptab, (int)pmax, (uint32_t)base4, M, (int)n, (int)k, dg, rw, rpart.data_ptr<float>(), rcount.data_ptr<int>(), rout.data_ptr<float>()); break;
     case 25: launch_sk<1, 16, 2, 2, 2, 4, 4, true, false, 1, 1, __nv_bfloat16, true>(ws, x, out, ptab, (int)pmax, (uint32_t)base4, M, (int)n, (int)k, dg, rw, rpart.data_ptr<float>(), rcount.data_ptr<int>(), rout.data_ptr<float>()); break;
+    case 26: launch_sk<2, 32, 2, 2, 2, 4, 3, true, false, 1, 1, __nv_bfloat16, true>(ws, x, out, ptab, (int)pmax, (uint32_t)base4, M, (int)n, (int)k, dg, rw, rpart.data_ptr<float>(), rcount.data_ptr<int>(), rout.data_ptr<float>()); break;
     default:
         TORCH_CHECK(false, "skf: unknown config ", cfg);
     }
@@ -10898,6 +10899,10 @@ _SKP_CONFIGS = (
     ('unp32raw', 2, 32, 4, 2, 2, 2, 3, False, False, 1, 1, 'bf16', False),
     ('pool8f', 1, 8, 1, 2, 2, 4, 3, True, False, 1, 1, 'bf16', True),
     ('pool16f', 1, 16, 2, 2, 2, 4, 4, True, False, 1, 1, 'bf16', True),
+    # At 32 tokens the side-stream router stretched the pooler from 17 to 26 us (timeline in
+    # check 181ab39f1bd84912); one launch for both took the front chain from 37.6 to 32.4 us
+    # (5869cc624a394904).
+    ('pool32f', 2, 32, 2, 2, 2, 4, 3, True, False, 1, 1, 'bf16', True),
 )
 SK_CONFIGS = list(_SKP_CONFIGS)
 SK_INDEX = {c[0]: i for i, c in enumerate(SK_CONFIGS)}
@@ -10924,7 +10929,7 @@ SK_USE = {
 }
 
 
-FUSED_GEOM = ("pool8", "pool16")
+FUSED_GEOM = ("pool8", "pool16", "pool32")
 
 
 _LAYER_THREADS = {(2304, 8192): 256, (8192, 1024): 64, (4096, 8192): 512, (1024, 4096): 128}
@@ -12050,7 +12055,7 @@ def _skp_self_test(state, cands):
 
 
 def _skp_fused(state, packed_pooler):
-    """The fused pooler + router entry per token bucket (8 and 16): run(x) -> (pooler out
+    """The fused pooler + router entry per token bucket (8, 16 and 32): run(x) -> (pooler out
     bf16 [M, 4096], router logits fp32 [M, 256]) from the pooler's 12-bit stream and the
     router's hi/lo stream in one launch, self-tested against FP64 here (pooler within 5e-3
     with bitwise probe rows, router within 2e-5)."""
@@ -12065,9 +12070,9 @@ def _skp_fused(state, packed_pooler):
     lo = (router - hi.float()).to(torch.bfloat16)
     units = hilo_units(bf16_bits(hi), bf16_bits(lo))
     fused = {}
-    for b, nm in ((8, "pool8"), (16, "pool16")):
-        # Scratch per config: the piece counter resets itself per launch, so the two configs
-        # may alternate.
+    for b, nm in ((8, "pool8"), (16, "pool16"), (32, "pool32")):
+        # Scratch per config: the piece counter resets itself per launch, so the configs may
+        # alternate. [8, 16, 256] holds 4 pieces x 32 tokens, pool32f's 128 CTAs at M = 32.
         rpart = torch.zeros((8, 16, 256), dtype=torch.float32, device=dev)
         rcount = torch.zeros(32, dtype=torch.int32, device=dev)
         g = _sk_geom(nm)
@@ -12085,7 +12090,7 @@ def _skp_fused(state, packed_pooler):
                         pooler.shape[1], rpart, rcount, diag)
             return out, rout
         try:
-            for m in ((1, 3, 8) if b == 8 else (9, 16)):
+            for m in {8: (1, 3, 8), 16: (9, 16), 32: (17, 32)}[b]:
                 diag.zero_()
                 x, probes = _skp_gen_x(m, pooler.shape[1], gen, dev)
                 out, rout = run(x)
@@ -12868,6 +12873,101 @@ def _graph_median(graph, flush, iters=20):
     return 1000 * ms[len(ms) // 2]
 
 
+# Shapes the prepare-time timeline traces: (label, batch, q_len, layer). The judge's profile
+# gives per-kernel sums only, and its rows hide where the step waits between kernels.
+TIMELINE_SHAPES = (("v16s", 16, 8, "sliding"), ("v16f", 16, 8, "full"),
+                   ("d32s", 32, 1, "sliding"), ("d32f", 32, 1, "full"))
+TIMELINE_REPS = 7
+
+
+def _ev_ns(ev):
+    if hasattr(ev, "start_ns"):
+        return ev.start_ns(), ev.start_ns() + ev.duration_ns()
+    return 1000 * ev.start_us(), 1000 * (ev.start_us() + ev.duration_us())
+
+
+def _timeline_case(state, batch, length, layer, seed):
+    device = state["inv_freq"].device
+    _, data = _attn_case(device, batch, length, layer, 1, 1.0, seed, ctx=80000)
+    tokens = batch * length
+    gen = torch.Generator(device=device).manual_seed(seed + 1)
+    stream = torch.randn((tokens, HIDDEN), generator=gen, device=device)
+    data["stream"] = stream
+    data["attn_input"] = (stream * torch.rsqrt(stream.pow(2).mean(-1, keepdim=True) + RMS_EPS)
+                          ).to(torch.bfloat16)
+    data["local_start"] = torch.tensor([96], dtype=torch.int32, device=device)
+    return data
+
+
+def _timeline(state):
+    """Per shape, a CUDA graph of kernel_fn on synthetic inputs (ctx 80000 on every request,
+    not the judge's agentic spread) replayed TIMELINE_REPS times after an L2 flush and a host
+    sync, under torch.profiler. Prints the replay with the median span: each GPU activity's
+    stream, start and end relative to the first, and the idle time before it on its stream and
+    on the whole device. Diagnostic only; it reads no output."""
+    from torch.autograd import DeviceType
+    from torch.profiler import ProfilerActivity, profile
+    flush = torch.empty(256 << 20, dtype=torch.uint8, device="cuda")
+    for label, batch, length, layer in TIMELINE_SHAPES:
+        data = _timeline_case(state, batch, length, layer, 9100 + batch * length)
+        graph = _graph_build(lambda: kernel_fn(data, state))
+        torch.cuda.synchronize()
+        with profile(activities=[ProfilerActivity.CUDA]) as prof:
+            for _ in range(TIMELINE_REPS):
+                flush.zero_()
+                torch.cuda.synchronize()
+                graph.replay()
+                torch.cuda.synchronize()
+        evs = []
+        for ev in prof.profiler.kineto_results.events():
+            if ev.device_type() != DeviceType.CUDA:
+                continue
+            t0, t1 = _ev_ns(ev)
+            evs.append((t0, t1, ev.device_resource_id(), ev.name()))
+        evs.sort()
+        # The host syncs leave tens of us between replays; the flush is a one-kernel segment.
+        segs, cur = [], []
+        for e in evs:
+            if cur and e[0] - max(c[1] for c in cur) > 20000:
+                segs.append(cur)
+                cur = []
+            cur.append(e)
+        if cur:
+            segs.append(cur)
+        segs = [s for s in segs if len(s) >= 3]
+        if not segs:
+            print(f"TL {label}: no replay segments ({len(evs)} GPU events)")
+            continue
+        spans = sorted((max(e[1] for e in s) - s[0][0], i) for i, s in enumerate(segs))
+        seg = segs[spans[len(spans) // 2][1]]
+        base = seg[0][0]
+        rank = {}
+        for e in seg:
+            rank.setdefault(e[2], f"s{len(rank)}")
+        busy = sum(e[1] - e[0] for e in seg)
+        union, last_end = 0, base
+        for e in seg:
+            if e[1] > last_end:
+                union += e[1] - max(e[0], last_end)
+                last_end = e[1]
+        span = spans[len(spans) // 2][0]
+        print(f"TL {label}: span {span / 1000:.1f} us (replays {len(segs)}: "
+              + " ".join(f"{s / 1000:.1f}" for s, _ in spans) + f"), device busy "
+              f"{union / 1000:.1f}, idle {(span - union) / 1000:.1f}, kernel sum {busy / 1000:.1f}")
+        stream_end, dev_end = {}, base
+        for e in seg:
+            st = rank[e[2]]
+            gap_st = (e[0] - stream_end[st]) / 1000 if st in stream_end else 0.0
+            gap_dev = max(0, e[0] - dev_end) / 1000
+            name = e[3].replace("void ", "").replace("(anonymous namespace)::", "")
+            print(f"TL {label} {st} {(e[0] - base) / 1000:6.1f} {(e[1] - base) / 1000:6.1f} "
+                  f"{(e[1] - e[0]) / 1000:5.1f} st-gap {gap_st:4.1f} dev-gap {gap_dev:4.1f} "
+                  f"{name[:44]}")
+            stream_end[st] = e[1]
+            dev_end = max(dev_end, e[1])
+    del flush
+
+
 def _w4_tune(state, seeds=(11, 12)):
     """muse_moe_w4a16's tuner: per TUNE_TOKENS count, times Marlin's GEMM1 + silu_and_mul and
     every fitting W4 GEMM1 config, and Marlin's GEMM2 + finalizer and every W4 GEMM2 config +
@@ -13425,7 +13525,7 @@ def _front_variants(tokens, state):
     our hi/lo mma router (up to 32 tokens), "concat" one cuBLAS GEMM for the pooler and both
     router halves with FP32 output (needs our norm, which rounds the pooled columns on load).
     "skf" is muse_bf16_proj's fused pooler + router launch (12-bit pooler, hi/lo router on the
-    BF16 FFN input) up to 16 tokens."""
+    BF16 FFN input) up to 32 tokens."""
     if tokens <= ROUTER_FP32_MAX_TOKENS:
         out = ["fp32"]
     else:
@@ -13778,6 +13878,11 @@ def prepare(weights):
         _selection_summary(state)
     except Exception as exc:
         print(f"SUMMARY failed: {type(exc).__name__}: {exc}")
+    try:
+        _timeline(state)
+    except Exception as exc:
+        print(f"TL failed: {type(exc).__name__}: {str(exc)[:300]}")
+    torch.cuda.synchronize()
     return state
 
 
