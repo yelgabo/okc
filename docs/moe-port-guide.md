@@ -296,3 +296,18 @@ MEMBAR 43, BAR 15, ERRBAR 22, CCTL 8, UBLKCP 4, ACQBULK 1, LDL 104, STL 39 equal
 one more FENCE.VIEW.ASYNC.S and 8 more SYNCS (the preamble's 4 + 4 inits), BAR, MEMBAR, ERRBAR,
 CCTL and UBLKCP equal. Registers: main<37> 96 with a 56 B frame and 156 / 416 B spills, as the
 standalone; sk8w4s-er 161 against 159 standalone, no spills.
+
+Check of the mbarrier inits under `pdl` (2026-10-29, after a review question): the layer MoE uses
+`full` and `empty` in every skinny variant (sk8w4s, sk16w4s, sk8w4s-er) and `wfull`, `wempty`,
+`xfull`, `xempty` in every fat mode (0, 16, 26, 28, 37); those are all the `mbar_init` targets in
+`_MOE1_SRC`. The preamble initialises each with the routing block's arrival count (skinny `full`
+1 and `empty` kNT, fat `wfull`/`xfull` 1 and `wempty`/`xempty` kRel), then
+`fence.mbarrier_init`, on the thread that does it in the routing block (warp kNW lane 0, warp
+kNWarpsM - 2 lane 0); the routing block is skipped only under `pdl`. That thread's own first use
+(the skinny first-unit copies) follows in program order, every other thread's follows the
+post-routing `__syncthreads`, as in the plain path. The a7e7594 inliner added `empty` to the skinny
+preamble when the standalone block gained it; the earlier anchor matched only the `full` line, so
+it now covers the whole block. `_moe1_pdl_self_test` (run in the route self-test) launches every
+passing variant as the route kernel's PDL secondary, eagerly and as a graph replayed 100 times,
+against the plain launch on the same route output; a failing variant the policy uses turns the
+route variants off.

@@ -14390,6 +14390,7 @@ def _moe1_enable(state, weights):
         print(f"MOE1STRESS {msg}")
     t4 = time.time()
     state["moe1_policy"] = _moe1_tune(state, passed)
+    state["moe1_passed"] = list(passed)
     state["moe1_ok"] = True
     t5 = time.time()
     print(f"MoE fused: repack {t1 - t0:.1f} s, extension build {_bg_seconds('moe1'):.1f} s on "
@@ -16303,6 +16304,64 @@ def _route_self_test(state):
     print(f"route self-test: ids equal on every row, weights within {worst_w:.1e}, {x_differ} "
           f"normalized elements not bitwise; ties valid, same set as SGLang on {tie_agree} of "
           f"{tie_rows} tie rows (SGLang not a top-8 at {sgl_invalid} token counts)")
+    if state.get("moe1_ok"):
+        _moe1_pdl_self_test(state)
+
+
+ROUTE_PDL_REPLAYS = 100
+
+
+def _moe1_pdl_self_test(state):
+    """Every fused variant that passed its FP32 self-test, launched as the route kernel's PDL
+    secondary (the preamble initialises the ring's mbarriers before griddepcontrol.wait and the
+    routing section skips them), against the plain launch on the same route output: eagerly and
+    as a CUDA graph replayed ROUTE_PDL_REPLAYS times, outputs within 1e-4 (sums of squares are
+    FP32 atomics) and the scratch clean. A variant the policy uses that fails raises (the route
+    variants are then off); any other failing variant is reported."""
+    dev = state["pre_expert_w"].device
+    gen = torch.Generator(device=dev).manual_seed(78)
+    ctr = state["moe1"]["scratch"]["ctr"]
+    used = set((state.get("moe1_policy") or {}).values())
+    local_start = torch.tensor([96], dtype=torch.int32, device=dev)
+    bad, lines = [], []
+    for variant in state.get("moe1_passed", []):
+        name, kind, _ = _MOE1_VARIANTS[variant]
+        worst = 0.0
+        for tokens in ((8, 16) if kind == "skinny" else (32, 128, 256)):
+            logits = 4.0 * torch.randn((tokens, N_EXPERTS), generator=gen, device=dev)
+            pooled = torch.randn((tokens, D_EXPERT), generator=gen, device=dev)
+            pooled = pooled.to(torch.bfloat16)
+            res = {}
+
+            def run(pdl):
+                x, ids, w = _route_fwd(logits, 0, pooled, state)
+                res[pdl] = _moe1_run(x, w, ids, local_start, state, variant, pdl)
+
+            run(False)
+            run(True)
+            torch.cuda.synchronize()
+            eager = _rel(res[True], res[False])
+            graph = torch.cuda.CUDAGraph()
+            with torch.cuda.graph(graph):
+                run(True)
+            for _ in range(ROUTE_PDL_REPLAYS):
+                graph.replay()
+            torch.cuda.synchronize()
+            replayed = _rel(res[True], res[False])
+            del graph
+            finite = bool(torch.isfinite(res[True]).all())
+            worst = max(worst, eager, replayed, 0.0 if finite else float("inf"))
+        clean, msg = _moe1_check(state)
+        ok = worst < 1e-4 and clean
+        lines.append(f"{name} {worst:.1e}{'' if ok else ' FAIL ' + msg}")
+        if not ok:
+            ctr[8] = 0
+            bad.append(variant)
+            _FAILED.append(f"moe1 pdl {name} ({worst:.1e}, {msg[:60]})")
+    print("MOE1PDL vs plain launch after the route kernel: " + ", ".join(lines))
+    if any(v in used for v in bad):
+        raise RuntimeError("a fused variant the policy uses fails as the route kernel's PDL "
+                           "secondary")
 
 
 def _front_tune(state):
