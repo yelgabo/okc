@@ -1491,3 +1491,7 @@ instructions; descriptors carried in uniform registers, the patch test by one co
 public `r_lo` / `r_span` does), and the spread between the two CTAs of an SM (stamps above; the
 public q_len 8 flat path cuts equal shares too, `cpart = c`, so whether it shows the same spread
 is not known; a partition weighted per SM slot is untested).
+
+### Scored: 51d4d137b9d14254 2.416x (2026-10-29)
+
+Submit of submission.py at 46b1708 (ONE_PFAST, as checked in 0d05f9b2df1e4834), under the standing replace-when-demonstrably-better authorization. Passed. Board entry before: df988353208245f7 (2.354x).
