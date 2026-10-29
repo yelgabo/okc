@@ -12868,6 +12868,101 @@ def _graph_median(graph, flush, iters=20):
     return 1000 * ms[len(ms) // 2]
 
 
+# Shapes the prepare-time timeline traces: (label, batch, q_len, layer). The judge's profile
+# gives per-kernel sums only, and its rows hide where the step waits between kernels.
+TIMELINE_SHAPES = (("v16s", 16, 8, "sliding"), ("v16f", 16, 8, "full"),
+                   ("d32s", 32, 1, "sliding"), ("d32f", 32, 1, "full"))
+TIMELINE_REPS = 7
+
+
+def _ev_ns(ev):
+    if hasattr(ev, "start_ns"):
+        return ev.start_ns(), ev.start_ns() + ev.duration_ns()
+    return 1000 * ev.start_us(), 1000 * (ev.start_us() + ev.duration_us())
+
+
+def _timeline_case(state, batch, length, layer, seed):
+    device = state["inv_freq"].device
+    _, data = _attn_case(device, batch, length, layer, 1, 1.0, seed, ctx=80000)
+    tokens = batch * length
+    gen = torch.Generator(device=device).manual_seed(seed + 1)
+    stream = torch.randn((tokens, HIDDEN), generator=gen, device=device)
+    data["stream"] = stream
+    data["attn_input"] = (stream * torch.rsqrt(stream.pow(2).mean(-1, keepdim=True) + RMS_EPS)
+                          ).to(torch.bfloat16)
+    data["local_start"] = torch.tensor([96], dtype=torch.int32, device=device)
+    return data
+
+
+def _timeline(state):
+    """Per shape, a CUDA graph of kernel_fn on synthetic inputs (ctx 80000 on every request,
+    not the judge's agentic spread) replayed TIMELINE_REPS times after an L2 flush and a host
+    sync, under torch.profiler. Prints the replay with the median span: each GPU activity's
+    stream, start and end relative to the first, and the idle time before it on its stream and
+    on the whole device. Diagnostic only; it reads no output."""
+    from torch.autograd import DeviceType
+    from torch.profiler import ProfilerActivity, profile
+    flush = torch.empty(256 << 20, dtype=torch.uint8, device="cuda")
+    for label, batch, length, layer in TIMELINE_SHAPES:
+        data = _timeline_case(state, batch, length, layer, 9100 + batch * length)
+        graph = _graph_build(lambda: kernel_fn(data, state))
+        torch.cuda.synchronize()
+        with profile(activities=[ProfilerActivity.CUDA]) as prof:
+            for _ in range(TIMELINE_REPS):
+                flush.zero_()
+                torch.cuda.synchronize()
+                graph.replay()
+                torch.cuda.synchronize()
+        evs = []
+        for ev in prof.profiler.kineto_results.events():
+            if ev.device_type() != DeviceType.CUDA:
+                continue
+            t0, t1 = _ev_ns(ev)
+            evs.append((t0, t1, ev.device_resource_id(), ev.name()))
+        evs.sort()
+        # The host syncs leave tens of us between replays; the flush is a one-kernel segment.
+        segs, cur = [], []
+        for e in evs:
+            if cur and e[0] - max(c[1] for c in cur) > 20000:
+                segs.append(cur)
+                cur = []
+            cur.append(e)
+        if cur:
+            segs.append(cur)
+        segs = [s for s in segs if len(s) >= 3]
+        if not segs:
+            print(f"TL {label}: no replay segments ({len(evs)} GPU events)")
+            continue
+        spans = sorted((max(e[1] for e in s) - s[0][0], i) for i, s in enumerate(segs))
+        seg = segs[spans[len(spans) // 2][1]]
+        base = seg[0][0]
+        rank = {}
+        for e in seg:
+            rank.setdefault(e[2], f"s{len(rank)}")
+        busy = sum(e[1] - e[0] for e in seg)
+        union, last_end = 0, base
+        for e in seg:
+            if e[1] > last_end:
+                union += e[1] - max(e[0], last_end)
+                last_end = e[1]
+        span = spans[len(spans) // 2][0]
+        print(f"TL {label}: span {span / 1000:.1f} us (replays {len(segs)}: "
+              + " ".join(f"{s / 1000:.1f}" for s, _ in spans) + f"), device busy "
+              f"{union / 1000:.1f}, idle {(span - union) / 1000:.1f}, kernel sum {busy / 1000:.1f}")
+        stream_end, dev_end = {}, base
+        for e in seg:
+            st = rank[e[2]]
+            gap_st = (e[0] - stream_end[st]) / 1000 if st in stream_end else 0.0
+            gap_dev = max(0, e[0] - dev_end) / 1000
+            name = e[3].replace("void ", "").replace("(anonymous namespace)::", "")
+            print(f"TL {label} {st} {(e[0] - base) / 1000:6.1f} {(e[1] - base) / 1000:6.1f} "
+                  f"{(e[1] - e[0]) / 1000:5.1f} st-gap {gap_st:4.1f} dev-gap {gap_dev:4.1f} "
+                  f"{name[:44]}")
+            stream_end[st] = e[1]
+            dev_end = max(dev_end, e[1])
+    del flush
+
+
 def _w4_tune(state, seeds=(11, 12)):
     """muse_moe_w4a16's tuner: per TUNE_TOKENS count, times Marlin's GEMM1 + silu_and_mul and
     every fitting W4 GEMM1 config, and Marlin's GEMM2 + finalizer and every W4 GEMM2 config +
@@ -13778,6 +13873,11 @@ def prepare(weights):
         _selection_summary(state)
     except Exception as exc:
         print(f"SUMMARY failed: {type(exc).__name__}: {exc}")
+    try:
+        _timeline(state)
+    except Exception as exc:
+        print(f"TL failed: {type(exc).__name__}: {str(exc)[:300]}")
+    torch.cuda.synchronize()
     return state
 
 
