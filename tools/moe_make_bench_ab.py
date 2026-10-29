@@ -22,7 +22,7 @@ judge's prepare(), on random NVFP4 weights (32 experts):
            globaltimer at the phase boundaries of the stamped twins (light stamps) and of the
            public kernel built with its own OKC_DEBUG stamps (DBG(3) moved to the CTA-wide
            point before the grid barrier).
-  ABDIAG   for the phase A counter twins (31 of 28, 33 of 32, 38 of 36): per-CTA phase A time
+  ABDIAG   for the phase A counter twins (31, 33, 38, 40 of 28, 32, 36, 39): per-CTA time
            (consumers start to phase A end) as mean / p10 / p50 / p90 / max, owned units, MB
            streamed (36,864 B of weights per stage plus 4,096 B of x per n-tile per stage) and
            the rank correlation of time with MB across CTAs; per consumer warp, us in weights
@@ -34,7 +34,7 @@ judge's prepare(), on random NVFP4 weights (32 experts):
 
 The judge's prepare() that follows runs with its output filtered to its summary lines (POLICY,
 PREPARE, BENCH at 128 and 256 tokens, each variant's worst self-test error), so the run log's
-15 KB tail keeps the A/B. Twins: 26 -> 27 (light stamps), 28 -> 31, 32 -> 33 and 36 -> 38 (light
+15 KB tail keeps the A/B. Twins: 26 -> 27 (light stamps), 28 -> 31, 32 -> 33, 36 -> 38, 39 -> 40 (light
 stamps and phase A counters, also timed so their cost shows).
 
 The public file is embedded as a string; OUT.py belongs in the session scratchpad, never in
@@ -47,7 +47,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 LIGHT_TWINS = {26: 27}
-PA_TWINS = {28: 31, 32: 33, 36: 38}
+PA_TWINS = {28: 31, 32: 33, 36: 38, 39: 40}
 
 
 def patch_public(src):
