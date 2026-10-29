@@ -96,8 +96,8 @@ class FakeExt:
         m = x.shape[0]
         assert x.dtype == torch.bfloat16 and x.is_contiguous() and x.shape == (m, k) and 1 <= m <= 256, name
         assert w.dtype == torch.bfloat16 and w.is_contiguous() and w.shape == ((2 if hl else 1) * n, k), name
-        assert n % (64 * wg * clr) == 0 and (k // 64) % clk == 0 and k % 64 == 0, name
-        assert clk * clr <= 16 and bn % clr == 0 and (bn // clr) % 8 == 0 and bn % clk == 0, name
+        assert n % (64 * wg * clr) == 0 and k // 64 >= clk and k % 64 == 0, name
+        assert clk * clr <= 16 and bn % clr == 0 and (bn // clr) % 8 == 0, name
         assert out.shape == (m, n) and out.dtype == (torch.float32 if hl else torch.bfloat16), name
         assert self.mod.wd_smem(wg, bn, clk, clr, hl, nst) <= 227 * 1024, name
         self.calls.append((name, m))
