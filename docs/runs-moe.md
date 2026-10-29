@@ -409,12 +409,4 @@ Commit after f82a8cf656df4914, local work only (no checks left on 2026-10-28):
 
 The losers of the fused-kernel runs are in `docs/ruled-out.md` under muse_moe_w4a16.
 
-## Ruled out (pending merge)
-
-Rows for docs/ruled-out.md under muse_moe_w4a16, held here because this branch does not edit that file.
-
-| experiment | evidence | what it rules out |
-|---|---|---|
-| Nonnegative per-term cost model driving the stream-K partition (stage, n8 tile, segment, cut, CTA terms; 72 DIAG launches, held-out seeds) | submit 8078730bfa434074: held-out CTA rank rho 0.68/0.70 vs 0.45/0.26 for the compiled table, but tables ordered 18/18 vs 17/18 (normal) and 12/15 vs 13/15 (skewed), work rms 22 vs 23 us on a 146 us mean; gate failed, never benched | re-partitioning from per-CTA work counts at 32-256 tokens: the compiled table had the shortest makespan in 10 of 12 held-out cases and its imbalance at 128 tokens is about 10 us; reopen only with a model that sees phase B's waits on other CTAs |
-| Least-squares stage-cost fit (-fit variants, 2026-10-28) | submit 84de5bbafa344b7a: negative phase A coefficients, -fit variants 256.5-257.8 us at bs128 vs 252.8-254.7 for the compiled table | fitting per-class stage costs to per-CTA consumer time: under the compiled partition every CTA's time is about the same, so the classes are collinear |
-| Mode 15 (mode 12 with unit-aligned phase B boundaries) | checks 4111803ce7894b63 and 9a9fb08c134c4a16: bs128 253.1 / 251.2 us, behind legacy128 (252.3 / 251.0 in the first) and mode 16 (249.0) | the alignment alone on the single-chain mma.sync mode; mode 16 keeps it with two chains |
+Losers from these runs are in docs/ruled-out.md.
