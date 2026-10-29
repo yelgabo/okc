@@ -407,7 +407,9 @@ __constant__ int kCostBm[9] = {0, 85, 92, 104, 115, 130, 145, 160, 175};
 // (bench 36b5b559b0344d0f: main-d2 197 us at bs32 against 139 loads-only and 150 for the
 // mma.sync skinny kernel).
 __host__ __device__ constexpr int mma_max(int mode) {
-    return mode == 6 || mode == 9 || mode == 11 || mode == 12 || mode == 14 || mode == 15 ? 2
+    return mode == 6 || mode == 9 || mode == 11 || mode == 12 || mode == 14 || mode == 15
+                   || mode == 16
+               ? 2
            : mode == 7 || mode == 10 ? 4
            : mode == 8 ? 8 : 0;
 }
@@ -420,7 +422,7 @@ __host__ __device__ constexpr int mma_max(int mode) {
 // Memory Consistency Model, "Release and Acquire Patterns"); fence.sc adds only the SC order,
 // which no reader here relies on. The SASS is MEMBAR.ALL.GPU instead of MEMBAR.SC.GPU.
 __host__ __device__ constexpr bool fence_ar(int mode) {
-    return mode == 12 || mode == 13 || mode == 14 || mode == 15;
+    return mode == 12 || mode == 13 || mode == 14 || mode == 15 || mode == 16;
 }
 
 template <bool AR>
@@ -601,7 +603,7 @@ __device__ __forceinline__ int stage_at(const SmemMain& S, int ph, int k, int G)
     const int cost = S.cost[ph][S.job_ntt[j]];
     const int s = j * spj + static_cast<int>((target - static_cast<unsigned>(pre[j]))
                                              / static_cast<unsigned>(cost));
-    // Mode 15: phase B boundaries on the nearest unit (16 stages) so no phase B segment is cut;
+    // Modes 15 and 16: phase B boundaries on the nearest unit (16 stages) so no phase B segment is cut;
     // the cost model put a cut phase B segment at about 10 us (docs/runs-moe.md, "Cost model").
     return ph && S.align_b ? (s + 8) & ~15 : s;
 }
@@ -979,7 +981,7 @@ __device__ __forceinline__ void run_segment_mma(const Params& p, SmemMain& S, fl
     // Mode 14 splits each n8 tile's 16-step mma.sync chain into two accumulators (even and odd
     // k16 steps), halving the dependent chain per stage; the stamps put a stage's compute at
     // 1.02 us against about 0.66 us of issue for its four warps per scheduler.
-    constexpr bool kDual = MODE == 14;
+    constexpr bool kDual = MODE == 14 || MODE == 16;
     float acc[32];
     float acc2[kDual ? 4 * NTT : 1];
 #pragma unroll
@@ -1333,7 +1335,7 @@ __global__ void __launch_bounds__(kNTM, 1) moe_main_kernel(const Params p) {
         if (lane < 9) {
             const bool given = p.cost[0][1] > 0;
             S.cost[0][lane] = given ? p.cost[0][lane] : stage_cost<MODE>(0, lane);
-            S.align_b = MODE == 15 ? 1 : 0;
+            S.align_b = MODE == 15 || MODE == 16 ? 1 : 0;
             S.cost[1][lane] = given ? p.cost[1][lane] : stage_cost<MODE>(1, lane);
         }
         S.cnt[lane] = 0;
@@ -2128,14 +2130,14 @@ SKINNY_VARIANTS = ((8, 4, 0), (16, 4, 0), (8, 4, 1))
 # 0: depth-2 wgmma pipeline; 6: jobs of up to 2 n8 tiles on mma.sync, the rest on wgmma; 12
 # and 13: modes 6 and 0 with fence.acq_rel in place of fence.sc (fence_ar in the source); 14:
 # mode 12 with two accumulator chains per n8 tile on mma.sync; 15: mode 12 with phase B CTA
-# boundaries on unit boundaries (no cut phase B segments).
+# boundaries on unit boundaries (no cut phase B segments); 16: mode 14 with the same.
 # Timing-only diagnostics: 1 streams the weights only (the ring's ceiling), 11 is mode 6 with
 # clock stamps (_diag_report). Also in the source, not built: 7 to 10 (more jobs on mma.sync,
 # flatter stage costs; all lost in submit 0400cfbdfa2845fe). Also in the source, not built: 2 dequantizes without wgmma, 3 runs wgmma on
 # the raw words (run 36b5b559b0344d0f has their numbers), depth 3 (mode 5) and no readiness
 # waits (mode 4), which run bab82f5f5b974594 showed do not move the fat path.
-MAIN_MODES = (0, 1, 6, 11, 12, 13, 14, 15)
-MAIN_CANDIDATES = (0, 6, 12, 13, 14, 15)
+MAIN_MODES = (0, 1, 6, 11, 12, 13, 14, 15, 16)
+MAIN_CANDIDATES = (0, 6, 12, 13, 14, 15, 16)
 VARIANT_MAIN0 = len(SKINNY_VARIANTS)
 
 
@@ -3990,7 +3992,8 @@ def _vname(v):
         return {0: "main-d2", 5: "main-d3", 1: "main-loads", 4: "main-nogate", 2: "main-nowgmma",
                 3: "main-nodequant", 6: "main-m2", 7: "main-m4", 8: "main-m8f", 9: "main-m2f",
                 10: "main-m4f", 11: "main-m2-stamps", 12: "main-m2-ar", 13: "main-d2-ar",
-                14: "main-m2-ar2", 15: "main-m2-ar-ub"}[m]
+                14: "main-m2-ar2", 15: "main-m2-ar-ub",
+                16: "main-m2-ar2-ub"}[m]
     nw, ns, mode = SKINNY_VARIANTS[v]
     return f"sk{nw}w{ns}s{'-loads' if mode else ''}"
 
