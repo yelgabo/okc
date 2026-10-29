@@ -2264,7 +2264,10 @@ SKINNY_VARIANTS = ((8, 4, 0), (16, 4, 0), (8, 4, 1))
 # a previous launch's xb (timing only alone; VARIANT_STAGED runs 19 then 21). Modes 6 and 11 to
 # 15 are not built for these checks (the build would pass the 300 s prepare cap with them); 16
 # won 128 and 256 tokens over all of them in check 9a9fb08c134c4a16. 17 ran in 9332e2a49aff4ff2.
-MAIN_MODES = (0, 1, 16, 18, 19, 20, 21)
+# The shipped build: 18, 19, 21 and the staged pair lost or are timing only (checks
+# 9332e2a49aff4ff2, e221858b020c4dee; docs/runs-moe.md "Staged GEMM1 gate"); list them here to
+# rerun the gate.
+MAIN_MODES = (0, 1, 16, 20)
 MAIN_CANDIDATES = (0, 6, 12, 13, 14, 15, 16, 20)
 VARIANT_MAIN0 = len(SKINNY_VARIANTS)
 
