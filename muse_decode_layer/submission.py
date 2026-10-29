@@ -13904,8 +13904,8 @@ void sk_fwd(int64_t cfg, at::Tensor ws, at::Tensor x, at::Tensor out, at::Tensor
     case 5: launch_sk<2, 32, 3, 1, 4, 2, 4, false, false, 1, 1, __nv_bfloat16, false>(ws, x, out, ptab, (int)pmax, (uint32_t)base4, M, (int)n, (int)k, dg, nullptr, nullptr, nullptr, nullptr); break;
     case 6: launch_sk<1, 8, 4, 1, 4, 1, 4, true, false, 1, 1, __nv_bfloat16, false>(ws, x, out, ptab, (int)pmax, (uint32_t)base4, M, (int)n, (int)k, dg, nullptr, nullptr, nullptr, nullptr); break;
     case 7: launch_sk<1, 8, 4, 1, 4, 1, 4, false, false, 1, 1, __nv_bfloat16, false>(ws, x, out, ptab, (int)pmax, (uint32_t)base4, M, (int)n, (int)k, dg, nullptr, nullptr, nullptr, nullptr); break;
-    case 8: launch_sk<1, 16, 2, 2, 1, 4, 3, true, false, 1, 1, __nv_bfloat16, false>(ws, x, out, ptab, (int)pmax, (uint32_t)base4, M, (int)n, (int)k, dg, nullptr, nullptr, nullptr, nullptr); break;
-    case 9: launch_sk<1, 16, 2, 2, 1, 4, 3, false, false, 1, 1, __nv_bfloat16, false>(ws, x, out, ptab, (int)pmax, (uint32_t)base4, M, (int)n, (int)k, dg, nullptr, nullptr, nullptr, nullptr); break;
+    case 8: launch_sk<1, 16, 2, 2, 2, 2, 3, true, false, 1, 1, __nv_bfloat16, false>(ws, x, out, ptab, (int)pmax, (uint32_t)base4, M, (int)n, (int)k, dg, nullptr, nullptr, nullptr, nullptr); break;
+    case 9: launch_sk<1, 16, 2, 2, 2, 2, 3, false, false, 1, 1, __nv_bfloat16, false>(ws, x, out, ptab, (int)pmax, (uint32_t)base4, M, (int)n, (int)k, dg, nullptr, nullptr, nullptr, nullptr); break;
     case 10: launch_sk<2, 32, 2, 2, 2, 2, 3, true, false, 1, 1, __nv_bfloat16, false>(ws, x, out, ptab, (int)pmax, (uint32_t)base4, M, (int)n, (int)k, dg, nullptr, nullptr, nullptr, nullptr); break;
     case 11: launch_sk<2, 32, 2, 2, 2, 2, 3, false, false, 1, 1, __nv_bfloat16, false>(ws, x, out, ptab, (int)pmax, (uint32_t)base4, M, (int)n, (int)k, dg, nullptr, nullptr, nullptr, nullptr); break;
     case 12: launch_sk<1, 8, 1, 2, 2, 4, 3, true, false, 1, 1, __nv_bfloat16, false>(ws, x, out, ptab, (int)pmax, (uint32_t)base4, M, (int)n, (int)k, dg, nullptr, nullptr, nullptr, nullptr); break;
@@ -13918,8 +13918,8 @@ void sk_fwd(int64_t cfg, at::Tensor ws, at::Tensor x, at::Tensor out, at::Tensor
     case 19: launch_sk<1, 8, 1, 1, 8, 2, 4, false, false, 1, 1, __nv_bfloat16, false>(ws, x, out, ptab, (int)pmax, (uint32_t)base4, M, (int)n, (int)k, dg, nullptr, nullptr, nullptr, nullptr); break;
     case 20: launch_sk<1, 16, 2, 2, 2, 2, 3, true, false, 1, 1, __nv_bfloat16, false>(ws, x, out, ptab, (int)pmax, (uint32_t)base4, M, (int)n, (int)k, dg, nullptr, nullptr, nullptr, nullptr); break;
     case 21: launch_sk<1, 16, 2, 2, 2, 2, 3, false, false, 1, 1, __nv_bfloat16, false>(ws, x, out, ptab, (int)pmax, (uint32_t)base4, M, (int)n, (int)k, dg, nullptr, nullptr, nullptr, nullptr); break;
-    case 22: launch_sk<2, 32, 4, 2, 2, 2, 3, true, false, 1, 1, __nv_bfloat16, false>(ws, x, out, ptab, (int)pmax, (uint32_t)base4, M, (int)n, (int)k, dg, nullptr, nullptr, nullptr, nullptr); break;
-    case 23: launch_sk<2, 32, 4, 2, 2, 2, 3, false, false, 1, 1, __nv_bfloat16, false>(ws, x, out, ptab, (int)pmax, (uint32_t)base4, M, (int)n, (int)k, dg, nullptr, nullptr, nullptr, nullptr); break;
+    case 22: launch_sk<2, 32, 2, 2, 2, 2, 3, true, false, 1, 1, __nv_bfloat16, false>(ws, x, out, ptab, (int)pmax, (uint32_t)base4, M, (int)n, (int)k, dg, nullptr, nullptr, nullptr, nullptr); break;
+    case 23: launch_sk<2, 32, 2, 2, 2, 2, 3, false, false, 1, 1, __nv_bfloat16, false>(ws, x, out, ptab, (int)pmax, (uint32_t)base4, M, (int)n, (int)k, dg, nullptr, nullptr, nullptr, nullptr); break;
     default:
         TORCH_CHECK(false, "sk: unknown config ", cfg);
     }
@@ -14732,8 +14732,8 @@ _SKP_CONFIGS = (
     ('qkv32raw', 2, 32, 3, 1, 4, 2, 4, False, False, 1, 1, 'bf16', False),
     ('o8', 1, 8, 4, 1, 4, 1, 4, True, False, 1, 1, 'bf16', False),
     ('o8raw', 1, 8, 4, 1, 4, 1, 4, False, False, 1, 1, 'bf16', False),
-    ('o16', 1, 16, 2, 2, 1, 4, 3, True, False, 1, 1, 'bf16', False),
-    ('o16raw', 1, 16, 2, 2, 1, 4, 3, False, False, 1, 1, 'bf16', False),
+    ('o16', 1, 16, 2, 2, 2, 2, 3, True, False, 1, 1, 'bf16', False),
+    ('o16raw', 1, 16, 2, 2, 2, 2, 3, False, False, 1, 1, 'bf16', False),
     ('o32', 2, 32, 2, 2, 2, 2, 3, True, False, 1, 1, 'bf16', False),
     ('o32raw', 2, 32, 2, 2, 2, 2, 3, False, False, 1, 1, 'bf16', False),
     ('pool8', 1, 8, 1, 2, 2, 4, 3, True, False, 1, 1, 'bf16', False),
@@ -14746,8 +14746,8 @@ _SKP_CONFIGS = (
     ('slice8raw', 1, 8, 1, 1, 8, 2, 4, False, False, 1, 1, 'bf16', False),
     ('unp16', 1, 16, 2, 2, 2, 2, 3, True, False, 1, 1, 'bf16', False),
     ('unp16raw', 1, 16, 2, 2, 2, 2, 3, False, False, 1, 1, 'bf16', False),
-    ('unp32', 2, 32, 4, 2, 2, 2, 3, True, False, 1, 1, 'bf16', False),
-    ('unp32raw', 2, 32, 4, 2, 2, 2, 3, False, False, 1, 1, 'bf16', False),
+    ('unp32', 2, 32, 2, 2, 2, 2, 3, True, False, 1, 1, 'bf16', False),
+    ('unp32raw', 2, 32, 2, 2, 2, 2, 3, False, False, 1, 1, 'bf16', False),
     ('pool8f', 1, 8, 1, 2, 2, 4, 3, True, False, 1, 1, 'bf16', True),
     ('pool16f', 1, 16, 2, 2, 2, 4, 4, True, False, 1, 1, 'bf16', True),
     ('pool32f', 2, 32, 2, 2, 2, 4, 3, True, False, 1, 1, 'bf16', True),
