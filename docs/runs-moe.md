@@ -405,6 +405,10 @@ Commit after f82a8cf656df4914, local work only (no checks left on 2026-10-28):
   replay, cold L2, two routings) and keeps the fastest as the policy; the BENCH lines carry
   the loads-only ceilings, which split the fat path's gap into ring versus compute.
 
+**Board entry note (2026-10-28 23:25 UTC).** Rows above that call 84de5bbafa344b7a, 0400cfbdfa2845fe,
+c524612c78454486 or 36b5b559b0344d0f "the board entry" are historical: those unfenced runs were
+withdrawn (see docs/context.md). The board entry is da9225e4f89441fc (2.003x, fenced, mode 16).
+
 ## Ruled out
 
 The losers of the fused-kernel runs are in `docs/ruled-out.md` under muse_moe_w4a16.
