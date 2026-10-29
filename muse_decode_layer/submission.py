@@ -12459,8 +12459,8 @@ void sk_fwd(int64_t cfg, at::Tensor ws, at::Tensor x, at::Tensor out, at::Tensor
     const int M = x.size(0);
     int* dg = diag.numel() > 0 ? diag.data_ptr<int>() : nullptr;
     switch (cfg) {
-    case 0: launch_sk<1, 8, 3, 1, 4, 2, 5, true, false, 1, 1, __nv_bfloat16, false>(ws, x, out, ptab, (int)pmax, (uint32_t)base4, M, (int)n, (int)k, dg, nullptr, nullptr, nullptr, nullptr); break;
-    case 1: launch_sk<1, 8, 3, 1, 4, 2, 5, false, false, 1, 1, __nv_bfloat16, false>(ws, x, out, ptab, (int)pmax, (uint32_t)base4, M, (int)n, (int)k, dg, nullptr, nullptr, nullptr, nullptr); break;
+    case 0: launch_sk<1, 8, 3, 1, 4, 4, 4, true, false, 1, 1, __nv_bfloat16, false>(ws, x, out, ptab, (int)pmax, (uint32_t)base4, M, (int)n, (int)k, dg, nullptr, nullptr, nullptr, nullptr); break;
+    case 1: launch_sk<1, 8, 3, 1, 4, 4, 3, false, false, 1, 1, __nv_bfloat16, false>(ws, x, out, ptab, (int)pmax, (uint32_t)base4, M, (int)n, (int)k, dg, nullptr, nullptr, nullptr, nullptr); break;
     case 2: launch_sk<1, 16, 3, 1, 4, 2, 5, true, false, 1, 1, __nv_bfloat16, false>(ws, x, out, ptab, (int)pmax, (uint32_t)base4, M, (int)n, (int)k, dg, nullptr, nullptr, nullptr, nullptr); break;
     case 3: launch_sk<1, 16, 3, 1, 4, 2, 5, false, false, 1, 1, __nv_bfloat16, false>(ws, x, out, ptab, (int)pmax, (uint32_t)base4, M, (int)n, (int)k, dg, nullptr, nullptr, nullptr, nullptr); break;
     case 4: launch_sk<2, 32, 3, 1, 4, 2, 4, true, false, 1, 1, __nv_bfloat16, false>(ws, x, out, ptab, (int)pmax, (uint32_t)base4, M, (int)n, (int)k, dg, nullptr, nullptr, nullptr, nullptr); break;
@@ -13253,8 +13253,8 @@ void wd_fwd(int64_t cfg, at::Tensor w, at::Tensor x, at::Tensor out, int64_t n, 
 # (name, MT, TOKR, NT, NWR, WSK, UPW, NSTAGE, COMP, HL, NACC, CL, out, fuse) per built config, in
 # dispatch order, written by tools/dl_proj_inline.py; the packing helpers index it as SK_CONFIGS.
 _SKP_CONFIGS = (
-    ('qkv8', 1, 8, 3, 1, 4, 2, 5, True, False, 1, 1, 'bf16', False),
-    ('qkv8raw', 1, 8, 3, 1, 4, 2, 5, False, False, 1, 1, 'bf16', False),
+    ('qkv8', 1, 8, 3, 1, 4, 4, 4, True, False, 1, 1, 'bf16', False),
+    ('qkv8raw', 1, 8, 3, 1, 4, 4, 3, False, False, 1, 1, 'bf16', False),
     ('qkv16', 1, 16, 3, 1, 4, 2, 5, True, False, 1, 1, 'bf16', False),
     ('qkv16raw', 1, 16, 3, 1, 4, 2, 5, False, False, 1, 1, 'bf16', False),
     ('qkv32', 2, 32, 3, 1, 4, 2, 4, True, False, 1, 1, 'bf16', False),
