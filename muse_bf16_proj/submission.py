@@ -191,6 +191,13 @@ _SK_SRC = r"""
 #include <c10/util/Exception.h>
 #endif
 
+// SK_PDL 1 builds every single-CTA config to stream its first ring of weights before
+// griddepcontrol.wait, and lets sk_fwd / skf_fwd launch as a PDL secondary when bit 16 of cfg
+// is set. Off by default: the default build's device code is the one judged so far.
+#ifndef SK_PDL
+#define SK_PDL 0
+#endif
+
 namespace {
 
 constexpr uint32_t SUSPEND_HINT = 0x989680u;
@@ -455,7 +462,55 @@ sk_kernel(const __grid_constant__ CUtensorMap xmap, const uint8_t* __restrict__ 
         tma_3d(s0, &xmap, full0 + 8 * slot, 0, 0, (gs0 + st) * UPS);
     };
 
-    if (tid == 0) {
+#if SK_PDL
+    constexpr bool PDL = CL == 1;
+#else
+    constexpr bool PDL = false;
+#endif
+    // Under PDL the weights (and router pieces) of the first ring's worth of stages are static,
+    // so they stream while the predecessor still runs; x is the predecessor's output and is
+    // copied only after griddepcontrol.wait. Each stage's expect_tx covers both copies, so the
+    // full barrier cannot complete on the weights alone.
+    const int npre = PDL ? (nst_tot < NSTAGE ? nst_tot : NSTAGE) : 1;
+    auto issue_w = [&](int st) {
+        const int slot = st % NSTAGE;
+        const uint32_t s0 = sbase + slot * SST;
+        if (FUSE && st >= nst) {
+            const int rs = rq * spp + (st - nst);
+            mbar_expect_tx(full0 + 8 * slot, UPS * XU + RWBY);
+            bulk_g2s(s0 + XBY, rws + ((size_t)rs * 32 + rbk) * RWBY, RWBY, full0 + 8 * slot);
+            return;
+        }
+        mbar_expect_tx(full0 + 8 * slot, stage_tx);
+        bulk_g2s(s0 + XBY, wsrc + (size_t)(gs0 + st) * wstride, WBY, full0 + 8 * slot);
+    };
+    auto issue_x = [&](int st) {
+        const int slot = st % NSTAGE;
+        const int xu = FUSE && st >= nst ? (rq * spp + (st - nst)) * UPS : (gs0 + st) * UPS;
+        tma_3d(sbase + slot * SST, &xmap, full0 + 8 * slot, 0, 0, xu);
+    };
+
+    if (PDL && tid == 0) {
+        asm volatile("prefetch.tensormap [%0];" :: "l"(&xmap) : "memory");
+        for (int i = 0; i < NSTAGE; ++i) {
+            mbar_init(full0 + 8 * i, 1);
+        }
+        fence_mbar_init();
+        for (int st = 0; st < npre; ++st) {
+            issue_w(st);
+        }
+        if constexpr (COMP) {
+            mbar_init(pbar, 1);
+            fence_mbar_init();
+            mbar_expect_tx(pbar, tab_ints * 4);
+            bulk_g2s(smem_u32(tab), ptab + (size_t)rb * tab_ints, tab_ints * 4, pbar);
+        }
+        for (int i = 0; i < NSTAGE; ++i) {
+            mbar_init(empty0 + 8 * i, NW + NESC);
+        }
+        mbar_init(cbar, NESC > 0 ? NESC : 1);
+        fence_mbar_init();
+    } else if (tid == 0) {
         asm volatile("prefetch.tensormap [%0];" :: "l"(&xmap) : "memory");
         if constexpr (CL > 1) {
             // A cluster-scope release after a copy is in flight waits for it, so every barrier
@@ -495,6 +550,15 @@ sk_kernel(const __grid_constant__ CUtensorMap xmap, const uint8_t* __restrict__ 
         zrow_p[lane] = 0u;
     }
     __syncthreads();
+    if constexpr (PDL) {
+        // Every thread waits, so no global write of this kernel can pass a predecessor's read.
+        asm volatile("griddepcontrol.wait;" ::: "memory");
+        if (tid == 0) {
+            for (int st = 0; st < npre; ++st) {
+                issue_x(st);
+            }
+        }
+    }
     if constexpr (CL > 1) {
         cluster_arrive();
     }
@@ -502,7 +566,7 @@ sk_kernel(const __grid_constant__ CUtensorMap xmap, const uint8_t* __restrict__ 
     if (warp == NW) {
         if (lane == 0) {
             bool dead = false;
-            for (int st = 1; st < nst_tot; ++st) {
+            for (int st = npre; st < nst_tot; ++st) {
                 const int slot = st % NSTAGE;
                 if (st >= NSTAGE && !mbar_wait<true>(empty0 + 8 * slot, ((st / NSTAGE) - 1) & 1, dead, diag, 1)) {
                     break;
@@ -908,6 +972,12 @@ CUtensorMap make_xmap(const void* x, uint64_t m, uint64_t k, uint32_t units) {
     return map;
 }
 
+#if SK_PDL
+// Set by sk_fwd / skf_fwd for the one launch they dispatch. A file-scope flag instead of a
+// launch_sk argument keeps the dispatch lines that tools/dl_proj_inline.py generates valid.
+bool sk_pdl_launch = false;
+#endif
+
 template <int MT, int TOKR, int NT, int NWR, int WSK, int UPW, int NSTAGE, bool COMP, bool HL, int NACC, int CL,
           typename OutT, bool FUSE>
 void launch_sk(const at::Tensor& ws, const at::Tensor& x, at::Tensor& out, const at::Tensor& ptab, int pmax,
@@ -951,6 +1021,23 @@ void launch_sk(const at::Tensor& ws, const at::Tensor& x, at::Tensor& out, const
         C10_CUDA_CHECK(cudaLaunchKernelEx(&lc, kern, xmap, wsp, op, tp, pmax, base4, M, N, K, diag, rws, rpart,
                                           rcount, rout));
     } else {
+#if SK_PDL
+        if (sk_pdl_launch) {
+            cudaLaunchConfig_t lc = {};
+            lc.gridDim = dim3(N / C::R);
+            lc.blockDim = dim3(C::THREADS);
+            lc.dynamicSmemBytes = smem;
+            lc.stream = stream;
+            cudaLaunchAttribute attr[1];
+            attr[0].id = cudaLaunchAttributeProgrammaticStreamSerialization;
+            attr[0].val.programmaticStreamSerializationAllowed = 1;
+            lc.attrs = attr;
+            lc.numAttrs = 1;
+            C10_CUDA_CHECK(cudaLaunchKernelEx(&lc, kern, xmap, wsp, op, tp, pmax, base4, M, N, K, diag, rws, rpart,
+                                              rcount, rout));
+            return;
+        }
+#endif
         kern<<<N / C::R, C::THREADS, smem, stream>>>(xmap, wsp, op, tp, pmax, base4, M, N, K, diag, rws, rpart,
                                                      rcount, rout);
         C10_CUDA_KERNEL_LAUNCH_CHECK();
@@ -967,6 +1054,10 @@ void sk_fwd(int64_t cfg, at::Tensor ws, at::Tensor x, at::Tensor out, at::Tensor
             int64_t n, int64_t k, at::Tensor diag) {
     const int M = x.size(0);
     int* dg = diag.numel() > 0 ? diag.data_ptr<int>() : nullptr;
+#if SK_PDL
+    sk_pdl_launch = ((cfg >> 16) & 1) != 0;
+    cfg &= 0xffff;
+#endif
     switch (cfg) {
 @@DISPATCH@@
     default:
@@ -982,6 +1073,10 @@ void skf_fwd(int64_t cfg, at::Tensor ws, at::Tensor rws, at::Tensor x, at::Tenso
     const int M = x.size(0);
     int* dg = diag.numel() > 0 ? diag.data_ptr<int>() : nullptr;
     const uint8_t* rw = reinterpret_cast<const uint8_t*>(rws.data_ptr());
+#if SK_PDL
+    sk_pdl_launch = ((cfg >> 16) & 1) != 0;
+    cfg &= 0xffff;
+#endif
     switch (cfg) {
 @@FDISPATCH@@
     default:
