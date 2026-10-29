@@ -77,3 +77,10 @@ Mermaid visualizations, trade-offs, tested versus speculative status, combinatio
 128/256-token A-versus-B evaluation. It includes later staged-pair, ownership and attention
 results at `aab7d75`, plus the whole-pipeline qualification to step 5's GEMM1-only gate.
 The original plan above is preserved.
+
+## Target: overall top 100 (set 2026-10-29)
+
+Measured from the boards at about 10:00 UTC on 10-29: overall rank equals the decode layer rank
+(every team ranked 89-112 overall has the same rank on muse_decode_layer). Overall 100th was at
+layer 2.114x; we were 1.878x (rank 228). So every standalone win counts only once it is ported
+into the layer, and layer gap shares (docs/gap-map-2026-10-29.md) set the priorities.
