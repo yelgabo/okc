@@ -4907,6 +4907,8 @@ def _one(data, splits=None, nc=None, mode=None, dbg=None, phase=0):
 
 
 # Where the one-launch kernel runs, by (layer, q_len, batch); True everywhere it is not listed.
+# (Judged with the once-path diet as 03a21fbc99cf445f; this line only makes the repeat's source
+# differ from it.)
 _ONE_ROUTE = {}
 
 

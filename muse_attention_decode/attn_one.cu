@@ -48,6 +48,11 @@ constexpr int COOP_POLL_LIMIT = 1 << 24;
 #ifndef ONE_DIET
 #define ONE_DIET 1
 #endif
+// ONE_FIN8: the finalize issues all eight workspace copies' loads (nc = 8, batch-1 full
+// context) before zeroing any, as one L2 round trip instead of eight dependent ones.
+#ifndef ONE_FIN8
+#define ONE_FIN8 0
+#endif
 
 // MODE bits: 1 = last-CTA finalize, 3 = cooperative finalize (every CTA a slice of rows),
 // |4 = at most one tile per CTA (straight-line prologue), |8 = the sequence length is taken
@@ -492,7 +497,7 @@ __device__ __forceinline__ int ws_row(int b, int nc, int copy, int L, int j, int
 
 // Normalizes, scales and writes rows [r_lo, r_hi) of the flat row space (row = (b * L + j) * 16
 // + head) from the workspace, then zeroes exactly what it read. Eight threads per row.
-template <int L, int NT>
+template <int L, int NT, bool NC8 = false>
 __device__ __forceinline__ void finalize_rows(const Params& p, int r_lo, int r_hi, float v_scale,
                                               int tid) {
     constexpr int RPP = NT / 8;
@@ -513,9 +518,49 @@ __device__ __forceinline__ void finalize_rows(const Params& p, int r_lo, int r_h
         }
         float acc[8] = {0.f, 0.f, 0.f, 0.f, 0.f, 0.f, 0.f, 0.f};
         float lsum = 0.f;
+        if (NC8 && p.nc == 8) {
+            // All eight copies' loads before any store: in the loop below each copy's loads
+            // wait behind the previous copy's stores, eight dependent L2 round trips.
+            float4 a[8], a2[8];
+            float lv[8];
+#pragma unroll
+            for (int copy = 0; copy < 8; ++copy) {
+                const int wr = ws_row(b, 8, copy, L, j, head);
+                const float* row = p.ws_acc + static_cast<size_t>(wr) * D + t8 * 8;
+                a[copy] = act ? ld_cg_f4(row) : make_float4(0.f, 0.f, 0.f, 0.f);
+                a2[copy] = act ? ld_cg_f4(row + 4) : make_float4(0.f, 0.f, 0.f, 0.f);
+                lv[copy] = act && t8 == 0 ? __ldcg(p.ws_l + wr) : 0.f;
+            }
+            float lsum8 = 0.f;
+#pragma unroll
+            for (int copy = 0; copy < 8; ++copy) {
+                acc[0] += a[copy].x;
+                acc[1] += a[copy].y;
+                acc[2] += a[copy].z;
+                acc[3] += a[copy].w;
+                acc[4] += a2[copy].x;
+                acc[5] += a2[copy].y;
+                acc[6] += a2[copy].z;
+                acc[7] += a2[copy].w;
+                lsum8 += lv[copy];
+            }
+            lsum = __shfl_sync(0xffffffffu, lsum8, (tid & 31) & ~7);
+            if (act) {
+#pragma unroll
+                for (int copy = 0; copy < 8; ++copy) {
+                    const int wr = ws_row(b, 8, copy, L, j, head);
+                    float* row = p.ws_acc + static_cast<size_t>(wr) * D + t8 * 8;
+                    st_cg_f4(row, make_float4(0.f, 0.f, 0.f, 0.f));
+                    st_cg_f4(row + 4, make_float4(0.f, 0.f, 0.f, 0.f));
+                    if (t8 == 0) {
+                        __stcg(p.ws_l + wr, 0.f);
+                    }
+                }
+            }
+        }
         // Lane t8 == 0 alone reads and zeroes the row sum and broadcasts it, so no lane reads
         // what another lane zeroes; the loop is uniform so the shuffle is reached by every lane.
-        for (int copy = 0; copy < p.nc; ++copy) {
+        for (int copy = 0; copy < (NC8 && p.nc == 8 ? 0 : p.nc); ++copy) {
             const int wr = ws_row(b, p.nc, copy, L, j, head);
             float* row = p.ws_acc + static_cast<size_t>(wr) * D + t8 * 8;
             float* lp = p.ws_l + wr;
@@ -613,6 +658,9 @@ attn_one_kernel(const Params p) {
     // us slower than without it at full verify b16 / b32 in all four samples of bench
     // d57d1fe064164611 (docs/runs-attention.md, 10-29).
     constexpr bool DIET = ONE_DIET && !(PROD && L == 8);
+    // Eight workspace copies come only with the batch-1 full-context plan (cooperative,
+    // speculated length, several tiles per CTA); other instances keep the rolled loop.
+    constexpr bool FIN8 = ONE_FIN8 && COOP && SPEC && !ONE;
     // NC consumer threads (one warpgroup per KV head at q_len 8, four warps at q_len 1); in
     // producer mode one more warpgroup gathers the tiles.
     constexpr int NC = L == 8 ? 256 : 128;
@@ -1683,7 +1731,7 @@ attn_one_kernel(const Params p) {
             const int r_lo = split * rows_per;
             const int r_hi = min(ROWS, r_lo + rows_per);
             if (r_lo < r_hi) {
-                finalize_rows<L, NC>(p, b * ROWS + r_lo, b * ROWS + r_hi, v_scale, tid);
+                finalize_rows<L, NC, FIN8>(p, b * ROWS + r_lo, b * ROWS + r_hi, v_scale, tid);
             }
         }
     } else {
