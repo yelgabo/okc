@@ -71,6 +71,7 @@ SGLang with its 95% interval. Profiles and logs are in `muse_moe_w4a16/profiles/
 | 2026-10-29 | 987d024620e44eb7 (check) | 96f2c43 | the shippable build: MAIN_MODES (0, 16, 26, 28, 37); GATE adds 37 minus 28 (held-out seeds 17-22, skewed 11-13) | 2.144x (2.112-2.176) | per shape: bs1 28.71 us, bs16 98.86, bs32 133.91, bs8 68.86, bs128 197.09 (2.309x, main-lean-silu-bar), bs256 241.49 (2.561x, main-lean-silu-bar). GATE 37 minus 28 per seed: bs128 -1.5 -2.1 -4.1 -4.5 -2.8 -4.1 (mean -3.2); bs256 -3.3 -5.1 -5.0 -5.1 -5.5 -5.5 (mean -4.9); skewed bs128 -2.5 -0.6 -1.5, bs256 -0.2 -3.2 -4.4. Output of 37 vs 16 1.2e-4 to 4.1e-4 (28: 8e-5 to 4.0e-4); self-tests 3.87e-3 to 3.90e-3; spin flags 0. BENCH bs128 main-lean-silu-bar 211.2, main-lean 214.6; bs256 232.6 vs 237.8. Judge bs128 197.09 against 200.89 / 200.34 for mode 28's two checks, bs256 241.49 against 247.11 / 244.59; the score sits inside 28's checks' intervals (2.149x, 2.158x) while the skinny shapes (unchanged code) drew 0.4-2.9 us higher at 1, 8 and 16 tokens than in f928f8a802014e4f. |
 | 2026-10-29 | 6307d0c91c8d4ada (submit by the coordinator, used as the repeat of 987d024620e44eb7) | 96f2c43 | the shippable mode 37 build as checked in 987d024620e44eb7 | 2.160x (2.127-2.192) | passed 5/5 (tests 4.07e-3 to 4.22e-3). Judge medians: bs1 27.98 us, bs16 101.51, bs32 135.48, bs8 68.34, bs128 202.35 (2.329x, main-lean-silu-bar), bs256 241.46 (2.572x). GATE 37 minus 28 per seed: bs128 -5.8 -3.4 -4.1 -3.3 -2.9 -6.1 (mean -4.3); bs256 -4.8 -5.2 -6.5 -5.1 -4.8 -5.6 (mean -5.3); skewed bs128 -2.6 +0.3 -1.8 (mean -1.4), bs256 -1.0 -1.6 -5.2 (mean -2.6). BENCH bs128 main-lean-silu-bar 211.1, main-lean 215.3; bs256 232.9 vs 237.2. Two judge runs of 37: bs256 241.49 / 241.46 us against 247.11 / 244.59 for 28's checks; bs128 197.09 / 202.35 against 200.89 / 200.34 (the judge's bs128 is noisier than the 3-4 us gain). Status JSON in profiles/submission.6307d0c91c8d4ada.status.json |
 | 2026-10-29 | 240b68e7df1a427f (submit under the user's scored-runs-as-measurements authorization; bench file from tools/moe_make_bench_ab.py --small, not committed) | 4204a8f | same-process A/B of the skinny path against the public MoE (its TINY / TINY2 / MID builds, which kernel_fn picks at 1-4 / 5-8 / 9-16 tokens) at 1, 8, 16 tokens, layer and standalone routing, seeds 1-6; arms sk8w4s (the policy), sk16w4s, sk8w4s-loads; stamps of the new skinny kMode 2 (sk8w4s with thread-0 phase stamps and cycle counters) against the public DEBUG builds | 1.988x (1.959-2.018) | public minus sk8w4s, us: T=1 layer +0.4 (35.4 base), std +0.3; T=8 layer -3.7 (66.2, 5.6%, 6 of 6 lower), std -1.9 (92.1); T=16 layer -2.0 (84.4, 2.4%), std -2.5 (108.9). sk8w4s-loads minus sk8w4s -2.5 / -3.6 / -4.4 (layer): the public kernel computing (62.5 at 8 tokens) matches our loads-only floor (62.7). sk16w4s +1.3 to +6.9 everywhere. Attribution in section "Skinny path against the public kernel". The score is a bench file's (the judge timed the shipped policy; 2.0x band of earlier runs) |
+| 2026-10-29 | 2c28a7256b004aa1 (submit, bench file, same authorization) | 126ee85 | skinny kMode 3 (sk8w4s-er: each compute warp loads its unit's codes up front, fences and arrives on a per-slot empty mbarrier; thread 0 refills once all 8 warps arrived, no per-unit bar.sync of the compute warps) and kMode 4 (3 with stamps) against sk8w4s, same A/B as 240b68e7df1a427f | 1.970x (1.940-1.999) | er minus sk8w4s, us: T=1 layer +0.4 (0 of 6 lower), std +0.4 (0 of 6); T=8 layer -1.0 (6 of 6), std +0.7 (2 of 6); T=16 layer -0.9 (5 of 6), std +1.6 (1 of 6). Public minus sk8w4s this run: T=8 layer -4.1, T=16 layer -3.1. Stamps at 8 tokens, layer: er's phase A 38.0 us against 34.9 (codes held in registers through the unit), its A->B wait 2.5 against 4.0 and barrier 2.2 against 3.9. Self-test 3.93e-3; outputs vs sk8w4s 0 to 3e-5. Not adopted for the standalone (it loses on the standalone routing and at 1 token); a layer bench on judge routing may pick it at 8 and 16 tokens |
 
 ## Why the layer keeps the W4 chain at 128 tokens, 2026-10-29
 
@@ -504,6 +505,47 @@ still lists 20 or 23 in LAYER_MODES gets them silently dropped by the inliner (i
 in MAIN_MODES), so list (0, 16, 26, 28) or (0, 16, 28). Tested on a scratch copy: the inliner's
 anchors match and the layer's variant table gains `('main-lean', 'main', 'launch_main<28>')`; the
 layer build itself was not compiled here.
+
+## Skinny path against the public kernel at 1, 8 and 16 tokens, 2026-10-29
+
+Asked by the 2026-10-30 gap map: at 1 or 8 tokens a microsecond is worth 3-4x more layer score
+than at 128/256. Same-process A/B (tools/moe_make_bench_ab.py --small, public TINY / TINY2 / MID
+builds as its kernel_fn picks them), six seeds of layer and standalone routing, runs
+240b68e7df1a427f and 2c28a7256b004aa1. Stop rule: stop if the public lead at 8 tokens is under 3%.
+
+| us, mean of 6 seeds | T=1 layer | T=8 layer | T=16 layer | T=8 std | T=16 std |
+|---|---|---|---|---|---|
+| sk8w4s (policy) | 35.4 / 35.7 | 66.2 / 66.9 | 84.4 / 85.5 | 92.1 / 93.0 | 108.9 / 109.8 |
+| public minus sk8w4s | +0.4 / +0.3 | -3.7 / -4.1 (5.6-6.1%) | -2.0 / -3.1 | -1.9 / -2.8 | -2.5 / -2.9 |
+| sk8w4s-loads minus sk8w4s | -2.5 / -2.6 | -3.6 / -3.8 | -4.4 / -5.1 | -2.3 / -3.0 | -4.0 / -4.1 |
+
+The lead at 8 tokens is above 3%, so attribution. Stamps (thread 0's globaltimer; our new
+sk8w4s-stamps against the public DEBUG builds), 8 tokens, layer routing, two runs:
+
+| us | ours | public |
+|---|---|---|
+| setup (routing, positions) | 2.2 / 2.1 | 2.2 / 2.2 |
+| phase A | 34.6 / 34.9 | 33.3 / 33.4 |
+| phase B, with ours's wait for phase A credits (4.0) | 19.7 / 20.0 | 18.7 / 18.9 |
+| grid barrier wait (tail of the slowest CTA) | 3.7 / 3.9 | 2.5 / 2.9 |
+| final pass | 0.4 / 0.3 | 0.3 / 0.3 |
+| end | 61.5 / 62.3 | 57.6 / 58.4 |
+
+Measured: setup is at parity; the 4 us are spread over phase A (+1.3), phase B with its
+dependency wait (+1.0) and the barrier tail (+1.2). Thread 0 never waits for a weights unit (0.0
+us of missed first tries in both phases), and the loads-only twin (same stream, no math) lands
+at the public kernel's time (62.7 against 62.5 us), so the public kernel hides its compute under
+the stream and ours does not: the compute warps are the limit, by 3.6 us at 8 tokens. Inferred:
+the per-unit lockstep (a bar.sync of all 8 compute warps behind each unit's last MMA before the
+slot is refilled) and the per-unit instruction count (our unit loop 828 SASS instructions against
+709-759 in the public TINY2 build; local nvcc 12.8) are the two candidates.
+
+Tested the first (sk8w4s-er, kMode 3): -1.0 us at 8 tokens and -0.9 at 16 on layer routing (11 of
+12 seeds lower), +0.4 at 1 token and +0.7 / +1.6 on standalone routing. Holding the unit's codes
+in registers through its MMAs made phase A 3 us longer while the dependency wait and the barrier
+tail fell by 3.1 us. Not adopted for the standalone policy (it loses on the board's routing); the
+release chain is the fat path's ("Ordering of the ring slot releases"). The instruction count is
+untested.
 
 ## Phase A against the public kernel, 2026-10-29
 
