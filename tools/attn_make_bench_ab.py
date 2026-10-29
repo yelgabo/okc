@@ -2,8 +2,8 @@
 control) plus extra builds of attn_one.cu with compile flags, and optionally the public entry's
 kernel loaded from its own file, all timed in one process on the same inputs.
 
-    python3 tools/attn_make_bench_ab.py OUT.py [--pub PUBLIC.py] [--shapes sliding|all]
-        NAME=FLAGS ...
+    python3 tools/attn_make_bench_ab.py OUT.py [--pub [NAME=]PUBLIC.py ...]
+        [--shapes sliding|full|all] NAME=FLAGS ...
 
 NAME=FLAGS adds a variant built from submission.py's inlined _ONE_SRC (not attn_one.cu) with
 those nvcc flags (comma-separated), e.g. diet=-DONE_DIAG=0,-DONE_DIET=1. A switch that exists
@@ -21,7 +21,9 @@ At import the bench prints, before the judge's own tests and timing:
   ABWARM    per scored shape: a graph of 16 back-to-back calls, median over 25 replays,
             divided by 16 (L2 warm, launch gaps of a captured graph).
 
-The public file is read at generation time and embedded as a string; the output belongs in the
+--pub may repeat; each public file is an arm (default name `pub`; its names must start with
+`pub`, and a second file needs its own load_inline name). --shapes full keeps the full-context
+shapes with batch > 1 (modes 49 and 51). The public files are read at generation time and embedded as a string; the output belongs in the
 session scratchpad, not in the repository (only the logs of its runs are committed).
 """
 
@@ -36,7 +38,7 @@ import attn_make_bench_one as base  # noqa: E402
 AB = r'''
 
 _AB_FLAGS = {flags!r}
-_AB_PUB_SRC = {pub_src!r}
+_AB_PUB_SRCS = {pub_srcs!r}
 _AB_SHAPES = {shapes!r}
 _AB_MODS = {{}}
 for _name, _fl in _AB_FLAGS.items():
@@ -51,17 +53,17 @@ for _name, _fl in _AB_FLAGS.items():
         print(f"ABBUILD {{_name}} {{_fl}} loaded {{_ob_elapsed()}}", flush=True)
     except Exception as _exc:
         print(f"ABBUILD {{_name}} FAIL {{type(_exc).__name__}}: {{str(_exc)[:400]}}", flush=True)
-_AB_PUB = None
-if _AB_PUB_SRC:
+_AB_PUBS = {{}}
+for _name, _src in _AB_PUB_SRCS.items():
     try:
         import types as _types
-        _AB_PUB = _types.ModuleType("okc_ab_public")
-        exec(compile(_AB_PUB_SRC, "public_attention.py", "exec"), _AB_PUB.__dict__)
-        _AB_PUB._module()
-        print(f"ABBUILD pub loaded {{_ob_elapsed()}}", flush=True)
+        _m = _types.ModuleType(f"okc_ab_{{_name}}")
+        exec(compile(_src, f"{{_name}}_attention.py", "exec"), _m.__dict__)
+        _m._module()
+        _AB_PUBS[_name] = _m
+        print(f"ABBUILD {{_name}} loaded {{_ob_elapsed()}}", flush=True)
     except Exception as _exc:
-        _AB_PUB = None
-        print(f"ABBUILD pub FAIL {{type(_exc).__name__}}: {{str(_exc)[:400]}}", flush=True)
+        print(f"ABBUILD {{_name}} FAIL {{type(_exc).__name__}}: {{str(_exc)[:400]}}", flush=True)
 
 
 def _ab_via(mod):
@@ -80,14 +82,16 @@ def _ab_fns():
     fns = {{"ctrl": _one}}
     for name, mod in _AB_MODS.items():
         fns[name] = _ab_via(mod)
-    if _AB_PUB is not None:
-        fns["pub"] = _AB_PUB.kernel_fn
+    for name, mod in _AB_PUBS.items():
+        fns[name] = mod.kernel_fn
     return fns
 
 
 def _ab_scored():
     for batch, layer, q_len in _OB_SCORED:
         if _AB_SHAPES == "sliding" and layer != "sliding":
+            continue
+        if _AB_SHAPES == "full" and (layer == "sliding" or batch == 1):
             continue
         yield batch, layer, q_len
 
@@ -113,7 +117,7 @@ def _ab_check():
             for vname, fn in fns.items():
                 out = _ob_run(lambda: fn(data), f"{{vname}} {{name}}")
                 torch.cuda.synchronize()
-                wok, wmsg = _ob_ws_check(dev) if vname != "pub" else (True, "")
+                wok, wmsg = _ob_ws_check(dev) if not vname.startswith("pub") else (True, "")
                 # The judge-style check (two FP32 references) for the control only; the
                 # variants are compared with the control's output.
                 if ref is None:
@@ -229,13 +233,17 @@ def main():
     if not args:
         raise SystemExit(__doc__)
     out = Path(args.pop(0))
-    pub_src = ""
+    pub_srcs = {}
     shapes = "all"
     flags = {}
     while args:
         a = args.pop(0)
         if a == "--pub":
-            pub_src = Path(args.pop(0)).read_text()
+            name, _, path = args.pop(0).rpartition("=")
+            name = name or "pub"
+            if not name.startswith("pub"):
+                raise SystemExit(f"public arm {name}: names start with 'pub'")
+            pub_srcs[name] = Path(path).read_text()
         elif a == "--shapes":
             shapes = args.pop(0)
         else:
@@ -248,9 +256,9 @@ def main():
     head, sep, _ = runner.rpartition("\nimport os as _os\n")
     if not sep:
         raise SystemExit("runner layout changed: no 'import os as _os' block")
-    src += head + sep + AB.format(flags=flags, pub_src=pub_src, shapes=shapes)
+    src += head + sep + AB.format(flags=flags, pub_srcs=pub_srcs, shapes=shapes)
     out.write_text(src)
-    print(f"wrote {out} with variants {list(flags)}{' + pub' if pub_src else ''}, shapes {shapes}")
+    print(f"wrote {out} with variants {list(flags)}{' + ' + str(list(pub_srcs)) if pub_srcs else ''}, shapes {shapes}")
 
 
 if __name__ == "__main__":
