@@ -1,0 +1,90 @@
+> qkv8
+tune qkv_gate  m=16: qkv16 14.5, qkv16raw 16.7, cublas 19.2 -> qkv16
+tune qkv_gate  m=32: qkv32 15.9, qkv32raw 16.9, cublas 18.9 -> qkv32
+tune qkv_gate  m=64: cublas 19.8, b1n64c2 23.4, m64k2r4 23.5 -> cublas
+tune qkv_gate  m=128: cublas 21.7, b1n64c2 27.5, b1n128c2 27.9, m64k2r4 29.1, m128k2r4 29.3, m128k1r4 46.8, m128k4r2 23.2, b1n128c2s8h 23.5, b1n128c3s8h 19.4 -> b1n128c3s8h
+tune qkv_gate  m=256: cublas 23.9, b1n128c2 31.9, b2n256c2 48.8, m128k2r4 33.2, m128k1r4 47.1, m128k4r2 39.2, m256k2r4 32.6, m256k1r4 51.2, m256k2r2 32.0, b1n128c2s8h 41.6, b1n128c3s8h 34.0 -> cublas
+tune router    m= 1: rgemv 8.0, router8 9.5, baseline 15.5 -> rgemv
+tune router    m= 8: router8 9.8, baseline 31.4 -> router8
+tune router    m=16: router16 9.5, baseline 20.5 -> router16
+tune router    m=32: router32 10.0, baseline 21.0 -> router32
+tune router    m=64: baseline 21.8, r64c8 13.4, r64c16 11.6, rm64k4r4 18.5 -> r64c16
+tune router    m=128: baseline 22.4, r64c8 13.5, r64c16 14.4, r128c8 14.6, r128c16 13.3, rm64k4r4 18.5, rm128k4r4 21.8 -> r128c16
+tune router    m=256: baseline 23.0, r128c8 14.9, r128c16 21.2, rm128k4r4 21.9 -> r128c8
+tune unpooler  m= 1: slice8 9.1, slice8raw 9.3, cgemv 8.4, sgemv 8.2, cublas 11.8 -> sgemv
+tune unpooler  m= 8: slice8 8.9, slice8raw 9.0, cublas 11.5 -> slice8
+tune unpooler  m=16: unp16 18.2, unp16raw 22.3, cublas 23.0 -> unp16
+tune unpooler  m=32: unp32 19.6, unp32raw 22.3, cublas 23.1 -> unp32
+tune unpooler  m=64: cublas 24.2, b1n64c2 24.8, m64k2r4 35.7, m64k1r8 30.4 -> cublas
+tune unpooler  m=128: cublas 24.3, b1n64c2 43.1, b1n128c2 25.8, m64k2r4 53.0, m64k1r8 48.3, m128k2r4 39.9, m128k1r4 34.9, m128k1r8 36.1, m128k2r8 41.2, m128k4r2 39.5, b1n128c2s8h 29.5, b1n128c3s8h 39.3 -> cublas
+tune unpooler  m=256: cublas 28.7, b1n128c2 47.0, b2n256c2 32.6, m128k2r4 60.0, m128k1r4 56.2, m128k1r8 58.6, m128k2r8 62.4, m128k4r2 65.7, m256k2r4 54.7, m256k1r4 58.4, m256k1r8 60.0, m256k2r8 57.2, m256k2r2 54.6, b1n128c2s8h 53.1, b1n128c3s8h 66.5 -> cublas
+ablate pooler m=128: m128k2r4 35.2, m128k2r4_a1 31.4, m128k2r4_a3 29.0
+ablate o m=256: m256k1r4 25.7, m256k1r4_a1 23.5, m256k1r4_a3 18.7
+prepare done 1.0 s
+ours| tune o         m= 8: o8 10.2, o8raw 10.8, cublas 10.9 -> o8
+ours| tune pooler    m= 8: pool8 18.6, pool8raw 22.2, cublas 25.5 -> pool8
+ours| tune qkv_gate  m= 8: qkv8 14.4, qkv8raw 16.0, cublas 18.6 -> qkv8
+ours| tune router    m= 8: router8 9.8, baseline 31.1 -> router8
+ours| tune unpooler  m= 8: slice8 9.0, slice8raw 9.2, cublas 11.6 -> slice8
+ABPREP ours 59.9 s
+acc| tune o         m= 8: o8 10.2, o8raw 10.8, cublas 10.7 -> o8
+acc| tune pooler    m= 8: pool8 18.7, pool8raw 22.5, cublas 25.7 -> pool8
+acc| tune qkv_gate  m= 8: qkv8 14.4, qkv8raw 16.0, cublas 18.8 -> qkv8
+acc| tune router    m= 8: router8 9.8, baseline 31.4 -> router8
+acc| tune unpooler  m= 8: slice8 9.1, slice8raw 9.3, cublas 11.7 -> slice8
+ABPREP acc 17.6 s
+nofence| tune o         m= 8: o8 10.0, o8raw 10.7, cublas 10.9 -> o8
+nofence| tune pooler    m= 8: pool8 18.4, pool8raw 22.1, cublas 25.7 -> pool8
+nofence| tune qkv_gate  m= 8: qkv8 14.2, qkv8raw 16.2, cublas 18.7 -> qkv8
+nofence| tune router    m= 8: router8 9.3, baseline 31.3 -> router8
+nofence| tune unpooler  m= 8: slice8 8.8, slice8raw 9.0, cublas 11.6 -> slice8
+ABPREP nofence 17.7 s
+late| tune o         m= 8: o8 10.2, o8raw 10.7, cublas 10.7 -> o8
+late| tune pooler    m= 8: pool8 18.6, pool8raw 22.0, cublas 25.5 -> pool8
+late| tune qkv_gate  m= 8: qkv8 14.2, qkv8raw 16.0, cublas 18.2 -> qkv8
+late| tune router    m= 8: router8 9.6, baseline 31.1 -> router8
+late| tune unpooler  m= 8: slice8 8.8, slice8raw 9.1, cublas 11.5 -> slice8
+ABPREP late 17.8 s
+all| tune o         m= 8: o8 9.9, o8raw 10.4, cublas 10.7 -> o8
+all| tune pooler    m= 8: pool8 18.5, pool8raw 22.0, cublas 25.8 -> pool8
+all| tune qkv_gate  m= 8: qkv8 14.1, qkv8raw 15.7, cublas 18.2 -> qkv8
+all| tune router    m= 8: router8 9.3, baseline 30.9 -> router8
+all| tune unpooler  m= 8: slice8 8.9, slice8raw 9.0, cublas 11.6 -> slice8
+ABPREP all 17.9 s
+pub| [okc] tune qkv_gate m=8: sk2=13.28 torch=17.89 -> sk2
+pub| [okc] tune o m=8: sk2=9.28 torch=10.05 -> sk2
+pub| [okc] tune pooler m=8: sk2=18.14 torch=25.15 -> sk2
+pub| [okc] tune unpooler m=8: sk2=8.0 torch=10.53 -> sk2
+pub| [okc] tune router m=8: sk2=8.45 torch=17.95 -> sk2
+pub| [okc] disabled: []
+ABPREP pub 74.1 s
+ABCHECK ok qkv_gate m=8 p0 sgl=1.7e-03 ours=1.7e-03 ours2=1.7e-03 ours.qkv8=1.7e-03 acc=1.7e-03 nofence=1.7e-03 late=1.7e-03 all=1.7e-03 pub=1.7e-03
+ABCOLD qkv_gate m=8 p0 sgl=19.30 ours=14.59 ours2=14.54 ours.qkv8=14.62 acc=14.56 nofence=14.43 late=14.59 all=14.21 pub=13.84
+ABPAIR qkv_gate m=8 p0 ours2-ours=-0.06[-0.42,+0.32] ours.qkv8-ours=+0.00[-0.35,+0.38] acc-ours=-0.03[-0.29,+0.29] nofence-ours=-0.14[-0.42,+0.22] late-ours=+0.03[-0.26,+0.35] all-ours=-0.38[-0.70,-0.03] pub-ours=-0.72[-0.99,-0.32] ours2-pub=+0.64[+0.32,+0.93] ours.qkv8-pub=+0.70[+0.38,+0.99] acc-pub=+0.67[+0.35,+0.96] nofence-pub=+0.58[+0.22,+0.83] late-pub=+0.74[+0.48,+0.96] all-pub=+0.35[+0.03,+0.61]
+ABCHECK ok qkv_gate m=8 p1 sgl=1.7e-03 ours=1.7e-03 ours2=1.7e-03 ours.qkv8=1.7e-03 acc=1.7e-03 nofence=1.7e-03 late=1.7e-03 all=1.7e-03 pub=1.7e-03
+ABCOLD qkv_gate m=8 p1 sgl=19.04 ours=14.53 ours2=14.50 ours.qkv8=14.50 acc=14.50 nofence=14.30 late=14.46 all=14.11 pub=13.86
+ABPAIR qkv_gate m=8 p1 ours2-ours=-0.03[-0.29,+0.32] ours.qkv8-ours=+0.03[-0.38,+0.32] acc-ours=-0.03[-0.35,+0.38] nofence-ours=-0.19[-0.54,+0.16] late-ours=-0.03[-0.32,+0.35] all-ours=-0.32[-0.61,-0.03] pub-ours=-0.64[-0.90,-0.26] ours2-pub=+0.61[+0.38,+0.86] ours.qkv8-pub=+0.62[+0.22,+0.93] acc-pub=+0.61[+0.38,+0.90] nofence-pub=+0.42[+0.10,+0.67] late-pub=+0.61[+0.29,+0.80] all-pub=+0.26[-0.06,+0.54]
+ABCHECK ok o m=8 p0 sgl=1.7e-03 ours=1.7e-03 ours2=1.7e-03 ours.o8=1.7e-03 acc=1.7e-03 nofence=1.7e-03 late=1.7e-03 all=1.7e-03 pub=1.7e-03
+ABCOLD o m=8 p0 sgl=11.04 ours=10.02 ours2=10.02 ours.o8=10.02 acc=10.27 nofence=10.18 late=10.24 all=10.08 pub=9.98
+ABPAIR o m=8 p0 ours2-ours=+0.03[-0.32,+0.35] ours.o8-ours=-0.06[-0.38,+0.26] acc-ours=+0.22[-0.10,+0.48] nofence-ours=+0.13[-0.19,+0.42] late-ours=+0.19[-0.13,+0.45] all-ours=-0.02[-0.29,+0.35] pub-ours=-0.06[-0.38,+0.16] ours2-pub=+0.06[-0.16,+0.35] ours.o8-pub=+0.03[-0.26,+0.29] acc-pub=+0.29[+0.06,+0.54] nofence-pub=+0.22[-0.03,+0.54] late-pub=+0.26[+0.03,+0.51] all-pub=+0.10[-0.13,+0.45]
+ABCHECK ok o m=8 p1 sgl=1.7e-03 ours=1.7e-03 ours2=1.7e-03 ours.o8=1.7e-03 acc=1.7e-03 nofence=1.7e-03 late=1.7e-03 all=1.7e-03 pub=1.7e-03
+ABCOLD o m=8 p1 sgl=11.10 ours=10.18 ours2=10.14 ours.o8=10.11 acc=10.24 nofence=10.14 late=10.24 all=10.08 pub=10.02
+ABPAIR o m=8 p1 ours2-ours=-0.03[-0.29,+0.26] ours.o8-ours=-0.03[-0.29,+0.22] acc-ours=+0.10[-0.16,+0.32] nofence-ours=+0.00[-0.22,+0.19] late-ours=+0.13[-0.16,+0.35] all-ours=-0.10[-0.35,+0.26] pub-ours=-0.16[-0.45,+0.10] ours2-pub=+0.19[-0.13,+0.42] ours.o8-pub=+0.13[-0.16,+0.35] acc-pub=+0.19[+0.00,+0.51] nofence-pub=+0.14[-0.13,+0.42] late-pub=+0.26[-0.03,+0.54] all-pub=+0.10[-0.22,+0.42]
+ABCHECK ok pooler m=8 p0 sgl=1.7e-03 ours=1.7e-03 ours2=1.7e-03 ours.pool8=1.7e-03 acc=1.7e-03 nofence=1.7e-03 late=1.7e-03 all=1.7e-03 pub=1.7e-03
+ABCOLD pooler m=8 p0 sgl=26.40 ours=18.80 ours2=18.82 ours.pool8=18.78 acc=18.88 nofence=18.91 late=18.90 all=18.78 pub=18.66
+ABPAIR pooler m=8 p0 ours2-ours=+0.06[-0.38,+0.38] ours.pool8-ours=-0.06[-0.42,+0.38] acc-ours=+0.10[-0.26,+0.38] nofence-ours=+0.10[-0.26,+0.51] late-ours=+0.06[-0.26,+0.45] all-ours=+0.00[-0.38,+0.42] pub-ours=-0.14[-0.45,+0.26] ours2-pub=+0.13[-0.26,+0.48] ours.pool8-pub=+0.10[-0.29,+0.48] acc-pub=+0.19[-0.16,+0.51] nofence-pub=+0.19[-0.13,+0.61] late-pub=+0.19[-0.10,+0.51] all-pub=+0.19[-0.19,+0.51]
+ABCHECK ok pooler m=8 p1 sgl=1.7e-03 ours=1.7e-03 ours2=1.7e-03 ours.pool8=1.7e-03 acc=1.7e-03 nofence=1.7e-03 late=1.7e-03 all=1.7e-03 pub=1.7e-03
+ABCOLD pooler m=8 p1 sgl=26.46 ours=19.04 ours2=18.98 ours.pool8=19.07 acc=19.14 nofence=19.14 late=19.14 all=18.98 pub=18.78
+ABPAIR pooler m=8 p1 ours2-ours=-0.05[-0.45,+0.32] ours.pool8-ours=+0.06[-0.35,+0.35] acc-ours=+0.06[-0.26,+0.42] nofence-ours=+0.08[-0.32,+0.45] late-ours=+0.10[-0.35,+0.48] all-ours=-0.10[-0.51,+0.38] pub-ours=-0.29[-0.70,+0.06] ours2-pub=+0.19[-0.13,+0.54] ours.pool8-pub=+0.29[-0.03,+0.64] acc-pub=+0.38[+0.03,+0.74] nofence-pub=+0.37[+0.03,+0.70] late-pub=+0.35[+0.06,+0.80] all-pub=+0.19[-0.16,+0.64]
+ABCHECK ok unpooler m=8 p0 sgl=1.7e-03 ours=1.7e-03 ours2=1.7e-03 ours.slice8=1.7e-03 acc=1.7e-03 nofence=1.7e-03 late=1.7e-03 all=1.7e-03 pub=1.7e-03
+ABCOLD unpooler m=8 p0 sgl=11.62 ours=8.83 ours2=8.83 ours.slice8=8.80 acc=9.15 nofence=8.83 late=8.90 all=8.83 pub=8.61
+ABPAIR unpooler m=8 p0 ours2-ours=+0.00[-0.19,+0.19] ours.slice8-ours=+0.00[-0.22,+0.19] acc-ours=+0.30[+0.03,+0.58] nofence-ours=+0.03[-0.19,+0.19] late-ours=+0.10[-0.16,+0.29] all-ours=+0.03[-0.19,+0.22] pub-ours=-0.16[-0.42,+0.10] ours2-pub=+0.18[-0.03,+0.42] ours.slice8-pub=+0.16[-0.06,+0.38] acc-pub=+0.48[+0.19,+0.74] nofence-pub=+0.19[-0.06,+0.42] late-pub=+0.29[+0.03,+0.45] all-pub=+0.19[-0.06,+0.42]
+ABCHECK ok unpooler m=8 p1 sgl=1.7e-03 ours=1.7e-03 ours2=1.7e-03 ours.slice8=1.7e-03 acc=1.7e-03 nofence=1.7e-03 late=1.7e-03 all=1.7e-03 pub=1.7e-03
+ABCOLD unpooler m=8 p1 sgl=11.58 ours=8.80 ours2=8.77 ours.slice8=8.93 acc=9.20 nofence=8.90 late=8.96 all=8.90 pub=8.69
+ABPAIR unpooler m=8 p1 ours2-ours=-0.03[-0.26,+0.19] ours.slice8-ours=+0.10[-0.13,+0.38] acc-ours=+0.38[+0.16,+0.67] nofence-ours=+0.05[-0.19,+0.32] late-ours=+0.16[-0.10,+0.38] all-ours=+0.10[-0.16,+0.35] pub-ours=-0.13[-0.32,+0.13] ours2-pub=+0.10[-0.19,+0.32] ours.slice8-pub=+0.22[+0.00,+0.48] acc-pub=+0.48[+0.26,+0.67] nofence-pub=+0.16[-0.03,+0.35] late-pub=+0.29[+0.03,+0.48] all-pub=+0.19[-0.06,+0.42]
+ABCHECK ok router m=8 p0 sgl=3.1e-07 ours=2.5e-06 ours2=2.5e-06 ours.router8=2.5e-06 acc=2.4e-06 nofence=2.5e-06 late=2.5e-06 all=2.4e-06 pub=2.4e-06
+ABCOLD router m=8 p0 sgl=31.30 ours=9.66 ours2=9.70 ours.router8=9.66 acc=9.92 nofence=9.44 late=9.76 all=9.34 pub=9.22
+ABPAIR router m=8 p0 ours2-ours=+0.06[-0.26,+0.29] ours.router8-ours=+0.03[-0.22,+0.29] acc-ours=+0.26[+0.03,+0.48] nofence-ours=-0.21[-0.48,+0.10] late-ours=+0.10[-0.10,+0.35] all-ours=-0.32[-0.58,-0.06] pub-ours=-0.45[-0.67,-0.22] ours2-pub=+0.48[+0.29,+0.74] ours.router8-pub=+0.48[+0.22,+0.70] acc-pub=+0.70[+0.48,+0.96] nofence-pub=+0.26[+0.06,+0.48] late-pub=+0.58[+0.35,+0.77] all-pub=+0.13[-0.13,+0.38]
+ABCHECK ok router m=8 p1 sgl=3.1e-07 ours=2.5e-06 ours2=2.5e-06 ours.router8=2.5e-06 acc=2.5e-06 nofence=2.5e-06 late=2.5e-06 all=2.5e-06 pub=2.5e-06
+ABCOLD router m=8 p1 sgl=31.06 ours=9.60 ours2=9.52 ours.router8=9.63 acc=9.86 nofence=9.41 late=9.60 all=9.38 pub=9.28
+ABPAIR router m=8 p1 ours2-ours=-0.03[-0.35,+0.26] ours.router8-ours=+0.03[-0.22,+0.32] acc-ours=+0.26[+0.06,+0.54] nofence-ours=-0.19[-0.45,+0.03] late-ours=+0.03[-0.19,+0.26] all-ours=-0.19[-0.48,+0.00] pub-ours=-0.32[-0.51,-0.10] ours2-pub=+0.29[+0.06,+0.51] ours.router8-pub=+0.35[+0.16,+0.61] acc-pub=+0.61[+0.42,+0.80] nofence-pub=+0.13[-0.10,+0.32] late-pub=+0.35[+0.13,+0.58] all-pub=+0.10[-0.16,+0.32]
