@@ -12127,7 +12127,7 @@ _ONE_WS_ROWS = 65536
 _ONE_CNT_INTS = 32768
 # Grid target: two CTAs per SM on 132 SMs.
 _ONE_TARGET = 264
-# The instances _ONE_HOST_SRC builds (DL_ONE_INSTANCES).
+# The instances _ONE_HOST_SRC builds (DL_ONE_INSTANCES), with the diet build defaults.
 _ONE_BUILT = {1: (1, 3, 11, 13, 49), 8: (1, 3, 11, 15, 19, 51)}
 # Full-context batches on the flat partition (else per request). The flat instances built here
 # are 49 (q_len 1, producer warpgroup), 51 (q_len 8, producer warpgroup) and 19 (q_len 8,
