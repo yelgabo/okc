@@ -2995,7 +2995,13 @@ SKINNY_VARIANTS = ((8, 4, 0), (16, 4, 0), (8, 4, 1))
 # 28 and 29 (2026-10-29, the consumer stage): 28 is 26 with a leaner stage loop (ring constants in
 # registers, the weights slot released per thread behind the first wgmma group) and a one-pass
 # S.ord sort, 29 is 28 with the stamps (timing only).
-MAIN_MODES = (0, 16, 26, 28)
+# 31 to 40 (2026-10-29, phase A epilogue): 31, 33, 38 and 40 are 28, 32, 36 and 39 with phase A
+# counters (timing only); 32 defers the phase A publish by one stage, 34 also drops the
+# per-thread fence_gpu, 35 reloads ss and own_n from shared memory (all three lost or tied, checks
+# c7db20e053254b52 and 0b684d5db0834dbc); 36 takes SiLU's reciprocal as one MUFU.RCP, 37 is 36
+# without the per-thread fence_gpu (the shipped mode), 39 is 37 with paired SwiGLU stores (tied
+# with 37, 473d87d03de94e96). docs/runs-moe.md, "Phase A against the public kernel".
+MAIN_MODES = (0, 16, 26, 28, 37)
 MAIN_CANDIDATES = (0, 6, 12, 13, 14, 15, 16, 20, 23, 26, 28, 32, 34, 35, 36, 37, 39)
 VARIANT_MAIN0 = len(SKINNY_VARIANTS)
 
@@ -4723,7 +4729,8 @@ def _gate_report(state):
     output of 19 against 18 (xb, bf16) and the final outputs of 20 and the staged pair against
     16. Since 2026-10-29 also mode 23 (claimed phase B units) against 20 and 16; the variant
     order is reversed on every other seed so neither side always runs first."""
-    names = {16: None, 18: None, 19: None, 20: None, 21: None, 23: None, 26: None, 28: None}
+    names = {16: None, 18: None, 19: None, 20: None, 21: None, 23: None, 26: None, 28: None,
+             37: None}
     vs = {m: VARIANT_MAIN0 + MAIN_MODES.index(m) for m in names if m in MAIN_MODES}
     if state.get("staged_ok"):
         vs["staged"] = VARIANT_STAGED
@@ -4743,7 +4750,7 @@ def _gate_report(state):
         tag = f"bs={bs}" + ("" if dist == "normal" else f" {dist}")
         tim = {m: [] for m in vs}
         xbd = []
-        outd = {m: [] for m in (20, 23, 26, 28, "staged") if m in vs}
+        outd = {m: [] for m in (20, 23, 26, 28, 37, "staged") if m in vs}
         for si, seed in enumerate(seeds):
             data = _make_inputs(bs, 977 * seed + bs, dist)
             order = list(vs.items())
@@ -4765,7 +4772,7 @@ def _gate_report(state):
         n = len(seeds)
         line = " ".join(f"{_vname(v)}:{sum(tim[m]) / n:.1f}" for m, v in vs.items())
         print(f"GATE {tag} {line} us (mean of {n} seeds {seeds})")
-        for a, b in ((19, 18), (20, 16), (23, 20), (23, 16), (26, 23), (28, 26),
+        for a, b in ((19, 18), (20, 16), (23, 20), (23, 16), (26, 23), (28, 26), (37, 28),
                      ("staged", 16), ("staged", 20)):
             if a in vs and b in vs:
                 d = [x - y for x, y in zip(tim[a], tim[b])]
