@@ -1,0 +1,124 @@
+# Fat MoE: repaired wait accounting and the next mechanism
+
+Evidence: code commit `3f67a45` (counter fix, modes 41 and 42) on branch
+`worktree-agent-a074aed40d591d983`, check `ca43908f02874886` (2.174x, 2.142-2.207, 5/5 passed;
+profiles `muse_moe_w4a16/profiles/bench_fw1.ca43908f02874886.*`), SASS record
+`muse_moe_w4a16/profiles/sass_fatwait.2026-10-29.txt`. Full tables are in
+[docs/runs-moe.md, "Fat-path waits with the first try timed"](../runs-moe.md). This report closes
+section 2 of the [overnight steering report](2026-10-29-overnight.md). It recommends one
+section 5 mechanism and builds nothing.
+
+## What was wrong and what changed
+
+`mbar_wait_cyc` (phase A diagnostic modes 31, 33, 38 and 40, and the producers' phase A slot
+waits) returned 0 when the first `mbarrier.try_wait` succeeded and started its clock only after
+a failed first try. try_wait is potentially blocking (PTX ISA 9.4), so the "0.00 us" weights
+waits did not show that the consumers never wait. The clock now starts before the first try.
+try_wait stays; it was not replaced with test_wait. The audit found no other try_wait counter
+with this mistake: the is_diag stamps, the skinny stamps (fixed in 8272efe, 03887be) and the
+public-kernel patches in `tools/moe_make_bench_ab.py` already time the whole wait.
+
+Production code is unchanged. Modes 0, 16, 26, 28 and 37 and the skinny kernels have the same
+SASS text, registers and spills before and after the change. Only the diagnostic modes differ.
+
+## Measured (mode 41 = 37 with counters, layer routing, seeds 1-6)
+
+| per consumer warp, us | 128 tokens | 256 tokens |
+|---|---|---|
+| phase A waits, weights + x | 8.4 + 7.3 | 11.8 + 11.5 |
+| phase A stage loops without waits | 64.6 | 91.7 |
+| phase A epilogue | 6.1 | 9.2 |
+| phase B waits, weights + x + claim | 4.5 + 3.9 + 1.2 | 6.4 + 5.4 + 1.2 |
+| phase B stage loops without waits | 31.7 | 45.0 |
+| phase B epilogue (per unit) | 4.4 (2.2) | 10.1 (3.8) |
+| producers waiting for a free slot in phase A (weights / x) | 65.5 / 64.3 of 93.0 | 94.0 / 92.0 of 131.7 |
+| average cycles per wait (A / B) | 209 / 222 | 227 / 231 |
+
+- Waits are about 20% of the stage-loop time in both phases at both sizes. The earlier statement
+  that the fat consumers never wait for weights or x is withdrawn, with a dated note in
+  `docs/runs-moe.md`.
+- The ring is still full for about 70% of phase A from the producers' side. The waits average
+  210-230 cycles each, nearly the same in every phase and at both sizes. So the stream is not
+  falling behind on average. The cost comes at the stage boundary.
+- Instrumentation overhead is measured, not assumed. 41 minus 37 is +7.0 / +6.1 us at 128 / 256,
+  42 (light stamps) minus 37 is +1.1 / +2.3, and both are 0 of 6 lower. The counters add
+  1.3-2.2 us to phase A, too little to explain the waits: at least 13.5 / 21.9 us remain if the
+  whole overhead sat inside them.
+- Same-process gap to the public kernel, by stamped phase (42 against the public): phase A
+  +3.6 / +11.1 us, phase B +2.7 / +7.3, launch end +12.3 / +24.6.
+
+## Hypotheses (not separated by this run)
+
+H1: every stage starts with a serial path on each warp. The try_wait round trip comes first, then
+the shared loads of the stage's codes and only then the first dequant. These run while at most one
+wgmma group of the previous stage is in flight.
+H2: the 16 warps of a CTA drift apart. A slot refills only after all 16 release it, and there
+are 3 weights slots at both sizes, so a leading warp waits on its slowest peer.
+
+Per-warp waits are not SM time lost one for one, because three other consumer warps share each
+scheduler. The SM-level effect of removing a warp's waits is unknown until it is tested.
+
+## Recommendation: one mechanism
+
+**Mode 43: per-group code loads with the next stage's waits and first code group issued under the
+current stage's last wgmma group.** This is the "smaller code groups per stage" item of
+section 5, used here for latency hiding rather than register relief:
+
+- Each warp loads one 4-step group at a time (one `uint4` of codes and its scale word, 4-6
+  registers) instead of the stage's 16 code registers up front. That frees the registers to
+  hold the next stage's first group.
+- During the current stage's last group, the warp waits on the next stage's `wfull` and `xfull`
+  and loads that stage's first code group. The barrier round trip and the shared loads then
+  overlap tensor-core work instead of preceding it.
+- The weights slot is released after the stage's last group load. The ordering chain is mode 28's
+  per-thread `fence.proxy.async.shared::cta` then arrive, at a later point, and every PTX step in
+  docs/runs-moe.md "Ordering of the ring slot releases" still applies. This is the public kernel's
+  stage structure.
+- Mode 44 is the same with the mode 41 counters, so the run shows whether the waits moved.
+
+This is not the losing mode 35 (volatile shared reloads of per-unit values). Smaller groups
+alone, without the hoist, are not recommended. Stage-loop spills are 9 accesses in mode 37, and
+register pressure has not been shown to limit the loop. Holding the slot longer without
+overlapping anything could make H2 worse.
+
+Predicted saving (hypothesis): -3 to -6 us at 256 tokens and -2 to -4 us at 128 on layer
+routing. The basis is the public kernel's 11.1 us phase A lead at 256 with this structure, about
+4 us of which its 4% shorter stage loop explains. The ceiling of the per-warp waits, 35 us at
+256, is not an SM-level saving.
+
+## Validation and stopping rule
+
+1. Local gate, no GPU: 96 registers, no more LDL/STL inside the stage loop than mode 37, no
+   ptxas C7512/C7513 (wgmma serialization), `tools/moe_sass_counts.sh` showing one `wait1` per
+   group, and production SASS unchanged. Any failure: stop and record, with no check spent.
+2. One check after the 00:00 UTC reset: `tools/moe_make_bench_ab.py --base=37
+   --sizes=32,128,256 --routings=layer o43=43 o44=44 o42=42`, seeds 1-6. Adopt toward the gate
+   only if 43 minus 37 has a mean of -2 us or lower at 256 with at least 5 of 6 seeds lower, a
+   mean of +0.5 us or lower at 128 and 32, and ABCHECK within 1e-4 of 37.
+3. Mechanism check, from the same run: 44's average cycles per wait must fall by at least 30%
+   against 41's 209-231. If timing wins but the waits do not fall, the gain is unexplained:
+   repeat it before any adoption. If the waits fall but timing does not improve, H1 is right
+   but not on the SM's critical path. Record that and stop this line.
+4. A loss or tie ends the mechanism. Record it in docs/ruled-out.md, scoped to this hoist depth
+   (one group ahead), with 44's counters. One follow-up variant is allowed only if 44 shows the
+   waits gone and the stage loop slower, which would point to a register or issue cost of the
+   hoist.
+5. Budget: at most 2 MoE checks after the reset, one for step 2 and one for a repeat or the
+   shippable gate run (GATE with held-out and skewed seeds). Never `okc submit`.
+
+## Next in line, not recommended now
+
+- The phase B epilogue costs 3.8 us per unit at 256 (10.1 us per warp) against phase A's 1.7.
+  It is the largest non-loop cost in phase B and is worth its own attribution (sum-of-squares
+  atomics, ybuf stores, the release) after mode 43 is settled.
+- The natural-k intermediate layout remains a separate, higher-risk option and needs the
+  traffic estimate and layout proof that section 5 asks for.
+
+## Gaps
+
+- The counters cannot separate H1 from H2 or give the try_wait's intrinsic cost on a phase
+  that has already completed.
+- Only layer routing at 128 and 256 tokens was measured. Standalone, skewed and 32-token
+  routings were not.
+- The public kernel's waits were not measured: its DEBUG build stamps phases, not waits.
+- No whole-layer effect is claimed.

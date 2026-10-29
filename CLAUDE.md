@@ -3,6 +3,27 @@
 Background and decisions: `docs/context.md`. Every run: `docs/runs.md` (bf16_proj),
 `docs/runs-moe.md`, `docs/runs-attention.md`.
 
+## Steering reports and cross-session handoffs
+
+User preference, 2026-10-29: every substantive project-steering or audit response must be
+checked into this repository so the other sessions can read it. Start steering work by
+reading `docs/steering/README.md` and its latest report, then reconcile with newer commits
+and run logs rather than repeating completed experiments.
+
+Write the full report to `docs/steering/YYYY-MM-DD-<topic>.md` (add a time or sequence suffix
+when needed), pin its evidence commit and run identifiers, distinguish measured results from
+hypotheses, and include priorities, next actions, validation/stopping criteria and gaps.
+Update `docs/steering/README.md` with the latest link and report history. Preserve old reports;
+use explicit dated addenda or a new report for corrections and subsequent progress.
+
+Commit and push the report and index during the same task using the normal repository
+workflow. Preserve concurrent work; do not force-push or overwrite another session's changes.
+Verify the remote files before reporting completion, and return the report path and commit.
+A chat-only answer or sandbox attachment alone does not complete the handoff. If publishing
+is blocked, state the blocker rather than claiming it is checked in. An explicit user request
+for no repository writes takes precedence. This rule does not authorize kernel changes or
+scored submissions beyond the user's existing permissions.
+
 ## Evidence rules
 
 - **Profile SGLang before optimizing a problem.** A normal run profiles only our submission.

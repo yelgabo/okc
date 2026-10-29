@@ -22,20 +22,28 @@ judge's prepare(), on random NVFP4 weights (32 experts):
            globaltimer at the phase boundaries of the stamped twins (light stamps) and of the
            public kernel built with its own OKC_DEBUG stamps (DBG(3) moved to the CTA-wide
            point before the grid barrier).
-  ABDIAG   for the phase A counter twins (31, 33, 38, 40 of 28, 32, 36, 39): per-CTA time
-           (consumers start to phase A end) as mean / p10 / p50 / p90 / max, owned units, MB
+  ABDIAG   for the phase A counter twins (31, 33, 38, 40, 41 of 28, 32, 36, 39, 37): per-CTA
+           time (consumers start to phase A end) as mean / p10 / p50 / p90 / max, owned units, MB
            streamed (36,864 B of weights per stage plus 4,096 B of x per n-tile per stage) and
            the rank correlation of time with MB across CTAs; per consumer warp, us in weights
-           waits and x waits that missed their first try, the rest of the units (compute and
-           ring bookkeeping), the epilogue (per unit too) and the deferred publish; the
-           producers' phase A waits for a free slot.
+           waits and x waits, the rest of the units (compute and ring bookkeeping), the epilogue
+           (per unit too) and the deferred publish; the producers' phase A waits for a free slot.
+           Since 2026-10-29 every wait is timed from before its first try_wait (it can suspend
+           the thread); earlier runs counted only waits whose first try failed, and only the
+           time after that try.
+  ABDIAGB  for the twins with phase B counters (41): per consumer warp over phase B, us in
+           weights waits, x waits (which carry the done_as dependency on other CTAs' phase A),
+           waits for a claimed unit, the rest of the units, the epilogue, units, stages and
+           n-tiles per unit; and the CTA's phase B span (thread 0's phase A end to the CTA's
+           barrier after phase B, light stamps).
   ABPUB    the public kernel's per-CTA phase A time, its stream-K stage ranges (patched to land
            in DBG slot 7) and the number of cut units per CTA.
 
 The judge's prepare() that follows runs with its output filtered to its summary lines (POLICY,
 PREPARE, BENCH at 128 and 256 tokens, each variant's worst self-test error), so the run log's
-15 KB tail keeps the A/B. Twins: 26 -> 27 (light stamps), 28 -> 31, 32 -> 33, 36 -> 38, 39 -> 40 (light
-stamps and phase A counters, also timed so their cost shows).
+15 KB tail keeps the A/B. Twins: 26 -> 27 and 37 -> 42 (light stamps), 28 -> 31, 32 -> 33, 36 -> 38,
+39 -> 40, 37 -> 41 (light stamps and phase A counters, 41 with phase B counters too; name a twin
+as an arm to time it so its cost shows).
 
 The public file is embedded as a string; OUT.py belongs in the session scratchpad, never in
 the repository (only the logs of its runs are committed).
@@ -46,8 +54,9 @@ import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
-LIGHT_TWINS = {26: 27}
-PA_TWINS = {28: 31, 32: 33, 36: 38, 39: 40}
+LIGHT_TWINS = {26: 27, 37: 42}
+PA_TWINS = {28: 31, 32: 33, 36: 38, 39: 40, 37: 41}
+PB_TWINS = (41,)
 
 
 # Per-unit stamps of the skinny ring (--unitstamps), the same events and layout as our kMode 16:
@@ -126,6 +135,7 @@ _AB_SIZES = @SIZES@
 _AB_ROUTINGS = @ROUTINGS@
 _AB_LIGHT = @LIGHT@
 _AB_PA = @PA@
+_AB_PB = @PB@
 _AB_SMALL = @SMALL@
 _AB_US = @US@
 _AB_US_MAX = @USMAX@
@@ -356,6 +366,19 @@ def _ab_main():
                             pubc, float(us(full[:, 16, 7]).mean()),
                             float(us(full[:, 17, 6]).mean()), ghz])
 
+    def pb_summary(light, full, pb):
+        ghz = float((full[:, 17, 7] / (light[:, 3] - light[:, 2])).mean())
+        us = lambda c: float((c / ghz / 1e3).mean())
+        span = float(((light[:, 4] - light[:, 3]) / 1e3).mean())
+        ww, xw, qw = us(pb[:, :, 0]), us(pb[:, :, 1]), us(pb[:, :, 7])
+        units = float(pb[:, :, 5].mean())
+        return [span, ww, xw, qw, us(pb[:, :, 2]) - ww - xw, us(pb[:, :, 3]), units,
+                float(pb[:, :, 4].mean()),
+                float(pb[:, :, 6].sum() / pb[:, :, 5].sum().clamp(min=1))]
+
+    pb_cols = ("phase B span", "warp: w-wait", "x-wait", "claim wait", "compute", "epilogue",
+               "units", "stages", "n-tiles per unit")
+
     pa_cols = ("phase A mean", "p10", "p50", "p90", "max", "units min", "mean", "max",
                "MB mean", "max", "rho(time, MB)", "warp: w-wait", "x-wait", "compute",
                "epilogue", "per unit", "publish", "wproducer wait", "xproducer wait", "GHz")
@@ -468,6 +491,7 @@ def _ab_main():
             tim = {a: [] for a in arms}
             stamps = {a: [] for a in [*light, *padiag, "pub"]}
             diags = {a: [] for a in padiag}
+            pbdiags = {a: [] for a in padiag if a in _AB_PB}
             pubd = []
             stamp_here = not _AB_STAMP_SIZES or t in _AB_STAMP_SIZES
             skst = [i for i, v in enumerate(SKINNY_VARIANTS) if v[2] in (2, 4, 8)]
@@ -489,6 +513,10 @@ def _ab_main():
                     lt, full = ours_stamped(d, v, 144)
                     stamps[a].append(summarize(lt))
                     diags[a].append(pa_summary(lt, full))
+                    if a in pbdiags:
+                        pb = state["scratch"]["inter"].reshape(-1).view(torch.int64)[
+                            G * 144: G * 144 + G * 128].view(G, 16, 8).double().cpu()
+                        pbdiags[a].append(pb_summary(lt, full, pb))
                 if _AB_SMALL and not stamp_here:
                     continue
                 pd, prng, pus = pub_stamped(d)
@@ -545,6 +573,9 @@ def _ab_main():
             for a, rows in diags.items():
                 m = [sum(r[i] for r in rows) / n for i in range(len(rows[0]))]
                 print(f"ABDIAG {tag} {a} " + ", ".join(f"{c} {v:.2f}" for c, v in zip(pa_cols, m)))
+            for a, rows in pbdiags.items():
+                m = [sum(r[i] for r in rows) / n for i in range(len(rows[0]))]
+                print(f"ABDIAGB {tag} {a} " + ", ".join(f"{c} {v:.2f}" for c, v in zip(pb_cols, m)))
             m = [sum(r[i] for r in pubd) / n for i in range(len(pubd[0]))]
             print(f"ABPUB {tag} " + ", ".join(f"{c} {v:.2f}" for c, v in zip(pub_cols, m)))
     flags = int(state["scratch"]["ctr"][8].item())
@@ -621,7 +652,9 @@ def main():
                      ("@ARMS@", repr(arms)), ("@PAIRS@", repr(pairs)),
                      ("@SEEDS@", repr(ints(opts["seeds"]))), ("@SIZES@", repr(ints(opts["sizes"]))),
                      ("@ROUTINGS@", repr(tuple(opts["routings"].split(",")))),
-                     ("@LIGHT@", repr(light)), ("@PA@", repr(pa)), ("@SMALL@", repr(small)),
+                     ("@LIGHT@", repr(light)), ("@PA@", repr(pa)),
+                     ("@PB@", repr(tuple(a for a, m in pa.items() if m in PB_TWINS))),
+                     ("@SMALL@", repr(small)),
                      ("@US@", repr(bool(opts["unitstamps"]))), ("@USMAX@", repr(US_MAX)),
                      ("@STAMPSIZES@", repr(ints(opts["stampsizes"]) if opts["stampsizes"] else ()))):
         assert block.count(key) == 1, key

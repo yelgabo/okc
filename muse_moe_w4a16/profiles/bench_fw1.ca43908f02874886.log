@@ -1,0 +1,43 @@
+ABBUILD ours 54 s
+ABBUILD pub 158 s
+ABROUTE layer router seed 8 (mean relative miss 0.030)
+ABROUTE T=128 layer busiest local expert routes [54, 54, 54, 50, 59, 51]
+ABCHECK T=128 layer vs fp32 o37 3.85e-03 pub 2.35e-03; vs o37: o41 1.0e-05 o42 1.3e-05
+ABTIME T=128 layer mean of 6 o37 164.6 o41 171.6 o42 165.7 pub 151.4
+ABPAIR T=128 layer o41 minus o37 +5.2 +8.4 +7.3 +5.9 +8.4 +6.8 (mean +7.0, 0 of 6 lower)
+ABPAIR T=128 layer o42 minus o37 +0.5 +1.2 +1.5 +0.2 +2.6 +0.7 (mean +1.1, 0 of 6 lower)
+ABPAIR T=128 layer pub minus o37 -10.5 -16.3 -17.2 -10.6 -10.3 -14.2 (mean -13.2, 6 of 6 lower)
+ABPAIR T=128 layer o41 minus o42 +4.7 +7.2 +5.8 +5.6 +5.8 +6.1 (mean +5.9, 0 of 6 lower)
+ABSTAMP T=128 layer o42 route 3.5, start 10.1, phase A 90.8, A done max 117.4, phase B 45.8, tail 8.4, barrier+final 12.5, end 159.9
+ABSTAMP T=128 layer o41 route 3.5, start 10.1, phase A 93.0, A done max 118.8, phase B 49.1, tail 9.3, barrier+final 13.5, end 166.4
+ABSTAMP T=128 layer pub route 2.5, start 6.1, phase A 87.2, A done max 99.3, phase B 43.1, tail 6.0, barrier+final 9.9, end 147.6
+ABDIAG T=128 layer o41 phase A mean 92.99, p10 84.74, p50 89.64, p90 106.86, max 111.40, units min 3.67, mean 4.00, max 4.67, MB mean 2.92, max 3.44, rho(time, MB) 0.76, warp: w-wait 8.41, x-wait 7.32, compute 64.62, epilogue 6.05, per unit 1.51, publish 0.00, wproducer wait 65.48, xproducer wait 64.29, GHz 1.70
+ABDIAGB T=128 layer o41 phase B span 49.11, warp: w-wait 4.48, x-wait 3.88, claim wait 1.23, compute 31.72, epilogue 4.42, units 2.00, stages 32.00, n-tiles per unit 2.16
+ABPUB T=128 layer phase A mean 87.17, p10 84.07, p50 87.42, p90 90.18, max 93.65, stages min 30976.17, mean 33318.59, max 45168.33, cut units per CTA 1.00, rho(time, stages) 0.39
+ABROUTE T=256 layer busiest local expert routes [128, 107, 111, 116, 105, 110]
+ABCHECK T=256 layer vs fp32 o37 3.85e-03 pub 2.34e-03; vs o37: o41 3.1e-05 o42 2.8e-05
+ABTIME T=256 layer mean of 6 o37 227.2 o41 233.3 o42 229.5 pub 203.6
+ABPAIR T=256 layer o41 minus o37 +6.3 +6.3 +6.3 +4.9 +6.5 +6.5 (mean +6.1, 0 of 6 lower)
+ABPAIR T=256 layer o42 minus o37 +3.9 +2.8 +2.2 +1.7 +2.6 +0.5 (mean +2.3, 0 of 6 lower)
+ABPAIR T=256 layer pub minus o37 -25.4 -21.3 -22.8 -26.3 -23.1 -22.5 (mean -23.6, 6 of 6 lower)
+ABPAIR T=256 layer o41 minus o42 +2.4 +3.6 +4.2 +3.2 +3.9 +6.0 (mean +3.9, 0 of 6 lower)
+ABSTAMP T=256 layer o42 route 4.2, start 12.6, phase A 130.4, A done max 154.4, phase B 65.6, tail 8.9, barrier+final 14.9, end 224.3
+ABSTAMP T=256 layer o41 route 4.2, start 12.6, phase A 131.7, A done max 155.5, phase B 69.5, tail 9.3, barrier+final 15.5, end 230.1
+ABSTAMP T=256 layer pub route 3.3, start 8.3, phase A 119.3, A done max 134.6, phase B 58.3, tail 5.7, barrier+final 12.0, end 199.7
+ABDIAG T=256 layer o41 phase A mean 131.71, p10 124.29, p50 129.32, p90 141.91, max 143.96, units min 5.00, mean 5.37, max 6.00, MB mean 4.17, max 4.55, rho(time, MB) 0.84, warp: w-wait 11.76, x-wait 11.50, compute 91.66, epilogue 9.18, per unit 1.71, publish 0.00, wproducer wait 94.00, xproducer wait 92.00, GHz 1.68
+ABDIAGB T=256 layer o41 phase B span 69.51, warp: w-wait 6.44, x-wait 5.40, claim wait 1.24, compute 45.04, epilogue 10.11, units 2.69, stages 42.99, n-tiles per unit 2.84
+ABPUB T=256 layer phase A mean 119.32, p10 114.07, p50 119.98, p90 123.37, max 125.87, stages min -15152.17, mean 4692.53, max 9824.17, cut units per CTA 1.00, rho(time, stages) 0.18
+ABMOE spin flags 0; total 159 s
+TEST sk8w4s worst rel err vs fp32 4.01e-03, spin flags 0
+TEST sk16w4s worst rel err vs fp32 4.01e-03, spin flags 0
+TEST sk8w3s worst rel err vs fp32 4.01e-03, spin flags 0
+TEST main-d2 worst rel err vs fp32 3.89e-03, spin flags 0
+TEST main-lean-silu-bar worst rel err vs fp32 3.89e-03, spin flags 0
+TEST legacy32 worst rel err vs fp32 4.28e-03, spin flags 0
+TEST legacy128 worst rel err vs fp32 4.28e-03, spin flags 0
+TEST legacy256 worst rel err vs fp32 4.28e-03, spin flags 0
+BENCH bs=128 main-lean-silu-bar:211.0 main-lean-silu-bar-light:211.1 main-lean-silu-bar-pab:221.9 legacy128:252.1 sk8w4s-loads:254.8 legacy256:255.3 main-d2:256.2 sk8w3s:261.6 sk8w4s:266.0 legacy32:277.3 sk16w4s:284.5 us (graph replay, cold L2, mean of 2 routings)
+BENCH bs=256 main-lean-silu-bar:231.6 main-lean-silu-bar-light:235.0 main-lean-silu-bar-pab:242.4 main-d2:283.6 legacy256:361.6 legacy128:389.7 sk8w4s-loads:399.9 sk8w3s:427.8 sk8w4s:431.9 sk16w4s:467.0 legacy32:471.4 us (graph replay, cold L2, mean of 2 routings)
+POLICY {1: sk8w3s, 8: sk8w3s, 16: sk8w3s, 32: sk8w3s, 128: main-lean-silu-bar, 256: main-lean-silu-bar}
+TEST policy worst rel err vs fp32 4.01e-03, spin flags 0
+PREPARE repack 0.7 s, build 81.8 s, self-test 0.3 s, bench 1.7 s, smem 228736 B, ok True, main True
