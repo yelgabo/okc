@@ -10145,8 +10145,8 @@ void sk_fwd(int64_t cfg, at::Tensor ws, at::Tensor x, at::Tensor out, at::Tensor
     case 13: launch_sk<1, 8, 1, 2, 2, 4, 3, false, false, 1, 1, __nv_bfloat16, false>(ws, x, out, ptab, (int)pmax, (uint32_t)base4, M, (int)n, (int)k, dg, nullptr, nullptr, nullptr, nullptr); break;
     case 14: launch_sk<1, 16, 2, 2, 2, 4, 4, true, false, 1, 1, __nv_bfloat16, false>(ws, x, out, ptab, (int)pmax, (uint32_t)base4, M, (int)n, (int)k, dg, nullptr, nullptr, nullptr, nullptr); break;
     case 15: launch_sk<1, 16, 2, 2, 2, 4, 4, false, false, 1, 1, __nv_bfloat16, false>(ws, x, out, ptab, (int)pmax, (uint32_t)base4, M, (int)n, (int)k, dg, nullptr, nullptr, nullptr, nullptr); break;
-    case 16: launch_sk<2, 32, 2, 2, 2, 2, 5, true, false, 1, 1, __nv_bfloat16, false>(ws, x, out, ptab, (int)pmax, (uint32_t)base4, M, (int)n, (int)k, dg, nullptr, nullptr, nullptr, nullptr); break;
-    case 17: launch_sk<2, 32, 2, 2, 2, 2, 5, false, false, 1, 1, __nv_bfloat16, false>(ws, x, out, ptab, (int)pmax, (uint32_t)base4, M, (int)n, (int)k, dg, nullptr, nullptr, nullptr, nullptr); break;
+    case 16: launch_sk<2, 32, 2, 2, 2, 4, 3, true, false, 1, 1, __nv_bfloat16, false>(ws, x, out, ptab, (int)pmax, (uint32_t)base4, M, (int)n, (int)k, dg, nullptr, nullptr, nullptr, nullptr); break;
+    case 17: launch_sk<2, 32, 2, 2, 2, 4, 3, false, false, 1, 1, __nv_bfloat16, false>(ws, x, out, ptab, (int)pmax, (uint32_t)base4, M, (int)n, (int)k, dg, nullptr, nullptr, nullptr, nullptr); break;
     case 18: launch_sk<1, 8, 1, 1, 8, 2, 4, true, false, 1, 1, __nv_bfloat16, false>(ws, x, out, ptab, (int)pmax, (uint32_t)base4, M, (int)n, (int)k, dg, nullptr, nullptr, nullptr, nullptr); break;
     case 19: launch_sk<1, 8, 1, 1, 8, 2, 4, false, false, 1, 1, __nv_bfloat16, false>(ws, x, out, ptab, (int)pmax, (uint32_t)base4, M, (int)n, (int)k, dg, nullptr, nullptr, nullptr, nullptr); break;
     case 20: launch_sk<1, 16, 2, 2, 2, 2, 3, true, false, 1, 1, __nv_bfloat16, false>(ws, x, out, ptab, (int)pmax, (uint32_t)base4, M, (int)n, (int)k, dg, nullptr, nullptr, nullptr, nullptr); break;
@@ -10511,8 +10511,8 @@ _SKP_CONFIGS = (
     ('pool8raw', 1, 8, 1, 2, 2, 4, 3, False, False, 1, 1, 'bf16', False),
     ('pool16', 1, 16, 2, 2, 2, 4, 4, True, False, 1, 1, 'bf16', False),
     ('pool16raw', 1, 16, 2, 2, 2, 4, 4, False, False, 1, 1, 'bf16', False),
-    ('pool32', 2, 32, 2, 2, 2, 2, 5, True, False, 1, 1, 'bf16', False),
-    ('pool32raw', 2, 32, 2, 2, 2, 2, 5, False, False, 1, 1, 'bf16', False),
+    ('pool32', 2, 32, 2, 2, 2, 4, 3, True, False, 1, 1, 'bf16', False),
+    ('pool32raw', 2, 32, 2, 2, 2, 4, 3, False, False, 1, 1, 'bf16', False),
     ('slice8', 1, 8, 1, 1, 8, 2, 4, True, False, 1, 1, 'bf16', False),
     ('slice8raw', 1, 8, 1, 1, 8, 2, 4, False, False, 1, 1, 'bf16', False),
     ('unp16', 1, 16, 2, 2, 2, 2, 3, True, False, 1, 1, 'bf16', False),
@@ -11326,13 +11326,15 @@ def _moe1_name(variant):
 
 def _moe1_check(state):
     """The scratch invariant after a completed launch: no spin timeout, the next generation's
-    barrier counter and sum-of-squares copy zero, every per-job flag zero."""
+    barrier counter and sum-of-squares copy zero, mode 23's phase B claim counter zero, every
+    per-job flag zero."""
     s = state["moe1"]["scratch"]
     ctr = s["ctr"]
     gen = int(ctr[3])
     counts = {
         "spin_flags": int(ctr[8]),
         "next_barrier": int(ctr[4 + (gen & 1)]),
+        "claim_ctr": int(ctr[10]),
         "next_ss_nonzero": int((s["ss"][gen & 1] != 0).sum()),
         "done_a_nonzero": int((s["done_a"] != 0).sum()),
         "xready_nonzero": int((s["xready"] != 0).sum()),
@@ -11379,13 +11381,16 @@ def _moe1_self_test(state, weights):
     return passed
 
 
-def _moe1_stress(state, tokens, variant, replays):
-    """The MoE call captured as a graph and replayed `replays` times back to back: the grid
-    barrier's generation must advance once per launch, the replayed output must match an
-    eager call (sums of squares are FP32 atomics, so not bitwise) and the scratch invariant
-    must hold. Raises on any failure."""
-    x, tw, ids, local_start = _moe_routing(tokens, 4000 + tokens, 96, True)
-    opts = dict(_moe_opts(tokens, state), fused=variant)
+def _moe1_stress(state, sizes, variant, replays):
+    """The MoE calls for `sizes` captured back to back in one graph (as a sliding and a full
+    layer run one after the other on the shared scratch) and replayed `replays` times: the grid
+    barrier's generation must advance once per launch, each replayed output must match an
+    eager call (sums of squares are FP32 atomics, so not bitwise) and the scratch invariant must
+    hold. Raises on any failure."""
+    calls = []
+    for tokens in sizes:
+        x, tw, ids, local_start = _moe_routing(tokens, 4000 + tokens, 96, True)
+        calls.append((x, tw, ids, local_start, dict(_moe_opts(tokens, state), fused=variant)))
     s = state["moe1"]["scratch"]
     torch.cuda.synchronize()
     gen0 = int(s["ctr"][3])
@@ -11393,26 +11398,27 @@ def _moe1_stress(state, tokens, variant, replays):
     stream.wait_stream(torch.cuda.current_stream())
     with torch.cuda.stream(stream):
         for _ in range(2):
-            _experts(x, tw, ids, local_start, state, opts)
+            for c in calls:
+                _experts(*c[:4], state, c[4])
     torch.cuda.current_stream().wait_stream(stream)
     graph = torch.cuda.CUDAGraph()
     with torch.cuda.graph(graph):
-        out = _experts(x, tw, ids, local_start, state, opts)
+        outs = [_experts(*c[:4], state, c[4]) for c in calls]
     torch.cuda.synchronize()
     for _ in range(replays):
         graph.replay()
     torch.cuda.synchronize()
-    replayed = out.clone()
-    eager = _experts(x, tw, ids, local_start, state, opts)
+    replayed = [o.clone() for o in outs]
+    eager = [_experts(*c[:4], state, c[4]) for c in calls]
     torch.cuda.synchronize()
-    # Two warm-up calls, the replays and the eager call; a capture runs nothing.
+    # Two warm-up rounds, the replays and the eager round; a capture runs nothing.
     gens = int(s["ctr"][3]) - gen0
-    rel = _rel(replayed, eager)
-    finite = bool(torch.isfinite(replayed).all())
+    rel = max(_rel(r, e) for r, e in zip(replayed, eager))
+    finite = all(bool(torch.isfinite(r).all()) for r in replayed)
     clean, msg = _moe1_check(state)
-    msg = (f"T={tokens} {_moe1_name(variant)} replays={replays} replayed_vs_eager={rel:.1e} "
-           f"generations={gens} {msg}")
-    if not (finite and rel < 1e-4 and clean and gens == replays + 3):
+    msg = (f"T={'+'.join(map(str, sizes))} {_moe1_name(variant)} replays={replays} "
+           f"replayed_vs_eager={rel:.1e} generations={gens} {msg}")
+    if not (finite and rel < 1e-4 and clean and gens == len(sizes) * (replays + 3)):
         raise RuntimeError(f"moe fused stress: {msg} finite={finite}")
     return msg
 
@@ -11470,10 +11476,28 @@ def _moe1_enable(state, weights):
     t3 = time.time()
     skinny = [v for v in passed if _MOE1_VARIANTS[v][1] == "skinny"]
     main = [v for v in passed if _MOE1_VARIANTS[v][1] == "main"]
-    shapes = [(8, skinny[0])] if skinny else []
-    shapes += [(128, v) for v in main] if main else [(128, skinny[0])]
-    for tokens, variant in shapes:
-        print(f"MOE1STRESS {_moe1_stress(state, tokens, variant, 2000)}")
+    shapes = [((8,), skinny[0])] if skinny else []
+    shapes += [((128, 256), v) for v in main] if main else [((128,), skinny[0])]
+    stress = state["moe1_stress"] = {}
+    for sizes, variant in shapes:
+        try:
+            msg = _moe1_stress(state, sizes, variant, 2000)
+            stress[_moe1_name(variant)] = "ok"
+        except RuntimeError as exc:
+            # Each fat mode is its own kernel instance, so one that fails here is dropped from
+            # the bench without taking the other modes (already stressed or not) with it.
+            if _MOE1_VARIANTS[variant][1] != "main" or len(main) < 2:
+                raise
+            msg = str(exc)
+            stress[_moe1_name(variant)] = "FAIL"
+            _FAILED.append(f"moe1 stress {_moe1_name(variant)}: {msg[:160]}")
+            passed.remove(variant)
+            main.remove(variant)
+            # Back to the state as allocated, which every variant starts from.
+            torch.cuda.synchronize()
+            for k in ("ctr", "ss", "done_a", "xready", "done_as", "fixcnt"):
+                state["moe1"]["scratch"][k].zero_()
+        print(f"MOE1STRESS {msg}")
     t4 = time.time()
     state["moe1_policy"] = _moe1_tune(state, passed)
     state["moe1_ok"] = True
@@ -13088,6 +13112,8 @@ def _selection_summary(state):
              "attn_one_ours", "attn_ws_ours", "attn_fused_ours", "bnd_ours", "abnd_ours",
              "norm_ours", "route_side_ok")
     lines.append("stages " + " ".join(f"{k}={int(bool(state.get(k)))}" for k in flags))
+    lines.append("moe stress " + " ".join(f"{k}={v}" for k, v in
+                                          state.get("moe1_stress", {}).items()))
     bench = state.get("moe1_bench", {})
     for bs in TUNE_TOKENS:
         opts = _moe_opts(bs, state)
