@@ -841,3 +841,173 @@ verify 1 full 18.1; verify 16 / 32 full 121.7 / 230.2 (mode 51; profiler 122.9 /
 0.1 us; the score again sits inside the board entry's CI (2.129-2.202), so no scored run was
 used: the authorization required a gain beyond noise, and the expected gain (+0.35%) is
 smaller than the judge's CI half-width (about 1.5%). The board stays b458555d3e3e4e9a (2.162x).
+
+## Sliding body against the public kernel: the once-path diet (10-29)
+
+Question: the sliding launch plans already match the public entry's (table above), so what does
+its kernel body do differently? Control: the board build, mode 51 with the producer's `exit`
+(96d568f61c69412f, 2.178x, CI 2.145-2.210).
+
+### Static comparison, same toolkit and flags
+
+`tools/attn_pub_compile.sh` (public instances) and `tools/attn_one_sass.sh` (ours), CUDA 12.8.1,
+`nvcc -O3 -gencode=arch=compute_90a,code=sm_90a`. Instructions per instance, with the classes
+that differ most (the rest of the mix is close; the public kernel has more FP32 instructions
+from its packed-P checks):
+
+| instance | build | instrs | BRA | BSSY | IMAD | IABS | regs |
+|---|---|---|---|---|---|---|---|
+| decode 1 sliding (q1 mode 13) | ours, board | 2368 | 121 | 53 | 494 | 14 | 78 |
+| | public | 2040 | 68 | 15 | 201 | 0 | 96 |
+| | ours, diet | 1552 | 53 | 24 | 252 | 2 | 76 |
+| decode 16 / 32 sliding (q1 mode 1) | ours, board | 3088 | 167 | 64 | 693 | 36 | 109 |
+| | public | 2672 | 113 | 29 | 344 | 0 | 123 |
+| | ours, diet | 1944 | 74 | 30 | 301 | 2 | 108 |
+| verify 1 sliding (q8 mode 15) | ours, board | 2296 | 116 | 49 | 440 | 13 | 70 |
+| | public | 2176 | 63 | 16 | 273 | 0 | 96 |
+| | ours, diet | 1968 | 62 | 25 | 277 | 5 | 80 |
+| verify 16 / 32 sliding (q8 mode 3) | ours, board | 2840 | 142 | 55 | 570 | 30 | 110 |
+| | public | 2680 | 99 | 25 | 361 | 0 | 119 |
+| | ours, diet | 2280 | 75 | 29 | 320 | 8 | 110 |
+
+None of these spill. The per-tile math is the same size on both sides (32 HMMA per q1 instance,
+80 vs 88 F2FP), so the static difference is in the once-per-launch code. Read from the SASS of
+mode 13, this is where it comes from (IABS + I2F + F2I + MUFU.RCP is the software signed
+division):
+
+1. Diagnostic hooks in the judged build: 20 `stamp()` sites (a test of `p.dbg`, and a body
+   with a globaltimer read and a 64-bit divide by 1000) and 10 `PHASE_EXIT` tests of
+   `p.phase_limit`, each a branch on the cold once-path. The public kernel has none.
+2. Division by the page size: `pos / psize` and `pos % psize` in `issue_idx`, `issue_kv` and
+   the producer, unrolled once per row, are inline software divisions branched around at page
+   size 1 (four 70-instruction blocks between the first barrier and the first HMMA of mode
+   13). The public kernel shifts and masks by `log2(page_size)`.
+3. The query copies and the query pass are runtime-bounded loops (`i = tid; i < ROWS * 8;
+   i += NC`), which ptxas compiles to an unrolled loop plus a remainder; the trip count is a
+   compile-time 1 (q1) or 4 (q8). The public kernel runs them straight-line (`tfor`).
+4. Prologue row copies take a three-way branch per row (cached, own new row, past the
+   range); the public one-tile path copies with predicated straight-line `cp.async`.
+5. Zero-byte page-index copies for tiles past the CTA's range (tiles 2 and 3 in the one-tile
+   builds); the public kernel skips them.
+
+### Change: ONE_DIAG / ONE_DIET build switches (`attn_one.cu`)
+
+- `ONE_DIAG` (default 0): the stamps and phase exits compile only into a diagnostic build;
+  the host refuses `phase_limit > 0` without it.
+- `ONE_DIET` (default 1): `Params::lp = log2(page_size)` with shift and mask in place of
+  division (the host checks a power of two; `_one_ok` routes any other page size to the
+  fallback path), straight-line query copies and query pass, predicated prologue row copies
+  (`cp_async16_if`), no index copies past `ntiles`. The q_len 8 producer builds (51, 115)
+  keep the plain path (see below).
+
+No fence, barrier or ordering change. Per instance, the SASS counts of `BAR.SYNC`,
+`FENCE.VIEW.ASYNC.S` (fence.proxy.async), `MEMBAR`, `SYNCS` (mbarrier), `ATOMG`, `REDG` and
+`LDGDEPBAR` are identical between the board build and the diet build; only `DEPBAR`
+(`cp.async.wait_group`) drops, by the `wait_group 0` inside the removed phase exits. A
+predicated-off `cp.async` is not issued, so the commit-group counts the waits rely on are
+unchanged. With the old defaults (`-DONE_DIET=0 -DONE_DIAG=1`) all 13 instances are
+SASS-identical to the board build; with the new defaults every instance is SASS-identical to
+an arm timed in d57d1fe064164611 (51 and 115 to `nodiag`, the rest to `diet`).
+
+### Bench d57d1fe064164611 (check, `tools/attn_make_bench_ab.py`, paired in one process)
+
+Arms: `ctrl` (the board build), `nodiag` (`-DONE_DIAG=0`), `diet` (`-DONE_DIAG=0 -DONE_DIET=1`),
+`pub` (the public entry's own file, loaded from the session scratchpad; not in the repo). Same
+inputs per shape; ABCOLD = median of 120 graph replays after a 256 MB flush, arms interleaved
+in rotating order; ABWARM = a graph of 16 back-to-back calls, median of 25, divided by 16.
+ABWARM tracks the judge's medians (ctrl verify 1 sliding 7.53 us both here and in
+96d568f61c69412f). ABCHECK: 0 failing (the control against the FP32 reference, the arms against
+the control: at most 7.2e-5 relative, one-ulp merge-order differences, workspace clean). The
+judge's tests passed 16/16. Profiles: `profiles/bench_ab.d57d1fe064164611.*`.
+
+| | shape | ctrl | nodiag | diet | pub | diet - ctrl | diet - pub |
+|---|---|---|---|---|---|---|---|
+| warm | decode 1 sliding | 6.28 | 5.75 | 5.50 | 4.42 | -0.78 | +1.08 |
+| warm | decode 16 sliding | 10.40 | 9.62 | 9.34 | 7.37 | -1.06 | +1.97 |
+| warm | decode 32 sliding | 12.33 | 11.45 | 11.09 | 9.26 | -1.24 | +1.83 |
+| warm | verify 1 sliding | 7.53 | 7.12 | 6.93 | 6.68 | -0.60 | +0.25 |
+| warm | verify 16 sliding | 13.04 | 12.35 | 11.68 | 11.17 | -1.36 | +0.51 |
+| warm | verify 32 sliding | 17.64 | 16.92 | 16.05 | 14.64 | -1.59 | +1.41 |
+| warm | decode 1 full | 15.95 | 15.13 | 14.58 | 9.96 | -1.37 | +4.62 |
+| warm | decode 16 full | 93.54 | 93.14 | 88.79 | 86.52 | -4.75 | +2.27 |
+| warm | decode 32 full | 184.90 | 184.40 | 173.12 | 166.66 | -11.78 | +6.46 |
+| warm | verify 1 full | 17.99 | 17.42 | 17.34 | 13.73 | -0.65 | +3.61 |
+| warm | verify 16 full | 124.78 | 122.36 | 123.70 | 100.07 | -1.08 | +23.63 |
+| warm | verify 32 full | 244.98 | 240.62 | 242.52 | 189.10 | -2.46 | +53.42 |
+| cold | decode 1 sliding | 10.56 | 10.14 | 9.92 | 9.12 | -0.64 | +0.80 |
+| cold | decode 16 sliding | 15.30 | 14.98 | 14.37 | 13.18 | -0.93 | +1.19 |
+| cold | decode 32 sliding | 17.38 | 16.96 | 16.70 | 15.78 | -0.68 | +0.92 |
+| cold | verify 1 sliding | 11.90 | 11.55 | 11.23 | 11.04 | -0.67 | +0.19 |
+| cold | verify 16 sliding | 16.90 | 16.45 | 16.06 | 15.58 | -0.84 | +0.48 |
+| cold | verify 32 sliding | 21.82 | 21.44 | 20.86 | 19.42 | -0.96 | +1.44 |
+
+On the sliding shapes the hooks alone (ctrl to nodiag) are 0.4-0.9 us and the rest of the
+diet (nodiag to diet) another 0.2-0.9 us. Mode 51 (verify 16 / 32 full) is the one place the
+diet ran slower than nodiag, by 0.9-1.9 us in all four samples, so the q_len 8 producer builds
+keep the plain path (`DIET` in the kernel). Applying the warm deltas to 96d568f61c69412f's
+per-shape times predicted 2.315x for the diet (nodiag alone 2.252x).
+
+### Judged: check 03a21fbc99cf445f 2.299x (CI 2.264-2.333), repeat d0adceb5f83b4e1e 2.291x (CI 2.257-2.325)
+
+`submission.py` at fd068c4 (the repeat differs by one comment line, 6471dfa). 16/16 tests
+passed in both. Profiles: `profiles/submission.03a21fbc99cf445f.*`,
+`profiles/submission.d0adceb5f83b4e1e.*`. Judge medians (us):
+
+| shape | 96d568f (control) | 03a21fbc | d0adceb5 | change (mean of the two) |
+|---|---|---|---|---|
+| decode 1 sliding | 6.64 | 5.78 | 5.91 | -0.80 (-12.0%) |
+| decode 16 sliding | 9.72 | 9.24 | 9.08 | -0.56 (-5.8%) |
+| decode 32 sliding | 12.20 | 11.08 | 11.52 | -0.90 (-7.4%) |
+| verify 1 sliding | 7.53 | 6.83 | 7.03 | -0.60 (-8.0%) |
+| verify 16 sliding | 13.45 | 12.07 | 11.85 | -1.49 (-11.1%) |
+| verify 32 sliding | 17.56 | 15.94 | 15.96 | -1.61 (-9.2%) |
+| decode 1 full | 16.38 | 14.72 | 15.34 | -1.35 (-8.2%) |
+| decode 16 full | 92.67 | 89.95 | 89.41 | -2.99 (-3.2%) |
+| decode 32 full | 178.79 | 170.21 | 171.55 | -7.91 (-4.4%) |
+| verify 1 full | 18.42 | 17.47 | 17.61 | -0.88 (-4.8%) |
+| verify 16 full | 120.83 | 120.18 | 119.93 | -0.78 (-0.6%) |
+| verify 32 full | 229.75 | 226.68 | 226.57 | -3.13 (-1.4%) |
+
+Both runs sit above the control's CI and above the control family's other checks (2.182x,
+2.187x), and every shape is faster in both. Win: +5.2% to +5.6% on the attention score. No
+scored run was used.
+
+### Bench 0c4b4923d4b44b79: the diet again, and the batch-1 full finalize (ONE_FIN8)
+
+Arms: `ctrl` (the new default: diet), `board` (`-DONE_DIET=0 -DONE_DIAG=1`, all 13 instances
+SASS-identical to 96d568f's build), `fin8` (`-DONE_FIN8=1`), `pub`. ABCHECK 0 failing, tests
+16/16. Profiles: `profiles/bench_fin8.0c4b4923d4b44b79.*`. Warm (us):
+
+| shape | board | ctrl (diet) | fin8 | pub |
+|---|---|---|---|---|
+| decode 1 sliding | 5.91 | 5.08 | 5.08 | 4.66 |
+| decode 16 sliding | 9.92 | 8.89 | 8.85 | 7.59 |
+| decode 32 sliding | 12.48 | 11.34 | 11.29 | 9.30 |
+| verify 1 sliding | 7.51 | 6.94 | 6.97 | 6.60 |
+| verify 16 sliding | 13.30 | 11.96 | 11.97 | 11.36 |
+| verify 32 sliding | 17.46 | 15.88 | 15.90 | 14.65 |
+| decode 1 full | 15.97 | 14.65 | 13.11 | 10.00 |
+| verify 1 full | 18.22 | 17.55 | 15.55 | 13.93 |
+
+The diet's sliding deltas (board minus ctrl: 0.83 / 1.03 / 1.14 / 0.57 / 1.34 / 1.58 us)
+repeat d57d1fe0's to within 0.1 us. `ONE_FIN8`: the finalize of
+the batch-1 full plan (cooperative, 8 workspace copies) read each copy, shuffled its row sum
+and zeroed it before the next copy's loads, so the 8 copies cost 8 dependent L2 round trips
+(SASS of mode 11: two `LDG.128`, `SHFL.IDX`, two `STG.128` per copy, in sequence). The public
+kernel loads all 8 first (its `sum_copies` notes the same problem). Issuing all loads first
+cut decode 1 full by 1.5 us and verify 1 full by 2.0 us (cold: 1.6 / 2.2) and left every
+other shape unchanged; it compiles only into mode 11 (`FIN8 = ONE_FIN8 && COOP && SPEC &&
+!ONE`), and every barrier, fence and atomic count is unchanged. Predicted +1.7% on the score.
+Not judged: it is a second change outside this sliding brief, so `ONE_FIN8` stays 0 until a
+judged check and a repeat.
+
+### What still separates us from the public kernel on sliding (diet vs pub, warm, two samples)
+
+decode 1 0.4-1.1 us, decode 16 1.3-2.0, decode 32 1.8-2.0, verify 1 0.25-0.35, verify 16
+0.5-0.6, verify 32 1.2-1.4. What remains sits in the builds with several tiles per CTA (mode 1
+at q_len 1: 2 and 4 tiles; verify 32: 8 tiles), so it grows with tiles, which points at the
+tile loop or the in-loop copy issue rather than the once-path. Hypothesis, not measured: the
+in-loop `issue_kv` (`patch == true`) still takes a three-way branch and 64-bit offsets per row,
+where the public in-loop issue has a branch-free shift-add path for fully cached tiles. The
+public Q.K-first order at q_len 8 is already ruled out for our kernel (bf6b8ca9e37341fb). The
+full-context q_len 8 flat gap (23 / 53 us at batch 16 / 32) is unchanged by this work.

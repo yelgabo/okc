@@ -1,0 +1,78 @@
+ ctx80000 tp8 full L1 agentic coherent page1 scale1 [splits=264 nc=1 mode=49] vs_ctrl=1.4e-04 diff_elems=140/32768 max_ulp=4.0 max_abs=7.8e-03 
+ABCHECK PASS ctrl b1 ctx80000 tp8 sliding L8 fixed soft page1 scale1 [splits=33 nc=1 mode=15] err=6.963e-02 bound=0.150 worst_row=1.813e-01 k=0.00e+00 v=0.00e+00 ws_rows_nonzero=0 l_nonzero=0 tickets_nonzero=0 coop_next_parity_nonzero=0 flat_next_parity_nonzero=0
+ABCHECK PASS board b1 ctx80000 tp8 sliding L8 fixed soft page1 scale1 [splits=33 nc=1 mode=15] vs_ctrl=0.0e+00 diff_elems=0/8192 ws_rows_nonzero=0 l_nonzero=0 tickets_nonzero=0 coop_next_parity_nonzero=0 flat_next_parity_nonzero=0
+ABCHECK PASS fin8 b1 ctx80000 tp8 sliding L8 fixed soft page1 scale1 [splits=33 nc=1 mode=15] vs_ctrl=0.0e+00 diff_elems=0/8192 ws_rows_nonzero=0 l_nonzero=0 tickets_nonzero=0 coop_next_parity_nonzero=0 flat_next_parity_nonzero=0
+ABCHECK PASS pub b1 ctx80000 tp8 sliding L8 fixed soft page1 scale1 [splits=33 nc=1 mode=15] vs_ctrl=0.0e+00 diff_elems=0/8192 
+ABCHECK PASS ctrl b1 ctx80000 tp8 full L8 fixed coherent page1 scale1 [splits=252 nc=8 mode=11] err=2.102e-02 bound=0.068 worst_row=1.053e-01 k=0.00e+00 v=0.00e+00 ws_rows_nonzero=0 l_nonzero=0 tickets_nonzero=0 coop_next_parity_nonzero=0 flat_next_parity_nonzero=0
+ABCHECK PASS board b1 ctx80000 tp8 full L8 fixed coherent page1 scale1 [splits=252 nc=8 mode=11] vs_ctrl=6.0e-10 diff_elems=1/8192 max_ulp=1.0 max_abs=3.0e-08 ws_rows_nonzero=0 l_nonzero=0 tickets_nonzero=0 coop_next_parity_nonzero=0 flat_next_parity_nonzero=0
+ABCHECK PASS fin8 b1 ctx80000 tp8 full L8 fixed coherent page1 scale1 [splits=252 nc=8 mode=11] vs_ctrl=6.0e-10 diff_elems=1/8192 max_ulp=1.0 max_abs=3.0e-08 ws_rows_nonzero=0 l_nonzero=0 tickets_nonzero=0 coop_next_parity_nonzero=0 flat_next_parity_nonzero=0
+ABCHECK PASS pub b1 ctx80000 tp8 full L8 fixed coherent page1 scale1 [splits=252 nc=8 mode=11] vs_ctrl=1.5e-03 diff_elems=1838/8192 max_ulp=354.0 max_abs=7.8e-03 
+ABCHECK PASS ctrl b16 ctx80000 tp8 sliding L8 agentic soft page1 scale1 [splits=8 nc=1 mode=3] err=7.202e-02 bound=0.150 worst_row=3.509e-01 k=0.00e+00 v=0.00e+00 ws_rows_nonzero=0 l_nonzero=0 tickets_nonzero=0 coop_next_parity_nonzero=0 flat_next_parity_nonzero=0
+ABCHECK PASS board b16 ctx80000 tp8 sliding L8 agentic soft page1 scale1 [splits=8 nc=1 mode=3] vs_ctrl=2.0e-05 diff_elems=6/131072 max_ulp=2.0 max_abs=3.9e-03 ws_rows_nonzero=0 l_nonzero=0 tickets_nonzero=0 coop_next_parity_nonzero=0 flat_next_parity_nonzero=0
+ABCHECK PASS fin8 b16 ctx80000 tp8 sliding L8 agentic soft page1 scale1 [splits=8 nc=1 mode=3] vs_ctrl=4.4e-08 diff_elems=3/131072 max_ulp=1.0 max_abs=7.6e-06 ws_rows_nonzero=0 l_nonzero=0 tickets_nonzero=0 coop_next_parity_nonzero=0 flat_next_parity_nonzero=0
+ABCHECK PASS pub b16 ctx80000 tp8 sliding L8 agentic soft page1 scale1 [splits=8 nc=1 mode=3] vs_ctrl=9.6e-03 diff_elems=66770/131072 max_ulp=459.0 max_abs=9.0e-02 
+ABCHECK PASS ctrl b16 ctx80000 tp8 full L8 agentic coherent page1 scale1 [splits=264 nc=1 mode=51] err=2.046e-02 bound=0.064 worst_row=2.398e-01 k=0.00e+00 v=0.00e+00 ws_rows_nonzero=0 l_nonzero=0 tickets_nonzero=0 coop_next_parity_nonzero=0 flat_next_parity_nonzero=0
+ABCHECK PASS board b16 ctx80000 tp8 full L8 agentic coherent page1 scale1 [splits=264 nc=1 mode=51] vs_ctrl=5.1e-06 diff_elems=2/131072 max_ulp=1.0 max_abs=9.8e-04 ws_rows_nonzero=0 l_nonzero=0 tickets_nonzero=0 coop_next_parity_nonzero=0 flat_next_parity_nonzero=0
+ABCHECK PASS fin8 b16 ctx80000 tp8 full L8 agentic coherent page1 scale1 [splits=264 nc=1 mode=51] vs_ctrl=2.6e-06 diff_elems=2/131072 max_ulp=1.0 max_abs=4.9e-04 ws_rows_nonzero=0 l_nonzero=0 tickets_nonzero=0 coop_next_parity_nonzero=0 flat_next_parity_nonzero=0
+ABCHECK PASS pub b16 ctx80000 tp8 full L8 agentic coherent page1 scale1 [splits=264 nc=1 mode=51] vs_ctrl=6.0e-03 diff_elems=72974/131072 max_ulp=450.0 max_abs=1.2e-01 
+ABCHECK PASS ctrl b32 ctx80000 tp8 sliding L8 agentic soft page1 scale1 [splits=4 nc=1 mode=3] err=6.971e-02 bound=0.150 worst_row=3.052e-01 k=0.00e+00 v=0.00e+00 ws_rows_nonzero=0 l_nonzero=0 tickets_nonzero=0 coop_next_parity_nonzero=0 flat_next_parity_nonzero=0
+ABCHECK PASS board b32 ctx80000 tp8 sliding L8 agentic soft page1 scale1 [splits=4 nc=1 mode=3] vs_ctrl=5.0e-06 diff_elems=6/262144 max_ulp=1.0 max_abs=9.8e-04 ws_rows_nonzero=0 l_nonzero=0 tickets_nonzero=0 coop_next_parity_nonzero=0 flat_next_parity_nonzero=0
+ABCHECK PASS fin8 b32 ctx80000 tp8 sliding L8 agentic soft page1 scale1 [splits=4 nc=1 mode=3] vs_ctrl=9.9e-09 diff_elems=3/262144 max_ulp=1.0 max_abs=1.9e-06 ws_rows_nonzero=0 l_nonzero=0 tickets_nonzero=0 coop_next_parity_nonzero=0 flat_next_parity_nonzero=0
+ABCHECK PASS pub b32 ctx80000 tp8 sliding L8 agentic soft page1 scale1 [splits=4 nc=1 mode=3] vs_ctrl=1.2e-02 diff_elems=143585/262144 max_ulp=508.0 max_abs=1.2e-01 
+ABCHECK PASS ctrl b32 ctx80000 tp8 full L8 agentic coherent page1 scale1 [splits=264 nc=1 mode=51] err=2.105e-02 bound=0.065 worst_row=2.254e-01 k=0.00e+00 v=0.00e+00 ws_rows_nonzero=0 l_nonzero=0 tickets_nonzero=0 coop_next_parity_nonzero=0 flat_next_parity_nonzero=0
+ABCHECK PASS board b32 ctx80000 tp8 full L8 agentic coherent page1 scale1 [splits=264 nc=1 mode=51] vs_ctrl=6.4e-06 diff_elems=7/262144 max_ulp=7.0 max_abs=9.8e-04 ws_rows_nonzero=0 l_nonzero=0 tickets_nonzero=0 coop_next_parity_nonzero=0 flat_next_parity_nonzero=0
+ABCHECK PASS fin8 b32 ctx80000 tp8 full L8 agentic coherent page1 scale1 [splits=264 nc=1 mode=51] vs_ctrl=1.1e-05 diff_elems=6/262144 max_ulp=14.0 max_abs=2.0e-03 ws_rows_nonzero=0 l_nonzero=0 tickets_nonzero=0 coop_next_parity_nonzero=0 flat_next_parity_nonzero=0
+ABCHECK PASS pub b32 ctx80000 tp8 full L8 agentic coherent page1 scale1 [splits=264 nc=1 mode=51] vs_ctrl=6.2e-03 diff_elems=155607/262144 max_ulp=488.0 max_abs=8.6e-02 
+ABCHECK PASS ctrl b1 ctx10 tp8 sliding L1 fixed normal page64 scale1 [splits=32 nc=1 mode=1] err=2.668e-03 bound=0.133 worst_row=5.738e-03 k=0.00e+00 v=0.00e+00 ws_rows_nonzero=0 l_nonzero=0 tickets_nonzero=0 coop_next_parity_nonzero=0 flat_next_parity_nonzero=0
+ABCHECK PASS board b1 ctx10 tp8 sliding L1 fixed normal page64 scale1 [splits=32 nc=1 mode=1] vs_ctrl=0.0e+00 diff_elems=0/1024 ws_rows_nonzero=0 l_nonzero=0 tickets_nonzero=0 coop_next_parity_nonzero=0 flat_next_parity_nonzero=0
+ABCHECK PASS fin8 b1 ctx10 tp8 sliding L1 fixed normal page64 scale1 [splits=32 nc=1 mode=1] vs_ctrl=0.0e+00 diff_elems=0/1024 ws_rows_nonzero=0 l_nonzero=0 tickets_nonzero=0 coop_next_parity_nonzero=0 flat_next_parity_nonzero=0
+ABCHECK PASS pub b1 ctx10 tp8 sliding L1 fixed normal page64 scale1 [splits=32 nc=1 mode=1] vs_ctrl=0.0e+00 diff_elems=0/1024 
+ABCHECK PASS ctrl b3 ctx2047 tp8 sliding L1 fixed normal page64 scale1 [splits=32 nc=1 mode=1] err=4.489e-03 bound=0.150 worst_row=1.282e-02 k=0.00e+00 v=0.00e+00 ws_rows_nonzero=0 l_nonzero=0 tickets_nonzero=0 coop_next_parity_nonzero=0 flat_next_parity_nonzero=0
+ABCHECK PASS board b3 ctx2047 tp8 sliding L1 fixed normal page64 scale1 [splits=32 nc=1 mode=1] vs_ctrl=1.3e-07 diff_elems=1/3072 max_ulp=1.0 max_abs=3.8e-06 ws_rows_nonzero=0 l_nonzero=0 tickets_nonzero=0 coop_next_parity_nonzero=0 flat_next_parity_nonzero=0
+ABCHECK PASS fin8 b3 ctx2047 tp8 sliding L1 fixed normal page64 scale1 [splits=32 nc=1 mode=1] vs_ctrl=0.0e+00 diff_elems=0/3072 ws_rows_nonzero=0 l_nonzero=0 tickets_nonzero=0 coop_next_parity_nonzero=0 flat_next_parity_nonzero=0
+ABCHECK PASS pub b3 ctx2047 tp8 sliding L1 fixed normal page64 scale1 [splits=32 nc=1 mode=1] vs_ctrl=4.5e-06 diff_elems=4/3072 max_ulp=1.0 max_abs=1.2e-04 
+ABCHECK PASS ctrl b5 ctx5000 tp8 sliding L8 mixed normal page1 scale1 [splits=26 nc=1 mode=3] err=7.850e-02 bound=0.150 worst_row=3.085e-01 k=0.00e+00 v=0.00e+00 ws_rows_nonzero=0 l_nonzero=0 tickets_nonzero=0 coop_next_parity_nonzero=0 flat_next_parity_nonzero=0
+ABCHECK PASS board b5 ctx5000 tp8 sliding L8 mixed normal page1 scale1 [splits=26 nc=1 mode=3] vs_ctrl=8.9e-06 diff_elems=3/40960 max_ulp=1.0 max_abs=9.8e-04 ws_rows_nonzero=0 l_nonzero=0 tickets_nonzero=0 coop_next_parity_nonzero=0 flat_next_parity_nonzero=0
+ABCHECK PASS fin8 b5 ctx5000 tp8 sliding L8 mixed normal page1 scale1 [splits=26 nc=1 mode=3] vs_ctrl=7.1e-05 diff_elems=2/40960 max_ulp=1.0 max_abs=7.8e-03 ws_rows_nonzero=0 l_nonzero=0 tickets_nonzero=0 coop_next_parity_nonzero=0 flat_next_parity_nonzero=0
+ABCHECK PASS pub b5 ctx5000 tp8 sliding L8 mixed normal page1 scale1 [splits=26 nc=1 mode=3] vs_ctrl=7.1e-03 diff_elems=17323/40960 max_ulp=453.0 max_abs=5.8e-02 
+ABCHECK PASS ctrl b4 ctx3000 tp8 full L1 fixed normal page64 scale1 [splits=264 nc=1 mode=49] err=5.673e-03 bound=0.150 worst_row=1.375e-02 k=0.00e+00 v=0.00e+00 ws_rows_nonzero=0 l_nonzero=0 tickets_nonzero=0 coop_next_parity_nonzero=0 flat_next_parity_nonzero=0
+ABCHECK PASS board b4 ctx3000 tp8 full L1 fixed normal page64 scale1 [splits=264 nc=1 mode=49] vs_ctrl=0.0e+00 diff_elems=0/4096 ws_rows_nonzero=0 l_nonzero=0 tickets_nonzero=0 coop_next_parity_nonzero=0 flat_next_parity_nonzero=0
+ABCHECK PASS fin8 b4 ctx3000 tp8 full L1 fixed normal page64 scale1 [splits=264 nc=1 mode=49] vs_ctrl=0.0e+00 diff_elems=0/4096 ws_rows_nonzero=0 l_nonzero=0 tickets_nonzero=0 coop_next_parity_nonzero=0 flat_next_parity_nonzero=0
+ABCHECK PASS pub b4 ctx3000 tp8 full L1 fixed normal page64 scale1 [splits=264 nc=1 mode=49] vs_ctrl=1.1e-04 diff_elems=9/4096 max_ulp=2.0 max_abs=3.9e-03 
+ABCHECK PASS ctrl b4 ctx6000 tp8 full L8 fixed edges page64 scale1 [splits=264 nc=1 mode=51] err=8.170e-02 bound=0.150 worst_row=2.604e-01 k=0.00e+00 v=0.00e+00 ws_rows_nonzero=0 l_nonzero=0 tickets_nonzero=0 coop_next_parity_nonzero=0 flat_next_parity_nonzero=0
+ABCHECK PASS board b4 ctx6000 tp8 full L8 fixed edges page64 scale1 [splits=264 nc=1 mode=51] vs_ctrl=4.0e-05 diff_elems=4/32768 max_ulp=1.0 max_abs=3.9e-03 ws_rows_nonzero=0 l_nonzero=0 tickets_nonzero=0 coop_next_parity_nonzero=0 flat_next_parity_nonzero=0
+ABCHECK PASS fin8 b4 ctx6000 tp8 full L8 fixed edges page64 scale1 [splits=264 nc=1 mode=51] vs_ctrl=2.5e-06 diff_elems=1/32768 max_ulp=1.0 max_abs=2.4e-04 ws_rows_nonzero=0 l_nonzero=0 tickets_nonzero=0 coop_next_parity_nonzero=0 flat_next_parity_nonzero=0
+ABCHECK PASS pub b4 ctx6000 tp8 full L8 fixed edges page64 scale1 [splits=264 nc=1 mode=51] vs_ctrl=1.6e-02 diff_elems=17666/32768 max_ulp=436.0 max_abs=2.2e-01 
+ABCHECK PASS ctrl b3 ctx4000 tp8 sliding L8 fixed normal page1 scale0.015625 [splits=33 nc=1 mode=3] err=7.403e-02 bound=0.150 worst_row=2.450e-01 k=0.00e+00 v=0.00e+00 ws_rows_nonzero=0 l_nonzero=0 tickets_nonzero=0 coop_next_parity_nonzero=0 flat_next_parity_nonzero=0
+ABCHECK PASS board b3 ctx4000 tp8 sliding L8 fixed normal page1 scale0.015625 [splits=33 nc=1 mode=3] vs_ctrl=7.2e-07 diff_elems=1/24576 max_ulp=1.0 max_abs=6.1e-05 ws_rows_nonzero=0 l_nonzero=0 tickets_nonzero=0 coop_next_parity_nonzero=0 flat_next_parity_nonzero=0
+ABCHECK PASS fin8 b3 ctx4000 tp8 sliding L8 fixed normal page1 scale0.015625 [splits=33 nc=1 mode=3] vs_ctrl=1.0e-06 diff_elems=2/24576 max_ulp=1.0 max_abs=6.1e-05 ws_rows_nonzero=0 l_nonzero=0 tickets_nonzero=0 coop_next_parity_nonzero=0 flat_next_parity_nonzero=0
+ABCHECK PASS pub b3 ctx4000 tp8 sliding L8 fixed normal page1 scale0.015625 [splits=33 nc=1 mode=3] vs_ctrl=1.0e-06 diff_elems=2/24576 max_ulp=1.0 max_abs=6.1e-05 
+ABCHECK PASS ctrl b2 ctx9000 tp8 full L1 fixed normal page64 scale0.015625 [splits=264 nc=1 mode=49] err=5.338e-03 bound=0.150 worst_row=1.226e-02 k=0.00e+00 v=0.00e+00 ws_rows_nonzero=0 l_nonzero=0 tickets_nonzero=0 coop_next_parity_nonzero=0 flat_next_parity_nonzero=0
+ABCHECK PASS board b2 ctx9000 tp8 full L1 fixed normal page64 scale0.015625 [splits=264 nc=1 mode=49] vs_ctrl=0.0e+00 diff_elems=0/2048 ws_rows_nonzero=0 l_nonzero=0 tickets_nonzero=0 coop_next_parity_nonzero=0 flat_next_parity_nonzero=0
+ABCHECK PASS fin8 b2 ctx9000 tp8 full L1 fixed normal page64 scale0.015625 [splits=264 nc=1 mode=49] vs_ctrl=0.0e+00 diff_elems=0/2048 ws_rows_nonzero=0 l_nonzero=0 tickets_nonzero=0 coop_next_parity_nonzero=0 flat_next_parity_nonzero=0
+ABCHECK PASS pub b2 ctx9000 tp8 full L1 fixed normal page64 scale0.015625 [splits=264 nc=1 mode=49] vs_ctrl=3.7e-04 diff_elems=8/2048 max_ulp=1.0 max_abs=7.8e-03 
+ABCHECK done: 0 failing t=141s
+ABCOLD b= 1 sliding L=1 ctrl=9.50 board=10.02 fin8=9.47 pub=8.99 t=141s
+ABWARM b= 1 sliding L=1 ctrl=5.08 board=5.91 fin8=5.08 pub=4.66 t=141s
+ABCOLD b= 1 full    L=1 ctrl=20.42 board=20.83 fin8=18.82 pub=16.48 t=141s
+ABWARM b= 1 full    L=1 ctrl=14.65 board=15.97 fin8=13.11 pub=10.00 t=141s
+ABCOLD b=16 sliding L=1 ctrl=14.14 board=15.14 fin8=14.24 pub=12.93 t=141s
+ABWARM b=16 sliding L=1 ctrl=8.89 board=9.92 fin8=8.85 pub=7.59 t=141s
+ABCOLD b=16 full    L=1 ctrl=100.64 board=103.42 fin8=100.70 pub=98.91 t=141s
+ABWARM b=16 full    L=1 ctrl=88.73 board=92.95 fin8=88.77 pub=86.41 t=142s
+ABCOLD b=32 sliding L=1 ctrl=16.48 board=17.12 fin8=16.54 pub=15.58 t=142s
+ABWARM b=32 sliding L=1 ctrl=11.34 board=12.48 fin8=11.29 pub=9.30 t=142s
+ABCOLD b=32 full    L=1 ctrl=181.86 board=188.22 fin8=181.79 pub=178.27 t=142s
+ABWARM b=32 full    L=1 ctrl=173.73 board=185.47 fin8=173.64 pub=166.79 t=142s
+ABCOLD b= 1 sliding L=8 ctrl=11.01 board=11.78 fin8=11.23 pub=10.82 t=142s
+ABWARM b= 1 sliding L=8 ctrl=6.94 board=7.51 fin8=6.97 pub=6.60 t=142s
+ABCOLD b= 1 full    L=8 ctrl=22.14 board=22.59 fin8=19.97 pub=19.04 t=142s
+ABWARM b= 1 full    L=8 ctrl=17.55 board=18.22 fin8=15.55 pub=13.93 t=142s
+ABCOLD b=16 sliding L=8 ctrl=16.03 board=16.83 fin8=15.94 pub=15.62 t=142s
+ABWARM b=16 sliding L=8 ctrl=11.96 board=13.30 fin8=11.97 pub=11.36 t=142s
+ABCOLD b=16 full    L=8 ctrl=123.84 board=125.79 fin8=123.97 pub=109.98 t=143s
+ABWARM b=16 full    L=8 ctrl=124.08 board=126.18 fin8=123.99 pub=100.42 t=143s
+ABCOLD b=32 sliding L=8 ctrl=21.02 board=22.05 fin8=20.96 pub=19.42 t=143s
+ABWARM b=32 sliding L=8 ctrl=15.88 board=17.46 fin8=15.90 pub=14.65 t=143s
+ABCOLD b=32 full    L=8 ctrl=228.54 board=232.13 fin8=228.70 pub=192.83 t=143s
+ABWARM b=32 full    L=8 ctrl=242.88 board=247.25 fin8=242.88 pub=189.23 t=143s

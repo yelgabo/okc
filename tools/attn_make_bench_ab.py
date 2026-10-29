@@ -1,0 +1,256 @@
+"""Write a paired A/B bench for the one-launch kernel: submission.py (the judged path is the
+control) plus extra builds of attn_one.cu with compile flags, and optionally the public entry's
+kernel loaded from its own file, all timed in one process on the same inputs.
+
+    python3 tools/attn_make_bench_ab.py OUT.py [--pub PUBLIC.py] [--shapes sliding|all]
+        NAME=FLAGS ...
+
+NAME=FLAGS adds a variant built from muse_attention_decode/attn_one.cu with those nvcc flags
+(comma-separated), e.g. diet=-DONE_DIAG=0,-DONE_DIET=1. The variant runs through _one with
+its module swapped in, so it shares the control's plan and workspace.
+
+At import the bench prints, before the judge's own tests and timing:
+
+  ABCHECK   per variant and shape (scored shapes and seven tp8 test shapes): for the control
+            the judge-style check against the FP32 reference, for every other variant its
+            output against the control's (relative L2 below 2e-2, differing elements), and the
+            workspace invariant after the call.
+  ABCOLD    per scored shape: median of 120 graph replays after a 256 MB L2 flush, the
+            variants interleaved in a rotating order within each round.
+  ABWARM    per scored shape: a graph of 16 back-to-back calls, median over 25 replays,
+            divided by 16 (L2 warm, launch gaps of a captured graph).
+
+The public file is read at generation time and embedded as a string; the output belongs in the
+session scratchpad, not in the repository (only the logs of its runs are committed).
+"""
+
+import re
+import sys
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(ROOT / "tools"))
+import attn_make_bench_one as base  # noqa: E402
+
+AB = r'''
+
+_AB_FLAGS = {flags!r}
+_AB_PUB_SRC = {pub_src!r}
+_AB_SHAPES = {shapes!r}
+_AB_MODS = {{}}
+for _name, _fl in _AB_FLAGS.items():
+    try:
+        _AB_MODS[_name] = load_inline(
+            name=f"okc_attn_one_ab_{{_name}}",
+            cpp_sources=_ONE_CPP,
+            cuda_sources=_ONE_SRC,
+            functions=["attn_one", "attn_one_prepare", "attn_one_probe_coop"],
+            extra_cuda_cflags=["-O3", "-gencode=arch=compute_90a,code=sm_90a", *_fl],
+        )
+        print(f"ABBUILD {{_name}} {{_fl}} loaded {{_ob_elapsed()}}", flush=True)
+    except Exception as _exc:
+        print(f"ABBUILD {{_name}} FAIL {{type(_exc).__name__}}: {{str(_exc)[:400]}}", flush=True)
+_AB_PUB = None
+if _AB_PUB_SRC:
+    try:
+        import types as _types
+        _AB_PUB = _types.ModuleType("okc_ab_public")
+        exec(compile(_AB_PUB_SRC, "public_attention.py", "exec"), _AB_PUB.__dict__)
+        _AB_PUB._module()
+        print(f"ABBUILD pub loaded {{_ob_elapsed()}}", flush=True)
+    except Exception as _exc:
+        _AB_PUB = None
+        print(f"ABBUILD pub FAIL {{type(_exc).__name__}}: {{str(_exc)[:400]}}", flush=True)
+
+
+def _ab_via(mod):
+    def call(data):
+        global _ONE
+        saved = _ONE
+        _ONE = mod
+        try:
+            return _one(data)
+        finally:
+            _ONE = saved
+    return call
+
+
+def _ab_fns():
+    fns = {{"ctrl": _one}}
+    for name, mod in _AB_MODS.items():
+        fns[name] = _ab_via(mod)
+    if _AB_PUB is not None:
+        fns["pub"] = _AB_PUB.kernel_fn
+    return fns
+
+
+def _ab_scored():
+    for batch, layer, q_len in _OB_SCORED:
+        if _AB_SHAPES == "sliding" and layer != "sliding":
+            continue
+        yield batch, layer, q_len
+
+
+def _ab_check():
+    fns = _ab_fns()
+    dev = torch.device("cuda", torch.cuda.current_device())
+    shapes = [(b, 80000, "tp8", lay, q, "fixed" if b == 1 else "agentic",
+               "soft" if lay == "sliding" else "coherent", 1, 1.0) for b, lay, q in _ab_scored()]
+    # The tp8 test shapes that reach the paths a variant can change (page size 64, kv scale,
+    # mixed lengths, short contexts), without the 1M and 80K test contexts, whose FP32
+    # references would cost minutes of the run's 15.
+    shapes += [_OB_TESTS[i] for i in (0, 1, 2, 3, 7, 9, 10)]
+    fails = 0
+    for shape in shapes:
+        name = "b{{}} ctx{{}} {{}} {{}} L{{}} {{}} {{}} page{{}} scale{{:g}}".format(*shape)
+        try:
+            data = _ob_inputs(*shape)
+            if not _one_ok(data["config"]):
+                continue
+            plan = _ob_plan_str(data)
+            ref = None
+            for vname, fn in fns.items():
+                out = _ob_run(lambda: fn(data), f"{{vname}} {{name}}")
+                torch.cuda.synchronize()
+                wok, wmsg = _ob_ws_check(dev) if vname != "pub" else (True, "")
+                # The judge-style check (two FP32 references) for the control only; the
+                # variants are compared with the control's output.
+                if ref is None:
+                    ok, msg = _ob_check(data, out)
+                    ref = out.float().clone()
+                    vs = ""
+                else:
+                    rel = _ob_rel(out, ref)
+                    ok, msg = rel < 2e-2, ""
+                    vs = f"vs_ctrl={{rel:.1e}} {{_ob_diffstat(out, ref)}}"
+                status = "PASS" if ok and wok else "FAIL"
+                fails += status == "FAIL"
+                print(f"ABCHECK {{status}} {{vname}} {{name}} [{{plan}}] {{msg}}{{vs}} {{wmsg}}",
+                      flush=True)
+            data = None
+        except Exception as exc:
+            fails += 1
+            print(f"ABCHECK FAIL {{name}} {{type(exc).__name__}}: {{str(exc)[:300]}}", flush=True)
+        torch.cuda.empty_cache()
+    print(f"ABCHECK done: {{fails}} failing {{_ob_elapsed()}}", flush=True)
+
+
+def _ab_graph(fn, data, calls):
+    stream = torch.cuda.Stream()
+    stream.wait_stream(torch.cuda.current_stream())
+    with torch.cuda.stream(stream):
+        for _ in range(3):
+            fn(data)
+    torch.cuda.current_stream().wait_stream(stream)
+    graph = torch.cuda.CUDAGraph()
+    with torch.cuda.graph(graph):
+        for _ in range(calls):
+            fn(data)
+    torch.cuda.synchronize()
+    return graph
+
+
+def _ab_med(xs):
+    xs = sorted(xs)
+    return xs[len(xs) // 2]
+
+
+def _ab_bench(rounds=120, warm_calls=16, warm_reps=25):
+    flush = torch.empty(256 << 20, dtype=torch.uint8, device="cuda")
+    fns = _ab_fns()
+    names = list(fns)
+    for batch, layer, q_len in _ab_scored():
+        data = _ob_inputs(batch, 80000, "tp8", layer, q_len, "fixed" if batch == 1 else "agentic",
+                          "soft" if layer == "sliding" else "coherent", 1, 1.0)
+        tag = f"b={{batch:2d}} {{layer:7s}} L={{q_len}}"
+        try:
+            cold = {{n: _ab_graph(fns[n], data, 1) for n in names}}
+            samples = {{n: [] for n in names}}
+            for r in range(rounds):
+                order = names[r % len(names):] + names[:r % len(names)]
+                evs = []
+                for n in order:
+                    flush.zero_()
+                    a = torch.cuda.Event(enable_timing=True)
+                    z = torch.cuda.Event(enable_timing=True)
+                    a.record()
+                    cold[n].replay()
+                    z.record()
+                    evs.append((n, a, z))
+                torch.cuda.synchronize()
+                for n, a, z in evs:
+                    samples[n].append(1000.0 * a.elapsed_time(z))
+            cold = None
+            row = " ".join(f"{{n}}={{_ab_med(samples[n]):.2f}}" for n in names)
+            print(f"ABCOLD {{tag}} {{row}} {{_ob_elapsed()}}", flush=True)
+            warm = {{n: _ab_graph(fns[n], data, warm_calls) for n in names}}
+            ws = {{n: [] for n in names}}
+            for r in range(warm_reps):
+                order = names[r % len(names):] + names[:r % len(names)]
+                evs = []
+                for n in order:
+                    a = torch.cuda.Event(enable_timing=True)
+                    z = torch.cuda.Event(enable_timing=True)
+                    a.record()
+                    warm[n].replay()
+                    z.record()
+                    evs.append((n, a, z))
+                torch.cuda.synchronize()
+                for n, a, z in evs:
+                    ws[n].append(1000.0 * a.elapsed_time(z) / warm_calls)
+            warm = None
+            row = " ".join(f"{{n}}={{_ab_med(ws[n]):.2f}}" for n in names)
+            print(f"ABWARM {{tag}} {{row}} {{_ob_elapsed()}}", flush=True)
+        except Exception as exc:
+            print(f"ABBENCH FAIL {{tag}} {{type(exc).__name__}}: {{str(exc)[:300]}}", flush=True)
+        data = None
+        torch.cuda.empty_cache()
+
+
+if not _os.environ.get("ATTN_AB_DONE"):
+    _os.environ["ATTN_AB_DONE"] = "1"
+    global_ok = _ONE is not None
+    if global_ok:
+        _ONE_DBG = None
+        try:
+            _ab_check()
+        except Exception as _exc:
+            print(f"ABCHECK failed: {{type(_exc).__name__}}: {{_exc}}", flush=True)
+        try:
+            _ab_bench()
+        except Exception as _exc:
+            print(f"ABBENCH failed: {{type(_exc).__name__}}: {{_exc}}", flush=True)
+'''
+
+
+def main():
+    args = sys.argv[1:]
+    if not args:
+        raise SystemExit(__doc__)
+    out = Path(args.pop(0))
+    pub_src = ""
+    shapes = "all"
+    flags = {}
+    while args:
+        a = args.pop(0)
+        if a == "--pub":
+            pub_src = Path(args.pop(0)).read_text()
+        elif a == "--shapes":
+            shapes = args.pop(0)
+        else:
+            name, _, fl = a.partition("=")
+            flags[name] = [f for f in fl.split(",") if f]
+    src = (ROOT / "muse_attention_decode/submission.py").read_text()
+    runner = base.RUNNER.format(variants=["_one"], coop_probe=True)
+    # Keep the shared helpers (inputs, reference, checks); drop the self-test, stress and
+    # bench calls at the end, which this bench replaces.
+    head, sep, _ = runner.rpartition("\nimport os as _os\n")
+    if not sep:
+        raise SystemExit("runner layout changed: no 'import os as _os' block")
+    src += head + sep + AB.format(flags=flags, pub_src=pub_src, shapes=shapes)
+    out.write_text(src)
+    print(f"wrote {out} with variants {list(flags)}{' + pub' if pub_src else ''}, shapes {shapes}")
+
+
+if __name__ == "__main__":
+    main()

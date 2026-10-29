@@ -406,8 +406,9 @@ def _ob_selftest():
     fails = 0
     # Phase bisection: the per-request path of the first scored shape, returning after phase
     # 1..10 (copies drained, nothing written), each call under the watchdog; the last line
-    # printed names the phase that hangs.
-    if _ONE is not None:
+    # printed names the phase that hangs. The phase exits exist only in a ONE_DIAG build (the
+    # judged build has none since 10-29), so the sweep runs only when the source turns them on.
+    if _ONE is not None and "#define ONE_DIAG 1" in _ONE_SRC:
         try:
             data = _ob_inputs(1, 80000, "tp8", "sliding", 1, "fixed", "soft", 1, 1.0)
             for m in (13, 1):
