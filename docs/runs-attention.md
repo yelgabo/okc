@@ -1011,3 +1011,7 @@ in-loop `issue_kv` (`patch == true`) still takes a three-way branch and 64-bit o
 where the public in-loop issue has a branch-free shift-add path for fully cached tiles. The
 public Q.K-first order at q_len 8 is already ruled out for our kernel (bf6b8ca9e37341fb). The
 full-context q_len 8 flat gap (23 / 53 us at batch 16 / 32) is unchanged by this work.
+
+### Scored: da872fcdb70445c3 2.281x (2026-10-29)
+
+Submit of the diet file exactly as checked in d0adceb5f83b4e1e (submission.py at 6471dfa, before the ONE_FIN8 switch was added), under the standing replace-when-demonstrably-better authorization. Passed. Board entry before: 96d568f61c69412f (2.178x).
