@@ -295,3 +295,9 @@ to attention alone remain open.
 The recommendation depends on all rows above. If the implementations, measured comparisons
 or routing evidence change, revisit the status table, family explanations and recommendation
 together. Proposed benefits and costs are hypotheses unless a cited comparison measures them.
+
+## Ongoing performance tracking
+
+See the [hourly performance tracker](architecture-performance-tracker.md) for newer family
+results, losses, integration status and evidence checkpoints. This guide retains its dated
+architecture snapshot.
