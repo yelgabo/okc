@@ -150,3 +150,32 @@ CLK * CLR CTAs (K split across CLK, x multicast across CLR row blocks); grid
 data pointers, so the call is graph-capturable as long as the captured buffers are replayed.
 `cudaFuncSetAttribute` runs on the first call of each config (the self-test does it before any
 capture). prepare() picks per (layer, m) for m in 33..256 from buckets 64 / 128 / 256.
+
+## CUTLASS pooler GEMM (`cut_fwd`, pooler m = 129 to 256)
+
+```
+cut_fwd(W, x, out, ws)
+```
+
+- `W`: the pooler weights as given, bf16 `[4096, 8192]` contiguous (no repack).
+- `x`: bf16 `[M, 8192]` contiguous, any M (TMA zero fill and epilogue predication cover the tail).
+- `out`: preallocated bf16 `[M, 4096]`.
+- `ws`: uint8 workspace on the device; 1 MB (`state["cut_ws"]`), checked against
+  `get_workspace_size` on every call.
+
+A CUTLASS 3.x sm90 GEMM instantiated from the headers in the image's FlashInfer package
+(`<flashinfer>/data/cutlass/include` and `tools/util/include`; 4.5.0 on the judge): swap-AB
+(A = W row-major, B = x as a K x M column-major matrix, D column-major [N, M] = out), pingpong,
+persistent scheduler, tile 128 x 64 x 64, cluster 1, FP32 accumulation, BF16 out. At M = 256 the
+grid is 128 tiles, one wave on 132 SMs; that is why it wins there and nowhere else
+(docs/runs.md, CUTLASS sweep 2026-10-29). The CUTLASS translation unit (`CUT_SRC`) holds no torch
+headers. `CUT_CPP`, compiled by the host compiler as `load_inline`'s `cpp_sources`, wraps it
+and takes the stream from `at::cuda::getCurrentCUDAStream()`, so the call is graph-capturable.
+Do not add torch headers or a `-std` flag to the CUTLASS unit, because torch on the judge
+requires C++20 and that broke the first build. The build takes about 49 s on the judge
+(76051953a96a4168), inside prepare.
+
+For the layer: not ported. The layer's T = 128 / 256 front computes the pooler inside concat
+(pooler + router hi + lo, one cuBLAS GEMM with FP32 output), and no CUTLASS config beats cuBLAS
+on that shape (best 42.3 vs 33.3 us at T = 256). A separate CUTLASS pooler holds 128 of 132
+SMs and leaves the router no room to hide (docs/ruled-out.md, declined proposals).

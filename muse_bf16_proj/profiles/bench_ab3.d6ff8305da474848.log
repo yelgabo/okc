@@ -1,0 +1,166 @@
+m128k1r8 24.8, m128k2r8 28.1, m128k4r2 35.4, m256k2r4 29.6, m256k1r4 25.5, m256k1r8 26.0, m256k2r8 30.1, m256k2r2 29.3, b1n128c2s8h 28.8, b1n128c3s8h 38.8 -> cublas
+tune pooler    m= 1: pool8 18.6, pool8raw 22.1, cgemv 22.8, cublas 25.9 -> pool8
+tune pooler    m= 8: pool8 18.8, pool8raw 22.2, cublas 25.3 -> pool8
+tune pooler    m=16: pool16 18.9, pool16raw 22.0, cublas 25.6 -> pool16
+tune pooler    m=32: pool32 19.8, pool32raw 22.4, cublas 26.2 -> pool32
+tune pooler    m=64: cublas 27.2, b1n64c2 25.9, m64k2r4 29.5, m64k1r8 39.0 -> b1n64c2
+tune pooler    m=128: cublas 29.3, b1n64c2 32.8, b1n128c2 30.4, m64k2r4 47.4, m64k1r8 50.8, m128k2r4 35.0, m128k1r4 48.6, m128k1r8 51.3, m128k2r8 37.4, m128k4r2 39.6, b1n128c2s8h 28.4, b1n128c3s8h 33.5 -> b1n128c2s8h
+tune pooler    m=256: cublas 35.0, b1n128c2 38.3, b2n256c2 49.8, m128k2r4 61.2, m128k1r4 52.7, m128k1r8 54.7, m128k2r8 64.4, m128k4r2 61.0, m256k2r4 59.3, m256k1r4 53.2, m256k1r8 55.2, m256k2r8 62.1, m256k2r2 60.0, b1n128c2s8h 49.5, b1n128c3s8h 60.1, cut128x64 31.0 -> cut128x64
+tune qkv_gate  m= 1: qkv8 14.5, qkv8raw 15.7, cgemv 14.8, cublas 18.7 -> qkv8
+tune qkv_gate  m= 8: qkv8 14.4, qkv8raw 16.0, cublas 18.5 -> qkv8
+tune qkv_gate  m=16: qkv16 14.3, qkv16raw 16.4, cublas 18.5 -> qkv16
+tune qkv_gate  m=32: qkv32 15.9, qkv32raw 16.8, cublas 18.8 -> qkv32
+tune qkv_gate  m=64: cublas 19.2, b1n64c2 23.4, m64k2r4 23.4 -> cublas
+tune qkv_gate  m=128: cublas 21.9, b1n64c2 27.6, b1n128c2 28.6, m64k2r4 28.9, m128k2r4 29.1, m128k1r4 46.6, m128k4r2 23.0, b1n128c2s8h 23.6, b1n128c3s8h 19.2 -> b1n128c3s8h
+tune qkv_gate  m=256: cublas 23.8, b1n128c2 33.1, b2n256c2 49.3, m128k2r4 33.1, m128k1r4 47.1, m128k4r2 39.8, m256k2r4 32.8, m256k1r4 51.4, m256k2r2 32.1, b1n128c2s8h 41.9, b1n128c3s8h 34.4 -> cublas
+tune router    m= 1: rgemv 8.1, router8 9.7, baseline 15.5 -> rgemv
+tune router    m= 8: router8 9.8, baseline 31.0 -> router8
+tune router    m=16: router16 9.6, baseline 20.7 -> router16
+tune router    m=32: router32 10.0, baseline 20.9 -> router32
+tune router    m=64: baseline 19.7, r64c8 13.1, r64c16 11.2, rm64k4r4 18.2 -> r64c16
+tune router    m=128: baseline 22.2, r64c8 13.5, r64c16 14.3, r128c8 14.6, r128c16 13.2, rm64k4r4 18.5, rm128k4r4 22.1 -> r128c16
+tune router    m=256: baseline 23.2, r128c8 14.9, r128c16 20.4, rm128k4r4 21.7 -> r128c8
+tune unpooler  m= 1: slice8 8.7, slice8raw 9.1, cgemv 8.3, sgemv 8.1, cublas 11.4 -> sgemv
+tune unpooler  m= 8: slice8 8.7, slice8raw 9.1, cublas 11.4 -> slice8
+tune unpooler  m=16: unp16 18.3, unp16raw 21.8, cublas 22.4 -> unp16
+tune unpooler  m=32: unp32 19.7, unp32raw 22.1, cublas 22.8 -> unp32
+tune unpooler  m=64: cublas 24.2, b1n64c2 24.8, m64k2r4 35.7, m64k1r8 30.4 -> cublas
+tune unpooler  m=128: cublas 23.7, b1n64c2 43.2, b1n128c2 25.7, m64k2r4 53.0, m64k1r8 48.5, m128k2r4 39.7, m128k1r4 35.0, m128k1r8 36.3, m128k2r8 41.0, m128k4r2 39.2, b1n128c2s8h 29.4, b1n128c3s8h 39.4 -> cublas
+tune unpooler  m=256: cublas 28.8, b1n128c2 46.8, b2n256c2 32.8, m128k2r4 60.6, m128k1r4 55.9, m128k1r8 63.1, m128k2r8 63.1, m128k4r2 65.5, m256k2r4 54.8, m256k1r4 57.9, m256k1r8 60.1, m256k2r8 56.8, m256k2r2 54.5, b1n128c2s8h 53.2, b1n128c3s8h 66.0 -> cublas
+ablate pooler m=128: m128k2r4 35.4, m128k2r4_a1 30.8, m128k2r4_a3 28.9
+ablate o m=256: m256k1r4 25.7, m256k1r4_a1 23.5, m256k1r4_a3 18.6
+prepare done 1.4 s
+ours| tune o         m=128: cublas 11.5, b1n64c2 18.9, b1n128c2 14.0, m64k2r4 23.1, m64k1r8 21.5, m128k2r4 19.9, m128k1r4 15.5, m128k1r8 16.0, m128k2r8 20.0, m128k4r2 23.1, b1n128c2s8h 16.9, b1n128c3s8h 24.1 -> cublas
+ours| tune o         m=256: cublas 13.6, b1n128c2 21.7, b2n256c2 17.4, m128k2r4 27.0, m128k1r4 23.6, m128k1r8 24.7, m128k2r8 27.9, m128k4r2 35.2, m256k2r4 29.3, m256k1r4 25.2, m256k1r8 25.8, m256k2r8 29.9, m256k2r2 29.1, b1n128c2s8h 28.5, b1n128c3s8h 38.5 -> cublas
+ours| tune pooler    m=128: cublas 29.5, b1n64c2 29.6, b1n128c2 30.3, m64k2r4 47.3, m64k1r8 50.8, m128k2r4 34.9, m128k1r4 48.0, m128k1r8 51.2, m128k2r8 36.8, m128k4r2 39.8, b1n128c2s8h 26.5, b1n128c3s8h 32.9 -> b1n128c2s8h
+ours| tune pooler    m=256: cublas 31.7, b1n128c2 37.7, b2n256c2 49.7, m128k2r4 61.1, m128k1r4 52.8, m128k1r8 54.5, m128k2r8 64.2, m128k4r2 60.5, m256k2r4 59.3, m256k1r4 52.8, m256k1r8 55.0, m256k2r8 61.2, m256k2r2 58.9, b1n128c2s8h 47.3, b1n128c3s8h 59.7, cut128x64 30.6 -> cut128x64
+ours| tune qkv_gate  m=128: cublas 21.2, b1n64c2 27.3, b1n128c2 28.2, m64k2r4 28.9, m128k2r4 28.8, m128k1r4 46.8, m128k4r2 22.8, b1n128c2s8h 23.4, b1n128c3s8h 18.9 -> b1n128c3s8h
+ours| tune qkv_gate  m=256: cublas 23.6, b1n128c2 32.6, b2n256c2 48.8, m128k2r4 32.7, m128k1r4 47.3, m128k4r2 39.4, m256k2r4 32.5, m256k1r4 51.1, m256k2r2 32.0, b1n128c2s8h 41.1, b1n128c3s8h 33.9 -> cublas
+ours| tune router    m=128: baseline 21.6, r64c8 13.2, r64c16 14.2, r128c8 14.4, r128c16 13.0, rm64k4r4 18.4, rm128k4r4 21.6 -> r128c16
+ours| tune router    m=256: baseline 23.1, r128c8 14.8, r128c16 20.3, rm128k4r4 21.5 -> r128c8
+ours| tune unpooler  m=128: cublas 24.9, b1n64c2 43.0, b1n128c2 25.8, m64k2r4 52.3, m64k1r8 48.5, m128k2r4 39.4, m128k1r4 34.6, m128k1r8 37.0, m128k2r8 41.0, m128k4r2 39.0, b1n128c2s8h 29.3, b1n128c3s8h 39.5 -> cublas
+ours| tune unpooler  m=256: cublas 28.5, b1n128c2 46.9, b2n256c2 32.5, m128k2r4 59.9, m128k1r4 60.5, m128k1r8 62.4, m128k2r8 62.4, m128k4r2 64.9, m256k2r4 54.7, m256k1r4 57.8, m256k1r8 60.2, m256k2r8 56.7, m256k2r2 54.9, b1n128c2s8h 53.3, b1n128c3s8h 65.8 -> cublas
+ABOVH one 5.38 two 6.72 overhead 4.03 us
+ABPICK qkv_gate m=1 pub=cgemv
+ABCOLD qkv_gate m=1 sgl=19.58 ours=14.62 pub=13.38 base=14.46
+ABRATIO qkv_gate m=1 ours=1.466 pub=1.670 base=1.481
+ABPICK o m=1 pub=cgemv
+ABCOLD o m=1 sgl=11.06 ours=9.86 pub=9.47 base=9.82
+ABRATIO o m=1 ours=1.211 pub=1.293 base=1.216
+ABPICK pooler m=1 pub=cgemv
+ABCOLD pooler m=1 sgl=26.64 ours=19.10 pub=18.18 base=19.10
+ABRATIO pooler m=1 ours=1.497 pub=1.602 base=1.498
+ABPICK unpooler m=1 pub=cgemv
+ABCOLD unpooler m=1 sgl=11.60 ours=8.16 pub=7.76 base=8.03
+ABRATIO unpooler m=1 ours=1.831 pub=2.025 base=1.905
+ABPICK router m=1 pub=rgemv
+ABCOLD router m=1 sgl=15.23 ours=7.94 pub=7.94 base=8.03
+ABRATIO router m=1 ours=2.869 pub=2.885 base=2.798
+ABPICK qkv_gate m=16 pub=sk2
+ABCOLD qkv_gate m=16 sgl=19.06 ours=14.72 pub=13.98 base=14.69
+ABRATIO qkv_gate m=16 ours=1.410 pub=1.511 base=1.413
+ABPICK o m=16 pub=sk2
+ABCOLD o m=16 sgl=11.14 ours=10.37 pub=9.86 base=10.21
+ABRATIO o m=16 ours=1.129 pub=1.218 base=1.154
+ABPICK pooler m=16 pub=sk2
+ABCOLD pooler m=16 sgl=26.32 ours=19.26 pub=18.86 base=19.20
+ABRATIO pooler m=16 ours=1.467 pub=1.502 base=1.468
+ABPICK unpooler m=16 pub=sk2
+ABCOLD unpooler m=16 sgl=23.22 ours=18.75 pub=18.48 base=18.62
+ABRATIO unpooler m=16 ours=1.304 pub=1.329 base=1.312
+ABPICK router m=16 pub=sk2
+ABCOLD router m=16 sgl=20.48 ours=9.66 pub=9.28 base=9.63
+ABRATIO router m=16 ours=2.929 pub=3.155 base=2.959
+ABPICK qkv_gate m=32 pub=sk2
+ABCOLD qkv_gate m=32 sgl=19.33 ours=16.21 pub=15.26 base=16.14
+ABRATIO qkv_gate m=32 ours=1.252 pub=1.366 base=1.264
+ABPICK o m=32 pub=sk2
+ABCOLD o m=32 sgl=11.26 ours=10.69 pub=10.26 base=10.53
+ABRATIO o m=32 ours=1.092 pub=1.167 base=1.111
+ABPICK pooler m=32 pub=sk2
+ABCOLD pooler m=32 sgl=26.90 ours=20.22 pub=19.70 base=20.19
+ABRATIO pooler m=32 ours=1.418 pub=1.457 base=1.418
+ABPICK unpooler m=32 pub=sk2
+ABCOLD unpooler m=32 sgl=23.49 ours=19.71 pub=19.55 base=19.87
+ABRATIO unpooler m=32 ours=1.240 pub=1.257 base=1.231
+ABPICK router m=32 pub=sk2
+ABCOLD router m=32 sgl=20.66 ours=10.05 pub=9.60 base=10.02
+ABRATIO router m=32 ours=2.786 pub=2.994 base=2.789
+ABPICK qkv_gate m=8 pub=sk2
+ABCOLD qkv_gate m=8 sgl=18.91 ours=14.72 pub=14.05 base=14.62
+ABRATIO qkv_gate m=8 ours=1.395 pub=1.485 base=1.406
+ABPICK o m=8 pub=sk2
+ABCOLD o m=8 sgl=11.01 ours=10.18 pub=9.98 base=10.05
+ABRATIO o m=8 ours=1.130 pub=1.174 base=1.164
+ABPICK pooler m=8 pub=sk2
+ABCOLD pooler m=8 sgl=26.38 ours=19.04 pub=18.85 base=18.98
+ABRATIO pooler m=8 ours=1.482 pub=1.505 base=1.494
+ABPICK unpooler m=8 pub=sk2
+ABCOLD unpooler m=8 sgl=11.70 ours=8.96 pub=8.70 base=9.02
+ABRATIO unpooler m=8 ours=1.558 pub=1.643 base=1.542
+ABPICK router m=8 pub=sk2
+ABCOLD router m=8 sgl=31.17 ours=9.76 pub=9.44 base=9.76
+ABRATIO router m=8 ours=4.755 pub=5.042 base=4.743
+ABPICK qkv_gate m=128 pub=gqx
+ABCOLD qkv_gate m=128 sgl=21.50 ours=19.33 pub=19.10 base=19.23
+ABRATIO qkv_gate m=128 ours=1.143 pub=1.158 base=1.150
+ABPICK o m=128 pub=torchT
+ABCOLD o m=128 sgl=11.33 ours=11.26 pub=11.52 base=11.50
+ABRATIO o m=128 ours=1.009 pub=0.974 base=0.979
+ABPICK pooler m=128 pub=gq
+ABCOLD pooler m=128 sgl=30.11 ours=26.83 pub=26.32 base=26.94
+ABRATIO pooler m=128 ours=1.142 pub=1.172 base=1.139
+ABPICK unpooler m=128 pub=torchT
+ABCOLD unpooler m=128 sgl=24.42 ours=24.29 pub=23.36 base=24.46
+ABRATIO unpooler m=128 ours=1.009 pub=1.052 base=0.997
+ABPICK router m=128 pub=rk
+ABCOLD router m=128 sgl=22.18 ours=13.34 pub=10.50 base=13.26
+ABRATIO router m=128 ours=1.951 pub=2.811 base=1.940
+ABPICK qkv_gate m=256 pub=None
+ABCOLD qkv_gate m=256 sgl=24.19 ours=24.14 pub=24.21 base=24.11
+ABRATIO qkv_gate m=256 ours=1.001 pub=0.998 base=1.002
+ABPICK o m=256 pub=torch
+ABCOLD o m=256 sgl=13.18 ours=13.41 pub=13.18 base=13.18
+ABRATIO o m=256 ours=0.983 pub=1.000 base=1.003
+ABPICK pooler m=256 pub=cutlass
+ABCOLD pooler m=256 sgl=35.39 ours=32.13 pub=32.13 base=35.66
+ABRATIO pooler m=256 ours=1.110 pub=1.112 base=0.986
+ABPICK unpooler m=256 pub=torchT
+ABCOLD unpooler m=256 sgl=28.86 ours=28.53 pub=28.53 base=28.70
+ABRATIO unpooler m=256 ours=1.012 pub=1.015 base=1.004
+ABPICK router m=256 pub=rk
+ABCOLD router m=256 sgl=22.94 ours=14.91 pub=11.34 base=14.85
+ABRATIO router m=256 ours=1.735 pub=2.601 base=1.749
+ABLOAD ours score=1.4375 decode 1=1.617 decode 16=1.526 decode 32=1.439 verify 1=1.857 verify 16=1.194 verify 32=1.121
+ABLOAD pub score=1.5136 decode 1=1.753 decode 16=1.593 decode 32=1.506 verify 1=1.933 verify 16=1.265 verify 32=1.170
+ABLOAD base score=1.4322 decode 1=1.626 decode 16=1.535 decode 32=1.442 verify 1=1.871 verify 16=1.186 verify 32=1.081
+ABSWAP qkv_gate m=1 ours->pub +0.0055
+ABSWAP o m=1 ours->pub +0.0015
+ABSWAP pooler m=1 ours->pub +0.0042
+ABSWAP unpooler m=1 ours->pub +0.0017
+ABSWAP router m=1 ours->pub +0.0001
+ABSWAP qkv_gate m=16 ours->pub +0.0023
+ABSWAP o m=16 ours->pub +0.0015
+ABSWAP pooler m=16 ours->pub +0.0011
+ABSWAP unpooler m=16 ours->pub +0.0009
+ABSWAP router m=16 ours->pub +0.0013
+ABSWAP qkv_gate m=32 ours->pub +0.0030
+ABSWAP o m=32 ours->pub +0.0013
+ABSWAP pooler m=32 ours->pub +0.0013
+ABSWAP unpooler m=32 ours->pub +0.0006
+ABSWAP router m=32 ours->pub +0.0012
+ABSWAP qkv_gate m=8 ours->pub +0.0026
+ABSWAP o m=8 ours->pub +0.0009
+ABSWAP pooler m=8 ours->pub +0.0009
+ABSWAP unpooler m=8 ours->pub +0.0010
+ABSWAP router m=8 ours->pub +0.0013
+ABSWAP qkv_gate m=128 ours->pub +0.0004
+ABSWAP o m=128 ours->pub -0.0006
+ABSWAP pooler m=128 ours->pub +0.0013
+ABSWAP unpooler m=128 ours->pub +0.0019
+ABSWAP router m=128 ours->pub +0.0065
+ABSWAP qkv_gate m=256 ours->pub -0.0001
+ABSWAP o m=256 ours->pub +0.0003
+ABSWAP pooler m=256 ours->pub +0.0001
+ABSWAP unpooler m=256 ours->pub +0.0001
+ABSWAP router m=256 ours->pub +0.0066

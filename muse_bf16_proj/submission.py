@@ -15,6 +15,8 @@ Design (docs/proj-port-guide.md has the full host interface and formats):
 - The FP32 router runs as a BF16 hi + lo pair with FP32 accumulation on the same kernel, a
   3-CTA cluster summing its K pieces over distributed shared memory.
 - m = 1 has CUDA-core GEMV candidates (12-bit cgemv, FP32 rgemv, BF16 sgemv).
+- m = 33 to 256 has the wd TMA + wgmma kernel, and pooler m = 129 to 256 a CUTLASS pingpong
+  GEMM (CUT_SRC) built from the CUTLASS headers in the image's FlashInfer package.
 - prepare() self-tests every candidate against FP64 and then times the survivors by CUDA-graph
   replay from a cold L2; kernel_fn runs the pick for the shape, cuBLAS where nothing won.
 """
@@ -1624,6 +1626,84 @@ WD_BN = {64: (64,), 128: (64, 128), 256: (128, 256)}
 # that the judge then timed at 0.87x.
 WD_MARGIN = 0.97
 
+# --------------------------------------------------------------------------------------------
+# CUTLASS sm90 GEMM (header-only templates from the CUTLASS copy in the FlashInfer package),
+# swap-AB: D^T = W x^T with A = W [N, K] row-major, B = x as a K x M column-major matrix, D
+# column-major [N, M] = out [M, N] row-major. Pingpong, persistent scheduler, tile 128 W rows x
+# 64 tokens x 64, cluster 1: the public entry's pooler m=256 kernel. The sweep in job
+# 8bea43d605c74546 (11 tiles / schedules / tile schedulers, stream-K and split-K included, at
+# T = 128 and 256 on every layer shape plus the decode layer's FP32 pooler+router concat) found
+# no other shape where any CUTLASS config beats cuBLAS. Pooler m=256 has 4096 / 128 * 256 / 64
+# = 128 tiles, one wave on 132 SMs.
+# name -> {(layer, bucket)} it is offered for.
+CUT_USE = {"cut128x64": {("pooler", 256)}}
+CUT_SRC = r"""
+// Instantiates NVIDIA CUTLASS 3.x templates (header-only, BSD-3-Clause), composed as in CUTLASS's
+// examples/49_hopper_gemm_with_collective_builder.
+#include <cuda_runtime.h>
+#include <cstdint>
+#include <cutlass/cutlass.h>
+#include <cute/tensor.hpp>
+#include <cutlass/gemm/device/gemm_universal_adapter.h>
+#include <cutlass/gemm/collective/collective_builder.hpp>
+#include <cutlass/epilogue/collective/collective_builder.hpp>
+#include <cutlass/gemm/kernel/gemm_universal.hpp>
+#include <cutlass/util/packed_stride.hpp>
+using namespace cute;
+namespace {
+using EA = cutlass::bfloat16_t; using LA = cutlass::layout::RowMajor;
+using EB = cutlass::bfloat16_t; using LB = cutlass::layout::ColumnMajor;
+using EC = cutlass::bfloat16_t; using LC = cutlass::layout::ColumnMajor;
+using TileShape = Shape<_128, _64, _64>;
+using ClusterShape = Shape<_1, _1, _1>;
+using Epi = typename cutlass::epilogue::collective::CollectiveBuilder<
+    cutlass::arch::Sm90, cutlass::arch::OpClassTensorOp, TileShape, ClusterShape,
+    cutlass::epilogue::collective::EpilogueTileAuto, float, float, EC, LC, 8, EC, LC, 8,
+    cutlass::epilogue::TmaWarpSpecialized>::CollectiveOp;
+using Main = typename cutlass::gemm::collective::CollectiveBuilder<
+    cutlass::arch::Sm90, cutlass::arch::OpClassTensorOp, EA, LA, 8, EB, LB, 8, float, TileShape, ClusterShape,
+    cutlass::gemm::collective::StageCountAutoCarveout<static_cast<int>(sizeof(typename Epi::SharedStorage))>,
+    cutlass::gemm::KernelTmaWarpSpecializedPingpong>::CollectiveOp;
+using Kernel = cutlass::gemm::kernel::GemmUniversal<Shape<int, int, int, int>, Main, Epi,
+                                                    cutlass::gemm::PersistentScheduler>;
+using Gemm = cutlass::gemm::device::GemmUniversalAdapter<Kernel>;
+}  // namespace
+
+// Kept free of torch headers: with them this unit must follow torch's C++ standard and ran out of
+// memory in a 6 GB compile check. The torch wrapper is CUT_CPP.
+int cut_run(const void* W, const void* x, void* out, void* ws, int64_t wsb, int N, int M, int K,
+            cudaStream_t st) {
+  auto sA = cutlass::make_cute_packed_stride(typename Gemm::GemmKernel::StrideA{}, cute::make_shape(N, K, 1));
+  auto sB = cutlass::make_cute_packed_stride(typename Gemm::GemmKernel::StrideB{}, cute::make_shape(M, K, 1));
+  auto sC = cutlass::make_cute_packed_stride(typename Gemm::GemmKernel::StrideC{}, cute::make_shape(N, M, 1));
+  auto sD = cutlass::make_cute_packed_stride(typename Gemm::GemmKernel::StrideD{}, cute::make_shape(N, M, 1));
+  typename Gemm::Arguments args{cutlass::gemm::GemmUniversalMode::kGemm, {N, M, K, 1},
+      {static_cast<const EA*>(W), sA, static_cast<const EB*>(x), sB},
+      {{1.f, 0.f}, static_cast<const EC*>(out), sC, static_cast<EC*>(out), sD}};
+  Gemm gemm;
+  if ((int64_t)Gemm::get_workspace_size(args) > wsb) return 1;
+  if (gemm.can_implement(args) != cutlass::Status::kSuccess) return 2;
+  if (gemm.initialize(args, ws, st) != cutlass::Status::kSuccess) return 3;
+  if (gemm.run(st) != cutlass::Status::kSuccess) return 4;
+  return 0;
+}
+"""
+CUT_CPP = r"""
+#include <torch/extension.h>
+#include <ATen/cuda/CUDAContext.h>
+int cut_run(const void* W, const void* x, void* out, void* ws, int64_t wsb, int N, int M, int K,
+            cudaStream_t st);
+void cut_fwd(at::Tensor W, at::Tensor x, at::Tensor out, at::Tensor ws) {
+  TORCH_CHECK(W.is_contiguous() && x.is_contiguous() && out.is_contiguous() && ws.is_contiguous(),
+              "cut_fwd: layout");
+  const int N = W.size(0), K = W.size(1), M = x.size(0);
+  TORCH_CHECK(x.size(1) == K && out.size(0) == M && out.size(1) == N, "cut_fwd: shapes");
+  int rc = cut_run(W.data_ptr(), x.data_ptr(), out.data_ptr(), ws.data_ptr(), ws.numel(), N, M, K,
+                   at::cuda::getCurrentCUDAStream().stream());
+  TORCH_CHECK(rc == 0, "cut_fwd: CUTLASS status ", rc);
+}
+"""
+
 
 def wd_smem(wg, bn, clk, clr, hl, nst):
     sb = wg * (2 if hl else 1) * 8192 + bn * 128
@@ -2190,6 +2270,32 @@ def _wd_runner(ext, name, w, n, k, out_dtype, diag):
     return run
 
 
+def _build_cut():
+    import importlib.util
+    import os
+    spec = importlib.util.find_spec("flashinfer")
+    if spec is None or not spec.submodule_search_locations:
+        raise RuntimeError("flashinfer (CUTLASS headers) not installed")
+    root = os.path.join(list(spec.submodule_search_locations)[0], "data", "cutlass")
+    inc = [os.path.join(root, "include"), os.path.join(root, "tools", "util", "include")]
+    if not all(os.path.isdir(d) for d in inc):
+        raise RuntimeError(f"CUTLASS headers missing under {root}")
+    return load_inline(
+        name="okc_cut_v2",
+        cpp_sources=CUT_CPP, cuda_sources=CUT_SRC, functions=["cut_fwd"], extra_include_paths=inc,
+        extra_cuda_cflags=["-O3", "--expt-relaxed-constexpr", "-gencode=arch=compute_90a,code=sm_90a",
+                           "-DNDEBUG"],
+        verbose=False)
+
+
+def _cut_runner(ext, w, ws):
+    def run(x):
+        out = torch.empty((x.shape[0], w.shape[0]), dtype=torch.bfloat16, device=x.device)
+        ext.cut_fwd(w, x, out, ws)
+        return out
+    return run
+
+
 def _build_ext():
     src = sk_source() + GEMV_CUDA_SRC + wd_source()
     kwargs = dict(name="okc_sk_v2", cpp_sources="#include <torch/extension.h>\n" + _SK_CPP + GEMV_CPP_DECLS + _WD_CPP,
@@ -2350,6 +2456,15 @@ def prepare(weights):
             add("router", b, nm, fn, router, router.shape[0], ms_of[b], SELFTEST_TOL["router"])
         cands.setdefault(("router", b), []).append(("baseline", lambda x: _router_baseline(x, state), False))
     state["router_hilo"] = torch.cat([hi, lo], 0).contiguous()
+    cut = None
+    try:
+        t1 = time.time()
+        cut = _build_cut()
+        # The persistent scheduler needs a few KB at most; cut_fwd checks the size.
+        state["cut_ws"] = torch.zeros(1 << 20, dtype=torch.uint8, device=dev)
+        print(f"cut build {time.time() - t1:.1f} s")
+    except Exception as exc:
+        print(f"cut build failed, route off ({type(exc).__name__}: {str(exc)[-400:]})")
     for layer in BF16_LAYERS + ("router",):
         is_router = layer == "router"
         w = state[layer]
@@ -2367,6 +2482,10 @@ def prepare(weights):
                     continue
                 fn = _wd_runner(ext, nm, wk, n, k, torch.float32 if is_router else torch.bfloat16, diag)
                 add(layer, b, nm, fn, w, n, WD_SELFTEST_MS[b], SELFTEST_TOL["router" if is_router else "bf16"])
+            for nm, uses in CUT_USE.items():
+                if cut is not None and (layer, b) in uses:
+                    add(layer, b, nm, _cut_runner(cut, w, state["cut_ws"]), w, n, WD_SELFTEST_MS[b],
+                        SELFTEST_TOL["bf16"])
     print(f"selftests done {time.time() - t0:.1f} s")
 
     flush = torch.empty(FLUSH_BYTES // 4, dtype=torch.float32, device=dev)
