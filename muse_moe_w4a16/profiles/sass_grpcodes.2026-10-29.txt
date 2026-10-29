@@ -1,0 +1,55 @@
+Modes 43 and 44 (code groups with the next stage hoisted), 2026-10-29: the local compile gate.
+Built with tools/moe_compile_fused.sh (nvcc 12.8, sm_90a, docker nvidia/cuda:12.8.1-devel) from
+submission.py at b79a627 (before) and with modes 43 and 44 added (after), MAIN_MODES = (0, 16, 26,
+28, 37, 41, 42) before and (0, 16, 26, 28, 37, 41, 42, 43, 44) after. Instruction text compared
+per kernel with addresses and immediates stripped (sha256 of the text, first 12 hex).
+
+moe_main_kernel<0>: 27944 vs 27944 instructions, sha 1bd7e90efbc3 vs 1bd7e90efbc3, IDENTICAL
+moe_main_kernel<16>: 28032 vs 28032 instructions, sha ae7688e40514 vs ae7688e40514, IDENTICAL
+moe_main_kernel<26>: 16528 vs 16528 instructions, sha b071e9b19340 vs b071e9b19340, IDENTICAL
+moe_main_kernel<28>: 16656 vs 16656 instructions, sha 431f862037ff vs 431f862037ff, IDENTICAL
+moe_main_kernel<37>: 15560 vs 15560 instructions, sha 32ac18b1d79a vs 32ac18b1d79a, IDENTICAL
+moe_main_kernel<41>: 16648 vs 16648 instructions, sha 954beb5d1f6f vs 954beb5d1f6f, IDENTICAL
+moe_main_kernel<42>: 15616 vs 15616 instructions, sha 53b204906a6d vs 53b204906a6d, IDENTICAL
+moe_main_kernel<43>: only in after
+moe_main_kernel<44>: only in after
+sk_16_4_0 moe_fused_kernel<1>: 2808 vs 2808 instructions, sha 57e3a8181a98, IDENTICAL
+sk_8_3_0 moe_fused_kernel<1>: 2992 vs 2992 instructions, sha 58a63d2cedc3, IDENTICAL
+sk_8_4_0 moe_fused_kernel<1>: 2992 vs 2992 instructions, sha 6850a9a6db96, IDENTICAL
+sk_8_4_1 moe_fused_kernel<1>: 2376 vs 2376 instructions, sha cdfa7022c42f, IDENTICAL
+
+ptxas warnings: none of C7510-C7515 (wgmma serialization) for any kernel; the same three
+unrelated #177-D "declared but never referenced" remarks as the before build.
+
+ptxas, after (96 registers in every fat kernel):
+mode 44: 24 bytes stack frame, 20 bytes spill stores, 128 bytes spill loads
+mode 43: 8 bytes stack frame, 8 bytes spill stores, 100 bytes spill loads
+mode 42: 56 bytes stack frame, 148 bytes spill stores, 516 bytes spill loads
+mode 41: 96 bytes stack frame, 264 bytes spill stores, 580 bytes spill loads
+mode 37: 56 bytes stack frame, 156 bytes spill stores, 416 bytes spill loads
+mode 28: 80 bytes stack frame, 184 bytes spill stores, 512 bytes spill loads
+mode 26: 64 bytes stack frame, 120 bytes spill stores, 308 bytes spill loads
+mode 16: 80 bytes stack frame, 136 bytes spill stores, 228 bytes spill loads
+mode 0: 80 bytes stack frame, 136 bytes spill stores, 236 bytes spill loads
+
+wgmma pipelining (tools/moe_sass_counts.sh): 43 and 44 equal 37 and 41, HGMMA 192, wait1 96 (one
+per wgmma group), wait0 12 (one per segment end), arrive 96.
+
+Stage loops (innermost loop with 16 HGMMA, one per n-tile count and phase; backward branches):
+- local accesses inside the stage loops: 0 in 37 and 0 in 43. In the enclosing unit loops 43 has 1
+  or 2 LDL each and no STL; 37 has 2 to 12 LDL and up to 5 STL.
+- per loop: 37 has 382-390 instructions, 43 has 396-405 (the hoisted waits and the next stage's
+  loads add a block that the last stage of a unit skips).
+- on the path where every first try_wait succeeds: n-tile count 7, phase A: 338 (37) against 347
+  (43); n-tile count 8, phase A: 340 against 354.
+- placement in 43 (n-tile count 7): MEMBAR.ALL.CTA + FENCE.VIEW.ASYNC.S + SYNCS.ARRIVE on wempty
+  after the sixth group's WARPGROUP.DEPBAR.LE gsb0, 0x1; the next stage's two try_waits and its
+  LDS.128 + LDS after the eighth group's DEPBAR 0x1, with that group still in flight; the x slot
+  release (SYNCS.ARRIVE ART0) after the first group's DEPBAR, as in 37.
+
+An earlier draft that recomputed the slot base at the top of every stage instead of carrying the
+code and scale pointers had no spill at all but 406 instructions per loop; it was not kept.
+
+The layer copy (tools/dl_moe_inline.py on a scratch copy of muse_decode_layer/submission.py with
+LAYER_MODES = (0, 16, 26, 28, 37, 43), compiled by tools/dl_moe_compile_check.sh) builds
+moe1::moe_main_kernel<43> with the same 8 / 100 B spill and the PDL preamble patch applied.

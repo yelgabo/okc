@@ -1040,6 +1040,126 @@ Reading.
 
 Next mechanism: see docs/steering/2026-10-29-fat-moe-waits.md (recommendation only, nothing
 built).
+[2026-10-29, later: built as modes 43 and 44, see "Code groups with the next stage hoisted".]
+
+## Code groups with the next stage hoisted, 2026-10-29
+
+Brief: docs/steering/2026-10-29-fat-moe-waits.md, "Recommendation: one mechanism". Mode 41 put
+the consumers' mbarrier waits at about 20% of the stage loops, 210-230 cycles each, while the
+producers found the ring full for 70% of phase A (check ca43908f02874886). H1 there: every stage
+starts with a serial path on each warp (the try_wait round trip, then the shared loads of the
+stage's codes, then the first dequant) while at most one wgmma group of the previous stage is in
+flight.
+
+Change (modes 43 and 44; 44 is 43 with mode 41's counters, timing only). Only the wgmma stage loop
+(`run_segment`, `grp_codes`) differs from 37; the mma.sync path for jobs of 1 or 2 n-tiles, the
+epilogues, the producers and the ring sizes are 37's.
+
+- A warp loads one 4-step code group at a time (one `uint4`, steps 4c to 4c + 3) and the scale
+  word of each pair of groups, instead of the stage's four `uint4` and the `uint2` of scales up
+  front. Group c + 1 is loaded at the start of group c, so a warp holds two code groups and two
+  scale words (10 registers instead of 18).
+- After the stage's eighth (last) wgmma group is committed and the seventh retired, the warp waits
+  on the next stage's `wfull` and `xfull` and loads that stage's first code group and scale word.
+  The barrier round trip and those loads run with the last group in flight; the next stage starts
+  with its first dequant. A unit's last stage skips this block, and a unit's first stage waits
+  before its loop as before, so the hoist does not cross a unit boundary.
+- The weights slot is released by every consumer thread with its own
+  `fence.proxy.async.shared::cta` and `mbarrier.arrive` (mode 28's form) behind the sixth wgmma
+  group instead of the first. The last code load of the stage is issued at the fifth group; the
+  release waits one more group so that the fence's MEMBAR.ALL.CTA does not find that load still
+  in flight (a guess about the MEMBAR's cost, not measured). The x slot release is unchanged.
+- The code and scale pointers of the current slot are carried from the hoist to the next stage
+  rather than recomputed from the slot index at the top of every stage; the first draft did the
+  latter and ran 406 instructions per stage loop against 396-397.
+
+### Ordering of the moved weights-slot release
+
+Sections are from the PTX ISA 9.4 documentation (docs.nvidia.com/cuda/parallel-thread-execution)
+as cited in "Ordering of the ring slot releases": 8.8 Release and Acquire Patterns, 8.9.1.1
+Asynchronous Operations, 8.9.4 Memory synchronization, 8.9.5 Causality Order, 8.10.6 Causality,
+9.7.10.28.2 Async Proxy, 9.7.15.4 membar / fence, 9.7.15.16.16 mbarrier.arrive, 9.7.15.16.19
+mbarrier.test_wait / try_wait.
+
+For one consumer thread T and the stage k that reads weights slot w, the reads R of the slot are:
+group 0 and scale word 0, loaded after T's acquire of `wfull[w]` (in the previous stage's hoist,
+or before the loop for a unit's first stage), groups 1, 2 and 3 at the first, third and fifth
+wgmma groups of stage k, and scale word 1 at the third. The producer thread P refills slot w with
+a bulk copy (write W) after its wait on `wempty[w]`.
+
+1. Every read in R is in T's program order before T's `fence.proxy.async.shared::cta` F behind the
+   sixth group of stage k. The loads are plain C++ shared loads and F, like every mbarrier asm
+   around them, carries a `"memory"` clobber, so the compiler cannot sink a load below F or raise
+   one above the try_wait that acquires the slot (SASS: the last LDS.128 of the stage sits before
+   the fifth HGMMA pair, MEMBAR.ALL.CTA and FENCE.VIEW.ASYNC.S after the sixth pair's
+   `WARPGROUP.DEPBAR.LE gsb0, 0x1`). F is the cross-proxy fence 9.7.10.28.2 asks for and its effect
+   composes with later synchronization (9.7.15.4).
+2. F, then T's `mbarrier.arrive` A on `wempty[w]`, in program order. A has `.release` at `.cta`
+   scope by default (9.7.15.16.16) and is a release pattern by itself (8.8), covering R and F.
+3. P's `mbarrier.try_wait.parity` on `wempty[w]` returns true once all kNC x 32 arrivals of the
+   phase are in. It has `.acquire` at `.cta` scope by default and forms an acquire pattern
+   (9.7.15.16.19, 8.8), so A synchronizes with it (8.9.4).
+4. P's `cp.async.bulk` into slot w is ordered after P's prior instructions (8.9.1.1), so after the
+   acquire.
+5. R precedes W in base causality order with T's proxy fence on the path, so no read in R can
+   read from W (8.10.6).
+
+This is the chain of mode 28 step for step; only the program-order distance between R and F
+changed, and every link is program order or the same synchronizes-with edge. What the move adds,
+and why it keeps the rest intact:
+
+- Arrival count and phase. Each thread still arrives once per stage on the slot it read, so
+  `wempty` keeps its expected count of kNC x 32 and each phase completes once per lap.
+- The hoisted reads of stage k + 1's slot follow T's acquire of `wfull` for that slot (its
+  try_wait, then the loads, in program order), the same full-side chain as 37 with the wait
+  issued earlier. They belong to stage k + 1's R and are covered by stage k + 1's own F and A.
+  The ring has 3 to 5 weights slots, so stage k + 1's slot is never the slot stage k releases.
+- Progress. Before each wait, T has issued the same releases as in 37. In 37, T waits on
+  `wfull` and `xfull` for stage k + 1 at the top of stage k + 1, having released weights slots up
+  to stage k (at stage k's first group) and x slots up to stage k - 1 (at stage k's first group).
+  In 43, T waits on them at stage k's last group, having released weights up to stage k (sixth
+  group) and x up to stage k - 1 (first group). No new wait comes before a release that 37 issues
+  first, so 43 adds no cycle to the wait graph: the producers wait only on releases, the
+  consumers only on fills, and across CTAs only through the x producer's done_as and claim waits,
+  which no consumer change touches.
+- The x slot. The x slot of stage k is still released by lane 0 after the `wgmma.wait_group` at
+  stage k + 1's first group retires the last group that read it (same proxy on both sides, no
+  fence; "Which public releases are provable"). The hoisted `xfull` wait for stage k + 1 reads no
+  data itself; the wgmmas that read the slot are issued after it in program order.
+
+No fence or barrier is removed. The fence is the bidirectional `fence.proxy.async.shared::cta`
+and the arrive is per thread, as in 28 and 37.
+
+### Local compile gate (no GPU)
+
+`muse_moe_w4a16/profiles/sass_grpcodes.2026-10-29.txt` (nvcc 12.8, sm_90a, Docker):
+
+- Production SASS unchanged: modes 0, 16, 26, 28 and 37, the four skinny kernels, and the
+  diagnostic 41 and 42 compile to the same instruction text as before the change.
+- No C7510-C7515 warning. One `wait1` per wgmma group and one `wait0` per segment end in 43 and
+  44, as in 37 (HGMMA 192, wait1 96, wait0 12).
+- 96 registers. Spills: 43 has 8 / 100 B (37: 156 / 416 B), none of them inside a stage loop
+  (37 has none there either); its unit loops have 1 or 2 LDL each against 2 to 12 LDL and up to 5
+  STL in 37. 44 has 20 / 128 B (41: 264 / 580 B).
+- Stage loop: 396-405 instructions against 382-390 in 37; on the path where every first try_wait
+  succeeds, 347 against 338 (n-tile count 7) and 354 against 340 (8). The hoisted block is about
+  9 to 14 more instructions per stage on that path.
+- The layer copy (tools/dl_moe_inline.py on a scratch copy of the layer, LAYER_MODES with 37 and
+  43) applies its anchors and the PDL patch and builds `moe1::moe_main_kernel<43>` with the same
+  resources. `tools/moe_host_check.sh` and `tools/moe_dryrun.py` pass with 43 and 44 built.
+
+### Check plan and stopping rule
+
+One check after the 00:00 UTC reset, bench file from `tools/moe_make_bench_ab.py --base=37
+--sizes=32,128,256 --routings=layer o43=43 o44=44 o42=42` (seeds 1-6; 41 is built as 37's counter
+twin, so ABDIAG and ABDIAGB print 41 and 44 side by side, now with the average cycles per wait).
+43 is in MAIN_CANDIDATES, so prepare self-tests it against FP32 at 32, 33, 128 and 257 tokens on
+normal and skewed routing and the policy bench may pick it.
+
+Keep 43 only if 43 minus 37 has a mean of -2 us or lower at 256 tokens with at least 5 of 6 seeds
+lower, a mean of +0.5 us or lower at 32 and at 128, and ABCHECK within 1e-4 of 37; and 44's
+average cycles per wait must fall by at least 30% against 41's in the same run. A loss or a tie
+goes to docs/ruled-out.md and ends the line. At most 2 MoE checks.
 
 ## Staged GEMM1 gate, 2026-10-29
 
