@@ -33,11 +33,11 @@ FUNCS = {"_wgmma_code", "_skinny_tag"}
 REPACK = ("unit_rows", "repack_expert", "repack_expert_fat", "_to_u8_words", "_cat_last")
 RENAME = (("repack_expert_fat", "moe1_repack_expert_fat"), ("repack_expert", "moe1_repack_expert"),
           ("unit_rows", "moe1_unit_rows"))
-MAIN_NAMES = {0: "main-d2", 5: "main-d3"}
-# Each fat mode is another kernel instance in the layer's build. The standalone bench has the
-# other candidates within 1-3 us of mode 0 at 128 and 256 tokens (run 84de5bbafa344b7a), so
-# the layer builds mode 0 only until one of them wins by more than that.
-LAYER_MODES = (0,)
+MAIN_NAMES = {0: "main-d2", 5: "main-d3", 16: "main-m2-ar2-ub"}
+# Each fat mode is another kernel instance in the layer's build, so the layer builds only the
+# fat modes that won a standalone bench: 0 (its fallback) and 16, which took 128 and 256
+# tokens from legacy128 and mode 12 in checks 9a9fb08c134c4a16 and c65e91500215418d.
+LAYER_MODES = (0, 16)
 
 # The load is a per-use ld.global.nc in inline asm, consumed where the host value was: a value
 # loaded once and kept in a register doubled the fat d2 kernel's spills (1268 B against 604),

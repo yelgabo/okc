@@ -7601,7 +7601,9 @@ __constant__ int kCostBm[9] = {0, 85, 92, 104, 115, 130, 145, 160, 175};
 // (bench 36b5b559b0344d0f: main-d2 197 us at bs32 against 139 loads-only and 150 for the
 // mma.sync skinny kernel).
 __host__ __device__ constexpr int mma_max(int mode) {
-    return mode == 6 || mode == 9 || mode == 11 || mode == 12 || mode == 14 ? 2
+    return mode == 6 || mode == 9 || mode == 11 || mode == 12 || mode == 14 || mode == 15
+                   || mode == 16
+               ? 2
            : mode == 7 || mode == 10 ? 4
            : mode == 8 ? 8 : 0;
 }
@@ -7614,7 +7616,7 @@ __host__ __device__ constexpr int mma_max(int mode) {
 // Memory Consistency Model, "Release and Acquire Patterns"); fence.sc adds only the SC order,
 // which no reader here relies on. The SASS is MEMBAR.ALL.GPU instead of MEMBAR.SC.GPU.
 __host__ __device__ constexpr bool fence_ar(int mode) {
-    return mode == 12 || mode == 13 || mode == 14;
+    return mode == 12 || mode == 13 || mode == 14 || mode == 15 || mode == 16;
 }
 
 template <bool AR>
@@ -7674,6 +7676,7 @@ struct __align__(128) SmemMain {
     int gse[2];
     int fix_last[4];
     int cost[2][9];
+    int align_b;
     long long dg[18][8];
 };
 
@@ -7898,8 +7901,11 @@ __device__ __forceinline__ int stage_at(const SmemMain& S, int ph, int k, int G)
         ++j;
     }
     const int cost = S.cost[ph][S.job_ntt[j]];
-    return j * spj + static_cast<int>((target - static_cast<unsigned>(pre[j]))
-                                      / static_cast<unsigned>(cost));
+    const int s = j * spj + static_cast<int>((target - static_cast<unsigned>(pre[j]))
+                                             / static_cast<unsigned>(cost));
+    // Modes 15 and 16: phase B boundaries on the nearest unit (16 stages) so no phase B segment is cut;
+    // the cost model put a cut phase B segment at about 10 us (docs/runs-moe.md, "Cost model").
+    return ph && S.align_b ? (s + 8) & ~15 : s;
 }
 
 __device__ __forceinline__ int seg_count(int b, int e) {
@@ -8275,7 +8281,7 @@ __device__ __forceinline__ void run_segment_mma(const Params& p, SmemMain& S, fl
     // Mode 14 splits each n8 tile's 16-step mma.sync chain into two accumulators (even and odd
     // k16 steps), halving the dependent chain per stage; the stamps put a stage's compute at
     // 1.02 us against about 0.66 us of issue for its four warps per scheduler.
-    constexpr bool kDual = MODE == 14;
+    constexpr bool kDual = MODE == 14 || MODE == 16;
     float acc[32];
     float acc2[kDual ? 4 * NTT : 1];
 #pragma unroll
@@ -8420,11 +8426,19 @@ __device__ __forceinline__ void run_group(const Params& p, SmemMain& S, float* s
         const SegInfo si = seg_info(S, PH, i, cta, G);
         if (MODE == kDiagMode && threadIdx.x == 0) {
             S.dg[PH * 8 + NTT - 1][6] += si.st_e - si.st_b;
+            S.dg[PH * 8 + NTT - 1][7] += 1;
+            S.dg[16][1 + PH] += si.partial ? 1 : 0;
         }
+        // Warp 0's cycles inside segments of either path (the per-warp stamps cover the
+        // mma.sync path only): the cost model's work target.
+        const long long cs = MODE == kDiagMode ? clock64() : 0;
         if constexpr (NTT <= mma_max(MODE)) {
             run_segment_mma<NTT, PH, MODE>(p, S, ss, si, rg, G);
         } else {
             run_segment<NTT, PH, MODE>(p, S, ss, si, acc, rg, xrel, G);
+        }
+        if (MODE == kDiagMode && threadIdx.x == 0) {
+            S.dg[17][5 + PH] += clock64() - cs;
         }
     }
 }
@@ -8622,6 +8636,7 @@ __global__ void __launch_bounds__(kNTM, 1) moe_main_kernel(const Params p) {
         if (lane < 9) {
             const bool given = p.cost[0][1] > 0;
             S.cost[0][lane] = given ? p.cost[0][lane] : stage_cost<MODE>(0, lane);
+            S.align_b = MODE == 15 || MODE == 16 ? 1 : 0;
             S.cost[1][lane] = given ? p.cost[1][lane] : stage_cost<MODE>(1, lane);
         }
         S.cnt[lane] = 0;
@@ -8977,6 +8992,7 @@ _MOE1_VARIANTS = (
     ('sk8w4s', 'skinny', 'sk_8_4_0::launch<1>'),
     ('sk16w4s', 'skinny', 'sk_16_4_0::launch<1>'),
     ('main-d2', 'main', 'launch_main<0>'),
+    ('main-m2-ar2-ub', 'main', 'launch_main<16>'),
 )
 _MOE1_MAIN_MIN_M = 17
 
@@ -11117,7 +11133,7 @@ def _moe1_enable(state, weights):
     skinny = [v for v in passed if _MOE1_VARIANTS[v][1] == "skinny"]
     main = [v for v in passed if _MOE1_VARIANTS[v][1] == "main"]
     shapes = [(8, skinny[0])] if skinny else []
-    shapes.append((128, main[0] if main else skinny[0]))
+    shapes += [(128, v) for v in main] if main else [(128, skinny[0])]
     for tokens, variant in shapes:
         print(f"MOE1STRESS {_moe1_stress(state, tokens, variant, 2000)}")
     t4 = time.time()
