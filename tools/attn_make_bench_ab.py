@@ -119,6 +119,9 @@ def _ab_scored():
         yield batch, layer, q_len
 
 
+_AB_TALLY = {{}}
+
+
 def _ab_check():
     fns = _ab_fns()
     dev = torch.device("cuda", torch.cuda.current_device())
@@ -155,6 +158,8 @@ def _ab_check():
                 if vname.endswith("_probe"):
                     status = "PROBE"
                 fails += status == "FAIL"
+                tally = _AB_TALLY.setdefault(vname, {{"PASS": 0, "FAIL": 0, "PROBE": 0}})
+                tally[status] += 1
                 print(f"ABCHECK {{status}} {{vname}} {{name}} [{{plan}}] {{msg}}{{vs}} {{wmsg}}",
                       flush=True)
             data = None
@@ -394,6 +399,10 @@ if not _os.environ.get("ATTN_AB_DONE"):
             _ab_bench()
         except Exception as _exc:
             print(f"ABBENCH failed: {{type(_exc).__name__}}: {{_exc}}", flush=True)
+        # Repeated last: the run log keeps only its final 16,000 characters.
+        print("ABCHECKSUM " + " ".join(f"{{n}}={{t['PASS']}}/{{t['FAIL']}}/{{t['PROBE']}}"
+                                       for n, t in _AB_TALLY.items()) + " (pass/fail/probe)",
+              flush=True)
 '''
 
 
