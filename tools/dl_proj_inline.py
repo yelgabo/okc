@@ -33,6 +33,9 @@ COPY_FUNCS = ("_sk_geom", "_fused_router_geom", "bf16_bits", "tile_values", "win
               "escape_table", "pack_layer", "slices_balanced", "pack_raw_layer", "pack_router",
               "pack_cgemv", "cgemv_threads", "bucket_of")
 
+LAYER_BUCKET_OF = """def bucket_of(m):
+    return 8 if m <= 8 else 16 if m <= 16 else 32 if m <= 32 else None"""
+
 
 def load(text):
     tree = ast.parse(text)
@@ -50,6 +53,9 @@ def load(text):
             for t in n.targets:
                 if getattr(t, "id", "") in COPY_CONSTS:
                     segments[t.id] = ast.get_source_segment(text, n)
+    # The standalone bucket_of also maps m > 32 to its wide-router buckets (WD_BUCKETS), which
+    # the layer does not have: the layer sends m > 32 to cuBLAS and needs None there.
+    segments["bucket_of"] = LAYER_BUCKET_OF
     missing = [n for n in COPY_CONSTS + COPY_FUNCS if n not in segments]
     if missing:
         raise SystemExit(f"missing from the source: {missing}")
