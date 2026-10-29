@@ -458,7 +458,7 @@ __constant__ int kCostBm[9] = {0, 85, 92, 104, 115, 130, 145, 160, 175};
 // mma.sync skinny kernel).
 __host__ __device__ constexpr int mma_max(int mode) {
     return mode == 6 || mode == 9 || mode == 11 || mode == 12 || mode == 14 || mode == 15
-                   || (mode >= 16 && mode <= 27)
+                   || (mode >= 16 && mode <= 29)
                ? 2
            : mode == 7 || mode == 10 ? 4
            : mode == 8 ? 8 : 0;
@@ -472,7 +472,7 @@ __host__ __device__ constexpr int mma_max(int mode) {
 // Memory Consistency Model, "Release and Acquire Patterns"); fence.sc adds only the SC order,
 // which no reader here relies on. The SASS is MEMBAR.ALL.GPU instead of MEMBAR.SC.GPU.
 __host__ __device__ constexpr bool fence_ar(int mode) {
-    return mode == 12 || mode == 13 || mode == 14 || (mode >= 15 && mode <= 27);
+    return mode == 12 || mode == 13 || mode == 14 || (mode >= 15 && mode <= 29);
 }
 
 // Modes 17 to 20 are mode 16 (two mma.sync chains, unit-aligned phase B) with one change each:
@@ -483,7 +483,7 @@ __host__ __device__ constexpr bool fence_ar(int mode) {
 // 22 is 20 with the stamps of 17. 23 is 20 with phase B units claimed at run time (dyn_b) and
 // both phases walked largest n-tile count first; 24 is 23 with the stamps.
 __host__ __device__ constexpr bool dual_chain(int mode) {
-    return mode == 14 || (mode >= 16 && mode <= 27);
+    return mode == 14 || (mode >= 16 && mode <= 29);
 }
 __host__ __device__ constexpr bool is_diag(int mode) {
     return mode == 11 || mode == 17 || mode == 22 || mode == 24;
@@ -492,7 +492,7 @@ __host__ __device__ constexpr bool is_diag(int mode) {
 // 24's per-segment clock stamps add 14-18 us, too much to set its phase times beside the
 // public kernel's eight thread-0 stamps; these cost a few stores per CTA.
 __host__ __device__ constexpr bool is_light(int mode) {
-    return mode == 25 || mode == 27;
+    return mode == 25 || mode == 27 || mode == 29;
 }
 // Modes 26 and 27 (27 with the light stamps) are 23 with the setup of the public kernel's
 // route(): every warp counts its slice of the routes once (match_any), the routing warp sums
@@ -501,13 +501,29 @@ __host__ __device__ constexpr bool is_light(int mode) {
 // put setup at 7 / 11 / 16 us of routing at 32 / 128 / 256 tokens against 2-3 us for the
 // public kernel (check d1f587760b1241dc).
 __host__ __device__ constexpr bool fast_setup(int mode) {
-    return mode == 26 || mode == 27;
+    return mode >= 26 && mode <= 29;
+}
+// Modes 28 and 29 (29 with the light stamps) are 26 with a leaner consumer stage. The stage
+// loop was 389 instructions against the public kernel's 322 for the same dequant and MMA core
+// (profiles/sass_stage_loop_vs_public.2026-10-29.txt); with four consumer warps per scheduler
+// at about 1 us per stage, issue slots are a plausible limit (not measured). Per stage: the
+// ring size and x slot 0's address come from registers set once per launch instead of three
+// shared loads, and the S.ord sort takes one pass instead of eight dependent rounds. The
+// weights slot release keeps its fence.proxy.async.shared::cta but moves behind the stage's
+// first wgmma group, off the path from the full-barrier wait to the first wgmma, and every
+// consumer thread fences and arrives itself (wempty and, on the mma.sync path, xempty count
+// kNC * 32), so each thread's generic reads reach the producer's acquire through its own
+// program order (docs/runs-moe.md, "Ordering of the ring slot releases"). 26's lane-0
+// release after __syncwarp at the moved point makes ptxas serialize the wgmma groups (C7513,
+// 400 instructions per stage), so that variant was dropped.
+__host__ __device__ constexpr bool lean_stage(int mode) {
+    return mode == 28 || mode == 29;
 }
 __host__ __device__ constexpr bool a_only(int mode) {
     return mode == 18 || mode == 19;
 }
 __host__ __device__ constexpr bool own_a(int mode) {
-    return mode == 19 || mode == 20 || (mode >= 22 && mode <= 27);
+    return mode == 19 || mode == 20 || (mode >= 22 && mode <= 29);
 }
 // Modes 23 and 24: a CTA's weights producer claims phase B units one at a time from a global
 // counter, in S.ord order, when its ring has a free slot. Owned phase A leaves CTAs with up to
@@ -515,7 +531,7 @@ __host__ __device__ constexpr bool own_a(int mode) {
 // frees first takes the next unit; S.ord puts the jobs whose phase A rounds come first (the
 // snake deal walks S.ord) at the front, so claimed units find their inputs ready.
 __host__ __device__ constexpr bool dyn_b(int mode) {
-    return mode >= 23 && mode <= 27;
+    return mode >= 23 && mode <= 29;
 }
 // Mode 21 is the second launch of the staged pair (19, then 21): phase B and the final pass
 // alone, on the xb a previous launch wrote. That launch completed before this one started
@@ -599,6 +615,11 @@ struct Ring {
     int wlap;
     int xs;
     int xlap;
+    // lean_stage only, set once per launch: weights ring slots, x slot 0's shared address
+    // and the x slot size in bytes.
+    int nsw;
+    unsigned xb;
+    unsigned xsz;
 };
 
 __device__ __forceinline__ void ring_next_w(Ring& r, int nsw) {
@@ -617,6 +638,25 @@ __device__ __forceinline__ void ring_next_x(Ring& r) {
 
 __device__ __forceinline__ void mbar_arrive(uint64_t* bar) {
     asm volatile("mbarrier.arrive.shared::cta.b64 _, [%0];" :: "r"(smem_u32(bar)) : "memory");
+}
+
+__device__ __forceinline__ void mbar_arrive_n(uint64_t* bar, unsigned n) {
+    asm volatile("mbarrier.arrive.shared::cta.b64 _, [%0], %1;" :: "r"(smem_u32(bar)), "r"(n)
+                 : "memory");
+}
+
+// lean_stage modes: every consumer thread releases the weights slot (and, on the mma.sync
+// path, the x slot) itself, so the empty barriers count kNC * 32 arrivals; a release that
+// stays warp-level (the wgmma path's x slot) arrives once for the whole warp.
+template <int MODE>
+__device__ __forceinline__ void x_release_warp(uint64_t* bar, int lane) {
+    if (lane == 0) {
+        if constexpr (lean_stage(MODE)) {
+            mbar_arrive_n(bar, 32);
+        } else {
+            mbar_arrive(bar);
+        }
+    }
 }
 
 __device__ __forceinline__ void mbar_wait_to(uint64_t* bar, unsigned parity, int* ctr, int code) {
@@ -996,6 +1036,12 @@ __device__ __forceinline__ void run_segment(const Params& p, SmemMain& S, float*
         acc[i] = 0.f;
     }
     acc_fence<NTT>(acc);
+    constexpr bool kLean = lean_stage(MODE);
+    // kLean: x slot 0's descriptor once per segment; a stage adds its slot's offset in 16-byte
+    // units (shared addresses stay below 2^18, so the 14-bit address field cannot carry).
+    const unsigned xb0 = kLean ? __shfl_sync(0xffffffffu, rg.xb, 0) : 0u;
+    const uint64_t dx0 = ((xb0 & 0x3ffffu) >> 4) | (static_cast<uint64_t>(128 >> 4) << 16)
+                         | (static_cast<uint64_t>(4096 >> 4) << 32);
 #pragma unroll 1
     for (int st = si.st_b; st < si.st_e; ++st) {
         const int ws = rg.ws;
@@ -1013,12 +1059,14 @@ __device__ __forceinline__ void run_segment(const Params& p, SmemMain& S, float*
         }
         const uint2 sc = *reinterpret_cast<const uint2*>(wslot + 32768 + (wg * 4 + w) * 256
                                                          + lane * 8);
-        __syncwarp();
-        if (lane == 0) {
-            fence_proxy_async();
-            mbar_arrive(&S.wempty[ws]);
+        if constexpr (!kLean) {
+            __syncwarp();
+            if (lane == 0) {
+                fence_proxy_async();
+                mbar_arrive(&S.wempty[ws]);
+            }
         }
-        ring_next_w(rg, S.nsw);
+        ring_next_w(rg, kLean ? rg.nsw : S.nsw);
         const int xs = rg.xs;
         if constexpr (kDiag) {
             dc = static_cast<unsigned>(clock());
@@ -1030,10 +1078,18 @@ __device__ __forceinline__ void run_segment(const Params& p, SmemMain& S, float*
         // The slot base goes through a shuffle so ptxas knows it is warp-uniform and keeps
         // the descriptors in uniform registers (one UIADD3 per step instead of a 64-bit add
         // and two R2UR moves on every wgmma's critical path).
-        const unsigned xbase = __shfl_sync(0xffffffffu,
-                                           smem_u32(S.rings + S.xoff + xs * S.xsz), 0);
-        const uint64_t d0 = ((xbase & 0x3ffffu) >> 4) | (static_cast<uint64_t>(128 >> 4) << 16)
-                            | (static_cast<uint64_t>(4096 >> 4) << 32);
+        const unsigned xbase = kLean ? 0u
+                                     : __shfl_sync(0xffffffffu,
+                                                   smem_u32(S.rings + S.xoff + xs * S.xsz), 0);
+        // The slot offset still takes a shuffle: the ring position is carried around a loop
+        // whose trip count ptxas cannot prove warp-uniform, and without it every wgmma's
+        // descriptor goes through R2UR (448 instructions per stage instead of 389).
+        const uint64_t d0 = kLean ? dx0 + (__shfl_sync(0xffffffffu,
+                                                       static_cast<unsigned>(xs) * rg.xsz, 0)
+                                           >> 4)
+                                  : ((xbase & 0x3ffffu) >> 4)
+                                        | (static_cast<uint64_t>(128 >> 4) << 16)
+                                        | (static_cast<uint64_t>(4096 >> 4) << 32);
         if (MODE == 1) {
             // Timing only: the stage's bytes arrive and one word of each is read.
             acc[0] += __uint_as_float((cw[0].x ^ sc.x) & 0x3f800000u);
@@ -1086,10 +1142,14 @@ __device__ __forceinline__ void run_segment(const Params& p, SmemMain& S, float*
             // The previous stage's last group has retired once DEPTH - 1 groups of this
             // stage are committed.
             if (s == 2 * (DEPTH - 1) - 2 && xrel >= 0) {
-                if (lane == 0) {
-                    mbar_arrive(&S.xempty[xrel]);
-                }
+                x_release_warp<MODE>(&S.xempty[xrel], lane);
                 xrel = -1;
+            }
+            if (kLean && s == 0) {
+                // The weights slot's generic reads (cw, sc) were issued before this point;
+                // the fence orders them before the producer's next bulk write into the slot.
+                fence_proxy_async();
+                mbar_arrive(&S.wempty[ws]);
             }
         }
         xrel = xs;
@@ -1102,9 +1162,7 @@ __device__ __forceinline__ void run_segment(const Params& p, SmemMain& S, float*
     }
     acc_fence<NTT>(acc);
     if (xrel >= 0) {
-        if (lane == 0) {
-            mbar_arrive(&S.xempty[xrel]);
-        }
+        x_release_warp<MODE>(&S.xempty[xrel], lane);
         xrel = -1;
     }
     if (MODE == 1) {
@@ -1179,6 +1237,8 @@ __device__ __forceinline__ void run_segment_mma(const Params& p, SmemMain& S, fl
         acc2[i] = 0.f;
     }
     const unsigned lrow = static_cast<unsigned>((lane >> 3) * 128 + (lane & 7) * 16);
+    constexpr bool kLean = lean_stage(MODE);
+    const unsigned xb0 = kLean ? rg.xb + lrow : 0u;
 #pragma unroll 1
     for (int st = si.st_b; st < si.st_e; ++st) {
         const int ws = rg.ws;
@@ -1200,12 +1260,14 @@ __device__ __forceinline__ void run_segment_mma(const Params& p, SmemMain& S, fl
         }
         const uint2 sc = *reinterpret_cast<const uint2*>(wslot + 32768 + (wg * 4 + w) * 256
                                                          + lane * 8);
-        __syncwarp();
-        if (lane == 0) {
-            fence_proxy_async();
-            mbar_arrive(&S.wempty[ws]);
+        if constexpr (!kLean) {
+            __syncwarp();
+            if (lane == 0) {
+                fence_proxy_async();
+                mbar_arrive(&S.wempty[ws]);
+            }
         }
-        ring_next_w(rg, S.nsw);
+        ring_next_w(rg, kLean ? rg.nsw : S.nsw);
         const int xs = rg.xs;
         if constexpr (kDiag) {
             const long long c1 = clock64();
@@ -1218,8 +1280,10 @@ __device__ __forceinline__ void run_segment_mma(const Params& p, SmemMain& S, fl
             tx += c1 - c0;
             c0 = c1;
         }
-        const unsigned xbase = __shfl_sync(0xffffffffu,
-                                           smem_u32(S.rings + S.xoff + xs * S.xsz), 0) + lrow;
+        const unsigned xbase = kLean ? xb0 + static_cast<unsigned>(xs) * rg.xsz
+                                     : __shfl_sync(0xffffffffu,
+                                                   smem_u32(S.rings + S.xoff + xs * S.xsz), 0)
+                                           + lrow;
 #pragma unroll
         for (int s = 0; s < 16; s += 2) {
             const int c = s >> 2;
@@ -1243,12 +1307,22 @@ __device__ __forceinline__ void run_segment_mma(const Params& p, SmemMain& S, fl
                     mma_bf16(c4, a1, b[2], b[3]);
                 }
             }
+            if (kLean && s == 0) {
+                // As on the wgmma path: the weights slot's reads were issued before this point.
+                fence_proxy_async();
+                mbar_arrive(&S.wempty[ws]);
+            }
         }
         // The x slot is refilled by the async proxy after these generic-proxy reads.
-        __syncwarp();
-        if (lane == 0) {
+        if constexpr (kLean) {
             fence_proxy_async();
             mbar_arrive(&S.xempty[xs]);
+        } else {
+            __syncwarp();
+            if (lane == 0) {
+                fence_proxy_async();
+                mbar_arrive(&S.xempty[xs]);
+            }
         }
         ring_next_x(rg);
         if constexpr (kDiag) {
@@ -1411,7 +1485,12 @@ __device__ __forceinline__ void consumer_dyn_b(const Params& p, SmemMain& S, flo
 template <int MODE>
 __device__ __forceinline__ void consumers(const Params& p, SmemMain& S, float* ss, int cta,
                                           int G) {
-    Ring rg = {0, 0, 0, 0};
+    Ring rg = {0, 0, 0, 0, 0, 0u, 0u};
+    if constexpr (lean_stage(MODE)) {
+        rg.nsw = S.nsw;
+        rg.xb = smem_u32(S.rings + S.xoff);
+        rg.xsz = static_cast<unsigned>(S.xsz);
+    }
     int xrel = -1;
     float acc[32];
     consumer_phase<0, MODE>(p, S, ss, acc, rg, xrel, cta, G);
@@ -1685,7 +1764,7 @@ __global__ void __launch_bounds__(kNTM, 1) moe_main_kernel(const Params p) {
         if (lane < 9) {
             const bool given = p.cost[0][1] > 0;
             S.cost[0][lane] = given ? p.cost[0][lane] : stage_cost<MODE>(0, lane);
-            S.align_b = MODE == 15 || (MODE >= 16 && MODE <= 27) ? 1 : 0;
+            S.align_b = MODE == 15 || (MODE >= 16 && MODE <= 29) ? 1 : 0;
             S.cost[1][lane] = given ? p.cost[1][lane] : stage_cost<MODE>(1, lane);
         }
         if constexpr (fast_setup(MODE)) {
@@ -1764,7 +1843,31 @@ __global__ void __launch_bounds__(kNTM, 1) moe_main_kernel(const Params p) {
         if (kLight && lane == 0) {
             S.dg[17][4] = gtimer();
         }
-        if constexpr (own_a(MODE)) {
+        if constexpr (lean_stage(MODE)) {
+            // The same order in one pass: an expert's jobs are full (8 n-tiles) except
+            // possibly its last, so a job's rank is the 8-tile jobs of lower experts, or
+            // all 8-tile jobs plus the partial jobs that are larger or come from a lower
+            // expert with the same count. The counting sort below took eight dependent
+            // rounds (2.5 us of routing at 128 tokens, 4c285df44eb34bc1).
+            const int tl = nj > 0 ? (min(64, tot - 64 * (nj - 1)) + 7) >> 3 : 0;
+            const int n8 = tl == 8 ? nj : nj - (nj > 0 ? 1 : 0);
+            const int n8_incl = warp_scan(n8, lane);
+            const int all8 = __shfl_sync(0xffffffffu, n8_incl, 31);
+            for (int k = 0; k < n8; ++k) {
+                S.ord[n8_incl - n8 + k] = j0 + k;
+            }
+            int above = 0;
+            unsigned same = 0;
+#pragma unroll
+            for (int t = 7; t >= 1; --t) {
+                const unsigned b = __ballot_sync(0xffffffffu, tl == t);
+                above += t > tl ? __popc(b) : 0;
+                same = t == tl ? b : same;
+            }
+            if (tl > 0 && tl < 8) {
+                S.ord[all8 + above + __popc(same & ((1u << lane) - 1u))] = j0 + nj - 1;
+            }
+        } else if constexpr (own_a(MODE)) {
             // Counting sort of the jobs by n-tile count, largest first; within a count, by
             // expert then job, so every CTA derives the same order.
             int base = 0;
@@ -1802,15 +1905,16 @@ __global__ void __launch_bounds__(kNTM, 1) moe_main_kernel(const Params p) {
         }
     } else if (warp == kNWarpsM - 2) {
         if (lane == 0) {
+            constexpr unsigned kRel = lean_stage(MODE) ? kNC * 32 : kNC;
 #pragma unroll
             for (int s = 0; s < kNSWMax; ++s) {
                 mbar_init(&S.wfull[s], 1);
-                mbar_init(&S.wempty[s], kNC);
+                mbar_init(&S.wempty[s], kRel);
             }
 #pragma unroll
             for (int s = 0; s < kNSX; ++s) {
                 mbar_init(&S.xfull[s], 1);
-                mbar_init(&S.xempty[s], kNC);
+                mbar_init(&S.xempty[s], kRel);
             }
             asm volatile("fence.mbarrier_init.release.cluster;" ::: "memory");
         }
@@ -2649,8 +2753,11 @@ SKINNY_VARIANTS = ((8, 4, 0), (16, 4, 0), (8, 4, 1))
 # 25 to 27 (2026-10-29, setup): 25 is 23 with thread-0 phase stamps only, 26 is 23 with every warp
 # counting the routes, a batched x gather and no stage-range searches, 27 is 26 with the stamps.
 # 25 and 27 are timing only (tools/moe_make_bench_ab.py builds them).
-MAIN_MODES = (0, 1, 16, 20, 23, 26)
-MAIN_CANDIDATES = (0, 6, 12, 13, 14, 15, 16, 20, 23, 26)
+# 28 and 29 (2026-10-29, the consumer stage): 28 is 26 with a leaner stage loop (ring constants in
+# registers, the weights slot released per thread behind the first wgmma group) and a one-pass
+# S.ord sort, 29 is 28 with the stamps (timing only).
+MAIN_MODES = (0, 16, 26, 28)
+MAIN_CANDIDATES = (0, 6, 12, 13, 14, 15, 16, 20, 23, 26, 28)
 VARIANT_MAIN0 = len(SKINNY_VARIANTS)
 
 
@@ -4377,7 +4484,7 @@ def _gate_report(state):
     output of 19 against 18 (xb, bf16) and the final outputs of 20 and the staged pair against
     16. Since 2026-10-29 also mode 23 (claimed phase B units) against 20 and 16; the variant
     order is reversed on every other seed so neither side always runs first."""
-    names = {16: None, 18: None, 19: None, 20: None, 21: None, 23: None, 26: None}
+    names = {16: None, 18: None, 19: None, 20: None, 21: None, 23: None, 26: None, 28: None}
     vs = {m: VARIANT_MAIN0 + MAIN_MODES.index(m) for m in names if m in MAIN_MODES}
     if state.get("staged_ok"):
         vs["staged"] = VARIANT_STAGED
@@ -4397,7 +4504,7 @@ def _gate_report(state):
         tag = f"bs={bs}" + ("" if dist == "normal" else f" {dist}")
         tim = {m: [] for m in vs}
         xbd = []
-        outd = {m: [] for m in (20, 23, 26, "staged") if m in vs}
+        outd = {m: [] for m in (20, 23, 26, 28, "staged") if m in vs}
         for si, seed in enumerate(seeds):
             data = _make_inputs(bs, 977 * seed + bs, dist)
             order = list(vs.items())
@@ -4419,8 +4526,8 @@ def _gate_report(state):
         n = len(seeds)
         line = " ".join(f"{_vname(v)}:{sum(tim[m]) / n:.1f}" for m, v in vs.items())
         print(f"GATE {tag} {line} us (mean of {n} seeds {seeds})")
-        for a, b in ((19, 18), (20, 16), (23, 20), (23, 16), (26, 23), ("staged", 16),
-                     ("staged", 20)):
+        for a, b in ((19, 18), (20, 16), (23, 20), (23, 16), (26, 23), (28, 26),
+                     ("staged", 16), ("staged", 20)):
             if a in vs and b in vs:
                 d = [x - y for x, y in zip(tim[a], tim[b])]
                 print(f"GATE {tag} {_vname(vs[a])} minus {_vname(vs[b])} per seed "
@@ -4623,7 +4730,8 @@ def _vname(v):
                 16: "main-m2-ar2-ub", 17: "main-ub-stamps", 18: "main-ub-aonly",
                 19: "main-own-aonly", 20: "main-own", 21: "main-bonly",
                 22: "main-own-stamps", 23: "main-own-dynb", 24: "main-dynb-stamps",
-                25: "main-dynb-light", 26: "main-dynb-fs", 27: "main-dynb-fs-light"}[m]
+                25: "main-dynb-light", 26: "main-dynb-fs", 27: "main-dynb-fs-light",
+                28: "main-lean", 29: "main-lean-light"}[m]
     nw, ns, mode = SKINNY_VARIANTS[v]
     return f"sk{nw}w{ns}s{'-loads' if mode else ''}"
 
