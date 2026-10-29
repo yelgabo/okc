@@ -50,7 +50,7 @@ LIGHT_TWINS = {26: 27}
 PA_TWINS = {28: 31, 32: 33, 36: 38, 39: 40}
 
 
-def patch_public(src, small=False):
+def patch_public(src, small=False, ranges=False):
     for name in () if small else ("TINY_DEFINES", "TINY2_DEFINES", "MID_DEFINES"):
         src, n = re.subn(rf"^{name} = \(.*?\)\n(?=\S)", f"{name} = ()\n", src, count=1,
                          flags=re.S | re.M)
@@ -61,7 +61,11 @@ def patch_public(src, small=False):
          "    wgs_phase<true>(p, S, ring, S.wgr[2], S.wgr[3], seq);\n"),
         ("  CTA_SYNC();\n  if (tid == 0) {\n    int* bc = p.ctr + 4 + (S.gen & 1);",
          "  CTA_SYNC();\n  DBG(3);\n  if (tid == 0) {\n    int* bc = p.ctr + 4 + (S.gen & 1);"),
-        # The stream-K stage ranges of both phases, 16 bits each, over DBG(7)'s stamp.
+    ]
+    # The stream-K stage ranges of both phases, 16 bits each, over DBG(7)'s stamp. Timing is
+    # not usable with it: the DEBUG MAIN build then spills 392 / 896 B (none without it) and
+    # ran 30 us over its replay in checks c7db20e053254b52, 0b684d5db0834dbc, 473d87d03de94e96.
+    pairs += [] if not ranges else [
         ("  WS_JOIN();\n  DBG(6);\n",
          "  WS_JOIN();\n  DBG(6);\n  if (OKC_DEBUG && threadIdx.x == 0 && p.dbg) {\n"
          "    p.dbg[blockIdx.x * 8 + 7] = (long long)S.wgr[0] | ((long long)S.wgr[1] << 16)\n"
@@ -463,7 +467,7 @@ def main():
     out, pub = sys.argv[1], sys.argv[2]
     rest = sys.argv[3:]
     opts = {"base": "28", "seeds": "1,2,3,4,5,6", "sizes": "32,128,256", "routings": "layer,std",
-            "pairs": "", "small": ""}
+            "pairs": "", "small": "", "pubranges": ""}
     arms = {}
     for a in rest:
         if a.startswith("--"):
@@ -493,7 +497,7 @@ def main():
     assert n == 1
     src, n = re.subn(r"^GATE_RUNS = \(.*?\)$", "GATE_RUNS = ()", src, flags=re.M)
     assert n == 1
-    pub_src = patch_public(Path(pub).read_text(), small)
+    pub_src = patch_public(Path(pub).read_text(), small, bool(opts["pubranges"]))
     block = AB
     for key, val in (("@PUB_SRC@", repr(pub_src)), ("@BASE@", repr(base)),
                      ("@ARMS@", repr(arms)), ("@PAIRS@", repr(pairs)),
