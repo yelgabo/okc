@@ -1,0 +1,102 @@
+ABBUILD ours 39 s
+ABBUILD pub 270 s
+ABROUTE layer router seed 8 (mean relative miss 0.030)
+ABROUTE T=1 layer busiest local expert routes [1, 1, 1, 1, 1, 1]
+ABCHECK T=1 layer vs fp32 ov0 3.83e-03 pub 2.35e-03; vs ov0: w3 0.0e+00 rf 0.0e+00 w3rf 1.8e-08 nh 0.0e+00
+ABTIME T=1 layer mean of 6 ov0 35.6 w3 34.8 rf 35.7 w3rf 35.0 nh 38.4 pub 36.1
+ABPAIR T=1 layer w3 minus ov0 -0.8 -0.8 -0.9 -0.6 -1.0 -1.0 (mean -0.9, 6 of 6 lower)
+ABPAIR T=1 layer rf minus ov0 +0.1 +0.1 -0.2 +0.4 +0.0 -0.0 (mean +0.1, 2 of 6 lower)
+ABPAIR T=1 layer w3rf minus ov0 -0.3 -0.5 -0.6 -0.7 -0.9 -0.6 (mean -0.6, 6 of 6 lower)
+ABPAIR T=1 layer nh minus ov0 +4.1 +2.3 +2.0 +3.0 +3.3 +2.1 (mean +2.8, 0 of 6 lower)
+ABPAIR T=1 layer pub minus ov0 +1.2 +0.2 -0.1 +0.7 +0.7 +0.2 (mean +0.5, 1 of 6 lower)
+ABPAIR T=1 layer w3 minus pub -2.0 -1.0 -0.8 -1.4 -1.7 -1.2 (mean -1.3, 6 of 6 lower)
+ABPAIR T=1 layer rf minus pub -1.1 -0.1 -0.1 -0.3 -0.6 -0.2 (mean -0.4, 6 of 6 lower)
+ABPAIR T=1 layer w3rf minus pub -1.5 -0.6 -0.5 -1.4 -1.5 -0.8 (mean -1.1, 6 of 6 lower)
+ABPAIR T=1 layer w3rf minus w3 +0.5 +0.4 +0.2 -0.1 +0.1 +0.4 (mean +0.3, 1 of 6 lower)
+ABROUTE T=1 std busiest local expert routes [1, 1, 1, 1, 1, 1]
+ABCHECK T=1 std vs fp32 ov0 3.83e-03 pub 2.31e-03; vs ov0: w3 2.7e-10 rf 9.6e-10 w3rf 0.0e+00 nh 0.0e+00
+ABTIME T=1 std mean of 6 ov0 31.9 w3 31.3 rf 32.0 w3rf 31.4 nh 34.3 pub 32.1
+ABPAIR T=1 std w3 minus ov0 -0.6 -0.4 -0.8 -0.5 -0.7 -0.6 (mean -0.6, 6 of 6 lower)
+ABPAIR T=1 std rf minus ov0 +0.1 -0.1 +0.1 +0.1 +0.1 -0.1 (mean +0.0, 2 of 6 lower)
+ABPAIR T=1 std w3rf minus ov0 -0.4 -0.6 -0.6 -0.6 -0.5 -0.6 (mean -0.5, 6 of 6 lower)
+ABPAIR T=1 std nh minus ov0 +3.1 +2.4 +2.1 +2.2 +2.0 +2.3 (mean +2.3, 0 of 6 lower)
+ABPAIR T=1 std pub minus ov0 +0.6 +0.0 +0.2 +0.1 +0.0 +0.1 (mean +0.2, 0 of 6 lower)
+ABPAIR T=1 std w3 minus pub -1.2 -0.4 -1.0 -0.6 -0.7 -0.7 (mean -0.8, 6 of 6 lower)
+ABPAIR T=1 std rf minus pub -0.5 -0.1 -0.2 -0.0 +0.0 -0.2 (mean -0.1, 5 of 6 lower)
+ABPAIR T=1 std w3rf minus pub -1.0 -0.6 -0.8 -0.7 -0.6 -0.7 (mean -0.7, 6 of 6 lower)
+ABPAIR T=1 std w3rf minus w3 +0.2 -0.2 +0.2 -0.1 +0.2 +0.1 (mean +0.1, 2 of 6 lower)
+ABROUTE T=8 layer busiest local expert routes [4, 5, 5, 3, 4, 3]
+ABCHECK T=8 layer vs fp32 ov0 3.85e-03 pub 2.33e-03; vs ov0: w3 1.7e-05 rf 1.7e-05 w3rf 1.7e-05 nh 1.1e-09
+ABTIME T=8 layer mean of 6 ov0 66.2 w3 63.8 rf 65.1 w3rf 64.1 nh 69.5 pub 62.8
+ABPAIR T=8 layer w3 minus ov0 -1.7 -3.8 -2.0 -2.4 -1.5 -3.1 (mean -2.4, 6 of 6 lower)
+ABPAIR T=8 layer rf minus ov0 -1.0 -2.4 -0.8 -0.9 -0.0 -1.6 (mean -1.1, 6 of 6 lower)
+ABPAIR T=8 layer w3rf minus ov0 -2.2 -3.6 -1.5 -2.2 -0.6 -2.6 (mean -2.1, 6 of 6 lower)
+ABPAIR T=8 layer nh minus ov0 +3.6 +2.2 +4.4 +4.0 +3.2 +2.3 (mean +3.3, 0 of 6 lower)
+ABPAIR T=8 layer pub minus ov0 -1.8 -4.7 -3.7 -3.4 -2.5 -4.2 (mean -3.4, 6 of 6 lower)
+ABPAIR T=8 layer w3 minus pub +0.2 +0.9 +1.8 +1.0 +1.0 +1.1 (mean +1.0, 0 of 6 lower)
+ABPAIR T=8 layer rf minus pub +0.9 +2.3 +2.9 +2.5 +2.5 +2.6 (mean +2.3, 0 of 6 lower)
+ABPAIR T=8 layer w3rf minus pub -0.4 +1.2 +2.3 +1.2 +1.9 +1.7 (mean +1.3, 1 of 6 lower)
+ABPAIR T=8 layer w3rf minus w3 -0.5 +0.2 +0.5 +0.2 +1.0 +0.6 (mean +0.3, 1 of 6 lower)
+ABSK T=8 layer sk8w4s-stamps route 0.4, positions 1.8, phase A 36.9, A->B wait 2.6, phase B 16.5, barrier 2.0, final 0.3, A done max 40.6, B done max 59.4, end 61.4, t0 weights wait A 3.0, B 0.7, helper idle 26.5, credits 1.3, t0 buffer wait 1.5, t0 unit barrier 0.8
+ABSK T=8 layer pub route 2.2, phase A 33.8, phase B 19.0, barrier 2.0, final 0.3, A done max 38.4, B done max 56.5, end 58.2
+ABUNIT T=8 layer sk8w4s-us A wait 6.82, A hold 19.01, A span 35.86, A stalled 1.00, lat 4.69, lead 4.42, refill delay 0.18, in flight 4.00, first copy 2.97, B wait 2.29, B hold 9.31, A->B gap 3.35, wait/unit A1 0.53, A 0.22, Az 0.22, B1 0.19, B 0.18, GHz 1.79
+ABUNIT T=8 layer sk8w3s-us A wait 5.92, A hold 18.49, A span 34.74, A stalled 1.00, lat 3.23, lead 3.00, refill delay 0.19, in flight 3.00, first copy 2.96, B wait 2.12, B hold 9.36, A->B gap 3.49, wait/unit A1 0.65, A 0.18, Az 0.18, B1 0.16, B 0.17, GHz 1.79
+ABUNIT T=8 layer sk8w4s-rf-us A wait 3.61, A hold 25.15, A span 37.86, A stalled 1.00, lat 4.78, lead 4.63, refill delay 0.15, in flight 4.00, first copy 2.95, B wait 1.13, B hold 11.18, A->B gap 3.07, wait/unit A1 0.43, A 0.09, Az 0.09, B1 0.09, B 0.09, GHz 1.79
+ABUNIT T=8 layer sk8w4s-loads-us A wait 23.04, A hold 1.86, A span 31.91, A stalled 1.00, lat 4.79, lead 3.87, refill delay 0.17, in flight 4.00, first copy 2.71, B wait 2.53, B hold 5.41, A->B gap 6.14, wait/unit A1 1.25, A 0.90, Az 0.64, B1 0.05, B 0.27, GHz 1.97
+ABUNIT T=8 layer pub A wait 3.60, A hold 21.29, A span 32.20, A stalled 1.00, lat 3.02, lead 2.88, refill delay 0.07, in flight 3.00, first copy 3.19, B wait 0.85, B hold 9.97, A->B gap 3.54, wait/unit A1 0.25, A 0.13, Az 0.13, B1 0.07, B 0.07, GHz 1.78
+ABROUTE T=8 std busiest local expert routes [6, 2, 2, 2, 7, 2]
+ABCHECK T=8 std vs fp32 ov0 3.88e-03 pub 2.33e-03; vs ov0: w3 4.0e-09 rf 0.0e+00 w3rf 0.0e+00 nh 4.0e-09
+ABTIME T=8 std mean of 6 ov0 92.7 w3 90.9 rf 93.1 w3rf 91.8 nh 94.0 pub 90.0
+ABPAIR T=8 std w3 minus ov0 -2.1 -1.5 -2.9 -0.6 -2.9 -0.7 (mean -1.8, 6 of 6 lower)
+ABPAIR T=8 std rf minus ov0 -0.4 +0.8 -0.1 +0.9 -0.1 +1.2 (mean +0.4, 3 of 6 lower)
+ABPAIR T=8 std w3rf minus ov0 -1.6 +0.3 -2.8 +0.8 -2.6 +0.5 (mean -0.9, 3 of 6 lower)
+ABPAIR T=8 std nh minus ov0 +2.2 +0.9 +0.4 +1.7 +0.8 +2.0 (mean +1.3, 0 of 6 lower)
+ABPAIR T=8 std pub minus ov0 -1.9 -1.9 -4.6 -1.7 -3.6 -2.3 (mean -2.7, 6 of 6 lower)
+ABPAIR T=8 std w3 minus pub -0.2 +0.4 +1.7 +1.0 +0.7 +1.6 (mean +0.9, 1 of 6 lower)
+ABPAIR T=8 std rf minus pub +1.5 +2.7 +4.5 +2.6 +3.5 +3.5 (mean +3.1, 0 of 6 lower)
+ABPAIR T=8 std w3rf minus pub +0.4 +2.2 +1.8 +2.4 +1.0 +2.8 (mean +1.8, 0 of 6 lower)
+ABPAIR T=8 std w3rf minus w3 +0.6 +1.8 +0.1 +1.4 +0.3 +1.2 (mean +0.9, 0 of 6 lower)
+ABSK T=8 std sk8w4s-stamps route 0.4, positions 1.8, phase A 55.4, A->B wait 2.5, phase B 26.7, barrier 2.2, final 0.3, A done max 58.7, B done max 88.2, end 90.4, t0 weights wait A 3.9, B 1.2, helper idle 39.5, credits 1.2, t0 buffer wait 2.1, t0 unit barrier 1.2
+ABSK T=8 std pub route 2.3, phase A 51.2, phase B 28.9, barrier 2.8, final 0.4, A done max 56.2, B done max 84.6, end 86.1
+ABUNIT T=8 std sk8w4s-us A wait 10.20, A hold 28.60, A span 55.08, A stalled 1.00, lat 4.55, lead 4.30, refill delay 0.18, in flight 4.00, first copy 3.03, B wait 3.86, B hold 14.10, A->B gap 3.19, wait/unit A1 0.54, A 0.22, Az 0.22, B1 0.19, B 0.19, GHz 1.77
+ABUNIT T=8 std sk8w3s-us A wait 8.69, A hold 28.58, A span 54.08, A stalled 1.00, lat 3.15, lead 2.94, refill delay 0.19, in flight 3.00, first copy 3.05, B wait 3.51, B hold 14.40, A->B gap 3.15, wait/unit A1 0.67, A 0.18, Az 0.18, B1 0.17, B 0.18, GHz 1.76
+ABUNIT T=8 std sk8w4s-rf-us A wait 5.23, A hold 38.51, A span 58.58, A stalled 1.00, lat 4.68, lead 4.54, refill delay 0.15, in flight 4.00, first copy 3.24, B wait 1.81, B hold 17.83, A->B gap 3.08, wait/unit A1 0.49, A 0.09, Az 0.09, B1 0.09, B 0.09, GHz 1.77
+ABUNIT T=8 std sk8w4s-loads-us A wait 34.94, A hold 2.83, A span 49.12, A stalled 1.00, lat 4.64, lead 3.77, refill delay 0.17, in flight 4.00, first copy 2.74, B wait 3.61, B hold 11.45, A->B gap 6.32, wait/unit A1 1.31, A 0.85, Az 0.58, B1 0.05, B 0.21, GHz 1.97
+ABUNIT T=8 std pub A wait 5.24, A hold 33.13, A span 50.18, A stalled 1.00, lat 2.92, lead 2.79, refill delay 0.07, in flight 3.00, first copy 3.00, B wait 1.51, B hold 15.71, A->B gap 3.62, wait/unit A1 0.19, A 0.13, Az 0.11, B1 0.07, B 0.08, GHz 1.77
+ABROUTE T=16 layer busiest local expert routes [12, 9, 10, 8, 12, 10]
+ABCHECK T=16 layer vs fp32 ov0 3.83e-03 pub 2.33e-03; vs ov0: w3 2.0e-08 rf 0.0e+00 w3rf 0.0e+00 nh 8.1e-08
+ABTIME T=16 layer mean of 6 ov0 84.8 w3 81.8 rf 83.8 w3rf 82.7 nh 86.0 pub 82.2
+ABPAIR T=16 layer w3 minus ov0 -3.6 -2.3 -2.6 -1.9 -4.0 -3.9 (mean -3.1, 6 of 6 lower)
+ABPAIR T=16 layer rf minus ov0 -1.6 -0.5 -1.1 -0.7 -1.7 -0.5 (mean -1.0, 6 of 6 lower)
+ABPAIR T=16 layer w3rf minus ov0 -2.5 -2.0 -2.0 -1.6 -2.9 -2.0 (mean -2.2, 6 of 6 lower)
+ABPAIR T=16 layer nh minus ov0 +1.1 +1.5 +2.8 +3.0 +0.1 -1.3 (mean +1.2, 1 of 6 lower)
+ABPAIR T=16 layer pub minus ov0 -3.8 -2.2 -1.4 -1.3 -4.3 -2.8 (mean -2.6, 6 of 6 lower)
+ABPAIR T=16 layer w3 minus pub +0.3 -0.2 -1.1 -0.6 +0.3 -1.2 (mean -0.4, 4 of 6 lower)
+ABPAIR T=16 layer rf minus pub +2.2 +1.6 +0.4 +0.5 +2.6 +2.2 (mean +1.6, 0 of 6 lower)
+ABPAIR T=16 layer w3rf minus pub +1.3 +0.2 -0.5 -0.4 +1.4 +0.8 (mean +0.5, 2 of 6 lower)
+ABPAIR T=16 layer w3rf minus w3 +1.1 +0.4 +0.6 +0.3 +1.1 +2.0 (mean +0.9, 0 of 6 lower)
+ABROUTE T=16 std busiest local expert routes [15, 5, 9, 4, 4, 3]
+ABCHECK T=16 std vs fp32 ov0 3.85e-03 pub 2.36e-03; vs ov0: w3 2.1e-05 rf 2.1e-05 w3rf 0.0e+00 nh 2.1e-05
+ABTIME T=16 std mean of 6 ov0 109.4 w3 106.5 rf 110.1 w3rf 109.1 nh 111.7 pub 107.0
+ABPAIR T=16 std w3 minus ov0 -1.6 -3.2 -4.0 -2.9 -3.3 -2.2 (mean -2.9, 6 of 6 lower)
+ABPAIR T=16 std rf minus ov0 +3.1 +0.3 -1.1 +0.9 +0.0 +1.3 (mean +0.8, 1 of 6 lower)
+ABPAIR T=16 std w3rf minus ov0 +2.7 -0.5 -2.6 -0.3 -1.0 +0.0 (mean -0.3, 4 of 6 lower)
+ABPAIR T=16 std nh minus ov0 +2.2 +2.2 +2.3 +2.9 +1.8 +2.8 (mean +2.4, 0 of 6 lower)
+ABPAIR T=16 std pub minus ov0 -1.5 -2.8 -3.1 -2.5 -3.1 -1.5 (mean -2.4, 6 of 6 lower)
+ABPAIR T=16 std w3 minus pub -0.1 -0.4 -0.9 -0.4 -0.2 -0.7 (mean -0.5, 6 of 6 lower)
+ABPAIR T=16 std rf minus pub +4.6 +3.0 +2.0 +3.4 +3.1 +2.8 (mean +3.2, 0 of 6 lower)
+ABPAIR T=16 std w3rf minus pub +4.2 +2.3 +0.5 +2.1 +2.1 +1.5 (mean +2.1, 0 of 6 lower)
+ABPAIR T=16 std w3rf minus w3 +4.3 +2.7 +1.4 +2.6 +2.3 +2.2 (mean +2.6, 0 of 6 lower)
+ABMOE spin flags 0; total 274 s
+TEST sk8w4s worst rel err vs fp32 4.04e-03, spin flags 0
+TEST sk16w4s worst rel err vs fp32 4.05e-03, spin flags 0
+TEST sk8w3s worst rel err vs fp32 4.04e-03, spin flags 0
+TEST main-d2 worst rel err vs fp32 3.89e-03, spin flags 0
+TEST legacy32 worst rel err vs fp32 4.28e-03, spin flags 0
+TEST legacy128 worst rel err vs fp32 4.28e-03, spin flags 0
+TEST legacy256 worst rel err vs fp32 4.28e-03, spin flags 0
+BENCH bs=128 legacy128:251.6 sk8w4s-loads:254.5 legacy256:254.9 main-d2:255.2 sk8w3s:260.8 sk8w4s:264.5 legacy32:276.3 sk16w4s:283.8 us (graph replay, cold L2, mean of 2 routings)
+BENCH bs=256 main-d2:283.7 legacy256:359.6 legacy128:388.1 sk8w4s-loads:399.0 sk8w3s:428.9 sk8w4s:433.3 sk16w4s:468.3 legacy32:469.6 us (graph replay, cold L2, mean of 2 routings)
+POLICY {1: sk8w3s, 8: sk8w3s, 16: sk8w3s, 32: sk8w3s, 128: legacy128, 256: main-d2}
+TEST policy worst rel err vs fp32 4.27e-03, spin flags 0
+PREPARE repack 0.7 s, build 69.0 s, self-test 0.3 s, bench 0.6 s, smem 228736 B, ok True, main True

@@ -3206,7 +3206,13 @@ __device__ __forceinline__ void a_pin(unsigned (&a)[2][4]) {{
 
 # Skinny kernel variants (compute warps, ring slots, mode: 0 computes, 1 streams only), each
 # a namespace of its own in the source, and fat kernel modes; a variant id indexes this table.
-SKINNY_VARIANTS = ((8, 4, 0), (16, 4, 0), (8, 4, 1))
+SKINNY_VARIANTS = ((8, 4, 0), (16, 4, 0), (8, 4, 1), (8, 3, 0))
+# (8, 3, 0), sk8w3s: the 3-slot ring. At saturated HBM bandwidth a fourth copy in flight only
+# lengthens each copy's issue-to-arrival time (4.7 against 3.2 us at 8 tokens), and the consumer
+# waits for it; 36 of 36 paired seeds faster than sk8w4s at 1 / 8 / 16 tokens (run
+# 75bca9775f6f4b0b, docs/runs-moe.md "Skinny weight stream against the public kernel").
+# Flag modes 16 (unit stamps), 32 (refill ahead of the handoff) and 64 (no L2 hint) are built
+# only through the bench tool's --skextra.
 # Mode 2 (timing only, tools/moe_make_bench_ab.py --small appends (8, 4, 2)): mode 0 with thread
 # 0's phase stamps and cycle counters in p.inter. Modes 3 and 4 (er, its stamps), 5 (sf: scale
 # decode on the FMA pipe), 6 (hand: partial buffers through mbarriers), 7 (sfh: 5 and 6) and 8
