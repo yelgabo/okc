@@ -382,7 +382,8 @@ def _ab_main():
             stamps = {a: [] for a in [*light, *padiag, "pub"]}
             diags = {a: [] for a in padiag}
             pubd = []
-            skd = {"ours": [], "pub": []}
+            skst = [i for i, v in enumerate(SKINNY_VARIANTS) if v[2] in (2, 4)]
+            skd = {**{i: [] for i in skst}, "pub": []}
             for si, s in enumerate(_AB_SEEDS):
                 d = inputs(t, routing, s)
                 order = list(arms.items())
@@ -398,13 +399,14 @@ def _ab_main():
                     diags[a].append(pa_summary(lt, full))
                 pd, prng = pub_stamped(d)
                 if _AB_SMALL:
-                    _run(d, state, len(SKINNY_VARIANTS) - 1)
-                    flush.zero_()
-                    torch.cuda.synchronize()
-                    _run(d, state, len(SKINNY_VARIANTS) - 1)
-                    torch.cuda.synchronize()
-                    sd = state["scratch"]["inter"].reshape(-1).view(torch.int64)[: G * 16]
-                    skd["ours"].append(sk_summary(sd.view(G, 16).double().cpu()))
+                    for i in skst:
+                        _run(d, state, i)
+                        flush.zero_()
+                        torch.cuda.synchronize()
+                        _run(d, state, i)
+                        torch.cuda.synchronize()
+                        sd = state["scratch"]["inter"].reshape(-1).view(torch.int64)[: G * 16]
+                        skd[i].append(sk_summary(sd.view(G, 16).double().cpu()))
                     skd["pub"].append(pubsk_summary(pd))
                     continue
                 stamps["pub"].append(summarize(pd))
@@ -419,8 +421,8 @@ def _ab_main():
                     print(f"ABPAIR {tag} {a} minus {bb} " + " ".join(f"{x:+.1f}" for x in dd)
                           + f" (mean {sum(dd) / n:+.1f}, {sum(x < 0 for x in dd)} of {n} lower)")
             if _AB_SMALL:
-                for a, rows, cc in (("ours sk8w4s", skd["ours"], sk_cols),
-                                    ("pub", skd["pub"], pubsk_cols)):
+                for a, rows, cc in ([(_vname(i), skd[i], sk_cols) for i in skst]
+                                    + [("pub", skd["pub"], pubsk_cols)]):
                     m = [sum(r[i] for r in rows) / n for i in range(len(rows[0]))]
                     print(f"ABSK {tag} {a} " + ", ".join(f"{c} {v:.1f}" for c, v in zip(cc, m)))
                 continue
@@ -467,7 +469,7 @@ def main():
     out, pub = sys.argv[1], sys.argv[2]
     rest = sys.argv[3:]
     opts = {"base": "28", "seeds": "1,2,3,4,5,6", "sizes": "32,128,256", "routings": "layer,std",
-            "pairs": "", "small": "", "pubranges": ""}
+            "pairs": "", "small": "", "pubranges": "", "skextra": ""}
     arms = {}
     for a in rest:
         if a.startswith("--"):
@@ -487,10 +489,11 @@ def main():
     # A counter twin that is also an arm is timed and stamped; it is not built twice.
     modes = sorted({0, *named, *light.values(), *pa.values()})
     src = (ROOT / "muse_moe_w4a16" / "submission.py").read_text()
+    extra = "".join(f"({x.replace(':', ', ')}), " for x in opts["skextra"].split(",") if x)
     if small:
         # The stamped skinny variant (kMode 2) goes last; ABSK runs it.
         src, n = re.subn(r"^SKINNY_VARIANTS = \(\((.*)\)\)$",
-                         lambda mm: f"SKINNY_VARIANTS = (({mm.group(1)}), (8, 4, 2))", src,
+                         lambda mm: f"SKINNY_VARIANTS = (({mm.group(1)}), {extra}(8, 4, 2))", src,
                          flags=re.M)
         assert n == 1
     src, n = re.subn(r"^MAIN_MODES = \(.*?\)$", f"MAIN_MODES = {tuple(modes)}", src, flags=re.M)

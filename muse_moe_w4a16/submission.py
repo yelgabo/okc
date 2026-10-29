@@ -2476,6 +2476,14 @@ namespace sk_@TAG@ {
 constexpr int kNS = @NS@;
 constexpr int kNW = @NW@;
 constexpr int kMode = @MODE@;
+// kMode 2 and 4: timing stamps (2 is mode 0's, 4 is mode 3's). kMode 3: each compute warp loads
+// its codes of a unit up front and releases the ring slot itself (fence.proxy.async, then
+// mbarrier.arrive on empty, count kNT, as the fat path's mode 28), and thread 0 refills the slot
+// once every warp has arrived, instead of after a bar.sync of all compute warps behind the
+// unit's last MMA. The A/B at 8 tokens (240b68e7df1a427f) put mode 0 3.6 us over its loads-only
+// twin while thread 0 never waited for a unit, so the per-unit barrier is on the critical path.
+constexpr bool kStamp = kMode == 2 || kMode == 4;
+constexpr bool kEarly = kMode == 3 || kMode == 4;
 constexpr int kNT = kNW * 32;
 constexpr int kNTL = kNT + 32;
 constexpr int kNWarps = kNTL / 32;
@@ -2484,6 +2492,7 @@ struct __align__(128) Smem {
     unsigned char ring[kNS][kUnitBytes];
     float4 red[kNRB][kNW][32];
     uint64_t full[kNS];
+    uint64_t empty[kNS];
     int cnt[kLocalMax];
     int off[kLocalMax];
     int wc[kNWarps][kLocalMax];
@@ -2497,7 +2506,7 @@ struct __align__(128) Smem {
     int a0, na, b0, nb;
     // kMode 2 (timing only): thread 0's globaltimer at the phase points and cycle counters,
     // written to p.inter at the end (16 int64 per CTA; tools/moe_make_bench_ab.py reads them).
-    long long dg[kMode == 2 ? 16 : 1];
+    long long dg[kStamp ? 16 : 1];
 };
 
 // Unit q of this CTA's list (its phase A units, then its phase B units) into ring slot q % 3.
@@ -2540,7 +2549,7 @@ __device__ __forceinline__ void compute_loop(const Params& p, Smem& S, uint64_t 
         const bool phb = q >= na;
         const int v = phb ? b0 + (q - na) : a0 + q;
         const int j = phb ? (v >> 8) : (v >> 9);
-        if (kMode == 2 && tid == 0 && q == na) {
+        if (kStamp && tid == 0 && q == na) {
             S.dg[3] = gtimer();
             S.dg[8] = wfull;
             wfull = 0;
@@ -2571,7 +2580,7 @@ __device__ __forceinline__ void compute_loop(const Params& p, Smem& S, uint64_t 
                         }
                     }
                 }
-                if (kMode == 2 && tid == 0 && q == na) {
+                if (kStamp && tid == 0 && q == na) {
                     S.dg[4] = gtimer();
                 }
                 const __nv_bfloat16* src = p.inter + static_cast<size_t>(q0 + (have ? g : 0)) * kI
@@ -2593,7 +2602,7 @@ __device__ __forceinline__ void compute_loop(const Params& p, Smem& S, uint64_t 
                     break;
                 }
             }
-            if (kMode == 2) {
+            if (kStamp) {
                 wfull += clock64() - t0;
             }
         }
@@ -2608,13 +2617,38 @@ __device__ __forceinline__ void compute_loop(const Params& p, Smem& S, uint64_t 
                 acc[s][i] = 0.f;
             }
         }
+        uint4 cw[kEarly ? kCPW : 1];
+        if constexpr (kEarly) {
+#pragma unroll
+            for (int c = 0; c < kCPW; ++c) {
+                cw[c] = codes[c * 32];
+            }
+            // Every generic read of the slot (codes, scales) is issued above; the per-thread
+            // proxy fence orders them before the refill's bulk write (docs/runs-moe.md,
+            // "Ordering of the ring slot releases"; the chain is the fat path's mode 28).
+            fence_proxy_async();
+            asm volatile("mbarrier.arrive.shared::cta.b64 _, [%0];"
+                         :: "r"(smem_u32(&S.empty[slot])) : "memory");
+            if (tid == 0 && q + kNS < n) {
+                const unsigned par = (q / kNS) & 1;
+                if (!mbar_try(&S.empty[slot], par)) {
+                    const long long t0 = clock64();
+                    while (!mbar_try(&S.empty[slot], par)) {
+                        if (spin_failed(t0, p.ctr, 2)) {
+                            break;
+                        }
+                    }
+                }
+                issue_unit(p, S, q + kNS, pol);
+            }
+        }
         if (kMode == 1) {
             // Timing only: the unit's bytes arrive and one word is read, nothing is computed.
             acc[0][0] = __uint_as_float(codes[0].x & 0x3f800000u);
         } else {
 #pragma unroll
             for (int c = 0; c < kCPW; ++c) {
-                const uint4 w = codes[c * 32];
+                const uint4 w = kEarly ? cw[c] : codes[c * 32];
                 const unsigned scw = word(sc, (c0 + c) >> 1);
                 const unsigned sg = scale_word(scw, (2 * (c0 + c)) & 3);
                 const unsigned sg8 = scale_word(scw, (2 * (c0 + c) + 1) & 3);
@@ -2636,6 +2670,9 @@ __device__ __forceinline__ void compute_loop(const Params& p, Smem& S, uint64_t 
         named_sync(kBarFree + bb, kNTL);
         S.red[bb][warp][lane] = r;
         named_arrive(kBarFull + bb, kNTL);
+        if constexpr (kEarly) {
+            continue;
+        }
         named_sync(kBarUnit, kNT);
         if (tid == 0 && q + kNS < n) {
             // The slot's generic-proxy reads are complete (the barrier above); order them
@@ -2644,7 +2681,7 @@ __device__ __forceinline__ void compute_loop(const Params& p, Smem& S, uint64_t 
             issue_unit(p, S, q + kNS, pol);
         }
     }
-    if (kMode == 2 && tid == 0) {
+    if (kStamp && tid == 0) {
         if (na == n) {
             S.dg[3] = gtimer();
             S.dg[4] = S.dg[3];
@@ -2660,13 +2697,13 @@ __device__ __forceinline__ void credit(const Params& p, Smem& S, int j, int n, i
     if (n <= 0) {
         return;
     }
-    const long long c0 = kMode == 2 ? clock64() : 0;
+    const long long c0 = kStamp ? clock64() : 0;
     __threadfence();
     __syncwarp();
     if (lane == 0) {
         atomicAdd(p.done_a + j, n);
     }
-    if (kMode == 2 && lane == 0) {
+    if (kStamp && lane == 0) {
         S.dg[11] += clock64() - c0;
     }
 }
@@ -2702,9 +2739,9 @@ __device__ __forceinline__ void helper_loop(const Params& p, Smem& S, float* ss)
             credit(p, S, jcred, ncred, lane);
             ncred = 0;
         }
-        const long long cw = kMode == 2 ? clock64() : 0;
+        const long long cw = kStamp ? clock64() : 0;
         named_sync(kBarFull + bb, kNTL);
-        if (kMode == 2 && lane == 0) {
+        if (kStamp && lane == 0) {
             S.dg[10] += clock64() - cw;
         }
         float4 r = S.red[bb][0][lane];
@@ -2804,7 +2841,7 @@ __global__ void __launch_bounds__(kNTL, 1) moe_fused_kernel(const Params p) {
     const int gen = *reinterpret_cast<volatile int*>(p.ctr + 3);
     float* ss = p.ss + (gen & 1) * kEmax;
     const uint64_t pol = policy_evict_first();
-    if (kMode == 2 && tid < 16) {
+    if (kStamp && tid < 16) {
         S.dg[tid] = tid == 0 ? gtimer() : tid == 12 ? clock64() : 0;
     }
 
@@ -2815,6 +2852,7 @@ __global__ void __launch_bounds__(kNTL, 1) moe_fused_kernel(const Params p) {
 #pragma unroll
             for (int s = 0; s < kNS; ++s) {
                 mbar_init(&S.full[s], 1);
+                mbar_init(&S.empty[s], kNT);
             }
             asm volatile("fence.mbarrier_init.release.cluster;" ::: "memory");
         }
@@ -2892,12 +2930,12 @@ __global__ void __launch_bounds__(kNTL, 1) moe_fused_kernel(const Params p) {
         }
     }
     __syncthreads();
-    if (kMode == 2 && tid == 0) {
+    if (kStamp && tid == 0) {
         S.dg[1] = gtimer();
     }
 
     position_pass<kNWarps>(S.eid, S.pos, S.ent, S.wc, S.off, E);
-    if (kMode == 2 && tid == 0) {
+    if (kStamp && tid == 0) {
         S.dg[2] = gtimer();
     }
 
@@ -2907,7 +2945,7 @@ __global__ void __launch_bounds__(kNTL, 1) moe_fused_kernel(const Params p) {
         helper_loop(p, S, ss);
     }
     __syncthreads();
-    if (kMode == 2 && tid == 0) {
+    if (kStamp && tid == 0) {
         S.dg[5] = gtimer();
     }
 
@@ -2931,7 +2969,7 @@ __global__ void __launch_bounds__(kNTL, 1) moe_fused_kernel(const Params p) {
         }
     }
     __syncthreads();
-    if (kMode == 2 && tid == 0) {
+    if (kStamp && tid == 0) {
         S.dg[6] = gtimer();
     }
     for (int j = cta * kNTL + tid; j < kJmax; j += G * kNTL) {
@@ -2941,7 +2979,7 @@ __global__ void __launch_bounds__(kNTL, 1) moe_fused_kernel(const Params p) {
     if (warp < kNW) {
         final_pass<kNT>(p, S.pos, ss, cta, G);
     }
-    if constexpr (kMode == 2) {
+    if constexpr (kStamp) {
         __syncthreads();
         if (tid == 0) {
             S.dg[7] = gtimer();
@@ -4529,7 +4567,7 @@ def kernel_fn(data, state):
 POLICY_BS = (1, 8, 16, 32, 128, 256)
 SKINNY_DEFAULT = 0
 # Computing variants only: the loads-only ones time the rings and are never a policy choice.
-SKINNY_CANDIDATES = tuple(i for i, v in enumerate(SKINNY_VARIANTS) if v[2] == 0)
+SKINNY_CANDIDATES = tuple(i for i, v in enumerate(SKINNY_VARIANTS) if v[2] in (0, 3))
 
 
 def _policy_variant(state, m):
@@ -5043,7 +5081,7 @@ def _vname(v):
                 35: "main-lean-dfa-vol", 36: "main-lean-silu", 37: "main-lean-silu-bar",
                 38: "main-lean-silu-pa", 39: "main-lean-epi", 40: "main-lean-epi-pa"}[m]
     nw, ns, mode = SKINNY_VARIANTS[v]
-    return f"sk{nw}w{ns}s{('', '-loads', '-stamps')[mode]}"
+    return f"sk{nw}w{ns}s{('', '-loads', '-stamps', '-er', '-er-stamps')[mode]}"
 
 
 def prepare(weights):
