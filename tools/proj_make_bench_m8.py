@@ -2,7 +2,12 @@
 of it made by exact text patches of the consumer path, and the public entry, timed in one
 process on the same weights and inputs.
 
-    python3 tools/proj_make_bench_m8.py OUT.py --pub PUBLIC.py [--variants acc,nofence,late,all]
+    python3 tools/proj_make_bench_m8.py OUT.py --pub PUBLIC.py [--variants geo,init,...]
+
+Variants (VARIANTS; default all): geo / geov add the qkv8u4, qkv8w8, qkv8w8u1 and router8u2
+geometries as SK_EXTRA candidates (geov also drops the wait vote); acc, late, init, novote, cand
+patch the consumer path; nofence, all and candnf drop the per-stage proxy fence and exist only to
+attribute its cost, never as a submission.
 
 Arms per shape (all five layers at m = 8; the unpooler at its 1024-row slice):
   sgl          SGLang's call.
