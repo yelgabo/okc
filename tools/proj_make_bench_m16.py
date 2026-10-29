@@ -66,13 +66,38 @@ EXTRA_USE = {
     ("pooler", 16): ["pool16w8", "pool16n1", "pool16n1b"],
     ("pooler", 32): ["pool32w8", "pool32n1b"],
 }
-GEO = (
-    ("    \"unp32\": (2, 32, 4, 2, 2, 2, 3),\n}\n",
-     "    \"unp32\": (2, 32, 4, 2, 2, 2, 3),\n"
-     + "".join(f"    {nm!r}: {g!r},\n".replace("'", "\"") for nm, g in EXTRA_GEOM.items()) + "}\n"),
-    ("SK_EXTRA = {}\n", f"SK_EXTRA = {EXTRA_USE!r}\n"),
-)
-VARIANTS = {"geo": GEO}
+# Round 2 (after 01703396ea1a409e: o16w2 -0.22 / -0.38, unp32n2 -0.54 / -0.16, the rest lost):
+# more consumer warps on the short-K o projection and the 2-CTA unpooler at 32 tokens.
+EXTRA_GEOM2 = {
+    "o16w2": (1, 16, 2, 2, 2, 2, 3),       # repeat: 4 consumer warps
+    "o16w4": (1, 16, 2, 2, 4, 1, 3),       # 8 consumer warps, one unit each
+    "o16r4": (1, 16, 1, 4, 2, 2, 3),       # 8 consumer warps, one tile each
+    "o16r4w4": (1, 16, 1, 4, 4, 1, 3),     # 16 consumer warps
+    "o32w4": (2, 32, 2, 2, 4, 1, 3),       # 8 consumer warps, one unit each
+    "o32r4": (2, 32, 1, 4, 2, 2, 3),       # 8 consumer warps, one tile each
+    "unp16w4": (1, 16, 2, 2, 4, 1, 3),     # 8 consumer warps at 3 CTAs per SM
+    "unp32n2": (2, 32, 2, 2, 2, 2, 3),     # repeat: R = 32, 2 CTAs per SM
+    "unp32n2w4": (2, 32, 2, 2, 4, 1, 3),   # the same with 8 consumer warps
+}
+EXTRA_USE2 = {
+    ("o", 16): ["o16w2", "o16w4", "o16r4", "o16r4w4"],
+    ("o", 32): ["o32w4", "o32r4"],
+    ("unpooler", 16): ["unp16w4"],
+    ("unpooler", 32): ["unp32n2", "unp32n2w4"],
+}
+
+
+def _geo_patch(geoms, use):
+    return (
+        ("    \"unp32\": (2, 32, 4, 2, 2, 2, 3),\n}\n",
+         "    \"unp32\": (2, 32, 4, 2, 2, 2, 3),\n"
+         + "".join(f"    {nm!r}: {g!r},\n".replace("'", "\"") for nm, g in geoms.items()) + "}\n"),
+        ("SK_EXTRA = {}\n", f"SK_EXTRA = {use!r}\n"),
+    )
+
+
+GEO = _geo_patch(EXTRA_GEOM, EXTRA_USE)
+VARIANTS = {"geo": (GEO, EXTRA_USE), "geo2": (_geo_patch(EXTRA_GEOM2, EXTRA_USE2), EXTRA_USE2)}
 
 AB = r'''
 
@@ -284,10 +309,13 @@ def main():
         else:
             raise SystemExit(f"unknown argument {a}")
     base = (ROOT / "muse_bf16_proj/submission.py").read_text()
-    srcs = {nm: keep_cands(patch(base, VARIANTS[nm], nm)) for nm in names}
+    srcs = {nm: keep_cands(patch(base, VARIANTS[nm][0], nm)) for nm in names}
     if pub is not None:
         srcs["pub"] = pub_patch(pub)
-    extra = {f"{layer}/{b}": tuple(v) for (layer, b), v in EXTRA_USE.items()}
+    extra = {}
+    for nm in names:
+        for (layer, b), v in VARIANTS[nm][1].items():
+            extra[f"{layer}/{b}"] = extra.get(f"{layer}/{b}", ()) + tuple(v)
     out.write_text(keep_cands(base) + AB.format(srcs=srcs, extra=extra, ms=ms))
     print(f"wrote {out} with modules {list(srcs)}")
 
