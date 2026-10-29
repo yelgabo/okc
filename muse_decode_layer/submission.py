@@ -187,6 +187,12 @@ PORT_ATTN_ONE = True
 # side stream right after top-8, and the pre-expert norm on the main stream before the join,
 # so the main stream goes from the norm straight to GEMM1. False: both after the join.
 ROUTE_ON_SIDE = True
+# Front variants "concat-r" and "skf-r" (gap map 2026-10-30, E2): the side stream's logit add and
+# routing, the main stream's pre-expert norm and the join become one route kernel on the main
+# stream, and the fused MoE launches as its PDL secondary. The front tuner picks per token
+# count against the side-stream fronts, timing the front and the MoE together.
+PORT_ROUTE_KERNEL = True
+ROUTE_VARIANTS = {"concat-r": "concat", "skf-r": "skf"}
 # Up to 8 tokens, our FFN boundary on the unpooler slice's 1024 live channels in place of
 # F.pad to 8192 and FusedPostNormResidualPreNorm.
 PORT_FFN_BOUNDARY = True
@@ -214,6 +220,9 @@ TOP_K = 8
 LOCAL_EXPERTS = 32
 D_EXPERT = 4096
 ROUTER_FP32_MAX_TOKENS = 8
+# SGLang's routing constants, as prepare() passes them to FusedMuseSparkRouting.
+ROUTER_MULTIPLIER = 0.1767766952966369
+ROUTE_EPS = 1e-15
 ROUTER_MMA_MAX_TOKENS = 32
 SLICED_UNPOOL_MAX_TOKENS = 8
 UNPOOL_SLICE = HIDDEN // 8
@@ -232,6 +241,9 @@ torch::Tensor finalize(torch::Tensor y, torch::Tensor scores, torch::Tensor norm
                        torch::Tensor local_ids, double eps);
 torch::Tensor router_fwd(torch::Tensor x, torch::Tensor w);
 torch::Tensor pre_norm(torch::Tensor x, torch::Tensor w, double eps);
+std::vector<torch::Tensor> route_fwd(torch::Tensor logits, int64_t lo_off, torch::Tensor x,
+                                     torch::Tensor w, torch::Tensor bias, double mult,
+                                     double eps, double denom_eps);
 void prefetch_l2(torch::Tensor a, torch::Tensor b, torch::Tensor c);
 torch::Tensor proj_fwd(torch::Tensor x, torch::Tensor wpacked, int64_t n);
 torch::Tensor router_mma_fwd(torch::Tensor x, torch::Tensor wpacked);
@@ -705,6 +717,172 @@ __global__ void __launch_bounds__(NORM_THREADS) pre_norm_kernel(
     }
 }
 
+// The main-stream route kernel (gap map 2026-10-30, E2), one CTA per token: the router logits
+// (with HILO, the concat GEMM's hi and lo column blocks added in FP32, as the torch add did),
+// SGLang's routing (sigmoid of logit x multiplier, top 8 of score + bias, weights = picked
+// scores over their sum + eps) and the pre-expert norm with pre_norm_kernel's arithmetic, so its
+// output is bitwise that kernel's. It replaces the side stream's add and routing kernel, the
+// main stream's norm and the join. It triggers its dependents at entry: the fused MoE launched
+// after it as a PDL secondary may then start its data-independent preamble. Ties in the biased
+// score go to the lower expert id; the judge accepts any choice within 0.05 of the 8th best.
+constexpr int ROUTE_EXPERTS = 256;
+constexpr int ROUTE_PER_LANE = ROUTE_EXPERTS / 32;
+
+template <typename InT, bool HILO>
+__global__ void __launch_bounds__(NORM_THREADS) route_kernel(
+        const float* __restrict__ logits, long long lstride, int lo_off,
+        const float* __restrict__ bias, const InT* __restrict__ x, long long row_stride,
+        const __nv_bfloat16* __restrict__ w, __nv_bfloat16* __restrict__ out,
+        int* __restrict__ ids, float* __restrict__ wts, float mult, float eps,
+        float denom_eps) {
+    asm volatile("griddepcontrol.launch_dependents;");
+    __shared__ float red[NORM_THREADS / 32];
+    __shared__ float mean_sq;
+    const int tid = threadIdx.x;
+    const int lane = tid & 31;
+    const int warp = tid >> 5;
+    float wv[NORM_PER][4];
+#pragma unroll
+    for (int i = 0; i < NORM_PER; ++i) {
+        const uint2 u = *reinterpret_cast<const uint2*>(w + (tid + i * NORM_THREADS) * 4);
+        const float2 a = __bfloat1622float2(*reinterpret_cast<const __nv_bfloat162*>(&u.x));
+        const float2 b = __bfloat1622float2(*reinterpret_cast<const __nv_bfloat162*>(&u.y));
+        wv[i][0] = a.x;
+        wv[i][1] = a.y;
+        wv[i][2] = b.x;
+        wv[i][3] = b.y;
+    }
+    float bv[ROUTE_PER_LANE];
+    if (warp == 0) {
+#pragma unroll
+        for (int j = 0; j < ROUTE_PER_LANE; ++j) {
+            bv[j] = bias[lane + 32 * j];
+        }
+    }
+    asm volatile("griddepcontrol.wait;" ::: "memory");
+    float lg[ROUTE_PER_LANE];
+    if (warp == 0) {
+        const float* lrow = logits + static_cast<size_t>(blockIdx.x) * lstride;
+#pragma unroll
+        for (int j = 0; j < ROUTE_PER_LANE; ++j) {
+            lg[j] = lrow[lane + 32 * j];
+            if constexpr (HILO) {
+                lg[j] = lg[j] + lrow[lo_off + lane + 32 * j];
+            }
+        }
+    }
+    const InT* row = x + static_cast<size_t>(blockIdx.x) * row_stride;
+    float xv[NORM_PER][4];
+    float ss = 0.f;
+#pragma unroll
+    for (int i = 0; i < NORM_PER; ++i) {
+        const int c = (tid + i * NORM_THREADS) * 4;
+        if constexpr (std::is_same_v<InT, float>) {
+            const float4 v = *reinterpret_cast<const float4*>(row + c);
+            xv[i][0] = round_bf16(v.x);
+            xv[i][1] = round_bf16(v.y);
+            xv[i][2] = round_bf16(v.z);
+            xv[i][3] = round_bf16(v.w);
+        } else {
+            const uint2 u = *reinterpret_cast<const uint2*>(row + c);
+            const float2 a = __bfloat1622float2(*reinterpret_cast<const __nv_bfloat162*>(&u.x));
+            const float2 b = __bfloat1622float2(*reinterpret_cast<const __nv_bfloat162*>(&u.y));
+            xv[i][0] = a.x;
+            xv[i][1] = a.y;
+            xv[i][2] = b.x;
+            xv[i][3] = b.y;
+        }
+#pragma unroll
+        for (int j = 0; j < 4; ++j) {
+            ss = fmaf(xv[i][j], xv[i][j], ss);
+        }
+    }
+#pragma unroll
+    for (int o = 16; o > 0; o >>= 1) {
+        ss += __shfl_down_sync(0xffffffffu, ss, o);
+    }
+    if (lane == 0) {
+        red[warp] = ss;
+    }
+    __syncthreads();
+    if (tid == 0) {
+        mean_sq = ((red[0] + red[2]) + (red[1] + red[3])) / static_cast<float>(NORM_N);
+    }
+    __syncthreads();
+    const float rstd = rsqrtf(mean_sq + eps);
+    __nv_bfloat16* orow = out + static_cast<size_t>(blockIdx.x) * NORM_N;
+#pragma unroll
+    for (int i = 0; i < NORM_PER; ++i) {
+        const int c = (tid + i * NORM_THREADS) * 4;
+        const __nv_bfloat162 h0 = __floats2bfloat162_rn(wv[i][0] * (rstd * xv[i][0]),
+                                                        wv[i][1] * (rstd * xv[i][1]));
+        const __nv_bfloat162 h1 = __floats2bfloat162_rn(wv[i][2] * (rstd * xv[i][2]),
+                                                        wv[i][3] * (rstd * xv[i][3]));
+        *reinterpret_cast<uint2*>(orow + c) = make_uint2(
+            *reinterpret_cast<const uint32_t*>(&h0), *reinterpret_cast<const uint32_t*>(&h1));
+    }
+    if (warp != 0) {
+        return;
+    }
+    float sc[ROUTE_PER_LANE];
+    float key[ROUTE_PER_LANE];
+#pragma unroll
+    for (int j = 0; j < ROUTE_PER_LANE; ++j) {
+        sc[j] = 1.f / (1.f + expf(-(lg[j] * mult)));
+        key[j] = sc[j] + bv[j];
+    }
+    int pid[8];
+    float psc[8];
+#pragma unroll
+    for (int k = 0; k < 8; ++k) {
+        float best = -INFINITY;
+        int bi = 0x7fffffff;
+#pragma unroll
+        for (int j = 0; j < ROUTE_PER_LANE; ++j) {
+            if (key[j] > best) {
+                best = key[j];
+                bi = lane + 32 * j;
+            }
+        }
+#pragma unroll
+        for (int o = 16; o > 0; o >>= 1) {
+            const float ob = __shfl_xor_sync(0xffffffffu, best, o);
+            const int oi = __shfl_xor_sync(0xffffffffu, bi, o);
+            if (ob > best || (ob == best && oi < bi)) {
+                best = ob;
+                bi = oi;
+            }
+        }
+        const int jj = bi >> 5;
+        float mine = 0.f;
+#pragma unroll
+        for (int j = 0; j < ROUTE_PER_LANE; ++j) {
+            if (j == jj) {
+                mine = sc[j];
+                if (lane == (bi & 31)) {
+                    key[j] = -INFINITY;
+                }
+            }
+        }
+        pid[k] = bi;
+        psc[k] = __shfl_sync(0xffffffffu, mine, bi & 31);
+    }
+    if (lane == 0) {
+        float sum = 0.f;
+#pragma unroll
+        for (int k = 0; k < 8; ++k) {
+            sum += psc[k];
+        }
+        const float den = sum + denom_eps;
+        int4* irow = reinterpret_cast<int4*>(ids + static_cast<size_t>(blockIdx.x) * 8);
+        float4* wrow = reinterpret_cast<float4*>(wts + static_cast<size_t>(blockIdx.x) * 8);
+        irow[0] = make_int4(pid[0], pid[1], pid[2], pid[3]);
+        irow[1] = make_int4(pid[4], pid[5], pid[6], pid[7]);
+        wrow[0] = make_float4(psc[0] / den, psc[1] / den, psc[2] / den, psc[3] / den);
+        wrow[1] = make_float4(psc[4] / den, psc[5] / den, psc[6] / den, psc[7] / den);
+    }
+}
+
 // Warms L2 with weights the chain reads after attention (the o projection, the FP32 router and
 // the unpooler slice at T <= 8) while attention runs: 16-byte loads with an evict_last policy,
 // so the lines outlive the pooler's and the experts' streams, eight in flight per thread. Real
@@ -1117,6 +1295,67 @@ torch::Tensor pre_norm(torch::Tensor x, torch::Tensor w, double eps) {
     }
     C10_CUDA_KERNEL_LAUNCH_CHECK();
     return out;
+}
+
+// logits: FP32 rows of 256 router logits (unit column stride); lo_off > 0 adds the block that
+// starts lo_off columns later (the concat GEMM's lo half). x: the pooler output, [T, 4096] BF16
+// or a strided FP32 view. Returns the normalized expert input, the global top-8 ids and their
+// weights.
+std::vector<torch::Tensor> route_fwd(torch::Tensor logits, int64_t lo_off, torch::Tensor x,
+                                     torch::Tensor w, torch::Tensor bias, double mult,
+                                     double eps, double denom_eps) {
+    const int m = x.size(0);
+    TORCH_CHECK(x.dim() == 2 && x.size(1) == NORM_N && x.stride(1) == 1 && x.stride(0) % 4 == 0,
+                "route_fwd: x must be [T, 4096] with unit column stride and 16-byte rows");
+    TORCH_CHECK(w.is_contiguous() && w.numel() == NORM_N && w.scalar_type() == torch::kBFloat16,
+                "route_fwd: weight must be BF16 [4096]");
+    TORCH_CHECK(logits.dim() == 2 && logits.size(0) == m && logits.stride(1) == 1
+                && logits.scalar_type() == torch::kFloat32
+                && logits.size(1) >= ROUTE_EXPERTS + lo_off && lo_off >= 0,
+                "route_fwd: logits must be FP32 [T, 256 (+ lo_off)] with unit column stride");
+    TORCH_CHECK(bias.is_contiguous() && bias.numel() == ROUTE_EXPERTS
+                && bias.scalar_type() == torch::kFloat32, "route_fwd: bias must be FP32 [256]");
+    auto out = torch::empty({m, NORM_N}, x.options().dtype(torch::kBFloat16));
+    auto ids = torch::empty({m, 8}, x.options().dtype(torch::kInt32));
+    auto wts = torch::empty({m, 8}, x.options().dtype(torch::kFloat32));
+    if (m == 0) {
+        return {out, ids, wts};
+    }
+    cudaStream_t stream = at::cuda::getCurrentCUDAStream();
+    const auto* wp = reinterpret_cast<const __nv_bfloat16*>(w.data_ptr());
+    auto* op = reinterpret_cast<__nv_bfloat16*>(out.data_ptr());
+    const float* lp = logits.data_ptr<float>();
+    const long long ls = logits.stride(0);
+    const long long xs = x.stride(0);
+    const int lo = static_cast<int>(lo_off);
+    const float* bp = bias.data_ptr<float>();
+    int* ip = ids.data_ptr<int>();
+    float* wtp = wts.data_ptr<float>();
+    const float fm = static_cast<float>(mult);
+    const float fe = static_cast<float>(eps);
+    const float fd = static_cast<float>(denom_eps);
+    if (x.scalar_type() == torch::kFloat32) {
+        const auto* xp = static_cast<const float*>(x.data_ptr());
+        if (lo > 0) {
+            launch_ex_pdl(route_kernel<float, true>, dim3(m), dim3(NORM_THREADS), 0, stream,
+                          lp, ls, lo, bp, xp, xs, wp, op, ip, wtp, fm, fe, fd);
+        } else {
+            launch_ex_pdl(route_kernel<float, false>, dim3(m), dim3(NORM_THREADS), 0, stream,
+                          lp, ls, lo, bp, xp, xs, wp, op, ip, wtp, fm, fe, fd);
+        }
+    } else {
+        TORCH_CHECK(x.scalar_type() == torch::kBFloat16, "route_fwd: x must be BF16 or FP32");
+        const auto* xp = reinterpret_cast<const __nv_bfloat16*>(x.data_ptr());
+        if (lo > 0) {
+            launch_ex_pdl(route_kernel<__nv_bfloat16, true>, dim3(m), dim3(NORM_THREADS), 0,
+                          stream, lp, ls, lo, bp, xp, xs, wp, op, ip, wtp, fm, fe, fd);
+        } else {
+            launch_ex_pdl(route_kernel<__nv_bfloat16, false>, dim3(m), dim3(NORM_THREADS), 0,
+                          stream, lp, ls, lo, bp, xp, xs, wp, op, ip, wtp, fm, fe, fd);
+        }
+    }
+    C10_CUDA_KERNEL_LAUNCH_CHECK();
+    return {out, ids, wts};
 }
 
 void prefetch_l2(torch::Tensor a, torch::Tensor b, torch::Tensor c) {
@@ -7180,7 +7419,34 @@ struct Params {
     int cost[2][9];
     // The layer's local_start is an input tensor, read here instead of the host value.
     const int* lo_p;
+    int pdl;
 };
+
+template <typename Kern>
+void moe1_launch(Kern kern, int grid, int block, int smem, cudaStream_t stream,
+                 const Params& p) {
+    if (!p.pdl) {
+        kern<<<grid, block, smem, stream>>>(p);
+        return;
+    }
+    cudaLaunchConfig_t cfg = {};
+    cfg.gridDim = dim3(grid);
+    cfg.blockDim = dim3(block);
+    cfg.dynamicSmemBytes = smem;
+    cfg.stream = stream;
+    cudaLaunchAttribute attr[1];
+    attr[0].id = cudaLaunchAttributeProgrammaticStreamSerialization;
+    attr[0].val.programmaticStreamSerializationAllowed = 1;
+    cfg.attrs = attr;
+    cfg.numAttrs = 1;
+    C10_CUDA_CHECK(cudaLaunchKernelEx(&cfg, kern, p));
+}
+
+__device__ __forceinline__ void prefetch_l2_hint(const void* src, unsigned bytes) {
+    asm volatile("cp.async.bulk.prefetch.L2.global [%0], %1;" :: "l"(src), "r"(bytes)
+                 : "memory");
+}
+
 
 
 __device__ __forceinline__ unsigned smem_u32(const void* p) {
@@ -7768,6 +8034,21 @@ __global__ void __launch_bounds__(kNTL, 1) moe_fused_kernel(const Params p) {
     const int E = p.M * kTopK;
     // Under programmatic dependent launch the inputs are not ready before this; without it
     // the instruction does nothing.
+    if (p.pdl) {
+        if (warp == kNW && lane == 0) {
+#pragma unroll
+            for (int s = 0; s < kNS; ++s) {
+                mbar_init(&S.full[s], 1);
+            }
+            asm volatile("fence.mbarrier_init.release.cluster;" ::: "memory");
+        }
+        if (tid == 0) {
+            for (int i = cta; i < p.nloc * 4; i += G) {
+                prefetch_l2_hint(p.w13 + (static_cast<size_t>(i % p.nloc) * kUA
+                                          + i / p.nloc) * kUnitBytes, kUnitBytes);
+            }
+        }
+    }
     asm volatile("griddepcontrol.wait;" ::: "memory");
     // The generation picks this launch's sum-of-squares copy and barrier counter; the last
     // CTA through the barrier bumps it, after every CTA has read it.
@@ -7778,7 +8059,7 @@ __global__ void __launch_bounds__(kNTL, 1) moe_fused_kernel(const Params p) {
     if (warp == kNW) {
         // Histogram and job list by one warp, so this CTA's first unit copies can be issued
         // before the full routing; the copies' cold start then overlaps it.
-        if (lane == 0) {
+        if (lane == 0 && !p.pdl) {
 #pragma unroll
             for (int s = 0; s < kNS; ++s) {
                 mbar_init(&S.full[s], 1);
@@ -7907,7 +8188,8 @@ void launch(const Params& p, int sms, cudaStream_t stream) {
                                             static_cast<int>(sizeof(Smem))));
         ready = true;
     }
-    moe_fused_kernel<SPLIT><<<sms, kNTL, sizeof(Smem), stream>>>(p);
+    moe1_launch(moe_fused_kernel<SPLIT>, sms, kNTL, static_cast<int>(sizeof(Smem)), stream,
+                p);
     C10_CUDA_KERNEL_LAUNCH_CHECK();
 }
 
@@ -8209,6 +8491,21 @@ __global__ void __launch_bounds__(kNTL, 1) moe_fused_kernel(const Params p) {
     const int E = p.M * kTopK;
     // Under programmatic dependent launch the inputs are not ready before this; without it
     // the instruction does nothing.
+    if (p.pdl) {
+        if (warp == kNW && lane == 0) {
+#pragma unroll
+            for (int s = 0; s < kNS; ++s) {
+                mbar_init(&S.full[s], 1);
+            }
+            asm volatile("fence.mbarrier_init.release.cluster;" ::: "memory");
+        }
+        if (tid == 0) {
+            for (int i = cta; i < p.nloc * 4; i += G) {
+                prefetch_l2_hint(p.w13 + (static_cast<size_t>(i % p.nloc) * kUA
+                                          + i / p.nloc) * kUnitBytes, kUnitBytes);
+            }
+        }
+    }
     asm volatile("griddepcontrol.wait;" ::: "memory");
     // The generation picks this launch's sum-of-squares copy and barrier counter; the last
     // CTA through the barrier bumps it, after every CTA has read it.
@@ -8219,7 +8516,7 @@ __global__ void __launch_bounds__(kNTL, 1) moe_fused_kernel(const Params p) {
     if (warp == kNW) {
         // Histogram and job list by one warp, so this CTA's first unit copies can be issued
         // before the full routing; the copies' cold start then overlaps it.
-        if (lane == 0) {
+        if (lane == 0 && !p.pdl) {
 #pragma unroll
             for (int s = 0; s < kNS; ++s) {
                 mbar_init(&S.full[s], 1);
@@ -8348,7 +8645,8 @@ void launch(const Params& p, int sms, cudaStream_t stream) {
                                             static_cast<int>(sizeof(Smem))));
         ready = true;
     }
-    moe_fused_kernel<SPLIT><<<sms, kNTL, sizeof(Smem), stream>>>(p);
+    moe1_launch(moe_fused_kernel<SPLIT>, sms, kNTL, static_cast<int>(sizeof(Smem)), stream,
+                p);
     C10_CUDA_KERNEL_LAUNCH_CHECK();
 }
 
@@ -9743,6 +10041,28 @@ __global__ void __launch_bounds__(kNTM, 1) moe_main_kernel(const Params p) {
     const int G = gridDim.x;
     const int cta = blockIdx.x;
     const int E = p.M * kTopK;
+    if (p.pdl) {
+        if (warp == kNWarpsM - 2 && lane == 0) {
+            constexpr unsigned kRelP = lean_stage(MODE) ? kNC * 32 : kNC;
+#pragma unroll
+            for (int s = 0; s < kNSWMax; ++s) {
+                mbar_init(&S.wfull[s], 1);
+                mbar_init(&S.wempty[s], kRelP);
+            }
+#pragma unroll
+            for (int s = 0; s < kNSX; ++s) {
+                mbar_init(&S.xfull[s], 1);
+                mbar_init(&S.xempty[s], kRelP);
+            }
+            asm volatile("fence.mbarrier_init.release.cluster;" ::: "memory");
+        }
+        if (tid == 0) {
+            for (int i = cta; i < p.nloc * 16; i += G) {
+                prefetch_l2_hint(p.w13f + (static_cast<size_t>(i % p.nloc) * 32 * 16
+                                           + i / p.nloc) * kUnitBytes, kUnitBytes);
+            }
+        }
+    }
     asm volatile("griddepcontrol.wait;" ::: "memory");
     constexpr bool kDiag = is_diag(MODE);
     constexpr bool kLight = is_light(MODE);
@@ -9942,7 +10262,7 @@ __global__ void __launch_bounds__(kNTM, 1) moe_main_kernel(const Params p) {
             S.xoff = S.nsw * kUnitBytes;
         }
     } else if (warp == kNWarpsM - 2) {
-        if (lane == 0) {
+        if (lane == 0 && !p.pdl) {
             constexpr unsigned kRel = lean_stage(MODE) ? kNC * 32 : kNC;
 #pragma unroll
             for (int s = 0; s < kNSWMax; ++s) {
@@ -10200,7 +10520,8 @@ void launch_main(const Params& p, int sms, cudaStream_t stream) {
                                             static_cast<int>(sizeof(SmemMain))));
         ready = true;
     }
-    moe_main_kernel<MODE><<<sms, kNTM, sizeof(SmemMain), stream>>>(p);
+    moe1_launch(moe_main_kernel<MODE>, sms, kNTM, static_cast<int>(sizeof(SmemMain)), stream,
+                p);
     C10_CUDA_KERNEL_LAUNCH_CHECK();
 }
 
@@ -10225,9 +10546,11 @@ void moe1_dispatch(int variant, const Params& p, int sms, cudaStream_t stream) {
 }  // namespace
 
 // One persistent launch per chunk of 512 tokens: grid = SM count, one CTA per SM, no
-// cooperative attribute (the shared-memory footprint keeps every CTA resident), no PDL
-// attribute and no early trigger. The grid barrier spins until all CTAs arrive, so nothing
-// else of ours may hold SMs meanwhile: the layer joins its side stream before this call. x is
+// cooperative attribute (the shared-memory footprint keeps every CTA resident) and no early
+// trigger. The grid barrier spins until all CTAs arrive, so nothing else of ours may hold SMs
+// meanwhile: the layer joins its side stream before this call, or (pdl) launches it as the PDL
+// secondary of the route kernel, whose CTAs all exit before any MoE CTA passes
+// griddepcontrol.wait; only the first chunk takes the attribute. x is
 // the normalized expert input, topk_ids the router's global ids (the kernel keeps the local
 // range [local_start, local_start + nloc)), nw = 1 + post_norm_w in FP32. Output bf16 [M, 4096].
 torch::Tensor moe_fused_run(torch::Tensor x, torch::Tensor topk_ids, torch::Tensor topk_w,
@@ -10237,7 +10560,8 @@ torch::Tensor moe_fused_run(torch::Tensor x, torch::Tensor topk_ids, torch::Tens
                             torch::Tensor ctr, torch::Tensor done_a, torch::Tensor w13f,
                             torch::Tensor w2f, torch::Tensor xa, torch::Tensor xb,
                             torch::Tensor fix, torch::Tensor fixcnt, torch::Tensor xready,
-                            torch::Tensor done_as, int64_t nloc, double eps, int64_t variant) {
+                            torch::Tensor done_as, int64_t nloc, double eps, int64_t variant,
+                            bool pdl) {
     using namespace moe1;
     static int sms = 0;
     if (sms == 0) {
@@ -10292,6 +10616,7 @@ torch::Tensor moe_fused_run(torch::Tensor x, torch::Tensor topk_ids, torch::Tens
     p.done_as = done_as.data_ptr<int>();
     p.lo = 0;
     p.lo_p = local_start.data_ptr<int>();
+    p.pdl = 0;
     p.nloc = static_cast<int>(nloc);
     p.eps = static_cast<float>(eps);
     // Params is not zero-initialized; cost[0][1] == 0 selects the compiled stage-cost table
@@ -10307,6 +10632,7 @@ torch::Tensor moe_fused_run(torch::Tensor x, torch::Tensor topk_ids, torch::Tens
         p.topk_w = topk_w.data_ptr<float>() + static_cast<size_t>(m0) * kTopK;
         p.out = reinterpret_cast<__nv_bfloat16*>(out.data_ptr<at::BFloat16>())
                 + static_cast<size_t>(m0) * kH;
+        p.pdl = pdl && m0 == 0 ? 1 : 0;
         moe1_dispatch(static_cast<int>(variant), p, sms, stream);
     }
     return out;
@@ -10322,7 +10648,8 @@ torch::Tensor moe_fused_run(torch::Tensor x, torch::Tensor topk_ids, torch::Tens
                             torch::Tensor ctr, torch::Tensor done_a, torch::Tensor w13f,
                             torch::Tensor w2f, torch::Tensor xa, torch::Tensor xb,
                             torch::Tensor fix, torch::Tensor fixcnt, torch::Tensor xready,
-                            torch::Tensor done_as, int64_t nloc, double eps, int64_t variant);
+                            torch::Tensor done_as, int64_t nloc, double eps, int64_t variant,
+                            bool pdl);
 """
 
 # (name, kind, launch) per built variant, in dispatch order, written by tools/dl_moe_inline.py;
@@ -12349,7 +12676,7 @@ def _ext():
             functions=["route_align", "finalize", "router_fwd", "proj_fwd", "router_mma_fwd",
                        "attn_prep", "attn_gate", "attn_fused", "attn_verify",
                        "ffn_boundary_short", "pre_norm", "attn_boundary",
-                       "attn_boundary_occupancy", "prefetch_l2"],
+                       "attn_boundary_occupancy", "prefetch_l2", "route_fwd"],
             extra_cuda_cflags=["-O3", "-gencode=arch=compute_90a,code=sm_90a"],
         )
     return _EXT
@@ -12544,7 +12871,7 @@ def _experts_run(x, meta, state):
     routing metadata from _route_meta(); or the fused launch when the metadata names it."""
     if meta.get("fused") is not None:
         return _moe1_run(x, meta["topk_weights"], meta["topk_ids"], meta["local_start"], state,
-                         meta["fused"])
+                         meta["fused"], meta.get("pdl", False))
     bank = state["bank"]
     num_tokens, size_k = x.shape
     size_n = bank["size_n"]
@@ -12733,16 +13060,17 @@ def _moe1_prepare(weights):
     return out
 
 
-def _moe1_run(x, topk_weights, topk_ids, local_start, state, variant):
+def _moe1_run(x, topk_weights, topk_ids, local_start, state, variant, pdl=False):
     """One persistent launch for the MoE block: routing from the global ids on the device,
-    GEMM1 with SwiGLU, GEMM2, the post-expert norm and the weighted sum."""
+    GEMM1 with SwiGLU, GEMM2, the post-expert norm and the weighted sum. pdl: launched as the
+    PDL secondary of the kernel before it on this stream (the route kernel)."""
     st = state["moe1"]
     w, s = st["w"], st["scratch"]
     return _moe1_ext().moe_fused_run(
         x, topk_ids, topk_weights, local_start, w["w13"], w["w2"], w["w13_gs"], w["w2_gs"],
         st["nw"], s["inter"], s["ybuf"], s["ss"], s["ctr"], s["done_a"], w["w13f"], w["w2f"],
         s["xa"], s["xb"], s["fix"], s["fixcnt"], s["xready"], s["done_as"], LOCAL_EXPERTS,
-        POST_NORM_EPS, variant)
+        POST_NORM_EPS, variant, pdl)
 
 
 def _moe1_variant(num_tokens, state):
@@ -14696,6 +15024,8 @@ def _front_variants(tokens, state):
             out.append("wide")
     if PORT_PROJ_SK and state.get("skp_ok") and bucket_of(tokens) in state["skp"]["fused"]:
         out.append("skf")
+    if state.get("route_ours") and _moe1_variant(tokens, state) is not None:
+        out += [r for r, base in ROUTE_VARIANTS.items() if base in out]
     return out
 
 
@@ -14710,6 +15040,8 @@ def _moe_front(ffn_input, router_input, local_start, state, moe_opts, variant):
     stream, joined before GEMM1. Returns (expert input, topk_weights, topk_ids, meta); the
     expert input is normalized when meta is not None, else the caller normalizes it."""
     tokens = ffn_input.shape[0]
+    if variant in ROUTE_VARIANTS:
+        return _moe_front_route(ffn_input, local_start, state, moe_opts, variant)
     main_stream, side_stream = torch.cuda.current_stream(), state["side_stream"]
     route_side = ROUTE_ON_SIDE and state["route_side_ok"]
     if variant == "skf":
@@ -14755,18 +15087,122 @@ def _moe_front(ffn_input, router_input, local_start, state, moe_opts, variant):
     return expert_input, topk_weights, topk_ids, meta
 
 
+def _route_fwd(logits, lo_off, pooled, state, bias=None):
+    return _ext().route_fwd(logits, lo_off, pooled, state["pre_expert_w"],
+                            state["route_bias"] if bias is None else bias,
+                            ROUTER_MULTIPLIER, RMS_EPS, ROUTE_EPS)
+
+
+def _moe_front_route(ffn_input, local_start, state, moe_opts, variant):
+    """The route variants of _moe_front: the front GEMM (concat or skf) on the main stream, then
+    the route kernel, no side stream. The meta asks the fused MoE for a PDL launch."""
+    tokens = ffn_input.shape[0]
+    if variant == "skf-r":
+        pooled, logits = state["skp"]["fused"][bucket_of(tokens)](ffn_input.contiguous())
+        x, topk_ids, topk_weights = _route_fwd(logits, 0, pooled, state)
+    else:
+        out32 = torch.mm(ffn_input, state["pool_router"].t(), out_dtype=torch.float32)
+        x, topk_ids, topk_weights = _route_fwd(out32[:, D_EXPERT:], N_EXPERTS,
+                                               out32[:, :D_EXPERT], state)
+    meta = _route_meta(topk_weights, topk_ids, local_start, tokens, state, moe_opts)
+    if meta.get("fused") is not None:
+        meta["pdl"] = True
+    return x, topk_weights, topk_ids, meta
+
+
+def _route_self_test(state):
+    """The route kernel against the current path (the torch hi + lo add, SGLang's routing
+    kernel, our pre-expert norm) at 1-264 tokens, on the concat layout (FP32, hi and lo blocks)
+    and the skf layout (BF16 pooled, FP32 logits): top-8 id sets equal row by row, weights
+    within 1e-5 relative, the normalized input within 1e-3 (bitwise expected; the differing
+    elements are counted). Then tie cases (integer logits, zero bias, beside a zero-bias SGLang
+    routing module): every row's picks must be a valid top-8 (their biased scores are the 8
+    largest, no repeats). Raises on any failure of ours."""
+    dev = state["pre_expert_w"].device
+    gen = torch.Generator(device=dev).manual_seed(77)
+    bias = state["route_bias"]
+    zero = torch.zeros_like(bias)
+    tie_routing = FusedMuseSparkRouting(expert_bias=zero, route_scale=1.0,
+                                        router_output_multiplier=ROUTER_MULTIPLIER,
+                                        router_score_division_eps=ROUTE_EPS)
+
+    def keys_of(logits, b):
+        return torch.sigmoid(logits * ROUTER_MULTIPLIER) + b
+
+    worst_w, tie_agree, tie_rows, x_differ, sgl_invalid = 0.0, 0, 0, 0, 0
+    for tokens in (1, 2, 8, 16, 32, 33, 128, 256, 264):
+        out32 = torch.randn((tokens, D_EXPERT + 2 * N_EXPERTS), generator=gen, device=dev)
+        out32[:, D_EXPERT:] *= 4.0
+        logits = out32[:, D_EXPERT:D_EXPERT + N_EXPERTS] + out32[:, D_EXPERT + N_EXPERTS:]
+        ref_w, ref_ids = state["routing"](None, logits, TOP_K, True)
+        ref_x = _pre_norm(out32[:, :D_EXPERT], state)
+        x, ids, w = _route_fwd(out32[:, D_EXPERT:], N_EXPERTS, out32[:, :D_EXPERT], state)
+        pooled = (torch.randn((tokens, D_EXPERT), generator=gen, device=dev)).to(torch.bfloat16)
+        logits2 = 4.0 * torch.randn((tokens, N_EXPERTS), generator=gen, device=dev)
+        ref_w2, ref_ids2 = state["routing"](None, logits2, TOP_K, True)
+        ref_x2 = _pre_norm(pooled, state)
+        x2, ids2, w2 = _route_fwd(logits2, 0, pooled, state)
+        torch.cuda.synchronize()
+        for name, a, b, ia, ib, wa, wb in (("concat", x, ref_x, ids, ref_ids, w, ref_w),
+                                           ("skf", x2, ref_x2, ids2, ref_ids2, w2, ref_w2)):
+            ia_s, oa = ia.long().sort(-1)
+            ib_s, ob = ib.long().sort(-1)
+            if not torch.equal(ia_s, ib_s):
+                bad = int((ia_s != ib_s).any(-1).sum())
+                raise RuntimeError(f"route T={tokens} {name}: {bad} rows pick other experts")
+            wa_s = wa.float().gather(1, oa)
+            wb_s = wb.float().gather(1, ob)
+            err = float(((wa_s - wb_s).abs() / wb_s.abs().clamp(min=1e-30)).max())
+            worst_w = max(worst_w, err)
+            if not err < 1e-5:
+                raise RuntimeError(f"route T={tokens} {name}: weights differ by {err:.2e}")
+            x_differ += int((a != b).sum())
+            if not _rel(a, b) < 1e-3:
+                raise RuntimeError(f"route T={tokens} {name}: normalized input differs by "
+                                   f"{_rel(a, b):.2e}")
+        tie_logits = torch.randint(-3, 4, (tokens, N_EXPERTS), generator=gen,
+                                   device=dev).float()
+        _, tie_ref = tie_routing(None, tie_logits, TOP_K, True)
+        _, tie_ids, _ = _route_fwd(tie_logits, 0, pooled, state, bias=zero)
+        torch.cuda.synchronize()
+        keys = keys_of(tie_logits, zero)
+        top = keys.topk(TOP_K, dim=-1).values.sort(-1).values
+        for name, picks in (("ours", tie_ids), ("sglang", tie_ref)):
+            got = keys.gather(1, picks.long()).sort(-1).values
+            srt = picks.long().sort(-1).values
+            if not torch.equal(got, top) or (srt[:, 1:] == srt[:, :-1]).any():
+                if name == "sglang":
+                    sgl_invalid += 1
+                    continue
+                raise RuntimeError(f"route ties T={tokens}: {name} picks are not a top-8")
+        tie_agree += int((tie_ids.long().sort(-1).values
+                          == tie_ref.long().sort(-1).values).all(-1).sum())
+        tie_rows += tokens
+    print(f"route self-test: ids equal on every row, weights within {worst_w:.1e}, {x_differ} "
+          f"normalized elements not bitwise; ties valid, same set as SGLang on {tie_agree} of "
+          f"{tie_rows} tie rows (SGLang not a top-8 at {sgl_invalid} token counts)")
+
+
 def _front_tune(state):
     """Times the MoE front per token count, as a CUDA graph replayed after an L2 flush as the
     judge times it, for every side-chain variant, and keeps the fastest. The variants must
     agree with the reference ("split" above 8 tokens, "fp32" up to 8): the normalized expert
     input within 1e-3 (relative L2), the level of BF16 rounding flips from a different FP32
-    summation order, and at least 99% of the routes equal; a variant that disagrees is
-    dropped at that token count. Up to 8 tokens the FP32 router input is the BF16 input
-    widened, so the variants route the same values."""
+    summation order, and at least 99% of the routes equal (as sets per token); a variant that
+    disagrees is dropped at that token count. Up to 8 tokens the FP32 router input is the BF16
+    input widened, so the variants route the same values.
+
+    Where a route variant (ROUTE_VARIANTS) is offered, the pick is by the front and the MoE
+    timed together, since the route variants' saving includes the MoE's PDL start; the
+    front-only times are printed beside them. A route variant must also match its base variant
+    (same logits): equal top-8 sets, the normalized input within 1e-3, the MoE output within
+    1e-3, and after ROUTE_STRESS more replays of its graph the same output and a clean MoE
+    scratch (no spin timeout)."""
     flush = torch.empty(256 << 20, dtype=torch.uint8, device="cuda")
     gen = torch.Generator(device="cuda").manual_seed(21)
     local_start = torch.tensor([96], dtype=torch.int32, device="cuda")
     policy = {}
+    report = state.setdefault("front_report", {})
     for tokens in FRONT_TOKENS:
         variants = _front_variants(tokens, state)
         if len(variants) == 1:
@@ -14776,38 +15212,99 @@ def _front_tune(state):
         ffn_input = ffn_input.to(torch.bfloat16)
         router_input = ffn_input.float() if tokens <= ROUTER_FP32_MAX_TOKENS else None
         opts = _moe_opts(tokens, state) if state["moe_ours"] else None
-        times, outs = {}, {}
+        with_moe = any(v in ROUTE_VARIANTS for v in variants)
+        times, chain, outs = {}, {}, {}
         for variant in variants:
             res = {}
 
-            def run():
-                ei, _, ids, meta = _moe_front(ffn_input, router_input, local_start, state, opts,
-                                              variant)
+            def front():
+                ei, tw, ids, meta = _moe_front(ffn_input, router_input, local_start, state,
+                                               opts, variant)
                 res["x"] = ei if meta is not None else _pre_norm(ei, state)
                 res["ids"] = ids
+                return meta, tw
 
-            times[variant] = _graph_time(run, flush)
+            def front_moe():
+                meta, tw = front()
+                if meta is not None:
+                    res["y"] = _experts_run(res["x"], meta, state)
+                else:
+                    res["y"] = _experts(res["x"], tw, res["ids"], local_start, state, opts)
+
+            times[variant] = _graph_time(front, flush)
             torch.cuda.synchronize()
-            outs[variant] = (res["x"].clone(), res["ids"].clone())
+            outs[variant] = [res["x"].clone(), res["ids"].clone(), None]
+            if with_moe:
+                graph = _graph_build(front_moe)
+                chain[variant] = _graph_median(graph, flush, 30)
+                torch.cuda.synchronize()
+                if res.get("y") is not None:
+                    outs[variant][2] = res["y"].clone()
+                if variant in ROUTE_VARIANTS and res.get("y") is not None:
+                    for _ in range(ROUTE_STRESS):
+                        graph.replay()
+                    torch.cuda.synchronize()
+                    outs[variant].append(res["y"].clone())
+                del graph
         reference = variants[0]
-        ref_x, ref_ids = outs[reference]
+        ref_x, ref_ids = outs[reference][:2]
         agree = {}
-        for variant, (x, ids) in outs.items():
+        for variant, (x, ids, *_rest) in outs.items():
             err = _rel(x, ref_x)
-            same = float((ids == ref_ids).float().mean())
+            same = float((ids.long().sort(-1).values == ref_ids.long().sort(-1).values)
+                         .float().mean())
             agree[variant] = f"{err:.1e}/{same:.3f}"
+            bad = None
             if not (err < 1e-3 and same >= 0.99):
-                print(f"TUNE front T={tokens} {variant} dropped: rel diff {err:.2e}, "
-                      f"routes {same:.3f} against {reference}")
-                _FAILED.append(f"front {variant} T={tokens} ({err:.1e}, routes {same:.3f})")
+                bad = f"rel diff {err:.2e}, routes {same:.3f} against {reference}"
+            if variant in ROUTE_VARIANTS and bad is None:
+                bad = _route_variant_check(outs[variant], outs.get(ROUTE_VARIANTS[variant]),
+                                           state)
+            if bad is not None:
+                print(f"TUNE front T={tokens} {variant} dropped: {bad}")
+                _FAILED.append(f"front {variant} T={tokens} ({bad[:80]})")
                 times.pop(variant)
-        best = min(times, key=times.get)
+                chain.pop(variant, None)
+        rank = chain if with_moe else times
+        best = min(rank, key=rank.get)
         policy[tokens] = best
-        print(f"TUNE front T={tokens} "
-              + " ".join(f"{v}:{t:.1f}" for v, t in sorted(times.items(), key=lambda kv: kv[1]))
-              + f" -> {best} (vs {reference}: "
+        report[tokens] = (dict(times), dict(chain))
+        line = (f"TUNE front T={tokens} "
+                + " ".join(f"{v}:{t:.1f}" for v, t in sorted(times.items(), key=lambda kv: kv[1])))
+        if with_moe:
+            line += (" | +moe " + " ".join(f"{v}:{t:.1f}" for v, t in
+                                           sorted(chain.items(), key=lambda kv: kv[1])))
+        print(line + f" -> {best} (vs {reference}: "
               + " ".join(f"{v} {a}" for v, a in agree.items()) + ")")
     state["front_policy"] = policy
+
+
+# Extra replays of a route variant's front + MoE graph in the tuner, checked for a stable
+# output and a clean MoE scratch: the PDL launch runs there under graph replay, as judged.
+ROUTE_STRESS = 200
+
+
+def _route_variant_check(got, base, state):
+    """None if a route variant's outputs match its base variant's; else the reason."""
+    if base is None:
+        return "no base variant timed"
+    x, ids, y = got[:3]
+    bx, bids, by = base[:3]
+    if not torch.equal(ids.long().sort(-1).values, bids.long().sort(-1).values):
+        return "top-8 sets differ from the base variant"
+    if not _rel(x, bx) < 1e-3:
+        return f"normalized input {_rel(x, bx):.1e} from the base variant"
+    if y is None or by is None:
+        return "no MoE output"
+    if not (bool(torch.isfinite(y).all()) and _rel(y, by) < 1e-3):
+        return f"MoE output {_rel(y, by):.1e} from the base variant"
+    if len(got) > 3 and not _rel(got[3], y) < 1e-4:
+        return f"MoE output moved {_rel(got[3], y):.1e} over {ROUTE_STRESS} replays"
+    clean, msg = _moe1_check(state)
+    if not clean:
+        state["moe1"]["scratch"]["ctr"][8] = 0
+        return f"MoE scratch after the replays: {msg}"
+    return None
 
 
 def _try(name, fn):
@@ -14869,7 +15366,7 @@ def _selection_summary(state):
     lines.append("components " + " ".join(f"{k}={_short_hash(v)}" for k, v in gen.items()))
     flags = ("moe_ours", "w4_ok", "moe1_ok", "router_ours", "proj_ours", "skp_ok",
              "attn_one_ours", "attn_ws_ours", "attn_fused_ours", "bnd_ours", "abnd_ours",
-             "norm_ours", "route_side_ok")
+             "norm_ours", "route_side_ok", "route_ours")
     lines.append("stages " + " ".join(f"{k}={int(bool(state.get(k)))}" for k in flags))
     for layer, (pick, times) in state.get("skp_wide_report", {}).items():
         lines.append(f"proj {layer} T={SKP_WD_MAX}: {pick} ["
@@ -14888,6 +15385,10 @@ def _selection_summary(state):
         busy = state.get("moe1_busiest", {}).get(bs, "-")
         lines.append(f"moe T={bs}: {pick} [{times or 'no bench'}] judge-like routing, busiest "
                      f"expert {busy} w4 {w4} front {front}")
+    for bs, (ft, ct) in state.get("front_report", {}).items():
+        if ct:
+            lines.append(f"front T={bs} (front / front+moe us): " + " ".join(
+                f"{v} {ft[v]:.1f}/{ct[v]:.1f}" for v in sorted(ct, key=ct.get) if v in ft))
     occ = state.get("abnd_occ", {})
     lines.append("abnd occupancy (CTAs/SM, resident clusters) "
                  + " ".join(f"{k}={v[0]},{v[1]}" for k, v in occ.items()))
@@ -14940,8 +15441,8 @@ def prepare(weights):
         "router_lo_t": lo.t().contiguous(),
         "routing": FusedMuseSparkRouting(expert_bias=weights["router_bias"].float().contiguous(),
                                          route_scale=1.0,
-                                         router_output_multiplier=0.1767766952966369,
-                                         router_score_division_eps=1e-15),
+                                         router_output_multiplier=ROUTER_MULTIPLIER,
+                                         router_score_division_eps=ROUTE_EPS),
         "cos_sin": torch.cat((freqs.cos(), freqs.sin()), dim=-1),
         "qk_norm": FusedQKNorm(head_dim=64, num_q_heads=16, num_kv_heads=2, eps=RMS_EPS),
         "o_norm_gate": FusedRMSNormGate(MuseSpark1xRMSNorm(64, eps=RMS_EPS, has_weight=False),
@@ -14968,6 +15469,7 @@ def prepare(weights):
         "attn_ws_ours": False,
         "attn_one_ours": False,
         "route_side_ok": False,
+        "route_ours": False,
         "bnd_ours": False,
         "abnd_ours": False,
         "prefetch_ours": False,
@@ -15029,6 +15531,9 @@ def prepare(weights):
         state["norm_ours"] = _try("pre-expert norm", lambda: _norm_self_test(state))
     if ROUTE_ON_SIDE:
         state["route_side_ok"] = _try("route side", lambda: _route_side_self_test(state))
+    if PORT_ROUTE_KERNEL and state["norm_ours"]:
+        state["route_bias"] = weights["router_bias"].float().contiguous()
+        state["route_ours"] = _try("route kernel", lambda: _route_self_test(state))
     if PORT_ATTN_WS:
         state["attn_ws_ours"] = True
         state["attn_ws_ours"] = _try("attn ws", lambda: _attn_self_test(state))

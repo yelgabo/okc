@@ -228,3 +228,47 @@ These follow SGLang's Marlin path, which the activation rule in TASK.md pins:
   its `LAYER_MODES` (modes 0, 16, 26 and 28 since layer commit 655b189; the layer benches them on
   judge-like routing, `_moe_judge_routing`). The layer's host wrapper zeroes `Params::cost`
   (the compiled stage-cost table); the struct is not zero-initialized, so a port must set it.
+
+## PDL secondary in the layer (layer patch 2, 2026-10-29)
+
+`tools/dl_moe_inline.py` applies a second layer-only patch to the inlined copy (the standalone
+in `muse_moe_w4a16/` is unchanged). `Params` gains `int pdl`, which only the layer's host wrapper
+sets (`moe_fused_run(..., pdl)`; only the first 512-token chunk takes it). With `pdl` set:
+
+- the launch carries `cudaLaunchAttributeProgrammaticStreamSerialization` (`moe1_launch`);
+  without it the launch is the plain `<<<>>>` it was;
+- before `griddepcontrol.wait`, each CTA runs a preamble that reads nothing the primary writes:
+  the ring's mbarrier initialisation (fat: `wfull`, `wempty`, `xfull`, `xempty`; skinny: `full`),
+  with its `fence.mbarrier_init`, moved there from the routing section (which skips it when `pdl`
+  is set), and `cp.async.bulk.prefetch.L2` hints of weights picked from the local expert index
+  alone: unit 0 (16 stages of 36,864 bytes) of every local expert on the fat path, the first 4
+  units on the skinny path, spread over the CTAs. A hint only; no result depends on it.
+
+The layer uses it after its route kernel (`route_fwd`, front variants `concat-r` and `skf-r`),
+which runs `griddepcontrol.launch_dependents` at entry.
+
+Why correctness and progress never depend on the primary and the MoE being co-resident (PDL
+overlap is opportunistic: the CUDA programming guide's programmatic dependent launch section
+lets the secondary start early but does not promise it):
+
+1. The secondary's CTAs can be scheduled only after every CTA of the primary has executed
+   `griddepcontrol.launch_dependents` or exited, so all primary CTAs are already resident or
+   done; a secondary CTA never keeps a primary CTA from an SM.
+2. The route kernel waits on nothing the MoE does, so its CTAs always finish.
+3. Before `griddepcontrol.wait` a MoE CTA touches only its own shared memory and issues
+   fire-and-forget prefetches; it spins on no other CTA. Every cross-CTA wait (the x-row flags,
+   `done_as`, the fixup slots, the grid barrier on `ctr[4 + gen & 1]`) and every read of the
+   inputs (`topk_ids`, `topk_w`, `x`, `ctr[3]`) comes after the wait.
+4. `griddepcontrol.wait` returns only when the primary grid has completed and its memory
+   operations are visible (PTX ISA 9.7.15.14), so by then no route CTA holds an SM. The grid
+   barrier needs all `sms` MoE CTAs resident at once, which holds as in the plain launch: one CTA
+   per SM by the shared-memory footprint, and nothing else of ours is in flight (no side stream
+   in the route variants; the next kernel is not launched early, since the MoE never triggers).
+5. If the hardware does not overlap the launches, the MoE starts after the route kernel ends,
+   exactly the plain launch's order.
+
+SASS (`tools/dl_moe_sass_counts.sh`, CUDA 12.8, sm_90a) against the layer copy before the patch:
+per kernel one more `FENCE.VIEW.ASYNC.S` (the preamble's `fence.mbarrier_init`), 16 more `SYNCS`
+on the fat kernels and 4 on the skinny ones (the preamble's mbarrier inits), one `UBLKPF` (the
+prefetch); `MEMBAR`, `BAR`, `ERRBAR`, `CCTL`, `UBLKCP`, `ACQBULK`, `LDL` and `STL` counts equal.
+Registers and spills equal on all six kernels (main<28> 96, 80 B frame, 184 / 512 B).

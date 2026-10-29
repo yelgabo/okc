@@ -57,11 +57,100 @@ LO_HELPER = (
     "    return v;\n"
     "}\n\n"
 )
+# Layer patch 2 (gap map 2026-10-30, E2): the fused MoE as the PDL secondary of the layer's
+# route kernel. Params::pdl (set by the layer's host wrapper, never by the kernel) launches it
+# with programmatic stream serialization and runs a preamble before griddepcontrol.wait that
+# reads nothing the primary writes: the ring's mbarrier initialisation (moved there from the
+# routing section, which then skips it) and cp.async.bulk.prefetch.L2 hints of weights, chosen
+# from the local expert index alone. The kernels never trigger their own dependents, and the
+# grid barrier runs after the wait, when the primary has exited, so co-residency with the
+# primary is never needed (docs/moe-port-guide.md, "PDL secondary in the layer").
+PDL_HELPER = (
+    "template <typename Kern>\n"
+    "void moe1_launch(Kern kern, int grid, int block, int smem, cudaStream_t stream,\n"
+    "                 const Params& p) {\n"
+    "    if (!p.pdl) {\n"
+    "        kern<<<grid, block, smem, stream>>>(p);\n"
+    "        return;\n"
+    "    }\n"
+    "    cudaLaunchConfig_t cfg = {};\n"
+    "    cfg.gridDim = dim3(grid);\n"
+    "    cfg.blockDim = dim3(block);\n"
+    "    cfg.dynamicSmemBytes = smem;\n"
+    "    cfg.stream = stream;\n"
+    "    cudaLaunchAttribute attr[1];\n"
+    "    attr[0].id = cudaLaunchAttributeProgrammaticStreamSerialization;\n"
+    "    attr[0].val.programmaticStreamSerializationAllowed = 1;\n"
+    "    cfg.attrs = attr;\n"
+    "    cfg.numAttrs = 1;\n"
+    "    C10_CUDA_CHECK(cudaLaunchKernelEx(&cfg, kern, p));\n"
+    "}\n\n"
+    "__device__ __forceinline__ void prefetch_l2_hint(const void* src, unsigned bytes) {\n"
+    "    asm volatile(\"cp.async.bulk.prefetch.L2.global [%0], %1;\" :: \"l\"(src), \"r\"(bytes)\n"
+    "                 : \"memory\");\n"
+    "}\n\n"
+)
+# Fat path: unit 0 (16 stages) of every local expert, 18.9 MB at 32 experts, spread over the
+# CTAs; skinny path: the first 4 units of every local expert, 4.7 MB.
+MAIN_PREAMBLE = (
+    "    const int E = p.M * kTopK;\n"
+    "    if (p.pdl) {\n"
+    "        if (warp == kNWarpsM - 2 && lane == 0) {\n"
+    "            constexpr unsigned kRelP = lean_stage(MODE) ? kNC * 32 : kNC;\n"
+    "#pragma unroll\n"
+    "            for (int s = 0; s < kNSWMax; ++s) {\n"
+    "                mbar_init(&S.wfull[s], 1);\n"
+    "                mbar_init(&S.wempty[s], kRelP);\n"
+    "            }\n"
+    "#pragma unroll\n"
+    "            for (int s = 0; s < kNSX; ++s) {\n"
+    "                mbar_init(&S.xfull[s], 1);\n"
+    "                mbar_init(&S.xempty[s], kRelP);\n"
+    "            }\n"
+    "            asm volatile(\"fence.mbarrier_init.release.cluster;\" ::: \"memory\");\n"
+    "        }\n"
+    "        if (tid == 0) {\n"
+    "            for (int i = cta; i < p.nloc * 16; i += G) {\n"
+    "                prefetch_l2_hint(p.w13f + (static_cast<size_t>(i % p.nloc) * 32 * 16\n"
+    "                                           + i / p.nloc) * kUnitBytes, kUnitBytes);\n"
+    "            }\n"
+    "        }\n"
+    "    }\n"
+    "    asm volatile(\"griddepcontrol.wait;\" ::: \"memory\");\n"
+    "    constexpr bool kDiag = is_diag(MODE);\n"
+)
+SKINNY_PREAMBLE = (
+    "    if (p.pdl) {\n"
+    "        if (warp == kNW && lane == 0) {\n"
+    "#pragma unroll\n"
+    "            for (int s = 0; s < kNS; ++s) {\n"
+    "                mbar_init(&S.full[s], 1);\n"
+    "            }\n"
+    "            asm volatile(\"fence.mbarrier_init.release.cluster;\" ::: \"memory\");\n"
+    "        }\n"
+    "        if (tid == 0) {\n"
+    "            for (int i = cta; i < p.nloc * 4; i += G) {\n"
+    "                prefetch_l2_hint(p.w13 + (static_cast<size_t>(i % p.nloc) * kUA\n"
+    "                                          + i / p.nloc) * kUnitBytes, kUnitBytes);\n"
+    "            }\n"
+    "        }\n"
+    "    }\n"
+    "    asm volatile(\"griddepcontrol.wait;\" ::: \"memory\");\n"
+)
 CUDA_PATCHES = [
     ("    int cost[2][9];\n};\n",
      "    int cost[2][9];\n"
      "    // The layer's local_start is an input tensor, read here instead of the host value.\n"
-     "    const int* lo_p;\n};\n"),
+     "    const int* lo_p;\n"
+     "    int pdl;\n};\n\n" + PDL_HELPER),
+    ("    const int E = p.M * kTopK;\n"
+     "    asm volatile(\"griddepcontrol.wait;\" ::: \"memory\");\n"
+     "    constexpr bool kDiag = is_diag(MODE);\n", MAIN_PREAMBLE),
+    ("    } else if (warp == kNWarpsM - 2) {\n        if (lane == 0) {\n",
+     "    } else if (warp == kNWarpsM - 2) {\n        if (lane == 0 && !p.pdl) {\n"),
+    ("    moe_main_kernel<MODE><<<sms, kNTM, sizeof(SmemMain), stream>>>(p);\n",
+     "    moe1_launch(moe_main_kernel<MODE>, sms, kNTM, static_cast<int>(sizeof(SmemMain)), stream,\n"
+     "                p);\n"),
     ("__device__ __forceinline__ int ld_acquire(const int* p) {\n",
      LO_HELPER + "__device__ __forceinline__ int ld_acquire(const int* p) {\n"),
     ("                const int ev[4] = {v[k].x - p.lo, v[k].y - p.lo, v[k].z - p.lo, v[k].w - p.lo};\n",
@@ -71,6 +160,15 @@ CUDA_PATCHES = [
 SKINNY_PATCHES = [
     ("                const int e = ev[k] - p.lo;\n",
      "                const int e = ev[k] - ld_lo(p.lo_p);\n"),
+    ("    // the instruction does nothing.\n    asm volatile(\"griddepcontrol.wait;\" ::: \"memory\");\n",
+     "    // the instruction does nothing.\n" + SKINNY_PREAMBLE),
+    ("        if (lane == 0) {\n#pragma unroll\n            for (int s = 0; s < kNS; ++s) {\n"
+     "                mbar_init(&S.full[s], 1);\n",
+     "        if (lane == 0 && !p.pdl) {\n#pragma unroll\n            for (int s = 0; s < kNS; ++s) {\n"
+     "                mbar_init(&S.full[s], 1);\n"),
+    ("    moe_fused_kernel<SPLIT><<<sms, kNTL, sizeof(Smem), stream>>>(p);\n",
+     "    moe1_launch(moe_fused_kernel<SPLIT>, sms, kNTL, static_cast<int>(sizeof(Smem)), stream,\n"
+     "                p);\n"),
 ]
 
 
