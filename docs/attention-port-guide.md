@@ -122,7 +122,9 @@ through `_ONE_DBG`.
   without per-row branches, 32-bit offsets, page index by shift; the host wrapper sets
   `off32` itself from the cache sizes and the page size; judged -5.8 / -12.3 us at verify
   16 / 32 full and -2.6 / -10.4 at decode 16 / 32 full in ca0f13d324ef48e8 /
-  0d05f9b2df1e4834). The layer gets it by re-inlining; nothing it passes or owns changes.
+  0d05f9b2df1e4834). The layer gets it by re-inlining plus one host line: its wrapper sets
+  `Params::off32` by the same rule (`Params p` is not zero-initialized, so a wrapper without
+  that line reads an indeterminate value).
   `ONE_STAMP=0 ONE_PROBE=0`: bench-only attribution builds (per-CTA stamps into `dbg`, timing
   probes with wrong output); never set them in a judged file.
   A layer copy that inlines `attn_one.cu` gets FIN8 by re-inlining; it changes nothing the
