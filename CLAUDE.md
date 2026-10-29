@@ -52,3 +52,7 @@ scored submissions beyond the user's existing permissions.
 - **Record losers in `docs/ruled-out.md`.** Every experiment that loses or is closed gets a row
   there (evidence with job id, and what it rules out), in addition to its runs-log entry. Read
   it before proposing an experiment; reopening one needs new evidence, stated explicitly.
+- **Parked is not pruned.** A design family that lost to the incumbent stays parked, with a
+  revisit trigger in `docs/ruled-out.md`. After each integration round (and before declaring a
+  ceiling), check whether any trigger has landed and re-test that family against the new
+  incumbent with current components. Several component changes can flip a family comparison.
