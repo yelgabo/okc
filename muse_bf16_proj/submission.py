@@ -84,7 +84,11 @@ SK_GEOM = {
     "o32": (2, 32, 2, 2, 2, 2, 3),
     "pool8": (1, 8, 1, 2, 2, 4, 3),
     "pool16": (1, 16, 2, 2, 2, 4, 4),
-    "pool32": (2, 32, 2, 2, 2, 2, 5),
+    # Four units per consumer warp per stage. With two (32 stages) the consumers are busy ~75%
+    # of the kernel and each extra stage costs ~120 ns of fixed path (wait, operand loads, proxy
+    # fence, arrive), so the old geometry ran 2.8 us slower at any token count (checks
+    # 105c1beba7284938, 748b9d6885324f40, 73aa65b0ccec4745).
+    "pool32": (2, 32, 2, 2, 2, 4, 4),
     "slice8": (1, 8, 1, 1, 8, 2, 4),
     "unp16": (1, 16, 2, 2, 2, 2, 3),
     "unp32": (2, 32, 4, 2, 2, 2, 3),
