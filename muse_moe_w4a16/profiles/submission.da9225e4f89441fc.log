@@ -1,0 +1,147 @@
+-03, worst row 4.08e-03
+TEST main-m2-ar bs=32 skewed: vs fp32 3.88e-03, worst row 4.14e-03
+TEST main-m2-ar bs=33 normal: vs fp32 3.88e-03, worst row 4.15e-03
+TEST main-m2-ar bs=33 skewed: vs fp32 3.88e-03, worst row 4.20e-03
+TEST main-m2-ar bs=128 normal: vs fp32 3.88e-03, worst row 4.17e-03
+TEST main-m2-ar bs=128 skewed: vs fp32 3.88e-03, worst row 4.13e-03
+TEST main-m2-ar bs=257 normal: vs fp32 3.86e-03, worst row 4.18e-03
+TEST main-m2-ar bs=257 skewed: vs fp32 3.87e-03, worst row 4.24e-03
+TEST main-m2-ar worst rel err vs fp32 3.94e-03, spin flags 0
+TEST main-d2-ar bs=32 normal: vs fp32 3.94e-03, worst row 4.08e-03
+TEST main-d2-ar bs=32 skewed: vs fp32 3.88e-03, worst row 4.14e-03
+TEST main-d2-ar bs=33 normal: vs fp32 3.88e-03, worst row 4.15e-03
+TEST main-d2-ar bs=33 skewed: vs fp32 3.88e-03, worst row 4.20e-03
+TEST main-d2-ar bs=128 normal: vs fp32 3.88e-03, worst row 4.17e-03
+TEST main-d2-ar bs=128 skewed: vs fp32 3.88e-03, worst row 4.13e-03
+TEST main-d2-ar bs=257 normal: vs fp32 3.86e-03, worst row 4.18e-03
+TEST main-d2-ar bs=257 skewed: vs fp32 3.87e-03, worst row 4.24e-03
+TEST main-d2-ar worst rel err vs fp32 3.94e-03, spin flags 0
+TEST main-m2-ar2 bs=32 normal: vs fp32 3.94e-03, worst row 4.08e-03
+TEST main-m2-ar2 bs=32 skewed: vs fp32 3.88e-03, worst row 4.14e-03
+TEST main-m2-ar2 bs=33 normal: vs fp32 3.88e-03, worst row 4.15e-03
+TEST main-m2-ar2 bs=33 skewed: vs fp32 3.88e-03, worst row 4.20e-03
+TEST main-m2-ar2 bs=128 normal: vs fp32 3.88e-03, worst row 4.17e-03
+TEST main-m2-ar2 bs=128 skewed: vs fp32 3.88e-03, worst row 4.13e-03
+TEST main-m2-ar2 bs=257 normal: vs fp32 3.86e-03, worst row 4.18e-03
+TEST main-m2-ar2 bs=257 skewed: vs fp32 3.87e-03, worst row 4.24e-03
+TEST main-m2-ar2 worst rel err vs fp32 3.94e-03, spin flags 0
+TEST main-m2-ar-ub bs=32 normal: vs fp32 3.94e-03, worst row 4.08e-03
+TEST main-m2-ar-ub bs=32 skewed: vs fp32 3.88e-03, worst row 4.14e-03
+TEST main-m2-ar-ub bs=33 normal: vs fp32 3.88e-03, worst row 4.16e-03
+TEST main-m2-ar-ub bs=33 skewed: vs fp32 3.88e-03, worst row 4.19e-03
+TEST main-m2-ar-ub bs=128 normal: vs fp32 3.88e-03, worst row 4.17e-03
+TEST main-m2-ar-ub bs=128 skewed: vs fp32 3.88e-03, worst row 4.13e-03
+TEST main-m2-ar-ub bs=257 normal: vs fp32 3.86e-03, worst row 4.18e-03
+TEST main-m2-ar-ub bs=257 skewed: vs fp32 3.87e-03, worst row 4.24e-03
+TEST main-m2-ar-ub worst rel err vs fp32 3.94e-03, spin flags 0
+TEST main-m2-ar2-ub bs=32 normal: vs fp32 3.94e-03, worst row 4.08e-03
+TEST main-m2-ar2-ub bs=32 skewed: vs fp32 3.88e-03, worst row 4.14e-03
+TEST main-m2-ar2-ub bs=33 normal: vs fp32 3.88e-03, worst row 4.16e-03
+TEST main-m2-ar2-ub bs=33 skewed: vs fp32 3.88e-03, worst row 4.19e-03
+TEST main-m2-ar2-ub bs=128 normal: vs fp32 3.88e-03, worst row 4.17e-03
+TEST main-m2-ar2-ub bs=128 skewed: vs fp32 3.88e-03, worst row 4.13e-03
+TEST main-m2-ar2-ub bs=257 normal: vs fp32 3.86e-03, worst row 4.18e-03
+TEST main-m2-ar2-ub bs=257 skewed: vs fp32 3.87e-03, worst row 4.24e-03
+TEST main-m2-ar2-ub worst rel err vs fp32 3.94e-03, spin flags 0
+TEST legacy32 bs=32 normal: vs fp32 4.33e-03, worst row 4.48e-03
+TEST legacy32 bs=32 skewed: vs fp32 4.27e-03, worst row 4.54e-03
+TEST legacy32 bs=33 normal: vs fp32 4.28e-03, worst row 4.58e-03
+TEST legacy32 bs=33 skewed: vs fp32 4.27e-03, worst row 4.51e-03
+TEST legacy32 bs=128 normal: vs fp32 4.27e-03, worst row 4.63e-03
+TEST legacy32 bs=128 skewed: vs fp32 4.28e-03, worst row 4.49e-03
+TEST legacy32 bs=257 normal: vs fp32 4.25e-03, worst row 4.55e-03
+TEST legacy32 bs=257 skewed: vs fp32 4.27e-03, worst row 4.59e-03
+TEST legacy32 worst rel err vs fp32 4.33e-03, spin flags 0
+TEST legacy128 bs=32 normal: vs fp32 4.33e-03, worst row 4.48e-03
+TEST legacy128 bs=32 skewed: vs fp32 4.28e-03, worst row 4.54e-03
+TEST legacy128 bs=33 normal: vs fp32 4.28e-03, worst row 4.58e-03
+TEST legacy128 bs=33 skewed: vs fp32 4.27e-03, worst row 4.51e-03
+TEST legacy128 bs=128 normal: vs fp32 4.27e-03, worst row 4.63e-03
+TEST legacy128 bs=128 skewed: vs fp32 4.28e-03, worst row 4.49e-03
+TEST legacy128 bs=257 normal: vs fp32 4.25e-03, worst row 4.55e-03
+TEST legacy128 bs=257 skewed: vs fp32 4.27e-03, worst row 4.59e-03
+TEST legacy128 worst rel err vs fp32 4.33e-03, spin flags 0
+TEST legacy256 bs=32 normal: vs fp32 4.33e-03, worst row 4.48e-03
+TEST legacy256 bs=32 skewed: vs fp32 4.27e-03, worst row 4.54e-03
+TEST legacy256 bs=33 normal: vs fp32 4.28e-03, worst row 4.58e-03
+TEST legacy256 bs=33 skewed: vs fp32 4.27e-03, worst row 4.51e-03
+TEST legacy256 bs=128 normal: vs fp32 4.27e-03, worst row 4.63e-03
+TEST legacy256 bs=128 skewed: vs fp32 4.28e-03, worst row 4.49e-03
+TEST legacy256 bs=257 normal: vs fp32 4.25e-03, worst row 4.55e-03
+TEST legacy256 bs=257 skewed: vs fp32 4.27e-03, worst row 4.59e-03
+TEST legacy256 worst rel err vs fp32 4.33e-03, spin flags 0
+DIAG bs=32 clock 1.77 GHz; per CTA mean/max us: route+gather 11.7/15.1, consumers 189.8/199.4, barrier wait 7.2/19.2, final 1.2/2.0; consumers done at 201.6/208.1 after the first start, end 210.0/210.7
+DIAG bs=32 segments per warp mean/max us: wait weights 9.2/11.6, wait x 10.6/18.2, compute 115.5/118.8, epilogue+fixup 24.5/30.3; stages 116.4/117.0, segments 9.1/10.0
+DIAG bs=32 producers mean/max us: weights wait for a free slot 148.1/154.9, x wait for a free slot 123.8/131.7, x wait done_as 11.1/16.7, x wait xready 5.0/12.7
+DIAG bs=128 clock 1.77 GHz; per CTA mean/max us: route+gather 14.4/17.4, consumers 237.2/249.3, barrier wait 12.5/45.3, final 2.7/3.6; consumers done at 251.7/263.4 after the first start, end 266.9/267.8
+DIAG bs=128 segments per warp mean/max us: wait weights 11.2/15.1, wait x 9.4/16.6, compute 135.8/157.7, epilogue+fixup 24.1/38.5; stages 133.8/156.0, segments 10.0/13.0
+DIAG bs=128 producers mean/max us: weights wait for a free slot 186.9/197.4, x wait for a free slot 156.3/172.4, x wait done_as 13.9/33.3, x wait xready 3.6/8.9
+DIAG bs=256 clock 1.77 GHz; per CTA mean/max us: route+gather 19.2/26.4, consumers 250.1/268.3, barrier wait 16.0/50.4, final 5.4/6.1; consumers done at 269.4/284.7 after the first start, end 290.8/291.6
+DIAG bs=256 segments per warp mean/max us: wait weights 7.5/14.4, wait x 8.2/28.3, compute 93.3/166.3, epilogue+fixup 16.9/36.2; stages 93.1/166.0, segments 6.9/13.0
+DIAG bs=256 producers mean/max us: weights wait for a free slot 198.0/212.1, x wait for a free slot 159.1/180.8, x wait done_as 17.4/50.8, x wait xready 5.2/15.5
+COSTMODEL us per unit A stage:0.943 A tile:0.132 A seg:0.000 A cut:2.394 B stage:1.384 B tile:0.113 B seg:0.000 B cut:10.299 CTA:1.344; fixed table scale 0.01140 offset 18.9; train 36 launches, 4752 CTAs, work mean 144.3 us
+COSTMODEL held-out normal: CTA finish rank rho model 0.694 fixed 0.453; table order (makespans >= 1 us apart) model 17/17 fixed 16/17; work rms model 22.0 fixed 22.4 us
+COSTMODEL held-out skewed: CTA finish rank rho model 0.711 fixed 0.239; table order (makespans >= 1 us apart) model 10/15 fixed 11/15; work rms model 20.9 fixed 21.9 us
+COSTMODEL held-out all: CTA finish rank rho model 0.702 fixed 0.346; table order (makespans >= 1 us apart) model 27/32 fixed 27/32; work rms model 21.5 fixed 22.2 us
+COSTMODEL run bs=32 normal seed 13 compiled: finish max/mean 163.8/154.8 us, end 166.9; predicted work max/mean model 128.8/124.8 fixed 122.3/120.3
+COSTMODEL run bs=32 normal seed 13 flat: finish max/mean 174.8/154.2 us, end 178.2; predicted work max/mean model 138.2/124.2 fixed 136.8/120.3
+COSTMODEL run bs=32 normal seed 13 steep: finish max/mean 163.6/154.5 us, end 166.1; predicted work max/mean model 131.4/124.7 fixed 124.8/120.3
+COSTMODEL run bs=32 normal seed 14 compiled: finish max/mean 174.1/168.7 us, end 177.2; predicted work max/mean model 143.2/139.5 fixed 137.1/135.1
+COSTMODEL run bs=32 normal seed 14 flat: finish max/mean 186.1/167.4 us, end 188.7; predicted work max/mean model 163.1/139.0 fixed 158.5/135.1
+COSTMODEL run bs=32 normal seed 14 steep: finish max/mean 182.3/170.5 us, end 185.3; predicted work max/mean model 149.6/139.8 fixed 143.2/135.1
+COSTMODEL run bs=32 skewed seed 13 compiled: finish max/mean 70.7/62.3 us, end 73.7; predicted work max/mean model 53.9/46.2 fixed 48.9/48.0
+COSTMODEL run bs=32 skewed seed 13 flat: finish max/mean 69.9/61.8 us, end 72.7; predicted work max/mean model 53.9/46.2 fixed 48.9/48.0
+COSTMODEL run bs=32 skewed seed 13 steep: finish max/mean 69.6/61.4 us, end 73.0; predicted work max/mean model 53.9/46.2 fixed 48.9/48.0
+COSTMODEL run bs=32 skewed seed 14 compiled: finish max/mean 87.6/79.9 us, end 90.6; predicted work max/mean model 69.4/61.3 fixed 62.7/60.1
+COSTMODEL run bs=32 skewed seed 14 flat: finish max/mean 88.1/78.6 us, end 91.4; predicted work max/mean model 69.4/61.0 fixed 63.9/60.1
+COSTMODEL run bs=32 skewed seed 14 steep: finish max/mean 101.9/79.4 us, end 105.5; predicted work max/mean model 87.7/59.8 fixed 80.4/60.1
+COSTMODEL run bs=128 normal seed 13 compiled: finish max/mean 279.6/265.1 us, end 284.2; predicted work max/mean model 226.9/222.8 fixed 222.8/221.1
+COSTMODEL run bs=128 normal seed 13 flat: finish max/mean 387.6/264.6 us, end 392.2; predicted work max/mean model 345.1/222.2 fixed 358.5/221.1
+COSTMODEL run bs=128 normal seed 13 steep: finish max/mean 337.7/276.2 us, end 342.5; predicted work max/mean model 285.7/222.9 fixed 281.2/221.1
+COSTMODEL run bs=128 normal seed 14 compiled: finish max/mean 241.2/231.8 us, end 245.5; predicted work max/mean model 195.1/190.9 fixed 191.2/189.5
+COSTMODEL run bs=128 normal seed 14 flat: finish max/mean 343.6/225.1 us, end 348.2; predicted work max/mean model 294.9/184.1 fixed 307.2/189.5
+COSTMODEL run bs=128 normal seed 14 steep: finish max/mean 287.2/242.6 us, end 291.6; predicted work max/mean model 238.2/190.2 fixed 233.2/189.5
+COSTMODEL run bs=128 skewed seed 13 compiled: finish max/mean 160.8/130.6 us, end 165.6; predicted work max/mean model 105.1/99.2 fixed 101.7/99.7
+COSTMODEL run bs=128 skewed seed 13 flat: finish max/mean 149.2/127.1 us, end 154.4; predicted work max/mean model 112.7/99.6 fixed 112.8/99.7
+COSTMODEL run bs=128 skewed seed 13 steep: finish max/mean 211.5/141.0 us, end 216.3; predicted work max/mean model 163.5/98.7 fixed 163.9/99.7
+COSTMODEL run bs=128 skewed seed 14 compiled: finish max/mean 136.2/113.2 us, end 141.1; predicted work max/mean model 87.9/80.2 fixed 84.1/81.6
+COSTMODEL run bs=128 skewed seed 14 flat: finish max/mean 139.5/113.6 us, end 144.1; predicted work max/mean model 87.6/80.0 fixed 85.9/81.6
+COSTMODEL run bs=128 skewed seed 14 steep: finish max/mean 135.2/112.3 us, end 140.3; predicted work max/mean model 93.1/80.8 fixed 89.2/81.6
+COSTMODEL run bs=256 normal seed 13 compiled: finish max/mean 302.8/284.7 us, end 309.5; predicted work max/mean model 241.0/235.5 fixed 238.6/236.7
+COSTMODEL run bs=256 normal seed 13 flat: finish max/mean 396.3/279.5 us, end 402.7; predicted work max/mean model 345.1/234.6 fixed 358.5/236.7
+COSTMODEL run bs=256 normal seed 13 steep: finish max/mean 416.3/309.8 us, end 423.4; predicted work max/mean model 353.9/235.0 fixed 350.1/236.7
+COSTMODEL run bs=256 normal seed 14 compiled: finish max/mean 338.9/315.5 us, end 346.1; predicted work max/mean model 269.9/259.7 fixed 267.0/263.4
+COSTMODEL run bs=256 normal seed 14 flat: finish max/mean 407.8/309.7 us, end 414.7; predicted work max/mean model 370.2/258.2 fixed 385.3/263.4
+COSTMODEL run bs=256 normal seed 14 steep: finish max/mean 491.8/353.5 us, end 499.2; predicted work max/mean model 419.5/259.2 fixed 416.6/263.4
+COSTMODEL run bs=256 skewed seed 13 compiled: finish max/mean 308.7/280.5 us, end 316.7; predicted work max/mean model 244.7/233.2 fixed 242.0/239.2
+COSTMODEL run bs=256 skewed seed 13 flat: finish max/mean 314.4/271.2 us, end 321.8; predicted work max/mean model 259.2/232.5 fixed 267.0/239.2
+COSTMODEL run bs=256 skewed seed 13 steep: finish max/mean 647.7/317.6 us, end 656.1; predicted work max/mean model 559.2/232.7 fixed 558.3/239.2
+COSTMODEL run bs=256 skewed seed 14 compiled: finish max/mean 234.5/208.3 us, end 241.7; predicted work max/mean model 176.3/168.8 fixed 173.4/170.5
+COSTMODEL run bs=256 skewed seed 14 flat: finish max/mean 245.0/203.4 us, end 252.2; predicted work max/mean model 188.1/167.5 fixed 190.9/170.5
+COSTMODEL run bs=256 skewed seed 14 steep: finish max/mean 459.8/227.6 us, end 466.9; predicted work max/mean model 395.1/168.1 fixed 392.1/170.5
+COSTMODEL gate: the model does not rank held-out cases better than the compiled table on both routings; it does not drive the partition
+BENCH bs=1 sk8w4s-loads:39.4 sk8w4s:42.1 sk16w4s:44.4 us (graph replay, cold L2, mean of 2 routings)
+BENCH bs=8 sk8w4s-loads:70.2 sk8w4s:74.2 sk16w4s:75.3 us (graph replay, cold L2, mean of 2 routings)
+BENCH bs=16 sk8w4s-loads:105.1 sk8w4s:108.5 sk16w4s:115.3 legacy32:120.0 legacy128:125.5 legacy256:127.4 us (graph replay, cold L2, mean of 2 routings)
+BENCH bs=32 main-loads:141.3 sk8w4s-loads:146.7 sk8w4s:151.7 legacy32:157.2 sk16w4s:162.2 legacy128:163.1 legacy256:165.6 main-m2-ar2-ub:184.1 main-m2-ar-ub:187.0 main-m2-ar2:188.2 main-m2:191.9 main-m2-ar:191.9 main-d2:194.9 main-d2-ar:195.4 main-m2-stamps:197.9 us (graph replay, cold L2, mean of 2 routings)
+BENCH bs=128 main-loads:190.9 main-m2-ar2-ub:249.8 main-m2-ar2:251.3 legacy128:251.7 main-m2-ar-ub:251.9 legacy256:253.8 sk8w4s-loads:255.4 main-m2:255.7 main-m2-ar:256.0 main-d2:259.4 main-d2-ar:260.4 main-m2-stamps:261.6 sk8w4s:264.2 legacy32:276.6 sk16w4s:284.8 us (graph replay, cold L2, mean of 2 routings)
+BENCH bs=256 main-loads:204.6 main-m2-ar2-ub:280.5 main-m2-ar2:282.4 main-m2-ar:283.4 main-m2:283.7 main-m2-ar-ub:284.0 main-d2:288.7 main-d2-ar:289.8 main-m2-stamps:290.7 legacy256:360.6 legacy128:389.1 sk8w4s-loads:400.5 sk8w4s:430.8 sk16w4s:467.9 legacy32:468.7 us (graph replay, cold L2, mean of 2 routings)
+POLICY {1: sk8w4s, 8: sk8w4s, 16: sk8w4s, 32: sk8w4s, 128: main-m2-ar2-ub, 256: main-m2-ar2-ub}
+TEST policy bs=1 normal: vs fp32 3.92e-03, worst row 3.92e-03
+TEST policy bs=1 skewed: vs fp32 4.03e-03, worst row 4.03e-03
+TEST policy bs=4 normal: vs fp32 3.81e-03, worst row 3.84e-03
+TEST policy bs=4 skewed: vs fp32 3.83e-03, worst row 3.93e-03
+TEST policy bs=8 normal: vs fp32 3.90e-03, worst row 4.09e-03
+TEST policy bs=8 skewed: vs fp32 3.81e-03, worst row 3.98e-03
+TEST policy bs=16 normal: vs fp32 3.86e-03, worst row 3.93e-03
+TEST policy bs=16 skewed: vs fp32 3.83e-03, worst row 4.03e-03
+TEST policy bs=32 normal: vs fp32 3.94e-03, worst row 4.08e-03
+TEST policy bs=32 skewed: vs fp32 3.88e-03, worst row 4.13e-03
+TEST policy bs=33 normal: vs fp32 3.88e-03, worst row 4.16e-03
+TEST policy bs=33 skewed: vs fp32 3.88e-03, worst row 4.19e-03
+TEST policy bs=128 normal: vs fp32 3.88e-03, worst row 4.17e-03
+TEST policy bs=128 skewed: vs fp32 3.88e-03, worst row 4.13e-03
+TEST policy bs=257 normal: vs fp32 3.86e-03, worst row 4.18e-03
+TEST policy bs=257 skewed: vs fp32 3.87e-03, worst row 4.24e-03
+TEST policy worst rel err vs fp32 4.03e-03, spin flags 0
+PREPARE repack 0.8 s, build 166.1 s, self-test 0.9 s, bench 0.9 s, smem 228096 B, ok True, main True
