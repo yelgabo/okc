@@ -458,7 +458,7 @@ __constant__ int kCostBm[9] = {0, 85, 92, 104, 115, 130, 145, 160, 175};
 // mma.sync skinny kernel).
 __host__ __device__ constexpr int mma_max(int mode) {
     return mode == 6 || mode == 9 || mode == 11 || mode == 12 || mode == 14 || mode == 15
-                   || (mode >= 16 && mode <= 29) || (mode >= 31 && mode <= 35)
+                   || (mode >= 16 && mode <= 29) || (mode >= 31 && mode <= 38)
                ? 2
            : mode == 7 || mode == 10 ? 4
            : mode == 8 ? 8 : 0;
@@ -473,7 +473,7 @@ __host__ __device__ constexpr int mma_max(int mode) {
 // which no reader here relies on. The SASS is MEMBAR.ALL.GPU instead of MEMBAR.SC.GPU.
 __host__ __device__ constexpr bool fence_ar(int mode) {
     return mode == 12 || mode == 13 || mode == 14 || (mode >= 15 && mode <= 29)
-           || (mode >= 31 && mode <= 35);
+           || (mode >= 31 && mode <= 38);
 }
 
 // Modes 17 to 20 are mode 16 (two mma.sync chains, unit-aligned phase B) with one change each:
@@ -484,7 +484,7 @@ __host__ __device__ constexpr bool fence_ar(int mode) {
 // 22 is 20 with the stamps of 17. 23 is 20 with phase B units claimed at run time (dyn_b) and
 // both phases walked largest n-tile count first; 24 is 23 with the stamps.
 __host__ __device__ constexpr bool dual_chain(int mode) {
-    return mode == 14 || (mode >= 16 && mode <= 29) || (mode >= 31 && mode <= 35);
+    return mode == 14 || (mode >= 16 && mode <= 29) || (mode >= 31 && mode <= 38);
 }
 __host__ __device__ constexpr bool is_diag(int mode) {
     return mode == 11 || mode == 17 || mode == 22 || mode == 24;
@@ -493,7 +493,7 @@ __host__ __device__ constexpr bool is_diag(int mode) {
 // 24's per-segment clock stamps add 14-18 us, too much to set its phase times beside the
 // public kernel's eight thread-0 stamps; these cost a few stores per CTA.
 __host__ __device__ constexpr bool is_light(int mode) {
-    return mode == 25 || mode == 27 || mode == 29 || mode == 31 || mode == 33;
+    return mode == 25 || mode == 27 || mode == 29 || mode == 31 || mode == 33 || mode == 38;
 }
 // Modes 26 and 27 (27 with the light stamps) are 23 with the setup of the public kernel's
 // route(): every warp counts its slice of the routes once (match_any), the routing warp sums
@@ -502,7 +502,7 @@ __host__ __device__ constexpr bool is_light(int mode) {
 // put setup at 7 / 11 / 16 us of routing at 32 / 128 / 256 tokens against 2-3 us for the
 // public kernel (check d1f587760b1241dc).
 __host__ __device__ constexpr bool fast_setup(int mode) {
-    return (mode >= 26 && mode <= 29) || (mode >= 31 && mode <= 35);
+    return (mode >= 26 && mode <= 29) || (mode >= 31 && mode <= 38);
 }
 // Modes 28 and 29 (29 with the light stamps) are 26 with a leaner consumer stage. The stage
 // loop was 389 instructions against the public kernel's 322 for the same dequant and MMA core
@@ -518,7 +518,7 @@ __host__ __device__ constexpr bool fast_setup(int mode) {
 // release after __syncwarp at the moved point makes ptxas serialize the wgmma groups (C7513,
 // 400 instructions per stage), so that variant was dropped.
 __host__ __device__ constexpr bool lean_stage(int mode) {
-    return mode == 28 || mode == 29 || (mode >= 31 && mode <= 35);
+    return mode == 28 || mode == 29 || (mode >= 31 && mode <= 38);
 }
 // Modes 31 and 33 (timing only) are 28 and 32 with the light stamps plus phase A counters per
 // consumer warp (S.dg rows 0-15): cycles spent in weights and x waits that missed their first
@@ -526,7 +526,7 @@ __host__ __device__ constexpr bool lean_stage(int mode) {
 // cycles, stages, units and n-tiles; and the producers' phase A cycles waiting for a free slot.
 // A wait that succeeds on its first try adds nothing, so the stage loop gains no clock read.
 __host__ __device__ constexpr bool pa_diag(int mode) {
-    return mode == 31 || mode == 33;
+    return mode == 31 || mode == 33 || mode == 38;
 }
 // Modes 32 to 34 publish a finished phase A unit (proxy fence, fence_gpu, the warpgroup's
 // bar.sync, red.release on done_as) at the start of the warpgroup's next phase A unit's second
@@ -548,13 +548,22 @@ __host__ __device__ constexpr bool vol_regs(int mode) {
 // themselves (the chain in docs/runs-moe.md, "Proxy ordering of the x tiles", steps 2-3).
 // Each writer keeps its fence.proxy.async.global.
 __host__ __device__ constexpr bool bar_release_a(int mode) {
-    return mode == 34;
+    return mode == 34 || mode == 37;
+}
+// Modes 36 to 38 are 28 with SiLU's reciprocal as one MUFU.RCP (rcp.approx.ftz, as the public
+// kernel's __fdividef): __frcp_rn compiles to MUFU.RCP plus a range check that branches to a
+// subroutine, inside a convergence region per element, 16 per thread per unit at 8 n-tiles.
+// Mode 31's counters put mode 28's phase A epilogue at 3.0 us per unit at 256 tokens with the
+// consumers never waiting for weights or x (check c7db20e053254b52). 37 is 36 without the
+// per-thread fence_gpu (as 34), 38 is 36 with the phase A counters (timing only).
+__host__ __device__ constexpr bool fast_silu(int mode) {
+    return mode >= 36 && mode <= 38;
 }
 __host__ __device__ constexpr bool a_only(int mode) {
     return mode == 18 || mode == 19;
 }
 __host__ __device__ constexpr bool own_a(int mode) {
-    return mode == 19 || mode == 20 || (mode >= 22 && mode <= 29) || (mode >= 31 && mode <= 35);
+    return mode == 19 || mode == 20 || (mode >= 22 && mode <= 29) || (mode >= 31 && mode <= 38);
 }
 // Modes 23 and 24: a CTA's weights producer claims phase B units one at a time from a global
 // counter, in S.ord order, when its ring has a free slot. Owned phase A leaves CTAs with up to
@@ -562,7 +571,7 @@ __host__ __device__ constexpr bool own_a(int mode) {
 // frees first takes the next unit; S.ord puts the jobs whose phase A rounds come first (the
 // snake deal walks S.ord) at the front, so claimed units find their inputs ready.
 __host__ __device__ constexpr bool dyn_b(int mode) {
-    return (mode >= 23 && mode <= 29) || (mode >= 31 && mode <= 35);
+    return (mode >= 23 && mode <= 29) || (mode >= 31 && mode <= 38);
 }
 // Mode 21 is the second launch of the staged pair (19, then 21): phase B and the final pass
 // alone, on the xb a previous launch wrote. That launch completed before this one started
@@ -932,6 +941,17 @@ __device__ __forceinline__ SegInfo seg_info(const SmemMain& S, int ph, int gb, i
     return si;
 }
 
+template <bool FAST>
+__device__ __forceinline__ float silu_rcp(float x) {
+    if constexpr (FAST) {
+        float r;
+        asm("rcp.approx.ftz.f32 %0, %1;" : "=f"(r) : "f"(x));
+        return r;
+    } else {
+        return __frcp_rn(x);
+    }
+}
+
 // The release of a finished phase A unit on done_as[target]: every writer's proxy fence (and
 // fence_gpu unless bar_release_a), the warpgroup's bar.sync, one red.release.
 template <int MODE>
@@ -976,8 +996,8 @@ __device__ __forceinline__ int epilogue_a(const Params& p, SmemMain& S,
         const float g1 = bf16r(acc[4 * nt + 1] * gsa);
         const float u0 = bf16r(acc[4 * nt + 2] * gsa);
         const float u1 = bf16r(acc[4 * nt + 3] * gsa);
-        const float h0 = g0 * __frcp_rn(1.f + __expf(-g0)) * u0;
-        const float h1 = g1 * __frcp_rn(1.f + __expf(-g1)) * u1;
+        const float h0 = g0 * silu_rcp<fast_silu(MODE)>(1.f + __expf(-g0)) * u0;
+        const float h1 = g1 * silu_rcp<fast_silu(MODE)>(1.f + __expf(-g1)) * u1;
         __nv_bfloat16* d = reinterpret_cast<__nv_bfloat16*>(base + nt * 4096);
         if (tok < ntok) {
             d[0] = __float2bfloat16_rn(h0);
@@ -1958,7 +1978,7 @@ __global__ void __launch_bounds__(kNTM, 1) moe_main_kernel(const Params p) {
         if (lane < 9) {
             const bool given = p.cost[0][1] > 0;
             S.cost[0][lane] = given ? p.cost[0][lane] : stage_cost<MODE>(0, lane);
-            S.align_b = MODE == 15 || (MODE >= 16 && MODE <= 29) || (MODE >= 31 && MODE <= 35)
+            S.align_b = MODE == 15 || (MODE >= 16 && MODE <= 29) || (MODE >= 31 && MODE <= 38)
                         ? 1 : 0;
             S.cost[1][lane] = given ? p.cost[1][lane] : stage_cost<MODE>(1, lane);
         }
@@ -2956,7 +2976,7 @@ SKINNY_VARIANTS = ((8, 4, 0), (16, 4, 0), (8, 4, 1))
 # registers, the weights slot released per thread behind the first wgmma group) and a one-pass
 # S.ord sort, 29 is 28 with the stamps (timing only).
 MAIN_MODES = (0, 16, 26, 28)
-MAIN_CANDIDATES = (0, 6, 12, 13, 14, 15, 16, 20, 23, 26, 28, 32, 34, 35)
+MAIN_CANDIDATES = (0, 6, 12, 13, 14, 15, 16, 20, 23, 26, 28, 32, 34, 35, 36, 37)
 VARIANT_MAIN0 = len(SKINNY_VARIANTS)
 
 
@@ -4932,7 +4952,8 @@ def _vname(v):
                 25: "main-dynb-light", 26: "main-dynb-fs", 27: "main-dynb-fs-light",
                 28: "main-lean", 29: "main-lean-light", 31: "main-lean-pa",
                 32: "main-lean-dfa", 33: "main-lean-dfa-pa", 34: "main-lean-dfa-bar",
-                35: "main-lean-dfa-vol"}[m]
+                35: "main-lean-dfa-vol", 36: "main-lean-silu", 37: "main-lean-silu-bar",
+                38: "main-lean-silu-pa"}[m]
     nw, ns, mode = SKINNY_VARIANTS[v]
     return f"sk{nw}w{ns}s{'-loads' if mode else ''}"
 
