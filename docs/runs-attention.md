@@ -1155,3 +1155,7 @@ aedad22's on all 13 instances (only the anonymous-namespace hash in the mangled 
 
 Submit candidate: `muse_attention_decode/submission.py` at aedad22 (judged b0b146dfbb4841b2;
 repeat fe08878a7e0c46f4 at 8860211). Attention checks used this round: 4 of 5.
+
+### Scored: 9104344cb757454e 2.334x (2026-10-29)
+
+Submit of submission.py at aedad22 (the ONE_FIN8 build judged in b0b146dfbb4841b2), under the standing replace-when-demonstrably-better authorization. Passed. Board entry before: da872fcdb70445c3 (2.281x).
