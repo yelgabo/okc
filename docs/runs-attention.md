@@ -760,3 +760,84 @@ is that EARLY's CTA-wide barrier ties the two warpgroups together each tile. `su
 keeps `_ONE_Q8_SCHED = 0`.
 
 Losers from these runs are in docs/ruled-out.md.
+
+### Mode 51 register cap: the producer's `return` (10-29)
+
+Cause, from the SASS of `attn_one_kernel<8, 51>` (CUDA 12.8.1, `tools/attn_one_sass.sh`):
+the producer arm ended in `return`, which in PTX is a branch to the kernel's single `ret`
+block at the end of the consumer code. ptxas therefore opens one convergence region around
+both roles, `BSSY B0, 0x11990` at 0x15a0 just before the role branch (`ISETP.GT tid, 0xff`,
+`@P0 BRA` to the producer at 0x9d30), with both roles meeting at `BSYNC B0` + one `EXIT` at
+0x11980. Inside that shared region the consumer code after `USETMAXREG.TRY_ALLOC.CTAPOOL 0x68`
+(0x1650-0x9d30) never goes above R77, and ptxas spills 292 / 304 bytes (107 LDL/STL in the
+kernel, most of them in the tile loop at 0x5000-0x6000); even the value carried across the
+branch is spilled (`STL [R1+0x50]` before the branch, `LDL` after the `TRY_ALLOC`). The public
+flat q_len 8 kernel has no such region: its role branch at 0x4240 is a plain `@P0 BRA`, the
+consumers end in their own `EXIT` (0x150c0) and the producer, after `USETMAXREG.DEALLOC 0x20`,
+in another (0x16da0). Its producer and consumer paths share no block after the split, and its
+segment list lives in shared memory, so only one uniform register crosses the branch.
+
+Change: the producer arm ends in `asm volatile("exit;")` instead of `return`. Nothing else;
+no numerics, fence or barrier changes. SASS after: producer first (`DEALLOC` at 0x15e0, its own
+`EXIT` at 0x91a0), consumers from `TRY_ALLOC` at 0x9240 to their own `EXIT` at 0x11080, no
+convergence region across the split.
+
+| build (mode 51) | ptxas regs | spill stores / loads | LDL/STL | consumer region top | instrs |
+|---|---|---|---|---|---|
+| `return` (main at 1185ff1) | 80 | 292 / 304 B | 107 | R77 | 5040 |
+| `exit` | 80 | 0 / 0 | 0 | R95 | 4904 |
+| `exit` + `__builtin_unreachable()` | 80 | 292 / 304 B | 107 | R77 | 5040 |
+
+The third row is a control: with the unreachable hint the PTX still has `exit` before
+`setmaxnreg.inc`, but ptxas again joins both roles at one `BSYNC B0` + `EXIT` and the cap
+returns, so the shared exit block (not the PTX instruction) is what moves the cap. Modes 49 /
+115 / 17 / 19 compile as before (128 / 115 / 120 / 113 registers, no spills; mode 49's
+consumer region top R114, was R113).
+
+`submission.py` gains `_ONE_Q8_PROD` (False: q_len 8 flat stays on mode 19);
+`tools/attn_make_bench_one.py --q8-prod` sets it in `bench.py` only, so SELFTEST, STRESS and the
+judge's own timing run mode 51 on verify 16 / 32 full, and BENCH times `_one@m=19`,
+`_one@m=51`, `_one` (= 51 again, a noise pair) and `_one@m=115`. Bench generated with
+`--no-probe --q8-prod`, control schedule (no |128 / |384 bits).
+
+### Check d90a73871d8e4481 (bench.py at the `exit` change, `--q8-prod`): 2.187x, CI 2.154-2.220
+
+10-29 00:01 UTC, first attention check after the reset. 16/16 judge tests passed, SELFTEST 0
+failing shapes (mode 51 on b16 / b32 full L8 scored, b2 ctx100000 and b4 ctx6000 page-64
+tests), every STRESS line PASS with a clean workspace (b16 full L8 mode 51: 2,000 replays,
+0/131072 differing elements, max_polls 122). Profiles: `profiles/bench.d90a73871d8e4481.*`.
+
+Judge medians (us) against the board entry b458555d3e3e4e9a (mode 19 on q_len 8 flat):
+
+| shape | b458555d | d90a7387 | instance now |
+|---|---|---|---|
+| decode 1 / 16 / 32 sliding | 6.0 / 10.1 / 12.5 | 6.4 / 10.3 / 12.3 | 13 / 1 / 1 |
+| decode 1 / 16 / 32 full | 15.3 / 93.6 / 180.8 | 14.9 / 93.1 / 178.8 | 11 / 49 / 49 |
+| verify 1 sliding | 8.0 | 7.5 | 15 |
+| verify 16 / 32 sliding | 13.3 / 17.5 | 13.4 / 18.1 | 3 |
+| verify 1 full | 18.2 | 18.3 | 11 |
+| verify 16 / 32 full | 127.1 / 239.1 | 121.8 / 230.3 | 51 (was 19) |
+
+BENCH (graph replays, us), paired in one process:
+
+| shape | `_one@m=19` | `_one@m=51` | `_one` (= 51) | `_one@m=115` |
+|---|---|---|---|---|
+| verify 16 full | 128.2 | 125.0 | 125.1 | 150.6 |
+| verify 32 full | 238.8 | 232.4 | 231.9 | 277.3 |
+
+Mode 51 without spills beats mode 19 by 2.5% / 2.7% at batch 16 / 32 (the 51 noise pair agrees
+to 0.1-0.5 us), where the spilling build timed 389 / 774 us (16fcddf80a714e0d). It is still
+behind the public 105 / 186 us. The score gain this predicts from the two shapes alone is about
++0.35% (16 / 372 of the weight each); 2.187x against 2.162x is inside both runs' CIs, so it is
+not a gain beyond noise by itself. The planner now prefers 51 (`_ONE_Q8_PROD = True` in
+`submission.py`, 19 as the fallback).
+
+### Check 384334430cfe4d37 (submission.py, `_ONE_Q8_PROD = True`): 2.182x, CI 2.149-2.215
+
+16/16 tests passed. Judge medians (us): decode 1 / 16 / 32 sliding 6.4 / 9.6 / 12.2; decode 1 /
+16 / 32 full 15.6 / 93.7 / 179.7; verify 1 sliding 7.8; verify 16 / 32 sliding 13.2 / 17.8;
+verify 1 full 18.1; verify 16 / 32 full 121.7 / 230.2 (mode 51; profiler 122.9 / 231.7). Profiles:
+`profiles/submission.384334430cfe4d37.*`. The verify full times repeat d90a73871d8e4481 to
+0.1 us; the score again sits inside the board entry's CI (2.129-2.202), so no scored run was
+used: the authorization required a gain beyond noise, and the expected gain (+0.35%) is
+smaller than the judge's CI half-width (about 1.5%). The board stays b458555d3e3e4e9a (2.162x).

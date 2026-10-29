@@ -3668,7 +3668,14 @@ attn_one_kernel(const Params p) {
                     pph ^= 1u;
                 }
             }
-            return;
+            // PTX exit, not return: a return branches to the kernel's one ret block, which the
+            // consumers also reach, and ptxas then wraps both roles in a single convergence
+            // region (BSSY before the role branch, BSYNC + EXIT at the end) and caps the
+            // consumer code after setmaxnreg.inc at the launch-bounds count (80 at q_len 8:
+            // 304 bytes of spills). With exit the roles share no block and the consumers get
+            // the 104 registers. No __builtin_unreachable after it: with that hint the shared
+            // block comes back (CUDA 12.8.1). docs/runs-attention.md, 10-29.
+            asm volatile("exit;\n" ::: "memory");
         }
         if constexpr (!SOLO) {
             setmaxnreg_inc<one_cons_regs(L)>();
@@ -4700,6 +4707,10 @@ _ONE_BUILT = {1: (1, 3, 11, 13, 17, 49), 8: (1, 3, 11, 15, 19, 51, 115)}
 # kernel's tiles come from a producer warpgroup (mode |32) or the consumers' own copies.
 _ONE_FLAT = True
 _ONE_PROD = True
+# q_len 8 full-context batches on the producer build 51, mode 19 as its fallback: since the
+# producer exits by PTX exit, 51 has no spills and timed 125.0 / 232.4 us against 19's
+# 128.2 / 238.8 at batch 16 / 32 (d90a73871d8e4481).
+_ONE_Q8_PROD = True
 
 
 def _one_state(device):
@@ -4732,9 +4743,9 @@ def _one_plan(cfg, pt_width, resident):
     tiles = (kmax + 63) // 64
     nc = 1
     if not window and batch > 1 and _ONE_FLAT:
-        # q_len 8 skips the producer build 51: at 80 registers it spills inside the tile loop
-        # and timed 389 / 774 us against mode 19's 127 / 236 at batch 16 / 32 (16fcddf80a714e0d).
-        for mode in ((49, 17) if length == 1 else (19,)) if _ONE_PROD else \
+        # Without _ONE_Q8_PROD q_len 8 skips the producer build 51.
+        q8 = (51, 19) if _ONE_Q8_PROD else (19,)
+        for mode in ((49, 17) if length == 1 else q8) if _ONE_PROD else \
                 ((17,) if length == 1 else (19,)):
             grid = min(_ONE_TARGET, resident.get((length, mode), 0))
             if grid >= 2 * batch:

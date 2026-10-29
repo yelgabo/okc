@@ -38,9 +38,12 @@ With |32 a producer warpgroup gathers the tiles into an mbarrier ring (3 stages 
 `cp.async.mbarrier.arrive.noinc`; consumers wait on the full barrier, fence the async proxy,
 patch the block's own rows if the tile holds them, compute, and every consumer thread
 arrives on the empty barrier. Registers: `setmaxnreg.dec 56 / .inc 200` (q_len 1) and
-`32 / 104` (q_len 8) at two CTAs per SM; ptxas caps every region at the launch-bounds
-count, so the q_len 8 consumers compile at 80 registers with 168 bytes of spills; |64 is the
-one-CTA-per-SM variant without the split (113 registers, no spills), for the judge to compare.
+`32 / 104` (q_len 8) at two CTAs per SM. The producer arm must end in PTX `exit`, not
+`return`: a `return` sends both roles to one shared exit block, ptxas then wraps them in one
+convergence region and caps the consumers at the launch-bounds count (80 at q_len 8, 304 bytes
+of spills). With `exit` the q_len 8 consumers use registers up to R95 with no spills
+(docs/runs-attention.md, 10-29). |64 is the one-CTA-per-SM variant without the split (113
+registers, no spills).
 
 ## Host interface
 
@@ -85,7 +88,7 @@ Persistent, allocated once per device, zeroed once (`_one_state` in submission.p
 | verify 16 / 32 sliding | 8 x 16 / 4 x 32 | 3 |
 | decode / verify 1 full, page 1 | 252 x 1, nc 8 | 11 (cooperative, speculated) |
 | decode 16 / 32 full | 264 flat | 49 (producer warpgroup; 17 without) |
-| verify 16 / 32 full | 264 flat | 51 (producer warpgroup, grid-wide cooperative; 19 without; 115 one CTA per SM) |
+| verify 16 / 32 full | 264 flat | 19 (51 with `_ONE_Q8_PROD`: producer warpgroup, grid-wide cooperative; 115 one CTA per SM) |
 
 Cooperative modes need every active CTA resident: `attn_one_prepare()` reports the limit
 per instance (`cudaOccupancyMaxActiveBlocksPerMultiprocessor` x SMs, an idle-device figure)

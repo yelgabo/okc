@@ -17,12 +17,16 @@ import with two parts, printed into the run log (the judge's own tests and timin
   BENCH     CUDA-graph replays after a 256 MB flush (median of 40) of each variant per scored
             shape, with the relative error against the first variant.
 
-    python3 tools/attn_make_bench_one.py [VARIANT ...]
+    python3 tools/attn_make_bench_one.py [--no-probe] [--q8-prod | --q8-19] [VARIANT ...]
+
+--q8-prod / --q8-19 set _ONE_Q8_PROD in bench.py only, routing the full-context q_len 8
+batches to the producer build 51 or to mode 19 (SELFTEST, STRESS and the judge's timing follow).
 
 VARIANT is name@s=SPLITS,n=NC,m=MODE,x=VAR,v=VARIANT,c=CLUSTER (all optional); the default
 compares _one with the paths the submission used before it.
 """
 
+import re
 import sys
 from pathlib import Path
 
@@ -632,9 +636,15 @@ if not _os.environ.get("ATTN_BENCH_DONE"):
 
 
 def main():
-    args = [a for a in sys.argv[1:] if a != "--no-probe"]
+    flags = ("--no-probe", "--q8-prod", "--q8-19")
+    args = [a for a in sys.argv[1:] if a not in flags]
     variants = args or ["_one", "_fused", "_ws", "_fused_prep"]
     src = (ROOT / "muse_attention_decode/submission.py").read_text()
+    if "--q8-prod" in sys.argv[1:] or "--q8-19" in sys.argv[1:]:
+        want = "True" if "--q8-prod" in sys.argv[1:] else "False"
+        src, n = re.subn(r"^_ONE_Q8_PROD = \w+$", f"_ONE_Q8_PROD = {want}", src, flags=re.M)
+        if n != 1:
+            raise SystemExit("no _ONE_Q8_PROD line in submission.py")
     src += RUNNER.format(variants=variants, coop_probe="--no-probe" not in sys.argv[1:])
     (ROOT / "muse_attention_decode/bench.py").write_text(src)
     print(f"wrote bench.py with {variants}")
