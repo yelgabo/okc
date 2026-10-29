@@ -1,0 +1,25 @@
+{
+  "checked_at": "2026-10-29T13:49:14.383950-07:00",
+  "evidence_commit": "21be06df87e569cb514c3a951993a5d571b857d2",
+  "report_sha256": "779ccf36db29631c858da689574a75b754ff9e44eda5fc4a77fd8608bc1eabc1",
+  "checks": {
+    "report_no_em_dash": true,
+    "latest_pointer": true,
+    "relative_link_paths_exist": true,
+    "old_wrong_job_absent": true,
+    "staged_job_owned_by_log": true,
+    "mode44_gate_retained": true,
+    "receipt_summary_matches_saved_responses": true,
+    "incumbent_file_hash": true,
+    "layer_unchanged_since_incumbent": true,
+    "uploaded_source_hash": true,
+    "local_job_ids_present_in_run_logs": true
+  },
+  "limits": [
+    "No GPU run",
+    "No CUDA compilation",
+    "No new score",
+    "Independent local review; community results not independently rerun"
+  ],
+  "independent_review": "Initial local-source review and report review completed. Three draft findings corrected. Final targeted recheck confirmed staged job ID, mode44 threshold, replay-post attribution and pinned SiLU conclusion."
+}

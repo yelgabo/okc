@@ -1,0 +1,32 @@
+{
+  "board": "muse_bf16_proj",
+  "measure": "speedup over SGLang; higher ranks higher",
+  "ranked": 1398,
+  "leader": {
+    "rank": 1,
+    "team": "colinlikescode",
+    "speedup": 1.6367,
+    "first": true,
+    "ahead": 0
+  },
+  "you": {
+    "rank": 301,
+    "team": "yelgabo",
+    "speedup": 1.4439,
+    "first": false,
+    "ahead": 300,
+    "to_first": 1.1335
+  },
+  "rows": [
+    {
+      "attempts": 14,
+      "job": "81254e8aed794eab",
+      "rank": 301,
+      "speedup": 1.4439,
+      "submitted_at": 1793304740.2168725,
+      "team": "yelgabo",
+      "value": 3345.7092399147227
+    }
+  ],
+  "capture_note": "Read-only CLI response with only yelgabo row retained."
+}

@@ -6,6 +6,16 @@ report be checked into this repository so other sessions can read it.
 
 ## Latest report
 
+**[2026-10-29: Community research audit and updated steering](2026-10-29-community-audit.md)**
+
+Evidence snapshot `21be06d`, with live quota, job receipts and board snapshots captured on
+October 29. Integrate mode 37, sk8w3s, QKV8, the newer cgemv and attention DCARRY/PK16/VHOIST;
+repair the whole-layer comparison and FIN8 selected-mode replay coverage. Fat wait accounting
+is complete. Modes 43/44 remain a bounded proposal. All four relevant check budgets are
+exhausted at capture; scored runs require explicit user approval.
+
+## Previous hourly report, 13:27
+
 **[2026-10-29 13:27 PDT: Projection context and unchanged families](2026-10-29-1327-performance-review.md)**
 
 Evidence snapshot `615539c`. New single-token projection gains await layer integration;
@@ -45,6 +55,9 @@ recommendations, not execution of those tasks; check current code and run logs f
 
 | Report | Evidence snapshot | Scope |
 |---|---|---|
+| [2026-10-29 community research audit](2026-10-29-community-audit.md) | `21be06d`; live account capture 13:43 PDT | Research verification, completed work, pending ports, correctness gates, quota and next-run plan |
+| [2026-10-29 13:27 performance review](2026-10-29-1327-performance-review.md) | `615539c` | Single-token projection context and unchanged family standings |
+| [2026-10-29 11:20 performance review](2026-10-29-1120-performance-review.md) | `14d6da1` | Corrected fat-MoE wait attribution |
 | [2026-10-29 overnight steering](2026-10-29-overnight.md) | `df03a59`; publication addendum `d0c062b` | Integration, diagnostic defect, whole-layer comparison, bounded research |
 | [2026-10-29 fat MoE waits](2026-10-29-fat-moe-waits.md) | `3f67a45`, check `ca43908f02874886` | Repaired fat-MoE wait counters, overhead, corrected claims, next fat-MoE mechanism |
 

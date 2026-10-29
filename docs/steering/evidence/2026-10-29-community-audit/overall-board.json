@@ -1,0 +1,40 @@
+{
+  "board": "overall",
+  "measure": "rank across the problems; the API gives ranks only",
+  "ranked": 1612,
+  "leader": {
+    "rank": 1,
+    "team": "mpeng19",
+    "first": true,
+    "ahead": 0
+  },
+  "you": {
+    "rank": 229,
+    "team": "yelgabo",
+    "first": false,
+    "ahead": 228
+  },
+  "rows": [
+    {
+      "rank": 1,
+      "solved": 4,
+      "team": "mpeng19"
+    },
+    {
+      "rank": 50,
+      "solved": 4,
+      "team": "0daycloud"
+    },
+    {
+      "rank": 100,
+      "solved": 4,
+      "team": "Soorya2201"
+    },
+    {
+      "rank": 229,
+      "solved": 4,
+      "team": "yelgabo"
+    }
+  ],
+  "capture_note": "Read-only CLI response, rows retained only for ranks 1, 50, 100 and yelgabo."
+}

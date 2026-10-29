@@ -1,0 +1,84 @@
+[
+  {
+    "url": "https://raw.githubusercontent.com/sgl-project/sglang/a55ab7d5ae1bba59ac351e55026fe7f7644ecc5f/python/sglang/kernels/ops/activation/activation.py",
+    "sha256": "416b4d2eb24d2abfbd215277f508b9786ade0c2fc736e470d37621cc3cd605bc",
+    "matching_lines": [
+      {
+        "line": 21,
+        "text": "def activation_module(dtype: torch.dtype, *, fast_math: bool = True) -> Module:"
+      },
+      {
+        "line": 22,
+        "text": "    fast_math_flags = get_activation_cuda_cflags()"
+      },
+      {
+        "line": 30,
+        "text": "        extra_cuda_cflags=fast_math_flags if fast_math else [],"
+      },
+      {
+        "line": 62,
+        "text": "    module = activation_module(input.dtype)"
+      },
+      {
+        "line": 99,
+        "text": "    module = activation_module(input.dtype)"
+      },
+      {
+        "line": 181,
+        "text": "    return run_activation(\"silu\", input, out, expert_ids, expert_step)"
+      }
+    ]
+  },
+  {
+    "url": "https://raw.githubusercontent.com/sgl-project/sglang/a55ab7d5ae1bba59ac351e55026fe7f7644ecc5f/python/sglang/kernels/jit/utils/arch.py",
+    "sha256": "a984b2509fb38bd19bf2e756af22c1621dc01a89c0fa7f32456a56a89ab25ef6",
+    "matching_lines": [
+      {
+        "line": 184,
+        "text": "def get_activation_cuda_cflags() -> list[str]:"
+      },
+      {
+        "line": 187,
+        "text": "    if is_hip_runtime() or get_jit_cuda_arch().major >= 10:"
+      },
+      {
+        "line": 189,
+        "text": "    return [\"--use_fast_math\"]"
+      }
+    ]
+  },
+  {
+    "url": "https://raw.githubusercontent.com/sgl-project/sglang/a55ab7d5ae1bba59ac351e55026fe7f7644ecc5f/python/sglang/kernels/jit/csrc/elementwise/activation.cuh",
+    "sha256": "2e387e17e8a7c300a649cced086297cd67b86a5c06ae5d54cdbe2659a9d54026",
+    "matching_lines": [
+      {
+        "line": 28,
+        "text": "    return x_f32 / (1.0f + expf(-x_f32));"
+      },
+      {
+        "line": 89,
+        "text": "    float gate_f32 = device::cast<fp32_t>(gate[i]);"
+      },
+      {
+        "line": 90,
+        "text": "    float up_f32 = device::cast<fp32_t>(up[i]);"
+      },
+      {
+        "line": 100,
+        "text": "      out[i] = device::cast<T>(apply_activation_f32<kAct>(gate_f32) * up_f32);"
+      },
+      {
+        "line": 129,
+        "text": "    out[i] = device::cast<T>(apply_activation_f32<kAct>(device::cast<fp32_t>(in[i])));"
+      },
+      {
+        "line": 219,
+        "text": "      const auto kernel = select_kernel<true, kRoundActivation, kReuseInput>(type);"
+      },
+      {
+        "line": 254,
+        "text": "    launch(input, out, type, static_cast<const int32_t*>(expert_ids.data_ptr()), static_cast<uint32_t>(expert_step));"
+      }
+    ]
+  }
+]

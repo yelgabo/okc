@@ -1,0 +1,60 @@
+{
+  "board": "muse_decode_layer",
+  "measure": "speedup over SGLang; higher ranks higher",
+  "ranked": 988,
+  "leader": {
+    "rank": 1,
+    "team": "mpeng19",
+    "speedup": 2.4178,
+    "first": true,
+    "ahead": 0
+  },
+  "you": {
+    "rank": 229,
+    "team": "yelgabo",
+    "speedup": 1.9641,
+    "first": false,
+    "ahead": 228,
+    "to_first": 1.231
+  },
+  "rows": [
+    {
+      "attempts": 31,
+      "job": "f91b449a02764f8f",
+      "rank": 1,
+      "speedup": 2.4178,
+      "submitted_at": 1793280810.6919541,
+      "team": "mpeng19",
+      "value": 9355.71475316891
+    },
+    {
+      "attempts": 13,
+      "job": "69c051ff22cd4203",
+      "rank": 50,
+      "screening": "screened",
+      "speedup": 2.1885,
+      "submitted_at": 1793036165.4733007,
+      "team": "0daycloud",
+      "value": 10335.86696621212
+    },
+    {
+      "attempts": 5,
+      "job": "d857144e59784ad0",
+      "rank": 100,
+      "speedup": 2.1278,
+      "submitted_at": 1793302926.3500688,
+      "team": "Soorya2201",
+      "value": 10631.070389082857
+    },
+    {
+      "attempts": 18,
+      "job": "9b921febc7ad4140",
+      "rank": 229,
+      "speedup": 1.9641,
+      "submitted_at": 1793287951.1342025,
+      "team": "yelgabo",
+      "value": 11516.962035800203
+    }
+  ],
+  "capture_note": "Read-only CLI response, rows retained only for ranks 1, 50, 100 and yelgabo."
+}
