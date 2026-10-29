@@ -28,12 +28,15 @@ belongs in the session scratchpad; only the logs of its runs are committed.
   ABLOAD    46 x sliding + 16 x full per arm (per 62 steps).
   ABSCORE   geometric mean over the loads covered of inc's load time over each arm's.
   ABSTOP    shapes skipped by the deadline: missing coverage, not a pass.
+  ABPIN     SHA256 and git blob id of the public and incumbent sources as read (before the
+            patches above), printed in prepare.
   ABTL      one replay per shape and arm (not null) under torch.profiler, kernels as
             code@start+duration; ABKN maps codes to names.
 
 Split the six loads over two checks (--loads) when prepare() would run past 300 s.
 """
 
+import hashlib
 import sys
 from pathlib import Path
 
@@ -592,6 +595,8 @@ _timeline = lambda state: None  # noqa: E731  (the bench prints its own timeline
 
 
 def prepare(weights):
+    for name, pin in _AB_PINS.items():
+        _ab_print(f"ABPIN {name} {pin}")
     t = time.time()
     state = _ab_prepare(weights)
     _ab_print(f"ABPREP cand {time.time() - t:.0f} s")
@@ -619,7 +624,7 @@ def prepare(weights):
     torch.cuda.empty_cache()
     # The log keeps only its last 16,000 characters: timelines first, then correctness, then
     # the timing tables.
-    order = ("ABTL", "ABKN", "ABBUILD", "ABPREP", "ABARMS", "ABFAIL", "ABCHECK", "ABSTOP",
+    order = ("ABTL", "ABKN", "ABBUILD", "ABPREP", "ABPIN", "ABARMS", "ABFAIL", "ABCHECK", "ABSTOP",
              "ABTIME", "ABLOAD", "ABSCORE")
     rank = lambda line: next((i for i, p in enumerate(order) if line.startswith(p)), 0)  # noqa: E731
     for line in sorted(_AB_OUT, key=rank):
@@ -636,6 +641,13 @@ def pub_patch(text):
     if "threading" in text:
         raise SystemExit("the public file still names threading")
     return text
+
+
+def pin(path):
+    """SHA256 and git blob id of a source file as read, before any patch."""
+    data = path.read_bytes()
+    blob = hashlib.sha1(b"blob %d\0" % len(data) + data).hexdigest()
+    return f"sha256 {hashlib.sha256(data).hexdigest()} git-blob {blob} ({path.name})"
 
 
 def inc_patch(text):
@@ -662,7 +674,9 @@ def main():
     loads = tuple(opts["loads"].split(","))
     if not set(loads) <= {"d1", "d16", "d32", "v1", "v16", "v32"}:
         raise SystemExit(f"unknown load in {loads}")
-    params = (f"\n_AB_PUB_SRC = {pub_patch(pub.read_text())!r}\n"
+    pins = {name: pin(path) for name, path in (("pub", pub), ("inc", inc))}
+    params = (f"\n_AB_PINS = {pins!r}\n"
+              f"_AB_PUB_SRC = {pub_patch(pub.read_text())!r}\n"
               f"_AB_INC_SRC = {inc_patch(inc.read_text())!r}\n"
               f"_AB_LOADS = {loads!r}\n_AB_ROUNDS = {int(opts['rounds'])!r}\n"
               "# prepare() has 300 s; no new shape starts past this many seconds into it.\n"
@@ -672,7 +686,7 @@ def main():
               "_AB_ROUTINGS = (\"busiest\", \"second\")\n")
     src = (ROOT / "muse_decode_layer/submission.py").read_text()
     out.write_text(src + params + BODY)
-    print(f"wrote {out}: loads {loads}, incumbent {inc}, public {pub}")
+    print(f"wrote {out}: loads {loads}; " + "; ".join(f"{k} {v}" for k, v in pins.items()))
 
 
 if __name__ == "__main__":

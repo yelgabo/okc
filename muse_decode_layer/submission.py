@@ -15508,8 +15508,8 @@ def _moe1_stress(state, sizes, variant, replays):
     eager call (sums of squares are FP32 atomics, so not bitwise) and the scratch invariant must
     hold. Raises on any failure."""
     calls = []
-    for tokens in sizes:
-        x, tw, ids, local_start = _moe_routing(tokens, 4000 + tokens, 96, True)
+    for i, tokens in enumerate(sizes):
+        x, tw, ids, local_start = _moe_routing(tokens, 4000 + tokens + 7 * i, 96, True)
         calls.append((x, tw, ids, local_start, dict(_moe_opts(tokens, state), fused=variant)))
     s = state["moe1"]["scratch"]
     torch.cuda.synchronize()
@@ -15536,8 +15536,9 @@ def _moe1_stress(state, sizes, variant, replays):
     rel = max(_rel(r, e) for r, e in zip(replayed, eager))
     finite = all(bool(torch.isfinite(r).all()) for r in replayed)
     clean, msg = _moe1_check(state)
-    msg = (f"T={'+'.join(map(str, sizes))} {_moe1_name(variant)} replays={replays} "
-           f"replayed_vs_eager={rel:.1e} generations={gens} {msg}")
+    msg = (f"T={'+'.join(map(str, sizes))} {_moe1_name(variant)} replays={replays}, one host "
+           f"sync after all of them; retained: the last replay's {len(sizes)} outputs, "
+           f"replayed_vs_eager={rel:.1e} (each < 1e-4, finite={finite}) generations={gens} {msg}")
     if not (finite and rel < 1e-4 and clean and gens == len(sizes) * (replays + 3)):
         raise RuntimeError(f"moe fused stress: {msg} finite={finite}")
     return msg
@@ -15597,23 +15598,27 @@ def _moe1_enable(state, weights):
     t3 = time.time()
     skinny = [v for v in passed if _MOE1_VARIANTS[v][1] == "skinny"]
     main = [v for v in passed if _MOE1_VARIANTS[v][1] == "main"]
-    shapes = [((8,), skinny[0])] if skinny else []
-    shapes += [((128, 256), v) for v in main] if main else [((128,), skinny[0])]
+    # Mixed sizes back to back on the shared scratch, as consecutive layers call it: every
+    # skinny variant at 8, 16, 1, 32, 8 tokens and every fat mode at 32, 128, 17, 256.
+    shapes = [((8, 16, 1, 32, 8), v) for v in skinny]
+    shapes += [((32, 128, 17, 256), v) for v in main] if main else [((128,), skinny[0])]
     stress = state["moe1_stress"] = {}
     for sizes, variant in shapes:
         try:
             msg = _moe1_stress(state, sizes, variant, 2000)
             stress[_moe1_name(variant)] = "ok"
         except RuntimeError as exc:
-            # Each fat mode is its own kernel instance, so one that fails here is dropped from
-            # the bench without taking the other modes (already stressed or not) with it.
-            if _MOE1_VARIANTS[variant][1] != "main" or len(main) < 2:
+            # Each variant is its own kernel instance, so one that fails here is dropped from
+            # the bench without taking the others (already stressed or not) with it, unless it
+            # is the last of its kind.
+            kind = _MOE1_VARIANTS[variant][1]
+            if len(main if kind == "main" else skinny) < 2:
                 raise
             msg = str(exc)
             stress[_moe1_name(variant)] = "FAIL"
             _FAILED.append(f"moe1 stress {_moe1_name(variant)}: {msg[:160]}")
             passed.remove(variant)
-            main.remove(variant)
+            (main if kind == "main" else skinny).remove(variant)
             # Back to the state as allocated, which every variant starts from.
             torch.cuda.synchronize()
             for k in ("ctr", "ss", "done_a", "xready", "done_as", "fixcnt"):
@@ -16391,8 +16396,9 @@ def _one_stress(state, batch, length, layer, replays, seed, ctx=None, expect=Non
         rel_ref = _rel(replayed, ref)
         finite = bool(torch.isfinite(replayed.float()).all())
         ws_ok, ws_msg = _one_ws_check(st)
-        msg = (f"{name}: replays={n} replayed_vs_eager={rel_eager:.1e} vs_sglang={rel_ref:.2e} "
-               f"max_polls={polls} {ws_msg}")
+        msg = (f"{name}: replays={n} (one host sync after the batch; retained: the last replay's "
+               f"output) replayed_vs_eager={rel_eager:.1e} vs_sglang={rel_ref:.2e} "
+               f"finite={finite} max_polls={polls} {ws_msg}")
         if not (finite and rel_eager < 1e-4 and rel_ref < 5e-2 and ws_ok):
             raise RuntimeError(f"attn one stress {batch}x{length} {layer} {msg} finite={finite}")
         return msg

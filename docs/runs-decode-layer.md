@@ -261,6 +261,33 @@ the same checks; then on batch 1 page 1 the speculated-length fallback (sequence
 in place) for 50 replays. Every other stress asserts its scored plan too: 1x1 sliding (1, 13),
 16x1 full (1, 49), 1x8 sliding (1, 15), 16x8 and 32x8 full (1, 51).
 
+### Pins, mixed-size MoE replays and package controls
+
+- Public layer arm: vjeux/okc-2026 `muse_decode_layer.py`, git blob
+  936fefffb493c4a836e8c08fc58dff50ce338dd5, the blob at that repository's head commit
+  f35a41ee1c13e316dabbf772830d47b23b453393 ("v2: dead-code removal", 2026-10-28T02:03:32Z, the
+  last commit touching the file; read with `gh api` on 2026-10-29), SHA256
+  cf4a75ee6e4a5cd9e33b82b5347c47abcdc7b81d80dc6a8b5262dea7388f849c. The judged public layer
+  profile cited in the gap maps (job f662ee18) came from another account's memos; that this blob
+  is the file behind that job is not established. Incumbent arm: the layer file at a923f11,
+  SHA256 3e9ba3df33f4b8e6fc5d26e17a33ad1c9c0e3ebd669b87e89c8681ce1eae5b16 (the file hash the
+  community audit records; the judge receipt's payload content hash 8de70993... is a different
+  hash). tools/dl_make_bench_pub.py now hashes both files as read and prints them as ABPIN.
+- MoE replay stress: every skinny variant (sk8w4s, sk16w4s, sk8w3s, sk8w4s-er) captures 8, 16,
+  1, 32 and 8 tokens back to back in one graph on the shared scratch, and every fat mode 32, 128,
+  17 and 256; 2000 replays with one host sync after them, then the last replay's outputs against
+  an eager call (1e-4 each), the generation count and the scratch invariant. A failing variant is
+  dropped alone unless it is the last of its kind. The bench still picks per token count; the
+  sk8w3s evidence at 1 / 8 / 16 tokens decides nothing at 32. Attention stresses print the same
+  retained-output and sync-interval description.
+- Package controls, prepared and not run: `tools/dl_package_control.py OUT BASE --minus
+  attn|moe|proj` takes one package's generated regions back from the incumbent source (attn:
+  `_ONE_SRC`, `_ONE_HOST_SRC`; moe: `_MOE1_*`; proj: `_SKP_*` and the `@SKP_PY@` region). The
+  three single-package controls of the current candidate compile (sm_90a, CUDA 12.8): attention
+  12 kernels, no spills; MoE 6 kernels, spills only in the four fat modes as at a923f11; SKP 43
+  kernels, spills only in the four-chunk cgemv instances the layer does not run. Used only if
+  the combined candidate is neutral or mixed.
+
 ### Summary manifest in the log tail
 
 SUMMARY now also prints the SKP self-test count with the layers whose cgemv passed, the three
