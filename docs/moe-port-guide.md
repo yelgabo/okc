@@ -141,6 +141,14 @@ n-tile count first. 16-23 us under 20 at 128 and 256 tokens on 12 of 12 paired s
 in two checks (docs/runs-moe.md, "Phase B claimed at run time") and the standalone policy at both
 sizes; SmemMain is 228,736 bytes. Porting it means adding 23 to `LAYER_MODES`. 22 and 24 are 20
 and 23 with stamps (timing only).
+Also since 2026-10-29: 26 ("main-dynb-fs") is 23 with the routes counted once by every warp (the
+routing warp sums the per-warp counts, the positions reuse them), a batched x gather (a CTA's 16-byte
+row loads before its stores) and no stage-range searches (owned and claimed units read none). 4-10
+us under 23 at 128 and 256 tokens on 66 of 66 paired seeds (standalone, held-out, skewed and
+layer-like routing; docs/runs-moe.md, "Same-process A/B against the public MoE") and the standalone
+policy at both sizes in 817eab6401d54a84 (2.104x). Same interface, scratch and SmemMain size as 23;
+porting it means adding 26 to `LAYER_MODES`. 25 and 27 are 23 and 26 with thread-0 phase stamps
+(timing only; they write 16 int64 per CTA to `inter`).
 `_vname(variant)` gives the name the bench prints. It launches on the current stream, is graph-capturable (no
 host syncs, no allocation, no value-dependent branching on the host), and needs the whole GPU:
 the grid barrier spins until all 132 CTAs arrive, so nothing else may occupy SMs for the

@@ -1,0 +1,167 @@
+ABBUILD ours 51 s
+ABBUILD pub 155 s
+ABROUTE layer router seed 8 (mean relative miss 0.030)
+ABROUTE T=32 std busiest local expert routes [28, 18, 9, 9, 6, 20]
+ABCHECK T=32 std vs fp32: ours23 3.84e-03 pub 2.34e-03; ours23 vs pub 4.46e-03
+ABTIME T=32 std seed 1 o23 117.4 pub 110.2 sk8w4s 129.1
+ABTIME T=32 std seed 2 o23 130.8 pub 112.6 sk8w4s 129.4
+ABTIME T=32 std seed 3 o23 130.0 pub 111.3 sk8w4s 113.9
+ABTIME T=32 std seed 4 o23 173.8 pub 157.8 sk8w4s 162.1
+ABTIME T=32 std seed 5 o23 170.8 pub 145.0 sk8w4s 141.3
+ABTIME T=32 std seed 6 o23 148.2 pub 125.8 sk8w4s 141.6
+ABTIME T=32 std mean o23 145.2 pub 127.1 sk8w4s 136.2
+ABTIME T=32 std pub minus o23 per seed -7.2 -18.2 -18.8 -16.0 -25.9 -22.3 (mean -18.0)
+ABTIME T=32 std sk8w4s minus o23 per seed +11.6 -1.4 -16.2 -11.6 -29.5 -6.6 (mean -8.9)
+ABSTAMP T=32 std o25 route 7.7, consumers start mean 10.6, max 18.1, phase A done (t0) mean 91.7, max 103.0, consumers done mean 128.6, max 140.3, tail 11.7, barrier done 141.3, final 1.2, end 143.7
+ABSTAMP T=32 std pub route 1.8, consumers start mean 4.0, max 6.2, phase A done (t0) mean 78.8, max 83.1, consumers done mean 113.3, max 118.6, tail 5.3, barrier done 119.7, final 1.1, end 123.4
+ABROUTE T=32 layer busiest local expert routes [19, 20, 18, 21, 23, 22]
+ABCHECK T=32 layer vs fp32: ours23 3.86e-03 pub 2.35e-03; ours23 vs pub 4.49e-03
+ABTIME T=32 layer seed 1 o23 116.2 pub 101.7 sk8w4s 127.4
+ABTIME T=32 layer seed 2 o23 115.2 pub 100.3 sk8w4s 129.8
+ABTIME T=32 layer seed 3 o23 86.3 pub 72.8 sk8w4s 94.3
+ABTIME T=32 layer seed 4 o23 92.9 pub 84.8 sk8w4s 99.8
+ABTIME T=32 layer seed 5 o23 93.4 pub 80.2 sk8w4s 115.3
+ABTIME T=32 layer seed 6 o23 113.0 pub 100.8 sk8w4s 116.1
+ABTIME T=32 layer mean o23 102.8 pub 90.1 sk8w4s 113.8
+ABTIME T=32 layer pub minus o23 per seed -14.4 -14.9 -13.6 -8.2 -13.2 -12.3 (mean -12.8)
+ABTIME T=32 layer sk8w4s minus o23 per seed +11.2 +14.6 +7.9 +6.9 +21.9 +3.0 (mean +10.9)
+ABSTAMP T=32 layer o25 route 7.2, consumers start mean 11.1, max 16.4, phase A done (t0) mean 62.9, max 73.9, consumers done mean 86.7, max 95.5, tail 8.8, barrier done 96.5, final 1.4, end 98.9
+ABSTAMP T=32 layer pub route 1.9, consumers start mean 3.9, max 5.1, phase A done (t0) mean 53.4, max 57.8, consumers done mean 76.4, max 80.4, tail 4.0, barrier done 81.5, final 1.2, end 85.6
+ABROUTE T=128 std busiest local expert routes [53, 92, 128, 40, 39, 86]
+ABCHECK T=128 std vs fp32: ours23 3.84e-03 pub 2.34e-03; ours23 vs pub 4.47e-03
+ABTIME T=128 std seed 1 o23 228.2 pub 193.0
+ABTIME T=128 std seed 2 o23 220.9 pub 189.6
+ABTIME T=128 std seed 3 o23 226.5 pub 188.6
+ABTIME T=128 std seed 4 o23 214.7 pub 180.7
+ABTIME T=128 std seed 5 o23 217.3 pub 183.3
+ABTIME T=128 std seed 6 o23 216.1 pub 179.0
+ABTIME T=128 std mean o23 220.6 pub 185.7
+ABTIME T=128 std pub minus o23 per seed -35.2 -31.3 -37.8 -34.0 -34.0 -37.1 (mean -34.9)
+ABSTAMP T=128 std o25 route 11.8, consumers start mean 17.3, max 21.5, phase A done (t0) mean 143.9, max 156.2, consumers done mean 203.3, max 211.8, tail 8.5, barrier done 212.9, final 3.1, end 216.4
+ABSTAMP T=128 std pub route 2.8, consumers start mean 6.4, max 9.0, phase A done (t0) mean 117.4, max 122.9, consumers done mean 170.6, max 175.2, tail 4.6, barrier done 176.3, final 3.0, end 180.8
+ABROUTE T=128 layer busiest local expert routes [54, 54, 54, 50, 59, 51]
+ABCHECK T=128 layer vs fp32: ours23 3.85e-03 pub 2.35e-03; ours23 vs pub 4.48e-03
+ABTIME T=128 layer seed 1 o23 167.2 pub 135.3
+ABTIME T=128 layer seed 2 o23 188.4 pub 153.3
+ABTIME T=128 layer seed 3 o23 186.2 pub 152.4
+ABTIME T=128 layer seed 4 o23 171.7 pub 143.5
+ABTIME T=128 layer seed 5 o23 196.7 pub 163.6
+ABTIME T=128 layer seed 6 o23 191.6 pub 160.5
+ABTIME T=128 layer mean o23 183.6 pub 151.5
+ABTIME T=128 layer pub minus o23 per seed -31.8 -35.1 -33.8 -28.3 -33.1 -31.0 (mean -32.2)
+ABSTAMP T=128 layer o25 route 10.9, consumers start mean 17.7, max 20.4, phase A done (t0) mean 115.4, max 133.2, consumers done mean 165.2, max 175.6, tail 10.4, barrier done 176.6, final 3.2, end 180.3
+ABSTAMP T=128 layer pub route 2.4, consumers start mean 6.1, max 8.3, phase A done (t0) mean 93.3, max 99.2, consumers done mean 136.3, max 141.0, tail 4.7, barrier done 142.2, final 3.1, end 146.4
+ABROUTE T=256 std busiest local expert routes [46, 47, 101, 256, 60, 123]
+ABCHECK T=256 std vs fp32: ours23 3.86e-03 pub 2.34e-03; ours23 vs pub 4.50e-03
+ABTIME T=256 std seed 1 o23 269.2 pub 219.6
+ABTIME T=256 std seed 2 o23 253.4 pub 208.2
+ABTIME T=256 std seed 3 o23 282.5 pub 232.0
+ABTIME T=256 std seed 4 o23 299.0 pub 237.3
+ABTIME T=256 std seed 5 o23 296.6 pub 244.7
+ABTIME T=256 std seed 6 o23 289.9 pub 233.9
+ABTIME T=256 std mean o23 281.8 pub 229.3
+ABTIME T=256 std pub minus o23 per seed -49.5 -45.2 -50.5 -61.7 -51.9 -56.0 (mean -52.5)
+ABSTAMP T=256 std o25 route 16.1, consumers start mean 23.5, max 27.9, phase A done (t0) mean 184.6, max 196.5, consumers done mean 260.7, max 270.2, tail 9.5, barrier done 271.1, final 5.6, end 277.3
+ABSTAMP T=256 std pub route 3.4, consumers start mean 8.3, max 10.3, phase A done (t0) mean 145.3, max 153.6, consumers done mean 211.4, max 217.3, tail 5.9, barrier done 218.2, final 5.0, end 225.1
+ABROUTE T=256 layer busiest local expert routes [128, 107, 111, 116, 105, 110]
+ABCHECK T=256 layer vs fp32: ours23 3.85e-03 pub 2.34e-03; ours23 vs pub 4.49e-03
+ABTIME T=256 layer seed 1 o23 253.2 pub 204.7
+ABTIME T=256 layer seed 2 o23 246.8 pub 202.3
+ABTIME T=256 layer seed 3 o23 252.9 pub 209.3
+ABTIME T=256 layer seed 4 o23 249.3 pub 201.5
+ABTIME T=256 layer seed 5 o23 246.9 pub 201.6
+ABTIME T=256 layer seed 6 o23 247.8 pub 203.1
+ABTIME T=256 layer mean o23 249.5 pub 203.8
+ABTIME T=256 layer pub minus o23 per seed -48.5 -44.5 -43.6 -47.8 -45.3 -44.7 (mean -45.7)
+ABSTAMP T=256 layer o25 route 15.9, consumers start mean 24.0, max 27.9, phase A done (t0) mean 161.4, max 173.9, consumers done mean 228.8, max 237.3, tail 8.5, barrier done 238.3, final 5.4, end 244.2
+ABSTAMP T=256 layer pub route 3.3, consumers start mean 8.4, max 9.7, phase A done (t0) mean 127.9, max 134.7, consumers done mean 185.9, max 192.3, tail 6.4, barrier done 193.3, final 5.3, end 200.3
+ABMOE spin flags 0; total 156 s
+TEST sk8w4s bs=1 normal: vs fp32 3.77e-03, worst row 3.77e-03
+TEST sk8w4s bs=1 skewed: vs fp32 3.88e-03, worst row 3.88e-03
+TEST sk8w4s bs=4 normal: vs fp32 3.94e-03, worst row 4.39e-03
+TEST sk8w4s bs=4 skewed: vs fp32 3.84e-03, worst row 4.01e-03
+TEST sk8w4s bs=8 normal: vs fp32 3.91e-03, worst row 3.96e-03
+TEST sk8w4s bs=8 skewed: vs fp32 3.88e-03, worst row 3.99e-03
+TEST sk8w4s bs=16 normal: vs fp32 3.89e-03, worst row 4.13e-03
+TEST sk8w4s bs=16 skewed: vs fp32 3.89e-03, worst row 4.02e-03
+TEST sk8w4s worst rel err vs fp32 3.94e-03, spin flags 0
+TEST sk16w4s bs=1 normal: vs fp32 3.77e-03, worst row 3.77e-03
+TEST sk16w4s bs=1 skewed: vs fp32 3.89e-03, worst row 3.89e-03
+TEST sk16w4s bs=4 normal: vs fp32 3.94e-03, worst row 4.39e-03
+TEST sk16w4s bs=4 skewed: vs fp32 3.84e-03, worst row 4.01e-03
+TEST sk16w4s bs=8 normal: vs fp32 3.91e-03, worst row 3.96e-03
+TEST sk16w4s bs=8 skewed: vs fp32 3.88e-03, worst row 3.99e-03
+TEST sk16w4s bs=16 normal: vs fp32 3.88e-03, worst row 4.13e-03
+TEST sk16w4s bs=16 skewed: vs fp32 3.89e-03, worst row 4.02e-03
+TEST sk16w4s worst rel err vs fp32 3.94e-03, spin flags 0
+TEST main-d2 bs=32 normal: vs fp32 3.87e-03, worst row 4.08e-03
+TEST main-d2 bs=32 skewed: vs fp32 3.85e-03, worst row 3.99e-03
+TEST main-d2 bs=33 normal: vs fp32 3.89e-03, worst row 4.16e-03
+TEST main-d2 bs=33 skewed: vs fp32 3.88e-03, worst row 4.13e-03
+TEST main-d2 bs=128 normal: vs fp32 3.86e-03, worst row 4.23e-03
+TEST main-d2 bs=128 skewed: vs fp32 3.87e-03, worst row 4.11e-03
+TEST main-d2 bs=257 normal: vs fp32 3.87e-03, worst row 4.36e-03
+TEST main-d2 bs=257 skewed: vs fp32 3.87e-03, worst row 4.17e-03
+TEST main-d2 worst rel err vs fp32 3.89e-03, spin flags 0
+TEST main-own-dynb bs=32 normal: vs fp32 3.87e-03, worst row 4.08e-03
+TEST main-own-dynb bs=32 skewed: vs fp32 3.85e-03, worst row 3.99e-03
+TEST main-own-dynb bs=33 normal: vs fp32 3.89e-03, worst row 4.16e-03
+TEST main-own-dynb bs=33 skewed: vs fp32 3.88e-03, worst row 4.12e-03
+TEST main-own-dynb bs=128 normal: vs fp32 3.86e-03, worst row 4.23e-03
+TEST main-own-dynb bs=128 skewed: vs fp32 3.87e-03, worst row 4.11e-03
+TEST main-own-dynb bs=257 normal: vs fp32 3.87e-03, worst row 4.36e-03
+TEST main-own-dynb bs=257 skewed: vs fp32 3.87e-03, worst row 4.17e-03
+TEST main-own-dynb worst rel err vs fp32 3.89e-03, spin flags 0
+TEST legacy32 bs=32 normal: vs fp32 4.27e-03, worst row 4.45e-03
+TEST legacy32 bs=32 skewed: vs fp32 4.25e-03, worst row 4.41e-03
+TEST legacy32 bs=33 normal: vs fp32 4.29e-03, worst row 4.49e-03
+TEST legacy32 bs=33 skewed: vs fp32 4.28e-03, worst row 4.49e-03
+TEST legacy32 bs=128 normal: vs fp32 4.26e-03, worst row 4.69e-03
+TEST legacy32 bs=128 skewed: vs fp32 4.27e-03, worst row 4.54e-03
+TEST legacy32 bs=257 normal: vs fp32 4.27e-03, worst row 4.77e-03
+TEST legacy32 bs=257 skewed: vs fp32 4.26e-03, worst row 4.61e-03
+TEST legacy32 worst rel err vs fp32 4.29e-03, spin flags 0
+TEST legacy128 bs=32 normal: vs fp32 4.27e-03, worst row 4.45e-03
+TEST legacy128 bs=32 skewed: vs fp32 4.25e-03, worst row 4.41e-03
+TEST legacy128 bs=33 normal: vs fp32 4.29e-03, worst row 4.49e-03
+TEST legacy128 bs=33 skewed: vs fp32 4.28e-03, worst row 4.49e-03
+TEST legacy128 bs=128 normal: vs fp32 4.26e-03, worst row 4.69e-03
+TEST legacy128 bs=128 skewed: vs fp32 4.27e-03, worst row 4.54e-03
+TEST legacy128 bs=257 normal: vs fp32 4.27e-03, worst row 4.77e-03
+TEST legacy128 bs=257 skewed: vs fp32 4.26e-03, worst row 4.61e-03
+TEST legacy128 worst rel err vs fp32 4.29e-03, spin flags 0
+TEST legacy256 bs=32 normal: vs fp32 4.27e-03, worst row 4.45e-03
+TEST legacy256 bs=32 skewed: vs fp32 4.25e-03, worst row 4.41e-03
+TEST legacy256 bs=33 normal: vs fp32 4.29e-03, worst row 4.49e-03
+TEST legacy256 bs=33 skewed: vs fp32 4.28e-03, worst row 4.49e-03
+TEST legacy256 bs=128 normal: vs fp32 4.26e-03, worst row 4.69e-03
+TEST legacy256 bs=128 skewed: vs fp32 4.27e-03, worst row 4.54e-03
+TEST legacy256 bs=257 normal: vs fp32 4.27e-03, worst row 4.77e-03
+TEST legacy256 bs=257 skewed: vs fp32 4.26e-03, worst row 4.61e-03
+TEST legacy256 worst rel err vs fp32 4.29e-03, spin flags 0
+GATE spin flags 0
+BENCH bs=1 sk8w4s-loads:39.4 sk8w4s:41.7 sk16w4s:44.4 us (graph replay, cold L2, mean of 2 routings)
+BENCH bs=8 sk8w4s-loads:70.0 sk8w4s:73.8 sk16w4s:74.9 us (graph replay, cold L2, mean of 2 routings)
+BENCH bs=16 sk8w4s-loads:105.3 sk8w4s:107.6 sk16w4s:114.8 legacy32:119.6 legacy128:125.5 legacy256:127.0 us (graph replay, cold L2, mean of 2 routings)
+BENCH bs=32 sk8w4s-loads:145.8 sk8w4s:150.4 legacy32:157.3 sk16w4s:161.1 legacy128:163.7 legacy256:165.8 main-own-dynb:170.6 main-dynb-light:170.9 main-d2:188.7 us (graph replay, cold L2, mean of 2 routings)
+BENCH bs=128 main-dynb-light:231.9 main-own-dynb:232.7 legacy128:251.4 main-d2:253.7 legacy256:253.9 sk8w4s-loads:254.6 sk8w4s:263.3 legacy32:275.4 sk16w4s:283.6 us (graph replay, cold L2, mean of 2 routings)
+BENCH bs=256 main-dynb-light:256.5 main-own-dynb:256.8 main-d2:282.6 legacy256:360.5 legacy128:388.0 sk8w4s-loads:401.1 sk8w4s:431.8 sk16w4s:469.1 legacy32:470.5 us (graph replay, cold L2, mean of 2 routings)
+POLICY {1: sk8w4s, 8: sk8w4s, 16: sk8w4s, 32: sk8w4s, 128: main-own-dynb, 256: main-own-dynb}
+TEST policy bs=1 normal: vs fp32 3.77e-03, worst row 3.77e-03
+TEST policy bs=1 skewed: vs fp32 3.88e-03, worst row 3.88e-03
+TEST policy bs=4 normal: vs fp32 3.94e-03, worst row 4.39e-03
+TEST policy bs=4 skewed: vs fp32 3.84e-03, worst row 4.01e-03
+TEST policy bs=8 normal: vs fp32 3.91e-03, worst row 3.96e-03
+TEST policy bs=8 skewed: vs fp32 3.88e-03, worst row 3.99e-03
+TEST policy bs=16 normal: vs fp32 3.89e-03, worst row 4.13e-03
+TEST policy bs=16 skewed: vs fp32 3.89e-03, worst row 4.02e-03
+TEST policy bs=32 normal: vs fp32 3.87e-03, worst row 4.07e-03
+TEST policy bs=32 skewed: vs fp32 3.85e-03, worst row 3.98e-03
+TEST policy bs=33 normal: vs fp32 3.89e-03, worst row 4.16e-03
+TEST policy bs=33 skewed: vs fp32 3.88e-03, worst row 4.12e-03
+TEST policy bs=128 normal: vs fp32 3.86e-03, worst row 4.23e-03
+TEST policy bs=128 skewed: vs fp32 3.87e-03, worst row 4.11e-03
+TEST policy bs=257 normal: vs fp32 3.87e-03, worst row 4.36e-03
+TEST policy bs=257 skewed: vs fp32 3.87e-03, worst row 4.17e-03
+TEST policy worst rel err vs fp32 3.94e-03, spin flags 0
+PREPARE repack 0.7 s, build 82.8 s, self-test 0.3 s, bench 0.6 s, smem 228736 B, ok True, main True
