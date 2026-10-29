@@ -410,7 +410,7 @@ __constant__ int kCostBm[9] = {0, 85, 92, 104, 115, 130, 145, 160, 175};
 // mma.sync skinny kernel).
 __host__ __device__ constexpr int mma_max(int mode) {
     return mode == 6 || mode == 9 || mode == 11 || mode == 12 || mode == 14 || mode == 15
-                   || (mode >= 16 && mode <= 24)
+                   || (mode >= 16 && mode <= 25)
                ? 2
            : mode == 7 || mode == 10 ? 4
            : mode == 8 ? 8 : 0;
@@ -424,7 +424,7 @@ __host__ __device__ constexpr int mma_max(int mode) {
 // Memory Consistency Model, "Release and Acquire Patterns"); fence.sc adds only the SC order,
 // which no reader here relies on. The SASS is MEMBAR.ALL.GPU instead of MEMBAR.SC.GPU.
 __host__ __device__ constexpr bool fence_ar(int mode) {
-    return mode == 12 || mode == 13 || mode == 14 || (mode >= 15 && mode <= 24);
+    return mode == 12 || mode == 13 || mode == 14 || (mode >= 15 && mode <= 25);
 }
 
 // Modes 17 to 20 are mode 16 (two mma.sync chains, unit-aligned phase B) with one change each:
@@ -435,16 +435,22 @@ __host__ __device__ constexpr bool fence_ar(int mode) {
 // 22 is 20 with the stamps of 17. 23 is 20 with phase B units claimed at run time (dyn_b) and
 // both phases walked largest n-tile count first; 24 is 23 with the stamps.
 __host__ __device__ constexpr bool dual_chain(int mode) {
-    return mode == 14 || (mode >= 16 && mode <= 24);
+    return mode == 14 || (mode >= 16 && mode <= 25);
 }
 __host__ __device__ constexpr bool is_diag(int mode) {
     return mode == 11 || mode == 17 || mode == 22 || mode == 24;
+}
+// Mode 25 is 23 with thread 0's globaltimer at the phase boundaries only (timing only). Mode
+// 24's per-segment clock stamps add 14-18 us, too much to set its phase times beside the
+// public kernel's eight thread-0 stamps; these cost a few stores per CTA.
+__host__ __device__ constexpr bool is_light(int mode) {
+    return mode == 25;
 }
 __host__ __device__ constexpr bool a_only(int mode) {
     return mode == 18 || mode == 19;
 }
 __host__ __device__ constexpr bool own_a(int mode) {
-    return mode == 19 || mode == 20 || mode == 22 || mode == 23 || mode == 24;
+    return mode == 19 || mode == 20 || (mode >= 22 && mode <= 25);
 }
 // Modes 23 and 24: a CTA's weights producer claims phase B units one at a time from a global
 // counter, in S.ord order, when its ring has a free slot. Owned phase A leaves CTAs with up to
@@ -452,7 +458,7 @@ __host__ __device__ constexpr bool own_a(int mode) {
 // frees first takes the next unit; S.ord puts the jobs whose phase A rounds come first (the
 // snake deal walks S.ord) at the front, so claimed units find their inputs ready.
 __host__ __device__ constexpr bool dyn_b(int mode) {
-    return mode == 23 || mode == 24;
+    return mode == 23 || mode == 24 || mode == 25;
 }
 // Mode 21 is the second launch of the staged pair (19, then 21): phase B and the final pass
 // alone, on the xb a previous launch wrote. That launch completed before this one started
@@ -1355,6 +1361,9 @@ __device__ __forceinline__ void consumers(const Params& p, SmemMain& S, float* s
     if (is_diag(MODE) && threadIdx.x == 0) {
         S.dg[17][7] = gtimer();
     }
+    if (is_light(MODE) && threadIdx.x == 0) {
+        S.dg[16][3] = gtimer();
+    }
     if constexpr (dyn_b(MODE)) {
         consumer_dyn_b<MODE>(p, S, ss, acc, rg, xrel, cta, G);
     } else {
@@ -1563,8 +1572,12 @@ __global__ void __launch_bounds__(kNTM, 1) moe_main_kernel(const Params p) {
     const int E = p.M * kTopK;
     asm volatile("griddepcontrol.wait;" ::: "memory");
     constexpr bool kDiag = is_diag(MODE);
+    constexpr bool kLight = is_light(MODE);
     long long dt[5] = {0, 0, 0, 0, 0};
     long long dc0 = 0;
+    if (kLight && tid == 0) {
+        S.dg[16][0] = gtimer();
+    }
     if constexpr (kDiag) {
         dt[0] = gtimer();
         dc0 = clock64();
@@ -1608,7 +1621,7 @@ __global__ void __launch_bounds__(kNTM, 1) moe_main_kernel(const Params p) {
         if (lane < 9) {
             const bool given = p.cost[0][1] > 0;
             S.cost[0][lane] = given ? p.cost[0][lane] : stage_cost<MODE>(0, lane);
-            S.align_b = MODE == 15 || (MODE >= 16 && MODE <= 24) ? 1 : 0;
+            S.align_b = MODE == 15 || (MODE >= 16 && MODE <= 25) ? 1 : 0;
             S.cost[1][lane] = given ? p.cost[1][lane] : stage_cost<MODE>(1, lane);
         }
         S.cnt[lane] = 0;
@@ -1751,6 +1764,9 @@ __global__ void __launch_bounds__(kNTM, 1) moe_main_kernel(const Params p) {
     // The weights producer needs only the stage ranges, so it starts streaming here while the
     // other warps gather x; they sync on their own named barrier.
     __syncthreads();
+    if (kLight && tid == 0) {
+        S.dg[16][1] = gtimer();
+    }
     if (warp == kNC) {
         if (lane == 0) {
             wproducer<MODE>(p, S, cta, G, pol);
@@ -1803,6 +1819,9 @@ __global__ void __launch_bounds__(kNTM, 1) moe_main_kernel(const Params p) {
     if constexpr (kDiag) {
         dt[1] = gtimer();
     }
+    if (kLight && tid == 0) {
+        S.dg[16][2] = gtimer();
+    }
     if (warp < kNC) {
         consumers<MODE>(p, S, ss, cta, G);
     } else if (lane == 0) {
@@ -1812,6 +1831,9 @@ __global__ void __launch_bounds__(kNTM, 1) moe_main_kernel(const Params p) {
     __syncthreads();
     if constexpr (kDiag) {
         dt[2] = gtimer();
+    }
+    if (kLight && tid == 0) {
+        S.dg[16][4] = gtimer();
     }
 
     if (tid == 0) {
@@ -1834,6 +1856,9 @@ __global__ void __launch_bounds__(kNTM, 1) moe_main_kernel(const Params p) {
     __syncthreads();
     if constexpr (kDiag) {
         dt[3] = gtimer();
+    }
+    if (kLight && tid == 0) {
+        S.dg[16][5] = gtimer();
     }
     for (int i = cta * kNTM + tid; i < kJmaxM * 16; i += G * kNTM) {
         p.done_as[i] = 0;
@@ -1864,6 +1889,16 @@ __global__ void __launch_bounds__(kNTM, 1) moe_main_kernel(const Params p) {
         long long* out = reinterpret_cast<long long*>(p.inter) + cta * 18 * 8;
         if (tid < 18 * 8) {
             out[tid] = (&S.dg[0][0])[tid];
+        }
+    }
+    if constexpr (kLight) {
+        __syncthreads();
+        if (tid == 0) {
+            S.dg[16][6] = gtimer();
+        }
+        __syncthreads();
+        if (tid < 8) {
+            reinterpret_cast<long long*>(p.inter)[cta * 8 + tid] = S.dg[16][tid];
         }
     }
 }
@@ -4437,7 +4472,8 @@ def _vname(v):
                 14: "main-m2-ar2", 15: "main-m2-ar-ub",
                 16: "main-m2-ar2-ub", 17: "main-ub-stamps", 18: "main-ub-aonly",
                 19: "main-own-aonly", 20: "main-own", 21: "main-bonly",
-                22: "main-own-stamps", 23: "main-own-dynb", 24: "main-dynb-stamps"}[m]
+                22: "main-own-stamps", 23: "main-own-dynb", 24: "main-dynb-stamps",
+                25: "main-dynb-light"}[m]
     nw, ns, mode = SKINNY_VARIANTS[v]
     return f"sk{nw}w{ns}s{'-loads' if mode else ''}"
 
