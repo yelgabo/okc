@@ -1,6 +1,6 @@
 # Architecture performance tracker
 
-Last review: 2026-10-29 10:24 PDT. Evidence snapshot: `d0c062b`.
+Last review: 2026-10-29 11:20 PDT. Evidence snapshot: `14d6da1`.
 First review reconciles progress since `aab7d75`, the snapshot in the
 [architecture-family guide](architecture-families-2026-10-29.md).
 This is a review of recorded experiments, not a new benchmark run.
@@ -17,6 +17,32 @@ named control, not changes in aggregate score. Families overlap; their gains can
 | C. Owner-completes tiles | Retained in the persistent descendants | Mode 20's owned phase A saves about 2-3 us at 128 and 4 us at 256 over mode 16. Later modes combine ownership with other changes. | Later gains cannot be credited to ownership alone. |
 | D. Dependency-aware scheduling | Dynamic claiming wins; full ready-only scheduler remains untested | Mode 23 claims whole phase B units at run time, beating mode 20 on every normal paired seed across two checks. | It still waits on done_as. This is dynamic work allocation, not a demonstrated queue of exclusively ready jobs. |
 | E. Attention producer-consumer pipeline | Component gains; scheduling losses also recorded | ONE_DCARRY improves full verify at 128/256; run-time CTA pair weighting loses. | Latest DCARRY gain has no layer integration result in the reviewed layer log. |
+
+## Latest review: corrected MoE wait measurements
+
+Job `ca43908f02874886`, code `3f67a45`, corrects a diagnostic defect. The timer previously
+started after the first potentially blocking try-wait, which could hide waiting entirely.
+The earlier claim that fat-path consumers never wait is invalidated. Production instructions
+are unchanged, so this is corrected attribution, not a new production speedup or regression.
+
+| Diagnostic observation | 128 tokens | 256 tokens |
+|---|---:|---:|
+| Phase A weights + activation waits, per consumer warp | 15.73 us | 23.26 us |
+| Phase A waits / stage-loop time | 19.6% | 20.2% |
+| Phase B waits / stage-loop time | 20.9% | 20.8% |
+| Instrumented mode 41 minus production mode 37 | +7.0 us, +4.3% | +6.1 us, +2.7% |
+
+Six paired layer-routing seeds; production controls 164.6 / 227.2 us. The run passes 5/5
+judge tests. Counter overhead is material, and per-warp waits cannot be summed into layer
+savings. The producers still spend about 70% of phase A waiting for free ring slots.
+[Raw log](../muse_moe_w4a16/profiles/bench_fw1.ca43908f02874886.log),
+[measurement report](runs-moe.md#fat-path-waits-with-the-first-try-timed-2026-10-29).
+
+A/C/dynamic-claiming production wins remain supported. B remains a tested loss; no new C,
+ready-only D, E or whole-layer candidate result appeared in the reviewed changes. The same
+three candidates await layer evidence. A proposed per-group load/hoist experiment remains
+unbuilt in the [steering report](steering/2026-10-29-fat-moe-waits.md); its predicted savings
+are hypotheses. This correction motivates a test, not a new winning-family badge.
 
 ## Large-token comparison ledger
 
@@ -100,6 +126,12 @@ those changes attributable when possible. Preserve the whole-layer control when 
 Read the existing [rejection register](ruled-out.md) before treating any old candidate as new.
 
 ## Review history and checkpoint
+
+- 2026-10-29 11:20 PDT: reviewed `d0c062b..14d6da1`, fetched origin/main and found no remote-only
+  commits. Incorporated diagnostic run `ca43908f02874886`, source `3f67a45`, reported by
+  `eced63d`. No new layer result. Prior candidate timing ledger retained. Dashboard summaries
+  and review metadata updated; no kernel, benchmark or submission action. Commits remain local
+  because this automation explicitly forbids pushing.
 
 - 2026-10-29 10:24 PDT: initial reconciliation through `d0c062b`. Read current MoE, attention
   and layer run records, architecture baseline and layer build selection. Recorded wins and

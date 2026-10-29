@@ -6,6 +6,14 @@ report be checked into this repository so other sessions can read it.
 
 ## Latest report
 
+**[2026-10-29 11:20 PDT: Hourly performance review](2026-10-29-1120-performance-review.md)**
+
+Evidence snapshot `14d6da1`, incorporating `ca43908f02874886`. Updates the tracker and dashboard
+with corrected wait attribution. Family winners and layer-test gaps are unchanged. Local commit
+only under the hourly automation's no-push constraint.
+
+## Latest mechanism report
+
 **[2026-10-29: Fat MoE wait accounting and the next mechanism](2026-10-29-fat-moe-waits.md)**
 
 Evidence: code `3f67a45`, check `ca43908f02874886`. It closes section 2 of the overnight report
@@ -60,3 +68,5 @@ and preserving other sessions' work. Verify the remote files and report the path
 to the user. A local file or sandbox link alone is not a completed cross-session handoff.
 If a push is blocked, say so explicitly; do not claim the other session can read it yet.
 An explicit user request not to write to the repository takes precedence.
+
+Hourly review history: [11:20 PDT performance review](2026-10-29-1120-performance-review.md).
