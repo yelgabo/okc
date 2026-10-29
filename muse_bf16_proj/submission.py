@@ -88,6 +88,12 @@ SK_GEOM = {
     "slice8": (1, 8, 1, 1, 8, 2, 4),
     "unp16": (1, 16, 2, 2, 2, 2, 3),
     "unp32": (2, 32, 4, 2, 2, 2, 3),
+    # An optional eighth field CL splits K across a cluster of CL CTAs that share one row block
+    # (DSMEM reduction into rank 0). At 32 tokens each CTA then streams 1/CL of x for twice the
+    # rows: the per-CTA x bytes (512 KB for the pooler, more than its 384 KB of weights) halve.
+    "pool32c": (2, 32, 4, 2, 2, 2, 5, 2),
+    "pool32cw": (2, 32, 4, 2, 4, 1, 5, 2),
+    "unp32c": (2, 32, 8, 2, 2, 1, 4, 2),
 }
 ROUTER_GEOM = {
     "router8": (1, 8, 1, 1, 8, 1, 6),
@@ -105,7 +111,14 @@ SK_USE = {
     ("router", 8): "router8", ("router", 16): "router16", ("router", 32): "router32",
 }
 # tools/make_bench.py adds alternative geometries here; prepare() times them beside the picks.
-SK_EXTRA = {}
+SK_EXTRA = {("pooler", 32): ["pool32c", "pool32cw"], ("unpooler", 32): ["unp32c"]}
+# Diagnostic timings printed by prepare(): (layer, ((config, bucket, token counts), ...)).
+SK_SWEEP = (
+    ("pooler", (("pool32", 32, (1, 8, 16, 24, 32)), ("pool32raw", 32, (16, 32)), ("pool16", 16, (16,)),
+                ("pool32c", 32, (16, 32)), ("pool32craw", 32, (16, 32)), ("pool32cw", 32, (32,)))),
+    ("unpooler", (("unp32", 32, (16, 32)), ("unp16", 16, (16,)), ("unp32c", 32, (16, 32)))),
+    ("qkv_gate", (("qkv32", 32, (1, 16, 32)), ("qkv32raw", 32, (16, 32)), ("qkv16", 16, (16,)))),
+)
 SMEM_BUDGET = 227 * 1024
 SMEM_PER_SM = 228 * 1024
 
@@ -113,18 +126,20 @@ SMEM_PER_SM = 228 * 1024
 def _sk_configs():
     """Every kernel instantiation: (name, MT, TOKR, NT, NWR, WSK, UPW, NSTAGE, COMP, HL, NACC, CL, out, fuse)."""
     cfgs = []
-    for name, (mt, tokr, nt, nwr, wsk, upw, nstage) in SK_GEOM.items():
+    for name, geom in SK_GEOM.items():
+        mt, tokr, nt, nwr, wsk, upw, nstage = geom[:7]
+        cl = geom[7] if len(geom) > 7 else 1
         for comp in (True, False):
             cname = name if comp else name + "raw"
             cfgs.append((cname, mt, tokr, nt, nwr, wsk, upw,
-                         _fit_stages(mt, tokr, nt, nwr, wsk, upw, nstage, comp, False, 1), comp, False, 1, 1, "bf16",
-                         False))
+                         _fit_stages(mt, tokr, nt, nwr, wsk, upw, nstage, comp, False, cl), comp, False, 1, cl,
+                         "bf16", False))
     for name, (mt, tokr, nt, nwr, wsk, upw, nstage) in ROUTER_GEOM.items():
         cfgs.append((name, mt, tokr, nt, nwr, wsk, upw,
                      _fit_stages(mt, tokr, nt, nwr, wsk, upw, nstage, False, True, 3), False, True, 2, 3, "f32",
                      False))
     for name in FUSED_GEOM:
-        mt, tokr, nt, nwr, wsk, upw, nstage = SK_GEOM[name]
+        mt, tokr, nt, nwr, wsk, upw, nstage = SK_GEOM[name][:7]
         cfgs.append((name + "f", mt, tokr, nt, nwr, wsk, upw,
                      _fit_stages(mt, tokr, nt, nwr, wsk, upw, nstage, True, False, 1, True), True, False, 1, 1,
                      "bf16", True))
@@ -381,7 +396,6 @@ struct SkCfg {
     static_assert(!FUSE || (COMP && CL == 1 && NW * RUPW == UPS && NW * TOKS * 8 * 4 <= NSTAGE * SST),
                   "fused piece geometry");
     static_assert(TOKR == 16 * MT || (TOKR == 8 && MT == 1), "TOKR must match MT");
-    static_assert(!(COMP && CL > 1), "escape warps are not clustered");
     static_assert(NESC <= NSTAGE, "escape warps take turns on stages");
 };
 
@@ -456,11 +470,20 @@ sk_kernel(const __grid_constant__ CUtensorMap xmap, const uint8_t* __restrict__ 
                 mbar_init(empty0 + 8 * i, NW + NESC);
             }
             mbar_init(qbar, 1);
+            if constexpr (COMP) {
+                mbar_init(pbar, 1);
+                mbar_init(cbar, NESC);
+            }
             if (crank == 0) {
                 mbar_expect_tx(qbar, (CL - 1) * NC * MT * NT * 16);
             }
             fence_mbar_init();
             issue(0);
+            if constexpr (COMP) {
+                // Both ranks of a row block load the same table; each corrects its own K range.
+                mbar_expect_tx(pbar, tab_ints * 4);
+                bulk_g2s(smem_u32(tab), ptab + (size_t)rb * tab_ints, tab_ints * 4, pbar);
+            }
         } else {
             // Stage 0 goes out before anything else: its latency is the ramp of the kernel.
             mbar_init(full0, 1);
@@ -526,6 +549,9 @@ sk_kernel(const __grid_constant__ CUtensorMap xmap, const uint8_t* __restrict__ 
             }
             const int cnt = dead ? 0 : tab[0];
             int pe = 1;
+            while (pe <= cnt && (tab[2 * pe] & 0xFFFF) < gs0 * KST) {
+                ++pe;
+            }
             for (int st = 0; st < nst_tot; ++st) {
                 const int slot = st % NSTAGE;
                 const int kbeg = (gs0 + st) * KST, kend = kbeg + KST;
@@ -737,6 +763,20 @@ sk_kernel(const __grid_constant__ CUtensorMap xmap, const uint8_t* __restrict__ 
 #pragma unroll
                     for (int c = 1; c < NACC; ++c) {
                         v[e] += acc[c][mt][nt][e];
+                    }
+                }
+                if constexpr (COMP) {
+                    // Rank 0 sums only its own escape warps, so this rank's corrections ride
+                    // along with its partials, once per row (the wk == 0 warp).
+                    if (wk == 0) {
+#pragma unroll
+                        for (int c = 0; c < NESC; ++c) {
+                            const float* cr = corr + c * CSZ + tok * CP + row;
+                            v[0] += cr[0];
+                            v[1] += cr[1];
+                            v[2] += cr[8 * CP];
+                            v[3] += cr[8 * CP + 1];
+                        }
                     }
                 }
                 const uint32_t a0 = peer_r + (uint32_t)(((wk * TOKS + tok) * RP + row) * 4);
@@ -2076,6 +2116,19 @@ def _self_test(name, fn, w, nrows, ms, tol, gen, diag):
             raise RuntimeError(f"{name} m={m}: rel err {err:.3e}, probe err {perr:.3e}, diag {int(diag[0])}")
 
 
+def _match_twin(fn, twin, ms, k, gen, dev):
+    """A K-split config against the unsplit config on the same stream format: only the FP32
+    summation order differs, so every element must agree to within two bf16 ulps. The FP64
+    self-test's relative-L2 tolerance could miss a few dropped escape corrections; this cannot."""
+    for m in ms:
+        x, _ = _gen_x(m, k, gen, dev)
+        a, b = fn(x).double(), twin(x).double()
+        torch.cuda.synchronize()
+        bad = int(((a - b).abs() > 2 ** -6 * torch.maximum(a.abs(), b.abs()) + 1e-5).sum())
+        if bad:
+            raise RuntimeError(f"m={m}: {bad} elements differ from the unsplit twin by more than 2 ulps")
+
+
 def _time_candidates(fns, x, flush):
     """Median microseconds per candidate over TUNE_REPS CUDA-graph replays from a cold L2,
     candidates interleaved in alternating order so drift cancels."""
@@ -2259,6 +2312,7 @@ def prepare(weights):
             print(f"pack {layer}: base {packed['base']}, {packed['escapes']} escapes, "
                   f"{packed['inexact']} inexact deltas, {time.time() - t0:.1f} s")
             for b, lst in names.items():
+                twin = None
                 for nm in lst:
                     if nm not in packed["streams"]:
                         continue
@@ -2266,6 +2320,14 @@ def prepare(weights):
                     tab, pmax = packed["tabs"][(geoms[nm]["R"], nrows)]
                     fn = _sk_runner(ext, nm, packed["streams"][nm], tab, pmax, packed["base4"], nrows, k,
                                     torch.bfloat16, diag)
+                    if twin is None:
+                        twin = fn
+                    elif geoms[nm]["cl"] > 1:
+                        try:
+                            _match_twin(fn, twin, ms_of[b], k, gen, dev)
+                        except Exception as exc:
+                            print(f"selftest {layer} {nm}: disabled ({type(exc).__name__}: {str(exc)[-300:]})")
+                            continue
                     add(layer, b, nm, fn, w, nrows, ms_of[b], SELFTEST_TOL["bf16"])
         elif comp_names:
             print(f"pack {layer}: rejected, raw BF16 only")
@@ -2349,6 +2411,24 @@ def prepare(weights):
         for m in range(9, WD_BUCKETS[-1] + 1):
             if (layer, m) not in state["pick"]:
                 state["pick"][(layer, m)] = state["pick"][(layer, bucket_of(m))]
+    for layer, entries in SK_SWEEP:
+        # One compiled kernel at several M runs the same instructions (rows >= M read the zero
+        # row), so its time against M isolates the x bytes each CTA streams.
+        fns, labels = [], []
+        for nm, b, ms in entries:
+            fn = next((c[1] for c in cands.get((layer, b), []) if c[0] == nm), None)
+            if fn is None:
+                continue
+            for m in ms:
+                fns.append(lambda x, fn=fn, m=m: fn(x[:m]))
+                labels.append(f"{nm}@{m}")
+        try:
+            x, _ = _gen_x(32, state[layer].shape[1], gen, dev)
+            us = _time_candidates(fns, x, flush)
+            print(f"sweep {layer}: " + ", ".join(f"{lb} {t:.1f}" for lb, t in zip(labels, us)))
+        except Exception as exc:
+            torch.cuda.synchronize()
+            print(f"sweep {layer}: failed ({type(exc).__name__}: {str(exc)[-200:]})")
     for (layer, m), base in WD_ABLATE.items():
         is_router = layer == "router"
         w = state["router_hilo"] if is_router else state[layer]
