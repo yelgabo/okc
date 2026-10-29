@@ -84,18 +84,20 @@ SK_GEOM = {
     "o32": (2, 32, 2, 2, 2, 2, 3),
     "pool8": (1, 8, 1, 2, 2, 4, 3),
     "pool16": (1, 16, 2, 2, 2, 4, 4),
-    "pool32": (2, 32, 2, 2, 2, 2, 5),
+    # Four units per consumer warp per stage (16 stages): with 2 (pool32u2) the same kernel ran
+    # 2.8 us slower at 32 tokens and equally slow at 1 or 16 tokens (checks a9ff49372ffa4eaf,
+    # 105c1beba7284938).
+    "pool32": (2, 32, 2, 2, 2, 4, 4),
     "slice8": (1, 8, 1, 1, 8, 2, 4),
     "unp16": (1, 16, 2, 2, 2, 2, 3),
     "unp32": (2, 32, 4, 2, 2, 2, 3),
     # Optional fields 8 and 9: CL splits K across a cluster of CL CTAs sharing one row block
-    # (DSMEM reduction into rank 0); NACC accumulator sets. Factor split of pool32's extra cost
-    # over pool16: pool32's ring with MT = 1, pool16's ring with MT = 2, two accumulator sets,
-    # two consumer warps per SM sub-partition.
-    "p32mt1": (1, 16, 2, 2, 2, 2, 5),
-    "p16mt2": (2, 32, 2, 2, 2, 4, 4),
-    "pool32a2": (2, 32, 2, 2, 2, 2, 5, 1, 2),
-    "pool32w8": (2, 32, 2, 2, 4, 1, 5),
+    # (DSMEM reduction into rank 0); NACC accumulator sets.
+    "pool32u2": (2, 32, 2, 2, 2, 2, 5),
+    "pool32w8u2": (2, 32, 2, 2, 4, 2, 5),
+    "unp32u4": (2, 32, 4, 2, 2, 4, 3),
+    "unp32r32": (2, 32, 2, 2, 2, 2, 3),
+    "qkv32u4": (2, 32, 3, 1, 4, 4, 3),
 }
 ROUTER_GEOM = {
     "router8": (1, 8, 1, 1, 8, 1, 6),
@@ -113,12 +115,11 @@ SK_USE = {
     ("router", 8): "router8", ("router", 16): "router16", ("router", 32): "router32",
 }
 # tools/make_bench.py adds alternative geometries here; prepare() times them beside the picks.
-SK_EXTRA = {("pooler", 16): ["p32mt1"], ("pooler", 32): ["p16mt2", "pool32a2", "pool32w8"]}
+SK_EXTRA = {("pooler", 32): ["pool32u2", "pool32w8u2"], ("unpooler", 32): ["unp32u4", "unp32r32"],
+            ("qkv_gate", 32): ["qkv32u4"]}
 # Diagnostic timings printed by prepare(): (layer, ((config, bucket, token counts), ...)).
 SK_SWEEP = (
-    ("pooler", (("pool32", 32, (16, 32)), ("pool16", 16, (16,)), ("p32mt1", 16, (16,)), ("pool32raw", 32, (16, 32)),
-                ("pool16raw", 16, (16,)), ("p32mt1raw", 16, (16,)), ("p16mt2", 32, (16, 32)),
-                ("pool32a2", 32, (32,)), ("pool32w8", 32, (32,)))),
+    ("pooler", (("pool32", 32, (16, 32)), ("pool32u2", 32, (16, 32)), ("pool16", 16, (16,)))),
 )
 SMEM_BUDGET = 227 * 1024
 SMEM_PER_SM = 228 * 1024
