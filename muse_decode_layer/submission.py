@@ -11326,8 +11326,8 @@ def _moe1_name(variant):
 
 def _moe1_check(state):
     """The scratch invariant after a completed launch: no spin timeout, the next generation's
-    barrier counter and sum-of-squares copy zero, mode 23's phase B claim counter zero, every
-    per-job flag zero."""
+    barrier counter and sum-of-squares copy zero, mode 23's phase B claim counter zero (CTA 0
+    zeroes it after the grid barrier), every per-job flag zero."""
     s = state["moe1"]["scratch"]
     ctr = s["ctr"]
     gen = int(ctr[3])
