@@ -35,16 +35,18 @@ constexpr float NEG_INF = -INFINITY;
 constexpr float OFF_FLOOR = -1e30f;
 constexpr int COOP_POLL_LIMIT = 1 << 24;
 
-// ONE_DIAG: the phase exits and timer stamps (bench-only diagnostics). Each one is a test and a
-// taken branch on the once-per-launch path, which runs from a cold instruction cache.
+// ONE_DIAG (off by default; a bench builds it with -DONE_DIAG=1): the phase exits and timer
+// stamps. Each one is a test and a taken branch on the once-per-launch path, which runs from a
+// cold instruction cache.
 #ifndef ONE_DIAG
-#define ONE_DIAG 1
+#define ONE_DIAG 0
 #endif
 // ONE_DIET: once-path code without integer division by the page size (shift and mask by its
 // log2), with straight-line query copies and query pass, branch-free predicated row copies in
-// the prologue issue, and no page-index copies for tiles past the CTA's range.
+// the prologue issue, and no page-index copies for tiles past the CTA's range. Off and on are
+// timed side by side in bench d57d1fe064164611 (docs/runs-attention.md, 10-29).
 #ifndef ONE_DIET
-#define ONE_DIET 0
+#define ONE_DIET 1
 #endif
 
 // MODE bits: 1 = last-CTA finalize, 3 = cooperative finalize (every CTA a slice of rows),
@@ -607,6 +609,10 @@ attn_one_kernel(const Params p) {
     static_assert(!FLAT || !(ONE || SPEC), "flat mode partitions its own ranges");
     static_assert(!PROD || FLAT, "the producer warpgroup belongs to the flat kernel");
     static_assert(!SOLO || PROD, "SOLO is a producer-mode variant");
+    // The q_len 8 producer builds keep the plain once-path: with the diet, mode 51 timed 1.0-1.9
+    // us slower than without it at full verify b16 / b32 in all four samples of bench
+    // d57d1fe064164611 (docs/runs-attention.md, 10-29).
+    constexpr bool DIET = ONE_DIET && !(PROD && L == 8);
     // NC consumer threads (one warpgroup per KV head at q_len 8, four warps at q_len 1); in
     // producer mode one more warpgroup gathers the tiles.
     constexpr int NC = L == 8 ? 256 : 128;
@@ -789,7 +795,7 @@ attn_one_kernel(const Params p) {
                 if (tile >= ntiles || pos >= seq) {
                     return 0;
                 }
-                if constexpr (ONE_DIET) {
+                if constexpr (DIET) {
                     return __ldg(pt + (pos >> p.lp));
                 }
                 return __ldg(pt + (psize == 1 ? pos : pos / psize));
@@ -825,7 +831,7 @@ attn_one_kernel(const Params p) {
                             const uint32_t vd = vdst + r * ROWB + v_swz<L>(ch, r) * 16;
                             if (pos < seq) {
                                 int64_t row = pe[u][i];
-                                if constexpr (ONE_DIET) {
+                                if constexpr (DIET) {
                                     row = (row << p.lp) + (pos & (psize - 1));
                                 } else if (psize != 1) {
                                     row = row * psize + pos % psize;
@@ -876,7 +882,7 @@ attn_one_kernel(const Params p) {
 
     // ------------------------------------------------------------------ consumers
     auto issue_idx = [&](int tile) {
-        if constexpr (ONE_DIET) {
+        if constexpr (DIET) {
             // Entries of tiles past the range are never read (issue_kv reads an entry only
             // for a cached row of a tile below ntiles), so they need no zero-filling copy.
             if (tid < BN && tile < ntiles) {
@@ -910,7 +916,7 @@ attn_one_kernel(const Params p) {
         const int pos0 = lo + tile * BN;
         const uint32_t kdst = smem_base + S::KV + st * 2 * TILE_BYTES;
         const uint32_t vdst = kdst + TILE_BYTES;
-        if constexpr (ONE_DIET) {
+        if constexpr (DIET) {
             if (!patch) {
                 // Prologue issue, branch-free: cached rows copy, rows past the range
                 // zero-fill, the block's own rows are left for patch_tile.
@@ -941,7 +947,7 @@ attn_one_kernel(const Params p) {
             const uint32_t vd = vdst + r * ROWB + v_swz<L>(ch, r) * 16;
             if (pos < seq) {
                 int64_t row = idx[r];
-                if constexpr (ONE_DIET) {
+                if constexpr (DIET) {
                     row = (row << p.lp) + (pos & (psize - 1));
                 } else if (psize != 1) {
                     row = row * psize + pos % psize;
@@ -1034,7 +1040,7 @@ attn_one_kernel(const Params p) {
         // constants; the range holding the request's first key prefetches the gate rows.
         {
             const __nv_bfloat16* qbase = p.qkv + static_cast<size_t>(b) * L * QKV_STRIDE;
-            if constexpr (ONE_DIET) {
+            if constexpr (DIET) {
                 static_assert(ROWS * 8 % NC == 0, "whole passes of the consumer threads");
 #pragma unroll
                 for (int k = 0; k < ROWS * 8 / NC; ++k) {
@@ -1180,7 +1186,7 @@ attn_one_kernel(const Params p) {
                     make_uint2(e4m3x4(x[0], x[1], x[2], x[3]), e4m3x4(x[4], x[5], x[6], x[7]));
             }
         };
-        if constexpr (ONE_DIET) {
+        if constexpr (DIET) {
 #pragma unroll
             for (int k = 0; k < ROWS * 8 / NC; ++k) {
                 q_piece(tid + k * NC);
