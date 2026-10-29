@@ -56,6 +56,10 @@ SGLang with its 95% interval. Profiles and logs are in `muse_moe_w4a16/profiles/
 | 2026-10-29 | a9dbec1d98334943 (check) | 10375cb | modes 22 (20 with stamps), 23 (20 with phase B units claimed at run time from a global counter in S.ord order, both phases walked largest n-tile count first) and 24 (23 with stamps); GATE 16 / 20 / 23 on seeds 11-16 with the variant order reversed on every other seed; built modes 0, 1, 16, 20, 22, 23, 24 | 2.076x (2.045-2.107) | per shape: bs1 29.17, bs16 97.20, bs32 137.53, bs8 72.30, bs128 219.92 (2.083x, main-own-dynb), bs256 269.21 (2.289x, main-own-dynb). GATE (us, mean of 6 seeds): bs128 16 248.1, 20 246.2, 23 230.0; 23 minus 20 per seed -15.9 -14.2 -14.9 -18.3 -14.4 -19.2 (mean -16.2); bs256 16 287.4, 20 283.7, 23 267.6; 23 minus 20 -9.2 -17.8 -26.3 -13.8 -20.3 -9.4 (mean -16.1). Output of 23 vs 16 1.1e-4 to 2.4e-4 (same as 20 vs 16); self-tests 3.9e-3 vs FP32; spin flags 0. BENCH bs128 main-own-dynb 231.2, main-own 246.0; bs256 257.0 vs 268.8. Stamps in section "Phase B claimed at run time" below. The log is a tail: the DIAG22 lines for bs128 seed 11 were cut. Build 149 s |
 | 2026-10-29 | 36812632dae242ba (check) | ec219f0 | the shippable build: modes 0, 1, 16, 20, 23; GATE on held-out seeds 17-22 and on skewed routing (seeds 11-13) | 2.077x (2.046-2.108) | per shape: bs1 28.05, bs16 101.53, bs32 133.82, bs8 66.30, bs128 221.07 (2.072x, main-own-dynb), bs256 270.57 (2.278x, main-own-dynb). GATE held-out normal: bs128 16 259.9, 20 263.3, 23 240.4; 23 minus 20 -26.7 -19.8 -28.6 -11.8 -30.4 -20.2 (mean -22.9), 23 minus 16 mean -19.5; bs256 16 310.7, 20 304.6, 23 285.9; 23 minus 20 -21.3 -12.6 -25.3 -26.1 -13.4 -13.4 (mean -18.7), minus 16 mean -24.8. Skewed: bs128 23 minus 20 -4.4 -1.9 -8.3 (mean -4.8); bs256 -26.0 -26.4 -16.3 (mean -22.9). 24 of 24 paired seeds favour 23 over 20 across both checks. Judge bs128 219.9 / 221.1 us against 239.6 / 245.9 / 247.7 for mode 20's three runs, bs256 269.2 / 270.6 against 283.8 / 288.7 / 291.4. Build 146 s |
 | 2026-10-29 | fa18c9e87d6e4811 (submit, under the standing replace-when-demonstrably-better authorization) | beb1924 | mode 23 file as checked in 36812632dae242ba | 2.070x | passed. POLICY {1-32: sk8w4s, 128: main-own-dynb, 256: main-own-dynb}. BENCH bs128 main-own-dynb 231.3, main-own 246.0; bs256 256.2 vs 268.5. New board entry over b99aa87cabdd430c (2.034x) |
+| 2026-10-29 | d1f587760b1241dc (check, bench file from tools/moe_make_bench_ab.py, not committed: it embeds the public MoE file) | 35ab79e | same-process A/B: mode 23 and sk8w4s against the public MoE kernel (vjeux/okc-2026 muse_moe_w4a16.py, MAIN build) at 32, 128, 256 tokens on six seeds of the standalone routing and six of a port of the layer's judge routing; mode 25 (23 with thread-0 phase stamps only) against the public kernel's own OKC_DEBUG stamps | 2.064x (2.033-2.095) | public minus mode 23, us (6 of 6 seeds lower in every row): T=32 std -18.0, layer -12.8; T=128 std -34.9, layer -32.2; T=256 std -52.5, layer -45.7. Attribution in section "Same-process A/B against the public MoE" below. Outputs vs FP32: ours 3.84e-3 to 3.86e-3, public 2.34e-3 (it does not round gate, up and the GEMM2 output to bf16). Mode 25 costs nothing (BENCH bs128 231.9 vs 23 at 232.7). Policy unchanged (sk8w4s to 32, main-own-dynb at 128 and 256) |
+| 2026-10-29 | 39c365c34cd74559 (check, bench file) | 9c384a6 | mode 26: mode 23 with every warp counting the routes (the routing warp sums 18 per-warp counts instead of counting all E entries alone, and the positions reuse them) and a batched x gather (all of a CTA's 16-byte row loads before its stores); 27 is 26 with the stamps | 2.083x (2.052-2.115) | 26 minus 23, seeds 1-6, us: T=128 std -4.3, layer -3.7; T=256 std -8.2, layer -8.5; T=32 layer -0.5 (6 of 6 lower in each). Stamped route 11.0 -> 7.7 us at 128 layer, 16.1 -> 9.6 at 256; the routing warp still 4-5 us and thread 0's stage-range searches 2.3-3.1 us. Output of 26 vs 23 7e-6 to 3e-5. POLICY 128 and 256: main-dynb-fs. The log is a tail: the T=32 std lines were cut |
+| 2026-10-29 | 4c285df44eb34bc1 (check, bench file) | c850d04 | 26 and 27 skip the four stage_at searches (owned phase A and claimed phase B read no stage range); routing-warp stamps; seeds 7-12 (held out from the two checks before) | 2.097x (2.066-2.129) | 26 minus 23, us: T=32 layer -1.4; T=128 std -5.8, layer -4.6; T=256 std -9.8, layer -9.1 (6 of 6 lower in each). Stamped route at 128 5.8 us (public 2.4): ids 0.5, routing warp 4.4 (counts and offsets 1.1, jobs 0.6, S.ord counting sort 2.5), positions 0.5, ranges 0.3. Public minus 23 on these seeds: T=128 -36.1 / -31.9, T=256 -50.2 / -50.1 |
+| 2026-10-29 | 817eab6401d54a84 (check) | ba9a457 | the shippable build: modes 0, 1, 16, 20, 23, 26; GATE adds 26 minus 23 (held-out seeds 17-22, skewed 11-13) | 2.104x (2.073-2.136) | per shape: bs1 28.37 us, bs16 97.81, bs32 138.70, bs8 71.65, bs128 215.68 (2.148x, main-dynb-fs), bs256 261.71 (2.371x, main-dynb-fs). GATE 26 minus 23 per seed: bs128 -5.1 -6.0 -7.0 -5.1 -6.6 -5.2 (mean -5.8); bs256 -9.8 -9.3 -9.5 -9.7 -9.2 -9.8 (mean -9.5); skewed bs128 -4.2, bs256 -7.7 (3 of 3 each). Output of 26 vs 16 matches 23's (7.8e-5 to 3.5e-4); self-tests 3.89e-3 vs FP32; spin flags 0. BENCH bs128 main-dynb-fs 226.4, main-own-dynb 231.6; bs256 248.9 vs 258.6. Judge bs128 215.7 us against 219.9 / 221.1 for mode 23's two runs, bs256 261.7 against 269.2 / 270.6. Build 145 s. Submit candidate: ba9a457 (not submitted) |
 
 ## Why the layer keeps the W4 chain at 128 tokens, 2026-10-29
 
@@ -243,6 +247,87 @@ allocation; SmemMain grows by 256 bytes to 228,736) and let the layer's judge-li
 choose. What is left of the tail (7-16 us stamped) is about half a phase B unit (16 stages of
 1.3-1.4 us at one n8 tile). Splitting only the last units with split-K would cut it at most in
 half, and the cost model put a phase B cut at about 10 us, so it was not tried.
+
+## Same-process A/B against the public MoE, 2026-10-29
+
+Method. `tools/moe_make_bench_ab.py OUT.py PUBLIC.py [--seeds=..] [ARM=MODE ..]` appends to
+submission.py a block that runs at import, before the judge's prepare(): random NVFP4 weights for
+32 experts (the judge rejects a file that imports reference.py; timing does not depend on the
+values), our state, and the public file (vjeux/okc-2026 `muse_moe_w4a16.py`, copy in the session
+scratchpad, its small-batch builds switched off so only the MAIN build compiles) with its own
+prepare(). Both kernels run on the same inputs, graph replay after a 256 MB L2 flush, median of 20,
+arms interleaved and reversed on every other seed. Two routings: "std" is reference.py's
+generate_input (the standalone board); "layer" ports the layer's judge routing (residual stream
+with the mean and shared directions, residual boundary, sigmoid router with bias, busiest 32-expert
+range), router seed picked so the busiest local expert matches the layer's own SUMMARY lines
+(measured 18-23, 50-59, 105-128 routes at 32 / 128 / 256 tokens against 20-22, 51-55, 100-124 in
+80b98f567aa74dd0). Stamps: mode 25 (thread 0's globaltimer at the phase boundaries, no cost in the
+bench) against the public kernel built with its OKC_DEBUG stamps, its DBG(3) moved to the CTA-wide
+point before the grid barrier so both kernels mark the same events.
+
+Attribution, check d1f587760b1241dc, layer routing, mean of six seeds, us. Setup = start to the
+first consumer stage (routing, then the x gather). Phase A and phase B are per-CTA means (thread
+0's end of phase A, then all consumers done). Tail = slowest CTA's consumers minus the mean.
+
+| | T=32 ours / public | T=128 ours / public | T=256 ours / public |
+|---|---|---|---|
+| setup (routing part) | 11.1 (7.2) / 3.9 (1.9) | 17.7 (10.9) / 6.1 (2.4) | 24.0 (15.9) / 8.4 (3.3) |
+| phase A | 51.8 / 49.5 | 97.7 / 87.2 | 137.4 / 119.5 |
+| phase B | 23.8 / 23.0 | 49.8 / 43.0 | 67.4 / 58.0 |
+| tail | 8.8 / 4.0 | 10.4 / 4.7 | 8.5 / 6.4 |
+| barrier wait + final pass | 2.4 / 2.3 | 4.2 / 4.3 | 6.4 / 6.3 |
+| launch end (stamped) | 98.9 / 85.6 | 180.3 / 146.4 | 244.2 / 200.3 |
+| ours minus public: setup / A / B / tail | +7.2 / +2.3 / +0.8 / +4.8 | +11.6 / +10.5 / +6.8 / +5.7 | +15.6 / +17.9 / +9.4 / +2.1 |
+| graph replay, paired (public minus 23) | -12.8 | -32.2 | -45.7 |
+
+Standalone routing gives the same order: setup +6.6 / +10.9 / +15.2, phase A +6.3 / +15.6 / +24.1,
+phase B +2.4 / +6.2 / +10.0, tail +6.4 / +3.9 / +3.6 us at 32 / 128 / 256 (replay gap -18.0 /
+-34.9 / -52.5). The final pass is at parity everywhere. Setup is the largest single item at 32 and
+128 tokens; phase A is the largest at 256.
+
+SASS (local nvcc 12.8, sm_90a, `tools/moe_compile_fused.sh` for ours at e261521, the public CUDA source with
+its MAIN defines; counts in `muse_moe_w4a16/profiles/sass_stage_loop_vs_public.2026-10-29.txt`). Both kernels cap at 96 registers; ours spills (64-byte frame, 120 B stores, 308 B
+loads, outside the stage loop), the public one does not. The 256-k stage loop of one wgmma shape (16
+HGMMA, here m64n24k16) is 389-391 instructions in our mode 23 against 322 in the public kernel. The
+dequant and MMA core is the same (LOP3 85 / 80, HMUL2 64 / 64, IMAD.SHL 28 / 32, SHF 33 / 32, PRMT
+8 / 16, UIADD3.64 15 / 15); the difference is waiting and bookkeeping: four mbarrier try-waits per
+stage against two, the spin-timeout path (clock reads, ATOMG.OR on ctr[8], YIELD), the
+fence.proxy.async.shared::cta before the x-slot release (MEMBAR.ALL.CTA + FENCE.VIEW.ASYNC.S), and
+more address and branch work (LEA 9 / 1, ISETP 10 / 2, BRA 10 / 3). How much of phase A's +10-24 us
+that explains is not measured.
+
+Change tested (mode 26), the setup half: the public route() lets every warp count its slice once
+and warp 0 combines the per-warp counts; ours had one warp count all E entries serially and then
+position_pass counted them again in every warp. Mode 26 counts once in all 18 warps, the routing
+warp sums the counts and writes each warp's offsets, the positions reuse them; the x gather issues a
+CTA's row loads (16 B, up to 8 rows) before the stores, as the public gather does; and the four
+stage_at searches thread 0 ran for stage ranges are dropped, since owned phase A units and claimed
+phase B units never read them. No fence, barrier or handoff changes: the gather keeps
+fence.proxy.async.global, __threadfence, the named barrier and red.release on xready; the new
+shared-memory traffic (per-warp counts, offsets) is ordered by the __syncthreads already between
+the steps.
+
+| 26 minus 23, us (paired) | 32 tokens | 128 tokens | 256 tokens |
+|---|---|---|---|
+| layer routing, seeds 1-6 (39c365c34cd74559, without the range change) | -0.5 | -3.7 | -8.5 |
+| layer routing, seeds 7-12 (4c285df44eb34bc1) | -1.4 | -4.6 | -9.1 |
+| standalone routing, seeds 7-12 (4c285df44eb34bc1) | | -5.8 | -9.8 |
+| standalone, held-out seeds 17-22 (GATE, 817eab6401d54a84) | | -5.8 | -9.5 |
+| skewed, seeds 11-13 (GATE, 817eab6401d54a84) | | -4.2 | -7.7 |
+
+Every paired seed favours 26 (66 of 66 at 128 and 256, 12 of 12 at 32 on layer routing). The
+stamped routing at 128 tokens fell from 11.0 to 5.8 us (public 2.4): what is left is the S.ord
+counting sort (2.5 us, eight dependent rounds in one warp) and the rest of the routing warp (1.9).
+
+Verdict and next step. Mode 26 is the standalone policy at 128 and 256 tokens (817eab6401d54a84,
+2.104x). Port it to the layer: add 26 to `LAYER_MODES` in `tools/dl_moe_inline.py`; the kernel's
+interface, scratch and SmemMain size (228,736 bytes) are mode 23's. On the layer-like routing it
+saves 3.7-4.6 us at 128 tokens and 8.5-9.1 at 256, and 0.5-1.4 at 32. After it the same-process gap
+to the public kernel is about 27 us at 128 and 41 at 256 (layer routing), mostly phase A (+10.5 /
++17.9), phase B (+6.8 / +9.4), the tail and the rest of setup (+6 us). The gap map's E1 (job table
+built on the side stream) now has a ceiling of the remaining routing, 5.8-7.4 us at 128-256 tokens,
+of which an in-kernel sort that does not take eight serial rounds would recover part without a new
+cross-launch handoff; the E1 arm itself was not built.
 
 ## Staged GEMM1 gate, 2026-10-29
 
