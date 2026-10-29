@@ -16249,18 +16249,23 @@ def _one_ws_check(st):
                 f"coop_next_parity_nonzero={coop_nz} flat_next_parity_nonzero={flat_nz}")
 
 
-def _one_stress(state, batch, length, layer, replays, seed):
+def _one_stress(state, batch, length, layer, replays, seed, ctx=None, expect=None):
     """One shape captured as a graph and replayed `replays` times back to back, then the
     replayed output against an eager call (the workspace atomics make the sums
     order-dependent at the 1e-7 level, so bitwise equality is not expected) and against
     SGLang's path, a NaN check and the workspace invariant. On the batch-1 page-1 shape the
     sequence length is then shrunk by one tile in place, so the speculated length is wrong
-    and the device must take the real one, for 50 more replays with the same checks."""
+    and the device must take the real one, for 50 more replays with the same checks. expect:
+    the (nc, mode) the plan must select; a different plan raises, so a case meant to cover a
+    mode cannot silently cover another."""
     device = state["inv_freq"].device
     st = state["one"]
-    qkv, data = _attn_case(device, batch, length, layer, 1, 1.0, seed)
+    qkv, data = _attn_case(device, batch, length, layer, 1, 1.0, seed, ctx=ctx)
     ours = dict(data, k_cache=data["k_cache"].clone(), v_cache=data["v_cache"].clone())
     plan = _one_plan(data["config"], data["page_table"].shape[1], st["resident"])
+    if expect is not None and tuple(plan[1:]) != tuple(expect):
+        raise RuntimeError(f"attn one stress {batch}x{length} {layer}: plan {plan}, expected "
+                           f"(nc, mode) {expect}")
     ref = _attn_sglang(qkv.clone(), data, state)
     stream = torch.cuda.Stream(device)
     stream.wait_stream(torch.cuda.current_stream())
@@ -16337,12 +16342,16 @@ def _attn_one_self_test(state):
              (1, 8, "full", 64, 1.0), (1, 1, "sliding", 64, 1.0, 10)]
     _attn_self_test(state, after_case=after_case, extra_cases=extra)
     print(f"attn one: cases {time.time() - t1:.1f} s")
-    for i, (batch, length, layer) in enumerate(((1, 1, "sliding"), (16, 1, "full"),
-                                                (1, 8, "sliding"), (16, 8, "full"),
-                                                (32, 8, "full"), (1, 1, "full"),
-                                                (1, 8, "full"))):
+    # (batch, q_len, layer, ctx, (nc, mode) the plan must pick): the scored plans. Batch 1 full
+    # needs more than 252 tiles (ctx 20000) for mode 11 with eight copies (ONE_FIN8); the
+    # default ctx of 1500-5000 plans mode 15 there (check 9b921febc7ad4140's stress lines).
+    stresses = ((1, 1, "sliding", None, (1, 13)), (16, 1, "full", None, (1, 49)),
+                (1, 8, "sliding", None, (1, 15)), (16, 8, "full", None, (1, 51)),
+                (32, 8, "full", None, (1, 51)), (1, 1, "full", 20000, (8, 11)),
+                (1, 8, "full", 20000, (8, 11)))
+    for i, (batch, length, layer, ctx, expect) in enumerate(stresses):
         t2 = time.time()
-        msg = _one_stress(state, batch, length, layer, 2000, 8000 + i)
+        msg = _one_stress(state, batch, length, layer, 2000, 8000 + i, ctx, expect)
         print(f"attn one: stress {batch}x{length} {layer} {msg} ({time.time() - t2:.1f} s)")
 
 

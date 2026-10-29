@@ -1,42 +1,37 @@
-"""Write a same-process bench of the decode layer against the public entry's layer file.
+"""Write a same-process whole-layer bench: this repo's layer (cand, plus cand again as a null
+arm), a frozen incumbent layer source (inc) and the public layer file (pub), on identical
+inputs and the judge's weights.
 
-    python3 tools/dl_make_bench_pub.py OUT.py PUBLIC.py [--seeds=2] [--rounds=12] [--deadline=265]
+    python3 tools/dl_make_bench_pub.py OUT.py PUBLIC.py INCUMBENT.py --loads=d1,d16,d32
+        [--rounds=10] [--deadline=255] [--seed0=50001] [--order-seed=7]
 
-OUT.py is muse_decode_layer/submission.py with the public layer file embedded as a string and
-patched (no threading import; its prepare() calls its five builds in turn, already done at
-import), plus a block:
+INCUMBENT.py is the scored layer source to compare against (for example `git show
+a923f11:muse_decode_layer/submission.py`), not the repository head; its load_inline names get
+an `okc_inc_` prefix so both modules load in one process. The public file is patched (no
+threading import; its prepare() calls its builds in turn, already done at import). OUT.py
+belongs in the session scratchpad; only the logs of its runs are committed.
 
-  at import   the public extensions are compiled on the layer's own build threads
-              (_bg_start) beside ours, and our main extension on the main thread, so no build
-              counts against prepare()'s 300 s.
-  prepare()   ours runs as usual (its TL timeline is skipped), then the public prepare() on
-              the same judge weights, then the bench, then the bench's lines are printed last
-              so the 16,000-character log tail keeps them:
+  import    every arm's extensions build on the layer's build threads (_bg_start), so no build
+            counts against prepare()'s 300 s.
+  prepare() cand's prepare, then inc's and pub's on the same judge weights, then per scored
+            shape of the chosen loads and per input (held-out seeds from --seed0, never the
+            judge's case seeds; two routing distributions: the local range is the reference
+            routing's busiest 32-expert range, as the judge picks it, or its second busiest):
+  ABCHECK   every arm against the restated FP32 reference with the judge's rules (routing
+            acceptance, residual update and next input within 2.5x the E4M3-query error
+            clamped to [0.03, 0.15], rows within 5x, new cache entries within 8e-2): PASS or
+            FAIL, top-8 agreement with the reference, local routes / experts against the
+            reference's. A FAIL marks the arm INVALID on that shape's ABTIME line.
+  ABTIME    each arm on its own copy of the inputs (kernel_fn writes the cache), CUDA graph
+            replays after a 256 MB L2 flush, arms in a seeded random order per round; medians
+            and paired differences against inc; null - inc next to cand - inc shows the noise.
+  ABLOAD    46 x sliding + 16 x full per arm (per 62 steps).
+  ABSCORE   geometric mean over the loads covered of inc's load time over each arm's.
+  ABSTOP    shapes skipped by the deadline: missing coverage, not a pass.
+  ABTL      one replay per shape and arm (not null) under torch.profiler, kernels as
+            code@start+duration; ABKN maps codes to names.
 
-  ABPREP    seconds for ours and the public prepare.
-  ABCHECK   per scored shape (seed 0): the public outputs against ours: relative L2 of the
-            next attention input and of the residual update (stream minus alpha1 alpha2
-            stream), and the share of top-8 sets equal.
-  ABTIME    per scored shape: CUDA graph replays of each arm's kernel_fn after a 256 MB L2
-            flush, arms interleaved with the order alternating every round, `seeds` input
-            sets x `rounds` rounds; median per arm and the median of paired differences.
-            Seed 0 is the judge's case seed (801-812). A shape that would start more than
-            `deadline` seconds into prepare() is skipped (ABSTOP).
-  ABLOAD    per load: 46 x sliding + 16 x full for each arm and the public's lead.
-  ABTL      per scored shape and arm (seed 0): one replay (the median span of 5, flush and
-            host sync between) under torch.profiler: each kernel as code@start+duration in us,
-            s1: marking a second stream; ABKN maps the codes to kernel names.
-
-The arm `base` (printed only when the tuner picked a route variant, PORT_ROUTE_KERNEL) is our
-state with every route variant mapped back to its base front, so the route kernel's effect is
-measured in the same process on all twelve shapes.
-
-Inputs restate reference.py's generate_input for the scored cases (ctx 80000, page 1, soft
-keys, agentic lengths above batch 1; the judge's own file may not be imported), local_start on
-the 32-expert range our routing sends the most pairs to (case_fields uses the reference's
-routing; ours agrees on at least 99% of routes in the front tuner). The public file is read at
-generation time; OUT.py belongs in the session scratchpad, never in the repository (only the
-logs of its runs are committed).
+Split the six loads over two checks (--loads) when prepare() would run past 300 s.
 """
 
 import sys
@@ -58,18 +53,16 @@ PUB_PATCHES = [
      "        _build(f)\n"),
 ]
 
-AB = r'''
+BODY = r'''
 
-# Generated by tools/dl_make_bench_pub.py: the same-process bench against the public layer.
-_AB_PUB_SRC = {pub_src!r}
-_AB_SEEDS = {seeds!r}
-_AB_ROUNDS = {rounds!r}
-# prepare() has 300 s; no new shape starts past this many seconds into it.
-_AB_DEADLINE = {deadline!r}
-# The judge's case seeds (problem muse_decode_layer, benchmarks 801-812, in _SCORED order).
-_AB_CASE_SEED = {{(load, layer): 801 + i for i, (load, _, _, layer) in enumerate(_SCORED)}}
+# Generated by tools/dl_make_bench_pub.py: same-process whole-layer bench of this file (cand,
+# and cand again as the null arm), the frozen incumbent source (inc) and the public layer (pub).
 _AB_OUT = []
 _AB_T0 = time.time()
+_AB_ARM_LOAD = {"d1": (1, 1), "d16": (16, 1), "d32": (32, 1), "v1": (1, 8), "v16": (16, 8),
+                "v32": (32, 8)}
+_AB_LOAD_SHAPE = _AB_ARM_LOAD
+_AB_REF_ARM = "inc"
 
 
 def _ab_print(line):
@@ -77,51 +70,55 @@ def _ab_print(line):
     print(line, flush=True)
 
 
+def _ab_module(name, src):
+    mod = types.ModuleType(name)
+    exec(compile(src, f"{name}.py", "exec"), mod.__dict__)
+    return mod
+
+
 def _ab_import():
-    pub = types.ModuleType("okc_ab_public")
-    exec(compile(_AB_PUB_SRC, "public_layer.py", "exec"), pub.__dict__)
+    """The other arms' modules and every extension build, on the layer's build threads
+    (_bg_start), so prepare() only repacks, self-tests and tunes."""
+    pub = _ab_module("okc_ab_public", _AB_PUB_SRC)
     # Its prepare() sets this from the weights before building; the judge's block scales are
     # positive normal E4M3 (our _w4_scales_ok holds on them), which selects this suffix.
     pub._MA_SFX = pub._MA_SFX_IF_PRMT if pub._MA_PRMT_SCALES else ()
-    if PORT_ATTN_ONE:
-        _bg_start("attn_one", _one_load)
-    if PORT_MOE and PORT_MOE_FUSED:
-        _bg_start("moe1", _moe1_load)
-    if PORT_PROJ_SK:
-        _bg_start("skp", _skp_load)
-    # The W4 extension is built on the main thread in prepare(); here it runs beside the rest
-    # and sets _W4_EXT, which prepare() then finds.
-    if PORT_MOE and PORT_MOE_W4:
-        _bg_start("w4", _w4_ext)
-    # The public builds go on the same build threads as ours (_bg_start, which the judge
-    # accepts in every layer run), so the import costs about the longest build.
-    pub_builds = ("_att7", "_moe", "_moe_tiny", "_moe_tiny2", "_moe_mid", "bfp__get_ext")
-    for name in pub_builds:
-        _bg_start("pub" + name, getattr(pub, name))
-    t = time.time()
-    _ext()
-    _ab_print(f"ABBUILD ours main extension {{time.time() - t:.0f}} s")
-    if PORT_MOE and PORT_MOE_W4:
+    inc = _ab_module("okc_ab_incumbent", _AB_INC_SRC)
+    inc._timeline = lambda state: None
+    builds = {}
+    for mod, tag in ((globals(), "cand"), (inc.__dict__, "inc")):
+        for key, flag in (("_one_load", "PORT_ATTN_ONE"), ("_moe1_load", "PORT_MOE_FUSED"),
+                          ("_skp_load", "PORT_PROJ_SK"), ("_w4_ext", "PORT_MOE_W4"),
+                          ("_ext", None)):
+            if flag is None or mod[flag]:
+                builds[f"{tag}{key}"] = mod[key]
+    for name in ("_att7", "_moe", "_moe_tiny", "_moe_tiny2", "_moe_mid", "bfp__get_ext"):
+        builds["pub" + name] = getattr(pub, name)
+    # Our own modules' loaders cache into their module globals (_EXT, _W4_EXT) or their
+    # _BG_BUILDS; the latter are keyed by these names in each module.
+    for name, fn in builds.items():
+        _bg_start(name, fn)
+    for name, fn in builds.items():
         try:
-            _bg_ext("w4", _w4_ext)
-            _ab_print(f"ABBUILD ours w4 {{_bg_seconds('w4'):.0f}} s")
+            ext = _bg_ext(name, fn)
+            _ab_print(f"ABBUILD {name} {_bg_seconds(name):.0f} s")
         except Exception as exc:
-            _ab_print(f"ABBUILD ours w4 failed: {{type(exc).__name__}}: {{str(exc)[:200]}}")
-    for name in pub_builds:
-        try:
-            _bg_ext("pub" + name, getattr(pub, name))
-            _ab_print(f"ABBUILD pub {{name}} {{_bg_seconds('pub' + name):.0f}} s")
-        except Exception as exc:
-            _ab_print(f"ABBUILD pub {{name}} failed: {{type(exc).__name__}}: {{str(exc)[:200]}}")
-    _ab_print(f"ABBUILD import done at {{time.time() - _AB_T0:.0f}} s")
-    return pub
+            _ab_print(f"ABBUILD {name} failed: {type(exc).__name__}: {str(exc)[:200]}")
+            continue
+        for tag, mod in (("cand", globals()), ("inc", inc.__dict__)):
+            for key, bg in (("_one_load", "attn_one"), ("_moe1_load", "moe1"), ("_skp_load", "skp")):
+                if name == tag + key:
+                    mod["_BG_BUILDS"][bg] = {"started": 0.0, "done": _bg_seconds(name),
+                                             "ext": ext, "thread": None}
+    _ab_print(f"ABBUILD import done at {time.time() - _AB_T0:.0f} s")
+    return pub, inc
 
 
 try:
-    _AB_PUB = _ab_import()
+    _AB_PUB, _AB_INC = _ab_import()
 except Exception as _exc:
-    _AB_PUB = None
-    _ab_print(f"ABBUILD failed: {{type(_exc).__name__}}: {{str(_exc)[:300]}}")
+    _AB_PUB = _AB_INC = None
+    _ab_print(f"ABBUILD failed: {type(_exc).__name__}: {str(_exc)[:300]}")
 
 
 def _ab_inputs(batch, q_len, layer, seed):
@@ -195,7 +192,7 @@ def _ab_inputs(batch, q_len, layer, seed):
         except Exception:
             sched = None
     attn_input = (stream * torch.rsqrt(stream.pow(2).mean(-1, keepdim=True) + RMS_EPS))
-    return {{
+    return {
         "stream": stream, "attn_input": attn_input.to(torch.bfloat16), "positions": positions,
         "cache_loc": cache_loc, "cache_seqlens": cache_seqlens, "cu_seqlens_q": cu_seqlens_q,
         "scheduler_metadata": sched, "k_cache": k_cache, "v_cache": v_cache,
@@ -203,23 +200,221 @@ def _ab_inputs(batch, q_len, layer, seed):
         "v_scale": torch.tensor(1.0, dtype=torch.float32, device=dev),
         "page_table": page_table, "seq_lens": seq_lens.to(torch.int32),
         "local_start": torch.tensor([0], dtype=torch.int32, device=dev),
-        "config": {{"batch": batch, "q_len": q_len, "tokens": tokens, "hidden": HIDDEN,
+        "config": {"batch": batch, "q_len": q_len, "tokens": tokens, "hidden": HIDDEN,
                    "num_q_heads": 16, "num_kv_heads": 2, "head_dim": 64, "page_size": page,
                    "window": 2048 if layer == "sliding" else 0,
                    "rope_theta": ROPE_THETA if layer == "sliding" else 0.0,
                    "qk_scale_factor": 5.4730064863875, "sm_scale": 64 ** -0.5,
                    "kv_scale": 1.0, "n_experts": N_EXPERTS, "top_k": TOP_K,
-                   "local_experts": LOCAL_EXPERTS}},
-    }}
+                   "local_experts": LOCAL_EXPERTS},
+    }
 
 
-def _ab_alpha(gate):
+
+# The judge's output checks, restated from reference.py and checks.py (the judge's own copies
+# may not be imported): FP32 reference with BF16 or E4M3 queries, routing acceptance, the
+# relative L2 bounds and the cache-entry check.
+_AB_DEQ = {}
+
+
+def _ab_rms(x, eps=RMS_EPS):
+    x = x.float()
+    return x * torch.rsqrt(x.pow(2).mean(-1, keepdim=True) + eps)
+
+
+def _ab_rope(x, pos, theta):
+    inv = 1.0 / (theta ** (torch.arange(0, 64, 2, device=x.device).float() / 64))
+    ang = pos.float()[:, None] * inv
+    cos, sin = ang.cos()[:, None, :], ang.sin()[:, None, :]
+    even, odd = x[..., 0::2], x[..., 1::2]
+    return torch.stack([even * cos - odd * sin, even * sin + odd * cos], -1).flatten(-2)
+
+
+def _ab_coeffs(gate):
     w = gate.float() / 0.3
     beta = torch.sigmoid(w)
-    return torch.sqrt(torch.clamp(torch.sigmoid(-w) * (1.0 + beta), min=1e-3))
+    alpha = torch.sqrt(torch.clamp(torch.sigmoid(-w) * (1.0 + beta), min=1e-3))
+    return alpha, beta
 
 
-_AB_CODES = {{}}
+def _ab_attention(data, x, weights, qdtype):
+    cfg = data["config"]
+    batch, length = cfg["batch"], cfg["q_len"]
+    qkv = x @ weights["qkv_gate"].float().T
+    q, k, v, gate = qkv.split([1024, 128, 128, 1024], dim=-1)
+    pos = (data["seq_lens"].long()[:, None] + torch.arange(length, device=x.device)).reshape(-1)
+    q = _ab_rms(q.view(-1, 16, 64))
+    k = _ab_rms(k.view(-1, 2, 64))
+    if cfg["rope_theta"]:
+        q, k = _ab_rope(q, pos, cfg["rope_theta"]), _ab_rope(k, pos, cfg["rope_theta"])
+    if qdtype == torch.bfloat16:
+        q = (q * cfg["qk_scale_factor"]).to(torch.bfloat16).float()
+    else:
+        q = q.to(qdtype).float() * cfg["qk_scale_factor"]
+    q = q.view(batch, length, 16, 64)
+    ks, vs = data["k_scale"], data["v_scale"]
+    k_new = (k.float() / ks).to(FP8).view(batch, length, 2, 64)
+    v_new = (v.view(-1, 2, 64).float() / vs).to(FP8).view(batch, length, 2, 64)
+    k_flat = data["k_cache"].view(-1, 2, 64)
+    v_flat = data["v_cache"].view(-1, 2, 64)
+    window = cfg["window"]
+    out = torch.empty((batch, length, 16, 64), device=x.device)
+    steps = torch.arange(length, device=x.device)
+    for b in range(batch):
+        seq = int(data["seq_lens"][b])
+        first = max(0, seq - window + 1) if window else 0
+        past = torch.arange(first, seq, device=x.device)
+        size = cfg["page_size"]
+        rows = data["page_table"][b].long()[past // size] * size + past % size
+        keys = torch.cat([k_flat[rows].float() * ks, k_new[b].float() * ks])
+        vals = torch.cat([v_flat[rows].float() * vs, v_new[b].float() * vs])
+        key_pos = torch.cat([past, seq + steps])
+        query_pos = seq + steps
+        visible = key_pos[None, :] <= query_pos[:, None]
+        if window:
+            visible &= key_pos[None, :] > query_pos[:, None] - window
+        att = torch.einsum("lkgd,tkd->lkgt", q[b].reshape(length, 2, 8, 64), keys) * cfg["sm_scale"]
+        att = att.masked_fill(~visible[:, None, None, :], float("-inf")).softmax(-1)
+        out[b] = torch.einsum("lkgt,tkd->lkgd", att, vals).reshape(length, 16, 64)
+    out = _ab_rms(out).reshape(-1, 1024) * torch.sigmoid(gate)
+    return out, k_new, v_new
+
+
+def _ab_ref_front(data, weights, qdtype=torch.bfloat16):
+    o, k_new, v_new = _ab_attention(data, data["attn_input"].float(), weights, qdtype)
+    a = o @ weights["o"].float().T
+    alpha1, beta1 = _ab_coeffs(weights["attn_residual_gate"])
+    stream1 = alpha1 * data["stream"].float() + beta1 * _ab_rms(a, POST_NORM_EPS)
+    h = _ab_rms(stream1) * (1.0 + weights["pre_ffn_norm"].float())
+    logits = h.double() @ weights["router"].double().T
+    scores = torch.sigmoid(logits * ROUTER_MULTIPLIER).float()
+    return {"stream1": stream1, "h": h, "scores": scores,
+            "biased": scores + weights["router_bias"].float(), "k_new": k_new, "v_new": v_new,
+            "local_start": int(data["local_start"])}
+
+
+def _ab_deq(weights, e):
+    if e not in _AB_DEQ:
+        def dq(packed, sf, gs):
+            p = packed.view(torch.uint8)
+            codes = torch.stack((p & 0x0F, (p >> 4) & 0x0F), dim=-1).flatten(-2)
+            grid = torch.tensor(_E2M1, dtype=torch.float32, device=p.device)
+            mag = grid[(codes & 0x7).long()]
+            vals = torch.where((codes & 0x8) != 0, -mag, mag)
+            blocks = vals.view(*vals.shape[:-1], vals.shape[-1] // 16, 16)
+            return (blocks * (sf.float() * gs.float()).unsqueeze(-1)).view_as(vals)
+        _AB_DEQ[e] = (dq(weights["w13"][e], weights["w13_sf"][e], weights["w13_gs"][e]),
+                      dq(weights["w2"][e], weights["w2_sf"][e], weights["w2_gs"][e]))
+    return _AB_DEQ[e]
+
+
+def _ab_ref_back(front, weights, ids):
+    picked = front["scores"].gather(1, ids.long())
+    tw = picked / (picked.sum(-1, keepdim=True) + ROUTE_EPS)
+    p = front["h"] @ weights["pooler"].float().T
+    p = _ab_rms(p) * (1.0 + weights["pre_expert_norm"].float())
+    local = (ids.long() - front["local_start"]) % N_EXPERTS
+    moe = torch.zeros(p.shape, dtype=torch.float32, device=p.device)
+    for e in torch.unique(local).tolist():
+        if not 0 <= e < LOCAL_EXPERTS:
+            continue
+        tok, slot = (local == e).nonzero(as_tuple=True)
+        w13, w2 = _ab_deq(weights, e)
+        hh = p[tok] @ w13.T
+        inter = torch.nn.functional.silu(hh[:, :D_EXPERT]) * hh[:, D_EXPERT:]
+        y = (inter @ w2.T) * (1.0 + weights["post_expert_norm"].float())
+        y = y * torch.rsqrt(y.pow(2).mean(-1, keepdim=True) + POST_NORM_EPS)
+        moe.index_add_(0, tok, y * tw[tok, slot, None])
+    if len(moe) <= SLICED_UNPOOL_MAX_TOKENS:
+        f = torch.zeros_like(front["stream1"])
+        f[:, :UNPOOL_SLICE] = moe @ weights["unpooler"][:UNPOOL_SLICE].float().T
+    else:
+        f = moe @ weights["unpooler"].float().T
+    f = f * (1.0 + weights["post_ffn_norm"].float())
+    alpha2, beta2 = _ab_coeffs(weights["ffn_residual_gate"])
+    stream2 = alpha2 * front["stream1"] + beta2 * _ab_rms(f, POST_NORM_EPS)
+    hidden = _ab_rms(stream2) * (1.0 + weights["next_pre_attn_norm"].float())
+    return hidden.to(torch.bfloat16), stream2
+
+
+def _ab_local(ids, start):
+    local = ids[(ids - start) % N_EXPERTS < LOCAL_EXPERTS]
+    return int(local.numel()), int(torch.unique(local).numel())
+
+
+def _ab_check_routing(ids, biased, start):
+    if ids.min() < 0 or ids.max() >= N_EXPERTS:
+        return "expert id out of range"
+    ranked = ids.long().sort(-1).values
+    if (ranked[:, 1:] == ranked[:, :-1]).any():
+        return "a token routed to the same expert twice"
+    best = biased.topk(TOP_K, dim=-1)
+    gap = best.values[:, -1:] - biased.gather(1, ids.long())
+    if gap.max() > 5e-2:
+        return f"pick {float(gap.max()):.2e} below the 8th best"
+    ninth = biased.topk(TOP_K + 1, dim=-1).values[:, -1:]
+    keep_tol = 0.03 if len(ids) <= 256 else 0.04
+    kept = (best.indices[:, :, None] == ids.long()[:, None, :]).any(-1)
+    local = (best.indices - start) % N_EXPERTS < LOCAL_EXPERTS
+    if (local & ~kept & (best.values - ninth > keep_tol)).any():
+        return "dropped a clear local expert"
+    routes, distinct = _ab_local(ids.long(), start)
+    rr, rd = _ab_local(best.indices, start)
+    if routes < rr * 0.92 - 4:
+        return f"{routes} local routes against {rr}"
+    if distinct < rd * 0.85 - 2:
+        return f"{distinct} local experts against {rd}"
+    return None
+
+
+def _ab_compare(out, ref, tol):
+    if out.shape != ref.shape or out.dtype != ref.dtype:
+        return False, f"shape/dtype {tuple(out.shape)} {out.dtype}"
+    o, r = out.float(), ref.float()
+    if not torch.isfinite(o).all():
+        return False, "NaN or Inf"
+    d = o - r
+    err = float(d.norm() / r.norm().clamp(min=1e-12))
+    rows_d = d.reshape(-1, r.shape[-1]).norm(dim=-1)
+    rows_r = r.reshape(-1, r.shape[-1]).norm(dim=-1)
+    worst = float((rows_d / torch.maximum(rows_r, (0.1 * rows_r.mean()).clamp(min=1e-12))).max())
+    return err <= tol and worst <= 5 * tol, f"{err:.2e}/{worst:.2e}<={tol:.3f}"
+
+
+def _ab_validate(base, out, arm_data, weights, front, front8):
+    """The judge's check_implementation on one arm's outputs: (ok, message)."""
+    hidden, stream, ids = out
+    err = _ab_check_routing(ids, front["biased"], front["local_start"])
+    if err:
+        return False, f"routing: {err}"
+    ref_h, ref_s = _ab_ref_back(front, weights, ids)
+    e8_h, e8_s = _ab_ref_back(front8, weights, ids)
+    a1, _ = _ab_coeffs(weights["attn_residual_gate"])
+    a2, _ = _ab_coeffs(weights["ffn_residual_gate"])
+    carried = a1 * a2 * base["stream"].float()
+
+    def bound(e):
+        return min(0.15, max(0.03, 2.5 * e))
+
+    def rel(a, b):
+        return float((a.float() - b.float()).norm() / b.float().norm().clamp(min=1e-12))
+
+    ok1, m1 = _ab_compare(stream - carried, ref_s - carried, bound(rel(e8_s - carried, ref_s - carried)))
+    ok2, m2 = _ab_compare(hidden, ref_h, bound(rel(e8_h, ref_h)))
+    cfg = base["config"]
+    pos = base["seq_lens"].long()[:, None] + torch.arange(cfg["q_len"], device=ids.device)
+    slots = (torch.gather(base["page_table"].long(), 1, pos // cfg["page_size"])
+             * cfg["page_size"] + pos % cfg["page_size"])
+    ok3, m3 = True, ""
+    for name, cache, want, sc in (("k", "k_cache", front["k_new"], base["k_scale"]),
+                                  ("v", "v_cache", front["v_new"], base["v_scale"])):
+        got = arm_data[cache].view(-1, 2, 64)[slots]
+        ok, m = _ab_compare(got.float() * sc, want.float() * sc, 8e-2)
+        ok3, m3 = ok3 and ok, m3 + f" {name} {m}"
+    return ok1 and ok2 and ok3, f"update {m1} hidden {m2} cache{m3}"
+
+
+_AB_CODES = {}
 
 
 def _ab_code(name):
@@ -229,7 +424,7 @@ def _ab_code(name):
     cut = name.find("(")
     name = (name[:cut] if cut > 0 else name).replace(" ", "")[:40]
     if name not in _AB_CODES:
-        _AB_CODES[name] = f"K{{len(_AB_CODES)}}"
+        _AB_CODES[name] = f"K{len(_AB_CODES)}"
     return _AB_CODES[name]
 
 
@@ -268,109 +463,128 @@ def _ab_timeline(graph, flush, reps=5):
     spans = sorted((max(e[1] for e in s) - s[0][0], i) for i, s in enumerate(segs))
     seg = segs[spans[len(spans) // 2][1]]
     base = seg[0][0]
-    rank = {{}}
+    rank = {}
     for e in seg:
         rank.setdefault(e[2], len(rank))
     return spans[len(spans) // 2][0] / 1000, [
         (rank[e[2]], (e[0] - base) / 1000, (e[1] - e[0]) / 1000, _ab_code(e[3])) for e in seg]
 
 
-def _ab_run(state, weights, t_prep):
-    import statistics
-    pub = _AB_PUB
-    t = time.time()
-    pstate = pub.prepare(weights)
-    torch.cuda.synchronize()
-    _ab_print(f"ABPREP pub {{time.time() - t:.0f}} s (import to here {{time.time() - _AB_T0:.0f}} s)")
-    arms = {{"ours": (kernel_fn, state), "pub": (pub.kernel_fn, pstate)}}
-    pol = state.get("front_policy", {{}})
-    if PORT_ROUTE_KERNEL and any(v in ROUTE_VARIANTS for v in pol.values()):
-        base = dict(state)
-        base["front_policy"] = {{k: ROUTE_VARIANTS.get(v, v) for k, v in pol.items()}}
-        arms["base"] = (kernel_fn, base)
-    names = list(arms)
-    _ab_print("ABARMS " + " ".join(names) + f" front policy {{pol}}")
-    a1 = _ab_alpha(weights["attn_residual_gate"])
-    a2 = _ab_alpha(weights["ffn_residual_gate"])
-    flush = torch.empty(256 << 20, dtype=torch.uint8, device="cuda")
-    res = {{}}
-    for load, batch, q_len, layer in _SCORED:
-        label = f"{{load}}{{layer[0]}}"
-        if time.time() - t_prep > _AB_DEADLINE:
-            _ab_print(f"ABSTOP {{label}} and later shapes skipped at {{time.time() - t_prep:.0f}} s "
-                      "into prepare")
-            break
-        samples = {{n: [] for n in names}}
-        for seed in range(_AB_SEEDS):
-            data = _ab_inputs(batch, q_len, layer, _AB_CASE_SEED[(load, layer)] + 1000 * seed)
-            ids = kernel_fn(data, state)[2]
-            pairs = torch.bincount((ids.long() // LOCAL_EXPERTS).flatten(),
-                                   minlength=N_EXPERTS // LOCAL_EXPERTS)
-            data["local_start"].fill_(LOCAL_EXPERTS * int(pairs.argmax()))
-            if seed == 0:
-                outs = {{n: [o.clone() for o in fn(data, st)] for n, (fn, st) in arms.items()}}
-                torch.cuda.synchronize()
-                carried = a1 * a2 * data["stream"].float()
-                h0, s0, i0 = outs["ours"]
-                for n in names[1:]:
-                    h, s_, i = outs[n]
-                    same = float((i.long().sort(-1).values == i0.long().sort(-1).values)
-                                 .all(-1).float().mean())
-                    _ab_print(f"ABCHECK {{label}} {{n}} vs ours: hidden {{_rel(h, h0):.2e}} update "
-                              f"{{_rel(s_ - carried, s0 - carried):.2e}} top8 sets {{same:.3f}}")
-            graphs = {{n: _graph_build(lambda fn=fn, st=st: fn(data, st))
-                      for n, (fn, st) in arms.items()}}
-            torch.cuda.synchronize()
-            evs = []
-            for r in range(_AB_ROUNDS):
-                order = names[r % len(names):] + names[:r % len(names)]
-                if r % 2:
-                    order = order[::-1]
-                rnd = {{}}
-                for n in order:
-                    flush.zero_()
-                    e0 = torch.cuda.Event(enable_timing=True)
-                    e1 = torch.cuda.Event(enable_timing=True)
-                    e0.record()
-                    graphs[n].replay()
-                    e1.record()
-                    rnd[n] = (e0, e1)
-                evs.append(rnd)
-            torch.cuda.synchronize()
-            for rnd in evs:
-                for n, (e0, e1) in rnd.items():
-                    samples[n].append(1000 * e0.elapsed_time(e1))
-            if seed == 0:
-                tls = {{n: _ab_timeline(g, flush) for n, g in graphs.items()}}
-            del graphs, data
-            torch.cuda.empty_cache()
-        med = {{n: statistics.median(v) for n, v in samples.items()}}
-        res[(load, layer)] = med
-        diffs = " ".join(
-            f"{{n}}-ours {{statistics.median([a - b for a, b in zip(samples[n], samples['ours'])]):+.1f}}"
-            for n in names[1:])
-        _ab_print(f"ABTIME {{label}} " + " ".join(f"{{n}} {{med[n]:.1f}}" for n in names)
-                  + f" | paired {{diffs}} (n={{len(samples['ours'])}})")
-        for n in names:
-            span, ks = tls[n]
-            if span is None:
-                continue
-            _ab_print(f"ABTL {{label}} {{n}} {{span:.1f}}: " + " ".join(
-                f"{{'s1:' if r else ''}}{{c}}@{{st:.1f}}+{{d:.1f}}" for r, st, d, c in ks))
+
+
+def _ab_clone(data):
+    return {k: (v.clone() if isinstance(v, torch.Tensor) else v) for k, v in data.items()}
+
+
+def _ab_run(arms, weights, t_prep):
+    """arms: name -> (kernel_fn, state). Every shape of _AB_LOADS: per input (held-out seeds,
+    the routing variants in _AB_ROUTINGS), the judge's check of every arm first, then cold
+    graph replays in a seeded random arm order per round, each arm on its own copy of the
+    inputs."""
     import math
-    tot = {{n: 0.0 for n in names}}
-    for load in ("d1", "d16", "d32", "v1", "v16", "v32"):
+    import statistics
+    names = list(arms)
+    flush = torch.empty(256 << 20, dtype=torch.uint8, device="cuda")
+    order_gen = torch.Generator().manual_seed(_AB_ORDER_SEED)
+    res, missing, invalid = {}, [], set()
+    for li, load in enumerate(_AB_LOADS):
+        batch, q_len = _AB_LOAD_SHAPE[load]
+        for layer in ("sliding", "full"):
+            label = f"{load}{layer[0]}"
+            if time.time() - t_prep > _AB_DEADLINE:
+                missing.append(label)
+                continue
+            samples = {n: [] for n in names}
+            tls = None
+            for k, routing in enumerate(_AB_ROUTINGS):
+                seed = _AB_SEED0 + 1000 * li + 100 * (layer == "full") + k
+                base = _ab_inputs(batch, q_len, layer, seed)
+                front0 = _ab_ref_front(base, weights)
+                ids0 = front0["biased"].topk(TOP_K, dim=-1).indices
+                pairs = torch.bincount((ids0 // LOCAL_EXPERTS).flatten(),
+                                       minlength=N_EXPERTS // LOCAL_EXPERTS)
+                rank = pairs.argsort(descending=True)
+                base["local_start"].fill_(LOCAL_EXPERTS * int(rank[0 if routing == "busiest" else 1]))
+                front = dict(front0, local_start=int(base["local_start"]))
+                front8 = _ab_ref_front(base, weights, FP8)
+                front8["local_start"] = front["local_start"]
+                rr, rd = _ab_local(ids0, front["local_start"])
+                datas = {n: _ab_clone(base) for n in names}
+                for n, (fn, st) in arms.items():
+                    out = [o.clone() for o in fn(datas[n], st)]
+                    torch.cuda.synchronize()
+                    ok, msg = _ab_validate(base, out, datas[n], weights, front, front8)
+                    same = float((out[2].long().sort(-1).values == ids0.sort(-1).values)
+                                 .all(-1).float().mean())
+                    lr, ld = _ab_local(out[2].long(), front["local_start"])
+                    if not ok:
+                        invalid.add((label, n))
+                    if ok:
+                        msg = msg.split(" cache")[0]
+                    _ab_print(f"ABCHECK {label} {seed} {routing[:4]} {n} "
+                              f"{'PASS' if ok else 'FAIL'} {msg} top8=ref {same:.3f} local "
+                              f"routes {lr}/{rr} experts {ld}/{rd}")
+                datas = {n: _ab_clone(base) for n in names}
+                graphs = {n: _graph_build(lambda fn=fn, st=st, d=datas[n]: fn(d, st))
+                          for n, (fn, st) in arms.items()}
+                torch.cuda.synchronize()
+                evs = []
+                for r in range(_AB_ROUNDS):
+                    order = [names[i] for i in torch.randperm(len(names), generator=order_gen)]
+                    rnd = {}
+                    for n in order:
+                        flush.zero_()
+                        e0 = torch.cuda.Event(enable_timing=True)
+                        e1 = torch.cuda.Event(enable_timing=True)
+                        e0.record()
+                        graphs[n].replay()
+                        e1.record()
+                        rnd[n] = (e0, e1)
+                    evs.append(rnd)
+                torch.cuda.synchronize()
+                for rnd in evs:
+                    for n, (e0, e1) in rnd.items():
+                        samples[n].append(1000 * e0.elapsed_time(e1))
+                if k == 0:
+                    tls = {n: _ab_timeline(g, flush) for n, g in graphs.items()}
+                del graphs, datas, base
+                torch.cuda.empty_cache()
+            med = {n: statistics.median(v) for n, v in samples.items()}
+            res[(load, layer)] = med
+            ref = _AB_REF_ARM
+            diffs = " ".join(
+                f"{n}-{ref} {statistics.median([a - b for a, b in zip(samples[n], samples[ref])]):+.1f}"
+                for n in names if n != ref)
+            flags = "".join(f" INVALID:{n}" for n in names if (label, n) in invalid)
+            _ab_print(f"ABTIME {label} " + " ".join(f"{n} {med[n]:.1f}" for n in names)
+                      + f" | paired {diffs} (n={len(samples[ref])}){flags}")
+            for n in names:
+                if n == "null":
+                    continue
+                span, ks = tls[n]
+                if span is None:
+                    continue
+                _ab_print(f"ABTL {label} {n} {span:.1f}: " + " ".join(
+                    f"{'s1:' if r else ''}{c}@{st:.1f}+{d:.1f}" for r, st, d, c in ks))
+    if missing:
+        _ab_print("ABSTOP missing coverage (not timed, not a pass): " + " ".join(missing))
+    logs = {n: [] for n in names}
+    for load in _AB_LOADS:
         if (load, "sliding") not in res or (load, "full") not in res:
             continue
-        c = {{n: 46 * res[(load, "sliding")][n] + 16 * res[(load, "full")][n] for n in names}}
+        c = {n: 46 * res[(load, "sliding")][n] + 16 * res[(load, "full")][n] for n in names}
         for n in names:
-            tot[n] += math.log(c[n])
-        _ab_print(f"ABLOAD {{load}} " + " ".join(f"{{n}} {{c[n] / 62:.1f}}" for n in names)
-                  + f" pub lead {{100 * (c['ours'] / c['pub'] - 1):+.1f}}%")
-    _ab_print("ABSCORE ratio of geometric means vs ours: " + " ".join(
-        f"{{n}} {{math.exp((tot['ours'] - tot[n]) / 6):.4f}}" for n in names[1:]))
+            logs[n].append(math.log(c[_AB_REF_ARM] / c[n]))
+        _ab_print(f"ABLOAD {load} (46 sliding + 16 full) / 62: "
+                  + " ".join(f"{n} {c[n] / 62:.1f}" for n in names))
+    nl = len(logs[_AB_REF_ARM])
+    if nl:
+        _ab_print(f"ABSCORE geometric mean over {nl} loads of {_AB_REF_ARM} load time / arm load "
+                  "time (above 1: arm faster): "
+                  + " ".join(f"{n} {math.exp(sum(v) / nl):.4f}" for n, v in logs.items()
+                             if n != _AB_REF_ARM))
     for name, code in _AB_CODES.items():
-        _ab_print(f"ABKN {{code}} {{name}}")
+        _ab_print(f"ABKN {code} {name}")
 
 
 _ab_prepare = prepare
@@ -380,18 +594,32 @@ _timeline = lambda state: None  # noqa: E731  (the bench prints its own timeline
 def prepare(weights):
     t = time.time()
     state = _ab_prepare(weights)
-    _ab_print(f"ABPREP ours {{time.time() - t:.0f}} s")
+    _ab_print(f"ABPREP cand {time.time() - t:.0f} s")
     if _AB_PUB is not None:
         try:
-            _ab_run(state, weights, t)
+            t1 = time.time()
+            istate = _AB_INC.prepare(weights)
+            _ab_print(f"ABPREP inc {time.time() - t1:.0f} s")
+            t1 = time.time()
+            pstate = _AB_PUB.prepare(weights)
+            torch.cuda.synchronize()
+            _ab_print(f"ABPREP pub {time.time() - t1:.0f} s; prepare at {time.time() - t:.0f} s")
+            arms = {"inc": (_AB_INC.kernel_fn, istate), "cand": (kernel_fn, state),
+                    "null": (kernel_fn, state), "pub": (_AB_PUB.kernel_fn, pstate)}
+            _ab_print(f"ABARMS {' '.join(arms)}; cand front policy {state.get('front_policy')}, "
+                      f"moe {state.get('moe1_policy')}; inc front policy "
+                      f"{istate.get('front_policy')}, moe {istate.get('moe1_policy')}")
+            _ab_run(arms, weights, t)
         except Exception as exc:
             import traceback
-            _ab_print(f"ABFAIL {{type(exc).__name__}}: {{str(exc)[:300]}} "
-                      + traceback.format_exc()[-600:].replace("\n", " | "))
+            _ab_print(f"ABFAIL {type(exc).__name__}: {str(exc)[:300]} "
+                      + traceback.format_exc()[-800:].replace("\n", " | "))
+    _AB_DEQ.clear()
     torch.cuda.synchronize()
     torch.cuda.empty_cache()
-    # The log keeps only its last 16,000 characters: the timelines go first, the tables last.
-    order = ("ABTL", "ABKN", "ABBUILD", "ABPREP", "ABARMS", "ABCHECK", "ABSTOP", "ABFAIL",
+    # The log keeps only its last 16,000 characters: timelines first, then correctness, then
+    # the timing tables.
+    order = ("ABTL", "ABKN", "ABBUILD", "ABPREP", "ABARMS", "ABFAIL", "ABCHECK", "ABSTOP",
              "ABTIME", "ABLOAD", "ABSCORE")
     rank = lambda line: next((i for i, p in enumerate(order) if line.startswith(p)), 0)  # noqa: E731
     for line in sorted(_AB_OUT, key=rank):
@@ -410,25 +638,41 @@ def pub_patch(text):
     return text
 
 
+def inc_patch(text):
+    n = text.count('name="okc_decode_layer_')
+    if n != 5:
+        raise SystemExit(f"expected the incumbent's five load_inline names, found {n}")
+    return text.replace('name="okc_decode_layer_', 'name="okc_inc_decode_layer_')
+
+
 def main():
-    args = sys.argv[1:]
-    opts = {"seeds": 2, "rounds": 12, "deadline": 265}
+    opts = {"rounds": "10", "deadline": "255", "seed0": "50001", "order-seed": "7", "loads": ""}
     pos = []
-    for a in args:
+    for a in sys.argv[1:]:
         if a.startswith("--"):
             k, _, v = a[2:].partition("=")
-            opts[k] = int(v)
+            if k not in opts:
+                raise SystemExit(f"unknown option --{k}")
+            opts[k] = v
         else:
             pos.append(a)
-    if len(pos) != 2:
+    if len(pos) != 3 or not opts["loads"]:
         raise SystemExit(__doc__)
-    out, pub = Path(pos[0]), Path(pos[1])
-    pub_src = pub_patch(pub.read_text())
+    out, pub, inc = (Path(p) for p in pos)
+    loads = tuple(opts["loads"].split(","))
+    if not set(loads) <= {"d1", "d16", "d32", "v1", "v16", "v32"}:
+        raise SystemExit(f"unknown load in {loads}")
+    params = (f"\n_AB_PUB_SRC = {pub_patch(pub.read_text())!r}\n"
+              f"_AB_INC_SRC = {inc_patch(inc.read_text())!r}\n"
+              f"_AB_LOADS = {loads!r}\n_AB_ROUNDS = {int(opts['rounds'])!r}\n"
+              "# prepare() has 300 s; no new shape starts past this many seconds into it.\n"
+              f"_AB_DEADLINE = {int(opts['deadline'])!r}\n"
+              f"_AB_SEED0 = {int(opts['seed0'])!r}\n"
+              f"_AB_ORDER_SEED = {int(opts['order-seed'])!r}\n"
+              "_AB_ROUTINGS = (\"busiest\", \"second\")\n")
     src = (ROOT / "muse_decode_layer/submission.py").read_text()
-    out.write_text(src + AB.format(pub_src=pub_src, seeds=opts["seeds"], rounds=opts["rounds"],
-                                   deadline=opts["deadline"]))
-    print(f"wrote {out}: public {pub} ({len(pub_src)} chars), seeds {opts['seeds']}, "
-          f"rounds {opts['rounds']}")
+    out.write_text(src + params + BODY)
+    print(f"wrote {out}: loads {loads}, incumbent {inc}, public {pub}")
 
 
 if __name__ == "__main__":
