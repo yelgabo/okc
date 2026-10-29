@@ -121,6 +121,12 @@ SK_EXTRA = {("pooler", 32): ["pool32u2", "pool32w8u2"], ("unpooler", 32): ["unp3
 SK_SWEEP = (
     ("pooler", (("pool32", 32, (16, 32)), ("pool32u2", 32, (16, 32)), ("pool16", 16, (16,)))),
 )
+# Cycle stamps per warp role, cold L2, eager launches: (layer, bucket, m, config).
+SK_STAMP = (("pooler", 32, 32, "pool32"), ("pooler", 32, 32, "pool32u2"), ("pooler", 32, 1, "pool32u2"),
+            ("pooler", 16, 16, "pool16"))
+STAMP_REPS = 10
+# The judge's H200 reports clocks.sm 1980 MHz in the run JSON.
+STAMP_GHZ = 1.98
 SMEM_BUDGET = 227 * 1024
 SMEM_PER_SM = 228 * 1024
 
@@ -516,15 +522,28 @@ sk_kernel(const __grid_constant__ CUtensorMap xmap, const uint8_t* __restrict__ 
         cluster_arrive();
     }
 
+    // Diagnostic launches (sk_stamp) pass a cycle-counter buffer in rcount, which only fused
+    // configs otherwise use: [consumer full-wait, consumer total, producer empty-wait, producer
+    // total, consumer warps, producer warps].
+    unsigned long long* stamps = FUSE ? nullptr : reinterpret_cast<unsigned long long*>(rcount);
+    const long long t_start = clock64();
     if (warp == NW) {
         if (lane == 0) {
             bool dead = false;
+            long long t_wait = 0;
             for (int st = 1; st < nst_tot; ++st) {
                 const int slot = st % NSTAGE;
+                const long long tw = clock64();
                 if (st >= NSTAGE && !mbar_wait<true>(empty0 + 8 * slot, ((st / NSTAGE) - 1) & 1, dead, diag, 1)) {
                     break;
                 }
+                t_wait += clock64() - tw;
                 issue(st);
+            }
+            if (stamps != nullptr) {
+                atomicAdd(stamps + 2, (unsigned long long)t_wait);
+                atomicAdd(stamps + 3, (unsigned long long)(clock64() - t_start));
+                atomicAdd(stamps + 5, 1ull);
             }
         }
         __syncwarp();
@@ -630,12 +649,15 @@ sk_kernel(const __grid_constant__ CUtensorMap xmap, const uint8_t* __restrict__ 
         }
     }
     bool dead = false;
+    long long c_wait = 0;
     for (int st = 0; st < nst; ++st) {
         const int slot = st % NSTAGE;
+        const long long tw = clock64();
         if (!__all_sync(0xffffffffu, mbar_wait<false>(full0 + 8 * slot, (st / NSTAGE) & 1, dead, diag, 8))) {
             dead = true;
             break;
         }
+        c_wait += clock64() - tw;
         const uint32_t s0 = sbase + slot * SST;
 #pragma unroll
         for (int uu = 0; uu < UPW; ++uu) {
@@ -698,6 +720,11 @@ sk_kernel(const __grid_constant__ CUtensorMap xmap, const uint8_t* __restrict__ 
         }
     }
 
+    if (stamps != nullptr && lane == 0) {
+        atomicAdd(stamps + 0, (unsigned long long)c_wait);
+        atomicAdd(stamps + 1, (unsigned long long)(clock64() - t_start));
+        atomicAdd(stamps + 4, 1ull);
+    }
     float racc[2][MT][4];
 #pragma unroll
     for (int h = 0; h < 2; ++h) {
@@ -1008,6 +1035,18 @@ void sk_fwd(int64_t cfg, at::Tensor ws, at::Tensor x, at::Tensor out, at::Tensor
     }
 }
 
+void sk_stamp(int64_t cfg, at::Tensor ws, at::Tensor x, at::Tensor out, at::Tensor ptab, int64_t pmax, int64_t base4,
+              int64_t n, int64_t k, at::Tensor diag, at::Tensor stamps) {
+    const int M = x.size(0);
+    int* dg = diag.numel() > 0 ? diag.data_ptr<int>() : nullptr;
+    int* st = reinterpret_cast<int*>(stamps.data_ptr<int64_t>());
+    switch (cfg) {
+@@SDISPATCH@@
+    default:
+        TORCH_CHECK(false, "sk: unknown config ", cfg);
+    }
+}
+
 // Fused pooler + router: out [M, n] bf16 from the pooler stream, rout [M, 256] f32 from the
 // router hi/lo stream; rpart is [pieces, M, 256] f32 scratch and rcount int32[32] counters.
 void skf_fwd(int64_t cfg, at::Tensor ws, at::Tensor rws, at::Tensor x, at::Tensor out, at::Tensor rout,
@@ -1028,6 +1067,8 @@ void skf_fwd(int64_t cfg, at::Tensor ws, at::Tensor rws, at::Tensor x, at::Tenso
 _SK_CPP = (
     "void sk_fwd(int64_t cfg, at::Tensor ws, at::Tensor x, at::Tensor out, at::Tensor ptab, int64_t pmax, "
     "int64_t base4, int64_t n, int64_t k, at::Tensor diag);\n"
+    "void sk_stamp(int64_t cfg, at::Tensor ws, at::Tensor x, at::Tensor out, at::Tensor ptab, int64_t pmax, "
+    "int64_t base4, int64_t n, int64_t k, at::Tensor diag, at::Tensor stamps);\n"
     "void skf_fwd(int64_t cfg, at::Tensor ws, at::Tensor rws, at::Tensor x, at::Tensor out, at::Tensor rout, "
     "at::Tensor ptab, int64_t pmax, int64_t base4, int64_t n, int64_t k, at::Tensor rpart, at::Tensor rcount, "
     "at::Tensor diag);\n")
@@ -1047,6 +1088,10 @@ def sk_source(device_only=False):
         f"    case {i}: launch_sk<{_sk_targs(c)}>(ws, x, out, ptab, (int)pmax, (uint32_t)base4, M, (int)n, (int)k, dg, "
         f"nullptr, nullptr, nullptr, nullptr); break;"
         for i, c in enumerate(SK_CONFIGS) if not c[13])
+    sdispatch = "\n".join(
+        f"    case {i}: launch_sk<{_sk_targs(c)}>(ws, x, out, ptab, (int)pmax, (uint32_t)base4, M, (int)n, (int)k, dg, "
+        f"nullptr, nullptr, st, nullptr); break;"
+        for i, c in enumerate(SK_CONFIGS) if not c[13])
     fdispatch = "\n".join(
         f"    case {i}: launch_sk<{_sk_targs(c)}>(ws, x, out, ptab, (int)pmax, (uint32_t)base4, M, (int)n, (int)k, dg, "
         f"rw, rpart.data_ptr<float>(), rcount.data_ptr<int>(), rout.data_ptr<float>()); break;"
@@ -1059,7 +1104,7 @@ def sk_source(device_only=False):
     # Explicit instantiation must name the template at namespace scope, so the device-only
     # build reopens the anonymous namespace around it.
     src = (_SK_SRC.replace("@@DISPATCH@@", dispatch).replace("@@FDISPATCH@@", fdispatch)
-           .replace("@@INSTANCES@@", "namespace {\n" + inst + "\n}"))
+           .replace("@@SDISPATCH@@", sdispatch).replace("@@INSTANCES@@", "namespace {\n" + inst + "\n}"))
     if not device_only:
         return src
     ginst = "".join(
@@ -2184,6 +2229,11 @@ def _sk_runner(ext, cfg_name, stream, tab, pmax, base4, n, k, out_dtype, diag):
         out = torch.empty((x.shape[0], n), dtype=out_dtype, device=x.device)
         ext.sk_fwd(cid, stream, x, out, tab, pmax, base4, n, k, diag)
         return out
+
+    def stamp(x, stamps):
+        out = torch.empty((x.shape[0], n), dtype=out_dtype, device=x.device)
+        ext.sk_stamp(cid, stream, x, out, tab, pmax, base4, n, k, diag, stamps)
+    run.stamp = stamp
     return run
 
 
@@ -2201,7 +2251,7 @@ def _build_ext():
     src = sk_source() + GEMV_CUDA_SRC + wd_source()
     kwargs = dict(name="okc_sk_v2", cpp_sources="#include <torch/extension.h>\n" + _SK_CPP + GEMV_CPP_DECLS + _WD_CPP,
                   cuda_sources=src,
-                  functions=["sk_fwd", "skf_fwd", "cgemv_fwd", "rgemv_fwd", "sgemv_fwd", "wd_fwd"],
+                  functions=["sk_fwd", "sk_stamp", "skf_fwd", "cgemv_fwd", "rgemv_fwd", "sgemv_fwd", "wd_fwd"],
                   extra_cuda_cflags=["-O3", "-gencode=arch=compute_90a,code=sm_90a"], verbose=False)
     try:
         return load_inline(no_implicit_headers=True, **kwargs)
@@ -2414,6 +2464,25 @@ def prepare(weights):
         for m in range(9, WD_BUCKETS[-1] + 1):
             if (layer, m) not in state["pick"]:
                 state["pick"][(layer, m)] = state["pick"][(layer, bucket_of(m))]
+    for layer, b, m, nm in SK_STAMP:
+        fn = next((c[1] for c in cands.get((layer, b), []) if c[0] == nm), None)
+        if fn is None:
+            continue
+        try:
+            x, _ = _gen_x(m, state[layer].shape[1], gen, dev)
+            stamps = torch.zeros(6, dtype=torch.int64, device=dev)
+            for _ in range(STAMP_REPS):
+                flush.sum()
+                fn.stamp(x, stamps)
+            torch.cuda.synchronize()
+            s = [float(v) for v in stamps.tolist()]
+            us = lambda tot, cnt: tot / max(cnt, 1.0) / (STAMP_GHZ * 1e3)
+            print(f"stamp {layer} {nm} m={m}: consumer full-wait {us(s[0], s[4]):.2f} of {us(s[1], s[4]):.2f} us, "
+                  f"producer empty-wait {us(s[2], s[5]):.2f} of {us(s[3], s[5]):.2f} us (per warp, at "
+                  f"{STAMP_GHZ} GHz)")
+        except Exception as exc:
+            torch.cuda.synchronize()
+            print(f"stamp {layer} {nm} m={m}: failed ({type(exc).__name__}: {str(exc)[-200:]})")
     for layer, entries in SK_SWEEP:
         # One compiled kernel at several M runs the same instructions (rows >= M read the zero
         # row), so its time against M isolates the x bytes each CTA streams.
