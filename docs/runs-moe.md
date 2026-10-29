@@ -1151,7 +1151,8 @@ and the arrive is per thread, as in 28 and 37.
 ### Check plan and stopping rule
 
 One check after the 00:00 UTC reset, bench file from `tools/moe_make_bench_ab.py --base=37
---sizes=32,128,256 --routings=layer o43=43 o44=44 o42=42` (seeds 1-6; 41 is built as 37's counter
+--sizes=32,128,256 --routings=layer o43=43 o44=44 o42=42` plus the staged pair's arm (below;
+it does not enter 43's rule) (seeds 1-6; 41 is built as 37's counter
 twin, so ABDIAG and ABDIAGB print 41 and 44 side by side, now with the average cycles per wait).
 43 is in MAIN_CANDIDATES, so prepare self-tests it against FP32 at 32, 33, 128 and 257 tokens on
 normal and skewed routing and the policy bench may pick it.
@@ -1160,6 +1161,33 @@ Keep 43 only if 43 minus 37 has a mean of -2 us or lower at 256 tokens with at l
 lower, a mean of +0.5 us or lower at 32 and at 128, and ABCHECK within 1e-4 of 37; and 44's
 average cycles per wait must fall by at least 30% against 41's in the same run. A loss or a tie
 goes to docs/ruled-out.md and ends the line. At most 2 MoE checks.
+
+## Staged pair on current components, 2026-10-29
+
+The staged two-launch MoE (mode 19, phase A alone on owned units, then mode 21, phase B and the
+final pass alone) lost to the fused kernel by 24-30 us at 128 and 256 tokens (checks
+9332e2a49aff4ff2, e221858b020c4dee; "Staged GEMM1 gate"). docs/ruled-out.md parks it with a
+revisit trigger, cheaper phase B or setup inside the fused kernel, and modes 23, 26, 28 and 37
+have landed since. The coordinator asked for a re-test as an extra arm of the mode 43 check,
+without changing 43's stopping rule or the 2-check budget.
+
+Rebuilt pair (variant 301, "staged-lean", timing only, never a policy candidate):
+- Mode 45: 37 with `a_only`. Owned phase A units, 37's stage loop, setup, SiLU and publish; no
+  phase B, no final pass. Its phase B loops are compiled out (with them it spilled 268 / 656 B;
+  without them 92 / 164 B).
+- Mode 46: 37 with `b_only` and without owned phase A. Phase B on 37's claimed units (dyn_b) and
+  the final pass; no x gather and no done_as wait. 45 completed before 46 started (stream order),
+  so the done_as acquire has nothing to add; the x producer keeps its
+  `fence.proxy.async.global` before each bulk copy, as mode 21 did.
+- The claimed-unit x producer's done_as spin now sits under `!b_only(MODE)`, matching the static
+  path; it compiles away in every other mode (production SASS unchanged, profiles/
+  sass_grpcodes.2026-10-29.txt addendum).
+- The stage loop is 37's, not 43's, because 43 is unproven; if 43 wins, the pair's loop could
+  take it too.
+
+Arm in the same check: `tools/moe_make_bench_ab.py --base=37 --sizes=32,128,256 --routings=layer
+o43=43 o44=44 o42=42 ost=v301 --pairs=ost-o43`. ABPAIR gives the pair against 37 and against 43
+per seed. prepare self-tests it against FP32 at 32, 33, 128 and 257 tokens.
 
 ## Staged GEMM1 gate, 2026-10-29
 
