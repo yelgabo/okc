@@ -78,7 +78,10 @@ FLUSH_BYTES = 256 << 20
 # the shared-memory budget at build time.
 # --------------------------------------------------------------------------------------------
 SK_GEOM = {
-    "qkv8": (1, 8, 3, 1, 4, 2, 5),
+    # Four units per warp per stage: 8 stages instead of 16. Every stage pays the per-lane proxy
+    # fence (a MEMBAR.ALL.CTA in SASS) before the empty arrive; halving the stages was -0.69 /
+    # -0.66 us against two units per warp and ties the public entry (bench 2b42507273c14aab).
+    "qkv8": (1, 8, 3, 1, 4, 4, 4),
     "qkv16": (1, 16, 3, 1, 4, 2, 5),
     "qkv32": (2, 32, 3, 1, 4, 2, 4),
     "o8": (1, 8, 4, 1, 4, 1, 4),

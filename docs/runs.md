@@ -509,3 +509,115 @@ and the layer calls `cgemv_fwd(..., nth)` with `nth = cgemv_threads(*w1.shape)`,
    layer score at 0.199% per us (gap map 2026-10-30, section 0).
 
 Scored 2026-10-29: 64ed6e6b5e204dc0 1.435x, submission.py at 01b553f (cgemv planar stream and 32-register cap, f321d44), submitted to use an expiring scored run. Board entry before: db5be7d500704692 (1.427x).
+## m = 8 skinny kernel against the public sk2, 2026-10-29 (branch worktree-agent-a73f28c7ff93f9389)
+
+At m = 8 the public sk2 led our pick by 0.7-0.8 us on qkv_gate and 0.1-0.3 on o, the pooler, the
+unpooler slice and the router (b135dd8ee10f4b24), with the same geometry on every shape (qkv8t:
+24 rows, NT 3, WSK 4, UPW 2, 5 stages; o8h, pooler8h, slice8 likewise). One verify-1 microsecond
+is 0.136% of layer score (gap map 2026-10-30).
+
+`tools/proj_make_bench_m8.py` appends a bench to submission.py: the control's kernel_fn twice
+(ours, ours2; their difference is the null), the control's candidate called directly, variants
+of the control built by exact text patches of the kernel, and the public kernel_fn (vjeux v141,
+scratchpad copy, never committed), all at m = 8 on reference-formula weights (seed 5151), as
+cold-L2 graph replays (256 MB read before each), 240 rounds in a seeded random order, two
+passes with different x, and paired per-round differences (median [25th, 75th] percentile).
+Every arm passed ABCHECK against FP64 in all three benches.
+
+The GEMV bench rotated a fixed arm list, so each arm always followed the same neighbour; there
+our kernel_fn arms sat 0.16-0.28 us above their own candidate at m = 8. In random order the
+offset is gone (ours.qkv8 - ours +0.00 / +0.03, ours2 - ours -0.06 / -0.03 in
+c991867992d34fb2), so it was an order artifact. The ours-vs-public gap survives it: pub - ours
+-0.72 / -0.64 on qkv_gate.
+
+What differs between the two kernels on the m = 8 consumer path (source and SASS, nvcc 12.8):
+
+1. Accumulators: NACC 2 in the public's qkv8t, o8h and slice8, 4 in its router; ours 1 and 2.
+2. Consumer full-barrier wait: both spin on `try_wait`. Ours wraps it in `__all_sync` with a
+   clock64 timeout. The public does not sleep in its consumers; only its producer and escape
+   warps use the suspend hint, as ours do.
+3. Ours runs `fence.proxy.async.shared::cta` in every consumer and escape warp before each
+   empty-barrier arrive; the public runs none. In SASS this fence is `MEMBAR.ALL.CTA;
+   FENCE.VIEW.ASYNC.S`. Our init path also adds it to `fence.mbarrier_init` (which alone is
+   `FENCE.VIEW.ASYNC.S`), after stage 0's copies are issued.
+4. Empty arrive at UPW > 1: ours after the last unit's operand loads, the public after the
+   stage's MMAs.
+5. Registers: qkv8 69 against 89, o8 68 / 82, pool8 46 / 66, slice8 60 / 64. qkv8 runs one CTA
+   per SM either way (135 KB of shared memory, 96 CTAs on 132 SMs), so registers cannot change
+   its occupancy; the other shapes were not checked.
+
+Attribution, qkv_gate m = 8, paired against ours, pass 0 / pass 1 (us). Arms marked "attribution
+only" drop a fence and are never a submission candidate (CLAUDE.md).
+
+| arm | change | qkv_gate | other m = 8 shapes | bench |
+|---|---|---|---|---|
+| acc | NACC 2 (qkv8, o8, slice8), 4 (router8) | -0.03 / -0.03 | o +0.22 / +0.10, router +0.26 / +0.26, slice +0.30 / +0.38 | c991867992d34fb2 |
+| late | arrive after the stage's MMAs | +0.03 / -0.03 | slice +0.10 / +0.16 | c991867992d34fb2 |
+| nofence | no per-stage proxy fence (attribution only) | -0.14 / -0.19 | router -0.21 / -0.19 | c991867992d34fb2 |
+| all | acc + late + nofence + no vote (attribution only) | -0.38 / -0.32 | router -0.32 / -0.19 | c991867992d34fb2 |
+| init | every barrier initialized and fenced before the first copy | +0.00 / +0.03 | o +0.32 / +0.13, router +0.16 / +0.13 | e9d6891d00ac4088 |
+| novote | consumer wait without `__all_sync` (per-thread timeout kept) | -0.10 / -0.18 | o +0.22 / +0.06 | e9d6891d00ac4088 |
+| cand | init + novote | -0.16 / -0.13 | o +0.19 / +0.03, others +0.03 to +0.10 | e9d6891d00ac4088 |
+| candnf | cand + nofence (attribution only) | -0.75 / -0.58; minus pub +0.00 / +0.06 | router -0.29 / -0.19 | e9d6891d00ac4088 |
+| qkv8u4 | 4 units per warp per stage: 8 stages, 4-slot ring | **-0.69 / -0.66; minus pub -0.03 / +0.03** | | 2b42507273c14aab |
+| qkv8w8 | 8 consumer warps, 2 units each: 8 stages | -0.54 / -0.45 | | 2b42507273c14aab |
+| qkv8w8u1 | 8 consumer warps, 1 unit each: 16 stages | +0.13 / +0.26 | | 2b42507273c14aab |
+| router8u2 | router, 2 units per stage: 8 stages | | router +0.16 / +0.06 | 2b42507273c14aab |
+| geov | the four geometries above + novote, tuned picks | -0.77 / -0.59 (picked qkv8u4) | router -0.10 / -0.18 | 2b42507273c14aab |
+
+The m = 8 lead on qkv_gate is a fixed cost per pipeline stage, and the proxy fence is most of it.
+Without the fence our kernel ties the public (candnf); with it, nothing on the consumer path
+recovers more than about 0.2 us; and the same kernel with half the stages ties the public with
+the fence kept (qkv8u4). A second consumer warp per SM sub-partition at the same stage count
+does not help (qkv8w8u1), so the cost is per stage, not a latency that another warp hides. That
+matches the 32-token finding (about 120 ns of fixed path per stage, the pool32 comment in
+SK_GEOM).
+
+The fence stays. PTX ISA 9.4, section 9.7.10.28.2: "Accessing the same memory location across
+multiple proxies needs a cross-proxy fence. For the async proxy, fence.proxy.async should be used
+to synchronize memory between generic proxy and the async proxy." Section 8.9.5 (proxy-preserved
+base causality order) lets a fence on the causality path stand in only for alias proxy fences,
+so one lane fencing after `__syncwarp` on behalf of the others is not shown correct either. The
+public entry and CUTLASS's `PipelineTmaAsync::consumer_release` both omit the fence on this
+read-then-overwrite path; that is practice, not a memory-model citation.
+
+The change (fee7249): `SK_GEOM["qkv8"]` from (1, 8, 3, 1, 4, 2, 5) to (1, 8, 3, 1, 4, 4, 4): four
+64-k units per consumer warp per stage, 16 units per stage, 8 stages over K = 8192, a 4-slot ring
+of 53 KB stages (221 KB of shared memory with the escape corrections and table; qkv8raw fits 3
+slots). 83 registers (69 before), no spills; still one CTA per SM. Nothing else changes: same rows per CTA, same warps, same
+fences and barriers.
+
+| date | job | kind | commit | change | score (95% CI) | notes |
+|---|---|---|---|---|---|---|
+| 10-29 | c991867992d34fb2 | check (bench) | 01b553f (+ bench) | m = 8 bench: acc, nofence, late, all vs ours vs public | 1.435x (1.413-1.456) | table above; judged path is the unchanged file |
+| 10-29 | e9d6891d00ac4088 | check (bench) | 01b553f (+ bench) | m = 8 bench: init, novote, cand, candnf | 1.411x (1.390-1.433) | table above |
+| 10-29 | 2b42507273c14aab | check (bench) | 01b553f (+ bench) | m = 8 bench: qkv8u4, qkv8w8, qkv8w8u1, router8u2 (geo, geov) | 1.428x (1.406-1.449) | table above; geo tune qkv_gate m=8: qkv8 14.4, qkv8u4 13.9, qkv8w8 14.1, qkv8w8u1 14.7 |
+| 10-29 | (none) | check | fee7249 | judged check of the change | - | refused: daily cap of 20 checks reached |
+| 10-29 | 826cab6b81aa4f81 | submit | fee7249 | qkv8 with 4 units per warp per stage | 1.432x (1.411-1.453) | qkv_gate verify 1 m=8 judged 9.78 us (1.466x) against 10.21-10.67 us (1.350-1.384x, mean 10.48) in the six previous runs of the old geometry (76051953a96a4168, 3843af6418a84a72, 39d6bfa9834f4a96, 0135dd541fa94f8e, 0b539e62f7b34b34, a86f1a2f900847d5); tune qkv8 13.8 (14.1-14.2 before). Board entry stays 1.4347x |
+
+Judged delta: about -0.70 us on qkv_gate at m = 8 in one judged sample, 0.43 us below the best
+of six samples of the old geometry; the bench put it at -0.69 / -0.66 paired. The whole-file
+score (1.432x) sits inside the run-to-run spread (1.408-1.440x), as one shape of thirty should.
+
+Still open at m = 8, measured in 2b42507273c14aab: pub - ours is -0.06 / -0.10 on o and -0.08 /
++0.00 on the pooler (inside the null), -0.19 / -0.26 on the slice and -0.40 / -0.38 on the router. o8 and slice8 already run 4 stages, so the stage lever is spent there. The router's
+public build has 8 ring slots (ours 6) and NACC 4, which lost here (acc, router +0.26).
+
+Port to the layer. The layer takes qkv8's geometry from the inlined config table, so the port is
+a re-inline:
+
+1. From a checkout whose muse_bf16_proj/submission.py contains fee7249, run
+   `python3 tools/dl_proj_inline.py`. Expected output: `inlined 1555 device lines, 27 sk configs
+   (3 fused), wide configs ['b1n128c2s8h', 'b1n128c3s8h'] and 19 functions from
+   .../muse_bf16_proj/submission.py`.
+2. This change's part of the diff is four lines: in the `_SKP_SRC` dispatch, `case 0` becomes
+   `launch_sk<1, 8, 3, 1, 4, 4, 4, true, ...>` and `case 1` becomes `launch_sk<1, 8, 3, 1, 4, 4,
+   3, false, ...>`; in `_SKP_CONFIGS`, the qkv8 and qkv8raw rows become `('qkv8', 1, 8, 3, 1, 4,
+   4, 4, True, ...)` and `('qkv8raw', 1, 8, 3, 1, 4, 4, 3, False, ...)`. Against the layer at
+   01b553f the diff is 52 lines; the other 48 are the pending cgemv port (f321d44, the section
+   above). Verified on scratch copies of both files; muse_decode_layer was not edited here.
+3. In the layer log, look for `SKP selftest qkv_gate qkv8: ok`, then `SKP tune qkv_gate m=8`,
+   where qkv8 should drop by about 0.5-0.7 us from the previous layer run's value.
+4. Prediction (hypothesis): the in-layer qkv row at verify 1 (10.1 us sliding, 10.3 full in the
+   gap map) falls by about 0.6 us on both shapes, which is about +0.08% of layer score at
+   0.136% per us. qkv8 serves T = 2..8 (the last layer tune picked cgemv at T = 1).
