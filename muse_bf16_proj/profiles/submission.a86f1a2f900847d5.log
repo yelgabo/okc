@@ -1,0 +1,47 @@
+sk build 20.0 s
+pack qkv_gate: base 54, 2615 escapes, 0 inexact deltas, 20.2 s
+pack o: base 54, 984 escapes, 0 inexact deltas, 20.3 s
+pack pooler: base 54, 4702 escapes, 0 inexact deltas, 20.4 s
+pack unpooler: base 54, 3162 escapes, 0 inexact deltas, 20.4 s
+fused pooler+router pool8f: ok
+fused pooler+router pool16f: ok
+cut build 49.2 s
+selftests done 69.9 s
+tune o         m= 1: o8 10.0, o8raw 10.5, cgemv 9.5, cublas 11.1 -> cgemv
+tune o         m= 8: o8 10.0, o8raw 10.6, cublas 10.7 -> o8
+tune o         m=16: o16 10.3, o16raw 10.6, cublas 10.8 -> o16
+tune o         m=32: o32 10.4, o32raw 11.0, cublas 10.9 -> o32
+tune o         m=64: cublas 11.0, b1n64c2 12.7, m64k2r4 17.8, m64k1r8 13.9 -> cublas
+tune o         m=128: cublas 11.4, b1n64c2 19.0, b1n128c2 14.0, m64k2r4 23.1, m64k1r8 21.4, m128k2r4 20.0, m128k1r4 15.5, m128k1r8 15.8, m128k2r8 20.4, m128k4r2 23.1, b1n128c2s8h 17.1, b1n128c3s8h 24.2 -> cublas
+tune o         m=256: cublas 13.5, b1n128c2 21.6, b2n256c2 17.5, m128k2r4 26.8, m128k1r4 23.2, m128k1r8 24.8, m128k2r8 27.9, m128k4r2 35.5, m256k2r4 29.3, m256k1r4 25.4, m256k1r8 25.7, m256k2r8 30.0, m256k2r2 28.9, b1n128c2s8h 28.7, b1n128c3s8h 38.5 -> cublas
+tune pooler    m= 1: pool8 18.3, pool8raw 21.8, cgemv 18.9, cublas 24.8 -> pool8
+tune pooler    m= 8: pool8 18.6, pool8raw 21.9, cublas 24.8 -> pool8
+tune pooler    m=16: pool16 18.8, pool16raw 21.6, cublas 25.1 -> pool16
+tune pooler    m=32: pool32 20.0, pool32raw 22.2, cublas 26.0 -> pool32
+tune pooler    m=64: cublas 27.0, b1n64c2 25.7, m64k2r4 29.2, m64k1r8 38.9 -> b1n64c2
+tune pooler    m=128: cublas 30.7, b1n64c2 31.0, b1n128c2 30.2, m64k2r4 46.9, m64k1r8 50.6, m128k2r4 34.5, m128k1r4 48.9, m128k1r8 51.0, m128k2r8 36.7, m128k4r2 39.8, b1n128c2s8h 26.7, b1n128c3s8h 32.9 -> b1n128c2s8h
+tune pooler    m=256: cublas 33.7, b1n128c2 37.7, b2n256c2 50.1, m128k2r4 60.8, m128k1r4 53.2, m128k1r8 54.6, m128k2r8 62.2, m128k4r2 60.5, m256k2r4 59.1, m256k1r4 54.0, m256k1r8 54.5, m256k2r8 62.1, m256k2r2 58.7, b1n128c2s8h 47.7, b1n128c3s8h 59.9, cut128x64 30.5 -> cut128x64
+tune qkv_gate  m= 1: qkv8 14.3, qkv8raw 15.4, cgemv 13.4, cublas 18.4 -> cgemv
+tune qkv_gate  m= 8: qkv8 14.1, qkv8raw 16.1, cublas 18.2 -> qkv8
+tune qkv_gate  m=16: qkv16 14.0, qkv16raw 16.0, cublas 17.9 -> qkv16
+tune qkv_gate  m=32: qkv32 15.9, qkv32raw 16.3, cublas 19.2 -> qkv32
+tune qkv_gate  m=64: cublas 19.6, b1n64c2 23.3, m64k2r4 23.2 -> cublas
+tune qkv_gate  m=128: cublas 21.4, b1n64c2 27.5, b1n128c2 28.2, m64k2r4 28.9, m128k2r4 28.9, m128k1r4 46.9, m128k4r2 22.8, b1n128c2s8h 23.4, b1n128c3s8h 19.2 -> b1n128c3s8h
+tune qkv_gate  m=256: cublas 23.7, b1n128c2 33.0, b2n256c2 48.7, m128k2r4 32.9, m128k1r4 47.9, m128k4r2 40.1, m256k2r4 32.4, m256k1r4 51.4, m256k2r2 32.2, b1n128c2s8h 41.2, b1n128c3s8h 33.9 -> cublas
+tune router    m= 1: rgemv 7.8, router8 9.5, baseline 15.1 -> rgemv
+tune router    m= 8: router8 9.6, baseline 31.1 -> router8
+tune router    m=16: router16 9.5, baseline 20.6 -> router16
+tune router    m=32: router32 9.9, baseline 21.1 -> router32
+tune router    m=64: baseline 21.3, r64c8 13.1, r64c16 11.3, rm64k4r4 18.4 -> r64c16
+tune router    m=128: baseline 21.9, r64c8 13.4, r64c16 14.1, r128c8 14.5, r128c16 13.2, rm64k4r4 18.4, rm128k4r4 21.8 -> r128c16
+tune router    m=256: baseline 23.1, r128c8 14.8, r128c16 20.4, rm128k4r4 21.7 -> r128c8
+tune unpooler  m= 1: slice8 8.7, slice8raw 8.9, cgemv 8.1, sgemv 7.9, cublas 11.6 -> sgemv
+tune unpooler  m= 8: slice8 8.8, slice8raw 9.0, cublas 11.6 -> slice8
+tune unpooler  m=16: unp16 18.2, unp16raw 21.8, cublas 22.2 -> unp16
+tune unpooler  m=32: unp32 19.5, unp32raw 21.8, cublas 22.6 -> unp32
+tune unpooler  m=64: cublas 24.0, b1n64c2 24.6, m64k2r4 35.2, m64k1r8 30.3 -> cublas
+tune unpooler  m=128: cublas 24.2, b1n64c2 42.9, b1n128c2 25.4, m64k2r4 52.3, m64k1r8 48.5, m128k2r4 39.4, m128k1r4 34.5, m128k1r8 35.8, m128k2r8 41.8, m128k4r2 39.1, b1n128c2s8h 29.2, b1n128c3s8h 38.9 -> cublas
+tune unpooler  m=256: cublas 28.3, b1n128c2 46.7, b2n256c2 32.4, m128k2r4 59.5, m128k1r4 58.5, m128k1r8 62.5, m128k2r8 62.2, m128k4r2 66.0, m256k2r4 54.7, m256k1r4 58.8, m256k1r8 59.4, m256k2r8 57.5, m256k2r2 54.5, b1n128c2s8h 53.0, b1n128c3s8h 66.1 -> cublas
+ablate pooler m=128: m128k2r4 35.5, m128k2r4_a1 30.7, m128k2r4_a3 28.7
+ablate o m=256: m256k1r4 25.8, m256k1r4_a1 23.5, m256k1r4_a3 18.7
+prepare done 70.8 s
