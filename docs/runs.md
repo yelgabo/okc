@@ -507,3 +507,5 @@ and the layer calls `cgemv_fwd(..., nth)` with `nth = cgemv_threads(*w1.shape)`,
    prediction for decode 1 is a hypothesis: the in-layer qkv row falls from 11.1 to about
    10.1-10.4 us on both shapes and o moves by less than 0.2, which is about +0.15% to +0.2% of
    layer score at 0.199% per us (gap map 2026-10-30, section 0).
+
+Scored 2026-10-29: 64ed6e6b5e204dc0 1.435x, submission.py at 01b553f (cgemv planar stream and 32-register cap, f321d44), submitted to use an expiring scored run. Board entry before: db5be7d500704692 (1.427x).
