@@ -5,9 +5,10 @@ kernel loaded from its own file, all timed in one process on the same inputs.
     python3 tools/attn_make_bench_ab.py OUT.py [--pub PUBLIC.py] [--shapes sliding|all]
         NAME=FLAGS ...
 
-NAME=FLAGS adds a variant built from muse_attention_decode/attn_one.cu with those nvcc flags
-(comma-separated), e.g. diet=-DONE_DIAG=0,-DONE_DIET=1. The variant runs through _one with
-its module swapped in, so it shares the control's plan and workspace.
+NAME=FLAGS adds a variant built from submission.py's inlined _ONE_SRC (not attn_one.cu) with
+those nvcc flags (comma-separated), e.g. diet=-DONE_DIAG=0,-DONE_DIET=1. A switch that exists
+only in attn_one.cu needs `tools/attn_inline_one.py OUT.py` on the written bench. The variant
+runs through _one with its module swapped in, so it shares the control's plan and workspace.
 
 At import the bench prints, before the judge's own tests and timing:
 

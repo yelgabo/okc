@@ -56,6 +56,12 @@ constexpr int COOP_POLL_LIMIT = 1 << 24;
 #ifndef ONE_FIN8
 #define ONE_FIN8 1
 #endif
+// ONE_KVFAST: the in-loop copy of a tile whose rows are all cached (every tile but the one that
+// reaches the block's own positions) runs without the per-row three-way branch. Bench
+// 82e52f7b23ec49da: -0.27 / -0.36 us warm at decode / verify 32 sliding, near zero at 16.
+#ifndef ONE_KVFAST
+#define ONE_KVFAST 1
+#endif
 
 // MODE bits: 1 = last-CTA finalize, 3 = cooperative finalize (every CTA a slice of rows),
 // |4 = at most one tile per CTA (straight-line prologue), |8 = the sequence length is taken
@@ -986,6 +992,18 @@ attn_one_kernel(const Params p) {
                                   doit);
                     cp_async16_if(vdst + r * ROWB + v_swz<L>(ch, r) * 16, p.v_cache + off, bytes,
                                   doit);
+                }
+                return;
+            }
+            if (ONE_KVFAST && pos0 + BN <= seq) {
+#pragma unroll
+                for (int i = 0; i < BN / RSTEP; ++i) {
+                    const int r = r0 + i * RSTEP;
+                    const int64_t row = (static_cast<int64_t>(idx[r]) << p.lp)
+                                        + ((pos0 + r) & (psize - 1));
+                    const int64_t off = row * ROWB + ch * 16;
+                    cp_async16(kdst + r * ROWB + k_swz<L>(ch, r) * 16, p.k_cache + off, 16);
+                    cp_async16(vdst + r * ROWB + v_swz<L>(ch, r) * 16, p.v_cache + off, 16);
                 }
                 return;
             }
