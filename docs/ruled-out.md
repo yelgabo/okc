@@ -51,6 +51,10 @@ the old design can come back as part of a structurally different design.
 | Consumer full-barrier wait without the `__all_sync` vote (per-thread timeout kept), alone or with the init order | e9d6891d00ac4088: qkv_gate -0.10 / -0.18 (novote), -0.16 / -0.13 (with init), o +0.22 / +0.06 and +0.19 / +0.03 | the vote as a standalone lever; it matters only together with dropping the proxy fence, which stays (CLAUDE.md, PTX ISA 9.4 section 9.7.10.28.2) |
 | A second consumer warp per SM sub-partition at m = 8 without fewer stages (qkv8w8u1: 8 warps, 1 unit each, 16 stages); 8 warps at 8 stages (qkv8w8) | bench 2b42507273c14aab: qkv8w8u1 +0.13 / +0.26, qkv8w8 -0.54 / -0.45 against qkv8u4's -0.69 / -0.66 | hiding the per-stage cost behind another warp; the stage count is the lever |
 | Fewer router stages at m = 8 (router8u2: 2 units per stage, 8 stages over 3 ranks) | 2b42507273c14aab: +0.16 / +0.06 against router8 | the stage lever on the clustered router; its 0.4 us gap to the public stays open |
+| cgemv escape warp that loads the count (entry 0) and its first batch as two loads | 5ff76a62b0044378: one load per lane for both (cgemvpe) is -1.02 / -1.12 us on the pooler against cgemvp, +-0.1 elsewhere | the two-load escape start in a GEMV whose compute warps finish in one load round; replaced in a35709c |
+| cgemv at 32 registers with two chunks per thread (qkv_gate, the unpooler slice) | 5ff76a62b0044378: 40 registers (cgemvp40) -0.32 / -0.21 us on qkv_gate and -0.16 / -0.16 on the slice against the same kernel at 32 | the 32-register cap at CPT = 2; it stays for CPT = 1 (pooler, o), where it sets CTAs per SM |
+| cgemv with one 24 KB block per row pair (cgemvi) instead of two global planes | 5ff76a62b0044378: within +-0.1 us of cgemvp on every shape | the global placement of the planes as a factor; the per-row load split is what moved qkv_gate and the slice |
+| sgemv (raw BF16) as the m = 1 slice pick | f6c80b4ba11048f3: +0.42 / +0.29 us against the a35709c cgemv | sgemv on the slice; it stays a tuner candidate |
 
 ## muse_moe_w4a16 (`docs/runs-moe.md`)
 
