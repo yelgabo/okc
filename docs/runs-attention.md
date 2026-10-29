@@ -1362,3 +1362,7 @@ check and its unroll are now in mode 51, so the rest is elsewhere. Candidates fr
 untested: the public flat partition and producer (gather code, stage size, `r_lo` / `r_span`
 common-tile fast path, descriptors carried across tiles instead of rebuilt per tile), and the
 EREL release placed after the transpose without QKOV (QKOV alone was slower here).
+
+### Scored: df988353208245f7 2.354x (2026-10-29)
+
+Submit of submission.py at bc59f08 (public tile order in mode 51, as checked in 6f75235c0d364a7a), under the standing replace-when-demonstrably-better authorization. Passed. Board entry before: 9104344cb757454e (2.334x).
