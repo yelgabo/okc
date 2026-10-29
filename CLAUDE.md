@@ -1,6 +1,7 @@
 # okc: Open Kernel Challenge work
 
-Background and decisions: `docs/context.md`. Every run: `docs/runs.md` (bf16_proj),
+Background and decisions: `docs/context.md`. Coordinator working method (agents, quota,
+submits, porting, traps): `.claude/agents/okc-coordinator.md`. Every run: `docs/runs.md` (bf16_proj),
 `docs/runs-moe.md`, `docs/runs-attention.md`.
 
 ## Steering reports and cross-session handoffs
