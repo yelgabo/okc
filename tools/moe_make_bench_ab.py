@@ -329,18 +329,21 @@ def _ab_main():
                 "cut units per CTA", "rho(time, stages)")
 
     def sk_summary(d):
-        # Our skinny stamps (kMode 2): see the kernel; cycles to us by the CTA's own clock.
+        # Our skinny stamps (kMode 2, 4, 8): see the kernel; cycles to us by the CTA's own clock.
+        # Since 2026-10-29 (kMode 8) the weights waits include the first try_wait, which can
+        # suspend the thread; 14 and 15 are thread 0's partial-buffer wait and unit barrier.
         r = (d[:, :8] - float(d[:, 0].min())) / 1e3
         ghz = (d[:, 13] - d[:, 12]) / (d[:, 7] - d[:, 0])
         us = lambda c: float((c / ghz / 1e3).mean())
         seg = [r[:, 1] - r[:, 0], r[:, 2] - r[:, 1], r[:, 3] - r[:, 2], r[:, 4] - r[:, 3],
                r[:, 5] - r[:, 4], r[:, 6] - r[:, 5], r[:, 7] - r[:, 6]]
         return ([float(x.mean()) for x in seg] + [float(r[:, 3].max()), float(r[:, 5].max()),
-                float(r[:, 7].max())] + [us(d[:, 8]), us(d[:, 9]), us(d[:, 10]), us(d[:, 11])])
+                float(r[:, 7].max())] + [us(d[:, 8]), us(d[:, 9]), us(d[:, 10]), us(d[:, 11]),
+                                         us(d[:, 14]), us(d[:, 15])])
 
     sk_cols = ("route", "positions", "phase A", "A->B wait", "phase B", "barrier", "final",
                "A done max", "B done max", "end", "t0 weights wait A", "B", "helper idle",
-               "credits")
+               "credits", "t0 buffer wait", "t0 unit barrier")
 
     def pubsk_summary(d):
         # Public small builds: DBG 0 start, 1 routed, 2 phase A done, 3 before the barrier,
@@ -382,7 +385,7 @@ def _ab_main():
             stamps = {a: [] for a in [*light, *padiag, "pub"]}
             diags = {a: [] for a in padiag}
             pubd = []
-            skst = [i for i, v in enumerate(SKINNY_VARIANTS) if v[2] in (2, 4)]
+            skst = [i for i, v in enumerate(SKINNY_VARIANTS) if v[2] in (2, 4, 8)]
             skd = {**{i: [] for i in skst}, "pub": []}
             for si, s in enumerate(_AB_SEEDS):
                 d = inputs(t, routing, s)
