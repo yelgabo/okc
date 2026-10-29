@@ -284,3 +284,15 @@ per kernel one more `FENCE.VIEW.ASYNC.S` (the preamble's `fence.mbarrier_init`),
 on the fat kernels and 4 on the skinny ones (the preamble's mbarrier inits), one `UBLKPF` (the
 prefetch); `MEMBAR`, `BAR`, `ERRBAR`, `CCTL`, `UBLKCP`, `ACQBULK`, `LDL` and `STL` counts equal.
 Registers and spills equal on all six kernels (main<28> 96, 80 B frame, 184 / 512 B).
+
+Update (same day, layer commit after the mode 37 merge): `LAYER_MODES` is (0, 16, 26, 28, 37) and
+the layer also builds the skinny kMode 3 (`sk8w4s-er`, `LAYER_SKINNY_EXTRA`). The skinny block now
+initialises both `full` and the per-slot `empty` barriers in one block, so the skinny preamble
+initialises both, and both preamble anchors now match the whole init block, so a barrier added
+upstream fails the inliner instead of going uninitialised under `pdl`. SASS against the
+standalone build of the same instances (`tools/moe_compile_fused.sh` with (8, 4, 3) added,
+`tools/dl_moe_sass_counts.sh`): main<37> FENCE.VIEW.ASYNC.S 22 / 21, SYNCS 154 / 138, and
+MEMBAR 43, BAR 15, ERRBAR 22, CCTL 8, UBLKCP 4, ACQBULK 1, LDL 104, STL 39 equal; skinny kernels
+one more FENCE.VIEW.ASYNC.S and 8 more SYNCS (the preamble's 4 + 4 inits), BAR, MEMBAR, ERRBAR,
+CCTL and UBLKCP equal. Registers: main<37> 96 with a 56 B frame and 156 / 416 B spills, as the
+standalone; sk8w4s-er 161 against 159 standalone, no spills.
