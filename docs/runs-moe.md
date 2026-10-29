@@ -60,6 +60,9 @@ SGLang with its 95% interval. Profiles and logs are in `muse_moe_w4a16/profiles/
 | 2026-10-29 | 39c365c34cd74559 (check, bench file) | 9c384a6 | mode 26: mode 23 with every warp counting the routes (the routing warp sums 18 per-warp counts instead of counting all E entries alone, and the positions reuse them) and a batched x gather (all of a CTA's 16-byte row loads before its stores); 27 is 26 with the stamps | 2.083x (2.052-2.115) | 26 minus 23, seeds 1-6, us: T=128 std -4.3, layer -3.7; T=256 std -8.2, layer -8.5; T=32 layer -0.5 (6 of 6 lower in each). Stamped route 11.0 -> 7.7 us at 128 layer, 16.1 -> 9.6 at 256; the routing warp still 4-5 us and thread 0's stage-range searches 2.3-3.1 us. Output of 26 vs 23 7e-6 to 3e-5. POLICY 128 and 256: main-dynb-fs. The log is a tail: the T=32 std lines were cut |
 | 2026-10-29 | 4c285df44eb34bc1 (check, bench file) | c850d04 | 26 and 27 skip the four stage_at searches (owned phase A and claimed phase B read no stage range); routing-warp stamps; seeds 7-12 (held out from the two checks before) | 2.097x (2.066-2.129) | 26 minus 23, us: T=32 layer -1.4; T=128 std -5.8, layer -4.6; T=256 std -9.8, layer -9.1 (6 of 6 lower in each). Stamped route at 128 5.8 us (public 2.4): ids 0.5, routing warp 4.4 (counts and offsets 1.1, jobs 0.6, S.ord counting sort 2.5), positions 0.5, ranges 0.3. Public minus 23 on these seeds: T=128 -36.1 / -31.9, T=256 -50.2 / -50.1 |
 | 2026-10-29 | 817eab6401d54a84 (check) | ba9a457 | the shippable build: modes 0, 1, 16, 20, 23, 26; GATE adds 26 minus 23 (held-out seeds 17-22, skewed 11-13) | 2.104x (2.073-2.136) | per shape: bs1 28.37 us, bs16 97.81, bs32 138.70, bs8 71.65, bs128 215.68 (2.148x, main-dynb-fs), bs256 261.71 (2.371x, main-dynb-fs). GATE 26 minus 23 per seed: bs128 -5.1 -6.0 -7.0 -5.1 -6.6 -5.2 (mean -5.8); bs256 -9.8 -9.3 -9.5 -9.7 -9.2 -9.8 (mean -9.5); skewed bs128 -4.2, bs256 -7.7 (3 of 3 each). Output of 26 vs 16 matches 23's (7.8e-5 to 3.5e-4); self-tests 3.89e-3 vs FP32; spin flags 0. BENCH bs128 main-dynb-fs 226.4, main-own-dynb 231.6; bs256 248.9 vs 258.6. Judge bs128 215.7 us against 219.9 / 221.1 for mode 23's two runs, bs256 261.7 against 269.2 / 270.6. Build 145 s. Submit candidate: ba9a457 (not submitted) |
+| 2026-10-29 | 70dd7b13be884434 (check, bench file from tools/moe_make_bench_ab.py, not committed) | ec62b5a | mode 28: mode 26 with a leaner consumer stage (ring size and x slot base in registers, the weights slot released by every consumer thread behind the stage's first wgmma group, fence kept) and a one-pass S.ord sort; 29 is 28 with the light stamps; arms o26, o28, pub, seeds 1-6, standalone and layer-like routing | 2.132x (2.100-2.164) | 28 minus 26 per seed, us: T=32 layer -8.1 -4.4 -7.6 -3.6 -7.0 -7.8 (mean -6.4), std mean -6.4; T=128 layer -8.0 -10.8 -9.9 -7.6 -6.5 -8.9 (mean -8.6), std mean -12.1; T=256 layer -7.7 -10.3 -8.6 -7.3 -8.2 -10.8 (mean -8.8), std mean -11.0 (36 of 36 lower). Public minus 28: T=128 layer -16.1, T=256 layer -25.1 (was about -27 / -41 against 26). Output of 28 vs 23 1.6e-5 to 2.6e-5, vs FP32 3.84e-3 to 3.86e-3. ABSTAMP and attribution in section "Consumer stage and the ring slot releases". POLICY 128 and 256: main-lean |
+| 2026-10-29 | f928f8a802014e4f (check) | ec62b5a | the shippable build: MAIN_MODES (0, 16, 26, 28); GATE adds 28 minus 26 (held-out seeds 17-22, skewed 11-13) | 2.149x (2.117-2.181) | per shape: bs1 28.05 us, bs16 95.96, bs32 135.02, bs8 68.47, bs128 200.89 (2.295x, main-lean), bs256 247.11 (2.524x, main-lean). GATE 28 minus 26 per seed: bs128 -11.5 -10.8 -10.2 -11.1 -10.6 -9.4 (mean -10.6); bs256 -12.0 -11.4 -12.9 -8.6 -11.2 -13.7 (mean -11.6); skewed bs128 -6.6 -6.7 -6.7, bs256 -7.5 -7.7 -9.9. Output of 28 vs 16 equal to 26's to two digits (1.1e-4 to 3.7e-4); self-tests 3.89e-3 vs FP32; spin flags 0. BENCH bs128 main-lean 213.6, main-dynb-fs 225.8; bs256 237.8 vs 248.5. Build 138 s |
+| 2026-10-29 | 13fe68e7ca2e423f (check, repeat) | ec62b5a | f928f8a802014e4f's file plus one trailing comment line, so the judge does not return it as a duplicate (an identical resubmission, 3adce08f3e9844d5, came back as duplicate_of f928f8a802014e4f without running) | 2.158x (2.125-2.190) | bs128 200.34 us, bs256 244.59; GATE 28 minus 26: bs128 mean -11.6, bs256 -12.5 (6 of 6 lower each), skewed -6.4 / -8.4 (3 of 3). POLICY 128 and 256: main-lean. Against mode 26's shippable check 817eab6401d54a84 (2.104x): bs128 215.68 -> 200.89 / 200.34, bs256 261.71 -> 247.11 / 244.59. Submit candidate: ec62b5a (not submitted) |
 
 ## Why the layer keeps the W4 chain at 128 tokens, 2026-10-29
 
@@ -328,6 +331,171 @@ to the public kernel is about 27 us at 128 and 41 at 256 (layer routing), mostly
 built on the side stream) now has a ceiling of the remaining routing, 5.8-7.4 us at 128-256 tokens,
 of which an in-kernel sort that does not take eight serial rounds would recover part without a new
 cross-launch handoff; the E1 arm itself was not built.
+
+## Consumer stage and the ring slot releases, 2026-10-29
+
+Question: after mode 26 the same-process gap to the public kernel was about 27 us at 128 tokens and
+41 at 256 (layer routing), with phase A +10.5 / +17.9 us and phase B +6.8 / +9.4. The SASS of one
+256-k stage was 389 instructions against 322, with "four mbarrier waits against two" and one
+shared-memory proxy fence per stage in ours and none in theirs. Is the public scheme provably
+correct, and what can we cut?
+
+Sections cited are from the PTX ISA 9.4 documentation
+(docs.nvidia.com/cuda/parallel-thread-execution), read 2026-10-29: 8.8 Release and Acquire
+Patterns, 8.9.1.1 Asynchronous Operations, 8.9.4 Memory synchronization, 8.9.5 Causality Order,
+8.10.6 Causality, 9.7.10.28.2 Async Proxy (cp.async.bulk), 9.7.15.2 bar.warp.sync, 9.7.15.4
+membar / fence, 9.7.15.16.16 mbarrier.arrive, 9.7.15.16.19 mbarrier.test_wait / try_wait,
+9.7.17.4 Async Proxy (wgmma).
+
+### What the public kernel does per stage (wgs_seg and the two producer warps, public source)
+
+- Two waits per stage: `mbar_wait(BW_F + ws)` (weights full) and `mbar_wait(BX_F + xs)` (x full),
+  each a two-instruction `try_wait` loop with no timeout.
+- Weights slot release: lane 0 of each consumer warp does `mbarrier.arrive` on `BW_E + ws` (count
+  NW warps) once its warp has issued the loads of the stage's last code group, with no
+  `__syncwarp` and no proxy fence. The producer waits on `BW_E` and then issues the next
+  `cp.async.bulk` into the slot.
+- X slot release: lane 0 arrives on `BX_E + prev` after `wgmma.wait_group` has retired the group
+  that read the slot, with no fence. The x slot is read only by `wgmma` through its descriptor.
+
+Our 26 has the same two waits per stage. The four `SYNCS.PHASECHK.TRANS64.TRYWAIT` in its SASS are
+`mbar_wait_to`'s first try plus the retry inside the spin-timeout loop; the second one, the clock
+reads and the `ATOMG.OR` on ctr[8] run only after a failed first try (profile
+`sass_stage_loop_mode28.2026-10-29.txt`: 390 instructions in the loop, 348 on the path where both
+first tries succeed). The real differences are on the release side.
+
+### Which public releases are provable
+
+The x slot (theirs and ours): `wgmma.mma_async` reads shared memory in the async proxy (9.7.17.4)
+and `cp.async.bulk` writes it in the async proxy (9.7.10.28.2). Both are the same proxy in the same
+thread block, which is the second case of proxy-preserved base causality order (8.9.5), so no
+proxy fence is needed. The chain: the read completes before `wgmma.wait_group` returns in every
+thread of the warpgroup; lane 0's `mbarrier.arrive` follows in program order and has release
+semantics by default (9.7.15.16.16); the producer's `try_wait.parity` has acquire semantics by
+default and, returning true, forms an acquire pattern (9.7.15.16.19, 8.8) that synchronizes with
+the arrive (8.9.4); the producer's `cp.async.bulk` is ordered after its prior instructions
+(8.9.1.1). The read precedes the write in causality order, so it cannot read from it (8.10.6).
+Ours already releases the wgmma path's x slot this way, with no fence.
+
+The weights slot (public): the slot is read with generic `ld.shared` by all 32 lanes and refilled
+by `cp.async.bulk`, a different proxy. Two links are missing. (1) The proxy: "accessing the same
+memory location across multiple proxies needs a cross-proxy fence; for the async proxy,
+fence.proxy.async should be used" (9.7.10.28.2). Proxy-preserved base causality order (8.9.5)
+covers generic-to-generic and same-proxy pairs only, so without a fence on the path the read is
+not ordered before the bulk write in causality order and 8.10.6 gives no guarantee. (2) The lanes:
+lanes 1-31 read the slot but only lane 0 arrives, with no `bar.warp.sync` between them, so the
+other lanes' reads are not in program order before any release (8.8: a release pattern "only
+affects operations occurring in program order before" it; 9.7.15.16.19 makes visible the accesses
+"requested prior, in program order, to mbarrier.arrive ... by the participating threads"). The
+public scheme therefore rests on hardware behaviour, not on the model. Under the repository rule it is not adopted.
+
+The weights slot (our 26): every lane's reads, then `__syncwarp` (bar.warp.sync "also guarantee[s]
+memory ordering among threads participating in barrier", 9.7.15.2), then lane 0's
+`fence.proxy.async.shared::cta` and arrive. This is correct, but the cross-lane link rests on the
+instruction text of 9.7.15.2, which is not one of the synchronizes-with relations listed in 8.9.4.
+
+### Ordering of the ring slot releases (adopted in mode 28)
+
+Every consumer thread releases the weights slot itself: `fence.proxy.async.shared::cta`, then
+`mbarrier.arrive` on `wempty[ws]`, whose expected count becomes kNC x 32 = 512. For one thread T
+that read the slot with `ld.shared` (reads R) and the producer thread P that refills it with a
+bulk copy (write W):
+
+1. R, then T's bidirectional proxy fence F, in program order. F orders T's prior generic accesses
+   before its subsequent async-proxy accesses and its effect "composes with other forms of
+   synchronization" (9.7.15.4); this is the cross-proxy fence 9.7.10.28.2 requires.
+2. F, then T's `mbarrier.arrive` A, in program order. A has `.release` semantics at `.cta` scope by
+   default (9.7.15.16.16) and is a release pattern by itself (8.8), covering R and F.
+3. P's `mbarrier.try_wait.parity` on the same barrier returns true once all 512 arrivals of the
+   phase are in; it has `.acquire` at `.cta` scope by default and forms an acquire pattern
+   (9.7.15.16.19, 8.8), so A synchronizes with it (8.9.4). 9.7.15.16.19 also states the case
+   directly: accesses requested after the wait "are not performed and not visible to memory
+   accesses performed prior to mbarrier.arrive having release semantics, in program order, by
+   other threads participating in the mbarrier".
+4. P then issues `mbarrier.arrive.expect_tx` and `cp.async.bulk`; the bulk operation is ordered
+   after the prior instructions of P (8.9.1.1), so after the acquire.
+5. So R precedes W in base causality order with T's proxy fence on the path, and R cannot read
+   from W (8.10.6).
+
+Each thread's own reads are now in its own program order before its own release, so the chain needs
+neither `bar.warp.sync` nor lane 0. The fence and the arrive stay; on the mma.sync path the x slot,
+read by `ldmatrix` (generic), gets the same per-thread fence and arrive, and the wgmma path's x
+release (lane 0, `mbarrier.arrive` with count 32, after `wgmma.wait_group`) keeps the chain above.
+The fence sits behind the stage's first wgmma group instead of before the x wait: every load of
+the stage's codes and scales was issued earlier in T's program order, so the chain is unchanged,
+and the MEMBAR it compiles to is no longer between the weights wait and the first wgmma. A
+uni-directional `fence.proxy.async::generic.release.sync_restrict::shared::cta.cluster` compiles to
+the same MEMBAR.ALL.CTA + FENCE.VIEW.ASYNC.S (local nvcc 12.8 test), and the read-only
+`::shared::cluster::read` form needs PTX ISA 9.4, so the bidirectional fence stays.
+
+### The rest of mode 28
+
+- The ring size (S.nsw), x slot 0's address and the x slot size are read once per launch into
+  registers; 26 loaded them from shared memory every stage (an LDS, an LDS.64, S2UR / ULEA pairs)
+  and shuffled the whole slot address. The slot offset still goes through one `__shfl_sync`: the
+  ring position is carried around a loop whose trip count ptxas cannot prove warp-uniform, and
+  without the shuffle every wgmma descriptor went through R2UR (448 instructions per stage).
+- The S.ord sort is one pass: an expert's jobs are all 8 n-tiles except possibly its last, so a
+  job's rank is a warp scan of the 8-tile counts plus, for a partial job, seven ballots. 26 ran
+  eight dependent scan rounds (2.5 us of routing at 128 tokens in 4c285df44eb34bc1).
+- Spin timeouts stay (the self-tests read ctr[8]); they were already off the fast path.
+- Not removed: the spill. Mode 28 has 184 B / 512 B of spill stores / loads against 120 / 308 for
+  26, all but 7 local accesses outside the per-stage loops (26: 5).
+
+SASS of the 64x24 stage loop: 383 instructions, 335 on the fast path (26: 390 / 348; public 322).
+The variant that kept 26's lane-0 release after `__syncwarp` at the moved point made ptxas
+serialize the wgmma groups (C7513, 400 instructions per stage) and was dropped before any run.
+
+### Results
+
+Paired 28 minus 26, us (negative = 28 faster):
+
+| | 32 tokens | 128 tokens | 256 tokens |
+|---|---|---|---|
+| layer routing, seeds 1-6 (70dd7b13be884434) | -6.4 (6 of 6) | -8.6 (6 of 6) | -8.8 (6 of 6) |
+| standalone routing, seeds 1-6 (70dd7b13be884434) | -6.4 (6 of 6) | -12.1 (6 of 6) | -11.0 (6 of 6) |
+| standalone, held-out seeds 17-22 (GATE, f928f8a802014e4f) | | -10.6 (6 of 6) | -11.6 (6 of 6) |
+| the same, repeat (GATE, 13fe68e7ca2e423f) | | -11.6 (6 of 6) | -12.5 (6 of 6) |
+| skewed, seeds 11-13 (GATE, f928f8a802014e4f / 13fe68e7ca2e423f) | | -6.7 / -6.4 | -8.4 / -8.4 |
+
+Stamps, layer routing, mean of six seeds (70dd7b13be884434; 27 is 26 stamped, 29 is 28 stamped).
+Phase A = thread 0's end of phase A minus consumers' start; phase B = consumers done minus that.
+
+| us | T=128 27 / 29 / public | T=256 27 / 29 / public |
+|---|---|---|
+| routing | 5.8 / 3.6 / 2.5 | 7.3 / 4.3 / 3.4 |
+| consumers start | 12.9 / 10.9 / 6.2 | 16.0 / 12.8 / 8.3 |
+| phase A | 97.6 / 92.7 / 87.7 | 137.7 / 133.7 / 120.6 |
+| phase B | 48.4 / 47.5 / 42.9 | 66.2 / 65.2 / 58.6 |
+| tail | 9.9 / 8.9 / 5.8 | 9.4 / 9.3 / 5.6 |
+| launch end | 173.3 / 164.5 / 148.0 | 236.2 / 227.7 / 201.5 |
+
+Judge (shippable build, policy main-lean at 128 and 256): 2.149x (2.117-2.181) in
+f928f8a802014e4f and 2.158x (2.125-2.190) in the repeat 13fe68e7ca2e423f, against 2.104x
+(2.073-2.136) for mode 26 in 817eab6401d54a84; bs128 215.68 -> 200.89 / 200.34 us, bs256 261.71 ->
+247.11 / 244.59.
+
+Reading. The stamps put about half of the gain in phase A (-4.9 / -4.0 us at 128 / 256) and a
+quarter to a third in setup (-2.0 / -3.2, mostly the sort), with phase B nearly unchanged (-0.9 / -1.0); the stage
+loop lost 13 fast-path instructions of about 348 (4%). Which of the release move, the per-thread
+release and the hoisted constants carries the phase A gain is not separated (the lane-0 control
+could not be built without serialization). The remaining gap to the public kernel on layer
+routing is 16.1 us at 128 tokens and 25.1 at 256 (paired replay), in the stamps setup +4.7 /
++4.5, phase A +5.0 / +13.1, phase B +4.6 / +6.6, tail +3.1 / +3.7.
+
+At 32 tokens on layer routing, 28 (94.7 us) and 26 (101.1) are both well under the skinny sk8w4s
+(113.1, 6 of 6 seeds), while on the standalone bench routing sk8w4s wins (150.8 vs 161.2 in
+f928f8a802014e4f), so the standalone policy keeps sk8w4s at 32 and a layer benched on judge-like
+routing may pick 28 there.
+
+Verdict. Mode 28 is the standalone policy at 128 and 256 tokens; submit candidate ec62b5a (not
+submitted). Port: add 28 to `LAYER_MODES` in `tools/dl_moe_inline.py` and `28: "main-lean"` to
+its MAIN_NAMES (26: "main-dynb-fs" too if 26 stays). The interface, scratch and SmemMain size
+(228,736 bytes) are mode 26's. The standalone MAIN_MODES is now (0, 16, 26, 28); a layer that
+still lists 20 or 23 in LAYER_MODES gets them silently dropped by the inliner (it keeps only modes
+in MAIN_MODES), so list (0, 16, 26, 28) or (0, 16, 28). Tested on a scratch copy: the inliner's
+anchors match and the layer's variant table gains `('main-lean', 'main', 'launch_main<28>')`; the
+layer build itself was not compiled here.
 
 ## Staged GEMM1 gate, 2026-10-29
 

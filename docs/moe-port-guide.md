@@ -149,6 +149,19 @@ layer-like routing; docs/runs-moe.md, "Same-process A/B against the public MoE")
 policy at both sizes in 817eab6401d54a84 (2.104x). Same interface, scratch and SmemMain size as 23;
 porting it means adding 26 to `LAYER_MODES`. 25 and 27 are 23 and 26 with thread-0 phase stamps
 (timing only; they write 16 int64 per CTA to `inter`).
+Also since 2026-10-29: 28 ("main-lean") is 26 with a leaner consumer stage (ring size and x slot
+base in registers, the weights slot released by every consumer thread with its own
+fence.proxy.async.shared::cta and arrive behind the stage's first wgmma group, so `wempty` and
+`xempty` count kNC x 32 arrivals) and a one-pass S.ord sort. Means of 6.4 to 12.5 us under 26 at 32,
+128 and 256 tokens, 72 of 72 paired seeds lower (layer-like, standalone, held-out and skewed routing,
+three checks; docs/runs-moe.md,
+"Consumer stage and the ring slot releases"); standalone policy at 128 and 256 in f928f8a802014e4f
+(2.149x) and its repeat 13fe68e7ca2e423f (2.158x). Same interface, scratch and SmemMain size as 26.
+Porting it: add 28 to `LAYER_MODES` and `28: "main-lean"` to `MAIN_NAMES` in
+`tools/dl_moe_inline.py`. The standalone `MAIN_MODES` is now (0, 16, 26, 28), and the inliner keeps
+only modes listed there, so a `LAYER_MODES` that still names 20 or 23 loses them silently. On layer
+routing at 32 tokens 28 is under the skinny sk8w4s by 18 us (6 of 6 seeds), so a layer bench on
+judge-like routing may choose it at decode 32 too. 29 is 28 with the stamps (timing only).
 `_vname(variant)` gives the name the bench prints. It launches on the current stream, is graph-capturable (no
 host syncs, no allocation, no value-dependent branching on the host), and needs the whole GPU:
 the grid barrier spins until all 132 CTAs arrive, so nothing else may occupy SMs for the
