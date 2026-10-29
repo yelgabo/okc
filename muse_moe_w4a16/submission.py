@@ -576,8 +576,10 @@ __host__ __device__ constexpr bool bar_release_a(int mode) {
 // kernel's __fdividef): __frcp_rn compiles to MUFU.RCP plus a range check that branches to a
 // subroutine, inside a convergence region per element, 16 per thread per unit at 8 n-tiles.
 // Mode 31's counters put mode 28's phase A epilogue at 3.0 us per unit at 256 tokens with the
-// consumers never waiting for weights or x (check c7db20e053254b52). 37 is 36 without the
-// per-thread fence_gpu (as 34), 38 is 36 with the phase A counters (timing only).
+// consumers never waiting for weights or x (check c7db20e053254b52). [Corrected 2026-10-29: that
+// counter skipped the first try_wait; timed in full the consumers wait about 20% of the stage
+// loops, check ca43908f02874886.] 37 is 36 without the per-thread fence_gpu (as 34), 38 is 36
+// with the phase A counters (timing only).
 __host__ __device__ constexpr bool fast_silu(int mode) {
     return mode >= 36 && mode <= 42;
 }
@@ -2532,6 +2534,8 @@ constexpr int kMode = @MODE@;
 // once every warp has arrived, instead of after a bar.sync of all compute warps behind the
 // unit's last MMA. The A/B at 8 tokens (240b68e7df1a427f) put mode 0 3.6 us over its loads-only
 // twin while thread 0 never waited for a unit, so the per-unit barrier is on the critical path.
+// [Corrected 2026-10-29: those stamps skipped the first try_wait; timed in full, thread 0 does
+// wait (docs/runs-moe.md, "Two stamp facts that change the attribution").]
 // kMode 5 and 7: the scale decode's multiply by 16 takes a multiplier ptxas cannot see, so it
 // stays an IMAD (FMA pipe) instead of becoming a LEA on the ALU pipe that the FP4 decode
 // saturates (the public kernel's SCDK). kMode 6 and 7: the partial-sum buffers are handed to and

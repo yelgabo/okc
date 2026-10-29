@@ -6,6 +6,15 @@ report be checked into this repository so other sessions can read it.
 
 ## Latest report
 
+**[2026-10-29: Fat MoE wait accounting and the next mechanism](2026-10-29-fat-moe-waits.md)**
+
+Evidence: code `3f67a45`, check `ca43908f02874886`. It closes section 2 of the overnight report
+(the fat diagnostic's first-try_wait defect is fixed, production SASS unchanged), withdraws "fat
+consumers never wait" (waits are about 20% of stage-loop time), and recommends one section 5
+mechanism with a stopping rule. Nothing was built for it yet.
+
+## Previous report
+
 **[2026-10-29 — After the overnight run](2026-10-29-overnight.md)**
 
 Original evidence snapshot: `df03a59fc2ab02844e5003606e01b9a9de4bd5d2`.
@@ -22,6 +31,7 @@ recommendations, not execution of those tasks; check current code and run logs f
 | Report | Evidence snapshot | Scope |
 |---|---|---|
 | [2026-10-29 overnight steering](2026-10-29-overnight.md) | `df03a59`; publication addendum `d0c062b` | Integration, diagnostic defect, whole-layer comparison, bounded research |
+| [2026-10-29 fat MoE waits](2026-10-29-fat-moe-waits.md) | `3f67a45`, check `ca43908f02874886` | Repaired fat-MoE wait counters, overhead, corrected claims, next fat-MoE mechanism |
 
 Earlier context is preserved in the [initial steering plan](../plan-2026-10-29-steering.md),
 [architecture families](../architecture-families-2026-10-29.md), and
