@@ -115,3 +115,16 @@ Read the existing [rejection register](ruled-out.md) before treating any old can
 - Superseded "pending" and "not submitted" paragraphs remain in historical logs. Later named
   result rows control the current status. The old MoE footer still names mode 23's board entry;
   the later mode 37 submission row supersedes it. No live leaderboard was queried.
+
+## Visual dashboard
+
+Open the [local dashboard](http://127.0.0.1:4387/session/3de14ef757fbea5b) while Lavish is running,
+or open the [standalone HTML](../.lavish/architecture-performance/index.html). It uses the
+existing gap-analysis palette and typography stack. Filters separate measured wins, tested
+losses, partial designs and candidates awaiting layer evidence.
+
+Hourly reviews update this tracker and `docs/architecture-dashboard.json`, then run
+`python3 tools/build_architecture_dashboard.py`. The builder derives the comparison table
+from this tracker and embeds its fingerprint. Keep JSON summaries, pending candidates and
+review timestamp aligned with the evidence. Layout changes belong in
+`tools/architecture-dashboard-template.html`; rebuild and check them in the browser.
