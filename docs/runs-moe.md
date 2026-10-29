@@ -72,6 +72,7 @@ SGLang with its 95% interval. Profiles and logs are in `muse_moe_w4a16/profiles/
 | 2026-10-29 | 6307d0c91c8d4ada (submit by the coordinator, used as the repeat of 987d024620e44eb7) | 96f2c43 | the shippable mode 37 build as checked in 987d024620e44eb7 | 2.160x (2.127-2.192) | passed 5/5 (tests 4.07e-3 to 4.22e-3). Judge medians: bs1 27.98 us, bs16 101.51, bs32 135.48, bs8 68.34, bs128 202.35 (2.329x, main-lean-silu-bar), bs256 241.46 (2.572x). GATE 37 minus 28 per seed: bs128 -5.8 -3.4 -4.1 -3.3 -2.9 -6.1 (mean -4.3); bs256 -4.8 -5.2 -6.5 -5.1 -4.8 -5.6 (mean -5.3); skewed bs128 -2.6 +0.3 -1.8 (mean -1.4), bs256 -1.0 -1.6 -5.2 (mean -2.6). BENCH bs128 main-lean-silu-bar 211.1, main-lean 215.3; bs256 232.9 vs 237.2. Two judge runs of 37: bs256 241.49 / 241.46 us against 247.11 / 244.59 for 28's checks; bs128 197.09 / 202.35 against 200.89 / 200.34 (the judge's bs128 is noisier than the 3-4 us gain). Status JSON in profiles/submission.6307d0c91c8d4ada.status.json |
 | 2026-10-29 | 240b68e7df1a427f (submit under the user's scored-runs-as-measurements authorization; bench file from tools/moe_make_bench_ab.py --small, not committed) | 4204a8f | same-process A/B of the skinny path against the public MoE (its TINY / TINY2 / MID builds, which kernel_fn picks at 1-4 / 5-8 / 9-16 tokens) at 1, 8, 16 tokens, layer and standalone routing, seeds 1-6; arms sk8w4s (the policy), sk16w4s, sk8w4s-loads; stamps of the new skinny kMode 2 (sk8w4s with thread-0 phase stamps and cycle counters) against the public DEBUG builds | 1.988x (1.959-2.018) | public minus sk8w4s, us: T=1 layer +0.4 (35.4 base), std +0.3; T=8 layer -3.7 (66.2, 5.6%, 6 of 6 lower), std -1.9 (92.1); T=16 layer -2.0 (84.4, 2.4%), std -2.5 (108.9). sk8w4s-loads minus sk8w4s -2.5 / -3.6 / -4.4 (layer): the public kernel computing (62.5 at 8 tokens) matches our loads-only floor (62.7). sk16w4s +1.3 to +6.9 everywhere. Attribution in section "Skinny path against the public kernel". The score is a bench file's (the judge timed the shipped policy; 2.0x band of earlier runs) |
 | 2026-10-29 | 2c28a7256b004aa1 (submit, bench file, same authorization) | 126ee85 | skinny kMode 3 (sk8w4s-er: each compute warp loads its unit's codes up front, fences and arrives on a per-slot empty mbarrier; thread 0 refills once all 8 warps arrived, no per-unit bar.sync of the compute warps) and kMode 4 (3 with stamps) against sk8w4s, same A/B as 240b68e7df1a427f | 1.970x (1.940-1.999) | er minus sk8w4s, us: T=1 layer +0.4 (0 of 6 lower), std +0.4 (0 of 6); T=8 layer -1.0 (6 of 6), std +0.7 (2 of 6); T=16 layer -0.9 (5 of 6), std +1.6 (1 of 6). Public minus sk8w4s this run: T=8 layer -4.1, T=16 layer -3.1. Stamps at 8 tokens, layer: er's phase A 38.0 us against 34.9 (codes held in registers through the unit), its A->B wait 2.5 against 4.0 and barrier 2.2 against 3.9. Self-test 3.93e-3; outputs vs sk8w4s 0 to 3e-5. Not adopted for the standalone (it loses on the standalone routing and at 1 token); a layer bench on judge routing may pick it at 8 and 16 tokens |
+| 2026-10-29 | e937013292b24906 (submit under the user's scored-runs-as-measurements authorization; bench file from tools/moe_make_bench_ab.py --small, not committed) | 8272efe | skinny kMode 5 (sk8w4s-sf: scale decode's x16 as an IMAD with a multiplier ptxas cannot fold, FMA pipe instead of LEA on the ALU pipe), 6 (sk8w4s-hand: partial buffers handed to and from the helper through mbarriers, one compute-warp barrier per unit instead of two), 7 (sk8w4s-sfh: both), 8 (7 with stamps); stamps now time the first try_wait | 2.004x (1.974-2.034) | minus sk8w4s, us, layer / std: T=1 sf -0.1 / -0.1, hand +0.1 / -0.0, sfh +0.1 / -0.1; T=8 sf -0.2 / -0.4, hand -0.1 / +0.0, sfh +0.1 / +0.1; T=16 sf -0.5 / -0.1, hand +0.4 / +0.5, sfh +0.5 / -0.1 (none 6 of 6). Public minus sk8w4s: T=8 layer -3.5, T=16 layer -2.2. Self-test 4.02e-3 for all; outputs vs sk8w4s <= 5.8e-5; spin flags 0. Corrected stamps at T=8 layer: thread 0 waits 3.0 us (A) and 0.7 (B) for weights. Policy picked sk8w4s-sf at 8-32 (bench noise). Not adopted (docs/runs-moe.md, "Skinny unit loop against the public kernel") |
 
 ## Why the layer keeps the W4 chain at 128 tokens, 2026-10-29
 
@@ -532,7 +533,7 @@ sk8w4s-stamps against the public DEBUG builds), 8 tokens, layer routing, two run
 | end | 61.5 / 62.3 | 57.6 / 58.4 |
 
 Measured: setup is at parity; the 4 us are spread over phase A (+1.3), phase B with its
-dependency wait (+1.0) and the barrier tail (+1.2). Thread 0 never waits for a weights unit (0.0
+dependency wait (+1.0) and the barrier tail (+1.2). [Corrected in "Skinny unit loop against the public kernel": the stamps did not time the first try_wait, which can suspend; timed in full, thread 0 waits 3.0 us in phase A at 8 tokens.] Thread 0 never waits for a weights unit (0.0
 us of missed first tries in both phases), and the loads-only twin (same stream, no math) lands
 at the public kernel's time (62.7 against 62.5 us), so the public kernel hides its compute under
 the stream and ours does not: the compute warps are the limit, by 3.6 us at 8 tokens. Inferred:
@@ -546,6 +547,124 @@ in registers through its MMAs made phase A 3 us longer while the dependency wait
 tail fell by 3.1 us. Not adopted for the standalone policy (it loses on the board's routing); the
 release chain is the fat path's ("Ordering of the ring slot releases"). The instruction count is
 untested.
+
+## Skinny unit loop against the public kernel, 2026-10-29
+
+Asked: cut the skinny path's compute per unit so it hides under the weight stream, starting from
+an instruction-level diff of our unit loop against the public TINY2 build.
+
+### The instruction diff (local nvcc 12.8, sm_90a, cuobjdump)
+
+Ours: `tools/moe_compile_fused.sh` at 96f2c43, kernel `sk_8_4_0`. Public: its CUDA_SRC with the
+TINY2 defines plus `-DOKC_PRMTSC=1 -DOKC_DQ7=1 -DOKC_NS=3 -DOKC_NSF=3`, as its `_ext` builds it
+for this problem. The earlier figure (our loop 828 instructions against 709 / 759) is the static
+size of the innermost HMMA loops, and it reproduces exactly; but ours is one loop for both phases
+whose body carries the cold paths (the x reload on a job change, 16 predicated 16-byte loads and
+32 zeroing CS2R per phase; the spin-timeout blocks), and the public splits phase A and B into two
+template instances. The dynamic path that a compute thread other than thread 0 runs for a unit
+with no job change and no failed waits:
+
+| per unit, per compute warp | ours (sk8w4s) | public phase A | public phase B | ours, kMode 7 |
+|---|---|---|---|---|
+| instructions | 554 | 554 | 557 | 569 |
+| ALU pipe (LOP3, SHF, PRMT, LEA, ISETP, SEL, IADD3, MOV) | 275 | 266 | 262 | 268 |
+| FMA pipe (HMUL2, IMAD, FADD, VIADD) | 221 | 232 | 234 | 236 |
+| HMMA.16816 / LDS.128 / STS.128 | 32 / 9 / 1 | 32 / 9 / 1 | 32 / 9 / 1 | 32 / 9 / 1 |
+| CTA-level syncs | bar.sync (free, 288) + bar.arrive (full) + bar.sync (unit, 256) | mbarrier try_wait (buffer free) + bar.sync (256) | same | mbarrier try_wait + mbarrier arrive + bar.sync (256) |
+
+Line by line:
+
+- Dequant: identical cost. Ours (repacked layout) and the public DQ7 layout both decode a word in
+  7 ALU instructions (5 LOP3, 2 SHF) and 2 IMAD.SHL; ptxas already turns our left shifts into
+  IMAD.SHL. Both run 128 HMUL2 for the block scale.
+- Scale decode: the one real difference. Ours `byte_perm(...) * 16 + c` compiles to PRMT + LEA
+  (ALU); the public passes 16 as an opaque register (`16 + p.zero`), so it is PRMT + IMAD (FMA).
+  16 ALU instructions per unit per warp.
+- MMA issue and accumulators: the same (4 chains of 8 m16n8k16, x in registers, 12 FADD to fold
+  the chains).
+- Address math: a few instructions either way (the public's slot index is q % 3, an IMAD.HI).
+- Barriers: ours makes the 8 compute warps meet twice per unit (the 288-thread bar.sync that waits
+  for the helper to free the partial buffer, then the 256-thread unit barrier before the slot
+  refill); the public meets once and waits for the buffer on an mbarrier.
+
+So the per-unit instruction count is at parity, and the static 828 vs 709 / 759 was the cold paths.
+
+### Two stamp facts that change the attribution
+
+The skinny stamps (kMode 2, 4) added the weights wait only after a failed first `try_wait`, but
+`mbarrier.try_wait` may suspend the thread for a system-dependent time before returning false
+(PTX ISA, mbarrier.try_wait), so a wait inside the first try counted as zero. Since 8272efe the
+stamps time the whole wait. Timed that way (e937013292b24906, layer routing, sk8w4s-stamps),
+thread 0 waits for weights 2.2 / 3.0 / 3.7 us in phase A and 0.3 / 0.7 / 1.1 us in phase B at
+1 / 8 / 16 tokens. The earlier "thread 0 never waits for a weights unit" is withdrawn, and with it
+the inference that the compute warps alone are the limit. What still stands: the loads-only twin
+lands at the public kernel's time (63.0 against 62.7 us at 8 tokens, layer).
+
+### Changes tested (kMode 5 to 8, commit 8272efe)
+
+- 5, sk8w4s-sf: the scale decode with an opaque 16 (`16 + (nloc >> 6)`, nloc <= 32): LEA -> IMAD,
+  the public's SCDK.
+- 6, sk8w4s-hand: partial buffers through mbarriers, the public's WSB shape: each compute thread
+  waits on `hand[4 + bb]` (helper's free, count 32) instead of bar.sync kBarFree, stores its
+  partial, arrives on `hand[bb]` (count 256) instead of bar.arrive kBarFull; the helper waits on
+  `hand[bb]` and each lane arrives on `hand[4 + bb]` after its own loads. The unit barrier, the
+  proxy fence and thread 0's refill are unchanged.
+- 7, sk8w4s-sfh: 5 and 6. 8: 7 with the stamps.
+
+Results, e937013292b24906, six seeds per row, means of paired deltas against sk8w4s in us:
+
+| | T=1 layer | T=1 std | T=8 layer | T=8 std | T=16 layer | T=16 std |
+|---|---|---|---|---|---|---|
+| sk8w4s (us) | 35.5 | 31.9 | 66.2 | 92.8 | 84.7 | 109.2 |
+| sf | -0.1 (5/6) | -0.1 (5/6) | -0.2 (4/6) | -0.4 (5/6) | -0.5 (4/6) | -0.1 (4/6) |
+| hand | +0.1 (2/6) | -0.0 (4/6) | -0.1 (3/6) | +0.0 (2/6) | +0.4 (2/6) | +0.5 (2/6) |
+| sfh | +0.1 (3/6) | -0.1 (4/6) | +0.1 (2/6) | +0.1 (2/6) | +0.5 (3/6) | -0.1 (4/6) |
+| loads | -2.4 | -2.9 | -3.2 | -3.2 | -4.5 | -3.9 |
+| public | +0.7 | +0.3 | -3.5 | -2.6 | -2.2 | -2.4 |
+
+(n of 6 = seeds lower.) Every arm passed the self-test (4.02e-3 against FP32) and matches
+sk8w4s to 5.8e-5 or better; spin flags 0. The judge's own bench picked sk8w4s-sf at 8-32 tokens,
+a choice within its noise. Scored 2.004x (1.974-2.034), which does not replace the board entry.
+
+Stamps of sfh against sk8w4s at 8 tokens, layer: phase A 37.7 against 36.7, thread 0's wait for a
+free partial buffer 2.5 against 1.5 us, unit barrier 1.2 against 0.8. With one barrier fewer the
+warps run ahead and wait for the helper instead; the time moves, it does not leave.
+
+Verdict: neither the ALU instructions of the scale decode nor the second compute-warp barrier is
+the gap. The 3.5 us at 8 tokens is not in the per-unit instruction stream (parity, measured
+statically) and not in the barrier count (measured). Open, from the corrected stamps: thread 0
+waits for weights 3 to 4 us at 8-16 tokens while the loads-only twin, with the same ring and
+issue points, matches the public; so the next candidates sit where the stream meets the compute
+(ring depth 4 against the public's 3, the refill issued only after the unit barrier, the L2
+policy), not in the unit loop's arithmetic. None of the arms is a candidate; no layer port.
+
+### Ordering of the mbarrier handoff (kMode 6-8; not adopted, recorded as the rule asks)
+
+Both directions are generic `st.shared` / `ld.shared` on `S.red`, one proxy, so no proxy fence
+is needed (proxy-preserved base causality order, 8.9.5, covers generic-to-generic).
+
+1. Full: a compute thread T stores its partial W, then `mbarrier.arrive` A on `hand[bb]` in
+   program order; A is `.release` at `.cta` scope by default (9.7.15.16.16) and a release pattern
+   by itself (8.8). The helper lane H's `try_wait.parity` returns true once all 256 arrivals of
+   the phase are in; it is `.acquire` at `.cta` by default and an acquire pattern (9.7.15.16.19,
+   8.8), so A synchronizes with it (8.9.4), and H's loads R follow in program order. W precedes R
+   in causality order, so R sees W.
+2. Free: H's loads R of `red[bb][w][lane]` (every w, its own lane), then its own arrive on
+   `hand[4 + bb]` (count 32, one per lane, so no lane relies on `bar.warp.sync`); T's
+   `try_wait.parity` on it (acquire) before its next store W' to the buffer. R precedes W' in
+   causality order and cannot read from it (8.10.6).
+3. Phases: unit q uses buffer q % 4. T waits for completion q / 4 - 1 of the free barrier (skipped
+   for q < 4); H waits for completion q / 4 of the full barrier. Neither side can be two phases
+   ahead of the other, since each waits for the other's previous use.
+
+Section numbers as in "Ordering of the ring slot releases" above.
+
+### Port
+
+None: no arm beat sk8w4s. For the record, a layer port of a kHand variant would also need
+`tools/dl_moe_inline.py` to build skinny modes other than 0 (it keeps `v[2] == 0`) and to
+initialize `hand[]` in its PDL preamble, which today initializes only `full[]` and skips the
+routing warp's block (the same holds for `empty[]` of sk8w4s-er, never ported).
 
 ## Phase A against the public kernel, 2026-10-29
 
