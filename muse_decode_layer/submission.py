@@ -7679,6 +7679,12 @@ __device__ __forceinline__ unsigned scale_word(unsigned scw, int byte) {
     return __byte_perm(scw, 0u, 0x4040u + 0x0101u * byte) * 16u + 0x77807780u;
 }
 
+// scale_word with the multiplier passed in: k16 = 16 that the compiler cannot see keeps the
+// multiply an IMAD on the FMA pipe (skinny kMode 5, 7, 8).
+__device__ __forceinline__ unsigned scale_word_k(unsigned scw, int byte, unsigned k16) {
+    return __byte_perm(scw, 0u, 0x4040u + 0x0101u * byte) * k16 + 0x77807780u;
+}
+
 __device__ __forceinline__ float bf16r(float x) {
     return __bfloat162float(__float2bfloat16_rn(x));
 }
@@ -7874,8 +7880,30 @@ constexpr int kMode = 0;
 // once every warp has arrived, instead of after a bar.sync of all compute warps behind the
 // unit's last MMA. The A/B at 8 tokens (240b68e7df1a427f) put mode 0 3.6 us over its loads-only
 // twin while thread 0 never waited for a unit, so the per-unit barrier is on the critical path.
-constexpr bool kStamp = kMode == 2 || kMode == 4;
-constexpr bool kEarly = kMode == 3 || kMode == 4;
+// kMode 5 and 7: the scale decode's multiply by 16 takes a multiplier ptxas cannot see, so it
+// stays an IMAD (FMA pipe) instead of becoming a LEA on the ALU pipe that the FP4 decode
+// saturates (the public kernel's SCDK). kMode 6 and 7: the partial-sum buffers are handed to and
+// from the helper warp through mbarriers (every compute thread arrives on hand[bb] after its
+// store, every helper lane on hand[kNRB + bb] after its loads) instead of a 288-thread bar.sync
+// per unit, so the compute warps meet once per unit (kBarUnit) instead of twice. The ordering
+// chain is in docs/runs-moe.md, "Skinny partial handoff through mbarriers". kMode 8: 7 with
+// the stamps.
+// Modes 16 and up are flags over mode kLow (docs/runs-moe.md, "Skinny weight stream against the
+// public kernel"). 16: thread 0's clock64 per unit (issue, wait start, wait end, slot free) and
+// a header, written to p.inter from 16 MB on (pair rows >= 2048, which the skinny sizes never
+// use). 32: the unit barrier and the refill move ahead of the partial-buffer handoff, so a refill
+// no longer waits for the helper to free a buffer. 64: weight copies without the L2 hint.
+constexpr int kLow = kMode & 15;
+constexpr bool kStamp = kLow == 2 || kLow == 4 || kLow == 8;
+constexpr bool kEarly = kLow == 3 || kLow == 4;
+constexpr bool kScaleFma = kLow == 5 || kLow == 7 || kLow == 8;
+constexpr bool kHand = kLow >= 6;
+constexpr bool kUnitStamp = (kMode & 16) != 0;
+constexpr bool kRefillFirst = (kMode & 32) != 0;
+constexpr bool kNoHint = (kMode & 64) != 0;
+static_assert(!kRefillFirst || (!kEarly && !kHand), "refill-first is a mode 0 / 5 change");
+constexpr int kUSMax = 256;
+constexpr int kUSPer = 8 + 4 * kUSMax;
 constexpr int kNT = kNW * 32;
 constexpr int kNTL = kNT + 32;
 constexpr int kNWarps = kNTL / 32;
@@ -7899,9 +7927,37 @@ struct __align__(128) Smem {
     // kMode 2 (timing only): thread 0's globaltimer at the phase points and cycle counters,
     // written to p.inter at the end (16 int64 per CTA; tools/moe_make_bench_ab.py reads them).
     long long dg[kStamp ? 16 : 1];
+    uint64_t hand[kHand ? 2 * kNRB : 1];
 };
 
-// Unit q of this CTA's list (its phase A units, then its phase B units) into ring slot q % 3.
+__device__ __forceinline__ void hand_wait(uint64_t* bar, unsigned parity, int* ctr) {
+    if (!mbar_try(bar, parity)) {
+        const long long t0 = clock64();
+        while (!mbar_try(bar, parity)) {
+            if (spin_failed(t0, ctr, 2)) {
+                break;
+            }
+        }
+    }
+}
+
+__device__ __forceinline__ void hand_arrive(uint64_t* bar) {
+    asm volatile("mbarrier.arrive.shared::cta.b64 _, [%0];" :: "r"(smem_u32(bar)) : "memory");
+}
+
+__device__ __forceinline__ long long* ustamps(const Params& p) {
+    return reinterpret_cast<long long*>(p.inter) + (1 << 21) + blockIdx.x * kUSPer;
+}
+
+// Event k of unit q: 0 copy issued, 1 thread 0 starts waiting for it, 2 the wait ends, 3 the
+// slot is free (unit barrier passed; the refill follows).
+__device__ __forceinline__ void ustamp(const Params& p, int q, int k) {
+    if (kUnitStamp && q < kUSMax) {
+        ustamps(p)[8 + 4 * q + k] = clock64();
+    }
+}
+
+// Unit q of this CTA's list (its phase A units, then its phase B units) into ring slot q % kNS.
 __device__ __forceinline__ void issue_unit(const Params& p, Smem& S, int q, uint64_t pol) {
     const int slot = q % kNS;
     const unsigned char* src;
@@ -7913,7 +7969,15 @@ __device__ __forceinline__ void issue_unit(const Params& p, Smem& S, int q, uint
         src = p.w2 + (static_cast<size_t>(S.job_e[v >> 8]) * kUB + (v & 255)) * kUnitBytes;
     }
     mbar_expect_tx(&S.full[slot], kUnitBytes);
-    bulk_load(S.ring[slot], src, kUnitBytes, &S.full[slot], pol);
+    ustamp(p, q, 0);
+    if constexpr (kNoHint) {
+        asm volatile("cp.async.bulk.shared::cluster.global.mbarrier::complete_tx::bytes"
+                     " [%0], [%1], %2, [%3];"
+                     :: "r"(smem_u32(S.ring[slot])), "l"(src), "r"(kUnitBytes),
+                        "r"(smem_u32(&S.full[slot])) : "memory");
+    } else {
+        bulk_load(S.ring[slot], src, kUnitBytes, &S.full[slot], pol);
+    }
 }
 
 // Compute warps: for each unit, 8 chunks of 64 k (4 mma k16 steps each) over this warp's
@@ -7936,6 +8000,12 @@ __device__ __forceinline__ void compute_loop(const Params& p, Smem& S, uint64_t 
     int jcur = -1;
     bool bcur = false;
     long long wfull = 0;
+    // 16, from a kernel parameter (nloc <= kLocalMax = 32) so ptxas cannot fold it into a LEA.
+    const unsigned k16 = 16u + (static_cast<unsigned>(p.nloc) >> 6);
+    if (kUnitStamp && tid == 0) {
+        ustamps(p)[0] = na;
+        ustamps(p)[1] = n;
+    }
 #pragma unroll 1
     for (int q = 0; q < n; ++q) {
         const bool phb = q >= na;
@@ -7987,6 +8057,12 @@ __device__ __forceinline__ void compute_loop(const Params& p, Smem& S, uint64_t 
             }
         }
         const int slot = q % kNS;
+        // The stamps time the first try too: try_wait may suspend the thread for a
+        // system-dependent time before it returns false (PTX ISA, mbarrier.try_wait).
+        const long long tw = kStamp ? clock64() : 0;
+        if (tid == 0) {
+            ustamp(p, q, 1);
+        }
         if (!mbar_try(&S.full[slot], (q / kNS) & 1)) {
             const long long t0 = clock64();
             while (!mbar_try(&S.full[slot], (q / kNS) & 1)) {
@@ -7994,9 +8070,12 @@ __device__ __forceinline__ void compute_loop(const Params& p, Smem& S, uint64_t 
                     break;
                 }
             }
-            if (kStamp) {
-                wfull += clock64() - t0;
-            }
+        }
+        if (kStamp) {
+            wfull += clock64() - tw;
+        }
+        if (tid == 0) {
+            ustamp(p, q, 2);
         }
         const unsigned char* sl = S.ring[slot];
         const uint4* codes = reinterpret_cast<const uint4*>(sl + w8 * 4096 + c0 * 512) + lane;
@@ -8034,7 +8113,7 @@ __device__ __forceinline__ void compute_loop(const Params& p, Smem& S, uint64_t 
                 issue_unit(p, S, q + kNS, pol);
             }
         }
-        if (kMode == 1) {
+        if (kLow == 1) {
             // Timing only: the unit's bytes arrive and one word is read, nothing is computed.
             acc[0][0] = __uint_as_float(codes[0].x & 0x3f800000u);
         } else {
@@ -8042,8 +8121,10 @@ __device__ __forceinline__ void compute_loop(const Params& p, Smem& S, uint64_t 
             for (int c = 0; c < kCPW; ++c) {
                 const uint4 w = kEarly ? cw[c] : codes[c * 32];
                 const unsigned scw = word(sc, (c0 + c) >> 1);
-                const unsigned sg = scale_word(scw, (2 * (c0 + c)) & 3);
-                const unsigned sg8 = scale_word(scw, (2 * (c0 + c) + 1) & 3);
+                const unsigned sg = kScaleFma ? scale_word_k(scw, (2 * (c0 + c)) & 3, k16)
+                                              : scale_word(scw, (2 * (c0 + c)) & 3);
+                const unsigned sg8 = kScaleFma ? scale_word_k(scw, (2 * (c0 + c) + 1) & 3, k16)
+                                               : scale_word(scw, (2 * (c0 + c) + 1) & 3);
 #pragma unroll
                 for (int s = 0; s < 4; ++s) {
                     unsigned a[4];
@@ -8059,13 +8140,49 @@ __device__ __forceinline__ void compute_loop(const Params& p, Smem& S, uint64_t 
         r.z = (acc[0][2] + acc[1][2]) + (acc[2][2] + acc[3][2]);
         r.w = (acc[0][3] + acc[1][3]) + (acc[2][3] + acc[3][3]);
         const int bb = q & (kNRB - 1);
-        named_sync(kBarFree + bb, kNTL);
-        S.red[bb][warp][lane] = r;
-        named_arrive(kBarFull + bb, kNTL);
-        if constexpr (kEarly) {
+        if constexpr (kRefillFirst) {
+            // Every compute thread's reads of the slot are done once its MMAs have their
+            // operands; the barrier and the fence are the same chain as below, earlier.
+            named_sync(kBarUnit, kNT);
+            if (tid == 0) {
+                ustamp(p, q, 3);
+                if (q + kNS < n) {
+                    fence_proxy_async();
+                    issue_unit(p, S, q + kNS, pol);
+                }
+            }
+        }
+        const long long tb = kStamp ? clock64() : 0;
+        if constexpr (kHand) {
+            // Buffer bb was last read by the helper for unit q - kNRB: completion number
+            // q / kNRB - 1 of its free barrier.
+            if (q >= kNRB) {
+                hand_wait(&S.hand[kNRB + bb], ((q / kNRB) & 1) ^ 1, p.ctr);
+            }
+            if (kStamp && tid == 0) {
+                S.dg[14] += clock64() - tb;
+            }
+            S.red[bb][warp][lane] = r;
+            hand_arrive(&S.hand[bb]);
+        } else {
+            named_sync(kBarFree + bb, kNTL);
+            if (kStamp && tid == 0) {
+                S.dg[14] += clock64() - tb;
+            }
+            S.red[bb][warp][lane] = r;
+            named_arrive(kBarFull + bb, kNTL);
+        }
+        if constexpr (kEarly || kRefillFirst) {
             continue;
         }
+        const long long tu = kStamp ? clock64() : 0;
         named_sync(kBarUnit, kNT);
+        if (kStamp && tid == 0) {
+            S.dg[15] += clock64() - tu;
+        }
+        if (tid == 0) {
+            ustamp(p, q, 3);
+        }
         if (tid == 0 && q + kNS < n) {
             // The slot's generic-proxy reads are complete (the barrier above); order them
             // before the async-proxy write that refills it.
@@ -8109,9 +8226,11 @@ __device__ __forceinline__ void helper_loop(const Params& p, Smem& S, float* ss)
     const int n = na + S.nb;
     const int a0 = S.a0;
     const int b0 = S.b0;
+    if constexpr (!kHand) {
 #pragma unroll
-    for (int bb = 0; bb < kNRB; ++bb) {
-        named_arrive(kBarFree + bb, kNTL);
+        for (int bb = 0; bb < kNRB; ++bb) {
+            named_arrive(kBarFree + bb, kNTL);
+        }
     }
     int jcred = -1;
     int ncred = 0;
@@ -8132,7 +8251,11 @@ __device__ __forceinline__ void helper_loop(const Params& p, Smem& S, float* ss)
             ncred = 0;
         }
         const long long cw = kStamp ? clock64() : 0;
-        named_sync(kBarFull + bb, kNTL);
+        if constexpr (kHand) {
+            hand_wait(&S.hand[bb], (q / kNRB) & 1, p.ctr);
+        } else {
+            named_sync(kBarFull + bb, kNTL);
+        }
         if (kStamp && lane == 0) {
             S.dg[10] += clock64() - cw;
         }
@@ -8145,7 +8268,11 @@ __device__ __forceinline__ void helper_loop(const Params& p, Smem& S, float* ss)
             r.z += t.z;
             r.w += t.w;
         }
-        named_arrive(kBarFree + bb, kNTL);
+        if constexpr (kHand) {
+            hand_arrive(&S.hand[kNRB + bb]);
+        } else {
+            named_arrive(kBarFree + bb, kNTL);
+        }
         const bool t0 = 2 * t4 < ntok;
         const bool t1 = 2 * t4 + 1 < ntok;
         if (!phb) {
@@ -8228,13 +8355,22 @@ __global__ void __launch_bounds__(kNTL, 1) moe_fused_kernel(const Params p) {
     // Under programmatic dependent launch the inputs are not ready before this; without it
     // the instruction does nothing.
     if (p.pdl) {
-        if (warp == kNW && lane == 0) {
-#pragma unroll
-            for (int s = 0; s < kNS; ++s) {
-                mbar_init(&S.full[s], 1);
-                mbar_init(&S.empty[s], kNT);
+        if (warp == kNW) {
+            if (lane == 0) {
+    #pragma unroll
+                for (int s = 0; s < kNS; ++s) {
+                    mbar_init(&S.full[s], 1);
+                    mbar_init(&S.empty[s], kNT);
+                }
+                if constexpr (kHand) {
+    #pragma unroll
+                    for (int b = 0; b < kNRB; ++b) {
+                        mbar_init(&S.hand[b], kNT);
+                        mbar_init(&S.hand[kNRB + b], 32);
+                    }
+                }
+                asm volatile("fence.mbarrier_init.release.cluster;" ::: "memory");
             }
-            asm volatile("fence.mbarrier_init.release.cluster;" ::: "memory");
         }
         if (tid == 0) {
             for (int i = cta; i < p.nloc * 4; i += G) {
@@ -8252,6 +8388,10 @@ __global__ void __launch_bounds__(kNTL, 1) moe_fused_kernel(const Params p) {
     if (kStamp && tid < 16) {
         S.dg[tid] = tid == 0 ? gtimer() : tid == 12 ? clock64() : 0;
     }
+    if (kUnitStamp && tid == 0) {
+        ustamps(p)[2] = clock64();
+        ustamps(p)[3] = gtimer();
+    }
 
     if (warp == kNW) {
         // Histogram and job list by one warp, so this CTA's first unit copies can be issued
@@ -8261,6 +8401,13 @@ __global__ void __launch_bounds__(kNTL, 1) moe_fused_kernel(const Params p) {
             for (int s = 0; s < kNS; ++s) {
                 mbar_init(&S.full[s], 1);
                 mbar_init(&S.empty[s], kNT);
+            }
+            if constexpr (kHand) {
+#pragma unroll
+                for (int b = 0; b < kNRB; ++b) {
+                    mbar_init(&S.hand[b], kNT);
+                    mbar_init(&S.hand[kNRB + b], 32);
+                }
             }
             asm volatile("fence.mbarrier_init.release.cluster;" ::: "memory");
         }
@@ -8386,6 +8533,10 @@ __global__ void __launch_bounds__(kNTL, 1) moe_fused_kernel(const Params p) {
 
     if (warp < kNW) {
         final_pass<kNT>(p, S.pos, ss, cta, G);
+    }
+    if (kUnitStamp && tid == 0) {
+        ustamps(p)[4] = clock64();
+        ustamps(p)[5] = gtimer();
     }
     if constexpr (kStamp) {
         __syncthreads();
@@ -8428,8 +8579,30 @@ constexpr int kMode = 0;
 // once every warp has arrived, instead of after a bar.sync of all compute warps behind the
 // unit's last MMA. The A/B at 8 tokens (240b68e7df1a427f) put mode 0 3.6 us over its loads-only
 // twin while thread 0 never waited for a unit, so the per-unit barrier is on the critical path.
-constexpr bool kStamp = kMode == 2 || kMode == 4;
-constexpr bool kEarly = kMode == 3 || kMode == 4;
+// kMode 5 and 7: the scale decode's multiply by 16 takes a multiplier ptxas cannot see, so it
+// stays an IMAD (FMA pipe) instead of becoming a LEA on the ALU pipe that the FP4 decode
+// saturates (the public kernel's SCDK). kMode 6 and 7: the partial-sum buffers are handed to and
+// from the helper warp through mbarriers (every compute thread arrives on hand[bb] after its
+// store, every helper lane on hand[kNRB + bb] after its loads) instead of a 288-thread bar.sync
+// per unit, so the compute warps meet once per unit (kBarUnit) instead of twice. The ordering
+// chain is in docs/runs-moe.md, "Skinny partial handoff through mbarriers". kMode 8: 7 with
+// the stamps.
+// Modes 16 and up are flags over mode kLow (docs/runs-moe.md, "Skinny weight stream against the
+// public kernel"). 16: thread 0's clock64 per unit (issue, wait start, wait end, slot free) and
+// a header, written to p.inter from 16 MB on (pair rows >= 2048, which the skinny sizes never
+// use). 32: the unit barrier and the refill move ahead of the partial-buffer handoff, so a refill
+// no longer waits for the helper to free a buffer. 64: weight copies without the L2 hint.
+constexpr int kLow = kMode & 15;
+constexpr bool kStamp = kLow == 2 || kLow == 4 || kLow == 8;
+constexpr bool kEarly = kLow == 3 || kLow == 4;
+constexpr bool kScaleFma = kLow == 5 || kLow == 7 || kLow == 8;
+constexpr bool kHand = kLow >= 6;
+constexpr bool kUnitStamp = (kMode & 16) != 0;
+constexpr bool kRefillFirst = (kMode & 32) != 0;
+constexpr bool kNoHint = (kMode & 64) != 0;
+static_assert(!kRefillFirst || (!kEarly && !kHand), "refill-first is a mode 0 / 5 change");
+constexpr int kUSMax = 256;
+constexpr int kUSPer = 8 + 4 * kUSMax;
 constexpr int kNT = kNW * 32;
 constexpr int kNTL = kNT + 32;
 constexpr int kNWarps = kNTL / 32;
@@ -8453,9 +8626,37 @@ struct __align__(128) Smem {
     // kMode 2 (timing only): thread 0's globaltimer at the phase points and cycle counters,
     // written to p.inter at the end (16 int64 per CTA; tools/moe_make_bench_ab.py reads them).
     long long dg[kStamp ? 16 : 1];
+    uint64_t hand[kHand ? 2 * kNRB : 1];
 };
 
-// Unit q of this CTA's list (its phase A units, then its phase B units) into ring slot q % 3.
+__device__ __forceinline__ void hand_wait(uint64_t* bar, unsigned parity, int* ctr) {
+    if (!mbar_try(bar, parity)) {
+        const long long t0 = clock64();
+        while (!mbar_try(bar, parity)) {
+            if (spin_failed(t0, ctr, 2)) {
+                break;
+            }
+        }
+    }
+}
+
+__device__ __forceinline__ void hand_arrive(uint64_t* bar) {
+    asm volatile("mbarrier.arrive.shared::cta.b64 _, [%0];" :: "r"(smem_u32(bar)) : "memory");
+}
+
+__device__ __forceinline__ long long* ustamps(const Params& p) {
+    return reinterpret_cast<long long*>(p.inter) + (1 << 21) + blockIdx.x * kUSPer;
+}
+
+// Event k of unit q: 0 copy issued, 1 thread 0 starts waiting for it, 2 the wait ends, 3 the
+// slot is free (unit barrier passed; the refill follows).
+__device__ __forceinline__ void ustamp(const Params& p, int q, int k) {
+    if (kUnitStamp && q < kUSMax) {
+        ustamps(p)[8 + 4 * q + k] = clock64();
+    }
+}
+
+// Unit q of this CTA's list (its phase A units, then its phase B units) into ring slot q % kNS.
 __device__ __forceinline__ void issue_unit(const Params& p, Smem& S, int q, uint64_t pol) {
     const int slot = q % kNS;
     const unsigned char* src;
@@ -8467,7 +8668,15 @@ __device__ __forceinline__ void issue_unit(const Params& p, Smem& S, int q, uint
         src = p.w2 + (static_cast<size_t>(S.job_e[v >> 8]) * kUB + (v & 255)) * kUnitBytes;
     }
     mbar_expect_tx(&S.full[slot], kUnitBytes);
-    bulk_load(S.ring[slot], src, kUnitBytes, &S.full[slot], pol);
+    ustamp(p, q, 0);
+    if constexpr (kNoHint) {
+        asm volatile("cp.async.bulk.shared::cluster.global.mbarrier::complete_tx::bytes"
+                     " [%0], [%1], %2, [%3];"
+                     :: "r"(smem_u32(S.ring[slot])), "l"(src), "r"(kUnitBytes),
+                        "r"(smem_u32(&S.full[slot])) : "memory");
+    } else {
+        bulk_load(S.ring[slot], src, kUnitBytes, &S.full[slot], pol);
+    }
 }
 
 // Compute warps: for each unit, 8 chunks of 64 k (4 mma k16 steps each) over this warp's
@@ -8490,6 +8699,12 @@ __device__ __forceinline__ void compute_loop(const Params& p, Smem& S, uint64_t 
     int jcur = -1;
     bool bcur = false;
     long long wfull = 0;
+    // 16, from a kernel parameter (nloc <= kLocalMax = 32) so ptxas cannot fold it into a LEA.
+    const unsigned k16 = 16u + (static_cast<unsigned>(p.nloc) >> 6);
+    if (kUnitStamp && tid == 0) {
+        ustamps(p)[0] = na;
+        ustamps(p)[1] = n;
+    }
 #pragma unroll 1
     for (int q = 0; q < n; ++q) {
         const bool phb = q >= na;
@@ -8541,6 +8756,12 @@ __device__ __forceinline__ void compute_loop(const Params& p, Smem& S, uint64_t 
             }
         }
         const int slot = q % kNS;
+        // The stamps time the first try too: try_wait may suspend the thread for a
+        // system-dependent time before it returns false (PTX ISA, mbarrier.try_wait).
+        const long long tw = kStamp ? clock64() : 0;
+        if (tid == 0) {
+            ustamp(p, q, 1);
+        }
         if (!mbar_try(&S.full[slot], (q / kNS) & 1)) {
             const long long t0 = clock64();
             while (!mbar_try(&S.full[slot], (q / kNS) & 1)) {
@@ -8548,9 +8769,12 @@ __device__ __forceinline__ void compute_loop(const Params& p, Smem& S, uint64_t 
                     break;
                 }
             }
-            if (kStamp) {
-                wfull += clock64() - t0;
-            }
+        }
+        if (kStamp) {
+            wfull += clock64() - tw;
+        }
+        if (tid == 0) {
+            ustamp(p, q, 2);
         }
         const unsigned char* sl = S.ring[slot];
         const uint4* codes = reinterpret_cast<const uint4*>(sl + w8 * 4096 + c0 * 512) + lane;
@@ -8588,7 +8812,7 @@ __device__ __forceinline__ void compute_loop(const Params& p, Smem& S, uint64_t 
                 issue_unit(p, S, q + kNS, pol);
             }
         }
-        if (kMode == 1) {
+        if (kLow == 1) {
             // Timing only: the unit's bytes arrive and one word is read, nothing is computed.
             acc[0][0] = __uint_as_float(codes[0].x & 0x3f800000u);
         } else {
@@ -8596,8 +8820,10 @@ __device__ __forceinline__ void compute_loop(const Params& p, Smem& S, uint64_t 
             for (int c = 0; c < kCPW; ++c) {
                 const uint4 w = kEarly ? cw[c] : codes[c * 32];
                 const unsigned scw = word(sc, (c0 + c) >> 1);
-                const unsigned sg = scale_word(scw, (2 * (c0 + c)) & 3);
-                const unsigned sg8 = scale_word(scw, (2 * (c0 + c) + 1) & 3);
+                const unsigned sg = kScaleFma ? scale_word_k(scw, (2 * (c0 + c)) & 3, k16)
+                                              : scale_word(scw, (2 * (c0 + c)) & 3);
+                const unsigned sg8 = kScaleFma ? scale_word_k(scw, (2 * (c0 + c) + 1) & 3, k16)
+                                               : scale_word(scw, (2 * (c0 + c) + 1) & 3);
 #pragma unroll
                 for (int s = 0; s < 4; ++s) {
                     unsigned a[4];
@@ -8613,13 +8839,49 @@ __device__ __forceinline__ void compute_loop(const Params& p, Smem& S, uint64_t 
         r.z = (acc[0][2] + acc[1][2]) + (acc[2][2] + acc[3][2]);
         r.w = (acc[0][3] + acc[1][3]) + (acc[2][3] + acc[3][3]);
         const int bb = q & (kNRB - 1);
-        named_sync(kBarFree + bb, kNTL);
-        S.red[bb][warp][lane] = r;
-        named_arrive(kBarFull + bb, kNTL);
-        if constexpr (kEarly) {
+        if constexpr (kRefillFirst) {
+            // Every compute thread's reads of the slot are done once its MMAs have their
+            // operands; the barrier and the fence are the same chain as below, earlier.
+            named_sync(kBarUnit, kNT);
+            if (tid == 0) {
+                ustamp(p, q, 3);
+                if (q + kNS < n) {
+                    fence_proxy_async();
+                    issue_unit(p, S, q + kNS, pol);
+                }
+            }
+        }
+        const long long tb = kStamp ? clock64() : 0;
+        if constexpr (kHand) {
+            // Buffer bb was last read by the helper for unit q - kNRB: completion number
+            // q / kNRB - 1 of its free barrier.
+            if (q >= kNRB) {
+                hand_wait(&S.hand[kNRB + bb], ((q / kNRB) & 1) ^ 1, p.ctr);
+            }
+            if (kStamp && tid == 0) {
+                S.dg[14] += clock64() - tb;
+            }
+            S.red[bb][warp][lane] = r;
+            hand_arrive(&S.hand[bb]);
+        } else {
+            named_sync(kBarFree + bb, kNTL);
+            if (kStamp && tid == 0) {
+                S.dg[14] += clock64() - tb;
+            }
+            S.red[bb][warp][lane] = r;
+            named_arrive(kBarFull + bb, kNTL);
+        }
+        if constexpr (kEarly || kRefillFirst) {
             continue;
         }
+        const long long tu = kStamp ? clock64() : 0;
         named_sync(kBarUnit, kNT);
+        if (kStamp && tid == 0) {
+            S.dg[15] += clock64() - tu;
+        }
+        if (tid == 0) {
+            ustamp(p, q, 3);
+        }
         if (tid == 0 && q + kNS < n) {
             // The slot's generic-proxy reads are complete (the barrier above); order them
             // before the async-proxy write that refills it.
@@ -8663,9 +8925,11 @@ __device__ __forceinline__ void helper_loop(const Params& p, Smem& S, float* ss)
     const int n = na + S.nb;
     const int a0 = S.a0;
     const int b0 = S.b0;
+    if constexpr (!kHand) {
 #pragma unroll
-    for (int bb = 0; bb < kNRB; ++bb) {
-        named_arrive(kBarFree + bb, kNTL);
+        for (int bb = 0; bb < kNRB; ++bb) {
+            named_arrive(kBarFree + bb, kNTL);
+        }
     }
     int jcred = -1;
     int ncred = 0;
@@ -8686,7 +8950,11 @@ __device__ __forceinline__ void helper_loop(const Params& p, Smem& S, float* ss)
             ncred = 0;
         }
         const long long cw = kStamp ? clock64() : 0;
-        named_sync(kBarFull + bb, kNTL);
+        if constexpr (kHand) {
+            hand_wait(&S.hand[bb], (q / kNRB) & 1, p.ctr);
+        } else {
+            named_sync(kBarFull + bb, kNTL);
+        }
         if (kStamp && lane == 0) {
             S.dg[10] += clock64() - cw;
         }
@@ -8699,7 +8967,11 @@ __device__ __forceinline__ void helper_loop(const Params& p, Smem& S, float* ss)
             r.z += t.z;
             r.w += t.w;
         }
-        named_arrive(kBarFree + bb, kNTL);
+        if constexpr (kHand) {
+            hand_arrive(&S.hand[kNRB + bb]);
+        } else {
+            named_arrive(kBarFree + bb, kNTL);
+        }
         const bool t0 = 2 * t4 < ntok;
         const bool t1 = 2 * t4 + 1 < ntok;
         if (!phb) {
@@ -8782,13 +9054,22 @@ __global__ void __launch_bounds__(kNTL, 1) moe_fused_kernel(const Params p) {
     // Under programmatic dependent launch the inputs are not ready before this; without it
     // the instruction does nothing.
     if (p.pdl) {
-        if (warp == kNW && lane == 0) {
-#pragma unroll
-            for (int s = 0; s < kNS; ++s) {
-                mbar_init(&S.full[s], 1);
-                mbar_init(&S.empty[s], kNT);
+        if (warp == kNW) {
+            if (lane == 0) {
+    #pragma unroll
+                for (int s = 0; s < kNS; ++s) {
+                    mbar_init(&S.full[s], 1);
+                    mbar_init(&S.empty[s], kNT);
+                }
+                if constexpr (kHand) {
+    #pragma unroll
+                    for (int b = 0; b < kNRB; ++b) {
+                        mbar_init(&S.hand[b], kNT);
+                        mbar_init(&S.hand[kNRB + b], 32);
+                    }
+                }
+                asm volatile("fence.mbarrier_init.release.cluster;" ::: "memory");
             }
-            asm volatile("fence.mbarrier_init.release.cluster;" ::: "memory");
         }
         if (tid == 0) {
             for (int i = cta; i < p.nloc * 4; i += G) {
@@ -8806,6 +9087,10 @@ __global__ void __launch_bounds__(kNTL, 1) moe_fused_kernel(const Params p) {
     if (kStamp && tid < 16) {
         S.dg[tid] = tid == 0 ? gtimer() : tid == 12 ? clock64() : 0;
     }
+    if (kUnitStamp && tid == 0) {
+        ustamps(p)[2] = clock64();
+        ustamps(p)[3] = gtimer();
+    }
 
     if (warp == kNW) {
         // Histogram and job list by one warp, so this CTA's first unit copies can be issued
@@ -8815,6 +9100,13 @@ __global__ void __launch_bounds__(kNTL, 1) moe_fused_kernel(const Params p) {
             for (int s = 0; s < kNS; ++s) {
                 mbar_init(&S.full[s], 1);
                 mbar_init(&S.empty[s], kNT);
+            }
+            if constexpr (kHand) {
+#pragma unroll
+                for (int b = 0; b < kNRB; ++b) {
+                    mbar_init(&S.hand[b], kNT);
+                    mbar_init(&S.hand[kNRB + b], 32);
+                }
             }
             asm volatile("fence.mbarrier_init.release.cluster;" ::: "memory");
         }
@@ -8940,6 +9232,10 @@ __global__ void __launch_bounds__(kNTL, 1) moe_fused_kernel(const Params p) {
 
     if (warp < kNW) {
         final_pass<kNT>(p, S.pos, ss, cta, G);
+    }
+    if (kUnitStamp && tid == 0) {
+        ustamps(p)[4] = clock64();
+        ustamps(p)[5] = gtimer();
     }
     if constexpr (kStamp) {
         __syncthreads();
@@ -8971,19 +9267,41 @@ void launch(const Params& p, int sms, cudaStream_t stream) {
 }  // namespace sk_16_4_0
 
 
-namespace sk_8_4_3 {
+namespace sk_8_3_0 {
 
-constexpr int kNS = 4;
+constexpr int kNS = 3;
 constexpr int kNW = 8;
-constexpr int kMode = 3;
+constexpr int kMode = 0;
 // kMode 2 and 4: timing stamps (2 is mode 0's, 4 is mode 3's). kMode 3: each compute warp loads
 // its codes of a unit up front and releases the ring slot itself (fence.proxy.async, then
 // mbarrier.arrive on empty, count kNT, as the fat path's mode 28), and thread 0 refills the slot
 // once every warp has arrived, instead of after a bar.sync of all compute warps behind the
 // unit's last MMA. The A/B at 8 tokens (240b68e7df1a427f) put mode 0 3.6 us over its loads-only
 // twin while thread 0 never waited for a unit, so the per-unit barrier is on the critical path.
-constexpr bool kStamp = kMode == 2 || kMode == 4;
-constexpr bool kEarly = kMode == 3 || kMode == 4;
+// kMode 5 and 7: the scale decode's multiply by 16 takes a multiplier ptxas cannot see, so it
+// stays an IMAD (FMA pipe) instead of becoming a LEA on the ALU pipe that the FP4 decode
+// saturates (the public kernel's SCDK). kMode 6 and 7: the partial-sum buffers are handed to and
+// from the helper warp through mbarriers (every compute thread arrives on hand[bb] after its
+// store, every helper lane on hand[kNRB + bb] after its loads) instead of a 288-thread bar.sync
+// per unit, so the compute warps meet once per unit (kBarUnit) instead of twice. The ordering
+// chain is in docs/runs-moe.md, "Skinny partial handoff through mbarriers". kMode 8: 7 with
+// the stamps.
+// Modes 16 and up are flags over mode kLow (docs/runs-moe.md, "Skinny weight stream against the
+// public kernel"). 16: thread 0's clock64 per unit (issue, wait start, wait end, slot free) and
+// a header, written to p.inter from 16 MB on (pair rows >= 2048, which the skinny sizes never
+// use). 32: the unit barrier and the refill move ahead of the partial-buffer handoff, so a refill
+// no longer waits for the helper to free a buffer. 64: weight copies without the L2 hint.
+constexpr int kLow = kMode & 15;
+constexpr bool kStamp = kLow == 2 || kLow == 4 || kLow == 8;
+constexpr bool kEarly = kLow == 3 || kLow == 4;
+constexpr bool kScaleFma = kLow == 5 || kLow == 7 || kLow == 8;
+constexpr bool kHand = kLow >= 6;
+constexpr bool kUnitStamp = (kMode & 16) != 0;
+constexpr bool kRefillFirst = (kMode & 32) != 0;
+constexpr bool kNoHint = (kMode & 64) != 0;
+static_assert(!kRefillFirst || (!kEarly && !kHand), "refill-first is a mode 0 / 5 change");
+constexpr int kUSMax = 256;
+constexpr int kUSPer = 8 + 4 * kUSMax;
 constexpr int kNT = kNW * 32;
 constexpr int kNTL = kNT + 32;
 constexpr int kNWarps = kNTL / 32;
@@ -9007,9 +9325,37 @@ struct __align__(128) Smem {
     // kMode 2 (timing only): thread 0's globaltimer at the phase points and cycle counters,
     // written to p.inter at the end (16 int64 per CTA; tools/moe_make_bench_ab.py reads them).
     long long dg[kStamp ? 16 : 1];
+    uint64_t hand[kHand ? 2 * kNRB : 1];
 };
 
-// Unit q of this CTA's list (its phase A units, then its phase B units) into ring slot q % 3.
+__device__ __forceinline__ void hand_wait(uint64_t* bar, unsigned parity, int* ctr) {
+    if (!mbar_try(bar, parity)) {
+        const long long t0 = clock64();
+        while (!mbar_try(bar, parity)) {
+            if (spin_failed(t0, ctr, 2)) {
+                break;
+            }
+        }
+    }
+}
+
+__device__ __forceinline__ void hand_arrive(uint64_t* bar) {
+    asm volatile("mbarrier.arrive.shared::cta.b64 _, [%0];" :: "r"(smem_u32(bar)) : "memory");
+}
+
+__device__ __forceinline__ long long* ustamps(const Params& p) {
+    return reinterpret_cast<long long*>(p.inter) + (1 << 21) + blockIdx.x * kUSPer;
+}
+
+// Event k of unit q: 0 copy issued, 1 thread 0 starts waiting for it, 2 the wait ends, 3 the
+// slot is free (unit barrier passed; the refill follows).
+__device__ __forceinline__ void ustamp(const Params& p, int q, int k) {
+    if (kUnitStamp && q < kUSMax) {
+        ustamps(p)[8 + 4 * q + k] = clock64();
+    }
+}
+
+// Unit q of this CTA's list (its phase A units, then its phase B units) into ring slot q % kNS.
 __device__ __forceinline__ void issue_unit(const Params& p, Smem& S, int q, uint64_t pol) {
     const int slot = q % kNS;
     const unsigned char* src;
@@ -9021,7 +9367,15 @@ __device__ __forceinline__ void issue_unit(const Params& p, Smem& S, int q, uint
         src = p.w2 + (static_cast<size_t>(S.job_e[v >> 8]) * kUB + (v & 255)) * kUnitBytes;
     }
     mbar_expect_tx(&S.full[slot], kUnitBytes);
-    bulk_load(S.ring[slot], src, kUnitBytes, &S.full[slot], pol);
+    ustamp(p, q, 0);
+    if constexpr (kNoHint) {
+        asm volatile("cp.async.bulk.shared::cluster.global.mbarrier::complete_tx::bytes"
+                     " [%0], [%1], %2, [%3];"
+                     :: "r"(smem_u32(S.ring[slot])), "l"(src), "r"(kUnitBytes),
+                        "r"(smem_u32(&S.full[slot])) : "memory");
+    } else {
+        bulk_load(S.ring[slot], src, kUnitBytes, &S.full[slot], pol);
+    }
 }
 
 // Compute warps: for each unit, 8 chunks of 64 k (4 mma k16 steps each) over this warp's
@@ -9044,6 +9398,12 @@ __device__ __forceinline__ void compute_loop(const Params& p, Smem& S, uint64_t 
     int jcur = -1;
     bool bcur = false;
     long long wfull = 0;
+    // 16, from a kernel parameter (nloc <= kLocalMax = 32) so ptxas cannot fold it into a LEA.
+    const unsigned k16 = 16u + (static_cast<unsigned>(p.nloc) >> 6);
+    if (kUnitStamp && tid == 0) {
+        ustamps(p)[0] = na;
+        ustamps(p)[1] = n;
+    }
 #pragma unroll 1
     for (int q = 0; q < n; ++q) {
         const bool phb = q >= na;
@@ -9095,6 +9455,12 @@ __device__ __forceinline__ void compute_loop(const Params& p, Smem& S, uint64_t 
             }
         }
         const int slot = q % kNS;
+        // The stamps time the first try too: try_wait may suspend the thread for a
+        // system-dependent time before it returns false (PTX ISA, mbarrier.try_wait).
+        const long long tw = kStamp ? clock64() : 0;
+        if (tid == 0) {
+            ustamp(p, q, 1);
+        }
         if (!mbar_try(&S.full[slot], (q / kNS) & 1)) {
             const long long t0 = clock64();
             while (!mbar_try(&S.full[slot], (q / kNS) & 1)) {
@@ -9102,9 +9468,12 @@ __device__ __forceinline__ void compute_loop(const Params& p, Smem& S, uint64_t 
                     break;
                 }
             }
-            if (kStamp) {
-                wfull += clock64() - t0;
-            }
+        }
+        if (kStamp) {
+            wfull += clock64() - tw;
+        }
+        if (tid == 0) {
+            ustamp(p, q, 2);
         }
         const unsigned char* sl = S.ring[slot];
         const uint4* codes = reinterpret_cast<const uint4*>(sl + w8 * 4096 + c0 * 512) + lane;
@@ -9142,7 +9511,7 @@ __device__ __forceinline__ void compute_loop(const Params& p, Smem& S, uint64_t 
                 issue_unit(p, S, q + kNS, pol);
             }
         }
-        if (kMode == 1) {
+        if (kLow == 1) {
             // Timing only: the unit's bytes arrive and one word is read, nothing is computed.
             acc[0][0] = __uint_as_float(codes[0].x & 0x3f800000u);
         } else {
@@ -9150,8 +9519,10 @@ __device__ __forceinline__ void compute_loop(const Params& p, Smem& S, uint64_t 
             for (int c = 0; c < kCPW; ++c) {
                 const uint4 w = kEarly ? cw[c] : codes[c * 32];
                 const unsigned scw = word(sc, (c0 + c) >> 1);
-                const unsigned sg = scale_word(scw, (2 * (c0 + c)) & 3);
-                const unsigned sg8 = scale_word(scw, (2 * (c0 + c) + 1) & 3);
+                const unsigned sg = kScaleFma ? scale_word_k(scw, (2 * (c0 + c)) & 3, k16)
+                                              : scale_word(scw, (2 * (c0 + c)) & 3);
+                const unsigned sg8 = kScaleFma ? scale_word_k(scw, (2 * (c0 + c) + 1) & 3, k16)
+                                               : scale_word(scw, (2 * (c0 + c) + 1) & 3);
 #pragma unroll
                 for (int s = 0; s < 4; ++s) {
                     unsigned a[4];
@@ -9167,13 +9538,49 @@ __device__ __forceinline__ void compute_loop(const Params& p, Smem& S, uint64_t 
         r.z = (acc[0][2] + acc[1][2]) + (acc[2][2] + acc[3][2]);
         r.w = (acc[0][3] + acc[1][3]) + (acc[2][3] + acc[3][3]);
         const int bb = q & (kNRB - 1);
-        named_sync(kBarFree + bb, kNTL);
-        S.red[bb][warp][lane] = r;
-        named_arrive(kBarFull + bb, kNTL);
-        if constexpr (kEarly) {
+        if constexpr (kRefillFirst) {
+            // Every compute thread's reads of the slot are done once its MMAs have their
+            // operands; the barrier and the fence are the same chain as below, earlier.
+            named_sync(kBarUnit, kNT);
+            if (tid == 0) {
+                ustamp(p, q, 3);
+                if (q + kNS < n) {
+                    fence_proxy_async();
+                    issue_unit(p, S, q + kNS, pol);
+                }
+            }
+        }
+        const long long tb = kStamp ? clock64() : 0;
+        if constexpr (kHand) {
+            // Buffer bb was last read by the helper for unit q - kNRB: completion number
+            // q / kNRB - 1 of its free barrier.
+            if (q >= kNRB) {
+                hand_wait(&S.hand[kNRB + bb], ((q / kNRB) & 1) ^ 1, p.ctr);
+            }
+            if (kStamp && tid == 0) {
+                S.dg[14] += clock64() - tb;
+            }
+            S.red[bb][warp][lane] = r;
+            hand_arrive(&S.hand[bb]);
+        } else {
+            named_sync(kBarFree + bb, kNTL);
+            if (kStamp && tid == 0) {
+                S.dg[14] += clock64() - tb;
+            }
+            S.red[bb][warp][lane] = r;
+            named_arrive(kBarFull + bb, kNTL);
+        }
+        if constexpr (kEarly || kRefillFirst) {
             continue;
         }
+        const long long tu = kStamp ? clock64() : 0;
         named_sync(kBarUnit, kNT);
+        if (kStamp && tid == 0) {
+            S.dg[15] += clock64() - tu;
+        }
+        if (tid == 0) {
+            ustamp(p, q, 3);
+        }
         if (tid == 0 && q + kNS < n) {
             // The slot's generic-proxy reads are complete (the barrier above); order them
             // before the async-proxy write that refills it.
@@ -9217,9 +9624,11 @@ __device__ __forceinline__ void helper_loop(const Params& p, Smem& S, float* ss)
     const int n = na + S.nb;
     const int a0 = S.a0;
     const int b0 = S.b0;
+    if constexpr (!kHand) {
 #pragma unroll
-    for (int bb = 0; bb < kNRB; ++bb) {
-        named_arrive(kBarFree + bb, kNTL);
+        for (int bb = 0; bb < kNRB; ++bb) {
+            named_arrive(kBarFree + bb, kNTL);
+        }
     }
     int jcred = -1;
     int ncred = 0;
@@ -9240,7 +9649,11 @@ __device__ __forceinline__ void helper_loop(const Params& p, Smem& S, float* ss)
             ncred = 0;
         }
         const long long cw = kStamp ? clock64() : 0;
-        named_sync(kBarFull + bb, kNTL);
+        if constexpr (kHand) {
+            hand_wait(&S.hand[bb], (q / kNRB) & 1, p.ctr);
+        } else {
+            named_sync(kBarFull + bb, kNTL);
+        }
         if (kStamp && lane == 0) {
             S.dg[10] += clock64() - cw;
         }
@@ -9253,7 +9666,11 @@ __device__ __forceinline__ void helper_loop(const Params& p, Smem& S, float* ss)
             r.z += t.z;
             r.w += t.w;
         }
-        named_arrive(kBarFree + bb, kNTL);
+        if constexpr (kHand) {
+            hand_arrive(&S.hand[kNRB + bb]);
+        } else {
+            named_arrive(kBarFree + bb, kNTL);
+        }
         const bool t0 = 2 * t4 < ntok;
         const bool t1 = 2 * t4 + 1 < ntok;
         if (!phb) {
@@ -9336,13 +9753,22 @@ __global__ void __launch_bounds__(kNTL, 1) moe_fused_kernel(const Params p) {
     // Under programmatic dependent launch the inputs are not ready before this; without it
     // the instruction does nothing.
     if (p.pdl) {
-        if (warp == kNW && lane == 0) {
-#pragma unroll
-            for (int s = 0; s < kNS; ++s) {
-                mbar_init(&S.full[s], 1);
-                mbar_init(&S.empty[s], kNT);
+        if (warp == kNW) {
+            if (lane == 0) {
+    #pragma unroll
+                for (int s = 0; s < kNS; ++s) {
+                    mbar_init(&S.full[s], 1);
+                    mbar_init(&S.empty[s], kNT);
+                }
+                if constexpr (kHand) {
+    #pragma unroll
+                    for (int b = 0; b < kNRB; ++b) {
+                        mbar_init(&S.hand[b], kNT);
+                        mbar_init(&S.hand[kNRB + b], 32);
+                    }
+                }
+                asm volatile("fence.mbarrier_init.release.cluster;" ::: "memory");
             }
-            asm volatile("fence.mbarrier_init.release.cluster;" ::: "memory");
         }
         if (tid == 0) {
             for (int i = cta; i < p.nloc * 4; i += G) {
@@ -9360,6 +9786,10 @@ __global__ void __launch_bounds__(kNTL, 1) moe_fused_kernel(const Params p) {
     if (kStamp && tid < 16) {
         S.dg[tid] = tid == 0 ? gtimer() : tid == 12 ? clock64() : 0;
     }
+    if (kUnitStamp && tid == 0) {
+        ustamps(p)[2] = clock64();
+        ustamps(p)[3] = gtimer();
+    }
 
     if (warp == kNW) {
         // Histogram and job list by one warp, so this CTA's first unit copies can be issued
@@ -9369,6 +9799,13 @@ __global__ void __launch_bounds__(kNTL, 1) moe_fused_kernel(const Params p) {
             for (int s = 0; s < kNS; ++s) {
                 mbar_init(&S.full[s], 1);
                 mbar_init(&S.empty[s], kNT);
+            }
+            if constexpr (kHand) {
+#pragma unroll
+                for (int b = 0; b < kNRB; ++b) {
+                    mbar_init(&S.hand[b], kNT);
+                    mbar_init(&S.hand[kNRB + b], 32);
+                }
             }
             asm volatile("fence.mbarrier_init.release.cluster;" ::: "memory");
         }
@@ -9494,6 +9931,709 @@ __global__ void __launch_bounds__(kNTL, 1) moe_fused_kernel(const Params p) {
 
     if (warp < kNW) {
         final_pass<kNT>(p, S.pos, ss, cta, G);
+    }
+    if (kUnitStamp && tid == 0) {
+        ustamps(p)[4] = clock64();
+        ustamps(p)[5] = gtimer();
+    }
+    if constexpr (kStamp) {
+        __syncthreads();
+        if (tid == 0) {
+            S.dg[7] = gtimer();
+            S.dg[13] = clock64();
+        }
+        __syncthreads();
+        if (tid < 16) {
+            reinterpret_cast<long long*>(p.inter)[cta * 16 + tid] = S.dg[tid];
+        }
+    }
+}
+
+template <int SPLIT>
+void launch(const Params& p, int sms, cudaStream_t stream) {
+    static bool ready = false;
+    if (!ready) {
+        C10_CUDA_CHECK(cudaFuncSetAttribute(moe_fused_kernel<SPLIT>,
+                                            cudaFuncAttributeMaxDynamicSharedMemorySize,
+                                            static_cast<int>(sizeof(Smem))));
+        ready = true;
+    }
+    moe1_launch(moe_fused_kernel<SPLIT>, sms, kNTL, static_cast<int>(sizeof(Smem)), stream,
+                p);
+    C10_CUDA_KERNEL_LAUNCH_CHECK();
+}
+
+}  // namespace sk_8_3_0
+
+
+namespace sk_8_4_3 {
+
+constexpr int kNS = 4;
+constexpr int kNW = 8;
+constexpr int kMode = 3;
+// kMode 2 and 4: timing stamps (2 is mode 0's, 4 is mode 3's). kMode 3: each compute warp loads
+// its codes of a unit up front and releases the ring slot itself (fence.proxy.async, then
+// mbarrier.arrive on empty, count kNT, as the fat path's mode 28), and thread 0 refills the slot
+// once every warp has arrived, instead of after a bar.sync of all compute warps behind the
+// unit's last MMA. The A/B at 8 tokens (240b68e7df1a427f) put mode 0 3.6 us over its loads-only
+// twin while thread 0 never waited for a unit, so the per-unit barrier is on the critical path.
+// kMode 5 and 7: the scale decode's multiply by 16 takes a multiplier ptxas cannot see, so it
+// stays an IMAD (FMA pipe) instead of becoming a LEA on the ALU pipe that the FP4 decode
+// saturates (the public kernel's SCDK). kMode 6 and 7: the partial-sum buffers are handed to and
+// from the helper warp through mbarriers (every compute thread arrives on hand[bb] after its
+// store, every helper lane on hand[kNRB + bb] after its loads) instead of a 288-thread bar.sync
+// per unit, so the compute warps meet once per unit (kBarUnit) instead of twice. The ordering
+// chain is in docs/runs-moe.md, "Skinny partial handoff through mbarriers". kMode 8: 7 with
+// the stamps.
+// Modes 16 and up are flags over mode kLow (docs/runs-moe.md, "Skinny weight stream against the
+// public kernel"). 16: thread 0's clock64 per unit (issue, wait start, wait end, slot free) and
+// a header, written to p.inter from 16 MB on (pair rows >= 2048, which the skinny sizes never
+// use). 32: the unit barrier and the refill move ahead of the partial-buffer handoff, so a refill
+// no longer waits for the helper to free a buffer. 64: weight copies without the L2 hint.
+constexpr int kLow = kMode & 15;
+constexpr bool kStamp = kLow == 2 || kLow == 4 || kLow == 8;
+constexpr bool kEarly = kLow == 3 || kLow == 4;
+constexpr bool kScaleFma = kLow == 5 || kLow == 7 || kLow == 8;
+constexpr bool kHand = kLow >= 6;
+constexpr bool kUnitStamp = (kMode & 16) != 0;
+constexpr bool kRefillFirst = (kMode & 32) != 0;
+constexpr bool kNoHint = (kMode & 64) != 0;
+static_assert(!kRefillFirst || (!kEarly && !kHand), "refill-first is a mode 0 / 5 change");
+constexpr int kUSMax = 256;
+constexpr int kUSPer = 8 + 4 * kUSMax;
+constexpr int kNT = kNW * 32;
+constexpr int kNTL = kNT + 32;
+constexpr int kNWarps = kNTL / 32;
+
+struct __align__(128) Smem {
+    unsigned char ring[kNS][kUnitBytes];
+    float4 red[kNRB][kNW][32];
+    uint64_t full[kNS];
+    uint64_t empty[kNS];
+    int cnt[kLocalMax];
+    int off[kLocalMax];
+    int wc[kNWarps][kLocalMax];
+    int job_e[kJmax];
+    int job_q[kJmax];
+    int job_n[kJmax];
+    short pos[kEmax];
+    short ent[kEmax];
+    signed char eid[kEmax];
+    int njobs;
+    int a0, na, b0, nb;
+    // kMode 2 (timing only): thread 0's globaltimer at the phase points and cycle counters,
+    // written to p.inter at the end (16 int64 per CTA; tools/moe_make_bench_ab.py reads them).
+    long long dg[kStamp ? 16 : 1];
+    uint64_t hand[kHand ? 2 * kNRB : 1];
+};
+
+__device__ __forceinline__ void hand_wait(uint64_t* bar, unsigned parity, int* ctr) {
+    if (!mbar_try(bar, parity)) {
+        const long long t0 = clock64();
+        while (!mbar_try(bar, parity)) {
+            if (spin_failed(t0, ctr, 2)) {
+                break;
+            }
+        }
+    }
+}
+
+__device__ __forceinline__ void hand_arrive(uint64_t* bar) {
+    asm volatile("mbarrier.arrive.shared::cta.b64 _, [%0];" :: "r"(smem_u32(bar)) : "memory");
+}
+
+__device__ __forceinline__ long long* ustamps(const Params& p) {
+    return reinterpret_cast<long long*>(p.inter) + (1 << 21) + blockIdx.x * kUSPer;
+}
+
+// Event k of unit q: 0 copy issued, 1 thread 0 starts waiting for it, 2 the wait ends, 3 the
+// slot is free (unit barrier passed; the refill follows).
+__device__ __forceinline__ void ustamp(const Params& p, int q, int k) {
+    if (kUnitStamp && q < kUSMax) {
+        ustamps(p)[8 + 4 * q + k] = clock64();
+    }
+}
+
+// Unit q of this CTA's list (its phase A units, then its phase B units) into ring slot q % kNS.
+__device__ __forceinline__ void issue_unit(const Params& p, Smem& S, int q, uint64_t pol) {
+    const int slot = q % kNS;
+    const unsigned char* src;
+    if (q < S.na) {
+        const int v = S.a0 + q;
+        src = p.w13 + (static_cast<size_t>(S.job_e[v >> 9]) * kUA + (v & 511)) * kUnitBytes;
+    } else {
+        const int v = S.b0 + (q - S.na);
+        src = p.w2 + (static_cast<size_t>(S.job_e[v >> 8]) * kUB + (v & 255)) * kUnitBytes;
+    }
+    mbar_expect_tx(&S.full[slot], kUnitBytes);
+    ustamp(p, q, 0);
+    if constexpr (kNoHint) {
+        asm volatile("cp.async.bulk.shared::cluster.global.mbarrier::complete_tx::bytes"
+                     " [%0], [%1], %2, [%3];"
+                     :: "r"(smem_u32(S.ring[slot])), "l"(src), "r"(kUnitBytes),
+                        "r"(smem_u32(&S.full[slot])) : "memory");
+    } else {
+        bulk_load(S.ring[slot], src, kUnitBytes, &S.full[slot], pol);
+    }
+}
+
+// Compute warps: for each unit, 8 chunks of 64 k (4 mma k16 steps each) over this warp's
+// 512-k slice, the job's x rows kept in registers.
+__device__ __forceinline__ void compute_loop(const Params& p, Smem& S, uint64_t pol) {
+    const int tid = threadIdx.x;
+    const int lane = tid & 31;
+    const int warp = tid >> 5;
+    const int g = lane >> 2;
+    const int t4 = lane & 3;
+    const int na = S.na;
+    const int n = na + S.nb;
+    const int a0 = S.a0;
+    const int b0 = S.b0;
+    // The unit layout holds 8 k-lanes of 512 (8 chunks of 64); NW warps split them.
+    constexpr int kCPW = 64 / kNW;
+    const int w8 = warp / (kNW / 8);
+    const int c0 = (warp % (kNW / 8)) * kCPW;
+    uint4 xr[kCPW][2];
+    int jcur = -1;
+    bool bcur = false;
+    long long wfull = 0;
+    // 16, from a kernel parameter (nloc <= kLocalMax = 32) so ptxas cannot fold it into a LEA.
+    const unsigned k16 = 16u + (static_cast<unsigned>(p.nloc) >> 6);
+    if (kUnitStamp && tid == 0) {
+        ustamps(p)[0] = na;
+        ustamps(p)[1] = n;
+    }
+#pragma unroll 1
+    for (int q = 0; q < n; ++q) {
+        const bool phb = q >= na;
+        const int v = phb ? b0 + (q - na) : a0 + q;
+        const int j = phb ? (v >> 8) : (v >> 9);
+        if (kStamp && tid == 0 && q == na) {
+            S.dg[3] = gtimer();
+            S.dg[8] = wfull;
+            wfull = 0;
+        }
+        if (j != jcur || phb != bcur) {
+            jcur = j;
+            bcur = phb;
+            const int q0 = S.job_q[j];
+            const bool have = g < S.job_n[j];
+            if (!phb) {
+                const int tok = have ? (S.ent[q0 + g] >> 3) : 0;
+                const __nv_bfloat16* src = p.x + static_cast<size_t>(tok) * kH + w8 * 512 + c0 * 64
+                                           + t4 * 16;
+#pragma unroll
+                for (int c = 0; c < kCPW; ++c) {
+                    xr[c][0] = have ? __ldg(reinterpret_cast<const uint4*>(src + c * 64))
+                                    : make_uint4(0u, 0u, 0u, 0u);
+                    xr[c][1] = have ? __ldg(reinterpret_cast<const uint4*>(src + c * 64 + 8))
+                                    : make_uint4(0u, 0u, 0u, 0u);
+                }
+            } else {
+                if (ld_acquire(p.done_a + j) < kUA) {
+                    const long long t0 = clock64();
+                    while (ld_acquire(p.done_a + j) < kUA) {
+                        __nanosleep(64);
+                        if (spin_failed(t0, p.ctr, 1)) {
+                            break;
+                        }
+                    }
+                }
+                if (kStamp && tid == 0 && q == na) {
+                    S.dg[4] = gtimer();
+                }
+                const __nv_bfloat16* src = p.inter + static_cast<size_t>(q0 + (have ? g : 0)) * kI
+                                           + w8 * 512 + c0 * 64 + t4 * 16;
+#pragma unroll
+                for (int c = 0; c < kCPW; ++c) {
+                    xr[c][0] = have ? __ldcg(reinterpret_cast<const uint4*>(src + c * 64))
+                                    : make_uint4(0u, 0u, 0u, 0u);
+                    xr[c][1] = have ? __ldcg(reinterpret_cast<const uint4*>(src + c * 64 + 8))
+                                    : make_uint4(0u, 0u, 0u, 0u);
+                }
+            }
+        }
+        const int slot = q % kNS;
+        // The stamps time the first try too: try_wait may suspend the thread for a
+        // system-dependent time before it returns false (PTX ISA, mbarrier.try_wait).
+        const long long tw = kStamp ? clock64() : 0;
+        if (tid == 0) {
+            ustamp(p, q, 1);
+        }
+        if (!mbar_try(&S.full[slot], (q / kNS) & 1)) {
+            const long long t0 = clock64();
+            while (!mbar_try(&S.full[slot], (q / kNS) & 1)) {
+                if (spin_failed(t0, p.ctr, 2)) {
+                    break;
+                }
+            }
+        }
+        if (kStamp) {
+            wfull += clock64() - tw;
+        }
+        if (tid == 0) {
+            ustamp(p, q, 2);
+        }
+        const unsigned char* sl = S.ring[slot];
+        const uint4* codes = reinterpret_cast<const uint4*>(sl + w8 * 4096 + c0 * 512) + lane;
+        const uint4 sc = *(reinterpret_cast<const uint4*>(sl + 32768 + w8 * 512) + lane);
+        float acc[4][4];
+#pragma unroll
+        for (int s = 0; s < 4; ++s) {
+#pragma unroll
+            for (int i = 0; i < 4; ++i) {
+                acc[s][i] = 0.f;
+            }
+        }
+        uint4 cw[kEarly ? kCPW : 1];
+        if constexpr (kEarly) {
+#pragma unroll
+            for (int c = 0; c < kCPW; ++c) {
+                cw[c] = codes[c * 32];
+            }
+            // Every generic read of the slot (codes, scales) is issued above; the per-thread
+            // proxy fence orders them before the refill's bulk write (docs/runs-moe.md,
+            // "Ordering of the ring slot releases"; the chain is the fat path's mode 28).
+            fence_proxy_async();
+            asm volatile("mbarrier.arrive.shared::cta.b64 _, [%0];"
+                         :: "r"(smem_u32(&S.empty[slot])) : "memory");
+            if (tid == 0 && q + kNS < n) {
+                const unsigned par = (q / kNS) & 1;
+                if (!mbar_try(&S.empty[slot], par)) {
+                    const long long t0 = clock64();
+                    while (!mbar_try(&S.empty[slot], par)) {
+                        if (spin_failed(t0, p.ctr, 2)) {
+                            break;
+                        }
+                    }
+                }
+                issue_unit(p, S, q + kNS, pol);
+            }
+        }
+        if (kLow == 1) {
+            // Timing only: the unit's bytes arrive and one word is read, nothing is computed.
+            acc[0][0] = __uint_as_float(codes[0].x & 0x3f800000u);
+        } else {
+#pragma unroll
+            for (int c = 0; c < kCPW; ++c) {
+                const uint4 w = kEarly ? cw[c] : codes[c * 32];
+                const unsigned scw = word(sc, (c0 + c) >> 1);
+                const unsigned sg = kScaleFma ? scale_word_k(scw, (2 * (c0 + c)) & 3, k16)
+                                              : scale_word(scw, (2 * (c0 + c)) & 3);
+                const unsigned sg8 = kScaleFma ? scale_word_k(scw, (2 * (c0 + c) + 1) & 3, k16)
+                                               : scale_word(scw, (2 * (c0 + c) + 1) & 3);
+#pragma unroll
+                for (int s = 0; s < 4; ++s) {
+                    unsigned a[4];
+                    dequant(word(w, s), sg, sg8, a);
+                    mma_bf16(acc[s], a, word(xr[c][s >> 1], 2 * (s & 1)),
+                             word(xr[c][s >> 1], 2 * (s & 1) + 1));
+                }
+            }
+        }
+        float4 r;
+        r.x = (acc[0][0] + acc[1][0]) + (acc[2][0] + acc[3][0]);
+        r.y = (acc[0][1] + acc[1][1]) + (acc[2][1] + acc[3][1]);
+        r.z = (acc[0][2] + acc[1][2]) + (acc[2][2] + acc[3][2]);
+        r.w = (acc[0][3] + acc[1][3]) + (acc[2][3] + acc[3][3]);
+        const int bb = q & (kNRB - 1);
+        if constexpr (kRefillFirst) {
+            // Every compute thread's reads of the slot are done once its MMAs have their
+            // operands; the barrier and the fence are the same chain as below, earlier.
+            named_sync(kBarUnit, kNT);
+            if (tid == 0) {
+                ustamp(p, q, 3);
+                if (q + kNS < n) {
+                    fence_proxy_async();
+                    issue_unit(p, S, q + kNS, pol);
+                }
+            }
+        }
+        const long long tb = kStamp ? clock64() : 0;
+        if constexpr (kHand) {
+            // Buffer bb was last read by the helper for unit q - kNRB: completion number
+            // q / kNRB - 1 of its free barrier.
+            if (q >= kNRB) {
+                hand_wait(&S.hand[kNRB + bb], ((q / kNRB) & 1) ^ 1, p.ctr);
+            }
+            if (kStamp && tid == 0) {
+                S.dg[14] += clock64() - tb;
+            }
+            S.red[bb][warp][lane] = r;
+            hand_arrive(&S.hand[bb]);
+        } else {
+            named_sync(kBarFree + bb, kNTL);
+            if (kStamp && tid == 0) {
+                S.dg[14] += clock64() - tb;
+            }
+            S.red[bb][warp][lane] = r;
+            named_arrive(kBarFull + bb, kNTL);
+        }
+        if constexpr (kEarly || kRefillFirst) {
+            continue;
+        }
+        const long long tu = kStamp ? clock64() : 0;
+        named_sync(kBarUnit, kNT);
+        if (kStamp && tid == 0) {
+            S.dg[15] += clock64() - tu;
+        }
+        if (tid == 0) {
+            ustamp(p, q, 3);
+        }
+        if (tid == 0 && q + kNS < n) {
+            // The slot's generic-proxy reads are complete (the barrier above); order them
+            // before the async-proxy write that refills it.
+            fence_proxy_async();
+            issue_unit(p, S, q + kNS, pol);
+        }
+    }
+    if (kStamp && tid == 0) {
+        if (na == n) {
+            S.dg[3] = gtimer();
+            S.dg[4] = S.dg[3];
+            S.dg[8] = wfull;
+            wfull = 0;
+        }
+        S.dg[9] = wfull;
+    }
+}
+
+// Makes this warp's inter stores for job j visible, then adds n finished units to its counter.
+__device__ __forceinline__ void credit(const Params& p, Smem& S, int j, int n, int lane) {
+    if (n <= 0) {
+        return;
+    }
+    const long long c0 = kStamp ? clock64() : 0;
+    __threadfence();
+    __syncwarp();
+    if (lane == 0) {
+        atomicAdd(p.done_a + j, n);
+    }
+    if (kStamp && lane == 0) {
+        S.dg[11] += clock64() - c0;
+    }
+}
+
+// Helper warp: sums the 8 warps' partials of each unit and runs its epilogue.
+__device__ __forceinline__ void helper_loop(const Params& p, Smem& S, float* ss) {
+    const int lane = threadIdx.x & 31;
+    const int g = lane >> 2;
+    const int t4 = lane & 3;
+    const int na = S.na;
+    const int n = na + S.nb;
+    const int a0 = S.a0;
+    const int b0 = S.b0;
+    if constexpr (!kHand) {
+#pragma unroll
+        for (int bb = 0; bb < kNRB; ++bb) {
+            named_arrive(kBarFree + bb, kNTL);
+        }
+    }
+    int jcred = -1;
+    int ncred = 0;
+#pragma unroll 1
+    for (int q = 0; q < n; ++q) {
+        const bool phb = q >= na;
+        const int v = phb ? b0 + (q - na) : a0 + q;
+        const int j = phb ? (v >> 8) : (v >> 9);
+        const int rb = phb ? (v & 255) : (v & 511);
+        const int e = S.job_e[j];
+        const int q0 = S.job_q[j];
+        const int ntok = S.job_n[j];
+        const int bb = q & (kNRB - 1);
+        // Phase A's last credits go out before waiting on any phase B partials: the compute
+        // warps produce none until done_a is complete, which needs these credits.
+        if (phb && ncred > 0) {
+            credit(p, S, jcred, ncred, lane);
+            ncred = 0;
+        }
+        const long long cw = kStamp ? clock64() : 0;
+        if constexpr (kHand) {
+            hand_wait(&S.hand[bb], (q / kNRB) & 1, p.ctr);
+        } else {
+            named_sync(kBarFull + bb, kNTL);
+        }
+        if (kStamp && lane == 0) {
+            S.dg[10] += clock64() - cw;
+        }
+        float4 r = S.red[bb][0][lane];
+#pragma unroll
+        for (int w = 1; w < kNW; ++w) {
+            const float4 t = S.red[bb][w][lane];
+            r.x += t.x;
+            r.y += t.y;
+            r.z += t.z;
+            r.w += t.w;
+        }
+        if constexpr (kHand) {
+            hand_arrive(&S.hand[kNRB + bb]);
+        } else {
+            named_arrive(kBarFree + bb, kNTL);
+        }
+        const bool t0 = 2 * t4 < ntok;
+        const bool t1 = 2 * t4 + 1 < ntok;
+        if (!phb) {
+            // Marlin writes gate and up to bf16 before silu_and_mul, and SwiGLU's output is
+            // GEMM2's bf16 input.
+            const float gsa = __ldg(p.gs13 + e) * 128.f;
+            const float g0 = bf16r(r.x * gsa);
+            const float g1 = bf16r(r.y * gsa);
+            const float u0 = bf16r(r.z * gsa);
+            const float u1 = bf16r(r.w * gsa);
+            const float h0 = g0 * __frcp_rn(1.f + __expf(-g0)) * u0;
+            const float h1 = g1 * __frcp_rn(1.f + __expf(-g1)) * u1;
+            __nv_bfloat16* dst = p.inter + static_cast<size_t>(q0 + 2 * t4) * kI + rb * 8 + g;
+            if (t0) {
+                dst[0] = __float2bfloat16_rn(h0);
+            }
+            if (t1) {
+                dst[kI] = __float2bfloat16_rn(h1);
+            }
+            // Credits go out once per job: the fence behind each credit costs about a
+            // microsecond under a saturated memory system, too much for every unit.
+            if (j != jcred) {
+                credit(p, S, jcred, ncred, lane);
+                jcred = j;
+                ncred = 0;
+            }
+            ++ncred;
+        } else {
+            // GEMM2's output is bf16 in SGLang; the norm then runs in FP32.
+            const float gsb = __ldg(p.gs2 + e) * 128.f;
+            const int col0 = rb * 16 + g;
+            const int col1 = col0 + 8;
+            const float w0 = __ldg(p.nw + col0);
+            const float w1 = __ldg(p.nw + col1);
+            const float y00 = bf16r(r.x * gsb) * w0;
+            const float y01 = bf16r(r.y * gsb) * w0;
+            const float y10 = bf16r(r.z * gsb) * w1;
+            const float y11 = bf16r(r.w * gsb) * w1;
+            float* dst = p.ybuf + static_cast<size_t>(q0 + 2 * t4) * kH;
+            if (t0) {
+                dst[col0] = y00;
+                dst[col1] = y10;
+            }
+            if (t1) {
+                dst[kH + col0] = y01;
+                dst[kH + col1] = y11;
+            }
+            float s0 = y00 * y00 + y10 * y10;
+            float s1 = y01 * y01 + y11 * y11;
+#pragma unroll
+            for (int d = 4; d < 32; d <<= 1) {
+                s0 += __shfl_xor_sync(0xffffffffu, s0, d);
+                s1 += __shfl_xor_sync(0xffffffffu, s1, d);
+            }
+            if (g == 0) {
+                if (t0) {
+                    atomicAdd(ss + q0 + 2 * t4, s0);
+                }
+                if (t1) {
+                    atomicAdd(ss + q0 + 2 * t4 + 1, s1);
+                }
+            }
+        }
+    }
+    if (ncred > 0) {
+        credit(p, S, jcred, ncred, lane);
+    }
+}
+
+template <int SPLIT>
+__global__ void __launch_bounds__(kNTL, 1) moe_fused_kernel(const Params p) {
+    extern __shared__ __align__(128) unsigned char smem_raw[];
+    Smem& S = *reinterpret_cast<Smem*>(smem_raw);
+    const int tid = threadIdx.x;
+    const int lane = tid & 31;
+    const int warp = tid >> 5;
+    const int G = gridDim.x;
+    const int cta = blockIdx.x;
+    const int E = p.M * kTopK;
+    // Under programmatic dependent launch the inputs are not ready before this; without it
+    // the instruction does nothing.
+    if (p.pdl) {
+        if (warp == kNW) {
+            if (lane == 0) {
+    #pragma unroll
+                for (int s = 0; s < kNS; ++s) {
+                    mbar_init(&S.full[s], 1);
+                    mbar_init(&S.empty[s], kNT);
+                }
+                if constexpr (kHand) {
+    #pragma unroll
+                    for (int b = 0; b < kNRB; ++b) {
+                        mbar_init(&S.hand[b], kNT);
+                        mbar_init(&S.hand[kNRB + b], 32);
+                    }
+                }
+                asm volatile("fence.mbarrier_init.release.cluster;" ::: "memory");
+            }
+        }
+        if (tid == 0) {
+            for (int i = cta; i < p.nloc * 4; i += G) {
+                prefetch_l2_hint(p.w13 + (static_cast<size_t>(i % p.nloc) * kUA
+                                          + i / p.nloc) * kUnitBytes, kUnitBytes);
+            }
+        }
+    }
+    asm volatile("griddepcontrol.wait;" ::: "memory");
+    // The generation picks this launch's sum-of-squares copy and barrier counter; the last
+    // CTA through the barrier bumps it, after every CTA has read it.
+    const int gen = *reinterpret_cast<volatile int*>(p.ctr + 3);
+    float* ss = p.ss + (gen & 1) * kEmax;
+    const uint64_t pol = policy_evict_first();
+    if (kStamp && tid < 16) {
+        S.dg[tid] = tid == 0 ? gtimer() : tid == 12 ? clock64() : 0;
+    }
+    if (kUnitStamp && tid == 0) {
+        ustamps(p)[2] = clock64();
+        ustamps(p)[3] = gtimer();
+    }
+
+    if (warp == kNW) {
+        // Histogram and job list by one warp, so this CTA's first unit copies can be issued
+        // before the full routing; the copies' cold start then overlaps it.
+        if (lane == 0 && !p.pdl) {
+#pragma unroll
+            for (int s = 0; s < kNS; ++s) {
+                mbar_init(&S.full[s], 1);
+                mbar_init(&S.empty[s], kNT);
+            }
+            if constexpr (kHand) {
+#pragma unroll
+                for (int b = 0; b < kNRB; ++b) {
+                    mbar_init(&S.hand[b], kNT);
+                    mbar_init(&S.hand[kNRB + b], 32);
+                }
+            }
+            asm volatile("fence.mbarrier_init.release.cluster;" ::: "memory");
+        }
+        S.cnt[lane] = 0;
+        __syncwarp();
+        for (int base = 0; base < E; base += 128) {
+            const int i = base + 4 * lane;
+            int4 v = make_int4(-1, -1, -1, -1);
+            if (i < E) {
+                v = __ldg(reinterpret_cast<const int4*>(p.topk_ids + i));
+            }
+            const int ev[4] = {v.x, v.y, v.z, v.w};
+#pragma unroll
+            for (int k = 0; k < 4; ++k) {
+                const int e = ev[k] - ld_lo(p.lo_p);
+                const int eid = (i < E && e >= 0 && e < p.nloc) ? e : -1;
+                if (i < E) {
+                    S.eid[i + k] = static_cast<signed char>(eid);
+                }
+                const unsigned peers = __match_any_sync(0xffffffffu, eid);
+                if (eid >= 0 && lane == __ffs(peers) - 1) {
+                    S.cnt[eid] += __popc(peers);
+                }
+                __syncwarp();
+            }
+        }
+        const int tot = lane < p.nloc ? S.cnt[lane] : 0;
+        const int off = warp_scan(tot, lane) - tot;
+        S.off[lane] = off;
+        const int nj = SPLIT ? (tot + 7) >> 3 : (tot > 0 ? 1 : 0);
+        const int jincl = warp_scan(nj, lane);
+        const int j0 = jincl - nj;
+        const int njobs = __shfl_sync(0xffffffffu, jincl, 31);
+        for (int k = 0; k < nj; ++k) {
+            S.job_e[j0 + k] = lane;
+            S.job_q[j0 + k] = off + 8 * k;
+            S.job_n[j0 + k] = min(8, tot - 8 * k);
+        }
+        __syncwarp();
+        if (lane == 0) {
+            const unsigned ua = njobs * kUA;
+            const unsigned ub = njobs * kUB;
+            const int a0 = ua * cta / G;
+            const int a1 = ua * (cta + 1) / G;
+            const int b0 = ub * cta / G;
+            const int b1 = ub * (cta + 1) / G;
+            S.njobs = njobs;
+            S.a0 = a0;
+            S.na = a1 - a0;
+            S.b0 = b0;
+            S.nb = b1 - b0;
+            __threadfence_block();
+            const int n = (a1 - a0) + (b1 - b0);
+            for (int q = 0; q < min(kNS, n); ++q) {
+                issue_unit(p, S, q, pol);
+            }
+        }
+    } else {
+        const int ctid = cta * kNT + tid;
+        const int cstride = G * kNT;
+        for (int i = ctid; i < p.M * 64; i += cstride) {
+            prefetch_l2(p.x + i * 64);
+        }
+        for (int i = ctid; i < (E + 31) / 32; i += cstride) {
+            prefetch_l2(p.topk_w + i * 32);
+        }
+        // The next launch's sum-of-squares copy and barrier counter; nothing reads them in
+        // this launch.
+        float* ss_next = p.ss + ((gen + 1) & 1) * kEmax;
+        for (int i = ctid; i < kEmax; i += cstride) {
+            ss_next[i] = 0.f;
+        }
+        if (ctid == 0) {
+            p.ctr[4 + ((gen + 1) & 1)] = 0;
+        }
+    }
+    __syncthreads();
+    if (kStamp && tid == 0) {
+        S.dg[1] = gtimer();
+    }
+
+    position_pass<kNWarps>(S.eid, S.pos, S.ent, S.wc, S.off, E);
+    if (kStamp && tid == 0) {
+        S.dg[2] = gtimer();
+    }
+
+    if (warp < kNW) {
+        compute_loop(p, S, pol);
+    } else {
+        helper_loop(p, S, ss);
+    }
+    __syncthreads();
+    if (kStamp && tid == 0) {
+        S.dg[5] = gtimer();
+    }
+
+    // Grid barrier. The counter alternates with the generation, so the one this launch
+    // uses was zeroed by the previous launch and nothing is reset between launches.
+    if (tid == 0) {
+        int* bc = p.ctr + 4 + (gen & 1);
+        __threadfence();
+        const int old = atomicAdd(bc, 1);
+        if (old == G - 1) {
+            atomicAdd(p.ctr + 3, 1);
+        }
+        if (ld_acquire(bc) < G) {
+            const long long t0 = clock64();
+            while (ld_acquire(bc) < G) {
+                __nanosleep(64);
+                if (spin_failed(t0, p.ctr, 4)) {
+                    break;
+                }
+            }
+        }
+    }
+    __syncthreads();
+    if (kStamp && tid == 0) {
+        S.dg[6] = gtimer();
+    }
+    for (int j = cta * kNTL + tid; j < kJmax; j += G * kNTL) {
+        p.done_a[j] = 0;
+    }
+
+    if (warp < kNW) {
+        final_pass<kNT>(p, S.pos, ss, cta, G);
+    }
+    if (kUnitStamp && tid == 0) {
+        ustamps(p)[4] = clock64();
+        ustamps(p)[5] = gtimer();
     }
     if constexpr (kStamp) {
         __syncthreads();
@@ -11763,6 +12903,7 @@ torch::Tensor moe_fused_run(torch::Tensor x, torch::Tensor topk_ids, torch::Tens
 _MOE1_VARIANTS = (
     ('sk8w4s', 'skinny', 'sk_8_4_0::launch<1>'),
     ('sk16w4s', 'skinny', 'sk_16_4_0::launch<1>'),
+    ('sk8w3s', 'skinny', 'sk_8_3_0::launch<1>'),
     ('sk8w4s-er', 'skinny', 'sk_8_4_3::launch<1>'),
     ('main-d2', 'main', 'launch_main<0>'),
     ('main-m2-ar2-ub', 'main', 'launch_main<16>'),

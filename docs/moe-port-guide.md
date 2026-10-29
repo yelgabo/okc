@@ -314,3 +314,14 @@ it now covers the whole block. `_moe1_pdl_self_test` (run in the route self-test
 passing variant as the route kernel's PDL secondary, eagerly and as a graph replayed 100 times,
 against the plain launch on the same route output; a failing variant the policy uses turns the
 route variants off.
+
+Update (sk8w3s merge): the standalone skinny init block gained `hand` barriers (kHand, kMode low
+bits >= 6, not built in the layer) and the fixed anchor stopped matching, as intended. The
+inliner now copies the routing warp's init block itself into the skinny preamble
+(`skinny_init_block`; every line of the block must be an mbarrier init, a loop, an
+`if constexpr`, a brace or the fence, or the inliner fails), so the two paths initialise the same
+barriers by construction. Layer variants: sk8w4s, sk16w4s, sk8w3s, sk8w4s-er and fat 0, 16, 26,
+28, 37. SASS against the standalone build of the same instances: every kernel adds one
+FENCE.VIEW.ASYNC.S, one UBLKPF and the preamble's inits in SYNCS (fat 16; skinny 8, sk8w3s 6);
+MEMBAR, BAR, ERRBAR, CCTL, UBLKCP, ACQBULK, ATOMG, REDG, LDL and STL are equal; registers equal
+(sk8w3s 130) except sk8w4s-er (161 against 159), no new spills.
