@@ -1728,3 +1728,47 @@ Profiles: `profiles/cand_pkvh.569b233dfe08414f.*`. Judge medians (us) against th
 Verify 16 / 32 full moved by more than the bench's cold deltas (-5.4 / -9.6); the public
 kernel's judged verify full times were 105 / 186 (docs/runs-attention.md, 10-28 / 10-29), so
 mode 51 is now level with it at verify 16 full and within 2 us at verify 32 full.
+
+### Bench e9085c86d89449c2 (scored run, `--shapes full`): repeat of the candidate, stamps, fence probe
+
+The judged path is `submission.py` at 61e3fd4 (the 569b233d code; docs only changed). Arms:
+`ctrl` (that build), `stamp` (`ONE_STAMP=1` on it), `nofence_probe` (`ONE_PROBE=2`), `pub`,
+`pubstamp`. ABCHECKSUM 11/0 pass/fail for every real arm (the probe's 11 marked PROBE). Profiles:
+`profiles/bench_spread.e9085c86d89449c2.*`.
+
+Judged (the repeat): **2.504x (CI 2.467-2.542)**, 16/16 tests. Verify 16 / 32 full 100.83 /
+182.24 us (569b233d: 103.65 / 187.67). This run's machine was faster on every full row, ours and
+SGLang's raw medians alike (decode 16 full raw 89.0 vs 92.1, decode 32 full raw 166.3 vs 172.8 on
+unchanged mode 49 SASS), so part of the step from 2.449x is the draw, as with 0d05f9b2df1e4834.
+Its verify full ratios (2.043 / 2.153) against 569b233d's (1.979 / 2.079) are the cleaner
+comparison: both are this code.
+
+Bench, microseconds:
+
+| | shape | ctrl | stamp | nofence_probe | pub |
+|---|---|---|---|---|---|
+| cold | decode 16 / 32 full | 97.38 / 174.14 | 97.82 / 174.40 | 97.47 / 173.98 | 96.48 / 172.29 |
+| cold | verify 16 full | 111.14 | 111.94 | 109.98 | 108.99 |
+| cold | verify 32 full | 192.42 | 193.86 | 190.98 | 188.90 |
+| warm | verify 16 full | 103.00 | 104.51 | 102.25 | 99.73 |
+| warm | verify 32 full | 195.55 | 198.52 | 194.55 | 192.05 |
+
+Loop ends at verify 32 full, cold, microseconds from the grid's first start (median over five
+repetitions of min / median / max), against bench 7631033a0c93485d (before DCARRY, PK16, VHOIST):
+
+| | mode 51 now | mode 51 in 7631033a | public now |
+|---|---|---|---|
+| gap within an SM (later minus earlier CTA) | 14.1 / 21.6 / 27.6 | 28.8 / 35.5 / 41.1 | 6.6 / 14.4 / 22.8 |
+| each SM's later end | 169.0 / 175.7 / 181.3 | 195.4 / 200.5 / 205.6 | 168.5 / 173.7 / 179.9 |
+| earlier CTA of an SM (wave 1 median) | 154.5 | about 165 | 159.7 |
+
+- The pair gap fell from 35.5 to 21.6 us as the consumer's per-tile instructions fell, and the
+  median SM end from 200.5 to 175.7 (public 173.7). This fits the reading of the 7631033a entry:
+  the scheduler's favoured CTA of each pair takes the issue slots it needs and its partner gets
+  the rest, so fewer instructions per tile shorten the partner most. The favoured CTA now ends
+  before the public one's (154.5 vs 159.7) and the partner still later (pair gap 21.6 vs 14.4).
+- Left at verify 32 / 16 full, cold: 3.5 / 2.2 us. The consumers' per-tile proxy fence is 1.4 /
+  1.2 of it (`nofence_probe`; the fence stays, as before). Decode 16 / 32 full (mode 49, not
+  touched): 0.9 / 1.9 us behind the public kernel.
+
+Attention scored runs today: 025ccaf9c57a4ba2, 569b233dfe08414f, e9085c86d89449c2 (3 of 4).
