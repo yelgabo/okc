@@ -34,15 +34,18 @@ REPACK = ("unit_rows", "repack_expert", "repack_expert_fat", "_to_u8_words", "_c
 RENAME = (("repack_expert_fat", "moe1_repack_expert_fat"), ("repack_expert", "moe1_repack_expert"),
           ("unit_rows", "moe1_unit_rows"))
 MAIN_NAMES = {0: "main-d2", 5: "main-d3", 16: "main-m2-ar2-ub", 20: "main-own",
-              23: "main-own-dynb", 26: "main-dynb-fs"}
+              23: "main-own-dynb", 26: "main-dynb-fs", 28: "main-lean"}
 # Each fat mode is another kernel instance in the layer's build, so the layer builds only the
 # fat modes that won a standalone bench: 0 (its fallback) and 16, which took 128 and 256
 # tokens from legacy128 and mode 12 in checks 9a9fb08c134c4a16 and c65e91500215418d, and 20,
 # 2-4 us under 16 at 128 and 256 tokens in three same-process A/Bs, and 23, 16-23 us under 20
 # at 128 and 256 tokens on 24 of 24 paired seeds in checks a9dbec1d98334943 and
 # 36812632dae242ba (docs/runs-moe.md), and 26, 4-10 us under 23 at 128 and 256 tokens on 66
-# of 66 paired seeds and the standalone policy at both sizes in 817eab6401d54a84.
-LAYER_MODES = (0, 16, 20, 23, 26)
+# of 66 paired seeds and the standalone policy at both sizes in 817eab6401d54a84, and 28, 6-12
+# us under 26 at 32, 128 and 256 tokens on 72 of 72 paired seeds and the standalone policy at
+# 128 and 256 in f928f8a802014e4f and 13fe68e7ca2e423f. 20 and 23 left with the standalone's
+# MAIN_MODES (0, 16, 26, 28): 26 and 28 were under them on every paired seed.
+LAYER_MODES = (0, 16, 26, 28)
 
 # The load is a per-use ld.global.nc in inline asm, consumed where the host value was: a value
 # loaded once and kept in a register doubled the fat d2 kernel's spills (1268 B against 604),
