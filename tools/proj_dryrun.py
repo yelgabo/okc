@@ -78,6 +78,17 @@ class FakeExt:
         self.calls.append(("cgemv", 1))
         out.zero_()
 
+    def cgemvr_fwd(self, buf, table, pmax, base4, x, out, nthreads, layout, variant):
+        half, k = table.shape[0], x.shape[1]
+        assert buf.dtype == torch.uint8 and buf.dim() == 1 and buf.numel() == half * 3 * k and buf.is_contiguous()
+        assert table.shape == (half, pmax, 2) and table.dtype == torch.int32 and pmax % 2 == 0
+        assert x.shape == (1, k) and x.dtype == torch.bfloat16
+        assert out.shape == (1, 2 * half) and out.dtype == torch.bfloat16
+        assert (nthreads, k) in ((256, 8192), (64, 1024), (512, 8192), (128, 4096))
+        assert (layout, variant) in ((0, 0), (0, 1), (0, 2), (1, 0))
+        self.calls.append(("cgemvr", 1))
+        out.zero_()
+
     def rgemv_fwd(self, w, x, out):
         assert w.dtype == torch.float32 and w.shape[1] == 8192 and w.is_contiguous()
         assert x.shape == (1, 8192) and out.shape == (1, w.shape[0]) and out.dtype == torch.float32
