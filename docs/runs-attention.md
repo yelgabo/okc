@@ -1710,3 +1710,21 @@ by 1 ulp of bf16 (21 ulp on one near-zero element), the order of the float reds.
   call `e4m3x4` once per launch). Verify 32 sliding +0.2 us is inside the bench's run-to-run
   spread for that row.
 - Promoted for judging: `submission.py` with both switches on.
+
+### Scored: 569b233dfe08414f 2.449x (CI 2.413-2.502) (2026-10-29)
+
+Scored run of `submission.py` at c37d381 (`ONE_PK16=1`, `ONE_VHOIST=1`), submitted by the
+coordinator. 16/16 tests. Board entry before: 51d4d137b9d14254 (2.416x); this is above it.
+Profiles: `profiles/cand_pkvh.569b233dfe08414f.*`. Judge medians (us) against the DCARRY pair
+(the same code without the switches):
+
+| shape | f64e8680 | bf49eceb | 569b233d | change (vs mean) |
+|---|---|---|---|---|
+| verify 16 full | 111.05 | 110.49 | 103.65 | -7.1 (-6.4%) |
+| verify 32 full | 197.83 | 198.91 | 187.67 | -10.7 (-5.4%) |
+| decode 16 / 32 full | 88.00 / 168.87 | 88.37 / 168.78 | 87.83 / 168.12 | -0.4 / -0.7 |
+| verify 16 / 32 sliding | 11.78 / 16.26 | 11.98 / 16.41 | 11.89 / 16.42 | +0.0 / +0.1 |
+
+Verify 16 / 32 full moved by more than the bench's cold deltas (-5.4 / -9.6); the public
+kernel's judged verify full times were 105 / 186 (docs/runs-attention.md, 10-28 / 10-29), so
+mode 51 is now level with it at verify 16 full and within 2 us at verify 32 full.
