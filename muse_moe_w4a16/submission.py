@@ -408,7 +408,7 @@ __constant__ int kCostBm[9] = {0, 85, 92, 104, 115, 130, 145, 160, 175};
 // mma.sync skinny kernel).
 __host__ __device__ constexpr int mma_max(int mode) {
     return mode == 6 || mode == 9 || mode == 11 || mode == 12 || mode == 14 || mode == 15
-                   || mode == 16
+                   || (mode >= 16 && mode <= 21)
                ? 2
            : mode == 7 || mode == 10 ? 4
            : mode == 8 ? 8 : 0;
@@ -422,7 +422,32 @@ __host__ __device__ constexpr int mma_max(int mode) {
 // Memory Consistency Model, "Release and Acquire Patterns"); fence.sc adds only the SC order,
 // which no reader here relies on. The SASS is MEMBAR.ALL.GPU instead of MEMBAR.SC.GPU.
 __host__ __device__ constexpr bool fence_ar(int mode) {
-    return mode == 12 || mode == 13 || mode == 14 || mode == 15 || mode == 16;
+    return mode == 12 || mode == 13 || mode == 14 || (mode >= 15 && mode <= 21);
+}
+
+// Modes 17 to 20 are mode 16 (two mma.sync chains, unit-aligned phase B) with one change each:
+// 17 adds the clock stamps of mode 11 (timing only); 18 runs phase A alone (no phase B, no
+// final pass: timing only, the GEMM1 gate's baseline); 19 runs phase A alone with every unit
+// owned whole by one CTA (no cut unit, no fixup; timing only, the staged GEMM1 prototype); 20
+// is 19's phase A followed by mode 16's phase B and final pass (a full, checked candidate).
+__host__ __device__ constexpr bool dual_chain(int mode) {
+    return mode == 14 || (mode >= 16 && mode <= 21);
+}
+__host__ __device__ constexpr bool is_diag(int mode) {
+    return mode == 11 || mode == 17;
+}
+__host__ __device__ constexpr bool a_only(int mode) {
+    return mode == 18 || mode == 19;
+}
+__host__ __device__ constexpr bool own_a(int mode) {
+    return mode == 19 || mode == 20;
+}
+// Mode 21 is the second launch of the staged pair (19, then 21): phase B and the final pass
+// alone, on the xb a previous launch wrote. That launch completed before this one started
+// (stream order, or griddepcontrol.wait under PDL: PTX ISA 9.7.15.14, 8.9.4), so phase B
+// takes no done_as wait and no x gather; the issuing thread keeps its proxy fence.
+__host__ __device__ constexpr bool b_only(int mode) {
+    return mode == 21;
 }
 
 template <bool AR>
@@ -434,12 +459,12 @@ __device__ __forceinline__ void fence_gpu() {
     }
 }
 
-// Mode 11 is mode 6 with clock stamps (timing only, never a policy choice): each consumer
-// warp sums its cycles waiting for weights, waiting for x, computing and in the epilogue or
-// fixup over its mma.sync segments; the producers sum their waits; thread 0 records
-// globaltimer and clock64 at the kernel's phase boundaries. S.dg goes to p.inter (unused on
-// the fat path) at the end, 18 x 8 int64 per CTA; _diag_report has the layout.
-constexpr int kDiagMode = 11;
+// Modes 11 and 17 (modes 6 and 16 with clock stamps; timing only, never a policy choice):
+// each consumer warp sums its cycles waiting for weights, waiting for x, computing and in the
+// epilogue or fixup over its segments of both paths (wgmma segments since 2026-10-29); the
+// producers sum their waits; thread 0 records globaltimer and clock64 at the kernel's phase
+// boundaries and when its phase A segments end. S.dg goes to p.inter (unused on the fat path)
+// at the end, 18 x 8 int64 per CTA; _diag_report has the layout.
 __device__ __forceinline__ long long gtimer() {
     long long t;
     asm volatile("mov.u64 %0, %globaltimer;" : "=l"(t));
@@ -483,6 +508,9 @@ struct __align__(128) SmemMain {
     int fix_last[4];
     int cost[2][9];
     int align_b;
+    // Owned phase A (own_a): jobs by n-tile count, largest first, and this CTA's unit count.
+    int ord[kJmaxM];
+    int own_n;
     long long dg[18][8];
 };
 
@@ -649,11 +677,36 @@ struct SegInfo {
     bool partial;
 };
 
-// A cut unit's fixup slot is the index of the CTA holding its first stage.
-__device__ __forceinline__ SegInfo seg_info(const SmemMain& S, int ph, int i, int cta, int G) {
-    int gb;
-    int ge;
+// Owned phase A (own_a): the units of all jobs sorted by n-tile count, largest first (S.ord,
+// 32 units per job), dealt to the CTAs in snake order, so round r gives CTA c the unit
+// r G + c (r even) or r G + G - 1 - c (r odd). Every unit runs whole on one CTA.
+__device__ __forceinline__ int own_unit(int r, int cta, int G) {
+    return r * G + ((r & 1) ? G - 1 - cta : cta);
+}
+
+template <int MODE>
+__device__ __forceinline__ int seg_n(const SmemMain& S, int ph) {
+    if (own_a(MODE) && ph == 0) {
+        return S.own_n;
+    }
+    return seg_count(S.gsb[ph], S.gse[ph]);
+}
+
+template <int MODE>
+__device__ __forceinline__ void seg_at(const SmemMain& S, int ph, int i, int cta, int G, int& gb,
+                                       int& ge) {
+    if (own_a(MODE) && ph == 0) {
+        const int k = own_unit(i, cta, G);
+        gb = S.ord[k >> 5] * kUAM + (k & 31) * 16;
+        ge = gb + 16;
+        return;
+    }
     seg_get(S.gsb[ph], S.gse[ph], i, gb, ge);
+}
+
+// A cut unit's fixup slot is the index of the CTA holding its first stage.
+__device__ __forceinline__ SegInfo seg_info(const SmemMain& S, int ph, int gb, int ge, int cta,
+                                            int G) {
     SegInfo si;
     si.j = ph ? (gb >> 8) : (gb >> 9);
     si.u = (gb & (ph ? 255 : 511)) >> 4;
@@ -826,6 +879,11 @@ __device__ __forceinline__ void run_segment(const Params& p, SmemMain& S, float*
     const int w = warp & 3;
     const int tid_wg = tid & 127;
     const int g = lane >> 2;
+    // 32-bit clock deltas keep the stamps' register cost low on the wgmma path.
+    constexpr bool kDiag = is_diag(MODE);
+    unsigned dw = 0;
+    unsigned dx = 0;
+    const unsigned dbeg = kDiag ? static_cast<unsigned>(clock()) : 0u;
     unsigned af[DEPTH][2][4];
 #pragma unroll
     for (int i = 0; i < 4 * NTT; ++i) {
@@ -835,7 +893,11 @@ __device__ __forceinline__ void run_segment(const Params& p, SmemMain& S, float*
 #pragma unroll 1
     for (int st = si.st_b; st < si.st_e; ++st) {
         const int ws = rg.ws;
+        unsigned dc = kDiag ? static_cast<unsigned>(clock()) : 0u;
         mbar_wait_to(&S.wfull[ws], rg.wlap & 1, p.ctr, 2);
+        if constexpr (kDiag) {
+            dw += static_cast<unsigned>(clock()) - dc;
+        }
         const unsigned char* wslot = S.rings + ws * kUnitBytes;
         const uint4* cp = reinterpret_cast<const uint4*>(wslot + (wg * 4 + w) * 2048) + lane;
         uint4 cw[4];
@@ -852,7 +914,13 @@ __device__ __forceinline__ void run_segment(const Params& p, SmemMain& S, float*
         }
         ring_next_w(rg, S.nsw);
         const int xs = rg.xs;
+        if constexpr (kDiag) {
+            dc = static_cast<unsigned>(clock());
+        }
         mbar_wait_to(&S.xfull[xs], rg.xlap & 1, p.ctr, 8);
+        if constexpr (kDiag) {
+            dx += static_cast<unsigned>(clock()) - dc;
+        }
         // The slot base goes through a shuffle so ptxas knows it is warp-uniform and keeps
         // the descriptors in uniform registers (one UIADD3 per step instead of a 64-bit add
         // and two R2UR moves on every wgmma's critical path).
@@ -936,6 +1004,7 @@ __device__ __forceinline__ void run_segment(const Params& p, SmemMain& S, float*
     if (MODE == 1) {
         return;
     }
+    const unsigned dep = kDiag ? static_cast<unsigned>(clock()) : 0u;
     if (si.partial) {
         float fin[32];
         if (fixup<NTT, fence_ar(MODE)>(p, S, acc, fin, ph, si.slot, si.st_e - si.st_b, wg, tid_wg, G)) {
@@ -949,6 +1018,17 @@ __device__ __forceinline__ void run_segment(const Params& p, SmemMain& S, float*
         epilogue_a<NTT, fence_ar(MODE)>(p, S, acc, si.j, si.u, wg, w, tid_wg);
     } else {
         epilogue_b<NTT>(p, S, ss, acc, si.j, si.u, wg, w, tid_wg);
+    }
+    if constexpr (kDiag) {
+        if (lane == 0) {
+            long long* d = S.dg[warp];
+            d[0] += dw;
+            d[1] += dx;
+            d[2] += dep - dbeg - dw - dx;
+            d[3] += static_cast<unsigned>(clock()) - dep;
+            d[4] += si.st_e - si.st_b;
+            d[5] += 1;
+        }
     }
 }
 
@@ -967,7 +1047,7 @@ template <int NTT, int PH, int MODE>
 __device__ __forceinline__ void run_segment_mma(const Params& p, SmemMain& S, float* ss,
                                                 const SegInfo& si, Ring& rg, int G) {
     constexpr int ph = PH;
-    constexpr bool kDiag = MODE == kDiagMode;
+    constexpr bool kDiag = is_diag(MODE);
     long long tw = 0;
     long long tx = 0;
     long long tc = 0;
@@ -981,7 +1061,7 @@ __device__ __forceinline__ void run_segment_mma(const Params& p, SmemMain& S, fl
     // Mode 14 splits each n8 tile's 16-step mma.sync chain into two accumulators (even and odd
     // k16 steps), halving the dependent chain per stage; the stamps put a stage's compute at
     // 1.02 us against about 0.66 us of issue for its four warps per scheduler.
-    constexpr bool kDual = MODE == 14 || MODE == 16;
+    constexpr bool kDual = dual_chain(MODE);
     float acc[32];
     float acc2[kDual ? 4 * NTT : 1];
 #pragma unroll
@@ -1114,30 +1194,29 @@ template <int NTT, int PH, int MODE>
 __device__ __forceinline__ void run_group(const Params& p, SmemMain& S, float* ss,
                                           float (&acc)[32], Ring& rg, int& xrel, int cta,
                                           int G) {
-    const int ns = seg_count(S.gsb[PH], S.gse[PH]);
+    const int ns = seg_n<MODE>(S, PH);
 #pragma unroll 1
     for (int i = 0; i < ns; ++i) {
         int gb;
         int ge;
-        seg_get(S.gsb[PH], S.gse[PH], i, gb, ge);
+        seg_at<MODE>(S, PH, i, cta, G, gb, ge);
         if (S.job_ntt[PH ? (gb >> 8) : (gb >> 9)] != NTT) {
             continue;
         }
-        const SegInfo si = seg_info(S, PH, i, cta, G);
-        if (MODE == kDiagMode && threadIdx.x == 0) {
+        const SegInfo si = seg_info(S, PH, gb, ge, cta, G);
+        if (is_diag(MODE) && threadIdx.x == 0) {
             S.dg[PH * 8 + NTT - 1][6] += si.st_e - si.st_b;
             S.dg[PH * 8 + NTT - 1][7] += 1;
             S.dg[16][1 + PH] += si.partial ? 1 : 0;
         }
-        // Warp 0's cycles inside segments of either path (the per-warp stamps cover the
-        // mma.sync path only): the cost model's work target.
-        const long long cs = MODE == kDiagMode ? clock64() : 0;
+        // Warp 0's cycles inside segments: the cost model's work target.
+        const long long cs = is_diag(MODE) ? clock64() : 0;
         if constexpr (NTT <= mma_max(MODE)) {
             run_segment_mma<NTT, PH, MODE>(p, S, ss, si, rg, G);
         } else {
             run_segment<NTT, PH, MODE>(p, S, ss, si, acc, rg, xrel, G);
         }
-        if (MODE == kDiagMode && threadIdx.x == 0) {
+        if (is_diag(MODE) && threadIdx.x == 0) {
             S.dg[17][5 + PH] += clock64() - cs;
         }
     }
@@ -1164,6 +1243,9 @@ __device__ __forceinline__ void consumers(const Params& p, SmemMain& S, float* s
     int xrel = -1;
     float acc[32];
     consumer_phase<0, MODE>(p, S, ss, acc, rg, xrel, cta, G);
+    if (is_diag(MODE) && threadIdx.x == 0) {
+        S.dg[17][7] = gtimer();
+    }
     consumer_phase<1, MODE>(p, S, ss, acc, rg, xrel, cta, G);
 }
 
@@ -1173,12 +1255,12 @@ __device__ __forceinline__ void wproducer(const Params& p, SmemMain& S, int cta,
     long long twe = 0;
     Ring rg = {0, 0, 0, 0};
     for (int ph = 0; ph < 2; ++ph) {
-        const int ns = seg_count(S.gsb[ph], S.gse[ph]);
+        const int ns = seg_n<MODE>(S, ph);
         for (int ntt = 1; ntt <= 8; ++ntt) {
         for (int i = 0; i < ns; ++i) {
             int gb;
             int ge;
-            seg_get(S.gsb[ph], S.gse[ph], i, gb, ge);
+            seg_at<MODE>(S, ph, i, cta, G, gb, ge);
             const int j = ph ? (gb >> 8) : (gb >> 9);
             if (S.job_ntt[j] != ntt) {
                 continue;
@@ -1192,9 +1274,9 @@ __device__ __forceinline__ void wproducer(const Params& p, SmemMain& S, int cta,
             for (int st = gb & 15; st < st_e; ++st) {
                 const int ws = rg.ws;
                 if (rg.wlap > 0) {
-                    const long long c0 = MODE == kDiagMode ? clock64() : 0;
+                    const long long c0 = is_diag(MODE) ? clock64() : 0;
                     mbar_wait_to(&S.wempty[ws], (rg.wlap - 1) & 1, p.ctr, 16);
-                    if (MODE == kDiagMode) {
+                    if (is_diag(MODE)) {
                         twe += clock64() - c0;
                     }
                 }
@@ -1206,7 +1288,7 @@ __device__ __forceinline__ void wproducer(const Params& p, SmemMain& S, int cta,
         }
         }
     }
-    if (MODE == kDiagMode) {
+    if (is_diag(MODE)) {
         S.dg[16][0] = twe;
     }
 }
@@ -1220,17 +1302,17 @@ __device__ __forceinline__ void xproducer(const Params& p, SmemMain& S, int cta,
     long long tda = 0;
     long long txr = 0;
     for (int ph = 0; ph < 2; ++ph) {
-        const int ns = seg_count(S.gsb[ph], S.gse[ph]);
+        const int ns = seg_n<MODE>(S, ph);
         for (int ntt = 1; ntt <= 8; ++ntt) {
         for (int i = 0; i < ns; ++i) {
             int gb;
             int ge;
-            seg_get(S.gsb[ph], S.gse[ph], i, gb, ge);
+            seg_at<MODE>(S, ph, i, cta, G, gb, ge);
             const int j = ph ? (gb >> 8) : (gb >> 9);
             if (S.job_ntt[j] != ntt) {
                 continue;
             }
-            constexpr bool kDiag = MODE == kDiagMode;
+            constexpr bool kDiag = is_diag(MODE);
             const unsigned bytes = ntt * 4096;
             const unsigned char* base = (ph ? p.xb : p.xa)
                                         + static_cast<size_t>(S.job_xo[j]) * 65536;
@@ -1257,7 +1339,9 @@ __device__ __forceinline__ void xproducer(const Params& p, SmemMain& S, int cta,
                     c0 = c1;
                 }
                 if (ph == 1 && MODE != 1 && MODE != 4) {
-                    spin_ge(p.done_as + j * 16 + st, 8, p.ctr, 128);
+                    if (!b_only(MODE)) {
+                        spin_ge(p.done_as + j * 16 + st, 8, p.ctr, 128);
+                    }
                     fence_proxy_async_global();
                 }
                 if (kDiag) {
@@ -1271,7 +1355,7 @@ __device__ __forceinline__ void xproducer(const Params& p, SmemMain& S, int cta,
         }
         }
     }
-    if (MODE == kDiagMode) {
+    if (is_diag(MODE)) {
         S.dg[17][0] = txe;
         S.dg[17][1] = tda;
         S.dg[17][2] = txr;
@@ -1289,7 +1373,7 @@ __global__ void __launch_bounds__(kNTM, 1) moe_main_kernel(const Params p) {
     const int cta = blockIdx.x;
     const int E = p.M * kTopK;
     asm volatile("griddepcontrol.wait;" ::: "memory");
-    constexpr bool kDiag = MODE == kDiagMode;
+    constexpr bool kDiag = is_diag(MODE);
     long long dt[5] = {0, 0, 0, 0, 0};
     long long dc0 = 0;
     if constexpr (kDiag) {
@@ -1335,7 +1419,7 @@ __global__ void __launch_bounds__(kNTM, 1) moe_main_kernel(const Params p) {
         if (lane < 9) {
             const bool given = p.cost[0][1] > 0;
             S.cost[0][lane] = given ? p.cost[0][lane] : stage_cost<MODE>(0, lane);
-            S.align_b = MODE == 15 || MODE == 16 ? 1 : 0;
+            S.align_b = MODE == 15 || (MODE >= 16 && MODE <= 21) ? 1 : 0;
             S.cost[1][lane] = given ? p.cost[1][lane] : stage_cost<MODE>(1, lane);
         }
         S.cnt[lane] = 0;
@@ -1389,6 +1473,25 @@ __global__ void __launch_bounds__(kNTM, 1) moe_main_kernel(const Params p) {
             ca += kUAM * S.cost[0][ntt];
             cb += kUBM * S.cost[1][ntt];
         }
+        if constexpr (own_a(MODE)) {
+            // Counting sort of the jobs by n-tile count, largest first; within a count, by
+            // expert then job, so every CTA derives the same order.
+            int base = 0;
+            for (int t = 8; t >= 1; --t) {
+                int c = 0;
+                for (int k = 0; k < nj; ++k) {
+                    c += ((min(64, tot - 64 * k) + 7) >> 3) == t ? 1 : 0;
+                }
+                const int incl = warp_scan(c, lane);
+                int r = base + incl - c;
+                for (int k = 0; k < nj; ++k) {
+                    if (((min(64, tot - 64 * k) + 7) >> 3) == t) {
+                        S.ord[r++] = j0 + k;
+                    }
+                }
+                base += __shfl_sync(0xffffffffu, incl, 31);
+            }
+        }
         int mx = tot > 0 ? (min(64, tot) + 7) >> 3 : 0;
 #pragma unroll
         for (int d = 16; d > 0; d >>= 1) {
@@ -1436,6 +1539,22 @@ __global__ void __launch_bounds__(kNTM, 1) moe_main_kernel(const Params p) {
             S.gsb[ph] = stage_at(S, ph, cta, G);
             S.gse[ph] = stage_at(S, ph, cta + 1, G);
         }
+        if (a_only(MODE)) {
+            S.gsb[1] = 0;
+            S.gse[1] = 0;
+        }
+        if (b_only(MODE)) {
+            S.gsb[0] = 0;
+            S.gse[0] = 0;
+        }
+        if (own_a(MODE)) {
+            const int units = S.njobs * (kUAM / 16);
+            int n = 0;
+            while (own_unit(n, cta, G) < units) {
+                ++n;
+            }
+            S.own_n = n;
+        }
     }
     // The weights producer needs only the stage ranges, so it starts streaming here while the
     // other warps gather x; they sync on their own named barrier.
@@ -1447,42 +1566,45 @@ __global__ void __launch_bounds__(kNTM, 1) moe_main_kernel(const Params p) {
     } else {
     const int gt = warp < kNC ? tid : tid - 32;
     constexpr int kNG = kNTM - 32;
-    // Phase A's x: every token row of every job into the per-stage wgmma layout, this CTA
-    // taking entries cta, cta + G, ...; one release per row.
-    for (int i = cta; i < E; i += G) {
-        const int q = S.pos[i];
-        if (q < 0) {
-            continue;
-        }
-        const int e = S.eid[i];
-        const int r = q - S.off[e];
-        const int jj = S.job0[e] + (r >> 6);
-        const int n = r & 63;
-        const int ntt = S.job_ntt[jj];
-        const unsigned* src = reinterpret_cast<const unsigned*>(p.x + static_cast<size_t>(i >> 3) * kH);
-        unsigned char* dst = p.xa + static_cast<size_t>(S.job_xo[jj]) * 65536 + (n >> 3) * 4096
-                             + (n & 7) * 16;
-        // Pair q holds K = 2 q, 2 q + 1; its stage is q / 128 and its slab position follows
-        // the fat layout's k order (epilogue_a has the same mapping).
-        for (int q = gt; q < 2048; q += kNG) {
-            const int kk = (q & 127) * 2;
-            const int step = 4 * (kk >> 6) + ((kk >> 2) & 3);
-            const int chunk8 = 2 * step + ((kk & 3) >> 1);
-            const int elem = 2 * ((kk >> 4) & 3);
-            *reinterpret_cast<unsigned*>(dst + (q >> 7) * ntt * 4096 + chunk8 * 128 + elem * 2) =
-                __ldg(src + q);
-        }
-    }
-    fence_proxy_async_global();
-    __threadfence();
-    named_sync(kBarGather, kNG);
-    // A release after the barrier: a fence before bar.sync followed by a relaxed atomic is a
-    // release pattern only for the atomic thread's own earlier writes (PTX ISA 8.8), not for
-    // the rows other threads stored; red.release after bar.sync covers them by cumulativity.
-    for (int i = cta + gt * G; i < E; i += kNG * G) {
-        if (S.pos[i] >= 0) {
+    if constexpr (!b_only(MODE)) {
+        // Phase A's x: every token row of every job into the per-stage wgmma layout, this CTA
+        // taking entries cta, cta + G, ...; one release per row.
+        for (int i = cta; i < E; i += G) {
+            const int q = S.pos[i];
+            if (q < 0) {
+                continue;
+            }
             const int e = S.eid[i];
-            red_release_add(p.xready + S.job0[e] + ((S.pos[i] - S.off[e]) >> 6), 1);
+            const int r = q - S.off[e];
+            const int jj = S.job0[e] + (r >> 6);
+            const int n = r & 63;
+            const int ntt = S.job_ntt[jj];
+            const unsigned* src =
+                reinterpret_cast<const unsigned*>(p.x + static_cast<size_t>(i >> 3) * kH);
+            unsigned char* dst = p.xa + static_cast<size_t>(S.job_xo[jj]) * 65536 + (n >> 3) * 4096
+                                 + (n & 7) * 16;
+            // Pair q holds K = 2 q, 2 q + 1; its stage is q / 128 and its slab position follows
+            // the fat layout's k order (epilogue_a has the same mapping).
+            for (int q = gt; q < 2048; q += kNG) {
+                const int kk = (q & 127) * 2;
+                const int step = 4 * (kk >> 6) + ((kk >> 2) & 3);
+                const int chunk8 = 2 * step + ((kk & 3) >> 1);
+                const int elem = 2 * ((kk >> 4) & 3);
+                *reinterpret_cast<unsigned*>(dst + (q >> 7) * ntt * 4096 + chunk8 * 128
+                                             + elem * 2) = __ldg(src + q);
+            }
+        }
+        fence_proxy_async_global();
+        __threadfence();
+        named_sync(kBarGather, kNG);
+        // A release after the barrier: a fence before bar.sync followed by a relaxed atomic is a
+        // release pattern only for the atomic thread's own earlier writes (PTX ISA 8.8), not for
+        // the rows other threads stored; red.release after bar.sync covers them by cumulativity.
+        for (int i = cta + gt * G; i < E; i += kNG * G) {
+            if (S.pos[i] >= 0) {
+                const int e = S.eid[i];
+                red_release_add(p.xready + S.job0[e] + ((S.pos[i] - S.off[e]) >> 6), 1);
+            }
         }
     }
 
@@ -1530,7 +1652,7 @@ __global__ void __launch_bounds__(kNTM, 1) moe_main_kernel(const Params p) {
     for (int i = cta * kNTM + tid; i < 2 * G * 4; i += G * kNTM) {
         p.fixcnt[i] = 0;
     }
-    if (warp < kNC) {
+    if (warp < kNC && !a_only(MODE)) {
         final_pass<kNC * 32>(p, S.pos, ss, cta, G);
     }
     if constexpr (kDiag) {
@@ -2136,8 +2258,17 @@ SKINNY_VARIANTS = ((8, 4, 0), (16, 4, 0), (8, 4, 1))
 # flatter stage costs; all lost in submit 0400cfbdfa2845fe). Also in the source, not built: 2 dequantizes without wgmma, 3 runs wgmma on
 # the raw words (run 36b5b559b0344d0f has their numbers), depth 3 (mode 5) and no readiness
 # waits (mode 4), which run bab82f5f5b974594 showed do not move the fat path.
-MAIN_MODES = (0, 1, 6, 11, 12, 13, 14, 15, 16)
-MAIN_CANDIDATES = (0, 6, 12, 13, 14, 15, 16)
+# 17 to 20 (2026-10-29, the staged-GEMM1 gate): 17 is mode 16 with stamps; 18 and 19 run phase
+# A alone (timing only), 18 on mode 16's stream-K stages, 19 with every unit owned whole by one
+# CTA; 20 is 19's phase A with mode 16's phase B; 21 runs phase B and the final pass alone on
+# a previous launch's xb (timing only alone; VARIANT_STAGED runs 19 then 21). Modes 6 and 11 to
+# 15 are not built for these checks (the build would pass the 300 s prepare cap with them); 16
+# won 128 and 256 tokens over all of them in check 9a9fb08c134c4a16. 17 ran in 9332e2a49aff4ff2.
+# The shipped build: 18, 19, 21 and the staged pair lost or are timing only (checks
+# 9332e2a49aff4ff2, e221858b020c4dee; docs/runs-moe.md "Staged GEMM1 gate"); list them here to
+# rerun the gate.
+MAIN_MODES = (0, 1, 16, 20)
+MAIN_CANDIDATES = (0, 6, 12, 13, 14, 15, 16, 20)
 VARIANT_MAIN0 = len(SKINNY_VARIANTS)
 
 
@@ -2308,6 +2439,9 @@ VARIANT_LEGACY0 = 100
 # A fat variant VARIANT_MAIN0 + i run with the stage costs of the validated cost model
 # (_cost_model in prepare, state["fit_cost"]) is VARIANT_FIT0 + i.
 VARIANT_FIT0 = 200
+# The staged pair: mode 19 (routing, x gather, GEMM1 + SwiGLU on owned units) as one launch,
+# then mode 21 (GEMM2, the post-expert norm and the weighted sum) as a second.
+VARIANT_STAGED = 300
 # Modes the fitted costs are offered for: the stamps time mode 6's segments.
 FIT_MODES = (6, 12, 14)
 
@@ -3571,16 +3705,24 @@ def _run(data, state, variant=None, cost=None):
         variant = _policy_variant(state, m)
     if cost is None:
         cost = []
-    if variant >= VARIANT_FIT0:
+    launches = [variant]
+    if variant == VARIANT_STAGED and m > CHUNK_TOKENS:
+        # moe_run splits M into chunks that share one xb, so the pair cannot run chunk by
+        # chunk; mode 20 is the same work in one launch.
+        launches = [VARIANT_MAIN0 + MAIN_MODES.index(20)]
+    elif variant == VARIANT_STAGED:
+        launches = [VARIANT_MAIN0 + MAIN_MODES.index(19), VARIANT_MAIN0 + MAIN_MODES.index(21)]
+    elif variant >= VARIANT_FIT0:
         cost = state["fit_cost"]
-        variant = VARIANT_MAIN0 + variant - VARIANT_FIT0
-    if variant >= VARIANT_LEGACY0:
+        launches = [VARIANT_MAIN0 + variant - VARIANT_FIT0]
+    elif variant >= VARIANT_LEGACY0:
         return _run_legacy(data, state, LEGACY_POLICIES[variant - VARIANT_LEGACY0])
-    _ext().moe_run(x, ids, tw, w["w13"], w["w2"], w["w13_gs"], w["w2_gs"], state["nw"],
-                   s["inter"], s["ybuf"], s["ss"], s["ctr"], s["done_a"], out,
-                   w["w13f"], w["w2f"], s["xa"], s["xb"], s["fix"], s["fixcnt"], s["xready"],
-                   s["done_as"], cfg["local_start"], cfg["local_count"], POST_NORM_EPS, variant,
-                   cost)
+    for v in launches:
+        _ext().moe_run(x, ids, tw, w["w13"], w["w2"], w["w13_gs"], w["w2_gs"], state["nw"],
+                       s["inter"], s["ybuf"], s["ss"], s["ctr"], s["done_a"], out,
+                       w["w13f"], w["w2f"], s["xa"], s["xb"], s["fix"], s["fixcnt"],
+                       s["xready"], s["done_as"], cfg["local_start"], cfg["local_count"],
+                       POST_NORM_EPS, v, cost)
     return out
 
 
@@ -3741,6 +3883,8 @@ def _bench(state, main_ok, seeds=(11, 12)):
                       if m in MAIN_CANDIDATES and VARIANT_MAIN0 + i not in state["main_bad"]]
             diag += [VARIANT_MAIN0 + i for i, m in enumerate(MAIN_MODES) if m not in MAIN_CANDIDATES]
             cands += [v for v in state.get("fit_ok", ())]
+            if state.get("staged_ok"):
+                cands.append(VARIANT_STAGED)
         if state.get("legacy_ok") and bs >= 16:
             cands += [VARIANT_LEGACY0 + i for i in range(len(LEGACY_POLICIES))]
         tot = {}
@@ -3761,17 +3905,19 @@ def _bench(state, main_ok, seeds=(11, 12)):
     return policy
 
 
-def _diag_launch(state, data, cost, flush):
-    """One cold-L2 launch of mode 11 with the given stage-cost table. Per CTA, S.dg (int64
+def _diag_launch(state, data, cost, flush, mode=11):
+    """One cold-L2 launch of a stamped mode (11 or 17) with the given stage-cost table. Per
+    CTA, S.dg (int64
     [18][8]) lands in scratch `inter`: rows 0-15 per consumer warp in columns 0-5 (cycles
     waiting for weights, waiting for x, computing, epilogue or fixup; stages; segments) and
     per class (phase * 8 + n-tiles - 1) in columns 6-7 (stages, segments); row 16 [0] the
     weights producer's cycles waiting for a free slot, [1..2] cut (partial) segments per
     phase, [3..7] globaltimer at start, consumers start, consumers done, barrier done, end;
     row 17 [0..2] the x producer's cycles waiting for a free slot, for done_as, for xready,
-    [3..4] clock64 at start and end, [5..6] warp 0's cycles inside segments per phase.
+    [3..4] clock64 at start and end, [5..6] warp 0's cycles inside segments per phase, [7]
+    globaltimer when thread 0's phase A segments end.
     Returns the stamps and the clock in cycles per us."""
-    v = VARIANT_MAIN0 + MAIN_MODES.index(11)
+    v = VARIANT_MAIN0 + MAIN_MODES.index(mode)
     inter = state["scratch"]["inter"]
     _run(data, state, v, cost=cost)
     flush.zero_()
@@ -3784,10 +3930,10 @@ def _diag_launch(state, data, cost, flush):
     return d, ghz * 1e3
 
 
-def _diag_report(state, bs, seed=11):
+def _diag_report(state, bs, seed=11, mode=11):
     """Where the fat path's time goes on the bench's routing with the compiled costs."""
     flush = torch.empty(256 << 20, dtype=torch.uint8, device="cuda")
-    d, cyc = _diag_launch(state, _make_inputs(bs, 977 * seed + bs), [], flush)
+    d, cyc = _diag_launch(state, _make_inputs(bs, 977 * seed + bs), [], flush, mode)
     cyc_us = cyc.unsqueeze(1)
     cw = d[:, :16, :4] / cyc_us.unsqueeze(2)
     t = d[:, 16, 3:8]
@@ -3797,18 +3943,91 @@ def _diag_report(state, bs, seed=11):
     def mm(x):
         return f"{float(x.mean()):.1f}/{float(x.max()):.1f}"
 
-    print(f"DIAG bs={bs} clock {float(cyc.mean()) / 1e3:.2f} GHz; per CTA mean/max us: "
+    tag = f"DIAG{mode} bs={bs} seed={seed}"
+    done = (t[:, 2] - t0) / 1e3
+    adone = (d[:, 17, 7] - t0) / 1e3
+    print(f"{tag} critical path us: phase A done (thread 0) mean/max {mm(adone)}, consumers "
+          f"done mean/max {mm(done)}, completion tail (last consumers minus mean) "
+          f"{float(done.max() - done.mean()):.1f}, end {float(((t[:, 4] - t0) / 1e3).max()):.1f}; "
+          f"cut segments per CTA A/B {float(d[:, 16, 1].mean()):.2f}/"
+          f"{float(d[:, 16, 2].mean()):.2f}")
+    print(f"{tag} clock {float(cyc.mean()) / 1e3:.2f} GHz; per CTA mean/max us: "
           f"route+gather {mm((t[:, 1] - t[:, 0]) / 1e3)}, consumers {mm((t[:, 2] - t[:, 1]) / 1e3)}, "
           f"barrier wait {mm((t[:, 3] - t[:, 2]) / 1e3)}, final {mm((t[:, 4] - t[:, 3]) / 1e3)}; "
           f"consumers done at {mm((t[:, 2] - t0) / 1e3)} after the first start, "
           f"end {mm((t[:, 4] - t0) / 1e3)}")
-    print(f"DIAG bs={bs} segments per warp mean/max us: wait weights "
+    print(f"{tag} segments per warp mean/max us: wait weights "
           f"{mm(cw[:, :, 0].mean(1))}, wait x {mm(cw[:, :, 1].mean(1))}, compute "
           f"{mm(cw[:, :, 2].mean(1))}, epilogue+fixup {mm(cw[:, :, 3].mean(1))}; stages "
           f"{mm(stages)}, segments {mm(d[:, :16, 5].mean(1))}")
-    print(f"DIAG bs={bs} producers mean/max us: weights wait for a free slot "
+    print(f"{tag} producers mean/max us: weights wait for a free slot "
           f"{mm(d[:, 16, 0] / cyc_us[:, 0])}, x wait for a free slot {mm(d[:, 17, 0] / cyc_us[:, 0])}, "
           f"x wait done_as {mm(d[:, 17, 1] / cyc_us[:, 0])}, x wait xready {mm(d[:, 17, 2] / cyc_us[:, 0])}")
+
+
+
+GATE_SEEDS = (11, 12, 13, 14, 15, 16)
+
+
+def _gate_report(state):
+    """The staged-GEMM1 gate (docs/plan-2026-10-29-steering.md, step 5) and the staged pair:
+    phase A alone on mode 16's stream-K stages (18) against phase A alone on owned units (19,
+    the GEMM1-only prototype); phase B and the final pass alone (21, after a full launch on the
+    same inputs left xb); the staged pair (19 then 21), mode 20 and mode 16. Same process, same
+    inputs, variants interleaved per seed, graph replay after an L2 flush. Also the SwiGLU
+    output of 19 against 18 (xb, bf16) and the final outputs of 20 and the staged pair against
+    16."""
+    names = {16: None, 18: None, 19: None, 20: None, 21: None}
+    vs = {m: VARIANT_MAIN0 + MAIN_MODES.index(m) for m in names if m in MAIN_MODES}
+    if state.get("staged_ok"):
+        vs["staged"] = VARIANT_STAGED
+    ctr = state["scratch"]["ctr"]
+    for m, v in list(vs.items()):
+        _run(_make_inputs(128, 5), state, v)
+        torch.cuda.synchronize()
+        flags = int(ctr[8].item())
+        if flags:
+            ctr[8] = 0
+            print(f"GATE {_vname(v)}: spin flags {flags}; dropped")
+            vs.pop(m)
+    flush = torch.empty(256 << 20, dtype=torch.uint8, device="cuda")
+    xb = state["scratch"]["xb"]
+    for bs in (128, 256):
+        tim = {m: [] for m in vs}
+        xbd = []
+        outd = {m: [] for m in (20, "staged") if m in vs}
+        for seed in GATE_SEEDS:
+            data = _make_inputs(bs, 977 * seed + bs)
+            for m, v in vs.items():
+                if m == 21 and 16 in vs:
+                    _run(data, state, vs[16])
+                tim[m].append(_graph_time(lambda: _run(data, state, v), flush))
+            if 18 in vs and 19 in vs:
+                _run(data, state, vs[18])
+                ref = xb.view(torch.bfloat16).float().clone()
+                _run(data, state, vs[19])
+                xbd.append(_rel(xb.view(torch.bfloat16).float(), ref))
+            if 16 in vs:
+                ref = _run(data, state, vs[16]).float()
+                for m in outd:
+                    outd[m].append(_rel(_run(data, state, vs[m]).float(), ref))
+        n = len(GATE_SEEDS)
+        line = " ".join(f"{_vname(v)}:{sum(tim[m]) / n:.1f}" for m, v in vs.items())
+        print(f"GATE bs={bs} {line} us (mean of {n} seeds)")
+        for a, b in ((19, 18), (20, 16), ("staged", 16), ("staged", 20)):
+            if a in vs and b in vs:
+                d = [x - y for x, y in zip(tim[a], tim[b])]
+                print(f"GATE bs={bs} {_vname(vs[a])} minus {_vname(vs[b])} per seed "
+                      + " ".join(f"{x:+.1f}" for x in d) + f" (mean {sum(d) / n:+.1f})")
+        if xbd:
+            print(f"GATE bs={bs} SwiGLU output (xb) of 19 vs 18, rel L2 per seed "
+                  + " ".join(f"{x:.1e}" for x in xbd))
+        for m, d in outd.items():
+            print(f"GATE bs={bs} output of {_vname(vs[m])} vs 16, rel L2 per seed "
+                  + " ".join(f"{x:.1e}" for x in d))
+    flags = int(ctr[8].item())
+    ctr[8] = 0
+    print(f"GATE spin flags {flags}")
 
 
 # The compiled stage costs of modes 0 and 6 (kCostA / kCostB in the CUDA source).
@@ -3983,6 +4202,8 @@ def _cost_model(state):
 
 
 def _vname(v):
+    if v == VARIANT_STAGED:
+        return "staged-own"
     if v >= VARIANT_FIT0:
         return _vname(VARIANT_MAIN0 + v - VARIANT_FIT0) + "-nn"
     if v >= VARIANT_LEGACY0:
@@ -3993,7 +4214,8 @@ def _vname(v):
                 3: "main-nodequant", 6: "main-m2", 7: "main-m4", 8: "main-m8f", 9: "main-m2f",
                 10: "main-m4f", 11: "main-m2-stamps", 12: "main-m2-ar", 13: "main-d2-ar",
                 14: "main-m2-ar2", 15: "main-m2-ar-ub",
-                16: "main-m2-ar2-ub"}[m]
+                16: "main-m2-ar2-ub", 17: "main-ub-stamps", 18: "main-ub-aonly",
+                19: "main-own-aonly", 20: "main-own", 21: "main-bonly"}[m]
     nw, ns, mode = SKINNY_VARIANTS[v]
     return f"sk{nw}w{ns}s{'-loads' if mode else ''}"
 
@@ -4036,6 +4258,10 @@ def prepare(weights):
                 state["main_bad"].add(v)
                 main_ok = main_ok and m != 0
     state["main_ok"] = main_ok
+    state["staged_ok"] = False
+    if main_ok and 19 in MAIN_MODES and 21 in MAIN_MODES:
+        state["staged_ok"] = _self_test(state, weights, (32, 33, 128, 257),
+                                        _vname(VARIANT_STAGED), VARIANT_STAGED)
     if state["legacy_ok"]:
         for i in range(len(LEGACY_POLICIES)):
             state["legacy_ok"] = _self_test(state, weights, (32, 33, 128, 257),
@@ -4048,6 +4274,18 @@ def prepare(weights):
     # fitted and validated on them, and its table offered to the bench on FIT_MODES after its
     # own self-test, only when it ranks held-out routings better than the compiled table.
     state["fit_ok"] = []
+    if main_ok and 17 in MAIN_MODES:
+        for bs in (128, 256):
+            for seed in (11, 12):
+                try:
+                    _diag_report(state, bs, seed, 17)
+                except Exception as exc:
+                    print(f"DIAG17 bs={bs} failed: {type(exc).__name__}: {exc}")
+    if main_ok:
+        try:
+            _gate_report(state)
+        except Exception as exc:
+            print(f"GATE failed: {type(exc).__name__}: {exc}")
     if main_ok and 11 in MAIN_MODES:
         for bs in DIAG_SIZES:
             try:
