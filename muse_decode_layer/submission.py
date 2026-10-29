@@ -12115,7 +12115,8 @@ def _rel(a, b):
 
 
 # reference.py's residual-stream distribution (STREAM_SEED, STREAM_MEAN, STREAM_SHARED,
-# STREAM_RANK, DRAFT_SHARE), which decides how the judge's router concentrates routes.
+# STREAM_RANK, DRAFT_SHARE), which decides how the judge's router concentrates routes on a
+# few experts.
 _REF_STREAM_SEED = 5354
 _REF_STREAM_MEAN = 0.7
 _REF_STREAM_SHARED, _REF_STREAM_RANK = 0.9, 4
