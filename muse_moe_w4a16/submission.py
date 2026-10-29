@@ -329,6 +329,54 @@ __device__ __forceinline__ void position_pass(const signed char* eid_s, short* p
     __syncthreads();
 }
 
+// position_pass in two halves for fast_setup: the per-warp counts, and the positions once
+// wc holds each warp's first pair row per expert. Same warp partition as position_pass.
+template <int NWARPS>
+__device__ __forceinline__ void position_count(const signed char* eid_s,
+                                               int (*wc)[kLocalMax], int E) {
+    const int lane = threadIdx.x & 31;
+    const int warp = threadIdx.x >> 5;
+    const int ch = ((E + NWARPS * 32 - 1) / (NWARPS * 32)) * 32;
+    const int i0 = warp * ch;
+    const int i1 = min(E, i0 + ch);
+    wc[warp][lane] = 0;
+    __syncwarp();
+    for (int base = i0; base < i1; base += 32) {
+        const int i = base + lane;
+        const int eid = i < i1 ? eid_s[i] : -1;
+        const unsigned peers = __match_any_sync(0xffffffffu, eid);
+        if (eid >= 0 && lane == __ffs(peers) - 1) {
+            wc[warp][eid] += __popc(peers);
+        }
+        __syncwarp();
+    }
+}
+
+template <int NWARPS>
+__device__ __forceinline__ void position_fill(const signed char* eid_s, short* pos,
+                                              int (*wc)[kLocalMax], int E) {
+    const int lane = threadIdx.x & 31;
+    const int warp = threadIdx.x >> 5;
+    const int ch = ((E + NWARPS * 32 - 1) / (NWARPS * 32)) * 32;
+    const int i0 = warp * ch;
+    const int i1 = min(E, i0 + ch);
+    for (int base = i0; base < i1; base += 32) {
+        const int i = base + lane;
+        const int eid = i < i1 ? eid_s[i] : -1;
+        const unsigned peers = __match_any_sync(0xffffffffu, eid);
+        if (eid >= 0) {
+            pos[i] = static_cast<short>(wc[warp][eid] + __popc(peers & ((1u << lane) - 1u)));
+        } else if (i < i1) {
+            pos[i] = -1;
+        }
+        __syncwarp();
+        if (eid >= 0 && lane == __ffs(peers) - 1) {
+            wc[warp][eid] += __popc(peers);
+        }
+        __syncwarp();
+    }
+}
+
 // out[t] = sum over local slots of topk_w * rsqrt(ss / H + eps) * y, y already times
 // (1 + post_norm_w). Items are (token, 4 * THREADS-column segment), 4 columns per thread.
 template <int THREADS>
@@ -410,7 +458,7 @@ __constant__ int kCostBm[9] = {0, 85, 92, 104, 115, 130, 145, 160, 175};
 // mma.sync skinny kernel).
 __host__ __device__ constexpr int mma_max(int mode) {
     return mode == 6 || mode == 9 || mode == 11 || mode == 12 || mode == 14 || mode == 15
-                   || (mode >= 16 && mode <= 25)
+                   || (mode >= 16 && mode <= 27)
                ? 2
            : mode == 7 || mode == 10 ? 4
            : mode == 8 ? 8 : 0;
@@ -424,7 +472,7 @@ __host__ __device__ constexpr int mma_max(int mode) {
 // Memory Consistency Model, "Release and Acquire Patterns"); fence.sc adds only the SC order,
 // which no reader here relies on. The SASS is MEMBAR.ALL.GPU instead of MEMBAR.SC.GPU.
 __host__ __device__ constexpr bool fence_ar(int mode) {
-    return mode == 12 || mode == 13 || mode == 14 || (mode >= 15 && mode <= 25);
+    return mode == 12 || mode == 13 || mode == 14 || (mode >= 15 && mode <= 27);
 }
 
 // Modes 17 to 20 are mode 16 (two mma.sync chains, unit-aligned phase B) with one change each:
@@ -435,7 +483,7 @@ __host__ __device__ constexpr bool fence_ar(int mode) {
 // 22 is 20 with the stamps of 17. 23 is 20 with phase B units claimed at run time (dyn_b) and
 // both phases walked largest n-tile count first; 24 is 23 with the stamps.
 __host__ __device__ constexpr bool dual_chain(int mode) {
-    return mode == 14 || (mode >= 16 && mode <= 25);
+    return mode == 14 || (mode >= 16 && mode <= 27);
 }
 __host__ __device__ constexpr bool is_diag(int mode) {
     return mode == 11 || mode == 17 || mode == 22 || mode == 24;
@@ -444,13 +492,22 @@ __host__ __device__ constexpr bool is_diag(int mode) {
 // 24's per-segment clock stamps add 14-18 us, too much to set its phase times beside the
 // public kernel's eight thread-0 stamps; these cost a few stores per CTA.
 __host__ __device__ constexpr bool is_light(int mode) {
-    return mode == 25;
+    return mode == 25 || mode == 27;
+}
+// Modes 26 and 27 (27 with the light stamps) are 23 with the setup of the public kernel's
+// route(): every warp counts its slice of the routes once (match_any), the routing warp sums
+// the per-warp counts instead of counting all E entries alone and the positions reuse them;
+// and the x gather issues all of a CTA's row loads (16 B each) before its stores. Mode 25
+// put setup at 7 / 11 / 16 us of routing at 32 / 128 / 256 tokens against 2-3 us for the
+// public kernel (check d1f587760b1241dc).
+__host__ __device__ constexpr bool fast_setup(int mode) {
+    return mode == 26 || mode == 27;
 }
 __host__ __device__ constexpr bool a_only(int mode) {
     return mode == 18 || mode == 19;
 }
 __host__ __device__ constexpr bool own_a(int mode) {
-    return mode == 19 || mode == 20 || (mode >= 22 && mode <= 25);
+    return mode == 19 || mode == 20 || (mode >= 22 && mode <= 27);
 }
 // Modes 23 and 24: a CTA's weights producer claims phase B units one at a time from a global
 // counter, in S.ord order, when its ring has a free slot. Owned phase A leaves CTAs with up to
@@ -458,7 +515,7 @@ __host__ __device__ constexpr bool own_a(int mode) {
 // frees first takes the next unit; S.ord puts the jobs whose phase A rounds come first (the
 // snake deal walks S.ord) at the front, so claimed units find their inputs ready.
 __host__ __device__ constexpr bool dyn_b(int mode) {
-    return mode == 23 || mode == 24 || mode == 25;
+    return mode >= 23 && mode <= 27;
 }
 // Mode 21 is the second launch of the staged pair (19, then 21): phase B and the final pass
 // alone, on the xb a previous launch wrote. That launch completed before this one started
@@ -1616,31 +1673,57 @@ __global__ void __launch_bounds__(kNTM, 1) moe_main_kernel(const Params p) {
         }
     }
     __syncthreads();
+    if (kLight && tid == 0) {
+        S.dg[17][0] = gtimer();
+    }
+    if constexpr (fast_setup(MODE)) {
+        position_count<kNWarpsM>(S.eid, S.wc, E);
+        __syncthreads();
+    }
 
     if (warp == kNWarpsM - 1) {
         if (lane < 9) {
             const bool given = p.cost[0][1] > 0;
             S.cost[0][lane] = given ? p.cost[0][lane] : stage_cost<MODE>(0, lane);
-            S.align_b = MODE == 15 || (MODE >= 16 && MODE <= 25) ? 1 : 0;
+            S.align_b = MODE == 15 || (MODE >= 16 && MODE <= 27) ? 1 : 0;
             S.cost[1][lane] = given ? p.cost[1][lane] : stage_cost<MODE>(1, lane);
         }
-        S.cnt[lane] = 0;
-        __syncwarp();
-        for (int base = 0; base < E; base += 128) {
-            const int i = base + 4 * lane;
+        if constexpr (fast_setup(MODE)) {
+            int c = 0;
 #pragma unroll
-            for (int k = 0; k < 4; ++k) {
-                const int eid = i < E ? S.eid[i + k] : -1;
-                const unsigned peers = __match_any_sync(0xffffffffu, eid);
-                if (eid >= 0 && lane == __ffs(peers) - 1) {
-                    S.cnt[eid] += __popc(peers);
+            for (int w = 0; w < kNWarpsM; ++w) {
+                c += S.wc[w][lane];
+            }
+            S.cnt[lane] = c;
+        } else {
+            S.cnt[lane] = 0;
+            __syncwarp();
+            for (int base = 0; base < E; base += 128) {
+                const int i = base + 4 * lane;
+#pragma unroll
+                for (int k = 0; k < 4; ++k) {
+                    const int eid = i < E ? S.eid[i + k] : -1;
+                    const unsigned peers = __match_any_sync(0xffffffffu, eid);
+                    if (eid >= 0 && lane == __ffs(peers) - 1) {
+                        S.cnt[eid] += __popc(peers);
+                    }
+                    __syncwarp();
                 }
-                __syncwarp();
             }
         }
         const int tot = lane < p.nloc ? S.cnt[lane] : 0;
         const int off = warp_scan(tot, lane) - tot;
         S.off[lane] = off;
+        if constexpr (fast_setup(MODE)) {
+            // Each warp's first pair row per expert, as position_pass's warp 0 forms it.
+            int run = off;
+#pragma unroll
+            for (int w = 0; w < kNWarpsM; ++w) {
+                const int cw = S.wc[w][lane];
+                S.wc[w][lane] = run;
+                run += cw;
+            }
+        }
         const int nj = (tot + 63) >> 6;
         const int jincl = warp_scan(nj, lane);
         const int j0 = jincl - nj;
@@ -1737,7 +1820,17 @@ __global__ void __launch_bounds__(kNTM, 1) moe_main_kernel(const Params p) {
         }
     }
     __syncthreads();
-    position_pass<kNWarpsM>(S.eid, S.pos, nullptr, S.wc, S.off, E);
+    if (kLight && tid == 0) {
+        S.dg[17][1] = gtimer();
+    }
+    if constexpr (fast_setup(MODE)) {
+        position_fill<kNWarpsM>(S.eid, S.pos, S.wc, E);
+    } else {
+        position_pass<kNWarpsM>(S.eid, S.pos, nullptr, S.wc, S.off, E);
+    }
+    if (kLight && tid == 0) {
+        S.dg[17][2] = gtimer();
+    }
     if (tid == 0) {
 #pragma unroll
         for (int ph = 0; ph < 2; ++ph) {
@@ -1777,7 +1870,48 @@ __global__ void __launch_bounds__(kNTM, 1) moe_main_kernel(const Params p) {
     if constexpr (!b_only(MODE)) {
         // Phase A's x: every token row of every job into the per-stage wgmma layout, this CTA
         // taking entries cta, cta + G, ...; one release per row.
-        for (int i = cta; i < E; i += G) {
+        if constexpr (fast_setup(MODE)) {
+            // kGB entries' 16-byte loads go out before their stores: one row at a time, a row's
+            // loads wait behind the previous row's stores (they may alias), one HBM round trip
+            // per row. Thread gt < 512 moves 8 bf16 of a row, pairs 4 gt .. 4 gt + 3.
+            constexpr int kGB = 8;
+            for (int ib = cta; ib < E; ib += kGB * G) {
+                uint4 v[kGB];
+                unsigned char* dst[kGB];
+#pragma unroll
+                for (int k = 0; k < kGB; ++k) {
+                    const int i = ib + k * G;
+                    dst[k] = nullptr;
+                    const int q = i < E ? S.pos[i] : -1;
+                    if (q >= 0 && gt < 512) {
+                        const int e = S.eid[i];
+                        const int r = q - S.off[e];
+                        const int jj = S.job0[e] + (r >> 6);
+                        const int n = r & 63;
+                        dst[k] = p.xa + static_cast<size_t>(S.job_xo[jj]) * 65536
+                                 + ((4 * gt) >> 7) * S.job_ntt[jj] * 4096 + (n >> 3) * 4096
+                                 + (n & 7) * 16;
+                        v[k] = __ldg(reinterpret_cast<const uint4*>(
+                                         p.x + static_cast<size_t>(i >> 3) * kH) + gt);
+                    }
+                }
+#pragma unroll
+                for (int k = 0; k < kGB; ++k) {
+                    if (dst[k] != nullptr) {
+                        const unsigned w4[4] = {v[k].x, v[k].y, v[k].z, v[k].w};
+#pragma unroll
+                        for (int h = 0; h < 4; ++h) {
+                            const int kk = ((4 * gt + h) & 127) * 2;
+                            const int step = 4 * (kk >> 6) + ((kk >> 2) & 3);
+                            const int chunk8 = 2 * step + ((kk & 3) >> 1);
+                            const int elem = 2 * ((kk >> 4) & 3);
+                            *reinterpret_cast<unsigned*>(dst[k] + chunk8 * 128 + elem * 2) = w4[h];
+                        }
+                    }
+                }
+            }
+        }
+        for (int i = cta; i < (fast_setup(MODE) ? 0 : E); i += G) {
             const int q = S.pos[i];
             if (q < 0) {
                 continue;
@@ -1897,8 +2031,8 @@ __global__ void __launch_bounds__(kNTM, 1) moe_main_kernel(const Params p) {
             S.dg[16][6] = gtimer();
         }
         __syncthreads();
-        if (tid < 8) {
-            reinterpret_cast<long long*>(p.inter)[cta * 8 + tid] = S.dg[16][tid];
+        if (tid < 16) {
+            reinterpret_cast<long long*>(p.inter)[cta * 16 + tid] = S.dg[16 + tid / 8][tid % 8];
         }
     }
 }
@@ -2501,7 +2635,7 @@ SKINNY_VARIANTS = ((8, 4, 0), (16, 4, 0), (8, 4, 1))
 # and walks both phases largest n-tile count first, 24 is 23 with stamps. 22 and 24 ran in check
 # a9dbec1d98334943 (_diag_report prints them when listed here); the shipped build leaves them out.
 MAIN_MODES = (0, 1, 16, 20, 23)
-MAIN_CANDIDATES = (0, 6, 12, 13, 14, 15, 16, 20, 23)
+MAIN_CANDIDATES = (0, 6, 12, 13, 14, 15, 16, 20, 23, 26)
 VARIANT_MAIN0 = len(SKINNY_VARIANTS)
 
 
@@ -4473,7 +4607,7 @@ def _vname(v):
                 16: "main-m2-ar2-ub", 17: "main-ub-stamps", 18: "main-ub-aonly",
                 19: "main-own-aonly", 20: "main-own", 21: "main-bonly",
                 22: "main-own-stamps", 23: "main-own-dynb", 24: "main-dynb-stamps",
-                25: "main-dynb-light"}[m]
+                25: "main-dynb-light", 26: "main-dynb-fs", 27: "main-dynb-fs-light"}[m]
     nw, ns, mode = SKINNY_VARIANTS[v]
     return f"sk{nw}w{ns}s{'-loads' if mode else ''}"
 

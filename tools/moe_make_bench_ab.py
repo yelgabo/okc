@@ -4,7 +4,7 @@
 
 OUT.py is muse_moe_w4a16/submission.py with MAIN_MODES = (0, 23, 25) plus the extra modes
 named as ARM=MODE (timed beside mode 23), the gate and the stamped diagnostics off, and a
-block that runs at import, before the judge's prepare(), on weights from reference.py:
+block that runs at import, before the judge's prepare(), on random NVFP4 weights (32 experts):
 
   ABROUTE  busiest local expert per seed for each routing: "std" is reference.py's
            generate_input (the standalone board), "layer" a port of the layer's judge routing
@@ -60,34 +60,26 @@ def _ab_main():
     import types
     t_start = time.time()
     dev = torch.device("cuda")
-    try:
-        import reference as _refmod
-        weights = _refmod.generate_weights(_refmod.WEIGHTS_SEED)
-        print("ABMOE weights from reference.generate_weights", flush=True)
-    except Exception as exc:
-        # Timing does not depend on the values; scales stay positive normal E4M3.
-        print(f"ABMOE reference.py unavailable ({{type(exc).__name__}}), random NVFP4 weights",
-              flush=True)
-        g = torch.Generator(device=dev).manual_seed(5252)
+    # The judge rejects files that import reference.py. Timing does not depend on the values;
+    # the scales stay positive normal E4M3, as scales_ok and the public PRMT decode require.
+    g = torch.Generator(device=dev).manual_seed(5252)
 
-        def sf(n, k):
-            e = torch.randint(-3, 4, (32, n, k // 16), generator=g, device=dev).float()
-            return torch.exp2(e).to(torch.float8_e4m3fn)
+    def sf(n, k):
+        e = torch.randint(-3, 4, (32, n, k // 16), generator=g, device=dev).float()
+        return torch.exp2(e).to(torch.float8_e4m3fn)
 
-        weights = {{
-            "w13": torch.randint(0, 256, (32, 8192, 2048), generator=g, device=dev,
-                                 dtype=torch.uint8),
-            "w13_sf": sf(8192, 4096),
-            "w13_gs": torch.full((N_EXPERTS,), 1e-3, device=dev),
-            "w2": torch.randint(0, 256, (32, 4096, 2048), generator=g, device=dev,
-                                dtype=torch.uint8),
-            "w2_sf": sf(4096, 4096),
-            "w2_gs": torch.full((N_EXPERTS,), 1e-3, device=dev),
-            "post_norm_w": (0.1 * torch.randn((HIDDEN,), generator=g, device=dev)).to(
-                torch.bfloat16),
-        }}
-    weights = {{k: (v[:32].contiguous() if k in ("w13", "w13_sf", "w2", "w2_sf") else v)
-               for k, v in weights.items()}}
+    weights = {{
+        "w13": torch.randint(0, 256, (32, 8192, 2048), generator=g, device=dev,
+                             dtype=torch.uint8),
+        "w13_sf": sf(8192, 4096),
+        "w13_gs": torch.full((N_EXPERTS,), 1e-3, device=dev),
+        "w2": torch.randint(0, 256, (32, 4096, 2048), generator=g, device=dev,
+                            dtype=torch.uint8),
+        "w2_sf": sf(4096, 4096),
+        "w2_gs": torch.full((N_EXPERTS,), 1e-3, device=dev),
+        "post_norm_w": (0.1 * torch.randn((HIDDEN,), generator=g, device=dev)).to(
+            torch.bfloat16),
+    }}
     torch.cuda.empty_cache()
     state = {{"w": _repack(weights, 0, MAX_LOCAL),
              "nw": (weights["post_norm_w"].float() + 1.0).contiguous(),
@@ -195,26 +187,36 @@ def _ab_main():
         d = dbg.view(G, 8).double().cpu()
         return d[:, [0, 1, 6, 2, 3, 4, 5]]
 
-    def ours_stamped(data):
-        _run(data, state, v25)
+    def ours_stamped(data, v):
+        _run(data, state, v)
         flush.zero_()
         torch.cuda.synchronize()
-        _run(data, state, v25)
+        _run(data, state, v)
         torch.cuda.synchronize()
         inter = state["scratch"]["inter"]
-        return inter.reshape(-1).view(torch.int64)[: G * 8].view(G, 8)[:, :7].double().cpu()
+        d = inter.reshape(-1).view(torch.int64)[: G * 16].view(G, 16).double().cpu()
+        return torch.cat([d[:, :7], d[:, 8:11]], 1)
 
     def summarize(d):
         t0 = float(d[:, 0].min())
         r = (d - t0) / 1e3
         c4 = r[:, 4]
-        return [float((r[:, 1] - r[:, 0]).mean()), float(r[:, 2].mean()), float(r[:, 2].max()),
-                float(r[:, 3].mean()), float(r[:, 3].max()), float(c4.mean()), float(c4.max()),
-                float(c4.max() - c4.mean()), float(r[:, 5].max()),
-                float((r[:, 6] - r[:, 5]).mean()), float(r[:, 6].max())]
+        row = [float((r[:, 1] - r[:, 0]).mean()), float(r[:, 2].mean()), float(r[:, 2].max()),
+               float(r[:, 3].mean()), float(r[:, 3].max()), float(c4.mean()), float(c4.max()),
+               float(c4.max() - c4.mean()), float(r[:, 5].max()),
+               float((r[:, 6] - r[:, 5]).mean()), float(r[:, 6].max())]
+        if d.shape[1] > 7:
+            # ids loaded, routing warp (counts, jobs, order), positions, stage ranges
+            row += [float((r[:, 7] - r[:, 0]).mean()), float((r[:, 8] - r[:, 7]).mean()),
+                    float((r[:, 9] - r[:, 8]).mean()), float((r[:, 1] - r[:, 9]).mean())]
+        return row
 
     cols = ("route", "consumers start mean", "max", "phase A done (t0) mean", "max",
-            "consumers done mean", "max", "tail", "barrier done", "final", "end")
+            "consumers done mean", "max", "tail", "barrier done", "final", "end",
+            "ids", "route warp", "positions", "ranges")
+    stamped = {{"o25": v25}}
+    if 27 in MAIN_MODES:
+        stamped["o27"] = VARIANT_MAIN0 + MAIN_MODES.index(27)
     for t, q in sizes:
         for routing in ("std", "layer"):
             tag = f"T={{t}} {{routing}}"
@@ -226,6 +228,10 @@ def _ab_main():
             op = pub.kernel_fn(data, pstate).float()
             print(f"ABCHECK {{tag}} vs fp32: ours23 {{_rel(o23, ref):.2e}} pub {{_rel(op, ref):.2e}}; "
                   f"ours23 vs pub {{_rel(o23, op):.2e}}", flush=True)
+            for name, m in _AB_ARMS.items():
+                om = _run(data, state, VARIANT_MAIN0 + MAIN_MODES.index(m)).float()
+                print(f"ABCHECK {{tag}} {{name}} vs fp32 {{_rel(om, ref):.2e}}, vs ours23 "
+                      f"{{_rel(om, o23):.2e}}", flush=True)
             arms = {{"o23": lambda d: _run(d, state, v23), "pub": lambda d: pub.kernel_fn(d, pstate)}}
             for name, m in _AB_ARMS.items():
                 vv = VARIANT_MAIN0 + MAIN_MODES.index(m)
@@ -233,7 +239,7 @@ def _ab_main():
             if t <= 32:
                 arms["sk8w4s"] = lambda d: _run(d, state, 0)
             tim = {{a: [] for a in arms}}
-            stamps = {{"o25": [], "pub": []}}
+            stamps = {{a: [] for a in [*stamped, "pub"]}}
             for si, s in enumerate(seeds):
                 d = inputs(t, routing, s)
                 order = list(arms.items())
@@ -241,7 +247,8 @@ def _ab_main():
                     order.reverse()
                 for a, fn in order:
                     tim[a].append(_graph_time(lambda: fn(d), flush))
-                stamps["o25"].append(summarize(ours_stamped(d)))
+                for a, v in stamped.items():
+                    stamps[a].append(summarize(ours_stamped(d, v)))
                 stamps["pub"].append(summarize(pub_stamped(d)))
                 print(f"ABTIME {{tag}} seed {{s}} " + " ".join(f"{{a}} {{tim[a][-1]:.1f}}" for a in arms),
                       flush=True)
@@ -253,9 +260,10 @@ def _ab_main():
                     print(f"ABTIME {{tag}} {{a}} minus o23 per seed " + " ".join(f"{{x:+.1f}}" for x in dd)
                           + f" (mean {{sum(dd) / n:+.1f}})")
             for a, rows in stamps.items():
-                m = [sum(r[i] for r in rows) / n for i in range(len(cols))]
+                m = [sum(r[i] for r in rows) / n for i in range(len(rows[0]))]
                 print(f"ABSTAMP {{tag}} {{a}} " + ", ".join(f"{{c}} {{v:.1f}}" for c, v in zip(cols, m)))
     flags = int(state["scratch"]["ctr"][8].item())
+    state["scratch"]["ctr"][8] = 0
     print(f"ABMOE spin flags {{flags}}; total {{time.time() - t_start:.0f}} s", flush=True)
     del state, pstate, weights
     torch.cuda.empty_cache()
@@ -275,7 +283,7 @@ def main():
     arms = dict(a.split("=") for a in sys.argv[3:])
     arms = {k: int(v) for k, v in arms.items()}
     src = (ROOT / "muse_moe_w4a16" / "submission.py").read_text()
-    modes = sorted({0, 23, 25, *arms.values()})
+    modes = sorted({0, 23, 25, *arms.values(), *(27 for m in arms.values() if m == 26)})
     src, n = re.subn(r"^MAIN_MODES = \(.*?\)$", f"MAIN_MODES = {tuple(modes)}", src, flags=re.M)
     assert n == 1
     src, n = re.subn(r"^GATE_RUNS = \(.*?\)$", "GATE_RUNS = ()", src, flags=re.M)
