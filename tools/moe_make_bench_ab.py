@@ -50,8 +50,8 @@ LIGHT_TWINS = {26: 27}
 PA_TWINS = {28: 31, 32: 33, 36: 38, 39: 40}
 
 
-def patch_public(src):
-    for name in ("TINY_DEFINES", "TINY2_DEFINES", "MID_DEFINES"):
+def patch_public(src, small=False):
+    for name in () if small else ("TINY_DEFINES", "TINY2_DEFINES", "MID_DEFINES"):
         src, n = re.subn(rf"^{name} = \(.*?\)\n(?=\S)", f"{name} = ()\n", src, count=1,
                          flags=re.S | re.M)
         assert n == 1, name
@@ -85,6 +85,7 @@ _AB_SIZES = @SIZES@
 _AB_ROUTINGS = @ROUTINGS@
 _AB_LIGHT = @LIGHT@
 _AB_PA = @PA@
+_AB_SMALL = @SMALL@
 
 
 def _ab_main():
@@ -123,10 +124,28 @@ def _ab_main():
     pstate = pub.prepare(weights)
     dbg_defs = tuple(pub._main_defines(pstate["sfx"])) + pstate["sfx"] + ("-DOKC_DEBUG=1",)
     pdbg = pub._ext(dbg_defs)
+
+    def pub_defs(m):
+        # kernel_fn's build choice by token count, with the debug stamps.
+        sfx = pstate["sfx"]
+        if pub.TINY_DEFINES and m <= pub.TINY_MAX_M:
+            d = tuple(pub.TINY_DEFINES)
+        elif pub.TINY2_DEFINES and m <= pub.TINY2_MAX_M:
+            d = tuple(pub.TINY2_DEFINES)
+        elif pub.MID_DEFINES and m <= pub.MID_MAX_M:
+            d = tuple(pub.MID_DEFINES)
+        else:
+            return dbg_defs
+        return d + sfx + ("-DOKC_DEBUG=1",)
+
+    pdbgs = {t: pub._ext(pub_defs(t)) for t in _AB_SIZES} if _AB_SMALL else {}
     print(f"ABBUILD pub {time.time() - t_start:.0f} s", flush=True)
     G = torch.cuda.get_device_properties(0).multi_processor_count
     flush = torch.empty(256 << 20, dtype=torch.uint8, device=dev)
-    vmode = lambda m: VARIANT_MAIN0 + MAIN_MODES.index(m)
+    def vmode(m):
+        # An int is a fat mode, "vN" a variant index (the skinny variants).
+        return int(m[1:]) if isinstance(m, str) else VARIANT_MAIN0 + MAIN_MODES.index(m)
+
     base = f"o{_AB_BASE}"
 
     # The layer's judge routing (muse_decode_layer/reference.py), its constants restated.
@@ -182,7 +201,8 @@ def _ab_main():
     # The router seed is picked on all three sizes and seeds 1-6, as in the earlier checks, so
     # the layer routing stays the same whatever --sizes and --seeds say.
     sizes_all = ((32, 1), (128, 8), (256, 8))
-    qlen = dict(sizes_all)
+    # The layer's loads: decode 1 and 16 (q_len 1), verify 1 (8 tokens, q_len 8).
+    qlen = {**dict(sizes_all), 1: 1, 8: 8, 16: 1}
     target = {32: 21.0, 128: 53.0, 256: 107.0}
     pick_seeds = (1, 2, 3, 4, 5, 6)
     hs = {}
@@ -220,11 +240,12 @@ def _ab_main():
         dbg = torch.zeros(G * 8, dtype=torch.int64, device=dev)
         x = data["hidden_states"]
         out = torch.empty((x.shape[0], HIDDEN), dtype=torch.bfloat16, device=dev)
+        ext = pdbgs.get(x.shape[0], pdbg)
         for k in range(2):
             if k:
                 flush.zero_()
                 torch.cuda.synchronize()
-            pdbg.okc_run(pstate["w"], pstate["scratch"] + [dbg], x, data["topk_ids"],
+            ext.okc_run(pstate["w"], pstate["scratch"] + [dbg], x, data["topk_ids"],
                          data["topk_weights"], out, 0, 32, G)
         torch.cuda.synchronize()
         raw = dbg.view(G, 8).cpu()
@@ -303,6 +324,32 @@ def _ab_main():
     pub_cols = ("phase A mean", "p10", "p50", "p90", "max", "stages min", "mean", "max",
                 "cut units per CTA", "rho(time, stages)")
 
+    def sk_summary(d):
+        # Our skinny stamps (kMode 2): see the kernel; cycles to us by the CTA's own clock.
+        r = (d[:, :8] - float(d[:, 0].min())) / 1e3
+        ghz = (d[:, 13] - d[:, 12]) / (d[:, 7] - d[:, 0])
+        us = lambda c: float((c / ghz / 1e3).mean())
+        seg = [r[:, 1] - r[:, 0], r[:, 2] - r[:, 1], r[:, 3] - r[:, 2], r[:, 4] - r[:, 3],
+               r[:, 5] - r[:, 4], r[:, 6] - r[:, 5], r[:, 7] - r[:, 6]]
+        return ([float(x.mean()) for x in seg] + [float(r[:, 3].max()), float(r[:, 5].max()),
+                float(r[:, 7].max())] + [us(d[:, 8]), us(d[:, 9]), us(d[:, 10]), us(d[:, 11])])
+
+    sk_cols = ("route", "positions", "phase A", "A->B wait", "phase B", "barrier", "final",
+               "A done max", "B done max", "end", "t0 weights wait A", "B", "helper idle",
+               "credits")
+
+    def pubsk_summary(d):
+        # Public small builds: DBG 0 start, 1 routed, 2 phase A done, 3 before the barrier,
+        # 4 after it, 5 end (columns 0, 1, 3, 4, 5, 6 of pub_stamped's order).
+        r = (d - float(d[:, 0].min())) / 1e3
+        seg = [r[:, 1] - r[:, 0], r[:, 3] - r[:, 1], r[:, 4] - r[:, 3], r[:, 5] - r[:, 4],
+               r[:, 6] - r[:, 5]]
+        return [float(x.mean()) for x in seg] + [float(r[:, 3].max()), float(r[:, 4].max()),
+                                                 float(r[:, 6].max())]
+
+    pubsk_cols = ("route", "phase A", "phase B", "barrier", "final", "A done max",
+                  "B done max", "end")
+
     timed = {base: vmode(_AB_BASE)}
     for name, m in _AB_ARMS.items():
         timed[name] = vmode(m)
@@ -325,12 +372,13 @@ def _ab_main():
             print(line, flush=True)
             arms = {n: (lambda vv: lambda d: _run(d, state, vv))(v) for n, v in timed.items()}
             arms["pub"] = lambda d: pub.kernel_fn(d, pstate)
-            if t <= 32:
+            if t <= 32 and not _AB_SMALL:
                 arms["sk8w4s"] = lambda d: _run(d, state, 0)
             tim = {a: [] for a in arms}
             stamps = {a: [] for a in [*light, *padiag, "pub"]}
             diags = {a: [] for a in padiag}
             pubd = []
+            skd = {"ours": [], "pub": []}
             for si, s in enumerate(_AB_SEEDS):
                 d = inputs(t, routing, s)
                 order = list(arms.items())
@@ -345,6 +393,16 @@ def _ab_main():
                     stamps[a].append(summarize(lt))
                     diags[a].append(pa_summary(lt, full))
                 pd, prng = pub_stamped(d)
+                if _AB_SMALL:
+                    _run(d, state, len(SKINNY_VARIANTS) - 1)
+                    flush.zero_()
+                    torch.cuda.synchronize()
+                    _run(d, state, len(SKINNY_VARIANTS) - 1)
+                    torch.cuda.synchronize()
+                    sd = state["scratch"]["inter"].reshape(-1).view(torch.int64)[: G * 16]
+                    skd["ours"].append(sk_summary(sd.view(G, 16).double().cpu()))
+                    skd["pub"].append(pubsk_summary(pd))
+                    continue
                 stamps["pub"].append(summarize(pd))
                 pubd.append(pub_summary(pd, prng))
             n = len(_AB_SEEDS)
@@ -356,6 +414,12 @@ def _ab_main():
                     dd = [x - y for x, y in zip(tim[a], tim[bb])]
                     print(f"ABPAIR {tag} {a} minus {bb} " + " ".join(f"{x:+.1f}" for x in dd)
                           + f" (mean {sum(dd) / n:+.1f}, {sum(x < 0 for x in dd)} of {n} lower)")
+            if _AB_SMALL:
+                for a, rows, cc in (("ours sk8w4s", skd["ours"], sk_cols),
+                                    ("pub", skd["pub"], pubsk_cols)):
+                    m = [sum(r[i] for r in rows) / n for i in range(len(rows[0]))]
+                    print(f"ABSK {tag} {a} " + ", ".join(f"{c} {v:.1f}" for c, v in zip(cc, m)))
+                continue
             for a, rows in stamps.items():
                 m = [sum(r[i] for r in rows) / n for i in range(len(rows[0]))]
                 print(f"ABSTAMP {tag} {a} " + ", ".join(f"{c} {v:.1f}" for c, v in zip(cols, m)))
@@ -399,7 +463,7 @@ def main():
     out, pub = sys.argv[1], sys.argv[2]
     rest = sys.argv[3:]
     opts = {"base": "28", "seeds": "1,2,3,4,5,6", "sizes": "32,128,256", "routings": "layer,std",
-            "pairs": ""}
+            "pairs": "", "small": ""}
     arms = {}
     for a in rest:
         if a.startswith("--"):
@@ -408,27 +472,34 @@ def main():
             opts[k] = v
         else:
             k, v = a.split("=")
-            arms[k] = int(v)
-    base = int(opts["base"])
+            arms[k] = v if v.startswith("v") else int(v)
+    small = bool(opts["small"])
+    base = opts["base"] if opts["base"].startswith("v") else int(opts["base"])
     ints = lambda s: tuple(int(x) for x in s.split(","))
     pairs = tuple(tuple(x.split("-")) for x in opts["pairs"].split(",") if x)
-    named = {base, *arms.values()}
+    named = {m for m in (base, *arms.values()) if isinstance(m, int)}
     light = {f"o{LIGHT_TWINS[m]}": LIGHT_TWINS[m] for m in named if m in LIGHT_TWINS}
     pa = {f"o{PA_TWINS[m]}": PA_TWINS[m] for m in named if m in PA_TWINS}
     # A counter twin that is also an arm is timed and stamped; it is not built twice.
     modes = sorted({0, *named, *light.values(), *pa.values()})
     src = (ROOT / "muse_moe_w4a16" / "submission.py").read_text()
+    if small:
+        # The stamped skinny variant (kMode 2) goes last; ABSK runs it.
+        src, n = re.subn(r"^SKINNY_VARIANTS = \(\((.*)\)\)$",
+                         lambda mm: f"SKINNY_VARIANTS = (({mm.group(1)}), (8, 4, 2))", src,
+                         flags=re.M)
+        assert n == 1
     src, n = re.subn(r"^MAIN_MODES = \(.*?\)$", f"MAIN_MODES = {tuple(modes)}", src, flags=re.M)
     assert n == 1
     src, n = re.subn(r"^GATE_RUNS = \(.*?\)$", "GATE_RUNS = ()", src, flags=re.M)
     assert n == 1
-    pub_src = patch_public(Path(pub).read_text())
+    pub_src = patch_public(Path(pub).read_text(), small)
     block = AB
     for key, val in (("@PUB_SRC@", repr(pub_src)), ("@BASE@", repr(base)),
                      ("@ARMS@", repr(arms)), ("@PAIRS@", repr(pairs)),
                      ("@SEEDS@", repr(ints(opts["seeds"]))), ("@SIZES@", repr(ints(opts["sizes"]))),
                      ("@ROUTINGS@", repr(tuple(opts["routings"].split(",")))),
-                     ("@LIGHT@", repr(light)), ("@PA@", repr(pa))):
+                     ("@LIGHT@", repr(light)), ("@PA@", repr(pa)), ("@SMALL@", repr(small))):
         assert block.count(key) == 1, key
         block = block.replace(key, val)
     Path(out).write_text(src + block)

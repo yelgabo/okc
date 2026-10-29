@@ -65,6 +65,10 @@ SGLang with its 95% interval. Profiles and logs are in `muse_moe_w4a16/profiles/
 | 2026-10-29 | f928f8a802014e4f (check) | ec62b5a | the shippable build: MAIN_MODES (0, 16, 26, 28); GATE adds 28 minus 26 (held-out seeds 17-22, skewed 11-13) | 2.149x (2.117-2.181) | per shape: bs1 28.05 us, bs16 95.96, bs32 135.02, bs8 68.47, bs128 200.89 (2.295x, main-lean), bs256 247.11 (2.524x, main-lean). GATE 28 minus 26 per seed: bs128 -11.5 -10.8 -10.2 -11.1 -10.6 -9.4 (mean -10.6); bs256 -12.0 -11.4 -12.9 -8.6 -11.2 -13.7 (mean -11.6); skewed bs128 -6.6 -6.7 -6.7, bs256 -7.5 -7.7 -9.9. Output of 28 vs 16 equal to 26's to two digits (1.1e-4 to 3.7e-4); self-tests 3.89e-3 vs FP32; spin flags 0. BENCH bs128 main-lean 213.6, main-dynb-fs 225.8; bs256 237.8 vs 248.5. Build 138 s |
 | 2026-10-29 | 13fe68e7ca2e423f (check, repeat) | ec62b5a | f928f8a802014e4f's file plus one trailing comment line, so the judge does not return it as a duplicate (an identical resubmission, 3adce08f3e9844d5, came back as duplicate_of f928f8a802014e4f without running) | 2.158x (2.125-2.190) | bs128 200.34 us, bs256 244.59; GATE 28 minus 26: bs128 mean -11.6, bs256 -12.5 (6 of 6 lower each), skewed -6.4 / -8.4 (3 of 3). POLICY 128 and 256: main-lean. Against mode 26's shippable check 817eab6401d54a84 (2.104x): bs128 215.68 -> 200.89 / 200.34, bs256 261.71 -> 247.11 / 244.59. Submit candidate: ec62b5a (not submitted) |
 | 2026-10-29 | 08070cce049b403d (submit, under the standing replace-when-demonstrably-better authorization) | c406b03 | mode 28 file as checked in f928f8a802014e4f (ec62b5a) | 2.137x | passed. Board entry before: a8076924ced1419e (2.101x) |
+| 2026-10-29 | c7db20e053254b52 (check, bench file from tools/moe_make_bench_ab.py, not committed) | 1d962e6 | phase A attribution against the public kernel, layer routing seeds 1-6 at 32 / 128 / 256 tokens: mode 31 (28 with phase A counters per consumer warp and the producers' waits), 32 (phase A publish deferred to the next unit's second stage), 33 (32 with the counters), 34 (32 without the per-thread fence_gpu), 35 (32 with ss and own_n reloaded from shared memory, fewer spills); the public kernel's stream-K stage ranges patched into its DBG slot 7 | 2.147x (2.115-2.179) | minus 28, us: 32 +1.6 / +2.7 / +1.2 (0, 2, 0 of 6 lower), 34 +0.8 / +1.4 / -1.2 (2, 2, 5 of 6), 35 +0.8 / +3.0 / +4.7 (0, 1, 0 of 6); counters in section "Phase A against the public kernel". Outputs vs 28 2e-6 to 3e-5. The public kernel's stamped (DEBUG) build ran 30 us over its own graph replay in this check and the next two (233 vs 203 us at 256), so its stamped times from these checks are not used; its stage ranges are structural |
+| 2026-10-29 | 0b684d5db0834dbc (check, bench file) | ef6b705 | mode 36 (28 with SiLU's reciprocal as one MUFU.RCP), 37 (36 without the per-thread fence_gpu in the phase A publish), 38 (36 with the counters); layer seeds 1-6 | 2.163x (2.130-2.195) | minus 28, us: 36 -1.8 / -0.9 / -1.2 (6, 5, 6 of 6 lower), 37 -1.9 / -2.1 / -3.8 (6, 6, 6 of 6); 37 minus 36 -0.1 / -1.2 / -2.6. Counters: 36's epilogue 2.85 us per unit at 256 against 28's 2.98. Outputs vs 28 7e-5 to 1.5e-4 (the approximate reciprocal moves bf16 roundings); self-tests 3.89e-3 vs FP32 |
+| 2026-10-29 | 473d87d03de94e96 (check, bench file) | d6cccf0 | repeat of 37 against 28, and 39 (37 with paired SwiGLU stores) with its counter twin 40; layer seeds 1-6 | 2.154x (2.122-2.186) | minus 28, us: 37 -1.7 / -3.4 / -4.2 (5, 6, 6 of 6 lower), 39 -1.0 / -2.5 / -4.0; 39 minus 37 +0.8 / +1.0 / +0.2. Counters at 256: 40's epilogue 1.70 us per unit against 3.08 for 28, but its stage loops took 3.1 us more and phase A only 2.0 us less: the stores' cost moves into the following stages |
+| 2026-10-29 | 987d024620e44eb7 (check) | 96f2c43 | the shippable build: MAIN_MODES (0, 16, 26, 28, 37); GATE adds 37 minus 28 (held-out seeds 17-22, skewed 11-13) | 2.144x (2.112-2.176) | per shape: bs1 28.71 us, bs16 98.86, bs32 133.91, bs8 68.86, bs128 197.09 (2.309x, main-lean-silu-bar), bs256 241.49 (2.561x, main-lean-silu-bar). GATE 37 minus 28 per seed: bs128 -1.5 -2.1 -4.1 -4.5 -2.8 -4.1 (mean -3.2); bs256 -3.3 -5.1 -5.0 -5.1 -5.5 -5.5 (mean -4.9); skewed bs128 -2.5 -0.6 -1.5, bs256 -0.2 -3.2 -4.4. Output of 37 vs 16 1.2e-4 to 4.1e-4 (28: 8e-5 to 4.0e-4); self-tests 3.87e-3 to 3.90e-3; spin flags 0. BENCH bs128 main-lean-silu-bar 211.2, main-lean 214.6; bs256 232.6 vs 237.8. Judge bs128 197.09 against 200.89 / 200.34 for mode 28's two checks, bs256 241.49 against 247.11 / 244.59; the score sits inside 28's checks' intervals (2.149x, 2.158x) while the skinny shapes (unchanged code) drew 0.4-2.9 us higher at 1, 8 and 16 tokens than in f928f8a802014e4f. Repeat pending after the 00:00 UTC reset |
 
 ## Why the layer keeps the W4 chain at 128 tokens, 2026-10-29
 
@@ -498,6 +502,133 @@ still lists 20 or 23 in LAYER_MODES gets them silently dropped by the inliner (i
 in MAIN_MODES), so list (0, 16, 26, 28) or (0, 16, 28). Tested on a scratch copy: the inliner's
 anchors match and the layer's variant table gains `('main-lean', 'main', 'launch_main<28>')`; the
 layer build itself was not compiled here.
+
+## Phase A against the public kernel, 2026-10-29
+
+Question: after mode 28 the same-process gap to the public kernel on layer routing was 16.1 us at
+128 tokens and 25.1 at 256, with phase A the largest piece at 256 (+13.1 us in mode 29's stamps
+against the public kernel's, check 70dd7b13be884434). Where does phase A's time go?
+
+Method. Mode 31 is 28 with counters per consumer warp over phase A only: cycles in weights and x
+waits that miss their first try (a wait that succeeds at once adds nothing, so the stage loop
+gains no clock read: 31 costs +2.5 us of graph replay at 256 and its stamped phase A is within
+0.3 us of 29's), cycles from a unit's start to its accumulators, epilogue cycles, units, stages
+and n-tiles; plus each producer's phase A cycles waiting for a free ring slot. tools/moe_make_
+bench_ab.py prints them per size as ABDIAG (mean over CTAs and six layer seeds of one cold launch
+each) and the public kernel's stream-K stage ranges as ABPUB. Checks c7db20e053254b52,
+0b684d5db0834dbc and 473d87d03de94e96 (three repeats of 31; the numbers below are their range).
+
+Measured, mode 28 at 256 tokens, layer routing (us per consumer warp over phase A):
+
+| | 128 tokens | 256 tokens |
+|---|---|---|
+| phase A per CTA, mean / p10 / p50 / p90 / max | 93.3-93.9 / 85 / 91 / 107 / 111 | 133.9-134.7 / 126-127 / 131 / 145 / 147 |
+| waiting for weights / for x (missed first tries) | 0.00 / 0.03-0.05 | 0.00 / 0.18-0.22 |
+| stage loops (dequant, wgmma, ring bookkeeping) | 77.2-78.1 | 111.1-111.3 |
+| epilogue (SwiGLU, stores, proxy fence, fence_gpu, bar.sync, red.release) | 10.3-10.8 (2.6-2.7 per unit) | 16.0-16.6 (3.0-3.1 per unit) |
+| weights producer / x producer waiting for a free slot | 64-65 / 55 | 93-94 / 82 |
+| owned units per CTA, min / mean / max | 3.7 / 4.0 / 4.7 | 5 / 5.37 / 6 |
+| MB streamed per CTA (36,864 B weights + 4,096 B x per n-tile, per stage), mean / max | 2.92 / 3.44 | 4.17 / 4.55 |
+| rank correlation of a CTA's phase A time with its MB | 0.73-0.82 | 0.75-0.78 |
+
+Reading. The consumers never wait for the ring: both producers spend 70% of phase A blocked on a
+full ring, so phase A is consumer-bound, and streaming or ring depth are not the limit. Of a
+consumer warp's 134 us, 111 are the stage loops (86 stages, 1.29 us each) and 16 the epilogues
+of 5.37 units. The per-CTA spread (p10 to max, 20 us) follows the assigned bytes: owned whole
+units leave CTAs with 5 or 6 units (80 or 96 stages), and dyn_b's claimed phase B units absorb
+that (phase A's spread does not enter its mean).
+
+The public kernel's partition at 256 tokens (its source, `wgs_ranges` / `wgs_split` /
+`wgs_flush`, and the ranges it computed in these checks): stream-K over 256-row x 16-stage units,
+each CTA a contiguous stage range of equal cost under the same kCostA table as ours, 57 to 107
+stages per CTA (mean 86, the same total as ours), 1.85 cut units per CTA finished through fixup
+slots by a designated share; a CTA runs its trailing partial unit first; a finished unit's
+release (bar.sync, then one red.release, no per-thread gpu fence and no proxy fence) is deferred
+behind the next segment's fourth wgmma group; SiLU is `__fdividef`; the SwiGLU stores go to a
+natural-k-order layout, so the 8 lanes of a quad row write one full 16-byte row.
+
+Split of mode 28's epilogue (mode 33, the deferred publish, against 31): the stores and SwiGLU take
+1.6 us per unit at 256 (1.2 at 128) and the publish 1.0 to 1.35. Inside the stores and SwiGLU,
+`__frcp_rn` compiles to MUFU.RCP plus a range check that calls a subroutine, inside a
+convergence region per element (16 per thread per unit at 8 n-tiles). In our k-permuted xb
+layout a warp owns two bf16 of each 16-byte token row, so each 2-byte store instruction touches
+16 sectors.
+
+Inferred (not measured on the public kernel: its DEBUG build ran 30 us over its replay in these
+checks, so its stamped times are not used; check 70dd7b13be884434's public stamps put its phase A
+at 120.6 us for the same 86 stages): the 13.1 us phase A gap is mostly our epilogue (16 us, of
+which the public kernel's cheaper release and SiLU leave a few us) plus the stage loop's 4% more
+fast-path instructions (335 against 322, about 4 us at 1.29 us per stage). The spread across
+CTAs is not part of it.
+
+### Changes tested
+
+| mode | change | minus 28 at 32 / 128 / 256, us (layer seeds 1-6) |
+|---|---|---|
+| 32 | publish deferred to the next unit's second stage (fences kept) | +1.6 / +2.7 / +1.2 |
+| 34 | 32 without the per-thread fence_gpu | +0.8 / +1.4 / -1.2 |
+| 35 | 32 with ss and own_n reloaded from shared memory (spills 104 / 280 B against 192 / 516) | +0.8 / +3.0 / +4.7 |
+| 36 | SiLU's reciprocal as one `rcp.approx.ftz` (MUFU.RCP) | -1.8 / -0.9 / -1.2 |
+| 37 | 36 without the per-thread fence_gpu, publish in place | -1.9 / -2.1 / -3.8 and -1.7 / -3.4 / -4.2 (two checks) |
+| 39 | 37 with paired 4-byte SwiGLU stores (one shuffle per n-tile) | -1.0 / -2.5 / -4.0 |
+
+The deferral moves the cost instead of removing it: 33's publish still takes 1.0 us per unit one
+stage later and its stage loops 2 us more, and the publish block inside the stage loop adds about 30
+instructions to each phase A loop body. Paired stores halve the epilogue in 40's counters (1.70
+against 3.08 us per unit) but the next stages slow by about as much, so the stores' cost is in
+the memory system, not in the instructions. Mode 37 removes what is removable inside the
+epilogue: the SiLU subroutine and a MEMBAR.ALL.GPU plus CCTL.IVALL per thread per unit.
+
+Mode 37 against 28 in the shippable check 987d024620e44eb7 (GATE, standalone routing): held-out
+seeds 17-22 -3.2 us at 128 (6 of 6 lower) and -4.9 at 256 (6 of 6); skewed -1.5 and -2.6 (3 of 3).
+On layer routing 12 of 12 paired seeds lower at 128 and 256 over two checks, 11 of 12 at 32.
+
+Spill. Mode 28 spills 184 / 512 B (80 B frame): 7 accesses in stage loops, 114 in per-unit code
+(the owned unit count and the x ring base reloaded per unit in phase A; 16 hoisted sum-of-squares
+pointers per phase B unit) and 53 elsewhere (local count of SASS accesses by enclosing loop). It
+does sit on per-unit paths. 37 has 156 / 416 B (56 B frame; the SiLU subroutine's ABI is gone)
+with 9 / 90 / 44 accesses. Removing more (35, the public kernel's volatile shared reloads) cut it to
+104 / 280 B but lost 3.4-4.7 us, so the remaining spill stays; at the 96-register cap of 576
+threads it would take a stage loop that holds fewer code registers at once (the public kernel
+loads a stage's codes one 4-step group at a time), which is a change to the loop, not tested.
+
+### Ordering of the phase A publish without the per-thread fence_gpu (modes 34, 37, 39)
+
+Sections are from the PTX ISA 9.4 documentation (docs.nvidia.com/cuda/parallel-thread-execution)
+as cited in "Proxy ordering of the x tiles": 8.8 Release and Acquire Patterns, 8.9.4 Memory
+synchronization, 8.9.5 Causality Order, 9.7.15.4 membar / fence.
+
+Mode 28 publishes a finished phase A unit per consumer warpgroup this way: each of the 128
+threads stores its SwiGLU outputs into the xb stage (generic `st.global`), then runs
+`fence.proxy.async.global`, then `fence.acq_rel.gpu`, then `bar.sync` on the warpgroup's barrier;
+thread 0 then runs `red.release.gpu.global.add` on `done_as[j * 16 + st]`. The reader is the x
+producer of whichever CTA runs that phase B stage: `ld.acquire.gpu` until the count is 8, then
+`fence.proxy.async.global`, then `cp.async.bulk`. Mode 37 drops the writers' `fence.acq_rel.gpu`
+(SASS: MEMBAR.ALL.GPU, ERRBAR, CGAERRBAR, CCTL.IVALL per thread per unit) and keeps the rest:
+
+1. Each writer's stores precede its `fence.proxy.async.global` in program order; the proxy fence
+   acts on the thread's own generic accesses and composes with other synchronization (9.7.15.4).
+2. `bar.sync` synchronizes with the `bar.sync` of every other participating thread (8.9.4), so
+   every writer's stores and proxy fence precede, in base causality order (8.9.5), whatever
+   thread 0 does after the barrier.
+3. Thread 0's `red.release` is a release operation, a release pattern by itself (8.8); base
+   causality order is transitive (8.9.5), so the writers' stores precede the release, and the
+   reader's acquire that observes the count synchronizes with it (8.9.4). The reader's proxy
+   fence and bulk copy follow as in steps 5-7 of "Proxy ordering of the x tiles".
+
+This is the argument already given for the x gather (step 3 there: "its effect extends to the
+other threads' stores that precede it through the barrier"); the per-thread `fence.acq_rel.gpu`
+is no link in it. The acquire half of that fence (CCTL.IVALL) ordered nothing: no writer reads anything after
+it that another CTA wrote. The skinny path's `credit` (fence, `__syncwarp`, relaxed atomicAdd)
+is a different pattern and is unchanged.
+
+Modes 32 to 35 (not adopted) moved the whole publish, fences included, to the start of the
+warpgroup's next unit's second stage, and for the CTA's last unit to the end of phase A. Delaying
+a release reorders nothing in steps 1-3 (every link is program order or synchronization that
+stays). Progress: between a unit's stores and its deferred publish the warpgroup waits only on
+its own CTA's weights ring and on x rows the gather published before any consumer started; the
+last unit is published before any phase B wait; owned units always have 16 stages; and the target
+is recomputed from S.ord and the unit's round, not carried in shared state.
 
 ## Staged GEMM1 gate, 2026-10-29
 

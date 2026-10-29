@@ -162,6 +162,18 @@ Porting it: add 28 to `LAYER_MODES` and `28: "main-lean"` to `MAIN_NAMES` in
 only modes listed there, so a `LAYER_MODES` that still names 20 or 23 loses them silently. On layer
 routing at 32 tokens 28 is under the skinny sk8w4s by 18 us (6 of 6 seeds), so a layer bench on
 judge-like routing may choose it at decode 32 too. 29 is 28 with the stamps (timing only).
+Also since 2026-10-29: 37 ("main-lean-silu-bar") is 28 with a lighter phase A epilogue: SiLU's
+reciprocal as one `rcp.approx.ftz` (MUFU.RCP) instead of `__frcp_rn` (a range check and a
+subroutine per element), and no per-thread `fence.acq_rel.gpu` before the warpgroup's bar.sync
+and red.release on done_as (each writer keeps its `fence.proxy.async.global`; the PTX chain is in
+docs/runs-moe.md, "Ordering of the phase A publish without the per-thread fence_gpu"). Paired
+against 28 on layer routing: -1.9 / -2.1 / -3.8 and -1.7 / -3.4 / -4.2 us at 32 / 128 / 256 tokens
+(two checks, 12 of 12 seeds lower at 128 and 256); held-out standalone -3.2 / -4.9, skewed -1.5 /
+-2.6; standalone policy at 128 and 256 in 987d024620e44eb7. Outputs move by the approximate
+reciprocal (1e-4 against 28, 3.9e-3 against FP32 as before). Same interface, scratch and SmemMain
+size as 28. Porting it: add 37 to `LAYER_MODES` and `37: "main-lean-silu-bar"` to `MAIN_NAMES` in
+`tools/dl_moe_inline.py` (the standalone `MAIN_MODES` is now (0, 16, 26, 28, 37)). 31 to 36 and
+38 to 40 are timing-only or lost (docs/runs-moe.md, "Phase A against the public kernel").
 `_vname(variant)` gives the name the bench prints. It launches on the current stream, is graph-capturable (no
 host syncs, no allocation, no value-dependent branching on the host), and needs the whole GPU:
 the grid barrier spins until all 132 CTAs arrive, so nothing else may occupy SMs for the

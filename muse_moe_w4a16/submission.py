@@ -422,6 +422,12 @@ __device__ __forceinline__ void final_pass(const Params& p, const short* pos, co
 }
 
 
+__device__ __forceinline__ long long gtimer() {
+    long long t;
+    asm volatile("mov.u64 %0, %globaltimer;" : "=l"(t));
+    return t;
+}
+
 //@SKINNY@
 
 // ---- Fat path (M >= 17): jobs of up to 64 tokens, 256-row units streamed in 16 stages of
@@ -606,11 +612,6 @@ __device__ __forceinline__ void fence_gpu() {
 // producers sum their waits; thread 0 records globaltimer and clock64 at the kernel's phase
 // boundaries and when its phase A segments end. S.dg goes to p.inter (unused on the fat path)
 // at the end, 18 x 8 int64 per CTA; _diag_report has the layout.
-__device__ __forceinline__ long long gtimer() {
-    long long t;
-    asm volatile("mov.u64 %0, %globaltimer;" : "=l"(t));
-    return t;
-}
 
 template <int MODE>
 __device__ __forceinline__ int stage_cost(int ph, int ntt) {
@@ -2494,6 +2495,9 @@ struct __align__(128) Smem {
     signed char eid[kEmax];
     int njobs;
     int a0, na, b0, nb;
+    // kMode 2 (timing only): thread 0's globaltimer at the phase points and cycle counters,
+    // written to p.inter at the end (16 int64 per CTA; tools/moe_make_bench_ab.py reads them).
+    long long dg[kMode == 2 ? 16 : 1];
 };
 
 // Unit q of this CTA's list (its phase A units, then its phase B units) into ring slot q % 3.
@@ -2530,11 +2534,17 @@ __device__ __forceinline__ void compute_loop(const Params& p, Smem& S, uint64_t 
     uint4 xr[kCPW][2];
     int jcur = -1;
     bool bcur = false;
+    long long wfull = 0;
 #pragma unroll 1
     for (int q = 0; q < n; ++q) {
         const bool phb = q >= na;
         const int v = phb ? b0 + (q - na) : a0 + q;
         const int j = phb ? (v >> 8) : (v >> 9);
+        if (kMode == 2 && tid == 0 && q == na) {
+            S.dg[3] = gtimer();
+            S.dg[8] = wfull;
+            wfull = 0;
+        }
         if (j != jcur || phb != bcur) {
             jcur = j;
             bcur = phb;
@@ -2561,6 +2571,9 @@ __device__ __forceinline__ void compute_loop(const Params& p, Smem& S, uint64_t 
                         }
                     }
                 }
+                if (kMode == 2 && tid == 0 && q == na) {
+                    S.dg[4] = gtimer();
+                }
                 const __nv_bfloat16* src = p.inter + static_cast<size_t>(q0 + (have ? g : 0)) * kI
                                            + w8 * 512 + c0 * 64 + t4 * 16;
 #pragma unroll
@@ -2579,6 +2592,9 @@ __device__ __forceinline__ void compute_loop(const Params& p, Smem& S, uint64_t 
                 if (spin_failed(t0, p.ctr, 2)) {
                     break;
                 }
+            }
+            if (kMode == 2) {
+                wfull += clock64() - t0;
             }
         }
         const unsigned char* sl = S.ring[slot];
@@ -2628,17 +2644,30 @@ __device__ __forceinline__ void compute_loop(const Params& p, Smem& S, uint64_t 
             issue_unit(p, S, q + kNS, pol);
         }
     }
+    if (kMode == 2 && tid == 0) {
+        if (na == n) {
+            S.dg[3] = gtimer();
+            S.dg[4] = S.dg[3];
+            S.dg[8] = wfull;
+            wfull = 0;
+        }
+        S.dg[9] = wfull;
+    }
 }
 
 // Makes this warp's inter stores for job j visible, then adds n finished units to its counter.
-__device__ __forceinline__ void credit(const Params& p, int j, int n, int lane) {
+__device__ __forceinline__ void credit(const Params& p, Smem& S, int j, int n, int lane) {
     if (n <= 0) {
         return;
     }
+    const long long c0 = kMode == 2 ? clock64() : 0;
     __threadfence();
     __syncwarp();
     if (lane == 0) {
         atomicAdd(p.done_a + j, n);
+    }
+    if (kMode == 2 && lane == 0) {
+        S.dg[11] += clock64() - c0;
     }
 }
 
@@ -2670,10 +2699,14 @@ __device__ __forceinline__ void helper_loop(const Params& p, Smem& S, float* ss)
         // Phase A's last credits go out before waiting on any phase B partials: the compute
         // warps produce none until done_a is complete, which needs these credits.
         if (phb && ncred > 0) {
-            credit(p, jcred, ncred, lane);
+            credit(p, S, jcred, ncred, lane);
             ncred = 0;
         }
+        const long long cw = kMode == 2 ? clock64() : 0;
         named_sync(kBarFull + bb, kNTL);
+        if (kMode == 2 && lane == 0) {
+            S.dg[10] += clock64() - cw;
+        }
         float4 r = S.red[bb][0][lane];
 #pragma unroll
         for (int w = 1; w < kNW; ++w) {
@@ -2706,7 +2739,7 @@ __device__ __forceinline__ void helper_loop(const Params& p, Smem& S, float* ss)
             // Credits go out once per job: the fence behind each credit costs about a
             // microsecond under a saturated memory system, too much for every unit.
             if (j != jcred) {
-                credit(p, jcred, ncred, lane);
+                credit(p, S, jcred, ncred, lane);
                 jcred = j;
                 ncred = 0;
             }
@@ -2749,7 +2782,7 @@ __device__ __forceinline__ void helper_loop(const Params& p, Smem& S, float* ss)
         }
     }
     if (ncred > 0) {
-        credit(p, jcred, ncred, lane);
+        credit(p, S, jcred, ncred, lane);
     }
 }
 
@@ -2771,6 +2804,9 @@ __global__ void __launch_bounds__(kNTL, 1) moe_fused_kernel(const Params p) {
     const int gen = *reinterpret_cast<volatile int*>(p.ctr + 3);
     float* ss = p.ss + (gen & 1) * kEmax;
     const uint64_t pol = policy_evict_first();
+    if (kMode == 2 && tid < 16) {
+        S.dg[tid] = tid == 0 ? gtimer() : tid == 12 ? clock64() : 0;
+    }
 
     if (warp == kNW) {
         // Histogram and job list by one warp, so this CTA's first unit copies can be issued
@@ -2856,8 +2892,14 @@ __global__ void __launch_bounds__(kNTL, 1) moe_fused_kernel(const Params p) {
         }
     }
     __syncthreads();
+    if (kMode == 2 && tid == 0) {
+        S.dg[1] = gtimer();
+    }
 
     position_pass<kNWarps>(S.eid, S.pos, S.ent, S.wc, S.off, E);
+    if (kMode == 2 && tid == 0) {
+        S.dg[2] = gtimer();
+    }
 
     if (warp < kNW) {
         compute_loop(p, S, pol);
@@ -2865,6 +2907,9 @@ __global__ void __launch_bounds__(kNTL, 1) moe_fused_kernel(const Params p) {
         helper_loop(p, S, ss);
     }
     __syncthreads();
+    if (kMode == 2 && tid == 0) {
+        S.dg[5] = gtimer();
+    }
 
     // Grid barrier. The counter alternates with the generation, so the one this launch
     // uses was zeroed by the previous launch and nothing is reset between launches.
@@ -2886,12 +2931,26 @@ __global__ void __launch_bounds__(kNTL, 1) moe_fused_kernel(const Params p) {
         }
     }
     __syncthreads();
+    if (kMode == 2 && tid == 0) {
+        S.dg[6] = gtimer();
+    }
     for (int j = cta * kNTL + tid; j < kJmax; j += G * kNTL) {
         p.done_a[j] = 0;
     }
 
     if (warp < kNW) {
         final_pass<kNT>(p, S.pos, ss, cta, G);
+    }
+    if constexpr (kMode == 2) {
+        __syncthreads();
+        if (tid == 0) {
+            S.dg[7] = gtimer();
+            S.dg[13] = clock64();
+        }
+        __syncthreads();
+        if (tid < 16) {
+            reinterpret_cast<long long*>(p.inter)[cta * 16 + tid] = S.dg[tid];
+        }
     }
 }
 
@@ -2968,6 +3027,8 @@ __device__ __forceinline__ void a_pin(unsigned (&a)[2][4]) {{
 # Skinny kernel variants (compute warps, ring slots, mode: 0 computes, 1 streams only), each
 # a namespace of its own in the source, and fat kernel modes; a variant id indexes this table.
 SKINNY_VARIANTS = ((8, 4, 0), (16, 4, 0), (8, 4, 1))
+# Mode 2 (timing only, tools/moe_make_bench_ab.py --small appends (8, 4, 2)): mode 0 with thread
+# 0's phase stamps and cycle counters in p.inter.
 # 0: depth-2 wgmma pipeline; 6: jobs of up to 2 n8 tiles on mma.sync, the rest on wgmma; 12
 # and 13: modes 6 and 0 with fence.acq_rel in place of fence.sc (fence_ar in the source); 14:
 # mode 12 with two accumulator chains per n8 tile on mma.sync; 15: mode 12 with phase B CTA
@@ -4982,7 +5043,7 @@ def _vname(v):
                 35: "main-lean-dfa-vol", 36: "main-lean-silu", 37: "main-lean-silu-bar",
                 38: "main-lean-silu-pa", 39: "main-lean-epi", 40: "main-lean-epi-pa"}[m]
     nw, ns, mode = SKINNY_VARIANTS[v]
-    return f"sk{nw}w{ns}s{'-loads' if mode else ''}"
+    return f"sk{nw}w{ns}s{('', '-loads', '-stamps')[mode]}"
 
 
 def prepare(weights):
