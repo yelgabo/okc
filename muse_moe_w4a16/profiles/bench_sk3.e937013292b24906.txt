@@ -1,0 +1,53 @@
+okc run e937013292b24906 on muse_moe_w4a16
+submission  /private/tmp/claude-501/-Users-gretchengabo-GitHub/4e9778d1-55dc-4e88-9d29-4844bd573620/scratchpad/skc/bench_sk3.py
+status      ok
+passed      true
+speedup     2.003921196452115
+speedup_ci  [1.9738623785053333 2.0339800143988964]
+score_us    6711.092244450621
+tests       5/5 passed
+
+scored shapes (µs; speed of light is the reference's bound)
+case                                                         sglang      yours  speedup        sol  
+bs=1 load=decode 1 sharding=ep8                               78.51      28.79   2.727x      11.42  
+bs=16 load=decode 16 sharding=ep8                            186.38      94.70   1.968x      52.52  
+bs=32 load=decode 32 sharding=ep8                            207.12     133.33   1.553x      70.76  
+bs=8 load=verify 1 sharding=ep8                              150.29      71.38   2.105x      37.32  
+bs=128 load=verify 16 sharding=ep8                           473.84     262.07   1.808x     101.34  
+bs=256 load=verify 32 sharding=ep8                           614.75     301.28   2.040x     108.94  
+
+profile 0: bs=1 load=decode 1 sharding=ep8
+kernel                                                           GPU time  share  calls
+void (anonymous namespace)::sk_8_4_0::moe_fused_kernel<1>...      25.2 µs 100.0%      1
+total                                                             25.2 µs
+
+profile 1: bs=16 load=decode 16 sharding=ep8
+kernel                                                           GPU time  share  calls
+void (anonymous namespace)::sk_8_4_5::moe_fused_kernel<1>...      82.5 µs 100.0%      1
+total                                                             82.5 µs
+
+profile 2: bs=32 load=decode 32 sharding=ep8
+kernel                                                           GPU time  share  calls
+void (anonymous namespace)::sk_8_4_5::moe_fused_kernel<1>...     117.2 µs 100.0%      1
+total                                                            117.2 µs
+
+profile 3: bs=8 load=verify 1 sharding=ep8
+kernel                                                           GPU time  share  calls
+void (anonymous namespace)::sk_8_4_5::moe_fused_kernel<1>...      87.7 µs 100.0%      1
+total                                                             87.7 µs
+
+profile 4: bs=128 load=verify 16 sharding=ep8
+kernel                                                           GPU time  share  calls
+void (anonymous namespace)::w4_gemm_kernel<1, 1, 8, 2, 8,...     157.3 µs  59.5%      1
+void (anonymous namespace)::w4_gemm_kernel<2, 2, 16, 4, 4...      77.4 µs  29.3%      1
+(anonymous namespace)::w4_swiglu_kernel(float const*, int...      16.1 µs   6.1%      1
+void (anonymous namespace)::w4_finalize_kernel<1>(float c...      10.8 µs   4.1%      1
+(anonymous namespace)::route_align_kernel(int const*, int...       2.8 µs   1.1%      1
+total                                                            264.5 µs
+GPU busy (kernels overlap: PDL or streams)                       251.9 µs
+an overlapping kernel's time includes any wait for the one before it, so the rows add up to more
+
+profile 5: bs=256 load=verify 32 sharding=ep8
+kernel                                                           GPU time  share  calls
+void (anonymous namespace)::moe_main_kernel<0>((anonymous...     294.6 µs 100.0%      1
+total                                                            294.6 µs

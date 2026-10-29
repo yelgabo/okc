@@ -50,7 +50,43 @@ LIGHT_TWINS = {26: 27}
 PA_TWINS = {28: 31, 32: 33, 36: 38, 39: 40}
 
 
-def patch_public(src, small=False, ranges=False):
+# Per-unit stamps of the skinny ring (--unitstamps), the same events and layout as our kMode 16:
+# per CTA 8 header words (units in phase A, units in all, clock64 and globaltimer at the start and
+# at the end) and 4 clock64 per unit q < 256 (copy issued, thread 0 starts waiting, the wait
+# ends, the slot is free after the unit barrier), after the G * 8 DBG words.
+US_MAX = 256
+US_PER = 8 + 4 * US_MAX
+UNIT_STAMP_PAIRS = [
+    ("#define DBG(k) do {",
+     "#define UST(q, k) do { if (OKC_DEBUG && p.dbg && (q) < %d) p.dbg[gridDim.x * 8 + "
+     "blockIdx.x * %d + 8 + (q) * 4 + (k)] = (unsigned long long)clock64(); } while (0)\n"
+     "#define USH(k, v) do { if (OKC_DEBUG && p.dbg) p.dbg[gridDim.x * 8 + blockIdx.x * %d + (k)]"
+     " = (unsigned long long)(v); } while (0)\n#define DBG(k) do {" % (US_MAX, US_PER, US_PER)),
+    ("  const int sl = q % OKC_NS;\n  if (q < nA) ring_issue<false>",
+     "  const int sl = q % OKC_NS;\n  UST(q, 0);\n  if (q < nA) ring_issue<false>"),
+    ('"r"(smem_u32(S.bars + i)) L2H_ARG : "memory");\n      }\n      S.preissued',
+     '"r"(smem_u32(S.bars + i)) L2H_ARG : "memory");\n        UST(i, 0);\n      }\n'
+     '      S.preissued'),
+    ("    mbar_wait(bars + sl, (uint32_t)((q / OKC_NS) & 1));\n"
+     "    const unsigned char* slot = ring + sl * UNIT_BYTES;\n    const uint4 sc",
+     "    if (tid == 0) UST(q, 1);\n    mbar_wait(bars + sl, (uint32_t)((q / OKC_NS) & 1));\n"
+     "    if (tid == 0) UST(q, 2);\n"
+     "    const unsigned char* slot = ring + sl * UNIT_BYTES;\n    const uint4 sc"),
+    ("    CTA_SYNC();\n    if (tid == 0) {\n      const int nA = S.wsr[1] - S.wsr[0]",
+     "    CTA_SYNC();\n    if (tid == 0) {\n      UST(q, 3);\n      const int nA = S.wsr[1] - S.wsr[0]"),
+    ("  const int tid = threadIdx.x;\n  DBG(0);\n",
+     "  const int tid = threadIdx.x;\n  DBG(0);\n"
+     "  if (tid == 0) { USH(2, clock64()); USH(3, gtimer()); }\n"),
+    ("    S.wsr[2] = muldiv_g(nB, c, G, rG); S.wsr[3] = muldiv_g(nB, c + 1, G, rG);\n  }\n",
+     "    S.wsr[2] = muldiv_g(nB, c, G, rG); S.wsr[3] = muldiv_g(nB, c + 1, G, rG);\n"
+     "    USH(0, S.wsr[1] - S.wsr[0]);\n"
+     "    USH(1, S.wsr[1] - S.wsr[0] + S.wsr[3] - S.wsr[2]);\n  }\n"),
+    ("  DBG(5);  // nothing to reset at exit",
+     "  if (tid == 0) { USH(4, clock64()); USH(5, gtimer()); }\n  DBG(5);  // nothing to reset at exit"),
+]
+
+
+def patch_public(src, small=False, ranges=False, unitstamps=False):
     for name in () if small else ("TINY_DEFINES", "TINY2_DEFINES", "MID_DEFINES"):
         src, n = re.subn(rf"^{name} = \(.*?\)\n(?=\S)", f"{name} = ()\n", src, count=1,
                          flags=re.S | re.M)
@@ -71,6 +107,7 @@ def patch_public(src, small=False, ranges=False):
          "    p.dbg[blockIdx.x * 8 + 7] = (long long)S.wgr[0] | ((long long)S.wgr[1] << 16)\n"
          "        | ((long long)S.wgr[2] << 32) | ((long long)S.wgr[3] << 48);\n  }\n"),
     ]
+    pairs += UNIT_STAMP_PAIRS if unitstamps else []
     for a, b in pairs:
         assert src.count(a) == 1, a[:60]
         src = src.replace(a, b)
@@ -90,6 +127,10 @@ _AB_ROUTINGS = @ROUTINGS@
 _AB_LIGHT = @LIGHT@
 _AB_PA = @PA@
 _AB_SMALL = @SMALL@
+_AB_US = @US@
+_AB_US_MAX = @USMAX@
+_AB_US_PER = 8 + 4 * _AB_US_MAX
+_AB_STAMP_SIZES = @STAMPSIZES@
 
 
 def _ab_main():
@@ -127,7 +168,8 @@ def _ab_main():
     exec(compile(_AB_PUB_SRC, "public_moe.py", "exec"), pub.__dict__)
     pstate = pub.prepare(weights)
     dbg_defs = tuple(pub._main_defines(pstate["sfx"])) + pstate["sfx"] + ("-DOKC_DEBUG=1",)
-    pdbg = pub._ext(dbg_defs)
+    # The small sizes stamp their own builds (pdbgs); the MAIN debug build is not used there.
+    pdbg = None if _AB_SMALL else pub._ext(dbg_defs)
 
     def pub_defs(m):
         # kernel_fn's build choice by token count, with the debug stamps.
@@ -241,7 +283,8 @@ def _ab_main():
                            "top_k": TOP_K, "sharding": "ep8"}}
 
     def pub_stamped(data):
-        dbg = torch.zeros(G * 8, dtype=torch.int64, device=dev)
+        dbg = torch.zeros(G * 8 + (G * _AB_US_PER if _AB_US else 0), dtype=torch.int64,
+                          device=dev)
         x = data["hidden_states"]
         out = torch.empty((x.shape[0], HIDDEN), dtype=torch.bfloat16, device=dev)
         ext = pdbgs.get(x.shape[0], pdbg)
@@ -252,8 +295,9 @@ def _ab_main():
             ext.okc_run(pstate["w"], pstate["scratch"] + [dbg], x, data["topk_ids"],
                          data["topk_weights"], out, 0, 32, G)
         torch.cuda.synchronize()
-        raw = dbg.view(G, 8).cpu()
-        return raw[:, [0, 1, 6, 2, 3, 4, 5]].double(), raw[:, 7].clone()
+        raw = dbg[: G * 8].view(G, 8).cpu()
+        us = dbg[G * 8:].view(G, _AB_US_PER).double().cpu() if _AB_US else None
+        return raw[:, [0, 1, 6, 2, 3, 4, 5]].double(), raw[:, 7].clone(), us
 
     def ours_stamped(data, v, width):
         _run(data, state, v)
@@ -329,18 +373,21 @@ def _ab_main():
                 "cut units per CTA", "rho(time, stages)")
 
     def sk_summary(d):
-        # Our skinny stamps (kMode 2): see the kernel; cycles to us by the CTA's own clock.
+        # Our skinny stamps (kMode 2, 4, 8): see the kernel; cycles to us by the CTA's own clock.
+        # Since 2026-10-29 (kMode 8) the weights waits include the first try_wait, which can
+        # suspend the thread; 14 and 15 are thread 0's partial-buffer wait and unit barrier.
         r = (d[:, :8] - float(d[:, 0].min())) / 1e3
         ghz = (d[:, 13] - d[:, 12]) / (d[:, 7] - d[:, 0])
         us = lambda c: float((c / ghz / 1e3).mean())
         seg = [r[:, 1] - r[:, 0], r[:, 2] - r[:, 1], r[:, 3] - r[:, 2], r[:, 4] - r[:, 3],
                r[:, 5] - r[:, 4], r[:, 6] - r[:, 5], r[:, 7] - r[:, 6]]
         return ([float(x.mean()) for x in seg] + [float(r[:, 3].max()), float(r[:, 5].max()),
-                float(r[:, 7].max())] + [us(d[:, 8]), us(d[:, 9]), us(d[:, 10]), us(d[:, 11])])
+                float(r[:, 7].max())] + [us(d[:, 8]), us(d[:, 9]), us(d[:, 10]), us(d[:, 11]),
+                                         us(d[:, 14]), us(d[:, 15])])
 
     sk_cols = ("route", "positions", "phase A", "A->B wait", "phase B", "barrier", "final",
                "A done max", "B done max", "end", "t0 weights wait A", "B", "helper idle",
-               "credits")
+               "credits", "t0 buffer wait", "t0 unit barrier")
 
     def pubsk_summary(d):
         # Public small builds: DBG 0 start, 1 routed, 2 phase A done, 3 before the barrier,
@@ -353,6 +400,46 @@ def _ab_main():
 
     pubsk_cols = ("route", "phase A", "phase B", "barrier", "final", "A done max",
                   "B done max", "end")
+
+    def unit_stats(u, ns):
+        # u: [G, US_PER] (header, then per unit: copy issued I, thread 0 starts waiting S, the
+        # wait ends E, slot free F), clock64 converted to us by each CTA's own clock. A unit whose
+        # wait lasted over 0.05 us is "stalled": the wait's end is its arrival, within one poll.
+        # Sums are per CTA; everything is averaged over the CTAs.
+        ghz = (u[:, 4] - u[:, 2]) / (u[:, 5] - u[:, 3])
+        rows = []
+        buck = {b: [0.0, 0] for b in ("A1", "A", "Az", "B1", "B")}
+        for c in range(u.shape[0]):
+            na, n = int(u[c, 0]), min(int(u[c, 1]), _AB_US_MAX)
+            if na <= ns or n <= na:
+                continue
+            t = u[c, 8: 8 + 4 * n].view(n, 4) / (1e3 * float(ghz[c]))
+            I, S_, E, F = t[:, 0], t[:, 1], t[:, 2], t[:, 3]
+            w = E - S_
+            st = w > 0.05
+            sa = st[:na]
+            lat = float((E - I)[:na][sa].mean()) if bool(sa.any()) else 0.0
+            rd = I[ns:n] - F[: n - ns]
+            infl = [int(((I <= S_[q]) & (E > S_[q])).sum()) for q in range(na)]
+            rows.append([float(w[:na].sum()), float((F - E)[:na].sum()),
+                         float(F[na - 1] - S_[0]), float(sa.double().mean()), lat,
+                         float((S_ - I)[:na].mean()), float(rd[:na].mean()), sum(infl) / na,
+                         float(E[0] - I[0]), float(w[na:].sum()), float((F - E)[na:].sum()),
+                         float(E[na] - F[na - 1])])
+            for q in range(n):
+                if q < na:
+                    b = "A1" if q < ns else ("Az" if q >= na - ns else "A")
+                else:
+                    b = "B1" if q < na + ns else "B"
+                buck[b][0] += float(w[q])
+                buck[b][1] += 1
+        m = max(len(rows), 1)
+        out = [sum(r[i] for r in rows) / m for i in range(12)]
+        return out + [buck[b][0] / max(buck[b][1], 1) for b in buck] + [float(ghz.mean())]
+
+    us_cols = ("A wait", "A hold", "A span", "A stalled", "lat", "lead", "refill delay",
+               "in flight", "first copy", "B wait", "B hold", "A->B gap", "wait/unit A1",
+               "A", "Az", "B1", "B", "GHz")
 
     timed = {base: vmode(_AB_BASE)}
     for name, m in _AB_ARMS.items():
@@ -382,8 +469,13 @@ def _ab_main():
             stamps = {a: [] for a in [*light, *padiag, "pub"]}
             diags = {a: [] for a in padiag}
             pubd = []
-            skst = [i for i, v in enumerate(SKINNY_VARIANTS) if v[2] in (2, 4)]
+            stamp_here = not _AB_STAMP_SIZES or t in _AB_STAMP_SIZES
+            skst = [i for i, v in enumerate(SKINNY_VARIANTS) if v[2] in (2, 4, 8)]
+            usst = [i for i, v in enumerate(SKINNY_VARIANTS) if v[2] & 16]
+            if not stamp_here:
+                skst, usst = [], []
             skd = {**{i: [] for i in skst}, "pub": []}
+            usd = {**{i: [] for i in usst}, "pub": []}
             for si, s in enumerate(_AB_SEEDS):
                 d = inputs(t, routing, s)
                 order = list(arms.items())
@@ -397,8 +489,22 @@ def _ab_main():
                     lt, full = ours_stamped(d, v, 144)
                     stamps[a].append(summarize(lt))
                     diags[a].append(pa_summary(lt, full))
-                pd, prng = pub_stamped(d)
+                if _AB_SMALL and not stamp_here:
+                    continue
+                pd, prng, pus = pub_stamped(d)
                 if _AB_SMALL:
+                    for i in usst:
+                        _run(d, state, i)
+                        flush.zero_()
+                        torch.cuda.synchronize()
+                        _run(d, state, i)
+                        torch.cuda.synchronize()
+                        ud = state["scratch"]["inter"].reshape(-1).view(torch.int64)[
+                            1 << 21: (1 << 21) + G * _AB_US_PER]
+                        usd[i].append(unit_stats(ud.view(G, _AB_US_PER).double().cpu(),
+                                                 SKINNY_VARIANTS[i][1]))
+                    if _AB_US:
+                        usd["pub"].append(unit_stats(pus, 3))
                     for i in skst:
                         _run(d, state, i)
                         flush.zero_()
@@ -420,11 +526,18 @@ def _ab_main():
                     dd = [x - y for x, y in zip(tim[a], tim[bb])]
                     print(f"ABPAIR {tag} {a} minus {bb} " + " ".join(f"{x:+.1f}" for x in dd)
                           + f" (mean {sum(dd) / n:+.1f}, {sum(x < 0 for x in dd)} of {n} lower)")
+            if _AB_SMALL and not stamp_here:
+                continue
             if _AB_SMALL:
                 for a, rows, cc in ([(_vname(i), skd[i], sk_cols) for i in skst]
                                     + [("pub", skd["pub"], pubsk_cols)]):
                     m = [sum(r[i] for r in rows) / n for i in range(len(rows[0]))]
                     print(f"ABSK {tag} {a} " + ", ".join(f"{c} {v:.1f}" for c, v in zip(cc, m)))
+                for a, rows in ([(_vname(i), usd[i]) for i in usst]
+                                + ([("pub", usd["pub"])] if _AB_US and stamp_here else [])):
+                    m = [sum(r[i] for r in rows) / n for i in range(len(rows[0]))]
+                    print(f"ABUNIT {tag} {a} " + ", ".join(f"{c} {v:.2f}"
+                                                           for c, v in zip(us_cols, m)))
                 continue
             for a, rows in stamps.items():
                 m = [sum(r[i] for r in rows) / n for i in range(len(rows[0]))]
@@ -469,7 +582,8 @@ def main():
     out, pub = sys.argv[1], sys.argv[2]
     rest = sys.argv[3:]
     opts = {"base": "28", "seeds": "1,2,3,4,5,6", "sizes": "32,128,256", "routings": "layer,std",
-            "pairs": "", "small": "", "pubranges": "", "skextra": ""}
+            "pairs": "", "small": "", "pubranges": "", "skextra": "", "unitstamps": "",
+            "stampsizes": ""}
     arms = {}
     for a in rest:
         if a.startswith("--"):
@@ -500,13 +614,16 @@ def main():
     assert n == 1
     src, n = re.subn(r"^GATE_RUNS = \(.*?\)$", "GATE_RUNS = ()", src, flags=re.M)
     assert n == 1
-    pub_src = patch_public(Path(pub).read_text(), small, bool(opts["pubranges"]))
+    pub_src = patch_public(Path(pub).read_text(), small, bool(opts["pubranges"]),
+                           bool(opts["unitstamps"]))
     block = AB
     for key, val in (("@PUB_SRC@", repr(pub_src)), ("@BASE@", repr(base)),
                      ("@ARMS@", repr(arms)), ("@PAIRS@", repr(pairs)),
                      ("@SEEDS@", repr(ints(opts["seeds"]))), ("@SIZES@", repr(ints(opts["sizes"]))),
                      ("@ROUTINGS@", repr(tuple(opts["routings"].split(",")))),
-                     ("@LIGHT@", repr(light)), ("@PA@", repr(pa)), ("@SMALL@", repr(small))):
+                     ("@LIGHT@", repr(light)), ("@PA@", repr(pa)), ("@SMALL@", repr(small)),
+                     ("@US@", repr(bool(opts["unitstamps"]))), ("@USMAX@", repr(US_MAX)),
+                     ("@STAMPSIZES@", repr(ints(opts["stampsizes"]) if opts["stampsizes"] else ()))):
         assert block.count(key) == 1, key
         block = block.replace(key, val)
     Path(out).write_text(src + block)

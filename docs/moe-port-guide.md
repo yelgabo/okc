@@ -35,8 +35,11 @@ Two kernels share this structure and the routing code:
   3 slots of 36 KB next to 3 x slots of 8, 16 or 32 KB, chosen per launch from the largest
   job's N (every CTA derives the same sizes in its routing prologue).
 
-The skinny kernel is built in several variants (`SKINNY_VARIANTS`: 8 or 16 compute warps, 4
-or 5 ring slots, and loads-only diagnostic modes that stream the weights without computing);
+The skinny kernel is built in several variants (`SKINNY_VARIANTS`: 8 or 16 compute warps, 3
+or 4 ring slots, and loads-only diagnostic modes that stream the weights without computing;
+since 2026-10-29 `(8, 3, 0)`, sk8w3s, the 3-slot ring, which beat sk8w4s on 36 of 36 paired
+seeds at 1, 8 and 16 tokens in 75bca9775f6f4b0b; the inliner carries it unchanged, see
+docs/runs-moe.md, "Skinny weight stream against the public kernel", Port);
 the fat kernel in a computing and a loads-only mode. `prepare` times every computing variant
 per batch size (graph replay, cold L2, synthetic routings) and keeps the fastest as
 `state["policy"]`, keyed by the sizes in `POLICY_BS`; `kernel_fn` looks the variant up by M.
