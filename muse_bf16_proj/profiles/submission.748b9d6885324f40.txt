@@ -1,0 +1,192 @@
+okc run 748b9d6885324f40 on muse_bf16_proj
+submission  /Users/gretchengabo/GitHub/okc/.claude/worktrees/agent-af476e87527c7786b/muse_bf16_proj/submission.py
+status      ok
+passed      true
+speedup     1.3942650686342275
+speedup_ci  [1.373351092604714 1.4151790446637407]
+score_us    3464.7644186711786
+tests       9/9 passed
+
+scored shapes (µs; speed of light is the reference's bound)
+case                                                         sglang      yours  speedup        sol  
+layer=qkv_gate load=decode 1 m=1                              14.37      10.27   1.400x       7.87  
+layer=o load=decode 1 m=1                                      6.77       5.31   1.274x       3.50  
+layer=pooler load=decode 1 m=1                                21.49      14.26   1.506x      13.99  
+layer=unpooler load=decode 1 m=1                               6.72       3.49   1.923x       1.75  
+layer=router load=decode 1 m=1                                10.21       3.53   2.894x       1.75  
+layer=qkv_gate load=decode 16 m=16                            14.24      10.54   1.351x       7.93  
+layer=o load=decode 16 m=16                                    6.85       6.04   1.134x       3.56  
+layer=pooler load=decode 16 m=16                              21.41      14.49   1.477x      14.06  
+layer=unpooler load=decode 16 m=16                            18.59      14.10   1.319x      14.06  
+layer=router load=decode 16 m=16                              14.78       5.36   2.757x       1.81  
+layer=qkv_gate load=decode 32 m=32                            14.34      11.79   1.216x       8.00  
+layer=o load=decode 32 m=32                                    6.62       6.03   1.098x       3.62  
+layer=pooler load=decode 32 m=32                              21.71      15.27   1.422x      14.14  
+layer=unpooler load=decode 32 m=32                            18.67      14.79   1.262x      14.14  
+layer=router load=decode 32 m=32                              15.26       5.92   2.579x       1.86  
+layer=qkv_gate load=verify 1 m=8                              14.50      10.93   1.326x       7.90  
+layer=o load=verify 1 m=8                                      6.72       5.90   1.139x       3.53  
+layer=pooler load=verify 1 m=8                                21.09      14.33   1.472x      14.02  
+layer=unpooler load=verify 1 m=8                               7.10       4.74   1.498x       1.76  
+layer=router load=verify 1 m=8                                26.14       5.49   4.764x       1.78  
+layer=qkv_gate load=verify 16 m=128                           16.91      16.84   1.004x       8.42  
+layer=o load=verify 16 m=128                                   7.42       7.56   0.982x       3.99  
+layer=pooler load=verify 16 m=128                             25.06      26.13   0.959x      14.64  
+layer=unpooler load=verify 16 m=128                           19.87      19.89   0.999x      14.64  
+layer=router load=verify 16 m=128                             16.26       8.56   1.900x       2.21  
+layer=qkv_gate load=verify 32 m=256                           19.81      19.76   1.003x       9.77  
+layer=o load=verify 32 m=256                                   9.50       9.60   0.990x       4.48  
+layer=pooler load=verify 32 m=256                             30.94      30.30   1.021x      17.37  
+layer=unpooler load=verify 32 m=256                           24.54      24.81   0.989x      17.37  
+layer=router load=verify 32 m=256                             17.46      10.56   1.653x       2.68  
+
+profile 0: layer=qkv_gate load=decode 1 m=1
+kernel                                                           GPU time  share  calls
+void (anonymous namespace)::sk_kernel<1, 8, 3, 1, 4, 2, 5...       9.2 µs 100.0%      1
+total                                                              9.2 µs
+
+profile 1: layer=o load=decode 1 m=1
+kernel                                                           GPU time  share  calls
+void (anonymous namespace)::cgemv_kernel<64, 1>(uint4 con...       5.2 µs 100.0%      1
+total                                                              5.2 µs
+
+profile 2: layer=pooler load=decode 1 m=1
+kernel                                                           GPU time  share  calls
+void (anonymous namespace)::sk_kernel<1, 8, 1, 2, 2, 4, 3...      13.2 µs 100.0%      1
+total                                                             13.2 µs
+
+profile 3: layer=unpooler load=decode 1 m=1
+kernel                                                           GPU time  share  calls
+(anonymous namespace)::sgemv_kernel(uint4 const*, uint4 c...       3.2 µs 100.0%      1
+total                                                              3.2 µs
+
+profile 4: layer=router load=decode 1 m=1
+kernel                                                           GPU time  share  calls
+(anonymous namespace)::rgemv_kernel(float4 const*, uint2 ...       3.1 µs 100.0%      1
+total                                                              3.1 µs
+
+profile 5: layer=qkv_gate load=decode 16 m=16
+kernel                                                           GPU time  share  calls
+void (anonymous namespace)::sk_kernel<1, 16, 3, 1, 4, 2, ...       9.4 µs 100.0%      1
+total                                                              9.4 µs
+
+profile 6: layer=o load=decode 16 m=16
+kernel                                                           GPU time  share  calls
+void (anonymous namespace)::sk_kernel<1, 16, 2, 2, 1, 4, ...       4.8 µs 100.0%      1
+total                                                              4.8 µs
+
+profile 7: layer=pooler load=decode 16 m=16
+kernel                                                           GPU time  share  calls
+void (anonymous namespace)::sk_kernel<1, 16, 2, 2, 2, 4, ...      14.3 µs 100.0%      1
+total                                                             14.3 µs
+
+profile 8: layer=unpooler load=decode 16 m=16
+kernel                                                           GPU time  share  calls
+void (anonymous namespace)::sk_kernel<1, 16, 2, 2, 2, 2, ...      13.4 µs 100.0%      1
+total                                                             13.4 µs
+
+profile 9: layer=router load=decode 16 m=16
+kernel                                                           GPU time  share  calls
+void (anonymous namespace)::sk_kernel<1, 16, 1, 1, 8, 1, ...       4.3 µs 100.0%      1
+total                                                              4.3 µs
+
+profile 10: layer=qkv_gate load=decode 32 m=32
+kernel                                                           GPU time  share  calls
+void (anonymous namespace)::sk_kernel<2, 32, 3, 1, 4, 2, ...      11.5 µs 100.0%      1
+total                                                             11.5 µs
+
+profile 11: layer=o load=decode 32 m=32
+kernel                                                           GPU time  share  calls
+void (anonymous namespace)::sk_kernel<2, 32, 2, 2, 2, 2, ...       5.3 µs 100.0%      1
+total                                                              5.3 µs
+
+profile 12: layer=pooler load=decode 32 m=32
+kernel                                                           GPU time  share  calls
+void (anonymous namespace)::sk_kernel<2, 32, 2, 2, 2, 4, ...      15.6 µs 100.0%      1
+total                                                             15.6 µs
+
+profile 13: layer=unpooler load=decode 32 m=32
+kernel                                                           GPU time  share  calls
+void (anonymous namespace)::sk_kernel<2, 32, 2, 2, 2, 2, ...      15.3 µs 100.0%      1
+total                                                             15.3 µs
+
+profile 14: layer=router load=decode 32 m=32
+kernel                                                           GPU time  share  calls
+void (anonymous namespace)::sk_kernel<2, 32, 1, 1, 8, 1, ...       4.9 µs 100.0%      1
+total                                                              4.9 µs
+
+profile 15: layer=qkv_gate load=verify 1 m=8
+kernel                                                           GPU time  share  calls
+void (anonymous namespace)::sk_kernel<1, 8, 3, 1, 4, 2, 5...       9.0 µs 100.0%      1
+total                                                              9.0 µs
+
+profile 16: layer=o load=verify 1 m=8
+kernel                                                           GPU time  share  calls
+void (anonymous namespace)::sk_kernel<1, 8, 4, 1, 4, 1, 4...       4.4 µs 100.0%      1
+total                                                              4.4 µs
+
+profile 17: layer=pooler load=verify 1 m=8
+kernel                                                           GPU time  share  calls
+void (anonymous namespace)::sk_kernel<1, 8, 1, 2, 2, 4, 3...      13.9 µs 100.0%      1
+total                                                             13.9 µs
+
+profile 18: layer=unpooler load=verify 1 m=8
+kernel                                                           GPU time  share  calls
+void (anonymous namespace)::sk_kernel<1, 8, 1, 1, 8, 2, 4...       3.6 µs 100.0%      1
+total                                                              3.6 µs
+
+profile 19: layer=router load=verify 1 m=8
+kernel                                                           GPU time  share  calls
+void (anonymous namespace)::sk_kernel<1, 8, 1, 1, 8, 1, 6...       4.2 µs 100.0%      1
+total                                                              4.2 µs
+
+profile 20: layer=qkv_gate load=verify 16 m=128
+kernel                                                           GPU time  share  calls
+nvjet_sm90_tst_96x64_64x10_4x2_h_bz_splitK_TNN                    13.1 µs  81.0%      1
+void cublasLt::splitKreduce_kernel<32, 16, int, float, __...       3.1 µs  19.0%      1
+total                                                             16.1 µs
+
+profile 21: layer=o load=verify 16 m=128
+kernel                                                           GPU time  share  calls
+nvjet_sm90_tst_128x64_64x8_1x2_h_bz_TNT                            5.5 µs 100.0%      1
+total                                                              5.5 µs
+
+profile 22: layer=pooler load=verify 16 m=128
+kernel                                                           GPU time  share  calls
+nvjet_sm90_tst_64x64_64x13_2x1_v_bz_TNT                           25.5 µs 100.0%      1
+total                                                             25.5 µs
+
+profile 23: layer=unpooler load=verify 16 m=128
+kernel                                                           GPU time  share  calls
+nvjet_sm90_tst_128x64_64x8_1x2_h_bz_TNT                           20.1 µs 100.0%      1
+total                                                             20.1 µs
+
+profile 24: layer=router load=verify 16 m=128
+kernel                                                           GPU time  share  calls
+void (anonymous namespace)::wd_kernel<1, 128, 16, 1, true...       7.6 µs 100.0%      1
+total                                                              7.6 µs
+
+profile 25: layer=qkv_gate load=verify 32 m=256
+kernel                                                           GPU time  share  calls
+nvjet_sm90_tst_96x64_64x10_2x4_h_bz_TNN                           19.8 µs 100.0%      1
+total                                                             19.8 µs
+
+profile 26: layer=o load=verify 32 m=256
+kernel                                                           GPU time  share  calls
+nvjet_sm90_tst_128x128_64x6_2x1_v_bz_TNT                           8.1 µs 100.0%      1
+total                                                              8.1 µs
+
+profile 27: layer=pooler load=verify 32 m=256
+kernel                                                           GPU time  share  calls
+nvjet_sm90_tst_128x64_64x8_1x2_h_bz_TNT                           28.4 µs 100.0%      1
+total                                                             28.4 µs
+
+profile 28: layer=unpooler load=verify 32 m=256
+kernel                                                           GPU time  share  calls
+nvjet_sm90_tst_128x128_64x6_2x1_v_bz_TNT                          24.9 µs 100.0%      1
+total                                                             24.9 µs
+
+profile 29: layer=router load=verify 32 m=256
+kernel                                                           GPU time  share  calls
+void (anonymous namespace)::wd_kernel<1, 128, 8, 1, true,...       8.6 µs 100.0%      1
+total                                                              8.6 µs

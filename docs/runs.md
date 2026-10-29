@@ -193,3 +193,33 @@ Losers from the wide-kernel runs moved to docs/ruled-out.md.
 | 2026-10-28 | b052544c8c2946f6 (submit by the coordinator, 23:11 UTC, before the check reset) | 1d2909c | Close-out test (plan 2026-10-29 item 5): wide-row wd geometries w4n128k8, w4n128k4, w2n256k4 (one x read per 128 or 256 output rows, K split 4-8 across the cluster); router BN 64 at m=256; BF16 multicast configs dropped | 1.390x (1.369-1.411) | Tuner kept cuBLAS on every BF16 shape at m=128/256. Best wide-row vs cuBLAS (us): pooler m=128 w4n128k4 33.1 vs 30.0, m=256 w2n256k4 58.0 vs 32.6; unpooler m=128 w4n128k4 42.5 vs 24.9, m=256 w2n256k4 55.6 vs 29.0; qkv_gate m=128 w4n128k8 25.2 vs 21.3, m=256 w2n256k4 31.5 vs 23.7; o m=128 w4n128k4 25.0 vs 11.7, m=256 w2n256k4 33.7 vs 13.7. The existing b1n128c2 stays the closest wd config (pooler m=128 30.5 vs 30.0). Ablation pooler m=128 w4n128k8: full 45.4, memory pipeline alone 39.3, without reduction and stores 30.2, so the cluster reduction across 8 CTAs costs about 15 us. Router picks r128c16 at m=128 (13.1 vs baseline 22.2) and r128c8 at m=256 (14.8 vs 23.4); r64c8 at m=256 is 15.1, so BN 64 does not help. Score within noise of 8d4b485c8ccf4674. Verdict: close generic BF16 at m=128/256 (cuBLAS), keep the wd router |
 
 Losers from these runs are in docs/ruled-out.md.
+
+## 32-token skinny projection attribution 2026-10-29 (branch worktree-agent-af476e87527c7786b)
+
+The question (steering plan step 7): why the 32-token pooler is slower than the 16-token one
+for the same weights, with compressed and raw nearly equal in the tuner. Autotune us below are
+cold-L2 graph replays in prepare(), same process; judged us from the profile.
+
+| date | job | commit | change | score (95% CI) | notes |
+|---|---|---|---|---|---|
+| 2026-10-29 | a9ff49372ffa4eaf | 68c83ac | Token-count sweep of the compiled pool32/qkv32/unp32 kernels in prepare(); 2-CTA cluster split-K for compressed configs (pool32c, pool32cw, unp32c) | 1.401x (1.380-1.422) | Sweep: pool32 21.9 / 21.8 / 21.8 / 22.0 / 22.3 at M = 1 / 8 / 16 / 24 / 32 against pool16 19.1 at M = 16; qkv32 15.3 / 15.5 / 15.8 at 1 / 16 / 32 against qkv16 14.3; unp32 19.2 / 19.5 at 16 / 32 against unp16 18.3. The x bytes do not set the time. Cluster split-K halves x per CTA and does not help (pool32c 22.0 picked over 22.3; unp32c 23.4 vs 19.4). Judged pooler m=32 17.61 |
+| 2026-10-29 | 105c1beba7284938 | fdaf3f4 | Factor split: p32mt1 (pool32's ring, MT 1), p16mt2 (pool16's ring, MT 2, 3 slots), pool32a2 (NACC 2), pool32w8 (8 consumer warps) | 1.400x (1.379-1.421) | pooler m=32: pool32 22.6, p16mt2 19.8 (picked), pool32a2 22.2, pool32w8 21.4; m=16: pool16 18.8, p32mt1 19.5. Only MT 2 with 2 units per warp per stage is slow. Judged pooler m=32 15.13 |
+| 2026-10-29 | 748b9d6885324f40 | 5e66659 | pool32 = (2, 32, 2, 2, 2, 4, 4) (fits 3 slots), old geometry kept as pool32u2; qkv32u4, unp32u4, unp32r32 | 1.394x (1.373-1.415) | Repeat: pool32 19.3 vs pool32u2 22.2 (sweep 19.6 vs 22.1; at M = 16 19.0 vs 22.0); qkv32u4 17.5 vs 15.6, unp32u4 21.0 vs 19.4, unp32r32 19.1 vs 19.4. Judged pooler m=32 15.27 |
+| 2026-10-29 | 73aa65b0ccec4745 | 84b47ba | Per-role cycle stamps (diagnostic build, clock64 in the loops, eager launches, cold L2, 10 reps) | 1.393x (1.373-1.414) | Per warp, us at 1.98 GHz. pool32u2 m=32: consumer 14.18 total, 3.61 waiting on full slots (10.57 busy); producer 9.01 of 12.89 waiting on empty slots. pool32u2 m=1: 14.02 / 3.43 (10.59 busy). New pool32 m=32: 11.54 / 2.87 (8.67 busy). pool16 m=16: 10.92 / 3.58 (7.34 busy) |
+| 2026-10-29 | 6c5787fb0e3944bd | 05de50b | Final file: the original kernel and tables with only the pool32 geometry changed; diagnostics and losing candidates removed | 1.395x (1.374-1.416) | tune pooler m=32: pool32 19.8, raw 22.2, cuBLAS 25.9. Judged pooler m=32 15.42 (17.73 in 3843af6418a84a72, 17.61 in a9ff49372ffa4eaf). m = 1 / 8 / 16 run unchanged kernels: 14.34 / 14.08 / 14.30 vs 14.39 / 13.87 / 14.17 in a9ff49372ffa4eaf. Score inside the noise of 8d4b485c8ccf4674 (1.400x): one shape of one load |
+
+What limits the old 32-token pooler (measured): the consumer warps. They are busy for about 75% of
+the kernel (10.6 of 14.2 us per warp), and the busy time is the same at 1 token and at 32
+(10.59 vs 10.57 us). Streamed x bytes are therefore not the cause, and neither is accumulator
+independence (NACC 2: -0.4 us, noise). The busy time depends on the stage count at a fixed HMMA
+count: 4 units per warp per stage (16 stages) instead of 2 (32 stages) cuts it by 1.9 us. That
+is about 120 ns of fixed consumer path per stage. Splitting that path (wait loop and
+`__all_sync`, the operand loads' latency before the first HMMA, `fence.proxy.async` and the
+arrive, decode) is a hypothesis; the stamps do not resolve it. The cost shows only at MT 2: with
+MT 1 the 32-stage ring (p32mt1) is within 0.6 us of pool16, so the per-stage path has to stack on
+twice the HMMA work before the consumer, rather than HBM, sets the pace.
+
+Port to the layer: the layer's T = 32 MoE front picks "mma" (2fed900548ec4d5b), which runs the
+pooler through `_proj` on pool32. The port is one geometry row, regenerated by
+tools/dl_proj_inline.py from SK_GEOM. Expected gain at decode 32: about 2.3 us of judged pooler
+time per layer step (standalone number, unverified in the layer).
