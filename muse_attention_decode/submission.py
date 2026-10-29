@@ -1,4 +1,5 @@
 # okc: problem=muse_attention_decode
+# Repeat of check b0b146dfbb4841b2: this line is the only change.
 """Gated attention decode for Muse Spark Open on one H200.
 
   Default (attn_one.cu, tp8 heads): one launch per call. A CTA takes one request, one KV
