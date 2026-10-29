@@ -2886,9 +2886,12 @@ constexpr int COOP_POLL_LIMIT = 1 << 24;
 #define ONE_DIET 1
 #endif
 // ONE_FIN8: the finalize issues all eight workspace copies' loads (nc = 8, batch-1 full
-// context) before zeroing any, as one L2 round trip instead of eight dependent ones.
+// context) before zeroing any, as one L2 round trip instead of eight dependent ones. Each thread
+// still loads an address before it zeroes it and no other thread touches that address after the
+// cooperative barrier, so moving the other copies' loads ahead of the stores needs no fence
+// (PTX memory model, docs/runs-attention.md, 10-29).
 #ifndef ONE_FIN8
-#define ONE_FIN8 0
+#define ONE_FIN8 1
 #endif
 
 // MODE bits: 1 = last-CTA finalize, 3 = cooperative finalize (every CTA a slice of rows),
