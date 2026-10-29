@@ -107,7 +107,7 @@ through `_ONE_DBG`.
 - Page size a power of two (since 10-29 the kernel indexes pages by shift and mask,
   `ONE_DIET`); `_one_ok` sends any other page size to the fallback, and the host wrapper
   refuses it.
-- Build switches (defaults are what the judge ran in 6f75235c0d364a7a): `ONE_DIET=1` (the
+- Build switches (defaults are what the judge ran in 0d05f9b2df1e4834): `ONE_DIET=1` (the
   once-path diet; the q_len 8 producer builds keep the plain path), `ONE_DIAG=0` (no stamps or
   phase exits; a bench that wants `phase > 0` or the stamps builds with `-DONE_DIAG=1`),
   `ONE_FIN8=1` (the batch-1 full plan's finalize loads all eight workspace copies before
@@ -118,6 +118,13 @@ through `_ONE_DBG`.
   51 and 115 only, every other instance SASS-identical; judged -8.3 us at verify 32 full in
   cb85d590c301410e / 6f75235c0d364a7a). A layer that routes verify 16 / 32 full to mode 51 gets
   it by re-inlining; nothing it passes or owns changes.
+  `ONE_PFAST=1` (producer builds 49, 51, 115: a tile whose rows are all cached is gathered
+  without per-row branches, 32-bit offsets, page index by shift; the host wrapper sets
+  `off32` itself from the cache sizes and the page size; judged -5.8 / -12.3 us at verify
+  16 / 32 full and -2.6 / -10.4 at decode 16 / 32 full in ca0f13d324ef48e8 /
+  0d05f9b2df1e4834). The layer gets it by re-inlining; nothing it passes or owns changes.
+  `ONE_STAMP=0 ONE_PROBE=0`: bench-only attribution builds (per-CTA stamps into `dbg`, timing
+  probes with wrong output); never set them in a judged file.
   A layer copy that inlines `attn_one.cu` gets FIN8 by re-inlining; it changes nothing the
   layer passes or owns.
 - Fresh inputs every call; the plan reads only shapes (`page_table.shape[1]` for the
