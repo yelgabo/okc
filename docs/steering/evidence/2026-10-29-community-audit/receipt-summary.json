@@ -1,0 +1,74 @@
+[
+  {
+    "job": "6307d0c91c8d4ada",
+    "problem": "muse_moe_w4a16",
+    "mode": "run",
+    "speedup": 2.159763826368787,
+    "ci": [
+      2.127367368973255,
+      2.1921602837643186
+    ],
+    "test_passes": 5,
+    "content_hash": "e51c6824bc28d91a6fcdd89024a4b04a68d75914bf76d835bb8650d0167a494b"
+  },
+  {
+    "job": "75bca9775f6f4b0b",
+    "problem": "muse_moe_w4a16",
+    "mode": "run",
+    "speedup": 2.006267140927315,
+    "ci": [
+      1.9761731338134052,
+      2.0363611480412245
+    ],
+    "test_passes": 5,
+    "content_hash": "8d275b273aad5d63056e929a85343fab40055c463d69c2a50f07a6f8bddcce69"
+  },
+  {
+    "job": "81254e8aed794eab",
+    "problem": "muse_bf16_proj",
+    "mode": "run",
+    "speedup": 1.4438792057504466,
+    "ci": [
+      1.4222210176641898,
+      1.4655373938367031
+    ],
+    "test_passes": 9,
+    "content_hash": "d6b7b8743129510aa9b5c2deecc094205d6a892633b170fe735f1cf689d7e145"
+  },
+  {
+    "job": "9b921febc7ad4140",
+    "problem": "muse_decode_layer",
+    "mode": "run",
+    "speedup": 1.9640856616254645,
+    "ci": [
+      1.9346243767010824,
+      1.9935469465498463
+    ],
+    "test_passes": 13,
+    "content_hash": "8de7099397c558e9ac1a100ec6736ee113fea0d4bec9ddafcd477dbe05010a7f"
+  },
+  {
+    "job": "ca43908f02874886",
+    "problem": "muse_moe_w4a16",
+    "mode": "check",
+    "speedup": 2.1742965685621627,
+    "ci": [
+      2.1416821200337304,
+      2.206911017090595
+    ],
+    "test_passes": 5,
+    "content_hash": "87cc024dba17af0ed770d8071b021a1af0145884ef97a2a3d28ed36beaaed2b5"
+  },
+  {
+    "job": "e9085c86d89449c2",
+    "problem": "muse_attention_decode",
+    "mode": "run",
+    "speedup": 2.5041285619716027,
+    "ci": [
+      2.4665666335420284,
+      2.5416904904011766
+    ],
+    "test_passes": 16,
+    "content_hash": "d30a41d9d928eb5239fc50d9aa3b48094e6f7278ab8a137bb218d8862523e14d"
+  }
+]

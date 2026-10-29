@@ -1,0 +1,370 @@
+# OKC Community Audit Verification and Judge-Run Execution Plan
+
+## Executive summary
+
+The prior community audit is **directionally sound**, but several findings need narrower wording after verification against the primary sources. The highest-value conclusion for today is unchanged: **do not spend judge quota on broad architectural rewrites or speculative prefetching. Spend the first part of the day on compiler/SASS verification and correctness audits, then spend performance quota on small-token MoE resource experiments and narrowly scoped attention scheduling changes.** The official challenge still runs each kernel on a single H200 SXM, times CUDA-graph executions against SGLang, allows 20 `okc check` runs and 10 scored submissions per problem per day, and exposes the remaining quota through `okc problems`. citeturn626925search1turn933765search1
+
+The **bounded-wait/`__trap()` WGMMA finding is verified as a real participant observation, but not yet as an NVIDIA- or compiler-documented rule**. QuantIntellect reports that nvcc 13.0 / `sm_90a` emits ptxas warning C7512 and serializes WGMMA across a function when a bounded `mbarrier.try_wait` timeout path contains `__trap()`. The claimed symptoms are a 168-register cap and `WARPGROUP.DEPBAR` behavior after each HGMMA. That makes SASS inspection the highest-return zero-judge-cost action, but it does **not** justify modifying timeout semantics before confirming that our generated kernel exhibits the same codegen. citeturn661590search2
+
+The **Humming resource-policy finding is verified and becomes more precise**. Its SM90 policy explicitly reasons about `num_ctas_per_sm`, warp specialization, TMA use, stage count, block/warp shape, and preservation of residency; `get_compact_moe_config()` only accepts its compact form when tile shape, warp shape, residency, and pipeline constraints survive re-fitting. Importantly, it applies only to WNA16 grouped WGMMA cases under several conditions, so Humming should be used as a **resource-selection heuristic**, not copied mechanically into our tiny `mma.sync` path. citeturn646925view0turn438596view0
+
+The **zhebrak result is strongly verified**. Its archived decode-layer judge receipt records H200 job `3c4a470e51c4421e`, finished October 28, passing with a **2.014592× speedup and a 1.984374–2.044811 confidence interval**. Its MoE implementation also exposes an unusually broad family of token tilings, split-K factors, stage/prefetch choices, explicit register-capped variants, fine-grained readiness signalling, and distinct GEMM1/GEMM2 dispatch entry points. This supports investigating asymmetric GEMM organization, but it does **not** establish that copying its full MoE architecture will beat our present one. citeturn750611view11turn162033view0turn646925view4
+
+The **attention-prologue finding is verified but was previously somewhat overgeneralized**. FlashInfer PR #6976 moved Q/K/V loads before the first barrier for two Hopper variable-block-sparse-attention programs and measured **0.5–1.8% improvement relative to the immediately preceding version**. The experiment was on an H100 SXM, BF16, head dimension 128, and a different sparse-attention workload—not Muse’s H200, FP8-cache, head-dim-64 decode path. The transferable claim is therefore only that **shortening the dependency-free prologue can be measurable**, not that this patch predicts a 0.5–1.8% Muse improvement. citeturn646925view1turn438596view1
+
+The **PDL-ordering findings are verified, with an important qualification**. FlashInfer issue #7525 identifies a non-coherent statistics load and a `griddepcontrol.wait` inline-asm memory-clobber problem; issue #7526 identifies control-flow metadata read before a dependency wait. However, #7525’s demonstrated SASS example is SM103a and #7526’s principal cubin example is SM100f/GB300. They are therefore excellent **memory-ordering audit templates**, not evidence that our H200 kernel has those exact bugs. citeturn438596view2turn438596view3
+
+The **negative prefetch evidence is verified and should materially affect today’s queue**. Sudhendra reports that `cp.async.bulk.prefetch.L2` of upcoming projection weights from a side graph branch lost **0–18% across every decode shape**, and that even a warm output-projection weight set at T=1 saved only about 0.3 µs. This is participant evidence rather than an official benchmark, but it aligns with a strong mechanistic explanation: the prefetch consumes bandwidth while attention or MoE already needs it. No generic projection-weight prefetch experiment belongs in today’s judge budget unless we can identify a genuinely idle memory interval. citeturn661590search0turn235162search8
+
+Finally, the **replay-correctness warning is verified as a serious engineering constraint**. Jakozaur reports three bugs that escaped normal single-run testing but appeared under queued CUDA-graph replay: mbarrier storage reuse, missing async-proxy fencing before shared-stage reuse, and split-K atomic accumulation into a self-resetting workspace. The suggested practice—thousands of queued graph replays before spending a check—is worth adopting as a gate for every candidate that changes barriers, split-K finalization, PDL, or staging. citeturn661590search4
+
+My priority order for today is therefore: **compiler/SASS audit → PDL/replay correctness audit → integrate already-proven projection wins → small-token MoE resource experiment → one zhebrak-inspired asymmetric-MoE experiment at T≈32 → one attention-prologue scheduling experiment → whole-layer confirmation → scored submission only for variants that clearly survive the layer gate.** The official scored decode workload contains 12 combinations spanning decode B=1/16/32 and verify B=1/16/32, each on sliding and full attention, so component improvements must ultimately survive those mixed paths. citeturn341819search2
+
+## Verification audit and repository evidence
+
+The table below separates **primary-source fact**, **what the prior audit said**, and **what we should now treat as actionable**.
+
+| Finding | Primary source and supporting file/thread | Verification result | Discrepancy or qualification |
+|---|---|---|---|
+| Bounded `__trap()` can poison WGMMA scheduling | Guild QuantIntellect thread, nvcc 13 / `sm_90a` report. citeturn661590search2 | **Verified as participant measurement** | Not an NVIDIA compiler guarantee; must reproduce in our generated SASS before changing code |
+| Humming prefers resource-preserving compact MoE schedules | [`humming/tune/sm90_policies.py`](https://github.com/vllm-project/humming/blob/main/humming/tune/sm90_policies.py), especially `get_compact_moe_config()`. citeturn646925view0turn438596view0 | **Verified** | More constrained than prior summary: WNA16, grouped/WGMMA, block-K=64, eligible warp shapes, preserved residency |
+| zhebrak has a >2× layer receipt | [`winners/muse_decode_layer/result.json`](https://github.com/zhebrak/muse-spark-kernels/blob/ff4d55ab669977f15874943044d20312d98a44d1/winners/muse_decode_layer/result.json). citeturn750611view11 | **Verified** | Receipt proves that archived submission, not superiority of every individual component |
+| zhebrak uses rich per-shape MoE specialization | [`winners/muse_moe_w4a16/submission.py`](https://github.com/zhebrak/muse-spark-kernels/blob/ff4d55ab669977f15874943044d20312d98a44d1/winners/muse_moe_w4a16/submission.py). citeturn162033view0turn646925view4 | **Verified** | Prior shorthand “1–7 / 8–16 / 17–63 / 64+” is less directly visible than claimed; use the actual dispatch/config parameters rather than relying on that simplified taxonomy |
+| Attention prologue hoisting can help | FlashInfer PR #6976. citeturn438596view1 | **Verified** | H100, BF16, hd=128, variable block-sparse attention; mechanism transfers, magnitude does not |
+| PDL data can be read too early | FlashInfer #7526. citeturn438596view3 | **Verified** | Principal demonstrated cubins are SM100f; treat as audit pattern on H200 |
+| `griddepcontrol.wait` needs compiler-ordering care; noncoherent loads can be unsafe | FlashInfer #7525 and older #2558. citeturn438596view2turn661590search10 | **Verified** | #7525 did not observe an actual wrong result; it is a memory-model finding |
+| Projection-side L2 prefetch can regress whole-layer decode | Guild Sudhendra thread. citeturn661590search0 | **Verified as participant measurement** | Not universal proof that every prefetch is bad; it closes the generic “prefetch next projection weights” hypothesis |
+| Queued replay exposes bugs invisible to synchronized microbenchmarks | Guild jakozaur thread. citeturn661590search4 | **Verified as participant measurement** | Exact bugs are implementation-specific; the validation method is broadly applicable |
+| Nathen’s projection implementation achieved 1.5186× | [`NathenFernandes/muse-bf16-proj`](https://github.com/NathenFernandes/muse-bf16-proj). citeturn810842view3turn933765search4 | **Verified** | Useful projection reference; performance is explicitly workload/H200-specific |
+| Operatorstack publishes complete H200 solutions | [`operatorstack/open-kernel-challenge-solutions`](https://github.com/operatorstack/open-kernel-challenge-solutions). citeturn810842view4 | **Verified repository existence/source status** | I found no evidence in this pass that it changes today’s top priorities |
+| infraax maintains explicit hypothesis logs | [`infraax/okc-kernel-challenge/HYPOTHESES.md`](https://github.com/infraax/okc-kernel-challenge/blob/main/HYPOTHESES.md). citeturn810842view2 | **Verified** | Use as negative-evidence reference, not as an authoritative performance oracle |
+| vjeux and ruwwww publish attention implementations | [`vjeux/okc-2026/muse_attention_decode.py`](https://github.com/vjeux/okc-2026/blob/main/muse_attention_decode.py) and [`ruwwww/.../submission.py`](https://github.com/ruwwww/open-kernel-challenge/blob/main/muse_attention_decode/submission.py). citeturn810842view0turn810842view1 | **Verified that both files exist and are structurally the same size class** | I did **not** re-establish the prior byte-for-byte/blob-SHA identity through a primary GitHub metadata endpoint in this pass, so that exact-identity claim should be treated as unverified here |
+
+One additional community-data correction is important for planning. The public leaderboard is currently unavailable through the official site, so **archived result receipts are more reliable than live rank claims for comparative engineering decisions today**. Official judging also states that final positions remain provisional until reruns and review, which is another reason to treat architecture and per-shape evidence as more valuable than rank screenshots. citeturn235162search3turn933765search1
+
+The official workload itself strongly argues against optimizing only one token regime. Decode-layer scoring covers decode at B=1, 16, and 32 and verify at B=1, 16, and 32 with q_len=8; therefore token counts effectively include T=1, 16, 32, 8, 128, and 256, each under both sliding and full attention. Any candidate that improves T=32 but hurts T=128/256 needs to stay shape-dispatched rather than replacing the global path. citeturn341819search2
+
+## Prioritized experiment portfolio by architectural family
+
+The priorities below assume judge quota is valuable but not scarce enough to prevent disciplined A/B testing. “Judge runs” means **checks first**, not scored submissions. Officially, `okc check` and scored submission are separate quota classes, and current limits should be queried before execution. citeturn933765search1turn933765search2
+
+| Priority | Family / experiment | Dependency | Effort | Required resources | Judge allocation | Primary metrics | Stop criterion |
+|---|---|---|---|---|---:|---|---|
+| **P0** | **Compiler: bounded-wait/WGMMA SASS audit** | None | Low | Local build with judge-equivalent nvcc if available; inspect SM90a binary | **0 initially** | ptxas warnings; registers; HGMMA/DEPBAR placement; spills | Stop if no C7512, no unexpected `WARPGROUP.DEPBAR`, and WGMMA remains pipelined |
+| **P0** | **Boundary/PDL: dependency-order audit + replay soak** | Current candidate frozen | Low–Med | One H200/local equivalent for replay stress; generated PTX/SASS | 0–1 | mismatches over ≥2k queued replays/shape; pre-wait loads; counter reset state | Stop on first correctness failure; otherwise graduate after zero errors |
+| **P1** | **Projections: integrate already-measured projection candidate(s)** | Replay gate | Low | H200 check; projection shapes m=1/8/16/32/128/256 | 1 projection check + 1 layer check | per-shape µs, geometric score, layer delta | Revert if standalone gain does not survive whole-layer timing |
+| **P1** | **MoE: Humming-inspired resource compaction at small T** | SASS baseline and replay gate | Med | SM90a; T=1,8,16,32; occupancy/register/smem data | 2 MoE checks | µs by T; resident CTAs/SM; registers/thread; smem/CTA | Stop if no ≥2% repeatable gain on targeted small-T shapes or any larger-T regression without clean dispatch |
+| **P2** | **MoE: zhebrak-inspired asymmetric GEMM1/GEMM2 at T≈32** | Small-T resource study identifies bottleneck | Med–High | H200; T=16/32 primarily; T=8/128 regression guard | 2 MoE checks + 1 layer check if positive | GEMM1/GEMM2 times, ready-wait bubbles, whole MoE, layer | Stop unless MoE improves ≥2–3% at T=32 with <1% regressions elsewhere or clean shape dispatch |
+| **P2** | **Attention: shorten dependency-free prologue** | Compiler audit done | Med | H200; decode B=1/16/32, full+sliding; inspect SASS | 2 attention checks + 1 layer check if positive | cycles before first QK issue; kernel µs; register delta; full/sliding split | Stop if first-use latency unchanged in SASS or judge gain <~1% and noisy |
+| **P3** | **Boundary/PDL: earlier dependent launch only where successor performs independent prefetch/setup** | PDL correctness audit | Med | H200; whole layer | 1 layer check | inter-kernel gaps, overlap, correctness under replay | Stop if successor touches predecessor-produced state before wait or layer gain ≤ noise |
+| **Closed** | **Generic projection L2 side-stream prefetch** | — | — | — | **0** | — | Reopen only with evidence of idle BW or much smaller prefetch footprint |
+| **Closed today** | **Broad attention rewrite / broad persistent-MoE rewrite** | — | High | many runs | **0** | — | Only reopen after targeted experiments fail and a new bottleneck is established |
+
+### Attention
+
+The best attention experiment is not “adopt FlashInfer #6976,” but **move only operations proven independent of the first barrier/wait ahead of it and verify earlier first useful QK issue in SASS**. FlashInfer’s change explicitly moved initial Q/K/V loads before the initial barrier and produced a small measurable gain on Hopper. citeturn438596view1
+
+The SASS inspection target should be the interval from kernel entry to the first real QK tensor-core issue. Record instruction count and dependency structure around address generation, descriptor construction, first global/cache loads, barrier waits, `HGMMA`/`WGMMA`, and any `WARPGROUP.DEPBAR`. If the patch merely moves source statements but ptxas restores the same schedule, do not spend a judge check.
+
+For judge coverage, use all six attention regimes represented by the layer: decode B=1/16/32 and verify-derived T=8/128/256 where practical, and distinguish full-context from 2,048-token sliding-window cases because the official workload scores both. The attention problem itself also uses a paged FP8 cache and requires exact coverage of all permitted keys and softmax terms, so no scheduling optimization may alter logical attention coverage. citeturn235162search0turn626925search1
+
+### MoE
+
+The Humming-inspired experiment should be framed as a **resource-threshold sweep**, not an algorithm rewrite. Humming’s SM90 code explicitly changes warp specialization/TMA usage and CTA residency only when it can preserve the required tile and pipeline properties; its compact grouped path can disable warp specialization and TMA while retaining at least two CTAs/SM and refusing a candidate if re-fitting changes residency or tile geometry. citeturn646925view0turn438596view0
+
+Concretely, make at most three small-T configurations: current baseline, “reduced producer footprint,” and “higher-residency” variant. Capture ptxas register counts, static/dynamic shared memory, launch bounds, and theoretical/observed resident CTAs per SM before running them. Do not combine changes to tile shape, split-K, pipeline depth, and finalize mechanism in the same first experiment; otherwise a win or loss cannot be attributed.
+
+The zhebrak comparison should be a second-stage experiment. Its kernel exposes independent `moe_gemm1` and `moe_gemm2` calls, many `(nwarps, ttm, pref, kc, rpw, ks)` combinations, and explicit register-capped launch-bound variants; it also uses producer/consumer readiness signalling between phases. citeturn646925view4turn162033view0 The actionable question is therefore: **does GEMM2 want a smaller token tile / different residency than GEMM1 at T=32 in our implementation?** If profiling says no, stop without a judge run.
+
+### Projections
+
+Projection work should receive earlier judge quota than speculative new architectures because an externally published H200 projection implementation has already demonstrated that aggressive shape dispatch and lossless weight packing can pay off, with Nathen Fernandes reporting a judged 1.5186× projection result. citeturn810842view3turn933765search4
+
+Do **not** add generic side-stream weight prefetch. Sudhendra’s whole-layer measurements found it regressed every tested decode shape by as much as 18%, despite a small isolated warm-cache benefit at T=1. citeturn661590search0 Any projection change today should instead reduce bytes, reduce launch/setup cost, improve load coalescing, or select a better algorithm for a specific `(projection, m)` pair.
+
+### Boundary and PDL
+
+Before changing overlap, perform a source/SASS ordering audit using FlashInfer #7525/#7526 as checklists. Any global value produced by a predecessor and consumed by a PDL successor must not influence control flow or address generation before the dependency synchronization point. A compiler-visible dependency wait also needs correct memory-ordering semantics; FlashInfer’s #7525 shows why “the load happens to appear after `ACQBULK` today” is insufficient as a correctness argument. citeturn438596view2turn438596view3
+
+For all PDL and split-K candidates, add queued replay stress before judge use. The community report that found barrier-reuse and self-resetting-atomic failures recommends thousands of back-to-back graph replays because synchronized-per-replay benches can mask publication/reuse bugs. citeturn661590search4
+
+### Compiler and toolchain
+
+This is the first task because it can invalidate conclusions about several other experiments. Search compiler output for **C7512**, register capping, spills, and unexpected whole-function WGMMA serialization. The specific community claim is nvcc 13.0 / `sm_90a`; the official OKC environment permits native CUDA via `load_inline` and runs H200, so the toolchain behavior is directly relevant if our submission takes that route. citeturn661590search2turn235162search2
+
+The main binary-inspection targets are:
+
+```bash
+# Find the JIT-built .so or cubin produced by the candidate.
+find ~/.cache/torch_extensions /tmp -type f \
+  \( -name '*.so' -o -name '*.cubin' \) -mmin -30 2>/dev/null
+
+# Inspect ptxas diagnostics during a clean rebuild.
+rm -rf ~/.cache/torch_extensions/<candidate-build-dir>
+TORCH_EXTENSIONS_DIR="$PWD/.torch_ext" python <your-local-build-or-test-entrypoint>.py \
+  2>&1 | tee build.log
+grep -Ei 'ptxas|C7512|register|spill|warning' build.log
+
+# SASS.
+cuobjdump --dump-sass .torch_ext/**/**/*.so > candidate.sass
+grep -nE 'HGMMA|WGMMA|WARPGROUP|DEPBAR|ACQBULK|TRAP|LDG\.E|BAR|MBARRIER' \
+  candidate.sass > candidate.targets.txt
+
+# Resource metadata.
+cuobjdump --dump-resource-usage .torch_ext/**/**/*.so
+```
+
+If a standalone cubin is available, run `nvdisasm` as well and compare the bounded-wait version against a semantics-preserving no-trap diagnostic build. The decision metric is **generated code**, not CUDA source appearance.
+
+## Task dependency graph
+
+```mermaid
+flowchart TD
+    A[Freeze today's known-good baseline] --> B[Query OKC quota]
+    A --> C[Clean build and capture ptxas diagnostics]
+
+    C --> D{C7512 / WGMMA serialization?}
+    D -->|Yes| E[Create semantics-preserving timeout-path diagnostic variant]
+    D -->|No| F[Keep compiler path unchanged]
+
+    E --> G[SASS A/B: HGMMA, DEPBAR, registers, spills]
+    F --> H[PDL + replay correctness audit]
+    G --> H
+
+    H --> I{>=2k queued replays/shape clean?}
+    I -->|No| J[Fix correctness and rollback perf experimentation]
+    I -->|Yes| K[Projection integration check]
+
+    K --> L[Small-T MoE resource sweep]
+    L --> M{Clear resource/perf winner?}
+    M -->|Yes| N[zhebrak-style GEMM1/GEMM2 asymmetry at T≈32]
+    M -->|No| O[Skip asymmetric MoE today]
+
+    N --> P{MoE gain survives regression shapes?}
+    P -->|Yes| Q[Whole-layer integration check]
+    P -->|No| O
+
+    O --> R[Attention prologue scheduling A/B]
+    Q --> R
+
+    R --> S{Attention gain survives full + sliding?}
+    S -->|Yes| T[Whole-layer integration check]
+    S -->|No| U[Keep prior attention path]
+
+    T --> V[Final replay soak]
+    U --> V
+    V --> W{Layer gain > noise and all checks pass?}
+    W -->|Yes| X[Scored okc submit]
+    W -->|No| Y[Retain last scored known-good]
+```
+
+The graph deliberately puts correctness and compiler inspection ahead of optimization. That reflects the challenge’s CUDA-graph requirement and the community evidence that replay-sensitive synchronization mistakes can survive ordinary tests. citeturn626925search1turn661590search4
+
+## Today's run schedule, commands, and measurement protocol
+
+Use **checks as experimental currency and scored submissions only as promotion events**. The organizer currently allows up to 20 checks and 10 scored runs per problem per daily quota period and says `okc problems` is the authoritative source for remaining quota. citeturn933765search1
+
+### Start block — baseline freeze and zero-cost diagnostics
+
+First, record the exact code state and available quota:
+
+```bash
+date -u
+git status --short
+git rev-parse HEAD
+git diff --stat
+git diff > runs/$(date -u +%Y%m%dT%H%M%SZ)-baseline.diff
+
+okc problems --json | tee runs/quota-start.json
+sha256sum muse_decode_layer/submission.py \
+  | tee runs/decode-baseline.sha256
+```
+
+Then clean-build the current candidate, preserve compiler output, extract SASS, and inspect the WGMMA path. Do **not** modify production code yet. The QuantIntellect claim to falsify is specifically: bounded wait + `__trap()` → C7512 / register-cap / serialized HGMMA. citeturn661590search2
+
+Checklist:
+
+- Record `nvcc --version`, ptxas version if exposed, and target architecture.
+- Save ptxas register/spill output for every relevant kernel.
+- Search for C7512.
+- Compare the number and placement of `WARPGROUP.DEPBAR` / WGMMA wait instructions.
+- Identify every `TRAP` reachable from a WGMMA kernel.
+- Identify the exact bounded wait helper instantiated into those kernels.
+- Record resource usage before touching source.
+
+**Decision:** if the problematic code pattern is absent, close the trap experiment today and reclaim the time.
+
+### Correctness block — PDL and queued replay gate
+
+Audit each PDL successor for data consumed before its first dependency wait. Use the FlashInfer findings as an explicit checklist: control-flow metadata, address-generation metadata, counters, statistics, and any `const`/`__restrict__` global loads whose generated load form may be non-coherent. citeturn438596view2turn438596view3
+
+Run your local graph-replay harness with, ideally:
+
+```text
+for each scored layer shape:
+    capture graph once
+    queue >= 2,000 replays with fresh inputs
+    synchronize only periodically
+    compare every retained result against a known-good replay/reference
+```
+
+For any kernel using async-proxy shared-memory writes, inspect stage-reuse ordering around `fence.proxy.async.shared::cta`; for split-K workspaces, verify that reuse/reset is safe across immediately adjacent graph replays. Jakozaur’s reported failures directly motivate these two checks. citeturn661590search4
+
+**No judge check should be spent on a candidate that fails this gate.**
+
+### First judge block — projection and current integrated baseline
+
+The canonical CLI accepts problem + file and can emit JSON; examples in the official/community material use forms such as `okc check <problem> <file> --json` and `okc submit <problem> <file>`. citeturn933765search2turn933765search3
+
+Run the projection candidate first if there is still an unintegrated standalone win:
+
+```bash
+okc check muse_bf16_proj muse_bf16_proj/submission.py --json \
+  | tee runs/$(date -u +%Y%m%dT%H%M%SZ)-proj-check.json
+```
+
+Then run the exact whole-layer baseline you intend to beat:
+
+```bash
+okc check muse_decode_layer muse_decode_layer/submission.py --json \
+  | tee runs/$(date -u +%Y%m%dT%H%M%SZ)-layer-baseline-check.json
+```
+
+Record, for each shape:
+
+```text
+candidate mean/median ns
+candidate std / reported error
+baseline ns
+paired speedup
+full vs sliding
+decode vs verify
+T or (B, q_len)
+job ID
+source git SHA
+submission SHA-256
+```
+
+Do not promote a projection-only improvement if the decode-layer A/B does not improve. A small component win can disappear because the layer is a mixed sequence of projections, attention, routing, experts, norms, and residual boundaries. The official layer definition confirms that all of those stages participate in the timed operation. citeturn283296search0
+
+### MoE block — resource sweep, then asymmetric GEMMs
+
+Prepare exactly three variants, not an unconstrained tuning matrix:
+
+```text
+M0 = current baseline
+M1 = reduced producer / staging footprint
+M2 = configuration that deliberately crosses a CTA-residency or register threshold
+```
+
+Before checks, make a table:
+
+| Variant | regs/thread | dyn smem | threads/CTA | intended CTAs/SM | token tile | K tile | split-K | stages |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|
+
+Humming’s source shows why preserving residency and tile geometry is part of schedule validity rather than a secondary metric. citeturn438596view0
+
+Run at most two official MoE checks initially:
+
+```bash
+okc check muse_moe_w4a16 experiments/moe-M1.py --json \
+  | tee runs/moe-M1.json
+
+okc check muse_moe_w4a16 experiments/moe-M2.py --json \
+  | tee runs/moe-M2.json
+```
+
+Promote only if the targeted T=1/8/16/32 region improves materially and the large-token paths either remain unchanged by dispatch or do not regress. The whole-layer scored cases include effectively T=128 and T=256 verify workloads, so a universally enabled small-token optimization can easily lose overall. citeturn341819search2
+
+Only then implement one asymmetric experiment inspired by zhebrak:
+
+```text
+GEMM1: retain current token tile / residency
+GEMM2: smaller M tile or higher residency
+Everything else: fixed
+Target: T=32 first
+Regression guards: T=16, T=128
+```
+
+The zhebrak source’s separate GEMM1/GEMM2 entry points and parameterized `(nwarps, ttm, pref, kc, rpw, ks, minb)` dispatch are the primary evidence for trying this family. citeturn646925view4
+
+### Attention block — one prologue experiment
+
+Make one source-level scheduling patch only:
+
+```text
+A0: current attention
+A1: hoist dependency-free initial loads/address work before initial barrier/wait
+```
+
+Before judging, compare SASS and answer three questions:
+
+```text
+Did first Q/K/V load move earlier?
+Did first QK HGMMA/WGMMA issue move earlier?
+Did registers/spills/barrier count get worse?
+```
+
+If the answer to the first two is no, cancel the judge run. If yes:
+
+```bash
+okc check muse_attention_decode experiments/attention-prologue.py --json \
+  | tee runs/attention-prologue.json
+```
+
+A successful component result must improve both the relevant sliding-window and full-context regimes or be safely shape-dispatched. FlashInfer’s primary evidence supports a small effect from this class of change, not a large architectural payoff. citeturn438596view1
+
+### Final integration block — layer checks and scored promotion
+
+Integrate only the winners that are independent enough to combine cleanly. Run:
+
+```bash
+okc check muse_decode_layer experiments/layer-candidate-A.py --json \
+  | tee runs/layer-candidate-A.json
+```
+
+If the confidence and per-shape distribution are convincing, repeat once with the exact same source only when the judge’s deduplication/measurement semantics make that useful; otherwise spend the next check on the previous known-good baseline for an interleaved comparison.
+
+Promotion criteria should be:
+
+```text
+all correctness tests pass
+no replay-soak failures
+no new sanitizer / illegal-access failures
+no unexplained >2% regression on a scored load
+whole-layer aggregate clearly improves
+gain is not entirely due to one noisy shape
+binary inspected for intended compiler behavior
+submission SHA recorded
+```
+
+Then—and only then—use a scored run:
+
+```bash
+okc problems --json | tee runs/quota-before-submit.json
+
+okc submit muse_decode_layer experiments/layer-candidate-A.py --json \
+  | tee runs/$(date -u +%Y%m%dT%H%M%SZ)-layer-submit.json
+```
+
+The official rules make scored positions provisional and state that top submissions will be rerun and reviewed, including held-out data, so engineering correctness and genuine workload improvement matter more than squeezing a fragile local judge artifact. citeturn933765search1
+
+A reasonable quota budget for the day is **5–7 decode-layer checks, 2–3 MoE checks, 1–2 attention checks, 1 projection check, and at most 2 decode-layer scored submissions**. That is my engineering allocation, not an organizer rule; it intentionally leaves reserve for a late integration failure or a genuinely strong new result.
+
+## Risk and rollback plan
+
+| Experiment | Main risk | Detection | Rollback trigger | Rollback action |
+|---|---|---|---|---|
+| Bounded-wait trap change | Removing a reliable failure path or hiding a deadlock | Replay stress, timeout injection, SASS inspection | Any loss of deterministic failure semantics | Restore original bounded wait; keep only diagnostics |
+| Humming-style resource compaction | Lower producer capability, more stages, register spills, or accidental occupancy loss | ptxas resources + per-T timing | <2% targeted gain, spills, or lower actual residency | Revert to current small-T dispatch |
+| zhebrak-style asymmetric GEMMs | Extra launch/readiness overhead outweighs better GEMM2 shape | Stage timing + MoE check | T=32 gain does not survive whole MoE or hurts T=16/128 | Delete asymmetric dispatch; preserve profiling notes |
+| Attention prologue hoist | Increased register live range or unsafe early access | SASS + correctness tests | spills/register jump, unchanged first-QK issue, any numerical failure | Restore original barrier ordering |
+| PDL earlier release | Successor observes predecessor-produced data before ordering point | source/SASS audit + queued replay | any stale-data/mismatch event | Revert release point to conservative location |
+| PDL load-order cleanup | Compiler transforms differently than expected | compare `ACQBULK`/loads in SASS | load still precedes wait or changes performance materially without correctness need | prefer CUDA/runtime synchronization primitive or conservative ordering |
+| Split-K/finalizer modification | replay race or nondeterministic atomic order | ≥2k replay soak, deterministic comparison | any intermittent mismatch | restore per-split slots/fixed-order reduction or known-good finalizer |
+| Projection optimization | component win loses at layer level | projection + decode-layer A/B | aggregate layer neutral/regressed | keep projection branch only; do not integrate |
+| Generic L2 prefetch | bandwidth contention | whole-layer timing | **already closed** absent new evidence | do not run today |
+
+The strongest rollback discipline is to keep every experiment as a **single-family branch with a frozen parent SHA**, save the exact judged file hash beside its JSON output, and never stack two unverified optimizations before the first has passed replay correctness and whole-layer timing. This matters especially because the community evidence contains multiple examples where locally attractive pipeline or prefetch changes lost once resource occupancy, bandwidth contention, or replay behavior entered the measurement. citeturn661590search0turn661590search4turn438596view0
+
+The practical decision rule for today is simple: **use free local evidence aggressively and paid judge evidence sparingly**. Compiler warnings, SASS scheduling, register counts, dependency ordering, and replay correctness can falsify several ideas without consuming quota. Judge checks should then answer narrow performance questions, and scored submissions should be reserved for whole-layer candidates whose mechanism, correctness, and per-shape behavior are already understood. citeturn626925search1turn933765search1
