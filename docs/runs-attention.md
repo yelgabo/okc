@@ -1631,3 +1631,82 @@ Not submitted. Left at verify 32 full, cold in bench 4ff339332fef4aff: 203.3 vs 
 ### Scored: 4c12b0199efd4b8c 2.412x (2026-10-29)
 
 Submit of submission.py at 503c0f4 (ONE_DCARRY, as checked in bf49eceb15a64f81), submitted by the coordinator under the user's instruction to use expiring scored runs. Passed. Board entry before: 51d4d137b9d14254 (2.416x).
+
+## The decode 32 full row, and P packing plus V^T hoisting in mode 51 (10-29)
+
+Questions: why does the judge put mode 49 at 157-171 us at decode 32 full on identical SASS, and
+what is left of the consumer's per-tile instruction stream in mode 51 against the public kernel?
+
+### Decode 32 full: the spread is in SGLang's times, not ours (no run, profile JSONs)
+
+Read from `benchmarks[*]` in the committed profiles (`runs_ns`, `baseline_runs_ns`, `ratios`,
+`paired_ratio`). Mode 49's raw median at decode 32 full, microseconds: 174.9 (6f75235c), 172.7
+(ca0f13d3), 166.9 (0d05f9b2), 172.8 (f64e8680), 172.6 (bf49eceb). SGLang's FA3 baseline on the
+same shape is bimodal: most repetitions take 377-395 us and 5-15 of the 60 take 513-528 us
+(15 of 60 in ca0f13d3, 5 in 0d05f9b2, 10-13 in the others). The shape's speedup is the median of
+paired ratios, and the reported time is SGLang's median over it, so the slow FA3 repetitions move
+our reported time while our own replays do not move:
+
+| check | our raw median | slow FA3 reps | paired ratio | median of per-rep ratios | reported |
+|---|---|---|---|---|---|
+| 6f75235c0d364a7a | 174.9 | 13 / 60 | 2.263 | 2.262 | 170.5 |
+| ca0f13d324ef48e8 | 172.7 | 15 / 60 | 2.447 | 2.283 | 157.5 |
+| 0d05f9b2df1e4834 | 166.9 | 5 / 60 | 2.375 | 2.375 | 162.8 |
+| f64e8680b3e441be | 172.8 | 11 / 60 | 2.280 | 2.280 | 168.9 |
+| bf49eceb15a64f81 | 172.6 | 11 / 60 | 2.274 | 2.272 | 168.8 |
+
+- ca0f13d3's 157.5 is the judge's statistic, not our kernel: its paired ratio (2.447) sits above
+  the median of its own per-repetition ratios (2.283), with a quarter of the FA3 repetitions slow.
+  Our replays there are 169.5-175.5 us, the same as every other check.
+- 0d05f9b2 is about 6 us faster in our raw times, and its decode 16 full (89.2 raw vs 91.9-93.6)
+  and verify rows were faster too: a faster machine or run, same SASS. Not reproducible on demand.
+- So the "+8.7 us" of the DCARRY pair at decode 32 full is the board's earlier lucky draw
+  returning to the usual 172-175, as the five checks before PFAST (170.5-171.4) said. Nothing
+  in mode 49 to fix from this row; it trails the public kernel by about 1-2 us in the bench.
+
+### Mode 51's consumer stream against the public one (SASS, CUDA 12.8.1, `tools/attn_one_sass.sh`)
+
+With DCARRY in, the common tile's path from the full-barrier wait to the P.V wait is about 223
+instructions per consumer thread in mode 51. Two pieces of it have no counterpart in the public
+loop (its `attn_kernel<8, true, 0>`):
+
+- P packing: our `e4m3x4` joined its halves with `__byte_perm(lo, hi, 0x5410)`, which compiles
+  to `F2FP ... RZ`, `LOP3 & 0xffff` per half and a `PRMT`: 40 instructions per tile for the
+  16 words of P. The public `e4m3x4f` writes `lo | hi << 16`, which ptxas folds into the second
+  `F2FP.SATFINITE.E4M3.F32.PACK_AB_MERGE_C`: 16. Same bits.
+- V^T addressing: the first body of the twice-unrolled loop rebuilt the ldmatrix and stmatrix
+  addresses from `tid` every tile (about 25 instructions; ptxas rematerialized them) and every
+  body rebuilt the P.V descriptor from `vt_of()` (about 14). The public loop carries both.
+
+`ONE_PK16` and `ONE_VHOIST` (`attn_one.cu`, commit a50fc0c, both default 0 there) remove them:
+the unrolled pair of tiles in mode 51 drops from 1265 to 1122 SASS instructions, the first body
+from Q.K issue to the stage release from 45 to 16, no spills, consumer region R99. With both off
+all 13 instances are SASS-identical to the board build. VHOIST's offsets were checked against the
+original formulas for every (head, warp, lane, half) in Python (0 mismatches); its loads and
+stores move the same bytes to the same addresses, so no fence, barrier or arrive moves.
+
+### Bench 025ccaf9c57a4ba2 (scored run, `tools/attn_make_bench_ab.py --shapes all`)
+
+Arms: `ctrl` (board code), `pk` (`ONE_PK16=1`), `vh` (`ONE_VHOIST=1`), `pkvh` (both), `pub`.
+ABCHECKSUM 19/0 pass/fail for every arm; against `ctrl` the arms differ in 0-6 elements per shape
+by 1 ulp of bf16 (21 ulp on one near-zero element), the order of the float reds. Run score 2.394x
+(CI 2.358-2.442; the board build's own score, the arms do not enter it). Profiles:
+`profiles/bench_pk.025ccaf9c57a4ba2.*`. Microseconds:
+
+| | shape | ctrl | pk | vh | pkvh | pub |
+|---|---|---|---|---|---|---|
+| cold | verify 16 full | 116.26 | 112.70 | 114.24 | 110.91 | 110.34 |
+| cold | verify 32 full | 204.22 | 197.89 | 200.29 | 194.59 | 192.67 |
+| warm | verify 16 full | 114.15 | 109.00 | 111.15 | 106.63 | 103.29 |
+| warm | verify 32 full | 214.13 | 203.91 | 208.77 | 200.25 | 197.19 |
+| cold | verify 1 full | 20.22 | 19.90 | 20.22 | 19.97 | 19.14 |
+| cold | verify 16 / 32 sliding | 16.13 / 21.12 | 16.13 / 21.22 | 16.06 / 21.25 | 16.13 / 21.34 | 15.71 / 19.78 |
+| cold | decode 16 / 32 full | 100.45 / 180.22 | 100.38 / 180.16 | 100.42 / 180.22 | 100.32 / 180.16 | 99.46 / 178.59 |
+
+- `pkvh`: -9.6 / -5.4 us cold, -13.9 / -7.5 warm at verify 32 / 16 full. The cold gap to the
+  public kernel falls from 11.5 to 1.9 us at verify 32 full and to 0.6 at verify 16 full. The two
+  switches add (6.3 + 3.9 = 10.2 vs 9.6 cold at verify 32).
+- Every other row moves by less than 0.35 us either way (q_len 1 builds change only where they
+  call `e4m3x4` once per launch). Verify 32 sliding +0.2 us is inside the bench's run-to-run
+  spread for that row.
+- Promoted for judging: `submission.py` with both switches on.

@@ -128,17 +128,19 @@ constexpr int COOP_POLL_LIMIT = 1 << 24;
 // ONE_PK16 (every instance): e4m3x4 joins its two halves as lo | hi << 16, which ptxas folds
 // into the second F2FP (PACK_AB_MERGE_C), as the public kernel's e4m3x4f does. The byte_perm
 // form compiles to F2FP + LOP3 (& 0xffff) per half and a PRMT: 40 instructions per q_len 8 tile
-// per consumer thread for P instead of 16. Same bits.
+// per consumer thread for P instead of 16. Same bits. Bench 025ccaf9c57a4ba2, cold: verify 32 /
+// 16 full -6.3 / -3.6 us alone, -9.6 / -5.4 with ONE_VHOIST; sliding unchanged.
 #ifndef ONE_PK16
-#define ONE_PK16 0
+#define ONE_PK16 1
 #endif
 // ONE_VHOIST (mode 51 and 115 tile loop): the V^T transpose addresses are per-thread offsets
 // computed once per segment (half 1 of a store is half 0's offset ^ 32, a load is +4096), and
 // the V^T buffer and its descriptor low word are toggled by XOR per tile, the descriptor
 // broadcast from lane 0 so it stays uniform; the unrolled loop's first body otherwise rebuilt
 // about 25 address instructions per tile and every body about 14 for the P.V descriptor.
+// Bench 025ccaf9c57a4ba2, cold: verify 32 / 16 full -3.9 / -2.0 us alone.
 #ifndef ONE_VHOIST
-#define ONE_VHOIST 0
+#define ONE_VHOIST 1
 #endif
 constexpr int STAMP_BASE = 1024;
 constexpr int STAMP_W = 16;
