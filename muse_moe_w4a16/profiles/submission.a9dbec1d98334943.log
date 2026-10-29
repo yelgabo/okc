@@ -1,0 +1,113 @@
+.0, segments 8.4/9.0
+DIAG22 bs=128 seed=12 producers mean/max us: weights wait for a free slot 153.9/173.1, x wait for a free slot 127.4/149.2, x wait done_as 13.7/33.1, x wait xready 3.7/10.1
+DIAG22 bs=128 seed=12 phase B after phase A (consumers done minus own phase A done) mean/max 63.2/89.1; last phase A done 168.4, last consumers done minus it 71.7; stages per CTA A 89.2/96.0 B 44.6/48.0
+DIAG22 bs=128 seed=12 slow CTA 116: A stages 96 done 168.4, B stages 48 done 240.1 (B span 71.7), x wait done_as 13.4
+DIAG22 bs=128 seed=12 slow CTA 118: A stages 96 done 167.9, B stages 48 done 239.9 (B span 71.9), x wait done_as 13.0
+DIAG22 bs=128 seed=12 slow CTA 115: A stages 96 done 167.2, B stages 48 done 239.6 (B span 72.4), x wait done_as 12.7
+DIAG22 bs=128 seed=12 slow CTA 119: A stages 96 done 168.2, B stages 48 done 239.6 (B span 71.4), x wait done_as 13.3
+DIAG22 bs=128 seed=12 CTAs with 80 A stages: 56, A done mean 141.2, B stages mean 44.3, consumers done mean/max 207.4/231.9
+DIAG22 bs=128 seed=12 CTAs with 96 A stages: 76, A done mean 164.6, B stages mean 44.8, consumers done mean/max 225.6/240.1
+DIAG22 bs=256 seed=11 critical path us: phase A done (thread 0) mean/max 175.9/184.8, consumers done mean/max 250.6/278.5, completion tail (last consumers minus mean) 27.9, end 285.2; cut segments per CTA A/B 0.00/0.00
+DIAG22 bs=256 seed=11 clock 1.77 GHz; per CTA mean/max us: route+gather 24.0/31.0, consumers 226.4/250.9, barrier wait 28.7/54.5, final 5.4/5.9; consumers done at 250.6/278.5 after the first start, end 284.7/285.2
+DIAG22 bs=256 seed=11 segments per warp mean/max us: wait weights 11.6/15.5, wait x 14.6/22.0, compute 157.3/181.6, epilogue+fixup 17.9/32.7; stages 139.6/160.0, segments 8.7/10.0
+DIAG22 bs=256 seed=11 producers mean/max us: weights wait for a free slot 176.4/201.0, x wait for a free slot 141.8/163.2, x wait done_as 15.6/28.1, x wait xready 5.2/11.7
+DIAG22 bs=256 seed=11 phase B after phase A (consumers done minus own phase A done) mean/max 74.7/97.3; last phase A done 184.8, last consumers done minus it 93.7; stages per CTA A 93.1/96.0 B 46.5/64.0
+DIAG22 bs=256 seed=11 slow CTA 24: A stages 96 done 183.6, B stages 64 done 278.5 (B span 95.0), x wait done_as 21.4
+DIAG22 bs=256 seed=11 slow CTA 122: A stages 96 done 175.6, B stages 64 done 272.9 (B span 97.3), x wait done_as 16.6
+DIAG22 bs=256 seed=11 slow CTA 48: A stages 96 done 184.8, B stages 64 done 269.8 (B span 85.0), x wait done_as 20.6
+DIAG22 bs=256 seed=11 slow CTA 32: A stages 96 done 181.8, B stages 64 done 268.0 (B span 86.3), x wait done_as 21.2
+DIAG22 bs=256 seed=11 CTAs with 80 A stages: 24, A done mean 159.3, B stages mean 51.3, consumers done mean/max 234.9/249.1
+DIAG22 bs=256 seed=11 CTAs with 96 A stages: 108, A done mean 179.5, B stages mean 45.5, consumers done mean/max 254.1/278.5
+DIAG22 bs=256 seed=12 critical path us: phase A done (thread 0) mean/max 173.4/181.2, consumers done mean/max 246.0/273.4, completion tail (last consumers minus mean) 27.4, end 279.6; cut segments per CTA A/B 0.00/0.00
+DIAG22 bs=256 seed=12 clock 1.77 GHz; per CTA mean/max us: route+gather 23.5/27.1, consumers 222.5/247.6, barrier wait 28.1/51.5, final 4.8/5.4; consumers done at 246.0/273.4 after the first start, end 279.0/279.6
+DIAG22 bs=256 seed=12 segments per warp mean/max us: wait weights 10.9/13.7, wait x 12.5/28.4, compute 158.2/181.6, epilogue+fixup 16.2/21.1; stages 139.6/160.0, segments 8.7/10.0
+DIAG22 bs=256 seed=12 producers mean/max us: weights wait for a free slot 174.7/196.9, x wait for a free slot 142.1/162.7, x wait done_as 16.2/36.5, x wait xready 3.0/9.1
+DIAG22 bs=256 seed=12 phase B after phase A (consumers done minus own phase A done) mean/max 72.6/102.7; last phase A done 181.2, last consumers done minus it 92.2; stages per CTA A 93.1/96.0 B 46.5/64.0
+DIAG22 bs=256 seed=12 slow CTA 94: A stages 96 done 177.7, B stages 48 done 273.4 (B span 95.7), x wait done_as 14.7
+DIAG22 bs=256 seed=12 slow CTA 129: A stages 96 done 175.9, B stages 48 done 271.1 (B span 95.2), x wait done_as 18.7
+DIAG22 bs=256 seed=12 slow CTA 113: A stages 96 done 180.5, B stages 64 done 264.2 (B span 83.7), x wait done_as 21.8
+DIAG22 bs=256 seed=12 slow CTA 51: A stages 96 done 177.7, B stages 64 done 262.4 (B span 84.7), x wait done_as 21.8
+DIAG22 bs=256 seed=12 CTAs with 80 A stages: 24, A done mean 154.7, B stages mean 47.3, consumers done mean/max 235.3/257.0
+DIAG22 bs=256 seed=12 CTAs with 96 A stages: 108, A done mean 177.5, B stages mean 46.4, consumers done mean/max 248.4/273.4
+DIAG24 bs=128 seed=11 critical path us: phase A done (thread 0) mean/max 161.6/188.4, consumers done mean/max 229.4/245.0, completion tail (last consumers minus mean) 15.6, end 250.1; cut segments per CTA A/B 0.00/0.00
+DIAG24 bs=128 seed=11 clock 1.76 GHz; per CTA mean/max us: route+gather 16.0/20.2, consumers 213.2/230.9, barrier wait 16.5/21.5, final 3.6/4.4; consumers done at 229.4/245.0 after the first start, end 249.5/250.1
+DIAG24 bs=128 seed=11 segments per warp mean/max us: wait weights 11.9/14.1, wait x 11.0/16.6, compute 150.7/166.9, epilogue+fixup 16.2/24.3; stages 145.5/160.0, segments 9.1/10.0
+DIAG24 bs=128 seed=11 producers mean/max us: weights wait for a free slot 164.3/176.8, x wait for a free slot 140.3/151.5, x wait done_as 15.2/23.5, x wait xready 3.6/8.7
+DIAG24 bs=128 seed=11 phase B after phase A (consumers done minus own phase A done) mean/max 67.8/85.8; last phase A done 188.4, last consumers done minus it 56.6; stages per CTA A 97.0/112.0 B 48.5/64.0
+DIAG24 bs=128 seed=11 slow CTA 85: A stages 96 done 159.2, B stages 64 done 245.0 (B span 85.8), x wait done_as 20.9
+DIAG24 bs=128 seed=11 slow CTA 82: A stages 96 done 160.0, B stages 64 done 244.0 (B span 84.0), x wait done_as 22.6
+DIAG24 bs=128 seed=11 slow CTA 127: A stages 96 done 159.0, B stages 64 done 244.0 (B span 85.0), x wait done_as 15.8
+DIAG24 bs=128 seed=11 slow CTA 128: A stages 96 done 160.3, B stages 64 done 243.7 (B span 83.5), x wait done_as 16.4
+DIAG24 bs=128 seed=11 CTAs with 96 A stages: 124, A done mean 160.0, B stages mean 49.5, consumers done mean/max 229.5/245.0
+DIAG24 bs=128 seed=11 CTAs with 112 A stages: 8, A done mean 186.5, B stages mean 32.0, consumers done mean/max 227.2/228.6
+DIAG24 bs=128 seed=12 critical path us: phase A done (thread 0) mean/max 149.5/164.4, consumers done mean/max 212.5/223.2, completion tail (last consumers minus mean) 10.7, end 227.8; cut segments per CTA A/B 0.00/0.00
+DIAG24 bs=128 seed=12 clock 1.75 GHz; per CTA mean/max us: route+gather 17.0/22.0, consumers 195.2/210.9, barrier wait 11.9/21.2, final 3.1/3.6; consumers done at 212.5/223.2 after the first start, end 227.5/227.8
+DIAG24 bs=128 seed=12 segments per warp mean/max us: wait weights 9.7/10.9, wait x 12.1/16.3, compute 137.5/149.0, epilogue+fixup 13.8/18.5; stages 133.8/144.0, segments 8.4/9.0
+DIAG24 bs=128 seed=12 producers mean/max us: weights wait for a free slot 151.0/160.3, x wait for a free slot 126.8/141.4, x wait done_as 15.5/19.8, x wait xready 4.4/11.5
+DIAG24 bs=128 seed=12 phase B after phase A (consumers done minus own phase A done) mean/max 63.0/77.6; last phase A done 164.4, last consumers done minus it 58.9; stages per CTA A 89.2/96.0 B 44.6/48.0
+DIAG24 bs=128 seed=12 slow CTA 131: A stages 96 done 158.2, B stages 48 done 223.2 (B span 65.0), x wait done_as 14.6
+DIAG24 bs=128 seed=12 slow CTA 93: A stages 96 done 158.2, B stages 48 done 223.2 (B span 65.0), x wait done_as 14.8
+DIAG24 bs=128 seed=12 slow CTA 109: A stages 96 done 162.3, B stages 48 done 223.2 (B span 60.9), x wait done_as 18.6
+DIAG24 bs=128 seed=12 slow CTA 129: A stages 96 done 158.7, B stages 48 done 223.0 (B span 64.3), x wait done_as 13.0
+DIAG24 bs=128 seed=12 CTAs with 80 A stages: 56, A done mean 137.0, B stages mean 48.0, consumers done mean/max 208.5/213.5
+DIAG24 bs=128 seed=12 CTAs with 96 A stages: 76, A done mean 158.7, B stages mean 42.1, consumers done mean/max 215.4/223.2
+DIAG24 bs=256 seed=11 critical path us: phase A done (thread 0) mean/max 178.0/185.6, consumers done mean/max 250.5/260.6, completion tail (last consumers minus mean) 10.2, end 267.5; cut segments per CTA A/B 0.00/0.00
+DIAG24 bs=256 seed=11 clock 1.76 GHz; per CTA mean/max us: route+gather 22.1/29.2, consumers 228.1/241.9, barrier wait 10.9/20.7, final 5.5/6.1; consumers done at 250.5/260.6 after the first start, end 266.9/267.5
+DIAG24 bs=256 seed=11 segments per warp mean/max us: wait weights 11.3/12.9, wait x 17.5/23.9, compute 157.9/171.6, epilogue+fixup 21.1/28.6; stages 139.6/144.0, segments 8.7/9.0
+DIAG24 bs=256 seed=11 producers mean/max us: weights wait for a free slot 178.9/188.1, x wait for a free slot 144.2/153.6, x wait done_as 15.5/23.3, x wait xready 10.3/17.1
+DIAG24 bs=256 seed=11 phase B after phase A (consumers done minus own phase A done) mean/max 72.5/98.6; last phase A done 185.6, last consumers done minus it 75.0; stages per CTA A 93.1/96.0 B 46.5/64.0
+DIAG24 bs=256 seed=11 slow CTA 56: A stages 96 done 181.8, B stages 48 done 260.6 (B span 78.8), x wait done_as 13.7
+DIAG24 bs=256 seed=11 slow CTA 9: A stages 80 done 162.0, B stages 64 done 260.4 (B span 98.3), x wait done_as 23.3
+DIAG24 bs=256 seed=11 slow CTA 120: A stages 96 done 180.2, B stages 48 done 259.8 (B span 79.6), x wait done_as 18.6
+DIAG24 bs=256 seed=11 slow CTA 127: A stages 96 done 180.7, B stages 48 done 259.3 (B span 78.6), x wait done_as 16.5
+DIAG24 bs=256 seed=11 CTAs with 80 A stages: 24, A done mean 161.6, B stages mean 50.0, consumers done mean/max 243.8/260.4
+DIAG24 bs=256 seed=11 CTAs with 96 A stages: 108, A done mean 181.7, B stages mean 45.8, consumers done mean/max 251.9/260.6
+DIAG24 bs=256 seed=12 critical path us: phase A done (thread 0) mean/max 172.2/179.5, consumers done mean/max 243.8/251.1, completion tail (last consumers minus mean) 7.4, end 258.6; cut segments per CTA A/B 0.00/0.00
+DIAG24 bs=256 seed=12 clock 1.76 GHz; per CTA mean/max us: route+gather 23.1/26.9, consumers 220.4/229.9, barrier wait 8.6/22.3, final 5.3/6.1; consumers done at 243.8/251.1 after the first start, end 257.7/258.6
+DIAG24 bs=256 seed=12 segments per warp mean/max us: wait weights 10.9/13.3, wait x 11.0/14.8, compute 159.9/166.9, epilogue+fixup 17.5/22.9; stages 139.6/144.0, segments 8.7/9.0
+DIAG24 bs=256 seed=12 producers mean/max us: weights wait for a free slot 175.0/182.9, x wait for a free slot 146.6/155.1, x wait done_as 14.6/18.1, x wait xready 3.0/9.9
+DIAG24 bs=256 seed=12 phase B after phase A (consumers done minus own phase A done) mean/max 71.6/80.6; last phase A done 179.5, last consumers done minus it 71.7; stages per CTA A 93.1/96.0 B 46.5/48.0
+DIAG24 bs=256 seed=12 slow CTA 121: A stages 96 done 175.6, B stages 48 done 251.1 (B span 75.5), x wait done_as 13.4
+DIAG24 bs=256 seed=12 slow CTA 120: A stages 96 done 175.4, B stages 48 done 250.9 (B span 75.5), x wait done_as 13.9
+DIAG24 bs=256 seed=12 slow CTA 48: A stages 96 done 174.6, B stages 48 done 250.6 (B span 76.0), x wait done_as 14.2
+DIAG24 bs=256 seed=12 slow CTA 79: A stages 96 done 172.5, B stages 48 done 250.4 (B span 77.8), x wait done_as 17.2
+DIAG24 bs=256 seed=12 CTAs with 80 A stages: 24, A done mean 157.7, B stages mean 48.0, consumers done mean/max 235.5/237.8
+DIAG24 bs=256 seed=12 CTAs with 96 A stages: 108, A done mean 175.4, B stages mean 46.2, consumers done mean/max 245.6/251.1
+GATE bs=128 main-m2-ar2-ub:248.1 main-own:246.2 main-own-dynb:230.0 us (mean of 6 seeds)
+GATE bs=128 main-own minus main-m2-ar2-ub per seed -3.6 -0.5 -3.2 +3.1 -6.1 -1.1 (mean -1.9)
+GATE bs=128 main-own-dynb minus main-own per seed -15.9 -14.2 -14.9 -18.3 -14.4 -19.2 (mean -16.2)
+GATE bs=128 main-own-dynb minus main-m2-ar2-ub per seed -19.4 -14.8 -18.1 -15.3 -20.5 -20.3 (mean -18.1)
+GATE bs=128 output of main-own vs 16, rel L2 per seed 2.1e-04 9.7e-05 1.8e-04 1.5e-04 1.8e-04 1.6e-04
+GATE bs=128 output of main-own-dynb vs 16, rel L2 per seed 2.1e-04 1.1e-04 1.8e-04 1.5e-04 1.8e-04 1.6e-04
+GATE bs=256 main-m2-ar2-ub:287.4 main-own:283.7 main-own-dynb:267.6 us (mean of 6 seeds)
+GATE bs=256 main-own minus main-m2-ar2-ub per seed -9.0 -8.3 +6.0 -5.4 -0.1 -5.3 (mean -3.7)
+GATE bs=256 main-own-dynb minus main-own per seed -9.2 -17.8 -26.3 -13.8 -20.3 -9.4 (mean -16.1)
+GATE bs=256 main-own-dynb minus main-m2-ar2-ub per seed -18.2 -26.1 -20.4 -19.2 -20.4 -14.7 (mean -19.8)
+GATE bs=256 output of main-own vs 16, rel L2 per seed 2.4e-04 1.8e-04 1.7e-04 1.7e-04 1.4e-04 1.6e-04
+GATE bs=256 output of main-own-dynb vs 16, rel L2 per seed 2.4e-04 1.8e-04 1.7e-04 1.7e-04 1.4e-04 1.6e-04
+GATE spin flags 0
+BENCH bs=1 sk8w4s-loads:39.8 sk8w4s:42.1 sk16w4s:44.3 us (graph replay, cold L2, mean of 2 routings)
+BENCH bs=8 sk8w4s-loads:70.1 sk8w4s:73.2 sk16w4s:74.9 us (graph replay, cold L2, mean of 2 routings)
+BENCH bs=16 sk8w4s-loads:105.5 sk8w4s:107.8 sk16w4s:114.4 legacy32:119.5 legacy128:125.0 legacy256:126.9 us (graph replay, cold L2, mean of 2 routings)
+BENCH bs=32 main-loads:141.7 sk8w4s-loads:146.9 sk8w4s:151.4 legacy32:157.0 sk16w4s:160.5 legacy128:162.4 legacy256:164.8 main-own-dynb:170.3 main-dynb-stamps:176.0 main-m2-ar2-ub:180.7 main-own:181.0 main-d2:188.2 main-own-stamps:190.5 us (graph replay, cold L2, mean of 2 routings)
+BENCH bs=128 main-loads:191.2 main-own-dynb:231.2 main-dynb-stamps:241.5 main-own:246.0 main-m2-ar2-ub:248.3 legacy128:250.3 legacy256:253.1 main-d2:253.4 sk8w4s-loads:255.3 main-own-stamps:257.8 sk8w4s:263.9 legacy32:274.7 sk16w4s:282.7 us (graph replay, cold L2, mean of 2 routings)
+BENCH bs=256 main-loads:204.0 main-own-dynb:257.0 main-dynb-stamps:264.3 main-own:268.8 main-m2-ar2-ub:277.9 main-own-stamps:282.1 main-d2:283.3 legacy256:359.3 legacy128:387.1 sk8w4s-loads:399.3 sk8w4s:430.1 sk16w4s:466.2 legacy32:467.9 us (graph replay, cold L2, mean of 2 routings)
+POLICY {1: sk8w4s, 8: sk8w4s, 16: sk8w4s, 32: sk8w4s, 128: main-own-dynb, 256: main-own-dynb}
+TEST policy bs=1 normal: vs fp32 3.84e-03, worst row 3.84e-03
+TEST policy bs=1 skewed: vs fp32 3.95e-03, worst row 3.95e-03
+TEST policy bs=4 normal: vs fp32 3.86e-03, worst row 3.93e-03
+TEST policy bs=4 skewed: vs fp32 3.86e-03, worst row 3.89e-03
+TEST policy bs=8 normal: vs fp32 3.91e-03, worst row 4.05e-03
+TEST policy bs=8 skewed: vs fp32 3.91e-03, worst row 3.99e-03
+TEST policy bs=16 normal: vs fp32 3.88e-03, worst row 4.15e-03
+TEST policy bs=16 skewed: vs fp32 3.87e-03, worst row 4.05e-03
+TEST policy bs=32 normal: vs fp32 3.89e-03, worst row 4.34e-03
+TEST policy bs=32 skewed: vs fp32 3.89e-03, worst row 4.13e-03
+TEST policy bs=33 normal: vs fp32 3.86e-03, worst row 4.07e-03
+TEST policy bs=33 skewed: vs fp32 3.86e-03, worst row 4.20e-03
+TEST policy bs=128 normal: vs fp32 3.86e-03, worst row 4.20e-03
+TEST policy bs=128 skewed: vs fp32 3.86e-03, worst row 4.07e-03
+TEST policy bs=257 normal: vs fp32 3.87e-03, worst row 4.18e-03
+TEST policy bs=257 skewed: vs fp32 3.87e-03, worst row 4.14e-03
+TEST policy worst rel err vs fp32 3.95e-03, spin flags 0
+PREPARE repack 0.8 s, build 149.0 s, self-test 1.0 s, bench 0.8 s, smem 228736 B, ok True, main True

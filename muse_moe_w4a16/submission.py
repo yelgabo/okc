@@ -2463,8 +2463,9 @@ SKINNY_VARIANTS = ((8, 4, 0), (16, 4, 0), (8, 4, 1))
 # 9332e2a49aff4ff2, e221858b020c4dee; docs/runs-moe.md "Staged GEMM1 gate"); list them here to
 # rerun the gate.
 # 22 to 24 (2026-10-29, phase B tail): 22 is 20 with stamps, 23 claims phase B units at run time
-# and walks both phases largest n-tile count first, 24 is 23 with stamps.
-MAIN_MODES = (0, 1, 16, 20, 22, 23, 24)
+# and walks both phases largest n-tile count first, 24 is 23 with stamps. 22 and 24 ran in check
+# a9dbec1d98334943 (_diag_report prints them when listed here); the shipped build leaves them out.
+MAIN_MODES = (0, 1, 16, 20, 23)
 MAIN_CANDIDATES = (0, 6, 12, 13, 14, 15, 16, 20, 23)
 VARIANT_MAIN0 = len(SKINNY_VARIANTS)
 
@@ -4178,7 +4179,9 @@ def _diag_report(state, bs, seed=11, mode=11):
 
 
 
-GATE_SEEDS = (11, 12, 13, 14, 15, 16)
+# Seeds 11 to 16 were the gate's in checks up to a9dbec1d98334943; 17 to 22 are held out from
+# them, and the skewed routings (reference.py dist="skewed") are a second distribution.
+GATE_RUNS = (("normal", (17, 18, 19, 20, 21, 22)), ("skewed", (11, 12, 13)))
 
 
 def _gate_report(state):
@@ -4205,12 +4208,14 @@ def _gate_report(state):
             vs.pop(m)
     flush = torch.empty(256 << 20, dtype=torch.uint8, device="cuda")
     xb = state["scratch"]["xb"]
-    for bs in (128, 256):
+    for dist, seeds in GATE_RUNS:
+      for bs in (128, 256):
+        tag = f"bs={bs}" + ("" if dist == "normal" else f" {dist}")
         tim = {m: [] for m in vs}
         xbd = []
         outd = {m: [] for m in (20, 23, "staged") if m in vs}
-        for si, seed in enumerate(GATE_SEEDS):
-            data = _make_inputs(bs, 977 * seed + bs)
+        for si, seed in enumerate(seeds):
+            data = _make_inputs(bs, 977 * seed + bs, dist)
             order = list(vs.items())
             if si % 2:
                 order.reverse()
@@ -4227,19 +4232,19 @@ def _gate_report(state):
                 ref = _run(data, state, vs[16]).float()
                 for m in outd:
                     outd[m].append(_rel(_run(data, state, vs[m]).float(), ref))
-        n = len(GATE_SEEDS)
+        n = len(seeds)
         line = " ".join(f"{_vname(v)}:{sum(tim[m]) / n:.1f}" for m, v in vs.items())
-        print(f"GATE bs={bs} {line} us (mean of {n} seeds)")
+        print(f"GATE {tag} {line} us (mean of {n} seeds {seeds})")
         for a, b in ((19, 18), (20, 16), (23, 20), (23, 16), ("staged", 16), ("staged", 20)):
             if a in vs and b in vs:
                 d = [x - y for x, y in zip(tim[a], tim[b])]
-                print(f"GATE bs={bs} {_vname(vs[a])} minus {_vname(vs[b])} per seed "
+                print(f"GATE {tag} {_vname(vs[a])} minus {_vname(vs[b])} per seed "
                       + " ".join(f"{x:+.1f}" for x in d) + f" (mean {sum(d) / n:+.1f})")
         if xbd:
-            print(f"GATE bs={bs} SwiGLU output (xb) of 19 vs 18, rel L2 per seed "
+            print(f"GATE {tag} SwiGLU output (xb) of 19 vs 18, rel L2 per seed "
                   + " ".join(f"{x:.1e}" for x in xbd))
         for m, d in outd.items():
-            print(f"GATE bs={bs} output of {_vname(vs[m])} vs 16, rel L2 per seed "
+            print(f"GATE {tag} output of {_vname(vs[m])} vs 16, rel L2 per seed "
                   + " ".join(f"{x:.1e}" for x in d))
     flags = int(ctr[8].item())
     ctr[8] = 0
