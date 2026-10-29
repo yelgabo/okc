@@ -1200,8 +1200,8 @@ def pack_router(router, geoms):
 
 # --------------------------------------------------------------------------------------------
 # m = 1 GEMV candidates: cgemv on a 12-bit row stream (2 rows per CTA), rgemv on the FP32
-# router, sgemv on the raw BF16 unpooler slice. The 12-bit code is the one above, laid out per
-# 16-k chunk of a row pair instead of per tile.
+# router, sgemv on the raw BF16 unpooler slice. The 12-bit code is the one above, laid out in
+# row-major planes instead of per tile.
 # --------------------------------------------------------------------------------------------
 _LAYER_THREADS = {(2304, 8192): 256, (8192, 1024): 64, (4096, 8192): 512, (1024, 4096): 128}
 
@@ -1209,10 +1209,9 @@ _LAYER_THREADS = {(2304, 8192): 256, (8192, 1024): 64, (4096, 8192): 512, (1024,
 def pack_cgemv(w):
     """Stream [N/2, K/16, 48] uint8 and escape table [N/2, pmax, 2] int32 for cgemv_fwd, or None.
 
-    Chunk (c, j) covers rows 2c, 2c+1 and k in [16j, 16j+16): the two rows' low bytes in k
-    order, then each row's 8 code bytes, byte b holding the codes of k = 16j+b (low nibble) and
-    16j+8+b (high nibble). With nth = cgemv_threads(N, K), j = i*nth + t and the 16-byte part
-    p in 0..2, CTA c's bytes are ordered [i][p][t][16] (a lossless permutation of the chunks).
+    The stream's bytes are two row-major planes (its shape only fixes the byte count): every
+    row's low bytes [N, K], then every row's codes [N, K/2], byte b of a row's 16-k chunk j
+    holding the codes of k = 16j+b (low nibble) and 16j+8+b (high nibble).
     Table row c: entry 0 is (count, 0); entries 1..count are ((row_local << 16) | k, original
     bits) sorted by k; pmax is even so each row is a multiple of 16 bytes.
     """
@@ -1227,13 +1226,9 @@ def pack_cgemv(w):
     if escapes > n * k // MAX_ESCAPE_DENOM:
         return None
     half, chunks = n // 2, k // 16
-    code = ((bits >> 15) << 3) | off.clamp(0, EXP_WINDOW - 1)
-    lo = (bits & 0xFF).view(half, 2, chunks, 16).transpose(1, 2).reshape(half, chunks, 32)
-    code = code.view(half, 2, chunks, 2, 8)
-    codes = (code[..., 0, :] | (code[..., 1, :] << 4)).transpose(1, 2).reshape(half, chunks, 16)
-    nth = cgemv_threads(n, k)
-    stream = torch.cat([lo, codes], -1).to(torch.uint8).view(half, chunks // nth, nth, 3, 16)
-    stream = stream.transpose(2, 3).reshape(half, chunks, 48).contiguous()
+    code = (((bits >> 15) << 3) | off.clamp(0, EXP_WINDOW - 1)).view(n, chunks, 2, 8)
+    codes = (code[:, :, 0, :] | (code[:, :, 1, :] << 4)).reshape(-1)
+    stream = torch.cat([(bits & 0xFF).reshape(-1), codes]).to(torch.uint8).view(half, chunks, 48)
 
     c_i, r_i, k_i = escaped.view(half, 2, k).nonzero().unbind(1)
     order = torch.argsort(c_i * (2 * k) + k_i * 2 + r_i)
@@ -1251,27 +1246,6 @@ def pack_cgemv(w):
 
 
 
-def pack_cgemv_rows(w, cg, layout):
-    """The bytes of pack_cgemv's stream re-laid per row for cgemvr_fwd (same code and table cg):
-    each row's low bytes [K] and its codes [K/2], byte b of a row's 16-k chunk j holding the codes
-    of k = 16j+b (low nibble) and 16j+8+b (high nibble). layout 0: every row's low bytes, then
-    every row's codes; layout 1: per row pair c, [low 2c][low 2c+1][codes 2c][codes 2c+1]."""
-    n, k = w.shape
-    bits = w.contiguous().view(torch.int16).to(torch.int32) & 0xFFFF
-    off = ((bits >> 8) & 0x7F) - cg["base"]
-    code = (((bits >> 15) << 3) | off.clamp(0, EXP_WINDOW - 1)).view(n, k // 16, 2, 8)
-    codes = (code[:, :, 0, :] | (code[:, :, 1, :] << 4)).reshape(n, k // 2).to(torch.uint8)
-    lo = (bits & 0xFF).to(torch.uint8)
-    if layout == 0:
-        return torch.cat([lo.reshape(-1), codes.reshape(-1)]).contiguous()
-    return torch.cat([lo.view(n // 2, 2 * k), codes.view(n // 2, k)], 1).reshape(-1).contiguous()
-
-
-# name -> (layout, variant) of the cgemvr candidates; variant 2 (40 registers) only where a
-# thread holds two chunks.
-CGEMVR = {"cgemvp": (0, 0), "cgemvpe": (0, 1), "cgemvp40": (0, 2), "cgemvi": (1, 0)}
-
-
 def cgemv_threads(n, k):
     """Compute threads per CTA for cgemv_fwd (the escape warp comes on top)."""
     if (n, k) in _LAYER_THREADS:
@@ -1286,7 +1260,6 @@ def cgemv_threads(n, k):
 
 GEMV_CPP_DECLS = """
 void cgemv_fwd(at::Tensor stream, at::Tensor table, int64_t pmax, int64_t base4, at::Tensor x, at::Tensor out, int64_t nthreads);
-void cgemvr_fwd(at::Tensor buf, at::Tensor table, int64_t pmax, int64_t base4, at::Tensor x, at::Tensor out, int64_t nthreads, int64_t layout, int64_t variant);
 void rgemv_fwd(at::Tensor w, at::Tensor x, at::Tensor out);
 void sgemv_fwd(at::Tensor w, at::Tensor x, at::Tensor out);
 """
@@ -1356,113 +1329,25 @@ __device__ __forceinline__ void chunk_fma(uint4 l, unsigned c0, unsigned c1, uin
 }
 
 // CTA c computes out[2c] and out[2c+1]. Compute thread t owns chunks t + i*NTH; the extra warp
-// applies the escape table. The stream stores each 48-byte chunk as three 16-byte planes of NTH
-// lanes, so every warp load is 512 contiguous bytes; with one 48-byte chunk per lane each load
-// touched two of every three 32-byte sectors (job c53d2b47c1a24934: qkv 1.1 us faster planar).
-// Every partial sum is combined in a fixed order, so the result is deterministic. The escape
-// terms use separately rounded multiply and add so a CPU emulation in float32 reproduces them
-// bit for bit (the main FMAs are exact products, so they need no such care).
-// Registers set the occupancy here, not loads in flight: a warp takes its registers in units of
-// 256 from one SM sub-partition's 16384 (cuda_occupancy.h), so at 33-40 registers a
-// sub-partition holds 12 warps and at 32 it holds 16. That is 2 against 3 CTAs per SM for the
-// 17-warp pooler CTA and 3 (at the 59 registers __launch_bounds__(NTH + 32, 2) gave) against 7
-// for the 9-warp qkv CTA. The cap leaves the second chunk's loads behind the first chunk's FMAs
-// at CPT = 2, as in the public kernel.
+// applies the escape table. The stream is two row-major planes, every row's low bytes [K] then
+// every row's codes [K/2], so per row and chunk a lane loads 16 B of low bytes and 8 B of codes
+// and each warp load is 512 or 256 contiguous bytes. Against the earlier stream of one 48-byte
+// chunk per row pair split into three 16-byte planes, this is -0.2 to -0.45 us on qkv_gate and
+// the slice (5ff76a62b0044378, cgemvp). Every partial sum is combined in a fixed order, so the
+// result is deterministic. The escape terms use
+// separately rounded multiply and add so a CPU emulation in float32 reproduces them bit for bit
+// (the main FMAs are exact products, so they need no such care).
 template <int NTH, int CPT>
-__global__ void __maxnreg__(32)
-cgemv_kernel(const uint4* __restrict__ stream, const int2* __restrict__ table, int pmax,
-             unsigned base4, const __nv_bfloat16* __restrict__ x, __nv_bfloat16* __restrict__ out) {
-    constexpr int NW = NTH / 32, CHUNKS = NTH * CPT;
-    __shared__ float red[2][NW + 1];
-    const int c = blockIdx.x, t = threadIdx.x, lane = t & 31, warp = t >> 5;
-    if (warp < NW) {
-        const uint4* wp = stream + (size_t)c * CHUNKS * 3 + t;
-        const uint4* xp = reinterpret_cast<const uint4*>(x) + 2 * t;
-        uint4 wa[CPT], wb[CPT], wc[CPT], xa[CPT], xb[CPT];
-#pragma unroll
-        for (int i = 0; i < CPT; ++i) {
-            wa[i] = ld_stream(wp + (3 * i) * NTH);
-            wb[i] = ld_stream(wp + (3 * i + 1) * NTH);
-            wc[i] = ld_stream(wp + (3 * i + 2) * NTH);
-        }
-#pragma unroll
-        for (int i = 0; i < CPT; ++i) {
-            xa[i] = __ldg(xp + i * NTH * 2);
-            xb[i] = __ldg(xp + i * NTH * 2 + 1);
-        }
-        float acc0 = 0.f, acc1 = 0.f;
-#pragma unroll
-        for (int i = 0; i < CPT; ++i) {
-            chunk_fma(wa[i], wc[i].x, wc[i].y, xa[i], xb[i], base4, acc0);
-            chunk_fma(wb[i], wc[i].z, wc[i].w, xa[i], xb[i], base4, acc1);
-        }
-        acc0 = warp_sum(acc0);
-        acc1 = warp_sum(acc1);
-        if (lane == 0) {
-            red[0][warp] = acc0;
-            red[1][warp] = acc1;
-        }
-    } else {
-        const int2* tb = table + (size_t)c * pmax;
-        const int count = __ldg(tb).x;
-        // Entries 1..pmax-1 exist for every CTA, so the first batch loads alongside the count.
-        int2 ent = __ldg(tb + min(lane + 1, pmax - 1));
-        const unsigned base = base4 & 0xFFu;
-        float corr0 = 0.f, corr1 = 0.f;
-        for (int e = lane + 1; e <= count; e += 32) {
-            const int row = ent.x >> 16, kk = ent.x & 0xFFFF;
-            const unsigned bits = (unsigned)ent.y;
-            ent = __ldg(tb + min(e + 32, pmax - 1));
-            const int off = min(max((int)((bits >> 8) & 0x7Fu) - (int)base, 0), EXP_WINDOW - 1);
-            const unsigned dec = (bits & 0x80FFu) | ((base + off) << 8);
-            const float delta = __fsub_rn(__uint_as_float(bits << 16), __uint_as_float(dec << 16));
-            const float xv = __uint_as_float(
-                (unsigned)__ldg(reinterpret_cast<const unsigned short*>(x) + kk) << 16);
-            const float d = __fmul_rn(delta, xv);
-            corr0 = __fadd_rn(corr0, row ? 0.f : d);
-            corr1 = __fadd_rn(corr1, row ? d : 0.f);
-        }
-        corr0 = warp_sum(corr0);
-        corr1 = warp_sum(corr1);
-        if (lane == 0) {
-            red[0][NW] = corr0;
-            red[1][NW] = corr1;
-        }
-    }
-    __syncthreads();
-    if (t == 0) {
-        float r0 = 0.f, r1 = 0.f;
-#pragma unroll
-        for (int w = 0; w <= NW; ++w) {
-            r0 += red[0][w];
-            r1 += red[1][w];
-        }
-        *reinterpret_cast<unsigned*>(out + 2 * c) = pack_bf16x2(r0, r1);
-    }
-}
-
-template <int NTH, int CPT>
-void cgemv_launch(const uint4* stream, const int2* table, int pmax, unsigned base4,
-                  const __nv_bfloat16* x, __nv_bfloat16* out, int half_n, cudaStream_t s) {
-    cgemv_kernel<NTH, CPT><<<half_n, NTH + 32, 0, s>>>(stream, table, pmax, base4, x, out);
-}
-
-// cgemv on per-row planes (the remaining layout difference to the public cgemv after the planar
-// stream, b135dd8ee10f4b24): each row's low bytes [K] and its codes [K/2] are separate, so a lane
-// loads 16 B of low bytes and 8 B of codes per row and chunk. LAYOUT 0: two global planes, all
-// rows' low bytes then all rows' codes; LAYOUT 1: per CTA [low 2c][low 2c+1][codes 2c][codes 2c+1].
-// ESC1: the escape warp reads entry 0 (the count) with the first batch, one load per lane.
-template <int NTH, int CPT, int LAYOUT, bool ESC1>
-__device__ __forceinline__ void cgemvr_body(const uint8_t* __restrict__ buf, int half_n,
-                                            const int2* __restrict__ table, int pmax, unsigned base4,
-                                            const __nv_bfloat16* __restrict__ x,
-                                            __nv_bfloat16* __restrict__ out) {
+__device__ __forceinline__ void cgemv_body(const uint8_t* __restrict__ stream, int half_n,
+                                           const int2* __restrict__ table, int pmax, unsigned base4,
+                                           const __nv_bfloat16* __restrict__ x,
+                                           __nv_bfloat16* __restrict__ out) {
     constexpr int NW = NTH / 32, K = 16 * NTH * CPT;
     __shared__ float red[2][NW + 1];
     const int c = blockIdx.x, t = threadIdx.x, lane = t & 31, warp = t >> 5;
     if (warp < NW) {
-        const uint8_t* lp = LAYOUT == 0 ? buf + (size_t)c * 2 * K : buf + (size_t)c * 3 * K;
-        const uint8_t* cp = LAYOUT == 0 ? buf + (size_t)half_n * 2 * K + (size_t)c * K : lp + 2 * K;
+        const uint8_t* lp = stream + (size_t)c * 2 * K;
+        const uint8_t* cp = stream + (size_t)half_n * 2 * K + (size_t)c * K;
         const uint4* xp = reinterpret_cast<const uint4*>(x) + 2 * t;
         uint4 l0[CPT], l1[CPT], xa[CPT], xb[CPT];
         uint2 q0[CPT], q1[CPT];
@@ -1492,21 +1377,15 @@ __device__ __forceinline__ void cgemvr_body(const uint8_t* __restrict__ buf, int
             red[1][warp] = acc1;
         }
     } else {
+        // Lane i loads entry i, so the count (entry 0) arrives with the first batch in one load.
+        // Loading the count and the batch as two loads cost the pooler about 1 us
+        // (5ff76a62b0044378: cgemvpe against cgemvp, -1.0 / -1.1 us).
         const int2* tb = table + (size_t)c * pmax;
-        int count, e0;
-        int2 ent;
-        if (ESC1) {
-            ent = __ldg(tb + min(lane, pmax - 1));
-            count = __shfl_sync(0xFFFFFFFFu, ent.x, 0);
-            e0 = lane;
-        } else {
-            count = __ldg(tb).x;
-            ent = __ldg(tb + min(lane + 1, pmax - 1));
-            e0 = lane + 1;
-        }
+        int2 ent = __ldg(tb + min(lane, pmax - 1));
+        const int count = __shfl_sync(0xFFFFFFFFu, ent.x, 0);
         const unsigned base = base4 & 0xFFu;
         float corr0 = 0.f, corr1 = 0.f;
-        for (int e = e0; e <= count; e += 32) {
+        for (int e = lane; e <= count; e += 32) {
             const int row = ent.x >> 16, kk = ent.x & 0xFFFF;
             const unsigned bits = (unsigned)ent.y;
             const bool live = e >= 1;
@@ -1541,40 +1420,34 @@ __device__ __forceinline__ void cgemvr_body(const uint8_t* __restrict__ buf, int
     }
 }
 
-// The 40-register build lets CPT = 2 issue both chunks' loads before the first FMA (the public
-// cgemv runs qkv_gate and the slice at 40); the pooler and o stay at 32 for occupancy.
-template <int NTH, int CPT, int LAYOUT, bool ESC1>
-__global__ void __maxnreg__(32)
-cgemvr_kernel(const uint8_t* __restrict__ buf, int half_n, const int2* __restrict__ table, int pmax,
-              unsigned base4, const __nv_bfloat16* __restrict__ x, __nv_bfloat16* __restrict__ out) {
-    cgemvr_body<NTH, CPT, LAYOUT, ESC1>(buf, half_n, table, pmax, base4, x, out);
-}
-
-template <int NTH, int CPT, int LAYOUT, bool ESC1>
-__global__ void __maxnreg__(40)
-cgemvr40_kernel(const uint8_t* __restrict__ buf, int half_n, const int2* __restrict__ table, int pmax,
-                unsigned base4, const __nv_bfloat16* __restrict__ x, __nv_bfloat16* __restrict__ out) {
-    cgemvr_body<NTH, CPT, LAYOUT, ESC1>(buf, half_n, table, pmax, base4, x, out);
-}
-
-// variant: 0 = 32 registers, 1 = 32 registers with ESC1, 2 = 40 registers.
+// Registers set the occupancy at one chunk per thread: a warp takes its registers in units of
+// 256 from one SM sub-partition's 16384 (cuda_occupancy.h), so at 33-40 registers a
+// sub-partition holds 12 warps and at 32 it holds 16, which is 2 against 3 CTAs per SM for the
+// 17-warp pooler CTA (b135dd8ee10f4b24). With two chunks per thread (qkv_gate, the slice) 40
+// registers win over 32 (5ff76a62b0044378, cgemvp40 against cgemvp: -0.3 / -0.2 us on qkv_gate,
+// -0.2 / -0.2 on the slice), as in the public cgemv.
 template <int NTH, int CPT>
-bool cgemvr_launch(const uint8_t* buf, const int2* table, int pmax, unsigned base4,
-                   const __nv_bfloat16* x, __nv_bfloat16* out, int half_n, int layout, int variant,
-                   cudaStream_t s) {
-    const dim3 g(half_n), b(NTH + 32);
-    if (layout == 0 && variant == 0) {
-        cgemvr_kernel<NTH, CPT, 0, false><<<g, b, 0, s>>>(buf, half_n, table, pmax, base4, x, out);
-    } else if (layout == 0 && variant == 1) {
-        cgemvr_kernel<NTH, CPT, 0, true><<<g, b, 0, s>>>(buf, half_n, table, pmax, base4, x, out);
-    } else if (layout == 0 && variant == 2) {
-        cgemvr40_kernel<NTH, CPT, 0, false><<<g, b, 0, s>>>(buf, half_n, table, pmax, base4, x, out);
-    } else if (layout == 1 && variant == 0) {
-        cgemvr_kernel<NTH, CPT, 1, false><<<g, b, 0, s>>>(buf, half_n, table, pmax, base4, x, out);
+__global__ void __maxnreg__(32)
+cgemv_kernel(const uint8_t* __restrict__ stream, int half_n, const int2* __restrict__ table, int pmax,
+             unsigned base4, const __nv_bfloat16* __restrict__ x, __nv_bfloat16* __restrict__ out) {
+    cgemv_body<NTH, CPT>(stream, half_n, table, pmax, base4, x, out);
+}
+
+template <int NTH, int CPT>
+__global__ void __maxnreg__(40)
+cgemv40_kernel(const uint8_t* __restrict__ stream, int half_n, const int2* __restrict__ table, int pmax,
+               unsigned base4, const __nv_bfloat16* __restrict__ x, __nv_bfloat16* __restrict__ out) {
+    cgemv_body<NTH, CPT>(stream, half_n, table, pmax, base4, x, out);
+}
+
+template <int NTH, int CPT>
+void cgemv_launch(const uint8_t* stream, const int2* table, int pmax, unsigned base4,
+                  const __nv_bfloat16* x, __nv_bfloat16* out, int half_n, cudaStream_t s) {
+    if constexpr (CPT == 1) {
+        cgemv_kernel<NTH, CPT><<<half_n, NTH + 32, 0, s>>>(stream, half_n, table, pmax, base4, x, out);
     } else {
-        return false;
+        cgemv40_kernel<NTH, CPT><<<half_n, NTH + 32, 0, s>>>(stream, half_n, table, pmax, base4, x, out);
     }
-    return true;
 }
 
 // FP32 router row per CTA: thread t reads float4 i*256+t, so each warp's load is 512 contiguous
@@ -1681,7 +1554,7 @@ void cgemv_fwd(at::Tensor stream, at::Tensor table, int64_t pmax, int64_t base4,
     TORCH_CHECK(out.is_cuda() && out.scalar_type() == at::kBFloat16 && out.is_contiguous()
                 && out.numel() == 2 * half_n && aligned_to(out, 4),
                 "cgemv_fwd: out must be a contiguous bf16 tensor of ", 2 * half_n, " elements");
-    const uint4* sp = reinterpret_cast<const uint4*>(stream.data_ptr<uint8_t>());
+    const uint8_t* sp = stream.data_ptr<uint8_t>();
     const int2* tp = reinterpret_cast<const int2*>(table.data_ptr<int32_t>());
     const __nv_bfloat16* xp = reinterpret_cast<const __nv_bfloat16*>(x.data_ptr<at::BFloat16>());
     __nv_bfloat16* op = reinterpret_cast<__nv_bfloat16*>(out.data_ptr<at::BFloat16>());
@@ -1699,40 +1572,6 @@ void cgemv_fwd(at::Tensor stream, at::Tensor table, int64_t pmax, int64_t base4,
 #undef CGEMV_CASE
     TORCH_CHECK(false, "cgemv_fwd: unsupported threads ", nthreads, " for K = ", k,
                 " (need threads in {64,128,256,512} and K/16/threads in {1,2,4})");
-}
-
-void cgemvr_fwd(at::Tensor buf, at::Tensor table, int64_t pmax, int64_t base4, at::Tensor x,
-                at::Tensor out, int64_t nthreads, int64_t layout, int64_t variant) {
-    const int64_t half_n = table.size(0), k = x.size(1);
-    TORCH_CHECK(buf.is_cuda() && buf.scalar_type() == at::kByte && buf.is_contiguous()
-                && buf.numel() == half_n * 3 * k && aligned_to(buf, 16),
-                "cgemvr_fwd: buf must be a contiguous uint8 CUDA tensor of N * K * 3 / 2 bytes");
-    TORCH_CHECK(table.is_cuda() && table.scalar_type() == at::kInt && table.is_contiguous()
-                && table.dim() == 3 && table.size(1) == pmax && table.size(2) == 2 && pmax >= 2
-                && aligned_to(table, 8),
-                "cgemvr_fwd: table must be a contiguous int32 [N/2, pmax, 2] CUDA tensor");
-    check_x(x, k);
-    TORCH_CHECK(out.is_cuda() && out.scalar_type() == at::kBFloat16 && out.is_contiguous()
-                && out.numel() == 2 * half_n && aligned_to(out, 4),
-                "cgemvr_fwd: out must be a contiguous bf16 tensor of ", 2 * half_n, " elements");
-    const uint8_t* bp = buf.data_ptr<uint8_t>();
-    const int2* tp = reinterpret_cast<const int2*>(table.data_ptr<int32_t>());
-    const __nv_bfloat16* xp = reinterpret_cast<const __nv_bfloat16*>(x.data_ptr<at::BFloat16>());
-    __nv_bfloat16* op = reinterpret_cast<__nv_bfloat16*>(out.data_ptr<at::BFloat16>());
-    cudaStream_t s = at::cuda::getCurrentCUDAStream().stream();
-    bool ok = false;
-    if (nthreads == 256 && k == 8192) {
-        ok = cgemvr_launch<256, 2>(bp, tp, (int)pmax, (unsigned)base4, xp, op, (int)half_n, (int)layout, (int)variant, s);
-    } else if (nthreads == 64 && k == 1024) {
-        ok = cgemvr_launch<64, 1>(bp, tp, (int)pmax, (unsigned)base4, xp, op, (int)half_n, (int)layout, (int)variant, s);
-    } else if (nthreads == 512 && k == 8192) {
-        ok = cgemvr_launch<512, 1>(bp, tp, (int)pmax, (unsigned)base4, xp, op, (int)half_n, (int)layout, (int)variant, s);
-    } else if (nthreads == 128 && k == 4096) {
-        ok = cgemvr_launch<128, 2>(bp, tp, (int)pmax, (unsigned)base4, xp, op, (int)half_n, (int)layout, (int)variant, s);
-    }
-    TORCH_CHECK(ok, "cgemvr_fwd: no instance for threads ", nthreads, ", K ", k, ", layout ", layout,
-                ", variant ", variant);
-    C10_CUDA_KERNEL_LAUNCH_CHECK();
 }
 
 void rgemv_fwd(at::Tensor w, at::Tensor x, at::Tensor out) {
@@ -2499,7 +2338,7 @@ def _build_ext():
     src = sk_source() + GEMV_CUDA_SRC + wd_source()
     kwargs = dict(name="okc_sk_v2", cpp_sources="#include <torch/extension.h>\n" + _SK_CPP + GEMV_CPP_DECLS + _WD_CPP,
                   cuda_sources=src,
-                  functions=["sk_fwd", "skf_fwd", "cgemv_fwd", "cgemvr_fwd", "rgemv_fwd", "sgemv_fwd", "wd_fwd"],
+                  functions=["sk_fwd", "skf_fwd", "cgemv_fwd", "rgemv_fwd", "sgemv_fwd", "wd_fwd"],
                   extra_cuda_cflags=["-O3", "-gencode=arch=compute_90a,code=sm_90a"], verbose=False)
     try:
         return load_inline(no_implicit_headers=True, **kwargs)
@@ -2637,14 +2476,6 @@ def prepare(weights):
             fn = gemv_runner(lambda x, out, cg=cg, nth=nth: ext.cgemv_fwd(
                 cg["stream"], cg["table"], cg["pmax"], cg["base4"], x, out, nth), w1.shape[0], torch.bfloat16)
             add(layer, 8, "cgemv", fn, w, w1.shape[0], (1,), SELFTEST_TOL["bf16"])
-            for nm, (lay, var) in CGEMVR.items():
-                if var == 2 and w1.shape[1] // 16 == nth:
-                    continue
-                buf = pack_cgemv_rows(w1, cg, lay)
-                fn = gemv_runner(lambda x, out, cg=cg, nth=nth, buf=buf, lay=lay, var=var: ext.cgemvr_fwd(
-                    buf, cg["table"], cg["pmax"], cg["base4"], x, out, nth, lay, var), w1.shape[0],
-                    torch.bfloat16)
-                add(layer, 8, nm, fn, w, w1.shape[0], (1,), SELFTEST_TOL["bf16"])
         if layer == "unpooler":
             fn = gemv_runner(lambda x, out, w1=w1: ext.sgemv_fwd(w1, x, out), w1.shape[0], torch.bfloat16)
             add(layer, 8, "sgemv", fn, w, w1.shape[0], (1,), SELFTEST_TOL["bf16"])
