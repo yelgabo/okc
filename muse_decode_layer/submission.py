@@ -7596,6 +7596,8 @@ constexpr int kUAM = 512;
 constexpr int kUBM = 256;
 constexpr int kBarWg = 3;
 constexpr int kBarGather = 7;
+constexpr int kBqMax = 64;
+constexpr int kBqEmpty = -2;
 // Relative cost of one stage by n8-tile count: the wgmma work grows with N while the bytes
 // stay the same.
 __constant__ int kCostA[9] = {0, 112, 135, 140, 158, 173, 185, 200, 207};
@@ -7611,7 +7613,7 @@ __constant__ int kCostBm[9] = {0, 85, 92, 104, 115, 130, 145, 160, 175};
 // mma.sync skinny kernel).
 __host__ __device__ constexpr int mma_max(int mode) {
     return mode == 6 || mode == 9 || mode == 11 || mode == 12 || mode == 14 || mode == 15
-                   || (mode >= 16 && mode <= 21)
+                   || (mode >= 16 && mode <= 24)
                ? 2
            : mode == 7 || mode == 10 ? 4
            : mode == 8 ? 8 : 0;
@@ -7625,7 +7627,7 @@ __host__ __device__ constexpr int mma_max(int mode) {
 // Memory Consistency Model, "Release and Acquire Patterns"); fence.sc adds only the SC order,
 // which no reader here relies on. The SASS is MEMBAR.ALL.GPU instead of MEMBAR.SC.GPU.
 __host__ __device__ constexpr bool fence_ar(int mode) {
-    return mode == 12 || mode == 13 || mode == 14 || (mode >= 15 && mode <= 21);
+    return mode == 12 || mode == 13 || mode == 14 || (mode >= 15 && mode <= 24);
 }
 
 // Modes 17 to 20 are mode 16 (two mma.sync chains, unit-aligned phase B) with one change each:
@@ -7633,17 +7635,27 @@ __host__ __device__ constexpr bool fence_ar(int mode) {
 // final pass: timing only, the GEMM1 gate's baseline); 19 runs phase A alone with every unit
 // owned whole by one CTA (no cut unit, no fixup; timing only, the staged GEMM1 prototype); 20
 // is 19's phase A followed by mode 16's phase B and final pass (a full, checked candidate).
+// 22 is 20 with the stamps of 17. 23 is 20 with phase B units claimed at run time (dyn_b) and
+// both phases walked largest n-tile count first; 24 is 23 with the stamps.
 __host__ __device__ constexpr bool dual_chain(int mode) {
-    return mode == 14 || (mode >= 16 && mode <= 21);
+    return mode == 14 || (mode >= 16 && mode <= 24);
 }
 __host__ __device__ constexpr bool is_diag(int mode) {
-    return mode == 11 || mode == 17;
+    return mode == 11 || mode == 17 || mode == 22 || mode == 24;
 }
 __host__ __device__ constexpr bool a_only(int mode) {
     return mode == 18 || mode == 19;
 }
 __host__ __device__ constexpr bool own_a(int mode) {
-    return mode == 19 || mode == 20;
+    return mode == 19 || mode == 20 || mode == 22 || mode == 23 || mode == 24;
+}
+// Modes 23 and 24: a CTA's weights producer claims phase B units one at a time from a global
+// counter, in S.ord order, when its ring has a free slot. Owned phase A leaves CTAs with up to
+// one unit more than others and mode 20's static phase B ranges ignore that, so the CTA that
+// frees first takes the next unit; S.ord puts the jobs whose phase A rounds come first (the
+// snake deal walks S.ord) at the front, so claimed units find their inputs ready.
+__host__ __device__ constexpr bool dyn_b(int mode) {
+    return mode == 23 || mode == 24;
 }
 // Mode 21 is the second launch of the staged pair (19, then 21): phase B and the final pass
 // alone, on the xb a previous launch wrote. That launch completed before this one started
@@ -7714,6 +7726,9 @@ struct __align__(128) SmemMain {
     // Owned phase A (own_a): jobs by n-tile count, largest first, and this CTA's unit count.
     int ord[kJmaxM];
     int own_n;
+    // dyn_b: the i-th claimed phase B unit (index into S.ord order, 16 per job), -1 when the
+    // claims are exhausted, kBqEmpty until the weights producer writes it.
+    int bq[kBqMax];
     long long dg[18][8];
 };
 
@@ -7767,6 +7782,34 @@ __device__ __forceinline__ void spin_ge(const int* p, int target, int* ctr, int 
             break;
         }
     }
+}
+
+// The claimed-unit queue S.bq: one writer (the weights producer), readers in the same CTA.
+__device__ __forceinline__ void st_release_cta(int* p, int v) {
+    asm volatile("st.release.cta.shared::cta.s32 [%0], %1;" :: "r"(smem_u32(p)), "r"(v)
+                 : "memory");
+}
+
+__device__ __forceinline__ int ld_acquire_cta(const int* p) {
+    int v;
+    asm volatile("ld.acquire.cta.shared::cta.s32 %0, [%1];" : "=r"(v) : "r"(smem_u32(p))
+                 : "memory");
+    return v;
+}
+
+__device__ __forceinline__ int bq_get(const SmemMain& S, int i, int* ctr) {
+    int m = ld_acquire_cta(&S.bq[i]);
+    if (m != kBqEmpty) {
+        return m;
+    }
+    const long long t0 = clock64();
+    while ((m = ld_acquire_cta(&S.bq[i])) == kBqEmpty) {
+        __nanosleep(32);
+        if (spin_failed(t0, ctr, 256)) {
+            return -1;
+        }
+    }
+    return m;
 }
 
 __device__ __forceinline__ void bulk_load_plain(void* dst, const void* src, unsigned bytes,
@@ -8535,14 +8578,80 @@ template <int PH, int MODE>
 __device__ __forceinline__ void consumer_phase(const Params& p, SmemMain& S, float* ss,
                                                float (&acc)[32], Ring& rg, int& xrel, int cta,
                                                int G) {
-    run_group<1, PH, MODE>(p, S, ss, acc, rg, xrel, cta, G);
-    run_group<2, PH, MODE>(p, S, ss, acc, rg, xrel, cta, G);
-    run_group<3, PH, MODE>(p, S, ss, acc, rg, xrel, cta, G);
-    run_group<4, PH, MODE>(p, S, ss, acc, rg, xrel, cta, G);
-    run_group<5, PH, MODE>(p, S, ss, acc, rg, xrel, cta, G);
-    run_group<6, PH, MODE>(p, S, ss, acc, rg, xrel, cta, G);
-    run_group<7, PH, MODE>(p, S, ss, acc, rg, xrel, cta, G);
-    run_group<8, PH, MODE>(p, S, ss, acc, rg, xrel, cta, G);
+    if constexpr (dyn_b(MODE)) {
+        run_group<8, PH, MODE>(p, S, ss, acc, rg, xrel, cta, G);
+        run_group<7, PH, MODE>(p, S, ss, acc, rg, xrel, cta, G);
+        run_group<6, PH, MODE>(p, S, ss, acc, rg, xrel, cta, G);
+        run_group<5, PH, MODE>(p, S, ss, acc, rg, xrel, cta, G);
+        run_group<4, PH, MODE>(p, S, ss, acc, rg, xrel, cta, G);
+        run_group<3, PH, MODE>(p, S, ss, acc, rg, xrel, cta, G);
+        run_group<2, PH, MODE>(p, S, ss, acc, rg, xrel, cta, G);
+        run_group<1, PH, MODE>(p, S, ss, acc, rg, xrel, cta, G);
+    } else {
+        run_group<1, PH, MODE>(p, S, ss, acc, rg, xrel, cta, G);
+        run_group<2, PH, MODE>(p, S, ss, acc, rg, xrel, cta, G);
+        run_group<3, PH, MODE>(p, S, ss, acc, rg, xrel, cta, G);
+        run_group<4, PH, MODE>(p, S, ss, acc, rg, xrel, cta, G);
+        run_group<5, PH, MODE>(p, S, ss, acc, rg, xrel, cta, G);
+        run_group<6, PH, MODE>(p, S, ss, acc, rg, xrel, cta, G);
+        run_group<7, PH, MODE>(p, S, ss, acc, rg, xrel, cta, G);
+        run_group<8, PH, MODE>(p, S, ss, acc, rg, xrel, cta, G);
+    }
+}
+
+// dyn_b phase B: the claimed units in claim order. Claims rise through S.ord, whose n-tile
+// counts never rise, so one loop per count, largest first, takes them all in order.
+template <int NTT, int MODE>
+__device__ __forceinline__ void run_group_dyn(const Params& p, SmemMain& S, float* ss,
+                                              float (&acc)[32], Ring& rg, int& xrel, int& qi,
+                                              int cta, int G) {
+#pragma unroll 1
+    while (qi < kBqMax) {
+        const int m = bq_get(S, qi, p.ctr);
+        if (m < 0) {
+            return;
+        }
+        const int j = S.ord[m >> 4];
+        if (S.job_ntt[j] != NTT) {
+            return;
+        }
+        SegInfo si;
+        si.j = j;
+        si.u = m & 15;
+        si.st_b = 0;
+        si.st_e = 16;
+        si.slot = cta;
+        si.partial = false;
+        if (is_diag(MODE) && threadIdx.x == 0) {
+            S.dg[8 + NTT - 1][6] += 16;
+            S.dg[8 + NTT - 1][7] += 1;
+        }
+        const long long cs = is_diag(MODE) ? clock64() : 0;
+        if constexpr (NTT <= mma_max(MODE)) {
+            run_segment_mma<NTT, 1, MODE>(p, S, ss, si, rg, G);
+        } else {
+            run_segment<NTT, 1, MODE>(p, S, ss, si, acc, rg, xrel, G);
+        }
+        if (is_diag(MODE) && threadIdx.x == 0) {
+            S.dg[17][6] += clock64() - cs;
+        }
+        ++qi;
+    }
+}
+
+template <int MODE>
+__device__ __forceinline__ void consumer_dyn_b(const Params& p, SmemMain& S, float* ss,
+                                               float (&acc)[32], Ring& rg, int& xrel, int cta,
+                                               int G) {
+    int qi = 0;
+    run_group_dyn<8, MODE>(p, S, ss, acc, rg, xrel, qi, cta, G);
+    run_group_dyn<7, MODE>(p, S, ss, acc, rg, xrel, qi, cta, G);
+    run_group_dyn<6, MODE>(p, S, ss, acc, rg, xrel, qi, cta, G);
+    run_group_dyn<5, MODE>(p, S, ss, acc, rg, xrel, qi, cta, G);
+    run_group_dyn<4, MODE>(p, S, ss, acc, rg, xrel, qi, cta, G);
+    run_group_dyn<3, MODE>(p, S, ss, acc, rg, xrel, qi, cta, G);
+    run_group_dyn<2, MODE>(p, S, ss, acc, rg, xrel, qi, cta, G);
+    run_group_dyn<1, MODE>(p, S, ss, acc, rg, xrel, qi, cta, G);
 }
 
 template <int MODE>
@@ -8555,7 +8664,11 @@ __device__ __forceinline__ void consumers(const Params& p, SmemMain& S, float* s
     if (is_diag(MODE) && threadIdx.x == 0) {
         S.dg[17][7] = gtimer();
     }
-    consumer_phase<1, MODE>(p, S, ss, acc, rg, xrel, cta, G);
+    if constexpr (dyn_b(MODE)) {
+        consumer_dyn_b<MODE>(p, S, ss, acc, rg, xrel, cta, G);
+    } else {
+        consumer_phase<1, MODE>(p, S, ss, acc, rg, xrel, cta, G);
+    }
 }
 
 template <int MODE>
@@ -8563,9 +8676,10 @@ __device__ __forceinline__ void wproducer(const Params& p, SmemMain& S, int cta,
                                           uint64_t pol) {
     long long twe = 0;
     Ring rg = {0, 0, 0, 0};
-    for (int ph = 0; ph < 2; ++ph) {
+    for (int ph = 0; ph < (dyn_b(MODE) ? 1 : 2); ++ph) {
         const int ns = seg_n<MODE>(S, ph);
-        for (int ntt = 1; ntt <= 8; ++ntt) {
+        for (int n = 1; n <= 8; ++n) {
+        const int ntt = dyn_b(MODE) ? 9 - n : n;
         for (int i = 0; i < ns; ++i) {
             int gb;
             int ge;
@@ -8597,6 +8711,48 @@ __device__ __forceinline__ void wproducer(const Params& p, SmemMain& S, int cta,
         }
         }
     }
+    if constexpr (dyn_b(MODE)) {
+        // Claim only once a slot is free, so the claim lands as late as the ring allows: the
+        // CTA that drains first takes the next unit. The counter is a plain atomic (exactly
+        // one claimant per value); the units' inputs still come through done_as. CTA 0 zeroes
+        // it after the grid barrier, which every claim precedes.
+        int* claim = p.ctr + 10;
+        const int units = S.njobs * 16;
+        for (int i = 0; i < kBqMax; ++i) {
+            if (rg.wlap > 0) {
+                const long long c0 = is_diag(MODE) ? clock64() : 0;
+                mbar_wait_to(&S.wempty[rg.ws], (rg.wlap - 1) & 1, p.ctr, 16);
+                if (is_diag(MODE)) {
+                    twe += clock64() - c0;
+                }
+            }
+            int m = i < kBqMax - 1 ? atomicAdd(claim, 1) : units;
+            if (m >= units) {
+                m = -1;
+            }
+            st_release_cta(&S.bq[i], m);
+            if (m < 0) {
+                break;
+            }
+            const int j = S.ord[m >> 4];
+            const unsigned char* base =
+                p.w2f + static_cast<size_t>(S.job_e[j] * 16 + (m & 15)) * 16 * kUnitBytes;
+            for (int st = 0; st < 16; ++st) {
+                const int ws = rg.ws;
+                if (st > 0 && rg.wlap > 0) {
+                    const long long c0 = is_diag(MODE) ? clock64() : 0;
+                    mbar_wait_to(&S.wempty[ws], (rg.wlap - 1) & 1, p.ctr, 16);
+                    if (is_diag(MODE)) {
+                        twe += clock64() - c0;
+                    }
+                }
+                mbar_expect_tx(&S.wfull[ws], kUnitBytes);
+                bulk_load(S.rings + ws * kUnitBytes, base + static_cast<size_t>(st) * kUnitBytes,
+                          kUnitBytes, &S.wfull[ws], pol);
+                ring_next_w(rg, S.nsw);
+            }
+        }
+    }
     if (is_diag(MODE)) {
         S.dg[16][0] = twe;
     }
@@ -8610,9 +8766,10 @@ __device__ __forceinline__ void xproducer(const Params& p, SmemMain& S, int cta,
     long long txe = 0;
     long long tda = 0;
     long long txr = 0;
-    for (int ph = 0; ph < 2; ++ph) {
+    for (int ph = 0; ph < (dyn_b(MODE) ? 1 : 2); ++ph) {
         const int ns = seg_n<MODE>(S, ph);
-        for (int ntt = 1; ntt <= 8; ++ntt) {
+        for (int n = 1; n <= 8; ++n) {
+        const int ntt = dyn_b(MODE) ? 9 - n : n;
         for (int i = 0; i < ns; ++i) {
             int gb;
             int ge;
@@ -8662,6 +8819,38 @@ __device__ __forceinline__ void xproducer(const Params& p, SmemMain& S, int cta,
                 ring_next_x(rg);
             }
         }
+        }
+    }
+    if constexpr (dyn_b(MODE)) {
+        for (int i = 0; i < kBqMax; ++i) {
+            const int m = bq_get(S, i, p.ctr);
+            if (m < 0) {
+                break;
+            }
+            const int j = S.ord[m >> 4];
+            const unsigned bytes = S.job_ntt[j] * 4096;
+            const unsigned char* base = p.xb + static_cast<size_t>(S.job_xo[j]) * 65536;
+            for (int st = 0; st < 16; ++st) {
+                const int xs = rg.xs;
+                long long c0 = is_diag(MODE) ? clock64() : 0;
+                if (rg.xlap > 0) {
+                    mbar_wait_to(&S.xempty[xs], (rg.xlap - 1) & 1, p.ctr, 64);
+                }
+                if (is_diag(MODE)) {
+                    const long long c1 = clock64();
+                    txe += c1 - c0;
+                    c0 = c1;
+                }
+                spin_ge(p.done_as + j * 16 + st, 8, p.ctr, 128);
+                fence_proxy_async_global();
+                if (is_diag(MODE)) {
+                    tda += clock64() - c0;
+                }
+                mbar_expect_tx(&S.xfull[xs], bytes);
+                bulk_load_plain(S.rings + S.xoff + xs * S.xsz,
+                                base + static_cast<size_t>(st) * bytes, bytes, &S.xfull[xs]);
+                ring_next_x(rg);
+            }
         }
     }
     if (is_diag(MODE)) {
@@ -8729,7 +8918,7 @@ __global__ void __launch_bounds__(kNTM, 1) moe_main_kernel(const Params p) {
         if (lane < 9) {
             const bool given = p.cost[0][1] > 0;
             S.cost[0][lane] = given ? p.cost[0][lane] : stage_cost<MODE>(0, lane);
-            S.align_b = MODE == 15 || (MODE >= 16 && MODE <= 21) ? 1 : 0;
+            S.align_b = MODE == 15 || (MODE >= 16 && MODE <= 24) ? 1 : 0;
             S.cost[1][lane] = given ? p.cost[1][lane] : stage_cost<MODE>(1, lane);
         }
         S.cnt[lane] = 0;
@@ -8839,6 +9028,9 @@ __global__ void __launch_bounds__(kNTM, 1) moe_main_kernel(const Params p) {
         }
         if (ctid == 0) {
             p.ctr[4 + ((gen + 1) & 1)] = 0;
+        }
+        if (dyn_b(MODE) && tid < kBqMax) {
+            S.bq[tid] = kBqEmpty;
         }
     }
     __syncthreads();
@@ -8961,6 +9153,9 @@ __global__ void __launch_bounds__(kNTM, 1) moe_main_kernel(const Params p) {
     }
     for (int i = cta * kNTM + tid; i < 2 * G * 4; i += G * kNTM) {
         p.fixcnt[i] = 0;
+    }
+    if (dyn_b(MODE) && cta == 0 && tid == 0) {
+        p.ctr[10] = 0;
     }
     if (warp < kNC && !a_only(MODE)) {
         final_pass<kNC * 32>(p, S.pos, ss, cta, G);
@@ -9125,6 +9320,7 @@ _MOE1_VARIANTS = (
     ('main-d2', 'main', 'launch_main<0>'),
     ('main-m2-ar2-ub', 'main', 'launch_main<16>'),
     ('main-own', 'main', 'launch_main<20>'),
+    ('main-own-dynb', 'main', 'launch_main<23>'),
 )
 _MOE1_MAIN_MIN_M = 17
 
