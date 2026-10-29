@@ -104,6 +104,14 @@ through `_ONE_DBG`.
 
 - `(num_q_heads, num_kv_heads, head_dim) == (16, 2, 64)` only; other head counts fall back
   (`_one_ok`).
+- Page size a power of two (since 10-29 the kernel indexes pages by shift and mask,
+  `ONE_DIET`); `_one_ok` sends any other page size to the fallback, and the host wrapper
+  refuses it.
+- Build switches (defaults are what the judge ran in 03a21fbc99cf445f): `ONE_DIET=1` (the
+  once-path diet; the q_len 8 producer builds keep the plain path), `ONE_DIAG=0` (no stamps or
+  phase exits; a bench that wants `phase > 0` or the stamps builds with `-DONE_DIAG=1`),
+  `ONE_FIN8=0` (the eight-copy finalize for the batch-1 full plan, bench-measured in
+  0c4b4923d4b44b79, not yet judged).
 - Fresh inputs every call; the plan reads only shapes (`page_table.shape[1]` for the
   speculated length) and never input values on the host.
 - The first call on a device allocates the workspace and queries residency: do it outside

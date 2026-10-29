@@ -654,7 +654,7 @@ attn_one_kernel(const Params p) {
     static_assert(!FLAT || !(ONE || SPEC), "flat mode partitions its own ranges");
     static_assert(!PROD || FLAT, "the producer warpgroup belongs to the flat kernel");
     static_assert(!SOLO || PROD, "SOLO is a producer-mode variant");
-    // The q_len 8 producer builds keep the plain once-path: with the diet, mode 51 timed 1.0-1.9
+    // The q_len 8 producer builds keep the plain once-path: with the diet, mode 51 timed 0.9-1.9
     // us slower than without it at full verify b16 / b32 in all four samples of bench
     // d57d1fe064164611 (docs/runs-attention.md, 10-29).
     constexpr bool DIET = ONE_DIET && !(PROD && L == 8);
