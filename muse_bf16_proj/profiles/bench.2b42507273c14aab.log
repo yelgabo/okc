@@ -1,0 +1,74 @@
+1n128c3s8h
+tune qkv_gate  m=256: cublas 23.4, b1n128c2 32.1, b2n256c2 48.4, m128k2r4 32.9, m128k1r4 46.6, m128k4r2 38.8, m256k2r4 32.4, m256k1r4 51.0, m256k2r2 31.8, b1n128c2s8h 41.3, b1n128c3s8h 33.6 -> cublas
+tune router    m= 1: rgemv 7.8, router8 9.1, baseline 14.9 -> rgemv
+tune router    m= 8: router8 9.4, baseline 30.7 -> router8
+tune router    m=16: router16 9.1, baseline 20.7 -> router16
+tune router    m=32: router32 9.9, baseline 20.7 -> router32
+tune router    m=64: baseline 21.3, r64c8 13.1, r64c16 11.2, rm64k4r4 18.3 -> r64c16
+tune router    m=128: baseline 22.1, r64c8 13.2, r64c16 14.2, r128c8 14.3, r128c16 12.9, rm64k4r4 18.0, rm128k4r4 21.4 -> r128c16
+tune router    m=256: baseline 22.7, r128c8 14.6, r128c16 20.3, rm128k4r4 21.4 -> r128c8
+tune unpooler  m= 1: slice8 8.6, slice8raw 8.9, cgemv 8.1, sgemv 8.0, cublas 11.3 -> sgemv
+tune unpooler  m= 8: slice8 8.5, slice8raw 8.8, cublas 11.4 -> slice8
+tune unpooler  m=16: unp16 18.4, unp16raw 22.2, cublas 22.4 -> unp16
+tune unpooler  m=32: unp32 19.7, unp32raw 22.0, cublas 22.5 -> unp32
+tune unpooler  m=64: cublas 22.7, b1n64c2 24.6, m64k2r4 35.2, m64k1r8 30.0 -> cublas
+tune unpooler  m=128: cublas 23.9, b1n64c2 43.1, b1n128c2 26.0, m64k2r4 52.5, m64k1r8 49.3, m128k2r4 39.0, m128k1r4 34.4, m128k1r8 35.6, m128k2r8 41.0, m128k4r2 39.3, b1n128c2s8h 29.1, b1n128c3s8h 38.9 -> cublas
+tune unpooler  m=256: cublas 28.6, b1n128c2 46.8, b2n256c2 32.5, m128k2r4 60.6, m128k1r4 60.9, m128k1r8 63.0, m128k2r8 61.9, m128k4r2 65.2, m256k2r4 54.5, m256k1r4 58.2, m256k1r8 59.4, m256k2r8 57.0, m256k2r2 54.2, b1n128c2s8h 53.0, b1n128c3s8h 65.7 -> cublas
+ablate pooler m=128: m128k2r4 35.0, m128k2r4_a1 30.7, m128k2r4_a3 28.8
+ablate o m=256: m256k1r4 25.5, m256k1r4_a1 23.1, m256k1r4_a3 18.4
+prepare done 1.1 s
+ours| tune o         m= 8: o8 9.9, o8raw 10.5, cublas 10.7 -> o8
+ours| tune pooler    m= 8: pool8 18.4, pool8raw 22.4, cublas 25.1 -> pool8
+ours| tune qkv_gate  m= 8: qkv8 14.2, qkv8raw 15.5, cublas 18.5 -> qkv8
+ours| tune router    m= 8: router8 9.6, baseline 30.9 -> router8
+ours| tune unpooler  m= 8: slice8 8.6, slice8raw 8.8, cublas 11.5 -> slice8
+ABPREP ours 71.7 s
+geo| tune o         m= 8: o8 9.9, o8raw 10.4, cublas 10.6 -> o8
+geo| tune pooler    m= 8: pool8 18.5, pool8raw 22.1, cublas 25.5 -> pool8
+geo| tune qkv_gate  m= 8: qkv8 14.4, qkv8u4 13.9, qkv8w8 14.1, qkv8w8u1 14.7, qkv8raw 15.5, qkv8u4raw 15.7, qkv8w8raw 15.6, qkv8w8u1raw 15.4, cublas 18.5 -> qkv8u4
+geo| tune router    m= 8: router8 9.4, router8u2 9.6, baseline 31.0 -> router8
+geo| tune unpooler  m= 8: slice8 8.6, slice8raw 8.8, cublas 11.3 -> slice8
+ABPREP geo 22.2 s
+geov| tune o         m= 8: o8 10.0, o8raw 10.6, cublas 10.8 -> o8
+geov| tune pooler    m= 8: pool8 18.8, pool8raw 22.3, cublas 25.3 -> pool8
+geov| tune qkv_gate  m= 8: qkv8 14.3, qkv8u4 14.0, qkv8w8 14.1, qkv8w8u1 15.0, qkv8raw 15.7, qkv8u4raw 15.9, qkv8w8raw 15.7, qkv8w8u1raw 15.6, cublas 19.1 -> qkv8u4
+geov| tune router    m= 8: router8 9.6, router8u2 9.6, baseline 31.3 -> router8
+geov| tune unpooler  m= 8: slice8 8.7, slice8raw 8.9, cublas 11.3 -> slice8
+ABPREP geov 22.2 s
+pub| [okc] tune qkv_gate m=8: sk2=12.93 torch=17.47 -> sk2
+pub| [okc] tune o m=8: sk2=9.06 torch=9.73 -> sk2
+pub| [okc] tune pooler m=8: sk2=17.98 torch=24.83 -> sk2
+pub| [okc] tune unpooler m=8: sk2=7.55 torch=10.11 -> sk2
+pub| [okc] tune router m=8: sk2=8.29 torch=17.73 -> sk2
+pub| [okc] disabled: []
+ABPREP pub 89.1 s
+ABCHECK ok qkv_gate m=8 p0 sgl=1.7e-03 ours=1.7e-03 ours2=1.7e-03 ours.qkv8=1.7e-03 geo=1.7e-03 geo.qkv8=1.7e-03 geo.qkv8u4=1.7e-03 geo.qkv8w8=1.7e-03 geo.qkv8w8u1=1.7e-03 geov=1.7e-03 geov.qkv8=1.7e-03 geov.qkv8u4=1.7e-03 geov.qkv8w8=1.7e-03 geov.qkv8w8u1=1.7e-03 pub=1.7e-03
+ABCOLD qkv_gate m=8 p0 sgl=18.72 ours=14.37 ours2=14.35 ours.qkv8=14.40 geo=13.76 geo.qkv8=14.27 geo.qkv8u4=13.63 geo.qkv8w8=13.81 geo.qkv8w8u1=14.43 geov=13.57 geov.qkv8=14.05 geov.qkv8u4=13.60 geov.qkv8w8=13.79 geov.qkv8w8u1=14.46 pub=13.66
+ABPAIR qkv_gate m=8 p0 ours2-ours=-0.05[-0.35,+0.29] ours.qkv8-ours=+0.06[-0.26,+0.35] geo-ours=-0.62[-0.90,-0.22] geo.qkv8-ours=-0.08[-0.35,+0.26] geo.qkv8u4-ours=-0.69[-1.02,-0.38] geo.qkv8w8-ours=-0.54[-0.90,-0.26] geo.qkv8w8u1-ours=+0.13[-0.16,+0.42] geov-ours=-0.77[-1.02,-0.45] geov.qkv8-ours=-0.29[-0.61,+0.03] geov.qkv8u4-ours=-0.74[-1.02,-0.42] geov.qkv8w8-ours=-0.51[-0.83,-0.22] geov.qkv8w8u1-ours=+0.10[-0.16,+0.38] pub-ours=-0.69[-0.93,-0.38] ours2-pub=+0.67[+0.35,+0.96] ours.qkv8-pub=+0.77[+0.38,+1.02] geo-pub=+0.10[-0.19,+0.42] geo.qkv8-pub=+0.61[+0.35,+0.86] geo.qkv8u4-pub=-0.03[-0.29,+0.26] geo.qkv8w8-pub=+0.13[-0.19,+0.38] geo.qkv8w8u1-pub=+0.77[+0.51,+1.06] geov-pub=-0.10[-0.38,+0.19] geov.qkv8-pub=+0.42[+0.16,+0.67] geov.qkv8u4-pub=-0.03[-0.35,+0.22] geov.qkv8w8-pub=+0.13[-0.13,+0.48] geov.qkv8w8u1-pub=+0.80[+0.54,+1.06]
+ABCHECK ok qkv_gate m=8 p1 sgl=1.7e-03 ours=1.7e-03 ours2=1.7e-03 ours.qkv8=1.7e-03 geo=1.7e-03 geo.qkv8=1.7e-03 geo.qkv8u4=1.7e-03 geo.qkv8w8=1.7e-03 geo.qkv8w8u1=1.7e-03 geov=1.7e-03 geov.qkv8=1.7e-03 geov.qkv8u4=1.7e-03 geov.qkv8w8=1.7e-03 geov.qkv8w8u1=1.7e-03 pub=1.7e-03
+ABCOLD qkv_gate m=8 p1 sgl=18.72 ours=14.37 ours2=14.37 ours.qkv8=14.34 geo=13.70 geo.qkv8=14.34 geo.qkv8u4=13.70 geo.qkv8w8=13.92 geo.qkv8w8u1=14.59 geov=13.79 geov.qkv8=14.24 geov.qkv8u4=13.70 geov.qkv8w8=13.82 geov.qkv8w8u1=14.40 pub=13.66
+ABPAIR qkv_gate m=8 p1 ours2-ours=-0.03[-0.35,+0.29] ours.qkv8-ours=-0.05[-0.32,+0.22] geo-ours=-0.67[-0.96,-0.32] geo.qkv8-ours=+0.03[-0.26,+0.22] geo.qkv8u4-ours=-0.66[-0.96,-0.38] geo.qkv8w8-ours=-0.45[-0.77,-0.16] geo.qkv8w8u1-ours=+0.26[-0.10,+0.51] geov-ours=-0.59[-0.93,-0.29] geov.qkv8-ours=-0.19[-0.45,+0.10] geov.qkv8u4-ours=-0.67[-0.96,-0.32] geov.qkv8w8-ours=-0.54[-0.80,-0.29] geov.qkv8w8u1-ours=+0.03[-0.26,+0.26] pub-ours=-0.70[-0.99,-0.45] ours2-pub=+0.64[+0.42,+0.96] ours.qkv8-pub=+0.67[+0.38,+0.90] geo-pub=+0.06[-0.22,+0.35] geo.qkv8-pub=+0.67[+0.45,+0.90] geo.qkv8u4-pub=+0.03[-0.22,+0.29] geo.qkv8w8-pub=+0.26[-0.03,+0.51] geo.qkv8w8u1-pub=+0.91[+0.67,+1.22] geov-pub=+0.13[-0.16,+0.42] geov.qkv8-pub=+0.58[+0.26,+0.83] geov.qkv8u4-pub=+0.02[-0.22,+0.35] geov.qkv8w8-pub=+0.16[-0.06,+0.45] geov.qkv8w8u1-pub=+0.72[+0.48,+0.96]
+ABCHECK ok o m=8 p0 sgl=1.7e-03 ours=1.7e-03 ours2=1.7e-03 ours.o8=1.7e-03 geo=1.7e-03 geov=1.7e-03 pub=1.7e-03
+ABCOLD o m=8 p0 sgl=10.94 ours=9.98 ours2=9.97 ours.o8=9.98 geo=9.98 geov=9.98 pub=9.89
+ABPAIR o m=8 p0 ours2-ours=+0.00[-0.19,+0.16] ours.o8-ours=+0.03[-0.13,+0.19] geo-ours=+0.03[-0.13,+0.16] geov-ours=+0.00[-0.16,+0.19] pub-ours=-0.06[-0.26,+0.10] ours2-pub=+0.06[-0.10,+0.26] ours.o8-pub=+0.10[-0.06,+0.26] geo-pub=+0.10[-0.06,+0.26] geov-pub=+0.10[-0.10,+0.22]
+ABCHECK ok o m=8 p1 sgl=1.7e-03 ours=1.7e-03 ours2=1.7e-03 ours.o8=1.7e-03 geo=1.7e-03 geov=1.7e-03 pub=1.7e-03
+ABCOLD o m=8 p1 sgl=10.91 ours=9.98 ours2=9.95 ours.o8=9.95 geo=10.05 geov=9.92 pub=9.86
+ABPAIR o m=8 p1 ours2-ours=+0.00[-0.19,+0.19] ours.o8-ours=-0.02[-0.19,+0.19] geo-ours=+0.06[-0.06,+0.26] geov-ours=-0.03[-0.22,+0.16] pub-ours=-0.10[-0.29,+0.06] ours2-pub=+0.06[-0.10,+0.26] ours.o8-pub=+0.06[-0.10,+0.29] geo-pub=+0.19[+0.00,+0.35] geov-pub=+0.06[-0.10,+0.22]
+ABCHECK ok pooler m=8 p0 sgl=1.7e-03 ours=1.7e-03 ours2=1.7e-03 ours.pool8=1.7e-03 geo=1.7e-03 geov=1.7e-03 pub=1.7e-03
+ABCOLD pooler m=8 p0 sgl=26.30 ours=19.01 ours2=19.04 ours.pool8=19.04 geo=19.15 geov=19.07 pub=18.91
+ABPAIR pooler m=8 p0 ours2-ours=+0.03[-0.29,+0.29] ours.pool8-ours=+0.00[-0.29,+0.32] geo-ours=+0.14[-0.16,+0.48] geov-ours=+0.06[-0.32,+0.35] pub-ours=-0.08[-0.42,+0.29] ours2-pub=+0.10[-0.22,+0.42] ours.pool8-pub=+0.10[-0.26,+0.45] geo-pub=+0.22[-0.10,+0.64] geov-pub=+0.10[-0.19,+0.45]
+ABCHECK ok pooler m=8 p1 sgl=1.7e-03 ours=1.7e-03 ours2=1.7e-03 ours.pool8=1.7e-03 geo=1.7e-03 geov=1.7e-03 pub=1.7e-03
+ABCOLD pooler m=8 p1 sgl=26.30 ours=18.91 ours2=18.98 ours.pool8=18.98 geo=19.14 geov=18.94 pub=18.98
+ABPAIR pooler m=8 p1 ours2-ours=+0.06[-0.19,+0.35] ours.pool8-ours=+0.03[-0.19,+0.35] geo-ours=+0.19[-0.13,+0.54] geov-ours=+0.00[-0.22,+0.29] pub-ours=+0.00[-0.29,+0.38] ours2-pub=+0.03[-0.26,+0.26] ours.pool8-pub=+0.00[-0.35,+0.35] geo-pub=+0.13[-0.16,+0.54] geov-pub=-0.03[-0.32,+0.26]
+ABCHECK ok unpooler m=8 p0 sgl=1.7e-03 ours=1.7e-03 ours2=1.7e-03 ours.slice8=1.7e-03 geo=1.7e-03 geov=1.7e-03 pub=1.7e-03
+ABCOLD unpooler m=8 p0 sgl=11.49 ours=8.70 ours2=8.70 ours.slice8=8.74 geo=8.86 geov=8.77 pub=8.48
+ABPAIR unpooler m=8 p0 ours2-ours=+0.03[-0.19,+0.19] ours.slice8-ours=+0.02[-0.16,+0.19] geo-ours=+0.13[-0.03,+0.29] geov-ours=+0.06[-0.13,+0.19] pub-ours=-0.19[-0.38,-0.06] ours2-pub=+0.26[+0.06,+0.38] ours.slice8-pub=+0.26[+0.06,+0.42] geo-pub=+0.35[+0.22,+0.48] geov-pub=+0.29[+0.13,+0.42]
+ABCHECK ok unpooler m=8 p1 sgl=1.7e-03 ours=1.7e-03 ours2=1.7e-03 ours.slice8=1.7e-03 geo=1.7e-03 geov=1.7e-03 pub=1.7e-03
+ABCOLD unpooler m=8 p1 sgl=11.81 ours=8.83 ours2=8.83 ours.slice8=8.77 geo=8.90 geov=8.83 pub=8.59
+ABPAIR unpooler m=8 p1 ours2-ours=+0.00[-0.19,+0.19] ours.slice8-ours=-0.06[-0.22,+0.10] geo-ours=+0.10[-0.10,+0.26] geov-ours=+0.03[-0.16,+0.16] pub-ours=-0.26[-0.42,-0.06] ours2-pub=+0.22[+0.06,+0.38] ours.slice8-pub=+0.16[+0.03,+0.32] geo-pub=+0.32[+0.19,+0.45] geov-pub=+0.26[+0.10,+0.45]
+ABCHECK ok router m=8 p0 sgl=3.1e-07 ours=2.5e-06 ours2=2.5e-06 ours.router8=2.5e-06 geo=2.5e-06 geo.router8=2.5e-06 geo.router8u2=2.4e-06 geov=2.5e-06 geov.router8=2.5e-06 geov.router8u2=2.4e-06 pub=2.4e-06
+ABCOLD router m=8 p0 sgl=30.99 ours=9.41 ours2=9.41 ours.router8=9.34 geo=9.38 geo.router8=9.38 geo.router8u2=9.60 geov=9.28 geov.router8=9.31 geov.router8u2=9.38 pub=9.06
+ABPAIR router m=8 p0 ours2-ours=+0.00[-0.32,+0.22] ours.router8-ours=-0.10[-0.35,+0.22] geo-ours=-0.06[-0.32,+0.26] geo.router8-ours=-0.06[-0.32,+0.26] geo.router8u2-ours=+0.16[-0.10,+0.42] geov-ours=-0.10[-0.38,+0.13] geov.router8-ours=-0.13[-0.35,+0.16] geov.router8u2-ours=-0.03[-0.32,+0.19] pub-ours=-0.40[-0.67,-0.10] ours2-pub=+0.35[+0.06,+0.61] ours.router8-pub=+0.35[+0.06,+0.61] geo-pub=+0.37[+0.13,+0.64] geo.router8-pub=+0.38[+0.06,+0.64] geo.router8u2-pub=+0.58[+0.29,+0.80] geov-pub=+0.22[-0.06,+0.51] geov.router8-pub=+0.30[+0.06,+0.58] geov.router8u2-pub=+0.35[+0.06,+0.61]
+ABCHECK ok router m=8 p1 sgl=3.1e-07 ours=2.5e-06 ours2=2.5e-06 ours.router8=2.5e-06 geo=2.5e-06 geo.router8=2.5e-06 geo.router8u2=2.5e-06 geov=2.5e-06 geov.router8=2.5e-06 geov.router8u2=2.5e-06 pub=2.5e-06
+ABCOLD router m=8 p1 sgl=30.98 ours=9.54 ours2=9.57 ours.router8=9.44 geo=9.50 geo.router8=9.47 geo.router8u2=9.63 geov=9.38 geov.router8=9.42 geov.router8u2=9.50 pub=9.15
+ABPAIR router m=8 p1 ours2-ours=+0.06[-0.22,+0.32] ours.router8-ours=-0.10[-0.38,+0.19] geo-ours=-0.03[-0.29,+0.29] geo.router8-ours=-0.06[-0.29,+0.26] geo.router8u2-ours=+0.06[-0.19,+0.32] geov-ours=-0.18[-0.38,+0.13] geov.router8-ours=-0.10[-0.35,+0.16] geov.router8u2-ours=-0.03[-0.29,+0.29] pub-ours=-0.38[-0.64,-0.13] ours2-pub=+0.38[+0.13,+0.74] ours.router8-pub=+0.32[+0.03,+0.58] geo-pub=+0.38[+0.13,+0.64] geo.router8-pub=+0.35[+0.06,+0.61] geo.router8u2-pub=+0.48[+0.22,+0.70] geov-pub=+0.26[-0.03,+0.45] geov.router8-pub=+0.27[+0.03,+0.51] geov.router8u2-pub=+0.32[+0.10,+0.61]
