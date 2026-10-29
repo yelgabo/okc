@@ -2,13 +2,14 @@
 control submission, its kernel_fn twice, the public entry's kernel_fn and SGLang's call, timed in
 one process on the same weights and inputs.
 
-    python3 tools/proj_make_bench_m1.py OUT.py [--pub PUBLIC.py]
+    python3 tools/proj_make_bench_m1.py OUT.py [--pub PUBLIC.py] [NAME=SUBMISSION.py ...]
 
 Arms per shape (qkv_gate, o, pooler, and the unpooler at its 1024-row slice):
   sgl          SGLang's call.
   ours, ours2  the control's kernel_fn, captured twice: ours2 - ours is the null difference.
   ours.<cand>  every self-tested m = 1 candidate except raw, cuBLAS and baseline.
   pub          the public entry's kernel_fn (its m = 1 pick is its cgemv).
+  <NAME>       another submission of ours (kernel_fn), e.g. the file before a change.
 
 Rounds visit the arms in a fresh seeded random order (the fixed rotation of
 proj_make_bench_gemv.py gave each arm the same predecessor; c991867992d34fb2 measured that
@@ -129,6 +130,8 @@ def _gb_run():
         return
     mods = {{}}
     for name, src in _GB_SRCS.items():
+        if name != "pub":
+            src = src.replace('name="okc_sk_v2"', f'name="okc_sk_v2_m1_{{name}}"')
         mod = _gbtypes.ModuleType(f"okc_m1_{{name}}")
         try:
             exec(compile(src, f"m1_{{name}}.py", "exec"), mod.__dict__)
@@ -232,7 +235,8 @@ def main():
         if a == "--pub":
             srcs["pub"] = pub_patch(Path(args.pop(0)).read_text())
         else:
-            raise SystemExit(f"unknown argument {a}")
+            name, _, path = a.partition("=")
+            srcs[name] = Path(path).read_text()
     base = (ROOT / "muse_bf16_proj/submission.py").read_text()
     out.write_text(keep_cands(base) + AB.format(srcs=srcs))
     print(f"wrote {out} with modules {list(srcs)}")
