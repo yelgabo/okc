@@ -393,6 +393,8 @@ constexpr int kUAM = 512;
 constexpr int kUBM = 256;
 constexpr int kBarWg = 3;
 constexpr int kBarGather = 7;
+constexpr int kBqMax = 64;
+constexpr int kBqEmpty = -2;
 // Relative cost of one stage by n8-tile count: the wgmma work grows with N while the bytes
 // stay the same.
 __constant__ int kCostA[9] = {0, 112, 135, 140, 158, 173, 185, 200, 207};
@@ -408,7 +410,7 @@ __constant__ int kCostBm[9] = {0, 85, 92, 104, 115, 130, 145, 160, 175};
 // mma.sync skinny kernel).
 __host__ __device__ constexpr int mma_max(int mode) {
     return mode == 6 || mode == 9 || mode == 11 || mode == 12 || mode == 14 || mode == 15
-                   || (mode >= 16 && mode <= 21)
+                   || (mode >= 16 && mode <= 24)
                ? 2
            : mode == 7 || mode == 10 ? 4
            : mode == 8 ? 8 : 0;
@@ -422,7 +424,7 @@ __host__ __device__ constexpr int mma_max(int mode) {
 // Memory Consistency Model, "Release and Acquire Patterns"); fence.sc adds only the SC order,
 // which no reader here relies on. The SASS is MEMBAR.ALL.GPU instead of MEMBAR.SC.GPU.
 __host__ __device__ constexpr bool fence_ar(int mode) {
-    return mode == 12 || mode == 13 || mode == 14 || (mode >= 15 && mode <= 21);
+    return mode == 12 || mode == 13 || mode == 14 || (mode >= 15 && mode <= 24);
 }
 
 // Modes 17 to 20 are mode 16 (two mma.sync chains, unit-aligned phase B) with one change each:
@@ -430,17 +432,27 @@ __host__ __device__ constexpr bool fence_ar(int mode) {
 // final pass: timing only, the GEMM1 gate's baseline); 19 runs phase A alone with every unit
 // owned whole by one CTA (no cut unit, no fixup; timing only, the staged GEMM1 prototype); 20
 // is 19's phase A followed by mode 16's phase B and final pass (a full, checked candidate).
+// 22 is 20 with the stamps of 17. 23 is 20 with phase B units claimed at run time (dyn_b) and
+// both phases walked largest n-tile count first; 24 is 23 with the stamps.
 __host__ __device__ constexpr bool dual_chain(int mode) {
-    return mode == 14 || (mode >= 16 && mode <= 21);
+    return mode == 14 || (mode >= 16 && mode <= 24);
 }
 __host__ __device__ constexpr bool is_diag(int mode) {
-    return mode == 11 || mode == 17;
+    return mode == 11 || mode == 17 || mode == 22 || mode == 24;
 }
 __host__ __device__ constexpr bool a_only(int mode) {
     return mode == 18 || mode == 19;
 }
 __host__ __device__ constexpr bool own_a(int mode) {
-    return mode == 19 || mode == 20;
+    return mode == 19 || mode == 20 || mode == 22 || mode == 23 || mode == 24;
+}
+// Modes 23 and 24: a CTA's weights producer claims phase B units one at a time from a global
+// counter, in S.ord order, when its ring has a free slot. Owned phase A leaves CTAs with up to
+// one unit more than others and mode 20's static phase B ranges ignore that, so the CTA that
+// frees first takes the next unit; S.ord puts the jobs whose phase A rounds come first (the
+// snake deal walks S.ord) at the front, so claimed units find their inputs ready.
+__host__ __device__ constexpr bool dyn_b(int mode) {
+    return mode == 23 || mode == 24;
 }
 // Mode 21 is the second launch of the staged pair (19, then 21): phase B and the final pass
 // alone, on the xb a previous launch wrote. That launch completed before this one started
@@ -511,6 +523,9 @@ struct __align__(128) SmemMain {
     // Owned phase A (own_a): jobs by n-tile count, largest first, and this CTA's unit count.
     int ord[kJmaxM];
     int own_n;
+    // dyn_b: the i-th claimed phase B unit (index into S.ord order, 16 per job), -1 when the
+    // claims are exhausted, kBqEmpty until the weights producer writes it.
+    int bq[kBqMax];
     long long dg[18][8];
 };
 
@@ -564,6 +579,34 @@ __device__ __forceinline__ void spin_ge(const int* p, int target, int* ctr, int 
             break;
         }
     }
+}
+
+// The claimed-unit queue S.bq: one writer (the weights producer), readers in the same CTA.
+__device__ __forceinline__ void st_release_cta(int* p, int v) {
+    asm volatile("st.release.cta.shared::cta.s32 [%0], %1;" :: "r"(smem_u32(p)), "r"(v)
+                 : "memory");
+}
+
+__device__ __forceinline__ int ld_acquire_cta(const int* p) {
+    int v;
+    asm volatile("ld.acquire.cta.shared::cta.s32 %0, [%1];" : "=r"(v) : "r"(smem_u32(p))
+                 : "memory");
+    return v;
+}
+
+__device__ __forceinline__ int bq_get(const SmemMain& S, int i, int* ctr) {
+    int m = ld_acquire_cta(&S.bq[i]);
+    if (m != kBqEmpty) {
+        return m;
+    }
+    const long long t0 = clock64();
+    while ((m = ld_acquire_cta(&S.bq[i])) == kBqEmpty) {
+        __nanosleep(32);
+        if (spin_failed(t0, ctr, 256)) {
+            return -1;
+        }
+    }
+    return m;
 }
 
 __device__ __forceinline__ void bulk_load_plain(void* dst, const void* src, unsigned bytes,
@@ -1226,14 +1269,80 @@ template <int PH, int MODE>
 __device__ __forceinline__ void consumer_phase(const Params& p, SmemMain& S, float* ss,
                                                float (&acc)[32], Ring& rg, int& xrel, int cta,
                                                int G) {
-    run_group<1, PH, MODE>(p, S, ss, acc, rg, xrel, cta, G);
-    run_group<2, PH, MODE>(p, S, ss, acc, rg, xrel, cta, G);
-    run_group<3, PH, MODE>(p, S, ss, acc, rg, xrel, cta, G);
-    run_group<4, PH, MODE>(p, S, ss, acc, rg, xrel, cta, G);
-    run_group<5, PH, MODE>(p, S, ss, acc, rg, xrel, cta, G);
-    run_group<6, PH, MODE>(p, S, ss, acc, rg, xrel, cta, G);
-    run_group<7, PH, MODE>(p, S, ss, acc, rg, xrel, cta, G);
-    run_group<8, PH, MODE>(p, S, ss, acc, rg, xrel, cta, G);
+    if constexpr (dyn_b(MODE)) {
+        run_group<8, PH, MODE>(p, S, ss, acc, rg, xrel, cta, G);
+        run_group<7, PH, MODE>(p, S, ss, acc, rg, xrel, cta, G);
+        run_group<6, PH, MODE>(p, S, ss, acc, rg, xrel, cta, G);
+        run_group<5, PH, MODE>(p, S, ss, acc, rg, xrel, cta, G);
+        run_group<4, PH, MODE>(p, S, ss, acc, rg, xrel, cta, G);
+        run_group<3, PH, MODE>(p, S, ss, acc, rg, xrel, cta, G);
+        run_group<2, PH, MODE>(p, S, ss, acc, rg, xrel, cta, G);
+        run_group<1, PH, MODE>(p, S, ss, acc, rg, xrel, cta, G);
+    } else {
+        run_group<1, PH, MODE>(p, S, ss, acc, rg, xrel, cta, G);
+        run_group<2, PH, MODE>(p, S, ss, acc, rg, xrel, cta, G);
+        run_group<3, PH, MODE>(p, S, ss, acc, rg, xrel, cta, G);
+        run_group<4, PH, MODE>(p, S, ss, acc, rg, xrel, cta, G);
+        run_group<5, PH, MODE>(p, S, ss, acc, rg, xrel, cta, G);
+        run_group<6, PH, MODE>(p, S, ss, acc, rg, xrel, cta, G);
+        run_group<7, PH, MODE>(p, S, ss, acc, rg, xrel, cta, G);
+        run_group<8, PH, MODE>(p, S, ss, acc, rg, xrel, cta, G);
+    }
+}
+
+// dyn_b phase B: the claimed units in claim order. Claims rise through S.ord, whose n-tile
+// counts never rise, so one loop per count, largest first, takes them all in order.
+template <int NTT, int MODE>
+__device__ __forceinline__ void run_group_dyn(const Params& p, SmemMain& S, float* ss,
+                                              float (&acc)[32], Ring& rg, int& xrel, int& qi,
+                                              int cta, int G) {
+#pragma unroll 1
+    while (qi < kBqMax) {
+        const int m = bq_get(S, qi, p.ctr);
+        if (m < 0) {
+            return;
+        }
+        const int j = S.ord[m >> 4];
+        if (S.job_ntt[j] != NTT) {
+            return;
+        }
+        SegInfo si;
+        si.j = j;
+        si.u = m & 15;
+        si.st_b = 0;
+        si.st_e = 16;
+        si.slot = cta;
+        si.partial = false;
+        if (is_diag(MODE) && threadIdx.x == 0) {
+            S.dg[8 + NTT - 1][6] += 16;
+            S.dg[8 + NTT - 1][7] += 1;
+        }
+        const long long cs = is_diag(MODE) ? clock64() : 0;
+        if constexpr (NTT <= mma_max(MODE)) {
+            run_segment_mma<NTT, 1, MODE>(p, S, ss, si, rg, G);
+        } else {
+            run_segment<NTT, 1, MODE>(p, S, ss, si, acc, rg, xrel, G);
+        }
+        if (is_diag(MODE) && threadIdx.x == 0) {
+            S.dg[17][6] += clock64() - cs;
+        }
+        ++qi;
+    }
+}
+
+template <int MODE>
+__device__ __forceinline__ void consumer_dyn_b(const Params& p, SmemMain& S, float* ss,
+                                               float (&acc)[32], Ring& rg, int& xrel, int cta,
+                                               int G) {
+    int qi = 0;
+    run_group_dyn<8, MODE>(p, S, ss, acc, rg, xrel, qi, cta, G);
+    run_group_dyn<7, MODE>(p, S, ss, acc, rg, xrel, qi, cta, G);
+    run_group_dyn<6, MODE>(p, S, ss, acc, rg, xrel, qi, cta, G);
+    run_group_dyn<5, MODE>(p, S, ss, acc, rg, xrel, qi, cta, G);
+    run_group_dyn<4, MODE>(p, S, ss, acc, rg, xrel, qi, cta, G);
+    run_group_dyn<3, MODE>(p, S, ss, acc, rg, xrel, qi, cta, G);
+    run_group_dyn<2, MODE>(p, S, ss, acc, rg, xrel, qi, cta, G);
+    run_group_dyn<1, MODE>(p, S, ss, acc, rg, xrel, qi, cta, G);
 }
 
 template <int MODE>
@@ -1246,7 +1355,11 @@ __device__ __forceinline__ void consumers(const Params& p, SmemMain& S, float* s
     if (is_diag(MODE) && threadIdx.x == 0) {
         S.dg[17][7] = gtimer();
     }
-    consumer_phase<1, MODE>(p, S, ss, acc, rg, xrel, cta, G);
+    if constexpr (dyn_b(MODE)) {
+        consumer_dyn_b<MODE>(p, S, ss, acc, rg, xrel, cta, G);
+    } else {
+        consumer_phase<1, MODE>(p, S, ss, acc, rg, xrel, cta, G);
+    }
 }
 
 template <int MODE>
@@ -1254,9 +1367,10 @@ __device__ __forceinline__ void wproducer(const Params& p, SmemMain& S, int cta,
                                           uint64_t pol) {
     long long twe = 0;
     Ring rg = {0, 0, 0, 0};
-    for (int ph = 0; ph < 2; ++ph) {
+    for (int ph = 0; ph < (dyn_b(MODE) ? 1 : 2); ++ph) {
         const int ns = seg_n<MODE>(S, ph);
-        for (int ntt = 1; ntt <= 8; ++ntt) {
+        for (int n = 1; n <= 8; ++n) {
+        const int ntt = dyn_b(MODE) ? 9 - n : n;
         for (int i = 0; i < ns; ++i) {
             int gb;
             int ge;
@@ -1288,6 +1402,48 @@ __device__ __forceinline__ void wproducer(const Params& p, SmemMain& S, int cta,
         }
         }
     }
+    if constexpr (dyn_b(MODE)) {
+        // Claim only once a slot is free, so the claim lands as late as the ring allows: the
+        // CTA that drains first takes the next unit. The counter is a plain atomic (exactly
+        // one claimant per value); the units' inputs still come through done_as. CTA 0 zeroes
+        // it after the grid barrier, which every claim precedes.
+        int* claim = p.ctr + 10;
+        const int units = S.njobs * 16;
+        for (int i = 0; i < kBqMax; ++i) {
+            if (rg.wlap > 0) {
+                const long long c0 = is_diag(MODE) ? clock64() : 0;
+                mbar_wait_to(&S.wempty[rg.ws], (rg.wlap - 1) & 1, p.ctr, 16);
+                if (is_diag(MODE)) {
+                    twe += clock64() - c0;
+                }
+            }
+            int m = i < kBqMax - 1 ? atomicAdd(claim, 1) : units;
+            if (m >= units) {
+                m = -1;
+            }
+            st_release_cta(&S.bq[i], m);
+            if (m < 0) {
+                break;
+            }
+            const int j = S.ord[m >> 4];
+            const unsigned char* base =
+                p.w2f + static_cast<size_t>(S.job_e[j] * 16 + (m & 15)) * 16 * kUnitBytes;
+            for (int st = 0; st < 16; ++st) {
+                const int ws = rg.ws;
+                if (st > 0 && rg.wlap > 0) {
+                    const long long c0 = is_diag(MODE) ? clock64() : 0;
+                    mbar_wait_to(&S.wempty[ws], (rg.wlap - 1) & 1, p.ctr, 16);
+                    if (is_diag(MODE)) {
+                        twe += clock64() - c0;
+                    }
+                }
+                mbar_expect_tx(&S.wfull[ws], kUnitBytes);
+                bulk_load(S.rings + ws * kUnitBytes, base + static_cast<size_t>(st) * kUnitBytes,
+                          kUnitBytes, &S.wfull[ws], pol);
+                ring_next_w(rg, S.nsw);
+            }
+        }
+    }
     if (is_diag(MODE)) {
         S.dg[16][0] = twe;
     }
@@ -1301,9 +1457,10 @@ __device__ __forceinline__ void xproducer(const Params& p, SmemMain& S, int cta,
     long long txe = 0;
     long long tda = 0;
     long long txr = 0;
-    for (int ph = 0; ph < 2; ++ph) {
+    for (int ph = 0; ph < (dyn_b(MODE) ? 1 : 2); ++ph) {
         const int ns = seg_n<MODE>(S, ph);
-        for (int ntt = 1; ntt <= 8; ++ntt) {
+        for (int n = 1; n <= 8; ++n) {
+        const int ntt = dyn_b(MODE) ? 9 - n : n;
         for (int i = 0; i < ns; ++i) {
             int gb;
             int ge;
@@ -1353,6 +1510,38 @@ __device__ __forceinline__ void xproducer(const Params& p, SmemMain& S, int cta,
                 ring_next_x(rg);
             }
         }
+        }
+    }
+    if constexpr (dyn_b(MODE)) {
+        for (int i = 0; i < kBqMax; ++i) {
+            const int m = bq_get(S, i, p.ctr);
+            if (m < 0) {
+                break;
+            }
+            const int j = S.ord[m >> 4];
+            const unsigned bytes = S.job_ntt[j] * 4096;
+            const unsigned char* base = p.xb + static_cast<size_t>(S.job_xo[j]) * 65536;
+            for (int st = 0; st < 16; ++st) {
+                const int xs = rg.xs;
+                long long c0 = is_diag(MODE) ? clock64() : 0;
+                if (rg.xlap > 0) {
+                    mbar_wait_to(&S.xempty[xs], (rg.xlap - 1) & 1, p.ctr, 64);
+                }
+                if (is_diag(MODE)) {
+                    const long long c1 = clock64();
+                    txe += c1 - c0;
+                    c0 = c1;
+                }
+                spin_ge(p.done_as + j * 16 + st, 8, p.ctr, 128);
+                fence_proxy_async_global();
+                if (is_diag(MODE)) {
+                    tda += clock64() - c0;
+                }
+                mbar_expect_tx(&S.xfull[xs], bytes);
+                bulk_load_plain(S.rings + S.xoff + xs * S.xsz,
+                                base + static_cast<size_t>(st) * bytes, bytes, &S.xfull[xs]);
+                ring_next_x(rg);
+            }
         }
     }
     if (is_diag(MODE)) {
@@ -1419,7 +1608,7 @@ __global__ void __launch_bounds__(kNTM, 1) moe_main_kernel(const Params p) {
         if (lane < 9) {
             const bool given = p.cost[0][1] > 0;
             S.cost[0][lane] = given ? p.cost[0][lane] : stage_cost<MODE>(0, lane);
-            S.align_b = MODE == 15 || (MODE >= 16 && MODE <= 21) ? 1 : 0;
+            S.align_b = MODE == 15 || (MODE >= 16 && MODE <= 24) ? 1 : 0;
             S.cost[1][lane] = given ? p.cost[1][lane] : stage_cost<MODE>(1, lane);
         }
         S.cnt[lane] = 0;
@@ -1529,6 +1718,9 @@ __global__ void __launch_bounds__(kNTM, 1) moe_main_kernel(const Params p) {
         }
         if (ctid == 0) {
             p.ctr[4 + ((gen + 1) & 1)] = 0;
+        }
+        if (dyn_b(MODE) && tid < kBqMax) {
+            S.bq[tid] = kBqEmpty;
         }
     }
     __syncthreads();
@@ -1651,6 +1843,9 @@ __global__ void __launch_bounds__(kNTM, 1) moe_main_kernel(const Params p) {
     }
     for (int i = cta * kNTM + tid; i < 2 * G * 4; i += G * kNTM) {
         p.fixcnt[i] = 0;
+    }
+    if (dyn_b(MODE) && cta == 0 && tid == 0) {
+        p.ctr[10] = 0;
     }
     if (warp < kNC && !a_only(MODE)) {
         final_pass<kNC * 32>(p, S.pos, ss, cta, G);
@@ -2267,8 +2462,11 @@ SKINNY_VARIANTS = ((8, 4, 0), (16, 4, 0), (8, 4, 1))
 # The shipped build: 18, 19, 21 and the staged pair lost or are timing only (checks
 # 9332e2a49aff4ff2, e221858b020c4dee; docs/runs-moe.md "Staged GEMM1 gate"); list them here to
 # rerun the gate.
-MAIN_MODES = (0, 1, 16, 20)
-MAIN_CANDIDATES = (0, 6, 12, 13, 14, 15, 16, 20)
+# 22 to 24 (2026-10-29, phase B tail): 22 is 20 with stamps, 23 claims phase B units at run time
+# and walks both phases largest n-tile count first, 24 is 23 with stamps. 22 and 24 ran in check
+# a9dbec1d98334943 (_diag_report prints them when listed here); the shipped build leaves them out.
+MAIN_MODES = (0, 1, 16, 20, 23)
+MAIN_CANDIDATES = (0, 6, 12, 13, 14, 15, 16, 20, 23)
 VARIANT_MAIN0 = len(SKINNY_VARIANTS)
 
 
@@ -3963,10 +4161,27 @@ def _diag_report(state, bs, seed=11, mode=11):
     print(f"{tag} producers mean/max us: weights wait for a free slot "
           f"{mm(d[:, 16, 0] / cyc_us[:, 0])}, x wait for a free slot {mm(d[:, 17, 0] / cyc_us[:, 0])}, "
           f"x wait done_as {mm(d[:, 17, 1] / cyc_us[:, 0])}, x wait xready {mm(d[:, 17, 2] / cyc_us[:, 0])}")
+    sa = d[:, 0:8, 6].sum(1)
+    sb = d[:, 8:16, 6].sum(1)
+    wda = d[:, 17, 1] / cyc_us[:, 0]
+    after = done - adone
+    print(f"{tag} phase B after phase A (consumers done minus own phase A done) mean/max "
+          f"{mm(after)}; last phase A done {float(adone.max()):.1f}, last consumers done minus it "
+          f"{float(done.max() - adone.max()):.1f}; stages per CTA A {mm(sa)} B {mm(sb)}")
+    for c in torch.argsort(done, descending=True)[:4].tolist():
+        print(f"{tag} slow CTA {c}: A stages {int(sa[c])} done {float(adone[c]):.1f}, B stages "
+              f"{int(sb[c])} done {float(done[c]):.1f} (B span {float(after[c]):.1f}), x wait "
+              f"done_as {float(wda[c]):.1f}")
+    for k in sorted(set(sa.tolist())):
+        sel = sa == k
+        print(f"{tag} CTAs with {int(k)} A stages: {int(sel.sum())}, A done mean {float(adone[sel].mean()):.1f}, "
+              f"B stages mean {float(sb[sel].mean()):.1f}, consumers done mean/max {mm(done[sel])}")
 
 
 
-GATE_SEEDS = (11, 12, 13, 14, 15, 16)
+# Seeds 11 to 16 were the gate's in checks up to a9dbec1d98334943; 17 to 22 are held out from
+# them, and the skewed routings (reference.py dist="skewed") are a second distribution.
+GATE_RUNS = (("normal", (17, 18, 19, 20, 21, 22)), ("skewed", (11, 12, 13)))
 
 
 def _gate_report(state):
@@ -3976,8 +4191,9 @@ def _gate_report(state):
     same inputs left xb); the staged pair (19 then 21), mode 20 and mode 16. Same process, same
     inputs, variants interleaved per seed, graph replay after an L2 flush. Also the SwiGLU
     output of 19 against 18 (xb, bf16) and the final outputs of 20 and the staged pair against
-    16."""
-    names = {16: None, 18: None, 19: None, 20: None, 21: None}
+    16. Since 2026-10-29 also mode 23 (claimed phase B units) against 20 and 16; the variant
+    order is reversed on every other seed so neither side always runs first."""
+    names = {16: None, 18: None, 19: None, 20: None, 21: None, 23: None}
     vs = {m: VARIANT_MAIN0 + MAIN_MODES.index(m) for m in names if m in MAIN_MODES}
     if state.get("staged_ok"):
         vs["staged"] = VARIANT_STAGED
@@ -3992,13 +4208,18 @@ def _gate_report(state):
             vs.pop(m)
     flush = torch.empty(256 << 20, dtype=torch.uint8, device="cuda")
     xb = state["scratch"]["xb"]
-    for bs in (128, 256):
+    for dist, seeds in GATE_RUNS:
+      for bs in (128, 256):
+        tag = f"bs={bs}" + ("" if dist == "normal" else f" {dist}")
         tim = {m: [] for m in vs}
         xbd = []
-        outd = {m: [] for m in (20, "staged") if m in vs}
-        for seed in GATE_SEEDS:
-            data = _make_inputs(bs, 977 * seed + bs)
-            for m, v in vs.items():
+        outd = {m: [] for m in (20, 23, "staged") if m in vs}
+        for si, seed in enumerate(seeds):
+            data = _make_inputs(bs, 977 * seed + bs, dist)
+            order = list(vs.items())
+            if si % 2:
+                order.reverse()
+            for m, v in order:
                 if m == 21 and 16 in vs:
                     _run(data, state, vs[16])
                 tim[m].append(_graph_time(lambda: _run(data, state, v), flush))
@@ -4011,19 +4232,19 @@ def _gate_report(state):
                 ref = _run(data, state, vs[16]).float()
                 for m in outd:
                     outd[m].append(_rel(_run(data, state, vs[m]).float(), ref))
-        n = len(GATE_SEEDS)
+        n = len(seeds)
         line = " ".join(f"{_vname(v)}:{sum(tim[m]) / n:.1f}" for m, v in vs.items())
-        print(f"GATE bs={bs} {line} us (mean of {n} seeds)")
-        for a, b in ((19, 18), (20, 16), ("staged", 16), ("staged", 20)):
+        print(f"GATE {tag} {line} us (mean of {n} seeds {seeds})")
+        for a, b in ((19, 18), (20, 16), (23, 20), (23, 16), ("staged", 16), ("staged", 20)):
             if a in vs and b in vs:
                 d = [x - y for x, y in zip(tim[a], tim[b])]
-                print(f"GATE bs={bs} {_vname(vs[a])} minus {_vname(vs[b])} per seed "
+                print(f"GATE {tag} {_vname(vs[a])} minus {_vname(vs[b])} per seed "
                       + " ".join(f"{x:+.1f}" for x in d) + f" (mean {sum(d) / n:+.1f})")
         if xbd:
-            print(f"GATE bs={bs} SwiGLU output (xb) of 19 vs 18, rel L2 per seed "
+            print(f"GATE {tag} SwiGLU output (xb) of 19 vs 18, rel L2 per seed "
                   + " ".join(f"{x:.1e}" for x in xbd))
         for m, d in outd.items():
-            print(f"GATE bs={bs} output of {_vname(vs[m])} vs 16, rel L2 per seed "
+            print(f"GATE {tag} output of {_vname(vs[m])} vs 16, rel L2 per seed "
                   + " ".join(f"{x:.1e}" for x in d))
     flags = int(ctr[8].item())
     ctr[8] = 0
@@ -4215,7 +4436,8 @@ def _vname(v):
                 10: "main-m4f", 11: "main-m2-stamps", 12: "main-m2-ar", 13: "main-d2-ar",
                 14: "main-m2-ar2", 15: "main-m2-ar-ub",
                 16: "main-m2-ar2-ub", 17: "main-ub-stamps", 18: "main-ub-aonly",
-                19: "main-own-aonly", 20: "main-own", 21: "main-bonly"}[m]
+                19: "main-own-aonly", 20: "main-own", 21: "main-bonly",
+                22: "main-own-stamps", 23: "main-own-dynb", 24: "main-dynb-stamps"}[m]
     nw, ns, mode = SKINNY_VARIANTS[v]
     return f"sk{nw}w{ns}s{'-loads' if mode else ''}"
 
@@ -4274,13 +4496,14 @@ def prepare(weights):
     # fitted and validated on them, and its table offered to the bench on FIT_MODES after its
     # own self-test, only when it ranks held-out routings better than the compiled table.
     state["fit_ok"] = []
-    if main_ok and 17 in MAIN_MODES:
-        for bs in (128, 256):
-            for seed in (11, 12):
-                try:
-                    _diag_report(state, bs, seed, 17)
-                except Exception as exc:
-                    print(f"DIAG17 bs={bs} failed: {type(exc).__name__}: {exc}")
+    for dm in (17, 22, 24):
+        if main_ok and dm in MAIN_MODES:
+            for bs in (128, 256):
+                for seed in (11, 12):
+                    try:
+                        _diag_report(state, bs, seed, dm)
+                    except Exception as exc:
+                        print(f"DIAG{dm} bs={bs} failed: {type(exc).__name__}: {exc}")
     if main_ok:
         try:
             _gate_report(state)

@@ -84,7 +84,7 @@ launches from the host:
 | `inter` | bf16 [4096, 4096] | SwiGLU output by pair row (skinny path) |
 | `ybuf` | float32 [4096, 4096] | GEMM2 output times (1 + w), by pair row |
 | `ss` | float32 [2, 4096] | sums of squares, double-buffered by the launch generation |
-| `ctr` | int32 [64] | ctr[3] generation, ctr[4], ctr[5] the two barrier counters, ctr[8] spin-timeout flags |
+| `ctr` | int32 [64] | ctr[3] generation, ctr[4], ctr[5] the two barrier counters, ctr[8] spin-timeout flags, ctr[10] mode 23's phase B claim counter (zeroed by CTA 0 after the grid barrier) |
 | `done_a` | int32 [544] | per job, phase A units finished (skinny path) |
 | `xa`, `xb` | uint8 [(512 + 96) x 65536] | fat path: x rows and SwiGLU output in the per-stage wgmma B layout |
 | `fix` | float32 [2 x SMs x 4 x 128 x 32] | fat path: fixup slots for units cut between CTAs |
@@ -134,6 +134,13 @@ the standalone policy at both sizes. Porting 20 to the layer means adding it to
 `tools/dl_moe_inline.py`'s `LAYER_MODES`; the routing prologue gains a counting sort of the
 jobs (S.ord) and SmemMain grows by 388 bytes (228,480 in all). 17, 18, 19, 21 and the staged
 pair are timing-only or lost (docs/runs-moe.md, "Staged GEMM1 gate").
+Also since 2026-10-29: 23 ("main-own-dynb") is 20 with phase B units claimed at run time: each
+CTA's weights producer takes the next unit (S.ord order, 16 per job) from ctr[10] when its ring
+frees a slot and passes it to the x producer and consumers through S.bq; both phases run largest
+n-tile count first. 16-23 us under 20 at 128 and 256 tokens on 12 of 12 paired seeds per size
+in two checks (docs/runs-moe.md, "Phase B claimed at run time") and the standalone policy at both
+sizes; SmemMain is 228,736 bytes. Porting it means adding 23 to `LAYER_MODES`. 22 and 24 are 20
+and 23 with stamps (timing only).
 `_vname(variant)` gives the name the bench prints. It launches on the current stream, is graph-capturable (no
 host syncs, no allocation, no value-dependent branching on the host), and needs the whole GPU:
 the grid barrier spins until all 132 CTAs arrive, so nothing else may occupy SMs for the
