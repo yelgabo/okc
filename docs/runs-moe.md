@@ -49,6 +49,154 @@ SGLang with its 95% interval. Profiles and logs are in `muse_moe_w4a16/profiles/
 | 2026-10-29 | 9a9fb08c134c4a16 (check) | 907542c | mode 16: mode 14 (two mma.sync chains per n8 tile) with the unit-aligned phase B boundaries of mode 15 | 2.019x (1.989-2.049) | per shape: bs1 28.03 us, bs16 96.98, bs32 135.04, bs8 67.14, bs128 237.94 (1.907x, main-m2-ar2-ub), bs256 291.90 (2.076x, main-m2-ar2-ub). POLICY {1-32: sk8w4s, 128: main-m2-ar2-ub, 256: main-m2-ar2-ub}: the first time the fat path beats legacy128 at 128 tokens in the bench. BENCH bs32: main-m2-ar2-ub 182.4, main-m2-ar-ub 185.6, main-m2-ar2 186.8, main-m2-ar 190.4; bs128: main-m2-ar2-ub 249.0, legacy128 251.0, main-m2-ar-ub 251.2, main-m2-ar2 251.6, main-m2-ar 256.0; bs256: main-m2-ar2-ub 280.2, main-m2 282.5, main-m2-ar2 282.9. The judge's bs128 time, 237.9 us, is 13.5-22 us under the last five runs (251.5-259.8, all legacy128), and bs256 is 8-10 us under. The score's CI overlaps the 2.009x entry, so a repeat check follows before a submit |
 | 2026-10-29 | c65e91500215418d (check; 99970e4fd1af402b, the same file again, came back as a duplicate, so this is the file plus one trailing newline) | 907542c | repeat of 9a9fb08c134c4a16 | 2.011x (1.981-2.042) | per shape: bs1 29.53 us, bs16 97.14, bs32 130.15, bs8 67.80, bs128 245.86 (1.917x), bs256 295.42 (2.087x); same policy (main-m2-ar2-ub at 128 and 256). BENCH bs128: main-m2-ar2-ub 249.1, main-m2-ar2 249.8, legacy128 250.9; bs256: main-m2-ar2-ub 280.2, main-m2-ar2 282.6. Two runs of mode 16 put bs128 at 237.9 and 245.9 us against 251.5-259.8 in the last five runs on legacy128, and bs256 at 291.9 and 295.4 against 299.0-302.4; the scores (2.019x, 2.011x) are inside the noise of the 2.009x entry |
 | 2026-10-29 | da9225e4f89441fc (submit, authorized by the user via the coordinator: carries the proxy-ordering fix) | 907542c | mode 16 file as checked in 9a9fb08c134c4a16 | 2.003x (1.973-2.033) | per shape: bs1 29.17 us, bs16 98.97, bs32 136.34, bs8 70.83, bs128 246.59 (1.903x), bs256 292.67 (2.078x); same policy. Third run of mode 16: bs128 237.9 / 245.9 / 246.6 and bs256 291.9 / 295.4 / 292.7 us, against 251.5-259.8 and 299.0-302.4 on the code before, while the skinny shapes (bs1-32, unchanged code) drew low this time. Below the 2.009x board entry within noise, so the board still shows 84de5bbafa344b7a, which predates the ordering fix |
+| 2026-10-29 | 9332e2a49aff4ff2 (check) | d90ad14 without mode 21 and the staged pair (built modes 0, 1, 16, 17, 18, 19, 20) | modes 17 (16 with stamps, wgmma segments stamped too), 18 (16's phase A alone), 19 (phase A alone on owned whole units, snake order by n-tile count: the GEMM1-only prototype), 20 (19's phase A, then 16's phase B and final pass); a GATE report (6 seeds, same process); modes 6, 11-15 not built | 2.044x (2.013-2.074) | per shape: bs1 28.07 us, bs16 97.21, bs32 133.31, bs8 68.03, bs128 239.63 (main-own), bs256 283.75 (main-own). POLICY {1-32: sk8w4s, 128: main-own, 256: main-own}. GATE (us, mean of 6 seeds): bs128 mode 16 248.3, 18 175.6, 19 170.1, 20 245.6; 19 minus 18 per seed +1.9 -7.4 -6.1 -8.2 -9.1 -4.1 (mean -5.5), 20 minus 16 mean -2.7 (5 of 6 seeds lower); bs256 16 286.4, 18 205.6, 19 189.2, 20 282.0; 19 minus 18 mean -16.4 (6 of 6), 20 minus 16 mean -4.4. xb of 19 vs 18 rel L2 4e-6 to 7e-5 (FP32 sum order of the fixups); output of 20 vs 16 1e-4 to 3e-4; every self-test 3.9e-3 vs FP32. Stamps in section "Mode 16 at 128 and 256 tokens" below; mode 17 costs 14-18 us over 16 (263.3 vs 248.9 at 128) |
+| 2026-10-29 | e221858b020c4dee (check) | d90ad14 | adds mode 21 (phase B and the final pass alone, no done_as wait, no gather) and the staged pair VARIANT_STAGED (19 then 21, two launches), self-tested and benched; modes 0, 1, 16, 18, 19, 20, 21 built | 2.026x (1.995-2.056) | per shape: bs1 27.98, bs16 97.30, bs32 136.88, bs8 69.03, bs128 245.85 (main-own), bs256 288.66 (main-own). GATE: bs128 16 249.4, 18 176.9, 19 171.3, 20 247.3, 21 109.6, staged 277.3; staged minus 16 +21.2 to +32.0 (mean +27.9), staged minus 20 mean +30.0; 19 minus 18 mean -5.6; 20 minus 16 mean -2.1. bs256 16 287.3, 18 206.1, 19 190.4, 20 283.5, 21 124.3, staged 311.6; staged minus 16 mean +24.2, minus 20 mean +28.1; 19 minus 18 mean -15.7; 20 minus 16 mean -3.8. Staged self-test 3.88e-3, output vs 16 1.3e-4 to 2.0e-4. The staged pair loses (ruled-out.md) |
+| 2026-10-29 | 72b7a5a9c511446a (check) | 308ed5b | the shippable build: modes 0, 1, 16, 20 (the phase-only modes and the staged pair stay in the source, unbuilt) | 2.022x (1.992-2.053) | per shape: bs1 28.29, bs16 97.70, bs32 141.43, bs8 69.26, bs128 247.68 (main-own), bs256 291.36 (main-own). GATE: 20 minus 16 per seed bs128 -2.9 -2.3 -3.9 +0.6 -8.9 -1.2 (mean -3.1), bs256 -10.8 -10.6 +5.0 -5.0 +0.1 -4.1 (mean -4.2). BENCH bs128 main-own 247.7, main-m2-ar2-ub 251.6, legacy128 251.7; bs256 main-own 270.8, main-m2-ar2-ub 281.3. Three runs of mode 20: 2.044x, 2.026x, 2.022x against 2.019x, 2.011x, 2.003x for mode 16's three; the intervals overlap, the same-process A/B (three times, 18 seeds per size) puts 20 ahead by 2-3 us at 128 and 4 us at 256. Prepare build 137 s |
+
+## Why the layer keeps the W4 chain at 128 tokens, 2026-10-29
+
+Question (docs/plan-2026-10-29-steering.md, step 4): standalone, mode 16 beats the W4 chain
+(legacy128) at 128 tokens, while the layer's prepare-time bench keeps the W4 chain there
+(e87fcb1ed5c64a62). Candidates: L2 state left by neighbouring kernels, overlap with
+neighbours, tuner noise, input differences. Three layer checks of a snapshot (the layer at
+bdb4c7a plus a probe at the end of prepare; the layer directory was not edited); probes and
+profiles in `muse_moe_w4a16/profiles/layer-flip/`.
+
+What the layer's bench times (code, `_moe1_tune`): graph replay after an L2 flush of the MoE
+call alone, on the synthetic routing `_moe_routing(bs, 977 * seed + bs, 0, False)` for seeds 11
+and 12 only, with the W4 chain's routing metadata (route_align) built outside the timed graph
+because kernel_fn builds it on the side stream. No neighbouring kernel is in the timed graph,
+so L2 state left by neighbours cannot reach the decision.
+
+Measurements (same process, same inputs, 6 seeds, paired per seed; us):
+
+| probe, T = 128 | W4 (metadata outside) | W4 (route_align inside) | mode 16 | mode 16 minus W4-run, per seed |
+|---|---|---|---|---|
+| synthetic routing, cold L2 (0cb15c11accf4190) | 259.1 | 261.8 | 250.5 | +1.6 +2.3 -35.8 -12.6 -9.4 +2.4 |
+| synthetic routing, no flush | 253.4 | - | 244.5 | |
+| synthetic, again (7d1205a6959c41a9) | 259.5 | 261.8 | 250.0 | +1.1 +3.1 -40.0 -14.0 -11.5 +4.3 |
+| judge-like routing (9d046da0207b40b2) | 253.9 | 256.9 | 224.3 | -31.6 -27.6 -38.6 -31.8 -22.7 -25.0 |
+| isotropic-input routing (7d1205a6959c41a9) | 263.6 | 265.9 | 276.2 | +11.0 +8.3 +17.2 +10.5 +17.5 +10.8 |
+
+"Judge-like" is reference.py's residual stream (fixed mean direction, rank-4 shared part,
+noise; verify draft rows at 0.6 of the shared part, the basis from its STREAM_SEED) through the
+layer's own attention boundary module and the judge's router from prepare's weights, with
+local_start on the 32-expert range that gets the most pairs, as reference.py sets it: 187-214
+local routes over 17-22 experts, at most 42-71 per expert. "Isotropic" is a N(0, 1) FFN input
+through the same router: 153-168 routes over 25-28 experts, at most 13-22 per expert, which is
+not the judge's distribution (the router has a component along the stream's mean, so a few
+experts take most tokens); its mode 16 time at 256 tokens (313 us) is also far above the
+judge's own layer profile of mode 16 there (249-279 us), while the judge-like probe gives 275.
+At 256 tokens mode 16 wins on every probe (judge-like: -82 to -107 us).
+
+Answer (measured; the last step is inference):
+
+- Tuner sampling, not timing noise and not L2. The bench's two seeds are the two of six
+  synthetic seeds where the W4 chain wins (by 1-3 us); on seeds 13-15 mode 16 wins by 9-40 us.
+  Run to run, the paired differences repeat within 0.5-4.2 us per seed, so timing noise does not
+  decide it.
+- L2 state: without the flush both candidates gain 5-6 us; the ranking is unchanged.
+- Overlap: route_align costs 2.0-3.1 us at 128 tokens (W4 with it inside minus without), the
+  most the side stream can hide. In the isotropic probe the whole front plus experts showed the
+  same gap as the experts alone (+7.7 to +17.8 against +8.3 to +17.5), so the stream structure
+  adds nothing beyond that.
+- Input differences decide the sign. On judge-like routing mode 16 wins at 128 tokens by
+  23-39 us per seed (mean about 30). Inference: the layer's pick of the W4 chain at verify 16
+  costs about 30 us per shape on both verify-16 shapes; a bench on judge-like routing (or
+  mode 16 forced at 128) would recover it. Not yet confirmed on the layer's scored shapes,
+  which needs a layer check of that change (the layer owner's call).
+
+## Mode 16 at 128 and 256 tokens: where the time goes, 2026-10-29
+
+Stamps of mode 17 (mode 16 plus the stamps of mode 11, now also on wgmma segments) in check
+9332e2a49aff4ff2, bench routing seeds 11 and 12, one cold-L2 launch each, all 132 CTAs, us at
+1.77-1.78 GHz. The stamps cost 14 us at 128 (263.3 vs 248.9) and 18 at 256, so absolute times
+run high. Per-warp rows are sums over one consumer warp's segments (mean / max over CTAs); they
+overlap each other and the producers, so they are not end-to-end time.
+
+| | 128, seed 11 | 128, seed 12 | 256, seed 11 | 256, seed 12 |
+|---|---|---|---|---|
+| critical path: routing + x gather before the consumers start, mean / max | 14.4 / 18.2 | 15.2 / 19.2 | 19.3 / 26.9 | 20.4 / 23.3 |
+| phase A done (thread 0 of each CTA), mean / max | 175.0 / 185.3 | 164.0 / 171.0 | 185.7 / 204.8 | 184.1 / 196.9 |
+| consumers done, mean / max | 242.4 / 271.1 | 225.8 / 239.4 | 261.0 / 291.1 | 255.7 / 287.7 |
+| completion tail (last consumers done minus mean) | 28.7 | 13.6 | 30.1 | 32.0 |
+| final norm and sum after the barrier | 2.9 | 2.9 | 5.6 | 5.0 |
+| launch end | 275.5 | 243.2 | 298.5 | 294.1 |
+| per warp: consumer math (dequant + MMA, wgmma waits included) | 148.1 | 135.1 | 155.7 | 157.0 |
+| per warp: epilogue and fixup | 22.1 | 21.3 | 26.6 | 23.0 |
+| per warp: waiting for weights / for x | 12.7 / 11.1 | 10.7 / 12.5 | 12.4 / 15.4 | 11.0 / 12.7 |
+| x producer waiting on done_as (phase B dependency), mean / max | 14.4 / 31.9 | 13.5 / 32.8 | 16.9 / 48.1 | 16.2 / 42.3 |
+| cut segments per CTA, phase A / B | 1.88 / 0 | 1.86 / 0 | 1.89 / 0 | 1.85 / 0 |
+
+Reading: phase A ends at 171-205 us on the slowest CTA, then 55-90 us of phase B run after it
+on the critical path, ending in a 14-32 us tail of the slowest CTA. Consumer math is the
+largest per-warp item (135-157 us), as in the 2026-10-28 stamps; the weights producer still
+waits 162-188 us for a free slot.
+
+The named removable cost: phase A's stream-K cuts and cost-table partition. Each CTA cuts
+about 1.9 phase A units, each finished through the global fixup by its last share. Replacing
+them with whole units owned by one CTA (mode 19 against mode 18, phase A alone, same process):
+-5.5 / -5.6 us at 128 tokens and -16.4 / -15.7 us at 256 (two checks, 6 seeds each). In the
+full kernel (mode 20 against mode 16) the saving is -2.7, -2.1, -3.1 us at 128 and -4.4, -3.8,
+-4.2 at 256 (three checks): phase B absorbs part of it. Mode 20 removes it and is the policy
+at 128 and 256 in 72b7a5a9c511446a. The next cost in line is the completion tail (14-32 us), a
+hypothesis-level target: phase B's stream-K boundaries come from the cost table and its stages
+start only as other CTAs' phase A units release them.
+
+## Staged GEMM1 gate, 2026-10-29
+
+Design (step 5 of the steering plan): routing and grouping, grouped GEMM1 with SwiGLU, grouped
+GEMM2, weighted sum, as separate stages, keeping 64-token expert jobs, 36 KB bulk unit
+transfers, the exact NVFP4 decode and one owner per output tile. The GEMM1-only prototype is
+mode 19: the routing prologue and x gather of the fat kernel, then phase A on whole units (256
+rows x full K, 16 stages) each owned by one CTA, so no unit is cut and no fixup runs. Units are
+ordered by their job's n-tile count, largest first, and dealt in snake order (round r gives CTA
+c unit r G + c for even r, r G + G - 1 - c for odd r), which every CTA derives from its own
+routing prologue. The baseline is mode 18: the same kernel with mode 16's stream-K phase A, phase
+B and the final pass switched off. Both end at the grid barrier.
+
+| us, mean of 6 seeds | 128 tokens | 256 tokens |
+|---|---|---|
+| mode 18: phase A alone, stream-K (mode 16's phase A) | 175.6 / 176.9 | 205.6 / 206.1 |
+| mode 19: phase A alone, owned units (GEMM1 prototype) | 170.1 / 171.3 | 189.2 / 190.4 |
+| mode 21: phase B and final pass alone | 109.6 | 124.3 |
+| staged pair: 19 then 21 | 277.3 | 311.6 |
+| mode 20: 19's phase A with 16's phase B in one launch | 245.6 / 247.3 / 247.0 | 282.0 / 283.5 / 284.3 |
+| mode 16 | 248.3 / 249.4 / 250.1 | 286.4 / 287.3 / 288.6 |
+
+(checks 9332e2a49aff4ff2 / e221858b020c4dee / 72b7a5a9c511446a.)
+
+Verdict: the GEMM1-only prototype beats mode 16's phase A (by 5.5 us at 128 and 16 us at 256,
+on 10 of 12 and 12 of 12 paired seeds), so the gate passes. The full staged pipeline then loses:
+19 then 21 is 28-30 us slower than mode 20 and 24-28 us slower than mode 16, because in one
+launch phase B starts on each CTA as soon as its phase A slice ends and overlaps the other CTAs'
+phase A tail (phase B alone takes 110-124 us; in the fused kernel it adds 75-93 us over phase A
+alone). The gain came from owned whole units, not from staging; mode 20 keeps it inside the
+fused kernel.
+
+Ordering obligations. Modes 19 and 20 add no new handoff: the xa chain (gather, xready) and the
+xb chain (epilogue_a, done_as at 8 releases per stage: 2 units x 4 warpgroups) are mode 16's,
+only the CTA that writes a given unit changes. Mode 21 replaces the in-launch done_as handoff
+with a launch boundary:
+
+1. Writers: launch 1 (mode 19), each consumer warpgroup stores its SwiGLU outputs into xb with
+   st.global, then fence.proxy.async.global, fence.acq_rel.gpu, bar.sync and red.release on
+   done_as (kept; nothing in launch 1 reads it).
+2. Publication and observation: launch 2 (mode 21) begins after launch 1 completes, by stream
+   order (API synchronization, PTX ISA 8.9.4, which takes part in proxy-preserved base causality
+   order, 8.9.5) or under PDL by griddepcontrol.wait ("all the memory operations from the
+   prerequisite grids are performed and made visible", 9.7.15.14).
+3. Async copy: launch 2's x producer runs fence.proxy.async.global (kept with the done_as spin
+   removed) and issues cp.async.bulk from xb; the bulk operation is ordered after the issuing
+   thread's prior instructions (8.9.1.1), in the async proxy (9.7.10.28.2).
+4. Completion: complete_tx on xfull; the consumers wait with mbarrier.try_wait.parity
+   (acquire.cta), and the completion carries an implicit generic-async proxy fence
+   (9.7.10.28.2).
+5. Use: ldmatrix and wgmma reads of the slot.
+6. Reuse: the shared-memory slot as before (fence.proxy.async.shared::cta, then mbarrier.arrive
+   on xempty); global xb is written next by a later launch's phase A, which starts after launch
+   2 completes (stream order). moe_run splits batches above 512 tokens into chunks that share one
+   xb, so the staged pair runs mode 20 there instead.
 
 ## Proxy ordering of the x tiles, 2026-10-29
 

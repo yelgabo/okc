@@ -127,6 +127,13 @@ Fat modes: 0 wgmma for every job; 6 jobs of up to 2 n8 tiles on mma.sync, the re
 fixup, 14 also with two mma.sync accumulator chains; 1 streams only; 11 is 6 with clock stamps
 written to `inter` (never a policy choice). `VARIANT_FIT0 + i` in Python runs `VARIANT_MAIN0 +
 i` with the costs fitted from the stamps in prepare (`state["fit_cost"]`).
+Since 2026-10-29: 16 is 14 with phase B boundaries on unit boundaries; 20 ("main-own") is 16
+with every phase A unit owned whole by one CTA (no phase A cut or fixup; units dealt in snake
+order by n-tile count), 2-4 us under 16 at 128 and 256 tokens in three same-process A/Bs and
+the standalone policy at both sizes. Porting 20 to the layer means adding it to
+`tools/dl_moe_inline.py`'s `LAYER_MODES`; the routing prologue gains a counting sort of the
+jobs (S.ord) and SmemMain grows by 388 bytes (228,480 in all). 17, 18, 19, 21 and the staged
+pair are timing-only or lost (docs/runs-moe.md, "Staged GEMM1 gate").
 `_vname(variant)` gives the name the bench prints. It launches on the current stream, is graph-capturable (no
 host syncs, no allocation, no value-dependent branching on the host), and needs the whole GPU:
 the grid barrier spins until all 132 CTAs arrive, so nothing else may occupy SMs for the
