@@ -202,3 +202,14 @@ For the layer: not ported. The layer's T = 128 / 256 front computes the pooler i
 (pooler + router hi + lo, one cuBLAS GEMM with FP32 output), and no CUTLASS config beats cuBLAS
 on that shape (best 42.3 vs 33.3 us at T = 256). A separate CUTLASS pooler holds 128 of 132
 SMs and leaves the router no room to hide (docs/ruled-out.md, declined proposals).
+
+## `SK_PDL`: sk weight prefill before `griddepcontrol.wait` (2026-10-29, not judged)
+
+Off by default (`#define SK_PDL 0` in `_SK_SRC`); with 0 the device code is SASS-identical to the
+judged build. With 1, single-CTA sk configs stream the first ring's worth of weight stages (and
+fused router pieces) before `griddepcontrol.wait`, and x after it; `sk_fwd` / `skf_fwd` launch
+with the programmatic-serialization attribute when bit 16 of `cfg` is set. For the layer:
+re-inline with `tools/dl_proj_inline.py`, build the skp extension with `-DSK_PDL=1`, set the bit
+only on the o (and front) calls at T <= 32, and pair it with `ONE_TRIG=1` in `attn_one.cu` so
+attention triggers its dependents early. Rationale, compile gate and stop rule:
+[docs/steering/2026-10-29-v1-d32-breakdown.md](steering/2026-10-29-v1-d32-breakdown.md).

@@ -136,6 +136,10 @@ through `_ONE_DBG`.
   on, the host probes `%smid` once and the kernel uses `ws_cnt[CNT_FLAT + 4096 + smid]`).
   `ONE_STAMP=0 ONE_PROBE=0`: bench-only attribution builds (per-CTA stamps into `dbg`, timing
   probes with wrong output); never set them in a judged file.
+  `ONE_TRIG=0` (not judged): with 1, the q_len 1 and batch-1 q_len 8 instances execute
+  `griddepcontrol.launch_dependents` at entry so a PDL-launched sk o projection (`SK_PDL`, see
+  docs/proj-port-guide.md) can stream its weights during attention; at 0 every instance is
+  SASS-identical (docs/steering/2026-10-29-v1-d32-breakdown.md).
   A layer copy that inlines `attn_one.cu` gets FIN8 by re-inlining; it changes nothing the
   layer passes or owns.
 - Fresh inputs every call; the plan reads only shapes (`page_table.shape[1]` for the

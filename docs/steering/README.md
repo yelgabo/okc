@@ -6,6 +6,18 @@ report be checked into this repository so other sessions can read it.
 
 ## Latest report
 
+**[2026-10-29: Verify 1 and decode 32 per-kernel breakdown](2026-10-29-v1-d32-breakdown.md)**
+
+Evidence commit `efddc84`, scored layer run `9b921febc7ad4140` (1.964086x), pending bundle
+`b694b4a`. After the bundle's measured standalone savings, no owned kernel trails the public
+one by more than 1.6 us in the same process at verify 1; about 5 us (verify 1) and 7 us
+(decode 32, inside the MoE row) weighted stay cross-run and unassigned. Ranks PDL weight
+prefill at the attention -> o boundary first (+0.4% to +0.9%, hypothesis), a 32-token MoE
+measurement second, the route-into-MoE fold third. Built `SK_PDL` (muse_bf16_proj) and
+`ONE_TRIG` (attn_one.cu), both off by default with production SASS unchanged; no check run.
+
+## Previous report
+
 **[2026-10-29: Community research audit and updated steering](2026-10-29-community-audit.md)**
 
 Evidence snapshot `21be06d`, with live quota, job receipts and board snapshots captured on
@@ -55,6 +67,7 @@ recommendations, not execution of those tasks; check current code and run logs f
 
 | Report | Evidence snapshot | Scope |
 |---|---|---|
+| [2026-10-29 verify 1 / decode 32 breakdown](2026-10-29-v1-d32-breakdown.md) | `efddc84`; run `9b921febc7ad4140`; bundle `b694b4a` | Per-kernel breakdown, bundle credit, ranked mechanisms, `SK_PDL` / `ONE_TRIG` switches with compile gate |
 | [2026-10-29 community research audit](2026-10-29-community-audit.md) | `21be06d`; live account capture 13:43 PDT | Research verification, completed work, pending ports, correctness gates, quota and next-run plan |
 | [2026-10-29 13:27 performance review](2026-10-29-1327-performance-review.md) | `615539c` | Single-token projection context and unchanged family standings |
 | [2026-10-29 11:20 performance review](2026-10-29-1120-performance-review.md) | `14d6da1` | Corrected fat-MoE wait attribution |
