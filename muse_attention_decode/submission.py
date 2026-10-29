@@ -2963,6 +2963,23 @@ constexpr int COOP_POLL_LIMIT = 1 << 24;
 #ifndef ONE_DCARRY
 #define ONE_DCARRY 1
 #endif
+// ONE_PK16 (every instance): e4m3x4 joins its two halves as lo | hi << 16, which ptxas folds
+// into the second F2FP (PACK_AB_MERGE_C), as the public kernel's e4m3x4f does. The byte_perm
+// form compiles to F2FP + LOP3 (& 0xffff) per half and a PRMT: 40 instructions per q_len 8 tile
+// per consumer thread for P instead of 16. Same bits. Bench 025ccaf9c57a4ba2, cold: verify 32 /
+// 16 full -6.3 / -3.6 us alone, -9.6 / -5.4 with ONE_VHOIST; sliding unchanged.
+#ifndef ONE_PK16
+#define ONE_PK16 1
+#endif
+// ONE_VHOIST (mode 51 and 115 tile loop): the V^T transpose addresses are per-thread offsets
+// computed once per segment (half 1 of a store is half 0's offset ^ 32, a load is +4096), and
+// the V^T buffer and its descriptor low word are toggled by XOR per tile, the descriptor
+// broadcast from lane 0 so it stays uniform; the unrolled loop's first body otherwise rebuilt
+// about 25 address instructions per tile and every body about 14 for the P.V descriptor.
+// Bench 025ccaf9c57a4ba2, cold: verify 32 / 16 full -3.9 / -2.0 us alone.
+#ifndef ONE_VHOIST
+#define ONE_VHOIST 1
+#endif
 constexpr int STAMP_BASE = 1024;
 constexpr int STAMP_W = 16;
 
@@ -3229,7 +3246,11 @@ __device__ __forceinline__ uint32_t e4m3x4(float a, float b, float c, float d) {
     uint16_t lo, hi;
     asm("cvt.rn.satfinite.e4m3x2.f32 %0, %1, %2;\n" : "=h"(lo) : "f"(b), "f"(a));
     asm("cvt.rn.satfinite.e4m3x2.f32 %0, %1, %2;\n" : "=h"(hi) : "f"(d), "f"(c));
+#if ONE_PK16
+    return static_cast<uint32_t>(lo) | (static_cast<uint32_t>(hi) << 16);
+#else
     return __byte_perm(static_cast<uint32_t>(lo), static_cast<uint32_t>(hi), 0x5410);
+#endif
 }
 
 __device__ __forceinline__ uint16_t e4m3x2(float a, float b) {
@@ -3584,6 +3605,7 @@ attn_one_kernel(const Params p) {
     constexpr bool PCHK = ONE_PCHK && PROD && L == 8;
     constexpr int UNR8 = ONE_UNR2 && PROD && L == 8 ? 2 : 1;
     constexpr bool DCARRY = ONE_DCARRY && PROD && L == 8;
+    constexpr bool VHOIST = ONE_VHOIST && QKOV;
     constexpr bool WAVE = ONE_WAVE > 0 && PROD && !SOLO && L == 8;
     // NC consumer threads (one warpgroup per KV head at q_len 8, four warps at q_len 1); in
     // producer mode one more warpgroup gathers the tiles.
@@ -4596,6 +4618,29 @@ attn_one_kernel(const Params p) {
                 // query row (window 0), so they need no mask and no patch.
                 it_c = __shfl_sync(0xffffffffu, !p.window && seq > lo ? (seq - lo) >> 6 : 0, 0);
             }
+            uint32_t vt_cur = 0;
+            uint32_t vt_x = 0;
+            uint32_t vd_lo = 0;
+            uint32_t vd_x = 0;
+            uint32_t ld_off = 0;
+            uint32_t st_off = 0;
+            if constexpr (VHOIST) {
+                const uint32_t vt0 = smem_base + S::VT + hk * VT_STRIDE;
+                const uint32_t vt1 = smem_base + S::VT + (2 + hk) * VT_STRIDE;
+                vt_cur = __shfl_sync(0xffffffffu, vt0, 0);
+                vt_x = __shfl_sync(0xffffffffu, vt0 ^ vt1, 0);
+                vd_lo = __shfl_sync(0xffffffffu, static_cast<uint32_t>(desc_sw64(vt0)), 0);
+                vd_x = vd_lo ^ __shfl_sync(0xffffffffu, static_cast<uint32_t>(desc_sw64(vt1)), 0);
+                const int h4 = lane >> 3;
+                const int r8 = lane & 7;
+                ld_off = smem_base + S::KV + TILE_BYTES + (h4 * 8 + r8) * ROWB
+                         + (((hk * 4 + wq) ^ r8) << 4);
+                const int n = 8 * (2 * wq + (h4 & 1)) + r8;
+                st_off = n * 64 + (((h4 >> 1) ^ ((n >> 1) & 3)) << 4);
+                // Opaque to ptxas, which otherwise rebuilds them from tid in every first
+                // unrolled body (rematerialization) instead of keeping two registers.
+                asm volatile("" : "+r"(ld_off), "+r"(st_off));
+            }
             float o[36];
 #pragma unroll
             for (int i = 0; i < 36; ++i) {
@@ -4621,6 +4666,21 @@ attn_one_kernel(const Params p) {
                     // in natural order.
                     auto vt_of = [&]() { return smem + S::VT + (2 * (it & 1) + hk) * VT_STRIDE; };
                     auto transpose_v = [&]() {
+                        if constexpr (VHOIST) {
+                            // Half 1: keys + 32 (4096 bytes on), chunk 2 + (h4 >> 1), which is
+                            // half 0's chunk ^ 2, so the store offset ^ 32.
+#pragma unroll
+                            for (int half = 0; half < 2; ++half) {
+                                uint32_t t0, t1, t2, t3;
+                                ldsm_x4_trans(ld_off + static_cast<uint32_t>(st) * (2 * TILE_BYTES)
+                                                  + half * 32 * ROWB,
+                                              t0, t1, t2, t3);
+                                stsm_x4(vt_cur + (st_off ^ (half ? 32u : 0u)),
+                                        __byte_perm(t0, t1, 0x6420), __byte_perm(t0, t1, 0x7531),
+                                        __byte_perm(t2, t3, 0x6420), __byte_perm(t2, t3, 0x7531));
+                            }
+                            return;
+                        }
                         uint8_t* vt = vt_of();
                         const int h4 = lane >> 3;
                         const int r8 = lane & 7;
@@ -4775,7 +4835,8 @@ attn_one_kernel(const Params p) {
                     fence_proxy_async();
                     named_sync(2 + hk, 128);
                     {
-                        const uint64_t vd = desc_sw64(smem_u32(vt_of()));
+                        const uint64_t vd = VHOIST ? (desc_sw64(0) & ~0xffffffffull) | vd_lo
+                                                   : desc_sw64(smem_u32(vt_of()));
                         wg_fence();
                         wgmma_pv(o, pa[0], vd);
                         wgmma_pv(o, pa[1], vd + 2);
@@ -4785,6 +4846,10 @@ attn_one_kernel(const Params p) {
                     }
                     if constexpr (!EREL) {
                         release(st);
+                    }
+                    if constexpr (VHOIST) {
+                        vt_cur ^= vt_x;
+                        vd_lo ^= vd_x;
                     }
                     st = PROD ? cst : (st == STAGES - 1 ? 0 : st + 1);
                 }
