@@ -4,7 +4,14 @@ This is the stable entry point for steering reports across research, implementat
 and coordinator sessions. The user requested on 2026-10-29 that every project-steering
 report be checked into this repository so other sessions can read it.
 
-## Latest report
+## Latest hourly report, 14:25
+
+**[2026-10-29 14:25 PDT: Attention component gains and validation gaps](2026-10-29-1425-performance-review.md)**
+
+Evidence snapshot `efddc84`. PK16/VHOIST improves 128/256-token attention beyond DCARRY;
+the combined package still awaits layer tests. Local commit under the automation's no-push rule.
+
+## Latest community audit
 
 **[2026-10-29: Community research audit and updated steering](2026-10-29-community-audit.md)**
 
