@@ -122,7 +122,7 @@ constexpr int COOP_POLL_LIMIT = 1 << 24;
 // 14-bit address field never carries: shared memory is below 256 KB). The full-barrier wait, the
 // per-tile fence.proxy.async and the patch path of the other tiles are unchanged.
 #ifndef ONE_DCARRY
-#define ONE_DCARRY 0
+#define ONE_DCARRY 1
 #endif
 constexpr int STAMP_BASE = 1024;
 constexpr int STAMP_W = 16;
