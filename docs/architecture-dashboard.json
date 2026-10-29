@@ -1,0 +1,82 @@
+{
+  "reviewed_at": "2026-10-29T11:20:00-07:00",
+  "snapshot": "14d6da1",
+  "layer": {
+    "score": "1.964\u00d7",
+    "interval": "1.935\u20131.994",
+    "job": "9b921febc7ad4140",
+    "note": "Latest recorded layer submission. Combined changes; no isolated family attribution."
+  },
+  "families": [
+    {
+      "id": "A",
+      "name": "Hybrid persistent / legacy MoE",
+      "status": "win",
+      "label": "Component wins",
+      "metric": "36 / 36",
+      "unit": "paired seeds favor the skinny 3-slot ring",
+      "summary": "Skinny ring and mode 37 wins stand. Corrected diagnostics now show about 20% of fat-path stage-loop time in waits; this is attribution, not a new speedup.",
+      "layer": "Earlier persistent modes tested in layer",
+      "pending": [
+        "sk8w3s: 3-slot skinny ring",
+        "Mode 37: phase A epilogue"
+      ],
+      "limit": "Run ca43908f02874886 invalidates the earlier zero-wait claim. Counters add 7.0 / 6.1 \u00b5s at 128 / 256; per-warp waits are not recoverable layer time. New candidates still need layer tests.",
+      "source": "runs-moe.md"
+    },
+    {
+      "id": "B",
+      "name": "Staged grouped MoE",
+      "status": "loss",
+      "label": "Tested loss",
+      "metric": "+27.9 / +24.2 \u00b5s",
+      "unit": "128 / 256 tokens versus mode 16",
+      "summary": "The two-launch prototype passed its GEMM1 gate, then lost on complete MoE timing.",
+      "layer": "Stopped at component gate",
+      "pending": [],
+      "limit": "Applies to the tested pair, not every possible staged design.",
+      "source": "runs-moe.md#staged-gemm1-gate-2026-10-29"
+    },
+    {
+      "id": "C",
+      "name": "Owner-completes tiles",
+      "status": "win",
+      "label": "Retained win",
+      "metric": "\u22122.1 / \u22123.8 \u00b5s",
+      "unit": "128 / 256 tokens: mode 20 versus mode 16",
+      "summary": "Owned phase A improves the fused design. Later persistent modes retain it.",
+      "layer": "Present in tested layer descendants",
+      "pending": [],
+      "limit": "Later combined gains cannot be assigned to ownership alone.",
+      "source": "runs-moe.md"
+    },
+    {
+      "id": "D",
+      "name": "Dependency-aware scheduling",
+      "status": "partial",
+      "label": "Partial design wins",
+      "metric": "\u221216 to \u221223 \u00b5s",
+      "unit": "dynamic phase B claiming versus mode 20",
+      "summary": "Mode 23 balances work by claiming phase B units at run time. Normal paired seeds consistently improve.",
+      "layer": "Dynamic claiming retained in layer descendants",
+      "pending": [],
+      "limit": "The full ready-only queue is untested. Claimed jobs still wait on dependencies.",
+      "source": "runs-moe.md#phase-b-claimed-at-run-time-mode-23-2026-10-29"
+    },
+    {
+      "id": "E",
+      "name": "Attention producer / consumer",
+      "status": "win",
+      "label": "Component wins",
+      "metric": "\u22123.6 / \u22127.9 \u00b5s",
+      "unit": "128 / 256 tokens, full verify, judged comparisons",
+      "summary": "DCARRY improves the target shapes. Runtime CTA pair weighting loses 9\u201312 \u00b5s at 256 tokens.",
+      "layer": "Earlier producer fast path tested in layer",
+      "pending": [
+        "ONE_DCARRY: attention accumulation"
+      ],
+      "limit": "DCARRY layer confirmation is pending. Its targeted gain is distinct from aggregate attention score.",
+      "source": "runs-attention.md"
+    }
+  ]
+}

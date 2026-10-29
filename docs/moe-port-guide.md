@@ -176,7 +176,9 @@ against 28 on layer routing: -1.9 / -2.1 / -3.8 and -1.7 / -3.4 / -4.2 us at 32 
 reciprocal (1e-4 against 28, 3.9e-3 against FP32 as before). Same interface, scratch and SmemMain
 size as 28. Porting it: add 37 to `LAYER_MODES` and `37: "main-lean-silu-bar"` to `MAIN_NAMES` in
 `tools/dl_moe_inline.py` (the standalone `MAIN_MODES` is now (0, 16, 26, 28, 37)). 31 to 36 and
-38 to 40 are timing-only or lost (docs/runs-moe.md, "Phase A against the public kernel").
+38 to 40 are timing-only or lost (docs/runs-moe.md, "Phase A against the public kernel"); 41 and 42
+(37 with the repaired wait counters, and with the light stamps) are timing only (docs/runs-moe.md,
+"Fat-path waits with the first try timed").
 `_vname(variant)` gives the name the bench prints. It launches on the current stream, is graph-capturable (no
 host syncs, no allocation, no value-dependent branching on the host), and needs the whole GPU:
 the grid barrier spins until all 132 CTAs arrive, so nothing else may occupy SMs for the

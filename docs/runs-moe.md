@@ -74,6 +74,7 @@ SGLang with its 95% interval. Profiles and logs are in `muse_moe_w4a16/profiles/
 | 2026-10-29 | 2c28a7256b004aa1 (submit, bench file, same authorization) | 126ee85 | skinny kMode 3 (sk8w4s-er: each compute warp loads its unit's codes up front, fences and arrives on a per-slot empty mbarrier; thread 0 refills once all 8 warps arrived, no per-unit bar.sync of the compute warps) and kMode 4 (3 with stamps) against sk8w4s, same A/B as 240b68e7df1a427f | 1.970x (1.940-1.999) | er minus sk8w4s, us: T=1 layer +0.4 (0 of 6 lower), std +0.4 (0 of 6); T=8 layer -1.0 (6 of 6), std +0.7 (2 of 6); T=16 layer -0.9 (5 of 6), std +1.6 (1 of 6). Public minus sk8w4s this run: T=8 layer -4.1, T=16 layer -3.1. Stamps at 8 tokens, layer: er's phase A 38.0 us against 34.9 (codes held in registers through the unit), its A->B wait 2.5 against 4.0 and barrier 2.2 against 3.9. Self-test 3.93e-3; outputs vs sk8w4s 0 to 3e-5. Not adopted for the standalone (it loses on the standalone routing and at 1 token); a layer bench on judge routing may pick it at 8 and 16 tokens |
 | 2026-10-29 | e937013292b24906 (submit under the user's scored-runs-as-measurements authorization; bench file from tools/moe_make_bench_ab.py --small, not committed) | 8272efe | skinny kMode 5 (sk8w4s-sf: scale decode's x16 as an IMAD with a multiplier ptxas cannot fold, FMA pipe instead of LEA on the ALU pipe), 6 (sk8w4s-hand: partial buffers handed to and from the helper through mbarriers, one compute-warp barrier per unit instead of two), 7 (sk8w4s-sfh: both), 8 (7 with stamps); stamps now time the first try_wait | 2.004x (1.974-2.034) | minus sk8w4s, us, layer / std: T=1 sf -0.1 / -0.1, hand +0.1 / -0.0, sfh +0.1 / -0.1; T=8 sf -0.2 / -0.4, hand -0.1 / +0.0, sfh +0.1 / +0.1; T=16 sf -0.5 / -0.1, hand +0.4 / +0.5, sfh +0.5 / -0.1 (none 6 of 6). Public minus sk8w4s: T=8 layer -3.5, T=16 layer -2.2. Self-test 4.02e-3 for all; outputs vs sk8w4s <= 5.8e-5; spin flags 0. Corrected stamps at T=8 layer: thread 0 waits 3.0 us (A) and 0.7 (B) for weights. Policy picked sk8w4s-sf at 8-32 (bench noise). Not adopted (docs/runs-moe.md, "Skinny unit loop against the public kernel") |
 | 2026-10-29 | 75bca9775f6f4b0b (scored run submitted by the coordinator, the day's last expiring one, per the user's instruction; bench file from tools/moe_make_bench_ab.py --small --unitstamps, not committed) | 03887be | skinny stream A/B: sk8w3s (3-slot ring, (8, 3, 0)), kMode 32 (sk8w4s-rf: unit barrier and refill ahead of the partial handoff), (8, 3, 32) (w3rf), kMode 64 (sk8w4s-nh: weight copies without the L2 hint) against sk8w4s and the public TINY / TINY2 / MID builds, layer and standalone seeds 1-6 at 1 / 8 / 16 tokens; per-unit stream stamps (kMode bit 16 and the public patched the same way) at 8 tokens | 2.006x (1.976-2.036) | passed. w3 minus sk8w4s -0.9 / -0.6 / -2.4 / -1.8 / -3.1 / -2.9 us (T=1 layer / std, 8 layer / std, 16 layer / std), 6 of 6 seeds lower in every row; w3 minus public -1.3 / -0.8 / +1.0 / +0.9 / -0.4 / -0.5. rf -1.1 / +0.4 at 8, w3rf behind w3 in all six rows, nh +1.2 to +3.3 everywhere. Stamps: copy issue-to-arrival 4.7 us with 4 slots, 3.2 with 3, public 3.0. Spin flags 0; every arm within 2.1e-5 of sk8w4s. Section "Skinny weight stream against the public kernel" |
+| 2026-10-29 | ca43908f02874886 (check, bench file from tools/moe_make_bench_ab.py --base=37 --sizes=128,256 --routings=layer o41=41 o42=42 --pairs=o41-o42, not committed) | 3f67a45 | fat-path waits timed in full (mbar_wait_cyc's clock before the first try_wait); mode 41 (37 with phase A and phase B counters per consumer warp) and 42 (37 with the light stamps only), layer seeds 1-6 | 2.174x (2.142-2.207) | passed 5/5; judge medians bs1 28.74 us, bs16 98.81, bs32 132.88, bs8 71.36, bs128 195.45, bs256 241.53; policy unchanged (sk8w3s to 32, main-lean-silu-bar at 128 and 256). ABTIME o37 164.6 / 227.2, pub 151.4 / 203.6 at 128 / 256. Instrumentation cost: 41 minus 37 +7.0 / +6.1 us, 42 minus 37 +1.1 / +2.3, 41 minus 42 +5.9 / +3.9 (0 of 6 lower in each row). Outputs of 41 and 42 against 37 1e-5 to 3e-5, spin flags 0. Counters in section "Fat-path waits with the first try timed". ABPUB's stage ranges are not meaningful in this run (no --pubranges) |
 
 ## Why the layer keeps the W4 chain at 128 tokens, 2026-10-29
 
@@ -808,13 +809,25 @@ bench_ab.py prints them per size as ABDIAG (mean over CTAs and six layer seeds o
 each) and the public kernel's stream-K stage ranges as ABPUB. Checks c7db20e053254b52,
 0b684d5db0834dbc and 473d87d03de94e96 (three repeats of 31; the numbers below are their range).
 
+[Corrected 2026-10-29, check ca43908f02874886: the wait counters were wrong. `mbar_wait_cyc`
+started its clock only after a failed first `try_wait` and returned 0 when the first try
+succeeded, but `try_wait` is potentially blocking (PTX ISA 9.4, mbarrier.test_wait /
+mbarrier.try_wait), so both cases hid real waiting. The producers' slot waits used the same
+function. Since 3f67a45 the clock starts before the first try. Timed in full on mode 41 (37 with
+the counters), a consumer warp waits 8.4 / 7.3 us (weights / x) at 128 tokens and 11.8 / 11.5 us
+at 256, about 20% of its stage-loop time. The "waiting" row, the "stage loops" label and the
+first sentence of the Reading below rest on the old counters. The producers' slot-wait row was
+low too: timed in full it reads 65.5 / 64.3 us at 128 and 94.0 / 92.0 at 256 (mode 41), so the x
+producer had been undercounted by about 10 us. See "Fat-path waits with the first try timed". The
+other rows are wall-clock spans or counts and still stand.]
+
 Measured, mode 28 at 256 tokens, layer routing (us per consumer warp over phase A):
 
 | | 128 tokens | 256 tokens |
 |---|---|---|
 | phase A per CTA, mean / p10 / p50 / p90 / max | 93.3-93.9 / 85 / 91 / 107 / 111 | 133.9-134.7 / 126-127 / 131 / 145 / 147 |
-| waiting for weights / for x (missed first tries) | 0.00 / 0.03-0.05 | 0.00 / 0.18-0.22 |
-| stage loops (dequant, wgmma, ring bookkeeping) | 77.2-78.1 | 111.1-111.3 |
+| waiting for weights / for x (missed first tries) [withdrawn 2026-10-29, see the note above] | 0.00 / 0.03-0.05 | 0.00 / 0.18-0.22 |
+| stage loops (dequant, wgmma, ring bookkeeping) [they include the waits, 2026-10-29] | 77.2-78.1 | 111.1-111.3 |
 | epilogue (SwiGLU, stores, proxy fence, fence_gpu, bar.sync, red.release) | 10.3-10.8 (2.6-2.7 per unit) | 16.0-16.6 (3.0-3.1 per unit) |
 | weights producer / x producer waiting for a free slot | 64-65 / 55 | 93-94 / 82 |
 | owned units per CTA, min / mean / max | 3.7 / 4.0 / 4.7 | 5 / 5.37 / 6 |
@@ -827,6 +840,14 @@ consumer warp's 134 us, 111 are the stage loops (86 stages, 1.29 us each) and 16
 of 5.37 units. The per-CTA spread (p10 to max, 20 us) follows the assigned bytes: owned whole
 units leave CTAs with 5 or 6 units (80 or 96 stages), and dyn_b's claimed phase B units absorb
 that (phase A's spread does not enter its mean).
+[Corrected 2026-10-29: "The consumers never wait for the ring" is withdrawn, along with "streaming
+or ring depth are not the limit", which rested on it. Timed in full (mode 41,
+ca43908f02874886), consumers wait about 20% of the stage loops while the producers still find
+the ring full for about 70% of phase A. Each wait averages 210-230 cycles at both sizes and in both
+phases. That pattern looks like a fixed cost at every stage boundary or skew between warps of one
+CTA, not a stream that falls behind on average; the counters cannot tell these apart. "Both
+producers spend 70% of phase A blocked on a full ring" still holds with the repaired counters
+(69-71%).]
 
 The public kernel's partition at 256 tokens (its source, `wgs_ranges` / `wgs_split` /
 `wgs_flush`, and the ranges it computed in these checks): stream-K over 256-row x 16-stage units,
@@ -919,6 +940,106 @@ stays). Progress: between a unit's stores and its deferred publish the warpgroup
 its own CTA's weights ring and on x rows the gather published before any consumer started; the
 last unit is published before any phase B wait; owned units always have 16 stages; and the target
 is recomputed from S.ord and the unit's round, not carried in shared state.
+
+## Fat-path waits with the first try timed, 2026-10-29
+
+Defect (steering report docs/steering/2026-10-29-overnight.md, section 2). `mbar_wait_cyc`, the
+wait counter of the phase A diagnostic modes (31, 33, 38, 40), returned 0 when the first
+`mbarrier.try_wait.parity` succeeded and started its clock only after a failed first try. The
+instruction is potentially blocking (PTX ISA 9.4, mbarrier.test_wait / mbarrier.try_wait): a try
+that returns true may have suspended the thread until the phase completed, and one that returns
+false may have suspended it until a time limit. Both cases hid waiting, so the "0.00" weights
+waits in "Phase A against the public kernel" do not show that the consumers never wait. The
+producers' phase A slot waits went through the same function. The skinny path's stamps were
+fixed the same way in 8272efe.
+
+Fix (3f67a45). The clock starts before the first try. try_wait stays, with the same
+spin-timeout check, so the counted wait is the production `mbar_wait_to` loop without its
+separate first-try branch, plus two clock reads (test_wait would have changed what is measured). Audit of the other try_wait timers: the is_diag
+stamps (modes 11, 17, 22, 24) and the producers' is_diag waits already read the clock before the
+wait; the skinny kMode 2/4/8 stamps were fixed in 8272efe and the kMode 16 stamps (03887be)
+bracket the whole wait;
+tools/moe_make_bench_ab.py's patches of the public kernel stamp before and after its whole
+`mbar_wait`. `mbar_wait_to`'s timeout clock starts after the first try, but it is a hang guard
+and counts nothing. No other counter had the defect.
+
+New modes (timing only). 41 is 37 (the shipped mode) with the repaired phase A counters plus the
+same counters over phase B: per consumer warp, weights and x waits, stage-loop time, epilogue
+time, units, stages and n-tiles, and the time waiting for a claimed phase B unit (S.bq). Phase B's
+counters go to `inter` after S.dg, so SmemMain keeps its size. 42 is 37 with the light stamps
+only, the overhead baseline for 41. tools/moe_make_bench_ab.py maps 37 to these twins and prints
+phase B as ABDIAGB.
+
+Production SASS. Modes 0, 16, 26, 28 and 37 and the four skinny kernels compile to the same
+instruction text before and after the change (per-kernel sha256 with addresses stripped,
+nvcc 12.8, sm_90a). Registers and spills are equal. Only 31 and 38, whose counters changed,
+differ. Resources: 37 uses 96 registers, 156 / 416 B spill stores / loads and a 56 B frame. 42
+uses 148 / 516 B and 56 B. 41 uses 264 / 580 B and 96 B. The old counter twins were 31 at
+260 / 592 B and 38 at 248 / 620 B
+(muse_moe_w4a16/profiles/sass_fatwait.2026-10-29.txt).
+
+Overhead (check ca43908f02874886, layer routing, seeds 1-6, graph replay after an L2 flush):
+
+| us, mean of 6 paired seeds | 128 tokens | 256 tokens |
+|---|---|---|
+| 42 minus 37 (light stamps) | +1.1 (0 of 6 lower) | +2.3 (0 of 6) |
+| 41 minus 42 (the counters) | +5.9 (0 of 6) | +3.9 (0 of 6) |
+| 41 minus 37 | +7.0 (0 of 6) | +6.1 (0 of 6) |
+| stamped phase A, 41 minus 42 | +2.2 | +1.3 |
+| stamped phase B, 41 minus 42 | +3.3 | +3.9 |
+
+The counters cost 3-4% of the kernel, more in phase B, where they are new and include a
+global read-modify-write per unit. Even if all of phase A's +1.3-2.2 us sat inside the waits,
+the waits below would be at least 13.5 us at 128 and 21.9 us at 256.
+
+Measured, mode 41, layer routing, mean over CTAs and six seeds of one cold launch each
+(us per consumer warp; the GHz is each CTA's clock64 rate against globaltimer, 1.70 / 1.68):
+
+| | 128 tokens | 256 tokens |
+|---|---|---|
+| phase A per CTA (thread 0), mean / p90 / max | 93.0 / 106.9 / 111.4 | 131.7 / 141.9 / 144.0 |
+| A: waiting for weights / for x | 8.41 / 7.32 | 11.76 / 11.50 |
+| A: stage loops without the waits (dequant, wgmma, ring bookkeeping) | 64.62 | 91.66 |
+| A: waits as a share of the stage loops | 19.6% | 20.2% |
+| A: epilogue (per unit) | 6.05 (1.51) | 9.18 (1.71) |
+| A: outside segments (span minus the above) | 6.6 | 7.6 |
+| A: weights producer / x producer waiting for a free slot | 65.5 / 64.3 | 94.0 / 92.0 |
+| phase B per CTA (thread 0's phase A end to the CTA's barrier) | 49.1 | 69.5 |
+| B: waiting for weights / for x / for a claimed unit | 4.48 / 3.88 / 1.23 | 6.44 / 5.40 / 1.24 |
+| B: stage loops without the waits | 31.72 | 45.04 |
+| B: waits as a share of the stage loops | 20.9% | 20.8% |
+| B: epilogue (per unit) | 4.42 (2.21) | 10.11 (3.76) |
+| B: units, stages, n-tiles per unit | 2.00, 32, 2.16 | 2.69, 43, 2.84 |
+| average cycles per wait, phase A / phase B | 209 / 222 | 227 / 231 |
+
+Stamped phases against the public kernel's own stamps in the same check (42 stands for 37):
+phase A 90.8 against 87.2 at 128 and 130.4 against 119.3 at 256; phase B 45.8 against 43.1 and
+65.6 against 58.3; launch end 159.9 against 147.6 and 224.3 against 199.7.
+
+Reading.
+- Measured: the consumers do wait. In both phases about a fifth of each warp's stage-loop time
+  is spent in mbarrier waits for weights or x, 15.7 us per warp in phase A at 128 tokens and
+  23.3 us at 256. Phase B adds 8.4 and 11.8 us.
+- Measured: at the same time both producers find the ring full for about 70% of phase A. So on
+  average the stream keeps ahead of the consumers, and the waits come as a near-constant 210-230
+  cycles per wait in both phases and at both sizes. A startup transient (the first weights,
+  the x gather) would be a fixed cost per launch and would not scale with the stage count this
+  way.
+- Hypothesis, not separated by these counters: each wait is either a fixed cost at the stage
+  boundary (the try_wait round trip, then the dependent shared loads of the codes before the
+  first dequant, serial on a warp's own path) or skew between the 16 warps of a CTA (a slot
+  refills only after all 16 warps release it, and with 3 weights slots at both sizes, since the
+  largest job is over 4 n-tiles, a leading warp catches the slot its slowest peer still holds).
+  Either way, per-warp waits are not SM time lost one for one: three other consumer warps share
+  each scheduler and can issue meanwhile.
+- Measured: phase B's epilogue costs 3.76 us per unit at 256 tokens against phase A's 1.71. It
+  is 10.1 us per warp, the largest non-loop item in phase B.
+- What the earlier record still supports: phase A's per-CTA spread follows the assigned bytes
+  (rank correlation 0.76 / 0.84), and the epilogue numbers of modes 33, 38 and 40 were timed by
+  wall clock, so they stand.
+
+Next mechanism: see docs/steering/2026-10-29-fat-moe-waits.md (recommendation only, nothing
+built).
 
 ## Staged GEMM1 gate, 2026-10-29
 
