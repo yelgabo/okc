@@ -57,6 +57,7 @@ the old design can come back as part of a structurally different design.
 | Staged pair: GEMM1 + SwiGLU launch on owned whole units (mode 19), then a GEMM2 + norm + weighted-sum launch (mode 21) | checks 9332e2a49aff4ff2 and e221858b020c4dee: the GEMM1 launch beats mode 16's phase A (-5.6 us at 128, -15.7 to -16.4 at 256), but the pair is +27.9 us at 128 and +24.2 at 256 over mode 16, +30.0 / +28.1 over mode 20 (6 seeds, same process) | splitting GEMM1 and GEMM2 into separate launches at 128-256 tokens: the fused kernel overlaps phase B with the other CTAs' phase A tail (phase B alone 110-124 us, 75-93 us added in one launch). Owned phase A units are kept, inside the fused kernel (mode 20) |
 | Static phase B ranges from the cost table (unit-aligned stream-K split) after owned phase A units (mode 20) | checks a9dbec1d98334943 and 36812632dae242ba: mode 23 (phase B units claimed at run time) is -16.2 / -22.9 us at 128 and -16.1 / -18.7 at 256 against mode 20 (12 of 12 paired seeds per size), -4.8 / -22.9 on skewed routing; stamps of mode 22 show CTAs that leave phase A 20 us early get the same phase B stages (44.3 vs 44.8 at 128) | a phase B partition fixed before the launch that ignores each CTA's phase A load under owned phase A; scoped to modes 16/20's cost-table split, not to static partitions that model phase A per CTA |
 | Mode 15 (mode 12 with unit-aligned phase B boundaries) | checks 4111803ce7894b63 and 9a9fb08c134c4a16: bs128 253.1 / 251.2 us, behind legacy128 (252.3 / 251.0 in the first) and mode 16 (249.0) | the alignment alone on the single-chain mma.sync mode; mode 16 keeps it with two chains |
+| Lane-0 weights-slot release after `__syncwarp`, moved behind the stage's first wgmma group (mode 26's release scheme inside mode 28, briefly mode 30; not run) | local nvcc 12.8 build before ec62b5a (never committed): ptxas C7513, the wgmma groups serialized, 400 instructions per 64x24 stage against 383 for the per-thread release | a divergent lane-0 block (BSSY / BSYNC) between wgmma groups of one stage in this kernel; the per-thread fence and arrive (mode 28) takes that spot without it. Not ruled out: lane-0 release at the stage start, which is mode 26 |
 
 ## muse_attention_decode (`docs/runs-attention.md`)
 
@@ -107,6 +108,7 @@ the old design can come back as part of a structurally different design.
 | Sparse or compressed attention, stale routing or coefficients, token-rounding routers | change the model's math, not its speed |
 | Moving normalization across a GEMM | BF16 rounding between them makes it non-equivalent |
 | Blackwell-only instructions (tcgen05, TMEM, TMA gather4) | not on H200 |
+| The public MoE's weights-slot release for our ring (lane 0 arrives after its warp's loads, no `__syncwarp`, no `fence.proxy.async`) | not provable from the PTX model: generic `ld.shared` reads refilled by `cp.async.bulk` need a cross-proxy fence (PTX ISA 9.7.10.28.2, 8.9.5), and lanes 1-31's reads are in no release's program order (8.8, 9.7.15.16.19). Chain and the adopted per-thread release in docs/runs-moe.md, "Ordering of the ring slot releases" |
 
 ## Reopened 2026-10-28
 
