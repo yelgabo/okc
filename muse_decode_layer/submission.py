@@ -15786,6 +15786,7 @@ def _skp_self_test(state, cands):
                         raise RuntimeError(f"m={m}: rel err {err:.3e}, probe err {perr:.3e}, probe "
                                            f"rows exact {exact}, diag {int(diag[0])}")
                 survivors.setdefault((layer, b), []).append((name, run, m1))
+                _SKP_REPORT.setdefault("selftest", []).append(f"{layer}:{name}")
                 print(f"SKP selftest {layer} {name}: ok (worst rel err {worst:.2e})")
             except Exception as exc:
                 print(f"SKP selftest {layer} {name}: disabled ({type(exc).__name__}: "
@@ -15852,6 +15853,10 @@ def _skp_fused(state, packed_pooler):
     return fused
 
 
+# Compact SKP self-test and m = 1 / 8 tune results for the summary, which the log tail keeps.
+_SKP_REPORT = {}
+
+
 def _skp_tune(state, survivors):
     """Per (layer, m) for m in 1, 8, 16, 32: the surviving sk and GEMV candidates against the
     path kernel_fn runs today (proj_fwd where _proj_wins, else cuBLAS), as cold-L2 graph
@@ -15874,6 +15879,10 @@ def _skp_tune(state, survivors):
             for nm, run in lst.items():
                 times[nm] = _graph_time(lambda run=run: run(x), flush)
             best = min(times, key=times.get)
+            if m in (1, 8):
+                _SKP_REPORT.setdefault(f"tune m={m}", []).append(
+                    f"{layer} " + " ".join(f"{nm}:{t:.1f}" for nm, t in
+                                           sorted(times.items(), key=lambda kv: kv[1])[:3]))
             print(f"SKP tune {layer} m={m}: "
                   + " ".join(f"{nm}:{t:.1f}" for nm, t in sorted(times.items(), key=lambda kv: kv[1]))
                   + f" -> {best}")
@@ -16343,7 +16352,8 @@ def _one_stress(state, batch, length, layer, replays, seed, ctx=None, expect=Non
     """One shape captured as a graph and replayed `replays` times back to back, then the
     replayed output against an eager call (the workspace atomics make the sums
     order-dependent at the 1e-7 level, so bitwise equality is not expected) and against
-    SGLang's path, a NaN check and the workspace invariant. On the batch-1 page-1 shape the
+    SGLang's path, a NaN check and the workspace invariant; then 50 replays on fresh qkv rows
+    written into the captured buffer, with the same checks. On the batch-1 page-1 shape the
     sequence length is then shrunk by one tile in place, so the speculated length is wrong
     and the device must take the real one, for 50 more replays with the same checks. expect:
     the (nc, mode) the plan must select; a different plan raises, so a case meant to cover a
@@ -16388,6 +16398,12 @@ def _one_stress(state, batch, length, layer, replays, seed, ctx=None, expect=Non
         return msg
 
     msgs = [check(f"plan={plan}", replays, ref)]
+    # A fresh step through the same captured graph: new query, key and value rows written into
+    # the captured qkv buffer, as the judge's next timed call does.
+    gen = torch.Generator(device=device).manual_seed(seed + 1)
+    qkv.copy_((torch.randn(qkv.shape, generator=gen, device=device) * 2).to(qkv.dtype))
+    ref = _attn_sglang(qkv.clone(), data, state)
+    msgs.append(check("fresh qkv", 50, ref))
     if batch == 1 and data["config"]["page_size"] == 1:
         # seq_lens is shared by data and ours; the SGLang reference needs the matching
         # positions, cache rows and lengths.
@@ -17598,6 +17614,7 @@ def _moe1_pdl_self_test(state):
             ctr[8] = 0
             bad.append(variant)
             _FAILED.append(f"moe1 pdl {name} ({worst:.1e}, {msg[:60]})")
+    state["moe1_pdl_report"] = ", ".join(lines)
     print("MOE1PDL vs plain launch after the route kernel: " + ", ".join(lines))
     if any(v in used for v in bad):
         raise RuntimeError("a fused variant the policy uses fails as the route kernel's PDL "
@@ -17795,6 +17812,12 @@ def _selection_summary(state):
                                                                    key=lambda kv: kv[1])) + "]")
     lines.append("moe stress " + " ".join(f"{k}={v}" for k, v in
                                           state.get("moe1_stress", {}).items()))
+    gemv = [x for x in _SKP_REPORT.get("selftest", []) if x.endswith(":cgemv")]
+    lines.append(f"skp selftest ok {len(_SKP_REPORT.get('selftest', []))}, cgemv ok on "
+                 + ",".join(x.split(":")[0] for x in gemv))
+    for key in ("tune m=1", "tune m=8"):
+        lines.append(f"skp {key}: " + "; ".join(_SKP_REPORT.get(key, [])))
+    lines.append("moe pdl " + state.get("moe1_pdl_report", "not run"))
     bench = state.get("moe1_bench", {})
     for bs in TUNE_TOKENS:
         opts = _moe_opts(bs, state)

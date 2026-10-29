@@ -194,6 +194,79 @@ Per-shape columns, in TASK.md's order: d1 = decode 1, d16, d32, v1 = verify 1 (8
 | 2026-10-29 | a80dc97048a940d7 (submit, under the standing replace-when-demonstrably-better authorization; no layer checks left) | f2d4eb5 | attn_one.cu re-inlined from ce7e8fe (ONE_PFAST on modes 49/51; wrapper sets off32) | 1.934x | passed. Board entry before: 0fae646889864106 (1.930x) |
 | 2026-10-29 | 9b921febc7ad4140 (submit, by the coordinator with the last scored run of the day) | a923f11 | Gap map E2: front variants `concat-r` and `skf-r` (one main-stream route kernel: hi + lo logit add, SGLang's top-8 and renormalized weights, the pre-expert norm with pre_norm_kernel's arithmetic; no side stream, no join) with the fused MoE launched as its PDL secondary (layer patch 2 in tools/dl_moe_inline.py: mbarrier init and an L2 prefetch hint before griddepcontrol.wait); `_front_tune` picks by front + MoE time where a route variant is offered. Also the m = 1 cgemv re-inlined from main 01b553f (planar 16-byte stream, 32-register cap) | **1.964x** (1.935-1.994) | passed 13/13, route self-test on, failed 0. Per shape us (a80dc97048a940d7 before): d1 77.6 / 85.5 (82.5 / 89.1), d16 143.5 / 212.9 (142.0 / 222.7), d32 168.0 / 329.3 (176.5 / 319.2), v1 118.6 / 133.0 (123.1 / 133.4), v16 271.2 / 368.3 (282.3 / 376.7), v32 345.9 / 532.0 (356.8 / 539.8); cross-run. Front picks: T=1 fp32, 8 skf-r, 16 skf, 32 skf-r, 128 concat-r, 256 concat-r. Same-process front + MoE (graph medians of 30, prepare): T=128 concat-r 251.7 vs concat 254.6 (-2.9), T=256 311.3 vs 317.4 (-6.1), T=32 skf-r 191.3 vs skf 191.9 (-0.6; concat-r vs concat -6.6), T=8 skf-r 56.8 vs skf 57.0, T=16 skf 141.5 vs skf-r 141.6. TL: front GEMM end to MoE start 1.9 / 1.8 us at v16s / v16f against 5.9 / 6.5 in a80dc97048a940d7 (the MoE CTAs start 1.6-1.7 us after the route kernel; its row 4.5-5.5 us includes the wait on the GEMM), so the E2 gate (>= 2 us at 128 tokens) passes. The cgemv port is a separate change in the same run: decode 1 qkv row cgemv<256,2> 10.1 / 9.5 us against 10.6 / 10.9; the T = 1 pooler moved from sk_kernel 15.6 / 15.4 to cgemv<512,1> 14.6 / 14.9 and the unpooler slice to sgemv 3.7 / 3.8 (cgemv<128,2> 4.0 / 4.1); single-input rows. The SKP selftest and SKP tune m=1 lines fell outside the 16,000-character log tail. Profiles committed |
 
+## Pre-check audits for the integrated candidate (2026-10-29, before the 10-30 checks)
+
+Source: the layer at the commit that adds this section (bundle bb98b7b plus the FIN8 stress and
+the summary manifest below). No GPU run; local compiles only.
+
+### PDL provenance of every load before a griddepcontrol.wait
+
+A load before the wait is safe when its writer has completed before the launch, whatever the
+overlap. In a captured step every kernel completes only after its own wait (or launch) has seen
+its predecessor complete, so anything written by a kernel two or more launches back, by the
+previous replay, by prepare(), or by the harness before the step is complete.
+
+| kernel (launch) | load before the wait | writer | writer live at the load? |
+|---|---|---|---|
+| route_kernel (PDL secondary of the concat cuBLAS GEMM or the skf sk_kernel) | `w` (pre-expert norm weight, 4096 BF16) | prepare (`_norm_self_test` sets `pre_expert_w`) | no |
+| route_kernel | `bias` (router bias, 256 FP32) | prepare (`route_bias`) | no |
+| route_kernel | nothing else: logits and the pooled rows (the predecessor's output) are read after the wait | the front GEMM | yes, hence after the wait |
+| fused MoE, fat and skinny, under `pdl` (PDL secondary of route_kernel) | no global load. Shared memory: the ring's mbarrier inits and `fence.mbarrier_init`. `cp.async.bulk.prefetch.L2` of `w13f` (fat) or `w13` (skinny) units | prepare (`_moe1_prepare` repacks) | no; a prefetch hint is not a load into registers or shared memory, and nothing reads its result |
+| fused MoE | `local_start` (`ld_lo`, `ld.global.nc`), `topk_ids`, `topk_w`, `x`, `ctr[3]`, `ss` | harness input; route_kernel; route_kernel; route_kernel; the previous MoE launch | all read after the wait (the preamble ends at the wait) |
+| attention `attn_one_kernel` (launched without the PDL attribute: `_ONE_PDL = False`) | `page_table`, `seq_lens`, cached K/V rows at positions below `seq_lens` (cp.async), page indices | harness inputs written before the step | no |
+| attention | query rows (`qkv`), the constants group, the flat kernel's epoch | qkv projection; previous attention launch | after the two inserted waits (tools/dl_one_inline.py) |
+
+The attention waits return at once today because the launch carries no PDL attribute; the
+table records what would hold if `_ONE_PDL` were turned on. The cache rows the kernel itself
+writes (positions `seq_lens` onward) are written in-kernel, not by a predecessor. Every
+inserted wait has the `"memory"` clobber. `ld_lo`'s `ld.global.nc` reads an input that no
+kernel of the step writes, so the non-coherent load form is not the read-after-write hazard of
+a predecessor's output. The other PDL secondaries of the layer (pre_norm_kernel, the boundary
+kernels, router and route_align, the W4 GEMMs) date from the blanket PDL change
+(docs/ruled-out.md, "PDL across our own chain"), are unchanged here, and were not re-audited.
+
+### Compiler audit of the attention instances the layer builds
+
+nvcc 12.8.93 (`nvidia/cuda:12.8.1-devel-ubuntu24.04`), `-O3 -std=c++17
+-gencode=arch=compute_90a,code=sm_90a -Xptxas -v` (tools/attn_one_sass.sh) on
+muse_attention_decode/attn_one.cu at this merge (ONE_DCARRY, ONE_PK16, ONE_VHOIST on), the 11
+instances `_ONE_BUILT` names; the layer's copy differs from these only by the inserted
+`griddepcontrol.wait` (ACQBULK 1-2 per instance; every other ordering opcode count equal, see
+the bundle commits). Warnings: only #177 (unused declarations); no C7510-C7515 wgmma
+serialization warning. Registers / spills: <8,51> 80, <8,19> 112, <8,15> 80, <8,11> 109,
+<8,3> 110, <8,1> 110, <1,49> 128, <1,13> 76, <1,11> 115, <1,3> 109, <1,1> 108; 0 bytes of
+spill everywhere.
+
+Trap paths: a scratch build with every `__trap()` (bounded waits in `mbar_wait` and
+`coop_barrier`) replaced by an empty statement, for comparison only, gives the same GMMA,
+`WARPGROUP.ARRIVE` and `WARPGROUP.DEPBAR.LE gsb0, 0x0` counts on every instance (<8,51>: 12, 6,
+6; the q_len 8 per-request instances 4, 2, 2; q_len 1 runs HMMA only). The differences are the
+BPT.TRAP sites themselves (11 in <8,51>, 7 in <1,49>) and fewer BSSY convergence regions
+without traps (<8,51> 84 to 74, <8,19> 48 to 39). A GMMA followed within two instructions by a
+`gsb0, 0x0` wait occurs once in <8,51> with traps and four times without, so the trap-bearing
+build is not the more serialized one by that measure. With nvcc 12.8.1 the participant's C7512
+report (nvcc 13.0) does not reproduce; no 13.0 toolchain was available to test the claim
+itself. The traps stay.
+
+### FIN8 stress coverage
+
+`_one_stress` now takes `ctx` and an expected `(nc, mode)` and raises when the plan differs.
+The batch-1 full stresses run at ctx 20000 (313 tiles, more than the 252-split cap), which plans
+mode 11 with eight workspace copies at q_len 1 and 8; the scored plans in run 9b921febc7ad4140
+are (252, 8, 11) for both, while that run's 1x8 full stress planned (62, 8, 15). Per stress: 2000
+graph replays back to back, then the replayed output against an eager call (1e-4) and against
+SGLang's path (5e-2), a NaN check and the workspace invariant (rows, l, tickets, cooperative
+parity, flat counters); then 50 replays on fresh qkv rows written into the captured buffer with
+the same checks; then on batch 1 page 1 the speculated-length fallback (sequence length 64 lower
+in place) for 50 replays. Every other stress asserts its scored plan too: 1x1 sliding (1, 13),
+16x1 full (1, 49), 1x8 sliding (1, 15), 16x8 and 32x8 full (1, 51).
+
+### Summary manifest in the log tail
+
+SUMMARY now also prints the SKP self-test count with the layers whose cgemv passed, the three
+fastest SKP candidates per layer at m = 1 and 8, and the MoE PDL self-test line, next to the
+existing stage flags, MoE picks per token count, front picks, attention plans and failures.
+
 ## Ruled out
 
 The losers of the W0 checks (PDL across our own chain, the two L2 prefetch forms, the hi/lo mma router against the one-GEMM front) are in `docs/ruled-out.md` under muse_decode_layer.
