@@ -1211,3 +1211,154 @@ b0b146dfbb4841b2 and scored 9104344cb757454e) and the public entry both already 
 
 The 23.6 / 53.4 us flat q_len 8 gap stays open and is not in the P.V operand type. No check
 used.
+
+## The public flat q_len 8 tile loop, and its order in mode 51 (10-29)
+
+Question: what does the public flat kernel's tile loop do that mode 51 does not? The SASS lead
+was three copies of the tile body (6432 vs 4688 instructions, 240 vs 44 `MUFU.EX2`).
+Hypotheses going in: software pipelining across tiles (Q.K of tile t+1 issued during the
+softmax of tile t, FA3-style), or plain unrolling.
+
+### What the public loop does (source read, SASS measured, timing measured)
+
+Source (the Apache-2.0 public file timed as `pub` in d57d1fe064164611, sha1 0e9d4c78, the
+`WS` / `FLAT` branch of `segment`, about lines 1776-2097):
+
+- `#pragma unroll (UNR8)` with `UNR8 = WS ? 2 : 1`: the producer loop is unrolled twice.
+- No pipelining across tiles. Every tile ends in `wgmma_wait<0>()` ("done before the next
+  tile (no wgmma in flight across the loop edge)"), so the `wgmma_wait<1>()` after the next
+  Q.K finds nothing pending. The P.V of tile t has finished before the Q.K of tile t+1 is
+  issued.
+- Per tile, in order: wait on the full barrier, patch, Q.K issued and committed; **while it
+  runs**, this warp's V tile is transposed into V^T (ldmatrix.trans, byte permutes, 4-byte
+  `st.shared`; `STSM_ON = !FLAT`); `wgmma_wait<0>`; **the stage is released** (`mbar_arrive`
+  on the empty barrier) before the softmax; mask; on every tile after a segment's first, **no
+  row max**: P is packed straight from the scores with the current offset, and an overflow
+  test on the packed bytes (`+0x07070707`, bit 7 set means P > 256) moves the offset and
+  repacks only on a hit; `fence.proxy.async` + named barrier; P.V issued; `wgmma_wait<0>`.
+
+SASS (CUDA 12.8.1, `tools/attn_pub_compile.sh`, flat q_len 8 instance): the public file as is
+has 6432 instructions, 6 + 6 QGMMA, 240 `MUFU.EX2`; the same file with `UNR8 = 1` has 5376,
+2 + 2 QGMMA, 108 `MUFU.EX2`, no spills either way. So the three bodies are the two unrolled
+copies plus the remainder. They are not a pipeline prologue, steady state and epilogue, and
+not per-case specializations. The 10-29 E2 entry's guess (PCHK path, per-half path and repack
+path) was wrong: the per-half loop runs `kk < (PK2 ? 0 : 2)`, zero times in this build. The
+108 `MUFU.EX2` per body are the pack (32), the repack on a hit (32), and the offset moves.
+
+Timing (bench e1d8a55eaa2f455c, below): the public kernel with the unroll removed (`pubu1`)
+is 1.3 / 2.9 us slower warm at verify 16 / 32 full than with it, against a 23 / 56 us lead
+over mode 51 in the same process. The unroll is a small part of the public lead.
+
+### The change: `ONE_QKOV`, `ONE_EREL`, `ONE_PCHK`, `ONE_UNR2` (modes 51 and 115 only)
+
+`attn_one.cu`, a separate branch of the q_len 8 tile loop, taken only when a switch is on and
+the build is a q_len 8 producer build (`PROD && L == 8`):
+
+- `ONE_QKOV`: V^T is written (same ldmatrix.trans + stmatrix code) between the Q.K
+  `wgmma.commit_group` and its `wgmma.wait_group 0`, instead of after the softmax.
+- `ONE_EREL`: the empty-barrier arrive moves from after the P.V wait to right after the Q.K
+  wait (the transpose is done by then).
+- `ONE_PCHK`: the public packed-P offset check after a segment's first tile; on a hit the
+  same per-row move as before (`move = tmax > off + 8`), then a repack.
+- `ONE_UNR2`: `#pragma unroll (2)` on the tile loop.
+
+With all four off, all 13 instances are SASS-identical to the board build
+(`tools/attn_one_sass.sh`, normalized diff). With all four on, only 51 and 115 change. Mode 51
+with all four: 80 registers, no spills, consumer region up to R101 (setmaxnreg grants 104),
+6232 instructions; the three partial combinations benched below also compile with no spills.
+The SASS of the QKOV build shows both LDSM/STSM pairs between the two Q.K QGMMAs and the
+`WARPGROUP.DEPBAR`, and with EREL the `SYNCS.ARRIVE` on the empty barrier directly after the
+DEPBAR; in the board build both follow the DEPBAR and the arrive follows the P.V wait.
+
+### Ordering argument (no fence or barrier removed, none added)
+
+Sections are from the PTX ISA 9.4 documentation, located by number and title on 10-29: 8.6
+Proxies, 8.8 Release and Acquire Patterns, 8.9.4 Memory synchronization, 9.7.15.16.16
+`mbarrier.arrive`, 9.7.17.4 Async Proxy (wgmma), 9.7.17.7.1-3 `wgmma.fence`,
+`wgmma.commit_group`, `wgmma.wait_group`. The fetched page cut off before the bodies of 9.7.17,
+so the wgmma rules below are the ones the board build already relies on, not re-read this
+session.
+
+1. QKOV, the stores under the in-flight Q.K. The Q.K wgmma reads the Q buffer and the K half of
+   stage `st` (async proxy, 9.7.17.4) and writes the accumulator registers `s`. The moved
+   stmatrix writes go to this tile's V^T buffer, `VT + (2 (it & 1) + hk) * VT_STRIDE`, which
+   overlaps neither Q nor the stage, and nothing reads or writes `s` until after
+   `wgmma.wait_group 0` (9.7.17.7.3 forbids touching the accumulators of an unfinished
+   wgmma; `reg_fence(s)` still follows the wait). The `wgmma.fence` before the Q.K (9.7.17.7.1)
+   is unchanged. The V^T buffer of tile `it` was last read by the P.V of tile `it - 2`; every
+   warp of the warpgroup finished that P.V's `wait_group 0` before the named barrier of tile
+   `it - 1`, which every warp passes before writing at tile `it`, as in the board build. The
+   writer-side `fence.proxy.async` (8.6, generic writes read by the async proxy) and the named
+   barrier still sit between the stmatrix writes and the P.V wgmma that reads them; only the
+   distance between the writes and the fence grows.
+2. EREL, the earlier release. The stage holds K (read by the Q.K wgmma) and V (read by this
+   thread's ldmatrix). After `wgmma.wait_group 0` the Q.K wgmma is complete, so its async-proxy
+   reads of the stage are done (9.7.17.7.3); the ldmatrix loads precede the arrive in program
+   order. `mbarrier.arrive` has release semantics at CTA scope by default (9.7.15.16.16), so
+   both are ordered before the producer's acquiring wait on the empty barrier (8.8, 8.9.4) and
+   so before its next cp.async into the stage. The board build relies on the same chain for the
+   same reads; it only arrived later, after the P.V, which reads V^T and never the stage. The
+   patch path (generic writes into the stage before the Q.K, with `fence.proxy.async` and the
+   CTA barrier) is unchanged and also precedes the arrive.
+3. PCHK and UNR2 change arithmetic and code layout, not memory ordering.
+
+SASS sync counts of mode 51 per tile body are unchanged by QKOV, EREL and PCHK (4 / 11 / 33 /
+2 for `FENCE.VIEW.ASYNC.S` / `BAR.SYNC` / `SYNCS` / `WARPGROUP.DEPBAR` in all three); with UNR2
+they grow with the extra bodies (10 / 16 / 41 / 6).
+
+Numerics: QKOV and EREL do not change the arithmetic (5e-6 relative to the board build, merge
+order). PCHK tests the overflow on the rounded e4m3 byte instead of the FP32 max: an unrounded P
+up to about 272 rounds to 256 and does not move the offset, where the board build moves above
+256 exactly. P stays far below 448, and the row sums come from the same rounded P through the
+ones rows. Against the board build: 1.1e-3 / 1.3e-3 relative at verify 16 / 32 full, 7.3e-4 on
+the page-64 test shape; the public kernel differs from the board build by 6.0e-3 / 6.2e-3 /
+1.6e-2 on the same shapes, and the board build is 2.1e-2 from the FP32 reference at verify 32.
+
+### Bench e1d8a55eaa2f455c (check, `tools/attn_make_bench_ab.py --shapes full`, paired)
+
+Arms: `ctrl` (board build), `ov` (QKOV), `ovr` (+EREL), `ovrp` (+PCHK), `ovrpu` (+UNR2), `pub`,
+`pubu1` (public with `UNR8 = 1`). ABCHECK 59 lines, 0 failing; tests 16/16. Decode full runs
+mode 49, whose code no arm changes (ours within 0.2 us of ctrl there: the noise floor of this
+run). Profiles: `profiles/bench_tile.e1d8a55eaa2f455c.*`. Microseconds:
+
+| | shape | ctrl | ov | ovr | ovrp | ovrpu | pub | pubu1 |
+|---|---|---|---|---|---|---|---|---|
+| warm | decode 16 full | 89.47 | 89.53 | 89.52 | 89.51 | 89.49 | 86.70 | 86.94 |
+| warm | decode 32 full | 173.69 | 173.78 | 173.82 | 173.63 | 173.75 | 167.04 | 166.69 |
+| warm | verify 16 full | 123.04 | 125.92 | 122.87 | 123.68 | 123.27 | 99.84 | 101.09 |
+| warm | verify 32 full | 250.69 | 253.14 | 245.30 | 244.16 | 241.54 | 195.08 | 198.00 |
+| cold | verify 16 full | 124.29 | 126.46 | 124.51 | 125.22 | 125.79 | 110.75 | 110.98 |
+| cold | verify 32 full | 227.39 | 231.49 | 226.88 | 221.98 | 222.24 | 192.67 | 193.09 |
+
+At verify 32 full warm: QKOV alone +2.5 us (slower), EREL -5.4 cumulative, PCHK -6.5, UNR2
+-9.2. Verify 16 full does not move (-0.2 to +2.9). The all-four arm cleared the 5 us stop
+line at verify 32 warm, so it went to the judge.
+
+### Judged: check cb85d590c301410e 2.311x (CI 2.277-2.346), repeat 6f75235c0d364a7a 2.361x (CI 2.326-2.406)
+
+`submission.py` at a6868f9 (all four switches on); the repeat, bc59f08, adds one comment
+line. 16/16 tests in both. Profiles: `profiles/submission.cb85d590c301410e.*`,
+`profiles/submission.6f75235c0d364a7a.*`. Judge medians (us) of the changed shapes, against
+the five earlier checks of the same mode 51 code (03a21fbc, d0adceb5, b0b146df, fe08878a,
+422f81a1):
+
+| shape | earlier five (range) | cb85d590 | 6f75235c | change (mean vs mean of five) |
+|---|---|---|---|---|
+| verify 16 full | 119.93-120.85 | 119.95 | 120.49 | -0.1 |
+| verify 32 full | 226.57-227.47 | 217.72 | 219.50 | -8.3 (-3.6%) |
+
+Verify 32 full is below the earlier range in both checks by 7-9 us, the size the bench
+measured; verify 16 full stays inside it. The other ten shapes run SASS-identical code. Scores
+2.311x and 2.361x against the FIN8 pair's 2.347x / 2.316x: one below, one above, the highest
+attention score in this log. The expected effect on the score (one shape of twelve, -3.6%) is about
++0.3%, below the run-to-run spread. Attention checks used: 3 of 4.
+
+Submit candidate: `muse_attention_decode/submission.py` at bc59f08 (judged 6f75235c0d364a7a;
+a6868f9, judged cb85d590c301410e, differs only by the comment line). Not submitted.
+
+What is left of the gap at verify 32 full: about 46 us warm in the bench (241.5 vs 195.1),
+and 23 us at verify 16 full, where this change does nothing. The public loop order, its packed
+check and its unroll are now in mode 51, so the rest is elsewhere. Candidates from the source,
+untested: the public flat partition and producer (gather code, stage size, `r_lo` / `r_span`
+common-tile fast path, descriptors carried across tiles instead of rebuilt per tile), and the
+EREL release placed after the transpose without QKOV (QKOV alone was slower here).
