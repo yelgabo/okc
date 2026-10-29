@@ -121,6 +121,7 @@ constexpr int COOP_POLL_LIMIT = 1 << 24;
 // keeps them in uniform registers, and the K descriptor of a stage is base + 1024 * stage (the
 // 14-bit address field never carries: shared memory is below 256 KB). The full-barrier wait, the
 // per-tile fence.proxy.async and the patch path of the other tiles are unchanged.
+// Judged -8.4 us at verify 32 full in f64e8680b3e441be (bench 4ff339332fef4aff: -7.3 cold).
 #ifndef ONE_DCARRY
 #define ONE_DCARRY 1
 #endif

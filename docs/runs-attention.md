@@ -1573,3 +1573,29 @@ With both switches at 0 all 13 instances are SASS-identical to the board build
 (`tools/attn_one_sass.sh`, per-function compare). Next: one bench of `dc`, `wv140`, `wv150`,
 `stampwv150`, `dcwv150` against `ctrl` and `pub` after the 00:00 UTC reset, then judge the best
 if it saves at least 4 us cold at verify 32 full.
+
+### Bench 4ff339332fef4aff (check, `--shapes full`): ONE_DCARRY and the run-time pair split
+
+Arms: `ctrl` (board code), `dc` (`ONE_DCARRY=1`), `wv140` / `wv150` (`ONE_WAVE` with the per-SM rank
+counter, weight 1.40 / 1.50), `stampwv150`, `dcwv150`, `pub`. ABCHECKSUM 11/0 pass/fail for every
+arm (`dc`, `wv*` compared with `ctrl` on the scored and seven tp8 test shapes). Judge tests 16/16,
+run score 2.400x (CI 2.364-2.436; the arms do not enter it). Profiles:
+`profiles/bench_dc.4ff339332fef4aff.*`. Microseconds:
+
+| | shape | ctrl | dc | wv140 | wv150 | stampwv150 | dcwv150 | pub |
+|---|---|---|---|---|---|---|---|---|
+| cold | decode 16 full | 100.03 | 100.13 | 100.03 | 100.03 | 100.26 | 100.13 | 99.01 |
+| cold | decode 32 full | 180.03 | 180.06 | 180.29 | 180.22 | 180.51 | 180.10 | 178.78 |
+| cold | verify 16 full | 120.03 | 116.38 | 125.50 | 125.15 | 127.39 | 122.24 | 110.40 |
+| cold | verify 32 full | 210.59 | 203.26 | 219.58 | 222.59 | 223.97 | 215.55 | 191.78 |
+| warm | verify 16 full | 113.63 | 108.54 | 119.62 | 120.79 | 122.54 | 114.92 | 99.07 |
+| warm | verify 32 full | 221.05 | 207.37 | 230.33 | 232.11 | 235.17 | 221.05 | 192.14 |
+
+- `dc`: -7.3 / -3.7 us cold, -13.7 / -5.1 warm at verify 32 / 16 full; decode full (mode 49)
+  unchanged, as the SASS says. It closes about a third of the cold gap to the public kernel at
+  verify 32 full (19.0 -> 11.5 us). Promoted for judging.
+- Run-time pair split: loses (+9.0 / +12.0 cold at verify 32 full for 1.40 / 1.50). Stamps
+  (`stampwv150`, five reps): the rank counter did not pick the favoured CTA; the lower block
+  index now ends first on only 21-63 of 132 SMs, the median pair gap is -1.5 to -3.9 us but the
+  worst pair is 72-83 us apart, and the latest SM ends at 212-215 us against 205.6 unweighted.
+  Arrival order at the counter does not follow the warp schedulers' priority.
