@@ -305,3 +305,5 @@ SGLang's `_bf16_gemm_dispatch_impl` above, so its verify 16 load (T = 128) runs 
 qkv_gate on cuBLAS. The port is the wd kernel (not yet in the layer) with these two configs,
 picked at T = 128 only. Expected: about 3.5 us (pooler) + 2.8 us (qkv_gate) of standalone
 kernel time per verify-16 step, unverified in the layer.
+
+Scored 2026-10-29: db5be7d500704692 1.427x, submission.py at c09dc54 (8-stage ring for pooler and qkv_gate at m=128, as checked in 39d6bfa9834f4a96), under the standing replace-when-demonstrably-better authorization. Board entry before: 1.400x.
