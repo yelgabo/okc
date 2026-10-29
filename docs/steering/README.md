@@ -6,6 +6,13 @@ report be checked into this repository so other sessions can read it.
 
 ## Latest report
 
+**[2026-10-29 13:27 PDT: Projection context and unchanged families](2026-10-29-1327-performance-review.md)**
+
+Evidence snapshot `615539c`. New single-token projection gains await layer integration;
+A-E standings are unchanged. Local commit under the hourly automation's no-push rule.
+
+## Previous hourly report
+
 **[2026-10-29 11:20 PDT: Hourly performance review](2026-10-29-1120-performance-review.md)**
 
 Evidence snapshot `14d6da1`, incorporating `ca43908f02874886`. Updates the tracker and dashboard

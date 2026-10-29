@@ -1,11 +1,11 @@
 {
-  "reviewed_at": "2026-10-29T11:20:00-07:00",
-  "snapshot": "14d6da1",
+  "reviewed_at": "2026-10-29T13:27:00-07:00",
+  "snapshot": "615539c",
   "layer": {
     "score": "1.964\u00d7",
     "interval": "1.935\u20131.994",
     "job": "9b921febc7ad4140",
-    "note": "Latest recorded layer submission. Combined changes; no isolated family attribution."
+    "note": "No new layer result. Separate projection update: single-token qkv/pooler/slice improve in paired tests; their layer port is pending. A-E standings are unchanged."
   },
   "families": [
     {

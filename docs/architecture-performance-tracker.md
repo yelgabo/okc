@@ -1,6 +1,6 @@
 # Architecture performance tracker
 
-Last review: 2026-10-29 11:20 PDT. Evidence snapshot: `14d6da1`.
+Last review: 2026-10-29 13:27 PDT. Evidence snapshot: `615539c`.
 First review reconciles progress since `aab7d75`, the snapshot in the
 [architecture-family guide](architecture-families-2026-10-29.md).
 This is a review of recorded experiments, not a new benchmark run.
@@ -18,7 +18,42 @@ named control, not changes in aggregate score. Families overlap; their gains can
 | D. Dependency-aware scheduling | Dynamic claiming wins; full ready-only scheduler remains untested | Mode 23 claims whole phase B units at run time, beating mode 20 on every normal paired seed across two checks. | It still waits on done_as. This is dynamic work allocation, not a demonstrated queue of exclusively ready jobs. |
 | E. Attention producer-consumer pipeline | Component gains; scheduling losses also recorded | ONE_DCARRY improves full verify at 128/256; run-time CTA pair weighting loses. | Latest DCARRY gain has no layer integration result in the reviewed layer log. |
 
-## Latest review: corrected MoE wait measurements
+## Latest review: projection context, family standings unchanged
+
+No new A-E or whole-layer result appeared since the 12:24 review. The three family candidates
+awaiting layer tests remain mode 37, sk8w3s and ONE_DCARRY. New projection results belong
+outside A-E; they do not change the winning-family badges.
+
+Job `f6c80b4ba11048f3`, source `a35709c`, compares the new single-token cgemv with the
+pre-change file `b79a627` in one process. Two passes use different inputs, each with 300
+randomly ordered rounds and cold L2. New minus control, pass 0 / pass 1:
+
+| Single-token projection | Paired change |
+|---|---:|
+| qkv_gate | -0.54 / -0.45 us |
+| pooler | -0.86 / -0.96 us |
+| unpooler slice | -0.35 / -0.22 us |
+| o | +0.08 / -0.11 us, inconclusive |
+
+ABCHECK passes on each reported shape/pass. The same-code null stays within 0.13 us.
+The implementation combines row-major planes, a single-load escape start and a larger
+register allowance for two chunks per thread. It is a combined projection change, not a
+MoE ownership or scheduling experiment. Absolute paired control means and intervals are
+not quoted here, so no elapsed-time percentage is assigned.
+
+The candidate-only submission `81254e8aed794eab` records **1.444x, 95% interval 1.422-1.466**.
+This is the projection problem's score, not the layer's. Layer integration remains pending;
+current layer score stays 1.964x. The earlier qkv8 projection port is also still pending in
+the port instructions. [Projection report](runs.md),
+[paired raw log](../muse_bf16_proj/profiles/bench.f6c80b4ba11048f3.log),
+[candidate result](../muse_bf16_proj/profiles/submission.81254e8aed794eab.json).
+
+The proposed 128-token wide concat front was declined without a new run. Its estimated
+24.4 us best-case time exceeds cuBLAS's recorded 24.0 us, before accounting for a second CTA
+wave. This is an analytical rejection of that geometry, not a measured candidate loss and
+not evidence against staged MoE B. [Rejection register](ruled-out.md).
+
+## Previous review: corrected MoE wait measurements
 
 Job `ca43908f02874886`, code `3f67a45`, corrects a diagnostic defect. The timer previously
 started after the first potentially blocking try-wait, which could hide waiting entirely.
@@ -126,6 +161,19 @@ those changes attributable when possible. Preserve the whole-layer control when 
 Read the existing [rejection register](ruled-out.md) before treating any old candidate as new.
 
 ## Review history and checkpoint
+
+- 2026-10-29 13:27 PDT: reviewed through `615539c`; fetched origin/main, no remote-only commits.
+  Incorporated projection runs `5ff76a62b0044378`, `f6c80b4ba11048f3` and
+  `81254e8aed794eab`, sources `803178f` / `a35709c`, reported in `754549d`, plus
+  `f88e278`'s analytical concat rejection. A-E logs and layer outcomes unchanged. Untracked
+  profiles remain untouched. Updated dashboard context without assigning projection gains
+  to a family. Commit is local under this automation's no-push rule.
+
+- 2026-10-29 12:24 PDT: no new experiment evidence since the 11:20 review. Fetched origin/main;
+  no remote-only commits. Run logs and tracked profiles unchanged; all 18 untracked result
+  JSONs are readable and their run IDs already appear in existing reports. Family outcomes,
+  pending layer tests and latest incorporated run IDs remain unchanged. Refreshed review
+  metadata only; no new evidence commit under the automation's commit policy.
 
 - 2026-10-29 11:20 PDT: reviewed `d0c062b..14d6da1`, fetched origin/main and found no remote-only
   commits. Incorporated diagnostic run `ca43908f02874886`, source `3f67a45`, reported by
