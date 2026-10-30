@@ -2250,6 +2250,28 @@ Reading.
   noted that in 64 and 65 the gather stamp S.dg[16][7] stays 0 on a CTA with no dealt unit (fewer
   than G units with K = 1, at most 2G with K = 2); ABGATHER should read 0 as "no dealt unit".
 
+### Mode 66: the same code with nothing claimed (set before the check)
+
+The coordinator asked for the cheapest decisive test of the cost above. Mode 66 is 62's code with
+K = 0: `a_static` returns all units (now `min(units, ...)`, so na = 0), every CTA keeps 51's snake
+deal, and the consumers still read S.bq in phase A (the head is then a phase B unit or the
+sentinel) before phase B; 67 is its stamped twin (55's light and gather stamps). Compile gate as
+above (nvcc 12.8.1, sm_90a): production kernels and 55 identical to 8c7ed1f, no C7510-C7515; 66 has
+21,488 instructions like 62 (both changed by the `min`), 96 registers, 8 B frame, 8 B spills in
+setup only, HGMMA 192.
+
+Check: `tools/moe_make_bench_ab.py --base=51 --sizes=32,128,256 --routings=layer,std
+--seeds=65,66,67,68,69,70 o66=66 o62=62` (light twins 55, 64, 67, public stamps). No gate either
+way. Reading, set before the run, on 66 minus 51 at 128 and 256 tokens on both routings and 67's
+phase A mean against 55's:
+
+- 66 is +3 us or more in all four cells and 67's phase A mean is 3 us or more above 55's: the loss
+  is the code shape, not the claims. The mechanism is not rejected; the reopening trigger becomes a
+  leaner implementation.
+- 66 is within 1 us of 51 in all four cells: the claims themselves cost the time (62 minus 66 is
+  their price). The family stays parked with that evidence.
+- Anything between: mixed, recorded as such, no further check from this line.
+
 ## Staged pair on current components, 2026-10-29
 
 The staged two-launch MoE (mode 19, phase A alone on owned units, then mode 21, phase B and the
