@@ -110,6 +110,17 @@ class FakeExt:
         self.calls.append((name, m))
         out.zero_()
 
+    def cw_fwd(self, cid, ws, eby, base4, x, out, n, k, diag):
+        name = self.mod.CW_NAMES[cid]
+        m = x.shape[0]
+        assert x.dtype == torch.bfloat16 and x.is_contiguous() and x.shape == (m, k) and 1 <= m <= 256, name
+        assert n % 128 == 0 and k % 256 == 0, name
+        assert 16 <= eby <= self.mod.CW_ECAP and eby % 16 == 0, name
+        assert ws.dtype == torch.uint8 and ws.is_contiguous() and ws.numel() == (k // 64) * (n // 128) * (12288 + eby)
+        assert out.shape == (m, n) and out.dtype == torch.bfloat16, name
+        self.calls.append((name, m))
+        out.zero_()
+
     def rt_fwd(self, cid, wp, x, out, diag):
         name = self.mod.RT_NAMES[cid]
         m = x.shape[0]
