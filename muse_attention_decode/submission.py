@@ -3027,6 +3027,16 @@ constexpr int COOP_POLL_LIMIT = 1 << 24;
 #ifndef ONE_HMRGF
 #define ONE_HMRGF 0
 #endif
+// ONE_F1 (bit mask, flat q_len 1 modes 17, 49): 1 QK2: each key block's Q.K runs as two
+// independent mma.sync chains of two k-steps (even / odd) summed at the end, instead of one
+// chain of four, as the public flat kernel does; 2 PE16 (mode 49 producer): with page size 1 a
+// fully cached tile's page entries three tiles ahead are loaded from one 32-bit-indexed base
+// with immediate row offsets. Bench 4 stamps: the two CTAs of an SM end 6.2 us apart at
+// decode 32 full against the public kernel's 2.1, and without DRAM traffic mode 49 trails it by
+// 17.6 us: the per-tile streams set the partner CTA's pace.
+#ifndef ONE_F1
+#define ONE_F1 0
+#endif
 // ONE_T9 (bench builds): adds the last-CTA instances of the cooperative per-request plans
 // (q_len 1 mode 9, q_len 8 modes 9 and 13), so a bench can time the ticket finalize without
 // the cooperative launch or grid barrier at batch-1 full and verify-1 sliding.
@@ -3768,6 +3778,8 @@ attn_one_kernel(const Params p) {
     constexpr bool WAVE = ONE_WAVE > 0 && PROD && !SOLO && L == 8;
     constexpr bool DETM = ONE_DETM && FLAT && !COOP && L == 1;
     constexpr int PRQ = !FLAT && L == 8 ? ONE_PRQ : 0;
+    constexpr bool QK2 = (ONE_F1 & 1) && FLAT && L == 1;
+    constexpr bool PE16 = (ONE_F1 & 2) && PROD && L == 1;
     // NC consumer threads (one warpgroup per KV head at q_len 8, four warps at q_len 1); in
     // producer mode one more warpgroup gathers the tiles.
     constexpr int NC = L == 8 ? 256 : 128;
@@ -4090,7 +4102,14 @@ attn_one_kernel(const Params p) {
                         }
                         cp_async_mbar_arrive_noinc(full0 + 8 * pst);
                         const int tn = t + PF;
-                        if (fast32 && tn < ntiles && lo + tn * BN + BN <= seq) {
+                        if (PE16 && fast32 && p.lp == 0 && tn < ntiles
+                            && lo + tn * BN + BN <= seq) {
+                            const int* q = pt + static_cast<uint32_t>(lo + tn * BN + r0);
+#pragma unroll
+                            for (int i = 0; i < 4; ++i) {
+                                pe[u][i] = __ldg(q + 16 * i);
+                            }
+                        } else if (fast32 && tn < ntiles && lo + tn * BN + BN <= seq) {
 #pragma unroll
                             for (int i = 0; i < 4; ++i) {
                                 pe[u][i] = __ldg(pt + ((lo + tn * BN + r0 + 16 * i) >> p.lp));
@@ -4675,10 +4694,23 @@ attn_one_kernel(const Params p) {
                         kf[2 * e + 1] = f16x2_from_e4m3x2(kwv[e] >> 16);
                     }
                     s[kb][0] = s[kb][1] = s[kb][2] = s[kb][3] = 0.f;
+                    if constexpr (QK2) {
+                        float so[4] = {0.f, 0.f, 0.f, 0.f};
 #pragma unroll
-                    for (int j2 = 0; j2 < 4; ++j2) {
-                        mma_f16(s[kb], qf[2 * j2], 0u, qf[2 * j2 + 1], 0u, kf[2 * j2],
-                                kf[2 * j2 + 1]);
+                        for (int j2 = 0; j2 < 4; j2 += 2) {
+                            mma_f16(s[kb], qf[2 * j2], 0u, qf[2 * j2 + 1], 0u, kf[2 * j2],
+                                    kf[2 * j2 + 1]);
+                            mma_f16(so, qf[2 * j2 + 2], 0u, qf[2 * j2 + 3], 0u, kf[2 * j2 + 2],
+                                    kf[2 * j2 + 3]);
+                        }
+                        s[kb][0] += so[0];
+                        s[kb][1] += so[1];
+                    } else {
+#pragma unroll
+                        for (int j2 = 0; j2 < 4; ++j2) {
+                            mma_f16(s[kb], qf[2 * j2], 0u, qf[2 * j2 + 1], 0u, kf[2 * j2],
+                                    kf[2 * j2 + 1]);
+                        }
                     }
                 }
                 float mx = NEG_INF;
