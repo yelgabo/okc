@@ -2005,3 +2005,84 @@ Then a confirmation bench with another seed and a judged check of `submission.py
 switch on (dispatch: modes 51 and 115 only, the only builds it changes). If 2 fails while 1 and 3
 hold: measured loss for the design as built, row in docs/ruled-out.md, and A2 (mode 115 with
 `ONE_XPIPE=1`, the variant two CTAs per SM cannot hold) gets the next bench.
+
+### Check 5575e7d15d3e49a8 (bench `bench_a0`, generator at 8a0a4a0, kernel at 86f2bec): A0 scorecard and A1 judged by its gate
+
+| date | job | commit | file | result | notes |
+|---|---|---|---|---|---|
+| 2026-10-30 | 5575e7d15d3e49a8 (check) | 86f2bec | bench (`--null --shapes all --inputs 2`, `xp2@own=-DONE_XPIPE=2`, `--pub` vjeux) | 2.454x (judged path = board code), 16/16 tests, ABCHECKSUM 19/0 every arm | A0 scorecard; A1 XPIPE=2 fails its gate (cold loss at verify 16 full) |
+
+Profiles: `muse_attention_decode/profiles/bench_a0.5575e7d15d3e49a8.*`. Plans were identical across
+`ctrl`, `ctrl2`, `xp2` on every shape (ABPLAN), and the public arms used their own plans (flat
+264 at batch > 1 full, 252 x nc 8 at batch 1 full, per-request elsewhere, same split counts as
+ours). Every arm passed ABCHECK; `xp2` against `ctrl` differed in 0 elements on the shapes shown
+in the tail.
+
+**Standalone scorecard (cold medians, pooled over the two held-out inputs, us; bench times
+include about 4-5 us of replay cost the judge subtracts).** Sensitivity is the standalone score
+change per us saved, from this run's judge medians (C_l: d1 485, d16 1816, d32 3214, v1 574,
+v16 2189, v32 3722 us). "Value of the gap" = (ctrl2 - pub) x sensitivity: what matching the
+public kernel on that row alone would add.
+
+| shape | ctrl | ctrl2 | pub | pub2 | null ctrl2-ctrl / pub2-pub | ctrl2 - pub | sens %/us | value of the gap |
+|---|---|---|---|---|---|---|---|---|
+| d1 sliding | 9.76 | 9.60 | 9.06 | 8.99 | -0.16 / -0.06 | +0.54 | 1.580 | **+0.85%** |
+| d1 full | 18.78 | 18.11 | 16.48 | 16.64 | -0.67 / +0.16 | +1.63 | 0.550 | **+0.90%** |
+| d16 sliding | 14.34 | 14.53 | 12.77 | 13.12 | +0.19 / +0.35 | +1.76 | 0.422 | **+0.74%** |
+| d16 full | 100.77 | 100.70 | 99.94 | 99.97 | -0.06 / +0.03 | +0.76 | 0.147 | +0.11% |
+| d32 sliding | 16.70 | 16.80 | 15.81 | 15.97 | +0.10 / +0.16 | +0.99 | 0.239 | +0.24% |
+| d32 full | 179.58 | 179.65 | 178.08 | 178.18 | +0.06 / +0.10 | +1.57 | 0.083 | +0.13% |
+| v1 sliding | 11.14 | 11.14 | 10.88 | 10.98 | +0.00 / +0.10 | +0.26 | 1.336 | +0.35% |
+| v1 full | 19.71 | 19.78 | 18.75 | 18.88 | +0.06 / +0.13 | +1.03 | 0.465 | **+0.48%** |
+| v16 sliding | 15.84 | 15.84 | 15.46 | 15.62 | +0.00 / +0.16 | +0.38 | 0.350 | +0.13% |
+| v16 full | 113.41 | 113.02 | 111.23 | 111.10 | -0.38 / -0.13 | +1.79 | 0.122 | +0.22% |
+| v32 sliding | 20.93 | 20.99 | 19.49 | 19.74 | +0.06 / +0.26 | +1.50 | 0.206 | +0.31% |
+| v32 full | 192.45 | 192.38 | 192.19 | 192.35 | -0.06 / +0.16 | +0.19 | 0.072 | +0.01% |
+
+ABSCORE (cold, every arm against `ctrl`): `ctrl2` 1.0034 (the null), `pub` 1.0382, `pub2` 1.0342;
+per load for `pub`: d1 1.102, d16 1.039, d32 1.018, v1 1.034, v16 1.021, v32 1.018.
+
+What this measures:
+
+- The public kernel's standalone lead over the board build is about 3.5% in this process, and it
+  sits in the short and per-request shapes, not where A1 aims: by value of the gap, d1 full,
+  d1 sliding and d16 sliding lead (+0.7-0.9% each), then v1 full (+0.5%). Verify 16 / 32 full,
+  A1's target, are worth +0.22% / +0.01% to close. The two leading loads by value are decode 1
+  and decode 16 (their per-load public ratios 1.10 and 1.04).
+- The null has structure: `ctrl` (the judged path's own state, allocated first) is slower than
+  `ctrl2` and `xp2` (two later, independently allocated states that agree with each other to
+  0.06 us) on d1 full by 0.67-0.70 us on both inputs, and on d1 sliding by 0.03-0.16 us; at
+  batch > 1 the three agree within 0.4 us. Hypothesis, not tested: the batch-1 plans' few hot
+  workspace rows (mode 11: 8 copies x 16 rows; mode 13: 16 rows) land on an address-dependent
+  set of L2 slices, so the first allocation's placement costs about 0.7 us at d1 full. Worth
+  +0.37% of the score if real and controllable; the next bench tests placement directly.
+
+**A1 (`ONE_XPIPE=2`) against its gate:** clause 1 holds (19/0, 0 differing elements in the tail).
+Clause 2 fails: cold, `xp2 - ctrl` is +3.32 / +4.55 us at verify 16 full (input 0 / 1, +3.4%) and
++0.54 / +0.99 us at verify 32 full; ABSCORE v16 0.9755, v32 0.9968. Warm, the same arm is faster
+(-1.8 / -1.9 us at verify 16 full, -3.5 / -3.3 at verify 32 full): the overlap works when L2 is
+warm and loses when the tiles come from DRAM. Clause 3 holds (its other rows equal `ctrl2`,
+which shares no state with `ctrl`; its d1 and d16 gains are the null's structure, not XPIPE,
+whose SASS changes only modes 51 and 115). Verdict: **measured loss** for XPIPE=2 in mode 51 on the
+judged (cold) quantity; not promoted, row in docs/ruled-out.md. Mechanism not measured: issuing
+P.V(t) before the stage-(t+1) wait delays that wait and the Q.K behind it, which costs most when
+the producer, not the consumer, sets the pace (cold).
+
+### Next bench (check 2): A2 feasibility, workspace placement, batch-1 phase attribution
+
+Arms (generator after this commit; `--null --shapes all --inputs 2 --seed 20261031`): `ctrl`,
+`ctrl2`; A2: `s115` (board code forced to mode 115, one CTA per SM) and `s115xp1`
+(`-DONE_XPIPE=1`, mode 115); placement: `ws64k`, `ws5m` (control module, own state, workspace at
++64 KB / +5 MB + 32 KB); attribution: one `-DONE_DIAG=1` build timed to the early exit after
+phase 5 (prologue loads landed), 7 (query norm), 8 (new-token pass), 9 (V^T ones / patch), 10
+(tile loop and reds), and whole (`diag0_probe`), on the per-request plans (every sliding shape and
+batch-1 full).
+
+Gates, written before the run:
+- A2: develop the mode-115 family only if `s115xp1` beats `ctrl` cold by >= 2% on verify 16 or
+  verify 32 full with both inputs agreeing and beyond `|ctrl2 - ctrl|`; `s115xp1 - s115` alone
+  isolates the overlap at one CTA per SM. Otherwise measured loss, A2 parked.
+- Placement: a real effect needs `ws64k` or `ws5m` to differ from `ctrl2` at d1 full by more than
+  0.3 us on both inputs. If so, the next step is a production change that spreads the batch-1
+  workspace copies (a layout change in `_one_state` / the row map), judged on its own.
+- Attribution: no gate; it names the phase that holds the d1 / d16 gap to the public kernel.

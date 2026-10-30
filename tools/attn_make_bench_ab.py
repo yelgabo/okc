@@ -4,7 +4,7 @@ kernel loaded from its own file, all timed in one process on the same inputs.
 
     python3 tools/attn_make_bench_ab.py OUT.py [--pub [NAME=]PUBLIC.py ...] [--null]
         [--shapes sliding|full|all] [--seed N] [--inputs K] [--rounds R] [--nocoop]
-        NAME[@own]=[FLAGS][:mode=M] ...
+        NAME[@own]=[FLAGS][:mode=M][:wsoff=BYTES][:phase=K] ...
 
 NAME=FLAGS adds a variant built from submission.py's inlined _ONE_SRC (not attn_one.cu) with
 those nvcc flags (comma-separated), e.g. diet=-DONE_DIAG=0,-DONE_DIET=1. A switch that exists
@@ -18,6 +18,14 @@ SM; s115x=-DONE_XPIPE=1:mode=115) on the shapes where the control's plan is a fl
 mode (51 or 19), through _one(data, mode=M), which sizes the grid from that instance's
 residency; elsewhere the arm runs the normal plan. ABPLAN marks the forced plans. A forced-mode
 arm always gets its own state (as @own).
+
+Arms with the same flags share one build; an arm with no flags reuses the control's module (no
+compile), except ctrl2. `:wsoff=BYTES` gives the arm its own state whose ws_acc, ws_l and ws_cnt
+start BYTES into larger zeroed allocations (a placement probe: same code, other addresses).
+`:phase=K` (needs a -DONE_DIAG=1 build, own state, name ending in _probe) runs the diagnostic
+early exit after phase K of the per-request path (attn_one.cu PHASE_EXIT) on the shapes whose
+control plan is per-request (no flat bit), and the full call elsewhere; its cold time is the
+time to that phase.
 
 --null adds the independent duplicate controls: `ctrl2`, a second build of the control's
 source and flags under its own extension name with its own state (as @own), and for every
@@ -80,7 +88,18 @@ import random as _ab_random
 
 @@CONFIG@@
 _AB_MODS = {}
+_AB_BUILT = {}
 for _name, _fl in _AB_FLAGS.items():
+    _key = tuple(_fl)
+    if _name != "ctrl2" and not _fl:
+        _AB_MODS[_name] = _ONE
+        print(f"ABBUILD {_name} reuses the control module own_state={_name in _AB_OWN}",
+              flush=True)
+        continue
+    if _name != "ctrl2" and _key in _AB_BUILT:
+        _AB_MODS[_name] = _AB_BUILT[_key]
+        print(f"ABBUILD {_name} {_fl} shares a build own_state={_name in _AB_OWN}", flush=True)
+        continue
     try:
         _AB_MODS[_name] = load_inline(
             name=f"okc_attn_one_ab_{_name}",
@@ -89,6 +108,8 @@ for _name, _fl in _AB_FLAGS.items():
             functions=["attn_one", "attn_one_prepare", "attn_one_probe_coop"],
             extra_cuda_cflags=["-O3", "-gencode=arch=compute_90a,code=sm_90a", *_fl],
         )
+        if _name != "ctrl2":
+            _AB_BUILT[_key] = _AB_MODS[_name]
         print(f"ABBUILD {_name} {_fl} own_state={_name in _AB_OWN} loaded {_ob_elapsed()}",
               flush=True)
     except Exception as _exc:
@@ -106,6 +127,7 @@ for _name, _src in _AB_PUB_SRCS.items():
         print(f"ABBUILD {_name} FAIL {type(_exc).__name__}: {str(_exc)[:400]}", flush=True)
 # Own-state arms: a private _ONE_STATE dict per arm, swapped in around each call.
 _AB_STATES = {name: {} for name in _AB_OWN}
+_AB_WSDONE = set()
 
 
 @_ab_contextlib.contextmanager
@@ -121,6 +143,19 @@ def _ab_ctx(name):
     if name in _AB_STATES:
         _ONE_STATE = _AB_STATES[name]
     try:
+        off = _AB_WSOFF.get(name)
+        if off is not None and name not in _AB_WSDONE:
+            dev = torch.device("cuda", torch.cuda.current_device())
+            st = _one_state(dev)
+            for key in ("acc", "l", "cnt"):
+                ref = st[key]
+                pad = off // ref.element_size()
+                big = torch.zeros(ref.numel() + pad, dtype=ref.dtype, device=dev)
+                st[key] = big[pad:pad + ref.numel()].view(ref.shape)
+                st["ab_keep_" + key] = big
+            _AB_WSDONE.add(name)
+            print(f"ABWSOFF {name} off={off} acc=0x{st['acc'].data_ptr():x} "
+                  f"l=0x{st['l'].data_ptr():x} cnt=0x{st['cnt'].data_ptr():x}", flush=True)
         yield
     finally:
         _ONE, _ONE_STATE = saved
@@ -138,10 +173,23 @@ def _ab_forced(name, data):
     return m if ctrl_mode in (51, 19) else None
 
 
+def _ab_phase(name, data):
+    k = _AB_PHASE.get(name)
+    if not k:
+        return 0
+    cfg = data["config"]
+    ctrl_mode = _one_plan(cfg, data["page_table"].shape[1],
+                          _one_state(data["qkv"].device)["resident"])[2]
+    return 0 if ctrl_mode & 16 else k
+
+
 def _ab_via(name):
     def call(data):
         m = _ab_forced(name, data)
+        k = _ab_phase(name, data)
         with _ab_ctx(name):
+            if k:
+                return _one(data, phase=k)
             return _one(data, mode=m) if m else _one(data)
     return call
 
@@ -366,6 +414,10 @@ def _ab_summary():
     for (tag, kind), pool in _AB_POOL.items():
         m = {n: _ab_med(pool.get(n, [])) for n in names}
         meds[(tag, kind)] = m
+        if kind == "warm" and len(names) > 8:
+            # Keeps the cold summary inside the judge's 16,000-character log tail; the
+            # per-input ABWARM lines carry the warm medians.
+            continue
         parts = [f"{n}={m[n]:.2f}" for n in names]
         parts += [f"null:{a}-{b}={m[a] - m[b]:+.2f}" for a, b in nulls if a in m and b in m]
         parts += [f"d:{n}={m[n] - m['ctrl']:+.2f}" for n in names
@@ -578,6 +630,8 @@ def main():
     flags = {}
     own = set()
     modes = {}
+    wsoff = {}
+    phase = {}
     while args:
         a = args.pop(0)
         if a == "--pub":
@@ -600,7 +654,23 @@ def main():
             rounds = int(args.pop(0))
         else:
             name, _, fl = a.partition("=")
-            fl, _, forced = fl.partition(":mode=")
+            fl, *opts = fl.split(":")
+            forced = ""
+            for opt in opts:
+                key, _, val = opt.partition("=")
+                base_name = name.removesuffix("@own")
+                if key == "mode":
+                    forced = val
+                elif key == "wsoff":
+                    wsoff[base_name] = int(val)
+                    name = base_name + "@own"
+                elif key == "phase":
+                    if not base_name.endswith("_probe"):
+                        raise SystemExit(f"{base_name}: phase arms end in _probe")
+                    phase[base_name] = int(val)
+                    name = base_name + "@own"
+                else:
+                    raise SystemExit(f"unknown arm option {opt}")
             if forced:
                 modes[name.removesuffix("@own")] = int(forced)
                 name = name.removesuffix("@own") + "@own"
@@ -636,6 +706,8 @@ def main():
         f"_AB_INPUTS = {inputs!r}",
         f"_AB_ROUNDS = {rounds!r}",
         f"_AB_MODES = {modes!r}",
+        f"_AB_WSOFF = {wsoff!r}",
+        f"_AB_PHASE = {phase!r}",
     ])
     src += head + sep + AB.replace("@@CONFIG@@", config, 1)
     out.write_text(src)
