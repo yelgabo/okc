@@ -16029,6 +16029,11 @@ GATE_SPREAD = 2.0
 GATE_RATE_FLOOR = 0.01
 GATE_BANK = 4
 GATE_NEG = ("none", "tile", "1%", "0.1%", "row", "elem")
+# A MoE output row is exactly zero for a token with no local route (about a third of tokens), so
+# the row control at rows // 2 can copy a zero row over a zero row and change nothing (route
+# gates at 32 tokens in d6c30f88c617438b). The injected row is the one nearest rows // 2 whose
+# two references differ by at least this fraction of the fresh row's maximum somewhere.
+GATE_ROW_FLOOR = 0.125
 
 
 def _gate_refs(outs):
@@ -16149,6 +16154,13 @@ def _gate_negctl(obs, refs, i, j, ctrl, seed, elem_floor=None):
     enforced gate cannot afford. Returns (text, misses): kinds that should be rejected but
     pass, or 'none' rejected."""
     r, norm, rmax = refs
+    if torch.equal(r[j], r[i]):
+        # One token with no local route in both inputs gives two zero outputs; another bank
+        # entry can still show a stale read. If every entry is equal, a stale read is harmless.
+        alt = [k for k in range(r.shape[0]) if k != i and not torch.equal(r[k], r[i])]
+        if not alt:
+            return "all references equal, nothing to inject", []
+        j = alt[0]
     dev = obs.device
     gen = torch.Generator(device=dev).manual_seed(seed)
     stale = r[j]
@@ -16163,10 +16175,20 @@ def _gate_negctl(obs, refs, i, j, ctrl, seed, elem_floor=None):
             c0 = (cols // 2) // 128 * 128
             o[:min(rows, 64), c0:c0 + 128] = stale[:min(rows, 64), c0:c0 + 128]
         elif kind == "row":
-            o[rows // 2] = stale[rows // 2]
+            far = ((stale.float() - r[i]).abs() >= GATE_ROW_FLOOR * rmax[i]).any(-1)
+            cand = far.nonzero().flatten()
+            row = rows // 2
+            if cand.numel():
+                row = int(cand[(cand - rows // 2).abs().argmin()])
+            o[row] = stale[row]
         elif kind == "elem":
             if elem_floor is None:
-                e = int(torch.randint(0, flat.numel(), (1,), generator=gen, device=dev))
+                # Only elements where the references differ: copying an equal value (both
+                # zero in a row with no local route) is no injection at all.
+                live = (stale.float() != r[i]).reshape(-1).nonzero().flatten()
+                pick = torch.randint(0, max(int(live.numel()), 1), (1,), generator=gen,
+                                     device=dev)
+                e = int(live[pick]) if live.numel() else 0
             else:
                 far = ((stale.float() - r[i]).abs() >= elem_floor * rmax[i]).reshape(-1)
                 cand = far.nonzero().flatten()

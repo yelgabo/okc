@@ -2,8 +2,10 @@
 the current M1 gate (census skip, user decision 2026-10-30) without touching anything else:
 its M1 gate region is replaced by dl_gate_patch.M1_SRC and the two runner lines get the PDL
 launch counter. Rebuilding from 6377b5a would also bring every later change of the tool.
+--gate-src also replaces the shared gate code (dl_gate_patch.GATE_SRC: the negative controls
+that always perturb), which the route and MoE gates use.
 
-    python3 tools/dl_m1_census_patch.py IN.py OUT.py "HEADER LINE 2"
+    python3 tools/dl_m1_census_patch.py IN.py OUT.py "HEADER LINE 2" [--gate-src]
 """
 import sys
 from pathlib import Path
@@ -17,6 +19,11 @@ start = "# The single-element negative control in the M1 gate is drawn among ele
 if text.count(start) != 1 or "_M1_PDL_LAUNCHES" in text:
     raise SystemExit("IN is not a gated M1 file without the census")
 text = gp.cut(text, start, "def _m1_enable(state):", gp.M1_SRC)
+if "--gate-src" in sys.argv:
+    gate = "# Fresh-input replay gate (user decisions 2026-10-30; docs/runs-decode-layer.md)."
+    if text.count(gate) != 1:
+        raise SystemExit("the shared gate code is not where expected")
+    text = gp.cut(text, gate, "def _moe1_tune(", gp.GATE_SRC.lstrip("\n") + "\n\n")
 for old, new in gp.CENSUS_REPS:
     if text.count(old) != 1:
         raise SystemExit(f"the census runner line is not where expected: {old[:60]!r}")

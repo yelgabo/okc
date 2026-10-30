@@ -219,8 +219,9 @@ Both files are in the scratchpad; neither is a candidate for submission.
 3. **Four-arm bench of M1 + mode 51 with the census skip**, one check (added after the
    user chose option 1 below).
    `/private/tmp/claude-501/-Users-gretchengabo-GitHub/4e9778d1-55dc-4e88-9d29-4844bd573620/scratchpad/m1repro/bench7_m1rt51c.py`
-   (895,762 bytes): the same command with `--cand=muse_decode_layer/cand/layer_m1rt51c.py
-   --seed0=220001 --order-seed=61`; cand sent as 4a140c81.... Read it against both the A/A run
+   (regenerated from the rebuilt layer_m1rt51c with the negative-control fix: 896,434 bytes,
+   SHA256 aef5fd56...): the same command with `--cand=muse_decode_layer/cand/layer_m1rt51c.py
+   --seed0=220001 --order-seed=61`. Read it against both the A/A run
    and bench6_g51b: the difference between the two is M1's share. Prepare time is an estimate:
    40b9b3f795f84073 reached ABEND at 166 s with two M1 prepares at 1000 report-only replays;
    the enforced gate runs 2000 per arm at six judged shapes, so expect roughly 180-200 s

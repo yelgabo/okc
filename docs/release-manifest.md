@@ -35,13 +35,13 @@ caution; see the addendum in docs/runs-decode-layer.md.
 
 ## Candidate (2026-10-30): layer_m1rt51c (not checked, not submitted)
 
-layer_m1rt51 plus the M1 gate's census skip (user decision below); nothing else changes.
+layer_m1rt51 plus the M1 gate's census skip (user decision below) and the negative-control fix (rebuilt at the coordinator's request so its route gates at 32 tokens do not report the d6c30f88c617438b sensitivity miss again); nothing else changes.
 
 | field | value |
 |---|---|
-| file | `muse_decode_layer/cand/layer_m1rt51c.py`, SHA256 `525b85b00bcedf3d8c20e4df08584f346a1c5d1be92a3b10ff9b6f3621602702` |
-| made from | `tools/dl_m1_census_patch.py muse_decode_layer/cand/layer_m1rt51.py OUT "HEADER"` at this commit: the M1 gate region replaced by `dl_gate_patch.M1_SRC`, the PDL launch counter added before the sk and fused runner launches, line 2 replaced. Byte-identical on a second build |
-| against layer_m1rt51 | Python only (no device or host C++ change, so the SASS is layer_m1rt51's); the route row-control fix is not in it (it keeps layer_m1rt51's gate code apart from M1) |
+| file | `muse_decode_layer/cand/layer_m1rt51c.py`, SHA256 `1eda8ec96ded87b1298a8fed54e93583db73b85894eb1400fe4639680659d801` (the first build without the negative-control fix was 525b85b0...) |
+| made from | `tools/dl_m1_census_patch.py muse_decode_layer/cand/layer_m1rt51.py OUT "HEADER" --gate-src` at this commit: the M1 gate region replaced by `dl_gate_patch.M1_SRC`, the shared gate code by `dl_gate_patch.GATE_SRC` (verbatim), the PDL launch counter added before the sk and fused runner launches, line 2 replaced. Byte-identical on a second build |
+| against layer_m1rt51 | Python only (every `_*SRC` region equal, so the SASS is layer_m1rt51's): the census skip and the negative-control fix (row nearest rows // 2 whose references differ, unrestricted element drawn where they differ, an equal bank entry replaced). In this code a negative-control miss in a route or MoE gate is logged as a sensitivity failure only; it drops no variant (the verdict comes from `_gate_verdict`). In the M1 gate a miss fails the shape, as approved |
 | M1 gate | as layer_m1rt51 at shapes whose candidate capture makes an M1 PDL launch; shapes with none (1x1 sliding and full with the current picks) are skipped and logged; a failed census judges the shape |
 | evidence | offline test `tools/dl_m1_gate_census_test.py`; no GPU run yet. Four-arm bench against the release prepared for after the reset, third in order |
 
