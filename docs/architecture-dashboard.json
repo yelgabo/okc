@@ -1,41 +1,40 @@
 {
-  "reviewed_at": "2026-10-29T16:27:00-07:00",
-  "snapshot": "f61d8d9",
+  "reviewed_at": "2026-10-29T18:25:00-07:00",
+  "snapshot": "283e348",
   "layer": {
-    "score": "1.964\u00d7",
-    "interval": "1.935\u20131.994",
-    "job": "9b921febc7ad4140",
-    "note": "Combined A/E and projection bundle b694b4a is assembled but unjudged. No new layer result. FIN8 coverage checks are implemented in that branch, awaiting execution."
+    "score": "1.982\u00d7",
+    "interval": "1.953\u20132.012",
+    "job": "edd71d3152a946fe",
+    "note": "A/E + projection bundle is layer-tested: 1.58% paired speedup over the prior incumbent, not isolated family credit. M1 overlap failed replay checks and was disabled."
   },
   "families": [
     {
       "id": "A",
       "name": "Hybrid persistent / legacy MoE",
       "status": "win",
-      "label": "Component wins",
-      "metric": "36 / 36",
-      "unit": "paired seeds favor the skinny 3-slot ring",
-      "summary": "Skinny ring and mode 37 wins stand. Corrected diagnostics now show about 20% of fat-path stage-loop time in waits; this is attribution, not a new speedup.",
-      "layer": "Latest bundle assembled; layer tests pending",
+      "label": "Component and bundle wins",
+      "metric": "\u22122.3 / \u22123.7 \u00b5s",
+      "unit": "Mode 47 vs 37, 128 / 256 tokens, layer routing",
+      "summary": "Mode 47 wins held-out component tests. Mode 37 and sk8w3s are in the winning combined layer release.",
+      "layer": "Mode 47 ran in a mixed layer follow-up",
       "pending": [
-        "sk8w3s: 3-slot skinny ring",
-        "Mode 37: phase A epilogue"
+        "Mode 47: controlled layer confirmation"
       ],
-      "limit": "Run ca43908f02874886 invalidates the earlier zero-wait claim. Counters add 7.0 / 6.1 \u00b5s at 128 / 256; per-warp waits are not recoverable layer time. New candidates still need layer tests.",
+      "limit": "Mode 47 layer gain is not isolated. Release package speedup is shared with attention and projection changes; code-group gains do not validate the discarded wait-hoist hypothesis.",
       "source": "runs-moe.md"
     },
     {
       "id": "B",
       "name": "Staged grouped MoE",
       "status": "loss",
-      "label": "Past loss; retest due",
-      "metric": "+27.9 / +24.2 \u00b5s",
-      "unit": "128 / 256 tokens versus mode 16",
-      "summary": "The old two-launch pair lost. Later phase B and setup improvements meet its revisit trigger.",
-      "layer": "Stopped at component gate",
+      "label": "Retested loss",
+      "metric": "+30.4 / +24.4 \u00b5s",
+      "unit": "128 / 256 tokens versus mode 37",
+      "summary": "Modes 45 + 46 retest current components and lose on all six layer-routing seeds.",
+      "layer": "Stopped at complete-MoE component gate",
       "pending": [],
-      "limit": "Repeat A versus B at 128/256 with current components. The historical loss does not measure today's staged design.",
-      "source": "runs-moe.md#staged-gemm1-gate-2026-10-29"
+      "limit": "Parked until phase B alone is below about 50 \u00b5s at 128 or the fused phase A tail disappears. This scopes the loss to the tested design.",
+      "source": "runs-moe.md"
     },
     {
       "id": "C",
@@ -67,15 +66,13 @@
       "id": "E",
       "name": "Attention producer / consumer",
       "status": "win",
-      "label": "Component wins",
+      "label": "Component and bundle wins",
       "metric": "\u22125.35 / \u22129.63 \u00b5s",
       "unit": "128 / 256 tokens, cold paired bench versus DCARRY",
-      "summary": "PK16 + VHOIST improves full verification beyond DCARRY. Candidate and repeat pass 16/16; latest component score is 2.504\u00d7.",
-      "layer": "Latest bundle assembled; layer tests pending",
-      "pending": [
-        "DCARRY + PK16 + VHOIST: attention package"
-      ],
-      "limit": "Bundle b694b4a is unjudged. FIN8 plan assertions and replay changes await execution. Default-off ONE_TRIG + SK_PDL has compile evidence only, no runtime gain.",
+      "summary": "DCARRY + PK16 + VHOIST now runs in the winning combined layer release. Corrected FIN8 replay checks pass.",
+      "layer": "Integrated and layer-tested with A + projections",
+      "pending": [],
+      "limit": "No isolated E layer delta. M1 attention-to-projection overlap separately failed replay stress before timing; that failure does not reject the attention pipeline.",
       "source": "runs-attention.md"
     }
   ]
