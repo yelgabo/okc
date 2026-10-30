@@ -229,7 +229,7 @@ not built. The standalone `MAIN_MODES` is now (0, 16, 26, 28, 37, 47, 51).
 Porting 51 into the layer (on origin/main at d96d3d0 or later, which carries 47):
 
 1. Bring `muse_moe_w4a16/submission.py` to the commit that has 51 in `MAIN_MODES` and
-   `MAIN_CANDIDATES` (branch worktree-agent-ad7a25ed576556191; see docs/runs-moe.md "Mode 51").
+   `MAIN_CANDIDATES` (6bbb252 on branch worktree-agent-ad7a25ed576556191).
 2. In `tools/dl_moe_inline.py`: `LAYER_MODES = (0, 16, 26, 28, 37, 47, 51)` and add
    `51: "main-lean-grp-finss64"` to `MAIN_NAMES`, with a comment citing check c6b0e500c3a84c9a.
 3. Run `python3 tools/dl_moe_inline.py` twice; the second run leaves
