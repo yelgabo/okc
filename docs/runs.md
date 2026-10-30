@@ -1294,3 +1294,57 @@ but the winning config changed each time (tile 18 every time; layouts L0-L3, cus
 g2 / g5), so no single config to pin has evidence. Worth at most about 0.1% of score.
 
 Scored 2026-10-30: d85d0081fa8a4a43 1.4976x, submission.py at 2265fa2 (split exit cluster barrier, relaxed arrive after the receive wait), submitted by the coordinator. Receipt: muse_bf16_proj/profiles/scored.d85d0081fa8a4a43.json.
+
+## 2026-10-30 round 5: frontier map and the qkv_gate one-wave cluster split (branch worktree-agent-a397d671218195a46)
+
+Brief (coordinator): top 100 on this board (rank 100 at 1.5560, we are 1.4976). Frontier map and
+portfolio in docs/steering/2026-10-30-projection-top100.md (`tools/proj_frontier.py`). Built the
+top structural option that fit the one check left today: qkv_gate at 8 / 16 / 32 tokens in one
+wave. The P2 decline row names the reopen condition (a geometry with <= 132 CTAs); its cited
+losers ran 144-192 CTAs, and the coordinator agreed this meets it.
+
+Design (code parked in `muse_bf16_proj/experiments/qkv_c4_submission.py`): 72 rows per CTA,
+K split over a 4-CTA cluster, 32 clusters = 128 CTAs at one per SM (qkv8c4 / qkv16c4: 6
+consumer warps, UPS 4, 8 stages per CTA; qkv8c4w / qkv16c4w: 12 warps; qkv32c4). The 12-bit
+escape tables are loaded by every rank; each rank's escape warps skip entries below its K range
+and correct only their own stages; ranks 1-3 add their corrections to the partials they push
+to rank 0 by `st.async`; every CTA ends with the split exit cluster barrier (relaxed arrive
+after rank 0's receive wait), the conforming form. Exact one-hot match against the unsplit pick
+at escape columns and K-range edges of every rank (`_escape_cols`, `_match_twin`). Compile
+gate (nvcc 12.8 sm_90a, against c98018f): 81 kernels instruction-identical, 10 added, 59-108
+registers, no spills. Independent read-only review: sound (escape ownership, exit-barrier
+phases, prologue, balancing); one fix taken (a `__syncwarp` before the escape warps' `.aligned`
+cluster wait), SASS re-checked identical for the other 81.
+
+| date | job | kind | commit | change | score (95% CI) | notes |
+|---|---|---|---|---|---|---|
+| 10-30 | ad6c673d9a444c1e | check (bench C4) | 90ee4b9 | qkv c4 configs offered to the tuner, A/B bench block | 1.509x (1.486-1.532) | every c4 config passed FP64, the 2-ulp twin match and 22 identical one-hot columns (pmax R24 32, R72 90); bench timing loop crashed on my `torch.sum(out=)` call, so no paired A/B lines; the tuner (cold L2, 24 alternating reps, one preparation) rejected every c4 config by 9-12 us; judged path = the production picks |
+
+In-process tuner us (graph replay, overhead not removed), ad6c673d9a444c1e:
+
+| m | pick | c4 | c4w | pick raw | c4 raw | c4w raw |
+|---:|---:|---:|---:|---:|---:|---:|
+| 1 | qkv8 13.8 | 23.0 | 24.9 | 15.5 | 20.5 | 22.8 |
+| 8 | qkv8 13.9 | 23.7 | 25.5 | 16.4 | 20.8 | 23.4 |
+| 16 | qkv16 14.7 | 24.1 | 25.7 | 16.4 | 21.1 | 23.9 |
+| 32 | qkv32 15.6 | 27.9 | | 16.2 | 24.6 | |
+
+What it shows (measured): the one-wave cluster split as built is +9.2 to +12.3 us slower than
+the 96-CTA picks at every m, 12-bit and raw alike (raw +4.7 to +8.4). The loss is 30x any
+null this problem has seen, so the missing paired lines do not change the decision. Not
+attributed. Hypotheses, not tested: (1) not all 32 one-CTA-per-SM clusters of 4 are
+co-resident, so part of the grid runs a second wave (consistent with the 12-bit kernel time
+roughly doubling and the raw one rising by about 1.5x at 0.75x work per CTA); (2) the 72-row
+CTA with 6 or 12 warps decodes slower per byte than the 24-row, 4-warp one (the 12-bit c4 loses
+3 us more than its raw twin, while the 24-row 12-bit pick beats its raw twin by 1.7-2.6).
+
+Decision: stop rule fired. `submission.py` stays at the c98018f content; the build is parked as an
+experiment file; `tools/proj_make_bench_c4.py` (timing bug fixed) builds its bench. No candidate
+handed to the coordinator.
+
+### Family ledger (muse_bf16_proj, after round 5)
+
+| family | shapes | status | evidence | next |
+|---|---|---|---|---|
+| qkv one-wave 4-CTA cluster K split (72 rows, 128 CTAs) | qkv 8 / 16 / 32 | measured loss +9 to +12 us, cause not attributed | ad6c673d9a444c1e | parked; reopen trigger in ruled-out |
+| everything else | | unchanged from round 4 | | |
