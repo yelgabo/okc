@@ -12,7 +12,15 @@ Evidence snapshot `b41cb8d`. Mode 47 layer gains are isolated; mode 51 awaits la
 Clean release scores 2.014x. M1's off control also fails the replay bound, so its earlier failure
 is not isolated to M1. Tail-split modes 52/53 lose.
 
-## Latest layer report: clean release, M1 diagnosis, verify 1 / decode 32 attribution
+## Latest layer note: M1 PTX ordering argument (2026-10-30)
+
+**[2026-10-30: M1, PTX ordering of the TMA reads around griddepcontrol.wait](2026-10-30-m1-ptx-ordering.md)**:
+pre-wait reads have no live writer; x is read through TMA only after the wait, now with a
+reader-side `fence.proxy.async.global` in every issuing thread. Results of the M1 timing and the
+fresh-input gate are in `docs/runs-decode-layer.md` (6ce5be0ba29642ea, 60cf58b69b75491e,
+fdf75ba5a8124544) and the M1 row of `docs/ruled-out.md`.
+
+## Previous layer report: clean release, M1 diagnosis, verify 1 / decode 32 attribution
 
 **[2026-10-30: Layer release, mode 47 isolation, M1 diagnosis and gap attribution](2026-10-30-layer-release-attribution.md)**
 

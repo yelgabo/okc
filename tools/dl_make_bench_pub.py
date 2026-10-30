@@ -3,7 +3,8 @@ arm) against one other layer on identical inputs and the judge's weights: the fr
 incumbent source (inc) or the public layer file (pub).
 
     python3 tools/dl_make_bench_pub.py OUT.py OTHER.py --other=inc|pub --loads=d1,d16,...
-        [--cand=LAYER.py] [--rounds=10] [--deadline=255] [--seed0=50001] [--order-seed=7]
+        [--cand=LAYER.py] [--cand-strip=1] [--rounds=10] [--deadline=255] [--seed0=50001]
+        [--order-seed=7]
 
 The judge takes files under 1,000,000 bytes and the layer alone is about 800 KB, so one check
 carries one other arm: OTHER.py with whole-line comments removed (strip_comments: `//` lines
@@ -12,7 +13,9 @@ then lzma-compressed and base85-encoded, decompressed and exec'd at import. inc:
 layer source (for example `git show a923f11:muse_decode_layer/submission.py`), its load_inline
 names prefixed `okc_inc_` so both copies load in one process. pub: the public layer, patched
 (no threading import; its prepare() calls its builds in turn, already done at import). --cand
-names the candidate (default: the repository's muse_decode_layer/submission.py). OUT.py
+names the candidate (default: the repository's muse_decode_layer/submission.py); --cand-strip=1
+sends it through the same whole-line comment strip (for a candidate too large to fit beside the
+other arm; ABPIN records both hashes). OUT.py
 belongs in the session scratchpad; only the logs of its runs are committed.
 
   import    every arm's extensions build on the layer's build threads (_bg_start), so no build
@@ -43,6 +46,7 @@ belongs in the session scratchpad; only the logs of its runs are committed.
             durations (above span when kernels overlap, PDL secondaries included from launch,
             so their time counts waits in griddepcontrol.wait). ABKN maps the codes to names.
   ABCHK     per arm, checks passed of checks run; failing checks print as ABCHKFAIL.
+  ABCAND    the candidate's prepare-time reports (m1_report, the MoE gate, _FAILED), last.
   ABZ       for the shapes named by --tlend=v1s,d32f,...: the median replay's kernels in start
             order as code@start+duration/exposed (exposed: how far the kernel moves the
             latest end so far, so the exposed times sum to the span), printed last.
@@ -712,6 +716,14 @@ def prepare(weights):
     _ab_print("ABDIAG cand attention fallback on fresh rows vs FP32: "
               + str(state.get("one_fallback_fp32", "not run"))
               + f"; attn_one_ours={int(bool(state.get('attn_one_ours')))}")
+    # The candidate's own prepare-time reports (M1 gate and timing, MoE gate, failures) print
+    # last, since its SUMMARY lines fall out of the 16 KB tail behind the bench's tables.
+    for item in state.get("m1_report", []):
+        _ab_print(f"ABCAND m1 {item[:400]}")
+    for name, item in state.get("moe1_gate", {}).items():
+        _ab_print(f"ABCAND moe gate {name} {item}")
+    for item in _FAILED:
+        _ab_print(f"ABCAND failed {item[:200]}")
     if _AB_OTHER_MOD is not None:
         try:
             import contextlib
@@ -747,7 +759,7 @@ def prepare(weights):
     # then the per-kernel tables with their code names.
     order = ("ABTL", "ABCHECK", "ABBUILD", "ABPREP", "ABPIN", "ABDIAG", "ABOTHER", "ABARMS",
              "ABFAIL", "ABCHKFAIL", "ABCHK", "ABSTOP", "ABTIME", "ABLOAD", "ABSCORE", "ABKN",
-             "ABK ", "ABZ ")
+             "ABK ", "ABZ ", "ABCAND")
     rank = lambda line: next((i for i, p in enumerate(order) if line.startswith(p)), 0)  # noqa: E731
     for line in sorted(_AB_OUT, key=rank):
         print(line, flush=True)
@@ -808,7 +820,8 @@ def pin(data):
 
 def main():
     opts = {"rounds": "10", "deadline": "255", "seed0": "50001", "order-seed": "7", "loads": "",
-            "other": "", "cand": str(ROOT / "muse_decode_layer/submission.py"), "tlend": ""}
+            "other": "", "cand": str(ROOT / "muse_decode_layer/submission.py"), "tlend": "",
+            "cand-strip": ""}
     pos = []
     for a in sys.argv[1:]:
         if a.startswith("--"):
@@ -832,6 +845,13 @@ def main():
     pins = {opts["other"]: f"{pin(raw)} as read ({other.name}); comment-stripped and patched "
                            f"as sent: {pin(sent.encode())}",
             "cand": f"{pin(cand.read_bytes())} ({cand.name})"}
+    cand_text = cand.read_text()
+    if opts["cand-strip"]:
+        head = cand_text.splitlines(keepends=True)[0]
+        cand_text = strip_comments(cand_text)
+        if head.startswith("# okc:"):
+            cand_text = head + cand_text
+        pins["cand"] += f"; comment-stripped as sent: {pin(cand_text.encode())}"
     params = (f"\n_AB_PINS = {pins!r}\n"
               f"_AB_OTHER = {opts['other']!r}\n"
               f"_AB_OTHER_XZ = {packed.decode()!r}\n"
@@ -842,7 +862,7 @@ def main():
               f"_AB_ORDER_SEED = {int(opts['order-seed'])!r}\n"
               "_AB_ROUTINGS = (\"busiest\", \"second\")\n"
               f"_AB_TLEND = {tuple(x for x in opts['tlend'].split(',') if x)!r}\n")
-    text = cand.read_text() + params + BODY
+    text = cand_text + params + BODY
     if len(text.encode()) >= 1_000_000:
         raise SystemExit(f"{len(text.encode())} bytes: the judge takes under 1,000,000")
     out.write_text(text)
