@@ -2545,6 +2545,7 @@ wd_kernel(const __grid_constant__ CUtensorMap wmap, const __grid_constant__ CUte
     constexpr bool TSPLIT = (VAR & WV_TAILSPLIT) != 0;
     static_assert(!PUSH || sizeof(OutT) == 4, "wd: push writes f32");
     static_assert(!TSPLIT || (PUSH && (VAR & WV_TAILSYNC) == 0), "wd: split exit barrier replaces TAILSYNC");
+    static_assert((VAR & WV_TAILRLX) == 0 || TSPLIT, "wd: TAILRLX needs TAILSPLIT");
     extern __shared__ __align__(1024) uint8_t wd_smem[];
     const uint32_t raw = smem_u32(wd_smem);
     const uint32_t sbase = (raw + 1023u) & ~1023u;
@@ -3109,6 +3110,7 @@ rt_kernel(const uint4* __restrict__ wp, const __nv_bfloat16* __restrict__ x, flo
     constexpr int NI = MT * 32;
     constexpr int OWN = NI / P;
     static_assert(KU >= 1 && 128 % (S * WK) == 0 && NI % P == 0 && P <= S, "rt: bad geometry");
+    static_assert(TAIL >= 0 && TAIL <= 3, "rt: exit barrier mode 0 to 3");
     extern __shared__ __align__(16) unsigned char rt_smem[];
     float4* recv = reinterpret_cast<float4*>(rt_smem);
     float4* part = recv + S * OWN;

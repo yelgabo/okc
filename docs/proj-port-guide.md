@@ -380,6 +380,20 @@ Argument that no CTA exits with an outgoing `st.async` in flight (PTX ISA: `st.a
 The rt kernel in ce25f67 already used the relaxed arrive with argument steps 2 to 5; the split
 moves it ahead of the reduction and stores without changing which wait it follows.
 
+Scope of the relaxed form: the PTX memory model has no notion of an operation in flight, so
+with `.relaxed` the guarantee is execution order only (steps 2 to 5), and it assumes the arrive
+is not issued before the wait loop that precedes it exits (both are `asm volatile` with a
+memory clobber, the arrive follows the loop exit and a `__syncwarp`; GPUs do not issue barriers
+speculatively, but the ISA does not state it). Only the `.release` form gives the step 6 chain.
+A's code after its wait depends on nothing B wrote, so nothing needs that chain.
+
+Independent read-only review (2026-10-30, of db0f8ad): sound with notes on all four questions
+(guarantee, arrive/wait well-formedness on every path including partial-warp rt owners, the wd
+producer warp, XA and the watchdog path; lifetimes; the bool-to-int rt template change). Notes
+taken: the paragraph above, and static_asserts that `WV_TAILRLX` needs `WV_TAILSPLIT` and that
+the rt mode is 0 to 3. Note kept: with CLR > 1 and PUSH (not built) the multicast and remote
+empty-barrier arrives would need the same re-check.
+
 For the layer: not ported. The layer's T <= 32 router is fused into its pooler / concat front,
 and its T = 128 / 256 router is the concat GEMM. Porting rt means a separate router launch beside
 the pooler; that is a layer decision with its own A/B.
