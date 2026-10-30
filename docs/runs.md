@@ -787,3 +787,70 @@ index-stable (o16 is config 8 / o16raw 9, unp32 22 / unp32raw 23 in both files):
    6.5 / 6.2 us in 9b921febc7ad4140) and the unpooler row at decode 32 (<2, 32, 4, 2, 2, 2, ...>,
    17.5 / 17.6) each fall by about 0.3 us: about +0.03% (decode 16) and +0.02% (decode 32) of
    layer score at 0.102% / 0.079% per us.
+
+### Against the public entry at 16 / 32 tokens, and the late slot release (2026-10-30 checks)
+
+With the public arm (vjeux v141, scratchpad copy) in the same process, c6e13cc974a24294, public
+minus ours (4d53658), us, pass 0 / pass 1: qkv_gate 16 -0.51 / -0.50, 32 -0.93 / -0.93; o 16
+-0.16 / -0.13, 32 -0.51 / -0.48; pooler 16 -0.22 / -0.19, 32 -0.43 / -0.67; unpooler 16 -0.16 /
+-0.10, 32 -0.13 / -0.16. The public kernel uses the same geometries on these shapes (its
+SK2_PICK), so the lead is in the kernel's per-stage path.
+
+Attribution (807464e240ec4f6c, the m = 8 bench's consumer-path patches applied to every config):
+
+| arm | change | effect at 16 tokens | effect at 32 tokens |
+|---|---|---|---|
+| nofence | no per-stage proxy fence (attribution only, never a candidate) | -0.10 to +0.10 | -0.08 to +0.06 |
+| novote | consumer wait without `__all_sync` | -0.13 to +0.13 | -0.13 to +0.06 |
+| late | empty-barrier arrive after the stage's MMAs (the public's order), fence kept | qkv +0.00, o -0.06, pooler -0.13 / +0.13, unpooler -0.03 | **qkv -0.38 / -0.29, o -0.26 / -0.19, unpooler -0.13 / -0.16**, pooler +0.26 / +0.26 |
+
+Unlike at 8 tokens, the proxy fence is not the gap at 16 / 32 tokens (nofence is inside the
+null). The release point is part of it at 32 tokens: with two units per warp and two m-tiles,
+releasing the slot after the MMAs lets the warp issue the stage's MMAs before the fence and
+the arrive. On the pooler (four units per warp) it loses, and at 8 tokens it lost on the slice
+(c991867992d34fb2).
+
+The change (eb374e4): `SkCfg::LATE_ARRIVE = MT == 2 && UPW == 2` (qkv32, o32, unp32 and their
+raw twins); those kernels arrive on the empty barrier after the stage's MMAs, with the same
+`fence.proxy.async` + `__syncwarp` + lane-0 arrive. The arrive only moves later, after every
+read of the slot, so the slot is released no earlier than before. SASS (nvcc 12.8, sm_90a)
+against 4d53658: 50 of 54 kernels identical; the four changed ones are exactly the MT 2 / UPW 2
+instantiations, with equal MEMBAR (3 / 5), SYNCS (18-38) and FENCE (5 / 8) counts; qkv32 102 ->
+112 registers, o32 / unp32 86 -> 88, no spills.
+
+Paired (nolate = the same file with LATE_ARRIVE false; same = a second module with identical
+code, the module null), us:
+
+| shape | nolate - ours, f14c880c19a34369 | nolate - ours, 1093e22ca2534d7f | same - ours (null) |
+|---|---|---|---|
+| qkv_gate 32 | +0.38 / +0.48 | +0.42 / +0.48 | +0.06 / +0.03 |
+| o 32 | +0.22 / +0.26 | +0.22 / +0.26 | +0.06 / +0.06 |
+| unpooler 32 | +0.22 / +0.32 | +0.32 / +0.16 | +0.03 / +0.06 |
+| unchanged shapes | +0.06 to +0.26 | -0.03 to +0.19 | -0.06 to +0.16 |
+
+In f14c880c the unchanged shapes sat +0.06 to +0.26 above ours, a module offset that the null
+arm in 1093e22c measured at -0.06 to +0.16; the three changed shapes are 0.2-0.4 us above that
+in both runs. Judged with the change: qkv_gate m=32 11.25 / 10.91 us (11.61, 11.93 before),
+o m=32 6.28 / 5.85 (6.04-6.17), unpooler m=32 14.71 / 14.51 (14.57, 15.02). Public minus ours in
+f14c880c after the change: qkv 32 -0.61 / -0.48, o 32 -0.32 / -0.32, pooler 32 -0.38 / -0.61,
+unpooler 32 -0.03 / +0.03, and -0.03 to -0.51 at 16 tokens.
+
+| date | job | kind | commit | change | score (95% CI) | notes |
+|---|---|---|---|---|---|---|
+| 10-30 | c6e13cc974a24294 | check (bench) | 4d53658 (+ bench, `--variants old --pub`) | ours vs pre-change geometries vs public at 16 / 32 tokens | 1.423x (1.401-1.444) | public leads every shape (table above); old - ours o16 +0.43 / +0.42, unp32 +0.59 / +0.53 (fourth repeat) |
+| 10-30 | 807464e240ec4f6c | check (bench) | 4d53658 (+ bench, `--variants novote,nofence,late --pub`) | consumer-path attribution at 16 / 32 tokens | 1.452x (1.430-1.473) | attribution table above |
+| 10-30 | f14c880c19a34369 | check (bench) | eb374e4 (+ bench, `--variants nolate --pub`) | LATE_ARRIVE judged, paired against its absence and the public | 1.456x (1.434-1.477) | highest judged score of this problem; table above |
+| 10-30 | 1093e22ca2534d7f | check (bench) | eb374e4 (+ bench, `--variants same,nolate`) | repeat with a module null | 1.442x (1.421-1.464) | table above |
+
+Port to the layer. The change is inside the `_SK_SRC` kernel template, which the inliner copies
+verbatim (with the layer agent's b1e620a for the SK_PDL guard), so a re-inline from eb374e4
+carries it with the o16 / unp32 geometries. By hand, three edits in the layer's `_SKP_SRC`: add
+`static constexpr bool LATE_ARRIVE = MT == 2 && UPW == 2;` to `SkCfg`, guard the in-loop arrive
+with `!C::LATE_ARRIVE &&`, and add the `if constexpr (C::LATE_ARRIVE) { fence_proxy_async();
+__syncwarp(); if (lane == 0) mbar_arrive(empty0 + 8 * slot); }` block after the unit loop.
+Check: per-instance SASS of the layer build against the standalone, identical except the
+<2, 32, *, *, *, 2, ...> sk instances; fence and barrier counts equal. In the layer log, `SKP
+selftest qkv_gate qkv32: ok`, `o o32: ok`, `unpooler unp32: ok`. Prediction (hypothesis): the
+decode 32 qkv row (sk_kernel<2, 32, 3, 1, 4, 2, ...>, 12.0 / 12.0 us in 9b921febc7ad4140) falls
+about 0.4 us, o (<2, 32, 2, 2, 2, 2, ...>, 6.6 / 6.4) about 0.2, unpooler about 0.2 more on top
+of the geometry change: about +0.06% of layer score at 0.079% per us.

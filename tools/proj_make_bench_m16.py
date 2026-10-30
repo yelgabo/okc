@@ -117,6 +117,8 @@ ACC = (
 VARIANTS = {"geo": (GEO, EXTRA_USE), "geo2": (_geo_patch(EXTRA_GEOM2, EXTRA_USE2), EXTRA_USE2),
             "old": (OLD, {}), "acc": (ACC, {}), "novote": (NOVOTE, {}), "nofence": (NOFENCE, {}),
             "late": (LATE, {}),
+            # A second module with the control's code: its offset from ours is the module null.
+            "same": ((("SK_EXTRA = {}\n", "SK_EXTRA = {}  # module null\n"),), {}),
             "nolate": ((("    static constexpr bool LATE_ARRIVE = MT == 2 && UPW == 2;\n",
                          "    static constexpr bool LATE_ARRIVE = false;\n"),), {})}
 

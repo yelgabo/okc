@@ -1,0 +1,113 @@
+n128c3s8h 38.6 -> cublas
+tune pooler    m= 1: pool8 18.6, pool8raw 22.1, cgemv 18.0, cublas 25.9 -> cgemv
+tune pooler    m= 8: pool8 18.8, pool8raw 22.1, cublas 25.8 -> pool8
+tune pooler    m=16: pool16 19.1, pool16raw 22.0, cublas 25.7 -> pool16
+tune pooler    m=32: pool32 19.8, pool32raw 22.3, cublas 26.3 -> pool32
+tune pooler    m=64: cublas 27.2, b1n64c2 25.8, m64k2r4 29.4, m64k1r8 38.8 -> b1n64c2
+tune pooler    m=128: cublas 29.6, b1n64c2 32.0, b1n128c2 30.4, m64k2r4 47.5, m64k1r8 50.3, m128k2r4 35.4, m128k1r4 48.4, m128k1r8 50.8, m128k2r8 37.2, m128k4r2 39.7, b1n128c2s8h 27.2, b1n128c3s8h 32.8 -> b1n128c2s8h
+tune pooler    m=256: cublas 33.8, b1n128c2 37.7, b2n256c2 49.5, m128k2r4 60.9, m128k1r4 52.5, m128k1r8 54.2, m128k2r8 64.1, m128k4r2 60.5, m256k2r4 58.8, m256k1r4 53.0, m256k1r8 54.4, m256k2r8 61.5, m256k2r2 58.8, b1n128c2s8h 47.5, b1n128c3s8h 59.7, cut128x64 30.9 -> cut128x64
+tune qkv_gate  m= 1: qkv8 14.0, qkv8raw 15.7, cgemv 13.2, cublas 18.4 -> cgemv
+tune qkv_gate  m= 8: qkv8 14.1, qkv8raw 16.0, cublas 18.4 -> qkv8
+tune qkv_gate  m=16: qkv16 14.5, qkv16raw 16.7, cublas 18.9 -> qkv16
+tune qkv_gate  m=32: qkv32 15.6, qkv32raw 16.4, cublas 18.9 -> qkv32
+tune qkv_gate  m=64: cublas 19.1, b1n64c2 23.2, m64k2r4 23.2 -> cublas
+tune qkv_gate  m=128: cublas 21.3, b1n64c2 27.6, b1n128c2 28.2, m64k2r4 28.9, m128k2r4 29.1, m128k1r4 46.7, m128k4r2 23.0, b1n128c2s8h 23.4, b1n128c3s8h 19.2 -> b1n128c3s8h
+tune qkv_gate  m=256: cublas 23.6, b1n128c2 33.0, b2n256c2 48.5, m128k2r4 32.8, m128k1r4 46.8, m128k4r2 39.7, m256k2r4 32.4, m256k1r4 51.2, m256k2r2 31.8, b1n128c2s8h 41.1, b1n128c3s8h 34.0 -> cublas
+tune router    m= 1: rgemv 8.0, router8 9.4, baseline 15.2 -> rgemv
+tune router    m= 8: router8 9.7, baseline 31.2 -> router8
+tune router    m=16: router16 9.5, baseline 20.8 -> router16
+tune router    m=32: router32 10.2, baseline 21.3 -> router32
+tune router    m=64: baseline 21.3, r64c8 13.2, r64c16 11.5, rm64k4r4 18.4 -> r64c16
+tune router    m=128: baseline 22.2, r64c8 13.5, r64c16 14.4, r128c8 14.5, r128c16 13.3, rm64k4r4 18.4, rm128k4r4 21.8 -> r128c16
+tune router    m=256: baseline 22.6, r128c8 14.8, r128c16 20.7, rm128k4r4 21.6 -> r128c8
+tune unpooler  m= 1: slice8 8.7, slice8raw 9.1, cgemv 7.9, sgemv 8.2, cublas 11.6 -> cgemv
+tune unpooler  m= 8: slice8 8.8, slice8raw 9.1, cublas 11.7 -> slice8
+tune unpooler  m=16: unp16 18.4, unp16raw 22.0, cublas 22.5 -> unp16
+tune unpooler  m=32: unp32 19.0, unp32raw 22.9, cublas 22.5 -> unp32
+tune unpooler  m=64: cublas 24.4, b1n64c2 24.5, m64k2r4 35.1, m64k1r8 29.9 -> cublas
+tune unpooler  m=128: cublas 24.0, b1n64c2 42.8, b1n128c2 25.6, m64k2r4 52.6, m64k1r8 47.4, m128k2r4 39.6, m128k1r4 34.6, m128k1r8 35.6, m128k2r8 41.2, m128k4r2 39.3, b1n128c2s8h 29.8, b1n128c3s8h 38.9 -> cublas
+tune unpooler  m=256: cublas 28.7, b1n128c2 47.2, b2n256c2 32.8, m128k2r4 60.3, m128k1r4 55.8, m128k1r8 62.3, m128k2r8 62.6, m128k4r2 65.4, m256k2r4 54.6, m256k1r4 57.7, m256k1r8 59.3, m256k2r8 56.7, m256k2r2 54.5, b1n128c2s8h 53.0, b1n128c3s8h 65.9 -> cublas
+ablate pooler m=128: m128k2r4 35.1, m128k2r4_a1 30.9, m128k2r4_a3 29.0
+ablate o m=256: m256k1r4 25.6, m256k1r4_a1 23.2, m256k1r4_a3 18.7
+prepare done 1.5 s
+ours| tune o         m=16: o16 9.8, o16raw 10.6, cublas 10.8 -> o16
+ours| tune o         m=32: o32 10.3, o32raw 11.0, cublas 10.9 -> o32
+ours| tune pooler    m=16: pool16 18.9, pool16raw 21.9, cublas 25.9 -> pool16
+ours| tune pooler    m=32: pool32 19.6, pool32raw 22.1, cublas 26.2 -> pool32
+ours| tune qkv_gate  m=16: qkv16 14.0, qkv16raw 16.5, cublas 17.8 -> qkv16
+ours| tune qkv_gate  m=32: qkv32 15.3, qkv32raw 16.4, cublas 18.8 -> qkv32
+ours| tune router    m=16: router16 9.4, baseline 20.6 -> router16
+ours| tune router    m=32: router32 10.0, baseline 20.6 -> router32
+ours| tune unpooler  m=16: unp16 18.0, unp16raw 22.0, cublas 22.4 -> unp16
+ours| tune unpooler  m=32: unp32 19.2, unp32raw 22.9, cublas 22.4 -> unp32
+ABPREP ours 71.5 s
+same| tune o         m=16: o16 9.9, o16raw 10.6, cublas 10.7 -> o16
+same| tune o         m=32: o32 10.3, o32raw 11.1, cublas 10.9 -> o32
+same| tune pooler    m=16: pool16 18.7, pool16raw 21.8, cublas 25.5 -> pool16
+same| tune pooler    m=32: pool32 19.7, pool32raw 22.1, cublas 26.2 -> pool32
+same| tune qkv_gate  m=16: qkv16 14.2, qkv16raw 16.5, cublas 18.4 -> qkv16
+same| tune qkv_gate  m=32: qkv32 15.3, qkv32raw 16.4, cublas 18.8 -> qkv32
+same| tune router    m=16: router16 9.3, baseline 20.3 -> router16
+same| tune router    m=32: router32 9.8, baseline 21.0 -> router32
+same| tune unpooler  m=16: unp16 18.4, unp16raw 22.0, cublas 22.3 -> unp16
+same| tune unpooler  m=32: unp32 19.1, unp32raw 22.8, cublas 22.4 -> unp32
+ABPREP same 20.7 s
+nolate| tune o         m=16: o16 9.8, o16raw 10.7, cublas 10.7 -> o16
+nolate| tune o         m=32: o32 10.4, o32raw 10.9, cublas 10.8 -> o32
+nolate| tune pooler    m=16: pool16 18.9, pool16raw 22.1, cublas 25.8 -> pool16
+nolate| tune pooler    m=32: pool32 20.2, pool32raw 22.4, cublas 26.6 -> pool32
+nolate| tune qkv_gate  m=16: qkv16 14.5, qkv16raw 16.9, cublas 18.7 -> qkv16
+nolate| tune qkv_gate  m=32: qkv32 16.0, qkv32raw 16.4, cublas 19.1 -> qkv32
+nolate| tune router    m=16: router16 9.5, baseline 20.7 -> router16
+nolate| tune router    m=32: router32 10.1, baseline 21.2 -> router32
+nolate| tune unpooler  m=16: unp16 18.5, unp16raw 22.0, cublas 22.4 -> unp16
+nolate| tune unpooler  m=32: unp32 19.3, unp32raw 22.7, cublas 22.8 -> unp32
+ABPREP nolate 20.8 s
+ABCHECK ok qkv_gate m=16 p0 sgl=1.7e-03 ours=1.7e-03 ours2=1.7e-03 ours.qkv16=1.7e-03 same=1.7e-03 nolate=1.7e-03
+ABCOLD qkv_gate m=16 p0 sgl=18.72 ours=14.46 ours2=14.40 ours.qkv16=14.43 same=14.56 nolate=14.59
+ABPAIR qkv_gate m=16 p0 ours2-ours=-0.03[-0.22,+0.16] ours.qkv16-ours=+0.00[-0.19,+0.26] same-ours=+0.10[-0.10,+0.32] nolate-ours=+0.13[-0.06,+0.35]
+ABCHECK ok qkv_gate m=16 p1 sgl=1.7e-03 ours=1.7e-03 ours2=1.7e-03 ours.qkv16=1.7e-03 same=1.7e-03 nolate=1.7e-03
+ABCOLD qkv_gate m=16 p1 sgl=18.69 ours=14.46 ours2=14.50 ours.qkv16=14.46 same=14.50 nolate=14.62
+ABPAIR qkv_gate m=16 p1 ours2-ours=+0.03[-0.16,+0.22] ours.qkv16-ours=+0.00[-0.22,+0.22] same-ours=+0.06[-0.13,+0.22] nolate-ours=+0.16[-0.06,+0.38]
+ABCHECK ok o m=16 p0 sgl=1.7e-03 ours=1.7e-03 ours2=1.7e-03 ours.o16=1.7e-03 same=1.7e-03 nolate=1.7e-03
+ABCOLD o m=16 p0 sgl=11.07 ours=9.98 ours2=10.02 ours.o16=10.05 same=10.11 nolate=10.03
+ABPAIR o m=16 p0 ours2-ours=+0.00[-0.19,+0.19] ours.o16-ours=+0.03[-0.16,+0.22] same-ours=+0.10[-0.06,+0.32] nolate-ours=+0.03[-0.13,+0.19]
+ABCHECK ok o m=16 p1 sgl=1.7e-03 ours=1.7e-03 ours2=1.7e-03 ours.o16=1.7e-03 same=1.7e-03 nolate=1.7e-03
+ABCOLD o m=16 p1 sgl=11.07 ours=10.05 ours2=9.98 ours.o16=10.02 same=10.05 nolate=10.02
+ABPAIR o m=16 p1 ours2-ours=-0.03[-0.22,+0.10] ours.o16-ours=-0.06[-0.19,+0.13] same-ours=+0.03[-0.13,+0.19] nolate-ours=-0.03[-0.19,+0.13]
+ABCHECK ok pooler m=16 p0 sgl=1.7e-03 ours=1.7e-03 ours2=1.7e-03 ours.pool16=1.7e-03 same=1.7e-03 nolate=1.7e-03
+ABCOLD pooler m=16 p0 sgl=26.48 ours=19.30 ours2=19.20 ours.pool16=19.20 same=19.26 nolate=19.33
+ABPAIR pooler m=16 p0 ours2-ours=-0.10[-0.38,+0.16] ours.pool16-ours=-0.10[-0.42,+0.16] same-ours=-0.06[-0.29,+0.22] nolate-ours=+0.02[-0.26,+0.29]
+ABCHECK ok pooler m=16 p1 sgl=1.7e-03 ours=1.7e-03 ours2=1.7e-03 ours.pool16=1.7e-03 same=1.7e-03 nolate=1.7e-03
+ABCOLD pooler m=16 p1 sgl=26.40 ours=19.17 ours2=19.23 ours.pool16=19.23 same=19.26 nolate=19.33
+ABPAIR pooler m=16 p1 ours2-ours=+0.06[-0.19,+0.35] ours.pool16-ours=+0.03[-0.22,+0.26] same-ours=+0.06[-0.19,+0.35] nolate-ours=+0.13[-0.19,+0.38]
+ABCHECK ok unpooler m=16 p0 sgl=1.7e-03 ours=1.7e-03 ours2=1.7e-03 ours.unp16=1.7e-03 same=1.7e-03 nolate=1.7e-03
+ABCOLD unpooler m=16 p0 sgl=23.17 ours=18.62 ours2=18.61 ours.unp16=18.62 same=18.74 nolate=18.80
+ABPAIR unpooler m=16 p0 ours2-ours=-0.03[-0.29,+0.32] ours.unp16-ours=+0.00[-0.29,+0.32] same-ours=+0.10[-0.16,+0.48] nolate-ours=+0.19[-0.16,+0.51]
+ABCHECK ok unpooler m=16 p1 sgl=1.7e-03 ours=1.7e-03 ours2=1.7e-03 ours.unp16=1.7e-03 same=1.7e-03 nolate=1.7e-03
+ABCOLD unpooler m=16 p1 sgl=23.30 ours=18.69 ours2=18.70 ours.unp16=18.69 same=18.82 nolate=18.78
+ABPAIR unpooler m=16 p1 ours2-ours=+0.00[-0.29,+0.32] ours.unp16-ours=+0.00[-0.29,+0.26] same-ours=+0.16[-0.19,+0.38] nolate-ours=+0.06[-0.19,+0.35]
+ABCHECK ok qkv_gate m=32 p0 sgl=1.7e-03 ours=1.7e-03 ours2=1.7e-03 ours.qkv32=1.7e-03 same=1.7e-03 nolate=1.7e-03
+ABCOLD qkv_gate m=32 p0 sgl=19.23 ours=15.65 ours2=15.68 ours.qkv32=15.68 same=15.71 nolate=16.06
+ABPAIR qkv_gate m=32 p0 ours2-ours=+0.06[-0.13,+0.29] ours.qkv32-ours=+0.10[-0.16,+0.26] same-ours=+0.06[-0.10,+0.22] nolate-ours=+0.42[+0.29,+0.58]
+ABCHECK ok qkv_gate m=32 p1 sgl=1.7e-03 ours=1.7e-03 ours2=1.7e-03 ours.qkv32=1.7e-03 same=1.7e-03 nolate=1.7e-03
+ABCOLD qkv_gate m=32 p1 sgl=19.10 ours=15.55 ours2=15.55 ours.qkv32=15.52 same=15.58 nolate=16.00
+ABPAIR qkv_gate m=32 p1 ours2-ours=+0.00[-0.22,+0.19] ours.qkv32-ours=+0.00[-0.19,+0.19] same-ours=+0.03[-0.16,+0.29] nolate-ours=+0.48[+0.29,+0.67]
+ABCHECK ok o m=32 p0 sgl=1.7e-03 ours=1.7e-03 ours2=1.7e-03 ours.o32=1.7e-03 same=1.7e-03 nolate=1.7e-03
+ABCOLD o m=32 p0 sgl=11.07 ours=10.34 ours2=10.37 ours.o32=10.34 same=10.40 nolate=10.56
+ABPAIR o m=32 p0 ours2-ours=+0.00[-0.16,+0.22] ours.o32-ours=+0.03[-0.19,+0.22] same-ours=+0.06[-0.13,+0.26] nolate-ours=+0.22[+0.06,+0.42]
+ABCHECK ok o m=32 p1 sgl=1.7e-03 ours=1.7e-03 ours2=1.7e-03 ours.o32=1.7e-03 same=1.7e-03 nolate=1.7e-03
+ABCOLD o m=32 p1 sgl=11.07 ours=10.40 ours2=10.37 ours.o32=10.34 same=10.42 nolate=10.62
+ABPAIR o m=32 p1 ours2-ours=-0.03[-0.19,+0.16] ours.o32-ours=-0.06[-0.22,+0.16] same-ours=+0.06[-0.16,+0.22] nolate-ours=+0.26[+0.06,+0.45]
+ABCHECK ok pooler m=32 p0 sgl=1.7e-03 ours=1.7e-03 ours2=1.7e-03 ours.pool32=1.7e-03 same=1.7e-03 nolate=1.7e-03
+ABCOLD pooler m=32 p0 sgl=27.14 ours=20.22 ours2=20.19 ours.pool32=20.16 same=20.32 nolate=20.22
+ABPAIR pooler m=32 p0 ours2-ours=-0.02[-0.38,+0.32] ours.pool32-ours=-0.10[-0.45,+0.32] same-ours=+0.10[-0.35,+0.54] nolate-ours=+0.06[-0.35,+0.35]
+ABCHECK ok pooler m=32 p1 sgl=1.7e-03 ours=1.7e-03 ours2=1.7e-03 ours.pool32=1.7e-03 same=1.7e-03 nolate=1.7e-03
+ABCOLD pooler m=32 p1 sgl=27.01 ours=20.08 ours2=20.13 ours.pool32=20.16 same=20.26 nolate=20.10
+ABPAIR pooler m=32 p1 ours2-ours=+0.00[-0.51,+0.48] ours.pool32-ours=+0.06[-0.38,+0.45] same-ours=+0.16[-0.29,+0.61] nolate-ours=-0.03[-0.38,+0.58]
+ABCHECK ok unpooler m=32 p0 sgl=1.7e-03 ours=1.7e-03 ours2=1.7e-03 ours.unp32=1.7e-03 same=1.7e-03 nolate=1.7e-03
+ABCOLD unpooler m=32 p0 sgl=23.26 ours=19.49 ours2=19.49 ours.unp32=19.42 same=19.55 nolate=19.78
+ABPAIR unpooler m=32 p0 ours2-ours=+0.00[-0.26,+0.29] ours.unp32-ours=-0.03[-0.32,+0.29] same-ours=+0.03[-0.26,+0.32] nolate-ours=+0.32[+0.06,+0.70]
+ABCHECK ok unpooler m=32 p1 sgl=1.7e-03 ours=1.7e-03 ours2=1.7e-03 ours.unp32=1.7e-03 same=1.7e-03 nolate=1.7e-03
+ABCOLD unpooler m=32 p1 sgl=23.46 ours=19.46 ours2=19.39 ours.unp32=19.49 same=19.55 nolate=19.65
+ABPAIR unpooler m=32 p1 ours2-ours=-0.06[-0.35,+0.29] ours.unp32-ours=+0.00[-0.29,+0.32] same-ours=+0.06[-0.22,+0.38] nolate-ours=+0.16[-0.13,+0.54]
