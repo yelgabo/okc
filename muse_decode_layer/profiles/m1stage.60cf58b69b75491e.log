@@ -1,0 +1,116 @@
+sk8w4s-er=ok main-d2=FAIL main-m2-ar2-ub=ok main-dynb-fs=ok main-lean=ok main-lean-silu-bar=ok main-lean-grp-nohoist=ok main-lean-grp-finss64=ok
+SUMMARY skp selftest ok 29, cgemv ok on o,pooler,qkv_gate,unpooler
+SUMMARY skp tune m=1: qkv_gate cgemv:14.4 qkv8:17.6 qkv8raw:19.6; o cgemv:9.9 o8:11.5 o8raw:12.2; pooler cgemv:20.1 pool8:23.5 pool8raw:27.9; unpooler cgemv:8.3 sgemv:8.5 slice8:9.7
+SUMMARY skp tune m=8: qkv_gate qkv8:17.8 qkv8raw:20.0 proj_fwd:20.7; o o8:11.8 cublas:11.9 o8raw:12.4; pooler pool8:23.8 pool8raw:28.6 proj_fwd:29.5; unpooler slice8:10.1 slice8raw:10.3 proj_fwd:12.0
+SUMMARY moe pdl all ok
+SUMMARY moe gate sk8w4s 8+16+1+32+8 rel 6e-05/6e-05/1e-04/4e-05/1e-04|6e-05/6e-05/2e-05/3e-05/1e-04 el 5e-03|5e-03 >1e-4 80/2000|18/400 o1 0|0
+SUMMARY moe gate sk16w4s 8+16+1+32+8 rel 2e-05/4e-05/2e-04/4e-05/2e-04|2e-05/4e-05/2e-04/4e-05/2e-04 el 5e-03|5e-03 >1e-4 433/2000|80/400 o1 0|0
+SUMMARY moe gate sk8w3s 8+16+1+32+8 rel 6e-05/6e-05/2e-05/4e-05/1e-04|2e-05/6e-05/2e-05/4e-05/1e-04 el 5e-03|5e-03 >1e-4 20/2000|4/400 o1 0|0
+SUMMARY moe gate sk8w4s-er 8+16+1+32+8 rel 6e-05/6e-05/2e-05/4e-05/1e-04|6e-05/6e-05/2e-05/4e-05/1e-04 el 5e-03|5e-03 >1e-4 31/2000|5/400 o1 0|0
+SUMMARY moe gate main-d2 32+128+17+256 rel 1e-04/4e-05/4e-05/4e-05|4e-05/4e-05/4e-05/4e-05 el 6e-03|5e-03 >1e-4 1/2000|0/400 o1 0|0
+SUMMARY moe gate main-m2-ar2-ub 32+128+17+256 rel 5e-05/3e-05/6e-05/3e-05|4e-05/3e-05/5e-05/3e-05 el 5e-03|5e-03 >1e-4 0/2000|0/400 o1 0|0
+SUMMARY moe gate main-dynb-fs 32+128+17+256 rel 7e-05/5e-05/6e-05/3e-05|7e-05/5e-05/6e-05/3e-05 el 5e-03|5e-03 >1e-4 0/2000|0/400 o1 0|0
+SUMMARY moe gate main-lean 32+128+17+256 rel 7e-05/5e-05/6e-05/3e-05|6e-05/5e-05/6e-05/3e-05 el 5e-03|5e-03 >1e-4 0/2000|0/400 o1 0|0
+SUMMARY moe gate main-lean-silu-bar 32+128+17+256 rel 7e-05/5e-05/6e-05/3e-05|6e-05/5e-05/6e-05/3e-05 el 5e-03|5e-03 >1e-4 0/2000|0/400 o1 0|0
+SUMMARY moe gate main-lean-grp-nohoist 32+128+17+256 rel 7e-05/5e-05/6e-05/3e-05|7e-05/5e-05/6e-05/3e-05 el 5e-03|5e-03 >1e-4 0/2000|0/400 o1 0|0
+SUMMARY moe gate main-lean-grp-finss64 32+128+17+256 rel 7e-05/0e+00/6e-05/0e+00|4e-05/0e+00/5e-05/0e+00 el 5e-03|4e-03 >1e-4 0/2000|0/400 o1 0|0
+SUMMARY moe pdl gate 9 variants, failing ones listed
+SUMMARY attn fallback vs fp32 1x1s ours 1.63e-03 sglang 5.21e-02 ours-vs-sglang 5.20e-02; 1x8s ours 3.63e-02 sglang 4.06e-02 ours-vs-sglang 3.09e-02; 1x1f ours 1.75e-03 sglang 6.75e-03 ours-vs-sglang 7.14e-03; 1x8f ours 1.76e-02 sglang 2.19e-02 ours-vs-sglang 1.46e-02
+SUMMARY m1 ok=1 policy {}
+SUMMARY m1 selftest PDL = plain bitwise on 14 launches
+SUMMARY m1 gate stages qkv/attn/o/ffn/xmoe/tw/moe/unp/hid/str; arms off, off2, on (graph, 1000 replays each), eager (M1 off, 200 calls); first = replay index
+SUMMARY m1 gate 1x1s off n1000 rel 0e+00/1e-04/6e-04/5e-04/1e-03/6e-05/4e-03/5e-03/3e-03/3e-03 over(hid) 72 o1[unp:69,hid:69,str:69] ids 0 first>1e-4 2 (attn,o,ffn,xmoe,moe,unp,hid,str) first-o1 2
+SUMMARY m1 gate 1x1s off2 n1000 rel 0e+00/1e-04/6e-04/5e-04/1e-03/6e-05/4e-03/5e-03/3e-03/3e-03 over(hid) 72 o1[unp:69,hid:69,str:69] ids 0 first>1e-4 10 (attn,o,ffn,xmoe,moe,unp,hid,str) first-o1 10
+SUMMARY m1 gate 1x1s on n1000 rel 0e+00/1e-04/6e-04/5e-04/1e-03/6e-05/4e-03/5e-03/3e-03/3e-03 over(hid) 75 o1[unp:75,hid:75,str:75] ids 0 first>1e-4 38 (attn,o,ffn,xmoe,moe,unp,hid,str) first-o1 38
+SUMMARY m1 gate 1x1s eager n200 rel 0e+00/1e-04/6e-04/5e-04/1e-03/6e-05/4e-03/5e-03/3e-03/3e-03 over(hid) 20 o1[unp:20,hid:20,str:20] ids 0 first>1e-4 13 (attn,o,ffn,xmoe,moe,unp,hid,str) first-o1 13
+SUMMARY m1 gate 1x1f off n1000 rel 0e+00/0e+00/0e+00/0e+00/0e+00/0e+00/3e-05/6e-04/5e-04/4e-04 over(hid) 68 o1[] ids 0 first>1e-4 10 (unp,hid,str) first-o1 -1
+SUMMARY m1 gate 1x1f off2 n1000 rel 0e+00/0e+00/0e+00/0e+00/0e+00/0e+00/3e-05/6e-04/5e-04/4e-04 over(hid) 64 o1[] ids 0 first>1e-4 8 (unp,hid,str) first-o1 -1
+SUMMARY m1 gate 1x1f on n1000 rel 0e+00/0e+00/0e+00/0e+00/0e+00/0e+00/3e-05/6e-04/5e-04/4e-04 over(hid) 67 o1[] ids 0 first>1e-4 31 (unp,hid,str) first-o1 -1
+SUMMARY m1 gate 1x1f eager n200 rel 0e+00/0e+00/0e+00/0e+00/0e+00/0e+00/3e-05/6e-04/5e-04/4e-04 over(hid) 12 o1[] ids 0 first>1e-4 6 (unp,hid,str) first-o1 -1
+SUMMARY m1 gate 1x8s off n1000 rel 0e+00/2e-04/4e-04/4e-04/8e-04/8e-05/3e-03/3e-03/2e-03/2e-03 over(hid) 213 o1[ffn:45,moe:68,unp:75,hid:205,str:205] ids 0 first>1e-4 1 (o,xmoe,moe,unp,hid,str) first-o1 1
+SUMMARY m1 gate 1x8s off2 n1000 rel 0e+00/2e-04/4e-04/4e-04/8e-04/8e-05/3e-03/3e-03/2e-03/2e-03 over(hid) 209 o1[ffn:45,moe:52,unp:57,hid:197,str:197] ids 0 first>1e-4 3 (o,ffn,xmoe,moe,unp,hid,str) first-o1 3
+SUMMARY m1 gate 1x8s on n1000 rel 0e+00/2e-04/4e-04/4e-04/8e-04/8e-05/3e-03/3e-03/2e-03/2e-03 over(hid) 318 o1[ffn:55,moe:93,unp:98,hid:307,str:307] ids 0 first>1e-4 2 (o,xmoe,moe,unp,hid,str) first-o1 2
+SUMMARY m1 gate 1x8s eager n200 rel 0e+00/2e-04/4e-04/4e-04/8e-04/8e-05/3e-03/3e-03/2e-03/2e-03 over(hid) 46 o1[ffn:9,moe:13,unp:18,hid:41,str:41] ids 0 first>1e-4 8 (attn,o,ffn,xmoe,moe,unp,hid,str) first-o1 8
+SUMMARY m1 gate 1x8f off n1000 rel 0e+00/8e-05/3e-04/3e-04/6e-04/3e-05/2e-03/2e-03/1e-03/1e-03 over(hid) 44 o1[moe:25,unp:1,hid:25,str:25] ids 0 first>1e-4 25 (ffn,xmoe) first-o1 56
+SUMMARY m1 gate 1x8f off2 n1000 rel 0e+00/8e-05/3e-04/3e-04/6e-04/3e-05/2e-03/2e-03/1e-03/1e-03 over(hid) 44 o1[moe:31,unp:2,hid:31,str:31] ids 0 first>1e-4 2 (unp,hid,str) first-o1 49
+SUMMARY m1 gate 1x8f on n1000 rel 0e+00/8e-05/3e-04/3e-04/6e-04/3e-05/2e-03/2e-03/1e-03/1e-03 over(hid) 47 o1[moe:31,unp:2,hid:31,str:31] ids 0 first>1e-4 7 (xmoe,moe,unp,hid,str) first-o1 7
+SUMMARY m1 gate 1x8f eager n200 rel 0e+00/1e-05/1e-04/1e-04/4e-04/1e-05/1e-03/2e-03/8e-04/7e-04 over(hid) 9 o1[moe:6,hid:6,str:6] ids 0 first>1e-4 42 (xmoe,moe,unp,hid,str) first-o1 42
+SUMMARY m1 gate 16x1s off n1000 rel 0e+00/1e-04/3e-04/3e-04/6e-04/1e-02/3e-03/3e-03/1e-03/1e-03 over(hid) 186 o1[tw:14,moe:64,unp:69,hid:69,str:69] ids 14 first>1e-4 1 (xmoe,moe,unp,hid,str) first-o1 1
+SUMMARY m1 gate 16x1s off2 n1000 rel 0e+00/1e-04/3e-04/3e-04/6e-04/1e-02/2e-03/2e-03/1e-03/1e-03 over(hid) 197 o1[tw:16,moe:72,unp:76,hid:76,str:76] ids 16 first>1e-4 1 (attn,o,ffn,xmoe,hid,str) first-o1 2
+SUMMARY m1 gate 16x1s on n1000 rel 0e+00/1e-04/3e-04/3e-04/6e-04/1e-02/2e-03/2e-03/1e-03/1e-03 over(hid) 182 o1[tw:26,moe:66,unp:71,hid:71,str:71] ids 26 first>1e-4 1 (o,xmoe) first-o1 15
+SUMMARY m1 gate 16x1s eager n200 rel 0e+00/1e-04/3e-04/3e-04/6e-04/1e-02/3e-03/3e-03/1e-03/1e-03 over(hid) 39 o1[tw:7,moe:15,unp:15,hid:15,str:15] ids 7 first>1e-4 1 (o,xmoe) first-o1 20
+SUMMARY m1 gate 16x1f off n1000 rel 0e+00/1e-04/4e-04/3e-04/7e-04/5e-05/2e-03/2e-03/1e-03/1e-03 over(hid) 247 o1[moe:157,unp:157,hid:157,str:157] ids 0 first>1e-4 3 (o,ffn,xmoe,moe,unp,hid,str) first-o1 3
+SUMMARY m1 gate 16x1f off2 n1000 rel 0e+00/1e-04/4e-04/3e-04/6e-04/5e-05/2e-03/2e-03/1e-03/9e-04 over(hid) 253 o1[ffn:1,moe:166,unp:166,hid:167,str:166] ids 0 first>1e-4 6 (o,ffn,xmoe,moe,unp,hid,str) first-o1 6
+SUMMARY m1 gate 16x1f on n1000 rel 0e+00/1e-04/4e-04/3e-04/6e-04/5e-05/2e-03/2e-03/1e-03/9e-04 over(hid) 243 o1[moe:153,unp:153,hid:153,str:153] ids 0 first>1e-4 3 (unp,hid,str) first-o1 4
+SUMMARY m1 gate 16x1f eager n200 rel 0e+00/1e-04/3e-04/2e-04/5e-04/4e-05/2e-03/2e-03/1e-03/9e-04 over(hid) 35 o1[moe:25,unp:25,hid:25,str:25] ids 0 first>1e-4 7 (attn,o,ffn,xmoe,moe,unp,hid,str) first-o1 7
+SUMMARY m1 gate 32x1s off n1000 rel 0e+00/4e-05/2e-04/2e-04/5e-04/3e-05/1e-03/1e-03/1e-03/9e-04 over(hid) 525 o1[moe:190,unp:190,hid:190,str:190] ids 0 first>1e-4 2 (unp) first-o1 5
+SUMMARY m1 gate 32x1s off2 n1000 rel 0e+00/4e-05/2e-04/2e-04/5e-04/3e-05/1e-03/1e-03/1e-03/9e-04 over(hid) 544 o1[moe:182,unp:182,hid:182,str:182] ids 0 first>1e-4 2 (o,ffn,xmoe,hid) first-o1 3
+SUMMARY m1 gate 32x1s on n1000 rel 0e+00/4e-05/2e-04/2e-04/5e-04/3e-05/1e-03/1e-03/1e-03/9e-04 over(hid) 531 o1[moe:177,unp:177,hid:177,str:177] ids 0 first>1e-4 1 (xmoe,moe,unp,hid,str) first-o1 1
+SUMMARY m1 gate 32x1s eager n200 rel 0e+00/4e-05/2e-04/2e-04/4e-04/3e-05/1e-03/1e-03/1e-03/9e-04 over(hid) 117 o1[moe:39,unp:39,hid:39,str:39] ids 0 first>1e-4 1 (xmoe,moe,unp,hid,str) first-o1 1
+SUMMARY m1 gate 32x1f off n1000 rel 0e+00/5e-05/2e-04/2e-04/5e-04/3e-05/2e-03/2e-03/9e-04/8e-04 over(hid) 648 o1[moe:435,unp:436,hid:441,str:439] ids 0 first>1e-4 1 (xmoe,moe,unp,hid,str) first-o1 1
+SUMMARY m1 gate 32x1f off2 n1000 rel 0e+00/5e-05/2e-04/2e-04/5e-04/2e-05/2e-03/2e-03/9e-04/8e-04 over(hid) 650 o1[moe:428,unp:429,hid:435,str:430] ids 0 first>1e-4 1 (unp) first-o1 2
+SUMMARY m1 gate 32x1f on n1000 rel 0e+00/5e-05/2e-04/2e-04/5e-04/2e-05/2e-03/2e-03/1e-03/9e-04 over(hid) 660 o1[moe:442,unp:445,hid:451,str:447] ids 0 first>1e-4 2 (xmoe,moe,unp,hid,str) first-o1 2
+SUMMARY m1 gate 32x1f eager n200 rel 0e+00/4e-05/2e-04/1e-04/4e-04/2e-05/2e-03/2e-03/9e-04/8e-04 over(hid) 119 o1[moe:80,unp:80,hid:83,str:82] ids 0 first>1e-4 1 (o,xmoe,moe,unp,hid,str) first-o1 1
+SUMMARY m1 chain s plain/pdl us: T=8 attn-o-bnd 23.6/20.9 (+2.69) bnd-front 37.2/35.7 (+1.47); T=16 attn-o-bnd 25.8/23.9 (+1.89) bnd-front 36.5/36.5 (+0.03); T=32 attn-o-bnd 29.0/26.5 (+2.43) bnd-front 38.5/38.1 (+0.38)
+SUMMARY m1 chain f plain/pdl us: T=8 attn-o-bnd 32.0/31.3 (+0.70) bnd-front 37.1/35.6 (+1.50); T=16 attn-o-bnd 107.9/105.4 (+2.46) bnd-front 36.8/36.4 (+0.38); T=32 attn-o-bnd 185.2/181.9 (+3.33) bnd-front 38.5/38.1 (+0.35)
+SUMMARY m1 T=8 step s/f off 105.9/105.9 o 104.1/105.1 o+front 100.5/102.6 load off 105.9 o 104.4 o+front 101.1 -> o+front
+SUMMARY m1 T=16 step s/f off 153.4/229.1 o 150.9/227.0 o+front 150.0/226.6 load off 172.9 o 170.5 o+front 169.8 -> o+front
+SUMMARY m1 T=32 step s/f off 217.7/360.1 o 215.0/358.1 o+front 214.7/357.1 load off 254.5 o 251.9 o+front 251.4 -> o+front
+SUMMARY m1 diagnostic, policy left empty; would be {8: 'o+front', 16: 'o+front', 32: 'o+front'}
+SUMMARY m1 open: whole step at 8 tokens sliding saves 5.34 us
+SUMMARY moe T=1: sk8w3s [sk8w3s 33.7 sk8w4s-er 35.3 sk16w4s 37.1 w4 45.2] judge-like routing, busiest expert [1, 1, 1, 1] w4 g1=17 g2=21 pdl=1 cl=8 front fp32
+SUMMARY moe T=8: sk8w3s [sk8w3s 75.5 sk8w4s-er 78.2 sk16w4s 81.0 w4 87.5] judge-like routing, busiest expert [4, 2, 3, 4] w4 g1=2 g2=24 pdl=1 cl=1 front skf-r
+SUMMARY moe T=16: sk8w3s [sk8w3s 71.3 sk8w4s-er 73.5 sk16w4s 75.7 w4 83.0] judge-like routing, busiest expert [7, 7, 8, 7] w4 g1=26 g2=28 pdl=1 cl=4 front skf-r
+SUMMARY moe T=32: main-lean-grp-finss64 [main-lean-grp-finss64 96.2 main-lean-grp-nohoist 96.4 main-lean-silu-bar 98.4 main-lean 100.3 main-dynb-fs 105.8 sk8w3s 111.4 sk8w4s-er 117.4 w4 118.2 main-m2-ar2-ub 122.2 sk16w4s 122.3] judge-like routing, busiest expert [13, 14, 17, 15] w4 g1=26 g2=28 pdl=1 cl=8 front skf-r
+SUMMARY moe T=128: main-lean-grp-finss64 [main-lean-grp-finss64 169.2 main-lean-grp-nohoist 176.8 main-lean-silu-bar 179.7 main-lean 182.5 main-dynb-fs 190.5 main-m2-ar2-ub 215.4 w4 241.6 sk8w3s 258.3 sk8w4s-er 274.2 sk16w4s 283.4] judge-like routing, busiest expert [34, 44, 37, 41] w4 g1=4 g2=29 pdl=1 cl=1 front concat-r
+SUMMARY moe T=256: main-lean-grp-finss64 [main-lean-grp-finss64 223.5 main-lean-grp-nohoist 227.3 main-lean-silu-bar 230.5 main-lean 234.9 main-dynb-fs 245.1 main-m2-ar2-ub 279.5 w4 364.4 sk8w3s 450.7 sk8w4s-er 478.7 sk16w4s 493.5] judge-like routing, busiest expert [75, 83, 78, 85] w4 g1=30 g2=29 pdl=1 cl=1 front concat-r
+SUMMARY front T=1 (front / front+moe us): fp32 25.4/59.6 skf 30.8/63.7
+SUMMARY front T=8 (front / front+moe us): skf-r 32.6/112.6 skf 31.5/112.8 fp32 38.9/121.3
+SUMMARY front T=16 (front / front+moe us): skf-r 33.1/119.5 skf 31.7/119.8 concat-r 37.0/122.7 concat 38.0/125.0 mma 37.3/125.9 split 42.7/131.9
+SUMMARY front T=32 (front / front+moe us): skf-r 35.2/161.2 concat-r 37.2/163.3 skf 33.9/164.4 concat 37.9/168.4 mma 39.7/173.0 split 44.9/177.6
+SUMMARY front T=128 (front / front+moe us): concat-r 38.5/240.0 concat 39.3/243.4 wide 41.7/256.9 split 47.8/262.3
+SUMMARY front T=256 (front / front+moe us): concat-r 44.8/284.0 concat 46.0/289.1 split 60.4/308.9
+SUMMARY abnd occupancy (CTAs/SM, resident clusters) c8x256=8,124 c2x512=2,132 c4x256=5,154 c1x256=3,396 c1x512=2,264 c1x1024=1,132
+SUMMARY abnd T=1: c8x256 [c8x256 14.21 c1x1024 14.43 sglang 14.75 c4x256 14.91 c2x512 15.17 c1x512 15.33 c1x256 16.67]
+SUMMARY abnd T=8: c8x256 [c8x256 16.38 c1x1024 16.54 sglang 16.74 c4x256 17.02 c1x512 17.50 c2x512 17.57 c1x256 18.72]
+SUMMARY abnd T=16: sglang [sglang 15.33 c1x1024 15.46 c8x256 15.81 c1x512 16.42 c4x256 16.58 c2x512 16.77 c1x256 17.60]
+SUMMARY abnd T=32: sglang [sglang 15.90 c1x1024 16.61 c1x512 16.86 c8x256 16.99 c4x256 17.44 c2x512 17.60 c1x256 18.53]
+SUMMARY abnd T=128: sglang [sglang 18.14 c1x1024 18.56 c1x512 18.82 c2x512 19.62 c4x256 19.78 c1x256 20.10 c8x256 22.66]
+SUMMARY abnd T=256: c1x512 [c1x512 22.62 sglang 22.85 c1x256 23.49 c1x1024 23.71 c2x512 26.37 c4x256 26.62 c8x256 29.79]
+SUMMARY attn d1 sliding: attn_one plan(splits,nc,mode)=(32, 1, 13)
+SUMMARY attn d1 full: attn_one plan(splits,nc,mode)=(252, 8, 11)
+SUMMARY attn d16 sliding: attn_one plan(splits,nc,mode)=(16, 1, 1)
+SUMMARY attn d16 full: attn_one plan(splits,nc,mode)=(264, 1, 49)
+SUMMARY attn d32 sliding: attn_one plan(splits,nc,mode)=(8, 1, 1)
+SUMMARY attn d32 full: attn_one plan(splits,nc,mode)=(264, 1, 49)
+SUMMARY attn v1 sliding: attn_one plan(splits,nc,mode)=(33, 1, 15)
+SUMMARY attn v1 full: attn_one plan(splits,nc,mode)=(252, 8, 11)
+SUMMARY attn v16 sliding: attn_one plan(splits,nc,mode)=(8, 1, 3)
+SUMMARY attn v16 full: attn_one plan(splits,nc,mode)=(264, 1, 51)
+SUMMARY attn v32 sliding: attn_one plan(splits,nc,mode)=(4, 1, 3)
+SUMMARY attn v32 full: attn_one plan(splits,nc,mode)=(264, 1, 51)
+SUMMARY failed 3: moe1 stress sk8w4s: moe fused stress: T=8+16+1+32+8 sk8w4s fresh-input gate: 2000 replays (one host sync after them) against 400 eager calls, 4 input sets per call, per call size c; moe1 stress main-d2: moe fused stress: T=32+128+17+256 main-d2 fresh-input gate: 2000 replays (one host sync after them) against 400 eager calls, 4 input sets per call, per call siz; front skf-r T=1 (MoE output moved 1.3e-04 over 200 replays)
+USDT:2026-10-30 02:17:24 77:77 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-10-30 02:17:24 77:77 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-10-30 02:17:24 77:77 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-10-30 02:17:24 77:77 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-10-30 02:17:24 77:77 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-10-30 02:17:24 77:77 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-10-30 02:17:24 77:77 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-10-30 02:17:24 77:77 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-10-30 02:17:24 77:77 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-10-30 02:17:24 77:77 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-10-30 02:17:25 77:77 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-10-30 02:17:25 77:77 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-10-30 02:17:25 77:77 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-10-30 02:17:25 77:77 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-10-30 02:17:25 77:77 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-10-30 02:17:25 77:77 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-10-30 02:17:25 77:77 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-10-30 02:17:25 77:77 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-10-30 02:17:25 77:77 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-10-30 02:17:25 77:77 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-10-30 02:17:25 77:77 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-10-30 02:17:25 77:77 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-10-30 02:17:25 77:77 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-10-30 02:17:25 77:77 SyncActivityProfilerHandler.cpp:46] profiler_stop

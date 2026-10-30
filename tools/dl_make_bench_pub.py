@@ -46,6 +46,7 @@ belongs in the session scratchpad; only the logs of its runs are committed.
             durations (above span when kernels overlap, PDL secondaries included from launch,
             so their time counts waits in griddepcontrol.wait). ABKN maps the codes to names.
   ABCHK     per arm, checks passed of checks run; failing checks print as ABCHKFAIL.
+  ABCAND    the candidate's prepare-time reports (m1_report, the MoE gate, _FAILED), last.
   ABZ       for the shapes named by --tlend=v1s,d32f,...: the median replay's kernels in start
             order as code@start+duration/exposed (exposed: how far the kernel moves the
             latest end so far, so the exposed times sum to the span), printed last.
@@ -715,6 +716,14 @@ def prepare(weights):
     _ab_print("ABDIAG cand attention fallback on fresh rows vs FP32: "
               + str(state.get("one_fallback_fp32", "not run"))
               + f"; attn_one_ours={int(bool(state.get('attn_one_ours')))}")
+    # The candidate's own prepare-time reports (M1 gate and timing, MoE gate, failures) print
+    # last, since its SUMMARY lines fall out of the 16 KB tail behind the bench's tables.
+    for item in state.get("m1_report", []):
+        _ab_print(f"ABCAND m1 {item[:400]}")
+    for name, item in state.get("moe1_gate", {}).items():
+        _ab_print(f"ABCAND moe gate {name} {item}")
+    for item in _FAILED:
+        _ab_print(f"ABCAND failed {item[:200]}")
     if _AB_OTHER_MOD is not None:
         try:
             import contextlib
@@ -750,7 +759,7 @@ def prepare(weights):
     # then the per-kernel tables with their code names.
     order = ("ABTL", "ABCHECK", "ABBUILD", "ABPREP", "ABPIN", "ABDIAG", "ABOTHER", "ABARMS",
              "ABFAIL", "ABCHKFAIL", "ABCHK", "ABSTOP", "ABTIME", "ABLOAD", "ABSCORE", "ABKN",
-             "ABK ", "ABZ ")
+             "ABK ", "ABZ ", "ABCAND")
     rank = lambda line: next((i for i, p in enumerate(order) if line.startswith(p)), 0)  # noqa: E731
     for line in sorted(_AB_OUT, key=rank):
         print(line, flush=True)
