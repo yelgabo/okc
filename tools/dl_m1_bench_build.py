@@ -1,7 +1,7 @@
 """Build the M1 measurement file (not a candidate) from a gated M1 file
 (tools/dl_gate_patch.py --m1 output), for a same-process bench against the release.
 
-    python3 tools/dl_m1_bench_build.py GATED_M1.py OUT.py
+    python3 tools/dl_m1_bench_build.py GATED_M1.py OUT.py [--no-pf-probe]
 
 - M1's fresh-input gate reports and never blocks: check 60cf58b69b75491e showed the M1-off
   control itself has order-1 element errors on fresh inputs (MoE output tails, routing flips at
@@ -100,6 +100,12 @@ def main():
          "# okc: problem=muse_decode_layer\n# M1 measurement build (not a candidate): gate "
          "report-only, MoE prefetch probe.\n", 1),
     ]
+    if "--no-pf-probe" in sys.argv:
+        # The prefetch question is closed (fdf75ba5a8124544); M1 is then timed with the MoE
+        # source exactly as the release builds it.
+        probe = ("p.pdl", "variant & 255", "MOE1_NOPF", "_moe_pf_probe")
+        reps = [r for r in reps if not any(s in r[1] for s in probe)]
+        reps = [(o, n.replace("MoE prefetch probe", "M1 runtime issue order"), c) for o, n, c in reps]
     for old, new, n in reps:
         if text.count(old) != n:
             raise SystemExit(f"expected {n} of {old[:70]!r}, found {text.count(old)}")
