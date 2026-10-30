@@ -1,6 +1,6 @@
 # Architecture performance tracker
 
-Last review: 2026-10-29 23:35 PDT. Evidence snapshot: `dd1777e`.
+Last review: 2026-10-30 00:32 PDT. Evidence snapshot: `a48edef`.
 First review reconciles progress since `aab7d75`, the snapshot in the
 [architecture-family guide](architecture-families-2026-10-29.md).
 This is a review of recorded experiments, not a new benchmark run.
@@ -16,9 +16,53 @@ named control, not changes in aggregate score. Families overlap; their gains can
 | B. Staged grouped MoE | Retested loss | Modes 45 + 46 on mode 37 components lose 30.4/24.4 us at 128/256 versus 37, six seeds each. | Parked until phase B alone drops below about 50 us at 128 or the fused phase A tail disappears. |
 | C. Owner-completes tiles | Retained in the persistent descendants | Mode 20's owned phase A saves about 2-3 us at 128 and 4 us at 256 over mode 16. Later modes combine ownership with other changes. | Later gains cannot be credited to ownership alone. |
 | D. Dependency-aware scheduling | Dynamic claiming retained; split-tail variants lose | Modes 52/53 split the last claimed phase B units through fixup and lose at 32/128/256. | Full ready-only scheduling remains untested; do not generalize the split-tail loss to the family. |
-| E. Attention producer-consumer pipeline | Component gains; combined layer gain | DCARRY/PK16/VHOIST now runs in the winning layer package; corrected FIN8 plan/replay checks pass. | Package gain is shared with A and projection changes. Runtime-order M1 + 51 has a combined signal, not isolated E credit. Mode-49 history diagnostic supports merge-order rounding; new enforced-gate M1 candidate remains untested. |
+| E. Attention producer-consumer pipeline | Component gains; combined layer gain | DCARRY/PK16/VHOIST now runs in the winning layer package; corrected FIN8 plan/replay checks pass. | Package gain is shared with A and projection changes. Runtime-order M1 + 51 has a combined signal, not isolated E credit. Mode-49 history diagnostic supports merge-order rounding; scored M1 candidates do not confirm enabled-M1 gains; revised gate candidates remain untested. |
 
-## Latest review: mode 51 layer gain unresolved after arm-bias checks
+## Latest review: scored candidates do not resolve M1 gains
+
+Board remains `3fbb3ad027e84c6b`, 2.014x. Two new scored readings are cross-run observations,
+not controlled timing gains, and do not change the unresolved mode-51 layer conclusion:
+
+| Job / file | Score and correctness | M1 status | Interpretation |
+|---|---|---|---|
+| `b68bdcd7a1ba464c`, layer_m1rt, SHA256 `d6958449`, byte-identical to `dd1777e` | 2.013x (1.983-2.043), 13/13, prepare 143.1 s | Unknown: SUMMARY and policy lost from log tail | Cannot credit this score to enabled M1 |
+| `d6c30f88c617438b`, layer_m1rt51 at `7cdb755`, SHA256 `65264f31` | 2.013x (1.983-2.043), 13/13, prepare 154.8 s | Off for the entire timed run, policy empty | Measures mode 51 in the SK_PDL/ONE_TRIG build with M1 off |
+
+For `d6c30`, the first gate shape, decode 1 sliding, has one replay in 2,000 with relative
+hidden/stream error 3.2e-4/1.9e-4 versus a bitwise control. Only the maximum-error envelope
+fails; order-1 count is zero and the other criteria pass. At this token count both arms use
+cgemv for o and fp32 front, so M1 changes no launch. This is not an isolated M1 ordering
+failure; rare rounding noise is the report's hypothesis, with a reproduction prepared but
+unrun. All 11 MoE variants pass their gates, no variant is rejected, mode 51 is bitwise at
+128/256, and the picker chooses 51 at 32/128/256. Whole-layer times at 128 are
+268.6/351.6 us, at 256 345.2/513.6, sliding/full; no paired control supplies a gain delta.
+[Run log](runs-decode-layer.md), [raw gate results](../muse_decode_layer/profiles/layer_m1rt51.d6c30f88c617438b.log).
+
+Two route negative controls fail sensitivity at 32: the row injection replaces a zero row
+with another zero row and changes no output. This is a test-injection defect, not a measured
+route correctness failure. The new tool chooses differing rows/values; synthetic CPU tests
+reproduce old misses and remove row misses. GPU validation of the revised files is pending.
+[Failure analysis](steering/2026-10-30-m1-1x1s-gate-failure.md).
+
+The run log records a user decision to judge M1 only on shapes whose captured candidate graph
+actually launches an M1 PDL secondary, with unchanged bounds on those shapes. If the launch
+census fails, the gate still judges the shape. This review reports that record and changes
+no validation. Prepared files, all without a new GPU check:
+
+- `layer_m1rt51c`, SHA256 `1eda8ec9`: runtime M1 + 51, census skip and negative-control fix;
+  rebuilt at `a48edef`, no device-code change from layer_m1rt51.
+- `layer_g51b`, SHA256 `acd2385c`: release + 51, current gate and W4 early-exit wait fix,
+  no M1. The previous four-arm mode-51 result remains unresolved.
+- `layer_stable`, SHA256 `752123dd`: diagnostic build, not a candidate; release with nine interleaved tuner rounds, a paired
+  margin and 8/9 winning-round rule before replacing the receipt's preferred pick. CPU
+  tests retain a true tie in 1991/2000 draws and accept the synthetic 2 us win in 500/500;
+  these are rule tests, not GPU speed or stability results. Four-arm A/A is prepared.
+- Targeted 1x1 reproduction diagnostic: compiled/CPU-smoke-tested, not run on the judge.
+
+[Manifest](release-manifest.md), [tuner-stability design](plan-2026-10-30-tuner-stability.md).
+A-E component standings, B's retest loss and the four-arm uncertainty remain unchanged.
+
+## Historical review, 23:35: mode 51 layer gain unresolved after arm-bias checks
 
 The earlier three-arm bench timed the candidate twice using the same prepared state, but the
 incumbent only once. It could not distinguish a candidate gain from an incumbent-arm penalty.
@@ -552,19 +596,26 @@ Losses matter as much as wins:
 Board remains `3fbb3ad027e84c6b`, 2.014x (1.984-2.045), mode 47. Mode 51 has component wins,
 but its layer gain is unresolved by the four-arm/null rule; earlier three-arm magnitudes are
 not established isolated gains. Runtime M1 + 51 shows a combined heuristic win with arm-offset
-and cross-run attribution limits. Exact enforced-gate M1 + 47 candidate is unchecked.
+and cross-run attribution limits. The enforced-gate M1 + 47 file has a 2.013x scored run with unknown M1 status; the M1 + 51
+file scores 2.013x with M1 off. Revised census-gate candidates are unchecked.
 [Manifest](release-manifest.md), [arm-bias audit](steering/2026-10-30-layer-bench-arm-bias.md).
 
 ## Decision and next evidence needed
 
-Preserve the release. Check the exact enforced-gate candidate before promoting it, and stabilize
-prepare-time policies so layer comparisons can resolve small effects. The tuner-stability design
-is prepared, not measured. Keep mode 51's component gains separate from its unresolved layer
+Preserve the release. Check the revised census-gate candidate before promoting it, and stabilize
+prepare-time policies so layer comparisons can resolve small effects. The tuner-stability build
+has CPU tests but no GPU measurement. Keep mode 51's component gains separate from its unresolved layer
 result. The tested mode-49 history lead supports merge-order rounding; ordering reviews are
 complete within their scope. B remains parked, and the new gather variants do not revive it.
 D's full ready-only queue is still untested. [Rejection register](ruled-out.md).
 
 ## Review history and checkpoint
+
+- 2026-10-30 00:32 PDT: reviewed `5b5571e..a48edef`, scored runs `b68bdcd7a1ba464c` and
+  `d6c30f88c617438b`, gate failure analysis, updated manifest and unrun census/stable-tuner
+  builds. No new paired comparison; latest four-arm checkpoint remains `40b9b3f795f84073`.
+  Other component streams unchanged. Existing 18 untracked JSON profiles are already logged.
+  Origin/main fetched, no remote-only commits. Board and family timing conclusions unchanged.
 
 - 2026-10-29 23:35 PDT: reviewed `a9a6381..dd1777e`, four-arm calibration/comparisons
   `724aa0dd6ed140ca`, `2dc566298be1498f`, `40b9b3f795f84073`, older newly incorporated runtime

@@ -1,11 +1,11 @@
 {
-  "reviewed_at": "2026-10-29T23:35:00-07:00",
-  "snapshot": "dd1777e",
+  "reviewed_at": "2026-10-30T00:32:00-07:00",
+  "snapshot": "a48edef",
   "layer": {
     "score": "2.014\u00d7",
     "interval": "1.984\u20132.045",
     "job": "3fbb3ad027e84c6b",
-    "note": "Release unchanged. Mode 51 layer gain is unresolved in the four-arm bench. Runtime M1 + 51 gives a combined signal; the exact enforced-gate M1 + 47 candidate is unchecked."
+    "note": "Release remains 2.014\u00d7. New M1 candidates score 2.013\u00d7: M1 status unknown in one, explicitly off in the other. Revised census-gate and stable-tuner builds await GPU tests."
   },
   "families": [
     {
@@ -17,7 +17,10 @@
       "unit": "Mode 51 four-arm layer ratio, below noise gate",
       "summary": "Mode 51 component wins stand. Its earlier three-arm layer gain is unestablished because the control arm can run slow.",
       "layer": "Mode 47 released; mode 51 layer result inconclusive",
-      "pending": [],
+      "pending": [
+        "layer_g51b: mode 51 with revised gate",
+        "layer_m1rt51c: mode 51 + M1, revised census gate"
+      ],
       "limit": "Four-arm nulls are 0.9898 / 0.9972, with prepare-time policy differences. Older isolated layer magnitudes need the arm-bias caveat. Gather mode 57 loses; 59 ties.",
       "source": "runs-decode-layer.md"
     },
@@ -70,7 +73,7 @@
       "summary": "DCARRY / PK16 / VHOIST remains integrated. Mode-49 history diagnostics support merge-order rounding, not carried input values.",
       "layer": "Integrated and layer-tested with A + projections",
       "pending": [],
-      "limit": "Runtime M1 + mode 51 has a combined signal, not an isolated E gain. The fenced design has independent ordering reviews. Exact enforced-gate M1 + 47 candidate remains unchecked.",
+      "limit": "Runtime M1 + 51 has a combined signal, not isolated E credit. Scored M1 runs are unknown/off; revised census gate is untested. Ordering reviews and mode-49 rounding diagnosis remain valid within scope.",
       "source": "runs-attention.md"
     }
   ]
