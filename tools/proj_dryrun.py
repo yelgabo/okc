@@ -94,12 +94,28 @@ class FakeExt:
         name = self.mod.WD_NAMES[cid]
         wg, bn, clk, clr, hl, nst = self.mod.wd_geom(name)
         m = x.shape[0]
+        var = self.mod.WD_VAR.get(name, 0)
         assert x.dtype == torch.bfloat16 and x.is_contiguous() and x.shape == (m, k) and 1 <= m <= 256, name
-        assert w.dtype == torch.bfloat16 and w.is_contiguous() and w.shape == ((2 if hl else 1) * n, k), name
+        if var & self.mod.WV_PACK:
+            assert hl and w.shape == (n // 64 * (k // 64) * 128, 64), (name, tuple(w.shape))
+        else:
+            assert w.shape == ((2 if hl else 1) * n, k), name
+        assert w.dtype == torch.bfloat16 and w.is_contiguous(), name
         assert n % (64 * wg * clr) == 0 and k // 64 >= clk and k % 64 == 0, name
         assert clk * clr <= 16 and bn % clr == 0 and (bn // clr) % 8 == 0, name
+        if var & self.mod.WV_PUSH:
+            assert clr == 1 and hl and (bn // clk) % 8 == 0, name
         assert out.shape == (m, n) and out.dtype == (torch.float32 if hl else torch.bfloat16), name
-        assert self.mod.wd_smem(wg, bn, clk, clr, hl, nst) <= 227 * 1024, name
+        assert self.mod.wd_smem(wg, bn, clk, clr, hl, nst, var) <= 227 * 1024, name
+        self.calls.append((name, m))
+        out.zero_()
+
+    def rt_fwd(self, cid, wp, x, out, diag):
+        name = self.mod.RT_NAMES[cid]
+        m = x.shape[0]
+        assert x.dtype == torch.bfloat16 and x.is_contiguous() and x.shape == (m, 8192) and 1 <= m <= 32, name
+        assert wp.is_contiguous() and wp.numel() * wp.element_size() == 256 * 8192 * 4, name
+        assert out.shape == (m, 256) and out.dtype == torch.float32, name
         self.calls.append((name, m))
         out.zero_()
 
