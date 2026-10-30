@@ -304,6 +304,19 @@ in place) for 50 replays. Every other stress asserts its scored plan too: 1x1 sl
   kernels, spills only in the four-chunk cgemv instances the layer does not run. Used only if
   the combined candidate is neutral or mixed.
 
+### M1 follow-up file (2245513): LATE_ARRIVE against the standalone
+
+SASS of the layer's projection extension as PORT_SK_PDL builds it (`-DSK_PDL=1`,
+`tools/dl_moe_sass_counts.sh ... skp1`) against `muse_bf16_proj/submission.py` at 31b853d built
+device-only with `-DSK_PDL=1` (the steering evidence's `gen_sk.py`), CUDA 12.8.1, sm_90a: the 26
+kernels present in both have identical counts of every FENCE, MEMBAR, SYNCS (mbarrier), BAR,
+ERRBAR, CCTL, UBLKCP, UTMALDG, ACQBULK, WARPSYNC, VOTE, LDL and STL opcode and identical
+instruction totals. That includes the four LATE_ARRIVE instances (MT 2, UPW 2): sk<2,32,3,1,4,2,4>
+(qkv32) and sk<2,32,2,2,2,2,3> (o32, unp32), compressed and raw: FENCE 5 / 8, SYNCS 18 / 32 and
+16 / 30, BAR 3, WARPSYNC 3 / 9, MEMBAR 3 / 5, ACQBULK 1. Layer-only kernels: the four cgemv
+instances (the device-only standalone build leaves cgemv out) and the fused pooler + router at 32
+tokens (UPW 4, so not LATE_ARRIVE). No spills (earlier compile check).
+
 ### Summary manifest in the log tail
 
 SUMMARY now also prints the SKP self-test count with the layers whose cgemv passed, the three
