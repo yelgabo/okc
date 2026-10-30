@@ -1,0 +1,42 @@
+Mode 47 (code groups without the hoist), 2026-10-30: the compile gate of the pre-registered rule
+(docs/runs-moe.md, "Mode 47 gate", condition 5). tools/moe_compile_fused.sh (nvcc 12.8, sm_90a,
+docker nvidia/cuda:12.8.1-devel). Instruction text compared per kernel with addresses and
+immediates stripped.
+
+Builds:
+- parent: submission.py at 4daacf6 (the commit before a4687c8 added 47), MAIN_MODES (0, 16, 26, 28, 37)
+- shipped37: submission.py at 96f2c43 (the mode 37 board entry, 6307d0c91c8d4ada), same MAIN_MODES
+- after: submission.py at 20c295e with MAIN_MODES (0, 16, 26, 28, 37, 47), the kernel source of ec565a7
+
+parent vs after: identical 9, different 1 (moe_main_kernel<47>, only in after). Every production
+kernel (fat 0, 16, 26, 28, 37; skinny sk_8_4_0, sk_16_4_0, sk_8_4_1, sk_8_3_0) has the same
+instruction text.
+shipped37 vs after: fat 0, 16, 26, 28, 37 identical; the skinny kernels differ through the skinny
+changes landed between 96f2c43 and 4daacf6 (sk8w3s and its siblings), not through 47.
+
+ptxas warnings: no C7510-C7515 in either build; the same #177-D remarks as before.
+
+ptxas, after (96 registers in every fat kernel):
+mode 47: 8 bytes stack frame, 4 bytes spill stores, 88 bytes spill loads
+mode 37: 56 bytes stack frame, 156 bytes spill stores, 416 bytes spill loads
+mode 28: 80 / 184 / 512; mode 26: 64 / 120 / 308; mode 16: 80 / 136 / 228; mode 0: 80 / 136 / 236
+skinny kernels: no spills
+
+wgmma pipelining (tools/moe_sass_counts.sh): 47 equals 37, HGMMA 192, wait1 96, wait0 12,
+arrive 96, HMMA 96, LDSM 48.
+
+Stage loops (innermost loop with 16 HGMMA per n-tile count and phase): 387-394 instructions,
+no LDL or STL in any of them. The enclosing unit loops have 1 LDL each and no STL. Whole kernel:
+16,360 instructions, LDL 22, STL 1, MEMBAR 43, FENCE.VIEW.ASYNC.S 21, SYNCS.ARRIVE 48.
+
+Layer copy (scratch, not committed): tools/dl_moe_inline.py from the layer branch
+worktree-agent-ae0a55834da6c04d4 (c73ba2a) with LAYER_MODES (0, 16, 26, 28, 37, 47) and
+MAIN_NAMES 47: "main-lean-grp-nohoist", run on that branch's muse_decode_layer/submission.py
+with this source (MAIN_MODES and MAIN_CANDIDATES with 47). Anchors and the PDL preamble patch
+applied; two runs byte-identical; variants [..., 'main-lean-silu-bar', 'main-lean-grp-nohoist'].
+tools/dl_moe_compile_check.sh: moe1::moe_main_kernel<47> 96 registers, 8 B frame, 4 / 88 B
+spills (as standalone), no C75xx. tools/dl_moe_sass_counts.sh, layer 47: instr 16354,
+FENCE.S 22, MEMBAR 43, UBLKPF 1, ACQBULK 1, LDL 22, STL 1. Counted the same way on both dumps
+(the stage-loop script): FENCE.VIEW.ASYNC.S 22 in the layer copy against 21 standalone (the
+preamble's fence.mbarrier_init), MEMBAR 43 and LDL 22 / STL 1 equal. Stage loops of the layer
+copy: 387-394 instructions, no LDL or STL.

@@ -1,7 +1,13 @@
 """Write a same-process A/B bench of the fused MoE kernel against the public entry's MoE file.
 
     python3 tools/moe_make_bench_ab.py OUT.py PUBLIC.py [--base=28] [--seeds=1,2,...]
-        [--sizes=32,128,256] [--routings=layer,std] [--pairs=A-B,...] [ARM=MODE ...]
+        [--sizes=32,128,256] [--routings=layer,std,skewed] [--pairs=A-B,...] [--gate=1]
+        [ARM=MODE ...]
+
+--gate=1 is for a pre-registered keep-or-drop run: no stamped or counter twins, no stamped
+public runs (ABSTAMP, ABDIAG, ABPUB are not printed, so three routings fit the 16 KB log tail),
+the arms' modes added to MAIN_CANDIDATES (prepare's FP32 self-test covers them), and ABCHECKALL,
+each arm's output against the base on every seed.
 
 OUT.py is muse_moe_w4a16/submission.py with MAIN_MODES = (0, base, the arms, their stamped
 twins), the gate and the stamped diagnostics off, and a block that runs at import, before the
@@ -142,6 +148,7 @@ _AB_LIGHT = @LIGHT@
 _AB_PA = @PA@
 _AB_PB = @PB@
 _AB_SMALL = @SMALL@
+_AB_GATE = @GATE@
 _AB_US = @US@
 _AB_US_MAX = @USMAX@
 _AB_US_PER = 8 + 4 * _AB_US_MAX
@@ -184,7 +191,7 @@ def _ab_main():
     pstate = pub.prepare(weights)
     dbg_defs = tuple(pub._main_defines(pstate["sfx"])) + pstate["sfx"] + ("-DOKC_DEBUG=1",)
     # The small sizes stamp their own builds (pdbgs); the MAIN debug build is not used there.
-    pdbg = None if _AB_SMALL else pub._ext(dbg_defs)
+    pdbg = None if _AB_SMALL or _AB_GATE else pub._ext(dbg_defs)
 
     def pub_defs(m):
         # kernel_fn's build choice by token count, with the debug stamps.
@@ -502,6 +509,7 @@ def _ab_main():
             diags = {a: [] for a in padiag}
             pbdiags = {a: [] for a in padiag if a in _AB_PB}
             pubd = []
+            chk = {a: [] for a in timed if a != base}
             stamp_here = not _AB_STAMP_SIZES or t in _AB_STAMP_SIZES
             skst = [i for i, v in enumerate(SKINNY_VARIANTS) if v[2] in (2, 4, 8)]
             usst = [i for i, v in enumerate(SKINNY_VARIANTS) if v[2] & 16]
@@ -516,6 +524,11 @@ def _ab_main():
                     order.reverse()
                 for a, fn in order:
                     tim[a].append(_graph_time(lambda: fn(d), flush))
+                if _AB_GATE:
+                    ob = _run(d, state, timed[base]).float()
+                    for a in chk:
+                        chk[a].append(_rel(_run(d, state, timed[a]).float(), ob))
+                    continue
                 for a, v in light.items():
                     stamps[a].append(summarize(ours_stamped(d, v, 16)[0]))
                 for a, v in padiag.items():
@@ -563,7 +576,10 @@ def _ab_main():
                     dd = [x - y for x, y in zip(tim[a], tim[bb])]
                     print(f"ABPAIR {tag} {a} minus {bb} " + " ".join(f"{x:+.1f}" for x in dd)
                           + f" (mean {sum(dd) / n:+.1f}, {sum(x < 0 for x in dd)} of {n} lower)")
-            if _AB_SMALL and not stamp_here:
+            for a, v in chk.items():
+                print(f"ABCHECKALL {tag} {a} vs {base} per seed " + " ".join(f"{x:.1e}" for x in v)
+                      + f" (max {max(v):.1e})")
+            if (_AB_SMALL and not stamp_here) or _AB_GATE:
                 continue
             if _AB_SMALL:
                 for a, rows, cc in ([(_vname(i), skd[i], sk_cols) for i in skst]
@@ -623,7 +639,7 @@ def main():
     rest = sys.argv[3:]
     opts = {"base": "28", "seeds": "1,2,3,4,5,6", "sizes": "32,128,256", "routings": "layer,std",
             "pairs": "", "small": "", "pubranges": "", "skextra": "", "unitstamps": "",
-            "stampsizes": ""}
+            "stampsizes": "", "gate": ""}
     arms = {}
     for a in rest:
         if a.startswith("--"):
@@ -637,9 +653,11 @@ def main():
     base = opts["base"] if opts["base"].startswith("v") else int(opts["base"])
     ints = lambda s: tuple(int(x) for x in s.split(","))
     pairs = tuple(tuple(x.split("-")) for x in opts["pairs"].split(",") if x)
+    gate = bool(opts["gate"])
     named = {m for m in (base, *arms.values()) if isinstance(m, int)}
-    light = {f"o{LIGHT_TWINS[m]}": LIGHT_TWINS[m] for m in named if m in LIGHT_TWINS}
-    pa = {f"o{PA_TWINS[m]}": PA_TWINS[m] for m in named if m in PA_TWINS}
+    twinned = () if gate else named
+    light = {f"o{LIGHT_TWINS[m]}": LIGHT_TWINS[m] for m in twinned if m in LIGHT_TWINS}
+    pa = {f"o{PA_TWINS[m]}": PA_TWINS[m] for m in twinned if m in PA_TWINS}
     # A counter twin that is also an arm is timed and stamped; it is not built twice.
     staged = {m for a in arms.values() for m in VARIANT_MODES.get(a, ())}
     modes = sorted({0, *named, *light.values(), *pa.values(), *staged})
@@ -655,6 +673,12 @@ def main():
     assert n == 1
     src, n = re.subn(r"^GATE_RUNS = \(.*?\)$", "GATE_RUNS = ()", src, flags=re.M)
     assert n == 1
+    if gate:
+        add = tuple(m for m in arms.values() if isinstance(m, int))
+        src, n = re.subn(r"^MAIN_CANDIDATES = \((.*?)\)$",
+                         lambda mm: f"MAIN_CANDIDATES = ({mm.group(1)}" + "".join(
+                             f", {m}" for m in add) + ")", src, flags=re.M)
+        assert n == 1
     pub_src = patch_public(Path(pub).read_text(), small, bool(opts["pubranges"]),
                            bool(opts["unitstamps"]))
     block = AB
@@ -664,7 +688,7 @@ def main():
                      ("@ROUTINGS@", repr(tuple(opts["routings"].split(",")))),
                      ("@LIGHT@", repr(light)), ("@PA@", repr(pa)),
                      ("@PB@", repr(tuple(a for a, m in pa.items() if m in PB_TWINS))),
-                     ("@SMALL@", repr(small)),
+                     ("@SMALL@", repr(small)), ("@GATE@", repr(gate)),
                      ("@US@", repr(bool(opts["unitstamps"]))), ("@USMAX@", repr(US_MAX)),
                      ("@STAMPSIZES@", repr(ints(opts["stampsizes"]) if opts["stampsizes"] else ()))):
         assert block.count(key) == 1, key
