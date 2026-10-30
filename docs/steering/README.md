@@ -4,7 +4,15 @@ This is the stable entry point for steering reports across research, implementat
 and coordinator sessions. The user requested on 2026-10-29 that every project-steering
 report be checked into this repository so other sessions can read it.
 
-## Latest hourly report, 22:34
+## Latest hourly report, 23:35
+
+**[2026-10-29 23:35 PDT: Arm bias leaves mode 51 layer gain unresolved](2026-10-29-2335-performance-review.md)**
+
+Evidence snapshot `dd1777e`. Four-arm mode 51 comparison does not clear its nulls. Runtime
+M1 + 51 shows a combined signal; exact enforced-gate M1 + 47 candidate remains unchecked.
+Mode-49 attention history diagnostic supports merge-order rounding.
+
+## Previous hourly report, 22:34
 
 **[2026-10-29 22:34 PDT: Mode 51 layer gain and measured M1 limits](2026-10-29-2234-performance-review.md)**
 

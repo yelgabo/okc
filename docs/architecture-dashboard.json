@@ -1,24 +1,24 @@
 {
-  "reviewed_at": "2026-10-29T22:34:00-07:00",
-  "snapshot": "6cb0796",
+  "reviewed_at": "2026-10-29T23:35:00-07:00",
+  "snapshot": "dd1777e",
   "layer": {
     "score": "2.014\u00d7",
     "interval": "1.984\u20132.045",
     "job": "3fbb3ad027e84c6b",
-    "note": "Mode 51 now has paired layer gains (1.0084 aggregate, null 0.9997). It is a candidate, not the board release. Final gate-version file awaits unpatched scored confirmation; M1 measurement build is diagnostic only."
+    "note": "Release unchanged. Mode 51 layer gain is unresolved in the four-arm bench. Runtime M1 + 51 gives a combined signal; the exact enforced-gate M1 + 47 candidate is unchecked."
   },
   "families": [
     {
       "id": "A",
       "name": "Hybrid persistent / legacy MoE",
       "status": "win",
-      "label": "Component and layer wins",
-      "metric": "\u22125.1 / \u22125.3 \u00b5s",
-      "unit": "Mode 51 layer gain at 128 tokens, sliding / full",
-      "summary": "Mode 51 also saves 6.5 / 1.1 \u00b5s at 256 tokens. Targeted layer comparison passes 72 checks; the final file is not released.",
-      "layer": "Mode 51 layer-tested; release remains mode 47",
+      "label": "Component wins; layer unresolved",
+      "metric": "1.0057\u00d7",
+      "unit": "Mode 51 four-arm layer ratio, below noise gate",
+      "summary": "Mode 51 component wins stand. Its earlier three-arm layer gain is unestablished because the control arm can run slow.",
+      "layer": "Mode 47 released; mode 51 layer result inconclusive",
       "pending": [],
-      "limit": "Final gate-version file has a comment-stripped bench check, not an unpatched scored confirmation. First gate-version check scores 2.022\u00d7. Preserve the 2.014\u00d7 released baseline.",
+      "limit": "Four-arm nulls are 0.9898 / 0.9972, with prepare-time policy differences. Older isolated layer magnitudes need the arm-bias caveat. Gather mode 57 loses; 59 ties.",
       "source": "runs-decode-layer.md"
     },
     {
@@ -67,10 +67,10 @@
       "label": "Component and bundle wins",
       "metric": "\u22125.35 / \u22129.63 \u00b5s",
       "unit": "128 / 256 tokens, cold paired bench versus DCARRY",
-      "summary": "DCARRY + PK16 + VHOIST now runs in the winning combined layer release. Corrected FIN8 replay checks pass.",
+      "summary": "DCARRY / PK16 / VHOIST remains integrated. Mode-49 history diagnostics support merge-order rounding, not carried input values.",
       "layer": "Integrated and layer-tested with A + projections",
       "pending": [],
-      "limit": "M1 gains within its diagnostic build but nets little over the release at small sizes. Attention input-history dependence is an untested lead. New ordering argument is written but independently unreviewed.",
+      "limit": "Runtime M1 + mode 51 has a combined signal, not an isolated E gain. The fenced design has independent ordering reviews. Exact enforced-gate M1 + 47 candidate remains unchecked.",
       "source": "runs-attention.md"
     }
   ]

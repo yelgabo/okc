@@ -1,6 +1,6 @@
 # Architecture performance tracker
 
-Last review: 2026-10-29 22:34 PDT. Evidence snapshot: `6cb0796`.
+Last review: 2026-10-29 23:35 PDT. Evidence snapshot: `dd1777e`.
 First review reconciles progress since `aab7d75`, the snapshot in the
 [architecture-family guide](architecture-families-2026-10-29.md).
 This is a review of recorded experiments, not a new benchmark run.
@@ -12,13 +12,100 @@ named control, not changes in aggregate score. Families overlap; their gains can
 
 | Family | Current result | What has actually been measured | Visibility gap |
 |---|---|---|---|
-| A. Hybrid persistent/legacy MoE | Mode 51 now wins in the layer | Paired layer mode 51 versus 47 saves 5.1/5.3 us at 128 and 6.5/1.1 us at 256, sliding/full. | Final gate-version file has bench evidence but no unpatched scored confirmation or release; board stays mode 47. |
+| A. Hybrid persistent/legacy MoE | Component wins; mode 51 layer gain inconclusive | Four-arm mode 51 comparison reports 1.0057 pooled, below its noise gate. Old three-arm deltas remain observations, not established isolated gains. | Board stays mode 47. Stabilize prepare-time picks and resolve arm bias before promoting 51. |
 | B. Staged grouped MoE | Retested loss | Modes 45 + 46 on mode 37 components lose 30.4/24.4 us at 128/256 versus 37, six seeds each. | Parked until phase B alone drops below about 50 us at 128 or the fused phase A tail disappears. |
 | C. Owner-completes tiles | Retained in the persistent descendants | Mode 20's owned phase A saves about 2-3 us at 128 and 4 us at 256 over mode 16. Later modes combine ownership with other changes. | Later gains cannot be credited to ownership alone. |
 | D. Dependency-aware scheduling | Dynamic claiming retained; split-tail variants lose | Modes 52/53 split the last claimed phase B units through fixup and lose at 32/128/256. | Full ready-only scheduling remains untested; do not generalize the split-tail loss to the family. |
-| E. Attention producer-consumer pipeline | Component gains; combined layer gain | DCARRY/PK16/VHOIST now runs in the winning layer package; corrected FIN8 plan/replay checks pass. | Package gain is shared with A and projection changes. M1 diagnostic timing gives little net release gain. Attention input-history dependence is an open, untested lead, not a confirmed E defect. |
+| E. Attention producer-consumer pipeline | Component gains; combined layer gain | DCARRY/PK16/VHOIST now runs in the winning layer package; corrected FIN8 plan/replay checks pass. | Package gain is shared with A and projection changes. Runtime-order M1 + 51 has a combined signal, not isolated E credit. Mode-49 history diagnostic supports merge-order rounding; new enforced-gate M1 candidate remains untested. |
 
-## Latest review: mode 51 layer gain and measured M1 limits
+## Latest review: mode 51 layer gain unresolved after arm-bias checks
+
+The earlier three-arm bench timed the candidate twice using the same prepared state, but the
+incumbent only once. It could not distinguish a candidate gain from an incumbent-arm penalty.
+The [arm-bias audit](steering/2026-10-30-layer-bench-arm-bias.md) and new four-arm runs therefore
+supersede the previous claim of an established isolated mode-51 layer gain. Preserve the old
+numbers, including `29fd004fd58e40ef`'s 1.0084 and its 128/256 deltas, as historical observations.
+Mode 47's old three-arm attribution shares this limitation. Its release and component checks
+remain valid; the isolated layer magnitude needs the same caution.
+
+Four-arm benches use independent prepare() per copy, random prepare/capture/replay order,
+two held-out inputs per shape, eight rounds and both same-file nulls. The heuristic requires
+all four cross ratios on one side of 1 and the pooled log ratio above twice the larger null.
+It is not a formal significance test. Source bench builder `a877401`:
+
+| Job / candidate | Seed start / order seed | Pooled speed ratio | Nulls | Decision |
+|---|---|---|---|---|
+| `724aa0dd6ed140ca`, release versus itself, file `9473029f` | 180001 / 43 | 1.0045 | 0.9965 / 1.0030 | A/A not resolved |
+| `2dc566298be1498f`, mode 51 `dacd4e0d`, bench `e95f3218` | 160001 / 37 | 1.0057 | 0.9898 / 0.9972 | Mode 51 not resolved |
+| `40b9b3f795f84073`, runtime-order M1 + 51 `d57b5e38`, bench `824e1e45` | 170001 / 41 | 1.0162 | 0.9928 / 0.9970 | Combined candidate faster by heuristic |
+
+Each compares against release `b9c23bda`. These runs' judge scores are 2.009x (1.979-2.039),
+2.000x (1.970-2.030), and 1.992x (1.962-2.022), respectively. These are check readings,
+not new releases. All 96 checks pass (24 per arm); prepare-time policy differences contribute
+to the nulls. A/A retains a decode-1 offset: pooled 1.0262 there, with incumbent 3-6 us slower
+than the other copies. Exclude decode 1 from attribution. [Layer run log](runs-decode-layer.md).
+
+At 128/256, mode 51's pooled load ratios are 1.0080/1.0107, equivalent to about 0.79%/1.06%
+less weighted elapsed time. Weighted arm times are 283.6/285.7 us for the two incumbents
+versus 282.7/282.1 for candidates at 128; 375.7/374.2 versus 371.8/370.1 at 256. The overall
+cross range 0.9991-1.0123 and larger null about 1.03% leave the gain unresolved. Do not invent
+a single paired microsecond delta from these independently summarized arms. Policy flips
+include front/boundary/W4 choices even between copies of the same file. Raw four-cross paired
+deltas at 128 range -1.6 to -3.2 us sliding and -0.4 to -4.7 full; at 256, -4.4 to -7.6
+sliding and -3.0 to +0.5 full. These are ranges, not a resolved pooled microsecond gain.
+[Raw mode-51 four-arm bench](../muse_decode_layer/profiles/bench4_g51.2dc566298be1498f.log).
+
+Runtime M1 + 51 crosses 1.0111-1.0214 and clears its larger null about 0.72%. Per-load pooled
+ratios are d1 1.0320, d16 1.0074, d32 1.0065, verify 1 (8 tokens) 1.0166, verify 16 (128)
+1.0257 and verify 32 (256) 1.0096. Verify-1 sliding paired differences range -2.1 to -2.9 us.
+The aggregate combines M1, mode 51 and the decode-1 offset. Dividing by A/A suggests about
+1.2% combined gain; the report's approximate 0.4% M1 share is cross-run arithmetic, not an
+isolated measurement. M1 operates only at <=32; 128/256 improvements cannot be credited to
+it. The same mode-51 code reads 1.0080 at 128 in one run and 1.0257 in another. Do not add
+component scores. [Raw combined bench](../muse_decode_layer/profiles/bench4_m1rt.40b9b3f795f84073.log).
+
+The earlier runtime-order measurement `f0ee07c4d4904511`'s 0.87% three-arm result is also
+unestablished. It motivated the corrected harness, not a separate accepted gain. The new
+`cand/layer_m1rt.py` (SHA256 `d695844971f2bc7ab85720ad3a464c3464fc7efb01182746b4a96bcf14be7269`)
+is **mode 47 + runtime M1**, with enforced 2,000-replay fresh-input gates and negative controls.
+The measured combined build used mode 51 and report-only 1,000-replay gates. Those builds are
+not interchangeable: the new candidate has no check or submission. Board remains 2.014x.
+[Release manifest](release-manifest.md).
+
+### Attention history resolved for the tested mode; ordering review completed
+
+Attention diagnostic `2b93c6ecf4f641c6`, source `389da5c`, passes 16/16, 2.462x
+(2.425-2.499), with production SASS unchanged. This is a diagnostic score, not a speedup.
+Mode 49, decode 16/32 full, context 80000, page 1, four qkv inputs: production gives four/five
+distinct outputs in nine calls on one input (1-3 elements, one BF16 ulp). A fixed-order debug
+merge gives bitwise outputs across repeated, changed and separate-case histories, flushes and
+interleaved calls. All 283 workspace scans are clean. This supports merge-order rounding,
+not carried input values, for these tested cases. The earlier bitwise repeated-input reading
+was a sample, not a general property. Do not claim every attention configuration is proved.
+[Attention diagnostic](runs-attention.md#input-history-dependence-at-decode-16--32-full-merge-order-not-a-carry-10-30).
+
+The [independent M1 ordering review](review-m1-ordering-2026-10-30.md) and
+[other-PDL audit](review-pdl-secondaries-2026-10-30.md) replace the "unreviewed argument" status.
+The review supports the fenced runtime design under its stated assumptions. The other-PDL
+audit finds no issue on the shipped scored path; a latent W4 GEMM2 early return before its
+wait is off that path and is fixed in the new unchecked candidate. Neither review substitutes
+for checking that exact candidate with enforced gates.
+
+### New MoE losses and limits
+
+`7063f86352344efa`, source `e866c8a`, layer seeds 1-6 at 128/256, selects x gather as the
+larger lead: instrumented gather 6.8/8.3 us versus public 3.6/4.9, while the trailing-warpgroup
+skew bound is only 0.45/1.07 us. Those are attribution bounds, not recoverable layer savings.
+`e7e75c9510994c08`, source `fca2be7`, layer seeds 41-46, tests mode 57 (early x loads plus
+16-byte stores) and 59 (early loads only), versus 51 at 32/128/256. Mode 57 loses
++1.2/+1.1/+1.2 us, zero of six faster at each size. Mode 59 is inconclusive/tied:
+-0.0/+0.6/-0.3 us, 2/1/5 of six faster. Checks pass with spin flags zero; a mode-59 normalized
+output difference at 32 is not separated from rounding or a defect, and it is not kept.
+Neither is gated or shipped. Shorter per-CTA gather does not materially advance the first
+job's readiness. These are scoped A-descendant results; B's staged retest and D's full
+ready-only status do not change. [MoE run log](runs-moe.md).
+
+## Historical review, 22:34: mode 51 layer gain and measured M1 limits
 
 Mode 51 closes its pending layer test. Job `29fd004fd58e40ef`, bench source `d9b7d67`, compares
 `cand/layer_g51.py` (SHA256 prefix `dacd4e0d`, sent comment-stripped) with clean mode-47
@@ -420,10 +507,11 @@ are hypotheses. This correction motivates a test, not a new winning-family badge
 | B: staged 45 + 46 retest | Mode 37 | +30.4 us, +18.4% | +24.4 us, +10.7% | `9d94ac75f4724b52`, six layer-routing seeds, outputs pass; zero faster. [MoE log](runs-moe.md). |
 | A+C+D: mode 47 code groups | Mode 37 | -2.3 us, -1.32% | -3.7 us, -1.65% | `5f381b8b6946492d`, held-out layer seeds 13-18, 5/6 and 6/6 faster; checks pass. [MoE log](runs-moe.md). |
 | A/E + projection: whole-layer bundle | Incumbent a923f11 | Sliding -6.2 us (-2.20%); full -13.3 us (-3.56%) | Sliding -3.5 us (-0.98%); full -22.5 us (-4.22%) | `aa4276e91c924dad`, 2 inputs per shape, 8 rounds, 72 checks pass; combined gain only. [Layer log](runs-decode-layer.md). |
-| A: mode 47 isolated layer picker | Same file with 47 held out | Sliding -4.9 us (-1.81%); full -5.5 us (-1.43%) | Sliding -5.7 us (-1.58%); full -3.6 us (-0.70%) | `720079090ee44cc3`, 16 paired samples/shape, 72 checks pass; overall ratio invalidated by d1 arm artifact. [Layer log](runs-decode-layer.md). |
+| A: mode 47, historical three-arm picker observation (arm-bias caveat) | Same file with 47 held out | Sliding -4.9 us (-1.81%); full -5.5 us (-1.43%) | Sliding -5.7 us (-1.58%); full -3.6 us (-0.70%) | `720079090ee44cc3`, 16 paired samples/shape, 72 checks pass; overall ratio invalidated by d1 arm artifact. [Layer log](runs-decode-layer.md). |
 | A: mode 51 final pass | Mode 47 | -3.9 us, -2.41% | -3.9 us, -1.71% | `c6b0e500c3a84c9a`, layer seeds 29-34, 6/6 and 5/6 faster; no layer test. [MoE log](runs-moe.md). |
 | A/C/D: mode 52 split tail | Mode 51 | +5.9 us, +3.71% | +8.5 us, +3.94% | `209cf29bf91c4ea2`, layer seeds 35-40, output checks pass. Mode 53 also loses +7.3/+9.2 us. [MoE log](runs-moe.md). |
-| A: mode 51 isolated layer | Clean mode-47 release | Sliding -5.1 us (-1.92%); full -5.3 us (-1.52%) | Sliding -6.5 us (-1.86%); full -1.1 us (-0.21%) | `29fd004fd58e40ef`, 16 paired samples/shape, 72 checks pass, 1.0084 aggregate with null 0.9997. Candidate not released. [Layer log](runs-decode-layer.md). |
+| A: mode 51, historical three-arm observation (gain unestablished) | Clean mode-47 release | Sliding -5.1 us (-1.92%); full -5.3 us (-1.52%) | Sliding -6.5 us (-1.86%); full -1.1 us (-0.21%) | `29fd004fd58e40ef`, 16 paired samples/shape, 72 checks pass, 1.0084 aggregate with null 0.9997. Candidate not released. [Layer log](runs-decode-layer.md). |
+| A: mode 51 four-arm layer | Clean mode-47 release, two copies each | Weighted ratio 1.0080; unresolved | Weighted ratio 1.0107; unresolved | `2dc566298be1498f`, overall 1.0057 fails null rule; prepare policies differ by copy. [Layer log](runs-decode-layer.md). |
 
 Percentages use the logged paired delta divided by the logged control mean. Paired summaries use logged paired deltas rather than subtraction of separately summarized
 arm timings. Layer deltas are medians of per-round differences; these can differ by several
@@ -461,22 +549,29 @@ Losses matter as much as wins:
 
 ## Whole-layer outcome and attribution
 
-Board release remains `3fbb3ad027e84c6b`, mode 47, 2.014x (1.984-2.045), 13/13. Mode 51
-has targeted paired layer gains in `29fd004fd58e40ef`; its exact final gate-version file still
-needs unpatched scored confirmation and is not released. M1 is now measured diagnostically,
-with little net release benefit at <=32; report-only validation prevents treating it as an
-accepted candidate. B/C/D standings are unchanged. [Manifest](release-manifest.md).
+Board remains `3fbb3ad027e84c6b`, 2.014x (1.984-2.045), mode 47. Mode 51 has component wins,
+but its layer gain is unresolved by the four-arm/null rule; earlier three-arm magnitudes are
+not established isolated gains. Runtime M1 + 51 shows a combined heuristic win with arm-offset
+and cross-run attribution limits. Exact enforced-gate M1 + 47 candidate is unchecked.
+[Manifest](release-manifest.md), [arm-bias audit](steering/2026-10-30-layer-bench-arm-bias.md).
 
 ## Decision and next evidence needed
 
-Keep the clean release while confirming the final mode-51 candidate. Resolve attention
-input-history dependence with the prepared controlled diagnostic before assigning all variation
-to atomics or changing further validation. Independently review the written M1 ordering
-argument. Do not count its within-build speedup as a release gain. B remains parked after
-its retest; modes 52/53 remain losses and D's full ready-only queue remains untested.
-[Rejection register](ruled-out.md).
+Preserve the release. Check the exact enforced-gate candidate before promoting it, and stabilize
+prepare-time policies so layer comparisons can resolve small effects. The tuner-stability design
+is prepared, not measured. Keep mode 51's component gains separate from its unresolved layer
+result. The tested mode-49 history lead supports merge-order rounding; ordering reviews are
+complete within their scope. B remains parked, and the new gather variants do not revive it.
+D's full ready-only queue is still untested. [Rejection register](ruled-out.md).
 
 ## Review history and checkpoint
+
+- 2026-10-29 23:35 PDT: reviewed `a9a6381..dd1777e`, four-arm calibration/comparisons
+  `724aa0dd6ed140ca`, `2dc566298be1498f`, `40b9b3f795f84073`, older newly incorporated runtime
+  bench `f0ee07c4d4904511`, attention `2b93c6ecf4f641c6`, MoE `7063f86352344efa` and
+  `e7e75c9510994c08`, ordering reviews and candidate manifest. Board unchanged; isolated
+  mode-51 layer claim downgraded to unresolved. All 18 untracked profile JSONs already logged.
+  Origin/main fetched, no remote-only commits. No benchmark, submission or push by this review.
 
 - 2026-10-29 22:34 PDT: reviewed `22264ae..6cb0796`, five new layer jobs
   `6ce5be0ba29642ea`, `60cf58b69b75491e`, `fdf75ba5a8124544`, `a438b82ff2c141c2`,
