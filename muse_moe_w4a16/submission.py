@@ -1348,25 +1348,52 @@ __device__ __forceinline__ int stage_at_a_warp(const SmemMain& S, int k, int G, 
                                        / static_cast<unsigned>(cost));
 }
 
+// dfin_a: stage_at for phase A on one lane, by binary search over S.pa: the last j with
+// pa[j] <= target, which is stage_at_a_warp's ballot count less one (pa only rises).
+__device__ __forceinline__ int stage_at_a_lane(const SmemMain& S, int k, int G) {
+    const int nj = S.njobs;
+    if (k >= G) {
+        return nj * kUAM;
+    }
+    if (k <= 0 || nj == 0) {
+        return 0;
+    }
+    const unsigned total = static_cast<unsigned>(S.pa[nj]);
+    const unsigned target = total * static_cast<unsigned>(k) / static_cast<unsigned>(G);
+    int lo = 0;
+    int hi = nj;
+    while (hi - lo > 1) {
+        const int mid = (lo + hi) >> 1;
+        if (static_cast<unsigned>(S.pa[mid]) <= target) {
+            lo = mid;
+        } else {
+            hi = mid;
+        }
+    }
+    const int cost = S.cost[0][S.job_ntt[lo]];
+    return lo * kUAM + static_cast<int>((target - static_cast<unsigned>(S.pa[lo]))
+                                        / static_cast<unsigned>(cost));
+}
+
 // dfin_a: the cost time at which the share of unit u in range [b, e) ends in the consumers' walk
-// (n-tile count largest first, then seg_get's order) when nothing waits. Whole warp.
-__device__ __forceinline__ int share_end(const SmemMain& S, int b, int e, int u, int lane) {
+// (n-tile count largest first, then seg_get's order) when nothing waits. One lane.
+__device__ __forceinline__ int share_end(const SmemMain& S, int b, int e, int u) {
     const int ub = b >> 4;
     const int ue = (e - 1) >> 4;
     const int idx = (ub != ue && u == ub && (e & 15) != 0) ? 1 : 0;
     const int n_s = S.job_ntt[u >> 5];
     const int ns = seg_count(b, e);
-    unsigned t = 0;
-    for (int i = lane; i < ns; i += 32) {
+    int t = 0;
+    for (int i = 0; i < ns; ++i) {
         int gb;
         int ge;
         seg_get(b, e, i, gb, ge);
         const int n = S.job_ntt[gb >> 9];
         if (n > n_s || (n == n_s && i <= idx)) {
-            t += static_cast<unsigned>((ge - gb) * S.cost[0][n]);
+            t += (ge - gb) * S.cost[0][n];
         }
     }
-    return static_cast<int>(__reduce_add_sync(0xffffffffu, t));
+    return t;
 }
 
 // dfin_a: bit 16 when this CTA's cut share with st_b != 0 finishes its unit, bit 17 when its cut
@@ -1374,7 +1401,12 @@ __device__ __forceinline__ int share_end(const SmemMain& S, int b, int e, int u,
 // stage). A unit's finisher is the CTA whose share ends last by share_end (ties to the later
 // CTA), so its wait for the other shares' counts is modelled at zero; every CTA derives it from
 // the same shared values, so the CTAs holding the unit agree. lead is the CTA holding the first
-// stage of the unit at b. One loop and one call site each, to keep the kernel small. Whole warp.
+// stage of the unit at b. Lane i weighs CTA k0 + i: under kCostA a CTA's cost share (at least
+// 512 x 112 / G units, 434 at G = 132) exceeds a stage's (207 at most), so every range holds a
+// stage and at most 16 CTAs hold a unit. A supplied table with a cost ratio of 512 / G or more
+// could put more holders past the window; all holders still weigh the same 32 CTAs from the
+// lead, so they still agree on one finisher. Lane-parallel because warp 0's serial version put 3 us on every CTA's setup
+// (75's route stamp against 73's, eaa881a934aa471e). Whole warp.
 __device__ __forceinline__ int dfin_flags(const SmemMain& S, int b, int e, int lead, int cta,
                                           int G, int lane) {
     if (b >= e) {
@@ -1392,26 +1424,17 @@ __device__ __forceinline__ int dfin_flags(const SmemMain& S, int b, int e, int l
             continue;
         }
         const int u = q == 0 ? ub : ue;
-        const int k0 = q == 0 ? lead : cta;
-        int bk = 0;
-        int best = -1;
-        int fc = k0;
-#pragma unroll 1
-        for (int k = k0 - 1; k < G; ++k) {
-            const int ek = stage_at_a_warp(S, k + 1, G, lane);
-            if (k >= k0 && bk < ek) {
-                const int t = share_end(S, bk, ek, u, lane);
-                if (t >= best) {
-                    best = t;
-                    fc = k;
-                }
+        const int k = (q == 0 ? lead : cta) + lane;
+        int key = -1;
+        if (k < G) {
+            const int bk = stage_at_a_lane(S, k, G);
+            const int ek = stage_at_a_lane(S, k + 1, G);
+            if (bk < ek && bk < u * 16 + 16 && ek > u * 16) {
+                key = (share_end(S, bk, ek, u) << 5) | lane;
             }
-            if (ek > u * 16 + 15) {
-                break;
-            }
-            bk = ek;
         }
-        if (fc == cta) {
+        const int m = __reduce_max_sync(0xffffffffu, key);
+        if (k - lane + (m & 31) == cta) {
             f |= 1 << (16 + q);
         }
     }
