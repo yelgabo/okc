@@ -2486,6 +2486,50 @@ condition fails, 68 goes to docs/ruled-out.md scoped to this build and is not sh
 coordinator with the layer port steps. Budget for the line: two checks (null and gate) of the three
 MoE checks left today.
 
+### Null result (check b2c92a71600d488b, bench at 30c5a58)
+
+2.211x (2.178-2.244), passed, spin flags 0. Outputs of 69 against 51: 0.0 at 128 and 256 tokens,
+1.2e-7 / 1.0e-5 at 32. Self-test of the shipped policy modes unchanged (main-lean-grp-finss64
+3.89e-3). Minus 51, us, same process, seeds 71-76 (count = seeds lower of 6):
+
+| arm | 32 layer | 32 std | 128 layer | 128 std | 256 layer | 256 std |
+|---|---|---|---|---|---|---|
+| 69 (lean, nothing claimed) | +3.3 (0) | +3.7 (0) | +4.5 (0) | +5.0 (0) | +5.2 (0) | +3.9 (0) |
+| public | -2.0 (5) | -3.8 (6) | -11.1 (6) | -8.6 (6) | -16.3 (6) | -18.9 (6) |
+
+Stamps (one cold launch per seed, means over seeds, us; layer / standalone; 71's phase A end
+includes its wait for S.bq[0], see the review above, so its phase A numbers are upper bounds):
+
+| | 32 | 128 | 256 |
+|---|---|---|---|
+| phase A mean: 55 (51) / 71 (69) | 45.6 / 47.3 and 84.2 / 86.6 | 96.1 / 98.3 and 119.5 / 121.5 | 127.6 / 130.2 and 144.0 / 146.8 |
+| A done max: 55 / 71 | 61.1 / 61.5 and 97.9 / 98.3 | 119.0 / 119.2 and 139.1 / 139.8 | 152.2 / 153.3 and 166.2 / 167.3 |
+| A end spread: 55 / 71 | 9.3 / 7.6 and 9.0 / 6.8 | 12.8 / 10.7 and 11.8 / 10.4 | 11.9 / 10.4 and 10.7 / 8.7 |
+| phase B: 55 / 71 | 20.6 / 21.9 and 38.2 / 39.7 | 45.4 / 47.1 and 54.7 / 57.0 | 60.2 / 62.5 and 68.7 / 70.3 |
+| end: 55 / 71 | 83.6 / 87.3 and 137.2 / 143.2 | 166.8 / 171.2 and 194.6 / 200.7 | 217.0 / 221.7 and 243.3 / 248.5 |
+
+The prepare bench agrees: main-finss64-cl0 211.4 / 226.2 us against 51's 207.2 / 223.2 at 128 / 256.
+
+Reading under the rule set before the check:
+- Measured: 69 is +4.5 / +5.0 / +5.2 / +3.9 us against 51 at 128 / 256 tokens (layer / standalone),
+  0 of 6 seeds lower in all four cells, so the null fails (each cell above +1.0). 68 is not timed
+  and nothing ships. This build costs less than 62's code shape (66 was +7.0 to +8.8 in
+  ed4591a2477041c2, on other seeds) but still about 4-5 us.
+- Measured: the cost is not confined to phase A. With 51's phase B source, 71's phase B is 1.3-2.3 us
+  longer than 55's in all six cells, and the phase A mean 1.7-2.8 us longer (an upper bound). The A
+  end spread is 1.4-2.2 us narrower with nothing claimed, but the last CTA's phase A end (A done max)
+  is 0.2-1.1 us later, so the narrowing comes from a later mean, not an earlier tail.
+- Hypothesis, not separated: the cost is whole-kernel rather than the dealt loop. The kernel grew
+  from 17,280 to 26,760 instructions (a second inlined copy of the phase A segments), and every
+  stage loop, phase B's included, gained 2-4 instructions of address arithmetic under ptxas's
+  per-kernel allocation and scheduling. Instruction-cache pressure from the larger kernel is the
+  other candidate; neither was measured.
+- Decision: parked in docs/ruled-out.md next to the 62 row. Run-time phase A claims stay unrejected
+  as a mechanism. The reopening trigger is now a build whose claimed units run through the dealt
+  units' compiled loops (no second copy: kernel size and stage loop lengths within a few
+  instructions of 51's) with a K = 0 null within 1 us of 51. One of the line's two checks was used;
+  two MoE checks remain today.
+
 ## Staged pair on current components, 2026-10-29
 
 The staged two-launch MoE (mode 19, phase A alone on owned units, then mode 21, phase B and the

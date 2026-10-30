@@ -860,7 +860,8 @@ __host__ __device__ constexpr bool claim_a(int mode) {
 // phase B unit index, so the x producer and the consumers decode a phase B entry as 51 does.
 // 68 claims the last round, 69 none (K = 0, the null that prices the code shape: in
 // ed4591a2477041c2 62's code with nothing claimed lost 7.0-8.8 us to 51); 70 and 71 are 68 and
-// 69 with 55's light and gather stamps (timing only).
+// 69 with 55's light and gather stamps (timing only). Not built: in b2c92a71600d488b the null 69
+// was +3.9 to +5.2 us against 51 at 128 and 256 tokens, phase B included, so 68 was not timed.
 __host__ __device__ constexpr bool claim_lean(int mode) {
     return mode >= 68 && mode <= 71;
 }
@@ -4023,7 +4024,7 @@ SKINNY_VARIANTS = ((8, 4, 0), (16, 4, 0), (8, 4, 1), (8, 3, 0))
 # (ed4591a2477041c2); docs/runs-moe.md, "Phase A's last round claimed at run time". Not built.
 # 68 and 69 (70 and 71 stamped, timing only): the lean build of the same claims, 51's phase A loops
 # unchanged and the claimed units in a loop of their own after them; 69 claims nothing (the null);
-# docs/runs-moe.md, "Lean phase A claims".
+# docs/runs-moe.md, "Lean phase A claims". The null lost (+3.9 to +5.2 us, b2c92a71600d488b). Not built.
 MAIN_MODES = (0, 16, 26, 28, 37, 47, 51)
 MAIN_CANDIDATES = (0, 6, 12, 13, 14, 15, 16, 20, 23, 26, 28, 32, 34, 35, 36, 37, 39, 43, 47, 51)
 VARIANT_MAIN0 = len(SKINNY_VARIANTS)
