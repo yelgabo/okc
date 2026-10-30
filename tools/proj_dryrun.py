@@ -129,6 +129,12 @@ class FakeLt:
         a.append(list(a[idx][:2]) + [2, 2, 0, 0, 35, 0, 2])
         return 1
 
+    def lt_sweep(self, plan, idx, clusters, max_add):
+        a = self.plans[plan]["algos"]
+        assert 0 <= idx < len(a) and clusters
+        a.append([a[idx][0], 100 + len(a), 1, 0, 0, 0, 35, 0, clusters[-1]])
+        return 1
+
     def lt_add_config(self, plan, c):
         self.plans[plan]["algos"].append(list(c))
         return len(self.plans[plan]["algos"]) - 1

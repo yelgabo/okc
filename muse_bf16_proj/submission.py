@@ -2126,6 +2126,27 @@ int64_t lt_expand(int64_t plan, int64_t idx, int64_t max_add) {
     return (int64_t)(p->algos.size() - before);
 }
 
+// Every tile of candidate idx's algorithm, at its stage count with no split-K, swizzle or
+// custom option, under each cluster shape id in clusters. Returns how many were accepted.
+int64_t lt_sweep(int64_t plan, int64_t idx, std::vector<int64_t> clusters, int64_t max_add) {
+    LtPlan* p = plan_at(plan);
+    if (!p || idx < 0 || idx >= (int64_t)p->algos.size()) return -1;
+    cublasLtMatmulAlgo_t base = p->algos[(size_t)idx];
+    cfg_set(base, 2, 1);
+    cfg_set(base, 3, CUBLASLT_REDUCTION_SCHEME_NONE);
+    cfg_set(base, 4, 0);
+    cfg_set(base, 5, 0);
+    const size_t before = p->algos.size();
+    for (uint32_t t : cap_list(base, CUBLASLT_ALGO_CAP_TILE_IDS)) {
+        for (int64_t cl : clusters) {
+            if ((int64_t)(p->algos.size() - before) >= max_add) return (int64_t)(p->algos.size() - before);
+            auto a = base;
+            if (cfg_set(a, 1, t) && cfg_set(a, 8, cl)) p->add(a);
+        }
+    }
+    return (int64_t)(p->algos.size() - before);
+}
+
 // Adds one config by value (all nine fields); returns its index or -1.
 int64_t lt_add_config(int64_t plan, std::vector<int64_t> c) {
     LtPlan* p = plan_at(plan);
@@ -2189,7 +2210,7 @@ int64_t lt_run(int64_t plan, int64_t idx, at::Tensor w, at::Tensor x, at::Tensor
                     (int64_t)ws.data_ptr(), ws.numel(), (int64_t)at::cuda::getCurrentCUDAStream().stream());
 }
 """
-LT_FUNCS = ["lt_version", "lt_plan_new", "lt_heuristic", "lt_expand", "lt_add_config", "lt_count", "lt_rejected",
+LT_FUNCS = ["lt_version", "lt_plan_new", "lt_heuristic", "lt_expand", "lt_sweep", "lt_add_config", "lt_count", "lt_rejected",
             "lt_info", "lt_run"]
 LT_TARGETS = tuple((layer, m) for m in (128, 256) for layer in BF16_LAYERS)
 LT_LAYOUTS = (0, 1, 2, 3)
@@ -2200,6 +2221,13 @@ LT_SCREEN_REPS = 6
 LT_EXPAND_TOP = 4
 LT_EXPAND_MAX = 48
 LT_FINALISTS = 3
+# Tile sweep: the best LT_SWEEP_TOP plans' algorithms over all their tiles under these cluster
+# shape ids (2 = 1x1x1, 3 = 2x1x1, 4 = 4x1x1, 5 = 1x2x1, 0 = automatic), then the best
+# LT_SWEEP_TILES tiles under every id up to 24.
+LT_SWEEP_TOP = 2
+LT_SWEEP_CLUSTERS = (0, 2, 3, 5)
+LT_SWEEP_MAX = 640
+LT_SWEEP_TILES = 4
 # Same role as WD_MARGIN: tuner medians carry about 1% noise.
 LT_MARGIN = 0.98
 # cuBLASLt's heuristic assumes 256-byte aligned operands unless told otherwise.
@@ -2890,6 +2918,21 @@ def _lt_search(lt, state, layer, m, ws, flush, gen, diag, fallback):
     for (p, i), (t, layout) in sorted(seen.items(), key=lambda kv: kv[1][0])[:LT_EXPAND_TOP]:
         lt.lt_expand(p, i, LT_EXPAND_MAX)
     screen()
+    done = set()
+    for (p, i), (t, layout) in sorted(seen.items(), key=lambda kv: kv[1][0]):
+        if len(done) == LT_SWEEP_TOP:
+            break
+        if p in done:
+            continue
+        done.add(p)
+        lt.lt_sweep(p, i, list(LT_SWEEP_CLUSTERS), LT_SWEEP_MAX)
+    after_sweep = len(seen)
+    screen()
+    swept = len(seen) - after_sweep
+    for (p, i), (t, layout) in sorted(seen.items(), key=lambda kv: kv[1][0])[:LT_SWEEP_TILES]:
+        lt.lt_sweep(p, i, list(range(25)), 25)
+        lt.lt_expand(p, i, LT_EXPAND_MAX)
+    screen()
     ranked = sorted(seen.items(), key=lambda kv: kv[1][0])
     out = []
     for (p, i), (t, layout) in ranked:
@@ -2902,7 +2945,7 @@ def _lt_search(lt, state, layer, m, ws, flush, gen, diag, fallback):
             out.append((info, fn, t))
         except Exception as exc:
             print(f"lt {layer} m={m}: L{layout} {_lt_cfg_str(info[1:])} failed self-test ({str(exc)[-120:]})")
-    print(f"lt {layer} m={m}: {first} heuristic + {len(seen) - first} expanded candidates, screen best "
+    print(f"lt {layer} m={m}: {first} heuristic, {swept} swept, {len(seen) - first - swept} other, screen best "
           + ", ".join(f"L{info[0]}:{_lt_cfg_str(info[1:])} {t:.1f}" for info, _, t in out))
     return out
 
