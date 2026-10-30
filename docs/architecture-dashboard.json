@@ -1,11 +1,11 @@
 {
-  "reviewed_at": "2026-10-30T01:31:00-07:00",
-  "snapshot": "87bc0b8",
+  "reviewed_at": "2026-10-30T02:38:00-07:00",
+  "snapshot": "8838272",
   "layer": {
     "score": "2.014\u00d7",
     "interval": "1.984\u20132.045",
     "job": "3fbb3ad027e84c6b",
-    "note": "Layer remains 2.014\u00d7; A-E standings unchanged. Separate projection context: clean Lt/router candidate reports 1.482\u00d7 standalone (receipt pending locally), with component wins at 128/256. No layer port or layer gain established. Revised M1/mode-51 gates and stable tuner await GPU tests."
+    "note": "Layer remains 2.014\u00d7; no new layer result. E cross-tile variants lose cold. Separate projection rt/KLUE router wins await a layer port; ordering questions remain. M1/mode-51 revised gates and layer stable tuner still await GPU tests."
   },
   "families": [
     {
@@ -67,14 +67,18 @@
       "id": "E",
       "name": "Attention producer / consumer",
       "status": "win",
-      "label": "Component and bundle wins",
-      "metric": "\u22125.35 / \u22129.63 \u00b5s",
-      "unit": "128 / 256 tokens, cold paired bench versus DCARRY",
-      "summary": "DCARRY / PK16 / VHOIST remains integrated. Mode-49 history diagnostics support merge-order rounding, not carried input values.",
-      "layer": "Integrated and layer-tested with A + projections",
+      "label": "Earlier wins; new pipeline losses",
+      "metric": "+3.90 / +0.80 \u00b5s",
+      "unit": "XPIPE=2 cold loss at 128 / 256 tokens",
+      "summary": "DCARRY / PK16 / VHOIST wins remain integrated. Real cross-tile XPIPE=2 overlap gains warm but loses cold; mode 115 + XPIPE=1 also loses.",
+      "layer": "Earlier bundle layer-tested; new pipelines fail component gates",
       "pending": [],
-      "limit": "Runtime M1 + 51 has a combined signal, not isolated E credit. Scored M1 runs are unknown/off; revised census gate is untested. Ordering reviews and mode-49 rounding diagnosis remain valid within scope.",
-      "source": "runs-attention.md"
+      "limit": "XPIPE=2: +3.44% / +0.42% cold. Mode 115 + XPIPE=1: +25.48% / +28.09%. Short-shape reduction ownership is untested. These losses do not reject all pipelines.",
+      "source": "runs-attention.md",
+      "outcomes": [
+        "win",
+        "loss"
+      ]
     }
   ]
 }

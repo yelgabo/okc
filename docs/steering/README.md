@@ -21,7 +21,14 @@ The existing CUTLASS pooler, wide 8-stage picks, DCARRY/PK16/VHOIST and failed l
 are explicitly accounted for. No kernels, validation policies, GPU runs or submissions changed.
 This is separate from the layer's M1/tuner-stability work below.
 
-## Latest hourly report, 01:31
+## Latest hourly report, 02:38
+
+**[2026-10-30 02:38 PDT: E pipeline losses and standalone router gains](2026-10-30-0238-performance-review.md)**
+
+Evidence snapshot `8838272`. New E overlap/residency variants lose cold; earlier E wins remain.
+Projection rt/KLUE gains are standalone, with unresolved ordering questions. No new layer result.
+
+## Previous hourly report, 01:31
 
 **[2026-10-30 01:31 PDT: Standalone projection gains; A-E unchanged](2026-10-30-0131-performance-review.md)**
 
