@@ -982,7 +982,8 @@ struct __align__(128) SmemMain {
     int ord[kJmaxM];
     int own_n;
     // dyn_b: the i-th claimed phase B unit (index into S.ord order, 16 per job), -1 when the
-    // claims are exhausted, kBqEmpty until the weights producer writes it.
+    // claims are exhausted, kBqEmpty until the weights producer writes it. claim_lean also puts
+    // claimed phase A units here, as kBqA plus the unit's first stage index.
     int bq[kBqMax];
     long long dg[18][8];
     float* ssp;

@@ -2331,8 +2331,8 @@ names; 69 is the same code with no round claimed (K = 0, the null); 70 and 71 ar
 behaviour (70 and 71: 55's); a host build of all 31 predicates differs only in `claim_lean` and
 `claim_rounds`.
 
-- Setup: `own_n` counts the dealt units below `a_dealt` = max(0, ceil(units / G) - K) G (62's
-  `a_static`), so a CTA owns K rounds fewer when units remain to claim.
+- Setup: `own_n` counts the dealt units below `a_dealt` = min(units, max(0, ceil(units / G) - K)
+  G) (62's `a_static`), so a CTA owns K rounds fewer when units remain to claim.
 - Consumers: 51's `consumer_phase<0>` runs unchanged over the dealt units (its `run_group` takes
   the 51 branch: `claim_a` is false). After it, `consumer_claim_a` runs one loop per n-tile count,
   8 down to 1, over S.bq: an entry of kBqA (2^24) or more is a claimed phase A unit whose first
@@ -2368,7 +2368,13 @@ Causality), 9.7.10.28.2 Async Proxy, 9.7.15.4 membar / fence, 9.7.15.14 griddepc
    (8.10) no two read the same value, so each claim value below na + units goes to exactly one CTA.
    The decode is a function of the value and of S.ord / S.job_e, which every CTA computes
    identically in its routing prologue, so each phase A unit (dealt or claimed) and each phase B
-   unit runs on exactly one CTA, and done_as[j * 16 + st] still receives exactly 8 releases.
+   unit runs on at most one CTA. Every value is claimed: a CTA claims up to kBqMax - 1 = 63 times
+   before writing its own sentinel, and the values number at most njobs * 16 + G (about 1,670 at
+   512 tokens) against 63 G = 8,316 queue slots, so the counter passes the last value while every
+   CTA still has room (the bound needs G of 25 or more; 51 has the same bound). So every unit runs
+   exactly once and done_as[j * 16 + st] still receives exactly 8 releases. A CTA's claim values
+   rise: one thread's atomics on one location follow its program order in coherence order
+   (Coherence axiom, 8.10).
 2. Hand-off inside the CTA. The weights producer writes the decoded entry to S.bq[i] with
    `st.release.cta.shared` after its own reads of S.ord and S.job_e; the x producer and the
    consumers read it with `ld.acquire.cta.shared` in `bq_get` (mode 23's queue, unchanged). The
@@ -2395,13 +2401,28 @@ Causality), 9.7.10.28.2 Async Proxy, 9.7.15.4 membar / fence, 9.7.15.14 griddepc
 7. Progress. The consumers read the queue only after their last dealt stage. The weights producer
    writes S.bq[0] after issuing its last dealt stage and one more wempty wait, which needs only the
    consumers' releases of dealt stages, which they make without reading the queue. A claimed phase A
-   unit waits only on xready[j], which every CTA's gather completes before any queue read. A phase
+   unit waits only on xready[j], and each CTA's gather completes without waiting on any claim or on
+   any other CTA (it runs before that CTA's consumers and x producer start), so xready[j] fills. A phase
    B unit waits on done_as of its job's phase A units; every claimed phase A value is smaller than
    every phase B value and each CTA takes its entries in rising order, so on no CTA is a phase A
    unit queued behind a phase B unit. No new cross-CTA wait exists.
 
 No fence, barrier, release or acquire is removed or moved against 51; the claimed path calls the
 same segment functions and adds only the queue reads (acquire) and the producers' claim loop.
+
+Independent read-only review (2026-10-30, of 30c5a58): sound. No unit lost or duplicated, the S.bq
+ranges are disjoint (phase B 0 to units - 1, kBqA entries 2^24 + j 512 + u 16, -1, kBqEmpty -2),
+producer and consumer stage orders equal on every CTA (also with no dealt unit, K = 0 or no job),
+no deadlock, no fence, barrier, release or acquire removed or moved against 51, and every mode
+predicate of 68-71 equal to 51's (55's for 70 and 71) except the claims. It corrected the wording of
+steps 1 and 7 and the `a_dealt` formula (fixed above) and flagged two timing-only skews in the
+stamped twins:
+- 70 and 71 take the light "phase A end" stamp (S.dg[16][3]) after `consumer_claim_a`, whose first
+  `bq_get` waits for the weights producer's first claim; 55 takes it before phase B's first
+  `bq_get`. So 71's phase A mean and A end spread include that wait and 55's do not: read the stamp
+  comparison as an upper bound on 71's phase A cost.
+- In 70 a CTA with no dealt unit leaves the gather stamp S.dg[16][7] at 0 (as in 64): ABGATHER should
+  read 0 as "no dealt unit".
 
 ### Local compile gate (nvcc 12.8.1, sm_90a, `tools/moe_compile_fused.sh`)
 
