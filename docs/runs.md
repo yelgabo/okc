@@ -710,3 +710,147 @@ needs no change.
    the in-layer pooler row (cgemv<512,1>, 14.6 / 14.9 us in 9b921febc7ad4140) falls by 0.3-1.0
    us and the qkv row (10.1 / 9.5) by 0.3-0.5; the slice row moves to cgemv at sgemv's time or
    0.1-0.3 below. That is about +0.1% to +0.3% of layer score at 0.199% per us.
+
+## 16 / 32-token skinny projections, 2026-10-29 (branch worktree-agent-aa1e7ced542e0303e)
+
+Hotspot pick: `tools/dl_hotspots.py` on the layer incumbent 9b921febc7ad4140 (1.964x) puts dense
+projections at 30.9% of score-weighted time. With the m = 1 cgemv (a35709c) and qkv8 (fee7249)
+already done but not yet in that profile, the next projection rows are the 16 / 32-token sk
+kernels: pooler 19.2 / 19.9 us (with the fused router), unpooler 14.9 / 17.5, qkv 10.4 / 12.0,
+o 6.5 / 6.6 at decode 16 / 32. Judged standalone (01703396ea1a409e) the worst ratios against
+SGLang at these sizes are o (1.12x / 1.10x) and qkv_gate at 32 tokens (1.21x).
+
+`tools/proj_make_bench_m16.py` appends a bench like the m = 8 one (random arm order, cold L2,
+200 rounds, two passes with different x, paired medians with quartiles) at m = 16 and 32 over
+the four BF16 layers: the control's kernel_fn twice, its pick called directly, a copy with
+extra SK_GEOM geometries as SK_EXTRA candidates (each extra also called directly), and
+optionally the public kernel_fn (`--pub`, scratchpad copy, never committed). The two rounds
+below ran without `--pub`, so the coordinator could spend expiring scored runs on them; their
+judged path is the unchanged board file. All arms passed ABCHECK. The new instantiations
+compile with nvcc 12.8 sm_90a with no spills and no new warnings, and the CPU dry run passes.
+
+Hypotheses tested (us, arm minus ours, pass 0 / pass 1):
+
+| shape | mechanism | arms | result |
+|---|---|---|---|
+| qkv_gate 16 | 8 stages instead of 16 (the qkv8 lever) | qkv16u4 (ring 3) | +0.22 / +0.24 |
+| qkv_gate 16 / 32 | more consumer warps per sub-partition | w8, w8u1, r3 (8-12 warps) | +0.75 to +2.91 |
+| qkv_gate 16 / 32 | 96 CTAs on 132 SMs: 16 rows per CTA at 2 CTAs per SM | n2, n2b | +1.34 to +5.22 |
+| pooler 16 / 32 | consumer warps, 16 rows per CTA | w8, n1, n1b | +0.00 to +4.32 |
+| o 16 | 4 consumer warps instead of 2 (K split 2 ways, 2 units each) | o16w2 | **-0.22 / -0.43, repeat -0.38 / -0.35** |
+| o 16 / 32 | 8 or 16 consumer warps; 8 stages | o16w4, o16r4, o16r4w4, o32w4, o32r4, o16u2 | -0.06 to +0.93 |
+| unpooler 32 | 32 rows per CTA, 256 CTAs at 2 per SM (98 KB) | unp32n2 | **-0.54 / -0.16, repeat -0.32 / -0.27** |
+| unpooler 16 / 32 | 64 rows, 8 warps | unp16n4, unp16n4u4, unp16w4, unp32w8, unp32n2w4 | -0.06 to +0.86 |
+
+Nulls (ours2 - ours) were inside +-0.10 everywhere. Measured: none of stage count, consumer-warp
+count or CTA count moves qkv_gate or the pooler at 16 / 32 tokens. Hypothesis, not tested: a
+qkv_gate K split that fills all 132 SMs needs clustered escape warps (the kernel forbids
+COMP with CL > 1). The o projection has only K = 1024 (four stages), so two consumer warps
+leave the CTA's short pipeline under-used; four warps fix that and eight do not add more.
+
+The change (4d53658): `SK_GEOM["o16"]` (1, 16, 2, 2, 1, 4, 3) -> (1, 16, 2, 2, 2, 2, 3) and
+`SK_GEOM["unp32"]` (2, 32, 4, 2, 2, 2, 3) -> (2, 32, 2, 2, 2, 2, 3). Both new geometries were
+already compiled kernels (unp16's and o32's templates), so there is no new instantiation; same
+fences and barriers. `tools/emulate_proj.py` passes every per-config check, including o16 and
+unp32 (71 ok); its balanced qkv group (qkv8 + qkv16 + qkv32) fails an assert on main f61d8d9 as
+well, since qkv8 went to 8 stages (fee7249), so that failure predates this change.
+
+| date | job | kind | commit | change | score (95% CI) | notes |
+|---|---|---|---|---|---|---|
+| 10-29 | 01703396ea1a409e | submit (bench, by the coordinator) | dd67954 bench on f61d8d9 | m = 16 / 32 bench, 21 extra geometries, no public arm | 1.430x (1.409-1.452) | table above; judged path is the board file |
+| 10-29 | 3678bfd3ef1c4ce6 | submit (bench, by the coordinator) | 977afb3 bench on f61d8d9 | round 2: o warps, unp32n2 repeat, no public arm | 1.435x (1.414-1.457) | table above; tuner picked o16w2 (9.7 vs o16 10.0) |
+| 10-29 | 2048b59099f3435d | submit (bench, by the coordinator) | 4d53658 (+ bench, `--variants old`) | the change as the judged path, paired against the pre-change geometries | **1.450x** (1.428-1.471) | new board entry (was 1.444x, 81254e8aed794eab), rank 302 on muse_bf16_proj. old minus new: o m=16 +0.16 / +0.26, unpooler m=32 +0.27 / +0.45; o m=32 and unpooler m=16 (unchanged) +0.00 to +0.16. Judged o m=16 5.68 us (5.83, 6.05 in the two runs above), unpooler m=32 14.57 (14.88, 15.30) |
+
+| 10-29 | d2c9cb6997794859 | submit (bench, by the coordinator) | 4d53658 (+ bench, `--variants acc`, d467abb) | NACC 2 on qkv16, qkv32, o16, o32, pool32, unp16, unp32 | 1.443x (1.421-1.465) | acc minus ours: qkv 16 +0.10 / +0.00, 32 +0.48 / +0.32; o 16 +0.21 / +0.06, 32 +0.10 / +0.06; pooler 16 +0.00 / -0.03, 32 +0.78 / +0.61; unpooler 16 +0.16 / +0.11, 32 +0.06 / +0.19. Second judged sample of 4d53658: o m=16 5.65, unpooler m=32 15.02 |
+
+Third paired sample of each change: o16 +0.16 / +0.26 and unp32 +0.27 / +0.45 for the old
+geometry. Across the three runs the gain is about 0.3 us per shape (six passes each, all on the
+same side). The whole-file score moved 1.444x -> 1.450x, inside the CI as two shapes of thirty
+should.
+
+Port to the layer (the layer agent owns it; its b1e620a lets `tools/dl_proj_inline.py` past the
+SK_PDL griddepcontrol guard). By hand it is eight lines of muse_decode_layer/submission.py, all
+index-stable (o16 is config 8 / o16raw 9, unp32 22 / unp32raw 23 in both files):
+
+1. `_SKP_SRC` dispatch: `case 8` and `case 9` become `launch_sk<1, 16, 2, 2, 2, 2, 3, true|false,
+   ...>` (from `<1, 16, 2, 2, 1, 4, 3, ...>`); `case 22` and `case 23` become `launch_sk<2, 32,
+   2, 2, 2, 2, 3, true|false, ...>` (from `<2, 32, 4, 2, 2, 2, 3, ...>`).
+2. `_SKP_CONFIGS`: `('o16', 1, 16, 2, 2, 2, 2, 3, True, False, 1, 1, 'bf16', False)`, the same
+   with `False` for o16raw; `('unp32', 2, 32, 2, 2, 2, 2, 3, True, ...)` and unp32raw.
+3. Through the inliner instead: from a checkout with 4d53658 and b1e620a, `python3
+   tools/dl_proj_inline.py`; the diff should contain these eight lines plus the pending cgemv and
+   qkv8 ports.
+4. Check: Docker compile (`tools/dl_compile_check.sh`), no new template instances (both
+   geometries already exist as unp16 / o32). In the layer log, `SKP selftest o o16: ok` and
+   `SKP selftest unpooler unp32: ok`, then `SKP tune o m=16` and `SKP tune unpooler m=32`.
+5. Prediction (hypothesis): the in-layer o row at decode 16 (sk_kernel<1, 16, 2, 2, 1, 4, ...>,
+   6.5 / 6.2 us in 9b921febc7ad4140) and the unpooler row at decode 32 (<2, 32, 4, 2, 2, 2, ...>,
+   17.5 / 17.6) each fall by about 0.3 us: about +0.03% (decode 16) and +0.02% (decode 32) of
+   layer score at 0.102% / 0.079% per us.
+
+### Against the public entry at 16 / 32 tokens, and the late slot release (2026-10-30 checks)
+
+With the public arm (vjeux v141, scratchpad copy) in the same process, c6e13cc974a24294, public
+minus ours (4d53658), us, pass 0 / pass 1: qkv_gate 16 -0.51 / -0.50, 32 -0.93 / -0.93; o 16
+-0.16 / -0.13, 32 -0.51 / -0.48; pooler 16 -0.22 / -0.19, 32 -0.43 / -0.67; unpooler 16 -0.16 /
+-0.10, 32 -0.13 / -0.16. The public kernel uses the same geometries on these shapes (its
+SK2_PICK), so the lead is in the kernel's per-stage path.
+
+Attribution (807464e240ec4f6c, the m = 8 bench's consumer-path patches applied to every config):
+
+| arm | change | effect at 16 tokens | effect at 32 tokens |
+|---|---|---|---|
+| nofence | no per-stage proxy fence (attribution only, never a candidate) | -0.10 to +0.10 | -0.08 to +0.06 |
+| novote | consumer wait without `__all_sync` | -0.13 to +0.13 | -0.13 to +0.06 |
+| late | empty-barrier arrive after the stage's MMAs (the public's order), fence kept | qkv +0.00, o -0.06, pooler -0.13 / +0.13, unpooler -0.03 | **qkv -0.38 / -0.29, o -0.26 / -0.19, unpooler -0.13 / -0.16**, pooler +0.26 / +0.26 |
+
+Unlike at 8 tokens, the proxy fence is not the gap at 16 / 32 tokens (nofence is inside the
+null). The release point is part of it at 32 tokens: with two units per warp and two m-tiles,
+releasing the slot after the MMAs lets the warp issue the stage's MMAs before the fence and
+the arrive. On the pooler (four units per warp) it loses, and at 8 tokens it lost on the slice
+(c991867992d34fb2).
+
+The change (eb374e4): `SkCfg::LATE_ARRIVE = MT == 2 && UPW == 2` (qkv32, o32, unp32 and their
+raw twins); those kernels arrive on the empty barrier after the stage's MMAs, with the same
+`fence.proxy.async` + `__syncwarp` + lane-0 arrive. The arrive only moves later, after every
+read of the slot, so the slot is released no earlier than before. SASS (nvcc 12.8, sm_90a)
+against 4d53658: 50 of 54 kernels identical; the four changed ones are exactly the MT 2 / UPW 2
+instantiations, with equal MEMBAR (3 / 5), SYNCS (18-38) and FENCE (5 / 8) counts; qkv32 102 ->
+112 registers, o32 / unp32 86 -> 88, no spills.
+
+Paired (nolate = the same file with LATE_ARRIVE false; same = a second module with identical
+code, the module null), us:
+
+| shape | nolate - ours, f14c880c19a34369 | nolate - ours, 1093e22ca2534d7f | same - ours (null) |
+|---|---|---|---|
+| qkv_gate 32 | +0.38 / +0.48 | +0.42 / +0.48 | +0.06 / +0.03 |
+| o 32 | +0.22 / +0.26 | +0.22 / +0.26 | +0.06 / +0.06 |
+| unpooler 32 | +0.22 / +0.32 | +0.32 / +0.16 | +0.03 / +0.06 |
+| unchanged shapes | +0.06 to +0.26 | -0.03 to +0.19 | -0.06 to +0.16 |
+
+In f14c880c the unchanged shapes sat +0.06 to +0.26 above ours, a module offset that the null
+arm in 1093e22c measured at -0.06 to +0.16; the three changed shapes are 0.2-0.4 us above that
+in both runs. Judged with the change: qkv_gate m=32 11.25 / 10.91 us (11.61, 11.93 before),
+o m=32 6.28 / 5.85 (6.04-6.17), unpooler m=32 14.71 / 14.51 (14.57, 15.02). Public minus ours in
+f14c880c after the change: qkv 32 -0.61 / -0.48, o 32 -0.32 / -0.32, pooler 32 -0.38 / -0.61,
+unpooler 32 -0.03 / +0.03, and -0.03 to -0.51 at 16 tokens.
+
+| date | job | kind | commit | change | score (95% CI) | notes |
+|---|---|---|---|---|---|---|
+| 10-30 | c6e13cc974a24294 | check (bench) | 4d53658 (+ bench, `--variants old --pub`) | ours vs pre-change geometries vs public at 16 / 32 tokens | 1.423x (1.401-1.444) | public leads every shape (table above); old - ours o16 +0.43 / +0.42, unp32 +0.59 / +0.53 (fourth repeat) |
+| 10-30 | 807464e240ec4f6c | check (bench) | 4d53658 (+ bench, `--variants novote,nofence,late --pub`) | consumer-path attribution at 16 / 32 tokens | 1.452x (1.430-1.473) | attribution table above |
+| 10-30 | f14c880c19a34369 | check (bench) | eb374e4 (+ bench, `--variants nolate --pub`) | LATE_ARRIVE judged, paired against its absence and the public | 1.456x (1.434-1.477) | highest judged score of this problem; table above |
+| 10-30 | 1093e22ca2534d7f | check (bench) | eb374e4 (+ bench, `--variants same,nolate`) | repeat with a module null | 1.442x (1.421-1.464) | table above |
+
+Port to the layer. The change is inside the `_SK_SRC` kernel template, which the inliner copies
+verbatim (with the layer agent's b1e620a for the SK_PDL guard), so a re-inline from eb374e4
+carries it with the o16 / unp32 geometries. By hand, three edits in the layer's `_SKP_SRC`: add
+`static constexpr bool LATE_ARRIVE = MT == 2 && UPW == 2;` to `SkCfg`, guard the in-loop arrive
+with `!C::LATE_ARRIVE &&`, and add the `if constexpr (C::LATE_ARRIVE) { fence_proxy_async();
+__syncwarp(); if (lane == 0) mbar_arrive(empty0 + 8 * slot); }` block after the unit loop.
+Check: per-instance SASS of the layer build against the standalone, identical except the
+<2, 32, *, *, *, 2, ...> sk instances; fence and barrier counts equal. In the layer log, `SKP
+selftest qkv_gate qkv32: ok`, `o o32: ok`, `unpooler unp32: ok`. Prediction (hypothesis): the
+decode 32 qkv row (sk_kernel<2, 32, 3, 1, 4, 2, ...>, 12.0 / 12.0 us in 9b921febc7ad4140) falls
+about 0.4 us, o (<2, 32, 2, 2, 2, 2, ...>, 6.6 / 6.4) about 0.2, unpooler about 0.2 more on top
+of the geometry change: about +0.06% of layer score at 0.079% per us.

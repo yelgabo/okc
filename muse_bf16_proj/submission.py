@@ -85,7 +85,9 @@ SK_GEOM = {
     "qkv16": (1, 16, 3, 1, 4, 2, 5),
     "qkv32": (2, 32, 3, 1, 4, 2, 4),
     "o8": (1, 8, 4, 1, 4, 1, 4),
-    "o16": (1, 16, 2, 2, 1, 4, 3),
+    # Four consumer warps (K split 2 ways) instead of two: K = 1024 is only four stages, and
+    # -0.22 / -0.43 / -0.38 / -0.35 us paired (benches 01703396ea1a409e, 3678bfd3ef1c4ce6).
+    "o16": (1, 16, 2, 2, 2, 2, 3),
     "o32": (2, 32, 2, 2, 2, 2, 3),
     "pool8": (1, 8, 1, 2, 2, 4, 3),
     "pool16": (1, 16, 2, 2, 2, 4, 4),
@@ -96,7 +98,9 @@ SK_GEOM = {
     "pool32": (2, 32, 2, 2, 2, 4, 4),
     "slice8": (1, 8, 1, 1, 8, 2, 4),
     "unp16": (1, 16, 2, 2, 2, 2, 3),
-    "unp32": (2, 32, 4, 2, 2, 2, 3),
+    # 32 rows per CTA, 256 CTAs at 2 per SM (98 KB) instead of 64 rows at 1: -0.54 / -0.16 /
+    # -0.32 / -0.27 us paired (benches 01703396ea1a409e, 3678bfd3ef1c4ce6).
+    "unp32": (2, 32, 2, 2, 2, 2, 3),
 }
 ROUTER_GEOM = {
     "router8": (1, 8, 1, 1, 8, 1, 6),
@@ -393,6 +397,12 @@ struct SkCfg {
     static constexpr int BAR_BYTES = 16 * NSTAGE + 32;
     static constexpr int FIXED = 1024 + NSTAGE * SST + BAR_BYTES + 4 * (CORR_FLOATS + PEER_FLOATS) + 128 + 16;
     static constexpr int MINB = 2 * (FIXED + 2048) <= 228 * 1024 ? 2 : 1;
+    // Release a slot after the stage's MMAs instead of after its last operand loads (the public
+    // entry's order; same fence). At 32 tokens with two units per warp this was -0.38 / -0.29 us
+    // on qkv_gate, -0.26 / -0.19 on o, -0.13 / -0.16 on the unpooler, but +0.26 / +0.26 on the
+    // pooler (UPW 4) and +0.10 / +0.16 on the m = 8 slice (benches 807464e240ec4f6c,
+    // c991867992d34fb2), so it is limited to MT 2 with UPW 2.
+    static constexpr bool LATE_ARRIVE = MT == 2 && UPW == 2;
     static_assert(WSK * TOKS * RP * 4 <= NSTAGE * SST, "epilogue partials must fit in the ring");
     static_assert(!FUSE || (COMP && CL == 1 && NW * RUPW == UPS && NW * TOKS * 8 * 4 <= NSTAGE * SST),
                   "fused piece geometry");
@@ -709,7 +719,7 @@ sk_kernel(const __grid_constant__ CUtensorMap xmap, const uint8_t* __restrict__ 
             }
             uint32_t a[4][MT][4];
             load_a(xt, ui, a);
-            if (uu == UPW - 1) {
+            if (!C::LATE_ARRIVE && uu == UPW - 1) {
                 // Everything this warp needs from the slot is in registers.
                 fence_proxy_async();
                 __syncwarp();
@@ -738,6 +748,13 @@ sk_kernel(const __grid_constant__ CUtensorMap xmap, const uint8_t* __restrict__ 
                         }
                     }
                 }
+            }
+        }
+        if constexpr (C::LATE_ARRIVE) {
+            fence_proxy_async();
+            __syncwarp();
+            if (lane == 0) {
+                mbar_arrive(empty0 + 8 * slot);
             }
         }
     }

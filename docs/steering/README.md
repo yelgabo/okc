@@ -4,7 +4,14 @@ This is the stable entry point for steering reports across research, implementat
 and coordinator sessions. The user requested on 2026-10-29 that every project-steering
 report be checked into this repository so other sessions can read it.
 
-## Latest hourly report, 14:25
+## Latest hourly report, 16:27
+
+**[2026-10-29 16:27 PDT: Staged retest and assembled layer bundle](2026-10-29-1627-performance-review.md)**
+
+Evidence snapshot `f61d8d9`. No new timing result. B's revisit trigger is met; combined
+A/E and projection bundle `b694b4a` is assembled but unjudged. PDL overlap is compile-gated only.
+
+## Previous hourly report, 14:25
 
 **[2026-10-29 14:25 PDT: Attention component gains and validation gaps](2026-10-29-1425-performance-review.md)**
 

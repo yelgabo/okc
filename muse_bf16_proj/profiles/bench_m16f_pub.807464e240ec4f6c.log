@@ -1,0 +1,78 @@
+: qkv16 13.9, qkv16raw 16.2, cublas 17.7 -> qkv16
+nofence| tune qkv_gate  m=32: qkv32 15.6, qkv32raw 16.4, cublas 18.8 -> qkv32
+nofence| tune router    m=16: router16 9.3, baseline 20.3 -> router16
+nofence| tune router    m=32: router32 9.5, baseline 20.6 -> router32
+nofence| tune unpooler  m=16: unp16 18.1, unp16raw 21.6, cublas 22.1 -> unp16
+nofence| tune unpooler  m=32: unp32 19.2, unp32raw 22.6, cublas 22.5 -> unp32
+ABPREP nofence 21.0 s
+late| tune o         m=16: o16 9.9, o16raw 10.6, cublas 10.8 -> o16
+late| tune o         m=32: o32 10.2, o32raw 11.0, cublas 11.0 -> o32
+late| tune pooler    m=16: pool16 18.7, pool16raw 21.9, cublas 25.5 -> pool16
+late| tune pooler    m=32: pool32 20.0, pool32raw 22.1, cublas 25.8 -> pool32
+late| tune qkv_gate  m=16: qkv16 13.9, qkv16raw 16.0, cublas 17.8 -> qkv16
+late| tune qkv_gate  m=32: qkv32 15.3, qkv32raw 16.3, cublas 18.9 -> qkv32
+late| tune router    m=16: router16 9.5, baseline 20.3 -> router16
+late| tune router    m=32: router32 9.8, baseline 20.9 -> router32
+late| tune unpooler  m=16: unp16 18.2, unp16raw 21.9, cublas 22.2 -> unp16
+late| tune unpooler  m=32: unp32 19.0, unp32raw 22.5, cublas 22.5 -> unp32
+ABPREP late 21.2 s
+pub| [okc] tune qkv_gate m=16: sk2=12.93 torch=17.31 -> sk2
+pub| [okc] tune o m=16: sk2=8.77 torch=9.79 -> sk2
+pub| [okc] tune pooler m=16: sk2=17.73 torch=24.9 -> sk2
+pub| [okc] tune unpooler m=16: sk2=17.15 torch=21.76 -> sk2
+pub| [okc] tune router m=16: sk2=8.16 torch=18.21 -> sk2
+pub| [okc] tune qkv_gate m=32: sk2=14.11 torch=17.54 -> sk2
+pub| [okc] tune o m=32: sk2=9.02 torch=10.02 -> sk2
+pub| [okc] tune pooler m=32: sk2=18.59 torch=25.31 -> sk2
+pub| [okc] tune unpooler m=32: sk2=18.43 torch=22.27 -> sk2
+pub| [okc] tune router m=32: sk2=8.54 torch=18.46 -> sk2
+pub| [okc] disabled: []
+ABPREP pub 90.1 s
+ABCHECK ok qkv_gate m=16 p0 sgl=1.7e-03 ours=1.7e-03 ours2=1.7e-03 ours.qkv16=1.7e-03 novote=1.7e-03 nofence=1.7e-03 late=1.7e-03 pub=1.7e-03
+ABCOLD qkv_gate m=16 p0 sgl=18.62 ours=14.46 ours2=14.46 ours.qkv16=14.50 novote=14.40 nofence=14.37 late=14.46 pub=13.82
+ABPAIR qkv_gate m=16 p0 ours2-ours=+0.02[-0.22,+0.26] ours.qkv16-ours=+0.10[-0.22,+0.38] novote-ours=-0.06[-0.35,+0.26] nofence-ours=-0.10[-0.35,+0.19] late-ours=+0.00[-0.29,+0.29] pub-ours=-0.64[-0.93,-0.35] ours-pub=+0.64[+0.38,+0.93] novote-pub=+0.54[+0.35,+0.80] nofence-pub=+0.56[+0.29,+0.83] late-pub=+0.64[+0.42,+0.86]
+ABCHECK ok qkv_gate m=16 p1 sgl=1.7e-03 ours=1.7e-03 ours2=1.7e-03 ours.qkv16=1.7e-03 novote=1.7e-03 nofence=1.7e-03 late=1.7e-03 pub=1.7e-03
+ABCOLD qkv_gate m=16 p1 sgl=18.75 ours=14.51 ours2=14.46 ours.qkv16=14.50 novote=14.40 nofence=14.37 late=14.50 pub=13.73
+ABPAIR qkv_gate m=16 p1 ours2-ours=-0.03[-0.29,+0.26] ours.qkv16-ours=+0.00[-0.35,+0.29] novote-ours=-0.13[-0.42,+0.13] nofence-ours=-0.10[-0.45,+0.10] late-ours=+0.00[-0.32,+0.22] pub-ours=-0.77[-1.09,-0.54] ours-pub=+0.77[+0.54,+1.12] novote-pub=+0.64[+0.42,+0.90] nofence-pub=+0.64[+0.42,+0.86] late-pub=+0.74[+0.54,+1.02]
+ABCHECK ok o m=16 p0 sgl=1.7e-03 ours=1.7e-03 ours2=1.7e-03 ours.o16=1.7e-03 novote=1.7e-03 nofence=1.7e-03 late=1.7e-03 pub=1.7e-03
+ABCOLD o m=16 p0 sgl=10.94 ours=9.87 ours2=9.89 ours.o16=9.82 novote=9.86 nofence=9.82 late=9.81 pub=9.76
+ABPAIR o m=16 p0 ours2-ours=+0.03[-0.19,+0.29] ours.o16-ours=-0.03[-0.26,+0.16] novote-ours=+0.00[-0.22,+0.22] nofence-ours=-0.03[-0.26,+0.19] late-ours=-0.06[-0.29,+0.19] pub-ours=-0.06[-0.35,+0.13] ours-pub=+0.06[-0.13,+0.35] novote-pub=+0.10[-0.10,+0.32] nofence-pub=+0.06[-0.10,+0.29] late-pub=+0.03[-0.19,+0.29]
+ABCHECK ok o m=16 p1 sgl=1.7e-03 ours=1.7e-03 ours2=1.7e-03 ours.o16=1.7e-03 novote=1.7e-03 nofence=1.7e-03 late=1.7e-03 pub=1.7e-03
+ABCOLD o m=16 p1 sgl=10.94 ours=9.82 ours2=9.89 ours.o16=9.82 novote=9.86 nofence=9.82 late=9.76 pub=9.79
+ABPAIR o m=16 p1 ours2-ours=+0.06[-0.13,+0.29] ours.o16-ours=+0.03[-0.19,+0.22] novote-ours=+0.00[-0.19,+0.19] nofence-ours=-0.03[-0.16,+0.19] late-ours=-0.06[-0.29,+0.16] pub-ours=-0.03[-0.19,+0.19] ours-pub=+0.03[-0.19,+0.19] novote-pub=+0.02[-0.16,+0.22] nofence-pub=+0.03[-0.16,+0.16] late-pub=-0.03[-0.22,+0.16]
+ABCHECK ok pooler m=16 p0 sgl=1.7e-03 ours=1.7e-03 ours2=1.7e-03 ours.pool16=1.7e-03 novote=1.7e-03 nofence=1.7e-03 late=1.7e-03 pub=1.7e-03
+ABCOLD pooler m=16 p0 sgl=26.27 ours=19.23 ours2=19.25 ours.pool16=19.20 novote=19.26 nofence=19.17 late=19.14 pub=18.80
+ABPAIR pooler m=16 p0 ours2-ours=-0.03[-0.32,+0.32] ours.pool16-ours=+0.00[-0.35,+0.32] novote-ours=+0.06[-0.22,+0.38] nofence-ours=-0.03[-0.32,+0.26] late-ours=-0.13[-0.35,+0.22] pub-ours=-0.42[-0.74,+0.00] ours-pub=+0.42[+0.03,+0.74] novote-pub=+0.46[+0.10,+0.74] nofence-pub=+0.35[+0.06,+0.64] late-pub=+0.34[+0.00,+0.61]
+ABCHECK ok pooler m=16 p1 sgl=1.7e-03 ours=1.7e-03 ours2=1.7e-03 ours.pool16=1.7e-03 novote=1.7e-03 nofence=1.7e-03 late=1.7e-03 pub=1.7e-03
+ABCOLD pooler m=16 p1 sgl=26.05 ours=19.07 ours2=19.10 ours.pool16=19.14 novote=19.10 nofence=19.20 late=19.20 pub=18.94
+ABPAIR pooler m=16 p1 ours2-ours=+0.00[-0.29,+0.35] ours.pool16-ours=+0.05[-0.22,+0.32] novote-ours=+0.00[-0.29,+0.38] nofence-ours=+0.10[-0.16,+0.48] late-ours=+0.13[-0.16,+0.48] pub-ours=-0.13[-0.45,+0.22] ours-pub=+0.13[-0.22,+0.48] novote-pub=+0.16[-0.22,+0.48] nofence-pub=+0.29[-0.03,+0.58] late-pub=+0.26[-0.10,+0.58]
+ABCHECK ok unpooler m=16 p0 sgl=1.7e-03 ours=1.7e-03 ours2=1.7e-03 ours.unp16=1.7e-03 novote=1.7e-03 nofence=1.7e-03 late=1.7e-03 pub=1.7e-03
+ABCOLD unpooler m=16 p0 sgl=23.20 ours=18.62 ours2=18.59 ours.unp16=18.61 novote=18.69 nofence=18.70 late=18.62 pub=18.34
+ABPAIR unpooler m=16 p0 ours2-ours=-0.03[-0.38,+0.29] ours.unp16-ours=+0.02[-0.35,+0.42] novote-ours=+0.05[-0.26,+0.35] nofence-ours=+0.10[-0.19,+0.48] late-ours=-0.03[-0.32,+0.29] pub-ours=-0.29[-0.64,+0.00] ours-pub=+0.29[+0.00,+0.64] novote-pub=+0.30[+0.03,+0.67] nofence-pub=+0.37[+0.03,+0.70] late-pub=+0.32[-0.03,+0.54]
+ABCHECK ok unpooler m=16 p1 sgl=1.7e-03 ours=1.7e-03 ours2=1.7e-03 ours.unp16=1.7e-03 novote=1.7e-03 nofence=1.7e-03 late=1.7e-03 pub=1.7e-03
+ABCOLD unpooler m=16 p1 sgl=23.17 ours=18.59 ours2=18.62 ours.unp16=18.62 novote=18.72 nofence=18.62 late=18.59 pub=18.30
+ABPAIR unpooler m=16 p1 ours2-ours=+0.06[-0.26,+0.32] ours.unp16-ours=+0.05[-0.26,+0.42] novote-ours=+0.13[-0.19,+0.48] nofence-ours=+0.06[-0.22,+0.35] late-ours=-0.02[-0.32,+0.35] pub-ours=-0.34[-0.61,+0.10] ours-pub=+0.34[-0.10,+0.61] novote-pub=+0.43[+0.03,+0.83] nofence-pub=+0.32[-0.03,+0.64] late-pub=+0.22[-0.06,+0.64]
+ABCHECK ok qkv_gate m=32 p0 sgl=1.7e-03 ours=1.7e-03 ours2=1.7e-03 ours.qkv32=1.7e-03 novote=1.7e-03 nofence=1.7e-03 late=1.7e-03 pub=1.7e-03
+ABCOLD qkv_gate m=32 p0 sgl=18.88 ours=15.81 ours2=15.81 ours.qkv32=15.78 novote=15.65 nofence=15.74 late=15.42 pub=14.94
+ABPAIR qkv_gate m=32 p0 ours2-ours=+0.00[-0.16,+0.26] ours.qkv32-ours=-0.03[-0.22,+0.22] novote-ours=-0.13[-0.38,+0.06] nofence-ours=-0.06[-0.26,+0.13] late-ours=-0.38[-0.61,-0.10] pub-ours=-0.86[-1.06,-0.54] ours-pub=+0.86[+0.54,+1.06] novote-pub=+0.70[+0.38,+0.99] nofence-pub=+0.77[+0.48,+1.06] late-pub=+0.48[+0.22,+0.77]
+ABCHECK ok qkv_gate m=32 p1 sgl=1.7e-03 ours=1.7e-03 ours2=1.7e-03 ours.qkv32=1.7e-03 novote=1.7e-03 nofence=1.7e-03 late=1.7e-03 pub=1.7e-03
+ABCOLD qkv_gate m=32 p1 sgl=18.90 ours=15.84 ours2=15.81 ours.qkv32=15.97 novote=15.84 nofence=15.84 late=15.55 pub=15.01
+ABPAIR qkv_gate m=32 p1 ours2-ours=-0.03[-0.26,+0.22] ours.qkv32-ours=+0.13[-0.10,+0.35] novote-ours=-0.03[-0.26,+0.22] nofence-ours=+0.03[-0.19,+0.26] late-ours=-0.29[-0.51,-0.03] pub-ours=-0.80[-1.09,-0.54] ours-pub=+0.80[+0.54,+1.09] novote-pub=+0.85[+0.54,+1.12] nofence-pub=+0.86[+0.54,+1.22] late-pub=+0.54[+0.22,+0.83]
+ABCHECK ok o m=32 p0 sgl=1.7e-03 ours=1.7e-03 ours2=1.7e-03 ours.o32=1.7e-03 novote=1.7e-03 nofence=1.7e-03 late=1.7e-03 pub=1.7e-03
+ABCOLD o m=32 p0 sgl=11.10 ours=10.56 ours2=10.53 ours.o32=10.56 novote=10.56 nofence=10.46 late=10.30 pub=9.98
+ABPAIR o m=32 p0 ours2-ours=-0.03[-0.26,+0.22] ours.o32-ours=+0.00[-0.26,+0.19] novote-ours=-0.02[-0.19,+0.19] nofence-ours=-0.08[-0.29,+0.13] late-ours=-0.26[-0.42,-0.06] pub-ours=-0.51[-0.74,-0.42] ours-pub=+0.51[+0.42,+0.74] novote-pub=+0.58[+0.38,+0.74] nofence-pub=+0.48[+0.29,+0.64] late-pub=+0.32[+0.13,+0.51]
+ABCHECK ok o m=32 p1 sgl=1.7e-03 ours=1.7e-03 ours2=1.7e-03 ours.o32=1.7e-03 novote=1.7e-03 nofence=1.7e-03 late=1.7e-03 pub=1.7e-03
+ABCOLD o m=32 p1 sgl=11.12 ours=10.40 ours2=10.46 ours.o32=10.34 novote=10.43 nofence=10.40 late=10.24 pub=9.95
+ABPAIR o m=32 p1 ours2-ours=+0.06[-0.16,+0.22] ours.o32-ours=-0.03[-0.22,+0.16] novote-ours=+0.02[-0.16,+0.22] nofence-ours=+0.00[-0.22,+0.22] late-ours=-0.19[-0.35,+0.03] pub-ours=-0.45[-0.64,-0.26] ours-pub=+0.45[+0.26,+0.64] novote-pub=+0.48[+0.29,+0.67] nofence-pub=+0.45[+0.22,+0.61] late-pub=+0.26[+0.10,+0.45]
+ABCHECK ok pooler m=32 p0 sgl=1.7e-03 ours=1.7e-03 ours2=1.7e-03 ours.pool32=1.7e-03 novote=1.7e-03 nofence=1.7e-03 late=1.7e-03 pub=1.7e-03
+ABCOLD pooler m=32 p0 sgl=26.62 ours=20.10 ours2=20.19 ours.pool32=20.16 novote=20.03 nofence=20.16 late=20.32 pub=19.39
+ABPAIR pooler m=32 p0 ours2-ours=+0.08[-0.38,+0.58] ours.pool32-ours=+0.02[-0.42,+0.48] novote-ours=-0.03[-0.48,+0.42] nofence-ours=+0.06[-0.45,+0.51] late-ours=+0.26[-0.13,+0.64] pub-ours=-0.67[-1.12,-0.32] ours-pub=+0.67[+0.32,+1.15] novote-pub=+0.64[+0.29,+1.06] nofence-pub=+0.74[+0.38,+1.09] late-pub=+0.96[+0.61,+1.31]
+ABCHECK ok pooler m=32 p1 sgl=1.7e-03 ours=1.7e-03 ours2=1.7e-03 ours.pool32=1.7e-03 novote=1.7e-03 nofence=1.7e-03 late=1.7e-03 pub=1.7e-03
+ABCOLD pooler m=32 p1 sgl=26.82 ours=20.13 ours2=20.13 ours.pool32=20.10 novote=20.11 nofence=20.06 late=20.42 pub=19.42
+ABPAIR pooler m=32 p1 ours2-ours=+0.00[-0.42,+0.42] ours.pool32-ours=-0.06[-0.42,+0.38] novote-ours=-0.10[-0.45,+0.38] nofence-ours=-0.05[-0.48,+0.38] late-ours=+0.26[-0.16,+0.83] pub-ours=-0.70[-1.12,-0.32] ours-pub=+0.70[+0.32,+1.15] novote-pub=+0.70[+0.35,+1.09] nofence-pub=+0.62[+0.26,+0.99] late-pub=+0.96[+0.64,+1.41]
+ABCHECK ok unpooler m=32 p0 sgl=1.7e-03 ours=1.7e-03 ours2=1.7e-03 ours.unp32=1.7e-03 novote=1.7e-03 nofence=1.7e-03 late=1.7e-03 pub=1.7e-03
+ABCOLD unpooler m=32 p0 sgl=23.30 ours=19.52 ours2=19.52 ours.unp32=19.50 novote=19.62 nofence=19.52 late=19.38 pub=19.33
+ABPAIR unpooler m=32 p0 ours2-ours=-0.03[-0.35,+0.32] ours.unp32-ours=+0.03[-0.42,+0.32] novote-ours=+0.06[-0.22,+0.45] nofence-ours=+0.03[-0.35,+0.38] late-ours=-0.13[-0.54,+0.22] pub-ours=-0.22[-0.45,+0.13] ours-pub=+0.22[-0.13,+0.48] novote-pub=+0.29[-0.03,+0.58] nofence-pub=+0.19[-0.16,+0.58] late-pub=+0.10[-0.22,+0.48]
+ABCHECK ok unpooler m=32 p1 sgl=1.7e-03 ours=1.7e-03 ours2=1.7e-03 ours.unp32=1.7e-03 novote=1.7e-03 nofence=1.7e-03 late=1.7e-03 pub=1.7e-03
+ABCOLD unpooler m=32 p1 sgl=23.20 ours=19.46 ours2=19.42 ours.unp32=19.38 novote=19.49 nofence=19.46 late=19.26 pub=19.39
+ABPAIR unpooler m=32 p1 ours2-ours=-0.06[-0.32,+0.32] ours.unp32-ours=-0.10[-0.42,+0.29] novote-ours=+0.03[-0.29,+0.35] nofence-ours=-0.03[-0.38,+0.35] late-ours=-0.16[-0.48,+0.19] pub-ours=-0.03[-0.42,+0.26] ours-pub=+0.03[-0.26,+0.42] novote-pub=+0.10[-0.16,+0.45] nofence-pub=+0.06[-0.29,+0.45] late-pub=-0.06[-0.45,+0.38]

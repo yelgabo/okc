@@ -470,7 +470,7 @@ __constant__ int kCostBm[9] = {0, 85, 92, 104, 115, 130, 145, 160, 175};
 // mma.sync skinny kernel).
 __host__ __device__ constexpr int mma_max(int mode) {
     return mode == 6 || mode == 9 || mode == 11 || mode == 12 || mode == 14 || mode == 15
-                   || (mode >= 16 && mode <= 29) || (mode >= 31 && mode <= 42)
+                   || (mode >= 16 && mode <= 29) || (mode >= 31 && mode <= 47)
                ? 2
            : mode == 7 || mode == 10 ? 4
            : mode == 8 ? 8 : 0;
@@ -485,7 +485,7 @@ __host__ __device__ constexpr int mma_max(int mode) {
 // which no reader here relies on. The SASS is MEMBAR.ALL.GPU instead of MEMBAR.SC.GPU.
 __host__ __device__ constexpr bool fence_ar(int mode) {
     return mode == 12 || mode == 13 || mode == 14 || (mode >= 15 && mode <= 29)
-           || (mode >= 31 && mode <= 42);
+           || (mode >= 31 && mode <= 47);
 }
 
 // Modes 17 to 20 are mode 16 (two mma.sync chains, unit-aligned phase B) with one change each:
@@ -496,7 +496,7 @@ __host__ __device__ constexpr bool fence_ar(int mode) {
 // 22 is 20 with the stamps of 17. 23 is 20 with phase B units claimed at run time (dyn_b) and
 // both phases walked largest n-tile count first; 24 is 23 with the stamps.
 __host__ __device__ constexpr bool dual_chain(int mode) {
-    return mode == 14 || (mode >= 16 && mode <= 29) || (mode >= 31 && mode <= 42);
+    return mode == 14 || (mode >= 16 && mode <= 29) || (mode >= 31 && mode <= 47);
 }
 __host__ __device__ constexpr bool is_diag(int mode) {
     return mode == 11 || mode == 17 || mode == 22 || mode == 24;
@@ -506,7 +506,7 @@ __host__ __device__ constexpr bool is_diag(int mode) {
 // public kernel's eight thread-0 stamps; these cost a few stores per CTA.
 __host__ __device__ constexpr bool is_light(int mode) {
     return mode == 25 || mode == 27 || mode == 29 || mode == 31 || mode == 33 || mode == 38
-           || mode == 40 || mode == 41 || mode == 42;
+           || mode == 40 || mode == 41 || mode == 42 || mode == 44;
 }
 // Modes 26 and 27 (27 with the light stamps) are 23 with the setup of the public kernel's
 // route(): every warp counts its slice of the routes once (match_any), the routing warp sums
@@ -515,7 +515,7 @@ __host__ __device__ constexpr bool is_light(int mode) {
 // put setup at 7 / 11 / 16 us of routing at 32 / 128 / 256 tokens against 2-3 us for the
 // public kernel (check d1f587760b1241dc).
 __host__ __device__ constexpr bool fast_setup(int mode) {
-    return (mode >= 26 && mode <= 29) || (mode >= 31 && mode <= 42);
+    return (mode >= 26 && mode <= 29) || (mode >= 31 && mode <= 47);
 }
 // Modes 28 and 29 (29 with the light stamps) are 26 with a leaner consumer stage. The stage
 // loop was 389 instructions against the public kernel's 322 for the same dequant and MMA core
@@ -531,7 +531,7 @@ __host__ __device__ constexpr bool fast_setup(int mode) {
 // release after __syncwarp at the moved point makes ptxas serialize the wgmma groups (C7513,
 // 400 instructions per stage), so that variant was dropped.
 __host__ __device__ constexpr bool lean_stage(int mode) {
-    return mode == 28 || mode == 29 || (mode >= 31 && mode <= 42);
+    return mode == 28 || mode == 29 || (mode >= 31 && mode <= 47);
 }
 // Modes 31 and 33 (timing only) are 28 and 32 with the light stamps plus phase A counters per
 // consumer warp (S.dg rows 0-15): cycles spent in weights and x waits, cycles from a unit's
@@ -541,14 +541,36 @@ __host__ __device__ constexpr bool lean_stage(int mode) {
 // on its first try counted zero and a failed first try's time was dropped.
 // Mode 41 is 37 with these counters plus the same per-warp counters over phase B (pb_diag),
 // mode 42 is 37 with the light stamps only (timing only, the overhead baseline for 41).
+// Mode 44 is 43 with mode 41's counters.
 __host__ __device__ constexpr bool pa_diag(int mode) {
-    return mode == 31 || mode == 33 || mode == 38 || mode == 40 || mode == 41;
+    return mode == 31 || mode == 33 || mode == 38 || mode == 40 || mode == 41 || mode == 44;
 }
 // pb_diag: phase B counters per consumer warp go to global memory after S.dg's 18 x 8 int64
 // per CTA (SmemMain stays the size the production modes have): p.inter as int64 from G * 144,
 // 16 x 8 per CTA, columns as pa_record's, with column 7 the cycles waiting for a claimed unit.
 __host__ __device__ constexpr bool pb_diag(int mode) {
-    return mode == 41;
+    return mode == 41 || mode == 44;
+}
+// Modes 43 and 44 (44 with mode 41's counters) are 37 with the public kernel's stage structure
+// on the wgmma path: a warp holds one 4-step code group (one uint4 and its scale word) and the
+// next, not the stage's 16 code registers, and issues the next stage's weights and x waits and
+// its first code group under the current stage's last wgmma group. Mode 41 put the consumers'
+// waits at about 20% of the stage loops, 210-230 cycles each, while the producers found the ring
+// full 70% of phase A (check ca43908f02874886), so the wait looks like a serial cost at the
+// stage start rather than a stream that falls behind. The weights slot is released one wgmma
+// group after the stage's last code load is issued (behind the sixth of eight groups, not the
+// first), with mode 28's per-thread fence.proxy.async.shared::cta and arrive (docs/runs-moe.md,
+// "Ordering of the ring slot releases"; the moved release under "Code groups with the next
+// stage hoisted").
+__host__ __device__ constexpr bool grp_codes(int mode) {
+    return mode == 43 || mode == 44 || mode == 47;
+}
+// Mode 47 is 43 without the hoist: the code groups as 43, the waits and the first group at the
+// stage's start as 37. In check 9d94ac75f4724b52, 43 beat 37 by 2.7 us at 256 tokens while
+// 44's cycles per wait did not fall (239 against 41's 223) and its epilogue got shorter, which
+// points at 43's smaller spill (8 / 100 B against 156 / 416) rather than the hoist.
+__host__ __device__ constexpr bool grp_hoist(int mode) {
+    return mode == 43 || mode == 44;
 }
 // Modes 32 to 34 publish a finished phase A unit (proxy fence, fence_gpu, the warpgroup's
 // bar.sync, red.release on done_as) at the start of the warpgroup's next phase A unit's second
@@ -570,7 +592,7 @@ __host__ __device__ constexpr bool vol_regs(int mode) {
 // themselves (the chain in docs/runs-moe.md, "Proxy ordering of the x tiles", steps 2-3).
 // Each writer keeps its fence.proxy.async.global.
 __host__ __device__ constexpr bool bar_release_a(int mode) {
-    return mode == 34 || mode == 37 || mode == 39 || mode == 40 || mode == 41 || mode == 42;
+    return mode == 34 || mode == 37 || (mode >= 39 && mode <= 47);
 }
 // Modes 36 to 38 are 28 with SiLU's reciprocal as one MUFU.RCP (rcp.approx.ftz, as the public
 // kernel's __fdividef): __frcp_rn compiles to MUFU.RCP plus a range check that branches to a
@@ -581,7 +603,7 @@ __host__ __device__ constexpr bool bar_release_a(int mode) {
 // loops, check ca43908f02874886.] 37 is 36 without the per-thread fence_gpu (as 34), 38 is 36
 // with the phase A counters (timing only).
 __host__ __device__ constexpr bool fast_silu(int mode) {
-    return mode >= 36 && mode <= 42;
+    return mode >= 36 && mode <= 47;
 }
 // Modes 39 and 40 (40 with the counters) are 37 with the SwiGLU outputs stored in pairs: in
 // the xb layout a warp owns two adjacent bf16 of each 16-byte token row, held by lanes g and
@@ -593,10 +615,11 @@ __host__ __device__ constexpr bool pair_st(int mode) {
     return mode == 39 || mode == 40;
 }
 __host__ __device__ constexpr bool a_only(int mode) {
-    return mode == 18 || mode == 19;
+    return mode == 18 || mode == 19 || mode == 45;
 }
 __host__ __device__ constexpr bool own_a(int mode) {
-    return mode == 19 || mode == 20 || (mode >= 22 && mode <= 29) || (mode >= 31 && mode <= 42);
+    return mode == 19 || mode == 20 || (mode >= 22 && mode <= 29) || (mode >= 31 && mode <= 45)
+           || mode == 47;
 }
 // Modes 23 and 24: a CTA's weights producer claims phase B units one at a time from a global
 // counter, in S.ord order, when its ring has a free slot. Owned phase A leaves CTAs with up to
@@ -604,14 +627,20 @@ __host__ __device__ constexpr bool own_a(int mode) {
 // frees first takes the next unit; S.ord puts the jobs whose phase A rounds come first (the
 // snake deal walks S.ord) at the front, so claimed units find their inputs ready.
 __host__ __device__ constexpr bool dyn_b(int mode) {
-    return (mode >= 23 && mode <= 29) || (mode >= 31 && mode <= 42);
+    return (mode >= 23 && mode <= 29) || (mode >= 31 && mode <= 44) || mode == 46
+           || mode == 47;
 }
 // Mode 21 is the second launch of the staged pair (19, then 21): phase B and the final pass
 // alone, on the xb a previous launch wrote. That launch completed before this one started
 // (stream order, or griddepcontrol.wait under PDL: PTX ISA 9.7.15.14, 8.9.4), so phase B
 // takes no done_as wait and no x gather; the issuing thread keeps its proxy fence.
+// Modes 45 and 46 are the staged pair rebuilt on mode 37's components (lean stage, setup,
+// SiLU, publish), its revisit trigger in docs/ruled-out.md: 45 is 19's phase A alone on owned
+// units, 46 is 21's phase B and final pass alone with 37's claimed phase B units. 19 and 21
+// lost to the fused 16 and 20 by 24-30 us (checks 9332e2a49aff4ff2, e221858b020c4dee), before
+// 23, 26, 28 and 37 made the fused kernel's phase B, setup and stage loop cheaper.
 __host__ __device__ constexpr bool b_only(int mode) {
-    return mode == 21;
+    return mode == 21 || mode == 46;
 }
 
 template <bool AR>
@@ -1251,128 +1280,215 @@ __device__ __forceinline__ void run_segment(const Params& p, SmemMain& S, float*
     const unsigned xb0 = kLean ? __shfl_sync(0xffffffffu, rg.xb, 0) : 0u;
     const uint64_t dx0 = ((xb0 & 0x3ffffu) >> 4) | (static_cast<uint64_t>(128 >> 4) << 16)
                          | (static_cast<uint64_t>(4096 >> 4) << 32);
+    if constexpr (grp_codes(MODE)) {
+        static_assert(kLean && DEPTH == 2 && !defer_a(MODE), "grp_codes extends mode 37");
+        // Code group c (steps 4c to 4c + 3) sits in cb[c & 1]; scw[0] holds the scale bytes of
+        // groups 0 and 1, scw[1] those of groups 2 and 3.
+        const unsigned char* wbase = S.rings + (wg * 4 + w) * 2048 + lane * 16;
+        const unsigned char* sbase = S.rings + 32768 + (wg * 4 + w) * 256 + lane * 8;
+        uint4 cb[2];
+        unsigned scw[2];
+        int ws = rg.ws;
+        int xs = rg.xs;
+        const uint4* cp = reinterpret_cast<const uint4*>(wbase + ws * kUnitBytes);
+        const unsigned* sp = reinterpret_cast<const unsigned*>(sbase + ws * kUnitBytes);
+        if (si.st_b < si.st_e) {
+            dw += mbar_wait_m<MODE, PH>(&S.wfull[ws], rg.wlap & 1, p.ctr, 2);
+            cb[0] = cp[0];
+            scw[0] = sp[0];
+            ring_next_w(rg, rg.nsw);
+            dx += mbar_wait_m<MODE, PH>(&S.xfull[xs], rg.xlap & 1, p.ctr, 8);
+        }
 #pragma unroll 1
-    for (int st = si.st_b; st < si.st_e; ++st) {
-        if constexpr (defer_a(MODE) && PH == 0) {
-            // One stage into the next unit, the previous unit's SwiGLU stores have drained.
-            if (st == si.st_b + 1 && si.r > 0) {
-                const long long c = kPa ? clock64() : 0;
-                publish_a<MODE>(p, own_target(S, si.r - 1, blockIdx.x, gridDim.x), wg, tid_wg);
-                if constexpr (kPa) {
-                    ppub += clock64() - c;
+        for (int st = si.st_b; st < si.st_e; ++st) {
+            if (!grp_hoist(MODE) && st > si.st_b) {
+                ws = rg.ws;
+                dw += mbar_wait_m<MODE, PH>(&S.wfull[ws], rg.wlap & 1, p.ctr, 2);
+                cp = reinterpret_cast<const uint4*>(wbase + ws * kUnitBytes);
+                sp = reinterpret_cast<const unsigned*>(sbase + ws * kUnitBytes);
+                cb[0] = cp[0];
+                scw[0] = sp[0];
+                ring_next_w(rg, rg.nsw);
+                dx += mbar_wait_m<MODE, PH>(&S.xfull[xs], rg.xlap & 1, p.ctr, 8);
+            }
+            const uint64_t d0 = dx0 + (__shfl_sync(0xffffffffu,
+                                                   static_cast<unsigned>(xs) * rg.xsz, 0) >> 4);
+#pragma unroll
+            for (int s = 0; s < 16; s += 2) {
+                const int c = s >> 2;
+                const int b = (s >> 1) % DEPTH;
+                if ((s & 3) == 0 && c < 3) {
+                    cb[(c + 1) & 1] = cp[(c + 1) * 32];
+                    if (c == 1) {
+                        scw[1] = sp[1];
+                    }
+                }
+                {
+                    const unsigned sg = scale_word(scw[c >> 1], (2 * c) & 3);
+                    const unsigned sg8 = scale_word(scw[c >> 1], (2 * c + 1) & 3);
+                    dequant(word(cb[c & 1], s & 3), sg, sg8, af[b][0]);
+                    dequant(word(cb[c & 1], (s + 1) & 3), sg, sg8, af[b][1]);
+                }
+                wg_fence();
+                wgmma<NTT>(acc, af[b][0], d0 + s * 16);
+                wgmma<NTT>(acc, af[b][1], d0 + (s + 1) * 16);
+                wg_commit();
+                wg_wait<DEPTH - 1>();
+                a_pin(af[(b + 1) % DEPTH]);
+                if (s == 0 && xrel >= 0) {
+                    x_release_warp<MODE>(&S.xempty[xrel], lane);
+                    xrel = -1;
+                }
+                if (s == 10) {
+                    // Every generic read of this slot (groups 0 to 3, both scale words) is in
+                    // this thread's program order before the fence. The last one was issued
+                    // a whole group earlier (s == 8) so that the fence's MEMBAR does not find
+                    // it still in flight.
+                    fence_proxy_async();
+                    mbar_arrive(&S.wempty[ws]);
+                }
+                if (grp_hoist(MODE) && s == 14 && st + 1 < si.st_e) {
+                    ws = rg.ws;
+                    dw += mbar_wait_m<MODE, PH>(&S.wfull[ws], rg.wlap & 1, p.ctr, 2);
+                    cp = reinterpret_cast<const uint4*>(wbase + ws * kUnitBytes);
+                    sp = reinterpret_cast<const unsigned*>(sbase + ws * kUnitBytes);
+                    cb[0] = cp[0];
+                    scw[0] = sp[0];
+                    ring_next_w(rg, rg.nsw);
+                    ring_next_x(rg);
+                    dx += mbar_wait_m<MODE, PH>(&S.xfull[rg.xs], rg.xlap & 1, p.ctr, 8);
                 }
             }
-        }
-        const int ws = rg.ws;
-        unsigned dc = kDiag ? static_cast<unsigned>(clock()) : 0u;
-        dw += mbar_wait_m<MODE, PH>(&S.wfull[ws], rg.wlap & 1, p.ctr, 2);
-        if constexpr (kDiag) {
-            dw += static_cast<unsigned>(clock()) - dc;
-        }
-        const unsigned char* wslot = S.rings + ws * kUnitBytes;
-        const uint4* cp = reinterpret_cast<const uint4*>(wslot + (wg * 4 + w) * 2048) + lane;
-        uint4 cw[4];
-#pragma unroll
-        for (int i = 0; i < 4; ++i) {
-            cw[i] = cp[i * 32];
-        }
-        const uint2 sc = *reinterpret_cast<const uint2*>(wslot + 32768 + (wg * 4 + w) * 256
-                                                         + lane * 8);
-        if constexpr (!kLean) {
-            __syncwarp();
-            if (lane == 0) {
-                fence_proxy_async();
-                mbar_arrive(&S.wempty[ws]);
+            xrel = xs;
+            if (!grp_hoist(MODE) || st + 1 == si.st_e) {
+                ring_next_x(rg);
             }
+            xs = rg.xs;
         }
-        ring_next_w(rg, kLean ? rg.nsw : S.nsw);
-        const int xs = rg.xs;
-        if constexpr (kDiag) {
-            dc = static_cast<unsigned>(clock());
-        }
-        dx += mbar_wait_m<MODE, PH>(&S.xfull[xs], rg.xlap & 1, p.ctr, 8);
-        if constexpr (kDiag) {
-            dx += static_cast<unsigned>(clock()) - dc;
-        }
-        // The slot base goes through a shuffle so ptxas knows it is warp-uniform and keeps
-        // the descriptors in uniform registers (one UIADD3 per step instead of a 64-bit add
-        // and two R2UR moves on every wgmma's critical path).
-        const unsigned xbase = kLean ? 0u
-                                     : __shfl_sync(0xffffffffu,
-                                                   smem_u32(S.rings + S.xoff + xs * S.xsz), 0);
-        // The slot offset still takes a shuffle: the ring position is carried around a loop
-        // whose trip count ptxas cannot prove warp-uniform, and without it every wgmma's
-        // descriptor goes through R2UR (448 instructions per stage instead of 389).
-        const uint64_t d0 = kLean ? dx0 + (__shfl_sync(0xffffffffu,
-                                                       static_cast<unsigned>(xs) * rg.xsz, 0)
-                                           >> 4)
-                                  : ((xbase & 0x3ffffu) >> 4)
-                                        | (static_cast<uint64_t>(128 >> 4) << 16)
-                                        | (static_cast<uint64_t>(4096 >> 4) << 32);
-        if (MODE == 1) {
-            // Timing only: the stage's bytes arrive and one word of each is read.
-            acc[0] += __uint_as_float((cw[0].x ^ sc.x) & 0x3f800000u);
-            if (xrel >= 0) {
+    } else {
+#pragma unroll 1
+        for (int st = si.st_b; st < si.st_e; ++st) {
+            if constexpr (defer_a(MODE) && PH == 0) {
+                // One stage into the next unit, the previous unit's SwiGLU stores have drained.
+                if (st == si.st_b + 1 && si.r > 0) {
+                    const long long c = kPa ? clock64() : 0;
+                    publish_a<MODE>(p, own_target(S, si.r - 1, blockIdx.x, gridDim.x), wg, tid_wg);
+                    if constexpr (kPa) {
+                        ppub += clock64() - c;
+                    }
+                }
+            }
+            const int ws = rg.ws;
+            unsigned dc = kDiag ? static_cast<unsigned>(clock()) : 0u;
+            dw += mbar_wait_m<MODE, PH>(&S.wfull[ws], rg.wlap & 1, p.ctr, 2);
+            if constexpr (kDiag) {
+                dw += static_cast<unsigned>(clock()) - dc;
+            }
+            const unsigned char* wslot = S.rings + ws * kUnitBytes;
+            const uint4* cp = reinterpret_cast<const uint4*>(wslot + (wg * 4 + w) * 2048) + lane;
+            uint4 cw[4];
+#pragma unroll
+            for (int i = 0; i < 4; ++i) {
+                cw[i] = cp[i * 32];
+            }
+            const uint2 sc = *reinterpret_cast<const uint2*>(wslot + 32768 + (wg * 4 + w) * 256
+                                                             + lane * 8);
+            if constexpr (!kLean) {
+                __syncwarp();
                 if (lane == 0) {
-                    mbar_arrive(&S.xempty[xrel]);
+                    fence_proxy_async();
+                    mbar_arrive(&S.wempty[ws]);
+                }
+            }
+            ring_next_w(rg, kLean ? rg.nsw : S.nsw);
+            const int xs = rg.xs;
+            if constexpr (kDiag) {
+                dc = static_cast<unsigned>(clock());
+            }
+            dx += mbar_wait_m<MODE, PH>(&S.xfull[xs], rg.xlap & 1, p.ctr, 8);
+            if constexpr (kDiag) {
+                dx += static_cast<unsigned>(clock()) - dc;
+            }
+            // The slot base goes through a shuffle so ptxas knows it is warp-uniform and keeps
+            // the descriptors in uniform registers (one UIADD3 per step instead of a 64-bit add
+            // and two R2UR moves on every wgmma's critical path).
+            const unsigned xbase = kLean ? 0u
+                                         : __shfl_sync(0xffffffffu,
+                                                       smem_u32(S.rings + S.xoff + xs * S.xsz), 0);
+            // The slot offset still takes a shuffle: the ring position is carried around a loop
+            // whose trip count ptxas cannot prove warp-uniform, and without it every wgmma's
+            // descriptor goes through R2UR (448 instructions per stage instead of 389).
+            const uint64_t d0 = kLean ? dx0 + (__shfl_sync(0xffffffffu,
+                                                           static_cast<unsigned>(xs) * rg.xsz, 0)
+                                               >> 4)
+                                      : ((xbase & 0x3ffffu) >> 4)
+                                            | (static_cast<uint64_t>(128 >> 4) << 16)
+                                            | (static_cast<uint64_t>(4096 >> 4) << 32);
+            if (MODE == 1) {
+                // Timing only: the stage's bytes arrive and one word of each is read.
+                acc[0] += __uint_as_float((cw[0].x ^ sc.x) & 0x3f800000u);
+                if (xrel >= 0) {
+                    if (lane == 0) {
+                        mbar_arrive(&S.xempty[xrel]);
+                    }
+                }
+                xrel = xs;
+                ring_next_x(rg);
+                continue;
+            }
+#pragma unroll
+            for (int s = 0; s < 16; s += 2) {
+                const int b = (s >> 1) % DEPTH;
+                {
+                    const int c = s >> 2;
+                    const unsigned scw = c < 2 ? sc.x : sc.y;
+                    const unsigned sg = scale_word(scw, (2 * c) & 3);
+                    const unsigned sg8 = scale_word(scw, (2 * c + 1) & 3);
+                    if (MODE == 3) {
+                        // Timing only: the raw words stand in for the fragments.
+#pragma unroll
+                        for (int i = 0; i < 4; ++i) {
+                            af[b][0][i] = word(cw[c], i) ^ sg;
+                            af[b][1][i] = word(cw[c], i) ^ sg8;
+                        }
+                    } else {
+                        dequant(word(cw[c], s & 3), sg, sg8, af[b][0]);
+                        dequant(word(cw[c], (s + 1) & 3), sg, sg8, af[b][1]);
+                    }
+                }
+                if (MODE == 2) {
+                    // Timing only: the fragments are consumed by one add instead of a wgmma.
+                    acc[0] += __uint_as_float((af[b][0][0] ^ af[b][1][3]) & 0x3f800000u);
+                    if (s == 2 * (DEPTH - 1) - 2 && xrel >= 0) {
+                        if (lane == 0) {
+                            mbar_arrive(&S.xempty[xrel]);
+                        }
+                        xrel = -1;
+                    }
+                    continue;
+                }
+                wg_fence();
+                wgmma<NTT>(acc, af[b][0], d0 + s * 16);
+                wgmma<NTT>(acc, af[b][1], d0 + (s + 1) * 16);
+                wg_commit();
+                wg_wait<DEPTH - 1>();
+                a_pin(af[(b + 1) % DEPTH]);
+                // The previous stage's last group has retired once DEPTH - 1 groups of this
+                // stage are committed.
+                if (s == 2 * (DEPTH - 1) - 2 && xrel >= 0) {
+                    x_release_warp<MODE>(&S.xempty[xrel], lane);
+                    xrel = -1;
+                }
+                if (kLean && s == 0) {
+                    // The weights slot's generic reads (cw, sc) were issued before this point;
+                    // the fence orders them before the producer's next bulk write into the slot.
+                    fence_proxy_async();
+                    mbar_arrive(&S.wempty[ws]);
                 }
             }
             xrel = xs;
             ring_next_x(rg);
-            continue;
         }
-#pragma unroll
-        for (int s = 0; s < 16; s += 2) {
-            const int b = (s >> 1) % DEPTH;
-            {
-                const int c = s >> 2;
-                const unsigned scw = c < 2 ? sc.x : sc.y;
-                const unsigned sg = scale_word(scw, (2 * c) & 3);
-                const unsigned sg8 = scale_word(scw, (2 * c + 1) & 3);
-                if (MODE == 3) {
-                    // Timing only: the raw words stand in for the fragments.
-#pragma unroll
-                    for (int i = 0; i < 4; ++i) {
-                        af[b][0][i] = word(cw[c], i) ^ sg;
-                        af[b][1][i] = word(cw[c], i) ^ sg8;
-                    }
-                } else {
-                    dequant(word(cw[c], s & 3), sg, sg8, af[b][0]);
-                    dequant(word(cw[c], (s + 1) & 3), sg, sg8, af[b][1]);
-                }
-            }
-            if (MODE == 2) {
-                // Timing only: the fragments are consumed by one add instead of a wgmma.
-                acc[0] += __uint_as_float((af[b][0][0] ^ af[b][1][3]) & 0x3f800000u);
-                if (s == 2 * (DEPTH - 1) - 2 && xrel >= 0) {
-                    if (lane == 0) {
-                        mbar_arrive(&S.xempty[xrel]);
-                    }
-                    xrel = -1;
-                }
-                continue;
-            }
-            wg_fence();
-            wgmma<NTT>(acc, af[b][0], d0 + s * 16);
-            wgmma<NTT>(acc, af[b][1], d0 + (s + 1) * 16);
-            wg_commit();
-            wg_wait<DEPTH - 1>();
-            a_pin(af[(b + 1) % DEPTH]);
-            // The previous stage's last group has retired once DEPTH - 1 groups of this
-            // stage are committed.
-            if (s == 2 * (DEPTH - 1) - 2 && xrel >= 0) {
-                x_release_warp<MODE>(&S.xempty[xrel], lane);
-                xrel = -1;
-            }
-            if (kLean && s == 0) {
-                // The weights slot's generic reads (cw, sc) were issued before this point;
-                // the fence orders them before the producer's next bulk write into the slot.
-                fence_proxy_async();
-                mbar_arrive(&S.wempty[ws]);
-            }
-        }
-        xrel = xs;
-        ring_next_x(rg);
     }
     wg_wait<0>();
 #pragma unroll
@@ -1771,7 +1887,9 @@ __device__ __forceinline__ void consumers(const Params& p, SmemMain& S, float* s
     }
     if constexpr (dyn_b(MODE)) {
         consumer_dyn_b<MODE>(p, S, ss, acc, rg, xrel, cta, G);
-    } else {
+    } else if constexpr (!a_only(MODE)) {
+        // a_only: phase B has no segments; leaving its loops out keeps them off the register
+        // allocation of the phase A loops (mode 45 spilled 268 / 656 B with them).
         consumer_phase<1, MODE>(p, S, ss, acc, rg, xrel, cta, G);
     }
 }
@@ -1782,7 +1900,7 @@ __device__ __forceinline__ void wproducer(const Params& p, SmemMain& S, int cta,
     long long twe = 0;
     long long pwe = 0;
     Ring rg = {0, 0, 0, 0};
-    for (int ph = 0; ph < (dyn_b(MODE) ? 1 : 2); ++ph) {
+    for (int ph = 0; ph < (dyn_b(MODE) || a_only(MODE) ? 1 : 2); ++ph) {
         const int ns = seg_n<MODE>(S, ph);
         for (int n = 1; n <= 8; ++n) {
         const int ntt = dyn_b(MODE) ? 9 - n : n;
@@ -1876,7 +1994,7 @@ __device__ __forceinline__ void xproducer(const Params& p, SmemMain& S, int cta,
     long long tda = 0;
     long long txr = 0;
     long long pxe = 0;
-    for (int ph = 0; ph < (dyn_b(MODE) ? 1 : 2); ++ph) {
+    for (int ph = 0; ph < (dyn_b(MODE) || a_only(MODE) ? 1 : 2); ++ph) {
         const int ns = seg_n<MODE>(S, ph);
         for (int n = 1; n <= 8; ++n) {
         const int ntt = dyn_b(MODE) ? 9 - n : n;
@@ -1958,7 +2076,9 @@ __device__ __forceinline__ void xproducer(const Params& p, SmemMain& S, int cta,
                     txe += c1 - c0;
                     c0 = c1;
                 }
-                spin_ge(p.done_as + j * 16 + st, 8, p.ctr, 128);
+                if (!b_only(MODE)) {
+                    spin_ge(p.done_as + j * 16 + st, 8, p.ctr, 128);
+                }
                 fence_proxy_async_global();
                 if (is_diag(MODE)) {
                     tda += clock64() - c0;
@@ -2051,7 +2171,7 @@ __global__ void __launch_bounds__(kNTM, 1) moe_main_kernel(const Params p) {
         if (lane < 9) {
             const bool given = p.cost[0][1] > 0;
             S.cost[0][lane] = given ? p.cost[0][lane] : stage_cost<MODE>(0, lane);
-            S.align_b = MODE == 15 || (MODE >= 16 && MODE <= 29) || (MODE >= 31 && MODE <= 42)
+            S.align_b = MODE == 15 || (MODE >= 16 && MODE <= 29) || (MODE >= 31 && MODE <= 47)
                         ? 1 : 0;
             S.cost[1][lane] = given ? p.cost[1][lane] : stage_cost<MODE>(1, lane);
         }
@@ -3301,8 +3421,14 @@ SKINNY_VARIANTS = ((8, 4, 0), (16, 4, 0), (8, 4, 1), (8, 3, 0))
 # 41 and 42 (timing only): 37 with the phase A and phase B counters (whole waits, first try
 # included) and 37 with the light stamps alone; docs/runs-moe.md, "Fat-path waits with the
 # first try timed".
+# 43 (candidate) and 44 (43 with 41's counters, timing only): one code group per 4 steps and the
+# next stage's waits and first group under the last wgmma group; docs/runs-moe.md, "Code groups
+# with the next stage hoisted".
+# 45 and 46 (timing only): the staged pair (19 then 21) on 37's components, run as VARIANT_STAGED2;
+# docs/runs-moe.md, "Staged pair on current components".
+# 47 (timing only): 43 without the hoist (code groups only); the repeat of 43's check.
 MAIN_MODES = (0, 16, 26, 28, 37)
-MAIN_CANDIDATES = (0, 6, 12, 13, 14, 15, 16, 20, 23, 26, 28, 32, 34, 35, 36, 37, 39)
+MAIN_CANDIDATES = (0, 6, 12, 13, 14, 15, 16, 20, 23, 26, 28, 32, 34, 35, 36, 37, 39, 43)
 VARIANT_MAIN0 = len(SKINNY_VARIANTS)
 
 
@@ -3476,6 +3602,9 @@ VARIANT_FIT0 = 200
 # The staged pair: mode 19 (routing, x gather, GEMM1 + SwiGLU on owned units) as one launch,
 # then mode 21 (GEMM2, the post-expert norm and the weighted sum) as a second.
 VARIANT_STAGED = 300
+# The staged pair on mode 37's components: 45 (phase A alone) then 46 (phase B and the final pass
+# alone, claimed units). Timing only; never a policy candidate.
+VARIANT_STAGED2 = 301
 # Modes the fitted costs are offered for: the stamps time mode 6's segments.
 FIT_MODES = (6, 12, 14)
 
@@ -4746,6 +4875,10 @@ def _run(data, state, variant=None, cost=None):
         launches = [VARIANT_MAIN0 + MAIN_MODES.index(20)]
     elif variant == VARIANT_STAGED:
         launches = [VARIANT_MAIN0 + MAIN_MODES.index(19), VARIANT_MAIN0 + MAIN_MODES.index(21)]
+    elif variant == VARIANT_STAGED2 and m > CHUNK_TOKENS:
+        launches = [VARIANT_MAIN0 + MAIN_MODES.index(37)]
+    elif variant == VARIANT_STAGED2:
+        launches = [VARIANT_MAIN0 + MAIN_MODES.index(45), VARIANT_MAIN0 + MAIN_MODES.index(46)]
     elif variant >= VARIANT_FIT0:
         cost = state["fit_cost"]
         launches = [VARIANT_MAIN0 + variant - VARIANT_FIT0]
@@ -5263,6 +5396,8 @@ def _cost_model(state):
 def _vname(v):
     if v == VARIANT_STAGED:
         return "staged-own"
+    if v == VARIANT_STAGED2:
+        return "staged-lean"
     if v >= VARIANT_FIT0:
         return _vname(VARIANT_MAIN0 + v - VARIANT_FIT0) + "-nn"
     if v >= VARIANT_LEGACY0:
@@ -5281,7 +5416,9 @@ def _vname(v):
                 32: "main-lean-dfa", 33: "main-lean-dfa-pa", 34: "main-lean-dfa-bar",
                 35: "main-lean-dfa-vol", 36: "main-lean-silu", 37: "main-lean-silu-bar",
                 38: "main-lean-silu-pa", 39: "main-lean-epi", 40: "main-lean-epi-pa",
-                41: "main-lean-silu-bar-pab", 42: "main-lean-silu-bar-light"}[m]
+                41: "main-lean-silu-bar-pab", 42: "main-lean-silu-bar-light",
+                43: "main-lean-grp", 44: "main-lean-grp-pab", 45: "main-lean-aonly",
+                46: "main-lean-bonly", 47: "main-lean-grp-nohoist"}[m]
     nw, ns, mode = SKINNY_VARIANTS[v]
     tags = ('', '-loads', '-stamps', '-er', '-er-stamps', '-sf', '-hand', '-sfh', '-sfh-stamps')
     flags = "".join(t for b, t in ((32, "-rf"), (64, "-nh"), (16, "-us")) if mode & b)
@@ -5330,6 +5467,10 @@ def prepare(weights):
     if main_ok and 19 in MAIN_MODES and 21 in MAIN_MODES:
         state["staged_ok"] = _self_test(state, weights, (32, 33, 128, 257),
                                         _vname(VARIANT_STAGED), VARIANT_STAGED)
+    state["staged2_ok"] = False
+    if main_ok and 45 in MAIN_MODES and 46 in MAIN_MODES:
+        state["staged2_ok"] = _self_test(state, weights, (32, 33, 128, 257),
+                                         _vname(VARIANT_STAGED2), VARIANT_STAGED2)
     if state["legacy_ok"]:
         for i in range(len(LEGACY_POLICIES)):
             state["legacy_ok"] = _self_test(state, weights, (32, 33, 128, 257),

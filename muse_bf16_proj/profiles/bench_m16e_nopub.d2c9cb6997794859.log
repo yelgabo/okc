@@ -1,0 +1,124 @@
+cc-ours=+0.61[+0.19,+0.96]
+ABCHECK ok unpooler m=32 p0 sgl=1.7e-03 ours=1.7e-03 ours2=1.7e-03 ours.unp32=1.7e-03 acc=1.7e-03
+ABCOLD unpooler m=32 p0 sgl=23.25 ours=19.62 ours2=19.58 ours.unp32=19.55 acc=19.65
+ABPAIR unpooler m=32 p0 ours2-ours=+0.00[-0.22,+0.29] ours.unp32-ours=-0.06[-0.32,+0.32] acc-ours=+0.06[-0.19,+0.45]
+ABCHECK ok unpooler m=32 p1 sgl=1.7e-03 ours=1.7e-03 ours2=1.7e-03 ours.unp32=1.7e-03 acc=1.7e-03
+ABCOLD unpooler m=32 p1 sgl=23.14 ours=19.62 ours2=19.52 ours.unp32=19.71 acc=19.84
+ABPAIR unpooler m=32 p1 ours2-ours=-0.11[-0.48,+0.19] ours.unp32-ours=+0.10[-0.29,+0.38] acc-ours=+0.19[-0.13,+0.58]
+sk build 0.0 s
+pack qkv_gate: base 54, 2537 escapes, 0 inexact deltas, 0.0 s
+pack o: base 54, 950 escapes, 0 inexact deltas, 0.0 s
+pack pooler: base 54, 4656 escapes, 0 inexact deltas, 0.0 s
+pack unpooler: base 54, 3229 escapes, 0 inexact deltas, 0.1 s
+fused pooler+router pool8f: ok
+fused pooler+router pool16f: ok
+cut build 0.0 s
+selftests done 0.4 s
+tune o         m= 1: o8 10.2, o8raw 10.7, cgemv 9.6, cublas 10.8 -> cgemv
+tune o         m= 8: o8 10.1, o8raw 10.8, cublas 10.7 -> o8
+tune o         m=16: o16 10.0, o16raw 10.7, cublas 10.9 -> o16
+tune o         m=32: o32 10.6, o32raw 11.2, cublas 11.1 -> o32
+tune o         m=64: cublas 11.2, b1n64c2 12.8, m64k2r4 18.0, m64k1r8 14.0 -> cublas
+tune o         m=128: cublas 11.5, b1n64c2 18.8, b1n128c2 14.1, m64k2r4 23.1, m64k1r8 21.4, m128k2r4 20.0, m128k1r4 15.5, m128k1r8 15.6, m128k2r8 21.0, m128k4r2 23.1, b1n128c2s8h 17.0, b1n128c3s8h 24.1 -> cublas
+tune o         m=256: cublas 13.5, b1n128c2 21.7, b2n256c2 17.6, m128k2r4 27.0, m128k1r4 23.8, m128k1r8 24.9, m128k2r8 28.0, m128k4r2 35.4, m256k2r4 29.4, m256k1r4 25.5, m256k1r8 25.8, m256k2r8 30.2, m256k2r2 29.2, b1n128c2s8h 28.9, b1n128c3s8h 38.8 -> cublas
+tune pooler    m= 1: pool8 18.4, pool8raw 21.8, cgemv 17.9, cublas 25.2 -> cgemv
+tune pooler    m= 8: pool8 18.3, pool8raw 22.1, cublas 25.0 -> pool8
+tune pooler    m=16: pool16 19.1, pool16raw 22.1, cublas 25.1 -> pool16
+tune pooler    m=32: pool32 20.0, pool32raw 22.3, cublas 25.7 -> pool32
+tune pooler    m=64: cublas 27.2, b1n64c2 25.5, m64k2r4 29.3, m64k1r8 38.9 -> b1n64c2
+tune pooler    m=128: cublas 29.6, b1n64c2 30.1, b1n128c2 30.7, m64k2r4 47.3, m64k1r8 50.6, m128k2r4 35.1, m128k1r4 48.8, m128k1r8 50.9, m128k2r8 36.6, m128k4r2 39.8, b1n128c2s8h 26.9, b1n128c3s8h 32.9 -> b1n128c2s8h
+tune pooler    m=256: cublas 35.0, b1n128c2 37.8, b2n256c2 49.5, m128k2r4 61.3, m128k1r4 52.4, m128k1r8 54.2, m128k2r8 64.1, m128k4r2 60.6, m256k2r4 59.1, m256k1r4 53.0, m256k1r8 55.0, m256k2r8 62.0, m256k2r2 59.1, b1n128c2s8h 48.3, b1n128c3s8h 60.1, cut128x64 31.3 -> cut128x64
+tune qkv_gate  m= 1: qkv8 14.0, qkv8raw 15.6, cgemv 13.1, cublas 18.1 -> cgemv
+tune qkv_gate  m= 8: qkv8 14.4, qkv8raw 16.1, cublas 18.2 -> qkv8
+tune qkv_gate  m=16: qkv16 14.3, qkv16raw 16.4, cublas 18.5 -> qkv16
+tune qkv_gate  m=32: qkv32 16.0, qkv32raw 16.5, cublas 19.1 -> qkv32
+tune qkv_gate  m=64: cublas 19.6, b1n64c2 23.4, m64k2r4 23.4 -> cublas
+tune qkv_gate  m=128: cublas 21.8, b1n64c2 27.4, b1n128c2 28.2, m64k2r4 28.8, m128k2r4 29.3, m128k1r4 47.1, m128k4r2 23.0, b1n128c2s8h 23.4, b1n128c3s8h 19.1 -> b1n128c3s8h
+tune qkv_gate  m=256: cublas 23.8, b1n128c2 32.8, b2n256c2 49.1, m128k2r4 33.2, m128k1r4 47.2, m128k4r2 39.7, m256k2r4 32.7, m256k1r4 52.3, m256k2r2 32.3, b1n128c2s8h 41.6, b1n128c3s8h 34.8 -> cublas
+tune router    m= 1: rgemv 8.2, router8 9.5, baseline 15.5 -> rgemv
+tune router    m= 8: router8 9.7, baseline 31.1 -> router8
+tune router    m=16: router16 9.6, baseline 20.4 -> router16
+tune router    m=32: router32 9.9, baseline 21.2 -> router32
+tune router    m=64: baseline 21.8, r64c8 13.5, r64c16 11.6, rm64k4r4 18.6 -> r64c16
+tune router    m=128: baseline 22.1, r64c8 13.4, r64c16 14.4, r128c8 14.7, r128c16 13.3, rm64k4r4 18.5, rm128k4r4 21.7 -> r128c16
+tune router    m=256: baseline 23.1, r128c8 15.2, r128c16 20.6, rm128k4r4 21.9 -> r128c8
+tune unpooler  m= 1: slice8 9.0, slice8raw 9.2, cgemv 7.9, sgemv 8.3, cublas 11.7 -> cgemv
+tune unpooler  m= 8: slice8 8.8, slice8raw 9.1, cublas 11.7 -> slice8
+tune unpooler  m=16: unp16 18.2, unp16raw 21.6, cublas 22.1 -> unp16
+tune unpooler  m=32: unp32 18.9, unp32raw 22.5, cublas 22.4 -> unp32
+tune unpooler  m=64: cublas 24.1, b1n64c2 24.7, m64k2r4 35.5, m64k1r8 30.2 -> cublas
+tune unpooler  m=128: cublas 24.1, b1n64c2 42.9, b1n128c2 25.8, m64k2r4 52.6, m64k1r8 48.2, m128k2r4 39.5, m128k1r4 34.7, m128k1r8 36.0, m128k2r8 40.8, m128k4r2 39.5, b1n128c2s8h 29.6, b1n128c3s8h 39.2 -> cublas
+tune unpooler  m=256: cublas 29.1, b1n128c2 46.8, b2n256c2 32.9, m128k2r4 59.7, m128k1r4 58.5, m128k1r8 62.6, m128k2r8 62.4, m128k4r2 65.5, m256k2r4 54.6, m256k1r4 58.0, m256k1r8 60.2, m256k2r8 57.3, m256k2r2 54.6, b1n128c2s8h 53.3, b1n128c3s8h 66.2 -> cublas
+ablate pooler m=128: m128k2r4 35.2, m128k2r4_a1 30.8, m128k2r4_a3 28.8
+ablate o m=256: m256k1r4 25.7, m256k1r4_a1 23.3, m256k1r4_a3 18.7
+prepare done 1.1 s
+ours| tune o         m=16: o16 9.9, o16raw 10.5, cublas 10.8 -> o16
+ours| tune o         m=32: o32 10.5, o32raw 11.0, cublas 10.8 -> o32
+ours| tune pooler    m=16: pool16 18.7, pool16raw 21.8, cublas 25.2 -> pool16
+ours| tune pooler    m=32: pool32 19.9, pool32raw 22.1, cublas 25.8 -> pool32
+ours| tune qkv_gate  m=16: qkv16 14.0, qkv16raw 16.2, cublas 18.1 -> qkv16
+ours| tune qkv_gate  m=32: qkv32 15.8, qkv32raw 16.3, cublas 18.9 -> qkv32
+ours| tune router    m=16: router16 9.4, baseline 20.6 -> router16
+ours| tune router    m=32: router32 9.9, baseline 21.2 -> router32
+ours| tune unpooler  m=16: unp16 18.1, unp16raw 21.7, cublas 22.2 -> unp16
+ours| tune unpooler  m=32: unp32 19.1, unp32raw 22.7, cublas 22.5 -> unp32
+ABPREP ours 72.6 s
+acc| tune o         m=16: o16 9.8, o16raw 10.4, cublas 10.7 -> o16
+acc| tune o         m=32: o32 10.4, o32raw 11.0, cublas 10.8 -> o32
+acc| tune pooler    m=16: pool16 18.8, pool16raw 21.8, cublas 25.2 -> pool16
+acc| tune pooler    m=32: pool32 20.4, pool32raw 22.3, cublas 25.9 -> pool32
+acc| tune qkv_gate  m=16: qkv16 14.4, qkv16raw 16.7, cublas 18.5 -> qkv16
+acc| tune qkv_gate  m=32: qkv32 16.3, qkv32raw 16.2, cublas 18.9 -> qkv32raw
+acc| tune router    m=16: router16 9.7, baseline 20.9 -> router16
+acc| tune router    m=32: router32 9.9, baseline 21.0 -> router32
+acc| tune unpooler  m=16: unp16 18.1, unp16raw 21.8, cublas 22.1 -> unp16
+acc| tune unpooler  m=32: unp32 19.4, unp32raw 22.6, cublas 22.2 -> unp32
+ABPREP acc 21.0 s
+ABCHECK ok qkv_gate m=16 p0 sgl=1.7e-03 ours=1.7e-03 ours2=1.7e-03 ours.qkv16=1.7e-03 acc=1.7e-03
+ABCOLD qkv_gate m=16 p0 sgl=18.40 ours=14.30 ours2=14.38 ours.qkv16=14.37 acc=14.40
+ABPAIR qkv_gate m=16 p0 ours2-ours=+0.10[-0.06,+0.32] ours.qkv16-ours=+0.06[-0.16,+0.22] acc-ours=+0.10[-0.16,+0.32]
+ABCHECK ok qkv_gate m=16 p1 sgl=1.7e-03 ours=1.7e-03 ours2=1.7e-03 ours.qkv16=1.7e-03 acc=1.7e-03
+ABCOLD qkv_gate m=16 p1 sgl=18.66 ours=14.46 ours2=14.50 ours.qkv16=14.46 acc=14.46
+ABPAIR qkv_gate m=16 p1 ours2-ours=+0.03[-0.16,+0.22] ours.qkv16-ours=+0.03[-0.19,+0.19] acc-ours=+0.00[-0.19,+0.19]
+ABCHECK ok o m=16 p0 sgl=1.7e-03 ours=1.7e-03 ours2=1.7e-03 ours.o16=1.7e-03 acc=1.7e-03
+ABCOLD o m=16 p0 sgl=10.94 ours=9.89 ours2=10.02 ours.o16=10.05 acc=10.08
+ABPAIR o m=16 p0 ours2-ours=+0.14[+0.00,+0.29] ours.o16-ours=+0.16[+0.00,+0.32] acc-ours=+0.21[+0.00,+0.38]
+ABCHECK ok o m=16 p1 sgl=1.7e-03 ours=1.7e-03 ours2=1.7e-03 ours.o16=1.7e-03 acc=1.7e-03
+ABCOLD o m=16 p1 sgl=11.10 ours=10.05 ours2=10.11 ours.o16=10.08 acc=10.14
+ABPAIR o m=16 p1 ours2-ours=+0.00[-0.13,+0.19] ours.o16-ours=+0.00[-0.13,+0.16] acc-ours=+0.06[-0.13,+0.26]
+ABCHECK ok pooler m=16 p0 sgl=1.7e-03 ours=1.7e-03 ours2=1.7e-03 ours.pool16=1.7e-03 acc=1.7e-03
+ABCOLD pooler m=16 p0 sgl=26.02 ours=19.20 ours2=19.15 ours.pool16=19.20 acc=19.17
+ABPAIR pooler m=16 p0 ours2-ours=-0.03[-0.29,+0.22] ours.pool16-ours=+0.03[-0.22,+0.35] acc-ours=+0.00[-0.32,+0.26]
+ABCHECK ok pooler m=16 p1 sgl=1.7e-03 ours=1.7e-03 ours2=1.7e-03 ours.pool16=1.7e-03 acc=1.7e-03
+ABCOLD pooler m=16 p1 sgl=26.02 ours=19.17 ours2=19.20 ours.pool16=19.17 acc=19.14
+ABPAIR pooler m=16 p1 ours2-ours=+0.03[-0.22,+0.35] ours.pool16-ours=+0.00[-0.29,+0.29] acc-ours=-0.03[-0.35,+0.26]
+ABCHECK ok unpooler m=16 p0 sgl=1.7e-03 ours=1.7e-03 ours2=1.7e-03 ours.unp16=1.7e-03 acc=1.7e-03
+ABCOLD unpooler m=16 p0 sgl=22.98 ours=18.62 ours2=18.62 ours.unp16=18.66 acc=18.82
+ABPAIR unpooler m=16 p0 ours2-ours=-0.03[-0.35,+0.29] ours.unp16-ours=+0.03[-0.38,+0.35] acc-ours=+0.16[-0.10,+0.48]
+ABCHECK ok unpooler m=16 p1 sgl=1.7e-03 ours=1.7e-03 ours2=1.7e-03 ours.unp16=1.7e-03 acc=1.7e-03
+ABCOLD unpooler m=16 p1 sgl=23.01 ours=18.61 ours2=18.72 ours.unp16=18.66 acc=18.75
+ABPAIR unpooler m=16 p1 ours2-ours=+0.10[-0.16,+0.54] ours.unp16-ours=+0.03[-0.16,+0.35] acc-ours=+0.11[-0.10,+0.35]
+ABCHECK ok qkv_gate m=32 p0 sgl=1.7e-03 ours=1.7e-03 ours2=1.7e-03 ours.qkv32=1.7e-03 acc=1.7e-03
+ABCOLD qkv_gate m=32 p0 sgl=19.23 ours=16.02 ours2=16.06 ours.qkv32=16.06 acc=16.54
+ABPAIR qkv_gate m=32 p0 ours2-ours=+0.03[-0.13,+0.19] ours.qkv32-ours=+0.06[-0.16,+0.29] acc-ours=+0.48[+0.22,+0.74]
+ABCHECK ok qkv_gate m=32 p1 sgl=1.7e-03 ours=1.7e-03 ours2=1.7e-03 ours.qkv32=1.7e-03 acc=1.7e-03
+ABCOLD qkv_gate m=32 p1 sgl=19.07 ours=16.02 ours2=16.03 ours.qkv32=15.90 acc=16.35
+ABPAIR qkv_gate m=32 p1 ours2-ours=-0.03[-0.22,+0.19] ours.qkv32-ours=-0.16[-0.35,+0.06] acc-ours=+0.32[+0.06,+0.64]
+ABCHECK ok o m=32 p0 sgl=1.7e-03 ours=1.7e-03 ours2=1.7e-03 ours.o32=1.7e-03 acc=1.7e-03
+ABCOLD o m=32 p0 sgl=11.14 ours=10.50 ours2=10.53 ours.o32=10.53 acc=10.59
+ABPAIR o m=32 p0 ours2-ours=-0.02[-0.16,+0.19] ours.o32-ours=+0.00[-0.16,+0.19] acc-ours=+0.10[-0.06,+0.22]
+ABCHECK ok o m=32 p1 sgl=1.7e-03 ours=1.7e-03 ours2=1.7e-03 ours.o32=1.7e-03 acc=1.7e-03
+ABCOLD o m=32 p1 sgl=11.10 ours=10.53 ours2=10.50 ours.o32=10.56 acc=10.59
+ABPAIR o m=32 p1 ours2-ours=-0.03[-0.19,+0.13] ours.o32-ours=+0.03[-0.13,+0.19] acc-ours=+0.06[-0.10,+0.22]
+ABCHECK ok pooler m=32 p0 sgl=1.7e-03 ours=1.7e-03 ours2=1.7e-03 ours.pool32=1.7e-03 acc=1.7e-03
+ABCOLD pooler m=32 p0 sgl=26.43 ours=20.03 ours2=20.08 ours.pool32=20.19 acc=20.80
+ABPAIR pooler m=32 p0 ours2-ours=+0.06[-0.45,+0.42] ours.pool32-ours=+0.11[-0.29,+0.67] acc-ours=+0.78[+0.35,+1.22]
+ABCHECK ok pooler m=32 p1 sgl=1.7e-03 ours=1.7e-03 ours2=1.7e-03 ours.pool32=1.7e-03 acc=1.7e-03
+ABCOLD pooler m=32 p1 sgl=26.66 ours=20.22 ours2=20.26 ours.pool32=20.24 acc=20.80
+ABPAIR pooler m=32 p1 ours2-ours=+0.03[-0.32,+0.42] ours.pool32-ours=+0.06[-0.45,+0.48] acc-ours=+0.61[+0.19,+0.96]
+ABCHECK ok unpooler m=32 p0 sgl=1.7e-03 ours=1.7e-03 ours2=1.7e-03 ours.unp32=1.7e-03 acc=1.7e-03
+ABCOLD unpooler m=32 p0 sgl=23.25 ours=19.62 ours2=19.58 ours.unp32=19.55 acc=19.65
+ABPAIR unpooler m=32 p0 ours2-ours=+0.00[-0.22,+0.29] ours.unp32-ours=-0.06[-0.32,+0.32] acc-ours=+0.06[-0.19,+0.45]
+ABCHECK ok unpooler m=32 p1 sgl=1.7e-03 ours=1.7e-03 ours2=1.7e-03 ours.unp32=1.7e-03 acc=1.7e-03
+ABCOLD unpooler m=32 p1 sgl=23.14 ours=19.62 ours2=19.52 ours.unp32=19.71 acc=19.84
+ABPAIR unpooler m=32 p1 ours2-ours=-0.11[-0.48,+0.19] ours.unp32-ours=+0.10[-0.29,+0.38] acc-ours=+0.19[-0.13,+0.58]

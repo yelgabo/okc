@@ -1,0 +1,82 @@
+2, rm128k4r4 21.6 -> r128c16
+tune router    m=256: baseline 23.2, r128c8 14.8, r128c16 20.4, rm128k4r4 21.6 -> r128c8
+tune unpooler  m= 1: slice8 8.7, slice8raw 9.1, cgemv 7.7, sgemv 8.0, cublas 11.5 -> cgemv
+tune unpooler  m= 8: slice8 8.7, slice8raw 8.8, cublas 11.4 -> slice8
+tune unpooler  m=16: unp16 18.1, unp16raw 21.9, cublas 22.3 -> unp16
+tune unpooler  m=32: unp32 19.1, unp32raw 21.8, cublas 22.6 -> unp32
+tune unpooler  m=64: cublas 24.1, b1n64c2 24.4, m64k2r4 35.2, m64k1r8 30.1 -> cublas
+tune unpooler  m=128: cublas 24.8, b1n64c2 43.1, b1n128c2 25.8, m64k2r4 52.6, m64k1r8 48.5, m128k2r4 39.2, m128k1r4 34.8, m128k1r8 35.9, m128k2r8 39.5, m128k4r2 39.2, b1n128c2s8h 29.1, b1n128c3s8h 39.0 -> cublas
+tune unpooler  m=256: cublas 28.4, b1n128c2 46.8, b2n256c2 32.3, m128k2r4 60.0, m128k1r4 57.9, m128k1r8 62.6, m128k2r8 62.4, m128k4r2 65.6, m256k2r4 54.7, m256k1r4 58.1, m256k1r8 59.5, m256k2r8 56.6, m256k2r2 54.6, b1n128c2s8h 53.1, b1n128c3s8h 66.1 -> cublas
+ablate pooler m=128: m128k2r4 35.0, m128k2r4_a1 30.8, m128k2r4_a3 29.2
+ablate o m=256: m256k1r4 25.5, m256k1r4_a1 23.1, m256k1r4_a3 18.4
+prepare done 1.1 s
+ours| tune o         m=16: o16 10.0, o16raw 10.4, cublas 10.6 -> o16
+ours| tune o         m=32: o32 10.2, o32raw 10.8, cublas 10.7 -> o32
+ours| tune pooler    m=16: pool16 18.7, pool16raw 21.7, cublas 25.2 -> pool16
+ours| tune pooler    m=32: pool32 19.7, pool32raw 22.3, cublas 26.0 -> pool32
+ours| tune qkv_gate  m=16: qkv16 13.9, qkv16raw 16.0, cublas 18.0 -> qkv16
+ours| tune qkv_gate  m=32: qkv32 15.7, qkv32raw 16.1, cublas 18.8 -> qkv32
+ours| tune router    m=16: router16 9.3, baseline 20.4 -> router16
+ours| tune router    m=32: router32 9.7, baseline 21.0 -> router32
+ours| tune unpooler  m=16: unp16 18.1, unp16raw 21.8, cublas 22.5 -> unp16
+ours| tune unpooler  m=32: unp32 19.5, unp32raw 21.8, cublas 22.8 -> unp32
+ABPREP ours 72.3 s
+geo| tune o         m=16: o16 9.9, o16u2 10.8, o16w2 9.8, o16raw 10.4, o16u2raw 10.2, o16w2raw 10.4, cublas 10.7 -> o16w2
+geo| tune o         m=32: o32 10.2, o32w1 10.5, o32raw 11.0, o32w1raw 11.0, cublas 10.7 -> o32
+geo| tune pooler    m=16: pool16 18.8, pool16w8 18.8, pool16n1 19.2, pool16n1b 19.3, pool16raw 21.9, pool16w8raw 22.0, pool16n1raw 22.4, pool16n1braw 22.1, cublas 25.3 -> pool16w8
+geo| tune pooler    m=32: pool32 19.6, pool32w8 20.7, pool32n1b 24.4, pool32raw 22.2, pool32w8raw 22.3, pool32n1braw 24.1, cublas 25.7 -> pool32
+geo| tune qkv_gate  m=16: qkv16 14.8, qkv16u4 14.5, qkv16w8 14.9, qkv16w8u1 15.1, qkv16r3 15.5, qkv16n2 15.7, qkv16n2b 17.3, qkv16raw 16.1, qkv16u4raw 17.6, qkv16w8raw 17.9, qkv16w8u1raw 16.6, qkv16r3raw 16.2, qkv16n2raw 16.7, qkv16n2braw 18.3, cublas 18.6 -> qkv16u4
+geo| tune qkv_gate  m=32: qkv32 15.7, qkv32w8u1 16.2, qkv32r3 18.4, qkv32n2b 20.8, qkv32raw 16.6, qkv32w8u1raw 16.4, qkv32r3raw 19.5, qkv32n2braw 19.2, cublas 19.0 -> qkv32
+geo| tune router    m=16: router16 9.3, baseline 20.7 -> router16
+geo| tune router    m=32: router32 9.7, baseline 20.5 -> router32
+geo| tune unpooler  m=16: unp16 18.0, unp16n4 18.6, unp16n4u4 18.9, unp16raw 21.6, unp16n4raw 21.5, unp16n4u4raw 21.9, cublas 22.4 -> unp16
+geo| tune unpooler  m=32: unp32 19.4, unp32w8 19.4, unp32n2 19.5, unp32raw 22.0, unp32w8raw 21.7, unp32n2raw 22.4, cublas 22.7 -> unp32w8
+ABPREP geo 27.8 s
+ABCHECK ok qkv_gate m=16 p0 sgl=1.7e-03 ours=1.7e-03 ours2=1.7e-03 ours.qkv16=1.7e-03 geo=1.7e-03 geo.qkv16u4=1.7e-03 geo.qkv16w8=1.7e-03 geo.qkv16w8u1=1.7e-03 geo.qkv16r3=1.7e-03 geo.qkv16n2=1.7e-03 geo.qkv16n2b=1.7e-03
+ABCOLD qkv_gate m=16 p0 sgl=18.82 ours=14.42 ours2=14.50 ours.qkv16=14.46 geo=14.69 geo.qkv16u4=14.66 geo.qkv16w8=15.14 geo.qkv16w8u1=15.33 geo.qkv16r3=15.68 geo.qkv16n2=15.76 geo.qkv16n2b=17.41
+ABPAIR qkv_gate m=16 p0 ours2-ours=+0.08[-0.26,+0.42] ours.qkv16-ours=+0.03[-0.29,+0.32] geo-ours=+0.26[-0.06,+0.64] geo.qkv16u4-ours=+0.22[-0.06,+0.61] geo.qkv16w8-ours=+0.75[+0.42,+1.02] geo.qkv16w8u1-ours=+0.93[+0.61,+1.18] geo.qkv16r3-ours=+1.25[+0.96,+1.63] geo.qkv16n2-ours=+1.41[+1.02,+1.66] geo.qkv16n2b-ours=+2.98[+2.62,+3.39]
+ABCHECK ok qkv_gate m=16 p1 sgl=1.7e-03 ours=1.7e-03 ours2=1.7e-03 ours.qkv16=1.7e-03 geo=1.7e-03 geo.qkv16u4=1.7e-03 geo.qkv16w8=1.7e-03 geo.qkv16w8u1=1.7e-03 geo.qkv16r3=1.7e-03 geo.qkv16n2=1.7e-03 geo.qkv16n2b=1.7e-03
+ABCOLD qkv_gate m=16 p1 sgl=18.56 ours=14.40 ours2=14.37 ours.qkv16=14.40 geo=14.69 geo.qkv16u4=14.66 geo.qkv16w8=15.14 geo.qkv16w8u1=15.26 geo.qkv16r3=15.58 geo.qkv16n2=15.71 geo.qkv16n2b=17.41
+ABPAIR qkv_gate m=16 p1 ours2-ours=-0.06[-0.38,+0.32] ours.qkv16-ours=+0.00[-0.38,+0.35] geo-ours=+0.26[-0.06,+0.70] geo.qkv16u4-ours=+0.24[-0.10,+0.64] geo.qkv16w8-ours=+0.80[+0.35,+1.18] geo.qkv16w8u1-ours=+0.86[+0.54,+1.25] geo.qkv16r3-ours=+1.25[+0.93,+1.54] geo.qkv16n2-ours=+1.34[+0.93,+1.66] geo.qkv16n2b-ours=+3.01[+2.69,+3.39]
+ABCHECK ok o m=16 p0 sgl=1.7e-03 ours=1.7e-03 ours2=1.7e-03 ours.o16=1.7e-03 geo=1.7e-03 geo.o16u2=1.7e-03 geo.o16w2=1.7e-03
+ABCOLD o m=16 p0 sgl=10.88 ours=10.11 ours2=10.14 ours.o16=10.11 geo=9.89 geo.o16u2=11.02 geo.o16w2=9.86
+ABPAIR o m=16 p0 ours2-ours=+0.03[-0.13,+0.22] ours.o16-ours=+0.00[-0.19,+0.16] geo-ours=-0.22[-0.38,-0.03] geo.o16u2-ours=+0.93[+0.80,+1.12] geo.o16w2-ours=-0.22[-0.38,-0.06]
+ABCHECK ok o m=16 p1 sgl=1.7e-03 ours=1.7e-03 ours2=1.7e-03 ours.o16=1.7e-03 geo=1.7e-03 geo.o16u2=1.7e-03 geo.o16w2=1.7e-03
+ABCOLD o m=16 p1 sgl=11.01 ours=10.21 ours2=10.24 ours.o16=10.21 geo=9.84 geo.o16u2=10.98 geo.o16w2=9.76
+ABPAIR o m=16 p1 ours2-ours=+0.03[-0.16,+0.19] ours.o16-ours=+0.00[-0.22,+0.16] geo-ours=-0.38[-0.54,-0.16] geo.o16u2-ours=+0.77[+0.58,+0.96] geo.o16w2-ours=-0.43[-0.61,-0.26]
+ABCHECK ok pooler m=16 p0 sgl=1.7e-03 ours=1.7e-03 ours2=1.7e-03 ours.pool16=1.7e-03 geo=1.7e-03 geo.pool16w8=1.7e-03 geo.pool16n1=1.7e-03 geo.pool16n1b=1.7e-03
+ABCOLD pooler m=16 p0 sgl=26.11 ours=18.99 ours2=19.01 ours.pool16=19.01 geo=19.04 geo.pool16w8=19.10 geo.pool16n1=19.42 geo.pool16n1b=19.20
+ABPAIR pooler m=16 p0 ours2-ours=+0.02[-0.29,+0.35] ours.pool16-ours=+0.06[-0.26,+0.42] geo-ours=+0.03[-0.26,+0.35] geo.pool16w8-ours=+0.11[-0.13,+0.48] geo.pool16n1-ours=+0.45[+0.10,+0.80] geo.pool16n1b-ours=+0.22[-0.06,+0.61]
+ABCHECK ok pooler m=16 p1 sgl=1.7e-03 ours=1.7e-03 ours2=1.7e-03 ours.pool16=1.7e-03 geo=1.7e-03 geo.pool16w8=1.7e-03 geo.pool16n1=1.7e-03 geo.pool16n1b=1.7e-03
+ABCOLD pooler m=16 p1 sgl=26.29 ours=19.09 ours2=19.10 ours.pool16=19.14 geo=19.10 geo.pool16w8=19.14 geo.pool16n1=19.36 geo.pool16n1b=19.20
+ABPAIR pooler m=16 p1 ours2-ours=+0.03[-0.32,+0.32] ours.pool16-ours=+0.00[-0.22,+0.32] geo-ours=+0.03[-0.29,+0.32] geo.pool16w8-ours=+0.00[-0.26,+0.38] geo.pool16n1-ours=+0.26[-0.03,+0.61] geo.pool16n1b-ours=+0.06[-0.19,+0.42]
+ABCHECK ok unpooler m=16 p0 sgl=1.7e-03 ours=1.7e-03 ours2=1.7e-03 ours.unp16=1.7e-03 geo=1.7e-03 geo.unp16n4=1.7e-03 geo.unp16n4u4=1.7e-03
+ABCOLD unpooler m=16 p0 sgl=23.23 ours=18.56 ours2=18.56 ours.unp16=18.59 geo=18.53 geo.unp16n4=19.04 geo.unp16n4u4=19.39
+ABPAIR unpooler m=16 p0 ours2-ours=+0.03[-0.32,+0.35] ours.unp16-ours=+0.08[-0.26,+0.32] geo-ours=-0.03[-0.32,+0.26] geo.unp16n4-ours=+0.48[+0.19,+0.83] geo.unp16n4u4-ours=+0.83[+0.51,+1.12]
+ABCHECK ok unpooler m=16 p1 sgl=1.7e-03 ours=1.7e-03 ours2=1.7e-03 ours.unp16=1.7e-03 geo=1.7e-03 geo.unp16n4=1.7e-03 geo.unp16n4u4=1.7e-03
+ABCOLD unpooler m=16 p1 sgl=23.15 ours=18.53 ours2=18.51 ours.unp16=18.46 geo=18.53 geo.unp16n4=19.07 geo.unp16n4u4=19.39
+ABPAIR unpooler m=16 p1 ours2-ours=-0.03[-0.29,+0.32] ours.unp16-ours=-0.06[-0.35,+0.26] geo-ours=+0.03[-0.35,+0.26] geo.unp16n4-ours=+0.51[+0.19,+0.93] geo.unp16n4u4-ours=+0.86[+0.58,+1.18]
+ABCHECK ok qkv_gate m=32 p0 sgl=1.7e-03 ours=1.7e-03 ours2=1.7e-03 ours.qkv32=1.7e-03 geo=1.7e-03 geo.qkv32w8u1=1.7e-03 geo.qkv32r3=1.7e-03 geo.qkv32n2b=1.7e-03
+ABCOLD qkv_gate m=32 p0 sgl=19.04 ours=15.81 ours2=15.84 ours.qkv32=15.84 geo=15.90 geo.qkv32w8u1=16.48 geo.qkv32r3=18.72 geo.qkv32n2b=21.02
+ABPAIR qkv_gate m=32 p0 ours2-ours=+0.00[-0.19,+0.26] ours.qkv32-ours=+0.03[-0.26,+0.19] geo-ours=+0.10[-0.16,+0.29] geo.qkv32w8u1-ours=+0.64[+0.35,+0.90] geo.qkv32r3-ours=+2.91[+2.69,+3.17] geo.qkv32n2b-ours=+5.22[+4.99,+5.44]
+ABCHECK ok qkv_gate m=32 p1 sgl=1.7e-03 ours=1.7e-03 ours2=1.7e-03 ours.qkv32=1.7e-03 geo=1.7e-03 geo.qkv32w8u1=1.7e-03 geo.qkv32r3=1.7e-03 geo.qkv32n2b=1.7e-03
+ABCOLD qkv_gate m=32 p1 sgl=19.10 ours=15.94 ours2=15.98 ours.qkv32=16.00 geo=16.00 geo.qkv32w8u1=16.43 geo.qkv32r3=18.75 geo.qkv32n2b=21.06
+ABPAIR qkv_gate m=32 p1 ours2-ours=+0.03[-0.19,+0.29] ours.qkv32-ours=+0.05[-0.26,+0.29] geo-ours=+0.03[-0.16,+0.29] geo.qkv32w8u1-ours=+0.48[+0.19,+0.80] geo.qkv32r3-ours=+2.82[+2.56,+3.07] geo.qkv32n2b-ours=+5.10[+4.86,+5.44]
+ABCHECK ok o m=32 p0 sgl=1.7e-03 ours=1.7e-03 ours2=1.7e-03 ours.o32=1.7e-03 geo=1.7e-03 geo.o32w1=1.7e-03
+ABCOLD o m=32 p0 sgl=11.07 ours=10.46 ours2=10.50 ours.o32=10.46 geo=10.40 geo.o32w1=10.50
+ABPAIR o m=32 p0 ours2-ours=+0.03[-0.16,+0.19] ours.o32-ours=+0.03[-0.16,+0.19] geo-ours=-0.06[-0.22,+0.13] geo.o32w1-ours=+0.00[-0.19,+0.16]
+ABCHECK ok o m=32 p1 sgl=1.7e-03 ours=1.7e-03 ours2=1.7e-03 ours.o32=1.7e-03 geo=1.7e-03 geo.o32w1=1.7e-03
+ABCOLD o m=32 p1 sgl=10.94 ours=10.35 ours2=10.37 ours.o32=10.37 geo=10.37 geo.o32w1=10.43
+ABPAIR o m=32 p1 ours2-ours=+0.03[-0.16,+0.19] ours.o32-ours=+0.00[-0.13,+0.16] geo-ours=+0.00[-0.16,+0.16] geo.o32w1-ours=+0.10[-0.10,+0.26]
+ABCHECK ok pooler m=32 p0 sgl=1.7e-03 ours=1.7e-03 ours2=1.7e-03 ours.pool32=1.7e-03 geo=1.7e-03 geo.pool32w8=1.7e-03 geo.pool32n1b=1.7e-03
+ABCOLD pooler m=32 p0 sgl=26.82 ours=20.29 ours2=20.29 ours.pool32=20.30 geo=20.27 geo.pool32w8=21.23 geo.pool32n1b=24.54
+ABPAIR pooler m=32 p0 ours2-ours=-0.10[-0.51,+0.35] ours.pool32-ours=-0.02[-0.42,+0.42] geo-ours=-0.13[-0.51,+0.32] geo.pool32w8-ours=+0.86[+0.42,+1.41] geo.pool32n1b-ours=+4.27[+3.81,+4.64]
+ABCHECK ok pooler m=32 p1 sgl=1.7e-03 ours=1.7e-03 ours2=1.7e-03 ours.pool32=1.7e-03 geo=1.7e-03 geo.pool32w8=1.7e-03 geo.pool32n1b=1.7e-03
+ABCOLD pooler m=32 p1 sgl=26.62 ours=20.16 ours2=20.16 ours.pool32=20.22 geo=20.22 geo.pool32w8=20.99 geo.pool32n1b=24.45
+ABPAIR pooler m=32 p1 ours2-ours=+0.00[-0.42,+0.48] ours.pool32-ours=+0.06[-0.35,+0.48] geo-ours=+0.03[-0.32,+0.45] geo.pool32w8-ours=+0.86[+0.42,+1.18] geo.pool32n1b-ours=+4.32[+4.00,+4.64]
+ABCHECK ok unpooler m=32 p0 sgl=1.7e-03 ours=1.7e-03 ours2=1.7e-03 ours.unp32=1.7e-03 geo=1.7e-03 geo.unp32w8=1.7e-03 geo.unp32n2=1.7e-03
+ABCOLD unpooler m=32 p0 sgl=23.17 ours=19.84 ours2=19.87 ours.unp32=19.87 geo=19.81 geo.unp32w8=19.78 geo.unp32n2=19.36
+ABPAIR unpooler m=32 p0 ours2-ours=-0.02[-0.42,+0.38] ours.unp32-ours=-0.03[-0.38,+0.26] geo-ours=-0.06[-0.45,+0.26] geo.unp32w8-ours=-0.06[-0.45,+0.32] geo.unp32n2-ours=-0.54[-0.90,-0.19]
+ABCHECK ok unpooler m=32 p1 sgl=1.7e-03 ours=1.7e-03 ours2=1.7e-03 ours.unp32=1.7e-03 geo=1.7e-03 geo.unp32w8=1.7e-03 geo.unp32n2=1.7e-03
+ABCOLD unpooler m=32 p1 sgl=23.30 ours=20.02 ours2=20.03 ours.unp32=19.97 geo=19.94 geo.unp32w8=19.94 geo.unp32n2=19.87
+ABPAIR unpooler m=32 p1 ours2-ours=+0.00[-0.35,+0.45] ours.unp32-ours=-0.06[-0.42,+0.32] geo-ours=-0.13[-0.48,+0.19] geo.unp32w8-ours=-0.06[-0.45,+0.26] geo.unp32n2-ours=-0.16[-0.51,+0.19]
