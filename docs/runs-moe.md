@@ -79,6 +79,8 @@ SGLang with its 95% interval. Profiles and logs are in `muse_moe_w4a16/profiles/
 | 2026-10-30 | 304f17f3e8704992 (check, bench file from tools/moe_make_bench_ab.py --base=37 --sizes=32,128,256 --routings=layer --seeds=7,8,9,10,11,12 o43=43 o44=44 o42=42 o47=47 --pairs=o47-o43, not committed) | a4687c8 | repeat of 43 on held-out layer seeds 7-12 (the steering rule's step 3: timing won, waits did not fall), plus mode 47 (43 without the hoist) | 2.176x (2.144-2.209) | passed 5/5; judge medians bs1 27.46, bs16 97.33, bs32 133.58, bs8 72.36, bs128 199.79, bs256 241.87 us; policy main-lean-grp at 128 and 256. 43 minus 37 -0.9 / -1.2 / -2.1 (6, 4, 6 of 6); 47 minus 37 -0.4 / -1.6 / -3.6 (3, 6, 6 of 6); 47 minus 43 +0.5 / -0.5 / -1.5 (2, 5, 6 of 6); 44's cycles per wait 214 / 215 / 235 against 41's 204 / 203 / 225. Outputs against 37 1.2e-5 to 3.8e-5, spin flags 0 |
 | 2026-10-30 | 5f381b8b6946492d (check, bench file from tools/moe_make_bench_ab.py --base=37 --sizes=32,128,256 --routings=layer,std,skewed --seeds=13,14,15,16,17,18 --gate=1 o47=47, not committed) | 20c295e | mode 47's pre-registered gate against 37 (rule committed in 28fc668 before the submit): held-out seeds 13-18 on layer, standalone and skewed routing | 2.196x (2.163-2.229) | passed 5/5; judge medians bs1 27.5, bs16 94.2, bs32 138.4, bs8 72.3, bs128 200.3, bs256 238.5 us; policy main-lean-grp-nohoist at 128 and 256. 47 minus 37, us, at 32 / 128 / 256: layer -1.0 / -2.3 / -3.7 (6, 5, 6 of 6 lower), standalone -2.4 / -2.8 / -3.4 (6, 6, 6), skewed -2.0 / -2.2 / -2.8 (5, 6, 6). Outputs against 37 on every seed 5.5e-7 to 4.4e-5; self-test 3.89e-3; spin flags 0. Every rule condition passed: 47 kept. Section "Mode 47 gate" |
 | 2026-10-30 | b50351288b504e81 (check) | ec565a7 | the shippable build: MAIN_MODES (0, 16, 26, 28, 37, 47); GATE adds 47 minus 37 (seeds 17-22, skewed 11-13) | 2.190x (2.157-2.223) | passed 5/5. Per shape: bs1 28.8 us, bs16 95.0, bs32 138.0, bs8 67.3, bs128 199.8 (2.365x, main-lean-grp-nohoist), bs256 238.5 (2.590x, main-lean-grp-nohoist). GATE 47 minus 37 per seed: bs128 -3.6 -3.1 -3.3 -0.3 -1.7 -2.8 (mean -2.5); bs256 -5.2 -2.8 -2.7 -2.7 -3.6 -3.4 (mean -3.4); skewed bs128 -2.2 -1.9 -2.9, bs256 -2.6 -2.2 -2.0. Output of 47 vs 16 equal to 37's to two digits (1.5e-4 to 4.2e-4); self-tests 3.86e-3 to 3.89e-3 for 47; spin flags 0. BENCH bs128 47 207.5, 37 209.2; bs256 230.3 vs 232.5. Build 146.6 s. Judge bs256 238.5 against 241.49 / 241.46 for 37's two runs; bs128 199.8 against 197.09 / 202.35. Submit candidate: ec565a7 (not submitted; handed to the coordinator) |
+| 2026-10-30 | ed3b4fdc76b54263 (check, bench file from tools/moe_make_bench_ab.py --base=47 --sizes=128,256 --routings=layer --skew=1 o48=48 o49=49, not committed) | 64cec1f | warp skew on mode 49 (47 with per-warp stage stamps) and phase stamps on 48 against the public kernel, layer seeds 1-6 | 2.188x (2.155-2.220) | passed; the bench crashed after the 128-token timing (ABCHECKALL on an empty list, a bug of 20c295e, fixed in the next commit). 128 tokens: 48 minus 47 +0.8, 49 minus 47 +5.4 (0 of 6 lower), public minus 47 -12.2 (6 of 6) |
+| 2026-10-30 | d47c78bdc130424b (check, same bench options, not committed) | 54318bd | the rerun of ed3b4fdc76b54263 | 2.194x (2.161-2.227) | passed; spin flags 0. Public minus 47 -14.7 / -22.6 us at 128 / 256 (6 of 6); 48 minus 47 +1.3 / +1.1, 49 minus 47 +5.8 / +9.4. Warpgroups of a CTA 750-1,200 cycles apart at the stage start, warps within one 50-160; up to 72-74% of the weights waits from that skew. Phase gap (48 vs public stamps) at 128 / 256: setup +4.3 / +4.4, phase A +2.3 / +7.7, phase B +2.9 / +7.3, tail +3.7 / +3.6, barrier and final +4.0 / +3.6. ABSKEW's column labels in this log are the skinny ABSK names (a name clash, fixed in a03ca00); the values are in the order of skew_cols. Section "Warp skew and the gap to the public kernel after mode 47" |
 
 ## Why the layer keeps the W4 chain at 128 tokens, 2026-10-29
 
@@ -1282,6 +1284,150 @@ tokens against 241.49 and 241.46 in 37's two runs; 199.8 at 128 against 197.09 a
 judge's 128-token shape moves by more than the gain). The score sits inside the intervals of 37's
 runs (2.144x, 2.160x); the paired evidence is the same-process A/B above. The file went to the
 coordinator for a scored run.
+
+## Warp skew and the gap to the public kernel after mode 47, 2026-10-30
+
+Brief: docs/steering/2026-10-29-fat-moe-waits.md, next action 3 (per-warp stage-start skew, H2)
+and a re-attribution of the same-process gap to the public kernel on mode 47.
+
+### Method
+
+Modes 48 and 49 (64cec1f, timing only) are twins of 47: 48 with the light stamps (thread 0's
+globaltimer at the phase boundaries, the twin of 42), 49 with the light stamps plus per-warp
+stage stamps. In 49, lane 0 of every consumer warp stores clock64 at each wgmma stage's start,
+after its weights wait, after its x wait and after its weights-slot arrive, through a predicated
+`st.global` (a lane-0 branch between wgmma groups serializes them, docs/ruled-out.md); the
+weights and x producers store their issue time per stage. Stage q is the ring position, the
+same for both rings. The mma.sync stages (jobs of 1 or 2 n-tiles) are not stamped. Compile
+gate: production SASS unchanged, no C7510-C7515, 49's stage loops 418 instructions against
+47's 387 with no local loads or stores. tools/moe_make_bench_ab.py `--skew=1` reduces the stamps
+per phase as ABSKEW.
+
+The public kernel could not be stamped the same way. At its 96 registers, any consumer-side
+stamp (four subsets tried, local nvcc 12.8, sm_90a) made its DEBUG build spill 400 to 1,260 B,
+and three of the four subsets serialized its wgmmas (C7512), so its skew would not be its own.
+The option stays in the tool as `--pubskew=1`, unused.
+
+Checks: ed3b4fdc76b54263 (crashed in the bench after the 128-token timing on an empty ABCHECKALL
+list, a bug of 20c295e fixed in the next commit) and d47c78bdc130424b (the full run), both
+`--base=47 --sizes=128,256 --routings=layer --skew=1 o48=48 o49=49`, layer seeds 1-6.
+
+### Skew (mode 49, d47c78bdc130424b)
+
+Mean over CTAs and six seeds of one cold launch each; wgmma stages only; cycles at 1.74-1.75 GHz
+unless marked us.
+
+| | 128 A | 128 B | 256 A | 256 B |
+|---|---|---|---|---|
+| wgmma stages stamped per CTA | 19.1 | 9.0 | 35.4 | 16.0 |
+| per warp: weights waits / x waits, us | 1.96 / 3.48 | 0.97 / 1.12 | 4.42 / 7.30 | 1.76 / 1.89 |
+| cycles per wait | 253 | 202 | 288 | 200 |
+| stage-start spread over the 16 warps | 873 | 883 | 1,370 | 976 |
+| spread of the 4 warpgroups' mean starts | 756 | 826 | 1,210 | 922 |
+| spread within a warpgroup | 98 | 58 | 160 | 54 |
+| spread of the weights-slot releases | 945 | 1,020 | 1,420 | 1,130 |
+| weights-wait share a zero-skew release removes (bound) | 0.72 | 0.72 | 0.74 | 0.73 |
+| producer issue after the slowest release | 306 | 327 | 553 | 350 |
+| weights copy, issue to first wait end (upper bound) | 4,930 | 4,720 | 5,450 | 5,160 |
+| a warp's own release of the slot to its next start in it | 5,940 | 5,810 | 7,210 | 6,330 |
+| x copy, issue to first wait end (upper bound) | 3,860 | 4,320 | 4,080 | 4,120 |
+
+The bound in the share row is, per wait, min(wait, slowest warp's release of the slot three
+stages back minus this warp's own). The copy rows use the earliest wait end over the 16 warps,
+which cannot precede the copy's arrival, so they overstate the latency. Cost of the stamps:
+49 minus 47 +5.8 / +9.4 us at 128 / 256 (0 of 6 lower), 48 minus 47 +1.3 / +1.1.
+
+Reading.
+- Measured: the four warps of a warpgroup stay within 50-160 cycles of each other (the
+  warpgroup-wide wgmma keeps them together). The four warpgroups of a CTA drift 750-1,200
+  cycles apart, about half of a 2,200-cycle stage at 256 tokens. H2 holds at the warpgroup level.
+- Measured: a weights slot is refilled 300-550 cycles after its slowest warp releases it and
+  arrives about 5,000 cycles later. A warp comes back to the slot 5,800-7,200 cycles after its
+  own release, so a leading warpgroup that is 1,000-1,400 cycles ahead of the slowest one finds
+  the slot still in flight. Up to 72-74% of the weights-wait cycles would go if every warp had
+  released when the waiting warp did.
+- Measured: x waits are 1.2-1.8 times the weights waits. The x slot of stage q is released
+  only after stage q + 1's first wgmma group, so its lead is about a stage shorter, against an
+  x copy of about 4,000 cycles.
+- Not measured: whether the skew costs SM time. The waits fall on the leading warpgroups; the
+  trailing one sets the pace. Removing the waits (per-warpgroup slots and barriers, below)
+  helps only if the leading warpgroups' idle time is on the CTA's critical path.
+
+### Same-process gap by phase (48 against the public kernel's stamps, d47c78bdc130424b)
+
+| us, mean of 6 layer seeds | 128: 48 / public / gap | 256: 48 / public / gap |
+|---|---|---|
+| graph replay, 47 against public (6 of 6) | 165.1 / 150.4 / +14.7 | 224.1 / 201.5 / +22.6 |
+| setup: routing (route) | 3.4 / 2.5 / +0.9 | 4.3 / 3.4 / +0.9 |
+| setup: x gather and release (start minus route) | 7.2 / 3.8 / +3.4 | 8.6 / 5.1 / +3.5 |
+| phase A (per CTA, mean) | 88.6 / 86.3 / +2.3 | 125.4 / 117.7 / +7.7 |
+| phase A done, last CTA | 113.6 / 98.0 / +15.6 | 148.9 / 132.7 / +16.2 |
+| phase B (per CTA, mean) | 46.0 / 43.1 / +2.9 | 64.2 / 56.9 / +7.3 |
+| tail (last phase B end minus the mean) | 9.0 / 5.3 / +3.7 | 9.6 / 6.0 / +3.6 |
+| barrier and final pass | 13.4 / 9.4 / +4.0 | 16.1 / 12.5 / +3.6 |
+| launch end, last CTA | 159.2 / 146.4 / +12.8 | 219.4 / 197.6 / +21.8 |
+
+Summed over the two sizes the pieces are phase B 10.2 us, phase A 10.0, setup 8.7 (7.0 of it
+in the gather), barrier and final pass 7.6, tail 7.3. Phase A's piece has no single mechanism
+behind it yet (the skew above and the x lead are candidates). Phase B's has one: mode 41 put
+the phase B epilogue at 3.76 us per unit at 256 tokens against phase A's 1.71 (2.21 against
+1.51 at 128, ca43908f02874886), and the public kernel's phase B epilogue writes y only and
+forms each route's sum of squares in its final pass (its OKC_WGSFINSS). Ours shuffles three
+rounds and issues two FP32 atomics per n-tile there.
+
+### Mode 50: the sums of squares in the final pass
+
+Change (a03ca00). Mode 50 is 47 with the phase B epilogue's shuffles and atomics into `ss`
+removed (it still writes ybuf) and the final pass replaced by `final_pass_ss`: one token per
+item, each of the 512 consumer threads holds 8 columns; pass 1 reads the token's local rows of
+ybuf and sums y^2 per slot (warp shuffles, then the 16 warps' partials through shared memory in
+the idle rings, named barrier 8), pass 2 reads the rows again (L2) and writes out. Same
+coefficient formula (topk_w * rsqrt(ss / 4096 + eps)); only the summation order of ss changes.
+
+Ordering. No fence or barrier is removed and no release or acquire moves.
+1. ybuf: the final pass reads it after the grid barrier, as final_pass did (every writer's
+   stores, then `__syncthreads`, thread 0's `__threadfence` and atomicAdd; the reader's
+   `ld.acquire` spin and `__syncthreads`). What came through `ss` before (atomics, read with
+   `ld.global.cg` after the same barrier) now comes from the ybuf rows themselves.
+2. The rings as scratch: before the grid barrier every bulk copy a producer issued has been
+   waited on by a consumer (each stage's full barrier, on both the wgmma and mma.sync paths),
+   and `__syncthreads` follows; the async writes are complete and observed through the mbarrier
+   phase (PTX ISA 9.7.15.16.19), so a later generic write does not race them.
+3. The reduction buffer alternates halves by item parity with one 512-thread `bar.sync` per
+   item: a thread writes a half for item k + 2 only after the barrier of item k + 1, which every
+   thread reaches after its reads of item k. The trip count depends only on the CTA index, so
+   all 512 threads execute the same barriers; barrier 8 is used nowhere else.
+
+Local compile gate (nvcc 12.8, sm_90a; sk/after50 in the session scratchpad): production SASS
+(modes 0, 16, 26, 28, 37, 47 and the four skinny kernels) has the same instruction text as
+before 64cec1f; no C7510-C7515; mode 50 at 96 registers with no spill (47: 4 / 88 B) and no local
+load or store anywhere; stage loops 387-393 instructions (47: 387-394); MEMBAR 43,
+FENCE.VIEW.ASYNC.S 21, SYNCS.ARRIVE 48, HGMMA 192, wait1 96, as 47. tools/moe_dryrun.py and
+tools/moe_host_check.sh pass with 50 in MAIN_MODES and MAIN_CANDIDATES.
+
+Prediction (hypothesis): -2 to -5 us at 256 tokens, -0.5 to -2 at 128, from the phase B
+epilogue, less a second L2 read of the final pass's rows (32 MB at 256 tokens).
+
+Gate run (rule set before the check is submitted): one check of a bench file from
+`tools/moe_make_bench_ab.py --base=47 --sizes=32,128,256 --routings=layer,std,skewed
+--seeds=23,24,25,26,27,28 --gate=1 o50=50`. Seeds 23-28 are held out on all three routings (layer
+seeds 1-18 and standalone 13-22 ran before). 47 and 50 are timed in one process, interleaved
+per seed and reversed on every other seed; `--gate=1` puts 50 in MAIN_CANDIDATES (prepare's FP32
+self-test covers it) and prints 50's output against 47 on every seed.
+
+Keep 50 only if all of these hold in that check:
+
+1. At 256 tokens, 50 minus 47 has a mean of -1.5 us or lower on layer and on standalone routing,
+   with at least 5 of 6 seeds lower on each, and a mean of 0 or lower on skewed routing.
+2. At 32 and at 128 tokens, 50 minus 47 has a mean of +0.5 us or lower on every routing.
+3. 50's output is within 1e-4 relative L2 of 47's on every seed, size and routing.
+4. Prepare's FP32 self-test passes for 50 (no FAIL line, spin flags 0).
+5. The compile gate above, on the commit that is checked.
+
+If any condition fails, 50 goes to docs/ruled-out.md scoped to this design (sums of squares in a
+two-pass final pass, one token per item, on 47) and is not shipped. If all pass: 50 joins
+MAIN_MODES and MAIN_CANDIDATES, the shippable file is judged with one check (GATE prints 50
+minus 47), and the file goes to the coordinator. Budget: this check and one shippable check.
 
 ## Staged pair on current components, 2026-10-29
 
