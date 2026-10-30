@@ -848,6 +848,8 @@ __host__ __device__ constexpr bool dyn_b(int mode) {
 // but every CTA's phase A grew by about 5 us, also at 32 tokens where 6 units are claimed.
 // 66 (67 its stamped twin) runs the same code with no round claimed (K = 0): the queue is read in
 // phase A as in 62 but holds only phase B units, so 66 against 51 is the cost of the code shape.
+// In ed4591a2477041c2 66 was +7.0 to +8.8 us against 51 at 128 and 256 tokens and tied 62: the
+// loss is this code shape, not the claims. Not built.
 __host__ __device__ constexpr bool claim_a(int mode) {
     return mode >= 62 && mode <= 67;
 }
@@ -3923,7 +3925,8 @@ SKINNY_VARIANTS = ((8, 4, 0), (16, 4, 0), (8, 4, 1), (8, 3, 0))
 # per-thread __threadfence; docs/runs-moe.md, "Gather publish without the per-thread fence". Not built.
 # 62 and 63 (lost, +3.9 to +9.2 us against 51, b7e43ee6a517487a): 51 with phase A's last one or two
 # rounds claimed at run time through ctr[10] ahead of the phase B units; 64 and 65 are their stamped
-# twins (timing only); docs/runs-moe.md, "Phase A's last round claimed at run time". Not built.
+# twins (timing only); 66 (67 stamped) is the same code with nothing claimed, which lost as much
+# (ed4591a2477041c2); docs/runs-moe.md, "Phase A's last round claimed at run time". Not built.
 MAIN_MODES = (0, 16, 26, 28, 37, 47, 51)
 MAIN_CANDIDATES = (0, 6, 12, 13, 14, 15, 16, 20, 23, 26, 28, 32, 34, 35, 36, 37, 39, 43, 47, 51)
 VARIANT_MAIN0 = len(SKINNY_VARIANTS)

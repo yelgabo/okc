@@ -93,6 +93,7 @@ SGLang with its 95% interval. Profiles and logs are in `muse_moe_w4a16/profiles/
 | 2026-10-30 | 3d8902381a194d56 (check, bench file from tools/moe_make_bench_ab.py --score=1 --sizes=1,8,16,32,128,256 --seeds=301-310, not committed) | this branch (tool only) | standalone scorecard: the shipped dispatch against the public file's whole dispatch, two independent prepares per side, std routing, seeded shuffled order | 2.211x (2.177-2.244) | passed; spin flags 0; policy sk8w3s at 1-32, 51 at 128 / 256 in both prepares. Public minus ours, us (10 seeds): +1.37 / -0.80 / +0.04 / -1.54 (sd 8.0, bimodal) / -9.60 / -14.92 at 1 / 8 / 16 / 32 / 128 / 256; nulls within 0.3 (ours) and 0.75 (public). Value if closed: 256 +1.12%, 128 +0.86%, 8 +0.21%, 32 +0.19%. Section "Standalone scorecard against the public kernel" |
 | 2026-10-30 | 48b9bf9d77d146ac (check, bench file from tools/moe_make_bench_ab.py --base=51 --sizes=32,128,256 --routings=layer,std --seeds=47,48,49,50,51,52 o60=60, not committed) | 003be4b | diagnostic of mode 60 (51 without the gather's per-thread __threadfence; proxy fence, barrier and releases kept) with gather stamps (61 against 55) | 2.205x (2.172-2.238) | passed; spin flags 0. 60 minus 51 at 32 / 128 / 256: layer -0.3 / -0.4 / +0.0 us (6, 5, 4 of 6 lower), std -0.3 / -0.5 / -0.4 (3, 5, 4). Thread 0's barrier wait -1.3 to -3.6 us, its release +0.6 to +2.5 (MEMBAR.ALL.GPU before the RED); last x ready 0.4-2.0 us earlier. Pre-set gate condition failed (256 layer); not gated, docs/ruled-out.md |
 | 2026-10-30 | b7e43ee6a517487a (check, bench file from tools/moe_make_bench_ab.py --base=51 --sizes=32,128,256 --routings=layer,std --seeds=53,54,55,56,57,58 o62=62 o63=63, not committed) | d5bafad | diagnostic of modes 62 / 63 (51 with phase A's last one / two rounds claimed at run time through ctr[10] ahead of phase B) with light and gather stamps (64, 65 against 55) | 2.198x (2.165-2.231) | passed; spin flags 0. 62 minus 51 at 32 / 128 / 256: layer +3.9 / +7.9 / +9.2 us, std +6.1 / +7.5 / +8.6; 63 +5.3 / +7.0 / +8.5 and +5.3 / +6.9 / +7.9 (0 of 6 lower in every row). Phase A end spread at 128 12.8 / 10.1 -> 9.5 / 7.7 us (62), but mean phase A +4.8 to +6.8 us at 128 / 256. Pre-set rule: not gated, docs/ruled-out.md |
+| 2026-10-30 | ed4591a2477041c2 (check, bench file from tools/moe_make_bench_ab.py --base=51 --sizes=32,128,256 --routings=layer,std --seeds=65,66,67,68,69,70 o66=66 o62=62, not committed) | a727b12 | null of the claimed phase A tail: mode 66 = 62's code with no round claimed (K = 0), 62 again, stamped twins 67, 64 against 55 | 2.199x (2.166-2.232) | passed; spin flags 0. 66 minus 51 at 32 / 128 / 256: layer +4.3 / +7.0 / +8.8 us, std +6.0 / +7.9 / +8.7; 62 +4.2 / +6.9 / +8.5 and +5.7 / +7.9 / +10.3 (0 of 6 lower in every row); 67's phase A mean +5.1 to +7.7 over 55's. The loss is the code shape, not the claims (62 minus 66 -0.3 to +1.6). No gate |
 
 ## Why the layer keeps the W4 chain at 128 tokens, 2026-10-29
 
@@ -2271,6 +2272,46 @@ phase A mean against 55's:
 - 66 is within 1 us of 51 in all four cells: the claims themselves cost the time (62 minus 66 is
   their price). The family stays parked with that evidence.
 - Anything between: mixed, recorded as such, no further check from this line.
+
+### Result for 66 (check ed4591a2477041c2, bench at a727b12)
+
+2.199x (2.166-2.232), passed, spin flags 0. Outputs of 66 and 62 against 51: 0.0 at 128 and 256
+tokens, at most 4.5e-5 at 32. Minus 51, us, same process, seeds 65-70 (count = seeds lower of 6):
+
+| arm | 32 layer | 32 std | 128 layer | 128 std | 256 layer | 256 std |
+|---|---|---|---|---|---|---|
+| 66 (nothing claimed) | +4.3 (0) | +6.0 (0) | +7.0 (0) | +7.9 (0) | +8.8 (0) | +8.7 (0) |
+| 62 (last round claimed) | +4.2 (0) | +5.7 (0) | +6.9 (0) | +7.9 (0) | +8.5 (0) | +10.3 (0) |
+| public | +0.9 (0) | -3.4 (6) | -9.1 (6) | -11.6 (6) | -16.5 (6) | -17.2 (6) |
+
+Stamps (means over seeds, us; layer / standalone):
+
+| | 32 | 128 | 256 |
+|---|---|---|---|
+| phase A mean: 55 (51) / 67 (66) / 64 (62) | 44.1 / 47.2 / 44.8 and 94.0 / 98.4 / 98.6 | 90.1 / 95.2 / 94.7 and 118.2 / 123.6 / 123.6 | 121.7 / 129.4 / 128.3 and 146.0 / 152.5 / 152.9 |
+| A end spread: 55 / 67 / 64 | 3.9 / 3.6 / 4.1 and 10.4 / 9.8 / 7.4 | 10.8 / 10.3 / 9.0 and 12.6 / 11.8 / 10.0 | 10.8 / 9.3 / 9.2 and 13.3 / 13.7 / 12.3 |
+| public phase A mean, spread | 46.3, 5.1 and 90.9, 3.9 | 87.3, 6.2 and 112.4, 5.6 | 114.5, 7.8 and 136.9, 8.9 |
+
+Reading under the rule set before the run:
+- Measured: 66 is +7.0 / +7.9 / +8.8 / +8.7 us at 128 / 256 tokens (layer / standalone), all above
+  +3, and 67's phase A mean is 5.1-7.7 us above 55's in all four cells. So the loss is the code
+  shape, not the claims: with nothing claimed the new code costs as much as 62 does. 62 minus 66 is
+  -0.1 / +0.0 / -0.3 / +1.6 us; the claims themselves cost nothing measurable and buy nothing
+  measurable end to end in this run, while they narrow the phase A end spread by 0.5-2.4 us against
+  the same code (64 against 67, five of six cells).
+- Not separated: which part of the code shape costs the time. 66 differs from 51 in the
+  consumers' phase A loop (one merged loop per n-tile count for dealt and claimed units, a
+  queue read at the end of phase A, the phase A epilogue compiled twice per count: 21,488
+  instructions, MEMBAR 107 against 43), in the phase B decoders (the `m - na` offset) and in both
+  producers' claim loops. The phase A mean grows everywhere, which points at the consumers' phase A
+  code (hypothesis).
+- Decision: the claim mechanism is not rejected; this implementation is. Reopening needs a leaner
+  build whose K = 0 null ties 51: the consumers' dealt-unit loops left as 51's code (byte-identical
+  phase A segment and epilogue), the claimed phase A units run in a separate per-count loop after
+  them (claimed counts are never larger than any dealt count, so the ring order still holds), and
+  the claim and decode kept in the weights producer, with the x producer and the consumers told only
+  through S.bq. Gate for such a build: its K = 0 null within 1 us of 51 at 128 and 256 tokens before
+  its claimed arm is timed. No gate was run here; three of today's MoE checks remain.
 
 ## Staged pair on current components, 2026-10-29
 
