@@ -1,6 +1,6 @@
 # Architecture performance tracker
 
-Last review: 2026-10-29 19:31 PDT. Evidence snapshot: `b41cb8d`.
+Last review: 2026-10-29 22:34 PDT. Evidence snapshot: `6cb0796`.
 First review reconciles progress since `aab7d75`, the snapshot in the
 [architecture-family guide](architecture-families-2026-10-29.md).
 This is a review of recorded experiments, not a new benchmark run.
@@ -12,13 +12,92 @@ named control, not changes in aggregate score. Families overlap; their gains can
 
 | Family | Current result | What has actually been measured | Visibility gap |
 |---|---|---|---|
-| A. Hybrid persistent/legacy MoE | Component and isolated layer gains | Mode 47 is released and its held-out-picker layer comparison improves 128/256. Mode 51 gains another 3.9/3.9 us in component tests. | Mode 51 awaits layer testing; its 2.202x component submission is below mode 47's 2.216x board score. |
+| A. Hybrid persistent/legacy MoE | Mode 51 now wins in the layer | Paired layer mode 51 versus 47 saves 5.1/5.3 us at 128 and 6.5/1.1 us at 256, sliding/full. | Final gate-version file has bench evidence but no unpatched scored confirmation or release; board stays mode 47. |
 | B. Staged grouped MoE | Retested loss | Modes 45 + 46 on mode 37 components lose 30.4/24.4 us at 128/256 versus 37, six seeds each. | Parked until phase B alone drops below about 50 us at 128 or the fused phase A tail disappears. |
 | C. Owner-completes tiles | Retained in the persistent descendants | Mode 20's owned phase A saves about 2-3 us at 128 and 4 us at 256 over mode 16. Later modes combine ownership with other changes. | Later gains cannot be credited to ownership alone. |
 | D. Dependency-aware scheduling | Dynamic claiming retained; split-tail variants lose | Modes 52/53 split the last claimed phase B units through fixup and lose at 32/128/256. | Full ready-only scheduling remains untested; do not generalize the split-tail loss to the family. |
-| E. Attention producer-consumer pipeline | Component gains; combined layer gain | DCARRY/PK16/VHOIST now runs in the winning layer package; corrected FIN8 plan/replay checks pass. | Package gain is shared with A and projection changes. M1 remains untimed; its off control also violates the replay bound, so the failure is not isolated to M1. |
+| E. Attention producer-consumer pipeline | Component gains; combined layer gain | DCARRY/PK16/VHOIST now runs in the winning layer package; corrected FIN8 plan/replay checks pass. | Package gain is shared with A and projection changes. M1 diagnostic timing gives little net release gain. Attention input-history dependence is an open, untested lead, not a confirmed E defect. |
 
-## Latest review: mode 47 layer attribution and mode 51 component gain
+## Latest review: mode 51 layer gain and measured M1 limits
+
+Mode 51 closes its pending layer test. Job `29fd004fd58e40ef`, bench source `d9b7d67`, compares
+`cand/layer_g51.py` (SHA256 prefix `dacd4e0d`, sent comment-stripped) with clean mode-47
+release `b9c23bda`. Two held-out inputs per shape, seeds 140001+, eight cold-L2 rounds with
+seeded random order give 16 paired samples per shape and 72/72 reference/routing/cache checks.
+Candidate/release speed ratio is **1.0084**, null ratio 0.9997. At 128/256 only the MoE mode
+differs in the timed path; gate changes affect prepare. Other shapes stay within null spread.
+
+| Tokens | Sliding delta | Full delta | Control sliding/full | Null-minus-release sliding/full |
+|---|---|---|---|---|
+| 128 | -5.1 us (-1.92%) | -5.3 us (-1.52%) | 265.0 / 349.5 us | -3.7 / -5.2 us |
+| 256 | -6.5 us (-1.86%) | -1.1 us (-0.21%) | 348.9 / 524.3 us | -4.4 / +0.3 us |
+
+Percentages use paired delta divided by the logged control, not a subtraction of arm medians.
+No per-delta confidence interval is reported. Modes at 32 are 47 in both arms, while fronts
+differ at 16 through prepare-time selection. This supports the targeted layer gain, not a
+new gain at every size. [Raw mode-51 layer comparison](../muse_decode_layer/profiles/benchG51.29fd004fd58e40ef.log).
+
+The first gate-version candidate, SHA256 prefix `c8a843cf`, passes check `a438b82ff2c141c2`
+at 2.022x (1.991-2.052), 13/13, with mode 51 selected at 32/128/256. The later `dacd4e0d`
+file has the bench result above but no unpatched scored check. It is not released. Board entry
+remains `3fbb3ad027e84c6b`, 2.014x. Mode 51 is bitwise at 128/256 in both arms of the
+route-PDL checks. All 11 MoE variants pass; route gates pass 8/8; negative controls reject
+tile, 1%, 0.1%, row and single-element injections in all 19 gates, and all uninjected
+observations pass. [Release/candidate manifest](release-manifest.md), [layer runs](runs-decode-layer.md).
+
+### M1: diagnostic gain within its build, little net release gain
+
+Job `6ce5be0ba29642ea`, source `8f545ae`, runs M1 + mode 51 with a fresh-input gate and a
+reader-side proxy fence. Judge 13/13 passes (1.988x, 1.959-2.018), but M1 is blocked on the
+control at decode 1 sliding: off replay error 2.7e-3/2.5e-3, on bitwise. M1 changes no launch
+at one token, so this does not isolate an M1 effect. Its timing gate did not run.
+
+Stage diagnostic `60cf58b69b75491e` uses the same file through `dl_m1_stage_diag.py`, five
+fresh-input pairs, 1,000 replays each for off/off2/on plus 200 eager calls. Attention relative
+error is 1e-5 to 2e-4 in all arms; larger errors first appear at routing/MoE. No M1-specific
+stale-read signature is found. Report-only timing now runs: at 8 tokens sliding, whole-step
+off 105.9 versus o+front 100.5 us; at 16 sliding/full 153.4/229.1 versus 150.0/226.6; at
+32, 217.7/360.1 versus 214.7/357.1. These are within-build diagnostic timings, not an accepted
+candidate's release gain. Its judge score 1.965x (1.936-1.995) uses M1 off.
+
+Measurement build `fdf75ba5a8124544`, generated with `dl_m1_bench_build.py`, compares M1 + 51
+with the mode-47 release, seeds 130001+, eight rounds, 72/72 checks. It scores 2.007x
+(1.977-2.038), paired aggregate 1.0040, null 0.9984. At <=32 tokens, candidate-minus-release
+sliding/full is d1 +0.2/-0.3, d16 +0.6/+3.0, d32 -0.1/-0.2, verify 1 -1.3/+0.2 us.
+Although turning M1 on inside this build saves 5.1 us at 8-token sliding, the build changes
+plain projection issue order too, so net release gain is about zero at small sizes. Front
+policies also differ at 16. At 128/256, mode 51 explains the targeted timing differences,
+not M1. Gate is report-only: this build is not a validated candidate. No isolated E or D
+family gain follows. [Layer run log](runs-decode-layer.md).
+
+The same build's 32-token MoE prefetch probe finds off-minus-on +0.22/+0.00 us sliding and
+-0.16/-0.48 full across two inputs, comparable to null -0.06/+0.26 and -0.32/-0.67. This
+probe gives no measurable prefetch effect; it does not explain the earlier in-layer/component
+gap. A prepared --no-pf-probe build and history diagnostic have no new recorded run.
+
+### Validation changed; attention history remains an open lead
+
+The [run log](runs-decode-layer.md#validation-policy-change-fresh-input-replay-gate-user-decision-2026-10-30)
+records user-approved fresh-input gates for M1 and MoE/route replay checks, with later changes
+to relative-L2 order-1 rejection, control envelopes, element checks and negative controls.
+This review reports that recorded decision; it does not change validation or infer permission
+for new work. The released file still uses the old gate; the candidate uses the newer one.
+Attention `_one_stress`, norm and route side-stream bounds remain unchanged.
+
+A [PTX ordering argument](steering/2026-10-30-m1-ptx-ordering.md) now exists and the M1 build
+adds reader-side `fence.proxy.async.global`. The argument states that it has not had independent
+review; runtime passing alone does not prove ordering. The former "argument missing" status
+is superseded by "written, independently unreviewed".
+
+New open lead in `5fefe98`: fresh-input attention differs from its eager reference by about
+1e-4 at decode 1 sliding and 2e-4 at verify 1 sliding, while repeated-input stress is bitwise.
+Previous-call dependence is a hypothesis, not a measured causal result or confirmed stale
+read. `tools/dl_history_diag.py` is prepared to distinguish noise, previous-call dependence
+and separate-case state; it has no run yet. This limits the earlier explanation that all
+variation was atomic merge order. Do not clear M1 or reject E on this unresolved evidence.
+[Open lead](runs-decode-layer.md#open-lead-2026-10-30-unproven-input-history-dependence-in-the-attention-output).
+
+## Historical review, 19:31: mode 47 layer attribution and mode 51 component gain
 
 Current layer release `3fbb3ad027e84c6b`, source `2cee446`, scores **2.014x (95% interval
 1.984-2.045), 13/13 passed**. Its file SHA256 `b9c23bda16bb9d6311f025062e415841c67b16284737172badaa190fdc506a49`
@@ -344,6 +423,7 @@ are hypotheses. This correction motivates a test, not a new winning-family badge
 | A: mode 47 isolated layer picker | Same file with 47 held out | Sliding -4.9 us (-1.81%); full -5.5 us (-1.43%) | Sliding -5.7 us (-1.58%); full -3.6 us (-0.70%) | `720079090ee44cc3`, 16 paired samples/shape, 72 checks pass; overall ratio invalidated by d1 arm artifact. [Layer log](runs-decode-layer.md). |
 | A: mode 51 final pass | Mode 47 | -3.9 us, -2.41% | -3.9 us, -1.71% | `c6b0e500c3a84c9a`, layer seeds 29-34, 6/6 and 5/6 faster; no layer test. [MoE log](runs-moe.md). |
 | A/C/D: mode 52 split tail | Mode 51 | +5.9 us, +3.71% | +8.5 us, +3.94% | `209cf29bf91c4ea2`, layer seeds 35-40, output checks pass. Mode 53 also loses +7.3/+9.2 us. [MoE log](runs-moe.md). |
+| A: mode 51 isolated layer | Clean mode-47 release | Sliding -5.1 us (-1.92%); full -5.3 us (-1.52%) | Sliding -6.5 us (-1.86%); full -1.1 us (-0.21%) | `29fd004fd58e40ef`, 16 paired samples/shape, 72 checks pass, 1.0084 aggregate with null 0.9997. Candidate not released. [Layer log](runs-decode-layer.md). |
 
 Percentages use the logged paired delta divided by the logged control mean. Paired summaries use logged paired deltas rather than subtraction of separately summarized
 arm timings. Layer deltas are medians of per-round differences; these can differ by several
@@ -381,23 +461,40 @@ Losses matter as much as wins:
 
 ## Whole-layer outcome and attribution
 
-Current release `3fbb3ad027e84c6b`, source `2cee446`, scores 2.014x (1.984-2.045), 13/13.
-Mode 47 has isolated same-process layer evidence at 128/256 from `720079090ee44cc3`, with
-aggregate/decode-1 artifacts excluded from the conclusion. Mode 51 has component gains but
-awaits layer testing. E and C/D mechanisms remain integrated; no isolated new E/C/D gain is
-claimed. [Release manifest](release-manifest.md), [layer log](runs-decode-layer.md).
+Board release remains `3fbb3ad027e84c6b`, mode 47, 2.014x (1.984-2.045), 13/13. Mode 51
+has targeted paired layer gains in `29fd004fd58e40ef`; its exact final gate-version file still
+needs unpatched scored confirmation and is not released. M1 is now measured diagnostically,
+with little net release benefit at <=32; report-only validation prevents treating it as an
+accepted candidate. B/C/D standings are unchanged. [Manifest](release-manifest.md).
 
 ## Decision and next evidence needed
 
-Keep the clean released package; compare mode 51 with it in the layer. B remains parked after
-its completed loss, until phase B alone is below about 50 us at 128 or the fused phase A tail
-disappears. Modes 52/53 lose, while D's complete ready-only queue is still untested. Reconcile
-the 32-token in-layer/component gap before treating either as a recoverable budget. M1 needs
-an approved validation policy and the missing ordering/localization work before timing; the
-control's own replay variation prevents attributing its old failure solely to M1.
+Keep the clean release while confirming the final mode-51 candidate. Resolve attention
+input-history dependence with the prepared controlled diagnostic before assigning all variation
+to atomics or changing further validation. Independently review the written M1 ordering
+argument. Do not count its within-build speedup as a release gain. B remains parked after
+its retest; modes 52/53 remain losses and D's full ready-only queue remains untested.
 [Rejection register](ruled-out.md).
 
 ## Review history and checkpoint
+
+- 2026-10-29 22:34 PDT: reviewed `22264ae..6cb0796`, five new layer jobs
+  `6ce5be0ba29642ea`, `60cf58b69b75491e`, `fdf75ba5a8124544`, `a438b82ff2c141c2`,
+  `29fd004fd58e40ef`, manifest, validation changes and unrun history diagnostic. Other
+  component checkpoints unchanged. Existing 18 untracked JSON profiles are already logged
+  jobs. Origin/main fetched with no remote-only commits. Board release unchanged; mode 51
+  now layer-tested, final-file confirmation pending.
+
+- 2026-10-29 21:29 PDT: checkout remains `22264ae`; fetched origin/main with no
+  remote-only commits. Four run logs, rejection register and steering index are unchanged.
+  All 18 untracked profile JSONs are already logged jobs. No new measurement or correction;
+  mode 51 still awaits layer testing. Review metadata refreshed locally, no commit or push.
+
+- 2026-10-29 20:31 PDT: inspected through `22264ae`; fetched origin/main with no
+  remote-only commits. Four run logs and rejection register are unchanged since `b41cb8d`.
+  All 18 untracked profile JSONs are already logged jobs. Accessible chat inventory supplies
+  no newer relevant evidence. Run checkpoints, family standings and mode 51's pending layer
+  test are unchanged. Review metadata refreshed locally; no new-evidence commit.
 
 - 2026-10-29 19:31 PDT: reviewed `b7da8bb..b41cb8d`, release manifest, four run logs,
   rejection updates and raw layer/MoE diagnostics. Latest layer release `3fbb3ad027e84c6b`,

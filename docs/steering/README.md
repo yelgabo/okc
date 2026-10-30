@@ -4,6 +4,14 @@ This is the stable entry point for steering reports across research, implementat
 and coordinator sessions. The user requested on 2026-10-29 that every project-steering
 report be checked into this repository so other sessions can read it.
 
+## Latest hourly report, 22:34
+
+**[2026-10-29 22:34 PDT: Mode 51 layer gain and measured M1 limits](2026-10-29-2234-performance-review.md)**
+
+Evidence snapshot `6cb0796`. Mode 51 passes paired layer comparison but is not released.
+M1 gains inside its diagnostic build, with little net gain over the release. Attention
+input-history dependence remains an untested lead.
+
 ## Latest decision report: on course, with validation and prefetch priorities
 
 **[2026-10-29: Course check — validate overlap and isolate prefetch](2026-10-29-course-check-validation-prefetch.md)**
@@ -17,7 +25,7 @@ MoE PDL prefetch hints, finish stage-level freshness/numerical diagnostics for M
 production validation thresholds unchanged pending an approved, evidence-based policy.
 This report changes documentation only and launches no GPU work.
 
-## Latest hourly report, 19:31
+## Previous hourly report, 19:31
 
 **[2026-10-29 19:31 PDT: Mode 47 layer attribution and mode 51 component gain](2026-10-29-1931-performance-review.md)**
 

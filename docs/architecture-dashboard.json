@@ -1,27 +1,25 @@
 {
-  "reviewed_at": "2026-10-29T19:31:00-07:00",
-  "snapshot": "b41cb8d",
+  "reviewed_at": "2026-10-29T22:34:00-07:00",
+  "snapshot": "6cb0796",
   "layer": {
     "score": "2.014\u00d7",
     "interval": "1.984\u20132.045",
     "job": "3fbb3ad027e84c6b",
-    "note": "Clean mode-47 + projection release, M1 absent. Mode 47 now has isolated layer evidence at 128/256. Aggregate inc-arm ratios contain a decode-1 artifact; use shape-level deltas."
+    "note": "Mode 51 now has paired layer gains (1.0084 aggregate, null 0.9997). It is a candidate, not the board release. Final gate-version file awaits unpatched scored confirmation; M1 measurement build is diagnostic only."
   },
   "families": [
     {
       "id": "A",
       "name": "Hybrid persistent / legacy MoE",
       "status": "win",
-      "label": "Component and bundle wins",
-      "metric": "\u22123.9 / \u22123.9 \u00b5s",
-      "unit": "Mode 51 vs 47, 128 / 256 tokens, layer routing",
-      "summary": "Mode 47 has isolated layer gains. Mode 51 passes component gates; its lower cross-run score leaves the component board entry at 47.",
-      "layer": "Mode 47 released and layer-attributed",
-      "pending": [
-        "Mode 51: final-pass layer confirmation"
-      ],
-      "limit": "Mode 51 is untested in the layer. Mode 50 failed its 32-token performance gate. Mode 47 overall attribution ratio is contaminated by a decode-1 arm artifact.",
-      "source": "runs-moe.md"
+      "label": "Component and layer wins",
+      "metric": "\u22125.1 / \u22125.3 \u00b5s",
+      "unit": "Mode 51 layer gain at 128 tokens, sliding / full",
+      "summary": "Mode 51 also saves 6.5 / 1.1 \u00b5s at 256 tokens. Targeted layer comparison passes 72 checks; the final file is not released.",
+      "layer": "Mode 51 layer-tested; release remains mode 47",
+      "pending": [],
+      "limit": "Final gate-version file has a comment-stripped bench check, not an unpatched scored confirmation. First gate-version check scores 2.022\u00d7. Preserve the 2.014\u00d7 released baseline.",
+      "source": "runs-decode-layer.md"
     },
     {
       "id": "B",
@@ -72,7 +70,7 @@
       "summary": "DCARRY + PK16 + VHOIST now runs in the winning combined layer release. Corrected FIN8 replay checks pass.",
       "layer": "Integrated and layer-tested with A + projections",
       "pending": [],
-      "limit": "No new isolated E layer delta. M1 remains untimed: its off control also exceeds the replay bound. No stale-read signature found; ordering argument and validation policy remain open.",
+      "limit": "M1 gains within its diagnostic build but nets little over the release at small sizes. Attention input-history dependence is an untested lead. New ordering argument is written but independently unreviewed.",
       "source": "runs-attention.md"
     }
   ]
