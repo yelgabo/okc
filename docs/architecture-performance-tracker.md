@@ -1,6 +1,6 @@
 # Architecture performance tracker
 
-Last review: 2026-10-30 00:32 PDT. Evidence snapshot: `a48edef`.
+Last review: 2026-10-30 01:31 PDT. Evidence snapshot: `87bc0b8`.
 First review reconciles progress since `aab7d75`, the snapshot in the
 [architecture-family guide](architecture-families-2026-10-29.md).
 This is a review of recorded experiments, not a new benchmark run.
@@ -18,7 +18,60 @@ named control, not changes in aggregate score. Families overlap; their gains can
 | D. Dependency-aware scheduling | Dynamic claiming retained; split-tail variants lose | Modes 52/53 split the last claimed phase B units through fixup and lose at 32/128/256. | Full ready-only scheduling remains untested; do not generalize the split-tail loss to the family. |
 | E. Attention producer-consumer pipeline | Component gains; combined layer gain | DCARRY/PK16/VHOIST now runs in the winning layer package; corrected FIN8 plan/replay checks pass. | Package gain is shared with A and projection changes. Runtime-order M1 + 51 has a combined signal, not isolated E credit. Mode-49 history diagnostic supports merge-order rounding; scored M1 candidates do not confirm enabled-M1 gains; revised gate candidates remain untested. |
 
-## Latest review: scored candidates do not resolve M1 gains
+## Latest review: standalone projection gains, no new A-E layer result
+
+The new projection round is separate context, not a gain attributed to A-E. The
+[standalone roadmap](steering/2026-10-30-attention-projection-standalone-roadmap.md)
+separates standalone promotion from layer integration. A-E standings and the 128/256-token
+A-versus-B decision remain unchanged. Direct cuBLASLt and router geometry changes have not
+been ported to the layer. The full layer still needs its own controlled comparison.
+
+The [projection run log](runs.md#2026-10-30-standalone-round-direct-cublaslt-and-router-geometry-p1)
+records these jobs. Routing distribution is not applicable to these standalone dense operators.
+Scores below compare against each job's SGLang sample, not a same-process release control.
+
+| Job | Source revision / candidate | Score (95% CI) | Evidence status |
+|---|---|---|---|
+| `bf6c825bd5cf4659` | `eb374e4`, LATE_ARRIVE baseline, submitted by coordinator | 1.457 (1.436-1.479) | Receipt verified, 9/9 |
+| `1b00244922654709` | `d61deea`, P1a | 1.465 (1.443-1.487) | Receipt verified, 9/9; Lt build failed, router changes only |
+| `047bc3a4168e42d6` | `33daf8b`, P1b, Lt heuristic search | 1.463 (1.442-1.485) | Receipt verified, 9/9 |
+| `d6eaf1e73db047a5` | `62a6ae0`, P1c, tile/cluster sweep | 1.484 (1.461-1.506) | Receipt verified, 9/9; prepare-time picks vary |
+| `44fa08c6d2f44b44` | `d0dc80f`, P1d, cross-layout search and longer screening | 1.479 (1.457-1.501) | Run-log evidence; receipt absent from checkout, correctness count unverified here |
+| `6cbd8b981a5d4c3f` | `d0dc80f`, clean candidate, file SHA1 `03389e0d` | 1.482 (1.460-1.504) | Run-log evidence; receipt absent from checkout, correctness count unverified here |
+
+Verified receipts: [baseline](../muse_bf16_proj/profiles/proj_eb374e4.bf6c825bd5cf4659.json),
+[P1a](../muse_bf16_proj/profiles/bench_p1a.1b00244922654709.json),
+[P1b](../muse_bf16_proj/profiles/bench_p1b.047bc3a4168e42d6.json),
+[P1c](../muse_bf16_proj/profiles/bench_p1c.d6eaf1e73db047a5.json).
+
+P1d's log reports 100 seeded rounds, medians against preparation A's pre-Lt pick.
+Independent preparations newA/newB save 1.87/2.99 us on pooler 128 and 2.98/2.46 us on
+pooler 256. Null deltas are -0.13/-0.03 us respectively. Qkv 256 saves 1.92/1.86 us;
+unpooler 128 saves 1.34/1.41 us. Percent deltas are unavailable from this table because
+absolute paired control times are omitted. These are component comparisons, not layer gains.
+Pooler 128 picks vary by about 1.1 us between preparations; no paired confidence interval is
+recorded in the table. Full per-shape deltas, including near-ties and router gaps, remain in
+the linked run log.
+
+The clean candidate's cross-run verify-16/verify-32 totals (128/256 tokens) are
+73.29 -> 70.22 us and 91.84 -> 84.29 us: -3.07 us (-4.19%) and -7.55 us (-8.22%).
+Decode totals vary from -0.45 to +0.62 us with unchanged decode code. These observations
+cannot establish an isolated change or be added to A-E gains. Preparation rises from about
+70 to 105 seconds. [Port status and cost](proj-port-guide.md#direct-cublaslt-plans-lt_cpp-m--128--256-dense-2026-10-30).
+
+Preserve the losses: Lt qkv 128/o 128 are near-ties in the searched space; several router
+geometries lose outside their winning bucket; heuristic-only Lt search misses the pooler-256
+winner. CUTLASS pooler 256 remains a tuner candidate but is superseded in this comparison.
+P2 compressed qkv split-K is declined on a work model, without a new run; its reopening
+condition is a one-wave geometry or persistent schedule that preserves startup and escape
+cost. P3 compressed WGMMA is untested; its predicted gains are hypotheses. Neither is family
+B or E evidence. [Scoped losses and reopening conditions](ruled-out.md).
+
+Next evidence: obtain the two missing receipts, stabilize the remaining pooler-128 pick
+variation, and use the proposed raw-BF16 twin before judging P3's compression mechanism.
+Standalone gains can qualify on their own; any layer port still needs a full-layer A/B.
+
+## Historical review, 00:32: scored candidates do not resolve M1 gains
 
 Board remains `3fbb3ad027e84c6b`, 2.014x. Two new scored readings are cross-run observations,
 not controlled timing gains, and do not change the unresolved mode-51 layer conclusion:
@@ -610,6 +663,13 @@ complete within their scope. B remains parked, and the new gather variants do no
 D's full ready-only queue is still untested. [Rejection register](ruled-out.md).
 
 ## Review history and checkpoint
+
+- 2026-10-30 01:31 PDT: inspected `45a12fe..87bc0b8`, the standalone roadmap and new
+  projection P1 round. Six jobs above are now checkpointed; four receipts verified and
+  two available only through the run log. MoE, attention and layer run logs are unchanged.
+  The 18 existing untracked profile JSONs remain already logged, provisional local files.
+  A-E outcomes, layer release and pending layer candidates are unchanged. No benchmarks,
+  submissions or pushes by this review.
 
 - 2026-10-30 00:32 PDT: reviewed `5b5571e..a48edef`, scored runs `b68bdcd7a1ba464c` and
   `d6c30f88c617438b`, gate failure analysis, updated manifest and unrun census/stable-tuner

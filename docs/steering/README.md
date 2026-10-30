@@ -21,7 +21,15 @@ The existing CUTLASS pooler, wide 8-stage picks, DCARRY/PK16/VHOIST and failed l
 are explicitly accounted for. No kernels, validation policies, GPU runs or submissions changed.
 This is separate from the layer's M1/tuner-stability work below.
 
-## Latest hourly report, 00:32
+## Latest hourly report, 01:31
+
+**[2026-10-30 01:31 PDT: Standalone projection gains; A-E unchanged](2026-10-30-0131-performance-review.md)**
+
+Evidence snapshot `87bc0b8`. Projection Lt/router checks improve standalone components;
+the clean candidate reports 1.482x. Two receipts remain absent locally. No layer port or
+new A-E result. Standalone and layer promotion remain separate decisions.
+
+## Previous hourly report, 00:32
 
 **[2026-10-30 00:32 PDT: Scored M1 candidates leave gains unresolved](2026-10-30-0032-performance-review.md)**
 

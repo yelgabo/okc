@@ -1,11 +1,11 @@
 {
-  "reviewed_at": "2026-10-30T00:32:00-07:00",
-  "snapshot": "a48edef",
+  "reviewed_at": "2026-10-30T01:31:00-07:00",
+  "snapshot": "87bc0b8",
   "layer": {
     "score": "2.014\u00d7",
     "interval": "1.984\u20132.045",
     "job": "3fbb3ad027e84c6b",
-    "note": "Release remains 2.014\u00d7. New M1 candidates score 2.013\u00d7: M1 status unknown in one, explicitly off in the other. Revised census-gate and stable-tuner builds await GPU tests."
+    "note": "Layer remains 2.014\u00d7; A-E standings unchanged. Separate projection context: clean Lt/router candidate reports 1.482\u00d7 standalone (receipt pending locally), with component wins at 128/256. No layer port or layer gain established. Revised M1/mode-51 gates and stable tuner await GPU tests."
   },
   "families": [
     {
