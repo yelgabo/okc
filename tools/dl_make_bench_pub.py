@@ -1,10 +1,19 @@
-"""Write a same-process whole-layer bench: a candidate layer (cand, and cand again as the null
-arm) against one other layer on identical inputs and the judge's weights: the frozen
-incumbent source (inc) or the public layer file (pub).
+"""Write a same-process whole-layer bench: a candidate layer against one other layer on identical
+inputs and the judge's weights: the frozen incumbent source (inc) or the public layer file (pub).
+Four arms: A and B, and a second copy of each (A2, B2) as that side's null. With --other=inc,
+A = inc and B = cand; with --other=pub, A = cand and B = pub.
 
     python3 tools/dl_make_bench_pub.py OUT.py OTHER.py --other=inc|pub --loads=d1,d16,...
         [--cand=LAYER.py] [--cand-strip=1] [--rounds=10] [--deadline=255] [--seed0=50001]
-        [--order-seed=7]
+        [--order-seed=7] [--prep-seed=N] [--dup=own|shared] [--cand-report=0|1]
+
+Why four arms (2026-10-30): the three-arm bench timed cand twice (cand, null) and the other
+file once. cand and null shared one state and one compiled module and inc had no copy, so
+the null measured cand's noise only; an effect specific to the inc arm (it ran about 5 us
+slow at decode 1 on identical code in 50c4c1328ab742f4 and 720079090ee44cc3) showed in
+cand-inc and null-inc alike and passed as a gain. Now both files have a copy, and the
+decision pools the four cross ratios (A/B, A/B2, A2/B, A2/B2), which cancels anything the
+two copies of one file share, and needs that pooled ratio beyond twice the larger null.
 
 The judge takes files under 1,000,000 bytes and the layer alone is about 800 KB, so one check
 carries one other arm: OTHER.py with whole-line comments removed (strip_comments: `//` lines
@@ -15,43 +24,62 @@ names prefixed `okc_inc_` so both copies load in one process. pub: the public la
 (no threading import; its prepare() calls its builds in turn, already done at import). --cand
 names the candidate (default: the repository's muse_decode_layer/submission.py); --cand-strip=1
 sends it through the same whole-line comment strip (for a candidate too large to fit beside the
-other arm; ABPIN records both hashes). OUT.py
-belongs in the session scratchpad; only the logs of its runs are committed.
+other arm; ABPIN records both hashes). The copies A2 and B2 reuse their file's module and
+compiled extensions, so they cost no bytes. OUT.py belongs in the session scratchpad; only the
+logs of its runs are committed.
 
+  --dup     own (default for inc): each copy gets its own prepare() (own allocations, own
+            tuner picks, so the nulls include run-to-run policy noise); shared (default for
+            pub, whose prepare() has never run twice in one process): the copy reuses its
+            file's state, as the old null did.
   import    every arm's extensions build on the layer's build threads (_bg_start), so no build
             counts against prepare()'s 300 s.
   ABPIN     SHA256 and git blob id of each source as read and as sent.
-  prepare() cand's prepare, then the other arm's on the same judge weights, then per scored
-            shape of the chosen loads and per input (held-out seeds from --seed0, never the
-            judge's case seeds; two routing distributions: the local range is the reference
-            routing's busiest 32-expert range, as the judge picks it, or its second busiest):
+  ABPREP    the prepare() calls in a seeded random order (--prep-seed, default --order-seed),
+            each timed; then per scored shape of the chosen loads and per input (held-out seeds
+            from --seed0, never the judge's case seeds; two routing distributions: the local
+            range is the reference routing's busiest 32-expert range, as the judge picks it, or
+            its second busiest):
+  ABPOL     each arm's prepare-time picks side by side (MoE variant and W4 configs per token
+            count, front, attention boundary, sk projection picks, wide picks, M1 policy, stage
+            flags): "same", or DIFF with every arm's value.
   ABCHECK   every arm against the restated FP32 reference with the judge's rules (routing
             acceptance, residual update and next input within 2.5x the E4M3-query error
             clamped to [0.03, 0.15], rows within 5x, new cache entries within 8e-2): PASS or
             FAIL, top-8 agreement with the reference, local routes / experts against the
             reference's. A FAIL marks the arm INVALID on that shape's ABTIME line.
-  ABTIME    each arm on its own copy of the inputs (kernel_fn writes the cache), CUDA graph
-            replays after a 256 MB L2 flush, arms in a seeded random order per round; medians
-            and paired differences against the reference arm (inc, or cand when the other arm
-            is pub); null shows the noise.
-  ABLOAD    46 x sliding + 16 x full per arm (per 62 steps).
-  ABSCORE   geometric mean over the loads covered of the reference arm's load time over each
-            arm's.
+  ABTIME    each arm on its own copy of the inputs (kernel_fn writes the cache), graphs
+            captured in a seeded random arm order, CUDA graph replays after a 256 MB L2 flush,
+            arms in a seeded random order per round; medians, the four cross paired
+            differences (B - A, B2 - A, B - A2, B2 - A2) and the two nulls (A2 - A, B2 - B).
+  ABLOAD    46 x sliding + 16 x full per arm (per 62 steps): the four cross ratios A/B...,
+            their geometric mean (pooled) and the nulls A2/A and B2/B.
+  ABSCORE   the same ratios as geometric means over the loads covered.
+  ABDECIDE  B faster / B slower / not resolved: all four cross ratios on one side of 1 and
+            |log pooled| above twice the larger |log null|.
+  ABPRED    per arm, the median deviation of its replays from its per-input median, grouped
+            by the arm replayed just before it; ABPOS the same by position in the round;
+            ABTWIN each arm after its own copy minus after the other arms. These test
+            carry-over between back-to-back replays: state the 256 MB memset does not clear
+            (instruction caches, TLB entries) is warm only after a same-module predecessor.
   ABSTOP    shapes skipped by the deadline: missing coverage, not a pass.
-  ABTL      one replay per shape and arm (not null) under torch.profiler, kernels as
+  ABTL      one replay per shape for A and B under torch.profiler, kernels as
             code@start+duration.
-  ABK       per shape and arm (not null), every kernel of the step in launch order: its code,
+  ABK       per shape for A and B, every kernel of the step in launch order: its code,
             the median over five profiled replays of its summed duration per step, xN when it
             runs N times; span is the median replay's first start to last end, sum the summed
             durations (above span when kernels overlap, PDL secondaries included from launch,
             so their time counts waits in griddepcontrol.wait). ABKN maps the codes to names.
   ABCHK     per arm, checks passed of checks run; failing checks print as ABCHKFAIL.
-  ABCAND    the candidate's prepare-time reports (m1_report, the MoE gate, _FAILED), last.
+  ABCAND    the candidate's prepare-time reports (m1_report, the MoE gate, _FAILED); off with
+            --cand-report=0.
   ABZ       for the shapes named by --tlend=v1s,d32f,...: the median replay's kernels in start
             order as code@start+duration/exposed (exposed: how far the kernel moves the
-            latest end so far, so the exposed times sum to the span), printed last.
-The tail order keeps ABCHK, ABTIME, ABLOAD, ABSCORE, ABKN and ABK; ABTL and passing ABCHECK
-lines come first and are the first to fall out of the judge's 16 KB log tail.
+            latest end so far, so the exposed times sum to the span).
+  ABEND     seconds into prepare() when the bench finished (prepare() has 300 s).
+The tail is sorted so the most expendable lines come first and fall out of the judge's 16 KB
+log tail first (ABTL, passing ABCHECK, ABBUILD, ABOTHER, ABCAND, ABKN / ABK / ABZ); the
+decision, scores, loads, timings, policies and carry-over tables come last.
 """
 
 import ast
@@ -80,14 +108,19 @@ PUB_PATCHES = [
 
 BODY = r'''
 
-# Generated by tools/dl_make_bench_pub.py: same-process whole-layer bench of this file (cand,
-# and cand again as the null arm) against one other layer: the frozen incumbent source (inc)
-# or the public layer (pub).
+# Generated by tools/dl_make_bench_pub.py: same-process whole-layer bench of this file (cand)
+# against one other layer, the frozen incumbent source (inc) or the public layer (pub), with a
+# second copy of each as that side's null.
 _AB_OUT = []
 _AB_T0 = time.time()
 _AB_LOAD_SHAPE = {"d1": (1, 1), "d16": (16, 1), "d32": (32, 1), "v1": (1, 8), "v16": (16, 8),
                   "v32": (32, 8)}
-_AB_REF_ARM = "inc" if _AB_OTHER == "inc" else "cand"
+# A is the reference arm and B the arm under test; A2 and B2 are second copies of the same
+# files, timed like the others, so each side of the comparison has its own null.
+_AB_A = "inc" if _AB_OTHER == "inc" else "cand"
+_AB_B = "cand" if _AB_OTHER == "inc" else _AB_OTHER
+_AB_A2, _AB_B2 = _AB_A + "2", _AB_B + "2"
+_AB_ARMS = (_AB_A, _AB_A2, _AB_B, _AB_B2)
 
 
 def _ab_print(line):
@@ -571,17 +604,33 @@ def _ab_clone(data):
     return {k: (v.clone() if isinstance(v, torch.Tensor) else v) for k, v in data.items()}
 
 
+def _ab_dev_table(seq, key):
+    """Per arm, the median deviation (percent of that arm's median on the same input) of its
+    replays grouped by key (the arm replayed just before it, or its position in the round)."""
+    import statistics
+    groups = {}
+    for arm, pred, pos, dev in seq:
+        groups.setdefault(arm, {}).setdefault(key(pred, pos), []).append(dev)
+    out = []
+    for arm in _AB_ARMS:
+        g = groups.get(arm, {})
+        out.append(f"{arm}: " + " ".join(
+            f"{k} {statistics.median(v):+.2f}% ({len(v)})" for k, v in sorted(g.items())))
+    return " | ".join(out)
+
+
 def _ab_run(arms, weights, t_prep):
     """arms: name -> (kernel_fn, state). Every shape of _AB_LOADS: per input (held-out seeds,
-    the routing variants in _AB_ROUTINGS), the judge's check of every arm first, then cold
-    graph replays in a seeded random arm order per round, each arm on its own copy of the
-    inputs."""
+    the routing variants in _AB_ROUTINGS), the judge's check of every arm first, then graphs
+    captured in a seeded random arm order, then cold graph replays in a seeded random arm
+    order per round, each arm on its own copy of the inputs."""
     import math
     import statistics
     names = list(arms)
     flush = torch.empty(256 << 20, dtype=torch.uint8, device="cuda")
     order_gen = torch.Generator().manual_seed(_AB_ORDER_SEED)
     res, missing, invalid = {}, [], set()
+    seq = []
     for li, load in enumerate(_AB_LOADS):
         batch, q_len = _AB_LOAD_SHAPE[load]
         for layer in ("sliding", "full"):
@@ -622,42 +671,54 @@ def _ab_run(arms, weights, t_prep):
                               f"{n} {'PASS' if ok else 'FAIL'} {msg} top8=ref {same:.3f} local "
                               f"routes {lr}/{rr} experts {ld}/{rd}")
                 datas = {n: _ab_clone(base) for n in names}
-                graphs = {n: _graph_build(lambda fn=fn, st=st, d=datas[n]: fn(d, st))
-                          for n, (fn, st) in arms.items()}
+                # Capture order decides which arm's graph pool takes the memory freed by the
+                # previous shape, so it is randomized like the replay order.
+                cap = [names[i] for i in torch.randperm(len(names), generator=order_gen)]
+                graphs = {}
+                for n in cap:
+                    fn, st = arms[n]
+                    graphs[n] = _graph_build(lambda fn=fn, st=st, d=datas[n]: fn(d, st))
                 torch.cuda.synchronize()
-                evs = []
+                evs, prev = [], None
                 for r in range(_AB_ROUNDS):
                     order = [names[i] for i in torch.randperm(len(names), generator=order_gen)]
-                    rnd = {}
-                    for n in order:
+                    for pos, n in enumerate(order):
                         flush.zero_()
                         e0 = torch.cuda.Event(enable_timing=True)
                         e1 = torch.cuda.Event(enable_timing=True)
                         e0.record()
                         graphs[n].replay()
                         e1.record()
-                        rnd[n] = (e0, e1)
-                    evs.append(rnd)
+                        evs.append((n, prev, pos, e0, e1))
+                        prev = n
                 torch.cuda.synchronize()
-                for rnd in evs:
-                    for n, (e0, e1) in rnd.items():
-                        samples[n].append(1000 * e0.elapsed_time(e1))
+                here = {n: [] for n in names}
+                for n, pred, pos, e0, e1 in evs:
+                    here[n].append((pred, pos, 1000 * e0.elapsed_time(e1)))
+                for n, rows in here.items():
+                    samples[n].extend(t for _, _, t in rows)
+                    mid = statistics.median(t for _, _, t in rows)
+                    seq.extend((n, pred, pos, 100 * (t / mid - 1)) for pred, pos, t in rows)
                 if k == 0:
-                    tls = {n: _ab_timeline(g, flush) for n, g in graphs.items()}
+                    tls = {n: _ab_timeline(graphs[n], flush) for n in (_AB_A, _AB_B)}
                 del graphs, datas, base
                 torch.cuda.empty_cache()
             med = {n: statistics.median(v) for n, v in samples.items()}
             res[(load, layer)] = med
-            ref = _AB_REF_ARM
-            diffs = " ".join(
-                f"{n}-{ref} {statistics.median([a - b for a, b in zip(samples[n], samples[ref])]):+.1f}"
-                for n in names if n != ref)
+
+            def pdiff(a, b):
+                return statistics.median([x - y for x, y in zip(samples[a], samples[b])])
+
             flags = "".join(f" INVALID:{n}" for n in names if (label, n) in invalid)
             _ab_print(f"ABTIME {label} " + " ".join(f"{n} {med[n]:.1f}" for n in names)
-                      + f" | paired {diffs} (n={len(samples[ref])}){flags}")
-            for n in names:
-                if n == "null":
-                    continue
+                      + f" | paired {_AB_B}-{_AB_A} {pdiff(_AB_B, _AB_A):+.1f} "
+                      f"{_AB_B2}-{_AB_A} {pdiff(_AB_B2, _AB_A):+.1f} "
+                      f"{_AB_B}-{_AB_A2} {pdiff(_AB_B, _AB_A2):+.1f} "
+                      f"{_AB_B2}-{_AB_A2} {pdiff(_AB_B2, _AB_A2):+.1f} | null "
+                      f"{_AB_A2}-{_AB_A} {pdiff(_AB_A2, _AB_A):+.1f} "
+                      f"{_AB_B2}-{_AB_B} {pdiff(_AB_B2, _AB_B):+.1f} "
+                      f"(n={len(samples[_AB_A])}){flags}")
+            for n in (_AB_A, _AB_B):
                 span, ks, agg = tls[n]
                 if span is None:
                     continue
@@ -672,28 +733,59 @@ def _ab_run(arms, weights, t_prep):
                                      for c, t, k in agg))
     if missing:
         _ab_print("ABSTOP missing coverage (not timed, not a pass): " + " ".join(missing))
-    logs = {n: [] for n in names}
-    nulls = []
+    if seq:
+        # A same-module copy replayed just before an arm is the one carry-over the old
+        # three-arm bench gave only cand and null (they shared one state and one compiled
+        # module, inc had no twin); these tables show whether it moves the timings.
+        _ab_print("ABPRED dev from the arm's per-input median by the arm replayed before it: "
+                  + _ab_dev_table(seq, lambda pred, pos: pred or "first"))
+        _ab_print("ABPOS dev by position in the round: "
+                  + _ab_dev_table(seq, lambda pred, pos: f"p{pos}"))
+        twin = []
+        for a, b in ((_AB_A, _AB_A2), (_AB_B, _AB_B2)):
+            for x, y in ((a, b), (b, a)):
+                after = [d for arm, p, _, d in seq if arm == x and p == y]
+                other = [d for arm, p, _, d in seq if arm == x and p is not None and p != y]
+                if after and other:
+                    twin.append(f"{x} after {y} minus after others "
+                                f"{statistics.median(after) - statistics.median(other):+.2f}%")
+        _ab_print("ABTWIN " + "; ".join(twin))
+    cross = [(a, b) for a in (_AB_A, _AB_A2) for b in (_AB_B, _AB_B2)]
+    logs = {key: [] for key in cross + [(_AB_A2, _AB_A), (_AB_B2, _AB_B)]}
     for load in _AB_LOADS:
         if (load, "sliding") not in res or (load, "full") not in res:
             continue
         c = {n: 46 * res[(load, "sliding")][n] + 16 * res[(load, "full")][n] for n in names}
-        for n in names:
-            logs[n].append(math.log(c[_AB_REF_ARM] / c[n]))
-        nulls.append(math.log(c["cand"] / c["null"]))
+        for a, b in logs:
+            logs[(a, b)].append(math.log(c[a] / c[b]))
+        pooled = math.exp(sum(math.log(c[a] / c[b]) for a, b in cross) / len(cross))
         _ab_print(f"ABLOAD {load} (46 sliding + 16 full) / 62: "
                   + " ".join(f"{n} {c[n] / 62:.1f}" for n in names)
-                  + f" | {_AB_REF_ARM}/arm " + " ".join(
-                      f"{n} {c[_AB_REF_ARM] / c[n]:.4f}" for n in names if n != _AB_REF_ARM)
-                  + f" | null check cand/null {c['cand'] / c['null']:.4f}")
-    nl = len(logs[_AB_REF_ARM])
+                  + " | cross " + " ".join(f"{a}/{b} {c[a] / c[b]:.4f}" for a, b in cross)
+                  + f" pooled {pooled:.4f} | null {_AB_A2}/{_AB_A} {c[_AB_A2] / c[_AB_A]:.4f} "
+                  f"{_AB_B2}/{_AB_B} {c[_AB_B2] / c[_AB_B]:.4f}")
+    nl = len(logs[cross[0]])
     if nl:
-        _ab_print(f"ABSCORE geometric mean over {nl} loads of {_AB_REF_ARM} load time / arm load "
-                  "time (above 1: arm faster): "
-                  + " ".join(f"{n} {math.exp(sum(v) / nl):.4f}" for n, v in logs.items()
-                             if n != _AB_REF_ARM and n != "null")
-                  + f"; null check: cand / null {math.exp(sum(nulls) / nl):.4f} (the same "
-                  "file timed twice; its distance from 1 is the bench's noise)")
+        geo = {key: math.exp(sum(v) / nl) for key, v in logs.items()}
+        pooled = math.exp(sum(math.log(geo[key]) for key in cross) / len(cross))
+        noise = max(abs(math.log(geo[(_AB_A2, _AB_A)])), abs(math.log(geo[(_AB_B2, _AB_B)])))
+        _ab_print(f"ABSCORE geometric mean over {nl} loads of load-time ratios (above 1: the "
+                  f"right-hand arm faster): {_AB_A}/{_AB_B} {geo[(_AB_A, _AB_B)]:.4f}; cross "
+                  + " ".join(f"{a}/{b} {geo[(a, b)]:.4f}" for a, b in cross)
+                  + f"; pooled {pooled:.4f}; null {_AB_A2}/{_AB_A} "
+                  f"{geo[(_AB_A2, _AB_A)]:.4f} {_AB_B2}/{_AB_B} {geo[(_AB_B2, _AB_B)]:.4f}")
+        lo, hi = min(geo[key] for key in cross), max(geo[key] for key in cross)
+        gain = math.log(pooled)
+        if lo > 1 and gain > 2 * noise:
+            verdict = f"{_AB_B} faster"
+        elif hi < 1 and -gain > 2 * noise:
+            verdict = f"{_AB_B} slower"
+        else:
+            verdict = "not resolved"
+        _ab_print(f"ABDECIDE {verdict}: pooled {_AB_A}/{_AB_B} {pooled:.4f} (log {gain:+.4f}), "
+                  f"cross range {lo:.4f}-{hi:.4f}, larger null |log| {noise:.4f}; rule: all "
+                  "four cross ratios on one side of 1 and |log pooled| above twice the larger "
+                  "null")
     for name, code in _AB_CODES.items():
         if code in _AB_USED:
             _ab_print(f"ABKN {code} {name}")
@@ -703,55 +795,120 @@ def _ab_run(arms, weights, t_prep):
                   f"{_AB_NCHECK.get(n, 0)} PASS; shapes with a FAIL {fails}")
 
 
+def _ab_policy(ns, state):
+    """The prepare-time picks of one arm, as short strings keyed by what was picked; ns is the
+    globals of the module that prepared state."""
+    out = {}
+
+    def put(key, fn):
+        try:
+            out[key] = fn()
+        except Exception as exc:
+            out[key] = f"? {type(exc).__name__}"
+
+    put("moe", lambda: " ".join(
+        f"{bs}:{ns['_moe1_name'](ns['_moe_opts'](bs, state)['fused'])}"
+        for bs in ns["TUNE_TOKENS"]))
+    put("w4", lambda: " ".join(
+        "{}:{}/{}".format(bs, *(ns["_moe_opts"](bs, state)[g] for g in ("g1", "g2")))
+        for bs in ns["TUNE_TOKENS"]))
+    put("front", lambda: " ".join(f"{k}:{v}" for k, v in sorted(state["front_policy"].items())))
+    put("abnd", lambda: " ".join(f"{k}:{v}" for k, v in sorted(
+        state.get("abnd_policy", {}).items())))
+    put("skp", lambda: " ".join(
+        f"{layer[0]}{m}:{'-' if pick is None else pick[0]}"
+        for (layer, m), pick in sorted(state.get("skp_pick", {}).items())))
+    put("wide", lambda: " ".join(f"{k}:{v[0]}" for k, v in sorted(
+        state.get("skp_wide_report", {}).items())))
+    put("m1", lambda: str(state.get("m1_policy", "none")))
+    put("stages", lambda: "".join(str(int(bool(state.get(k)))) for k in (
+        "moe_ours", "w4_ok", "moe1_ok", "router_ours", "proj_ours", "skp_ok", "attn_one_ours",
+        "attn_ws_ours", "attn_fused_ours", "bnd_ours", "abnd_ours", "norm_ours",
+        "route_side_ok", "route_ours")))
+    return out
+
+
 _ab_prepare = prepare
 _timeline = lambda state: None  # noqa: E731  (the bench prints its own timelines)
+
+
+def _ab_prepare_arm(arm, weights):
+    """One arm's prepare() on the judge weights: (kernel_fn, state, module globals). Only
+    cand's prepare prints in full; the others' output is scanned for failures."""
+    import contextlib
+    import io
+    mod = globals() if arm in ("cand", "cand2") else _AB_OTHER_MOD.ns
+    fn = _ab_prepare if mod is globals() else mod["prepare"]
+    t1 = time.time()
+    if arm == "cand":
+        st = fn(weights)
+    else:
+        buf = io.StringIO()
+        with contextlib.redirect_stdout(buf):
+            st = fn(weights)
+        keys = ("fallback", "failed", "disabled", "Error", "SUMMARY stages", "SUMMARY failed")
+        hits = [ln for ln in buf.getvalue().splitlines() if any(k in ln for k in keys)]
+        for ln in hits[:8]:
+            _ab_print(f"ABOTHER {arm} prepare: {ln[:300]}")
+    torch.cuda.synchronize()
+    _ab_print(f"ABPREP {arm} {time.time() - t1:.0f} s")
+    return mod["kernel_fn"], st, mod
 
 
 def prepare(weights):
     for name, pin in _AB_PINS.items():
         _ab_print(f"ABPIN {name} {pin}")
     t = time.time()
-    state = _ab_prepare(weights)
-    _ab_print(f"ABPREP cand {time.time() - t:.0f} s")
+    # Each arm's copy is prepared on its own (own state, own tuner picks) unless _AB_DUP is
+    # "shared", where the copy reuses its twin's state as the old null arm did. The order of
+    # the prepare calls is seeded random: the first-prepared state gets the first allocations
+    # and runs its tuners on a GPU nothing else has touched yet.
+    want = ["cand", _AB_OTHER] + (["cand2", _AB_OTHER + "2"] if _AB_DUP == "own" else [])
+    gen = torch.Generator().manual_seed(_AB_PREP_SEED)
+    order = [want[i] for i in torch.randperm(len(want), generator=gen)]
+    if _AB_OTHER_MOD is None:
+        order = ["cand"]
+    _ab_print(f"ABPREP order {' '.join(order)} (dup {_AB_DUP}, seed {_AB_PREP_SEED})")
+    prepared, state = {}, None
+    for arm in order:
+        try:
+            prepared[arm] = _ab_prepare_arm(arm, weights)
+        except Exception as exc:
+            if arm == "cand":
+                raise
+            _ab_print(f"ABFAIL prepare {arm}: {type(exc).__name__}: {str(exc)[:300]}")
+    state = prepared["cand"][1]
     _ab_print("ABDIAG cand attention fallback on fresh rows vs FP32: "
               + str(state.get("one_fallback_fp32", "not run"))
               + f"; attn_one_ours={int(bool(state.get('attn_one_ours')))}")
-    # The candidate's own prepare-time reports (M1 gate and timing, MoE gate, failures) print
-    # last, since its SUMMARY lines fall out of the 16 KB tail behind the bench's tables.
-    for item in state.get("m1_report", []):
-        _ab_print(f"ABCAND m1 {item[:400]}")
-    for name, item in state.get("moe1_gate", {}).items():
-        _ab_print(f"ABCAND moe gate {name} {item}")
-    for key in ("route_gate", "gate_negctl"):
-        for name, item in state.get(key, {}).items():
-            _ab_print(f"ABCAND {key} {name} {item}")
-    if "_gate_manifest" in globals():
-        _ab_print(f"ABCAND {_gate_manifest(state)}")
-    for item in _FAILED:
-        _ab_print(f"ABCAND failed {item[:200]}")
-    if _AB_OTHER_MOD is not None:
+    if _AB_CAND_REPORT:
+        for item in state.get("m1_report", []):
+            _ab_print(f"ABCAND m1 {item[:400]}")
+        for name, item in state.get("moe1_gate", {}).items():
+            _ab_print(f"ABCAND moe gate {name} {item}")
+        for key in ("route_gate", "gate_negctl"):
+            for name, item in state.get(key, {}).items():
+                _ab_print(f"ABCAND {key} {name} {item}")
+        if "_gate_manifest" in globals():
+            _ab_print(f"ABCAND {_gate_manifest(state)}")
+        for item in _FAILED:
+            _ab_print(f"ABCAND failed {item[:200]}")
+    if _AB_OTHER_MOD is not None and all(a in prepared for a in want):
         try:
-            import contextlib
-            import io
-            t1 = time.time()
-            buf = io.StringIO()
-            with contextlib.redirect_stdout(buf):
-                ostate = _AB_OTHER_MOD.prepare(weights)
-            torch.cuda.synchronize()
-            print(buf.getvalue(), flush=True)
-            keys = ("fallback", "failed", "disabled", "Error", "SUMMARY stages", "SUMMARY failed")
-            hits = [ln for ln in buf.getvalue().splitlines() if any(k in ln for k in keys)]
-            for ln in hits[:12]:
-                _ab_print(f"ABOTHER {_AB_OTHER} prepare: {ln[:300]}")
-            _ab_print(f"ABPREP {_AB_OTHER} {time.time() - t1:.0f} s; prepare at "
-                      f"{time.time() - t:.0f} s")
-            arms = {_AB_OTHER: (_AB_OTHER_MOD.kernel_fn, ostate), "cand": (kernel_fn, state),
-                    "null": (kernel_fn, state)}
-            extra = (f"; inc front policy {ostate.get('front_policy')}, moe "
-                     f"{ostate.get('moe1_policy')}" if _AB_OTHER == "inc" else "")
-            _ab_print(f"ABARMS {' '.join(arms)}; cand front policy {state.get('front_policy')}, "
-                      f"moe {state.get('moe1_policy')}{extra}")
+            if _AB_DUP != "own":
+                prepared["cand2"] = prepared["cand"]
+                prepared[_AB_OTHER + "2"] = prepared[_AB_OTHER]
+            arms = {n: prepared[n][:2] for n in _AB_ARMS}
+            pols = {n: _ab_policy(prepared[n][2], prepared[n][1]) for n in _AB_ARMS}
+            _ab_print(f"ABPREP all at {time.time() - t:.0f} s")
+            for key in pols[_AB_ARMS[0]]:
+                vals = [pols[n][key] for n in _AB_ARMS]
+                same = all(v == vals[0] for v in vals)
+                _ab_print(f"ABPOL {key} {'same' if same else 'DIFF'}: "
+                          + (vals[0] if same else " | ".join(
+                              f"{n} {v}" for n, v in zip(_AB_ARMS, vals))))
             _ab_run(arms, weights, t)
+            _ab_print(f"ABEND prepare at {time.time() - t:.0f} s")
         except Exception as exc:
             import traceback
             _ab_print(f"ABFAIL {type(exc).__name__}: {str(exc)[:300]} "
@@ -759,12 +916,12 @@ def prepare(weights):
     _AB_DEQ.clear()
     torch.cuda.synchronize()
     torch.cuda.empty_cache()
-    # The log keeps only its last 16,000 characters: the raw timelines and the passing checks
-    # first (the ABCHK counts and any failing check stay in the tail), then the timing tables,
-    # then the per-kernel tables with their code names.
-    order = ("ABTL", "ABCHECK", "ABBUILD", "ABPREP", "ABPIN", "ABDIAG", "ABOTHER", "ABARMS",
-             "ABFAIL", "ABCHKFAIL", "ABCHK", "ABSTOP", "ABTIME", "ABLOAD", "ABSCORE", "ABKN",
-             "ABK ", "ABZ ", "ABCAND")
+    # The log keeps only its last 16,000 characters. Most expendable first: raw timelines,
+    # passing checks, build and candidate reports, the per-kernel tables; last, the arms'
+    # policies, the carry-over tables, the timings and the decision.
+    order = ("ABTL", "ABCHECK", "ABBUILD", "ABOTHER", "ABCAND", "ABKN", "ABK ", "ABZ ", "ABPIN",
+             "ABDIAG", "ABPREP", "ABEND", "ABFAIL", "ABCHKFAIL", "ABCHK", "ABSTOP", "ABPOS",
+             "ABPRED", "ABTWIN", "ABPOL", "ABTIME", "ABLOAD", "ABSCORE", "ABDECIDE")
     rank = lambda line: next((i for i, p in enumerate(order) if line.startswith(p)), 0)  # noqa: E731
     for line in sorted(_AB_OUT, key=rank):
         print(line, flush=True)
@@ -826,7 +983,7 @@ def pin(data):
 def main():
     opts = {"rounds": "10", "deadline": "255", "seed0": "50001", "order-seed": "7", "loads": "",
             "other": "", "cand": str(ROOT / "muse_decode_layer/submission.py"), "tlend": "",
-            "cand-strip": ""}
+            "cand-strip": "", "dup": "", "prep-seed": "", "cand-report": "1"}
     pos = []
     for a in sys.argv[1:]:
         if a.startswith("--"):
@@ -838,6 +995,10 @@ def main():
             pos.append(a)
     if len(pos) != 2 or not opts["loads"] or opts["other"] not in ("inc", "pub"):
         raise SystemExit(__doc__)
+    # The public file's prepare() has never been run twice in one process.
+    dup = opts["dup"] or ("own" if opts["other"] == "inc" else "shared")
+    if dup not in ("own", "shared"):
+        raise SystemExit(f"--dup={dup}: own or shared")
     out, other = Path(pos[0]), Path(pos[1])
     loads = tuple(opts["loads"].split(","))
     if not set(loads) <= {"d1", "d16", "d32", "v1", "v16", "v32"}:
@@ -865,13 +1026,16 @@ def main():
               f"_AB_DEADLINE = {int(opts['deadline'])!r}\n"
               f"_AB_SEED0 = {int(opts['seed0'])!r}\n"
               f"_AB_ORDER_SEED = {int(opts['order-seed'])!r}\n"
+              f"_AB_PREP_SEED = {int(opts['prep-seed'] or opts['order-seed'])!r}\n"
+              f"_AB_DUP = {dup!r}\n"
+              f"_AB_CAND_REPORT = {opts['cand-report'] == '1'!r}\n"
               "_AB_ROUTINGS = (\"busiest\", \"second\")\n"
               f"_AB_TLEND = {tuple(x for x in opts['tlend'].split(',') if x)!r}\n")
     text = cand_text + params + BODY
     if len(text.encode()) >= 1_000_000:
         raise SystemExit(f"{len(text.encode())} bytes: the judge takes under 1,000,000")
     out.write_text(text)
-    print(f"wrote {out} ({len(text.encode())} bytes): loads {loads}; "
+    print(f"wrote {out} ({len(text.encode())} bytes): loads {loads}; dup {dup}; "
           + "; ".join(f"{k} {v}" for k, v in pins.items()))
 
 
