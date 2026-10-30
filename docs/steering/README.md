@@ -27,8 +27,6 @@ isolate mode 47 and projection updates from the SK_PDL build, diagnose M1's repl
 failure without loosening its bound, and retain compact timing attribution for the two target
 loads. The report makes recommendations; it did not run GPU jobs or change kernel code.
 
-## Previous hourly report, 16:27
-
 ## Hourly report, 18:25
 
 **[2026-10-29 18:25 PDT: Combined layer win and staged retest loss](2026-10-29-1825-performance-review.md)**
@@ -36,6 +34,8 @@ loads. The report makes recommendations; it did not run GPU jobs or change kerne
 Evidence snapshot `283e348`. A/E + projection bundle wins by 1.58% in the paired layer
 comparison; release scores 1.982x. B loses its retest; mode 47 wins component gates;
 M1 overlap fails replay correctness before timing.
+
+## Previous hourly report, 16:27
 
 **[2026-10-29 16:27 PDT: Staged retest and assembled layer bundle](2026-10-29-1627-performance-review.md)**
 
