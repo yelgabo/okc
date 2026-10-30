@@ -821,6 +821,9 @@ def _ab_policy(ns, state):
     put("wide", lambda: " ".join(f"{k}:{v[0]}" for k, v in sorted(
         state.get("skp_wide_report", {}).items())))
     put("m1", lambda: str(state.get("m1_policy", "none")))
+    # Layers with the attention workspace pick (tools/dl_one_port_patch.py) record it here; a
+    # pick is per prepare, so the four arms differ by design.
+    put("wspick", lambda: str((state.get("one") or {}).get("ws_pick", "-")))
     put("stages", lambda: "".join(str(int(bool(state.get(k)))) for k in (
         "moe_ours", "w4_ok", "moe1_ok", "router_ours", "proj_ours", "skp_ok", "attn_one_ours",
         "attn_ws_ours", "attn_fused_ours", "bnd_ours", "abnd_ours", "norm_ours",
