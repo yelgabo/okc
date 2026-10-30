@@ -326,3 +326,48 @@ per kernel one more `FENCE.VIEW.ASYNC.S` (the preamble's `fence.mbarrier_init`),
 on the fat kernels and 4 on the skinny ones (the preamble's mbarrier inits), one `UBLKPF` (the
 prefetch); `MEMBAR`, `BAR`, `ERRBAR`, `CCTL`, `UBLKCP`, `ACQBULK`, `LDL` and `STL` counts equal.
 Registers and spills equal on all six kernels (main<28> 96, 80 B frame, 184 / 512 B).
+
+Update (same day, layer commit after the mode 37 merge): `LAYER_MODES` is (0, 16, 26, 28, 37) and
+the layer also builds the skinny kMode 3 (`sk8w4s-er`, `LAYER_SKINNY_EXTRA`). The skinny block now
+initialises both `full` and the per-slot `empty` barriers in one block, so the skinny preamble
+initialises both, and both preamble anchors now match the whole init block, so a barrier added
+upstream fails the inliner instead of going uninitialised under `pdl`. SASS against the
+standalone build of the same instances (`tools/moe_compile_fused.sh` with (8, 4, 3) added,
+`tools/dl_moe_sass_counts.sh`): main<37> FENCE.VIEW.ASYNC.S 22 / 21, SYNCS 154 / 138, and
+MEMBAR 43, BAR 15, ERRBAR 22, CCTL 8, UBLKCP 4, ACQBULK 1, LDL 104, STL 39 equal; skinny kernels
+one more FENCE.VIEW.ASYNC.S and 8 more SYNCS (the preamble's 4 + 4 inits), BAR, MEMBAR, ERRBAR,
+CCTL and UBLKCP equal. Registers: main<37> 96 with a 56 B frame and 156 / 416 B spills, as the
+standalone; sk8w4s-er 161 against 159 standalone, no spills.
+
+Check of the mbarrier inits under `pdl` (2026-10-29, after a review question): the layer MoE uses
+`full` and `empty` in every skinny variant (sk8w4s, sk16w4s, sk8w4s-er) and `wfull`, `wempty`,
+`xfull`, `xempty` in every fat mode (0, 16, 26, 28, 37); those are all the `mbar_init` targets in
+`_MOE1_SRC`. The preamble initialises each with the routing block's arrival count (skinny `full`
+1 and `empty` kNT, fat `wfull`/`xfull` 1 and `wempty`/`xempty` kRel), then
+`fence.mbarrier_init`, on the thread that does it in the routing block (warp kNW lane 0, warp
+kNWarpsM - 2 lane 0); the routing block is skipped only under `pdl`. That thread's own first use
+(the skinny first-unit copies) follows in program order, every other thread's follows the
+post-routing `__syncthreads`, as in the plain path. The a7e7594 inliner added `empty` to the skinny
+preamble when the standalone block gained it; the earlier anchor matched only the `full` line, so
+it now covers the whole block. `_moe1_pdl_self_test` (run in the route self-test) launches every
+passing variant as the route kernel's PDL secondary, eagerly and as a graph replayed 100 times,
+against the plain launch on the same route output; a failing variant the policy uses turns the
+route variants off.
+
+Update (mode 47, main 5e30c76): `LAYER_MODES` (0, 16, 26, 28, 37, 47), `47:
+"main-lean-grp-nohoist"`; inliner output byte-identical on a second run. SASS against the
+standalone build of the same instances: main<47> adds one FENCE.VIEW.ASYNC.S, 16 SYNCS and one
+UBLKPF (the PDL preamble), every other ordering and memory opcode count equal (MEMBAR 43, BAR 15,
+ERRBAR 22, CCTL 8, UBLKCP 4, ATOMG 148, REDG 9, LDL 22, STL 1); 96 registers, 8 B frame, 4 / 88 B
+spills, as the standalone. The other nine kernels are unchanged from the sk8w3s merge.
+
+Update (sk8w3s merge): the standalone skinny init block gained `hand` barriers (kHand, kMode low
+bits >= 6, not built in the layer) and the fixed anchor stopped matching, as intended. The
+inliner now copies the routing warp's init block itself into the skinny preamble
+(`skinny_init_block`; every line of the block must be an mbarrier init, a loop, an
+`if constexpr`, a brace or the fence, or the inliner fails), so the two paths initialise the same
+barriers by construction. Layer variants: sk8w4s, sk16w4s, sk8w3s, sk8w4s-er and fat 0, 16, 26,
+28, 37. SASS against the standalone build of the same instances: every kernel adds one
+FENCE.VIEW.ASYNC.S, one UBLKPF and the preamble's inits in SYNCS (fat 16; skinny 8, sk8w3s 6);
+MEMBAR, BAR, ERRBAR, CCTL, UBLKCP, ACQBULK, ATOMG, REDG, LDL and STL are equal; registers equal
+(sk8w3s 130) except sk8w4s-er (161 against 159), no new spills.

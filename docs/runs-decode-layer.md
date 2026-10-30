@@ -193,6 +193,140 @@ Per-shape columns, in TASK.md's order: d1 = decode 1, d16, d32, v1 = verify 1 (8
 | 2026-10-29 | pending (no layer checks left today; the coordinator runs the scored check) | see the commit that adds this row | attn_one.cu from main ce7e8fe re-inlined by tools/dl_one_inline.py: `ONE_PFAST` 1 (modes 49 and 51 here; a producer tile whose rows are all cached is gathered without per-row branches, with 32-bit offsets and the page index by shift; standalone checks ca0f13d324ef48e8 2.393x and 0d05f9b2df1e4834 2.450x, judged -5.8 / -12.3 us at verify 16 / 32 full and -2.6 / -10.4 at decode 16 / 32 full), plus `ONE_STAMP` 0 and `ONE_PROBE` 0 (bench-only, compiled out). Host: the layer wrapper now sets `Params::off32` by the standalone rule, `(1 << lp) == page_size && max(k_cache.numel(), v_cache.numel()) <= 2^32`. The layer passes the same e4m3 `[pages, page_size, 2, 64]` caches as the standalone (128-byte rows from data_ptr), so the same bound holds; larger caches keep the 64-bit path. Without this line the inlined kernel would read an uninitialized `off32` (`Params p` has no initializers). Inliner reproducible: c26a32a's attn_one.cu re-inlined gives the committed 7dde781 layer byte for byte, and the new inline is byte-identical on a second run. Layer `_ONE_SRC` against the standalone attn_one.cu: only the nested `one` namespace, the two `griddepcontrol.wait` insertions, the dropped INSTANTIATE notes and the dropped host functions. sm_90a in Docker (CUDA 12.8, torch's flags), the 11 layer instances against attn_one.cu compiled with the same instances and flags: BAR, FENCE, MEMBAR, SYNCS, ATOMG, ATOMS, REDG, CCTL, ERRBAR, DEPBAR, LDGDEPBAR and EXIT counts identical per instance (51: 16 / 10 / 11 / 41 / 1 / 2 / 11 / 4 / 1 / 2 / 1 / 4; 49: 10 / 1 / 2 / 28 / 1 / 2 / 5 / 2 / 1 / 2 / 1 / 5); the only opcode difference is ACQBULK (griddepcontrol.wait), 1 per per-request instance and 2 per flat one, the documented layer patch. Registers equal to the standalone everywhere (51 80, 49 128, 19 112), no spills (`tools/dl_compile_check.sh muse_decode_layer/submission.py _ONE_SRC`: 0 bytes spill on all 12 kernels). Against the previous layer copy, 9 of 11 instances are SASS-identical; only <1,49> (3144 to 3456 instructions) and <8,51> (6240 to 6544) change. Coverage with PFAST on: self-test cases (batch, q_len, layer, page) (2,1,full,1), (3,1,full,1), (16,1,full,1), (33,1,full,1), (4,1,full,64) plan 49 and (3,8,full,1), (5,8,full,1), (16,8,full,1), (3,8,full,64) plan 51 (page 1 and 64, so lp 0 and 6), and the 16x1, 16x8 and 32x8 full stresses run 49 / 51 for 2,000 replays; their caches are at most about 21 MB, so off32 is 1 and the fast path runs on every fully cached tile. Not run on a GPU here | | |
 | 2026-10-29 | a80dc97048a940d7 (submit, under the standing replace-when-demonstrably-better authorization; no layer checks left) | f2d4eb5 | attn_one.cu re-inlined from ce7e8fe (ONE_PFAST on modes 49/51; wrapper sets off32) | 1.934x | passed. Board entry before: 0fae646889864106 (1.930x) |
 | 2026-10-29 | 9b921febc7ad4140 (submit, by the coordinator with the last scored run of the day) | a923f11 | Gap map E2: front variants `concat-r` and `skf-r` (one main-stream route kernel: hi + lo logit add, SGLang's top-8 and renormalized weights, the pre-expert norm with pre_norm_kernel's arithmetic; no side stream, no join) with the fused MoE launched as its PDL secondary (layer patch 2 in tools/dl_moe_inline.py: mbarrier init and an L2 prefetch hint before griddepcontrol.wait); `_front_tune` picks by front + MoE time where a route variant is offered. Also the m = 1 cgemv re-inlined from main 01b553f (planar 16-byte stream, 32-register cap) | **1.964x** (1.935-1.994) | passed 13/13, route self-test on, failed 0. Per shape us (a80dc97048a940d7 before): d1 77.6 / 85.5 (82.5 / 89.1), d16 143.5 / 212.9 (142.0 / 222.7), d32 168.0 / 329.3 (176.5 / 319.2), v1 118.6 / 133.0 (123.1 / 133.4), v16 271.2 / 368.3 (282.3 / 376.7), v32 345.9 / 532.0 (356.8 / 539.8); cross-run. Front picks: T=1 fp32, 8 skf-r, 16 skf, 32 skf-r, 128 concat-r, 256 concat-r. Same-process front + MoE (graph medians of 30, prepare): T=128 concat-r 251.7 vs concat 254.6 (-2.9), T=256 311.3 vs 317.4 (-6.1), T=32 skf-r 191.3 vs skf 191.9 (-0.6; concat-r vs concat -6.6), T=8 skf-r 56.8 vs skf 57.0, T=16 skf 141.5 vs skf-r 141.6. TL: front GEMM end to MoE start 1.9 / 1.8 us at v16s / v16f against 5.9 / 6.5 in a80dc97048a940d7 (the MoE CTAs start 1.6-1.7 us after the route kernel; its row 4.5-5.5 us includes the wait on the GEMM), so the E2 gate (>= 2 us at 128 tokens) passes. The cgemv port is a separate change in the same run: decode 1 qkv row cgemv<256,2> 10.1 / 9.5 us against 10.6 / 10.9; the T = 1 pooler moved from sk_kernel 15.6 / 15.4 to cgemv<512,1> 14.6 / 14.9 and the unpooler slice to sgemv 3.7 / 3.8 (cgemv<128,2> 4.0 / 4.1); single-input rows. The SKP selftest and SKP tune m=1 lines fell outside the 16,000-character log tail. Profiles committed |
+| 2026-10-30 | 2cd4e3b292904662 (check 1 of the 10-30 plan) | d006531 (file SHA256 c61ea2f8...) | Integrated candidate: route kernel, m = 1 cgemv (reworked), MoE mode 37, sk8w3s, sk8w4s-er, qkv8, attn_one DCARRY + PK16 + VHOIST, FIN8 stress at ctx 20000 with plan assertions and a fresh-qkv step, mixed-size MoE replay stress, summary manifest | 1.785x (1.758-1.811), **failed the plan** | 13/13 judge tests passed, but `attn one` fell back to SGLang's paths: the 1x1 sliding stress's speculated-length fallback, now run on the fresh qkv rows the new step left in the captured buffer, measured 5.20e-2 against SGLang's path (bound 5e-2; replayed equal to eager, workspace clean), so `attn_one_ours=0` and every shape ran attn_fused / attn_ws / attn_prep (d16 full 263 us, v16 full 448, v32 full 682). Not a kernel defect: a test-input change pushed a tolerance comparison over its bound. Stopped as planned; fix in the next row. Everything else selected as intended: MoE picks sk8w3s at 1 / 8 / 16 and main-lean-silu-bar at 32 / 128 / 256; fronts fp32 / skf / skf-r / skf-r / concat-r / concat-r at 1 / 8 / 16 / 32 / 128 / 256; SKP cgemv self-test ok on all four layers; m = 1 tune: qkv_gate cgemv 14.1, o cgemv 10.1, pooler cgemv 19.9, unpooler cgemv 8.3 (picks cgemv on all four); m = 8 qkv8 16.6; MoE PDL self-test every variant <= 4.4e-5; every MoE mixed-size stress ok. Prepare 119.5 s. Profiles committed |
+| 2026-10-30 | 3e2b5771d7254fd2 (check 1 again) | d006531 + the stress fix (the fallback check restores the first qkv rows; file SHA256 71ff5152...) | as above | 1.960x (1.931-1.990) | passed 13/13, failed 0, every stage on (attn_one_ours=1). Plans as scored: d1 / v1 full (252, 8, 11), d16 / d32 full (264, 1, 49), v16 / v32 full (264, 1, 51). FIN8 stress now plans (252, 8, 11) at 1x1 and 1x8 full (asserted), 2000 replays each, replayed vs eager 0.0, vs SGLang 3.25e-3 / 2.41e-2, workspace clean. MoE picks: sk8w3s at 1 / 8 / 16, main-lean at 32 (101.6 vs main-lean-silu-bar 102.2 on this run's routing), main-lean-silu-bar at 128 / 256. Fronts: fp32 / skf-r / skf-r / ... / concat-r. SKP m = 1 picks cgemv on all four layers (qkv_gate 14.1, o 9.8, pooler 20.2, unpooler 8.1 us). Per shape us against 9b921febc7ad4140 (cross-run, SGLang times also moved): d1 77.9 / 84.2 (77.6 / 85.5), d16 140.6 / 218.3 (143.5 / 212.9), d32 174.6 / 331.7 (168.0 / 329.3), v1 118.6 / 123.7 (118.6 / 133.1), v16 267.5 / 355.2 (271.2 / 368.3), v32 350.8 / 522.0 (345.9 / 532.0). Neutral against 1.964x within both CIs: verify full -9 to -13 us, decode 32 sliding +6.6 (its SGLang time 252.1 vs 259.8, ratio 1.444 vs 1.546, the largest single loss). The decision waits for the same-process comparison (next rows). Profiles committed |
+| 2026-10-30 | (no job: request rejected, 413) | bench, tools/dl_make_bench_pub.py at 1772ef6 | Four-arm bench (inc, cand, null, pub) in one file | none | The 2.12 MB file was refused before a job existed ("request too large"); a size probe on muse_prefill_layer (also rejected before a job: "submission is larger than 1000000 bytes", 422) gave the limit. No quota used. The bench was split into one other arm per check, sent comment-stripped and lzma-compressed (bf4257f) |
+| 2026-10-30 | 135ab2a9f22b49a5 (check) | bench at bf4257f: cand = the 3e2b file plus the FP32 fallback diagnostic (SHA256 4ed09046...), other = inc (a923f11) | cand / null / inc, all 12 shapes | judge 2.012x (1.981-2.042) on cand; bench arm inc **invalid** | Every ABCHECK passed for all three arms, but the inc arm ran degraded (prepare 3 s, MoE policy None, no route variants): the comment stripper had dropped the `//@MOE1_DISPATCH@` and `//@W4_*@` marker lines that `_moe1_source()` and `_w4_source()` replace, so the incumbent's fused MoE and W4 dispatch had no cases. Its timings (cand - inc -23 to -240 us) are not a comparison and are not used. The fallback diagnostic did run (row below). Fixed in 0d380c5 (comment lines named in a string are kept); resubmitted as aa4276e91c924dad |
+| 2026-10-30 | 121dff3ab17a4245 (check) | bench at bf4257f, other = pub | cand / null / pub | judge 1.965x (1.935-1.994) on cand; bench **did not run** | The public module failed at import: Triton's @jit needs the kernel source from a file ("@jit functions should be defined in a Python file"), and the arm was exec'd from a string. A first fix (a module in sys.modules with a source loader) was refused by the static check ("rejected: edits loaded modules", no job); the accepted fix runs the arm in a plain globals dict and registers its source with linecache.lazycache (6c6038b). Resubmitted as d9e07c554f614d83 |
+| 2026-10-30 | (fallback diagnostic, from 135ab2a9f22b49a5 and 121dff3ab17a4245) | cand | Batch-1 speculated-length fallback on fresh qkv rows against an FP32 attention block | - | ours vs FP32 / SGLang vs FP32: 1x1 sliding 1.63e-3 / 5.21e-2, 1x8 sliding 3.63e-2 / 4.06e-2, 1x1 full 1.75e-3 / 6.75e-3, 1x8 full 1.76e-2 / 2.19e-2. Ours is closer to FP32 than SGLang's path on all four; the 5.20e-2 trip in 2cd4e3b292904662 is SGLang's own error on that input, so restoring the original rows for the fallback comparison (the 5e-2 bound unchanged) is sound |
+| 2026-10-30 | aa4276e91c924dad (check, bench) | tools/dl_make_bench_pub.py at 6c6038b; cand = the 3e2b file + FP32 diagnostic (SHA256 4ed09046...), other = inc a923f11 (SHA256 3e9ba3df...) | Same-process whole-layer comparison, cand / null / inc, 12 shapes x 2 held-out inputs (seeds 50001+, busiest and second-busiest local range), 8 rounds each, cold-L2 graph replays, seeded random arm order | judge 1.970x (1.941-2.000) on cand; bench: **cand / inc 1.0158** (geometric mean of the six load ratios), null / inc 1.0164 | 72 of 72 ABCHECK PASS (judge rules against the restated FP32 reference, routing acceptance, cache entries). The inc arm ran healthy this time (its stages all 1, failed 0, plans as scored). Paired cand - inc us (null - inc): d1 +0.2 / -1.3 (-0.3 / -2.1), d16 -1.9 / -2.1 (-1.5 / -1.5), d32 +0.9 / -1.0 (+1.4 / -2.3), v1 -0.7 / -0.7 (-0.7 / -0.4), v16 -6.2 / -13.3 (-5.0 / -13.7), v32 -3.5 / -22.5 (-2.0 / -22.0). Loads (46 s + 16 f) / 62, inc -> cand: d1 90.7 -> 89.6, d16 166.4 -> 165.1, d32 215.9 -> 213.9, v1 136.2 -> 134.8, v16 304.9 -> 295.3, v32 402.2 -> 393.5. The null arm is the candidate file timed a second time, and with inc as the reference arm its printed 1.0164 is null / inc, not null / cand: cand load / null load per load is d1 1.0034, d16 1.0043, d32 0.9986, v1 1.0045, v16 0.9970, v32 0.9960, geometric mean 1.0006, so the bench's noise is about +-0.5% per load and the candidate's 1.016 over the incumbent stands at about 3x it (the harness now prints the null against cand explicitly, ABLOAD and ABSCORE). The gain sits in verify 16 / 32 (attention DCARRY + PK16 + VHOIST, MoE mode 37); every other load moves 1-2 us, the size of the null arm's spread. The cand MoE pick at 32 tokens was sk8w3s in this run and main-lean-silu-bar in the next (the bench picks per run on judge-like routing). Timelines lost to the log tail |
+| 2026-10-30 | d9e07c554f614d83 (check, bench) | as above, other = pub (vjeux/okc-2026 blob 936fefff, SHA256 cf4a75ee...; sent comment-stripped, SHA256 e0ec5c48...) | cand / null / pub, seeds 60001+ | judge 1.995x (1.965-2.025) on cand; bench: **pub / cand 1.0464**, null / cand 0.9989 | 72 of 72 ABCHECK PASS, the public arm included. Paired pub - cand us (null - cand): d1 +2.6 / -0.4 (+0.7 / -0.7), d16 -6.0 / -8.2, d32 -12.9 / -25.2, v1 -9.6 / -10.2, v16 -16.6 / -11.8, v32 -17.0 / -19.1 (null within +-2.2 on every shape). Loads, cand -> pub: d1 86.9 -> 88.8 (we lead), d16 157.1 -> 151.1, d32 211.8 -> 195.3, v1 126.6 -> 116.7, v16 305.8 -> 290.8, v32 400.6 -> 384.5. Shares of the summed log gap (0.271): v1 30.0%, d32 29.9%, v16 18.5%, v32 15.1%, d16 14.4%, d1 -8.0%. This replaces the cross-run gap map: decode 32 (16.5 us weighted) and verify 1 (9.9 us) are the largest measured same-process gaps; the decode 1 gap of the cross-run maps does not exist (+1.9 us our way). Timelines lost to the log tail (ABTL sorts first; a next bench prints fewer) |
+| 2026-10-30 | 261a76ac7b364091 (check 4, confirmation) | the bench candidate file (3e2b file + FP32 diagnostic) with one comment line added (SHA256 1355d39f...) | release candidate, repeated | **1.989x** (1.959-2.019) | passed, every stage on, failed 0. Per shape us: d1 77.5 / 83.9, d16 140.8 / 217.4, d32 176.2 / 330.0, v1 118.2 / 128.4, v16 280.5 / 365.2, v32 351.9 / 528.0. MoE at 32 tokens picked main-lean-silu-bar this run. The judge's six readings of this candidate's code today: 1.960 (3e2b), 2.012 (135a), 1.965 (121d), 1.970 (aa42), 1.995 (d9e0), 1.989 (261a), mean 1.982, against the incumbent's single 1.964 (9b921febc7ad4140); same process it leads the incumbent by 1.6% with the null at 1.0006 (aa4276e91c924dad). Profiles committed |
+| 2026-10-30 | e2d1d81447cc48d9 (check, M1 follow-up) | 6377b5a (file SHA256 5d0580f7...) | Release candidate + M1 (SK_PDL build, ONE_TRIG, o / skf front as PDL secondaries via _m1_tune) + LATE_ARRIVE + o16 / unp32 geometry + MoE mode 47 | 1.963x (1.933-1.992) | passed 13/13, failed 1: **M1 blocked**. The bit-16 self-test passed (PDL launch bitwise equal to the plain one on 14 o / skf launches), the forced-on replay stress passed 1x1 sliding / full and 1x8 sliding, then failed 1x8 full: after 2000 replays hidden 2.0e-4 and stream 1.6e-4 from the M1-off eager outputs (bound 1e-4; ids equal). M1 was switched off (policy {}), so it never ran in the timed path; the chain timing and the per-bucket pick did not run. Everything else selected as intended: MoE picks sk8w3s at 1 / 8 / 16, main-lean-silu-bar at 32, main-lean-grp-nohoist (47) at 128 / 256 (183.3 / 225.9 against 185.5 / 228.4 for 37 on this run's judge-like routing); every MoE mixed-size stress ok including 47; MoE PDL self-test every variant <= 2.9e-5. Per shape us: d1 76.7 / 82.6, d16 151.2 / 220.5, d32 176.3 / 324.6, v1 123.3 / 134.6, v16 264.6 / 353.2, v32 346.5 / 506.0 (one judge reading; the SK_PDL build changes the sk kernels' first-ring issue order even with M1 off). Profiles committed |
+| 2026-10-30 | edd71d3152a946fe (submit, by the coordinator under the standing replace-when-demonstrably-better rule) | the 261a76ac7b364091 file (SHA256 1355d39f...) | Release: route kernel, reworked m = 1 cgemv, MoE mode 37, sk8w3s, sk8w4s-er, qkv8, attention DCARRY + PK16 + VHOIST, the stress and diagnostic changes | **1.982x** (1.953-2.012) | passed 13/13. Per shape us: d1 76.8 / 84.6, d16 138.2 / 221.2, d32 171.3 / 327.9, v1 122.6 / 122.4, v16 270.0 / 356.4, v32 366.5 / 514.3. Board entry before: 9b921febc7ad4140 (1.964x). Basis: same-process +1.6% over the incumbent with a clean null (aa4276e91c924dad) and six check readings averaging 1.982. Profiles committed |
+
+## Pre-check audits for the integrated candidate (2026-10-29, before the 10-30 checks)
+
+Source: the layer at the commit that adds this section (bundle bb98b7b plus the FIN8 stress and
+the summary manifest below). No GPU run; local compiles only.
+
+### PDL provenance of every load before a griddepcontrol.wait
+
+A load before the wait is safe when its writer has completed before the launch, whatever the
+overlap. In a captured step every kernel completes only after its own wait (or launch) has seen
+its predecessor complete, so anything written by a kernel two or more launches back, by the
+previous replay, by prepare(), or by the harness before the step is complete.
+
+| kernel (launch) | load before the wait | writer | writer live at the load? |
+|---|---|---|---|
+| route_kernel (PDL secondary of the concat cuBLAS GEMM or the skf sk_kernel) | `w` (pre-expert norm weight, 4096 BF16) | prepare (`_norm_self_test` sets `pre_expert_w`) | no |
+| route_kernel | `bias` (router bias, 256 FP32) | prepare (`route_bias`) | no |
+| route_kernel | nothing else: logits and the pooled rows (the predecessor's output) are read after the wait | the front GEMM | yes, hence after the wait |
+| fused MoE, fat and skinny, under `pdl` (PDL secondary of route_kernel) | no global load. Shared memory: the ring's mbarrier inits and `fence.mbarrier_init`. `cp.async.bulk.prefetch.L2` of `w13f` (fat) or `w13` (skinny) units | prepare (`_moe1_prepare` repacks) | no; a prefetch hint is not a load into registers or shared memory, and nothing reads its result |
+| fused MoE | `local_start` (`ld_lo`, `ld.global.nc`), `topk_ids`, `topk_w`, `x`, `ctr[3]`, `ss` | harness input; route_kernel; route_kernel; route_kernel; the previous MoE launch | all read after the wait (the preamble ends at the wait) |
+| attention `attn_one_kernel` (launched without the PDL attribute: `_ONE_PDL = False`) | `page_table`, `seq_lens`, cached K/V rows at positions below `seq_lens` (cp.async), page indices | harness inputs written before the step | no |
+| attention | query rows (`qkv`), the constants group, the flat kernel's epoch | qkv projection; previous attention launch | after the two inserted waits (tools/dl_one_inline.py) |
+
+M1 candidate (not in the bundle; built after it, `PORT_SK_PDL`): with the bit set, the sk o
+projection (PDL secondary of attention built with ONE_TRIG) and the skf front (PDL secondary of
+the attention boundary) load before their wait only: the weight units of the first
+min(NSTAGE, stages) stages and the fused router pieces (`bulk_g2s` from the repacked streams,
+prepare), the escape table (`ptab`, prepare), the tensor map (a kernel parameter built on the
+host; `prefetch.tensormap`); writer not live. x (attention's or the boundary's output) is
+copied by TMA only after every thread's `griddepcontrol.wait` (`issue_x` in the
+`if constexpr (PDL)` block after the wait), and each stage's full barrier expects the weight and
+x bytes together, so no stage completes on the weights alone.
+
+The attention waits return at once today because the launch carries no PDL attribute; the
+table records what would hold if `_ONE_PDL` were turned on. The cache rows the kernel itself
+writes (positions `seq_lens` onward) are written in-kernel, not by a predecessor. Every
+inserted wait has the `"memory"` clobber. `ld_lo`'s `ld.global.nc` reads an input that no
+kernel of the step writes, so the non-coherent load form is not the read-after-write hazard of
+a predecessor's output. The other PDL secondaries of the layer (pre_norm_kernel, the boundary
+kernels, router and route_align, the W4 GEMMs) date from the blanket PDL change
+(docs/ruled-out.md, "PDL across our own chain"), are unchanged here, and were not re-audited.
+
+### Compiler audit of the attention instances the layer builds
+
+nvcc 12.8.93 (`nvidia/cuda:12.8.1-devel-ubuntu24.04`), `-O3 -std=c++17
+-gencode=arch=compute_90a,code=sm_90a -Xptxas -v` (tools/attn_one_sass.sh) on
+muse_attention_decode/attn_one.cu at this merge (ONE_DCARRY, ONE_PK16, ONE_VHOIST on), the 11
+instances `_ONE_BUILT` names; the layer's copy differs from these only by the inserted
+`griddepcontrol.wait` (ACQBULK 1-2 per instance; every other ordering opcode count equal, see
+the bundle commits). Warnings: only #177 (unused declarations); no C7510-C7515 wgmma
+serialization warning. Registers / spills: <8,51> 80, <8,19> 112, <8,15> 80, <8,11> 109,
+<8,3> 110, <8,1> 110, <1,49> 128, <1,13> 76, <1,11> 115, <1,3> 109, <1,1> 108; 0 bytes of
+spill everywhere.
+
+Trap paths: a scratch build with every `__trap()` (bounded waits in `mbar_wait` and
+`coop_barrier`) replaced by an empty statement, for comparison only, gives the same GMMA,
+`WARPGROUP.ARRIVE` and `WARPGROUP.DEPBAR.LE gsb0, 0x0` counts on every instance (<8,51>: 12, 6,
+6; the q_len 8 per-request instances 4, 2, 2; q_len 1 runs HMMA only). The differences are the
+BPT.TRAP sites themselves (11 in <8,51>, 7 in <1,49>) and fewer BSSY convergence regions
+without traps (<8,51> 84 to 74, <8,19> 48 to 39). A GMMA followed within two instructions by a
+`gsb0, 0x0` wait occurs once in <8,51> with traps and four times without, so the trap-bearing
+build is not the more serialized one by that measure. With nvcc 12.8.1 the participant's C7512
+report (nvcc 13.0) does not reproduce; no 13.0 toolchain was available to test the claim
+itself. The traps stay.
+
+### FIN8 stress coverage
+
+`_one_stress` now takes `ctx` and an expected `(nc, mode)` and raises when the plan differs.
+The batch-1 full stresses run at ctx 20000 (313 tiles, more than the 252-split cap), which plans
+mode 11 with eight workspace copies at q_len 1 and 8; the scored plans in run 9b921febc7ad4140
+are (252, 8, 11) for both, while that run's 1x8 full stress planned (62, 8, 15). Per stress: 2000
+graph replays back to back, then the replayed output against an eager call (1e-4) and against
+SGLang's path (5e-2), a NaN check and the workspace invariant (rows, l, tickets, cooperative
+parity, flat counters); then 50 replays on fresh qkv rows written into the captured buffer with
+the same checks; then on batch 1 page 1 the speculated-length fallback (sequence length 64 lower
+in place) for 50 replays. Every other stress asserts its scored plan too: 1x1 sliding (1, 13),
+16x1 full (1, 49), 1x8 sliding (1, 15), 16x8 and 32x8 full (1, 51).
+
+### Pins, mixed-size MoE replays and package controls
+
+- Public layer arm: vjeux/okc-2026 `muse_decode_layer.py`, git blob
+  936fefffb493c4a836e8c08fc58dff50ce338dd5, the blob at that repository's head commit
+  f35a41ee1c13e316dabbf772830d47b23b453393 ("v2: dead-code removal", 2026-10-28T02:03:32Z, the
+  last commit touching the file; read with `gh api` on 2026-10-29), SHA256
+  cf4a75ee6e4a5cd9e33b82b5347c47abcdc7b81d80dc6a8b5262dea7388f849c. The judged public layer
+  profile cited in the gap maps (job f662ee18) came from another account's memos; that this blob
+  is the file behind that job is not established. Incumbent arm: the layer file at a923f11,
+  SHA256 3e9ba3df33f4b8e6fc5d26e17a33ad1c9c0e3ebd669b87e89c8681ce1eae5b16 (the file hash the
+  community audit records; the judge receipt's payload content hash 8de70993... is a different
+  hash). tools/dl_make_bench_pub.py now hashes both files as read and prints them as ABPIN.
+- MoE replay stress: every skinny variant (sk8w4s, sk16w4s, sk8w3s, sk8w4s-er) captures 8, 16,
+  1, 32 and 8 tokens back to back in one graph on the shared scratch, and every fat mode 32, 128,
+  17 and 256; 2000 replays with one host sync after them, then the last replay's outputs against
+  an eager call (1e-4 each), the generation count and the scratch invariant. A failing variant is
+  dropped alone unless it is the last of its kind. The bench still picks per token count; the
+  sk8w3s evidence at 1 / 8 / 16 tokens decides nothing at 32. Attention stresses print the same
+  retained-output and sync-interval description.
+- Package controls, prepared and not run: `tools/dl_package_control.py OUT BASE --minus
+  attn|moe|proj` takes one package's generated regions back from the incumbent source (attn:
+  `_ONE_SRC`, `_ONE_HOST_SRC`; moe: `_MOE1_*`; proj: `_SKP_*` and the `@SKP_PY@` region). The
+  three single-package controls of the current candidate compile (sm_90a, CUDA 12.8): attention
+  12 kernels, no spills; MoE 6 kernels, spills only in the four fat modes as at a923f11; SKP 43
+  kernels, spills only in the four-chunk cgemv instances the layer does not run. Used only if
+  the combined candidate is neutral or mixed.
+
+### M1 follow-up file (2245513): LATE_ARRIVE against the standalone
+
+SASS of the layer's projection extension as PORT_SK_PDL builds it (`-DSK_PDL=1`,
+`tools/dl_moe_sass_counts.sh ... skp1`) against `muse_bf16_proj/submission.py` at 31b853d built
+device-only with `-DSK_PDL=1` (the steering evidence's `gen_sk.py`), CUDA 12.8.1, sm_90a: the 26
+kernels present in both have identical counts of every FENCE, MEMBAR, SYNCS (mbarrier), BAR,
+ERRBAR, CCTL, UBLKCP, UTMALDG, ACQBULK, WARPSYNC, VOTE, LDL and STL opcode and identical
+instruction totals. That includes the four LATE_ARRIVE instances (MT 2, UPW 2): sk<2,32,3,1,4,2,4>
+(qkv32) and sk<2,32,2,2,2,2,3> (o32, unp32), compressed and raw: FENCE 5 / 8, SYNCS 18 / 32 and
+16 / 30, BAR 3, WARPSYNC 3 / 9, MEMBAR 3 / 5, ACQBULK 1. Layer-only kernels: the four cgemv
+instances (the device-only standalone build leaves cgemv out) and the fused pooler + router at 32
+tokens (UPW 4, so not LATE_ARRIVE). No spills (earlier compile check).
+
+### Summary manifest in the log tail
+
+SUMMARY now also prints the SKP self-test count with the layers whose cgemv passed, the three
+fastest SKP candidates per layer at m = 1 and 8, and the MoE PDL self-test line, next to the
+existing stage flags, MoE picks per token count, front picks, attention plans and failures.
 
 ## Ruled out
 

@@ -1,0 +1,79 @@
+-02
+attn self-test case 14 4x8 sliding page 1 _attn_one: output rel diff 3.62e-02
+attn self-test case 15 3x8 full page 64 _attn_one: output rel diff 2.59e-02
+attn self-test case 16 5x8 full page 1 _attn_one: output rel diff 3.00e-02
+attn self-test case 17 1x1 full page 1 _attn_one: output rel diff 6.16e-03
+attn self-test case 18 1x8 full page 1 _attn_one: output rel diff 4.08e-02
+attn self-test case 19 1x1 full page 64 _attn_one: output rel diff 4.84e-02
+attn self-test case 20 1x8 full page 64 _attn_one: output rel diff 2.44e-02
+attn self-test case 21 1x1 sliding page 64 ctx 10 _attn_one: output rel diff 2.63e-02
+attn self-test: norm-gate alone 0.00e+00
+attn self-test: worst rel diff vs SGLang path: output 4.84e-02, new cache rows 2.76e-02
+attn one: cases 0.0 s
+attn one: stress 1x1 sliding plan=(32, 1, 13): replays=2000 (one host sync after the batch; retained: the last replay's output) replayed_vs_eager=0.0e+00 vs_sglang=3.44e-03 finite=True max_polls=0 ws rows_nonzero=0 l_nonzero=0 tickets_nonzero=0 coop_next_parity_nonzero=0 flat_next_parity_nonzero=0; fresh qkv: replays=50 (one host sync after the batch; retained: the last replay's output) replayed_vs_eager=0.0e+00 vs_sglang=1.91e-02 finite=True max_polls=0 ws rows_nonzero=0 l_nonzero=0 tickets_nonzero=0 coop_next_parity_nonzero=0 flat_next_parity_nonzero=0; spec fallback (seq - 64): replays=50 (one host sync after the batch; retained: the last replay's output) replayed_vs_eager=0.0e+00 vs_sglang=4.67e-03 finite=True max_polls=0 ws rows_nonzero=0 l_nonzero=0 tickets_nonzero=0 coop_next_parity_nonzero=0 flat_next_parity_nonzero=0 (0.0 s)
+attn one: stress 16x1 full plan=(264, 1, 49): replays=2000 (one host sync after the batch; retained: the last replay's output) replayed_vs_eager=0.0e+00 vs_sglang=1.73e-02 finite=True max_polls=0 ws rows_nonzero=0 l_nonzero=0 tickets_nonzero=0 coop_next_parity_nonzero=0 flat_next_parity_nonzero=0; fresh qkv: replays=50 (one host sync after the batch; retained: the last replay's output) replayed_vs_eager=0.0e+00 vs_sglang=1.47e-02 finite=True max_polls=0 ws rows_nonzero=0 l_nonzero=0 tickets_nonzero=0 coop_next_parity_nonzero=0 flat_next_parity_nonzero=0 (0.0 s)
+attn one: stress 1x8 sliding plan=(33, 1, 15): replays=2000 (one host sync after the batch; retained: the last replay's output) replayed_vs_eager=0.0e+00 vs_sglang=2.32e-02 finite=True max_polls=2 ws rows_nonzero=0 l_nonzero=0 tickets_nonzero=0 coop_next_parity_nonzero=0 flat_next_parity_nonzero=0; fresh qkv: replays=50 (one host sync after the batch; retained: the last replay's output) replayed_vs_eager=0.0e+00 vs_sglang=2.81e-02 finite=True max_polls=2 ws rows_nonzero=0 l_nonzero=0 tickets_nonzero=0 coop_next_parity_nonzero=0 flat_next_parity_nonzero=0; spec fallback (seq - 64): replays=50 (one host sync after the batch; retained: the last replay's output) replayed_vs_eager=0.0e+00 vs_sglang=2.35e-02 finite=True max_polls=2 ws rows_nonzero=0 l_nonzero=0 tickets_nonzero=0 coop_next_parity_nonzero=0 flat_next_parity_nonzero=0 (0.0 s)
+attn one: stress 16x8 full plan=(264, 1, 51): replays=2000 (one host sync after the batch; retained: the last replay's output) replayed_vs_eager=3.7e-05 vs_sglang=2.48e-02 finite=True max_polls=30 ws rows_nonzero=0 l_nonzero=0 tickets_nonzero=0 coop_next_parity_nonzero=0 flat_next_parity_nonzero=0; fresh qkv: replays=50 (one host sync after the batch; retained: the last replay's output) replayed_vs_eager=2.2e-09 vs_sglang=2.74e-02 finite=True max_polls=26 ws rows_nonzero=0 l_nonzero=0 tickets_nonzero=0 coop_next_parity_nonzero=0 flat_next_parity_nonzero=0 (0.0 s)
+attn one: stress 32x8 full plan=(264, 1, 51): replays=2000 (one host sync after the batch; retained: the last replay's output) replayed_vs_eager=2.6e-05 vs_sglang=2.98e-02 finite=True max_polls=45 ws rows_nonzero=0 l_nonzero=0 tickets_nonzero=0 coop_next_parity_nonzero=0 flat_next_parity_nonzero=0; fresh qkv: replays=50 (one host sync after the batch; retained: the last replay's output) replayed_vs_eager=1.3e-05 vs_sglang=2.90e-02 finite=True max_polls=43 ws rows_nonzero=0 l_nonzero=0 tickets_nonzero=0 coop_next_parity_nonzero=0 flat_next_parity_nonzero=0 (0.0 s)
+attn one: stress 1x1 full plan=(252, 8, 11): replays=2000 (one host sync after the batch; retained: the last replay's output) replayed_vs_eager=0.0e+00 vs_sglang=3.25e-03 finite=True max_polls=6 ws rows_nonzero=0 l_nonzero=0 tickets_nonzero=0 coop_next_parity_nonzero=0 flat_next_parity_nonzero=0; fresh qkv: replays=50 (one host sync after the batch; retained: the last replay's output) replayed_vs_eager=0.0e+00 vs_sglang=6.87e-03 finite=True max_polls=6 ws rows_nonzero=0 l_nonzero=0 tickets_nonzero=0 coop_next_parity_nonzero=0 flat_next_parity_nonzero=0; spec fallback (seq - 64): replays=50 (one host sync after the batch; retained: the last replay's output) replayed_vs_eager=0.0e+00 vs_sglang=3.47e-03 finite=True max_polls=5 ws rows_nonzero=0 l_nonzero=0 tickets_nonzero=0 coop_next_parity_nonzero=0 flat_next_parity_nonzero=0 (0.0 s)
+attn one: stress 1x8 full plan=(252, 8, 11): replays=2000 (one host sync after the batch; retained: the last replay's output) replayed_vs_eager=0.0e+00 vs_sglang=2.41e-02 finite=True max_polls=9 ws rows_nonzero=0 l_nonzero=0 tickets_nonzero=0 coop_next_parity_nonzero=0 flat_next_parity_nonzero=0; fresh qkv: replays=50 (one host sync after the batch; retained: the last replay's output) replayed_vs_eager=0.0e+00 vs_sglang=1.49e-02 finite=True max_polls=8 ws rows_nonzero=0 l_nonzero=0 tickets_nonzero=0 coop_next_parity_nonzero=0 flat_next_parity_nonzero=0; spec fallback (seq - 64): replays=50 (one host sync after the batch; retained: the last replay's output) replayed_vs_eager=0.0e+00 vs_sglang=2.40e-02 finite=True max_polls=9 ws rows_nonzero=0 l_nonzero=0 tickets_nonzero=0 coop_next_parity_nonzero=0 flat_next_parity_nonzero=0 (0.0 s)
+attn one fallback on fresh rows vs FP32: 1x1s ours 1.63e-03 sglang 5.21e-02 ours-vs-sglang 5.20e-02; 1x8s ours 3.63e-02 sglang 4.06e-02 ours-vs-sglang 3.09e-02; 1x1f ours 1.75e-03 sglang 6.75e-03 ours-vs-sglang 7.14e-03; 1x8f ours 1.76e-02 sglang 2.19e-02 ours-vs-sglang 1.46e-02
+attn one: on (0.3 s)
+TUNE front T=1 fp32:25.5 skf:30.1 skf-r:31.0 | +moe fp32:52.8 skf-r:55.8 skf:56.3 -> fp32 (vs fp32: fp32 0.0e+00/1.000 skf 8.7e-05/1.000 skf-r 8.7e-05/1.000)
+TUNE front T=8 skf:30.3 skf-r:31.4 fp32:37.8 | +moe skf:83.1 skf-r:83.2 fp32:92.4 -> skf (vs fp32: fp32 0.0e+00/1.000 skf 0.0e+00/1.000 skf-r 0.0e+00/1.000)
+TUNE front T=16 skf:30.4 skf-r:31.6 mma:34.9 concat-r:37.3 concat:38.2 split:40.4 | +moe skf-r:125.3 skf:125.6 concat-r:130.9 mma:132.0 concat:133.2 split:138.0 -> skf-r (vs split: split 0.0e+00/1.000 mma 0.0e+00/1.000 concat 1.1e-04/1.000 skf 0.0e+00/1.000 concat-r 1.1e-04/1.000 skf-r 0.0e+00/1.000)
+TUNE front T=32 skf:32.0 skf-r:33.2 mma:37.1 concat-r:37.5 concat:38.5 split:42.6 | +moe skf-r:186.0 skf:187.3 concat-r:189.0 concat:194.1 mma:196.2 split:201.1 -> skf-r (vs split: split 0.0e+00/1.000 mma 0.0e+00/1.000 concat 1.6e-04/1.000 skf 0.0e+00/1.000 concat-r 1.6e-04/1.000 skf-r 0.0e+00/1.000)
+TUNE front T=128 concat-r:39.1 concat:39.6 wide:41.3 split:47.4 | +moe concat-r:249.4 concat:254.1 wide:267.6 split:274.4 -> concat-r (vs split: split 0.0e+00/1.000 concat 2.3e-04/1.000 wide 0.0e+00/1.000 concat-r 2.3e-04/1.000)
+TUNE front T=256 concat-r:45.2 concat:46.1 split:59.5 | +moe concat-r:300.1 concat:306.8 split:330.5 -> concat-r (vs split: split 0.0e+00/1.000 concat 0.0e+00/1.000 concat-r 0.0e+00/1.000)
+moe front tuner: on (0.6 s)
+prepare: done (96.6 s)
+SUMMARY source digest f2ef7d392a17b325
+SUMMARY components main=24ce6ad85709 one=e3b9a3e6b098 w4=069518f7252d moe1=255f6073718d skp=6c5960c6dac9
+SUMMARY stages moe_ours=1 w4_ok=1 moe1_ok=1 router_ours=1 proj_ours=1 skp_ok=1 attn_one_ours=1 attn_ws_ours=1 attn_fused_ours=1 bnd_ours=1 abnd_ours=1 norm_ours=1 route_side_ok=1 route_ours=1
+SUMMARY proj qkv_gate T=128: b1n128c3s8h [b1n128c3s8h 20.0 b1n128c2s8h 23.7 cublas 24.9]
+SUMMARY proj pooler T=128: b1n128c2s8h [b1n128c2s8h 27.6 cublas 31.1 b1n128c3s8h 33.4]
+SUMMARY moe stress sk8w4s=ok sk16w4s=ok sk8w3s=ok sk8w4s-er=ok main-d2=ok main-m2-ar2-ub=ok main-dynb-fs=ok main-lean=ok main-lean-silu-bar=ok
+SUMMARY skp selftest ok 29, cgemv ok on o,pooler,qkv_gate,unpooler
+SUMMARY skp tune m=1: qkv_gate cgemv:14.3 qkv8:16.1 qkv8raw:18.7; o cgemv:9.7 o8:10.6 o8raw:11.5; pooler cgemv:20.1 pool8:22.7 pool8raw:27.5; unpooler cgemv:8.1 sgemv:8.6 slice8:8.8
+SUMMARY skp tune m=8: qkv_gate qkv8:17.0 qkv8raw:19.1 proj_fwd:20.7; o o8:10.5 o8raw:11.6 cublas:11.9; pooler pool8:22.8 pool8raw:27.6 proj_fwd:30.0; unpooler slice8:9.0 slice8raw:9.6 proj_fwd:12.0
+SUMMARY moe pdl sk8w4s 6.2e-07, sk16w4s 4.2e-08, sk8w3s 2.0e-06, sk8w4s-er 1.9e-05, main-d2 2.9e-05, main-m2-ar2-ub 2.1e-05, main-dynb-fs 4.9e-05, main-lean 3.5e-05, main-lean-silu-bar 2.0e-05
+SUMMARY attn fallback vs fp32 1x1s ours 1.63e-03 sglang 5.21e-02 ours-vs-sglang 5.20e-02; 1x8s ours 3.63e-02 sglang 4.06e-02 ours-vs-sglang 3.09e-02; 1x1f ours 1.75e-03 sglang 6.75e-03 ours-vs-sglang 7.14e-03; 1x8f ours 1.76e-02 sglang 2.19e-02 ours-vs-sglang 1.46e-02
+SUMMARY moe T=1: sk8w3s [sk8w3s 30.1 sk8w4s 30.8 sk8w4s-er 31.6 sk16w4s 33.2 w4 42.4] judge-like routing, busiest expert [1, 1, 1, 1] w4 g1=17 g2=21 pdl=1 cl=8 front fp32
+SUMMARY moe T=8: sk8w3s [sk8w3s 72.9 sk8w4s 75.3 sk8w4s-er 75.7 sk16w4s 78.3 w4 83.1] judge-like routing, busiest expert [4, 5, 4, 4] w4 g1=2 g2=24 pdl=1 cl=4 front skf
+SUMMARY moe T=16: sk8w3s [sk8w3s 75.1 sk8w4s-er 77.2 sk8w4s 77.6 sk16w4s 80.0 w4 85.1] judge-like routing, busiest expert [11, 9, 6, 7] w4 g1=26 g2=11 pdl=1 cl=4 front skf-r
+SUMMARY moe T=32: main-lean-silu-bar [main-lean-silu-bar 103.2 main-lean 103.9 sk8w3s 105.4 sk8w4s 107.6 main-dynb-fs 110.4 sk8w4s-er 111.2 w4 113.5 sk16w4s 116.0 main-d2 125.7 main-m2-ar2-ub 131.2] judge-like routing, busiest expert [14, 12, 17, 14] w4 g1=26 g2=28 pdl=1 cl=8 front skf-r
+SUMMARY moe T=128: main-lean-silu-bar [main-lean-silu-bar 184.6 main-lean 187.5 main-dynb-fs 194.6 main-d2 220.7 main-m2-ar2-ub 221.0 w4 245.3 sk8w3s 267.4 sk8w4s 270.4 sk8w4s-er 282.7 sk16w4s 292.4] judge-like routing, busiest expert [32, 31, 34, 34] w4 g1=4 g2=13 pdl=1 cl=1 front concat-r
+SUMMARY moe T=256: main-lean-silu-bar [main-lean-silu-bar 225.0 main-lean 229.2 main-dynb-fs 238.8 main-m2-ar2-ub 273.8 main-d2 281.8 w4 381.0 sk8w3s 466.9 sk8w4s 470.0 sk8w4s-er 495.3 sk16w4s 509.5] judge-like routing, busiest expert [75, 64, 73, 75] w4 g1=30 g2=29 pdl=1 cl=1 front concat-r
+SUMMARY front T=1 (front / front+moe us): fp32 25.5/52.8 skf-r 31.0/55.8 skf 30.1/56.3
+SUMMARY front T=8 (front / front+moe us): skf 30.3/83.1 skf-r 31.4/83.2 fp32 37.8/92.4
+SUMMARY front T=16 (front / front+moe us): skf-r 31.6/125.3 skf 30.4/125.6 concat-r 37.3/130.9 mma 34.9/132.0 concat 38.2/133.2 split 40.4/138.0
+SUMMARY front T=32 (front / front+moe us): skf-r 33.2/186.0 skf 32.0/187.3 concat-r 37.5/189.0 concat 38.5/194.1 mma 37.1/196.2 split 42.6/201.1
+SUMMARY front T=128 (front / front+moe us): concat-r 39.1/249.4 concat 39.6/254.1 wide 41.3/267.6 split 47.4/274.4
+SUMMARY front T=256 (front / front+moe us): concat-r 45.2/300.1 concat 46.1/306.8 split 59.5/330.5
+SUMMARY abnd occupancy (CTAs/SM, resident clusters) c8x256=8,124 c2x512=2,132 c4x256=5,154 c1x256=3,396 c1x512=2,264 c1x1024=1,132
+SUMMARY abnd T=1: c8x256 [c8x256 14.14 c1x1024 14.18 sglang 14.50 c4x256 15.01 c2x512 15.04 c1x512 15.14 c1x256 16.58]
+SUMMARY abnd T=8: c8x256 [c8x256 14.98 c1x1024 15.23 sglang 15.65 c4x256 16.22 c1x512 16.32 c2x512 16.61 c1x256 17.25]
+SUMMARY abnd T=16: sglang [sglang 14.85 c1x1024 15.14 c1x512 15.46 c8x256 15.55 c4x256 15.84 c2x512 16.03 c1x256 16.80]
+SUMMARY abnd T=32: sglang [sglang 15.10 c1x1024 15.65 c1x512 15.84 c8x256 16.00 c4x256 16.32 c2x512 16.48 c1x256 17.15]
+SUMMARY abnd T=128: sglang [sglang 18.14 c1x1024 18.56 c1x512 18.88 c2x512 19.49 c4x256 19.65 c1x256 19.87 c8x256 22.56]
+SUMMARY abnd T=256: c1x512 [c1x512 22.72 sglang 22.72 c1x256 23.74 c1x1024 23.78 c2x512 26.46 c4x256 26.85 c8x256 29.66]
+SUMMARY attn d1 sliding: attn_one plan(splits,nc,mode)=(32, 1, 13)
+SUMMARY attn d1 full: attn_one plan(splits,nc,mode)=(252, 8, 11)
+SUMMARY attn d16 sliding: attn_one plan(splits,nc,mode)=(16, 1, 1)
+SUMMARY attn d16 full: attn_one plan(splits,nc,mode)=(264, 1, 49)
+SUMMARY attn d32 sliding: attn_one plan(splits,nc,mode)=(8, 1, 1)
+SUMMARY attn d32 full: attn_one plan(splits,nc,mode)=(264, 1, 49)
+SUMMARY attn v1 sliding: attn_one plan(splits,nc,mode)=(33, 1, 15)
+SUMMARY attn v1 full: attn_one plan(splits,nc,mode)=(252, 8, 11)
+SUMMARY attn v16 sliding: attn_one plan(splits,nc,mode)=(8, 1, 3)
+SUMMARY attn v16 full: attn_one plan(splits,nc,mode)=(264, 1, 51)
+SUMMARY attn v32 sliding: attn_one plan(splits,nc,mode)=(4, 1, 3)
+SUMMARY attn v32 full: attn_one plan(splits,nc,mode)=(264, 1, 51)
+SUMMARY failed 0: none
+ABPREP cand 97 s
+ABDIAG cand attention fallback on fresh rows vs FP32: 1x1s ours 1.63e-03 sglang 5.21e-02 ours-vs-sglang 5.20e-02; 1x8s ours 3.63e-02 sglang 4.06e-02 ours-vs-sglang 3.09e-02; 1x1f ours 1.75e-03 sglang 6.75e-03 ours-vs-sglang 7.14e-03; 1x8f ours 1.76e-02 sglang 2.19e-02 ours-vs-sglang 1.46e-02; attn_one_ours=1
+ABBUILD failed: ValueError: @jit functions should be defined in a Python file
+ABPREP cand 97 s
+ABPIN pub sha256 cf4a75ee6e4a5cd9e33b82b5347c47abcdc7b81d80dc6a8b5262dea7388f849c git-blob 936fefffb493c4a836e8c08fc58dff50ce338dd5 as read (pub_layer.py); comment-stripped and patched as sent: sha256 e0ec5c48000cad5b60f3850aeef06091a281141e37958c1a7c561f63d4d0f8b7 git-blob 2acf83a03560d4979ee4a23baf08e64f702cfce3
+ABPIN cand sha256 4ed09046349a049ffa6e08263547d2742f93fc694d7185cd23ad48ee9752d686 git-blob 9722e271a6d49d4148da13befda9a3327d0ddac6 (bundle_fix2.py)
+ABDIAG cand attention fallback on fresh rows vs FP32: 1x1s ours 1.63e-03 sglang 5.21e-02 ours-vs-sglang 5.20e-02; 1x8s ours 3.63e-02 sglang 4.06e-02 ours-vs-sglang 3.09e-02; 1x1f ours 1.75e-03 sglang 6.75e-03 ours-vs-sglang 7.14e-03; 1x8f ours 1.76e-02 sglang 2.19e-02 ours-vs-sglang 1.46e-02; attn_one_ours=1

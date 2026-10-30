@@ -34,7 +34,8 @@ REPACK = ("unit_rows", "repack_expert", "repack_expert_fat", "_to_u8_words", "_c
 RENAME = (("repack_expert_fat", "moe1_repack_expert_fat"), ("repack_expert", "moe1_repack_expert"),
           ("unit_rows", "moe1_unit_rows"))
 MAIN_NAMES = {0: "main-d2", 5: "main-d3", 16: "main-m2-ar2-ub", 20: "main-own",
-              23: "main-own-dynb", 26: "main-dynb-fs", 28: "main-lean"}
+              23: "main-own-dynb", 26: "main-dynb-fs", 28: "main-lean", 37: "main-lean-silu-bar",
+              47: "main-lean-grp-nohoist"}
 # Each fat mode is another kernel instance in the layer's build, so the layer builds only the
 # fat modes that won a standalone bench: 0 (its fallback) and 16, which took 128 and 256
 # tokens from legacy128 and mode 12 in checks 9a9fb08c134c4a16 and c65e91500215418d, and 20,
@@ -45,7 +46,15 @@ MAIN_NAMES = {0: "main-d2", 5: "main-d3", 16: "main-m2-ar2-ub", 20: "main-own",
 # us under 26 at 32, 128 and 256 tokens on 72 of 72 paired seeds and the standalone policy at
 # 128 and 256 in f928f8a802014e4f and 13fe68e7ca2e423f. 20 and 23 left with the standalone's
 # MAIN_MODES (0, 16, 26, 28): 26 and 28 were under them on every paired seed.
-LAYER_MODES = (0, 16, 26, 28)
+# 37 (28 with SiLU's reciprocal as one MUFU.RCP and no per-thread fence_gpu before the phase A
+# publish's bar.sync): 3-5 us under 28 at 128 and 256 tokens standalone, scored 6307d0c91c8d4ada.
+LAYER_MODES = (0, 16, 26, 28, 37, 47)
+# Skinny variants the layer builds beside the standalone's computing ones, by (warps, slots,
+# kMode): kMode 3 (sk8w4s-er, each compute warp releases its ring slot itself) lost on the
+# standalone routing but won on layer routing at 8 and 16 tokens (docs/runs-moe.md, 2c28a7256b004aa1),
+# so the layer's judge-like bench may pick it.
+LAYER_SKINNY_EXTRA = ((8, 4, 3),)
+SKINNY_SUFFIX = {0: "", 3: "-er"}
 
 # The load is a per-use ld.global.nc in inline asm, consumed where the host value was: a value
 # loaded once and kept in a register doubled the fat d2 kernel's spills (1268 B against 604),
@@ -119,24 +128,50 @@ MAIN_PREAMBLE = (
     "    asm volatile(\"griddepcontrol.wait;\" ::: \"memory\");\n"
     "    constexpr bool kDiag = is_diag(MODE);\n"
 )
-SKINNY_PREAMBLE = (
-    "    if (p.pdl) {\n"
-    "        if (warp == kNW && lane == 0) {\n"
-    "#pragma unroll\n"
-    "            for (int s = 0; s < kNS; ++s) {\n"
-    "                mbar_init(&S.full[s], 1);\n"
-    "            }\n"
-    "            asm volatile(\"fence.mbarrier_init.release.cluster;\" ::: \"memory\");\n"
-    "        }\n"
+# Skinny: the preamble runs a copy of the routing warp's own mbarrier init block (taken from
+# the source by skinny_init_block, so every barrier the block initialises, now and after upstream
+# changes, is initialised under pdl too), then the prefetch hint: the first 4 units of every
+# local expert, 4.7 MB.
+SKINNY_PREFETCH = (
     "        if (tid == 0) {\n"
     "            for (int i = cta; i < p.nloc * 4; i += G) {\n"
     "                prefetch_l2_hint(p.w13 + (static_cast<size_t>(i % p.nloc) * kUA\n"
     "                                          + i / p.nloc) * kUnitBytes, kUnitBytes);\n"
     "            }\n"
     "        }\n"
-    "    }\n"
-    "    asm volatile(\"griddepcontrol.wait;\" ::: \"memory\");\n"
 )
+SKINNY_INIT_RE = (r"        if \(lane == 0\) \{\n#pragma unroll\n            for \(int s = 0; s < kNS; \+\+s\) \{\n"
+                  r"                mbar_init\(&S\.full\[s\], 1\);\n.*?"
+                  r"            asm volatile\(\"fence\.mbarrier_init\.release\.cluster;\" ::: \"memory\"\);\n"
+                  r"        \}\n")
+# Lines the init block may hold; anything else upstream adds there fails the inliner.
+SKINNY_INIT_LINE = re.compile(r"^\s*(#pragma unroll|for \(int \w+ = 0; \w+ < \w+; \+\+\w+\) \{|"
+                              r"mbar_init\(&S\.\w+\[[\w +]+\], \w+\);|if constexpr \(\w+\) \{|\}|"
+                              r"if \(lane == 0\) \{|asm volatile\(\"fence\.mbarrier_init\.release\.cluster;\" "
+                              r"::: \"memory\"\);)$")
+
+
+def skinny_init_block(block):
+    """The skinny template with the routing warp's mbarrier init block skipped under pdl and
+    run, copied, in the preamble before griddepcontrol.wait."""
+    found = re.findall(SKINNY_INIT_RE, block, flags=re.S)
+    if len(found) != 1:
+        raise SystemExit(f"skinny mbarrier init block found {len(found)} times, need 1")
+    init = found[0]
+    for line in init.splitlines():
+        if not SKINNY_INIT_LINE.match(line):
+            raise SystemExit(f"unexpected line in the skinny mbarrier init block: {line!r}")
+    block = block.replace(init, init.replace("        if (lane == 0) {\n",
+                                             "        if (lane == 0 && !p.pdl) {\n", 1))
+    wait = "    // the instruction does nothing.\n    asm volatile(\"griddepcontrol.wait;\" ::: \"memory\");\n"
+    if block.count(wait) != 1:
+        raise SystemExit("skinny griddepcontrol.wait anchor not found once")
+    pre = ("    // the instruction does nothing.\n    if (p.pdl) {\n        if (warp == kNW) {\n"
+           + "".join("    " + ln + "\n" for ln in init.splitlines()) + "        }\n"
+           + SKINNY_PREFETCH + "    }\n    asm volatile(\"griddepcontrol.wait;\" ::: \"memory\");\n")
+    return block.replace(wait, pre)
+
+
 CUDA_PATCHES = [
     ("    int cost[2][9];\n};\n",
      "    int cost[2][9];\n"
@@ -146,8 +181,20 @@ CUDA_PATCHES = [
     ("    const int E = p.M * kTopK;\n"
      "    asm volatile(\"griddepcontrol.wait;\" ::: \"memory\");\n"
      "    constexpr bool kDiag = is_diag(MODE);\n", MAIN_PREAMBLE),
-    ("    } else if (warp == kNWarpsM - 2) {\n        if (lane == 0) {\n",
-     "    } else if (warp == kNWarpsM - 2) {\n        if (lane == 0 && !p.pdl) {\n"),
+    ("    } else if (warp == kNWarpsM - 2) {\n        if (lane == 0) {\n"
+     "            constexpr unsigned kRel = lean_stage(MODE) ? kNC * 32 : kNC;\n#pragma unroll\n"
+     "            for (int s = 0; s < kNSWMax; ++s) {\n                mbar_init(&S.wfull[s], 1);\n"
+     "                mbar_init(&S.wempty[s], kRel);\n            }\n#pragma unroll\n"
+     "            for (int s = 0; s < kNSX; ++s) {\n                mbar_init(&S.xfull[s], 1);\n"
+     "                mbar_init(&S.xempty[s], kRel);\n            }\n"
+     "            asm volatile(\"fence.mbarrier_init.release.cluster;\" ::: \"memory\");\n        }\n",
+     "    } else if (warp == kNWarpsM - 2) {\n        if (lane == 0 && !p.pdl) {\n"
+     "            constexpr unsigned kRel = lean_stage(MODE) ? kNC * 32 : kNC;\n#pragma unroll\n"
+     "            for (int s = 0; s < kNSWMax; ++s) {\n                mbar_init(&S.wfull[s], 1);\n"
+     "                mbar_init(&S.wempty[s], kRel);\n            }\n#pragma unroll\n"
+     "            for (int s = 0; s < kNSX; ++s) {\n                mbar_init(&S.xfull[s], 1);\n"
+     "                mbar_init(&S.xempty[s], kRel);\n            }\n"
+     "            asm volatile(\"fence.mbarrier_init.release.cluster;\" ::: \"memory\");\n        }\n"),
     ("    moe_main_kernel<MODE><<<sms, kNTM, sizeof(SmemMain), stream>>>(p);\n",
      "    moe1_launch(moe_main_kernel<MODE>, sms, kNTM, static_cast<int>(sizeof(SmemMain)), stream,\n"
      "                p);\n"),
@@ -160,12 +207,6 @@ CUDA_PATCHES = [
 SKINNY_PATCHES = [
     ("                const int e = ev[k] - p.lo;\n",
      "                const int e = ev[k] - ld_lo(p.lo_p);\n"),
-    ("    // the instruction does nothing.\n    asm volatile(\"griddepcontrol.wait;\" ::: \"memory\");\n",
-     "    // the instruction does nothing.\n" + SKINNY_PREAMBLE),
-    ("        if (lane == 0) {\n#pragma unroll\n            for (int s = 0; s < kNS; ++s) {\n"
-     "                mbar_init(&S.full[s], 1);\n",
-     "        if (lane == 0 && !p.pdl) {\n#pragma unroll\n            for (int s = 0; s < kNS; ++s) {\n"
-     "                mbar_init(&S.full[s], 1);\n"),
     ("    moe_fused_kernel<SPLIT><<<sms, kNTL, sizeof(Smem), stream>>>(p);\n",
      "    moe1_launch(moe_fused_kernel<SPLIT>, sms, kNTL, static_cast<int>(sizeof(Smem)), stream,\n"
      "                p);\n"),
@@ -197,9 +238,9 @@ def load(text):
 
 def device_code(ns):
     cuda = patch(ns["_CUDA_SRC"], CUDA_PATCHES)
-    block = patch(ns["_SKINNY_BLOCK"], SKINNY_PATCHES)
+    block = skinny_init_block(patch(ns["_SKINNY_BLOCK"], SKINNY_PATCHES))
     tag = ns["_skinny_tag"]
-    skinny_variants = [v for v in ns["SKINNY_VARIANTS"] if v[2] == 0]
+    skinny_variants = [v for v in ns["SKINNY_VARIANTS"] if v[2] == 0] + list(LAYER_SKINNY_EXTRA)
     main_modes = [m for m in ns["MAIN_MODES"] if m in ns["MAIN_CANDIDATES"] and m in LAYER_MODES]
     if not main_modes:
         raise SystemExit(f"none of LAYER_MODES {LAYER_MODES} is a fat candidate in the source")
@@ -217,7 +258,7 @@ def device_code(ns):
     if n != 1:
         raise SystemExit("no 'namespace {' line in the kernel source")
     code = head.rstrip() + "\n\n}  // namespace moe1\n}  // namespace\n"
-    variants = [(f"sk{nw}w{ns_}s", "skinny", f"sk_{tag(nw, ns_, mode)}::launch<1>")
+    variants = [(f"sk{nw}w{ns_}s{SKINNY_SUFFIX[mode]}", "skinny", f"sk_{tag(nw, ns_, mode)}::launch<1>")
                 for nw, ns_, mode in skinny_variants]
     variants += [(MAIN_NAMES.get(m, f"main-m{m}"), "main", f"launch_main<{m}>") for m in main_modes]
     return code, variants, int(ns["MAIN_MIN_M"])
