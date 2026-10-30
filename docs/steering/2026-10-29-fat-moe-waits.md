@@ -204,3 +204,26 @@ Next actions (not done):
    applies at 32 tokens); the gather's per-thread `__threadfence` before the barrier is a
    candidate under mode 37's chain, unmeasured.
 4. The 32-token gap (10-14 us in the layer) has no phase stamps yet.
+
+## Addendum 2026-10-30 (4): gather or skew, and the gather change
+
+Evidence: branch worktree-agent-a24ef7a48cd7155d3, code e866c8a (twins 55, 56 of 51) and fca2be7
+(modes 57-59); checks 7063f86352344efa (re-measurement, 2.210x) and e7e75c9510994c08 (diagnostic,
+2.207x). Details: docs/runs-moe.md, "The x gather or the warpgroup skew".
+
+- Measured, next action 2 (skew): on 51 the warpgroup that starts a stage last is the same one in
+  79-87% of a CTA's stages, and only 0.45 / 1.07 us per CTA of its weights waits (128 / 256
+  tokens, A + B) come from the other warpgroups' releases. Per-warpgroup slots would shorten the
+  leaders' waits, not the trailing warpgroup's; not built (docs/ruled-out.md).
+- Measured, next action 3 (setup): the gather is +3.2 / +3.4 us behind the public kernel's; in
+  thread 0's stamps the loads and stores take 1.7 / 5.6 us and the fences and barrier 4.3 / 2.1.
+- Built and lost: 57 (rows loaded under the routing work plus 16-byte stores, all fences kept)
+  +1.1 to +1.2 us against 51 at 32, 128 and 256 tokens (0 of 18 seeds lower); 59 (early loads
+  alone) tied. Each CTA's gather got 0.8-1.8 us shorter, but a job's x readiness follows its
+  slowest gathering CTA and moved 0.2-0.6 us.
+
+Open, needs a decision outside the MoE line: the remaining gather difference from the public
+kernel is the per-thread `fence.proxy.async.global` and `__threadfence` before the gather barrier
+(the public publishes with a barrier and one red.release per job). Changing it is a fence change:
+it would rest on mode 37's chain, need an independent review, and was excluded from this brief.
+Two of the four checks given to this line are unspent.

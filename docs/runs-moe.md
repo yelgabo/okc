@@ -89,6 +89,7 @@ SGLang with its 95% interval. Profiles and logs are in `muse_moe_w4a16/profiles/
 | 2026-10-30 | 1fbb9fbf524f4ed7 (check, bench file from tools/moe_make_bench_ab.py --base=47 --sizes=32 --routings=layer,std --seeds=1,2,3,4,5,6 --work=1 --skst=8:3:2 o37=37 o16=16 sk8w3s=v3, not committed) | b3509a0 + tool changes | phase attribution at 32 tokens against the public kernel (stamps of 48, 42, 41, public, sk8w3s; per-CTA work) | 2.196x | passed; spin flags 0. Graph replay at 32 tokens, layer / standalone: 47 90.9 / 132.9 us, public -1.5 / -5.9 (6 of 6 each), 37 +1.8 / +1.6, 16 +28.5 / +31.1, sk8w3s +19.2 / -0.1, sk8w4s +22.9 / +3.4. Stamps 48 minus public: setup +3.6 / +0.9, phase A done max +6.2 / +8.6, tail +2.0 / +6.0, end +1.6 / +7.4. Work: 8.5 / 14.2 jobs, owned phase A units per CTA 1.5-2.5 / 2.8-3.8, public phase A 28-36 / 46-57 stages. Section "Phase attribution at 32 tokens" |
 | 2026-10-30 | 209cf29bf91c4ea2 (check, bench file from tools/moe_make_bench_ab.py --base=51 --sizes=32,128,256 --routings=layer,std --seeds=35,36,37,38,39,40 o52=52 o53=53 o47=47, not committed) | this branch (modes 52-54) | diagnostic of modes 52 / 53 (last phase B units claimed in K halves through the fixup, xs = G / 2 / G) | 2.191x | passed; spin flags 0. 52 minus 51 +3.3 / +3.5 / +5.9 / +4.9 / +8.5 / +5.3 us at 32 / 128 / 256 (layer / std), 0-2 of 6 lower; 53 +5.2 to +9.2. 54's tail 7.9 against 48's 7.1 at 32 (layer). Outputs vs 51 <= 9.7e-5. Lost everywhere, not gated; docs/ruled-out.md |
 | 2026-10-30 | 7063f86352344efa (check, bench file from tools/moe_make_bench_ab.py --base=51 --sizes=128,256 --routings=layer --skew=1, seeds 1-6, not committed) | e866c8a | re-measurement on 51 to pick the x gather or the warpgroup skew (twins 55, 56; rule set in e866c8a before the submit) | 2.210x (2.176-2.243) | passed; spin flags 0. Gather piece (start minus route) 51 / public: 6.8 / 3.6 us at 128, 8.3 / 4.9 at 256 (+3.2 / +3.4); thread 0 stores 1.7 / 5.6, fences and barrier 4.3 / 2.1, release 0.6 / 0.5. Skew bound for per-warpgroup slots (trailing warpgroup, A + B): 0.45 / 1.07 us; trailing warpgroup persistence 0.79-0.87. Public minus 51 -9.1 / -14.0 us (6 of 6). Decision: the gather. Section "The x gather or the warpgroup skew" |
+| 2026-10-30 | e7e75c9510994c08 (check, bench file from tools/moe_make_bench_ab.py --base=51 --sizes=32,128,256 --routings=layer --seeds=41,42,43,44,45,46 o57=57 o59=59, not committed) | fca2be7 | diagnostic of modes 57 (x rows loaded under the routing work plus 16-byte gather stores) and 59 (the early loads alone) | 2.207x (2.173-2.240) | passed; spin flags 0. Minus 51 at 32 / 128 / 256: 57 +1.2 / +1.1 / +1.2 us (0 of 6 lower each), 59 -0.0 / +0.6 / -0.3 (2, 1, 5 of 6). Thread 0's gather 0.8-1.8 us shorter (58 vs 55) but the first job's x ready only 0.2-0.6 us earlier. Not gated; docs/ruled-out.md |
 
 ## Why the layer keeps the W4 chain at 128 tokens, 2026-10-29
 
@@ -1772,7 +1773,10 @@ All fences, the barrier and the release stay as they are and where they are. 57 
 - gx_st16: each lane stores one 16-byte group of the row's per-stage layout instead of four 4-byte
   words. The four words of a group are held by lanes l, l ^ 2, l ^ 4, l ^ 6 (pair h of lane l lands
   in group 8 (l >> 3) + 4 (l & 1) + h, word (l >> 1) & 3); three `shfl.xor` exchange them. A quarter
-  of the store instructions and sector writes for the fences to wait on.
+  of the store instructions. [Corrected after the run: not fewer sector writes. In 51's 4-byte
+  stores the four lanes of a group write adjacent words in the same instruction, so each
+  instruction already writes eight whole 16-byte groups; the 16-byte form writes the same groups,
+  32 lines per instruction instead of 8.]
 
 58 is 57 with 55's light and gather stamps (timing only); 59 is gx_pre alone (a diagnostic arm).
 
@@ -1805,6 +1809,59 @@ tools/moe_dryrun.py and tools/moe_host_check.sh pass.
 Prediction (hypothesis): -1.5 to -3 us at 256 tokens (the second batch and part of the first
 round trip), -1 to -2 at 128 and 32, if the fence wait shrinks with the store count; less if the
 fences wait on the memory system's load rather than on our writes.
+
+Diagnostic run, no keep rule set in advance (as 47's first check): `tools/moe_make_bench_ab.py
+--base=51 --sizes=32,128,256 --routings=layer --seeds=41,42,43,44,45,46 o57=57 o59=59` (light twins
+55 and 58, public stamps). A gate rule on new held-out seeds was to follow only if 57 won here.
+
+### Result (check e7e75c9510994c08)
+
+2.207x (2.173-2.240), passed, spin flags 0. Minus 51, us, same process, layer seeds 41-46
+(count = seeds lower of 6):
+
+| arm | 32 tokens | 128 tokens | 256 tokens |
+|---|---|---|---|
+| 57 (gx_pre + gx_st16) | +1.2 (0) | +1.1 (0) | +1.2 (0) |
+| 59 (gx_pre alone) | -0.0 (2) | +0.6 (1) | -0.3 (5) |
+| public | -1.4 (4) | -8.7 (6) | -15.6 (6) |
+
+Outputs against 51 on the first seed: 57 and 59 0.0 at 128 and 256 tokens (bit-identical), 1.6e-5
+and 1.2e-4 at 32. [59's 1.2e-4 at 32 tokens is above the 1e-4 used in the gates; at 32 tokens
+51 runs 47's path, whose phase B sums of squares use FP32 atomics, so the order of the adds varies
+from run to run; not separated from a defect, and moot since 59 is not kept.]
+
+Gather stamps (58 against 55, us, means over CTAs and seeds):
+
+| | 32 | 128 | 256 |
+|---|---|---|---|
+| thread 0: loads and stores | 0.59 / 1.02 | 1.35 / 1.74 | 3.89 / 5.26 |
+| thread 0: fences and barrier | 1.04 / 2.27 | 3.67 / 4.14 | 2.92 / 2.38 |
+| whole gather | 2.18 / 3.99 | 5.60 / 6.38 | 7.17 / 8.08 |
+| x producer's first xready wait end after its release | 6.33 / 5.00 | 2.56 / 2.20 | 3.01 / 2.42 |
+| latest first-x-ready, from the first gather start | 10.03 / 10.24 | 9.30 / 9.90 | 10.84 / 11.18 |
+| public's whole gather | 1.82 | 3.37 | 4.82 |
+
+Reading.
+- Measured: each CTA's own gather got 0.8-1.8 us shorter, but the time at which the x producers
+  find their first job's rows complete moved only 0.2-0.6 us earlier: a job's rows come from many
+  CTAs, so its readiness follows the slowest gathering CTA and the release's propagation, not the
+  mean CTA's gather. The wait after the CTA's own release grew by about as much as the gather
+  shrank.
+- Measured: gx_pre alone (59) is a tie (-0.3 to +0.6 us); the 16-byte stores added about 1 us at
+  every size (57 against 59). Why is not separated (hypotheses: 32 lines per store instruction
+  instead of 8, or the larger setup code).
+- Hypothesis for the gap that remains: the per-thread `fence.proxy.async.global` and
+  `__threadfence` before the gather barrier, which the public kernel's gather does not have (it
+  publishes with a barrier and one red.release per job), on the slowest gatherer. Testing it
+  means removing or weakening a fence, which this brief excludes; mode 37's chain ("Ordering of the
+  phase A publish without the per-thread fence_gpu") is the argument such a change would rest on,
+  and it would need its own review and a decision outside this line.
+
+Decision: 57 and 59 are not gated or shipped (57 lost at every size, 0 of 18 seeds lower; 59 tied),
+and go to docs/ruled-out.md scoped to this design. Their code stays in the source, not built
+(production SASS unchanged). Two of the four checks were used; two are returned unspent. The skew
+lead (per-warpgroup weights slots) is not built: its bound on the trailing warpgroup, 0.45 / 1.07
+us, is below what one check can resolve.
 
 ## Staged pair on current components, 2026-10-29
 

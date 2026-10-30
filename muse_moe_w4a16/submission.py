@@ -694,8 +694,12 @@ __host__ __device__ constexpr bool gather_st(int mode) {
 // under the routing work; the batched loop takes only the entries after them.
 // gx_st16 (57, 58): each lane stores one 16-byte group of the row's per-stage wgmma layout instead
 // of four 4-byte words: the four words of a group come from lanes l, l ^ 2, l ^ 4, l ^ 6 and are
-// exchanged with three shuffles, a quarter of the store instructions and sector writes.
+// exchanged with three shuffles, a quarter of the store instructions (the sector writes are the
+// same: four lanes of a group already wrote adjacent words in one 4-byte store).
 // 58 is 57 with the light and gather stamps (timing only), 59 is gx_pre alone (diagnostic arm).
+// Not built: in e7e75c9510994c08, 57 minus 51 was +1.1 to +1.2 us and 59 -0.3 to +0.6 at 32, 128
+// and 256 tokens; thread 0's gather got 0.8-1.8 us shorter, but each job's x readiness follows
+// its slowest gathering CTA and moved 0.2-0.6 us.
 constexpr int kPreRows = 4;
 __host__ __device__ constexpr bool gx_pre(int mode) {
     return mode >= 57 && mode <= 59;
@@ -3782,6 +3786,10 @@ SKINNY_VARIANTS = ((8, 4, 0), (16, 4, 0), (8, 4, 1), (8, 3, 0))
 # 52 and 53 (lost at 32, 128 and 256 tokens, 209cf29bf91c4ea2: +3.3 to +8.5 us against 51) and 54
 # (52 with the light stamps): the last phase B units claimed in K halves through the fixup;
 # docs/runs-moe.md, "Phase attribution at 32 tokens against the public kernel". Not built.
+# 55 and 56 (timing only): 51 with the light and x-gather stamps, 56 also with the skew stamps.
+# 57 to 59 (57 and 59 lost or tied against 51, e7e75c9510994c08; 58 is 57's stamped twin): the x
+# gather's rows loaded under the routing work, with and without 16-byte stores; docs/runs-moe.md,
+# "The x gather or the warpgroup skew". Not built.
 MAIN_MODES = (0, 16, 26, 28, 37, 47, 51)
 MAIN_CANDIDATES = (0, 6, 12, 13, 14, 15, 16, 20, 23, 26, 28, 32, 34, 35, 36, 37, 39, 43, 47, 51)
 VARIANT_MAIN0 = len(SKINNY_VARIANTS)
