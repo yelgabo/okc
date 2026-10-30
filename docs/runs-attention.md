@@ -2489,3 +2489,7 @@ Checks used by this round: ce92d32e26024bd2, d0819bb26907426b, 5d309f9d13924dca,
 Where the remaining gap is (bench d0819bb26907426b, pub - hmrg, cold): v32 sliding -1.38 us, v16
 full -2.0, d32 full -1.4, d16 full -0.9, v1 full -0.86 (phase exits put it in the tile loop),
 d1 full -0.64, v16 sliding -0.32, v1 sliding -0.10, d1 sliding -0.07, d16 sliding -0.04.
+
+### Scored: 57b0bed35f694a23 2.479x (2026-10-30)
+
+Submit of submission.py at dc6b409 (ONE_HMRG), submitted by the coordinator under the standing authorization. Passed. Below the board entry e9085c86d89449c2 (2.504x, a bench file whose judged path is the PK16/VHOIST candidate), which stays. Best clean candidate-only scored run so far (previous 569b233dfe08414f at 2.449x).
