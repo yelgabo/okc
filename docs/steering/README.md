@@ -4,7 +4,15 @@ This is the stable entry point for steering reports across research, implementat
 and coordinator sessions. The user requested on 2026-10-29 that every project-steering
 report be checked into this repository so other sessions can read it.
 
-## Latest layer report: clean release, M1 diagnosis, verify 1 / decode 32 attribution
+## Latest layer note: M1 PTX ordering argument (2026-10-30)
+
+**[2026-10-30: M1, PTX ordering of the TMA reads around griddepcontrol.wait](2026-10-30-m1-ptx-ordering.md)**:
+pre-wait reads have no live writer; x is read through TMA only after the wait, now with a
+reader-side `fence.proxy.async.global` in every issuing thread. Results of the M1 timing and the
+fresh-input gate are in `docs/runs-decode-layer.md` (6ce5be0ba29642ea, 60cf58b69b75491e,
+fdf75ba5a8124544) and the M1 row of `docs/ruled-out.md`.
+
+## Previous layer report: clean release, M1 diagnosis, verify 1 / decode 32 attribution
 
 **[2026-10-30: Layer release, mode 47 isolation, M1 diagnosis and gap attribution](2026-10-30-layer-release-attribution.md)**
 
