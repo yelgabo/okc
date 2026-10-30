@@ -273,8 +273,8 @@ rt_fwd(cfg, wp, x, out, diag)      # cfg = RT_NAMES index; MT (1 / 2 / 4) from x
 ### wd router VAR bits (`WD_VAR`, `WV_*`)
 
 A wd geometry name carries VAR bits; 0 is the build judged through 6cbd8b981a5d4c3f. The
-production picks use KLUE = PACK | PROMO64 | PUSH | EARLY (`r64c8s8k`, `r128c8s6k`) and
-`r64c4s8a` = KLUE | NOSLEEP | XA.
+production picks use KLUE = PACK | PROMO64 | PUSH | EARLY | TAILSYNC (`r64c8s8k`, `r128c8s6k`)
+and `r64c4s8a` = KLUE | NOSLEEP | XA; TAILSYNC is the 2026-10-30 conforming decision below.
 
 - PACK: weights from `router_pack(hi, lo)`, `[N/64 * K/64 * 128, 64]`, so one 128-row TMA box
   carries the hi and lo tiles of a (64-row block, k tile). Pass `state["router_pack"]`.
@@ -307,11 +307,28 @@ blocking defect):
 4. Reuse: no global scratch, counters or self-resetting state; barriers and slots live in the
    launch's shared memory, every slot has one writer per launch, so CUDA-graph replay is safe
    (each bench arm was replayed twice on fresh inputs and checked).
-5. Open, documented as ambiguous rather than proven: whether a CTA may exit while its own
-   outgoing `st.async` is still in flight (the CUDA guide's DSMEM rule is about the target), and
-   whether rt's `st.async` to its own rank is sanctioned (the ISA neither allows nor forbids it).
-   TAILSYNC is the conforming fallback; it cost +0.1 to +0.2 us on rt and +0.3 us on wd
-   (a91f2152d8974458). The reference kernel also exits without it.
+5. Two points the documentation leaves open: whether a CTA may exit while its own outgoing
+   `st.async` is still in flight (the CUDA guide's DSMEM rule is about the target), and whether
+   `st.async` may target the issuing CTA (the ISA neither allows nor forbids it). The reference
+   kernel relies on both.
+
+**Decision (coordinator, 2026-10-30): ship the conforming form.** Where the PTX documentation
+is ambiguous we do not rely on the undocumented behaviour (repository rule: no ordering
+shortcut without a citation), even though the reference does. In the shipped configs:
+
+- Every push path ends with a cluster barrier (wd `WV_TAILSYNC` in `_WD_KLUE`; rt TAIL true in
+  every `RT_GEOM` entry). Every receiver arrives there only after its receive wait saw all of its
+  bytes, so passing the barrier implies all of the CTA's own pushes completed: no CTA exits with
+  an outgoing `st.async` in flight.
+- rt writes its own-rank share with a plain shared store, followed by a CTA barrier before the
+  owner threads read it; the receive barrier expects (S - 1) * OWN * 16 bytes. wd already wrote
+  its own share locally.
+- SASS against 1e12506 (nvcc 12.8, sm_90a), shipped instances only; all 69 other kernels are
+  instruction-identical. rt: +1 STS, +2 BAR.SYNC, +2 UCGABAR. wd: +2 MEMBAR, +1 BAR.SYNC,
+  +2 UCGABAR, +1 ERRBAR, which is the exit sequence of the production pull path. No spills.
+- Cost measured in a91f2152d8974458: +0.10 to +0.21 us on rt (rt16w8t against rt16w8 at
+  8 / 16 / 32 tokens) and about +0.3 us on wd (NKLUET against NKLUE at 128 / 256). It is
+  confirmed on the judged file in the checks logged in docs/runs.md.
 
 For the layer: not ported. The layer's T <= 32 router is fused into its pooler / concat front,
 and its T = 128 / 256 router is the concat GEMM. Porting rt means a separate router launch beside
