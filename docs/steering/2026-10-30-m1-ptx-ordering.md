@@ -119,3 +119,29 @@ cannot block P (the coordinator's rule: progress must not depend on co-residency
   were not re-audited here (docs/runs-decode-layer.md, PDL provenance table).
 - The fresh-input gate (docs/runs-decode-layer.md, "Validation policy change") is the test
   evidence. Passing it does not prove the ordering; this argument and the fence do the work.
+
+## Addendum (2026-10-30, later): the runtime issue order and the release candidate
+
+The release candidate `muse_decode_layer/cand/layer_m1rt.py` is built with
+`tools/dl_gate_patch.py --m1 --m1-runtime`. `--m1-runtime` changes who takes the PDL path in
+the sk kernel, not the PDL path itself:
+
+- The host sets bit 30 of `M` only in the `sk_pdl_launch` branch of `launch_sk`, the one launch
+  that carries `cudaLaunchAttributeProgrammaticStreamSerialization`. The kernel reads
+  `pdl_run = PDL && (Mf >> 30) != 0` and masks the flag off `M` before any use.
+- With `pdl_run` true, the kernel runs exactly the order of sections 1-3 above: weights of the
+  first min(NSTAGE, stages) stages before the wait, the wait in every thread, then the
+  `fence.proxy.async.global` in thread 0 and in the producer lane before their x copies.
+- With `pdl_run` false (a plain launch in the SK_PDL build, or M1 off for that bucket), the
+  kernel runs the release's order: stage 0's weights and x first, no wait, no fence. Stream
+  order serializes it after its predecessor, which is the kernel-boundary case PTX ISA 8.9.4
+  covers ("API synchronization"), as for every sk launch of the release.
+
+A PDL-attribute launch without the wait cannot be produced: the flag and the attribute are set
+in the same branch, and the cluster branch (CL > 1) has `PDL = false`.
+
+Independent review: `docs/review-m1-ordering-2026-10-30.md` (fba35bb), verdict sound with
+caveat, no code change required; keep the reader-side fences. The caveat (the `rcount` reset and
+allocator-reuse arguments assume every other PDL secondary of the layer executes the wait
+before it completes) is the subject of a separate audit,
+`docs/review-pdl-secondaries-2026-10-30.md`.

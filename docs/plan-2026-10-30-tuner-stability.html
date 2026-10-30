@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Stable tuner picks</title>
+<style>
+    body { margin: 0; padding: 24px 16px; background: #101013; color: #f0ece3;
+           font: 15px/1.6 "Avenir Next", Avenir, system-ui, sans-serif; }
+    main { max-width: 1160px; margin: 0 auto; }
+    #tune-figure .diagram-scroll { overflow-x: auto; border-radius: 10px; background: #101013; }
+    #tune-figure svg { display: block; width: 100%; min-width: 1100px; height: auto; }
+    #tune-figure text { font-family: "Avenir Next", Avenir, system-ui, sans-serif;
+                        fill: #f0ece3; font-size: 18px; }
+    #tune-figure .detail { fill: #c0bcb6; font-size: 14px; }
+    #tune-figure .edge { fill: none; stroke: #dec18a; stroke-width: 1.8;
+                         marker-end: url(#tune-arrow); }
+    #tune-figure figcaption { margin-top: 10px; color: #c0bcb6; }
+</style>
+</head>
+<body>
+<main>
+<h1>Stable prepare-time picks (design 1)</h1>
+<figure id="tune-figure">
+    <div class="diagram-scroll" tabindex="0" role="region"
+         aria-label="Tuner decision diagram, scroll horizontally on small screens">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1100 400" role="img"
+             aria-labelledby="tune-title tune-desc">
+            <title id="tune-title">Interleaved rounds, paired differences, margin, preference</title>
+            <desc id="tune-desc">Candidates are timed in R rotated rounds. Each round gives a
+                paired difference against the preferred candidate. The tuner switches only when
+                the median saving exceeds the margin and R minus 1 rounds agree; otherwise the
+                preferred candidate from the receipt policy is kept.</desc>
+            <defs>
+                <marker id="tune-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7"
+                        markerHeight="7" orient="auto-start-reverse">
+                    <path d="M0 0L10 5L0 10Z" fill="#dec18a"/>
+                </marker>
+            </defs>
+            <rect width="1100" height="400" fill="#101013"/>
+
+            <rect x="40" y="130" width="200" height="104" rx="10" fill="#1b1b20"
+                  stroke="#686158" stroke-width="1.4"/>
+            <text x="140" y="166" text-anchor="middle" font-weight="600">Candidates</text>
+            <text class="detail" x="140" y="192" text-anchor="middle">per token count</text>
+            <text class="detail" x="140" y="214" text-anchor="middle">preferred = receipt pick</text>
+
+            <rect x="320" y="130" width="220" height="104" rx="10" fill="#1b1b20"
+                  stroke="#686158" stroke-width="1.4"/>
+            <text x="430" y="166" text-anchor="middle" font-weight="600">R rotated rounds</text>
+            <text class="detail" x="430" y="192" text-anchor="middle">cold-L2 graph medians</text>
+            <text class="detail" x="430" y="214" text-anchor="middle">order rotated per round</text>
+
+            <rect x="620" y="130" width="220" height="104" rx="10" fill="#1b1b20"
+                  stroke="#686158" stroke-width="1.4"/>
+            <text x="730" y="166" text-anchor="middle" font-weight="600">Paired test</text>
+            <text class="detail" x="730" y="192" text-anchor="middle">median saving &gt; margin</text>
+            <text class="detail" x="730" y="214" text-anchor="middle">and R - 1 rounds agree</text>
+
+            <rect x="900" y="40" width="170" height="90" rx="10" fill="#1b1b20"
+                  stroke="#686158" stroke-width="1.4"/>
+            <text x="985" y="78" text-anchor="middle" font-weight="600">Switch</text>
+            <text class="detail" x="985" y="104" text-anchor="middle">to the faster option</text>
+
+            <rect x="900" y="236" width="170" height="90" rx="10" fill="#1b1b20"
+                  stroke="#686158" stroke-width="1.4"/>
+            <text x="985" y="274" text-anchor="middle" font-weight="600">Keep preferred</text>
+            <text class="detail" x="985" y="300" text-anchor="middle">same pick every run</text>
+
+            <path class="edge" d="M240 182H320"/>
+            <text class="detail" x="280" y="168" text-anchor="middle">time</text>
+            <path class="edge" d="M540 182H620"/>
+            <text class="detail" x="580" y="168" text-anchor="middle">per round</text>
+            <path class="edge" d="M840 160H870V85H900"/>
+            <text class="detail" x="862" y="118" text-anchor="end">passes</text>
+            <path class="edge" d="M840 204H870V281H900"/>
+            <text class="detail" x="862" y="262" text-anchor="end">fails (tie or noise)</text>
+
+            <text class="detail" x="40" y="380">margin = max(0.3 us, 2 x MAD of the preferred
+                candidate's round medians)</text>
+        </svg>
+    </div>
+    <figcaption>A tie always lands on the receipt policy, so two prepares of one file agree.
+        A real win larger than the noise still switches. Design 2 (pinned policy) removes the
+        rounds and keeps only a large-margin guard.</figcaption>
+</figure>
+</main>
+</body>
+</html>

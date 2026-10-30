@@ -5,7 +5,8 @@
 # spill counts and the wall time. Needs Docker and the okc-torch-headers image (CUDA 12.8 devel
 # plus a CPU torch wheel, which ships the ATen CUDA headers):
 #   docker build --platform linux/arm64 -t okc-torch-headers .build/torchimg
-#   tools/dl_compile_check.sh muse_decode_layer/submission.py [_ONE_SRC]
+#   [DL_DEFS="SK_PDL ONE_TRIG"] tools/dl_compile_check.sh LAYER.py [_ONE_SRC]
+# DL_DEFS defines each name as 1, as the layer's extra_cuda_cflags do under PORT_SK_PDL.
 # The optional second argument picks the load_inline list that holds that block (default: the
 # first list in the file, the main extension).
 set -eu
@@ -15,13 +16,14 @@ mkdir -p .build && work=$(mktemp -d "$PWD/.build/compile.XXXXXX")
 trap 'rm -rf "$work"' EXIT
 
 python3 - "$src" "$work" "$pick" <<'PY'
-import re, sys
+import os, re, sys
 text = open(sys.argv[1]).read()
 blocks = dict(re.findall(r'^(_\w+_SRC) = r"""(.*?)"""', text, re.S | re.M))
 lists = re.findall(r"cuda_sources=\[([^\]]*)\]", text)
 names = next(l for l in lists if not sys.argv[3] or sys.argv[3] in l)
 parts = [blocks[n.strip()] for n in names.split(",") if n.strip()]
 head = "#include <torch/types.h>\n#include <cuda.h>\n#include <cuda_runtime.h>\n"
+head += "".join(f"#define {d} 1\n" for d in os.environ.get("DL_DEFS", "").split())
 open(f"{sys.argv[2]}/ext.cu", "w").write(head + "\n".join(parts))
 PY
 # A CPU wheel lacks this CMake-generated header; CUDA builds of torch ship it with only comments.

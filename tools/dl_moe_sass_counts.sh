@@ -4,7 +4,7 @@
 # second argument one, the one-launch attention (_ONE_SRC + _ONE_HOST_SRC), for comparing a
 # layer copy with another or with its standalone source after an inline or a layer patch: fences, membars, mbarrier ops (SYNCS), barriers, bulk copies and prefetches
 # (UBLKCP, UBLKPF), ACQBULK (griddepcontrol.wait), local memory and the instruction count.
-#   [SASS_OUT=file] sh tools/dl_moe_sass_counts.sh muse_decode_layer/submission.py [moe|one|skp|skp1]
+#   [SASS_OUT=file] sh tools/dl_moe_sass_counts.sh muse_decode_layer/submission.py [moe|w4|one|one1|skp|skp1]
 set -eu
 src=$1
 which=${2:-moe}
@@ -15,16 +15,20 @@ python3 - "$src" "$work" "$which" <<'PY'
 import ast, sys
 text = open(sys.argv[1]).read()
 tree = ast.parse(text)
-want = {"_MOE1_SRC", "_MOE1_HOST_SRC", "_MOE1_VARIANTS", "_ONE_SRC", "_ONE_HOST_SRC", "_SKP_SRC",
+want = {"_W4_SRC", "W4_CONFIGS", "_MOE1_SRC", "_MOE1_HOST_SRC", "_MOE1_VARIANTS", "_ONE_SRC", "_ONE_HOST_SRC", "_SKP_SRC",
         "_SKP_GEMV_SRC", "_SKP_WD_SRC"}
 keep = [n for n in tree.body
         if (isinstance(n, ast.Assign) and any(getattr(t, "id", "") in want for t in n.targets))
-        or (isinstance(n, ast.FunctionDef) and n.name == "_moe1_source")]
+        or (isinstance(n, ast.FunctionDef) and n.name in ("_moe1_source", "_w4_source"))]
 ns = {}
 exec(compile(ast.Module(body=keep, type_ignores=[]), "layer", "exec"), ns)
 head = "#include <torch/types.h>\n#include <cuda.h>\n#include <cuda_runtime.h>\n"
-if sys.argv[3] == "one":
-    body = ns["_ONE_SRC"] + "\n" + ns["_ONE_HOST_SRC"]
+if sys.argv[3] == "w4":
+    body = ns["_w4_source"]()
+elif sys.argv[3] in ("one", "one1"):
+    # one1: the attention as PORT_SK_PDL builds it (-DONE_TRIG=1).
+    body = (("#define ONE_TRIG 1\n" if sys.argv[3] == "one1" else "") + ns["_ONE_SRC"] + "\n"
+            + ns["_ONE_HOST_SRC"])
 elif sys.argv[3].startswith("skp"):
     # skp1: the projections as PORT_SK_PDL builds them (-DSK_PDL=1).
     body = (("#define SK_PDL 1\n" if sys.argv[3] == "skp1" else "") + ns["_SKP_SRC"] + "\n"

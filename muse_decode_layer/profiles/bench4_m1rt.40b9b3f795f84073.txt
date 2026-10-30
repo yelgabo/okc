@@ -1,0 +1,181 @@
+okc run 40b9b3f795f84073 on muse_decode_layer
+submission  /private/tmp/claude-501/-Users-gretchengabo-GitHub/4e9778d1-55dc-4e88-9d29-4844bd573620/scratchpad/dl5/bench4_m1rt.py
+status      ok
+passed      true
+speedup     1.99207146835474
+speedup_ci  [1.962190396329419 2.021952540380061]
+score_us    11355.164892092049
+tests       13/13 passed
+
+scored shapes (µs; speed of light is the reference's bound)
+case                                                         sglang      yours  speedup        sol  
+batch=1 ctx=80000 dist=soft layer=sliding load=decode 1 page=1     172.38      77.07   2.237x      40.02  
+batch=1 ctx=80000 dist=soft layer=full load=decode 1 page=1     184.06      84.89   2.168x      44.18  
+batch=16 ctx=80000 dist=soft layer=sliding load=decode 16 page=1 spread=agentic     263.50     143.45   1.837x      76.72  
+batch=16 ctx=80000 dist=soft layer=full load=decode 16 page=1 spread=agentic     438.34     221.44   1.980x     137.46  
+batch=32 ctx=80000 dist=soft layer=sliding load=decode 32 page=1 spread=agentic     261.81     167.70   1.561x      84.51  
+batch=32 ctx=80000 dist=soft layer=full load=decode 32 page=1 spread=agentic     617.18     329.31   1.874x     208.10  
+batch=1 ctx=80000 dist=soft layer=sliding load=verify 1 page=1 q_len=8     264.86     120.39   2.200x      62.29  
+batch=1 ctx=80000 dist=soft layer=full load=verify 1 page=1 q_len=8     273.73     128.04   2.138x      66.44  
+batch=16 ctx=80000 dist=soft layer=sliding load=verify 16 page=1 q_len=8 spread=agentic     515.68     264.43   1.950x     126.61  
+batch=16 ctx=80000 dist=soft layer=full load=verify 16 page=1 q_len=8 spread=agentic     680.26     344.32   1.976x     188.68  
+batch=32 ctx=80000 dist=soft layer=sliding load=verify 32 page=1 q_len=8 spread=agentic     692.75     339.04   2.043x     143.81  
+batch=32 ctx=80000 dist=soft layer=full load=verify 32 page=1 q_len=8 spread=agentic    1064.18     501.82   2.121x     267.18  
+
+profile 0: batch=1 ctx=80000 dist=soft layer=sliding load=decode 1 page=1
+kernel                                                           GPU time  share  calls
+void (anonymous namespace)::moe1::sk_8_3_0::moe_fused_ker...      25.7 µs  32.4%      1
+void (anonymous namespace)::cgemv_kernel<512, 1>(unsigned...      14.0 µs  17.7%      1
+void (anonymous namespace)::cgemv40_kernel<256, 2>(unsign...       9.1 µs  11.4%      1
+void (anonymous namespace)::router_kernel<1>(float const*...       5.3 µs   6.7%      1
+void (anonymous namespace)::cgemv_kernel<64, 1>(unsigned ...       5.3 µs   6.7%      1
+void (anonymous namespace)::one::attn_one_kernel<1, 13>((...       5.2 µs   6.5%      1
+(anonymous namespace)::bnd::attn_boundary_kernel(float co...       3.9 µs   4.9%      1
+void (anonymous namespace)::cgemv40_kernel<128, 2>(unsign...       3.5 µs   4.4%      1
+(anonymous namespace)::bnd::boundary_kernel(float const*,...       3.1 µs   3.9%      1
+void sglang::muse_spark::routing_kernel<sglang::muse_spar...       2.8 µs   3.5%      1
+void (anonymous namespace)::pre_norm_kernel<__nv_bfloat16...       1.4 µs   1.8%      1
+total                                                             79.3 µs
+
+profile 1: batch=1 ctx=80000 dist=soft layer=full load=decode 1 page=1
+kernel                                                           GPU time  share  calls
+void (anonymous namespace)::moe1::sk_8_3_0::moe_fused_ker...      32.3 µs  33.8%      1
+void (anonymous namespace)::cgemv_kernel<512, 1>(unsigned...      15.1 µs  15.8%      1
+void (anonymous namespace)::one::attn_one_kernel<1, 11>((...      13.0 µs  13.6%      1
+void (anonymous namespace)::cgemv40_kernel<256, 2>(unsign...       9.4 µs   9.9%      1
+void (anonymous namespace)::cgemv_kernel<64, 1>(unsigned ...       5.4 µs   5.7%      1
+void (anonymous namespace)::router_kernel<1>(float const*...       5.1 µs   5.3%      1
+(anonymous namespace)::bnd::attn_boundary_kernel(float co...       3.8 µs   4.0%      1
+void (anonymous namespace)::cgemv40_kernel<128, 2>(unsign...       3.6 µs   3.8%      1
+(anonymous namespace)::bnd::boundary_kernel(float const*,...       3.6 µs   3.7%      1
+void sglang::muse_spark::routing_kernel<sglang::muse_spar...       2.8 µs   2.9%      1
+void (anonymous namespace)::pre_norm_kernel<__nv_bfloat16...       1.4 µs   1.4%      1
+total                                                             95.5 µs
+
+profile 2: batch=16 ctx=80000 dist=soft layer=sliding load=decode 16 page=1 spread=agentic
+kernel                                                           GPU time  share  calls
+void (anonymous namespace)::moe1::sk_8_3_0::moe_fused_ker...      61.8 µs  45.0%      1
+void (anonymous namespace)::sk_kernel<1, 16, 2, 2, 2, 2, ...      23.0 µs  16.8%      2
+void (anonymous namespace)::sk_kernel<1, 16, 2, 2, 2, 4, ...      19.9 µs  14.5%      1
+void (anonymous namespace)::sk_kernel<1, 16, 3, 1, 4, 2, ...      10.5 µs   7.7%      1
+void (anonymous namespace)::one::attn_one_kernel<1, 1>((a...       9.4 µs   6.9%      1
+void sglang::muse_spark_norm_residual_kernel<8192l, 256, ...       4.4 µs   3.2%      1
+void sglang::muse_spark_norm_residual_kernel<8192l, 256, ...       3.8 µs   2.8%      1
+void sglang::muse_spark::routing_kernel<sglang::muse_spar...       2.8 µs   2.0%      1
+void (anonymous namespace)::pre_norm_kernel<__nv_bfloat16...       1.5 µs   1.1%      1
+total                                                            137.1 µs
+
+profile 3: batch=16 ctx=80000 dist=soft layer=full load=decode 16 page=1 spread=agentic
+kernel                                                           GPU time  share  calls
+void (anonymous namespace)::one::attn_one_kernel<1, 49>((...      89.3 µs  36.9%      1
+void (anonymous namespace)::moe1::sk_8_3_0::moe_fused_ker...      82.0 µs  33.9%      1
+void (anonymous namespace)::sk_kernel<1, 16, 2, 2, 2, 2, ...      28.2 µs  11.7%      2
+void (anonymous namespace)::sk_kernel<1, 16, 2, 2, 2, 4, ...      19.5 µs   8.1%      1
+void (anonymous namespace)::sk_kernel<1, 16, 3, 1, 4, 2, ...      10.5 µs   4.3%      1
+void sglang::muse_spark_norm_residual_kernel<8192l, 256, ...       4.3 µs   1.8%      1
+void sglang::muse_spark_norm_residual_kernel<8192l, 256, ...       3.5 µs   1.5%      1
+void sglang::muse_spark::routing_kernel<sglang::muse_spar...       2.8 µs   1.2%      1
+void (anonymous namespace)::pre_norm_kernel<__nv_bfloat16...       1.8 µs   0.7%      1
+total                                                            241.9 µs
+GPU busy (kernels overlap: PDL or streams)                       234.4 µs
+an overlapping kernel's time includes any wait for the one before it, so the rows add up to more
+
+profile 4: batch=32 ctx=80000 dist=soft layer=sliding load=decode 32 page=1 spread=agentic
+kernel                                                           GPU time  share  calls
+void (anonymous namespace)::moe1::moe_main_kernel<51>((an...      79.8 µs  49.4%      1
+void (anonymous namespace)::sk_kernel<2, 32, 2, 2, 2, 2, ...      23.8 µs  14.7%      2
+void (anonymous namespace)::sk_kernel<2, 32, 2, 2, 2, 4, ...      22.9 µs  14.2%      1
+void (anonymous namespace)::sk_kernel<2, 32, 3, 1, 4, 2, ...      11.5 µs   7.1%      1
+void (anonymous namespace)::one::attn_one_kernel<1, 1>((a...      11.4 µs   7.1%      1
+void (anonymous namespace)::route_kernel<__nv_bfloat16, f...       4.3 µs   2.7%      1
+void sglang::muse_spark_norm_residual_kernel<8192l, 256, ...       4.1 µs   2.5%      1
+void sglang::muse_spark_norm_residual_kernel<8192l, 256, ...       3.8 µs   2.4%      1
+total                                                            161.6 µs
+
+profile 5: batch=32 ctx=80000 dist=soft layer=full load=decode 32 page=1 spread=agentic
+kernel                                                           GPU time  share  calls
+void (anonymous namespace)::one::attn_one_kernel<1, 49>((...     168.2 µs  51.7%      1
+void (anonymous namespace)::moe1::moe_main_kernel<51>((an...      84.2 µs  25.9%      1
+void (anonymous namespace)::sk_kernel<2, 32, 2, 2, 2, 2, ...      27.6 µs   8.5%      2
+void (anonymous namespace)::sk_kernel<2, 32, 2, 2, 2, 4, ...      21.4 µs   6.6%      1
+void (anonymous namespace)::sk_kernel<2, 32, 3, 1, 4, 2, ...      11.6 µs   3.6%      1
+void (anonymous namespace)::route_kernel<__nv_bfloat16, f...       4.6 µs   1.4%      1
+void sglang::muse_spark_norm_residual_kernel<8192l, 256, ...       4.1 µs   1.2%      1
+void sglang::muse_spark_norm_residual_kernel<8192l, 256, ...       3.8 µs   1.2%      1
+total                                                            325.4 µs
+GPU busy (kernels overlap: PDL or streams)                       317.9 µs
+an overlapping kernel's time includes any wait for the one before it, so the rows add up to more
+
+profile 6: batch=1 ctx=80000 dist=soft layer=sliding load=verify 1 page=1 q_len=8
+kernel                                                           GPU time  share  calls
+void (anonymous namespace)::moe1::sk_8_3_0::moe_fused_ker...      74.2 µs  54.4%      1
+void (anonymous namespace)::sk_kernel<1, 8, 1, 2, 2, 4, 3...      19.9 µs  14.6%      1
+void (anonymous namespace)::sk_kernel<1, 8, 3, 1, 4, 4, 4...      10.4 µs   7.6%      1
+void (anonymous namespace)::sk_kernel<1, 8, 4, 1, 4, 1, 4...       7.6 µs   5.6%      1
+void (anonymous namespace)::one::attn_one_kernel<8, 15>((...       6.9 µs   5.1%      1
+void (anonymous namespace)::sk_kernel<1, 8, 1, 1, 8, 2, 4...       4.7 µs   3.5%      1
+void (anonymous namespace)::route_kernel<__nv_bfloat16, f...       4.6 µs   3.4%      1
+(anonymous namespace)::bnd::boundary_kernel(float const*,...       4.1 µs   3.0%      1
+(anonymous namespace)::bnd::attn_boundary_kernel(float co...       3.9 µs   2.8%      1
+total                                                            136.5 µs
+
+profile 7: batch=1 ctx=80000 dist=soft layer=full load=verify 1 page=1 q_len=8
+kernel                                                           GPU time  share  calls
+void (anonymous namespace)::moe1::sk_8_3_0::moe_fused_ker...      46.8 µs  39.9%      1
+void (anonymous namespace)::sk_kernel<1, 8, 1, 2, 2, 4, 3...      20.6 µs  17.6%      1
+void (anonymous namespace)::one::attn_one_kernel<8, 11>((...      15.4 µs  13.1%      1
+void (anonymous namespace)::sk_kernel<1, 8, 3, 1, 4, 4, 4...      10.3 µs   8.8%      1
+void (anonymous namespace)::sk_kernel<1, 8, 4, 1, 4, 1, 4...       7.3 µs   6.3%      1
+void (anonymous namespace)::route_kernel<__nv_bfloat16, f...       4.7 µs   4.0%      1
+void (anonymous namespace)::sk_kernel<1, 8, 1, 1, 8, 2, 4...       4.5 µs   3.9%      1
+(anonymous namespace)::bnd::attn_boundary_kernel(float co...       3.9 µs   3.3%      1
+(anonymous namespace)::bnd::boundary_kernel(float const*,...       3.6 µs   3.1%      1
+total                                                            117.1 µs
+
+profile 8: batch=16 ctx=80000 dist=soft layer=sliding load=verify 16 page=1 q_len=8 spread=agentic
+kernel                                                           GPU time  share  calls
+void (anonymous namespace)::moe1::moe_main_kernel<51>((an...     183.3 µs  65.2%      1
+nvjet_sm90_tst_128x64_64x8_1x2_h_bz_TNT                           30.1 µs  10.7%      2
+nvjet_sm90_tss_96x64_64x10_4x2_h_bz_TNN                           26.5 µs   9.4%      1
+void (anonymous namespace)::wd_kernel<1, 128, 3, 1, false...      15.0 µs   5.3%      1
+void (anonymous namespace)::one::attn_one_kernel<8, 3>((a...      11.9 µs   4.2%      1
+void sglang::muse_spark_norm_residual_kernel<8192l, 256, ...       4.9 µs   1.7%      1
+void sglang::muse_spark_norm_residual_kernel<8192l, 256, ...       4.8 µs   1.7%      1
+void (anonymous namespace)::route_kernel<float, true>(flo...       4.8 µs   1.7%      1
+total                                                            281.3 µs
+
+profile 9: batch=16 ctx=80000 dist=soft layer=full load=verify 16 page=1 q_len=8 spread=agentic
+kernel                                                           GPU time  share  calls
+void (anonymous namespace)::moe1::moe_main_kernel<51>((an...     180.5 µs  48.7%      1
+void (anonymous namespace)::one::attn_one_kernel<8, 51>((...     104.6 µs  28.2%      1
+nvjet_sm90_tst_128x64_64x8_1x2_h_bz_TNT                           29.9 µs   8.1%      2
+nvjet_sm90_tss_96x64_64x10_4x2_h_bz_TNN                           25.8 µs   7.0%      1
+void (anonymous namespace)::wd_kernel<1, 128, 3, 1, false...      15.6 µs   4.2%      1
+void (anonymous namespace)::route_kernel<float, true>(flo...       4.9 µs   1.3%      1
+void sglang::muse_spark_norm_residual_kernel<8192l, 256, ...       4.7 µs   1.3%      1
+void sglang::muse_spark_norm_residual_kernel<8192l, 256, ...       4.6 µs   1.2%      1
+total                                                            370.6 µs
+
+profile 10: batch=32 ctx=80000 dist=soft layer=sliding load=verify 32 page=1 q_len=8 spread=agentic
+kernel                                                           GPU time  share  calls
+void (anonymous namespace)::moe1::moe_main_kernel<51>((an...     241.9 µs  65.1%      1
+nvjet_sm90_tst_128x128_64x6_2x1_v_bz_TNT                          36.3 µs   9.8%      2
+nvjet_sm90_tss_80x128_64x8_4x2_h_bz_TNN                           33.0 µs   8.9%      1
+nvjet_sm90_tst_96x64_64x10_2x4_h_bz_TNN                           23.2 µs   6.3%      1
+void (anonymous namespace)::one::attn_one_kernel<8, 3>((a...      16.1 µs   4.3%      1
+void (anonymous namespace)::bnd::attn_boundary_geo_kernel...       7.9 µs   2.1%      1
+void sglang::muse_spark_norm_residual_kernel<8192l, 512, ...       7.3 µs   2.0%      1
+void (anonymous namespace)::route_kernel<float, true>(flo...       5.7 µs   1.5%      1
+total                                                            371.3 µs
+
+profile 11: batch=32 ctx=80000 dist=soft layer=full load=verify 32 page=1 q_len=8 spread=agentic
+kernel                                                           GPU time  share  calls
+void (anonymous namespace)::moe1::moe_main_kernel<51>((an...     204.8 µs  40.7%      1
+void (anonymous namespace)::one::attn_one_kernel<8, 51>((...     186.4 µs  37.0%      1
+nvjet_sm90_tst_128x128_64x6_2x1_v_bz_TNT                          35.8 µs   7.1%      2
+nvjet_sm90_tss_80x128_64x8_4x2_h_bz_TNN                           32.5 µs   6.5%      1
+nvjet_sm90_tst_96x64_64x10_2x4_h_bz_TNN                           22.3 µs   4.4%      1
+void sglang::muse_spark_norm_residual_kernel<8192l, 512, ...       9.1 µs   1.8%      1
+void (anonymous namespace)::bnd::attn_boundary_geo_kernel...       7.2 µs   1.4%      1
+void (anonymous namespace)::route_kernel<float, true>(flo...       5.2 µs   1.0%      1
+total                                                            503.3 µs

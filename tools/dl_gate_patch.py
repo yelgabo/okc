@@ -16,6 +16,8 @@ attention -> o -> boundary and boundary -> front chains and the whole step at T 
 (sliding and full), the stop rule on the whole step at 8 tokens sliding, and a
 fence.proxy.async.global after griddepcontrol.wait in the thread that issues the x copies
 (docs/steering/2026-10-30-m1-ptx-ordering.md).
+
+Always, too: W4 GEMM2's no-work early exit executes griddepcontrol.wait before returning.
 """
 import sys
 
@@ -143,12 +145,16 @@ def _gate_verdict(cand, ctrl):
             classes)
 
 
-def _gate_negctl(obs, refs, i, j, ctrl, seed):
-    """Negative controls of the comparator (diagnostic, report-only): obs is a real fresh
-    output for bank entry i (rows x cols); each injection replaces part of it with entry j's
-    reference, as a read of a previous generation would, and is judged by the per-call
-    criteria against the measured control envelope. 'none' injects nothing (false rejection).
-    Returns (text, misses): kinds that should be rejected but pass, or 'none' rejected."""
+def _gate_negctl(obs, refs, i, j, ctrl, seed, elem_floor=None):
+    """Negative controls of the comparator: obs is a real fresh output for bank entry i
+    (rows x cols); each injection replaces part of it with entry j's reference, as a read of a
+    previous generation would, and is judged by the per-call criteria against the measured
+    control envelope. 'none' injects nothing (false rejection). With elem_floor, the single
+    element is drawn among those where entries i and j differ by at least elem_floor of the
+    row maximum: a stale element equal to the fresh one is harmless and no comparator sees it,
+    and drawing among all elements misses with a few percent chance per output, which an
+    enforced gate cannot afford. Returns (text, misses): kinds that should be rejected but
+    pass, or 'none' rejected."""
     r, norm, rmax = refs
     dev = obs.device
     gen = torch.Generator(device=dev).manual_seed(seed)
@@ -166,7 +172,14 @@ def _gate_negctl(obs, refs, i, j, ctrl, seed):
         elif kind == "row":
             o[rows // 2] = stale[rows // 2]
         elif kind == "elem":
-            e = int(torch.randint(0, flat.numel(), (1,), generator=gen, device=dev))
+            if elem_floor is None:
+                e = int(torch.randint(0, flat.numel(), (1,), generator=gen, device=dev))
+            else:
+                far = ((stale.float() - r[i]).abs() >= elem_floor * rmax[i]).reshape(-1)
+                cand = far.nonzero().flatten()
+                pick = torch.randint(0, max(int(cand.numel()), 1), (1,), generator=gen,
+                                     device=dev)
+                e = int(cand[pick]) if cand.numel() else 0
             flat[e] = sflat[e]
         elif kind != "none":
             m = max(1, int((0.01 if kind == "1%" else 0.001) * flat.numel()))
@@ -440,7 +453,12 @@ PDL_SRC = '''def _moe1_pdl_self_test(state):
 
 '''
 
-M1_SRC = '''def _m1_fresh(state, data, policy, bank, refs, replays):
+M1_SRC = '''# The single-element negative control in the M1 gate is drawn among elements where the stale
+# and fresh references differ by at least this fraction of the row maximum (_gate_negctl).
+M1_NEG_ELEM = 0.125
+
+
+def _m1_fresh(state, data, policy, bank, refs, replays):
     """kernel_fn under `policy`, captured with a device counter that copies the next of the
     bank's (stream, attn_input) pairs into the captured inputs before each replay; each
     replay's hidden and stream outputs and ids are compared on the device with that pair's
@@ -477,8 +495,11 @@ def _m1_stress(state):
     (stream, attn_input) pairs, each run eagerly with M1 off as its reference; then M1 off (the
     control) and M1 on (o and front) captured and replayed M1_STRESS_REPLAYS times each, every
     replay on the next pair and checked on the device. _gate_verdict decides (order-1 errors,
-    ids, and the candidate inside the control's envelope). Returns per-shape lines with both
-    envelopes; raises on a failure."""
+    ids, and the candidate inside the control's envelope). Then the negative controls on an
+    eager M1-on output of pair 0, hidden and stream, judged against that output's control
+    envelope: every injection must be rejected and the uninjected output must pass, or the
+    comparator has not shown it can see a stale read at this shape and M1 stays off. Returns
+    per-shape lines with both envelopes; raises on a failure."""
     lines = []
     saved = dict(state.get("m1_policy", {}))
     on = {b: "o+front" for b in M1_BUCKETS}
@@ -504,10 +525,30 @@ def _m1_stress(state):
             refs = [_gate_refs(hs), _gate_refs(ss), torch.stack(ids)]
             ctrl = _m1_fresh(state, data, {}, (bank_s, bank_a), refs, M1_STRESS_REPLAYS)
             cand = _m1_fresh(state, data, on, (bank_s, bank_a), refs, M1_STRESS_REPLAYS)
-            ok, text, _ = _gate_verdict(cand, ctrl)
-            lines.append(f"{batch}x{length}{layer[0]} {'ok' if ok else 'FAIL'} {text}")
+            ok, text, classes = _gate_verdict(cand, ctrl)
+            state["m1_policy"] = on
+            data["stream"].copy_(bank_s[0])
+            data["attn_input"].copy_(bank_a[0])
+            out = [t.clone() for t in kernel_fn(data, state)[:2]]
+            state["m1_policy"] = {}
+            negs = []
+            for k, name in enumerate(("hidden", "stream")):
+                one = _gate_acc(2, dev)
+                for c in ("rel", "el"):
+                    one[c].copy_(ctrl[c][k].expand(2))
+                one["cnt"].copy_(ctrl["cnt"])
+                neg, misses = _gate_negctl(out[k].reshape(out[k].shape[0], -1), refs[k], 0, 1,
+                                           one, 55 + 7 * k + batch * length, M1_NEG_ELEM)
+                negs.append(f"{name} {neg}")
+                if misses:
+                    ok = False
+                    classes = sorted(set(classes) | {"sensitivity"})
+                    text += f" FAIL negative controls {name} {misses}"
+            label = f"{batch}x{length}{layer[0]}"
+            state.setdefault("gate_negctl", {})[f"m1 {label}"] = "; ".join(negs)
+            lines.append(f"{label} {'ok' if ok else 'FAIL'} {text}")
             if not ok:
-                raise RuntimeError("M1 fresh-input gate: " + lines[-1])
+                raise RuntimeError(f"[{','.join(classes)}] M1 fresh-input gate: " + lines[-1])
     finally:
         state["m1_policy"] = saved
     return lines
@@ -748,6 +789,27 @@ ROUTE_REPS = [
 ]
 
 
+# W4 GEMM2 is a PDL secondary that waits only before reading GEMM1's output. A CTA with no work
+# (no local routes: about a third of 1-token calls) returned before that wait, so the kernel
+# could complete without its predecessor having completed, which the layer's PDL chain
+# assumes of every secondary (docs/review-pdl-secondaries-2026-10-30.md). Nothing is written
+# on that path, so the wait only restores the chain.
+W4_WAIT_OLD = """    int q = P ? blockIdx.x : blockIdx.y;
+    if (q >= total) {
+        return;
+    }
+"""
+W4_WAIT_NEW = """    int q = P ? blockIdx.x : blockIdx.y;
+    if (q >= total) {
+        if constexpr (KIND == 2) {
+            // Complete only after the predecessor has: later kernels rely on that chain.
+            asm volatile("griddepcontrol.wait;" ::: "memory");
+        }
+        return;
+    }
+"""
+
+
 def cut(text, start, end, new):
     a = text.index(start)
     b = text.index(end, a)
@@ -764,6 +826,9 @@ def main():
         if text.count(old) != 1:
             raise SystemExit(f"route-gate patch does not apply: {old[:60]!r}")
         text = text.replace(old, new)
+    if text.count(W4_WAIT_OLD) != 1:
+        raise SystemExit("the W4 GEMM early exit is not where expected")
+    text = text.replace(W4_WAIT_OLD, W4_WAIT_NEW)
     if text.count(SUMMARY_OLD) != 1:
         raise SystemExit("the SUMMARY moe pdl line is not where expected")
     text = text.replace(SUMMARY_OLD, SUMMARY_NEW)
