@@ -2171,3 +2171,7 @@ follows `cap0` rather than `ctrl`, the lag is a bench artifact of capture order 
 nulls `ctrl2 - ctrl` at d1 full are then capture-order bias, and the A0 ranking should be read
 from `ctrl2`); if it stays with `ctrl`, it belongs to the control's state and a production
 placement fix stays worth pursuing.
+
+| 2026-10-30 | 7144310358564fa3 (check) | 3d1d2d3 | bench `bench_d` (capture order, `--shapes b1 --inputs 6`) | 2.469x judged path, 16/16 tests, ABCHECKSUM 11/0; **no bench data** | generator bug: `_AB_CAP` never defined (a scripted edit did not apply), every ABBENCH row NameError. Caught afterwards by `pyflakes` on the generated file, which now runs before every bench check. Profiles `bench_d.7144310358564fa3.*` |
+
+Repeat as `bench_d2` (seed 20261034, generator fixed, pyflakes clean).

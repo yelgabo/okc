@@ -361,6 +361,8 @@ def _ab_order(names, r):
 
 # (tag, kind) -> {arm: [samples pooled over inputs]}; kind is "cold" or "warm".
 _AB_POOL = {}
+# itag -> the arm whose cold graph was captured first.
+_AB_CAP = {}
 
 
 def _ab_bench(warm_calls=16, warm_reps=25):
@@ -403,7 +405,7 @@ def _ab_bench(warm_calls=16, warm_reps=25):
                 for n in names:
                     cold_pool[n] += samples[n]
                 row = " ".join(f"{n}={_ab_med(samples[n]):.2f}" for n in names)
-                print(f"ABCOLD {itag} {row} {_ob_elapsed()}", flush=True)
+                print(f"ABCOLD {itag} {row} cap0={_AB_CAP[itag]} {_ob_elapsed()}", flush=True)
                 warm = {n: _ab_graph(fns[n], data, warm_calls) for n in names}
                 ws = {n: [] for n in names}
                 for r in range(warm_reps):
