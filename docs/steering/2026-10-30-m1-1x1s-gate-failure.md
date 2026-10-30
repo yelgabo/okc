@@ -250,3 +250,15 @@ M1 launch"; the bounds stay as approved; a failed census judges the shape. Imple
 `muse_decode_layer/cand/layer_m1rt51c.py` is layer_m1rt51 with only this change. The
 reproduction (item 1 of section 3) still runs first: it checks the census claim at 1x1 on the
 GPU and looks for stale reads at 1x8, where the gate still judges.
+
+## Addendum (2026-10-30, later): stable picks, fourth after the reset
+
+At the coordinator's request (the researcher's 23:35 review), design 1 of
+docs/plan-2026-10-30-tuner-stability.md is built on the release as
+`muse_decode_layer/cand/layer_stable.py` (`tools/dl_stable_tuner_patch.py`, offline test
+`tools/dl_stable_pick_test.py`). Its A/A four-arm bench,
+`/private/tmp/claude-501/-Users-gretchengabo-GitHub/4e9778d1-55dc-4e88-9d29-4844bd573620/scratchpad/m1repro/bench8_stable_aa.py`
+(864,067 bytes; inc and cand both layer_stable, sent as 11420923... and c3756428...), runs after
+the three checks above. Reading and stop rule: the plan's "Cheapest decisive test". The
+preferences are the release's receipt picks (MoE 47 at 32 / 128 / 256), so a candidate with
+mode 51 needs its own preference table before it takes these tuners.
