@@ -232,7 +232,16 @@ __device__ __forceinline__ bool mbar_test(uint32_t bar, uint32_t parity) {
     return ok != 0;
 }
 
+// OKC_WAIT_SLEEP 0 drops the suspend-time hint from every producer and escape-warp wait (bench
+// builds only; the judged builds use 1).
+#ifndef OKC_WAIT_SLEEP
+#define OKC_WAIT_SLEEP 1
+#endif
+
 __device__ __forceinline__ bool mbar_test_sleep(uint32_t bar, uint32_t parity) {
+#if OKC_WAIT_SLEEP == 0
+    return mbar_test(bar, parity);
+#endif
     uint32_t ok;
     asm volatile("{\n.reg .pred p;\nmbarrier.try_wait.parity.shared::cta.b64 p, [%1], %2, %3;\nselp.u32 %0, 1, 0, p;\n}"
                  : "=r"(ok) : "r"(bar), "r"(parity), "r"(SUSPEND_HINT) : "memory");
@@ -1771,12 +1780,16 @@ WD_GEOM = {
 WD_POL = {nm for nm in WD_GEOM if nm.endswith("h")}
 # name -> VAR bits of the kernel (WV_* in _WD_SRC), 0 when absent. WV_PACK configs take the
 # packed router weights (router_pack()).
-WV_NOPROD, WV_PACK, WV_PROMO64, WV_PUSH, WV_EARLY = 1, 2, 4, 8, 32
-# The router geometries with every difference against the independent reference's kernel that
-# keeps our barriers (no producer warp, packed hi/lo box, 64 B promotion, push reduction, early
-# prologue); round-2 candidates, attributed one bit at a time by tools/proj_make_bench_r2.py.
-WD_GEOM.update({"r64c8s8x": WD_GEOM["r64c8s8"], "r128c8s6x": WD_GEOM["r128c8s6"], "r64c4s8x": WD_GEOM["r64c4s8"]})
-WD_VAR = {nm: WV_NOPROD | WV_PACK | WV_PROMO64 | WV_PUSH | WV_EARLY for nm in ("r64c8s8x", "r128c8s6x", "r64c4s8x")}
+WV_NOPROD, WV_PACK, WV_PROMO64, WV_PUSH, WV_EARLY, WV_NOSLEEP, WV_NOEMPTY = 1, 2, 4, 8, 32, 256, 512
+# Packed hi/lo box, 64 B promotion, push reduction and early prologue on the two router picks
+# (bench a91f2152d8974458, paired against the pick: -0.77 us at m = 128, -0.90 at 256, of which
+# the push reduction alone is -0.46 / -0.48; dropping the producer warp lost +1.74 / +1.25).
+# The w twins also drop the producer's suspend-time hint.
+_WD_KLUE = WV_PACK | WV_PROMO64 | WV_PUSH | WV_EARLY
+WD_GEOM.update({"r64c8s8k": WD_GEOM["r64c8s8"], "r128c8s6k": WD_GEOM["r128c8s6"],
+                "r64c8s8w": WD_GEOM["r64c8s8"], "r128c8s6w": WD_GEOM["r128c8s6"]})
+WD_VAR = {"r64c8s8k": _WD_KLUE, "r128c8s6k": _WD_KLUE,
+          "r64c8s8w": _WD_KLUE | WV_NOSLEEP, "r128c8s6w": _WD_KLUE | WV_NOSLEEP}
 # Diagnostic builds timed in prepare(), never dispatched: ABL bit 1 skips the wgmma (memory
 # pipeline alone), bit 2 skips the cluster reduction and the stores.
 WD_ABLATE = {("pooler", 128): "m128k2r4", ("o", 256): "m256k1r4"}
@@ -2416,6 +2429,11 @@ constexpr int WV_SPIN = 16;      // full-barrier waits without the clock64 watch
 constexpr int WV_EARLY = 32;     // the init thread issues the prologue loads before the CTA barrier
 constexpr int WV_DUP = 64;       // no effect: a separately compiled copy, for an independent null
 constexpr int WV_TAILSYNC = 128; // with PUSH: keep a cluster barrier before exit
+constexpr int WV_NOSLEEP = 256;  // producer empty-barrier waits without the suspend-time hint
+// Bench diagnostic only, never dispatched by prepare(): with NOPROD, thread 0 refills a stage
+// right after its own wgmma.wait_group, without the empty barrier (the reference's order). It
+// drops a barrier, so it may not ship without a PTX memory-model argument and review.
+constexpr int WV_NOEMPTY = 512;
 
 template <int WG, int BN, int CLK, int CLR, bool HL, int NST, int VAR = 0>
 struct WdCfg {
@@ -2589,7 +2607,7 @@ wd_kernel(const __grid_constant__ CUtensorMap wmap, const __grid_constant__ CUte
             const uint64_t xpol = POL ? l2_evict_last() : 0;
             for (int i = (EARLY && CLR == 1) ? npro : 0; i < ktl; ++i) {
                 if (i >= NST) {
-                    mbar_wait<true>(empty0 + 8 * (i % NST), ((i / NST) - 1) & 1, dead, diag, 1);
+                    mbar_wait<(VAR & WV_NOSLEEP) == 0>(empty0 + 8 * (i % NST), ((i / NST) - 1) & 1, dead, diag, 1);
                 }
                 issue(i, wpol, xpol);
             }
@@ -2637,7 +2655,9 @@ wd_kernel(const __grid_constant__ CUtensorMap wmap, const __grid_constant__ CUte
                 // released it on its empty barrier, as with the producer warp.
                 const int j = i - 1 + NST;
                 if (tid == pt && i > 0 && j < ktl) {
-                    mbar_wait<false>(empty0 + 8 * (j % NST), ((j / NST) - 1) & 1, dead, diag, 1);
+                    if constexpr ((VAR & WV_NOEMPTY) == 0) {
+                        mbar_wait<false>(empty0 + 8 * (j % NST), ((j / NST) - 1) & 1, dead, diag, 1);
+                    }
                     issue(j, POL ? l2_evict_first() : 0, POL ? l2_evict_last() : 0);
                 }
             }
@@ -2887,7 +2907,11 @@ def wd_source():
 # name -> (S cluster ranks, WK warps per CTA, P owner ranks, keep an exit cluster barrier).
 # --------------------------------------------------------------------------------------------
 RT_GEOM = {
+    # bench a91f2152d8974458, paired against the sk router picks: rt8w8 -1.39 us at m = 8, rt16w8
+    # -0.83 at 16, rt16w8p8 -0.54 at 32 (null 0.02-0.08); the tuner picks per bucket.
+    "rt8w8": (8, 8, 4, False),
     "rt16w8": (16, 8, 4, False),
+    "rt16w8p8": (16, 8, 8, False),
 }
 RT_MT = (1, 2, 4)
 RT_NAMES = list(RT_GEOM)
@@ -3608,7 +3632,7 @@ def prepare(weights):
             for nm in WD_GEOM:
                 wg, bn, clk, clr, hl, nst = WD_GEOM[nm]
                 bn_ok = bn in WD_BN[b] or (is_router and b == 256 and bn == 64)
-                if hl != is_router or not bn_ok or not wd_fits(nm, n, k):
+                if hl != is_router or not bn_ok or not wd_fits(nm, n, k) or WD_VAR.get(nm, 0) & WV_NOEMPTY:
                     continue
                 wn = state["router_pack"] if WD_VAR.get(nm, 0) & WV_PACK else wk
                 fn = _wd_runner(ext, nm, wn, n, k, torch.float32 if is_router else torch.bfloat16, diag)

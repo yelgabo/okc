@@ -36,29 +36,38 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 
-N, K, L, U, S, E, D, T = 1, 2, 4, 8, 16, 32, 64, 128
-# ALL is every difference that keeps our barriers and watchdog; S is tested alone and on ALL.
-ALL = N | K | L | U | E
-SINGLES = (N, K, L, U, S, E)
-LOO = (N, K, L, U, E)
+N, K, L, U, S, E, D, T, W, B = 1, 2, 4, 8, 16, 32, 64, 128, 256, 512
+BITS = (N, K, L, U, S, E, D, T, W, B)
+TAGS = "NKLUSEDTWB"
+# Round a (a91f2152d8974458, this file at 113d513): single bits, ALL = N|K|L|U|E, leave-one-out.
+# Round b (this table): around KLUE (the a winner), with W (producer waits without the
+# suspend-time hint) and the check-only B diagnostic (no-producer refill without the empty
+# barrier, the reference's order; WV_NOEMPTY, never dispatched by prepare()).
+KLUE = K | L | U | E
+ROUND = "b"
+WD_SETS = {
+    "r64c8s8": [0, KLUE, KLUE | D, KLUE | W, KLUE | W | D, W, U, U | W, U | K, U | L, U | E,
+                KLUE & ~K, KLUE & ~L, KLUE & ~E, N | KLUE, N | B | KLUE, N | B | U],
+    "r128c8s6": [0, KLUE, KLUE | D, KLUE | W, KLUE | W | D, W, U, U | W, U | K, U | L, U | E,
+                 KLUE & ~K, KLUE & ~L, KLUE & ~E, N | KLUE, N | B | KLUE, N | B | U],
+    "r64c4s8": [0, KLUE, KLUE | W, KLUE | W | D, N | B | KLUE],
+}
 WD_BASES = {128: ("r64c8s8",), 256: ("r128c8s6", "r64c4s8")}
-RT_BENCH = {"rt16w8": (16, 8, 4, False), "rt16w8t": (16, 8, 4, True), "rt8w8": (8, 8, 4, False),
-            "rt16w4": (16, 4, 4, False), "rt16w8p8": (16, 8, 8, False), "rt8w16": (8, 16, 4, False)}
-
-
-def var_sets():
-    sets = [0, D] + list(SINGLES) + [ALL, ALL | D, ALL | S] + [ALL & ~b for b in LOO] + [ALL | T]
-    return list(dict.fromkeys(sets))
+RT_BENCH = {"rt8w8": (8, 8, 4, False), "rt8w8p8": (8, 8, 8, False), "rt8w16": (8, 16, 4, False),
+            "rt4w16": (4, 16, 4, False), "rt8w4": (8, 4, 4, False), "rt16w8": (16, 8, 4, False),
+            "rt16w8p8": (16, 8, 8, False), "rt16w4p8": (16, 4, 8, False)}
+# sk shapes for the no-hint extension (OKC_WAIT_SLEEP 0): (layer, m) -> sk config name.
+SK_DIAG = {("qkv_gate", 16): "qkv16", ("pooler", 8): "pool8", ("o", 32): "o32"}
 
 
 def var_tag(v):
     if v == 0:
         return "v0"
-    return "v" + "".join(c for b, c in zip((N, K, L, U, S, E, D, T), "NKLUSEDT") if v & b)
+    return "v" + "".join(c for b, c in zip(BITS, TAGS) if v & b)
 
 
 def bench_wd():
-    return {f"{base}_{var_tag(v)}": (base, v) for bases in WD_BASES.values() for base in bases for v in var_sets()}
+    return {f"{base}_{var_tag(v)}": (base, v) for base, sets in WD_SETS.items() for v in dict.fromkeys(sets)}
 
 
 BENCH = r'''
@@ -67,6 +76,8 @@ _R2_DONOR = @@DONOR@@
 _R2_WD = @@WD@@
 _R2_RT = @@RT@@
 _R2_BASES = @@BASES@@
+_R2_SKDIAG = @@SKDIAG@@
+_R2_ROUND = @@ROUND@@
 import os as _r2os
 import random as _r2random
 import math as _r2math
@@ -79,28 +90,30 @@ def _r2print(s):
     _R2_OUT.append(s)
 
 
-def _r2_build_bench():
-    """The bench extension: the router sk configs, the wd variants and the rt geometries only."""
+def _r2_build_bench(name, flags, wd, rt):
+    """A bench extension: the router and _R2_SKDIAG sk configs, the given wd variants and rt
+    geometries only."""
     g = globals()
     saved = {nm: g[nm] for nm in ("SK_CONFIGS", "SK_INDEX", "WD_GEOM", "WD_VAR", "WD_NAMES", "WD_INDEX",
                                   "WD_ABL", "RT_GEOM", "RT_NAMES")}
+    sk_keep = set(ROUTER_GEOM) | set(_R2_SKDIAG.values())
     try:
-        g["SK_CONFIGS"] = [c for c in saved["SK_CONFIGS"] if c[0] in ROUTER_GEOM]
+        g["SK_CONFIGS"] = [c for c in saved["SK_CONFIGS"] if c[0] in sk_keep]
         g["SK_INDEX"] = {c[0]: i for i, c in enumerate(g["SK_CONFIGS"])}
-        g["WD_GEOM"] = {nm: saved["WD_GEOM"][b] for nm, (b, v) in _R2_WD.items()}
-        g["WD_VAR"] = {nm: v for nm, (b, v) in _R2_WD.items()}
+        g["WD_GEOM"] = {nm: saved["WD_GEOM"][b] for nm, (b, v) in wd.items()}
+        g["WD_VAR"] = {nm: v for nm, (b, v) in wd.items()}
         g["WD_ABL"] = {}
-        g["WD_NAMES"] = list(_R2_WD)
-        g["WD_INDEX"] = {nm: i for i, nm in enumerate(_R2_WD)}
-        g["RT_GEOM"] = dict(_R2_RT)
-        g["RT_NAMES"] = list(_R2_RT)
+        g["WD_NAMES"] = list(wd)
+        g["WD_INDEX"] = {nm: i for i, nm in enumerate(wd)}
+        g["RT_GEOM"] = dict(rt)
+        g["RT_NAMES"] = list(rt)
         src = sk_source() + wd_source() + rt_source()
         idx = (dict(g["SK_INDEX"]), dict(g["WD_INDEX"]), list(g["RT_NAMES"]))
     finally:
         g.update(saved)
-    ext = load_inline(name="okc_r2_bench", cpp_sources="#include <torch/extension.h>\n" + _SK_CPP + _WD_CPP + _RT_CPP,
+    ext = load_inline(name=name, cpp_sources="#include <torch/extension.h>\n" + _SK_CPP + _WD_CPP + _RT_CPP,
                       cuda_sources=src, functions=["sk_fwd", "wd_fwd", "rt_fwd"],
-                      extra_cuda_cflags=["-O3", "-gencode=arch=compute_90a,code=sm_90a"], verbose=False,
+                      extra_cuda_cflags=["-O3", "-gencode=arch=compute_90a,code=sm_90a"] + flags, verbose=False,
                       no_implicit_headers=True)
     return ext, idx
 
@@ -248,7 +261,9 @@ def _r2_arms(m, st, dev, diag):
         sk = SK_USE[("router", 8 if m <= 8 else 16 if m <= 16 else 32)]
         arms[f"{sk}:prod"] = _r2_sk_run(prod, SK_INDEX[sk], wts["sk"][sk], 256, 8192, diag)
         arms[f"{sk}:v0"] = _r2_sk_run(bench, sk_idx[sk], wts["sk"][sk], 256, 8192, diag)
-        arms["rt16w8:prod"] = _r2_rt_run(prod, RT_NAMES.index("rt16w8"), wts["rt"], diag)
+        arms[f"{sk}:vW"] = _r2_sk_run(st["benchw"], st["idxw"][0][sk], wts["sk"][sk], 256, 8192, diag)
+        for nm in RT_NAMES:
+            arms[f"{nm}:prod"] = _r2_rt_run(prod, RT_NAMES.index(nm), wts["rt"], diag)
         for nm in rt_names:
             arms[f"{nm}:v0"] = _r2_rt_run(bench, rt_names.index(nm), wts["rt"], diag)
         if "rt" in st["donor"]:
@@ -257,12 +272,12 @@ def _r2_arms(m, st, dev, diag):
     return arms
 
 
-def _r2_state(router, prod, bench, idx, dev):
+def _r2_state(router, prod, bench, idx, benchw, idxw, dev):
     hi = router.to(torch.bfloat16)
     lo = (router - hi.float()).to(torch.bfloat16)
     rgeoms = {nm: _sk_geom(nm) for nm in ROUTER_GEOM}
     _, _, rstreams = pack_router(router, rgeoms)
-    return {"prod": prod, "bench": bench, "idx": idx,
+    return {"prod": prod, "bench": bench, "idx": idx, "benchw": benchw, "idxw": idxw,
             "wts": {"hilo": torch.cat([hi, lo], 0).contiguous(), "pack": router_pack(hi, lo),
                     "rt": rt_pack(hi, lo), "sk": rstreams},
             "sgl": {"router": router, "router_hi_t": hi.t().contiguous(), "router_lo_t": lo.t().contiguous()},
@@ -307,19 +322,75 @@ def _r2_check_all(arms, router, ms, gen, dev, label):
     return bad
 
 
+def _r2_skdiag(prod, bench, idx, benchw, idxw, gen, dev, diag, flush, ovh):
+    """sk on BF16 layers: production extension, bench copy (null) and the no-hint extension."""
+    for ti, ((layer, m), nm) in enumerate(_R2_SKDIAG.items()):
+        n, k = {"qkv_gate": (2304, 8192), "o": (8192, 1024), "pooler": (4096, 8192)}[layer]
+        w = (torch.randn((n, k), generator=gen, device=dev) / _r2math.sqrt(k)).to(torch.bfloat16)
+        geom = _sk_geom(nm)
+        packed = pack_layer(w, {nm: geom}, {nm: n}, balance=layer in BALANCED_LAYERS)
+        if packed is None:
+            _r2print(f"R2SK {layer} m={m}: pack rejected")
+            continue
+        tab, pmax = packed["tabs"][(geom["R"], n)]
+        stream, base4 = packed["streams"][nm], packed["base4"]
+
+        def mk(ext, cid):
+            def run(x):
+                out = torch.empty((x.shape[0], n), dtype=torch.bfloat16, device=x.device)
+                ext.sk_fwd(cid, stream, x, out, tab, pmax, base4, n, k, diag)
+                return out
+            return run
+        arms = {f"{nm}:prod": mk(prod, SK_INDEX[nm]), f"{nm}:v0": mk(bench, idx[0][nm]),
+                f"{nm}:vW": mk(benchw, idxw[0][nm]), "cublas": lambda x, w=w: _cublas(x, w)}
+        bad = []
+        for mm in (max(1, m // 2 + 1), m):
+            x, probes = _gen_x(mm, k, gen, dev)
+            ref = (x.double() @ w.double().T).to(torch.bfloat16).double()
+            for a in list(arms):
+                try:
+                    out = arms[a](x)
+                    torch.cuda.synchronize()
+                    ok, err, perr = _check(out, ref, probes, SELFTEST_TOL["bf16"])
+                    if not ok:
+                        bad.append(f"{a}@{mm}={err:.1e}/{perr:.1e}")
+                        arms.pop(a)
+                except Exception as exc:
+                    torch.cuda.synchronize()
+                    bad.append(f"{a}@{mm}=EXC:{str(exc)[-80:]}")
+                    arms.pop(a)
+        if bad:
+            _r2print(f"R2CHECK {layer} m={m} dropped: " + " ".join(bad))
+        xbuf, _ = _gen_x(m, k, gen, dev)
+        graphs = {a: _r2_graph(fn, xbuf)[0] for a, fn in arms.items()}
+        base = f"{nm}:prod"
+        if base not in graphs:
+            continue
+        smp = _r2_time(graphs, 100, flush, 3000 + ti)
+        med = {a: statistics.median(v) - ovh for a, v in smp.items()}
+        dl = {a: statistics.median([p - q for p, q in zip(v, smp[base])]) for a, v in smp.items()}
+        order = sorted(med, key=med.get)
+        _r2print(f"R2SK {layer} m={m} med " + " ".join(f"{a}={med[a]:.2f}" for a in order))
+        _r2print(f"R2SK {layer} m={m} d " + " ".join(f"{a}={dl[a]:+.2f}" for a in order if a != base))
+        torch.cuda.empty_cache()
+
+
 def _r2_run():
     dev = torch.device("cuda", torch.cuda.current_device())
     t0 = time.time()
     gen = torch.Generator(device=dev).manual_seed(4242)
     prod = _build_ext()
     t1 = time.time()
-    bench, idx = _r2_build_bench()
-    _r2print(f"R2BUILD prod {t1 - t0:.1f} s, bench {time.time() - t1:.1f} s, {len(_R2_WD)} wd arms")
+    bench, idx = _r2_build_bench("okc_r2_bench", [], _R2_WD, _R2_RT)
+    t2 = time.time()
+    benchw, idxw = _r2_build_bench("okc_r2_benchw", ["-DOKC_WAIT_SLEEP=0"], {}, {})
+    _r2print(f"R2BUILD prod {t1 - t0:.1f} s, bench {t2 - t1:.1f} s, benchw {time.time() - t2:.1f} s, "
+             f"{len(_R2_WD)} wd arms, round {_R2_ROUND}")
     diag = torch.zeros(4, dtype=torch.int32, device=dev)
     w_main = _r2_weights(dev, gen, False)
     w_out = _r2_weights(dev, gen, True)
-    st_main = _r2_state(w_main, prod, bench, idx, dev)
-    st_out = _r2_state(w_out, prod, bench, idx, dev)
+    st_main = _r2_state(w_main, prod, bench, idx, benchw, idxw, dev)
+    st_out = _r2_state(w_out, prod, bench, idx, benchw, idxw, dev)
     st_main["donor"] = _r2_donor(w_main)
     st_out["donor"] = _r2_donor(w_out)
     flush = torch.empty(FLUSH_BYTES // 4, dtype=torch.float32, device=dev)
@@ -372,6 +443,7 @@ def _r2_run():
         _r2print(f"R2 m={m} base {base} med " + " ".join(f"{nm}={med[nm]:.2f}" for nm in order))
         _r2print(f"R2 m={m} d " + " ".join(f"{nm}={dl[nm]:+.2f}" for nm in order if nm != base))
         torch.cuda.empty_cache()
+    _r2_skdiag(prod, bench, idx, benchw, idxw, gen, dev, diag, flush, ovh)
     _r2print(f"R2DONE {time.time() - t0:.1f} s")
     torch.cuda.synchronize()
     torch.cuda.empty_cache()
@@ -436,7 +508,8 @@ def main():
     sub = (ROOT / "muse_bf16_proj/submission.py").read_text()
     wd = bench_wd()
     bench = (BENCH.replace("@@DONOR@@", repr(donor)).replace("@@WD@@", repr(wd)).replace("@@RT@@", repr(RT_BENCH))
-             .replace("@@BASES@@", repr(WD_BASES)))
+             .replace("@@BASES@@", repr(WD_BASES)).replace("@@SKDIAG@@", repr(SK_DIAG))
+             .replace("@@ROUND@@", repr(ROUND)))
     if donor is not None:
         bench = bench.replace("\n\ndef _r2_run():", "\n\n" + donor["rt_pack"] + "\n\n\ndef _r2_run():", 1)
     out.write_text(sub + bench)
@@ -452,7 +525,8 @@ def main():
         mod.WD_NAMES = list(wd)
         mod.RT_GEOM = dict(RT_BENCH)
         mod.RT_NAMES = list(RT_BENCH)
-        mod.SK_CONFIGS = [c for c in mod.SK_CONFIGS if c[0] in mod.ROUTER_GEOM]
+        keep = set(mod.ROUTER_GEOM) | set(SK_DIAG.values())
+        mod.SK_CONFIGS = [c for c in mod.SK_CONFIGS if c[0] in keep]
         cu.write_text(mod.sk_source(device_only=True))
         print(f"wrote {cu}")
 
