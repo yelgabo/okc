@@ -1210,6 +1210,40 @@ precede the per-thread fence and arrive behind the sixth group in program order,
 wait a thread has issued the same releases as in 37 (weights up to the previous stage, x up to the
 one before), so the progress argument carries over unchanged.
 
+## Mode 47 gate, 2026-10-30
+
+Mode 47 is mode 37 with the weight codes loaded one 4-step group at a time and no next-stage
+hoist (section "Code groups with the next stage hoisted"; spills 4 / 88 B against 37's 156 /
+416 B). One check so far, on held-out layer seeds 7-12, as a diagnostic arm with no rule set in
+advance (304f17f3e8704992: 47 minus 37 -0.4 / -1.6 / -3.6 us at 32 / 128 / 256). This section
+sets the rule before the gate check is submitted.
+
+Gate run: one check of a bench file from `tools/moe_make_bench_ab.py --base=37
+--sizes=32,128,256 --routings=layer,std,skewed --seeds=13,14,15,16,17,18 --gate=1 o47=47`.
+Layer seeds 13-18 are held out from both earlier checks (1-6, 7-12); 47 has never run on the
+standalone or skewed routing, so all three are held out for it. 37 and 47 are timed in one
+process, interleaved per seed and reversed on every other seed. `--gate=1` drops the stamped and
+counter twins and the public kernel's stamped runs (only timing and outputs are needed), puts 47
+in MAIN_CANDIDATES so prepare's FP32 self-test covers it at 32, 33, 128 and 257 tokens on normal
+and skewed routing, and prints 47's output against 37 on every seed.
+
+Keep 47 only if all of these hold in that check:
+
+1. At 256 tokens, 47 minus 37 has a mean of -1.5 us or lower on each of the three routings
+   (layer, standalone, skewed), with at least 5 of 6 seeds lower on layer and on standalone
+   routing.
+2. At 32 and at 128 tokens, 47 minus 37 has a mean of +0.5 us or lower on every routing.
+3. 47's output is within 1e-4 relative L2 of 37's on every seed, size and routing.
+4. Prepare's FP32 self-test passes for 47 (no FAIL line, spin flags 0).
+5. Compile gate, confirmed again on the commit that is checked: production SASS (modes 0, 16, 26,
+   28, 37 and the skinny kernels) unchanged, no C7510-C7515 warning, no local loads or stores
+   inside 47's stage loops.
+
+If any condition fails, 47 goes to docs/ruled-out.md scoped to this design (code groups without
+the hoist, on 37's components) and is not shipped. If all pass: 47 joins MAIN_MODES and
+MAIN_CANDIDATES, the shippable file is judged with one check (GATE prints 47 minus 37), and the
+file goes to the coordinator for a scored run. Budget: at most 3 MoE checks for the whole line.
+
 ## Staged pair on current components, 2026-10-29
 
 The staged two-launch MoE (mode 19, phase A alone on owned units, then mode 21, phase B and the
