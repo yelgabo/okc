@@ -1,0 +1,168 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="dark">
+<title>Diagram-1 | The Incumbent MoE — Animated Tutorial</title>
+<style>
+:root{--bg:#11100f;--surface:#1d1a18;--panel:#26211e;--border:#514137;--text:#eee7e0;--muted:#aba093;--orange:#f1985b;--blue:#84afe0;--green:#77cba6;--gold:#f1c392}
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:radial-gradient(ellipse 1000px 450px at 50% -150px,#39271d 0,transparent 85%),var(--bg);color:var(--text);font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;line-height:1.55}
+.page{max-width:1320px;padding:32px 24px 70px;margin:auto}.eyebrow{color:var(--orange);letter-spacing:.12em;font-size:12px;font-weight:800;text-transform:uppercase}.heading{font-size:clamp(29px,4vw,48px);line-height:1.1;letter-spacing:-.035em;margin:10px 0 14px;font-weight:800}.intro{font-size:16px;color:#c7bcb2;max-width:790px;margin:0 0 22px}.micro{color:var(--muted);font-size:12px}.stamp{border:1px solid #71513d;border-radius:40px;color:#f1ab77;padding:6px 11px;font-size:12px;display:inline-flex;align-items:center;gap:8px}.stamp:before{content:"";display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--green)}
+.chapters{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin:26px 0 18px}.chapter{background:#211c19;border:1px solid var(--border);border-radius:13px;padding:16px 17px;text-align:left;color:var(--text);cursor:pointer;display:flex;flex-direction:column;gap:4px;transition:border-color .2s,background .2s,transform .2s;font:inherit}.chapter:hover{border-color:#d98e5b;transform:translateY(-1px)}.chapter.active{background:#3b291e;border-color:#f5a168;box-shadow:inset 0 0 0 1px #f1985b22}.chapter strong{font-size:17px}.chapter .tag{font-size:11px;color:var(--orange);font-weight:800;letter-spacing:.06em;text-transform:uppercase}.chapter span:last-child{font-size:13px;color:#bdaea1}
+.display{border:1px solid var(--border);border-radius:15px;background:var(--surface);overflow:hidden;box-shadow:0 14px 50px #0004}.display-top{display:flex;justify-content:space-between;align-items:center;gap:15px;flex-wrap:wrap;padding:15px 18px 13px;border-bottom:1px solid #3e332c}.display-top h2{font-size:19px;margin:0;font-weight:750}.display-top p{font-size:13px;color:var(--muted);margin:3px 0 0}.visual{padding:8px;overflow-x:auto;background:#191715}.visual canvas{width:100%;min-width:800px;height:auto;display:block;border-radius:8px}.playback{padding:17px 20px 20px}.step-head{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:7px;flex-wrap:wrap}.counter{color:#f3a36d;font-size:12px;font-weight:800}.step-title{font-size:18px;font-weight:750;margin-left:10px}.state{font-size:12px;color:#ada094}.description{color:#d2c5b7;font-size:14px;min-height:42px;margin:5px 0 12px}.controls{display:flex;gap:8px;align-items:center;flex-wrap:wrap}.controls button,.stage-btn{border:1px solid #6a5243;border-radius:8px;background:#302720;color:#ece2d7;padding:9px 13px;font:inherit;font-size:13px;cursor:pointer}.controls button:hover,.stage-btn:hover{border-color:#e99b66}.controls button.primary{background:var(--orange);color:#28190e;border-color:var(--orange);font-weight:800}.controls button:disabled{opacity:.3;cursor:default}.speed{display:flex;align-items:center;gap:8px;margin-left:auto;font-size:12px;color:var(--muted)}select{background:#332922;color:var(--text);border:1px solid #6a5243;border-radius:7px;padding:8px;font:inherit;font-size:12px}
+input[type=range]{appearance:none;width:100%;height:7px;border-radius:5px;background:#4a3930;accent-color:var(--orange);margin:20px 0 19px;cursor:pointer}input[type=range]::-webkit-slider-thumb{appearance:none;background:var(--orange);height:19px;width:19px;border-radius:50%;border:3px solid #ffe3cc;box-shadow:0 2px 12px #0008}.steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(105px,1fr));gap:6px}.stage-btn{font-size:12px;padding:8px 7px;line-height:1.3;text-align:center;min-height:44px}.stage-btn.current{background:#533326;border-color:var(--orange);color:#ffbf8b}
+.legend{display:flex;flex-wrap:wrap;gap:14px;padding:14px 4px;color:var(--muted);font-size:12px}.legend b{font-size:16px;margin-right:4px}.note{border-left:3px solid #cd8859;color:#c9bfb5;background:#251e19;padding:12px 15px;border-radius:0 9px 9px 0;font-size:13px;margin:0 0 20px}.after{margin-top:30px;border:1px solid #4b3c30;background:#1f1b18;border-radius:15px;padding:22px}.after h3{font-size:20px;margin:0 0 6px}.after p{color:#c5b8aa;font-size:14px;margin:9px 0}.after-flow{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:5px;margin:18px 0}.after-flow>div{padding:15px 7px;text-align:center;background:#2b2520;border:1px solid #5a4739;border-radius:9px;font-size:12px;font-weight:650}.after-flow .final{border-color:#679b7c;color:#9bdbba;background:#213028}.after-flow .arrow{background:transparent;border:0;align-self:center;color:#b18a6c;padding:0}.sources{font-size:12px;color:#a99e91;line-height:1.7;margin-top:22px}.sources a{color:#b5cee9;text-decoration:none}.sources a:hover{text-decoration:underline}kbd{font:inherit;border:1px solid #5e5147;border-radius:4px;padding:0 5px;color:#d6c6ba;font-size:11px}
+@media(max-width:760px){.page{padding:20px 12px 45px}.chapters{gap:5px;margin:18px 0 12px}.chapter{padding:11px 9px}.chapter strong{font-size:13px}.chapter span:last-child{font-size:11px}.chapter .tag{font-size:10px}.playback{padding:14px 12px}.controls button{padding:8px}.speed{margin-left:0}.visual canvas{min-width:800px}.after-flow{grid-template-columns:1fr}.after-flow .arrow{transform:rotate(90deg)}.display-top{padding:12px}.steps{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media(prefers-reduced-motion:reduce){.chapter{transition:none}}
+</style>
+</head>
+<body>
+<main class="page">
+<div class="eyebrow">Diagram-1 Series / Visual GPU Tutorial</div>
+<h1 class="heading">Follow the orange squares<br>through the incumbent MoE.</h1>
+<p class="intro">An interactive, step-by-step explanation of what our current Muse MoE implementation <em>actually computes</em>. Watch features split, transform, land in GPU memory, get mixed by matrix multiplications, and combine across experts.</p>
+<div class="stamp">Recorded whole-layer incumbent: 1.964× · H200 · 128-token mode 28</div>
+<nav class="chapters" aria-label="Tutorial chapters">
+<button class="chapter active" data-chapter="0" aria-current="step"><span class="tag">Chapter 01 · Before the kernel</span><strong>Routing &amp; preparation</strong><span>Which experts handle this token?</span></button>
+<button class="chapter" data-chapter="1"><span class="tag">Chapter 02 · diagram-1</span><strong>Gate, Up &amp; SiLU</strong><span>Watch the same squares enter Xᵦ.</span></button>
+<button class="chapter" data-chapter="2"><span class="tag">Chapter 03 · Phase B</span><strong>Down &amp; combine</strong><span>Matrix products, normalization, sums.</span></button>
+</nav>
+<section class="display" aria-label="Interactive architecture animation">
+<div class="display-top"><div><h2 id="chapter-title">01 · Routing &amp; preparation</h2><p id="chapter-subtitle">One token · two branches · eight selected experts</p></div><span class="micro" id="chapter-info">CHAPTER 1 OF 3</span></div>
+<div class="visual"><canvas id="stage" width="1200" height="555" role="img" aria-label="Animated architecture diagram, showing the current step"></canvas></div>
+<div class="playback">
+<div class="step-head"><div><span id="step-count" class="counter">01 / 05</span><span id="step-title" class="step-title">Incoming activation</span></div><span id="state" class="state" aria-live="polite">Paused</span></div>
+<p id="step-description" class="description"></p>
+<div class="controls"><button id="play" class="primary">▶ Play</button><button id="replay">↺ Replay step</button><button id="back">← Previous</button><button id="next">Next →</button><button id="next-chapter">Next chapter →</button><label class="speed">Speed <select id="speed" aria-label="Playback speed"><option value=".55">0.55×</option><option value="1" selected>1×</option><option value="1.5">1.5×</option><option value="2">2×</option></select></label></div>
+<input type="range" id="timeline" min="0" max="4.999" step=".001" value="0" aria-label="Animation timeline">
+<div class="steps" id="stepbuttons" aria-label="Jump to a step"></div>
+</div>
+</section>
+<div class="legend"><span><b style="color:#f1985b">■</b> Tracked activation / result</span><span><b style="color:#84afe0">■</b> Up branch / weight matrices</span><span><b style="color:#7acda8">■</b> Ready or accumulated result</span><span><b style="color:#80736a">■</b> Other token–expert rows</span></div>
+<p class="note"><strong>How to interpret the squares:</strong> The same orange squares persist through the animation to show the movement of feature positions. A matrix multiplication creates <em>new values by combining many inputs</em>; it is not a literal one-to-one transfer of feature values. The small numerical examples are illustrative, not sampled model tensors. Scroll horizontally over the diagram on a narrow screen.</p>
+<section class="after">
+<h3>What happens after MoE? Is that a new token?</h3>
+<p><strong>No.</strong> Finishing this MoE block finishes the feed-forward portion of <em>one transformer layer</em>. The current token's hidden representation continues through the remaining layers. Only after the model's final layer and output head do you get logits for selecting a next token.</p>
+<div class="after-flow"><div>MoE output<br><span class="micro">this layer</span></div><div>→ Next layer<br><span class="micro">attention + MoE</span></div><div>→ Remaining layers<br><span class="micro">through layer 62</span></div><div>→ Output head<br><span class="micro">vocabulary logits</span></div><div class="final">New token selected<br><span class="micro">then next decode step</span></div></div>
+<p>During speculative verification, the kernel can process multiple candidate token positions together. Even then, a single MoE block does not itself generate or accept the next token.</p>
+</section>
+<div class="sources">Architecture grounded in <a href="https://github.com/yelgabo/okc/blob/a923f11/muse_decode_layer/submission.py" target="_blank" rel="noopener">the integrated incumbent source (a923f11)</a> and <a href="https://github.com/yelgabo/okc/blob/f61d8d9603ec873b84d045c33c10de572cc0f633/docs/architecture-performance-tracker.md" target="_blank" rel="noopener">the October 29 performance tracker</a>. The illustrated mode 28 is the submitted 128-token path; newer experimental component variants are intentionally excluded. This is an explanatory diagram, not an instruction-level GPU execution trace.</div>
+</main>
+<script>
+(()=>{'use strict';
+const by=id=>document.getElementById(id),canvas=by('stage'),ctx=canvas.getContext('2d');if(!ctx)return;
+const C={bg:'#201c19',panel:'#2b2521',edge:'#725948',text:'#f2e8de',muted:'#b2a396',orange:'#f39b61',blue:'#86b1e3',green:'#83d0ad',gold:'#f3c391',red:'#d77449'};
+const A=[5,6,0,3], U=[10,3,-4,2], gate=[.5,2,0,1.5], W=[[1,0,0,0],[0,1,0,-1],[1,1,0,0],[0,0,1,1]],down=[5,3,11,3],norm=[.78,.47,1.72,.47],weighted=[.27,.16,.60,.16],other1=[.12,.30,-.05,.04],other2=[-.08,.02,.13,.10],sum=[.31,.48,.68,.30],unpoolVals=[.31,.48,.68,.30,.79,-.20,.98,.01];
+const CH=[
+{title:'01 · Routing & preparation',sub:'One token · two branches · eight selected experts',steps:[
+['Start with one token', 'The 8,192-feature FFN activation is read by two different branches. We are following one token, not creating another.'],
+['Pooler and router split', 'The BF16 pooler projects to 4,096 features while an FP32 router computes scores for all 256 experts.'],
+['Create two different outputs', 'The pooler creates the activation for expert computation. The router creates 256 scores—not 256 separate tokens.'],
+['Normalize & pick top eight', 'The expert activation is RMS-normalized. In parallel, routing selects eight experts and calculates their weights.'],
+['Dispatch local expert work', 'With tensor parallelism, this GPU owns 32 of 256 experts. Only selected assignments owned by this GPU execute here.']]},
+{title:'02 · Gate, Up & SiLU — diagram-1',sub:'Same orange squares · two projections · SiLU · real scratch-row transfer',steps:[
+['Read the expert input Xₐ','The selected expert receives one normalized 4,096-feature activation row. The same input feeds gate and up.'],
+['Split into two matrices','NVFP4 expert weights W₁₃ contain gate and up projections. Each matrix mixes features into a separate output vector.'],
+['Produce gate and up results','The orange vector is the gate projection; the blue vector is the up projection. These are different outputs of the same input.'],
+['Run the gate through SiLU','Each orange gate value z passes through SiLU = z × sigmoid(z). Its orange square moves to the activated-gate fader.'],
+['Elementwise multiply with up','Each activated orange gate feature multiplies the matching blue up feature, producing the SwiGLU output.'],
+['Store the SAME squares in Xᵦ','Watch the orange results physically travel one-by-one into matching columns of one BF16 global scratch-memory row.']]},
+{title:'03 · Phase B: Down, normalize & combine',sub:'New output values · shared norm · routing weights · addition · next layer',steps:[
+['Read the scratch row','The Phase B consumer reads the Xᵦ tile once the producer’s memory writes are ordered and its dependencies are ready.'],
+['Down W₂: multiply AND add','Each output feature takes a dot product: multiply input features by a weight row and ADD the products. Watch one output row at a time.'],
+['Normalize the expert output','A shared RMS factor is computed across the output vector. Then each feature is normalized and post-expert scaling is applied.'],
+['Multiply by router weight','The routing coefficient scales this expert’s entire output. Unlike W₂, this multiplication does NOT mix different features.'],
+['ADD contributions from local experts','The weighted output of each selected local expert is added, matching feature columns, to build this GPU’s local MoE result.'],
+['Unpool toward 8,192 features','The BF16 unpooler performs another matrix multiply, mapping 4,096 input features into an 8,192-feature hidden-space result.'],
+['Pass through the FFN boundary','The FFN branch meets the residual stream; gating and normalization prepare the next layer’s attention input. Still the same token.']]}];
+let chapter=0,progress=[0,0,0],playing=false,raf=0,last=0,playCap=Infinity;
+const clamp=(x,a=0,b=1)=>Math.min(b,Math.max(a,x)),ease=t=>{t=clamp(t);return t*t*(3-2*t)},mix=(a,b,t)=>a+(b-a)*t,fmt=n=>Number(n.toFixed(2)).toString();
+function round(x,y,w,h,r,fill,stroke,lw=1){ctx.beginPath();ctx.roundRect(x,y,w,h,r);if(fill){ctx.fillStyle=fill;ctx.fill()}if(stroke){ctx.strokeStyle=stroke;ctx.lineWidth=lw;ctx.stroke()}}
+function text(s,x,y,sz=15,col=C.text,w=400,align='left'){ctx.font=`${w} ${sz}px system-ui,-apple-system,sans-serif`;ctx.fillStyle=col;ctx.textAlign=align;ctx.fillText(String(s),x,y)}
+function line(x,y,xx,yy,color=C.edge,width=1,dash=false){ctx.beginPath();ctx.setLineDash(dash?[5,7]:[]);ctx.moveTo(x,y);ctx.lineTo(xx,yy);ctx.strokeStyle=color;ctx.lineWidth=width;ctx.stroke();ctx.setLineDash([])}
+function box(x,y,w,h,label,subtitle,kind='node',highlight=false){round(x,y,w,h,10,kind==='matrix'?'#293140':C.panel,highlight?C.orange:kind==='matrix'?C.blue:C.edge,highlight?2.6:1.4);if(label)text(label,x+w/2,y+31,20,C.text,700,'center');if(subtitle)text(subtitle,x+w/2,y+55,13,kind==='matrix'?'#b2cbed':C.muted,400,'center')}
+function cell(x,y,v,col=C.orange,alpha=1,w=48,h=38){if(alpha<=0)return;ctx.save();ctx.globalAlpha=clamp(alpha);ctx.shadowBlur=6;ctx.shadowColor=col;round(x,y,w,h,5,col,'#f7cca9',.8);ctx.shadowBlur=0;text(v,x+w/2,y+h/2+5,Math.min(16,w*.38),'#28180f',750,'center');ctx.restore()}
+function ghost(x,y,w=50,h=39){round(x,y,w,h,4,'#3b332e','#625044',.9)}
+function travel(a,b,f,lift=0){let t=ease(f);return[mix(a[0],b[0],t),mix(a[1],b[1],t)-lift*Math.sin(Math.PI*t)]}
+function movingCell(a,b,f,v,color=C.orange,lift=0,w=48,h=38,alpha=1){const xy=travel(a,b,f,lift);cell(xy[0],xy[1],v,color,alpha,w,h);return xy}
+function header(section,stage,label){ctx.clearRect(0,0,1200,555);round(0,0,1200,555,11,C.bg);text(section,28,36,18,C.orange,750);text(label,1172,36,12,C.muted,500,'right');line(28,52,1172,52,'#514036');text(CH[chapter].steps[stage][0],29,91,21,C.text,750)}
+function labels(a,b,c){text(a,151,137,14,C.orange,750,'center');text(b,581,137,14,C.blue,750,'center');text(c,1018,137,14,C.green,750,'center')}
+function foot(s){round(24,513,1152,32,6,'#32261f','#66503f',1);text(s,600,535,13,C.gold,550,'center')}
+function stage(){return Math.min(CH[chapter].steps.length-1,Math.floor(progress[chapter]))}
+// CHAPTER 1 — stable lanes, moving feature squares
+function routing(k,t){header('01 · ROUTING & PREPARATION',k,'8,192 → 4,096 + 256 scores');
+box(28,202,170,160,'FFN input','8,192 features');
+box(300,124,188,126,'Pooler','BF16 · 4,096','matrix',k===1);
+box(300,306,188,126,'Router','FP32 · 256 logits','matrix',k===1);
+box(588,124,192,126,'Expert input','pooled activation','node',k===2);
+box(588,306,192,126,'Expert scores','256 logits','node',k===2);
+box(873,122,286,130,'RMS normalize','4,096 expert features','node',k===3);
+box(873,306,286,130,'Top 8 + local jobs','IDs and routing weights','node',k>=3);
+line(198,257,277,187,C.orange,2);line(198,307,277,369,C.blue,2);line(488,185,588,185);line(488,369,588,369);line(780,186,873,186);line(780,369,873,369);
+const xs=[56,87,118,149],yy=294;
+for(let j=0;j<4;j++){ghost(xs[j],yy,23,23)}
+if(k===0){for(let j=0;j<4;j++)cell(60+j*31,290,j+1,C.orange,1,23,24)}
+if(k===1){for(let j=0;j<4;j++){movingCell([60+j*31,290],[332+j*32,167],clamp((t-.06-j*.06)/.75),j+1,C.orange,25,23,24);movingCell([60+j*31,290],[332+j*32,355],clamp((t-.06-j*.06)/.75),j+1,C.blue,-23,23,24)}}
+if(k>=2){for(let j=0;j<4;j++){let f=k===2?clamp((t-.05-j*.08)/.64):1;movingCell([337+j*32,168],[627+j*33,167],f,j+1,C.orange,15,23,24)}for(let j=0;j<16;j++){const height=[8,21,15,29,6,17,12,27,13,23,9,19,28,11,18,7][j];round(614+j*9,402-height,6,height,2,[3,7,12].includes(j)?C.orange:'#7291b1')}}
+if(k>=3){for(let j=0;j<8;j++){round(902+j*28,374,21,24,3,(j===1||j===5)?'#d9925b':'#66554a');if(k===3&&t>.55)cell(907+j*28,379,j+1,C.orange,clamp((t-.55-j*.025)/.25),12,13)}for(let j=0;j<4;j++)movingCell([630+j*33,168],[907+j*53,168],k===3?clamp((t-j*.06)/.75):1,j+1,C.orange,17,22,23)}
+if(k===4){for(let j=0;j<4;j++){const f=clamp((t-j*.10)/.70);movingCell([912+j*53,168],[912+j*53,288],f,j+1,C.orange,23,22,23)}}
+foot(k<2?'The input branches. Both projections read the same token’s hidden vector.':k===2?'Router scores are NOT token activations; they choose the experts.':k===3?'Top-8 experts globally; this GPU only runs its locally-owned assignments.':'Now the local expert can receive the normalized activation Xₐ.');}
+// CHAPTER 2 — restore diagram-1 with constant geometry and physical orange squares
+const ax=[0,1,2,3];
+function phaseA(k,t){header('02 · GATE + UP + SwiGLU',k,'DIAGRAM-1 · ONE LOCAL EXPERT');
+box(25,200,124,135,'Xₐ','BF16 input', 'node',k===0);
+box(246,127,168,106,'gate','NVFP4 W₁₃','matrix',k===1);
+box(246,341,168,106,'up','NVFP4 W₁₃','matrix',k===1);
+line(149,265,202,185,C.orange,2);line(149,265,202,388,C.blue,2);line(414,182,484,182);line(414,392,484,392,C.blue);
+round(512,150,94,80,9,'#34281f',k===3?C.orange:C.edge,k===3?2.5:1.3);text('SiLU · z × σ(z)',559,139,15,C.gold,750,'center');
+text('Activated gate faders',733,122,15,C.gold,700,'center');
+for(let j=0;j<4;j++){const ry=183+j*48;line(671,ry+10,811,ry+10,'#736659',3);line(731,ry-1,731,ry+21,'#c5a997',1);}
+box(850,238,94,91,'× up','elementwise','node',k===4);
+text('RESULT VECTOR',983,138,14,C.gold,700,'center');
+box(1033,160,145,284,'Xᵦ','BF16 scratch','node',k===5);
+// Scratch grey rows; row 2 is the actual target
+for(let r=0;r<4;r++)for(let j=0;j<4;j++)ghost(1053+j*29,241+r*46,24,32);
+round(1047,284,126,39,4,'#ee995914','#a7724c',1);
+text('one token–expert row',1103,462,12,C.muted,500,'center');
+const source=(j)=>[82,235+j*19],gatePos=j=>[468,144+j*24],upPos=j=>[468,356+j*24],faderPos=j=>[[685,712,764,790][j],174+j*48],resultPos=j=>[979,166+j*46],dest=j=>[1053+j*29,291];
+for(let j=0;j<4;j++){
+const sx=source(j),gp=gatePos(j),up=upPos(j),fp=faderPos(j),rp=resultPos(j),dp=dest(j);
+if(k===0){cell(sx[0],sx[1],j+1,C.orange,1,23,23);continue;}
+if(k===1){const f=clamp((t-.06-j*.07)/.75);movingCell(sx,gp,f,j+1,C.orange,23,23,23);movingCell(sx,up,f,j+1,C.blue,-24,23,23);continue;}
+if(k===2){cell(gp[0],gp[1],j+1,C.orange,1,23,23);cell(up[0],up[1],j+1,C.blue,1,23,23);continue;}
+if(k===3){const f=clamp((t-.06-j*.07)/.80);let path1=[520+(j%2)*38,153+Math.floor(j/2)*30];if(f<.4)movingCell(gp,path1,f/.4,j+1,C.orange,10,23,23);else movingCell(path1,fp,(f-.4)/.6,j+1,C.orange,22,23,23);cell(up[0],up[1],j+1,C.blue,1,23,23);continue;}
+if(k===4){const f=clamp((t-.06-j*.08)/.77);movingCell(fp,rp,f,j+1,C.orange,26,23,23);const yf=clamp((t-j*.06)/.7);movingCell(up,[857,276+j*8],yf,j+1,C.blue,-14,22,22,1-yf*.65);continue;}
+// k5: actual same squares physically move from result vector into memory row
+const f=clamp((t-.08-j*.17)/.30);movingCell(rp,dp,f,j+1,C.orange,32,23,23);
+}
+if(k===3){text('SiLU changes each gate value into a multiplier',741,427,13,C.gold,550,'center')}
+if(k===4){text('Each gate feature multiplies the matching up feature',743,427,13,C.gold,550,'center')}
+foot(k===5?'The SAME four orange squares rotate into one horizontal scratch row.':k===3?'SiLU(z) = z × sigmoid(z). It can be negative or larger than 1.':k===4?'Elementwise multiplication: SiLU(gate) × up — no feature mixing at this step.':'Both gate and up matrices mix the same Xₐ input into new vectors.');}
+// CHAPTER 3 — separate input / computation / output lanes, no overlaps
+function readScratch(t){labels('Xᵦ SCRATCH ROW','SAME FOUR FEATURE SQUARES','DOWN-PROJECTION INPUT');round(30,163,420,298,8,'#2a2521','#755944');for(let r=0;r<3;r++){text(r===1?'selected job':'other job',46,217+r*85,12,r===1?C.gold:C.muted);for(let j=0;j<4;j++)ghost(164+j*66,181+r*85,55,42)}box(859,157,286,311,'Input vector','4,096 real features');for(let j=0;j<4;j++){let a=[164+j*66,266],b=[989,191+j*66],f=clamp((t-.05-j*.15)/.58);movingCell(a,b,f,A[j],C.orange,58,46,36)}foot('The producer used a proxy fence and readiness signaling before Phase B consumed these tiles.');}
+function downMatrix(t){labels('Xᵦ INPUT VECTOR','W₂ MATRIX (TOY 4×4)','PRODUCTS + SUM = OUTPUT');for(let j=0;j<4;j++){text('x'+(j+1),49,187+j*60,12,C.muted);cell(102,158+j*60,A[j],C.orange)}round(283,151,405,280,8,'#293140',C.blue,1.4);
+const row=Math.min(3,Math.floor(t*4)),f=t*4-row;
+for(let r=0;r<4;r++){for(let j=0;j<4;j++){let x=314+j*88,y=166+r*64;round(x,y,64,45,5,r===row?'#69503a':'#303a4a',r===row?C.orange:'#587393',r===row?2:.8);text(W[r][j],x+32,y+29,18,r===row?C.gold:'#bacfe6',650,'center')}ghost(1025,165+r*64,70,45);if(r<row||(r===row&&f>.87))cell(1033,169+r*64,down[r],C.orange,r===row?clamp((f-.87)/.13):1,54,37)}
+text('Σ',962,195+row*64,24,C.gold,750,'center');
+for(let j=0;j<4;j++){const s=[149,172+j*60],m=[338+j*88,176+row*64],b=[798,169+j*66],target=[936,179+row*64];let xy,v;if(f<.34){xy=travel(s,m,(f-j*.015)/.32,20);v=A[j]}else if(f<.70){xy=travel(m,b,(f-.34-j*.014)/.34,24);v=A[j]*W[row][j]}else{xy=travel(b,target,(f-.70-j*.016)/.27,13);v=A[j]*W[row][j]}if(f<.92)cell(xy[0],xy[1],fmt(v),C.orange,.88,33,28)}
+foot('Output '+(row+1)+' = '+W[row].map((v,j)=>'('+A[j]+' × '+v+')').join(' + ')+' = '+down[row]+'   •   Products are ADDED.');}
+function rms(t){labels('DOWN-PROJECTION OUTPUT','SHARED RMS FACTOR','NORMALIZED EXPERT OUTPUT');round(396,157,360,270,8,C.panel,C.edge);text('All features contribute:',576,212,16,C.text,600,'center');text('5² + 3² + 11² + 3²',576,255,22,C.gold,750,'center');text('÷ 4 = 41',576,304,19,C.text,600,'center');text('RMS = √41 ≈ 6.40',576,359,23,C.orange,750,'center');for(let j=0;j<4;j++){const y=174+j*66,f=clamp((t-.04-j*.09)/.72);cell(115,y,down[j],C.orange,1-ease(f));ghost(971,y,75,41);if(f>.02){let point;if(f<.28)point=travel([212,y],[286,447],f/.28,0);else if(f<.74)point=travel([286,447],[864,447],(f-.28)/.46,0);else point=travel([864,447],[974,y],(f-.74)/.26,0);cell(point[0],point[1],f>.72?norm[j]:down[j],C.orange,.95,51,37)}}foot('The RMS factor depends on the whole vector; each value is scaled with that shared factor.');}
+function weight(t){labels('NORMALIZED EXPERT VECTOR','ONE ROUTER WEIGHT · 0.35','WEIGHTED VECTOR');round(399,169,353,231,8,C.panel,C.edge);text('This expert’s routing coefficient',575,220,17,C.text,650,'center');text('× 0.35',575,269,28,C.gold,750,'center');round(462,309,224,19,9,'#4c3a2e');round(462,309,224*.35,19,9,C.orange);for(let j=0;j<4;j++){let y=175+j*66,f=clamp((t-j*.10)/.75);cell(109,y,norm[j],C.orange,1-ease(f));ghost(988,y,74,41);if(f>.03)movingCell([180,y],[992,y],f,f>.55?weighted[j]:norm[j],C.orange,26,50,37)}foot('The same 0.35 scales all features. Unlike a matrix multiply, it does not mix features.');}
+function addExperts(t){text('THREE EXAMPLE LOCAL EXPERTS — ALREADY WEIGHTED',600,141,15,C.gold,750,'center');const es=[weighted,other1,other2],yy=[180,258,336],xx=j=>340+145*j,cols=[C.orange,C.blue,C.green],active=Math.min(2,Math.floor(t*3)),f=t*3-active;for(let e=0;e<3;e++){text('Expert '+String.fromCharCode(65+e),75,yy[e]+24,15,cols[e],700);for(let j=0;j<4;j++){ghost(xx(j),yy[e],76,40);if(e!==active||f<.03)cell(xx(j)+4,yy[e]+3,fmt(es[e][j]),cols[e],1,67,34)}}line(326,419,923,419,C.gold,2);text('RUNNING SUM',149,456,14,C.gold,750,'center');for(let j=0;j<4;j++){const x=xx(j),b=[x+4,443],start=[x+4,yy[active]+3],v=clamp((f-.10-j*.045)/.67),partial=active===0?weighted[j]:active===1?weighted[j]+other1[j]:sum[j];if(v<.95&&v>0)movingCell(start,b,v,fmt(es[active][j]),cols[active],8,67,34);ghost(x,440,76,40);if(active>0||f>.94)cell(x+4,443,fmt(f>.94?partial:active===1?weighted[j]:weighted[j]+other1[j]),C.orange,1,67,34)}foot('ADD matching feature columns across local experts — not another matrix multiplication.');}
+const UW=[[1,0,0,0],[0,1,0,0],[0,0,1,0],[0,0,0,1],[1,1,0,0],[0,1,-1,0],[0,0,1,1],[1,0,0,-1]];
+function unpool(t){labels('4,096 LOCAL OUTPUT FEATURES','UNPOOLER (TOY 8 × 4)','8,192 HIDDEN FEATURES');for(let j=0;j<4;j++)cell(103,168+j*66,fmt(sum[j]));round(316,152,407,303,8,'#293140',C.blue,1.4);const row=Math.min(7,Math.floor(t*8)),f=t*8-row;for(let r=0;r<8;r++){for(let j=0;j<4;j++){const x=337+j*87,y=163+r*36;round(x,y,62,31,3,r===row?'#654c37':'#303947',r===row?C.orange:'#536c89');text(UW[r][j],x+31,y+21,14,r===row?C.gold:'#b6cce7',650,'center')}ghost(1023,164+r*36,68,31);if(r<row||(r===row&&f>.89))cell(1030,166+r*36,fmt(unpoolVals[r]),C.orange,r===row?clamp((f-.89)/.11):1,55,27)}for(let j=0;j<4;j++){const start=[149,172+j*66],m=[344+j*87,168+row*36],target=[947,169+row*36];const xy=f<.48?travel(start,m,(f-j*.013)/.44,12):travel(m,target,(f-.48-j*.014)/.45,16);if(f<.94)cell(xy[0],xy[1],fmt(f<.48?sum[j]:sum[j]*UW[row][j]),C.orange,.9,31,25)}text('Σ',978,191+row*36,20,C.gold,750,'center');foot('One token vector widens from 4,096 to 8,192 features. This is NOT 8,192 tokens.');}
+function boundary(t){labels('FFN BRANCH','RESIDUAL + GATING + NORM','NEXT-LAYER ACTIVATION');text('Residual stream',153,342,16,C.blue,650,'center');box(435,178,340,249,'FFN boundary','combine, gate, normalize');text('→ Next attention input',965,452,18,C.green,700,'center');for(let j=0;j<4;j++){const x=90+j*70,f=clamp((t-j*.1)/.72);cell(x,185,'b'+(j+1),C.orange,1-ease(f),47,34);cell(x,361,'r'+(j+1),C.blue,1-ease(f),47,34);ghost(985,175+j*67,78,42);if(f>.03)movingCell([x,190],[992,178+j*67],f,f>.55?'h′'+(j+1):'b'+(j+1),C.orange,32,53,37)}foot('MoE is done. The SAME token continues through the next transformer layer.');}
+function phaseB(k,t){header('03 · DOWN + COMBINE',k,'INDEPENDENT CALCULATION LANES');if(k===0)readScratch(t);else if(k===1)downMatrix(t);else if(k===2)rms(t);else if(k===3)weight(t);else if(k===4)addExperts(t);else if(k===5)unpool(t);else boundary(t)}
+function draw(){const k=stage(),t=clamp(progress[chapter]-k);if(chapter===0)routing(k,t);else if(chapter===1)phaseA(k,t);else phaseB(k,t)}
+function render(){const data=CH[chapter],k=stage();by('chapter-title').textContent=data.title;by('chapter-subtitle').textContent=data.sub;by('chapter-info').textContent='CHAPTER '+(chapter+1)+' OF 3';by('step-count').textContent=String(k+1).padStart(2,'0')+' / '+String(data.steps.length).padStart(2,'0');by('step-title').textContent=data.steps[k][0];by('step-description').textContent=data.steps[k][1];by('state').textContent=playing?'Playing':'Paused';by('play').textContent=playing?'Ⅱ Pause':'▶ Play';by('next-chapter').disabled=chapter===2;by('timeline').max=data.steps.length-.001;by('timeline').value=progress[chapter];document.querySelectorAll('.chapter[data-chapter]').forEach(b=>{let active=+b.dataset.chapter===chapter;b.classList.toggle('active',active);if(active)b.setAttribute('aria-current','step');else b.removeAttribute('aria-current')});const buttons=by('stepbuttons');if(buttons.dataset.chapter!==String(chapter)){buttons.dataset.chapter=chapter;buttons.innerHTML=data.steps.map((s,i)=>'<button class="stage-btn" data-step="'+i+'">'+(i+1)+'. '+s[0]+'</button>').join('');buttons.querySelectorAll('button').forEach(b=>b.addEventListener('click',()=>seek(+b.dataset.step)))}buttons.querySelectorAll('button').forEach(b=>{b.classList.toggle('current',+b.dataset.step===k)});draw()}
+function stop(){playing=false;last=0;cancelAnimationFrame(raf);render()}
+function seek(v,auto=false,cap=Infinity){stop();progress[chapter]=clamp(v,0,CH[chapter].steps.length-.001);render();if(auto)play(cap)}
+function play(cap=Infinity){if(playing){stop();return}if(progress[chapter]>=CH[chapter].steps.length-.005)progress[chapter]=0;playing=true;playCap=cap;last=0;render();raf=requestAnimationFrame(tick)}
+function tick(now){if(!playing)return;if(!last)last=now;progress[chapter]+=Math.min(70,now-last)/3600*+by('speed').value;last=now;const max=Math.min(CH[chapter].steps.length-.001,playCap);if(progress[chapter]>=max){progress[chapter]=max;stop();return}render();raf=requestAnimationFrame(tick)}
+function goto(n,auto=false){stop();chapter=clamp(n,0,2);render();if(auto)play()}
+by('play').onclick=()=>play();by('replay').onclick=()=>seek(stage()+.001,true,stage()+.999);by('back').onclick=()=>seek(Math.max(0,stage()-1)+.001);by('next').onclick=()=>seek(Math.min(CH[chapter].steps.length-1,stage()+1)+.001);by('next-chapter').onclick=()=>{if(chapter<2){goto(chapter+1,true)}};by('timeline').oninput=e=>seek(+e.target.value);document.querySelectorAll('.chapter[data-chapter]').forEach(b=>b.onclick=()=>goto(+b.dataset.chapter));document.addEventListener('keydown',e=>{const tag=document.activeElement?.tagName?.toLowerCase();if(['input','select','button','textarea'].includes(tag))return;if(e.code==='Space'){e.preventDefault();play()}if(e.key==='ArrowLeft')seek(Math.max(0,stage()-1)+.001);if(e.key==='ArrowRight')seek(Math.min(CH[chapter].steps.length-1,stage()+1)+.001)});
+render();
+})();
+</script>
+</body></html>
