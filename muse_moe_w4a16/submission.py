@@ -4165,7 +4165,8 @@ SKINNY_VARIANTS = ((8, 4, 0), (16, 4, 0), (8, 4, 1), (8, 3, 0))
 # docs/runs-moe.md, "Lean phase A claims". The null lost (+3.9 to +5.2 us, b2c92a71600d488b). Not built.
 # 72 (73 stamped, timing only): 51 with phase A dealt as stream-K ranges and cut units finished
 # through the fixup (mode 16's partition on 51's components); docs/runs-moe.md, "Stream-K phase A
-# on 51's components". Not built (the bench tool adds it).
+# on 51's components". Not built: in 098949b28fe84bd1 72 lost to 51 by 6.6-13.5 us at 32, 128 and
+# 256 tokens; its fixups took 9-11 us per CTA and widened the phase A end spread.
 MAIN_MODES = (0, 16, 26, 28, 37, 47, 51)
 MAIN_CANDIDATES = (0, 6, 12, 13, 14, 15, 16, 20, 23, 26, 28, 32, 34, 35, 36, 37, 39, 43, 47, 51)
 VARIANT_MAIN0 = len(SKINNY_VARIANTS)

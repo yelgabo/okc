@@ -94,6 +94,7 @@ SGLang with its 95% interval. Profiles and logs are in `muse_moe_w4a16/profiles/
 | 2026-10-30 | 48b9bf9d77d146ac (check, bench file from tools/moe_make_bench_ab.py --base=51 --sizes=32,128,256 --routings=layer,std --seeds=47,48,49,50,51,52 o60=60, not committed) | 003be4b | diagnostic of mode 60 (51 without the gather's per-thread __threadfence; proxy fence, barrier and releases kept) with gather stamps (61 against 55) | 2.205x (2.172-2.238) | passed; spin flags 0. 60 minus 51 at 32 / 128 / 256: layer -0.3 / -0.4 / +0.0 us (6, 5, 4 of 6 lower), std -0.3 / -0.5 / -0.4 (3, 5, 4). Thread 0's barrier wait -1.3 to -3.6 us, its release +0.6 to +2.5 (MEMBAR.ALL.GPU before the RED); last x ready 0.4-2.0 us earlier. Pre-set gate condition failed (256 layer); not gated, docs/ruled-out.md |
 | 2026-10-30 | b7e43ee6a517487a (check, bench file from tools/moe_make_bench_ab.py --base=51 --sizes=32,128,256 --routings=layer,std --seeds=53,54,55,56,57,58 o62=62 o63=63, not committed) | d5bafad | diagnostic of modes 62 / 63 (51 with phase A's last one / two rounds claimed at run time through ctr[10] ahead of phase B) with light and gather stamps (64, 65 against 55) | 2.198x (2.165-2.231) | passed; spin flags 0. 62 minus 51 at 32 / 128 / 256: layer +3.9 / +7.9 / +9.2 us, std +6.1 / +7.5 / +8.6; 63 +5.3 / +7.0 / +8.5 and +5.3 / +6.9 / +7.9 (0 of 6 lower in every row). Phase A end spread at 128 12.8 / 10.1 -> 9.5 / 7.7 us (62), but mean phase A +4.8 to +6.8 us at 128 / 256. Pre-set rule: not gated, docs/ruled-out.md |
 | 2026-10-30 | ed4591a2477041c2 (check, bench file from tools/moe_make_bench_ab.py --base=51 --sizes=32,128,256 --routings=layer,std --seeds=65,66,67,68,69,70 o66=66 o62=62, not committed) | a727b12 | null of the claimed phase A tail: mode 66 = 62's code with no round claimed (K = 0), 62 again, stamped twins 67, 64 against 55 | 2.199x (2.166-2.232) | passed; spin flags 0. 66 minus 51 at 32 / 128 / 256: layer +4.3 / +7.0 / +8.8 us, std +6.0 / +7.9 / +8.7; 62 +4.2 / +6.9 / +8.5 and +5.7 / +7.9 / +10.3 (0 of 6 lower in every row); 67's phase A mean +5.1 to +7.7 over 55's. The loss is the code shape, not the claims (62 minus 66 -0.3 to +1.6). No gate |
+| 2026-10-30 | 098949b28fe84bd1 (check, bench file from tools/moe_make_bench_ab.py --base=51 --sizes=32,128,256 --routings=layer,std --seeds=83,84,85,86,87,88 o72=72, not committed) | 86a633e | diagnostic of mode 72 (stream-K phase A with cut-unit fixups, mode 16's partition, on 51's stage loop, epilogue and phase B claims) with its stamped twin 73 | 2.193x (2.160-2.226) | passed; spin flags 0. 72 minus 51 +13.5 / +9.4 / +12.6 / +7.1 / +6.6 / +9.2 us at 32 / 128 / 256 (layer / std), 0 of 6 seeds lower in all six cells; 73's A end spread 18.9 / 16.9 at 256 against 55's 10.0 / 8.8; fixups 9.4-10.9 us per CTA at 128 / 256 (ABFIX). Diagnostic rule failed, no gate run; docs/ruled-out.md |
 
 ## Why the layer keeps the W4 chain at 128 tokens, 2026-10-29
 
@@ -2599,9 +2600,11 @@ count), and the phase A publish, the gather, the ring releases, phase B and the 
    slot with `red.global.add.v4.f32` (relaxed, gpu scope), runs `fence.acq_rel.gpu`, and the
    warpgroup meets at `bar.sync`; thread 0 then adds the share's stage count with
    `atom.acq_rel.gpu`. The adds are atomic (Atomicity axiom, 8.10), so concurrent shares do not lose
-   updates. The fence followed by a strong write is a release pattern for each thread's own adds
-   (8.8), and the barrier carries every thread's adds and fence before thread 0's atom in base
-   causality order (8.9.4, 8.9.5); the atom is itself a release.
+   updates. The barrier carries every thread's adds and fence before thread 0's atom in base
+   causality order (8.9.4, 8.9.5), and the atom is itself a release, so the other threads' adds are
+   covered by its cumulativity (8.8), as for the gather's red.release. [Corrected after the review:
+   this step first called each thread's fence and a later strong write a release pattern, which
+   holds only for thread 0; the other threads issue no strong write after their fence.]
 3. The finisher. The count is a chain of atomic read-modify-writes, so the atom that reads the
    last value before 16 follows every earlier share's atom in observation order (8.9.2), and as an
    acquire it synchronizes with each of their releases (8.9.4). Its thread writes `fix_last`, the
@@ -2693,6 +2696,61 @@ condition fails, 72 goes to docs/ruled-out.md scoped to this build and is not sh
 pass, 72 joins MAIN_MODES and MAIN_CANDIDATES and the shippable file (no public code) goes to the
 coordinator with the layer port steps. Budget for the line: two checks (diagnostic and gate), the
 two MoE checks left today.
+
+### Diagnostic result (check 098949b28fe84bd1, bench at 86a633e)
+
+2.193x (2.160-2.226), passed, spin flags 0. Outputs of 72 against 51 (first seed of each cell):
+1.5e-4 to 2.4e-4 relative L2 (the cut units' FP32 sum order, as 20 against 16). Self-test of the
+shipped policy modes unchanged (main-lean-grp-finss64 3.89e-3). Minus 51, us, same process, seeds
+83-88 (count = seeds lower of 6):
+
+| arm | 32 layer | 32 std | 128 layer | 128 std | 256 layer | 256 std |
+|---|---|---|---|---|---|---|
+| 72 (stream-K phase A) | +13.5 (0) | +9.4 (0) | +12.6 (0) | +7.1 (0) | +6.6 (0) | +9.2 (0) |
+| public | -1.4 (3) | -8.4 (6) | -8.4 (6) | -9.4 (6) | -17.2 (6) | -15.3 (6) |
+
+Stamps (one cold launch per seed, means over seeds, us; layer / standalone):
+
+| | 32 | 128 | 256 |
+|---|---|---|---|
+| phase A mean: 55 (51) / 73 (72) / public | 47.7 / 57.6 / 49.1 and 89.3 / 96.6 / 85.8 | 94.3 / 103.5 / 91.7 and 117.0 / 124.8 / 111.5 | 127.8 / 135.1 / 119.6 and 134.1 / 141.6 / 125.5 |
+| A end spread: 55 / 73 / public | 8.0 / 12.4 / 3.3 and 10.6 / 11.0 / 4.7 | 15.3 / 18.2 / 7.3 and 8.4 / 15.2 / 6.1 | 10.0 / 18.9 / 7.1 and 8.8 / 16.9 / 8.1 |
+| A done max: 55 / 73 | 61.3 / 75.4 and 104.5 / 113.0 | 119.6 / 129.5 and 132.9 / 146.9 | 150.4 / 165.0 and 153.9 / 168.1 |
+| phase B: 55 / 73 | 21.5 / 22.6 and 39.6 / 40.1 | 45.0 / 46.8 and 54.3 / 54.7 | 59.9 / 61.2 and 62.9 / 63.9 |
+| 73's fixups (ABFIX): cut segments per CTA, us per CTA, its share of phase A | 1.86, 8.8, 15% and 1.84, 8.7, 9% | 1.88, 10.1, 10% and 1.85, 9.4, 7% | 1.84, 10.9, 8% and 1.83, 9.5, 7% |
+| 73's fixups: to the count update per share / read-back per finished unit, max CTA | 3.3 / 6.0, 17.9 | 3.3 / 7.3, 28.4-30.9 | 3.2 / 8.6, 28.3-32.5 |
+
+Reading under the rule set before the check:
+- Measured: 72 lost at every size and routing, 0 of 6 seeds lower in all six cells, +6.6 / +9.2 us at
+  256 tokens. The rule's condition (a negative mean at 256 on both routings) fails, so no gate is run
+  and nothing ships.
+- Measured, mechanism: the partition did not narrow the end of phase A, it widened it. 73's A end
+  spread is 15-19 us at 128 and 256 tokens against 55's 8-15 and the public kernel's 6-8, and the
+  mean CTA's phase A is 7-9 us longer than 55's. The fixups cost 9-11 us per CTA (1.84-1.88 cut
+  segments per CTA, the public kernel's 1.85): about 3.3 us per share to its count update (the v4
+  global adds, a gpu-scope fence and two warpgroup barriers) and 6-9 us for the finishing share's
+  read-back, with the slowest CTA at 28-33 us. Both the spread and the mean rise, so the last CTA's
+  phase A end is 10-15 us later than 55's (A done max), and the launch follows.
+- Hypotheses, not separated: (a) the fixup's global round trips sit on each CTA's critical path
+  under a memory system that phase A saturates (its cost here is 2-3 times what 51's whole phase A
+  epilogue takes per unit), and the CTAs that finish two cut units carry it twice, which by itself
+  spreads the phase A ends; (b) the kCostA table (2026-10-28) no longer prices a stage of 47 / 51's
+  loop by n-tile count, so equal-cost ranges are not equal-time ranges. The public kernel's
+  partition gets 6-8 us of spread with the same 1.85 cuts, so its fixup must cost far less (its
+  finisher is designated, not the last arrival; not measured here).
+- Measured, a side result: 73's gather piece is shorter than 55's (thread 0's whole gather 3.4 /
+  5.9 against 6.5 / 8.2 us at 128 / 256 tokens on layer routing, mostly its fences and barrier), but
+  the latest first-x-ready comes later, not earlier (12.8 / 17.1 against 10.2 / 11.6 us), so it buys
+  nothing on the critical path. Why the gather changed is not separated (the setup differs only in
+  warp 0's boundary search before the gather).
+- Independent read-only review of 86a633e (2026-10-30): sound (no ordering bug, deadlock, lost or
+  shared fixup slot, or uninitialised read; production predicates unchanged; 72 / 73 equal 51 / 55
+  on every predicate except own_a, stream_a and fix_st). It corrected the wording of step 2 (fixed
+  above) and noted that ABFIX's per-CTA total subtracts the mean pre-count time per finished unit,
+  so it is an estimate; the per-share and per-finish columns are measured directly.
+- Decision: the stream-K phase A family stays parked (docs/ruled-out.md), with the new evidence that
+  on current components its fixups, not its partition, decide the comparison. One of the line's two
+  checks was used; one MoE check remains today.
 
 ## Staged pair on current components, 2026-10-29
 
