@@ -4,6 +4,19 @@ This is the stable entry point for steering reports across research, implementat
 and coordinator sessions. The user requested on 2026-10-29 that every project-steering
 report be checked into this repository so other sessions can read it.
 
+## Latest decision report: on course, with validation and prefetch priorities
+
+**[2026-10-29: Course check — validate overlap and isolate prefetch](2026-10-29-course-check-validation-prefetch.md)**
+
+Evidence snapshot `b41cb8d` (October 30 02:19 UTC / October 29 19:19 PDT), unchanged from
+the preceding status answer. Keep the clean 2.014x release. Mode 51 passed its component gate
+and awaits shippable/layer validation. The later 32-token MoE comparison measured only
+1.5-1.9 us to the public kernel on layer-like routes; do not treat the earlier 10-14 us
+profile attribution below as an established algorithmic deficit. Next: isolate the existing
+MoE PDL prefetch hints, finish stage-level freshness/numerical diagnostics for M1, and keep
+production validation thresholds unchanged pending an approved, evidence-based policy.
+This report changes documentation only and launches no GPU work.
+
 ## Latest hourly report, 19:31
 
 **[2026-10-29 19:31 PDT: Mode 47 layer attribution and mode 51 component gain](2026-10-29-1931-performance-review.md)**
@@ -131,6 +144,7 @@ recommendations, not execution of those tasks; check current code and run logs f
 
 | Report | Evidence snapshot | Scope |
 |---|---|---|
+| [2026-10-29 course check: validation and prefetch](2026-10-29-course-check-validation-prefetch.md) | `b41cb8d`; release `3fbb3ad027e84c6b` | Keep release; mode-51 integration; isolate MoE prefetch; stage-level M1 validation; reconcile smaller 32-token MoE gap |
 | [2026-10-30 layer release and attribution](2026-10-30-layer-release-attribution.md) | branch `worktree-agent-a39812d9e0cf11e26` after `fa7200c`; scored `3fbb3ad027e84c6b` | Clean release manifest, mode 47 isolation, M1 fresh-input diagnosis, verify 1 / decode 32 exposed-time attribution against the public layer |
 | [2026-10-29 post-reset release steering](2026-10-29-post-reset-release-steering.md) | `283e348`; release `edd71d3152a946fe` | Separate release/experimental HEAD, clean mode-47/projection test, M1 validation diagnosis, same-process verify-1/decode-32 attribution; staged retest completed |
 | [2026-10-29 verify 1 / decode 32 breakdown](2026-10-29-v1-d32-breakdown.md) | `efddc84`; run `9b921febc7ad4140`; bundle `b694b4a` | Per-kernel breakdown, bundle credit, ranked mechanisms, `SK_PDL` / `ONE_TRIG` switches with compile gate |
