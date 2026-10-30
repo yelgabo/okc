@@ -1,0 +1,127 @@
+Lt::splitKreduce_kernel<32,16,int,
+ABKN K57 attn_kernel<8,false,3>
+ABKN K58 nvjet_sm90_tss_128x64_64x8_1x2_h_bz_TNT
+ABKN K59 nvjet_sm90_tss_96x64_64x10_4x2_h_bz_TNN
+ABKN K60 _route
+ABKN K61 okc::moe_fused<true>
+ABKN K62 wd_kernel<1,128,3,1,false,8,__nv_bfloat1
+ABKN K63 one::attn_one_kernel<8,3>
+ABKN K64 nvjet_sm90_tst_128x64_64x8_1x2_h_bz_TNT
+ABKN K65 route_kernel<float,true>
+ABKN K66 attn_kernel<8,true,0>
+ABKN K67 one::attn_one_kernel<8,51>
+ABKN K68 nvjet_sm90_tst_96x64_64x10_2x4_h_bz_TNN
+ABKN K69 nvjet_sm90_tss_128x128_64x6_2x1_v_bz_TNT
+ABKN K70 nvjet_sm90_tss_80x128_64x8_4x2_h_bz_TNN
+ABKN K71 nvjet_sm90_tst_128x128_64x6_2x1_v_bz_TNT
+ABKN K72 bnd::attn_boundary_geo_kernel<1,512>
+ABKN K73 muse_spark_norm_residual_kernel<8192l,51
+ABBUILD pub_att7 76 s
+ABBUILD pub_moe 72 s
+ABBUILD pub_moe_tiny 61 s
+ABBUILD pub_moe_tiny2 62 s
+ABBUILD pub_moe_mid 71 s
+ABBUILD pubbfp__get_ext 49 s
+ABBUILD cand_one_load 75 s
+ABBUILD cand_moe1_load 83 s
+ABBUILD cand_skp_load 40 s
+ABBUILD cand_w4_ext 72 s
+ABBUILD cand_ext 73 s
+ABBUILD import done at 83 s
+ABPREP cand 18 s
+ABPREP pub 8 s; prepare at 26 s
+ABPIN pub sha256 cf4a75ee6e4a5cd9e33b82b5347c47abcdc7b81d80dc6a8b5262dea7388f849c git-blob 936fefffb493c4a836e8c08fc58dff50ce338dd5 as read (pub_layer.py); comment-stripped and patched as sent: sha256 e0ec5c48000cad5b60f3850aeef06091a281141e37958c1a7c561f63d4d0f8b7 git-blob 2acf83a03560d4979ee4a23baf08e64f702cfce3
+ABPIN cand sha256 4ed09046349a049ffa6e08263547d2742f93fc694d7185cd23ad48ee9752d686 git-blob 9722e271a6d49d4148da13befda9a3327d0ddac6 (bundle_fix2.py)
+ABDIAG cand attention fallback on fresh rows vs FP32: 1x1s ours 1.63e-03 sglang 5.21e-02 ours-vs-sglang 5.20e-02; 1x8s ours 3.63e-02 sglang 4.06e-02 ours-vs-sglang 3.09e-02; 1x1f ours 1.75e-03 sglang 6.75e-03 ours-vs-sglang 7.14e-03; 1x8f ours 1.76e-02 sglang 2.19e-02 ours-vs-sglang 1.46e-02; attn_one_ours=1
+ABARMS pub cand null; cand front policy {1: 'fp32', 8: 'skf-r', 16: 'skf-r', 32: 'skf-r', 128: 'concat-r', 256: 'concat-r'}, moe {1: 2, 8: 2, 16: 2, 32: 8, 128: 8, 256: 8}
+ABCHECK d1s 60001 busi pub PASS update 5.99e-03/5.99e-03<=0.137 hidden 3.52e-03/3.52e-03<=0.066 top8=ref 1.000 local routes 2/2 experts 2/2
+ABCHECK d1s 60001 busi cand PASS update 7.31e-03/7.31e-03<=0.137 hidden 4.62e-03/4.62e-03<=0.066 top8=ref 1.000 local routes 2/2 experts 2/2
+ABCHECK d1s 60001 busi null PASS update 7.31e-03/7.31e-03<=0.137 hidden 4.62e-03/4.62e-03<=0.066 top8=ref 1.000 local routes 2/2 experts 2/2
+ABCHECK d1s 60002 seco pub PASS update 6.99e-03/6.99e-03<=0.098 hidden 5.07e-03/5.07e-03<=0.066 top8=ref 1.000 local routes 2/2 experts 2/2
+ABCHECK d1s 60002 seco cand PASS update 8.39e-03/8.39e-03<=0.098 hidden 6.48e-03/6.48e-03<=0.066 top8=ref 1.000 local routes 2/2 experts 2/2
+ABCHECK d1s 60002 seco null PASS update 8.39e-03/8.39e-03<=0.098 hidden 6.48e-03/6.48e-03<=0.066 top8=ref 1.000 local routes 2/2 experts 2/2
+ABCHECK d1f 60101 busi pub PASS update 5.86e-03/5.86e-03<=0.136 hidden 4.20e-03/4.20e-03<=0.082 top8=ref 1.000 local routes 3/3 experts 3/3
+ABCHECK d1f 60101 busi cand PASS update 7.69e-03/7.69e-03<=0.136 hidden 5.46e-03/5.46e-03<=0.082 top8=ref 1.000 local routes 3/3 experts 3/3
+ABCHECK d1f 60101 busi null PASS update 7.69e-03/7.69e-03<=0.136 hidden 5.46e-03/5.46e-03<=0.082 top8=ref 1.000 local routes 3/3 experts 3/3
+ABCHECK d1f 60102 seco pub PASS update 5.80e-03/5.80e-03<=0.150 hidden 4.88e-03/4.88e-03<=0.114 top8=ref 1.000 local routes 2/2 experts 2/2
+ABCHECK d1f 60102 seco cand PASS update 7.80e-03/7.80e-03<=0.150 hidden 6.42e-03/6.42e-03<=0.114 top8=ref 1.000 local routes 2/2 experts 2/2
+ABCHECK d1f 60102 seco null PASS update 7.80e-03/7.80e-03<=0.150 hidden 6.42e-03/6.42e-03<=0.114 top8=ref 1.000 local routes 2/2 experts 2/2
+ABCHECK d16s 61001 busi pub PASS update 6.92e-03/1.00e-02<=0.149 hidden 4.68e-03/5.83e-03<=0.091 top8=ref 1.000 local routes 26/26 experts 6/6
+ABCHECK d16s 61001 busi cand PASS update 8.19e-03/1.01e-02<=0.149 hidden 5.74e-03/7.04e-03<=0.091 top8=ref 1.000 local routes 26/26 experts 6/6
+ABCHECK d16s 61001 busi null PASS update 8.19e-03/1.01e-02<=0.149 hidden 5.74e-03/7.04e-03<=0.091 top8=ref 1.000 local routes 26/26 experts 6/6
+ABCHECK d16s 61002 seco pub PASS update 6.96e-03/9.26e-03<=0.150 hidden 5.14e-03/7.02e-03<=0.101 top8=ref 0.938 local routes 21/20 experts 4/3
+ABCHECK d16s 61002 seco cand PASS update 8.30e-03/1.04e-02<=0.150 hidden 6.23e-03/8.01e-03<=0.101 top8=ref 1.000 local routes 20/20 experts 3/3
+ABCHECK d16s 61002 seco null PASS update 8.30e-03/1.04e-02<=0.150 hidden 6.23e-03/8.01e-03<=0.101 top8=ref 1.000 local routes 20/20 experts 3/3
+ABCHECK d16f 61101 busi pub PASS update 9.66e-03/2.60e-02<=0.150 hidden 6.70e-03/1.70e-02<=0.102 top8=ref 0.938 local routes 33/34 experts 7/7
+ABCHECK d16f 61101 busi cand PASS update 1.08e-02/2.64e-02<=0.150 hidden 7.64e-03/1.73e-02<=0.102 top8=ref 0.938 local routes 33/34 experts 7/7
+ABCHECK d16f 61101 busi null PASS update 1.08e-02/2.64e-02<=0.150 hidden 7.64e-03/1.73e-02<=0.102 top8=ref 0.938 local routes 33/34 experts 7/7
+ABCHECK d16f 61102 seco pub PASS update 7.48e-03/1.29e-02<=0.143 hidden 5.15e-03/6.47e-03<=0.089 top8=ref 1.000 local routes 19/19 experts 5/5
+ABCHECK d16f 61102 seco cand PASS update 8.66e-03/1.30e-02<=0.144 hidden 5.98e-03/7.39e-03<=0.088 top8=ref 0.938 local routes 18/19 experts 5/5
+ABCHECK d16f 61102 seco null PASS update 8.66e-03/1.30e-02<=0.144 hidden 5.98e-03/7.39e-03<=0.088 top8=ref 0.938 local routes 18/19 experts 5/5
+ABCHECK d32s 62001 busi pub PASS update 8.87e-03/3.85e-02<=0.140 hidden 6.46e-03/1.67e-02<=0.097 top8=ref 0.906 local routes 61/62 experts 7/8
+ABCHECK d32s 62001 busi cand PASS update 1.00e-02/3.86e-02<=0.140 hidden 7.44e-03/1.68e-02<=0.097 top8=ref 0.906 local routes 62/62 experts 8/8
+ABCHECK d32s 62001 busi null PASS update 1.00e-02/3.86e-02<=0.140 hidden 7.44e-03/1.68e-02<=0.097 top8=ref 0.906 local routes 62/62 experts 8/8
+ABCHECK d32s 62002 seco pub PASS update 7.48e-03/1.16e-02<=0.146 hidden 5.30e-03/8.86e-03<=0.094 top8=ref 1.000 local routes 45/45 experts 5/5
+ABCHECK d32s 62002 seco cand PASS update 8.75e-03/1.25e-02<=0.146 hidden 6.30e-03/9.60e-03<=0.094 top8=ref 1.000 local routes 45/45 experts 5/5
+ABCHECK d32s 62002 seco null PASS update 8.75e-03/1.25e-02<=0.146 hidden 6.30e-03/9.60e-03<=0.094 top8=ref 1.000 local routes 45/45 experts 5/5
+ABCHECK d32f 62101 busi pub PASS update 7.11e-03/8.91e-03<=0.150 hidden 5.05e-03/6.70e-03<=0.103 top8=ref 1.000 local routes 63/63 experts 9/9
+ABCHECK d32f 62101 busi cand PASS update 8.44e-03/1.01e-02<=0.150 hidden 6.12e-03/7.81e-03<=0.103 top8=ref 0.969 local routes 63/63 experts 9/9
+ABCHECK d32f 62101 busi null PASS update 8.45e-03/1.01e-02<=0.150 hidden 6.13e-03/7.79e-03<=0.103 top8=ref 0.969 local routes 63/63 experts 9/9
+ABCHECK d32f 62102 seco pub PASS update 7.13e-03/8.36e-03<=0.150 hidden 5.02e-03/6.51e-03<=0.101 top8=ref 1.000 local routes 42/42 experts 9/9
+ABCHECK d32f 62102 seco cand PASS update 8.39e-03/9.58e-03<=0.150 hidden 6.01e-03/7.72e-03<=0.101 top8=ref 1.000 local routes 42/42 experts 9/9
+ABCHECK d32f 62102 seco null PASS update 8.39e-03/9.58e-03<=0.150 hidden 6.01e-03/7.72e-03<=0.101 top8=ref 1.000 local routes 42/42 experts 9/9
+ABCHECK v1s 63001 busi pub PASS update 5.95e-02/7.02e-02<=0.150 hidden 4.04e-02/4.97e-02<=0.106 top8=ref 0.625 local routes 13/13 experts 6/6
+ABCHECK v1s 63001 busi cand PASS update 5.98e-02/7.00e-02<=0.150 hidden 4.06e-02/4.96e-02<=0.106 top8=ref 0.625 local routes 13/13 experts 6/6
+ABCHECK v1s 63001 busi null PASS update 5.98e-02/7.00e-02<=0.150 hidden 4.06e-02/4.96e-02<=0.106 top8=ref 0.625 local routes 13/13 experts 6/6
+ABCHECK v1s 63002 seco pub PASS update 5.34e-02/6.26e-02<=0.131 hidden 3.67e-02/4.59e-02<=0.090 top8=ref 1.000 local routes 10/10 experts 7/7
+ABCHECK v1s 63002 seco cand PASS update 5.43e-02/6.75e-02<=0.131 hidden 3.73e-02/4.74e-02<=0.090 top8=ref 1.000 local routes 10/10 experts 7/7
+ABCHECK v1s 63002 seco null PASS update 5.43e-02/6.75e-02<=0.131 hidden 3.73e-02/4.74e-02<=0.090 top8=ref 1.000 local routes 10/10 experts 7/7
+ABCHECK v1f 63101 busi pub PASS update 6.25e-02/6.95e-02<=0.150 hidden 4.23e-02/4.86e-02<=0.104 top8=ref 1.000 local routes 17/17 experts 7/7
+ABCHECK v1f 63101 busi cand PASS update 6.20e-02/6.97e-02<=0.150 hidden 4.20e-02/4.84e-02<=0.104 top8=ref 1.000 local routes 17/17 experts 7/7
+ABCHECK v1f 63101 busi null PASS update 6.20e-02/6.97e-02<=0.150 hidden 4.20e-02/4.84e-02<=0.104 top8=ref 1.000 local routes 17/17 experts 7/7
+ABCHECK v1f 63102 seco pub PASS update 6.82e-02/8.17e-02<=0.150 hidden 4.53e-02/5.65e-02<=0.109 top8=ref 0.625 local routes 11/11 experts 5/5
+ABCHECK v1f 63102 seco cand PASS update 6.86e-02/8.21e-02<=0.150 hidden 4.58e-02/6.02e-02<=0.109 top8=ref 0.625 local routes 11/11 experts 5/5
+ABCHECK v1f 63102 seco null PASS update 6.86e-02/8.21e-02<=0.150 hidden 4.58e-02/6.02e-02<=0.109 top8=ref 0.625 local routes 11/11 experts 5/5
+ABCHECK v16s 64001 busi pub PASS update 6.18e-02/1.01e-01<=0.150 hidden 4.07e-02/7.19e-02<=0.099 top8=ref 0.695 local routes 181/183 experts 20/21
+ABCHECK v16s 64001 busi cand PASS update 6.23e-02/1.02e-01<=0.150 hidden 4.11e-02/7.27e-02<=0.099 top8=ref 0.695 local routes 182/183 experts 21/21
+ABCHECK v16s 64001 busi null PASS update 6.23e-02/1.02e-01<=0.150 hidden 4.11e-02/7.27e-02<=0.099 top8=ref 0.695 local routes 182/183 experts 21/21
+ABCHECK v16s 64002 seco pub PASS update 6.39e-02/1.00e-01<=0.150 hidden 4.24e-02/7.41e-02<=0.104 top8=ref 0.703 local routes 183/185 experts 18/18
+ABCHECK v16s 64002 seco cand PASS update 6.40e-02/1.01e-01<=0.150 hidden 4.26e-02/7.43e-02<=0.104 top8=ref 0.719 local routes 187/185 experts 18/18
+ABCHECK v16s 64002 seco null PASS update 6.40e-02/1.01e-01<=0.150 hidden 4.26e-02/7.43e-02<=0.104 top8=ref 0.719 local routes 187/185 experts 18/18
+ABCHECK v16f 64101 busi pub PASS update 6.57e-02/9.20e-02<=0.150 hidden 4.43e-02/6.17e-02<=0.108 top8=ref 0.680 local routes 203/203 experts 18/18
+ABCHECK v16f 64101 busi cand PASS update 6.58e-02/9.48e-02<=0.150 hidden 4.44e-02/6.22e-02<=0.108 top8=ref 0.680 local routes 205/203 experts 18/18
+ABCHECK v16f 64101 busi null PASS update 6.58e-02/9.48e-02<=0.150 hidden 4.44e-02/6.22e-02<=0.108 top8=ref 0.680 local routes 205/203 experts 18/18
+ABCHECK v16f 64102 seco pub PASS update 6.69e-02/9.55e-02<=0.150 hidden 4.34e-02/6.33e-02<=0.106 top8=ref 0.711 local routes 158/157 experts 21/21
+ABCHECK v16f 64102 seco cand PASS update 6.68e-02/1.01e-01<=0.150 hidden 4.34e-02/6.51e-02<=0.106 top8=ref 0.711 local routes 159/157 experts 21/21
+ABCHECK v16f 64102 seco null PASS update 6.68e-02/1.01e-01<=0.150 hidden 4.34e-02/6.51e-02<=0.106 top8=ref 0.711 local routes 159/157 experts 21/21
+ABCHECK v32s 65001 busi pub PASS update 6.07e-02/9.22e-02<=0.146 hidden 3.99e-02/6.43e-02<=0.096 top8=ref 0.727 local routes 416/416 experts 21/22
+ABCHECK v32s 65001 busi cand PASS update 6.13e-02/9.25e-02<=0.146 hidden 4.03e-02/6.36e-02<=0.096 top8=ref 0.746 local routes 420/416 experts 21/22
+ABCHECK v32s 65001 busi null PASS update 6.13e-02/9.25e-02<=0.146 hidden 4.03e-02/6.36e-02<=0.096 top8=ref 0.746 local routes 420/416 experts 21/22
+ABCHECK v32s 65002 seco pub PASS update 6.16e-02/9.18e-02<=0.148 hidden 4.00e-02/6.41e-02<=0.096 top8=ref 0.715 local routes 324/323 experts 22/22
+ABCHECK v32s 65002 seco cand PASS update 6.18e-02/9.20e-02<=0.148 hidden 4.02e-02/6.06e-02<=0.096 top8=ref 0.738 local routes 325/323 experts 22/22
+ABCHECK v32s 65002 seco null PASS update 6.18e-02/9.20e-02<=0.148 hidden 4.02e-02/6.06e-02<=0.096 top8=ref 0.738 local routes 325/323 experts 22/22
+ABCHECK v32f 65101 busi pub PASS update 6.64e-02/9.85e-02<=0.150 hidden 4.41e-02/6.74e-02<=0.107 top8=ref 0.719 local routes 433/427 experts 24/23
+ABCHECK v32f 65101 busi cand PASS update 6.67e-02/9.33e-02<=0.150 hidden 4.44e-02/6.99e-02<=0.107 top8=ref 0.773 local routes 429/427 experts 24/23
+ABCHECK v32f 65101 busi null PASS update 6.67e-02/9.33e-02<=0.150 hidden 4.44e-02/6.99e-02<=0.107 top8=ref 0.773 local routes 429/427 experts 24/23
+ABCHECK v32f 65102 seco pub PASS update 6.53e-02/9.69e-02<=0.150 hidden 4.27e-02/6.51e-02<=0.103 top8=ref 0.762 local routes 315/316 experts 24/24
+ABCHECK v32f 65102 seco cand PASS update 6.55e-02/9.88e-02<=0.150 hidden 4.28e-02/6.42e-02<=0.103 top8=ref 0.742 local routes 321/316 experts 24/24
+ABCHECK v32f 65102 seco null PASS update 6.55e-02/9.88e-02<=0.150 hidden 4.28e-02/6.42e-02<=0.103 top8=ref 0.742 local routes 321/316 experts 24/24
+ABTIME d1s pub 86.4 cand 83.7 null 84.0 | paired pub-cand +2.6 null-cand +0.7 (n=16)
+ABTIME d1f pub 95.6 cand 95.8 null 95.2 | paired pub-cand -0.4 null-cand -0.7 (n=16)
+ABTIME d16s pub 126.9 cand 132.0 null 131.5 | paired pub-cand -6.0 null-cand -0.7 (n=16)
+ABTIME d16f pub 220.6 cand 229.5 null 228.1 | paired pub-cand -8.2 null-cand +0.3 (n=16)
+ABTIME d32s pub 151.3 cand 165.2 null 164.8 | paired pub-cand -12.9 null-cand -0.2 (n=16)
+ABTIME d32f pub 321.8 cand 345.6 null 345.7 | paired pub-cand -25.2 null-cand -0.3 (n=16)
+ABTIME v1s pub 115.8 cand 125.5 null 126.0 | paired pub-cand -9.6 null-cand +0.4 (n=16)
+ABTIME v1f pub 119.3 cand 129.8 null 128.5 | paired pub-cand -10.2 null-cand +0.6 (n=16)
+ABTIME v16s pub 266.5 cand 282.8 null 285.7 | paired pub-cand -16.6 null-cand +2.2 (n=16)
+ABTIME v16f pub 360.6 cand 372.1 null 373.0 | paired pub-cand -11.8 null-cand +1.7 (n=16)
+ABTIME v32s pub 335.4 cand 351.3 null 352.7 | paired pub-cand -17.0 null-cand -1.0 (n=16)
+ABTIME v32f pub 525.6 cand 542.4 null 544.7 | paired pub-cand -19.1 null-cand +0.0 (n=16)
+ABLOAD d1 (46 sliding + 16 full) / 62: pub 88.8 cand 86.9 null 86.9
+ABLOAD d16 (46 sliding + 16 full) / 62: pub 151.1 cand 157.1 null 156.4
+ABLOAD d32 (46 sliding + 16 full) / 62: pub 195.3 cand 211.8 null 211.4
+ABLOAD v1 (46 sliding + 16 full) / 62: pub 116.7 cand 126.6 null 126.7
+ABLOAD v16 (46 sliding + 16 full) / 62: pub 290.8 cand 305.8 null 308.2
+ABLOAD v32 (46 sliding + 16 full) / 62: pub 384.5 cand 400.6 null 402.2
+ABSCORE geometric mean over 6 loads of cand load time / arm load time (above 1: arm faster): pub 1.0464 null 0.9989
