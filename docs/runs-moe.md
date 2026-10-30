@@ -75,6 +75,8 @@ SGLang with its 95% interval. Profiles and logs are in `muse_moe_w4a16/profiles/
 | 2026-10-29 | e937013292b24906 (submit under the user's scored-runs-as-measurements authorization; bench file from tools/moe_make_bench_ab.py --small, not committed) | 8272efe | skinny kMode 5 (sk8w4s-sf: scale decode's x16 as an IMAD with a multiplier ptxas cannot fold, FMA pipe instead of LEA on the ALU pipe), 6 (sk8w4s-hand: partial buffers handed to and from the helper through mbarriers, one compute-warp barrier per unit instead of two), 7 (sk8w4s-sfh: both), 8 (7 with stamps); stamps now time the first try_wait | 2.004x (1.974-2.034) | minus sk8w4s, us, layer / std: T=1 sf -0.1 / -0.1, hand +0.1 / -0.0, sfh +0.1 / -0.1; T=8 sf -0.2 / -0.4, hand -0.1 / +0.0, sfh +0.1 / +0.1; T=16 sf -0.5 / -0.1, hand +0.4 / +0.5, sfh +0.5 / -0.1 (none 6 of 6). Public minus sk8w4s: T=8 layer -3.5, T=16 layer -2.2. Self-test 4.02e-3 for all; outputs vs sk8w4s <= 5.8e-5; spin flags 0. Corrected stamps at T=8 layer: thread 0 waits 3.0 us (A) and 0.7 (B) for weights. Policy picked sk8w4s-sf at 8-32 (bench noise). Not adopted (docs/runs-moe.md, "Skinny unit loop against the public kernel") |
 | 2026-10-29 | 75bca9775f6f4b0b (scored run submitted by the coordinator, the day's last expiring one, per the user's instruction; bench file from tools/moe_make_bench_ab.py --small --unitstamps, not committed) | 03887be | skinny stream A/B: sk8w3s (3-slot ring, (8, 3, 0)), kMode 32 (sk8w4s-rf: unit barrier and refill ahead of the partial handoff), (8, 3, 32) (w3rf), kMode 64 (sk8w4s-nh: weight copies without the L2 hint) against sk8w4s and the public TINY / TINY2 / MID builds, layer and standalone seeds 1-6 at 1 / 8 / 16 tokens; per-unit stream stamps (kMode bit 16 and the public patched the same way) at 8 tokens | 2.006x (1.976-2.036) | passed. w3 minus sk8w4s -0.9 / -0.6 / -2.4 / -1.8 / -3.1 / -2.9 us (T=1 layer / std, 8 layer / std, 16 layer / std), 6 of 6 seeds lower in every row; w3 minus public -1.3 / -0.8 / +1.0 / +0.9 / -0.4 / -0.5. rf -1.1 / +0.4 at 8, w3rf behind w3 in all six rows, nh +1.2 to +3.3 everywhere. Stamps: copy issue-to-arrival 4.7 us with 4 slots, 3.2 with 3, public 3.0. Spin flags 0; every arm within 2.1e-5 of sk8w4s. Section "Skinny weight stream against the public kernel" |
 | 2026-10-29 | ca43908f02874886 (check, bench file from tools/moe_make_bench_ab.py --base=37 --sizes=128,256 --routings=layer o41=41 o42=42 --pairs=o41-o42, not committed) | 3f67a45 | fat-path waits timed in full (mbar_wait_cyc's clock before the first try_wait); mode 41 (37 with phase A and phase B counters per consumer warp) and 42 (37 with the light stamps only), layer seeds 1-6 | 2.174x (2.142-2.207) | passed 5/5; judge medians bs1 28.74 us, bs16 98.81, bs32 132.88, bs8 71.36, bs128 195.45, bs256 241.53; policy unchanged (sk8w3s to 32, main-lean-silu-bar at 128 and 256). ABTIME o37 164.6 / 227.2, pub 151.4 / 203.6 at 128 / 256. Instrumentation cost: 41 minus 37 +7.0 / +6.1 us, 42 minus 37 +1.1 / +2.3, 41 minus 42 +5.9 / +3.9 (0 of 6 lower in each row). Outputs of 41 and 42 against 37 1e-5 to 3e-5, spin flags 0. Counters in section "Fat-path waits with the first try timed". ABPUB's stage ranges are not meaningful in this run (no --pubranges) |
+| 2026-10-30 | 9d94ac75f4724b52 (check, bench file from tools/moe_make_bench_ab.py --base=37 --sizes=32,128,256 --routings=layer o43=43 o44=44 o42=42 ost=v301 --pairs=ost-o43, not committed) | 54257b5 | mode 43 (code groups, next stage's waits and first group hoisted under the last wgmma group, weights release behind the sixth group), 44 (43 with 41's counters), and the staged pair on 37's components (variant 301: modes 45 then 46); layer seeds 1-6 | 2.188x (2.155-2.221) | passed 5/5; judge medians bs1 27.95, bs16 95.17, bs32 137.66, bs8 67.16, bs128 193.98, bs256 239.72 us; policy main-lean-grp (43) at 128 and 256. 43 minus 37 -1.3 / -1.4 / -2.7 us at 32 / 128 / 256 (5, 6, 6 of 6 lower); 44's cycles per wait 214 / 224 / 239 against 41's 201 / 215 / 223 (phase A), not lower. Staged pair minus 37 +30.3 / +30.4 / +24.4 (0 of 6). Outputs against 37 4e-6 to 2.3e-5, spin flags 0. Section "Code groups with the next stage hoisted" |
+| 2026-10-30 | 304f17f3e8704992 (check, bench file from tools/moe_make_bench_ab.py --base=37 --sizes=32,128,256 --routings=layer --seeds=7,8,9,10,11,12 o43=43 o44=44 o42=42 o47=47 --pairs=o47-o43, not committed) | a4687c8 | repeat of 43 on held-out layer seeds 7-12 (the steering rule's step 3: timing won, waits did not fall), plus mode 47 (43 without the hoist) | 2.176x (2.144-2.209) | passed 5/5; judge medians bs1 27.46, bs16 97.33, bs32 133.58, bs8 72.36, bs128 199.79, bs256 241.87 us; policy main-lean-grp at 128 and 256. 43 minus 37 -0.9 / -1.2 / -2.1 (6, 4, 6 of 6); 47 minus 37 -0.4 / -1.6 / -3.6 (3, 6, 6 of 6); 47 minus 43 +0.5 / -0.5 / -1.5 (2, 5, 6 of 6); 44's cycles per wait 214 / 215 / 235 against 41's 204 / 203 / 225. Outputs against 37 1.2e-5 to 3.8e-5, spin flags 0 |
 
 ## Why the layer keeps the W4 chain at 128 tokens, 2026-10-29
 
@@ -1162,6 +1164,52 @@ lower, a mean of +0.5 us or lower at 32 and at 128, and ABCHECK within 1e-4 of 3
 average cycles per wait must fall by at least 30% against 41's in the same run. A loss or a tie
 goes to docs/ruled-out.md and ends the line. At most 2 MoE checks.
 
+### Results (checks 9d94ac75f4724b52 and 304f17f3e8704992)
+
+Paired differences against 37, us, layer routing (negative = faster; seeds 1-6 in the first
+check, held-out seeds 7-12 in the repeat):
+
+| | 32 tokens | 128 tokens | 256 tokens |
+|---|---|---|---|
+| 43 minus 37, seeds 1-6 | -1.3 (5 of 6) | -1.4 (6 of 6) | -2.7 (6 of 6) |
+| 43 minus 37, seeds 7-12 | -0.9 (6 of 6) | -1.2 (4 of 6) | -2.1 (6 of 6) |
+| 47 (no hoist) minus 37, seeds 7-12 | -0.4 (3 of 6) | -1.6 (6 of 6) | -3.6 (6 of 6) |
+| 47 minus 43, seeds 7-12 | +0.5 (2 of 6) | -0.5 (5 of 6) | -1.5 (6 of 6) |
+| 44 minus 37 (counter cost), both checks | +3.3 / +4.1 | +6.3 / +6.4 | +7.5 / +9.1 |
+
+Average cycles per wait, phase A, 44 against 41 in the same process: 214 / 224 / 239 against 201 /
+215 / 223 (seeds 1-6) and 214 / 215 / 235 against 204 / 203 / 225 (seeds 7-12) at 32 / 128 / 256.
+Phase B: 210 / 215 / 225 against 204 / 217 / 220, and 188 / 221 / 233 against 192 / 224 / 234.
+The per-warp waits did not fall in either phase; in phase A they rose 3-7%. The producers' slot
+waits rose too (256 tokens: 99.9 / 93.5 against 92.9 / 91.1 us, then 108.7 / 102.5 against 100.2 /
+99.2), so the ring was full longer. The phase A epilogue was shorter in 44 in every row (per unit
+1.38 against 1.49 at 128 and 1.56 against 1.71 at 256 in the first check).
+
+Reading.
+- Measured: 43 is faster than 37 at every size in both checks, by 1-3 us.
+- Measured: the hoist did not shorten the waits. H1 of the steering report (a serial try_wait
+  round trip plus code loads at each stage start) is not what the 210-230 cycles per wait are;
+  issuing the wait one wgmma group earlier leaves the wait the same length. That is consistent
+  with H2 (warps of a CTA drifting apart, a leading warp waiting on a slot its slowest peer still
+  holds) or with the wait being the stream's own pace at the stage boundary; this run does not
+  separate them.
+- Measured: 47, the same code groups without the hoist, is as fast as 43 or faster (1.5 us faster
+  at 256 tokens, 6 of 6). The gain comes from the code groups: a warp holds 10 code and scale
+  registers instead of 18, and the kernel's spill falls from 156 / 416 B to 4 / 88 B (8 / 100 B
+  in 43), with the per-unit reloads mostly gone (1 LDL per unit loop against 2-12 plus STL). The
+  hoist costs about 9-14 instructions per stage and holds the slot longer, and buys nothing.
+- Stopping rule: 43's timing condition passed in both checks, the mechanism condition failed in
+  both. 43 is not kept; the hoist line ends (docs/ruled-out.md). 47 came out of the repeat as a
+  diagnostic arm and was not under a pre-registered rule. On one check (held-out seeds) it clears
+  43's timing thresholds against 37 (-3.6 us at 256, 6 of 6; -1.6 at 128; -0.4 at 32). It is a
+  candidate for its own gate run (held-out standalone and skewed seeds) before any adoption.
+
+Mode 47's ordering is 43's chain above with the waits back at the stage start: the reads of a
+slot (group 0 after the stage's own `wfull` acquire, groups 1-3 and both scale words in the stage)
+precede the per-thread fence and arrive behind the sixth group in program order, and before each
+wait a thread has issued the same releases as in 37 (weights up to the previous stage, x up to the
+one before), so the progress argument carries over unchanged.
+
 ## Staged pair on current components, 2026-10-29
 
 The staged two-launch MoE (mode 19, phase A alone on owned units, then mode 21, phase B and the
@@ -1188,6 +1236,15 @@ Rebuilt pair (variant 301, "staged-lean", timing only, never a policy candidate)
 Arm in the same check: `tools/moe_make_bench_ab.py --base=37 --sizes=32,128,256 --routings=layer
 o43=43 o44=44 o42=42 ost=v301 --pairs=ost-o43`. ABPAIR gives the pair against 37 and against 43
 per seed. prepare self-tests it against FP32 at 32, 33, 128 and 257 tokens.
+
+Result (check 9d94ac75f4724b52, layer seeds 1-6): the pair minus 37 is +30.3 / +30.4 / +24.4 us at
+32 / 128 / 256 tokens and minus 43 +31.6 / +31.9 / +27.0, 0 of 6 lower in every row. The prepare
+bench (standalone routing) has phase A alone (45) at 156.5 / 160.0 us and phase B with the final
+pass alone (46) at 86.8 / 97.2 at 128 / 256, a sum of 243 / 257 against the fused 37 at 210.6 /
+233.2. The fused kernel's phase B overlaps the other CTAs' phase A tail (A done max minus phase A
+is about 27 us at 128 and 24 at 256 in 42's stamps); that overlap is still worth more than the
+pair saves. The pair passed the FP32 self-test (3.90e-3) and matched 37 within 2.3e-5. It stays
+parked (docs/ruled-out.md, with the next trigger).
 
 ## Staged GEMM1 gate, 2026-10-29
 

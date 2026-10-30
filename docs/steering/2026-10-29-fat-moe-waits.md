@@ -122,3 +122,36 @@ routing. The basis is the public kernel's 11.1 us phase A lead at 256 with this 
   routings were not.
 - The public kernel's waits were not measured: its DEBUG build stamps phases, not waits.
 - No whole-layer effect is claimed.
+
+## Addendum 2026-10-30: mode 43 built and checked
+
+Evidence: code a4687c8 (modes 43, 44, 47; staged pair 45 + 46), checks 9d94ac75f4724b52 (layer
+seeds 1-6) and 304f17f3e8704992 (held-out layer seeds 7-12), both passed 5/5. Details:
+docs/runs-moe.md, "Code groups with the next stage hoisted" and "Staged pair on current
+components"; SASS record muse_moe_w4a16/profiles/sass_grpcodes.2026-10-29.txt.
+
+- Local gate passed: production SASS unchanged, no C75xx, one wait1 per group, 43 spills 8 / 100 B
+  against 37's 156 / 416 B, nothing local in the stage loops.
+- Measured: 43 minus 37 is -2.7 and -2.1 us at 256 tokens (6 of 6 in both checks), -1.4 / -1.2
+  at 128 and -1.3 / -0.9 at 32. The timing half of step 2 passed twice.
+- Measured: 44's average cycles per wait did not fall (phase A 239 / 235 against 41's 223 / 225 at
+  256 tokens; up 3-7% at every size). Step 3's mechanism check failed twice, so H1 as stated (the
+  serial try_wait and code loads at the stage start) is not the cause of the waits. H2 (warp drift
+  within a CTA) or the stream's own pace at the boundary remain; neither was separated.
+- Measured: mode 47, the same code groups without the hoist, beat 43 by 1.5 us at 256 (6 of 6)
+  and 37 by 3.6 (6 of 6), 1.6 at 128 (6 of 6), 0.4 at 32 (3 of 6), on the held-out seeds. The gain
+  is the register relief this report's recommendation called secondary ("smaller groups alone
+  ... are not recommended"); that sentence is withdrawn by this evidence.
+- Decision under the stopping rule: 43 is not kept, and the hoist is recorded in
+  docs/ruled-out.md. 47 is a candidate that was not pre-registered, with one check behind it.
+- Coordinator request, same checks: the staged two-launch pair rebuilt on 37's components lost
+  again by 24-30 us and stays parked with a new trigger.
+
+Next actions (not done; the 2-check budget is spent):
+1. A gate run for 47 against 37: GATE with held-out standalone seeds 17-22 and skewed seeds 11-13,
+   plus layer seeds, before any adoption. Pre-register the rule: -2 us or better at 256, no worse
+   than +0.5 at 32 and 128.
+2. If 47 is adopted, port it: MAIN_MODES and MAIN_CANDIDATES in muse_moe_w4a16/submission.py,
+   LAYER_MODES and MAIN_NAMES (47: "main-lean-grp-nohoist") in tools/dl_moe_inline.py.
+3. The waits themselves: to separate H2, stamp per-warp stage starts within a CTA (skew) rather
+   than per-warp wait totals.
