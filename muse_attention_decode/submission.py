@@ -3013,9 +3013,12 @@ constexpr int COOP_POLL_LIMIT = 1 << 24;
 // halves of every tile; the second hands its fixed-frame partial (o * 2^m, l * 2^m) to the first
 // through shared memory and only the first issues reds, as the public per-request kernel does.
 // Half the red.global operations per CTA and per workspace address; the same 2^m frame per half,
-// one FP32 add before the red instead of inside L2 (an order the reds never fixed).
+// one FP32 add before the red instead of inside L2 (an order the reds never fixed). Benches
+// ce92d32e26024bd2 / d0819bb26907426b, cold: decode 1 sliding -0.51 / -0.64 us, decode 1 full
+// -1.38 / -1.54, decode 16 sliding -1.44 / -1.44, decode 32 sliding -0.80 / -0.83; standalone
+// score ratio 1.018 / 1.021 (docs/runs-attention.md, 10-30). 0 restores the per-warp reds.
 #ifndef ONE_HMRG
-#define ONE_HMRG 0
+#define ONE_HMRG 1
 #endif
 // ONE_T9 (bench builds): adds the last-CTA instances of the cooperative per-request plans
 // (q_len 1 mode 9, q_len 8 modes 9 and 13), so a bench can time the ticket finalize without

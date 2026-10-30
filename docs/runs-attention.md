@@ -2418,3 +2418,41 @@ check-1 gate hold for `hmrg` again, clause 3 holds on d1 sliding, d1 full and d1
 ABIN lines (v1 full has no code change), and `hmrgown`'s ABSCORE is above 1.008 as well, so the
 gain does not depend on the control's workspace. Then a judged check of submission.py with
 `ONE_HMRG` on.
+
+### Check d0819bb26907426b (bench `bench_f`, at 9eafafc): HMRG confirmed
+
+| date | job | commit | file | result | notes |
+|---|---|---|---|---|---|
+| 2026-10-30 | d0819bb26907426b (check) | 9eafafc | bench `bench_f` (`--null --shapes all --inputs 2 --seed 20261036`, ctrl, ctrl2, hmrg, hmrgown, pub, pub2) | 2.452x (CI 2.415-2.504) judged path = board code, 16/16 tests, ABCHECKSUM 19/0 every arm | HMRG ABSCORE 1.0214 (own state 1.0232), null 1.0037 |
+
+Profiles: `muse_attention_decode/profiles/bench_f.d0819bb26907426b.*`. Cold, arm - ctrl (us),
+per held-out input from ABIN:
+
+| row | hmrg in 0 / 1 | hmrgown in 0 / 1 | ctrl2 in 0 / 1 | pub in 0 / 1 |
+|---|---|---|---|---|
+| d1 sliding | -0.54 / -0.70 | -0.67 / -0.64 | -0.03 / -0.03 | -0.67 / -0.70 |
+| d1 full | -1.50 / -1.50 | -1.82 / -1.79 | -0.74 / -0.70 | -2.14 / -2.14 |
+| d16 sliding | -1.47 / -1.41 | -1.44 / -1.47 | +0.22 / +0.26 | -1.44 / -1.57 |
+| d32 sliding | -0.86 / -0.86 | -1.09 / -0.90 | +0.19 / +0.03 | -0.80 / -0.77 |
+| v1 full (no code change) | -0.03 / +0.13 | -0.06 / +0.13 | -0.03 / +0.16 | -0.86 / -0.74 |
+
+ABSCORE per load, hmrg: d1 1.0772, d16 1.0306, d32 1.0115, v1 1.0059, v16 1.0031, v32 1.0020.
+Gate: 1 holds (19/0); 2 holds (1.0214, excess 0.0214 > 0.0037 + 0.004); 3 holds (same sign on both
+inputs on d1 sliding, d1 full, d16 sliding); 4 holds (no pooled row slower than +0.06 us;
+per-input worst +0.26 at v16 full, q_len 8 code identical); `hmrgown` 1.0232 >= 1.008.
+**Confirmed.** On the q_len 1 per-request rows HMRG matches the public kernel (d1 sliding 9.25
+vs 9.18, d16 sliding 12.90 vs 12.86, d32 sliding 15.78 vs 15.84); at d1 full 0.6 us remain,
+inside the placement spread (hmrgown 16.90 vs pub 16.51).
+
+Independent read-only review of the HMRG ordering (fresh agent, 10-30, before the judged check):
+**sound.** Stage 0 holds no pending copy (the q_len 1 per-request loop issues copies only for
+tiles below ntiles, and every thread's `cp.async.wait_group 0` plus the barrier precede the
+stores), both barriers sit outside the `wsub` branches and every earlier exit is CTA-uniform, the
+reds still precede the CTA barrier ahead of thread 0's `atom.acq_rel` (ticket) or the
+cooperative arrive, the handoff's 4,352 bytes lie inside the stage-0 K tile and nothing after
+the merge reads it, and the red layout and per-half 2^m frame match the old path. Not verified
+by the reviewer: SASS and runtime behaviour (covered by the benches and the SASS compares here).
+
+Production: `ONE_HMRG` defaults to 1 in attn_one.cu and submission.py. SASS (CUDA 12.8.1, all 13
+instances): the default build equals the benched `hmrg` build; `-DONE_HMRG=0` equals b200eda;
+only q_len 1 modes 1, 3, 11, 13 change; no spills. Next: a judged check of submission.py.
