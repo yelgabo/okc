@@ -3145,3 +3145,47 @@ no spills). Same clauses as check 4: (1) ABCHECKSUM; (2) G(X) - G(ctrlb) >= 0.20
 G(ctrl2) >= 0.20%; (3) same sign on both inputs at d16 and d32 full; (4) no row beyond max(|ctrlb -
 ctrl|, 1%). This is the last check of the day: a passing arm still needs a confirmation bench and a
 judged check after the reset before it can be offered.
+
+### Check a7e5331d89ba4f77 (bench `bench_n`, at 5cb2be0): a two-stage ring narrows the pair spread and loses the median pace
+
+| date | job | commit | file | result | notes |
+|---|---|---|---|---|---|
+| 2026-10-30 | a7e5331d89ba4f77 (check) | 5cb2be0 | bench `bench_n` (`flat/gen_n.sh`, 10 arms, `--shapes full`) | 2.506x (CI 2.469-2.544) judged path = board code, 16/16 tests, ABCHECKSUM 11/0 every arm | ns2 +3.7 / +8.9 us at d16 / d32 full |
+
+Profiles: `muse_attention_decode/profiles/bench_n.a7e5331d89ba4f77.*`. Cold pooled, arm - ctrl (us):
+d16 full (ctrl 100.61) ns2 +3.65, ns2h +3.39, ns2own +3.68, ns2hown +3.42, ctrlb +0.00, ctrl2 +0.00,
+pub -0.87; d32 full (ctrl 179.26) ns2 +8.87, ns2h +8.80, ns2own +8.77, ns2hown +8.64, ctrlb +0.20,
+ctrl2 +0.07, pub -0.96. Gate: fails clause 2 for every arm (G -1.2 to -1.3%). Stamps (`stampns2`, d32
+full): pair gap 3.2 us (6.2 at three stages in check 1, 4.8 at six in check 4), loop ends 169.9 /
+178.2 / 183.0, consumer full-barrier wait 75.7 us: the spread narrows, and the median CTA slows by
+more because two stages do not cover the DRAM latency.
+
+Ring depth at d32 full over checks 1, 4 and 5 (median loop end; pair gap; cold time against the
+three-stage control): two stages 178.2, 3.2 us, +8.9; three 161.3, 6.2, 0; six 167.1, 4.8 (latest SM
+176.9), +2.2. Three stages, the depth the public kernel also uses, is the best of the five tried.
+
+## Standalone round 4 (10-30): family ledger update
+
+Checks used by this round: bce37d22a0ec4045, c8e99e038d9f4575, 4b60264a276c4805, 42c4739cf6b247c4,
+a7e5331d89ba4f77 (5 of 5). Quota after them (`okc problems`): 0 of 20 attention checks, 8 of 10
+runs. No file was offered for submission: nothing passed its gate.
+
+| family | state | evidence | reopening trigger |
+|---|---|---|---|
+| Key-half merge in the flat q_len 1 kernel (`ONE_HMRGF`) | measured gain below the bar, off | bce37d22a0ec4045 (+0.04-0.07%), 4b60264a276c4805 (+0.05-0.07%), same sign on every input; review sound | promote with any flat q_len 1 change that passes (it adds about 0.05%); or a lower bar for riders |
+| Mode 49 Q.K as two chains (`ONE_F1` bit 1) | measured loss | c8e99e038d9f4575: +0.12 / +0.32 us | a stamp showing the consumers' per-tile latency on the critical path |
+| Mode 49 page-entry refill from one base (`ONE_F1` bit 2) | measured null | c8e99e038d9f4575: -0.04 / +0.03 us | a producer-bound probe showing its issue as the limit |
+| Mode 49 ring depth (`ONE_NS1` 2, 4, 5, 6) | measured loss, 3 is best | 42c4739cf6b247c4, a7e5331d89ba4f77 | a change that equalizes the two CTAs' DRAM share |
+| The public kernel's page-index bulk copies in mode 49 | untested, motivated | 4b60264a276c4805: mode 49's producer alone is 4.7 / 8.0 us (14%) slower than the public producer at d16 / d32 full without DRAM; the refill's instruction count is not it (PE16 null) | next round's first q_len 1 candidate |
+| v16 full (mode 51) | attributed, no change | bce37d22a0ec4045 stamps: same median loop end as the public kernel, pair gap 11.5 vs 7.0 us, tail 12.3 vs 10.0; the gap depends on the input (-5.5 / -1.5 us in two benches); mode 51 keeps the per-tile proxy fence (1.2-1.4 us) | a per-input attribution of the input-0 case |
+
+Where the flat gap is (measured): not in the merge, the start or the median CTA's pace. In both flat
+kernels the two CTAs of an SM progress unequally and the later one sets each SM's end; ours more
+unequal than the public kernel's (q_len 1: 3.1 / 6.2 us vs 1.0 / 2.1 at d16 / d32 full; q_len 8: 11.5 /
+22.3 vs 7.0 / 16.0). Without DRAM, mode 49's producer and consumer streams each trail the public ones
+by about half of a 9.5 / 17.5 us deficit. Ring depth trades the median pace against the spread and
+three stages is the best point. Next round, in order: (1) bulk-copied page indices in mode 49's
+producer (the public design; its producer-only pace is the measured target, 4.7 / 8.0 us), judged
+first by the producer-only probe and then by cold time; (2) the consumer half of the no-DRAM deficit
+(SASS of the mode 49 tile body against the public one, instruction by instruction on the path from the
+full-barrier wait to the empty arrive); (3) the input dependence of v16 full.
