@@ -4,6 +4,21 @@ This is the stable entry point for steering reports across research, implementat
 and coordinator sessions. The user requested on 2026-10-29 that every project-steering
 report be checked into this repository so other sessions can read it.
 
+## Latest external-source steering: alygg77 measurement audit
+
+**[2026-10-30: alygg77 public kernels — measured constraints and a narrower next round](2026-10-30-alygg77-public-kernel-audit.md)**
+
+Own snapshot `269c110`; donor `alygg77/okc-muse-spark-kernels` at `6cae49a`.
+The supplied X post itself was not retrievable; this is an independently located repository
+review, not a quotation of the post. Archived projection 1.5502x is not a fresh rank or a
+paired improvement over us. Compare the donor's selected O8/pool8/pool16 routes and router;
+query exact four-CTA-cluster occupancy before reopening the failed QKV design. External
+measurements distinguish QKV256 transfer pressure from O256's busy mainloop and epilogue,
+and document split-K losses despite 94%-peak mainloop throughput. Denser compression stays
+CPU-gated, not the sole assumed route to top 100. Attention is unchanged vjeux; KPERM3 merits
+a static overlap audit against current MoE work. No kernels, gates, GPU runs or submissions
+changed. The report explicitly separates donor reports, our evidence and proposed tests.
+
 ## Latest projection report: frontier map and the route to top 100
 
 **[2026-10-30: Projection frontier map and the route to top 100](2026-10-30-projection-top100.md)**
@@ -275,6 +290,7 @@ recommendations, not execution of those tasks; check current code and run logs f
 
 | Report | Evidence snapshot | Scope |
 |---|---|---|
+| [2026-10-30 alygg77 source audit](2026-10-30-alygg77-public-kernel-audit.md) | ours `269c110`; donor `6cae49a` | Scoped external measurements; selective projection routes; cluster residency; dense transfer/epilogue attribution; codec feasibility; attention provenance and KPERM overlap audit |
 | [2026-10-30 projection top-100 portfolio](2026-10-30-projection-top100-portfolio.md) | `c98018f`; scored `d85d0081fa8a4a43`; user CLI/frontier review | Corrected target and completed work; QKV residency gate; raw-BF16 m=256 schedule/epilogue test; explicit target envelope versus measured gains |
 | [2026-10-30 standalone attention/projection roadmap](2026-10-30-attention-projection-standalone-roadmap.md) | `a48edef`; component sources/logs and public archived references | Independent standalone scorecards and promotion gates; cross-tile attention, resource/reduction challengers; router/Lt portfolio, compressed qkv split-K, lossless WGMMA |
 | [2026-10-29 course check: validation and prefetch](2026-10-29-course-check-validation-prefetch.md) | `b41cb8d`; release `3fbb3ad027e84c6b` | Keep release; mode-51 integration; isolate MoE prefetch; stage-level M1 validation; reconcile smaller 32-token MoE gap |
