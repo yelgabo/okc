@@ -341,7 +341,7 @@ def _r2_dup_prepare(dev):
         _r2print(f"R2PREP {tag} {time.time() - t0:.1f} s")
         for ln in buf.getvalue().splitlines():
             if ln.startswith("ltune") or (ln.startswith("tune router") and "m=64" not in ln):
-                _r2print(f"R2PREP {tag}| {ln[:330]}")
+                _r2print(f"R2PREP {tag}| {ln[:200]} .. {ln[-90:]}")
         st.clear()
         torch.cuda.synchronize()
         torch.cuda.empty_cache()
@@ -492,7 +492,7 @@ if not _r2os.environ.get("PROJ_R2_DONE"):
         with _ctx.redirect_stdout(buf):
             state = _r2_prepare_judged(weights)
         for ln in buf.getvalue().splitlines():
-            if ln.startswith(("tune router", "prepare done", "sk build", "lt build")) or "disabled" in ln:
+            if ln.startswith(("tune router", "ltune", "prepare done", "sk build", "lt build")) or "disabled" in ln:
                 print("judged| " + ln, flush=True)
         for line in _R2_OUT:
             print(line, flush=True)

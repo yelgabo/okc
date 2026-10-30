@@ -249,3 +249,80 @@ m = 256), `r64c4s8` (never picked); same `wd_kernel` template, only NST / BN / C
 SASS (nvcc 12.8, sm_90a) against the NST 4 router instances: MEMBAR 5, FENCE 2, BAR 4, UCGABAR 4
 in all; SYNCS 18 -> 22 (NST 6) and 26 (NST 8), two mbarrier inits per extra stage; no spills,
 60 / 58 / 90 registers.
+
+## Round 2 router changes (2026-10-30)
+
+### `rt_fwd`: small-token router (m = 1 to 32)
+
+```
+rt_fwd(cfg, wp, x, out, diag)      # cfg = RT_NAMES index; MT (1 / 2 / 4) from x.size(0)
+```
+
+- `wp`: `rt_pack(hi, lo)` of the router's BF16 hi / lo split (8 MB, `state["router_rt"]`).
+- `x`: bf16 `[M, 8192]`, 1 <= M <= 32. `out`: f32 `[M, 256]`.
+- `RT_GEOM` name -> (S cluster ranks, WK warps per CTA, P owner ranks, exit barrier). Grid
+  16 * S CTAs of WK warps, clusters of S (16 is a non-portable size). Each warp loads its whole
+  share of weight fragments and x straight into registers (one round trip), runs mma.sync for
+  hi and lo, the CTA sums its warps in shared memory and pushes one float4 per item with
+  `st.async` to one of P owner ranks, which add the S pieces in rank order.
+- Design from NathenFernandes/muse-bf16-proj v18 `routertail_small` (MIT License, Copyright
+  (c) 2026 Nathen Fernandes); the packing, indexing and synchronization are our own and are
+  checked on the CPU by `tools/proj_router_emulate.py` (rt_pack against FP64, XA slot mapping).
+- Picks in the judged runs: rt8w8 at m = 8, rt16w8 at 16, rt16w8p8 at 32; rgemv stays at m = 1.
+
+### wd router VAR bits (`WD_VAR`, `WV_*`)
+
+A wd geometry name carries VAR bits; 0 is the build judged through 6cbd8b981a5d4c3f. The
+production picks use KLUE = PACK | PROMO64 | PUSH | EARLY (`r64c8s8k`, `r128c8s6k`) and
+`r64c4s8a` = KLUE | NOSLEEP | XA.
+
+- PACK: weights from `router_pack(hi, lo)`, `[N/64 * K/64 * 128, 64]`, so one 128-row TMA box
+  carries the hi and lo tiles of a (64-row block, k tile). Pass `state["router_pack"]`.
+- PROMO64: 64-byte L2 promotion on both tensor maps.
+- PUSH: each rank owns BN / CLK tokens; partials go by `st.async` to the owner, which waits for
+  (CLK - 1) peers' bytes on a receive mbarrier and adds the CLK pieces in rank order (the same
+  order as the pull reduction). No pull and no exit cluster barrier.
+- EARLY: the producer issues the prologue loads before the CTA barrier.
+- NOSLEEP: the producer's empty-barrier waits drop the suspend-time hint.
+- XA: x tile as the wgmma A operand (64 tokens) and the packed box as one 128-wide B operand,
+  so one m64n128k16 replaces two m64n64k16 per k16 step; hi and lo accumulators are summed once
+  at the end. Needs PACK, PUSH, WG 1, BN 64; owners of 8, 16 or 32 tokens (CLK 8, 4, 2).
+- Bench-only bits: NOPROD (no producer warp), SPIN (no watchdog), TAILSYNC, DUP (null copy),
+  NOEMPTY (no-producer refill without the empty barrier; prepare() refuses it).
+
+Synchronization argument for PUSH and rt (independent read-only review on 2026-10-30 found no
+blocking defect):
+
+1. Receive-barrier publication: one thread runs `mbarrier.init`, `fence.mbarrier_init.release.cluster`,
+   `mbarrier.arrive.expect_tx`; every thread then `barrier.cluster.arrive.relaxed`; senders run
+   `barrier.cluster.wait` (acquire) before any `st.async` (the CUTLASS cluster-init order). A
+   complete_tx may still land before the expect; the tx count then goes negative, which the
+   mbarrier allows, and the phase cannot complete before the expect's arrive (pending count 1).
+2. Data publication: `st.async`'s complete_tx releases at cluster scope; readers return from
+   `mbarrier.try_wait.parity.acquire.cluster` before reading. Local slots are read only by the
+   thread that wrote them (wd) or after a CTA barrier.
+3. Lifetime: only receive slots are accessed remotely (never the ring); a receiving CTA's
+   readers wait for every expected byte before reading and before exiting, and rt ranks >= P are
+   never targets.
+4. Reuse: no global scratch, counters or self-resetting state; barriers and slots live in the
+   launch's shared memory, every slot has one writer per launch, so CUDA-graph replay is safe
+   (each bench arm was replayed twice on fresh inputs and checked).
+5. Open, documented as ambiguous rather than proven: whether a CTA may exit while its own
+   outgoing `st.async` is still in flight (the CUDA guide's DSMEM rule is about the target), and
+   whether rt's `st.async` to its own rank is sanctioned (the ISA neither allows nor forbids it).
+   TAILSYNC is the conforming fallback; it cost +0.1 to +0.2 us on rt and +0.3 us on wd
+   (a91f2152d8974458). The reference kernel also exits without it.
+
+For the layer: not ported. The layer's T <= 32 router is fused into its pooler / concat front,
+and its T = 128 / 256 router is the concat GEMM. Porting rt means a separate router launch beside
+the pooler; that is a layer decision with its own A/B.
+
+### Stable cuBLASLt choice (`LT_PREF`, `_stable_pick`)
+
+The final cuBLASLt decision per (layer, m) times the pre-Lt pick, the pinned `LT_PREF` config
+(if the library accepts it and it passes the FP64 self-test) and the search's finalists in
+STABLE_ROUNDS = 9 rounds with the order rotated each round, STABLE_REPS = 3 replays per round.
+The preferred candidate (LT_PREF, else the pre-Lt pick) stays unless another saves more than
+max(0.3 us, 2 x the preferred's round MAD) in median paired difference and is faster in at least
+8 of 9 rounds. Same rule as `tools/dl_stable_tuner_patch.py`. The `ltune` line prints every
+candidate's median, each paired saving with its win count, the margin and the pick.

@@ -2270,6 +2270,9 @@ LT_PREF = {
     ("qkv_gate", 256): (0, [66, 124, 1, 0, 0, 0, 35, 0, 2]),
     ("pooler", 256): (1, [66, 18, 1, 0, 0, 0, 35, 0, 2]),
     ("unpooler", 256): (1, [66, 20, 1, 0, 0, 4, 35, 0, 3]),
+    # o 256 flipped between base and an Lt config in two preparations of one file
+    # (6cc72e840403402b: +0.48 us in 8 of 9 rounds against +0.26 in 8 of 9, margin 0.30-0.32).
+    ("o", 256): (3, [66, 20, 1, 0, 0, 4, 35, 0, 3]),
 }
 STABLE_ROUNDS = 9
 STABLE_REPS = 3
