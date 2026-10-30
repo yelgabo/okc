@@ -1292,3 +1292,5 @@ Not done this round: the o m = 128 pin. Across six preparations (f2373ded, b80b8
 d7c66229, 4f3ff774, 25ea2b62) the best cuBLASLt finalist always beat base, by +0.13 to +0.45 us,
 but the winning config changed each time (tile 18 every time; layouts L0-L3, custom 4-7, cluster
 g2 / g5), so no single config to pin has evidence. Worth at most about 0.1% of score.
+
+Scored 2026-10-30: d85d0081fa8a4a43 1.4976x, submission.py at 2265fa2 (split exit cluster barrier, relaxed arrive after the receive wait), submitted by the coordinator. Receipt: muse_bf16_proj/profiles/scored.d85d0081fa8a4a43.json.
