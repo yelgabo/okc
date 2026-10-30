@@ -2489,3 +2489,119 @@ Checks used by this round: ce92d32e26024bd2, d0819bb26907426b, 5d309f9d13924dca,
 Where the remaining gap is (bench d0819bb26907426b, pub - hmrg, cold): v32 sliding -1.38 us, v16
 full -2.0, d32 full -1.4, d16 full -0.9, v1 full -0.86 (phase exits put it in the tile loop),
 d1 full -0.64, v16 sliding -0.32, v1 sliding -0.10, d1 sliding -0.07, d16 sliding -0.04.
+
+## Standalone round 3 (10-30): the per-request q_len 8 tile loop (`ONE_PRQ`)
+
+Brief: re-rank what is left with HMRG on (compact scorecard, independent duplicates for both
+arms), then attribute the top remaining gap inside the tile loop and build one coherent change
+as a switch. Start: main 5c11a11 (ONE_HMRG on). Quota at the start (`okc problems`): 10 of 20
+attention checks; this round uses at most 5, two kept for confirmation.
+
+### Where verify 1 full's tile loop differs from the public one (source and SASS, 10-30)
+
+Verify 1 full runs our mode 11 (q_len 8, per-request, cooperative, speculated length; 252 x nc 8;
+1251 tiles, so 5 tiles per CTA) and the public `attn_kernel<8, false, 11>` (file sha1 0e9d4c78,
+same grid and copies). Both have 3 stages, 256 consumer threads, two CTAs per SM, the same
+wgmma shapes (`QGMMA.64x64x32` x2 for Q.K, `QGMMA.64x72x32` x2 for P.V with ones rows) and the
+same lazy offset. SASS (CUDA 12.8.1, `tools/attn_one_sass.sh`, the public build with its own
+flags; public copy only in .build/ and the scratchpad): ours 109 registers, 2504 instructions,
+tile body 0x46c0-0x6800 (about 530 instructions); public 119 registers, 2752 instructions,
+tile body 0x4e40-0x7690 (about 645). The public tile is longer, so the gap is the order of the
+work on the per-tile critical path, not its amount:
+
+| step | ours (judged) | public per-request |
+|---|---|---|
+| after `cp.async.wait_group 1` + CTA barrier | copies of tile i + 2 first: the in-loop `issue_kv` with a three-way branch per row and 64-bit offsets (about 85 SASS instructions before the Q.K issue) | Q.K issued first; then the copies, branch-free with 32-bit offsets when the tile is fully cached (4 `LDGSTS` in a straight line) |
+| V^T transpose (2 `LDSM.MT88.4` + 2 `STSM.M88.4`) | after the Q.K wait and the softmax, on the critical path | before the Q.K wait, under the in-flight Q.K |
+| offset test | quad max (2 x 2 shuffles) every tile, then the vote | each thread's own partial max against the offset, vote; quad reduction only inside a move |
+| P.V | both halves packed, then one group of two wgmmas | half 0 packed and issued, half 1's exponentials under it, then half 1 |
+
+The old QKF experiment (mode bit 128, scored run bf6b8ca9e37341fb, 10-28) tested Q.K-first plus
+the transpose under Q.K in the kernel generation of that day (before PK16, DIET, DCARRY and HMRG)
+and lost on verify 16 / 32 full (flat mode 19) and by 0.4-0.5 us on verify 16 / 32 sliding; verify 1
+full was not reported. New evidence for reopening it on the per-request plans: the phase exits of
+ce92d32e26024bd2 put verify 1 full's remaining gap inside the tile loop (6.72 vs 5.79 us, merge
+and finalize equal), and the public kernel runs this order there. The switch below separates the
+steps so a loss of one step is attributed to that step.
+
+### The switch: `ONE_PRQ` (bit mask, default 0)
+
+Applies to the per-request q_len 8 instances (1, 3, 11, 15; 9 and 13 under ONE_T9); the flat and
+producer builds and every q_len 1 instance are untouched. Bits: 1 TOV (V^T under the in-flight
+Q.K), 2 QKF (Q.K issued before the next tile's copies), 4 FAST (in-loop copy of a fully cached
+tile branch-free with 32-bit offsets when the host's `off32` holds, as PFAST in the producer),
+8 SPV (P.V per 32-key half, two commit groups), 16 TCHK (offset test on each thread's partial
+max; the quad reduction and the move run only when the vote fires). It is a separate branch
+ahead of the judged loop, so with 0 the judged loop's source is unchanged.
+
+SASS (CUDA 12.8.1, all 13 instances, per-function compare with namespace hashes normalized):
+`ONE_PRQ=0` is identical to main 5c11a11 on every instance. Each of 1, 2, 4, 8, 16 and 31 changes
+only q_len 8 modes 1, 3, 11, 15; no spills, no C75xx warnings; mode 11 2504 -> 2512 / 2520 /
+2544 / 2504 / 2504 / 2568 instructions, highest register R106-R110. With 31 the mode 11 tile issues Q.K
+(0x4950), then the fast copies, `LDGDEPBAR`, both `LDSM`/`STSM` pairs (0x55b0-0x5750), and only
+then `WARPGROUP.DEPBAR` (0x5760); the vote (`VOTE.ANY`) replaces the per-tile shuffles; P.V is
+two `WARPGROUP.ARRIVE` + `QGMMA ... gsb0` pairs.
+
+Arithmetic: no step changes an operation or its order on any value. TCHK: with sl2k > 0,
+fl(max_i x_i * sl2k) = max_i fl(x_i * sl2k) (rounding is monotone), so a row's scaled quad max
+exceeds off + 8 exactly when one of its threads' scaled partials does; the vote fires on the same
+tiles, and inside it the move uses the judged code's `quad_max(mx) * sl2k`. SPV accumulates
+half 0 then half 1 into o, as the single group did. So each CTA's partial is expected bitwise
+equal to the judged loop's; only the reds' arrival order can differ.
+
+### Ordering argument (no fence or barrier removed or moved across a barrier)
+
+Every tile still executes, in each thread: `cp.async.wait_group 1`, `fence.proxy.async`, the CTA
+barrier, the Q.K group and its `wgmma.wait_group 0`, the V^T stores, `fence.proxy.async` and
+`bar.sync(2 + hk, 128)` before any P.V issue, and `wgmma.wait_group 0` after the last P.V. One
+copy group is committed per tile, as before, so `wait_group 1` covers the same copies.
+
+1. TOV, V^T buffer (it & 1), WAR against P.V(it - 2), which read it: each warp retired P.V(it - 2)
+   with its `wait_group 0` in tile it - 2, before it reached the CTA barriers of tiles it - 1 and
+   it; the transpose of tile it now runs after the barrier of tile it and before the Q.K wait,
+   still after that barrier. RAW to P.V(it): unchanged (stores, `fence.proxy.async`, `bar.sync`,
+   wgmma). The ldmatrix of V(it) from stage st: the copies of tile it landed at this thread's
+   `wait_group 1` and every thread's at the CTA barrier, as for the judged transpose; the
+   ldmatrix reads only the V half while the Q.K wgmma reads the K half (two readers).
+2. QKF, stage (it + 2) % 3 (tile it - 1's stage), WAR against Q.K(it - 1) (async proxy) and the
+   ldmatrix of V(it - 1): both retired before the CTA barrier of tile it, and the copies are still
+   issued after that barrier (now after the Q.K(it) issue, which reads stage st, a different
+   stage). Index ring: slot (it + 4) & 7 written, slot (it + 2) & 7 read, as before.
+3. FAST: the same rows, the same destination addresses and byte counts as the generic path takes
+   for a tile with pos0 + 64 <= seq (every row cached, no patch, no zero fill); 32-bit offsets
+   only when the host set `off32` (both caches below 4 GB, page size a power of two), the rule
+   PFAST was judged under.
+4. SPV: `wgmma.fence` before each P.V issue, so the generic writes of pa[1] between the two
+   groups are ordered before the second wgmma reads them; o is written by no other instruction
+   between the issues and is read only after `wait_group 0` + the register fence; ptxas reports
+   no serialization.
+5. TCHK: registers and a warp vote only.
+
+### Gate for check 1 (written before the bench that tests it)
+
+Bench `bench_g` (`tools/attn_make_bench_ab.py`, scratchpad `prq/gen_g.sh`; `--pub <0e9d4c78>
+--null --shapes all --inputs 2 --seed 20261037`): arms `ctrl`, `ctrl2` (own state), `pub`,
+`pub2` (the compact scorecard with a duplicate of each), and the cumulative ladder `p1`, `p3`,
+`p7`, `p15`, `p31` (`-DONE_PRQ=<n>`, sharing ctrl's state, so the d1 full placement term is
+absent from their differences).
+
+Modeled gain of an arm X: G(X) = sum over the rows its SASS changes (v1 sliding, v1 full, v16
+sliding, v32 sliding) of (ctrl - X) x sensitivity, cold pooled medians, sensitivities from the
+judged run 5d309f9d13924dca (v1 sliding 1.420, v1 full 0.494, v16 sliding 0.349, v32 sliding 0.206
+%/us). Matching the public kernel on those four rows was worth about 0.9% in d0819bb26907426b.
+
+A ladder arm goes to the confirmation bench only if all hold:
+1. ABCHECK passes for every real arm, and X against ctrl differs only at the red-order level (a
+   few elements at one BF16 ulp per shape), with the workspace left zero.
+2. G(X) >= 0.30% and G(X) > |G(ctrl2)| + 0.10%.
+3. On v1 full and on each sliding row that adds more than 0.05% to G(X), the change has the
+   same sign on both held-out inputs (ABIN).
+4. No row slower than ctrl by more than max(that row's |ctrl2 - ctrl|, 1%).
+
+Choice: the passing arm with the largest G; a smaller bit set within 0.05% of it is preferred.
+If a ladder step (for example p1 -> p3, the QKF bit) costs more than 0.05%, the confirmation
+candidate drops that bit and is measured fresh. If no arm passes: measured loss for the steps
+as built, a row in docs/ruled-out.md, and the round turns to the placement side bet.
+
+Scorecard (no gate): pub - ctrl per row against both nulls, re-ranked by value (difference x
+sensitivity), to name what is left after this change.
