@@ -1734,6 +1734,11 @@ WD_GEOM = {
     "r64c16": (1, 64, 16, 1, True, 4),
     "r128c8": (1, 128, 8, 1, True, 4),
     "r128c16": (1, 128, 16, 1, True, 4),
+    # 64-token tiles and an 8-stage ring at m = 128 / 256 (6 stages at 128 tokens): the
+    # independent reference's router runs 64 rows x 64 tokens per CTA, K split 8, 8 stages.
+    "r64c8s8": (1, 64, 8, 1, True, 8),
+    "r64c4s8": (1, 64, 4, 1, True, 8),
+    "r128c8s6": (1, 128, 8, 1, True, 6),
     "b1n64c2": (1, 64, 2, 1, False, 6),
     "b1n128c2": (1, 128, 2, 1, False, 4),
     "b2n256c2": (2, 256, 2, 1, False, 4),
@@ -1853,6 +1858,362 @@ void cut_fwd(at::Tensor W, at::Tensor x, at::Tensor out, at::Tensor ws) {
   TORCH_CHECK(rc == 0, "cut_fwd: CUTLASS status ", rc);
 }
 """
+
+# --------------------------------------------------------------------------------------------
+# Direct cuBLASLt at m = 128 / 256 on the four BF16 layers. SGLang's dispatch (our "cublas"
+# candidate) takes the library heuristic's first answer for one layout; here prepare() lists the
+# heuristic answers for four layouts (W or a K-major copy, column or row order) under several
+# workspace caps, screens them from a cold L2, expands the best few (stages, FP32-reduced
+# split-K, swizzle, custom option, cluster shape), self-tests the fastest against FP64 and
+# times them against the existing pick. Only FP32 accumulation, and split-K only when reduced
+# in FP32. Plans are fixed to one m, so they serve exactly m = 128 and 256.
+# --------------------------------------------------------------------------------------------
+LT_SRC = r"""
+// Direct cuBLASLt plans for out[m, n] = x[m, k] W[n, k]^T, BF16 in and out, FP32 compute.
+// Host code only, no torch headers, so it compiles standalone for checking.
+#include <cuda_runtime.h>
+#include <cublasLt.h>
+#include <cstdint>
+#include <cstring>
+#include <algorithm>
+#include <array>
+#include <memory>
+#include <set>
+#include <vector>
+
+namespace {
+
+using LtCfg = std::array<int64_t, 9>;
+
+// Config attribute ids 0-8 in cublasLt.h order: algo id, tile, split-k, reduction scheme,
+// swizzle, custom option, stages, inner shape, cluster shape. The last two are uint16.
+const cublasLtMatmulAlgoConfigAttributes_t kCfgAttr[9] = {
+    CUBLASLT_ALGO_CONFIG_ID, CUBLASLT_ALGO_CONFIG_TILE_ID, CUBLASLT_ALGO_CONFIG_SPLITK_NUM,
+    CUBLASLT_ALGO_CONFIG_REDUCTION_SCHEME, CUBLASLT_ALGO_CONFIG_CTA_SWIZZLING,
+    CUBLASLT_ALGO_CONFIG_CUSTOM_OPTION, CUBLASLT_ALGO_CONFIG_STAGES_ID,
+    CUBLASLT_ALGO_CONFIG_INNER_SHAPE_ID, CUBLASLT_ALGO_CONFIG_CLUSTER_SHAPE_ID};
+
+LtCfg cfg_of(const cublasLtMatmulAlgo_t& a) {
+    LtCfg c{};
+    for (int i = 0; i < 9; ++i) {
+        size_t wr = 0;
+        if (i >= 7) {
+            uint16_t v = 0;
+            cublasLtMatmulAlgoConfigGetAttribute(&a, kCfgAttr[i], &v, sizeof(v), &wr);
+            c[i] = v;
+        } else {
+            uint32_t v = 0;
+            cublasLtMatmulAlgoConfigGetAttribute(&a, kCfgAttr[i], &v, sizeof(v), &wr);
+            c[i] = v;
+        }
+    }
+    return c;
+}
+
+bool cfg_set(cublasLtMatmulAlgo_t& a, int i, int64_t value) {
+    if (i >= 7) {
+        uint16_t v = (uint16_t)value;
+        return cublasLtMatmulAlgoConfigSetAttribute(&a, kCfgAttr[i], &v, sizeof(v)) == CUBLAS_STATUS_SUCCESS;
+    }
+    uint32_t v = (uint32_t)value;
+    return cublasLtMatmulAlgoConfigSetAttribute(&a, kCfgAttr[i], &v, sizeof(v)) == CUBLAS_STATUS_SUCCESS;
+}
+
+uint32_t cap_u32(const cublasLtMatmulAlgo_t& a, cublasLtMatmulAlgoCapAttributes_t attr) {
+    uint32_t v = 0;
+    size_t wr = 0;
+    if (cublasLtMatmulAlgoCapGetAttribute(&a, attr, &v, sizeof(v), &wr) != CUBLAS_STATUS_SUCCESS) {
+        return 0;
+    }
+    return v;
+}
+
+std::vector<uint32_t> cap_list(const cublasLtMatmulAlgo_t& a, cublasLtMatmulAlgoCapAttributes_t attr) {
+    size_t bytes = 0;
+    if (cublasLtMatmulAlgoCapGetAttribute(&a, attr, nullptr, 0, &bytes) != CUBLAS_STATUS_SUCCESS || bytes == 0) {
+        return {};
+    }
+    std::vector<uint32_t> v(bytes / sizeof(uint32_t));
+    if (cublasLtMatmulAlgoCapGetAttribute(&a, attr, v.data(), bytes, &bytes) != CUBLAS_STATUS_SUCCESS) {
+        return {};
+    }
+    return v;
+}
+
+cublasLtHandle_t g_handle = nullptr;
+
+struct LtPlan {
+    int m = 0, n = 0, k = 0, layout = 0;
+    size_t ws_cap = 0;
+    cublasLtMatmulDesc_t op = nullptr;
+    cublasLtMatrixLayout_t la = nullptr, lb = nullptr, ld = nullptr;
+    std::vector<cublasLtMatmulAlgo_t> algos;
+    std::vector<size_t> ws;
+    std::vector<float> waves;
+    std::set<LtCfg> seen;
+    int rejected = 0;
+
+    ~LtPlan() {
+        if (op) cublasLtMatmulDescDestroy(op);
+        if (la) cublasLtMatrixLayoutDestroy(la);
+        if (lb) cublasLtMatrixLayoutDestroy(lb);
+        if (ld) cublasLtMatrixLayoutDestroy(ld);
+    }
+
+    // Accepts an algorithm only with FP32 accumulation and either no split-K or a split-K
+    // reduced in the compute type: the in-place and output-type schemes sum BF16-rounded
+    // partials, which SGLang's own split-K (splitKreduce in FP32) does not.
+    bool add(const cublasLtMatmulAlgo_t& a) {
+        LtCfg c = cfg_of(a);
+        if (!seen.insert(c).second) return false;
+        if (c[2] > 1 && c[3] != CUBLASLT_REDUCTION_SCHEME_COMPUTE_TYPE) { ++rejected; return false; }
+        if (c[2] <= 1 && c[3] != CUBLASLT_REDUCTION_SCHEME_NONE && c[3] != CUBLASLT_REDUCTION_SCHEME_COMPUTE_TYPE) {
+            ++rejected;
+            return false;
+        }
+        uint64_t flags = 0;
+        size_t wr = 0;
+        if (cublasLtMatmulAlgoCapGetAttribute(&a, CUBLASLT_ALGO_CAP_NUMERICAL_IMPL_FLAGS, &flags, sizeof(flags), &wr)
+            != CUBLAS_STATUS_SUCCESS) {
+            ++rejected;
+            return false;
+        }
+        if ((flags & CUBLASLT_NUMERICAL_IMPL_FLAGS_ACCUMULATOR_TYPE_MASK) != CUBLASLT_NUMERICAL_IMPL_FLAGS_ACCUMULATOR_32F
+            || (flags & CUBLASLT_NUMERICAL_IMPL_FLAGS_INPUT_TF32)) {
+            ++rejected;
+            return false;
+        }
+        cublasLtMatmulHeuristicResult_t r;
+        std::memset(&r, 0, sizeof(r));
+        if (cublasLtMatmulAlgoCheck(g_handle, op, la, lb, ld, ld, &a, &r) != CUBLAS_STATUS_SUCCESS
+            || r.state != CUBLAS_STATUS_SUCCESS || r.workspaceSize > ws_cap) {
+            ++rejected;
+            return false;
+        }
+        algos.push_back(a);
+        ws.push_back(r.workspaceSize);
+        waves.push_back(r.wavesCount);
+        return true;
+    }
+};
+
+std::vector<std::unique_ptr<LtPlan>> g_plans;
+
+LtPlan* plan_at(int64_t p) {
+    return (p >= 0 && p < (int64_t)g_plans.size()) ? g_plans[p].get() : nullptr;
+}
+
+}  // namespace
+
+int64_t lt_version() {
+    return (int64_t)cublasLtGetVersion();
+}
+
+// Layouts (cuBLASLt is column-major unless ORDER_ROW is set):
+//   0  column-major, D^T[n, m] = op_T(W as k x n) * x^T(k x m)      W as given
+//   1  column-major, D^T[n, m] = Wt(n x k, ld n) * x^T(k x m)        Wt = W^T contiguous [k, n]
+//   2  row order,    D[m, n] = x(m x k) * op_T(W as n x k)            W as given
+//   3  row order,    D[m, n] = x(m x k) * Wt(k x n)                   Wt
+// D is the same row-major out[m, n] buffer in all four.
+int64_t lt_plan_new(int64_t m, int64_t n, int64_t k, int64_t layout, int64_t ws_cap) {
+    if (!g_handle && cublasLtCreate(&g_handle) != CUBLAS_STATUS_SUCCESS) return -1;
+    auto p = std::make_unique<LtPlan>();
+    p->m = (int)m;
+    p->n = (int)n;
+    p->k = (int)k;
+    p->layout = (int)layout;
+    p->ws_cap = (size_t)ws_cap;
+    if (cublasLtMatmulDescCreate(&p->op, CUBLAS_COMPUTE_32F, CUDA_R_32F) != CUBLAS_STATUS_SUCCESS) return -2;
+    const bool row = layout >= 2;
+    const bool packed = layout % 2 == 1;
+    cublasOperation_t ta = CUBLAS_OP_N, tb = CUBLAS_OP_N;
+    if (!row) {
+        ta = packed ? CUBLAS_OP_N : CUBLAS_OP_T;
+        if (packed) {
+            cublasLtMatrixLayoutCreate(&p->la, CUDA_R_16BF, n, k, n);
+        } else {
+            cublasLtMatrixLayoutCreate(&p->la, CUDA_R_16BF, k, n, k);
+        }
+        cublasLtMatrixLayoutCreate(&p->lb, CUDA_R_16BF, k, m, k);
+        cublasLtMatrixLayoutCreate(&p->ld, CUDA_R_16BF, n, m, n);
+    } else {
+        tb = packed ? CUBLAS_OP_N : CUBLAS_OP_T;
+        cublasLtMatrixLayoutCreate(&p->la, CUDA_R_16BF, m, k, k);
+        if (packed) {
+            cublasLtMatrixLayoutCreate(&p->lb, CUDA_R_16BF, k, n, n);
+        } else {
+            cublasLtMatrixLayoutCreate(&p->lb, CUDA_R_16BF, n, k, k);
+        }
+        cublasLtMatrixLayoutCreate(&p->ld, CUDA_R_16BF, m, n, n);
+        cublasLtOrder_t ord = CUBLASLT_ORDER_ROW;
+        for (auto l : {p->la, p->lb, p->ld}) {
+            if (!l || cublasLtMatrixLayoutSetAttribute(l, CUBLASLT_MATRIX_LAYOUT_ORDER, &ord, sizeof(ord))
+                       != CUBLAS_STATUS_SUCCESS) {
+                return -3;
+            }
+        }
+    }
+    if (!p->la || !p->lb || !p->ld) return -4;
+    if (cublasLtMatmulDescSetAttribute(p->op, CUBLASLT_MATMUL_DESC_TRANSA, &ta, sizeof(ta)) != CUBLAS_STATUS_SUCCESS
+        || cublasLtMatmulDescSetAttribute(p->op, CUBLASLT_MATMUL_DESC_TRANSB, &tb, sizeof(tb)) != CUBLAS_STATUS_SUCCESS) {
+        return -5;
+    }
+    g_plans.push_back(std::move(p));
+    return (int64_t)g_plans.size() - 1;
+}
+
+// Heuristic candidates under a workspace cap; returns how many new ones were accepted.
+int64_t lt_heuristic(int64_t plan, int64_t ws_bytes, int64_t req) {
+    LtPlan* p = plan_at(plan);
+    if (!p) return -1;
+    cublasLtMatmulPreference_t pref = nullptr;
+    if (cublasLtMatmulPreferenceCreate(&pref) != CUBLAS_STATUS_SUCCESS) return -2;
+    uint64_t wsb = (uint64_t)std::min<int64_t>(ws_bytes, (int64_t)p->ws_cap);
+    cublasLtMatmulPreferenceSetAttribute(pref, CUBLASLT_MATMUL_PREF_MAX_WORKSPACE_BYTES, &wsb, sizeof(wsb));
+    std::vector<cublasLtMatmulHeuristicResult_t> res((size_t)req);
+    int got = 0;
+    int64_t added = 0;
+    if (cublasLtMatmulAlgoGetHeuristic(g_handle, p->op, p->la, p->lb, p->ld, p->ld, pref, (int)req, res.data(), &got)
+        == CUBLAS_STATUS_SUCCESS) {
+        for (int i = 0; i < got; ++i) {
+            if (res[i].state == CUBLAS_STATUS_SUCCESS && p->add(res[i].algo)) ++added;
+        }
+    }
+    cublasLtMatmulPreferenceDestroy(pref);
+    return added;
+}
+
+// Neighbours of accepted candidate idx: its other stage counts, split-K 2-8 reduced in FP32,
+// swizzle and custom options, cluster shapes. Returns how many were accepted.
+int64_t lt_expand(int64_t plan, int64_t idx, int64_t max_add) {
+    LtPlan* p = plan_at(plan);
+    if (!p || idx < 0 || idx >= (int64_t)p->algos.size()) return -1;
+    const cublasLtMatmulAlgo_t base = p->algos[(size_t)idx];
+    const size_t before = p->algos.size();
+    auto room = [&]() { return (int64_t)(p->algos.size() - before) < max_add; };
+    for (uint32_t s : cap_list(base, CUBLASLT_ALGO_CAP_STAGES_IDS)) {
+        if (!room()) break;
+        auto a = base;
+        if (cfg_set(a, 6, s)) p->add(a);
+    }
+    int32_t sk = 0;
+    size_t wr = 0;
+    cublasLtMatmulAlgoCapGetAttribute(&base, CUBLASLT_ALGO_CAP_SPLITK_SUPPORT, &sk, sizeof(sk), &wr);
+    if (sk && (cap_u32(base, CUBLASLT_ALGO_CAP_REDUCTION_SCHEME_MASK) & CUBLASLT_REDUCTION_SCHEME_COMPUTE_TYPE)) {
+        for (int s : {2, 3, 4, 6, 8}) {
+            if (!room()) break;
+            auto a = base;
+            if (cfg_set(a, 2, s) && cfg_set(a, 3, CUBLASLT_REDUCTION_SCHEME_COMPUTE_TYPE)) p->add(a);
+        }
+    }
+    const int swz = (int)cap_u32(base, CUBLASLT_ALGO_CAP_CTA_SWIZZLING_SUPPORT);
+    const int cust = (int)std::min<uint32_t>(cap_u32(base, CUBLASLT_ALGO_CAP_CUSTOM_OPTION_MAX), 15u);
+    for (int z = 0; z <= swz; ++z) {
+        for (int c = 0; c <= cust; ++c) {
+            if (!room()) break;
+            auto a = base;
+            if (cfg_set(a, 4, z) && cfg_set(a, 5, c)) p->add(a);
+        }
+    }
+    for (int cl = 0; cl <= 24; ++cl) {
+        if (!room()) break;
+        auto a = base;
+        if (cfg_set(a, 8, cl)) p->add(a);
+    }
+    return (int64_t)(p->algos.size() - before);
+}
+
+// Adds one config by value (all nine fields); returns its index or -1.
+int64_t lt_add_config(int64_t plan, std::vector<int64_t> c) {
+    LtPlan* p = plan_at(plan);
+    if (!p || c.size() != 9) return -1;
+    cublasLtMatmulAlgo_t a;
+    std::memset(&a, 0, sizeof(a));
+    if (cublasLtMatmulAlgoInit(g_handle, CUBLAS_COMPUTE_32F, CUDA_R_32F, CUDA_R_16BF, CUDA_R_16BF, CUDA_R_16BF,
+                               CUDA_R_16BF, (int)c[0], &a) != CUBLAS_STATUS_SUCCESS) {
+        return -1;
+    }
+    for (int i = 1; i < 9; ++i) {
+        if (!cfg_set(a, i, c[i]) && c[i] != 0) return -1;
+    }
+    LtCfg want{};
+    for (int i = 0; i < 9; ++i) want[i] = c[i];
+    for (size_t j = 0; j < p->algos.size(); ++j) {
+        if (cfg_of(p->algos[j]) == want) return (int64_t)j;
+    }
+    if (!p->add(a)) return -1;
+    return cfg_of(p->algos.back()) == want ? (int64_t)p->algos.size() - 1 : -1;
+}
+
+int64_t lt_count(int64_t plan) {
+    LtPlan* p = plan_at(plan);
+    return p ? (int64_t)p->algos.size() : -1;
+}
+
+int64_t lt_rejected(int64_t plan) {
+    LtPlan* p = plan_at(plan);
+    return p ? (int64_t)p->rejected : -1;
+}
+
+// The nine config fields, then workspace bytes and 1000 x the reported waves.
+std::vector<int64_t> lt_info(int64_t plan, int64_t idx) {
+    LtPlan* p = plan_at(plan);
+    if (!p || idx < 0 || idx >= (int64_t)p->algos.size()) return {};
+    LtCfg c = cfg_of(p->algos[(size_t)idx]);
+    std::vector<int64_t> v(c.begin(), c.end());
+    v.push_back((int64_t)p->ws[(size_t)idx]);
+    v.push_back((int64_t)(1000.0f * p->waves[(size_t)idx]));
+    return v;
+}
+
+// w is W [n, k] for layouts 0 / 2 and Wt [k, n] for 1 / 3. Returns the cuBLAS status.
+int64_t lt_run_raw(int64_t plan, int64_t idx, int64_t w, int64_t x, int64_t out, int64_t ws, int64_t ws_bytes,
+                   int64_t stream) {
+    LtPlan* p = plan_at(plan);
+    if (!p || idx < 0 || idx >= (int64_t)p->algos.size()) return -1;
+    if ((int64_t)p->ws[(size_t)idx] > ws_bytes) return -2;
+    const float alpha = 1.0f, beta = 0.0f;
+    const bool row = p->layout >= 2;
+    const void* a = row ? (const void*)x : (const void*)w;
+    const void* b = row ? (const void*)w : (const void*)x;
+    return (int64_t)cublasLtMatmul(g_handle, p->op, &alpha, a, p->la, b, p->lb, &beta, (void*)out, p->ld, (void*)out,
+                                   p->ld, &p->algos[(size_t)idx], (void*)ws, p->ws[(size_t)idx],
+                                   (cudaStream_t)stream);
+}
+"""
+LT_CPP = r"""
+#include <torch/extension.h>
+#include <ATen/cuda/CUDAContext.h>
+int64_t lt_version();
+int64_t lt_plan_new(int64_t m, int64_t n, int64_t k, int64_t layout, int64_t ws_cap);
+int64_t lt_heuristic(int64_t plan, int64_t ws_bytes, int64_t req);
+int64_t lt_expand(int64_t plan, int64_t idx, int64_t max_add);
+int64_t lt_add_config(int64_t plan, std::vector<int64_t> c);
+int64_t lt_count(int64_t plan);
+int64_t lt_rejected(int64_t plan);
+std::vector<int64_t> lt_info(int64_t plan, int64_t idx);
+int64_t lt_run_raw(int64_t plan, int64_t idx, int64_t w, int64_t x, int64_t out, int64_t ws, int64_t ws_bytes,
+                   int64_t stream);
+int64_t lt_run(int64_t plan, int64_t idx, at::Tensor w, at::Tensor x, at::Tensor out, at::Tensor ws) {
+  return lt_run_raw(plan, idx, (int64_t)w.data_ptr(), (int64_t)x.data_ptr(), (int64_t)out.data_ptr(),
+                    (int64_t)ws.data_ptr(), ws.numel(), (int64_t)at::cuda::getCurrentCUDAStream().stream());
+}
+"""
+LT_FUNCS = ["lt_version", "lt_plan_new", "lt_heuristic", "lt_expand", "lt_add_config", "lt_count", "lt_rejected",
+            "lt_info", "lt_run"]
+LT_TARGETS = tuple((layer, m) for m in (128, 256) for layer in BF16_LAYERS)
+LT_LAYOUTS = (0, 1, 2, 3)
+LT_WS_BYTES = 32 << 20
+LT_WS_CAPS = (0, 1 << 20, LT_WS_BYTES)
+LT_HEUR_REQ = 32
+LT_SCREEN_REPS = 6
+LT_EXPAND_TOP = 4
+LT_EXPAND_MAX = 48
+LT_FINALISTS = 3
+# Same role as WD_MARGIN: tuner medians carry about 1% noise.
+LT_MARGIN = 0.98
+# cuBLASLt's heuristic assumes 256-byte aligned operands unless told otherwise.
+LT_ALIGN = 256
 
 
 def wd_smem(wg, bn, clk, clr, hl, nst):
@@ -2446,6 +2807,115 @@ def _cut_runner(ext, w, ws):
     return run
 
 
+def _build_lt():
+    # The plain name matches the toolkit headers nvcc compiles against; the versioned names
+    # cover images that ship only the runtime library.
+    last = None
+    for flag in ("-lcublasLt", "-l:libcublasLt.so.13", "-l:libcublasLt.so.12"):
+        try:
+            return load_inline(name="okc_lt_v1", cpp_sources=LT_CPP, cuda_sources=LT_SRC, functions=LT_FUNCS,
+                               extra_cuda_cflags=["-O2"], extra_ldflags=[flag], verbose=False)
+        except Exception as exc:
+            last = exc
+    raise last
+
+
+def _lt_cfg_str(info):
+    a, t, sk, red, swz, cust, st, inner, cl, ws, waves = info
+    return f"a{a}t{t}s{st}k{sk}r{red}z{swz}c{cust}i{inner}g{cl}w{ws >> 10}v{waves / 1000:.2f}"
+
+
+def _lt_runner(lt, plan, idx, warg, m, n, ws, fallback):
+    def run(x):
+        # Plans are built for one m, and the heuristic assumed 256-byte aligned operands.
+        if x.shape[0] != m or x.data_ptr() % LT_ALIGN:
+            return fallback(x)
+        out = torch.empty((m, n), dtype=torch.bfloat16, device=x.device)
+        rc = lt.lt_run(plan, idx, warg, x, out, ws)
+        if rc:
+            raise RuntimeError(f"cublasLt status {rc}")
+        return out
+    return run
+
+
+def _lt_screen(fns, x, flush, reps):
+    """Median microseconds per function over reps cold-L2 direct launches (no graph): the 64 us
+    flush ahead of each launch covers the host launch cost. Failures time as infinity."""
+    times = [[] for _ in fns]
+    alive = [True] * len(fns)
+    for rep in range(reps):
+        order = range(len(fns)) if rep % 2 == 0 else range(len(fns) - 1, -1, -1)
+        evs = []
+        for i in order:
+            if not alive[i]:
+                continue
+            flush.sum()
+            e0 = torch.cuda.Event(enable_timing=True)
+            e1 = torch.cuda.Event(enable_timing=True)
+            e0.record()
+            try:
+                fns[i](x)
+            except Exception:
+                alive[i] = False
+            e1.record()
+            evs.append((i, e0, e1))
+        torch.cuda.synchronize()
+        for i, e0, e1 in evs:
+            times[i].append(1000 * e0.elapsed_time(e1))
+    return [statistics.median(t) if alive[i] and t else float("inf") for i, t in enumerate(times)]
+
+
+def _lt_search(lt, state, layer, m, ws, flush, gen, diag, fallback):
+    """Validated cuBLASLt finalists for (layer, m), fastest first: [(info, run)]."""
+    w = state[layer]
+    n, k = w.shape
+    dev = w.device
+    wts = state.setdefault("lt_wt", {})
+    if layer not in wts:
+        wts[layer] = w.t().contiguous()
+    plans = []
+    for layout in LT_LAYOUTS:
+        p = lt.lt_plan_new(m, n, k, layout, ws.numel())
+        if p < 0:
+            continue
+        for cap in LT_WS_CAPS:
+            lt.lt_heuristic(p, cap, LT_HEUR_REQ)
+        plans.append((p, layout))
+    x, _ = _gen_x(m, k, gen, dev)
+
+    def runner(p, layout, i):
+        return _lt_runner(lt, p, i, wts[layer] if layout % 2 else w, m, n, ws, fallback)
+
+    seen = {}
+
+    def screen():
+        new = [(p, layout, i) for p, layout in plans for i in range(lt.lt_count(p)) if (p, i) not in seen]
+        us = _lt_screen([runner(*c) for c in new], x, flush, LT_SCREEN_REPS)
+        for c, t in zip(new, us):
+            seen[(c[0], c[2])] = (t, c[1])
+
+    screen()
+    first = len(seen)
+    for (p, i), (t, layout) in sorted(seen.items(), key=lambda kv: kv[1][0])[:LT_EXPAND_TOP]:
+        lt.lt_expand(p, i, LT_EXPAND_MAX)
+    screen()
+    ranked = sorted(seen.items(), key=lambda kv: kv[1][0])
+    out = []
+    for (p, i), (t, layout) in ranked:
+        if len(out) == LT_FINALISTS or t == float("inf"):
+            break
+        info = [layout] + list(lt.lt_info(p, i))
+        fn = runner(p, layout, i)
+        try:
+            _self_test(f"{layer} lt", fn, w, n, (m,), SELFTEST_TOL["bf16"], gen, diag)
+            out.append((info, fn, t))
+        except Exception as exc:
+            print(f"lt {layer} m={m}: L{layout} {_lt_cfg_str(info[1:])} failed self-test ({str(exc)[-120:]})")
+    print(f"lt {layer} m={m}: {first} heuristic + {len(seen) - first} expanded candidates, screen best "
+          + ", ".join(f"L{info[0]}:{_lt_cfg_str(info[1:])} {t:.1f}" for info, _, t in out))
+    return out
+
+
 def _build_ext():
     src = sk_source() + GEMV_CUDA_SRC + wd_source()
     kwargs = dict(name="okc_sk_v2", cpp_sources="#include <torch/extension.h>\n" + _SK_CPP + GEMV_CPP_DECLS + _WD_CPP,
@@ -2523,6 +2993,7 @@ def prepare(weights):
         print(f"sk build failed, cuBLAS everywhere ({type(exc).__name__}: {str(exc)[-800:]})")
         return state
     print(f"sk build {time.time() - t0:.1f} s")
+    state["wd_ext"] = ext
     diag = torch.zeros(4, dtype=torch.int32, device=dev)
     gen = torch.Generator(device=dev).manual_seed(1234)
     cands = {}
@@ -2628,7 +3099,8 @@ def prepare(weights):
                 cands.setdefault((layer, b), []).append(("cublas", lambda x, w=w: _cublas(x, w), False))
             for nm in WD_GEOM:
                 wg, bn, clk, clr, hl, nst = WD_GEOM[nm]
-                if hl != is_router or bn not in WD_BN[b] or not wd_fits(nm, n, k):
+                bn_ok = bn in WD_BN[b] or (is_router and b == 256 and bn == 64)
+                if hl != is_router or not bn_ok or not wd_fits(nm, n, k):
                     continue
                 fn = _wd_runner(ext, nm, wk, n, k, torch.float32 if is_router else torch.bfloat16, diag)
                 add(layer, b, nm, fn, w, n, WD_SELFTEST_MS[b], SELFTEST_TOL["router" if is_router else "bf16"])
@@ -2667,6 +3139,40 @@ def prepare(weights):
         for m in range(9, WD_BUCKETS[-1] + 1):
             if (layer, m) not in state["pick"]:
                 state["pick"][(layer, m)] = state["pick"][(layer, bucket_of(m))]
+    state["pick_base"] = dict(state["pick"])
+    state["lt_pick"] = {}
+    lt = None
+    try:
+        t1 = time.time()
+        lt = _build_lt()
+        state["lt_ws"] = torch.zeros(LT_WS_BYTES, dtype=torch.uint8, device=dev)
+        print(f"lt build {time.time() - t1:.1f} s, cublasLt {lt.lt_version()}, torch cuda {torch.version.cuda}")
+    except Exception as exc:
+        print(f"lt build failed, route off ({type(exc).__name__}: {str(exc)[-400:]})")
+    if lt is not None:
+        state["lt_ext"] = lt
+        for layer, m in LT_TARGETS:
+            base = state["pick"].get((layer, m))
+            if base is None:
+                continue
+            try:
+                fins = _lt_search(lt, state, layer, m, state["lt_ws"], flush, gen, diag, base)
+                if not fins:
+                    continue
+                x, _ = _gen_x(m, state[layer].shape[1], gen, dev)
+                us = _time_candidates([base] + [f[1] for f in fins], x, flush)
+                best = min(range(len(us)), key=lambda i: us[i])
+                if best > 0 and us[best] < LT_MARGIN * us[0]:
+                    state["pick"][(layer, m)] = fins[best - 1][1]
+                    state["lt_pick"][(layer, m)] = fins[best - 1][0]
+                else:
+                    best = 0
+                print(f"ltune {layer:9s} m={m}: base {us[0]:.1f}, "
+                      + ", ".join(f"L{f[0][0]}:{_lt_cfg_str(f[0][1:])} {t:.1f}" for f, t in zip(fins, us[1:]))
+                      + f" -> {'base' if best == 0 else 'lt'}")
+            except Exception as exc:
+                torch.cuda.synchronize()
+                print(f"ltune {layer} m={m}: failed ({type(exc).__name__}: {str(exc)[-200:]})")
     for (layer, m), base in WD_ABLATE.items():
         is_router = layer == "router"
         w = state["router_hilo"] if is_router else state[layer]

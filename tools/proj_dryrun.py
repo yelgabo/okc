@@ -104,6 +104,56 @@ class FakeExt:
         out.zero_()
 
 
+class FakeLt:
+    """cuBLASLt plans: a few fake candidates per plan; lt_run checks shapes and fills zeros."""
+
+    def __init__(self):
+        self.plans = []
+        self.runs = 0
+
+    def lt_version(self):
+        return 0
+
+    def lt_plan_new(self, m, n, k, layout, ws_cap):
+        assert layout in (0, 1, 2, 3) and ws_cap > 0
+        self.plans.append({"mnk": (m, n, k), "layout": layout, "algos": []})
+        return len(self.plans) - 1
+
+    def lt_heuristic(self, plan, ws_bytes, req):
+        a = self.plans[plan]["algos"]
+        a.append([66, len(a), 1, 0, 0, 0, 35, 0, 2])
+        return 1
+
+    def lt_expand(self, plan, idx, max_add):
+        a = self.plans[plan]["algos"]
+        a.append(list(a[idx][:2]) + [2, 2, 0, 0, 35, 0, 2])
+        return 1
+
+    def lt_add_config(self, plan, c):
+        self.plans[plan]["algos"].append(list(c))
+        return len(self.plans[plan]["algos"]) - 1
+
+    def lt_count(self, plan):
+        return len(self.plans[plan]["algos"])
+
+    def lt_rejected(self, plan):
+        return 0
+
+    def lt_info(self, plan, idx):
+        return self.plans[plan]["algos"][idx] + [0, 1000]
+
+    def lt_run(self, plan, idx, w, x, out, ws):
+        m, n, k = self.plans[plan]["mnk"]
+        layout = self.plans[plan]["layout"]
+        assert 0 <= idx < len(self.plans[plan]["algos"])
+        assert tuple(x.shape) == (m, k) and x.dtype == torch.bfloat16 and x.is_contiguous()
+        assert tuple(w.shape) == ((k, n) if layout % 2 else (n, k)) and w.is_contiguous()
+        assert tuple(out.shape) == (m, n) and out.dtype == torch.bfloat16
+        out.zero_()
+        self.runs += 1
+        return 0
+
+
 def main():
     path = sys.argv[1] if len(sys.argv) > 1 else ROOT / "muse_bf16_proj/submission.py"
     spec = importlib.util.spec_from_file_location("submission", path)
@@ -112,6 +162,15 @@ def main():
     ext = FakeExt(mod)
     mod._build_ext = lambda: ext
     mod._check = lambda out, ref, probes, tol: (True, 0.0, 0.0)
+    lt = FakeLt()
+    mod._build_lt = lambda: lt
+    mod.LT_ALIGN = 1
+
+    def fake_screen(fns, x, flush, reps):
+        for fn in fns:
+            fn(x)
+        return [float(i) for i in range(len(fns))]
+    mod._lt_screen = fake_screen
     timed = []
 
     def fake_time(fns, x, flush):
@@ -133,6 +192,8 @@ def main():
     print(f"prepare dry run {time.time() - t0:.1f} s, {len(ext.calls)} kernel calls, {len(timed)} tuned shapes")
     assert state["fused"].keys() == {8, 16}, state["fused"].keys()
     picks = state["pick"]
+    print(f"lt plans {len(lt.plans)}, lt runs {lt.runs}, lt picks {sorted(state['lt_pick'])}")
+    assert len(state["lt_pick"]) == len(mod.LT_TARGETS), state["lt_pick"]
     assert all((layer, m) in picks for layer in LAYERS for m in range(1, 257)), "every m <= 256 has a pick"
     wd_calls = sorted({c for c in ext.calls if c[0] in mod.WD_GEOM})
     print(f"wd self-test/tune calls: {len(wd_calls)} distinct (config, m)")
