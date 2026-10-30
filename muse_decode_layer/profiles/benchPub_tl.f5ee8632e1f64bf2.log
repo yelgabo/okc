@@ -1,0 +1,165 @@
+-02/5.73e-02<=0.083 top8=ref 0.773 local routes 170/166 experts 22/22
+ABCHECK v16s 94002 seco null PASS update 5.41e-02/8.05e-02<=0.127 hidden 3.55e-02/5.73e-02<=0.083 top8=ref 0.773 local routes 170/166 experts 22/22
+ABCHECK v16f 94101 busi pub PASS update 6.67e-02/1.08e-01<=0.150 hidden 4.35e-02/6.07e-02<=0.105 top8=ref 0.734 local routes 185/188 experts 17/17
+ABCHECK v16f 94101 busi cand PASS update 6.68e-02/1.08e-01<=0.150 hidden 4.35e-02/5.85e-02<=0.105 top8=ref 0.727 local routes 184/188 experts 17/17
+ABCHECK v16f 94101 busi null PASS update 6.68e-02/1.08e-01<=0.150 hidden 4.35e-02/5.85e-02<=0.105 top8=ref 0.727 local routes 184/188 experts 17/17
+ABCHECK v16f 94102 seco pub PASS update 6.39e-02/9.28e-02<=0.150 hidden 4.18e-02/6.61e-02<=0.100 top8=ref 0.695 local routes 176/174 experts 18/18
+ABCHECK v16f 94102 seco cand PASS update 6.40e-02/9.23e-02<=0.150 hidden 4.19e-02/6.30e-02<=0.100 top8=ref 0.711 local routes 177/174 experts 18/18
+ABCHECK v16f 94102 seco null PASS update 6.40e-02/9.23e-02<=0.150 hidden 4.19e-02/6.30e-02<=0.100 top8=ref 0.711 local routes 177/174 experts 18/18
+ABCHECK v32s 95001 busi pub PASS update 5.93e-02/9.21e-02<=0.142 hidden 3.92e-02/6.07e-02<=0.094 top8=ref 0.746 local routes 421/414 experts 20/20
+ABCHECK v32s 95001 busi cand PASS update 5.94e-02/9.31e-02<=0.142 hidden 3.93e-02/6.15e-02<=0.094 top8=ref 0.762 local routes 422/414 experts 20/20
+ABCHECK v32s 95001 busi null PASS update 5.94e-02/9.31e-02<=0.142 hidden 3.93e-02/6.15e-02<=0.094 top8=ref 0.762 local routes 422/414 experts 20/20
+ABCHECK v32s 95002 seco pub PASS update 5.74e-02/1.01e-01<=0.136 hidden 3.76e-02/6.13e-02<=0.089 top8=ref 0.742 local routes 338/339 experts 21/22
+ABCHECK v32s 95002 seco cand PASS update 5.77e-02/1.03e-01<=0.136 hidden 3.79e-02/6.06e-02<=0.089 top8=ref 0.723 local routes 341/339 experts 21/22
+ABCHECK v32s 95002 seco null PASS update 5.77e-02/1.03e-01<=0.136 hidden 3.79e-02/6.06e-02<=0.089 top8=ref 0.723 local routes 341/339 experts 21/22
+ABCHECK v32f 95101 busi pub PASS update 6.43e-02/9.11e-02<=0.150 hidden 4.27e-02/5.78e-02<=0.103 top8=ref 0.746 local routes 379/375 experts 23/23
+ABCHECK v32f 95101 busi cand PASS update 6.44e-02/9.14e-02<=0.150 hidden 4.29e-02/6.08e-02<=0.103 top8=ref 0.746 local routes 383/375 experts 23/23
+ABCHECK v32f 95101 busi null PASS update 6.44e-02/9.14e-02<=0.150 hidden 4.29e-02/6.08e-02<=0.103 top8=ref 0.746 local routes 383/375 experts 23/23
+ABCHECK v32f 95102 seco pub PASS update 6.59e-02/9.70e-02<=0.150 hidden 4.27e-02/6.07e-02<=0.104 top8=ref 0.672 local routes 322/318 experts 20/21
+ABCHECK v32f 95102 seco cand PASS update 6.57e-02/9.98e-02<=0.150 hidden 4.26e-02/6.17e-02<=0.104 top8=ref 0.680 local routes 322/318 experts 20/21
+ABCHECK v32f 95102 seco null PASS update 6.57e-02/9.98e-02<=0.150 hidden 4.26e-02/6.17e-02<=0.104 top8=ref 0.680 local routes 322/318 experts 20/21
+ABBUILD pub_att7 78 s
+ABBUILD pub_moe 86 s
+ABBUILD pub_moe_tiny 67 s
+ABBUILD pub_moe_tiny2 75 s
+ABBUILD pub_moe_mid 69 s
+ABBUILD pubbfp__get_ext 59 s
+ABBUILD cand_one_load 76 s
+ABBUILD cand_moe1_load 101 s
+ABBUILD cand_skp_load 45 s
+ABBUILD cand_w4_ext 83 s
+ABBUILD cand_ext 83 s
+ABBUILD import done at 101 s
+ABPREP cand 19 s
+ABPREP pub 10 s; prepare at 29 s
+ABPIN pub sha256 cf4a75ee6e4a5cd9e33b82b5347c47abcdc7b81d80dc6a8b5262dea7388f849c git-blob 936fefffb493c4a836e8c08fc58dff50ce338dd5 as read (pub_layer.py); comment-stripped and patched as sent: sha256 e0ec5c48000cad5b60f3850aeef06091a281141e37958c1a7c561f63d4d0f8b7 git-blob 2acf83a03560d4979ee4a23baf08e64f702cfce3
+ABPIN cand sha256 b9c23bda16bb9d6311f025062e415841c67b16284737172badaa190fdc506a49 git-blob a891f169e73a100eaaf64e3efc70bd4758f05f5e (cand1.py)
+ABDIAG cand attention fallback on fresh rows vs FP32: 1x1s ours 1.63e-03 sglang 5.21e-02 ours-vs-sglang 5.20e-02; 1x8s ours 3.63e-02 sglang 4.06e-02 ours-vs-sglang 3.09e-02; 1x1f ours 1.75e-03 sglang 6.75e-03 ours-vs-sglang 7.14e-03; 1x8f ours 1.76e-02 sglang 2.19e-02 ours-vs-sglang 1.46e-02; attn_one_ours=1
+ABARMS pub cand null; cand front policy {1: 'fp32', 8: 'skf', 16: 'skf', 32: 'skf-r', 128: 'concat-r', 256: 'concat-r'}, moe {1: 2, 8: 2, 16: 2, 32: 9, 128: 9, 256: 9}
+ABCHK pub 24 of 24 PASS; shapes with a FAIL 0
+ABCHK cand 24 of 24 PASS; shapes with a FAIL 0
+ABCHK null 24 of 24 PASS; shapes with a FAIL 0
+ABTIME d1s pub 89.6 cand 87.9 null 88.1 | paired pub-cand +1.0 null-cand +0.2 (n=16)
+ABTIME d1f pub 94.3 cand 95.2 null 96.1 | paired pub-cand -1.0 null-cand +0.4 (n=16)
+ABTIME d16s pub 133.6 cand 143.6 null 144.5 | paired pub-cand -10.2 null-cand +0.7 (n=16)
+ABTIME d16f pub 228.3 cand 236.8 null 236.0 | paired pub-cand -8.9 null-cand -1.0 (n=16)
+ABTIME d32s pub 173.1 cand 186.0 null 186.5 | paired pub-cand -12.2 null-cand +0.6 (n=16)
+ABTIME d32f pub 314.9 cand 330.9 null 329.8 | paired pub-cand -15.9 null-cand -0.7 (n=16)
+ABTIME v1s pub 102.6 cand 113.0 null 113.9 | paired pub-cand -10.2 null-cand +0.6 (n=16)
+ABTIME v1f pub 123.6 cand 133.6 null 133.8 | paired pub-cand -10.8 null-cand -0.1 (n=16)
+ABTIME v16s pub 270.0 cand 279.7 null 277.4 | paired pub-cand -10.1 null-cand -0.9 (n=16)
+ABTIME v16f pub 348.6 cand 360.7 null 359.1 | paired pub-cand -11.3 null-cand -1.7 (n=16)
+ABTIME v32s pub 336.9 cand 351.7 null 351.2 | paired pub-cand -13.8 null-cand +0.3 (n=16)
+ABTIME v32f pub 511.9 cand 520.0 null 516.9 | paired pub-cand -9.0 null-cand +1.8 (n=16)
+ABLOAD d1 (46 sliding + 16 full) / 62: pub 90.8 cand 89.8 null 90.2 | cand/arm pub 0.9891 null 0.9954 | null check cand/null 0.9954
+ABLOAD d16 (46 sliding + 16 full) / 62: pub 158.0 cand 167.7 null 168.1 | cand/arm pub 1.0611 null 0.9974 | null check cand/null 0.9974
+ABLOAD d32 (46 sliding + 16 full) / 62: pub 209.7 cand 223.4 null 223.5 | cand/arm pub 1.0655 null 0.9996 | null check cand/null 0.9996
+ABLOAD v1 (46 sliding + 16 full) / 62: pub 108.0 cand 118.3 null 119.0 | cand/arm pub 1.0957 null 0.9942 | null check cand/null 0.9942
+ABLOAD v16 (46 sliding + 16 full) / 62: pub 290.3 cand 300.6 null 298.5 | cand/arm pub 1.0356 null 1.0070 | null check cand/null 1.0070
+ABLOAD v32 (46 sliding + 16 full) / 62: pub 382.1 cand 395.1 null 393.9 | cand/arm pub 1.0343 null 1.0031 | null check cand/null 1.0031
+ABSCORE geometric mean over 6 loads of cand load time / arm load time (above 1: arm faster): pub 1.0463; null check: cand / null 0.9994 (the same file timed twice; its distance from 1 is the bench's noise)
+ABKN K0 sk2_kernel<1,8,3,1,4,2,6,true,false,1,1,
+ABKN K1 attn_kernel<1,false,13>
+ABKN K2 sk2_kernel<1,8,4,1,4,1,4,true,false,2,1,
+ABKN K3 _boundary1
+ABKN K4 sk2_kernel<1,8,4,1,8,1,6,true,false,2,1,
+ABKN K5 _route_split
+ABKN K6 okc::moe_fused<false>
+ABKN K7 sk2_kernel<1,8,1,1,8,2,4,true,false,2,1,
+ABKN K8 _boundary2
+ABKN K9 cgemv40_kernel<256,2>
+ABKN K10 one::attn_one_kernel<1,13>
+ABKN K11 cgemv_kernel<64,1>
+ABKN K12 bnd::attn_boundary_kernel
+ABKN K13 router_kernel<1>
+ABKN K14 muse_spark::routing_kernel<muse_spark::R
+ABKN K15 cgemv_kernel<512,1>
+ABKN K16 pre_norm_kernel<__nv_bfloat16>
+ABKN K17 moe1::sk_8_3_0::moe_fused_kernel<1>
+ABKN K18 cgemv40_kernel<128,2>
+ABKN K19 bnd::boundary_kernel
+ABKN K20 attn_kernel<1,false,11>
+ABKN K21 one::attn_one_kernel<1,11>
+ABKN K22 sk2_kernel<1,16,3,1,4,2,5,true,false,1,1
+ABKN K23 attn_kernel<1,false,1>
+ABKN K24 sk2_kernel<1,16,4,1,4,1,4,true,false,2,1
+ABKN K25 sk2_kernel<1,16,4,1,8,1,5,true,false,2,1
+ABKN K26 sk2_kernel<1,16,4,1,4,1,5,true,false,2,1
+ABKN K27 sk_kernel<1,16,3,1,4,2,5,true,false,1,1,
+ABKN K28 one::attn_one_kernel<1,1>
+ABKN K29 sk_kernel<1,16,2,2,2,2,3,true,false,1,1,
+ABKN K30 sk_kernel<1,16,2,2,2,4,4,true,false,1,1,
+ABKN K31 muse_spark_norm_residual_kernel<8192l,25
+ABKN K32 attn_kernel<1,true,0>
+ABKN K33 one::attn_one_kernel<1,49>
+ABKN K34 sk2_kernel<2,32,3,1,4,2,4,true,false,1,1
+ABKN K35 sk2_kernel<2,32,2,2,2,2,3,true,false,1,1
+ABKN K36 sk2_kernel<2,32,2,2,2,2,5,true,false,1,1
+ABKN K37 sk2_kernel<2,32,1,1,8,1,4,false,true,4,3
+ABKN K38 sk2_kernel<2,32,4,2,2,2,3,true,false,1,1
+ABKN K39 sk_kernel<2,32,3,1,4,2,4,true,false,1,1,
+ABKN K40 sk_kernel<2,32,2,2,2,2,3,true,false,1,1,
+ABKN K41 sk_kernel<2,32,2,2,2,4,3,true,false,1,1,
+ABKN K42 route_kernel<__nv_bfloat16,false>
+ABKN K43 moe1::moe_main_kernel<47>
+ABKN K44 attn_kernel<8,false,15>
+ABKN K45 sk_kernel<1,8,3,1,4,4,4,true,false,1,1,_
+ABKN K46 one::attn_one_kernel<8,15>
+ABKN K47 sk_kernel<1,8,4,1,4,1,4,true,false,1,1,_
+ABKN K48 sk_kernel<1,8,1,2,2,4,3,true,false,1,1,_
+ABKN K49 sk_kernel<1,8,1,1,8,2,4,true,false,1,1,_
+ABKN K50 attn_kernel<8,false,11>
+ABKN K51 one::attn_one_kernel<8,11>
+ABKN K52 nvjet_sm90_tst_96x64_64x10_4x2_h_bz_spli
+ABKN K53 cublasLt::splitKreduce_kernel<32,16,int,
+ABKN K54 attn_kernel<8,false,3>
+ABKN K55 nvjet_sm90_tss_128x64_64x8_1x2_h_bz_TNT
+ABKN K56 nvjet_sm90_tss_96x64_64x10_4x2_h_bz_TNN
+ABKN K57 _route
+ABKN K58 okc::moe_fused<true>
+ABKN K59 wd_kernel<1,128,3,1,false,8,__nv_bfloat1
+ABKN K60 one::attn_one_kernel<8,3>
+ABKN K61 nvjet_sm90_tst_128x64_64x8_1x2_h_bz_TNT
+ABKN K62 route_kernel<float,true>
+ABKN K63 attn_kernel<8,true,0>
+ABKN K64 one::attn_one_kernel<8,51>
+ABKN K65 nvjet_sm90_tst_96x64_64x10_2x4_h_bz_TNN
+ABKN K66 nvjet_sm90_tss_128x128_64x6_2x1_v_bz_TNT
+ABKN K67 nvjet_sm90_tss_80x128_64x8_4x2_h_bz_TNN
+ABKN K68 nvjet_sm90_tst_128x128_64x6_2x1_v_bz_TNT
+ABKN K69 bnd::attn_boundary_geo_kernel<1,512>
+ABKN K70 muse_spark_norm_residual_kernel<8192l,51
+ABK d1s pub span 89.5 sum 105.4: K0 11.5 K1 5.6 K2 6.1 K3 5.2 K4 20.7 K5 6.1 K6 39.6 K7 5.6 K8 4.9
+ABK d1s cand span 88.4 sum 102.5: K9 10.5 K10 5.5 K11 5.6 K12 4.9 K13 8.0 K14 9.7 K15 16.7 K16 1.7 K17 32.6 K18 3.4 K19 3.8
+ABK d1f pub span 93.7 sum 110.5: K0 11.7 K20 12.4 K2 7.1 K3 5.1 K4 19.6 K5 6.2 K6 37.8 K7 5.6 K8 4.8
+ABK d1f cand span 95.0 sum 108.1: K9 10.4 K21 13.1 K11 6.0 K12 4.9 K13 7.8 K14 9.1 K15 16.4 K16 1.5 K17 31.8 K18 3.4 K19 3.7
+ABK d16s pub span 129.9 sum 143.8: K22 11.6 K23 8.6 K24 6.3 K3 5.2 K25 19.6 K5 6.7 K6 65.7 K26 15.1 K8 4.9
+ABK d16s cand span 140.7 sum 138.5: K27 12.4 K28 10.1 K29 21.6x2 K12 4.1 K30 20.9 K14 2.9 K16 1.8 K17 60.3 K31 4.4
+ABK d16f pub span 219.4 sum 234.5: K22 11.6 K32 97.2 K24 6.0 K3 5.2 K25 18.5 K5 6.8 K6 69.7 K26 14.7 K8 4.8
+ABK d16f cand span 227.6 sum 225.1: K27 12.4 K33 94.7 K29 20.1x2 K12 4.1 K30 18.6 K16 1.6 K14 3.0 K17 66.3 K31 4.3
+ABK d32s pub span 166.0 sum 180.4: K34 12.5 K23 11.6 K35 7.2 K3 4.9 K36 17.4 K37 5.5 K5 4.4 K6 92.2 K38 20.0 K8 4.7
+ABK d32s cand span 184.4 sum 184.6: K39 14.0 K28 12.3 K40 23.1x2 K31 8.4x2 K41 20.2 K42 5.1 K43 101.5
+ABK d32f pub span 303.3 sum 318.4: K34 12.5 K32 175.2 K35 6.7 K3 4.8 K36 16.0 K37 5.4 K5 4.4 K6 69.7 K38 19.0 K8 4.7
+ABK d32f cand span 315.9 sum 318.1: K39 14.0 K33 172.9 K40 21.2x2 K31 8.3x2 K41 20.1 K42 5.5 K43 76.0
+ABK v1s pub span 103.3 sum 117.4: K0 11.6 K44 8.0 K2 7.1 K3 5.2 K4 19.8 K5 5.9 K6 50.2 K7 4.5 K8 4.9
+ABK v1s cand span 113.3 sum 109.7: K45 12.6 K46 6.7 K47 6.9 K12 4.1 K48 21.1 K16 1.6 K14 2.7 K17 45.9 K49 4.3 K19 3.8
+ABK v1f pub span 129.4 sum 144.4: K0 12.0 K50 15.1 K2 7.6 K3 5.0 K4 19.4 K5 6.0 K6 69.9 K7 4.6 K8 4.9
+ABK v1f cand span 140.5 sum 137.8: K45 12.6 K51 15.1 K47 7.1 K12 4.0 K48 19.9 K16 1.7 K14 2.8 K17 66.4 K49 4.3 K19 3.9
+ABK v16s pub span 253.7 sum 249.0: K52 18.3 K53 3.1 K54 11.5 K55 31.2x2 K3 5.7 K56 26.5 K57 4.6 K58 142.4 K8 5.7
+ABK v16s cand span 264.0 sum 263.9: K59 16.2 K60 11.6 K61 30.9x2 K31 10.5x2 K56 27.7 K62 4.8 K43 162.2
+ABK v16f pub span 344.1 sum 338.0: K52 17.9 K53 3.0 K63 105.3 K55 30.7x2 K3 5.6 K56 26.4 K57 4.9 K58 138.4 K8 5.8
+ABK v16f cand span 358.6 sum 357.8: K59 16.3 K64 109.0 K61 29.3x2 K31 9.9x2 K56 26.3 K62 4.8 K43 162.3
+ABK v32s pub span 341.4 sum 336.6: K65 25.7 K54 14.8 K66 37.0x2 K3 9.7 K67 33.4 K57 5.5 K58 200.8 K8 9.9
+ABK v32s cand span 358.4 sum 355.7: K65 25.6 K60 16.2 K68 35.7x2 K69 7.7 K67 32.9 K62 5.2 K43 224.6 K70 7.9
+ABK v32f pub span 526.1 sum 523.1: K65 25.6 K63 191.9 K66 37.0x2 K3 9.5 K67 33.3 K57 5.5 K58 210.4 K8 9.9
+ABK v32f cand span 537.1 sum 535.8: K65 25.9 K64 186.0 K68 36.0x2 K69 7.3 K67 32.7 K62 5.1 K43 235.0 K70 7.9
+ABZ d16s pub span 129.9: K22@0.0+11.8/11.8 K23@11.8+8.7/8.7 K24@18.1+6.5/4.2 K3@24.2+5.2/4.7 K25@26.8+19.6/17.1 K5@44.0+6.2/3.7 K6@45.2+65.1/60.1 K26@109.0+16.3/15.0 K8@125.1+4.8/4.6
+ABZ d16s cand span 140.7: K27@0.0+12.4/12.4 K28@12.8+9.8/9.8-0.4 K29@23.0+6.8/6.8-0.4 K12@30.7+4.1/4.1-0.9 K30@35.1+21.7/21.7-0.4 s1:K14@57.7+3.0/3.0-0.9 K16@58.1+1.6/0.0 K17@61.2+60.2/60.2-0.4 K29@121.8+14.7/14.7-0.4 K31@136.6+4.2/4.2-0.1
+ABZ d32s pub span 166.0: K34@0.0+12.4/12.4 K23@12.0+11.5/11.1 K35@21.3+7.6/5.5 K3@28.4+4.9/4.3 K36@31.1+17.1/14.9 K37@47.7+6.4/6.0 K5@53.5+4.4/3.7 K6@55.0+91.0/88.2 K38@140.9+20.9/15.8 K8@161.2+4.8/4.1
+ABZ d32s cand span 184.4: K39@0.0+14.3/14.3 K28@14.7+12.4/12.4-0.4 K40@27.5+6.8/6.8-0.4 K31@35.0+3.9/3.9-0.6 K41@39.3+20.5/20.5-0.4 K42@59.9+5.1/5.1-0.1 K43@61.4+101.6/98.0 K40@163.4+16.4/16.4-0.4 K31@179.9+4.5/4.5
+ABZ d32f pub span 303.3: K34@0.0+12.5/12.5 K32@12.3+175.1/174.8 K35@184.8+6.7/4.2 K3@191.2+4.9/4.6 K36@194.1+15.7/13.7 K37@209.3+5.4/4.9 K5@213.9+4.4/3.6 K6@215.0+70.4/67.2 K38@280.4+18.7/13.6 K8@298.5+4.8/4.2
+ABZ d32f cand span 315.9: K39@0.0+14.0/14.0 K33@14.7+171.9/171.9-0.6 K40@187.2+5.9/5.9-0.7 K31@193.7+3.7/3.7-0.6 K41@197.8+20.3/20.3-0.4 K42@218.1+6.4/6.3 K43@219.6+76.0/71.1 K40@296.0+15.4/15.4-0.4 K31@311.3+4.6/4.5
+ABZ v1s pub span 103.3: K0@0.0+11.4/11.4 K44@11.0+8.0/7.6 K2@16.0+7.3/4.3 K3@22.5+5.2/4.4 K4@25.3+19.4/17.0 K5@42.2+6.0/3.5 K6@43.4+51.9/47.1 K7@94.3+4.4/3.4 K8@98.4+4.9/4.6
+ABZ v1s cand span 113.3: K45@0.0+12.4/12.4 K46@12.8+6.7/6.7-0.4 K47@20.1+6.9/6.9-0.6 K12@27.6+4.2/4.2-0.6 K48@32.2+21.1/21.1-0.4 K16@54.0+1.5/1.5-0.7 s1:K14@54.2+2.9/1.5 K17@57.7+46.1/46.1-0.6 K49@104.9+4.2/4.2-1.1 K19@109.5+3.8/3.8-0.4
+ABZ v1f pub span 129.4: K0@0.0+12.1/12.1 K50@11.6+15.2/14.8 K2@24.2+7.4/4.7 K3@31.2+4.9/4.5 K4@33.9+19.6/17.4 K5@51.1+6.0/3.5 K6@52.2+69.1/64.3 K7@120.1+4.6/3.4 K8@124.5+4.9/4.7
+ABZ v1f cand span 140.5: K45@0.0+12.4/12.4 K51@12.8+15.1/15.1-0.4 K47@28.4+7.1/7.1-0.4 K12@36.7+4.0/4.0-1.2 K48@41.0+20.2/20.2-0.4 K16@61.9+1.7/1.7-0.6 s1:K14@62.0+2.8/1.3 K17@65.2+66.2/66.2-0.3 K49@132.3+4.3/4.3-0.8 K19@136.6+3.9/3.9-0.1

@@ -36,7 +36,18 @@ belongs in the session scratchpad; only the logs of its runs are committed.
             arm's.
   ABSTOP    shapes skipped by the deadline: missing coverage, not a pass.
   ABTL      one replay per shape and arm (not null) under torch.profiler, kernels as
-            code@start+duration; ABKN maps codes to names.
+            code@start+duration.
+  ABK       per shape and arm (not null), every kernel of the step in launch order: its code,
+            the median over five profiled replays of its summed duration per step, xN when it
+            runs N times; span is the median replay's first start to last end, sum the summed
+            durations (above span when kernels overlap, PDL secondaries included from launch,
+            so their time counts waits in griddepcontrol.wait). ABKN maps the codes to names.
+  ABCHK     per arm, checks passed of checks run; failing checks print as ABCHKFAIL.
+  ABZ       for the shapes named by --tlend=v1s,d32f,...: the median replay's kernels in start
+            order as code@start+duration/exposed (exposed: how far the kernel moves the
+            latest end so far, so the exposed times sum to the span), printed last.
+The tail order keeps ABCHK, ABTIME, ABLOAD, ABSCORE, ABKN and ABK; ABTL and passing ABCHECK
+lines come first and are the first to fall out of the judge's 16 KB log tail.
 """
 
 import ast
@@ -460,6 +471,9 @@ def _ab_validate(base, out, arm_data, weights, front, front8):
 
 
 _AB_CODES = {}
+_AB_USED = set()
+_AB_NCHECK = {}
+_AB_NFAIL = {}
 
 
 def _ab_code(name):
@@ -504,17 +518,49 @@ def _ab_timeline(graph, flush, reps=5):
     if cur:
         segs.append(cur)
     if not segs:
-        return None, []
+        return None, [], []
     spans = sorted((max(e[1] for e in s) - s[0][0], i) for i, s in enumerate(segs))
     seg = segs[spans[len(spans) // 2][1]]
     base = seg[0][0]
     rank = {}
     for e in seg:
         rank.setdefault(e[2], len(rank))
+    # Per kernel name, the median over the replays of its summed duration in one replay: one
+    # replay's single-kernel durations swing by about 0.5 us, the size of the gaps to attribute.
+    sums = []
+    for s in segs:
+        d = {}
+        for e in s:
+            c = _ab_code(e[3])
+            n, t = d.get(c, (0, 0.0))
+            d[c] = (n + 1, t + (e[1] - e[0]) / 1000)
+        sums.append(d)
+    agg = []
+    for e in seg:
+        c = _ab_code(e[3])
+        if any(a[0] == c for a in agg):
+            continue
+        vals = sorted(d.get(c, (0, 0.0))[1] for d in sums)
+        agg.append((c, vals[len(vals) // 2], sums[spans[len(spans) // 2][1]][c][0]))
     return spans[len(spans) // 2][0] / 1000, [
-        (rank[e[2]], (e[0] - base) / 1000, (e[1] - e[0]) / 1000, _ab_code(e[3])) for e in seg]
+        (rank[e[2]], (e[0] - base) / 1000, (e[1] - e[0]) / 1000, _ab_code(e[3])) for e in seg], agg
 
 
+
+
+def _ab_exposed(ks):
+    """Kernels in start order as code@start+duration/exposed: exposed is how far the kernel's
+    end moves the latest end so far (its share of the span); a trailing -idle marks a gap with
+    nothing running before it started; s1: a second stream."""
+    out, last = [], 0.0
+    for r, st, d, c in sorted(ks, key=lambda e: e[1]):
+        idle = st - last
+        end = st + d
+        exp = max(0.0, end - max(last, st))
+        out.append(f"{'s1:' if r else ''}{c}@{st:.1f}+{d:.1f}/{exp:.1f}"
+                   + (f"-{idle:.1f}" if idle > 0.05 else ""))
+        last = max(last, end)
+    return " ".join(out)
 
 
 def _ab_clone(data):
@@ -566,8 +612,10 @@ def _ab_run(arms, weights, t_prep):
                         invalid.add((label, n))
                     if ok:
                         msg = msg.split(" cache")[0]
-                    _ab_print(f"ABCHECK {label} {seed} {routing[:4]} {n} "
-                              f"{'PASS' if ok else 'FAIL'} {msg} top8=ref {same:.3f} local "
+                    _AB_NCHECK[n] = _AB_NCHECK.get(n, 0) + 1
+                    _AB_NFAIL[n] = _AB_NFAIL.get(n, 0) + (not ok)
+                    _ab_print(f"{'ABCHECK' if ok else 'ABCHKFAIL'} {label} {seed} {routing[:4]} "
+                              f"{n} {'PASS' if ok else 'FAIL'} {msg} top8=ref {same:.3f} local "
                               f"routes {lr}/{rr} experts {ld}/{rd}")
                 datas = {n: _ab_clone(base) for n in names}
                 graphs = {n: _graph_build(lambda fn=fn, st=st, d=datas[n]: fn(d, st))
@@ -606,15 +654,18 @@ def _ab_run(arms, weights, t_prep):
             for n in names:
                 if n == "null":
                     continue
-                span, ks = tls[n]
+                span, ks, agg = tls[n]
                 if span is None:
                     continue
                 _ab_print(f"ABTL {label} {n} {span:.1f}: " + " ".join(
                     f"{'s1:' if r else ''}{c}@{st:.1f}+{d:.1f}" for r, st, d, c in ks))
-                names_of = {code: nm for nm, code in _AB_CODES.items()}
-                top = sorted(ks, key=lambda e: -e[2])[:5]
-                _ab_print(f"ABTOP {label} {n} span {span:.1f}: " + " ".join(
-                    f"{names_of[c][:18]}:{d:.1f}" for _, _, d, c in top))
+                _AB_USED.update(c for c, _, _ in agg)
+                if label in _AB_TLEND:
+                    _AB_USED.update(c for _, _, _, c in ks)
+                    _ab_print(f"ABZ {label} {n} span {span:.1f}: " + _ab_exposed(ks))
+                _ab_print(f"ABK {label} {n} span {span:.1f} sum {sum(t for _, t, _ in agg):.1f}: "
+                          + " ".join(f"{c} {t:.1f}" + (f"x{k}" if k > 1 else "")
+                                     for c, t, k in agg))
     if missing:
         _ab_print("ABSTOP missing coverage (not timed, not a pass): " + " ".join(missing))
     logs = {n: [] for n in names}
@@ -640,7 +691,12 @@ def _ab_run(arms, weights, t_prep):
                   + f"; null check: cand / null {math.exp(sum(nulls) / nl):.4f} (the same "
                   "file timed twice; its distance from 1 is the bench's noise)")
     for name, code in _AB_CODES.items():
-        _ab_print(f"ABKN {code} {name}")
+        if code in _AB_USED:
+            _ab_print(f"ABKN {code} {name}")
+    for n in names:
+        fails = sum(1 for lab, arm in invalid if arm == n)
+        _ab_print(f"ABCHK {n} {_AB_NCHECK.get(n, 0) - _AB_NFAIL.get(n, 0)} of "
+                  f"{_AB_NCHECK.get(n, 0)} PASS; shapes with a FAIL {fails}")
 
 
 _ab_prepare = prepare
@@ -686,10 +742,12 @@ def prepare(weights):
     _AB_DEQ.clear()
     torch.cuda.synchronize()
     torch.cuda.empty_cache()
-    # The log keeps only its last 16,000 characters: timelines first, then correctness, then
-    # the timing tables.
-    order = ("ABTL", "ABKN", "ABBUILD", "ABPREP", "ABPIN", "ABDIAG", "ABOTHER", "ABARMS", "ABFAIL", "ABCHECK", "ABSTOP",
-             "ABTIME", "ABLOAD", "ABSCORE", "ABTOP")
+    # The log keeps only its last 16,000 characters: the raw timelines and the passing checks
+    # first (the ABCHK counts and any failing check stay in the tail), then the timing tables,
+    # then the per-kernel tables with their code names.
+    order = ("ABTL", "ABCHECK", "ABBUILD", "ABPREP", "ABPIN", "ABDIAG", "ABOTHER", "ABARMS",
+             "ABFAIL", "ABCHKFAIL", "ABCHK", "ABSTOP", "ABTIME", "ABLOAD", "ABSCORE", "ABKN",
+             "ABK ", "ABZ ")
     rank = lambda line: next((i for i, p in enumerate(order) if line.startswith(p)), 0)  # noqa: E731
     for line in sorted(_AB_OUT, key=rank):
         print(line, flush=True)
@@ -750,7 +808,7 @@ def pin(data):
 
 def main():
     opts = {"rounds": "10", "deadline": "255", "seed0": "50001", "order-seed": "7", "loads": "",
-            "other": "", "cand": str(ROOT / "muse_decode_layer/submission.py")}
+            "other": "", "cand": str(ROOT / "muse_decode_layer/submission.py"), "tlend": ""}
     pos = []
     for a in sys.argv[1:]:
         if a.startswith("--"):
@@ -782,7 +840,8 @@ def main():
               f"_AB_DEADLINE = {int(opts['deadline'])!r}\n"
               f"_AB_SEED0 = {int(opts['seed0'])!r}\n"
               f"_AB_ORDER_SEED = {int(opts['order-seed'])!r}\n"
-              "_AB_ROUTINGS = (\"busiest\", \"second\")\n")
+              "_AB_ROUTINGS = (\"busiest\", \"second\")\n"
+              f"_AB_TLEND = {tuple(x for x in opts['tlend'].split(',') if x)!r}\n")
     text = cand.read_text() + params + BODY
     if len(text.encode()) >= 1_000_000:
         raise SystemExit(f"{len(text.encode())} bytes: the judge takes under 1,000,000")
