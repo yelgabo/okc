@@ -3,7 +3,8 @@ arm) against one other layer on identical inputs and the judge's weights: the fr
 incumbent source (inc) or the public layer file (pub).
 
     python3 tools/dl_make_bench_pub.py OUT.py OTHER.py --other=inc|pub --loads=d1,d16,...
-        [--cand=LAYER.py] [--rounds=10] [--deadline=255] [--seed0=50001] [--order-seed=7]
+        [--cand=LAYER.py] [--cand-strip=1] [--rounds=10] [--deadline=255] [--seed0=50001]
+        [--order-seed=7]
 
 The judge takes files under 1,000,000 bytes and the layer alone is about 800 KB, so one check
 carries one other arm: OTHER.py with whole-line comments removed (strip_comments: `//` lines
@@ -12,7 +13,9 @@ then lzma-compressed and base85-encoded, decompressed and exec'd at import. inc:
 layer source (for example `git show a923f11:muse_decode_layer/submission.py`), its load_inline
 names prefixed `okc_inc_` so both copies load in one process. pub: the public layer, patched
 (no threading import; its prepare() calls its builds in turn, already done at import). --cand
-names the candidate (default: the repository's muse_decode_layer/submission.py). OUT.py
+names the candidate (default: the repository's muse_decode_layer/submission.py); --cand-strip=1
+sends it through the same whole-line comment strip (for a candidate too large to fit beside the
+other arm; ABPIN records both hashes). OUT.py
 belongs in the session scratchpad; only the logs of its runs are committed.
 
   import    every arm's extensions build on the layer's build threads (_bg_start), so no build
@@ -808,7 +811,8 @@ def pin(data):
 
 def main():
     opts = {"rounds": "10", "deadline": "255", "seed0": "50001", "order-seed": "7", "loads": "",
-            "other": "", "cand": str(ROOT / "muse_decode_layer/submission.py"), "tlend": ""}
+            "other": "", "cand": str(ROOT / "muse_decode_layer/submission.py"), "tlend": "",
+            "cand-strip": ""}
     pos = []
     for a in sys.argv[1:]:
         if a.startswith("--"):
@@ -832,6 +836,13 @@ def main():
     pins = {opts["other"]: f"{pin(raw)} as read ({other.name}); comment-stripped and patched "
                            f"as sent: {pin(sent.encode())}",
             "cand": f"{pin(cand.read_bytes())} ({cand.name})"}
+    cand_text = cand.read_text()
+    if opts["cand-strip"]:
+        head = cand_text.splitlines(keepends=True)[0]
+        cand_text = strip_comments(cand_text)
+        if head.startswith("# okc:"):
+            cand_text = head + cand_text
+        pins["cand"] += f"; comment-stripped as sent: {pin(cand_text.encode())}"
     params = (f"\n_AB_PINS = {pins!r}\n"
               f"_AB_OTHER = {opts['other']!r}\n"
               f"_AB_OTHER_XZ = {packed.decode()!r}\n"
@@ -842,7 +853,7 @@ def main():
               f"_AB_ORDER_SEED = {int(opts['order-seed'])!r}\n"
               "_AB_ROUTINGS = (\"busiest\", \"second\")\n"
               f"_AB_TLEND = {tuple(x for x in opts['tlend'].split(',') if x)!r}\n")
-    text = cand.read_text() + params + BODY
+    text = cand_text + params + BODY
     if len(text.encode()) >= 1_000_000:
         raise SystemExit(f"{len(text.encode())} bytes: the judge takes under 1,000,000")
     out.write_text(text)

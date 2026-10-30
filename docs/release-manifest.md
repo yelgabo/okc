@@ -12,6 +12,15 @@ prepare() picks them per run, so another run of the same file can pick different
 bench margins are small (the MoE pick at 32 tokens and the front pick at 8 tokens have flipped
 between runs of one file).
 
+## Validation policy (2026-10-30)
+
+The user approved replacing the 1e-4 replay-vs-eager bound with a fresh-input gate on
+2026-10-30 (relayed by the coordinator). Scope: M1's replay stress and the shipped MoE replay
+self-tests (`_moe1_stress`, `_moe1_pdl_self_test`); every other check and the judge's
+tolerances unchanged. Definition and thresholds: docs/runs-decode-layer.md, "Validation policy
+change: fresh-input replay gate". The board entry below predates it and still carries the
+1e-4 bound; a file built with `tools/dl_gate_patch.py` carries the gate.
+
 ## Current board entry: 3fbb3ad027e84c6b (2.014x)
 
 | field | value |

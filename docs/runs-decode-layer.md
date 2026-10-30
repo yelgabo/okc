@@ -213,6 +213,48 @@ Per-shape columns, in TASK.md's order: d1 = decode 1, d16, d32, v1 = verify 1 (8
 | 2026-10-30 | f5ee8632e1f64bf2 (check, bench) | bench at this commit with `--tlend=v1s,v1f,d32s,d32f,d16s` (ABZ: per kernel start, lifetime and exposed time, printed last); cand = the scored file, other = pub, seeds 90001+, order seed 17 | Same-process timelines against the public layer | judge 1.974x (1.945-2.004) on cand; bench: **pub / cand 1.0463**, null 0.9994 | 72 of 72 checks pass. Paired pub - cand us: d1 +1.0 / -1.0, d16 -10.2 / -8.9, d32 -12.2 / -15.9, v1 -10.2 / -10.8, v16 -10.1 / -11.3, v32 -13.8 / -9.0. Exposed time per kernel (how far each kernel moves the latest end; sums to the span) for the profiled median replay, ours - public: v1 full (140.5 / 129.4): attn -> o +2.8 (public o starts 2.6 us before attention ends, exposed 4.7 of its 7.4), attention boundary +0.7, boundary -> pooler/front +3.3 incl. the pre-norm and routing (public pooler exposed 17.4 of 19.6), MoE +2.2, unpooler +1.7, qkv +0.3, attention +0.7, final boundary -0.7; our step has 4.2 us of gaps with no kernel running (0.1-1.2 at eight boundaries), the public one none. v1 sliding (113.3 / 103.3) the same pattern. d16 sliding (140.7 / 129.9): pooler +5.0, o +3.0, rest within 1.5. d32 sliding (184.4 / 166.0): MoE +9.8 (mode 47 at 32 tokens 98.0 exposed against the public 88.2), qkv +1.9, attention +1.7, o +1.7, front +1.5, unpooler +1.0. d32 full (315.9 / 303.3): front +4.8, o +2.4, MoE +3.9, unpooler +2.2, qkv +1.5, attention -2.3. Profiled timelines; the paired ABTIME rows are the decision metric |
 | 2026-10-30 | 720079090ee44cc3 (check, bench) | bench at fa7200c; cand = the scored file, other = inc = the same file with `MOE1_HELD = ("main-lean-grp-nohoist",)` (SHA256 84d8507a..., one line differs: mode 47 built, self-tested and benched but never picked, so the arms share every other compiled kernel and the prepare-time policy elsewhere), seeds 110001+, order seed 19, `--tlend=d32s,v16s` | Mode 47's isolated contribution inside the release + P package (P = LATE_ARRIVE + o16 / unp32), actual prepare-time policy | judge 1.987x (1.957-2.016) on cand; bench: cand / held 1.0155, null 1.0009 | 72 of 72 checks pass. Policies: cand MoE mode 47 at 32 / 128 / 256, inc mode 37 there; fronts equal. Paired cand - inc us (null - inc): d1 -4.1 / -5.7 (-4.5 / -5.4), d16 +1.3 / +0.0 (+0.3 / -0.1), d32 -1.3 / -2.6 (-1.5 / -3.0), v1 -0.6 / +0.4 (-1.1 / -1.2), v16 -4.9 / -5.5 (-3.8 / -4.0), v32 -5.7 / -3.6 (-4.8 / -1.0). The inc arm runs about 5 us slow at d1 whatever it holds (here it differs from cand only in the MoE pick at 32+ tokens, which d1 never runs; 50c4c1328ab742f4 showed the same), so d1 and the 1.0155 overall are arm-position artifacts; at d16 and v1, where 47 is never picked, the arms agree within 1.3 us. Mode 47 is worth about 4-5 us at v16 (128 tokens; MoE exposed 162.8 against 170.9 in the d32s / v16s timelines), 2-5 us at v32, and 1.3-2.6 us at d32 (32 tokens; MoE exposed 101.9 against 102.5, inside the arm spread). P's share by difference from 50c4c1328ab742f4 (cross-bench, so only indicative): about 1-2 us at d32 and under 1 us elsewhere. At 32 tokens either MoE mode leaves about 14 us of exposed time against the public kernel's 88.2 (f5ee8632e1f64bf2) |
 
+## Validation policy change: fresh-input replay gate (user decision, 2026-10-30)
+
+The user approved this change on 2026-10-30, in chat to the coordinator, who relayed it to the
+layer agent as the explicit approval that the post-reset steering (section 5) and the
+attribution report (section 3) require. It is recorded here before any run uses it.
+
+What it replaces: the 1e-4 bound on one replay's output against one eager call, which the
+M1-off layer itself fails on FP32-atomics merge order (checks 6372154fcd7a4fa9 and
+3e2aa83358dd4f60), in two places only:
+
+1. M1's replay stress (`_m1_stress`).
+2. The shipped MoE replay self-tests: the mixed-size stress (`_moe1_stress`) and the
+   route-kernel PDL self-test (`_moe1_pdl_self_test`), so atomics noise can no longer drop
+   sk8w3s or another variant in a scored run.
+
+The gate (`tools/dl_gate_patch.py`):
+
+- (a) Fresh inputs on each replay: a device counter picks the next of a bank of input sets
+  (5 for M1, `GATE_BANK` = 4 for the MoE), copied into the captured inputs; every replay's
+  outputs are compared on the device with that input set's reference run (M1 off eagerly, the
+  plain eager MoE launch). No host sync between replays.
+- (b) Order-1 failure: any element error of 1e-2 or more fails (also a relative L2 error of
+  1e-2 or more, a non-finite value, or differing ids). The element error is
+  |out - ref| / (|ref| + the row's RMS), so a one-ULP BF16 flip counts at most 2^-7 and a read
+  of another input's rows, a whole row or one tile of it, counts about 0.3-1.
+- (c) Spread matches the control: M1 on (candidate) against M1 off (control), both replayed
+  2000 times; for the MoE, the graph replays (and eager PDL launches) against the same step
+  made eagerly (`GATE_CTRL_CALLS` = 400 for the stress; the plain launch as often as the PDL
+  one for the PDL test). Per output, the candidate's largest relative L2 error must be under
+  1e-4 or within 2x the control's, and its share of calls over 1e-4 within 2x the control's
+  share (at least 1%). Both arms' envelopes (largest relative and element errors, calls over
+  1e-4, order-1 calls) are printed in SUMMARY (`m1 gate`, `moe gate`, `moe pdl gate`) and
+  recorded in the run rows.
+- (d) Unchanged: the FP32-reference self-tests (`_moe1_self_test` against `W4_TEST_TOL`, the
+  attention, SKP, route and norm tests), the M1 bit-16 self-test (PDL launch bitwise equal to
+  the plain one), the generation count and scratch invariant of the MoE stress, and the
+  judge's tolerances.
+
+Not changed by this decision (every other check keeps its bound): `_one_stress` (attention,
+1e-4 against eager and 5e-2 against SGLang), `_route_variant_check` (the route variant's MoE
+output after 200 more replays within 1e-4), the norm and route side-stream tests.
+
 ## Pre-check audits for the integrated candidate (2026-10-29, before the 10-30 checks)
 
 Source: the layer at the commit that adds this section (bundle bb98b7b plus the FIN8 stress and

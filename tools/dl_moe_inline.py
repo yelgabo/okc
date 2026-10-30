@@ -35,7 +35,7 @@ RENAME = (("repack_expert_fat", "moe1_repack_expert_fat"), ("repack_expert", "mo
           ("unit_rows", "moe1_unit_rows"))
 MAIN_NAMES = {0: "main-d2", 5: "main-d3", 16: "main-m2-ar2-ub", 20: "main-own",
               23: "main-own-dynb", 26: "main-dynb-fs", 28: "main-lean", 37: "main-lean-silu-bar",
-              47: "main-lean-grp-nohoist"}
+              47: "main-lean-grp-nohoist", 51: "main-lean-grp-finss64"}
 # Each fat mode is another kernel instance in the layer's build, so the layer builds only the
 # fat modes that won a standalone bench: 0 (its fallback) and 16, which took 128 and 256
 # tokens from legacy128 and mode 12 in checks 9a9fb08c134c4a16 and c65e91500215418d, and 20,
@@ -48,7 +48,10 @@ MAIN_NAMES = {0: "main-d2", 5: "main-d3", 16: "main-m2-ar2-ub", 20: "main-own",
 # MAIN_MODES (0, 16, 26, 28): 26 and 28 were under them on every paired seed.
 # 37 (28 with SiLU's reciprocal as one MUFU.RCP and no per-thread fence_gpu before the phase A
 # publish's bar.sync): 3-5 us under 28 at 128 and 256 tokens standalone, scored 6307d0c91c8d4ada.
-LAYER_MODES = (0, 16, 26, 28, 37, 47)
+# 51 (47 with the per-route sums of squares formed in the final pass from 64 tokens up): 3.8-7.7
+# us under 47 at 128 and 256 tokens on held-out layer, standalone and skewed seeds, check
+# c6b0e500c3a84c9a; 32 tokens unchanged.
+LAYER_MODES = (0, 16, 26, 28, 37, 47, 51)
 # Skinny variants the layer builds beside the standalone's computing ones, by (warps, slots,
 # kMode): kMode 3 (sk8w4s-er, each compute warp releases its ring slot itself) lost on the
 # standalone routing but won on layer routing at 8 and 16 tokens (docs/runs-moe.md, 2c28a7256b004aa1),
