@@ -4,6 +4,18 @@ This is the stable entry point for steering reports across research, implementat
 and coordinator sessions. The user requested on 2026-10-29 that every project-steering
 report be checked into this repository so other sessions can read it.
 
+## Latest decision report: post-reset release and next experiments
+
+**[2026-10-29: Isolate the 1.982x release and explain the remaining layer gap](2026-10-29-post-reset-release-steering.md)**
+
+Evidence snapshot `283e348` (October 30 01:05 UTC / October 29 18:05 PDT).
+Release `edd71d3152a946fe` is 1.982x and distinct from experimental HEAD. Same-process public
+comparison puts about 60% of the net gap in verify 1 and decode 32. The old integration,
+FIN8 coverage, fat-wait repair and staged retest tasks are complete; B lost again. Next:
+isolate mode 47 and projection updates from the SK_PDL build, diagnose M1's replay validation
+failure without loosening its bound, and retain compact timing attribution for the two target
+loads. The report makes recommendations; it did not run GPU jobs or change kernel code.
+
 ## Latest hourly report, 16:27
 
 **[2026-10-29 16:27 PDT: Staged retest and assembled layer bundle](2026-10-29-1627-performance-review.md)**
@@ -81,6 +93,7 @@ recommendations, not execution of those tasks; check current code and run logs f
 
 | Report | Evidence snapshot | Scope |
 |---|---|---|
+| [2026-10-29 post-reset release steering](2026-10-29-post-reset-release-steering.md) | `283e348`; release `edd71d3152a946fe` | Separate release/experimental HEAD, clean mode-47/projection test, M1 validation diagnosis, same-process verify-1/decode-32 attribution; staged retest completed |
 | [2026-10-29 verify 1 / decode 32 breakdown](2026-10-29-v1-d32-breakdown.md) | `efddc84`; run `9b921febc7ad4140`; bundle `b694b4a` | Per-kernel breakdown, bundle credit, ranked mechanisms, `SK_PDL` / `ONE_TRIG` switches with compile gate |
 | [2026-10-29 community research audit](2026-10-29-community-audit.md) | `21be06d`; live account capture 13:43 PDT | Research verification, completed work, pending ports, correctness gates, quota and next-run plan |
 | [2026-10-29 13:27 performance review](2026-10-29-1327-performance-review.md) | `615539c` | Single-token projection context and unchanged family standings |
