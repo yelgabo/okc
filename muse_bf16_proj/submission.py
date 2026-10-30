@@ -1157,7 +1157,7 @@ def sk_source(device_only=False):
     pairs = sorted({(int(a), int(b)) for a, b in re.findall(r"CGEMV_CASE\((\d+), (\d+)\)", GEMV_CUDA_SRC)})
     ginst = "".join(f"template void cgemv_launch<{nth}, {cpt}>({ptypes});\n" for nth, cpt in pairs)
     gemv = GEMV_CUDA_SRC.replace("}  // namespace", ginst + "}  // namespace", 1)
-    return "#define SK_DEVICE_ONLY 1\n#define GEMV_DEVICE_ONLY 1\n" + src + gemv + wd_source() + rt_source() + cw_source()
+    return "#define SK_DEVICE_ONLY 1\n#define GEMV_DEVICE_ONLY 1\n" + src + gemv + wd_source() + rt_source()
 
 
 # --------------------------------------------------------------------------------------------
@@ -1775,8 +1775,6 @@ WD_GEOM = {
     # cuBLAS 28.9 (4098aa2361554229).
     "b1n128c2s8h": (1, 128, 2, 1, False, 8),
     "b1n128c3s8h": (1, 128, 3, 1, False, 8),
-    # The raw-BF16 twin of cw (CW_TWIN): never tuned, it is cw's bitwise reference and control.
-    "b2n128c4s6": (2, 128, 4, 1, False, 6),
 }
 # Configs whose TMA loads carry L2 policies: weights evict_first, x evict_last.
 WD_POL = {nm for nm in WD_GEOM if nm.endswith("h")}
@@ -3294,405 +3292,6 @@ def rt_pack(hi, lo):
 
 
 # --------------------------------------------------------------------------------------------
-# cw (roadmap P3): pooler m = 128 from its 12-bit stream, reconstructed exactly into the BF16
-# wgmma A tiles in shared memory. Each CTA has 128 weight rows (two consumer warpgroups sharing
-# one 128-token x tile) and a quarter of K; a cluster of 4 sums its partials as wd does. A
-# producer lane loads x (TMA) and the stage's code block (one bulk copy) into a ring; four
-# decoder warps, one thread per weight row, write the 128B-swizzled tile TMA would have written,
-# patch the stage's escapes from the block's tail and publish the tile on an mbarrier. The raw
-# BF16 twin is wd geometry CW_TWIN (same CTA shape, ring, wgmma sequence and epilogue, weights by
-# TMA). Identical A tiles give identical sums, so prepare() requires cw's output to equal the
-# twin's bit for bit, after a host check that the stream decodes to the exact weights.
-# Stream (pack_cw): one block per (k tile, row block), k-tile major, 12288 B plus an escape tail
-# of eby bytes: low bytes [j 4][row 128][16 k], code bytes [h 2][row 128][16 B] (word w of chunk
-# h holds the codes of k = 32h + 8w + b in the low nibble of byte b and of k + 4 in the high
-# nibble, the sk order), then the u32 count and entries row | k << 7 | bf16 bits << 16.
-# name -> (ring stages, decoded tile slots, VAR); nonzero VAR bits (CWV_* in _CW_SRC) are bench
-# diagnostics with wrong output, never offered by prepare().
-# --------------------------------------------------------------------------------------------
-CW_GEOM = {"cw6d3": (6, 3, 0), "cw6d2": (6, 2, 0), "cw5d3": (5, 3, 0)}
-CW_NAMES = list(CW_GEOM)
-CW_USE = {("pooler", 128): ("cw6d3", "cw6d2", "cw5d3")}
-CW_TWIN = "b2n128c4s6"
-# Escape tail bytes reserved per ring slot: the count and up to 63 entries. The judge's pooler
-# has 4686 escapes over 4096 blocks; a matrix with a fuller block is not offered cw.
-CW_ECAP = 256
-CW_CHECK_MS = (65, 100, 128)
-
-_CW_SRC = r"""
-namespace {
-
-constexpr int CWV_NODEC = 1;  // decoder warps skip the decode, the stores and the patches
-constexpr int CWV_NOMMA = 2;  // consumer warpgroups skip the wgmma
-
-template <int NST, int ND>
-struct CwCfg {
-    static constexpr int BM = 128;
-    static constexpr int BN = 128;
-    static constexpr int CLK = 4;
-    static constexpr int NCT = 256;
-    static constexpr int PW = 8;
-    static constexpr int DW0 = 9;
-    static constexpr int NDW = 4;
-    static constexpr int THREADS = (DW0 + NDW) * 32;
-    static constexpr int XBY = BN * 128;
-    static constexpr int CBY = 12288;
-    static constexpr int EMAX = @@CWECAP@@;
-    // x first in each slot: TMA's 128-byte swizzle needs a 1024-byte aligned destination.
-    static constexpr int SB = (XBY + CBY + EMAX + 1023) & ~1023;
-    static constexpr int RING = NST * SB;
-    static constexpr int ATILE = 64 * 128;
-    static constexpr int DBY = 2 * ATILE;
-    static constexpr int RS = BM + 4;
-    static constexpr int SMEM = 1024 + RING + ND * DBY + 8 * (2 * NST + 2 * ND);
-    static_assert(BN * RS * 4 <= RING, "cw: partial tile does not fit in the ring");
-    static_assert(SMEM <= 227 * 1024, "cw: shared memory over budget");
-};
-
-__device__ __forceinline__ void cw_sts128(uint32_t a, const uint32_t* v) {
-    asm volatile("st.shared.v4.u32 [%0], {%1, %2, %3, %4};" :: "r"(a), "r"(v[0]), "r"(v[1]), "r"(v[2]), "r"(v[3])
-                 : "memory");
-}
-
-__device__ __forceinline__ void cw_sts16(uint32_t a, uint32_t v) {
-    asm volatile("st.shared.u16 [%0], %1;" :: "r"(a), "h"((uint16_t)v) : "memory");
-}
-
-__device__ __forceinline__ uint32_t cw_lds32(uint32_t a) {
-    uint32_t v;
-    asm volatile("ld.shared.u32 %0, [%1];" : "=r"(v) : "r"(a) : "memory");
-    return v;
-}
-
-template <int NST, int ND, int VAR>
-__global__ void __launch_bounds__(CwCfg<NST, ND>::THREADS, 1)
-cw_kernel(const __grid_constant__ CUtensorMap xmap, const uint8_t* __restrict__ ws, int eby, uint32_t base4,
-          __nv_bfloat16* __restrict__ out, int M, int N, int K, int* diag) {
-    using C = CwCfg<NST, ND>;
-    constexpr int CLK = C::CLK;
-    extern __shared__ __align__(1024) uint8_t cw_smem[];
-    const uint32_t raw = smem_u32(cw_smem);
-    const uint32_t sbase = (raw + 1023u) & ~1023u;
-    float* part = reinterpret_cast<float*>(cw_smem + (sbase - raw));
-    const uint32_t dbase = sbase + C::RING;
-    const uint32_t full0 = dbase + ND * C::DBY;
-    const uint32_t empty0 = full0 + 8 * NST;
-    const uint32_t dfull0 = empty0 + 8 * NST;
-    const uint32_t dempty0 = dfull0 + 8 * ND;
-    const int tid = threadIdx.x;
-    const int warp = tid >> 5;
-    const int lane = tid & 31;
-    const int rk = (int)wd_cluster_rank();
-    const int rb = (int)(blockIdx.x / CLK);
-    const int rowbase = rb * C::BM;
-    const int tok0 = (int)blockIdx.y * C::BN;
-    const int nkt = K / 64;
-    const int kt0 = rk * nkt / CLK;
-    const int ktl = (rk + 1) * nkt / CLK - kt0;
-    const int nrb = N / C::BM;
-    const uint32_t bby = (uint32_t)(C::CBY + eby);
-    bool dead = false;
-
-    if (tid == C::PW * 32) {
-        for (int s = 0; s < NST; ++s) {
-            mbar_init(full0 + 8 * s, 1);
-            // Released by the 8 consumer warps (x) and the decoder warps (codes).
-            mbar_init(empty0 + 8 * s, 8 + C::NDW);
-        }
-        for (int d = 0; d < ND; ++d) {
-            mbar_init(dfull0 + 8 * d, C::NDW);
-            mbar_init(dempty0 + 8 * d, 8);
-        }
-        fence_mbar_init();
-    }
-    __syncthreads();
-
-    float acc[64];
-#pragma unroll
-    for (int j = 0; j < 64; ++j) {
-        acc[j] = 0.f;
-    }
-    if (warp == C::PW) {
-        if (lane == 0) {
-            for (int i = 0; i < ktl; ++i) {
-                const int s = i % NST;
-                if (i >= NST) {
-                    mbar_wait<true>(empty0 + 8 * s, ((i / NST) - 1) & 1, dead, diag, 1);
-                }
-                const uint32_t fb = full0 + 8 * s;
-                const uint32_t st = sbase + s * C::SB;
-                mbar_expect_tx(fb, C::XBY + bby);
-                tma_2d(st, &xmap, fb, (kt0 + i) * 64, tok0);
-                bulk_g2s(st + C::XBY, ws + (size_t)((kt0 + i) * nrb + rb) * bby, bby, fb);
-            }
-        }
-        __syncwarp();
-    } else if (warp >= C::DW0) {
-        const int r = tid - C::DW0 * 32;
-        const int rl = r & 63;
-        const uint32_t trow = (uint32_t)((r >> 6) * C::ATILE + rl * 128);
-        for (int i = 0; i < ktl; ++i) {
-            const int s = i % NST;
-            const int d = i % ND;
-            mbar_wait<false>(full0 + 8 * s, (i / NST) & 1, dead, diag, 2);
-            const uint32_t cb = sbase + s * C::SB + C::XBY;
-            uint32_t lw[16], cw[8];
-#pragma unroll
-            for (int j = 0; j < 4; ++j) {
-                const uint4 v = lds128(cb + (uint32_t)(j * 128 + r) * 16u);
-                lw[4 * j] = v.x; lw[4 * j + 1] = v.y; lw[4 * j + 2] = v.z; lw[4 * j + 3] = v.w;
-            }
-#pragma unroll
-            for (int h = 0; h < 2; ++h) {
-                const uint4 v = lds128(cb + 8192u + (uint32_t)(h * 128 + r) * 16u);
-                cw[4 * h] = v.x; cw[4 * h + 1] = v.y; cw[4 * h + 2] = v.z; cw[4 * h + 3] = v.w;
-            }
-            const int cnt = (int)cw_lds32(cb + C::CBY);
-            const uint32_t ent = r < cnt ? cw_lds32(cb + C::CBY + 4u + 4u * (uint32_t)r) : 0u;
-            // Everything this thread reads from the slot is in registers; the slot's next writer
-            // is the producer's TMA and bulk copy (async proxy).
-            fence_proxy_async();
-            __syncwarp();
-            if (lane == 0) {
-                mbar_arrive(empty0 + 8 * s);
-            }
-            if (i >= ND) {
-                mbar_wait<false>(dempty0 + 8 * d, ((i / ND) - 1) & 1, dead, diag, 4);
-            }
-            const uint32_t dt = dbase + d * C::DBY;
-            if constexpr ((VAR & CWV_NODEC) == 0) {
-                // The tile's last readers were wgmma operations (async proxy) that the consumers
-                // retired before releasing it; the fence orders these generic writes after them.
-                fence_proxy_async();
-#pragma unroll
-                for (int c = 0; c < 8; ++c) {
-                    uint32_t o[4];
-                    decode8(lw[4 * (c >> 1) + 2 * (c & 1)], lw[4 * (c >> 1) + 2 * (c & 1) + 1], cw[c], base4, o);
-                    cw_sts128(dt + trow + (uint32_t)((c ^ (rl & 7)) << 4), o);
-                }
-                // A patch overwrites a value another decoder thread stored.
-                named_bar(2, C::NDW * 32);
-                if (r < cnt) {
-                    const uint32_t er = ent & 127u;
-                    const uint32_t ek = (ent >> 7) & 63u;
-                    cw_sts16(dt + (er >> 6) * C::ATILE + (er & 63u) * 128u + (((ek >> 3) ^ (er & 7u)) << 4) + (ek & 7u) * 2u,
-                             ent >> 16);
-                }
-            }
-            // Generic stores that wgmma (async proxy) reads after the consumers' wait.
-            fence_proxy_async();
-            __syncwarp();
-            if (lane == 0) {
-                mbar_arrive(dfull0 + 8 * d);
-            }
-        }
-    } else {
-        const int g = warp >> 2;
-        for (int i = 0; i < ktl; ++i) {
-            const int s = i % NST;
-            const int d = i % ND;
-            mbar_wait<false>(full0 + 8 * s, (i / NST) & 1, dead, diag, 8);
-            mbar_wait<false>(dfull0 + 8 * d, (i / ND) & 1, dead, diag, 16);
-            const uint32_t a0 = dbase + d * C::DBY + g * C::ATILE;
-            const uint32_t b0 = sbase + s * C::SB;
-            wg_fence_acc<64>(acc);
-            wg_fence();
-#pragma unroll
-            for (int kk = 0; kk < ((VAR & CWV_NOMMA) ? 0 : 4); ++kk) {
-                wgmma_ss<128>(acc, wg_desc(a0 + 32 * kk), wg_desc(b0 + 32 * kk));
-            }
-            wg_commit();
-            wg_fence_acc<64>(acc);
-            // With at most this iteration's group pending, the previous group has finished
-            // reading its x slot and its decoded tile.
-            wg_wait<1>();
-            if (i > 0 && lane == 0) {
-                mbar_arrive(empty0 + 8 * ((i - 1) % NST));
-                mbar_arrive(dempty0 + 8 * ((i - 1) % ND));
-            }
-        }
-        wg_wait<0>();
-        wg_fence_acc<64>(acc);
-        // The other warpgroup's wgmma may still read the ring that the partials overwrite.
-        named_bar(1, C::NCT);
-        const int row = g * 64 + (warp & 3) * 16 + (lane >> 2);
-        const int q = lane & 3;
-#pragma unroll
-        for (int j = 0; j < C::BN / 8; ++j) {
-            const int t = 8 * j + 2 * q;
-            part[t * C::RS + row] = acc[4 * j];
-            part[(t + 1) * C::RS + row] = acc[4 * j + 1];
-            part[t * C::RS + row + 8] = acc[4 * j + 2];
-            part[(t + 1) * C::RS + row + 8] = acc[4 * j + 3];
-        }
-    }
-
-    // The wd epilogue for CLK 4, CLR 1, so the sums match the twin's bit for bit.
-    wd_cluster_sync();
-    const int tb = rk * C::BN / CLK;
-    constexpr int C4 = C::BM / 4;
-    for (int it = tid; it < (C::BN / CLK) * C4; it += C::THREADS) {
-        const int t = tb + it / C4;
-        const int c4 = it % C4;
-        const int gt = tok0 + t;
-        if (gt >= M) {
-            continue;
-        }
-        const uint32_t a = sbase + (uint32_t)(t * C::RS + 4 * c4) * 4u;
-        float4 v = make_float4(0.f, 0.f, 0.f, 0.f);
-#pragma unroll
-        for (int p = 0; p < CLK; ++p) {
-            const float4 u = wd_ld_cluster(wd_mapa(a, (uint32_t)p));
-            v.x += u.x;
-            v.y += u.y;
-            v.z += u.z;
-            v.w += u.w;
-        }
-        __nv_bfloat16* o = out + (size_t)gt * N + rowbase + 4 * c4;
-        __nv_bfloat162 lo2 = __floats2bfloat162_rn(v.x, v.y);
-        __nv_bfloat162 hi2 = __floats2bfloat162_rn(v.z, v.w);
-        uint2 pk;
-        pk.x = *reinterpret_cast<uint32_t*>(&lo2);
-        pk.y = *reinterpret_cast<uint32_t*>(&hi2);
-        *reinterpret_cast<uint2*>(o) = pk;
-    }
-    // No CTA may exit while a peer still reads its partials.
-    wd_cluster_sync();
-}
-
-#ifndef SK_DEVICE_ONLY
-template <int NST, int ND, int VAR>
-void launch_cw(const at::Tensor& ws, int eby, uint32_t base4, const at::Tensor& x, at::Tensor& out, int N, int K,
-               int* diag) {
-    using C = CwCfg<NST, ND>;
-    auto kern = cw_kernel<NST, ND, VAR>;
-    static bool configured = false;
-    if (!configured) {
-        C10_CUDA_CHECK(cudaFuncSetAttribute(kern, cudaFuncAttributeMaxDynamicSharedMemorySize, C::SMEM));
-        configured = true;
-    }
-    const int M = (int)x.size(0);
-    TORCH_CHECK(x.is_cuda() && x.scalar_type() == at::kBFloat16 && x.is_contiguous() && x.dim() == 2
-                && x.size(1) == K && M >= 1, "cw: x must be a contiguous bf16 [M, K] tensor");
-    TORCH_CHECK(N % C::BM == 0 && K % (64 * C::CLK) == 0, "cw: shape does not tile");
-    TORCH_CHECK(eby >= 16 && eby <= C::EMAX && eby % 16 == 0, "cw: bad escape block size");
-    TORCH_CHECK(ws.is_cuda() && ws.scalar_type() == at::kByte && ws.is_contiguous()
-                && ws.numel() == (int64_t)(K / 64) * (N / C::BM) * (C::CBY + eby)
-                && reinterpret_cast<uintptr_t>(ws.data_ptr()) % 16 == 0, "cw: bad stream");
-    TORCH_CHECK(out.is_contiguous() && out.scalar_type() == at::kBFloat16 && out.size(0) == M && out.size(1) == N,
-                "cw: bad out");
-    const CUtensorMap xmap = make_2d_map(x.data_ptr(), (uint64_t)M, (uint64_t)K, C::BN);
-    cudaLaunchConfig_t lc = {};
-    lc.gridDim = dim3((unsigned)(N / C::BM * C::CLK), (unsigned)((M + C::BN - 1) / C::BN));
-    lc.blockDim = dim3(C::THREADS);
-    lc.dynamicSmemBytes = C::SMEM;
-    lc.stream = at::cuda::getCurrentCUDAStream();
-    cudaLaunchAttribute attr[1];
-    attr[0].id = cudaLaunchAttributeClusterDimension;
-    attr[0].val.clusterDim.x = C::CLK;
-    attr[0].val.clusterDim.y = 1;
-    attr[0].val.clusterDim.z = 1;
-    lc.attrs = attr;
-    lc.numAttrs = 1;
-    C10_CUDA_CHECK(cudaLaunchKernelEx(&lc, kern, xmap, reinterpret_cast<const uint8_t*>(ws.data_ptr()), eby, base4,
-                                      reinterpret_cast<__nv_bfloat16*>(out.data_ptr()), M, N, K, diag));
-}
-#endif
-
-}  // namespace
-
-#ifdef SK_DEVICE_ONLY
-@@CWINSTANCES@@
-#else
-void cw_fwd(int64_t cfg, at::Tensor ws, int64_t eby, int64_t base4, at::Tensor x, at::Tensor out, int64_t n, int64_t k,
-            at::Tensor diag) {
-    int* dg = diag.numel() > 0 ? diag.data_ptr<int>() : nullptr;
-    switch (cfg) {
-@@CWDISPATCH@@
-    default:
-        TORCH_CHECK(false, "cw: unknown config ", cfg);
-    }
-}
-#endif
-"""
-
-_CW_CPP = ("void cw_fwd(int64_t cfg, at::Tensor ws, int64_t eby, int64_t base4, at::Tensor x, at::Tensor out, "
-           "int64_t n, int64_t k, at::Tensor diag);\n")
-
-
-def cw_source():
-    dispatch = "\n".join(
-        f"    case {i}: launch_cw<{nst}, {nd}, {var}>(ws, (int)eby, (uint32_t)base4, x, out, (int)n, (int)k, dg); break;"
-        for i, (nst, nd, var) in enumerate(CW_GEOM.values()))
-    inst = "\n".join(
-        f"template __global__ void cw_kernel<{nst}, {nd}, {var}>(const __grid_constant__ CUtensorMap, const uint8_t*, "
-        f"int, uint32_t, __nv_bfloat16*, int, int, int, int*);"
-        for nst, nd, var in dict.fromkeys(CW_GEOM.values()))
-    return (_CW_SRC.replace("@@CWECAP@@", str(CW_ECAP)).replace("@@CWDISPATCH@@", dispatch)
-            .replace("@@CWINSTANCES@@", "namespace {\n" + inst + "\n}"))
-
-
-def pack_cw(w):
-    """The cw stream of a BF16 [n, k] weight (layout above) as dict(stream, eby, base4, base,
-    escapes, cmax), or None with a reason if a block holds more escapes than the slot reserves.
-    Decoded back from the stream bytes and compared with every weight's bits; any difference
-    raises."""
-    n, k = w.shape
-    nrb, nkt = n // 128, k // 64
-    nblk = nrb * nkt
-    bits = bf16_bits(w)
-    base = window_base(bits)
-    code, escape, _ = code_bits(bits, base)
-    rows, cols = escape.nonzero(as_tuple=True)
-    blk = (cols // 64) * nrb + rows // 128
-    counts = torch.bincount(blk, minlength=nblk)
-    cmax = int(counts.max()) if rows.numel() else 0
-    eby = 16 * ((4 * (1 + cmax) + 15) // 16)
-    if eby > CW_ECAP:
-        return None, f"{cmax} escapes in one block, room for {CW_ECAP // 4 - 1}"
-    low = (bits & 0xFF).to(torch.uint8).view(nrb, 128, nkt, 4, 16).permute(2, 0, 3, 1, 4)
-    cb = code.view(n, k // 8, 2, 4)
-    cbytes = (cb[:, :, 0, :] | (cb[:, :, 1, :] << 4)).to(torch.uint8).view(nrb, 128, nkt, 2, 16)
-    cbytes = cbytes.permute(2, 0, 3, 1, 4)
-    order = blk.argsort(stable=True)
-    rows, cols, blk = rows[order], cols[order], blk[order]
-    start = torch.cumsum(counts, 0) - counts
-    pos = torch.arange(rows.numel(), device=w.device) - start[blk] + 1
-    ent = (rows % 128) | ((cols % 64) << 7) | (bits[rows, cols].long() << 16)
-    ent = torch.where(ent >= 1 << 31, ent - (1 << 32), ent)
-    esc = torch.zeros(nblk, eby // 4, dtype=torch.int32, device=w.device)
-    esc[:, 0] = counts.to(torch.int32)
-    esc[blk, pos] = ent.to(torch.int32)
-    stream = torch.cat([low.reshape(nblk, 8192), cbytes.reshape(nblk, 4096), esc.view(torch.uint8)], dim=1)
-    stream = stream.contiguous().view(-1)
-    if not torch.equal(_unpack_cw(stream, n, k, eby, base), bits):
-        raise RuntimeError("cw stream does not decode to the weights")
-    return {"stream": stream, "eby": eby, "base4": base * 0x01010101, "base": base, "escapes": int(rows.numel()),
-            "cmax": cmax}, ""
-
-
-def _unpack_cw(stream, n, k, eby, base):
-    """bf16 bits [n, k] (int32) from a cw stream, as the kernel decodes and patches it."""
-    nrb, nkt = n // 128, k // 64
-    blocks = stream.view(nkt * nrb, 12288 + eby)
-    low = blocks[:, :8192].view(nkt, nrb, 4, 128, 16).permute(1, 3, 0, 2, 4).reshape(n, k).to(torch.int32)
-    cb = blocks[:, 8192:12288].view(nkt, nrb, 2, 128, 16).permute(1, 3, 0, 2, 4).reshape(n, k // 8, 1, 4)
-    cb = cb.to(torch.int32)
-    code = torch.cat([cb & 15, cb >> 4], dim=2).view(n, k)
-    out = ((code >> 3) << 15) | (((code & 7) + base) << 8) | low
-    esc = blocks[:, 12288:].contiguous().view(torch.int32).view(nkt * nrb, eby // 4)
-    cnt = esc[:, 0].long()
-    slot = torch.arange(1, eby // 4, device=stream.device)
-    live = slot[None, :] <= cnt[:, None]
-    b = torch.arange(nkt * nrb, device=stream.device)[:, None].expand(-1, eby // 4 - 1)[live]
-    e = esc[:, 1:][live].long() & 0xFFFFFFFF
-    r = (b % nrb) * 128 + (e & 127)
-    c = (b // nrb) * 64 + ((e >> 7) & 63)
-    out[r, c] = (e >> 16).to(torch.int32)
-    return out
-
-
-# --------------------------------------------------------------------------------------------
 # Candidates, self-test, autotune, dispatch.
 # --------------------------------------------------------------------------------------------
 def bucket_of(m):
@@ -3799,48 +3398,6 @@ def _wd_runner(ext, name, w, n, k, out_dtype, diag):
         ext.wd_fwd(cid, w, x, out, n, k, diag)
         return out
     return run
-
-
-def _cw_runner(ext, name, packed, n, k, diag):
-    cid = CW_NAMES.index(name)
-
-    def run(x):
-        out = torch.empty((x.shape[0], n), dtype=torch.bfloat16, device=x.device)
-        ext.cw_fwd(cid, packed["stream"], packed["eby"], packed["base4"], x, out, n, k, diag)
-        return out
-    return run
-
-
-def _cw_candidates(ext, layer, w, buckets, gen, diag):
-    """[(bucket, name, run)] for the cw configs of this layer, offered only if the stream decodes
-    to the exact weights on the host (pack_cw) and every config's output equals the raw twin's
-    bit for bit at each m in CW_CHECK_MS; any failure drops them all, with a printed reason."""
-    n, k = w.shape
-    try:
-        packed, why = pack_cw(w)
-        if packed is None:
-            print(f"cw {layer}: not offered ({why})")
-            return []
-        twin = _wd_runner(ext, CW_TWIN, w, n, k, torch.bfloat16, diag)
-        names = list(dict.fromkeys(nm for b in buckets for nm in CW_USE[(layer, b)]))
-        fns = {nm: _cw_runner(ext, nm, packed, n, k, diag) for nm in names}
-        for m in CW_CHECK_MS:
-            x, _ = _gen_x(m, k, gen, w.device)
-            diag.zero_()
-            ref = twin(x)
-            for nm, fn in fns.items():
-                out = fn(x)
-                torch.cuda.synchronize()
-                if int(diag[0]) or not torch.equal(out, ref):
-                    raise RuntimeError(f"{nm} m={m}: {int((out != ref).sum())} values differ from the twin, "
-                                       f"diag {int(diag[0])}")
-        print(f"cw {layer}: base {packed['base']}, {packed['escapes']} escapes, at most {packed['cmax']} per block, "
-              f"stream exact, {len(names)} configs equal to the twin bit for bit")
-        return [(b, nm, fns[nm]) for b in buckets for nm in CW_USE[(layer, b)]]
-    except Exception as exc:
-        torch.cuda.synchronize()
-        print(f"cw {layer}: disabled ({type(exc).__name__}: {str(exc)[-300:]})")
-        return []
 
 
 def _rt_runner(ext, name, wp, diag):
@@ -4099,11 +3656,10 @@ def _lt_search(lt, state, layer, m, ws, flush, gen, diag, fallback):
 
 
 def _build_ext():
-    src = sk_source() + GEMV_CUDA_SRC + wd_source() + rt_source() + cw_source()
-    kwargs = dict(name="okc_sk_v2",
-                  cpp_sources="#include <torch/extension.h>\n" + _SK_CPP + GEMV_CPP_DECLS + _WD_CPP + _RT_CPP + _CW_CPP,
+    src = sk_source() + GEMV_CUDA_SRC + wd_source() + rt_source()
+    kwargs = dict(name="okc_sk_v2", cpp_sources="#include <torch/extension.h>\n" + _SK_CPP + GEMV_CPP_DECLS + _WD_CPP + _RT_CPP,
                   cuda_sources=src,
-                  functions=["sk_fwd", "skf_fwd", "cgemv_fwd", "rgemv_fwd", "sgemv_fwd", "wd_fwd", "rt_fwd", "cw_fwd"],
+                  functions=["sk_fwd", "skf_fwd", "cgemv_fwd", "rgemv_fwd", "sgemv_fwd", "wd_fwd", "rt_fwd"],
                   extra_cuda_cflags=["-O3", "-gencode=arch=compute_90a,code=sm_90a"], verbose=False)
     try:
         return load_inline(no_implicit_headers=True, **kwargs)
@@ -4289,8 +3845,7 @@ def prepare(weights):
             for nm in WD_GEOM:
                 wg, bn, clk, clr, hl, nst = WD_GEOM[nm]
                 bn_ok = bn in WD_BN[b] or (is_router and b == 256 and bn == 64)
-                if (hl != is_router or not bn_ok or not wd_fits(nm, n, k) or WD_VAR.get(nm, 0) & WV_NOEMPTY
-                        or nm == CW_TWIN):
+                if hl != is_router or not bn_ok or not wd_fits(nm, n, k) or WD_VAR.get(nm, 0) & WV_NOEMPTY:
                     continue
                 wn = state["router_pack"] if WD_VAR.get(nm, 0) & WV_PACK else wk
                 fn = _wd_runner(ext, nm, wn, n, k, torch.float32 if is_router else torch.bfloat16, diag)
@@ -4299,10 +3854,6 @@ def prepare(weights):
                 if cut is not None and (layer, b) in uses:
                     add(layer, b, nm, _cut_runner(cut, w, state["cut_ws"]), w, n, WD_SELFTEST_MS[b],
                         SELFTEST_TOL["bf16"])
-        cw_b = [b for b in WD_BUCKETS if (layer, b) in CW_USE]
-        if cw_b:
-            for b, nm, fn in _cw_candidates(ext, layer, w, cw_b, gen, diag):
-                add(layer, b, nm, fn, w, n, WD_SELFTEST_MS[b], SELFTEST_TOL["bf16"])
     print(f"selftests done {time.time() - t0:.1f} s")
 
     flush = torch.empty(FLUSH_BYTES // 4, dtype=torch.float32, device=dev)

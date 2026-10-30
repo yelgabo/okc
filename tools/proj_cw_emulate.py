@@ -4,7 +4,7 @@ memory tile the 128 decoder threads write (decode8 on the stream words, the swiz
 stores, the escape patches) against the tile TMA writes from the raw weights with the 128-byte
 swizzle. Also checks the bitwise round trip of _unpack_cw on the whole matrix.
 
-    uv run --with torch python tools/proj_cw_emulate.py
+    uv run --with torch --with numpy python tools/proj_cw_emulate.py
 """
 
 import importlib.util
@@ -14,7 +14,7 @@ from pathlib import Path
 import torch
 
 ROOT = Path(__file__).resolve().parent.parent
-spec = importlib.util.spec_from_file_location("sub", ROOT / "muse_bf16_proj/submission.py")
+spec = importlib.util.spec_from_file_location("sub", ROOT / "muse_bf16_proj/experiments/cw_p3_submission.py")
 sub = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(sub)
 
@@ -103,6 +103,13 @@ def main():
             checked += 1
             esc_blocks += cnt > 0
     print(f"decoder emulation equals the TMA tile on {checked} blocks ({esc_blocks} with escapes)")
+    # A block without escapes: in-window weights only (no zeros, no outliers).
+    w0 = (torch.rand((128, 64), generator=gen) * 0.02 + 0.001).to(torch.bfloat16)
+    p0, _ = sub.pack_cw(w0)
+    s0 = p0["stream"].numpy().tobytes()
+    assert int.from_bytes(s0[12288:12292], "little") == 0
+    assert emulate_block(s0, p0["eby"], p0["base4"]) == tma_tile(sub.bf16_bits(w0), 0, 0)
+    print("decoder emulation equals the TMA tile on a block without escapes")
     # A block with more escapes than the slot holds must be refused, not truncated.
     w2 = w.clone()
     w2[:64, :64] = torch.full((64, 64), 1e30, dtype=torch.bfloat16)

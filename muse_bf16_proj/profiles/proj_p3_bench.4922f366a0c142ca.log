@@ -1,0 +1,31 @@
+P3BUILD prod 22.1 s, bench A+B 27.0 s, lt 18.5 s
+P3PACK base 54 escapes 5107 cmax 6 eby 32 bytes 50462720
+P3PACKe base 54 escapes 88771 cmax 39 eby 160 bytes 50987008
+P3OVH 4.00 us
+P3CHECK dropped: none; diag 0
+P3 m=128 base lt med lt=20.45 wd8=22.34 cublas=24.30 cw6d3nm:A=28.27 twin_a1:A=29.22 twin:A=35.55 twin:B=35.63 cw6d3m:A=35.74 twin:prod=35.87 cw6d3n:A=38.14 cw6d3:B=48.34 cw6d2:A=48.50 cw6d3:prod=48.51 cw6d3:A=48.51 cw6d2:B=48.75 cw6d2:prod=48.77 cw5d3:B=48.90 cw5d3:prod=48.93 cw5d3:A=48.93
+P3 m=128 d wd8=+1.74 cublas=+3.76 cw6d3nm:A=+7.70 twin_a1:A=+8.77 twin:A=+15.01 twin:B=+15.02 cw6d3m:A=+15.23 twin:prod=+15.31 cw6d3n:A=+17.58 cw6d3:B=+27.79 cw6d2:A=+28.02 cw6d3:prod=+27.97 cw6d3:A=+27.95 cw6d2:B=+28.24 cw6d2:prod=+28.19 cw5d3:B=+28.40 cw5d3:prod=+28.42 cw5d3:A=+28.48
+P3 pair cw6d3:A-twin:A=+12.90(0/100) cw6d3:B-twin:B=+12.67(0/100) cw6d2:A-twin:A=+12.85(0/100) cw5d3:A-twin:A=+13.30(0/100) twin:A-twin:B=-0.03(51/100) cw6d3:A-cw6d3:B=+0.13(35/100) twin:prod-twin:A=+0.27(39/100) cw6d3:prod-cw6d3:A=+0.03(42/100) cw6d3n:A-cw6d3:A=-10.34(100/100) cw6d3m:A-cw6d3:A=-12.72(100/100) cw6d3nm:A-twin_a1:A=-1.01(83/100) twin:A-lt=+15.01(0/100) cw6d3:A-lt=+27.95(0/100) twin:A-wd8=+13.33(0/100)
+P3DONE 68.5 s
+judged| sk build 0.0 s
+judged| cw pooler: base 54, 4596 escapes, at most 6 per block, stream exact, 3 configs equal to the twin bit for bit
+judged| tune pooler    m= 1: pool8 18.4, pool8raw 21.7, cgemv 17.6, cublas 24.9 -> cgemv
+judged| tune pooler    m= 8: pool8 18.3, pool8raw 21.8, cublas 25.3 -> pool8
+judged| tune pooler    m=16: pool16 18.4, pool16raw 21.8, cublas 25.4 -> pool16
+judged| tune pooler    m=32: pool32 19.7, pool32raw 22.3, cublas 25.7 -> pool32
+judged| tune pooler    m=64: cublas 26.8, b1n64c2 25.6, m64k2r4 30.1, m64k1r8 39.4 -> b1n64c2
+judged| tune pooler    m=128: cublas 29.8, b1n64c2 30.0, b1n128c2 30.1, m64k2r4 48.2, m64k1r8 50.5, m128k2r4 34.9, m128k1r4 48.2, m128k1r8 50.6, m128k2r8 36.7, m128k4r2 39.7, b1n128c2s8h 26.8, b1n128c3s8h 32.6, cw6d3 52.9, cw6d2 53.1, cw5d3 53.3 -> b1n128c2s8h
+judged| tune pooler    m=256: cublas 31.6, b1n128c2 37.5, b2n256c2 49.6, m128k2r4 60.8, m128k1r4 52.8, m128k1r8 54.5, m128k2r8 64.3, m128k4r2 60.3, m256k2r4 59.3, m256k1r4 52.5, m256k1r8 55.0, m256k2r8 61.6, m256k2r2 58.5, b1n128c2s8h 48.9, b1n128c3s8h 58.1, cut128x64 30.8 -> cublas
+judged| lt build 0.0 s, cublasLt 130101, torch cuda 13.0
+judged| ltune pooler    m=128: base 26.7, pref=L0:a66t134s35k1r0z0c0i0g7w0v0.79 24.4, f0=L0:a66t134s35k1r0z0c2i0g7w0v0.79 24.5, f1=L2:a66t134s35k1r0z0c2i0g7w0v0.79 24.2, f2=L2:a66t134s35k1r0z0c0i0g7w0v0.79 24.4, f3=L0:a66t134s35k1r0z0c0i0g5w0v0.79 25.4, f4=L2:a66t134s35k1r0z0c0i0g5w0v0.79 25.3; pref pref margin 0.51 base -2.37/0 f0 -0.10/3 f1 +0.19/6 f2 -0.16/3 f3 -0.93/1 f4 -0.93/0 -> pref
+judged| ltune pooler    m=256: base 33.8, pref=L1:a66t18s35k1r0z0c0i0g2w0v0.97 27.6, f0=L3:a66t17s35k1r0z0c0i0g2w0v0.97 27.6, f1=L1:a66t18s35k1r0z0c0i0g2w0v0.97 27.6, f2=L3:a66t18s35k1r0z0c0i0g2w0v0.97 27.7, f3=L3:a66t17s35k1r0z0c1i0g2w0v0.97 27.9, f4=L1:a66t17s35k1r0z0c1i0g2w0v0.97 27.8; pref pref margin 0.32 base -6.21/0 f0 -0.13/3 f1 +0.00/4 f2 +0.13/5 f3 -0.32/3 f4 -0.22/3 -> pref
+judged| prepare done 65.2 s
+P3BUILD prod 22.1 s, bench A+B 27.0 s, lt 18.5 s
+P3PACK base 54 escapes 5107 cmax 6 eby 32 bytes 50462720
+P3PACKe base 54 escapes 88771 cmax 39 eby 160 bytes 50987008
+P3OVH 4.00 us
+P3CHECK dropped: none; diag 0
+P3 m=128 base lt med lt=20.45 wd8=22.34 cublas=24.30 cw6d3nm:A=28.27 twin_a1:A=29.22 twin:A=35.55 twin:B=35.63 cw6d3m:A=35.74 twin:prod=35.87 cw6d3n:A=38.14 cw6d3:B=48.34 cw6d2:A=48.50 cw6d3:prod=48.51 cw6d3:A=48.51 cw6d2:B=48.75 cw6d2:prod=48.77 cw5d3:B=48.90 cw5d3:prod=48.93 cw5d3:A=48.93
+P3 m=128 d wd8=+1.74 cublas=+3.76 cw6d3nm:A=+7.70 twin_a1:A=+8.77 twin:A=+15.01 twin:B=+15.02 cw6d3m:A=+15.23 twin:prod=+15.31 cw6d3n:A=+17.58 cw6d3:B=+27.79 cw6d2:A=+28.02 cw6d3:prod=+27.97 cw6d3:A=+27.95 cw6d2:B=+28.24 cw6d2:prod=+28.19 cw5d3:B=+28.40 cw5d3:prod=+28.42 cw5d3:A=+28.48
+P3 pair cw6d3:A-twin:A=+12.90(0/100) cw6d3:B-twin:B=+12.67(0/100) cw6d2:A-twin:A=+12.85(0/100) cw5d3:A-twin:A=+13.30(0/100) twin:A-twin:B=-0.03(51/100) cw6d3:A-cw6d3:B=+0.13(35/100) twin:prod-twin:A=+0.27(39/100) cw6d3:prod-cw6d3:A=+0.03(42/100) cw6d3n:A-cw6d3:A=-10.34(100/100) cw6d3m:A-cw6d3:A=-12.72(100/100) cw6d3nm:A-twin_a1:A=-1.01(83/100) twin:A-lt=+15.01(0/100) cw6d3:A-lt=+27.95(0/100) twin:A-wd8=+13.33(0/100)
+P3DONE 68.5 s

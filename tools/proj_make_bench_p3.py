@@ -333,7 +333,7 @@ def main():
     if len(sys.argv) != 2:
         raise SystemExit(__doc__)
     out = Path(sys.argv[1])
-    sub = (ROOT / "muse_bf16_proj/submission.py").read_text()
+    sub = (ROOT / "muse_bf16_proj/experiments/cw_p3_submission.py").read_text()
     bench = (BENCH.replace("@@CW@@", repr(CW_BENCH)).replace("@@DUP@@", repr(CW_DUP))
              .replace("@@DIAG@@", repr(CW_DIAG)).replace("@@PAIRS@@", repr(PAIRS)))
     out.write_text(sub + bench)
