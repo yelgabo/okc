@@ -1,0 +1,142 @@
+ 256: 9}
+ABCHK inc 24 of 24 PASS; shapes with a FAIL 0
+ABCHK cand 24 of 24 PASS; shapes with a FAIL 0
+ABCHK null 24 of 24 PASS; shapes with a FAIL 0
+ABTIME d1s inc 88.1 cand 89.0 null 88.7 | paired cand-inc +0.0 null-inc +0.2 (n=16)
+ABTIME d1f inc 92.1 cand 91.7 null 92.3 | paired cand-inc -0.5 null-inc +0.1 (n=16)
+ABTIME d16s inc 157.3 cand 155.7 null 155.8 | paired cand-inc -1.7 null-inc -1.2 (n=16)
+ABTIME d16f inc 248.1 cand 247.4 null 247.2 | paired cand-inc -0.5 null-inc -0.6 (n=16)
+ABTIME d32s inc 175.6 cand 173.1 null 172.7 | paired cand-inc +0.1 null-inc +0.2 (n=16)
+ABTIME d32f inc 349.6 cand 346.9 null 347.4 | paired cand-inc +0.8 null-inc +0.3 (n=16)
+ABTIME v1s inc 123.7 cand 120.7 null 121.2 | paired cand-inc -2.7 null-inc -2.3 (n=16)
+ABTIME v1f inc 133.5 cand 132.2 null 132.5 | paired cand-inc -1.1 null-inc -0.5 (n=16)
+ABTIME v16s inc 284.5 cand 280.4 null 280.7 | paired cand-inc -4.0 null-inc -4.1 (n=16)
+ABTIME v16f inc 381.6 cand 376.1 null 375.4 | paired cand-inc -4.3 null-inc -4.4 (n=16)
+ABTIME v32s inc 353.6 cand 353.3 null 352.4 | paired cand-inc -0.4 null-inc -1.6 (n=16)
+ABTIME v32f inc 529.2 cand 525.5 null 524.0 | paired cand-inc -1.1 null-inc -2.0 (n=16)
+ABLOAD d1 (46 sliding + 16 full) / 62: inc 89.2 cand 89.7 null 89.7 | inc/arm cand 0.9942 null 0.9945 | null check cand/null 1.0003
+ABLOAD d16 (46 sliding + 16 full) / 62: inc 180.8 cand 179.4 null 179.4 | inc/arm cand 1.0078 null 1.0078 | null check cand/null 1.0000
+ABLOAD d32 (46 sliding + 16 full) / 62: inc 220.5 cand 217.9 null 217.8 | inc/arm cand 1.0117 null 1.0123 | null check cand/null 1.0006
+ABLOAD v1 (46 sliding + 16 full) / 62: inc 126.3 cand 123.7 null 124.1 | inc/arm cand 1.0209 null 1.0174 | null check cand/null 0.9966
+ABLOAD v16 (46 sliding + 16 full) / 62: inc 309.6 cand 305.1 null 305.2 | inc/arm cand 1.0147 null 1.0144 | null check cand/null 0.9998
+ABLOAD v32 (46 sliding + 16 full) / 62: inc 398.9 cand 397.7 null 396.7 | inc/arm cand 1.0030 null 1.0056 | null check cand/null 1.0026
+ABSCORE geometric mean over 6 loads of inc load time / arm load time (above 1: arm faster): cand 1.0087; null check: cand / null 1.0000 (the same file timed twice; its distance from 1 is the bench's noise)
+ABKN K0 cgemv40_kernel<256,2>
+ABKN K1 one::attn_one_kernel<1,13>
+ABKN K2 cgemv_kernel<64,1>
+ABKN K3 bnd::attn_boundary_kernel
+ABKN K4 router_kernel<1>
+ABKN K5 muse_spark::routing_kernel<muse_spark::R
+ABKN K6 cgemv_kernel<512,1>
+ABKN K7 pre_norm_kernel<__nv_bfloat16>
+ABKN K8 moe1::sk_8_3_0::moe_fused_kernel<1>
+ABKN K9 cgemv40_kernel<128,2>
+ABKN K10 bnd::boundary_kernel
+ABKN K11 one::attn_one_kernel<1,11>
+ABKN K12 sk_kernel<1,16,3,1,4,2,5,true,false,1,1,
+ABKN K13 one::attn_one_kernel<1,1>
+ABKN K14 sk_kernel<1,16,2,2,2,2,3,true,false,1,1,
+ABKN K15 muse_spark_norm_residual_kernel<8192l,25
+ABKN K16 sk_kernel<1,16,2,2,2,4,4,true,false,1,1,
+ABKN K17 route_kernel<__nv_bfloat16,false>
+ABKN K18 one::attn_one_kernel<1,49>
+ABKN K19 sk_kernel<2,32,3,1,4,2,4,true,false,1,1,
+ABKN K20 sk_kernel<2,32,2,2,2,2,3,true,false,1,1,
+ABKN K21 sk_kernel<2,32,2,2,2,4,3,true,false,1,1,
+ABKN K22 moe1::moe_main_kernel<47>
+ABKN K23 moe1::moe_main_kernel<51>
+ABKN K24 sk_kernel<1,8,3,1,4,4,4,true,false,1,1,_
+ABKN K25 one::attn_one_kernel<8,15>
+ABKN K26 sk_kernel<1,8,4,1,4,1,4,true,false,1,1,_
+ABKN K27 sk_kernel<1,8,1,2,2,4,3,true,false,1,1,_
+ABKN K28 sk_kernel<1,8,1,1,8,2,4,true,false,1,1,_
+ABKN K29 one::attn_one_kernel<8,11>
+ABKN K30 wd_kernel<1,128,3,1,false,8,__nv_bfloat1
+ABKN K31 one::attn_one_kernel<8,3>
+ABKN K32 nvjet_sm90_tst_128x64_64x8_1x2_h_bz_TNT
+ABKN K33 nvjet_sm90_tss_96x64_64x10_4x2_h_bz_TNN
+ABKN K34 route_kernel<float,true>
+ABKN K35 one::attn_one_kernel<8,51>
+ABKN K36 nvjet_sm90_tst_96x64_64x10_2x4_h_bz_TNN
+ABKN K37 nvjet_sm90_tst_128x128_64x6_2x1_v_bz_TNT
+ABKN K38 bnd::attn_boundary_geo_kernel<1,512>
+ABKN K39 nvjet_sm90_tss_80x128_64x8_4x2_h_bz_TNN
+ABKN K40 muse_spark_norm_residual_kernel<8192l,51
+ABK d1s inc span 89.0 sum 102.4: K0 10.6 K1 5.2 K2 5.4 K3 5.1 K4 8.2 K5 9.5 K6 16.8 K7 1.6 K8 32.7 K9 3.4 K10 3.9
+ABK d1s cand span 88.8 sum 103.8: K0 10.8 K1 5.5 K2 5.5 K3 5.2 K4 8.3 K5 9.9 K6 16.7 K7 1.5 K8 32.7 K9 3.6 K10 4.0
+ABK d1f inc span 89.9 sum 105.2: K0 10.7 K11 13.1 K2 6.0 K3 5.7 K4 8.8 K5 10.5 K6 16.3 K7 1.6 K8 24.9 K9 3.7 K10 4.0
+ABK d1f cand span 89.0 sum 105.8: K0 10.6 K11 13.1 K2 5.7 K3 5.9 K4 8.9 K5 10.7 K6 16.1 K7 1.5 K8 25.8 K9 3.6 K10 3.8
+ABK d16s inc span 154.6 sum 155.0: K12 12.8 K13 9.7 K14 21.2x2 K15 8.1x2 K16 21.5 K17 4.8 K8 76.9
+ABK d16s cand span 153.3 sum 156.8: K12 12.7 K13 11.2 K14 25.3x2 K15 8.0x2 K16 20.5 K7 1.5 K5 2.8 K8 74.8
+ABK d16f inc span 246.0 sum 245.6: K12 12.8 K18 93.2 K14 20.2x2 K15 7.8x2 K16 18.6 K17 4.8 K8 88.2
+ABK d16f cand span 244.5 sum 249.7: K12 12.4 K18 92.9 K14 26.6x2 K15 7.9x2 K16 18.8 K7 1.9 K5 2.8 K8 86.4
+ABK d32s inc span 163.0 sum 164.0: K19 13.8 K13 11.9 K20 22.8x2 K15 8.3x2 K21 20.8 K17 5.1 K22 81.3
+ABK d32s cand span 163.1 sum 168.5: K19 14.0 K13 13.3 K20 25.5x2 K15 8.4x2 K21 20.8 K17 5.5 K23 81.1
+ABK d32f inc span 349.8 sum 349.4: K19 13.7 K18 172.7 K20 21.5x2 K15 8.1x2 K21 20.3 K17 5.1 K22 108.1
+ABK d32f cand span 349.0 sum 359.8: K19 13.7 K18 173.6 K20 29.9x2 K15 8.2x2 K21 20.3 K17 5.6 K23 108.6
+ABK v1s inc span 113.1 sum 112.4: K24 12.6 K25 6.7 K26 6.9 K3 4.0 K27 21.4 K17 4.5 K8 47.8 K28 4.5 K10 3.8
+ABK v1s cand span 110.6 sum 120.3: K24 12.9 K25 8.8 K26 11.6 K3 4.9 K27 23.6 K7 1.6 K5 2.7 K8 45.9 K28 4.7 K10 3.9
+ABK v1f inc span 119.2 sum 118.6: K24 12.6 K29 15.1 K26 6.9 K3 3.9 K27 19.8 K17 4.7 K8 47.3 K28 4.4 K10 3.9
+ABK v1f cand span 119.8 sum 123.3: K24 12.8 K29 15.8 K26 9.4 K3 4.8 K27 22.2 K7 1.7 K5 2.8 K8 45.3 K28 4.7 K10 3.7
+ABK v16s inc span 266.0 sum 265.4: K30 16.2 K31 11.6 K32 31.1x2 K15 10.1x2 K33 28.1 K34 4.7 K22 163.7
+ABK v16s cand span 262.4 sum 261.8: K30 16.3 K31 11.6 K32 30.9x2 K15 10.3x2 K33 27.3 K34 4.9 K23 160.5
+ABK v16f inc span 374.4 sum 374.4: K30 16.1 K35 111.1 K32 30.6x2 K15 9.7x2 K33 26.3 K34 4.7 K22 175.8
+ABK v16f cand span 372.1 sum 371.5: K30 16.2 K35 109.9 K32 29.7x2 K15 9.7x2 K33 26.0 K34 4.9 K23 175.0
+ABK v32s inc span 335.6 sum 333.9: K36 24.9 K31 16.1 K37 36.1x2 K38 7.7 K39 33.9 K34 5.1 K22 202.5 K40 7.6
+ABK v32s cand span 335.2 sum 332.8: K36 25.0 K31 16.1 K37 35.7x2 K38 7.6 K39 33.0 K34 5.3 K23 202.6 K40 7.6
+ABK v32f inc span 518.4 sum 515.8: K36 25.4 K35 182.9 K37 35.9x2 K38 7.6 K39 33.0 K34 5.1 K22 218.3 K40 7.6
+ABK v32f cand span 517.3 sum 515.1: K36 25.1 K35 185.7 K37 35.5x2 K38 7.3 K39 32.6 K34 5.2 K23 216.1 K40 7.6
+ABCAND m1 selftest PDL = plain bitwise on 14 launches
+ABCAND m1 gate 1x1s ok cand rel 4.1e-04/4.3e-04 el 2.1e-03/2.9e-03 >1e-4 14/1000 o1 0 | ctrl rel 4.1e-04/4.3e-04 el 2.1e-03/2.9e-03 >1e-4 17/1000 o1 0
+ABCAND m1 gate 1x1f ok cand rel 0.0e+00/0.0e+00 el 0.0e+00/0.0e+00 >1e-4 0/1000 o1 0 | ctrl rel 0.0e+00/0.0e+00 el 0.0e+00/0.0e+00 >1e-4 0/1000 o1 0
+ABCAND m1 gate 1x8s ok cand rel 1.3e-03/1.3e-03 el 7.8e-03/6.6e-03 >1e-4 343/1000 o1 0 | ctrl rel 1.3e-03/1.3e-03 el 7.8e-03/6.5e-03 >1e-4 409/1000 o1 0
+ABCAND m1 gate 1x8f ok cand rel 1.0e-03/9.5e-04 el 5.7e-03/6.6e-03 >1e-4 215/1000 o1 0 | ctrl rel 1.0e-03/9.5e-04 el 5.7e-03/6.6e-03 >1e-4 241/1000 o1 0
+ABCAND m1 gate 16x1s ok cand rel 9.6e-04/8.7e-04 el 5.6e-03/6.5e-03 >1e-4 115/1000 o1 0 | ctrl rel 9.6e-04/8.8e-04 el 5.6e-03/6.5e-03 >1e-4 102/1000 o1 0
+ABCAND m1 gate 16x1f ok cand rel 1.2e-03/1.1e-03 el 7.8e-03/7.0e-03 >1e-4 450/1000 o1 0 | ctrl rel 1.2e-03/1.1e-03 el 7.8e-03/7.0e-03 >1e-4 416/1000 o1 0
+ABCAND m1 gate 32x1s ok cand rel 6.8e-04/5.9e-04 el 7.6e-03/6.8e-03 >1e-4 718/1000 o1 0 | ctrl rel 6.8e-04/5.9e-04 el 7.6e-03/6.8e-03 >1e-4 698/1000 o1 0
+ABCAND m1 gate 32x1f ok cand rel 7.0e-04/6.2e-04 el 7.7e-03/7.4e-03 >1e-4 433/1000 o1 0 ids!= 11 | ctrl rel 7.1e-04/6.3e-04 el 7.7e-03/7.4e-03 >1e-4 449/1000 o1 0 ids!= 8
+ABCAND m1 chain s plain/pdl us: T=8 attn-o-bnd 22.3/20.5 (+1.76) bnd-front 34.8/34.1 (+0.70); T=16 attn-o-bnd 24.5/23.8 (+0.74) bnd-front 34.1/35.3 (-1.15); T=32 attn-o-bnd 27.7/26.2 (+1.47) bnd-front 37.1/37.8 (-0.74)
+ABCAND m1 chain f plain/pdl us: T=8 attn-o-bnd 31.2/31.6 (-0.32) bnd-front 34.6/34.0 (+0.64); T=16 attn-o-bnd 108.9/107.6 (+1.34) bnd-front 34.3/35.2 (-0.93); T=32 attn-o-bnd 189.8/187.9 (+1.86) bnd-front 36.9/37.8 (-0.93)
+ABCAND m1 T=8 step s/f off 122.9/122.8 o 121.8/123.2 o+front 119.7/121.6 load off 122.9 o 122.1 o+front 120.2 -> o+front
+ABCAND m1 T=16 step s/f off 177.3/255.6 o 175.0/254.3 o+front 175.6/255.4 load off 197.5 o 195.5 o+front 196.2 -> o
+ABCAND m1 T=32 step s/f off 205.2/374.1 o 203.3/373.2 o+front 203.7/373.8 load off 248.8 o 247.1 o+front 247.6 -> o
+ABCAND m1 open: whole step at 8 tokens sliding saves 3.20 us
+ABCAND moe gate sk8w4s 8+16+1+32+8 rel 6e-05/3e-05/4e-05/4e-05/3e-05|6e-05/3e-05/4e-05/3e-05/3e-05 el 3e-03|3e-03 >1e-4 0/2000|0/2000 o1 0|0
+ABCAND moe gate sk16w4s 8+16+1+32+8 rel 5e-05/4e-05/3e-05/5e-05/7e-05|5e-05/4e-05/3e-05/5e-05/7e-05 el 5e-03|5e-03 >1e-4 0/2000|0/2000 o1 0|0
+ABCAND moe gate sk8w3s 8+16+1+32+8 rel 6e-05/4e-05/4e-05/4e-05/3e-05|6e-05/4e-05/4e-05/4e-05/3e-05 el 3e-03|3e-03 >1e-4 0/2000|0/2000 o1 0|0
+ABCAND moe gate sk8w4s-er 8+16+1+32+8 rel 7e-05/4e-05/4e-05/3e-05/3e-05|7e-05/4e-05/4e-05/3e-05/3e-05 el 3e-03|3e-03 >1e-4 0/2000|0/2000 o1 0|0
+ABCAND moe gate main-d2 32+128+17+256 rel 6e-05/3e-05/6e-05/3e-05|7e-05/3e-05/6e-05/4e-05 el 6e-03|6e-03 >1e-4 0/2000|0/2000 o1 0|0
+ABCAND moe gate main-m2-ar2-ub 32+128+17+256 rel 4e-05/3e-05/4e-05/3e-05|4e-05/3e-05/4e-05/3e-05 el 4e-03|5e-03 >1e-4 0/2000|0/2000 o1 0|0
+ABCAND moe gate main-dynb-fs 32+128+17+256 rel 5e-05/5e-05/6e-05/3e-05|5e-05/5e-05/4e-05/3e-05 el 5e-03|4e-03 >1e-4 0/2000|0/2000 o1 0|0
+ABCAND moe gate main-lean 32+128+17+256 rel 5e-05/5e-05/4e-05/3e-05|5e-05/5e-05/6e-05/3e-05 el 5e-03|5e-03 >1e-4 0/2000|0/2000 o1 0|0
+ABCAND moe gate main-lean-silu-bar 32+128+17+256 rel 5e-05/5e-05/6e-05/3e-05|5e-05/5e-05/4e-05/3e-05 el 5e-03|5e-03 >1e-4 0/2000|0/2000 o1 0|0
+ABCAND moe gate main-lean-grp-nohoist 32+128+17+256 rel 5e-05/4e-05/6e-05/3e-05|5e-05/4e-05/4e-05/3e-05 el 5e-03|5e-03 >1e-4 0/2000|0/2000 o1 0|0
+ABCAND moe gate main-lean-grp-finss64 32+128+17+256 rel 5e-05/0e+00/4e-05/0e+00|5e-05/0e+00/6e-05/0e+00 el 3e-03|4e-03 >1e-4 0/2000|0/2000 o1 0|0
+ABCAND route_gate skf-r@1 ok rel 0e+00|1e-04 el 0e+00|2e-03 >1e-4 0/200|1/200 o1 0|0
+ABCAND route_gate skf-r@8 ok rel 1e-04|1e-04 el 2e-03|2e-03 >1e-4 0/200|0/200 o1 0|0
+ABCAND route_gate concat-r@16 ok rel 6e-05|3e-05 el 3e-03|1e-03 >1e-4 0/200|0/200 o1 0|0
+ABCAND route_gate skf-r@16 ok rel 1e-05|1e-05 el 1e-03|1e-03 >1e-4 0/200|0/200 o1 0|0
+ABCAND route_gate concat-r@32 ok rel 9e-05|9e-05 el 6e-03|6e-03 >1e-4 0/200|0/200 o1 0|0
+ABCAND route_gate skf-r@32 ok rel 5e-05|5e-05 el 3e-03|3e-03 >1e-4 0/200|0/200 o1 0|0
+ABCAND route_gate concat-r@128 ok rel 0e+00|0e+00 el 0e+00|0e+00 >1e-4 0/200|0/200 o1 0|0
+ABCAND route_gate concat-r@256 ok rel 0e+00|0e+00 el 0e+00|0e+00 >1e-4 0/200|0/200 o1 0|0
+ABCAND gate_negctl moe sk8w4s T=32 none:pass(2e-06,2e-04) tile:R(2e-01,1e+00) 1%:R(1e-01,1e+00) 0.1%:R(4e-02,1e+00) row:R(2e-01,1e+00) elem:R(4e-04,4e-02)
+ABCAND gate_negctl moe sk16w4s T=32 none:pass(1e-05,1e-03) tile:R(2e-01,1e+00) 1%:R(1e-01,1e+00) 0.1%:R(5e-02,1e+00) row:R(2e-01,1e+00) elem:R(3e-03,2e-01)
+ABCAND gate_negctl moe sk8w3s T=32 none:pass(1e-05,9e-04) tile:R(2e-01,1e+00) 1%:R(1e-01,1e+00) 0.1%:R(4e-02,1e+00) row:R(2e-01,1e+00) elem:R(3e-04,3e-02)
+ABCAND gate_negctl moe sk8w4s-er T=32 none:pass(1e-05,9e-04) tile:R(2e-01,1e+00) 1%:R(1e-01,1e+00) 0.1%:R(4e-02,1e+00) row:R(2e-01,1e+00) elem:R(2e-03,1e-01)
+ABCAND gate_negctl moe main-d2 T=256 none:pass(1e-05,2e-03) tile:R(1e-01,2e+00) 1%:R(1e-01,2e+00) 0.1%:R(4e-02,1e+00) row:R(7e-02,2e+00) elem:R(8e-04,2e-01)
+ABCAND gate_negctl moe main-m2-ar2-ub T=256 none:pass(1e-05,2e-03) tile:R(1e-01,2e+00) 1%:R(1e-01,2e+00) 0.1%:R(4e-02,2e+00) row:R(7e-02,2e+00) elem:R(2e-04,4e-02)
+ABCAND gate_negctl moe main-dynb-fs T=256 none:pass(2e-05,2e-03) tile:R(1e-01,2e+00) 1%:R(1e-01,2e+00) 0.1%:R(4e-02,1e+00) row:R(7e-02,2e+00) elem:R(1e-03,3e-01)
+ABCAND gate_negctl moe main-lean T=256 none:pass(1e-05,1e-03) tile:R(1e-01,2e+00) 1%:R(1e-01,1e+00) 0.1%:R(4e-02,2e+00) row:R(7e-02,2e+00) elem:R(2e-04,8e-02)
+ABCAND gate_negctl moe main-lean-silu-bar T=256 none:pass(2e-05,2e-03) tile:R(1e-01,2e+00) 1%:R(1e-01,2e+00) 0.1%:R(4e-02,1e+00) row:R(7e-02,2e+00) elem:R(2e-03,7e-01)
+ABCAND gate_negctl moe main-lean-grp-nohoist T=256 none:pass(1e-05,3e-03) tile:R(1e-01,2e+00) 1%:R(1e-01,1e+00) 0.1%:R(4e-02,1e+00) row:R(7e-02,2e+00) elem:R(6e-04,2e-01)
+ABCAND gate_negctl moe main-lean-grp-finss64 T=256 none:pass(0e+00,0e+00) tile:R(1e-01,2e+00) 1%:R(1e-01,1e+00) 0.1%:R(4e-02,2e+00) row:R(7e-02,2e+00) elem:R(1e-03,2e-01)
+ABCAND gate_negctl route skf-r@1 none:pass(0e+00,0e+00) tile:R(2e-01,8e-01) 1%:R(9e-02,7e-01) 0.1%:R(4e-02,5e-01) row:R(1e+00,1e+00) elem:R(2e-02,3e-01)
+ABCAND gate_negctl route skf-r@8 none:pass(2e-06,1e-04) tile:R(2e-01,2e+11) 1%:R(1e-01,3e+11) 0.1%:R(3e-02,1e+11) row:R(3e-01,1e+00) elem:R(5e-03,3e-01)
+ABCAND gate_negctl route concat-r@16 none:pass(0e+00,0e+00) tile:R(3e-01,6e+11) 1%:R(2e-01,6e+11) 0.1%:R(6e-02,4e+11) row:R(3e-01,5e+11) elem:R(4e-03,1e+11)
+ABCAND gate_negctl route skf-r@16 none:pass(0e+00,0e+00) tile:R(3e-01,6e+11) 1%:R(2e-01,6e+11) 0.1%:R(6e-02,4e+11) row:R(3e-01,5e+11) elem:R(4e-03,1e+11)
+ABCAND gate_negctl route concat-r@32 none:pass(6e-09,3e-07) tile:R(3e-01,6e+11) 1%:R(1e-01,5e+11) 0.1%:R(5e-02,4e+11) row:R(3e-01,9e+11) elem:R(3e-03,2e-01)
+ABCAND gate_negctl route skf-r@32 none:pass(3e-05,2e-03) tile:R(3e-01,6e+11) 1%:R(1e-01,5e+11) 0.1%:R(5e-02,4e+11) row:R(3e-01,9e+11) elem:R(3e-03,2e-01)
+ABCAND gate_negctl route concat-r@128 none:pass(0e+00,0e+00) tile:R(2e-01,5e+11) 1%:R(1e-01,7e+11) 0.1%:R(4e-02,4e+11) row:R(1e-01,7e+11) elem:R(5e-04,6e-02)
+ABCAND gate_negctl route concat-r@256 none:pass(0e+00,0e+00) tile:R(1e-01,7e+11) 1%:R(1e-01,7e+11) 0.1%:R(4e-02,5e+11) row:R(8e-02,1e+00) elem:R(1e-03,3e-01)
+ABCAND manifest moe checked 11 rejected none; route gates ok 8/8; failures reference 0 replay 0 nonfinite 0 workspace 0 sensitivity 0 other 0

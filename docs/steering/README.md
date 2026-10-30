@@ -25,6 +25,16 @@ MoE PDL prefetch hints, finish stage-level freshness/numerical diagnostics for M
 production validation thresholds unchanged pending an approved, evidence-based policy.
 This report changes documentation only and launches no GPU work.
 
+## Latest layer note: bench arm bias and the four-arm harness (2026-10-30)
+
+**[2026-10-30: Layer bench arm bias, a four-arm harness, and the next comparisons](2026-10-30-layer-bench-arm-bias.md)**:
+the three-arm bench's null shared the candidate's state, so an inc-arm penalty (4-6 us at d1
+on identical code in 50c4c1328ab742f4 and 720079090ee44cc3, 0.66% on identical-code loads in
+29fd004fd58e40ef) passed as a gain. `tools/dl_make_bench_pub.py` now times both files twice
+(own prepare each, random prepare and capture order), prints policies side by side and
+carry-over tables, and decides on the pooled cross ratio against both nulls. A/A, mode 51 and
+M1 runtime bench files are prepared, not run; the +0.84% and +0.87% readings stay unestablished.
+
 ## Previous hourly report, 19:31
 
 **[2026-10-29 19:31 PDT: Mode 47 layer attribution and mode 51 component gain](2026-10-29-1931-performance-review.md)**
