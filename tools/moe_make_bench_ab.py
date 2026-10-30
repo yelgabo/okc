@@ -388,7 +388,7 @@ def _ab_main():
 
     def skew_stats(sk, aend):
         # sk: [G, SK_PER] int64 clock64 stamps (0 = not written); aend: per CTA, the clock64 at
-        # thread 0's phase A end. Returns, per phase, the columns of sk_cols (cycles unless
+        # thread 0's phase A end. Returns, per phase, the columns of skew_cols (cycles unless
         # named us).
         G_ = sk.shape[0]
         hdr = sk[:, :8].double()
@@ -448,7 +448,7 @@ def _ab_main():
                         mean(latx, mx), ghz])
         return out
 
-    sk_cols = ("stages", "warp w-wait us", "x-wait us", "cycles per wait", "start skew",
+    skew_cols = ("stages", "warp w-wait us", "x-wait us", "cycles per wait", "start skew",
                "wg-mean skew", "within-wg skew", "w-ready skew", "release skew",
                "w-wait share from release skew", "w-waits >64 cyc", "producer delay",
                "copy latency", "lead", "x copy latency", "GHz")
@@ -779,9 +779,9 @@ def _ab_main():
             print(f"ABPUB {tag} " + ", ".join(f"{c} {v:.2f}" for c, v in zip(pub_cols, m)))
             for a, rows in skd_.items():
                 for k, ph in enumerate("AB"):
-                    m = [sum(r[k][i] for r in rows) / n for i in range(len(sk_cols))]
+                    m = [sum(r[k][i] for r in rows) / n for i in range(len(skew_cols))]
                     print(f"ABSKEW {tag} {a} phase {ph} "
-                          + ", ".join(f"{c} {v:.3g}" for c, v in zip(sk_cols, m)))
+                          + ", ".join(f"{c} {v:.3g}" for c, v in zip(skew_cols, m)))
     flags = int(state["scratch"]["ctr"][8].item())
     state["scratch"]["ctr"][8] = 0
     print(f"ABMOE spin flags {flags}; total {time.time() - t_start:.0f} s", flush=True)
