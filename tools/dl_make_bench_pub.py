@@ -81,9 +81,10 @@ def _ab_print(line):
 
 
 class _AbSource:
-    """A loader that only serves the module's source, so inspect.getsource (which Triton's
-    @jit calls on the public file's kernels) finds code that was exec'd from a string:
-    check 121dff3ab17a4245 failed with "@jit functions should be defined in a Python file"."""
+    """A loader that only serves the arm's source, registered with linecache.lazycache, so
+    inspect.getsource (which Triton's @jit calls on the public file's kernels) finds code that
+    was exec'd from a string: check 121dff3ab17a4245 failed with "@jit functions should be
+    defined in a Python file". No module is registered anywhere."""
 
     def __init__(self, src):
         self.src = src
@@ -92,17 +93,29 @@ class _AbSource:
         return self.src
 
 
+class _AbArm:
+    """The other arm's globals (a plain dict the source was exec'd in), read as attributes."""
+
+    def __init__(self, ns):
+        self.ns = ns
+
+    def __getattr__(self, key):
+        try:
+            return self.ns[key]
+        except KeyError:
+            raise AttributeError(key) from None
+
+
 def _ab_module(name, packed):
     # The judge takes files under 1,000,000 bytes; the other arm's source travels compressed.
     import base64
+    import linecache
     import lzma
-    import sys
     src = lzma.decompress(base64.b85decode(packed)).decode()
-    mod = types.ModuleType(name)
-    mod.__loader__ = _AbSource(src)
-    sys.modules[name] = mod
-    exec(compile(src, f"{name}.py", "exec"), mod.__dict__)
-    return mod
+    ns = {"__name__": name, "__loader__": _AbSource(src), "__builtins__": __builtins__}
+    linecache.lazycache(f"{name}.py", ns)
+    exec(compile(src, f"{name}.py", "exec"), ns)
+    return _AbArm(ns)
 
 
 def _ab_import():
@@ -114,12 +127,12 @@ def _ab_import():
     if _AB_OTHER == "pub":
         # Its prepare() sets this from the weights before building; the judge's block scales
         # are positive normal E4M3 (our _w4_scales_ok holds on them), which selects it.
-        other._MA_SFX = other._MA_SFX_IF_PRMT if other._MA_PRMT_SCALES else ()
+        other.ns["_MA_SFX"] = other._MA_SFX_IF_PRMT if other._MA_PRMT_SCALES else ()
         for name in ("_att7", "_moe", "_moe_tiny", "_moe_tiny2", "_moe_mid", "bfp__get_ext"):
             builds["pub" + name] = getattr(other, name)
     else:
-        other._timeline = lambda state: None
-        tagged.append((other.__dict__, "inc"))
+        other.ns["_timeline"] = lambda state: None
+        tagged.append((other.ns, "inc"))
     for mod, tag in tagged:
         for key, flag in (("_one_load", "PORT_ATTN_ONE"), ("_moe1_load", "PORT_MOE_FUSED"),
                           ("_skp_load", "PORT_PROJ_SK"), ("_w4_ext", "PORT_MOE_W4"),
