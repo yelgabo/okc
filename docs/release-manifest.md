@@ -33,6 +33,22 @@ routing-id flips judged against the control's envelope, and extended the gate to
 the control's envelope) and report-only negative controls were added at the researcher's
 caution; see the addendum in docs/runs-decode-layer.md.
 
+## Candidate (2026-10-30): layer_hp (not checked, not submitted)
+
+Release + the standalone attention of rounds 2 and 3 (HMRG, PRQ = 31) + the workspace placement
+pick; nothing else.
+
+| field | value |
+|---|---|
+| file | `muse_decode_layer/cand/layer_hp.py`, SHA256 `0efd553c60815db9c2f6650ddbc3a9e6762d05fa81ff56d802cd9cc12cb2ee6f` |
+| made from | a copy of the release (b9c23bda...) through `tools/dl_one_inline.py muse_attention_decode/attn_one.cu OUT` (attn_one.cu at 1faadbc) and `tools/dl_one_port_patch.py OUT HEADER`. Byte-identical on a second build |
+| against the release | `_ONE_SRC` (HMRG on q_len 1 modes 1 / 3 / 11 / 13, PRQ 31 on q_len 8 modes 1 / 3 / 11 / 15; switches off gives SASS text-identical to the release); Python: `_one_ws_alloc` / `_one_ws_pick` in `_one_setup`, four more asserted attention stresses, `_attn_one(plan=)`, SUMMARY `attn ws pick`, line 2 |
+| build switches | as the board entry: `SK_PDL` 0, `ONE_TRIG` 0, no M1, `_ONE_PDL = False`, `MOE1_HELD = ()`, MoE mode 47 |
+| SASS | docs/runs-decode-layer.md, layer_hp build row: ordering opcode counts equal to the standalone except the inliner's ACQBULK; no spills |
+| expected effect | hypothesis from the standalone benches only: HMRG -0.5 / -1.4 / -1.4 / -0.8 us cold at d1 sliding, d1 full, d16 sliding, d32 sliding (ce92d32e26024bd2, d0819bb26907426b); PRQ -0.6 / -0.5 / -1.0 us at v1 full, v16 sliding, v32 sliding (three benches, round 3); the pick 0.3-0.4 us at d1 full when the first allocation lands slow. Inside the layer these are a fraction of a percent per load; whether the layer keeps them is what the four-arm bench measures |
+| bench | four-arm against the release, scratchpad `dlp/bench8_hp.py` (885,566 bytes, SHA256 a6fbe13f...), seeds 230001+, order seed 67, `--dup=own` |
+| unpatched judge check of this exact file | none |
+
 ## Candidate (2026-10-30): layer_m1rt51c (not checked, not submitted)
 
 layer_m1rt51 plus the M1 gate's census skip (user decision below) and the negative-control fix (rebuilt at the coordinator's request so its route gates at 32 tokens do not report the d6c30f88c617438b sensitivity miss again); nothing else changes.

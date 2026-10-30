@@ -14,7 +14,10 @@ before the flat kernel's epoch read). Each insertion needs its anchor verbatim; 
 kernel fails here instead of compiling without the wait. Without the PDL launch attribute the
 instruction returns at once, so the plain launch is unchanged.
 
-    python3 tools/dl_one_inline.py [path/to/attn_one.cu]
+    python3 tools/dl_one_inline.py [path/to/attn_one.cu] [path/to/layer.py]
+
+The second argument names the layer file to rewrite (default muse_decode_layer/submission.py),
+so a candidate can be built in muse_decode_layer/cand/ while submission.py stays the release.
 """
 
 import re
@@ -67,13 +70,14 @@ def device_code(cu):
 
 def main():
     cu = Path(sys.argv[1]) if len(sys.argv) > 1 else CU
-    src = SUB.read_text()
+    sub = Path(sys.argv[2]) if len(sys.argv) > 2 else SUB
+    src = sub.read_text()
     code = device_code(cu.read_text())
     new, n = re.subn(r'_ONE_SRC = r""".*?"""', lambda _: f'_ONE_SRC = r"""\n{code}"""', src,
                      flags=re.S)
     if n != 1:
-        raise SystemExit("no _ONE_SRC block in submission.py")
-    SUB.write_text(new)
+        raise SystemExit(f"no _ONE_SRC block in {sub}")
+    sub.write_text(new)
     print(f"inlined {len(code.splitlines())} lines from {cu}")
 
 

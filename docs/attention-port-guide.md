@@ -150,7 +150,9 @@ through `_ONE_DBG`.
   The standalone file's `_ONE_WS_PICK = 3` (time three candidate workspaces on synthetic batch-1
   full inputs at state creation, keep the fastest) is host Python in submission.py's
   `_one_state`; a layer that wants it copies `_one_ws_alloc` / `_one_ws_pick` into its own state
-  setup. It was measured on the standalone problem only.
+  setup. It was measured on the standalone problem only. `tools/dl_one_port_patch.py` does
+  that for the layer (candidate layer_hp, 10-30), fail-safe: an exception or a dirty workspace
+  after the pick falls back to a fresh zeroed allocation.
 - Fresh inputs every call; the plan reads only shapes (`page_table.shape[1]` for the
   speculated length) and never input values on the host.
 - The first call on a device allocates the workspace and queries residency: do it outside
