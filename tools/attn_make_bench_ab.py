@@ -4,7 +4,7 @@ kernel loaded from its own file, all timed in one process on the same inputs.
 
     python3 tools/attn_make_bench_ab.py OUT.py [--pub [NAME=]PUBLIC.py ...] [--null]
         [--shapes sliding|full|all] [--seed N] [--inputs K] [--rounds R] [--nocoop]
-        [--set NAME=VALUE ...] NAME[@own]=[FLAGS][:mode=M][:wsoff=BYTES][:phase=K][:early] ...
+        [--set NAME=VALUE ...] NAME[@own]=[FLAGS][:mode=M][:wsoff=BYTES][:phase=K][:early][:pick=K] ...
 
 NAME=FLAGS adds a variant built from submission.py's inlined _ONE_SRC (not attn_one.cu) with
 those nvcc flags (comma-separated), e.g. diet=-DONE_DIAG=0,-DONE_DIET=1. A switch that exists
@@ -22,6 +22,9 @@ arm always gets its own state (as @own).
 Arms with the same flags share one build; an arm with no flags reuses the control's module (no
 compile), except ctrl2. `:wsoff=BYTES` gives the arm its own state whose ws_acc, ws_l and ws_cnt
 start BYTES into larger zeroed allocations (a placement probe: same code, other addresses).
+`:pick=K` (own state) sets submission's _ONE_WS_PICK = K while the arm runs, so its state is
+created by timing K candidate workspaces on the batch-1 full plans and keeping the fastest;
+ABADDR then shows the pick and the candidates' medians.
 `:tkt` (build with -DONE_T9=1) runs the last-CTA mode in place of the control's cooperative
 per-request mode (3 -> 1, 11 -> 9, 15 -> 13) with the same splits and copies; ABPLAN shows
 tkt_mode. `:phase=K` (needs a -DONE_DIAG=1 build, own state, name ending in _probe) runs the diagnostic
@@ -150,13 +153,14 @@ for _name, _val in _AB_SET.items():
 @_ab_contextlib.contextmanager
 def _ab_ctx(name):
     """Run as arm `name`: its module in _ONE and, for own-state arms, its state dict."""
-    global _ONE, _ONE_STATE
+    global _ONE, _ONE_STATE, _ONE_WS_PICK
     mod = _AB_MODS.get(name)
     if mod is None:
         yield
         return
-    saved = (_ONE, _ONE_STATE)
+    saved = (_ONE, _ONE_STATE, _ONE_WS_PICK)
     _ONE = mod
+    _ONE_WS_PICK = _AB_PICK.get(name, _ONE_WS_PICK)
     if name in _AB_STATES:
         _ONE_STATE = _AB_STATES[name]
     try:
@@ -175,7 +179,7 @@ def _ab_ctx(name):
                   f"l=0x{st['l'].data_ptr():x} cnt=0x{st['cnt'].data_ptr():x}", flush=True)
         yield
     finally:
-        _ONE, _ONE_STATE = saved
+        _ONE, _ONE_STATE, _ONE_WS_PICK = saved
 
 
 for _name in _AB_EARLY:
@@ -190,8 +194,11 @@ def _ab_addr():
     for n in ["ctrl"] + [x for x in _AB_MODS if x in _AB_STATES or x == "ctrl2"]:
         st = (_ONE_STATE if n == "ctrl" else _AB_STATES.get(n, {})).get(dev)
         if st:
+            pick = st.get("ws_pick")
             parts.append(f"{n}:acc=0x{st['acc'].data_ptr():x},l=0x{st['l'].data_ptr():x},"
-                         f"cnt=0x{st['cnt'].data_ptr():x}")
+                         f"cnt=0x{st['cnt'].data_ptr():x}"
+                         + (f",pick={pick[0]}:" + "/".join(f"{m:.2f}" for m in pick[1])
+                            if pick else ""))
     print("ABADDR " + " ".join(parts), flush=True)
 
 
@@ -701,6 +708,7 @@ def main():
     early = []
     sets = {}
     tkt = set()
+    pick = {}
     while args:
         a = args.pop(0)
         if a == "--pub":
@@ -745,6 +753,9 @@ def main():
                     name = base_name + "@own"
                 elif key == "tkt":
                     tkt.add(base_name)
+                elif key == "pick":
+                    pick[base_name] = int(val)
+                    name = base_name + "@own"
                 elif key == "early":
                     early.append(base_name)
                     name = base_name + "@own"
@@ -796,6 +807,7 @@ def main():
         f"_AB_EARLY = {early!r}",
         f"_AB_SET = {sets!r}",
         f"_AB_TKT = {sorted(tkt)!r}",
+        f"_AB_PICK = {pick!r}",
     ])
     src += head + sep + AB.replace("@@CONFIG@@", config, 1)
     out.write_text(src)

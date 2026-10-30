@@ -142,6 +142,15 @@ through `_ONE_DBG`.
   SASS-identical (docs/steering/2026-10-29-v1-d32-breakdown.md).
   A layer copy that inlines `attn_one.cu` gets FIN8 by re-inlining; it changes nothing the
   layer passes or owns.
+  `ONE_HMRG=1` (q_len 1 modes 1, 3, 11, 13: the key-half merge before the reds) and `ONE_PRQ=31`
+  (q_len 8 per-request modes 1, 3, 11, 15: the tile in the public per-request order: Q.K first,
+  V^T under it, branch-free 32-bit in-loop copies, P.V per half, offset vote on each thread's
+  partials; docs/runs-attention.md, 10-30 rounds 2 and 3). The layer gets both by re-inlining;
+  PRQ's copy bit reads `Params::off32`, which the layer's wrapper already sets for PFAST.
+  The standalone file's `_ONE_WS_PICK = 3` (time three candidate workspaces on synthetic batch-1
+  full inputs at state creation, keep the fastest) is host Python in submission.py's
+  `_one_state`; a layer that wants it copies `_one_ws_alloc` / `_one_ws_pick` into its own state
+  setup. It was measured on the standalone problem only.
 - Fresh inputs every call; the plan reads only shapes (`page_table.shape[1]` for the
   speculated length) and never input values on the host.
 - The first call on a device allocates the workspace and queries residency: do it outside

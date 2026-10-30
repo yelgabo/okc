@@ -1,0 +1,96 @@
+264,nc=1,mode=49] p15=[splits=264,nc=1,mode=49] p31=[splits=264,nc=1,mode=49] ctrl2=[splits=264,nc=1,mode=49] pub=[n_splits=264,flat=1,cs=0,ncl=1,nc=1] pub2=[n_splits=264,flat=1,cs=0,ncl=1,nc=1]
+ABCOLD b=32 full    L=1 in=0 ctrl=178.85 p1=178.88 p3=178.94 p7=178.82 p15=178.78 p31=178.85 ctrl2=178.94 pub=177.15 pub2=177.41 cap0=p15 t=374s
+ABWARM b=32 full    L=1 in=0 ctrl=169.74 p1=169.65 p3=169.86 p7=169.88 p15=169.82 p31=169.76 ctrl2=169.71 pub=166.11 pub2=165.98 t=374s
+ABCOLD b=32 full    L=1 in=1 ctrl=179.68 p1=179.81 p3=179.78 p7=179.62 p15=179.78 p31=179.55 ctrl2=179.65 pub=178.72 pub2=178.37 cap0=p31 t=375s
+ABWARM b=32 full    L=1 in=1 ctrl=171.12 p1=171.01 p3=171.08 p7=170.94 p15=171.07 p31=170.97 ctrl2=170.93 pub=167.09 pub2=166.89 t=376s
+ABCOLD b=32 full    L=1 pooled ctrl=179.33 p1=179.39 p3=179.46 p7=179.36 p15=179.26 p31=179.20 ctrl2=179.33 pub=177.95 pub2=177.82
+ABWARM b=32 full    L=1 pooled ctrl=170.50 p1=170.59 p3=170.35 p7=170.30 p15=170.45 p31=170.28 ctrl2=170.38 pub=166.78 pub2=166.73
+ABPLAN b= 1 sliding L=8 ctrl=[splits=33,nc=1,mode=15] p1=[splits=33,nc=1,mode=15] p3=[splits=33,nc=1,mode=15] p7=[splits=33,nc=1,mode=15] p15=[splits=33,nc=1,mode=15] p31=[splits=33,nc=1,mode=15] ctrl2=[splits=33,nc=1,mode=15] pub=[n_splits=33,flat=0,cs=0,ncl=1,nc=1,coop=1] pub2=[n_splits=33,flat=0,cs=0,ncl=1,nc=1,coop=1]
+ABCOLD b= 1 sliding L=8 in=0 ctrl=11.46 p1=11.46 p3=11.42 p7=11.49 p15=11.46 p31=11.42 ctrl2=11.46 pub=11.36 pub2=11.33 cap0=pub t=376s
+ABWARM b= 1 sliding L=8 in=0 ctrl=6.84 p1=6.74 p3=6.74 p7=6.75 p15=6.81 p31=6.80 ctrl2=6.87 pub=6.66 pub2=6.64 t=376s
+ABCOLD b= 1 sliding L=8 in=1 ctrl=10.98 p1=11.14 p3=10.94 p7=10.98 p15=11.14 p31=10.94 ctrl2=11.17 pub=10.98 pub2=10.91 cap0=pub t=376s
+ABWARM b= 1 sliding L=8 in=1 ctrl=6.88 p1=6.71 p3=6.74 p7=6.73 p15=6.76 p31=6.82 ctrl2=6.86 pub=6.63 pub2=6.68 t=376s
+ABCOLD b= 1 sliding L=8 pooled ctrl=11.23 p1=11.20 p3=11.10 p7=11.23 p15=11.26 p31=11.10 ctrl2=11.30 pub=11.17 pub2=11.10
+ABWARM b= 1 sliding L=8 pooled ctrl=6.87 p1=6.72 p3=6.74 p7=6.74 p15=6.80 p31=6.81 ctrl2=6.86 pub=6.65 pub2=6.67
+ABPLAN b= 1 full    L=8 ctrl=[splits=252,nc=8,mode=11] p1=[splits=252,nc=8,mode=11] p3=[splits=252,nc=8,mode=11] p7=[splits=252,nc=8,mode=11] p15=[splits=252,nc=8,mode=11] p31=[splits=252,nc=8,mode=11] ctrl2=[splits=252,nc=8,mode=11] pub=[n_splits=252,flat=0,cs=0,ncl=1,nc=8] pub2=[n_splits=252,flat=0,cs=0,ncl=1,nc=8]
+ABCOLD b= 1 full    L=8 in=0 ctrl=19.65 p1=19.58 p3=19.39 p7=19.20 p15=19.07 p31=19.04 ctrl2=19.68 pub=18.85 pub2=18.82 cap0=p1 t=376s
+ABWARM b= 1 full    L=8 in=0 ctrl=15.17 p1=14.81 p3=14.82 p7=14.50 p15=14.56 p31=14.46 ctrl2=15.17 pub=13.58 pub2=13.62 t=376s
+ABCOLD b= 1 full    L=8 in=1 ctrl=19.55 p1=19.46 p3=19.30 p7=19.23 p15=19.04 p31=18.91 ctrl2=19.62 pub=18.78 pub2=18.75 cap0=p3 t=376s
+ABWARM b= 1 full    L=8 in=1 ctrl=15.17 p1=14.83 p3=14.84 p7=14.53 p15=14.57 p31=14.48 ctrl2=15.23 pub=13.66 pub2=13.61 t=376s
+ABCOLD b= 1 full    L=8 pooled ctrl=19.62 p1=19.49 p3=19.36 p7=19.20 p15=19.07 p31=18.98 ctrl2=19.62 pub=18.82 pub2=18.78
+ABWARM b= 1 full    L=8 pooled ctrl=15.17 p1=14.82 p3=14.84 p7=14.52 p15=14.57 p31=14.47 ctrl2=15.19 pub=13.64 pub2=13.62
+ABPLAN b=16 sliding L=8 ctrl=[splits=8,nc=1,mode=3] p1=[splits=8,nc=1,mode=3] p3=[splits=8,nc=1,mode=3] p7=[splits=8,nc=1,mode=3] p15=[splits=8,nc=1,mode=3] p31=[splits=8,nc=1,mode=3] ctrl2=[splits=8,nc=1,mode=3] pub=[n_splits=8,flat=0,cs=0,ncl=1,nc=1,coop=1] pub2=[n_splits=8,flat=0,cs=0,ncl=1,nc=1,coop=1]
+ABCOLD b=16 sliding L=8 in=0 ctrl=16.00 p1=16.06 p3=15.87 p7=15.78 p15=15.58 p31=15.62 ctrl2=16.06 pub=15.62 pub2=15.52 cap0=ctrl2 t=376s
+ABWARM b=16 sliding L=8 in=0 ctrl=11.54 p1=11.65 p3=11.52 p7=11.37 p15=11.31 p31=11.19 ctrl2=11.49 pub=10.94 pub2=11.16 t=377s
+ABCOLD b=16 sliding L=8 in=1 ctrl=16.03 p1=16.00 p3=15.97 p7=15.62 p15=15.65 p31=15.49 ctrl2=15.90 pub=15.42 pub2=15.52 cap0=ctrl2 t=377s
+ABWARM b=16 sliding L=8 in=1 ctrl=11.55 p1=11.62 p3=11.50 p7=11.37 p15=11.27 p31=11.19 ctrl2=11.48 pub=10.91 pub2=11.13 t=377s
+ABCOLD b=16 sliding L=8 pooled ctrl=16.00 p1=16.03 p3=15.90 p7=15.68 p15=15.65 p31=15.55 ctrl2=16.00 pub=15.55 pub2=15.52
+ABWARM b=16 sliding L=8 pooled ctrl=11.54 p1=11.64 p3=11.51 p7=11.37 p15=11.29 p31=11.19 ctrl2=11.49 pub=10.94 pub2=11.14
+ABPLAN b=16 full    L=8 ctrl=[splits=264,nc=1,mode=51] p1=[splits=264,nc=1,mode=51] p3=[splits=264,nc=1,mode=51] p7=[splits=264,nc=1,mode=51] p15=[splits=264,nc=1,mode=51] p31=[splits=264,nc=1,mode=51] ctrl2=[splits=264,nc=1,mode=51] pub=[n_splits=264,flat=1,cs=0,ncl=1,nc=1] pub2=[n_splits=264,flat=1,cs=0,ncl=1,nc=1]
+ABCOLD b=16 full    L=8 in=0 ctrl=114.21 p1=113.34 p3=113.28 p7=113.66 p15=113.82 p31=114.02 ctrl2=113.12 pub=110.62 pub2=110.72 cap0=pub2 t=377s
+ABWARM b=16 full    L=8 in=0 ctrl=107.91 p1=108.25 p3=107.94 p7=107.82 p15=108.18 p31=107.89 ctrl2=107.84 pub=105.16 pub2=105.15 t=377s
+ABCOLD b=16 full    L=8 in=1 ctrl=113.12 p1=113.02 p3=113.31 p7=112.77 p15=112.83 p31=113.22 ctrl2=112.99 pub=111.87 pub2=111.55 cap0=p7 t=378s
+ABWARM b=16 full    L=8 in=1 ctrl=108.99 p1=108.83 p3=109.12 p7=108.92 p15=109.01 p31=109.32 ctrl2=108.64 pub=106.66 pub2=106.04 t=378s
+ABCOLD b=16 full    L=8 pooled ctrl=113.70 p1=113.15 p3=113.31 p7=113.22 p15=113.22 p31=113.41 ctrl2=113.09 pub=111.26 pub2=111.20
+ABWARM b=16 full    L=8 pooled ctrl=108.74 p1=108.63 p3=108.54 p7=108.58 p15=108.69 p31=108.78 ctrl2=108.55 pub=105.94 pub2=105.72
+ABPLAN b=32 sliding L=8 ctrl=[splits=4,nc=1,mode=3] p1=[splits=4,nc=1,mode=3] p3=[splits=4,nc=1,mode=3] p7=[splits=4,nc=1,mode=3] p15=[splits=4,nc=1,mode=3] p31=[splits=4,nc=1,mode=3] ctrl2=[splits=4,nc=1,mode=3] pub=[n_splits=4,flat=0,cs=0,ncl=1,nc=1,coop=1] pub2=[n_splits=4,flat=0,cs=0,ncl=1,nc=1,coop=1]
+ABCOLD b=32 sliding L=8 in=0 ctrl=21.02 p1=21.12 p3=20.90 p7=20.48 p15=20.16 p31=20.00 ctrl2=21.12 pub=19.71 pub2=19.46 cap0=pub t=378s
+ABWARM b=32 sliding L=8 in=0 ctrl=15.75 p1=15.84 p3=15.65 p7=15.41 p15=15.30 p31=15.04 ctrl2=15.90 pub=14.61 pub2=14.56 t=378s
+ABCOLD b=32 sliding L=8 in=1 ctrl=20.77 p1=20.90 p3=20.58 p7=20.22 p15=19.97 p31=19.84 ctrl2=20.77 pub=19.36 pub2=19.26 cap0=pub2 t=378s
+ABWARM b=32 sliding L=8 in=1 ctrl=15.64 p1=15.79 p3=15.51 p7=15.33 p15=15.24 p31=14.99 ctrl2=15.73 pub=14.69 pub2=14.43 t=378s
+ABCOLD b=32 sliding L=8 pooled ctrl=20.86 p1=20.96 p3=20.70 p7=20.29 p15=20.06 p31=19.90 ctrl2=20.90 pub=19.52 pub2=19.36
+ABWARM b=32 sliding L=8 pooled ctrl=15.70 p1=15.83 p3=15.63 p7=15.41 p15=15.29 p31=15.02 ctrl2=15.85 pub=14.64 pub2=14.52
+ABPLAN b=32 full    L=8 ctrl=[splits=264,nc=1,mode=51] p1=[splits=264,nc=1,mode=51] p3=[splits=264,nc=1,mode=51] p7=[splits=264,nc=1,mode=51] p15=[splits=264,nc=1,mode=51] p31=[splits=264,nc=1,mode=51] ctrl2=[splits=264,nc=1,mode=51] pub=[n_splits=264,flat=1,cs=0,ncl=1,nc=1] pub2=[n_splits=264,flat=1,cs=0,ncl=1,nc=1]
+ABCOLD b=32 full    L=8 in=0 ctrl=191.87 p1=191.78 p3=191.90 p7=192.70 p15=192.38 p31=192.00 ctrl2=193.41 pub=191.81 pub2=192.06 cap0=p31 t=379s
+ABWARM b=32 full    L=8 in=0 ctrl=207.12 p1=206.48 p3=209.16 p7=206.90 p15=207.31 p31=205.70 ctrl2=206.75 pub=202.89 pub2=203.10 t=380s
+ABCOLD b=32 full    L=8 in=1 ctrl=193.82 p1=194.02 p3=194.18 p7=194.24 p15=194.11 p31=194.56 ctrl2=194.24 pub=193.73 pub2=193.73 cap0=pub t=380s
+ABWARM b=32 full    L=8 in=1 ctrl=206.40 p1=208.64 p3=214.68 p7=209.86 p15=209.96 p31=215.00 ctrl2=208.67 pub=207.43 pub2=212.01 t=381s
+ABCOLD b=32 full    L=8 pooled ctrl=192.67 p1=192.90 p3=192.96 p7=193.47 p15=193.09 p31=192.99 ctrl2=193.66 pub=192.83 pub2=192.83
+ABWARM b=32 full    L=8 pooled ctrl=207.12 p1=207.62 p3=210.08 p7=208.61 p15=208.39 p31=207.94 ctrl2=208.67 pub=204.43 pub2=203.60
+ABADDR ctrl:acc=0xa221a000000,l=0xa22d3a59000,cnt=0xa22d3a99000 ctrl2:acc=0xa221b000000,l=0xa22d3aba000,cnt=0xa22d3afa000
+ABSUM cold b= 1 sliding L=1 ctrl=8.90 p1=8.93 p3=8.93 p7=8.90 p15=8.90 p31=8.93 ctrl2=8.90 pub=8.70 pub2=8.77 null:ctrl2-ctrl=+0.00 null:pub2-pub=+0.06 d:p1=+0.03 d:p3=+0.03 d:p7=+0.00 d:p15=+0.00 d:p31=+0.03 d:pub=-0.19
+ABSUM cold b= 1 full    L=1 ctrl=17.15 p1=17.25 p3=17.22 p7=17.15 p15=17.25 p31=17.18 ctrl2=16.90 pub=16.54 pub2=16.58 null:ctrl2-ctrl=-0.26 null:pub2-pub=+0.03 d:p1=+0.10 d:p3=+0.06 d:p7=+0.00 d:p15=+0.10 d:p31=+0.03 d:pub=-0.61
+ABSUM cold b=16 sliding L=1 ctrl=13.15 p1=13.15 p3=13.15 p7=13.15 p15=13.12 p31=13.18 ctrl2=13.02 pub=12.96 pub2=13.25 null:ctrl2-ctrl=-0.13 null:pub2-pub=+0.29 d:p1=+0.00 d:p3=+0.00 d:p7=+0.00 d:p15=-0.03 d:p31=+0.03 d:pub=-0.19
+ABSUM cold b=16 full    L=1 ctrl=100.51 p1=100.64 p3=100.54 p7=100.48 p15=100.61 p31=100.51 ctrl2=100.58 pub=99.68 pub2=99.58 null:ctrl2-ctrl=+0.06 null:pub2-pub=-0.10 d:p1=+0.13 d:p3=+0.03 d:p7=-0.03 d:p15=+0.10 d:p31=+0.00 d:pub=-0.83
+ABSUM cold b=32 sliding L=1 ctrl=15.78 p1=15.84 p3=15.87 p7=15.84 p15=15.81 p31=15.87 ctrl2=15.81 pub=15.87 pub2=15.87 null:ctrl2-ctrl=+0.03 null:pub2-pub=+0.00 d:p1=+0.06 d:p3=+0.10 d:p7=+0.06 d:p15=+0.03 d:p31=+0.10 d:pub=+0.10
+ABSUM cold b=32 full    L=1 ctrl=179.33 p1=179.39 p3=179.46 p7=179.36 p15=179.26 p31=179.20 ctrl2=179.33 pub=177.95 pub2=177.82 null:ctrl2-ctrl=+0.00 null:pub2-pub=-0.13 d:p1=+0.06 d:p3=+0.13 d:p7=+0.03 d:p15=-0.06 d:p31=-0.13 d:pub=-1.38
+ABSUM cold b= 1 sliding L=8 ctrl=11.23 p1=11.20 p3=11.10 p7=11.23 p15=11.26 p31=11.10 ctrl2=11.30 pub=11.17 pub2=11.10 null:ctrl2-ctrl=+0.06 null:pub2-pub=-0.06 d:p1=-0.03 d:p3=-0.13 d:p7=+0.00 d:p15=+0.03 d:p31=-0.13 d:pub=-0.06
+ABSUM cold b= 1 full    L=8 ctrl=19.62 p1=19.49 p3=19.36 p7=19.20 p15=19.07 p31=18.98 ctrl2=19.62 pub=18.82 pub2=18.78 null:ctrl2-ctrl=+0.00 null:pub2-pub=-0.03 d:p1=-0.13 d:p3=-0.26 d:p7=-0.42 d:p15=-0.54 d:p31=-0.64 d:pub=-0.80
+ABSUM cold b=16 sliding L=8 ctrl=16.00 p1=16.03 p3=15.90 p7=15.68 p15=15.65 p31=15.55 ctrl2=16.00 pub=15.55 pub2=15.52 null:ctrl2-ctrl=+0.00 null:pub2-pub=-0.03 d:p1=+0.03 d:p3=-0.10 d:p7=-0.32 d:p15=-0.35 d:p31=-0.45 d:pub=-0.45
+ABSUM cold b=16 full    L=8 ctrl=113.70 p1=113.15 p3=113.31 p7=113.22 p15=113.22 p31=113.41 ctrl2=113.09 pub=111.26 pub2=111.20 null:ctrl2-ctrl=-0.61 null:pub2-pub=-0.06 d:p1=-0.54 d:p3=-0.38 d:p7=-0.48 d:p15=-0.48 d:p31=-0.29 d:pub=-2.43
+ABSUM cold b=32 sliding L=8 ctrl=20.86 p1=20.96 p3=20.70 p7=20.29 p15=20.06 p31=19.90 ctrl2=20.90 pub=19.52 pub2=19.36 null:ctrl2-ctrl=+0.03 null:pub2-pub=-0.16 d:p1=+0.10 d:p3=-0.16 d:p7=-0.58 d:p15=-0.80 d:p31=-0.96 d:pub=-1.34
+ABSUM cold b=32 full    L=8 ctrl=192.67 p1=192.90 p3=192.96 p7=193.47 p15=193.09 p31=192.99 ctrl2=193.66 pub=192.83 pub2=192.83 null:ctrl2-ctrl=+0.99 null:pub2-pub=+0.00 d:p1=+0.22 d:p3=+0.29 d:p7=+0.80 d:p15=+0.42 d:p31=+0.32 d:pub=+0.16
+ABIN b= 1 sliding L=1 in=0 p1=+0.06 p3=+0.00 p7=+0.13 p15=+0.00 p31=+0.16 ctrl2=+0.00 pub=-0.19 pub2=-0.03
+ABIN b= 1 sliding L=1 in=1 p1=+0.16 p3=+0.16 p7=+0.00 p15=+0.13 p31=+0.16 ctrl2=+0.03 pub=-0.16 pub2=+0.00
+ABIN b= 1 full    L=1 in=0 p1=+0.10 p3=+0.03 p7=+0.00 p15=+0.13 p31=+0.03 ctrl2=-0.29 pub=-0.70 pub2=-0.54
+ABIN b= 1 full    L=1 in=1 p1=+0.06 p3=+0.13 p7=+0.00 p15=+0.06 p31=+0.06 ctrl2=-0.26 pub=-0.58 pub2=-0.61
+ABIN b=16 sliding L=1 in=0 p1=-0.03 p3=-0.06 p7=-0.06 p15=-0.03 p31=+0.03 ctrl2=-0.19 pub=-0.22 pub2=+0.10
+ABIN b=16 sliding L=1 in=1 p1=+0.06 p3=+0.06 p7=+0.10 p15=+0.03 p31=+0.06 ctrl2=-0.13 pub=-0.13 pub2=+0.16
+ABIN b=16 full    L=1 in=0 p1=+0.19 p3=+0.06 p7=+0.00 p15=+0.26 p31=+0.06 ctrl2=+0.13 pub=-0.90 pub2=-0.96
+ABIN b=16 full    L=1 in=1 p1=+0.03 p3=+0.10 p7=+0.03 p15=-0.22 p31=+0.00 ctrl2=-0.03 pub=-0.86 pub2=-0.70
+ABIN b=32 sliding L=1 in=0 p1=+0.00 p3=+0.06 p7=+0.10 p15=+0.03 p31=+0.16 ctrl2=+0.06 pub=+0.10 pub2=+0.10
+ABIN b=32 sliding L=1 in=1 p1=+0.03 p3=+0.16 p7=+0.00 p15=+0.00 p31=+0.00 ctrl2=-0.06 pub=+0.06 pub2=+0.10
+ABIN b=32 full    L=1 in=0 p1=+0.03 p3=+0.10 p7=-0.03 p15=-0.06 p31=+0.00 ctrl2=+0.10 pub=-1.70 pub2=-1.44
+ABIN b=32 full    L=1 in=1 p1=+0.13 p3=+0.10 p7=-0.06 p15=+0.10 p31=-0.13 ctrl2=-0.03 pub=-0.96 pub2=-1.31
+ABIN b= 1 sliding L=8 in=0 p1=+0.00 p3=-0.03 p7=+0.03 p15=+0.00 p31=-0.03 ctrl2=+0.00 pub=-0.10 pub2=-0.13
+ABIN b= 1 sliding L=8 in=1 p1=+0.16 p3=-0.03 p7=+0.00 p15=+0.16 p31=-0.03 ctrl2=+0.19 pub=+0.00 pub2=-0.06
+ABIN b= 1 full    L=8 in=0 p1=-0.06 p3=-0.26 p7=-0.45 p15=-0.58 p31=-0.61 ctrl2=+0.03 pub=-0.80 pub2=-0.83
+ABIN b= 1 full    L=8 in=1 p1=-0.10 p3=-0.26 p7=-0.32 p15=-0.51 p31=-0.64 ctrl2=+0.06 pub=-0.77 pub2=-0.80
+ABIN b=16 sliding L=8 in=0 p1=+0.06 p3=-0.13 p7=-0.22 p15=-0.42 p31=-0.38 ctrl2=+0.06 pub=-0.38 pub2=-0.48
+ABIN b=16 sliding L=8 in=1 p1=-0.03 p3=-0.06 p7=-0.42 p15=-0.38 p31=-0.54 ctrl2=-0.13 pub=-0.61 pub2=-0.51
+ABIN b=16 full    L=8 in=0 p1=-0.86 p3=-0.93 p7=-0.54 p15=-0.38 p31=-0.19 ctrl2=-1.09 pub=-3.58 pub2=-3.49
+ABIN b=16 full    L=8 in=1 p1=-0.10 p3=+0.19 p7=-0.35 p15=-0.29 p31=+0.10 ctrl2=-0.13 pub=-1.25 pub2=-1.57
+ABIN b=32 sliding L=8 in=0 p1=+0.10 p3=-0.13 p7=-0.54 p15=-0.86 p31=-1.02 ctrl2=+0.10 pub=-1.31 pub2=-1.57
+ABIN b=32 sliding L=8 in=1 p1=+0.13 p3=-0.19 p7=-0.54 p15=-0.80 p31=-0.93 ctrl2=+0.00 pub=-1.41 pub2=-1.50
+ABIN b=32 full    L=8 in=0 p1=-0.10 p3=+0.03 p7=+0.83 p15=+0.51 p31=+0.13 ctrl2=+1.54 pub=-0.06 pub2=+0.19
+ABIN b=32 full    L=8 in=1 p1=+0.19 p3=+0.35 p7=+0.42 p15=+0.29 p31=+0.74 ctrl2=+0.42 pub=-0.10 pub2=-0.10
+ABSCORE ctrl vs ctrl 1.0000 d1=1.0000 d16=1.0000 d32=1.0000 v1=1.0000 v16=1.0000 v32=1.0000
+ABSCORE p1 vs ctrl 0.9998 d1=0.9956 d16=0.9991 d32=0.9989 v1=1.0043 v16=1.0028 v32=0.9980
+ABSCORE p3 vs ctrl 1.0019 d1=0.9964 d16=0.9998 d32=0.9982 v1=1.0122 v16=1.0042 v32=1.0007
+ABSCORE p7 vs ctrl 1.0033 d1=1.0000 d16=1.0002 d32=0.9990 v1=1.0081 v16=1.0088 v32=1.0034
+ABSCORE p15 vs ctrl 1.0039 d1=0.9978 d16=1.0000 d32=0.9999 v1=1.0088 v16=1.0094 v32=1.0075
+ABSCORE p31 vs ctrl 1.0059 d1=0.9971 d16=0.9993 d32=0.9993 v1=1.0198 v16=1.0100 v32=1.0098
+ABSCORE ctrl2 vs ctrl 1.0006 d1=1.0060 d16=1.0022 d32=0.9996 v1=0.9965 v16=1.0038 v32=0.9957
+ABSCORE pub vs ctrl 1.0168 d1=1.0279 d16=1.0101 d32=1.0049 v1=1.0193 v16=1.0238 v32=1.0149
+ABSCORE pub2 vs ctrl 1.0163 d1=1.0226 d16=1.0047 d32=1.0055 v1=1.0237 v16=1.0249 v32=1.0168
+ABCHECKSUM ctrl=19/0/0 p1=19/0/0 p3=19/0/0 p7=19/0/0 p15=19/0/0 p31=19/0/0 ctrl2=19/0/0 pub=19/0/0 pub2=19/0/0 (pass/fail/probe)

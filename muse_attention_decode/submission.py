@@ -3026,6 +3026,21 @@ constexpr int COOP_POLL_LIMIT = 1 << 24;
 #ifndef ONE_T9
 #define ONE_T9 0
 #endif
+// ONE_PRQ (per-request q_len 8 instances 1, 3, 11, 15 only; bit mask, 0 = the judged loop): the
+// tile in the public per-request kernel's order, one bit per step so a bench can attribute
+// each. Bench ce92d32e26024bd2 put verify 1 full's remaining gap in the tile loop (6.72 vs
+// 5.79 us, merge equal). 1: V^T transpose under the in-flight Q.K instead of after the
+// softmax. 2: Q.K issued before the next tile's copies instead of after. 4: in-loop copies of
+// fully cached tiles branch-free with 32-bit offsets (as ONE_PFAST in the producer). 8: P.V
+// issued per 32-key half, the second half's exponentials under the first half's wgmma.
+// 16: the offset test on each thread's own partial max, the quad reduction only when some
+// row moves (same moves, same bits). Ordering argument: docs/runs-attention.md, 10-30 round 3.
+// Benches a7a4c23e98ca484a / 3c6e1a7f1cc644b6 / 409996a7214f411a, cold: verify 1 full -0.64 /
+// -0.70 / -0.64 us, verify 32 sliding -0.96 / -0.87 / -0.96; every bit adds. 0 restores the
+// judged loop of 5c11a11.
+#ifndef ONE_PRQ
+#define ONE_PRQ 31
+#endif
 constexpr int STAMP_BASE = 1024;
 constexpr int STAMP_W = 16;
 
@@ -3745,6 +3760,7 @@ attn_one_kernel(const Params p) {
                   "ONE_XPIPE is written on top of the promoted mode 51 tile loop");
     constexpr bool WAVE = ONE_WAVE > 0 && PROD && !SOLO && L == 8;
     constexpr bool DETM = ONE_DETM && FLAT && !COOP && L == 1;
+    constexpr int PRQ = !FLAT && L == 8 ? ONE_PRQ : 0;
     // NC consumer threads (one warpgroup per KV head at q_len 8, four warps at q_len 1); in
     // producer mode one more warpgroup gathers the tiles.
     constexpr int NC = L == 8 ? 256 : 128;
@@ -4172,6 +4188,20 @@ attn_one_kernel(const Params p) {
                                   doit);
                 }
                 return;
+            }
+            if constexpr ((PRQ & 4) != 0) {
+                if (p.off32 && pos0 + BN <= seq) {
+#pragma unroll
+                    for (int i = 0; i < BN / RSTEP; ++i) {
+                        const int r = r0 + i * RSTEP;
+                        const uint32_t row = (static_cast<uint32_t>(idx[r]) << p.lp)
+                                             + (static_cast<uint32_t>(pos0 + r) & (psize - 1));
+                        const uint32_t off = (row << 7) + ch * 16;
+                        cp_async16(kdst + r * ROWB + k_swz<L>(ch, r) * 16, p.k_cache + off, 16);
+                        cp_async16(vdst + r * ROWB + v_swz<L>(ch, r) * 16, p.v_cache + off, 16);
+                    }
+                    return;
+                }
             }
             if (ONE_KVFAST && pos0 + BN <= seq) {
 #pragma unroll
@@ -5227,6 +5257,191 @@ attn_one_kernel(const Params p) {
                     }
                     st = PROD ? cst : (st == STAGES - 1 ? 0 : st + 1);
                 }
+            } else if constexpr (PRQ != 0) {
+                constexpr bool TOV = (PRQ & 1) != 0;
+                constexpr bool QKF = (PRQ & 2) != 0;
+                constexpr bool SPV = (PRQ & 8) != 0;
+                constexpr bool TCHK = (PRQ & 16) != 0;
+                int st = 0;
+                for (int it = 0; it < ntiles; ++it) {
+                    // acquire() of the judged loop, with the copy issue split off so QKF can
+                    // place it after the Q.K issue.
+                    cp_wait<STAGES - 2>();
+                    fence_proxy_async();
+                    if (it == 0) {
+                        stamp(14);
+                    }
+                    __syncthreads();
+                    if (it == 0) {
+                        stamp(15);
+                    }
+                    auto issue_next = [&]() {
+                        if constexpr (!ONE) {
+                            if (it + STAGES - 1 < ntiles) {
+                                issue_kv(it + STAGES - 1, (st + STAGES - 1) % STAGES, true);
+                                issue_idx(it + 2 * STAGES - 2);
+                            }
+                            cp_commit();
+                        }
+                    };
+                    if constexpr (!QKF) {
+                        issue_next();
+                    }
+                    const uint8_t* vs = smem + S::KV + st * 2 * TILE_BYTES + TILE_BYTES;
+                    const int pos0 = lo + it * BN;
+                    const bool interior =
+                        pos0 + BN - 1 <= seq && (!p.window || pos0 >= seq + L - p.window);
+                    float s[32];
+                    {
+                        const uint64_t kd =
+                            desc_sw128(smem_base + S::KV + st * 2 * TILE_BYTES + hk * 64);
+                        wg_fence();
+                        wgmma_qk<0>(s, qd0, kd);
+                        wgmma_qk<1>(s, qd1, kd + 2);
+                        wg_commit();
+                    }
+                    if constexpr (QKF) {
+                        issue_next();
+                    }
+                    uint8_t* vt = smem + S::VT + (2 * (it & 1) + hk) * VT_STRIDE;
+                    auto transpose = [&]() {
+                        const int h4 = lane >> 3;
+                        const int r8 = lane & 7;
+#pragma unroll
+                        for (int half = 0; half < 2; ++half) {
+                            const int key = half * 32 + h4 * 8 + r8;
+                            uint32_t t0, t1, t2, t3;
+                            ldsm_x4_trans(smem_u32(vs + key * ROWB + ((hk * 4 + wq) ^ r8) * 16), t0,
+                                          t1, t2, t3);
+                            const uint32_t m0 = __byte_perm(t0, t1, 0x6420);
+                            const uint32_t m1 = __byte_perm(t0, t1, 0x7531);
+                            const uint32_t m2 = __byte_perm(t2, t3, 0x6420);
+                            const uint32_t m3 = __byte_perm(t2, t3, 0x7531);
+                            const int n = 8 * (2 * wq + (h4 & 1)) + r8;
+                            const int chunk = 2 * half + (h4 >> 1);
+                            stsm_x4(smem_u32(vt + n * 64 + ((chunk ^ ((n >> 1) & 3)) << 4)), m0, m1,
+                                    m2, m3);
+                        }
+                    };
+                    if constexpr (TOV) {
+                        transpose();
+                    }
+                    wg_wait<0>();
+                    reg_fence(s);
+                    if (!interior) {
+#pragma unroll
+                        for (int i = 0; i < 8; ++i) {
+#pragma unroll
+                            for (int hh = 0; hh < 2; ++hh) {
+#pragma unroll
+                                for (int e = 0; e < 2; ++e) {
+                                    const int pos = pos0 + 8 * i + 2 * c + e;
+                                    const int qp = qp0 + hh;
+                                    if (pos > qp || (p.window && pos < qp - p.window + 1)) {
+                                        s[4 * i + 2 * hh + e] = NEG_INF;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    float mxr[2];
+#pragma unroll
+                    for (int hh = 0; hh < 2; ++hh) {
+                        float mx = fmaxf(s[2 * hh], s[2 * hh + 1]);
+#pragma unroll
+                        for (int i = 1; i < 8; ++i) {
+                            mx = fmaxf(mx, fmaxf(s[4 * i + 2 * hh], s[4 * i + 2 * hh + 1]));
+                        }
+                        mxr[hh] = mx;
+                    }
+                    // sl2k > 0, so a row's quad max scaled exceeds off + 8 exactly when one of
+                    // its four threads' scaled partial max does: TCHK votes on the partials and
+                    // reduces only inside the (rare) move, with the judged loop's arithmetic.
+                    bool any_move = false;
+                    if constexpr (TCHK) {
+                        any_move = __any_sync(0xffffffffu, mxr[0] * sl2k > off[0] + 8.f
+                                                               || mxr[1] * sl2k > off[1] + 8.f);
+                    }
+                    float tmax[2];
+                    bool move[2];
+                    auto row_moves = [&]() {
+#pragma unroll
+                        for (int hh = 0; hh < 2; ++hh) {
+                            tmax[hh] = quad_max(mxr[hh]) * sl2k;
+                            move[hh] = tmax[hh] > off[hh] + 8.f;
+                        }
+                    };
+                    if constexpr (!TCHK) {
+                        row_moves();
+                        any_move = __any_sync(0xffffffffu, move[0] || move[1]);
+                    }
+                    if (any_move) {
+                        if constexpr (TCHK) {
+                            row_moves();
+                        }
+#pragma unroll
+                        for (int hh = 0; hh < 2; ++hh) {
+                            const float nxt = move[hh] ? tmax[hh] : off[hh];
+                            const float scale = ex2(off[hh] - nxt);
+                            off[hh] = nxt;
+#pragma unroll
+                            for (int i = 0; i < 9; ++i) {
+                                o[4 * i + 2 * hh] *= scale;
+                                o[4 * i + 2 * hh + 1] *= scale;
+                            }
+                        }
+                    }
+                    uint32_t pa[2][4];
+                    auto pack_half = [&](int kk) {
+#pragma unroll
+                        for (int i = 4 * kk; i < 4 * kk + 4; ++i) {
+#pragma unroll
+                            for (int hh = 0; hh < 2; ++hh) {
+#pragma unroll
+                                for (int e = 0; e < 2; ++e) {
+                                    s[4 * i + 2 * hh + e] =
+                                        ex2(fmaf(s[4 * i + 2 * hh + e], sl2k, -off[hh]));
+                                }
+                            }
+                        }
+                        const float* q0 = s + 16 * kk;
+                        pa[kk][0] = e4m3x4(q0[0], q0[1], q0[4], q0[5]);
+                        pa[kk][1] = e4m3x4(q0[2], q0[3], q0[6], q0[7]);
+                        pa[kk][2] = e4m3x4(q0[8], q0[9], q0[12], q0[13]);
+                        pa[kk][3] = e4m3x4(q0[10], q0[11], q0[14], q0[15]);
+                    };
+                    const uint64_t vd = desc_sw64(smem_u32(vt));
+                    if constexpr (SPV) {
+                        pack_half(0);
+                        if constexpr (!TOV) {
+                            transpose();
+                        }
+                        fence_proxy_async();
+                        named_sync(2 + hk, 128);
+                        wg_fence();
+                        wgmma_pv(o, pa[0], vd);
+                        wg_commit();
+                        pack_half(1);
+                        wg_fence();
+                        wgmma_pv(o, pa[1], vd + 2);
+                        wg_commit();
+                    } else {
+                        pack_half(0);
+                        pack_half(1);
+                        if constexpr (!TOV) {
+                            transpose();
+                        }
+                        fence_proxy_async();
+                        named_sync(2 + hk, 128);
+                        wg_fence();
+                        wgmma_pv(o, pa[0], vd);
+                        wgmma_pv(o, pa[1], vd + 2);
+                        wg_commit();
+                    }
+                    wg_wait<0>();
+                    reg_fence(o);
+                    st = st == STAGES - 1 ? 0 : st + 1;
+                }
             } else {
                 int st = PROD ? cst : 0;
                 for (int it = 0; it < ntiles; ++it) {
@@ -5821,6 +6036,69 @@ _ONE_Q8_PROD = True
 # 318ae6fc3c3746ce timed the first-allocated workspace 0.45-0.7 us slower at batch-1 full than
 # later, independently allocated ones (docs/runs-attention.md, 10-30).
 _ONE_WS_CARVE = 0
+# Candidate workspaces timed at state creation (0 or 1 = take the first allocation). The batch-1
+# full-context plans put all their reds and counters on 128 (q_len 1) or 1024 (q_len 8) rows,
+# and four benches timed independently allocated workspaces 0.5-0.7 us apart at decode 1 full on
+# identical code, with the offset inside an allocation, capture order and allocation order ruled
+# out (b7762d764d474eae): physical placement, which a process can only choose by trying.
+# Benches 3c6e1a7f1cc644b6 / 409996a7214f411a: both pick arms landed at the fastest null state at
+# decode 1 full (0.3-0.4 us ahead of the slow ones) on both inputs, no row worse.
+_ONE_WS_PICK = 3
+_ONE_WS_PICK_ROUNDS = 9
+
+
+def _one_ws_alloc(device):
+    return (torch.zeros((_ONE_WS_ROWS, 64), dtype=torch.float32, device=device),
+            torch.zeros((_ONE_WS_ROWS,), dtype=torch.float32, device=device),
+            torch.zeros((_ONE_CNT_INTS,), dtype=torch.int32, device=device))
+
+
+def _one_ws_pick(st, device):
+    """Keep the candidate workspace on which the two batch-1 full-context plans run fastest:
+    median of cold-L2 launches on synthetic inputs (shapes of the scored case, no input values
+    of any call), the candidates interleaved within each round."""
+    cands = [(st["acc"], st["l"], st["cnt"])]
+    cands += [_one_ws_alloc(device) for _ in range(_ONE_WS_PICK - 1)]
+    gen = torch.Generator(device=device).manual_seed(20261030)
+    seq = 80000
+    datas = []
+    for length in (1, 8):
+        width = seq + length
+        kv = (torch.randn((width, 1, 2, 64), generator=gen, device=device) * 0.5).to(FP8)
+        datas.append({
+            "config": {"batch": 1, "q_len": length, "num_q_heads": 16, "num_kv_heads": 2,
+                       "head_dim": 64, "page_size": 1, "window": 0, "rope_theta": 0.0,
+                       "qk_scale_factor": 1.0, "sm_scale": 0.125, "kv_scale": 1.0},
+            "qkv": torch.randn((1, length, 2304), generator=gen, device=device)
+                        .to(torch.bfloat16),
+            "page_table": torch.arange(width, dtype=torch.int32, device=device).view(1, width),
+            "seq_lens": torch.tensor([seq], dtype=torch.int32, device=device),
+            "cache_loc": torch.arange(seq, width, dtype=torch.int64, device=device),
+            "k_cache": kv, "v_cache": kv.clone(),
+            "k_scale": torch.ones((), dtype=torch.float32, device=device),
+            "v_scale": torch.ones((), dtype=torch.float32, device=device),
+        })
+    flush = torch.empty(64 << 22, dtype=torch.uint8, device=device)
+    times = [[] for _ in cands]
+    ev = [torch.cuda.Event(enable_timing=True) for _ in range(2)]
+    for _ in range(_ONE_WS_PICK_ROUNDS):
+        for i, (acc, lsum, cnt) in enumerate(cands):
+            st["acc"], st["l"], st["cnt"] = acc, lsum, cnt
+            total = 0.0
+            for data in datas:
+                flush.zero_()
+                ev[0].record()
+                _one(data)
+                ev[1].record()
+                torch.cuda.synchronize(device)
+                total += ev[0].elapsed_time(ev[1])
+            times[i].append(total)
+    med = [sorted(t)[len(t) // 2] * 1000.0 for t in times]
+    best = min(range(len(cands)), key=lambda i: med[i])
+    st["acc"], st["l"], st["cnt"] = cands[best]
+    st["ws_pick"] = (best, med)
+    print("attn one workspace pick: candidate %d of %d, medians %s us (d1 + v1 full, cold)"
+          % (best, len(cands), " ".join(f"{m:.2f}" for m in med)), flush=True)
 
 
 def _one_state(device):
@@ -5836,9 +6114,7 @@ def _one_state(device):
             lsum = raw[o + n_acc:o + n_acc + n_l].view(torch.float32)
             cnt = raw[o + n_acc + n_l:].view(torch.int32)
         else:
-            acc = torch.zeros((_ONE_WS_ROWS, 64), dtype=torch.float32, device=device)
-            lsum = torch.zeros((_ONE_WS_ROWS,), dtype=torch.float32, device=device)
-            cnt = torch.zeros((_ONE_CNT_INTS,), dtype=torch.int32, device=device)
+            acc, lsum, cnt = _one_ws_alloc(device)
         lim = _ONE.attn_one_prepare()
         coop = bool(_ONE.attn_one_probe_coop()) if _ONE_COOP_LAUNCH else False
         resident = {}
@@ -5849,6 +6125,8 @@ def _one_state(device):
             resident[(length, mode)] = res if (coop or not mode & 2) else max(0, res - per_sm)
         st = _ONE_STATE[device] = {"acc": acc, "l": lsum, "cnt": cnt, "resident": resident,
                                    "coop_launch": coop, "limits": list(lim)}
+        if _ONE_WS_PICK > 1:
+            _one_ws_pick(st, device)
     return st
 
 

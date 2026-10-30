@@ -2493,3 +2493,329 @@ d1 full -0.64, v16 sliding -0.32, v1 sliding -0.10, d1 sliding -0.07, d16 slidin
 ### Scored: 57b0bed35f694a23 2.479x (2026-10-30)
 
 Submit of submission.py at dc6b409 (ONE_HMRG), submitted by the coordinator under the standing authorization. Passed. Below the board entry e9085c86d89449c2 (2.504x, a bench file whose judged path is the PK16/VHOIST candidate), which stays. Best clean candidate-only scored run so far (previous 569b233dfe08414f at 2.449x).
+## Standalone round 3 (10-30): the per-request q_len 8 tile loop (`ONE_PRQ`)
+
+Brief: re-rank what is left with HMRG on (compact scorecard, independent duplicates for both
+arms), then attribute the top remaining gap inside the tile loop and build one coherent change
+as a switch. Start: main 5c11a11 (ONE_HMRG on). Quota at the start (`okc problems`): 10 of 20
+attention checks; this round uses at most 5, two kept for confirmation.
+
+### Where verify 1 full's tile loop differs from the public one (source and SASS, 10-30)
+
+Verify 1 full runs our mode 11 (q_len 8, per-request, cooperative, speculated length; 252 x nc 8;
+1251 tiles, so 5 tiles per CTA) and the public `attn_kernel<8, false, 11>` (file sha1 0e9d4c78,
+same grid and copies). Both have 3 stages, 256 consumer threads, two CTAs per SM, the same
+wgmma shapes (`QGMMA.64x64x32` x2 for Q.K, `QGMMA.64x72x32` x2 for P.V with ones rows) and the
+same lazy offset. SASS (CUDA 12.8.1, `tools/attn_one_sass.sh`, the public build with its own
+flags; public copy only in .build/ and the scratchpad): ours 109 registers, 2504 instructions,
+tile body 0x46c0-0x6800 (about 530 instructions); public 119 registers, 2752 instructions,
+tile body 0x4e40-0x7690 (about 645). The public tile is longer, so the gap is the order of the
+work on the per-tile critical path, not its amount:
+
+| step | ours (judged) | public per-request |
+|---|---|---|
+| after `cp.async.wait_group 1` + CTA barrier | copies of tile i + 2 first: the in-loop `issue_kv` with a three-way branch per row and 64-bit offsets (about 85 SASS instructions before the Q.K issue) | Q.K issued first; then the copies, branch-free with 32-bit offsets when the tile is fully cached (4 `LDGSTS` in a straight line) |
+| V^T transpose (2 `LDSM.MT88.4` + 2 `STSM.M88.4`) | after the Q.K wait and the softmax, on the critical path | before the Q.K wait, under the in-flight Q.K |
+| offset test | quad max (2 x 2 shuffles) every tile, then the vote | each thread's own partial max against the offset, vote; quad reduction only inside a move |
+| P.V | both halves packed, then one group of two wgmmas | half 0 packed and issued, half 1's exponentials under it, then half 1 |
+
+The old QKF experiment (mode bit 128, scored run bf6b8ca9e37341fb, 10-28) tested Q.K-first plus
+the transpose under Q.K in the kernel generation of that day (before PK16, DIET, DCARRY and HMRG)
+and lost on verify 16 / 32 full (flat mode 19) and by 0.4-0.5 us on verify 16 / 32 sliding; verify 1
+full was not reported. New evidence for reopening it on the per-request plans: the phase exits of
+ce92d32e26024bd2 put verify 1 full's remaining gap inside the tile loop (6.72 vs 5.79 us, merge
+and finalize equal), and the public kernel runs this order there. The switch below separates the
+steps so a loss of one step is attributed to that step.
+
+### The switch: `ONE_PRQ` (bit mask, default 0)
+
+Applies to the per-request q_len 8 instances (1, 3, 11, 15; 9 and 13 under ONE_T9); the flat and
+producer builds and every q_len 1 instance are untouched. Bits: 1 TOV (V^T under the in-flight
+Q.K), 2 QKF (Q.K issued before the next tile's copies), 4 FAST (in-loop copy of a fully cached
+tile branch-free with 32-bit offsets when the host's `off32` holds, as PFAST in the producer),
+8 SPV (P.V per 32-key half, two commit groups), 16 TCHK (offset test on each thread's partial
+max; the quad reduction and the move run only when the vote fires). It is a separate branch
+ahead of the judged loop, so with 0 the judged loop's source is unchanged.
+
+SASS (CUDA 12.8.1, all 13 instances, per-function compare with namespace hashes normalized):
+`ONE_PRQ=0` is identical to main 5c11a11 on every instance. Each of 1, 2, 4, 8, 16 and 31 changes
+only q_len 8 modes 1, 3, 11, 15; no spills, no C75xx warnings; mode 11 2504 -> 2512 / 2520 /
+2544 / 2504 / 2504 / 2568 instructions, highest register R106-R110. With 31 the mode 11 tile issues Q.K
+(0x4950), then the fast copies, `LDGDEPBAR`, both `LDSM`/`STSM` pairs (0x55b0-0x5750), and only
+then `WARPGROUP.DEPBAR` (0x5760); the vote (`VOTE.ANY`) replaces the per-tile shuffles; P.V is
+two `WARPGROUP.ARRIVE` + `QGMMA ... gsb0` pairs.
+
+Arithmetic: no step changes an operation or its order on any value. TCHK: with sl2k > 0,
+fl(max_i x_i * sl2k) = max_i fl(x_i * sl2k) (rounding is monotone), so a row's scaled quad max
+exceeds off + 8 exactly when one of its threads' scaled partials does; the vote fires on the same
+tiles, and inside it the move uses the judged code's `quad_max(mx) * sl2k`. SPV accumulates
+half 0 then half 1 into o, as the single group did. So each CTA's partial is expected bitwise
+equal to the judged loop's; only the reds' arrival order can differ.
+
+### Ordering argument (no fence or barrier removed or moved across a barrier)
+
+Every tile still executes, in each thread: `cp.async.wait_group 1`, `fence.proxy.async`, the CTA
+barrier, the Q.K group and its `wgmma.wait_group 0`, the V^T stores, `fence.proxy.async` and
+`bar.sync(2 + hk, 128)` before any P.V issue, and `wgmma.wait_group 0` after the last P.V. One
+copy group is committed per tile, as before, so `wait_group 1` covers the same copies.
+
+1. TOV, V^T buffer (it & 1), WAR against P.V(it - 2), which read it: each warp retired P.V(it - 2)
+   with its `wait_group 0` in tile it - 2, before it reached the CTA barriers of tiles it - 1 and
+   it; the transpose of tile it now runs after the barrier of tile it and before the Q.K wait,
+   still after that barrier. RAW to P.V(it): unchanged (stores, `fence.proxy.async`, `bar.sync`,
+   wgmma). The ldmatrix of V(it) from stage st: the copies of tile it landed at this thread's
+   `wait_group 1` and every thread's at the CTA barrier, as for the judged transpose; the
+   ldmatrix reads only the V half while the Q.K wgmma reads the K half (two readers).
+2. QKF, stage (it + 2) % 3 (tile it - 1's stage), WAR against Q.K(it - 1) (async proxy) and the
+   ldmatrix of V(it - 1): both retired before the CTA barrier of tile it, and the copies are still
+   issued after that barrier (now after the Q.K(it) issue, which reads stage st, a different
+   stage). Index ring: slot (it + 4) & 7 written, slot (it + 2) & 7 read, as before.
+3. FAST: the same rows, the same destination addresses and byte counts as the generic path takes
+   for a tile with pos0 + 64 <= seq (every row cached, no patch, no zero fill); 32-bit offsets
+   only when the host set `off32` (both caches below 4 GB, page size a power of two), the rule
+   PFAST was judged under.
+4. SPV: `wgmma.fence` before each P.V issue, so the generic writes of pa[1] between the two
+   groups are ordered before the second wgmma reads them; o is written by no other instruction
+   between the issues and is read only after `wait_group 0` + the register fence; ptxas reports
+   no serialization.
+5. TCHK: registers and a warp vote only.
+
+Independent read-only review (fresh agent, 10-30, during check 1, source only): **sound** for
+every bit and combination; no fence, barrier, cp.async wait or commit, or wgmma fence / commit /
+wait dropped or moved across a barrier; per-CTA output expected bitwise equal. Caveats: (a) TCHK's
+equivalence needs sl2k = sl2 x k_scale > 0, and k_scale is a device input (the task's scales are
+1 or 1/64, so it holds on every scored and tested case; a negative scale would make the vote and
+the judged test disagree); (b) SPV relies on ptxas leaving pa[0] and o untouched while the first
+group is in flight, which only the absence of C75xx warnings shows (none in the PRQ 8 and 31
+builds above). Also noted: the V^T WAR in point 1 rests on the (it & 1) double buffer, and FAST,
+like PFAST, assumes cache row indices below 2^25 (`off32`).
+
+### Gate for check 1 (written before the bench that tests it)
+
+Bench `bench_g` (`tools/attn_make_bench_ab.py`, scratchpad `prq/gen_g.sh`; `--pub <0e9d4c78>
+--null --shapes all --inputs 2 --seed 20261037`): arms `ctrl`, `ctrl2` (own state), `pub`,
+`pub2` (the compact scorecard with a duplicate of each), and the cumulative ladder `p1`, `p3`,
+`p7`, `p15`, `p31` (`-DONE_PRQ=<n>`, sharing ctrl's state, so the d1 full placement term is
+absent from their differences).
+
+Modeled gain of an arm X: G(X) = sum over the rows its SASS changes (v1 sliding, v1 full, v16
+sliding, v32 sliding) of (ctrl - X) x sensitivity, cold pooled medians, sensitivities from the
+judged run 5d309f9d13924dca (v1 sliding 1.420, v1 full 0.494, v16 sliding 0.349, v32 sliding 0.206
+%/us). Matching the public kernel on those four rows was worth about 0.9% in d0819bb26907426b.
+
+A ladder arm goes to the confirmation bench only if all hold:
+1. ABCHECK passes for every real arm, and X against ctrl differs only at the red-order level (a
+   few elements at one BF16 ulp per shape), with the workspace left zero.
+2. G(X) >= 0.30% and G(X) > |G(ctrl2)| + 0.10%.
+3. On v1 full and on each sliding row that adds more than 0.05% to G(X), the change has the
+   same sign on both held-out inputs (ABIN).
+4. No row slower than ctrl by more than max(that row's |ctrl2 - ctrl|, 1%).
+
+Choice: the passing arm with the largest G; a smaller bit set within 0.05% of it is preferred.
+If a ladder step (for example p1 -> p3, the QKF bit) costs more than 0.05%, the confirmation
+candidate drops that bit and is measured fresh. If no arm passes: measured loss for the steps
+as built, a row in docs/ruled-out.md, and the round turns to the placement side bet.
+
+Scorecard (no gate): pub - ctrl per row against both nulls, re-ranked by value (difference x
+sensitivity), to name what is left after this change.
+
+### Check a7a4c23e98ca484a (bench `bench_g`, generator and kernel at 1baad66): the ladder passes; p31 to confirmation
+
+| date | job | commit | file | result | notes |
+|---|---|---|---|---|---|
+| 2026-10-30 | a7a4c23e98ca484a (check) | 1baad66 | bench `bench_g` (`prq/gen_g.sh`, 9 arms) | 2.511x (CI 2.473-2.561) judged path = board code, 16/16 tests, ABCHECKSUM 19/0 every arm | p31 G = +0.86% (null ctrl2 -0.11%); public lead on those rows 0.91% |
+
+Profiles: `muse_attention_decode/profiles/bench_g.a7a4c23e98ca484a.*` (the per-element ABCHECK
+lines were cut by the 16,000-character tail; ABCHECKSUM, ABSUM, ABIN and ABSCORE survived).
+Cold medians pooled over two held-out inputs, arm - ctrl in us (the ladder shares ctrl's state;
+its q_len 1 and flat rows run code SASS-identical to ctrl, so they show this run's noise):
+
+| row | ctrl | ctrl2 - ctrl | pub - ctrl | pub2 - ctrl | p1 | p3 | p7 | p15 | p31 |
+|---|---|---|---|---|---|---|---|---|---|
+| v1 sliding | 11.23 | +0.07 | -0.06 | -0.13 | -0.03 | -0.13 | +0.00 | +0.03 | -0.13 |
+| v1 full | 19.62 | +0.00 | -0.80 | -0.84 | -0.13 | -0.26 | -0.42 | -0.55 | **-0.64** |
+| v16 sliding | 16.00 | +0.00 | -0.45 | -0.48 | +0.03 | -0.10 | -0.32 | -0.35 | **-0.45** |
+| v32 sliding | 20.86 | +0.04 | -1.34 | -1.50 | +0.10 | -0.16 | -0.57 | -0.80 | **-0.96** |
+| G (four rows) | | -0.11% | +0.91% | +1.08% | +0.08% | +0.38% | +0.44% | +0.52% | **+0.86%** |
+| ABSCORE (all rows) | | 1.0006 | 1.0168 | 1.0163 | 0.9998 | 1.0019 | 1.0033 | 1.0039 | 1.0059 |
+
+Per-step value (G differences along the ladder): TOV +0.08%, QKF +0.30%, FAST +0.06%, SPV
++0.08%, TCHK +0.34%. Every step is positive. Q.K-first, the step that lost in bf6b8ca9e37341fb's
+kernel generation, is now the second largest. TCHK's size is measured, not explained: it removes
+the four quad-max shuffles per tile from the critical path between the Q.K wait and the exponentials.
+
+Gate: 1 holds (19/0 for every arm, workspace check inside PASS; per-element detail cut, as in
+the two rounds before); 2 holds for p31 (0.86% >= 0.30% and > 0.11% + 0.10%), also for p3, p7 and
+p15; 3 holds for p31 (same sign on both inputs: v1 full -0.61 / -0.64, v16 sliding -0.38 / -0.54,
+v32 sliding -1.02 / -0.93, v1 sliding -0.03 / -0.03); 4 holds (no row beyond its bound; the largest
+is v32 full +0.32 us on unchanged flat code, under ctrl2's +0.99). Choice: p31 (largest G, every
+step above 0.05%). On these four rows p31 closes 0.86 of the public kernel's 0.91% lead.
+
+Compact scorecard (pub - ctrl, cold, value = difference x sensitivity; d1 full carries the
+placement term): d1 full -0.61 (0.36%), d1 sliding -0.20 (0.34%), v1 full -0.80 (0.40%), v16 full
+-2.44 (0.30%), v32 sliding -1.34 (0.28%), v16 sliding -0.45 (0.16%), d16 full -0.83 (0.12%), d32 full
+-1.38 (0.12%), v1 sliding -0.06 (0.09%), d16 sliding -0.19 (0.08%), d32 sliding +0.09, v32 full +0.16.
+ABSCORE pub 1.0168 / pub2 1.0163 against ctrl: the public lead is down to about 1.7% (3.6% in
+5575e7d15d3e49a8 before HMRG). After p31 the per-request q_len 8 rows leave about 0.06%; what
+remains sits in d1 (full and sliding, 0.7% together, partly placement) and the flat full rows
+(v16 full 0.30%, d16 / d32 full 0.12% each).
+
+### Gate for check 2 (confirmation, written before the bench)
+
+Bench `bench_h` (`prq/gen_h.sh`; `--pub <0e9d4c78> --null --shapes all --inputs 2 --seed
+20261038`): arms `ctrl`, `ctrl2`, `pub`, `pub2`, `p31` (`-DONE_PRQ=31`, ctrl's state), `p31own`
+(same build, own state), and the placement side bet on the control module (no compile): `n3`
+(own state, a third null allocation), `k1` and `k2` (own state, `:pick=3`: `_ONE_WS_PICK = 3`,
+three candidate workspaces timed on synthetic batch-1 full inputs at state creation, the fastest
+kept; ABADDR prints each pick and its candidates' medians).
+
+PRQ=31 is confirmed if clauses 1, 2 and 4 of the check-1 gate hold for `p31` again, clause 3 holds
+on v1 full, v16 sliding and v32 sliding from ABIN, and `p31own`'s G is above 0.30% as well (the
+gain does not depend on ctrl's workspace). Then a judged check of submission.py with `ONE_PRQ`
+defaulting to 31.
+
+Placement is a production candidate only if: the non-pick states (ctrl, ctrl2, n3) spread by
+more than 0.3 us at d1 full (a slow placement occurred), both pick arms sit within 0.15 us of the
+fastest non-pick state at d1 full on both inputs, and no row of k1 / k2 is slower than ctrl beyond
+the check-1 clause-4 bound. If no slow state occurs among the nulls, the result is inconclusive,
+not a win. The pick's cost at state creation (allocation plus 2 x 3 x 9 cold launches) is logged.
+
+### Check 3c6e1a7f1cc644b6 (bench `bench_h`, at 300b915): p31 misses clause 2 by 0.04%; placement misses its row clause
+
+| date | job | commit | file | result | notes |
+|---|---|---|---|---|---|
+| 2026-10-30 | 3c6e1a7f1cc644b6 (check) | 300b915 | bench `bench_h` (`prq/gen_h.sh`, 9 arms) | 2.476x (CI 2.439-2.514) judged path = board code, 16/16 tests, ABCHECKSUM 19/0 every arm | p31 G +0.55% vs written bar 0.59%; own-state null unusually slow |
+
+Profiles: `muse_attention_decode/profiles/bench_h.3c6e1a7f1cc644b6.*`. Cold pooled, arm - ctrl (us):
+
+| row | ctrl | p31 | p31own | ctrl2 | n3 | k1 | k2 | pub |
+|---|---|---|---|---|---|---|---|---|
+| d1 full | 17.22 | +0.03 | -0.23 | +0.06 | -0.32 | -0.32 | -0.23 | -0.71 |
+| v1 sliding | 10.94 | +0.07 | +0.07 | +0.23 | +0.10 | +0.13 | +0.13 | +0.07 |
+| v1 full | 19.90 | **-0.70** | **-0.64** | +0.04 | -0.06 | -0.12 | -0.16 | -0.86 |
+| v16 sliding | 15.90 | **-0.35** | -0.19 | +0.26 | +0.13 | +0.23 | +0.29 | -0.22 |
+| v32 sliding | 20.77 | **-0.87** | **-0.90** | +0.25 | -0.03 | +0.06 | +0.19 | -1.28 |
+| G (four q_len 8 rows) | | +0.55% | +0.47% | -0.49% | -0.15% | -0.22% | -0.25% | +0.67% |
+
+PRQ=31 against its check-2 gate: 1 holds (19/0); 2 **fails as written**: G(p31) = 0.548% >= 0.30%,
+but not above |G(ctrl2)| + 0.10% = 0.589%; 3 holds (v1 full -0.77 / -0.54, v16 sliding -0.38 /
+-0.35, v32 sliding -0.93 / -0.86); 4 holds (largest +0.87 at v16 full on unchanged flat code,
+under ctrl2's +1.35); p31own G = 0.47% > 0.30% holds. Reading: every own-state arm on the control's
+code (ctrl2, n3, k1, k2) is slower than ctrl on the q_len 8 sliding rows (G -0.15 to -0.49%), so
+ctrl's own state was the fast one in this process; p31 shares that state and ctrl2 does not, so
+ctrl2 is not a matched null for p31. The bar is not relaxed after the fact: the confirmation is
+repeated with a same-state null (gate below). Across the two benches p31 has the same sign on all
+three targeted rows and both inputs every time (v1 full -0.54 to -0.77 us).
+
+Placement against its gate: a slow state occurred (ctrl 17.22 and ctrl2 17.28 against n3 16.90 at
+d1 full, spread 0.38 us > 0.3); both pick arms sat within 0.13 us of the fastest non-pick state on
+both inputs (k1 -0.29 / -0.32, k2 -0.26 / -0.19 against n3 -0.32 / -0.32); the picks' prepare-time
+medians (d1 + v1 full, cold, us) were 36.29 / 35.90 / **35.78** (k1, candidate 2 kept) and
+**36.38** / 36.48 / 36.93 (k2, candidate 0). The row clause **fails as written**: k2 is +0.29 us at
+v16 sliding against a bound of 0.26 (ctrl2's +0.26). That row's code and plan do not depend on the
+pick and the same-sized excess shows on every own-state arm, so the clause compared own-state arms
+against ctrl's state. Repeated in check 3 with own-state nulls.
+
+### Gate for check 3 (repeat confirmation, written before the bench)
+
+Bench `bench_i` (`prq/gen_i.sh`; `--null --shapes all --inputs 2 --seed 20261039`, no public
+arms): `ctrl`; `ctrlb` (`-DONE_PRQ=0`: the control's code in a separate build that shares ctrl's
+state, the matched null for p31); `p31` (ctrl's state); `ctrl2` and `n3` (own state, nulls for the
+own-state arms); `p31own` (own state); `k1`, `k2` (own state, `:pick=3`).
+
+PRQ=31 is confirmed if all hold: (1) ABCHECKSUM 19/0 for every arm; (2) G(p31) - G(ctrlb) >= 0.30%
+and G(p31) > |G(ctrlb)| + 0.10%; (3) G(p31own) - max(G(ctrl2), G(n3)) >= 0.30%; (4) p31 has the same
+sign on both inputs on v1 full, v16 sliding and v32 sliding; (5) no row of p31 slower than ctrl by
+more than max(|ctrlb - ctrl|, 1%). Then a judged check of submission.py with `ONE_PRQ` 31.
+Otherwise PRQ=31 stays off, recorded as unconfirmed (three benches, consistent sign), not as a loss.
+
+Placement is a production candidate if: (a) the own-state arms on q_len 1 code identical to ctrl
+(ctrl2, n3, p31own) spread by more than 0.3 us at d1 full; (b) both pick arms sit within 0.15 us
+of the fastest of those at d1 full on both inputs; (c) no row of k1 / k2 slower than the slower of
+ctrl2 and n3 on that row by more than max(0.1 us, 1%). If (a) fails the result is inconclusive.
+
+### Check 409996a7214f411a (bench `bench_i`, at 8a6c8bb): PRQ=31 confirmed, placement pick passes
+
+| date | job | commit | file | result | notes |
+|---|---|---|---|---|---|
+| 2026-10-30 | 409996a7214f411a (check) | 8a6c8bb | bench `bench_i` (`prq/gen_i.sh`, 8 arms, no public arms) | 2.496x (CI 2.459-2.543) judged path = board code, 16/16 tests, ABCHECKSUM 19/0 every arm | p31 G +0.72% (same-state null -0.00%); picks at the fastest state |
+
+Profiles: `muse_attention_decode/profiles/bench_i.409996a7214f411a.*`. Cold pooled, arm - ctrl (us):
+
+| row | ctrl | ctrlb | p31 | p31own | ctrl2 | n3 | k1 | k2 |
+|---|---|---|---|---|---|---|---|---|
+| d1 full | 17.22 | +0.06 | +0.09 | -0.26 | +0.09 | -0.29 | -0.32 | -0.32 |
+| v1 sliding | 10.75 | -0.03 | -0.03 | -0.09 | +0.03 | -0.13 | -0.03 | +0.03 |
+| v1 full | 19.65 | +0.03 | **-0.64** | **-0.58** | +0.03 | -0.13 | -0.07 | -0.07 |
+| v16 sliding | 15.87 | +0.03 | **-0.48** | **-0.51** | +0.03 | -0.13 | -0.06 | +0.00 |
+| v32 sliding | 20.93 | +0.09 | **-0.96** | **-0.99** | +0.00 | -0.07 | -0.10 | +0.03 |
+| G (four q_len 8 rows) | | -0.00% | +0.72% | +0.80% | -0.07% | +0.31% | +0.12% | -0.01% |
+
+PRQ=31 against the check-3 gate: (1) 19/0 every arm; (2) G(p31) - G(ctrlb) = 0.73% >= 0.30% and
+0.72% > 0.00% + 0.10%; (3) G(p31own) - max(G(ctrl2), G(n3)) = 0.80 - 0.31 = 0.49% >= 0.30%; (4) same
+sign on both inputs: v1 full -0.51 / -0.74, v16 sliding -0.42 / -0.51, v32 sliding -0.93 / -0.99;
+(5) largest p31 regression +1.38 us at v32 full (flat code unchanged; ctrlb +0.87, ctrl2 +1.25),
+under its 1% bound of 1.92. **Confirmed.**
+
+Placement against the check-3 gate: (a) own-state arms on q_len 1 code identical to ctrl at d1
+full: ctrl2 +0.09, n3 -0.29, p31own -0.26: spread 0.38 us > 0.3; (b) per input the picks are at
+or below the fastest of those (in 0: k1 -0.29, k2 -0.26 against n3 -0.22; in 1: k1 -0.35, k2 -0.42
+against n3 -0.38); (c) largest excess over the slower of ctrl2 and n3: k1 at d16 sliding, +0.12
+against +0.03, 0.09 us, under max(0.1 us, 1%). **Passes.** Prepare-time medians (d1 + v1 full, cold,
+us): k1 36.32 / 36.10 / **35.84** (candidate 2), k2 **36.29** / 36.61 / 36.64 (candidate 0); the same
+choices as in 3c6e1a7f1cc644b6. In two benches the judged path's first allocation (ctrl) and ctrl2
+were the slow ones at d1 full, 0.3-0.4 us behind; the pick is worth about that times 0.60 %/us
+(+0.18-0.23%) whenever the first allocation lands slow, and nothing when it does not.
+
+Three-bench summary for PRQ=31 (cold, us, p31 - ctrl): v1 full -0.64 / -0.70 / -0.64, v16 sliding
+-0.45 / -0.35 / -0.48, v32 sliding -0.96 / -0.87 / -0.96; G +0.86% / +0.55% / +0.72%.
+
+Production: `ONE_PRQ` defaults to 31 in attn_one.cu and submission.py; `_ONE_WS_PICK = 3` in
+submission.py. SASS (CUDA 12.8.1, all 13 instances): the default build equals the benched p31
+build; `-DONE_PRQ=0` equals 5c11a11; no spills. pyflakes clean; `tools/attn_compile_check.sh`
+no errors. Next: a judged check of submission.py and a repeat (checks 4 and 5 of this round).
+
+### Judged: check 640ee49b691b45ac 2.588x (CI 2.549-2.627), repeat 8b00100bf85d4ef5 2.545x (CI 2.506-2.583)
+
+| date | job | commit | file | result | notes |
+|---|---|---|---|---|---|
+| 2026-10-30 | 640ee49b691b45ac (check) | 57f57dd | submission.py (`ONE_PRQ` 31, `_ONE_WS_PICK` 3, HMRG on; sha256 9e627a90) | 2.588x (CI 2.549-2.627), 16/16 tests | pick: candidate 2 of 3, medians 35.46 / 35.74 / 35.30 us |
+| 2026-10-30 | 8b00100bf85d4ef5 (check) | 57f57dd + one comment line | repeat of the same file | 2.545x (CI 2.506-2.583), 16/16 tests | pick: candidate 1 of 3, 35.62 / 35.39 / 35.62 us; full rows d16 / d32 / v16 / v32 slower with no code change there (machine speed) |
+
+Profiles: `muse_attention_decode/profiles/sub_prq.640ee49b691b45ac.*`, `sub_prq_r.8b00100bf85d4ef5.*`.
+Judged per-shape times (us, baseline median / paired speedup) on the rows PRQ changes, against
+the HMRG pair (same code elsewhere) and this round's three bench checks' judged paths (board code):
+
+| row | PRQ 640ee49b / 8b00100b | HMRG 5d309f9d / 82b1bf0f | board paths a7a4c23e / 3c6e1a7f / 409996a7 |
+|---|---|---|---|
+| v1 sliding | 7.13 / 6.80 | 6.39 / 6.77 | 6.92 / 6.95 / 6.82 |
+| v1 full | **14.50 / 14.89** | 15.36 / 15.61 | 15.26 / 15.72 / 15.14 |
+| v16 sliding | **11.45 / 11.45** | 11.77 / 12.16 | 11.58 / 11.93 / 11.77 |
+| v32 sliding | **15.03 / 15.02** | 15.93 / 15.89 | 16.23 / 16.38 / 15.98 |
+
+The judged scores pair 2.588 / 2.545 against HMRG's 2.512 / 2.582: the run-to-run spread (1-3%,
+machine speed: the full rows moved by up to 6 us with no code change) is larger than the modeled
++0.7% gain, so the judged pair confirms that the file passes and that the targeted rows moved,
+and the bench checks carry the size. v1 sliding's 7.13 in the first check sits 0.2 us above its
+range on board code (6.39-6.95 in five runs) and came back to 6.80 in the repeat; no bench saw an
+effect there (-0.13 / +0.07 / -0.03). Not submitted: handed to the coordinator (`main`) with the
+file path and these job ids.
+
+## Standalone round 3 (10-30): family ledger update
+
+Checks used by this round: a7a4c23e98ca484a, 3c6e1a7f1cc644b6, 409996a7214f411a, 640ee49b691b45ac,
+8b00100bf85d4ef5 (5 of the 5 budgeted). Quota after them (`okc problems`): 5 of 20 attention checks, 9 of 10 runs.
+
+| family | state | evidence | reopening trigger |
+|---|---|---|---|
+| Per-request q_len 8 tile in the public order (`ONE_PRQ` = 31: TOV, QKF, FAST, SPV, TCHK; modes 1, 3, 11, 15) | **measured standalone win**, on by default | benches a7a4c23e98ca484a (G +0.86%), 3c6e1a7f1cc644b6 (+0.55%, missed its written null clause by 0.04%), 409996a7214f411a (+0.72%, same-state null -0.00%); judged 2.588x / 2.545x; review sound with two caveats | layer port is a separate gate (`tools/dl_one_inline.py`) |
+| Its steps one by one (ladder in a7a4c23e98ca484a) | measured, each positive | TOV +0.08%, QKF +0.30%, FAST +0.06%, SPV +0.08%, TCHK +0.34% | none needed while all ship together |
+| Prepare-time workspace placement pick (`_ONE_WS_PICK` = 3) | **measured standalone win** where the first allocation is slow, on by default | 3c6e1a7f1cc644b6 (row clause missed against ctrl's state), 409996a7214f411a (passes with own-state nulls): picks at the fastest null state at d1 full on both inputs, 0.3-0.4 us ahead of the slow states | a judged d1 full above 13 us with the pick on |
+| Old QKF (mode bit 128, bf6b8ca9e37341fb, 10-28 kernel) | superseded on the per-request plans | QKF as a step of PRQ is worth +0.30% here | the flat consumer-copy mode 19, where it lost, is not affected |
+
+Where the remaining gap is (bench 3c6e1a7f1cc644b6, pub - p31, cold, us; value at the
+sensitivities above): v16 full -1.95 (0.24%), d1 full -0.74 (0.44%, of which up to 0.3-0.4 is
+placement the pick now takes), d32 full -1.50 (0.13%), d16 full -0.73 (0.11%), v1 full -0.16
+(0.08%), v32 sliding -0.41 (0.08%), d1 sliding -0.06, v16 sliding +0.13. Next targets, by value:
+batch-1 full at q_len 1 (d1 full, after the pick) and the flat full-context rows (v16 / d16 / d32
+full, the producer kernels 51 and 49), which no round-2 or round-3 change touched.
