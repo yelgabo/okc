@@ -1232,3 +1232,63 @@ scored file's path (cw rejected by the tuner), and its 1.496x matches the two co
 | P3 cw: 12-bit stream decoded into wgmma A tiles in shared memory | pooler 128 | measured loss: +28 us vs the Lt pick, +12.8 over its own raw twin; saving 1.0 us | 4922f366a0c142ca | parked; reopen trigger in ruled-out |
 | raw 128-row x 128-token, K split 4 wgmma geometry (b2n128c4s6) | pooler 128 | measured loss: +15.0 us vs Lt, +13.3 vs wd8 | 4922f366a0c142ca | the in-house geometry that compression would sit in must first reach Lt |
 | everything else | | unchanged from round 2 | | |
+
+## 2026-10-30 round 4: split exit cluster barrier (branch worktree-agent-a8fe8ec879e99f5af)
+
+Brief (coordinator): pick the highest score-value item among the conforming exit barrier's cost
+(+0.58 us at m = 128 on the judge), the untested reference-router differences at m = 256 and the
+o m = 128 cuBLASLt flip. Picked the exit barrier: it cost up to about 0.3% of score across the
+five router loads, the mechanism was known, and a fix needs no new kernel. Budget: 3 checks.
+
+Change (db0f8ad, 2265fa2): the same exit cluster barrier, with the arrive moved from after the
+reduction and output stores to right after the receive mbarrier wait; the wait stays just before
+exit. wd `WV_TAILSPLIT` (+ `WV_TAILRLX` for a relaxed arrive), rt `RT_GEOM` mode 2 (release
+arrive) or 3 (relaxed). Production: wd KLUE | TAILSPLIT | TAILRLX, rt mode 3. The ce25f67 wd
+tail was a release arrive after the global stores, which compiles to `MEMBAR.ALL.CTA`,
+`MEMBAR.ALL.GPU`, `ERRBAR`, `CGAERRBAR` and so waited for the stores to drain. PTX argument and
+the independent review (sound with notes) are in docs/proj-port-guide.md, "Split exit barrier".
+SASS against ce25f67 (nvcc 12.8, sm_90a): 69 kernels instruction-identical; the 9 rt instances
+keep the same barrier and fence counts (reordered, -1 WARPSYNC); the 3 wd router instances drop
+2 MEMBAR, 1 ERRBAR and 1 CGAERRBAR and gain one UCGABAR_ARV site (consumer and producer warp
+arrive at different points); no spills, no C75xx warnings. `tools/proj_make_bench_tail.py`
+builds the bench.
+
+| date | job | kind | commit | change | score (95% CI) | notes |
+|---|---|---|---|---|---|---|
+| 10-30 | 4f3ff774981a494c | check (bench TB) | db0f8ad | exit-barrier arms with duplicate nulls; judged path = the relaxed split candidate | 1.497x (1.475-1.520) | table below; judged router us 3.12 / 4.41 / 5.25 / 4.14 / 7.20 / 9.62 (decode 1 / 16 / 32, verify 1 / 16 / 32) |
+| 10-30 | 25ea2b62ff8a47a7 | check (clean candidate) | 2265fa2 | submission.py, sha1 1afd831b | 1.493x (1.471-1.516) | judged router us 3.70 / 4.76 / 5.83 / 4.25 / 6.55 / 9.37 |
+
+Bench lines (in-process, 100 seeded rounds, cold L2, paired median difference against the bench
+copy of the ce25f67 form, us / rounds faster out of 100; all arms passed FP64 checks on two router
+matrices, adjacent sizes and two graph replays):
+
+| arm | m=8 rt8w8 | m=16 rt16w8 | m=32 rt16w8p8 | m=128 r64c8s8 | m=256 r128c8s6 |
+|---|---:|---:|---:|---:|---:|
+| ce25f67 form, duplicate (wd D twin) | | | | +0.00 / 46 | -0.03 / 53 |
+| split, relaxed arrive (YZ / mode 3) | +0.00 / 45 | -0.22 / 76 | -0.03 / 51 | -0.45 / 94 | -0.32 / 86 |
+| split, relaxed, duplicate (DYZ) | | | | -0.42 / 88 | -0.29 / 87 |
+| split, relaxed, production extension | -0.06 / 61 | -0.18 / 69 | +0.00 / 48 | -0.32 / 86 | -0.26 / 77 |
+| split, release arrive (Y / mode 2) | +0.35 / 7 | +0.26 / 16 | +0.40 / 9 | -0.14 / 71 | -0.16 / 72 |
+| no exit barrier (non-conforming bound) | -0.13 / 67 | -0.32 / 82 | -0.16 / 74 | -0.48 / 94 | -0.26 / 81 |
+
+What it shows (measured, in process): the relaxed split recovers the whole exit-barrier cost on
+wd (-0.45 of -0.48 at 128; at 256 it ties the no-barrier bound) and part of it on rt at 16
+tokens; at 8 and 32 tokens rt is a null. A release arrive costs more than it saves: on rt it adds
+`MEMBAR.ALL.GPU` that the ce25f67 relaxed tail did not have (+0.26 to +0.40), and on wd it keeps
+two thirds of the cost. So the cost was the release's membar draining the output stores, not
+the wait for the slowest CTA.
+
+Judged (two samples of the candidate against the two conforming checks 3abb1cd9 / d7c66229 and
+the scored ce25f67 path): verify 16 router 7.20 and 6.55 us against 7.14 / 7.24 (the
+non-conforming file ran 6.63 / 6.59); verify 32 9.62 / 9.37 against 9.90 / 9.71; decode 16 4.41
+/ 4.76 against 4.82 / 4.78; decode 32 5.25 / 5.83 against 5.49 / 5.48 (SGLang's own m = 32
+median was also 0.3-0.4 us higher in that run). Scores 1.497 / 1.493 against 1.495 / 1.496: the
+expected gain (about 0.45 x 0.23 + 0.32 x 0.18 + 0.2 x 0.34, roughly 0.2% of score) is far below
+the judge's run-to-run spread, so the judge can neither confirm nor reject it; the paired
+in-process evidence with duplicate nulls is the decision basis. Candidate handed to the
+coordinator (scratchpad file, sha1 1afd831b, identical to submission.py at 2265fa2).
+
+Not done this round: the o m = 128 pin. Across six preparations (f2373ded, b80b817c, 3abb1cd9,
+d7c66229, 4f3ff774, 25ea2b62) the best cuBLASLt finalist always beat base, by +0.13 to +0.45 us,
+but the winning config changed each time (tile 18 every time; layouts L0-L3, custom 4-7, cluster
+g2 / g5), so no single config to pin has evidence. Worth at most about 0.1% of score.

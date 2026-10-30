@@ -1781,7 +1781,7 @@ WD_POL = {nm for nm in WD_GEOM if nm.endswith("h")}
 # name -> VAR bits of the kernel (WV_* in _WD_SRC), 0 when absent. WV_PACK configs take the
 # packed router weights (router_pack()).
 WV_NOPROD, WV_PACK, WV_PROMO64, WV_PUSH, WV_EARLY, WV_TAILSYNC = 1, 2, 4, 8, 32, 128
-WV_NOSLEEP, WV_NOEMPTY, WV_XA = 256, 512, 1024
+WV_NOSLEEP, WV_NOEMPTY, WV_XA, WV_TAILSPLIT, WV_TAILRLX = 256, 512, 1024, 2048, 4096
 # Packed hi/lo box, 64 B promotion, push reduction and early prologue (KLUE) on the two router
 # picks; paired against the pick in a91f2152d8974458 / ba85985b8c5e4969: -0.77 / -0.90 us at
 # m = 128, -0.90 / -0.90 at 256, the push reduction alone -0.46 / -0.54 and -0.48 / -0.66.
@@ -1791,8 +1791,10 @@ WV_NOSLEEP, WV_NOEMPTY, WV_XA = 256, 512, 1024
 # (-0.37 on r64c4s8 KLUE in ba85985b8c5e4969).
 # WV_TAILSYNC: a cluster barrier before exit, so no CTA exits with an outgoing st.async in flight
 # (decision 2026-10-30: the PTX ISA does not say that is allowed; cost about +0.3 us in
-# a91f2152d8974458).
-_WD_KLUE = WV_PACK | WV_PROMO64 | WV_PUSH | WV_EARLY | WV_TAILSYNC
+# a91f2152d8974458; +0.58 us at m = 128 on the judge). WV_TAILSPLIT keeps that barrier but arrives
+# right after the receive wait, so the output stores no longer drain inside a release before
+# it (argument: docs/proj-port-guide.md, "Split exit barrier").
+_WD_KLUE = WV_PACK | WV_PROMO64 | WV_PUSH | WV_EARLY | WV_TAILSPLIT | WV_TAILRLX
 WD_GEOM.update({"r64c8s8k": WD_GEOM["r64c8s8"], "r128c8s6k": WD_GEOM["r128c8s6"], "r64c4s8a": WD_GEOM["r64c4s8"]})
 WD_VAR = {"r64c8s8k": _WD_KLUE, "r128c8s6k": _WD_KLUE, "r64c4s8a": _WD_KLUE | WV_NOSLEEP | WV_XA}
 # Diagnostic builds timed in prepare(), never dispatched: ABL bit 1 skips the wgmma (memory
@@ -2419,6 +2421,17 @@ __device__ __forceinline__ void wd_cluster_sync() {
     asm volatile("barrier.cluster.wait.acquire.aligned;" ::: "memory");
 }
 
+// A receiver's arrive must follow its receive wait, so a peer's exit wait orders every push into
+// this CTA before that peer exits (docs/proj-port-guide.md, split exit barrier).
+template <bool RELAXED>
+__device__ __forceinline__ void tail_arrive() {
+    if constexpr (RELAXED) {
+        asm volatile("barrier.cluster.arrive.relaxed.aligned;" ::: "memory");
+    } else {
+        asm volatile("barrier.cluster.arrive.release.aligned;" ::: "memory");
+    }
+}
+
 __device__ __forceinline__ void tma_2d_mc(uint32_t dst, const CUtensorMap* map, uint32_t bar, int c0, int c1,
                                           uint16_t mask) {
     asm volatile("cp.async.bulk.tensor.2d.shared::cluster.global.tile.mbarrier::complete_tx::bytes.multicast::cluster"
@@ -2461,6 +2474,11 @@ constexpr int WV_NOEMPTY = 512;
 // operand: one m64n128k16 per k16 step instead of two m64n64k16, hi and lo summed once at the
 // end (the reference's m = 256 kernel orientation). Needs PACK, PUSH, WG 1, BN 64.
 constexpr int WV_XA = 1024;
+// With PUSH, instead of TAILSYNC: each consumer arrives on the exit cluster barrier as soon as its
+// receive wait completes and waits on it just before exit, so the reduction and output stores
+// overlap the barrier; TAILRLX makes that arrive relaxed.
+constexpr int WV_TAILSPLIT = 2048;
+constexpr int WV_TAILRLX = 4096;
 
 template <int WG, int BN, int CLK, int CLR, bool HL, int NST, int VAR = 0>
 struct WdCfg {
@@ -2524,7 +2542,10 @@ wd_kernel(const __grid_constant__ CUtensorMap wmap, const __grid_constant__ CUte
     constexpr bool NOPROD = C::NOPROD, PACK = C::PACK, PUSH = C::PUSH, XA = C::XA;
     constexpr int NACC = C::NACC;
     constexpr bool SPIN = (VAR & WV_SPIN) != 0, EARLY = (VAR & WV_EARLY) != 0;
+    constexpr bool TSPLIT = (VAR & WV_TAILSPLIT) != 0;
     static_assert(!PUSH || sizeof(OutT) == 4, "wd: push writes f32");
+    static_assert(!TSPLIT || (PUSH && (VAR & WV_TAILSYNC) == 0), "wd: split exit barrier replaces TAILSYNC");
+    static_assert((VAR & WV_TAILRLX) == 0 || TSPLIT, "wd: TAILRLX needs TAILSPLIT");
     extern __shared__ __align__(1024) uint8_t wd_smem[];
     const uint32_t raw = smem_u32(wd_smem);
     const uint32_t sbase = (raw + 1023u) & ~1023u;
@@ -2771,6 +2792,10 @@ wd_kernel(const __grid_constant__ CUtensorMap wmap, const __grid_constant__ CUte
                 }
                 named_bar(1, C::NCT);
                 mbar_wait_cluster(rbar, 0, dead, diag, 4);
+                if constexpr (TSPLIT) {
+                    __syncwarp();
+                    tail_arrive<(VAR & WV_TAILRLX) != 0>();
+                }
                 for (int it = tid; it < C::XUNITS; it += C::NCT) {
                     float4 v = make_float4(0.f, 0.f, 0.f, 0.f);
 #pragma unroll
@@ -2817,6 +2842,10 @@ wd_kernel(const __grid_constant__ CUtensorMap wmap, const __grid_constant__ CUte
             // This thread's own slot stores are read by other consumer threads below.
             named_bar(1, C::NCT);
             mbar_wait_cluster(rbar, 0, dead, diag, 4);
+            if constexpr (TSPLIT) {
+                __syncwarp();
+                tail_arrive<(VAR & WV_TAILRLX) != 0>();
+            }
             for (int it = tid; it < C::JPR * C::NCT; it += C::NCT) {
                 const int jl = it / C::NCT;
                 const int c = it % C::NCT;
@@ -2844,6 +2873,12 @@ wd_kernel(const __grid_constant__ CUtensorMap wmap, const __grid_constant__ CUte
         }
         if constexpr ((VAR & WV_TAILSYNC) != 0) {
             wd_cluster_sync();
+        }
+        if constexpr (TSPLIT) {
+            if (tid >= C::NCT) {
+                tail_arrive<(VAR & WV_TAILRLX) != 0>();
+            }
+            cluster_wait();
         }
         return;
     }
@@ -3019,16 +3054,18 @@ def wd_source():
 # The design is that of the routertail_small kernel in NathenFernandes/muse-bf16-proj v18
 # (commit 86aff75), MIT License, Copyright (c) 2026 Nathen Fernandes; this is our own
 # implementation of it (packing, indexing and synchronization written here).
-# name -> (S cluster ranks, WK warps per CTA, P owner ranks, keep an exit cluster barrier).
+# name -> (S cluster ranks, WK warps per CTA, P owner ranks, exit cluster barrier mode: 0 none,
+# 1 arrive after the stores, 2 / 3 arrive right after the receive wait with a release / relaxed
+# arrive).
 # --------------------------------------------------------------------------------------------
 RT_GEOM = {
     # bench a91f2152d8974458, paired against the sk router picks: rt8w8 -1.39 us at m = 8, rt16w8
     # -0.83 at 16, rt16w8p8 -0.54 at 32 (null 0.02-0.08); the tuner picks per bucket.
-    # The fourth field (exit cluster barrier) is on in every shipped config: no CTA exits with
-    # an outgoing st.async in flight (decision 2026-10-30, docs/proj-port-guide.md).
-    "rt8w8": (8, 8, 4, True),
-    "rt16w8": (16, 8, 4, True),
-    "rt16w8p8": (16, 8, 8, True),
+    # Every shipped config keeps an exit cluster barrier: no CTA exits with an outgoing st.async
+    # in flight (decision 2026-10-30, docs/proj-port-guide.md).
+    "rt8w8": (8, 8, 4, 3),
+    "rt16w8": (16, 8, 4, 3),
+    "rt16w8p8": (16, 8, 8, 3),
 }
 RT_MT = (1, 2, 4)
 RT_NAMES = list(RT_GEOM)
@@ -3065,7 +3102,7 @@ __device__ __forceinline__ uint32_t rt_mapa(uint32_t addr, uint32_t rank) {
 // the k order is permuted so a lane's x operand for all four chunks is 16 contiguous bf16
 // (k = 16 t + 4 q + {0, 1} for b0, + {2, 3} for b1, t = lane & 3); the weights carry the same
 // permutation, so each product pairs the same k.
-template <int MT, int S, int WK, int P, bool TAIL>
+template <int MT, int S, int WK, int P, int TAIL>
 __global__ void __launch_bounds__(WK * 32)
 rt_kernel(const uint4* __restrict__ wp, const __nv_bfloat16* __restrict__ x, float* __restrict__ out, int M,
           int* diag) {
@@ -3073,6 +3110,7 @@ rt_kernel(const uint4* __restrict__ wp, const __nv_bfloat16* __restrict__ x, flo
     constexpr int NI = MT * 32;
     constexpr int OWN = NI / P;
     static_assert(KU >= 1 && 128 % (S * WK) == 0 && NI % P == 0 && P <= S, "rt: bad geometry");
+    static_assert(TAIL >= 0 && TAIL <= 3, "rt: exit barrier mode 0 to 3");
     extern __shared__ __align__(16) unsigned char rt_smem[];
     float4* recv = reinterpret_cast<float4*>(rt_smem);
     float4* part = recv + S * OWN;
@@ -3169,8 +3207,17 @@ rt_kernel(const uint4* __restrict__ wp, const __nv_bfloat16* __restrict__ x, flo
     }
     // The own-rank slots stored above are read by other threads (tid < OWN) below.
     __syncthreads();
+    if constexpr (TAIL >= 2) {
+        if (rank < P && tid < OWN) {
+            mbar_wait_cluster(rbar, 0, dead, diag, 8);
+        }
+        __syncwarp();
+        tail_arrive<TAIL == 3>();
+    }
     if (rank < P && tid < OWN) {
-        mbar_wait_cluster(rbar, 0, dead, diag, 8);
+        if constexpr (TAIL < 2) {
+            mbar_wait_cluster(rbar, 0, dead, diag, 8);
+        }
         float4 v = make_float4(0.f, 0.f, 0.f, 0.f);
 #pragma unroll
         for (int r = 0; r < S; ++r) {
@@ -3195,7 +3242,10 @@ rt_kernel(const uint4* __restrict__ wp, const __nv_bfloat16* __restrict__ x, flo
             out[(size_t)(t + 1) * 256 + row + 8] = v.w;
         }
     }
-    if constexpr (TAIL) {
+    if constexpr (TAIL >= 2) {
+        cluster_wait();
+    }
+    if constexpr (TAIL == 1) {
         // No CTA exits with an outgoing st.async in flight: each owner arrives here only after
         // its receive wait saw every pushed byte, so passing this barrier implies all of this
         // CTA's pushes completed. Exiting earlier is undocumented (decision 2026-10-30: ship
@@ -3211,7 +3261,7 @@ constexpr int rt_smem_bytes() {
 }
 
 #ifndef SK_DEVICE_ONLY
-template <int MT, int S, int WK, int P, bool TAIL>
+template <int MT, int S, int WK, int P, int TAIL>
 void launch_rt(const at::Tensor& wp, const at::Tensor& x, at::Tensor& out, int* diag) {
     auto kern = rt_kernel<MT, S, WK, P, TAIL>;
     constexpr int SMEM = rt_smem_bytes<MT, S, WK, P>();
@@ -3270,7 +3320,7 @@ _RT_CPP = "void rt_fwd(int64_t cfg, at::Tensor wp, at::Tensor x, at::Tensor out,
 def rt_source():
     def targs(name, mt):
         s, wk, p, tail = RT_GEOM[name]
-        return f"{mt}, {s}, {wk}, {p}, {str(tail).lower()}"
+        return f"{mt}, {s}, {wk}, {p}, {int(tail)}"
     dispatch = "\n".join(f"    case {i * 8 + mt}: launch_rt<{targs(nm, mt)}>(wp, x, out, dg); break;"
                          for i, nm in enumerate(RT_NAMES) for mt in RT_MT)
     inst = "\n".join(f"template __global__ void rt_kernel<{targs(nm, mt)}>(const uint4*, const __nv_bfloat16*, "

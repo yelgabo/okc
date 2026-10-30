@@ -316,8 +316,9 @@ blocking defect):
 is ambiguous we do not rely on the undocumented behaviour (repository rule: no ordering
 shortcut without a citation), even though the reference does. In the shipped configs:
 
-- Every push path ends with a cluster barrier (wd `WV_TAILSYNC` in `_WD_KLUE`; rt TAIL true in
-  every `RT_GEOM` entry). Every receiver arrives there only after its receive wait saw all of its
+- Every push path ends with a cluster barrier (wd `WV_TAILSYNC` in `_WD_KLUE`, since 2265fa2 the
+  split form `WV_TAILSPLIT | WV_TAILRLX`; rt TAIL on in every `RT_GEOM` entry, mode 3 since
+  2265fa2). Every receiver arrives there only after its receive wait saw all of its
   bytes, so passing the barrier implies all of the CTA's own pushes completed: no CTA exits with
   an outgoing `st.async` in flight.
 - rt writes its own-rank share with a plain shared store, followed by a CTA barrier before the
@@ -329,6 +330,74 @@ shortcut without a citation), even though the reference does. In the shipped con
 - Cost measured in a91f2152d8974458: +0.10 to +0.21 us on rt (rt16w8t against rt16w8 at
   8 / 16 / 32 tokens) and about +0.3 us on wd (NKLUET against NKLUE at 128 / 256). It is
   confirmed on the judged file in the checks logged in docs/runs.md.
+
+#### Split exit barrier (candidate, 2026-10-30 evening)
+
+The exit barrier above costs +0.58 us at m = 128 on the judge (and gave back the router gain
+at m = 32 and 256). In ce25f67 the wd form is `barrier.cluster.arrive.release` +
+`wait.acquire` after the output stores, so its release (SASS `MEMBAR.ALL.CTA`,
+`MEMBAR.ALL.GPU`, `ERRBAR`, `CGAERRBAR`) waits for those global stores to drain, and every CTA
+then waits for the slowest CTA of its cluster to finish its own stores. The rt form is a relaxed
+arrive and an acquire wait after the stores.
+
+The split form (wd `WV_TAILSPLIT`, rt `RT_GEOM` mode 2 or 3) keeps the same barrier and moves
+only the arrive: each thread that ran the receive wait arrives right after that wait returned
+(`__syncwarp` first, since `.aligned` needs the whole warp), every other thread arrives at the
+same program point (rt) or just before exit (the wd producer warp), and every thread runs
+`barrier.cluster.wait.acquire` just before exit. The reduction and the output stores then run
+between the arrive and the wait. `WV_TAILRLX` / rt mode 3 make the arrive `.relaxed` (no
+membar); `WV_TAILSPLIT` alone / rt mode 2 keep `.release`. Each thread still alternates arrive and
+wait (the PUSH init pair is the previous phase) and arrives exactly once per phase, including
+after a watchdog timeout.
+
+Argument that no CTA exits with an outgoing `st.async` in flight (PTX ISA: `st.async`,
+`mbarrier` phase completion and `mbarrier.try_wait`, `barrier.cluster`):
+
+1. A sender A pushes to rank B only into B's receive slots, with complete_tx on B's receive
+   mbarrier. `st.async` performs its write and then a complete_tx on that mbarrier.
+2. B's receive phase completes only when its pending count (the expect's arrive) and its tx
+   count are both zero, and B expects exactly the bytes all (CLK - 1) or (S - 1) peers push to
+   it. So when a B thread's `mbarrier.try_wait.parity.acquire.cluster` returns true, every
+   `st.async` into B, A's included, has been performed.
+3. B's waiting threads execute their cluster arrive after the wait loop exited on that true
+   result (program order; the arrive is control-dependent on the loop's exit).
+4. `barrier.cluster.wait` returns only after every non-exited thread of the cluster performed
+   its `barrier.cluster.arrive` for the phase. No thread exits before its own wait, so B's
+   threads cannot drop out of the count by exiting.
+5. Hence each A thread passes its wait, and A exits, only after every `st.async` it issued was
+   performed at its target. This is an execution-order property of the barrier; `.relaxed`
+   removes only the memory-ordering guarantee for B's accesses before its arrive, which nothing
+   here relies on: A reads nothing B wrote, and B reads only its own receive slots after its
+   own acquire wait (step 2), unchanged from ce25f67.
+6. With the `.release` arrive (mode 2 / `WV_TAILSPLIT` alone) the same steps also give a
+   memory-model chain: complete_tx releases at cluster scope (`st.async`), B's try_wait acquires
+   at cluster scope, B's arrive releases and A's wait acquires, so A's `st.async` write
+   happens-before everything A does after its wait.
+7. Lifetimes and reuse are unchanged: remote accesses into B are only the pushes, all of which
+   completed before B's wait returned (step 2); after that point nothing touches B's shared
+   memory from outside, so B finishing its reduction after A exited is safe. The receive
+   barrier and slots are not reused within a launch.
+
+The rt kernel in ce25f67 already used the relaxed arrive with argument steps 2 to 5; the split
+moves it ahead of the reduction and stores without changing which wait it follows.
+
+Scope of the relaxed form: the PTX memory model has no notion of an operation in flight, so
+with `.relaxed` the guarantee is execution order only (steps 2 to 5), and it assumes the arrive
+is not issued before the wait loop that precedes it exits (both are `asm volatile` with a
+memory clobber, the arrive follows the loop exit and a `__syncwarp`; GPUs do not issue barriers
+speculatively, but the ISA does not state it). Only the `.release` form gives the step 6 chain.
+A's code after its wait depends on nothing B wrote, so nothing needs that chain.
+
+Measured in bench 4f3ff774981a494c (docs/runs.md, round 4): the relaxed split is -0.45 / -0.32 us
+on wd at m = 128 / 256 against the ce25f67 tail, -0.22 on rt at 16 tokens and null at 8 / 32;
+the release split loses on rt (+0.26 to +0.40).
+
+Independent read-only review (2026-10-30, of db0f8ad): sound with notes on all four questions
+(guarantee, arrive/wait well-formedness on every path including partial-warp rt owners, the wd
+producer warp, XA and the watchdog path; lifetimes; the bool-to-int rt template change). Notes
+taken: the paragraph above, and static_asserts that `WV_TAILRLX` needs `WV_TAILSPLIT` and that
+the rt mode is 0 to 3. Note kept: with CLR > 1 and PUSH (not built) the multicast and remote
+empty-barrier arrives would need the same re-check.
 
 For the layer: not ported. The layer's T <= 32 router is fused into its pooler / concat front,
 and its T = 128 / 256 router is the concat GEMM. Porting rt means a separate router launch beside
