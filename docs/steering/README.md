@@ -4,7 +4,23 @@ This is the stable entry point for steering reports across research, implementat
 and coordinator sessions. The user requested on 2026-10-29 that every project-steering
 report be checked into this repository so other sessions can read it.
 
-## Latest external-source steering: alygg77 measurement audit
+## Latest decision: evaluate the complete donor as a replacement baseline
+
+**[2026-10-30: Donor-first adoption — test complete implementations before more invention](2026-10-30-donor-first-adoption.md)**
+
+Own snapshot `5b88889`; donor `alygg77/okc-muse-spark-kernels` at `6cae49a`.
+The user correctly challenged treating the better-ranked donor mainly as a list of ideas.
+Supersedes the preceding audit's premature restriction against whole-file replacement:
+compare the exact complete donor projection and attention files with our actual releases,
+then choose the donor, ours, or a measured hybrid. Shared ancestry is not performance parity;
+novelty is not an acceptance criterion. Archived projection 1.5502x versus our 1.4976x is a
+strong comparison lead, not a promised 3.5% gain. Run independent duplicate controls and
+retain all precision, ordering, replay and attribution requirements. Full-file comparisons
+are pending; no kernels, gates, GPU runs or scored submissions changed in this report.
+Prioritize this adoption decision ahead of new codec/dense rewrites; layer/MoE comparisons
+remain separately owned. The next deliverable must identify what code we should use now.
+
+## Previous external-source steering: alygg77 measurement audit
 
 **[2026-10-30: alygg77 public kernels — measured constraints and a narrower next round](2026-10-30-alygg77-public-kernel-audit.md)**
 
@@ -290,6 +306,7 @@ recommendations, not execution of those tasks; check current code and run logs f
 
 | Report | Evidence snapshot | Scope |
 |---|---|---|
+| [2026-10-30 donor-first adoption](2026-10-30-donor-first-adoption.md) | ours `5b88889`; donor `6cae49a` | Correct premature restriction on whole-file replacement; exact donor versus release comparison first; choose donor, ours or measured hybrid before new invention |
 | [2026-10-30 alygg77 source audit](2026-10-30-alygg77-public-kernel-audit.md) | ours `269c110`; donor `6cae49a` | Scoped external measurements; selective projection routes; cluster residency; dense transfer/epilogue attribution; codec feasibility; attention provenance and KPERM overlap audit |
 | [2026-10-30 projection top-100 portfolio](2026-10-30-projection-top100-portfolio.md) | `c98018f`; scored `d85d0081fa8a4a43`; user CLI/frontier review | Corrected target and completed work; QKV residency gate; raw-BF16 m=256 schedule/epilogue test; explicit target envelope versus measured gains |
 | [2026-10-30 standalone attention/projection roadmap](2026-10-30-attention-projection-standalone-roadmap.md) | `a48edef`; component sources/logs and public archived references | Independent standalone scorecards and promotion gates; cross-tile attention, resource/reduction challengers; router/Lt portfolio, compressed qkv split-K, lossless WGMMA |
