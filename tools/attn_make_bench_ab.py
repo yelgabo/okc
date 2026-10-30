@@ -243,6 +243,8 @@ def _ab_scored():
             continue
         if _AB_SHAPES == "full" and (layer == "sliding" or batch == 1):
             continue
+        if _AB_SHAPES == "b1" and batch != 1:
+            continue
         yield batch, layer, q_len
 
 
@@ -375,7 +377,11 @@ def _ab_bench(warm_calls=16, warm_reps=25):
             data = _ab_shape_inputs(batch, layer, q_len, 1000 + k)
             itag = f"{tag} in={k}"
             try:
-                cold = {n: _ab_graph(fns[n], data, 1) for n in names}
+                # Capture order seeded per (shape, input): checks a0 / b / c had the control
+                # captured first and slower at d1 full by 0.45-0.74 us than every other arm.
+                cap = _ab_order(names, 7907 + 101 * len(_AB_CAP))
+                _AB_CAP[itag] = cap[0]
+                cold = {n: _ab_graph(fns[n], data, 1) for n in cap}
                 if k == 0:
                     print(f"ABPLAN {tag} " + " ".join(f"{n}=[{_ab_plan(n, data)}]" for n in names),
                           flush=True)

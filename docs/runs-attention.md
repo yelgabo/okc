@@ -2145,3 +2145,29 @@ allocated, carved), `ctrl2`, `ws64k`; ABADDR prints each state's addresses. Gate
 the run: the carve is a production candidate only if `ctrl2 - ctrl` at d1 full is within +-0.2 us
 on both inputs (it was -0.67 and -0.45 in the two runs before) and no shape regresses beyond the
 null; then a judged pair of submission.py with the carve on.
+
+### Check a92aa9c43f064c49 (bench `bench_c`, at df4060d): the workspace carve does not remove the control's lag
+
+| date | job | commit | file | result | notes |
+|---|---|---|---|---|---|
+| 2026-10-30 | a92aa9c43f064c49 (check) | df4060d | bench (`--set _ONE_WS_CARVE=1048576`, arms ctrl, ctrl2, ws64k; the judged path also ran carved) | 2.429x, 16/16 tests, ABCHECKSUM 19/0 | carve gate fails |
+
+Profiles: `muse_attention_decode/profiles/bench_c.a92aa9c43f064c49.*`. d1 full cold: `ctrl` 18.62 /
+18.56 (inputs 0 / 1), `ctrl2` 18.08 / 18.02, `ws64k` 17.98 / 17.98: the control is still 0.54 us
+behind with every state carved, so the gate (within +-0.2 us) fails; the carve stays a bench knob
+at 0. ABADDR: `ctrl` acc 0x82478100000, `ctrl2` 0x82479260000, `ws64k` 0x82474010000: the
+fast `ws64k` sits below the control's address and `ctrl2` right above it, so neither address
+order nor allocation shape explains it. The judged score of this run (2.429x, d1 full 14.16 us
+judged) is inside the earlier runs' spread. What is left: in all three benches the control is
+also the arm whose cold graph is captured first for every shape. Next bench tests that
+directly.
+
+### Next bench (check 4): capture order
+
+Generator change: per (shape, input) the cold graphs are captured in a seeded random order and
+ABCOLD prints the first-captured arm (`cap0`). `--shapes b1 --inputs 6`, arms `ctrl`, `ctrl2`,
+`ws64k`, production allocation. Reading, written before the run: if the slow arm at d1 full
+follows `cap0` rather than `ctrl`, the lag is a bench artifact of capture order (the earlier
+nulls `ctrl2 - ctrl` at d1 full are then capture-order bias, and the A0 ranking should be read
+from `ctrl2`); if it stays with `ctrl`, it belongs to the control's state and a production
+placement fix stays worth pursuing.
