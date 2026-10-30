@@ -24,7 +24,7 @@ ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT / "tools"))
 from proj_make_bench_ab import pub_patch  # noqa: E402
 from proj_make_bench_gemv import keep_cands  # noqa: E402
-from proj_make_bench_m8 import patch  # noqa: E402
+from proj_make_bench_m8 import LATE, NOFENCE, NOVOTE, patch  # noqa: E402
 
 # Extra geometries, name -> (MT, TOKR, NT, NWR, WSK, UPW, NSTAGE). Stage counts over K and
 # ring depth after _fit_stages are in the comments (compressed build).
@@ -112,8 +112,13 @@ ACC = (
      "_fit_stages(mt, tokr, nt, nwr, wsk, upw, nstage, comp, False, 1), comp, False, "
      "SK_NACC.get(name, 1), 1, \"bf16\","),
 )
+# Consumer-path patches from the m = 8 bench. nofence drops the per-stage proxy fence and exists
+# only to attribute the public lead (c6e13cc974a24294); it is never a submission candidate.
 VARIANTS = {"geo": (GEO, EXTRA_USE), "geo2": (_geo_patch(EXTRA_GEOM2, EXTRA_USE2), EXTRA_USE2),
-            "old": (OLD, {}), "acc": (ACC, {})}
+            "old": (OLD, {}), "acc": (ACC, {}), "novote": (NOVOTE, {}), "nofence": (NOFENCE, {}),
+            "late": (LATE, {}),
+            "nolate": ((("    static constexpr bool LATE_ARRIVE = MT == 2 && UPW == 2;\n",
+                         "    static constexpr bool LATE_ARRIVE = false;\n"),), {})}
 
 AB = r'''
 
