@@ -3426,9 +3426,11 @@ SKINNY_VARIANTS = ((8, 4, 0), (16, 4, 0), (8, 4, 1), (8, 3, 0))
 # with the next stage hoisted".
 # 45 and 46 (timing only): the staged pair (19 then 21) on 37's components, run as VARIANT_STAGED2;
 # docs/runs-moe.md, "Staged pair on current components".
-# 47 (timing only): 43 without the hoist (code groups only); the repeat of 43's check.
-MAIN_MODES = (0, 16, 26, 28, 37)
-MAIN_CANDIDATES = (0, 6, 12, 13, 14, 15, 16, 20, 23, 26, 28, 32, 34, 35, 36, 37, 39, 43)
+# 47 (candidate): 43 without the hoist (code groups only). Its pre-registered gate against 37,
+# check 5f381b8b6946492d: -2.8 to -3.7 us at 256 tokens on layer, standalone and skewed routing
+# (18 of 18 seeds lower), -1.0 to -2.8 at 32 and 128; docs/runs-moe.md, "Mode 47 gate".
+MAIN_MODES = (0, 16, 26, 28, 37, 47)
+MAIN_CANDIDATES = (0, 6, 12, 13, 14, 15, 16, 20, 23, 26, 28, 32, 34, 35, 36, 37, 39, 43, 47)
 VARIANT_MAIN0 = len(SKINNY_VARIANTS)
 
 
@@ -5163,7 +5165,7 @@ def _gate_report(state):
     16. Since 2026-10-29 also mode 23 (claimed phase B units) against 20 and 16; the variant
     order is reversed on every other seed so neither side always runs first."""
     names = {16: None, 18: None, 19: None, 20: None, 21: None, 23: None, 26: None, 28: None,
-             37: None}
+             37: None, 47: None}
     vs = {m: VARIANT_MAIN0 + MAIN_MODES.index(m) for m in names if m in MAIN_MODES}
     if state.get("staged_ok"):
         vs["staged"] = VARIANT_STAGED
@@ -5183,7 +5185,7 @@ def _gate_report(state):
         tag = f"bs={bs}" + ("" if dist == "normal" else f" {dist}")
         tim = {m: [] for m in vs}
         xbd = []
-        outd = {m: [] for m in (20, 23, 26, 28, 37, "staged") if m in vs}
+        outd = {m: [] for m in (20, 23, 26, 28, 37, 47, "staged") if m in vs}
         for si, seed in enumerate(seeds):
             data = _make_inputs(bs, 977 * seed + bs, dist)
             order = list(vs.items())
@@ -5206,7 +5208,7 @@ def _gate_report(state):
         line = " ".join(f"{_vname(v)}:{sum(tim[m]) / n:.1f}" for m, v in vs.items())
         print(f"GATE {tag} {line} us (mean of {n} seeds {seeds})")
         for a, b in ((19, 18), (20, 16), (23, 20), (23, 16), (26, 23), (28, 26), (37, 28),
-                     ("staged", 16), ("staged", 20)):
+                     (47, 37), ("staged", 16), ("staged", 20)):
             if a in vs and b in vs:
                 d = [x - y for x, y in zip(tim[a], tim[b])]
                 print(f"GATE {tag} {_vname(vs[a])} minus {_vname(vs[b])} per seed "
