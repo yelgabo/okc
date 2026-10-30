@@ -1,0 +1,23 @@
+✓ muse_decode_layer  passed  check run, off the board  job 29fd004fd58e40ef
+
+  2.007×  ━━━━━━━━━╋━━━━━━━━━─────────  faster than SGLang  95%: 1.977–2.037×
+
+  time        11.27 ms
+  tests       13/13 passed
+  profile     /private/tmp/claude-501/-Users-gretchengabo-GitHub/4e9778d1-55dc-4e88-9d29-4844bd573620/scratchpad/dl4/profiles/benchG51.29fd004fd58e40ef.txt  and .json
+  output      /private/tmp/claude-501/-Users-gretchengabo-GitHub/4e9778d1-55dc-4e88-9d29-4844bd573620/scratchpad/dl4/profiles/benchG51.29fd004fd58e40ef.log
+
+  CASE                      SGLANG      YOURS   SPEEDUP
+  ────────────────────────────────────────────────────────────────────
+  decode 1 · sliding      173.3 µs    77.8 µs    2.228×   ━━━━━━╋━━━━━
+  decode 1 · full         183.0 µs    84.1 µs    2.176×   ━━━━━━╋━━━━━
+  decode 16 · sliding     266.6 µs   145.0 µs    1.838×   ━━━━━━╋━━━━─
+  decode 16 · full        437.6 µs   219.5 µs    1.994×   ━━━━━━╋━━━━━
+  decode 32 · sliding     258.0 µs   167.6 µs    1.539×   ━━━━━━╋━━━──
+  decode 32 · full        621.3 µs   325.2 µs    1.911×   ━━━━━━╋━━━━━
+  verify 1 · sliding      257.6 µs   116.2 µs    2.217×   ━━━━━━╋━━━━━
+  verify 1 · full         273.5 µs   126.5 µs    2.163×   ━━━━━━╋━━━━━
+  verify 16 · sliding     539.5 µs   270.2 µs    1.997×   ━━━━━━╋━━━━━
+  verify 16 · full        692.7 µs   348.7 µs    1.987×   ━━━━━━╋━━━━━
+  verify 32 · sliding     715.3 µs   340.9 µs    2.098×   ━━━━━━╋━━━━━
+  verify 32 · full      1,083.2 µs   512.2 µs    2.115×   ━━━━━━╋━━━━━

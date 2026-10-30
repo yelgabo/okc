@@ -1,0 +1,159 @@
+n one: stress 1x8 sliding plan=(33, 1, 15): replays=2000 (one host sync after the batch; retained: the last replay's output) replayed_vs_eager=0.0e+00 vs_sglang=2.32e-02 finite=True max_polls=3 ws rows_nonzero=0 l_nonzero=0 tickets_nonzero=0 coop_next_parity_nonzero=0 flat_next_parity_nonzero=0; 
+ABOTHER inc prepare: attn one: stress 1x1 full plan=(252, 8, 11): replays=2000 (one host sync after the batch; retained: the last replay's output) replayed_vs_eager=0.0e+00 vs_sglang=3.25e-03 finite=True max_polls=6 ws rows_nonzero=0 l_nonzero=0 tickets_nonzero=0 coop_next_parity_nonzero=0 flat_next_parity_nonzero=0; fr
+ABOTHER inc prepare: attn one: stress 1x8 full plan=(252, 8, 11): replays=2000 (one host sync after the batch; retained: the last replay's output) replayed_vs_eager=0.0e+00 vs_sglang=2.41e-02 finite=True max_polls=9 ws rows_nonzero=0 l_nonzero=0 tickets_nonzero=0 coop_next_parity_nonzero=0 flat_next_parity_nonzero=0; fr
+ABOTHER inc prepare: attn one fallback on fresh rows vs FP32: 1x1s ours 1.63e-03 sglang 5.21e-02 ours-vs-sglang 5.20e-02; 1x8s ours 3.63e-02 sglang 4.06e-02 ours-vs-sglang 3.09e-02; 1x1f ours 1.75e-03 sglang 6.75e-03 ours-vs-sglang 7.14e-03; 1x8f ours 1.76e-02 sglang 2.19e-02 ours-vs-sglang 1.46e-02
+ABOTHER inc prepare: SUMMARY stages moe_ours=1 w4_ok=1 moe1_ok=1 router_ours=1 proj_ours=1 skp_ok=1 attn_one_ours=1 attn_ws_ours=1 attn_fused_ours=1 bnd_ours=1 abnd_ours=1 norm_ours=1 route_side_ok=1 route_ours=1
+ABOTHER inc prepare: SUMMARY attn fallback vs fp32 1x1s ours 1.63e-03 sglang 5.21e-02 ours-vs-sglang 5.20e-02; 1x8s ours 3.63e-02 sglang 4.06e-02 ours-vs-sglang 3.09e-02; 1x1f ours 1.75e-03 sglang 6.75e-03 ours-vs-sglang 7.14e-03; 1x8f ours 1.76e-02 sglang 2.19e-02 ours-vs-sglang 1.46e-02
+ABOTHER inc prepare: SUMMARY failed 0: none
+ABARMS inc cand null; cand front policy {1: 'fp32', 8: 'skf-r', 16: 'skf', 32: 'skf-r', 128: 'concat-r', 256: 'concat-r'}, moe {1: 2, 8: 2, 16: 2, 32: 9, 128: 10, 256: 10}; inc front policy {1: 'fp32', 8: 'skf-r', 16: 'skf-r', 32: 'skf-r', 128: 'concat-r', 256: 'concat-r'}, moe {1: 2, 8: 2, 16: 2, 32: 9, 128: 9, 256: 9}
+ABCHK inc 24 of 24 PASS; shapes with a FAIL 0
+ABCHK cand 24 of 24 PASS; shapes with a FAIL 0
+ABCHK null 24 of 24 PASS; shapes with a FAIL 0
+ABTIME d1s inc 88.8 cand 88.2 null 88.8 | paired cand-inc -0.3 null-inc -0.1 (n=16)
+ABTIME d1f inc 93.6 cand 91.9 null 91.2 | paired cand-inc -1.7 null-inc -2.5 (n=16)
+ABTIME d16s inc 156.7 cand 156.6 null 156.0 | paired cand-inc +0.3 null-inc -0.0 (n=16)
+ABTIME d16f inc 237.9 cand 238.5 null 236.9 | paired cand-inc +0.0 null-inc +0.0 (n=16)
+ABTIME d32s inc 184.7 cand 182.7 null 182.9 | paired cand-inc -1.2 null-inc -1.1 (n=16)
+ABTIME d32f inc 334.2 cand 333.4 null 332.6 | paired cand-inc -1.1 null-inc -0.8 (n=16)
+ABTIME v1s inc 122.2 cand 121.7 null 122.4 | paired cand-inc -0.6 null-inc +0.1 (n=16)
+ABTIME v1f inc 146.3 cand 146.6 null 145.3 | paired cand-inc -0.2 null-inc -0.8 (n=16)
+ABTIME v16s inc 265.0 cand 260.4 null 259.5 | paired cand-inc -5.1 null-inc -3.7 (n=16)
+ABTIME v16f inc 349.5 cand 343.6 null 344.6 | paired cand-inc -5.3 null-inc -5.2 (n=16)
+ABTIME v32s inc 348.9 cand 343.0 null 345.1 | paired cand-inc -6.5 null-inc -4.4 (n=16)
+ABTIME v32f inc 524.3 cand 521.2 null 520.7 | paired cand-inc -1.1 null-inc +0.3 (n=16)
+ABLOAD d1 (46 sliding + 16 full) / 62: inc 90.0 cand 89.2 null 89.4 | inc/arm cand 1.0099 null 1.0073 | null check cand/null 0.9974
+ABLOAD d16 (46 sliding + 16 full) / 62: inc 177.7 cand 177.7 null 176.9 | inc/arm cand 0.9997 null 1.0044 | null check cand/null 1.0048
+ABLOAD d32 (46 sliding + 16 full) / 62: inc 223.3 cand 221.6 null 221.6 | inc/arm cand 1.0078 null 1.0078 | null check cand/null 1.0000
+ABLOAD v1 (46 sliding + 16 full) / 62: inc 128.4 cand 128.1 null 128.3 | inc/arm cand 1.0023 null 1.0005 | null check cand/null 0.9982
+ABLOAD v16 (46 sliding + 16 full) / 62: inc 286.8 cand 281.9 null 281.4 | inc/arm cand 1.0174 null 1.0191 | null check cand/null 1.0016
+ABLOAD v32 (46 sliding + 16 full) / 62: inc 394.2 cand 389.0 null 390.4 | inc/arm cand 1.0133 null 1.0096 | null check cand/null 0.9963
+ABSCORE geometric mean over 6 loads of inc load time / arm load time (above 1: arm faster): cand 1.0084; null check: cand / null 0.9997 (the same file timed twice; its distance from 1 is the bench's noise)
+ABKN K0 cgemv40_kernel<256,2>
+ABKN K1 one::attn_one_kernel<1,13>
+ABKN K2 cgemv_kernel<64,1>
+ABKN K3 bnd::attn_boundary_kernel
+ABKN K4 router_kernel<1>
+ABKN K5 muse_spark::routing_kernel<muse_spark::R
+ABKN K6 cgemv_kernel<512,1>
+ABKN K7 pre_norm_kernel<__nv_bfloat16>
+ABKN K8 moe1::sk_8_3_0::moe_fused_kernel<1>
+ABKN K9 cgemv40_kernel<128,2>
+ABKN K10 bnd::boundary_kernel
+ABKN K11 one::attn_one_kernel<1,11>
+ABKN K12 sk_kernel<1,16,3,1,4,2,5,true,false,1,1,
+ABKN K13 one::attn_one_kernel<1,1>
+ABKN K14 sk_kernel<1,16,2,2,2,2,3,true,false,1,1,
+ABKN K15 muse_spark_norm_residual_kernel<8192l,25
+ABKN K16 sk_kernel<1,16,2,2,2,4,4,true,false,1,1,
+ABKN K17 route_kernel<__nv_bfloat16,false>
+ABKN K18 one::attn_one_kernel<1,49>
+ABKN K19 sk_kernel<2,32,3,1,4,2,4,true,false,1,1,
+ABKN K20 sk_kernel<2,32,2,2,2,2,3,true,false,1,1,
+ABKN K21 bnd::attn_boundary_geo_kernel<1,1024>
+ABKN K22 sk_kernel<2,32,2,2,2,4,3,true,false,1,1,
+ABKN K23 moe1::moe_main_kernel<47>
+ABKN K24 sk_kernel<1,8,3,1,4,4,4,true,false,1,1,_
+ABKN K25 one::attn_one_kernel<8,15>
+ABKN K26 sk_kernel<1,8,4,1,4,1,4,true,false,1,1,_
+ABKN K27 sk_kernel<1,8,1,2,2,4,3,true,false,1,1,_
+ABKN K28 sk_kernel<1,8,1,1,8,2,4,true,false,1,1,_
+ABKN K29 one::attn_one_kernel<8,11>
+ABKN K30 wd_kernel<1,128,3,1,false,8,__nv_bfloat1
+ABKN K31 one::attn_one_kernel<8,3>
+ABKN K32 nvjet_sm90_tst_128x64_64x8_1x2_h_bz_TNT
+ABKN K33 nvjet_sm90_tss_96x64_64x10_4x2_h_bz_TNN
+ABKN K34 route_kernel<float,true>
+ABKN K35 moe1::moe_main_kernel<51>
+ABKN K36 one::attn_one_kernel<8,51>
+ABKN K37 nvjet_sm90_tst_96x64_64x10_2x4_h_bz_TNN
+ABKN K38 nvjet_sm90_tst_128x128_64x6_2x1_v_bz_TNT
+ABKN K39 bnd::attn_boundary_geo_kernel<1,512>
+ABKN K40 nvjet_sm90_tss_80x128_64x8_4x2_h_bz_TNN
+ABKN K41 muse_spark_norm_residual_kernel<8192l,51
+ABK d1s inc span 89.4 sum 105.9: K0 10.8 K1 5.5 K2 5.5 K3 6.0 K4 9.2 K5 11.1 K6 16.4 K7 1.5 K8 32.5 K9 3.4 K10 3.9
+ABK d1s cand span 88.4 sum 103.5: K0 10.6 K1 5.6 K2 5.5 K3 5.6 K4 8.4 K5 9.5 K6 16.3 K7 1.6 K8 32.8 K9 3.6 K10 4.0
+ABK d1f inc span 89.6 sum 105.1: K0 10.5 K11 13.9 K2 6.0 K3 5.8 K4 8.9 K5 10.2 K6 16.3 K7 1.5 K8 24.8 K9 3.2 K10 4.1
+ABK d1f cand span 88.3 sum 101.7: K0 10.6 K11 12.9 K2 6.0 K3 5.0 K4 7.9 K5 9.4 K6 16.1 K7 1.5 K8 24.7 K9 3.4 K10 4.0
+ABK d16s inc span 161.3 sum 161.1: K12 13.0 K13 10.1 K14 21.2x2 K15 8.3x2 K16 20.9 K17 4.8 K8 82.7
+ABK d16s cand span 162.1 sum 158.6: K12 12.7 K13 10.1 K14 21.3x2 K15 8.1x2 K16 20.8 K7 1.6 K5 2.8 K8 81.2
+ABK d16f inc span 245.4 sum 245.7: K12 12.7 K18 93.5 K14 20.2x2 K15 8.2x2 K16 18.6 K17 4.8 K8 87.7
+ABK d16f cand span 246.2 sum 242.7: K12 12.6 K18 93.4 K14 20.2x2 K15 8.2x2 K16 18.9 K7 1.7 K5 2.8 K8 85.0
+ABK d32s inc span 179.5 sum 180.5: K19 13.7 K13 12.3 K20 22.3x2 K21 3.9 K22 20.7 K17 5.6 K23 97.5 K15 4.5
+ABK d32s cand span 178.7 sum 179.3: K19 13.8 K13 12.2 K20 22.6x2 K15 8.4x2 K22 20.9 K17 4.9 K23 96.5
+ABK d32f inc span 323.6 sum 324.0: K19 14.0 K18 173.2 K20 21.5x2 K21 3.7 K22 19.9 K17 5.4 K23 81.7 K15 4.5
+ABK d32f cand span 323.9 sum 323.7: K19 13.9 K18 173.2 K20 21.7x2 K15 8.3x2 K22 19.9 K17 5.0 K23 81.7
+ABK v1s inc span 119.3 sum 119.1: K24 13.5 K25 6.8 K26 6.8 K3 3.9 K27 21.4 K17 4.7 K8 53.9 K28 4.3 K10 3.7
+ABK v1s cand span 119.1 sum 118.8: K24 13.1 K25 6.7 K26 6.8 K3 4.0 K27 21.4 K17 4.7 K8 54.1 K28 4.4 K10 3.7
+ABK v1f inc span 146.3 sum 145.7: K24 12.9 K29 15.2 K26 6.8 K3 4.0 K27 19.8 K17 4.5 K8 74.5 K28 4.4 K10 3.6
+ABK v1f cand span 145.8 sum 145.9: K24 12.7 K29 15.2 K26 6.9 K3 3.9 K27 19.9 K17 4.6 K8 74.5 K28 4.3 K10 3.9
+ABK v16s inc span 288.4 sum 289.0: K30 16.1 K31 11.5 K32 31.0x2 K15 10.1x2 K33 28.7 K34 4.8 K23 186.8
+ABK v16s cand span 283.7 sum 284.0: K30 16.0 K31 11.6 K32 30.9x2 K15 10.4x2 K33 28.1 K34 4.7 K35 182.2
+ABK v16f inc span 364.4 sum 362.8: K30 16.1 K36 105.3 K32 29.3x2 K15 9.5x2 K33 26.2 K34 4.8 K23 171.4
+ABK v16f cand span 356.4 sum 355.8: K30 16.3 K36 106.1 K32 29.3x2 K15 10.2x2 K33 26.2 K34 4.8 K35 163.0
+ABK v32s inc span 360.3 sum 357.7: K37 24.9 K31 15.9 K38 35.8x2 K39 7.7 K40 32.9 K34 5.2 K23 227.6 K41 7.5
+ABK v32s cand span 352.3 sum 349.7: K37 25.1 K31 16.1 K38 36.0x2 K39 7.5 K40 33.5 K34 5.1 K35 219.0 K41 7.5
+ABK v32f inc span 527.5 sum 527.6: K37 24.9 K36 183.4 K38 35.6x2 K39 7.5 K40 33.5 K34 5.2 K23 230.1 K41 7.5
+ABK v32f cand span 530.4 sum 526.8: K37 25.1 K36 183.6 K38 35.8x2 K39 7.4 K40 32.8 K34 5.2 K35 229.6 K41 7.5
+ABCAND moe gate sk8w4s 8+16+1+32+8 rel 8e-05/2e-05/7e-05/3e-05/4e-05|8e-05/2e-05/7e-05/2e-05/4e-05 el 4e-03|4e-03 >1e-4 0/2000|0/2000 o1 0|0
+ABCAND moe gate sk16w4s 8+16+1+32+8 rel 4e-05/4e-05/7e-05/3e-05/4e-05|6e-05/4e-05/7e-05/3e-05/4e-05 el 3e-03|3e-03 >1e-4 0/2000|0/2000 o1 0|0
+ABCAND moe gate sk8w3s 8+16+1+32+8 rel 8e-05/2e-05/7e-05/3e-05/4e-05|7e-05/2e-05/7e-05/2e-05/4e-05 el 4e-03|4e-03 >1e-4 0/2000|0/2000 o1 0|0
+ABCAND moe gate sk8w4s-er 8+16+1+32+8 rel 8e-05/2e-05/7e-05/3e-05/4e-05|8e-05/2e-05/7e-05/3e-05/4e-05 el 4e-03|4e-03 >1e-4 0/2000|0/2000 o1 0|0
+ABCAND moe gate main-d2 32+128+17+256 rel 4e-05/4e-05/7e-05/4e-05|5e-05/4e-05/6e-05/4e-05 el 6e-03|6e-03 >1e-4 0/2000|0/2000 o1 0|0
+ABCAND moe gate main-m2-ar2-ub 32+128+17+256 rel 4e-05/6e-05/4e-05/3e-05|4e-05/5e-05/4e-05/3e-05 el 7e-03|7e-03 >1e-4 0/2000|0/2000 o1 0|0
+ABCAND moe gate main-dynb-fs 32+128+17+256 rel 4e-05/5e-05/7e-05/3e-05|5e-05/5e-05/7e-05/3e-05 el 7e-03|7e-03 >1e-4 0/2000|0/2000 o1 0|0
+ABCAND moe gate main-lean 32+128+17+256 rel 4e-05/4e-05/7e-05/3e-05|4e-05/4e-05/7e-05/3e-05 el 7e-03|7e-03 >1e-4 0/2000|0/2000 o1 0|0
+ABCAND moe gate main-lean-silu-bar 32+128+17+256 rel 5e-05/4e-05/7e-05/3e-05|5e-05/4e-05/7e-05/3e-05 el 7e-03|7e-03 >1e-4 0/2000|0/2000 o1 0|0
+ABCAND moe gate main-lean-grp-nohoist 32+128+17+256 rel 6e-05/4e-05/7e-05/4e-05|5e-05/4e-05/7e-05/4e-05 el 7e-03|7e-03 >1e-4 0/2000|0/2000 o1 0|0
+ABCAND moe gate main-lean-grp-finss64 32+128+17+256 rel 4e-05/0e+00/7e-05/0e+00|4e-05/0e+00/7e-05/0e+00 el 4e-03|4e-03 >1e-4 0/2000|0/2000 o1 0|0
+ABCAND route_gate skf-r@1 ok rel 0e+00|0e+00 el 0e+00|0e+00 >1e-4 0/200|0/200 o1 0|0
+ABCAND route_gate skf-r@8 ok rel 5e-05|5e-05 el 1e-03|1e-03 >1e-4 0/200|0/200 o1 0|0
+ABCAND route_gate concat-r@16 ok rel 7e-05|7e-05 el 3e-03|3e-03 >1e-4 0/200|0/200 o1 0|0
+ABCAND route_gate skf-r@16 ok rel 2e-05|2e-05 el 8e-04|8e-04 >1e-4 0/200|0/200 o1 0|0
+ABCAND route_gate concat-r@32 ok rel 9e-05|8e-05 el 6e-03|6e-03 >1e-4 0/200|0/200 o1 0|0
+ABCAND route_gate skf-r@32 ok rel 4e-05|4e-05 el 2e-03|2e-03 >1e-4 0/200|0/200 o1 0|0
+ABCAND route_gate concat-r@128 ok rel 0e+00|0e+00 el 0e+00|0e+00 >1e-4 0/200|0/200 o1 0|0
+ABCAND route_gate concat-r@256 ok rel 0e+00|0e+00 el 0e+00|0e+00 >1e-4 0/200|0/200 o1 0|0
+ABCAND gate_negctl moe sk8w4s T=32 none:pass(1e-05,1e-03) tile:R(2e-01,1e+00) 1%:R(1e-01,1e+00) 0.1%:R(4e-02,1e+00) row:R(2e-01,1e+00) elem:R(1e-03,2e-01)
+ABCAND gate_negctl moe sk16w4s T=32 none:pass(3e-06,3e-04) tile:R(2e-01,1e+00) 1%:R(1e-01,1e+00) 0.1%:R(4e-02,8e-01) row:R(2e-01,1e+00) elem:R(7e-03,6e-01)
+ABCAND gate_negctl moe sk8w3s T=32 none:pass(4e-06,3e-04) tile:R(2e-01,1e+00) 1%:R(1e-01,1e+00) 0.1%:R(3e-02,1e+00) row:R(2e-01,1e+00) elem:R(3e-03,3e-01)
+ABCAND gate_negctl moe sk8w4s-er T=32 none:pass(7e-06,7e-04) tile:R(2e-01,1e+00) 1%:R(1e-01,1e+00) 0.1%:R(4e-02,1e+00) row:R(2e-01,1e+00) elem:R(7e-03,6e-01)
+ABCAND gate_negctl moe main-d2 T=256 none:pass(1e-05,1e-03) tile:R(1e-01,1e+00) 1%:R(1e-01,2e+00) 0.1%:R(4e-02,1e+00) row:R(7e-02,2e+00) elem:R(5e-04,1e-01)
+ABCAND gate_negctl moe main-m2-ar2-ub T=256 none:pass(2e-05,2e-03) tile:R(1e-01,1e+00) 1%:R(1e-01,2e+00) 0.1%:R(4e-02,1e+00) row:R(7e-02,2e+00) elem:R(2e-03,5e-01)
+ABCAND gate_negctl moe main-dynb-fs T=256 none:pass(2e-05,2e-03) tile:R(1e-01,1e+00) 1%:R(1e-01,2e+00) 0.1%:R(4e-02,1e+00) row:R(7e-02,2e+00) elem:R(7e-04,2e-01)
+ABCAND gate_negctl moe main-lean T=256 none:pass(2e-05,1e-03) tile:R(1e-01,1e+00) 1%:R(1e-01,1e+00) 0.1%:R(4e-02,1e+00) row:R(7e-02,2e+00) elem:R(1e-03,4e-01)
+ABCAND gate_negctl moe main-lean-silu-bar T=256 none:pass(2e-05,2e-03) tile:R(1e-01,1e+00) 1%:R(1e-01,2e+00) 0.1%:R(4e-02,1e+00) row:R(7e-02,2e+00) elem:R(2e-04,5e-02)
+ABCAND gate_negctl moe main-lean-grp-nohoist T=256 none:pass(2e-05,3e-03) tile:R(1e-01,1e+00) 1%:R(1e-01,2e+00) 0.1%:R(4e-02,1e+00) row:R(7e-02,2e+00) elem:R(4e-04,1e-01)
+ABCAND gate_negctl moe main-lean-grp-finss64 T=256 none:pass(0e+00,0e+00) tile:R(1e-01,1e+00) 1%:R(1e-01,2e+00) 0.1%:R(4e-02,1e+00) row:R(7e-02,2e+00) elem:R(3e-04,6e-02)
+ABCAND gate_negctl route skf-r@1 none:pass(0e+00,0e+00) tile:R(3e-01,9e-01) 1%:R(1e-01,6e-01) 0.1%:R(5e-02,7e-01) row:R(1e+00,1e+00) elem:R(6e-03,1e-01)
+ABCAND gate_negctl route skf-r@8 none:pass(0e+00,0e+00) tile:R(2e-01,3e+11) 1%:R(1e-01,3e+11) 0.1%:R(4e-02,3e+11) row:R(5e-01,1e+00) elem:R(4e-03,2e-01)
+ABCAND gate_negctl route concat-r@16 none:pass(1e-07,6e-06) tile:R(2e-01,6e+11) 1%:R(1e-01,7e+11) 0.1%:R(4e-02,3e+11) row:R(5e-01,2e+00) elem:R(5e-03,4e-01)
+ABCAND gate_negctl route skf-r@16 none:pass(2e-06,1e-04) tile:R(2e-01,6e+11) 1%:R(1e-01,7e+11) 0.1%:R(4e-02,3e+11) row:R(5e-01,2e+00) elem:R(5e-03,4e-01)
+ABCAND gate_negctl route concat-r@32 none:pass(8e-08,3e-06) tile:R(3e-01,6e+11) 1%:R(1e-01,4e+11) 0.1%:R(5e-02,4e+11) row:R(2e-01,1e+00) elem:R(5e-03,4e-01)
+ABCAND gate_negctl route skf-r@32 none:pass(3e-05,2e-03) tile:R(3e-01,6e+11) 1%:R(1e-01,4e+11) 0.1%:R(5e-02,4e+11) row:R(2e-01,1e+00) elem:R(5e-03,4e-01)
+ABCAND gate_negctl route concat-r@128 none:pass(0e+00,0e+00) tile:R(2e-01,7e+11) 1%:R(1e-01,7e+11) 0.1%:R(5e-02,4e+11) row:R(1e-01,2e+00) elem:R(2e-03,3e-01)
+ABCAND gate_negctl route concat-r@256 none:pass(0e+00,0e+00) tile:R(1e-01,6e+11) 1%:R(1e-01,1e+12) 0.1%:R(4e-02,4e+11) row:R(1e-01,1e+00) elem:R(3e-03,6e-01)
+ABCAND manifest moe checked 11 rejected none; route gates ok 8/8; failures reference 0 replay 0 nonfinite 0 workspace 0 sensitivity 0 other 0
+USDT:2026-10-30 05:12:26 77:77 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-10-30 05:12:26 77:77 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-10-30 05:12:26 77:77 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-10-30 05:12:26 77:77 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-10-30 05:12:26 77:77 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-10-30 05:12:26 77:77 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-10-30 05:12:26 77:77 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-10-30 05:12:26 77:77 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-10-30 05:12:26 77:77 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-10-30 05:12:26 77:77 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-10-30 05:12:26 77:77 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-10-30 05:12:26 77:77 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-10-30 05:12:26 77:77 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-10-30 05:12:26 77:77 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-10-30 05:12:26 77:77 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-10-30 05:12:26 77:77 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-10-30 05:12:27 77:77 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-10-30 05:12:27 77:77 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-10-30 05:12:27 77:77 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-10-30 05:12:27 77:77 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-10-30 05:12:27 77:77 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-10-30 05:12:27 77:77 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-10-30 05:12:27 77:77 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-10-30 05:12:27 77:77 SyncActivityProfilerHandler.cpp:46] profiler_stop
