@@ -90,10 +90,10 @@ import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
-LIGHT_TWINS = {26: 27, 37: 42, 47: 48, 52: 54, 51: 55}
+LIGHT_TWINS = {26: 27, 37: 42, 47: 48, 52: 54, 51: 55, 57: 58}
 SKEW_TWINS = {47: 49, 51: 56}
 # Light twins whose kernels also stamp the x gather (gather_st in the kernel): ABGATHER.
-GATHER_TWINS = (55, 56)
+GATHER_TWINS = (55, 56, 58)
 PA_TWINS = {28: 31, 32: 33, 36: 38, 39: 40, 37: 41, 43: 44}
 PB_TWINS = (41, 44)
 # Variant arms that need fat modes built: v301 is the staged pair on 37's components (45 then 46).
