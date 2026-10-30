@@ -16551,6 +16551,90 @@ def _one_stress(state, batch, length, layer, replays, seed, ctx=None, expect=Non
     return "; ".join(msgs)
 
 
+def _attn_ref32(qkv, data):
+    """The attention block from qkv to the gated output in FP32 (reference.py's _attention with
+    unrounded queries): QK-norm, RoPE on sliding layers, the new keys and values through FP8 as
+    the cache stores them, softmax over the visible keys, per-head RMSNorm, sigmoid gate."""
+    cfg = data["config"]
+    batch, length = cfg["batch"], cfg["q_len"]
+    x = qkv.float()
+    q, k, v, gate = x.split([1024, 128, 128, 1024], dim=-1)
+    pos = (data["seq_lens"].long()[:, None]
+           + torch.arange(length, device=x.device)).reshape(-1)
+
+    def rms(t):
+        return t * torch.rsqrt(t.pow(2).mean(-1, keepdim=True) + RMS_EPS)
+
+    def rope(t, theta):
+        inv = 1.0 / (theta ** (torch.arange(0, 64, 2, device=t.device).float() / 64))
+        ang = pos.float()[:, None] * inv
+        cos, sin = ang.cos()[:, None, :], ang.sin()[:, None, :]
+        even, odd = t[..., 0::2], t[..., 1::2]
+        return torch.stack([even * cos - odd * sin, even * sin + odd * cos], -1).flatten(-2)
+
+    q = rms(q.view(-1, 16, 64))
+    k = rms(k.view(-1, 2, 64))
+    if cfg["rope_theta"]:
+        q, k = rope(q, cfg["rope_theta"]), rope(k, cfg["rope_theta"])
+    q = (q * cfg["qk_scale_factor"]).view(batch, length, 16, 64)
+    ks, vs = data["k_scale"], data["v_scale"]
+    k_new = (k / ks).to(FP8).float().view(batch, length, 2, 64) * ks
+    v_new = (v.view(-1, 2, 64) / vs).to(FP8).float().view(batch, length, 2, 64) * vs
+    k_flat = data["k_cache"].view(-1, 2, 64)
+    v_flat = data["v_cache"].view(-1, 2, 64)
+    window, size = cfg["window"], cfg["page_size"]
+    out = torch.empty((batch, length, 16, 64), device=x.device)
+    steps = torch.arange(length, device=x.device)
+    for b in range(batch):
+        seq = int(data["seq_lens"][b])
+        first = max(0, seq - window + 1) if window else 0
+        past = torch.arange(first, seq, device=x.device)
+        rows = data["page_table"][b].long()[past // size] * size + past % size
+        keys = torch.cat([k_flat[rows].float() * ks, k_new[b]])
+        vals = torch.cat([v_flat[rows].float() * vs, v_new[b]])
+        key_pos = torch.cat([past, seq + steps])
+        query_pos = seq + steps
+        visible = key_pos[None, :] <= query_pos[:, None]
+        if window:
+            visible &= key_pos[None, :] > query_pos[:, None] - window
+        att = torch.einsum("lkgd,tkd->lkgt", q[b].reshape(length, 2, 8, 64), keys)
+        att = (att * cfg["sm_scale"]).masked_fill(~visible[:, None, None, :], float("-inf"))
+        out[b] = torch.einsum("lkgt,tkd->lkgd", att.softmax(-1), vals).reshape(length, 16, 64)
+    return rms(out).reshape(-1, 1024) * torch.sigmoid(gate)
+
+
+def _one_fallback_precision(state):
+    """The batch-1 speculated-length fallback on fresh qkv rows (the case check
+    2cd4e3b292904662 measured at 5.2e-2 against SGLang at 1x1 sliding), ours and SGLang's path
+    each against the FP32 block (_attn_ref32), on the stress inputs: the relative L2 of each and
+    whether ours is the larger. Diagnostic: prints, raises nothing."""
+    device = state["inv_freq"].device
+    lines = []
+    for i, (batch, length, layer, ctx) in enumerate(((1, 1, "sliding", None),
+                                                     (1, 8, "sliding", None),
+                                                     (1, 1, "full", 20000),
+                                                     (1, 8, "full", 20000))):
+        seed = 8000 + (0, 2, 5, 6)[i]
+        qkv, data = _attn_case(device, batch, length, layer, 1, 1.0, seed, ctx=ctx)
+        ours_data = dict(data, k_cache=data["k_cache"].clone(), v_cache=data["v_cache"].clone())
+        gen = torch.Generator(device=device).manual_seed(seed + 1)
+        qkv = (torch.randn(qkv.shape, generator=gen, device=device) * 2).to(qkv.dtype)
+        data["seq_lens"].sub_(64)
+        pos = data["seq_lens"].long()[:, None] + torch.arange(length, device=device)
+        data["positions"].copy_(pos.reshape(-1))
+        data["cache_loc"].copy_(torch.gather(data["page_table"].long(), 1, pos).reshape(-1))
+        data["cache_seqlens"].copy_(data["seq_lens"] + length)
+        ref32 = _attn_ref32(qkv, data)
+        sgl = _attn_sglang(qkv.clone(), data, state)
+        ours = _attn_one(qkv, ours_data, state)
+        torch.cuda.synchronize()
+        e_ours, e_sgl, e_x = _rel(ours, ref32), _rel(sgl, ref32), _rel(ours, sgl)
+        lines.append(f"{batch}x{length}{layer[0]} ours {e_ours:.2e} sglang {e_sgl:.2e} "
+                     f"ours-vs-sglang {e_x:.2e}{' OURS_WORSE' if e_ours > e_sgl else ''}")
+    state["one_fallback_fp32"] = "; ".join(lines)
+    print("attn one fallback on fresh rows vs FP32: " + state["one_fallback_fp32"])
+
+
 def _attn_one_self_test(state):
     """The one-launch kernel on the shared attention cases against SGLang's path (the shared
     bounds) with the workspace invariant after every case, then the replay stress on decode 1
@@ -16593,6 +16677,11 @@ def _attn_one_self_test(state):
         t2 = time.time()
         msg = _one_stress(state, batch, length, layer, 2000, 8000 + i, ctx, expect)
         print(f"attn one: stress {batch}x{length} {layer} {msg} ({time.time() - t2:.1f} s)")
+    try:
+        _one_fallback_precision(state)
+    except Exception as exc:
+        state["one_fallback_fp32"] = f"failed: {type(exc).__name__}: {str(exc)[:200]}"
+        print(f"attn one fallback precision: {state['one_fallback_fp32']}")
 
 
 def _attn_path(cfg, state):
@@ -18124,6 +18213,7 @@ def _selection_summary(state):
     for key in ("tune m=1", "tune m=8"):
         lines.append(f"skp {key}: " + "; ".join(_SKP_REPORT.get(key, [])))
     lines.append("moe pdl " + state.get("moe1_pdl_report", "not run"))
+    lines.append("attn fallback vs fp32 " + state.get("one_fallback_fp32", "not run"))
     lines.append(f"m1 ok={int(bool(state.get('m1_ok')))} policy {state.get('m1_policy', {})}")
     for item in state.get("m1_report", []):
         lines.append("m1 " + item)
