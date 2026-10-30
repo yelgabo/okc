@@ -1,7 +1,7 @@
 """Apply the fresh-input replay gate to a layer file (user decision 2026-10-30, recorded in
 docs/runs-decode-layer.md and docs/release-manifest.md).
 
-    python3 tools/dl_gate_patch.py IN.py OUT.py [--m1]
+    python3 tools/dl_gate_patch.py IN.py OUT.py [--m1 [--m1-runtime]]
 
 Always: the MoE replay self-tests (_moe1_stress, _moe1_pdl_self_test) give every replay new
 inputs, compare each replay with that input's reference on the device, fail on any order-1
@@ -504,6 +504,35 @@ PRODUCER_NEW = '''    if (warp == NW) {
             bool dead = false;
             for (int st = npre; st < nst_tot; ++st) {'''
 
+# --m1-runtime: the PDL issue order (all first-ring weights before griddepcontrol.wait, x after
+# it) only for launches made as PDL secondaries; a plain launch in the SK_PDL build keeps the
+# release's order (stage 0 weights and x first) and skips the wait. Bench fdf75ba5a8124544
+# measured M1's 3-5 us whole-step saving cancelled by the SK_PDL build's cost with M1 off. The
+# flag rides in bit 30 of M, which is at most 32, so no launch_sk signature changes.
+RUNTIME_REPS = [
+    ("const int32_t* __restrict__ ptab, int pmax, uint32_t base4, int M, int N, int K, "
+     "int* __restrict__ diag,",
+     "const int32_t* __restrict__ ptab, int pmax, uint32_t base4, int Mf, int N, int K, "
+     "int* __restrict__ diag,", 1),
+    ("    using C = SkCfg<MT, TOKR, NT, NWR, WSK, UPW, NSTAGE, COMP, HL, NACC, CL, FUSE>;\n"
+     "    constexpr int NW = C::NW",
+     "    using C = SkCfg<MT, TOKR, NT, NWR, WSK, UPW, NSTAGE, COMP, HL, NACC, CL, FUSE>;\n"
+     "    const int M = Mf & 0x3fffffff;\n"
+     "    constexpr int NW = C::NW", 1),
+    ("    const int npre = PDL ? (nst_tot < NSTAGE ? nst_tot : NSTAGE) : 1;",
+     "    const bool pdl_run = PDL && (Mf >> 30) != 0;\n"
+     "    const int npre = pdl_run ? (nst_tot < NSTAGE ? nst_tot : NSTAGE) : 1;", 1),
+    ("    if (PDL && tid == 0) {", "    if (pdl_run && tid == 0) {", 1),
+    ("    if constexpr (PDL) {\n        // Every thread waits",
+     "    if (pdl_run) {\n        // Every thread waits", 1),
+    ("            if constexpr (PDL) {\n                // This thread",
+     "            if (pdl_run) {\n                // This thread", 1),
+    ("            C10_CUDA_CHECK(cudaLaunchKernelEx(&lc, kern, xmap, wsp, op, tp, pmax, base4, M, N, "
+     "K, diag, rws, rpart,",
+     "            C10_CUDA_CHECK(cudaLaunchKernelEx(&lc, kern, xmap, wsp, op, tp, pmax, base4,\n"
+     "                                              M | (1 << 30), N, K, diag, rws, rpart,", 1),
+]
+
 
 def cut(text, start, end, new):
     a = text.index(start)
@@ -528,6 +557,11 @@ def main():
             raise SystemExit("the sk producer loop is not where expected")
         text = text.replace(PRODUCER_OLD, PRODUCER_NEW)
         text = cut(text, "def _m1_stress(state):", "def _m1_enable(state):", M1_SRC)
+        if "--m1-runtime" in sys.argv:
+            for old, new, n in RUNTIME_REPS:
+                if text.count(old) != n:
+                    raise SystemExit(f"expected {n} of {old[:60]!r}, found {text.count(old)}")
+                text = text.replace(old, new)
     open(out, "w").write(text)
     print("wrote", out, len(text))
 

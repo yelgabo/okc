@@ -21,6 +21,19 @@ tolerances unchanged. Definition and thresholds: docs/runs-decode-layer.md, "Val
 change: fresh-input replay gate". The board entry below predates it and still carries the
 1e-4 bound; a file built with `tools/dl_gate_patch.py` carries the gate.
 
+## Candidate handed to the coordinator (2026-10-30): layer_g51 (not submitted)
+
+| field | value |
+|---|---|
+| file | `muse_decode_layer/cand/layer_g51.py`, SHA256 `c8a843cfea6c736e86f084bfa14be80f95bf545f801bc8a13135d5627f0ff4fb` |
+| made from | the board entry's file (b9c23bda) through `tools/dl_moe_inline.py` (LAYER_MODES + 51, `main-lean-grp-finss64`; inliner byte-identical on a second run) and `tools/dl_gate_patch.py` (fresh-input gate on `_moe1_stress` and `_moe1_pdl_self_test`), plus one header comment line |
+| build switches | as the board entry: `SK_PDL` 0, `ONE_TRIG` 0, no M1, `_ONE_PDL = False`, `MOE1_HELD = ()` |
+| check | a438b82ff2c141c2, **2.022x** (1.991-2.052), 13/13, failed 0, every MoE gate line order-1 free |
+| policies in that check | MoE sk8w3s 1 / 8 / 16, mode 51 at 32 / 128 / 256; fronts and attention as the board entry |
+| same-process timing | no bench of this exact file. Bench fdf75ba5a8124544 (the M1 measurement build, which differs from it at T <= 32 only) against the release: v16 -4.7 / -3.2 us, v32 +1.2 / -4.6, null within 0.6 of cand on those shapes; mode 51 is the only difference at 128 / 256 tokens |
+| what the gate change removes | the shipped 1e-4 replay bound dropped unused MoE variants on FP32-atomics noise twice (6372154fcd7a4fa9, 3e2aa83358dd4f60); with the gate, 0 variants dropped in a438b82ff2c141c2 and fdf75ba5a8124544 |
+| still on a 1e-4 replay bound (outside the approved scope) | `_route_variant_check` (dropped skf-r at T=1 in 60cf58b69b75491e, 1.3e-4), `_one_stress`, the norm and route side-stream tests |
+
 ## Current board entry: 3fbb3ad027e84c6b (2.014x)
 
 | field | value |

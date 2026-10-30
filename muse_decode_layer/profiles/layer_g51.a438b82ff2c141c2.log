@@ -1,0 +1,139 @@
+1 moe1_ok=1 router_ours=1 proj_ours=1 skp_ok=1 attn_one_ours=1 attn_ws_ours=1 attn_fused_ours=1 bnd_ours=1 abnd_ours=1 norm_ours=1 route_side_ok=1 route_ours=1
+SUMMARY proj qkv_gate T=128: b1n128c3s8h [b1n128c3s8h 19.6 b1n128c2s8h 23.7 cublas 24.5]
+SUMMARY proj pooler T=128: b1n128c2s8h [b1n128c2s8h 27.7 cublas 30.8 b1n128c3s8h 33.3]
+SUMMARY moe stress sk8w4s=ok sk16w4s=ok sk8w3s=ok sk8w4s-er=ok main-d2=ok main-m2-ar2-ub=ok main-dynb-fs=ok main-lean=ok main-lean-silu-bar=ok main-lean-grp-nohoist=ok main-lean-grp-finss64=ok
+SUMMARY skp selftest ok 29, cgemv ok on o,pooler,qkv_gate,unpooler
+SUMMARY skp tune m=1: qkv_gate cgemv:14.0 qkv8:15.9 qkv8raw:18.9; o cgemv:9.8 o8:10.6 o8raw:11.7; pooler cgemv:19.7 pool8:22.5 pool8raw:27.3; unpooler cgemv:8.1 sgemv:8.5 slice8:8.9
+SUMMARY skp tune m=8: qkv_gate qkv8:16.1 qkv8raw:19.5 proj_fwd:20.8; o o8:10.5 o8raw:11.6 cublas:12.0; pooler pool8:22.5 pool8raw:27.8 proj_fwd:29.9; unpooler slice8:9.0 slice8raw:9.3 proj_fwd:12.0
+SUMMARY moe pdl all ok
+SUMMARY moe gate sk8w4s 8+16+1+32+8 rel 8e-05/4e-05/2e-05/4e-05/5e-05|8e-05/5e-05/2e-05/4e-05/5e-05 el 5e-03|5e-03 >1e-4 0/2000|0/2000 o1 0|0
+SUMMARY moe gate sk16w4s 8+16+1+32+8 rel 8e-05/4e-05/2e-05/3e-05/3e-05|8e-05/4e-05/2e-05/3e-05/3e-05 el 5e-03|5e-03 >1e-4 0/2000|0/2000 o1 0|0
+SUMMARY moe gate sk8w3s 8+16+1+32+8 rel 8e-05/4e-05/2e-05/4e-05/5e-05|8e-05/5e-05/2e-05/4e-05/7e-05 el 5e-03|5e-03 >1e-4 0/2000|0/2000 o1 0|0
+SUMMARY moe gate sk8w4s-er 8+16+1+32+8 rel 8e-05/4e-05/2e-05/4e-05/7e-05|8e-05/5e-05/2e-05/4e-05/7e-05 el 5e-03|5e-03 >1e-4 0/2000|0/2000 o1 0|0
+SUMMARY moe gate main-d2 32+128+17+256 rel 7e-05/4e-05/6e-05/3e-05|7e-05/4e-05/6e-05/4e-05 el 5e-03|5e-03 >1e-4 0/2000|0/2000 o1 0|0
+SUMMARY moe gate main-m2-ar2-ub 32+128+17+256 rel 5e-05/5e-05/6e-05/4e-05|4e-05/5e-05/6e-05/4e-05 el 5e-03|5e-03 >1e-4 0/2000|0/2000 o1 0|0
+SUMMARY moe gate main-dynb-fs 32+128+17+256 rel 5e-05/4e-05/4e-05/4e-05|5e-05/4e-05/4e-05/4e-05 el 5e-03|5e-03 >1e-4 0/2000|0/2000 o1 0|0
+SUMMARY moe gate main-lean 32+128+17+256 rel 5e-05/4e-05/5e-05/4e-05|5e-05/4e-05/5e-05/4e-05 el 5e-03|5e-03 >1e-4 0/2000|0/2000 o1 0|0
+SUMMARY moe gate main-lean-silu-bar 32+128+17+256 rel 5e-05/4e-05/4e-05/4e-05|5e-05/4e-05/5e-05/4e-05 el 5e-03|5e-03 >1e-4 0/2000|0/2000 o1 0|0
+SUMMARY moe gate main-lean-grp-nohoist 32+128+17+256 rel 5e-05/4e-05/4e-05/3e-05|5e-05/4e-05/4e-05/4e-05 el 5e-03|5e-03 >1e-4 0/2000|0/2000 o1 0|0
+SUMMARY moe gate main-lean-grp-finss64 32+128+17+256 rel 5e-05/0e+00/4e-05/0e+00|5e-05/0e+00/4e-05/0e+00 el 4e-03|4e-03 >1e-4 0/2000|0/2000 o1 0|0
+SUMMARY moe pdl gate sk8w4s ok T8 rel 4e-05|4e-05 el 2e-03|2e-03 >1e-4 0/104|0/104 o1 0|0; T16 rel 3e-05|3e-05 el 3e-03|3e-03 >1e-4 0/104|0/104 o1 0|0
+SUMMARY moe pdl gate sk16w4s ok T8 rel 4e-08|4e-08 el 6e-06|6e-06 >1e-4 0/104|0/104 o1 0|0; T16 rel 4e-05|4e-05 el 3e-03|3e-03 >1e-4 0/104|0/104 o1 0|0
+SUMMARY moe pdl gate sk8w3s ok T8 rel 2e-09|2e-06 el 2e-07|2e-04 >1e-4 0/104|0/104 o1 0|0; T16 rel 2e-05|2e-05 el 2e-03|2e-03 >1e-4 0/104|0/104 o1 0|0
+SUMMARY moe pdl gate sk8w4s-er ok T8 rel 6e-06|3e-05 el 6e-04|2e-03 >1e-4 0/104|0/104 o1 0|0; T16 rel 9e-06|9e-06 el 1e-03|1e-03 >1e-4 0/104|0/104 o1 0|0
+SUMMARY moe pdl gate main-d2 ok T32 rel 7e-05|7e-05 el 4e-03|4e-03 >1e-4 0/104|0/104 o1 0|0; T128 rel 3e-05|3e-05 el 4e-03|4e-03 >1e-4 0/104|0/104 o1 0|0; T256 rel 3e-05|2e-05 el 5e-03|5e-03 >1e-4 0/104|0/104 o1 0|0
+SUMMARY moe pdl gate main-m2-ar2-ub ok T32 rel 4e-05|6e-05 el 4e-03|4e-03 >1e-4 0/104|0/104 o1 0|0; T128 rel 3e-05|3e-05 el 4e-03|4e-03 >1e-4 0/104|0/104 o1 0|0; T256 rel 3e-05|4e-05 el 5e-03|5e-03 >1e-4 0/104|0/104 o1 0|0
+SUMMARY moe pdl gate main-dynb-fs ok T32 rel 5e-05|5e-05 el 4e-03|4e-03 >1e-4 0/104|0/104 o1 0|0; T128 rel 4e-05|4e-05 el 4e-03|4e-03 >1e-4 0/104|0/104 o1 0|0; T256 rel 5e-05|5e-05 el 6e-03|6e-03 >1e-4 0/104|0/104 o1 0|0
+SUMMARY moe pdl gate main-lean ok T32 rel 9e-05|9e-05 el 5e-03|5e-03 >1e-4 0/104|0/104 o1 0|0; T128 rel 5e-05|5e-05 el 4e-03|4e-03 >1e-4 0/104|0/104 o1 0|0; T256 rel 4e-05|4e-05 el 5e-03|5e-03 >1e-4 0/104|0/104 o1 0|0
+SUMMARY moe pdl gate main-lean-silu-bar ok T32 rel 4e-05|4e-05 el 4e-03|4e-03 >1e-4 0/104|0/104 o1 0|0; T128 rel 5e-05|5e-05 el 5e-03|5e-03 >1e-4 0/104|0/104 o1 0|0; T256 rel 4e-05|3e-05 el 5e-03|5e-03 >1e-4 0/104|0/104 o1 0|0
+SUMMARY moe pdl gate main-lean-grp-nohoist ok T32 rel 3e-05|2e-05 el 3e-03|3e-03 >1e-4 0/104|0/104 o1 0|0; T128 rel 3e-05|3e-05 el 4e-03|4e-03 >1e-4 0/104|0/104 o1 0|0; T256 rel 4e-05|4e-05 el 5e-03|5e-03 >1e-4 0/104|0/104 o1 0|0
+SUMMARY moe pdl gate main-lean-grp-finss64 ok T32 rel 6e-05|6e-05 el 4e-03|5e-03 >1e-4 0/104|0/104 o1 0|0; T128 rel 0e+00|0e+00 el 0e+00|0e+00 >1e-4 0/104|0/104 o1 0|0; T256 rel 0e+00|0e+00 el 0e+00|0e+00 >1e-4 0/104|0/104 o1 0|0
+SUMMARY attn fallback vs fp32 1x1s ours 1.63e-03 sglang 5.21e-02 ours-vs-sglang 5.20e-02; 1x8s ours 3.63e-02 sglang 4.06e-02 ours-vs-sglang 3.09e-02; 1x1f ours 1.75e-03 sglang 6.75e-03 ours-vs-sglang 7.14e-03; 1x8f ours 1.76e-02 sglang 2.19e-02 ours-vs-sglang 1.46e-02
+SUMMARY moe T=1: sk8w3s [sk8w3s 33.6 sk8w4s 34.4 sk8w4s-er 35.0 sk16w4s 36.9 w4 44.8] judge-like routing, busiest expert [1, 1, 1, 1] w4 g1=27 g2=21 pdl=1 cl=4 front fp32
+SUMMARY moe T=8: sk8w3s [sk8w3s 68.6 sk8w4s 70.2 sk8w4s-er 70.7 sk16w4s 73.2 w4 78.9] judge-like routing, busiest expert [4, 2, 5, 4] w4 g1=26 g2=24 pdl=1 cl=1 front skf-r
+SUMMARY moe T=16: sk8w3s [sk8w3s 81.9 sk8w4s-er 84.8 sk8w4s 85.1 w4 87.7 sk16w4s 88.3] judge-like routing, busiest expert [13, 15, 13, 16] w4 g1=26 g2=28 pdl=1 cl=4 front skf-r
+SUMMARY moe T=32: main-lean-grp-finss64 [main-lean-grp-finss64 98.4 main-lean-grp-nohoist 98.7 main-lean-silu-bar 100.4 main-lean 101.2 main-dynb-fs 106.0 sk8w3s 109.6 sk8w4s 113.2 sk8w4s-er 114.2 w4 117.7 sk16w4s 119.2 main-d2 125.4 main-m2-ar2-ub 126.3] judge-like routing, busiest expert [28, 31, 30, 31] w4 g1=26 g2=28 pdl=1 cl=4 front skf-r
+SUMMARY moe T=128: main-lean-grp-finss64 [main-lean-grp-finss64 179.7 main-lean-grp-nohoist 184.8 main-lean-silu-bar 187.5 main-lean 190.1 main-dynb-fs 201.8 main-m2-ar2-ub 224.6 main-d2 228.9 w4 255.5 sk8w3s 279.3 sk8w4s 282.6 sk8w4s-er 294.6 sk16w4s 304.8] judge-like routing, busiest expert [84, 74, 82, 76] w4 g1=4 g2=29 pdl=1 cl=1 front concat-r
+SUMMARY moe T=256: main-lean-grp-finss64 [main-lean-grp-finss64 229.0 main-lean-grp-nohoist 232.4 main-lean-silu-bar 236.3 main-lean 240.0 main-dynb-fs 248.3 main-m2-ar2-ub 275.5 main-d2 285.2 w4 376.7 sk8w3s 460.6 sk8w4s 463.6 sk8w4s-er 486.9 sk16w4s 501.7] judge-like routing, busiest expert [159, 153, 159, 154] w4 g1=30 g2=29 pdl=1 cl=1 front concat-r
+SUMMARY front T=1 (front / front+moe us): fp32 25.2/59.6 skf-r 30.8/62.8 skf 30.0/63.3
+SUMMARY front T=8 (front / front+moe us): skf-r 31.4/96.6 skf 30.0/96.8 fp32 38.0/105.5
+SUMMARY front T=16 (front / front+moe us): skf-r 31.4/118.4 skf 30.8/119.0 concat-r 37.5/124.0 mma 35.4/125.2 concat 38.2/126.3 split 41.7/130.7
+SUMMARY front T=32 (front / front+moe us): skf-r 33.0/149.7 skf 32.4/152.1 concat-r 37.5/153.8 concat 38.7/159.1 mma 37.8/161.1 split 42.1/166.1
+SUMMARY front T=128 (front / front+moe us): concat-r 38.5/220.9 concat 40.0/222.8 wide 42.1/237.0 split 47.5/241.8
+SUMMARY front T=256 (front / front+moe us): concat-r 44.9/276.9 concat 45.9/280.6 split 60.4/299.2
+SUMMARY abnd occupancy (CTAs/SM, resident clusters) c8x256=8,124 c2x512=2,132 c4x256=5,154 c1x256=3,396 c1x512=2,264 c1x1024=1,132
+SUMMARY abnd T=1: c8x256 [c8x256 14.05 c1x1024 14.30 sglang 14.75 c2x512 15.01 c1x512 15.07 c4x256 15.10 c1x256 16.48]
+SUMMARY abnd T=8: c8x256 [c8x256 14.91 c1x1024 15.01 c4x256 15.52 c2x512 15.58 c1x512 15.84 sglang 15.94 c1x256 16.99]
+SUMMARY abnd T=16: sglang [sglang 14.11 c1x1024 14.34 c8x256 14.94 c1x512 15.30 c4x256 15.58 c2x512 15.62 c1x256 16.54]
+SUMMARY abnd T=32: sglang [sglang 14.91 c1x1024 15.14 c8x256 15.68 c1x512 15.68 c4x256 16.42 c2x512 16.61 c1x256 17.09]
+SUMMARY abnd T=128: sglang [sglang 17.86 c1x1024 18.53 c1x512 18.85 c2x512 19.65 c4x256 19.74 c1x256 20.06 c8x256 22.72]
+SUMMARY abnd T=256: c1x512 [c1x512 22.53 sglang 22.62 c1x256 23.39 c1x1024 24.00 c2x512 26.30 c4x256 26.56 c8x256 29.34]
+SUMMARY attn d1 sliding: attn_one plan(splits,nc,mode)=(32, 1, 13)
+SUMMARY attn d1 full: attn_one plan(splits,nc,mode)=(252, 8, 11)
+SUMMARY attn d16 sliding: attn_one plan(splits,nc,mode)=(16, 1, 1)
+SUMMARY attn d16 full: attn_one plan(splits,nc,mode)=(264, 1, 49)
+SUMMARY attn d32 sliding: attn_one plan(splits,nc,mode)=(8, 1, 1)
+SUMMARY attn d32 full: attn_one plan(splits,nc,mode)=(264, 1, 49)
+SUMMARY attn v1 sliding: attn_one plan(splits,nc,mode)=(33, 1, 15)
+SUMMARY attn v1 full: attn_one plan(splits,nc,mode)=(252, 8, 11)
+SUMMARY attn v16 sliding: attn_one plan(splits,nc,mode)=(8, 1, 3)
+SUMMARY attn v16 full: attn_one plan(splits,nc,mode)=(264, 1, 51)
+SUMMARY attn v32 sliding: attn_one plan(splits,nc,mode)=(4, 1, 3)
+SUMMARY attn v32 full: attn_one plan(splits,nc,mode)=(264, 1, 51)
+SUMMARY failed 0: none
+USDT:2026-10-30 02:32:53 77:77 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-10-30 02:32:53 77:77 SyncActivityProfilerHandler.cpp:46] profiler_stop
+TL v16s: span 376.0 us (replays 7: 284.7 290.0 375.4 376.0 376.6 377.1 378.3), device busy 360.5, idle 15.5, kernel sum 363.9
+TL v16s s0    0.0   16.4  16.4 st-gap  0.0 dev-gap  0.0 wd_kernel<1, 128, 3, 1, false, 8, __nv_bfloa
+TL v16s s0   16.8   28.3  11.5 st-gap  0.4 dev-gap  0.4 one::attn_one_kernel<8, 3>(one::Params)
+TL v16s s0   28.7   37.5   8.8 st-gap  0.4 dev-gap  0.4 nvjet_sm90_tst_128x64_64x8_1x2_h_bz_TNT
+TL v16s s0   38.1   43.1   4.9 st-gap  0.7 dev-gap  0.7 sglang::muse_spark_norm_residual_kernel<8192
+TL v16s s0   43.5   71.4  27.9 st-gap  0.4 dev-gap  0.4 nvjet_sm90_tss_96x64_64x10_4x2_h_bz_TNN
+TL v16s s0   71.4   76.4   5.0 st-gap  0.0 dev-gap  0.0 route_kernel<float, true>(float const*, long
+TL v16s s0   73.0  255.9 182.9 st-gap -3.4 dev-gap  0.0 moe1::moe_main_kernel<51>(moe1::Params)
+TL v16s s0  256.4  277.9  21.5 st-gap  0.5 dev-gap  0.5 nvjet_sm90_tst_128x64_64x8_1x2_h_bz_TNT
+TL v16s s0  278.0  283.0   5.0 st-gap  0.1 dev-gap  0.1 sglang::muse_spark_norm_residual_kernel<8192
+TL v16s s0  295.9  376.0  80.2 st-gap 12.9 dev-gap 12.9 at::native::vectorized_elementwise_kernel<8,
+USDT:2026-10-30 02:32:53 77:77 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-10-30 02:32:53 77:77 SyncActivityProfilerHandler.cpp:46] profiler_stop
+TL v16f: span 454.2 us (replays 7: 359.8 366.1 452.6 454.2 454.4 456.4 457.3), device busy 438.2, idle 16.0, kernel sum 441.4
+TL v16f s0    0.0   16.1  16.1 st-gap  0.0 dev-gap  0.0 wd_kernel<1, 128, 3, 1, false, 8, __nv_bfloa
+TL v16f s0   16.5  118.4 101.9 st-gap  0.4 dev-gap  0.4 one::attn_one_kernel<8, 51>(one::Params)
+TL v16f s0  119.0  126.6   7.6 st-gap  0.6 dev-gap  0.6 nvjet_sm90_tst_128x64_64x8_1x2_h_bz_TNT
+TL v16f s0  127.2  131.6   4.4 st-gap  0.6 dev-gap  0.6 sglang::muse_spark_norm_residual_kernel<8192
+TL v16f s0  132.0  157.9  25.9 st-gap  0.4 dev-gap  0.4 nvjet_sm90_tss_96x64_64x10_4x2_h_bz_TNN
+TL v16f s0  158.0  162.7   4.7 st-gap  0.1 dev-gap  0.1 route_kernel<float, true>(float const*, long
+TL v16f s0  159.4  333.7 174.3 st-gap -3.2 dev-gap  0.0 moe1::moe_main_kernel<51>(moe1::Params)
+TL v16f s0  334.3  355.8  21.5 st-gap  0.6 dev-gap  0.6 nvjet_sm90_tst_128x64_64x8_1x2_h_bz_TNT
+TL v16f s0  355.8  360.8   4.9 st-gap  0.0 dev-gap  0.0 sglang::muse_spark_norm_residual_kernel<8192
+TL v16f s0  374.0  454.2  80.2 st-gap 13.2 dev-gap 13.2 at::native::vectorized_elementwise_kernel<8,
+USDT:2026-10-30 02:32:53 77:77 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-10-30 02:32:53 77:77 SyncActivityProfilerHandler.cpp:46] profiler_stop
+TL d32s: span 279.8 us (replays 7: 185.9 193.4 277.6 279.8 279.9 280.2 282.6), device busy 263.3, idle 16.4, kernel sum 266.6
+TL d32s s0    0.0   13.6  13.6 st-gap  0.0 dev-gap  0.0 sk_kernel<2, 32, 3, 1, 4, 2, 4, true, false,
+TL d32s s0   14.1   26.2  12.1 st-gap  0.4 dev-gap  0.4 one::attn_one_kernel<1, 1>(one::Params)
+TL d32s s0   26.6   33.6   7.0 st-gap  0.4 dev-gap  0.4 sk_kernel<2, 32, 2, 2, 2, 2, 3, true, false,
+TL d32s s0   34.2   38.2   4.0 st-gap  0.6 dev-gap  0.6 sglang::muse_spark_norm_residual_kernel<8192
+TL d32s s0   38.7   59.1  20.5 st-gap  0.5 dev-gap  0.5 sk_kernel<2, 32, 2, 2, 2, 4, 3, true, false,
+TL d32s s0   59.6   64.2   4.7 st-gap  0.4 dev-gap  0.4 route_kernel<__nv_bfloat16, false>(float con
+TL d32s s0   61.0  165.4 104.4 st-gap -3.2 dev-gap  0.0 moe1::moe_main_kernel<51>(moe1::Params)
+TL d32s s0  166.0  181.9  15.9 st-gap  0.6 dev-gap  0.6 sk_kernel<2, 32, 2, 2, 2, 2, 3, true, false,
+TL d32s s0  182.6  187.0   4.4 st-gap  0.8 dev-gap  0.8 sglang::muse_spark_norm_residual_kernel<8192
+TL d32s s0  199.7  279.8  80.1 st-gap 12.7 dev-gap 12.7 at::native::vectorized_elementwise_kernel<8,
+USDT:2026-10-30 02:32:53 77:77 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-10-30 02:32:53 77:77 SyncActivityProfilerHandler.cpp:46] profiler_stop
+TL d32f: span 437.0 us (replays 7: 343.8 349.2 436.8 437.0 437.4 438.7 439.5), device busy 420.7, idle 16.3, kernel sum 424.3
+TL d32f s0    0.0   14.8  14.8 st-gap  0.0 dev-gap  0.0 sk_kernel<2, 32, 3, 1, 4, 2, 4, true, false,
+TL d32f s0   15.4  186.9 171.5 st-gap  0.7 dev-gap  0.7 one::attn_one_kernel<1, 49>(one::Params)
+TL d32f s0  187.5  193.3   5.8 st-gap  0.6 dev-gap  0.6 sk_kernel<2, 32, 2, 2, 2, 2, 3, true, false,
+TL d32f s0  194.1  197.8   3.7 st-gap  0.8 dev-gap  0.8 sglang::muse_spark_norm_residual_kernel<8192
+TL d32f s0  198.2  219.3  21.1 st-gap  0.4 dev-gap  0.4 sk_kernel<2, 32, 2, 2, 2, 4, 3, true, false,
+TL d32f s0  219.4  224.4   5.1 st-gap  0.1 dev-gap  0.1 route_kernel<__nv_bfloat16, false>(float con
+TL d32f s0  220.8  323.9 103.1 st-gap -3.6 dev-gap  0.0 moe1::moe_main_kernel<51>(moe1::Params)
+TL d32f s0  324.7  339.6  14.9 st-gap  0.7 dev-gap  0.7 sk_kernel<2, 32, 2, 2, 2, 2, 3, true, false,
+TL d32f s0  339.6  344.2   4.5 st-gap  0.0 dev-gap  0.0 sglang::muse_spark_norm_residual_kernel<8192
+TL d32f s0  357.1  437.0  79.8 st-gap 13.0 dev-gap 13.0 at::native::vectorized_elementwise_kernel<8,
+USDT:2026-10-30 02:33:43 77:77 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-10-30 02:33:43 77:77 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-10-30 02:33:43 77:77 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-10-30 02:33:43 77:77 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-10-30 02:33:43 77:77 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-10-30 02:33:43 77:77 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-10-30 02:33:43 77:77 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-10-30 02:33:43 77:77 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-10-30 02:33:43 77:77 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-10-30 02:33:43 77:77 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-10-30 02:33:43 77:77 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-10-30 02:33:43 77:77 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-10-30 02:33:43 77:77 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-10-30 02:33:43 77:77 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-10-30 02:33:43 77:77 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-10-30 02:33:43 77:77 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-10-30 02:33:43 77:77 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-10-30 02:33:43 77:77 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-10-30 02:33:43 77:77 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-10-30 02:33:43 77:77 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-10-30 02:33:43 77:77 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-10-30 02:33:43 77:77 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-10-30 02:33:43 77:77 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-10-30 02:33:43 77:77 SyncActivityProfilerHandler.cpp:46] profiler_stop
