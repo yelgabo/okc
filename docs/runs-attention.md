@@ -2577,6 +2577,16 @@ copy group is committed per tile, as before, so `wait_group 1` covers the same c
    no serialization.
 5. TCHK: registers and a warp vote only.
 
+Independent read-only review (fresh agent, 10-30, during check 1, source only): **sound** for
+every bit and combination; no fence, barrier, cp.async wait or commit, or wgmma fence / commit /
+wait dropped or moved across a barrier; per-CTA output expected bitwise equal. Caveats: (a) TCHK's
+equivalence needs sl2k = sl2 x k_scale > 0, and k_scale is a device input (the task's scales are
+1 or 1/64, so it holds on every scored and tested case; a negative scale would make the vote and
+the judged test disagree); (b) SPV relies on ptxas leaving pa[0] and o untouched while the first
+group is in flight, which only the absence of C75xx warnings shows (none in the PRQ 8 and 31
+builds above). Also noted: the V^T WAR in point 1 rests on the (it & 1) double buffer, and FAST,
+like PFAST, assumes cache row indices below 2^25 (`off32`).
+
 ### Gate for check 1 (written before the bench that tests it)
 
 Bench `bench_g` (`tools/attn_make_bench_ab.py`, scratchpad `prq/gen_g.sh`; `--pub <0e9d4c78>
@@ -2605,3 +2615,64 @@ as built, a row in docs/ruled-out.md, and the round turns to the placement side 
 
 Scorecard (no gate): pub - ctrl per row against both nulls, re-ranked by value (difference x
 sensitivity), to name what is left after this change.
+
+### Check a7a4c23e98ca484a (bench `bench_g`, generator and kernel at 1baad66): the ladder passes; p31 to confirmation
+
+| date | job | commit | file | result | notes |
+|---|---|---|---|---|---|
+| 2026-10-30 | a7a4c23e98ca484a (check) | 1baad66 | bench `bench_g` (`prq/gen_g.sh`, 9 arms) | 2.511x (CI 2.473-2.561) judged path = board code, 16/16 tests, ABCHECKSUM 19/0 every arm | p31 G = +0.86% (null ctrl2 -0.11%); public lead on those rows 0.91% |
+
+Profiles: `muse_attention_decode/profiles/bench_g.a7a4c23e98ca484a.*` (the per-element ABCHECK
+lines were cut by the 16,000-character tail; ABCHECKSUM, ABSUM, ABIN and ABSCORE survived).
+Cold medians pooled over two held-out inputs, arm - ctrl in us (the ladder shares ctrl's state;
+its q_len 1 and flat rows run code SASS-identical to ctrl, so they show this run's noise):
+
+| row | ctrl | ctrl2 - ctrl | pub - ctrl | pub2 - ctrl | p1 | p3 | p7 | p15 | p31 |
+|---|---|---|---|---|---|---|---|---|---|
+| v1 sliding | 11.23 | +0.07 | -0.06 | -0.13 | -0.03 | -0.13 | +0.00 | +0.03 | -0.13 |
+| v1 full | 19.62 | +0.00 | -0.80 | -0.84 | -0.13 | -0.26 | -0.42 | -0.55 | **-0.64** |
+| v16 sliding | 16.00 | +0.00 | -0.45 | -0.48 | +0.03 | -0.10 | -0.32 | -0.35 | **-0.45** |
+| v32 sliding | 20.86 | +0.04 | -1.34 | -1.50 | +0.10 | -0.16 | -0.57 | -0.80 | **-0.96** |
+| G (four rows) | | -0.11% | +0.91% | +1.08% | +0.08% | +0.38% | +0.44% | +0.52% | **+0.86%** |
+| ABSCORE (all rows) | | 1.0006 | 1.0168 | 1.0163 | 0.9998 | 1.0019 | 1.0033 | 1.0039 | 1.0059 |
+
+Per-step value (G differences along the ladder): TOV +0.08%, QKF +0.30%, FAST +0.06%, SPV
++0.08%, TCHK +0.34%. Every step is positive. Q.K-first, the step that lost in bf6b8ca9e37341fb's
+kernel generation, is now the second largest. TCHK's size is measured, not explained: it removes
+the four quad-max shuffles per tile from the critical path between the Q.K wait and the exponentials.
+
+Gate: 1 holds (19/0 for every arm, workspace check inside PASS; per-element detail cut, as in
+the two rounds before); 2 holds for p31 (0.86% >= 0.30% and > 0.11% + 0.10%), also for p3, p7 and
+p15; 3 holds for p31 (same sign on both inputs: v1 full -0.61 / -0.64, v16 sliding -0.38 / -0.54,
+v32 sliding -1.02 / -0.93, v1 sliding -0.03 / -0.03); 4 holds (no row beyond its bound; the largest
+is v32 full +0.32 us on unchanged flat code, under ctrl2's +0.99). Choice: p31 (largest G, every
+step above 0.05%). On these four rows p31 closes 0.86 of the public kernel's 0.91% lead.
+
+Compact scorecard (pub - ctrl, cold, value = difference x sensitivity; d1 full carries the
+placement term): d1 full -0.61 (0.36%), d1 sliding -0.20 (0.34%), v1 full -0.80 (0.40%), v16 full
+-2.44 (0.30%), v32 sliding -1.34 (0.28%), v16 sliding -0.45 (0.16%), d16 full -0.83 (0.12%), d32 full
+-1.38 (0.12%), v1 sliding -0.06 (0.09%), d16 sliding -0.19 (0.08%), d32 sliding +0.09, v32 full +0.16.
+ABSCORE pub 1.0168 / pub2 1.0163 against ctrl: the public lead is down to about 1.7% (3.6% in
+5575e7d15d3e49a8 before HMRG). After p31 the per-request q_len 8 rows leave about 0.06%; what
+remains sits in d1 (full and sliding, 0.7% together, partly placement) and the flat full rows
+(v16 full 0.30%, d16 / d32 full 0.12% each).
+
+### Gate for check 2 (confirmation, written before the bench)
+
+Bench `bench_h` (`prq/gen_h.sh`; `--pub <0e9d4c78> --null --shapes all --inputs 2 --seed
+20261038`): arms `ctrl`, `ctrl2`, `pub`, `pub2`, `p31` (`-DONE_PRQ=31`, ctrl's state), `p31own`
+(same build, own state), and the placement side bet on the control module (no compile): `n3`
+(own state, a third null allocation), `k1` and `k2` (own state, `:pick=3`: `_ONE_WS_PICK = 3`,
+three candidate workspaces timed on synthetic batch-1 full inputs at state creation, the fastest
+kept; ABADDR prints each pick and its candidates' medians).
+
+PRQ=31 is confirmed if clauses 1, 2 and 4 of the check-1 gate hold for `p31` again, clause 3 holds
+on v1 full, v16 sliding and v32 sliding from ABIN, and `p31own`'s G is above 0.30% as well (the
+gain does not depend on ctrl's workspace). Then a judged check of submission.py with `ONE_PRQ`
+defaulting to 31.
+
+Placement is a production candidate only if: the non-pick states (ctrl, ctrl2, n3) spread by
+more than 0.3 us at d1 full (a slow placement occurred), both pick arms sit within 0.15 us of the
+fastest non-pick state at d1 full on both inputs, and no row of k1 / k2 is slower than ctrl beyond
+the check-1 clause-4 bound. If no slow state occurs among the nulls, the result is inconclusive,
+not a win. The pick's cost at state creation (allocation plus 2 x 3 x 9 cold launches) is logged.

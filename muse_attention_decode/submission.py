@@ -6033,6 +6033,67 @@ _ONE_Q8_PROD = True
 # 318ae6fc3c3746ce timed the first-allocated workspace 0.45-0.7 us slower at batch-1 full than
 # later, independently allocated ones (docs/runs-attention.md, 10-30).
 _ONE_WS_CARVE = 0
+# Candidate workspaces timed at state creation (0 or 1 = take the first allocation). The batch-1
+# full-context plans put all their reds and counters on 128 (q_len 1) or 1024 (q_len 8) rows,
+# and four benches timed independently allocated workspaces 0.5-0.7 us apart at decode 1 full on
+# identical code, with the offset inside an allocation, capture order and allocation order ruled
+# out (b7762d764d474eae): physical placement, which a process can only choose by trying.
+_ONE_WS_PICK = 0
+_ONE_WS_PICK_ROUNDS = 9
+
+
+def _one_ws_alloc(device):
+    return (torch.zeros((_ONE_WS_ROWS, 64), dtype=torch.float32, device=device),
+            torch.zeros((_ONE_WS_ROWS,), dtype=torch.float32, device=device),
+            torch.zeros((_ONE_CNT_INTS,), dtype=torch.int32, device=device))
+
+
+def _one_ws_pick(st, device):
+    """Keep the candidate workspace on which the two batch-1 full-context plans run fastest:
+    median of cold-L2 launches on synthetic inputs (shapes of the scored case, no input values
+    of any call), the candidates interleaved within each round."""
+    cands = [(st["acc"], st["l"], st["cnt"])]
+    cands += [_one_ws_alloc(device) for _ in range(_ONE_WS_PICK - 1)]
+    gen = torch.Generator(device=device).manual_seed(20261030)
+    seq = 80000
+    datas = []
+    for length in (1, 8):
+        width = seq + length
+        kv = (torch.randn((width, 1, 2, 64), generator=gen, device=device) * 0.5).to(FP8)
+        datas.append({
+            "config": {"batch": 1, "q_len": length, "num_q_heads": 16, "num_kv_heads": 2,
+                       "head_dim": 64, "page_size": 1, "window": 0, "rope_theta": 0.0,
+                       "qk_scale_factor": 1.0, "sm_scale": 0.125, "kv_scale": 1.0},
+            "qkv": torch.randn((1, length, 2304), generator=gen, device=device)
+                        .to(torch.bfloat16),
+            "page_table": torch.arange(width, dtype=torch.int32, device=device).view(1, width),
+            "seq_lens": torch.tensor([seq], dtype=torch.int32, device=device),
+            "cache_loc": torch.arange(seq, width, dtype=torch.int64, device=device),
+            "k_cache": kv, "v_cache": kv.clone(),
+            "k_scale": torch.ones((), dtype=torch.float32, device=device),
+            "v_scale": torch.ones((), dtype=torch.float32, device=device),
+        })
+    flush = torch.empty(64 << 22, dtype=torch.uint8, device=device)
+    times = [[] for _ in cands]
+    ev = [torch.cuda.Event(enable_timing=True) for _ in range(2)]
+    for _ in range(_ONE_WS_PICK_ROUNDS):
+        for i, (acc, lsum, cnt) in enumerate(cands):
+            st["acc"], st["l"], st["cnt"] = acc, lsum, cnt
+            total = 0.0
+            for data in datas:
+                flush.zero_()
+                ev[0].record()
+                _one(data)
+                ev[1].record()
+                torch.cuda.synchronize(device)
+                total += ev[0].elapsed_time(ev[1])
+            times[i].append(total)
+    med = [sorted(t)[len(t) // 2] * 1000.0 for t in times]
+    best = min(range(len(cands)), key=lambda i: med[i])
+    st["acc"], st["l"], st["cnt"] = cands[best]
+    st["ws_pick"] = (best, med)
+    print("attn one workspace pick: candidate %d of %d, medians %s us (d1 + v1 full, cold)"
+          % (best, len(cands), " ".join(f"{m:.2f}" for m in med)), flush=True)
 
 
 def _one_state(device):
@@ -6048,9 +6109,7 @@ def _one_state(device):
             lsum = raw[o + n_acc:o + n_acc + n_l].view(torch.float32)
             cnt = raw[o + n_acc + n_l:].view(torch.int32)
         else:
-            acc = torch.zeros((_ONE_WS_ROWS, 64), dtype=torch.float32, device=device)
-            lsum = torch.zeros((_ONE_WS_ROWS,), dtype=torch.float32, device=device)
-            cnt = torch.zeros((_ONE_CNT_INTS,), dtype=torch.int32, device=device)
+            acc, lsum, cnt = _one_ws_alloc(device)
         lim = _ONE.attn_one_prepare()
         coop = bool(_ONE.attn_one_probe_coop()) if _ONE_COOP_LAUNCH else False
         resident = {}
@@ -6061,6 +6120,8 @@ def _one_state(device):
             resident[(length, mode)] = res if (coop or not mode & 2) else max(0, res - per_sm)
         st = _ONE_STATE[device] = {"acc": acc, "l": lsum, "cnt": cnt, "resident": resident,
                                    "coop_launch": coop, "limits": list(lim)}
+        if _ONE_WS_PICK > 1:
+            _one_ws_pick(st, device)
     return st
 
 
