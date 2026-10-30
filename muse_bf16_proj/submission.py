@@ -1140,10 +1140,13 @@ def sk_source(device_only=False):
            .replace("@@INSTANCES@@", "namespace {\n" + inst + "\n}"))
     if not device_only:
         return src
-    ginst = "".join(
-        f"template void cgemv_launch<{nth}, {cpt}>(const uint4*, const int2*, int, unsigned, "
-        f"const __nv_bfloat16*, __nv_bfloat16*, int, cudaStream_t);\n"
-        for nth, cpt in ((256, 2), (64, 1), (512, 1), (128, 2)))
+    # Parameter types and (NTH, CPT) pairs come from the source so the instantiations cannot go
+    # stale when cgemv_launch changes (they did once: a const uint4* stream argument).
+    import re
+    params = re.search(r"void cgemv_launch\(([^)]*)\)", GEMV_CUDA_SRC).group(1)
+    ptypes = ", ".join(re.sub(r"\s*\b\w+$", "", p.strip()) for p in params.split(","))
+    pairs = sorted({(int(a), int(b)) for a, b in re.findall(r"CGEMV_CASE\((\d+), (\d+)\)", GEMV_CUDA_SRC)})
+    ginst = "".join(f"template void cgemv_launch<{nth}, {cpt}>({ptypes});\n" for nth, cpt in pairs)
     gemv = GEMV_CUDA_SRC.replace("}  // namespace", ginst + "}  // namespace", 1)
     return "#define SK_DEVICE_ONLY 1\n#define GEMV_DEVICE_ONLY 1\n" + src + gemv + wd_source()
 
