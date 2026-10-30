@@ -4,6 +4,23 @@ This is the stable entry point for steering reports across research, implementat
 and coordinator sessions. The user requested on 2026-10-29 that every project-steering
 report be checked into this repository so other sessions can read it.
 
+## Latest standalone decision: attention and projection research roadmaps
+
+**[2026-10-30: Standalone attention and projection — widen the search](2026-10-30-attention-projection-standalone-roadmap.md)**
+
+Evidence inspected through `a48edef` (preceded by `a2bdd7e`). The user explicitly wants better
+standings on both component problems, not only layer improvements. For these two owners,
+standalone promotion and layer integration are separate gates; the older layer-only priority
+must not veto a standalone winner. Current board ranks/quotas were not queried in this audit.
+
+Attention: complete standalone scorecard, then a true cross-tile overlap prototype; resource
+co-design and a reduction-ownership challenger are conditional follow-ups. Projection: compare
+the actual current portfolio with an independent reference, especially router and high-token
+library algorithms; then choose a bounded compressed qkv split-K or lossless WGMMA prototype.
+The existing CUTLASS pooler, wide 8-stage picks, DCARRY/PK16/VHOIST and failed local sweeps
+are explicitly accounted for. No kernels, validation policies, GPU runs or submissions changed.
+This is separate from the layer's M1/tuner-stability work below.
+
 ## Latest hourly report, 00:32
 
 **[2026-10-30 00:32 PDT: Scored M1 candidates leave gains unresolved](2026-10-30-0032-performance-review.md)**
@@ -111,7 +128,7 @@ M1 overlap fails replay correctness before timing.
 
 **[2026-10-29 16:27 PDT: Staged retest and assembled layer bundle](2026-10-29-1627-performance-review.md)**
 
-Evidence snapshot `f61d8d9`. No new timing result. B's revisit trigger is met; combined
+Evidence snapshot `f61d8d9`. B's revisit trigger is met; combined
 A/E and projection bundle `b694b4a` is assembled but unjudged. PDL overlap is compile-gated only.
 
 ## Previous hourly report, 14:25
@@ -145,7 +162,7 @@ exhausted at capture; scored runs require explicit user approval.
 
 ## Previous hourly report, 13:27
 
-**[2026-10-29 13:27 PDT: Projection context and unchanged families](2026-10-29-1327-performance-review.md)**
+**[2026-10-29 13:27 PDT: Projection context and unchanged family standings](2026-10-29-1327-performance-review.md)**
 
 Evidence snapshot `615539c`. New single-token projection gains await layer integration;
 A-E standings are unchanged. Local commit under the hourly automation's no-push rule.
@@ -187,6 +204,7 @@ recommendations, not execution of those tasks; check current code and run logs f
 
 | Report | Evidence snapshot | Scope |
 |---|---|---|
+| [2026-10-30 standalone attention/projection roadmap](2026-10-30-attention-projection-standalone-roadmap.md) | `a48edef`; component sources/logs and public archived references | Independent standalone scorecards and promotion gates; cross-tile attention, resource/reduction challengers; router/Lt portfolio, compressed qkv split-K, lossless WGMMA |
 | [2026-10-29 course check: validation and prefetch](2026-10-29-course-check-validation-prefetch.md) | `b41cb8d`; release `3fbb3ad027e84c6b` | Keep release; mode-51 integration; isolate MoE prefetch; stage-level M1 validation; reconcile smaller 32-token MoE gap |
 | [2026-10-30 layer release and attribution](2026-10-30-layer-release-attribution.md) | branch `worktree-agent-a39812d9e0cf11e26` after `fa7200c`; scored `3fbb3ad027e84c6b` | Clean release manifest, mode 47 isolation, M1 fresh-input diagnosis, verify 1 / decode 32 exposed-time attribution against the public layer |
 | [2026-10-29 post-reset release steering](2026-10-29-post-reset-release-steering.md) | `283e348`; release `edd71d3152a946fe` | Separate release/experimental HEAD, clean mode-47/projection test, M1 validation diagnosis, same-process verify-1/decode-32 attribution; staged retest completed |
