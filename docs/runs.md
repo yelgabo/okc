@@ -1136,3 +1136,5 @@ The barrier costs more on the judge at m = 128 than the in-process bench suggest
 against about +0.3): it makes every CTA wait for the slowest one in its cluster. At m = 256 the
 remaining KLUE gain is gone, and at m = 32 nothing is left either. Scores: 1.495 / 1.496,
 against 1.484 / 1.508 for the non-conforming file, which is inside run noise.
+
+Scored 2026-10-30: d59bc7af342a465d 1.4879x, submission.py at ce25f67 (round 2: rt small router, KLUE wd router with conforming exit cluster barriers, stable cuBLASLt picks), submitted by the coordinator. Board entry before: 1d277e7fe9c44712 (1.4818x).
