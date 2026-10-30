@@ -91,6 +91,7 @@ SGLang with its 95% interval. Profiles and logs are in `muse_moe_w4a16/profiles/
 | 2026-10-30 | 7063f86352344efa (check, bench file from tools/moe_make_bench_ab.py --base=51 --sizes=128,256 --routings=layer --skew=1, seeds 1-6, not committed) | e866c8a | re-measurement on 51 to pick the x gather or the warpgroup skew (twins 55, 56; rule set in e866c8a before the submit) | 2.210x (2.176-2.243) | passed; spin flags 0. Gather piece (start minus route) 51 / public: 6.8 / 3.6 us at 128, 8.3 / 4.9 at 256 (+3.2 / +3.4); thread 0 stores 1.7 / 5.6, fences and barrier 4.3 / 2.1, release 0.6 / 0.5. Skew bound for per-warpgroup slots (trailing warpgroup, A + B): 0.45 / 1.07 us; trailing warpgroup persistence 0.79-0.87. Public minus 51 -9.1 / -14.0 us (6 of 6). Decision: the gather. Section "The x gather or the warpgroup skew" |
 | 2026-10-30 | e7e75c9510994c08 (check, bench file from tools/moe_make_bench_ab.py --base=51 --sizes=32,128,256 --routings=layer --seeds=41,42,43,44,45,46 o57=57 o59=59, not committed) | fca2be7 | diagnostic of modes 57 (x rows loaded under the routing work plus 16-byte gather stores) and 59 (the early loads alone) | 2.207x (2.173-2.240) | passed; spin flags 0. Minus 51 at 32 / 128 / 256: 57 +1.2 / +1.1 / +1.2 us (0 of 6 lower each), 59 -0.0 / +0.6 / -0.3 (2, 1, 5 of 6). Thread 0's gather 0.8-1.8 us shorter (58 vs 55) but the first job's x ready only 0.2-0.6 us earlier. Not gated; docs/ruled-out.md |
 | 2026-10-30 | 3d8902381a194d56 (check, bench file from tools/moe_make_bench_ab.py --score=1 --sizes=1,8,16,32,128,256 --seeds=301-310, not committed) | this branch (tool only) | standalone scorecard: the shipped dispatch against the public file's whole dispatch, two independent prepares per side, std routing, seeded shuffled order | 2.211x (2.177-2.244) | passed; spin flags 0; policy sk8w3s at 1-32, 51 at 128 / 256 in both prepares. Public minus ours, us (10 seeds): +1.37 / -0.80 / +0.04 / -1.54 (sd 8.0, bimodal) / -9.60 / -14.92 at 1 / 8 / 16 / 32 / 128 / 256; nulls within 0.3 (ours) and 0.75 (public). Value if closed: 256 +1.12%, 128 +0.86%, 8 +0.21%, 32 +0.19%. Section "Standalone scorecard against the public kernel" |
+| 2026-10-30 | 48b9bf9d77d146ac (check, bench file from tools/moe_make_bench_ab.py --base=51 --sizes=32,128,256 --routings=layer,std --seeds=47,48,49,50,51,52 o60=60, not committed) | 003be4b | diagnostic of mode 60 (51 without the gather's per-thread __threadfence; proxy fence, barrier and releases kept) with gather stamps (61 against 55) | 2.205x (2.172-2.238) | passed; spin flags 0. 60 minus 51 at 32 / 128 / 256: layer -0.3 / -0.4 / +0.0 us (6, 5, 4 of 6 lower), std -0.3 / -0.5 / -0.4 (3, 5, 4). Thread 0's barrier wait -1.3 to -3.6 us, its release +0.6 to +2.5 (MEMBAR.ALL.GPU before the RED); last x ready 0.4-2.0 us earlier. Pre-set gate condition failed (256 layer); not gated, docs/ruled-out.md |
 
 ## Why the layer keeps the W4 chain at 128 tokens, 2026-10-29
 
@@ -1991,8 +1992,6 @@ the same threads (the next launch's `ss` copy and barrier counter, zeroed in set
 by the next launch, ordered by `griddepcontrol.wait` or stream order, not by this fence; the grid
 barrier keeps its own `__syncthreads`, `__threadfence` and atomics.
 
-Review: an independent read-only review of this chain and the diff is required before 60 ships
-(below, filled in when it returns).
 
 Local compile gate (nvcc 12.8.1, sm_90a, tools/moe_compile_fused.sh, MAIN_MODES 0, 16, 26, 28, 37,
 47, 51, 55, 60, 61 against the parent commit with 0-51 and 55): every production kernel (modes 0,
@@ -2006,6 +2005,68 @@ Diagnostic run, no keep rule set in advance (as 47's and 57's first checks): `to
 --base=51 --sizes=32,128,256 --routings=layer,std --seeds=47,48,49,50,51,52 o60=60` (light twins
 55 and 61 with the gather stamps, public stamps). A gate on new held-out seeds follows only if 60
 is lower than 51 at 128 and 256 tokens on both routings.
+
+Independent read-only review (2026-10-30, of 003be4b): sound. Every link was proved, with the same
+structure as mode 37's; the CTA-scope barrier is no obstacle because base causality order puts no
+scope condition on a synchronizes-with edge, and only the release and acquire pair must be
+morally strong (both gpu scope). The reviewer added the citation the chain leaves implicit: the
+bulk read sees the stores by the Causality axiom (8.10: a read sees a write that precedes it in
+causality order, or a later one). Nothing else relied on the removed fence: the setup's writes
+before the barrier (the next launch's `ss` copy and grid-barrier counter) are read only by the next
+launch; the gathering threads read only `topk_ids` and `x`; the only `xa` reader is the x producer,
+always behind the `xready` acquire and its proxy fence (also for a CTA's own rows); the removed
+fence's Fence-SC order was not used. Every mode predicate gives 60 and 61 exactly 51's behaviour
+(61 adds 55's stamps). It also predicted the outcome below: each `red.release.gpu` still compiles to
+MEMBAR.ALL.GPU before its RED, so the drain may move rather than disappear.
+
+### Result (check 48b9bf9d77d146ac)
+
+2.205x (2.172-2.238), passed, spin flags 0. Outputs of 60 against 51: 0.0 at 128 and 256 tokens,
+2.2e-5 / 3.6e-5 at 32 (51's FP32 atomics below 64 tokens). 60 minus 51, us, same process, seeds
+47-52 (count = seeds lower of 6):
+
+| routing | 32 tokens | 128 tokens | 256 tokens |
+|---|---|---|---|
+| layer | -0.3 (6) | -0.4 (5) | +0.0 (4) |
+| standalone | -0.3 (3) | -0.5 (5) | -0.4 (4) |
+| public minus 51, layer / standalone | -1.4 / -4.0 | -10.1 / -8.5 | -17.1 / -18.2 |
+
+Gather stamps, 61 against 55 (us, means over CTAs and seeds; layer / standalone):
+
+| | 32 | 128 | 256 |
+|---|---|---|---|
+| thread 0: fences and barrier | 0.11 / 0.09 against 1.48 / 0.44 | 0.38 / 0.24 against 3.98 / 1.72 | 0.32 / 0.27 against 2.62 / 2.59 |
+| thread 0: release | 1.25 / 0.31 against 0.67 / 0.24 | 3.10 / 1.45 against 0.58 / 0.67 | 1.94 / 2.41 against 0.44 / 0.62 |
+| whole gather | 2.37 / 1.41 against 3.18 / 1.71 | 5.08 / 3.12 against 6.19 / 3.85 | 7.57 / 6.53 against 8.32 / 7.05 |
+| latest first-x-ready from the first gather start | 8.41 / 9.43 against 9.64 / 9.13 | 8.41 / 8.70 against 10.24 / 10.71 | 11.31 / 10.58 against 11.73 / 11.78 |
+| public's whole gather | 1.63 / 2.12 | 3.50 / 3.43 | 4.68 / 4.63 |
+
+Reading.
+- Measured: the fence's wait moved into the release. Without the per-thread fence, thread 0's
+  barrier wait falls by 1.3-3.6 us, but its first `red.release` (MEMBAR.ALL.GPU, then RED) grows by
+  0.6-2.5 us: the stores still have to be performed at gpu scope before a release, and the first
+  releasing thread waits for them. The whole gather is 0.3-1.1 us shorter and the last job's x is
+  ready 0.4-2.0 us earlier (largest at 128 tokens).
+- Measured: end to end, 60 is -0.0 to -0.5 us (13 of 18 seeds lower at 128 and 256). The 1.8-2.0 us
+  earlier x readiness at 128 tokens buys 0.4-0.5 us, so setup is not on the launch's critical
+  path for most of its length; the stamps put the critical path at the end of phase A: the last
+  CTA's phase A ends 14.2 / 13.0 us after the mean CTA's at 128 tokens (layer / standalone) and
+  9.5 / 10.0 at 256 (start + phase A mean against A done max), against the public kernel's 5.8 /
+  5.2 and 7.0 / 9.1, and our tail is 9.1 / 7.0 and 8.4 / 8.8 us against 4.8 / 4.1 and 4.4 / 7.0.
+- Decision under the rule set before the run (gate only if 60 is lower at 128 and 256 on both
+  routings): 256 tokens on layer routing is +0.0 (4 of 6 lower), so 60 is not gated or shipped.
+  Its expected value if it holds, about -0.4 us at 128 and 256, is 0.03% of the standalone score,
+  below one check's resolution. Parked in docs/ruled-out.md; its code stays, not built (production
+  SASS unchanged). Two of today's seven MoE checks were used by this line (scorecard and this
+  diagnostic).
+
+Next lead for the 128 / 256-token gap (hypothesis, not built): the end of phase A. Owned units are
+dealt whole (about 8.3 per CTA at 128 tokens, so a third of the CTAs run one unit more), and the
+last phase A units gate their jobs' phase B units, so the spread of phase A ends (9.5-14.2 us
+against the public's 5.2-9.1) reappears as the tail (+1.8 to +4.3 us) and the barrier wait. docs/ruled-out.md
+closes the static fixes (cost-model partitions, static phase B ranges) and the K-split of phase B
+claims, not run-time claims for phase A's last round, which would mirror mode 23's phase B claims
+(-16 to -23 us against static ranges) inside the per-n-tile-count loops.
 
 ## Staged pair on current components, 2026-10-29
 

@@ -692,7 +692,9 @@ __host__ __device__ constexpr bool gather_st(int mode) {
 // keeps its proxy fence, the barrier and the releases stay (docs/runs-moe.md, "Gather publish
 // without the per-thread fence"). In 55's stamps the fences and the barrier took thread 0 4.3 /
 // 2.1 us at 128 / 256 tokens against a public gather of 3.3 / 4.8 us in all, which has no
-// per-thread fence (7063f86352344efa).
+// per-thread fence (7063f86352344efa). Not built: in 48b9bf9d77d146ac 60 minus 51 was -0.5 to +0.0
+// us at 32, 128 and 256 tokens; the barrier wait fell but the first red.release's MEMBAR.ALL.GPU
+// took over the stores' drain.
 __host__ __device__ constexpr bool gather_nofence(int mode) {
     return mode == 60 || mode == 61;
 }
@@ -3803,7 +3805,9 @@ SKINNY_VARIANTS = ((8, 4, 0), (16, 4, 0), (8, 4, 1), (8, 3, 0))
 # 57 to 59 (57 and 59 lost or tied against 51, e7e75c9510994c08; 58 is 57's stamped twin): the x
 # gather's rows loaded under the routing work, with and without 16-byte stores; docs/runs-moe.md,
 # "The x gather or the warpgroup skew". Not built.
-MAIN_MODES = (0, 16, 26, 28, 37, 47, 51)
+# 60 and 61 (tied with 51, 48b9bf9d77d146ac; 61 is 60's stamped twin): the x gather without the
+# per-thread __threadfence; docs/runs-moe.md, "Gather publish without the per-thread fence". Not built.
+MAIN_MODES =(0, 16, 26, 28, 37, 47, 51)
 MAIN_CANDIDATES = (0, 6, 12, 13, 14, 15, 16, 20, 23, 26, 28, 32, 34, 35, 36, 37, 39, 43, 47, 51)
 VARIANT_MAIN0 = len(SKINNY_VARIANTS)
 
