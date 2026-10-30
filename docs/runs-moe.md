@@ -2313,6 +2313,223 @@ Reading under the rule set before the run:
   through S.bq. Gate for such a build: its K = 0 null within 1 us of 51 at 128 and 256 tokens before
   its claimed arm is timed. No gate was run here; three of today's MoE checks remain.
 
+## Lean phase A claims (modes 68 to 71), 2026-10-30
+
+Brief: the reopening trigger of the mode 62/63 row in docs/ruled-out.md. Measured so far: claiming
+phase A's last round at run time narrowed the phase A end spread by 0.5-2.4 us against the same
+code and the claims cost nothing measurable (62 minus 66, ed4591a2477041c2), but 62's code shape
+made every CTA's phase A 5-8 us slower (21.5k against 17.3k instructions), so 62 lost to 51 by 7-9
+us at 128 and 256 tokens. At 128 / 256 tokens the public kernel leads by 9.6 / 14.9 us
+(3d8902381a194d56) and the end of phase A is the critical path (our last CTA 9.5-14.2 us after the
+mean CTA against the public kernel's 5.2-9.1, 48b9bf9d77d146ac).
+
+### The change
+
+Mode 68 is 51 with phase A's last snake round claimed at run time, built the way the trigger
+names; 69 is the same code with no round claimed (K = 0, the null); 70 and 71 are 68 and 69 with
+55's light and gather stamps (timing only). Every other mode predicate gives 68-71 exactly 51's
+behaviour (70 and 71: 55's); a host build of all 31 predicates differs only in `claim_lean` and
+`claim_rounds`.
+
+- Setup: `own_n` counts the dealt units below `a_dealt` = min(units, max(0, ceil(units / G) - K)
+  G) (62's `a_static`), so a CTA owns K rounds fewer when units remain to claim.
+- Consumers: 51's `consumer_phase<0>` runs unchanged over the dealt units (its `run_group` takes
+  the 51 branch: `claim_a` is false). After it, `consumer_claim_a` runs one loop per n-tile count,
+  8 down to 1, over S.bq: an entry of kBqA (2^24) or more is a claimed phase A unit whose first
+  stage index is the entry minus kBqA; a smaller entry (a phase B unit or the -1 sentinel) ends the
+  claimed loops without being consumed. Then phase B runs 51's `consumer_dyn_b` from the same
+  queue index.
+- Weights producer: it streams its dealt units as 51 does, then claims through ctr[10] as 62 does
+  (claim value m < na is phase A unit a_dealt + m in S.ord order, m >= na phase B unit m - na). It
+  decodes the claim itself and writes S.bq: kBqA + S.ord[k >> 5] * 512 + (k & 31) * 16 for a phase A
+  unit k, m - na for a phase B unit, -1 at the end. A phase B entry is then exactly 51's claim
+  value, so the consumers' and the x producer's phase B decode is 51's (with `claim_a` false their
+  `na` is units - units and folds to 0).
+- x producer: its dealt loop is 51's; in the queue loop an entry of kBqA or more takes the job's x
+  as a dealt unit does (xready acquire, then the proxy fence, then the copies from xa), a smaller
+  entry is 51's phase B path.
+
+Order of the ring. Each CTA's producers issue its dealt units (counts 8 down to 1, the S.ord deal
+order) and then its queue entries in queue order; the consumers run the dealt units in the same
+order (51's loops) and then the queue in queue order. Claimed phase A units take S.ord positions
+after every dealt unit and a CTA's claim values rise, so a CTA's claimed counts never rise and
+never exceed any count already consumed; the per-count loops 8 to 1 therefore take every claimed
+phase A entry in queue order, and the first phase B entry ends them. Both sides walk the same
+stage sequence, so the wfull / wempty / xfull / xempty phases line up as in 51.
+
+### Ordering chain for the lean claimed units
+
+PTX ISA memory consistency model sections as cited in "Proxy ordering of the x tiles" and in 62's
+chain above: 8.6 Proxies, 8.8 Release and Acquire Patterns, 8.9.1.1 Asynchronous Operations, 8.9.2
+Observation Order, 8.9.4 Memory synchronization, 8.9.5 Causality Order, 8.10 axioms (Atomicity,
+Causality), 9.7.10.28.2 Async Proxy, 9.7.15.4 membar / fence, 9.7.15.14 griddepcontrol.
+
+1. Uniqueness. Every claim is a relaxed gpu-scope `atom.add` on ctr[10]; by the Atomicity axiom
+   (8.10) no two read the same value, so each claim value below na + units goes to exactly one CTA.
+   The decode is a function of the value and of S.ord / S.job_e, which every CTA computes
+   identically in its routing prologue, so each phase A unit (dealt or claimed) and each phase B
+   unit runs on at most one CTA. Every value is claimed: a CTA claims up to kBqMax - 1 = 63 times
+   before writing its own sentinel, and the values number at most njobs * 16 + G (about 1,670 at
+   512 tokens) against 63 G = 8,316 queue slots, so the counter passes the last value while every
+   CTA still has room (the bound needs G of 25 or more; 51 has the same bound). So every unit runs
+   exactly once and done_as[j * 16 + st] still receives exactly 8 releases. A CTA's claim values
+   rise: one thread's atomics on one location follow its program order in coherence order
+   (Coherence axiom, 8.10).
+2. Hand-off inside the CTA. The weights producer writes the decoded entry to S.bq[i] with
+   `st.release.cta.shared` after its own reads of S.ord and S.job_e; the x producer and the
+   consumers read it with `ld.acquire.cta.shared` in `bq_get` (mode 23's queue, unchanged). The
+   pair carries only the entry value; S.ord, S.job_* were written before the post-routing
+   `__syncthreads` (8.9.4), which orders them for every thread.
+3. Inputs of a claimed phase A unit: weights from w13f (written by prepare, ordered by stream order
+   or `griddepcontrol.wait`, 9.7.15.14); x from xa, published by the gather (writers'
+   `fence.proxy.async.global`, the gather barrier, `red.release.gpu` on xready[j]) and taken by the
+   x producer through `ld.acquire.gpu` until xready[j] == job_n[j], then
+   `fence.proxy.async.global`, then the bulk copies: steps 1-8 of "Proxy ordering of the x tiles",
+   the same calls the dealt units make.
+4. Outputs. The claimed unit runs `run_segment` / `run_segment_mma` with PH = 0, the same
+   functions as the dealt units, so its epilogue is 51's: generic stores to xb, per-thread
+   `fence.proxy.async.global`, the warpgroup's bar.sync, one `red.release.gpu` on done_as (mode
+   37's chain). Phase B's acquire on done_as and its proxy fence are unchanged.
+5. Ring reuse. The claimed stages use the same slots and parity walk, with 51's releases (each
+   consumer thread's `fence.proxy.async.shared::cta` before its weights-slot arrive; lane 0's
+   x-slot arrive after `wgmma.wait_group`), and the producers wait on wempty / xempty before every
+   reuse, as for dealt stages ("Ordering of the ring slot releases"). The orders agree (above).
+6. Counter reset. CTA 0 zeroes ctr[10] after the grid barrier; every claim precedes its CTA's
+   arrival in program order and the barrier's fence, atomics and acquire spin order it before the
+   reset (as for 23 and 62). The next launch reads ctr[10] after `griddepcontrol.wait` or in stream
+   order.
+7. Progress. The consumers read the queue only after their last dealt stage. The weights producer
+   writes S.bq[0] after issuing its last dealt stage and one more wempty wait, which needs only the
+   consumers' releases of dealt stages, which they make without reading the queue. A claimed phase A
+   unit waits only on xready[j], and each CTA's gather completes without waiting on any claim or on
+   any other CTA (it runs before that CTA's consumers and x producer start), so xready[j] fills. A phase
+   B unit waits on done_as of its job's phase A units; every claimed phase A value is smaller than
+   every phase B value and each CTA takes its entries in rising order, so on no CTA is a phase A
+   unit queued behind a phase B unit. No new cross-CTA wait exists.
+
+No fence, barrier, release or acquire is removed or moved against 51; the claimed path calls the
+same segment functions and adds only the queue reads (acquire) and the producers' claim loop.
+
+Independent read-only review (2026-10-30, of 30c5a58): sound. No unit lost or duplicated, the S.bq
+ranges are disjoint (phase B 0 to units - 1, kBqA entries 2^24 + j 512 + u 16, -1, kBqEmpty -2),
+producer and consumer stage orders equal on every CTA (also with no dealt unit, K = 0 or no job),
+no deadlock, no fence, barrier, release or acquire removed or moved against 51, and every mode
+predicate of 68-71 equal to 51's (55's for 70 and 71) except the claims. It corrected the wording of
+steps 1 and 7 and the `a_dealt` formula (fixed above) and flagged two timing-only skews in the
+stamped twins:
+- 70 and 71 take the light "phase A end" stamp (S.dg[16][3]) after `consumer_claim_a`, whose first
+  `bq_get` waits for the weights producer's first claim; 55 takes it before phase B's first
+  `bq_get`. So 71's phase A mean and A end spread include that wait and 55's do not: read the stamp
+  comparison as an upper bound on 71's phase A cost.
+- In 70 a CTA with no dealt unit leaves the gather stamp S.dg[16][7] at 0 (as in 64): ABGATHER should
+  read 0 as "no dealt unit".
+
+### Local compile gate (nvcc 12.8.1, sm_90a, `tools/moe_compile_fused.sh`)
+
+MAIN_MODES 0, 16, 26, 28, 37, 47, 51, 55, 68-71 against the parent commit (c42f3fc) with 0-51 and
+55: every production kernel (modes 0, 16, 26, 28, 37, 47, 51 and the four skinny kernels) and 55
+have the same instruction text; no C7510-C7515; 68-71 at 96 registers, no stack frame, no spills,
+no local load or store anywhere. Counts and loop lengths are in
+`muse_moe_w4a16/profiles/sass_mode69.2026-10-30.txt` (stage loop = a backward-branch region with
+16 HGMMA under 450 instructions; unit loop = the region around it with the epilogue).
+
+- 68 and 69 have 26,760 instructions (51: 17,280; 62 and 66: 21,488). The claimed loop is a
+  second inlined copy of the phase A segments, so HGMMA is 288 against 192 and the epilogue's
+  MEMBAR, RED and BAR appear once more per n-tile count (MEMBAR 133 against 43).
+- The dealt-unit phase A loops are not byte-identical to 51's SASS. Source-level they are 51's
+  code (the same `consumer_phase<0>` and `run_group` instantiation path), but ptxas allocates
+  registers and schedules per kernel: even 55, which only adds stamps, matches none of 51's stage
+  loops after register names are normalized (difflib ratio 0.54-0.88), though its lengths are
+  equal. In address order, 69's six dealt phase A unit loops are 912 / 833 / 785 / 743 / 708 / 668
+  instructions against 51's 908 / 830 / 782 / 740 / 705 / 664 (+3 or +4 each), and their stage
+  loops 396 / 389 x 5 against 393 / 387 x 5; the opcode differences are integer address arithmetic
+  and uniform moves (UMOV +2, IMAD, LEA, IADD3, SHF), with HGMMA, SYNCS and fences unchanged. 62
+  and 66 had dealt-and-claimed phase A unit loops of 790-1,298 instructions and stage loops of
+  390-392.
+- Phase B unit loops are 1,115 / 1,045 / 973 / 903 / 815 / 752 against 51's 1,102 / 1,032 / 962 /
+  892 / 801 / 739 (+11 to +14), stage loops 391 against 387. The phase B source is 51's.
+
+`tools/moe_dryrun.py` and `tools/moe_host_check.sh` pass on the build with 68-71.
+
+### Null check and its reading rule (set before the check)
+
+One check of `tools/moe_make_bench_ab.py --base=51 --sizes=32,128,256 --routings=layer,std
+--seeds=71,72,73,74,75,76 o69=69` (light twins 55 and 71 with the gather stamps, public stamps).
+Seeds 71-76 are new. Reading, on 69 minus 51 (same process, per-seed pairs):
+
+- Pass (the claimed arm 68 may be timed): the mean of 69 minus 51 is within +-1.0 us at 128 and at
+  256 tokens on both routings (four cells), 69's output equals 51's at 128 and 256 tokens and is
+  within 1e-4 at 32, and prepare's self-test shows no FAIL line and spin flags 0.
+- Fail: any of the four cells above +1.0 us. The lean build is then parked in docs/ruled-out.md
+  with the 62 row, scoped to this code shape (a second inlined copy of the phase A segments), and
+  68 is not timed.
+- Reported, not conditions: 32 tokens; 71's phase A mean and A end spread against 55's (the code
+  shape's cost should show there first); the cell-by-cell seed counts.
+
+### Gate rule for 68 (set before any gate check; run only if the null passes)
+
+One check of `tools/moe_make_bench_ab.py --base=51 --sizes=32,128,256 --routings=layer,std,skewed
+--seeds=77,78,79,80,81,82 --gate=1 o68=68`; seeds 77-82 are held out on all three routings. Keep 68
+only if all of these hold in that check:
+
+1. At 256 tokens, 68 minus 51 has a mean of -2.0 us or lower on layer and on standalone routing,
+   with at least 5 of 6 seeds lower on each, and a mean of 0 or lower on skewed routing.
+2. At 32 and at 128 tokens, a mean of +0.5 us or lower on every routing.
+3. 68's output is within 1e-4 relative L2 of 51's on every seed, size and routing.
+4. Prepare's FP32 self-test passes for 68 (no FAIL line, spin flags 0).
+5. The compile gate above, on the commit that is checked (production SASS unchanged, no
+   C7510-C7515, no spill in any stage loop).
+
+Shipping also needs the independent read-only review of the chain above to find it sound. If any
+condition fails, 68 goes to docs/ruled-out.md scoped to this build and is not shipped. If all pass,
+68 joins MAIN_MODES and MAIN_CANDIDATES and the shippable file (no public code) goes to the
+coordinator with the layer port steps. Budget for the line: two checks (null and gate) of the three
+MoE checks left today.
+
+### Null result (check b2c92a71600d488b, bench at 30c5a58)
+
+2.211x (2.178-2.244), passed, spin flags 0. Outputs of 69 against 51: 0.0 at 128 and 256 tokens,
+1.2e-7 / 1.0e-5 at 32. Self-test of the shipped policy modes unchanged (main-lean-grp-finss64
+3.89e-3). Minus 51, us, same process, seeds 71-76 (count = seeds lower of 6):
+
+| arm | 32 layer | 32 std | 128 layer | 128 std | 256 layer | 256 std |
+|---|---|---|---|---|---|---|
+| 69 (lean, nothing claimed) | +3.3 (0) | +3.7 (0) | +4.5 (0) | +5.0 (0) | +5.2 (0) | +3.9 (0) |
+| public | -2.0 (5) | -3.8 (6) | -11.1 (6) | -8.6 (6) | -16.3 (6) | -18.9 (6) |
+
+Stamps (one cold launch per seed, means over seeds, us; layer / standalone; 71's phase A end
+includes its wait for S.bq[0], see the review above, so its phase A numbers are upper bounds):
+
+| | 32 | 128 | 256 |
+|---|---|---|---|
+| phase A mean: 55 (51) / 71 (69) | 45.6 / 47.3 and 84.2 / 86.6 | 96.1 / 98.3 and 119.5 / 121.5 | 127.6 / 130.2 and 144.0 / 146.8 |
+| A done max: 55 / 71 | 61.1 / 61.5 and 97.9 / 98.3 | 119.0 / 119.2 and 139.1 / 139.8 | 152.2 / 153.3 and 166.2 / 167.3 |
+| A end spread: 55 / 71 | 9.3 / 7.6 and 9.0 / 6.8 | 12.8 / 10.7 and 11.8 / 10.4 | 11.9 / 10.4 and 10.7 / 8.7 |
+| phase B: 55 / 71 | 20.6 / 21.9 and 38.2 / 39.7 | 45.4 / 47.1 and 54.7 / 57.0 | 60.2 / 62.5 and 68.7 / 70.3 |
+| end: 55 / 71 | 83.6 / 87.3 and 137.2 / 143.2 | 166.8 / 171.2 and 194.6 / 200.7 | 217.0 / 221.7 and 243.3 / 248.5 |
+
+The prepare bench agrees: main-finss64-cl0 211.4 / 226.2 us against 51's 207.2 / 223.2 at 128 / 256.
+
+Reading under the rule set before the check:
+- Measured: 69 is +4.5 / +5.0 / +5.2 / +3.9 us against 51 at 128 / 256 tokens (layer / standalone),
+  0 of 6 seeds lower in all four cells, so the null fails (each cell above +1.0). 68 is not timed
+  and nothing ships. This build costs less than 62's code shape (66 was +7.0 to +8.8 in
+  ed4591a2477041c2, on other seeds) but still about 4-5 us.
+- Measured: the cost is not confined to phase A. With 51's phase B source, 71's phase B is 1.3-2.3 us
+  longer than 55's in all six cells, and the phase A mean 1.7-2.8 us longer (an upper bound). The A
+  end spread is 1.4-2.2 us narrower with nothing claimed, but the last CTA's phase A end (A done max)
+  is 0.2-1.1 us later, so the narrowing comes from a later mean, not an earlier tail.
+- Hypothesis, not separated: the cost is whole-kernel rather than the dealt loop. The kernel grew
+  from 17,280 to 26,760 instructions (a second inlined copy of the phase A segments), and every
+  stage loop, phase B's included, gained 2-4 instructions of address arithmetic under ptxas's
+  per-kernel allocation and scheduling. Instruction-cache pressure from the larger kernel is the
+  other candidate; neither was measured.
+- Decision: parked in docs/ruled-out.md next to the 62 row. Run-time phase A claims stay unrejected
+  as a mechanism. The reopening trigger is now a build whose claimed units run through the dealt
+  units' compiled loops (no second copy: kernel size and stage loop lengths within a few
+  instructions of 51's) with a K = 0 null within 1 us of 51. One of the line's two checks was used;
+  two MoE checks remain today.
+
 ## Staged pair on current components, 2026-10-29
 
 The staged two-launch MoE (mode 19, phase A alone on owned units, then mode 21, phase B and the
