@@ -2333,3 +2333,88 @@ A candidate (`hmrg`, or `hmtk` as the coherent pair) goes to a confirmation benc
 Attribution (no gate): per phase, ours (p9 / p10 / p11 / p12 / whole) against the public
 (pubph1 / 2 / 3 / 4 / pub), cold and warm, on the four targeted rows; the largest difference
 names the mechanism. `nocoop - ctrl` sizes H2 at batch-1 full and the q_len 8 sliding plans.
+
+### Check ce92d32e26024bd2 (bench `bench_e`, at d8d43f3): the q_len 1 reds are the mechanism; HMRG passes its gate
+
+| date | job | commit | file | result | notes |
+|---|---|---|---|---|---|
+| 2026-10-30 | ce92d32e26024bd2 (check) | d8d43f3 | bench `bench_e` (`a3/gen_e.sh`, 17 arms) | 2.432x (CI 2.395-2.468) judged path = board code, 16/16 tests, ABCHECKSUM 19/0 every real arm | HMRG ABSCORE 1.0180 (null 0.9993); q_len 8 ticket a measured loss; cooperative attribute worth <= 0.4 us |
+
+Profiles: `muse_attention_decode/profiles/bench_e.ce92d32e26024bd2.*`. The log tail kept the
+pooled summaries only (per-input rows and ABCHECK details of the q_len 1 shapes were cut by the
+16,000-character limit; the generator now prints compact ABIN lines at the end).
+
+**Phase by phase, cold medians pooled over two held-out inputs (us; every column includes the
+bench's replay cost; the exits time grid completion, so a red's drain lands in the phase that
+issued it).** Ours = `p9` / `p10` / `p11` / `p12` / `diag0` (own state, DIAG build); public =
+`pubph1` / `pubph2` / `pubph3` / `pubph4` / `pubph0` (one instrumented build).
+
+| shape | arm | prologue (to loop) | loop | reds | ticket or barrier | finalize | whole |
+|---|---|---|---|---|---|---|---|
+| d1 sliding (13) | ours | 6.66 | 0.57 | **0.87** | 0.76 | 0.74 | 9.60 |
+| | public | 6.46 | 0.64 | **0.45** | 0.58 | 0.64 | 8.77 |
+| d1 full (11, nc 8) | ours | 9.92 | 4.80 | **1.95** | 0.64 | 0.61 | 17.92 |
+| | public | 9.50 | 4.52 | **0.38** | 1.38 | 0.64 | 16.42 |
+| d16 sliding (1) | ours | 10.37 | 0.86 | **1.76** | 0.55 | 1.40 | 14.94 |
+| | public | 10.08 | 0.77 | **0.45** | 1.12 | 0.38 | 12.80 |
+| d32 sliding (1) | ours | 10.43 | 3.68 | 1.06 | 0.93 | 0.86 | 16.96 |
+| | public | 10.24 | 3.55 | 0.45 | 0.61 | 0.86 | 15.71 |
+| v1 full (11, nc 8) | ours | 9.82 | **6.72** | 1.51 | 1.12 | 0.89 | 20.06 |
+| | public | 9.79 | **5.79** | 1.35 | 1.09 | 0.89 | 18.91 |
+| v1 sliding (15) | ours | 7.49 | 1.21 | 0.61 | 1.25 | 0.77 | 11.33 |
+| | public | 7.01 | 1.12 | 0.96 | 0.93 | 0.89 | 10.91 |
+
+What it names:
+
+- **q_len 1 (d1 sliding, d1 full, d16 / d32 sliding): the reds.** Up to the end of the loop the
+  two kernels agree within 0.2-0.7 us; from the loop's end to the reds' completion ours takes
+  0.87 / 1.95 / 1.76 / 1.06 us against the public 0.45 / 0.38 / 0.45 / 0.45. The public kernel
+  issues half as many reds (key-half handoff). The ticket and finalize phases move in both
+  directions by a few tenths and sum to less (where our reds drain late, our ticket waits less).
+- **Batch-1 full prologue is not a gap.** To the loop: 9.92 vs 9.50 at d1 full, 9.82 vs 9.79 at
+  v1 full. Both kernels pay about 3 us more than batch-1 sliding: the first tiles of 252 CTAs
+  from DRAM. Roadmap item 2 (the batch-1 full prologue) is closed by this measurement.
+- **v1 full: the tile loop** (6.72 vs 5.79 us); merge, barrier and finalize agree within 0.2 us.
+  Not an A3 target.
+- v1 sliding: prologue 0.5 and barrier 0.3 us behind, reds 0.35 ahead; gap 0.26 us in total.
+
+**Candidates against the check-1 gate** (cold pooled, us, arm - ctrl; null ctrl2 - ctrl in
+brackets; pub - ctrl for scale):
+
+| row | hmrg | hmtk | nocoop | null | pub |
+|---|---|---|---|---|---|
+| d1 sliding | **-0.51** | -0.45 | -0.03 | +0.10 | -0.67 |
+| d1 full | **-1.38** | -1.60 | -0.38 | -0.64 | -2.11 |
+| d16 sliding | **-1.44** | -1.38 | -0.13 | -0.26 | -1.47 |
+| d32 sliding | -0.80 | -0.83 | -0.03 | +0.13 | -0.74 |
+| v1 sliding | -0.10 | **+1.79** | -0.13 | +0.19 | -0.26 |
+| v1 full | +0.10 | **+8.67** | -0.10 | +0.13 | -0.77 |
+| v16 sliding | -0.06 | +1.70 | +0.03 | +0.03 | -0.45 |
+| v32 sliding | -0.06 | +1.41 | +0.00 | -0.06 | -1.41 |
+| v32 full | +0.51 | +0.26 | +0.35 | +0.80 | -0.51 |
+| ABSCORE | **1.0180** | 0.9702 | 1.0033 | 0.9993 | 1.0359 |
+
+`hmrg` per load: d1 1.0664, d16 1.0307, d32 1.0105, v1 1.0035, v16 0.9999, v32 0.9987 (q_len 8
+SASS is identical to ctrl, so the v rows are the null's spread). Gate: 1 holds (19/0, workspace
+check inside PASS; the per-element detail was cut from the tail); 2 holds (1.0180 >= 1.008, excess
+0.018 > |0.9993 - 1| + 0.004); 3 not verifiable from this log (per-input rows cut; the v1 full row
+has no code change); 4 holds (largest regression +0.51 at v32 full, under its 1% bound, code
+identical). **HMRG goes to the confirmation bench.** It closes the public lead on d16 sliding
+(12.99 vs 12.96) and d32 sliding, and three quarters of it at d1 sliding; at d1 full, hmrg
+shares ctrl's state, whose placement has been the slow one (ctrl2 -0.64).
+
+`hmtk` (HMRG plus the last-CTA finalize on the cooperative plans): at q_len 1 batch-1 full it adds
+-0.22 us over hmrg; at q_len 8 the one-CTA finalize of 128 rows costs +8.7 us at v1 full and +1.4
+to +1.8 us on the sliding plans. **Measured loss at q_len 8**; at d1 full its 0.22 us is under the
+null. `nocoop`: -0.38 us at d1 full and within 0.13 us elsewhere; the cooperative attribute is
+not where the batch-1 gap is, and it stays (it carries the co-residency guarantee).
+
+### Gate for check 2 (confirmation, written before the bench)
+
+Bench `bench_f` (`--pub <0e9d4c78> --null --shapes all --inputs 2 --seed 20261036`, arms `ctrl`,
+`ctrl2`, `hmrg` (`-DONE_HMRG=1`, ctrl's state), `hmrgown` (same build, own state), `pub`,
+`pub2`; ABIN lines carry per-input differences). HMRG is confirmed if clauses 1, 2 and 4 of the
+check-1 gate hold for `hmrg` again, clause 3 holds on d1 sliding, d1 full and d16 sliding from the
+ABIN lines (v1 full has no code change), and `hmrgown`'s ABSCORE is above 1.008 as well, so the
+gain does not depend on the control's workspace. Then a judged check of submission.py with
+`ONE_HMRG` on.

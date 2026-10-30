@@ -54,6 +54,8 @@ At import the bench prints, before the judge's own tests and timing:
             replays, divided by 16 (L2 warm, launch gaps of a captured graph), same order rule.
   ABSUM     at the end, one cold and one warm line per shape (pooled over inputs): each arm's
             median, the nulls (ctrl2-ctrl, pub2-pub) and every other arm minus ctrl.
+  ABIN      at the end, per scored shape and input: every non-probe arm's cold median minus
+            ctrl's.
   ABSCORE   at the end, when all twelve shapes ran: per arm the standalone score ratio against
             ctrl from the cold medians, prod_l (C_ctrl / C_arm) ^ (1/6) with C = 46 t_sliding
             + 16 t_full per load, and the same per load.
@@ -387,6 +389,8 @@ def _ab_order(names, r):
 _AB_POOL = {}
 # itag -> the arm whose cold graph was captured first.
 _AB_CAP = {}
+# (tag, input) -> {arm: cold median}, for the compact ABIN lines at the end.
+_AB_INMED = {}
 
 
 def _ab_bench(warm_calls=16, warm_reps=25):
@@ -428,6 +432,7 @@ def _ab_bench(warm_calls=16, warm_reps=25):
                 cold = None
                 for n in names:
                     cold_pool[n] += samples[n]
+                _AB_INMED[(tag, k)] = {n: _ab_med(samples[n]) for n in names}
                 row = " ".join(f"{n}={_ab_med(samples[n]):.2f}" for n in names)
                 print(f"ABCOLD {itag} {row} cap0={_AB_CAP[itag]} {_ob_elapsed()}", flush=True)
                 warm = {n: _ab_graph(fns[n], data, warm_calls) for n in names}
@@ -477,6 +482,11 @@ def _ab_summary():
         parts += [f"d:{n}={m[n] - m['ctrl']:+.2f}" for n in names
                   if n != "ctrl" and n not in null_arms]
         print(f"ABSUM {kind} {tag} " + " ".join(parts), flush=True)
+    # Per-input cold differences against ctrl, short enough to survive the log tail.
+    for (tag, k), m in _AB_INMED.items():
+        print(f"ABIN {tag} in={k} " + " ".join(
+            f"{n}={m[n] - m['ctrl']:+.2f}" for n in names
+            if n != "ctrl" and not n.endswith("_probe")), flush=True)
     # Standalone score ratio against ctrl from the cold medians (TASK.md: C = 46 t_sliding +
     # 16 t_full per load, geometric mean over the six loads).
     loads = [(b, q) for b, lay, q in _OB_SCORED if lay == "sliding"]
