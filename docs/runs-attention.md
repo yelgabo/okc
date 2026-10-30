@@ -2456,3 +2456,36 @@ by the reviewer: SASS and runtime behaviour (covered by the benches and the SASS
 Production: `ONE_HMRG` defaults to 1 in attn_one.cu and submission.py. SASS (CUDA 12.8.1, all 13
 instances): the default build equals the benched `hmrg` build; `-DONE_HMRG=0` equals b200eda;
 only q_len 1 modes 1, 3, 11, 13 change; no spills. Next: a judged check of submission.py.
+
+### Judged: check 5d309f9d13924dca 2.512x (CI 2.475-2.550), repeat 82b1bf0fad3244b9 2.582x (CI 2.543-2.620)
+
+| date | job | commit | file | result | notes |
+|---|---|---|---|---|---|
+| 2026-10-30 | 5d309f9d13924dca (check) | dc6b409 | submission.py (`ONE_HMRG` on; sha256 93297101) | 2.512x (CI 2.475-2.550), 16/16 tests | judged d1 sliding 5.3 us, d1 full 12.7, d16 sliding 8.7, d32 sliding 10.0 |
+| 2026-10-30 | 82b1bf0fad3244b9 (check) | dc6b409 + one comment line | repeat of the same file | 2.582x (CI 2.543-2.620), 16/16 tests | 5.1 / 12.2 / 8.2 / 10.3 us; full q_len 8 rows also faster with no code change there (machine speed) |
+
+Profiles: `muse_attention_decode/profiles/hmrg.5d309f9d13924dca.*`, `hmrg_r.82b1bf0fad3244b9.*`.
+For scale, the judged path of the same day's benches (board code, no HMRG): ce92d32e26024bd2
+2.432x with d1 sliding 6.0, d1 full 14.2, d16 sliding 9.6, d32 sliding 11.3 us; d0819bb26907426b
+2.452x. Board entry e9085c86d89449c2 2.504x (a bench file); clean candidate-only best
+569b233dfe08414f 2.449x. Both HMRG checks are above both. Not submitted: handed to the
+coordinator (`main`) with the file path and these job ids.
+
+## Standalone round 2 (10-30): family ledger update
+
+Checks used by this round: ce92d32e26024bd2, d0819bb26907426b, 5d309f9d13924dca,
+82b1bf0fad3244b9. Quota after them (`okc problems`): 10 of 20 attention checks, 10 of 10 runs.
+
+| family | state | evidence | reopening trigger |
+|---|---|---|---|
+| A3 q_len 1 key-half merge before the reds (`ONE_HMRG`, modes 1, 3, 11, 13) | **measured standalone win**, on by default | benches ce92d32e26024bd2 (1.0180) and d0819bb26907426b (1.0214, own state 1.0232, null 1.0037); judged 2.512x / 2.582x; review sound | layer port is a separate gate (`tools/dl_one_inline.py`) |
+| A3 last-CTA ticket on the q_len 8 cooperative plans (`ONE_T9` + `:tkt`) | measured loss | ce92d32e26024bd2: +8.7 us at v1 full, +1.4 to +1.8 on q_len 8 sliding | see docs/ruled-out.md |
+| A3 ticket at q_len 1 batch-1 full | untested beyond 0.22 us under the null | ce92d32e26024bd2 | a fixed-state repeat above 0.3 us |
+| Cooperative launch attribute (H2) | measured, not a gap | ce92d32e26024bd2: -0.38 us at d1 full, ~0 elsewhere | none; it keeps the co-residency guarantee |
+| Batch-1 full prologue | closed as A3 work | phase exits: equal to the public kernel within 0.4 us | a plan that changes the CTA count for both |
+| A3 cluster / DSMEM merge, overlapped finalize (round-1 ideas a, b) | not built | after HMRG the q_len 1 rows sit within 0.1 us of the public kernel except d1 full (0.6, inside placement) | a phase exit showing merge + finalize above the public's again |
+| Prepare-time workspace placement choice at batch-1 full | untested | b7762d764d474eae; with HMRG d1 full is 0.4-0.6 us behind the public, the same size as the placement spread | build when quota allows; modeled about +0.2% |
+
+Where the remaining gap is (bench d0819bb26907426b, pub - hmrg, cold): v32 sliding -1.38 us, v16
+full -2.0, d32 full -1.4, d16 full -0.9, v1 full -0.86 (phase exits put it in the tile loop),
+d1 full -0.64, v16 sliding -0.32, v1 sliding -0.10, d1 sliding -0.07, d16 sliding -0.04.
