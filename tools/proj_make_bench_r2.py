@@ -36,28 +36,28 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 
-N, K, L, U, S, E, D, T, W, B = 1, 2, 4, 8, 16, 32, 64, 128, 256, 512
-BITS = (N, K, L, U, S, E, D, T, W, B)
-TAGS = "NKLUSEDTWB"
+N, K, L, U, S, E, D, T, W, B, X = 1, 2, 4, 8, 16, 32, 64, 128, 256, 512, 1024
+BITS = (N, K, L, U, S, E, D, T, W, B, X)
+TAGS = "NKLUSEDTWBX"
 # Round a (a91f2152d8974458, this file at 113d513): single bits, ALL = N|K|L|U|E, leave-one-out.
 # Round b (this table): around KLUE (the a winner), with W (producer waits without the
 # suspend-time hint) and the check-only B diagnostic (no-producer refill without the empty
 # barrier, the reference's order; WV_NOEMPTY, never dispatched by prepare()).
 KLUE = K | L | U | E
-ROUND = "b"
+# Round b (ba85985b8c5e4969) used this file at 01ad9d9. Round c: the reference's m = 256
+# orientation (X: x as the wgmma A operand, one m64n128k16 over the packed hi/lo box) on its
+# geometry r64c4s8 and at K split 8, with duplicates; plus two independent prepare() runs whose
+# picks are printed side by side (tuner stability).
+ROUND = "c"
 WD_SETS = {
-    "r64c8s8": [0, KLUE, KLUE | D, KLUE | W, KLUE | W | D, W, U, U | W, U | K, U | L, U | E,
-                KLUE & ~K, KLUE & ~L, KLUE & ~E, N | KLUE, N | B | KLUE, N | B | U],
-    "r128c8s6": [0, KLUE, KLUE | D, KLUE | W, KLUE | W | D, W, U, U | W, U | K, U | L, U | E,
-                 KLUE & ~K, KLUE & ~L, KLUE & ~E, N | KLUE, N | B | KLUE, N | B | U],
-    "r64c4s8": [0, KLUE, KLUE | W, KLUE | W | D, N | B | KLUE],
+    "r64c8s8": [KLUE, KLUE | D, X | KLUE, X | KLUE | D, X | KLUE | W],
+    "r128c8s6": [KLUE, KLUE | D],
+    "r64c4s8": [KLUE | W, X | KLUE, X | KLUE | W, X | KLUE | W | D],
 }
-WD_BASES = {128: ("r64c8s8",), 256: ("r128c8s6", "r64c4s8")}
-RT_BENCH = {"rt8w8": (8, 8, 4, False), "rt8w8p8": (8, 8, 8, False), "rt8w16": (8, 16, 4, False),
-            "rt4w16": (4, 16, 4, False), "rt8w4": (8, 4, 4, False), "rt16w8": (16, 8, 4, False),
-            "rt16w8p8": (16, 8, 8, False), "rt16w4p8": (16, 4, 8, False)}
-# sk shapes for the no-hint extension (OKC_WAIT_SLEEP 0): (layer, m) -> sk config name.
-SK_DIAG = {("qkv_gate", 16): "qkv16", ("pooler", 8): "pool8", ("o", 32): "o32"}
+WD_BASES = {128: ("r64c8s8", "r64c4s8"), 256: ("r128c8s6", "r64c4s8", "r64c8s8")}
+RT_BENCH = {"rt8w8": (8, 8, 4, False), "rt16w8": (16, 8, 4, False), "rt16w8p8": (16, 8, 8, False)}
+SK_DIAG = {}
+DUP_PREPARE = True
 
 
 def var_tag(v):
@@ -78,6 +78,7 @@ _R2_RT = @@RT@@
 _R2_BASES = @@BASES@@
 _R2_SKDIAG = @@SKDIAG@@
 _R2_ROUND = @@ROUND@@
+_R2_DUP = @@DUP@@
 import os as _r2os
 import random as _r2random
 import math as _r2math
@@ -322,6 +323,30 @@ def _r2_check_all(arms, router, ms, gen, dev, label):
     return bad
 
 
+def _r2_dup_prepare(dev):
+    """Two independent prepare() runs on the same judge-shaped weights; prints each one's
+    cuBLASLt and router decisions so the picks can be compared line by line."""
+    import contextlib as _ctx
+    import io as _io
+    gen = torch.Generator(device=dev).manual_seed(5151)
+    lay = {"qkv_gate": (2304, 8192), "o": (8192, 1024), "pooler": (4096, 8192),
+           "unpooler": (8192, 4096), "router": (256, 8192)}
+    weights = {nm: (torch.randn((n, k), generator=gen, device=dev) / _r2math.sqrt(k)).to(
+                   torch.float32 if nm == "router" else torch.bfloat16) for nm, (n, k) in lay.items()}
+    for tag in ("A", "B"):
+        buf = _io.StringIO()
+        t0 = time.time()
+        with _ctx.redirect_stdout(buf):
+            st = prepare(weights)
+        _r2print(f"R2PREP {tag} {time.time() - t0:.1f} s")
+        for ln in buf.getvalue().splitlines():
+            if ln.startswith("ltune") or (ln.startswith("tune router") and "m=64" not in ln):
+                _r2print(f"R2PREP {tag}| {ln[:330]}")
+        st.clear()
+        torch.cuda.synchronize()
+        torch.cuda.empty_cache()
+
+
 def _r2_skdiag(prod, bench, idx, benchw, idxw, gen, dev, diag, flush, ovh):
     """sk on BF16 layers: production extension, bench copy (null) and the no-hint extension."""
     for ti, ((layer, m), nm) in enumerate(_R2_SKDIAG.items()):
@@ -444,6 +469,8 @@ def _r2_run():
         _r2print(f"R2 m={m} d " + " ".join(f"{nm}={dl[nm]:+.2f}" for nm in order if nm != base))
         torch.cuda.empty_cache()
     _r2_skdiag(prod, bench, idx, benchw, idxw, gen, dev, diag, flush, ovh)
+    if _R2_DUP:
+        _r2_dup_prepare(dev)
     _r2print(f"R2DONE {time.time() - t0:.1f} s")
     torch.cuda.synchronize()
     torch.cuda.empty_cache()
@@ -509,7 +536,7 @@ def main():
     wd = bench_wd()
     bench = (BENCH.replace("@@DONOR@@", repr(donor)).replace("@@WD@@", repr(wd)).replace("@@RT@@", repr(RT_BENCH))
              .replace("@@BASES@@", repr(WD_BASES)).replace("@@SKDIAG@@", repr(SK_DIAG))
-             .replace("@@ROUND@@", repr(ROUND)))
+             .replace("@@ROUND@@", repr(ROUND)).replace("@@DUP@@", repr(DUP_PREPARE)))
     if donor is not None:
         bench = bench.replace("\n\ndef _r2_run():", "\n\n" + donor["rt_pack"] + "\n\n\ndef _r2_run():", 1)
     out.write_text(sub + bench)

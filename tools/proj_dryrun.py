@@ -202,6 +202,13 @@ def main():
         # Last candidate wins, so the wide buckets dispatch to a wd kernel.
         return [float(len(fns) - i) for i in range(len(fns))]
     mod._time_candidates = fake_time
+
+    def fake_rounds(fns, x, flush, rounds, reps):
+        for fn in fns:
+            fn(x)
+        # Last candidate is 1 us faster than the next in every round: the stable rule switches.
+        return [[float(len(fns) - i) + 0.01 * r for r in range(rounds)] for i in range(len(fns))]
+    mod._time_rounds = fake_rounds
     if not torch.cuda.is_available():
         torch.cuda.synchronize = lambda *a, **k: None
         # CPU torch has no mm with out_dtype; the split router baseline is SGLang's, not ours.

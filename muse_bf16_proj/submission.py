@@ -1780,16 +1780,17 @@ WD_GEOM = {
 WD_POL = {nm for nm in WD_GEOM if nm.endswith("h")}
 # name -> VAR bits of the kernel (WV_* in _WD_SRC), 0 when absent. WV_PACK configs take the
 # packed router weights (router_pack()).
-WV_NOPROD, WV_PACK, WV_PROMO64, WV_PUSH, WV_EARLY, WV_NOSLEEP, WV_NOEMPTY = 1, 2, 4, 8, 32, 256, 512
-# Packed hi/lo box, 64 B promotion, push reduction and early prologue on the two router picks
-# (bench a91f2152d8974458, paired against the pick: -0.77 us at m = 128, -0.90 at 256, of which
-# the push reduction alone is -0.46 / -0.48; dropping the producer warp lost +1.74 / +1.25).
-# The w twins also drop the producer's suspend-time hint.
+WV_NOPROD, WV_PACK, WV_PROMO64, WV_PUSH, WV_EARLY, WV_NOSLEEP, WV_NOEMPTY, WV_XA = 1, 2, 4, 8, 32, 256, 512, 1024
+# Packed hi/lo box, 64 B promotion, push reduction and early prologue (KLUE) on the two router
+# picks; paired against the pick in a91f2152d8974458 / ba85985b8c5e4969: -0.77 / -0.90 us at
+# m = 128, -0.90 / -0.90 at 256, the push reduction alone -0.46 / -0.54 and -0.48 / -0.66.
+# Dropping the producer warp lost (+1.74 / +1.25); the producer without the suspend-time hint
+# was a null on these two (+0.10 / -0.05). r64c4s8a is the reference's m = 256 orientation
+# (XA: x as the A operand, one m64n128k16 for hi and lo) on its geometry, without the hint
+# (-0.37 on r64c4s8 KLUE in ba85985b8c5e4969).
 _WD_KLUE = WV_PACK | WV_PROMO64 | WV_PUSH | WV_EARLY
-WD_GEOM.update({"r64c8s8k": WD_GEOM["r64c8s8"], "r128c8s6k": WD_GEOM["r128c8s6"],
-                "r64c8s8w": WD_GEOM["r64c8s8"], "r128c8s6w": WD_GEOM["r128c8s6"]})
-WD_VAR = {"r64c8s8k": _WD_KLUE, "r128c8s6k": _WD_KLUE,
-          "r64c8s8w": _WD_KLUE | WV_NOSLEEP, "r128c8s6w": _WD_KLUE | WV_NOSLEEP}
+WD_GEOM.update({"r64c8s8k": WD_GEOM["r64c8s8"], "r128c8s6k": WD_GEOM["r128c8s6"], "r64c4s8a": WD_GEOM["r64c4s8"]})
+WD_VAR = {"r64c8s8k": _WD_KLUE, "r128c8s6k": _WD_KLUE, "r64c4s8a": _WD_KLUE | WV_NOSLEEP | WV_XA}
 # Diagnostic builds timed in prepare(), never dispatched: ABL bit 1 skips the wgmma (memory
 # pipeline alone), bit 2 skips the cluster reduction and the stores.
 WD_ABLATE = {("pooler", 128): "m128k2r4", ("o", 256): "m256k1r4"}
@@ -2256,8 +2257,23 @@ LT_SWEEP_TOP = 2
 LT_SWEEP_CLUSTERS = (0, 2, 3, 5)
 LT_SWEEP_MAX = 640
 LT_SWEEP_TILES = 4
-# Same role as WD_MARGIN: tuner medians carry about 1% noise.
-LT_MARGIN = 0.98
+# Stable final choice (docs/plan-2026-10-30-tuner-stability.md, design 1): the pooler m = 128
+# pick moved by up to 1.1 us between preparations of one file (44fa08c6d2f44b44), because a
+# one-pass median picked among near-equal configs. Now a pinned preference per shape, the
+# configuration that led most earlier preparations (bf6c825b..6cbd8b98 and the P1 benches;
+# "base" where cuBLASLt never won clearly), is kept unless another candidate saves more than
+# max(STABLE_MARGIN_US, 2 x the preference's round MAD) in median paired difference and is
+# faster in all rounds but one. Values: (layout, the nine lt_info config fields).
+LT_PREF = {
+    ("pooler", 128): (0, [66, 134, 1, 0, 0, 0, 35, 0, 7]),
+    ("unpooler", 128): (3, [66, 18, 1, 0, 0, 2, 35, 0, 5]),
+    ("qkv_gate", 256): (0, [66, 124, 1, 0, 0, 0, 35, 0, 2]),
+    ("pooler", 256): (1, [66, 18, 1, 0, 0, 0, 35, 0, 2]),
+    ("unpooler", 256): (1, [66, 20, 1, 0, 0, 4, 35, 0, 3]),
+}
+STABLE_ROUNDS = 9
+STABLE_REPS = 3
+STABLE_MARGIN_US = 0.3
 # cuBLASLt's heuristic assumes 256-byte aligned operands unless told otherwise.
 LT_ALIGN = 256
 
@@ -2434,6 +2450,10 @@ constexpr int WV_NOSLEEP = 256;  // producer empty-barrier waits without the sus
 // right after its own wgmma.wait_group, without the empty barrier (the reference's order). It
 // drops a barrier, so it may not ship without a PTX memory-model argument and review.
 constexpr int WV_NOEMPTY = 512;
+// x tile as the wgmma A operand (64 tokens) and the packed [hi; lo] box as one 128-wide B
+// operand: one m64n128k16 per k16 step instead of two m64n64k16, hi and lo summed once at the
+// end (the reference's m = 256 kernel orientation). Needs PACK, PUSH, WG 1, BN 64.
+constexpr int WV_XA = 1024;
 
 template <int WG, int BN, int CLK, int CLR, bool HL, int NST, int VAR = 0>
 struct WdCfg {
@@ -2445,7 +2465,12 @@ struct WdCfg {
     // per owned 8-token fragment column from every rank: CLK * (TPR / 8) * NCT * 16 bytes.
     static constexpr int TPR = BN / CLK;
     static constexpr int JPR = TPR / 8;
-    static constexpr int RECV = PUSH ? CLK * JPR * NCT * 16 : 0;
+    static constexpr bool XA = (VAR & WV_XA) != 0;
+    // XA: each consumer thread holds 32 summed floats as 8 float4 units; every rank receives
+    // NCT * 8 / CLK units from every rank (slot order in wd_kernel's XA epilogue).
+    static constexpr int XUNITS = NCT * 8 / CLK;
+    static constexpr int RECV = PUSH ? (XA ? CLK * XUNITS * 16 : CLK * JPR * NCT * 16) : 0;
+    static constexpr int NACC = XA ? 64 : BN / 2;
     static constexpr int CL = CLK * CLR;
     static constexpr int BM = 64 * WG;
     static constexpr int ATILE = 64 * 128;
@@ -2463,6 +2488,7 @@ struct WdCfg {
     static constexpr int SMEM = 1024 + RING + 16 * NST + (PUSH ? 16 + RECV : 0);
     static_assert(!PUSH || (CLR == 1 && CLK > 1 && TPR % 8 == 0 && HL), "wd: push needs CLR 1, 8-token owners, f32 out");
     static_assert(!PACK || HL, "wd: packed weights are the router's hi/lo pairs");
+    static_assert(!XA || (PACK && PUSH && WG == 1 && BN == 64 && (TPR == 8 || TPR % 16 == 0)), "wd: bad XA config");
     static_assert(PBY <= RING, "wd: partial tile does not fit in the ring");
     static_assert(BN % 8 == 0 && BN <= 256, "wd: bad BN");
     // Each multicast slice must start on a 1024-byte swizzle atom so the slices tile exactly
@@ -2488,7 +2514,8 @@ wd_kernel(const __grid_constant__ CUtensorMap wmap, const __grid_constant__ CUte
           int M, int N, int K, int* diag) {
     using C = WdCfg<WG, BN, CLK, CLR, HL, NST, VAR>;
     constexpr int CL = C::CL;
-    constexpr bool NOPROD = C::NOPROD, PACK = C::PACK, PUSH = C::PUSH;
+    constexpr bool NOPROD = C::NOPROD, PACK = C::PACK, PUSH = C::PUSH, XA = C::XA;
+    constexpr int NACC = C::NACC;
     constexpr bool SPIN = (VAR & WV_SPIN) != 0, EARLY = (VAR & WV_EARLY) != 0;
     static_assert(!PUSH || sizeof(OutT) == 4, "wd: push writes f32");
     extern __shared__ __align__(1024) uint8_t wd_smem[];
@@ -2565,8 +2592,10 @@ wd_kernel(const __grid_constant__ CUtensorMap wmap, const __grid_constant__ CUte
         }
         fence_mbar_init();
         if constexpr (PUSH) {
-            // Every peer's push lands after the cluster barrier below, so after this expect.
-            mbar_expect_tx(rbar, (CLK - 1) * C::JPR * C::NCT * 16);
+            // A peer's complete_tx may land before this expect (the relaxed cluster arrive does
+            // not order it); the tx count then runs negative, which the mbarrier allows, and the
+            // phase cannot complete before this arrive because the pending count is 1 until then.
+            mbar_expect_tx(rbar, XA ? (CLK - 1) * C::XUNITS * 16 : (CLK - 1) * C::JPR * C::NCT * 16);
         }
         // Barriers this thread just initialized and fenced for the async proxy; consumers see
         // them after the CTA barrier below.
@@ -2596,9 +2625,9 @@ wd_kernel(const __grid_constant__ CUtensorMap wmap, const __grid_constant__ CUte
         }
     }
 
-    float acc[BN / 2];
+    float acc[NACC];
 #pragma unroll
-    for (int j = 0; j < BN / 2; ++j) {
+    for (int j = 0; j < NACC; ++j) {
         acc[j] = 0.f;
     }
     if (!NOPROD && warp == 4 * WG) {
@@ -2625,17 +2654,21 @@ wd_kernel(const __grid_constant__ CUtensorMap wmap, const __grid_constant__ CUte
             }
             const uint32_t a0 = sbase + s * C::SB + g * C::NA * C::ATILE;
             const uint32_t b0 = sbase + s * C::SB + C::ABY;
-            wg_fence_acc<BN / 2>(acc);
+            wg_fence_acc<NACC>(acc);
             wg_fence();
 #pragma unroll
             for (int kk = 0; kk < ((ABL & 1) ? 0 : 4); ++kk) {
-                wgmma_ss<BN>(acc, wg_desc(a0 + 32 * kk), wg_desc(b0 + 32 * kk));
-                if constexpr (HL) {
-                    wgmma_ss<BN>(acc, wg_desc(a0 + C::ATILE + 32 * kk), wg_desc(b0 + 32 * kk));
+                if constexpr (XA) {
+                    wgmma_ss<128>(acc, wg_desc(b0 + 32 * kk), wg_desc(a0 + 32 * kk));
+                } else {
+                    wgmma_ss<BN>(acc, wg_desc(a0 + 32 * kk), wg_desc(b0 + 32 * kk));
+                    if constexpr (HL) {
+                        wgmma_ss<BN>(acc, wg_desc(a0 + C::ATILE + 32 * kk), wg_desc(b0 + 32 * kk));
+                    }
                 }
             }
             wg_commit();
-            wg_fence_acc<BN / 2>(acc);
+            wg_fence_acc<NACC>(acc);
             // With at most this iteration's group pending, the previous group has finished
             // reading its stage.
             wg_wait<1>();
@@ -2663,7 +2696,7 @@ wd_kernel(const __grid_constant__ CUtensorMap wmap, const __grid_constant__ CUte
             }
         }
         wg_wait<0>();
-        wg_fence_acc<BN / 2>(acc);
+        wg_fence_acc<NACC>(acc);
         if constexpr (!PUSH) {
             // Another consumer warp may still be reading the ring that the partials overwrite.
             named_bar(1, WG * 128);
@@ -2689,7 +2722,80 @@ wd_kernel(const __grid_constant__ CUtensorMap wmap, const __grid_constant__ CUte
         // so the CTA outlives every access to it. A peer pushes only after the cluster wait,
         // which follows this CTA's rbar init and expect_tx.
         cluster_wait();
-        if (tid < C::NCT) {
+        if constexpr (XA) {
+            // Accumulator of thread (warp w, lane l): token rows r = 16 w + l / 4 and r + 8,
+            // columns 8 j + 2 (l % 4) + {0, 1}; j < 8 are the hi products of weight row 8 j + .,
+            // j >= 8 the lo products of the same rows. Unit u of the summed 32 floats:
+            //   TPR >= 16: u = j, float4 (r, c), (r, c + 1), (r + 8, c), (r + 8, c + 1), all to
+            //     rank 16 w / TPR, slot ((w % JW) * 32 + l) * 8 + u, JW = TPR / 16;
+            //   TPR == 8: u < 4 holds token r at columns of j = 2u, 2u + 1 and goes to rank 2 w;
+            //     u >= 4 holds token r + 8 (j = 2(u - 4), + 1) and goes to rank 2 w + 1; slot
+            //     l * 4 + u % 4.
+            // Every slot has one writer; recv is [source rank][XUNITS] float4.
+            constexpr int JW = C::TPR >= 16 ? C::TPR / 16 : 1;
+            float s[32];
+#pragma unroll
+            for (int e = 0; e < 32; ++e) {
+                s[e] = acc[e] + acc[32 + e];
+            }
+            if (tid < C::NCT) {
+#pragma unroll
+                for (int u = 0; u < 8; ++u) {
+                    int dst, slot;
+                    float4 v;
+                    if constexpr (C::TPR >= 16) {
+                        dst = warp * 16 / C::TPR;
+                        slot = ((warp % JW) * 32 + lane) * 8 + u;
+                        v = make_float4(s[4 * u], s[4 * u + 1], s[4 * u + 2], s[4 * u + 3]);
+                    } else {
+                        const int h = u >> 2;
+                        const int j0 = 2 * (u & 3);
+                        dst = 2 * warp + h;
+                        slot = lane * 4 + (u & 3);
+                        v = make_float4(s[4 * j0 + 2 * h], s[4 * j0 + 2 * h + 1], s[4 * j0 + 4 + 2 * h],
+                                        s[4 * j0 + 5 + 2 * h]);
+                    }
+                    const uint32_t a = recv + (uint32_t)(rk * C::XUNITS + slot) * 16u;
+                    if (dst == rk) {
+                        wd_st_local(a, v);
+                    } else {
+                        wd_st_async(wd_mapa(a, (uint32_t)dst), v, wd_mapa(rbar, (uint32_t)dst));
+                    }
+                }
+                named_bar(1, C::NCT);
+                mbar_wait_cluster(rbar, 0, dead, diag, 4);
+                for (int it = tid; it < C::XUNITS; it += C::NCT) {
+                    float4 v = make_float4(0.f, 0.f, 0.f, 0.f);
+#pragma unroll
+                    for (int p = 0; p < CLK; ++p) {
+                        const float4 q4 = wd_ld_local(recv + (uint32_t)(p * C::XUNITS + it) * 16u);
+                        v.x += q4.x;
+                        v.y += q4.y;
+                        v.z += q4.z;
+                        v.w += q4.w;
+                    }
+                    int t0, t1, c0, c1;
+                    if constexpr (C::TPR >= 16) {
+                        const int l = (it >> 3) & 31;
+                        const int w = rk * JW + it / 256;
+                        t0 = 16 * w + (l >> 2);
+                        t1 = t0 + 8;
+                        c0 = c1 = 8 * (it & 7) + 2 * (l & 3);
+                    } else {
+                        const int l = it >> 2;
+                        t0 = t1 = 16 * (rk >> 1) + 8 * (rk & 1) + (l >> 2);
+                        c0 = 16 * (it & 3) + 2 * (l & 3);
+                        c1 = c0 + 8;
+                    }
+                    if (tok0 + t0 < M) {
+                        *reinterpret_cast<float2*>(out + (size_t)(tok0 + t0) * N + rowbase + c0) = make_float2(v.x, v.y);
+                    }
+                    if (tok0 + t1 < M) {
+                        *reinterpret_cast<float2*>(out + (size_t)(tok0 + t1) * N + rowbase + c1) = make_float2(v.z, v.w);
+                    }
+                }
+            }
+        } else if (tid < C::NCT) {
 #pragma unroll
             for (int j = 0; j < BN / 8; ++j) {
                 const int dst = j / C::JPR;
@@ -2884,7 +2990,9 @@ def wd_source():
         assert wd_smem(wg, bn, clk, clr, hl, nst, var) <= SMEM_BUDGET and clk * clr <= 16, name
         assert bn % clr == 0 and (bn // clr) % 8 == 0, name
         assert bn * (64 * wg + 4) * 4 <= nst * (wg * (2 if hl else 1) * 8192 + bn * 128), name
-    wgmma = "".join(_wgmma_spec(bn) for bn in sorted({g[1] for g in WD_GEOM.values()}))
+    # XA (VAR bit 1024) configs issue m64n128k16 whatever their BN.
+    xa = any(globals().get("WD_VAR", {}).get(nm, 0) & 1024 for nm in WD_GEOM)
+    wgmma = "".join(_wgmma_spec(bn) for bn in sorted({g[1] for g in WD_GEOM.values()} | ({128} if xa else set())))
     dispatch = "\n".join(
         f"    case {i}: launch_wd<{_wd_targs(nm)}>(w, x, out, (int)n, (int)k, dg); break;"
         for i, nm in enumerate(WD_NAMES))
@@ -2986,9 +3094,12 @@ rt_kernel(const uint4* __restrict__ wp, const __nv_bfloat16* __restrict__ x, flo
     if (rank < P && tid == 0) {
         mbar_init(rbar, 1);
         fence_mbar_init();
-        // Every push into this CTA follows the cluster barrier below, so this expect.
+        // A push may land before this expect; the phase still cannot complete before it
+        // (pending count 1 until this arrive, negative tx count allowed).
         mbar_expect_tx(rbar, S * OWN * 16);
     }
+    // .aligned below needs the warp converged after the tid == 0 branch.
+    __syncwarp();
     // The receive barrier is initialized cluster-wide before any push (relaxed arrive after the
     // mbarrier_init fence, acquire wait before the pushes, as CUTLASS orders it).
     cluster_arrive();
@@ -3364,6 +3475,88 @@ def _lt_screen(fns, x, flush, reps):
     return [statistics.median(t) if alive[i] and t else float("inf") for i, t in enumerate(times)]
 
 
+def _lt_pref(lt, state, layer, m, gen, diag, fallback):
+    """The pinned LT_PREF config for (layer, m) as (info, run), or None if absent, rejected by
+    this library or failing the self-test."""
+    ent = LT_PREF.get((layer, m))
+    if ent is None:
+        return None
+    layout, cfg = ent
+    w = state[layer]
+    n, k = w.shape
+    wts = state.setdefault("lt_wt", {})
+    if layer not in wts:
+        wts[layer] = w.t().contiguous()
+    p = lt.lt_plan_new(m, n, k, layout, state["lt_ws"].numel())
+    idx = lt.lt_add_config(p, list(cfg)) if p >= 0 else -1
+    if idx < 0:
+        print(f"lt {layer} m={m}: preferred L{layout} {cfg} not accepted")
+        return None
+    fn = _lt_runner(lt, p, idx, wts[layer] if layout % 2 else w, m, n, state["lt_ws"], fallback)
+    try:
+        _self_test(f"{layer} lt pref", fn, w, n, (m,), SELFTEST_TOL["bf16"], gen, diag)
+    except Exception as exc:
+        print(f"lt {layer} m={m}: preferred config failed self-test ({str(exc)[-120:]})")
+        return None
+    return [layout] + list(lt.lt_info(p, idx)), fn
+
+
+def _time_rounds(fns, x, flush, rounds, reps):
+    """Per candidate, its median over reps cold-L2 CUDA-graph replays in each of `rounds`
+    rounds; the candidate order rotates every round so drift spreads over all of them."""
+    graphs = []
+    for fn in fns:
+        s = torch.cuda.Stream()
+        s.wait_stream(torch.cuda.current_stream())
+        with torch.cuda.stream(s):
+            for _ in range(2):
+                fn(x)
+        torch.cuda.current_stream().wait_stream(s)
+        torch.cuda.synchronize()
+        g = torch.cuda.CUDAGraph()
+        with torch.cuda.graph(g, stream=s):
+            fn(x)
+        graphs.append(g)
+    out = [[] for _ in fns]
+    n = len(fns)
+    for r in range(rounds):
+        for j in range(n):
+            i = (r + j) % n
+            ts = []
+            for _ in range(reps):
+                flush.sum()
+                e0 = torch.cuda.Event(enable_timing=True)
+                e1 = torch.cuda.Event(enable_timing=True)
+                e0.record()
+                graphs[i].replay()
+                e1.record()
+                torch.cuda.synchronize()
+                ts.append(1000 * e0.elapsed_time(e1))
+            out[i].append(statistics.median(ts))
+    return out
+
+
+def _stable_pick(rounds, preferred):
+    """rounds: name -> per-round times. The preferred candidate stays unless another one's
+    median paired saving against it exceeds max(STABLE_MARGIN_US, 2 x the MAD of the
+    preferred's rounds) and it is faster in all rounds but one; of those the largest saving
+    wins. Returns (pick, note)."""
+    base = rounds[preferred]
+    mid = statistics.median(base)
+    margin = max(STABLE_MARGIN_US, 2 * statistics.median([abs(t - mid) for t in base]))
+    best, gain, parts = preferred, 0.0, []
+    for k, v in rounds.items():
+        if k == preferred:
+            continue
+        d = [a - b for a, b in zip(base, v)]
+        saving = statistics.median(d)
+        wins = sum(x > 0 for x in d)
+        parts.append(f"{k} {saving:+.2f}/{wins}")
+        if saving > margin and wins >= len(d) - 1 and saving > gain:
+            best, gain = k, saving
+    return best, f"pref {preferred} margin {margin:.2f} " + " ".join(parts) + f" -> {best}"
+
+
 def _lt_search(lt, state, layer, m, ws, flush, gen, diag, fallback):
     """Validated cuBLASLt finalists for (layer, m), fastest first: [(info, run)]."""
     w = state[layer]
@@ -3690,19 +3883,22 @@ def prepare(weights):
                 continue
             try:
                 fins = _lt_search(lt, state, layer, m, state["lt_ws"], flush, gen, diag, base)
-                if not fins:
+                pref = _lt_pref(lt, state, layer, m, gen, diag, base)
+                cands = [("base", None, base)] + ([("pref",) + pref] if pref else [])
+                cands += [(f"f{i}", f[0], f[1]) for i, f in enumerate(fins)]
+                if len(cands) == 1:
                     continue
                 x, _ = _gen_x(m, state[layer].shape[1], gen, dev)
-                us = _time_candidates([base] + [f[1] for f in fins], x, flush)
-                best = min(range(len(us)), key=lambda i: us[i])
-                if best > 0 and us[best] < LT_MARGIN * us[0]:
-                    state["pick"][(layer, m)] = fins[best - 1][1]
-                    state["lt_pick"][(layer, m)] = fins[best - 1][0]
-                else:
-                    best = 0
-                print(f"ltune {layer:9s} m={m}: base {us[0]:.1f}, "
-                      + ", ".join(f"L{f[0][0]}:{_lt_cfg_str(f[0][1:])} {t:.1f}" for f, t in zip(fins, us[1:]))
-                      + f" -> {'base' if best == 0 else 'lt'}")
+                rounds = _time_rounds([c[2] for c in cands], x, flush, STABLE_ROUNDS, STABLE_REPS)
+                pick, note = _stable_pick({c[0]: r for c, r in zip(cands, rounds)}, "pref" if pref else "base")
+                chosen = next(c for c in cands if c[0] == pick)
+                if pick != "base":
+                    state["pick"][(layer, m)] = chosen[2]
+                    state["lt_pick"][(layer, m)] = chosen[1]
+                print(f"ltune {layer:9s} m={m}: "
+                      + ", ".join(f"{c[0]}" + (f"=L{c[1][0]}:{_lt_cfg_str(c[1][1:])}" if c[1] else "")
+                                  + f" {statistics.median(r):.1f}" for c, r in zip(cands, rounds))
+                      + f"; {note}")
             except Exception as exc:
                 torch.cuda.synchronize()
                 print(f"ltune {layer} m={m}: failed ({type(exc).__name__}: {str(exc)[-200:]})")

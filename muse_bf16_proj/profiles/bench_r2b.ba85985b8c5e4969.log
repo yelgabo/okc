@@ -1,0 +1,48 @@
+R2BUILD prod 21.5 s, bench 18.0 s, benchw 13.4 s, 39 wd arms, round b
+R2OVH 4.16 us
+R2 m=8 base router8:prod med rt4w16:v0=3.76 rt8w8:v0=3.84 rt8w16:v0=3.86 rt8w8p8:v0=3.94 rt8w4:v0=3.97 rt8w8:prod=4.03 rt16w8:v0=4.06 rt16w8p8:prod=4.10 rt16w8p8:v0=4.10 rt16w4p8:v0=4.10 d_rt=4.13 rt16w8:prod=4.16 router8:vW=5.22 router8:prod=5.28 router8:v0=5.38 sglang=26.53
+R2 m=8 d rt4w16:v0=-1.47 rt8w8:v0=-1.38 rt8w16:v0=-1.41 rt8w8p8:v0=-1.31 rt8w4:v0=-1.25 rt8w8:prod=-1.28 rt16w8:v0=-1.18 rt16w8p8:prod=-1.17 rt16w8p8:v0=-1.15 rt16w4p8:v0=-1.15 d_rt=-1.14 rt16w8:prod=-1.07 router8:vW=-0.05 router8:v0=+0.06 sglang=+21.25
+R2 m=16 base router16:prod med rt8w8p8:v0=4.26 rt16w8:prod=4.32 rt16w8:v0=4.32 rt16w8p8:prod=4.35 rt8w16:v0=4.38 rt16w8p8:v0=4.45 d_rt=4.45 rt4w16:v0=4.51 rt16w4p8:v0=4.51 rt8w8:prod=4.64 rt8w4:v0=4.70 rt8w8:v0=4.72 router16:prod=5.12 router16:v0=5.22 router16:vW=5.31 sglang=16.29
+R2 m=16 d rt8w8p8:v0=-0.86 rt16w8:prod=-0.77 rt16w8:v0=-0.78 rt16w8p8:prod=-0.74 rt8w16:v0=-0.74 rt16w8p8:v0=-0.64 d_rt=-0.70 rt4w16:v0=-0.64 rt16w4p8:v0=-0.61 rt8w8:prod=-0.50 rt8w4:v0=-0.43 rt8w8:v0=-0.38 router16:v0=+0.08 router16:vW=+0.19 sglang=+11.10
+R2 m=32 base router32:prod med rt16w8p8:prod=4.99 rt16w8:prod=5.02 rt16w8:v0=5.06 rt16w8p8:v0=5.12 d_rt=5.12 rt16w4p8:v0=5.25 router32:prod=5.52 router32:vW=5.55 router32:v0=5.57 rt8w4:v0=6.40 rt4w16:v0=6.59 rt8w16:v0=6.98 rt8w8:v0=7.07 rt8w8p8:v0=7.07 rt8w8:prod=7.17 sglang=16.83
+R2 m=32 d rt16w8p8:prod=-0.51 rt16w8:prod=-0.48 rt16w8:v0=-0.46 rt16w8p8:v0=-0.35 d_rt=-0.42 rt16w4p8:v0=-0.29 router32:vW=+0.02 router32:v0=+0.06 rt8w4:v0=+0.90 rt4w16:v0=+1.09 rt8w16:v0=+1.42 rt8w8:v0=+1.57 rt8w8p8:v0=+1.54 rt8w8:prod=+1.63 sglang=+11.28
+R2 m=128 base r64c8s8:prod med d_rw=6.21 r64c8s8:vKLUE=6.59 r64c8s8:vKLUED=6.66 r64c8s8:vKLUEDW=6.66 r64c8s8:vKLUEW=6.72 r64c8s8:vKLU=6.72 r64c8s8:vLU=6.75 r64c8s8:vKUE=6.91 r64c8s8:vU=6.94 r64c8s8:vUE=6.94 r64c8s8:vKU=6.98 r64c8s8:vLUE=7.01 r64c8s8:vUW=7.07 r64c8s8:vNKLUEB=7.23 r64c8s8:prod=7.52 r64c8s8:vNUB=7.52 r64c8s8:v0=7.55 r64c8s8:vW=7.58 r64c8s8:vNKLUE=8.13 sglang=17.58
+R2 m=128 d d_rw=-1.31 r64c8s8:vKLUE=-0.90 r64c8s8:vKLUED=-0.86 r64c8s8:vKLUEDW=-0.83 r64c8s8:vKLUEW=-0.80 r64c8s8:vKLU=-0.83 r64c8s8:vLU=-0.72 r64c8s8:vKUE=-0.58 r64c8s8:vU=-0.54 r64c8s8:vUE=-0.56 r64c8s8:vKU=-0.58 r64c8s8:vLUE=-0.48 r64c8s8:vUW=-0.45 r64c8s8:vNKLUEB=-0.30 r64c8s8:vNUB=+0.06 r64c8s8:v0=+0.00 r64c8s8:vW=+0.10 r64c8s8:vNKLUE=+0.64 sglang=+10.02
+R2 m=256 base r128c8s6:prod med d_rw=8.00 r128c8s6:vNKLUEB=8.90 r128c8s6:vKLUED=9.15 r128c8s6:vKLUEDW=9.15 r128c8s6:vKLUEW=9.22 r128c8s6:vKLUE=9.25 r128c8s6:vLU=9.36 r128c8s6:vNUB=9.36 r128c8s6:vKLU=9.38 r128c8s6:vKU=9.39 r128c8s6:vU=9.47 r128c8s6:vLUE=9.50 r128c8s6:vKUE=9.52 r128c8s6:vUE=9.54 r128c8s6:vUW=9.66 r128c8s6:vW=10.10 r128c8s6:prod=10.14 r128c8s6:v0=10.14 r128c8s6:vNKLUE=10.14 r64c4s8:vKLUEW=10.38 r64c4s8:vKLUEDW=10.42 r64c4s8:vKLUE=10.75 r64c4s8:vNKLUEB=11.65 r64c4s8:prod=11.74 r64c4s8:v0=11.78 sglang=18.40
+R2 m=256 d d_rw=-2.18 r128c8s6:vNKLUEB=-1.18 r128c8s6:vKLUED=-0.93 r128c8s6:vKLUEDW=-0.93 r128c8s6:vKLUEW=-0.86 r128c8s6:vKLUE=-0.90 r128c8s6:vLU=-0.74 r128c8s6:vNUB=-0.77 r128c8s6:vKLU=-0.70 r128c8s6:vKU=-0.70 r128c8s6:vU=-0.66 r128c8s6:vLUE=-0.61 r128c8s6:vKUE=-0.61 r128c8s6:vUE=-0.56 r128c8s6:vUW=-0.51 r128c8s6:vW=-0.05 r128c8s6:v0=+0.00 r128c8s6:vNKLUE=+0.06 r64c4s8:vKLUEW=+0.32 r64c4s8:vKLUEDW=+0.27 r64c4s8:vKLUE=+0.67 r64c4s8:vNKLUEB=+1.50 r64c4s8:prod=+1.63 r64c4s8:v0=+1.63 sglang=+8.27
+R2SK qkv_gate m=16 med qkv16:v0=10.37 qkv16:prod=10.38 qkv16:vW=10.50 cublas=14.40
+R2SK qkv_gate m=16 d qkv16:v0=-0.03 qkv16:vW=+0.13 cublas=+4.00
+R2SK pooler m=8 med pool8:vW=14.43 pool8:v0=14.48 pool8:prod=14.50 cublas=21.47
+R2SK pooler m=8 d pool8:vW=-0.08 pool8:v0=+0.00 cublas=+6.96
+R2SK o m=32 med o32:vW=6.18 o32:v0=6.34 o32:prod=6.37 cublas=6.94
+R2SK o m=32 d o32:vW=-0.16 o32:v0=-0.02 cublas=+0.58
+R2DONE 66.1 s
+judged| sk build 0.0 s
+judged| tune router    m= 1: rgemv 8.1, router8 9.6, rt8w8 8.3, rt16w8 8.6, rt16w8p8 8.6, baseline 15.3 -> rgemv
+judged| tune router    m= 8: router8 9.5, rt8w8 8.3, rt16w8 8.5, rt16w8p8 8.7, baseline 31.0 -> rt8w8
+judged| tune router    m=16: router16 9.5, rt8w8 9.1, rt16w8 8.7, rt16w8p8 8.8, baseline 20.9 -> rt16w8
+judged| tune router    m=32: router32 10.1, rt8w8 11.7, rt16w8 9.6, rt16w8p8 9.6, baseline 21.2 -> rt16w8p8
+judged| tune router    m=64: baseline 21.2, r64c8 13.3, r64c16 11.6, r64c8s8 12.0, r64c4s8 16.0, rm64k4r4 18.8, r64c8s8k 11.1, r64c8s8w 11.2 -> r64c8s8k
+judged| tune router    m=128: baseline 22.0, r64c8 13.4, r64c16 14.4, r128c8 14.7, r128c16 13.3, r64c8s8 12.1, r64c4s8 15.9, r128c8s6 14.4, rm64k4r4 18.8, rm128k4r4 21.7, r64c8s8k 11.5, r128c8s6k 13.7, r64c8s8w 11.2, r128c8s6w 13.5 -> r64c8s8w
+judged| tune router    m=256: baseline 23.5, r64c8 15.1, r64c16 19.8, r128c8 15.1, r128c16 21.1, r64c8s8 19.3, r64c4s8 16.3, r128c8s6 14.6, rm64k4r4 19.2, rm128k4r4 21.8, r64c8s8k 17.2, r128c8s6k 13.7, r64c8s8w 17.3, r128c8s6w 13.7 -> r128c8s6k
+judged| lt build 18.8 s, cublasLt 130101, torch cuda 13.0
+judged| prepare done 84.1 s
+R2BUILD prod 21.5 s, bench 18.0 s, benchw 13.4 s, 39 wd arms, round b
+R2OVH 4.16 us
+R2 m=8 base router8:prod med rt4w16:v0=3.76 rt8w8:v0=3.84 rt8w16:v0=3.86 rt8w8p8:v0=3.94 rt8w4:v0=3.97 rt8w8:prod=4.03 rt16w8:v0=4.06 rt16w8p8:prod=4.10 rt16w8p8:v0=4.10 rt16w4p8:v0=4.10 d_rt=4.13 rt16w8:prod=4.16 router8:vW=5.22 router8:prod=5.28 router8:v0=5.38 sglang=26.53
+R2 m=8 d rt4w16:v0=-1.47 rt8w8:v0=-1.38 rt8w16:v0=-1.41 rt8w8p8:v0=-1.31 rt8w4:v0=-1.25 rt8w8:prod=-1.28 rt16w8:v0=-1.18 rt16w8p8:prod=-1.17 rt16w8p8:v0=-1.15 rt16w4p8:v0=-1.15 d_rt=-1.14 rt16w8:prod=-1.07 router8:vW=-0.05 router8:v0=+0.06 sglang=+21.25
+R2 m=16 base router16:prod med rt8w8p8:v0=4.26 rt16w8:prod=4.32 rt16w8:v0=4.32 rt16w8p8:prod=4.35 rt8w16:v0=4.38 rt16w8p8:v0=4.45 d_rt=4.45 rt4w16:v0=4.51 rt16w4p8:v0=4.51 rt8w8:prod=4.64 rt8w4:v0=4.70 rt8w8:v0=4.72 router16:prod=5.12 router16:v0=5.22 router16:vW=5.31 sglang=16.29
+R2 m=16 d rt8w8p8:v0=-0.86 rt16w8:prod=-0.77 rt16w8:v0=-0.78 rt16w8p8:prod=-0.74 rt8w16:v0=-0.74 rt16w8p8:v0=-0.64 d_rt=-0.70 rt4w16:v0=-0.64 rt16w4p8:v0=-0.61 rt8w8:prod=-0.50 rt8w4:v0=-0.43 rt8w8:v0=-0.38 router16:v0=+0.08 router16:vW=+0.19 sglang=+11.10
+R2 m=32 base router32:prod med rt16w8p8:prod=4.99 rt16w8:prod=5.02 rt16w8:v0=5.06 rt16w8p8:v0=5.12 d_rt=5.12 rt16w4p8:v0=5.25 router32:prod=5.52 router32:vW=5.55 router32:v0=5.57 rt8w4:v0=6.40 rt4w16:v0=6.59 rt8w16:v0=6.98 rt8w8:v0=7.07 rt8w8p8:v0=7.07 rt8w8:prod=7.17 sglang=16.83
+R2 m=32 d rt16w8p8:prod=-0.51 rt16w8:prod=-0.48 rt16w8:v0=-0.46 rt16w8p8:v0=-0.35 d_rt=-0.42 rt16w4p8:v0=-0.29 router32:vW=+0.02 router32:v0=+0.06 rt8w4:v0=+0.90 rt4w16:v0=+1.09 rt8w16:v0=+1.42 rt8w8:v0=+1.57 rt8w8p8:v0=+1.54 rt8w8:prod=+1.63 sglang=+11.28
+R2 m=128 base r64c8s8:prod med d_rw=6.21 r64c8s8:vKLUE=6.59 r64c8s8:vKLUED=6.66 r64c8s8:vKLUEDW=6.66 r64c8s8:vKLUEW=6.72 r64c8s8:vKLU=6.72 r64c8s8:vLU=6.75 r64c8s8:vKUE=6.91 r64c8s8:vU=6.94 r64c8s8:vUE=6.94 r64c8s8:vKU=6.98 r64c8s8:vLUE=7.01 r64c8s8:vUW=7.07 r64c8s8:vNKLUEB=7.23 r64c8s8:prod=7.52 r64c8s8:vNUB=7.52 r64c8s8:v0=7.55 r64c8s8:vW=7.58 r64c8s8:vNKLUE=8.13 sglang=17.58
+R2 m=128 d d_rw=-1.31 r64c8s8:vKLUE=-0.90 r64c8s8:vKLUED=-0.86 r64c8s8:vKLUEDW=-0.83 r64c8s8:vKLUEW=-0.80 r64c8s8:vKLU=-0.83 r64c8s8:vLU=-0.72 r64c8s8:vKUE=-0.58 r64c8s8:vU=-0.54 r64c8s8:vUE=-0.56 r64c8s8:vKU=-0.58 r64c8s8:vLUE=-0.48 r64c8s8:vUW=-0.45 r64c8s8:vNKLUEB=-0.30 r64c8s8:vNUB=+0.06 r64c8s8:v0=+0.00 r64c8s8:vW=+0.10 r64c8s8:vNKLUE=+0.64 sglang=+10.02
+R2 m=256 base r128c8s6:prod med d_rw=8.00 r128c8s6:vNKLUEB=8.90 r128c8s6:vKLUED=9.15 r128c8s6:vKLUEDW=9.15 r128c8s6:vKLUEW=9.22 r128c8s6:vKLUE=9.25 r128c8s6:vLU=9.36 r128c8s6:vNUB=9.36 r128c8s6:vKLU=9.38 r128c8s6:vKU=9.39 r128c8s6:vU=9.47 r128c8s6:vLUE=9.50 r128c8s6:vKUE=9.52 r128c8s6:vUE=9.54 r128c8s6:vUW=9.66 r128c8s6:vW=10.10 r128c8s6:prod=10.14 r128c8s6:v0=10.14 r128c8s6:vNKLUE=10.14 r64c4s8:vKLUEW=10.38 r64c4s8:vKLUEDW=10.42 r64c4s8:vKLUE=10.75 r64c4s8:vNKLUEB=11.65 r64c4s8:prod=11.74 r64c4s8:v0=11.78 sglang=18.40
+R2 m=256 d d_rw=-2.18 r128c8s6:vNKLUEB=-1.18 r128c8s6:vKLUED=-0.93 r128c8s6:vKLUEDW=-0.93 r128c8s6:vKLUEW=-0.86 r128c8s6:vKLUE=-0.90 r128c8s6:vLU=-0.74 r128c8s6:vNUB=-0.77 r128c8s6:vKLU=-0.70 r128c8s6:vKU=-0.70 r128c8s6:vU=-0.66 r128c8s6:vLUE=-0.61 r128c8s6:vKUE=-0.61 r128c8s6:vUE=-0.56 r128c8s6:vUW=-0.51 r128c8s6:vW=-0.05 r128c8s6:v0=+0.00 r128c8s6:vNKLUE=+0.06 r64c4s8:vKLUEW=+0.32 r64c4s8:vKLUEDW=+0.27 r64c4s8:vKLUE=+0.67 r64c4s8:vNKLUEB=+1.50 r64c4s8:prod=+1.63 r64c4s8:v0=+1.63 sglang=+8.27
+R2SK qkv_gate m=16 med qkv16:v0=10.37 qkv16:prod=10.38 qkv16:vW=10.50 cublas=14.40
+R2SK qkv_gate m=16 d qkv16:v0=-0.03 qkv16:vW=+0.13 cublas=+4.00
+R2SK pooler m=8 med pool8:vW=14.43 pool8:v0=14.48 pool8:prod=14.50 cublas=21.47
+R2SK pooler m=8 d pool8:vW=-0.08 pool8:v0=+0.00 cublas=+6.96
+R2SK o m=32 med o32:vW=6.18 o32:v0=6.34 o32:prod=6.37 cublas=6.94
+R2SK o m=32 d o32:vW=-0.16 o32:v0=-0.02 cublas=+0.58
+R2DONE 66.1 s
