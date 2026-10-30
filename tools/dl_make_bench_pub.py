@@ -80,12 +80,27 @@ def _ab_print(line):
     print(line, flush=True)
 
 
+class _AbSource:
+    """A loader that only serves the module's source, so inspect.getsource (which Triton's
+    @jit calls on the public file's kernels) finds code that was exec'd from a string:
+    check 121dff3ab17a4245 failed with "@jit functions should be defined in a Python file"."""
+
+    def __init__(self, src):
+        self.src = src
+
+    def get_source(self, name):
+        return self.src
+
+
 def _ab_module(name, packed):
-    # The judge takes files up to 1,000,000 bytes; the other arm's source travels compressed.
+    # The judge takes files under 1,000,000 bytes; the other arm's source travels compressed.
     import base64
     import lzma
+    import sys
     src = lzma.decompress(base64.b85decode(packed)).decode()
     mod = types.ModuleType(name)
+    mod.__loader__ = _AbSource(src)
+    sys.modules[name] = mod
     exec(compile(src, f"{name}.py", "exec"), mod.__dict__)
     return mod
 
@@ -619,9 +634,18 @@ def prepare(weights):
               + f"; attn_one_ours={int(bool(state.get('attn_one_ours')))}")
     if _AB_OTHER_MOD is not None:
         try:
+            import contextlib
+            import io
             t1 = time.time()
-            ostate = _AB_OTHER_MOD.prepare(weights)
+            buf = io.StringIO()
+            with contextlib.redirect_stdout(buf):
+                ostate = _AB_OTHER_MOD.prepare(weights)
             torch.cuda.synchronize()
+            print(buf.getvalue(), flush=True)
+            keys = ("fallback", "failed", "disabled", "Error", "SUMMARY stages", "SUMMARY failed")
+            hits = [ln for ln in buf.getvalue().splitlines() if any(k in ln for k in keys)]
+            for ln in hits[:12]:
+                _ab_print(f"ABOTHER {_AB_OTHER} prepare: {ln[:300]}")
             _ab_print(f"ABPREP {_AB_OTHER} {time.time() - t1:.0f} s; prepare at "
                       f"{time.time() - t:.0f} s")
             arms = {_AB_OTHER: (_AB_OTHER_MOD.kernel_fn, ostate), "cand": (kernel_fn, state),
@@ -640,7 +664,7 @@ def prepare(weights):
     torch.cuda.empty_cache()
     # The log keeps only its last 16,000 characters: timelines first, then correctness, then
     # the timing tables.
-    order = ("ABTL", "ABKN", "ABBUILD", "ABPREP", "ABPIN", "ABDIAG", "ABARMS", "ABFAIL", "ABCHECK", "ABSTOP",
+    order = ("ABTL", "ABKN", "ABBUILD", "ABPREP", "ABPIN", "ABDIAG", "ABOTHER", "ABARMS", "ABFAIL", "ABCHECK", "ABSTOP",
              "ABTIME", "ABLOAD", "ABSCORE")
     rank = lambda line: next((i for i, p in enumerate(order) if line.startswith(p)), 0)  # noqa: E731
     for line in sorted(_AB_OUT, key=rank):
@@ -664,6 +688,11 @@ def strip_comments(text):
         if re.match(r"#\s+(define|include|if|ifdef|ifndef|endif|pragma|else|elif|undef)\b", t):
             raise SystemExit(f"spaced preprocessor directive at line {i + 1}")
         drop = t.startswith("//") or (t.startswith("#") and not t.startswith(KEEP_HASH))
+        # A comment line the code names in a string (a substitution marker such as
+        # //@MOE1_DISPATCH@, which _moe1_source() replaces) stays: dropping it broke the
+        # incumbent's MoE and W4 dispatch in check 135ab2a9f22b49a5.
+        if drop and any(q + t in text or t + q in text for q in ('"', "'")):
+            drop = False
         if drop and i > 0 and (line.rstrip().endswith("\\") or lines[i - 1].rstrip().endswith("\\")):
             raise SystemExit(f"comment line {i + 1} inside a continuation")
         if not drop:
