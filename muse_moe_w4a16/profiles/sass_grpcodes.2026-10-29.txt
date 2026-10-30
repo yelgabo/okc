@@ -63,3 +63,9 @@ mode 45 (phase A alone, owned units, 37's stage loop, phase B loops compiled out
 With the empty phase B loops still compiled it was 268 / 656 B and 22272 instructions; not kept.
 mode 46 (phase B and the final pass alone, claimed units, no done_as wait): 96 registers, 48 bytes
 stack frame, 156 bytes spill stores, 412 bytes spill loads; HGMMA 192, wait1 96, wait0 12.
+
+Addendum 2026-10-30: mode 47 (43 without the hoist: code groups as 43, waits and group 0 at the
+stage start as 37). Build with 47 added: every other kernel identical to the 45/46 build. No C75xx.
+mode 47: 96 registers, 8 bytes stack frame, 4 bytes spill stores, 88 bytes spill loads; HGMMA 192,
+wait1 96, wait0 12; stage loops 387-394 instructions (37: 382-390), no local access in them; 1 LDL
+per unit loop.
