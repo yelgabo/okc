@@ -339,6 +339,15 @@ __device__ __forceinline__ void named_sync(int id, int count) {
     asm volatile("bar.sync %0, %1;\n" :: "r"(id), "r"(count) : "memory");
 }
 
+// bar.sync with an OR over the participating threads' predicates (bar.red.or.pred).
+__device__ __forceinline__ bool named_sync_or(int id, int count, bool v) {
+    uint32_t r;
+    asm volatile("{\n.reg .pred pi, po;\nsetp.ne.u32 pi, %3, 0;\n"
+                 "bar.red.or.pred po, %1, %2, pi;\nselp.u32 %0, 1, 0, po;\n}\n"
+                 : "=r"(r) : "r"(id), "r"(count), "r"(static_cast<uint32_t>(v)) : "memory");
+    return r != 0;
+}
+
 __device__ __forceinline__ void mbar_init(uint32_t bar, int count) {
     asm volatile("mbarrier.init.shared::cta.b64 [%0], %1;\n" :: "r"(bar), "r"(count) : "memory");
 }
@@ -1986,7 +1995,14 @@ attn_one_kernel(const Params p) {
                     wgmma_pv(o, pa[1], vd + 2);
                     wg_commit();
                 };
+                // XPIPE=1 calls this only under warpgroup-uniform conditions (tile 0, or the
+                // overflow vote below taken by bar.red over the warpgroup), so the wait that
+                // must precede the o rescale is not under a divergent branch (.aligned).
                 auto offset_to_max = [&]() {
+                    if constexpr (XPIPE == 1) {
+                        wg_wait<0>();
+                        reg_fence(o);
+                    }
                     float tmax[2];
                     bool move[2];
 #pragma unroll
@@ -2000,12 +2016,6 @@ attn_one_kernel(const Params p) {
                         move[hh] = tmax[hh] > off[hh] + 8.f;
                     }
                     if (__any_sync(0xffffffffu, move[0] || move[1])) {
-                        if constexpr (XPIPE == 1) {
-                            // The rescale below writes o, which the previous P.V may still
-                            // accumulate into.
-                            wg_wait<0>();
-                            reg_fence(o);
-                        }
 #pragma unroll
                         for (int hh = 0; hh < 2; ++hh) {
                             const float nxt = move[hh] ? tmax[hh] : off[hh];
@@ -2064,7 +2074,9 @@ attn_one_kernel(const Params p) {
                             ((pa[0][0] + PB) | (pa[0][1] + PB) | (pa[0][2] + PB) |
                              (pa[0][3] + PB) | (pa[1][0] + PB) | (pa[1][1] + PB) |
                              (pa[1][2] + PB) | (pa[1][3] + PB)) & 0x80808080u;
-                        if (__any_sync(0xffffffffu, ov != 0u)) {
+                        const bool any_ov = XPIPE == 1 ? named_sync_or(2 + hk, 128, ov != 0u)
+                                                       : __any_sync(0xffffffffu, ov != 0u);
+                        if (any_ov) {
                             offset_to_max();
                             pack();
                         }

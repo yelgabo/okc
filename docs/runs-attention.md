@@ -1973,6 +1973,16 @@ under a warp-uniform but not warpgroup-uniform condition; the `.aligned` wording
 reviewer reads it, makes that undefined behaviour, though `WARPGROUP.DEPBAR` is a per-warp wait
 in SASS. If A2 adopts XPIPE=1, it needs a warpgroup-uniform condition or a recorded deviation.
 
+Follow-up to caveat (b), XPIPE=1 only (XPIPE=0 and XPIPE=2 SASS unchanged, per-function compare):
+the PCHK overflow vote is taken with `bar.red.or.pred` on the warpgroup's V^T barrier id
+(2 + hk, 128 threads) instead of `__any_sync`, so `offset_to_max` runs under warpgroup-uniform
+conditions only (tile 0, or that vote), and its `wgmma.wait_group 0` now sits at its start,
+outside any divergent branch. This adds one barrier per tile after the first; none removed.
+Two other placements were tried and rejected by ptxas: deferring the rescale to after the
+retiring wait 1 (C7514, "non wgmma instructions reading accumulator registers", modes 51 and
+115), and the same with the vote folded into the V^T bar.sync (C7514 again). Current build:
+mode 115 6944 instructions, 154 registers, no spills, no C75xx; mode 51 still C7512 (rejected).
+
 ### A1 gate (written before the bench that tests it)
 
 Score sensitivity from the 569b233dfe08414f judge medians: verify 16 C = 46 x 11.89 + 16 x 103.65 =
