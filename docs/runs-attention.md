@@ -1866,3 +1866,122 @@ eight copies; cooperative modes clear the next parity counter before bumping the
 launch writes (the block's own key and value) is read by no other CTA in the launch: the one
 CTA whose range holds the position patches its tile from shared memory after the full-barrier
 wait, over whatever the producer gathered.
+
+## Standalone round 10-30: A0 scorecard and A1 cross-tile overlap in mode 51
+
+Brief: docs/steering/2026-10-30-attention-projection-standalone-roadmap.md, sections 1, 2, 4, 6, 7.
+Start: main 7703f0a, board entry e9085c86d89449c2 (2.504x, a bench file), clean candidate-only best
+569b233dfe08414f (2.449x). Quota at the start (`okc problems`, 07:49 UTC): 19 of 20 checks.
+
+### A1 design: what crosses the tile-loop edge
+
+The board build ends every tile with `wgmma.wait_group 0` twice (after Q.K and after P.V), as the
+public flat kernel does. `ONE_XPIPE` (`attn_one.cu`, default 0, modes 51 and 115 only) keeps the
+operands, the masks, the lazy offset, the P rounding and the merge, and changes only where the
+waits sit. Per tile t of a segment (tile 0's Q.K and V^T transpose run in a prologue, the last
+tile's P.V is drained before the merge):
+
+```
+                        XPIPE=2 (PV first)                    XPIPE=1 (QK first)
+softmax(t): mask, P(t)  [s(t) -> pa]                          [s(t) -> pa'; PV(t-1) still reads pa, o]
+                                                              rare offset move: wait 0, then rescale o
+                        PV(t) issue  (bar.sync V^T(t))        QK(t+1) issue (stage t+1 full wait)
+in flight now:          PV(t)                                 PV(t-1), QK(t+1)
+                        QK(t+1) issue (stage t+1 full wait)   wait 1  -> PV(t-1) retired
+                                                              PV(t) issue (bar.sync V^T(t))
+in flight now:          PV(t), QK(t+1)                        QK(t+1), PV(t)
+                        transpose V(t+1) -> V^T buf (t+1)&1   transpose V(t+1) -> V^T buf (t+1)&1
+                        wait 0 -> PV(t), QK(t+1) retired      wait 1 -> QK(t+1) retired
+                        release stage t+1                     release stage t+1
+carried to tile t+1:    nothing in flight                     PV(t) (under softmax(t+1))
+```
+
+Lifetimes (who owns each buffer, and the event that ends the previous owner's use):
+
+| buffer | written by | read by | reuse allowed after |
+|---|---|---|---|
+| stage of tile t+1 (K, V) | producer cp.async | Q.K(t+1) wgmma, this thread's ldmatrix of V(t+1) | the wait that retires Q.K(t+1) (wait 0 / wait 1) and the ldmatrix before it in program order; then `mbarrier.arrive` on the empty barrier (unchanged from EREL) |
+| V^T buffer (t & 1) | stmatrix of the 4 warps of the warpgroup (tile t, then t+2) | P.V(t) wgmma | P.V(t) retired in every warp: each warp retires it before it arrives at the bar.sync of tile t+1, and the transpose of tile t+2 follows that bar.sync in every warp |
+| s (32 f32) | Q.K(t+1) wgmma | softmax(t+1) | P(t) packed from s(t) before Q.K(t+1) is issued |
+| pa (8 b32) | pack of tile t | P.V(t) wgmma (A from registers) | XPIPE=2: retired in the same tile. XPIPE=1: pa(t+1) is a new value; ptxas must keep pa(t)'s registers until the wait (SASS: alternating R104/R100 and R96/R92 in the two unrolled bodies of mode 115) |
+| o (36 f32) | P.V wgmmas (accumulate chain) | merge | in flight across the edge only in XPIPE=1; the offset rescale waits 0 before writing it; the merge follows a wait 0 |
+
+Resources (CUDA 12.8.1, `tools/attn_one_sass.sh`, sm_90a; no shared memory added, the V^T buffers
+were already two per KV head):
+
+| build | mode 51 (two CTAs per SM, setmaxnreg 32 / 104) | mode 115 (one CTA per SM) |
+|---|---|---|
+| board (`ONE_XPIPE=0`) | 6328 SASS instr, consumer top R99, no spills | 6560 instr, R142 |
+| `ONE_XPIPE=2` | 6920 instr, consumer top R100, no spills, no C75xx | 7264 instr, R139 |
+| `ONE_XPIPE=1` | **C7512 "wgmma serialized due to insufficient register resources"** with setmaxnreg 112 (the most two CTAs per SM can give: 2 x (128 x 32 + 256 x 112) = 65,536); 16 WARPGROUP.DEPBAR (5 in XPIPE=2) | 7304 instr, 157 registers, no spills, no C75xx |
+
+So XPIPE=1 is compile-infeasible in mode 51 (rejected before any judge run, per the brief) and
+feasible only at one CTA per SM, which is A2's territory (mode 115). XPIPE=2 is the A1 candidate.
+
+SASS evidence of real cross-tile issue overlap, mode 51 with `ONE_XPIPE=2` (steady-state body):
+`QGMMA.64x72x32` x2 (P.V of tile t, last one `gsb0`) at f980 / f9a0, then without any
+`WARPGROUP.DEPBAR` the stage-(t+1) `SYNCS.PHASECHK.TRANS64.TRYWAIT` loop (f9f0 - faa0), the
+`FENCE.VIEW.ASYNC.S` and patch path, `BAR.SYNC 0x1` at it 0, `QGMMA.64x64x32` x2 (Q.K of tile t+1)
+at fe00 / fe60, two `LDSM.16.MT88.4` + `STSM.16.M88.4` pairs (V^T of tile t+1), and only then
+`WARPGROUP.DEPBAR.LE gsb0, 0x0` (fef0). Mode 115 with `ONE_XPIPE=1`: P.V issue (11e90 / 11ef0),
+`DEPBAR.LE 0x1` (11f80, retires Q.K only), then the next tile's mask, max and 32 `MUFU.EX2` run
+while the P.V is pending; the next `DEPBAR.LE 0x1` (145a0) follows the next Q.K issue.
+
+With `ONE_XPIPE=0` all 13 instances are SASS-identical to 7703f0a (per-function compare,
+namespace hashes normalized).
+
+### Ordering argument (no fence or barrier removed; one wait moved)
+
+Per tile, every path still executes: the full-barrier wait, `fence.proxy.async` after it, the
+patch path with its own fence and the consumer bar.sync where the tile holds the block's rows,
+`fence.proxy.async` + `bar.sync(2 + hk, 128)` between the V^T stores and the P.V issue, and one
+`mbarrier.arrive` on the empty barrier per stage. Static counts rise (FENCE.VIEW.ASYNC 10 -> 13,
+SYNCS.ARRIVE 3 -> 4) because the prologue and last tile are peeled copies.
+
+1. Stage reuse (WAR between the Q.K wgmma's async-proxy reads, the generic ldmatrix of V, and the
+   producer's next cp.async). `wgmma.wait_group N` returns when at most N of the most recent
+   groups are pending and every earlier group of the executing thread is complete (PTX ISA,
+   `wgmma.wait_group`; section number not re-read this session). XPIPE=2: wait 0 after Q.K(t+1). XPIPE=1: groups pending at
+   the second wait are Q.K(t+1) then P.V(t) in commit order, so wait 1 completes Q.K(t+1). The
+   ldmatrix of V(t+1) precedes the arrive in program order and its destination registers are
+   consumed by the stmatrix before it. The release is the same arrive EREL used (judged in
+   cb85d590c301410e); its producer side is unchanged.
+2. V^T reuse (WAR between P.V(t)'s async-proxy reads of buffer t & 1 and the stmatrix of tile
+   t+2 into it by any warp of the warpgroup). In XPIPE=2 each warp retires P.V(t) with the wait 0
+   of tile t; in XPIPE=1 with the wait 1 that follows the Q.K(t+2) issue in tile t+1. Both come
+   before that warp's arrival at the bar.sync of tile t+1, and the transpose of tile t+2 follows
+   that bar.sync in every warp. This is the chain the board build already relies on (its
+   transpose of tile t+2 under Q.K(t+2) follows the bar.sync of tile t+1, after the wait 0 that
+   retires P.V(t)).
+3. V^T publication (RAW, generic stmatrix to async-proxy wgmma read): unchanged,
+   `fence.proxy.async.shared::cta` by every writing thread, then the bar.sync, then the P.V issue.
+4. Registers: `wgmma.fence` precedes every Q.K and P.V issue; s is rewritten only by Q.K(t+1)
+   after P(t) is packed; o is written by other instructions only after a wait 0 (rare offset move
+   in XPIPE=1, the merge in both). ptxas reports no serialization for the builds kept.
+5. Segment boundaries: the last tile is drained with wait 0 before the merge reds; the next
+   segment's prologue transposes into the buffer the tile before last read, retired as in 2.
+
+Independent read-only review: requested before the first judge run (result recorded below).
+
+### A1 gate (written before the bench that tests it)
+
+Score sensitivity from the 569b233dfe08414f judge medians: verify 16 C = 46 x 11.89 + 16 x 103.65 =
+2205 us, verify 32 C = 46 x 16.42 + 16 x 187.67 = 3758 us. A 2% cut of t_full is 1.50% / 1.60% of
+those loads' C, so +0.25% / +0.27% of the standalone score each, +0.5% for both.
+
+Bench (one check): `tools/attn_make_bench_ab.py --null --shapes all --inputs 2` with arms `ctrl`,
+`ctrl2` (independent build and state), `xp2@own` (`-DONE_XPIPE=2`), `pub`, `pub2`; seeded order
+20261030; timing on held-out inputs (seeds 1000, 1001; ABCHECK on seed 1).
+
+Promote `ONE_XPIPE=2` to a judged check only if all hold:
+1. ABCHECK passes for every arm; `xp2` against `ctrl` differs only at the red-order level seen
+   before (a few elements at one BF16 ulp per shape).
+2. Cold, at verify 16 full and verify 32 full: `xp2 - ctrl` <= -2% of `ctrl` on the pooled row and
+   on each input, and its magnitude exceeds `|ctrl2 - ctrl|` on that row; or ABSCORE for `xp2`
+   >= 1.005 while `ctrl2`'s ABSCORE lies within half that gain of 1.
+3. No other shape slower than `ctrl` by more than max(the shape's `|ctrl2 - ctrl|`, 1%).
+
+Then a confirmation bench with another seed and a judged check of `submission.py` with the
+switch on (dispatch: modes 51 and 115 only, the only builds it changes). If 2 fails while 1 and 3
+hold: measured loss for the design as built, row in docs/ruled-out.md, and A2 (mode 115 with
+`ONE_XPIPE=1`, the variant two CTAs per SM cannot hold) gets the next bench.

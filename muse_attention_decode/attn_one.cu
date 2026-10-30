@@ -142,6 +142,18 @@ constexpr int COOP_POLL_LIMIT = 1 << 24;
 #ifndef ONE_VHOIST
 #define ONE_VHOIST 1
 #endif
+// ONE_XPIPE (mode 51 and 115 tile loop, needs QKOV, EREL, PCHK, DCARRY and VHOIST): matrix work
+// in flight across the tile-loop edge, which neither the board build nor the public flat kernel
+// has (both end each tile in wgmma.wait_group 0). 1: the Q.K of tile t + 1 is issued before the
+// P.V of tile t and the wait retires only the Q.K, so the P.V of tile t runs under the softmax
+// of tile t + 1 and is retired before the V^T transpose that reuses its buffer; P is packed into
+// fresh registers while the previous P is still read. Consumers get 112 registers (producers
+// keep 32: 2 x (128 x 32 + 256 x 112) = 65,536). 2: the P.V of tile t is issued first, then the
+// next stage's wait, Q.K and V^T transpose run under it and one wait retires both; no extra
+// live registers. Design, lifetimes and the ordering chain: docs/runs-attention.md, 10-30.
+#ifndef ONE_XPIPE
+#define ONE_XPIPE 0
+#endif
 // ONE_TRIG: griddepcontrol.launch_dependents at kernel entry (q_len 1 and batch-1 q_len 8
 // instances only), so a following launch with the
 // programmatic-serialization attribute (the layer's o projection built with SK_PDL) can start
@@ -203,7 +215,7 @@ __host__ __device__ constexpr int one_prod_regs(int L) {
 }
 
 __host__ __device__ constexpr int one_cons_regs(int L) {
-    return L == 8 ? 104 : 200;
+    return L == 8 ? (ONE_XPIPE == 1 ? 112 : 104) : 200;
 }
 
 // ws_cnt map (ints): [b] last-CTA key ticket; [CNT_COOP + 2 b + e] cooperative key counters of
@@ -862,6 +874,9 @@ attn_one_kernel(const Params p) {
     constexpr int UNR8 = ONE_UNR2 && PROD && L == 8 ? 2 : 1;
     constexpr bool DCARRY = ONE_DCARRY && PROD && L == 8;
     constexpr bool VHOIST = ONE_VHOIST && QKOV;
+    constexpr int XPIPE = PROD && L == 8 ? ONE_XPIPE : 0;
+    static_assert(XPIPE == 0 || (QKOV && EREL && PCHK && DCARRY && VHOIST),
+                  "ONE_XPIPE is written on top of the promoted mode 51 tile loop");
     constexpr bool WAVE = ONE_WAVE > 0 && PROD && !SOLO && L == 8;
     constexpr bool DETM = ONE_DETM && FLAT && !COOP && L == 1;
     // NC consumer threads (one warpgroup per KV head at q_len 8, four warps at q_len 1); in
@@ -1930,7 +1945,180 @@ attn_one_kernel(const Params p) {
             }
             float off[2] = {OFF_FLOOR, OFF_FLOOR};
             const int qp0 = seq + 2 * wq;
-            if constexpr (QKOV || EREL || PCHK || UNR8 > 1) {
+            if constexpr (XPIPE != 0) {
+                // Buffers and owners (docs/runs-attention.md, 10-30): s is written by the Q.K
+                // of tile t + 1 only after P(t) is packed from it; V^T buffer (t & 1) is read by
+                // P.V(t) and rewritten by the transpose of tile t + 2, which every warp of the
+                // warpgroup reaches only after the bar.sync of tile t + 1, after its own retire
+                // of P.V(t); the stage of tile t + 1 is released after the wait that retires its
+                // Q.K and after this thread's ldmatrix of its V.
+                float s[32];
+                uint32_t pa[2][4];
+                int st = cst;
+                auto qk_issue = [&]() {
+                    const uint64_t kd =
+                        (desc_sw128(0) & ~0xffffffffull)
+                        | (klo0 + static_cast<uint32_t>(st) * (2 * TILE_BYTES >> 4));
+                    wg_fence();
+                    wgmma_qk<0>(s, qd0, kd);
+                    wgmma_qk<1>(s, qd1, kd + 2);
+                    wg_commit();
+                };
+                // Transposes the V half of stage st into the V^T buffer at vt.
+                auto transpose_v = [&](uint32_t vt) {
+#pragma unroll
+                    for (int half = 0; half < 2; ++half) {
+                        uint32_t t0, t1, t2, t3;
+                        ldsm_x4_trans(ld_off + static_cast<uint32_t>(st) * (2 * TILE_BYTES)
+                                          + half * 32 * ROWB,
+                                      t0, t1, t2, t3);
+                        stsm_x4(vt + (st_off ^ (half ? 32u : 0u)), __byte_perm(t0, t1, 0x6420),
+                                __byte_perm(t0, t1, 0x7531), __byte_perm(t2, t3, 0x6420),
+                                __byte_perm(t2, t3, 0x7531));
+                    }
+                };
+                auto pv_issue = [&]() {
+                    fence_proxy_async();
+                    named_sync(2 + hk, 128);
+                    const uint64_t vd = (desc_sw64(0) & ~0xffffffffull) | vd_lo;
+                    wg_fence();
+                    wgmma_pv(o, pa[0], vd);
+                    wgmma_pv(o, pa[1], vd + 2);
+                    wg_commit();
+                };
+                auto offset_to_max = [&]() {
+                    float tmax[2];
+                    bool move[2];
+#pragma unroll
+                    for (int hh = 0; hh < 2; ++hh) {
+                        float mx = fmaxf(s[2 * hh], s[2 * hh + 1]);
+#pragma unroll
+                        for (int i = 1; i < 8; ++i) {
+                            mx = fmaxf(mx, fmaxf(s[4 * i + 2 * hh], s[4 * i + 2 * hh + 1]));
+                        }
+                        tmax[hh] = quad_max(mx) * sl2k;
+                        move[hh] = tmax[hh] > off[hh] + 8.f;
+                    }
+                    if (__any_sync(0xffffffffu, move[0] || move[1])) {
+                        if constexpr (XPIPE == 1) {
+                            // The rescale below writes o, which the previous P.V may still
+                            // accumulate into.
+                            wg_wait<0>();
+                            reg_fence(o);
+                        }
+#pragma unroll
+                        for (int hh = 0; hh < 2; ++hh) {
+                            const float nxt = move[hh] ? tmax[hh] : off[hh];
+                            const float scale = ex2(off[hh] - nxt);
+                            off[hh] = nxt;
+#pragma unroll
+                            for (int i = 0; i < 9; ++i) {
+                                o[4 * i + 2 * hh] *= scale;
+                                o[4 * i + 2 * hh + 1] *= scale;
+                            }
+                        }
+                    }
+                };
+                auto pack = [&]() {
+                    auto ex = [&](int j) { return ex2(fmaf(s[j], sl2k, -off[(j >> 1) & 1])); };
+#pragma unroll
+                    for (int kk = 0; kk < 2; ++kk) {
+                        const int b0 = 16 * kk;
+                        pa[kk][0] = e4m3x4(ex(b0), ex(b0 + 1), ex(b0 + 4), ex(b0 + 5));
+                        pa[kk][1] = e4m3x4(ex(b0 + 2), ex(b0 + 3), ex(b0 + 6), ex(b0 + 7));
+                        pa[kk][2] = e4m3x4(ex(b0 + 8), ex(b0 + 9), ex(b0 + 12), ex(b0 + 13));
+                        pa[kk][3] = e4m3x4(ex(b0 + 10), ex(b0 + 11), ex(b0 + 14), ex(b0 + 15));
+                    }
+                };
+                // Mask, offset and P of tile it, from s (the same steps and rounding as the
+                // promoted loop below).
+                auto softmax_tile = [&](int it) {
+                    const int pos0 = lo + it * BN;
+                    const bool interior =
+                        it < it_c
+                        || (pos0 + BN - 1 <= seq && (!p.window || pos0 >= seq + L - p.window));
+                    if (!interior) {
+#pragma unroll
+                        for (int i = 0; i < 8; ++i) {
+#pragma unroll
+                            for (int hh = 0; hh < 2; ++hh) {
+#pragma unroll
+                                for (int e = 0; e < 2; ++e) {
+                                    const int pos = pos0 + 8 * i + 2 * c + e;
+                                    const int qp = qp0 + hh;
+                                    if (pos > qp || (p.window && pos < qp - p.window + 1)) {
+                                        s[4 * i + 2 * hh + e] = NEG_INF;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    if (it == 0) {
+                        offset_to_max();
+                    }
+                    pack();
+                    if (it != 0) {
+                        // See the promoted loop: bit 7 of a byte + 7 marks P > 256.
+                        constexpr uint32_t PB = 0x07070707u;
+                        const uint32_t ov =
+                            ((pa[0][0] + PB) | (pa[0][1] + PB) | (pa[0][2] + PB) |
+                             (pa[0][3] + PB) | (pa[1][0] + PB) | (pa[1][1] + PB) |
+                             (pa[1][2] + PB) | (pa[1][3] + PB)) & 0x80808080u;
+                        if (__any_sync(0xffffffffu, ov != 0u)) {
+                            offset_to_max();
+                            pack();
+                        }
+                    }
+                };
+                // Next tile: wait for its stage, issue its Q.K, transpose its V into the other
+                // V^T buffer (P.V of the tile before last read it; retired, see above).
+                auto next_qk = [&](int it) {
+                    acquire(it, st, it < it_c);
+                    qk_issue();
+                };
+                acquire(0, st, 0 < it_c);
+                qk_issue();
+                transpose_v(vt_cur);
+                wg_wait<0>();
+                reg_fence(s);
+                release(st);
+                st = cst;
+#pragma unroll (UNR8)
+                for (int it = 0; it < ntiles - 1; ++it) {
+                    softmax_tile(it);
+                    if constexpr (XPIPE == 1) {
+                        next_qk(it + 1);
+                        // Groups in commit order: P.V(it - 1), Q.K(it + 1). This retires the
+                        // P.V before the bar.sync in pv_issue.
+                        wg_wait<1>();
+                        reg_fence(o);
+                        pv_issue();
+                        transpose_v(vt_cur ^ vt_x);
+                        wg_wait<1>();
+                    } else {
+                        pv_issue();
+                        next_qk(it + 1);
+                        transpose_v(vt_cur ^ vt_x);
+                        wg_wait<0>();
+                        reg_fence(o);
+                    }
+                    reg_fence(s);
+                    release(st);
+                    st = cst;
+                    vt_cur ^= vt_x;
+                    vd_lo ^= vd_x;
+                }
+                softmax_tile(ntiles - 1);
+                if constexpr (XPIPE == 1) {
+                    wg_wait<0>();
+                    reg_fence(o);
+                }
+                pv_issue();
+                wg_wait<0>();
+                reg_fence(o);
+                vt_cur ^= vt_x;
+                vd_lo ^= vd_x;
+            } else if constexpr (QKOV || EREL || PCHK || UNR8 > 1) {
                 int st = PROD ? cst : 0;
 #pragma unroll (UNR8)
                 for (int it = 0; it < ntiles; ++it) {
