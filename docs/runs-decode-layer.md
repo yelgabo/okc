@@ -287,6 +287,19 @@ class).
 Not changed by these decisions (every other check keeps its bound): `_one_stress` (attention,
 1e-4 against eager and 5e-2 against SGLang), the norm and route side-stream tests.
 
+## Open lead (2026-10-30, unproven): input-history dependence in the attention output
+
+In 60cf58b69b75491e the attention stage of an eager call on a fresh input differs from that
+input's reference by up to 1e-4 at decode 1 sliding and 2e-4 at verify 1 sliding (every arm,
+eager calls included), while the attention stress on repeated inputs is bitwise
+(replayed_vs_eager 0.0 at 1x1 / 1x8 in fdf75ba5a8124544's inc prepare). Merge-order noise would
+show on repeated inputs too, so the hypothesis is that the output depends on the previous call's
+input (a low-amplitude stale read, for example of the cache rows the step writes). Not yet
+tested. Prepared for the next quota: `tools/dl_history_diag.py` on the g51 candidate measures
+repeated-input noise, previous-call dependence, and the same with the previous call on a
+separate case (cache or workspace as the carrier), for qkv, attention, the whole step and the
+MoE alone. The relative-L2 gate cannot see a 1e-4 effect; this needs the history test.
+
 ## Pre-check audits for the integrated candidate (2026-10-29, before the 10-30 checks)
 
 Source: the layer at the commit that adds this section (bundle bb98b7b plus the FIN8 stress and
