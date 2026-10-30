@@ -77,7 +77,9 @@ judge's prepare(), on random NVFP4 weights (32 experts):
   ABFIX    for the light twins with fix_st (73 of 72, stream-K phase A): per CTA, the cut phase A
            segments, thread 0's time in their fixups up to the count update, the units it
            finished and their time to the end of the read-back, the CTA's fixup total and its
-           share of the CTA's phase A, the largest CTA's total.
+           share of the CTA's phase A, the largest CTA's total. For 75 of 74 (designated
+           finisher) the finished units' time includes their wait for the other shares'
+           count, also given alone (mean and largest CTA).
   ABGATHER for the light twins that stamp the x gather (55, 56 of 51): thread 0's row stores,
            its fences and the gather barrier, its release, the x producer's first xready wait
            end after the release, and the public kernel's gather (its DBG 1 to 7, which also
@@ -86,8 +88,8 @@ judge's prepare(), on random NVFP4 weights (32 experts):
 The judge's prepare() that follows runs with its output filtered to its summary lines (POLICY,
 PREPARE, BENCH at 128 and 256 tokens, each variant's worst self-test error), so the run log's
 15 KB tail keeps the A/B. Twins: 26 -> 27, 37 -> 42, 47 -> 48, 51 -> 55, 62 -> 64, 63 -> 65, 66 -> 67, 68 -> 70,
-69 -> 71 and 72 -> 73 (light stamps; 55, 64, 65, 67, 70, 71 and 73 also stamp the gather, 73
-the fixups), 28 -> 31, 32 -> 33, 36 -> 38,
+69 -> 71, 72 -> 73 and 74 -> 75 (light stamps; 55, 64, 65, 67, 70, 71, 73 and 75 also stamp
+the gather, 73 and 75 the fixups), 28 -> 31, 32 -> 33, 36 -> 38,
 39 -> 40, 37 -> 41 and 43 -> 44 (light stamps and phase A counters, 41 and 44 with phase B
 counters too; name a twin as an arm to time it so its cost shows). An arm "v301" (the staged pair on 37's components) also
 builds modes 45 and 46 and needs 37 built (its fallback above 512 tokens).
@@ -102,12 +104,14 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 LIGHT_TWINS = {26: 27, 37: 42, 47: 48, 52: 54, 51: 55, 57: 58, 60: 61, 62: 64, 63: 65, 66: 67,
-               68: 70, 69: 71, 72: 73}
+               68: 70, 69: 71, 72: 73, 74: 75}
 SKEW_TWINS = {47: 49, 51: 56}
 # Light twins whose kernels also stamp the x gather (gather_st in the kernel): ABGATHER.
-GATHER_TWINS = (55, 56, 58, 61, 64, 65, 67, 70, 71, 73)
+GATHER_TWINS = (55, 56, 58, 61, 64, 65, 67, 70, 71, 73, 75)
 # Light twins that also write the phase A fixup words (fix_st in the kernel): ABFIX.
-FIX_TWINS = (73,)
+FIX_TWINS = (73, 75)
+# Of those, the designated-finisher twins (75 of 74): the finisher counts no share of its own.
+DF_TWINS = (75,)
 PA_TWINS = {28: 31, 32: 33, 36: 38, 39: 40, 37: 41, 43: 44}
 PB_TWINS = (41, 44)
 # Variant arms that need fat modes built: v301 is the staged pair on 37's components (45 then 46).
@@ -249,6 +253,7 @@ _AB_PUBSKEW = @PUBSKEW@
 _AB_SK_PER = @SKPER@
 _AB_GATHER = @GATHER@
 _AB_FIX = @FIX@
+_AB_DF = @DF@
 _AB_WORK = @WORK@
 
 
@@ -571,7 +576,7 @@ def _ab_main():
              float((pd[:, 2] - prng.double()).mean())]
         return [x / 1e3 for x in r]
 
-    def fix_summary(lt, fx):
+    def fix_summary(lt, fx, df):
         # lt: the 16 light words; fx: fix_st's 8 words per CTA. Thread 0's cycles are converted
         # with its CTA's clock64 over globaltimer between the consumers' start and phase A's end
         # (light words 2 and 3). Per CTA, means: shares (cut segments that reached the count
@@ -582,16 +587,19 @@ def _ab_main():
         share_us = us(fx[:, 0])
         fin_us = us(fx[:, 2])
         nfin = fx[:, 3]
-        # A finishing share's cycles to the end include its cycles to the count update.
-        tot = us(fx[:, 0]) + fin_us - torch.where(nfin > 0, share_us / fx[:, 1].clamp(min=1)
-                                                  * nfin, torch.zeros_like(share_us))
+        # A last-arrival finisher's cycles to the end include its cycles to the count update; a
+        # designated finisher (df) counts nothing, and word 4 is its wait for the others' count.
+        tot = us(fx[:, 0]) + fin_us - (torch.zeros_like(share_us) if df else torch.where(
+            nfin > 0, share_us / fx[:, 1].clamp(min=1) * nfin, torch.zeros_like(share_us)))
         pa = (lt[:, 3] - lt[:, 2]) / 1e3
         return [float(fx[:, 1].mean()), float(share_us.mean()), float(nfin.mean()),
                 float(fin_us.mean()), float(tot.mean()), float((tot / pa).mean()),
-                float(tot.max()), float(ghz.mean())]
+                float(tot.max()), float(ghz.mean()), float(us(fx[:, 4]).mean()),
+                float(us(fx[:, 4]).max())]
 
     fix_cols = ("cut segs/CTA", "to count us/CTA", "finished/CTA", "finish us/CTA",
-                "fixup us/CTA", "share of phase A", "max fixup us", "GHz")
+                "fixup us/CTA", "share of phase A", "max fixup us", "GHz", "fin wait us/CTA",
+                "max fin wait us")
 
     gather_cols = ("stores", "fences+barrier", "release", "first x ready after release",
                    "last first-x-ready from first gather start", "gather total", "pub gather",
@@ -859,7 +867,8 @@ def _ab_main():
                         raw = state["scratch"]["inter"].reshape(-1).view(torch.int64)
                         fixd[a].append(fix_summary(
                             raw[: G * 16].view(G, 16).double().cpu(),
-                            raw[G * 16: G * 24].view(G, 8).double().cpu()))
+                            raw[G * 16: G * 24].view(G, 8).double().cpu(),
+                            _AB_LIGHT[a] in _AB_DF))
                 for a, v in skewv.items():
                     skd_[a].append(ours_skew(d, v))
                 if pskew is not None:
@@ -1232,7 +1241,8 @@ def main():
                      ("@SKEW@", repr(skewt)), ("@SKPER@", repr(SK_PER)),
                      ("@PUBSKEW@", repr(bool(opts["pubskew"]))),
                      ("@WORK@", repr(bool(opts["work"]))),
-                     ("@GATHER@", repr(GATHER_TWINS)), ("@FIX@", repr(FIX_TWINS))):
+                     ("@GATHER@", repr(GATHER_TWINS)), ("@FIX@", repr(FIX_TWINS)),
+                     ("@DF@", repr(DF_TWINS))):
         assert block.count(key) == 1, key
         block = block.replace(key, val)
     Path(out).write_text(src + block)
