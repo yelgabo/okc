@@ -3,7 +3,9 @@ arm), a frozen incumbent layer source (inc) and the public layer file (pub), on 
 inputs and the judge's weights.
 
     python3 tools/dl_make_bench_pub.py OUT.py PUBLIC.py INCUMBENT.py --loads=d1,d16,d32
-        [--rounds=10] [--deadline=255] [--seed0=50001] [--order-seed=7]
+        [--rounds=10] [--deadline=255] [--seed0=50001] [--order-seed=7] [--cand=LAYER.py]
+
+--cand names the candidate layer file (default: the repository's muse_decode_layer/submission.py).
 
 INCUMBENT.py is the scored layer source to compare against (for example `git show
 a923f11:muse_decode_layer/submission.py`), not the repository head; its load_inline names get
@@ -658,7 +660,8 @@ def inc_patch(text):
 
 
 def main():
-    opts = {"rounds": "10", "deadline": "255", "seed0": "50001", "order-seed": "7", "loads": ""}
+    opts = {"rounds": "10", "deadline": "255", "seed0": "50001", "order-seed": "7", "loads": "",
+            "cand": str(ROOT / "muse_decode_layer/submission.py")}
     pos = []
     for a in sys.argv[1:]:
         if a.startswith("--"):
@@ -675,6 +678,7 @@ def main():
     if not set(loads) <= {"d1", "d16", "d32", "v1", "v16", "v32"}:
         raise SystemExit(f"unknown load in {loads}")
     pins = {name: pin(path) for name, path in (("pub", pub), ("inc", inc))}
+    pins["cand"] = pin(Path(opts["cand"]))
     params = (f"\n_AB_PINS = {pins!r}\n"
               f"_AB_PUB_SRC = {pub_patch(pub.read_text())!r}\n"
               f"_AB_INC_SRC = {inc_patch(inc.read_text())!r}\n"
@@ -684,7 +688,7 @@ def main():
               f"_AB_SEED0 = {int(opts['seed0'])!r}\n"
               f"_AB_ORDER_SEED = {int(opts['order-seed'])!r}\n"
               "_AB_ROUTINGS = (\"busiest\", \"second\")\n")
-    src = (ROOT / "muse_decode_layer/submission.py").read_text()
+    src = Path(opts["cand"]).read_text()
     out.write_text(src + params + BODY)
     print(f"wrote {out}: loads {loads}; " + "; ".join(f"{k} {v}" for k, v in pins.items()))
 
