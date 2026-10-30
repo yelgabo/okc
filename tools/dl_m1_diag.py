@@ -3,9 +3,10 @@ self-test, then per stress shape measures M1-off against M1-off (eager repeats, 
 stresses) and M1-on against M1-off at the stress's bound, and attention alone; never raises
 on a difference, and leaves M1 off for the timed path. Run as check 6372154fcd7a4fa9.
 
-    python3 tools/dl_m1_diag.py LAYER_WITH_M1.py OUT.py   (the layer file at 6377b5a)
+    python3 tools/dl_m1_diag.py LAYER_WITH_M1.py OUT.py [--fresh]   (the layer file at 6377b5a)
 """
 import sys
+from pathlib import Path
 
 src, out = sys.argv[1], sys.argv[2]
 text = open(src).read()
@@ -80,12 +81,18 @@ def _m1_tune(state):
             except Exception as exc:
                 rep.append(f"diag {batch}x{length}{layer[0]} error {type(exc).__name__}: "
                            f"{str(exc)[:150]}")
+        if "_m1_fresh" in globals():
+            rep.extend(_m1_fresh(state))
     finally:
         state["m1_ok"] = False
         state["m1_policy"] = {}
 
 
 '''
+if "--fresh" in sys.argv:
+    # The fresh-input stress (check 3e2aa83358dd4f60): new rows every replay, each replay
+    # checked on the device, so a read of the previous replay's rows shows as order 1.
+    new = open(Path(__file__).with_name("dl_m1_fresh_block.py")).read() + new
 text = text[:start] + new + text[end:]
 text = text.replace("# okc: problem=muse_decode_layer\n",
                     "# okc: problem=muse_decode_layer\n# M1 determinism diagnostic (not a candidate)\n", 1)

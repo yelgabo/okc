@@ -15,10 +15,13 @@ fair only between kernels launched the same way; the span column is the step its
 import re
 import sys
 
+# First match wins: the boundary kernels' names contain "attn", and the router and the
+# pre-expert norm feed the MoE but belong to the glue owner.
 OWNERS = (
+    ("glue", r"boundary|norm_residual|route|routing|router|pre_norm"),
     ("moe", r"moe|marlin|w4_|silu|topk|expert|fused_moe|finaliz"),
     ("attn", r"attn|flash|fwd_|split_kv|combine|decode_kernel|merge"),
-    ("proj", r"sk_kernel|cgemv|wd_kernel|nvjet|gemv|gemm|cutlass|sm90_xmma|splitK"),
+    ("proj", r"sk_kernel|sk2_kernel|cgemv|wd_kernel|nvjet|gemv|gemm|cutlass|sm90_xmma|splitK"),
     ("glue", r"."),
 )
 WEIGHT = {"s": 46, "f": 16}

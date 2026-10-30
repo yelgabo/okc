@@ -43,6 +43,9 @@ belongs in the session scratchpad; only the logs of its runs are committed.
             durations (above span when kernels overlap, PDL secondaries included from launch,
             so their time counts waits in griddepcontrol.wait). ABKN maps the codes to names.
   ABCHK     per arm, checks passed of checks run; failing checks print as ABCHKFAIL.
+  ABZ       for the shapes named by --tlend=v1s,d32f,...: the median replay's kernels in start
+            order as code@start+duration/exposed (exposed: how far the kernel moves the
+            latest end so far, so the exposed times sum to the span), printed last.
 The tail order keeps ABCHK, ABTIME, ABLOAD, ABSCORE, ABKN and ABK; ABTL and passing ABCHECK
 lines come first and are the first to fall out of the judge's 16 KB log tail.
 """
@@ -545,6 +548,21 @@ def _ab_timeline(graph, flush, reps=5):
 
 
 
+def _ab_exposed(ks):
+    """Kernels in start order as code@start+duration/exposed: exposed is how far the kernel's
+    end moves the latest end so far (its share of the span); a trailing -idle marks a gap with
+    nothing running before it started; s1: a second stream."""
+    out, last = [], 0.0
+    for r, st, d, c in sorted(ks, key=lambda e: e[1]):
+        idle = st - last
+        end = st + d
+        exp = max(0.0, end - max(last, st))
+        out.append(f"{'s1:' if r else ''}{c}@{st:.1f}+{d:.1f}/{exp:.1f}"
+                   + (f"-{idle:.1f}" if idle > 0.05 else ""))
+        last = max(last, end)
+    return " ".join(out)
+
+
 def _ab_clone(data):
     return {k: (v.clone() if isinstance(v, torch.Tensor) else v) for k, v in data.items()}
 
@@ -642,6 +660,9 @@ def _ab_run(arms, weights, t_prep):
                 _ab_print(f"ABTL {label} {n} {span:.1f}: " + " ".join(
                     f"{'s1:' if r else ''}{c}@{st:.1f}+{d:.1f}" for r, st, d, c in ks))
                 _AB_USED.update(c for c, _, _ in agg)
+                if label in _AB_TLEND:
+                    _AB_USED.update(c for _, _, _, c in ks)
+                    _ab_print(f"ABZ {label} {n} span {span:.1f}: " + _ab_exposed(ks))
                 _ab_print(f"ABK {label} {n} span {span:.1f} sum {sum(t for _, t, _ in agg):.1f}: "
                           + " ".join(f"{c} {t:.1f}" + (f"x{k}" if k > 1 else "")
                                      for c, t, k in agg))
@@ -726,7 +747,7 @@ def prepare(weights):
     # then the per-kernel tables with their code names.
     order = ("ABTL", "ABCHECK", "ABBUILD", "ABPREP", "ABPIN", "ABDIAG", "ABOTHER", "ABARMS",
              "ABFAIL", "ABCHKFAIL", "ABCHK", "ABSTOP", "ABTIME", "ABLOAD", "ABSCORE", "ABKN",
-             "ABK ")
+             "ABK ", "ABZ ")
     rank = lambda line: next((i for i, p in enumerate(order) if line.startswith(p)), 0)  # noqa: E731
     for line in sorted(_AB_OUT, key=rank):
         print(line, flush=True)
@@ -787,7 +808,7 @@ def pin(data):
 
 def main():
     opts = {"rounds": "10", "deadline": "255", "seed0": "50001", "order-seed": "7", "loads": "",
-            "other": "", "cand": str(ROOT / "muse_decode_layer/submission.py")}
+            "other": "", "cand": str(ROOT / "muse_decode_layer/submission.py"), "tlend": ""}
     pos = []
     for a in sys.argv[1:]:
         if a.startswith("--"):
@@ -819,7 +840,8 @@ def main():
               f"_AB_DEADLINE = {int(opts['deadline'])!r}\n"
               f"_AB_SEED0 = {int(opts['seed0'])!r}\n"
               f"_AB_ORDER_SEED = {int(opts['order-seed'])!r}\n"
-              "_AB_ROUTINGS = (\"busiest\", \"second\")\n")
+              "_AB_ROUTINGS = (\"busiest\", \"second\")\n"
+              f"_AB_TLEND = {tuple(x for x in opts['tlend'].split(',') if x)!r}\n")
     text = cand.read_text() + params + BODY
     if len(text.encode()) >= 1_000_000:
         raise SystemExit(f"{len(text.encode())} bytes: the judge takes under 1,000,000")

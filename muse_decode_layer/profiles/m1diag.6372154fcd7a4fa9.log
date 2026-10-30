@@ -1,0 +1,109 @@
+:17.4 qkv8raw:20.1 proj_fwd:20.7; o o8:11.8 cublas:12.0 o8raw:12.5; pooler pool8:23.6 pool8raw:28.3 proj_fwd:30.0; unpooler slice8:9.7 slice8raw:10.1 proj_fwd:11.8
+SUMMARY moe pdl sk16w4s 1.5e-08, sk8w3s 1.5e-05, sk8w4s-er 4.4e-06, main-d2 1.4e-05, main-m2-ar2-ub 2.8e-05, main-dynb-fs 2.3e-05, main-lean 3.2e-05, main-lean-silu-bar 3.7e-05, main-lean-grp-nohoist 2.4e-05
+SUMMARY attn fallback vs fp32 1x1s ours 1.63e-03 sglang 5.21e-02 ours-vs-sglang 5.20e-02; 1x8s ours 3.63e-02 sglang 4.06e-02 ours-vs-sglang 3.09e-02; 1x1f ours 1.75e-03 sglang 6.75e-03 ours-vs-sglang 7.14e-03; 1x8f ours 1.76e-02 sglang 2.19e-02 ours-vs-sglang 1.46e-02
+SUMMARY m1 ok=0 policy {}
+SUMMARY m1 selftest PDL = plain bitwise on 14 launches
+SUMMARY m1 diag 1x8f eoff 0.0e+00/0.0e+00= 0.0e+00/0.0e+00= 0.0e+00/0.0e+00= 0.0e+00/0.0e+00= 0.0e+00/0.0e+00= 0.0e+00/0.0e+00= | goff 0.0e+00/0.0e+00= 0.0e+00/0.0e+00= | gon 0.0e+00/0.0e+00= 0.0e+00/0.0e+00= | eon 0.0e+00/0.0e+00= 0.0e+00/0.0e+00= | attn _attn_one max 0.0e+00 eq 6/6
+SUMMARY m1 diag 1x8s eoff 0.0e+00/0.0e+00= 0.0e+00/0.0e+00= 0.0e+00/0.0e+00= 0.0e+00/0.0e+00= 0.0e+00/0.0e+00= 0.0e+00/0.0e+00= | goff 0.0e+00/0.0e+00= 0.0e+00/0.0e+00= | gon 0.0e+00/0.0e+00= 0.0e+00/0.0e+00= | eon 0.0e+00/0.0e+00= 0.0e+00/0.0e+00= | attn _attn_one max 0.0e+00 eq 6/6
+SUMMARY m1 diag 1x1f eoff 0.0e+00/0.0e+00= 0.0e+00/0.0e+00= 0.0e+00/0.0e+00= 0.0e+00/0.0e+00= 0.0e+00/0.0e+00= 0.0e+00/0.0e+00= | goff 0.0e+00/0.0e+00= 0.0e+00/0.0e+00= | gon 0.0e+00/0.0e+00= 0.0e+00/0.0e+00= | eon 0.0e+00/0.0e+00= 0.0e+00/0.0e+00= | attn _attn_one max 0.0e+00 eq 6/6
+SUMMARY m1 diag 1x1s eoff 0.0e+00/0.0e+00= 0.0e+00/0.0e+00= 0.0e+00/0.0e+00= 0.0e+00/0.0e+00= 0.0e+00/0.0e+00= 0.0e+00/0.0e+00= | goff 0.0e+00/0.0e+00= 0.0e+00/0.0e+00= | gon 0.0e+00/0.0e+00= 0.0e+00/0.0e+00= | eon 0.0e+00/0.0e+00= 0.0e+00/0.0e+00= | attn _attn_one max 0.0e+00 eq 6/6
+SUMMARY m1 diag 16x1f eoff 0.0e+00/0.0e+00= 0.0e+00/0.0e+00= 0.0e+00/0.0e+00= 0.0e+00/0.0e+00= 8.5e-05/7.9e-05 0.0e+00/0.0e+00= | goff 0.0e+00/0.0e+00= 0.0e+00/0.0e+00= | gon 1.1e-04/8.5e-05 1.1e-04/8.5e-05 | eon 0.0e+00/0.0e+00= 1.3e-04/9.9e-05 | attn _attn_one max 0.0e+00 eq 6/6
+SUMMARY m1 diag 32x1f eoff 9.9e-05/7.6e-05 6.7e-04/5.9e-04 8.4e-05/4.7e-05 1.2e-04/8.4e-05 6.7e-04/6.0e-04 9.1e-05/6.3e-05 | goff 8.3e-05/6.0e-05 1.1e-04/7.5e-05 | gon 1.0e-04/7.4e-05 1.4e-04/1.0e-04 | eon 6.6e-04/5.9e-04 1.3e-04/8.4e-05 | attn _attn_one max 4.0e-05 eq 5/6
+SUMMARY moe T=1: sk8w3s [sk8w3s 35.7 sk8w4s-er 37.3 sk16w4s 38.9 w4 46.6] judge-like routing, busiest expert [1, 1, 1, 1] w4 g1=17 g2=21 pdl=1 cl=8 front fp32
+SUMMARY moe T=8: sk8w3s [sk8w3s 69.0 sk8w4s-er 70.7 sk16w4s 73.1 w4 79.8] judge-like routing, busiest expert [4, 3, 4, 5] w4 g1=2 g2=24 pdl=1 cl=1 front skf-r
+SUMMARY moe T=16: sk8w3s [sk8w3s 71.2 sk8w4s-er 73.0 sk16w4s 75.4 w4 82.4] judge-like routing, busiest expert [11, 13, 12, 12] w4 g1=18 g2=11 pdl=1 cl=8 front skf-r
+SUMMARY moe T=32: main-lean-grp-nohoist [main-lean-grp-nohoist 87.6 main-lean-silu-bar 90.0 main-lean 91.0 main-dynb-fs 95.8 sk8w3s 106.1 sk8w4s-er 112.6 w4 112.9 main-m2-ar2-ub 115.5 main-d2 116.1 sk16w4s 116.8] judge-like routing, busiest expert [25, 22, 25, 23] w4 g1=26 g2=28 pdl=1 cl=8 front skf-r
+SUMMARY moe T=128: main-lean-grp-nohoist [main-lean-grp-nohoist 165.5 main-lean-silu-bar 168.1 main-lean 170.7 main-dynb-fs 179.0 main-m2-ar2-ub 207.2 main-d2 210.1 w4 241.0 sk8w3s 263.4 sk8w4s-er 278.8 sk16w4s 288.6] judge-like routing, busiest expert [67, 61, 60, 66] w4 g1=4 g2=29 pdl=1 cl=1 front concat-r
+SUMMARY moe T=256: main-lean-grp-nohoist [main-lean-grp-nohoist 224.7 main-lean-silu-bar 227.4 main-lean 232.2 main-dynb-fs 240.7 main-m2-ar2-ub 272.5 main-d2 275.9 w4 366.0 sk8w3s 443.6 sk8w4s-er 469.6 sk16w4s 484.0] judge-like routing, busiest expert [120, 113, 111, 109] w4 g1=5 g2=29 pdl=1 cl=1 front concat-r
+SUMMARY front T=1 (front / front+moe us): fp32 25.4/44.2 skf-r 32.2/49.1 skf 31.1/49.1
+SUMMARY front T=8 (front / front+moe us): skf-r 32.6/64.0 skf 31.6/64.3 fp32 38.9/72.9
+SUMMARY front T=16 (front / front+moe us): skf-r 32.9/98.4 skf 32.0/98.8 concat-r 37.2/102.5 concat 38.1/104.9 mma 36.8/105.0 split 41.7/110.7
+SUMMARY front T=32 (front / front+moe us): skf-r 35.1/197.9 concat-r 37.7/199.5 skf 33.7/201.2 concat 38.4/205.1 mma 39.0/209.2 split 44.5/214.2
+SUMMARY front T=128 (front / front+moe us): concat-r 38.4/266.4 concat 39.5/272.3 wide 41.6/284.8 split 47.2/291.7
+SUMMARY front T=256 (front / front+moe us): concat-r 44.7/282.5 concat 45.7/286.8 split 61.0/312.8
+SUMMARY abnd occupancy (CTAs/SM, resident clusters) c8x256=8,124 c2x512=2,132 c4x256=5,154 c1x256=3,396 c1x512=2,264 c1x1024=1,132
+SUMMARY abnd T=1: c8x256 [c1x1024 13.92 c8x256 14.11 sglang 14.34 c1x512 14.91 c2x512 15.01 c4x256 15.01 c1x256 16.54]
+SUMMARY abnd T=8: c8x256 [c8x256 15.90 c1x1024 16.32 c4x256 16.83 sglang 16.83 c2x512 16.86 c1x512 16.90 c1x256 18.46]
+SUMMARY abnd T=16: sglang [sglang 15.33 c1x1024 15.42 c8x256 15.90 c1x512 16.19 c4x256 16.54 c2x512 16.74 c1x256 17.57]
+SUMMARY abnd T=32: c1x1024 [c1x1024 16.45 sglang 16.48 c8x256 16.77 c1x512 16.80 c4x256 17.34 c2x512 17.38 c1x256 18.43]
+SUMMARY abnd T=128: sglang [sglang 17.63 c1x1024 18.34 c1x512 18.50 c2x512 19.36 c4x256 19.49 c1x256 19.81 c8x256 22.53]
+SUMMARY abnd T=256: c1x512 [c1x512 22.27 sglang 22.78 c1x256 23.55 c1x1024 23.74 c2x512 26.30 c4x256 26.82 c8x256 29.70]
+SUMMARY attn d1 sliding: attn_one plan(splits,nc,mode)=(32, 1, 13)
+SUMMARY attn d1 full: attn_one plan(splits,nc,mode)=(252, 8, 11)
+SUMMARY attn d16 sliding: attn_one plan(splits,nc,mode)=(16, 1, 1)
+SUMMARY attn d16 full: attn_one plan(splits,nc,mode)=(264, 1, 49)
+SUMMARY attn d32 sliding: attn_one plan(splits,nc,mode)=(8, 1, 1)
+SUMMARY attn d32 full: attn_one plan(splits,nc,mode)=(264, 1, 49)
+SUMMARY attn v1 sliding: attn_one plan(splits,nc,mode)=(33, 1, 15)
+SUMMARY attn v1 full: attn_one plan(splits,nc,mode)=(252, 8, 11)
+SUMMARY attn v16 sliding: attn_one plan(splits,nc,mode)=(8, 1, 3)
+SUMMARY attn v16 full: attn_one plan(splits,nc,mode)=(264, 1, 51)
+SUMMARY attn v32 sliding: attn_one plan(splits,nc,mode)=(4, 1, 3)
+SUMMARY attn v32 full: attn_one plan(splits,nc,mode)=(264, 1, 51)
+SUMMARY failed 1: moe1 stress sk8w4s: moe fused stress: T=8+16+1+32+8 sk8w4s replays=2000, one host sync after all of them; retained: the last replay's 5 outputs, replayed_vs_eager=1.4e-04 (each < 1
+TL v1s: span 238.9 us (replays 7: 146.2 148.1 238.9 238.9 239.1 240.1 240.4), device busy 223.2, idle 15.7, kernel sum 226.2
+TL v1s s0    0.0   13.7  13.7 st-gap  0.0 dev-gap  0.0 sk_kernel<1, 8, 3, 1, 4, 4, 4, true, false, 
+TL v1s s0   14.1   20.8   6.7 st-gap  0.4 dev-gap  0.4 one::attn_one_kernel<8, 15>(one::Params)
+TL v1s s0   21.3   29.1   7.8 st-gap  0.6 dev-gap  0.6 sk_kernel<1, 8, 4, 1, 4, 1, 4, true, false, 
+TL v1s s0   29.7   33.7   4.0 st-gap  0.6 dev-gap  0.6 bnd::attn_boundary_kernel(float const*, __nv
+TL v1s s0   34.2   56.8  22.7 st-gap  0.5 dev-gap  0.5 sk_kernel<1, 8, 1, 2, 2, 4, 3, true, false, 
+TL v1s s0   57.0   61.9   5.0 st-gap  0.1 dev-gap  0.1 route_kernel<__nv_bfloat16, false>(float con
+TL v1s s0   58.9  135.3  76.3 st-gap -3.0 dev-gap  0.0 moe1::sk_8_3_0::moe_fused_kernel<1>(moe1::Pa
+TL v1s s0  135.7  141.1   5.3 st-gap  0.5 dev-gap  0.5 sk_kernel<1, 8, 1, 1, 8, 2, 4, true, false, 
+TL v1s s0  141.3  145.1   3.8 st-gap  0.2 dev-gap  0.2 bnd::boundary_kernel(float const*, __nv_bflo
+TL v1s s0  158.0  238.9  81.0 st-gap 12.8 dev-gap 12.8 at::native::vectorized_elementwise_kernel<8,
+TL v1f: span 245.8 us (replays 7: 153.6 154.3 244.7 245.8 246.5 247.3 250.1), device busy 229.7, idle 16.1, kernel sum 232.8
+TL v1f s0    0.0   13.9  13.9 st-gap  0.0 dev-gap  0.0 sk_kernel<1, 8, 3, 1, 4, 4, 4, true, false, 
+TL v1f s0   14.2   29.5  15.3 st-gap  0.4 dev-gap  0.4 one::attn_one_kernel<8, 11>(one::Params)
+TL v1f s0   30.0   38.0   8.0 st-gap  0.4 dev-gap  0.4 sk_kernel<1, 8, 4, 1, 4, 1, 4, true, false, 
+TL v1f s0   38.6   42.7   4.1 st-gap  0.6 dev-gap  0.6 bnd::attn_boundary_kernel(float const*, __nv
+TL v1f s0   43.3   64.2  21.0 st-gap  0.6 dev-gap  0.6 sk_kernel<1, 8, 1, 2, 2, 4, 3, true, false, 
+TL v1f s0   64.3   69.0   4.7 st-gap  0.0 dev-gap  0.0 route_kernel<__nv_bfloat16, false>(float con
+TL v1f s0   65.9  142.2  76.3 st-gap -3.1 dev-gap  0.0 moe1::sk_8_3_0::moe_fused_kernel<1>(moe1::Pa
+TL v1f s0  142.6  147.9   5.2 st-gap  0.4 dev-gap  0.4 sk_kernel<1, 8, 1, 1, 8, 2, 4, true, false, 
+TL v1f s0  148.0  151.6   3.6 st-gap  0.2 dev-gap  0.2 bnd::boundary_kernel(float const*, __nv_bflo
+TL v1f s0  165.1  245.8  80.7 st-gap 13.4 dev-gap 13.4 at::native::vectorized_elementwise_kernel<8,
+TL v16s: span 359.6 us (replays 7: 264.9 272.2 358.5 359.6 359.6 362.8 363.9), device busy 343.4, idle 16.1, kernel sum 346.9
+TL v16s s0    0.0   16.4  16.4 st-gap  0.0 dev-gap  0.0 wd_kernel<1, 128, 3, 1, false, 8, __nv_bfloa
+TL v16s s0   16.8   28.6  11.8 st-gap  0.4 dev-gap  0.4 one::attn_one_kernel<8, 3>(one::Params)
+TL v16s s0   29.0   37.9   8.9 st-gap  0.4 dev-gap  0.4 nvjet_sm90_tst_128x64_64x8_1x2_h_bz_TNT
+TL v16s s0   38.5   43.6   5.1 st-gap  0.6 dev-gap  0.6 sglang::muse_spark_norm_residual_kernel<8192
+TL v16s s0   44.0   73.3  29.2 st-gap  0.5 dev-gap  0.5 nvjet_sm90_tss_96x64_64x10_4x2_h_bz_TNN
+TL v16s s0   73.3   78.3   5.0 st-gap  0.0 dev-gap  0.0 route_kernel<float, true>(float const*, long
+TL v16s s0   75.0  237.7 162.7 st-gap -3.3 dev-gap  0.0 moe1::moe_main_kernel<47>(moe1::Params)
+TL v16s s0  238.5  260.1  21.6 st-gap  0.8 dev-gap  0.8 nvjet_sm90_tst_128x64_64x8_1x2_h_bz_TNT
+TL v16s s0  259.9  265.4   5.5 st-gap -0.2 dev-gap  0.0 sglang::muse_spark_norm_residual_kernel<8192
+TL v16s s0  278.7  359.6  80.8 st-gap 13.3 dev-gap 13.3 at::native::vectorized_elementwise_kernel<8,
+TL v16f: span 446.3 us (replays 7: 353.0 359.0 445.2 446.3 446.6 449.5 451.3), device busy 429.3, idle 17.0, kernel sum 432.4
+TL v16f s0    0.0   16.5  16.5 st-gap  0.0 dev-gap  0.0 wd_kernel<1, 128, 3, 1, false, 8, __nv_bfloa
+TL v16f s0   16.9  119.3 102.3 st-gap  0.4 dev-gap  0.4 one::attn_one_kernel<8, 51>(one::Params)
+TL v16f s0  119.9  127.2   7.3 st-gap  0.6 dev-gap  0.6 nvjet_sm90_tst_128x64_64x8_1x2_h_bz_TNT
+TL v16f s0  127.9  132.4   4.5 st-gap  0.7 dev-gap  0.7 sglang::muse_spark_norm_residual_kernel<8192
+TL v16f s0  132.9  159.2  26.3 st-gap  0.4 dev-gap  0.4 nvjet_sm90_tss_96x64_64x10_4x2_h_bz_TNN
+TL v16f s0  159.3  164.2   4.9 st-gap  0.1 dev-gap  0.1 route_kernel<float, true>(float const*, long
+TL v16f s0  161.1  323.9 162.8 st-gap -3.1 dev-gap  0.0 moe1::moe_main_kernel<47>(moe1::Params)
+TL v16f s0  324.6  346.2  21.6 st-gap  0.7 dev-gap  0.7 nvjet_sm90_tst_128x64_64x8_1x2_h_bz_TNT
+TL v16f s0  346.2  351.4   5.2 st-gap  0.0 dev-gap  0.0 sglang::muse_spark_norm_residual_kernel<8192
+TL v16f s0  365.5  446.3  80.9 st-gap 14.0 dev-gap 14.0 at::native::vectorized_elementwise_kernel<8,
+TL d32s: span 292.3 us (replays 7: 199.1 203.9 291.8 292.3 292.7 293.1 293.7), device busy 276.0, idle 16.3, kernel sum 279.4
+TL d32s s0    0.0   14.8  14.8 st-gap  0.0 dev-gap  0.0 sk_kernel<2, 32, 3, 1, 4, 2, 4, true, false,
+TL d32s s0   15.1   27.4  12.2 st-gap  0.4 dev-gap  0.4 one::attn_one_kernel<1, 1>(one::Params)
+TL d32s s0   27.7   35.9   8.1 st-gap  0.4 dev-gap  0.4 sk_kernel<2, 32, 2, 2, 2, 2, 3, true, false,
+TL d32s s0   36.6   40.5   3.9 st-gap  0.7 dev-gap  0.7 bnd::attn_boundary_geo_kernel<1, 1024>(float
+TL d32s s0   40.9   63.0  22.1 st-gap  0.4 dev-gap  0.4 sk_kernel<2, 32, 2, 2, 2, 4, 3, true, false,
+TL d32s s0   63.4   68.2   4.8 st-gap  0.4 dev-gap  0.4 route_kernel<__nv_bfloat16, false>(float con
+TL d32s s0   64.8  177.2 112.4 st-gap -3.4 dev-gap  0.0 moe1::moe_main_kernel<47>(moe1::Params)
+TL d32s s0  177.9  194.5  16.6 st-gap  0.7 dev-gap  0.7 sk_kernel<2, 32, 2, 2, 2, 2, 3, true, false,
+TL d32s s0  194.5  199.1   4.6 st-gap -0.0 dev-gap  0.0 sglang::muse_spark_norm_residual_kernel<8192
+TL d32s s0  212.4  292.3  79.8 st-gap 13.3 dev-gap 13.3 at::native::vectorized_elementwise_kernel<8,
+TL d32f: span 436.9 us (replays 7: 344.3 348.0 436.6 436.9 437.2 437.5 443.4), device busy 421.5, idle 15.4, kernel sum 425.2
+TL d32f s0    0.0   14.8  14.8 st-gap  0.0 dev-gap  0.0 sk_kernel<2, 32, 3, 1, 4, 2, 4, true, false,
+TL d32f s0   15.3  188.1 172.8 st-gap  0.4 dev-gap  0.4 one::attn_one_kernel<1, 49>(one::Params)
+TL d32f s0  188.4  195.5   7.1 st-gap  0.3 dev-gap  0.3 sk_kernel<2, 32, 2, 2, 2, 2, 3, true, false,
+TL d32f s0  196.1  199.9   3.8 st-gap  0.6 dev-gap  0.6 bnd::attn_boundary_geo_kernel<1, 1024>(float
+TL d32f s0  200.3  221.3  21.0 st-gap  0.4 dev-gap  0.4 sk_kernel<2, 32, 2, 2, 2, 4, 3, true, false,
+TL d32f s0  221.4  226.3   4.9 st-gap  0.1 dev-gap  0.1 route_kernel<__nv_bfloat16, false>(float con
+TL d32f s0  222.8  322.3  99.5 st-gap -3.5 dev-gap  0.0 moe1::moe_main_kernel<47>(moe1::Params)
+TL d32f s0  323.0  339.8  16.8 st-gap  0.7 dev-gap  0.7 sk_kernel<2, 32, 2, 2, 2, 2, 3, true, false,
+TL d32f s0  339.6  344.2   4.6 st-gap -0.3 dev-gap  0.0 sglang::muse_spark_norm_residual_kernel<8192
+TL d32f s0  357.0  436.9  79.8 st-gap 12.9 dev-gap 12.9 at::native::vectorized_elementwise_kernel<8,
