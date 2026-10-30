@@ -1,0 +1,107 @@
+tate=True loaded t=47s
+ABCHECK PASS ctrl b1 ctx80000 tp8 sliding L1 fixed soft page1 scale1 [splits=32,nc=1,mode=13] err=4.905e-03 bound=0.150 worst_row=7.824e-03 k=0.00e+00 v=0.00e+00 ws_rows_nonzero=0 l_nonzero=0 tickets_nonzero=0 coop_next_parity_nonzero=0 flat_next_parity_nonzero=0
+ABWSOFF ws64k off=65536 acc=0xde104010000 l=0xde1c1b2a000 cnt=0xde1c1aca000
+ABCHECK PASS ws64k b1 ctx80000 tp8 sliding L1 fixed soft page1 scale1 [splits=32,nc=1,mode=13] vs_ctrl=0.0e+00 diff_elems=0/1024 ws_rows_nonzero=0 l_nonzero=0 tickets_nonzero=0 coop_next_parity_nonzero=0 flat_next_parity_nonzero=0
+ABCHECK PASS ctrl2 b1 ctx80000 tp8 sliding L1 fixed soft page1 scale1 [splits=32,nc=1,mode=13] vs_ctrl=2.3e-04 diff_elems=1/1024 max_ulp=1.0 max_abs=3.9e-03 ws_rows_nonzero=0 l_nonzero=0 tickets_nonzero=0 coop_next_parity_nonzero=0 flat_next_parity_nonzero=0
+ABCHECK PASS ctrl b1 ctx80000 tp8 full L1 fixed coherent page1 scale1 [splits=252,nc=8,mode=11] err=2.521e-03 bound=0.056 worst_row=6.246e-03 k=0.00e+00 v=0.00e+00 ws_rows_nonzero=0 l_nonzero=0 tickets_nonzero=0 coop_next_parity_nonzero=0 flat_next_parity_nonzero=0
+ABCHECK PASS ws64k b1 ctx80000 tp8 full L1 fixed coherent page1 scale1 [splits=252,nc=8,mode=11] vs_ctrl=0.0e+00 diff_elems=0/1024 ws_rows_nonzero=0 l_nonzero=0 tickets_nonzero=0 coop_next_parity_nonzero=0 flat_next_parity_nonzero=0
+ABCHECK PASS ctrl2 b1 ctx80000 tp8 full L1 fixed coherent page1 scale1 [splits=252,nc=8,mode=11] vs_ctrl=0.0e+00 diff_elems=0/1024 ws_rows_nonzero=0 l_nonzero=0 tickets_nonzero=0 coop_next_parity_nonzero=0 flat_next_parity_nonzero=0
+ABCHECK PASS ctrl b1 ctx80000 tp8 sliding L8 fixed soft page1 scale1 [splits=33,nc=1,mode=15] err=6.963e-02 bound=0.150 worst_row=1.813e-01 k=0.00e+00 v=0.00e+00 ws_rows_nonzero=0 l_nonzero=0 tickets_nonzero=0 coop_next_parity_nonzero=0 flat_next_parity_nonzero=0
+ABCHECK PASS ws64k b1 ctx80000 tp8 sliding L8 fixed soft page1 scale1 [splits=33,nc=1,mode=15] vs_ctrl=0.0e+00 diff_elems=0/8192 ws_rows_nonzero=0 l_nonzero=0 tickets_nonzero=0 coop_next_parity_nonzero=0 flat_next_parity_nonzero=0
+ABCHECK PASS ctrl2 b1 ctx80000 tp8 sliding L8 fixed soft page1 scale1 [splits=33,nc=1,mode=15] vs_ctrl=0.0e+00 diff_elems=0/8192 ws_rows_nonzero=0 l_nonzero=0 tickets_nonzero=0 coop_next_parity_nonzero=0 flat_next_parity_nonzero=0
+ABCHECK PASS ctrl b1 ctx80000 tp8 full L8 fixed coherent page1 scale1 [splits=252,nc=8,mode=11] err=2.102e-02 bound=0.068 worst_row=1.053e-01 k=0.00e+00 v=0.00e+00 ws_rows_nonzero=0 l_nonzero=0 tickets_nonzero=0 coop_next_parity_nonzero=0 flat_next_parity_nonzero=0
+ABCHECK PASS ws64k b1 ctx80000 tp8 full L8 fixed coherent page1 scale1 [splits=252,nc=8,mode=11] vs_ctrl=0.0e+00 diff_elems=0/8192 ws_rows_nonzero=0 l_nonzero=0 tickets_nonzero=0 coop_next_parity_nonzero=0 flat_next_parity_nonzero=0
+ABCHECK PASS ctrl2 b1 ctx80000 tp8 full L8 fixed coherent page1 scale1 [splits=252,nc=8,mode=11] vs_ctrl=0.0e+00 diff_elems=0/8192 ws_rows_nonzero=0 l_nonzero=0 tickets_nonzero=0 coop_next_parity_nonzero=0 flat_next_parity_nonzero=0
+ABCHECK PASS ctrl b1 ctx10 tp8 sliding L1 fixed normal page64 scale1 [splits=32,nc=1,mode=1] err=2.668e-03 bound=0.133 worst_row=5.738e-03 k=0.00e+00 v=0.00e+00 ws_rows_nonzero=0 l_nonzero=0 tickets_nonzero=0 coop_next_parity_nonzero=0 flat_next_parity_nonzero=0
+ABCHECK PASS ws64k b1 ctx10 tp8 sliding L1 fixed normal page64 scale1 [splits=32,nc=1,mode=1] vs_ctrl=0.0e+00 diff_elems=0/1024 ws_rows_nonzero=0 l_nonzero=0 tickets_nonzero=0 coop_next_parity_nonzero=0 flat_next_parity_nonzero=0
+ABCHECK PASS ctrl2 b1 ctx10 tp8 sliding L1 fixed normal page64 scale1 [splits=32,nc=1,mode=1] vs_ctrl=0.0e+00 diff_elems=0/1024 ws_rows_nonzero=0 l_nonzero=0 tickets_nonzero=0 coop_next_parity_nonzero=0 flat_next_parity_nonzero=0
+ABCHECK PASS ctrl b3 ctx2047 tp8 sliding L1 fixed normal page64 scale1 [splits=32,nc=1,mode=1] err=4.489e-03 bound=0.150 worst_row=1.282e-02 k=0.00e+00 v=0.00e+00 ws_rows_nonzero=0 l_nonzero=0 tickets_nonzero=0 coop_next_parity_nonzero=0 flat_next_parity_nonzero=0
+ABCHECK PASS ws64k b3 ctx2047 tp8 sliding L1 fixed normal page64 scale1 [splits=32,nc=1,mode=1] vs_ctrl=0.0e+00 diff_elems=0/3072 ws_rows_nonzero=0 l_nonzero=0 tickets_nonzero=0 coop_next_parity_nonzero=0 flat_next_parity_nonzero=0
+ABCHECK PASS ctrl2 b3 ctx2047 tp8 sliding L1 fixed normal page64 scale1 [splits=32,nc=1,mode=1] vs_ctrl=4.0e-06 diff_elems=1/3072 max_ulp=1.0 max_abs=1.2e-04 ws_rows_nonzero=0 l_nonzero=0 tickets_nonzero=0 coop_next_parity_nonzero=0 flat_next_parity_nonzero=0
+ABCHECK PASS ctrl b5 ctx5000 tp8 sliding L8 mixed normal page1 scale1 [splits=26,nc=1,mode=3] err=7.850e-02 bound=0.150 worst_row=3.085e-01 k=0.00e+00 v=0.00e+00 ws_rows_nonzero=0 l_nonzero=0 tickets_nonzero=0 coop_next_parity_nonzero=0 flat_next_parity_nonzero=0
+ABCHECK PASS ws64k b5 ctx5000 tp8 sliding L8 mixed normal page1 scale1 [splits=26,nc=1,mode=3] vs_ctrl=0.0e+00 diff_elems=0/40960 ws_rows_nonzero=0 l_nonzero=0 tickets_nonzero=0 coop_next_parity_nonzero=0 flat_next_parity_nonzero=0
+ABCHECK PASS ctrl2 b5 ctx5000 tp8 sliding L8 mixed normal page1 scale1 [splits=26,nc=1,mode=3] vs_ctrl=1.7e-08 diff_elems=1/40960 max_ulp=1.0 max_abs=1.9e-06 ws_rows_nonzero=0 l_nonzero=0 tickets_nonzero=0 coop_next_parity_nonzero=0 flat_next_parity_nonzero=0
+ABCHECK PASS ctrl b4 ctx3000 tp8 full L1 fixed normal page64 scale1 [splits=264,nc=1,mode=49] err=5.673e-03 bound=0.150 worst_row=1.375e-02 k=0.00e+00 v=0.00e+00 ws_rows_nonzero=0 l_nonzero=0 tickets_nonzero=0 coop_next_parity_nonzero=0 flat_next_parity_nonzero=0
+ABCHECK PASS ws64k b4 ctx3000 tp8 full L1 fixed normal page64 scale1 [splits=264,nc=1,mode=49] vs_ctrl=0.0e+00 diff_elems=0/4096 ws_rows_nonzero=0 l_nonzero=0 tickets_nonzero=0 coop_next_parity_nonzero=0 flat_next_parity_nonzero=0
+ABCHECK PASS ctrl2 b4 ctx3000 tp8 full L1 fixed normal page64 scale1 [splits=264,nc=1,mode=49] vs_ctrl=0.0e+00 diff_elems=0/4096 ws_rows_nonzero=0 l_nonzero=0 tickets_nonzero=0 coop_next_parity_nonzero=0 flat_next_parity_nonzero=0
+ABCHECK PASS ctrl b4 ctx6000 tp8 full L8 fixed edges page64 scale1 [splits=264,nc=1,mode=51] err=8.169e-02 bound=0.150 worst_row=2.604e-01 k=0.00e+00 v=0.00e+00 ws_rows_nonzero=0 l_nonzero=0 tickets_nonzero=0 coop_next_parity_nonzero=0 flat_next_parity_nonzero=0
+ABCHECK PASS ws64k b4 ctx6000 tp8 full L8 fixed edges page64 scale1 [splits=264,nc=1,mode=51] vs_ctrl=5.0e-06 diff_elems=2/32768 max_ulp=1.0 max_abs=4.9e-04 ws_rows_nonzero=0 l_nonzero=0 tickets_nonzero=0 coop_next_parity_nonzero=0 flat_next_parity_nonzero=0
+ABCHECK PASS ctrl2 b4 ctx6000 tp8 full L8 fixed edges page64 scale1 [splits=264,nc=1,mode=51] vs_ctrl=6.1e-10 diff_elems=1/32768 max_ulp=1.0 max_abs=6.0e-08 ws_rows_nonzero=0 l_nonzero=0 tickets_nonzero=0 coop_next_parity_nonzero=0 flat_next_parity_nonzero=0
+ABCHECK PASS ctrl b3 ctx4000 tp8 sliding L8 fixed normal page1 scale0.015625 [splits=33,nc=1,mode=3] err=7.403e-02 bound=0.150 worst_row=2.450e-01 k=0.00e+00 v=0.00e+00 ws_rows_nonzero=0 l_nonzero=0 tickets_nonzero=0 coop_next_parity_nonzero=0 flat_next_parity_nonzero=0
+ABCHECK PASS ws64k b3 ctx4000 tp8 sliding L8 fixed normal page1 scale0.015625 [splits=33,nc=1,mode=3] vs_ctrl=0.0e+00 diff_elems=0/24576 ws_rows_nonzero=0 l_nonzero=0 tickets_nonzero=0 coop_next_parity_nonzero=0 flat_next_parity_nonzero=0
+ABCHECK PASS ctrl2 b3 ctx4000 tp8 sliding L8 fixed normal page1 scale0.015625 [splits=33,nc=1,mode=3] vs_ctrl=7.2e-07 diff_elems=1/24576 max_ulp=1.0 max_abs=6.1e-05 ws_rows_nonzero=0 l_nonzero=0 tickets_nonzero=0 coop_next_parity_nonzero=0 flat_next_parity_nonzero=0
+ABCHECK PASS ctrl b2 ctx9000 tp8 full L1 fixed normal page64 scale0.015625 [splits=264,nc=1,mode=49] err=5.338e-03 bound=0.150 worst_row=1.226e-02 k=0.00e+00 v=0.00e+00 ws_rows_nonzero=0 l_nonzero=0 tickets_nonzero=0 coop_next_parity_nonzero=0 flat_next_parity_nonzero=0
+ABCHECK PASS ws64k b2 ctx9000 tp8 full L1 fixed normal page64 scale0.015625 [splits=264,nc=1,mode=49] vs_ctrl=0.0e+00 diff_elems=0/2048 ws_rows_nonzero=0 l_nonzero=0 tickets_nonzero=0 coop_next_parity_nonzero=0 flat_next_parity_nonzero=0
+ABCHECK PASS ctrl2 b2 ctx9000 tp8 full L1 fixed normal page64 scale0.015625 [splits=264,nc=1,mode=49] vs_ctrl=0.0e+00 diff_elems=0/2048 ws_rows_nonzero=0 l_nonzero=0 tickets_nonzero=0 coop_next_parity_nonzero=0 flat_next_parity_nonzero=0
+ABCHECK done: 0 failing t=48s
+ABORDER seed=20261034 rounds=120 inputs=6 timing_seeds=[1000, 1001, 1002, 1003, 1004, 1005] arms=['ctrl', 'ws64k', 'ctrl2']
+ABPLAN b= 1 sliding L=1 ctrl=[splits=32,nc=1,mode=13] ws64k=[splits=32,nc=1,mode=13] ctrl2=[splits=32,nc=1,mode=13]
+ABCOLD b= 1 sliding L=1 in=0 ctrl=9.82 ws64k=9.82 ctrl2=9.79 cap0=ws64k t=48s
+ABWARM b= 1 sliding L=1 in=0 ctrl=5.36 ws64k=5.39 ctrl2=5.12 t=48s
+ABCOLD b= 1 sliding L=1 in=1 ctrl=9.82 ws64k=9.86 ctrl2=9.63 cap0=ws64k t=48s
+ABWARM b= 1 sliding L=1 in=1 ctrl=5.39 ws64k=5.38 ctrl2=5.14 t=48s
+ABCOLD b= 1 sliding L=1 in=2 ctrl=9.86 ws64k=9.86 ctrl2=9.66 cap0=ctrl2 t=48s
+ABWARM b= 1 sliding L=1 in=2 ctrl=5.38 ws64k=5.36 ctrl2=5.16 t=48s
+ABCOLD b= 1 sliding L=1 in=3 ctrl=9.76 ws64k=9.76 ctrl2=9.79 cap0=ws64k t=48s
+ABWARM b= 1 sliding L=1 in=3 ctrl=5.35 ws64k=5.37 ctrl2=5.16 t=48s
+ABCOLD b= 1 sliding L=1 in=4 ctrl=9.70 ws64k=9.70 ctrl2=9.70 cap0=ctrl2 t=48s
+ABWARM b= 1 sliding L=1 in=4 ctrl=5.38 ws64k=5.37 ctrl2=5.15 t=48s
+ABCOLD b= 1 sliding L=1 in=5 ctrl=9.86 ws64k=9.76 ctrl2=9.79 cap0=ctrl2 t=48s
+ABWARM b= 1 sliding L=1 in=5 ctrl=5.36 ws64k=5.38 ctrl2=5.15 t=48s
+ABCOLD b= 1 sliding L=1 pooled ctrl=9.82 ws64k=9.79 ctrl2=9.76
+ABWARM b= 1 sliding L=1 pooled ctrl=5.38 ws64k=5.38 ctrl2=5.15
+ABPLAN b= 1 full    L=1 ctrl=[splits=252,nc=8,mode=11] ws64k=[splits=252,nc=8,mode=11] ctrl2=[splits=252,nc=8,mode=11]
+ABCOLD b= 1 full    L=1 in=0 ctrl=18.62 ws64k=17.95 ctrl2=18.75 cap0=ctrl2 t=48s
+ABWARM b= 1 full    L=1 in=0 ctrl=13.01 ws64k=12.31 ctrl2=12.91 t=48s
+ABCOLD b= 1 full    L=1 in=1 ctrl=18.78 ws64k=18.14 ctrl2=18.85 cap0=ctrl t=48s
+ABWARM b= 1 full    L=1 in=1 ctrl=13.10 ws64k=12.25 ctrl2=13.01 t=48s
+ABCOLD b= 1 full    L=1 in=2 ctrl=18.78 ws64k=18.11 ctrl2=18.85 cap0=ctrl t=48s
+ABWARM b= 1 full    L=1 in=2 ctrl=13.03 ws64k=12.22 ctrl2=13.04 t=48s
+ABCOLD b= 1 full    L=1 in=3 ctrl=18.69 ws64k=17.98 ctrl2=18.66 cap0=ctrl t=48s
+ABWARM b= 1 full    L=1 in=3 ctrl=13.07 ws64k=12.28 ctrl2=13.05 t=48s
+ABCOLD b= 1 full    L=1 in=4 ctrl=18.69 ws64k=18.02 ctrl2=18.69 cap0=ctrl t=49s
+ABWARM b= 1 full    L=1 in=4 ctrl=12.96 ws64k=12.28 ctrl2=13.05 t=49s
+ABCOLD b= 1 full    L=1 in=5 ctrl=18.62 ws64k=17.98 ctrl2=18.69 cap0=ctrl t=49s
+ABWARM b= 1 full    L=1 in=5 ctrl=13.04 ws64k=12.24 ctrl2=12.87 t=49s
+ABCOLD b= 1 full    L=1 pooled ctrl=18.72 ws64k=18.05 ctrl2=18.75
+ABWARM b= 1 full    L=1 pooled ctrl=13.04 ws64k=12.27 ctrl2=13.02
+ABPLAN b= 1 sliding L=8 ctrl=[splits=33,nc=1,mode=15] ws64k=[splits=33,nc=1,mode=15] ctrl2=[splits=33,nc=1,mode=15]
+ABCOLD b= 1 sliding L=8 in=0 ctrl=10.78 ws64k=10.75 ctrl2=10.75 cap0=ctrl2 t=49s
+ABWARM b= 1 sliding L=8 in=0 ctrl=6.82 ws64k=6.83 ctrl2=6.83 t=49s
+ABCOLD b= 1 sliding L=8 in=1 ctrl=10.66 ws64k=10.69 ctrl2=10.66 cap0=ctrl t=49s
+ABWARM b= 1 sliding L=8 in=1 ctrl=6.84 ws64k=6.80 ctrl2=6.83 t=49s
+ABCOLD b= 1 sliding L=8 in=2 ctrl=10.78 ws64k=10.91 ctrl2=10.82 cap0=ws64k t=49s
+ABWARM b= 1 sliding L=8 in=2 ctrl=6.78 ws64k=6.83 ctrl2=6.81 t=49s
+ABCOLD b= 1 sliding L=8 in=3 ctrl=10.91 ws64k=10.91 ctrl2=10.91 cap0=ctrl t=49s
+ABWARM b= 1 sliding L=8 in=3 ctrl=6.73 ws64k=6.73 ctrl2=6.77 t=49s
+ABCOLD b= 1 sliding L=8 in=4 ctrl=10.75 ws64k=10.78 ctrl2=10.78 cap0=ctrl t=49s
+ABWARM b= 1 sliding L=8 in=4 ctrl=6.75 ws64k=6.77 ctrl2=6.82 t=49s
+ABCOLD b= 1 sliding L=8 in=5 ctrl=10.85 ws64k=10.88 ctrl2=10.88 cap0=ctrl2 t=49s
+ABWARM b= 1 sliding L=8 in=5 ctrl=6.82 ws64k=6.84 ctrl2=6.82 t=49s
+ABCOLD b= 1 sliding L=8 pooled ctrl=10.78 ws64k=10.85 ctrl2=10.82
+ABWARM b= 1 sliding L=8 pooled ctrl=6.81 ws64k=6.81 ctrl2=6.82
+ABPLAN b= 1 full    L=8 ctrl=[splits=252,nc=8,mode=11] ws64k=[splits=252,nc=8,mode=11] ctrl2=[splits=252,nc=8,mode=11]
+ABCOLD b= 1 full    L=8 in=0 ctrl=19.52 ws64k=19.46 ctrl2=19.39 cap0=ws64k t=49s
+ABWARM b= 1 full    L=8 in=0 ctrl=15.13 ws64k=15.05 ctrl2=15.02 t=49s
+ABCOLD b= 1 full    L=8 in=1 ctrl=19.46 ws64k=19.55 ctrl2=19.39 cap0=ctrl2 t=49s
+ABWARM b= 1 full    L=8 in=1 ctrl=15.14 ws64k=15.07 ctrl2=15.02 t=49s
+ABCOLD b= 1 full    L=8 in=2 ctrl=19.52 ws64k=19.52 ctrl2=19.49 cap0=ctrl2 t=49s
+ABWARM b= 1 full    L=8 in=2 ctrl=15.16 ws64k=15.10 ctrl2=15.02 t=49s
+ABCOLD b= 1 full    L=8 in=3 ctrl=19.58 ws64k=19.58 ctrl2=19.46 cap0=ws64k t=49s
+ABWARM b= 1 full    L=8 in=3 ctrl=15.11 ws64k=15.16 ctrl2=15.06 t=49s
+ABCOLD b= 1 full    L=8 in=4 ctrl=19.49 ws64k=19.68 ctrl2=19.58 cap0=ctrl t=49s
+ABWARM b= 1 full    L=8 in=4 ctrl=15.15 ws64k=15.10 ctrl2=14.97 t=49s
+ABCOLD b= 1 full    L=8 in=5 ctrl=19.71 ws64k=19.62 ctrl2=19.49 cap0=ctrl2 t=49s
+ABWARM b= 1 full    L=8 in=5 ctrl=15.17 ws64k=15.11 ctrl2=15.00 t=49s
+ABCOLD b= 1 full    L=8 pooled ctrl=19.55 ws64k=19.58 ctrl2=19.46
+ABWARM b= 1 full    L=8 pooled ctrl=15.14 ws64k=15.10 ctrl2=15.02
+ABADDR ctrl:acc=0xde108000000,l=0xde1c1a59000,cnt=0xde1c1a99000 ws64k:acc=0xde104010000,l=0xde1c1b2a000,cnt=0xde1c1aca000 ctrl2:acc=0xde105010000,l=0xde1c1b6a000,cnt=0xde1c1aea000
+ABSUM cold b= 1 sliding L=1 ctrl=9.82 ws64k=9.79 ctrl2=9.76 null:ctrl2-ctrl=-0.06 d:ws64k=-0.03
+ABSUM warm b= 1 sliding L=1 ctrl=5.38 ws64k=5.38 ctrl2=5.15 null:ctrl2-ctrl=-0.22 d:ws64k=+0.00
+ABSUM cold b= 1 full    L=1 ctrl=18.72 ws64k=18.05 ctrl2=18.75 null:ctrl2-ctrl=+0.03 d:ws64k=-0.67
+ABSUM warm b= 1 full    L=1 ctrl=13.04 ws64k=12.27 ctrl2=13.02 null:ctrl2-ctrl=-0.03 d:ws64k=-0.78
+ABSUM cold b= 1 sliding L=8 ctrl=10.78 ws64k=10.85 ctrl2=10.82 null:ctrl2-ctrl=+0.03 d:ws64k=+0.06
+ABSUM warm b= 1 sliding L=8 ctrl=6.81 ws64k=6.81 ctrl2=6.82 null:ctrl2-ctrl=+0.01 d:ws64k=-0.00
+ABSUM cold b= 1 full    L=8 ctrl=19.55 ws64k=19.58 ctrl2=19.46 null:ctrl2-ctrl=-0.10 d:ws64k=+0.03
+ABSUM warm b= 1 full    L=8 ctrl=15.14 ws64k=15.10 ctrl2=15.02 null:ctrl2-ctrl=-0.12 d:ws64k=-0.04
+ABCHECKSUM ctrl=11/0/0 ws64k=11/0/0 ctrl2=11/0/0 (pass/fail/probe)

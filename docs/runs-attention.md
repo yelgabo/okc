@@ -1866,3 +1866,380 @@ eight copies; cooperative modes clear the next parity counter before bumping the
 launch writes (the block's own key and value) is read by no other CTA in the launch: the one
 CTA whose range holds the position patches its tile from shared memory after the full-barrier
 wait, over whatever the producer gathered.
+
+## Standalone round 10-30: A0 scorecard and A1 cross-tile overlap in mode 51
+
+Brief: docs/steering/2026-10-30-attention-projection-standalone-roadmap.md, sections 1, 2, 4, 6, 7.
+Start: main 7703f0a, board entry e9085c86d89449c2 (2.504x, a bench file), clean candidate-only best
+569b233dfe08414f (2.449x). Quota at the start (`okc problems`, 07:49 UTC): 19 of 20 checks.
+
+### A1 design: what crosses the tile-loop edge
+
+The board build ends every tile with `wgmma.wait_group 0` twice (after Q.K and after P.V), as the
+public flat kernel does. `ONE_XPIPE` (`attn_one.cu`, default 0, modes 51 and 115 only) keeps the
+operands, the masks, the lazy offset, the P rounding and the merge, and changes only where the
+waits sit. Per tile t of a segment (tile 0's Q.K and V^T transpose run in a prologue, the last
+tile's P.V is drained before the merge):
+
+```
+                        XPIPE=2 (PV first)                    XPIPE=1 (QK first)
+softmax(t): mask, P(t)  [s(t) -> pa]                          [s(t) -> pa'; PV(t-1) still reads pa, o]
+                                                              rare offset move: wait 0, then rescale o
+                        PV(t) issue  (bar.sync V^T(t))        QK(t+1) issue (stage t+1 full wait)
+in flight now:          PV(t)                                 PV(t-1), QK(t+1)
+                        QK(t+1) issue (stage t+1 full wait)   wait 1  -> PV(t-1) retired
+                                                              PV(t) issue (bar.sync V^T(t))
+in flight now:          PV(t), QK(t+1)                        QK(t+1), PV(t)
+                        transpose V(t+1) -> V^T buf (t+1)&1   transpose V(t+1) -> V^T buf (t+1)&1
+                        wait 0 -> PV(t), QK(t+1) retired      wait 1 -> QK(t+1) retired
+                        release stage t+1                     release stage t+1
+carried to tile t+1:    nothing in flight                     PV(t) (under softmax(t+1))
+```
+
+Lifetimes (who owns each buffer, and the event that ends the previous owner's use):
+
+| buffer | written by | read by | reuse allowed after |
+|---|---|---|---|
+| stage of tile t+1 (K, V) | producer cp.async | Q.K(t+1) wgmma, this thread's ldmatrix of V(t+1) | the wait that retires Q.K(t+1) (wait 0 / wait 1) and the ldmatrix before it in program order; then `mbarrier.arrive` on the empty barrier (unchanged from EREL) |
+| V^T buffer (t & 1) | stmatrix of the 4 warps of the warpgroup (tile t, then t+2) | P.V(t) wgmma | P.V(t) retired in every warp: each warp retires it before it arrives at the bar.sync of tile t+1, and the transpose of tile t+2 follows that bar.sync in every warp |
+| s (32 f32) | Q.K(t+1) wgmma | softmax(t+1) | P(t) packed from s(t) before Q.K(t+1) is issued |
+| pa (8 b32) | pack of tile t | P.V(t) wgmma (A from registers) | XPIPE=2: retired in the same tile. XPIPE=1: pa(t+1) is a new value; ptxas must keep pa(t)'s registers until the wait (SASS: alternating R104/R100 and R96/R92 in the two unrolled bodies of mode 115) |
+| o (36 f32) | P.V wgmmas (accumulate chain) | merge | in flight across the edge only in XPIPE=1; the offset rescale waits 0 before writing it; the merge follows a wait 0 |
+
+Resources (CUDA 12.8.1, `tools/attn_one_sass.sh`, sm_90a; no shared memory added, the V^T buffers
+were already two per KV head):
+
+| build | mode 51 (two CTAs per SM, setmaxnreg 32 / 104) | mode 115 (one CTA per SM) |
+|---|---|---|
+| board (`ONE_XPIPE=0`) | 6328 SASS instr, consumer top R99, no spills | 6560 instr, R142 |
+| `ONE_XPIPE=2` | 6920 instr, consumer top R100, no spills, no C75xx | 7264 instr, R139 |
+| `ONE_XPIPE=1` | **C7512 "wgmma serialized due to insufficient register resources"** with setmaxnreg 112 (the most two CTAs per SM can give: 2 x (128 x 32 + 256 x 112) = 65,536); 16 WARPGROUP.DEPBAR (5 in XPIPE=2) | 7304 instr, 157 registers, no spills, no C75xx |
+
+So XPIPE=1 is compile-infeasible in mode 51 (rejected before any judge run, per the brief) and
+feasible only at one CTA per SM, which is A2's territory (mode 115). XPIPE=2 is the A1 candidate.
+
+SASS evidence of real cross-tile issue overlap, mode 51 with `ONE_XPIPE=2` (steady-state body):
+`QGMMA.64x72x32` x2 (P.V of tile t, last one `gsb0`) at f980 / f9a0, then without any
+`WARPGROUP.DEPBAR` the stage-(t+1) `SYNCS.PHASECHK.TRANS64.TRYWAIT` loop (f9f0 - faa0), the
+`FENCE.VIEW.ASYNC.S` and patch path, `BAR.SYNC 0x1` at it 0, `QGMMA.64x64x32` x2 (Q.K of tile t+1)
+at fe00 / fe60, two `LDSM.16.MT88.4` + `STSM.16.M88.4` pairs (V^T of tile t+1), and only then
+`WARPGROUP.DEPBAR.LE gsb0, 0x0` (fef0). Mode 115 with `ONE_XPIPE=1`: P.V issue (11e90 / 11ef0),
+`DEPBAR.LE 0x1` (11f80, retires Q.K only), then the next tile's mask, max and 32 `MUFU.EX2` run
+while the P.V is pending; the next `DEPBAR.LE 0x1` (145a0) follows the next Q.K issue.
+
+With `ONE_XPIPE=0` all 13 instances are SASS-identical to 7703f0a (per-function compare,
+namespace hashes normalized).
+
+### Ordering argument (no fence or barrier removed; one wait moved)
+
+Per tile, every path still executes: the full-barrier wait, `fence.proxy.async` after it, the
+patch path with its own fence and the consumer bar.sync where the tile holds the block's rows,
+`fence.proxy.async` + `bar.sync(2 + hk, 128)` between the V^T stores and the P.V issue, and one
+`mbarrier.arrive` on the empty barrier per stage. Static counts rise (FENCE.VIEW.ASYNC 10 -> 13,
+SYNCS.ARRIVE 3 -> 4) because the prologue and last tile are peeled copies.
+
+1. Stage reuse (WAR between the Q.K wgmma's async-proxy reads, the generic ldmatrix of V, and the
+   producer's next cp.async). `wgmma.wait_group N` returns when at most N of the most recent
+   groups are pending and every earlier group of the executing thread is complete (PTX ISA,
+   `wgmma.wait_group`; section number not re-read this session). XPIPE=2: wait 0 after Q.K(t+1). XPIPE=1: groups pending at
+   the second wait are Q.K(t+1) then P.V(t) in commit order, so wait 1 completes Q.K(t+1). The
+   ldmatrix of V(t+1) precedes the arrive in program order and its destination registers are
+   consumed by the stmatrix before it. The release is the same arrive EREL used (judged in
+   cb85d590c301410e); its producer side is unchanged.
+2. V^T reuse (WAR between P.V(t)'s async-proxy reads of buffer t & 1 and the stmatrix of tile
+   t+2 into it by any warp of the warpgroup). In XPIPE=2 each warp retires P.V(t) with the wait 0
+   of tile t; in XPIPE=1 with the wait 1 that follows the Q.K(t+2) issue in tile t+1. Both come
+   before that warp's arrival at the bar.sync of tile t+1, and the transpose of tile t+2 follows
+   that bar.sync in every warp. This is the chain the board build already relies on (its
+   transpose of tile t+2 under Q.K(t+2) follows the bar.sync of tile t+1, after the wait 0 that
+   retires P.V(t)).
+3. V^T publication (RAW, generic stmatrix to async-proxy wgmma read): unchanged,
+   `fence.proxy.async.shared::cta` by every writing thread, then the bar.sync, then the P.V issue.
+4. Registers: `wgmma.fence` precedes every Q.K and P.V issue; s is rewritten only by Q.K(t+1)
+   after P(t) is packed; o is written by other instructions only after a wait 0 (rare offset move
+   in XPIPE=1, the merge in both). ptxas reports no serialization for the builds kept.
+5. Segment boundaries: the last tile is drained with wait 0 before the merge reds; the next
+   segment's prologue transposes into the buffer the tile before last read, retired as in 2.
+
+Independent read-only review (fresh agent, before the first judge run, 10-30): **XPIPE=2 sound**:
+no stage, V^T or Q buffer can be overwritten while a wgmma reads it, including segment
+boundaries and ntiles == 1 (ntiles == 0 cannot reach the loop: PROD implies FLAT and
+`seg_bounds` requires lo < hi); release after the retiring wait; mbarrier order and phases as in
+the EREL loop; no fence or barrier dropped; per-CTA o expected bitwise equal to the shipped loop.
+XPIPE=1 (mode 115 only): sound with two caveats. (a) `pa` reuse while P.V reads it relies on
+ptxas keeping the registers apart (a clean C75xx report is evidence for that build only; with
+`ONE_UNR2=0` it would not hold). (b) The rare offset-move branch executes `wgmma.wait_group 0`
+under a warp-uniform but not warpgroup-uniform condition; the `.aligned` wording, as the
+reviewer reads it, makes that undefined behaviour, though `WARPGROUP.DEPBAR` is a per-warp wait
+in SASS. If A2 adopts XPIPE=1, it needs a warpgroup-uniform condition or a recorded deviation.
+
+Follow-up to caveat (b), XPIPE=1 only (XPIPE=0 and XPIPE=2 SASS unchanged, per-function compare):
+the PCHK overflow vote is taken with `bar.red.or.pred` on the warpgroup's V^T barrier id
+(2 + hk, 128 threads) instead of `__any_sync`, so `offset_to_max` runs under warpgroup-uniform
+conditions only (tile 0, or that vote), and its `wgmma.wait_group 0` now sits at its start,
+outside any divergent branch. This adds one barrier per tile after the first; none removed.
+Two other placements were tried and rejected by ptxas: deferring the rescale to after the
+retiring wait 1 (C7514, "non wgmma instructions reading accumulator registers", modes 51 and
+115), and the same with the vote folded into the V^T bar.sync (C7514 again). Current build:
+mode 115 6944 instructions, 154 registers, no spills, no C75xx; mode 51 still C7512 (rejected).
+
+### A1 gate (written before the bench that tests it)
+
+Score sensitivity from the 569b233dfe08414f judge medians: verify 16 C = 46 x 11.89 + 16 x 103.65 =
+2205 us, verify 32 C = 46 x 16.42 + 16 x 187.67 = 3758 us. A 2% cut of t_full is 1.50% / 1.60% of
+those loads' C, so +0.25% / +0.27% of the standalone score each, +0.5% for both.
+
+Bench (one check): `tools/attn_make_bench_ab.py --null --shapes all --inputs 2` with arms `ctrl`,
+`ctrl2` (independent build and state), `xp2@own` (`-DONE_XPIPE=2`), `pub`, `pub2`; seeded order
+20261030; timing on held-out inputs (seeds 1000, 1001; ABCHECK on seed 1).
+
+Promote `ONE_XPIPE=2` to a judged check only if all hold:
+1. ABCHECK passes for every arm; `xp2` against `ctrl` differs only at the red-order level seen
+   before (a few elements at one BF16 ulp per shape).
+2. Cold, at verify 16 full and verify 32 full: `xp2 - ctrl` <= -2% of `ctrl` on the pooled row and
+   on each input, and its magnitude exceeds `|ctrl2 - ctrl|` on that row; or ABSCORE for `xp2`
+   >= 1.005 while `ctrl2`'s ABSCORE lies within half that gain of 1.
+3. No other shape slower than `ctrl` by more than max(the shape's `|ctrl2 - ctrl|`, 1%).
+
+Then a confirmation bench with another seed and a judged check of `submission.py` with the
+switch on (dispatch: modes 51 and 115 only, the only builds it changes). If 2 fails while 1 and 3
+hold: measured loss for the design as built, row in docs/ruled-out.md, and A2 (mode 115 with
+`ONE_XPIPE=1`, the variant two CTAs per SM cannot hold) gets the next bench.
+
+### Check 5575e7d15d3e49a8 (bench `bench_a0`, generator at 8a0a4a0, kernel at 86f2bec): A0 scorecard and A1 judged by its gate
+
+| date | job | commit | file | result | notes |
+|---|---|---|---|---|---|
+| 2026-10-30 | 5575e7d15d3e49a8 (check) | 86f2bec | bench (`--null --shapes all --inputs 2`, `xp2@own=-DONE_XPIPE=2`, `--pub` vjeux) | 2.454x (judged path = board code), 16/16 tests, ABCHECKSUM 19/0 every arm | A0 scorecard; A1 XPIPE=2 fails its gate (cold loss at verify 16 full) |
+
+Profiles: `muse_attention_decode/profiles/bench_a0.5575e7d15d3e49a8.*`. Plans were identical across
+`ctrl`, `ctrl2`, `xp2` on every shape (ABPLAN), and the public arms used their own plans (flat
+264 at batch > 1 full, 252 x nc 8 at batch 1 full, per-request elsewhere, same split counts as
+ours). Every arm passed ABCHECK; `xp2` against `ctrl` differed in 0 elements on the shapes shown
+in the tail.
+
+**Standalone scorecard (cold medians, pooled over the two held-out inputs, us; bench times
+include about 4-5 us of replay cost the judge subtracts).** Sensitivity is the standalone score
+change per us saved, from this run's judge medians (C_l: d1 485, d16 1816, d32 3214, v1 574,
+v16 2189, v32 3722 us). "Value of the gap" = (ctrl2 - pub) x sensitivity: what matching the
+public kernel on that row alone would add.
+
+| shape | ctrl | ctrl2 | pub | pub2 | null ctrl2-ctrl / pub2-pub | ctrl2 - pub | sens %/us | value of the gap |
+|---|---|---|---|---|---|---|---|---|
+| d1 sliding | 9.76 | 9.60 | 9.06 | 8.99 | -0.16 / -0.06 | +0.54 | 1.580 | **+0.85%** |
+| d1 full | 18.78 | 18.11 | 16.48 | 16.64 | -0.67 / +0.16 | +1.63 | 0.550 | **+0.90%** |
+| d16 sliding | 14.34 | 14.53 | 12.77 | 13.12 | +0.19 / +0.35 | +1.76 | 0.422 | **+0.74%** |
+| d16 full | 100.77 | 100.70 | 99.94 | 99.97 | -0.06 / +0.03 | +0.76 | 0.147 | +0.11% |
+| d32 sliding | 16.70 | 16.80 | 15.81 | 15.97 | +0.10 / +0.16 | +0.99 | 0.239 | +0.24% |
+| d32 full | 179.58 | 179.65 | 178.08 | 178.18 | +0.06 / +0.10 | +1.57 | 0.083 | +0.13% |
+| v1 sliding | 11.14 | 11.14 | 10.88 | 10.98 | +0.00 / +0.10 | +0.26 | 1.336 | +0.35% |
+| v1 full | 19.71 | 19.78 | 18.75 | 18.88 | +0.06 / +0.13 | +1.03 | 0.465 | **+0.48%** |
+| v16 sliding | 15.84 | 15.84 | 15.46 | 15.62 | +0.00 / +0.16 | +0.38 | 0.350 | +0.13% |
+| v16 full | 113.41 | 113.02 | 111.23 | 111.10 | -0.38 / -0.13 | +1.79 | 0.122 | +0.22% |
+| v32 sliding | 20.93 | 20.99 | 19.49 | 19.74 | +0.06 / +0.26 | +1.50 | 0.206 | +0.31% |
+| v32 full | 192.45 | 192.38 | 192.19 | 192.35 | -0.06 / +0.16 | +0.19 | 0.072 | +0.01% |
+
+ABSCORE (cold, every arm against `ctrl`): `ctrl2` 1.0034 (the null), `pub` 1.0382, `pub2` 1.0342;
+per load for `pub`: d1 1.102, d16 1.039, d32 1.018, v1 1.034, v16 1.021, v32 1.018.
+
+What this measures:
+
+- The public kernel's standalone lead over the board build is about 3.5% in this process, and it
+  sits in the short and per-request shapes, not where A1 aims: by value of the gap, d1 full,
+  d1 sliding and d16 sliding lead (+0.7-0.9% each), then v1 full (+0.5%). Verify 16 / 32 full,
+  A1's target, are worth +0.22% / +0.01% to close. The two leading loads by value are decode 1
+  and decode 16 (their per-load public ratios 1.10 and 1.04).
+- The null has structure: `ctrl` (the judged path's own state, allocated first) is slower than
+  `ctrl2` and `xp2` (two later, independently allocated states that agree with each other to
+  0.06 us) on d1 full by 0.67-0.70 us on both inputs, and on d1 sliding by 0.03-0.16 us; at
+  batch > 1 the three agree within 0.4 us. Hypothesis, not tested: the batch-1 plans' few hot
+  workspace rows (mode 11: 8 copies x 16 rows; mode 13: 16 rows) land on an address-dependent
+  set of L2 slices, so the first allocation's placement costs about 0.7 us at d1 full. Worth
+  +0.37% of the score if real and controllable; the next bench tests placement directly.
+
+**A1 (`ONE_XPIPE=2`) against its gate:** clause 1 holds (19/0, 0 differing elements in the tail).
+Clause 2 fails: cold, `xp2 - ctrl` is +3.32 / +4.55 us at verify 16 full (input 0 / 1, +3.4%) and
++0.54 / +0.99 us at verify 32 full; ABSCORE v16 0.9755, v32 0.9968. Warm, the same arm is faster
+(-1.8 / -1.9 us at verify 16 full, -3.5 / -3.3 at verify 32 full): the overlap works when L2 is
+warm and loses when the tiles come from DRAM. Clause 3 holds (its other rows equal `ctrl2`,
+which shares no state with `ctrl`; its d1 and d16 gains are the null's structure, not XPIPE,
+whose SASS changes only modes 51 and 115). Verdict: **measured loss** for XPIPE=2 in mode 51 on the
+judged (cold) quantity; not promoted, row in docs/ruled-out.md. Mechanism not measured: issuing
+P.V(t) before the stage-(t+1) wait delays that wait and the Q.K behind it, which costs most when
+the producer, not the consumer, sets the pace (cold).
+
+### Next bench (check 2): A2 feasibility, workspace placement, batch-1 phase attribution
+
+Arms (generator after this commit; `--null --shapes all --inputs 2 --seed 20261031`): `ctrl`,
+`ctrl2`; A2: `s115` (board code forced to mode 115, one CTA per SM) and `s115xp1`
+(`-DONE_XPIPE=1`, mode 115); placement: `ws64k`, `ws5m` (control module, own state, workspace at
++64 KB / +5 MB + 32 KB); attribution: one `-DONE_DIAG=1` build timed to the early exit after
+phase 5 (prologue loads landed), 7 (query norm), 8 (new-token pass), 9 (V^T ones / patch), 10
+(tile loop and reds), and whole (`diag0_probe`), on the per-request plans (every sliding shape and
+batch-1 full).
+
+Gates, written before the run:
+- A2: develop the mode-115 family only if `s115xp1` beats `ctrl` cold by >= 2% on verify 16 or
+  verify 32 full with both inputs agreeing and beyond `|ctrl2 - ctrl|`; `s115xp1 - s115` alone
+  isolates the overlap at one CTA per SM. Otherwise measured loss, A2 parked.
+- Placement: a real effect needs `ws64k` or `ws5m` to differ from `ctrl2` at d1 full by more than
+  0.3 us on both inputs. If so, the next step is a production change that spreads the batch-1
+  workspace copies (a layout change in `_one_state` / the row map), judged on its own.
+- Attribution: no gate; it names the phase that holds the d1 / d16 gap to the public kernel.
+
+### Check 318ae6fc3c3746ce (bench `bench_b`, generator and kernel at 682aeaa): A2, placement, phase attribution
+
+| date | job | commit | file | result | notes |
+|---|---|---|---|---|---|
+| 2026-10-30 | 318ae6fc3c3746ce (check) | 682aeaa | bench (`--null --shapes all --inputs 2 --seed 20261031`, 12 arms) | 2.479x (judged path = board code), 16/16 tests, ABCHECKSUM 19/0 every real arm | A2 measured loss; placement offset no effect; finalize is the largest batch-1 phase |
+
+Profiles: `muse_attention_decode/profiles/bench_b.318ae6fc3c3746ce.*` (the log tail holds the
+cold summaries; per-input rows were cut by the 16,000-character limit). Cold medians pooled over
+two held-out inputs, us.
+
+**A2 (mode 115, one CTA per SM) against its gate.** Verify 16 / 32 full: `ctrl` 110.27 / 187.26,
+`s115` 137.79 / 244.93 (+25% / +31%), `s115xp1` 138.37 / 239.87; null `ctrl2 - ctrl` +0.06 /
++0.42. The Q.K-first overlap is worth 0 / -5.1 us inside mode 115 (2% at verify 32), far from
+the 27-58 us the one-CTA-per-SM organization costs. Gate fails: **measured loss**, A2 parked
+(row in docs/ruled-out.md). ABSCORE `s115` 0.945, `s115xp1` 0.944.
+
+**Placement.** At d1 full: `ctrl` 18.62, `ctrl2` 18.18, `ws64k` 17.89, `ws5m` 18.08, and `s115`
+(own state, normal plan there) 17.95. Every independently allocated state is 0.45-0.74 us faster
+than the control's own (first-allocated) state, for the third time in two runs; the offset of
+the workspace inside a fresh allocation changes nothing beyond 0.3 us. So the effect is tied to
+the control's allocation, not to the low address bits. At batch > 1 all arms agree within 0.4 us.
+
+**Phase attribution (one `-DONE_DIAG=1` build, own state; time to the early exit after phase k,
+cold, us; `diag0` is the whole DIAG call, 0.1-0.6 us slower than `ctrl` at batch 1).**
+
+| shape (plan) | p5 prologue loads landed | p7 query norm | p8 new-token pass | p9 patch / ones | p10 tile loop + reds | whole (`diag0`) | loop (p10 - p9) | finalize (whole - p10) | public total (5575e7d1) |
+|---|---|---|---|---|---|---|---|---|---|
+| d1 sliding (13, 32 CTAs) | 6.88 | 6.82 | 6.82 | 6.88 | 7.55 | 9.92 | 0.67 | **2.37** | 9.06 |
+| d1 full (11, 252 x nc 8) | 10.08 | 10.05 | 10.08 | 10.08 | 14.78 | 18.82 | 4.70 | **4.04** | 16.48 |
+| d16 sliding (1, 256 CTAs) | 10.11 | 10.11 | 10.14 | 10.18 | 11.20 | 14.82 | 1.02 | **3.62** | 12.77 |
+| d32 sliding (1, 256 CTAs) | 10.34 | 10.34 | 10.30 | 10.37 | 14.05 | 16.80 | 3.68 | 2.75 | 15.81 |
+| v1 sliding (15, 33 coop) | 6.98 | 7.07 | 7.39 | 7.39 | 8.64 | 11.17 | 1.25 | 2.53 | 10.88 |
+| v1 full (11, 252 x nc 8) | 9.86 | 9.82 | 9.86 | 9.86 | 16.42 | 20.06 | 6.56 | **3.64** | 18.75 |
+| v16 sliding (3, 128 coop) | 8.51 | 8.51 | 8.54 | 8.61 | 13.47 | 16.22 | 4.86 | 2.75 | 15.46 |
+| v32 sliding (3, 128 coop) | 8.90 | 8.86 | 8.90 | 8.90 | 17.92 | 21.09 | 9.02 | 3.17 | 19.49 |
+
+Reading (measured, with the replay cost of about 4.5 us inside every column): the query norm,
+RoPE, new-token pass and patch cost nothing visible (p5 to p9 within 0.1 us, 0.4 at v1 sliding).
+After the fixed launch and prologue, the **merge and finalize** (the reds' release, the ticket or
+cooperative barrier, the last CTA's or every CTA's workspace reads, norm, gate and store) is
+the largest phase on the four shapes that hold most of the gap's value: 2.4 us at d1 sliding,
+4.0 at d1 full, 3.6 at d16 sliding, 3.6 at v1 full. The prologue at batch-1 full (252 CTAs,
+cooperative) sits 3.2 us above batch-1 sliding (32 CTAs). The public kernel's whole call is 0.5-
+1.6 us below ours on those shapes; whether its finalize or its prologue is the shorter is not
+measured (its source shows the same last-CTA scheme with `__ldcg` reads; it has no phase exits).
+This is the measured budget A3 asked for: reduction ownership is worth attacking on d1 / d16
+sliding and batch-1 full, not on verify full.
+
+Checks used this round: 5575e7d15d3e49a8, 318ae6fc3c3746ce.
+
+### Next bench (check 3): does carving the workspace from one allocation remove the first-allocation cost?
+
+`--set _ONE_WS_CARVE=1048576` (submission.py knob, default 0 so the judged file is unchanged):
+every state's ws_acc, ws_l and ws_cnt come from one allocation, 1 MB in. Arms `ctrl` (first
+allocated, carved), `ctrl2`, `ws64k`; ABADDR prints each state's addresses. Gate, written before
+the run: the carve is a production candidate only if `ctrl2 - ctrl` at d1 full is within +-0.2 us
+on both inputs (it was -0.67 and -0.45 in the two runs before) and no shape regresses beyond the
+null; then a judged pair of submission.py with the carve on.
+
+### Check a92aa9c43f064c49 (bench `bench_c`, at df4060d): the workspace carve does not remove the control's lag
+
+| date | job | commit | file | result | notes |
+|---|---|---|---|---|---|
+| 2026-10-30 | a92aa9c43f064c49 (check) | df4060d | bench (`--set _ONE_WS_CARVE=1048576`, arms ctrl, ctrl2, ws64k; the judged path also ran carved) | 2.429x, 16/16 tests, ABCHECKSUM 19/0 | carve gate fails |
+
+Profiles: `muse_attention_decode/profiles/bench_c.a92aa9c43f064c49.*`. d1 full cold: `ctrl` 18.62 /
+18.56 (inputs 0 / 1), `ctrl2` 18.08 / 18.02, `ws64k` 17.98 / 17.98: the control is still 0.54 us
+behind with every state carved, so the gate (within +-0.2 us) fails; the carve stays a bench knob
+at 0. ABADDR: `ctrl` acc 0x82478100000, `ctrl2` 0x82479260000, `ws64k` 0x82474010000: the
+fast `ws64k` sits below the control's address and `ctrl2` right above it, so neither address
+order nor allocation shape explains it. The judged score of this run (2.429x, d1 full 14.16 us
+judged) is inside the earlier runs' spread. What is left: in all three benches the control is
+also the arm whose cold graph is captured first for every shape. Next bench tests that
+directly.
+
+### Next bench (check 4): capture order
+
+Generator change: per (shape, input) the cold graphs are captured in a seeded random order and
+ABCOLD prints the first-captured arm (`cap0`). `--shapes b1 --inputs 6`, arms `ctrl`, `ctrl2`,
+`ws64k`, production allocation. Reading, written before the run: if the slow arm at d1 full
+follows `cap0` rather than `ctrl`, the lag is a bench artifact of capture order (the earlier
+nulls `ctrl2 - ctrl` at d1 full are then capture-order bias, and the A0 ranking should be read
+from `ctrl2`); if it stays with `ctrl`, it belongs to the control's state and a production
+placement fix stays worth pursuing.
+
+| 2026-10-30 | 7144310358564fa3 (check) | a0a78ce (generator after the --shapes b1 edit, uncommitted then) | bench `bench_d` (capture order, `--shapes b1 --inputs 6`) | 2.469x judged path, 16/16 tests, ABCHECKSUM 11/0; **no bench data** | generator bug: `_AB_CAP` never defined (a scripted edit did not apply), every ABBENCH row NameError. Caught afterwards by `pyflakes` on the generated file, which now runs before every bench check. Profiles `bench_d.7144310358564fa3.*` |
+
+Repeat as `bench_d2` (seed 20261034, generator fixed, pyflakes clean).
+
+### Check b7762d764d474eae (bench `bench_d2`, at 46df563): the d1 full null is workspace placement, not capture order
+
+| date | job | commit | file | result | notes |
+|---|---|---|---|---|---|
+| 2026-10-30 | b7762d764d474eae (check) | 46df563 | bench `bench_d2` (`--null --shapes b1 --inputs 6 --seed 20261034`, ctrl, ctrl2, ws64k) | 2.439x judged path, 16/16 tests, ABCHECKSUM 11/0 | lag follows the state, not the capture order |
+
+Profiles: `muse_attention_decode/profiles/bench_d2.b7762d764d474eae.*`. d1 full cold over six
+held-out inputs: `ctrl` 18.62-18.78, `ctrl2` 18.66-18.85, `ws64k` 17.95-18.14, on every input,
+whichever arm was captured first (`cap0` was `ctrl` on five inputs, `ctrl2` on one). Other
+batch-1 shapes: all three within 0.2 us. ABADDR: `ctrl` acc 0x...108000000, `ctrl2`
+0x...105010000 (slow), `ws64k` 0x...104010000 (fast). With bench c (`ctrl` 0x...478100000 slow,
+`ctrl2` 0x...479260000 fast, `ws64k` 0x...474010000 fast):
+
+- The 0.5-0.7 us at d1 full belongs to where a state's workspace lands: two states with the same
+  address bits below 2 MB (`ctrl2` and `ws64k` here, both ...010000) differ, so it depends on
+  physical placement above the 2 MB page offset, which a process cannot choose by offsetting.
+  Measured in 4 of 4 benches; mechanism (hypothesis): the batch-1 full plan's 252 CTAs send
+  their reds and the cooperative counters to 128 workspace rows (32 KB, nc 8) plus their row
+  sums, and the L2 slice / partition those lines hash to sets the merge latency.
+- Capture order and allocation order are ruled out as the cause; the earlier "ctrl slower"
+  pattern was placement luck in the control's allocation three times.
+- Consequence for every bench: at d1 full a duplicate null is +-0.7 us by placement alone, so a
+  d1 full difference under 0.7 us between arms with different states is not evidence. Fixed-
+  state comparisons (variants sharing `ctrl`'s state, the old default) remove this term.
+- A possible production use, not built: at the first call (outside capture), time the mode 11
+  batch-1 plan on two or three candidate workspace allocations and keep the fastest. Expected
+  value about +0.18% of the score (0.67 us x 0.55%/us when the first allocation is slow, about
+  half the time in these four runs); placement chosen by a timing at prepare is not
+  input-dependent. Lower priority than A3.
+
+## Standalone round 10-30: family ledger and where the score is
+
+Checks used by this round: 5575e7d15d3e49a8, 318ae6fc3c3746ce, a92aa9c43f064c49,
+7144310358564fa3 (no data, generator bug), b7762d764d474eae. Quota after them (`okc problems`):
+14 of 20 attention checks, 10 of 10 runs. No file was submitted; no file is offered for
+submission (nothing beat the board build).
+
+| family | state | evidence | reopening trigger |
+|---|---|---|---|
+| A1 cross-tile overlap, P.V first, mode 51 (`ONE_XPIPE=2`) | measured loss (cold) | 5575e7d15d3e49a8: +3.4% at verify 16 full cold, warm -1.8% | the producer stops setting the cold pace, or a P.V-first order that keeps the stage wait ahead of the P.V issue |
+| A1 cross-tile overlap, Q.K first, mode 51 (`ONE_XPIPE=1`) | compile-infeasible | C7512 at setmaxnreg 112 (the two-CTA ceiling) | consumer live state cut by about 8 registers |
+| A2 one CTA per SM (mode 115), with and without XPIPE=1 | measured loss | 318ae6fc3c3746ce: +25% / +31% at verify 16 / 32 full; overlap worth 0 / -2% inside it | a resource model that pays back the halved residency |
+| Workspace carve from one allocation (`_ONE_WS_CARVE`) | measured loss (no effect) | a92aa9c43f064c49 | none; the cause is physical placement |
+| Prepare-time workspace placement choice at batch-1 full | untested | b7762d764d474eae: 0.5-0.7 us placement spread, 4 of 4 benches | build when A3 is done or as a cheap side bet |
+| A3 reduction ownership on short shapes | untested, budget measured | 318ae6fc3c3746ce phases: merge + finalize 2.4 us (d1 sliding), 4.0 (d1 full), 3.6 (d16 sliding), 3.6 (v1 full) | next round's first target |
+| Standalone wins / layer-validated wins | none this round | | |
+
+Where the standalone score is (A0, bench 5575e7d15d3e49a8, value of matching the public kernel
+per row): d1 full +0.9%, d1 sliding +0.85%, d16 sliding +0.74%, v1 full +0.48%, v1 sliding
++0.35%, v32 sliding +0.31%, d32 sliding +0.24%, v16 full +0.22%, everything else under +0.15%.
+The d1 full row's 1.6 us gap includes up to 0.7 us of placement noise on either side. The short
+and sliding shapes, where the phase exits put 2.4-4 us in the merge and finalize after a
+6.9-10 us launch-plus-prologue (both including the bench's replay cost), carry about 3% of the
+3.5% total; verify 16 / 32 full, A1's target, carry 0.23%.
+
+Next round, in order:
+1. A3, scoped by these numbers: on d1 / d16 sliding and batch-1 full, measure what the public
+   kernel spends after its loop (a stamp copy of its per-request path, as `pubstamp` did for the
+   flat kernel), then compare our ticket + last-CTA finalize against (a) a cluster / DSMEM merge
+   of the splits that share a request (no L2 round trip for the partials), (b) a finalize that
+   overlaps the reds' release with the gate and norm-weight loads it already prefetches. Gate:
+   0.5 us at d1 sliding (+0.8% score) or 1 us at d16 sliding / d1 full, null-checked with fixed
+   state.
+2. Prologue at batch-1 full: 10.1 us to p5 against 6.9 at batch-1 sliding (252 cooperative CTAs
+   against 32); compare the launch with fewer CTAs per request (the public plan uses the same
+   252 x nc 8, so this needs its own measurement first).
+3. The placement side bet above, if quota is spare.
