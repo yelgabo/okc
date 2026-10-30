@@ -1,6 +1,6 @@
 # Architecture performance tracker
 
-Last review: 2026-10-29 18:25 PDT. Evidence snapshot: `283e348`.
+Last review: 2026-10-29 19:31 PDT. Evidence snapshot: `b41cb8d`.
 First review reconciles progress since `aab7d75`, the snapshot in the
 [architecture-family guide](architecture-families-2026-10-29.md).
 This is a review of recorded experiments, not a new benchmark run.
@@ -12,13 +12,105 @@ named control, not changes in aggregate score. Families overlap; their gains can
 
 | Family | Current result | What has actually been measured | Visibility gap |
 |---|---|---|---|
-| A. Hybrid persistent/legacy MoE | Component gains; combined layer gain | Mode 37/sk8w3s are in the winning layer package. Mode 47 beats 37 by 2.3/3.7 us at 128/256 on held-out layer routing. | Mode 47 ran in a later mixed layer check; its isolated layer gain is unmeasured. |
+| A. Hybrid persistent/legacy MoE | Component and isolated layer gains | Mode 47 is released and its held-out-picker layer comparison improves 128/256. Mode 51 gains another 3.9/3.9 us in component tests. | Mode 51 awaits layer testing; its 2.202x component submission is below mode 47's 2.216x board score. |
 | B. Staged grouped MoE | Retested loss | Modes 45 + 46 on mode 37 components lose 30.4/24.4 us at 128/256 versus 37, six seeds each. | Parked until phase B alone drops below about 50 us at 128 or the fused phase A tail disappears. |
 | C. Owner-completes tiles | Retained in the persistent descendants | Mode 20's owned phase A saves about 2-3 us at 128 and 4 us at 256 over mode 16. Later modes combine ownership with other changes. | Later gains cannot be credited to ownership alone. |
-| D. Dependency-aware scheduling | Dynamic claiming wins; full ready-only scheduler remains untested | Mode 23 claims whole phase B units at run time, beating mode 20 on every normal paired seed across two checks. | It still waits on done_as. This is dynamic work allocation, not a demonstrated queue of exclusively ready jobs. |
-| E. Attention producer-consumer pipeline | Component gains; combined layer gain | DCARRY/PK16/VHOIST now runs in the winning layer package; corrected FIN8 plan/replay checks pass. | Package gain is shared with A and projection changes. Separate M1 attention-to-projection overlap failed replay checks before timing. |
+| D. Dependency-aware scheduling | Dynamic claiming retained; split-tail variants lose | Modes 52/53 split the last claimed phase B units through fixup and lose at 32/128/256. | Full ready-only scheduling remains untested; do not generalize the split-tail loss to the family. |
+| E. Attention producer-consumer pipeline | Component gains; combined layer gain | DCARRY/PK16/VHOIST now runs in the winning layer package; corrected FIN8 plan/replay checks pass. | Package gain is shared with A and projection changes. M1 remains untimed; its off control also violates the replay bound, so the failure is not isolated to M1. |
 
-## Latest review: combined layer gain, staged loss and mode 47
+## Latest review: mode 47 layer attribution and mode 51 component gain
+
+Current layer release `3fbb3ad027e84c6b`, source `2cee446`, scores **2.014x (95% interval
+1.984-2.045), 13/13 passed**. Its file SHA256 `b9c23bda16bb9d6311f025062e415841c67b16284737172badaa190fdc506a49`
+matches main's layer file. It adds mode 47 plus LATE_ARRIVE/o16/unp32 projections to the prior
+release, with M1 code absent. Check `c2ba945496ab47b4` was 2.006x (1.976-2.037).
+These are cross-run scores, not an isolated gain estimate. [Release manifest](release-manifest.md).
+
+### Mode 47's isolated layer contribution
+
+Job `720079090ee44cc3`, bench source `fa7200c`, compares the scored file with the same file
+holding mode 47 out of the picker (SHA256 prefix `84d8507a`). Both arms compile the same
+kernels; prepare picks 47 versus 37 at 32/128/256. Two held-out inputs per shape, seeds
+110001+, eight seeded-random cold-L2 rounds give 16 paired samples per shape; 72/72 checks
+pass. Candidate-minus-held deltas, sliding/full: **128 tokens -4.9/-5.5 us (-1.81%/-1.43%);
+256 -5.7/-3.6 us (-1.58%/-0.70%)**. Logged held controls are 270.2/383.7 and 361.2/514.8 us.
+At 32 tokens -1.3/-2.6 us is inside the arm spread. This is one paired check, without a
+per-delta confidence interval. Null-minus-held at 128 is -3.8/-4.0 and at 256 -4.8/-1.0 us.
+[Raw attribution](../muse_decode_layer/profiles/benchInc_47.720079090ee44cc3.log).
+
+The 1.0155 overall ratio is contaminated by a decode-1 arm-position artifact: the held arm is
+about 5 us slower even though mode 47 never runs there. Do not report that aggregate as an
+isolated mode-47 gain. Full-package comparison `50c4c1328ab742f4`, source `2cee446`, seeds
+80001+, eight rounds, 72/72 checks, similarly prints 1.0182 but about 1.009 excluding decode 1.
+Its paired deltas at 128 are -5.4/-6.1 us, at 256 -2.1/-3.8; projection share inferred by
+subtracting across these two benches is only indicative. [Layer run log](runs-decode-layer.md).
+
+### Mode 51 advances A; tail-split descendants lose
+
+Mode 50 moves sum-of-squares work to a two-pass final pass. Job `8a7051fa926e43e1`, source
+`a03ca00`, seeds 23-28, passes correctness but fails its 32-token layer-routing performance
+gate (+0.7 us against a +0.5 limit), despite -5.9/-6.6 us at 128/256. It is not shipped.
+Mode 51 uses that final pass only at 64+ tokens and retains mode 47 below. This is an A
+implementation change retaining C ownership/D claiming, not a new isolated C or D result.
+Gate `c6b0e500c3a84c9a`, source `69c06ed`, six held-out seeds 29-34 per routing:
+
+| Routing | 32-token delta vs 47 | 128-token delta | 256-token delta | Seeds faster, 32/128/256 |
+|---|---|---|---|---|
+| Layer | +0.0 us | -3.9 us (-2.41%) | -3.9 us (-1.71%) | 2/6/5 of 6 |
+| Standalone | -1.0 us | -3.8 us | -4.4 us | 5/6/6 of 6 |
+| Skewed | -0.1 us | -4.0 us | -7.7 us | 2/6/6 of 6 |
+
+Layer controls are 161.9/228.0 us. All 54 output comparisons pass (maximum 4.6e-5), self-test
+3.88e-3, spin flags zero, judge 5/5. Shippable check `a5a2bbd1a18b4b89`, source `6bbb252`,
+repeats -3.7/-3.0 us at 128/256, six of six faster, scoring 2.210x. Submission
+`bcd2d7a3506a4b7d` passes at 2.202x, below mode 47's 2.216x board entry, which stays.
+Those cross-run scores do not negate the paired gain. No mode-51 layer test is recorded.
+[MoE runs](runs-moe.md), [raw gate](../muse_moe_w4a16/profiles/bench_g51.c6b0e500c3a84c9a.log).
+
+Modes 52/53 split the last dynamically claimed phase B units into K halves via fixup, an
+A/C/D descendant rather than a ready-only queue. Job `209cf29bf91c4ea2`, implementation
+recorded in `260d791` (exact submitted source hash not pinned in the row), seeds 35-40:
+52 minus 51 at 32/128/256, layer/standalone, is +3.3/+3.5, +5.9/+4.9, +8.5/+5.3 us;
+53 is +8.1/+5.2, +7.3/+6.5, +9.2/+7.7. At 128/256 layer controls 159.2/216.0 give
+52 +3.71%/+3.94%, 53 +4.59%/+4.26%. Output differences are at most 9.7e-5, spin flags zero,
+zero to two of six faster. Tail does not shrink (7.9 versus 7.1 us at 32). Both lose; no
+layer port or further gate. This does not reject every split-K design.
+[Raw tail test](../muse_moe_w4a16/profiles/bench_tail52.209cf29bf91c4ea2.log).
+
+### Corrections and diagnostic limits
+
+M1 remains blocked and untimed, but the failure is not isolated to M1. Diagnostic
+`6372154fcd7a4fa9` on source `6377b5a` finds repeated-input M1-on/off bitwise equal at verify
+1 full; the M1-off control itself varies up to 6.7e-4 at 32x1 full. Fresh-input diagnostic
+`3e2aa83358dd4f60` finds 217-459/2000 off replays and 288-307/2000 on replays above 1e-4 at
+verify 1 full, maximum 1.2e-3 in both arms; no replay exceeds 1e-2 or changes ids. The
+source report attributes this to layer run-to-run variation, consistent with atomic reduction
+order. The first divergent intermediate and proxy-ordering argument remain unverified.
+The 1e-4 bound is unchanged; no timing or safety conclusion follows. Validation-policy changes
+require explicit user approval under the recorded test plan; this review changes none.
+[Layer diagnosis](steering/2026-10-30-layer-release-attribution.md),
+[raw fresh-input test](../muse_decode_layer/profiles/m1fresh.3e2aa83358dd4f60.log).
+
+Public comparisons `86ced49f092a48d8` and `f5ee8632e1f64bf2`, current release against pinned
+blob `936fefff`, each pass 72/72 with 16 paired samples per shape; raw null deltas are within 1.1 and 1.8 us,
+respectively.
+Public advantages at verify 1 sliding/full are 8.7/10.5 then 10.2/10.8 us; decode 32
+15.7/10.8 then 12.2/15.9 us. Profiled boundary overlap suggests a mechanism, not measured
+recoverable time. Component test `1fbb9fbf524f4ed7`, source `b3509a0` plus tool changes,
+layer/standalone seeds 1-6, measures only 1.5/5.9 us public advantage at 32 tokens (47 controls
+90.9/132.9 us); the follow-up tail test finds 1.9 us on layer routing. This does not reproduce
+the 10-14 us in-layer profile gap. Routing, prefetch and profiling effects remain hypotheses.
+sk8w3s loses 19.2 us versus 47 at 32 on layer routing, zero of six faster; do not generalize
+its 1/8/16-token win. ABPUB stage columns are invalid without --pubranges; use ABWORK.
+[MoE attribution](runs-moe.md), [layer attribution](steering/2026-10-30-layer-release-attribution.md).
+
+Diagnostic `ed3b4fdc76b54263` (source `64cec1f`) crashed after 128-token timing; no 256 result.
+Rerun `d47c78bdc130424b` (source `54318bd`) completes, public minus 47 -14.7/-22.6 us at
+128/256; diagnostic mode 49 adds 5.8/9.4 us. Its mislabeled ABSKEW columns must be read in
+skew_cols order. The estimated 72-74% wait contribution from warpgroup skew is attribution,
+not recoverable layer savings. [MoE run log](runs-moe.md).
+
+## Historical review, 18:25: combined layer gain, staged loss and mode 47
 
 The A/E plus projection package now has same-process whole-layer evidence. Check
 `aa4276e91c924dad` (bench source `6c6038b`, candidate SHA256 prefix `4ed09046`, incumbent
@@ -249,6 +341,9 @@ are hypotheses. This correction motivates a test, not a new winning-family badge
 | B: staged 45 + 46 retest | Mode 37 | +30.4 us, +18.4% | +24.4 us, +10.7% | `9d94ac75f4724b52`, six layer-routing seeds, outputs pass; zero faster. [MoE log](runs-moe.md). |
 | A+C+D: mode 47 code groups | Mode 37 | -2.3 us, -1.32% | -3.7 us, -1.65% | `5f381b8b6946492d`, held-out layer seeds 13-18, 5/6 and 6/6 faster; checks pass. [MoE log](runs-moe.md). |
 | A/E + projection: whole-layer bundle | Incumbent a923f11 | Sliding -6.2 us (-2.20%); full -13.3 us (-3.56%) | Sliding -3.5 us (-0.98%); full -22.5 us (-4.22%) | `aa4276e91c924dad`, 2 inputs per shape, 8 rounds, 72 checks pass; combined gain only. [Layer log](runs-decode-layer.md). |
+| A: mode 47 isolated layer picker | Same file with 47 held out | Sliding -4.9 us (-1.81%); full -5.5 us (-1.43%) | Sliding -5.7 us (-1.58%); full -3.6 us (-0.70%) | `720079090ee44cc3`, 16 paired samples/shape, 72 checks pass; overall ratio invalidated by d1 arm artifact. [Layer log](runs-decode-layer.md). |
+| A: mode 51 final pass | Mode 47 | -3.9 us, -2.41% | -3.9 us, -1.71% | `c6b0e500c3a84c9a`, layer seeds 29-34, 6/6 and 5/6 faster; no layer test. [MoE log](runs-moe.md). |
+| A/C/D: mode 52 split tail | Mode 51 | +5.9 us, +3.71% | +8.5 us, +3.94% | `209cf29bf91c4ea2`, layer seeds 35-40, output checks pass. Mode 53 also loses +7.3/+9.2 us. [MoE log](runs-moe.md). |
 
 Percentages use the logged paired delta divided by the logged control mean. Paired summaries use logged paired deltas rather than subtraction of separately summarized
 arm timings. Layer deltas are medians of per-round differences; these can differ by several
@@ -286,24 +381,30 @@ Losses matter as much as wins:
 
 ## Whole-layer outcome and attribution
 
-Current release is `edd71d3152a946fe`: 1.982x (1.953-2.012), 13/13 passed. The paired
-combined-package speedup over `a923f11` is 1.0158 in `aa4276e91c924dad`, as detailed above.
-A mode 37/sk8w3s and E DCARRY/PK16/VHOIST are now layer-tested together with projection
-changes. C/D mechanisms persist in those descendants; none has an isolated new layer delta.
-Mode 47 is layer-tested in a mixed follow-up, with controlled release confirmation pending.
-[Layer evidence](runs-decode-layer.md).
+Current release `3fbb3ad027e84c6b`, source `2cee446`, scores 2.014x (1.984-2.045), 13/13.
+Mode 47 has isolated same-process layer evidence at 128/256 from `720079090ee44cc3`, with
+aggregate/decode-1 artifacts excluded from the conclusion. Mode 51 has component gains but
+awaits layer testing. E and C/D mechanisms remain integrated; no isolated new E/C/D gain is
+claimed. [Release manifest](release-manifest.md), [layer log](runs-decode-layer.md).
 
 ## Decision and next evidence needed
 
-Keep the winning combined package. B's requested retest is complete and loses at 128/256;
-park this implementation until phase B alone is below about 50 us at 128 or the fused phase A
-tail disappears. Mode 47's component win warrants a controlled layer comparison with the
-release. D's complete ready-only queue remains untested. M1 needs a correctness explanation
-and clean replay stress before timing. Package subtraction controls are prepared but unrun;
-use them if isolated A/E/projection attribution is needed. Preserve the measured whole-layer
-control and the recorded negative results. [Rejection register](ruled-out.md).
+Keep the clean released package; compare mode 51 with it in the layer. B remains parked after
+its completed loss, until phase B alone is below about 50 us at 128 or the fused phase A tail
+disappears. Modes 52/53 lose, while D's complete ready-only queue is still untested. Reconcile
+the 32-token in-layer/component gap before treating either as a recoverable budget. M1 needs
+an approved validation policy and the missing ordering/localization work before timing; the
+control's own replay variation prevents attributing its old failure solely to M1.
+[Rejection register](ruled-out.md).
 
 ## Review history and checkpoint
+
+- 2026-10-29 19:31 PDT: reviewed `b7da8bb..b41cb8d`, release manifest, four run logs,
+  rejection updates and raw layer/MoE diagnostics. Latest layer release `3fbb3ad027e84c6b`,
+  attribution `720079090ee44cc3`; latest MoE submission `bcd2d7a3506a4b7d` (board stays 47),
+  tail test `209cf29bf91c4ea2`. Projection/attention standalone checkpoints unchanged.
+  All new run IDs and invalidated diagnostics are listed above. Existing 18 untracked profile
+  JSONs already correspond to logged jobs. Origin/main fetched, no remote-only commits.
 
 - 2026-10-29 18:25 PDT: reviewed `b75e2f9..283e348`, four run logs, rejection updates and
   raw MoE/layer comparisons. Latest layer `edd71d3152a946fe`, MoE `abe7651dbaa44458`,

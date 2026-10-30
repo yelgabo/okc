@@ -4,6 +4,14 @@ This is the stable entry point for steering reports across research, implementat
 and coordinator sessions. The user requested on 2026-10-29 that every project-steering
 report be checked into this repository so other sessions can read it.
 
+## Latest hourly report, 19:31
+
+**[2026-10-29 19:31 PDT: Mode 47 layer attribution and mode 51 component gain](2026-10-29-1931-performance-review.md)**
+
+Evidence snapshot `b41cb8d`. Mode 47 layer gains are isolated; mode 51 awaits layer testing.
+Clean release scores 2.014x. M1's off control also fails the replay bound, so its earlier failure
+is not isolated to M1. Tail-split modes 52/53 lose.
+
 ## Latest layer report: clean release, M1 diagnosis, verify 1 / decode 32 attribution
 
 **[2026-10-30: Layer release, mode 47 isolation, M1 diagnosis and gap attribution](2026-10-30-layer-release-attribution.md)**

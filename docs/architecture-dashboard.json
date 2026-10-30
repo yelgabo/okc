@@ -1,11 +1,11 @@
 {
-  "reviewed_at": "2026-10-29T18:25:00-07:00",
-  "snapshot": "283e348",
+  "reviewed_at": "2026-10-29T19:31:00-07:00",
+  "snapshot": "b41cb8d",
   "layer": {
-    "score": "1.982\u00d7",
-    "interval": "1.953\u20132.012",
-    "job": "edd71d3152a946fe",
-    "note": "A/E + projection bundle is layer-tested: 1.58% paired speedup over the prior incumbent, not isolated family credit. M1 overlap failed replay checks and was disabled."
+    "score": "2.014\u00d7",
+    "interval": "1.984\u20132.045",
+    "job": "3fbb3ad027e84c6b",
+    "note": "Clean mode-47 + projection release, M1 absent. Mode 47 now has isolated layer evidence at 128/256. Aggregate inc-arm ratios contain a decode-1 artifact; use shape-level deltas."
   },
   "families": [
     {
@@ -13,14 +13,14 @@
       "name": "Hybrid persistent / legacy MoE",
       "status": "win",
       "label": "Component and bundle wins",
-      "metric": "\u22122.3 / \u22123.7 \u00b5s",
-      "unit": "Mode 47 vs 37, 128 / 256 tokens, layer routing",
-      "summary": "Mode 47 wins held-out component tests. Mode 37 and sk8w3s are in the winning combined layer release.",
-      "layer": "Mode 47 ran in a mixed layer follow-up",
+      "metric": "\u22123.9 / \u22123.9 \u00b5s",
+      "unit": "Mode 51 vs 47, 128 / 256 tokens, layer routing",
+      "summary": "Mode 47 has isolated layer gains. Mode 51 passes component gates; its lower cross-run score leaves the component board entry at 47.",
+      "layer": "Mode 47 released and layer-attributed",
       "pending": [
-        "Mode 47: controlled layer confirmation"
+        "Mode 51: final-pass layer confirmation"
       ],
-      "limit": "Mode 47 layer gain is not isolated. Release package speedup is shared with attention and projection changes; code-group gains do not validate the discarded wait-hoist hypothesis.",
+      "limit": "Mode 51 is untested in the layer. Mode 50 failed its 32-token performance gate. Mode 47 overall attribution ratio is contaminated by a decode-1 arm artifact.",
       "source": "runs-moe.md"
     },
     {
@@ -56,10 +56,10 @@
       "label": "Partial design wins",
       "metric": "\u221216 to \u221223 \u00b5s",
       "unit": "dynamic phase B claiming versus mode 20",
-      "summary": "Mode 23 balances work by claiming phase B units at run time. Normal paired seeds consistently improve.",
+      "summary": "Dynamic claiming stays. Tail-split modes 52/53 lose at 32/128/256 despite passing output checks.",
       "layer": "Dynamic claiming retained in layer descendants",
       "pending": [],
-      "limit": "The full ready-only queue is untested. Claimed jobs still wait on dependencies.",
+      "limit": "The full ready-only queue is untested. Tail splitting through fixup failed for these implementations; this does not reject the whole family.",
       "source": "runs-moe.md#phase-b-claimed-at-run-time-mode-23-2026-10-29"
     },
     {
@@ -72,7 +72,7 @@
       "summary": "DCARRY + PK16 + VHOIST now runs in the winning combined layer release. Corrected FIN8 replay checks pass.",
       "layer": "Integrated and layer-tested with A + projections",
       "pending": [],
-      "limit": "No isolated E layer delta. M1 attention-to-projection overlap separately failed replay stress before timing; that failure does not reject the attention pipeline.",
+      "limit": "No new isolated E layer delta. M1 remains untimed: its off control also exceeds the replay bound. No stale-read signature found; ordering argument and validation policy remain open.",
       "source": "runs-attention.md"
     }
   ]
