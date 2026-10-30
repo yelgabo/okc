@@ -1868,9 +1868,13 @@ void cut_fwd(at::Tensor W, at::Tensor x, at::Tensor out, at::Tensor ws) {
 # times them against the existing pick. Only FP32 accumulation, and split-K only when reduced
 # in FP32. Plans are fixed to one m, so they serve exactly m = 128 and 256.
 # --------------------------------------------------------------------------------------------
-LT_SRC = r"""
+# One host-compiled translation unit: torch headers, cublasLt.h and the plan code together.
+LT_CPP = r"""
+#include <torch/extension.h>
+#include <ATen/cuda/CUDAContext.h>
+
 // Direct cuBLASLt plans for out[m, n] = x[m, k] W[n, k]^T, BF16 in and out, FP32 compute.
-// Host code only, no torch headers, so it compiles standalone for checking.
+// Host code only; the part above lt_run compiles without torch for checking.
 #include <cuda_runtime.h>
 #include <cublasLt.h>
 #include <cstdint>
@@ -1885,13 +1889,12 @@ namespace {
 
 using LtCfg = std::array<int64_t, 9>;
 
-// Config attribute ids 0-8 in cublasLt.h order: algo id, tile, split-k, reduction scheme,
-// swizzle, custom option, stages, inner shape, cluster shape. The last two are uint16.
-const cublasLtMatmulAlgoConfigAttributes_t kCfgAttr[9] = {
-    CUBLASLT_ALGO_CONFIG_ID, CUBLASLT_ALGO_CONFIG_TILE_ID, CUBLASLT_ALGO_CONFIG_SPLITK_NUM,
-    CUBLASLT_ALGO_CONFIG_REDUCTION_SCHEME, CUBLASLT_ALGO_CONFIG_CTA_SWIZZLING,
-    CUBLASLT_ALGO_CONFIG_CUSTOM_OPTION, CUBLASLT_ALGO_CONFIG_STAGES_ID,
-    CUBLASLT_ALGO_CONFIG_INNER_SHAPE_ID, CUBLASLT_ALGO_CONFIG_CLUSTER_SHAPE_ID};
+// Config attributes 0-8 in cublasLt.h order: algo id, tile, split-k, reduction scheme, swizzle,
+// custom option, stages, inner shape, cluster shape (the last two uint16). Cast from the
+// number, not named, because the inner and cluster names are absent from some headers.
+cublasLtMatmulAlgoConfigAttributes_t cfg_attr(int i) {
+    return (cublasLtMatmulAlgoConfigAttributes_t)i;
+}
 
 LtCfg cfg_of(const cublasLtMatmulAlgo_t& a) {
     LtCfg c{};
@@ -1899,11 +1902,11 @@ LtCfg cfg_of(const cublasLtMatmulAlgo_t& a) {
         size_t wr = 0;
         if (i >= 7) {
             uint16_t v = 0;
-            cublasLtMatmulAlgoConfigGetAttribute(&a, kCfgAttr[i], &v, sizeof(v), &wr);
+            cublasLtMatmulAlgoConfigGetAttribute(&a, cfg_attr(i), &v, sizeof(v), &wr);
             c[i] = v;
         } else {
             uint32_t v = 0;
-            cublasLtMatmulAlgoConfigGetAttribute(&a, kCfgAttr[i], &v, sizeof(v), &wr);
+            cublasLtMatmulAlgoConfigGetAttribute(&a, cfg_attr(i), &v, sizeof(v), &wr);
             c[i] = v;
         }
     }
@@ -1913,10 +1916,10 @@ LtCfg cfg_of(const cublasLtMatmulAlgo_t& a) {
 bool cfg_set(cublasLtMatmulAlgo_t& a, int i, int64_t value) {
     if (i >= 7) {
         uint16_t v = (uint16_t)value;
-        return cublasLtMatmulAlgoConfigSetAttribute(&a, kCfgAttr[i], &v, sizeof(v)) == CUBLAS_STATUS_SUCCESS;
+        return cublasLtMatmulAlgoConfigSetAttribute(&a, cfg_attr(i), &v, sizeof(v)) == CUBLAS_STATUS_SUCCESS;
     }
     uint32_t v = (uint32_t)value;
-    return cublasLtMatmulAlgoConfigSetAttribute(&a, kCfgAttr[i], &v, sizeof(v)) == CUBLAS_STATUS_SUCCESS;
+    return cublasLtMatmulAlgoConfigSetAttribute(&a, cfg_attr(i), &v, sizeof(v)) == CUBLAS_STATUS_SUCCESS;
 }
 
 uint32_t cap_u32(const cublasLtMatmulAlgo_t& a, cublasLtMatmulAlgoCapAttributes_t attr) {
@@ -2180,20 +2183,7 @@ int64_t lt_run_raw(int64_t plan, int64_t idx, int64_t w, int64_t x, int64_t out,
                                    p->ld, &p->algos[(size_t)idx], (void*)ws, p->ws[(size_t)idx],
                                    (cudaStream_t)stream);
 }
-"""
-LT_CPP = r"""
-#include <torch/extension.h>
-#include <ATen/cuda/CUDAContext.h>
-int64_t lt_version();
-int64_t lt_plan_new(int64_t m, int64_t n, int64_t k, int64_t layout, int64_t ws_cap);
-int64_t lt_heuristic(int64_t plan, int64_t ws_bytes, int64_t req);
-int64_t lt_expand(int64_t plan, int64_t idx, int64_t max_add);
-int64_t lt_add_config(int64_t plan, std::vector<int64_t> c);
-int64_t lt_count(int64_t plan);
-int64_t lt_rejected(int64_t plan);
-std::vector<int64_t> lt_info(int64_t plan, int64_t idx);
-int64_t lt_run_raw(int64_t plan, int64_t idx, int64_t w, int64_t x, int64_t out, int64_t ws, int64_t ws_bytes,
-                   int64_t stream);
+
 int64_t lt_run(int64_t plan, int64_t idx, at::Tensor w, at::Tensor x, at::Tensor out, at::Tensor ws) {
   return lt_run_raw(plan, idx, (int64_t)w.data_ptr(), (int64_t)x.data_ptr(), (int64_t)out.data_ptr(),
                     (int64_t)ws.data_ptr(), ws.numel(), (int64_t)at::cuda::getCurrentCUDAStream().stream());
@@ -2808,16 +2798,17 @@ def _cut_runner(ext, w, ws):
 
 
 def _build_lt():
-    # The plain name matches the toolkit headers nvcc compiles against; the versioned names
-    # cover images that ship only the runtime library.
-    last = None
-    for flag in ("-lcublasLt", "-l:libcublasLt.so.13", "-l:libcublasLt.so.12"):
+    # The image's cuBLASLt may be a runtime-only install (no unversioned symlink).
+    errs = []
+    for i, flag in enumerate(("-l:libcublasLt.so.13", "-lcublasLt", "-l:libcublasLt.so.12")):
         try:
-            return load_inline(name="okc_lt_v1", cpp_sources=LT_CPP, cuda_sources=LT_SRC, functions=LT_FUNCS,
-                               extra_cuda_cflags=["-O2"], extra_ldflags=[flag], verbose=False)
+            return load_inline(name=f"okc_lt_v2_{i}", cpp_sources=LT_CPP, functions=LT_FUNCS, with_cuda=True,
+                               extra_cflags=["-O2", "-std=c++20"], extra_ldflags=[flag], verbose=False)
         except Exception as exc:
-            last = exc
-    raise last
+            msg = str(exc)
+            lines = [ln.strip() for ln in msg.splitlines() if "error" in ln.lower() or "cannot find" in ln]
+            errs.append(f"{flag}: " + " | ".join(lines[:4])[:500] + " ... " + msg[-200:])
+    raise RuntimeError(" || ".join(errs))
 
 
 def _lt_cfg_str(info):
@@ -3148,7 +3139,7 @@ def prepare(weights):
         state["lt_ws"] = torch.zeros(LT_WS_BYTES, dtype=torch.uint8, device=dev)
         print(f"lt build {time.time() - t1:.1f} s, cublasLt {lt.lt_version()}, torch cuda {torch.version.cuda}")
     except Exception as exc:
-        print(f"lt build failed, route off ({type(exc).__name__}: {str(exc)[-400:]})")
+        print(f"lt build failed, route off ({type(exc).__name__}: {str(exc)[:1500]})")
     if lt is not None:
         state["lt_ext"] = lt
         for layer, m in LT_TARGETS:
