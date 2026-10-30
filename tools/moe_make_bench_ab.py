@@ -81,8 +81,8 @@ judge's prepare(), on random NVFP4 weights (32 experts):
 
 The judge's prepare() that follows runs with its output filtered to its summary lines (POLICY,
 PREPARE, BENCH at 128 and 256 tokens, each variant's worst self-test error), so the run log's
-15 KB tail keeps the A/B. Twins: 26 -> 27, 37 -> 42, 47 -> 48, 51 -> 55, 62 -> 64 and 63 -> 65
-(light stamps; 55, 64 and 65 also stamp the gather), 28 -> 31, 32 -> 33, 36 -> 38,
+15 KB tail keeps the A/B. Twins: 26 -> 27, 37 -> 42, 47 -> 48, 51 -> 55, 62 -> 64, 63 -> 65 and 66 -> 67
+(light stamps; 55, 64, 65 and 67 also stamp the gather), 28 -> 31, 32 -> 33, 36 -> 38,
 39 -> 40, 37 -> 41 and 43 -> 44 (light stamps and phase A counters, 41 and 44 with phase B
 counters too; name a twin as an arm to time it so its cost shows). An arm "v301" (the staged pair on 37's components) also
 builds modes 45 and 46 and needs 37 built (its fallback above 512 tokens).
@@ -96,10 +96,10 @@ import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
-LIGHT_TWINS = {26: 27, 37: 42, 47: 48, 52: 54, 51: 55, 57: 58, 60: 61, 62: 64, 63: 65}
+LIGHT_TWINS = {26: 27, 37: 42, 47: 48, 52: 54, 51: 55, 57: 58, 60: 61, 62: 64, 63: 65, 66: 67}
 SKEW_TWINS = {47: 49, 51: 56}
 # Light twins whose kernels also stamp the x gather (gather_st in the kernel): ABGATHER.
-GATHER_TWINS = (55, 56, 58, 61, 64, 65)
+GATHER_TWINS = (55, 56, 58, 61, 64, 65, 67)
 PA_TWINS = {28: 31, 32: 33, 36: 38, 39: 40, 37: 41, 43: 44}
 PB_TWINS = (41, 44)
 # Variant arms that need fat modes built: v301 is the staged pair on 37's components (45 then 46).
