@@ -2,7 +2,13 @@
 
     python3 tools/moe_make_bench_ab.py OUT.py PUBLIC.py [--base=28] [--seeds=1,2,...]
         [--sizes=32,128,256] [--routings=layer,std,skewed] [--pairs=A-B,...] [--gate=1]
-        [--skew=1] [ARM=MODE ...]
+        [--skew=1] [--work=1] [--skst=8:3:2,...] [ARM=MODE ...]
+
+--work=1 prints ABWORK per size and routing: the work each design gives each CTA (our jobs and
+owned phase A units, the public kernel's stream-K stage ranges and cut units ported from its
+wgs_range, the skinny path's split jobs, weights streamed) and our claimed phase B units per CTA
+from a counter twin. --skst adds stamped skinny variants (kMode 2) outside --small and prints
+their ABSK at 32 tokens and below, next to the fat stamps.
 
 --gate=1 is for a pre-registered keep-or-drop run: no stamped or counter twins, no stamped
 public runs (ABSTAMP, ABDIAG, ABPUB are not printed, so three routings fit the 16 KB log tail),
@@ -76,7 +82,7 @@ import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
-LIGHT_TWINS = {26: 27, 37: 42, 47: 48}
+LIGHT_TWINS = {26: 27, 37: 42, 47: 48, 52: 54}
 SKEW_TWINS = {47: 49}
 PA_TWINS = {28: 31, 32: 33, 36: 38, 39: 40, 37: 41, 43: 44}
 PB_TWINS = (41, 44)
@@ -217,6 +223,7 @@ _AB_STAMP_SIZES = @STAMPSIZES@
 _AB_SKEW = @SKEW@
 _AB_PUBSKEW = @PUBSKEW@
 _AB_SK_PER = @SKPER@
+_AB_WORK = @WORK@
 
 
 def _ab_main():
@@ -607,6 +614,57 @@ def _ab_main():
     pubsk_cols = ("route", "phase A", "phase B", "barrier", "final", "A done max",
                   "B done max", "end")
 
+    # --work=1: the work each design gives each CTA, from the routing alone (our fat jobs and owned
+    # phase A deal, the public kernel's cost-weighted stream-K ranges ported from its wgs_prefix /
+    # wgs_range with its own OKC_WGSA / OKC_WGSB tables, the skinny path's split jobs) plus our
+    # claimed phase B units per CTA from the counter twin.
+    def _pub_tab(name):
+        import re
+        m = re.search(r"#define %s ([0-9, ]+)" % name, _AB_PUB_SRC)
+        return [int(x) for x in m.group(1).split(",")]
+
+    pub_ca, pub_cb = (_pub_tab("OKC_WGSA"), _pub_tab("OKC_WGSB")) if _AB_WORK else ([], [])
+
+    def work_of(ids, G_):
+        loc = ids.long().flatten()
+        cnt = [int(x) for x in torch.bincount(loc[loc < 32], minlength=32).cpu()]
+        ours = [min(64, c - 64 * k) for c in cnt for k in range((c + 63) // 64)]
+        J = len(ours)
+        ua = 32 * J
+        own = [sum(1 for r in range(ua // G_ + 2) if r * G_ + ((G_ - 1 - c) if r & 1 else c) < ua)
+               for c in range(G_)]
+        fat = [min(64, c - 64 * k) for c in cnt if c > 8 for k in range((c + 63) // 64)]
+        pj = fat + [c for c in cnt if 0 < c <= 8]
+        prow = []
+        for tab, sh in ((pub_ca, 9), (pub_cb, 8)):
+            pre = [0]
+            for c in pj:
+                pre.append(pre[-1] + (tab[(c + 7) // 8 - 1] << sh))
+            tot = pre[-1]
+
+            def at(x):
+                lo = max(i for i in range(len(pj)) if pre[i] <= x) if pj else 0
+                return (lo << sh) + (x - pre[lo]) // tab[(pj[lo] + 7) // 8 - 1]
+            g = [at(tot * c // G_) for c in range(G_)] + [len(pj) << sh]
+            st = [g[c + 1] - g[c] for c in range(G_)]
+            cuts = [(g[c] % 16 != 0) + (g[c + 1] % 16 != 0) for c in range(G_)]
+            prow += [min(st), sum(st) / G_, max(st), sum(x > 0 for x in st), sum(cuts) / G_]
+        jsk = sum((c + 7) // 8 for c in cnt)
+        mb = lambda units: units * 16 * 36864 / 1e6
+        hist = [sum(1 for n in ours if (n + 7) // 8 == k) for k in range(1, 9)]
+        return ([J, min(own), sum(own) / G_, max(own), sum(o > 0 for o in own),
+                 mb(48 * J), len(pj)] + prow + [jsk, 512 * jsk / G_, 256 * jsk / G_,
+                                                 512 * 3 * jsk * 36864 / 1e6 / 2,
+                                                 sum(c > 64 for c in cnt)]
+                + hist)
+
+    work_cols = ("ours jobs", "A units/CTA min", "mean", "max", "CTAs with A",
+                 "weights MB", "pub jobs", "pub A stages/CTA min", "mean", "max",
+                 "CTAs with A", "cut units", "pub B stages/CTA min", "mean", "max",
+                 "CTAs with B", "cut units", "skinny jobs", "A units/CTA", "B units/CTA",
+                 "skinny weights MB", "experts over 64", "ntt1", "ntt2", "ntt3", "ntt4", "ntt5",
+                 "ntt6", "ntt7", "ntt8")
+
     def unit_stats(u, ns):
         # u: [G, US_PER] (header, then per unit: copy issued I, thread 0 starts waiting S, the
         # wait ends E, slot free F), clock64 converted to us by each CTA's own clock. A unit whose
@@ -686,6 +744,8 @@ def _ab_main():
                 skst, usst = [], []
             skd = {**{i: [] for i in skst}, "pub": []}
             usd = {**{i: [] for i in usst}, "pub": []}
+            works = []
+            pbu = {a: [] for a in padiag if a in _AB_PB}
             for si, s in enumerate(_AB_SEEDS):
                 d = inputs(t, routing, s)
                 order = list(arms.items())
@@ -693,6 +753,8 @@ def _ab_main():
                     order.reverse()
                 for a, fn in order:
                     tim[a].append(_graph_time(lambda: fn(d), flush))
+                if _AB_WORK:
+                    works.append(work_of(d["topk_ids"], G))
                 if _AB_GATE:
                     ob = _run(d, state, timed[base]).float()
                     for a in chk:
@@ -712,8 +774,20 @@ def _ab_main():
                         pb = state["scratch"]["inter"].reshape(-1).view(torch.int64)[
                             G * 144: G * 144 + G * 128].view(G, 16, 8).double().cpu()
                         pbdiags[a].append(pb_summary(lt, full, pb))
+                        u = pb[:, 0, 5]
+                        pbu[a].append([float(u.min()), float(u.mean()), float(u.max()),
+                                       float((u > 0).sum())])
                 if _AB_SMALL and not stamp_here:
                     continue
+                if not _AB_SMALL and t <= 32:
+                    for i in skst:
+                        _run(d, state, i)
+                        flush.zero_()
+                        torch.cuda.synchronize()
+                        _run(d, state, i)
+                        torch.cuda.synchronize()
+                        sd = state["scratch"]["inter"].reshape(-1).view(torch.int64)[: G * 16]
+                        skd[i].append(sk_summary(sd.view(G, 16).double().cpu()))
                 pd, prng, pus = pub_stamped(d)
                 if _AB_SMALL:
                     for i in usst:
@@ -750,6 +824,13 @@ def _ab_main():
                     print(f"ABPAIR {tag} {a} minus {bb} " + " ".join(f"{x:+.1f}" for x in dd)
                           + f" (mean {sum(dd) / n:+.1f}, {sum(x < 0 for x in dd)} of {n} lower)")
             # chk is filled only by --gate=1 runs; an empty list here crashed ed3b4fdc76b54263.
+            if works:
+                m = [sum(r[i] for r in works) / n for i in range(len(works[0]))]
+                print(f"ABWORK {tag} " + ", ".join(f"{c} {v:.4g}" for c, v in zip(work_cols, m)))
+            for a, rows in pbu.items():
+                m = [sum(r[i] for r in rows) / n for i in range(4)]
+                print(f"ABWORK {tag} {a} claimed B units/CTA min {m[0]:.2f}, mean {m[1]:.2f}, "
+                      f"max {m[2]:.2f}, CTAs with B {m[3]:.1f}")
             for a, v in ((a, v) for a, v in chk.items() if v):
                 print(f"ABCHECKALL {tag} {a} vs {base} per seed " + " ".join(f"{x:.1e}" for x in v)
                       + f" (max {max(v):.1e})")
@@ -769,6 +850,10 @@ def _ab_main():
             for a, rows in stamps.items():
                 m = [sum(r[i] for r in rows) / n for i in range(len(rows[0]))]
                 print(f"ABSTAMP {tag} {a} " + ", ".join(f"{c} {v:.1f}" for c, v in zip(cols, m)))
+            for i in (skst if t <= 32 else []):
+                m = [sum(r[k] for r in skd[i]) / n for k in range(len(skd[i][0]))]
+                print(f"ABSK {tag} {_vname(i)} " + ", ".join(f"{c} {v:.1f}"
+                                                            for c, v in zip(sk_cols, m)))
             for a, rows in diags.items():
                 m = [sum(r[i] for r in rows) / n for i in range(len(rows[0]))]
                 print(f"ABDIAG {tag} {a} " + ", ".join(f"{c} {v:.2f}" for c, v in zip(pa_cols, m)))
@@ -818,7 +903,8 @@ def main():
     rest = sys.argv[3:]
     opts = {"base": "28", "seeds": "1,2,3,4,5,6", "sizes": "32,128,256", "routings": "layer,std",
             "pairs": "", "small": "", "pubranges": "", "skextra": "", "unitstamps": "",
-            "stampsizes": "", "gate": "", "skew": "", "pubskew": ""}
+            "stampsizes": "", "gate": "", "skew": "", "pubskew": "", "skst": "",
+            "work": ""}
     arms = {}
     for a in rest:
         if a.startswith("--"):
@@ -844,6 +930,14 @@ def main():
     modes = sorted({0, *named, *light.values(), *pa.values(), *skewt.values(), *staged})
     src = (ROOT / "muse_moe_w4a16" / "submission.py").read_text()
     extra = "".join(f"({x.replace(':', ', ')}), " for x in opts["skextra"].split(",") if x)
+    if opts["skst"]:
+        # Stamped skinny variants outside --small (ABSK at 32 tokens and below, next to the fat
+        # stamps), e.g. --skst=8:3:2 for sk8w3s with mode 0's stamps.
+        assert not small
+        add = "".join(f", ({x.replace(':', ', ')})" for x in opts["skst"].split(",") if x)
+        src, n = re.subn(r"^SKINNY_VARIANTS = \(\((.*)\)\)$",
+                         lambda mm: f"SKINNY_VARIANTS = (({mm.group(1)}){add})", src, flags=re.M)
+        assert n == 1
     if small:
         # The stamped skinny variant (kMode 2) goes last; ABSK runs it.
         src, n = re.subn(r"^SKINNY_VARIANTS = \(\((.*)\)\)$",
@@ -873,7 +967,8 @@ def main():
                      ("@US@", repr(bool(opts["unitstamps"]))), ("@USMAX@", repr(US_MAX)),
                      ("@STAMPSIZES@", repr(ints(opts["stampsizes"]) if opts["stampsizes"] else ())),
                      ("@SKEW@", repr(skewt)), ("@SKPER@", repr(SK_PER)),
-                     ("@PUBSKEW@", repr(bool(opts["pubskew"])))):
+                     ("@PUBSKEW@", repr(bool(opts["pubskew"]))),
+                     ("@WORK@", repr(bool(opts["work"])))):
         assert block.count(key) == 1, key
         block = block.replace(key, val)
     Path(out).write_text(src + block)

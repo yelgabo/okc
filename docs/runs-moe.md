@@ -84,6 +84,8 @@ SGLang with its 95% interval. Profiles and logs are in `muse_moe_w4a16/profiles/
 | 2026-10-30 | d47c78bdc130424b (check, same bench options, not committed) | 54318bd | the rerun of ed3b4fdc76b54263 | 2.194x (2.161-2.227) | passed; spin flags 0. Public minus 47 -14.7 / -22.6 us at 128 / 256 (6 of 6); 48 minus 47 +1.3 / +1.1, 49 minus 47 +5.8 / +9.4. Warpgroups of a CTA 750-1,200 cycles apart at the stage start, warps within one 50-160; up to 72-74% of the weights waits from that skew. Phase gap (48 vs public stamps) at 128 / 256: setup +4.3 / +4.4, phase A +2.3 / +7.7, phase B +2.9 / +7.3, tail +3.7 / +3.6, barrier and final +4.0 / +3.6. ABSKEW's column labels in this log are the skinny ABSK names (a name clash, fixed in a03ca00); the values are in the order of skew_cols. Section "Warp skew and the gap to the public kernel after mode 47" |
 | 2026-10-30 | 8a7051fa926e43e1 (check, bench file from tools/moe_make_bench_ab.py --base=47 --sizes=32,128,256 --routings=layer,std,skewed --seeds=23,24,25,26,27,28 --gate=1 o50=50, not committed) | a03ca00 | mode 50's pre-registered gate against 47 (rule committed in 5ea3c34 before the submit) | 2.210x (2.177-2.243) | passed 5/5; spin flags 0. 50 minus 47, us, at 32 / 128 / 256: layer +0.7 / -5.9 / -6.6 (1, 6, 6 of 6 lower), standalone -2.8 / -5.7 / -8.3 (5, 6, 6), skewed -1.4 / -4.1 / -7.9 (6, 6, 6). Outputs vs 47 <= 4.3e-5; self-test 3.90e-3. Condition 2 failed (32 tokens, layer, +0.7 against +0.5): 50 not shipped, docs/ruled-out.md. Policy picked 50 at 128 and 256 |
 | 2026-10-30 | c6b0e500c3a84c9a (check, bench file from tools/moe_make_bench_ab.py --base=47 --sizes=32,128,256 --routings=layer,std,skewed --seeds=29,30,31,32,33,34 --gate=1 o51=51, not committed) | 69c06ed | mode 51's pre-registered gate against 47 (rule committed in 69c06ed before the submit) | 2.194x (2.161-2.227) | passed 5/5; spin flags 0. 51 minus 47, us, at 32 / 128 / 256: layer +0.0 / -3.9 / -3.9 (2, 6, 5 of 6 lower), standalone -1.0 / -3.8 / -4.4 (5, 6, 6), skewed -0.1 / -4.0 / -7.7 (2, 6, 6). Outputs vs 47 <= 4.6e-5; self-test 3.88e-3. Every rule condition passed: 51 kept. Policy picked 51 at 128 and 256. Section "Mode 51" |
+| 2026-10-30 | 1fbb9fbf524f4ed7 (check, bench file from tools/moe_make_bench_ab.py --base=47 --sizes=32 --routings=layer,std --seeds=1,2,3,4,5,6 --work=1 --skst=8:3:2 o37=37 o16=16 sk8w3s=v3, not committed) | b3509a0 + tool changes | phase attribution at 32 tokens against the public kernel (stamps of 48, 42, 41, public, sk8w3s; per-CTA work) | 2.196x | passed; spin flags 0. Graph replay at 32 tokens, layer / standalone: 47 90.9 / 132.9 us, public -1.5 / -5.9 (6 of 6 each), 37 +1.8 / +1.6, 16 +28.5 / +31.1, sk8w3s +19.2 / -0.1, sk8w4s +22.9 / +3.4. Stamps 48 minus public: setup +3.6 / +0.9, phase A done max +6.2 / +8.6, tail +2.0 / +6.0, end +1.6 / +7.4. Work: 8.5 / 14.2 jobs, owned phase A units per CTA 1.5-2.5 / 2.8-3.8, public phase A 28-36 / 46-57 stages. Section "Phase attribution at 32 tokens" |
+| 2026-10-30 | 209cf29bf91c4ea2 (check, bench file from tools/moe_make_bench_ab.py --base=51 --sizes=32,128,256 --routings=layer,std --seeds=35,36,37,38,39,40 o52=52 o53=53 o47=47, not committed) | this branch (modes 52-54) | diagnostic of modes 52 / 53 (last phase B units claimed in K halves through the fixup, xs = G / 2 / G) | 2.191x | passed; spin flags 0. 52 minus 51 +3.3 / +3.5 / +5.9 / +4.9 / +8.5 / +5.3 us at 32 / 128 / 256 (layer / std), 0-2 of 6 lower; 53 +5.2 to +9.2. 54's tail 7.9 against 48's 7.1 at 32 (layer). Outputs vs 51 <= 9.7e-5. Lost everywhere, not gated; docs/ruled-out.md |
 
 ## Why the layer keeps the W4 chain at 128 tokens, 2026-10-29
 
@@ -1525,6 +1527,168 @@ gain 51; GATE prints 51 minus 47. The shippable build was checked locally (produ
 but not judged: the line's 4-check budget ended with the gate run, so the coordinator runs its
 check. The 128-token gain on layer routing (-3.9 us) is smaller than 50's in its run (-5.9) on
 other seeds; the two runs do not compare the modes directly.
+
+## Phase attribution at 32 tokens against the public kernel, 2026-10-30
+
+Brief: the layer report (docs/steering/2026-10-30-layer-release-attribution.md, item 3) put our MoE
+at about 102 us exposed against the public's 88 at decode 32 sliding, with nobody holding phase
+stamps at 32 tokens; mode 50 failed its gate there and 51 runs 47's code below 64 tokens.
+
+### Method (check 1fbb9fbf524f4ed7)
+
+`tools/moe_make_bench_ab.py --base=47 --sizes=32 --routings=layer,std --seeds=1,2,3,4,5,6
+--work=1 --skst=8:3:2 o37=37 o16=16 sk8w3s=v3`, public file from the session scratchpad. Same
+process, graph replay after an L2 flush, arms interleaved and reversed per seed. Stamped twins:
+48 (47's light stamps), 42 (37's), 41 (37 with the phase A and B counters; 37 and 47 share the
+partition, owned phase A and claimed phase B), the public kernel with its own DEBUG stamps, and
+sk8w3s with mode 0's stamps (kMode 2). Two additions to the tool: `--work=1` prints ABWORK, the
+work each design gives each CTA from the routing alone (our jobs and owned phase A deal, the
+public kernel's stream-K stage ranges ported from its `wgs_prefix` / `wgs_range` with its own
+cost tables, the skinny path's split jobs) and our claimed phase B units per CTA from 41's
+counters; `--skst` builds stamped skinny variants outside `--small` and prints their ABSK next
+to the fat stamps. ABPUB's stage columns need `--pubranges` and are garbage in this run; ABWORK
+replaces them.
+
+### Results
+
+Graph replay, us, mean of 6 seeds (count = seeds lower than 47):
+
+| arm | layer routing | standalone routing |
+|---|---|---|
+| 47 | 90.9 | 132.9 |
+| public | 89.5 (-1.5, 6 of 6) | 127.0 (-5.9, 6 of 6) |
+| 37 | 92.7 (+1.8, 1 of 6) | 134.5 (+1.6, 0 of 6) |
+| 16 (stream-K both phases, older stage loop) | 119.4 (+28.5) | 164.0 (+31.1) |
+| sk8w3s | 110.1 (+19.2, 0 of 6) | 132.8 (-0.1, 3 of 6) |
+| sk8w4s | 113.8 (+22.9) | 136.2 (+3.4) |
+
+Phase stamps, us, mean over CTAs and 6 seeds of one cold launch (48 against the public; 42 and
+41 agree with 48 within 1-8 us, 41 paying its counters):
+
+| piece | layer: 48 / public / gap | standalone: 48 / public / gap |
+|---|---|---|
+| routing (start to routed) | 3.0 / 1.8 / +1.2 | 2.9 / 1.8 / +1.1 |
+| x gather and release | 4.4 / 2.0 / +2.4 | 2.0 / 2.2 / -0.2 |
+| phase A per CTA, mean | 47.7 / 49.8 / -2.1 | 77.9 / 75.3 / +2.6 |
+| phase A done, last CTA | 64.2 / 58.0 / +6.2 | 92.3 / 83.7 / +8.6 |
+| phase B per CTA, mean | 22.7 / 22.8 / -0.1 | 34.1 / 34.6 / -0.5 |
+| tail (last phase B end minus the mean) | 6.5 / 4.5 / +2.0 | 10.8 / 4.8 / +6.0 |
+| barrier and final pass (includes the tail wait) | 8.9 / 6.6 / +2.3 | 13.2 / 6.8 / +6.4 |
+| launch end, last CTA | 87.7 / 86.1 / +1.6 | 131.0 / 123.6 / +7.4 |
+
+Work per CTA (ABWORK, means over the seeds; all 132 CTAs have phase A work in every design):
+
+| | layer | standalone |
+|---|---|---|
+| fat jobs (one per active expert, none over 64 tokens) | 8.5 (5.7 of 1 n-tile, 1.2 of 2, 1.7 of 3) | 14.2 (12.8 of 1 n-tile) |
+| ours: owned phase A units per CTA, min / mean / max | 1.5 / 2.06 / 2.5 | 2.83 / 3.43 / 3.83 |
+| ours: claimed phase B units per CTA (41), min / mean / max; CTAs with any | 0.5 / 1.03 / 1.5; 122 | 1.33 / 1.72 / 2.33; 132 |
+| public: phase A stages per CTA, min / mean / max; cut units per CTA | 28 / 33.0 / 35.8; 1.86 | 46 / 55.0 / 56.8; 1.84 |
+| public: phase B stages per CTA, min / mean / max | 14.3 / 16.5 / 17.8 | 24.8 / 27.5 / 28.0 |
+| phase A per CTA, p10 / p90 (41; public from its stamps) | 42.7 / 62.4 (public 48.0 / 51.6) | 73.7 / 89.1 (public 73.9 / 76.8) |
+| weights streamed: fat / skinny (split jobs re-stream) | 241 / 368 MB (13 skinny jobs) | 401 / 458 MB (16.2) |
+
+Skinny sk8w3s stamps on layer routing: phase A 67.2, phase B 34.0, end 110.8 us; it streams 53%
+more bytes than the fat path because the experts with 9-23 routes become 2-3 jobs of 8 tokens.
+
+Reading.
+- Measured: in one process on layer routing at 32 tokens, the public kernel is 1.4-1.6 us
+  ahead of 47 (graph replay and stamps), not 10-14 us. On standalone routing it is 5.9-7.4 us
+  ahead. The layer report's +9.8 us at decode 32 sliding came from one profiled replay, and the
+  same report shows +3.9 at decode 32 full, which runs the same MoE size; so most of the layer
+  figure is not MoE kernel work as this bench measures it. What else differs in the layer is a
+  hypothesis for the layer owner: the routing of that replay, the PDL preamble's L2 prefetch of
+  unit 0 of all 32 local experts (18.9 MB) when about 8.5 are active at 32 tokens, and the
+  profiler's exposed-time split.
+- Measured: the public partitions both phases by cost-weighted stage ranges (stream-K, about
+  1.85 cut units per CTA per phase), so every CTA gets 33 +- 3 phase A stages on layer routing.
+  Ours deals whole 16-stage phase A units (2.06 per CTA: 1, 2 or 3 units) and lets CTAs that
+  finish early claim whole phase B units; the last phase A CTA ends 6.2 / 8.6 us after the
+  public's and the last phase B CTA 6.5 / 10.8 us after the mean CTA (public 4.5 / 4.8).
+- Largest piece, by the stamps: on standalone routing the end-of-launch imbalance (phase A
+  done max +8.6, tail +6.0); on layer routing the setup (+3.6: routing +1.2, gather +2.4) and
+  the same imbalance (+6.2, +2.0) offset by a faster mean phase A (-2.1). The setup pieces have
+  no single mechanism (the gather's fences stay); the imbalance has one: whole-unit claims, of
+  about 22 us each at 32 tokens, in the last wave.
+- sk8w3s does not belong in the layer's 32-token pick on judge-like routing (+19.2 us, 0 of 6);
+  on standalone routing it ties 47. The standalone prepare bench (synthetic routing) chose
+  sk8w3s at 32 in this run, which is the standalone board's business only.
+- 37 is 1.6-1.8 us behind 47 at 32 tokens; the layer should keep 47 (or 51, the same code there).
+
+### Modes 52 and 53: the last phase B units claimed in halves
+
+Change. 52 and 53 are 51 with the claim values past `units - xs` mapped to the two K halves (8
+stages each) of the last `xs` phase B units, xs = G / 2 (52) or G (53), at most the unit count;
+54 is 52 with the light stamps (timing only). The weights and x producers stream the claimed
+half's 8 stages; the consumer runs it as a cut segment through `fixup` (the phase B cut-unit path
+of modes 12-16): each half adds its accumulators into a phase B fixup slot with red.add.v4, then
+`fence.acq_rel.gpu`, the warpgroup's bar.sync and one `atom.acq_rel.gpu` on the slot's stage
+count; the half that completes 16 stages reads the slot back after a second fence, zeroes it and
+runs 51's phase B epilogue. The slot index is the unit's place in the split tail (below G, so the
+2 x G x 4 slots and the per-launch fixcnt reset after the grid barrier cover it). Claims still
+rise through S.ord, so the per-n-tile-count claim loops are unchanged. Applies at every M in
+these modes; the gate decides where.
+
+Ordering. No fence, barrier, release or acquire is removed or moved. The halves use the cut-unit
+fixup that modes 12-16 ran in phase B before phase B boundaries were aligned (its chain: a
+fence.acq_rel followed by a strong write is a release pattern and a strong read followed by
+fence.acq_rel an acquire pattern, PTX ISA, Memory Consistency Model, "Release and Acquire
+Patterns"; the writer's red.add.v4 are ordered before the release by its fence and the
+warpgroup barrier, the reader's ld.cg after its acquire and fence). The inputs of each half come
+through done_as per stage as for whole units. New is only which slot a cut phase B unit uses and
+that two CTAs claim the halves at run time instead of by stage range; each slot is used by
+exactly one unit per launch (claim values are unique), and both halves add their stage counts,
+so the count reaches 16 once.
+
+Local compile gate (nvcc 12.8.1, sm_90a, tools/moe_compile_fused.sh): production SASS (modes 0,
+16, 26, 28, 37, 47, 51 and the four skinny kernels) has the same instruction text as before this
+change (b3509a0); no C7510-C7515; 52, 53 and 54 at 96 registers, no stack frame, no spills, no
+local loads or stores; HGMMA 192, wait1 96, wait0 12 as 51 (the wgmma groups still pipeline);
+MEMBAR 91 against 51's 43 and REDG 45 against 9, the fixup's fences and red.add.v4 that 51
+compiles out (its phase B segments are never cut).
+
+Prediction (hypothesis, before the run): the last wave of claims ends in about half a unit (11
+us at 32 tokens) instead of a whole one, so the tail falls by 2-4 us at 32 tokens, less the
+fixup's cost on the split units.
+
+### Diagnostic run (check 209cf29bf91c4ea2, no keep rule set in advance)
+
+`tools/moe_make_bench_ab.py --base=51 --sizes=32,128,256 --routings=layer,std
+--seeds=35,36,37,38,39,40 o52=52 o53=53 o47=47` (light twins 54 and 48, public stamps). A
+diagnostic arm, as 47's first check was: the rule for a gate was to be written from it, on new
+held-out seeds.
+
+Minus 51, us, same process (count = seeds lower of 6):
+
+| arm | 32 layer | 32 std | 128 layer | 128 std | 256 layer | 256 std |
+|---|---|---|---|---|---|---|
+| 52 (xs = G / 2) | +3.3 (2) | +3.5 (1) | +5.9 (0) | +4.9 (0) | +8.5 (0) | +5.3 (0) |
+| 53 (xs = G) | +8.1 (0) | +5.2 (0) | +7.3 (0) | +6.5 (0) | +9.2 (0) | +7.7 (0) |
+| 47 | -0.0 (3) | +0.0 (4) | +3.8 (0) | +3.2 (0) | +5.2 (0) | +3.5 (0) |
+| public | -1.9 (4) | -5.2 (6) | -7.8 (6) | -10.8 (6) | -16.1 (6) | -15.3 (6) |
+
+Stamps at 32 tokens, 54 against 48 (47's code, which 51 runs below 64 tokens): phase B per CTA
+24.2 against 20.5 us (layer) and 43.0 against 39.2 (standalone); tail 7.9 against 7.1 and 8.2
+against 7.7. Outputs of 52 and 53 against 51 at most 9.7e-5; spin flags 0. Score 2.191x.
+
+Reading. Measured: halving the last claims did not shorten the tail, and phase B per CTA rose
+by 3.7-3.8 us at 32 tokens; splitting more units (53) costs more. Hypothesis for the cost: the
+fixup's red.add.v4 of the accumulators, its two gpu-scope fences under a saturated memory system
+and the second half's read-back sit on the critical path of both halves. Hypothesis for the tail that
+remains: it is set by the phase B units' wait for the last phase A units of their job (phase A
+done max is 6-8 us later than the public's), not by the claim size.
+
+Decision: 52 and 53 are not gated (they lost at every size and routing, 0-2 of 6 seeds lower),
+and go to docs/ruled-out.md scoped to this design. Their code stays in the source, not built
+(production SASS unchanged). No layer port. Two of the four checks were used; the other two are
+returned unspent, because the same-process gap left at 32 tokens on layer routing is 1.5-1.9 us
+in two runs, below what a further MoE-only mechanism at that size can be expected to show inside
+the noise of one check, while the layer's 10-14 us figure is not reproduced here.
+
+Next for the layer owner (hypotheses, untested): time the layer MoE at decode 32 with and without
+the PDL preamble's L2 prefetch (it hints unit 0 of all 32 local experts, 18.9 MB, when about 8.5
+experts are active at 32 tokens), and repeat the decode 32 attribution over more than one
+profiled replay before charging 10-14 us to the MoE.
 
 ## Staged pair on current components, 2026-10-29
 
