@@ -2823,3 +2823,111 @@ full, the producer kernels 51 and 49), which no round-2 or round-3 change touche
 ### Scored: 1896e72c11ae4b0f 2.521x (2026-10-30)
 
 Submit of submission.py at a70192d (ONE_PRQ=31, _ONE_WS_PICK=3, ONE_HMRG on), submitted by the coordinator under the standing authorization. Passed. Above the bench-file entry e9085c86d89449c2 (2.504x), so a clean file of our own code becomes the attention board entry. Receipt: muse_attention_decode/profiles/scored.1896e72c11ae4b0f.json.
+
+## Standalone round 4 (10-30): the flat full-context rows (modes 49 and 51)
+
+Brief: attribute the flat full-context gap to the public flat kernels in one process (stamps,
+SASS of the per-tile paths), name the mechanism, build one switch (off = SASS-identical), gate
+written here before the check that tests it (modeled >= 0.2% standalone score gain beyond the
+independent null). Start: main 15cc6b9 (HMRG, PRQ=31, `_ONE_WS_PICK` 3; board entry
+1896e72c11ae4b0f, 2.521x). Quota at the start (`okc problems`, 19:09 UTC): 5 of 20 attention
+checks, 8 of 10 runs, all expiring at 00:00 UTC. Gaps to the public kernel this round starts from
+(bench 3c6e1a7f1cc644b6, cold, pub - p31): v16 full -1.95 us (0.24%), d32 full -1.50 (0.13%), d16
+full -0.73 (0.11%); d1 full -0.74 runs the per-request mode 11 and is not in this round's scope.
+
+### Static comparison of the q_len 1 flat kernels (SASS, CUDA 12.8.1)
+
+Ours mode 49 (`tools/attn_one_sass.sh`, 3448 instructions, consumer region R115, no spills)
+against the public `attn_kernel<1, true, 0>` (`tools/attn_pub_compile.sh` on the public file sha1
+0e9d4c78, 3416 instructions, 128 registers; the public copy stays in the scratchpad):
+
+| piece | ours (mode 49) | public flat q_len 1 |
+|---|---|---|
+| consumer tile body (mbarrier wait to empty arrive) | 381 instructions: 32 HMMA, 13 LDS, 68 F2FP, 9 MUFU, 2 SHFL, one VOTE (alpha) | 403: 32 HMMA, 26 LDS, 68 F2FP, 9 MUFU, 2 SHFL |
+| producer, page entries | `__ldg` per row, three tiles ahead in registers, 64-bit pointer math (about 31 instructions per tile for 4 entries) | one bulk copy (`cp.async.bulk`) of the tile's 64 entries per tile into a shared-memory slot, three tiles ahead, an mbarrier per slot and a producer `bar.sync` per tile |
+| producer, cached-row copies | PFAST: 8 `LDGSTS` per tile per thread, 32-bit offsets | the same shape (8 `LDGSTS`, 32-bit offsets) |
+| ring across segments | continuous (the producer runs ahead into the next segment) | drained and re-initialized per segment |
+| merge after each segment | each of the 4 warps (2 KV heads x 2 key halves) reds its own partial: every workspace address takes 2 reds per CTA | the second key half hands (m, l, o) to the first through shared memory; only the first issues reds (the same handoff as its per-request path) |
+| partition, grid | 264 CTAs, equal shares of a virtual key axis, 400 keys per request boundary | the same (264, `SEGKF` 400) |
+
+The tile loops are within 6% of each other in instructions, ours shorter. The one structural
+difference after the loop is the merge: the per-request q_len 1 modes got the key-half handoff in
+round 2 (`ONE_HMRG`, judged; -0.80 / -1.44 us at d32 / d16 sliding, where the reds were the
+measured mechanism in ce92d32e26024bd2), but it was scoped to `!FLAT`, so mode 49 still issues
+twice the public kernel's reds. In the flat kernel the grid finishes together by construction
+(equal shares), so the last segments' reds of all 264 CTAs land on L2 in one burst at the end
+of the call, about 8 CTAs per request on the same 1,040 addresses, and the last CTA of each
+request waits for them before its finalize. Hypothesis (H1): the doubled reds at the flat
+kernel's tail are the d16 / d32 full gap. The stamps below test where the time goes; the switch
+tests H1 directly.
+
+### The switch: `ONE_HMRGF` (default 0)
+
+`attn_one.cu`: the HMRG handoff for the flat q_len 1 instances (17, 49). In producer mode the
+stage ring belongs to the producer across segments (it may already be filling the next
+segment's tiles while the consumers merge), so the handoff cannot use stage 0 as HMRG does; it
+uses the 4,352 bytes from `S::Q` (query fragments, bf16 query staging, raw new rows: 4,608 bytes
+up to `S::KN`, checked by a static_assert), which nothing reads between a segment's tile loop and
+the next segment's query pass. Arithmetic as in HMRG: each half scales by its own 2^m, one FP32
+add before the red.
+
+SASS (CUDA 12.8.1, all 13 instances, per-function compare with namespace hashes normalized,
+scratchpad `flat/sass_all.sh`): with `ONE_HMRGF=0` (and `ONE_STAMP=0`) every instance is
+identical to main 15cc6b9; with 1 only modes 17 and 49 change (3448 -> 3520 and 2648 -> 2712
+instructions), mode 49 consumer region R109, no spills, no warnings beyond the usual unused ones.
+
+`ONE_STAMP=1` now also records the q_len 1 flat kernel (bench-only): 3 the last segment's tile
+loop end, 4 its reds issued (before its ticket), 5 the kernel end. The bench prints them per CTA
+and a compact `STSUM` line per shape and arm (medians over five cold calls) at the end of the log.
+The public stamp copy `pubstamp1` (scratchpad `flat/make_pubstamp1.py`, never committed) records
+start, SM, tiles and, at q_len 1, the last tile-loop end and the kernel end.
+
+### Ordering argument (no fence or barrier removed or moved)
+
+The handoff adds the judged HMRG sequence to mode 49's merge: `cp_wait<0>`, consumer barrier
+(`bar.sync 1, 128`; mode 17 `__syncthreads`), generic `st.shared` by the second-half warps,
+consumer barrier, generic `ld.shared` by the first-half warps, their reds. The reds are still
+issued before the ticket's consumer barrier that precedes thread 0's `atom.acq_rel.gpu`, so the
+release chain to the finalizing CTA is the judged one. The buffer's previous contents are read
+only before or inside the tile loop: the query fragments (`ld.shared` into registers before the
+loop), the bf16 query rows and raw new rows (written by the consumers' own `cp.async`, waited by
+`cp.async.wait_group` and a barrier, read in the query and new-token passes). Every consumer
+thread finishes those reads in program order before it arrives at the merge's first barrier, and
+`cp_wait<0>` leaves no copy of its own in flight. The next writes into those bytes are the next
+segment's query copies, issued after that segment's `cp_wait<0>` and consumer barrier, which
+every first-half thread reaches only after its loads (and after the ticket's two barriers). The
+producer warpgroup writes only the stages and arrives on the stage mbarriers; it never touches
+`[S::Q, S::KN)`. At q_len 1 no async-proxy instruction (wgmma, bulk copy) reads shared memory, so
+no proxy fence is involved. A segment the CTA does not own (`seg_bounds` false) runs no merge.
+
+### Gate for check 1 (written before the bench that tests it)
+
+Bench `bench_j` (scratchpad `flat/gen_j.sh`; `tools/attn_make_bench_ab.py --pub <0e9d4c78> --pub
+pubstamp1 --pub pubnc_probe --null --shapes full --inputs 2 --rounds 200 --seed 20261040`):
+`ctrl`, `ctrl2` (own state, the independent null), `ctrlb` (`-DONE_HMRGF=0`, the control's code in
+a separate build on ctrl's state: the matched null), `hf` (`-DONE_HMRGF=1`, ctrl's state), `hfown`
+(the same build, own state), `stamp` (`-DONE_STAMP=1`), `nocopy_probe` (`-DONE_PROBE=1`: cached
+rows zero-filled, no cache reads), `pub`, `pub2`, `pubstamp1`, `pubnc_probe` (the public file
+with its producer's cached-row copies at src-size 0).
+
+Modeled gain G(X) = sum over d16 full and d32 full (the rows whose code the switch changes) of
+(ctrl - X) x sensitivity, cold pooled medians, sensitivities from the board run
+1896e72c11ae4b0f (d16 full 0.147, d32 full 0.084 %/us; v16 / v32 full 0.121 / 0.072).
+
+`ONE_HMRGF=1` goes to a confirmation bench only if all hold:
+1. ABCHECKSUM passes for every real arm; `hf` against ctrl differs only at the red-order level
+   and leaves the workspace zero.
+2. G(hfown) - G(ctrl2) >= 0.20% (the independent null) and G(hf) - G(ctrlb) >= 0.20% (the matched
+   null).
+3. `hf` has the same sign on both held-out inputs on d16 full and d32 full (ABIN).
+4. No row of `hf` slower than ctrl by more than max(|ctrlb - ctrl|, 1%) (v16 / v32 full run
+   unchanged code).
+
+If `hf` is faster on both rows but misses clause 2, it is recorded as a measured standalone gain
+below the bar (not promoted, a row in docs/ruled-out.md with its size). If it is not faster, H1 is
+a measured loss and the stamps name what is left.
+
+Attribution (no gate): per flat row, ours against the public: start and first-tile time, loop
+end (min / median / max), tail from the loop end to the kernel end, per-SM end, pair gap
+(`STSUM`), and the no-copy probes (`nocopy_probe` against `pubnc_probe`: the instruction streams
+without DRAM).
