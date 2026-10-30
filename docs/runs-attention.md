@@ -2086,3 +2086,62 @@ Gates, written before the run:
   0.3 us on both inputs. If so, the next step is a production change that spreads the batch-1
   workspace copies (a layout change in `_one_state` / the row map), judged on its own.
 - Attribution: no gate; it names the phase that holds the d1 / d16 gap to the public kernel.
+
+### Check 318ae6fc3c3746ce (bench `bench_b`, generator and kernel at 682aeaa): A2, placement, phase attribution
+
+| date | job | commit | file | result | notes |
+|---|---|---|---|---|---|
+| 2026-10-30 | 318ae6fc3c3746ce (check) | 682aeaa | bench (`--null --shapes all --inputs 2 --seed 20261031`, 12 arms) | 2.479x (judged path = board code), 16/16 tests, ABCHECKSUM 19/0 every real arm | A2 measured loss; placement offset no effect; finalize is the largest batch-1 phase |
+
+Profiles: `muse_attention_decode/profiles/bench_b.318ae6fc3c3746ce.*` (the log tail holds the
+cold summaries; per-input rows were cut by the 16,000-character limit). Cold medians pooled over
+two held-out inputs, us.
+
+**A2 (mode 115, one CTA per SM) against its gate.** Verify 16 / 32 full: `ctrl` 110.27 / 187.26,
+`s115` 137.79 / 244.93 (+25% / +31%), `s115xp1` 138.37 / 239.87; null `ctrl2 - ctrl` +0.06 /
++0.42. The Q.K-first overlap is worth 0 / -5.1 us inside mode 115 (2% at verify 32), far from
+the 27-58 us the one-CTA-per-SM organization costs. Gate fails: **measured loss**, A2 parked
+(row in docs/ruled-out.md). ABSCORE `s115` 0.945, `s115xp1` 0.944.
+
+**Placement.** At d1 full: `ctrl` 18.62, `ctrl2` 18.18, `ws64k` 17.89, `ws5m` 18.08, and `s115`
+(own state, normal plan there) 17.95. Every independently allocated state is 0.45-0.74 us faster
+than the control's own (first-allocated) state, for the third time in two runs; the offset of
+the workspace inside a fresh allocation changes nothing beyond 0.3 us. So the effect is tied to
+the control's allocation, not to the low address bits. At batch > 1 all arms agree within 0.4 us.
+
+**Phase attribution (one `-DONE_DIAG=1` build, own state; time to the early exit after phase k,
+cold, us; `diag0` is the whole DIAG call, 0.1-0.6 us slower than `ctrl` at batch 1).**
+
+| shape (plan) | p5 prologue loads landed | p7 query norm | p8 new-token pass | p9 patch / ones | p10 tile loop + reds | whole (`diag0`) | loop (p10 - p9) | finalize (whole - p10) | public total (5575e7d1) |
+|---|---|---|---|---|---|---|---|---|---|
+| d1 sliding (13, 32 CTAs) | 6.88 | 6.82 | 6.82 | 6.88 | 7.55 | 9.92 | 0.67 | **2.37** | 9.06 |
+| d1 full (11, 252 x nc 8) | 10.08 | 10.05 | 10.08 | 10.08 | 14.78 | 18.82 | 4.70 | **4.04** | 16.48 |
+| d16 sliding (1, 256 CTAs) | 10.11 | 10.11 | 10.14 | 10.18 | 11.20 | 14.82 | 1.02 | **3.62** | 12.77 |
+| d32 sliding (1, 256 CTAs) | 10.34 | 10.34 | 10.30 | 10.37 | 14.05 | 16.80 | 3.68 | 2.75 | 15.81 |
+| v1 sliding (15, 33 coop) | 6.98 | 7.07 | 7.39 | 7.39 | 8.64 | 11.17 | 1.25 | 2.53 | 10.88 |
+| v1 full (11, 252 x nc 8) | 9.86 | 9.82 | 9.86 | 9.86 | 16.42 | 20.06 | 6.56 | **3.64** | 18.75 |
+| v16 sliding (3, 128 coop) | 8.51 | 8.51 | 8.54 | 8.61 | 13.47 | 16.22 | 4.86 | 2.75 | 15.46 |
+| v32 sliding (3, 128 coop) | 8.90 | 8.86 | 8.90 | 8.90 | 17.92 | 21.09 | 9.02 | 3.17 | 19.49 |
+
+Reading (measured, with the replay cost of about 4.5 us inside every column): the query norm,
+RoPE, new-token pass and patch cost nothing visible (p5 to p9 within 0.1 us, 0.4 at v1 sliding).
+After the fixed launch and prologue, the **merge and finalize** (the reds' release, the ticket or
+cooperative barrier, the last CTA's or every CTA's workspace reads, norm, gate and store) is
+the largest phase on the four shapes that hold most of the gap's value: 2.4 us at d1 sliding,
+4.0 at d1 full, 3.6 at d16 sliding, 3.6 at v1 full. The prologue at batch-1 full (252 CTAs,
+cooperative) sits 3.2 us above batch-1 sliding (32 CTAs). The public kernel's whole call is 0.5-
+1.6 us below ours on those shapes; whether its finalize or its prologue is the shorter is not
+measured (its source shows the same last-CTA scheme with `__ldcg` reads; it has no phase exits).
+This is the measured budget A3 asked for: reduction ownership is worth attacking on d1 / d16
+sliding and batch-1 full, not on verify full.
+
+Checks used this round: 5575e7d15d3e49a8, 318ae6fc3c3746ce.
+
+### Next bench (check 3): does carving the workspace from one allocation remove the first-allocation cost?
+
+`--set _ONE_WS_CARVE=1048576` (submission.py knob, default 0 so the judged file is unchanged):
+every state's ws_acc, ws_l and ws_cnt come from one allocation, 1 MB in. Arms `ctrl` (first
+allocated, carved), `ctrl2`, `ws64k`; ABADDR prints each state's addresses. Gate, written before
+the run: the carve is a production candidate only if `ctrl2 - ctrl` at d1 full is within +-0.2 us
+on both inputs (it was -0.67 and -0.45 in the two runs before) and no shape regresses beyond the
+null; then a judged pair of submission.py with the carve on.

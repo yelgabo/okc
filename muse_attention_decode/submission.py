@@ -5747,15 +5747,29 @@ _ONE_PROD = True
 # producer exits by PTX exit, 51 has no spills and timed 125.0 / 232.4 us against 19's
 # 128.2 / 238.8 at batch 16 / 32 (d90a73871d8e4481).
 _ONE_Q8_PROD = True
+# Bench knob, off in the judged path: carve ws_acc, ws_l and ws_cnt from one allocation that
+# starts this many bytes in (0 = three separate allocations). Bench 5575e7d15d3e49a8 and
+# 318ae6fc3c3746ce timed the first-allocated workspace 0.45-0.7 us slower at batch-1 full than
+# later, independently allocated ones (docs/runs-attention.md, 10-30).
+_ONE_WS_CARVE = 0
 
 
 def _one_state(device):
     st = _ONE_STATE.get(device)
     if st is None:
         assert not torch.cuda.is_current_stream_capturing(), "attn_one state before any capture"
-        acc = torch.zeros((_ONE_WS_ROWS, 64), dtype=torch.float32, device=device)
-        lsum = torch.zeros((_ONE_WS_ROWS,), dtype=torch.float32, device=device)
-        cnt = torch.zeros((_ONE_CNT_INTS,), dtype=torch.int32, device=device)
+        if _ONE_WS_CARVE:
+            n_acc, n_l = _ONE_WS_ROWS * 64 * 4, _ONE_WS_ROWS * 4
+            raw = torch.zeros(_ONE_WS_CARVE + n_acc + n_l + _ONE_CNT_INTS * 4,
+                              dtype=torch.uint8, device=device)
+            o = _ONE_WS_CARVE
+            acc = raw[o:o + n_acc].view(torch.float32).view(_ONE_WS_ROWS, 64)
+            lsum = raw[o + n_acc:o + n_acc + n_l].view(torch.float32)
+            cnt = raw[o + n_acc + n_l:].view(torch.int32)
+        else:
+            acc = torch.zeros((_ONE_WS_ROWS, 64), dtype=torch.float32, device=device)
+            lsum = torch.zeros((_ONE_WS_ROWS,), dtype=torch.float32, device=device)
+            cnt = torch.zeros((_ONE_CNT_INTS,), dtype=torch.int32, device=device)
         lim = _ONE.attn_one_prepare()
         coop = bool(_ONE.attn_one_probe_coop()) if _ONE_COOP_LAUNCH else False
         resident = {}

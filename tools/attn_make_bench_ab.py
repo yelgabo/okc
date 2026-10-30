@@ -4,7 +4,7 @@ kernel loaded from its own file, all timed in one process on the same inputs.
 
     python3 tools/attn_make_bench_ab.py OUT.py [--pub [NAME=]PUBLIC.py ...] [--null]
         [--shapes sliding|full|all] [--seed N] [--inputs K] [--rounds R] [--nocoop]
-        NAME[@own]=[FLAGS][:mode=M][:wsoff=BYTES][:phase=K] ...
+        [--set NAME=VALUE ...] NAME[@own]=[FLAGS][:mode=M][:wsoff=BYTES][:phase=K][:early] ...
 
 NAME=FLAGS adds a variant built from submission.py's inlined _ONE_SRC (not attn_one.cu) with
 those nvcc flags (comma-separated), e.g. diet=-DONE_DIAG=0,-DONE_DIET=1. A switch that exists
@@ -25,7 +25,10 @@ start BYTES into larger zeroed allocations (a placement probe: same code, other 
 `:phase=K` (needs a -DONE_DIAG=1 build, own state, name ending in _probe) runs the diagnostic
 early exit after phase K of the per-request path (attn_one.cu PHASE_EXIT) on the shapes whose
 control plan is per-request (no flat bit), and the full call elsewhere; its cold time is the
-time to that phase.
+time to that phase. `:early` (own state) creates the arm's state at import, before the
+control's first call allocates the control's. `--set NAME=VALUE` assigns a submission global
+before any call (e.g. --set _ONE_WS_CARVE=4096). ABADDR, printed with the summaries, gives each
+arm's workspace addresses.
 
 --null adds the independent duplicate controls: `ctrl2`, a second build of the control's
 source and flags under its own extension name with its own state (as @own), and for every
@@ -128,6 +131,8 @@ for _name, _src in _AB_PUB_SRCS.items():
 # Own-state arms: a private _ONE_STATE dict per arm, swapped in around each call.
 _AB_STATES = {name: {} for name in _AB_OWN}
 _AB_WSDONE = set()
+for _name, _val in _AB_SET.items():
+    globals()[_name] = _val
 
 
 @_ab_contextlib.contextmanager
@@ -159,6 +164,23 @@ def _ab_ctx(name):
         yield
     finally:
         _ONE, _ONE_STATE = saved
+
+
+for _name in _AB_EARLY:
+    with _ab_ctx(_name):
+        _one_state(torch.device("cuda", torch.cuda.current_device()))
+    print(f"ABEARLY {_name} state created at import", flush=True)
+
+
+def _ab_addr():
+    dev = torch.device("cuda", torch.cuda.current_device())
+    parts = []
+    for n in ["ctrl"] + [x for x in _AB_MODS if x in _AB_STATES or x == "ctrl2"]:
+        st = (_ONE_STATE if n == "ctrl" else _AB_STATES.get(n, {})).get(dev)
+        if st:
+            parts.append(f"{n}:acc=0x{st['acc'].data_ptr():x},l=0x{st['l'].data_ptr():x},"
+                         f"cnt=0x{st['cnt'].data_ptr():x}")
+    print("ABADDR " + " ".join(parts), flush=True)
 
 
 def _ab_forced(name, data):
@@ -597,6 +619,7 @@ if not _os.environ.get("ATTN_AB_DONE"):
             print(f"ABBENCH failed: {type(_exc).__name__}: {_exc}", flush=True)
         # Repeated last: the run log keeps only its final 16,000 characters.
         try:
+            _ab_addr()
             _ab_summary()
         except Exception as _exc:
             print(f"ABSUM failed: {type(_exc).__name__}: {_exc}", flush=True)
@@ -632,6 +655,8 @@ def main():
     modes = {}
     wsoff = {}
     phase = {}
+    early = []
+    sets = {}
     while args:
         a = args.pop(0)
         if a == "--pub":
@@ -652,6 +677,9 @@ def main():
             inputs = int(args.pop(0))
         elif a == "--rounds":
             rounds = int(args.pop(0))
+        elif a == "--set":
+            key, _, val = args.pop(0).partition("=")
+            sets[key] = eval(val, {})
         else:
             name, _, fl = a.partition("=")
             fl, *opts = fl.split(":")
@@ -663,6 +691,9 @@ def main():
                     forced = val
                 elif key == "wsoff":
                     wsoff[base_name] = int(val)
+                    name = base_name + "@own"
+                elif key == "early":
+                    early.append(base_name)
                     name = base_name + "@own"
                 elif key == "phase":
                     if not base_name.endswith("_probe"):
@@ -708,6 +739,8 @@ def main():
         f"_AB_MODES = {modes!r}",
         f"_AB_WSOFF = {wsoff!r}",
         f"_AB_PHASE = {phase!r}",
+        f"_AB_EARLY = {early!r}",
+        f"_AB_SET = {sets!r}",
     ])
     src += head + sep + AB.replace("@@CONFIG@@", config, 1)
     out.write_text(src)
