@@ -2676,3 +2676,57 @@ more than 0.3 us at d1 full (a slow placement occurred), both pick arms sit with
 fastest non-pick state at d1 full on both inputs, and no row of k1 / k2 is slower than ctrl beyond
 the check-1 clause-4 bound. If no slow state occurs among the nulls, the result is inconclusive,
 not a win. The pick's cost at state creation (allocation plus 2 x 3 x 9 cold launches) is logged.
+
+### Check 3c6e1a7f1cc644b6 (bench `bench_h`, at 300b915): p31 misses clause 2 by 0.04%; placement misses its row clause
+
+| date | job | commit | file | result | notes |
+|---|---|---|---|---|---|
+| 2026-10-30 | 3c6e1a7f1cc644b6 (check) | 300b915 | bench `bench_h` (`prq/gen_h.sh`, 9 arms) | 2.476x (CI 2.439-2.514) judged path = board code, 16/16 tests, ABCHECKSUM 19/0 every arm | p31 G +0.55% vs written bar 0.59%; own-state null unusually slow |
+
+Profiles: `muse_attention_decode/profiles/bench_h.3c6e1a7f1cc644b6.*`. Cold pooled, arm - ctrl (us):
+
+| row | ctrl | p31 | p31own | ctrl2 | n3 | k1 | k2 | pub |
+|---|---|---|---|---|---|---|---|---|
+| d1 full | 17.22 | +0.03 | -0.23 | +0.06 | -0.32 | -0.32 | -0.23 | -0.71 |
+| v1 sliding | 10.94 | +0.07 | +0.07 | +0.23 | +0.10 | +0.13 | +0.13 | +0.07 |
+| v1 full | 19.90 | **-0.70** | **-0.64** | +0.04 | -0.06 | -0.12 | -0.16 | -0.86 |
+| v16 sliding | 15.90 | **-0.35** | -0.19 | +0.26 | +0.13 | +0.23 | +0.29 | -0.22 |
+| v32 sliding | 20.77 | **-0.87** | **-0.90** | +0.25 | -0.03 | +0.06 | +0.19 | -1.28 |
+| G (four q_len 8 rows) | | +0.55% | +0.47% | -0.49% | -0.15% | -0.22% | -0.25% | +0.67% |
+
+PRQ=31 against its check-2 gate: 1 holds (19/0); 2 **fails as written**: G(p31) = 0.548% >= 0.30%,
+but not above |G(ctrl2)| + 0.10% = 0.589%; 3 holds (v1 full -0.77 / -0.54, v16 sliding -0.38 /
+-0.35, v32 sliding -0.93 / -0.86); 4 holds (largest +0.87 at v16 full on unchanged flat code,
+under ctrl2's +1.35); p31own G = 0.47% > 0.30% holds. Reading: every own-state arm on the control's
+code (ctrl2, n3, k1, k2) is slower than ctrl on the q_len 8 sliding rows (G -0.15 to -0.49%), so
+ctrl's own state was the fast one in this process; p31 shares that state and ctrl2 does not, so
+ctrl2 is not a matched null for p31. The bar is not relaxed after the fact: the confirmation is
+repeated with a same-state null (gate below). Across the two benches p31 has the same sign on all
+three targeted rows and both inputs every time (v1 full -0.54 to -0.77 us).
+
+Placement against its gate: a slow state occurred (ctrl 17.22 and ctrl2 17.28 against n3 16.90 at
+d1 full, spread 0.38 us > 0.3); both pick arms sat within 0.13 us of the fastest non-pick state on
+both inputs (k1 -0.29 / -0.32, k2 -0.26 / -0.19 against n3 -0.32 / -0.32); the picks' prepare-time
+medians (d1 + v1 full, cold, us) were 36.29 / 35.90 / **35.78** (k1, candidate 2 kept) and
+**36.38** / 36.48 / 36.93 (k2, candidate 0). The row clause **fails as written**: k2 is +0.29 us at
+v16 sliding against a bound of 0.26 (ctrl2's +0.26). That row's code and plan do not depend on the
+pick and the same-sized excess shows on every own-state arm, so the clause compared own-state arms
+against ctrl's state. Repeated in check 3 with own-state nulls.
+
+### Gate for check 3 (repeat confirmation, written before the bench)
+
+Bench `bench_i` (`prq/gen_i.sh`; `--null --shapes all --inputs 2 --seed 20261039`, no public
+arms): `ctrl`; `ctrlb` (`-DONE_PRQ=0`: the control's code in a separate build that shares ctrl's
+state, the matched null for p31); `p31` (ctrl's state); `ctrl2` and `n3` (own state, nulls for the
+own-state arms); `p31own` (own state); `k1`, `k2` (own state, `:pick=3`).
+
+PRQ=31 is confirmed if all hold: (1) ABCHECKSUM 19/0 for every arm; (2) G(p31) - G(ctrlb) >= 0.30%
+and G(p31) > |G(ctrlb)| + 0.10%; (3) G(p31own) - max(G(ctrl2), G(n3)) >= 0.30%; (4) p31 has the same
+sign on both inputs on v1 full, v16 sliding and v32 sliding; (5) no row of p31 slower than ctrl by
+more than max(|ctrlb - ctrl|, 1%). Then a judged check of submission.py with `ONE_PRQ` 31.
+Otherwise PRQ=31 stays off, recorded as unconfirmed (three benches, consistent sign), not as a loss.
+
+Placement is a production candidate if: (a) the own-state arms on q_len 1 code identical to ctrl
+(ctrl2, n3, p31own) spread by more than 0.3 us at d1 full; (b) both pick arms sit within 0.15 us
+of the fastest of those at d1 full on both inputs; (c) no row of k1 / k2 slower than the slower of
+ctrl2 and n3 on that row by more than max(0.1 us, 1%). If (a) fails the result is inconclusive.
