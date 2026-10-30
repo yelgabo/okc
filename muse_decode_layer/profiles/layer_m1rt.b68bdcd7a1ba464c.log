@@ -1,0 +1,166 @@
+e_kernel<float, true>(float const*, long
+TL v16s s0   74.4  273.1 198.7 st-gap -3.3 dev-gap  0.0 moe1::moe_main_kernel<47>(moe1::Params)
+TL v16s s0  273.6  295.0  21.4 st-gap  0.5 dev-gap  0.5 nvjet_sm90_tst_128x64_64x8_1x2_h_bz_TNT
+TL v16s s0  295.1  300.4   5.3 st-gap  0.0 dev-gap  0.0 sglang::muse_spark_norm_residual_kernel<8192
+TL v16s s0  312.6  392.5  80.0 st-gap 12.2 dev-gap 12.2 at::native::vectorized_elementwise_kernel<8,
+USDT:2026-10-30 06:32:48 74:74 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-10-30 06:32:48 74:74 SyncActivityProfilerHandler.cpp:46] profiler_stop
+TL v16f: span 439.1 us (replays 7: 346.8 353.3 437.2 439.1 439.3 441.3 444.2), device busy 423.9, idle 15.1, kernel sum 427.1
+TL v16f s0    0.0   16.2  16.2 st-gap  0.0 dev-gap  0.0 wd_kernel<1, 128, 3, 1, false, 8, __nv_bfloa
+TL v16f s0   16.8  118.2 101.3 st-gap  0.6 dev-gap  0.6 one::attn_one_kernel<8, 51>(one::Params)
+TL v16f s0  118.8  127.4   8.7 st-gap  0.6 dev-gap  0.6 nvjet_sm90_tst_128x64_64x8_1x2_h_bz_TNT
+TL v16f s0  128.2  132.7   4.5 st-gap  0.8 dev-gap  0.8 sglang::muse_spark_norm_residual_kernel<8192
+TL v16f s0  133.2  159.3  26.1 st-gap  0.4 dev-gap  0.4 nvjet_sm90_tss_96x64_64x10_4x2_h_bz_TNN
+TL v16f s0  159.3  164.1   4.8 st-gap  0.0 dev-gap  0.0 route_kernel<float, true>(float const*, long
+TL v16f s0  160.9  319.5 158.5 st-gap -3.2 dev-gap  0.0 moe1::moe_main_kernel<47>(moe1::Params)
+TL v16f s0  320.0  341.7  21.6 st-gap  0.6 dev-gap  0.6 nvjet_sm90_tst_128x64_64x8_1x2_h_bz_TNT
+TL v16f s0  341.7  347.0   5.3 st-gap  0.0 dev-gap  0.0 sglang::muse_spark_norm_residual_kernel<8192
+TL v16f s0  359.1  439.1  80.0 st-gap 12.1 dev-gap 12.1 at::native::vectorized_elementwise_kernel<8,
+USDT:2026-10-30 06:32:48 74:74 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-10-30 06:32:48 74:74 SyncActivityProfilerHandler.cpp:46] profiler_stop
+TL d32s: span 1716.2 us (replays 2: 197.3 1716.2), device busy 1544.8, idle 171.5, kernel sum 1599.3
+TL d32s s0    0.0   13.8  13.8 st-gap  0.0 dev-gap  0.0 sk_kernel<2, 32, 3, 1, 4, 2, 4, true, false,
+TL d32s s0   14.4   27.3  12.9 st-gap  0.6 dev-gap  0.6 one::attn_one_kernel<1, 1>(one::Params)
+TL d32s s0   22.5   31.9   9.4 st-gap -4.8 dev-gap  0.0 sk_kernel<2, 32, 2, 2, 2, 2, 3, true, false,
+TL d32s s0   32.7   36.7   4.0 st-gap  0.8 dev-gap  0.8 sglang::muse_spark_norm_residual_kernel<8192
+TL d32s s0   37.2   58.9  21.7 st-gap  0.4 dev-gap  0.4 sk_kernel<2, 32, 2, 2, 2, 4, 3, true, false,
+TL d32s s0   59.4   64.7   5.2 st-gap  0.5 dev-gap  0.5 route_kernel<__nv_bfloat16, false>(float con
+TL d32s s0   60.9  175.5 114.6 st-gap -3.8 dev-gap  0.0 moe1::moe_main_kernel<47>(moe1::Params)
+TL d32s s0  176.1  191.6  15.5 st-gap  0.6 dev-gap  0.6 sk_kernel<2, 32, 2, 2, 2, 2, 3, true, false,
+TL d32s s0  191.3  195.8   4.5 st-gap -0.2 dev-gap  0.0 sglang::muse_spark_norm_residual_kernel<8192
+TL d32s s0  208.7  288.6  79.9 st-gap 12.9 dev-gap 12.9 at::native::vectorized_elementwise_kernel<8,
+TL d32s s0  308.6  322.0  13.4 st-gap 20.0 dev-gap 20.0 sk_kernel<2, 32, 3, 1, 4, 2, 4, true, false,
+TL d32s s0  322.7  336.0  13.3 st-gap  0.6 dev-gap  0.6 one::attn_one_kernel<1, 1>(one::Params)
+TL d32s s0  330.9  340.4   9.5 st-gap -5.1 dev-gap  0.0 sk_kernel<2, 32, 2, 2, 2, 2, 3, true, false,
+TL d32s s0  341.7  345.5   3.8 st-gap  1.2 dev-gap  1.2 sglang::muse_spark_norm_residual_kernel<8192
+TL d32s s0  345.9  367.3  21.4 st-gap  0.4 dev-gap  0.4 sk_kernel<2, 32, 2, 2, 2, 4, 3, true, false,
+TL d32s s0  367.6  373.0   5.4 st-gap  0.3 dev-gap  0.3 route_kernel<__nv_bfloat16, false>(float con
+TL d32s s0  369.3  481.9 112.6 st-gap -3.7 dev-gap  0.0 moe1::moe_main_kernel<47>(moe1::Params)
+TL d32s s0  482.5  498.1  15.6 st-gap  0.6 dev-gap  0.6 sk_kernel<2, 32, 2, 2, 2, 2, 3, true, false,
+TL d32s s0  498.3  502.9   4.6 st-gap  0.3 dev-gap  0.3 sglang::muse_spark_norm_residual_kernel<8192
+TL d32s s0  514.8  594.7  79.9 st-gap 11.8 dev-gap 11.8 at::native::vectorized_elementwise_kernel<8,
+TL d32s s0  613.9  628.0  14.1 st-gap 19.2 dev-gap 19.2 sk_kernel<2, 32, 3, 1, 4, 2, 4, true, false,
+TL d32s s0  628.6  643.1  14.5 st-gap  0.6 dev-gap  0.6 one::attn_one_kernel<1, 1>(one::Params)
+TL d32s s0  636.6  647.6  11.0 st-gap -6.5 dev-gap  0.0 sk_kernel<2, 32, 2, 2, 2, 2, 3, true, false,
+TL d32s s0  648.3  652.1   3.8 st-gap  0.6 dev-gap  0.6 sglang::muse_spark_norm_residual_kernel<8192
+TL d32s s0  652.5  673.3  20.8 st-gap  0.4 dev-gap  0.4 sk_kernel<2, 32, 2, 2, 2, 4, 3, true, false,
+TL d32s s0  673.7  678.9   5.3 st-gap  0.3 dev-gap  0.3 route_kernel<__nv_bfloat16, false>(float con
+TL d32s s0  675.2  787.4 112.2 st-gap -3.8 dev-gap  0.0 moe1::moe_main_kernel<47>(moe1::Params)
+TL d32s s0  787.9  803.3  15.4 st-gap  0.5 dev-gap  0.5 sk_kernel<2, 32, 2, 2, 2, 2, 3, true, false,
+TL d32s s0  803.4  807.7   4.3 st-gap  0.1 dev-gap  0.1 sglang::muse_spark_norm_residual_kernel<8192
+TL d32s s0  819.3  899.3  79.9 st-gap 11.6 dev-gap 11.6 at::native::vectorized_elementwise_kernel<8,
+TL d32s s0  916.9  930.3  13.4 st-gap 17.7 dev-gap 17.7 sk_kernel<2, 32, 3, 1, 4, 2, 4, true, false,
+TL d32s s0  931.0  944.4  13.4 st-gap  0.6 dev-gap  0.6 one::attn_one_kernel<1, 1>(one::Params)
+TL d32s s0  938.7  948.9  10.2 st-gap -5.7 dev-gap  0.0 sk_kernel<2, 32, 2, 2, 2, 2, 3, true, false,
+TL d32s s0  949.6  953.4   3.8 st-gap  0.6 dev-gap  0.6 sglang::muse_spark_norm_residual_kernel<8192
+TL d32s s0  954.0  974.6  20.6 st-gap  0.6 dev-gap  0.6 sk_kernel<2, 32, 2, 2, 2, 4, 3, true, false,
+TL d32s s0  974.7  980.4   5.7 st-gap  0.0 dev-gap  0.0 route_kernel<__nv_bfloat16, false>(float con
+TL d32s s0  976.6 1089.0 112.4 st-gap -3.7 dev-gap  0.0 moe1::moe_main_kernel<47>(moe1::Params)
+TL d32s s0 1089.6 1105.3  15.7 st-gap  0.5 dev-gap  0.5 sk_kernel<2, 32, 2, 2, 2, 2, 3, true, false,
+TL d32s s0 1105.5 1110.1   4.6 st-gap  0.3 dev-gap  0.3 sglang::muse_spark_norm_residual_kernel<8192
+TL d32s s0 1121.9 1201.9  79.9 st-gap 11.8 dev-gap 11.8 at::native::vectorized_elementwise_kernel<8,
+TL d32s s0 1219.8 1233.2  13.4 st-gap 18.0 dev-gap 18.0 sk_kernel<2, 32, 3, 1, 4, 2, 4, true, false,
+TL d32s s0 1233.9 1247.1  13.2 st-gap  0.6 dev-gap  0.6 one::attn_one_kernel<1, 1>(one::Params)
+TL d32s s0 1242.4 1252.0   9.6 st-gap -4.7 dev-gap  0.0 sk_kernel<2, 32, 2, 2, 2, 2, 3, true, false,
+TL d32s s0 1252.8 1256.8   4.0 st-gap  0.8 dev-gap  0.8 sglang::muse_spark_norm_residual_kernel<8192
+TL d32s s0 1257.3 1277.8  20.5 st-gap  0.4 dev-gap  0.4 sk_kernel<2, 32, 2, 2, 2, 4, 3, true, false,
+TL d32s s0 1278.3 1283.5   5.2 st-gap  0.5 dev-gap  0.5 route_kernel<__nv_bfloat16, false>(float con
+TL d32s s0 1279.8 1391.5 111.7 st-gap -3.7 dev-gap  0.0 moe1::moe_main_kernel<47>(moe1::Params)
+TL d32s s0 1392.1 1407.3  15.3 st-gap  0.5 dev-gap  0.5 sk_kernel<2, 32, 2, 2, 2, 2, 3, true, false,
+TL d32s s0 1407.4 1411.6   4.2 st-gap  0.1 dev-gap  0.1 sglang::muse_spark_norm_residual_kernel<8192
+TL d32s s0 1423.1 1503.0  80.0 st-gap 11.5 dev-gap 11.5 at::native::vectorized_elementwise_kernel<8,
+TL d32s s0 1522.2 1536.1  13.8 st-gap 19.2 dev-gap 19.2 sk_kernel<2, 32, 3, 1, 4, 2, 4, true, false,
+TL d32s s0 1536.7 1550.7  14.0 st-gap  0.6 dev-gap  0.6 one::attn_one_kernel<1, 1>(one::Params)
+TL d32s s0 1545.6 1555.2   9.6 st-gap -5.1 dev-gap  0.0 sk_kernel<2, 32, 2, 2, 2, 2, 3, true, false,
+TL d32s s0 1555.8 1559.7   3.9 st-gap  0.6 dev-gap  0.6 sglang::muse_spark_norm_residual_kernel<8192
+TL d32s s0 1560.1 1580.7  20.6 st-gap  0.4 dev-gap  0.4 sk_kernel<2, 32, 2, 2, 2, 4, 3, true, false,
+TL d32s s0 1581.1 1586.4   5.3 st-gap  0.4 dev-gap  0.4 route_kernel<__nv_bfloat16, false>(float con
+TL d32s s0 1582.7 1695.2 112.4 st-gap -3.6 dev-gap  0.0 moe1::moe_main_kernel<47>(moe1::Params)
+TL d32s s0 1695.8 1711.6  15.8 st-gap  0.6 dev-gap  0.6 sk_kernel<2, 32, 2, 2, 2, 2, 3, true, false,
+TL d32s s0 1711.8 1716.2   4.4 st-gap  0.2 dev-gap  0.2 sglang::muse_spark_norm_residual_kernel<8192
+USDT:2026-10-30 06:32:48 74:74 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-10-30 06:32:48 74:74 SyncActivityProfilerHandler.cpp:46] profiler_stop
+TL d32f: span 2668.9 us (replays 2: 355.5 2668.9), device busy 2498.2, idle 170.8, kernel sum 2578.7
+TL d32f s0    0.0   14.0  14.0 st-gap  0.0 dev-gap  0.0 sk_kernel<2, 32, 3, 1, 4, 2, 4, true, false,
+TL d32f s0   14.6  186.8 172.3 st-gap  0.6 dev-gap  0.6 one::attn_one_kernel<1, 49>(one::Params)
+TL d32f s0  177.2  192.4  15.3 st-gap -9.6 dev-gap  0.0 sk_kernel<2, 32, 2, 2, 2, 2, 3, true, false,
+TL d32f s0  193.0  196.7   3.7 st-gap  0.6 dev-gap  0.6 sglang::muse_spark_norm_residual_kernel<8192
+TL d32f s0  197.2  218.0  20.8 st-gap  0.4 dev-gap  0.4 sk_kernel<2, 32, 2, 2, 2, 4, 3, true, false,
+TL d32f s0  218.2  223.7   5.5 st-gap  0.3 dev-gap  0.3 route_kernel<__nv_bfloat16, false>(float con
+TL d32f s0  219.8  332.2 112.4 st-gap -3.9 dev-gap  0.0 moe1::moe_main_kernel<47>(moe1::Params)
+TL d32f s0  332.7  348.4  15.7 st-gap  0.5 dev-gap  0.5 sk_kernel<2, 32, 2, 2, 2, 2, 3, true, false,
+TL d32f s0  348.4  352.8   4.4 st-gap  0.0 dev-gap  0.0 sglang::muse_spark_norm_residual_kernel<8192
+TL d32f s0  366.0  446.0  80.0 st-gap 13.2 dev-gap 13.2 at::native::vectorized_elementwise_kernel<8,
+TL d32f s0  465.3  478.9  13.6 st-gap 19.3 dev-gap 19.3 sk_kernel<2, 32, 3, 1, 4, 2, 4, true, false,
+TL d32f s0  479.5  651.9 172.4 st-gap  0.6 dev-gap  0.6 one::attn_one_kernel<1, 49>(one::Params)
+TL d32f s0  642.0  657.6  15.6 st-gap -10.0 dev-gap  0.0 sk_kernel<2, 32, 2, 2, 2, 2, 3, true, false,
+TL d32f s0  658.2  661.7   3.6 st-gap  0.6 dev-gap  0.6 sglang::muse_spark_norm_residual_kernel<8192
+TL d32f s0  662.2  682.2  20.0 st-gap  0.4 dev-gap  0.4 sk_kernel<2, 32, 2, 2, 2, 4, 3, true, false,
+TL d32f s0  682.2  687.6   5.3 st-gap  0.1 dev-gap  0.1 route_kernel<__nv_bfloat16, false>(float con
+TL d32f s0  684.1  795.9 111.8 st-gap -3.4 dev-gap  0.0 moe1::moe_main_kernel<47>(moe1::Params)
+TL d32f s0  796.4  812.9  16.4 st-gap  0.5 dev-gap  0.5 sk_kernel<2, 32, 2, 2, 2, 2, 3, true, false,
+TL d32f s0  812.9  817.3   4.4 st-gap  0.0 dev-gap  0.0 sglang::muse_spark_norm_residual_kernel<8192
+TL d32f s0  830.7  910.7  80.0 st-gap 13.4 dev-gap 13.4 at::native::vectorized_elementwise_kernel<8,
+TL d32f s0  929.9  944.0  14.1 st-gap 19.2 dev-gap 19.2 sk_kernel<2, 32, 3, 1, 4, 2, 4, true, false,
+TL d32f s0  944.8 1117.2 172.4 st-gap  0.8 dev-gap  0.8 one::attn_one_kernel<1, 49>(one::Params)
+TL d32f s0 1107.6 1122.4  14.8 st-gap -9.6 dev-gap  0.0 sk_kernel<2, 32, 2, 2, 2, 2, 3, true, false,
+TL d32f s0 1123.1 1126.7   3.6 st-gap  0.8 dev-gap  0.8 sglang::muse_spark_norm_residual_kernel<8192
+TL d32f s0 1127.2 1146.8  19.6 st-gap  0.4 dev-gap  0.4 sk_kernel<2, 32, 2, 2, 2, 4, 3, true, false,
+TL d32f s0 1147.5 1152.3   4.8 st-gap  0.7 dev-gap  0.7 route_kernel<__nv_bfloat16, false>(float con
+TL d32f s0 1149.0 1261.0 112.0 st-gap -3.3 dev-gap  0.0 moe1::moe_main_kernel<47>(moe1::Params)
+TL d32f s0 1261.5 1276.9  15.4 st-gap  0.4 dev-gap  0.4 sk_kernel<2, 32, 2, 2, 2, 2, 3, true, false,
+TL d32f s0 1277.1 1281.5   4.4 st-gap  0.2 dev-gap  0.2 sglang::muse_spark_norm_residual_kernel<8192
+TL d32f s0 1293.6 1373.6  80.0 st-gap 12.1 dev-gap 12.1 at::native::vectorized_elementwise_kernel<8,
+TL d32f s0 1392.3 1407.3  14.9 st-gap 18.7 dev-gap 18.7 sk_kernel<2, 32, 3, 1, 4, 2, 4, true, false,
+TL d32f s0 1407.8 1579.2 171.4 st-gap  0.6 dev-gap  0.6 one::attn_one_kernel<1, 49>(one::Params)
+TL d32f s0 1570.6 1584.8  14.2 st-gap -8.6 dev-gap  0.0 sk_kernel<2, 32, 2, 2, 2, 2, 3, true, false,
+TL d32f s0 1585.4 1589.1   3.6 st-gap  0.6 dev-gap  0.6 sglang::muse_spark_norm_residual_kernel<8192
+TL d32f s0 1589.5 1610.9  21.4 st-gap  0.4 dev-gap  0.4 sk_kernel<2, 32, 2, 2, 2, 4, 3, true, false,
+TL d32f s0 1611.2 1616.0   4.7 st-gap  0.4 dev-gap  0.4 route_kernel<__nv_bfloat16, false>(float con
+TL d32f s0 1612.7 1724.2 111.5 st-gap -3.3 dev-gap  0.0 moe1::moe_main_kernel<47>(moe1::Params)
+TL d32f s0 1724.7 1740.4  15.6 st-gap  0.5 dev-gap  0.5 sk_kernel<2, 32, 2, 2, 2, 2, 3, true, false,
+TL d32f s0 1740.2 1744.8   4.6 st-gap -0.2 dev-gap  0.0 sglang::muse_spark_norm_residual_kernel<8192
+TL d32f s0 1756.6 1836.6  79.9 st-gap 11.9 dev-gap 11.9 at::native::vectorized_elementwise_kernel<8,
+TL d32f s0 1854.9 1869.1  14.3 st-gap 18.3 dev-gap 18.3 sk_kernel<2, 32, 3, 1, 4, 2, 4, true, false,
+TL d32f s0 1869.7 2042.1 172.4 st-gap  0.6 dev-gap  0.6 one::attn_one_kernel<1, 49>(one::Params)
+TL d32f s0 2033.6 2047.6  14.0 st-gap -8.5 dev-gap  0.0 sk_kernel<2, 32, 2, 2, 2, 2, 3, true, false,
+TL d32f s0 2048.2 2051.7   3.6 st-gap  0.6 dev-gap  0.6 sglang::muse_spark_norm_residual_kernel<8192
+TL d32f s0 2052.2 2071.9  19.7 st-gap  0.4 dev-gap  0.4 sk_kernel<2, 32, 2, 2, 2, 4, 3, true, false,
+TL d32f s0 2072.2 2077.4   5.2 st-gap  0.3 dev-gap  0.3 route_kernel<__nv_bfloat16, false>(float con
+TL d32f s0 2073.5 2186.0 112.5 st-gap -3.9 dev-gap  0.0 moe1::moe_main_kernel<47>(moe1::Params)
+TL d32f s0 2186.5 2201.8  15.3 st-gap  0.5 dev-gap  0.5 sk_kernel<2, 32, 2, 2, 2, 2, 3, true, false,
+TL d32f s0 2202.0 2206.9   4.9 st-gap  0.1 dev-gap  0.1 sglang::muse_spark_norm_residual_kernel<8192
+TL d32f s0 2218.4 2298.3  79.9 st-gap 11.6 dev-gap 11.6 at::native::vectorized_elementwise_kernel<8,
+TL d32f s0 2316.1 2329.8  13.8 st-gap 17.7 dev-gap 17.7 sk_kernel<2, 32, 3, 1, 4, 2, 4, true, false,
+TL d32f s0 2330.4 2504.5 174.0 st-gap  0.6 dev-gap  0.6 one::attn_one_kernel<1, 49>(one::Params)
+TL d32f s0 2492.0 2510.0  18.0 st-gap -12.4 dev-gap  0.0 sk_kernel<2, 32, 2, 2, 2, 2, 3, true, false,
+TL d32f s0 2510.6 2514.3   3.7 st-gap  0.6 dev-gap  0.6 sglang::muse_spark_norm_residual_kernel<8192
+TL d32f s0 2514.7 2534.9  20.1 st-gap  0.4 dev-gap  0.4 sk_kernel<2, 32, 2, 2, 2, 4, 3, true, false,
+TL d32f s0 2534.9 2540.0   5.1 st-gap  0.1 dev-gap  0.1 route_kernel<__nv_bfloat16, false>(float con
+TL d32f s0 2536.3 2648.6 112.3 st-gap -3.7 dev-gap  0.0 moe1::moe_main_kernel<47>(moe1::Params)
+TL d32f s0 2649.2 2664.7  15.4 st-gap  0.7 dev-gap  0.7 sk_kernel<2, 32, 2, 2, 2, 2, 3, true, false,
+TL d32f s0 2664.6 2668.9   4.4 st-gap -0.1 dev-gap  0.0 sglang::muse_spark_norm_residual_kernel<8192
+USDT:2026-10-30 06:33:51 74:74 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-10-30 06:33:51 74:74 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-10-30 06:33:51 74:74 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-10-30 06:33:51 74:74 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-10-30 06:33:51 74:74 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-10-30 06:33:51 74:74 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-10-30 06:33:51 74:74 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-10-30 06:33:51 74:74 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-10-30 06:33:51 74:74 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-10-30 06:33:51 74:74 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-10-30 06:33:52 74:74 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-10-30 06:33:52 74:74 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-10-30 06:33:52 74:74 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-10-30 06:33:52 74:74 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-10-30 06:33:52 74:74 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-10-30 06:33:52 74:74 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-10-30 06:33:52 74:74 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-10-30 06:33:52 74:74 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-10-30 06:33:52 74:74 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-10-30 06:33:52 74:74 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-10-30 06:33:52 74:74 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-10-30 06:33:52 74:74 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-10-30 06:33:52 74:74 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-10-30 06:33:52 74:74 SyncActivityProfilerHandler.cpp:46] profiler_stop

@@ -27,7 +27,26 @@ routing-id flips judged against the control's envelope, and extended the gate to
 the control's envelope) and report-only negative controls were added at the researcher's
 caution; see the addendum in docs/runs-decode-layer.md.
 
-## Release candidate (2026-10-30): layer_m1rt (not checked, not submitted)
+## Candidate (2026-10-30): layer_m1rt51 (not checked, not submitted)
+
+layer_m1rt plus MoE mode 51: the combination four-arm bench 40b9b3f795f84073 measured as "cand
+faster" (coordinator's request after layer_m1rt went out as scored run b68bdcd7a1ba464c).
+
+| field | value |
+|---|---|
+| file | `muse_decode_layer/cand/layer_m1rt51.py`, SHA256 `65264f3193f952177e8ee1c7aadda45bf5c3d7c6965e9268c6e0f78a459d64a3` |
+| made from | `tools/dl_gate_patch.py --m1 --m1-runtime` at this commit on 6377b5a's file (layer_m1rt's recipe, plus the SUMMARY-last change below), the header line, then `tools/dl_moe_inline.py` (LAYER_MODES (0, 16, 26, 28, 37, 47, 51), MAIN_NAMES 51 "main-lean-grp-finss64", as at this commit) with `muse_moe_w4a16/submission.py` at 6bbb252 (the commit the port guide names for 51). The whole recipe gives a byte-identical file on a second run. Current main's standalone (with the timing twins 52-59) gives a different `_MOE1_SRC`, so it was not used |
+| against layer_m1rt | `_MOE1_SRC`, `_MOE1_VARIANTS`, line 2, and prepare() printing the timeline before the SUMMARY: scored run b68bdcd7a1ba464c's 16 KB tail held only timeline lines (M1 adds v1s and v1f to it), so its SUMMARY, including M1's gate verdict and policy, was lost. No device code differs |
+| against the timed build | the device code and the C++ host code equal the 40b9b3f795f84073 candidate (m1rt_meas, d57b5e38...) except the W4 GEMM2 early-exit wait; the Python differs only by the enforced gate (2000 replays, raise, negative controls) and the header; `_MOE1_*` regions equal layer_g51's (checked in a438b82ff2c141c2) |
+| SASS, MoE (`dl_moe_sass_counts.sh FILE moe`) | the release's ten MoE kernels have identical counts (instruction totals included); kernel 51 adds instr 17268, FENCE.S 22, FENCE.G 11, MEMBAR 43, SYNCS 202, BAR 16, ATOMG 148, REDG 9, UBLKPF 1, ACQBULK 1, LDL 0, STL 0, exactly the port guide's standalone figures; 47 unchanged (16354, LDL 22, STL 1 as in the release) |
+| registers (`dl_moe_compile_check.sh`) | kernel 51: 96 registers, 0-byte stack frame, no spills, no C7510-C7515 |
+| other SASS | projections, attention and W4 as layer_m1rt (the extensions' sources are identical) |
+| expected effect | 40b9b3f795f84073 measured this combination (pooled 1.0162, +1.2% net of the A/A offset; M1 about +0.4%, 51 about +0.7%). One scored run can resolve neither part |
+| prepare time | not measured; the timed build reached ABEND at 166 s with two prepares of it plus two of the release, and the enforced gate doubles M1's replays |
+
+## Release candidate (2026-10-30): layer_m1rt (scored run b68bdcd7a1ba464c, 2.013x; board entry unchanged)
+
+Scored 2.013x (1.983-2.043), passed 13/13, prepare 143 s, against the board entry's 2.014x. Its log tail lost the SUMMARY (see layer_m1rt51), so whether M1 was on is unknown. The build recipe below is `tools/dl_gate_patch.py` as at dd1777e; at later commits the tool also moves the SUMMARY after the timeline.
 
 | field | value |
 |---|---|
