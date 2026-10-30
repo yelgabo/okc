@@ -82,6 +82,7 @@ SGLang with its 95% interval. Profiles and logs are in `muse_moe_w4a16/profiles/
 | 2026-10-30 | ed3b4fdc76b54263 (check, bench file from tools/moe_make_bench_ab.py --base=47 --sizes=128,256 --routings=layer --skew=1 o48=48 o49=49, not committed) | 64cec1f | warp skew on mode 49 (47 with per-warp stage stamps) and phase stamps on 48 against the public kernel, layer seeds 1-6 | 2.188x (2.155-2.220) | passed; the bench crashed after the 128-token timing (ABCHECKALL on an empty list, a bug of 20c295e, fixed in the next commit). 128 tokens: 48 minus 47 +0.8, 49 minus 47 +5.4 (0 of 6 lower), public minus 47 -12.2 (6 of 6) |
 | 2026-10-30 | d47c78bdc130424b (check, same bench options, not committed) | 54318bd | the rerun of ed3b4fdc76b54263 | 2.194x (2.161-2.227) | passed; spin flags 0. Public minus 47 -14.7 / -22.6 us at 128 / 256 (6 of 6); 48 minus 47 +1.3 / +1.1, 49 minus 47 +5.8 / +9.4. Warpgroups of a CTA 750-1,200 cycles apart at the stage start, warps within one 50-160; up to 72-74% of the weights waits from that skew. Phase gap (48 vs public stamps) at 128 / 256: setup +4.3 / +4.4, phase A +2.3 / +7.7, phase B +2.9 / +7.3, tail +3.7 / +3.6, barrier and final +4.0 / +3.6. ABSKEW's column labels in this log are the skinny ABSK names (a name clash, fixed in a03ca00); the values are in the order of skew_cols. Section "Warp skew and the gap to the public kernel after mode 47" |
 | 2026-10-30 | 8a7051fa926e43e1 (check, bench file from tools/moe_make_bench_ab.py --base=47 --sizes=32,128,256 --routings=layer,std,skewed --seeds=23,24,25,26,27,28 --gate=1 o50=50, not committed) | a03ca00 | mode 50's pre-registered gate against 47 (rule committed in 5ea3c34 before the submit) | 2.210x (2.177-2.243) | passed 5/5; spin flags 0. 50 minus 47, us, at 32 / 128 / 256: layer +0.7 / -5.9 / -6.6 (1, 6, 6 of 6 lower), standalone -2.8 / -5.7 / -8.3 (5, 6, 6), skewed -1.4 / -4.1 / -7.9 (6, 6, 6). Outputs vs 47 <= 4.3e-5; self-test 3.90e-3. Condition 2 failed (32 tokens, layer, +0.7 against +0.5): 50 not shipped, docs/ruled-out.md. Policy picked 50 at 128 and 256 |
+| 2026-10-30 | c6b0e500c3a84c9a (check, bench file from tools/moe_make_bench_ab.py --base=47 --sizes=32,128,256 --routings=layer,std,skewed --seeds=29,30,31,32,33,34 --gate=1 o51=51, not committed) | 69c06ed | mode 51's pre-registered gate against 47 (rule committed in 69c06ed before the submit) | 2.194x (2.161-2.227) | passed 5/5; spin flags 0. 51 minus 47, us, at 32 / 128 / 256: layer +0.0 / -3.9 / -3.9 (2, 6, 5 of 6 lower), standalone -1.0 / -3.8 / -4.4 (5, 6, 6), skewed -0.1 / -4.0 / -7.7 (2, 6, 6). Outputs vs 47 <= 4.6e-5; self-test 3.88e-3. Every rule condition passed: 51 kept. Policy picked 51 at 128 and 256. Section "Mode 51" |
 
 ## Why the layer keeps the W4 chain at 128 tokens, 2026-10-29
 
@@ -1497,6 +1498,32 @@ Keep 51 only if all of these hold in that check:
 If any condition fails, 51 goes to docs/ruled-out.md with 50 and is not shipped. If all pass,
 51 joins MAIN_MODES and MAIN_CANDIDATES and the shippable file goes to the coordinator, who runs
 its check (this line's 4-check budget ends with the gate run).
+
+### Gate result for 51 (check c6b0e500c3a84c9a)
+
+51 minus 47, us, same process, held-out seeds 29-34 (negative = faster; count = seeds lower of 6):
+
+| routing | 32 tokens | 128 tokens | 256 tokens |
+|---|---|---|---|
+| layer | +0.0 (2) | -3.9 (6) | -3.9 (5) |
+| standalone | -1.0 (5) | -3.8 (6) | -4.4 (6) |
+| skewed | -0.1 (2) | -4.0 (6) | -7.7 (6) |
+
+Outputs of 51 against 47 on all 54 cases: at most 4.6e-5. Self-test: main-lean-grp-finss64
+3.88e-3 (47: 3.88e-3), spin flags 0. The prepare bench picked 51 at 128 and 256 (207.7 against
+208.1, 223.6 against 230.5 us). Score 2.194x (2.161-2.227), passed.
+
+1. 256 tokens: -3.9 (5 of 6) / -4.4 (6 of 6) / -7.7. Pass.
+2. 128 tokens: -3.9 / -3.8 / -4.0. Pass.
+3. 32 tokens: +0.0 / -1.0 / -0.1. Pass.
+4. Outputs: pass. 5. Self-test: pass. 6. Compile gate (69c06ed): pass.
+
+Decision under the rule: 51 is kept. MAIN_MODES (0, 16, 26, 28, 37, 47, 51) and MAIN_CANDIDATES
+gain 51; GATE prints 51 minus 47. The shippable build was checked locally (production SASS and
+51 identical to the gated build, no C75xx, tools/moe_dryrun.py and tools/moe_host_check.sh pass)
+but not judged: the line's 4-check budget ended with the gate run, so the coordinator runs its
+check. The 128-token gain on layer routing (-3.9 us) is smaller than 50's in its run (-5.9) on
+other seeds; the two runs do not compare the modes directly.
 
 ## Staged pair on current components, 2026-10-29
 

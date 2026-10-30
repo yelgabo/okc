@@ -164,3 +164,43 @@ check 5f381b8b6946492d; 47 passed every condition on held-out seeds 13-18 (256 t
 shippable build (ec565a7, check b50351288b504e81, 2.190x) carries 47 in MAIN_MODES and the policy
 picks it at 128 and 256. Layer port steps are in docs/moe-port-guide.md; they were applied to a
 scratch copy of the layer branch only. Next action 3 (per-warp stage-start skew for H2) is open.
+
+## Addendum 2026-10-30 (3): warp skew measured, phase gap re-attributed, mode 51
+
+Evidence: branch worktree-agent-ad7a25ed576556191, code 64cec1f (stamped twins 48, 49), a03ca00
+(mode 50), 69c06ed (mode 51); checks d47c78bdc130424b (skew and phase stamps, layer seeds 1-6),
+8a7051fa926e43e1 (50's gate), c6b0e500c3a84c9a (51's gate). Details: docs/runs-moe.md, "Warp skew
+and the gap to the public kernel after mode 47".
+
+- Measured (next action 3, H2): the four warps inside a warpgroup stay within 50-160 cycles; the
+  four warpgroups of a CTA are 750-1,200 cycles apart at each stage start (about half a stage at
+  256 tokens) and their slot releases 950-1,400 apart. A slot is refilled 300-550 cycles after its
+  slowest release and lands about 5,000 cycles later, while a warp returns to the slot 5,800-7,200
+  cycles after its own release, so the leading warpgroups wait. Up to 72-74% of the weights-wait
+  cycles come from that skew (a bound). x waits are 1.2-1.8 times the weights waits; the x slot
+  is released a stage later than the weights slot. Not shown: that the skew costs SM time; the
+  trailing warpgroup sets the pace.
+- The public kernel could not be stamped per warp: any consumer stamp makes its 96-register
+  DEBUG build spill and three of four subsets serialize its wgmmas (C7512).
+- Measured, gap to the public kernel by phase (48 against its stamps, us at 128 / 256): setup
+  +4.3 / +4.4 (3.4 / 3.5 of it in the x gather and release), phase A +2.3 / +7.7, phase B +2.9 /
+  +7.3, tail +3.7 / +3.6, barrier and final pass +4.0 / +3.6. 32 tokens was not stamped (no check
+  left); in the gate runs public minus 47 at 32 tokens on layer routing is -4.5 us (graph replay).
+- Built for phase B: 50 forms each route's sum of squares in the final pass (the public kernel's
+  OKC_WGSFINSS) instead of shuffles and atomics in the phase B epilogue. Its gate passed at 128 and
+  256 (-4.1 to -8.3 us, 36 of 36 seeds lower) and failed at 32 tokens on layer routing (+0.7
+  against +0.5). 51 does it from 64 tokens up and runs 47 below; its own pre-registered gate on
+  held-out seeds passed every condition: -3.8 to -4.0 us at 128, -3.9 to -7.7 at 256, -1.0 to +0.0
+  at 32. Shippable build handed to the coordinator; not judged as a whole file (budget spent).
+
+Next actions (not done):
+1. A shippable check of the build with 51, then the layer port (docs/moe-port-guide.md, verified
+   on a scratch copy of origin/main).
+2. Phase A and the skew: per-warpgroup weights slots (four 9 KB bulk copies per stage, each with
+   its own full and empty barriers) would let a leading warpgroup refill without waiting for the
+   slowest one. It changes the ring's ordering chain (needs its own PTX chain and review) and only
+   pays if the leaders' idle time is on the critical path, which the stamps do not show.
+3. Setup: 3.4-3.5 us of the gap sits in the x gather and its release at every size (it also
+   applies at 32 tokens); the gather's per-thread `__threadfence` before the barrier is a
+   candidate under mode 37's chain, unmeasured.
+4. The 32-token gap (10-14 us in the layer) has no phase stamps yet.

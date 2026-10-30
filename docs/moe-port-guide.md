@@ -216,6 +216,37 @@ worktree-agent-ae0a55834da6c04d4 at c73ba2a):
 Steps 2-5 were run on a scratch copy of the layer branch on 2026-10-30 and passed
 (muse_moe_w4a16/profiles/sass_mode47.2026-10-30.txt); the layer files were not changed.
 
+Since 2026-10-30 (later): 51 ("main-lean-grp-finss64") is 47 with, from 64 tokens up, each
+route's sum of squares formed in the final pass from its finished ybuf row (one token per item,
+two reads of the row, a reduction through the idle rings on named barrier 8) instead of by
+shuffles and FP32 atomics in the phase B epilogue; below 64 tokens it runs 47's code. Its
+pre-registered gate against 47 (check c6b0e500c3a84c9a, held-out seeds 29-34): -3.9 / -3.8 / -4.0
+us at 128 tokens and -3.9 / -4.4 / -7.7 at 256 on layer, standalone and skewed routing, +0.0 /
+-1.0 / -0.1 at 32; outputs within 4.6e-5 of 47. Same interface, scratch and SmemMain size as 47;
+`ss` is still zeroed for the next launch. 50 (the same at every size) lost at 32 tokens and is
+not built. The standalone `MAIN_MODES` is now (0, 16, 26, 28, 37, 47, 51).
+
+Porting 51 into the layer (on origin/main at d96d3d0 or later, which carries 47):
+
+1. Bring `muse_moe_w4a16/submission.py` to the commit that has 51 in `MAIN_MODES` and
+   `MAIN_CANDIDATES` (branch worktree-agent-ad7a25ed576556191; see docs/runs-moe.md "Mode 51").
+2. In `tools/dl_moe_inline.py`: `LAYER_MODES = (0, 16, 26, 28, 37, 47, 51)` and add
+   `51: "main-lean-grp-finss64"` to `MAIN_NAMES`, with a comment citing check c6b0e500c3a84c9a.
+3. Run `python3 tools/dl_moe_inline.py` twice; the second run leaves
+   `muse_decode_layer/submission.py` byte-identical. The variant list ends in
+   `'main-lean-grp-nohoist', 'main-lean-grp-finss64'`.
+4. `sh tools/dl_moe_compile_check.sh muse_decode_layer/submission.py` (from a folder under the
+   home directory): `moe1::moe_main_kernel<51>` at 96 registers, no stack frame, no spills, no
+   C7510-C7515.
+5. `sh tools/dl_moe_sass_counts.sh muse_decode_layer/submission.py`: kernel 51 with instr 17268,
+   FENCE.S 22, FENCE.G 11, MEMBAR 43, SYNCS 202, BAR 16 (47's 15 plus the final pass's named
+   barrier), ATOMG 148, REDG 9, UBLKPF 1, ACQBULK 1, LDL 0, STL 0; kernel 47 unchanged (instr
+   16354, MEMBAR 43, LDL 22, STL 1).
+6. The layer's prepare bench on judge routing chooses among the fat modes; no host change.
+
+Steps 2-5 were run on 2026-10-30 on a scratch copy of origin/main (d96d3d0) with this source and
+passed; the layer files were not changed.
+
 `_vname(variant)` gives the name the bench prints. It launches on the current stream, is graph-capturable (no
 host syncs, no allocation, no value-dependent branching on the host), and needs the whole GPU:
 the grid barrier spins until all 132 CTAs arrive, so nothing else may occupy SMs for the

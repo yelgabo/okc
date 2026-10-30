@@ -63,6 +63,9 @@ Evidence: code `3f67a45`, check `ca43908f02874886`. It closes section 2 of the o
 (the fat diagnostic's first-try_wait defect is fixed, production SASS unchanged), withdraws "fat
 consumers never wait" (waits are about 20% of stage-loop time), and recommends one section 5
 mechanism with a stopping rule. Nothing was built for it yet.
+Addenda (2026-10-30): mode 43 built and dropped, 47 gated and kept; (3) warp skew measured
+(warpgroups 750-1,200 cycles apart), phase gap to the public re-attributed, and mode 51
+(final-pass sums of squares from 64 tokens up) passed its gate, check c6b0e500c3a84c9a.
 
 ## Previous report
 
