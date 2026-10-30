@@ -978,3 +978,5 @@ roughly 10 us at verify 16, +2.4% of score if it all lands. Main risk: decode an
 bandwidth contending with WGMMA operand reads; first artifact is the raw-BF16 twin of the same
 geometry (no decode) to show the geometry alone reaches the Lt time. P3 is the higher-value of
 the two; not started this round.
+
+Scored 2026-10-30: 1d277e7fe9c44712 1.4818x, submission.py at d0dc80f (cuBLASLt plans at m=128/256 plus router geometries r64c8s8 / r128c8s6), submitted by the coordinator under the standing authorization. Board entry before: 2048b59099f3435d (1.4497x).
