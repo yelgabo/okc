@@ -255,9 +255,36 @@ The gate (`tools/dl_gate_patch.py`):
   the plain one), the generation count and scratch invariant of the MoE stress, and the
   judge's tolerances.
 
-Not changed by this decision (every other check keeps its bound): `_one_stress` (attention,
-1e-4 against eager and 5e-2 against SGLang), `_route_variant_check` (the route variant's MoE
-output after 200 more replays within 1e-4), the norm and route side-stream tests.
+Addendum, user decisions of 2026-10-30 (given in chat to the coordinator, relayed to the layer
+agent; recorded here as such):
+
+1. Clause (b) becomes: order-1 = an output's relative L2 error >= 1e-2. Routing-id flips are
+   judged against the control's envelope (the candidate's flips at most 2x the control's rate
+   plus two calls), not an outright failure. Reason: the first element bound failed the M1-off
+   layer itself, eager calls included (60cf58b69b75491e).
+2. The same fresh-input gate applies to `_route_variant_check`'s replay part (the route
+   variant's front + MoE graph, 200 replays against 200 eager calls of the same step on fresh
+   FFN inputs); its comparisons with the base variant (top-8 sets, 1e-3 bounds) and the scratch
+   check are unchanged.
+
+Second check, added at the researcher's caution (docs/steering/2026-10-29-course-check-validation-prefetch.md,
+section 4) that relative L2 can miss a stale subset or one element: per call, the largest
+element error in units of its row's largest reference magnitude must stay within 2x the
+control's measured maximum (floor 2^-7, one BF16 ULP of the row maximum). Negative controls
+(`_gate_negctl`, report-only, on a real output and the measured control envelope in every MoE
+stress and route gate): inject entry j's reference into entry i's output as (a) one 64 x 128
+tile, (b) 1% and 0.1% of elements and one row, (c) one random element, plus an uninjected
+observation for false rejection. Offline (CPU, synthetic rows at the measured MoE and layer
+noise levels, `tools/dl_gate_patch.py` at this commit): relative L2 alone rejects the tile
+(0.1-0.3), 1% (0.1), 0.1% (0.04-0.05) and the row (0.09-1.0) but **misses the single element**
+(relative 2e-4 to 2e-2); the element check rejects all five (element error 0.03-2 against
+limits of 7.8e-3 to 1.4e-2), and the uninjected observation passes in all six cases. Failures
+now carry a class tag (reference, replay, nonfinite, workspace, sensitivity) and SUMMARY ends
+with a one-line manifest (MoE variants checked and rejected, route gates passed, failures per
+class).
+
+Not changed by these decisions (every other check keeps its bound): `_one_stress` (attention,
+1e-4 against eager and 5e-2 against SGLang), the norm and route side-stream tests.
 
 ## Pre-check audits for the integrated candidate (2026-10-29, before the 10-30 checks)
 

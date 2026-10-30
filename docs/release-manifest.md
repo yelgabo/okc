@@ -21,6 +21,12 @@ tolerances unchanged. Definition and thresholds: docs/runs-decode-layer.md, "Val
 change: fresh-input replay gate". The board entry below predates it and still carries the
 1e-4 bound; a file built with `tools/dl_gate_patch.py` carries the gate.
 
+Later the same day the user decided clause (b) is order-1 = relative L2 >= 1e-2 per output, with
+routing-id flips judged against the control's envelope, and extended the gate to
+`_route_variant_check`'s replay part. A per-call element check (row-maximum units, within 2x
+the control's envelope) and report-only negative controls were added at the researcher's
+caution; see the addendum in docs/runs-decode-layer.md.
+
 ## Candidate handed to the coordinator (2026-10-30): layer_g51 (not submitted)
 
 | field | value |

@@ -3,10 +3,12 @@ docs/runs-decode-layer.md and docs/release-manifest.md).
 
     python3 tools/dl_gate_patch.py IN.py OUT.py [--m1 [--m1-runtime]]
 
-Always: the MoE replay self-tests (_moe1_stress, _moe1_pdl_self_test) give every replay new
-inputs, compare each replay with that input's reference on the device, fail on any order-1
-error, and require the candidate's error spread to stay inside its control's envelope, in
-place of the 1e-4 bound on the last replay. Every other check is unchanged.
+Always: the MoE replay self-tests (_moe1_stress, _moe1_pdl_self_test) and the route-variant
+replay check (_route_variant_check) give every replay new inputs, compare each replay with that
+input's reference on the device, fail on an order-1 relative error, and require the
+candidate's error spread to stay inside its control's envelope, in place of the 1e-4 bound on
+the last replay; negative controls test the comparator on real outputs (report-only) and a
+manifest line counts failures by class. Every other check is unchanged.
 
 --m1 (IN must be the M1 file, 6377b5a or a descendant): the same gate for M1's replay stress
 (M1 off as the control, M1 on as the candidate), M1 timing that always reports the
@@ -18,32 +20,34 @@ fence.proxy.async.global after griddepcontrol.wait in the thread that issues the
 import sys
 
 GATE_SRC = '''
-# Fresh-input replay gate (user decision 2026-10-30; docs/runs-decode-layer.md). The 1e-4 bound
+# Fresh-input replay gate (user decisions 2026-10-30; docs/runs-decode-layer.md). The 1e-4 bound
 # on one replay's output failed on FP32-atomics merge order alone (checks 6372154fcd7a4fa9,
-# 3e2aa83358dd4f60). A read of stale rows gives order-1 errors, so any element error of
-# GATE_ORDER1 fails outright; below that the candidate must stay inside GATE_SPREAD times its
-# control's measured spread (under GATE_BOUND always passes, as the old bound did).
+# 3e2aa83358dd4f60). Order-1: an output's relative L2 error of GATE_ORDER1 or more fails
+# outright; the element bound of the first version failed the M1-off layer itself
+# (60cf58b69b75491e). Relative L2 cannot see one stale element, so a second per-call check
+# bounds the element error in units of the row's largest magnitude by the control's envelope.
+# Under GATE_BOUND (the old bound) and under one BF16 ULP of the row maximum always pass.
 GATE_ORDER1 = 1e-2
 GATE_BOUND = 1e-4
+GATE_EL_FLOOR = 2.0 ** -7
 GATE_SPREAD = 2.0
 GATE_RATE_FLOOR = 0.01
 GATE_BANK = 4
+GATE_NEG = ("none", "tile", "1%", "0.1%", "row", "elem")
 
 
 def _gate_refs(outs):
-    """Stacked references over the bank for one output: values, L2 norms, and the per-element
-    scale |r| + row RMS. A one-ULP BF16 flip then counts at most 2^-7 (7.8e-3) and about
-    4e-3 on most elements, and a read of another input's rows, even one row or one tile of a
-    row, comes out near 0.3-1."""
+    """Stacked references over the bank for one output: values, L2 norms, and each row's
+    largest magnitude (the element-error unit)."""
     r = torch.stack([o.float() for o in outs])
     norm = r.flatten(1).norm(dim=1).clamp(min=1e-12)
-    scale = r.abs() + r.pow(2).mean(-1, keepdim=True).sqrt().clamp(min=1e-12)
-    return r, norm, scale
+    rmax = r.abs().amax(-1, keepdim=True).clamp(min=1e-12)
+    return r, norm, rmax
 
 
 def _gate_acc(n, dev):
     return {"rel": torch.zeros(n, device=dev), "el": torch.zeros(n, device=dev),
-            "cnt": torch.zeros(4, dtype=torch.long, device=dev)}
+            "cnt": torch.zeros(5, dtype=torch.long, device=dev)}
 
 
 def _gate_zero(acc):
@@ -53,70 +57,231 @@ def _gate_zero(acc):
 
 def _gate_add(acc, outs, refs, i, ids=None):
     """Device-only (graph-capturable): per output the relative L2 error and the largest element
-    error against bank entry i; counts calls, calls over GATE_BOUND, order-1 calls (element or
-    relative error >= GATE_ORDER1, or non-finite), and calls whose ids differ."""
-    rels, els = [], []
-    for out, (r, norm, scale) in zip(outs, refs):
+    error (in units of its row's largest reference magnitude) against bank entry i; counts
+    calls, calls over GATE_BOUND, order-1 calls, non-finite calls and calls whose ids differ."""
+    rels, els, bad = [], [], []
+    for out, (r, norm, rmax) in zip(outs, refs):
         d = out.float() - r.index_select(0, i)[0]
         rel = d.norm() / norm.index_select(0, i)[0]
-        el = (d.abs() / scale.index_select(0, i)[0]).amax()
+        el = (d.abs() / rmax.index_select(0, i)[0]).amax()
+        bad.append(~torch.isfinite(rel) | ~torch.isfinite(el))
         rels.append(torch.where(torch.isfinite(rel), rel, torch.full_like(rel, float("inf"))))
         els.append(torch.where(torch.isfinite(el), el, torch.full_like(el, float("inf"))))
     rel, el = torch.stack(rels), torch.stack(els)
     torch.maximum(acc["rel"], rel, out=acc["rel"])
     torch.maximum(acc["el"], el, out=acc["el"])
-    worst = torch.maximum(rel.max(), el.max())
-    flags = [torch.ones_like(acc["cnt"][0]), (rel.max() > GATE_BOUND).long(),
-             (worst >= GATE_ORDER1).long()]
+    one = torch.ones_like(acc["cnt"][0])
     if ids is None:
-        flags.append(torch.zeros_like(acc["cnt"][0]))
+        idf = torch.zeros_like(one)
     else:
-        flags.append((ids[0] != ids[1].index_select(0, i)[0]).any().long())
-    acc["cnt"].add_(torch.stack(flags))
+        idf = (ids[0] != ids[1].index_select(0, i)[0]).any().long()
+    acc["cnt"].add_(torch.stack((one, (rel.max() > GATE_BOUND).long(),
+                                 (rel.max() >= GATE_ORDER1).long(),
+                                 torch.stack(bad).any().long(), idf)))
 
 
 def _gate_host(acc):
     cnt = acc["cnt"].tolist()
     return {"rel": acc["rel"].tolist(), "el": acc["el"].tolist(), "n": cnt[0], "over": cnt[1],
-            "o1": cnt[2], "ids": cnt[3], "rate": cnt[1] / max(cnt[0], 1)}
+            "o1": cnt[2], "nf": cnt[3], "ids": cnt[4], "rate": cnt[1] / max(cnt[0], 1),
+            "idr": cnt[4] / max(cnt[0], 1)}
 
 
 def _gate_text(h):
     return (f"rel {'/'.join(f'{v:.1e}' for v in h['rel'])} el "
             f"{'/'.join(f'{v:.1e}' for v in h['el'])} >1e-4 {h['over']}/{h['n']} o1 {h['o1']}"
+            + (f" nonfinite {h['nf']}" if h["nf"] else "")
             + (f" ids!= {h['ids']}" if h["ids"] else ""))
 
 
 def _gate_short(cand, ctrl):
     """The SUMMARY form: candidate|control relative error per output, largest element error,
-    calls over 1e-4 and order-1 calls."""
+    calls over 1e-4, order-1 calls and ids flips."""
     c, k = _gate_host(cand), _gate_host(ctrl)
     return (f"rel {'/'.join(f'{v:.0e}' for v in c['rel'])}|"
             f"{'/'.join(f'{v:.0e}' for v in k['rel'])} el {max(c['el']):.0e}|{max(k['el']):.0e}"
-            f" >1e-4 {c['over']}/{c['n']}|{k['over']}/{k['n']} o1 {c['o1']}|{k['o1']}")
+            f" >1e-4 {c['over']}/{c['n']}|{k['over']}/{k['n']} o1 {c['o1']}|{k['o1']}"
+            + (f" ids {c['ids']}|{k['ids']}" if c["ids"] or k["ids"] else ""))
+
+
+def _gate_call_reasons(c, k):
+    """The per-call criteria (those one call can fail), as (class, reason) pairs: non-finite,
+    order-1 relative L2, and the element error over the control's envelope."""
+    why = []
+    if c["nf"]:
+        why.append(("nonfinite", f"nonfinite {c['nf']}"))
+    if c["o1"]:
+        why.append(("replay", f"order-1 {c['o1']}"))
+    el_lim = max(GATE_EL_FLOOR, GATE_SPREAD * max(k["el"]))
+    if not max(c["el"]) <= el_lim:
+        why.append(("replay", f"el {max(c['el']):.1e} > {el_lim:.1e}"))
+    return why
 
 
 def _gate_verdict(cand, ctrl):
-    """(ok, text). Fails on any order-1 or ids-differing call in either arm; the candidate's
-    largest relative error over all outputs must be under GATE_BOUND or within GATE_SPREAD
-    times the control's, and its share of calls over GATE_BOUND within GATE_SPREAD times the
-    control's share (at least GATE_RATE_FLOOR). Both arms must make the same number of calls:
-    a control with fewer samples has a lower maximum (check 60cf58b69b75491e dropped two MoE
-    variants that way). The text records both arms' envelopes."""
+    """(ok, text, classes). The per-call criteria on the candidate and the control alike (a
+    control that fails them means the path itself is broken); then the envelope: the
+    candidate's largest relative error under GATE_BOUND or within GATE_SPREAD times the
+    control's, its share of calls over GATE_BOUND within GATE_SPREAD times the control's share
+    (at least GATE_RATE_FLOOR), and its share of calls with differing ids within GATE_SPREAD
+    times the control's plus two calls. Both arms make the same number of calls (a control
+    with fewer samples has a lower maximum: 60cf58b69b75491e)."""
     c, k = _gate_host(cand), _gate_host(ctrl)
-    why = []
-    if c["o1"] or k["o1"]:
-        why.append(f"order-1 cand {c['o1']} ctrl {k['o1']}")
-    if c["ids"] or k["ids"]:
-        why.append(f"ids differ cand {c['ids']} ctrl {k['ids']}")
+    why = [(cls, "cand " + r) for cls, r in _gate_call_reasons(c, k)]
+    why += [(cls, "ctrl " + r) for cls, r in _gate_call_reasons(k, k)]
     lim = max(GATE_BOUND, GATE_SPREAD * max(k["rel"]))
     if not max(c["rel"]) <= lim:
-        why.append(f"rel {max(c['rel']):.1e} > {lim:.1e}")
+        why.append(("replay", f"rel {max(c['rel']):.1e} > {lim:.1e}"))
     rate_lim = max(GATE_RATE_FLOOR, GATE_SPREAD * k["rate"])
     if not c["rate"] <= rate_lim:
-        why.append(f"share over 1e-4 {c['rate']:.3f} > {rate_lim:.3f}")
+        why.append(("replay", f"share over 1e-4 {c['rate']:.3f} > {rate_lim:.3f}"))
+    if not c["ids"] <= GATE_SPREAD * k["idr"] * c["n"] + 2:
+        why.append(("replay", f"ids flips {c['ids']}/{c['n']} against {k['ids']}/{k['n']}"))
     text = f"cand {_gate_text(c)} | ctrl {_gate_text(k)}"
-    return not why, text + ("" if not why else " FAIL " + "; ".join(why))
+    classes = sorted({cls for cls, _ in why})
+    return (not why, text + ("" if not why else " FAIL " + "; ".join(r for _, r in why)),
+            classes)
+
+
+def _gate_negctl(obs, refs, i, j, ctrl, seed):
+    """Negative controls of the comparator (diagnostic, report-only): obs is a real fresh
+    output for bank entry i (rows x cols); each injection replaces part of it with entry j's
+    reference, as a read of a previous generation would, and is judged by the per-call
+    criteria against the measured control envelope. 'none' injects nothing (false rejection).
+    Returns (text, misses): kinds that should be rejected but pass, or 'none' rejected."""
+    r, norm, rmax = refs
+    dev = obs.device
+    gen = torch.Generator(device=dev).manual_seed(seed)
+    stale = r[j]
+    rows, cols = obs.shape
+    k = _gate_host(ctrl)
+    idx = torch.tensor([i], device=dev)
+    items, misses = [], []
+    for kind in GATE_NEG:
+        o = obs.float().clone()
+        flat, sflat = o.view(-1), stale.reshape(-1)
+        if kind == "tile":
+            c0 = (cols // 2) // 128 * 128
+            o[:min(rows, 64), c0:c0 + 128] = stale[:min(rows, 64), c0:c0 + 128]
+        elif kind == "row":
+            o[rows // 2] = stale[rows // 2]
+        elif kind == "elem":
+            e = int(torch.randint(0, flat.numel(), (1,), generator=gen, device=dev))
+            flat[e] = sflat[e]
+        elif kind != "none":
+            m = max(1, int((0.01 if kind == "1%" else 0.001) * flat.numel()))
+            pos = torch.randperm(flat.numel(), generator=gen, device=dev)[:m]
+            flat[pos] = sflat[pos]
+        acc = _gate_acc(1, dev)
+        _gate_add(acc, [o], [refs], idx)
+        h = _gate_host(acc)
+        why = _gate_call_reasons(h, k)
+        rejected = bool(why)
+        items.append(f"{kind}:{'R' if rejected else 'pass'}({h['rel'][0]:.0e},{h['el'][0]:.0e})")
+        if rejected == (kind == "none"):
+            misses.append(kind)
+    return " ".join(items), misses
+
+
+def _gate_fail(cls, text):
+    """A gate failure in the manifest's classes: reference, replay, nonfinite, workspace,
+    sensitivity (a negative control the comparator missed, report-only)."""
+    _FAILED.append(f"[{cls}] {text}")
+
+
+GATE_CLASSES = ("reference", "replay", "nonfinite", "workspace", "sensitivity")
+
+
+def _gate_class(item):
+    """A failure's class: the tag a gate wrote, else a keyword guess for older messages."""
+    for start in range(len(item)):
+        if item[start] == "[":
+            end = item.find("]", start)
+            tags = item[start + 1:end].split(",") if end > start else []
+            if tags and all(t in GATE_CLASSES for t in tags):
+                return tags
+    low = item.lower()
+    if "fp32" in low or "self-test" in low or "reference" in low:
+        return ["reference"]
+    if "scratch" in low or "generation" in low or "workspace" in low:
+        return ["workspace"]
+    if "non-finite" in low or "nonfinite" in low:
+        return ["nonfinite"]
+    return ["other"]
+
+
+def _gate_manifest(state):
+    """One line: MoE variants checked and rejected, route gates passed, failures per class."""
+    built = [v[0] for v in _MOE1_VARIANTS] if state.get("moe1") else []
+    passed = {_MOE1_VARIANTS[v][0] for v in state.get("moe1_passed", [])}
+    pdl_bad = [x.split(" ")[0] for x in state.get("moe1_pdl_gate", []) if " FAIL" in x]
+    rejected = [n for n in built if n not in passed] + [f"{n}(pdl)" for n in pdl_bad]
+    routes = state.get("route_gate", {})
+    rok = sum(1 for v in routes.values() if v.startswith("ok"))
+    counts = {c: 0 for c in GATE_CLASSES + ("other",)}
+    for item in _FAILED:
+        for c in _gate_class(item):
+            counts[c] += 1
+    return (f"manifest moe checked {len(built)} rejected {rejected or 'none'}; route gates ok "
+            f"{rok}/{len(routes)}; failures " + " ".join(f"{c} {n}" for c, n in counts.items()))
+
+
+def _route_fresh_gate(front_moe, res, ffn_input, router_input, label, state):
+    """The route variant's front + MoE under the fresh-input gate: GATE_BANK FFN inputs, each
+    run once eagerly as its reference; the candidate is a CUDA graph of the step replayed
+    ROUTE_STRESS times on the next input each replay (the PDL launch under graph replay, as
+    judged), the control the same step made eagerly as often; MoE output and ids compared on
+    the device. Restores the caller's input. Returns None or the failure text."""
+    dev = ffn_input.device
+    saved = ffn_input.clone()
+    gen = torch.Generator(device=dev).manual_seed(4242 + ffn_input.shape[0])
+    bank = torch.randn((GATE_BANK,) + tuple(ffn_input.shape), generator=gen, device=dev)
+    bank = bank.to(ffn_input.dtype)
+
+    def load(src):
+        ffn_input.copy_(src)
+        if router_input is not None:
+            router_input.copy_(src.float())
+
+    ys, ids = [], []
+    for k in range(GATE_BANK):
+        load(bank[k])
+        front_moe()
+        ys.append(res["y"].clone())
+        ids.append(res["ids"].clone())
+    refs = [_gate_refs(ys)]
+    ref_ids = torch.stack(ids)
+    sel = torch.zeros(1, dtype=torch.long, device=dev)
+
+    def step(acc):
+        sel.add_(1)
+        i = sel % GATE_BANK
+        load(bank.index_select(0, i)[0])
+        front_moe()
+        _gate_add(acc, [res["y"]], refs, i, ids=(res["ids"], ref_ids))
+
+    cand, ctrl = _gate_acc(1, dev), _gate_acc(1, dev)
+    graph = _graph_build(lambda: step(cand))
+    _gate_zero(cand)
+    for _ in range(ROUTE_STRESS):
+        graph.replay()
+    torch.cuda.synchronize()
+    del graph
+    for _ in range(ROUTE_STRESS):
+        step(ctrl)
+    load(bank[0])
+    front_moe()
+    obs = res["y"].clone()
+    load(saved)
+    torch.cuda.synchronize()
+    neg, misses = _gate_negctl(obs, refs[0], 0, 1, ctrl, 91 + ffn_input.shape[0])
+    state.setdefault("gate_negctl", {})[f"route {label}"] = neg
+    if misses:
+        _gate_fail("sensitivity", f"route {label}: negative controls {misses}")
+    ok, text, classes = _gate_verdict(cand, ctrl)
+    state.setdefault("route_gate", {})[label] = (
+        f"{'ok' if ok else 'FAIL'} {_gate_short(cand, ctrl)}")
+    return None if ok else f"[{','.join(classes)}] fresh-input gate: {text}"
 
 
 def _moe1_stress(state, sizes, variant, replays):
@@ -166,15 +331,28 @@ def _moe1_stress(state, sizes, variant, replays):
     for _ in range(replays):
         step(ctrl)
     torch.cuda.synchronize()
+    big = max(range(len(sizes)), key=lambda c: sizes[c])
+    for (live, _), bank in zip(calls, banks):
+        for dst, src in zip(live[:3], bank):
+            dst.copy_(src[0])
+    obs = _experts(*calls[big][0], state, calls[big][1])
+    neg, misses = _gate_negctl(obs, refs[big], 0, 1, ctrl, 77 + variant)
+    torch.cuda.synchronize()
     clean, msg = _moe1_check(state)
-    ok, text = _gate_verdict(cand, ctrl)
-    state.setdefault("moe1_gate", {})[_moe1_name(variant)] = (
+    ok, text, classes = _gate_verdict(cand, ctrl)
+    if not clean or gens != len(sizes) * replays:
+        classes = sorted(set(classes) | {"workspace"})
+    name = _moe1_name(variant)
+    state.setdefault("moe1_gate", {})[name] = (
         f"{'+'.join(map(str, sizes))} {_gate_short(cand, ctrl)}")
-    msg = (f"T={'+'.join(map(str, sizes))} {_moe1_name(variant)} fresh-input gate: {replays} "
+    state.setdefault("gate_negctl", {})[f"moe {name} T={sizes[big]}"] = neg
+    if misses:
+        _gate_fail("sensitivity", f"moe {name} T={sizes[big]}: negative controls {misses}")
+    msg = (f"T={'+'.join(map(str, sizes))} {name} fresh-input gate: {replays} "
            f"replays (one host sync after them) against as many eager calls, "
            f"{GATE_BANK} input sets per call, per call size {text} generations={gens} {msg}")
     if not (ok and clean and gens == len(sizes) * replays):
-        raise RuntimeError(f"moe fused stress: {msg}")
+        raise RuntimeError(f"[{','.join(classes)}] moe fused stress: {msg}")
     return msg
 '''
 
@@ -196,7 +374,7 @@ PDL_SRC = '''def _moe1_pdl_self_test(state):
     bad, lines = [], []
     for variant in state.get("moe1_passed", []):
         name, kind, _ = _MOE1_VARIANTS[variant]
-        texts, shorts, ok = [], [], True
+        texts, shorts, ok, classes = [], [], True, set()
         for tokens in ((8, 16) if kind == "skinny" else (32, 128, 256)):
             bank_l = 4.0 * torch.randn((GATE_BANK, tokens, N_EXPERTS), generator=gen, device=dev)
             bank_p = torch.randn((GATE_BANK, tokens, D_EXPERT), generator=gen, device=dev)
@@ -235,11 +413,14 @@ PDL_SRC = '''def _moe1_pdl_self_test(state):
             for _ in range(ROUTE_PDL_REPLAYS + GATE_BANK):
                 step(ctrl, False)
             torch.cuda.synchronize()
-            good, text = _gate_verdict(cand, ctrl)
+            good, text, cls = _gate_verdict(cand, ctrl)
+            classes |= set(cls)
             ok = ok and good
             texts.append(f"T={tokens} {text}")
             shorts.append(f"T{tokens} {_gate_short(cand, ctrl)}")
         clean, msg = _moe1_check(state)
+        if not clean:
+            classes.add("workspace")
         ok = ok and clean
         lines.append(f"{name} {'ok' if ok else 'FAIL ' + msg} [{'; '.join(texts)}]")
         state.setdefault("moe1_pdl_gate", []).append(
@@ -247,7 +428,8 @@ PDL_SRC = '''def _moe1_pdl_self_test(state):
         if not ok:
             ctr[8] = 0
             bad.append(variant)
-            _FAILED.append(f"moe1 pdl {name} ({'; '.join(texts)[-120:]}, {msg[:60]})")
+            _gate_fail(",".join(sorted(classes)),
+                       f"moe1 pdl {name} ({'; '.join(texts)[-120:]}, {msg[:60]})")
     state["moe1_pdl_report"] = ", ".join(f"{_MOE1_VARIANTS[v][0]} FAIL" for v in bad) or "all ok"
     print("MOE1PDL vs plain launch after the route kernel (fresh-input gate): "
           + " || ".join(lines))
@@ -322,7 +504,7 @@ def _m1_stress(state):
             refs = [_gate_refs(hs), _gate_refs(ss), torch.stack(ids)]
             ctrl = _m1_fresh(state, data, {}, (bank_s, bank_a), refs, M1_STRESS_REPLAYS)
             cand = _m1_fresh(state, data, on, (bank_s, bank_a), refs, M1_STRESS_REPLAYS)
-            ok, text = _gate_verdict(cand, ctrl)
+            ok, text, _ = _gate_verdict(cand, ctrl)
             lines.append(f"{batch}x{length}{layer[0]} {'ok' if ok else 'FAIL'} {text}")
             if not ok:
                 raise RuntimeError("M1 fresh-input gate: " + lines[-1])
@@ -473,7 +655,12 @@ SUMMARY_NEW = SUMMARY_OLD + '''
     for name, item in state.get("moe1_gate", {}).items():
         lines.append(f"moe gate {name} {item}")
     for item in state.get("moe1_pdl_gate", []):
-        lines.append(f"moe pdl gate {item}")'''
+        lines.append(f"moe pdl gate {item}")
+    for name, item in state.get("route_gate", {}).items():
+        lines.append(f"route gate {name} {item}")
+    for name, item in state.get("gate_negctl", {}).items():
+        lines.append(f"gate negctl {name}: {item}")
+    lines.append(_gate_manifest(state))'''
 
 FENCE_OLD = '''        asm volatile("griddepcontrol.wait;" ::: "memory");
         if (tid == 0) {
@@ -534,6 +721,33 @@ RUNTIME_REPS = [
 ]
 
 
+# The route-variant check's replay part moves to the fresh-input gate (user decision 2026-10-30);
+# its comparisons against the base variant (top-8 sets, 1e-3 bounds) stay.
+ROUTE_REPS = [
+    ('''                if variant in ROUTE_VARIANTS and res.get("y") is not None:
+                    for _ in range(ROUTE_STRESS):
+                        graph.replay()
+                    torch.cuda.synchronize()
+                    outs[variant].append(res["y"].clone())
+''', '''                if variant in ROUTE_VARIANTS and res.get("y") is not None:
+                    outs[variant].append(_route_fresh_gate(
+                        front_moe, res, ffn_input, router_input, f"{variant}@{tokens}", state))
+'''),
+    ('''    if len(got) > 3 and not _rel(got[3], y) < 1e-4:
+        return f"MoE output moved {_rel(got[3], y):.1e} over {ROUTE_STRESS} replays"
+''', '''    if len(got) > 3 and got[3] is not None:
+        return got[3]
+'''),
+    ('''    1e-3, and after ROUTE_STRESS more replays of its graph the same output and a clean MoE
+    scratch (no spin timeout)."""''', '''    1e-3, the fresh-input replay gate (_route_fresh_gate, ROUTE_STRESS replays against as many
+    eager calls) and a clean MoE scratch (no spin timeout)."""'''),
+    ('''# Extra replays of a route variant's front + MoE graph in the tuner, checked for a stable
+# output and a clean MoE scratch: the PDL launch runs there under graph replay, as judged.''',
+     '''# Replays of a route variant's front + MoE graph in the tuner under the fresh-input gate, and
+# a clean MoE scratch after them: the PDL launch runs there under graph replay, as judged.'''),
+]
+
+
 def cut(text, start, end, new):
     a = text.index(start)
     b = text.index(end, a)
@@ -546,6 +760,10 @@ def main():
     text = cut(text, "def _moe1_stress(state, sizes, variant, replays):", "def _moe1_tune(",
                GATE_SRC.lstrip("\n") + "\n\n")
     text = cut(text, "def _moe1_pdl_self_test(state):", "def _front_tune(", PDL_SRC)
+    for old, new in ROUTE_REPS:
+        if text.count(old) != 1:
+            raise SystemExit(f"route-gate patch does not apply: {old[:60]!r}")
+        text = text.replace(old, new)
     if text.count(SUMMARY_OLD) != 1:
         raise SystemExit("the SUMMARY moe pdl line is not where expected")
     text = text.replace(SUMMARY_OLD, SUMMARY_NEW)

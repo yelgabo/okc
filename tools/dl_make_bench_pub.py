@@ -722,6 +722,11 @@ def prepare(weights):
         _ab_print(f"ABCAND m1 {item[:400]}")
     for name, item in state.get("moe1_gate", {}).items():
         _ab_print(f"ABCAND moe gate {name} {item}")
+    for key in ("route_gate", "gate_negctl"):
+        for name, item in state.get(key, {}).items():
+            _ab_print(f"ABCAND {key} {name} {item}")
+    if "_gate_manifest" in globals():
+        _ab_print(f"ABCAND {_gate_manifest(state)}")
     for item in _FAILED:
         _ab_print(f"ABCAND failed {item[:200]}")
     if _AB_OTHER_MOD is not None:
