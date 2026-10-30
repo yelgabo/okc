@@ -4,7 +4,18 @@ This is the stable entry point for steering reports across research, implementat
 and coordinator sessions. The user requested on 2026-10-29 that every project-steering
 report be checked into this repository so other sessions can read it.
 
-## Latest decision report: post-reset release and next experiments
+## Latest layer report: clean release, M1 diagnosis, verify 1 / decode 32 attribution
+
+**[2026-10-30: Layer release, mode 47 isolation, M1 diagnosis and gap attribution](2026-10-30-layer-release-attribution.md)**
+
+Board entry 3fbb3ad027e84c6b, 2.014x: the release plus mode 47, LATE_ARRIVE and o16 / unp32,
+M1 off ([manifest](../release-manifest.md)). Mode 47 is worth 4-5 us at 128 tokens (720079090ee44cc3).
+The M1-off layer itself breaks M1's 1e-4 replay bound, and no stale-read signature was found;
+M1 timing awaits a validation-policy decision. The public layer's verify 1 / decode 32 lead sits
+at the attention -> o and boundary -> front PDL weight-prologue boundaries (about 7-8.5 us) and
+in MoE work at 32 tokens (about 10-14 us at d32 sliding).
+
+## Previous decision report: post-reset release and next experiments
 
 **[2026-10-29: Isolate the 1.982x release and explain the remaining layer gap](2026-10-29-post-reset-release-steering.md)**
 
@@ -93,6 +104,7 @@ recommendations, not execution of those tasks; check current code and run logs f
 
 | Report | Evidence snapshot | Scope |
 |---|---|---|
+| [2026-10-30 layer release and attribution](2026-10-30-layer-release-attribution.md) | branch `worktree-agent-a39812d9e0cf11e26` after `fa7200c`; scored `3fbb3ad027e84c6b` | Clean release manifest, mode 47 isolation, M1 fresh-input diagnosis, verify 1 / decode 32 exposed-time attribution against the public layer |
 | [2026-10-29 post-reset release steering](2026-10-29-post-reset-release-steering.md) | `283e348`; release `edd71d3152a946fe` | Separate release/experimental HEAD, clean mode-47/projection test, M1 validation diagnosis, same-process verify-1/decode-32 attribution; staged retest completed |
 | [2026-10-29 verify 1 / decode 32 breakdown](2026-10-29-v1-d32-breakdown.md) | `efddc84`; run `9b921febc7ad4140`; bundle `b694b4a` | Per-kernel breakdown, bundle credit, ranked mechanisms, `SK_PDL` / `ONE_TRIG` switches with compile gate |
 | [2026-10-29 community research audit](2026-10-29-community-audit.md) | `21be06d`; live account capture 13:43 PDT | Research verification, completed work, pending ports, correctness gates, quota and next-run plan |

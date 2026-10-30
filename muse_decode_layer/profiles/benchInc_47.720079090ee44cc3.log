@@ -1,0 +1,137 @@
+te 6.19e-02/1.07e-01<=0.147 hidden 4.14e-02/6.70e-02<=0.098 top8=ref 0.727 local routes 208/208 experts 18/18
+ABCHECK v16s 114002 seco inc PASS update 6.17e-02/9.30e-02<=0.149 hidden 4.02e-02/6.52e-02<=0.097 top8=ref 0.703 local routes 190/190 experts 16/17
+ABCHECK v16s 114002 seco cand PASS update 6.17e-02/9.30e-02<=0.149 hidden 4.02e-02/6.52e-02<=0.097 top8=ref 0.703 local routes 190/190 experts 16/17
+ABCHECK v16s 114002 seco null PASS update 6.17e-02/9.30e-02<=0.149 hidden 4.02e-02/6.52e-02<=0.097 top8=ref 0.703 local routes 190/190 experts 16/17
+ABCHECK v16f 114101 busi inc PASS update 6.38e-02/8.64e-02<=0.150 hidden 4.19e-02/6.07e-02<=0.101 top8=ref 0.750 local routes 207/205 experts 24/24
+ABCHECK v16f 114101 busi cand PASS update 6.38e-02/8.64e-02<=0.150 hidden 4.19e-02/6.07e-02<=0.101 top8=ref 0.750 local routes 207/205 experts 24/24
+ABCHECK v16f 114101 busi null PASS update 6.38e-02/8.64e-02<=0.150 hidden 4.19e-02/6.07e-02<=0.101 top8=ref 0.750 local routes 207/205 experts 24/24
+ABCHECK v16f 114102 seco inc PASS update 6.49e-02/1.10e-01<=0.150 hidden 4.20e-02/6.01e-02<=0.102 top8=ref 0.734 local routes 172/175 experts 20/21
+ABCHECK v16f 114102 seco cand PASS update 6.49e-02/1.10e-01<=0.150 hidden 4.20e-02/6.01e-02<=0.102 top8=ref 0.734 local routes 172/175 experts 20/21
+ABCHECK v16f 114102 seco null PASS update 6.49e-02/1.10e-01<=0.150 hidden 4.20e-02/6.01e-02<=0.102 top8=ref 0.734 local routes 172/175 experts 20/21
+ABCHECK v32s 115001 busi inc PASS update 5.95e-02/9.19e-02<=0.141 hidden 3.94e-02/6.06e-02<=0.094 top8=ref 0.672 local routes 391/393 experts 23/23
+ABCHECK v32s 115001 busi cand PASS update 5.95e-02/9.19e-02<=0.141 hidden 3.94e-02/6.06e-02<=0.094 top8=ref 0.672 local routes 391/393 experts 23/23
+ABCHECK v32s 115001 busi null PASS update 5.95e-02/9.19e-02<=0.141 hidden 3.94e-02/6.06e-02<=0.094 top8=ref 0.672 local routes 391/393 experts 23/23
+ABCHECK v32s 115002 seco inc PASS update 5.57e-02/9.38e-02<=0.130 hidden 3.61e-02/5.36e-02<=0.084 top8=ref 0.777 local routes 362/366 experts 23/23
+ABCHECK v32s 115002 seco cand PASS update 5.57e-02/9.38e-02<=0.130 hidden 3.61e-02/5.36e-02<=0.084 top8=ref 0.777 local routes 362/366 experts 23/23
+ABCHECK v32s 115002 seco null PASS update 5.57e-02/9.38e-02<=0.130 hidden 3.61e-02/5.36e-02<=0.084 top8=ref 0.777 local routes 362/366 experts 23/23
+ABCHECK v32f 115101 busi inc PASS update 6.50e-02/9.72e-02<=0.150 hidden 4.31e-02/6.32e-02<=0.104 top8=ref 0.746 local routes 420/421 experts 22/21
+ABCHECK v32f 115101 busi cand PASS update 6.50e-02/9.72e-02<=0.150 hidden 4.31e-02/6.32e-02<=0.104 top8=ref 0.746 local routes 420/421 experts 22/21
+ABCHECK v32f 115101 busi null PASS update 6.50e-02/9.72e-02<=0.150 hidden 4.31e-02/6.32e-02<=0.104 top8=ref 0.746 local routes 420/421 experts 22/21
+ABCHECK v32f 115102 seco inc PASS update 6.37e-02/1.02e-01<=0.150 hidden 4.22e-02/6.46e-02<=0.101 top8=ref 0.707 local routes 390/379 experts 21/20
+ABCHECK v32f 115102 seco cand PASS update 6.37e-02/1.02e-01<=0.150 hidden 4.22e-02/6.46e-02<=0.101 top8=ref 0.707 local routes 390/379 experts 21/20
+ABCHECK v32f 115102 seco null PASS update 6.37e-02/1.02e-01<=0.150 hidden 4.22e-02/6.46e-02<=0.101 top8=ref 0.707 local routes 390/379 experts 21/20
+ABBUILD cand_one_load 72 s
+ABBUILD cand_moe1_load 91 s
+ABBUILD cand_skp_load 41 s
+ABBUILD cand_w4_ext 75 s
+ABBUILD cand_ext 73 s
+ABBUILD inc_one_load 70 s
+ABBUILD inc_moe1_load 93 s
+ABBUILD inc_skp_load 38 s
+ABBUILD inc_w4_ext 75 s
+ABBUILD inc_ext 73 s
+ABBUILD import done at 93 s
+ABPREP cand 19 s
+ABPREP inc 16 s; prepare at 35 s
+ABPIN inc sha256 84d8507a7cd35c499b83078e96e9f5e0e03f2ba816d162d1a31ea60e3048833b git-blob cddf6e405d48fd8be38086a2c467d422f5ed46ba as read (clean_hold47.py); comment-stripped and patched as sent: sha256 18f95be2ce57f7529c2d849f32c70d6265221292fb7f53b9562df67f2eea39a1 git-blob 1f24a7f9b7f284c6321185f997ae52df3a5cdc1c
+ABPIN cand sha256 b9c23bda16bb9d6311f025062e415841c67b16284737172badaa190fdc506a49 git-blob a891f169e73a100eaaf64e3efc70bd4758f05f5e (cand1.py)
+ABDIAG cand attention fallback on fresh rows vs FP32: 1x1s ours 1.63e-03 sglang 5.21e-02 ours-vs-sglang 5.20e-02; 1x8s ours 3.63e-02 sglang 4.06e-02 ours-vs-sglang 3.09e-02; 1x1f ours 1.75e-03 sglang 6.75e-03 ours-vs-sglang 7.14e-03; 1x8f ours 1.76e-02 sglang 2.19e-02 ours-vs-sglang 1.46e-02; attn_one_ours=1
+ABOTHER inc prepare: attn one: stress 1x1 sliding plan=(32, 1, 13): replays=2000 (one host sync after the batch; retained: the last replay's output) replayed_vs_eager=0.0e+00 vs_sglang=3.44e-03 finite=True max_polls=0 ws rows_nonzero=0 l_nonzero=0 tickets_nonzero=0 coop_next_parity_nonzero=0 flat_next_parity_nonzero=0; 
+ABOTHER inc prepare: attn one: stress 1x8 sliding plan=(33, 1, 15): replays=2000 (one host sync after the batch; retained: the last replay's output) replayed_vs_eager=0.0e+00 vs_sglang=2.32e-02 finite=True max_polls=2 ws rows_nonzero=0 l_nonzero=0 tickets_nonzero=0 coop_next_parity_nonzero=0 flat_next_parity_nonzero=0; 
+ABOTHER inc prepare: attn one: stress 1x1 full plan=(252, 8, 11): replays=2000 (one host sync after the batch; retained: the last replay's output) replayed_vs_eager=0.0e+00 vs_sglang=3.25e-03 finite=True max_polls=6 ws rows_nonzero=0 l_nonzero=0 tickets_nonzero=0 coop_next_parity_nonzero=0 flat_next_parity_nonzero=0; fr
+ABOTHER inc prepare: attn one: stress 1x8 full plan=(252, 8, 11): replays=2000 (one host sync after the batch; retained: the last replay's output) replayed_vs_eager=0.0e+00 vs_sglang=2.41e-02 finite=True max_polls=9 ws rows_nonzero=0 l_nonzero=0 tickets_nonzero=0 coop_next_parity_nonzero=0 flat_next_parity_nonzero=0; fr
+ABOTHER inc prepare: attn one fallback on fresh rows vs FP32: 1x1s ours 1.63e-03 sglang 5.21e-02 ours-vs-sglang 5.20e-02; 1x8s ours 3.63e-02 sglang 4.06e-02 ours-vs-sglang 3.09e-02; 1x1f ours 1.75e-03 sglang 6.75e-03 ours-vs-sglang 7.14e-03; 1x8f ours 1.76e-02 sglang 2.19e-02 ours-vs-sglang 1.46e-02
+ABOTHER inc prepare: SUMMARY stages moe_ours=1 w4_ok=1 moe1_ok=1 router_ours=1 proj_ours=1 skp_ok=1 attn_one_ours=1 attn_ws_ours=1 attn_fused_ours=1 bnd_ours=1 abnd_ours=1 norm_ours=1 route_side_ok=1 route_ours=1
+ABOTHER inc prepare: SUMMARY attn fallback vs fp32 1x1s ours 1.63e-03 sglang 5.21e-02 ours-vs-sglang 5.20e-02; 1x8s ours 3.63e-02 sglang 4.06e-02 ours-vs-sglang 3.09e-02; 1x1f ours 1.75e-03 sglang 6.75e-03 ours-vs-sglang 7.14e-03; 1x8f ours 1.76e-02 sglang 2.19e-02 ours-vs-sglang 1.46e-02
+ABOTHER inc prepare: SUMMARY failed 0: none
+ABARMS inc cand null; cand front policy {1: 'fp32', 8: 'skf-r', 16: 'skf-r', 32: 'skf-r', 128: 'concat-r', 256: 'concat-r'}, moe {1: 2, 8: 2, 16: 2, 32: 9, 128: 9, 256: 9}; inc front policy {1: 'fp32', 8: 'skf-r', 16: 'skf-r', 32: 'skf-r', 128: 'concat-r', 256: 'concat-r'}, moe {1: 2, 8: 2, 16: 2, 32: 8, 128: 8, 256: 8}
+ABCHK inc 24 of 24 PASS; shapes with a FAIL 0
+ABCHK cand 24 of 24 PASS; shapes with a FAIL 0
+ABCHK null 24 of 24 PASS; shapes with a FAIL 0
+ABTIME d1s inc 89.2 cand 85.4 null 84.9 | paired cand-inc -4.1 null-inc -4.5 (n=16)
+ABTIME d1f inc 102.0 cand 95.8 null 96.2 | paired cand-inc -5.7 null-inc -5.4 (n=16)
+ABTIME d16s inc 160.3 cand 161.1 null 159.7 | paired cand-inc +1.3 null-inc +0.3 (n=16)
+ABTIME d16f inc 219.7 cand 219.5 null 219.2 | paired cand-inc +0.0 null-inc -0.1 (n=16)
+ABTIME d32s inc 177.5 cand 176.2 null 175.0 | paired cand-inc -1.3 null-inc -1.5 (n=16)
+ABTIME d32f inc 317.1 cand 312.5 null 313.4 | paired cand-inc -2.6 null-inc -3.0 (n=16)
+ABTIME v1s inc 136.2 cand 136.1 null 135.8 | paired cand-inc -0.6 null-inc -1.1 (n=16)
+ABTIME v1f inc 146.5 cand 146.1 null 144.8 | paired cand-inc +0.4 null-inc -1.2 (n=16)
+ABTIME v16s inc 270.2 cand 262.4 null 266.2 | paired cand-inc -4.9 null-inc -3.8 (n=16)
+ABTIME v16f inc 383.7 cand 379.4 null 381.2 | paired cand-inc -5.5 null-inc -4.0 (n=16)
+ABTIME v32s inc 361.2 cand 356.3 null 356.5 | paired cand-inc -5.7 null-inc -4.8 (n=16)
+ABTIME v32f inc 514.8 cand 511.7 null 511.6 | paired cand-inc -3.6 null-inc -1.0 (n=16)
+ABLOAD d1 (46 sliding + 16 full) / 62: inc 92.5 cand 88.1 null 87.8 | inc/arm cand 1.0504 null 1.0535 | null check cand/null 1.0030
+ABLOAD d16 (46 sliding + 16 full) / 62: inc 175.6 cand 176.1 null 175.1 | inc/arm cand 0.9970 null 1.0032 | null check cand/null 1.0062
+ABLOAD d32 (46 sliding + 16 full) / 62: inc 213.5 cand 211.4 null 210.7 | inc/arm cand 1.0101 null 1.0134 | null check cand/null 1.0032
+ABLOAD v1 (46 sliding + 16 full) / 62: inc 138.9 cand 138.7 null 138.1 | inc/arm cand 1.0015 null 1.0057 | null check cand/null 1.0042
+ABLOAD v16 (46 sliding + 16 full) / 62: inc 299.5 cand 292.6 null 295.9 | inc/arm cand 1.0235 null 1.0122 | null check cand/null 0.9890
+ABLOAD v32 (46 sliding + 16 full) / 62: inc 400.8 cand 396.4 null 396.5 | inc/arm cand 1.0112 null 1.0109 | null check cand/null 0.9997
+ABSCORE geometric mean over 6 loads of inc load time / arm load time (above 1: arm faster): cand 1.0155; null check: cand / null 1.0009 (the same file timed twice; its distance from 1 is the bench's noise)
+ABKN K0 cgemv40_kernel<256,2>
+ABKN K1 one::attn_one_kernel<1,13>
+ABKN K2 cgemv_kernel<64,1>
+ABKN K3 bnd::attn_boundary_kernel
+ABKN K4 cgemv_kernel<512,1>
+ABKN K5 pre_norm_kernel<__nv_bfloat16>
+ABKN K6 router_kernel<1>
+ABKN K7 muse_spark::routing_kernel<muse_spark::R
+ABKN K8 moe1::sk_8_3_0::moe_fused_kernel<1>
+ABKN K9 cgemv40_kernel<128,2>
+ABKN K10 bnd::boundary_kernel
+ABKN K11 one::attn_one_kernel<1,11>
+ABKN K12 sk_kernel<1,16,3,1,4,2,5,true,false,1,1,
+ABKN K13 one::attn_one_kernel<1,1>
+ABKN K14 sk_kernel<1,16,2,2,2,2,3,true,false,1,1,
+ABKN K15 muse_spark_norm_residual_kernel<8192l,25
+ABKN K16 sk_kernel<1,16,2,2,2,4,4,true,false,1,1,
+ABKN K17 route_kernel<__nv_bfloat16,false>
+ABKN K18 one::attn_one_kernel<1,49>
+ABKN K19 sk_kernel<2,32,3,1,4,2,4,true,false,1,1,
+ABKN K20 sk_kernel<2,32,2,2,2,2,3,true,false,1,1,
+ABKN K21 sk_kernel<2,32,2,2,2,4,3,true,false,1,1,
+ABKN K22 moe1::moe_main_kernel<37>
+ABKN K23 moe1::moe_main_kernel<47>
+ABKN K24 sk_kernel<1,8,3,1,4,4,4,true,false,1,1,_
+ABKN K25 one::attn_one_kernel<8,15>
+ABKN K26 sk_kernel<1,8,4,1,4,1,4,true,false,1,1,_
+ABKN K27 sk_kernel<1,8,1,2,2,4,3,true,false,1,1,_
+ABKN K28 sk_kernel<1,8,1,1,8,2,4,true,false,1,1,_
+ABKN K29 one::attn_one_kernel<8,11>
+ABKN K30 wd_kernel<1,128,3,1,false,8,__nv_bfloat1
+ABKN K31 one::attn_one_kernel<8,3>
+ABKN K32 nvjet_sm90_tst_128x64_64x8_1x2_h_bz_TNT
+ABKN K33 nvjet_sm90_tss_96x64_64x10_4x2_h_bz_TNN
+ABKN K34 route_kernel<float,true>
+ABKN K35 one::attn_one_kernel<8,51>
+ABKN K36 nvjet_sm90_tst_96x64_64x10_2x4_h_bz_TNN
+ABKN K37 nvjet_sm90_tst_128x128_64x6_2x1_v_bz_TNT
+ABKN K38 muse_spark_norm_residual_kernel<8192l,51
+ABKN K39 nvjet_sm90_tss_80x128_64x8_4x2_h_bz_TNN
+ABK d1s inc span 86.1 sum 85.7: K0 10.6 K1 5.1 K2 5.6 K3 4.1 K4 15.9 K5 1.7 K6 5.3 K7 4.3 K8 25.6 K9 3.6 K10 4.0
+ABK d1s cand span 81.5 sum 96.6: K0 10.6 K1 5.4 K2 5.5 K3 5.1 K6 8.0 K7 10.2 K4 17.4 K5 1.6 K8 25.2 K9 3.6 K10 4.0
+ABK d1f inc span 101.5 sum 100.2: K0 10.6 K11 13.8 K2 6.0 K3 3.9 K4 15.8 K5 2.0 K6 5.1 K7 4.2 K8 31.6 K9 3.5 K10 3.9
+ABK d1f cand span 95.7 sum 111.7: K0 10.5 K11 13.0 K2 5.8 K3 6.0 K6 8.9 K7 10.0 K4 16.0 K5 1.7 K8 32.5 K9 3.4 K10 3.9
+ABK d16s inc span 167.1 sum 166.4: K12 12.9 K13 10.1 K14 21.4x2 K15 8.2x2 K16 20.6 K17 4.6 K8 88.6
+ABK d16s cand span 167.6 sum 167.6: K12 12.8 K13 10.4 K14 21.3x2 K3 4.2 K16 20.8 K17 4.6 K8 89.0 K15 4.4
+ABK d16f inc span 228.9 sum 230.0: K12 12.7 K18 91.4 K14 19.9x2 K15 8.0x2 K16 18.8 K17 4.8 K8 74.3
+ABK d16f cand span 230.2 sum 230.8: K12 12.6 K18 91.0 K14 20.1x2 K3 4.0 K16 18.6 K17 4.7 K8 75.2 K15 4.4
+ABK d32s inc span 189.0 sum 189.6: K19 13.9 K13 12.3 K20 23.0x2 K15 8.4x2 K21 20.4 K17 5.2 K22 106.4
+ABK d32s cand span 187.6 sum 187.7: K19 13.8 K13 11.9 K20 22.5x2 K15 8.4x2 K21 20.9 K17 5.0 K23 105.3
+ABK d32f inc span 318.0 sum 318.6: K19 13.8 K18 166.7 K20 22.0x2 K15 8.3x2 K21 19.8 K17 5.4 K22 82.6
+ABK d32f cand span 316.4 sum 316.4: K19 14.0 K18 166.8 K20 21.2x2 K15 8.1x2 K21 19.7 K17 5.1 K23 81.4
+ABK v1s inc span 138.4 sum 138.3: K24 12.5 K25 6.7 K26 6.8 K3 4.2 K27 21.1 K17 4.4 K8 74.4 K28 4.3 K10 3.8
+ABK v1s cand span 139.8 sum 139.2: K24 13.2 K25 6.7 K26 6.8 K3 4.1 K27 21.2 K17 4.5 K8 74.3 K28 4.4 K10 3.9
+ABK v1f inc span 146.0 sum 145.7: K24 12.9 K29 15.1 K26 6.8 K3 4.0 K27 19.7 K17 4.5 K8 74.3 K28 4.3 K10 4.0
+ABK v1f cand span 146.2 sum 145.4: K24 12.7 K29 15.2 K26 7.0 K3 4.1 K27 19.8 K17 4.5 K8 74.1 K28 4.2 K10 3.8
+ABK v16s inc span 274.9 sum 275.0: K30 16.3 K31 11.5 K32 31.0x2 K15 10.4x2 K33 27.4 K34 4.8 K22 173.7
+ABK v16s cand span 269.6 sum 269.2: K30 16.2 K31 11.6 K32 31.4x2 K15 10.7x2 K33 27.9 K34 4.8 K23 166.7
+ABK v16f inc span 394.9 sum 395.6: K30 16.1 K35 106.0 K32 30.1x2 K15 10.0x2 K33 25.8 K34 4.8 K22 202.8
+ABK v16f cand span 388.7 sum 388.5: K30 16.1 K35 106.0 K32 29.2x2 K15 9.6x2 K33 25.9 K34 4.9 K23 196.8
+ABK v32s inc span 361.2 sum 358.0: K36 25.4 K31 16.0 K37 36.3x2 K38 15.9x2 K39 32.5 K34 5.1 K22 226.8
+ABK v32s cand span 353.7 sum 351.2: K36 25.1 K31 16.1 K37 35.5x2 K38 15.9x2 K39 34.1 K34 5.2 K23 219.2
+ABK v32f inc span 523.0 sum 520.6: K36 25.4 K35 182.3 K37 35.8x2 K38 15.8x2 K39 32.4 K34 5.1 K22 223.6
+ABK v32f cand span 517.3 sum 514.2: K36 25.2 K35 181.0 K37 35.3x2 K38 16.4x2 K39 32.7 K34 5.1 K23 218.5
+ABZ d32s inc span 189.0: K19@0.0+14.2/14.2 K13@14.6+12.4/12.4-0.4 K20@27.5+7.0/7.0-0.5 K15@35.2+3.8/3.8-0.7 K21@39.5+20.9/20.9-0.4 K17@60.2+5.2/5.0 K22@61.7+106.2/102.5 K20@168.3+16.0/16.0-0.4 K15@184.4+4.6/4.6
+ABZ d32s cand span 187.6: K19@0.0+13.9/13.9 K13@14.3+11.9/11.9-0.4 K20@26.6+6.9/6.9-0.4 K15@34.1+3.7/3.7-0.6 K21@38.2+21.0/21.0-0.4 K17@59.0+5.0/4.9 K23@60.7+105.3/101.9 K20@166.6+16.5/16.5-0.6 K15@183.0+4.6/4.6
+ABZ v16s inc span 274.9: K30@0.0+16.3/16.3 K31@16.7+11.5/11.5-0.4 K32@28.6+8.9/8.9-0.4 K15@38.2+4.9/4.9-0.7 K33@43.7+27.4/27.4-0.5 K34@71.0+4.7/4.7 K22@72.7+174.0/170.9 K32@247.4+22.3/22.3-0.7 K15@269.9+5.0/5.0-0.2
+ABZ v16s cand span 269.6: K30@0.0+16.2/16.2 K31@16.6+11.4/11.4-0.4 K32@28.9+8.9/8.9-1.0 K15@38.6+5.8/5.8-0.7 K33@44.8+28.7/28.7-0.4 K34@73.5+4.8/4.8 K23@75.1+165.9/162.8 K32@241.6+23.0/23.0-0.6 K15@264.6+4.9/4.9
