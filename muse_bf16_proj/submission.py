@@ -2220,7 +2220,11 @@ LT_HEUR_REQ = 32
 LT_SCREEN_REPS = 6
 LT_EXPAND_TOP = 4
 LT_EXPAND_MAX = 48
-LT_FINALISTS = 3
+LT_FINALISTS = 5
+# The 6-rep screen's ranking among near-equal configs is noise (pooler m=128 picks moved
+# 1.4 us between preparations in d6eaf1e73db047a5); the leaders are re-timed at more reps.
+LT_RESCREEN = 24
+LT_RESCREEN_REPS = 12
 # Tile sweep: the best LT_SWEEP_TOP plans' algorithms over all their tiles under these cluster
 # shape ids (2 = 1x1x1, 3 = 2x1x1, 4 = 4x1x1, 5 = 1x2x1, 0 = automatic), then the best
 # LT_SWEEP_TILES tiles under every id up to 24.
@@ -2933,6 +2937,18 @@ def _lt_search(lt, state, layer, m, ws, flush, gen, diag, fallback):
         lt.lt_sweep(p, i, list(range(25)), 25)
         lt.lt_expand(p, i, LT_EXPAND_MAX)
     screen()
+    # The same config is a different kernel launch on another layout; the screen only swept
+    # the leading layouts.
+    for (p, i), (t, layout) in sorted(seen.items(), key=lambda kv: kv[1][0])[:LT_SWEEP_TILES]:
+        cfg = list(lt.lt_info(p, i))[:9]
+        for q, _ in plans:
+            if q != p:
+                lt.lt_add_config(q, cfg)
+    screen()
+    top = sorted(seen.items(), key=lambda kv: kv[1][0])[:LT_RESCREEN]
+    us = _lt_screen([runner(p, layout, i) for (p, i), (t, layout) in top], x, flush, LT_RESCREEN_REPS)
+    for ((p, i), (t, layout)), u in zip(top, us):
+        seen[(p, i)] = (u, layout)
     ranked = sorted(seen.items(), key=lambda kv: kv[1][0])
     out = []
     for (p, i), (t, layout) in ranked:
