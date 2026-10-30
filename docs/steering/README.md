@@ -21,7 +21,14 @@ The existing CUTLASS pooler, wide 8-stage picks, DCARRY/PK16/VHOIST and failed l
 are explicitly accounted for. No kernels, validation policies, GPU runs or submissions changed.
 This is separate from the layer's M1/tuner-stability work below.
 
-## Latest hourly report, 04:43
+## Latest hourly report, 05:39
+
+**[2026-10-30 05:39 PDT: Stream-K phase-A retest loses](2026-10-30-0539-performance-review.md)**
+
+Evidence snapshot `15cc6b9`. Mode 72 loses against owned phase-A units at 32/128/256 on both
+routings. No gate run; layer_hp still awaits GPU tests.
+
+## Previous hourly report, 04:43
 
 **[2026-10-30 04:43 PDT: PRQ win, MoE claiming losses and P3 loss](2026-10-30-0443-performance-review.md)**
 

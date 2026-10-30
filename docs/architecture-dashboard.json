@@ -1,11 +1,11 @@
 {
-  "reviewed_at": "2026-10-30T04:43:00-07:00",
-  "snapshot": "b5b8a34",
+  "reviewed_at": "2026-10-30T05:39:00-07:00",
+  "snapshot": "15cc6b9",
   "layer": {
     "score": "2.014\u00d7",
     "interval": "1.984\u20132.045",
     "job": "3fbb3ad027e84c6b",
-    "note": "Layer remains 2.014\u00d7. New layer_hp combines PRQ31, HMRG and workspace picking; built, no GPU result. Standalone attention now scores 2.521\u00d7. MoE claiming layouts lose, including no-work controls; projection P3 loses and is parked."
+    "note": "Layer remains 2.014\u00d7; layer_hp still awaits GPU testing. Stream-K phase-A mode 72 loses versus owned units at every tested size/routing. PRQ standalone win, earlier pipeline losses and all pending layer candidates are unchanged."
   },
   "families": [
     {
@@ -41,14 +41,18 @@
       "id": "C",
       "name": "Owner-completes tiles",
       "status": "win",
-      "label": "Retained win",
+      "label": "Ownership retained; alternative loses",
       "metric": "\u22122.1 / \u22123.8 \u00b5s",
       "unit": "128 / 256 tokens: mode 20 versus mode 16",
-      "summary": "Owned phase A improves the fused design. Later persistent modes retain it.",
+      "summary": "Whole-owned phase A stays. Retested stream-K mode 72 with last-arrival fixup loses 12.6/6.6 \u00b5s at 128/256 layer-like routing.",
       "layer": "Present in tested layer descendants",
       "pending": [],
-      "limit": "Later combined gains cannot be assigned to ownership alone.",
-      "source": "runs-moe.md"
+      "limit": "Mode 72 loses all 36 size/routing seeds. Scope: this partition/fixup on current components. A cheaper designated finisher or refitted cost table is untested.",
+      "source": "runs-moe.md",
+      "outcomes": [
+        "win",
+        "loss"
+      ]
     },
     {
       "id": "D",
