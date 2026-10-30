@@ -4,7 +4,22 @@ This is the stable entry point for steering reports across research, implementat
 and coordinator sessions. The user requested on 2026-10-29 that every project-steering
 report be checked into this repository so other sessions can read it.
 
-## Latest decision: evaluate the complete donor as a replacement baseline
+## Latest family registration: F — donor-based baseline and hybrid
+
+**[2026-10-30: Family F — Donor-based baseline and hybrid](2026-10-30-family-f-donor-baseline.md)**
+
+Registered at the user's request against evidence snapshot `7a59655`; donor
+`alygg77/okc-muse-spark-kernels` remains pinned at `6cae49a`.
+F is a first-class implementation/adoption family alongside A–E, not an incremental tweak
+that must be folded into the incumbent. F0 is the exact donor, F1 a documented minimal
+conforming adaptation when required, and F2 a measured hybrid. F-PROJ and F-ATTN are the
+first independent comparison tracks; F-MOE and F-LAYER remain separately owned.
+Status: registered / untested against our releases. Archived donor scores are not F wins.
+Compare complete files and choose the better base; whole-file replacement is allowed.
+The dashboard data registers F while retaining the older A–E performance snapshot.
+No kernels, validation gates, GPU jobs, releases or scored submissions changed.
+
+## Previous decision: evaluate the complete donor as a replacement baseline
 
 **[2026-10-30: Donor-first adoption — test complete implementations before more invention](2026-10-30-donor-first-adoption.md)**
 
@@ -90,7 +105,7 @@ A-E standings and pending layer candidates are unchanged.
 
 **[2026-10-30 05:39 PDT: Stream-K phase-A retest loses](2026-10-30-0539-performance-review.md)**
 
-Evidence snapshot `15cc6b9`. Mode 72 loses against owned phase-A units at 32/128/256 on both
+Evidence snapshot `15cc6b9`. Mode 72 loses against owned units at 32/128/256 on both
 routings. No gate run; layer_hp still awaits GPU tests.
 
 ## Previous hourly report, 04:43
@@ -306,6 +321,7 @@ recommendations, not execution of those tasks; check current code and run logs f
 
 | Report | Evidence snapshot | Scope |
 |---|---|---|
+| [2026-10-30 Family F registration](2026-10-30-family-f-donor-baseline.md) | ours `7a59655`; donor `6cae49a` | Separate donor-based baseline/hybrid family; F0/F1/F2 variants and independent problem tracks; registered/untested, no adoption or benchmark claim |
 | [2026-10-30 donor-first adoption](2026-10-30-donor-first-adoption.md) | ours `5b88889`; donor `6cae49a` | Correct premature restriction on whole-file replacement; exact donor versus release comparison first; choose donor, ours or measured hybrid before new invention |
 | [2026-10-30 alygg77 source audit](2026-10-30-alygg77-public-kernel-audit.md) | ours `269c110`; donor `6cae49a` | Scoped external measurements; selective projection routes; cluster residency; dense transfer/epilogue attribution; codec feasibility; attention provenance and KPERM overlap audit |
 | [2026-10-30 projection top-100 portfolio](2026-10-30-projection-top100-portfolio.md) | `c98018f`; scored `d85d0081fa8a4a43`; user CLI/frontier review | Corrected target and completed work; QKV residency gate; raw-BF16 m=256 schedule/epilogue test; explicit target envelope versus measured gains |
