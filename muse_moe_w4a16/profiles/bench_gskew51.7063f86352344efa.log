@@ -1,0 +1,49 @@
+ABBUILD ours 56 s
+ABBUILD pub 162 s
+ABROUTE layer router seed 8 (mean relative miss 0.030)
+ABROUTE T=128 layer busiest local expert routes [54, 54, 54, 50, 59, 51]
+ABCHECK T=128 layer vs fp32 o51 3.85e-03 pub 2.35e-03; vs o51:
+ABTIME T=128 layer mean of 6 o51 159.5 pub 150.4
+ABPAIR T=128 layer pub minus o51 -7.8 -12.9 -12.9 -5.0 -7.7 -8.2 (mean -9.1, 6 of 6 lower)
+ABSTAMP T=128 layer o55 route 3.5, start 10.3, phase A 89.3, A done max 114.0, phase B 42.3, tail 8.9, barrier+final 13.9, end 156.5
+ABSTAMP T=128 layer pub route 2.3, start 5.9, phase A 87.1, A done max 99.1, phase B 42.7, tail 5.7, barrier+final 9.8, end 146.8
+ABGATHER T=128 layer o55 stores 1.68, fences+barrier 4.30, release 0.61, first x ready after release 2.49, last first-x-ready from first gather start 10.41, gather total 6.58, pub gather 3.32, pub join 0.03
+ABPUB T=128 layer phase A mean 87.14, p10 83.55, p50 87.59, p90 89.98, max 93.48, stages min -23560.00, mean -11473.65, max -9586.50, cut units per CTA 0.83, rho(time, stages) 0.38
+ABSKEW T=128 layer o56 phase A stages 19, warp w-wait us 2.05, x-wait us 3.62, cycles per wait 259, start skew 897, wg-mean skew 781, within-wg skew 93.3, w-ready skew 858, release skew 945, w-wait share from release skew 0.71, w-waits >64 cyc 1, producer delay 317, copy latency 4.89e+03, lead 5.92e+03, x copy latency 3.83e+03, GHz 1.72, trailing-wg w-wait us 1.82, trailing-wg x-wait us 3.47, trailing-wg w-wait from release skew us 0.307, trailing-wg persistence 0.855
+ABSKEW T=128 layer o56 phase B stages 9.12, warp w-wait us 0.918, x-wait us 1.24, cycles per wait 205, start skew 918, wg-mean skew 853, within-wg skew 64, w-ready skew 891, release skew 1.04e+03, w-wait share from release skew 0.726, w-waits >64 cyc 1, producer delay 338, copy latency 4.67e+03, lead 5.81e+03, x copy latency 4.18e+03, GHz 1.72, trailing-wg w-wait us 0.825, trailing-wg x-wait us 1.17, trailing-wg w-wait from release skew us 0.138, trailing-wg persistence 0.866
+ABROUTE T=256 layer busiest local expert routes [128, 107, 111, 116, 105, 110]
+ABCHECK T=256 layer vs fp32 o51 3.85e-03 pub 2.34e-03; vs o51:
+ABTIME T=256 layer mean of 6 o51 216.0 pub 202.0
+ABPAIR T=256 layer pub minus o51 -17.8 -11.0 -14.3 -14.7 -13.7 -12.5 (mean -14.0, 6 of 6 lower)
+ABSTAMP T=256 layer o55 route 4.2, start 12.5, phase A 126.8, A done max 149.9, phase B 59.4, tail 4.6, barrier+final 12.5, end 212.8
+ABSTAMP T=256 layer pub route 3.6, start 8.5, phase A 118.4, A done max 133.5, phase B 57.1, tail 5.5, barrier+final 11.8, end 197.4
+ABGATHER T=256 layer o55 stores 5.61, fences+barrier 2.13, release 0.46, first x ready after release 2.88, last first-x-ready from first gather start 12.03, gather total 8.20, pub gather 4.82, pub join 0.04
+ABPUB T=256 layer phase A mean 118.44, p10 112.86, p50 119.06, p90 122.71, max 125.35, stages min -25768.33, mean -24023.12, max -21032.33, cut units per CTA 1.00, rho(time, stages) 0.23
+ABSKEW T=256 layer o56 phase A stages 35.4, warp w-wait us 4.51, x-wait us 7.4, cycles per wait 293, start skew 1.3e+03, wg-mean skew 1.13e+03, within-wg skew 151, w-ready skew 1.26e+03, release skew 1.34e+03, w-wait share from release skew 0.729, w-waits >64 cyc 1, producer delay 532, copy latency 5.53e+03, lead 7.18e+03, x copy latency 4.17e+03, GHz 1.74, trailing-wg w-wait us 4.05, trailing-wg x-wait us 7.22, trailing-wg w-wait from release skew us 0.794, trailing-wg persistence 0.793
+ABSKEW T=256 layer o56 phase B stages 16, warp w-wait us 1.6, x-wait us 1.94, cycles per wait 193, start skew 944, wg-mean skew 887, within-wg skew 58.1, w-ready skew 916, release skew 1.1e+03, w-wait share from release skew 0.726, w-waits >64 cyc 1, producer delay 342, copy latency 5.13e+03, lead 6.27e+03, x copy latency 4.11e+03, GHz 1.74, trailing-wg w-wait us 1.41, trailing-wg x-wait us 1.82, trailing-wg w-wait from release skew us 0.279, trailing-wg persistence 0.869
+ABMOE spin flags 0; total 163 s
+TEST sk8w4s worst rel err vs fp32 3.91e-03, spin flags 0
+TEST sk16w4s worst rel err vs fp32 3.91e-03, spin flags 0
+TEST sk8w3s worst rel err vs fp32 3.91e-03, spin flags 0
+TEST main-d2 worst rel err vs fp32 3.90e-03, spin flags 0
+TEST main-lean-grp-finss64 worst rel err vs fp32 3.90e-03, spin flags 0
+TEST legacy32 worst rel err vs fp32 4.30e-03, spin flags 0
+TEST legacy128 worst rel err vs fp32 4.30e-03, spin flags 0
+TEST legacy256 worst rel err vs fp32 4.30e-03, spin flags 0
+BENCH bs=128 main-lean-grp-finss64:207.6 main-finss64-light:208.5 main-finss64-skew:210.2 legacy128:251.0 main-d2:253.4 legacy256:253.5 sk8w4s-loads:254.8 sk8w3s:259.6 sk8w4s:263.8 legacy32:275.0 sk16w4s:282.6 us (graph replay, cold L2, mean of 2 routings)
+BENCH bs=256 main-lean-grp-finss64:222.6 main-finss64-light:224.1 main-finss64-skew:233.6 main-d2:282.6 legacy256:359.7 legacy128:387.0 sk8w4s-loads:400.5 sk8w3s:427.0 sk8w4s:431.5 sk16w4s:465.9 legacy32:468.7 us (graph replay, cold L2, mean of 2 routings)
+POLICY {1: sk8w3s, 8: sk8w3s, 16: sk8w3s, 32: sk8w3s, 128: main-lean-grp-finss64, 256: main-lean-grp-finss64}
+TEST policy worst rel err vs fp32 3.91e-03, spin flags 0
+PREPARE repack 0.7 s, build 83.0 s, self-test 0.3 s, bench 0.7 s, smem 228736 B, ok True, main True
+USDT:2026-10-30 05:46:10 77:77 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-10-30 05:46:10 77:77 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-10-30 05:46:10 77:77 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-10-30 05:46:10 77:77 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-10-30 05:46:10 77:77 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-10-30 05:46:10 77:77 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-10-30 05:46:10 77:77 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-10-30 05:46:10 77:77 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-10-30 05:46:10 77:77 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-10-30 05:46:10 77:77 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-10-30 05:46:10 77:77 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-10-30 05:46:10 77:77 SyncActivityProfilerHandler.cpp:46] profiler_stop
