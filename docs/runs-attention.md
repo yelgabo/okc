@@ -1961,7 +1961,17 @@ SYNCS.ARRIVE 3 -> 4) because the prologue and last tile are peeled copies.
 5. Segment boundaries: the last tile is drained with wait 0 before the merge reds; the next
    segment's prologue transposes into the buffer the tile before last read, retired as in 2.
 
-Independent read-only review: requested before the first judge run (result recorded below).
+Independent read-only review (fresh agent, before the first judge run, 10-30): **XPIPE=2 sound**:
+no stage, V^T or Q buffer can be overwritten while a wgmma reads it, including segment
+boundaries and ntiles == 1 (ntiles == 0 cannot reach the loop: PROD implies FLAT and
+`seg_bounds` requires lo < hi); release after the retiring wait; mbarrier order and phases as in
+the EREL loop; no fence or barrier dropped; per-CTA o expected bitwise equal to the shipped loop.
+XPIPE=1 (mode 115 only): sound with two caveats. (a) `pa` reuse while P.V reads it relies on
+ptxas keeping the registers apart (a clean C75xx report is evidence for that build only; with
+`ONE_UNR2=0` it would not hold). (b) The rare offset-move branch executes `wgmma.wait_group 0`
+under a warp-uniform but not warpgroup-uniform condition; the `.aligned` wording, as the
+reviewer reads it, makes that undefined behaviour, though `WARPGROUP.DEPBAR` is a per-warp wait
+in SASS. If A2 adopts XPIPE=1, it needs a warpgroup-uniform condition or a recorded deviation.
 
 ### A1 gate (written before the bench that tests it)
 
