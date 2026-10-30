@@ -11,7 +11,8 @@ the last replay; negative controls test the comparator on real outputs (report-o
 manifest line counts failures by class. Every other check is unchanged.
 
 --m1 (IN must be the M1 file, 6377b5a or a descendant): the same gate for M1's replay stress
-(M1 off as the control, M1 on as the candidate), M1 timing that always reports the
+(M1 off as the control, M1 on as the candidate; a shape whose candidate graph makes no M1
+PDL launch, counted in the sk and fused runners, is skipped, user decision 2026-10-30), M1 timing that always reports the
 attention -> o -> boundary and boundary -> front chains and the whole step at T = 8 / 16 / 32
 (sliding and full), the stop rule on the whole step at 8 tokens sliding, and a
 fence.proxy.async.global after griddepcontrol.wait in the thread that issues the x copies
@@ -479,6 +480,26 @@ PDL_SRC = '''def _moe1_pdl_self_test(state):
 M1_SRC = '''# The single-element negative control in the M1 gate is drawn among elements where the stale
 # and fresh references differ by at least this fraction of the row maximum (_gate_negctl).
 M1_NEG_ELEM = 0.125
+# Launches made with the PDL bit, counted by the sk and fused runners. The gate judges only
+# shapes whose candidate graph makes at least one (user decision 2026-10-30): elsewhere M1-on
+# and M1-off capture the same kernels, and the gate would compare two samples of one process
+# (d6c30f88c617438b, 6ce5be0ba29642ea at 1x1 sliding).
+_M1_PDL_LAUNCHES = [0]
+
+
+def _m1_census(state, data, policy):
+    """M1 PDL launches while kernel_fn's graph is captured under `policy` (with its warm-up
+    calls)."""
+    saved = dict(state.get("m1_policy", {}))
+    state["m1_policy"] = policy
+    try:
+        n0 = _M1_PDL_LAUNCHES[0]
+        graph = _graph_build(lambda: kernel_fn(data, state))
+        torch.cuda.synchronize()
+        del graph
+        return _M1_PDL_LAUNCHES[0] - n0
+    finally:
+        state["m1_policy"] = saved
 
 
 def _m1_fresh(state, data, policy, bank, refs, replays):
@@ -521,8 +542,9 @@ def _m1_stress(state):
     ids, and the candidate inside the control's envelope). Then the negative controls on an
     eager M1-on output of pair 0, hidden and stream, judged against that output's control
     envelope: every injection must be rejected and the uninjected output must pass, or the
-    comparator has not shown it can see a stale read at this shape and M1 stays off. Returns
-    per-shape lines with both envelopes; raises on a failure."""
+    comparator has not shown it can see a stale read at this shape and M1 stays off. A shape
+    whose candidate graph makes no M1 PDL launch (_m1_census) is skipped; if the census fails,
+    the shape is judged. Returns per-shape lines with both envelopes; raises on a failure."""
     lines = []
     saved = dict(state.get("m1_policy", {}))
     on = {b: "o+front" for b in M1_BUCKETS}
@@ -531,6 +553,17 @@ def _m1_stress(state):
                                      (1, 8, "full"), (16, 1, "sliding"), (16, 1, "full"),
                                      (32, 1, "sliding"), (32, 1, "full")):
             data = _timeline_case(state, batch, length, layer, 9300 + batch * length)
+            label = f"{batch}x{length}{layer[0]}"
+            try:
+                census = _m1_census(state, data, on)
+            except Exception as exc:
+                census = None
+                census_note = f" census failed ({type(exc).__name__}), judged"
+            if census == 0:
+                lines.append(f"{label} skipped: no M1 launch")
+                continue
+            if census is not None:
+                census_note = f" pdl launches in capture {census}"
             dev = data["stream"].device
             gen = torch.Generator(device=dev).manual_seed(777 + batch * length)
             bank_s = torch.randn((5, batch * length, HIDDEN), generator=gen, device=dev)
@@ -567,9 +600,8 @@ def _m1_stress(state):
                     ok = False
                     classes = sorted(set(classes) | {"sensitivity"})
                     text += f" FAIL negative controls {name} {misses}"
-            label = f"{batch}x{length}{layer[0]}"
             state.setdefault("gate_negctl", {})[f"m1 {label}"] = "; ".join(negs)
-            lines.append(f"{label} {'ok' if ok else 'FAIL'} {text}")
+            lines.append(f"{label} {'ok' if ok else 'FAIL'} {text}{census_note}")
             if not ok:
                 raise RuntimeError(f"[{','.join(classes)}] M1 fresh-input gate: " + lines[-1])
     finally:
@@ -833,6 +865,19 @@ W4_WAIT_NEW = """    int q = P ? blockIdx.x : blockIdx.y;
 """
 
 
+# The M1 gate's census: every PDL launch goes through these two runner lines.
+CENSUS_REPS = [
+    ("        ext.sk_fwd(cid | (SK_PDL_BIT if pdl else 0), stream, x, out, tab, pmax, base4, n, k, "
+     "diag)",
+     "        if pdl:\n            _M1_PDL_LAUNCHES[0] += 1\n"
+     "        ext.sk_fwd(cid | (SK_PDL_BIT if pdl else 0), stream, x, out, tab, pmax, base4, n, k, "
+     "diag)"),
+    ("            ext.skf_fwd(cid | (SK_PDL_BIT if pdl else 0), stream, rstream, x, out, rout, tab,",
+     "            if pdl:\n                _M1_PDL_LAUNCHES[0] += 1\n"
+     "            ext.skf_fwd(cid | (SK_PDL_BIT if pdl else 0), stream, rstream, x, out, rout, tab,"),
+]
+
+
 # The judge keeps the last 16 KB of the log. With M1's six timeline shapes the TL lines fill it
 # and the SUMMARY (gate verdicts, M1 policy, picks) was lost (scored run b68bdcd7a1ba464c), so
 # the timeline prints first and the SUMMARY last.
@@ -889,6 +934,10 @@ def main():
             raise SystemExit("the sk producer loop is not where expected")
         text = text.replace(PRODUCER_OLD, PRODUCER_NEW)
         text = cut(text, "def _m1_stress(state):", "def _m1_enable(state):", M1_SRC)
+        for old, new in CENSUS_REPS:
+            if text.count(old) != 1:
+                raise SystemExit(f"the census runner line is not where expected: {old[:60]!r}")
+            text = text.replace(old, new)
         if "--m1-runtime" in sys.argv:
             for old, new, n in RUNTIME_REPS:
                 if text.count(old) != n:

@@ -227,6 +227,7 @@ Per-shape columns, in TASK.md's order: d1 = decode 1, d16, d32, v1 = verify 1 (8
 | 2026-10-30 | (tool change, offline test) | `tools/dl_gate_patch.py`, `tools/dl_gate_negctl_test.py` at this commit | Negative controls always perturb: the row control injects the row nearest rows // 2 whose two references differ by at least 1/8 of the row maximum; the unrestricted element draw skips elements where the references are equal; a bank entry equal to the fresh one is replaced by one that differs (all equal: reported, no miss). Gate bounds unchanged | | `uv run --with torch python tools/dl_gate_negctl_test.py tools 200` (CPU, width 8192, noise 3e-3, 200 trials per setting), new sparse model with rows zero at probability 0.34 per entry (a token without a local route): old tool row misses 22 / 13 / 21 at 8 / 16 / 32 rows (unfloored element setting) and 29 / 19 / 20 (floored), and every kind 22-28 at one row; new tool row and uninjected never missed in any setting, the unrestricted element 2-8 per 200 from near-equal values as before, floored element 0. Dense model unchanged (row 0, element 2-8 unfloored, 0 floored) |
 | 2026-10-30 | (build, no check) | the release through `tools/dl_gate_patch.py` at this commit, then layer_g51's MoE regions (`_MOE1_SRC`, `_MOE1_VARIANTS`, `_MOE1_MAIN_MIN_M`, repack region: the dl_moe_inline.py output with LAYER_MODES + 51 from 6bbb252), new header line: `muse_decode_layer/cand/layer_g51b.py`, SHA256 acd2385c... | Candidate layer_g51b: release + mode 51 + the current gate, no M1 | | Byte-identical on a second build. Every `_*SRC` region equals layer_g51's except `_W4_SRC`, which equals layer_m1rt51's (W4 GEMM2 wait; SASS checked for layer_m1rt, compiled in b68bdcd7a1ba464c and d6c30f88c617438b). Python differs from layer_g51 by the negative-control fix and the SUMMARY-after-timeline order. Four-arm bench against the release prepared for after the reset (steering note above, section 3) |
 | 2026-10-30 | (build, no check) | `tools/dl_m1_1x1_repro.py` on `muse_decode_layer/cand/layer_m1rt51.py`: scratchpad `m1repro/m1_1x1_repro.py`, SHA256 16665ed7... | M1 1x1 reproduction diagnostic (not a candidate): census of M1 PDL launches and kernel sequences per arm, per-replay stage records (relative error, differing elements, matches with the previous input's reference) for off / on / off2 / on2 / off-kfn / on-kfn / off-same / on-same and eager, at 1x1 sliding (gate seeds) and 1x8 sliding; M1 off in the timed path | | Byte-identical on a second build; compiles; the record and summary code passed a CPU smoke test with injected stale and ULP events. First check after the reset |
+| 2026-10-30 | (tool change, build, offline test) | `tools/dl_gate_patch.py` (census skip), `tools/dl_m1_census_patch.py` on `muse_decode_layer/cand/layer_m1rt51.py`: `muse_decode_layer/cand/layer_m1rt51c.py`, SHA256 525b85b0... | Candidate layer_m1rt51c: layer_m1rt51 plus the user-decided census skip in the M1 gate, nothing else | | Diff against layer_m1rt51: line 2, the launch counter before the two `ext.sk_fwd` / `ext.skf_fwd` calls, `_M1_PDL_LAUNCHES` and `_m1_census`, and the skip in `_m1_stress`; no device code changes, so its SASS is layer_m1rt51's. Byte-identical on a second build; `dl_gate_patch.py --m1 --m1-runtime` on 6377b5a's file also applies the census cleanly. `uv run --with torch python tools/dl_m1_gate_census_test.py tools` (CPU, stub layer with M1 launches at 8 tokens and above, 60 replays per arm): clean run skips 1x1s / 1x1f and judges the other six ok; a candidate-only one-replay difference at 1 token is skipped, at 8 tokens raises `1x8s FAIL`; with the census broken it is judged and raises at 1x1s, and the clean run is judged ok at all eight shapes with "census failed". Four-arm bench against the release prepared for after the reset (scratchpad `m1repro/bench7_m1rt51c.py`) |
 
 ## Bench arm bias (2026-10-30)
 
@@ -315,6 +316,18 @@ limits of 7.8e-3 to 1.4e-2), and the uninjected observation passes in all six ca
 now carry a class tag (reference, replay, nonfinite, workspace, sensitivity) and SUMMARY ends
 with a one-line manifest (MoE variants checked and rejected, route gates passed, failures per
 class).
+
+Addendum, user decision of 2026-10-30 (given in chat to the coordinator, relayed to the layer
+agent; recorded here as such), option 1 of docs/steering/2026-10-30-m1-1x1s-gate-failure.md:
+the M1 gate judges only shapes whose captured candidate graph makes at least one M1 PDL launch.
+The census counts launches with the PDL bit in the sk and fused runners (the only two places
+that set it) while kernel_fn's graph is captured under the candidate policy; a shape with none
+is skipped and logged "skipped: no M1 launch". The bounds at the shapes M1 changes stay
+exactly as approved. Fail-closed: if the census raises, the shape is judged as before and its
+line says "census failed". Reason: at 1x1 the M1-on and M1-off graphs are the same kernels,
+and the gate failed there on one arm in 6ce5be0ba29642ea and the other in d6c30f88c617438b.
+Implemented in `tools/dl_gate_patch.py` (M1_SRC, CENSUS_REPS); offline test
+`tools/dl_m1_gate_census_test.py`.
 
 Not changed by these decisions (every other check keeps its bound): `_one_stress` (attention,
 1e-4 against eager and 5e-2 against SGLang), the norm and route side-stream tests.

@@ -21,11 +21,29 @@ tolerances unchanged. Definition and thresholds: docs/runs-decode-layer.md, "Val
 change: fresh-input replay gate". The board entry below predates it and still carries the
 1e-4 bound; a file built with `tools/dl_gate_patch.py` carries the gate.
 
+Later on 2026-10-30 the user chose option 1 of docs/steering/2026-10-30-m1-1x1s-gate-failure.md
+(relayed by the coordinator): the M1 gate judges only shapes whose captured candidate graph
+makes at least one M1 PDL launch, skips the others as "skipped: no M1 launch", and judges a
+shape as before when the census fails; bounds unchanged. Files built with
+`tools/dl_gate_patch.py --m1` at or after this commit, and layer_m1rt51c, carry it.
+
 Later the same day the user decided clause (b) is order-1 = relative L2 >= 1e-2 per output, with
 routing-id flips judged against the control's envelope, and extended the gate to
 `_route_variant_check`'s replay part. A per-call element check (row-maximum units, within 2x
 the control's envelope) and report-only negative controls were added at the researcher's
 caution; see the addendum in docs/runs-decode-layer.md.
+
+## Candidate (2026-10-30): layer_m1rt51c (not checked, not submitted)
+
+layer_m1rt51 plus the M1 gate's census skip (user decision below); nothing else changes.
+
+| field | value |
+|---|---|
+| file | `muse_decode_layer/cand/layer_m1rt51c.py`, SHA256 `525b85b00bcedf3d8c20e4df08584f346a1c5d1be92a3b10ff9b6f3621602702` |
+| made from | `tools/dl_m1_census_patch.py muse_decode_layer/cand/layer_m1rt51.py OUT "HEADER"` at this commit: the M1 gate region replaced by `dl_gate_patch.M1_SRC`, the PDL launch counter added before the sk and fused runner launches, line 2 replaced. Byte-identical on a second build |
+| against layer_m1rt51 | Python only (no device or host C++ change, so the SASS is layer_m1rt51's); the route row-control fix is not in it (it keeps layer_m1rt51's gate code apart from M1) |
+| M1 gate | as layer_m1rt51 at shapes whose candidate capture makes an M1 PDL launch; shapes with none (1x1 sliding and full with the current picks) are skipped and logged; a failed census judges the shape |
+| evidence | offline test `tools/dl_m1_gate_census_test.py`; no GPU run yet. Four-arm bench against the release prepared for after the reset, third in order |
 
 ## Candidate (2026-10-30): layer_g51b (not checked, not submitted)
 

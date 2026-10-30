@@ -216,6 +216,16 @@ Both files are in the scratchpad; neither is a candidate for submission.
    per-load pooled ratios against the A/A run 724aa0dd6ed140ca, d1 left out. The earlier
    g51 run 2dc566298be1498f read v16 1.0080 and v32 1.0107 and did not resolve.
 
+3. **Four-arm bench of M1 + mode 51 with the census skip**, one check (added after the
+   user chose option 1 below).
+   `/private/tmp/claude-501/-Users-gretchengabo-GitHub/4e9778d1-55dc-4e88-9d29-4844bd573620/scratchpad/m1repro/bench7_m1rt51c.py`
+   (895,762 bytes): the same command with `--cand=muse_decode_layer/cand/layer_m1rt51c.py
+   --seed0=220001 --order-seed=61`; cand sent as 4a140c81.... Read it against both the A/A run
+   and bench6_g51b: the difference between the two is M1's share. Prepare time is an estimate:
+   40b9b3f795f84073 reached ABEND at 166 s with two M1 prepares at 1000 report-only replays;
+   the enforced gate runs 2000 per arm at six judged shapes, so expect roughly 180-200 s
+   against the 255 s deadline (ABSTOP reports any skipped shape).
+
 layer_g51b is the release through the current `tools/dl_gate_patch.py` (row-control fix, W4
 GEMM2 wait, SUMMARY after the timeline) with layer_g51's MoE regions (mode 51, the
 dl_moe_inline.py output from the 6bbb252 standalone). Its device code equals layer_g51's
@@ -230,3 +240,13 @@ bench confirms mode 51 and the user agrees.
   estimate from two runs.
 - The reproduction runs one build. A release-build arm would need the stage recorder ported
   to a file without M1 code; not done.
+
+## Addendum (2026-10-30, later): user decision, option 1
+
+The user chose option 1 (relayed by the coordinator): the M1 gate judges only shapes whose
+captured candidate graph makes at least one M1 PDL launch and logs the others as "skipped: no
+M1 launch"; the bounds stay as approved; a failed census judges the shape. Implemented in
+`tools/dl_gate_patch.py` and tested offline (`tools/dl_m1_gate_census_test.py`); candidate
+`muse_decode_layer/cand/layer_m1rt51c.py` is layer_m1rt51 with only this change. The
+reproduction (item 1 of section 3) still runs first: it checks the census claim at 1x1 on the
+GPU and looks for stale reads at 1x8, where the gate still judges.
