@@ -2936,7 +2936,9 @@ constexpr int COOP_POLL_LIMIT = 1 << 24;
 // ONE_STAMP=1 records per-CTA times and wait cycles into dbg[STAMP_BASE ..] (flat producer
 // builds); ONE_PROBE=1 makes the producer's cached-row copies zero-fill without reading the cache
 // (consumer-bound time, wrong output); ONE_PROBE=2 drops the consumers' per-tile
-// fence.proxy.async after the full barrier (its cost, ordering not guaranteed).
+// fence.proxy.async after the full barrier (its cost, ordering not guaranteed); ONE_PROBE=3
+// (q_len 1 flat) zero-fills as 1 and the consumers release each stage without computing on it
+// (the producer-bound pace).
 #ifndef ONE_STAMP
 #define ONE_STAMP 0
 #endif
@@ -4033,7 +4035,7 @@ attn_one_kernel(const Params p) {
                 }
                 return __ldg(pt + (psize == 1 ? pos : pos / psize));
             };
-            constexpr uint32_t CPB = ONE_PROBE == 1 ? 0u : 16u;
+            constexpr uint32_t CPB = ONE_PROBE == 1 || ONE_PROBE == 3 ? 0u : 16u;
             const bool fast32 = ONE_PFAST && p.off32 != 0;
             long long s_emw = 0;
             const long long s_p0 = STAMPS ? clock64() : 0;
@@ -4675,6 +4677,11 @@ attn_one_kernel(const Params p) {
             int st = PROD ? cst : 0;
             for (int it = 0; it < ntiles; ++it) {
                 acquire(it, st);
+                if constexpr (ONE_PROBE == 3 && PROD) {
+                    release(st);
+                    st = cst;
+                    continue;
+                }
                 const uint8_t* ks = smem + S::KV + st * 2 * TILE_BYTES;
                 const uint8_t* vs = ks + TILE_BYTES;
                 const int pos0 = lo + it * BN;

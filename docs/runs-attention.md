@@ -3028,3 +3028,40 @@ row slower than ctrl by more than max(|ctrlb - ctrl|, 1%). Choice: largest G; a 
 within 0.05% of it is preferred. An arm faster on both rows but below the bar is a measured gain
 below the bar (not promoted). The stamps of `stampf3` against check 1's `stamp` say whether the
 pair gap moved.
+
+### Check c8e99e038d9f4575 (bench `bench_k`, at 2bf3967): ONE_F1 is a measured loss
+
+| date | job | commit | file | result | notes |
+|---|---|---|---|---|---|
+| 2026-10-30 | c8e99e038d9f4575 (check) | 2bf3967 | bench `bench_k` (`flat/gen_k.sh`, 11 arms, `--shapes full`) | 2.504x (CI 2.466-2.541) judged path = board code, 16/16 tests, ABCHECKSUM 11/0 every arm | no arm passes; QK2 slower, PE16 null |
+
+Profiles: `muse_attention_decode/profiles/bench_k.c8e99e038d9f4575.*`. A slower machine than check 1
+(ctrl 100.58 / 179.36 at d16 / d32 full against 97.89 / 173.25). Cold pooled, arm - ctrl (us):
+
+| row | ctrl | ctrlb | ctrl2 | f1 (QK2) | f2 (PE16) | f3 | f3h (+HMRGF) | f3own | pub |
+|---|---|---|---|---|---|---|---|---|---|
+| d16 full | 100.58 | +0.06 | +0.00 | +0.12 | -0.04 | -0.04 | -0.16 | -0.10 | -0.80 |
+| d32 full | 179.36 | +0.13 | +0.16 | +0.32 | +0.03 | +0.10 | +0.03 | +0.13 | -1.31 |
+| G (d16 + d32 full) | | -0.02% | -0.01% | -0.05% | +0.00% | -0.00% | +0.02% | +0.00% | +0.23% |
+
+Against the gate: (1) holds (11/0 every arm); (2) fails for every arm (the best, f3h, is +0.04%
+over the matched null). QK2 is slower on both rows and both inputs (+0.10 / +0.26 at d16, +0.13 /
++0.22 at d32): the four-step Q.K chain is not on mode 49's critical path, and the extra adds and
+six more registers cost a little. PE16 moves nothing (-0.04 / +0.03). Both are measured losses for
+the switches as built (rows in docs/ruled-out.md). `stampf3`: pair gap 2.8 / 5.2 us at d16 / d32
+full (check 1's `stamp`: 3.1 / 6.2 on a faster machine), tails 1.3 us as before. The v16 / v32 full
+rows (code unchanged in every arm) moved by -1.1 to +0.6 us across arms, mostly on input 0: the
+q_len 8 flat rows carry about 1 us of run noise in this bench.
+
+### Check 3 (diagnostic, no gate): the producer-bound pace of both q_len 1 kernels
+
+What is left unnamed: without DRAM traffic mode 49 trails the public q_len 1 kernel by 9-18 us,
+and neither the consumer's Q.K chain nor the producer's page-entry refill is it. Bench `bench_l`
+(`flat/gen_l.sh`, `--null --shapes full --inputs 2 --rounds 200 --seed 20261042`): `nocopy_probe`
+(`ONE_PROBE=1`) and `pubnc_probe` as before; `prodonly_probe` (`ONE_PROBE=3`, new: no cache reads,
+and the consumers release each stage without computing on it; mode 49 only, SASS of every other
+instance unchanged by it apart from the zero-fill it shares with 1) and `pubncc_probe` (the public
+no-copy copy whose q_len 1 consumers do the same: one `mbarrier.arrive` per thread per stage,
+scratchpad `flat/pubncc.py`); `hf` / `hfown` (HMRGF repeat for the ledger) with `ctrl2`, `pub`,
+`pub2`. Reading: producer-only time, ours against the public, says whether the producer stream or
+the consumer stream holds the no-DRAM deficit. No candidate is judged by this check.
