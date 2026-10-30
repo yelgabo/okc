@@ -1,0 +1,67 @@
+SCPREP oursA POLICY {1: sk8w3s, 8: sk8w3s, 16: sk8w3s, 32: sk8w3s, 128: main-lean-grp-finss64, 256: main-lean-grp-finss64}
+SCPREP oursA PREPARE repack 0.8 s, build 152.0 s, self-test 0.7 s, bench 0.8 s, smem 228736 B, ok True, main True
+SCPREP oursB POLICY {1: sk8w3s, 8: sk8w3s, 16: sk8w3s, 32: sk8w3s, 128: main-lean-grp-finss64, 256: main-lean-grp-finss64}
+SCPREP oursB PREPARE repack 0.7 s, build 0.0 s, self-test 0.3 s, bench 0.9 s, smem 228736 B, ok True, main True
+SCBUILD ours 156 s
+SCBUILD pub 322 s
+SCPOLICY oursA 1:sk8w3s 8:sk8w3s 16:sk8w3s 32:sk8w3s 128:main-lean-grp-finss64 256:main-lean-grp-finss64
+SCPOLICY oursB 1:sk8w3s 8:sk8w3s 16:sk8w3s 32:sk8w3s 128:main-lean-grp-finss64 256:main-lean-grp-finss64
+SCCHECK T=1 vs fp32 oursA 3.88e-03 oursB 3.88e-03 pubA 2.34e-03 pubB 2.34e-03
+SCTIME T=1 mean of 10 oursA 34.22 oursB 34.20 pubA 35.56 pubB 35.61
+SCPAIR T=1 oursB-oursA mean -0.02 sd 0.24 6 of 10 lower: -0.3 -0.2 -0.1 +0.1 -0.2 -0.2 -0.2 +0.5 +0.1 +0.2
+SCPAIR T=1 pubB-pubA mean +0.05 sd 0.16 4 of 10 lower: -0.1 +0.2 +0.0 -0.1 +0.2 +0.4 +0.1 -0.2 -0.1 +0.1
+SCPAIR T=1 pubA-oursA mean +1.34 sd 0.34 0 of 10 lower: +1.6 +1.1 +1.0 +1.1 +1.3 +1.5 +1.0 +1.8 +1.9 +1.2
+SCPAIR T=1 pubB-oursB mean +1.41 sd 0.39 0 of 10 lower: +1.8 +1.4 +1.1 +0.9 +1.7 +2.0 +1.2 +1.2 +1.7 +1.0
+SCPAIR T=1 pub-ours mean +1.37 sd 0.32 0 of 10 lower: +1.7 +1.3 +1.1 +1.0 +1.5 +1.8 +1.1 +1.5 +1.8 +1.1
+SCCHECK T=8 vs fp32 oursA 3.77e-03 oursB 3.77e-03 pubA 2.35e-03 pubB 2.35e-03
+SCTIME T=8 mean of 10 oursA 84.00 oursB 84.05 pubA 83.28 pubB 83.16
+SCPAIR T=8 oursB-oursA mean +0.05 sd 0.22 4 of 10 lower: +0.3 -0.2 +0.0 +0.3 +0.4 +0.0 -0.1 -0.1 +0.1 -0.2
+SCPAIR T=8 pubB-pubA mean -0.12 sd 0.49 5 of 10 lower: +0.0 -0.6 +0.2 +0.8 +0.1 -0.2 +0.4 -0.6 -0.7 -0.5
+SCPAIR T=8 pubA-oursA mean -0.72 sd 0.44 9 of 10 lower: -0.8 -0.8 -1.1 -1.5 -0.7 -0.7 -0.9 -0.5 -0.2 +0.0
+SCPAIR T=8 pubB-oursB mean -0.89 sd 0.26 10 of 10 lower: -1.1 -1.2 -1.0 -1.1 -1.0 -0.9 -0.5 -0.9 -0.9 -0.4
+SCPAIR T=8 pub-ours mean -0.80 sd 0.30 10 of 10 lower: -0.9 -1.0 -1.0 -1.3 -0.8 -0.8 -0.7 -0.7 -0.5 -0.2
+SCCHECK T=16 vs fp32 oursA 3.84e-03 oursB 3.84e-03 pubA 2.35e-03 pubB 2.35e-03
+SCTIME T=16 mean of 10 oursA 104.22 oursB 103.94 pubA 104.21 pubB 104.02
+SCPAIR T=16 oursB-oursA mean -0.28 sd 0.43 8 of 10 lower: -0.3 -0.8 +0.2 -0.3 +0.5 -0.4 -0.2 -0.6 -0.9 -0.1
+SCPAIR T=16 pubB-pubA mean -0.20 sd 0.53 6 of 10 lower: -0.9 +0.2 +0.1 -0.2 +0.5 -0.4 -0.5 -0.9 +0.6 -0.4
+SCPAIR T=16 pubA-oursA mean -0.01 sd 0.62 5 of 10 lower: +0.1 -0.4 -0.3 -0.8 +0.5 -0.8 +1.1 +0.3 -0.3 +0.5
+SCPAIR T=16 pubB-oursB mean +0.08 sd 0.66 5 of 10 lower: -0.5 +0.6 -0.3 -0.8 +0.5 -0.8 +0.7 -0.1 +1.2 +0.3
+SCPAIR T=16 pub-ours mean +0.04 sd 0.55 4 of 10 lower: -0.2 +0.1 -0.3 -0.8 +0.5 -0.8 +0.9 +0.1 +0.4 +0.4
+SCCHECK T=32 vs fp32 oursA 3.87e-03 oursB 3.87e-03 pubA 2.36e-03 pubB 2.36e-03
+SCTIME T=32 mean of 10 oursA 136.62 oursB 136.40 pubA 135.04 pubB 134.90
+SCPAIR T=32 oursB-oursA mean -0.22 sd 0.66 5 of 10 lower: -0.5 +0.3 +0.4 +0.7 -1.2 -0.1 -0.9 +0.1 -1.1 +0.2
+SCPAIR T=32 pubB-pubA mean -0.14 sd 0.59 6 of 10 lower: -0.5 +0.1 -0.7 +0.1 -0.2 -0.6 -0.9 +0.8 +0.8 -0.3
+SCPAIR T=32 pubA-oursA mean -1.58 sd 8.00 5 of 10 lower: +6.3 +0.7 +1.5 -20.4 -0.6 -0.2 +0.0 -9.5 -0.5 +7.0
+SCPAIR T=32 pubB-oursB mean -1.49 sd 8.05 3 of 10 lower: +6.3 +0.5 +0.4 -21.1 +0.4 -0.7 +0.1 -8.8 +1.3 +6.6
+SCPAIR T=32 pub-ours mean -1.54 sd 8.02 4 of 10 lower: +6.3 +0.6 +1.0 -20.8 -0.1 -0.4 +0.1 -9.2 +0.4 +6.8
+SCCHECK T=128 vs fp32 oursA 3.86e-03 oursB 3.86e-03 pubA 2.34e-03 pubB 2.34e-03
+SCTIME T=128 mean of 10 oursA 198.86 oursB 198.90 pubA 189.53 pubB 189.04
+SCPAIR T=128 oursB-oursA mean +0.04 sd 0.66 5 of 10 lower: +0.9 -0.1 -0.1 +0.3 +0.5 -0.3 +0.9 +0.1 -1.2 -0.6
+SCPAIR T=128 pubB-pubA mean -0.49 sd 0.56 8 of 10 lower: +0.5 +0.3 -0.9 -0.6 -0.7 -0.8 -1.4 -0.3 -0.5 -0.4
+SCPAIR T=128 pubA-oursA mean -9.33 sd 3.89 10 of 10 lower: -6.2 -10.3 -9.8 -16.9 -4.4 -15.0 -7.8 -8.4 -7.1 -7.4
+SCPAIR T=128 pubB-oursB mean -9.86 sd 3.99 10 of 10 lower: -6.6 -9.9 -10.5 -17.8 -5.6 -15.6 -10.2 -8.9 -6.5 -7.1
+SCPAIR T=128 pub-ours mean -9.60 sd 3.92 10 of 10 lower: -6.4 -10.1 -10.1 -17.3 -5.0 -15.3 -9.0 -8.7 -6.8 -7.3
+SCCHECK T=256 vs fp32 oursA 3.86e-03 oursB 3.86e-03 pubA 2.35e-03 pubB 2.35e-03
+SCTIME T=256 mean of 10 oursA 233.49 oursB 233.54 pubA 218.96 pubB 218.23
+SCPAIR T=256 oursB-oursA mean +0.05 sd 0.66 5 of 10 lower: -0.4 +0.8 -0.6 -0.2 -0.9 +0.1 +1.1 +0.9 -0.2 +0.0
+SCPAIR T=256 pubB-pubA mean -0.73 sd 0.70 9 of 10 lower: -1.1 -0.7 -1.3 -0.3 +0.8 -1.4 -0.5 -0.4 -1.0 -1.5
+SCPAIR T=256 pubA-oursA mean -14.53 sd 3.53 10 of 10 lower: -21.1 -9.3 -14.6 -14.2 -14.1 -14.0 -15.7 -16.2 -17.2 -9.0
+SCPAIR T=256 pubB-oursB mean -15.31 sd 3.49 10 of 10 lower: -21.7 -10.8 -15.2 -14.2 -12.4 -15.5 -17.3 -17.5 -18.0 -10.5
+SCPAIR T=256 pub-ours mean -14.92 sd 3.47 10 of 10 lower: -21.4 -10.0 -14.9 -14.2 -13.3 -14.7 -16.5 -16.8 -17.6 -9.8
+SCMOE spin flags 0; total 323 s
+TEST sk8w4s worst rel err vs fp32 3.90e-03, spin flags 0
+TEST sk16w4s worst rel err vs fp32 3.91e-03, spin flags 0
+TEST sk8w3s worst rel err vs fp32 3.90e-03, spin flags 0
+TEST main-d2 worst rel err vs fp32 3.91e-03, spin flags 0
+TEST main-m2-ar2-ub worst rel err vs fp32 3.91e-03, spin flags 0
+TEST main-dynb-fs worst rel err vs fp32 3.91e-03, spin flags 0
+TEST main-lean worst rel err vs fp32 3.91e-03, spin flags 0
+TEST main-lean-silu-bar worst rel err vs fp32 3.91e-03, spin flags 0
+TEST main-lean-grp-nohoist worst rel err vs fp32 3.91e-03, spin flags 0
+TEST main-lean-grp-finss64 worst rel err vs fp32 3.91e-03, spin flags 0
+TEST legacy32 worst rel err vs fp32 4.28e-03, spin flags 0
+TEST legacy128 worst rel err vs fp32 4.28e-03, spin flags 0
+TEST legacy256 worst rel err vs fp32 4.28e-03, spin flags 0
+POLICY {1: sk8w3s, 8: sk8w3s, 16: sk8w3s, 32: sk8w3s, 128: main-lean-grp-finss64, 256: main-lean-grp-finss64}
+TEST policy worst rel err vs fp32 3.91e-03, spin flags 0
+PREPARE repack 0.7 s, build 0.0 s, self-test 0.3 s, bench 0.8 s, smem 228736 B, ok True, main True
