@@ -3113,3 +3113,35 @@ G(ctrlb) >= 0.20%, and for ns4 / ns6 / ns6h also G(own twin) - G(ctrl2) >= 0.20%
 both inputs at d16 and d32 full; (4) no row slower than ctrl by more than max(|ctrlb - ctrl|, 1%).
 Choice: largest G; a shallower ring within 0.05% is preferred (less shared memory). The quota
 leaves no judged check today: a passing arm is confirmed in check 5 and judged after the reset.
+
+### Check 42c4739cf6b247c4 (bench `bench_m`, at 5064e2b): a deeper mode 49 ring is a measured loss, monotonic in depth
+
+| date | job | commit | file | result | notes |
+|---|---|---|---|---|---|
+| 2026-10-30 | 42c4739cf6b247c4 (check) | 5064e2b | bench `bench_m` (`flat/gen_m.sh`, 12 arms, `--shapes full`) | 2.492x (CI 2.455-2.530) judged path = board code, 16/16 tests, ABCHECKSUM 11/0 every arm | every ns arm slower; 264 CTAs in mode 49 for all (ABPLAN) |
+
+Profiles: `muse_attention_decode/profiles/bench_m.42c4739cf6b247c4.*`. Cold pooled, arm - ctrl (us):
+
+| row | ctrl | ctrlb | ctrl2 | ns4 | ns5 | ns6 | ns6h | ns4own | ns6own | pub |
+|---|---|---|---|---|---|---|---|---|---|---|
+| d16 full | 100.58 | -0.07 | +0.00 | +0.80 | +1.24 | +1.72 | +1.85 | +0.67 | +1.69 | -0.71 |
+| d32 full | 179.49 | -0.07 | -0.13 | +0.29 | +0.99 | +2.24 | +2.27 | +0.19 | +1.95 | -1.63 |
+
+Against the gate: (1) holds; (2) fails for every arm (G from -0.11% to -0.46%); slower on both
+inputs on both rows for every depth. `stampns6` at d32 full against check 1's `stamp`: the producer's
+empty-barrier wait falls from about 95 to 31 us, the consumers' full-barrier wait stays about 54, and
+the loop ends spread wider (148.0 / 167.1 / 176.9 against 152.1 / 161.3 / 168.1; pair gap 4.8, latest
+SM 176.9). A deeper ring lets each SM's favoured CTA run further ahead of its partner on the shared
+DRAM bandwidth, and the partner, which sets the end, finishes later. So the ring is not too shallow;
+if anything the reverse.
+
+### Gate for check 5 (written before the bench that tests it)
+
+Bench `bench_n` (`flat/gen_n.sh`, `--pub <0e9d4c78> --null --shapes full --inputs 2 --rounds 200
+--seed 20261044`): `ctrl`, `ctrl2`, `ctrlb` (`-DONE_NS1=3`), `ns2` (`-DONE_NS1=2`, ctrl's state),
+`ns2h` (`-DONE_NS1=2 -DONE_HMRGF=1`), `ns2own`, `ns2hown` (own state), `stampns2` (`-DONE_NS1=2
+-DONE_STAMP=1`), `pub`, `pub2`. SASS: `ONE_NS1=2` changes only mode 49 (3416 instructions, R115,
+no spills). Same clauses as check 4: (1) ABCHECKSUM; (2) G(X) - G(ctrlb) >= 0.20% and G(own twin) -
+G(ctrl2) >= 0.20%; (3) same sign on both inputs at d16 and d32 full; (4) no row beyond max(|ctrlb -
+ctrl|, 1%). This is the last check of the day: a passing arm still needs a confirmation bench and a
+judged check after the reset before it can be offered.
