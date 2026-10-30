@@ -2175,3 +2175,71 @@ placement fix stays worth pursuing.
 | 2026-10-30 | 7144310358564fa3 (check) | a0a78ce (generator after the --shapes b1 edit, uncommitted then) | bench `bench_d` (capture order, `--shapes b1 --inputs 6`) | 2.469x judged path, 16/16 tests, ABCHECKSUM 11/0; **no bench data** | generator bug: `_AB_CAP` never defined (a scripted edit did not apply), every ABBENCH row NameError. Caught afterwards by `pyflakes` on the generated file, which now runs before every bench check. Profiles `bench_d.7144310358564fa3.*` |
 
 Repeat as `bench_d2` (seed 20261034, generator fixed, pyflakes clean).
+
+### Check b7762d764d474eae (bench `bench_d2`, at 46df563): the d1 full null is workspace placement, not capture order
+
+| date | job | commit | file | result | notes |
+|---|---|---|---|---|---|
+| 2026-10-30 | b7762d764d474eae (check) | 46df563 | bench `bench_d2` (`--null --shapes b1 --inputs 6 --seed 20261034`, ctrl, ctrl2, ws64k) | 2.439x judged path, 16/16 tests, ABCHECKSUM 11/0 | lag follows the state, not the capture order |
+
+Profiles: `muse_attention_decode/profiles/bench_d2.b7762d764d474eae.*`. d1 full cold over six
+held-out inputs: `ctrl` 18.62-18.78, `ctrl2` 18.66-18.85, `ws64k` 17.95-18.14, on every input,
+whichever arm was captured first (`cap0` was `ctrl` on five inputs, `ctrl2` on one). Other
+batch-1 shapes: all three within 0.2 us. ABADDR: `ctrl` acc 0x...108000000, `ctrl2`
+0x...105010000 (slow), `ws64k` 0x...104010000 (fast). With bench c (`ctrl` 0x...478100000 slow,
+`ctrl2` 0x...479260000 fast, `ws64k` 0x...474010000 fast):
+
+- The 0.5-0.7 us at d1 full belongs to where a state's workspace lands: two states with the same
+  address bits below 2 MB (`ctrl2` and `ws64k` here, both ...010000) differ, so it depends on
+  physical placement above the 2 MB page offset, which a process cannot choose by offsetting.
+  Measured in 4 of 4 benches; mechanism (hypothesis): the batch-1 full plan's 252 CTAs send
+  their reds and the cooperative counters to 128 workspace rows (32 KB, nc 8) plus their row
+  sums, and the L2 slice / partition those lines hash to sets the merge latency.
+- Capture order and allocation order are ruled out as the cause; the earlier "ctrl slower"
+  pattern was placement luck in the control's allocation three times.
+- Consequence for every bench: at d1 full a duplicate null is +-0.7 us by placement alone, so a
+  d1 full difference under 0.7 us between arms with different states is not evidence. Fixed-
+  state comparisons (variants sharing `ctrl`'s state, the old default) remove this term.
+- A possible production use, not built: at the first call (outside capture), time the mode 11
+  batch-1 plan on two or three candidate workspace allocations and keep the fastest. Expected
+  value about +0.18% of the score (0.67 us x 0.55%/us when the first allocation is slow, about
+  half the time in these four runs); placement chosen by a timing at prepare is not
+  input-dependent. Lower priority than A3.
+
+## Standalone round 10-30: family ledger and where the score is
+
+Checks used by this round: 5575e7d15d3e49a8, 318ae6fc3c3746ce, a92aa9c43f064c49,
+7144310358564fa3 (no data, generator bug), b7762d764d474eae. Quota after them (`okc problems`):
+14 of 20 attention checks, 10 of 10 runs. No file was submitted; no file is offered for
+submission (nothing beat the board build).
+
+| family | state | evidence | reopening trigger |
+|---|---|---|---|
+| A1 cross-tile overlap, P.V first, mode 51 (`ONE_XPIPE=2`) | measured loss (cold) | 5575e7d15d3e49a8: +3.4% at verify 16 full cold, warm -1.8% | the producer stops setting the cold pace, or a P.V-first order that keeps the stage wait ahead of the P.V issue |
+| A1 cross-tile overlap, Q.K first, mode 51 (`ONE_XPIPE=1`) | compile-infeasible | C7512 at setmaxnreg 112 (the two-CTA ceiling) | consumer live state cut by about 8 registers |
+| A2 one CTA per SM (mode 115), with and without XPIPE=1 | measured loss | 318ae6fc3c3746ce: +25% / +31% at verify 16 / 32 full; overlap worth 0 / -2% inside it | a resource model that pays back the halved residency |
+| Workspace carve from one allocation (`_ONE_WS_CARVE`) | measured loss (no effect) | a92aa9c43f064c49 | none; the cause is physical placement |
+| Prepare-time workspace placement choice at batch-1 full | untested | b7762d764d474eae: 0.5-0.7 us placement spread, 4 of 4 benches | build when A3 is done or as a cheap side bet |
+| A3 reduction ownership on short shapes | untested, budget measured | 318ae6fc3c3746ce phases: merge + finalize 2.4 us (d1 sliding), 4.0 (d1 full), 3.6 (d16 sliding), 3.6 (v1 full) | next round's first target |
+| Standalone wins / layer-validated wins | none this round | | |
+
+Where the standalone score is (A0, bench 5575e7d15d3e49a8, value of matching the public kernel
+per row): d1 full +0.9%, d1 sliding +0.85%, d16 sliding +0.74%, v1 full +0.48%, v1 sliding
++0.35%, v32 sliding +0.31%, d32 sliding +0.24%, v16 full +0.22%, everything else under +0.15%.
+The d1 full row's 1.6 us gap includes up to 0.7 us of placement noise on either side. The short
+and sliding shapes, where the phase exits put 2.4-4 us in the merge and finalize after a
+6.9-10 us launch-plus-prologue (both including the bench's replay cost), carry about 3% of the
+3.5% total; verify 16 / 32 full, A1's target, carry 0.23%.
+
+Next round, in order:
+1. A3, scoped by these numbers: on d1 / d16 sliding and batch-1 full, measure what the public
+   kernel spends after its loop (a stamp copy of its per-request path, as `pubstamp` did for the
+   flat kernel), then compare our ticket + last-CTA finalize against (a) a cluster / DSMEM merge
+   of the splits that share a request (no L2 round trip for the partials), (b) a finalize that
+   overlaps the reds' release with the gate and norm-weight loads it already prefetches. Gate:
+   0.5 us at d1 sliding (+0.8% score) or 1 us at d16 sliding / d1 full, null-checked with fixed
+   state.
+2. Prologue at batch-1 full: 10.1 us to p5 against 6.9 at batch-1 sliding (252 cooperative CTAs
+   against 32); compare the launch with fewer CTAs per request (the public plan uses the same
+   252 x nc 8, so this needs its own measurement first).
+3. The placement side bet above, if quota is spare.
