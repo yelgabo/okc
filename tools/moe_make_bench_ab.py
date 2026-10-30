@@ -749,7 +749,8 @@ def _ab_main():
                     dd = [x - y for x, y in zip(tim[a], tim[bb])]
                     print(f"ABPAIR {tag} {a} minus {bb} " + " ".join(f"{x:+.1f}" for x in dd)
                           + f" (mean {sum(dd) / n:+.1f}, {sum(x < 0 for x in dd)} of {n} lower)")
-            for a, v in chk.items():
+            # chk is filled only by --gate=1 runs; an empty list here crashed ed3b4fdc76b54263.
+            for a, v in ((a, v) for a, v in chk.items() if v):
                 print(f"ABCHECKALL {tag} {a} vs {base} per seed " + " ".join(f"{x:.1e}" for x in v)
                       + f" (max {max(v):.1e})")
             if (_AB_SMALL and not stamp_here) or _AB_GATE:
