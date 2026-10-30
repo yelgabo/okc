@@ -37,7 +37,8 @@ judge's prepare(), on random NVFP4 weights (32 experts):
   ABSTAMP  per size and routing, mean over the seeds of one cold launch each: thread 0's
            globaltimer at the phase boundaries of the stamped twins (light stamps) and of the
            public kernel built with its own OKC_DEBUG stamps (DBG(3) moved to the CTA-wide
-           point before the grid barrier).
+           point before the grid barrier). Since 2026-10-30 the last column, "A end spread", is
+           the last CTA's phase A end minus the mean CTA's.
   ABDIAG   for the phase A counter twins (31, 33, 38, 40, 41, 44 of 28, 32, 36, 39, 37, 43):
            per-CTA time (consumers start to phase A end) as mean / p10 / p50 / p90 / max, owned
            units, MB streamed (36,864 B of weights per stage plus 4,096 B of x per n-tile per
@@ -80,7 +81,8 @@ judge's prepare(), on random NVFP4 weights (32 experts):
 
 The judge's prepare() that follows runs with its output filtered to its summary lines (POLICY,
 PREPARE, BENCH at 128 and 256 tokens, each variant's worst self-test error), so the run log's
-15 KB tail keeps the A/B. Twins: 26 -> 27, 37 -> 42, 47 -> 48 and 51 -> 55 (light stamps), 28 -> 31, 32 -> 33, 36 -> 38,
+15 KB tail keeps the A/B. Twins: 26 -> 27, 37 -> 42, 47 -> 48, 51 -> 55, 62 -> 64 and 63 -> 65
+(light stamps; 55, 64 and 65 also stamp the gather), 28 -> 31, 32 -> 33, 36 -> 38,
 39 -> 40, 37 -> 41 and 43 -> 44 (light stamps and phase A counters, 41 and 44 with phase B
 counters too; name a twin as an arm to time it so its cost shows). An arm "v301" (the staged pair on 37's components) also
 builds modes 45 and 46 and needs 37 built (its fallback above 512 tokens).
@@ -94,10 +96,10 @@ import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
-LIGHT_TWINS = {26: 27, 37: 42, 47: 48, 52: 54, 51: 55, 57: 58, 60: 61}
+LIGHT_TWINS = {26: 27, 37: 42, 47: 48, 52: 54, 51: 55, 57: 58, 60: 61, 62: 64, 63: 65}
 SKEW_TWINS = {47: 49, 51: 56}
 # Light twins whose kernels also stamp the x gather (gather_st in the kernel): ABGATHER.
-GATHER_TWINS = (55, 56, 58, 61)
+GATHER_TWINS = (55, 56, 58, 61, 64, 65)
 PA_TWINS = {28: 31, 32: 33, 36: 38, 39: 40, 37: 41, 43: 44}
 PB_TWINS = (41, 44)
 # Variant arms that need fat modes built: v301 is the staged pair on 37's components (45 then 46).
@@ -570,10 +572,11 @@ def _ab_main():
         return [float((r[:, 1] - r[:, 0]).mean()), float(r[:, 2].mean()),
                 float((r[:, 3] - r[:, 2]).mean()), float(r[:, 3].max()),
                 float((r[:, 4] - r[:, 3]).mean()), float(r[:, 4].max() - r[:, 4].mean()),
-                float((r[:, 6] - r[:, 4]).mean()), float(r[:, 6].max())]
+                float((r[:, 6] - r[:, 4]).mean()), float(r[:, 6].max()),
+                float(r[:, 3].max() - r[:, 3].mean())]
 
     cols = ("route", "start", "phase A", "A done max", "phase B", "tail", "barrier+final",
-            "end")
+            "end", "A end spread")
 
     def spearman(a, b):
         ra = a.argsort().argsort().double()

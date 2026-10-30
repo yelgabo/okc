@@ -2068,6 +2068,134 @@ closes the static fixes (cost-model partitions, static phase B ranges) and the K
 claims, not run-time claims for phase A's last round, which would mirror mode 23's phase B claims
 (-16 to -23 us against static ranges) inside the per-n-tile-count loops.
 
+## Phase A's last round claimed at run time (modes 62 to 65), 2026-10-30
+
+Brief: the standalone scorecard (3d8902381a194d56) puts the public MoE 14.9 us ahead at 256 tokens
+and 9.6 at 128 (10 of 10 seeds each), +1.12% and +0.86% of the standalone score; 61's stamps
+(48b9bf9d77d146ac) put the critical path at the end of phase A: the last CTA leaves phase A 9.5-14.2
+us after the mean CTA (public 5.2-9.1) and our tail is 1.8-4.3 us longer. Mode 23 claimed phase B
+units at run time; phase A's owned units are still dealt whole in snake order, about 8.3 per CTA
+at 128 tokens, so a third of the CTAs run one unit more whatever their speed.
+
+### The change
+
+Mode 62 is 51 with phase A's last round claimed at run time; 63 claims the last two rounds; 64 and
+65 are 62 and 63 with 55's light and gather stamps (timing only). With `units` phase A units (32 per
+job, S.ord order, n-tile counts never rising) and G CTAs, the snake deal keeps the units below
+`s0 = max(0, ceil(units / G) - K) G` (K = 1 or 2), so every CTA owns `s0 / G` rounds. The other
+`na = units - s0` go out through the same counter as phase B, ctr[10]: claim value m < na is phase
+A unit s0 + m, m >= na is phase B unit m - na. So every claimed phase A unit is taken before any
+phase B unit, and each CTA runs its claims in claim order. A claimed unit stays whole on one CTA
+(16 stages, no phase A fixup) and runs the dealt units' code: the weights producer streams its 16
+stages from w13f, the x producer waits on `xready[j]` with `ld.acquire.gpu`, runs
+`fence.proxy.async.global` and issues the copies from xa, the consumers run the phase A segment and
+its epilogue (proxy fence, warpgroup bar.sync, red.release on done_as). Job order, every fence,
+barrier, release and acquire stay as in 51; the only new code is where a unit index comes from.
+
+Consumer order. The consumers keep one loop per n-tile count. In the loop for count T a CTA runs
+its dealt units of count T, then reads S.bq for claimed phase A units of count T, but only if its
+last dealt unit has a count of T or more (no dealt unit of a smaller count is left). Dealt units
+come before claimed ones in S.ord, so the producers' order (dealt units in round order, then claims
+in claim order) and the consumers' order agree. A CPU model of the two orders
+(`.build/claim_model.py`, not committed: 3,000 random job sets, G of 1 to 132, K of 1 and 2,
+random claim interleavings) found both orders equal on every CTA, every unit run once, and no read of
+the queue before the CTA's last dealt unit.
+
+### Ordering chain for the claimed phase A units
+
+Sections from the PTX ISA memory consistency model as cited in "Proxy ordering of the x tiles":
+8.6 Proxies, 8.8 Release and Acquire Patterns, 8.9.1.1 Asynchronous Operations, 8.9.2 Observation
+Order, 8.9.4 Memory synchronization, 8.9.5 Causality Order, 8.10 axioms, 9.7.10.28.2 Async Proxy,
+9.7.15.4 membar / fence, 9.7.15.14 griddepcontrol.
+
+1. Uniqueness. Every claim is `atomicAdd(ctr + 10, 1)` (a relaxed gpu-scope `atom.add`). The
+   Atomicity axiom (8.10) makes the read-modify-writes on one location totally ordered with no
+   two reading the same value, so each value below `na + units_B` goes to exactly one CTA: each
+   claimed phase A unit runs on one CTA, and done_as[j * 16 + st] still receives exactly 8
+   releases (2 units x 4 warpgroups), as for dealt units. The claim carries no data; nothing is
+   published through the counter.
+2. Hand-off inside the CTA. The weights producer writes the claim into S.bq[i] with
+   `st.release.cta.shared`; the x producer and the consumers read it with `ld.acquire.cta.shared`
+   in `bq_get` (mode 23's queue, unchanged). Release and acquire at cta scope between threads of
+   one CTA synchronize (8.8, 8.9.4), so a reader sees the claim value and the S.ord, S.job_*
+   tables the routing wrote before the post-routing `__syncthreads`.
+3. Inputs of a claimed unit. Weights: w13f, written by prepare before the launch, ordered by stream
+   order or `griddepcontrol.wait` (9.7.15.14). x: the x tile of job j, published by the gather's
+   writers through `fence.proxy.async.global`, the gather barrier and `red.release.gpu` on
+   `xready[j]`; the x producer spins with `ld.acquire.gpu` until `xready[j] == job_n[j]`, runs
+   `fence.proxy.async.global`, then issues the bulk copies. That is steps 1-8 of "Proxy ordering of
+   the x tiles", the same code path the dealt units run; a claimed unit adds no step.
+4. Outputs. The consumers' phase A epilogue for a claimed unit is the dealt units' epilogue:
+   generic stores to xb, `fence.proxy.async.global` per thread, the warpgroup's bar.sync, one
+   `red.release.gpu` on done_as (mode 37's chain, "Ordering of the phase A publish without the
+   per-thread fence_gpu"). Phase B's acquire on done_as and its proxy fence are unchanged.
+5. Ring reuse. The claimed unit's stages use the same ring slots and the same wfull / wempty /
+   xfull / xempty parity walk (the producers advance `rg` per stage as for dealt units), with each
+   consumer thread's `fence.proxy.async.shared::cta` before its arrive on the empty barrier
+   ("Ordering of the ring slot releases"). Producer and consumer orders agree (above), so each
+   slot's phases line up as before.
+6. Counter reset. CTA 0 zeroes ctr[10] after the grid barrier. Every claim of every CTA precedes
+   that CTA's arrival at the grid barrier in program order (the weights producer's claim loop ends
+   before the CTA's `__syncthreads` ahead of the barrier), and the barrier's `__threadfence` and
+   gpu-scope atomics and acquire spin order them before the reset (as for mode 23). The next launch
+   reads ctr[10] after `griddepcontrol.wait` or in stream order.
+7. Progress. A claimed phase A unit waits only on xready, which every CTA's gather completes
+   before its own phase A, independent of any claim. A phase B unit waits on done_as of phase A
+   units of its job; all claimed phase A units have smaller claim values than every phase B unit,
+   and a CTA issues and consumes its claims in increasing order, so a phase A unit is never queued
+   behind a phase B unit of the same CTA. The phase A queue read waits only for the CTA's own
+   weights producer, which claims after issuing its last dealt stage; the consumers have taken all
+   dealt units by then (consumer order above), so that producer's slot waits complete. No new
+   cross-CTA wait exists.
+
+No fence, barrier, release or acquire is removed or moved.
+
+### Local compile gate (nvcc 12.8.1, sm_90a, `tools/moe_compile_fused.sh`)
+
+MAIN_MODES 0, 16, 26, 28, 37, 47, 51, 55, 62-65 against the parent commit (8c7ed1f) with 0-51 and
+55: every production kernel (modes 0, 16, 26, 28, 37, 47, 51 and the four skinny kernels) and 55
+have the same instruction text; no C7510-C7515; 62-65 at 96 registers, 8 B stack frame, 4-8 B
+spills, all in setup before the first stage loop (no local load or store inside a stage loop);
+HGMMA 192 in 12 stage loops, as 51. 62 has 21,464 instructions against 51's 17,280: the claimed
+path's queue reads and a second copy of the phase A epilogue per n-tile count (MEMBAR 107 against
+43, BAR 40 against 16, RED 134 against 81); the source adds no fence, so the likely cause is the
+compiler duplicating the code after the merge of the dealt and claimed paths (not checked). `tools/moe_dryrun.py` and
+`tools/moe_host_check.sh` (bench file with 62-65) pass.
+
+Prediction (hypothesis, before the run): 62 shortens the last CTA's phase A end by moving the
+partial round to the CTAs that finish their dealt rounds first; at 128 tokens (8.3 units per CTA)
+that is the spread among the earliest finishers, a few us; 63 can also take a unit away from the
+slowest CTAs. Expected -1 to -4 us at 128 and 256 tokens if the end spread is the critical path,
+nothing at 32 (two or three rounds and the skinny path in the standalone policy).
+
+### Diagnostic run and its rule (set before the check)
+
+One check of `tools/moe_make_bench_ab.py --base=51 --sizes=32,128,256 --routings=layer,std
+--seeds=53,54,55,56,57,58 o62=62 o63=63` (light twins 55, 64, 65 and the public stamps; ABSTAMP's
+new last column "A end spread" is the last CTA's phase A end minus the mean CTA's). Seeds 53-58 are
+new. Rule: the arm with the lower sum of its mean deltas against 51 at 128 and 256 tokens over both
+routings goes to the gate, if its mean is negative at 256 tokens on both routings; otherwise both
+are parked in docs/ruled-out.md and no gate is run. Mechanism check (reported, not a condition):
+the chosen arm's twin should show a smaller A end spread than 55 at 128 and 256 tokens.
+
+### Gate rule (set before the gate check)
+
+One check of `tools/moe_make_bench_ab.py --base=51 --sizes=32,128,256
+--routings=layer,std,skewed --seeds=59,60,61,62,63,64 --gate=1 oX=X` with X the arm the diagnostic
+chose; seeds 59-64 are held out on all three routings. Keep X only if all of these hold:
+
+1. At 256 tokens, X minus 51 has a mean of -2.0 us or lower on layer and on standalone routing,
+   with at least 5 of 6 seeds lower on each, and a mean of 0 or lower on skewed routing.
+2. At 32 and at 128 tokens, a mean of +0.5 us or lower on every routing.
+3. X's output is within 1e-4 relative L2 of 51's on every seed, size and routing.
+4. Prepare's FP32 self-test passes for X (no FAIL line, spin flags 0).
+5. The compile gate above, on the commit that is checked.
+
+Shipping also needs the independent read-only review of the chain above to find it sound. If any
+condition fails, X goes to docs/ruled-out.md scoped to this design and is not shipped. If all
+pass, X joins MAIN_MODES and MAIN_CANDIDATES and the shippable file goes to the coordinator, who
+runs its check. Budget for the line: two checks (diagnostic and gate).
+
 ## Staged pair on current components, 2026-10-29
 
 The staged two-launch MoE (mode 19, phase A alone on owned units, then mode 21, phase B and the
