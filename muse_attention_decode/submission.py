@@ -3035,8 +3035,11 @@ constexpr int COOP_POLL_LIMIT = 1 << 24;
 // issued per 32-key half, the second half's exponentials under the first half's wgmma.
 // 16: the offset test on each thread's own partial max, the quad reduction only when some
 // row moves (same moves, same bits). Ordering argument: docs/runs-attention.md, 10-30 round 3.
+// Benches a7a4c23e98ca484a / 3c6e1a7f1cc644b6 / 409996a7214f411a, cold: verify 1 full -0.64 /
+// -0.70 / -0.64 us, verify 32 sliding -0.96 / -0.87 / -0.96; every bit adds. 0 restores the
+// judged loop of 5c11a11.
 #ifndef ONE_PRQ
-#define ONE_PRQ 0
+#define ONE_PRQ 31
 #endif
 constexpr int STAMP_BASE = 1024;
 constexpr int STAMP_W = 16;
@@ -6038,7 +6041,9 @@ _ONE_WS_CARVE = 0
 # and four benches timed independently allocated workspaces 0.5-0.7 us apart at decode 1 full on
 # identical code, with the offset inside an allocation, capture order and allocation order ruled
 # out (b7762d764d474eae): physical placement, which a process can only choose by trying.
-_ONE_WS_PICK = 0
+# Benches 3c6e1a7f1cc644b6 / 409996a7214f411a: both pick arms landed at the fastest null state at
+# decode 1 full (0.3-0.4 us ahead of the slow ones) on both inputs, no row worse.
+_ONE_WS_PICK = 3
 _ONE_WS_PICK_ROUNDS = 9
 
 

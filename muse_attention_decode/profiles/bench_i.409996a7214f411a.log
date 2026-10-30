@@ -1,0 +1,96 @@
+79 k2=6.78 ctrl2=6.77 t=145s
+ABCOLD b= 1 sliding L=8 pooled ctrl=10.75 ctrlb=10.72 p31=10.72 p31own=10.66 n3=10.62 k1=10.72 k2=10.78 ctrl2=10.78
+ABWARM b= 1 sliding L=8 pooled ctrl=6.83 ctrlb=6.82 p31=6.78 p31own=6.83 n3=6.83 k1=6.79 k2=6.78 ctrl2=6.83
+ABPLAN b= 1 full    L=8 ctrl=[splits=252,nc=8,mode=11] ctrlb=[splits=252,nc=8,mode=11] p31=[splits=252,nc=8,mode=11] p31own=[splits=252,nc=8,mode=11] n3=[splits=252,nc=8,mode=11] k1=[splits=252,nc=8,mode=11] k2=[splits=252,nc=8,mode=11] ctrl2=[splits=252,nc=8,mode=11]
+ABCOLD b= 1 full    L=8 in=0 ctrl=19.65 ctrlb=19.71 p31=19.14 p31own=19.14 n3=19.52 k1=19.71 k2=19.62 ctrl2=19.74 cap0=n3 t=145s
+ABWARM b= 1 full    L=8 in=0 ctrl=15.20 ctrlb=15.20 p31=14.49 p31own=14.58 n3=15.21 k1=15.20 k2=15.25 ctrl2=15.21 t=145s
+ABCOLD b= 1 full    L=8 in=1 ctrl=19.62 ctrlb=19.65 p31=18.88 p31own=18.94 n3=19.49 k1=19.52 k2=19.55 ctrl2=19.55 cap0=ctrl t=145s
+ABWARM b= 1 full    L=8 in=1 ctrl=15.16 ctrlb=15.16 p31=14.49 p31own=14.59 n3=15.21 k1=15.21 k2=15.23 ctrl2=15.18 t=145s
+ABCOLD b= 1 full    L=8 pooled ctrl=19.65 ctrlb=19.68 p31=19.01 p31own=19.07 n3=19.52 k1=19.58 k2=19.58 ctrl2=19.68
+ABWARM b= 1 full    L=8 pooled ctrl=15.18 ctrlb=15.17 p31=14.49 p31own=14.59 n3=15.21 k1=15.21 k2=15.24 ctrl2=15.20
+ABPLAN b=16 sliding L=8 ctrl=[splits=8,nc=1,mode=3] ctrlb=[splits=8,nc=1,mode=3] p31=[splits=8,nc=1,mode=3] p31own=[splits=8,nc=1,mode=3] n3=[splits=8,nc=1,mode=3] k1=[splits=8,nc=1,mode=3] k2=[splits=8,nc=1,mode=3] ctrl2=[splits=8,nc=1,mode=3]
+ABCOLD b=16 sliding L=8 in=0 ctrl=15.87 ctrlb=15.97 p31=15.46 p31own=15.42 n3=15.78 k1=15.87 k2=15.87 ctrl2=15.90 cap0=k2 t=145s
+ABWARM b=16 sliding L=8 in=0 ctrl=11.53 ctrlb=11.52 p31=11.20 p31own=11.17 n3=11.61 k1=11.48 k2=11.60 ctrl2=11.60 t=145s
+ABCOLD b=16 sliding L=8 in=1 ctrl=15.87 ctrlb=15.87 p31=15.36 p31own=15.30 n3=15.74 k1=15.78 k2=15.87 ctrl2=15.94 cap0=ctrl2 t=145s
+ABWARM b=16 sliding L=8 in=1 ctrl=11.58 ctrlb=11.60 p31=11.14 p31own=11.22 n3=11.61 k1=11.64 k2=11.66 ctrl2=11.56 t=145s
+ABCOLD b=16 sliding L=8 pooled ctrl=15.87 ctrlb=15.90 p31=15.39 p31own=15.36 n3=15.74 k1=15.81 k2=15.87 ctrl2=15.90
+ABWARM b=16 sliding L=8 pooled ctrl=11.57 ctrlb=11.56 p31=11.19 p31own=11.19 n3=11.61 k1=11.61 k2=11.63 ctrl2=11.59
+ABPLAN b=16 full    L=8 ctrl=[splits=264,nc=1,mode=51] ctrlb=[splits=264,nc=1,mode=51] p31=[splits=264,nc=1,mode=51] p31own=[splits=264,nc=1,mode=51] n3=[splits=264,nc=1,mode=51] k1=[splits=264,nc=1,mode=51] k2=[splits=264,nc=1,mode=51] ctrl2=[splits=264,nc=1,mode=51]
+ABCOLD b=16 full    L=8 in=0 ctrl=111.52 ctrlb=114.02 p31=112.06 p31own=112.19 n3=110.59 k1=111.10 k2=111.65 ctrl2=113.92 cap0=ctrl2 t=146s
+ABWARM b=16 full    L=8 in=0 ctrl=105.96 ctrlb=106.15 p31=106.48 p31own=106.15 n3=105.88 k1=105.65 k2=106.17 ctrl2=105.98 t=146s
+ABCOLD b=16 full    L=8 in=1 ctrl=112.22 ctrlb=113.09 p31=112.96 p31own=112.96 n3=112.03 k1=112.06 k2=112.00 ctrl2=113.06 cap0=k2 t=146s
+ABWARM b=16 full    L=8 in=1 ctrl=107.84 ctrlb=107.95 p31=107.80 p31own=107.97 n3=108.03 k1=107.98 k2=107.95 ctrl2=108.12 t=147s
+ABCOLD b=16 full    L=8 pooled ctrl=111.97 ctrlb=113.54 p31=112.42 p31own=112.51 n3=111.62 k1=111.68 k2=111.87 ctrl2=113.60
+ABWARM b=16 full    L=8 pooled ctrl=107.45 ctrlb=107.47 p31=107.43 p31own=107.46 n3=107.41 k1=107.37 k2=107.45 ctrl2=107.31
+ABPLAN b=32 sliding L=8 ctrl=[splits=4,nc=1,mode=3] ctrlb=[splits=4,nc=1,mode=3] p31=[splits=4,nc=1,mode=3] p31own=[splits=4,nc=1,mode=3] n3=[splits=4,nc=1,mode=3] k1=[splits=4,nc=1,mode=3] k2=[splits=4,nc=1,mode=3] ctrl2=[splits=4,nc=1,mode=3]
+ABCOLD b=32 sliding L=8 in=0 ctrl=21.12 ctrlb=21.15 p31=20.19 p31own=20.10 n3=21.18 k1=21.12 k2=21.15 ctrl2=21.15 cap0=ctrl t=147s
+ABWARM b=32 sliding L=8 in=0 ctrl=15.79 ctrlb=15.82 p31=15.17 p31own=15.16 n3=15.84 k1=15.96 k2=15.89 ctrl2=15.81 t=147s
+ABCOLD b=32 sliding L=8 in=1 ctrl=20.80 ctrlb=20.83 p31=19.81 p31own=19.84 n3=20.70 k1=20.67 k2=20.83 ctrl2=20.80 cap0=k1 t=147s
+ABWARM b=32 sliding L=8 in=1 ctrl=15.83 ctrlb=15.81 p31=15.28 p31own=15.08 n3=15.93 k1=15.76 k2=15.81 ctrl2=15.82 t=147s
+ABCOLD b=32 sliding L=8 pooled ctrl=20.93 ctrlb=21.02 p31=19.97 p31own=19.94 n3=20.86 k1=20.83 k2=20.96 ctrl2=20.93
+ABWARM b=32 sliding L=8 pooled ctrl=15.82 ctrlb=15.81 p31=15.22 p31own=15.12 n3=15.89 k1=15.90 k2=15.86 ctrl2=15.82
+ABPLAN b=32 full    L=8 ctrl=[splits=264,nc=1,mode=51] ctrlb=[splits=264,nc=1,mode=51] p31=[splits=264,nc=1,mode=51] p31own=[splits=264,nc=1,mode=51] n3=[splits=264,nc=1,mode=51] k1=[splits=264,nc=1,mode=51] k2=[splits=264,nc=1,mode=51] ctrl2=[splits=264,nc=1,mode=51]
+ABCOLD b=32 full    L=8 in=0 ctrl=190.88 ctrlb=191.58 p31=191.74 p31own=192.00 n3=190.82 k1=190.62 k2=190.69 ctrl2=191.68 cap0=n3 t=147s
+ABWARM b=32 full    L=8 in=0 ctrl=201.33 ctrlb=201.72 p31=201.49 p31own=201.25 n3=201.82 k1=201.28 k2=201.60 ctrl2=201.39 t=148s
+ABCOLD b=32 full    L=8 in=1 ctrl=192.64 ctrlb=194.11 p31=194.75 p31own=194.27 n3=192.48 k1=192.42 k2=192.80 ctrl2=194.18 cap0=ctrlb t=148s
+ABWARM b=32 full    L=8 in=1 ctrl=202.05 ctrlb=202.32 p31=202.36 p31own=202.41 n3=202.43 k1=201.91 k2=202.75 ctrl2=202.25 t=149s
+ABCOLD b=32 full    L=8 pooled ctrl=191.71 ctrlb=192.58 p31=193.09 p31own=192.93 n3=191.58 k1=191.49 k2=191.49 ctrl2=192.96
+ABWARM b=32 full    L=8 pooled ctrl=201.68 ctrlb=202.16 p31=202.00 p31own=201.77 n3=202.14 k1=201.74 k2=201.83 ctrl2=201.64
+ABADDR ctrl:acc=0x144af2000000,l=0x144baba59000,cnt=0x144baba99000 p31own:acc=0x144af3000000,l=0x144bababa000,cnt=0x144babafa000 n3:acc=0x144aee000000,l=0x144babb1a000,cnt=0x144babb5a000 k1:acc=0x144aeb000000,l=0x144babe40000,cnt=0x144babe80000,pick=2:36.32/36.10/35.84 k2:acc=0x144aea000000,l=0x144babe00000,cnt=0x144babb7a000,pick=0:36.29/36.61/36.64 ctrl2:acc=0x144aef000000,l=0x144babb9a000,cnt=0x144babbda000
+ABSUM cold b= 1 sliding L=1 ctrl=9.06 ctrlb=9.09 p31=9.12 p31own=9.12 n3=9.09 k1=9.06 k2=9.12 ctrl2=9.09 null:ctrl2-ctrl=+0.03 d:ctrlb=+0.03 d:p31=+0.06 d:p31own=+0.06 d:n3=+0.03 d:k1=+0.00 d:k2=+0.06
+ABSUM warm b= 1 sliding L=1 ctrl=4.81 ctrlb=4.81 p31=4.81 p31own=4.75 n3=4.71 k1=4.69 k2=4.66 ctrl2=4.65 null:ctrl2-ctrl=-0.16 d:ctrlb=-0.00 d:p31=-0.00 d:p31own=-0.06 d:n3=-0.10 d:k1=-0.12 d:k2=-0.15
+ABSUM cold b= 1 full    L=1 ctrl=17.22 ctrlb=17.28 p31=17.31 p31own=16.96 n3=16.93 k1=16.90 k2=16.90 ctrl2=17.31 null:ctrl2-ctrl=+0.10 d:ctrlb=+0.06 d:p31=+0.10 d:p31own=-0.26 d:n3=-0.29 d:k1=-0.32 d:k2=-0.32
+ABSUM warm b= 1 full    L=1 ctrl=11.54 ctrlb=11.48 p31=11.53 p31own=11.12 n3=11.12 k1=11.10 k2=11.05 ctrl2=11.47 null:ctrl2-ctrl=-0.07 d:ctrlb=-0.05 d:p31=-0.00 d:p31own=-0.41 d:n3=-0.42 d:k1=-0.44 d:k2=-0.49
+ABSUM cold b=16 sliding L=1 ctrl=12.90 ctrlb=13.02 p31=12.96 p31own=12.80 n3=12.93 k1=13.02 k2=12.83 ctrl2=12.93 null:ctrl2-ctrl=+0.03 d:ctrlb=+0.13 d:p31=+0.06 d:p31own=-0.10 d:n3=+0.03 d:k1=+0.13 d:k2=-0.06
+ABSUM warm b=16 sliding L=1 ctrl=7.52 ctrlb=7.55 p31=7.53 p31own=7.46 n3=7.74 k1=7.65 k2=7.64 ctrl2=7.66 null:ctrl2-ctrl=+0.13 d:ctrlb=+0.03 d:p31=+0.01 d:p31own=-0.06 d:n3=+0.21 d:k1=+0.13 d:k2=+0.11
+ABSUM cold b=16 full    L=1 ctrl=100.38 ctrlb=100.38 p31=100.42 p31own=100.61 n3=100.42 k1=100.45 k2=100.19 ctrl2=100.61 null:ctrl2-ctrl=+0.22 d:ctrlb=+0.00 d:p31=+0.03 d:p31own=+0.22 d:n3=+0.03 d:k1=+0.06 d:k2=-0.19
+ABSUM warm b=16 full    L=1 ctrl=88.30 ctrlb=88.27 p31=88.28 p31own=88.17 n3=88.24 k1=88.20 k2=88.20 ctrl2=88.29 null:ctrl2-ctrl=-0.01 d:ctrlb=-0.03 d:p31=-0.02 d:p31own=-0.13 d:n3=-0.06 d:k1=-0.09 d:k2=-0.10
+ABSUM cold b=32 sliding L=1 ctrl=15.55 ctrlb=15.49 p31=15.62 p31own=15.58 n3=15.52 k1=15.52 k2=15.52 ctrl2=15.55 null:ctrl2-ctrl=+0.00 d:ctrlb=-0.06 d:p31=+0.06 d:p31own=+0.03 d:n3=-0.03 d:k1=-0.03 d:k2=-0.03
+ABSUM warm b=32 sliding L=1 ctrl=9.68 ctrlb=9.66 p31=9.67 p31own=9.59 n3=9.59 k1=9.56 k2=9.54 ctrl2=9.66 null:ctrl2-ctrl=-0.03 d:ctrlb=-0.02 d:p31=-0.01 d:p31own=-0.10 d:n3=-0.10 d:k1=-0.13 d:k2=-0.15
+ABSUM cold b=32 full    L=1 ctrl=179.20 ctrlb=179.14 p31=179.10 p31own=179.17 n3=179.10 k1=179.14 k2=178.94 ctrl2=179.14 null:ctrl2-ctrl=-0.06 d:ctrlb=-0.06 d:p31=-0.10 d:p31own=-0.03 d:n3=-0.10 d:k1=-0.06 d:k2=-0.26
+ABSUM warm b=32 full    L=1 ctrl=169.43 ctrlb=169.44 p31=169.59 p31own=169.70 n3=169.37 k1=169.52 k2=169.73 ctrl2=169.58 null:ctrl2-ctrl=+0.15 d:ctrlb=+0.02 d:p31=+0.16 d:p31own=+0.27 d:n3=-0.06 d:k1=+0.09 d:k2=+0.30
+ABSUM cold b= 1 sliding L=8 ctrl=10.75 ctrlb=10.72 p31=10.72 p31own=10.66 n3=10.62 k1=10.72 k2=10.78 ctrl2=10.78 null:ctrl2-ctrl=+0.03 d:ctrlb=-0.03 d:p31=-0.03 d:p31own=-0.10 d:n3=-0.13 d:k1=-0.03 d:k2=+0.03
+ABSUM warm b= 1 sliding L=8 ctrl=6.83 ctrlb=6.82 p31=6.78 p31own=6.83 n3=6.83 k1=6.79 k2=6.78 ctrl2=6.83 null:ctrl2-ctrl=+0.00 d:ctrlb=-0.00 d:p31=-0.04 d:p31own=+0.01 d:n3=+0.00 d:k1=-0.04 d:k2=-0.05
+ABSUM cold b= 1 full    L=8 ctrl=19.65 ctrlb=19.68 p31=19.01 p31own=19.07 n3=19.52 k1=19.58 k2=19.58 ctrl2=19.68 null:ctrl2-ctrl=+0.03 d:ctrlb=+0.03 d:p31=-0.64 d:p31own=-0.58 d:n3=-0.13 d:k1=-0.06 d:k2=-0.06
+ABSUM warm b= 1 full    L=8 ctrl=15.18 ctrlb=15.17 p31=14.49 p31own=14.59 n3=15.21 k1=15.21 k2=15.24 ctrl2=15.20 null:ctrl2-ctrl=+0.01 d:ctrlb=-0.01 d:p31=-0.69 d:p31own=-0.60 d:n3=+0.03 d:k1=+0.02 d:k2=+0.05
+ABSUM cold b=16 sliding L=8 ctrl=15.87 ctrlb=15.90 p31=15.39 p31own=15.36 n3=15.74 k1=15.81 k2=15.87 ctrl2=15.90 null:ctrl2-ctrl=+0.03 d:ctrlb=+0.03 d:p31=-0.48 d:p31own=-0.51 d:n3=-0.13 d:k1=-0.06 d:k2=+0.00
+ABSUM warm b=16 sliding L=8 ctrl=11.57 ctrlb=11.56 p31=11.19 p31own=11.19 n3=11.61 k1=11.61 k2=11.63 ctrl2=11.59 null:ctrl2-ctrl=+0.02 d:ctrlb=-0.01 d:p31=-0.38 d:p31own=-0.38 d:n3=+0.05 d:k1=+0.04 d:k2=+0.06
+ABSUM cold b=16 full    L=8 ctrl=111.97 ctrlb=113.54 p31=112.42 p31own=112.51 n3=111.62 k1=111.68 k2=111.87 ctrl2=113.60 null:ctrl2-ctrl=+1.63 d:ctrlb=+1.57 d:p31=+0.45 d:p31own=+0.54 d:n3=-0.35 d:k1=-0.29 d:k2=-0.10
+ABSUM warm b=16 full    L=8 ctrl=107.45 ctrlb=107.47 p31=107.43 p31own=107.46 n3=107.41 k1=107.37 k2=107.45 ctrl2=107.31 null:ctrl2-ctrl=-0.14 d:ctrlb=+0.02 d:p31=-0.02 d:p31own=+0.01 d:n3=-0.04 d:k1=-0.08 d:k2=-0.00
+ABSUM cold b=32 sliding L=8 ctrl=20.93 ctrlb=21.02 p31=19.97 p31own=19.94 n3=20.86 k1=20.83 k2=20.96 ctrl2=20.93 null:ctrl2-ctrl=+0.00 d:ctrlb=+0.10 d:p31=-0.96 d:p31own=-0.99 d:n3=-0.06 d:k1=-0.10 d:k2=+0.03
+ABSUM warm b=32 sliding L=8 ctrl=15.82 ctrlb=15.81 p31=15.22 p31own=15.12 n3=15.89 k1=15.90 k2=15.86 ctrl2=15.82 null:ctrl2-ctrl=+0.00 d:ctrlb=-0.00 d:p31=-0.60 d:p31own=-0.70 d:n3=+0.07 d:k1=+0.08 d:k2=+0.04
+ABSUM cold b=32 full    L=8 ctrl=191.71 ctrlb=192.58 p31=193.09 p31own=192.93 n3=191.58 k1=191.49 k2=191.49 ctrl2=192.96 null:ctrl2-ctrl=+1.25 d:ctrlb=+0.86 d:p31=+1.38 d:p31own=+1.22 d:n3=-0.13 d:k1=-0.22 d:k2=-0.22
+ABSUM warm b=32 full    L=8 ctrl=201.68 ctrlb=202.16 p31=202.00 p31own=201.77 n3=202.14 k1=201.74 k2=201.83 ctrl2=201.64 null:ctrl2-ctrl=-0.04 d:ctrlb=+0.48 d:p31=+0.32 d:p31own=+0.09 d:n3=+0.45 d:k1=+0.05 d:k2=+0.14
+ABIN b= 1 sliding L=1 in=0 ctrlb=-0.03 p31=-0.03 p31own=+0.00 n3=+0.00 k1=-0.03 k2=+0.00 ctrl2=-0.03
+ABIN b= 1 sliding L=1 in=1 ctrlb=+0.22 p31=+0.22 p31own=+0.22 n3=+0.19 k1=+0.06 k2=+0.13 ctrl2=+0.00
+ABIN b= 1 full    L=1 in=0 ctrlb=+0.03 p31=+0.16 p31own=-0.19 n3=-0.22 k1=-0.29 k2=-0.26 ctrl2=+0.16
+ABIN b= 1 full    L=1 in=1 ctrlb=+0.03 p31=+0.00 p31own=-0.32 n3=-0.38 k1=-0.35 k2=-0.42 ctrl2=+0.00
+ABIN b=16 sliding L=1 in=0 ctrlb=+0.13 p31=+0.16 p31own=-0.06 n3=+0.06 k1=+0.19 k2=-0.10 ctrl2=+0.06
+ABIN b=16 sliding L=1 in=1 ctrlb=+0.10 p31=+0.00 p31own=-0.16 n3=+0.00 k1=+0.10 k2=+0.00 ctrl2=-0.03
+ABIN b=16 full    L=1 in=0 ctrlb=+0.00 p31=+0.16 p31own=+0.19 n3=+0.06 k1=+0.19 k2=-0.22 ctrl2=+0.06
+ABIN b=16 full    L=1 in=1 ctrlb=+0.13 p31=+0.03 p31own=+0.35 n3=+0.06 k1=+0.00 k2=-0.06 ctrl2=+0.32
+ABIN b=32 sliding L=1 in=0 ctrlb=-0.03 p31=+0.13 p31own=+0.00 n3=+0.00 k1=+0.00 k2=-0.06 ctrl2=+0.06
+ABIN b=32 sliding L=1 in=1 ctrlb=-0.03 p31=+0.03 p31own=+0.06 n3=+0.03 k1=+0.03 k2=+0.00 ctrl2=-0.06
+ABIN b=32 full    L=1 in=0 ctrlb=+0.32 p31=+0.38 p31own=+0.42 n3=+0.29 k1=+0.32 k2=+0.19 ctrl2=+0.29
+ABIN b=32 full    L=1 in=1 ctrlb=-0.06 p31=-0.16 p31own=-0.22 n3=-0.38 k1=-0.19 k2=-0.42 ctrl2=-0.16
+ABIN b= 1 sliding L=8 in=0 ctrlb=+0.00 p31=-0.06 p31own=-0.13 n3=-0.16 k1=+0.03 k2=+0.03 ctrl2=+0.00
+ABIN b= 1 sliding L=8 in=1 ctrlb=-0.03 p31=+0.06 p31own=-0.03 n3=-0.10 k1=-0.10 k2=+0.06 ctrl2=+0.10
+ABIN b= 1 full    L=8 in=0 ctrlb=+0.06 p31=-0.51 p31own=-0.51 n3=-0.13 k1=+0.06 k2=-0.03 ctrl2=+0.10
+ABIN b= 1 full    L=8 in=1 ctrlb=+0.03 p31=-0.74 p31own=-0.67 n3=-0.13 k1=-0.10 k2=-0.06 ctrl2=-0.06
+ABIN b=16 sliding L=8 in=0 ctrlb=+0.10 p31=-0.42 p31own=-0.45 n3=-0.10 k1=+0.00 k2=+0.00 ctrl2=+0.03
+ABIN b=16 sliding L=8 in=1 ctrlb=+0.00 p31=-0.51 p31own=-0.58 n3=-0.13 k1=-0.10 k2=+0.00 ctrl2=+0.06
+ABIN b=16 full    L=8 in=0 ctrlb=+2.50 p31=+0.54 p31own=+0.67 n3=-0.93 k1=-0.42 k2=+0.13 ctrl2=+2.40
+ABIN b=16 full    L=8 in=1 ctrlb=+0.86 p31=+0.74 p31own=+0.74 n3=-0.19 k1=-0.16 k2=-0.22 ctrl2=+0.83
+ABIN b=32 sliding L=8 in=0 ctrlb=+0.03 p31=-0.93 p31own=-1.02 n3=+0.06 k1=+0.00 k2=+0.03 ctrl2=+0.03
+ABIN b=32 sliding L=8 in=1 ctrlb=+0.03 p31=-0.99 p31own=-0.96 n3=-0.10 k1=-0.13 k2=+0.03 ctrl2=+0.00
+ABIN b=32 full    L=8 in=0 ctrlb=+0.70 p31=+0.86 p31own=+1.12 n3=-0.06 k1=-0.26 k2=-0.19 ctrl2=+0.80
+ABIN b=32 full    L=8 in=1 ctrlb=+1.47 p31=+2.11 p31own=+1.63 n3=-0.16 k1=-0.22 k2=+0.16 ctrl2=+1.54
+ABSCORE ctrl vs ctrl 1.0000 d1=1.0000 d16=1.0000 d32=1.0000 v1=1.0000 v16=1.0000 v32=1.0000
+ABSCORE ctrlb vs ctrl 0.9968 d1=0.9964 d16=0.9973 d32=1.0011 v1=1.0012 v16=0.9896 v32=0.9955
+ABSCORE p31 vs ctrl 1.0029 d1=0.9936 d16=0.9984 d32=0.9996 v1=1.0147 v16=1.0059 v32=1.0055
+ABSCORE p31own vs ctrl 1.0052 d1=1.0017 d16=1.0004 d32=0.9997 v1=1.0171 v16=1.0059 v32=1.0065
+ABSCORE n3 vs ctrl 1.0034 d1=1.0046 d16=0.9991 d32=1.0008 v1=1.0099 v16=1.0046 v32=1.0012
+ABSCORE k1 vs ctrl 1.0022 d1=1.0075 d16=0.9969 d32=1.0007 v1=1.0031 v16=1.0030 v32=1.0020
+ABSCORE k2 vs ctrl 1.0013 d1=1.0032 d16=1.0027 d32=1.0016 v1=0.9994 v16=1.0006 v32=1.0005
+ABSCORE ctrl2 vs ctrl 0.9959 d1=0.9957 d16=0.9977 d32=1.0003 v1=0.9976 v16=0.9892 v32=0.9951
+ABCHECKSUM ctrl=19/0/0 ctrlb=19/0/0 p31=19/0/0 p31own=19/0/0 n3=19/0/0 k1=19/0/0 k2=19/0/0 ctrl2=19/0/0 (pass/fail/probe)

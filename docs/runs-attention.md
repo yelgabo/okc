@@ -2730,3 +2730,44 @@ Placement is a production candidate if: (a) the own-state arms on q_len 1 code i
 (ctrl2, n3, p31own) spread by more than 0.3 us at d1 full; (b) both pick arms sit within 0.15 us
 of the fastest of those at d1 full on both inputs; (c) no row of k1 / k2 slower than the slower of
 ctrl2 and n3 on that row by more than max(0.1 us, 1%). If (a) fails the result is inconclusive.
+
+### Check 409996a7214f411a (bench `bench_i`, at 8a6c8bb): PRQ=31 confirmed, placement pick passes
+
+| date | job | commit | file | result | notes |
+|---|---|---|---|---|---|
+| 2026-10-30 | 409996a7214f411a (check) | 8a6c8bb | bench `bench_i` (`prq/gen_i.sh`, 8 arms, no public arms) | 2.496x (CI 2.459-2.543) judged path = board code, 16/16 tests, ABCHECKSUM 19/0 every arm | p31 G +0.72% (same-state null -0.00%); picks at the fastest state |
+
+Profiles: `muse_attention_decode/profiles/bench_i.409996a7214f411a.*`. Cold pooled, arm - ctrl (us):
+
+| row | ctrl | ctrlb | p31 | p31own | ctrl2 | n3 | k1 | k2 |
+|---|---|---|---|---|---|---|---|---|
+| d1 full | 17.22 | +0.06 | +0.09 | -0.26 | +0.09 | -0.29 | -0.32 | -0.32 |
+| v1 sliding | 10.75 | -0.03 | -0.03 | -0.09 | +0.03 | -0.13 | -0.03 | +0.03 |
+| v1 full | 19.65 | +0.03 | **-0.64** | **-0.58** | +0.03 | -0.13 | -0.07 | -0.07 |
+| v16 sliding | 15.87 | +0.03 | **-0.48** | **-0.51** | +0.03 | -0.13 | -0.06 | +0.00 |
+| v32 sliding | 20.93 | +0.09 | **-0.96** | **-0.99** | +0.00 | -0.07 | -0.10 | +0.03 |
+| G (four q_len 8 rows) | | -0.00% | +0.72% | +0.80% | -0.07% | +0.31% | +0.12% | -0.01% |
+
+PRQ=31 against the check-3 gate: (1) 19/0 every arm; (2) G(p31) - G(ctrlb) = 0.73% >= 0.30% and
+0.72% > 0.00% + 0.10%; (3) G(p31own) - max(G(ctrl2), G(n3)) = 0.80 - 0.31 = 0.49% >= 0.30%; (4) same
+sign on both inputs: v1 full -0.51 / -0.74, v16 sliding -0.42 / -0.51, v32 sliding -0.93 / -0.99;
+(5) largest p31 regression +1.38 us at v32 full (flat code unchanged; ctrlb +0.87, ctrl2 +1.25),
+under its 1% bound of 1.92. **Confirmed.**
+
+Placement against the check-3 gate: (a) own-state arms on q_len 1 code identical to ctrl at d1
+full: ctrl2 +0.09, n3 -0.29, p31own -0.26: spread 0.38 us > 0.3; (b) per input the picks are at
+or below the fastest of those (in 0: k1 -0.29, k2 -0.26 against n3 -0.22; in 1: k1 -0.35, k2 -0.42
+against n3 -0.38); (c) largest excess over the slower of ctrl2 and n3: k1 at d16 sliding, +0.12
+against +0.03, 0.09 us, under max(0.1 us, 1%). **Passes.** Prepare-time medians (d1 + v1 full, cold,
+us): k1 36.32 / 36.10 / **35.84** (candidate 2), k2 **36.29** / 36.61 / 36.64 (candidate 0); the same
+choices as in 3c6e1a7f1cc644b6. In two benches the judged path's first allocation (ctrl) and ctrl2
+were the slow ones at d1 full, 0.3-0.4 us behind; the pick is worth about that times 0.60 %/us
+(+0.18-0.23%) whenever the first allocation lands slow, and nothing when it does not.
+
+Three-bench summary for PRQ=31 (cold, us, p31 - ctrl): v1 full -0.64 / -0.70 / -0.64, v16 sliding
+-0.45 / -0.35 / -0.48, v32 sliding -0.96 / -0.87 / -0.96; G +0.86% / +0.55% / +0.72%.
+
+Production: `ONE_PRQ` defaults to 31 in attn_one.cu and submission.py; `_ONE_WS_PICK = 3` in
+submission.py. SASS (CUDA 12.8.1, all 13 instances): the default build equals the benched p31
+build; `-DONE_PRQ=0` equals 5c11a11; no spills. pyflakes clean; `tools/attn_compile_check.sh`
+no errors. Next: a judged check of submission.py and a repeat (checks 4 and 5 of this round).
