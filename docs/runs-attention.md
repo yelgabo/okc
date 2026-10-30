@@ -2819,3 +2819,7 @@ placement the pick now takes), d32 full -1.50 (0.13%), d16 full -0.73 (0.11%), v
 (0.08%), v32 sliding -0.41 (0.08%), d1 sliding -0.06, v16 sliding +0.13. Next targets, by value:
 batch-1 full at q_len 1 (d1 full, after the pick) and the flat full-context rows (v16 / d16 / d32
 full, the producer kernels 51 and 49), which no round-2 or round-3 change touched.
+
+### Scored: 1896e72c11ae4b0f 2.521x (2026-10-30)
+
+Submit of submission.py at a70192d (ONE_PRQ=31, _ONE_WS_PICK=3, ONE_HMRG on), submitted by the coordinator under the standing authorization. Passed. Above the bench-file entry e9085c86d89449c2 (2.504x), so a clean file of our own code becomes the attention board entry. Receipt: muse_attention_decode/profiles/scored.1896e72c11ae4b0f.json.
