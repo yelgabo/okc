@@ -1,6 +1,6 @@
 # Architecture performance tracker
 
-Last review: 2026-10-30 03:37 PDT. Evidence snapshot: `16573a6`.
+Last review: 2026-10-30 04:43 PDT. Evidence snapshot: `b5b8a34`.
 First review reconciles progress since `aab7d75`, the snapshot in the
 [architecture-family guide](architecture-families-2026-10-29.md).
 This is a review of recorded experiments, not a new benchmark run.
@@ -15,10 +15,128 @@ named control, not changes in aggregate score. Families overlap; their gains can
 | A. Hybrid persistent/legacy MoE | Component wins; mode 51 layer gain inconclusive | Four-arm mode 51 comparison reports 1.0057 pooled, below its noise gate. Old three-arm deltas remain observations, not established isolated gains. | Board stays mode 47. Stabilize prepare-time picks and resolve arm bias before promoting 51. |
 | B. Staged grouped MoE | Retested loss | Modes 45 + 46 on mode 37 components lose 30.4/24.4 us at 128/256 versus 37, six seeds each. | Parked until phase B alone drops below about 50 us at 128 or the fused phase A tail disappears. |
 | C. Owner-completes tiles | Retained in the persistent descendants | Mode 20's owned phase A saves about 2-3 us at 128 and 4 us at 256 over mode 16. Later modes combine ownership with other changes. | Later gains cannot be credited to ownership alone. |
-| D. Dependency-aware scheduling | Dynamic claiming retained; split-tail variants lose | Modes 52/53 split the last claimed phase B units through fixup and lose at 32/128/256. | Full ready-only scheduling remains untested; do not generalize the split-tail loss to the family. |
-| E. Attention producer-consumer pipeline | Earlier wins retained; new cross-tile variants lose cold | XPIPE=2 adds 3.90/0.80 us at 128/256; mode 115 with XPIPE=1 adds 28.10/52.61 us versus mode 51. | DCARRY/PK16/VHOIST stays integrated. New pipeline variants fail their cold gates; HMRG merge is a separate standalone win awaiting layer tests. |
+| D. Dependency-aware scheduling | Dynamic claiming retained; new phase-A claim layouts lose | Phase-A modes 62/63 and K=0 controls 66/69 lose; lean claimed mode 68 is not timed. Earlier split-tail 52/53 losses stand. | Full ready-only queue remains untested. Reopen phase-A claims only after the no-work control ties mode 51 within 1 us at 128/256. |
+| E. Attention producer-consumer pipeline | PRQ per-request win; XPIPE cold losses retained | PRQ31 saves 0.48/0.96 us at 128/256 sliding in matched-null confirmation. Earlier DCARRY/PK16/VHOIST remains integrated. | layer_hp combines PRQ + HMRG + placement and awaits GPU testing; full-context XPIPE losses stand. |
 
-## Latest review: HMRG attention merge wins; projection ordering correction
+## Latest review: PRQ wins within E; claiming and compression implementations lose
+
+Family E now has a per-request pipeline win: `ONE_PRQ=31` combines transpose overlap,
+Q.K-first issue, fast copies, split P.V issue and an offset-test change on q_len=8 modes
+1/3/11/15. This is a coherent five-change design, not an isolated gain for each ingredient.
+It leaves flat full-context paths unchanged, so it does not invalidate the XPIPE losses.
+MoE runtime phase-A claiming variants lose; their no-work controls also lose. The evidence
+rejects these code layouts, not runtime claiming itself. B's staged comparison remains unchanged.
+[Attention round 3](runs-attention.md), [MoE evidence](runs-moe.md).
+
+### E: PRQ standalone win and untested layer bundle
+
+Three cold benches, each two held-out inputs and 120 randomized rounds, compare PRQ against
+HMRG-on attention with PRQ off. All pass 16/16 judge tests and ABCHECKSUM 19/0 for every arm.
+Routing distribution is not applicable. Deltas below are logged pooled arm-minus-control
+values. No paired confidence intervals are reported.
+
+| Job / source | Verify-1 full (8 tokens) | Verify-16 sliding (128 tokens) | Verify-32 sliding (256 tokens) | Gate |
+|---|---:|---:|---:|---|
+| `a7a4c23e98ca484a` / `1baad66` | -0.64 us | -0.45 us | -0.96 us | Modeled score contribution G +0.86%, duplicate null -0.11% |
+| `3c6e1a7f1cc644b6` / `300b915` | -0.70 us | -0.35 us | -0.87 us | Missed written null clause: G +0.55% vs required +0.59%; retained as failed confirmation |
+| `409996a7214f411a` / `8a6c8bb` | -0.64 us (-3.26%) | -0.48 us (-3.02%) | -0.96 us (-4.59%) | Confirmed with matched-state null; G +0.72%, null about 0%; independent-state G +0.80% |
+
+Confirmation controls are 19.65/15.87/20.93 us. Both inputs improve on all three targeted rows.
+G is a sensitivity-weighted estimate over four changed rows, not a measured whole-layer score.
+The second bench's gate was not relaxed: the third bench adds a same-state null and an
+independent-state comparison. Placement picking also failed its original row clause in the
+second bench, then passed the third bench's own-state controls: about 0.3-0.4 us at decode-1
+full when the initial allocation is slow. That is a separate change, with no guaranteed saving
+when the first allocation is already fast.
+[First log](../muse_attention_decode/profiles/bench_g.a7a4c23e98ca484a.log),
+[failed confirmation](../muse_attention_decode/profiles/bench_h.3c6e1a7f1cc644b6.log),
+[matched-null confirmation](../muse_attention_decode/profiles/bench_i.409996a7214f411a.log).
+
+Final-file checks `640ee49b691b45ac` and `8b00100bf85d4ef5` at `57f57dd` (comment-only
+repeat) pass 16/16 at 2.588 (2.549-2.627) and 2.545 (2.506-2.583). The file combines
+PRQ31, HMRG and workspace picking. Cross-run variation exceeds PRQ's modeled gain; unchanged
+full-context rows move too. Scored `1896e72c11ae4b0f` at `a70192d` passes 16/16 at
+2.521 (2.484-2.559), replacing the 2.504 bench-file attention entry with a clean file.
+This is standalone attention, not the 2.014x layer board.
+[Check](../muse_attention_decode/profiles/sub_prq.640ee49b691b45ac.json),
+[repeat](../muse_attention_decode/profiles/sub_prq_r.8b00100bf85d4ef5.json),
+[scored receipt](../muse_attention_decode/profiles/scored.1896e72c11ae4b0f.json).
+
+`layer_hp.py`, SHA256 prefix `0efd553c`, ports PRQ31 + HMRG + workspace picking onto the
+release, retaining MoE47 and no M1. Its source/compile checks are recorded, but it has no GPU
+check or measured layer gain. A four-arm bench is prepared. It is an E-plus-merge/placement
+bundle; a future gain cannot be assigned entirely to E. Existing layer_g51b/layer_m1rt51c
+candidates still await tests. [Release manifest](release-manifest.md), [layer log](runs-decode-layer.md).
+
+### A/D-related MoE claiming: code-layout losses
+
+Five new MoE receipts pass 5/5. Detailed experiments use six seeds per routing distribution
+(layer-like and standalone), normal routed workloads at 32/128/256; 128/256 outputs are
+bitwise and spin flags zero. All deltas below are versus mode 51. No paired confidence intervals.
+
+| Job / source / seeds | Implementation | Layer-like 128 / 256 | Standalone 128 / 256 | Interpretation |
+|---|---|---|---|---|
+| `48b9bf9d77d146ac` / `003be4b` / 47-52 | 60, remove per-thread gather threadfence, retain proxy fence and release chain | -0.4 / 0.0 us (-0.25% / 0.00%) | -0.5 / -0.4 us | Gate fails at 256; parked |
+| `b7e43ee6a517487a` / `d5bafad` / 53-58 | 62, claim last phase-A round | +7.9 / +9.2 us (+4.86% / +4.35%) | +7.5 / +8.6 us | 0/6 faster everywhere |
+| Same job | 63, claim last two rounds | +7.0 / +8.5 us | +6.9 / +7.9 us | 0/6 faster everywhere |
+| `ed4591a2477041c2` / `a727b12` / 65-70 | 66, same merged-loop build with nothing claimed | +7.0 / +8.8 us (+4.38% / +4.15%) | +7.9 / +8.7 us | Code-shape penalty; 62 vs 66 ranges -0.3 to +1.6 us |
+| `b2c92a71600d488b` / `30c5a58` / 71-76 | 69, lean separated-loop build with nothing claimed | +4.5 / +5.2 us (+2.65% / +2.36%) | +5.0 / +3.9 us | Null fails; claimed mode 68 not timed |
+
+Mode 60 also gives -0.3/-0.3 us at 32 layer/standalone. Mode 62 loses +3.9/+6.1 us at 32;
+mode 69 loses +3.3/+3.7 us. The mode 69 build has a second compiled phase-A copy and longer
+stage loops, with phase-B slowdown too. Narrower phase-A end spread does not establish a
+faster kernel. Reopen only with no second compiled copy and a K=0 null within 1 us of 51
+at both 128/256 before timing claims. These are partial phase-A scheduling attempts inside A,
+related to D, not a tested full dependency-ready queue.
+[Gather log](../muse_moe_w4a16/profiles/bench_gnf60.48b9bf9d77d146ac.log),
+[claims](../muse_moe_w4a16/profiles/bench_ca62.b7e43ee6a517487a.log),
+[merged-loop null](../muse_moe_w4a16/profiles/bench_ca66.ed4591a2477041c2.log),
+[lean null](../muse_moe_w4a16/profiles/bench_cl69.b2c92a71600d488b.log).
+
+The fifth job, `3d8902381a194d56`, is a standalone scorecard diagnostic, source logged as
+"this branch (tool only)" without an exact revision. Ten standalone-routing seeds 301-310,
+20 cold replays and duplicate preparations compare current sk8w3s/mode 51 against the public
+kernel. Public-minus-ours gaps at 128/256 are -9.60/-14.92 us (-4.83%/-6.39% of ours'
+198.88/233.515 us means), public faster 10/10. Across-seed standard deviations 3.92/3.47 us
+are not confidence intervals. At 1 token ours wins 1.37 us; at 8 public wins 0.80; at 16 the
+0.04 us difference is a tie; at 32 public-minus-ours -1.54 us has SD 8.02 and only 4/10 faster,
+so it is inconclusive. The scorecard does not revive B without its phase-B or phase-A-tail trigger. [Scorecard and controls](runs-moe.md).
+
+### Separate projection context: P3 tested and parked
+
+`4922f366a0c142ca`, source `f8855b7`, passes 9/9. Pooler 128 compressed 12-bit weights
+are reconstructed into shared-memory WGMMA tiles. Two independently compiled/packed copies
+use 100 seeded cold rounds, synthetic randn weights x0.01, 5107 escapes (up to 6/block);
+escape-heavy correctness covers up to 39/block, bitwise raw-twin checks and FP64 checks.
+CW6d3 loses +12.90/+12.67 us to its raw twin in A/B, 0/100 faster; controls 35.55/35.63 us
+make this +36.29%/+35.56%. Duplicate nulls are 0.03-0.27 us. Other buffering choices also lose.
+Against Lt 20.45 us, the paired CW6d3-A loss is 27.95 us (+136.67%); the raw twin itself loses
+15.01 us (+73.40%). The memory-only compression saving is only 1.01 us, below the modeled 5 us.
+No paired confidence interval is reported. No 256-token test occurred.
+
+The tuner rejects CW. Its 1.496 (1.474-1.519) judged score measures the incumbent path,
+not successful compression. Code is parked under experiments; production returns to ce25f67.
+A decoder-release ordering question remains open for this unshipped experiment. Reopen only
+a raw geometry within about 1 us of Lt and a measured decode cost below the traffic saving.
+This is projection context, not a new B or E result.
+[Run and model](runs.md), [bench log](../muse_bf16_proj/profiles/proj_p3_bench.4922f366a0c142ca.log),
+[receipt](../muse_bf16_proj/profiles/proj_p3_bench.4922f366a0c142ca.json), [stop rule](ruled-out.md).
+
+### Receipt reconciliation and next decision
+
+Previously missing scored receipts now verify: attention `57b0bed35f694a23` passes 16/16,
+2.479 (2.442-2.516); projection `1d277e7fe9c44712` and `d59bc7af342a465d` pass 9/9,
+1.482 (1.460-1.504) and 1.488 (1.466-1.510). Their cross-run interpretation is unchanged.
+[Attention receipt](../muse_attention_decode/profiles/scored.57b0bed35f694a23.json),
+[projection P1](../muse_bf16_proj/profiles/scored.1d277e7fe9c44712.json),
+[conforming projection](../muse_bf16_proj/profiles/scored.d59bc7af342a465d.json).
+
+The priority is now the prepared layer_hp controlled comparison. Preserve the working layer
+release and the A-versus-B gate. After repeated claiming-layout losses, the next claim design
+must remove the duplicate compiled work rather than repeat a larger kernel. P3 needs a new
+raw geometry before another compression test. Do not sum PRQ, HMRG, placement or projection gains.
+
+## Historical review, 03:37: HMRG attention merge wins; projection ordering correction
 
 A-E outcomes and the A-versus-B decision at 128/256 remain unchanged. `ONE_HMRG` is an
 attention key-half merge before global reductions, not the family E cross-tile pipeline or
@@ -806,6 +924,7 @@ are hypotheses. This correction motivates a test, not a new winning-family badge
 | E: XPIPE=2, P.V-first cross-tile pipeline | Attention mode 51, XPIPE=0 | +3.90 us, +3.44% | +0.80 us, +0.42% | `5575e7d15d3e49a8`, kernel `86f2bec`, two held-out inputs, 120 rounds, cold pooled median subtraction; controls 113.41/192.45. 16/16 and ABCHECKSUM 19/0. Warm improves; cold gate fails. [Attention log](runs-attention.md). |
 | E: mode 115, one CTA/SM | Attention mode 51 | +27.52 us, +24.96% | +57.67 us, +30.80% | `318ae6fc3c3746ce`, source `682aeaa`, two inputs, cold pooled medians; controls 110.27/187.26, nulls +0.06/+0.42. 16/16 and real-arm ABCHECKSUM 19/0. [Attention log](runs-attention.md). |
 | E: mode 115 + XPIPE=1 | Attention mode 51 | +28.10 us, +25.48% | +52.61 us, +28.09% | Same job, controls and correctness; overlap helps within mode 115 at 256 but cannot recover residency loss. [Attention log](runs-attention.md). |
+| E: PRQ31 per-request tile pipeline | HMRG-on attention, PRQ off | Sliding -0.48 us, -3.02%; full unchanged code | Sliding -0.96 us, -4.59%; full unchanged code | `409996a7214f411a`, `8a6c8bb`, two inputs, 120 rounds, controls 15.87/20.93 us, same-state null +0.03/+0.09 us; 16/16 and 19/0 arm checks. Combined five-bit design. [Attention log](runs-attention.md). |
 
 Percentages use the logged paired delta divided by the logged control mean, except the explicit pooled-median subtraction rows.  Paired summaries use logged paired deltas rather than subtraction of separately summarized
 arm timings. Layer deltas are medians of per-round differences; these can differ by several
@@ -857,11 +976,18 @@ prepare-time policies so layer comparisons can resolve small effects. The tuner-
 has CPU tests but no GPU measurement. Keep mode 51's component gains separate from its unresolved layer
 result. The tested mode-49 history lead supports merge-order rounding; ordering reviews are
 complete within their scope. B remains parked, and the new gather variants do not revive it.
-D's full ready-only queue is still untested. E's new cross-tile variants fail their cold gates;
-HMRG now wins on short shapes as a separate merge change and awaits layer tests. Projection
+D's full ready-only queue is still untested; phase-A claim layouts and their K=0 controls lose. E's XPIPE variants fail their cold gates, while PRQ31 wins on per-request paths.
+The combined layer_hp (PRQ + HMRG + placement) is built but has no GPU result. Projection
 uses conforming push paths; current cross-run results retain no gain at 32/256 tokens. [Rejection register](ruled-out.md).
 
 ## Review history and checkpoint
+
+- 2026-10-30 04:43 PDT: inspected `16573a6..b5b8a34`. Checkpointed five PRQ checks,
+  scored attention `1896e72c11ae4b0f`, five MoE scorecard/claim checks and P3 check `4922f366a0c142ca`
+  listed above. Three previously missing scored receipts now verified. layer_hp is built only.
+  E gains PRQ evidence; A/D code-layout losses and P3 loss preserved. Whole-layer release and
+  B decision unchanged. Existing 18 untracked profiles are already logged. No benchmark,
+  submission or push by this review.
 
 - 2026-10-30 03:37 PDT: inspected `8838272..16573a6`, including projection changes that
   landed before the previous documentation commit. Checkpointed attention `ce92d32e26024bd2`,

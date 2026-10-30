@@ -1,11 +1,11 @@
 {
-  "reviewed_at": "2026-10-30T03:37:00-07:00",
-  "snapshot": "16573a6",
+  "reviewed_at": "2026-10-30T04:43:00-07:00",
+  "snapshot": "b5b8a34",
   "layer": {
     "score": "2.014\u00d7",
     "interval": "1.984\u20132.045",
     "job": "3fbb3ad027e84c6b",
-    "note": "Layer remains 2.014\u00d7. Separate attention merge HMRG wins standalone (paired ratio 1.0214; null 1.0037), awaiting layer tests. E pipeline losses stand. Projection now uses conforming push paths; 32/256-token gains do not survive in current cross-run data."
+    "note": "Layer remains 2.014\u00d7. New layer_hp combines PRQ31, HMRG and workspace picking; built, no GPU result. Standalone attention now scores 2.521\u00d7. MoE claiming layouts lose, including no-work controls; projection P3 loses and is parked."
   },
   "families": [
     {
@@ -57,23 +57,25 @@
       "label": "Partial design wins",
       "metric": "\u221216 to \u221223 \u00b5s",
       "unit": "dynamic phase B claiming versus mode 20",
-      "summary": "Dynamic claiming stays. Tail-split modes 52/53 lose at 32/128/256 despite passing output checks.",
+      "summary": "Dynamic claiming stays. New phase-A claiming layouts lose even with no claims; mode 68 was not timed. Earlier tail-split losses stand.",
       "layer": "Dynamic claiming retained in layer descendants",
       "pending": [],
-      "limit": "The full ready-only queue is untested. Tail splitting through fixup failed for these implementations; this does not reject the whole family.",
+      "limit": "Full ready-only queue untested. Phase-A claiming modes 62/63 lose; K=0 controls 66/69 also lose. Lean claimed mode 68 not timed. Mechanism remains open after code-layout failure.",
       "source": "runs-moe.md#phase-b-claimed-at-run-time-mode-23-2026-10-29"
     },
     {
       "id": "E",
       "name": "Attention producer / consumer",
       "status": "win",
-      "label": "Earlier wins; new pipeline losses",
-      "metric": "+3.90 / +0.80 \u00b5s",
-      "unit": "XPIPE=2 cold loss at 128 / 256 tokens",
-      "summary": "DCARRY / PK16 / VHOIST wins remain integrated. Real cross-tile XPIPE=2 overlap gains warm but loses cold; mode 115 + XPIPE=1 also loses.",
-      "layer": "Earlier bundle layer-tested; new pipelines fail component gates",
-      "pending": [],
-      "limit": "XPIPE=2: +3.44% / +0.42% cold. Mode 115 + XPIPE=1: +25.48% / +28.09%. HMRG is a separate short-token merge win awaiting layer tests, not an isolated pipeline gain.",
+      "label": "PRQ win; XPIPE losses retained",
+      "metric": "\u22120.48 / \u22120.96 \u00b5s",
+      "unit": "PRQ31 cold sliding gain, 128 / 256 tokens",
+      "summary": "PRQ31 improves per-request q_len8 attention with five combined changes. Full-context XPIPE losses remain valid; earlier bundle stays integrated.",
+      "layer": "layer_hp built: PRQ + HMRG + placement, GPU test pending",
+      "pending": [
+        "layer_hp: PRQ31 + HMRG + workspace pick"
+      ],
+      "limit": "PRQ confirmation uses matched-state nulls after the prior bench missed its written gate. Three-bench modeled score contribution 0.55\u20130.86%, not a layer gain. Full-context paths unchanged.",
       "source": "runs-attention.md",
       "outcomes": [
         "win",
@@ -83,12 +85,8 @@
   ],
   "context_pending": [
     {
-      "name": "Attention ONE_HMRG key-half merge",
-      "summary": "Separate from A-E pipeline attribution. Confirmed standalone ratio 1.0214 vs null 1.0037; scored 2.479\u00d7. Layer port/test pending."
-    },
-    {
       "name": "Projection rt / KLUE with conforming push paths",
-      "summary": "Separate projection context. Exit barriers and local own-rank stores are enabled. Current cross-run gains at 8/16/128; no retained gain at 32/256. Layer port/test pending."
+      "summary": "Separate projection context. Exit barriers and local own-rank stores are enabled. Current cross-run gains at 8/16/128; no retained gain at 32/256. Layer port/test pending. P3 compression was tested separately and lost; it is parked."
     }
   ]
 }

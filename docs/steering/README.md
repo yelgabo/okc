@@ -21,7 +21,14 @@ The existing CUTLASS pooler, wide 8-stage picks, DCARRY/PK16/VHOIST and failed l
 are explicitly accounted for. No kernels, validation policies, GPU runs or submissions changed.
 This is separate from the layer's M1/tuner-stability work below.
 
-## Latest hourly report, 03:37
+## Latest hourly report, 04:43
+
+**[2026-10-30 04:43 PDT: PRQ win, MoE claiming losses and P3 loss](2026-10-30-0443-performance-review.md)**
+
+Evidence snapshot `b5b8a34`. PRQ31 improves per-request attention; layer_hp is built but untested.
+MoE claiming layouts lose even with no claims. Projection P3 fails its stop rule and is parked.
+
+## Previous hourly report, 03:37
 
 **[2026-10-30 03:37 PDT: HMRG standalone win; conforming projection correction](2026-10-30-0337-performance-review.md)**
 
