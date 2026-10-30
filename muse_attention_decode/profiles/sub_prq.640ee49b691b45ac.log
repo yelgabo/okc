@@ -1,0 +1,5 @@
+attn prep kernels: loaded
+attn fused kernel: loaded
+attn ws kernel: loaded
+attn one kernel: loaded
+attn one workspace pick: candidate 2 of 3, medians 35.46 35.74 35.30 us (d1 + v1 full, cold)

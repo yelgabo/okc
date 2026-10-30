@@ -2771,3 +2771,48 @@ Production: `ONE_PRQ` defaults to 31 in attn_one.cu and submission.py; `_ONE_WS_
 submission.py. SASS (CUDA 12.8.1, all 13 instances): the default build equals the benched p31
 build; `-DONE_PRQ=0` equals 5c11a11; no spills. pyflakes clean; `tools/attn_compile_check.sh`
 no errors. Next: a judged check of submission.py and a repeat (checks 4 and 5 of this round).
+
+### Judged: check 640ee49b691b45ac 2.588x (CI 2.549-2.627), repeat 8b00100bf85d4ef5 2.545x (CI 2.506-2.583)
+
+| date | job | commit | file | result | notes |
+|---|---|---|---|---|---|
+| 2026-10-30 | 640ee49b691b45ac (check) | 57f57dd | submission.py (`ONE_PRQ` 31, `_ONE_WS_PICK` 3, HMRG on; sha256 9e627a90) | 2.588x (CI 2.549-2.627), 16/16 tests | pick: candidate 2 of 3, medians 35.46 / 35.74 / 35.30 us |
+| 2026-10-30 | 8b00100bf85d4ef5 (check) | 57f57dd + one comment line | repeat of the same file | 2.545x (CI 2.506-2.583), 16/16 tests | pick: candidate 1 of 3, 35.62 / 35.39 / 35.62 us; full rows d16 / d32 / v16 / v32 slower with no code change there (machine speed) |
+
+Profiles: `muse_attention_decode/profiles/sub_prq.640ee49b691b45ac.*`, `sub_prq_r.8b00100bf85d4ef5.*`.
+Judged per-shape times (us, baseline median / paired speedup) on the rows PRQ changes, against
+the HMRG pair (same code elsewhere) and this round's three bench checks' judged paths (board code):
+
+| row | PRQ 640ee49b / 8b00100b | HMRG 5d309f9d / 82b1bf0f | board paths a7a4c23e / 3c6e1a7f / 409996a7 |
+|---|---|---|---|
+| v1 sliding | 7.13 / 6.80 | 6.39 / 6.77 | 6.92 / 6.95 / 6.82 |
+| v1 full | **14.50 / 14.89** | 15.36 / 15.61 | 15.26 / 15.72 / 15.14 |
+| v16 sliding | **11.45 / 11.45** | 11.77 / 12.16 | 11.58 / 11.93 / 11.77 |
+| v32 sliding | **15.03 / 15.02** | 15.93 / 15.89 | 16.23 / 16.38 / 15.98 |
+
+The judged scores pair 2.588 / 2.545 against HMRG's 2.512 / 2.582: the run-to-run spread (1-3%,
+machine speed: the full rows moved by up to 6 us with no code change) is larger than the modeled
++0.7% gain, so the judged pair confirms that the file passes and that the targeted rows moved,
+and the bench checks carry the size. v1 sliding's 7.13 in the first check sits 0.2 us above its
+range on board code (6.39-6.95 in five runs) and came back to 6.80 in the repeat; no bench saw an
+effect there (-0.13 / +0.07 / -0.03). Not submitted: handed to the coordinator (`main`) with the
+file path and these job ids.
+
+## Standalone round 3 (10-30): family ledger update
+
+Checks used by this round: a7a4c23e98ca484a, 3c6e1a7f1cc644b6, 409996a7214f411a, 640ee49b691b45ac,
+8b00100bf85d4ef5 (5 of the 5 budgeted). Quota after them (`okc problems`): 5 of 20 attention checks, 9 of 10 runs.
+
+| family | state | evidence | reopening trigger |
+|---|---|---|---|
+| Per-request q_len 8 tile in the public order (`ONE_PRQ` = 31: TOV, QKF, FAST, SPV, TCHK; modes 1, 3, 11, 15) | **measured standalone win**, on by default | benches a7a4c23e98ca484a (G +0.86%), 3c6e1a7f1cc644b6 (+0.55%, missed its written null clause by 0.04%), 409996a7214f411a (+0.72%, same-state null -0.00%); judged 2.588x / 2.545x; review sound with two caveats | layer port is a separate gate (`tools/dl_one_inline.py`) |
+| Its steps one by one (ladder in a7a4c23e98ca484a) | measured, each positive | TOV +0.08%, QKF +0.30%, FAST +0.06%, SPV +0.08%, TCHK +0.34% | none needed while all ship together |
+| Prepare-time workspace placement pick (`_ONE_WS_PICK` = 3) | **measured standalone win** where the first allocation is slow, on by default | 3c6e1a7f1cc644b6 (row clause missed against ctrl's state), 409996a7214f411a (passes with own-state nulls): picks at the fastest null state at d1 full on both inputs, 0.3-0.4 us ahead of the slow states | a judged d1 full above 13 us with the pick on |
+| Old QKF (mode bit 128, bf6b8ca9e37341fb, 10-28 kernel) | superseded on the per-request plans | QKF as a step of PRQ is worth +0.30% here | the flat consumer-copy mode 19, where it lost, is not affected |
+
+Where the remaining gap is (bench 3c6e1a7f1cc644b6, pub - p31, cold, us; value at the
+sensitivities above): v16 full -1.95 (0.24%), d1 full -0.74 (0.44%, of which up to 0.3-0.4 is
+placement the pick now takes), d32 full -1.50 (0.13%), d16 full -0.73 (0.11%), v1 full -0.16
+(0.08%), v32 sliding -0.41 (0.08%), d1 sliding -0.06, v16 sliding +0.13. Next targets, by value:
+batch-1 full at q_len 1 (d1 full, after the pick) and the flat full-context rows (v16 / d16 / d32
+full, the producer kernels 51 and 49), which no round-2 or round-3 change touched.
