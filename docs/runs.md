@@ -1001,6 +1001,8 @@ cold L2; every arm passed FP64 checks on two router matrices (one with x4096 out
 | 10-30 | 6cc72e840403402b | check (bench R2c) | b50dcb6 | XA orientation (x as wgmma A, one m64n128k16), stable Lt choice, two duplicate prepare() runs | 1.499x (1.477-1.522) | XA null; router picks agree across preparations except a tie at m = 16; Lt o 256 flipped (pinned after) |
 | 10-30 | f2373dedd4f44648 | check (confirm 1) | 1e12506 | the clean candidate, sha1 bccc0675 | **1.484x** (1.462-1.506) | prepare 105.7 s; picks identical to confirm 2 except o m = 128 (base here) |
 | 10-30 | b80b817c67d043ad | check (confirm 2) | 1e12506 | same, header comment changed (sha1 e4ba42d0) | **1.508x** (1.485-1.530) | o m = 128 took an Lt config at the 0.30 margin; the 1.6% gap to confirm 1 is mostly verify 1 (+2.0 us over four unchanged sk shapes): run noise |
+| 10-30 | 3abb1cd974e2477d | check (conforming 1) | ce25f67 | coordinator decision: exit cluster barrier on every push path, rt own-rank share by local store; sha1 e5d08174 | **1.495x** (1.473-1.517) | picks identical to conforming 2 (cuBLASLt included) except router m = 32 (rt16w8 vs rt16w8p8, tied) |
+| 10-30 | d7c662296eaa4413 | check (conforming 2) | ce25f67 | same, header comment changed (sha1 713739ce) | **1.496x** (1.473-1.518) | the two preparations agree within 0.05% of score |
 
 ### Router at 128 / 256: which difference matters (wd kernel, VAR bits)
 
@@ -1111,3 +1113,26 @@ pooler and unpooler at 128 (0.7-0.9% of score each), about 2 us on qkv. Serializ
 0.4 us. Not built: a new producer / decode / escape pipeline with a raw-BF16 twin needs at
 least one judge check to debug (no local GPU), and all five checks went to the router
 attribution and confirmation.
+
+### Conforming push paths (coordinator decision, 2026-10-30)
+
+The two `st.async` points the documentation leaves open (a CTA exiting with its own push in
+flight; `st.async` to the issuing CTA) are no longer relied on. Every push path keeps an exit
+cluster barrier, and rt stores its own-rank share locally (docs/proj-port-guide.md). SASS
+against 1e12506: only the shipped instances change, by the exit barrier and one store.
+
+Judged router us: the mean of the two conforming checks against the mean of the two earlier
+confirmations (f2373ded / b80b817c), and against the scored d0dc80f:
+
+| load | earlier | conforming | cost | vs d0dc80f |
+|---|---:|---:|---:|---:|
+| decode 16 (rt, m=16) | 4.54 | 4.80 | +0.26 | -0.44 |
+| decode 32 (rt, m=32) | 5.48 | 5.49 | +0.01 | +0.04 |
+| verify 1 (rt, m=8) | 4.26 | 4.43 | +0.17 | -1.25 |
+| verify 16 (wd, m=128) | 6.61 | 7.19 | +0.58 | -0.30 |
+| verify 32 (wd, m=256) | 9.60 | 9.81 | +0.21 | +0.00 |
+
+The barrier costs more on the judge at m = 128 than the in-process bench suggested (+0.58
+against about +0.3): it makes every CTA wait for the slowest one in its cluster. At m = 256 the
+remaining KLUE gain is gone, and at m = 32 nothing is left either. Scores: 1.495 / 1.496,
+against 1.484 / 1.508 for the non-conforming file, which is inside run noise.

@@ -1780,7 +1780,8 @@ WD_GEOM = {
 WD_POL = {nm for nm in WD_GEOM if nm.endswith("h")}
 # name -> VAR bits of the kernel (WV_* in _WD_SRC), 0 when absent. WV_PACK configs take the
 # packed router weights (router_pack()).
-WV_NOPROD, WV_PACK, WV_PROMO64, WV_PUSH, WV_EARLY, WV_NOSLEEP, WV_NOEMPTY, WV_XA = 1, 2, 4, 8, 32, 256, 512, 1024
+WV_NOPROD, WV_PACK, WV_PROMO64, WV_PUSH, WV_EARLY, WV_TAILSYNC = 1, 2, 4, 8, 32, 128
+WV_NOSLEEP, WV_NOEMPTY, WV_XA = 256, 512, 1024
 # Packed hi/lo box, 64 B promotion, push reduction and early prologue (KLUE) on the two router
 # picks; paired against the pick in a91f2152d8974458 / ba85985b8c5e4969: -0.77 / -0.90 us at
 # m = 128, -0.90 / -0.90 at 256, the push reduction alone -0.46 / -0.54 and -0.48 / -0.66.
@@ -1788,7 +1789,10 @@ WV_NOPROD, WV_PACK, WV_PROMO64, WV_PUSH, WV_EARLY, WV_NOSLEEP, WV_NOEMPTY, WV_XA
 # was a null on these two (+0.10 / -0.05). r64c4s8a is the reference's m = 256 orientation
 # (XA: x as the A operand, one m64n128k16 for hi and lo) on its geometry, without the hint
 # (-0.37 on r64c4s8 KLUE in ba85985b8c5e4969).
-_WD_KLUE = WV_PACK | WV_PROMO64 | WV_PUSH | WV_EARLY
+# WV_TAILSYNC: a cluster barrier before exit, so no CTA exits with an outgoing st.async in flight
+# (decision 2026-10-30: the PTX ISA does not say that is allowed; cost about +0.3 us in
+# a91f2152d8974458).
+_WD_KLUE = WV_PACK | WV_PROMO64 | WV_PUSH | WV_EARLY | WV_TAILSYNC
 WD_GEOM.update({"r64c8s8k": WD_GEOM["r64c8s8"], "r128c8s6k": WD_GEOM["r128c8s6"], "r64c4s8a": WD_GEOM["r64c4s8"]})
 WD_VAR = {"r64c8s8k": _WD_KLUE, "r128c8s6k": _WD_KLUE, "r64c4s8a": _WD_KLUE | WV_NOSLEEP | WV_XA}
 # Diagnostic builds timed in prepare(), never dispatched: ABL bit 1 skips the wgmma (memory
@@ -3020,9 +3024,11 @@ def wd_source():
 RT_GEOM = {
     # bench a91f2152d8974458, paired against the sk router picks: rt8w8 -1.39 us at m = 8, rt16w8
     # -0.83 at 16, rt16w8p8 -0.54 at 32 (null 0.02-0.08); the tuner picks per bucket.
-    "rt8w8": (8, 8, 4, False),
-    "rt16w8": (16, 8, 4, False),
-    "rt16w8p8": (16, 8, 8, False),
+    # The fourth field (exit cluster barrier) is on in every shipped config: no CTA exits with
+    # an outgoing st.async in flight (decision 2026-10-30, docs/proj-port-guide.md).
+    "rt8w8": (8, 8, 4, True),
+    "rt16w8": (16, 8, 4, True),
+    "rt16w8p8": (16, 8, 8, True),
 }
 RT_MT = (1, 2, 4)
 RT_NAMES = list(RT_GEOM)
@@ -3097,9 +3103,10 @@ rt_kernel(const uint4* __restrict__ wp, const __nv_bfloat16* __restrict__ x, flo
     if (rank < P && tid == 0) {
         mbar_init(rbar, 1);
         fence_mbar_init();
-        // A push may land before this expect; the phase still cannot complete before it
-        // (pending count 1 until this arrive, negative tx count allowed).
-        mbar_expect_tx(rbar, S * OWN * 16);
+        // The (S - 1) peers' pushes; this rank's own share is a local store. A push may land
+        // before this expect; the phase still cannot complete before it (pending count 1 until
+        // this arrive, negative tx count allowed).
+        mbar_expect_tx(rbar, (S - 1) * OWN * 16);
     }
     // .aligned below needs the warp converged after the tid == 0 branch.
     __syncwarp();
@@ -3149,13 +3156,19 @@ rt_kernel(const uint4* __restrict__ wp, const __nv_bfloat16* __restrict__ x, flo
             v.w += u.w;
         }
         // Slot (rank, tid % OWN) of owner tid / OWN has this one writer. Remote accesses to a
-        // CTA's shared memory are only these pushes into recv and their complete_tx on rbar; an
-        // owner reads recv and exits only after all S * OWN * 16 bytes have arrived, so it
-        // outlives every access to it, and a non-owner's shared memory is never accessed remotely.
+        // CTA's shared memory are only these pushes into recv and their complete_tx on rbar.
+        // The own-rank share is a plain shared store: the PTX ISA does not say st.async may
+        // target the issuing CTA, so that is not relied on (decision 2026-10-30).
         const int dst = tid / OWN;
-        const uint32_t a = smem_u32(recv + rank * OWN + tid % OWN);
-        rt_st_async(rt_mapa(a, (uint32_t)dst), v, rt_mapa(rbar, (uint32_t)dst));
+        if (dst == rank) {
+            recv[rank * OWN + tid % OWN] = v;
+        } else {
+            const uint32_t a = smem_u32(recv + rank * OWN + tid % OWN);
+            rt_st_async(rt_mapa(a, (uint32_t)dst), v, rt_mapa(rbar, (uint32_t)dst));
+        }
     }
+    // The own-rank slots stored above are read by other threads (tid < OWN) below.
+    __syncthreads();
     if (rank < P && tid < OWN) {
         mbar_wait_cluster(rbar, 0, dead, diag, 8);
         float4 v = make_float4(0.f, 0.f, 0.f, 0.f);
@@ -3183,6 +3196,10 @@ rt_kernel(const uint4* __restrict__ wp, const __nv_bfloat16* __restrict__ x, flo
         }
     }
     if constexpr (TAIL) {
+        // No CTA exits with an outgoing st.async in flight: each owner arrives here only after
+        // its receive wait saw every pushed byte, so passing this barrier implies all of this
+        // CTA's pushes completed. Exiting earlier is undocumented (decision 2026-10-30: ship
+        // the conforming form; +0.10 to +0.21 us in a91f2152d8974458).
         cluster_arrive();
         cluster_wait();
     }
