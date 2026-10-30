@@ -246,8 +246,16 @@ constexpr int M_PROD = 32;
 // with the full 168-register budget instead of 80 with spills.
 constexpr int M_SOLO = 64;
 
+// ONE_NS1: ring depth of the flat q_len 1 producer build (mode 49). Stamps of bce37d22a0ec4045:
+// with DRAM in the loop mode 49's consumers wait on the full barrier about 50 us and its
+// producer on the empty barrier about 95 us of a 165 us call at decode 32 full, both at once,
+// and the partner CTA of each SM ends 5-6 us after its pair.
+#ifndef ONE_NS1
+#define ONE_NS1 3
+#endif
+
 __host__ __device__ constexpr int one_ns(int L, int mode) {
-    return (mode & M_PROD) && L == 8 ? 4 : STAGES;
+    return (mode & M_PROD) && L == 8 ? 4 : ((mode & M_PROD) && L == 1 ? ONE_NS1 : STAGES);
 }
 
 __host__ __device__ constexpr int one_threads(int L, int mode) {

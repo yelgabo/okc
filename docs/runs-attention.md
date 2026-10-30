@@ -3065,3 +3065,51 @@ no-copy copy whose q_len 1 consumers do the same: one `mbarrier.arrive` per thre
 scratchpad `flat/pubncc.py`); `hf` / `hfown` (HMRGF repeat for the ledger) with `ctrl2`, `pub`,
 `pub2`. Reading: producer-only time, ours against the public, says whether the producer stream or
 the consumer stream holds the no-DRAM deficit. No candidate is judged by this check.
+
+### Check 4b60264a276c4805 (bench `bench_l`, at 0b326a4): both q_len 1 streams carry the no-DRAM deficit; HMRGF repeats small
+
+| date | job | commit | file | result | notes |
+|---|---|---|---|---|---|
+| 2026-10-30 | 4b60264a276c4805 (check) | 0b326a4 | bench `bench_l` (`flat/gen_l.sh`, 10 arms, `--shapes full`) | 2.498x (CI 2.461-2.535) judged path = board code, 16/16 tests, ABCHECKSUM 11/0 every real arm | diagnostic, no gate |
+
+Profiles: `muse_attention_decode/profiles/bench_l.4b60264a276c4805.*`. Cold pooled (us):
+
+| row | ctrl | pub | nocopy (ours / public) | producer only (ours / public) | hf - ctrl | hfown - ctrl | ctrl2 - ctrl |
+|---|---|---|---|---|---|---|---|
+| d16 full | 100.45 | 99.49 | 75.55 / 66.05 | 37.63 / 32.93 | -0.22 | -0.29 | -0.06 |
+| d32 full | 179.39 | 177.60 | 138.43 / 120.93 | 63.23 / 55.20 | -0.19 | -0.35 | -0.22 |
+
+- Producer only (no cache reads, consumers release each stage untouched): mode 49's producer is
+  4.7 / 8.0 us (14%) slower than the public producer at d16 / d32 full, about half of the no-DRAM
+  deficit (9.5 / 17.5 us). The rest is in the consumers' stream or in how the two interleave. Both
+  kernels take about twice as long with the consumers computing as without them.
+- With DRAM both deficits shrink to the 1.0 / 1.8 us gap: DRAM sets the median pace and the
+  streams decide how unevenly the two CTAs of an SM share it.
+- HMRGF again: -0.22 / -0.19 (hf), -0.29 / -0.35 (hfown, null -0.06 / -0.22), same sign on all
+  four per-input rows: about +0.05-0.07%, as in check 1. Still below the 0.20% bar.
+- The v16 full row varies with the input again (pub - ctrl -4.6 / -0.5 us on inputs 0 / 1).
+
+### The switch for check 4: `ONE_NS1` (mode 49 ring depth, default 3)
+
+Check 1's stamps at d32 full: the consumers wait on the full barrier about 50 us (median thread 0)
+and the producer on the empty barrier about 95 us of a 165 us call, at the same time; the ring
+(3 stages of 16 KB) is full from the producer's side while the consumer of the partner CTA starves.
+`ONE_NS1` sets mode 49's stage count (`one_ns`); shared memory per CTA is NS x 16 KB + 9.9 KB (4:
+75.4 KB, 6: 108.2 KB), so two CTAs per SM still fit up to 6 (2 x (108.2 + 1) KB of 228 KB). The
+ring code is generic in NS (mbarrier init, phase flip, the producer's final drain); no fence,
+barrier, wait or arrive changes, only the ring length. SASS: `ONE_NS1=3` identical to main on all
+13 instances; 4 and 6 change only mode 49 (3448 -> 3472 / 3520 instructions, consumer region R115,
+no spills).
+
+### Gate for check 4 (written before the bench that tests it)
+
+Bench `bench_m` (`flat/gen_m.sh`, `--pub <0e9d4c78> --null --shapes full --inputs 2 --rounds 200
+--seed 20261043`): `ctrl`, `ctrl2`, `ctrlb` (`-DONE_NS1=3`), `ns4`, `ns5`, `ns6` (`-DONE_NS1=4/5/6`,
+ctrl's state), `ns6h` (`-DONE_NS1=6 -DONE_HMRGF=1`), `ns4own`, `ns6own` (own state), `stampns6`
+(`-DONE_NS1=6 -DONE_STAMP=1`), `pub`, `pub2`. ABPLAN must show 264 CTAs in mode 49 for every ns arm.
+
+An arm goes to confirmation (check 5) only if: (1) ABCHECKSUM passes for every real arm; (2) G(X) -
+G(ctrlb) >= 0.20%, and for ns4 / ns6 / ns6h also G(own twin) - G(ctrl2) >= 0.20%; (3) same sign on
+both inputs at d16 and d32 full; (4) no row slower than ctrl by more than max(|ctrlb - ctrl|, 1%).
+Choice: largest G; a shallower ring within 0.05% is preferred (less shared memory). The quota
+leaves no judged check today: a passing arm is confirmed in check 5 and judged after the reset.
