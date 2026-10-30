@@ -4,8 +4,8 @@ nulls.
 
     python3 tools/proj_make_bench_c4.py OUT.py
 
-OUT.py is muse_bf16_proj/submission.py (the judged path, unchanged, which also offers the c4
-configs to its own tuner) plus a block that runs at import, before the judged prepare(). The
+OUT.py is muse_bf16_proj/experiments/qkv_c4_submission.py (the c4 build, parked after
+ad6c673d9a444c1e; its tuner also offers the c4 configs) plus a block that runs at import, before the judged prepare(). The
 block builds the production extension (A, cached for the judged prepare) and a second copy
 under another name (B), and packs the judge-like qkv_gate weight separately for each. Every
 arm passes the FP64 self-test, the c4 arms also the 2-ulp match against the unsplit pick
@@ -129,7 +129,6 @@ def _c4_run():
                 arms[m][f"{tag}.{nm}"] = fn
     _c4_print(f"C4 checks done {time.time() - t0:.1f} s")
     flush = torch.ones(FLUSH_BYTES // 4, dtype=torch.float32, device=dev)
-    sink = torch.empty((), dtype=torch.float32, device=dev)
     rng = _c4rand.Random(2026)
     xgen = torch.Generator(device=dev).manual_seed(777)
     for m in _C4_MS:
@@ -155,7 +154,7 @@ def _c4_run():
             rng.shuffle(order)
             evs = []
             for nm in order:
-                torch.sum(flush, out=sink)
+                flush.sum()
                 a = torch.cuda.Event(enable_timing=True)
                 z = torch.cuda.Event(enable_timing=True)
                 a.record()
@@ -207,7 +206,7 @@ def main():
     if len(sys.argv) != 2:
         raise SystemExit(__doc__)
     out = Path(sys.argv[1])
-    base = (ROOT / "muse_bf16_proj/submission.py").read_text()
+    base = (ROOT / "muse_bf16_proj/experiments/qkv_c4_submission.py").read_text()
     out.write_text(base + BLOCK.replace("@@ROUND@@", ROUND))
     print(f"wrote {out}")
 

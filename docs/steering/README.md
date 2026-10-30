@@ -4,7 +4,18 @@ This is the stable entry point for steering reports across research, implementat
 and coordinator sessions. The user requested on 2026-10-29 that every project-steering
 report be checked into this repository so other sessions can read it.
 
-## Latest standalone decision: attention and projection research roadmaps
+## Latest projection report: frontier map and the route to top 100
+
+**[2026-10-30: Projection frontier map and the route to top 100](2026-10-30-projection-top100.md)**
+
+Evidence `c98018f`, check `ad6c673d9a444c1e`. Rank 100 (1.556) needs +4.1% over the
+current code's six-receipt median (1.4947), about a third of all headroom to the measured floors.
+The qkv one-wave cluster split was built and lost by 9-12 us (parked). The remaining
+ranked portfolio sums to 2.7-3.5%, below the target. Only a denser lossless weight code has a
+ceiling above it. The m = 256 dense GEMMs hold about 20 us against the 989 TFLOP/s floor
+(qkv and o run 590 / 560 TFLOP/s); a batched-GEMM diagnostic is the cheapest test.
+
+## Previous standalone decision: attention and projection research roadmaps
 
 **[2026-10-30: Standalone attention and projection — widen the search](2026-10-30-attention-projection-standalone-roadmap.md)**
 

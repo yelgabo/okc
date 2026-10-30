@@ -71,9 +71,9 @@ FLUSH_BYTES = 256 << 20
 
 
 # --------------------------------------------------------------------------------------------
-# Skinny kernel configs: name -> (MT, TOKR, NT, NWR, WSK, UPW, NSTAGE[, CL]).
+# Skinny kernel configs: name -> (MT, TOKR, NT, NWR, WSK, UPW, NSTAGE, COMP, HL, NACC, CL).
 # R = NWR * NT * 8 rows per CTA, NW = NWR * WSK consumer warps, UPS = WSK * UPW 64-k units per
-# stage. CL > 1 splits K over a cluster of CL CTAs sharing one row block. TOKR is the token rows reserved per unit in the ring (8, 16 or 32; MT = 16-token
+# stage. TOKR is the token rows reserved per unit in the ring (8, 16 or 32; MT = 16-token
 # m-tiles). The geometry follows the public design memo's per-shape table; NSTAGE is capped by
 # the shared-memory budget at build time.
 # --------------------------------------------------------------------------------------------
@@ -101,14 +101,6 @@ SK_GEOM = {
     # 32 rows per CTA, 256 CTAs at 2 per SM (98 KB) instead of 64 rows at 1: -0.54 / -0.16 /
     # -0.32 / -0.27 us paired (benches 01703396ea1a409e, 3678bfd3ef1c4ce6).
     "unp32": (2, 32, 2, 2, 2, 2, 3),
-    # qkv_gate in one wave: 96 row blocks of 24 rows leave 36 of 132 SMs idle, and the
-    # 144-192-CTA fixes lost (01703396ea1a409e). 72 rows with K split over a 4-CTA cluster
-    # is 32 clusters, 128 CTAs at one per SM.
-    "qkv8c4": (1, 8, 3, 3, 2, 2, 6, 4),
-    "qkv8c4w": (1, 8, 3, 3, 4, 1, 6, 4),
-    "qkv16c4": (1, 16, 3, 3, 2, 2, 6, 4),
-    "qkv16c4w": (1, 16, 3, 3, 4, 1, 6, 4),
-    "qkv32c4": (2, 32, 3, 3, 2, 2, 4, 4),
 }
 ROUTER_GEOM = {
     "router8": (1, 8, 1, 1, 8, 1, 6),
@@ -126,8 +118,7 @@ SK_USE = {
     ("router", 8): "router8", ("router", 16): "router16", ("router", 32): "router32",
 }
 # tools/make_bench.py adds alternative geometries here; prepare() times them beside the picks.
-SK_EXTRA = {("qkv_gate", 8): ["qkv8c4", "qkv8c4w"], ("qkv_gate", 16): ["qkv16c4", "qkv16c4w"],
-            ("qkv_gate", 32): ["qkv32c4"]}
+SK_EXTRA = {}
 SMEM_BUDGET = 227 * 1024
 SMEM_PER_SM = 228 * 1024
 
@@ -135,20 +126,18 @@ SMEM_PER_SM = 228 * 1024
 def _sk_configs():
     """Every kernel instantiation: (name, MT, TOKR, NT, NWR, WSK, UPW, NSTAGE, COMP, HL, NACC, CL, out, fuse)."""
     cfgs = []
-    for name, geom in SK_GEOM.items():
-        mt, tokr, nt, nwr, wsk, upw, nstage = geom[:7]
-        cl = geom[7] if len(geom) > 7 else 1
+    for name, (mt, tokr, nt, nwr, wsk, upw, nstage) in SK_GEOM.items():
         for comp in (True, False):
             cname = name if comp else name + "raw"
             cfgs.append((cname, mt, tokr, nt, nwr, wsk, upw,
-                         _fit_stages(mt, tokr, nt, nwr, wsk, upw, nstage, comp, False, cl), comp, False, 1, cl,
-                         "bf16", False))
+                         _fit_stages(mt, tokr, nt, nwr, wsk, upw, nstage, comp, False, 1), comp, False, 1, 1, "bf16",
+                         False))
     for name, (mt, tokr, nt, nwr, wsk, upw, nstage) in ROUTER_GEOM.items():
         cfgs.append((name, mt, tokr, nt, nwr, wsk, upw,
                      _fit_stages(mt, tokr, nt, nwr, wsk, upw, nstage, False, True, 3), False, True, 2, 3, "f32",
                      False))
     for name in FUSED_GEOM:
-        mt, tokr, nt, nwr, wsk, upw, nstage = SK_GEOM[name][:7]
+        mt, tokr, nt, nwr, wsk, upw, nstage = SK_GEOM[name]
         cfgs.append((name + "f", mt, tokr, nt, nwr, wsk, upw,
                      _fit_stages(mt, tokr, nt, nwr, wsk, upw, nstage, True, False, 1, True), True, False, 1, 1,
                      "bf16", True))
@@ -427,10 +416,7 @@ struct SkCfg {
     static_assert(!FUSE || (COMP && CL == 1 && NW * RUPW == UPS && NW * TOKS * 8 * 4 <= NSTAGE * SST),
                   "fused piece geometry");
     static_assert(TOKR == 16 * MT || (TOKR == 8 && MT == 1), "TOKR must match MT");
-    // Clustered BF16 configs (the qkv one-wave split) end with the split exit cluster barrier, so
-    // no CTA exits with a push in flight (docs/proj-port-guide.md, "Split exit barrier"). The sk
-    // hi/lo router keeps its old tail: it is no longer picked (rt replaced it).
-    static constexpr bool XB = CL > 1 && !HL;
+    static_assert(!(COMP && CL > 1), "escape warps are not clustered");
     static_assert(NESC <= NSTAGE, "escape warps take turns on stages");
 };
 
@@ -556,17 +542,8 @@ sk_kernel(const __grid_constant__ CUtensorMap xmap, const uint8_t* __restrict__ 
             if (crank == 0) {
                 mbar_expect_tx(qbar, (CL - 1) * NC * MT * NT * 16);
             }
-            if constexpr (COMP) {
-                mbar_init(pbar, 1);
-                mbar_init(cbar, NESC);
-            }
             fence_mbar_init();
             issue(0);
-            if constexpr (COMP) {
-                // Every rank of a row block loads the same table and corrects only its K range.
-                mbar_expect_tx(pbar, tab_ints * 4);
-                bulk_g2s(smem_u32(tab), ptab + (size_t)rb * tab_ints, tab_ints * 4, pbar);
-            }
         } else {
             // Stage 0 goes out before anything else: its latency is the ramp of the kernel.
             mbar_init(full0, 1);
@@ -620,10 +597,6 @@ sk_kernel(const __grid_constant__ CUtensorMap xmap, const uint8_t* __restrict__ 
         if constexpr (CL > 1) {
             cluster_wait();
         }
-        if constexpr (C::XB) {
-            cluster_arrive();
-            cluster_wait();
-        }
         return;
     }
 
@@ -645,12 +618,6 @@ sk_kernel(const __grid_constant__ CUtensorMap xmap, const uint8_t* __restrict__ 
             }
             const int cnt = dead ? 0 : tab[0];
             int pe = 1;
-            if constexpr (CL > 1) {
-                // The table is sorted by k: entries below this rank's K range belong to lower ranks.
-                while (pe <= cnt && (tab[2 * pe] & 0xFFFF) < gs0 * KST) {
-                    ++pe;
-                }
-            }
             for (int st = 0; st < nst_tot; ++st) {
                 const int slot = st % NSTAGE;
                 const int kbeg = (gs0 + st) * KST, kend = kbeg + KST;
@@ -691,10 +658,6 @@ sk_kernel(const __grid_constant__ CUtensorMap xmap, const uint8_t* __restrict__ 
             }
         }
         if constexpr (CL > 1) {
-            cluster_wait();
-        }
-        if constexpr (C::XB) {
-            cluster_arrive();
             cluster_wait();
         }
         return;
@@ -875,20 +838,6 @@ sk_kernel(const __grid_constant__ CUtensorMap xmap, const uint8_t* __restrict__ 
                         v[e] += acc[c][mt][nt][e];
                     }
                 }
-                if constexpr (COMP) {
-                    // Rank 0 adds only its own escape warps' corrections, so this rank's ride
-                    // along with its partials, once per row (the wk == 0 warp).
-                    if (wk == 0) {
-#pragma unroll
-                        for (int c = 0; c < NESC; ++c) {
-                            const float* cr = corr + c * CSZ + tok * CP + row;
-                            v[0] += cr[0];
-                            v[1] += cr[1];
-                            v[2] += cr[8 * CP];
-                            v[3] += cr[8 * CP + 1];
-                        }
-                    }
-                }
                 const uint32_t a0 = peer_r + (uint32_t)(((wk * TOKS + tok) * RP + row) * 4);
                 asm volatile("st.async.shared::cluster.mbarrier::complete_tx::bytes.v2.b32 [%0], {%1, %2}, [%3];"
                              :: "r"(a0), "r"(__float_as_uint(v[0])), "r"(__float_as_uint(v[1])), "r"(qbar_r) : "memory");
@@ -896,10 +845,6 @@ sk_kernel(const __grid_constant__ CUtensorMap xmap, const uint8_t* __restrict__ 
                              :: "r"(a0 + 8 * RP * 4), "r"(__float_as_uint(v[2])), "r"(__float_as_uint(v[3])), "r"(qbar_r)
                              : "memory");
             }
-        }
-        if constexpr (C::XB) {
-            cluster_arrive();
-            cluster_wait();
         }
         return;
     }
@@ -930,11 +875,6 @@ sk_kernel(const __grid_constant__ CUtensorMap xmap, const uint8_t* __restrict__ 
     if constexpr (CL > 1) {
         cluster_wait();
         mbar_wait_cluster(qbar, 0, dead, diag, 32);
-    }
-    if constexpr (C::XB) {
-        // Every push into this CTA has landed (the qbar phase), so the senders may exit.
-        __syncwarp();
-        cluster_arrive();
     }
     constexpr int R4 = R / 4;
     for (int idx = tid; idx < R4 * M; idx += NC) {
@@ -1023,10 +963,6 @@ sk_kernel(const __grid_constant__ CUtensorMap xmap, const uint8_t* __restrict__ 
                 *reinterpret_cast<float4*>(rout + (size_t)tt * 256 + rbk * 8 + row) = v;
             }
         }
-    }
-    if constexpr (C::XB) {
-        __syncwarp();
-        cluster_wait();
     }
 }
 
@@ -1352,7 +1288,7 @@ def pack_layer(w, geoms, slices, balance=False):
         return None
     perm = None
     if balance and n_esc and slices_balanced(geoms, slices, n):
-        perm = balance_perm(escape, min(g["R"] for g in geoms.values()))
+        perm = balance_perm(escape, next(iter(geoms.values()))["R"])
         bits, escape = bits[perm], escape[perm]
     _, escape, decoded = code_bits(bits, base)
     units = comp_units(bits, base)
@@ -1369,10 +1305,9 @@ def pack_layer(w, geoms, slices, balance=False):
 
 
 def slices_balanced(geoms, slices, n):
-    """Balancing permutes whole matrices only: every geometry must cover all rows, and every R
-    must be a multiple of the smallest, so a larger block is whole balanced blocks."""
+    """Balancing permutes whole matrices only: every geometry must cover all rows with one R."""
     rs = {g["R"] for g in geoms.values()}
-    return all(r % min(rs) == 0 for r in rs) and all(nr == n for nr in slices.values())
+    return len(rs) == 1 and all(nr == n for nr in slices.values())
 
 
 def pack_raw_layer(w, geoms, slices):
@@ -3434,45 +3369,6 @@ def _check(out, ref, probes, tol):
     return err < tol and perr < PROBE_TOL and bool(torch.isfinite(out).all()), err, perr
 
 
-def _escape_cols(tab, cl, k):
-    """Columns that carry escapes, the first and last of each rank's K range plus the range
-    edges themselves: where a wrong ownership boundary would drop or double a correction."""
-    cnt = tab[:, 0]
-    idx = torch.arange(tab.shape[1] // 2, device=tab.device)
-    ent = tab[:, 0:2 * (tab.shape[1] // 2):2]
-    valid = (idx[None, :] >= 1) & (idx[None, :] <= cnt[:, None])
-    ks = torch.unique(ent[valid] & 0xFFFF).tolist()
-    cols = []
-    for r in range(cl):
-        lo, hi = r * k // cl, (r + 1) * k // cl
-        inr = [c for c in ks if lo <= c < hi]
-        cols += inr[:2] + inr[-2:] + [lo, hi - 1]
-    return sorted(set(cols))
-
-
-def _match_twin(fn, twin, ms, k, gen, dev, cols=()):
-    """A K-split config against the unsplit config on the same 12-bit format. Random rows: only
-    the FP32 summation order differs, so every element must agree to within two bf16 ulps.
-    One-hot rows at escape columns and K-range edges: a single product, so the outputs must be
-    identical; a dropped or doubled escape correction cannot pass this."""
-    for m in ms:
-        x, _ = _gen_x(m, k, gen, dev)
-        a, b = fn(x).double(), twin(x).double()
-        torch.cuda.synchronize()
-        bad = int(((a - b).abs() > 2 ** -6 * torch.maximum(a.abs(), b.abs()) + 1e-5).sum())
-        if bad:
-            raise RuntimeError(f"m={m}: {bad} elements differ from the unsplit twin by more than 2 ulps")
-    m = max(ms)
-    for i in range(0, len(cols), m):
-        x = torch.zeros((m, k), dtype=torch.bfloat16, device=dev)
-        for r, c in enumerate(cols[i:i + m]):
-            x[r, c] = 2.0 ** (3 + r % 5)
-        a, b = fn(x), twin(x)
-        torch.cuda.synchronize()
-        if not torch.equal(a, b):
-            raise RuntimeError(f"one-hot columns {cols[i:i + m]}: output differs from the unsplit twin")
-
-
 def _self_test(name, fn, w, nrows, ms, tol, gen, diag):
     """Every m in ms against FP64 on random inputs with probe rows; raises on the first failure."""
     k = w.shape[1]
@@ -3928,7 +3824,6 @@ def prepare(weights):
             print(f"pack {layer}: base {packed['base']}, {packed['escapes']} escapes, "
                   f"{packed['inexact']} inexact deltas, {time.time() - t0:.1f} s")
             for b, lst in names.items():
-                twin = None
                 for nm in lst:
                     if nm not in packed["streams"]:
                         continue
@@ -3936,15 +3831,6 @@ def prepare(weights):
                     tab, pmax = packed["tabs"][(geoms[nm]["R"], nrows)]
                     fn = _sk_runner(ext, nm, packed["streams"][nm], tab, pmax, packed["base4"], nrows, k,
                                     torch.bfloat16, diag)
-                    if twin is None:
-                        twin = fn
-                    elif geoms[nm]["cl"] > 1:
-                        try:
-                            _match_twin(fn, twin, ms_of[b], k, gen, dev,
-                                        _escape_cols(tab, geoms[nm]["cl"], k))
-                        except Exception as exc:
-                            print(f"selftest {layer} {nm}: disabled ({type(exc).__name__}: {str(exc)[-300:]})")
-                            continue
                     add(layer, b, nm, fn, w, nrows, ms_of[b], SELFTEST_TOL["bf16"])
         elif comp_names:
             print(f"pack {layer}: rejected, raw BF16 only")
