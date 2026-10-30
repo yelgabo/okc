@@ -1,6 +1,6 @@
 {
-  "reviewed_at": "2026-10-30T05:39:00-07:00",
-  "snapshot": "15cc6b9",
+  "reviewed_at": "2026-10-30T12:44:00-07:00",
+  "snapshot": "c98018f",
   "layer": {
     "score": "2.014\u00d7",
     "interval": "1.984\u20132.045",
@@ -89,8 +89,8 @@
   ],
   "context_pending": [
     {
-      "name": "Projection rt / KLUE with conforming push paths",
-      "summary": "Separate projection context. Exit barriers and local own-rank stores are enabled. Current cross-run gains at 8/16/128; no retained gain at 32/256. Layer port/test pending. P3 compression was tested separately and lost; it is parked."
+      "name": "Projection relaxed split exit barrier",
+      "summary": "Separate projection context. Paired router savings versus ce25f67: 0.22 us at 16, 0.45/0.32 us at 128/256 (5.84%/3.13%). 8/32 inconclusive; release split loses on rt. Scored 1.4976x, aggregate gain inconclusive. Ordering caveat retained in port guide. Layer port/test pending; P3 parked."
     }
   ]
 }

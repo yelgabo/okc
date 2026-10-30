@@ -21,7 +21,15 @@ The existing CUTLASS pooler, wide 8-stage picks, DCARRY/PK16/VHOIST and failed l
 are explicitly accounted for. No kernels, validation policies, GPU runs or submissions changed.
 This is separate from the layer's M1/tuner-stability work below.
 
-## Latest hourly report, 05:39
+## Latest hourly report, 12:44
+
+**[2026-10-30 12:44 PDT: Projection split exit barrier gains](2026-10-30-1244-performance-review.md)**
+
+Evidence snapshot `c98018f`. Paired router savings at 16/128/256; 8/32 inconclusive.
+Release split loses on rt. Standalone score change is inconclusive; layer port/test pending.
+A-E standings and pending layer candidates are unchanged.
+
+## Previous hourly report, 05:39
 
 **[2026-10-30 05:39 PDT: Stream-K phase-A retest loses](2026-10-30-0539-performance-review.md)**
 
