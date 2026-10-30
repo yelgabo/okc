@@ -1772,3 +1772,97 @@ repetitions of min / median / max), against bench 7631033a0c93485d (before DCARR
   touched): 0.9 / 1.9 us behind the public kernel.
 
 Attention scored runs today: 025ccaf9c57a4ba2, 569b233dfe08414f, e9085c86d89449c2 (3 of 4).
+
+## Input-history dependence at decode 16 / 32 full: merge order, not a carry (10-30)
+
+Question (from the layer's history test, d93286b5110a4410 on the 2.014x layer 3fbb3ad027e84c6b):
+attention at 16x1f / 32x1f showed rep 0, hist 3e-5 / 8e-5, sep 3e-5 / 8e-5. Either (A) the
+previous call changes timing and so the order in which the FP32 reds reach L2, or (B) state
+carried through the workspace or counters, or read before it is published.
+
+| date | job | commit | file | result | notes |
+|---|---|---|---|---|---|
+| 2026-10-30 | 2b93c6ecf4f641c6 (check) | 389da5c | `muse_attention_decode/hist_diag.py` (`tools/attn_hist_diag.py`) | **A: merge order.** 16/16 tests, 2.462x (2.425-2.499), production path unchanged | diagnostic, not a candidate; profiles committed |
+
+Build: `attn_one.cu` gained `ONE_DETM` (default 0, diagnostic only). With 1, modes 17 / 49 store
+each warp's fixed-frame partial (o * 2^m, l * 2^m) into its own slot in `dbg` instead of reds,
+and the request's last CTA (same ticket) sums the slots of every split that holds keys of the
+request in split order, warp 0 before warp 1. The slots are never zeroed, so a read before
+publication would read the previous call's partials. Compile gate: the production build's SASS
+(all 13 instances, CUDA 12.8.1, `tools/attn_ws_quick.sh -s`) is identical to the build before
+the change (77,581 lines, kernel names normalized); host code compiles in both builds
+(`tools/attn_host_check.sh`). Mode 49 in the DETM build: no REDG, 4 STG.128 + 1 STG per thread
+for the slots, the same ATOMG ticket and MEMBAR.ALL.GPU, no spills.
+
+Protocol (decode, ctx 80000 on every request, page size 1, plan (264, 1, 49), four random qkv
+inputs, the layer's `_hist_probe` definitions; `other` is a second case with the same seed and
+its own caches):
+
+| arm | 16x1f rep / hist / sep | 32x1f rep / hist / sep | distinct outputs, 9 calls on one input | worst diff |
+|---|---|---|---|---|
+| prod | 5e-5 / 6e-6 / 5e-5 | 9e-6 / 7e-5 / 7e-5 | 4 / 5 | 1-3 elements, 1 BF16 ulp |
+| prod, previous call on a copy of input k (same values, other address) | 5e-5 | 7e-5 | | 1-2 elements |
+| prod, 256 MB L2 flush before every call | 2e-4 / 2e-4 / 2e-4 | 7e-5 / 7e-5 / 7e-5 | 4 / 4 | 1 BF16 ulp |
+| det | 0 / 0 / 0 | 0 / 0 / 0 | 1 / 1 | 0 |
+| det, flush before every call | 0 / 0 / 0 | 0 / 0 / 0 | 1 / 1 | 0 |
+
+- det against prod: 5.2e-5 / 7.3e-5 (one element of 16,384 / 32,768, one BF16 ulp). det on
+  input 0 after interleaved prod calls and det calls on the other case: 0.
+- Workspace scan after every production call (283 scans): every row, row sum and ticket zero,
+  the next cooperative parity counter of every request and the flat one zero, every int from
+  `ws_cnt[16387]` on zero. Dirty: 0. Including after a call on each other plan: modes 11
+  (1x1f, 1x8f, nc 8), 13 (1x1s), 1 (32x1s), 3 (16x8s), 51 (16x8f) and 49 at batch 32 page 64;
+  after each, 16x1f on a fixed input differed from its reference by 0 or one element at one
+  ulp (the same noise as rep).
+
+Reading: in production, repeated inputs are not bitwise either (4-5 distinct outputs in nine
+calls); the layer's rep 0 was a draw, not a property. A previous call with identical values at
+another address moves the output as much as a call on a different input, which a carry of
+values cannot do. With the merge order fixed, every arm is bitwise under every history
+(previous input, the separate case, flushes, interleaved production calls), and the slots
+the DETM build reads are never cleared, so a read before publication or a stale reuse would
+have shown there. The entry state is all-zero after every plan. The magnitude, one element
+moved by one BF16 ulp, is FP32 sum-order rounding. Verdict A; no change to the shipped kernel.
+
+### Ordering chain: mode 49 workspace reset and reuse
+
+Sections are from the PTX ISA 9.4 documentation as cited in the 10-29 entries above (8.8
+Release and Acquire Patterns, 8.9.4 Memory synchronization, 8.10.1 / 8.10.3 coherence order
+of a location's writes and RMWs, 9.7.15.14 `griddepcontrol`). The barrier rules are the
+`bar.sync` semantics the ticket already relied on in review; their subsection number was not
+re-read this session.
+
+Global state a mode 49 launch reads that an earlier launch wrote: the rows `ws_acc` / `ws_l`
+`[b * 16 + head]` (nc 1, by `red.global.add` and the finalizer's `ld.global.cg`) and the ticket
+`ws_cnt[b]` (by `atom`). Nothing else: the epoch copy is `cp.async` with source size 0 when
+not cooperative (zero fill, no read), `ws_cnt[CNT_FLAT + 2]` is read only by cooperative
+modes, and `seq_lens`, `page_table`, `qkv`, `cache_loc` and the caches are inputs.
+
+1. Every consumer thread of every CTA that holds keys of request b adds its partial with
+   `red.global.add.f32` / `.v4.f32` (relaxed, .gpu scope by default) into the rows of b.
+2. `bar.sync 1, 128` across the consumers, then thread 0 issues `atom.acq_rel.gpu.add` on
+   `ws_cnt[b]` with its key count. The barrier puts every consumer's reds before thread 0's
+   release in causality order (program order plus the barrier's synchronization, 8.9.4); the
+   atom is a release pattern (8.8).
+3. All RMWs of `ws_cnt[b]` are totally ordered in its coherence order (8.10.1, 8.10.3), and the
+   key ranges tile the request exactly, so exactly one CTA's RMW reads `old + mine >= n_keys`.
+   That RMW reads the value written through the chain of every other CTA's release RMW, so each
+   of those releases synchronizes with its acquire (observation order through an RMW chain,
+   8.8 / 8.9.4). Every red of every other CTA to b's rows therefore happens before it.
+4. Thread 0 writes the shared flag and `bar.sync` again; the other consumers' `ld.global.cg`
+   of b's rows follow that barrier, so the reds of step 1 are visible to them. No red to b's
+   rows can follow in this launch: every contributing CTA has already arrived, after its reds.
+5. Each finalizer thread zeroes, with `st.global.cg`, exactly the words it loaded, after its
+   own load (same thread, same address: coherence order, 8.10.1). Thread 0 then stores
+   `ws_cnt[b] = 0`; no other CTA touches the ticket after the completing RMW.
+6. The next launch on the stream starts after this grid completes and its writes are performed
+   (stream order; under PDL in the layer, `griddepcontrol.wait` waits for the prerequisite
+   grid's completion and memory flush, 9.7.15.14, and the layer places the wait before the
+   first workspace access). So it sees zero rows and a zero ticket.
+
+Other plans keep the same invariant with their own finalizers (mode 11 reads and zeroes all
+eight copies; cooperative modes clear the next parity counter before bumping the epoch); the
+283 scans above measured it after every plan the judge's shapes route to. The cache row the
+launch writes (the block's own key and value) is read by no other CTA in the launch: the one
+CTA whose range holds the position patches its tile from shared memory after the full-barrier
+wait, over whatever the producer gathered.
