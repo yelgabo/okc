@@ -1,11 +1,11 @@
 {
-  "reviewed_at": "2026-10-30T02:38:00-07:00",
-  "snapshot": "8838272",
+  "reviewed_at": "2026-10-30T03:37:00-07:00",
+  "snapshot": "16573a6",
   "layer": {
     "score": "2.014\u00d7",
     "interval": "1.984\u20132.045",
     "job": "3fbb3ad027e84c6b",
-    "note": "Layer remains 2.014\u00d7; no new layer result. E cross-tile variants lose cold. Separate projection rt/KLUE router wins await a layer port; ordering questions remain. M1/mode-51 revised gates and layer stable tuner still await GPU tests."
+    "note": "Layer remains 2.014\u00d7. Separate attention merge HMRG wins standalone (paired ratio 1.0214; null 1.0037), awaiting layer tests. E pipeline losses stand. Projection now uses conforming push paths; 32/256-token gains do not survive in current cross-run data."
   },
   "families": [
     {
@@ -73,12 +73,22 @@
       "summary": "DCARRY / PK16 / VHOIST wins remain integrated. Real cross-tile XPIPE=2 overlap gains warm but loses cold; mode 115 + XPIPE=1 also loses.",
       "layer": "Earlier bundle layer-tested; new pipelines fail component gates",
       "pending": [],
-      "limit": "XPIPE=2: +3.44% / +0.42% cold. Mode 115 + XPIPE=1: +25.48% / +28.09%. Short-shape reduction ownership is untested. These losses do not reject all pipelines.",
+      "limit": "XPIPE=2: +3.44% / +0.42% cold. Mode 115 + XPIPE=1: +25.48% / +28.09%. HMRG is a separate short-token merge win awaiting layer tests, not an isolated pipeline gain.",
       "source": "runs-attention.md",
       "outcomes": [
         "win",
         "loss"
       ]
+    }
+  ],
+  "context_pending": [
+    {
+      "name": "Attention ONE_HMRG key-half merge",
+      "summary": "Separate from A-E pipeline attribution. Confirmed standalone ratio 1.0214 vs null 1.0037; scored 2.479\u00d7. Layer port/test pending."
+    },
+    {
+      "name": "Projection rt / KLUE with conforming push paths",
+      "summary": "Separate projection context. Exit barriers and local own-rank stores are enabled. Current cross-run gains at 8/16/128; no retained gain at 32/256. Layer port/test pending."
     }
   ]
 }

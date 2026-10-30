@@ -21,7 +21,15 @@ The existing CUTLASS pooler, wide 8-stage picks, DCARRY/PK16/VHOIST and failed l
 are explicitly accounted for. No kernels, validation policies, GPU runs or submissions changed.
 This is separate from the layer's M1/tuner-stability work below.
 
-## Latest hourly report, 02:38
+## Latest hourly report, 03:37
+
+**[2026-10-30 03:37 PDT: HMRG standalone win; conforming projection correction](2026-10-30-0337-performance-review.md)**
+
+Evidence snapshot `16573a6`. HMRG merge wins independently of E pipeline experiments and
+awaits layer tests. Projection avoids the disputed ordering behaviors; current cross-run
+results retain no gain at 32/256. No new whole-layer result.
+
+## Previous hourly report, 02:38
 
 **[2026-10-30 02:38 PDT: E pipeline losses and standalone router gains](2026-10-30-0238-performance-review.md)**
 

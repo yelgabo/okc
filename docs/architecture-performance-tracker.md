@@ -1,6 +1,6 @@
 # Architecture performance tracker
 
-Last review: 2026-10-30 02:38 PDT. Evidence snapshot: `8838272`.
+Last review: 2026-10-30 03:37 PDT. Evidence snapshot: `16573a6`.
 First review reconciles progress since `aab7d75`, the snapshot in the
 [architecture-family guide](architecture-families-2026-10-29.md).
 This is a review of recorded experiments, not a new benchmark run.
@@ -16,9 +16,100 @@ named control, not changes in aggregate score. Families overlap; their gains can
 | B. Staged grouped MoE | Retested loss | Modes 45 + 46 on mode 37 components lose 30.4/24.4 us at 128/256 versus 37, six seeds each. | Parked until phase B alone drops below about 50 us at 128 or the fused phase A tail disappears. |
 | C. Owner-completes tiles | Retained in the persistent descendants | Mode 20's owned phase A saves about 2-3 us at 128 and 4 us at 256 over mode 16. Later modes combine ownership with other changes. | Later gains cannot be credited to ownership alone. |
 | D. Dependency-aware scheduling | Dynamic claiming retained; split-tail variants lose | Modes 52/53 split the last claimed phase B units through fixup and lose at 32/128/256. | Full ready-only scheduling remains untested; do not generalize the split-tail loss to the family. |
-| E. Attention producer-consumer pipeline | Earlier wins retained; new cross-tile variants lose cold | XPIPE=2 adds 3.90/0.80 us at 128/256; mode 115 with XPIPE=1 adds 28.10/52.61 us versus mode 51. | DCARRY/PK16/VHOIST stays integrated. New pipeline variants fail their cold gates; short-shape reduction ownership remains untested. |
+| E. Attention producer-consumer pipeline | Earlier wins retained; new cross-tile variants lose cold | XPIPE=2 adds 3.90/0.80 us at 128/256; mode 115 with XPIPE=1 adds 28.10/52.61 us versus mode 51. | DCARRY/PK16/VHOIST stays integrated. New pipeline variants fail their cold gates; HMRG merge is a separate standalone win awaiting layer tests. |
 
-## Latest review: E pipeline losses; separate projection router gains
+## Latest review: HMRG attention merge wins; projection ordering correction
+
+A-E outcomes and the A-versus-B decision at 128/256 remain unchanged. `ONE_HMRG` is an
+attention key-half merge before global reductions, not the family E cross-tile pipeline or
+MoE family C. It is a standalone component win awaiting a separate layer port/test.
+The XPIPE cold losses remain valid. No new MoE or whole-layer result is recorded.
+[Attention round 2](runs-attention.md#standalone-round-2-10-30-a3-merge--finalize-and-the-batch-1-full-prologue).
+
+### Separate attention context: HMRG
+
+`ce92d32e26024bd2` at `d8d43f3` first reports HMRG cold ABSCORE 1.0180 against the
+board-code control (duplicate null 0.9993). Per-input rows were truncated, so the sign gate
+could not be checked from that log alone. Confirmation `d0819bb26907426b` at `9eafafc`
+reports 1.0214 with the control's workspace, 1.0232 with an independent workspace, versus
+null 1.0037. Both benches pass 16/16 judge tests and ABCHECKSUM 19/0 for real arms.
+The bench uses 120 randomized rounds, two held-out inputs, seeds 1000/1001; routing distribution
+is not applicable. Logged pooled cold deltas and control medians from the confirmation:
+
+| Decode shape | Control | HMRG delta | Delta / control | Per-input deltas |
+|---|---:|---:|---:|---|
+| 1 token sliding | 9.89 us | -0.64 us | -6.47% | -0.54 / -0.70 us |
+| 1 token full | 18.69 us | -1.54 us | -8.24% | -1.50 / -1.50 us |
+| 16 tokens sliding | 14.34 us | -1.44 us | -10.04% | -1.47 / -1.41 us |
+| 32 tokens sliding | 16.61 us | -0.83 us | -5.00% | -0.86 / -0.86 us |
+
+Pooled deltas differ from per-input summaries. No paired confidence intervals are reported.
+The independent-state result supports the gain despite the known decode-1 full placement
+spread. HMRG changes only q_len=1 modes 1/3/11/13; 128/256-token verify paths have identical
+code, so their timing movement is not an HMRG gain. It halves the q_len=1 global reductions
+by merging key halves in shared memory first. The recorded independent ordering review finds
+the added waits/barriers sound within its source scope.
+[First bench](../muse_attention_decode/profiles/bench_e.ce92d32e26024bd2.log),
+[confirmation](../muse_attention_decode/profiles/bench_f.d0819bb26907426b.log).
+
+Candidate-only checks `5d309f9d13924dca` (`dc6b409`, SHA256 prefix `93297101`) and
+`82b1bf0fad3244b9` (same code plus a comment) pass 16/16, scoring 2.512
+(2.475-2.550) and 2.582 (2.543-2.620). These are cross-run observations; unchanged verify
+paths also accelerate in the repeat. The coordinator's scored run `57b0bed35f694a23`, same
+source, is logged as passed at 2.479x; its receipt, interval and test count are absent locally.
+The attention board remains `e9085c86d89449c2` at 2.504x, a bench-file entry. The scored HMRG
+result is the best clean candidate-only scored run recorded, not a board replacement.
+[Check receipt](../muse_attention_decode/profiles/hmrg.5d309f9d13924dca.json),
+[repeat receipt](../muse_attention_decode/profiles/hmrg_r.82b1bf0fad3244b9.json),
+[scored log](runs-attention.md#scored-57b0bed35f694a23-2479x-2026-10-30).
+
+Preserve rejected alternatives: HMRG plus last-CTA ticket (`ONE_T9`, `hmtk`) adds 8.67 us
+at verify-1 full and 1.79/1.70/1.41 us at verify-1/16/32 sliding versus control in
+`ce92d32e26024bd2`. Its additional 0.22 us saving at decode-1 full is inconclusive under
+the placement null. Removing cooperative launch gains only 0.38 us at decode-1 full and
+retains no promotion claim. Phase comparisons close the batch-1 full prologue as the
+public kernel's advantage: both pay nearly the same cost. Cluster/DSMEM merge and overlapped
+finalize remain unbuilt. The next meaningful HMRG gate is a complete-layer comparison after
+porting, not another isolated pipeline attribution. [Rejection register](ruled-out.md).
+
+### Separate projection context: conforming push paths
+
+The current `ce25f67` candidate uses exit cluster barriers on every push path and local
+stores for rt's own-rank share. It no longer relies on the two ambiguous behaviors discussed
+in the previous review. This is a correction to the current candidate status, not a claim
+that the old behavior was proven sound. [Port-guide decision](proj-port-guide.md).
+
+`3abb1cd974e2477d` and `d7c662296eaa4413` at `ce25f67` (header-only difference) pass
+9/9 and score 1.495 (1.473-1.517) / 1.496 (1.473-1.518). Lt picks agree; router32
+switches between tied rt variants. The following are cross-run means of the two conforming
+checks versus the two earlier confirmations, not paired isolated barrier costs:
+
+| Router tokens | Earlier mean | Conforming mean | Change | Change vs scored d0dc80f |
+|---|---:|---:|---|---|
+| 8 | 4.26 us | 4.43 us | +0.17 us (+3.99%) | -1.25 us (-22.01%) |
+| 16 | 4.54 us | 4.80 us | +0.26 us (+5.73%) | -0.44 us (-8.40%) |
+| 32 | 5.48 us | 5.49 us | +0.01 us (+0.18%) | +0.04 us (+0.73%) |
+| 128 | 6.61 us | 7.19 us | +0.58 us (+8.77%) | -0.30 us (-4.01%) |
+| 256 | 9.60 us | 9.81 us | +0.21 us (+2.19%) | 0.00 us (0.00%) |
+
+Percentages use the rounded logged means; d0dc80f controls are reconstructed from the logged
+deltas (5.68/5.24/5.45/7.49/9.81 us). Two runs per build, no interval for these per-shape
+changes. The previously measured non-conforming KLUE/rt wins remain historical; current
+cross-run data shows no retained gain at 32/256. Do not transfer the old paired percentage
+to the corrected candidate. [Run log](runs.md#conforming-push-paths-coordinator-decision-2026-10-30),
+[receipt 1](../muse_bf16_proj/profiles/submission_r2t1.3abb1cd974e2477d.json),
+[receipt 2](../muse_bf16_proj/profiles/submission_r2t2.d7c662296eaa4413.json).
+
+Coordinator submission `d59bc7af342a465d` is logged at 1.4879x, source `ce25f67`, versus
+previous projection board entry `1d277e7fe9c44712` at 1.4818x. Receipt/interval/correctness
+count for this submission are absent locally; do not interpret the score difference as a
+controlled gain. Projection remains unported to the layer. P3 remains unbuilt.
+
+Next evidence: HMRG layer port and controlled layer test, receipts for the two new scored
+runs, and a paired conforming projection comparison if isolated retained gains matter.
+Standalone and layer promotion are separate decisions; do not add these component scores.
+
+## Historical review, 02:38: E pipeline losses; separate projection router gains
 
 Attention roadmap labels A1/A2 are experiments within family E, not family A (MoE).
 The earlier DCARRY/PK16/VHOIST wins and their combined layer integration remain valid.
@@ -767,10 +858,19 @@ has CPU tests but no GPU measurement. Keep mode 51's component gains separate fr
 result. The tested mode-49 history lead supports merge-order rounding; ordering reviews are
 complete within their scope. B remains parked, and the new gather variants do not revive it.
 D's full ready-only queue is still untested. E's new cross-tile variants fail their cold gates;
-use the short-shape reduction budget for its next controlled comparison. Projection router
-wins are standalone, with ordering questions and a separate layer-port gate. [Rejection register](ruled-out.md).
+HMRG now wins on short shapes as a separate merge change and awaits layer tests. Projection
+uses conforming push paths; current cross-run results retain no gain at 32/256 tokens. [Rejection register](ruled-out.md).
 
 ## Review history and checkpoint
+
+- 2026-10-30 03:37 PDT: inspected `8838272..16573a6`, including projection changes that
+  landed before the previous documentation commit. Checkpointed attention `ce92d32e26024bd2`,
+  `d0819bb26907426b`, `5d309f9d13924dca`, `82b1bf0fad3244b9` and projection
+  `3abb1cd974e2477d`, `d7c662296eaa4413`; all six receipts parsed. New scored jobs
+  `57b0bed35f694a23` and `d59bc7af342a465d` are log-only. Prior three missing projection
+  receipts remain absent. E pipeline losses stand; HMRG is separate merge context. MoE/layer
+  logs unchanged; 18 untracked profiles already logged. Origin/main fetched, no remote-only
+  commits at inspection. No benchmark, submission or push by this review.
 
 - 2026-10-30 02:38 PDT: inspected `1e42dbe..8838272`; checkpointed five attention jobs
   (`5575e7d15d3e49a8`, `318ae6fc3c3746ce`, `a92aa9c43f064c49`,
