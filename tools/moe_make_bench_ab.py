@@ -64,11 +64,19 @@ judge's prepare(), on random NVFP4 weights (32 experts):
            zero-skew release would remove (min(wait, slowest warp's release of the slot minus
            this warp's)), the producer's delay after the slowest release, the copy latency
            (first waiting warp's wait end minus the producer's issue), this warp's lead (its
-           stage start minus its own release of the slot) and the x copy latency.
+           stage start minus its own release of the slot) and the x copy latency. Since
+           2026-10-30 also the trailing warpgroup's (the one whose mean stage start is latest)
+           weights and x waits and its share a zero-skew release would remove, in us per warp
+           summed per CTA, and how often the same warpgroup trails within a CTA (persistence,
+           0.25 = no preference, 1 = always the same one). Skew twins: 49 of 47, 56 of 51.
+  ABGATHER for the light twins that stamp the x gather (55, 56 of 51): thread 0's row stores,
+           its fences and the gather barrier, its release, the x producer's first xready wait
+           end after the release, and the public kernel's gather (its DBG 1 to 7, which also
+           holds its ss zeroing and row-base scan) and join. Not with --pubranges (DBG slot 7).
 
 The judge's prepare() that follows runs with its output filtered to its summary lines (POLICY,
 PREPARE, BENCH at 128 and 256 tokens, each variant's worst self-test error), so the run log's
-15 KB tail keeps the A/B. Twins: 26 -> 27 and 37 -> 42 (light stamps), 28 -> 31, 32 -> 33, 36 -> 38,
+15 KB tail keeps the A/B. Twins: 26 -> 27, 37 -> 42, 47 -> 48 and 51 -> 55 (light stamps), 28 -> 31, 32 -> 33, 36 -> 38,
 39 -> 40, 37 -> 41 and 43 -> 44 (light stamps and phase A counters, 41 and 44 with phase B
 counters too; name a twin as an arm to time it so its cost shows). An arm "v301" (the staged pair on 37's components) also
 builds modes 45 and 46 and needs 37 built (its fallback above 512 tokens).
@@ -82,8 +90,10 @@ import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
-LIGHT_TWINS = {26: 27, 37: 42, 47: 48, 52: 54}
-SKEW_TWINS = {47: 49}
+LIGHT_TWINS = {26: 27, 37: 42, 47: 48, 52: 54, 51: 55}
+SKEW_TWINS = {47: 49, 51: 56}
+# Light twins whose kernels also stamp the x gather (gather_st in the kernel): ABGATHER.
+GATHER_TWINS = (55, 56)
 PA_TWINS = {28: 31, 32: 33, 36: 38, 39: 40, 37: 41, 43: 44}
 PB_TWINS = (41, 44)
 # Variant arms that need fat modes built: v301 is the staged pair on 37's components (45 then 46).
@@ -223,6 +233,7 @@ _AB_STAMP_SIZES = @STAMPSIZES@
 _AB_SKEW = @SKEW@
 _AB_PUBSKEW = @PUBSKEW@
 _AB_SK_PER = @SKPER@
+_AB_GATHER = @GATHER@
 _AB_WORK = @WORK@
 
 
@@ -431,6 +442,16 @@ def _ab_main():
         haswait = waiting.any(-1)
         lat = arr - P
         lead = S0 - Rp
+        # The warpgroup that starts stage q last sets the CTA's pace there (an assumption the
+        # persistence column tests): its own waits are the ones per-warpgroup slots could shorten.
+        trail = wgm.argmax(-1)
+
+        def pick(T):
+            return T.view(G_, Q, 4, 4).mean(-1).gather(-1, trail[..., None]).squeeze(-1)
+
+        tw = pick(Ww.clamp(min=0))
+        tx = pick(Wx.clamp(min=0))
+        te = pick(expl)
         wx = Wx > 64
         arrx = torch.where(wx, Ex, torch.full_like(Ex, float("inf"))).min(-1).values
         latx = arrx - X
@@ -444,6 +465,12 @@ def _ab_main():
             ml = mp & haswait & (P > 0)
             mx = m & wx.any(-1) & (X > 0)
             mean = lambda t, k: float(t[k].mean()) if bool(k.any()) else 0.0
+            pers = []
+            for c in range(G_):
+                tc = trail[c][m[c]]
+                if tc.numel():
+                    pers.append(float(torch.bincount(tc, minlength=4).max()) / tc.numel())
+            us = lambda t, k: float(t[k].sum()) / G_ / ghz / 1e3
             out.append([nst, float(Ww[mw].sum()) / (16 * G_) / ghz / 1e3,
                         float(Wx[mw].sum()) / (16 * G_) / ghz / 1e3,
                         float((Ww + Wx)[mw].sum()) / max(2.0 * float(mw.sum()), 1.0),
@@ -452,13 +479,16 @@ def _ab_main():
                         float(expl[mpw].sum()) / max(float(Ww[mpw].clamp(min=0).sum()), 1.0),
                         float(waiting[mw].double().mean()) if bool(mw.any()) else 0.0,
                         mean(react, mp & (P > 0)), mean(lat, ml), mean(lead, mpw),
-                        mean(latx, mx), ghz])
+                        mean(latx, mx), ghz, us(tw, m), us(tx, m), us(te, mp),
+                        sum(pers) / max(len(pers), 1)])
         return out
 
     skew_cols = ("stages", "warp w-wait us", "x-wait us", "cycles per wait", "start skew",
                "wg-mean skew", "within-wg skew", "w-ready skew", "release skew",
                "w-wait share from release skew", "w-waits >64 cyc", "producer delay",
-               "copy latency", "lead", "x copy latency", "GHz")
+               "copy latency", "lead", "x copy latency", "GHz", "trailing-wg w-wait us",
+               "trailing-wg x-wait us", "trailing-wg w-wait from release skew us",
+               "trailing-wg persistence")
 
     def ours_skew(data, v):
         reg = state["scratch"]["inter"].reshape(-1).view(torch.int64)
@@ -510,6 +540,25 @@ def _ab_main():
             full = d.view(G, 18, 8)
             light = full[:, 16:18, :].reshape(G, 16)
         return torch.cat([light[:, :7], light[:, 8:14]], 1), full
+
+    def gather_summary(lt, pd, prng):
+        # lt: the 16 light words of a gather_st twin; pd, prng: the public kernel's stamps.
+        # Means over CTAs, us: thread 0's row stores, its fences and the gather barrier, its
+        # release, the x producer's first xready wait end after the release (CTAs with a phase A
+        # job), the whole gather; the public kernel's gather (DBG 1 to 7: ss zeroing, row bases,
+        # gather, release) and its join (DBG 7 to 6).
+        g0, rel, xr, st, bar = lt[:, 1], lt[:, 2], lt[:, 7], lt[:, 14], lt[:, 15]
+        ok = xr > 0
+        r = [float((st - g0).mean()), float((bar - st).mean()), float((rel - bar).mean()),
+             float((xr - rel)[ok].mean()) if bool(ok.any()) else 0.0,
+             float((xr[ok].max() - g0.min())) if bool(ok.any()) else 0.0,
+             float((rel - g0).mean()), float((prng.double() - pd[:, 1]).mean()),
+             float((pd[:, 2] - prng.double()).mean())]
+        return [x / 1e3 for x in r]
+
+    gather_cols = ("stores", "fences+barrier", "release", "first x ready after release",
+                   "last first-x-ready from first gather start", "gather total", "pub gather",
+                   "pub join")
 
     def summarize(d):
         t0 = float(d[:, 0].min())
@@ -732,6 +781,7 @@ def _ab_main():
                 arms["sk8w4s"] = lambda d: _run(d, state, 0)
             tim = {a: [] for a in arms}
             stamps = {a: [] for a in [*light, *padiag, "pub"]}
+            gath = {a: [] for a, m in _AB_LIGHT.items() if m in _AB_GATHER}
             diags = {a: [] for a in padiag}
             pbdiags = {a: [] for a in padiag if a in _AB_PB}
             skd_ = {a: [] for a in [*skewv, *(["pub"] if pskew is not None else [])]}
@@ -760,8 +810,12 @@ def _ab_main():
                     for a in chk:
                         chk[a].append(_rel(_run(d, state, timed[a]).float(), ob))
                     continue
+                lraw = {}
                 for a, v in light.items():
                     stamps[a].append(summarize(ours_stamped(d, v, 16)[0]))
+                    if a in gath:
+                        lraw[a] = state["scratch"]["inter"].reshape(-1).view(torch.int64)[
+                            : G * 16].view(G, 16).double().cpu()
                 for a, v in skewv.items():
                     skd_[a].append(ours_skew(d, v))
                 if pskew is not None:
@@ -814,6 +868,8 @@ def _ab_main():
                     continue
                 stamps["pub"].append(summarize(pd))
                 pubd.append(pub_summary(pd, prng))
+                for a in gath:
+                    gath[a].append(gather_summary(lraw[a], pd, prng))
             n = len(_AB_SEEDS)
             print(f"ABTIME {tag} mean of {n} " + " ".join(f"{a} {sum(v) / n:.1f}"
                                                          for a, v in tim.items()))
@@ -860,6 +916,10 @@ def _ab_main():
             for a, rows in pbdiags.items():
                 m = [sum(r[i] for r in rows) / n for i in range(len(rows[0]))]
                 print(f"ABDIAGB {tag} {a} " + ", ".join(f"{c} {v:.2f}" for c, v in zip(pb_cols, m)))
+            for a, rows in gath.items():
+                m = [sum(r[i] for r in rows) / n for i in range(len(gather_cols))]
+                print(f"ABGATHER {tag} {a} " + ", ".join(f"{c} {v:.2f}"
+                                                         for c, v in zip(gather_cols, m)))
             m = [sum(r[i] for r in pubd) / n for i in range(len(pubd[0]))]
             print(f"ABPUB {tag} " + ", ".join(f"{c} {v:.2f}" for c, v in zip(pub_cols, m)))
             for a, rows in skd_.items():
@@ -968,7 +1028,8 @@ def main():
                      ("@STAMPSIZES@", repr(ints(opts["stampsizes"]) if opts["stampsizes"] else ())),
                      ("@SKEW@", repr(skewt)), ("@SKPER@", repr(SK_PER)),
                      ("@PUBSKEW@", repr(bool(opts["pubskew"]))),
-                     ("@WORK@", repr(bool(opts["work"])))):
+                     ("@WORK@", repr(bool(opts["work"]))),
+                     ("@GATHER@", repr(GATHER_TWINS))):
         assert block.count(key) == 1, key
         block = block.replace(key, val)
     Path(out).write_text(src + block)

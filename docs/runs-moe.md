@@ -1692,6 +1692,41 @@ the PDL preamble's L2 prefetch (it hints unit 0 of all 32 local experts, 18.9 MB
 experts are active at 32 tokens), and repeat the decode 32 attribution over more than one
 profiled replay before charging 10-14 us to the MoE.
 
+## The x gather or the warpgroup skew: re-measurement on mode 51, 2026-10-30
+
+Brief: of the two untested leads in the 2026-10-29 fat-MoE steering addendum (3), the setup's x
+gather (+3.4 / +3.5 us against the public kernel at 128 / 256 tokens in 48's stamps) and per
+warpgroup weights slots against the skew (up to 72-74% of the weights-wait cycles, a bound on
+waits, not on SM time), pick the larger by a short re-measurement on mode 51 and build one.
+
+### Method
+
+Modes 55 and 56 are timing-only twins of 51: 55 with the light stamps, 56 with the light stamps
+and 49's per-warp stage stamps. Both add three light stamps around the x gather (gather_st):
+thread 0's globaltimer after its row stores and after the gather barrier (its fences included),
+and the x producer's when the xready wait of its first phase A job ends. The tool prints them as
+ABGATHER (with the public kernel's gather, DBG 1 to 7, which also holds its ss zeroing and
+row-base scan). ABSKEW gains the trailing warpgroup's columns: per stage, the warpgroup whose
+mean stage start is latest is taken to set the CTA's pace, and its own weights and x waits, the
+part of its weights waits a zero-skew release would remove, and how often the same warpgroup
+trails within a CTA (persistence) are reported. Production SASS is unchanged (compile gate
+below).
+
+Check: one bench file from `tools/moe_make_bench_ab.py --base=51 --sizes=128,256
+--routings=layer --skew=1` (twins 55 and 56, the public kernel with its stamps), layer seeds
+1-6.
+
+Decision rule, set before the check:
+
+- Value of (a), the gather: the same-process gap of the gather piece (ABSTAMP "start" minus
+  "route", 55 against the public kernel) at 128 and at 256 tokens. Every CTA's phase A waits on
+  the slowest gatherer of its jobs, so this is a critical-path gap.
+- Value of (b), per-warpgroup weights slots: an upper bound on what they can take off the
+  critical path, the trailing warpgroup's weights waits that a zero-skew release would remove
+  (ABSKEW "trailing-wg w-wait from release skew us"), phases A and B summed, from 56. The x ring
+  stays shared under (b), so x waits do not count toward it.
+- Build (b) only if its bound exceeds (a)'s gap at both sizes; otherwise build (a).
+
 ## Staged pair on current components, 2026-10-29
 
 The staged two-launch MoE (mode 19, phase A alone on owned units, then mode 21, phase B and the
