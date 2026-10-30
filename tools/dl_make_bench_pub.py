@@ -611,23 +611,34 @@ def _ab_run(arms, weights, t_prep):
                     continue
                 _ab_print(f"ABTL {label} {n} {span:.1f}: " + " ".join(
                     f"{'s1:' if r else ''}{c}@{st:.1f}+{d:.1f}" for r, st, d, c in ks))
+                names_of = {code: nm for nm, code in _AB_CODES.items()}
+                top = sorted(ks, key=lambda e: -e[2])[:5]
+                _ab_print(f"ABTOP {label} {n} span {span:.1f}: " + " ".join(
+                    f"{names_of[c][:18]}:{d:.1f}" for _, _, d, c in top))
     if missing:
         _ab_print("ABSTOP missing coverage (not timed, not a pass): " + " ".join(missing))
     logs = {n: [] for n in names}
+    nulls = []
     for load in _AB_LOADS:
         if (load, "sliding") not in res or (load, "full") not in res:
             continue
         c = {n: 46 * res[(load, "sliding")][n] + 16 * res[(load, "full")][n] for n in names}
         for n in names:
             logs[n].append(math.log(c[_AB_REF_ARM] / c[n]))
+        nulls.append(math.log(c["cand"] / c["null"]))
         _ab_print(f"ABLOAD {load} (46 sliding + 16 full) / 62: "
-                  + " ".join(f"{n} {c[n] / 62:.1f}" for n in names))
+                  + " ".join(f"{n} {c[n] / 62:.1f}" for n in names)
+                  + f" | {_AB_REF_ARM}/arm " + " ".join(
+                      f"{n} {c[_AB_REF_ARM] / c[n]:.4f}" for n in names if n != _AB_REF_ARM)
+                  + f" | null check cand/null {c['cand'] / c['null']:.4f}")
     nl = len(logs[_AB_REF_ARM])
     if nl:
         _ab_print(f"ABSCORE geometric mean over {nl} loads of {_AB_REF_ARM} load time / arm load "
                   "time (above 1: arm faster): "
                   + " ".join(f"{n} {math.exp(sum(v) / nl):.4f}" for n, v in logs.items()
-                             if n != _AB_REF_ARM))
+                             if n != _AB_REF_ARM and n != "null")
+                  + f"; null check: cand / null {math.exp(sum(nulls) / nl):.4f} (the same "
+                  "file timed twice; its distance from 1 is the bench's noise)")
     for name, code in _AB_CODES.items():
         _ab_print(f"ABKN {code} {name}")
 
@@ -678,7 +689,7 @@ def prepare(weights):
     # The log keeps only its last 16,000 characters: timelines first, then correctness, then
     # the timing tables.
     order = ("ABTL", "ABKN", "ABBUILD", "ABPREP", "ABPIN", "ABDIAG", "ABOTHER", "ABARMS", "ABFAIL", "ABCHECK", "ABSTOP",
-             "ABTIME", "ABLOAD", "ABSCORE")
+             "ABTIME", "ABLOAD", "ABSCORE", "ABTOP")
     rank = lambda line: next((i for i, p in enumerate(order) if line.startswith(p)), 0)  # noqa: E731
     for line in sorted(_AB_OUT, key=rank):
         print(line, flush=True)
