@@ -21,6 +21,13 @@ The existing CUTLASS pooler, wide 8-stage picks, DCARRY/PK16/VHOIST and failed l
 are explicitly accounted for. No kernels, validation policies, GPU runs or submissions changed.
 This is separate from the layer's M1/tuner-stability work below.
 
+## Latest hourly report, 00:32
+
+**[2026-10-30 00:32 PDT: Scored M1 candidates leave gains unresolved](2026-10-30-0032-performance-review.md)**
+
+Evidence snapshot `a48edef`. Two 2.013x scored runs: M1 status unknown in one, off in the
+other. Revised census-gate candidates and stable-tuner build await GPU checks.
+
 ## Latest layer note: M1's 1x1 gate failure and the route row control (2026-10-30)
 
 **[2026-10-30: M1's 1x1 sliding gate failure in d6c30f88c617438b](2026-10-30-m1-1x1s-gate-failure.md)**:
@@ -31,7 +38,7 @@ control missed because it copied a zero row (a token with no local route) over a
 fixed and tested offline. After the reset: a targeted reproduction check, then a four-arm
 bench of release + mode 51 (layer_g51b) against the release.
 
-## Latest hourly report, 23:35
+## Previous hourly report, 23:35
 
 **[2026-10-29 23:35 PDT: Arm bias leaves mode 51 layer gain unresolved](2026-10-29-2335-performance-review.md)**
 
