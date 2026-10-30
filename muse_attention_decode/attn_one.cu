@@ -151,6 +151,14 @@ constexpr int COOP_POLL_LIMIT = 1 << 24;
 #ifndef ONE_TRIG
 #define ONE_TRIG 0
 #endif
+// ONE_DETM (diagnostic, never in a judged or layer file): the flat q_len 1 modes (17, 49)
+// store each warp's partial into its own slot in dbg (read as float) instead of reds into the
+// workspace, and the last CTA of a request sums the slots in split and warp order, so the
+// output no longer depends on the order the reds reach L2 (docs/runs-attention.md, 10-30
+// input-history test). The build holds only mode 49.
+#ifndef ONE_DETM
+#define ONE_DETM 0
+#endif
 constexpr int STAMP_BASE = 1024;
 constexpr int STAMP_W = 16;
 
@@ -599,6 +607,15 @@ __device__ __forceinline__ int kmaj(int r, int kc) {
     return ((r >> 3) * 4 + kc) * 128 + (r & 7) * 16;
 }
 
+#if ONE_DETM
+// Floats per slot row: 64 dims, the row sum at 64, padded to 16 bytes.
+constexpr int DET_ROW = 68;
+
+__device__ __forceinline__ size_t det_slot(int b, int G, int s, int w, int head) {
+    return ((((static_cast<size_t>(b) * G + s) * 2 + w) * HQ) + head) * DET_ROW;
+}
+#endif
+
 // Row index of (request b, copy, token j, head) in the workspace.
 __device__ __forceinline__ int ws_row(int b, int nc, int copy, int L, int j, int head) {
     return ((b * nc + copy) * L + j) * HQ + head;
@@ -752,6 +769,74 @@ __device__ __forceinline__ void coop_barrier(int* cnt, int* epoch, int ep, int m
     named_sync(1, NC);
 }
 
+#if ONE_DETM
+// Request b's rows from the slots of every split whose rounded share of the flat partition
+// holds keys of b (the same arithmetic as the kernel's partition and seg_bounds), in split
+// order, warp 0 before warp 1. 128 threads: eight per head row.
+template <int SEGK>
+__device__ void finalize_det(const Params& p, const int* offs, int B, int G, int b,
+                             float v_scale, int tid) {
+    const float* part = reinterpret_cast<const float*>(p.dbg);
+    const int head = tid >> 3;
+    const int t8 = tid & 7;
+    const long long total_v = offs[B] - SEGK;
+    const int a = offs[b];
+    const int n_b = offs[b + 1] - a - SEGK;
+    float acc[8] = {0.f, 0.f, 0.f, 0.f, 0.f, 0.f, 0.f, 0.f};
+    float lsum = 0.f;
+    for (int s = 0; s < G; ++s) {
+        const int v0 = static_cast<int>(total_v * s / G);
+        const int v1 = static_cast<int>(total_v * (s + 1) / G);
+        if (!(a + n_b > v0 && a < v1)) {
+            continue;
+        }
+        const int s0 = max(v0, a) - a;
+        const int s1 = min(v1, a + n_b) - a;
+        const int lo_k = s0 > 0 ? (s0 & ~(BN - 1)) : 0;
+        const int hi_k = s1 < n_b ? (s1 & ~(BN - 1)) : n_b;
+        if (lo_k >= hi_k) {
+            continue;
+        }
+        for (int w = 0; w < 2; ++w) {
+            const float* row = part + det_slot(b, G, s, w, head);
+            const float4 x = ld_cg_f4(row + t8 * 8);
+            const float4 y = ld_cg_f4(row + t8 * 8 + 4);
+            acc[0] += x.x;
+            acc[1] += x.y;
+            acc[2] += x.z;
+            acc[3] += x.w;
+            acc[4] += y.x;
+            acc[5] += y.y;
+            acc[6] += y.z;
+            acc[7] += y.w;
+            lsum += __ldcg(row + 64);
+        }
+    }
+    const float inv = lsum > 0.f ? __fdividef(v_scale, lsum) : 0.f;
+    float ss = 0.f;
+#pragma unroll
+    for (int e = 0; e < 8; ++e) {
+        acc[e] *= inv;
+        ss += acc[e] * acc[e];
+    }
+    ss = oct_sum(ss);
+    const float rn = rsqrtf(ss * (1.f / D) + EPS);
+    const uint4 graw = __ldg(reinterpret_cast<const uint4*>(
+        p.qkv + static_cast<size_t>(b) * QKV_STRIDE + GATE_OFF + head * D + t8 * 8));
+    const uint32_t gw[4] = {graw.x, graw.y, graw.z, graw.w};
+    uint32_t ow[4];
+#pragma unroll
+    for (int e = 0; e < 4; ++e) {
+        const float2 gt = __bfloat1622float2(*reinterpret_cast<const __nv_bfloat162*>(&gw[e]));
+        const __nv_bfloat162 o2 = __float22bfloat162_rn(
+            make_float2(acc[2 * e] * rn * sigmoid(gt.x), acc[2 * e + 1] * rn * sigmoid(gt.y)));
+        ow[e] = *reinterpret_cast<const uint32_t*>(&o2);
+    }
+    *reinterpret_cast<uint4*>(p.out + static_cast<size_t>(b) * HQ * D + head * D + t8 * 8) =
+        make_uint4(ow[0], ow[1], ow[2], ow[3]);
+}
+#endif
+
 template <int L, int MODE>
 __global__ void __launch_bounds__(one_threads(L, MODE), one_minb(L, MODE))
 attn_one_kernel(const Params p) {
@@ -778,6 +863,7 @@ attn_one_kernel(const Params p) {
     constexpr bool DCARRY = ONE_DCARRY && PROD && L == 8;
     constexpr bool VHOIST = ONE_VHOIST && QKOV;
     constexpr bool WAVE = ONE_WAVE > 0 && PROD && !SOLO && L == 8;
+    constexpr bool DETM = ONE_DETM && FLAT && !COOP && L == 1;
     // NC consumer threads (one warpgroup per KV head at q_len 8, four warps at q_len 1); in
     // producer mode one more warpgroup gathers the tiles.
     constexpr int NC = L == 8 ? 256 : 128;
@@ -1762,15 +1848,35 @@ attn_one_kernel(const Params p) {
             // (g, c) holds dims 16 c .. 16 c + 15 of head hk * 8 + g: o[e][0] is dim 16 c + e,
             // o[e][1] dim 16 c + 8 + e.
             const float f = ex2(fminf(m, 126.f));
-            const int row = ws_row(b, p.nc, copy, 1, 0, hk * 8 + g);
-            float* dst = p.ws_acc + static_cast<size_t>(row) * D + c * 16;
-            red_add_v4(dst, o[0][0] * f, o[1][0] * f, o[2][0] * f, o[3][0] * f);
-            red_add_v4(dst + 4, o[4][0] * f, o[5][0] * f, o[6][0] * f, o[7][0] * f);
-            red_add_v4(dst + 8, o[0][1] * f, o[1][1] * f, o[2][1] * f, o[3][1] * f);
-            red_add_v4(dst + 12, o[4][1] * f, o[5][1] * f, o[6][1] * f, o[7][1] * f);
-            const float lq = quad_sum(l);
-            if (c == 0) {
-                red_add_f32(p.ws_l + row, lq * f);
+#if ONE_DETM
+            if constexpr (DETM) {
+                float* slot = reinterpret_cast<float*>(p.dbg)
+                              + det_slot(b, G, split, wsub, hk * 8 + g);
+                st_cg_f4(slot + c * 16, make_float4(o[0][0] * f, o[1][0] * f, o[2][0] * f,
+                                                    o[3][0] * f));
+                st_cg_f4(slot + c * 16 + 4, make_float4(o[4][0] * f, o[5][0] * f, o[6][0] * f,
+                                                        o[7][0] * f));
+                st_cg_f4(slot + c * 16 + 8, make_float4(o[0][1] * f, o[1][1] * f, o[2][1] * f,
+                                                        o[3][1] * f));
+                st_cg_f4(slot + c * 16 + 12, make_float4(o[4][1] * f, o[5][1] * f, o[6][1] * f,
+                                                         o[7][1] * f));
+                const float lq = quad_sum(l);
+                if (c == 0) {
+                    __stcg(slot + 64, lq * f);
+                }
+            } else
+#endif
+            {
+                const int row = ws_row(b, p.nc, copy, 1, 0, hk * 8 + g);
+                float* dst = p.ws_acc + static_cast<size_t>(row) * D + c * 16;
+                red_add_v4(dst, o[0][0] * f, o[1][0] * f, o[2][0] * f, o[3][0] * f);
+                red_add_v4(dst + 4, o[4][0] * f, o[5][0] * f, o[6][0] * f, o[7][0] * f);
+                red_add_v4(dst + 8, o[0][1] * f, o[1][1] * f, o[2][1] * f, o[3][1] * f);
+                red_add_v4(dst + 12, o[4][1] * f, o[5][1] * f, o[6][1] * f, o[7][1] * f);
+                const float lq = quad_sum(l);
+                if (c == 0) {
+                    red_add_f32(p.ws_l + row, lq * f);
+                }
             }
         } else {
             // Warpgroup hk = KV head; warp wq holds accumulator rows 16 wq .. 16 wq + 15 =
@@ -2202,7 +2308,14 @@ attn_one_kernel(const Params p) {
         stamp(19);
         csync();
         if (*flag) {
-            finalize_rows<L, NC>(p, b * ROWS, (b + 1) * ROWS, v_scale, tid);
+#if ONE_DETM
+            if constexpr (DETM) {
+                finalize_det<SEGK>(p, offs, B, G, b, v_scale, tid);
+            } else
+#endif
+            {
+                finalize_rows<L, NC>(p, b * ROWS, (b + 1) * ROWS, v_scale, tid);
+            }
             if (tid == 0) {
                 p.ws_cnt[b] = 0;
             }
@@ -2391,9 +2504,13 @@ __global__ void coop_probe_kernel(int* out) {
     }
 }
 
+#if ONE_DETM
+#define ONE_INSTANCES(X) X(1, 49)
+#else
 #define ONE_INSTANCES(X) \
     X(1, 1) X(1, 3) X(1, 11) X(1, 13) X(1, 17) X(1, 49) \
     X(8, 1) X(8, 3) X(8, 11) X(8, 15) X(8, 19) X(8, 51) X(8, 115)
+#endif
 
 // INSTANTIATE: template struct Instance<1, 1>;
 // INSTANTIATE: template struct Instance<1, 3>;
