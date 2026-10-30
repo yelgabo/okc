@@ -4,7 +4,22 @@ This is the stable entry point for steering reports across research, implementat
 and coordinator sessions. The user requested on 2026-10-29 that every project-steering
 report be checked into this repository so other sessions can read it.
 
-## Latest standalone decision: attention and projection research roadmaps
+## Latest projection decision: corrected top-100 portfolio
+
+**[2026-10-30: Projection top-100 — corrected evidence and structural tests](2026-10-30-projection-top100-portfolio.md)**
+
+Evidence snapshot `c98018f`; verified scored receipt `d85d0081fa8a4a43`, 1.4975856x.
+The user's official-CLI cutoff is 1.5560x; the audit did not issue a new CLI query.
+P1 Lt enumeration, rt/KLUE router and split exit barriers are shipped; shared-tile P3 lost.
+Finish the in-progress QKV split-K, checking actual cluster residency rather than assuming
+128 CTAs fit in one wave. Start a bounded raw-BF16 m=256 schedule/epilogue workstream,
+not another generic CUTLASS sweep. The report supplies a non-overlapping load budget that
+would reach 1.5574x from the user's six-receipt 1.4947x baseline, explicitly a target envelope,
+not measured gains. At 800 TF/s only part of the 989-TF/s floor gap is recoverable.
+Router/picker cleanup and an offline lossless-code feasibility question remain reserves.
+No kernel, gate, GPU run or submission changed. Attention and layer work remain separate.
+
+## Previous standalone decision: attention and projection research roadmaps
 
 **[2026-10-30: Standalone attention and projection — widen the search](2026-10-30-attention-projection-standalone-roadmap.md)**
 
@@ -181,7 +196,7 @@ A/E and projection bundle `b694b4a` is assembled but unjudged. PDL overlap is co
 **[2026-10-29 14:25 PDT: Attention component gains and validation gaps](2026-10-29-1425-performance-review.md)**
 
 Evidence snapshot `efddc84`. PK16/VHOIST improves 128/256-token attention beyond DCARRY;
-the combined package still awaits layer tests. Local commit under the automation's no-push rule.
+the combined package still awaits layer tests. Local commit under the hourly automation's no-push rule.
 
 ## Latest community audit
 
@@ -249,6 +264,7 @@ recommendations, not execution of those tasks; check current code and run logs f
 
 | Report | Evidence snapshot | Scope |
 |---|---|---|
+| [2026-10-30 projection top-100 portfolio](2026-10-30-projection-top100-portfolio.md) | `c98018f`; scored `d85d0081fa8a4a43`; user CLI/frontier review | Corrected target and completed work; QKV residency gate; raw-BF16 m=256 schedule/epilogue test; explicit target envelope versus measured gains |
 | [2026-10-30 standalone attention/projection roadmap](2026-10-30-attention-projection-standalone-roadmap.md) | `a48edef`; component sources/logs and public archived references | Independent standalone scorecards and promotion gates; cross-tile attention, resource/reduction challengers; router/Lt portfolio, compressed qkv split-K, lossless WGMMA |
 | [2026-10-29 course check: validation and prefetch](2026-10-29-course-check-validation-prefetch.md) | `b41cb8d`; release `3fbb3ad027e84c6b` | Keep release; mode-51 integration; isolate MoE prefetch; stage-level M1 validation; reconcile smaller 32-token MoE gap |
 | [2026-10-30 layer release and attribution](2026-10-30-layer-release-attribution.md) | branch `worktree-agent-a39812d9e0cf11e26` after `fa7200c`; scored `3fbb3ad027e84c6b` | Clean release manifest, mode 47 isolation, M1 fresh-input diagnosis, verify 1 / decode 32 exposed-time attribution against the public layer |
