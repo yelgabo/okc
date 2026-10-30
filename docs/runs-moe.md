@@ -77,6 +77,8 @@ SGLang with its 95% interval. Profiles and logs are in `muse_moe_w4a16/profiles/
 | 2026-10-29 | ca43908f02874886 (check, bench file from tools/moe_make_bench_ab.py --base=37 --sizes=128,256 --routings=layer o41=41 o42=42 --pairs=o41-o42, not committed) | 3f67a45 | fat-path waits timed in full (mbar_wait_cyc's clock before the first try_wait); mode 41 (37 with phase A and phase B counters per consumer warp) and 42 (37 with the light stamps only), layer seeds 1-6 | 2.174x (2.142-2.207) | passed 5/5; judge medians bs1 28.74 us, bs16 98.81, bs32 132.88, bs8 71.36, bs128 195.45, bs256 241.53; policy unchanged (sk8w3s to 32, main-lean-silu-bar at 128 and 256). ABTIME o37 164.6 / 227.2, pub 151.4 / 203.6 at 128 / 256. Instrumentation cost: 41 minus 37 +7.0 / +6.1 us, 42 minus 37 +1.1 / +2.3, 41 minus 42 +5.9 / +3.9 (0 of 6 lower in each row). Outputs of 41 and 42 against 37 1e-5 to 3e-5, spin flags 0. Counters in section "Fat-path waits with the first try timed". ABPUB's stage ranges are not meaningful in this run (no --pubranges) |
 | 2026-10-30 | 9d94ac75f4724b52 (check, bench file from tools/moe_make_bench_ab.py --base=37 --sizes=32,128,256 --routings=layer o43=43 o44=44 o42=42 ost=v301 --pairs=ost-o43, not committed) | 54257b5 | mode 43 (code groups, next stage's waits and first group hoisted under the last wgmma group, weights release behind the sixth group), 44 (43 with 41's counters), and the staged pair on 37's components (variant 301: modes 45 then 46); layer seeds 1-6 | 2.188x (2.155-2.221) | passed 5/5; judge medians bs1 27.95, bs16 95.17, bs32 137.66, bs8 67.16, bs128 193.98, bs256 239.72 us; policy main-lean-grp (43) at 128 and 256. 43 minus 37 -1.3 / -1.4 / -2.7 us at 32 / 128 / 256 (5, 6, 6 of 6 lower); 44's cycles per wait 214 / 224 / 239 against 41's 201 / 215 / 223 (phase A), not lower. Staged pair minus 37 +30.3 / +30.4 / +24.4 (0 of 6). Outputs against 37 4e-6 to 2.3e-5, spin flags 0. Section "Code groups with the next stage hoisted" |
 | 2026-10-30 | 304f17f3e8704992 (check, bench file from tools/moe_make_bench_ab.py --base=37 --sizes=32,128,256 --routings=layer --seeds=7,8,9,10,11,12 o43=43 o44=44 o42=42 o47=47 --pairs=o47-o43, not committed) | a4687c8 | repeat of 43 on held-out layer seeds 7-12 (the steering rule's step 3: timing won, waits did not fall), plus mode 47 (43 without the hoist) | 2.176x (2.144-2.209) | passed 5/5; judge medians bs1 27.46, bs16 97.33, bs32 133.58, bs8 72.36, bs128 199.79, bs256 241.87 us; policy main-lean-grp at 128 and 256. 43 minus 37 -0.9 / -1.2 / -2.1 (6, 4, 6 of 6); 47 minus 37 -0.4 / -1.6 / -3.6 (3, 6, 6 of 6); 47 minus 43 +0.5 / -0.5 / -1.5 (2, 5, 6 of 6); 44's cycles per wait 214 / 215 / 235 against 41's 204 / 203 / 225. Outputs against 37 1.2e-5 to 3.8e-5, spin flags 0 |
+| 2026-10-30 | 5f381b8b6946492d (check, bench file from tools/moe_make_bench_ab.py --base=37 --sizes=32,128,256 --routings=layer,std,skewed --seeds=13,14,15,16,17,18 --gate=1 o47=47, not committed) | 20c295e | mode 47's pre-registered gate against 37 (rule committed in 28fc668 before the submit): held-out seeds 13-18 on layer, standalone and skewed routing | 2.196x (2.163-2.229) | passed 5/5; judge medians bs1 27.5, bs16 94.2, bs32 138.4, bs8 72.3, bs128 200.3, bs256 238.5 us; policy main-lean-grp-nohoist at 128 and 256. 47 minus 37, us, at 32 / 128 / 256: layer -1.0 / -2.3 / -3.7 (6, 5, 6 of 6 lower), standalone -2.4 / -2.8 / -3.4 (6, 6, 6), skewed -2.0 / -2.2 / -2.8 (5, 6, 6). Outputs against 37 on every seed 5.5e-7 to 4.4e-5; self-test 3.89e-3; spin flags 0. Every rule condition passed: 47 kept. Section "Mode 47 gate" |
+| 2026-10-30 | b50351288b504e81 (check) | ec565a7 | the shippable build: MAIN_MODES (0, 16, 26, 28, 37, 47); GATE adds 47 minus 37 (seeds 17-22, skewed 11-13) | 2.190x (2.157-2.223) | passed 5/5. Per shape: bs1 28.8 us, bs16 95.0, bs32 138.0, bs8 67.3, bs128 199.8 (2.365x, main-lean-grp-nohoist), bs256 238.5 (2.590x, main-lean-grp-nohoist). GATE 47 minus 37 per seed: bs128 -3.6 -3.1 -3.3 -0.3 -1.7 -2.8 (mean -2.5); bs256 -5.2 -2.8 -2.7 -2.7 -3.6 -3.4 (mean -3.4); skewed bs128 -2.2 -1.9 -2.9, bs256 -2.6 -2.2 -2.0. Output of 47 vs 16 equal to 37's to two digits (1.5e-4 to 4.2e-4); self-tests 3.86e-3 to 3.89e-3 for 47; spin flags 0. BENCH bs128 47 207.5, 37 209.2; bs256 230.3 vs 232.5. Build 146.6 s. Judge bs256 238.5 against 241.49 / 241.46 for 37's two runs; bs128 199.8 against 197.09 / 202.35. Submit candidate: ec565a7 (not submitted; handed to the coordinator) |
 
 ## Why the layer keeps the W4 chain at 128 tokens, 2026-10-29
 
@@ -1243,6 +1245,43 @@ If any condition fails, 47 goes to docs/ruled-out.md scoped to this design (code
 the hoist, on 37's components) and is not shipped. If all pass: 47 joins MAIN_MODES and
 MAIN_CANDIDATES, the shippable file is judged with one check (GATE prints 47 minus 37), and the
 file goes to the coordinator for a scored run. Budget: at most 3 MoE checks for the whole line.
+
+### Gate result (check 5f381b8b6946492d)
+
+47 minus 37, us, same process, seeds 13-18 (negative = faster; count = seeds lower of 6):
+
+| routing | 32 tokens | 128 tokens | 256 tokens |
+|---|---|---|---|
+| layer | -1.0 (6) | -2.3 (5) | -3.7 (6) |
+| standalone | -2.4 (6) | -2.8 (6) | -3.4 (6) |
+| skewed | -2.0 (5) | -2.2 (6) | -2.8 (6) |
+
+Per seed at 256 tokens: layer -5.7 -1.5 -2.3 -3.9 -5.1 -3.7; standalone -2.2 -1.6 -3.2 -5.1 -4.0
+-4.4; skewed -3.8 -2.3 -2.7 -1.0 -4.5 -2.3. Means of 37 in the same run: 223.8 / 246.9 / 171.5 us
+at 256 tokens (layer / standalone / skewed).
+
+1. 256 tokens: -3.7 / -3.4 / -2.8, all under -1.5; 6 of 6 lower on layer and on standalone. Pass.
+2. 32 and 128 tokens: the highest mean is -1.0 (32, layer). Pass.
+3. Outputs of 47 against 37 on all 54 seed, size and routing cases: 5.5e-7 to 4.4e-5. Pass.
+4. Prepare's FP32 self-test: main-lean-grp-nohoist 3.89e-3 (37: 3.89e-3), spin flags 0, no FAIL. Pass.
+5. Compile gate: muse_moe_w4a16/profiles/sass_mode47.2026-10-30.txt. Against 47's parent commit
+   (4daacf6) every production kernel has the same instruction text; no C7510-C7515; 47 spills
+   4 / 88 B (37: 156 / 416) and its stage loops have no local loads or stores. Pass.
+
+The prepare-time bench in the same run picked 47 at 128 and 256 tokens (207.8 against 209.5 and
+230.1 against 232.3 us). The public kernel stays ahead: public minus 37 at 256 tokens -24.0 /
+-24.2 / -8.9, so 47 closes about 3 us of a 24 us gap on layer and standalone routing.
+
+Decision under the rule: 47 is kept. MAIN_MODES (0, 16, 26, 28, 37, 47) and MAIN_CANDIDATES gain
+47 (ec565a7); GATE prints 47 minus 37 on its held-out seeds.
+
+Shippable check b50351288b504e81 (ec565a7, 2.190x, 2.157-2.223): GATE 47 minus 37 -2.5 / -3.4 us at
+128 / 256 tokens (seeds 17-22, 6 of 6 lower at 256, 6 of 6 at 128) and -2.3 / -2.3 on skewed seeds
+11-13 (3 of 3 each); the policy picked 47 at 128 and 256. The judge's medians: 238.5 us at 256
+tokens against 241.49 and 241.46 in 37's two runs; 199.8 at 128 against 197.09 and 202.35 (the
+judge's 128-token shape moves by more than the gain). The score sits inside the intervals of 37's
+runs (2.144x, 2.160x); the paired evidence is the same-process A/B above. The file went to the
+coordinator for a scored run.
 
 ## Staged pair on current components, 2026-10-29
 
