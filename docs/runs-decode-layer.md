@@ -287,7 +287,9 @@ class).
 Not changed by these decisions (every other check keeps its bound): `_one_stress` (attention,
 1e-4 against eager and 5e-2 against SGLang), the norm and route side-stream tests.
 
-## Open lead (2026-10-30, unproven): input-history dependence in the attention output
+## Closed lead (2026-10-30, unproven): input-history dependence in the attention output
+
+**Closed 2026-10-30 (verdict A, benign).** Layer diagnostic d93286b5110a4410 and attention check 2b93c6ecf4f641c6: the history effect is FP32 merge-order rounding (1-3 elements by one bf16 ulp). Production repeats on one input are not bitwise (4-5 distinct outputs in 9 calls); a fixed-order debug build (ONE_DETM) is bitwise under every history; 283 whole-workspace scans after production calls found rows, sums, tickets and counters zero. Details and the PTX reset/reuse chain: `docs/runs-attention.md`.
 
 In 60cf58b69b75491e the attention stage of an eager call on a fresh input differs from that
 input's reference by up to 1e-4 at decode 1 sliding and 2e-4 at verify 1 sliding (every arm,
