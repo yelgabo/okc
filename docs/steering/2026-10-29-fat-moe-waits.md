@@ -155,3 +155,12 @@ Next actions (not done; the 2-check budget is spent):
    LAYER_MODES and MAIN_NAMES (47: "main-lean-grp-nohoist") in tools/dl_moe_inline.py.
 3. The waits themselves: to separate H2, stamp per-warp stage starts within a CTA (skew) rather
    than per-warp wait totals.
+
+## Addendum 2026-10-30 (2): mode 47 gate
+
+Next actions 1 and 2 of the addendum above are done. The rule was committed (28fc668) before
+check 5f381b8b6946492d; 47 passed every condition on held-out seeds 13-18 (256 tokens: -3.7 /
+-3.4 / -2.8 us against 37 on layer, standalone and skewed routing, 18 of 18 seeds lower). The
+shippable build (ec565a7, check b50351288b504e81, 2.190x) carries 47 in MAIN_MODES and the policy
+picks it at 128 and 256. Layer port steps are in docs/moe-port-guide.md; they were applied to a
+scratch copy of the layer branch only. Next action 3 (per-warp stage-start skew for H2) is open.

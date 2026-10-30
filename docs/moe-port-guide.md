@@ -179,6 +179,43 @@ size as 28. Porting it: add 37 to `LAYER_MODES` and `37: "main-lean-silu-bar"` t
 38 to 40 are timing-only or lost (docs/runs-moe.md, "Phase A against the public kernel"); 41 and 42
 (37 with the repaired wait counters, and with the light stamps) are timing only (docs/runs-moe.md,
 "Fat-path waits with the first try timed").
+
+Since 2026-10-30: 47 ("main-lean-grp-nohoist") is 37 with the weight codes loaded one 4-step
+group at a time (one `uint4` per group, the next group loaded at the start of the current one, a
+scale word per pair of groups), so a consumer warp holds 10 code and scale registers instead of
+18; the waits stay at the stage start and the weights slot is released per thread with its own
+`fence.proxy.async.shared::cta` behind the sixth wgmma group (the PTX chain is in docs/runs-moe.md,
+"Code groups with the next stage hoisted"). Spills fall from 156 / 416 B to 4 / 88 B. Its
+pre-registered gate against 37 (check 5f381b8b6946492d, held-out seeds 13-18): -3.7 / -3.4 / -2.8
+us at 256 tokens on layer, standalone and skewed routing (18 of 18 seeds lower), -1.0 to -2.8 at 32
+and 128; outputs within 4.4e-5 of 37. Same interface, scratch and SmemMain size as 37. The
+standalone `MAIN_MODES` is now (0, 16, 26, 28, 37, 47).
+
+Porting 47 into the layer (on a layer branch that already carries 37, such as
+worktree-agent-ae0a55834da6c04d4 at c73ba2a):
+
+1. Bring `muse_moe_w4a16/submission.py` to the commit that has 47 in `MAIN_MODES` and
+   `MAIN_CANDIDATES` (ec565a7 or later). The inliner keeps only modes listed in both.
+2. In `tools/dl_moe_inline.py`: `LAYER_MODES = (0, 16, 26, 28, 37, 47)` and add
+   `47: "main-lean-grp-nohoist"` to `MAIN_NAMES`, with a comment line citing check
+   5f381b8b6946492d.
+3. Run `python3 tools/dl_moe_inline.py` twice; the second run must leave
+   `muse_decode_layer/submission.py` byte-identical. The variant list it prints ends in
+   `'main-lean-silu-bar', 'main-lean-grp-nohoist'`.
+4. `sh tools/dl_moe_compile_check.sh muse_decode_layer/submission.py` (run it from a folder under
+   the home directory: Colima does not mount /private/tmp): `moe1::moe_main_kernel<47>` at 96
+   registers, 8 B frame, 4 / 88 B spills, no C7510-C7515.
+5. `sh tools/dl_moe_sass_counts.sh muse_decode_layer/submission.py`: kernel 47 with UBLKPF 1 and
+   ACQBULK 1 (the PDL preamble), MEMBAR 43, LDL 22, STL 1, one FENCE.VIEW.ASYNC.S more than the
+   standalone 47 (the preamble's `fence.mbarrier_init`); the other kernels' counts unchanged from
+   the layer copy before the port.
+6. The layer's prepare bench on judge routing chooses among the fat modes; no host change is
+   needed (47 uses 37's `Params`, scratch and launch path). Judge it with the layer bench
+   against the current layer incumbent before a scored run.
+
+Steps 2-5 were run on a scratch copy of the layer branch on 2026-10-30 and passed
+(muse_moe_w4a16/profiles/sass_mode47.2026-10-30.txt); the layer files were not changed.
+
 `_vname(variant)` gives the name the bench prints. It launches on the current stream, is graph-capturable (no
 host syncs, no allocation, no value-dependent branching on the host), and needs the whole GPU:
 the grid barrier spins until all 132 CTAs arrive, so nothing else may occupy SMs for the
