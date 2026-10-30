@@ -74,6 +74,10 @@ judge's prepare(), on random NVFP4 weights (32 experts):
            weights and x waits and its share a zero-skew release would remove, in us per warp
            summed per CTA, and how often the same warpgroup trails within a CTA (persistence,
            0.25 = no preference, 1 = always the same one). Skew twins: 49 of 47, 56 of 51.
+  ABFIX    for the light twins with fix_st (73 of 72, stream-K phase A): per CTA, the cut phase A
+           segments, thread 0's time in their fixups up to the count update, the units it
+           finished and their time to the end of the read-back, the CTA's fixup total and its
+           share of the CTA's phase A, the largest CTA's total.
   ABGATHER for the light twins that stamp the x gather (55, 56 of 51): thread 0's row stores,
            its fences and the gather barrier, its release, the x producer's first xready wait
            end after the release, and the public kernel's gather (its DBG 1 to 7, which also
@@ -81,8 +85,9 @@ judge's prepare(), on random NVFP4 weights (32 experts):
 
 The judge's prepare() that follows runs with its output filtered to its summary lines (POLICY,
 PREPARE, BENCH at 128 and 256 tokens, each variant's worst self-test error), so the run log's
-15 KB tail keeps the A/B. Twins: 26 -> 27, 37 -> 42, 47 -> 48, 51 -> 55, 62 -> 64, 63 -> 65, 66 -> 67, 68 -> 70
-and 69 -> 71 (light stamps; 55, 64, 65, 67, 70 and 71 also stamp the gather), 28 -> 31, 32 -> 33, 36 -> 38,
+15 KB tail keeps the A/B. Twins: 26 -> 27, 37 -> 42, 47 -> 48, 51 -> 55, 62 -> 64, 63 -> 65, 66 -> 67, 68 -> 70,
+69 -> 71 and 72 -> 73 (light stamps; 55, 64, 65, 67, 70, 71 and 73 also stamp the gather, 73
+the fixups), 28 -> 31, 32 -> 33, 36 -> 38,
 39 -> 40, 37 -> 41 and 43 -> 44 (light stamps and phase A counters, 41 and 44 with phase B
 counters too; name a twin as an arm to time it so its cost shows). An arm "v301" (the staged pair on 37's components) also
 builds modes 45 and 46 and needs 37 built (its fallback above 512 tokens).
@@ -97,10 +102,12 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 LIGHT_TWINS = {26: 27, 37: 42, 47: 48, 52: 54, 51: 55, 57: 58, 60: 61, 62: 64, 63: 65, 66: 67,
-               68: 70, 69: 71}
+               68: 70, 69: 71, 72: 73}
 SKEW_TWINS = {47: 49, 51: 56}
 # Light twins whose kernels also stamp the x gather (gather_st in the kernel): ABGATHER.
-GATHER_TWINS = (55, 56, 58, 61, 64, 65, 67, 70, 71)
+GATHER_TWINS = (55, 56, 58, 61, 64, 65, 67, 70, 71, 73)
+# Light twins that also write the phase A fixup words (fix_st in the kernel): ABFIX.
+FIX_TWINS = (73,)
 PA_TWINS = {28: 31, 32: 33, 36: 38, 39: 40, 37: 41, 43: 44}
 PB_TWINS = (41, 44)
 # Variant arms that need fat modes built: v301 is the staged pair on 37's components (45 then 46).
@@ -241,6 +248,7 @@ _AB_SKEW = @SKEW@
 _AB_PUBSKEW = @PUBSKEW@
 _AB_SK_PER = @SKPER@
 _AB_GATHER = @GATHER@
+_AB_FIX = @FIX@
 _AB_WORK = @WORK@
 
 
@@ -563,6 +571,28 @@ def _ab_main():
              float((pd[:, 2] - prng.double()).mean())]
         return [x / 1e3 for x in r]
 
+    def fix_summary(lt, fx):
+        # lt: the 16 light words; fx: fix_st's 8 words per CTA. Thread 0's cycles are converted
+        # with its CTA's clock64 over globaltimer between the consumers' start and phase A's end
+        # (light words 2 and 3). Per CTA, means: shares (cut segments that reached the count
+        # update), their cycles to it, finished units and their cycles to the end of the
+        # read-back, the CTA's fixup total, its share of the CTA's phase A; max fixup per CTA.
+        ghz = (fx[:, 7] - fx[:, 6]) / (lt[:, 3] - lt[:, 2])
+        us = lambda c: c / ghz / 1e3
+        share_us = us(fx[:, 0])
+        fin_us = us(fx[:, 2])
+        nfin = fx[:, 3]
+        # A finishing share's cycles to the end include its cycles to the count update.
+        tot = us(fx[:, 0]) + fin_us - torch.where(nfin > 0, share_us / fx[:, 1].clamp(min=1)
+                                                  * nfin, torch.zeros_like(share_us))
+        pa = (lt[:, 3] - lt[:, 2]) / 1e3
+        return [float(fx[:, 1].mean()), float(share_us.mean()), float(nfin.mean()),
+                float(fin_us.mean()), float(tot.mean()), float((tot / pa).mean()),
+                float(tot.max()), float(ghz.mean())]
+
+    fix_cols = ("cut segs/CTA", "to count us/CTA", "finished/CTA", "finish us/CTA",
+                "fixup us/CTA", "share of phase A", "max fixup us", "GHz")
+
     gather_cols = ("stores", "fences+barrier", "release", "first x ready after release",
                    "last first-x-ready from first gather start", "gather total", "pub gather",
                    "pub join")
@@ -790,6 +820,7 @@ def _ab_main():
             tim = {a: [] for a in arms}
             stamps = {a: [] for a in [*light, *padiag, "pub"]}
             gath = {a: [] for a, m in _AB_LIGHT.items() if m in _AB_GATHER}
+            fixd = {a: [] for a, m in _AB_LIGHT.items() if m in _AB_FIX}
             diags = {a: [] for a in padiag}
             pbdiags = {a: [] for a in padiag if a in _AB_PB}
             skd_ = {a: [] for a in [*skewv, *(["pub"] if pskew is not None else [])]}
@@ -824,6 +855,11 @@ def _ab_main():
                     if a in gath:
                         lraw[a] = state["scratch"]["inter"].reshape(-1).view(torch.int64)[
                             : G * 16].view(G, 16).double().cpu()
+                    if a in fixd:
+                        raw = state["scratch"]["inter"].reshape(-1).view(torch.int64)
+                        fixd[a].append(fix_summary(
+                            raw[: G * 16].view(G, 16).double().cpu(),
+                            raw[G * 16: G * 24].view(G, 8).double().cpu()))
                 for a, v in skewv.items():
                     skd_[a].append(ours_skew(d, v))
                 if pskew is not None:
@@ -924,6 +960,9 @@ def _ab_main():
             for a, rows in pbdiags.items():
                 m = [sum(r[i] for r in rows) / n for i in range(len(rows[0]))]
                 print(f"ABDIAGB {tag} {a} " + ", ".join(f"{c} {v:.2f}" for c, v in zip(pb_cols, m)))
+            for a, rows in fixd.items():
+                m = [sum(r[i] for r in rows) / n for i in range(len(fix_cols))]
+                print(f"ABFIX {tag} {a} " + ", ".join(f"{c} {v:.3g}" for c, v in zip(fix_cols, m)))
             for a, rows in gath.items():
                 m = [sum(r[i] for r in rows) / n for i in range(len(gather_cols))]
                 print(f"ABGATHER {tag} {a} " + ", ".join(f"{c} {v:.2f}"
@@ -1193,7 +1232,7 @@ def main():
                      ("@SKEW@", repr(skewt)), ("@SKPER@", repr(SK_PER)),
                      ("@PUBSKEW@", repr(bool(opts["pubskew"]))),
                      ("@WORK@", repr(bool(opts["work"]))),
-                     ("@GATHER@", repr(GATHER_TWINS))):
+                     ("@GATHER@", repr(GATHER_TWINS)), ("@FIX@", repr(FIX_TWINS))):
         assert block.count(key) == 1, key
         block = block.replace(key, val)
     Path(out).write_text(src + block)
