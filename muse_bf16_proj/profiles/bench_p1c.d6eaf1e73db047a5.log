@@ -1,0 +1,97 @@
+.75 sglang=30.24
+P1 pooler m=256 d d_lt=-3.07 newA=-1.86 newB=-1.82 baseB=-0.08 sglang=+3.42
+P1 unpooler m=256 med d_lt=23.58 newB=23.68 newA=23.76 baseA=24.16 sglang=24.18 baseB=24.26
+P1 unpooler m=256 d d_lt=-0.58 newB=-0.46 newA=-0.43 sglang=+0.00 baseB=+0.14
+P1 router m=8 med d_rt=4.38 newA=5.18 baseA=5.22 baseB=5.22 newB=5.28 sglang=26.74
+P1 router m=8 d d_rt=-0.83 newA=+0.00 baseB=-0.02 newB=+0.06 sglang=+21.57
+P1 router m=16 med d_rt=4.48 newA=5.06 baseB=5.12 newB=5.12 baseA=5.15 sglang=16.74
+P1 router m=16 d d_rt=-0.69 newA=-0.10 baseB=-0.03 newB=-0.05 sglang=+11.62
+P1 router m=32 med d_rt=5.17 baseA=5.63 newA=5.68 baseB=5.70 newB=5.70 sglang=16.67
+P1 router m=32 d d_rt=-0.45 newA=+0.02 baseB=+0.03 newB=+0.06 sglang=+10.94
+P1 router m=128 med d_rw=6.11 baseB=7.49 newA=7.49 newB=7.49 baseA=7.50 r64c8s8=7.65 r128c16=8.86 r64c8=9.09 r64c16=9.95 r128c8s6=10.03 r128c8=10.34 r64c4s8=11.58 rm64k4r4=14.16 rm128k4r4=17.31 sglang=17.58
+P1 router m=128 d d_rw=-1.42 baseB=-0.03 newA=-0.03 newB=-0.06 r64c8s8=+0.10 r128c16=+1.34 r64c8=+1.52 r64c16=+2.46 r128c8s6=+2.54 r128c8=+2.85 r64c4s8=+4.10 rm64k4r4=+6.69 rm128k4r4=+9.79 sglang=+10.13
+P1 router m=256 med d_rw=8.00 baseA=9.94 baseB=9.97 newA=9.97 r128c8s6=9.98 newB=10.05 r64c8=10.34 r128c8=10.46 r64c4s8=11.84 rm64k4r4=14.30 r64c8s8=14.96 r64c16=15.26 r128c16=16.67 rm128k4r4=17.33 sglang=18.69
+P1 router m=256 d d_rw=-1.95 baseB=+0.03 newA=+0.10 r128c8s6=-0.02 newB=+0.08 r64c8=+0.42 r128c8=+0.51 r64c4s8=+1.86 rm64k4r4=+4.32 r64c8s8=+4.99 r64c16=+5.31 r128c16=+6.67 rm128k4r4=+7.41 sglang=+8.74
+P1DONE 127.1 s
+judged| sk build 0.0 s
+judged| cut build 0.0 s
+judged| lt build 0.0 s, cublasLt 130101, torch cuda 13.0
+judged| ltune qkv_gate  m=128: base 19.2, L2:a66t92s35k1r0z0c0i0g2w0v0.73 19.5, L3:a66t28s35k4r2z0c0i0g4w4608v0.18 20.7, L2:a66t80s35k1r0z0c2i0g5w0v0.88 19.9 -> base
+judged| ltune o         m=128: base 11.5, L0:a66t18s35k1r0z0c5i0g2w0v0.97 11.4, L0:a66t15s35k1r0z0c1i0g2w0v1.94 11.4, L0:a66t18s35k1r0z0c4i0g2w0v0.97 11.2 -> base
+judged| ltune pooler    m=128: base 27.6, L0:a66t134s35k1r0z0c0i0g7w0v0.79 25.0, L0:a66t134s35k1r0z0c2i0g7w0v0.79 24.9, L0:a66t27s35k1r0z0c0i0g6w0v0.65 25.6 -> lt
+judged| ltune unpooler  m=128: base 24.4, L3:a66t18s35k1r0z0c0i0g5w0v0.97 23.4, L3:a66t18s35k1r0z0c1i0g5w0v0.97 23.2, L3:a66t18s35k1r0z0c2i0g5w0v0.97 23.1 -> lt
+judged| ltune qkv_gate  m=256: base 23.7, L0:a66t124s35k1r0z0c0i0g2w0v0.97 21.5, L2:a66t124s35k1r0z0c0i0g2w0v0.97 21.6, L2:a66t134s35k1r0z0c2i0g9w0v0.88 22.2 -> lt
+judged| ltune o         m=256: base 13.2, L3:a66t20s35k1r0z0c4i0g2w0v0.97 12.6, L1:a66t20s35k1r0z0c4i0g2w0v0.97 12.5, L3:a66t20s35k1r0z0c4i0g5w0v0.97 12.8 -> lt
+judged| ltune pooler    m=256: base 31.0, L0:a66t18s35k1r0z0c0i0g2w0v0.97 29.1, L0:a66t17s35k1r0z0c2i0g2w0v0.97 34.2, L0:a66t17s35k1r0z0c4i0g2w0v0.97 29.7 -> lt
+judged| ltune unpooler  m=256: base 28.1, L2:a66t20s35k1r0z0c4i0g2w0v0.97 27.5, L0:a66t20s35k1r0z0c4i0g2w0v0.97 27.6, L3:a66t20s35k1r0z0c4i0g2w0v0.97 27.6 -> lt
+judged| prepare done 12.4 s
+P1PREP A 103.8 s
+P1PREP A| sk build 20.2 s
+P1PREP A| cut build 49.9 s
+P1PREP A| selftests done 70.9 s
+P1PREP A| tune router    m= 8: router8 9.6, baseline 31.1 -> router8
+P1PREP A| tune router    m=16: router16 9.6, baseline 20.7 -> router16
+P1PREP A| tune router    m=128: baseline 22.2, r64c8 13.4, r64c16 14.3, r128c8 14.7, r128c16 13.2, r64c8s8 11.9, r64c4s8 15.8, r128c8s6 14.3, rm64k4r4 18.3, rm128k4r4 21.5 -> r64c8s8
+P1PREP A| tune router    m=256: baseline 23.8, r64c8 14.9, r64c16 19.8, r128c8 14.8, r128c16 20.9, r64c8s8 19.0, r64c4s8 16.0, r128c8s6 14.2, rm64k4r4 18.4, rm128k4r4 21.5 -> r128c8s6
+P1PREP A| lt build 18.8 s, cublasLt 130101, torch cuda 13.0
+P1PREP A| lt qkv_gate m=128: 64 heuristic, 792 swept, 197 other, screen best L0:a66t104s35k1r0z0c0i0g2w0v0.64 19.3, L2:a66t104s35k1r0z0c0i0g6w0v0.64 19.4, L2:a66t104s35k1r0z0c0i0g2w0v0.64 19.6
+P1PREP A| ltune qkv_gate  m=128: base 19.0, L0:a66t104s35k1r0z0c0i0g2w0v0.64 19.7, L2:a66t104s35k1r0z0c0i0g6w0v0.64 19.8, L2:a66t104s35k1r0z0c0i0g2w0v0.64 19.7 -> base
+P1PREP A| lt o m=128: 32 heuristic, 788 swept, 225 other, screen best L1:a66t18s35k1r0z0c4i0g5w0v0.97 11.3, L2:a66t18s35k1r0z0c2i0g5w0v0.97 11.3, L2:a66t18s35k1r0z0c1i0g5w0v0.97 11.3
+P1PREP A| ltune o         m=128: base 11.5, L1:a66t18s35k1r0z0c4i0g5w0v0.97 11.3, L2:a66t18s35k1r0z0c2i0g5w0v0.97 11.4, L2:a66t18s35k1r0z0c1i0g5w0v0.97 11.4 -> base
+P1PREP A| lt pooler m=128: 60 heuristic, 792 swept, 196 other, screen best L0:a66t124s35k1r0z0c0i0g4w0v0.86 24.2, L0:a66t124s35k1r0z0c2i0g5w0v0.86 24.5, L0:a66t124s35k1r0z0c0i0g5w0v0.86 24.8
+P1PREP A| ltune pooler    m=128: base 26.0, L0:a66t124s35k1r0z0c0i0g4w0v0.86 24.3, L0:a66t124s35k1r0z0c2i0g5w0v0.86 25.5, L0:a66t124s35k1r0z0c0i0g5w0v0.86 25.9 -> lt
+P1PREP A| lt unpooler m=128: 44 heuristic, 785 swept, 216 other, screen best L3:a66t18s35k1r0z0c7i0g5w0v0.97 22.5, L1:a66t18s35k1r0z0c2i0g5w0v0.97 22.6, L1:a66t18s35k1r0z0c5i0g5w0v0.97 22.6
+P1PREP A| ltune unpooler  m=128: base 23.9, L3:a66t18s35k1r0z0c7i0g5w0v0.97 22.9, L1:a66t18s35k1r0z0c2i0g5w0v0.97 22.8, L1:a66t18s35k1r0z0c5i0g5w0v0.97 23.1 -> lt
+P1PREP A| lt qkv_gate m=256: 60 heuristic, 792 swept, 188 other, screen best L2:a66t124s35k1r0z0c0i0g2w0v0.97 21.3, L0:a66t124s35k1r0z0c0i0g2w0v0.97 21.4, L2:a66t134s35k1r0z0c2i0g9w0v0.88 22.1
+P1PREP A| ltune qkv_gate  m=256: base 23.6, L2:a66t124s35k1r0z0c0i0g2w0v0.97 21.5, L0:a66t124s35k1r0z0c0i0g2w0v0.97 21.3, L2:a66t134s35k1r0z0c2i0g9w0v0.88 22.4 -> lt
+P1PREP A| lt o m=256: 32 heuristic, 788 swept, 204 other, screen best L3:a66t20s35k1r0z0c0i0g2w0v0.97 12.9, L2:a66t20s35k1r0z0c0i0g3w0v0.97 13.0, L0:a66t20s35k1r0z0c0i0g3w0v0.97 13.0
+P1PREP A| ltune o         m=256: base 13.1, L3:a66t20s35k1r0z0c0i0g2w0v0.97 13.0, L2:a66t20s35k1r0z0c0i0g3w0v0.97 13.1, L0:a66t20s35k1r0z0c0i0g3w0v0.97 12.9 -> base
+P1PREP A| lt pooler m=256: 50 heuristic, 790 swept, 216 other, screen best L2:a66t17s35k1r0z0c1i0g2w0v0.97 28.9, L2:a66t18s35k1r0z0c0i0g2w0v0.97 29.0, L0:a66t18s35k1r0z0c0i0g2w0v0.97 29.1
+P1PREP A| ltune pooler    m=256: base 30.9, L2:a66t17s35k1r0z0c1i0g2w0v0.97 29.1, L2:a66t18s35k1r0z0c0i0g2w0v0.97 29.2, L0:a66t18s35k1r0z0c0i0g2w0v0.97 29.0 -> lt
+P1PREP A| lt unpooler m=256: 32 heuristic, 788 swept, 197 other, screen best L0:a66t20s35k1r0z0c4i0g3w0v0.97 27.9, L0:a66t20s35k1r0z0c0i0g3w0v0.97 27.9, L1:a66t20s35k1r0z0c4i0g3w0v0.97 27.9
+P1PREP A| ltune unpooler  m=256: base 28.7, L0:a66t20s35k1r0z0c4i0g3w0v0.97 28.0, L0:a66t20s35k1r0z0c0i0g3w0v0.97 28.2, L1:a66t20s35k1r0z0c4i0g3w0v0.97 27.9 -> lt
+P1PREP B 12.0 s
+P1PREP B| sk build 0.0 s
+P1PREP B| cut build 0.0 s
+P1PREP B| selftests done 0.4 s
+P1PREP B| tune router    m= 8: router8 9.4, baseline 30.8 -> router8
+P1PREP B| tune router    m=16: router16 9.5, baseline 20.8 -> router16
+P1PREP B| tune router    m=128: baseline 21.9, r64c8 13.3, r64c16 14.2, r128c8 14.5, r128c16 13.1, r64c8s8 11.9, r64c4s8 15.7, r128c8s6 14.2, rm64k4r4 18.2, rm128k4r4 21.4 -> r64c8s8
+P1PREP B| tune router    m=256: baseline 23.0, r64c8 14.8, r64c16 19.8, r128c8 14.8, r128c16 20.9, r64c8s8 19.0, r64c4s8 16.1, r128c8s6 14.3, rm64k4r4 18.6, rm128k4r4 21.7 -> r128c8s6
+P1PREP B| lt build 0.0 s, cublasLt 130101, torch cuda 13.0
+P1PREP B| ltune qkv_gate  m=128: base 18.9, L0:a66t92s35k1r0z0c0i0g2w0v0.73 19.2, L0:a66t104s35k1r0z0c0i0g2w0v0.64 19.7, L0:a66t92s35k1r0z0c0i0g4w0v0.73 19.9 -> base
+P1PREP B| ltune o         m=128: base 11.4, L0:a66t18s35k1r0z0c4i0g2w0v0.97 11.2, L0:a66t18s35k1r0z0c1i0g2w0v0.97 11.5, L0:a66t15s35k1r0z0c0i0g2w0v1.94 11.4 -> base
+P1PREP B| ltune pooler    m=128: base 25.7, L0:a66t124s35k1r0z0c2i0g7w0v0.86 24.8, L0:a66t124s35k1r0z0c2i0g5w0v0.86 25.0, L0:a66t134s35k1r0z0c0i0g7w0v0.79 25.9 -> lt
+P1PREP B| ltune unpooler  m=128: base 24.2, L1:a66t18s35k1r0z0c3i0g5w0v0.97 22.8, L3:a66t18s35k1r0z0c4i0g5w0v0.97 22.6, L3:a66t18s35k1r0z0c6i0g5w0v0.97 22.4 -> lt
+P1PREP B| ltune qkv_gate  m=256: base 23.6, L2:a66t124s35k1r0z0c0i0g2w0v0.97 21.6, L0:a66t124s35k1r0z0c0i0g2w0v0.97 21.5, L0:a66t134s35k1r0z0c2i0g9w0v0.88 22.5 -> lt
+P1PREP B| ltune o         m=256: base 13.5, L2:a66t20s35k1r0z0c4i0g2w0v0.97 13.3, L3:a66t17s35k1r0z0c0i0g2w0v1.94 13.0, L3:a66t20s35k1r0z0c4i0g2w0v0.97 13.3 -> lt
+P1PREP B| ltune pooler    m=256: base 31.1, L2:a66t17s35k1r0z0c1i0g2w0v0.97 29.7, L0:a66t18s35k1r0z0c0i0g2w0v0.97 29.4, L2:a66t18s35k1r0z0c0i0g2w0v0.97 28.9 -> lt
+P1PREP B| ltune unpooler  m=256: base 28.7, L3:a66t20s35k1r0z0c4i0g2w0v0.97 27.7, L2:a66t20s35k1r0z0c4i0g5w0v0.97 27.9, L3:a66t20s35k1r0z0c4i0g5w0v0.97 27.6 -> lt
+P1OVH 4.19 us
+P1 qkv_gate m=128 med newB=14.62 newA=14.66 baseA=14.69 baseB=14.72 d_lt=15.36 sglang=16.74
+P1 qkv_gate m=128 d newB=-0.06 newA=-0.03 baseB=+0.05 d_lt=+0.66 sglang=+2.03
+P1 o m=128 med newB=6.98 baseB=7.04 sglang=7.07 baseA=7.14 newA=7.14
+P1 o m=128 d newB=-0.19 baseB=-0.10 sglang=-0.03 newA=-0.03
+P1 pooler m=128 med d_lt=21.18 newB=21.44 newA=21.63 baseA=21.65 baseB=21.71 sglang=25.94
+P1 pooler m=128 d d_lt=-0.48 newB=-0.22 newA=-0.03 baseB=+0.03 sglang=+4.26
+P1 unpooler m=128 med newA=19.04 newB=19.07 d_lt=19.23 baseB=19.78 sglang=19.78 baseA=19.81
+P1 unpooler m=128 d newA=-0.74 newB=-0.77 d_lt=-0.56 baseB=+0.00 sglang=+0.00
+P1 qkv_gate m=256 med d_lt=17.18 newA=17.25 newB=17.25 baseA=19.22 sglang=19.23 baseB=19.26
+P1 qkv_gate m=256 d d_lt=-2.19 newA=-2.08 newB=-2.03 sglang=-0.03 baseB=+0.03
+P1 o m=256 med d_lt=8.70 sglang=8.75 baseB=8.77 baseA=8.80 newB=8.90 newA=8.96
+P1 o m=256 d d_lt=-0.11 sglang=-0.06 baseB=+0.00 newB=+0.06 newA=+0.18
+P1 pooler m=256 med d_lt=23.70 newA=24.88 newB=24.90 baseB=26.70 baseA=26.75 sglang=30.24
+P1 pooler m=256 d d_lt=-3.07 newA=-1.86 newB=-1.82 baseB=-0.08 sglang=+3.42
+P1 unpooler m=256 med d_lt=23.58 newB=23.68 newA=23.76 baseA=24.16 sglang=24.18 baseB=24.26
+P1 unpooler m=256 d d_lt=-0.58 newB=-0.46 newA=-0.43 sglang=+0.00 baseB=+0.14
+P1 router m=8 med d_rt=4.38 newA=5.18 baseA=5.22 baseB=5.22 newB=5.28 sglang=26.74
+P1 router m=8 d d_rt=-0.83 newA=+0.00 baseB=-0.02 newB=+0.06 sglang=+21.57
+P1 router m=16 med d_rt=4.48 newA=5.06 baseB=5.12 newB=5.12 baseA=5.15 sglang=16.74
+P1 router m=16 d d_rt=-0.69 newA=-0.10 baseB=-0.03 newB=-0.05 sglang=+11.62
+P1 router m=32 med d_rt=5.17 baseA=5.63 newA=5.68 baseB=5.70 newB=5.70 sglang=16.67
+P1 router m=32 d d_rt=-0.45 newA=+0.02 baseB=+0.03 newB=+0.06 sglang=+10.94
+P1 router m=128 med d_rw=6.11 baseB=7.49 newA=7.49 newB=7.49 baseA=7.50 r64c8s8=7.65 r128c16=8.86 r64c8=9.09 r64c16=9.95 r128c8s6=10.03 r128c8=10.34 r64c4s8=11.58 rm64k4r4=14.16 rm128k4r4=17.31 sglang=17.58
+P1 router m=128 d d_rw=-1.42 baseB=-0.03 newA=-0.03 newB=-0.06 r64c8s8=+0.10 r128c16=+1.34 r64c8=+1.52 r64c16=+2.46 r128c8s6=+2.54 r128c8=+2.85 r64c4s8=+4.10 rm64k4r4=+6.69 rm128k4r4=+9.79 sglang=+10.13
+P1 router m=256 med d_rw=8.00 baseA=9.94 baseB=9.97 newA=9.97 r128c8s6=9.98 newB=10.05 r64c8=10.34 r128c8=10.46 r64c4s8=11.84 rm64k4r4=14.30 r64c8s8=14.96 r64c16=15.26 r128c16=16.67 rm128k4r4=17.33 sglang=18.69
+P1 router m=256 d d_rw=-1.95 baseB=+0.03 newA=+0.10 r128c8s6=-0.02 newB=+0.08 r64c8=+0.42 r128c8=+0.51 r64c4s8=+1.86 rm64k4r4=+4.32 r64c8s8=+4.99 r64c16=+5.31 r128c16=+6.67 rm128k4r4=+7.41 sglang=+8.74
+P1DONE 127.1 s

@@ -854,3 +854,127 @@ selftest qkv_gate qkv32: ok`, `o o32: ok`, `unpooler unp32: ok`. Prediction (hyp
 decode 32 qkv row (sk_kernel<2, 32, 3, 1, 4, 2, ...>, 12.0 / 12.0 us in 9b921febc7ad4140) falls
 about 0.4 us, o (<2, 32, 2, 2, 2, 2, ...>, 6.6 / 6.4) about 0.2, unpooler about 0.2 more on top
 of the geometry change: about +0.06% of layer score at 0.079% per us.
+
+## 2026-10-30 standalone round: direct cuBLASLt and router geometry (P1)
+
+Brief: `docs/steering/2026-10-30-attention-projection-standalone-roadmap.md`, sections 5-7.
+Reference: NathenFernandes/muse-bf16-proj, branch `solution`, commit 86aff75 (MIT), v18
+submission (judged 1.5186x, 66d8b007f6c641ee), per-shape CSV blob f3ab30a0. Its source was
+expanded offline with an AST transform of our own (no execution) and read; its router kernels
+and pinned cuBLASLt configurations ran only as check arms inside bench files built by
+`tools/proj_make_bench_p1.py --donor` (scratchpad only, never committed or submitted).
+
+### Scorecard at the start (bf6c825bd5cf4659, scored, eb374e4, 1.4574x)
+
+Per load, judge-derived us (sum of the five operators); reference from its CSV (another run,
+another SGLang sample, so about 1-3% apart before any difference in code):
+
+| load | ours C_T | reference C_T | ours - ref | largest gaps |
+|---|---:|---:|---:|---|
+| decode 1 | 34.68 | 35.40 | -0.72 | (we lead) |
+| decode 16 | 49.82 | 47.68 | +2.13 | router +1.08, pooler +0.73 |
+| decode 32 | 53.08 | 54.75 | -1.67 | (we lead) |
+| verify 1 | 39.73 | 37.42 | +2.31 | router +1.00, pooler +0.68 |
+| verify 16 | 73.29 | 66.93 | +6.35 | router +2.77, pooler +1.63, qkv +0.92 |
+| verify 32 | 91.84 | 82.02 | +9.82 | pooler +3.55, qkv +2.68, router +2.32 |
+
+Score sensitivity 1 / (6 C_T): 0.48, 0.34, 0.31, 0.42, 0.23, 0.18 %/us. The reference's
+m = 128 / 256 dense picks are pinned cuBLASLt configurations (algo 66 with a chosen tile and
+cluster shape) and its router at 128 / 256 is its own wgmma kernel (hi/lo BF16 with FP32
+accumulation, 64 rows x 64 tokens per CTA, K split 8 over a cluster, push reduction).
+
+### What changed (d61deea .. d0dc80f)
+
+- Direct cuBLASLt plans (`LT_CPP`, `_lt_search`) for qkv_gate / o / pooler / unpooler at
+  exactly m = 128 and 256: four layouts (W or a K-major copy, column or row order),
+  heuristic lists under three workspace caps, then a tile x cluster-shape sweep of the best
+  two plans' algorithm, stage / split-K / swizzle / custom / cluster neighbours of the best
+  four, the best four carried to every layout, a 12-rep re-screen of the top 24, FP64
+  self-test of the five fastest, and a 24-rep cold-L2 graph timing against the existing pick
+  (replace only under 0.98x). FP32 accumulation only (TF32 input rejected); split-K only with
+  the FP32 reduction scheme; workspace 32 MB allocated in prepare; operands must be 256-byte
+  aligned, else the old pick runs. The pick prints as `ltune ...` with its nine config fields.
+- Router wd geometries `r64c8s8` (64 tokens, K split 8, 8 stages), `r64c4s8`, `r128c8s6`;
+  BN 64 is offered to the router at the 256 bucket.
+
+Judge library: cuBLASLt 130101, torch CUDA 13.0 (printed in 047bc3a4168e42d6).
+
+### Runs
+
+| date | job | kind | commit | change | score (95% CI) | notes |
+|---|---|---|---|---|---|---|
+| 10-30 | bf6c825bd5cf4659 | **submit** (coordinator) | eb374e4 | LATE_ARRIVE, as main | 1.457x (1.436-1.479) | scorecard above; not logged by its submitter, added here |
+| 10-30 | 1b00244922654709 | check (bench P1a) | d61deea | Lt + router geometries, A/B preparations, reference arms | 1.465x (1.443-1.487) | Lt build failed on the judge (two translation units; message truncated), so only the router changed: router m=128 picks r64c8s8 (judged 8.96 -> 7.90 us), m=256 r128c8s6 (10.77 -> 10.35) |
+| 10-30 | 047bc3a4168e42d6 | check (bench P1b) | 33daf8b | Lt as one host translation unit, versioned library first | 1.463x (1.442-1.485) | Lt live; heuristic set only. Paired vs pre-Lt pick: pooler 128 -1.47 / -1.57, unpooler 128 -1.31 / -1.44, qkv 256 -1.07 / -1.06, pooler 256 -0.50 / -0.64, unpooler 256 -0.77 / -0.83 us; the reference's pinned configs beat ours on pooler 256 by 2.4 us (tile 18, cluster 1x1x1, outside the heuristic list) |
+| 10-30 | d6eaf1e73db047a5 | check (bench P1c) | 62a6ae0 | + tile x cluster sweep | **1.484x** (1.461-1.506) | qkv 256 -2.08 / -2.03 (reference -2.19), pooler 256 -1.86 / -1.82 (reference -3.07); pooler 128 pick unstable (newA -0.03, newB -0.22): the 6-rep screen ranks near-equal configs by noise |
+| 10-30 | 44fa08c6d2f44b44 | check (bench P1d) | d0dc80f | + cross-layout transfer, 12-rep re-screen, 5 finalists | 1.479x (1.457-1.501) | paired table below; against the reference's pinned configs (A / B): ahead on qkv 128, unpooler 128 and o 256; behind on qkv 256 (0.10 / 0.16 us), unpooler 256 (0.19 / 0.19) and pooler 256 (0.12 / 0.64); pooler 128 mixed (A 0.88 behind, B 0.24 ahead), so the pick still varies between preparations by up to 1.1 us |
+| 10-30 | 6cbd8b981a5d4c3f | check | d0dc80f | the clean candidate (no bench, no external code), file sha1 03389e0d | **1.482x** (1.460-1.504) | verify 16 C_T 73.29 -> 70.22, verify 32 91.84 -> 84.29 us against bf6c825b; decode loads within -0.45 / +0.62 us (unchanged code); prepare 105 s |
+
+Paired in-process deltas, 44fa08c6d2f44b44 (us, arm minus the pre-Lt pick of preparation A,
+median over 100 seeded rounds; baseB is the null of an independent preparation; d_* are the
+reference's arms):
+
+| shape | newA | newB | baseB (null) | reference | SGLang |
+|---|---:|---:|---:|---:|---:|
+| qkv_gate 128 | -0.10 | -0.10 | +0.03 | Lt +0.34 | +1.98 |
+| o 128 | -0.06 | +0.03 | +0.00 | - | -0.03 |
+| pooler 128 | -1.87 | -2.99 | -0.13 | Lt -2.75 | +2.64 |
+| unpooler 128 | -1.34 | -1.41 | -0.06 | Lt -1.23 | +0.03 |
+| qkv_gate 256 | -1.92 | -1.86 | +0.03 | Lt -2.02 | +0.06 |
+| o 256 | -0.32 | -0.35 | -0.11 | Lt -0.26 | -0.18 |
+| pooler 256 | -2.98 | -2.46 | -0.03 | Lt -3.10 | +2.96 |
+| unpooler 256 | -0.26 | -0.26 | +0.03 | Lt -0.45 | +0.03 |
+| router 128 | +0.10 | +0.05 | +0.03 | rw -1.50 | +10.00 |
+| router 256 | +0.00 | +0.03 | +0.00 | rw -2.03 | +8.83 |
+
+Router at 8 / 16 / 32 tokens (same run): the reference's routertail is -0.83 / -0.69 / -0.45 us
+against our router8 / router16 / router32 picks (null within +-0.06). In-process router medians
+(us, after the 4.3 us replay overhead), d6eaf1e73db047a5: m=128 reference 6.11, r64c8s8 7.65,
+r128c16 (old pick) 8.86; m=256 reference 8.00, r128c8s6 9.98, r128c8 (old pick) 10.46.
+
+### Family ledger (muse_bf16_proj, after this round)
+
+| family | shapes | status | evidence | next |
+|---|---|---|---|---|
+| sk 12-bit skinny (mma.sync) | m <= 32 BF16 | measured standalone win, incumbent | 3843af64 onward | P4 reserve only |
+| cgemv / sgemv / rgemv | m = 1 | measured win, incumbent | a35709c line | - |
+| sk hi/lo router (cluster 3) | router 8-32 | measured win; reference routertail 0.45-0.83 us faster in process | 44fa08c6 | open gap, mechanism not attributed |
+| wd router (wgmma hi/lo) | router 128 / 256 | measured win (r64c8s8, r128c8s6); reference rw 1.4-2.0 us faster in process | 1b002449, d6eaf1e7, 44fa08c6 | open gap; differences listed below |
+| wd BF16 wide | qkv 128 (b1n128c3s8h) | incumbent there; Lt does not beat it | 44fa08c6 | - |
+| direct cuBLASLt search | dense 128 / 256 except qkv 128 | measured standalone win, judged 3x | 047bc3a4, d6eaf1e7, 44fa08c6, 6cbd8b98 | port is a separate layer decision |
+| CUTLASS pingpong pooler | pooler 256 | superseded by Lt (-2.5 to -3.0 us in process) | 44fa08c6 | stays a tuner candidate |
+| P2 qkv split-K at 16 / 32 | qkv 16 / 32 | closed by model, no judge run | below | reopen trigger in ruled-out |
+| P3 compressed WGMMA | dense 128 | untested; model says it can pay at m = 128 only | below | next round's structural challenger |
+
+Router differences between our wd r64c8s8 and the reference's 128-token kernel (same 64 rows x
+64 tokens per CTA, K split 8, 8 stages, 64 CTAs; read from its source, not measured one by
+one): no producer warp (thread 0 refills after the stage's wgmma wait), hi and lo rows packed
+so one TMA box carries both, L2 promotion 64 B instead of 256 B, partials pushed with
+`st.async` to the owning rank on one cluster barrier instead of a smem write, cluster sync and
+DSMEM pull. Attribution needs one variant per difference in one bench.
+
+### P2 / P3 work model (no judge run)
+
+P2, qkv_gate split-K at 16 / 32 tokens. qkv streams 28.3 MB of 12-bit weights; judged 9.95-10.20
+us at 16 tokens is about 2.8-2.9 TB/s against 3.4-3.6 TB/s for pooler / unpooler at 16 tokens,
+so the ceiling of a perfect fix is about 2 us per load (0.6-0.7% of score each). But the
+premise that more CTAs help is already contradicted: 192-CTA qkv geometries lost +1.41 (n2) and
++2.98 us (n2b) at 16 tokens (01703396ea1a409e), and 2-CTA cluster split-K lost on the pooler and
+unpooler (a9ff49372ffa4eaf). 96 row blocks do not divide into 132 SMs with a K split (192 or 144
+CTAs, so a second partial wave or 2 CTAs per SM, the configurations that lost). The model
+cannot show it pays, so P2 is closed without a run (ruled-out row).
+
+P3, lossless 12-bit weights into WGMMA at m = 128 (pooler, unpooler, qkv_gate). Bytes: pooler
+64 MB BF16 against 48 MB 12-bit; math 8.6 GFLOP, about 12-13 us at the 650-700 TFLOP/s the
+m = 256 picks reach; the Lt pooler at 128 runs about 21.3 us, 3.0 TB/s effective. At m = 256 the
+same layers are math-bound (pooler 17.2 GFLOP, judged 24.7 us), so compression cannot pay
+there. Resource budget for one CTA per SM: 128 weight rows (two consumer warpgroups) so x is
+re-read 32x (64 MB from L2) rather than 64x; ring stage = 12 KB codes + 16 KB x tile, 4 stages =
+112 KB, plus a 2 x 16 KB decoded BF16 tile = 144 KB; decode 32 weights per thread per stage on 4
+producer warps, about 40 instructions, hidden only if the producer keeps one stage ahead.
+Predicted (hypothesis): max(48 MB at 3.3 TB/s = 14.5, L2 112 MB at about 9 TB/s = 12.4, math 13) +
+1.5 fixed = about 16 us against 21.3 for the pooler, similar for unpooler, about 2.5 us on qkv:
+roughly 10 us at verify 16, +2.4% of score if it all lands. Main risk: decode and smem-write
+bandwidth contending with WGMMA operand reads; first artifact is the raw-BF16 twin of the same
+geometry (no decode) to show the geometry alone reaches the Lt time. P3 is the higher-value of
+the two; not started this round.

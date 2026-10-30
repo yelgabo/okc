@@ -1,0 +1,96 @@
+P1PREP A 112.8 s
+P1PREP A| sk build 20.1 s
+P1PREP A| cut build 49.9 s
+P1PREP A| selftests done 70.7 s
+P1PREP A| tune router    m= 8: router8 9.7, baseline 31.0 -> router8
+P1PREP A| tune router    m=16: router16 9.6, baseline 20.7 -> router16
+P1PREP A| tune router    m=128: baseline 22.1, r64c8 13.5, r64c16 14.4, r128c8 14.9, r128c16 13.5, r64c8s8 12.1, r64c4s8 16.0, r128c8s6 14.5, rm64k4r4 18.6, rm128k4r4 21.8 -> r64c8s8
+P1PREP A| tune router    m=256: baseline 23.0, r64c8 15.0, r64c16 19.9, r128c8 15.1, r128c16 21.2, r64c8s8 19.1, r64c4s8 16.4, r128c8s6 14.7, rm64k4r4 18.9, rm128k4r4 21.9 -> r128c8s6
+P1PREP A| lt build failed, route off (RuntimeError: -DTORCH_API_INCLUDE_EXTENSION_H -isystem /opt/sglang/lib/python3.12/site-packages/torch/include -isystem /opt/sglang/lib/python3.12/site-packages/torch/include/torch/csrc/api/include -isystem /usr/local/cuda/include -isystem /usr/include/python3.12 -fPIC -std=c++20 -c /tmp/muse_bf16_proj-bjy1v5cg/sandbox/cache/torch_extensions/okc_lt_v1/main.cpp -o main.o 
+P1PREP B 42.0 s
+P1PREP B| sk build 0.0 s
+P1PREP B| cut build 0.0 s
+P1PREP B| selftests done 0.4 s
+P1PREP B| tune router    m= 8: router8 9.6, baseline 31.2 -> router8
+P1PREP B| tune router    m=16: router16 9.6, baseline 20.5 -> router16
+P1PREP B| tune router    m=128: baseline 22.3, r64c8 13.5, r64c16 14.4, r128c8 14.7, r128c16 13.3, r64c8s8 12.1, r64c4s8 15.9, r128c8s6 14.4, rm64k4r4 18.4, rm128k4r4 21.8 -> r64c8s8
+P1PREP B| tune router    m=256: baseline 23.1, r64c8 15.0, r64c16 19.7, r128c8 15.0, r128c16 21.0, r64c8s8 18.9, r64c4s8 16.2, r128c8s6 14.3, rm64k4r4 18.5, rm128k4r4 21.6 -> r128c8s6
+P1PREP B| lt build failed, route off (RuntimeError: -DTORCH_API_INCLUDE_EXTENSION_H -isystem /opt/sglang/lib/python3.12/site-packages/torch/include -isystem /opt/sglang/lib/python3.12/site-packages/torch/include/torch/csrc/api/include -isystem /usr/local/cuda/include -isystem /usr/include/python3.12 -fPIC -std=c++20 -c /tmp/muse_bf16_proj-bjy1v5cg/sandbox/cache/torch_extensions/okc_lt_v1/main.cpp -o main.o 
+P1OVH 4.00 us
+P1 qkv_gate m=128 med newA=15.07 baseB=15.17 newB=15.17 baseA=15.20 sglang=17.25
+P1 qkv_gate m=128 d newA=-0.06 baseB=-0.02 newB=-0.03 sglang=+2.08
+P1 o m=128 med newB=7.39 baseB=7.42 newA=7.42 sglang=7.49 baseA=7.55
+P1 o m=128 d newB=-0.16 baseB=-0.10 newA=-0.13 sglang=-0.05
+P1 pooler m=128 med baseA=22.24 baseB=22.30 newA=22.40 newB=22.40 sglang=25.86
+P1 pooler m=128 d baseB=+0.05 newA=+0.08 newB=+0.08 sglang=+3.60
+P1 unpooler m=128 med baseA=19.46 newB=19.49 sglang=19.49 newA=19.52 baseB=19.58
+P1 unpooler m=128 d newB=-0.03 sglang=+0.06 newA=+0.06 baseB=+0.11
+P1 qkv_gate m=256 med newB=19.62 sglang=19.63 newA=19.65 baseA=19.66 baseB=19.87
+P1 qkv_gate m=256 d newB=-0.03 sglang=+0.02 newA=-0.03 baseB=+0.19
+P1 o m=256 med sglang=9.18 newB=9.22 baseA=9.31 newA=9.31 baseB=9.46
+P1 o m=256 d sglang=-0.16 newB=-0.13 newA=+0.00 baseB=+0.13
+P1 pooler m=256 med baseA=26.83 newA=26.83 baseB=26.85 newB=26.94 sglang=30.50
+P1 pooler m=256 d newA=-0.06 baseB=+0.05 newB=+0.10 sglang=+3.57
+P1 unpooler m=256 med newB=24.10 baseB=24.13 baseA=24.16 sglang=24.16 newA=24.40
+P1 unpooler m=256 d newB=-0.10 baseB=-0.03 sglang=-0.02 newA=+0.19
+P1 router m=8 med d_rt=4.80 baseB=5.47 newA=5.50 baseA=5.54 newB=5.55 sglang=27.44
+P1 router m=8 d d_rt=-0.75 baseB=+0.00 newA=-0.06 newB=+0.00 sglang=+21.92
+P1 router m=16 med d_rt=4.86 newB=5.57 newA=5.60 baseA=5.62 baseB=5.63 sglang=16.69
+P1 router m=16 d d_rt=-0.74 newB=-0.06 newA=-0.03 baseB=+0.00 sglang=+11.07
+P1 router m=32 med d_rt=5.57 baseB=6.00 baseA=6.02 newA=6.02 newB=6.02 sglang=17.36
+P1 router m=32 d d_rt=-0.42 baseB=+0.00 newA=-0.02 newB=-0.03 sglang=+11.36
+P1 router m=128 med d_rw=6.34 newB=7.71 baseB=7.74 r64c8s8=7.82 baseA=7.94 newA=8.02 r128c16=8.99 r64c8=9.34 r64c16=10.05 r128c8s6=10.10 r128c8=10.37 r64c4s8=11.81 rm64k4r4=14.14 rm128k4r4=17.36 sglang=17.79
+P1 router m=128 d d_rw=-1.55 newB=-0.13 baseB=-0.13 r64c8s8=-0.10 newA=+0.11 r128c16=+1.09 r64c8=+1.44 r64c16=+2.14 r128c8s6=+2.26 r128c8=+2.53 r64c4s8=+3.89 rm64k4r4=+6.29 rm128k4r4=+9.50 sglang=+9.92
+P1 router m=256 med d_rw=8.03 r128c8s6=10.00 baseB=10.05 newA=10.08 newB=10.13 baseA=10.24 r64c8=10.66 r128c8=10.78 r64c4s8=11.86 rm64k4r4=14.37 r64c8s8=15.14 r64c16=15.49 r128c16=16.80 rm128k4r4=17.54 sglang=19.20
+P1 router m=256 d d_rw=-2.14 r128c8s6=-0.19 baseB=-0.14 newA=-0.14 newB=-0.08 r64c8=+0.48 r128c8=+0.61 r64c4s8=+1.65 rm64k4r4=+4.19 r64c8s8=+4.88 r64c16=+5.20 r128c16=+6.61 rm128k4r4=+7.34 sglang=+8.91
+P1DONE 165.5 s
+judged| sk build 0.0 s
+judged| cut build 0.0 s
+judged| lt build failed, route off (RuntimeError: -DTORCH_API_INCLUDE_EXTENSION_H -isystem /opt/sglang/lib/python3.12/site-packages/torch/include -isystem /opt/sglang/lib/python3.12/site-packages/torch/include/torch/csrc/api/include -isystem /usr/local/cuda/include -isystem /usr/include/python3.12 -fPIC -std=c++20 -c /tmp/muse_bf16_proj-bjy1v5cg/sandbox/cache/torch_extensions/okc_lt_v1/main.cpp -o main.o 
+judged| prepare done 42.6 s
+P1PREP A 112.8 s
+P1PREP A| sk build 20.1 s
+P1PREP A| cut build 49.9 s
+P1PREP A| selftests done 70.7 s
+P1PREP A| tune router    m= 8: router8 9.7, baseline 31.0 -> router8
+P1PREP A| tune router    m=16: router16 9.6, baseline 20.7 -> router16
+P1PREP A| tune router    m=128: baseline 22.1, r64c8 13.5, r64c16 14.4, r128c8 14.9, r128c16 13.5, r64c8s8 12.1, r64c4s8 16.0, r128c8s6 14.5, rm64k4r4 18.6, rm128k4r4 21.8 -> r64c8s8
+P1PREP A| tune router    m=256: baseline 23.0, r64c8 15.0, r64c16 19.9, r128c8 15.1, r128c16 21.2, r64c8s8 19.1, r64c4s8 16.4, r128c8s6 14.7, rm64k4r4 18.9, rm128k4r4 21.9 -> r128c8s6
+P1PREP A| lt build failed, route off (RuntimeError: -DTORCH_API_INCLUDE_EXTENSION_H -isystem /opt/sglang/lib/python3.12/site-packages/torch/include -isystem /opt/sglang/lib/python3.12/site-packages/torch/include/torch/csrc/api/include -isystem /usr/local/cuda/include -isystem /usr/include/python3.12 -fPIC -std=c++20 -c /tmp/muse_bf16_proj-bjy1v5cg/sandbox/cache/torch_extensions/okc_lt_v1/main.cpp -o main.o 
+P1PREP B 42.0 s
+P1PREP B| sk build 0.0 s
+P1PREP B| cut build 0.0 s
+P1PREP B| selftests done 0.4 s
+P1PREP B| tune router    m= 8: router8 9.6, baseline 31.2 -> router8
+P1PREP B| tune router    m=16: router16 9.6, baseline 20.5 -> router16
+P1PREP B| tune router    m=128: baseline 22.3, r64c8 13.5, r64c16 14.4, r128c8 14.7, r128c16 13.3, r64c8s8 12.1, r64c4s8 15.9, r128c8s6 14.4, rm64k4r4 18.4, rm128k4r4 21.8 -> r64c8s8
+P1PREP B| tune router    m=256: baseline 23.1, r64c8 15.0, r64c16 19.7, r128c8 15.0, r128c16 21.0, r64c8s8 18.9, r64c4s8 16.2, r128c8s6 14.3, rm64k4r4 18.5, rm128k4r4 21.6 -> r128c8s6
+P1PREP B| lt build failed, route off (RuntimeError: -DTORCH_API_INCLUDE_EXTENSION_H -isystem /opt/sglang/lib/python3.12/site-packages/torch/include -isystem /opt/sglang/lib/python3.12/site-packages/torch/include/torch/csrc/api/include -isystem /usr/local/cuda/include -isystem /usr/include/python3.12 -fPIC -std=c++20 -c /tmp/muse_bf16_proj-bjy1v5cg/sandbox/cache/torch_extensions/okc_lt_v1/main.cpp -o main.o 
+P1OVH 4.00 us
+P1 qkv_gate m=128 med newA=15.07 baseB=15.17 newB=15.17 baseA=15.20 sglang=17.25
+P1 qkv_gate m=128 d newA=-0.06 baseB=-0.02 newB=-0.03 sglang=+2.08
+P1 o m=128 med newB=7.39 baseB=7.42 newA=7.42 sglang=7.49 baseA=7.55
+P1 o m=128 d newB=-0.16 baseB=-0.10 newA=-0.13 sglang=-0.05
+P1 pooler m=128 med baseA=22.24 baseB=22.30 newA=22.40 newB=22.40 sglang=25.86
+P1 pooler m=128 d baseB=+0.05 newA=+0.08 newB=+0.08 sglang=+3.60
+P1 unpooler m=128 med baseA=19.46 newB=19.49 sglang=19.49 newA=19.52 baseB=19.58
+P1 unpooler m=128 d newB=-0.03 sglang=+0.06 newA=+0.06 baseB=+0.11
+P1 qkv_gate m=256 med newB=19.62 sglang=19.63 newA=19.65 baseA=19.66 baseB=19.87
+P1 qkv_gate m=256 d newB=-0.03 sglang=+0.02 newA=-0.03 baseB=+0.19
+P1 o m=256 med sglang=9.18 newB=9.22 baseA=9.31 newA=9.31 baseB=9.46
+P1 o m=256 d sglang=-0.16 newB=-0.13 newA=+0.00 baseB=+0.13
+P1 pooler m=256 med baseA=26.83 newA=26.83 baseB=26.85 newB=26.94 sglang=30.50
+P1 pooler m=256 d newA=-0.06 baseB=+0.05 newB=+0.10 sglang=+3.57
+P1 unpooler m=256 med newB=24.10 baseB=24.13 baseA=24.16 sglang=24.16 newA=24.40
+P1 unpooler m=256 d newB=-0.10 baseB=-0.03 sglang=-0.02 newA=+0.19
+P1 router m=8 med d_rt=4.80 baseB=5.47 newA=5.50 baseA=5.54 newB=5.55 sglang=27.44
+P1 router m=8 d d_rt=-0.75 baseB=+0.00 newA=-0.06 newB=+0.00 sglang=+21.92
+P1 router m=16 med d_rt=4.86 newB=5.57 newA=5.60 baseA=5.62 baseB=5.63 sglang=16.69
+P1 router m=16 d d_rt=-0.74 newB=-0.06 newA=-0.03 baseB=+0.00 sglang=+11.07
+P1 router m=32 med d_rt=5.57 baseB=6.00 baseA=6.02 newA=6.02 newB=6.02 sglang=17.36
+P1 router m=32 d d_rt=-0.42 baseB=+0.00 newA=-0.02 newB=-0.03 sglang=+11.36
+P1 router m=128 med d_rw=6.34 newB=7.71 baseB=7.74 r64c8s8=7.82 baseA=7.94 newA=8.02 r128c16=8.99 r64c8=9.34 r64c16=10.05 r128c8s6=10.10 r128c8=10.37 r64c4s8=11.81 rm64k4r4=14.14 rm128k4r4=17.36 sglang=17.79
+P1 router m=128 d d_rw=-1.55 newB=-0.13 baseB=-0.13 r64c8s8=-0.10 newA=+0.11 r128c16=+1.09 r64c8=+1.44 r64c16=+2.14 r128c8s6=+2.26 r128c8=+2.53 r64c4s8=+3.89 rm64k4r4=+6.29 rm128k4r4=+9.50 sglang=+9.92
+P1 router m=256 med d_rw=8.03 r128c8s6=10.00 baseB=10.05 newA=10.08 newB=10.13 baseA=10.24 r64c8=10.66 r128c8=10.78 r64c4s8=11.86 rm64k4r4=14.37 r64c8s8=15.14 r64c16=15.49 r128c16=16.80 rm128k4r4=17.54 sglang=19.20
+P1 router m=256 d d_rw=-2.14 r128c8s6=-0.19 baseB=-0.14 newA=-0.14 newB=-0.08 r64c8=+0.48 r128c8=+0.61 r64c4s8=+1.65 rm64k4r4=+4.19 r64c8s8=+4.88 r64c16=+5.20 r128c16=+6.61 rm128k4r4=+7.34 sglang=+8.91
+P1DONE 165.5 s

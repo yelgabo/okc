@@ -213,3 +213,37 @@ re-inline with `tools/dl_proj_inline.py`, build the skp extension with `-DSK_PDL
 only on the o (and front) calls at T <= 32, and pair it with `ONE_TRIG=1` in `attn_one.cu` so
 attention triggers its dependents early. Rationale, compile gate and stop rule:
 [docs/steering/2026-10-29-v1-d32-breakdown.md](steering/2026-10-29-v1-d32-breakdown.md).
+
+## Direct cuBLASLt plans (`LT_CPP`, m = 128 / 256 dense, 2026-10-30)
+
+One `load_inline` host translation unit (`okc_lt_v2_<i>`, torch headers plus `cublasLt.h`,
+linked `-l:libcublasLt.so.13`, then `-lcublasLt`, then `.so.12`; the judge has cuBLASLt 130101
+under torch CUDA 13.0). Plans live in a C++ table and are addressed by integer:
+
+```
+lt_plan_new(m, n, k, layout, ws_cap) -> plan     # layout 0/1 column order, 2/3 row order;
+                                                 # odd layouts take Wt = W^T contiguous [k, n]
+lt_heuristic(plan, ws_bytes, req)                # heuristic answers under a workspace cap
+lt_sweep(plan, idx, clusters, max_add)           # every tile of idx's algorithm x cluster ids
+lt_expand(plan, idx, max_add)                    # stages, FP32-reduced split-K, swizzle, custom, cluster
+lt_add_config(plan, [9 config fields]) -> idx    # restore one config by value
+lt_info(plan, idx) -> 9 fields + workspace + 1000 x waves
+lt_run(plan, idx, w_or_wt, x, out, ws) -> cuBLAS status   # current stream, graph-capturable
+```
+
+Every accepted algorithm has FP32 accumulation, no TF32 input, and either no split-K or the
+FP32 (compute-type) reduction; `cublasLtMatmulAlgoCheck` must pass with workspace <= 32 MB.
+`prepare()` keeps `state["pick_base"]` (the pick before this stage), `state["lt_pick"]` (layout +
+fields of each cuBLASLt pick) and replaces `state["pick"][(layer, m)]` only for m = 128 / 256.
+A plan is built for one m; the runner falls back to the old pick for any other m or an operand
+not 256-byte aligned. The search takes about 10 s per preparation after an 18 s build.
+
+For the layer: not ported. The layer's T = 128 / 256 front is the concat GEMM, and its qkv, o and
+unpooler run through its own dispatch; porting means creating plans for the layer's exact
+shapes (and concat with FP32 output, which needs a CUDA_R_32F D layout and is not covered here),
+then a complete-layer A/B. Standalone and layer promotion are separate decisions.
+
+Router geometries added the same day: `r64c8s8` (picked at m = 128), `r128c8s6` (picked at
+m = 256), `r64c4s8` (never picked); same `wd_kernel` template, only NST / BN / CLK differ, so
+fence and barrier counts per instance are those of the existing router configs (sm_90a compile,
+no spills: 60 / 58 / 90 registers).
