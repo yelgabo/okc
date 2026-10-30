@@ -1,0 +1,103 @@
+ABBUILD ours 70 s
+ABBUILD pub 174 s
+ABROUTE layer router seed 8 (mean relative miss 0.030)
+ABROUTE T=32 layer busiest local expert routes [14, 18, 20, 21, 22, 23]
+ABCHECK T=32 layer vs fp32 o51 3.84e-03 pub 2.35e-03; vs o51: o62 1.5e-05 o63 4.3e-06
+ABTIME T=32 layer mean of 6 o51 82.2 o62 86.1 o63 87.5 pub 81.1 sk8w4s 101.2
+ABPAIR T=32 layer o62 minus o51 +5.0 +3.7 +3.7 +3.3 +3.9 +3.9 (mean +3.9, 0 of 6 lower)
+ABPAIR T=32 layer o63 minus o51 +5.9 +5.5 +5.9 +5.4 +4.8 +4.4 (mean +5.3, 0 of 6 lower)
+ABPAIR T=32 layer pub minus o51 -3.4 -1.6 -0.4 -0.9 +1.0 -1.1 (mean -1.1, 5 of 6 lower)
+ABPAIR T=32 layer sk8w4s minus o51 +10.8 +18.2 +28.0 +28.4 +15.4 +13.2 (mean +19.0, 0 of 6 lower)
+ABSTAMP T=32 layer o55 route 2.7, start 7.0, phase A 41.4, A done max 53.0, phase B 19.3, tail 6.4, barrier+final 9.2, end 78.0, A end spread 4.6
+ABSTAMP T=32 layer o64 route 2.8, start 8.7, phase A 42.5, A done max 56.5, phase B 20.8, tail 6.5, barrier+final 9.6, end 82.7, A end spread 5.3
+ABSTAMP T=32 layer o65 route 2.8, start 7.0, phase A 46.0, A done max 57.9, phase B 20.4, tail 6.4, barrier+final 9.0, end 83.5, A end spread 4.9
+ABSTAMP T=32 layer pub route 1.8, start 3.7, phase A 44.3, A done max 51.8, phase B 20.0, tail 4.4, barrier+final 6.3, end 77.3, A end spread 3.8
+ABGATHER T=32 layer o55 stores 1.03, fences+barrier 2.03, release 1.09, first x ready after release 4.65, last first-x-ready from first gather start 9.98, gather total 4.14, pub gather 1.72, pub join 0.04
+ABGATHER T=32 layer o64 stores 1.06, fences+barrier 4.07, release 0.53, first x ready after release 3.28, last first-x-ready from first gather start 9.56, gather total 5.66, pub gather 1.72, pub join 0.04
+ABGATHER T=32 layer o65 stores 0.98, fences+barrier 1.03, release 2.03, first x ready after release 0.00, last first-x-ready from first gather start 0.00, gather total 4.03, pub gather 1.72, pub join 0.04
+ABPUB T=32 layer phase A mean 44.29, p10 42.25, p50 44.33, p90 46.16, max 48.90, stages min -26495.67, mean -23755.77, max -13114.17, cut units per CTA 0.83, rho(time, stages) 0.49
+ABROUTE T=32 std busiest local expert routes [8, 12, 10, 12, 5, 7]
+ABCHECK T=32 std vs fp32 o51 3.89e-03 pub 2.35e-03; vs o51: o62 2.1e-05 o63 2.2e-05
+ABTIME T=32 std mean of 6 o51 141.9 o62 148.0 o63 147.2 pub 135.2 sk8w4s 136.3
+ABPAIR T=32 std o62 minus o51 +6.2 +5.6 +6.6 +6.7 +5.9 +5.8 (mean +6.1, 0 of 6 lower)
+ABPAIR T=32 std o63 minus o51 +4.7 +5.1 +5.4 +5.9 +5.6 +4.9 (mean +5.3, 0 of 6 lower)
+ABPAIR T=32 std pub minus o51 -8.2 -5.2 -10.9 -5.0 -4.2 -6.9 (mean -6.7, 6 of 6 lower)
+ABPAIR T=32 std sk8w4s minus o51 -9.4 -2.7 -9.1 +4.4 -6.5 -10.8 (mean -5.7, 5 of 6 lower)
+ABSTAMP T=32 std o55 route 3.1, start 4.9, phase A 83.9, A done max 96.6, phase B 37.0, tail 9.1, barrier+final 11.4, end 138.4, A end spread 7.8
+ABSTAMP T=32 std o64 route 3.2, start 5.1, phase A 89.0, A done max 101.7, phase B 38.6, tail 8.4, barrier+final 11.1, end 144.9, A end spread 7.6
+ABSTAMP T=32 std o65 route 3.0, start 5.0, phase A 88.0, A done max 100.6, phase B 38.6, tail 8.7, barrier+final 11.4, end 144.1, A end spread 7.6
+ABSTAMP T=32 std pub route 1.8, start 4.0, phase A 81.3, A done max 89.1, phase B 37.2, tail 4.6, barrier+final 6.6, end 132.5, A end spread 3.9
+ABGATHER T=32 std o55 stores 1.04, fences+barrier 0.44, release 0.22, first x ready after release 6.18, last first-x-ready from first gather start 9.39, gather total 1.70, pub gather 2.10, pub join 0.03
+ABGATHER T=32 std o64 stores 0.97, fences+barrier 0.41, release 0.25, first x ready after release 6.79, last first-x-ready from first gather start 9.47, gather total 1.62, pub gather 2.10, pub join 0.03
+ABGATHER T=32 std o65 stores 0.93, fences+barrier 0.54, release 0.41, first x ready after release 6.84, last first-x-ready from first gather start 10.88, gather total 1.88, pub gather 2.10, pub join 0.03
+ABPUB T=32 std phase A mean 81.27, p10 79.88, p50 81.28, p90 82.84, max 84.65, stages min -24056.83, mean -21101.68, max -19854.17, cut units per CTA 0.83, rho(time, stages) 0.17
+ABROUTE T=128 layer busiest local expert routes [58, 54, 63, 50, 54, 49]
+ABCHECK T=128 layer vs fp32 o51 3.86e-03 pub 2.34e-03; vs o51: o62 0.0e+00 o63 0.0e+00
+ABTIME T=128 layer mean of 6 o51 162.5 o62 170.4 o63 169.5 pub 153.7
+ABPAIR T=128 layer o62 minus o51 +8.1 +8.7 +7.7 +6.8 +6.9 +9.0 (mean +7.9, 0 of 6 lower)
+ABPAIR T=128 layer o63 minus o51 +6.6 +7.7 +7.8 +5.8 +5.8 +8.4 (mean +7.0, 0 of 6 lower)
+ABPAIR T=128 layer pub minus o51 -13.2 -8.1 -3.6 -5.5 -12.2 -10.1 (mean -8.8, 6 of 6 lower)
+ABSTAMP T=128 layer o55 route 3.5, start 10.0, phase A 91.2, A done max 114.1, phase B 43.7, tail 7.9, barrier+final 13.1, end 158.8, A end spread 12.8
+ABSTAMP T=128 layer o64 route 3.5, start 10.1, phase A 96.3, A done max 115.9, phase B 45.4, tail 8.6, barrier+final 14.4, end 166.7, A end spread 9.5
+ABSTAMP T=128 layer o65 route 3.5, start 10.3, phase A 95.3, A done max 115.5, phase B 45.5, tail 8.8, barrier+final 14.7, end 166.3, A end spread 9.8
+ABSTAMP T=128 layer pub route 2.4, start 6.0, phase A 88.9, A done max 101.1, phase B 44.2, tail 5.4, barrier+final 9.3, end 149.5, A end spread 6.3
+ABGATHER T=128 layer o55 stores 1.70, fences+barrier 4.17, release 0.55, first x ready after release 2.57, last first-x-ready from first gather start 10.58, gather total 6.41, pub gather 3.40, pub join 0.04
+ABGATHER T=128 layer o64 stores 2.02, fences+barrier 3.83, release 0.51, first x ready after release 2.38, last first-x-ready from first gather start 9.94, gather total 6.36, pub gather 3.40, pub join 0.04
+ABGATHER T=128 layer o65 stores 2.23, fences+barrier 3.90, release 0.47, first x ready after release 2.22, last first-x-ready from first gather start 9.77, gather total 6.59, pub gather 3.40, pub join 0.04
+ABPUB T=128 layer phase A mean 88.86, p10 84.87, p50 89.15, p90 92.23, max 94.93, stages min -19985.17, mean -18050.02, max -16118.50, cut units per CTA 1.00, rho(time, stages) 0.24
+ABROUTE T=128 std busiest local expert routes [56, 19, 74, 24, 55, 56]
+ABCHECK T=128 std vs fp32 o51 3.85e-03 pub 2.34e-03; vs o51: o62 0.0e+00 o63 0.0e+00
+ABTIME T=128 std mean of 6 o51 190.5 o62 198.1 o63 197.5 pub 181.1
+ABPAIR T=128 std o62 minus o51 +8.4 +8.4 +7.1 +7.8 +7.0 +6.5 (mean +7.5, 0 of 6 lower)
+ABPAIR T=128 std o63 minus o51 +8.3 +7.4 +7.0 +7.3 +6.0 +5.7 (mean +6.9, 0 of 6 lower)
+ABPAIR T=128 std pub minus o51 -7.6 -16.2 -5.2 -7.1 -9.9 -10.8 (mean -9.5, 6 of 6 lower)
+ABSTAMP T=128 std o55 route 3.7, start 8.3, phase A 113.1, A done max 131.5, phase B 51.8, tail 8.1, barrier+final 13.0, end 187.0, A end spread 10.1
+ABSTAMP T=128 std o64 route 3.6, start 8.7, phase A 117.9, A done max 134.4, phase B 53.2, tail 8.1, barrier+final 13.8, end 194.0, A end spread 7.7
+ABSTAMP T=128 std o65 route 3.7, start 8.8, phase A 117.5, A done max 134.0, phase B 53.0, tail 8.0, barrier+final 14.1, end 193.8, A end spread 7.6
+ABSTAMP T=128 std pub route 2.4, start 5.9, phase A 108.8, A done max 120.4, phase B 51.6, tail 5.4, barrier+final 9.0, end 176.8, A end spread 5.6
+ABGATHER T=128 std o55 stores 1.44, fences+barrier 2.47, release 0.58, first x ready after release 3.91, last first-x-ready from first gather start 10.03, gather total 4.49, pub gather 3.33, pub join 0.03
+ABGATHER T=128 std o64 stores 1.65, fences+barrier 2.72, release 0.66, first x ready after release 3.98, last first-x-ready from first gather start 10.54, gather total 5.03, pub gather 3.33, pub join 0.03
+ABGATHER T=128 std o65 stores 1.61, fences+barrier 2.81, release 0.55, first x ready after release 3.83, last first-x-ready from first gather start 10.54, gather total 4.97, pub gather 3.33, pub join 0.03
+ABPUB T=128 std phase A mean 108.80, p10 103.61, p50 109.72, p90 112.34, max 115.33, stages min -33351.17, mean -30210.60, max -8278.83, cut units per CTA 1.00, rho(time, stages) 0.40
+ABROUTE T=256 layer busiest local expert routes [95, 99, 110, 98, 103, 112]
+ABCHECK T=256 layer vs fp32 o51 3.84e-03 pub 2.34e-03; vs o51: o62 0.0e+00 o63 0.0e+00
+ABTIME T=256 layer mean of 6 o51 211.4 o62 220.6 o63 219.9 pub 196.6
+ABPAIR T=256 layer o62 minus o51 +7.9 +8.1 +7.6 +14.3 +7.9 +9.5 (mean +9.2, 0 of 6 lower)
+ABPAIR T=256 layer o63 minus o51 +7.2 +6.8 +7.2 +14.1 +7.4 +8.1 (mean +8.5, 0 of 6 lower)
+ABPAIR T=256 layer pub minus o51 -17.3 -15.5 -18.1 -8.1 -15.9 -13.7 (mean -14.8, 6 of 6 lower)
+ABSTAMP T=256 layer o55 route 4.3, start 12.9, phase A 122.2, A done max 147.2, phase B 57.5, tail 5.6, barrier+final 14.0, end 208.0, A end spread 12.1
+ABSTAMP T=256 layer o64 route 4.3, start 13.1, phase A 127.7, A done max 152.9, phase B 59.4, tail 7.0, barrier+final 15.2, end 217.0, A end spread 12.1
+ABSTAMP T=256 layer o65 route 4.2, start 12.8, phase A 127.2, A done max 151.7, phase B 59.1, tail 6.5, barrier+final 15.0, end 215.6, A end spread 11.7
+ABSTAMP T=256 layer pub route 3.3, start 8.3, phase A 115.0, A done max 130.2, phase B 56.1, tail 4.9, barrier+final 11.2, end 192.6, A end spread 6.9
+ABGATHER T=256 layer o55 stores 5.47, fences+barrier 2.53, release 0.45, first x ready after release 2.51, last first-x-ready from first gather start 11.65, gather total 8.46, pub gather 4.75, pub join 0.04
+ABGATHER T=256 layer o64 stores 6.08, fences+barrier 2.08, release 0.47, first x ready after release 2.65, last first-x-ready from first gather start 12.03, gather total 8.63, pub gather 4.75, pub join 0.04
+ABGATHER T=256 layer o65 stores 5.99, fences+barrier 2.00, release 0.47, first x ready after release 2.80, last first-x-ready from first gather start 11.82, gather total 8.46, pub gather 4.75, pub join 0.04
+ABPUB T=256 layer phase A mean 115.04, p10 110.38, p50 115.80, p90 118.89, max 121.34, stages min -2983.67, mean -1679.18, max 1331.00, cut units per CTA 1.00, rho(time, stages) 0.32
+ABROUTE T=256 std busiest local expert routes [42, 154, 166, 42, 197, 67]
+ABCHECK T=256 std vs fp32 o51 3.85e-03 pub 2.34e-03; vs o51: o62 0.0e+00 o63 0.0e+00
+ABTIME T=256 std mean of 6 o51 254.1 o62 262.7 o63 262.0 pub 233.9
+ABPAIR T=256 std o62 minus o51 +9.6 +11.2 +7.1 +6.9 +8.8 +8.0 (mean +8.6, 0 of 6 lower)
+ABPAIR T=256 std o63 minus o51 +8.5 +11.1 +7.0 +5.4 +8.7 +6.8 (mean +7.9, 0 of 6 lower)
+ABPAIR T=256 std pub minus o51 -14.7 -20.6 -28.1 -20.9 -19.0 -17.5 (mean -20.1, 6 of 6 lower)
+ABSTAMP T=256 std o55 route 4.2, start 11.7, phase A 150.0, A done max 171.3, phase B 71.0, tail 8.7, barrier+final 16.7, end 251.1, A end spread 9.6
+ABSTAMP T=256 std o64 route 4.3, start 11.8, phase A 156.8, A done max 177.2, phase B 72.2, tail 9.0, barrier+final 17.5, end 259.9, A end spread 8.6
+ABSTAMP T=256 std o65 route 4.3, start 12.0, phase A 155.8, A done max 175.7, phase B 72.6, tail 8.9, barrier+final 17.3, end 259.5, A end spread 7.9
+ABSTAMP T=256 std pub route 3.3, start 8.6, phase A 139.6, A done max 155.7, phase B 67.4, tail 5.4, barrier+final 11.6, end 229.2, A end spread 7.5
+ABGATHER T=256 std o55 stores 4.16, fences+barrier 2.65, release 0.57, first x ready after release 3.16, last first-x-ready from first gather start 11.90, gather total 7.38, pub gather 5.03, pub join 0.04
+ABGATHER T=256 std o64 stores 4.42, fences+barrier 2.36, release 0.59, first x ready after release 3.26, last first-x-ready from first gather start 12.03, gather total 7.37, pub gather 5.03, pub join 0.04
+ABGATHER T=256 std o65 stores 4.53, fences+barrier 2.53, release 0.59, first x ready after release 2.99, last first-x-ready from first gather start 11.82, gather total 7.65, pub gather 5.03, pub join 0.04
+ABPUB T=256 std phase A mean 139.57, p10 133.47, p50 139.56, p90 145.19, max 147.93, stages min -12680.33, mean -1557.07, max 2621.17, cut units per CTA 1.00, rho(time, stages) 0.29
+ABMOE spin flags 0; total 176 s
+TEST sk8w4s worst rel err vs fp32 3.92e-03, spin flags 0
+TEST sk16w4s worst rel err vs fp32 3.92e-03, spin flags 0
+TEST sk8w3s worst rel err vs fp32 3.92e-03, spin flags 0
+TEST main-d2 worst rel err vs fp32 3.89e-03, spin flags 0
+TEST main-lean-grp-finss64 worst rel err vs fp32 3.89e-03, spin flags 0
+TEST legacy32 worst rel err vs fp32 4.28e-03, spin flags 0
+TEST legacy128 worst rel err vs fp32 4.28e-03, spin flags 0
+TEST legacy256 worst rel err vs fp32 4.28e-03, spin flags 0
+BENCH bs=128 main-lean-grp-finss64:207.2 main-finss64-light:208.4 main-finss64-ca2:215.1 main-finss64-ca1:216.2 main-finss64-ca2-light:216.7 main-finss64-ca1-light:217.6 legacy128:251.5 legacy256:253.6 main-d2:254.6 sk8w4s-loads:255.3 sk8w3s:260.0 sk8w4s:263.9 legacy32:275.3 sk16w4s:282.4 us (graph replay, cold L2, mean of 2 routings)
+BENCH bs=256 main-lean-grp-finss64:223.7 main-finss64-light:225.0 main-finss64-ca2:229.7 main-finss64-ca1:230.9 main-finss64-ca2-light:231.9 main-finss64-ca1-light:232.6 main-d2:283.3 legacy256:360.3 legacy128:389.6 sk8w4s-loads:398.7 sk8w3s:427.5 sk8w4s:431.2 sk16w4s:466.8 legacy32:470.1 us (graph replay, cold L2, mean of 2 routings)
+POLICY {1: sk8w3s, 8: sk8w3s, 16: sk8w3s, 32: sk8w3s, 128: main-lean-grp-finss64, 256: main-lean-grp-finss64}
+TEST policy worst rel err vs fp32 3.92e-03, spin flags 0
+PREPARE repack 0.7 s, build 85.4 s, self-test 0.3 s, bench 0.8 s, smem 228736 B, ok True, main True

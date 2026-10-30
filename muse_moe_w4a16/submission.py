@@ -842,7 +842,9 @@ __host__ __device__ constexpr bool dyn_b(int mode) {
 // 128 tokens the deal gives a third of the CTAs one unit more whatever their speed; in 61's
 // stamps the last CTA left phase A 9.5-14.2 us after the mean CTA against the public kernel's
 // 5.2-9.1 (48b9bf9d77d146ac). 62 claims the last round, 63 the last two; 64 and 65 are 62 and 63
-// with 55's light and gather stamps (timing only).
+// with 55's light and gather stamps (timing only). Not built: in b7e43ee6a517487a 62 and 63 were
+// +3.9 to +9.2 us against 51 at 32, 128 and 256 tokens; the end spread at 128 narrowed by 2-3 us
+// but every CTA's phase A grew by about 5 us, also at 32 tokens where 6 units are claimed.
 __host__ __device__ constexpr bool claim_a(int mode) {
     return mode >= 62 && mode <= 65;
 }
@@ -3916,9 +3918,9 @@ SKINNY_VARIANTS = ((8, 4, 0), (16, 4, 0), (8, 4, 1), (8, 3, 0))
 # "The x gather or the warpgroup skew". Not built.
 # 60 and 61 (tied with 51, 48b9bf9d77d146ac; 61 is 60's stamped twin): the x gather without the
 # per-thread __threadfence; docs/runs-moe.md, "Gather publish without the per-thread fence". Not built.
-# 62 and 63 (diagnostic arms): 51 with phase A's last one or two rounds claimed at run time through
-# ctr[10] ahead of the phase B units; 64 and 65 are their stamped twins (timing only);
-# docs/runs-moe.md, "Phase A's last round claimed at run time".
+# 62 and 63 (lost, +3.9 to +9.2 us against 51, b7e43ee6a517487a): 51 with phase A's last one or two
+# rounds claimed at run time through ctr[10] ahead of the phase B units; 64 and 65 are their stamped
+# twins (timing only); docs/runs-moe.md, "Phase A's last round claimed at run time". Not built.
 MAIN_MODES = (0, 16, 26, 28, 37, 47, 51)
 MAIN_CANDIDATES = (0, 6, 12, 13, 14, 15, 16, 20, 23, 26, 28, 32, 34, 35, 36, 37, 39, 43, 47, 51)
 VARIANT_MAIN0 = len(SKINNY_VARIANTS)

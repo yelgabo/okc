@@ -92,6 +92,7 @@ SGLang with its 95% interval. Profiles and logs are in `muse_moe_w4a16/profiles/
 | 2026-10-30 | e7e75c9510994c08 (check, bench file from tools/moe_make_bench_ab.py --base=51 --sizes=32,128,256 --routings=layer --seeds=41,42,43,44,45,46 o57=57 o59=59, not committed) | fca2be7 | diagnostic of modes 57 (x rows loaded under the routing work plus 16-byte gather stores) and 59 (the early loads alone) | 2.207x (2.173-2.240) | passed; spin flags 0. Minus 51 at 32 / 128 / 256: 57 +1.2 / +1.1 / +1.2 us (0 of 6 lower each), 59 -0.0 / +0.6 / -0.3 (2, 1, 5 of 6). Thread 0's gather 0.8-1.8 us shorter (58 vs 55) but the first job's x ready only 0.2-0.6 us earlier. Not gated; docs/ruled-out.md |
 | 2026-10-30 | 3d8902381a194d56 (check, bench file from tools/moe_make_bench_ab.py --score=1 --sizes=1,8,16,32,128,256 --seeds=301-310, not committed) | this branch (tool only) | standalone scorecard: the shipped dispatch against the public file's whole dispatch, two independent prepares per side, std routing, seeded shuffled order | 2.211x (2.177-2.244) | passed; spin flags 0; policy sk8w3s at 1-32, 51 at 128 / 256 in both prepares. Public minus ours, us (10 seeds): +1.37 / -0.80 / +0.04 / -1.54 (sd 8.0, bimodal) / -9.60 / -14.92 at 1 / 8 / 16 / 32 / 128 / 256; nulls within 0.3 (ours) and 0.75 (public). Value if closed: 256 +1.12%, 128 +0.86%, 8 +0.21%, 32 +0.19%. Section "Standalone scorecard against the public kernel" |
 | 2026-10-30 | 48b9bf9d77d146ac (check, bench file from tools/moe_make_bench_ab.py --base=51 --sizes=32,128,256 --routings=layer,std --seeds=47,48,49,50,51,52 o60=60, not committed) | 003be4b | diagnostic of mode 60 (51 without the gather's per-thread __threadfence; proxy fence, barrier and releases kept) with gather stamps (61 against 55) | 2.205x (2.172-2.238) | passed; spin flags 0. 60 minus 51 at 32 / 128 / 256: layer -0.3 / -0.4 / +0.0 us (6, 5, 4 of 6 lower), std -0.3 / -0.5 / -0.4 (3, 5, 4). Thread 0's barrier wait -1.3 to -3.6 us, its release +0.6 to +2.5 (MEMBAR.ALL.GPU before the RED); last x ready 0.4-2.0 us earlier. Pre-set gate condition failed (256 layer); not gated, docs/ruled-out.md |
+| 2026-10-30 | b7e43ee6a517487a (check, bench file from tools/moe_make_bench_ab.py --base=51 --sizes=32,128,256 --routings=layer,std --seeds=53,54,55,56,57,58 o62=62 o63=63, not committed) | d5bafad | diagnostic of modes 62 / 63 (51 with phase A's last one / two rounds claimed at run time through ctr[10] ahead of phase B) with light and gather stamps (64, 65 against 55) | 2.198x (2.165-2.231) | passed; spin flags 0. 62 minus 51 at 32 / 128 / 256: layer +3.9 / +7.9 / +9.2 us, std +6.1 / +7.5 / +8.6; 63 +5.3 / +7.0 / +8.5 and +5.3 / +6.9 / +7.9 (0 of 6 lower in every row). Phase A end spread at 128 12.8 / 10.1 -> 9.5 / 7.7 us (62), but mean phase A +4.8 to +6.8 us at 128 / 256. Pre-set rule: not gated, docs/ruled-out.md |
 
 ## Why the layer keeps the W4 chain at 128 tokens, 2026-10-29
 
@@ -2110,15 +2111,16 @@ Order, 8.9.4 Memory synchronization, 8.9.5 Causality Order, 8.10 axioms, 9.7.10.
 
 1. Uniqueness. Every claim is `atomicAdd(ctr + 10, 1)` (a relaxed gpu-scope `atom.add`). The
    Atomicity axiom (8.10) makes the read-modify-writes on one location totally ordered with no
-   two reading the same value, so each value below `na + units_B` goes to exactly one CTA: each
+   two reading the same value, so each value below `na + units + xs` (xs = 0 here) goes to exactly
+   one CTA: each
    claimed phase A unit runs on one CTA, and done_as[j * 16 + st] still receives exactly 8
    releases (2 units x 4 warpgroups), as for dealt units. The claim carries no data; nothing is
    published through the counter.
 2. Hand-off inside the CTA. The weights producer writes the claim into S.bq[i] with
    `st.release.cta.shared`; the x producer and the consumers read it with `ld.acquire.cta.shared`
-   in `bq_get` (mode 23's queue, unchanged). Release and acquire at cta scope between threads of
-   one CTA synchronize (8.8, 8.9.4), so a reader sees the claim value and the S.ord, S.job_*
-   tables the routing wrote before the post-routing `__syncthreads`.
+   in `bq_get` (mode 23's queue, unchanged); the pair carries only the claim value. The S.ord and
+   S.job_* tables it indexes were written before the post-routing `__syncthreads`, which orders
+   them for every thread (8.9.4).
 3. Inputs of a claimed unit. Weights: w13f, written by prepare before the launch, ordered by stream
    order or `griddepcontrol.wait` (9.7.15.14). x: the x tile of job j, published by the gather's
    writers through `fence.proxy.async.global`, the gather barrier and `red.release.gpu` on
@@ -2130,17 +2132,20 @@ Order, 8.9.4 Memory synchronization, 8.9.5 Causality Order, 8.10 axioms, 9.7.10.
    `red.release.gpu` on done_as (mode 37's chain, "Ordering of the phase A publish without the
    per-thread fence_gpu"). Phase B's acquire on done_as and its proxy fence are unchanged.
 5. Ring reuse. The claimed unit's stages use the same ring slots and the same wfull / wempty /
-   xfull / xempty parity walk (the producers advance `rg` per stage as for dealt units), with each
-   consumer thread's `fence.proxy.async.shared::cta` before its arrive on the empty barrier
-   ("Ordering of the ring slot releases"). Producer and consumer orders agree (above), so each
+   xfull / xempty parity walk (the producers advance `rg` per stage as for dealt units), with the
+   slot releases of 51 unchanged: each consumer thread's `fence.proxy.async.shared::cta` before
+   its arrive on the weights slot, and lane 0's arrive for the warp on the wgmma path's x slot
+   after `wgmma.wait_group`, which only the async proxy reads ("Ordering of the ring slot
+   releases"). Producer and consumer orders agree (above), so each
    slot's phases line up as before.
 6. Counter reset. CTA 0 zeroes ctr[10] after the grid barrier. Every claim of every CTA precedes
    that CTA's arrival at the grid barrier in program order (the weights producer's claim loop ends
    before the CTA's `__syncthreads` ahead of the barrier), and the barrier's `__threadfence` and
    gpu-scope atomics and acquire spin order them before the reset (as for mode 23). The next launch
    reads ctr[10] after `griddepcontrol.wait` or in stream order.
-7. Progress. A claimed phase A unit waits only on xready, which every CTA's gather completes
-   before its own phase A, independent of any claim. A phase B unit waits on done_as of phase A
+7. Progress. A claimed phase A unit waits only on `xready[j]`, which needs the gather of every
+   CTA that holds rows of job j; each CTA gathers before starting its consumers, with no wait on
+   any claim, so every count completes. A phase B unit waits on done_as of phase A
    units of its job; all claimed phase A units have smaller claim values than every phase B unit,
    and a CTA issues and consumes its claims in increasing order, so a phase A unit is never queued
    behind a phase B unit of the same CTA. The phase A queue read waits only for the CTA's own
@@ -2195,6 +2200,55 @@ Shipping also needs the independent read-only review of the chain above to find 
 condition fails, X goes to docs/ruled-out.md scoped to this design and is not shipped. If all
 pass, X joins MAIN_MODES and MAIN_CANDIDATES and the shippable file goes to the coordinator, who
 runs its check. Budget for the line: two checks (diagnostic and gate).
+
+### Diagnostic result (check b7e43ee6a517487a, bench at d5bafad)
+
+2.198x (2.165-2.231), passed, spin flags 0. Outputs of 62 and 63 against 51: 0.0 at 128 and 256
+tokens, at most 2.2e-5 at 32 (51's FP32 atomics below 64 tokens). Self-test of the shipped policy
+modes unchanged (main-lean-grp-finss64 3.89e-3). Minus 51, us, same process, seeds 53-58 (count =
+seeds lower of 6):
+
+| arm | 32 layer | 32 std | 128 layer | 128 std | 256 layer | 256 std |
+|---|---|---|---|---|---|---|
+| 62 (last round claimed) | +3.9 (0) | +6.1 (0) | +7.9 (0) | +7.5 (0) | +9.2 (0) | +8.6 (0) |
+| 63 (last two rounds) | +5.3 (0) | +5.3 (0) | +7.0 (0) | +6.9 (0) | +8.5 (0) | +7.9 (0) |
+| public | -1.1 (5) | -6.7 (6) | -8.8 (6) | -9.5 (6) | -14.8 (6) | -20.1 (6) |
+
+Stamps (one cold launch per seed, means over seeds; us; A end spread = last CTA's phase A end
+minus the mean CTA's; layer / standalone):
+
+| | 32 | 128 | 256 |
+|---|---|---|---|
+| 55 (51): phase A mean, A end spread | 41.4 / 83.9, 4.6 / 7.8 | 91.2 / 113.1, 12.8 / 10.1 | 122.2 / 150.0, 12.1 / 9.6 |
+| 64 (62) | 42.5 / 89.0, 5.3 / 7.6 | 96.3 / 117.9, 9.5 / 7.7 | 127.7 / 156.8, 12.1 / 8.6 |
+| 65 (63) | 46.0 / 88.0, 4.9 / 7.6 | 95.3 / 117.5, 9.8 / 7.6 | 127.2 / 155.8, 11.7 / 7.9 |
+| public | 44.3 / 81.3, 3.8 / 3.9 | 88.9 / 108.8, 6.3 / 5.6 | 115.0 / 139.6, 6.9 / 7.5 |
+| A done max: 55 / 64 / 65 | 53.0 / 56.5 / 57.9 (layer) | 114.1 / 115.9 / 115.5 (layer) | 147.2 / 152.9 / 151.7 (layer) |
+
+Reading.
+- Measured: both arms lost at every size and routing, 0 of 6 seeds lower in all twelve rows, +3.9
+  to +9.2 us.
+- Measured, mechanism: the claims did narrow the end of phase A at 128 tokens (spread 12.8 / 10.1
+  -> 9.5 / 7.7 us with 62), less at 256 (12.1 / 9.6 -> 12.1 / 8.6), not at 32. But the mean CTA's
+  phase A grew by 4.8-6.8 us at 128 and 256 tokens (1.1-5.1 at 32), so the last CTA's phase A end
+  came later, not earlier (A done max +1.8 to +5.7 us), and the whole launch followed.
+- Hypothesis for the cost, not separated: the phase A slowdown appears at 32 tokens too, where
+  only 6 of about 270 units are claimed and every CTA's dealt rounds are the same as 51's, so it
+  looks like a cost of the new code shape on every unit rather than of the claims: 21,464
+  instructions against 17,280 (the phase A epilogue appears twice per n-tile count), or the
+  merged dealt-and-claimed loop. The cheapest decisive test is the same build with K = 0 (no unit
+  claimed, the new code path run on 51's deal): if it is also about 5 us slower than 51, the
+  claims are not the cost and a leaner implementation could keep the narrower spread.
+- Decision under the rule set before the run: neither arm is negative at 256 tokens, so no gate is
+  run, nothing ships and the layer gets no port. Both are parked in docs/ruled-out.md; the code
+  stays in the source, not built (production SASS unchanged). One of the line's two checks was
+  used.
+- Independent read-only review of d5bafad (2026-10-30): sound (no ordering bug, deadlock, lost or
+  duplicated unit, or index error; no fence, barrier, release or acquire removed or moved against
+  51). It corrected three wordings of the chain (steps 2, 5 and 7, fixed above) and could not check
+  the PTX section numbers against a specific ISA version (unverified, not found wrong). It also
+  noted that in 64 and 65 the gather stamp S.dg[16][7] stays 0 on a CTA with no dealt unit (fewer
+  than G units with K = 1, at most 2G with K = 2); ABGATHER should read 0 as "no dealt unit".
 
 ## Staged pair on current components, 2026-10-29
 
