@@ -236,7 +236,8 @@ FP32 (compute-type) reduction; `cublasLtMatmulAlgoCheck` must pass with workspac
 `prepare()` keeps `state["pick_base"]` (the pick before this stage), `state["lt_pick"]` (layout +
 fields of each cuBLASLt pick) and replaces `state["pick"][(layer, m)]` only for m = 128 / 256.
 A plan is built for one m; the runner falls back to the old pick for any other m or an operand
-not 256-byte aligned. The search takes about 10 s per preparation after an 18 s build.
+not 256-byte aligned. Preparation grows from about 70 s to 105 s (6cbd8b981a5d4c3f): an 18 s
+build and about 16 s of search.
 
 For the layer: not ported. The layer's T = 128 / 256 front is the concat GEMM, and its qkv, o and
 unpooler run through its own dispatch; porting means creating plans for the layer's exact
@@ -244,6 +245,7 @@ shapes (and concat with FP32 output, which needs a CUDA_R_32F D layout and is no
 then a complete-layer A/B. Standalone and layer promotion are separate decisions.
 
 Router geometries added the same day: `r64c8s8` (picked at m = 128), `r128c8s6` (picked at
-m = 256), `r64c4s8` (never picked); same `wd_kernel` template, only NST / BN / CLK differ, so
-fence and barrier counts per instance are those of the existing router configs (sm_90a compile,
-no spills: 60 / 58 / 90 registers).
+m = 256), `r64c4s8` (never picked); same `wd_kernel` template, only NST / BN / CLK differ.
+SASS (nvcc 12.8, sm_90a) against the NST 4 router instances: MEMBAR 5, FENCE 2, BAR 4, UCGABAR 4
+in all; SYNCS 18 -> 22 (NST 6) and 26 (NST 8), two mbarrier inits per extra stage; no spills,
+60 / 58 / 90 registers.
