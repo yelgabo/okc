@@ -316,8 +316,9 @@ blocking defect):
 is ambiguous we do not rely on the undocumented behaviour (repository rule: no ordering
 shortcut without a citation), even though the reference does. In the shipped configs:
 
-- Every push path ends with a cluster barrier (wd `WV_TAILSYNC` in `_WD_KLUE`; rt TAIL true in
-  every `RT_GEOM` entry). Every receiver arrives there only after its receive wait saw all of its
+- Every push path ends with a cluster barrier (wd `WV_TAILSYNC` in `_WD_KLUE`, since 2265fa2 the
+  split form `WV_TAILSPLIT | WV_TAILRLX`; rt TAIL on in every `RT_GEOM` entry, mode 3 since
+  2265fa2). Every receiver arrives there only after its receive wait saw all of its
   bytes, so passing the barrier implies all of the CTA's own pushes completed: no CTA exits with
   an outgoing `st.async` in flight.
 - rt writes its own-rank share with a plain shared store, followed by a CTA barrier before the
@@ -386,6 +387,10 @@ is not issued before the wait loop that precedes it exits (both are `asm volatil
 memory clobber, the arrive follows the loop exit and a `__syncwarp`; GPUs do not issue barriers
 speculatively, but the ISA does not state it). Only the `.release` form gives the step 6 chain.
 A's code after its wait depends on nothing B wrote, so nothing needs that chain.
+
+Measured in bench 4f3ff774981a494c (docs/runs.md, round 4): the relaxed split is -0.45 / -0.32 us
+on wd at m = 128 / 256 against the ce25f67 tail, -0.22 on rt at 16 tokens and null at 8 / 32;
+the release split loses on rt (+0.26 to +0.40).
 
 Independent read-only review (2026-10-30, of db0f8ad): sound with notes on all four questions
 (guarantee, arrive/wait well-formedness on every path including partial-warp rt owners, the wd
