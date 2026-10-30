@@ -21,8 +21,11 @@ duplicate state here: the facts live in the files listed under "Where state live
 ## What decides the score
 
 - Overall rank equals the decode-layer rank (checked 2026-10-29: every team ranked 89-112
-  overall had the same rank on muse_decode_layer). Standalone problems matter only as the
-  place to build kernels that get ported into the layer.
+  overall had the same rank on muse_decode_layer). Standalone problems are also where kernels
+  get built before they are ported into the layer.
+- Since 2026-10-30 the user also wants better standings on the standalone attention and
+  projection boards, so those owners have their own promotion gate (standalone score) separate
+  from layer promotion (`docs/steering/2026-10-30-attention-projection-standalone-roadmap.md`).
 - Layer score: per load, C = 46 * t_sliding + 16 * t_full; the score is the geometric mean of
   the six baseline/ours load ratios (decode 1/16/32, verify 1/16/32; verify is 8 tokens per
   request). A microsecond at 1 or 8 tokens is worth 3-4x one at 128 or 256
