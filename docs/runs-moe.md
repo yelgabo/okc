@@ -81,6 +81,7 @@ SGLang with its 95% interval. Profiles and logs are in `muse_moe_w4a16/profiles/
 | 2026-10-30 | b50351288b504e81 (check) | ec565a7 | the shippable build: MAIN_MODES (0, 16, 26, 28, 37, 47); GATE adds 47 minus 37 (seeds 17-22, skewed 11-13) | 2.190x (2.157-2.223) | passed 5/5. Per shape: bs1 28.8 us, bs16 95.0, bs32 138.0, bs8 67.3, bs128 199.8 (2.365x, main-lean-grp-nohoist), bs256 238.5 (2.590x, main-lean-grp-nohoist). GATE 47 minus 37 per seed: bs128 -3.6 -3.1 -3.3 -0.3 -1.7 -2.8 (mean -2.5); bs256 -5.2 -2.8 -2.7 -2.7 -3.6 -3.4 (mean -3.4); skewed bs128 -2.2 -1.9 -2.9, bs256 -2.6 -2.2 -2.0. Output of 47 vs 16 equal to 37's to two digits (1.5e-4 to 4.2e-4); self-tests 3.86e-3 to 3.89e-3 for 47; spin flags 0. BENCH bs128 47 207.5, 37 209.2; bs256 230.3 vs 232.5. Build 146.6 s. Judge bs256 238.5 against 241.49 / 241.46 for 37's two runs; bs128 199.8 against 197.09 / 202.35. Submit candidate: ec565a7 (not submitted; handed to the coordinator) |
 | 2026-10-30 | ed3b4fdc76b54263 (check, bench file from tools/moe_make_bench_ab.py --base=47 --sizes=128,256 --routings=layer --skew=1 o48=48 o49=49, not committed) | 64cec1f | warp skew on mode 49 (47 with per-warp stage stamps) and phase stamps on 48 against the public kernel, layer seeds 1-6 | 2.188x (2.155-2.220) | passed; the bench crashed after the 128-token timing (ABCHECKALL on an empty list, a bug of 20c295e, fixed in the next commit). 128 tokens: 48 minus 47 +0.8, 49 minus 47 +5.4 (0 of 6 lower), public minus 47 -12.2 (6 of 6) |
 | 2026-10-30 | d47c78bdc130424b (check, same bench options, not committed) | 54318bd | the rerun of ed3b4fdc76b54263 | 2.194x (2.161-2.227) | passed; spin flags 0. Public minus 47 -14.7 / -22.6 us at 128 / 256 (6 of 6); 48 minus 47 +1.3 / +1.1, 49 minus 47 +5.8 / +9.4. Warpgroups of a CTA 750-1,200 cycles apart at the stage start, warps within one 50-160; up to 72-74% of the weights waits from that skew. Phase gap (48 vs public stamps) at 128 / 256: setup +4.3 / +4.4, phase A +2.3 / +7.7, phase B +2.9 / +7.3, tail +3.7 / +3.6, barrier and final +4.0 / +3.6. ABSKEW's column labels in this log are the skinny ABSK names (a name clash, fixed in a03ca00); the values are in the order of skew_cols. Section "Warp skew and the gap to the public kernel after mode 47" |
+| 2026-10-30 | 8a7051fa926e43e1 (check, bench file from tools/moe_make_bench_ab.py --base=47 --sizes=32,128,256 --routings=layer,std,skewed --seeds=23,24,25,26,27,28 --gate=1 o50=50, not committed) | a03ca00 | mode 50's pre-registered gate against 47 (rule committed in 5ea3c34 before the submit) | 2.210x (2.177-2.243) | passed 5/5; spin flags 0. 50 minus 47, us, at 32 / 128 / 256: layer +0.7 / -5.9 / -6.6 (1, 6, 6 of 6 lower), standalone -2.8 / -5.7 / -8.3 (5, 6, 6), skewed -1.4 / -4.1 / -7.9 (6, 6, 6). Outputs vs 47 <= 4.3e-5; self-test 3.90e-3. Condition 2 failed (32 tokens, layer, +0.7 against +0.5): 50 not shipped, docs/ruled-out.md. Policy picked 50 at 128 and 256 |
 
 ## Why the layer keeps the W4 chain at 128 tokens, 2026-10-29
 
@@ -1428,6 +1429,74 @@ If any condition fails, 50 goes to docs/ruled-out.md scoped to this design (sums
 two-pass final pass, one token per item, on 47) and is not shipped. If all pass: 50 joins
 MAIN_MODES and MAIN_CANDIDATES, the shippable file is judged with one check (GATE prints 50
 minus 47), and the file goes to the coordinator. Budget: this check and one shippable check.
+
+### Gate result for 50 (check 8a7051fa926e43e1)
+
+50 minus 47, us, same process, held-out seeds 23-28 (negative = faster; count = seeds lower of 6):
+
+| routing | 32 tokens | 128 tokens | 256 tokens |
+|---|---|---|---|
+| layer | +0.7 (1) | -5.9 (6) | -6.6 (6) |
+| standalone | -2.8 (5) | -5.7 (6) | -8.3 (6) |
+| skewed | -1.4 (6) | -4.1 (6) | -7.9 (6) |
+
+Public minus 47 in the same run: -4.5 / -12.8 / -23.8 us on layer routing at 32 / 128 / 256.
+Outputs of 50 against 47 on all 54 cases: 1.2e-6 to 4.3e-5. Self-test: main-lean-grp-finss
+3.90e-3 (47: 3.90e-3), spin flags 0. The prepare bench picked 50 at 128 and 256 (204.9 against
+206.3, 221.6 against 229.2 us). Score 2.210x (2.177-2.243), passed.
+
+1. 256 tokens: -6.6 / -8.3 / -7.9, 6 of 6 lower on layer and standalone. Pass.
+2. 32 and 128 tokens, +0.5 us or lower on every routing: 32 tokens on layer routing is +0.7
+   (1 of 6 lower). Fail.
+3. Outputs within 1e-4: pass. 4. Self-test: pass. 5. Compile gate: pass (a03ca00).
+
+Decision under the rule: 50 is not shipped and goes to docs/ruled-out.md, scoped to this design
+at 32 tokens. Reading (hypothesis): at 32 tokens the final pass has 32 items, one per token, so
+100 of 132 CTAs idle through it while 32 CTAs each read their rows twice; 47's final pass has 64
+items of half a row. The phase B saving is small at 32 tokens (few phase B units per CTA).
+
+### Mode 51: the final-pass sums from 64 tokens up
+
+Change. Mode 51 is 50 with the choice made per launch: from kFinssMinM = 64 tokens the phase B
+epilogue drops its sums and the final pass forms them (50's path); below 64 the epilogue keeps its
+shuffles and atomics and the final pass is 47's. p.M is uniform over the launch, so the epilogue
+and the final pass agree, and the double-buffered `ss` is zeroed for the next launch on both
+paths as before. The threshold sits between the sizes the layer runs on the fat path (32, 128,
+256); it was read off the gate run above, so the gate below uses new held-out seeds.
+
+Ordering: 50's chain above applies to the 64-token-and-up path; the path below 64 is 47's.
+Independent read-only review of 50 (2026-10-30): no bug found in the ybuf visibility through the
+grid barrier, the reuse of the rings after every bulk copy was waited on (both consumer paths and
+the claimed phase B units; the PDL preamble only prefetches into L2), the double-buffered
+reduction with named barrier 8, or the indexing. It noted one unproven step that does not arise
+in a correct run: after a spin timeout (ctr[8] set), a bulk copy may still be in flight when the
+final pass writes the rings; the result is already flagged wrong in that case.
+
+Local compile gate (nvcc 12.8, sm_90a, MAIN_MODES 0, 16, 26, 28, 37, 47-51): production SASS
+(modes 0, 16, 26, 28, 37, 47 and the four skinny kernels) and 48, 49 have the same instruction
+text as before; 50 differs from its a03ca00 build in register names only (12 lines); no
+C7510-C7515; 51 at 96 registers with no spill and no local load or store; stage loops 387-393
+instructions; MEMBAR 43, FENCE.VIEW.ASYNC.S 21, SYNCS.ARRIVE 48, HGMMA 192, wait1 96.
+tools/moe_dryrun.py and tools/moe_host_check.sh pass.
+
+Gate run (rule set before the check is submitted): one check of a bench file from
+`tools/moe_make_bench_ab.py --base=47 --sizes=32,128,256 --routings=layer,std,skewed
+--seeds=29,30,31,32,33,34 --gate=1 o51=51`; seeds 29-34 are held out on all three routings.
+
+Keep 51 only if all of these hold in that check:
+
+1. At 256 tokens, 51 minus 47 has a mean of -1.5 us or lower on layer and on standalone routing,
+   with at least 5 of 6 seeds lower on each, and a mean of 0 or lower on skewed routing.
+2. At 128 tokens, a mean of -1.0 us or lower on layer and on standalone routing and of +0.5 or
+   lower on skewed routing.
+3. At 32 tokens, a mean of +0.5 us or lower on every routing.
+4. 51's output is within 1e-4 relative L2 of 47's on every seed, size and routing.
+5. Prepare's FP32 self-test passes for 51 (no FAIL line, spin flags 0).
+6. The compile gate above, on the commit that is checked.
+
+If any condition fails, 51 goes to docs/ruled-out.md with 50 and is not shipped. If all pass,
+51 joins MAIN_MODES and MAIN_CANDIDATES and the shippable file goes to the coordinator, who runs
+its check (this line's 4-check budget ends with the gate run).
 
 ## Staged pair on current components, 2026-10-29
 
