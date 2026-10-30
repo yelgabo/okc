@@ -22,7 +22,9 @@ arm always gets its own state (as @own).
 Arms with the same flags share one build; an arm with no flags reuses the control's module (no
 compile), except ctrl2. `:wsoff=BYTES` gives the arm its own state whose ws_acc, ws_l and ws_cnt
 start BYTES into larger zeroed allocations (a placement probe: same code, other addresses).
-`:phase=K` (needs a -DONE_DIAG=1 build, own state, name ending in _probe) runs the diagnostic
+`:tkt` (build with -DONE_T9=1) runs the last-CTA mode in place of the control's cooperative
+per-request mode (3 -> 1, 11 -> 9, 15 -> 13) with the same splits and copies; ABPLAN shows
+tkt_mode. `:phase=K` (needs a -DONE_DIAG=1 build, own state, name ending in _probe) runs the diagnostic
 early exit after phase K of the per-request path (attn_one.cu PHASE_EXIT) on the shapes whose
 control plan is per-request (no flat bit), and the full call elsewhere; its cold time is the
 time to that phase. `:early` (own state) creates the arm's state at import, before the
@@ -32,7 +34,7 @@ arm's workspace addresses.
 
 --null adds the independent duplicate controls: `ctrl2`, a second build of the control's
 source and flags under its own extension name with its own state (as @own), and for every
-`--pub` arm not named pubstamp*, a second copy `<name>2` executed into its own module object
+`--pub` arm not named pubstamp* or *_probe, a second copy `<name>2` executed into its own module object
 with its load_inline names rewritten, so it compiles a separate extension and keeps its own
 workspace. ctrl2 - ctrl and pub2 - pub are the nulls: what two independently prepared copies
 of the same code measure apart in this process.
@@ -65,6 +67,10 @@ the control's module launched without cudaLaunchAttributeCooperative, same grid.
 A public arm whose name starts with `pubstamp` (a copy of the public file with globaltimer
 stamps written to dbg[8192 + 8 c ..]) gets PUBSTAMP and STAMPWAVE lines: the same loop-end
 spread by dispatch wave and by SM.
+
+--pubsub NAME=BASE:OLD=>NEW adds a public arm whose source is BASE's with the unique text OLD
+replaced by NEW at import (a backslash-n in OLD / NEW is a newline), so variants of one public
+file are embedded once.
 
 --pub may repeat; each public file is an arm (default name `pub`; its names must start with
 `pub`, and a second file needs its own load_inline name). --shapes full keeps the full-context
@@ -117,6 +123,10 @@ for _name, _fl in _AB_FLAGS.items():
               flush=True)
     except Exception as _exc:
         print(f"ABBUILD {_name} FAIL {type(_exc).__name__}: {str(_exc)[:400]}", flush=True)
+for _name, (_base, _old, _new) in _AB_PUB_SUBS.items():
+    if _AB_PUB_SRCS[_base].count(_old) != 1:
+        raise SystemExit(f"--pubsub {_name}: {_old!r} is not unique in {_base}")
+    _AB_PUB_SRCS[_name] = _AB_PUB_SRCS[_base].replace(_old, _new)
 _AB_PUBS = {}
 for _name, _src in _AB_PUB_SRCS.items():
     try:
@@ -205,9 +215,20 @@ def _ab_phase(name, data):
     return 0 if ctrl_mode & 16 else k
 
 
+def _ab_tkt(name, data):
+    """The last-CTA mode an arm with :tkt runs where the control's plan is a cooperative
+    per-request mode (3 -> 1, 11 -> 9, 15 -> 13; the build needs -DONE_T9=1); None elsewhere."""
+    if name not in _AB_TKT:
+        return None
+    cfg = data["config"]
+    ctrl_mode = _one_plan(cfg, data["page_table"].shape[1],
+                          _one_state(data["qkv"].device)["resident"])[2]
+    return ctrl_mode ^ 2 if (ctrl_mode & 3) == 3 and not ctrl_mode & 16 else None
+
+
 def _ab_via(name):
     def call(data):
-        m = _ab_forced(name, data)
+        m = _ab_forced(name, data) or _ab_tkt(name, data)
         k = _ab_phase(name, data)
         with _ab_ctx(name):
             if k:
@@ -269,7 +290,10 @@ def _ab_plan(name, data):
         if name == "nocoop":
             return _ob_plan_str(data).replace(" ", ",") + ",nocoop"
         m = _ab_forced(name, data)
+        t = _ab_tkt(name, data)
         with _ab_ctx(name):
+            if t:
+                return _ob_plan_str(data).replace(" ", ",") + f",tkt_mode={t}"
             if m:
                 res = _one_state(data["qkv"].device)["resident"]
                 n = min(_ONE_TARGET, res.get((data["config"]["q_len"], m), 0))
@@ -652,6 +676,7 @@ def main():
         raise SystemExit(__doc__)
     out = Path(args.pop(0))
     pub_srcs = {}
+    pub_subs = {}
     shapes = "all"
     nocoop = False
     null = False
@@ -665,6 +690,7 @@ def main():
     phase = {}
     early = []
     sets = {}
+    tkt = set()
     while args:
         a = args.pop(0)
         if a == "--pub":
@@ -673,6 +699,13 @@ def main():
             if not name.startswith("pub"):
                 raise SystemExit(f"public arm {name}: names start with 'pub'")
             pub_srcs[name] = Path(path).read_text()
+        elif a == "--pubsub":
+            name, _, rest = args.pop(0).partition("=")
+            base_name, _, sub = rest.partition(":")
+            old, _, new = sub.partition("=>")
+            if not name.startswith("pub") or base_name not in pub_srcs:
+                raise SystemExit(f"--pubsub {name}: needs a pub* name and an earlier --pub base")
+            pub_subs[name] = (base_name, old.replace("\\n", "\n"), new.replace("\\n", "\n"))
         elif a == "--shapes":
             shapes = args.pop(0)
         elif a == "--nocoop":
@@ -700,6 +733,8 @@ def main():
                 elif key == "wsoff":
                     wsoff[base_name] = int(val)
                     name = base_name + "@own"
+                elif key == "tkt":
+                    tkt.add(base_name)
                 elif key == "early":
                     early.append(base_name)
                     name = base_name + "@own"
@@ -723,7 +758,7 @@ def main():
         flags["ctrl2"] = []
         own.add("ctrl2")
         for name in list(pub_srcs):
-            if not name.startswith("pubstamp"):
+            if not name.startswith("pubstamp") and not name.endswith("_probe"):
                 dup = name + "2"
                 if dup in pub_srcs:
                     raise SystemExit(f"--null: arm {dup} already given")
@@ -739,6 +774,7 @@ def main():
         f"_AB_FLAGS = {flags!r}",
         f"_AB_OWN = {sorted(own)!r}",
         f"_AB_PUB_SRCS = {pub_srcs!r}",
+        f"_AB_PUB_SUBS = {pub_subs!r}",
         f"_AB_SHAPES = {shapes!r}",
         f"_AB_NOCOOP = {nocoop!r}",
         f"_AB_SEED = {seed!r}",
@@ -749,6 +785,7 @@ def main():
         f"_AB_PHASE = {phase!r}",
         f"_AB_EARLY = {early!r}",
         f"_AB_SET = {sets!r}",
+        f"_AB_TKT = {sorted(tkt)!r}",
     ])
     src += head + sep + AB.replace("@@CONFIG@@", config, 1)
     out.write_text(src)

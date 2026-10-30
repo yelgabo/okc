@@ -2243,3 +2243,93 @@ Next round, in order:
    against 32); compare the launch with fewer CTAs per request (the public plan uses the same
    252 x nc 8, so this needs its own measurement first).
 3. The placement side bet above, if quota is spare.
+
+## Standalone round 2 (10-30): A3, merge / finalize and the batch-1 full prologue
+
+Brief: A3 on the per-request paths that hold most of the measured gap (d1 sliding mode 13, d16
+sliding mode 1, d1 full mode 11 at q_len 1, v1 full mode 11 at q_len 8), compared phase by phase
+with a timed copy of the public per-request path. Start: main b200eda. Quota at the start
+(`okc problems`): 14 of 20 attention checks; this round uses at most 5, two kept for
+confirmation.
+
+### What the two per-request paths do after the tile loop (source read, 10-30)
+
+Public file sha1 0e9d4c78 (the `pub` arm of every bench since d57d1fe064164611), plans read from
+its `_plan` / `_TUNED`: d1 sliding 32 splits nc 1 last-CTA (our mode 13, same grid), d16 sliding
+16 splits x 16 requests last-CTA (our mode 1, same grid), d1 full 252 x nc 8 cooperative finalize
+(`_TUNED`), v1 full 252 x nc 8 cooperative finalize. Same splits and copies as ours on all four.
+Differences in the merge and finalize:
+
+| step | ours (attn_one.cu, b200eda) | public per-request path |
+|---|---|---|
+| q_len 1 reds | each of the 4 warps (2 KV heads x 2 key halves) reds its own partial: 64 red.v4 + 16 red.f32 per half per CTA, so every workspace address takes 2 reds per split | the second key half hands (m, l, o) to the first through shared memory, which merges them and alone issues the reds: half the reds per CTA and per address |
+| q_len 8 reds | 8 red.v4 + 1 red.f32 per thread pair, 2048 red.v4 per CTA | 16-byte reds after a lane-pair swap, 2048 per CTA (same count) |
+| ticket (last-CTA plans) | CTA barrier, thread 0 `atom.acq_rel.gpu`, barrier, last CTA finalizes | the same |
+| cooperative wait (batch-1 full) | `cudaLaunchAttributeCooperative`; CTA barrier, thread 0 `atom.acq_rel`, then every CTA, the last arriver included, polls `ld.acquire` with 64 ns sleeps | plain `<<<>>>` launch after an occupancy check (no cooperative attribute); the last arriver skips the poll |
+| finalize | gate load, copies loaded (FIN8: all 8 before any store), norm, gate, store, zero | the same structure (`sum_copies` nc 8 path), `__ldcg` reads |
+
+Hypotheses, in order of their measured budget: (H1) the doubled q_len 1 reds load the L2 atomic
+units at d1 sliding, d16 / d32 sliding and d1 full; (H2) at batch-1 full the cooperative launch
+attribute and the grid poll cost time the public plain launch does not pay (bench 1e6626a427454f9a
+measured -1.8 / -1.4 us cold for mode 51 launched without the attribute); (H3) a last-CTA ticket
+in place of the cooperative finalize at batch-1 full and the q_len 8 sliding plans keeps the
+progress guarantee without any co-residency requirement and removes the poll.
+
+### Switches (all default 0; with all off the 13 instances are SASS-identical to b200eda)
+
+- `ONE_HMRG` (modes 1, 3, 11, 13 at q_len 1): the key-half handoff of the public kernel, keeping
+  our fixed frame. Each half still scales its partial by its own 2^m (m floored and capped as
+  before); the second half stores o * 2^m and l * 2^m to shared memory (stage 0, after every
+  thread's `cp_wait<0>` and a CTA barrier), a second barrier, and the first half adds them to
+  its own scaled values and issues the reds. Rounding: one FP32 add of the two halves before the
+  red instead of in L2, an order the reds never fixed; the output rounding is unchanged. SASS
+  (CUDA 12.8.1, `tools/attn_one_sass.sh`): mode 13 1544 -> 1608 instructions, 2 more BAR, the
+  same 4 REDG.E.ADD.F32 (v4) + 1 scalar REDG + 1 ATOMG + 1 MEMBAR.ALL.GPU per thread statically
+  (executed by half the warps); no spills (mode 1 108 registers, 11 115, 13 72).
+- `ONE_T9` (bench builds): adds instances q_len 1 mode 9 and q_len 8 modes 9 and 13 (the last-CTA
+  versions of the cooperative plans), and the FIN8 finalize applies to every speculated-length
+  multi-tile instance (it was cooperative-only; no existing instance changes, per-function SASS
+  compare). Bench arm option `:tkt` runs 3 -> 1, 11 -> 9, 15 -> 13 where the control's plan is
+  cooperative and per-request.
+- `ONE_DIAG` exits 11 (after the merge reds) and 12 (after the ticket or grid barrier and its CTA
+  barrier, before the finalize), next to the existing 9 (before the tile loop) and 10 (after it).
+
+Ordering (no fence or barrier removed): HMRG adds a `cp_wait<0>` and two CTA barriers. The
+shared-memory handoff is generic stores, `bar.sync`, generic loads in one CTA (bar.sync orders
+shared memory among the participating threads). Stage 0 is reused only after the barrier that
+follows every warp's last read of the stages and every thread's `cp.async.wait_group 0`; no
+async-proxy reader touches the stages at q_len 1 (mma.sync). The reds are still issued before
+the CTA barrier that precedes thread 0's `atom.acq_rel` (ticket) or the cooperative arrive, so
+the release chain the judged modes use is unchanged. T9's mode 9 / 13 use the existing ticket
+(judged in modes 1 and 13) and the FIN8 finalize (judged in mode 11, b0b146dfbb4841b2): each
+finalizing thread loads an address before it zeroes it and no other thread touches it after the
+ticket's acquire. It removes the cooperative barrier instead of reordering it.
+
+Public phase copy (scratchpad `a3/make_pubph.py`, never committed or submitted): the public
+source with a `Params::phx` field and exits on the per-request path only: 1 before its consumer
+state (prologue copies drained), 2 before the merge, 3 after the reds, 4 after the ticket or
+cooperative wait and its CTA barrier. One build shared by arms `pubph0_probe` (no exit, the
+instrumentation's own cost) to `pubph4_probe`.
+
+### Gate for check 1 (written before the bench that tests it)
+
+Bench `bench_e` (`tools/attn_make_bench_ab.py`, scratchpad `a3/gen_e.sh`; `--null --shapes all
+--inputs 2 --seed 20261035 --nocoop`): arms `ctrl`, `ctrl2`, `pub`, `pub2`, `hmrg`
+(`-DONE_HMRG=1,-DONE_T9=1`, shares ctrl's state), `hmtk` (same build with `:tkt`, shares ctrl's
+state), `nocoop` (ctrl's module without the cooperative attribute; a diagnostic, it drops the
+co-residency guarantee and is not a candidate), our DIAG exits `p9_probe` .. `p12_probe` and
+`diag0_probe`, the public exits `pubph0_probe` .. `pubph4_probe`.
+
+A candidate (`hmrg`, or `hmtk` as the coherent pair) goes to a confirmation bench only if all hold:
+1. ABCHECK passes for every real arm; against ctrl it differs only at the red-order level (a few
+   elements at one BF16 ulp) and leaves the workspace zero.
+2. Cold ABSCORE against ctrl >= 1.008 (0.5 us at d1 sliding is +0.79%), and its excess over 1 is
+   larger than |ABSCORE(ctrl2) - 1| + 0.004 (ctrl2 carries the 0.5-0.7 us d1 full placement
+   term; the candidates share ctrl's state and do not).
+3. On every targeted row (d1 sliding, d1 full, d16 sliding, v1 full) the change has the same sign
+   on both held-out inputs.
+4. No row slower than ctrl by more than max(that row's |ctrl2 - ctrl|, 1%).
+
+Attribution (no gate): per phase, ours (p9 / p10 / p11 / p12 / whole) against the public
+(pubph1 / 2 / 3 / 4 / pub), cold and warm, on the four targeted rows; the largest difference
+names the mechanism. `nocoop - ctrl` sizes H2 at batch-1 full and the q_len 8 sliding plans.
