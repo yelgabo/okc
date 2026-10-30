@@ -354,6 +354,13 @@ passing variant as the route kernel's PDL secondary, eagerly and as a graph repl
 against the plain launch on the same route output; a failing variant the policy uses turns the
 route variants off.
 
+Update (mode 47, main 5e30c76): `LAYER_MODES` (0, 16, 26, 28, 37, 47), `47:
+"main-lean-grp-nohoist"`; inliner output byte-identical on a second run. SASS against the
+standalone build of the same instances: main<47> adds one FENCE.VIEW.ASYNC.S, 16 SYNCS and one
+UBLKPF (the PDL preamble), every other ordering and memory opcode count equal (MEMBAR 43, BAR 15,
+ERRBAR 22, CCTL 8, UBLKCP 4, ATOMG 148, REDG 9, LDL 22, STL 1); 96 registers, 8 B frame, 4 / 88 B
+spills, as the standalone. The other nine kernels are unchanged from the sk8w3s merge.
+
 Update (sk8w3s merge): the standalone skinny init block gained `hand` barriers (kHand, kMode low
 bits >= 6, not built in the layer) and the fixed anchor stopped matching, as intended. The
 inliner now copies the routing warp's init block itself into the skinny preamble
