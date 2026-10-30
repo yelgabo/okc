@@ -602,6 +602,9 @@ def prepare(weights):
     t = time.time()
     state = _ab_prepare(weights)
     _ab_print(f"ABPREP cand {time.time() - t:.0f} s")
+    _ab_print("ABDIAG cand attention fallback on fresh rows vs FP32: "
+              + str(state.get("one_fallback_fp32", "not run"))
+              + f"; attn_one_ours={int(bool(state.get('attn_one_ours')))}")
     if _AB_PUB is not None:
         try:
             t1 = time.time()
@@ -626,7 +629,7 @@ def prepare(weights):
     torch.cuda.empty_cache()
     # The log keeps only its last 16,000 characters: timelines first, then correctness, then
     # the timing tables.
-    order = ("ABTL", "ABKN", "ABBUILD", "ABPREP", "ABPIN", "ABARMS", "ABFAIL", "ABCHECK", "ABSTOP",
+    order = ("ABTL", "ABKN", "ABBUILD", "ABPREP", "ABPIN", "ABDIAG", "ABARMS", "ABFAIL", "ABCHECK", "ABSTOP",
              "ABTIME", "ABLOAD", "ABSCORE")
     rank = lambda line: next((i for i, p in enumerate(order) if line.startswith(p)), 0)  # noqa: E731
     for line in sorted(_AB_OUT, key=rank):
