@@ -2,7 +2,7 @@
 
     python3 tools/moe_make_bench_ab.py OUT.py PUBLIC.py [--base=28] [--seeds=1,2,...]
         [--sizes=32,128,256] [--routings=layer,std,skewed] [--pairs=A-B,...] [--gate=1]
-        [ARM=MODE ...]
+        [--skew=1] [ARM=MODE ...]
 
 --gate=1 is for a pre-registered keep-or-drop run: no stamped or counter twins, no stamped
 public runs (ABSTAMP, ABDIAG, ABPUB are not printed, so three routings fit the 16 KB log tail),
@@ -46,6 +46,19 @@ judge's prepare(), on random NVFP4 weights (32 experts):
            cycles per wait (weights and x wait cycles over twice the stages; since 2026-10-29).
   ABPUB    the public kernel's per-CTA phase A time, its stream-K stage ranges (patched to land
            in DBG slot 7) and the number of cut units per CTA.
+  ABSKEW   with --skew=1, per phase (A, B), mean over CTAs and seeds of one cold launch each, for
+           our skew twin (49 of 47) and, with --pubskew=1, the public kernel built with the same
+           per-warp stamps (OKC_SKEW, its own build). Not usable as of 2026-10-30: at its 96
+           registers any consumer stamp makes the public DEBUG build spill 400-1,260 B and three
+           of four stamp subsets serialize its wgmmas (C7512; local nvcc 12.8, sm_90a), so its
+           skew would not be its own. Columns: stages per CTA, the
+           per-warp weights and x waits, cycles per wait, the spread across the 16 warps of a
+           CTA of the stage start (also across the 4 warpgroups' means and within a
+           warpgroup), of the weights wait end and of the slot release; per wait the share a
+           zero-skew release would remove (min(wait, slowest warp's release of the slot minus
+           this warp's)), the producer's delay after the slowest release, the copy latency
+           (first waiting warp's wait end minus the producer's issue), this warp's lead (its
+           stage start minus its own release of the slot) and the x copy latency.
 
 The judge's prepare() that follows runs with its output filtered to its summary lines (POLICY,
 PREPARE, BENCH at 128 and 256 tokens, each variant's worst self-test error), so the run log's
@@ -63,7 +76,8 @@ import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
-LIGHT_TWINS = {26: 27, 37: 42}
+LIGHT_TWINS = {26: 27, 37: 42, 47: 48}
+SKEW_TWINS = {47: 49}
 PA_TWINS = {28: 31, 32: 33, 36: 38, 39: 40, 37: 41, 43: 44}
 PB_TWINS = (41, 44)
 # Variant arms that need fat modes built: v301 is the staged pair on 37's components (45 then 46).
@@ -106,7 +120,53 @@ UNIT_STAMP_PAIRS = [
 ]
 
 
-def patch_public(src, small=False, ranges=False, unitstamps=False):
+# Per-warp stage stamps of the public kernel (--pubskew=1; see ABSKEW for why unused), the
+# layout of our skew_st modes: per CTA 8 header words, then per stage q < SK_Q 16 x 4 consumer
+# words (stage start, weights wait done, x wait done, weights slot released) and 2 producer
+# words (weights and x copy issued), after the G * 8 DBG words and the G * US_PER unit-stamp
+# words. Built only with -DOKC_SKEW=1.
+SK_Q = 256
+SK_ROW = 66
+SK_PER = 8 + SK_Q * SK_ROW
+SKEW_PAIRS = [
+    ("#define DBG(k) do {",
+     "#ifndef OKC_SKEW\n#define OKC_SKEW 0\n#endif\n"
+     "#define SKW(q, k, on) do { if (OKC_SKEW && p.dbg) { const unsigned long long c_ = clock64(); "
+     "unsigned long long* a_ = p.dbg + gridDim.x * %d + blockIdx.x * %d + 8 + (q) * %d + (k); "
+     "asm volatile(\"{\\n .reg .pred sp;\\n setp.ne.s32 sp, %%2, 0;\\n @sp st.global.b64 "
+     "[%%0], %%1;\\n}\" :: \"l\"(a_), \"l\"(c_), \"r\"((int)((on) && (q) < %d))); } } "
+     "while (0)\n#define SKH(k, v) do { if (OKC_SKEW && p.dbg) p.dbg[gridDim.x * %d + blockIdx.x"
+     " * %d + (k)] = (unsigned long long)(v); } while (0)\n#define DBG(k) do {"
+     % (8 + US_PER, SK_PER, SK_ROW, SK_Q, 8 + US_PER, SK_PER)),
+    ("    const int ws = seq % WGS_NS, xs = seq % WGS_NX;\n"
+     "    wgs_wait(S.bars + BW_F + ws, (uint32_t)(seq / WGS_NS) & 1u, 3000000 + seq);\n"
+     "    const unsigned char* pc = pc0 + ws * UNIT_BYTES;\n"
+     "    wgs_wait(S.bars + BX_F + xs, (uint32_t)(seq / WGS_NX) & 1u, 4000000 + seq);\n",
+     "    const int ws = seq % WGS_NS, xs = seq % WGS_NX;\n    SKW(seq, warp * 4, lane == 0);\n"
+     "    wgs_wait(S.bars + BW_F + ws, (uint32_t)(seq / WGS_NS) & 1u, 3000000 + seq);\n"
+     "    SKW(seq, warp * 4 + 1, lane == 0);\n"
+     "    const unsigned char* pc = pc0 + ws * UNIT_BYTES;\n"
+     "    wgs_wait(S.bars + BX_F + xs, (uint32_t)(seq / WGS_NX) & 1u, 4000000 + seq);\n"
+     "    SKW(seq, warp * 4 + 2, lane == 0);\n"),
+    ("        mbar_arrive1(S.bars + BW_E + ws);  // every code",
+     "        mbar_arrive1(S.bars + BW_E + ws);\n"
+     "        SKW(seq, warp * 4 + 3, true);  // every code"),
+    ("      if (n >= WGS_NS) wgs_wait(S.bars + BW_E + ws, wph ^ 1, 1000 + gs);\n",
+     "      if (n >= WGS_NS) wgs_wait(S.bars + BW_E + ws, wph ^ 1, 1000 + gs);\n"
+     "      SKW(n, 64, true);\n"),
+    ("      uint64_t* bar = S.bars + BX_F + xs;\n",
+     "      SKW(n, 65, true);\n      uint64_t* bar = S.bars + BX_F + xs;\n"),
+    ("    int seq = 0;\n    wgs_phase<false>",
+     "    int seq = 0;\n"
+     "    if (threadIdx.x == 0) { SKH(0, WGS_NS); SKH(1, clock64()); SKH(2, gtimer()); }\n"
+     "    wgs_phase<false>"),
+    ("  DBG(5);  // nothing to reset at exit",
+     "  if (threadIdx.x == 0) { SKH(3, clock64()); SKH(4, gtimer()); }\n"
+     "  DBG(5);  // nothing to reset at exit"),
+]
+
+
+def patch_public(src, small=False, ranges=False, unitstamps=False, skew=False):
     for name in () if small else ("TINY_DEFINES", "TINY2_DEFINES", "MID_DEFINES"):
         src, n = re.subn(rf"^{name} = \(.*?\)\n(?=\S)", f"{name} = ()\n", src, count=1,
                          flags=re.S | re.M)
@@ -128,6 +188,7 @@ def patch_public(src, small=False, ranges=False, unitstamps=False):
          "        | ((long long)S.wgr[2] << 32) | ((long long)S.wgr[3] << 48);\n  }\n"),
     ]
     pairs += UNIT_STAMP_PAIRS if unitstamps else []
+    pairs += SKEW_PAIRS if skew else []
     for a, b in pairs:
         assert src.count(a) == 1, a[:60]
         src = src.replace(a, b)
@@ -153,6 +214,9 @@ _AB_US = @US@
 _AB_US_MAX = @USMAX@
 _AB_US_PER = 8 + 4 * _AB_US_MAX
 _AB_STAMP_SIZES = @STAMPSIZES@
+_AB_SKEW = @SKEW@
+_AB_PUBSKEW = @PUBSKEW@
+_AB_SK_PER = @SKPER@
 
 
 def _ab_main():
@@ -207,6 +271,7 @@ def _ab_main():
         return d + sfx + ("-DOKC_DEBUG=1",)
 
     pdbgs = {t: pub._ext(pub_defs(t)) for t in _AB_SIZES} if _AB_SMALL else {}
+    pskew = pub._ext(dbg_defs + ("-DOKC_SKEW=1",)) if _AB_PUBSKEW else None
     print(f"ABBUILD pub {time.time() - t_start:.0f} s", flush=True)
     G = torch.cuda.get_device_properties(0).multi_processor_count
     flush = torch.empty(256 << 20, dtype=torch.uint8, device=dev)
@@ -320,6 +385,108 @@ def _ab_main():
         raw = dbg[: G * 8].view(G, 8).cpu()
         us = dbg[G * 8:].view(G, _AB_US_PER).double().cpu() if _AB_US else None
         return raw[:, [0, 1, 6, 2, 3, 4, 5]].double(), raw[:, 7].clone(), us
+
+    def skew_stats(sk, aend):
+        # sk: [G, SK_PER] int64 clock64 stamps (0 = not written); aend: per CTA, the clock64 at
+        # thread 0's phase A end. Returns, per phase, the columns of skew_cols (cycles unless
+        # named us).
+        G_ = sk.shape[0]
+        hdr = sk[:, :8].double()
+        ghz = float(((hdr[:, 3] - hdr[:, 1]) / (hdr[:, 4] - hdr[:, 2])).mean())
+        nsw = int(hdr[0, 0])
+        st = sk[:, 8:].view(G_, -1, 66)
+        Q = st.shape[1]
+        C = st[:, :, :64].reshape(G_, Q, 16, 4).double()
+        P = st[:, :, 64].double()
+        X = st[:, :, 65].double()
+        valid = (C > 0).all(-1).all(-1)
+        S0, Ew, Ex, R = C[..., 0], C[..., 1], C[..., 2], C[..., 3]
+        Ww = Ew - S0
+        Wx = Ex - Ew
+        isA = S0.min(-1).values < aend[:, None]
+        wgm = S0.view(G_, Q, 4, 4).mean(-1)
+        s4 = S0.view(G_, Q, 4, 4)
+        within = (s4.max(-1).values - s4.min(-1).values).mean(-1)
+        sskew = S0.max(-1).values - S0.min(-1).values
+        eskew = Ew.max(-1).values - Ew.min(-1).values
+        rskew = R.max(-1).values - R.min(-1).values
+        Rp = torch.zeros_like(R)
+        Rp[:, nsw:] = R[:, :-nsw]
+        vp = torch.zeros_like(valid)
+        vp[:, nsw:] = valid[:, nsw:] & valid[:, :-nsw]
+        rmaxp = Rp.max(-1).values
+        skw = (rmaxp[..., None] - Rp).clamp(min=0)
+        expl = torch.minimum(Ww.clamp(min=0), skw)
+        react = P - rmaxp
+        waiting = Ww > 64
+        big = torch.where(waiting, Ew, torch.full_like(Ew, float("inf")))
+        arr = big.min(-1).values
+        haswait = waiting.any(-1)
+        lat = arr - P
+        lead = S0 - Rp
+        wx = Wx > 64
+        arrx = torch.where(wx, Ex, torch.full_like(Ex, float("inf"))).min(-1).values
+        latx = arrx - X
+        out = []
+        for ph in (True, False):
+            m = valid & (isA == ph)
+            mp = vp & (isA == ph)
+            nst = float(m.sum()) / G_
+            mw = m[..., None].expand_as(Ww)
+            mpw = mp[..., None].expand_as(Ww)
+            ml = mp & haswait & (P > 0)
+            mx = m & wx.any(-1) & (X > 0)
+            mean = lambda t, k: float(t[k].mean()) if bool(k.any()) else 0.0
+            out.append([nst, float(Ww[mw].sum()) / (16 * G_) / ghz / 1e3,
+                        float(Wx[mw].sum()) / (16 * G_) / ghz / 1e3,
+                        float((Ww + Wx)[mw].sum()) / max(2.0 * float(mw.sum()), 1.0),
+                        mean(sskew, m), mean(wgm.max(-1).values - wgm.min(-1).values, m),
+                        mean(within, m), mean(eskew, m), mean(rskew, m),
+                        float(expl[mpw].sum()) / max(float(Ww[mpw].clamp(min=0).sum()), 1.0),
+                        float(waiting[mw].double().mean()) if bool(mw.any()) else 0.0,
+                        mean(react, mp & (P > 0)), mean(lat, ml), mean(lead, mpw),
+                        mean(latx, mx), ghz])
+        return out
+
+    skew_cols = ("stages", "warp w-wait us", "x-wait us", "cycles per wait", "start skew",
+               "wg-mean skew", "within-wg skew", "w-ready skew", "release skew",
+               "w-wait share from release skew", "w-waits >64 cyc", "producer delay",
+               "copy latency", "lead", "x copy latency", "GHz")
+
+    def ours_skew(data, v):
+        reg = state["scratch"]["inter"].reshape(-1).view(torch.int64)
+        _run(data, state, v)
+        flush.zero_()
+        reg[1 << 20: (1 << 20) + G * _AB_SK_PER].zero_()
+        torch.cuda.synchronize()
+        _run(data, state, v)
+        torch.cuda.synchronize()
+        sk = reg[1 << 20: (1 << 20) + G * _AB_SK_PER].view(G, _AB_SK_PER).cpu()
+        light = reg[: G * 16].view(G, 16).double().cpu()
+        hdr = sk[:, :8].double()
+        rate = (hdr[:, 3] - hdr[:, 1]) / (hdr[:, 4] - hdr[:, 2])
+        aend = hdr[:, 1] + (light[:, 3] - hdr[:, 2]) * rate
+        return skew_stats(sk, aend)
+
+    def pub_skew(data):
+        off = G * 8 + G * _AB_US_PER
+        dbg = torch.zeros(off + G * _AB_SK_PER, dtype=torch.int64, device=dev)
+        x = data["hidden_states"]
+        out = torch.empty((x.shape[0], HIDDEN), dtype=torch.bfloat16, device=dev)
+        for k in range(2):
+            if k:
+                flush.zero_()
+                dbg.zero_()
+                torch.cuda.synchronize()
+            pskew.okc_run(pstate["w"], pstate["scratch"] + [dbg], x, data["topk_ids"],
+                          data["topk_weights"], out, 0, 32, G)
+        torch.cuda.synchronize()
+        raw = dbg[: G * 8].view(G, 8).double().cpu()
+        sk = dbg[off:].view(G, _AB_SK_PER).cpu()
+        hdr = sk[:, :8].double()
+        rate = (hdr[:, 3] - hdr[:, 1]) / (hdr[:, 4] - hdr[:, 2])
+        aend = hdr[:, 1] + (raw[:, 2] - hdr[:, 2]) * rate
+        return skew_stats(sk, aend)
 
     def ours_stamped(data, v, width):
         _run(data, state, v)
@@ -484,6 +651,7 @@ def _ab_main():
     for name, m in _AB_ARMS.items():
         timed[name] = vmode(m)
     light = {n: vmode(m) for n, m in _AB_LIGHT.items()}
+    skewv = {n: vmode(m) for n, m in _AB_SKEW.items()}
     padiag = {n: vmode(m) for n, m in _AB_PA.items()}
     for t in _AB_SIZES:
         for routing in _AB_ROUTINGS:
@@ -508,6 +676,7 @@ def _ab_main():
             stamps = {a: [] for a in [*light, *padiag, "pub"]}
             diags = {a: [] for a in padiag}
             pbdiags = {a: [] for a in padiag if a in _AB_PB}
+            skd_ = {a: [] for a in [*skewv, *(["pub"] if pskew is not None else [])]}
             pubd = []
             chk = {a: [] for a in timed if a != base}
             stamp_here = not _AB_STAMP_SIZES or t in _AB_STAMP_SIZES
@@ -531,6 +700,10 @@ def _ab_main():
                     continue
                 for a, v in light.items():
                     stamps[a].append(summarize(ours_stamped(d, v, 16)[0]))
+                for a, v in skewv.items():
+                    skd_[a].append(ours_skew(d, v))
+                if pskew is not None:
+                    skd_["pub"].append(pub_skew(d))
                 for a, v in padiag.items():
                     lt, full = ours_stamped(d, v, 144)
                     stamps[a].append(summarize(lt))
@@ -576,7 +749,8 @@ def _ab_main():
                     dd = [x - y for x, y in zip(tim[a], tim[bb])]
                     print(f"ABPAIR {tag} {a} minus {bb} " + " ".join(f"{x:+.1f}" for x in dd)
                           + f" (mean {sum(dd) / n:+.1f}, {sum(x < 0 for x in dd)} of {n} lower)")
-            for a, v in chk.items():
+            # chk is filled only by --gate=1 runs; an empty list here crashed ed3b4fdc76b54263.
+            for a, v in ((a, v) for a, v in chk.items() if v):
                 print(f"ABCHECKALL {tag} {a} vs {base} per seed " + " ".join(f"{x:.1e}" for x in v)
                       + f" (max {max(v):.1e})")
             if (_AB_SMALL and not stamp_here) or _AB_GATE:
@@ -603,6 +777,11 @@ def _ab_main():
                 print(f"ABDIAGB {tag} {a} " + ", ".join(f"{c} {v:.2f}" for c, v in zip(pb_cols, m)))
             m = [sum(r[i] for r in pubd) / n for i in range(len(pubd[0]))]
             print(f"ABPUB {tag} " + ", ".join(f"{c} {v:.2f}" for c, v in zip(pub_cols, m)))
+            for a, rows in skd_.items():
+                for k, ph in enumerate("AB"):
+                    m = [sum(r[k][i] for r in rows) / n for i in range(len(skew_cols))]
+                    print(f"ABSKEW {tag} {a} phase {ph} "
+                          + ", ".join(f"{c} {v:.3g}" for c, v in zip(skew_cols, m)))
     flags = int(state["scratch"]["ctr"][8].item())
     state["scratch"]["ctr"][8] = 0
     print(f"ABMOE spin flags {flags}; total {time.time() - t_start:.0f} s", flush=True)
@@ -639,7 +818,7 @@ def main():
     rest = sys.argv[3:]
     opts = {"base": "28", "seeds": "1,2,3,4,5,6", "sizes": "32,128,256", "routings": "layer,std",
             "pairs": "", "small": "", "pubranges": "", "skextra": "", "unitstamps": "",
-            "stampsizes": "", "gate": ""}
+            "stampsizes": "", "gate": "", "skew": "", "pubskew": ""}
     arms = {}
     for a in rest:
         if a.startswith("--"):
@@ -658,9 +837,11 @@ def main():
     twinned = () if gate else named
     light = {f"o{LIGHT_TWINS[m]}": LIGHT_TWINS[m] for m in twinned if m in LIGHT_TWINS}
     pa = {f"o{PA_TWINS[m]}": PA_TWINS[m] for m in twinned if m in PA_TWINS}
+    skewt = ({f"o{SKEW_TWINS[m]}": SKEW_TWINS[m] for m in twinned if m in SKEW_TWINS}
+             if opts["skew"] else {})
     # A counter twin that is also an arm is timed and stamped; it is not built twice.
     staged = {m for a in arms.values() for m in VARIANT_MODES.get(a, ())}
-    modes = sorted({0, *named, *light.values(), *pa.values(), *staged})
+    modes = sorted({0, *named, *light.values(), *pa.values(), *skewt.values(), *staged})
     src = (ROOT / "muse_moe_w4a16" / "submission.py").read_text()
     extra = "".join(f"({x.replace(':', ', ')}), " for x in opts["skextra"].split(",") if x)
     if small:
@@ -680,7 +861,7 @@ def main():
                              f", {m}" for m in add) + ")", src, flags=re.M)
         assert n == 1
     pub_src = patch_public(Path(pub).read_text(), small, bool(opts["pubranges"]),
-                           bool(opts["unitstamps"]))
+                           bool(opts["unitstamps"]), bool(opts["pubskew"]))
     block = AB
     for key, val in (("@PUB_SRC@", repr(pub_src)), ("@BASE@", repr(base)),
                      ("@ARMS@", repr(arms)), ("@PAIRS@", repr(pairs)),
@@ -690,7 +871,9 @@ def main():
                      ("@PB@", repr(tuple(a for a, m in pa.items() if m in PB_TWINS))),
                      ("@SMALL@", repr(small)), ("@GATE@", repr(gate)),
                      ("@US@", repr(bool(opts["unitstamps"]))), ("@USMAX@", repr(US_MAX)),
-                     ("@STAMPSIZES@", repr(ints(opts["stampsizes"]) if opts["stampsizes"] else ()))):
+                     ("@STAMPSIZES@", repr(ints(opts["stampsizes"]) if opts["stampsizes"] else ())),
+                     ("@SKEW@", repr(skewt)), ("@SKPER@", repr(SK_PER)),
+                     ("@PUBSKEW@", repr(bool(opts["pubskew"])))):
         assert block.count(key) == 1, key
         block = block.replace(key, val)
     Path(out).write_text(src + block)

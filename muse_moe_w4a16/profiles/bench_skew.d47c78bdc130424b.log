@@ -1,0 +1,51 @@
+ABBUILD ours 54 s
+ABBUILD pub 157 s
+ABROUTE layer router seed 8 (mean relative miss 0.030)
+ABROUTE T=128 layer busiest local expert routes [54, 54, 54, 50, 59, 51]
+ABCHECK T=128 layer vs fp32 o47 3.85e-03 pub 2.35e-03; vs o47: o48 1.3e-05 o49 1.6e-05
+ABTIME T=128 layer mean of 6 o47 165.1 o48 166.4 o49 170.9 pub 150.4
+ABPAIR T=128 layer o48 minus o47 -1.3 +0.2 +0.6 +1.5 +3.4 +3.7 (mean +1.3, 1 of 6 lower)
+ABPAIR T=128 layer o49 minus o47 +5.2 +6.4 +5.7 +6.8 +2.5 +8.3 (mean +5.8, 0 of 6 lower)
+ABPAIR T=128 layer pub minus o47 -15.9 -17.0 -16.9 -10.8 -15.7 -12.0 (mean -14.7, 6 of 6 lower)
+ABSTAMP T=128 layer o48 route 3.4, start 10.6, phase A 88.6, A done max 113.6, phase B 46.0, tail 9.0, barrier+final 13.4, end 159.2
+ABSTAMP T=128 layer pub route 2.5, start 6.3, phase A 86.3, A done max 98.0, phase B 43.1, tail 5.3, barrier+final 9.4, end 146.4
+ABPUB T=128 layer phase A mean 86.33, p10 82.95, p50 86.76, p90 89.34, max 92.03, stages min -10498.83, mean -8232.73, max -6120.17, cut units per CTA 1.00, rho(time, stages) 0.47
+ABSKEW T=128 layer o49 phase A route 19.1, positions 1.96, phase A 3.48, A->B wait 253, phase B 873, barrier 756, final 98.1, A done max 840, B done max 945, end 0.72, t0 weights wait A 1, B 306, helper idle 4.93e+03, credits 5.94e+03, t0 buffer wait 3.86e+03, t0 unit barrier 1.75
+ABSKEW T=128 layer o49 phase B route 9.03, positions 0.965, phase A 1.12, A->B wait 202, phase B 883, barrier 826, final 57.5, A done max 854, B done max 1.02e+03, end 0.719, t0 weights wait A 1, B 327, helper idle 4.72e+03, credits 5.81e+03, t0 buffer wait 4.32e+03, t0 unit barrier 1.75
+ABROUTE T=256 layer busiest local expert routes [128, 107, 111, 116, 105, 110]
+ABCHECK T=256 layer vs fp32 o47 3.85e-03 pub 2.34e-03; vs o47: o48 2.5e-05 o49 1.7e-05
+ABTIME T=256 layer mean of 6 o47 224.1 o48 225.2 o49 233.5 pub 201.5
+ABPAIR T=256 layer o48 minus o47 +1.2 +1.2 +1.7 +1.1 +1.4 +0.2 (mean +1.1, 0 of 6 lower)
+ABPAIR T=256 layer o49 minus o47 +10.0 +8.7 +11.2 +8.8 +10.1 +7.9 (mean +9.4, 0 of 6 lower)
+ABPAIR T=256 layer pub minus o47 -24.8 -20.3 -21.0 -26.5 -22.7 -20.2 (mean -22.6, 6 of 6 lower)
+ABSTAMP T=256 layer o48 route 4.3, start 12.9, phase A 125.4, A done max 148.9, phase B 64.2, tail 9.6, barrier+final 16.1, end 219.4
+ABSTAMP T=256 layer pub route 3.4, start 8.5, phase A 117.7, A done max 132.7, phase B 56.9, tail 6.0, barrier+final 12.5, end 197.6
+ABPUB T=256 layer phase A mean 117.68, p10 112.36, p50 118.40, p90 121.94, max 124.84, stages min -1649.17, mean -77.65, max 3086.83, cut units per CTA 1.00, rho(time, stages) 0.33
+ABSKEW T=256 layer o49 phase A route 35.4, positions 4.42, phase A 7.3, A->B wait 288, phase B 1.37e+03, barrier 1.21e+03, final 160, A done max 1.34e+03, B done max 1.42e+03, end 0.738, t0 weights wait A 1, B 553, helper idle 5.45e+03, credits 7.21e+03, t0 buffer wait 4.08e+03, t0 unit barrier 1.74
+ABSKEW T=256 layer o49 phase B route 16, positions 1.76, phase A 1.89, A->B wait 200, phase B 976, barrier 922, final 53.9, A done max 938, B done max 1.13e+03, end 0.725, t0 weights wait A 1, B 350, helper idle 5.16e+03, credits 6.33e+03, t0 buffer wait 4.12e+03, t0 unit barrier 1.74
+ABMOE spin flags 0; total 158 s
+TEST sk8w4s worst rel err vs fp32 3.92e-03, spin flags 0
+TEST sk16w4s worst rel err vs fp32 3.93e-03, spin flags 0
+TEST sk8w3s worst rel err vs fp32 3.92e-03, spin flags 0
+TEST main-d2 worst rel err vs fp32 3.91e-03, spin flags 0
+TEST main-lean-grp-nohoist worst rel err vs fp32 3.91e-03, spin flags 0
+TEST legacy32 worst rel err vs fp32 4.30e-03, spin flags 0
+TEST legacy128 worst rel err vs fp32 4.30e-03, spin flags 0
+TEST legacy256 worst rel err vs fp32 4.30e-03, spin flags 0
+BENCH bs=128 main-lean-grp-nohoist:208.0 main-lean-grp-nohoist-light:208.3 main-lean-grp-nohoist-skew:211.1 legacy128:250.6 sk8w4s-loads:252.1 legacy256:253.2 main-d2:254.5 sk8w3s:258.9 sk8w4s:262.9 legacy32:275.2 sk16w4s:282.8 us (graph replay, cold L2, mean of 2 routings)
+BENCH bs=256 main-lean-grp-nohoist:227.9 main-lean-grp-nohoist-light:229.5 main-lean-grp-nohoist-skew:238.2 main-d2:282.8 legacy256:360.3 legacy128:386.7 sk8w4s-loads:395.3 sk8w3s:425.6 sk8w4s:430.3 sk16w4s:466.0 legacy32:470.0 us (graph replay, cold L2, mean of 2 routings)
+POLICY {1: sk8w3s, 8: sk8w3s, 16: sk8w3s, 32: sk8w3s, 128: main-lean-grp-nohoist, 256: main-lean-grp-nohoist}
+TEST policy worst rel err vs fp32 3.92e-03, spin flags 0
+PREPARE repack 0.7 s, build 83.8 s, self-test 0.3 s, bench 0.7 s, smem 228736 B, ok True, main True
+USDT:2026-10-30 01:20:46 77:77 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-10-30 01:20:46 77:77 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-10-30 01:20:46 77:77 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-10-30 01:20:46 77:77 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-10-30 01:20:46 77:77 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-10-30 01:20:46 77:77 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-10-30 01:20:46 77:77 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-10-30 01:20:46 77:77 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-10-30 01:20:46 77:77 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-10-30 01:20:46 77:77 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-10-30 01:20:46 77:77 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-10-30 01:20:46 77:77 SyncActivityProfilerHandler.cpp:46] profiler_stop
