@@ -90,6 +90,7 @@ SGLang with its 95% interval. Profiles and logs are in `muse_moe_w4a16/profiles/
 | 2026-10-30 | 209cf29bf91c4ea2 (check, bench file from tools/moe_make_bench_ab.py --base=51 --sizes=32,128,256 --routings=layer,std --seeds=35,36,37,38,39,40 o52=52 o53=53 o47=47, not committed) | this branch (modes 52-54) | diagnostic of modes 52 / 53 (last phase B units claimed in K halves through the fixup, xs = G / 2 / G) | 2.191x | passed; spin flags 0. 52 minus 51 +3.3 / +3.5 / +5.9 / +4.9 / +8.5 / +5.3 us at 32 / 128 / 256 (layer / std), 0-2 of 6 lower; 53 +5.2 to +9.2. 54's tail 7.9 against 48's 7.1 at 32 (layer). Outputs vs 51 <= 9.7e-5. Lost everywhere, not gated; docs/ruled-out.md |
 | 2026-10-30 | 7063f86352344efa (check, bench file from tools/moe_make_bench_ab.py --base=51 --sizes=128,256 --routings=layer --skew=1, seeds 1-6, not committed) | e866c8a | re-measurement on 51 to pick the x gather or the warpgroup skew (twins 55, 56; rule set in e866c8a before the submit) | 2.210x (2.176-2.243) | passed; spin flags 0. Gather piece (start minus route) 51 / public: 6.8 / 3.6 us at 128, 8.3 / 4.9 at 256 (+3.2 / +3.4); thread 0 stores 1.7 / 5.6, fences and barrier 4.3 / 2.1, release 0.6 / 0.5. Skew bound for per-warpgroup slots (trailing warpgroup, A + B): 0.45 / 1.07 us; trailing warpgroup persistence 0.79-0.87. Public minus 51 -9.1 / -14.0 us (6 of 6). Decision: the gather. Section "The x gather or the warpgroup skew" |
 | 2026-10-30 | e7e75c9510994c08 (check, bench file from tools/moe_make_bench_ab.py --base=51 --sizes=32,128,256 --routings=layer --seeds=41,42,43,44,45,46 o57=57 o59=59, not committed) | fca2be7 | diagnostic of modes 57 (x rows loaded under the routing work plus 16-byte gather stores) and 59 (the early loads alone) | 2.207x (2.173-2.240) | passed; spin flags 0. Minus 51 at 32 / 128 / 256: 57 +1.2 / +1.1 / +1.2 us (0 of 6 lower each), 59 -0.0 / +0.6 / -0.3 (2, 1, 5 of 6). Thread 0's gather 0.8-1.8 us shorter (58 vs 55) but the first job's x ready only 0.2-0.6 us earlier. Not gated; docs/ruled-out.md |
+| 2026-10-30 | 3d8902381a194d56 (check, bench file from tools/moe_make_bench_ab.py --score=1 --sizes=1,8,16,32,128,256 --seeds=301-310, not committed) | this branch (tool only) | standalone scorecard: the shipped dispatch against the public file's whole dispatch, two independent prepares per side, std routing, seeded shuffled order | 2.211x (2.177-2.244) | passed; spin flags 0; policy sk8w3s at 1-32, 51 at 128 / 256 in both prepares. Public minus ours, us (10 seeds): +1.37 / -0.80 / +0.04 / -1.54 (sd 8.0, bimodal) / -9.60 / -14.92 at 1 / 8 / 16 / 32 / 128 / 256; nulls within 0.3 (ours) and 0.75 (public). Value if closed: 256 +1.12%, 128 +0.86%, 8 +0.21%, 32 +0.19%. Section "Standalone scorecard against the public kernel" |
 
 ## Why the layer keeps the W4 chain at 128 tokens, 2026-10-29
 
@@ -1862,6 +1863,149 @@ and go to docs/ruled-out.md scoped to this design. Their code stays in the sourc
 (production SASS unchanged). Two of the four checks were used; two are returned unspent. The skew
 lead (per-warpgroup weights slots) is not built: its bound on the trailing warpgroup, 0.45 / 1.07
 us, is below what one check can resolve.
+
+## Standalone scorecard against the public kernel, 2026-10-30
+
+Brief: rank the standalone board's per-shape gaps to the public MoE kernel by their value in the
+standalone score, then attack the largest one that docs/ruled-out.md has not closed.
+
+### How the standalone score weighs a shape (TASK.md)
+
+Each of the six loads is one shape (decode 1 / 16 / 32 at bs 1 / 16 / 32, verify 1 / 16 / 32 at bs
+8 / 128 / 256), all with weight 60, and the score is the geometric mean over the loads of
+SGLang's time over ours. So each shape enters the log of the score with weight 1/6, and closing a
+gap of g us on a shape where we take t us multiplies the score by (t / (t - g))^(1/6). A
+microsecond at 1 token is worth about 8.5 times one at 256 tokens (t = 27 against 232 us).
+
+### Method (check 3d8902381a194d56)
+
+`tools/moe_make_bench_ab.py OUT.py PUBLIC.py --score=1 --sizes=1,8,16,32,128,256
+--seeds=301,...,310` (new `--score` template). The shipped file (MAIN_MODES 0, 16, 26, 28, 37, 47,
+51; GATE_RUNS off) runs its own `prepare()` twice (oursA, oursB, each with its own repack, scratch
+and policy bench); the public file (vjeux/okc-2026 `muse_moe_w4a16.py`, scratchpad copy, with its
+TINY / TINY2 / MID builds kept, so its kernel_fn dispatches as on the board) runs its
+`prepare()` twice (pubA, pubB). The second copy of each side is a null: same code, independent
+prepare. Standalone routing (reference.py's generate_input, `_make_inputs`), seeds 301-310 (never
+used by any earlier run), graph replay after a 256 MB L2 flush, median of 20, the four arms in an
+order shuffled per seed and size by `random.Random(7919 s + t)`.
+
+### Result
+
+Both prepares picked the same policy: sk8w3s at 1-32 tokens, 51 (main-lean-grp-finss64) at 128
+and 256. FP32 check on the first seed: ours 3.77e-3 to 3.88e-3, public 2.34e-3 to 2.36e-3. Spin
+flags 0. Judge score of the same file 2.211x (2.177-2.244); the judge's medians for ours: 27.1 /
+65.5 / 95.4 / 133.0 / 191.1 / 231.7 us at 1 / 8 / 16 / 32 / 128 / 256 tokens.
+
+Same-process means of 10 seeds, us; pairs are per seed (negative = public faster; count = seeds
+where the first arm is lower):
+
+| T | ours A / B | public A / B | null ours B-A | null pub B-A | public minus ours (mean of both copies) | value in the score if closed |
+|---|---|---|---|---|---|---|
+| 1 | 34.22 / 34.20 | 35.56 / 35.61 | -0.02 (sd 0.24) | +0.05 (0.16) | +1.37 (sd 0.32), 0 of 10 | we lead (-0.82%) |
+| 8 | 84.00 / 84.05 | 83.28 / 83.16 | +0.05 (0.22) | -0.12 (0.49) | -0.80 (0.30), 10 of 10 | +0.21% |
+| 16 | 104.22 / 103.94 | 104.21 / 104.02 | -0.28 (0.43) | -0.20 (0.53) | +0.04 (0.55), 4 of 10 | tie |
+| 32 | 136.62 / 136.40 | 135.04 / 134.90 | -0.22 (0.66) | -0.14 (0.59) | -1.54 (8.02), 4 of 10 | +0.19%, seed-dependent |
+| 128 | 198.86 / 198.90 | 189.53 / 189.04 | +0.04 (0.66) | -0.49 (0.56) | -9.60 (3.92), 10 of 10 | +0.86% |
+| 256 | 233.49 / 233.54 | 218.96 / 218.23 | +0.05 (0.66) | -0.73 (0.70) | -14.92 (3.47), 10 of 10 | +1.12% |
+
+Value = (t / (t - g))^(1/6) - 1 with t the judge's median for ours and g the same-process gap.
+
+Reading.
+- Measured: the nulls are within 0.3 us for ours and 0.75 us for the public at every size, so the
+  gaps at 8, 128 and 256 tokens are outside the bench's own noise. The public's second copy runs
+  0.5-0.7 us faster than its first at 128 and 256 (8-9 of 10 seeds); its gaps above use the mean
+  of both copies.
+- Ranking by standalone value: 256 tokens (+1.12%), then 128 (+0.86%), then 8 (+0.21%) and 32
+  (+0.19%). Closing all four would move the score by about 2.4% (2.21x to about 2.26x on this
+  run); rank 100 is 2.37x today, so matching the public kernel everywhere is not enough.
+- 32 tokens is bimodal per seed: the public (its WGS MAIN build) leads by 20.8 and 9.2 us on two
+  seeds and trails by 6.3 and 6.8 on two others; the policy runs sk8w3s there, and which of the
+  skinny path and the fat path is faster depends on the routing (1fbb9fbf524f4ed7 had them tied on
+  the mean). A per-routing choice cannot be made on the host (no branching on input values); an
+  in-kernel choice is a separate design, not tested.
+- 1 token is ours by 1.37 us (0 of 10 seeds lower for the public): a lead, not a gap.
+- The board's 5% between the public entry (2.327x) and ours (2.216x) is larger than this run's
+  same-process 1.6% net; the board rows are single scored runs (hypothesis: run-to-run noise and
+  the judge's own routing per shape).
+
+Target: the 128 and 256-token gap (the fat path, 51). Its measured pieces (7063f86352344efa,
+d47c78bdc130424b): setup +4.3 / +4.4 us, of which the x gather +3.2 / +3.4; phase A +2.3 / +7.7;
+phase B +2.9 / +7.3; tail +3.7 / +3.6 (the final pass is at parity since 51). docs/ruled-out.md
+closes the gather's loads and stores (57, 59), the tail splits (52, 53), the skew slots, the cost
+models, the staged pair and the stage-loop tweaks tried so far; it leaves open "the per-thread
+fence.proxy.async.global and `__threadfence` before the gather barrier, which the public gather
+lacks". Of those two, the proxy fence stays (CLAUDE.md); the `__threadfence` is the change below.
+
+## Gather publish without the per-thread fence (modes 60 and 61), 2026-10-30
+
+Change. Mode 60 is 51 with one line removed from the x gather: the `__threadfence()`
+(fence.sc.gpu, SASS MEMBAR.SC.GPU) each of the 544 gathering threads runs after its
+`fence.proxy.async.global` and before `bar.sync kBarGather`. Everything else stays: each writer's
+4-byte row stores, its proxy fence, the named barrier, the `red.release.gpu.global.add` on
+`xready` after the barrier (one per local entry), the x producer's `ld.acquire.gpu` spin, its own
+proxy fence and the bulk copy. Mode 61 is 60 with 55's light and gather stamps (timing only).
+
+Measured basis: 55's stamps put thread 0's proxy fence, `__threadfence` and gather barrier at 4.30
+/ 2.13 us at 128 / 256 tokens (7063f86352344efa), and 58's at 3.67 / 2.92 (e7e75c9510994c08),
+against 3.3 / 4.8 us for the public kernel's whole gather, whose writers run no fence at all.
+Shortening the mean CTA's loads and stores did not move job readiness (57, 59), because a job's x
+is ready when its slowest gathering CTA releases; a per-thread gpu-scope fence waits for all of
+that thread's stores to be performed at gpu scope, on every gathering CTA including the slowest.
+Prediction (hypothesis): -1 to -3 us at 128 and 256 tokens, about -1 at 32; none if
+MEMBAR.ALL.GPU in each releasing thread's `red.release` pays the same drain.
+
+### Ordering of the gather publish without the per-thread fence
+
+Sections from the PTX ISA (9.x) memory consistency model as cited in "Proxy ordering of the x
+tiles": 8.6 Proxies, 8.8 Release and Acquire Patterns, 8.9.4 Memory synchronization (barriers),
+8.9.5 Causality Order, 9.7.10.28.2 Async Proxy, 9.7.15.4 membar / fence. The chain is that of mode
+37's phase A publish ("Ordering of the phase A publish without the per-thread fence_gpu"), with
+the gather's writers and the xready counter in place of the epilogue's and done_as:
+
+1. Writers. Every gathering thread W (warps other than the weights producer, kNG = 544 threads)
+   stores its share of the CTA's local token rows into xa with weak generic `st.global`, then runs
+   `fence.proxy.async.global` in program order. The proxy fence acts on W's own generic accesses
+   and composes with other synchronization (9.7.15.4).
+2. Barrier. W then runs `bar.sync kBarGather, kNG`. Barrier completion synchronizes every
+   participant with every other participant (8.9.4), so W's stores and proxy fence precede, in
+   base causality order (8.9.5), every operation after the barrier in every participating
+   thread.
+3. Release. After the barrier, thread R (one per local entry, gt-strided) runs
+   `red.release.gpu.global.add` on `xready[job]`. A release operation is a release pattern by
+   itself (8.8). Base causality order is transitive (8.9.5), so every writer's stores (step 2)
+   precede R's release, whichever thread R is.
+4. Count. `xready[job]` receives one release per row, from the CTAs that gathered that job's rows.
+   The x producer's `ld.acquire.gpu` that reads the final count follows each contributing release
+   in observation order through the chain of atomic read-modify-writes (8.9.2), so it
+   synchronizes with every one of them (8.9.4; all morally strong, gpu scope).
+5. Consumer. The x producer then runs `fence.proxy.async.global` and issues the bulk copy, ordered
+   after its prior instructions (8.9.1.1); completion through the mbarrier carries the implicit
+   generic-async proxy fence (9.7.10.28.2). Steps 5-8 of "Proxy ordering of the x tiles" are
+   unchanged.
+
+The removed `fence.sc.gpu` is no link in steps 1-5: the release is the releasing thread's own
+instruction after the barrier, as in mode 37. Its acquire half orders nothing either: no gathering
+thread reads, before the barrier, anything another CTA wrote in this launch (the routing reads
+topk_ids, inputs ordered by `griddepcontrol.wait`, 9.7.15.14). Other writes before the barrier in
+the same threads (the next launch's `ss` copy and barrier counter, zeroed in setup) are read only
+by the next launch, ordered by `griddepcontrol.wait` or stream order, not by this fence; the grid
+barrier keeps its own `__syncthreads`, `__threadfence` and atomics.
+
+Review: an independent read-only review of this chain and the diff is required before 60 ships
+(below, filled in when it returns).
+
+Local compile gate (nvcc 12.8.1, sm_90a, tools/moe_compile_fused.sh, MAIN_MODES 0, 16, 26, 28, 37,
+47, 51, 55, 60, 61 against the parent commit with 0-51 and 55): every production kernel (modes 0,
+16, 26, 28, 37, 47, 51 and the four skinny kernels) and 55 have the same instruction text as
+before; no C7510-C7515; 60 and 61 at 96 registers, no stack frame, no spills. 60 against 51: the
+gather's MEMBAR.ALL.CTA, MEMBAR.SC.GPU, ERRBAR, CGAERRBAR and CCTL.IVALL are gone (MEMBAR 43 ->
+41), FENCE.VIEW.ASYNC.G (32), BAR.SYNC (16), RED (81), ATOM (148), SYNCS.ARRIVE (48) and HGMMA (192)
+unchanged; the other differences are instruction order (17,282 -> 17,274 instructions).
+
+Diagnostic run, no keep rule set in advance (as 47's and 57's first checks): `tools/moe_make_bench_ab.py
+--base=51 --sizes=32,128,256 --routings=layer,std --seeds=47,48,49,50,51,52 o60=60` (light twins
+55 and 61 with the gather stamps, public stamps). A gate on new held-out seeds follows only if 60
+is lower than 51 at 128 and 256 tokens on both routings.
 
 ## Staged pair on current components, 2026-10-29
 
