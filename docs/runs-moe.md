@@ -96,6 +96,7 @@ SGLang with its 95% interval. Profiles and logs are in `muse_moe_w4a16/profiles/
 | 2026-10-30 | ed4591a2477041c2 (check, bench file from tools/moe_make_bench_ab.py --base=51 --sizes=32,128,256 --routings=layer,std --seeds=65,66,67,68,69,70 o66=66 o62=62, not committed) | a727b12 | null of the claimed phase A tail: mode 66 = 62's code with no round claimed (K = 0), 62 again, stamped twins 67, 64 against 55 | 2.199x (2.166-2.232) | passed; spin flags 0. 66 minus 51 at 32 / 128 / 256: layer +4.3 / +7.0 / +8.8 us, std +6.0 / +7.9 / +8.7; 62 +4.2 / +6.9 / +8.5 and +5.7 / +7.9 / +10.3 (0 of 6 lower in every row); 67's phase A mean +5.1 to +7.7 over 55's. The loss is the code shape, not the claims (62 minus 66 -0.3 to +1.6). No gate |
 | 2026-10-30 | 098949b28fe84bd1 (check, bench file from tools/moe_make_bench_ab.py --base=51 --sizes=32,128,256 --routings=layer,std --seeds=83,84,85,86,87,88 o72=72, not committed) | 86a633e | diagnostic of mode 72 (stream-K phase A with cut-unit fixups, mode 16's partition, on 51's stage loop, epilogue and phase B claims) with its stamped twin 73 | 2.193x (2.160-2.226) | passed; spin flags 0. 72 minus 51 +13.5 / +9.4 / +12.6 / +7.1 / +6.6 / +9.2 us at 32 / 128 / 256 (layer / std), 0 of 6 seeds lower in all six cells; 73's A end spread 18.9 / 16.9 at 256 against 55's 10.0 / 8.8; fixups 9.4-10.9 us per CTA at 128 / 256 (ABFIX). Diagnostic rule failed, no gate run; docs/ruled-out.md |
 | 2026-10-30 | eaa881a934aa471e (check, bench file from tools/moe_make_bench_ab.py --base=51 --sizes=32,128,256 --routings=layer,std --seeds=95,96,97,98,99,100 o74=74, not committed) | 5f35018 | diagnostic of mode 74 (72 with a designated-finisher fixup; 75 stamped); the build had fast_silu ending at 73 (review finding after the check), so 74 ran the slow SiLU, and its serial setup designation cost about 3 us | 2.202x (2.169-2.235) | 74 minus 51, us: +8.2 / +9.0 at 32, +8.3 / +7.2 at 128, +2.1 / +3.8 at 256 (layer / std; 0, 0, 0, 0, 0, 1 of 6 lower); public -0.9 to -19.1. Fixups 3.7-4.0 us per CTA (72: 8.7-10.9), 1.7-1.9 us per counting share, finisher 1.9-2.2 incl. 0.8-0.9 waiting; A end spread 6.7-7.2 at 128 (55: 11.4-14.0, public 6.8). Rule failed for this build; corrected build gets its own rule (docs section "Designated finisher for stream-K phase A") |
+| 2026-10-30 | e02f60fec94f45cb (scored run submitted by the coordinator, bench file from tools/moe_make_bench_ab.py --nopub=1 --base=51 --sizes=32,128,256 --routings=layer,std --seeds=107,108,109,110,111,112 o74=74, no public code, judged path the board dispatch, not committed) | 4187b8b | corrected mode 74 (fast SiLU, lane-parallel designation) | 2.197x (2.164-2.230) | 74 minus 51, us: +7.9 / +7.6 at 32, +4.6 / +7.4 at 128, +2.0 / +4.1 at 256 (layer / std; 0, 0, 0, 1, 1, 1 of 6 lower). A end spread 6.6-8.3 at 128 / 256 against 55's 10.9-19.5; fixups 3.9-4.5 us per CTA; route + setup still +3.4-3.6 us over 55. Rule failed; no gate; family parked |
 
 ## Why the layer keeps the W4 chain at 128 tokens, 2026-10-29
 
@@ -3067,6 +3068,49 @@ higher. Rule: the gate above is run only if 74 minus 51 has a negative mean at 2
 routings in this run; otherwise the family stays parked with this evidence. Reported, not
 conditions: 128 and 32 tokens, route + setup, phase A mean and A end spread against 55, the
 fixup columns.
+
+### Result of the corrected build (scored run e02f60fec94f45cb, bench at 4187b8b)
+
+Submitted by the coordinator as a scored run (no public code; the first 6,463 lines differ from
+4187b8b only in MAIN_MODES and GATE_RUNS, checked by him before submitting). 2.197x (2.164-2.230),
+passed, spin flags 0; prepare's policy is the board's (sk8w3s to 32 tokens, main-lean-grp-finss64
+at 128 and 256), so the run replaces the board entry only if it scores higher. Outputs of 74
+against 51: 1.3e-4 to 3.4e-4. Minus 51, us, seeds 107-112 (count = seeds lower of 6):
+
+| arm | 32 layer | 32 std | 128 layer | 128 std | 256 layer | 256 std |
+|---|---|---|---|---|---|---|
+| 74 corrected (4187b8b) | +7.9 (0) | +7.6 (0) | +4.6 (0) | +7.4 (1) | +2.0 (1) | +4.1 (1) |
+| 74 as built at 5f35018 (eaa881a934aa471e, seeds 95-100) | +8.2 | +9.0 | +8.3 | +7.2 | +2.1 | +3.8 |
+
+Stamps (one cold launch per seed, means, us; layer / standalone):
+
+| | 32 | 128 | 256 |
+|---|---|---|---|
+| route + setup: 55 / 75 | 2.7 / 5.7 and 2.8 / 6.1 | 3.4 / 6.8 and 3.4 / 7.0 | 4.1 / 7.7 and 4.1 / 7.7 |
+| phase A mean: 55 / 75 | 41.5 / 47.1 and 86.5 / 88.9 | 91.8 / 95.4 and 119.7 / 123.8 | 127.8 / 129.1 and 136.0 / 139.4 |
+| A end spread: 55 / 75 | 5.0 / 4.8 and 11.1 / 4.3 | 12.7 / 8.3 and 19.5 / 6.6 | 10.9 / 8.1 and 15.2 / 7.7 |
+| A done max: 55 / 75 | 53.4 / 59.4 and 102.4 / 100.9 | 114.2 / 113.7 and 147.6 / 140.3 | 151.1 / 150.3 and 163.0 / 158.8 |
+| 75's fixup per CTA (to count + finish), finisher wait, largest CTA | 4.03 (1.89 + 2.14), 0.96, 7.9 and 3.94, 0.79, 9.7 | 4.40, 1.04, 11.8 and 4.36, 0.96, 13.3 | 4.45, 1.04, 12.1 and 3.89, 0.79, 9.0 |
+
+Reading under the rule set before the run:
+- Measured: the corrected 74 lost at every size and routing, +2.0 / +4.1 us at 256 tokens (1 of
+  6 seeds lower on each). The rule fails; the gate is not run and the family stays parked.
+- Measured: the partition with the designated finisher does what it was built to do on the end
+  of phase A. The A end spread is 6.6-8.3 us at 128 and 256 tokens against 51's (55's)
+  10.9-19.5, the public kernel's level (6.8-8.8 in eaa881a934aa471e), and A done max is 0.5-7 us
+  earlier than 55's at 128 and 256. The fixup is 3.9-4.5 us per CTA (72: 8.7-10.9), about 2 us
+  per counting share and 2.1-2.5 per finishing share including 0.8-1.0 waiting: still not "well
+  under 1 us per share".
+- Measured: the gain on A done max does not reach the end of the launch. Route + setup is still
+  3.4-3.6 us longer than 55's with the lane-parallel designation (it was 3.4-3.9 with the serial
+  one), so the setup rewrite did not remove that cost, and the stamp that closes it waits on warp
+  0's whole setup block, 72's boundary and lead-slot searches included (73 was 0.8-0.9 us over 55
+  there). Where the 3 us go is not separated (hypotheses: the designation still dominates
+  through its shared-memory binary searches and per-lane segment loops; or the larger kernel's
+  cold instruction cache at launch, as 62 and 69 suggested). The phase A mean is 1.3-5.6 us longer
+  than 55's (the fixups and the larger kernel). Phase B and the tail are within 1 us of 55's.
+- Decision: parked in docs/ruled-out.md with this evidence. Budget used: the day's last MoE check
+  (eaa881a934aa471e) and one scored run (e02f60fec94f45cb).
 
 ## Staged pair on current components, 2026-10-29
 
