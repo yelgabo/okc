@@ -980,3 +980,134 @@ geometry (no decode) to show the geometry alone reaches the Lt time. P3 is the h
 the two; not started this round.
 
 Scored 2026-10-30: 1d277e7fe9c44712 1.4818x, submission.py at d0dc80f (cuBLASLt plans at m=128/256 plus router geometries r64c8s8 / r128c8s6), submitted by the coordinator under the standing authorization. Board entry before: 2048b59099f3435d (1.4497x).
+## 2026-10-30 round 2: router attribution, rt, stable cuBLASLt picks (branch worktree-agent-a7d5e0782cac00376)
+
+Brief: router gap first (roadmap P1 follow-up), P3 only with budget left, fix
+`tools/compile_check.sh`, and (coordinator, from the researcher's 01:31 review) a stable
+cuBLASLt pick. Budget 5 checks: three benches, two confirmations. Reference arms
+(NathenFernandes/muse-bf16-proj v18, commit 86aff75, MIT) ran only inside the bench files built
+by `tools/proj_make_bench_r2.py --donor` (`.build/`, never committed or submitted). Bench lines
+are paired median differences against the production pick in one process, 100 seeded rounds,
+cold L2; every arm passed FP64 checks on two router matrices (one with x4096 outliers and
+1e-6 tiny entries), adjacent sizes and two CUDA-graph replays on fresh inputs.
+
+### Runs
+
+| date | job | kind | commit | change | score (95% CI) | notes |
+|---|---|---|---|---|---|---|
+| 10-30 | 1d277e7fe9c44712 | **submit** (coordinator) | d0dc80f | P1 candidate (cuBLASLt plans, router r64c8s8 / r128c8s6) | 1.482x (1.460-1.504) | scored; the baseline for this round's scorecards |
+| 10-30 | a91f2152d8974458 | check (bench R2a) | 113d513 | wd VAR bits one at a time (51 arms), rt kernel, judged path with rt16w8 | 1.505x (1.482-1.527) | push reduction is the one single bit that wins; no producer warp loses; rt beats sk at 8 / 16 / 32 |
+| 10-30 | ba85985b8c5e4969 | check (bench R2b) | 01ad9d9 | toggles around KLUE, no-hint producer (W), barrier-free refill diagnostic (B), rt geometries, sk with no hint | 1.484x (1.461-1.506) | KLUE -0.90 / -0.90 us at 128 / 256; W and B small; rt8w8 / rt16w8 / rt16w8p8 per bucket |
+| 10-30 | 6cc72e840403402b | check (bench R2c) | b50dcb6 | XA orientation (x as wgmma A, one m64n128k16), stable Lt choice, two duplicate prepare() runs | 1.499x (1.477-1.522) | XA null; router picks agree across preparations except a tie at m = 16; Lt o 256 flipped (pinned after) |
+| 10-30 | f2373dedd4f44648 | check (confirm 1) | 1e12506 | the clean candidate, sha1 bccc0675 | **1.484x** (1.462-1.506) | prepare 105.7 s; picks identical to confirm 2 except o m = 128 (base here) |
+| 10-30 | b80b817c67d043ad | check (confirm 2) | 1e12506 | same, header comment changed (sha1 e4ba42d0) | **1.508x** (1.485-1.530) | o m = 128 took an Lt config at the 0.30 margin; the 1.6% gap to confirm 1 is mostly verify 1 (+2.0 us over four unchanged sk shapes): run noise |
+
+### Router at 128 / 256: which difference matters (wd kernel, VAR bits)
+
+Bits: N no producer warp (thread 0 refills after the empty barrier), K hi/lo packed into one
+128-row TMA box, L 64 B L2 promotion, U push reduction (`st.async` to the owner rank, no pull,
+no exit barrier), E prologue before the CTA barrier, S no wait watchdog, W producer waits
+without the suspend-time hint, B (check-only) no-producer refill without the empty barrier,
+X x as the wgmma A operand, D duplicate (null), T exit barrier kept with U.
+
+| arm (us, paired vs prod pick) | m=128 r64c8s8, R2a | R2b | R2c | m=256 r128c8s6, R2a | R2b | R2c |
+|---|---:|---:|---:|---:|---:|---:|
+| null (v0 or D twin) | +0.16 / +0.06 | +0.00 / +0.04 | -0.13 | +0.00 / -0.02 | +0.00 / -0.03 | -0.06 |
+| U | -0.46 | -0.54 | | -0.48 | -0.66 | |
+| K / L / E / S alone | -0.02 / +0.03 / +0.13 / +0.13 | | | -0.18 / -0.06 / +0.05 / +0.06 | | |
+| N alone | +1.74 | | | +1.25 | | |
+| W alone | | +0.10 | | | -0.05 | |
+| KLUE | | -0.90 | -0.80 | | -0.90 | -0.74 |
+| KLU / LUE / KUE | | -0.83 / -0.48 / -0.58 | | | -0.70 / -0.61 / -0.61 | |
+| NKLUE (with empty barrier) | +0.62 | +0.64 | | +0.10 | +0.06 | |
+| NBKLUE (check-only) | | -0.30 | | | -1.18 | |
+| KLUE + X | | | -0.77 | | | (r64c4s8 below) |
+| reference rw | -1.38 | -1.31 | -1.41 | -2.11 | -2.18 | -2.08 |
+
+At the reference's own m = 256 geometry (r64c4s8, 64 tokens, K split 4, 8 stages), against the
+r128c8s6 pick: prod +1.47 / +1.63 / +1.73, KLUE +0.67, KLUEW +0.32 / +0.38, KLUEWX +0.51, its
+D twin +0.58; the reference kernel at that geometry is -2.08. So the reference's kernel is about
+2.4 us faster at identical tiling, and none of K, L, U, E, W, N, B or X closes it.
+
+Conclusions (measured): the push reduction is the main mechanism (-0.5 to -0.65 us), packing
+plus promotion add about -0.3, the early prologue nothing. Removing the producer warp while
+keeping the empty barrier costs 1.2-1.7 us (thread 0's wait stalls the whole warpgroup's next
+wgmma); without the barrier (check-only, not shippable without a memory-model argument) it is 0.6 us worse than KLUE at 128 and 0.28 better at 256, so it explains a fifth of the 256 gap at most. The single m64n128k16 of
+the reference's 256 orientation is not the reason it is faster. Unattributed remainder: 0.4-0.5
+us at 128 and about 1.3 us at 256 (2.4 us at the same geometry). Differences not toggled: its
+256-thread CTA at m = 256 (a 4-warp producer group of which one thread issues), consumer waits
+with `try_wait.parity.acquire.cluster` in a tight loop, scalar output stores, and code layout.
+
+### Router at 8 / 16 / 32: rt
+
+`rt` (`_RT_SRC`) is our implementation of the reference's register-direct small router: every
+weight fragment loaded straight into mma.sync registers in one round trip, K split over warps
+and a cluster of S CTAs, `st.async` push to P owner ranks. Paired against the sk router picks
+(R2a / R2b / R2c; null of the same geometry from two extensions 0.02-0.13):
+
+| geometry | m=8 | m=16 | m=32 |
+|---|---:|---:|---:|
+| rt16w8 (the reference's S16 W8 P4) | -1.04 / -1.07 / -1.09 | -0.83 / -0.77 / -0.83 | -0.42 / -0.48 / -0.35 |
+| rt8w8 | -1.39 / -1.28 / -1.25 | -0.51 / -0.50 / -0.58 | +1.60 / +1.63 / +1.50 |
+| rt16w8p8 | | -0.77 / -0.74 / -0.88 | -0.54 / -0.51 / -0.40 |
+| rt4w16 / rt8w16 / rt8w8p8 (R2b) | -1.47 / -1.41 / -1.31 | -0.64 / -0.74 / -0.86 | +1.09 / +1.42 / +1.54 |
+| rt16w8 with exit barrier (R2a) | -0.83 | -0.62 | -0.32 |
+| reference routertail | -1.10 / -1.14 / -1.07 | -0.75 / -0.70 / -0.91 | -0.58 / -0.42 / -0.58 |
+
+The judged tuner picks rt8w8 at m = 8, rt16w8 or rt16w8p8 at 16 (tied; they swap between
+preparations), rt16w8p8 at 32; rgemv stays at m = 1 (8.1 vs rt8w8 8.3 tune us). The sk router
+with the producer's suspend-time hint removed was a null (+0.03 / -0.02 / +0.13), and so was
+the hint on three BF16 sk shapes (qkv16 +0.13, pool8 -0.08, o32 -0.16; null -0.03 to +0.00):
+not a lead for P4.
+
+### Judged scorecard against the scored d0dc80f (1d277e7fe9c44712)
+
+Router per load, judge-derived us, R2c judged path (picks rt8w8 / rt16w8 / rt16w8p8,
+r64c8s8k, r128c8s6k): decode 1 +0.16 (rgemv, unchanged code), decode 16 -0.50, decode 32 -0.22,
+verify 1 -1.50, verify 16 -0.61, verify 32 -0.36. Other layers move -1 to +1 us per load
+between runs with unchanged code. Scores: 1.505 / 1.484 / 1.499 (bench runs, judged path
+evolving) against 1.482.
+
+### Tuner stability (coordinator request)
+
+The final cuBLASLt choice now keeps a pinned per-shape preference (`LT_PREF`) unless another
+candidate saves more than max(0.3 us, 2 MAD) in 8 of 9 rotated rounds. In R2c's two duplicate
+preparations the pooler, unpooler and qkv picks stayed on the preference in both (pooler 128
+was the 1.1 us offender: earlier preparations split between t134 g7 and t124 g4 / g5 / g7). o 256
+flipped (A: an Lt config saving +0.48 us in 8 of 9 rounds; B: base, best +0.26 in 8 of 9 under a
+0.30 margin); it is now pinned to L3 t20 c4 g3, which led both. Router: identical picks at
+1 / 8 / 32 / 128 / 256 in both preparations and the judged one; m = 16 alternates between two
+geometries 0.05 us apart in the bench (both confirmations picked rt16w8p8). In the two
+confirmations every Lt pick agreed, o 256 included, except o 128 (saving at the margin, worth
+at most 0.3-0.4 us at verify 16); reopen with a pinned o 128 preference if it keeps flipping.
+
+### Family ledger (muse_bf16_proj, after round 2)
+
+| family | shapes | status | evidence | next |
+|---|---|---|---|---|
+| rt register-direct router | router 8 / 16 / 32 | measured standalone win, -1.3 / -0.8 / -0.5 us | R2a-c | layer port is a separate decision (needs a router launch beside the fused front) |
+| wd router KLUE (push reduction, packed box, 64 B promotion) | router 128 / 256 | measured standalone win, -0.8 / -0.9 us | R2a-c | open gap to the reference: 0.4-0.5 / 1.3 us, cause not attributed |
+| wd XA orientation | router 128 / 256 | measured null | 6cc72e840403402b | ruled out as the gap's cause |
+| no producer warp (with barrier) | router | measured loss | a91f2152d8974458 | ruled out |
+| sk router | router 8-32 | superseded by rt | R2a-c | stays a tuner candidate |
+| producer suspend-time hint (sk, wd) | sk shapes, router | measured null | ba85985b8c5e4969 | not a P4 lead |
+| stable cuBLASLt choice | dense 128 / 256 | implemented; picks agree across 4 preparations except o 128 at the margin | 6cc72e840403402b, f2373dedd4f44648, b80b817c67d043ad | pin o 128 if it keeps flipping |
+| P3 compressed WGMMA | dense 128 | budget only, not built (no check left) | below | reopen trigger in ruled-out |
+
+### P3 budget (no build, no check)
+
+Pooler at m = 128 (64 MB of BF16 weights; the judged Lt pick about 21.6 us, verify 16), per SM
+of 132, 254 K weights. Shared-memory bytes per weight with 128-row CTAs (two consumer
+warpgroups sharing a 128-token x tile): raw TMA kernel 10 B (A write 2, x write 2, wgmma A 2,
+wgmma B 4); compressed 13 B (codes write 1.5, decode read 1.5, BF16 write 2, plus the same
+x and wgmma traffic). Times per SM at 128 B per clock and about 1.75 GHz: raw 10.9 us of
+shared-memory port, compressed 13.8 us; HBM floor raw 19.7 us, compressed 15.0 us (with x);
+math 12.3 us at 700 TFLOP/s; decode ALU about 1.25 instructions per weight, 1.4 us of issue.
+Reconstruction cost (3 B per weight more shared-memory traffic, 3.2 us, plus up to 1.4 us of
+issue) against the traffic saving (0.5 B per weight of HBM, 5.0 us): the saving is larger, so
+the rule does not reject, but the margin is thin. Predicted (hypothesis) 17-18 us if HBM,
+shared-memory port and tensor issue overlap at about 85% each, against 21.6: up to 3-4 us on
+pooler and unpooler at 128 (0.7-0.9% of score each), about 2 us on qkv. Serialized, the net is
+0.4 us. Not built: a new producer / decode / escape pipeline with a raw-BF16 twin needs at
+least one judge check to debug (no local GPU), and all five checks went to the router
+attribution and confirmation.

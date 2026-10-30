@@ -1,0 +1,55 @@
+, pref=L1:a66t20s35k1r0z0c4i0g3w0v0.97 28.0, f0=L2:a66t20s35k1r0z0c4i0g2w0v0.97 27.8, f1=L3:a66t20s35k1r0z0c4i0g2w0v0.97 27.8, f2=L0:a66t20s35k1r0z0c4i0g2w0v0.97 27.7, f3=L1:a66t21s35k1r0z0c0i0g2w0v0.97 28.2, f4=L0:a66t20s35k1r0z0c0i0g2w0v0.97 27.9; pref pref margin 0.83 base -0.51/4 f0 +0.51/7 f1
+R2DONE 153.5 s
+judged| sk build 0.0 s
+judged| tune router    m= 1: rgemv 8.1, router8 9.6, rt8w8 8.3, rt16w8 8.5, rt16w8p8 8.6, baseline 15.2 -> rgemv
+judged| tune router    m= 8: router8 9.6, rt8w8 8.5, rt16w8 8.7, rt16w8p8 8.8, baseline 31.1 -> rt8w8
+judged| tune router    m=16: router16 9.5, rt8w8 9.2, rt16w8 8.8, rt16w8p8 8.9, baseline 20.9 -> rt16w8
+judged| tune router    m=32: router32 9.9, rt8w8 11.6, rt16w8 9.6, rt16w8p8 9.5, baseline 20.8 -> rt16w8p8
+judged| tune router    m=64: baseline 21.5, r64c8 13.3, r64c16 11.7, r64c8s8 12.1, r64c4s8 15.9, rm64k4r4 18.9, r64c8s8k 11.2, r64c4s8a 14.6 -> r64c8s8k
+judged| tune router    m=128: baseline 22.2, r64c8 13.4, r64c16 14.4, r128c8 14.7, r128c16 13.3, r64c8s8 12.2, r64c4s8 16.0, r128c8s6 14.6, rm64k4r4 19.1, rm128k4r4 21.9, r64c8s8k 11.2, r128c8s6k 13.5, r64c4s8a 14.7 -> r64c8s8k
+judged| tune router    m=256: baseline 22.9, r64c8 14.9, r64c16 19.8, r128c8 14.9, r128c16 21.2, r64c8s8 19.0, r64c4s8 16.2, r128c8s6 14.6, rm64k4r4 19.1, rm128k4r4 21.8, r64c8s8k 17.3, r128c8s6k 13.6, r64c4s8a 14.8 -> r128c8s6k
+judged| lt build 0.0 s, cublasLt 130101, torch cuda 13.0
+judged| prepare done 12.2 s
+R2BUILD prod 21.1 s, bench 13.1 s, benchw 13.4 s, 11 wd arms, round c
+R2OVH 4.24 us
+R2 m=8 base router8:prod med rt8w8:v0=4.02 rt8w8:prod=4.14 rt16w8:v0=4.21 rt16w8p8:prod=4.27 d_rt=4.27 rt16w8:prod=4.30 rt16w8p8:v0=4.37 router8:prod=5.38 router8:vW=5.39 router8:v0=5.46 sglang=26.67
+R2 m=8 d rt8w8:v0=-1.38 rt8w8:prod=-1.25 rt16w8:v0=-1.15 rt16w8p8:prod=-1.09 d_rt=-1.07 rt16w8:prod=-1.09 rt16w8p8:v0=-1.01 router8:vW=+0.03 router8:v0=+0.03 sglang=+21.25
+R2 m=16 base router16:prod med d_rt=4.42 rt16w8p8:prod=4.43 rt16w8p8:v0=4.46 rt16w8:prod=4.50 rt16w8:v0=4.59 rt8w8:prod=4.72 rt8w8:v0=4.77 router16:prod=5.33 router16:v0=5.33 router16:vW=5.36 sglang=16.62
+R2 m=16 d d_rt=-0.91 rt16w8p8:prod=-0.88 rt16w8p8:v0=-0.85 rt16w8:prod=-0.83 rt16w8:v0=-0.77 rt8w8:prod=-0.58 rt8w8:v0=-0.58 router16:v0=-0.02 router16:vW=-0.02 sglang=+11.34
+R2 m=32 base router32:prod med d_rt=5.14 rt16w8:v0=5.20 rt16w8p8:v0=5.20 rt16w8:prod=5.33 rt16w8p8:prod=5.34 router32:prod=5.74 router32:vW=5.81 router32:v0=5.84 rt8w8:prod=7.25 rt8w8:v0=7.31 sglang=16.46
+R2 m=32 d d_rt=-0.58 rt16w8:v0=-0.56 rt16w8p8:v0=-0.58 rt16w8:prod=-0.35 rt16w8p8:prod=-0.40 router32:vW=+0.13 router32:v0=+0.06 rt8w8:prod=+1.50 rt8w8:v0=+1.54 sglang=+10.69
+R2 m=128 base r64c8s8:prod med d_rw=6.30 r64c8s8:vKLUED=6.74 r64c8s8:vKLUEDX=6.75 r64c8s8:vKLUE=6.83 r64c8s8:vKLUEWX=6.85 r64c8s8:vKLUEX=6.86 r64c8s8:prod=7.63 r64c4s8:vKLUEW=10.30 r64c4s8:vKLUEWX=10.38 r64c4s8:vKLUEDWX=10.42 r64c4s8:vKLUEX=10.67 r64c4s8:prod=11.50 sglang=17.55
+R2 m=128 d d_rw=-1.41 r64c8s8:vKLUED=-0.93 r64c8s8:vKLUEDX=-0.82 r64c8s8:vKLUE=-0.80 r64c8s8:vKLUEWX=-0.77 r64c8s8:vKLUEX=-0.77 r64c4s8:vKLUEW=+2.69 r64c4s8:vKLUEWX=+2.78 r64c4s8:vKLUEDWX=+2.74 r64c4s8:vKLUEX=+3.10 r64c4s8:prod=+3.90 sglang=+9.98
+R2 m=256 base r128c8s6:prod med d_rw=7.92 r128c8s6:vKLUE=9.18 r128c8s6:vKLUED=9.23 r128c8s6:prod=9.97 r64c4s8:vKLUEW=10.32 r64c4s8:vKLUEWX=10.42 r64c4s8:vKLUEDWX=10.51 r64c4s8:vKLUEX=10.77 r64c4s8:prod=11.66 r64c8s8:vKLUE=12.83 r64c8s8:vKLUED=12.94 r64c8s8:vKLUEWX=12.94 r64c8s8:vKLUEX=13.02 r64c8s8:vKLUEDX=13.10 r64c8s8:prod=14.64 sglang=18.66
+R2 m=256 d d_rw=-2.08 r128c8s6:vKLUE=-0.74 r128c8s6:vKLUED=-0.80 r64c4s8:vKLUEW=+0.38 r64c4s8:vKLUEWX=+0.51 r64c4s8:vKLUEDWX=+0.58 r64c4s8:vKLUEX=+0.85 r64c4s8:prod=+1.73 r64c8s8:vKLUE=+2.88 r64c8s8:vKLUED=+3.01 r64c8s8:vKLUEWX=+2.94 r64c8s8:vKLUEX=+3.04 r64c8s8:vKLUEDX=+3.12 r64c8s8:prod=+4.66 sglang=+8.70
+R2PREP A 82.5 s
+R2PREP A| tune router    m= 1: rgemv 7.9, router8 9.5, rt8w8 8.1, rt16w8 8.4, rt16w8p8 8.7, baseline 15.6 -> rgemv
+R2PREP A| tune router    m= 8: router8 9.7, rt8w8 8.4, rt16w8 8.6, rt16w8p8 8.6, baseline 31.2 -> rt8w8
+R2PREP A| tune router    m=16: router16 9.5, rt8w8 9.1, rt16w8 8.7, rt16w8p8 8.7, baseline 20.6 -> rt16w8p8
+R2PREP A| tune router    m=32: router32 9.9, rt8w8 11.4, rt16w8 9.5, rt16w8p8 9.5, baseline 20.8 -> rt16w8p8
+R2PREP A| tune router    m=128: baseline 21.7, r64c8 13.4, r64c16 14.3, r128c8 14.8, r128c16 13.4, r64c8s8 12.0, r64c4s8 15.9, r128c8s6 14.4, rm64k4r4 18.8, rm128k4r4 21.8, r64c8s8k 11.2, r128c8s6k 13.5, r64c4s8a 14.7 -> r64c8s8k
+R2PREP A| tune router    m=256: baseline 23.3, r64c8 15.1, r64c16 19.8, r128c8 15.0, r128c16 21.2, r64c8s8 19.3, r64c4s8 16.1, r128c8s6 14.5, rm64k4r4 19.0, rm128k4r4 21.8, r64c8s8k 17.1, r128c8s6k 13.6, r64c4s8a 14.7 -> r128c8s6k
+R2PREP A| ltune qkv_gate  m=128: base 18.9, f0=L0:a66t92s35k1r0z0c0i0g2w0v0.73 19.3, f1=L2:a66t92s35k1r0z0c0i0g2w0v0.73 19.3, f2=L2:a66t104s35k1r0z0c0i0g2w0v0.64 19.9, f3=L0:a66t80s35k1r0z0c2i0g5w0v0.88 19.6, f4=L3:a66t15s35k1r0z0c0i0g6w0v0.55 19.5; pref base margin 0.30 f0 -0.48/0 f1 -0.42/1 f2 -1.15/0 f3 -0.77/0 f4 -0.70/0 -> base
+R2PREP A| ltune o         m=128: base 11.4, f0=L1:a66t18s35k1r0z0c6i0g5w0v0.97 11.1, f1=L3:a66t18s35k1r0z0c6i0g5w0v0.97 11.0, f2=L2:a66t18s35k1r0z0c4i0g5w0v0.97 11.2, f3=L3:a66t18s35k1r0z0c5i0g5w0v0.97 11.3, f4=L2:a66t18s35k1r0z0c4i0g3w0v0.97 11.4; pref base margin 0.30 f0 +0.22/7 f1 +0.29/8 f2 +0.16/7 f3 +0.10/5 f4 -0.06/4 -> base
+R2PREP A| ltune pooler    m=128: base 26.3, pref=L0:a66t134s35k1r0z0c0i0g7w0v0.79 24.7, f0=L0:a66t134s35k1r0z0c0i0g7w0v0.79 24.7, f1=L0:a66t134s35k1r0z0c0i0g5w0v0.79 25.0, f2=L0:a66t134s35k1r0z0c2i0g5w0v0.79 25.3, f3=L0:a66t134s35k1r0z0c2i0g7w0v0.79 24.8, f4=L2:a66t134s35k1r0z0c0i0g7w0v0.79 24.6; pref pref margin 0.32 base -1.57/1 f0 -0.2
+R2PREP A| ltune unpooler  m=128: base 23.6, pref=L3:a66t18s35k1r0z0c2i0g5w0v0.97 23.1, f0=L3:a66t18s35k1r0z0c6i0g5w0v0.97 22.7, f1=L1:a66t18s35k1r0z0c6i0g5w0v0.97 22.7, f2=L1:a66t18s35k1r0z0c7i0g5w0v0.97 22.8, f3=L1:a66t18s35k1r0z0c0i0g2w0v0.97 23.0, f4=L3:a66t18s35k1r0z0c7i0g5w0v0.97 22.7; pref pref margin 0.83 base -0.35/2 f0 +0.58/5 f1
+R2PREP A| ltune qkv_gate  m=256: base 23.5, pref=L0:a66t124s35k1r0z0c0i0g2w0v0.97 21.6, f0=L2:a66t124s35k1r0z0c0i0g2w0v0.97 21.3, f1=L0:a66t124s35k1r0z0c0i0g2w0v0.97 21.3, f2=L2:a66t134s35k1r0z0c0i0g9w0v0.88 22.0, f3=L0:a66t134s35k1r0z0c0i0g2w0v0.88 21.8, f4=L0:a66t134s35k1r0z0c0i0g9w0v0.88 22.1; pref pref margin 0.38 base -1.86/0 f0 +0.1
+R2PREP A| ltune o         m=256: base 13.4, f0=L1:a66t17s35k1r0z0c2i0g2w0v1.94 13.7, f1=L1:a66t20s35k1r0z0c0i0g2w0v0.97 13.1, f2=L3:a66t17s35k1r0z0c0i0g2w0v1.94 13.0, f3=L3:a66t20s35k1r0z0c4i0g2w0v0.97 13.0, f4=L2:a66t20s35k1r0z0c4i0g3w0v0.97 13.0; pref base margin 0.32 f0 -0.26/1 f1 +0.32/9 f2 +0.48/8 f3 +0.45/9 f4 +0.42/9 -> f2
+R2PREP A| ltune pooler    m=256: base 30.6, pref=L1:a66t18s35k1r0z0c0i0g2w0v0.97 27.7, f0=L1:a66t18s35k1r0z0c0i0g2w0v0.97 27.9, f1=L1:a66t18s35k1r0z0c0i0g3w0v0.97 27.7, f2=L3:a66t18s35k1r0z0c0i0g2w0v0.97 28.4, f3=L3:a66t18s35k1r0z0c0i0g3w0v0.97 27.7, f4=L1:a66t18s35k1r0z0c1i0g2w0v0.97 28.2; pref pref margin 0.30 base -2.75/0 f0 -0.22/4 f1
+R2PREP A| ltune unpooler  m=256: base 28.1, pref=L1:a66t20s35k1r0z0c4i0g3w0v0.97 27.9, f0=L2:a66t20s35k1r0z0c4i0g2w0v0.97 27.6, f1=L2:a66t20s35k1r0z0c6i0g2w0v0.97 30.2, f2=L1:a66t20s35k1r0z0c4i0g5w0v0.97 27.5, f3=L3:a66t20s35k1r0z0c4i0g2w0v0.97 27.5, f4=L0:a66t20s35k1r0z0c4i0g2w0v0.97 28.4; pref pref margin 0.51 base -0.19/3 f0 +0.32/6 f1
+R2PREP B 12.3 s
+R2PREP B| tune router    m= 1: rgemv 8.0, router8 9.5, rt8w8 8.4, rt16w8 8.5, rt16w8p8 8.6, baseline 15.4 -> rgemv
+R2PREP B| tune router    m= 8: router8 9.7, rt8w8 8.6, rt16w8 8.7, rt16w8p8 8.8, baseline 31.2 -> rt8w8
+R2PREP B| tune router    m=16: router16 9.6, rt8w8 9.1, rt16w8 8.8, rt16w8p8 8.8, baseline 20.8 -> rt16w8
+R2PREP B| tune router    m=32: router32 10.1, rt8w8 11.8, rt16w8 9.7, rt16w8p8 9.6, baseline 21.1 -> rt16w8p8
+R2PREP B| tune router    m=128: baseline 22.4, r64c8 13.6, r64c16 14.6, r128c8 14.8, r128c16 13.4, r64c8s8 12.3, r64c4s8 16.1, r128c8s6 14.6, rm64k4r4 18.9, rm128k4r4 21.8, r64c8s8k 11.2, r128c8s6k 13.5, r64c4s8a 14.6 -> r64c8s8k
+R2PREP B| tune router    m=256: baseline 22.8, r64c8 15.1, r64c16 19.9, r128c8 15.0, r128c16 21.3, r64c8s8 19.3, r64c4s8 16.2, r128c8s6 14.7, rm64k4r4 19.1, rm128k4r4 21.8, r64c8s8k 17.0, r128c8s6k 13.7, r64c4s8a 15.3 -> r128c8s6k
+R2PREP B| ltune qkv_gate  m=128: base 19.0, f0=L0:a66t104s35k1r0z0c0i0g2w0v0.64 20.5, f1=L2:a66t92s35k1r0z0c0i0g2w0v0.73 19.6, f2=L0:a66t92s35k1r0z0c0i0g2w0v0.73 19.3, f3=L2:a66t80s35k1r0z0c0i0g5w0v0.88 19.8, f4=L2:a66t104s35k1r0z0c0i0g2w0v0.64 19.6; pref base margin 0.30 f0 -1.25/2 f1 -0.48/3 f2 -0.29/3 f3 -0.74/3 f4 -0.54/3 -> base
+R2PREP B| ltune o         m=128: base 11.5, f0=L1:a66t18s35k1r0z0c7i0g5w0v0.97 11.5, f1=L3:a66t18s35k1r0z0c7i0g5w0v0.97 11.4, f2=L2:a66t18s35k1r0z0c2i0g5w0v0.97 11.3, f3=L2:a66t18s35k1r0z0c5i0g5w0v0.97 11.4, f4=L2:a66t17s35k1r0z0c0i0g2w0v0.97 11.3; pref base margin 0.30 f0 +0.06/5 f1 +0.10/8 f2 +0.16/8 f3 +0.16/8 f4 +0.16/8 -> base
+R2PREP B| ltune pooler    m=128: base 26.2, pref=L0:a66t134s35k1r0z0c0i0g7w0v0.79 24.8, f0=L2:a66t134s35k1r0z0c0i0g5w0v0.79 25.3, f1=L2:a66t134s35k1r0z0c0i0g2w0v0.79 25.3, f2=L0:a66t134s35k1r0z0c0i0g7w0v0.79 25.0, f3=L0:a66t134s35k1r0z0c2i0g7w0v0.79 25.0, f4=L2:a66t134s35k1r0z0c0i0g7w0v0.79 25.0; pref pref margin 0.30 base -1.34/0 f0 -0.5
+R2PREP B| ltune unpooler  m=128: base 24.4, pref=L3:a66t18s35k1r0z0c2i0g5w0v0.97 23.1, f0=L1:a66t18s35k1r0z0c6i0g5w0v0.97 22.7, f1=L3:a66t18s35k1r0z0c0i0g5w0v0.97 23.0, f2=L3:a66t18s35k1r0z0c4i0g5w0v0.97 23.1, f3=L3:a66t18s35k1r0z0c6i0g5w0v0.97 22.9, f4=L3:a66t18s35k1r0z0c2i0g5w0v0.97 22.9; pref pref margin 0.64 base -1.60/1 f0 +0.10/5 f1
+R2PREP B| ltune qkv_gate  m=256: base 23.8, pref=L0:a66t124s35k1r0z0c0i0g2w0v0.97 21.5, f0=L2:a66t124s35k1r0z0c0i0g2w0v0.97 21.5, f1=L0:a66t134s35k1r0z0c0i0g2w0v0.88 22.0, f2=L2:a66t134s35k1r0z0c2i0g9w0v0.88 22.3, f3=L0:a66t134s35k1r0z0c2i0g9w0v0.88 22.2, f4=L2:a66t134s35k1r0z0c0i0g9w0v0.88 22.2; pref pref margin 0.38 base -2.50/0 f0 -0.0
+R2PREP B| ltune o         m=256: base 13.3, f0=L3:a66t20s35k1r0z0c4i0g3w0v0.97 13.0, f1=L1:a66t20s35k1r0z0c4i0g3w0v0.97 13.1, f2=L3:a66t20s35k1r0z0c4i0g5w0v0.97 13.1, f3=L0:a66t17s35k1r0z0c3i0g2w0v1.94 13.4, f4=L0:a66t20s35k1r0z0c4i0g3w0v0.97 13.1; pref base margin 0.30 f0 +0.26/8 f1 +0.13/8 f2 +0.13/7 f3 -0.03/3 f4 +0.26/6 -> base
+R2PREP B| ltune pooler    m=256: base 30.9, pref=L1:a66t18s35k1r0z0c0i0g2w0v0.97 27.8, f0=L1:a66t18s35k1r0z0c0i0g2w0v0.97 27.6, f1=L3:a66t18s35k1r0z0c0i0g2w0v0.97 27.6, f2=L3:a66t18s35k1r0z0c0i0g3w0v0.97 28.2, f3=L3:a66t17s35k1r0z0c1i0g2w0v0.97 28.0, f4=L1:a66t18s35k1r0z0c0i0g3w0v0.97 28.0; pref pref margin 0.32 base -3.07/0 f0 +0.10/5 f1
+R2PREP B| ltune unpooler  m=256: base 28.5, pref=L1:a66t20s35k1r0z0c4i0g3w0v0.97 28.0, f0=L2:a66t20s35k1r0z0c4i0g2w0v0.97 27.8, f1=L3:a66t20s35k1r0z0c4i0g2w0v0.97 27.8, f2=L0:a66t20s35k1r0z0c4i0g2w0v0.97 27.7, f3=L1:a66t21s35k1r0z0c0i0g2w0v0.97 28.2, f4=L0:a66t20s35k1r0z0c0i0g2w0v0.97 27.9; pref pref margin 0.83 base -0.51/4 f0 +0.51/7 f1
+R2DONE 153.5 s
