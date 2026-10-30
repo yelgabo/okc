@@ -4,6 +4,16 @@ This is the stable entry point for steering reports across research, implementat
 and coordinator sessions. The user requested on 2026-10-29 that every project-steering
 report be checked into this repository so other sessions can read it.
 
+## Latest layer note: M1's 1x1 gate failure and the route row control (2026-10-30)
+
+**[2026-10-30: M1's 1x1 sliding gate failure in d6c30f88c617438b](2026-10-30-m1-1x1s-gate-failure.md)**:
+scored run d6c30f88c617438b (layer_m1rt51, 2.013x) ran with M1 off because its gate failed at
+1x1 sliding, where M1 changes no launch (o is cgemv, the front fp32). The one-in-2000
+difference has a merge-order rounding signature and mirrors 6ce5be0ba29642ea. The route row
+control missed because it copied a zero row (a token with no local route) over a zero row;
+fixed and tested offline. After the reset: a targeted reproduction check, then a four-arm
+bench of release + mode 51 (layer_g51b) against the release.
+
 ## Latest hourly report, 23:35
 
 **[2026-10-29 23:35 PDT: Arm bias leaves mode 51 layer gain unresolved](2026-10-29-2335-performance-review.md)**

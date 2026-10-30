@@ -27,7 +27,28 @@ routing-id flips judged against the control's envelope, and extended the gate to
 the control's envelope) and report-only negative controls were added at the researcher's
 caution; see the addendum in docs/runs-decode-layer.md.
 
-## Candidate (2026-10-30): layer_m1rt51 (not checked, not submitted)
+## Candidate (2026-10-30): layer_g51b (not checked, not submitted)
+
+Release + MoE mode 51 + the current gate, no M1: the file to ship if the four-arm bench
+prepared for after the reset confirms mode 51 on its own (docs/steering/2026-10-30-m1-1x1s-gate-failure.md, section 3).
+
+| field | value |
+|---|---|
+| file | `muse_decode_layer/cand/layer_g51b.py`, SHA256 `acd2385ca9af687a2f53b8412c65cf83ea280cc0d4db8eb52bb5c2ad75dab222` |
+| made from | the release (b9c23bda...) through `tools/dl_gate_patch.py` at this commit (no `--m1`), then layer_g51's `_MOE1_SRC`, `_MOE1_VARIANTS`, `_MOE1_MAIN_MIN_M` and repack region (the `dl_moe_inline.py` output with LAYER_MODES + 51 from the 6bbb252 standalone), line 2 replaced by the candidate header. Byte-identical on a second build |
+| against layer_g51 | device code equal except `_W4_SRC` (the W4 GEMM2 early exit waits first, as in layer_m1rt / layer_m1rt51, whose `_W4_SRC` it equals); Python: the negative controls always perturb (row-control fix), the SUMMARY prints after the timeline |
+| build switches | as the board entry: `SK_PDL` 0, `ONE_TRIG` 0, no M1, `_ONE_PDL = False`, `MOE1_HELD = ()` |
+| SASS | MoE as layer_g51 / layer_m1rt51 (kernel 51: instr 17268, 96 registers, no spills); W4 as layer_m1rt (14 GEMM2 instances gain one ACQBULK); everything else the release's |
+| evidence so far | the same device code except W4 ran as layer_g51 in a438b82ff2c141c2 (2.022x) and 2dc566298be1498f (four-arm, not resolved); d6c30f88c617438b (2.013x) is release + 51 in the SK_PDL / ONE_TRIG build with M1 off |
+| unpatched judge check of this exact file | none |
+
+## Candidate (2026-10-30): layer_m1rt51 (scored d6c30f88c617438b, 2.013x, M1 off by its gate)
+
+Scored run d6c30f88c617438b: 2.013x (1.983-2.043), 13/13, prepare 154.8 s. M1's enforced gate
+failed at 1x1 sliding (one replay of 2000 at relative 3.2e-4, control bitwise), so M1 was off
+for the run. At one token M1 changes no launch; analysis and the after-reset reproduction in
+docs/steering/2026-10-30-m1-1x1s-gate-failure.md. Mode 51 ran at 32 / 128 / 256 and every
+MoE gate passed. The board entry is unchanged.
 
 layer_m1rt plus MoE mode 51: the combination four-arm bench 40b9b3f795f84073 measured as "cand
 faster" (coordinator's request after layer_m1rt went out as scored run b68bdcd7a1ba464c).
