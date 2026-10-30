@@ -94,6 +94,7 @@ SGLang with its 95% interval. Profiles and logs are in `muse_moe_w4a16/profiles/
 | 2026-10-30 | 48b9bf9d77d146ac (check, bench file from tools/moe_make_bench_ab.py --base=51 --sizes=32,128,256 --routings=layer,std --seeds=47,48,49,50,51,52 o60=60, not committed) | 003be4b | diagnostic of mode 60 (51 without the gather's per-thread __threadfence; proxy fence, barrier and releases kept) with gather stamps (61 against 55) | 2.205x (2.172-2.238) | passed; spin flags 0. 60 minus 51 at 32 / 128 / 256: layer -0.3 / -0.4 / +0.0 us (6, 5, 4 of 6 lower), std -0.3 / -0.5 / -0.4 (3, 5, 4). Thread 0's barrier wait -1.3 to -3.6 us, its release +0.6 to +2.5 (MEMBAR.ALL.GPU before the RED); last x ready 0.4-2.0 us earlier. Pre-set gate condition failed (256 layer); not gated, docs/ruled-out.md |
 | 2026-10-30 | b7e43ee6a517487a (check, bench file from tools/moe_make_bench_ab.py --base=51 --sizes=32,128,256 --routings=layer,std --seeds=53,54,55,56,57,58 o62=62 o63=63, not committed) | d5bafad | diagnostic of modes 62 / 63 (51 with phase A's last one / two rounds claimed at run time through ctr[10] ahead of phase B) with light and gather stamps (64, 65 against 55) | 2.198x (2.165-2.231) | passed; spin flags 0. 62 minus 51 at 32 / 128 / 256: layer +3.9 / +7.9 / +9.2 us, std +6.1 / +7.5 / +8.6; 63 +5.3 / +7.0 / +8.5 and +5.3 / +6.9 / +7.9 (0 of 6 lower in every row). Phase A end spread at 128 12.8 / 10.1 -> 9.5 / 7.7 us (62), but mean phase A +4.8 to +6.8 us at 128 / 256. Pre-set rule: not gated, docs/ruled-out.md |
 | 2026-10-30 | ed4591a2477041c2 (check, bench file from tools/moe_make_bench_ab.py --base=51 --sizes=32,128,256 --routings=layer,std --seeds=65,66,67,68,69,70 o66=66 o62=62, not committed) | a727b12 | null of the claimed phase A tail: mode 66 = 62's code with no round claimed (K = 0), 62 again, stamped twins 67, 64 against 55 | 2.199x (2.166-2.232) | passed; spin flags 0. 66 minus 51 at 32 / 128 / 256: layer +4.3 / +7.0 / +8.8 us, std +6.0 / +7.9 / +8.7; 62 +4.2 / +6.9 / +8.5 and +5.7 / +7.9 / +10.3 (0 of 6 lower in every row); 67's phase A mean +5.1 to +7.7 over 55's. The loss is the code shape, not the claims (62 minus 66 -0.3 to +1.6). No gate |
+| 2026-10-30 | 098949b28fe84bd1 (check, bench file from tools/moe_make_bench_ab.py --base=51 --sizes=32,128,256 --routings=layer,std --seeds=83,84,85,86,87,88 o72=72, not committed) | 86a633e | diagnostic of mode 72 (stream-K phase A with cut-unit fixups, mode 16's partition, on 51's stage loop, epilogue and phase B claims) with its stamped twin 73 | 2.193x (2.160-2.226) | passed; spin flags 0. 72 minus 51 +13.5 / +9.4 / +12.6 / +7.1 / +6.6 / +9.2 us at 32 / 128 / 256 (layer / std), 0 of 6 seeds lower in all six cells; 73's A end spread 18.9 / 16.9 at 256 against 55's 10.0 / 8.8; fixups 9.4-10.9 us per CTA at 128 / 256 (ABFIX). Diagnostic rule failed, no gate run; docs/ruled-out.md |
 
 ## Why the layer keeps the W4 chain at 128 tokens, 2026-10-29
 
@@ -2529,6 +2530,227 @@ Reading under the rule set before the check:
   units' compiled loops (no second copy: kernel size and stage loop lengths within a few
   instructions of 51's) with a K = 0 null within 1 us of 51. One of the line's two checks was used;
   two MoE checks remain today.
+
+## Stream-K phase A on 51's components (modes 72 and 73), 2026-10-30
+
+Brief: a re-test of a parked family after its revisit conditions changed. Owned whole phase A
+units (mode 20) beat mode 16's cost-weighted stream-K ranges with cut units by 2-4 us at 128 and
+256 tokens (three checks, "Mode 16 at 128 and 256 tokens"), on the stage loop and epilogue of
+2026-10-29. Since then 37, 47 and 51 made the stage loop, the phase A epilogue and the phase B
+epilogue cheaper, which changes what a cut unit's fixup costs against the imbalance it removes.
+Three bounded attempts at the 128 / 256-token gap on 51 lost or tied (the gather fence, mode 60;
+phase A claims, modes 62 and 69). The public kernel deals phase A as stream-K ranges with about
+1.85 cut units per CTA and its last CTA leaves phase A 5.2-9.1 us after the mean CTA, against
+9.5-14.2 for 51 with whole owned units (48b9bf9d77d146ac). Also learned (modes 62 and 69): a kernel
+made larger by second compiled copies of loops lost 3-5 us everywhere (rescheduling or instruction
+cache, not separated), so the build has to stay close to 51's 17,280 instructions.
+
+### The change
+
+Mode 72 is 51 with `own_a` off: phase A runs mode 16's partition and fixup through the same
+`run_group` / `seg_n` / `seg_at` / `run_segment` code the dealt units run (no second loop). Each
+CTA takes the contiguous stage range [stage_at(cta), stage_at(cta + 1)) of the job-order cost
+prefix S.pa (the kCostA table, as in 16 and the public kernel); the segments of the range are
+walked largest n-tile count first in all three roles (consumers, weights producer, x producer), as
+51 walks its dealt units; a segment that is not a whole unit adds its accumulators into the fixup
+slot of the CTA holding the unit's first stage and the share that completes the count runs the
+epilogue (mode 16's `fixup`). Phase B is 51's: units claimed at run time through ctr[10] and S.bq,
+51's epilogue and final pass. Three changes keep it lean:
+
+- Setup: the two phase A boundaries are found by warp 0 with a ballot count over S.pa (the jobs
+  with pa[j] <= target are a prefix, so their count less one is the j of stage_at's scan) instead
+  of thread 0's serial scans (mode 27's stamps put four scans at 2.3-3.1 us), and the leading cut
+  unit's fixup slot is found there once (`S.lead_slot`, a new last field of SmemMain) instead of
+  by seg_info's search in every consumer thread. `stage_at` itself is unchanged.
+- One epilogue call per phase A segment (`epilogue_a_seg`): a whole unit copies its accumulators
+  to the array the fixup fills and calls the same `epilogue_a`, so the SwiGLU epilogue is
+  compiled once per n-tile count, not once for whole units and again for finished cut units.
+- 73 is 72 with 55's light and gather stamps plus `fix_st`: warpgroup 0's thread 0 times each
+  fixup from its start to the count update and, when it finishes the unit, to the end of the
+  read-back, inside branches the fixup already takes. Stamp code placed after the fixup returned
+  (a thread-0 branch or predicated shared stores) made 73 spill 288 B, so it is not used.
+
+A CPU model of the partition (`scratchpad/sk72/model.py`, not committed: 4,000 random job sets, M
+of 17 to 512, 1 to 32 local experts, G of 1 to 132) found the ballot boundaries equal to
+stage_at's, the setup slot equal to seg_info's search on every cut segment, every phase A stage
+covered exactly once, one cut unit per fixup slot and every slot's shares summing to 16 stages,
+including ranges shorter than a unit (units spread over three or more CTAs).
+
+### Ordering chain for mode 72
+
+Sections from the PTX ISA memory consistency model as cited in "Proxy ordering of the x tiles":
+8.6 Proxies, 8.8 Release and Acquire Patterns, 8.9.2 Observation Order, 8.9.4 Memory
+synchronization, 8.9.5 Causality Order, 8.10 axioms (Atomicity), 9.7.15.4 membar / fence,
+9.7.15.14 griddepcontrol.
+
+No fence, barrier, release or acquire is removed or moved against either lineage: the fixup keeps
+mode 16's fences (both `fence.acq_rel.gpu`, both warpgroup `bar.sync`, the `atom.acq_rel.gpu`
+count), and the phase A publish, the gather, the ring releases, phase B and the final pass are
+51's code. The one difference from 16 is the finisher's publish: 72 publishes through 51's
+`publish_a`, without the per-thread `fence_gpu` that mode 37 removed with a reviewed chain
+("Ordering of the phase A publish without the per-thread fence_gpu").
+
+1. Setup values. Warp 0 reads S.njobs, S.pa, S.cost and S.job_ntt after the post-routing
+   `__syncthreads`, which orders the routing warp's writes before them (8.9.4). Lane 0 writes
+   S.gsb[0], S.gse[0] and S.lead_slot; thread 0 (the same thread) then writes S.gsb[1] and S.gse[1]
+   in the existing block; the `__syncthreads` after that block orders all of it before every
+   producer and consumer read. `__ballot_sync` runs with all 32 lanes: the loop bounds and the
+   slot search's trip count depend only on shared values every lane reads alike.
+2. Shares of a cut unit. Each of a warpgroup's 128 threads adds its partial accumulators into the
+   slot with `red.global.add.v4.f32` (relaxed, gpu scope), runs `fence.acq_rel.gpu`, and the
+   warpgroup meets at `bar.sync`; thread 0 then adds the share's stage count with
+   `atom.acq_rel.gpu`. The adds are atomic (Atomicity axiom, 8.10), so concurrent shares do not lose
+   updates. The barrier carries every thread's adds and fence before thread 0's atom in base
+   causality order (8.9.4, 8.9.5), and the atom is itself a release, so the other threads' adds are
+   covered by its cumulativity (8.8), as for the gather's red.release. [Corrected after the review:
+   this step first called each thread's fence and a later strong write a release pattern, which
+   holds only for thread 0; the other threads issue no strong write after their fence.]
+3. The finisher. The count is a chain of atomic read-modify-writes, so the atom that reads the
+   last value before 16 follows every earlier share's atom in observation order (8.9.2), and as an
+   acquire it synchronizes with each of their releases (8.9.4). Its thread writes `fix_last`, the
+   warpgroup meets at `bar.sync` again, every thread runs `fence.acq_rel.gpu` and reads the slot
+   with `ld.global.cg`; causality order is transitive (8.9.5), so the reads see every share's adds,
+   including the finisher's own (program order). The finisher then zeroes the slot and the count
+   for the next launch.
+4. The finished unit's outputs: `epilogue_a` with the summed accumulators, generic stores to xb,
+   per-thread `fence.proxy.async.global`, the warpgroup's `bar.sync`, one `red.release.gpu` on
+   done_as (51's publish, mode 37's chain). Each warpgroup has its own slot word (index
+   (slot * 4 + wg)) and count, so each warpgroup's finisher publishes once and done_as[j * 16 + st]
+   still receives exactly 8 releases (2 units x 4 warpgroups). Phase B's acquire, proxy fence and
+   bulk copy are unchanged.
+5. Slot reuse. One cut unit per slot per launch (the model above): a slot is the CTA holding the
+   unit's first stage, and a CTA holds the first stage of at most one cut unit (its trailing one, or
+   the single unit its range lies inside). The finisher's zero stores and every share's adds precede
+   the grid barrier; the next launch's adds follow `griddepcontrol.wait` or stream order
+   (9.7.15.14, 8.9.4). The post-barrier zeroing of `fixcnt` is unchanged. The fixup slots are
+   generic-proxy only (red, ld.cg, st), so no proxy fence is involved (8.6).
+6. The whole-unit copy. A whole segment copies its accumulators to `fin` after the stage loop's
+   `wgmma.wait_group 0` and accumulator fence, the point where 51's epilogue reads them; the
+   accumulators are only read (ptxas C7515 forbids writing them outside wgmma).
+7. Ring order. The consumers, the weights producer and the x producer walk the same segments in
+   the same order (`seg_n` / `seg_at` with n-tile counts 8 down to 1, the order 51's dealt units
+   and every dyn_b mode use), so each slot's wfull / wempty / xfull / xempty phases line up as in 51
+   and 16; the phase B claims come after the CTA's last phase A stage as in 51.
+8. Progress. Phase A waits on no other CTA except through `xready` (the gather, which waits on no
+   claim). A fixup never waits: a share adds, counts and leaves, and the last share finishes. So
+   every CTA finishes phase A and every cut unit is finished by the share that arrives last. A
+   phase B unit waits on done_as of its job's phase A units, which all complete without waiting on
+   phase B. No new cross-CTA wait exists.
+
+### Local compile gate (nvcc 12.8.1, sm_90a, `tools/moe_compile_fused.sh`)
+
+MAIN_MODES 0, 16, 26, 28, 37, 47, 51, 55, 72, 73 against the parent commit (b5b8a34) with 0-51
+and 55: every production kernel (modes 0, 16, 26, 28, 37, 47, 51 and the four skinny kernels) and
+55 have the same instruction text; no C7510-C7515; 72 and 73 at 96 registers, no stack frame, no
+spill, no local load or store anywhere. Counts and loop lengths in
+`muse_moe_w4a16/profiles/sass_mode72.2026-10-30.txt`:
+
+| | 51 | 72 | 55 | 73 | 16 (for scale) |
+|---|---|---|---|---|---|
+| instructions | 17,280 | 18,664 (+1,384, +8.0%) | 17,736 | 19,440 | 28,032 |
+| stage loops | 387 x 11, 393 | 389-390 x 11, 398 | as 51 | as 72 | 391-392 x 11, 399 |
+| phase A and B unit loops | 664-1,102 | 741-1,104 | 666-1,103 | 741-1,105 | 1,023-1,392 |
+| MEMBAR / ERRBAR / CCTL | 43 / 11 / 8 | 91 / 35 / 32 | 43 / 11 / 8 | 91 / 35 / 32 | 186 / 83 / 72 |
+| BAR / REDG / ATOMG | 16 / 9 / 148 | 32 / 45 / 156 | 18 / 9 / 148 | 34 / 45 / 156 | 57 / 89 / 201 |
+| HGMMA, LDL / STL | 192, 0 / 0 | 192, 0 / 0 | 192, 0 / 0 | 192, 0 / 0 | 192, 43 / 27 |
+
+The added instructions are the fixup per n-tile count (36 REDG for the v4 adds of counts 1-8, 8
+ATOMG, 16 BAR, the fences) inside the phase A unit loops; no loop is compiled twice. The claim
+builds that lost had 21,488 (62, 66) and 26,760 (68, 69) instructions. `tools/moe_dryrun.py` (with
+72 and 73 built: both pass the self-test) and `tools/moe_host_check.sh` on the bench file pass.
+
+Prediction (hypothesis, before the run): the phase A end spread narrows toward the public
+kernel's (5-9 us), at a fixup cost of 1-3 us per CTA (mode 16's per-warp "epilogue and fixup" was
+21-27 us over 4-5 segments on the old epilogue) plus the larger kernel's 1-3 us. Net -2 to +3 us at
+128 and 256 tokens; nothing to gain at 32 tokens, where 51's spread is already 4-9 us.
+
+### Diagnostic run and its rule (set before the check)
+
+One check of `tools/moe_make_bench_ab.py --base=51 --sizes=32,128,256 --routings=layer,std
+--seeds=83,84,85,86,87,88 o72=72` (light twins 55 and 73, public stamps). Seeds 83-88 are new.
+Rule: the gate runs only if 72 minus 51 has a negative mean at 256 tokens on both routings;
+otherwise the family stays parked in docs/ruled-out.md with this evidence and no gate is run.
+Reported, not conditions: 128 and 32 tokens, seed counts, ABSTAMP's phase A mean and A end spread
+for 73 against 55 and the public kernel, ABFIX's fixup time and cut segments per CTA, ABCHECK's
+output of 72 against 51.
+
+### Gate rule (set before any gate check; run only if the diagnostic passes)
+
+One check of `tools/moe_make_bench_ab.py --base=51 --sizes=32,128,256 --routings=layer,std,skewed
+--seeds=89,90,91,92,93,94 --gate=1 o72=72`; seeds 89-94 are held out on all three routings. Keep
+72 only if all of these hold in that check:
+
+1. At 256 tokens, 72 minus 51 has a mean of -1.5 us or lower on layer and on standalone routing,
+   with at least 5 of 6 seeds lower on each, and a mean of 0 or lower on skewed routing.
+2. At 128 tokens, a mean of 0 or lower on layer and on standalone routing and of +0.5 or lower on
+   skewed routing.
+3. At 32 tokens, a mean of +0.5 us or lower on every routing.
+4. 72's output is within 5e-4 relative L2 of 51's on every seed, size and routing. (Not 1e-4 as
+   in the 47 / 51 gates: a cut unit's FP32 sum order changes before the bf16 rounding of gate and
+   up, and mode 20 against 16 differed by 1e-4 to 3e-4 for that reason, 9332e2a49aff4ff2.)
+5. Prepare's FP32 self-test passes for 72 (no FAIL line, spin flags 0).
+6. The compile gate above, on the commit that is checked.
+
+Shipping also needs the independent read-only review of the chain above to find it sound. If any
+condition fails, 72 goes to docs/ruled-out.md scoped to this build and is not shipped. If all
+pass, 72 joins MAIN_MODES and MAIN_CANDIDATES and the shippable file (no public code) goes to the
+coordinator with the layer port steps. Budget for the line: two checks (diagnostic and gate), the
+two MoE checks left today.
+
+### Diagnostic result (check 098949b28fe84bd1, bench at 86a633e)
+
+2.193x (2.160-2.226), passed, spin flags 0. Outputs of 72 against 51 (first seed of each cell):
+1.5e-4 to 2.4e-4 relative L2 (the cut units' FP32 sum order, as 20 against 16). Self-test of the
+shipped policy modes unchanged (main-lean-grp-finss64 3.89e-3). Minus 51, us, same process, seeds
+83-88 (count = seeds lower of 6):
+
+| arm | 32 layer | 32 std | 128 layer | 128 std | 256 layer | 256 std |
+|---|---|---|---|---|---|---|
+| 72 (stream-K phase A) | +13.5 (0) | +9.4 (0) | +12.6 (0) | +7.1 (0) | +6.6 (0) | +9.2 (0) |
+| public | -1.4 (3) | -8.4 (6) | -8.4 (6) | -9.4 (6) | -17.2 (6) | -15.3 (6) |
+
+Stamps (one cold launch per seed, means over seeds, us; layer / standalone):
+
+| | 32 | 128 | 256 |
+|---|---|---|---|
+| phase A mean: 55 (51) / 73 (72) / public | 47.7 / 57.6 / 49.1 and 89.3 / 96.6 / 85.8 | 94.3 / 103.5 / 91.7 and 117.0 / 124.8 / 111.5 | 127.8 / 135.1 / 119.6 and 134.1 / 141.6 / 125.5 |
+| A end spread: 55 / 73 / public | 8.0 / 12.4 / 3.3 and 10.6 / 11.0 / 4.7 | 15.3 / 18.2 / 7.3 and 8.4 / 15.2 / 6.1 | 10.0 / 18.9 / 7.1 and 8.8 / 16.9 / 8.1 |
+| A done max: 55 / 73 | 61.3 / 75.4 and 104.5 / 113.0 | 119.6 / 129.5 and 132.9 / 146.9 | 150.4 / 165.0 and 153.9 / 168.1 |
+| phase B: 55 / 73 | 21.5 / 22.6 and 39.6 / 40.1 | 45.0 / 46.8 and 54.3 / 54.7 | 59.9 / 61.2 and 62.9 / 63.9 |
+| 73's fixups (ABFIX): cut segments per CTA, us per CTA, its share of phase A | 1.86, 8.8, 15% and 1.84, 8.7, 9% | 1.88, 10.1, 10% and 1.85, 9.4, 7% | 1.84, 10.9, 8% and 1.83, 9.5, 7% |
+| 73's fixups: to the count update per share / read-back per finished unit, max CTA | 3.3 / 6.0, 17.9 | 3.3 / 7.3, 28.4-30.9 | 3.2 / 8.6, 28.3-32.5 |
+
+Reading under the rule set before the check:
+- Measured: 72 lost at every size and routing, 0 of 6 seeds lower in all six cells, +6.6 / +9.2 us at
+  256 tokens. The rule's condition (a negative mean at 256 on both routings) fails, so no gate is run
+  and nothing ships.
+- Measured, mechanism: the partition did not narrow the end of phase A, it widened it. 73's A end
+  spread is 15-19 us at 128 and 256 tokens against 55's 8-15 and the public kernel's 6-8, and the
+  mean CTA's phase A is 7-9 us longer than 55's. The fixups cost 9-11 us per CTA (1.84-1.88 cut
+  segments per CTA, the public kernel's 1.85): about 3.3 us per share to its count update (the v4
+  global adds, a gpu-scope fence and two warpgroup barriers) and 6-9 us for the finishing share's
+  read-back, with the slowest CTA at 28-33 us. Both the spread and the mean rise, so the last CTA's
+  phase A end is 10-15 us later than 55's (A done max), and the launch follows.
+- Hypotheses, not separated: (a) the fixup's global round trips sit on each CTA's critical path
+  under a memory system that phase A saturates (its cost here is 2-3 times what 51's whole phase A
+  epilogue takes per unit), and the CTAs that finish two cut units carry it twice, which by itself
+  spreads the phase A ends; (b) the kCostA table (2026-10-28) no longer prices a stage of 47 / 51's
+  loop by n-tile count, so equal-cost ranges are not equal-time ranges. The public kernel's
+  partition gets 6-8 us of spread with the same 1.85 cuts, so its fixup must cost far less (its
+  finisher is designated, not the last arrival; not measured here).
+- Measured, a side result: 73's gather piece is shorter than 55's (thread 0's whole gather 3.4 /
+  5.9 against 6.5 / 8.2 us at 128 / 256 tokens on layer routing, mostly its fences and barrier), but
+  the latest first-x-ready comes later, not earlier (12.8 / 17.1 against 10.2 / 11.6 us), so it buys
+  nothing on the critical path. Why the gather changed is not separated (the setup differs only in
+  warp 0's boundary search before the gather).
+- Independent read-only review of 86a633e (2026-10-30): sound (no ordering bug, deadlock, lost or
+  shared fixup slot, or uninitialised read; production predicates unchanged; 72 / 73 equal 51 / 55
+  on every predicate except own_a, stream_a and fix_st). It corrected the wording of step 2 (fixed
+  above) and noted that ABFIX's per-CTA total subtracts the mean pre-count time per finished unit,
+  so it is an estimate; the per-share and per-finish columns are measured directly.
+- Decision: the stream-K phase A family stays parked (docs/ruled-out.md), with the new evidence that
+  on current components its fixups, not its partition, decide the comparison. One of the line's two
+  checks was used; one MoE check remains today.
 
 ## Staged pair on current components, 2026-10-29
 
