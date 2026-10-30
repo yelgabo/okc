@@ -1,0 +1,67 @@
+ABBUILD ours 68 s
+ABBUILD pub 174 s
+ABROUTE layer router seed 8 (mean relative miss 0.030)
+ABROUTE T=32 layer busiest local expert routes [19, 20, 18, 21, 23, 22]
+ABCHECK T=32 layer vs fp32 o47 3.86e-03 pub 2.35e-03; vs o47: o37 1.7e-05 o16 2.8e-04 sk8w3s 4.9e-04 o41 1.5e-05
+ABTIME T=32 layer mean of 6 o47 90.9 o37 92.7 o16 119.4 sk8w3s 110.1 pub 89.5 sk8w4s 113.8
+ABPAIR T=32 layer o37 minus o47 +3.5 +5.4 -0.5 +0.4 +0.6 +1.4 (mean +1.8, 1 of 6 lower)
+ABPAIR T=32 layer o16 minus o47 +35.8 +35.6 +20.8 +20.7 +20.6 +37.5 (mean +28.5, 0 of 6 lower)
+ABPAIR T=32 layer sk8w3s minus o47 +23.6 +23.2 +15.3 +12.9 +29.2 +11.1 (mean +19.2, 0 of 6 lower)
+ABPAIR T=32 layer pub minus o47 -1.3 -2.0 -1.7 -0.3 -2.4 -1.1 (mean -1.5, 6 of 6 lower)
+ABPAIR T=32 layer sk8w4s minus o47 +27.1 +29.2 +19.1 +14.5 +31.7 +15.8 (mean +22.9, 0 of 6 lower)
+ABWORK T=32 layer ours jobs 8.5, A units/CTA min 1.5, mean 2.061, max 2.5, CTAs with A 132, weights MB 240.6, pub jobs 8.5, pub A stages/CTA min 28, mean 32.97, max 35.83, CTAs with A 132, cut units 1.856, pub B stages/CTA min 14.33, mean 16.48, max 17.83, CTAs with B 132, cut units 1.884, skinny jobs 13, A units/CTA 50.42, B units/CTA 25.21, skinny weights MB 368.1, experts over 64 0, ntt1 5.667, ntt2 1.167, ntt3 1.667, ntt4 0, ntt5 0, ntt6 0, ntt7 0, ntt8 0
+ABWORK T=32 layer o41 claimed B units/CTA min 0.50, mean 1.03, max 1.50, CTAs with B 122.0
+ABSTAMP T=32 layer o42 route 3.0, start 7.0, phase A 48.4, A done max 66.2, phase B 22.9, tail 7.3, barrier+final 9.4, end 88.7
+ABSTAMP T=32 layer o48 route 3.0, start 7.4, phase A 47.7, A done max 64.2, phase B 22.7, tail 6.5, barrier+final 8.9, end 87.7
+ABSTAMP T=32 layer o41 route 3.0, start 5.9, phase A 52.0, A done max 68.1, phase B 26.2, tail 7.9, barrier+final 10.3, end 95.5
+ABSTAMP T=32 layer pub route 1.8, start 3.8, phase A 49.8, A done max 58.0, phase B 22.8, tail 4.5, barrier+final 6.6, end 86.1
+ABSK T=32 layer sk8w3s-stamps route 0.4, positions 2.3, phase A 67.2, A->B wait 2.6, phase B 34.0, barrier 2.8, final 1.0, A done max 72.0, B done max 108.7, end 110.8, t0 weights wait A 5.8, B 2.2, helper idle 45.5, credits 0.9, t0 buffer wait 2.6, t0 unit barrier 1.5
+ABDIAG T=32 layer o41 phase A mean 51.99, p10 42.67, p50 48.70, p90 62.42, max 63.27, units min 1.50, mean 2.06, max 2.50, MB mean 1.42, max 1.76, rho(time, MB) 0.80, warp: w-wait 2.78, x-wait 4.86, compute 31.27, epilogue 3.23, per unit 1.54, publish 0.00, wproducer wait 34.67, xproducer wait 35.92, GHz 1.78, cycles per wait 204.94
+ABDIAGB T=32 layer o41 phase B span 26.22, warp: w-wait 1.63, x-wait 2.21, claim wait 1.23, compute 15.12, epilogue 1.84, units 1.03, stages 16.48, n-tiles per unit 1.55, cycles per wait 206.57
+ABPUB T=32 layer phase A mean 49.76, p10 47.97, p50 49.75, p90 51.62, max 54.36, stages min -21203.50, mean -19931.42, max -18712.83, cut units per CTA 1.00, rho(time, stages) 0.39
+ABROUTE T=32 std busiest local expert routes [28, 18, 9, 9, 6, 20]
+ABCHECK T=32 std vs fp32 o47 3.84e-03 pub 2.34e-03; vs o47: o37 3.3e-05 o16 1.9e-04 sk8w3s 4.3e-04 o41 2.1e-06
+ABTIME T=32 std mean of 6 o47 132.9 o37 134.5 o16 164.0 sk8w3s 132.8 pub 127.0 sk8w4s 136.2
+ABPAIR T=32 std o37 minus o47 +1.2 +3.2 +2.8 +0.7 +1.0 +0.9 (mean +1.6, 0 of 6 lower)
+ABPAIR T=32 std o16 minus o47 +32.8 +33.8 +28.1 +37.5 +26.9 +27.7 (mean +31.1, 0 of 6 lower)
+ABPAIR T=32 std sk8w3s minus o47 +14.0 +8.4 -6.8 -2.6 -18.4 +4.9 (mean -0.1, 3 of 6 lower)
+ABPAIR T=32 std pub minus o47 -2.9 -4.8 -6.6 -3.5 -11.5 -6.2 (mean -5.9, 6 of 6 lower)
+ABPAIR T=32 std sk8w4s minus o47 +16.7 +12.4 -3.1 +0.1 -14.8 +9.0 (mean +3.4, 2 of 6 lower)
+ABWORK T=32 std ours jobs 14.17, A units/CTA min 2.833, mean 3.434, max 3.833, CTAs with A 132, weights MB 401.1, pub jobs 14.17, pub A stages/CTA min 46.33, mean 54.95, max 56.83, CTAs with A 132, cut units 1.841, pub B stages/CTA min 24.83, mean 27.47, max 28, CTAs with B 132, cut units 1.861, skinny jobs 16.17, A units/CTA 62.71, B units/CTA 31.35, skinny weights MB 457.7, experts over 64 0, ntt1 12.83, ntt2 0.8333, ntt3 0.3333, ntt4 0.1667, ntt5 0, ntt6 0, ntt7 0, ntt8 0
+ABWORK T=32 std o41 claimed B units/CTA min 1.33, mean 1.72, max 2.33, CTAs with B 132.0
+ABSTAMP T=32 std o42 route 3.1, start 5.2, phase A 78.0, A done max 93.1, phase B 35.2, tail 9.6, barrier+final 11.6, end 131.2
+ABSTAMP T=32 std o48 route 2.9, start 4.9, phase A 77.9, A done max 92.3, phase B 34.1, tail 10.8, barrier+final 13.2, end 131.0
+ABSTAMP T=32 std o41 route 2.9, start 5.0, phase A 80.5, A done max 95.7, phase B 38.8, tail 10.4, barrier+final 12.9, end 138.2
+ABSTAMP T=32 std pub route 1.8, start 4.0, phase A 75.3, A done max 83.7, phase B 34.6, tail 4.8, barrier+final 6.8, end 123.6
+ABSK T=32 std sk8w3s-stamps route 0.4, positions 2.2, phase A 83.2, A->B wait 2.7, phase B 41.5, barrier 2.6, final 0.9, A done max 87.6, B done max 131.9, end 134.0, t0 weights wait A 7.1, B 2.7, helper idle 55.6, credits 1.1, t0 buffer wait 3.2, t0 unit barrier 1.9
+ABDIAG T=32 std o41 phase A mean 80.45, p10 73.70, p50 81.92, p90 89.08, max 90.79, units min 2.83, mean 3.43, max 3.83, MB mean 2.28, max 2.59, rho(time, MB) 0.72, warp: w-wait 4.56, x-wait 9.75, compute 48.70, epilogue 5.29, per unit 1.55, publish 0.00, wproducer wait 52.34, xproducer wait 57.27, GHz 1.75, cycles per wait 225.52
+ABDIAGB T=32 std o41 phase B span 38.75, warp: w-wait 2.51, x-wait 4.15, claim wait 1.24, compute 23.50, epilogue 2.32, units 1.72, stages 27.47, n-tiles per unit 1.16, cycles per wait 208.98
+ABPUB T=32 std phase A mean 75.33, p10 73.86, p50 75.48, p90 76.79, max 80.17, stages min -27696.83, mean -25551.94, max -24582.17, cut units per CTA 1.00, rho(time, stages) 0.44
+ABMOE spin flags 0; total 175 s
+TEST sk8w4s worst rel err vs fp32 3.92e-03, spin flags 0
+TEST sk16w4s worst rel err vs fp32 3.92e-03, spin flags 0
+TEST sk8w3s worst rel err vs fp32 3.92e-03, spin flags 0
+TEST main-d2 worst rel err vs fp32 3.90e-03, spin flags 0
+TEST main-m2-ar2-ub worst rel err vs fp32 3.90e-03, spin flags 0
+TEST main-lean-silu-bar worst rel err vs fp32 3.90e-03, spin flags 0
+TEST main-lean-grp-nohoist worst rel err vs fp32 3.90e-03, spin flags 0
+TEST legacy32 worst rel err vs fp32 4.30e-03, spin flags 0
+TEST legacy128 worst rel err vs fp32 4.30e-03, spin flags 0
+TEST legacy256 worst rel err vs fp32 4.30e-03, spin flags 0
+BENCH bs=128 main-lean-grp-nohoist:208.5 main-lean-grp-nohoist-light:209.5 main-lean-silu-bar:210.4 main-lean-silu-bar-light:211.2 main-lean-silu-bar-pab:222.0 main-m2-ar2-ub:249.2 legacy128:251.2 main-d2:253.3 legacy256:253.8 sk8w4s-loads:254.4 sk8w3s:259.9 sk8w4s:263.9 legacy32:275.8 sk16w4s:282.4 us (graph replay, cold L2, mean of 2 routings)
+BENCH bs=256 main-lean-grp-nohoist:228.9 main-lean-grp-nohoist-light:230.7 main-lean-silu-bar:232.1 main-lean-silu-bar-light:234.3 main-lean-silu-bar-pab:242.5 main-m2-ar2-ub:278.7 main-d2:283.5 legacy256:360.8 legacy128:389.2 sk8w4s-loads:398.3 sk8w3s:427.1 sk8w4s:433.4 sk16w4s:467.0 legacy32:469.7 us (graph replay, cold L2, mean of 2 routings)
+POLICY {1: sk8w3s, 8: sk8w3s, 16: sk8w3s, 32: sk8w3s, 128: main-lean-grp-nohoist, 256: main-lean-grp-nohoist}
+TEST policy worst rel err vs fp32 3.92e-03, spin flags 0
+PREPARE repack 0.7 s, build 84.0 s, self-test 0.3 s, bench 1.0 s, smem 228736 B, ok True, main True
+USDT:2026-10-30 02:05:23 77:77 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-10-30 02:05:23 77:77 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-10-30 02:05:23 77:77 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-10-30 02:05:23 77:77 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-10-30 02:05:23 77:77 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-10-30 02:05:23 77:77 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-10-30 02:05:23 77:77 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-10-30 02:05:23 77:77 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-10-30 02:05:23 77:77 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-10-30 02:05:23 77:77 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-10-30 02:05:23 77:77 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-10-30 02:05:23 77:77 SyncActivityProfilerHandler.cpp:46] profiler_stop
