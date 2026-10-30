@@ -523,7 +523,10 @@ def run_group(mod, group, gen, balance=False, sliced=False, label=""):
     for c in group:
         check_stream_coverage(mod, c, geoms[c.name], nrows, K)
         stream = streams[c.name].numpy()
-        assert stream.dtype == np.uint8 and stream.shape[0] == tst * (nrows // c.R) * c.WBY
+        # Configs in a group can have different KST (qkv8 has UPW 4 since fee7249), so each one
+        # runs K // KST stages, not the group's tst.
+        cst = K // c.KST
+        assert stream.dtype == np.uint8 and stream.shape[0] == cst * (nrows // c.R) * c.WBY
         rstream = rstreams[c.name].numpy() if c.FUSE else None
         for M in MS[c.TOKR]:
             check_bookkeeping(c, M, pmax)
@@ -538,7 +541,7 @@ def run_group(mod, group, gen, balance=False, sliced=False, label=""):
                 rgood, rmsg = check_f32(rout, x.double() @ (hi.double() + lo.double()).T, x.double() @ W32.double().T)
                 good, msg = good and rgood, msg + " router " + rmsg
             ok &= good
-            print(f"{c.name + label:14s} M={M:2d} N={nrows:4d} K={K:5d} stages={tst} {msg} {note} "
+            print(f"{c.name + label:14s} M={M:2d} N={nrows:4d} K={K:5d} stages={cst} {msg} {note} "
                   f"{time.time() - t0:5.1f}s {'ok' if good else 'FAIL'}", flush=True)
     return ok
 
