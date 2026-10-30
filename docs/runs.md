@@ -1138,3 +1138,97 @@ remaining KLUE gain is gone, and at m = 32 nothing is left either. Scores: 1.495
 against 1.484 / 1.508 for the non-conforming file, which is inside run noise.
 
 Scored 2026-10-30: d59bc7af342a465d 1.4879x, submission.py at ce25f67 (round 2: rt small router, KLUE wd router with conforming exit cluster barriers, stable cuBLASLt picks), submitted by the coordinator. Board entry before: 1d277e7fe9c44712 (1.4818x).
+
+## 2026-10-30 P3: 12-bit weights reconstructed into wgmma A tiles, pooler m = 128 (branch worktree-agent-a43c8d2430d72e1f3)
+
+Brief (coordinator, roadmap P3): build the lossless 12-bit pooler stream decoded into shared
+memory for wgmma consumers, offered only at pooler m = 128, with a raw-BF16 control of the same
+compute layout; compile gate first; one paired bench with independent duplicate nulls; stop and
+record a loss if the reconstruction costs more than the traffic it saves. Budget: the four
+checks left today, then at most three after the reset. Used: one.
+
+Design (code at f8855b7, parked in `muse_bf16_proj/experiments/cw_p3_submission.py`): `cw_kernel`,
+128 weight rows per CTA (two consumer warpgroups, m64n128k16, sharing one 128-token x tile), K
+split over a 4-CTA cluster, the wd partial and DSMEM reduction. A producer lane loads x (TMA) and
+the stage's 12,288-byte code block plus a 32 to 256-byte escape tail (one bulk copy) into a ring;
+four decoder warps, one thread per weight row, decode with the sk `decode8`, store the 128-byte
+swizzled tile TMA would have written, patch the stage's escapes after a decoder-only named
+barrier, then `fence.proxy.async` and an mbarrier arrive. The raw twin is wd `b2n128c4s6` (same
+CTA shape, wgmma sequence and epilogue, weights by TMA, 6 stages). Exactness, fail closed in
+prepare(): the stream is decoded on the host and compared with every weight's bits, then each cw
+config must equal the twin's output bit for bit at m = 65 / 100 / 128 before the FP64 self-test.
+`tools/proj_cw_emulate.py` checks the decoder's indexing on the CPU against an independent model
+of TMA's swizzled tile.
+
+Compile gate (nvcc 12.8, sm_90a, `tools/proj_sass.sh` + `tools/proj_sass_diff.py` against
+ce25f67): 81 existing kernels instruction-identical, 4 added (cw 6/3, 6/2, 5/3 stages/slots and
+the twin), 90 registers each, no spills, no C75xx warnings. An independent read-only review found
+no blocking defect; one open point: the decoder warps release with per-thread
+`fence.proxy.async`, `__syncwarp`, then a lane-0 arrive (the sk consumers' pattern), which relies
+on `__syncwarp`'s documented memory ordering counting as synchronization in the PTX model; the
+fully documented form is an arrive from every thread. Not resolved because nothing shipped.
+
+| date | job | kind | commit | change | score (95% CI) | notes |
+|---|---|---|---|---|---|---|
+| 10-30 | 4922f366a0c142ca | check (bench P3) | f8855b7 | cw against its twin, the cuBLASLt pick, wd8 and cuBLAS at pooler m = 128; judged path with cw offered | 1.496x (1.474-1.519) | no arm dropped, diag 0; cw +12.7 to +13.3 us over the twin; tuner rejected cw on the judge's weights (52.9 tune us vs pref 24.4) |
+
+Bench lines (synthetic pooler weights randn x 0.01, base 54, 5107 escapes, at most 6 per block;
+an escape-heavy matrix with up to 39 per block passed the bitwise and FP64 checks; 100 seeded
+rounds, cold L2, medians after the 4.00 us replay overhead; A and B are separately compiled bench
+extensions that each packed the weights, prod is the judged extension):
+
+| arm | us | paired vs lt |
+|---|---:|---:|
+| lt (LT_PREF, the production pick) | 20.45 | |
+| wd8 (b1n128c2s8h) | 22.34 | +1.74 |
+| cublas | 24.30 | +3.76 |
+| twin A / B / prod | 35.55 / 35.63 / 35.87 | +15.01 / +15.02 / +15.31 |
+| cw6d3 A / B / prod | 48.51 / 48.34 / 48.51 | +27.95 / +27.79 / +27.97 |
+| cw6d2 A / B / prod | 48.50 / 48.75 / 48.77 | +28.02 / +28.24 / +28.19 |
+| cw5d3 A / B / prod | 48.93 / 48.90 / 48.93 | +28.48 / +28.40 / +28.42 |
+| diagnostic: twin without wgmma (twin_a1) | 29.22 | +8.77 |
+| diagnostic: cw without decode or wgmma (cw6d3nm) | 28.27 | +7.70 |
+| diagnostic: cw without wgmma (cw6d3m) | 35.74 | +15.23 |
+| diagnostic: cw without decode (cw6d3n) | 38.14 | +17.58 |
+
+Paired contrasts (median, rounds in which the first arm was faster): cw6d3 - twin +12.90 (0/100)
+in A and +12.67 (0/100) in B; cw6d2 - twin +12.85, cw5d3 - twin +13.30; nulls twin A - B -0.03
+(51/100), cw6d3 A - B +0.13 (35/100), twin prod - A +0.27, cw6d3 prod - A +0.03; memory pipelines
+only, cw6d3nm - twin_a1 -1.01 (83/100).
+
+What it shows (measured):
+
+- Traffic saving: 1.0 us, the memory-only cw pipeline against the memory-only twin. The budget
+  modeled 5.0 us; that assumed an HBM-bound pipeline, and this one moves 64 MB in 29.2 us (about
+  2.2 TB/s) without any math.
+- Reconstruction cost: +12.7 to +12.9 us paired, in both independent extensions, against
+  duplicate nulls of 0.03 to 0.27 us. Decode alone adds 7.5 us to the memory pipeline (35.74 vs
+  28.27, medians), wgmma alone 9.9 (38.14), both 20.2 (48.51): the two do not overlap at all.
+  Ring depth and decoded slots (6/3, 6/2, 5/3) are within 0.4 us of each other, so the decoders
+  set the pace, not buffering.
+- Geometry: the twin itself is 15.0 us slower than the cuBLASLt pick and 13.3 us slower than wd8,
+  and its memory pipeline alone (29.2) is already slower than the whole cuBLASLt GEMM (20.45).
+  The premise the budget asked to test first ("the raw twin must reach the Lt time") fails.
+
+Hypotheses not tested (no check spent on them): the 4-CTA clusters may not all be resident at
+once on 132 SMs (one CTA per SM, 128 CTAs, so a GPC that fits fewer clusters of 4 leaves a second
+partial wave); the K-split DSMEM reduction is the other candidate (the wide-row knockouts in
+b052544c8c2946f6 measured 30.2 us without the reduction against 39.3 memory-only on a related
+geometry). Four decoder warps are one warp per scheduler, so decode is latency-bound; more decoder
+warps, or decoding inside the consumer warpgroups into wgmma register A fragments (no BF16 tile in
+shared memory at all), are the untested decode placements.
+
+Decision: the stop rule fired (reconstruction +12.8 us against a 1.0 us traffic saving). No second
+check, nothing handed to the coordinator. `submission.py` is back to the ce25f67 content (cw and
+the twin removed, so prepare() does not pay for a candidate that cannot win); the cw build is
+kept as an experiment file and the tools point at it. The judged path of the bench file was the
+scored file's path (cw rejected by the tuner), and its 1.496x matches the two conforming checks
+(1.495 / 1.496).
+
+### Family ledger (muse_bf16_proj, after P3)
+
+| family | shapes | status | evidence | next |
+|---|---|---|---|---|
+| P3 cw: 12-bit stream decoded into wgmma A tiles in shared memory | pooler 128 | measured loss: +28 us vs the Lt pick, +12.8 over its own raw twin; saving 1.0 us | 4922f366a0c142ca | parked; reopen trigger in ruled-out |
+| raw 128-row x 128-token, K split 4 wgmma geometry (b2n128c4s6) | pooler 128 | measured loss: +15.0 us vs Lt, +13.3 vs wd8 | 4922f366a0c142ca | the in-house geometry that compression would sit in must first reach Lt |
+| everything else | | unchanged from round 2 | | |
