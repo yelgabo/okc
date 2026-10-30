@@ -2243,3 +2243,249 @@ Next round, in order:
    against 32); compare the launch with fewer CTAs per request (the public plan uses the same
    252 x nc 8, so this needs its own measurement first).
 3. The placement side bet above, if quota is spare.
+
+## Standalone round 2 (10-30): A3, merge / finalize and the batch-1 full prologue
+
+Brief: A3 on the per-request paths that hold most of the measured gap (d1 sliding mode 13, d16
+sliding mode 1, d1 full mode 11 at q_len 1, v1 full mode 11 at q_len 8), compared phase by phase
+with a timed copy of the public per-request path. Start: main b200eda. Quota at the start
+(`okc problems`): 14 of 20 attention checks; this round uses at most 5, two kept for
+confirmation.
+
+### What the two per-request paths do after the tile loop (source read, 10-30)
+
+Public file sha1 0e9d4c78 (the `pub` arm of every bench since d57d1fe064164611), plans read from
+its `_plan` / `_TUNED`: d1 sliding 32 splits nc 1 last-CTA (our mode 13, same grid), d16 sliding
+16 splits x 16 requests last-CTA (our mode 1, same grid), d1 full 252 x nc 8 cooperative finalize
+(`_TUNED`), v1 full 252 x nc 8 cooperative finalize. Same splits and copies as ours on all four.
+Differences in the merge and finalize:
+
+| step | ours (attn_one.cu, b200eda) | public per-request path |
+|---|---|---|
+| q_len 1 reds | each of the 4 warps (2 KV heads x 2 key halves) reds its own partial: 64 red.v4 + 16 red.f32 per half per CTA, so every workspace address takes 2 reds per split | the second key half hands (m, l, o) to the first through shared memory, which merges them and alone issues the reds: half the reds per CTA and per address |
+| q_len 8 reds | 8 red.v4 + 1 red.f32 per thread pair, 2048 red.v4 per CTA | 16-byte reds after a lane-pair swap, 2048 per CTA (same count) |
+| ticket (last-CTA plans) | CTA barrier, thread 0 `atom.acq_rel.gpu`, barrier, last CTA finalizes | the same |
+| cooperative wait (batch-1 full) | `cudaLaunchAttributeCooperative`; CTA barrier, thread 0 `atom.acq_rel`, then every CTA, the last arriver included, polls `ld.acquire` with 64 ns sleeps | plain `<<<>>>` launch after an occupancy check (no cooperative attribute); the last arriver skips the poll |
+| finalize | gate load, copies loaded (FIN8: all 8 before any store), norm, gate, store, zero | the same structure (`sum_copies` nc 8 path), `__ldcg` reads |
+
+Hypotheses, in order of their measured budget: (H1) the doubled q_len 1 reds load the L2 atomic
+units at d1 sliding, d16 / d32 sliding and d1 full; (H2) at batch-1 full the cooperative launch
+attribute and the grid poll cost time the public plain launch does not pay (bench 1e6626a427454f9a
+measured -1.8 / -1.4 us cold for mode 51 launched without the attribute); (H3) a last-CTA ticket
+in place of the cooperative finalize at batch-1 full and the q_len 8 sliding plans keeps the
+progress guarantee without any co-residency requirement and removes the poll.
+
+### Switches (all default 0; with all off the 13 instances are SASS-identical to b200eda)
+
+- `ONE_HMRG` (modes 1, 3, 11, 13 at q_len 1): the key-half handoff of the public kernel, keeping
+  our fixed frame. Each half still scales its partial by its own 2^m (m floored and capped as
+  before); the second half stores o * 2^m and l * 2^m to shared memory (stage 0, after every
+  thread's `cp_wait<0>` and a CTA barrier), a second barrier, and the first half adds them to
+  its own scaled values and issues the reds. Rounding: one FP32 add of the two halves before the
+  red instead of in L2, an order the reds never fixed; the output rounding is unchanged. SASS
+  (CUDA 12.8.1, `tools/attn_one_sass.sh`): mode 13 1544 -> 1608 instructions, 2 more BAR, the
+  same 4 REDG.E.ADD.F32 (v4) + 1 scalar REDG + 1 ATOMG + 1 MEMBAR.ALL.GPU per thread statically
+  (executed by half the warps); no spills (mode 1 108 registers, 11 115, 13 72).
+- `ONE_T9` (bench builds): adds instances q_len 1 mode 9 and q_len 8 modes 9 and 13 (the last-CTA
+  versions of the cooperative plans), and the FIN8 finalize applies to every speculated-length
+  multi-tile instance (it was cooperative-only; no existing instance changes, per-function SASS
+  compare). Bench arm option `:tkt` runs 3 -> 1, 11 -> 9, 15 -> 13 where the control's plan is
+  cooperative and per-request.
+- `ONE_DIAG` exits 11 (after the merge reds) and 12 (after the ticket or grid barrier and its CTA
+  barrier, before the finalize), next to the existing 9 (before the tile loop) and 10 (after it).
+
+Ordering (no fence or barrier removed): HMRG adds a `cp_wait<0>` and two CTA barriers. The
+shared-memory handoff is generic stores, `bar.sync`, generic loads in one CTA (bar.sync orders
+shared memory among the participating threads). Stage 0 is reused only after the barrier that
+follows every warp's last read of the stages and every thread's `cp.async.wait_group 0`; no
+async-proxy reader touches the stages at q_len 1 (mma.sync). The reds are still issued before
+the CTA barrier that precedes thread 0's `atom.acq_rel` (ticket) or the cooperative arrive, so
+the release chain the judged modes use is unchanged. T9's mode 9 / 13 use the existing ticket
+(judged in modes 1 and 13) and the FIN8 finalize (judged in mode 11, b0b146dfbb4841b2): each
+finalizing thread loads an address before it zeroes it and no other thread touches it after the
+ticket's acquire. It removes the cooperative barrier instead of reordering it.
+
+Public phase copy (scratchpad `a3/make_pubph.py`, never committed or submitted): the public
+source with a `Params::phx` field and exits on the per-request path only: 1 before its consumer
+state (prologue copies drained), 2 before the merge, 3 after the reds, 4 after the ticket or
+cooperative wait and its CTA barrier. One build shared by arms `pubph0_probe` (no exit, the
+instrumentation's own cost) to `pubph4_probe`.
+
+### Gate for check 1 (written before the bench that tests it)
+
+Bench `bench_e` (`tools/attn_make_bench_ab.py`, scratchpad `a3/gen_e.sh`; `--null --shapes all
+--inputs 2 --seed 20261035 --nocoop`): arms `ctrl`, `ctrl2`, `pub`, `pub2`, `hmrg`
+(`-DONE_HMRG=1,-DONE_T9=1`, shares ctrl's state), `hmtk` (same build with `:tkt`, shares ctrl's
+state), `nocoop` (ctrl's module without the cooperative attribute; a diagnostic, it drops the
+co-residency guarantee and is not a candidate), our DIAG exits `p9_probe` .. `p12_probe` and
+`diag0_probe`, the public exits `pubph0_probe` .. `pubph4_probe`.
+
+A candidate (`hmrg`, or `hmtk` as the coherent pair) goes to a confirmation bench only if all hold:
+1. ABCHECK passes for every real arm; against ctrl it differs only at the red-order level (a few
+   elements at one BF16 ulp) and leaves the workspace zero.
+2. Cold ABSCORE against ctrl >= 1.008 (0.5 us at d1 sliding is +0.79%), and its excess over 1 is
+   larger than |ABSCORE(ctrl2) - 1| + 0.004 (ctrl2 carries the 0.5-0.7 us d1 full placement
+   term; the candidates share ctrl's state and do not).
+3. On every targeted row (d1 sliding, d1 full, d16 sliding, v1 full) the change has the same sign
+   on both held-out inputs.
+4. No row slower than ctrl by more than max(that row's |ctrl2 - ctrl|, 1%).
+
+Attribution (no gate): per phase, ours (p9 / p10 / p11 / p12 / whole) against the public
+(pubph1 / 2 / 3 / 4 / pub), cold and warm, on the four targeted rows; the largest difference
+names the mechanism. `nocoop - ctrl` sizes H2 at batch-1 full and the q_len 8 sliding plans.
+
+### Check ce92d32e26024bd2 (bench `bench_e`, at d8d43f3): the q_len 1 reds are the mechanism; HMRG passes its gate
+
+| date | job | commit | file | result | notes |
+|---|---|---|---|---|---|
+| 2026-10-30 | ce92d32e26024bd2 (check) | d8d43f3 | bench `bench_e` (`a3/gen_e.sh`, 17 arms) | 2.432x (CI 2.395-2.468) judged path = board code, 16/16 tests, ABCHECKSUM 19/0 every real arm | HMRG ABSCORE 1.0180 (null 0.9993); q_len 8 ticket a measured loss; cooperative attribute worth <= 0.4 us |
+
+Profiles: `muse_attention_decode/profiles/bench_e.ce92d32e26024bd2.*`. The log tail kept the
+pooled summaries only (per-input rows and ABCHECK details of the q_len 1 shapes were cut by the
+16,000-character limit; the generator now prints compact ABIN lines at the end).
+
+**Phase by phase, cold medians pooled over two held-out inputs (us; every column includes the
+bench's replay cost; the exits time grid completion, so a red's drain lands in the phase that
+issued it).** Ours = `p9` / `p10` / `p11` / `p12` / `diag0` (own state, DIAG build); public =
+`pubph1` / `pubph2` / `pubph3` / `pubph4` / `pubph0` (one instrumented build).
+
+| shape | arm | prologue (to loop) | loop | reds | ticket or barrier | finalize | whole |
+|---|---|---|---|---|---|---|---|
+| d1 sliding (13) | ours | 6.66 | 0.57 | **0.87** | 0.76 | 0.74 | 9.60 |
+| | public | 6.46 | 0.64 | **0.45** | 0.58 | 0.64 | 8.77 |
+| d1 full (11, nc 8) | ours | 9.92 | 4.80 | **1.95** | 0.64 | 0.61 | 17.92 |
+| | public | 9.50 | 4.52 | **0.38** | 1.38 | 0.64 | 16.42 |
+| d16 sliding (1) | ours | 10.37 | 0.86 | **1.76** | 0.55 | 1.40 | 14.94 |
+| | public | 10.08 | 0.77 | **0.45** | 1.12 | 0.38 | 12.80 |
+| d32 sliding (1) | ours | 10.43 | 3.68 | 1.06 | 0.93 | 0.86 | 16.96 |
+| | public | 10.24 | 3.55 | 0.45 | 0.61 | 0.86 | 15.71 |
+| v1 full (11, nc 8) | ours | 9.82 | **6.72** | 1.51 | 1.12 | 0.89 | 20.06 |
+| | public | 9.79 | **5.79** | 1.35 | 1.09 | 0.89 | 18.91 |
+| v1 sliding (15) | ours | 7.49 | 1.21 | 0.61 | 1.25 | 0.77 | 11.33 |
+| | public | 7.01 | 1.12 | 0.96 | 0.93 | 0.89 | 10.91 |
+
+What it names:
+
+- **q_len 1 (d1 sliding, d1 full, d16 / d32 sliding): the reds.** Up to the end of the loop the
+  two kernels agree within 0.2-0.7 us; from the loop's end to the reds' completion ours takes
+  0.87 / 1.95 / 1.76 / 1.06 us against the public 0.45 / 0.38 / 0.45 / 0.45. The public kernel
+  issues half as many reds (key-half handoff). The ticket and finalize phases move in both
+  directions by a few tenths and sum to less (where our reds drain late, our ticket waits less).
+- **Batch-1 full prologue is not a gap.** To the loop: 9.92 vs 9.50 at d1 full, 9.82 vs 9.79 at
+  v1 full. Both kernels pay about 3 us more than batch-1 sliding: the first tiles of 252 CTAs
+  from DRAM. Roadmap item 2 (the batch-1 full prologue) is closed by this measurement.
+- **v1 full: the tile loop** (6.72 vs 5.79 us); merge, barrier and finalize agree within 0.2 us.
+  Not an A3 target.
+- v1 sliding: prologue 0.5 and barrier 0.3 us behind, reds 0.35 ahead; gap 0.26 us in total.
+
+**Candidates against the check-1 gate** (cold pooled, us, arm - ctrl; null ctrl2 - ctrl in
+brackets; pub - ctrl for scale):
+
+| row | hmrg | hmtk | nocoop | null | pub |
+|---|---|---|---|---|---|
+| d1 sliding | **-0.51** | -0.45 | -0.03 | +0.10 | -0.67 |
+| d1 full | **-1.38** | -1.60 | -0.38 | -0.64 | -2.11 |
+| d16 sliding | **-1.44** | -1.38 | -0.13 | -0.26 | -1.47 |
+| d32 sliding | -0.80 | -0.83 | -0.03 | +0.13 | -0.74 |
+| v1 sliding | -0.10 | **+1.79** | -0.13 | +0.19 | -0.26 |
+| v1 full | +0.10 | **+8.67** | -0.10 | +0.13 | -0.77 |
+| v16 sliding | -0.06 | +1.70 | +0.03 | +0.03 | -0.45 |
+| v32 sliding | -0.06 | +1.41 | +0.00 | -0.06 | -1.41 |
+| v32 full | +0.51 | +0.26 | +0.35 | +0.80 | -0.51 |
+| ABSCORE | **1.0180** | 0.9702 | 1.0033 | 0.9993 | 1.0359 |
+
+`hmrg` per load: d1 1.0664, d16 1.0307, d32 1.0105, v1 1.0035, v16 0.9999, v32 0.9987 (q_len 8
+SASS is identical to ctrl, so the v rows are the null's spread). Gate: 1 holds (19/0, workspace
+check inside PASS; the per-element detail was cut from the tail); 2 holds (1.0180 >= 1.008, excess
+0.018 > |0.9993 - 1| + 0.004); 3 not verifiable from this log (per-input rows cut; the v1 full row
+has no code change); 4 holds (largest regression +0.51 at v32 full, under its 1% bound, code
+identical). **HMRG goes to the confirmation bench.** It closes the public lead on d16 sliding
+(12.99 vs 12.96) and d32 sliding, and three quarters of it at d1 sliding; at d1 full, hmrg
+shares ctrl's state, whose placement has been the slow one (ctrl2 -0.64).
+
+`hmtk` (HMRG plus the last-CTA finalize on the cooperative plans): at q_len 1 batch-1 full it adds
+-0.22 us over hmrg; at q_len 8 the one-CTA finalize of 128 rows costs +8.7 us at v1 full and +1.4
+to +1.8 us on the sliding plans. **Measured loss at q_len 8**; at d1 full its 0.22 us is under the
+null. `nocoop`: -0.38 us at d1 full and within 0.13 us elsewhere; the cooperative attribute is
+not where the batch-1 gap is, and it stays (it carries the co-residency guarantee).
+
+### Gate for check 2 (confirmation, written before the bench)
+
+Bench `bench_f` (`--pub <0e9d4c78> --null --shapes all --inputs 2 --seed 20261036`, arms `ctrl`,
+`ctrl2`, `hmrg` (`-DONE_HMRG=1`, ctrl's state), `hmrgown` (same build, own state), `pub`,
+`pub2`; ABIN lines carry per-input differences). HMRG is confirmed if clauses 1, 2 and 4 of the
+check-1 gate hold for `hmrg` again, clause 3 holds on d1 sliding, d1 full and d16 sliding from the
+ABIN lines (v1 full has no code change), and `hmrgown`'s ABSCORE is above 1.008 as well, so the
+gain does not depend on the control's workspace. Then a judged check of submission.py with
+`ONE_HMRG` on.
+
+### Check d0819bb26907426b (bench `bench_f`, at 9eafafc): HMRG confirmed
+
+| date | job | commit | file | result | notes |
+|---|---|---|---|---|---|
+| 2026-10-30 | d0819bb26907426b (check) | 9eafafc | bench `bench_f` (`--null --shapes all --inputs 2 --seed 20261036`, ctrl, ctrl2, hmrg, hmrgown, pub, pub2) | 2.452x (CI 2.415-2.504) judged path = board code, 16/16 tests, ABCHECKSUM 19/0 every arm | HMRG ABSCORE 1.0214 (own state 1.0232), null 1.0037 |
+
+Profiles: `muse_attention_decode/profiles/bench_f.d0819bb26907426b.*`. Cold, arm - ctrl (us),
+per held-out input from ABIN:
+
+| row | hmrg in 0 / 1 | hmrgown in 0 / 1 | ctrl2 in 0 / 1 | pub in 0 / 1 |
+|---|---|---|---|---|
+| d1 sliding | -0.54 / -0.70 | -0.67 / -0.64 | -0.03 / -0.03 | -0.67 / -0.70 |
+| d1 full | -1.50 / -1.50 | -1.82 / -1.79 | -0.74 / -0.70 | -2.14 / -2.14 |
+| d16 sliding | -1.47 / -1.41 | -1.44 / -1.47 | +0.22 / +0.26 | -1.44 / -1.57 |
+| d32 sliding | -0.86 / -0.86 | -1.09 / -0.90 | +0.19 / +0.03 | -0.80 / -0.77 |
+| v1 full (no code change) | -0.03 / +0.13 | -0.06 / +0.13 | -0.03 / +0.16 | -0.86 / -0.74 |
+
+ABSCORE per load, hmrg: d1 1.0772, d16 1.0306, d32 1.0115, v1 1.0059, v16 1.0031, v32 1.0020.
+Gate: 1 holds (19/0); 2 holds (1.0214, excess 0.0214 > 0.0037 + 0.004); 3 holds (same sign on both
+inputs on d1 sliding, d1 full, d16 sliding); 4 holds (no pooled row slower than +0.06 us;
+per-input worst +0.26 at v16 full, q_len 8 code identical); `hmrgown` 1.0232 >= 1.008.
+**Confirmed.** On the q_len 1 per-request rows HMRG matches the public kernel (d1 sliding 9.25
+vs 9.18, d16 sliding 12.90 vs 12.86, d32 sliding 15.78 vs 15.84); at d1 full 0.6 us remain,
+inside the placement spread (hmrgown 16.90 vs pub 16.51).
+
+Independent read-only review of the HMRG ordering (fresh agent, 10-30, before the judged check):
+**sound.** Stage 0 holds no pending copy (the q_len 1 per-request loop issues copies only for
+tiles below ntiles, and every thread's `cp.async.wait_group 0` plus the barrier precede the
+stores), both barriers sit outside the `wsub` branches and every earlier exit is CTA-uniform, the
+reds still precede the CTA barrier ahead of thread 0's `atom.acq_rel` (ticket) or the
+cooperative arrive, the handoff's 4,352 bytes lie inside the stage-0 K tile and nothing after
+the merge reads it, and the red layout and per-half 2^m frame match the old path. Not verified
+by the reviewer: SASS and runtime behaviour (covered by the benches and the SASS compares here).
+
+Production: `ONE_HMRG` defaults to 1 in attn_one.cu and submission.py. SASS (CUDA 12.8.1, all 13
+instances): the default build equals the benched `hmrg` build; `-DONE_HMRG=0` equals b200eda;
+only q_len 1 modes 1, 3, 11, 13 change; no spills. Next: a judged check of submission.py.
+
+### Judged: check 5d309f9d13924dca 2.512x (CI 2.475-2.550), repeat 82b1bf0fad3244b9 2.582x (CI 2.543-2.620)
+
+| date | job | commit | file | result | notes |
+|---|---|---|---|---|---|
+| 2026-10-30 | 5d309f9d13924dca (check) | dc6b409 | submission.py (`ONE_HMRG` on; sha256 93297101) | 2.512x (CI 2.475-2.550), 16/16 tests | judged d1 sliding 5.3 us, d1 full 12.7, d16 sliding 8.7, d32 sliding 10.0 |
+| 2026-10-30 | 82b1bf0fad3244b9 (check) | dc6b409 + one comment line | repeat of the same file | 2.582x (CI 2.543-2.620), 16/16 tests | 5.1 / 12.2 / 8.2 / 10.3 us; full q_len 8 rows also faster with no code change there (machine speed) |
+
+Profiles: `muse_attention_decode/profiles/hmrg.5d309f9d13924dca.*`, `hmrg_r.82b1bf0fad3244b9.*`.
+For scale, the judged path of the same day's benches (board code, no HMRG): ce92d32e26024bd2
+2.432x with d1 sliding 6.0, d1 full 14.2, d16 sliding 9.6, d32 sliding 11.3 us; d0819bb26907426b
+2.452x. Board entry e9085c86d89449c2 2.504x (a bench file); clean candidate-only best
+569b233dfe08414f 2.449x. Both HMRG checks are above both. Not submitted: handed to the
+coordinator (`main`) with the file path and these job ids.
+
+## Standalone round 2 (10-30): family ledger update
+
+Checks used by this round: ce92d32e26024bd2, d0819bb26907426b, 5d309f9d13924dca,
+82b1bf0fad3244b9. Quota after them (`okc problems`): 10 of 20 attention checks, 10 of 10 runs.
+
+| family | state | evidence | reopening trigger |
+|---|---|---|---|
+| A3 q_len 1 key-half merge before the reds (`ONE_HMRG`, modes 1, 3, 11, 13) | **measured standalone win**, on by default | benches ce92d32e26024bd2 (1.0180) and d0819bb26907426b (1.0214, own state 1.0232, null 1.0037); judged 2.512x / 2.582x; review sound | layer port is a separate gate (`tools/dl_one_inline.py`) |
+| A3 last-CTA ticket on the q_len 8 cooperative plans (`ONE_T9` + `:tkt`) | measured loss | ce92d32e26024bd2: +8.7 us at v1 full, +1.4 to +1.8 on q_len 8 sliding | see docs/ruled-out.md |
+| A3 ticket at q_len 1 batch-1 full | untested beyond 0.22 us under the null | ce92d32e26024bd2 | a fixed-state repeat above 0.3 us |
+| Cooperative launch attribute (H2) | measured, not a gap | ce92d32e26024bd2: -0.38 us at d1 full, ~0 elsewhere | none; it keeps the co-residency guarantee |
+| Batch-1 full prologue | closed as A3 work | phase exits: equal to the public kernel within 0.4 us | a plan that changes the CTA count for both |
+| A3 cluster / DSMEM merge, overlapped finalize (round-1 ideas a, b) | not built | after HMRG the q_len 1 rows sit within 0.1 us of the public kernel except d1 full (0.6, inside placement) | a phase exit showing merge + finalize above the public's again |
+| Prepare-time workspace placement choice at batch-1 full | untested | b7762d764d474eae; with HMRG d1 full is 0.4-0.6 us behind the public, the same size as the placement spread | build when quota allows; modeled about +0.2% |
+
+Where the remaining gap is (bench d0819bb26907426b, pub - hmrg, cold): v32 sliding -1.38 us, v16
+full -2.0, d32 full -1.4, d16 full -0.9, v1 full -0.86 (phase exits put it in the tile loop),
+d1 full -0.64, v16 sliding -0.32, v1 sliding -0.10, d1 sliding -0.07, d16 sliding -0.04.

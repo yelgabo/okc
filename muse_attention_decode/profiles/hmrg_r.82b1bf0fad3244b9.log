@@ -1,0 +1,28 @@
+attn prep kernels: loaded
+attn fused kernel: loaded
+attn ws kernel: loaded
+attn one kernel: loaded
+USDT:2026-10-30 09:59:20 77:77 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-10-30 09:59:20 77:77 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-10-30 09:59:20 77:77 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-10-30 09:59:20 77:77 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-10-30 09:59:20 77:77 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-10-30 09:59:20 77:77 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-10-30 09:59:20 77:77 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-10-30 09:59:20 77:77 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-10-30 09:59:20 77:77 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-10-30 09:59:20 77:77 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-10-30 09:59:20 77:77 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-10-30 09:59:20 77:77 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-10-30 09:59:20 77:77 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-10-30 09:59:20 77:77 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-10-30 09:59:20 77:77 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-10-30 09:59:20 77:77 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-10-30 09:59:20 77:77 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-10-30 09:59:20 77:77 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-10-30 09:59:20 77:77 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-10-30 09:59:20 77:77 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-10-30 09:59:20 77:77 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-10-30 09:59:20 77:77 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-10-30 09:59:20 77:77 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-10-30 09:59:20 77:77 SyncActivityProfilerHandler.cpp:46] profiler_stop

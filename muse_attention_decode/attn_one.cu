@@ -171,6 +171,23 @@ constexpr int COOP_POLL_LIMIT = 1 << 24;
 #ifndef ONE_DETM
 #define ONE_DETM 0
 #endif
+// ONE_HMRG (per-request q_len 1 modes 1, 3, 11, 13): the two warps of a KV head hold the two key
+// halves of every tile; the second hands its fixed-frame partial (o * 2^m, l * 2^m) to the first
+// through shared memory and only the first issues reds, as the public per-request kernel does.
+// Half the red.global operations per CTA and per workspace address; the same 2^m frame per half,
+// one FP32 add before the red instead of inside L2 (an order the reds never fixed). Benches
+// ce92d32e26024bd2 / d0819bb26907426b, cold: decode 1 sliding -0.51 / -0.64 us, decode 1 full
+// -1.38 / -1.54, decode 16 sliding -1.44 / -1.44, decode 32 sliding -0.80 / -0.83; standalone
+// score ratio 1.018 / 1.021 (docs/runs-attention.md, 10-30). 0 restores the per-warp reds.
+#ifndef ONE_HMRG
+#define ONE_HMRG 1
+#endif
+// ONE_T9 (bench builds): adds the last-CTA instances of the cooperative per-request plans
+// (q_len 1 mode 9, q_len 8 modes 9 and 13), so a bench can time the ticket finalize without
+// the cooperative launch or grid barrier at batch-1 full and verify-1 sliding.
+#ifndef ONE_T9
+#define ONE_T9 0
+#endif
 constexpr int STAMP_BASE = 1024;
 constexpr int STAMP_W = 16;
 
@@ -874,9 +891,11 @@ attn_one_kernel(const Params p) {
     // us slower than without it at full verify b16 / b32 in all four samples of bench
     // d57d1fe064164611 (docs/runs-attention.md, 10-29).
     constexpr bool DIET = ONE_DIET && !(PROD && L == 8);
-    // Eight workspace copies come only with the batch-1 full-context plan (cooperative,
-    // speculated length, several tiles per CTA); other instances keep the rolled loop.
-    constexpr bool FIN8 = ONE_FIN8 && COOP && SPEC && !ONE;
+    // Eight workspace copies come only with the batch-1 full-context plan (speculated length,
+    // several tiles per CTA; cooperative, or last-CTA under ONE_T9); other instances keep the
+    // rolled loop.
+    constexpr bool FIN8 = ONE_FIN8 && SPEC && !ONE;
+    constexpr bool HMRG = ONE_HMRG && !FLAT && L == 1;
     constexpr bool QKOV = ONE_QKOV && PROD && L == 8;
     constexpr bool EREL = ONE_EREL && PROD && L == 8;
     constexpr bool PCHK = ONE_PCHK && PROD && L == 8;
@@ -1890,7 +1909,42 @@ attn_one_kernel(const Params p) {
                 }
             } else
 #endif
-            {
+            if constexpr (HMRG) {
+                // Shared-memory handoff in the first stage: after every thread's cp_wait<0> and
+                // the barrier, no copy is pending into it and no warp still reads it. Laid out
+                // [value][thread] so each store and load instruction is conflict-free.
+                const float lq = quad_sum(l) * f;
+                cp_wait<0>();
+                csync();
+                float* xs = reinterpret_cast<float*>(smem + S::KV) + hk * 32 + lane;
+                if (wsub == 1) {
+#pragma unroll
+                    for (int e = 0; e < 8; ++e) {
+                        xs[(2 * e) * 64] = o[e][0] * f;
+                        xs[(2 * e + 1) * 64] = o[e][1] * f;
+                    }
+                    xs[16 * 64] = lq;
+                }
+                csync();
+                if (wsub == 0) {
+                    float a[16];
+#pragma unroll
+                    for (int e = 0; e < 8; ++e) {
+                        a[2 * e] = o[e][0] * f + xs[(2 * e) * 64];
+                        a[2 * e + 1] = o[e][1] * f + xs[(2 * e + 1) * 64];
+                    }
+                    const float la = lq + xs[16 * 64];
+                    const int row = ws_row(b, p.nc, copy, 1, 0, hk * 8 + g);
+                    float* dst = p.ws_acc + static_cast<size_t>(row) * D + c * 16;
+                    red_add_v4(dst, a[0], a[2], a[4], a[6]);
+                    red_add_v4(dst + 4, a[8], a[10], a[12], a[14]);
+                    red_add_v4(dst + 8, a[1], a[3], a[5], a[7]);
+                    red_add_v4(dst + 12, a[9], a[11], a[13], a[15]);
+                    if (c == 0) {
+                        red_add_f32(p.ws_l + row, la);
+                    }
+                }
+            } else {
                 const int row = ws_row(b, p.nc, copy, 1, 0, hk * 8 + g);
                 float* dst = p.ws_acc + static_cast<size_t>(row) * D + c * 16;
                 red_add_v4(dst, o[0][0] * f, o[1][0] * f, o[2][0] * f, o[3][0] * f);
@@ -2507,6 +2561,9 @@ attn_one_kernel(const Params p) {
         }
         stamp(19);
         csync();
+        if (ONE_DIAG && p.phase_limit == 12) {
+            return;
+        }
         if (*flag) {
 #if ONE_DETM
             if constexpr (DETM) {
@@ -2514,7 +2571,7 @@ attn_one_kernel(const Params p) {
             } else
 #endif
             {
-                finalize_rows<L, NC>(p, b * ROWS, (b + 1) * ROWS, v_scale, tid);
+                finalize_rows<L, NC, FIN8>(p, b * ROWS, (b + 1) * ROWS, v_scale, tid);
             }
             if (tid == 0) {
                 p.ws_cnt[b] = 0;
@@ -2532,6 +2589,10 @@ attn_one_kernel(const Params p) {
         if (!run_segment()) {
             return;
         }
+        // Diagnostic exits after the merge reds (11) and after the ticket or grid barrier (12).
+        if (ONE_DIAG && p.phase_limit == 11) {
+            return;
+        }
         if constexpr (!COOP) {
             ticket();
         } else {
@@ -2542,6 +2603,9 @@ attn_one_kernel(const Params p) {
             const int rows_per = (ROWS + nact - 1) / nact;
             coop_barrier<NC>(p.ws_cnt + CNT_COOP + 2 * b, p.ws_cnt + CNT_EPOCH + b, ep, hi - lo,
                              n_keys, tid, p.dbg);
+            if (ONE_DIAG && p.phase_limit == 12) {
+                return;
+            }
             const int r_lo = split * rows_per;
             const int r_hi = min(ROWS, r_lo + rows_per);
             if (r_lo < r_hi) {
@@ -2704,12 +2768,17 @@ __global__ void coop_probe_kernel(int* out) {
     }
 }
 
+#if ONE_T9
+#define ONE_T9_INSTANCES(X) X(1, 9) X(8, 9) X(8, 13)
+#else
+#define ONE_T9_INSTANCES(X)
+#endif
 #if ONE_DETM
 #define ONE_INSTANCES(X) X(1, 49)
 #else
 #define ONE_INSTANCES(X) \
     X(1, 1) X(1, 3) X(1, 11) X(1, 13) X(1, 17) X(1, 49) \
-    X(8, 1) X(8, 3) X(8, 11) X(8, 15) X(8, 19) X(8, 51) X(8, 115)
+    X(8, 1) X(8, 3) X(8, 11) X(8, 15) X(8, 19) X(8, 51) X(8, 115) ONE_T9_INSTANCES(X)
 #endif
 
 // INSTANTIATE: template struct Instance<1, 1>;
