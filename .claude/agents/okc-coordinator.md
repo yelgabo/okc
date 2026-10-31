@@ -105,6 +105,9 @@ duplicate state here: the facts live in the files listed under "Where state live
 - Generic stores read by `cp.async.bulk` or wgmma in another proxy need `fence.proxy.async`.
 - Precision: KV FP8, queries FP8 and no coarser, BF16 wherever SGLang keeps BF16; check the
   pinned SGLang source before claiming parity.
+- CUDA 12.8.1 silently dropped a producer's drain and `exit` for `if constexpr (X) { ... } else
+  for (...)` with an unbraced else (attention ONE_PBULK hang, 2026-10-31). Brace every else after
+  `if constexpr` and check the SASS `EXIT` count when warp roles split.
 - PDL concurrency is opportunistic: progress must never depend on co-residency with
   persistent or grid-synchronized kernels.
 
