@@ -1,0 +1,47 @@
+F1BUILD prod 23.5 s, bench 13.3 s, 3 sk configs, round f6-a: pool8c:s3a1025 pool16c:s4a1025 o8c:s4a1025
+F1OVH 3.90 us
+F1 pooler m=8 rdp8: 4611 escapes, max 6 per warp
+F1 pooler m=8 rdp8w8: 4611 escapes, max 10 per warp
+F1 pooler m=8 med rdp8=14.02 rdp8c=14.02 prod=14.58 rdp8w8=15.74 rdp8w8c=15.78
+F1 pooler m=8 d prod rdp8=-0.54/84 rdp8c=-0.62/87 rdp8w8=+1.18/10 rdp8w8c=+1.15/6
+F1 pooler m=16 rdp16: 4611 escapes, max 10 per warp
+F1 pooler m=16 rdp16w16: 4611 escapes, max 10 per warp
+F1 pooler m=16 med prod=14.66 rdp16c=15.79 rdp16=15.81 rdp16w16=15.87 rdp16w16c=15.90
+F1 pooler m=16 d prod rdp16c=+1.06/10 rdp16=+1.09/10 rdp16w16=+1.20/4 rdp16w16c=+1.15/9
+F1 o m=8 rdo8: 936 escapes, max 3 per warp
+F1 o m=8 rdo8w4: 936 escapes, max 4 per warp
+F1 o m=8 med rdo8=5.60 rdo8c=5.66 rdo8w4c=5.66 rdo8w4=5.70 prod=6.00
+F1 o m=8 d prod rdo8=-0.38/94 rdo8c=-0.34/89 rdo8w4c=-0.35/85 rdo8w4=-0.29/86
+F1DONE 37.4 s
+judged| sk build 0.0 s
+judged| ltune pooler    m=128: base 27.0, pref=L1:a66t15s35k1r0z0c4i0g2w0v0.97 23.8, f0=L2:a66t143s35k1r0z0c0i0g2w0v0.71 24.9, f1=L2:a66t143s35k1r0z0c0i0g5w0v0.71 24.9, f2=L0:a66t134s35k1r0z0c0i0g5w0v0.79 24.8, f3=L2:a66t134s35k1r0z0c2i0g5w0v0.79 24.6, f4=L0:a66t143s35k1r0z0c0i0g5w0v0.71 24.7; pref pref margin 0.30 base -2.98/0 f0 -1.12/1 f1 -1.09/1 f2 -0.83/0 f3 -0.61/1 f4 -0.99/1 -> pref
+judged| ltune pooler    m=256: base 31.1, pref=L1:a66t18s35k1r0z0c0i0g2w0v0.97 27.6, f0=L3:a66t18s35k1r0z0c0i0g3w0v0.97 28.2, f1=L1:a66t18s35k1r0z0c0i0g3w0v0.97 27.9, f2=L1:a66t18s35k1r0z0c0i0g2w0v0.97 27.5, f3=L3:a66t18s35k1r0z0c0i0g2w0v0.97 27.5, f4=L1:a66t18s35k1r0z0c1i0g2w0v0.97 28.4; pref pref margin 0.30 base -3.74/0 f0 -0.61/1 f1 -0.35/1 f2 -0.06/4 f3 -0.06/4 f4 -1.09/0 -> pref
+judged| prepare done 83.3 s
+F1BUILD prod 23.5 s, bench 13.3 s, 3 sk configs, round f6-a: pool8c:s3a1025 pool16c:s4a1025 o8c:s4a1025
+F1OVH 3.90 us
+F1 pooler m=8 rdp8: 4611 escapes, max 6 per warp
+F1 pooler m=8 rdp8w8: 4611 escapes, max 10 per warp
+F1 pooler m=8 med rdp8=14.02 rdp8c=14.02 prod=14.58 rdp8w8=15.74 rdp8w8c=15.78
+F1 pooler m=8 d prod rdp8=-0.54/84 rdp8c=-0.62/87 rdp8w8=+1.18/10 rdp8w8c=+1.15/6
+F1 pooler m=16 rdp16: 4611 escapes, max 10 per warp
+F1 pooler m=16 rdp16w16: 4611 escapes, max 10 per warp
+F1 pooler m=16 med prod=14.66 rdp16c=15.79 rdp16=15.81 rdp16w16=15.87 rdp16w16c=15.90
+F1 pooler m=16 d prod rdp16c=+1.06/10 rdp16=+1.09/10 rdp16w16=+1.20/4 rdp16w16c=+1.15/9
+F1 o m=8 rdo8: 936 escapes, max 3 per warp
+F1 o m=8 rdo8w4: 936 escapes, max 4 per warp
+F1 o m=8 med rdo8=5.60 rdo8c=5.66 rdo8w4c=5.66 rdo8w4=5.70 prod=6.00
+F1 o m=8 d prod rdo8=-0.38/94 rdo8c=-0.34/89 rdo8w4c=-0.35/85 rdo8w4=-0.29/86
+F1DONE 37.4 s
+Traceback (most recent call last):
+  File "/tmp/muse_bf16_proj-0b_s5eg6/run/worker.py", line 484, in child_main
+    out = kernel()(state.get("data"))
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/muse_bf16_proj-0b_s5eg6/run/worker.py", line 415, in <lambda>
+    return functools.partial(lambda k, p, d: k(d, p), fn, state["prep"])
+                                             ^^^^^^^
+  File "/tmp/muse_bf16_proj-0b_s5eg6/run/submission.py", line 4561, in kernel_fn
+    return run(x.contiguous())
+           ^^^^^^^^^^^^^^^^^^^
+  File "/tmp/muse_bf16_proj-0b_s5eg6/run/submission.py", line 4405, in rd_run
+    ext.rd_fwd(cid, pk["stream"], pk["esc"], x, out, nrows, k, pk["base4"])
+RuntimeError: rd: bad x

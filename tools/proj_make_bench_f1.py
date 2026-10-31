@@ -40,22 +40,28 @@ ROOT = Path(__file__).resolve().parent.parent
 # Round f4-a (check 8712eb94a71e4075): LITEWD kept the vote and recovered little; FULL + no
 # watchdog (fn) won up to 0.96 us. Round f5-a: NOVOTE (v: per-thread wait, no vote, no break,
 # clock every 256 polls, still fails closed through diag), alone and with FULL, against fn.
-ROUND = "f5-a"
-E, F, X, N, Z, LW, NV = 16, 32, 64, 128, 256, 512, 1024
-# name -> (geometry name or (MT, TOKR, NT, NWR, WSK, UPW, NSTAGE), NACC bits).
+# Round f5-a (check eebd764690d5470f) chose NOVOTE + FULL (candidate C1). Round f6-a: the
+# register-direct 12-bit kernel rd (smallm2 / v18s / decodediet mechanism) against C1's sk pick
+# at pooler 8 / 16 and o 8, rd from the production and the bench extension (the null).
+# Round f6-a (check bcabe48caa884e67): rd won at pooler 8 (-0.54 / -0.62) and o 8 (-0.38),
+# lost at pooler 16 (+1.1, one unit in flight). Round f7-a: deeper register prefetch (PF), rd on
+# qkv_gate 8 / 16 and the unpooler slice, and the two production rd configs again (null: the
+# same config from both extensions). The judged path is candidate C2 (C1 + rdp8 / rdo8).
+ROUND = "f7-a"
 VARIANTS = {}
-CASES = []
-for _layer, _m, _base in (("qkv_gate", 8, "qkv8"), ("unpooler", 8, "slice8"), ("o", 8, "o8"), ("pooler", 8, "pool8"),
-                          ("qkv_gate", 16, "qkv16"), ("o", 16, "o16"), ("pooler", 16, "pool16"),
-                          ("unpooler", 16, "unp16"), ("qkv_gate", 32, "qkv32"), ("o", 32, "o32"),
-                          ("pooler", 32, "pool32"), ("unpooler", 32, "unp32")):
-    _arms = []
-    for _tag, _bits in (("v", NV), ("fv", F | NV), ("fn", F | N)):
-        VARIANTS[_base + _tag] = (_base, 1 | _bits)
-        _arms.append(_base + _tag)
-    CASES.append((_layer, _m, _base, _arms))
-FULL_TAGS = ("fv", "fn")
+CASES = [("pooler", 8, "pool8", []), ("pooler", 16, "pool16", []), ("o", 8, "o8", []), ("qkv_gate", 8, "qkv8", []),
+         ("qkv_gate", 16, "qkv16", []), ("unpooler", 8, "slice8", [])]
+FULL_TAGS = ("F",)
 LT_ARMS = {}
+RD_EXTRA = {
+    "rdp16p2": (2, 1, 8, 16, 2), "rdp16p3": (2, 1, 8, 16, 3),
+    "rdo8p2": (1, 1, 8, 2, 2), "rdo8w4p2": (1, 2, 4, 4, 2),
+    "rdq8": (1, 1, 8, 16, 1), "rdq8p2": (1, 1, 8, 16, 2), "rdq16p2": (2, 1, 8, 16, 2),
+    "rds8": (1, 1, 8, 8, 1), "rds8p2": (1, 1, 8, 8, 2), "rds8k16": (1, 1, 16, 4, 2),
+}
+RD_ARMS = {("pooler", 8): ["rdp8"], ("pooler", 16): ["rdp16p2", "rdp16p3"], ("o", 8): ["rdo8", "rdo8p2", "rdo8w4p2"],
+           ("qkv_gate", 8): ["rdq8", "rdq8p2"], ("qkv_gate", 16): ["rdq16p2"],
+           ("unpooler", 8): ["rds8", "rds8p2", "rds8k16"]}
 
 BENCH = r'''
 
@@ -64,6 +70,8 @@ _F1_VARIANTS = @@VARIANTS@@
 _F1_CASES = @@CASES@@
 _F1_LT = @@LT@@
 _F1_FULL = @@FULL@@
+_F1_RD = @@RD@@
+_F1_RDX = @@RDX@@
 import os as _f1os
 import random as _f1random
 import math as _f1math
@@ -103,15 +111,17 @@ def _f1_geom(c):
 
 def _f1_build_bench(cfgs):
     g = globals()
-    saved = {nm: g[nm] for nm in ("SK_CONFIGS", "SK_INDEX")}
+    saved = {nm: g[nm] for nm in ("SK_CONFIGS", "SK_INDEX", "RD_GEOM", "RD_NAMES")}
     try:
         g["SK_CONFIGS"] = cfgs
         g["SK_INDEX"] = {c[0]: i for i, c in enumerate(cfgs)}
-        src = sk_source()
+        g["RD_GEOM"] = {**saved["RD_GEOM"], **_F1_RDX}
+        g["RD_NAMES"] = list(g["RD_GEOM"])
+        src = sk_source() + rd_source()
     finally:
         g.update(saved)
-    ext = load_inline(name="okc_f1_bench", cpp_sources="#include <torch/extension.h>\n" + _SK_CPP,
-                      cuda_sources=src, functions=["sk_fwd"],
+    ext = load_inline(name="okc_f1_bench", cpp_sources="#include <torch/extension.h>\n" + _SK_CPP + _RD_CPP,
+                      cuda_sources=src, functions=["sk_fwd", "rd_fwd"],
                       extra_cuda_cflags=["-O3", "-gencode=arch=compute_90a,code=sm_90a"], verbose=False,
                       no_implicit_headers=True)
     return ext, {c[0]: i for i, c in enumerate(cfgs)}
@@ -260,9 +270,36 @@ def _f1_run():
                 tab, pmax = packed["tabs"][(g["R"], n)]
                 stream = packed["streams"][nm]
                 if nm == base:
-                    arms["prod"] = _f1_sk_run(prod, SK_INDEX[base], stream, tab, pmax, packed["base4"], n, k, diag)
+                    # The production runner, so C1's M == TOKR twin is what runs.
+                    arms["prod"] = _sk_runner(prod, base, stream, tab, pmax, packed["base4"], n, k, torch.bfloat16,
+                                              diag)
+                elif nm == base + "c" and _F1_RD:
+                    continue
                 else:
                     arms[nm] = _f1_sk_run(bench, bidx[nm], stream, tab, pmax, packed["base4"], n, k, diag)
+            bench_rd = list({**RD_GEOM, **_F1_RDX})
+            for rnm in _F1_RD.get((layer, m), []):
+                g_ = globals()
+                saved_geom = g_["RD_GEOM"]
+                g_["RD_GEOM"] = {**saved_geom, **_F1_RDX}
+                try:
+                    pk = rd_pack(w[:n], rnm)
+                finally:
+                    g_["RD_GEOM"] = saved_geom
+                if pk is None:
+                    _f1print(f"F1 {layer} m={m}: {rnm} not packable")
+                    continue
+                _f1print(f"F1 {layer} m={m} {rnm}: {pk['escapes']} escapes, max {pk['max_esc']} per warp")
+                for tag, ex in (("", prod), ("c", bench)):
+                    if ex is prod and rnm not in RD_NAMES:
+                        continue
+                    cid = RD_NAMES.index(rnm) if ex is prod else bench_rd.index(rnm)
+
+                    def rd_run(x, pk=pk, cid=cid, ex=ex):
+                        out = torch.empty((x.shape[0], n), dtype=torch.bfloat16, device=x.device)
+                        ex.rd_fwd(cid, pk["stream"], pk["esc"], x, out, n, k, pk["base4"])
+                        return out
+                    arms[rnm + tag] = rd_run
             _f1_measure(f"{layer} m={m}", arms, w, n, adj[m], m, 100, 8000 + ci, flush, ovh, gen, dev)
         except Exception as exc:
             import traceback as _tb
@@ -333,7 +370,8 @@ def main():
     sub = (ROOT / "muse_bf16_proj/submission.py").read_text()
     bench = (BENCH.replace("@@ROUND@@", repr(ROUND)).replace("@@VARIANTS@@", repr(VARIANTS))
              .replace("@@CASES@@", repr(CASES)).replace("@@LT@@", repr(LT_ARMS))
-             .replace("@@FULL@@", repr(FULL_TAGS)))
+             .replace("@@FULL@@", repr(FULL_TAGS))
+             .replace("@@RD@@", repr(RD_ARMS)).replace("@@RDX@@", repr(RD_EXTRA)))
     out.write_text(sub + bench)
     print(f"wrote {out}")
 
