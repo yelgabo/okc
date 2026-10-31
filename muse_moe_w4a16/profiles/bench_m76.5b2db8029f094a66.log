@@ -1,0 +1,117 @@
+ABBUILD ours 51 s
+ABMOE FAIL RuntimeError: Error building extension 'okc_moe_w4a16_v216x_okc_wsh01_srchelper0_okc_prmtsc1_okc_dq71_sm90a': [1/3] ccache /usr/local/cuda/bin/nvcc -MD -MF cuda.cuda.o.d -DTORCH_EXTENSION_NAME=okc_moe_w4a16_v216x_okc_wsh01_srchelper0_okc_prmtsc1_okc_dq71_sm90a -DTORCH_API_INCLUDE_EXTENSION_H -isystem /opt/sglang/lib/python3.12/site-packages/torch/include -isystem /opt/sglang/lib/python3.12/site-packages/torch/include/torch/csrc/api/include -isystem /usr/local/cuda/include -isystem /usr/include/python3.12 -D__CUDA_NO_HALF_OPERATORS__ -D__CUDA_NO_HALF_CONVERSIONS__ -D__CUDA_NO_BFLOAT16_CONVERSIONS__ -D__CUDA_NO_HALF2_OPERATORS__ --expt-relaxed-constexpr --compiler-options '-fPIC' -O3 -gencode=arch=compute_90a,code=sm_90a -lineinfo -DOKC_NS=3 -DOKC_NSF=3 -DOKC_WSH0=1 -DOKC_PRMTSC=1 -DOKC_DQ7=1 -std=c++20 -c /tmp/muse_moe_w4a16-zriptbq9/sandbox/cache/torch_extensions/okc_moe_w4a16_v216x_okc_wsh01_srchelper0_okc_prmtsc1_okc_dq71_sm90a/cuda.cu -o cuda.cuda.o 
+FAILED: [code=2] cuda.cuda.o 
+ccache /usr/local/cuda/bin/nvcc -MD -MF cuda.cuda.o.d -DTORCH_EXTENSION_NAME=okc_moe_w4a16_v216x_okc_wsh01_srchelper0_okc_prmtsc1_okc_dq71_sm90a -DTORCH_API_INCLUDE_EXTENSION_H -isystem /opt/sglang/lib/python3.12/site-packages/torch/include -isystem /opt/sglang/lib/python3.12/site-packages/torch/include/torch/csrc/api/include -isystem /usr/local/cuda/include -isystem /usr/include/python3.12 -D__CUDA_NO_HALF_OPERATORS__ -D__CUDA_NO_HALF_CONVERSIONS__ -D__CUDA_NO_BFLOAT16_CONVERSIONS__ -D__CUDA_NO_HALF2_OPERATORS__ --expt-relaxed-constexpr --compiler-options '-fPIC' -O3 -gencode=arch=compute_90a,code=sm_90a -lineinfo -DOKC_NS=3 -DOKC_NSF=3 -DOKC_WSH0=1 -DOKC_PRMTSC=1 -DOKC_DQ7=1 -std=c++20 -c /tmp/muse_moe_w4a16-zriptbq9/sandbox/cache/torch_extensions/okc_moe_w4a16_v216x_okc_wsh01_srchelper0_okc_prmtsc1_okc_dq71_sm90a/cuda.cu -o cuda.cuda.o 
+/tmp/muse_moe_w4a16-zriptbq9/sandbox/cache/torch_extensions/okc_moe_w4a16_v216x_okc_wsh01_srchelper0_okc_prmtsc1_okc_dq71_sm90a/cuda.cu(2525): error: identifier "hasp" is undefined
+    if (hasp) {
+        ^
+
+/tmp/muse_moe_w4a16-zriptbq9/sandbox/cache/torch_extensions/okc_moe_w4a16_v216x_okc_wsh01_srchelper0_okc_prmtsc1_okc_dq71_sm90a/cuda.cu(2526): error: identifier "itp" is undefined
+      const int col = (itp % FSEG) * (NT * 4) + tid * 4;
+                       ^
+
+/tmp/muse_moe_w4a16-zriptbq9/sandbox/cache/torch_extensions/okc_moe_w4a16_v216x_okc_wsh01_srchelper0_okc_prmtsc1_okc_dq71_sm90a/cuda.cu(2531): error: identifier "qvp" is undefined
+        ssv[s] = qvp[s] >= 0 ? __ldcg(ss_cur() + qvp[s]) : 0.f;
+                 ^
+
+/tmp/muse_moe_w4a16-zriptbq9/sandbox/cache/torch_extensions/okc_moe_w4a16_v216x_okc_wsh01_srchelper0_okc_prmtsc1_okc_dq71_sm90a/cuda.cu(2537): error: identifier "qvp" is undefined
+        if (qvp[s] >= 0) {
+            ^
+
+/tmp/muse_moe_w4a16-zriptbq9/sandbox/cache/torch_extensions/okc_moe_w4a16_v216x_okc_wsh01_srchelper0_okc_prmtsc1_okc_dq71_sm90a/cuda.cu(2538): error: identifier "wvp" is undefined
+          const float r = wvp[s] * rsqrtf(ssv[s] * (1.f / HD) + 1e-8f);
+                          ^
+
+/tmp/muse_moe_w4a16-zriptbq9/sandbox/cache/torch_extensions/okc_moe_w4a16_v216x_okc_wsh01_srchelper0_okc_prmtsc1_okc_dq71_sm90a/cuda.cu(2546): error: identifier "tkp" is undefined
+      *reinterpret_cast<uint2*>(p.out + (size_t)tkp * HD + col) = o;
+                                                ^
+
+6 errors detected in the compilation of "/tmp/muse_moe_w4a16-zriptbq9/sandbox/cache/torch_extensions/okc_moe_w4a16_v216x_okc_wsh01_srchelper0_okc_prmtsc1_okc_dq71_sm90a/cuda.cu".
+[2/3] ccache c++ -MMD -MF main.o.d -DTORCH_EXTENSION_NAME=okc_moe_w4a16_v216x_okc_wsh01_srchelper0_okc_prmtsc1_okc_dq71_sm90a -DTORCH_API_INCLUDE_EXTENSION_H -isystem /opt/sglang/lib/python3.12/site-packages/torch/include -isystem /opt/sglang/lib/python3.12/site-packages/torch/include/torch/csrc/api/include -isystem /usr/local/cuda/include -isystem /usr/include/python3.12 -fPIC -std=c++20 -c /tmp/muse_moe_w4a16-zriptbq9/sandbox/cache/torch_extensions/okc_moe_w4a16_v216x_okc_wsh01_srchelper0_okc_prmtsc1_okc_dq71_sm90a/main.cpp -o main.o 
+ninja: build stopped: subcommand failed.
+
+Traceback (most recent call last):
+  File "/opt/sglang/lib/python3.12/site-packages/torch/utils/cpp_extension.py", line 2906, in _run_ninja_build
+    subprocess.run(
+  File "/usr/lib/python3.12/subprocess.py", line 571, in run
+    raise CalledProcessError(retcode, process.args,
+subprocess.CalledProcessError: Command '['ninja', '-v']' returned non-zero exit status 2.
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/tmp/muse_moe_w4a16-zriptbq9/run/submission.py", line 7374, in <module>
+    _ab_main()
+  File "/tmp/muse_moe_w4a16-zriptbq9/run/submission.py", line 6667, in _ab_main
+    pstate = pub.prepare(weights)
+             ^^^^^^^^^^^^^^^^^^^^
+  File "public_moe.py", line 3334, in prepare
+  File "public_moe.py", line 3084, in _ext
+  File "/opt/sglang/lib/python3.12/site-packages/torch/utils/cpp_extension.py", line 2295, in load_inline
+    return _jit_compile(
+           ^^^^^^^^^^^^^
+  File "/opt/sglang/lib/python3.12/site-packages/torch/utils/cpp_extension.py", line 2398, in _jit_compile
+    _write_ninja_file_and_build_library(
+  File "/opt/sglang/lib/python3.12/site-packages/torch/utils/cpp_extension.py", line 2555, in _write_ninja_file_and_build_library
+    _run_ninja_build(
+  File "/opt/sglang/lib/python3.12/site-packages/torch/utils/cpp_extension.py", line 2923, in _run_ninja_build
+    raise RuntimeError(message) from e
+RuntimeError: Error building extension 'okc_moe_w4a16_v216x_okc_wsh01_srchelper0_okc_prmtsc1_okc_dq71_sm90a': [1/3] ccache /usr/local/cuda/bin/nvcc -MD -MF cuda.cuda.o.d -DTORCH_EXTENSION_NAME=okc_moe_w4a16_v216x_okc_wsh01_srchelper0_okc_prmtsc1_okc_dq71_sm90a -DTORCH_API_INCLUDE_EXTENSION_H -isystem /opt/sglang/lib/python3.12/site-packages/torch/include -isystem /opt/sglang/lib/python3.12/site-packages/torch/include/torch/csrc/api/include -isystem /usr/local/cuda/include -isystem /usr/include/python3.12 -D__CUDA_NO_HALF_OPERATORS__ -D__CUDA_NO_HALF_CONVERSIONS__ -D__CUDA_NO_BFLOAT16_CONVERSIONS__ -D__CUDA_NO_HALF2_OPERATORS__ --expt-relaxed-constexpr --compiler-options '-fPIC' -O3 -gencode=arch=compute_90a,code=sm_90a -lineinfo -DOKC_NS=3 -DOKC_NSF=3 -DOKC_WSH0=1 -DOKC_PRMTSC=1 -DOKC_DQ7=1 -std=c++20 -c /tmp/muse_moe_w4a16-zriptbq9/sandbox/cache/torch_extensions/okc_moe_w4a16_v216x_okc_wsh01_srchelper0_okc_prmtsc1_okc_dq71_sm90a/cuda.cu -o cuda.cuda.o 
+FAILED: [code=2] cuda.cuda.o 
+ccache /usr/local/cuda/bin/nvcc -MD -MF cuda.cuda.o.d -DTORCH_EXTENSION_NAME=okc_moe_w4a16_v216x_okc_wsh01_srchelper0_okc_prmtsc1_okc_dq71_sm90a -DTORCH_API_INCLUDE_EXTENSION_H -isystem /opt/sglang/lib/python3.12/site-packages/torch/include -isystem /opt/sglang/lib/python3.12/site-packages/torch/include/torch/csrc/api/include -isystem /usr/local/cuda/include -isystem /usr/include/python3.12 -D__CUDA_NO_HALF_OPERATORS__ -D__CUDA_NO_HALF_CONVERSIONS__ -D__CUDA_NO_BFLOAT16_CONVERSIONS__ -D__CUDA_NO_HALF2_OPERATORS__ --expt-relaxed-constexpr --compiler-options '-fPIC' -O3 -gencode=arch=compute_90a,code=sm_90a -lineinfo -DOKC_NS=3 -DOKC_NSF=3 -DOKC_WSH0=1 -DOKC_PRMTSC=1 -DOKC_DQ7=1 -std=c++20 -c /tmp/muse_moe_w4a16-zriptbq9/sandbox/cache/torch_extensions/okc_moe_w4a16_v216x_okc_wsh01_srchelper0_okc_prmtsc1_okc_dq71_sm90a/cuda.cu -o cuda.cuda.o 
+/tmp/muse_moe_w4a16-zriptbq9/sandbox/cache/torch_extensions/okc_moe_w4a16_v216x_okc_wsh01_srchelper0_okc_prmtsc1_okc_dq71_sm90a/cuda.cu(2525): error: identifier "hasp" is undefined
+    if (hasp) {
+        ^
+
+/tmp/muse_moe_w4a16-zriptbq9/sandbox/cache/torch_extensions/okc_moe_w4a16_v216x_okc_wsh01_srchelper0_okc_prmtsc1_okc_dq71_sm90a/cuda.cu(2526): error: identifier "itp" is undefined
+      const int col = (itp % FSEG) * (NT * 4) + tid * 4;
+                       ^
+
+/tmp/muse_moe_w4a16-zriptbq9/sandbox/cache/torch_extensions/okc_moe_w4a16_v216x_okc_wsh01_srchelper0_okc_prmtsc1_okc_dq71_sm90a/cuda.cu(2531): error: identifier "qvp" is undefined
+        ssv[s] = qvp[s] >= 0 ? __ldcg(ss_cur() + qvp[s]) : 0.f;
+                 ^
+
+/tmp/muse_moe_w4a16-zriptbq9/sandbox/cache/torch_extensions/okc_moe_w4a16_v216x_okc_wsh01_srchelper0_okc_prmtsc1_okc_dq71_sm90a/cuda.cu(2537): error: identifier "qvp" is undefined
+        if (qvp[s] >= 0) {
+            ^
+
+/tmp/muse_moe_w4a16-zriptbq9/sandbox/cache/torch_extensions/okc_moe_w4a16_v216x_okc_wsh01_srchelper0_okc_prmtsc1_okc_dq71_sm90a/cuda.cu(2538): error: identifier "wvp" is undefined
+          const float r = wvp[s] * rsqrtf(ssv[s] * (1.f / HD) + 1e-8f);
+                          ^
+
+/tmp/muse_moe_w4a16-zriptbq9/sandbox/cache/torch_extensions/okc_moe_w4a16_v216x_okc_wsh01_srchelper0_okc_prmtsc1_okc_dq71_sm90a/cuda.cu(2546): error: identifier "tkp" is undefined
+      *reinterpret_cast<uint2*>(p.out + (size_t)tkp * HD + col) = o;
+                                                ^
+
+6 errors detected in the compilation of "/tmp/muse_moe_w4a16-zriptbq9/sandbox/cache/torch_extensions/okc_moe_w4a16_v216x_okc_wsh01_srchelper0_okc_prmtsc1_okc_dq71_sm90a/cuda.cu".
+[2/3] ccache c++ -MMD -MF main.o.d -DTORCH_EXTENSION_NAME=okc_moe_w4a16_v216x_okc_wsh01_srchelper0_okc_prmtsc1_okc_dq71_sm90a -DTORCH_API_INCLUDE_EXTENSION_H -isystem /opt/sglang/lib/python3.12/site-packages/torch/include -isystem /opt/sglang/lib/python3.12/site-packages/torch/include/torch/csrc/api/include -isystem /usr/local/cuda/include -isystem /usr/include/python3.12 -fPIC -std=c++20 -c /tmp/muse_moe_w4a16-zriptbq9/sandbox/cache/torch_extensions/okc_moe_w4a16_v216x_okc_wsh01_srchelper0_okc_prmtsc1_okc_dq71_sm90a/main.cpp -o main.o 
+ninja: build stopped: subcommand failed.
+
+TEST sk8w4s worst rel err vs fp32 3.90e-03, spin flags 0
+TEST sk16w4s worst rel err vs fp32 3.90e-03, spin flags 0
+TEST sk8w3s worst rel err vs fp32 3.90e-03, spin flags 0
+TEST main-d2 worst rel err vs fp32 3.89e-03, spin flags 0
+TEST main-lean-grp-finss64 worst rel err vs fp32 3.89e-03, spin flags 0
+TEST main-finss64-psc worst rel err vs fp32 3.89e-03, spin flags 0
+TEST main-finss64-fin4 worst rel err vs fp32 3.89e-03, spin flags 0
+TEST main-finss64-psc-fin4 worst rel err vs fp32 3.89e-03, spin flags 0
+TEST legacy32 worst rel err vs fp32 4.28e-03, spin flags 0
+TEST legacy128 worst rel err vs fp32 4.28e-03, spin flags 0
+TEST legacy256 worst rel err vs fp32 4.28e-03, spin flags 0
+BENCH bs=128 main-finss64-psc:207.7 main-finss64-psc-fin4:207.8 main-lean-grp-finss64:208.0 main-finss64-fin4:208.0 legacy128:251.4 legacy256:253.7 main-d2:254.6 sk8w4s-loads:255.1 sk8w3s:260.0 sk8w4s:263.8 legacy32:275.8 sk16w4s:282.4 us (graph replay, cold L2, mean of 2 routings)
+BENCH bs=256 main-finss64-psc:222.5 main-lean-grp-finss64:223.5 main-finss64-psc-fin4:223.6 main-finss64-fin4:224.1 main-d2:283.7 legacy256:361.8 legacy128:389.4 sk8w4s-loads:402.2 sk8w3s:428.3 sk8w4s:432.6 sk16w4s:467.4 legacy32:471.4 us (graph replay, cold L2, mean of 2 routings)
+POLICY {1: sk8w3s, 8: sk8w3s, 16: sk8w3s, 32: sk8w3s, 128: main-finss64-psc, 256: main-finss64-psc}
+TEST policy worst rel err vs fp32 3.90e-03, spin flags 0
+PREPARE repack 0.7 s, build 70.4 s, self-test 0.6 s, bench 0.8 s, smem 228736 B, ok True, main True
+USDT:2026-10-31 04:07:59 75:75 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-10-31 04:07:59 75:75 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-10-31 04:07:59 75:75 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-10-31 04:07:59 75:75 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-10-31 04:07:59 75:75 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-10-31 04:07:59 75:75 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-10-31 04:07:59 75:75 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-10-31 04:07:59 75:75 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-10-31 04:07:59 75:75 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-10-31 04:07:59 75:75 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-10-31 04:07:59 75:75 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-10-31 04:07:59 75:75 SyncActivityProfilerHandler.cpp:46] profiler_stop

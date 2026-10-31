@@ -97,6 +97,8 @@ SGLang with its 95% interval. Profiles and logs are in `muse_moe_w4a16/profiles/
 | 2026-10-30 | 098949b28fe84bd1 (check, bench file from tools/moe_make_bench_ab.py --base=51 --sizes=32,128,256 --routings=layer,std --seeds=83,84,85,86,87,88 o72=72, not committed) | 86a633e | diagnostic of mode 72 (stream-K phase A with cut-unit fixups, mode 16's partition, on 51's stage loop, epilogue and phase B claims) with its stamped twin 73 | 2.193x (2.160-2.226) | passed; spin flags 0. 72 minus 51 +13.5 / +9.4 / +12.6 / +7.1 / +6.6 / +9.2 us at 32 / 128 / 256 (layer / std), 0 of 6 seeds lower in all six cells; 73's A end spread 18.9 / 16.9 at 256 against 55's 10.0 / 8.8; fixups 9.4-10.9 us per CTA at 128 / 256 (ABFIX). Diagnostic rule failed, no gate run; docs/ruled-out.md |
 | 2026-10-30 | eaa881a934aa471e (check, bench file from tools/moe_make_bench_ab.py --base=51 --sizes=32,128,256 --routings=layer,std --seeds=95,96,97,98,99,100 o74=74, not committed) | 5f35018 | diagnostic of mode 74 (72 with a designated-finisher fixup; 75 stamped); the build had fast_silu ending at 73 (review finding after the check), so 74 ran the slow SiLU, and its serial setup designation cost about 3 us | 2.202x (2.169-2.235) | 74 minus 51, us: +8.2 / +9.0 at 32, +8.3 / +7.2 at 128, +2.1 / +3.8 at 256 (layer / std; 0, 0, 0, 0, 0, 1 of 6 lower); public -0.9 to -19.1. Fixups 3.7-4.0 us per CTA (72: 8.7-10.9), 1.7-1.9 us per counting share, finisher 1.9-2.2 incl. 0.8-0.9 waiting; A end spread 6.7-7.2 at 128 (55: 11.4-14.0, public 6.8). Rule failed for this build; corrected build gets its own rule (docs section "Designated finisher for stream-K phase A") |
 | 2026-10-30 | e02f60fec94f45cb (scored run submitted by the coordinator, bench file from tools/moe_make_bench_ab.py --nopub=1 --base=51 --sizes=32,128,256 --routings=layer,std --seeds=107,108,109,110,111,112 o74=74, no public code, judged path the board dispatch, not committed) | 4187b8b | corrected mode 74 (fast SiLU, lane-parallel designation) | 2.197x (2.164-2.230) | 74 minus 51, us: +7.9 / +7.6 at 32, +4.6 / +7.4 at 128, +2.0 / +4.1 at 256 (layer / std; 0, 0, 0, 1, 1, 1 of 6 lower). A end spread 6.6-8.3 at 128 / 256 against 55's 10.9-19.5; fixups 3.9-4.5 us per CTA; route + setup still +3.4-3.6 us over 55. Rule failed; no gate; family parked |
+| 2026-10-31 | 5b2db8029f094a66 (check, bench file from tools/moe_make_bench_ab.py --base=51 --sizes=32,128,256 --routings=layer,std,skewed --seeds=121,...,126 --gate=1 o76=76 o77=77 o78=78 with the donor's standalone file as the public arm, not committed) | 45f990d | gate of 76-78 (rule committed in 45f990d) | 2.205x (2.172-2.238) | passed; no A/B: the donor's `MID_DEFINES +=` line re-enabled the MID build the tool empties and its build failed, which stops the A/B block. Prepare bench (synthetic) put 76 first at 128 / 256. Section "Donor MoE (M-A) against mode 51" |
+| 2026-10-31 | 64254f49676c4ce6 (check, the same bench with that donor line removed, not committed) | 5f19bc1 | gate of 76-78 against 51, donor MAIN build as the public arm | 2.188x (2.155-2.221) | passed; spin flags 0. Minus 51 at 32 / 128 / 256, layer: 76 -0.1 / -0.6 / -0.8, 77 -3.1 / +0.7 / +0.1, 78 -3.5 / -0.4 / -0.9, donor -2.3 / -9.9 / -22.5; std: 76 -0.1 / -0.0 / -0.5, 77 -1.8 / -0.0 / +0.5, 78 -2.4 / -0.2 / -1.0, donor -6.3 / -13.4 / -26.3. 76 failed rule 1, 77 rule 2 (+0.7 at 128 layer), so 78 was not shipped under the rule; 78 lower than 51 in all nine cells. Outputs 0 at 128 / 256. Section "Donor MoE (M-A) against mode 51" |
 
 ## Why the layer keeps the W4 chain at 128 tokens, 2026-10-29
 
@@ -3254,6 +3256,72 @@ Keep 77 only if all hold:
 77 at every size on layer and standalone routing, else ship the better single mode per the rules.
 If neither is kept, both go to docs/ruled-out.md scoped to these designs on 51. Budget: this
 gate check, then at most one check of the shippable file; the line stops at 3 checks.
+
+### First submission of the gate bench (check 5b2db8029f094a66): no A/B
+
+The bench's public prepare failed to build: `patch_public` empties MID_DEFINES, and the donor file
+appends to it afterwards (`MID_DEFINES += ("-DOKC_WSH0=1", "@helper0")`, a helper source for its
+16-token build), which left a MID build with only those defines; it did not compile and the A/B
+block stops on any exception. The judged path ran (2.205x, 2.172-2.238, passed; the prepare-time
+bench put 76 first at 128 and 256 tokens by 0.3 / 1.0 us, two synthetic routings, not a rule
+input). Fixes: the gate was re-sent with that one donor line removed in the scratchpad copy (it
+touches only the donor's 16-token build; its MAIN build, the arm timed here, is unchanged), and
+`tools/moe_make_bench_ab.py` now refuses a public file that extends an emptied build list.
+
+### Gate result (check 64254f49676c4ce6, bench at 5f19bc1)
+
+2.188x (2.155-2.221), passed, spin flags 0. Self-tests: 51, 76, 77, 78 all 3.89e-3 against FP32.
+Minus 51, us, same process, seeds 121-126 (count = seeds lower of 6); "donor" is the exact donor
+MAIN build (minus its MID helper line):
+
+| arm | 32 layer | 32 std | 32 skewed | 128 layer | 128 std | 128 skewed | 256 layer | 256 std | 256 skewed |
+|---|---|---|---|---|---|---|---|---|---|
+| 76 | -0.1 (3) | -0.1 (4) | -0.0 (3) | -0.6 (5) | -0.0 (3) | -0.3 (4) | -0.8 (6) | -0.5 (3) | -1.1 (6) |
+| 77 | -3.1 (6) | -1.8 (6) | -1.9 (6) | +0.7 (2) | -0.0 (4) | +0.4 (1) | +0.1 (3) | +0.5 (3) | +0.0 (3) |
+| 78 | -3.5 (6) | -2.4 (6) | -2.9 (6) | -0.4 (4) | -0.2 (4) | -0.3 (5) | -0.9 (6) | -1.0 (5) | -1.3 (6) |
+| donor | -2.3 (6) | -6.3 (6) | -10.4 (6) | -9.9 (6) | -13.4 (6) | -1.8 (4) | -22.5 (6) | -26.3 (6) | -6.5 (5) |
+
+Means of 51: 90.7 / 149.3 / 69.0 us at 32 tokens, 157.3 / 202.9 / 94.5 at 128, 223.0 / 247.3 /
+149.6 at 256 (layer / std / skewed). Outputs against 51: 0 (bit-identical) for 76, 77 and 78 at
+128 and 256 tokens on every seed; at 32 tokens 1e-7 to 4.7e-5 for all three, including 76, whose
+products are 51's: the difference there is 51's own FP32 atomics order in ss, which changes from
+call to call.
+
+Reading under the rule set before the check:
+- 76: rule 1 fails (256 tokens -0.8 / -0.5 us on layer / standalone, against -1.0; 3 of 6 lower on
+  standalone). Rule 4 also fails as written (3.5e-5 at 32 tokens against 1e-5), a badly set bound:
+  76's products are bit-identical (0 at 128 and 256) and the 32-token spread is 51's atomics.
+  Not kept. Measured: removing 8 of 387 instructions per stage gives 0.5-1.1 us at 256 tokens and
+  about 0.5 at 128, so the stage loop is close to issue-bound but the gain is small.
+- 77: rule 1 passes (32 tokens -3.1 / -1.8 / -1.9, 6 of 6 lower everywhere); rule 2 fails at 128
+  tokens on layer routing (+0.7 against +0.5, 2 of 6 lower), where 77 runs 51's code (the
+  difference is the larger kernel or noise; not separated). Not kept.
+- 78: the rule ships it only if 76 and 77 both pass. Not kept under this rule.
+- Measured, not a rule input: 78 is lower than 51 in all nine cells (-0.2 to -3.5 us, 4-6 of 6 seeds
+  lower in each), and at 32 tokens on layer routing it is 1.2 us under the donor's MAIN build
+  (87.1 against 88.3 us). The fin4 final pass carries the 32-token gain (-1.8 to -3.1 us, larger
+  than the 1 us expected: the epilogue's atomics as well as the item count); the scale pairs carry
+  the 256-token one.
+
+The donor's lead over 51 in this run: -2.3 / -6.3 us at 32 tokens, -9.9 / -13.4 at 128, -22.5 /
+-26.3 at 256 (layer / standalone). 78 takes 0.9-3.5 us of it.
+
+### Gate rule for 78 alone (set before its check; the new evidence is the table above)
+
+One check of `tools/moe_make_bench_ab.py OUT.py DONOR_MAIN_ONLY.py --base=51 --sizes=32,128,256
+--routings=layer,std,skewed --seeds=131,132,133,134,135,136 --gate=1 o78=78`; seeds 131-136 are new
+on every routing. Keep 78 only if all hold:
+
+1. 32 tokens: mean -1.0 us or lower on layer and on standalone routing, at least 5 of 6 seeds lower
+   on each, and 0 or lower on skewed.
+2. 128 tokens: mean +0.5 or lower on every routing.
+3. 256 tokens: mean 0 or lower on layer and standalone, +0.5 or lower on skewed.
+4. Output against 51: 0 at 128 and 256 tokens; within 1e-4 at 32.
+5. Prepare's FP32 self-test passes for 78 (no FAIL line, spin flags 0).
+6. The compile gate above holds on the checked commit.
+
+If all hold, 78 joins MAIN_MODES and MAIN_CANDIDATES and the file goes to the coordinator; if any
+fails, 78 goes to docs/ruled-out.md with 76 and 77. This is the line's third and last check.
 
 ## Staged pair on current components, 2026-10-29
 
