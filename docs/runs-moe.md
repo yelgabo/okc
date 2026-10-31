@@ -102,6 +102,7 @@ SGLang with its 95% interval. Profiles and logs are in `muse_moe_w4a16/profiles/
 | 2026-10-31 | c8fc5f669fa34d06 (check, bench file from tools/moe_make_bench_ab.py --base=51 --sizes=32,128,256 --routings=layer,std,skewed --seeds=131,...,136 --gate=1 o78=78, donor MAIN build as the public arm, not committed) | 95c9848 | 78's own gate (rule committed in 95c9848) | 2.194x (2.162-2.227) | passed; spin flags 0. 78 minus 51 at 32 / 128 / 256: layer -2.6 / -0.6 / -0.6, std -1.5 / +0.6 / -0.4, skewed -3.1 / -0.8 / -1.3; donor minus 51 layer -3.2 / -11.6 / -19.8, std -8.7 / -10.1 / -20.1. Rule 2 failed (+0.6 at 128 std, limit +0.5): 78 not kept. Outputs 0 at 128 / 256. Section "Donor MoE (M-A) against mode 51" |
 | 2026-10-31 | 2a4fb39964aa448c (check, bench file from tools/moe_make_bench_ab.py --base=51 --sizes=32,128,256 --routings=layer,std,skewed --seeds=141,...,146 --gate=1 o72=72 o79=79, donor MAIN build as the public arm, not committed) | 587da5d | gate of 79 (stream-K in both phases, stage-0 finisher in phase B) with the null 72 (rule committed in 587da5d) | 2.196x (2.164-2.229) | passed; spin flags 0. Minus 51 at 32 / 128 / 256, layer: 72 +13.1 / +11.3 / +6.1, 79 +16.4 / +19.4 / +21.4, donor -1.9 / -11.3 / -21.0; std: 72 +10.3 / +9.8 / +4.3, 79 +17.5 / +24.8 / +11.3, donor -4.7 / -13.3 / -25.6; skewed 79 +6.0 / +27.9 / +31.4. 0 of 6 seeds lower for 79 in every cell. Not kept; family parked. Section "Stream-K in both phases (mode 79)" |
 | 2026-10-31 | 43c35d18b5504eb5 (check, bench file from tools/moe_make_bench_ab.py --base=51 --sizes=32,128,256 --routings=layer,std --seeds=151,...,156 --work=1 --pubfix=1, the donor MAIN build stamped as a bench-only copy, not committed) | 1d42779 | diagnostic: donor per-phase stamps (DBG points plus its fixup, doneA release and finisher-wait cycles) against 55 (51's light twin) | 2.197x (2.164-2.230) | passed; spin flags 0. Donor minus 51 replay -3.0 / -6.2 / -9.8 / -12.1 / -21.8 / -22.4 us (32 / 128 / 256, layer / std). Per phase at 128 / 256 layer: start -3.4 / -3.8, phase A mean -3.4 / -10.3, A end spread -5.4 / -2.7, phase B 0.0 / -2.1, barrier + final -3.3 / -4.4. Donor fixups 10.4-12.8 us/CTA in phase A, 5.4-8.5 in phase B, releases 2.5-7.7; derived per stage 1.12 us (donor) against 1.38-1.47 (51). Stage loop 295 against 387 instructions. Section "The donor kernel stamped against 51" |
+| 2026-10-31 | 1d767886e86d46e1 (check, bench file from tools/moe_make_bench_ab.py --base=51 --sizes=128,256 --routings=layer,std --seeds=161,...,166 --ablate=1 o83=83 o76=76, donor MAIN build as the public arm, not committed) | 2921d50 | stage-cost ablation: 83 (51 without the per-thread weights-slot fence, timing only, never a candidate) and 76 | 2.193x (2.160-2.225) | passed; spin flags 0; outputs 0 against 51. Minus 51 at 128 / 256: 83 -0.1 / -0.3 (layer), +0.2 / -0.5 (std); 76 +0.2 / -0.9, +0.3 / -0.8; donor -9.3 / -20.0, -13.4 / -25.3. The fence is not the per-stage cost (reading rule case 3). Section "Stage cost ablations" |
 | 2026-10-31 | 40b8c798289a4258 (check; F-MOE-0 bench: release ec565a7 byte for byte + the exact donor file lzma-carried, not committed) | ec565a7 (release) | Family F F0: R1/R2 (two release prepares) against D1/D2 (two prepares of alygg77 muse_moe_w4a16.py at 6cae49a, SHA256 b3307089...), std seeds 501-512, layer 521-526, pad/off64 541-544, order seed 8101 | 2.195x (2.163-2.228), the release's judged path | passed; 0 output failures, fresh-input replay ok. Score D/R pooled 1.0387 (nulls 0.9996 / 0.9993, D faster); per load R/D 0.960 / 1.013 / 1.006 / 1.060 / 1.079 / 1.120 at 1 / 8 / 16 / 32 / 128 / 256. Section "F-MOE-0 (Family F donor comparison)" |
 | 2026-10-31 | 218ff300de7d4c22 (check; F-MOE-0 confirmation, same writer, not committed) | ec565a7 (release) | as 40b8c798289a4258 on std 601-612, layer 621-626, pad/off64 641-644, order seed 9203 | 2.194x (2.161-2.227), the release's judged path | passed; 0 failures. Score D/R pooled 1.0297 (nulls 1.0017 / 0.9977, D faster); per load 0.964 / 1.014 / 1.004 / 1.010 / 1.078 / 1.116. Decision per load: keep ours at 1, re-implement TINY2 at 8, inconclusive at 16, re-implement WGS (with proxy fences) at 32 / 128 / 256 |
 
@@ -3896,6 +3897,55 @@ D = donor minus 51 and A = 83 minus 51 (means of 6 seeds):
    repeat.
 76 rides along as a second measurement of the scale pairs (two earlier runs: -0.4 to -1.1 us at
 256 tokens).
+
+### Result (check 1d767886e86d46e1, bench at 2921d50)
+
+2.193x (2.160-2.225), passed, spin flags 0; outputs of 83 and 76 against 51 0 (bit-identical) on
+every case. Minus 51, us, seeds 161-166 (count = seeds lower of 6):
+
+| arm | 128 layer | 128 std | 256 layer | 256 std |
+|---|---|---|---|---|
+| 83 (no per-thread weights-slot fence; diagnostic) | -0.1 (4) | +0.2 (2) | -0.3 (4) | -0.5 (5) |
+| 76 (scale pairs) | +0.2 (0) | +0.3 (2) | -0.9 (4) | -0.8 (5) |
+| donor MAIN | -9.3 (6) | -13.4 (6) | -20.0 (6) | -25.3 (6) |
+
+Stamps (55 against the donor) repeat the previous run's split within 1-4 us: at 256 tokens phase A
+mean 123.7 / 142.5 against 112.2 / 126.5, start 12.3 / 11.4 against 8.4 / 8.7, A end spread
+9.2 / 14.6 against 7.6 / 7.5, phase B 57.9 / 65.7 against 54.9 / 62.3 (layer / std).
+
+Reading under the rule set before the check: A = -0.3 / -0.5 us against 0.5 D = -10.0 / -12.7 at 256
+tokens, so the per-thread fence is not the per-stage cost (case 3). It stays, and nothing here
+argues for narrowing it. 76 repeats its earlier -0.4 to -1.1 us at 256 tokens (third run).
+
+What the two cheap instruction cuts say together: removing 8 (76) or 2 plus the MEMBAR (83) of
+about 337 fast-path instructions per stage moves 256 tokens by 1 us or less. Per-stage issue count
+is not what separates the kernels.
+
+### Where the per-stage time goes instead (re-reading measured counters, not a new run)
+
+Mode 41's per-warp counters (37 with counters, check ca43908f02874886, layer routing, 256 tokens;
+37's stage loop is the same family as 51's) split our phase A into stage loops without waits
+91.66 us, weights waits 11.76 and x waits 11.50 over 83 stages per warp: 1.10 us of work per stage
+plus 0.28 us of waiting. The donor's whole stage costs about 1.12 us (stamps above). So our stage
+work matches the donor's, and the gap is the time our consumers spend in mbarrier waits, about 20%
+of the stage loops in both phases (the same check: 19.6-20.9%, 209-231 cycles per wait), while
+both producers find the ring full for about 70% of phase A. At 1.12 us per 36,864-byte stage on
+132 CTAs the donor streams about 4.3 TB/s of weights; our 1.38-1.47 us is 3.3-3.5 TB/s, against
+the 3.95-4.06 TB/s streaming ceiling measured in 16fd966f071340eb.
+
+Hypothesis (not measured): the stream does not keep enough bytes in flight per SM. A slot is
+refilled only after all 512 consumer threads release it, and the copy then needs its full HBM
+latency before the stage two ahead can start; a ring that is "full" at the producer but whose
+newest copy has not landed shows up as consumer waits. The donor's ring has the same depth (3 + 3
+at 8 n-tiles), so what differs would be when its slots free and refill, which its own per-warp
+waits would show; stamping those perturbed its build before (ABSKEW, 2026-10-30).
+
+Proposal for the line's second check (instead of the latency arm, which would change the wgmma
+wait depth and issue order that are already the donor's: two k16 steps per commit group, one group
+in flight): a counter twin of 51 (41's counters on 51's loop) plus, per stage, the producer's issue
+time and the full-barrier completion time, so that each consumer wait splits into copy latency
+(issue to complete), producer delay (slot free to issue) and consumer skew. That names which of the
+three the 0.28 us per stage is, without a new structure. Not built.
 
 ## Staged pair on current components, 2026-10-29
 
