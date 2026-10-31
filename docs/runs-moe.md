@@ -3313,6 +3313,9 @@ A side finding for the layer owner: the F-LAYER-0 ABPOL lines show our layer run
 32 / 128 / 256 tokens (its _MOE1_VARIANTS ends at 47). Mode 51 is -3.9 / -4.4 us against 47 at
 128 / 256 tokens on held-out seeds (c6b0e500c3a84c9a) and has not been ported, so about 4 us of
 M-A's 21 us at verify 16 / 32 is already in hand (Port, below).
+[Corrected 2026-10-31, coordinator: 51 is already ported. The layer candidate layer_m1rt51s
+runs 51 at 32 / 128 / 256 tokens (best scored run 0f58d5d8223f45af, 2.0148x); the F-LAYER-0 ABPOL
+lines came from the older release file. The 4 us is not extra headroom against the current layer.]
 
 ### M-A against mode 51, mechanism by mechanism
 
@@ -3553,6 +3556,7 @@ whole family stays the one in docs/ruled-out.md.
    MAIN_NAMES already. Re-running the inliner on this tree adds `('main-lean-grp-finss64', 'main',
    'launch_main<51>')` to `_MOE1_VARIANTS` (checked on a scratch copy: 6,501 device lines, run twice
    byte-identical). The layer's judge-like MoE bench then chooses between 47 and 51 per size.
+   [Corrected 2026-10-31: already done in the layer candidate layer_m1rt51s (0f58d5d8223f45af).]
 2. A kept 76 / 77 / 78 needs, in `tools/dl_moe_inline.py` (layer owner's file): its number in
    LAYER_MODES and a MAIN_NAMES entry ("main-finss64-psc", "main-finss64-fin4",
    "main-finss64-psc-fin4"), and in the standalone file MAIN_MODES and MAIN_CANDIDATES.
@@ -3564,6 +3568,95 @@ whole family stays the one in docs/ruled-out.md.
    per-instance SASS fence / barrier / mbarrier / atomic counts equal to the standalone
    (`tools/dl_moe_sass_counts.sh`), no new spills, and the layer self-test covering the new mode at
    17-32 tokens (fin4 acts only below 64).
+
+## Stream-K in both phases (mode 79), 2026-10-31
+
+Brief (coordinator, 2026-10-31): test the partition share of M-A's lead at 128 / 256 tokens,
+items 1 and 2 of the M-A table above: stream-K stage ranges in both phases on 51's components,
+the donor's walk order, position-designated finishers in phase B, readiness per (job, stage), and
+a null arm with phase B on claims. Every fence stays. Budget 2 checks, rule set first.
+
+### What already existed, and the change
+
+- The donor's phase A walk order is already ours: `seg_get` (mode 16's, kept by 72) runs a CTA's
+  trailing cut share first, then the leading share, then whole units, which is `wgs_split`. Under
+  our walk by n-tile count (largest first in 72) the two orders differ only for ranges that span
+  jobs of different n-tile counts.
+- Readiness per (job, phase B stage) is already ours (done_as [job][16], count 8 per stage, the
+  x producer's spin and fence.proxy.async.global before each phase B bulk copy).
+- So the null arm is 72 itself (stream-K phase A, last-arrival fixup, phase B claimed), and the new
+  arm 79 changes phase B only:
+  - static cost-weighted phase B ranges, not unit-aligned (S.align_b 0), found by a warp in setup
+    (`stage_at_b_warp`, the same arithmetic as `stage_at` for phase B), with the leading cut share's
+    slot found there too and packed into S.lead_slot's high half (no SmemMain change);
+  - phase B segments in range order (`seg_get_inorder`; a phase B stage waits for its phase A units
+    in order, and the finisher must run late), walked largest n-tile count first in both phases
+    (`walk_desc`, as 72's phase A);
+  - a cut phase B unit is finished by the share holding its stage 0 through mode 74's `fixup_df`
+    (every share adds its partial; the others fence, pass the warpgroup barrier and count with one
+    red.release; the finisher spins with ld.acquire until the count reaches 16 less its own stages,
+    passes the barrier, fences and reads the sum back), on slots G .. 2G - 1 of p.fix and p.fixcnt
+    (phase A's last-arrival `fixup` uses 0 .. G - 1).
+- No claim counter, no S.bq, no ctr[10] in 79 (dyn_b is false); everything else is 72's.
+
+Why the stage-0 share and range order: the stage-0 share of a cut unit is the trailing segment of
+the range of the CTA that holds it, and every other share is the first segment of a later CTA's
+range. So the finisher runs at the end of its CTA's phase B and the shares it waits for run at the
+start of later CTAs' (the donor's arrangement), and every wait points to a higher CTA index: no
+cycle is possible, and CTA G - 1 never waits, so progress holds by induction with all CTAs
+co-resident (the grid barrier's existing assumption). Under our walk by n-tile count a CTA can run
+its own finisher before its counting share when the finisher's job has more n-tiles; then the CTA
+before it waits for that finisher too (a chain, still acyclic). A CPU model of the partition
+(`stage_at` arithmetic, kCostB, 200 synthetic routings per size, scratchpad model79.py) found every
+unit covered once, one stage-0 share per cut unit, the counting shares' slot equal to the
+finisher's CTA, at most 2 shares per unit, about 115-125 cut phase B units per launch, and 0 / 0.6 /
+6.5 CTAs per launch at 32 / 128 / 256 tokens that walk their finisher before their counting share
+(hypothesis for the judge's routing: similar).
+
+Ordering. Phase A is 72's (reviewed sound, "Stream-K phase A on 51's components"). The phase B
+fixup is mode 74's `fixup_df` chain (reviewed sound, "Designated finisher for stream-K phase A"):
+each counting thread's red.add of its partial precedes its fence.acq_rel.gpu and the warpgroup's
+bar.sync; thread 0's red.release.gpu is a release pattern (PTX ISA 8.8) observed by the finisher's
+ld.acquire.gpu spin (acquire pattern, synchronizes-with 8.9.4); the finisher's bar.sync and
+fence.acq_rel.gpu then order its warpgroup's ld.global.cg reads after it (base causality, 8.9.5;
+8.10.6). The finisher's own adds precede its reads in program order (same thread, same addresses).
+It clears the slot and the count; the next launch is ordered by the kernel boundary, and fixcnt is
+also zeroed after the grid barrier. The phase B epilogue's ybuf / ss writes go through the grid
+barrier as before; the phase B x copies keep the done_as acquire and fence.proxy.async.global.
+Independent read-only review: below.
+
+Local compile gate (nvcc 12.8.1, Docker, sm_90a, `tools/moe_compile_fused.sh`; MAIN_MODES (0, 16,
+26, 28, 37, 47, 51, 72, 74, 79) against d73c4fd's (0, 16, 26, 28, 37, 47, 51, 72, 74)): 0, 16, 26,
+28, 37, 47, 51, 72, 74 and the four skinny kernels have identical instruction text; no
+C7510-C7515. 79: 96 registers, 8-byte stack frame, 4 B spill store and load, both outside every
+stage and unit loop (in the phase loop region); stage loops 390 (399 widest; 72: 389 / 398);
+24,424 instructions against 72's 18,680 and 51's 17,280 (the static phase B path compiles 8 n-tile
+groups with the fixup); MEMBAR 138, BAR 48, ERRBAR 59, CCTL 64 (72: 91, 32, 35, 32). The size is a
+risk: 62 and 69 lost 3-5 us everywhere from larger kernels (hypothesis: instruction cache).
+`tools/moe_dryrun.py` and `tools/moe_host_check.sh` pass. Profile:
+`muse_moe_w4a16/profiles/sass_mode79.2026-10-31.txt`.
+
+### Gate rule (set before the check is submitted)
+
+One check of `tools/moe_make_bench_ab.py OUT.py DONOR_MAIN_ONLY.py --base=51 --sizes=32,128,256
+--routings=layer,std,skewed --seeds=141,142,143,144,145,146 --gate=1 o72=72 o79=79` (seeds new on
+every routing; the donor's MAIN build in the public slot, measurement only). The policy chooses
+per size, so 79 is judged where it would run, at 128 and 256 tokens; 32 tokens is reported.
+
+Keep 79 (as a 128 / 256-token candidate) only if all hold:
+1. 256 tokens: 79 minus 51 mean -1.5 us or lower on layer and on standalone routing, at least 5 of
+   6 seeds lower on each, and 0 or lower on skewed.
+2. 128 tokens: mean -1.0 or lower on layer and on standalone routing, +0.5 or lower on skewed.
+3. Output against 51 within 5e-4 relative L2 on every case (cut units change the FP32 sum order;
+   72 against 51 was 1.5e-4 to 2.4e-4).
+4. Prepare's FP32 self-test passes for 79 (no FAIL line, spin flags 0).
+5. The compile gate above holds on the checked commit, and the independent review finds no
+   ordering or progress defect.
+
+Reported, not conditions: 79 minus 72 (the phase B partition against claims, both on stream-K
+phase A), 72 minus 51 (the null against the board mode), the donor's lead, 32 tokens. If 79 is
+kept, the shippable file (79 in MAIN_MODES and MAIN_CANDIDATES) takes the second check; if not, 79
+goes to docs/ruled-out.md with the stream-K row.
 
 ## Staged pair on current components, 2026-10-29
 
