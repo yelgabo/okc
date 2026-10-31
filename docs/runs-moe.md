@@ -3947,6 +3947,76 @@ time and the full-barrier completion time, so that each consumer wait splits int
 (issue to complete), producer delay (slot free to issue) and consumer skew. That names which of the
 three the 0.28 us per stage is, without a new structure. Not built.
 
+## Where the consumers' wait comes from: refill delay or copy latency, 2026-10-31
+
+Brief (coordinator): read the donor statically for per-warpgroup weight sub-slots (its copy layout
+is 256-row unit x 16 K-stages x 4 warpgroups of 9,216 B, donor 3254), then have a counter twin
+split our 0.28 us per stage of waiting into refill delay after release and copy latency.
+
+### The donor's weights slot (static, donor standalone file at 6cae49a)
+
+- One slot is one stage: the weights producer issues one 36,864-byte `cp.async.bulk` per stage
+  (`UNIT_BYTES`, 1972-1977) on one full barrier per slot (`BW_F + ws`).
+- One empty barrier per slot, initialised with count NW = 16 (2530: `k < BX_F ? NW`); every
+  consumer warp's lane 0 arrives once per stage after its last code-group load (2214); the producer
+  waits on it (1970) and then issues the slot's next copy. The x ring is the same, count 16,
+  arrivals after the stage's last wgmma group retires (2245, 2261).
+- The 9,216-byte piece is only where each warpgroup's 64 rows sit inside the slot (`pc0 = ring +
+  wg * WGS_PIECE`, 2194; `_wgs_copy`'s [unit][stage][warpgroup][9216] order, 3254). There is no
+  per-warpgroup copy, barrier or refill.
+
+So the donor refills a slot after all 16 warps release it, as we do; the difference is the number
+of arrivals (16 lane-0 arrives with no fence against our 512 per-thread fence-and-arrive pairs; 83
+removed only the fences and gained 0.3-0.5 us).
+
+### Our split, from data already in the log (check 7063f86352344efa, mode 56 = 51 with per-warp
+stage stamps and the producers' issue stamps, layer routing, seeds 1-6)
+
+Caveat: 56's per-warp stamps slow it (49, the same stamps on 47, cost +5.8 / +9.4 us at 128 / 256
+tokens in d47c78bdc130424b), which lengthens the lead; the split is ours under that load.
+
+| cycles (1.72-1.74 GHz) | 128 A | 128 B | 256 A | 256 B |
+|---|---|---|---|---|
+| producer's issue after the slot's slowest release ("producer delay", the refill delay) | 317 | 338 | 532 | 342 |
+| copy latency: issue to the first waiting warp's weights-wait end | 4,890 | 4,670 | 5,530 | 5,130 |
+| x copy latency | 3,830 | 4,180 | 4,170 | 4,110 |
+| lead: a warp's stage start after its own release of that slot | 5,920 | 5,810 | 7,180 | 6,270 |
+| per warp per CTA, us: weights waits / x waits | 2.05 / 3.62 | 0.92 / 1.24 | 4.51 / 7.40 | 1.60 / 1.94 |
+
+Reading (measured, with one caveat: these are 51's stamps of 2026-10-30, not a new run):
+- The refill delay is 0.18-0.31 us per stage; the copy itself takes 2.7-3.2 us from issue to the
+  first waiting warp (weights) and 2.2-2.4 us (x). The copy latency is an order of magnitude larger,
+  and a slot's release-to-need window (lead, 3.4-4.1 us) less the refill delay and the copy
+  latency leaves 0.4-0.6 us of margin on average, so the waits come from the copies' tail, not from
+  the producer's reaction.
+- The x waits are larger than the weights waits in phase A (3.62 / 7.40 against 2.05 / 4.51 us per
+  warp at 128 / 256): the x stream, three 32 KB slots released only after the stage's last wgmma
+  group retires, is the larger part of the 0.28 us.
+- Per-warpgroup weight sub-slots would shorten only the refill delay and the leaders' skew waits;
+  56 already bounded that at 0.45 / 1.07 us at 128 / 256 tokens ("The x gather or the warpgroup
+  skew"), and the donor does not have them.
+
+### Why no donor-side counter run
+
+The matching donor stamps need thread 0's weights-wait and x-wait ends per stage inside its stage
+loop. Built locally (scratchpad, never committed), that stamped DEBUG build grows the donor's stage
+loops from 295 to 395-405 instructions and spills 176 / 416 B (148 local accesses in its phase
+loops), with the wgmma pipelining intact; a donor that much slower waits less, so its waits would
+not be its own (the same reason ABSKEW's donor stamps were dropped on 2026-10-30). Producer-only
+stamps do not perturb its consumers but cannot see when a copy lands. No check was spent.
+
+### Next (proposal, no build yet)
+
+The measured lever is the copy tail against a 3-slot lead, mostly on the x stream. Two directions,
+each testable as one mode on 51 with every fence kept:
+1. Earlier x-slot release: free the x slot after the stage's last wgmma group is issued and
+   retired within the same stage (wg_wait<0> at the stage end) instead of at the next stage's first
+   group, trading one wgmma overlap per stage for about one group of x lead.
+2. x tiles at their real size: the x slots are sized for the largest job (32 KB at 8 n-tiles);
+   jobs with fewer n-tiles could use more, smaller x slots (deeper x ring for small jobs), which
+   needs per-job x slot sizes in the ring arithmetic.
+Budget: the coordinator's 2 remaining MoE checks today are unspent.
+
 ## Staged pair on current components, 2026-10-29
 
 The staged two-launch MoE (mode 19, phase A alone on owned units, then mode 21, phase B and the
