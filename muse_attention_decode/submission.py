@@ -3101,6 +3101,11 @@ constexpr int M_SOLO = 64;
 #ifndef ONE_PBULK
 #define ONE_PBULK 0
 #endif
+// ONE_PBDBG (bench-only, with ONE_PBULK): 2 = the PBULK loop without fills or window waits
+// (entries by the old loads); 1 = fills and window waits, entries still by the old loads.
+#ifndef ONE_PBDBG
+#define ONE_PBDBG 0
+#endif
 
 __host__ __device__ constexpr bool one_pb(int L, int mode) {
     return ONE_PBULK != 0 && L == 1 && (mode & M_PROD) && !(mode & M_SOLO);
@@ -4122,7 +4127,7 @@ attn_one_kernel(const Params p) {
                     auto fill = [&](int t, int gt) {
                         long long w0 = 0;
                         int bytes = 0;
-                        if (ptid == 0 && win(t, w0, bytes)) {
+                        if (ONE_PBDBG != 2 && ptid == 0 && win(t, w0, bytes)) {
                             const int s = gt % PB_SLOTS;
                             const uint32_t bar = smem_base + S::PBAR + 8 * s;
                             // The window's previous generic reads (ordered before this thread
@@ -4144,7 +4149,7 @@ attn_one_kernel(const Params p) {
                         int pe[4];
                         long long w0 = 0;
                         int bytes = 0;
-                        if (win(t, w0, bytes)) {
+                        if (ONE_PBDBG != 2 && win(t, w0, bytes)) {
                             const int s = (g + t) % PB_SLOTS;
                             mbar_wait(smem_base + S::PBAR + 8 * s, (pbits >> s) & 1u);
                             pbits ^= 1u << s;
@@ -4156,6 +4161,12 @@ attn_one_kernel(const Params p) {
                             for (int i = 0; i < 4; ++i) {
                                 const int pos = pos0 + r0 + 16 * i;
                                 pe[i] = pos < seq ? sl[(pos >> p.lp) + d] : 0;
+                            }
+                            if constexpr (ONE_PBDBG == 1) {
+#pragma unroll
+                                for (int i = 0; i < 4; ++i) {
+                                    pe[i] = entry(t, r0 + 16 * i);
+                                }
                             }
                         } else {
 #pragma unroll

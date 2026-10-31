@@ -3356,3 +3356,30 @@ beating the board entry on paired evidence, and each confirmed 0.1% counts towar
 confirmation bench and two judged checks still follow before any file is offered.
 Diagnostic: `pbprod_probe` against `prodonly_probe` says whether the producer-only pace (4.7 / 8.0
 us behind the public producer in 4b60264a276c4805) moved.
+
+Independent read-only review of `ONE_PBULK` (fresh agent, 10-31, source and SASS layout): **sound**, with
+caveats: the local tile counter `g` shadows the outer `g = lane >> 2` (unused there); `pt_total`
+assumes a contiguous table of at least `batch` rows, as the old path does; the per-tile producer
+`bar.sync` is a performance question.
+
+### Check fcf904b32d9a427b (bench `bench_p`, at 03675e8): `pb` hung in ABCHECK
+
+| date | job | commit | file | result | notes |
+|---|---|---|---|---|---|
+| 2026-10-31 | fcf904b32d9a427b (check) | 03675e8 | bench `bench_p` | failed: the bench's HANG guard ended the process | `HANG pb b16 ctx80000 tp8 full L1 ... t=366s: device busy for 20s`; ctrl and ctrlb had passed ABCHECK on that shape |
+
+Profiles: `muse_attention_decode/profiles/bench_p.fcf904b32d9a427b.*`. No timing; nothing judged; the
+board is unaffected. The first launch of the `ONE_PBULK=1` build at decode 16 full did not finish.
+A static read of the source and of the mode 49 SASS (slot index, parity bits in a uniform register,
+`SYNCS.ARRIVE.TRANS64` with the same byte count as the `UBLKCP`, the elect loop around it, the warp
+reconverged at `BAR.SYNC 0x4, 0x80`) did not find the cause, and neither did the review.
+
+### Check 2 (diagnostic, no gate): which piece hangs
+
+Bench `bench_q` (`flat/gen_q.sh`, `--shapes full --inputs 1 --rounds 60`): ABCHECK runs the arms in
+order and the HANG guard stops at the first hang. `dbg2` (`ONE_PBULK=1 ONE_PBDBG=2`: the new loop
+and its per-tile producer `bar.sync`, no fills, no window waits, entries by the old loads), `dbg1`
+(`ONE_PBDBG=1`: fills and window waits run, entries still by the old loads), `pb` (entries from the
+windows). A hang in `dbg2` puts it in the loop structure or the producer barrier; in `dbg1`, in the
+bulk copy / mbarrier protocol; only in `pb`, in the entries read from the windows (wrong entries
+feeding the K / V copies). SASS: both debug builds change only mode 49, no spills.
