@@ -95,3 +95,22 @@ Four-arm bench c8d1e57261dd4901: inc = release_s, cand = layer_mb1s, all six loa
 seeds 260001+, order seed 79, `--dup=own`. Read against 3aee22ba4a404c8a (the same inc against
 layer_m1rt51s): the slice's effect is the difference of the two pooled ratios per load, which
 is only meaningful where each bench's nulls are under the difference.
+
+Result (c8d1e57261dd4901): the slice lost inside prepare. Both cand copies left the preferred
+o+front+unp at 8, 16 and 32 tokens (`{8: 'o+front', 16: 'o', 32: 'o'}`), which the stable rule
+does only when another mode is faster beyond max(0.3 us, 2 x MAD) in at least 8 of 9 rounds.
+The timed bench then ran layer_m1rt51s's policy and read pooled 1.0106 against release_s, a
+second reading of that candidate (3aee22ba4a404c8a read 1.0052). Slice 1 is closed in
+`docs/ruled-out.md` with its revisit trigger.
+
+Next, in order (no quota left this round for the layer):
+
+1. Print the M1 tuner's per-mode stable notes in one compact line that the bench keeps in its
+   tail, so the next slice's whole-step savings are visible even when it is not picked.
+2. Slice 2: an early `griddepcontrol.launch_dependents` in the fused MoE kernels after their
+   last weight stage and in the sk projections, with slice 1 retested on top. The
+   co-residency question: a trigger lets secondaries occupy SMs while primary CTAs still run,
+   so a grid-synchronized primary must trigger only after its last grid barrier.
+3. Attention after qkv (`_ONE_PDL` per bucket), then the 1-token cgemv chain.
+
+The plan's diagram (user rule "plans always in md" asks for one) is not drawn yet.
