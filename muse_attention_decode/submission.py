@@ -6126,7 +6126,10 @@ _ONE_WS_CARVE = 0
 # out (b7762d764d474eae): physical placement, which a process can only choose by trying.
 # Benches 3c6e1a7f1cc644b6 / 409996a7214f411a: both pick arms landed at the fastest null state at
 # decode 1 full (0.3-0.4 us ahead of the slow ones) on both inputs, no row worse.
-_ONE_WS_PICK = 3
+# Off since 2026-10-31 by the user's decision: the judged entry must not depend on a selected
+# allocation layout (Family F protocol); F-ATTN-0 (0519d0b15e9c4583) measured the pick at about
+# 0.2 us at decode 1 full, inside that bench's null.
+_ONE_WS_PICK = 0
 _ONE_WS_PICK_ROUNDS = 9
 
 
