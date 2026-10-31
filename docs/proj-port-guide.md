@@ -454,3 +454,59 @@ that needs no co-residency.
   (the watchdog path still runs the epilogue, so a timeout yields wrong output, caught by the
   self-test, but a clean state afterwards). `red.add.f32` flushes subnormals (PTX `red`), far
   below the router's 1e-4 bound. FP32 summation order varies between runs (about 1e-7 relative).
+
+## In-kernel tile clear for the split router (`WV_GTICKET`, review pending, 2026-10-31)
+
+Bench-only (`WV_GTICKET` with `WV_GRED`, not `WV_GZERO`). Measured in e9d9499a465d4548: with the
+rk block order (`WV_RKORD`) it beats the production router at m = 256 by 0.61-0.70 us, 0.16-0.25
+better than the memset-zeroed form. It needs an independent memory-model review before any
+candidate uses it.
+
+State: `wd_tk_cnt[17 * 64]` (tickets) and `wd_tk_ready[17 * 64]` (published generations),
+`__device__` globals zero at module load, indexed `CLK * 64 + tile`, tile = token tile x row
+blocks + row block. Counters are never reset; generations are `ticket / CLK`.
+
+Protocol, per CTA of a tile (CLK CTAs per tile per launch):
+
+1. Producer warp, lanes 1-31, at kernel start (lane 0 is issuing TMA): lane 1 runs
+   `t = atomicAdd(&wd_tk_cnt[i], 1)` (`atom.add` relaxed, .gpu), stores `t / CLK` to shared
+   `gred_gen`, and broadcasts `t` by `__shfl_sync` over lanes 1-31.
+2. If `t % CLK == 0` (the first ticket of this generation): lanes 1-31 store zeros to the tile's
+   valid rows of `out` with `st.global.cg`; `__syncwarp(lanes 1-31)`; lane 1 runs
+   `__threadfence()` (`fence.sc.gpu`) and `st.release.gpu.global.u32 wd_tk_ready[i] = t / CLK + 1`.
+3. Every CTA, after its main loop and the partial-tile write to shared memory: `__syncthreads()`;
+   thread 0 spins on `ld.acquire.gpu.global.u32 wd_tk_ready[i]` until the value reaches
+   `gred_gen + 1` (wrap-safe signed compare), giving up after WAIT_LIMIT cycles with a diag code;
+   `__syncthreads()`; every thread adds its float4s into `out` with `red.relaxed.gpu.global.add.v4.f32`.
+
+Claimed chain (PTX ISA memory consistency model, sections as cited by the GRED review):
+
+- Zero stores before the release: each zeroing lane's `st.cg` precedes, in program order, its
+  arrival at `__syncwarp` (`bar.warp.sync`), which synchronizes the participating lanes (base
+  causality through the barrier); lane 1's `fence.sc` then `st.release` form a release pattern
+  that covers every zero store ordered before it in causality order.
+- Release to acquire: thread 0 of a CTA reads, with `ld.acquire.gpu`, a value written by that
+  release (or a later one of a later generation, which never happens inside one launch since the
+  generation's tickets are all taken by this launch's CTAs); the release synchronizes with the
+  acquire (morally strong, same location, .gpu scope).
+- Acquire to the adds: thread 0's acquire precedes the second `__syncthreads()`, which orders it
+  before every thread's `red` (base causality through `bar.sync`). So every zero store of the tile
+  happens before every red of every CTA of that tile, and the reds (atomic, morally strong)
+  accumulate on the zeros; the final values are complete at kernel completion.
+- Generation identity: the CLK CTAs of a tile in one launch take tickets g*CLK .. g*CLK + CLK - 1
+  (one atomic each, every launch of that split count adds exactly CLK per tile), so exactly one of
+  them holds `t % CLK == 0`, and all of them wait for `g + 1`. Launches are stream-ordered, so a
+  later launch's tickets start after every earlier launch's tickets were taken.
+- Previous launch: its reds into the old `out` and this launch's zero stores into a fresh `out`
+  are ordered by stream order (kernel completion synchronizes with the next kernel's start).
+- Progress: a CTA waits only for the CTA that took ticket 0 of its generation, which took it at
+  its start (so it is resident or finished) and waits for nobody before publishing; no
+  co-residency of the grid is required. The ticket is taken before the main loop by idle lanes,
+  so the clear overlaps the main loop as in the donor rk.
+
+Questions for the reviewer: whether `__syncwarp` over a partial mask gives the base-causality
+step for lanes whose stores precede it; whether the release must be issued by a lane that
+itself executed `fence.sc` after the barrier (it does); the wrap-around of `wd_tk_cnt` after 2^32
+tickets (CLK does not divide 2^32 for CLK = 12: generations misalign after about 3.6e8 launches);
+and any interaction with `out` being freshly allocated by the caching allocator (a block reused
+from the previous call: covered by stream order).
