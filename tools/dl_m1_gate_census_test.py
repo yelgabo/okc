@@ -23,8 +23,9 @@ ns = {"torch": torch, "_FAILED": [], "M1_BUCKETS": (8, 16, 32), "M1_STRESS_REPLA
 if len(sys.argv) > 2:
     layer = open(sys.argv[2]).read()
     exec(layer[layer.index("# Fresh-input replay gate"):layer.index("def _moe1_tune(")], ns)
-    if "\nM1_GATE_MODE = " in layer:
-        exec(layer[layer.index("\nM1_GATE_MODE = "):].split("\n")[1], ns)
+    for name in ("M1_MODES", "M1_GATE_MODE"):
+        if f"\n{name} = " in layer:
+            exec(layer[layer.index(f"\n{name} = "):].split("\n")[1], ns)
     a = layer.index("# The single-element negative control in the M1 gate")
     exec(layer[a:layer.index("def _m1_enable(state):", a)], ns)
     print(f"gate and M1 code from {sys.argv[2]}")

@@ -113,4 +113,86 @@ Next, in order (no quota left this round for the layer):
    so a grid-synchronized primary must trigger only after its last grid barrier.
 3. Attention after qkv (`_ONE_PDL` per bucket), then the 1-token cgemv chain.
 
-The plan's diagram (user rule "plans always in md" asks for one) is not drawn yet.
+Diagram: [plan-2026-10-31-m-b-pdl-chain.html](plan-2026-10-31-m-b-pdl-chain.html).
+
+## Slices 2 and 3 (built: `tools/dl_mb_chain_patch.py`, `layer_mb2s`)
+
+Built on layer_m1rt51s. M1's mode becomes a set of switches joined by "+", and the stable M1
+tuner times `M1_MODES` = off, o, o+front, o+front+trig, o+front+unp+trig,
+o+front+unp+trig+attn per bucket against the incumbent's preferred mode; the gate replays the
+last (every switch on). Switches:
+
+| switch | what changes | where it is read |
+|---|---|---|
+| unp | the unpooler sk pick launches with the PDL bit (slice 1) | `_m1_pdl` in `_proj` |
+| trig | every sk / skf launch at that bucket sets bit 17 of its config; `sk_fwd` / `skf_fwd` pass it as bit 29 of M; `sk_kernel` (built with SK_PDL, single-CTA) executes `griddepcontrol.launch_dependents` at entry when it is set | `_proj`, the two front call sites |
+| attn | `_attn_one` passes PDL for the attention launch at 9-32 tokens; the host drops it on cooperative modes (`pdl && !coop`); the launch is counted by the M1 census | `_attn_pdl` |
+| (always) | both fused MoE kernels (the four skinny copies and `moe_main_kernel`) execute `griddepcontrol.launch_dependents` right after their grid barrier's `__syncthreads()` | device |
+
+Trigger placement (from a read-only review of the kernels, layer_m1rt51s line numbers): the
+skinny MoE's last inter-CTA wait is the grid barrier ending at 10110, mode 51's at 13146; the
+fused MoE kernels had no trigger before. `sk_kernel` has no inter-CTA wait in its single-CTA
+configs (the FUSE last-block reduction counts with `atomicAdd` and never waits), so its entry
+is safe. Both MoE kernels run one CTA per SM on a grid of all SMs (persistent by grid size, not
+cooperative). Shared memory leaves room for an unpooler sk CTA beside a MoE CTA only at 16
+tokens (skinny MoE about 155.5 KB; unp16 about 69-75 KB); at 8 and 32 tokens a secondary CTA
+can only start on an SM whose MoE CTA has exited, so there the trigger hides launch latency
+only (computed from the structs, not measured).
+
+PTX: `griddepcontrol.launch_dependents` only lets the dependent grid be scheduled once every
+CTA of this grid has issued it or exited; it orders no memory. `griddepcontrol.wait` waits
+until the prerequisite grids have completed and their memory operations are performed and
+visible to the current grid (PTX ISA, griddepcontrol). So a trigger can change what runs
+concurrently and what a secondary may read before its wait, never what it reads after. Every
+pre-wait read in the chain is listed in the next section.
+
+Progress: a secondary CTA can only be placed after every primary CTA has triggered or exited,
+so it never takes an SM a primary CTA still needs; the MoE triggers after its grid barrier,
+so its barrier cannot be affected at all.
+
+## Queued beside M-B: MoE mode 78 at 32 tokens (coordinator, 2026-10-31)
+
+Mode 78 (51 + paired-row scale decode + the fin4 final pass below 64 tokens, muse_moe_w4a16 at
+d73c4fd) was 1.5-3.5 us under 51 at 32 tokens on 35 of 36 paired seeds and failed its gate at 128
+std (docs/runs-moe.md, "Donor MoE (M-A) against mode 51"). Port: `tools/dl_moe_inline.py` now
+takes a target file and builds `LAYER_MAIN_EXTRA = ((78, 64),)`, writing
+`_MOE1_MAIN_MAX_M = {'main-lean-grp-fin4ps': 64}` and a tuner filter, so 78 is offered at 32
+tokens only. ybuf check: the layer allocates ybuf as `(_MOE1_EMAX, D_EXPERT)` =
+(512 x 8, 4096) = (4096, 4096) FP32, the device's kEmax x kH; 78's partials use rows 4064-4095
+and only below 64 tokens, where the pair rows end under 63 x 8 = 504 (the source's static_assert
+states the same bound); nothing else in the layer uses ybuf. So the last 32 rows are free.
+
+Pre-registered rule (written before any check of it): 78 ships only if (1) the stable MoE
+tuner picks it at 32 tokens over the preferred 51 in both cand prepares (a saving above
+max(0.3 us, 2 x MAD) in at least 8 of 9 rounds on its four routings), and (2) a four-arm bench
+on fresh seeds (280001+) against the incumbent reads, on the d32 load, all four cross ratios
+above 1 and the pooled d32 ratio above 1 + 2 x the larger d32 null, with no other load's pooled
+ratio below 1 - 2 x its larger null. The whole-score decision rule is not used for it alone:
+one load out of six moves, about 0.1-0.2% of the score.
+
+## Trigger-order invariant (applies to every new trigger)
+
+Several kernels read, before their own wait, data written two or more launches back, and rely
+on that writer being complete. In the source: `boundary_kernel` (the FFN boundary at T <= 8)
+loads the stream written by the attention boundary before its wait on the unpooler, citing
+"every path from it to here passes GEMM1 or Marlin, which wait before they trigger"; the audit
+table in docs/runs-decode-layer.md ("PDL provenance of every load before a
+griddepcontrol.wait") rests on "every kernel completes only after its own wait". A secondary
+can launch once every CTA of its primary has triggered, so with triggers placed before waits a
+chain of early triggers could start a reader while a writer two launches back still runs.
+
+Rule for M-B: for each pre-wait read of a writer two or more launches back, the chain between
+them must contain a kernel that waits before it triggers. The MoE's new trigger follows its
+own wait (the grid barrier comes after it). The sk entry trigger precedes its wait, so its
+successors were checked one by one (layer_mb2s, all switches on):
+
+| sk launch -> successor | successor's pre-wait reads | safe because |
+|---|---|---|
+| qkv -> attention (attn) | K/V cache rows below `seq_lens`, page table, `seq_lens` | harness inputs, written before the step |
+| o -> attention boundary | the step's input stream, alpha, beta, the next norm weight | harness input and prepare-time state |
+| skf front -> route | the pre-expert norm weight, the router bias | prepare-time state |
+| unpooler -> FFN boundary (T <= 8) | the stream written by the attention boundary in this step, gate and norm weights | the unpooler launches only after the MoE triggered, which is after the MoE's wait, so route is complete; route and skf complete only after every one of their CTAs passed its wait, so the attention boundary is complete |
+
+Entry triggers that already existed (`attn_boundary_kernel`, ONE_TRIG in attention) are
+unchanged; with attn on, attention launches early behind qkv and ONE_TRIG lets o launch
+early in turn, and o reads only weights before its wait.

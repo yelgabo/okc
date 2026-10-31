@@ -821,6 +821,13 @@ def _ab_policy(ns, state):
     put("wide", lambda: " ".join(f"{k}:{v[0]}" for k, v in sorted(
         state.get("skp_wide_report", {}).items())))
     put("m1", lambda: str(state.get("m1_policy", "none")))
+    # The M1 tuner's paired whole-step savings per mode against the preferred one
+    # (_stable_pick's note). The m1_report lines fall out of the tail first; this keeps the
+    # per-mode evidence even when a mode is not picked (c8d1e57261dd4901 lost it).
+    put("m1stable", lambda: "; ".join(
+        f"{k[3:]} " + v.replace("pref ", "").replace(" rounds 9", "")
+        for k, v in sorted(state.get("stable_report", {}).items()) if k.startswith("m1 "))
+        or "-")
     # Layers with the attention workspace pick (tools/dl_one_port_patch.py) record it here; a
     # pick is per prepare, so the four arms differ by design.
     put("wspick", lambda: str((state.get("one") or {}).get("ws_pick", "-")))

@@ -15,7 +15,9 @@ route_align takes it from the device too), so Params gains `const int* lo_p` and
 take the local range's start from it. Each anchor must match exactly once per template; a
 changed kernel fails here instead of compiling with a stale patch.
 
-    python3 tools/dl_moe_inline.py [path/to/muse_moe_w4a16/submission.py]
+    python3 tools/dl_moe_inline.py [path/to/muse_moe_w4a16/submission.py [TARGET_LAYER.py]]
+
+TARGET_LAYER.py defaults to muse_decode_layer/submission.py and is rewritten in place.
 """
 
 import ast
@@ -35,7 +37,8 @@ RENAME = (("repack_expert_fat", "moe1_repack_expert_fat"), ("repack_expert", "mo
           ("unit_rows", "moe1_unit_rows"))
 MAIN_NAMES = {0: "main-d2", 5: "main-d3", 16: "main-m2-ar2-ub", 20: "main-own",
               23: "main-own-dynb", 26: "main-dynb-fs", 28: "main-lean", 37: "main-lean-silu-bar",
-              47: "main-lean-grp-nohoist", 51: "main-lean-grp-finss64"}
+              47: "main-lean-grp-nohoist", 51: "main-lean-grp-finss64",
+              78: "main-lean-grp-fin4ps"}
 # Each fat mode is another kernel instance in the layer's build, so the layer builds only the
 # fat modes that won a standalone bench: 0 (its fallback) and 16, which took 128 and 256
 # tokens from legacy128 and mode 12 in checks 9a9fb08c134c4a16 and c65e91500215418d, and 20,
@@ -52,6 +55,11 @@ MAIN_NAMES = {0: "main-d2", 5: "main-d3", 16: "main-m2-ar2-ub", 20: "main-own",
 # us under 47 at 128 and 256 tokens on held-out layer, standalone and skewed seeds, check
 # c6b0e500c3a84c9a; 32 tokens unchanged.
 LAYER_MODES = (0, 16, 26, 28, 37, 47, 51)
+# Fat modes the layer may build although the standalone's MAIN_MODES leaves them out, each with
+# the token count it is offered below (_MOE1_MAIN_MAX_M). 78 (51 + paired-row scale decode +
+# the fin4 final pass below 64 tokens) was 1.5-3.5 us under 51 at 32 tokens on 35 of 36 paired
+# seeds but failed its gate at 128 std (docs/runs-moe.md, c8fc5f669fa34d06), so 32 only.
+LAYER_MAIN_EXTRA = ((78, 64),)
 # Skinny variants the layer builds beside the standalone's computing ones, by (warps, slots,
 # kMode): kMode 3 (sk8w4s-er, each compute warp releases its ring slot itself) lost on the
 # standalone routing but won on layer routing at 8 and 16 tokens (docs/runs-moe.md, 2c28a7256b004aa1),
@@ -245,6 +253,10 @@ def device_code(ns):
     tag = ns["_skinny_tag"]
     skinny_variants = [v for v in ns["SKINNY_VARIANTS"] if v[2] == 0] + list(LAYER_SKINNY_EXTRA)
     main_modes = [m for m in ns["MAIN_MODES"] if m in ns["MAIN_CANDIDATES"] and m in LAYER_MODES]
+    for m, _ in LAYER_MAIN_EXTRA:
+        if f"mode == {m}" not in ns["_CUDA_SRC"]:
+            raise SystemExit(f"LAYER_MAIN_EXTRA mode {m} is not defined in the kernel source")
+        main_modes.append(m)
     if not main_modes:
         raise SystemExit(f"none of LAYER_MODES {LAYER_MODES} is a fat candidate in the source")
     skinny = "\n".join(block.replace("@TAG@", tag(nw, ns_, mode)).replace("@NW@", str(nw))
@@ -264,7 +276,8 @@ def device_code(ns):
     variants = [(f"sk{nw}w{ns_}s{SKINNY_SUFFIX[mode]}", "skinny", f"sk_{tag(nw, ns_, mode)}::launch<1>")
                 for nw, ns_, mode in skinny_variants]
     variants += [(MAIN_NAMES.get(m, f"main-m{m}"), "main", f"launch_main<{m}>") for m in main_modes]
-    return code, variants, int(ns["MAIN_MIN_M"])
+    max_m = {MAIN_NAMES.get(m, f"main-m{m}"): below for m, below in LAYER_MAIN_EXTRA}
+    return code, variants, int(ns["MAIN_MIN_M"]), max_m
 
 
 def repack_code(funcs):
@@ -288,14 +301,15 @@ def main():
     src_path = Path(sys.argv[1]) if len(sys.argv) > 1 else SRC
     text = src_path.read_text()
     ns, funcs = load(text)
-    sub = SUB.read_text()
+    target = Path(sys.argv[2]) if len(sys.argv) > 2 else SUB
+    sub = target.read_text()
     layer_bitpos = ast.literal_eval(re.search(r"^W4_BITPOS = (\(.*?\n\))", sub, re.S | re.M).group(1))
     if tuple(layer_bitpos) != tuple(ns["W4_BITPOS"]):
         raise SystemExit("the layer's W4_BITPOS differs from the fused kernel's; copy it too")
     for helper in ("_perm", "_stack_last", "_to_i64"):
         if f"\ndef {helper}(" not in sub:
             raise SystemExit(f"the layer lacks the repack helper {helper}")
-    code, variants, main_min = device_code(ns)
+    code, variants, main_min, max_m = device_code(ns)
     sub = replace_once(sub, r'_MOE1_SRC = r""".*?"""', lambda _: f'_MOE1_SRC = r"""\n{code}"""',
                        "_MOE1_SRC block")
     sub = replace_once(sub, r"^_MOE1_VARIANTS = \(.*?\n\)$",
@@ -303,10 +317,26 @@ def main():
                        "_MOE1_VARIANTS table")
     sub = replace_once(sub, r"^_MOE1_MAIN_MIN_M = \d+$", f"_MOE1_MAIN_MIN_M = {main_min}",
                        "_MOE1_MAIN_MIN_M line")
+    # A fat variant listed here is offered to the tuner only below its token count.
+    max_line = f"_MOE1_MAIN_MAX_M = {max_m!r}"
+    if re.search(r"^_MOE1_MAIN_MAX_M = .*$", sub, re.M):
+        sub = replace_once(sub, r"^_MOE1_MAIN_MAX_M = .*?$", lambda _: max_line,
+                           "_MOE1_MAIN_MAX_M line")
+    else:
+        sub = replace_once(sub, r"^(_MOE1_MAIN_MIN_M = \d+)$", lambda mo: mo.group(1) + "\n" + max_line,
+                           "_MOE1_MAIN_MIN_M line")
+    tune_old = 'if _MOE1_VARIANTS[v][1] == "skinny" or bs >= _MOE1_MAIN_MIN_M]'
+    tune_new = ('if _MOE1_VARIANTS[v][1] == "skinny"\n'
+                '                          or _MOE1_MAIN_MIN_M <= bs < _MOE1_MAIN_MAX_M.get(\n'
+                '                              _MOE1_VARIANTS[v][0], 1 << 30)]')
+    if sub.count(tune_old) == 1:
+        sub = sub.replace(tune_old, tune_new)
+    elif max_m and sub.count(tune_new) != 1:
+        raise SystemExit("the MoE tuner's candidate filter is not where expected")
     sub = replace_once(sub, r"# @MOE1_REPACK_BEGIN@\n.*?# @MOE1_REPACK_END@\n",
                        lambda _: "# @MOE1_REPACK_BEGIN@\n" + repack_code(funcs) + "\n# @MOE1_REPACK_END@\n",
                        "@MOE1_REPACK@ region")
-    SUB.write_text(sub)
+    target.write_text(sub)
     print(f"inlined {len(code.splitlines())} device lines and {len(REPACK)} repack functions from "
           f"{src_path}; variants {[v[0] for v in variants]}, fat path from {main_min} tokens")
 
