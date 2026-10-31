@@ -50,6 +50,30 @@ FP32 values by one CTA (about 1 us on one SM); a cheaper form has every CTA spin
 generation flag after its arrival, which needs co-residency and is rejected for that reason
 (coordinator method: progress must never depend on co-residency).
 
+### C-1 revised before building (2026-10-31): a cooperative kernel with two grid barriers
+
+The last-arriver form above does not work as written. The boundary needs two full-row
+reductions in sequence: the sum of squares of the BF16 branch (post-attention norm), then the
+sum of squares of the new stream, which contains a BF16 rounding of the normalized branch
+(`bf16r()` in `attn_boundary_kernel`). After a last-arriver join only one CTA knows the first
+scale, so it would have to produce all 8192 outputs alone (one SM streaming about 120 KB, likely
+slower than today's 3.9 us boundary). Expanding the second sum of squares into per-CTA partials
+(sum s^2 + 2c sum s g b + c^2 sum (g b)^2) avoids that but drops the BF16 rounding the reference
+applies before the residual add, so it is not the same computation.
+
+The exact form is a persistent cooperative kernel (cudaLaunchAttributeCooperative, grid at
+most the co-resident CTA count, probed under graph capture as `attn_one_probe_coop` does, C-1
+off if refused): phase 1 computes the o rows (the cgemv stream format and escape table) and
+each CTA's partial sum of squares of its BF16 branch values; grid barrier 1; every CTA sums the
+partials in a fixed order (deterministic), takes the first scale, computes the new stream for
+its share of the 8192 columns exactly as the boundary kernel does and its partial sum of
+squares; grid barrier 2; every CTA forms the second scale and writes its share of the stream,
+the BF16 next input and the FP32 router copy. Co-residency is guaranteed by the cooperative
+launch, which the attention's cooperative modes already rely on; the barrier is the MoE's
+generation counter (atomicAdd after `__threadfence()`, the last arrival bumps the generation,
+the others spin with `ld.acquire.gpu`), whose ordering argument is in the MoE port guide. Only
+the summation order of the two norms changes against today's path.
+
 ### C-2: the one-token front in one launch
 
 The FP32 front at one token runs the pooler as `cgemv<512,1>`, then `pre_norm`, the FP32 router
