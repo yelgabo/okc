@@ -3112,6 +3112,149 @@ Reading under the rule set before the run:
 - Decision: parked in docs/ruled-out.md with this evidence. Budget used: the day's last MoE check
   (eaa881a934aa471e) and one scored run (e02f60fec94f45cb).
 
+## Donor MoE (M-A) against mode 51, 2026-10-31
+
+Brief: F-LAYER-0 (checks 20abe6291eb04ed6, 00607fc6f8c84c77, docs/runs-decode-layer.md on the
+F-LAYER branch) put the donor layer about 9% ahead of ours and its MoE ("M-A") at about -11 us at
+decode 32 sliding and -21 us at verify 16 / 32 sliding; F-MOE-0 (40b8c798289a4258,
+218ff300de7d4c22) put the exact donor MoE 3-4% ahead of our board file standalone, 1.08 / 1.12 at
+128 / 256 tokens on standalone routing. User rule (2026-10-31): the donor is for measurement and
+learning; a winning mechanism is re-implemented in our code with an attribution comment. Donor:
+alygg77/okc-muse-spark-kernels at 6cae49a639ee6d14b929a5fd4a63c627f96d7dc0 (Apache-2.0),
+`kernels/muse_moe_w4a16.py` (SHA256 b33070898927b7b92df6c7a2515f9c02dd12723c43ca63682fa164e915dd4281)
+and `kernels/muse_decode_layer.py`, read in the session scratchpad only. Line numbers below are the
+donor standalone file's unless marked "layer".
+
+### What M-A is
+
+The donor's standalone MoE file is the public file this log has measured against since
+2026-10-29 (vjeux/okc-2026 at f35a41e, scratchpad copy SHA256 10e0690d...) plus 137 diff lines:
+the KPERM3 permutation (the weight copy `_kperm_codes` / `_kperm_rows` 3223-3251 and 3258-3268,
+the x gather 2049-2055, the stage loop's scale load 2204-2212), a helper-warp source used only by
+its MID build (16 tokens), and a CUDA context bind around kernel_fn. The OKC_ flag sets differ by
+one flag (OKC_WSH0, MID only); the PRMT scale decode (OKC_PRMTSC) is already in the public file.
+The layer copy adds one build: `-DOKC_B4FIN=1` for 16 < M <= 32 (layer 3870, 5768-5786,
+6323-6378, dispatch 13097-13116). So every gap this log attributed "against the public kernel"
+is M-A's gap too, with KPERM3 and, in the layer at 17-32 tokens, B4FIN on top.
+
+A side finding for the layer owner: the F-LAYER-0 ABPOL lines show our layer running mode 47 at
+32 / 128 / 256 tokens (its _MOE1_VARIANTS ends at 47). Mode 51 is -3.9 / -4.4 us against 47 at
+128 / 256 tokens on held-out seeds (c6b0e500c3a84c9a) and has not been ported, so about 4 us of
+M-A's 21 us at verify 16 / 32 is already in hand (Port, below).
+
+### M-A against mode 51, mechanism by mechanism
+
+| # | mechanism | M-A (donor source) | mode 51 | tested by us |
+|---|---|---|---|---|
+| 1 | phase A partition | static cost-weighted stage ranges per CTA (`wgs_range`, tables OKC_WGSA / OKC_WGSB 1838-1839), about 1.85 cut units per CTA; a CTA runs its trailing cut unit first (`wgs_split`, OKC_WGSREORD, 1945-1953) so the share holding a unit's last stage runs early; cut units finish by last arrival (OKC_WGSDFIN = 2 sets the designated finisher for phase B only, 1855) | whole 16-stage units dealt in snake order by n-tile count, no cut, no fixup | 72 (stream-K A, last arrival: +6.6 to +13.5 us, 098949b28fe84bd1); 74 (designated finisher, the share ending last under our walk: +2.0 to +7.9, e02f60fec94f45cb). The donor's walk order (trailing cut share first) was not tested |
+| 2 | phase B partition | the same static ranges over phase B's cost prefix; the share holding stage 0 finishes the unit (designated, `wgs_flush` kind 3, 2113-2140) | whole units claimed at run time (ctr[10], S.bq) | only as mode 16 (both phases stream-K) on the 2026-10-29 stage loop, which lost to 20 and 23; never under 51's components |
+| 3 | readiness between phases | x producer spins on xready per job (phase A) and on doneAs >= 8 per (job, phase B stage) before each phase B stage's bulk copy (2011-2014) | the same granularity (done_as [job][16]) | same design |
+| 4 | rings and producers | 3 weights slots of 36 KB, 3 x slots, one producer warp each, lane 0 issues one cp.async.bulk per stage (1819-1820, producers 1955-2023) | 5, 4 or 3 weights slots by the largest job's N, 3 x slots, one producer thread each | same structure |
+| 5 | scale decode | KPERM3 makes k16 step j of every 4-step load group scale block 4 t + j of lane t, so one 8-byte scale load per stage and 4 bf16x2 scale pairs per stage (rows g and g + 8 in the two halves: one PRMT, one IMAD with an opaque 16 on the FMA pipe), applied by HMUL2 with half broadcasts (2204-2232) | our fat layout (repack_expert_fat, since mode 0) already gives each lane one scale block per 4-step chunk, two 4-byte scale loads per stage; but it builds each row's scale separately (8 PRMT + 8 LEA per stage) | not tested before: mode 76 |
+| 6 | weights slot release | lane 0 arrives after its warp's last code load, no `__syncwarp`, no proxy fence (2214) | every thread fences (fence.proxy.async.shared::cta) and arrives, count 512, behind group s = 10 | not adoptable: unproven under the PTX model ("Which public releases are provable", above) |
+| 7 | x tile publish | the gather and the phase A epilogue store xA / xB with generic stores; another CTA's cp.async.bulk reads them after ld.acquire with no fence.proxy.async on either side (gather stores 2061, epilogue store 2093, their releases 2066-2069, 2118-2122 and 2171-2172, copy 2018 after ld.acquire 2011 / 2014) | fence.proxy.async.global by every writer and by the issuer after its acquire | not adoptable: the 2026-10-29 proxy-ordering defect class ("Proxy ordering of the x tiles"); the donor's times understate a fenced version's |
+| 8 | phase A publish | deferred behind commit group 3 of the next segment's first stage (`wgs_flush` kind 1, OKC_WGSFCI) | right after the epilogue: bar.sync and one red.release (37) | 32-34: the deferral lost or tied (c7db20e053254b52) |
+| 9 | phase B epilogue and final pass from 64 tokens | y rows only; each route's sum of squares formed in the final pass, one token per item (OKC_WGSFINSS) | the same since 50 / 51 | adopted (51) |
+| 10 | final pass at 17-32 tokens (layer B4FIN) | the epilogue stores each route's sum of squares per (route, 16-row block): 256 fixed partials per route, no atomics; items (token, 1024 columns), 4 M items, sums in a fixed order (layer 5768-5786, 6323-6378) | below 64 tokens: 47's path, epilogue atomics into ss, items (token, 2048 columns), 2 M items | not tested before: mode 77 |
+| 11 | precision | gate, up and the GEMM2 output stay FP32 (2.35e-3 against FP32) | rounded to BF16 where SGLang rounds (3.88e-3) | ours kept |
+| 12 | spin timeouts | none | clock reads and a flag off the fast path | kept (the self-tests read ctr[8]) |
+
+Which of the five losing attempts on phase A at 128 / 256 tested what: 60 (the gather's
+per-thread fence) touches our side of item 7 only; 62-66 and 68-71 (phase A's last rounds claimed
+at run time) test a mechanism M-A does not have; 72 and 74 test item 1 with our walk order and
+51's dynamic phase B. None tested item 2 under a stream-K phase A, the donor's
+trailing-cut-share-first order, item 5's decode side or item 10.
+
+What the gap is made of (cross-run subtraction, a hypothesis, not a paired measurement): the
+public file trailed by -9.6 / -14.9 us at 128 / 256 tokens against 51 (3d8902381a194d56,
+standalone routing); the donor led our board file (47 at 128 / 256) by -13 / -24 there
+(218ff300de7d4c22), and 51 is -3.8 / -4.4 against 47 (c6b0e500c3a84c9a), so the donor leads 51 by
+about -9 / -20. KPERM3 over the public kernel is then worth about 0 at 128 and -5 at 256; the rest
+(about 10-15 us) is the public kernel's design, which earlier sections split into setup +4.3 /
++4.4 us, phase A +2.3 / +7.7, phase B +2.9 / +7.3 and tail +3.7 / +3.6 at 128 / 256 tokens
+(d47c78bdc130424b against 47; 51 has since closed the final pass and part of phase B). Items 6 and
+7 are part of that and stay out.
+
+### The change: modes 76 to 78
+
+Re-implemented in our code with attribution comments (`pair_sc`, `fin4`, `final_pass_part`); no
+donor line is copied.
+
+- 76 (pair_sc) is 51 with the paired-row scale decode on the wgmma stage loop: `scale_pair`
+  selects bytes b and b + 1 of the lane's scale word into the two halves of one word (one PRMT),
+  shifts and biases them as `scale_word` does (one LEA), and `dequant_pair` multiplies registers
+  0 and 2 by the low half and 1 and 3 by the high half. Each half is bit-for-bit the word
+  `scale_word` built (CPU check of all selector cases on 200,000 random words: 0 mismatches), so the
+  products and the outputs are 51's. Loads, waits, releases and fences are unchanged. The mma.sync
+  path (jobs of 1-2 n-tiles) keeps its decode.
+- 77 (fin4) is 51 with the B4FIN-style final pass below 64 tokens: epilogue_b stores each 16-column
+  sum of squares to slot (route, rb) of a partial buffer in ybuf's last 32 rows instead of the two
+  atomicAdds, and `final_pass_part` runs (token, 1024-column) items, warp w summing half w & 1 of
+  slot w >> 1's 256 partials (4 per lane, fixed xor tree), so every item of a token gets the same
+  sums. From 64 tokens up 77 is 51.
+- 78 is both.
+
+Ordering, 77 (76 changes no memory operation). The partials follow ybuf's chain: writer thread W's
+st.global of a partial precedes, in program order, W's arrival at the `__syncthreads` before the
+grid barrier; bar.sync synchronizes its participants at CTA scope (PTX ISA 8.9.4, 9.7.13.1), so
+the store precedes thread 0's `__threadfence` (fence.sc.gpu) and relaxed atomicAdd on the barrier
+counter, a release pattern at gpu scope (8.8); the reading CTA's thread 0 observes the count with
+ld.acquire.gpu, an acquire pattern that synchronizes with it (8.9.4), then `__syncthreads` again;
+the reader's ld.global.cg is after all of that in base causality order (8.9.5, transitive), so it
+reads the partial (8.10.6). Every slot a final pass reads is written in the same launch: each local
+route sits in one job, whose 16 phase B units each write rb = 16 u + 4 wg + w for all 16 warps,
+256 slots, through the same epilogue_b on the wgmma and mma.sync paths. `red` in shared memory
+alternates halves by item parity behind one named barrier per item, as `final_pass_ss`: the next
+item's writes to the other half come after every consumer warp passed this item's barrier, so
+after their reads of it. The rings are idle at that point (every bulk copy was waited on before the
+grid barrier), as for `final_pass_ss`; the same unproven step after a spin timeout applies. No
+fence, barrier or release of 51 is removed or moved; the partial buffer needs no reset (written
+before read in every launch that reads it).
+
+Local compile gate (nvcc 12.8.1 in Docker, sm_90a, `tools/moe_compile_fused.sh`, MAIN_MODES (0, 16,
+26, 28, 37, 47, 51, 76, 77, 78) against HEAD bc10cb1's (0, 16, 26, 28, 37, 47, 51)): modes 0, 16,
+26, 28, 37, 47, 51 and the four skinny kernels have identical instruction text; no C7510-C7515;
+76, 77, 78 at 96 registers with no stack frame and no spill. Stage loops 387 instructions for 51
+(393 for the widest), 379 / 385 for 76 and 78; 76 has 50 fewer PRMT and 24 fewer LEA than 51 over
+the kernel. MEMBAR 43, FENCE.VIEW.ASYNC.S 21, FENCE.VIEW.ASYNC.G 11, SYNCS 186, HGMMA 192 in all
+four; 77 and 78 have one more BAR (the final pass's named barrier) and 12 fewer ATOMG (the
+epilogue's sums). `tools/moe_dryrun.py` and `tools/moe_host_check.sh` pass. Profile:
+`muse_moe_w4a16/profiles/sass_mode76.2026-10-31.txt`.
+
+Expected effect (hypotheses): 76 removes 8 of about 387 instructions per stage (2%); if the stage
+loop is issue-bound that is up to 3 us at 256 tokens, and nothing if it is memory-bound. 77 acts at
+32 tokens only; 51's final pass there is about 2 us, so at most about 1 us. Neither closes the
+partition share of the gap (items 1-2), which is the next test (below).
+
+### Gate rule (set before the check is submitted)
+
+One check of `tools/moe_make_bench_ab.py OUT.py DONOR.py --base=51 --sizes=32,128,256
+--routings=layer,std,skewed --seeds=121,122,123,124,125,126 --gate=1 o76=76 o77=77 o78=78`, with
+the donor's exact standalone file in the public slot (its MAIN build, measurement only; the bench
+file stays in the scratchpad). Seeds 121-126 are new on every routing. "76 - 51" is the paired per-seed difference (negative = faster); counts are seeds lower of 6.
+
+Keep 76 only if all hold:
+1. 256 tokens: mean -1.0 us or lower on layer and on standalone routing, at least 5 of 6 seeds
+   lower on each, and 0 or lower on skewed.
+2. 128 tokens: mean -0.5 or lower on layer and standalone, +0.5 or lower on skewed.
+3. 32 tokens: +0.5 or lower on every routing.
+4. Output against 51 within 1e-5 relative L2 on every case (bit-identical products; only 51's own
+   atomic order at 32 tokens can differ).
+5. Prepare's FP32 self-test passes for 76 (no FAIL line, spin flags 0).
+6. The compile gate above holds on the checked commit.
+
+Keep 77 only if all hold:
+1. 32 tokens: mean -0.5 us or lower on layer and on standalone routing with at least 4 of 6 seeds
+   lower on each, and +0.3 or lower on skewed.
+2. 128 and 256 tokens (51's code there): mean +0.5 or lower on every routing.
+3. Output against 51 within 1e-4 relative L2 on every case.
+4. and 5. as 76's 5 and 6.
+
+78: if 76 and 77 are both kept, ship 78 when its mean is within +0.3 us of the better of 76 and
+77 at every size on layer and standalone routing, else ship the better single mode per the rules.
+If neither is kept, both go to docs/ruled-out.md scoped to these designs on 51. Budget: this
+gate check, then at most one check of the shippable file; the line stops at 3 checks.
+
 ## Staged pair on current components, 2026-10-29
 
 The staged two-launch MoE (mode 19, phase A alone on owned units, then mode 21, phase B and the
