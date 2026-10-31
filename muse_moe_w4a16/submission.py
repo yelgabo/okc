@@ -974,12 +974,15 @@ __host__ __device__ constexpr bool stream_a(int mode) {
 // phase B on static cost-weighted stage ranges as well, not claimed: the partition of the donor
 // kernel's WGS build (alygg77/okc-muse-spark-kernels @ 6cae49a, muse_moe_w4a16.py wgs_range,
 // wgs_split, wgs_flush), re-implemented on our segments and fixup slots; no donor source is used.
-// Phase B ranges are not unit-aligned and run in range order (no reorder: a phase B stage waits
-// for its phase A units in order). A cut phase B unit is finished by the share holding its stage
-// 0, which sits at the end of its CTA's range, while the other shares sit at the start of later
-// CTAs' ranges: the designated finisher waits on higher CTAs only, so the waits cannot form a
-// cycle. Both phases are walked largest n-tile count first, as 72. 72 itself is the null arm
-// (phase B claimed). docs/runs-moe.md, "Stream-K in both phases (mode 79)".
+// Phase B ranges are not unit-aligned; within one n-tile group their segments run in range order
+// (no reorder: a phase B stage waits for its phase A units in order), and the groups are walked
+// largest n-tile count first in both phases, as 72. A cut phase B unit is finished by the share
+// holding its stage 0, the last segment of its CTA's range, while the other shares are the first
+// segments of later CTAs' ranges: the designated finisher waits on higher CTAs only, so the waits
+// cannot form a cycle (a CTA whose finisher's group runs before its counting share's makes a
+// chain, still acyclic). 72 itself is the null arm (phase B claimed). Lost to 51 by 11-31 us at
+// 128 / 256 tokens and to 72 by 8-15 (2a4fb39964aa448c); docs/runs-moe.md, "Stream-K in both
+// phases (mode 79)". Not built.
 __host__ __device__ constexpr bool skb(int mode) {
     return mode == 79;
 }
@@ -1159,7 +1162,8 @@ struct __align__(128) SmemMain {
     long long dg[18][8];
     float* ssp;
     // stream_a: the fixup slot of this CTA's leading cut phase A unit (the CTA holding its first
-    // stage). Last, so the production modes' field offsets stay as they were.
+    // stage); skb also keeps phase B's in bits 16 and up. Last, so the production modes' field
+    // offsets stay as they were.
     int lead_slot;
 };
 
@@ -1629,7 +1633,7 @@ __device__ __forceinline__ SegInfo seg_info_m(const SmemMain& S, int ph, int gb,
     if constexpr (skb(MODE)) {
         if (ph == 1) {
             // A cut phase B unit's stage-0 share is its finisher and owns the slot; every
-            // other share of it is the leading share of a later CTA's range (setup's slot).
+            // other share of it is the first segment of a later CTA's range (setup's slot).
             SegInfo si;
             si.j = gb >> 8;
             si.u = (gb & 255) >> 4;
