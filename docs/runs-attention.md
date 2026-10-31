@@ -3304,3 +3304,55 @@ ONE_HMRG on; kernel SASS identical to a70192d on all 13 instances; no public cod
 the coordinator under the standing authorization. Passed, 2.537x (CI 2.499-2.575), above
 1896e72c11ae4b0f (2.521x), so the board entry no longer uses the workspace pick. Receipt:
 muse_attention_decode/profiles/scored.68d3b88fbc8b40da.json.
+
+## Attention round 5 (10-31): page indices by bulk copy in mode 49 (`ONE_PBULK`)
+
+Brief (coordinator, 10-31): the pick-off file scored 68d3b88fbc8b40da (2.537x) and is the board entry
+and the control. Rank 100 is 2.6289, about 3.6% above it. Start with page indices fetched by bulk
+copy in mode 49's producer, in our own code with attribution, aimed at the flat full rows where the
+public / donor kernel leads (d16 / d32 / v16 full); then v32 sliding and d1 full. Budget: up to 10
+attention checks today. Rules unchanged: paired same-process evidence, every fence kept, no submits.
+
+### The switch: `ONE_PBULK` (default 0, mode 49 only)
+
+Mechanism (the public flat q_len 1 kernel's `fetch_pages` / `load_pages_t`, vjeux okc-2026,
+Apache-2.0; re-implemented for our ring, attribution in the source): producer thread 0 issues one
+`cp.async.bulk` per tile of the 16-byte-aligned window of page entries that covers the tile's cached
+rows (at most 68 entries) into one of 4 shared windows (`Smem::PSL`, 320 bytes each, an mbarrier
+each at `Smem::PBAR`), three tiles ahead, armed by `mbarrier.arrive.expect_tx`. Every producer thread
+waits on the window's phase, reads its 4 entries from shared memory, then issues its K / V copies
+exactly as before; after its `cp.async.mbarrier.arrive.noinc` the producers `bar.sync 4, 128`, which
+frees the window the tile used. Tiles with no cached rows, a window past the table's end, or a
+table base not 16-byte aligned take the old `__ldg` entries; the predicate is the same for the
+issuing thread and the readers, so fills and waits pair one to one per window. This replaces 16
+warp-level `LDG` per tile per CTA (4 per producer thread, three tiles ahead in 12 registers) with one
+bulk copy, four `LDS` per thread and one producer barrier.
+
+Ordering: nothing is removed or moved. Added: the window's RAW (bulk write, `complete_tx`, phase
+observed by `mbarrier.try_wait.parity`, then generic loads) and WAR (every producer's generic loads,
+then `bar.sync 4`, then thread 0's `fence.proxy.async.shared::cta` before the async-proxy refill,
+three tiles later). The K / V ring, its full / empty mbarriers and the consumers are unchanged. The
+`fence.proxy.async` before the refill is one more fence than the public kernel uses.
+
+SASS (CUDA 12.8.1, `flat/sass_all.sh`, all 13 instances): `ONE_PBULK=0` identical to main 15cc6b9;
+1 changes only mode 49 (3448 -> 2912 instructions: the three-way unrolled register lookahead is
+gone; 1 `UBLKCP`), consumer region R113, no spills.
+
+### Gate for check 1 (written before the bench that tests it)
+
+Bench `bench_p` (`flat/gen_p.sh`; from the pick-off `submission.py`; `--pub <0e9d4c78> --null
+--shapes full --inputs 3 --rounds 200 --seed 20261102`): `ctrl` (the board entry's code), `ctrl2`
+(independent null), `ctrlb` (`-DONE_PBULK=0`, matched null), `pb` (ctrl's state), `pbown` (own state),
+`pbh` (`ONE_PBULK=1 ONE_HMRGF=1`), the producer-pace probes `prodonly_probe` (`ONE_PROBE=3`) and
+`pbprod_probe` (`ONE_PBULK=1 ONE_PROBE=3`), `stamppb` (stamps), `pub`, `pub2`. G over d16 / d32 full
+at 0.147 / 0.084 %/us.
+
+`pb` (or `pbh`) goes to a confirmation bench if all hold: (1) ABCHECKSUM passes for every real arm
+(the seven tp8 test shapes include page size 64 and the batch-4 full shape, so `p.lp` > 0 and the
+mode 49 test path are covered); (2) G(X) - G(ctrlb) >= 0.10% and G(Xown or pbown) - G(ctrl2) >=
+0.10%; (3) same sign on all three inputs at d16 and d32 full; (4) no row slower than ctrl by more
+than max(|ctrlb - ctrl|, 1%). The bar is lower than round 4's 0.20%: the coordinator's criterion is
+beating the board entry on paired evidence, and each confirmed 0.1% counts toward the 3.6%; the
+confirmation bench and two judged checks still follow before any file is offered.
+Diagnostic: `pbprod_probe` against `prodonly_probe` says whether the producer-only pace (4.7 / 8.0
+us behind the public producer in 4b60264a276c4805) moved.
