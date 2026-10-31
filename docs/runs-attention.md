@@ -3383,3 +3383,31 @@ and its per-tile producer `bar.sync`, no fills, no window waits, entries by the 
 windows). A hang in `dbg2` puts it in the loop structure or the producer barrier; in `dbg1`, in the
 bulk copy / mbarrier protocol; only in `pb`, in the entries read from the windows (wrong entries
 feeding the K / V copies). SASS: both debug builds change only mode 49, no spills.
+
+### Check 61069efbf90d4c44 (bench `bench_q`, at c811908): the hang is in the loop structure; root cause found offline
+
+| date | job | commit | file | result | notes |
+|---|---|---|---|---|---|
+| 2026-10-31 | 61069efbf90d4c44 (check) | c811908 | bench `bench_q` (diagnostic) | failed by design at the first hang: `HANG dbg2 b16 ... full L1` | `dbg2` has no bulk copy and no window wait |
+
+Profile: `muse_attention_decode/profiles/bench_q.61069efbf90d4c44.log`. Since `dbg2` hung, the cause lay
+outside the bulk-copy protocol. Offline bisection (Docker, CUDA 12.8.1, mode 49 only):
+- In every `ONE_PBULK=1` build, mode 49's SASS had no producer `EXIT` and no producer drain; the
+  producer loop's exit edge fell straight into the consumers' `USETMAXREG.TRY_ALLOC 0xc8`. The
+  PTX had no `exit;` at all, so the front end, not ptxas, had treated the code after the loop as
+  unreachable. With the producer warps running into consumer code, the kernel hung.
+- Removing the producer `bar.sync`, the fills, the window reads, or the lambdas: still no `EXIT`.
+  The PBULK branch holding a verbatim copy of the old loop: still no `EXIT`. `if constexpr
+  (false)` in place of `if constexpr (PBULK)` with the old loop in the `else`: `EXIT`s present.
+- So the trigger was the shape `if constexpr (PBULK) { ... } else for (...) { ... }`: with the
+  condition true, the statements after the discarded, unbraced `else` statement (the drain and
+  the inline-asm `exit`) were dropped. With the `else` braced (`} else { for (...) {...} }`), mode
+  49 has its five `EXIT`s again, in the default build's pattern. The other `} else` sites in the file
+  sit inside `#if ONE_DETM` (off) and are followed by braced blocks.
+
+The fix carries a comment at the `else`. SASS after it (`flat/sass_all.sh`): `ONE_PBULK=0`
+identical to main 15cc6b9 on all 13 instances; `ONE_PBULK=1` changes only mode 49 (2832
+instructions, one `UBLKCP` in the prologue fill and one in the loop, `BAR.SYNC 0x4, 0x80`, producer
+`EXIT`s back), consumer region R115, no spills. The ordering argument and the review above are
+unchanged (the brace changes no statement). Check 3 repeats `bench_p` unchanged on the fixed source,
+under the check-1 gate as written.

@@ -1,0 +1,9 @@
+attn prep kernels: loaded
+attn fused kernel: loaded
+attn ws kernel: loaded
+attn one kernel: loaded
+ABBUILD dbg2 ['-DONE_PBULK=1', '-DONE_PBDBG=2'] own_state=False loaded t=45s
+ABBUILD dbg1 ['-DONE_PBULK=1', '-DONE_PBDBG=1'] own_state=False loaded t=91s
+ABBUILD pb ['-DONE_PBULK=1'] own_state=False loaded t=137s
+ABCHECK PASS ctrl b16 ctx80000 tp8 full L1 agentic coherent page1 scale1 [splits=264,nc=1,mode=49] err=1.788e-03 bound=0.052 worst_row=8.310e-03 k=0.00e+00 v=0.00e+00 ws_rows_nonzero=0 l_nonzero=0 tickets_nonzero=0 coop_next_parity_nonzero=0 flat_next_parity_nonzero=0
+HANG dbg2 b16 ctx80000 tp8 full L1 agentic coherent page1 scale1 t=157s: device busy for 20s; stamps unreadable

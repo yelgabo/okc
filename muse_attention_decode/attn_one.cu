@@ -1388,7 +1388,10 @@ attn_one_kernel(const Params p) {
                     }
                     g += ntiles;
                 }
-            } else
+            } else {
+            // Braced on purpose: with `} else for (...)` and PBULK true, CUDA 12.8.1 dropped the
+            // statements after this branch (the drain and the producer `exit`; the producers
+            // then ran into the consumers' setmaxnreg.inc and hung, check fcf904b32d9a427b).
             for (int bb = b_first; bb <= b_last; ++bb) {
                 if (!seg_bounds(bb)) {
                     continue;
@@ -1478,6 +1481,7 @@ attn_one_kernel(const Params p) {
                         }
                     }
                 }
+            }
             }
             // Leave only once every stage has been released: no copy of this thread is then
             // in flight and the consumers no longer need the ring.
