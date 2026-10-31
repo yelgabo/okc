@@ -101,6 +101,7 @@ SGLang with its 95% interval. Profiles and logs are in `muse_moe_w4a16/profiles/
 | 2026-10-31 | 64254f49676c4ce6 (check, the same bench with that donor line removed, not committed) | 5f19bc1 | gate of 76-78 against 51, donor MAIN build as the public arm | 2.188x (2.155-2.221) | passed; spin flags 0. Minus 51 at 32 / 128 / 256, layer: 76 -0.1 / -0.6 / -0.8, 77 -3.1 / +0.7 / +0.1, 78 -3.5 / -0.4 / -0.9, donor -2.3 / -9.9 / -22.5; std: 76 -0.1 / -0.0 / -0.5, 77 -1.8 / -0.0 / +0.5, 78 -2.4 / -0.2 / -1.0, donor -6.3 / -13.4 / -26.3. 76 failed rule 1, 77 rule 2 (+0.7 at 128 layer), so 78 was not shipped under the rule; 78 lower than 51 in all nine cells. Outputs 0 at 128 / 256. Section "Donor MoE (M-A) against mode 51" |
 | 2026-10-31 | c8fc5f669fa34d06 (check, bench file from tools/moe_make_bench_ab.py --base=51 --sizes=32,128,256 --routings=layer,std,skewed --seeds=131,...,136 --gate=1 o78=78, donor MAIN build as the public arm, not committed) | 95c9848 | 78's own gate (rule committed in 95c9848) | 2.194x (2.162-2.227) | passed; spin flags 0. 78 minus 51 at 32 / 128 / 256: layer -2.6 / -0.6 / -0.6, std -1.5 / +0.6 / -0.4, skewed -3.1 / -0.8 / -1.3; donor minus 51 layer -3.2 / -11.6 / -19.8, std -8.7 / -10.1 / -20.1. Rule 2 failed (+0.6 at 128 std, limit +0.5): 78 not kept. Outputs 0 at 128 / 256. Section "Donor MoE (M-A) against mode 51" |
 | 2026-10-31 | 2a4fb39964aa448c (check, bench file from tools/moe_make_bench_ab.py --base=51 --sizes=32,128,256 --routings=layer,std,skewed --seeds=141,...,146 --gate=1 o72=72 o79=79, donor MAIN build as the public arm, not committed) | 587da5d | gate of 79 (stream-K in both phases, stage-0 finisher in phase B) with the null 72 (rule committed in 587da5d) | 2.196x (2.164-2.229) | passed; spin flags 0. Minus 51 at 32 / 128 / 256, layer: 72 +13.1 / +11.3 / +6.1, 79 +16.4 / +19.4 / +21.4, donor -1.9 / -11.3 / -21.0; std: 72 +10.3 / +9.8 / +4.3, 79 +17.5 / +24.8 / +11.3, donor -4.7 / -13.3 / -25.6; skewed 79 +6.0 / +27.9 / +31.4. 0 of 6 seeds lower for 79 in every cell. Not kept; family parked. Section "Stream-K in both phases (mode 79)" |
+| 2026-10-31 | 43c35d18b5504eb5 (check, bench file from tools/moe_make_bench_ab.py --base=51 --sizes=32,128,256 --routings=layer,std --seeds=151,...,156 --work=1 --pubfix=1, the donor MAIN build stamped as a bench-only copy, not committed) | 1d42779 | diagnostic: donor per-phase stamps (DBG points plus its fixup, doneA release and finisher-wait cycles) against 55 (51's light twin) | 2.197x (2.164-2.230) | passed; spin flags 0. Donor minus 51 replay -3.0 / -6.2 / -9.8 / -12.1 / -21.8 / -22.4 us (32 / 128 / 256, layer / std). Per phase at 128 / 256 layer: start -3.4 / -3.8, phase A mean -3.4 / -10.3, A end spread -5.4 / -2.7, phase B 0.0 / -2.1, barrier + final -3.3 / -4.4. Donor fixups 10.4-12.8 us/CTA in phase A, 5.4-8.5 in phase B, releases 2.5-7.7; derived per stage 1.12 us (donor) against 1.38-1.47 (51). Stage loop 295 against 387 instructions. Section "The donor kernel stamped against 51" |
 | 2026-10-31 | 40b8c798289a4258 (check; F-MOE-0 bench: release ec565a7 byte for byte + the exact donor file lzma-carried, not committed) | ec565a7 (release) | Family F F0: R1/R2 (two release prepares) against D1/D2 (two prepares of alygg77 muse_moe_w4a16.py at 6cae49a, SHA256 b3307089...), std seeds 501-512, layer 521-526, pad/off64 541-544, order seed 8101 | 2.195x (2.163-2.228), the release's judged path | passed; 0 output failures, fresh-input replay ok. Score D/R pooled 1.0387 (nulls 0.9996 / 0.9993, D faster); per load R/D 0.960 / 1.013 / 1.006 / 1.060 / 1.079 / 1.120 at 1 / 8 / 16 / 32 / 128 / 256. Section "F-MOE-0 (Family F donor comparison)" |
 | 2026-10-31 | 218ff300de7d4c22 (check; F-MOE-0 confirmation, same writer, not committed) | ec565a7 (release) | as 40b8c798289a4258 on std 601-612, layer 621-626, pad/off64 641-644, order seed 9203 | 2.194x (2.161-2.227), the release's judged path | passed; 0 failures. Score D/R pooled 1.0297 (nulls 1.0017 / 0.9977, D faster); per load 0.964 / 1.014 / 1.004 / 1.010 / 1.078 / 1.116. Decision per load: keep ours at 1, re-implement TINY2 at 8, inconclusive at 16, re-implement WGS (with proxy fences) at 32 / 128 / 256 |
 
@@ -3701,6 +3702,143 @@ Reading under the rule set before the check:
 - Decision: the stream-K family stays parked in docs/ruled-out.md with both phases now measured on
   current components. What it would take to reopen: a fixup that costs well under 1 us per share
   on the critical path in both phases (74 measured 2-2.5), shown by stamps before any timed gate.
+
+## The donor kernel stamped against 51 (check 43c35d18b5504eb5), 2026-10-31
+
+Brief (coordinator): five builds guessed where the donor's 11-26 us lead at 128 / 256 tokens comes
+from and none was measured on the donor itself. One diagnostic check stamps a bench-only copy of
+the donor MAIN build next to 55 (51's light and gather twin), per phase, at 32 / 128 / 256 tokens on
+layer and standalone routing; then name the phases that hold the gap and propose one matching
+re-implementation with a rule. No build ships from this section.
+
+### Method
+
+`tools/moe_make_bench_ab.py OUT.py DONOR_MAIN_ONLY.py --base=51 --sizes=32,128,256
+--routings=layer,std --seeds=151,152,153,154,155,156 --work=1 --pubfix=1` (bench at 1d42779; the donor
+file is the scratchpad copy of alygg77 6cae49a with its MID helper line removed; the bench file was
+never committed). The donor runs its own OKC_DEBUG build: thread 0's globaltimer at its DBG points
+(start, routed, gather end, consumers start, phase A end, phase B end moved to the CTA-wide point
+before the grid barrier as for the public kernel earlier, after the barrier, end). New in this run,
+`--pubfix=1` (PUBFIX_PAIRS in the tool): thread 0's clock64 around every `wgs_flush` call, split
+into the split-unit shares (kinds 2 and 3, the fixups) and the doneA releases (kind 1), and around
+the phase B designated finisher's wait; clock64 at DBG(0) and DBG(5) converts. The stamps are clock
+reads and plain stores by thread 0: no fence, barrier, release or acquire is added, removed or
+moved. Local compile of that build (nvcc 12.8.1): 16 / 20 B of spill, outside every stage loop;
+stage loops unchanged (295-299 instructions), wgmma pipelining unchanged (HGMMA 512, wait1 256,
+wait0 16 per kernel, as the unstamped build). Where the donor's unfenced x publish sits: its gather
+stores xA and releases xready inside "pub gather" below (DBG 1 to 7), and its phase A epilogue stores
+xB and releases doneAs in the kind 1 flush ("A doneA release" below); neither has a fence.proxy.async
+on either side (items 6 and 7 above), and the stamps leave both as they are.
+
+Timing in the same run (graph replay, cold L2, 6 seeds), donor minus 51: -3.0 / -6.2 us at 32
+tokens (layer / standalone), -9.8 / -12.1 at 128, -21.8 / -22.4 at 256 (6 of 6 seeds lower except
+32 layer, 5 of 6). The stamped launches (55 with its light and gather stamps, the donor in its
+DEBUG build) end within 1-3 us of the unstamped replays of 51 and the donor, so the stamps describe
+the timed kernels. Self-test and spin flags clean; 2.197x (2.164-2.230), passed.
+
+### Per phase, us (mean over CTAs and seeds of one cold launch; "start" = consumers start)
+
+| T, routing | kernel | route | start | phase A mean | A end spread | A done max | phase B mean | tail | barrier + final | end |
+|---|---|---|---|---|---|---|---|---|---|---|
+| 32 layer | 51 (55) | 2.9 | 5.7 | 48.7 | 7.0 | 61.4 | 22.0 | 5.9 | 8.7 | 86.0 |
+| | donor | 1.9 | 4.0 | 49.5 | 3.5 | 57.0 | 22.7 | 3.4 | 5.5 | 84.9 |
+| 32 std | 51 | 2.9 | 4.9 | 89.5 | 12.4 | 106.8 | 40.1 | 7.8 | 10.1 | 145.8 |
+| | donor | 1.9 | 4.3 | 85.8 | 6.5 | 96.5 | 39.4 | 6.3 | 8.4 | 141.5 |
+| 128 layer | 51 | 3.5 | 9.4 | 90.4 | 11.0 | 110.8 | 43.0 | 7.5 | 12.9 | 156.2 |
+| | donor | 2.5 | 6.0 | 87.0 | 5.6 | 98.6 | 43.0 | 5.2 | 9.6 | 146.7 |
+| 128 std | 51 | 3.6 | 8.6 | 118.5 | 12.8 | 139.9 | 55.7 | 7.2 | 12.3 | 195.9 |
+| | donor | 2.5 | 6.2 | 111.7 | 7.9 | 125.7 | 55.0 | 6.4 | 10.7 | 185.1 |
+| 256 layer | 51 | 4.1 | 12.1 | 122.4 | 10.4 | 144.9 | 57.7 | 8.3 | 16.5 | 210.3 |
+| | donor | 3.4 | 8.3 | 112.1 | 7.7 | 128.1 | 55.6 | 5.1 | 12.1 | 190.0 |
+| 256 std | 51 | 4.2 | 11.9 | 137.8 | 10.1 | 159.8 | 65.2 | 8.1 | 15.9 | 232.9 |
+| | donor | 3.5 | 8.5 | 125.8 | 8.7 | 142.9 | 62.2 | 6.1 | 12.7 | 211.2 |
+
+Donor minus 51 by piece at 128 / 256 tokens (layer; standalone in brackets): start -3.4 / -3.8
+(-2.4 / -3.4), phase A mean -3.4 / -10.3 (-6.8 / -12.0), A end spread -5.4 / -2.7 (-4.9 / -1.4),
+together A done max -12.2 / -16.8 (-14.2 / -16.9); phase B mean 0.0 / -2.1 (-0.7 / -3.0); tail
+-2.3 / -3.2 (-0.8 / -2.0); barrier + final pass -3.3 / -4.4 (-1.6 / -3.2), which contains the tail
+wait. At 32 tokens: start -1.7 / -0.6, phase A mean +0.8 / -3.7, A end spread -3.5 / -5.9, tail
+-2.5 / -1.5, barrier + final -3.2 / -1.7.
+
+The donor's own costs (ABPUBFIX, us per CTA, thread 0): phase A fixups 10.4-12.8 (10-21% of its
+phase A, worst CTA 23-32), doneA releases 2.5-7.7; phase B fixups 5.4-8.5 (12-25% of its phase B,
+worst 9-17), its designated finisher waiting 0.4-0.6 (worst 1.9). [The share counts read 3.6-3.8
+per CTA in both phases against ABWORK's 1.8-1.9 cut units per CTA; not reconciled: either the
+flush runs twice per share or the two counts measure different things. The times are sums over the
+calls stamped, so they stand either way.] Its gather 1.9-4.8 us; ours 1.8-8.0 including the
+fences and barrier.
+
+### Which phases hold the gap
+
+Measured: at 128 and 256 tokens the end-of-launch gap (9.5-21.7 us) is mostly phase A: the mean
+CTA's phase A (3.4-12.0 us) plus setup (2.4-3.8) plus the end spread (1.4-5.4), which together set
+A done max (-12 to -17). Phase B's mean is within 0-3 us; the tail and the final pass add 2-4.
+
+Derived from the stamps (arithmetic, not a separate measurement): per stage, the donor spends about
+the same in both phases once its fixups and releases are taken out: at 256 tokens on layer routing
+(112.1 - 12.8 - 5.6) / 83.4 stages = 1.12 us in phase A and (55.6 - 8.5) / 41.7 = 1.13 in phase B,
+its whole-unit epilogues included. Ours, with no fixups, 122.4 / 83.4 = 1.47 in phase A and
+57.7 / 41.7 = 1.38 in phase B, epilogues and phase A publishes included. (Stage counts are the
+donor's per-CTA means from ABWORK; our CTAs stream the same stages in total.) So the donor's stage
+is 0.25-0.35 us cheaper in both phases, worth about 21-29 us of phase A and 10-15 us of phase B per
+CTA at 256 tokens; its fixups (12.8 + 8.5) and releases (5.6) give back about 27 of that, which is
+why phase B ends up near parity and phase A keeps 10-12 us.
+
+Static evidence for the per-stage cost (no GPU; `profiles/sass_stage_loop_vs_donor.2026-10-31.txt`):
+the m64n24k16 stage loop is 387 instructions in 51 and 295 in the donor's MAIN build. Of our 92 more,
+about 30 are the spin-timeout path (clock reads, ATOMG with its REDUX / VOTEU / UFLO aggregation,
+YIELD, a second TRYWAIT, BSSY / BSYNC), which runs only after a failed first try; the fast-path
+excess is then about 60 instructions (17%): IMAD +21, ISETP +10, LEA +8, IADD3 +5, R2UR +4, PRMT +4,
+SEL / VIADD / MOV / LDS / SHFL +1-2 each, and the per-thread release (MEMBAR.ALL.CTA, FENCE.VIEW.ASYNC.S
+and one more SYNCS.ARRIVE) that the donor does not have. The donor's dequant takes 7 ALU and 2 IMAD.SHL
+per 8 weights (its DQ7 bit layout), its scale pairs are built once per stage from one 8-byte load
+(KPERM3), and its slot addresses and descriptors are built once per segment.
+
+Hypothesis (the one this section leaves to test): the per-stage instruction count, at four
+consumer warps per scheduler, is the main driver of the phase A and B per-stage gap; with our fast
+path about 17% longer and the per-stage time about 23% longer (1.38 against 1.12 us in phase B), most
+of the gap fits issue pressure plus the per-thread release. The first piece, 76's scale pairs (8 of
+the 60), measured -0.4 to -1.1 us at 256 tokens in two runs, in proportion to its share.
+
+### Proposal: a lean stage loop to the donor's instruction budget (mode 80, not built)
+
+On 51, every fence and release kept (the per-thread fence.proxy.async.shared::cta and arrive on the
+weights slot stays; it is the one piece of the donor's loop we cannot copy):
+1. 76's paired-row scale decode, with the stage's 8 scale bytes loaded once.
+2. A dequant with the multiplies on the FMA pipe: a repack bit layout in which each 8-code word
+   decodes with 7 ALU ops and 2 IMAD.SHL (the donor's DQ7 property, re-derived for our W4_BITPOS
+   order). The repack is a bit permutation, lossless; a CPU round-trip test over all 2^8 code
+   pairs per register position and over the real weights' bytes must reproduce the codes exactly.
+3. Slot addresses, descriptors and the x slot offset computed once per segment and stepped by
+   adds (no per-stage R2UR, SHFL or LEA chain).
+4. The spin-timeout check moved off the stage loop's code path: the try_wait retry loop counts
+   failed tries and reads the clock only every 256 failures, so the flag (ctr[8], which the
+   self-tests read) still fires on a hang.
+
+Compile gate before any check: production SASS unchanged, no C75xx, no local memory in stage or
+unit loops, and the m64n24 stage loop at 320 instructions or fewer (from 387), counted by the same
+script. Budget: one gate check after the compile gate holds.
+
+Gate rule (set now, before the build): `tools/moe_make_bench_ab.py OUT.py DONOR_MAIN_ONLY.py
+--base=51 --sizes=32,128,256 --routings=layer,std,skewed --seeds=161,...,166 --gate=1 o80=80`. Keep
+80 only if all hold:
+1. 256 tokens: 80 minus 51 mean -4.0 us or lower on layer and on standalone routing, at least 5 of
+   6 seeds lower on each, and 0 or lower on skewed.
+2. 128 tokens: -2.0 or lower on layer and standalone, +0.5 or lower on skewed.
+3. 32 tokens: +0.5 or lower on every routing.
+4. Output against 51: 0 at 128 and 256 tokens (the same bf16 products, no new sum order); within
+   1e-4 at 32 (51's own atomics order).
+5. Prepare's FP32 self-test passes for 80; spin flags 0.
+6. The compile gate above, on the checked commit, and an independent read-only review of the
+   repack and the timeout change.
+
+Expected (hypothesis): if per-stage time follows the fast-path instruction count, 60 fewer
+instructions per stage are worth up to the 0.25 us per stage above, -10 to -20 us at 256 tokens; if
+the per-thread release or memory dominates, much less. Either outcome locates the rest of the gap.
+
+The budget's second check (a repeat) was not used: the per-phase differences match the replay
+gaps within 1-3 us at every size and both routings, and the earlier public-kernel stamps
+(d47c78bdc130424b, 7063f86352344efa) put the gap in the same pieces.
 
 ## Staged pair on current components, 2026-10-29
 
