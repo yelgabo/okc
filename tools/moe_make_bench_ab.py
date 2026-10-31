@@ -166,6 +166,49 @@ UNIT_STAMP_PAIRS = [
 SK_Q = 256
 SK_ROW = 66
 SK_PER = 8 + SK_Q * SK_ROW
+# --pubfix=1: the public (or donor) WGS build's own fixup and publish costs, thread 0 only, in its
+# DEBUG build: per CTA 16 words after the G * 8 DBG words, [0..3] phase A, [4..7] phase B: the
+# cycles in wgs_flush for split-unit shares (kinds 2 and 3), their count, the designated finishes
+# (kind 3), and for phase A the cycles of the doneA releases (kind 1), for phase B the finisher's
+# wait for the other shares' count (warpgroup 0); [8] and [9] clock64 at DBG(0) and DBG(5), to
+# convert. The stamps are clock reads and plain stores by thread 0: no fence, barrier or release
+# is added, removed or moved.
+PUBFIX_PAIRS = [
+    ("template <bool PB>\n__device__ __forceinline__ void wgs_flush(const Params& p, Smem& S, "
+     "WgsPend& pd) {\n",
+     "template <bool PB>\n__device__ __forceinline__ void wgs_flush_body(const Params& p, Smem& S, "
+     "WgsPend& pd);\n"
+     "template <bool PB>\n__device__ __forceinline__ void wgs_flush(const Params& p, Smem& S, "
+     "WgsPend& pd) {\n"
+     "  if (pd.kind == 0) return;\n"
+     "  const int fkind = pd.kind;\n"
+     "  const long long fc0 = (OKC_DEBUG && threadIdx.x == 0) ? clock64() : 0;\n"
+     "  wgs_flush_body<PB>(p, S, pd);\n"
+     "  if (OKC_DEBUG && threadIdx.x == 0 && p.dbg) {\n"
+     "    auto* f = p.dbg + gridDim.x * 8 + blockIdx.x * 16 + (PB ? 4 : 0);\n"
+     "    const long long dc = clock64() - fc0;\n"
+     "    if (fkind == 1) { f[3] += dc; } else { f[0] += dc; f[1] += 1; f[2] += fkind == 3; }\n"
+     "  }\n"
+     "}\n"
+     "template <bool PB>\n__device__ __forceinline__ void wgs_flush_body(const Params& p, Smem& S, "
+     "WgsPend& pd) {\n"),
+    ("  if (wt == 0) { while (ld_acquire(fc) < 16 - pd.nst) __nanosleep(32); }\n",
+     "  if (wt == 0) {\n"
+     "    const long long fw0 = (OKC_DEBUG && threadIdx.x == 0) ? clock64() : 0;\n"
+     "    while (ld_acquire(fc) < 16 - pd.nst) __nanosleep(32);\n"
+     "    if (OKC_DEBUG && threadIdx.x == 0 && p.dbg) p.dbg[gridDim.x * 8 + blockIdx.x * 16 + 7] += "
+     "clock64() - fw0;\n"
+     "  }\n"),
+    ("  DBG(0);\n",
+     "  DBG(0);\n  if (OKC_DEBUG && threadIdx.x == 0 && p.dbg) p.dbg[gridDim.x * 8 + blockIdx.x * 16 + 8]"
+     " = clock64();\n"),
+    # The real newline keeps the match out of the helper-source string's escaped copy.
+    ("  DBG(5);  // nothing to reset at exit: the flags were zeroed after the barrier, ss is "
+     "double buffered\n",
+     "  if (OKC_DEBUG && threadIdx.x == 0 && p.dbg) p.dbg[gridDim.x * 8 + blockIdx.x * 16 + 9]"
+     " = clock64();\n  DBG(5);\n"),
+]
+
 SKEW_PAIRS = [
     ("#define DBG(k) do {",
      "#ifndef OKC_SKEW\n#define OKC_SKEW 0\n#endif\n"
@@ -204,7 +247,7 @@ SKEW_PAIRS = [
 ]
 
 
-def patch_public(src, small=False, ranges=False, unitstamps=False, skew=False):
+def patch_public(src, small=False, ranges=False, unitstamps=False, skew=False, fix=False):
     for name in () if small else ("TINY_DEFINES", "TINY2_DEFINES", "MID_DEFINES"):
         src, n = re.subn(rf"^{name} = \(.*?\)\n(?=\S)", f"{name} = ()\n", src, count=1,
                          flags=re.S | re.M)
@@ -231,6 +274,7 @@ def patch_public(src, small=False, ranges=False, unitstamps=False, skew=False):
     ]
     pairs += UNIT_STAMP_PAIRS if unitstamps else []
     pairs += SKEW_PAIRS if skew else []
+    pairs += PUBFIX_PAIRS if fix else []
     for a, b in pairs:
         assert src.count(a) == 1, a[:60]
         src = src.replace(a, b)
@@ -259,6 +303,7 @@ _AB_US_PER = 8 + 4 * _AB_US_MAX
 _AB_STAMP_SIZES = @STAMPSIZES@
 _AB_SKEW = @SKEW@
 _AB_PUBSKEW = @PUBSKEW@
+_AB_PUBFIX = @PUBFIX@
 _AB_SK_PER = @SKPER@
 _AB_GATHER = @GATHER@
 _AB_FIX = @FIX@
@@ -419,9 +464,11 @@ def _ab_main():
                            "n_experts": N_EXPERTS, "local_start": 0, "local_count": 32,
                            "top_k": TOP_K, "sharding": "ep8"}}
 
+    pubfx = []
+
     def pub_stamped(data):
-        dbg = torch.zeros(G * 8 + (G * _AB_US_PER if _AB_US else 0), dtype=torch.int64,
-                          device=dev)
+        dbg = torch.zeros(G * 8 + (G * _AB_US_PER if _AB_US else 0) + (G * 16 if _AB_PUBFIX else 0),
+                          dtype=torch.int64, device=dev)
         x = data["hidden_states"]
         out = torch.empty((x.shape[0], HIDDEN), dtype=torch.bfloat16, device=dev)
         ext = pdbgs.get(x.shape[0], pdbg)
@@ -434,6 +481,8 @@ def _ab_main():
         torch.cuda.synchronize()
         raw = dbg[: G * 8].view(G, 8).cpu()
         us = dbg[G * 8:].view(G, _AB_US_PER).double().cpu() if _AB_US else None
+        if _AB_PUBFIX:
+            pubfx.append(pubfix_summary(raw.double(), dbg[G * 8: G * 24].view(G, 16).double().cpu()))
         return raw[:, [0, 1, 6, 2, 3, 4, 5]].double(), raw[:, 7].clone(), us
 
     def skew_stats(sk, aend):
@@ -572,6 +621,25 @@ def _ab_main():
             full = d.view(G, 18, 8)
             light = full[:, 16:18, :].reshape(G, 16)
         return torch.cat([light[:, :7], light[:, 8:14]], 1), full
+
+    def pubfix_summary(raw, fx):
+        # raw: the DBG words (0 start, 1 routed, 7 gather end, 6 consumers start, 2 phase A end,
+        # 3 phase B end, 4 after the grid barrier, 5 end; ns); fx: PUBFIX_PAIRS' 16 words.
+        ghz = (fx[:, 9] - fx[:, 8]) / (raw[:, 5] - raw[:, 0])
+        us = lambda c: c / ghz / 1e3
+        pa = (raw[:, 2] - raw[:, 6]) / 1e3
+        pb = (raw[:, 3] - raw[:, 2]) / 1e3
+        afix, bfix = us(fx[:, 0]), us(fx[:, 4])
+        return [float(fx[:, 1].mean()), float(afix.mean()), float(afix.max()),
+                float((afix / pa.clamp(min=1e-3)).mean()), float(us(fx[:, 3]).mean()),
+                float(fx[:, 5].mean()), float(fx[:, 6].mean()), float(bfix.mean()),
+                float(bfix.max()), float((bfix / pb.clamp(min=1e-3)).mean()),
+                float(us(fx[:, 7]).mean()), float(us(fx[:, 7]).max()), float(ghz.mean())]
+
+    pubfix_cols = ("A shares/CTA", "A fixup us/CTA", "max", "share of phase A",
+                   "A doneA release us/CTA", "B shares/CTA", "B designated finishes/CTA",
+                   "B fixup us/CTA", "max", "share of phase B", "B fin wait us/CTA (wg0)", "max",
+                   "GHz")
 
     def gather_summary(lt, pd, prng):
         # lt: the 16 light words of a gather_st twin; pd, prng: the public kernel's stamps.
@@ -847,6 +915,7 @@ def _ab_main():
             pbdiags = {a: [] for a in padiag if a in _AB_PB}
             skd_ = {a: [] for a in [*skewv, *(["pub"] if pskew is not None else [])]}
             pubd = []
+            pubfx.clear()
             chk = {a: [] for a in timed if a != base}
             stamp_here = not _AB_STAMP_SIZES or t in _AB_STAMP_SIZES
             skst = [i for i, v in enumerate(SKINNY_VARIANTS) if v[2] in (2, 4, 8)]
@@ -992,6 +1061,10 @@ def _ab_main():
                 m = [sum(r[i] for r in rows) / n for i in range(len(gather_cols))]
                 print(f"ABGATHER {tag} {a} " + ", ".join(f"{c} {v:.2f}"
                                                          for c, v in zip(gather_cols, m)))
+            if pubfx:
+                m = [sum(r[i] for r in pubfx) / n for i in range(len(pubfix_cols))]
+                print(f"ABPUBFIX {tag} " + ", ".join(f"{c} {v:.2f}"
+                                                     for c, v in zip(pubfix_cols, m)))
             if pubd:
                 m = [sum(r[i] for r in pubd) / n for i in range(len(pubd[0]))]
                 print(f"ABPUB {tag} " + ", ".join(f"{c} {v:.2f}"
@@ -1191,7 +1264,7 @@ def main():
     rest = sys.argv[3:]
     opts = {"base": "28", "seeds": "1,2,3,4,5,6", "sizes": "32,128,256", "routings": "layer,std",
             "pairs": "", "small": "", "pubranges": "", "skextra": "", "unitstamps": "",
-            "stampsizes": "", "gate": "", "skew": "", "pubskew": "", "skst": "",
+            "stampsizes": "", "gate": "", "skew": "", "pubskew": "", "pubfix": "", "skst": "",
             "work": "", "score": "", "nopub": ""}
     arms = {}
     for a in rest:
@@ -1255,7 +1328,9 @@ def main():
     # ABPUB or ABGATHER, and PUBLIC.py is not read.
     pub_src = "" if nopub else patch_public(Path(pub).read_text(), small,
                                             bool(opts["pubranges"]), bool(opts["unitstamps"]),
-                                            bool(opts["pubskew"]))
+                                            bool(opts["pubskew"]), bool(opts["pubfix"]))
+    assert not (opts["pubfix"] and (opts["unitstamps"] or opts["pubskew"] or gate)), \
+        "pubfix shares the DBG buffer's tail and needs the stamped runs"
     block = AB
     for key, val in (("@PUB_SRC@", repr(pub_src)), ("@BASE@", repr(base)),
                      ("@ARMS@", repr(arms)), ("@PAIRS@", repr(pairs)),
@@ -1268,6 +1343,7 @@ def main():
                      ("@STAMPSIZES@", repr(ints(opts["stampsizes"]) if opts["stampsizes"] else ())),
                      ("@SKEW@", repr(skewt)), ("@SKPER@", repr(SK_PER)),
                      ("@PUBSKEW@", repr(bool(opts["pubskew"]))),
+                     ("@PUBFIX@", repr(bool(opts["pubfix"]))),
                      ("@WORK@", repr(bool(opts["work"]))),
                      ("@GATHER@", repr(GATHER_TWINS)), ("@FIX@", repr(FIX_TWINS)),
                      ("@DF@", repr(DF_TWINS)), ("@NOPUB@", repr(nopub))):
