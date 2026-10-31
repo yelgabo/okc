@@ -47,21 +47,32 @@ ROOT = Path(__file__).resolve().parent.parent
 # lost at pooler 16 (+1.1, one unit in flight). Round f7-a: deeper register prefetch (PF), rd on
 # qkv_gate 8 / 16 and the unpooler slice, and the two production rd configs again (null: the
 # same config from both extensions). The judged path is candidate C2 (C1 + rdp8 / rdo8).
-ROUND = "f7-a"
+# Round f7-a (check 1759290da58047ab) closed the rd shape search. Round f8-a: the codec
+# factorial on C2's shipped sk picks (m = TOKR, so the FULL twins): bytes only (tile 736 / 704
+# bytes, outputs garbage, timing only), decode only (+16 / +32 ALU per tile, +16 ALU and 8 LDS),
+# and both (p7 = 736 + 16 ALU + 8 LDS, the pair7 model; q12 = 704 + 16 ALU + 8 LDS), with a
+# duplicate null of the production config (xc).
+ROUND = "f8-a"
+NV, FU = 1024, 32
+FACT = {"xc": 0, "y736": 2048, "y704": 4096, "a16": 8192, "a32": 16384, "l8": 8192 | 32768,
+        "p7": 2048 | 8192 | 32768, "q12": 4096 | 8192 | 32768}
+TIMING_ONLY = ("y736", "y704", "p7", "q12")
 VARIANTS = {}
-CASES = [("pooler", 8, "pool8", []), ("pooler", 16, "pool16", []), ("o", 8, "o8", []), ("qkv_gate", 8, "qkv8", []),
-         ("qkv_gate", 16, "qkv16", []), ("unpooler", 8, "slice8", [])]
-FULL_TAGS = ("F",)
+CASES = []
+for _layer, _m, _base in (("qkv_gate", 8, "qkv8"), ("unpooler", 8, "slice8"), ("qkv_gate", 16, "qkv16"),
+                          ("o", 16, "o16"), ("pooler", 16, "pool16"), ("unpooler", 16, "unp16"),
+                          ("qkv_gate", 32, "qkv32"), ("o", 32, "o32"), ("pooler", 32, "pool32"),
+                          ("unpooler", 32, "unp32")):
+    _prod = 1 | NV | (0 if _base == "qkv32" else FU)
+    _arms = []
+    for _tag, _bits in FACT.items():
+        VARIANTS[_base + _tag] = (_base, _prod | _bits)
+        _arms.append(_base + _tag)
+    CASES.append((_layer, _m, _base, _arms))
+FULL_TAGS = tuple(FACT)
 LT_ARMS = {}
-RD_EXTRA = {
-    "rdp16p2": (2, 1, 8, 16, 2), "rdp16p3": (2, 1, 8, 16, 3),
-    "rdo8p2": (1, 1, 8, 2, 2), "rdo8w4p2": (1, 2, 4, 4, 2),
-    "rdq8": (1, 1, 8, 16, 1), "rdq8p2": (1, 1, 8, 16, 2), "rdq16p2": (2, 1, 8, 16, 2),
-    "rds8": (1, 1, 8, 8, 1), "rds8p2": (1, 1, 8, 8, 2), "rds8k16": (1, 1, 16, 4, 2),
-}
-RD_ARMS = {("pooler", 8): ["rdp8"], ("pooler", 16): ["rdp16p2", "rdp16p3"], ("o", 8): ["rdo8", "rdo8p2", "rdo8w4p2"],
-           ("qkv_gate", 8): ["rdq8", "rdq8p2"], ("qkv_gate", 16): ["rdq16p2"],
-           ("unpooler", 8): ["rds8", "rds8p2", "rds8k16"]}
+RD_EXTRA = {}
+RD_ARMS = {}
 
 BENCH = r'''
 
@@ -72,6 +83,7 @@ _F1_LT = @@LT@@
 _F1_FULL = @@FULL@@
 _F1_RD = @@RD@@
 _F1_RDX = @@RDX@@
+_F1_TONLY = @@TONLY@@
 import os as _f1os
 import random as _f1random
 import math as _f1math
@@ -181,7 +193,7 @@ def _f1_measure(label, arms, w, n, ms, m, rounds, seed, flush, ovh, gen, dev):
         x, probes = _gen_x(mm, k, gen, dev)
         ref = x.double() @ wd.T
         for nm in list(arms):
-            if mm != m and nm.endswith(_F1_FULL):
+            if (mm != m and nm.endswith(_F1_FULL)) or nm.endswith(_F1_TONLY):
                 continue
             try:
                 out = arms[nm](x)
@@ -204,7 +216,7 @@ def _f1_measure(label, arms, w, n, ms, m, rounds, seed, flush, ovh, gen, dev):
                 g.replay()
                 torch.cuda.synchronize()
                 ok, err, perr = _check(out, x2.double() @ wd.T, probes, SELFTEST_TOL["bf16"])
-                if not ok:
+                if not ok and not nm.endswith(_F1_TONLY):
                     raise RuntimeError(f"replay {rep} err {err:.1e}/{perr:.1e}")
             graphs[nm] = g
         except Exception as exc:
@@ -371,7 +383,8 @@ def main():
     bench = (BENCH.replace("@@ROUND@@", repr(ROUND)).replace("@@VARIANTS@@", repr(VARIANTS))
              .replace("@@CASES@@", repr(CASES)).replace("@@LT@@", repr(LT_ARMS))
              .replace("@@FULL@@", repr(FULL_TAGS))
-             .replace("@@RD@@", repr(RD_ARMS)).replace("@@RDX@@", repr(RD_EXTRA)))
+             .replace("@@RD@@", repr(RD_ARMS)).replace("@@RDX@@", repr(RD_EXTRA))
+             .replace("@@TONLY@@", repr(TIMING_ONLY)))
     out.write_text(sub + bench)
     print(f"wrote {out}")
 

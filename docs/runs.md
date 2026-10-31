@@ -1661,3 +1661,39 @@ which stays on the board; the paired evidence, not these single runs, is the com
 |---|---|
 | e745eb8ca902471e | 1.5152x (1.492-1.538) |
 | 355fc7894f6546ed | 1.5082x (1.486-1.531) |
+
+## 2026-10-31 (UTC) round 8: codec factorial and the rk router stamp (branch proj-r8)
+
+Brief (coordinator): (1) the codec factorial on C2's shipped small-batch picks, pair7 only if
+bytes and combined predict at least +1.0% of score; (2) stamp the donor rk router beside our wd
+and swap its pieces into ours. Budget 3 checks. Bench-only bits (sk NACC 11-15: tile bytes,
+extra ALU, extra LDS; wd WV_E1, WV_RKORD); production SASS 92 / 92 kernels identical to C2.
+
+| date | job | kind | commit | change | score (95% CI) | notes |
+|---|---|---|---|---|---|---|
+| 10-31 | 077b210c2087470d | check (bench f8, codec factorial) | proj-r8 | C2's sk picks at m = TOKR: y736 / y704 bytes only (timing only), a16 / a32 / l8 decode only, p7 (736 + 16 ALU + 8 LDS, the pair7 model), q12 (704 + 16 ALU + 8 LDS), null xc | 1.511x (1.488-1.534) | table below |
+
+Paired against the production pick, us (null xc in the last column):
+
+| case | y736 | y704 | a16 | l8 | p7 | q12 | null |
+|---|---:|---:|---:|---:|---:|---:|---:|
+| qkv 8 | -0.26 | -0.48 | -0.02 | -0.13 | -0.37 | -0.53 | +0.06 |
+| slice 8 | -0.06 | -0.03 | +0.00 | -0.06 | -0.11 | -0.02 | -0.03 |
+| qkv 16 | -0.11 | -0.16 | -0.02 | -0.03 | -0.08 | -0.10 | -0.03 |
+| o 16 | -0.14 | -0.13 | -0.02 | -0.18 | -0.24 | -0.32 | -0.03 |
+| pool 16 | -0.18 | -0.58 | -0.03 | +0.16 | -0.19 | -0.54 | +0.29 |
+| unp 16 | -0.38 | -0.75 | +0.06 | +0.10 | -0.29 | -0.69 | -0.06 |
+| qkv 32 | -0.16 | -0.19 | +1.81 | +3.01 | +3.04 | +3.04 | -0.10 |
+| o 32 | -0.13 | -0.29 | -0.13 | -0.06 | -0.18 | -0.16 | -0.13 |
+| pool 32 | -0.21 | -0.56 | -0.19 | +0.05 | -0.35 | -0.67 | +0.18 |
+| unp 32 | -0.48 | -1.15 | -0.16 | +0.06 | -0.66 | -0.93 | -0.21 |
+
+Reading (measured, then arithmetic): bytes help every case except slice 8; decode cost is free
+except at qkv 32, where 16 extra ALU instructions per tile cost 1.8 us (its consumer warp is
+issue-bound at 32 tokens). Score with the per-load values (verify 1 0.434, decode 16 0.337,
+decode 32 0.312 %/us), qkv 32 kept on the 12-bit code: pair7 (p7) +0.85%, bytes-only 736 +0.72%,
+q12 +1.35% (but q12 leaves out its 35x escape count and its 32 KB LUT's bank conflicts). Decision
+by the agreed rule: pair7 is below +1.0% on the sk picks, so it is not built. Not measured: the
+same codes on rd (pooler / o 8) and cgemv (m = 1), which are on the HBM line and would add up to
+about +0.8% if their decode stays free (hypothesis); a factorial on those kernels is the next
+codec check if the coordinator wants it.
