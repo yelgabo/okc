@@ -1587,7 +1587,7 @@ identical (81 / 81) until the candidate commit.
 | 10-31 | a8de7b162c9f41d5 | check (bench f3 + rg-c) | 79f9043 | FULL (compile-time M = TOKR), consumer wait without watchdog or vote (n), both; router GRED counter join | 1.489x | fn: qkv32 -0.77, qkv16 -0.58, pool32 -0.46, pool8 -0.30; n alone qkv32 -0.51; GRED +3.5 to +6.9 us (the join costs about 4 us at equal geometry); pooler 128 donor -1.22 |
 | 10-31 | 8712eb94a71e4075 | check (bench f4 + rg-d) | 79f9043 | LITEWD (vote kept, clock per 256 polls), router GRED with a memset-zeroed out (GZERO) | 1.484x | fl recovers little where fn wins (qkv32 +0.10 vs -0.96); GZERO +0.83 (m = 256, 128 CTAs) to +1.92 us |
 | 10-31 | eebd764690d5470f | check (bench f5) | 79f9043 | NOVOTE (per-thread wait, no vote, no break, clock per 256 polls, fails closed via diag) alone and with FULL | 1.490x | fv: pool32 -0.45, pool16 -0.34, qkv8 / qkv16 / unp16 / pool8 -0.18 / -0.18 / -0.18 / -0.19, o16 -0.11, o32 -0.10; v alone qkv32 -0.45 (fv -0.22) |
-| 10-31 | a4ce752c0f434ac5 | check (candidate C1, clean) | e.g. below | NOVOTE on every compressed sk config, FULL twins dispatched at M = TOKR (all but qkv32), pooler 128 LT_PREF = donor config | 1.495x (1.472-1.517) | judge sample inside run noise; prepare 108 s; picks as before plus the new pooler 128 pin |
+| 10-31 | a4ce752c0f434ac5 | check (candidate C1, clean) | 05286d9 | NOVOTE on every compressed sk config, FULL twins dispatched at M = TOKR (all but qkv32), pooler 128 LT_PREF = donor config | 1.495x (1.472-1.517) | judge sample inside run noise; prepare 108 s; picks as before plus the new pooler 128 pin |
 | 10-31 | 5ec16ca4d42a4e13 | check (four-arm C1 vs release 2265fa2) | C1 | R1 / R2 = release, D1 / D2 = C1, RDRD prepare order, 3 seeds x 50 rounds | stub (meaningless) | pooled D/R **1.0092** (crosses 1.0082-1.0102), nulls 0.9981 / 1.0002, 129/129 checks per arm: candidate faster |
 
 Readings (measured):
@@ -1605,5 +1605,5 @@ Readings (measured):
 - pooler 128: the donor's cuBLASLt pin (layout 1, tile 64x64, custom 4, cluster id 2) wins in
   four of four checks (-0.78 to -1.36 us).
 
-Candidate C1 (commit below, file SHA256 f41418489a1096697c2299b59a547e6488a1570e9d05beee6ff81cb295d3eeb7)
+Candidate C1 (commit 05286d9, file SHA256 f41418489a1096697c2299b59a547e6488a1570e9d05beee6ff81cb295d3eeb7)
 handed to the coordinator; not submitted by this agent.
