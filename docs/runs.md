@@ -1733,3 +1733,28 @@ at m = 128. That remainder is not attributed by any toggle tried (join, order, b
 spin waits, box packing, stages, CTA shape at 128 vs 96 CTAs). Not built as a candidate:
 WV_GTICKET is a new cross-CTA ordering protocol and needs a PTX chain review first, for 0.13%.
 
+
+## 2026-10-31 (UTC) round 9 prep (no quota; branch proj-r9)
+
+SASS diff, donor rk against our wd at the same geometry (r64c8s8 with GRED + GTICKET + RKORD,
+nvcc 12.8 sm_90a): the main loops are the same shape (wait, eight HGMMA.64x64x16 per 64-k
+block, DEPBAR.LE 1, one empty arrive). Differences: rk issues UTMACCTL.PF twice (prefetch of both
+tensor maps) and wd none; rk builds all eight descriptors in uniform registers from one R2UR per
+iteration, wd moves one descriptor through R2UR before every HGMMA because its warpgroup index
+`warp >> 2` is not provably 0. Variants: WV_PFTM (prefetch), WV_UDESC (g constant 0 at WG 1);
+both are hints or index constants, no ordering change. Hypothesis, not measured: they are the
+main-loop part of the 1.1-1.6 us remainder.
+
+Order-only router: the production routers are clustered, and a cluster's CTAs are consecutive
+in x with row blocks next and token tiles in y, which is already the rk order; the order bit
+(WV_RKORD) only exists for the cluster-free split. The order-only form without a new cross-CTA
+protocol is therefore R + M + O (memset-zeroed red.add, measured -0.45 at m = 256), and it is in
+the next bench beside F + V.
+
+Prepared bench (one check): `tools/proj_make_bench_rg.py` round rk-c (production routers with
+F, V, F + V and duplicate nulls; R + M + O with and without F + V) combined with
+`tools/proj_make_bench_cx.py` (codec factorial on cgemv m = 1 for qkv_gate / o / pooler / slice
+and on rd at pooler 8 / o 8: bytes 736 / 704 equivalents, decode ALU, ALU + LUT loads, pair7
+and q12 models; cgemv CPT 2 variants checked spill-free after making the LUT reads dependent).
+Production SASS 92 / 92 instruction-identical to C2 (names normalized for the new defaulted
+template parameters).
