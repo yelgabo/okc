@@ -1,0 +1,115 @@
+ityProfilerHandler.cpp:46] profiler_stop
+F4K pooler256 R1=nvjet_sm90_tst_128x64_64x8_1 D1=nvjet_sm90_tst_128x64_64x8_1
+F4K unpooler256 R1=nvjet_sm90_tst_128x128_64x6_ D1=nvjet_sm90_tst_128x128_64x6_
+F4K router256 R1=- D1=rk_kernel
+F4END 300 s
+F4K qkv_gate1 R1=- D1=cgemv_kernel
+F4K o1 R1=- D1=cgemv_kernel
+F4K pooler1 R1=- D1=cgemv_kernel
+F4K unpooler1 R1=- D1=cgemv_kernel
+F4K router1 R1=- D1=rgemv_kernel
+F4K qkv_gate16 R1=- D1=sk2_kernel
+F4K o16 R1=- D1=sk2_kernel
+F4K pooler16 R1=- D1=dd_cap2_b_cpssm_gemv
+F4K unpooler16 R1=- D1=sk2_kernel
+F4K router16 R1=- D1=rr_small_kernel
+F4K qkv_gate32 R1=- D1=sk2_kernel
+F4K o32 R1=- D1=sk2_kernel
+F4K pooler32 R1=- D1=sk2_kernel
+F4K unpooler32 R1=- D1=sk2_kernel
+F4K router32 R1=- D1=sk2_kernel
+F4K qkv_gate8 R1=- D1=sk2_kernel
+F4K o8 R1=- D1=v18s_gemv
+F4K pooler8 R1=- D1=smallm2_gemv
+F4K unpooler8 R1=- D1=sk2_kernel
+F4K router8 R1=- D1=rr_small_kernel
+F4K qkv_gate128 R1=- D1=qb_e12dcf82a592343f::qb_kern
+F4K o128 R1=nvjet_sm90_tst_128x64_64x8_1 D1=ol_projection
+F4K pooler128 R1=nvjet_sm90_tst_80x64_64x11_4 D1=nvjet_sm90_tst_64x64_64x13_1
+F4K unpooler128 R1=nvjet_sm90_tst_128x64_64x8_1 D1=nvjet_sm90_tst_128x64_64x8_1
+F4K router128 R1=- D1=rk_kernel
+F4K qkv_gate256 R1=nvjet_sm90_tst_72x64_64x12_1 D1=nvjet_sm90_tst_72x64_64x12_1
+F4K o256 R1=nvjet_sm90_tst_128x128_64x6_ D1=rl_early_projection
+F4K pooler256 R1=nvjet_sm90_tst_128x64_64x8_1 D1=nvjet_sm90_tst_128x64_64x8_1
+F4K unpooler256 R1=nvjet_sm90_tst_128x128_64x6_ D1=nvjet_sm90_tst_128x128_64x6_
+F4K router256 R1=- D1=rk_kernel
+F4PIN R=6fe7b146f49d99da D=290a86ab852c851a Dpatched=751f93091531ce3d order=4091 seed0=830000 prep=RDRD
+F4LOAD R 7.6 s
+F4LOAD D 0.0 s
+F4OVH 4.32 us
+F4POL R1 o=cgemv o=o8 o16=o16 o32=o32 o64=cublas o128=cublas o256=cublas pooler=cgemv pooler=pool8 pooler16=pool16 pooler32=pool32 pooler64=b1n64c2 pooler128=b1n128c2s8h pooler256=cut128x64 qkv_gate=cgemv qkv_gate=qkv8 qkv_gate16=qkv16 qkv_gate32=qkv32 qkv_gate64=cublas qkv_gate128=b1n128c3s8h qkv_gate256=cublas router=rgemv router=rt8w8 router16=rt16w8p8 router32=rt16w8p8 router64=r64c8s8k router128=r64c8s8k router256=r128c8s6k unpooler=cgemv unpooler=slice8 unpooler16=unp16 unpooler32=unp32 unpooler64=cublas unpooler128=cublas unpooler256=cublas qkv_gate128:lt=pref base ma o128:lt=pref base ma pooler128:lt=pref pref ma unpooler128:lt=pref pref ma qkv_gate256:lt=pref pref ma o256:lt=pref pref ma pooler256:lt=pref pref ma unpooler256:lt=pref pref ma
+F4POL R2 o=cgemv o=o8 o16=o16 o32=o32 o64=cublas o128=cublas o256=cublas pooler=cgemv pooler=pool8 pooler16=pool16 pooler32=pool32 pooler64=b1n64c2 pooler128=b1n128c2s8h pooler256=cut128x64 qkv_gate=cgemv qkv_gate=qkv8 qkv_gate16=qkv16 qkv_gate32=qkv32 qkv_gate64=cublas qkv_gate128=b1n128c3s8h qkv_gate256=cublas router=rgemv router=rt8w8 router16=rt16w8p8 router32=rt16w8 router64=r64c8s8k router128=r64c8s8k router256=r128c8s6k unpooler=cgemv unpooler=slice8 unpooler16=unp16 unpooler32=unp32 unpooler64=cublas unpooler128=cublas unpooler256=cublas qkv_gate128:lt=pref base ma o128:lt=pref base ma pooler128:lt=pref pref ma unpooler128:lt=pref pref ma qkv_gate256:lt=pref pref ma o256:lt=pref pref ma pooler256:lt=pref pref ma unpooler256:lt=pref pref ma
+F4POL D1 o1=cgemv o8=sk2 o16=sk2 o32=sk2 o128=torchT o256=torchT pooler1=cgemv pooler8=sk2 pooler16=sk2 pooler32=sk2 pooler128=gq pooler256=cutlass qkv_gate1=cgemv qkv_gate8=sk2 qkv_gate16=sk2 qkv_gate32=sk2 qkv_gate128=gqx qkv_gate256=torch router1=rgemv router8=rsmall router16=rsmall router32=sk2 router128=rk router256=rk unpooler1=cgemv unpooler8=sk2 unpooler16=sk2 unpooler32=sk2 unpooler128=torchT unpooler256=torchT | klarge=[('o', 256), ('pooler', 128), ('pooler', 256), ('qkv_gate', 256), ('unpooler', 256)] iv_router24=False iv_cg={'qkv_gate': 1} u32=True cut=['pooler'] disabled=[]
+F4POL D2 o1=cgemv o8=sk2 o16=sk2 o32=sk2 o128=torchT o256=torchT pooler1=cgemv pooler8=sk2 pooler16=sk2 pooler32=sk2 pooler128=gq pooler256=cutlass qkv_gate1=cgemv qkv_gate8=sk2 qkv_gate16=sk2 qkv_gate32=sk2 qkv_gate128=gqx qkv_gate256=torch router1=rgemv router8=rsmall router16=rsmall router32=sk2 router128=rk router256=rk unpooler1=cgemv unpooler8=sk2 unpooler16=sk2 unpooler32=sk2 unpooler128=torchT unpooler256=torchT | klarge=[('o', 256), ('pooler', 128), ('pooler', 256), ('qkv_gate', 256), ('unpooler', 256)] iv_router24=True iv_cg={'qkv_gate': 1} u32=True cut=['pooler'] disabled=[]
+F4PREP R1 106.4 s pad 33035776 at 114 s
+F4PREP D1 168.3 s pad 11471360 at 282 s
+F4PREP R2 12.2 s pad 30243328 at 294 s
+F4PREP D2 0.3 s pad 6332928 at 295 s
+F4T qkv_gate m=1 sgl=15.31 R1=8.88 R2=8.98 D1=8.80 D2=8.85
+F4T o m=1 sgl=6.91 R1=5.30 R2=5.33 D1=5.20 D2=5.24
+F4T pooler m=1 sgl=21.44 R1=13.60 R2=13.63 D1=13.67 D2=13.65
+F4T unpooler m=1 sgl=7.23 R1=3.57 R2=3.57 D1=3.60 D2=3.62
+F4T router m=1 sgl=11.10 R1=3.80 R2=3.74 D1=3.71 D2=3.75
+F4T qkv_gate m=16 sgl=14.59 R1=10.37 R2=10.41 D1=9.56 D2=9.60
+F4T o m=16 sgl=6.72 R1=5.65 R2=5.60 D1=5.55 D2=5.54
+F4T pooler m=16 sgl=21.92 R1=14.97 R2=14.90 D1=14.13 D2=14.03
+F4T unpooler m=16 sgl=19.30 R1=14.44 R2=14.34 D1=14.30 D2=14.20
+F4T router m=16 sgl=16.64 R1=4.69 R2=4.72 D1=4.69 D2=4.74
+F4T qkv_gate m=32 sgl=14.69 R1=11.44 R2=11.42 D1=10.97 D2=10.98
+F4T o m=32 sgl=6.94 R1=6.11 R2=6.09 D1=5.73 D2=5.77
+F4T pooler m=32 sgl=22.34 R1=15.89 R2=15.87 D1=15.23 D2=15.19
+F4T unpooler m=32 sgl=19.42 R1=14.93 R2=15.22 D1=14.94 D2=14.70
+F4T router m=32 sgl=17.09 R1=5.48 R2=5.46 D1=5.49 D2=5.46
+F4T qkv_gate m=8 sgl=14.62 R1=10.24 R2=9.95 D1=9.26 D2=9.25
+F4T o m=8 sgl=6.85 R1=5.79 R2=5.78 D1=5.14 D2=5.14
+F4T pooler m=8 sgl=21.82 R1=14.51 R2=14.70 D1=13.53 D2=13.58
+F4T unpooler m=8 sgl=7.55 R1=4.65 R2=4.65 D1=4.21 D2=4.11
+F4T router m=8 sgl=26.93 R1=4.33 R2=4.34 D1=4.34 D2=4.41
+F4T qkv_gate m=128 sgl=17.28 R1=14.68 R2=14.77 D1=13.90 D2=13.83
+F4T o m=128 sgl=7.42 R1=7.16 R2=7.17 D1=6.79 D2=6.73
+F4T pooler m=128 sgl=25.95 R1=21.61 R2=21.64 D1=20.52 D2=20.20
+F4T unpooler m=128 sgl=20.53 R1=19.22 R2=19.07 D1=19.26 D2=19.37
+F4T router m=128 sgl=17.82 R1=6.87 R2=6.88 D1=6.05 D2=6.04
+F4T qkv_gate m=256 sgl=19.97 R1=17.67 R2=17.45 D1=17.35 D2=17.45
+F4T o m=256 sgl=9.28 R1=8.89 R2=8.93 D1=8.83 D2=8.85
+F4T pooler m=256 sgl=30.05 R1=24.69 R2=24.86 D1=24.69 D2=24.84
+F4T unpooler m=256 sgl=24.74 R1=23.96 R2=23.80 D1=23.81 D2=23.81
+F4T router m=256 sgl=18.62 R1=9.39 R2=9.47 D1=7.03 D2=7.05
+F4D qkv_gate m=1 D1-R1=-0.08 D2-R1=-0.03 D1-R2=-0.19 D2-R2=-0.16 nullR=+0.13 nullD=+0.06
+F4D o m=1 D1-R1=-0.10 D2-R1=-0.10 D1-R2=-0.16 D2-R2=-0.13 nullR=+0.06 nullD=+0.03
+F4D pooler m=1 D1-R1=+0.02 D2-R1=+0.00 D1-R2=+0.00 D2-R2=-0.03 nullR=+0.03 nullD=-0.02
+F4D unpooler m=1 D1-R1=+0.06 D2-R1=+0.06 D1-R2=+0.03 D2-R2=+0.06 nullR=+0.00 nullD=+0.03
+F4D router m=1 D1-R1=-0.10 D2-R1=-0.03 D1-R2=-0.03 D2-R2=+0.00 nullR=-0.06 nullD=+0.03
+F4D qkv_gate m=16 D1-R1=-0.86 D2-R1=-0.80 D1-R2=-0.83 D2-R2=-0.80 nullR=+0.00 nullD=+0.06
+F4D o m=16 D1-R1=-0.13 D2-R1=-0.10 D1-R2=-0.10 D2-R2=-0.06 nullR=-0.06 nullD=+0.03
+F4D pooler m=16 D1-R1=-0.83 D2-R1=-0.90 D1-R2=-0.77 D2-R2=-0.83 nullR=-0.10 nullD=-0.10
+F4D unpooler m=16 D1-R1=-0.16 D2-R1=-0.26 D1-R2=-0.06 D2-R2=-0.16 nullR=-0.06 nullD=-0.10
+F4D router m=16 D1-R1=+0.00 D2-R1=+0.03 D1-R2=-0.03 D2-R2=-0.02 nullR=+0.03 nullD=+0.03
+F4D qkv_gate m=32 D1-R1=-0.46 D2-R1=-0.45 D1-R2=-0.42 D2-R2=-0.38 nullR=-0.03 nullD=+0.03
+F4D o m=32 D1-R1=-0.38 D2-R1=-0.35 D1-R2=-0.35 D2-R2=-0.32 nullR=+0.00 nullD=+0.03
+F4D pooler m=32 D1-R1=-0.61 D2-R1=-0.69 D1-R2=-0.58 D2-R2=-0.67 nullR=-0.03 nullD=-0.10
+F4D unpooler m=32 D1-R1=+0.03 D2-R1=-0.19 D1-R2=-0.32 D2-R2=-0.48 nullR=+0.32 nullD=-0.19
+F4D router m=32 D1-R1=+0.00 D2-R1=-0.03 D1-R2=+0.05 D2-R2=+0.00 nullR=-0.03 nullD=-0.06
+F4D qkv_gate m=8 D1-R1=-0.96 D2-R1=-1.02 D1-R2=-0.70 D2-R2=-0.74 nullR=-0.29 nullD=+0.02
+F4D o m=8 D1-R1=-0.64 D2-R1=-0.64 D1-R2=-0.64 D2-R2=-0.62 nullR=+0.00 nullD=+0.00
+F4D pooler m=8 D1-R1=-0.96 D2-R1=-0.96 D1-R2=-1.15 D2-R2=-1.12 nullR=+0.16 nullD=+0.03
+F4D unpooler m=8 D1-R1=-0.42 D2-R1=-0.53 D1-R2=-0.48 D2-R2=-0.54 nullR=+0.03 nullD=-0.10
+F4D router m=8 D1-R1=+0.03 D2-R1=+0.10 D1-R2=+0.00 D2-R2=+0.10 nullR=+0.00 nullD=+0.08
+F4D qkv_gate m=128 D1-R1=-0.80 D2-R1=-0.90 D1-R2=-0.90 D2-R2=-0.93 nullR=+0.10 nullD=-0.06
+F4D o m=128 D1-R1=-0.38 D2-R1=-0.42 D1-R2=-0.35 D2-R2=-0.40 nullR=-0.03 nullD=-0.03
+F4D pooler m=128 D1-R1=-1.15 D2-R1=-1.49 D1-R2=-1.18 D2-R2=-1.42 nullR=+0.00 nullD=-0.30
+F4D unpooler m=128 D1-R1=+0.08 D2-R1=+0.14 D1-R2=+0.22 D2-R2=+0.35 nullR=-0.21 nullD=+0.10
+F4D router m=128 D1-R1=-0.83 D2-R1=-0.83 D1-R2=-0.86 D2-R2=-0.85 nullR=+0.03 nullD=-0.02
+F4D qkv_gate m=256 D1-R1=-0.27 D2-R1=-0.26 D1-R2=-0.14 D2-R2=-0.03 nullR=-0.16 nullD=+0.06
+F4D o m=256 D1-R1=-0.06 D2-R1=-0.06 D1-R2=-0.13 D2-R2=-0.10 nullR=+0.03 nullD=+0.03
+F4D pooler m=256 D1-R1=-0.03 D2-R1=+0.10 D1-R2=-0.18 D2-R2=-0.10 nullR=+0.22 nullD=+0.13
+F4D unpooler m=256 D1-R1=-0.16 D2-R1=-0.19 D1-R2=+0.00 D2-R2=-0.06 nullR=-0.19 nullD=-0.03
+F4D router m=256 D1-R1=-2.40 D2-R1=-2.37 D1-R2=-2.46 D2-R2=-2.43 nullR=+0.08 nullD=+0.03
+F4CHK R1=159/159 R2=159/159 D1=159/159 D2=159/159
+F4SCORE R1 inproc=1.5281 receipt=1.4734 | decode1=1.6991 decode16=1.5131 decode32=1.4296 verify1=1.9054 verify16=1.2149 verify32=1.2025
+F4SCORE R2 inproc=1.5279 receipt=1.4732 | decode1=1.6932 decode16=1.5176 decode32=1.4244 verify1=1.9095 verify16=1.2151 verify32=1.2039
+F4SCORE D1 inproc=1.5878 receipt=1.5310 | decode1=1.7065 decode16=1.5724 decode32=1.4709 verify1=2.0633 verify16=1.2699 verify32=1.2451
+F4SCORE D2 inproc=1.5893 receipt=1.5324 | decode1=1.7008 decode16=1.5765 decode32=1.4780 verify1=2.0627 verify16=1.2766 verify32=1.2408
+F4DECIDE inproc D1/R1=1.0391 D1/R2=1.0392 D2/R1=1.0400 D2/R2=1.0402 pooled=1.0396 nullR=0.9999 nullD=1.0009 -> D faster
+F4DECIDE receipt D1/R1=1.0391 D1/R2=1.0392 D2/R1=1.0400 D2/R2=1.0402 pooled=1.0396 nullR=0.9999 nullD=1.0009 -> D faster
+F4END 300 s

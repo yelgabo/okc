@@ -147,6 +147,10 @@ through `_ONE_DBG`.
   V^T under it, branch-free 32-bit in-loop copies, P.V per half, offset vote on each thread's
   partials; docs/runs-attention.md, 10-30 rounds 2 and 3). The layer gets both by re-inlining;
   PRQ's copy bit reads `Params::off32`, which the layer's wrapper already sets for PFAST.
+  Round 4 (10-30) added bench-only switches, all default off and SASS-identical off, none
+  promoted: `ONE_HMRGF` (the key-half merge in the flat q_len 1 modes 17 / 49, +0.05%),
+  `ONE_F1` (mode 49 Q.K chains and page-entry refill, loss / null), `ONE_NS1` (mode 49 ring
+  depth, default 3; 2, 4, 5, 6 lose), `ONE_PROBE=3` (producer-only timing probe, wrong output).
   The standalone file's `_ONE_WS_PICK = 3` (time three candidate workspaces on synthetic batch-1
   full inputs at state creation, keep the fastest) is host Python in submission.py's
   `_one_state`; a layer that wants it copies `_one_ws_alloc` / `_one_ws_pick` into its own state

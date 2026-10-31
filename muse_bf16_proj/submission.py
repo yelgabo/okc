@@ -1782,6 +1782,7 @@ WD_POL = {nm for nm in WD_GEOM if nm.endswith("h")}
 # packed router weights (router_pack()).
 WV_NOPROD, WV_PACK, WV_PROMO64, WV_PUSH, WV_EARLY, WV_TAILSYNC = 1, 2, 4, 8, 32, 128
 WV_NOSLEEP, WV_NOEMPTY, WV_XA, WV_TAILSPLIT, WV_TAILRLX = 256, 512, 1024, 2048, 4096
+WV_PGROUP, WV_ACQCL, WV_SCALAR = 8192, 16384, 32768
 # Packed hi/lo box, 64 B promotion, push reduction and early prologue (KLUE) on the two router
 # picks; paired against the pick in a91f2152d8974458 / ba85985b8c5e4969: -0.77 / -0.90 us at
 # m = 128, -0.90 / -0.90 at 256, the push reduction alone -0.46 / -0.54 and -0.48 / -0.66.
@@ -2479,6 +2480,18 @@ constexpr int WV_XA = 1024;
 // overlap the barrier; TAILRLX makes that arrive relaxed.
 constexpr int WV_TAILSPLIT = 2048;
 constexpr int WV_TAILRLX = 4096;
+// Bench-only toggles of the reference router's remaining differences (docs/runs.md, round 2):
+// PGROUP a 4-warp producer group (256-thread CTA at WG 1) of which one thread issues; ACQCL the
+// consumer full and producer empty waits as try_wait.parity.acquire.cluster (with SPIN, the
+// reference's one-instruction branch loop); SCALAR the XA epilogue's float2 stores as scalars.
+constexpr int WV_PGROUP = 8192;
+constexpr int WV_ACQCL = 16384;
+constexpr int WV_SCALAR = 32768;
+
+__device__ __forceinline__ void mbar_spin_cluster(uint32_t bar, uint32_t parity) {
+    asm volatile("{\n.reg .pred p;\nwd_spin:\nmbarrier.try_wait.parity.acquire.cluster.shared::cta.b64 p, [%0], %1;\n"
+                 "@!p bra wd_spin;\n}" :: "r"(bar), "r"(parity) : "memory");
+}
 
 template <int WG, int BN, int CLK, int CLR, bool HL, int NST, int VAR = 0>
 struct WdCfg {
@@ -2509,11 +2522,14 @@ struct WdCfg {
     // warp) then hit 32 distinct banks.
     static constexpr int RS = BM + 4;
     static constexpr int PBY = BN * RS * 4;
-    static constexpr int THREADS = NCT + (NOPROD ? 0 : 32);
+    static constexpr bool PGROUP = (VAR & WV_PGROUP) != 0;
+    static constexpr int THREADS = NCT + (NOPROD ? 0 : (PGROUP ? 128 : 32));
     static constexpr int SMEM = 1024 + RING + 16 * NST + (PUSH ? 16 + RECV : 0);
     static_assert(!PUSH || (CLR == 1 && CLK > 1 && TPR % 8 == 0 && HL), "wd: push needs CLR 1, 8-token owners, f32 out");
     static_assert(!PACK || HL, "wd: packed weights are the router's hi/lo pairs");
     static_assert(!XA || (PACK && PUSH && WG == 1 && BN == 64 && (TPR == 8 || TPR % 16 == 0)), "wd: bad XA config");
+    static_assert(!PGROUP || (!NOPROD && PUSH), "wd: the producer group is built for the push router only");
+    static_assert((VAR & WV_SCALAR) == 0 || XA, "wd: SCALAR changes only the XA epilogue");
     static_assert(PBY <= RING, "wd: partial tile does not fit in the ring");
     static_assert(BN % 8 == 0 && BN <= 256, "wd: bad BN");
     // Each multicast slice must start on a 1024-byte swizzle atom so the slices tile exactly
@@ -2543,6 +2559,7 @@ wd_kernel(const __grid_constant__ CUtensorMap wmap, const __grid_constant__ CUte
     constexpr int NACC = C::NACC;
     constexpr bool SPIN = (VAR & WV_SPIN) != 0, EARLY = (VAR & WV_EARLY) != 0;
     constexpr bool TSPLIT = (VAR & WV_TAILSPLIT) != 0;
+    constexpr bool ACQCL = (VAR & WV_ACQCL) != 0, SCALAR = (VAR & WV_SCALAR) != 0;
     static_assert(!PUSH || sizeof(OutT) == 4, "wd: push writes f32");
     static_assert(!TSPLIT || (PUSH && (VAR & WV_TAILSYNC) == 0), "wd: split exit barrier replaces TAILSYNC");
     static_assert((VAR & WV_TAILRLX) == 0 || TSPLIT, "wd: TAILRLX needs TAILSPLIT");
@@ -2658,13 +2675,21 @@ wd_kernel(const __grid_constant__ CUtensorMap wmap, const __grid_constant__ CUte
     for (int j = 0; j < NACC; ++j) {
         acc[j] = 0.f;
     }
-    if (!NOPROD && warp == 4 * WG) {
-        if (lane == 0) {
+    if (!NOPROD && (C::PGROUP ? warp >= 4 * WG : warp == 4 * WG)) {
+        if ((!C::PGROUP || warp == 4 * WG) && lane == 0) {
             const uint64_t wpol = POL ? l2_evict_first() : 0;
             const uint64_t xpol = POL ? l2_evict_last() : 0;
             for (int i = (EARLY && CLR == 1) ? npro : 0; i < ktl; ++i) {
                 if (i >= NST) {
-                    mbar_wait<(VAR & WV_NOSLEEP) == 0>(empty0 + 8 * (i % NST), ((i / NST) - 1) & 1, dead, diag, 1);
+                    const uint32_t eb = empty0 + 8 * (i % NST);
+                    const uint32_t ep = ((i / NST) - 1) & 1;
+                    if constexpr (ACQCL && SPIN) {
+                        mbar_spin_cluster(eb, ep);
+                    } else if constexpr (ACQCL) {
+                        mbar_wait_cluster(eb, ep, dead, diag, 1);
+                    } else {
+                        mbar_wait<(VAR & WV_NOSLEEP) == 0>(eb, ep, dead, diag, 1);
+                    }
                 }
                 issue(i, wpol, xpol);
             }
@@ -2674,7 +2699,11 @@ wd_kernel(const __grid_constant__ CUtensorMap wmap, const __grid_constant__ CUte
         const int g = warp >> 2;
         for (int i = 0; i < ktl; ++i) {
             const int s = i % NST;
-            if constexpr (SPIN) {
+            if constexpr (ACQCL && SPIN) {
+                mbar_spin_cluster(full0 + 8 * s, (i / NST) & 1);
+            } else if constexpr (ACQCL) {
+                mbar_wait_cluster(full0 + 8 * s, (i / NST) & 1, dead, diag, 2);
+            } else if constexpr (SPIN) {
                 while (!mbar_test(full0 + 8 * s, (i / NST) & 1)) {
                 }
             } else {
@@ -2819,11 +2848,24 @@ wd_kernel(const __grid_constant__ CUtensorMap wmap, const __grid_constant__ CUte
                         c0 = 16 * (it & 3) + 2 * (l & 3);
                         c1 = c0 + 8;
                     }
-                    if (tok0 + t0 < M) {
-                        *reinterpret_cast<float2*>(out + (size_t)(tok0 + t0) * N + rowbase + c0) = make_float2(v.x, v.y);
-                    }
-                    if (tok0 + t1 < M) {
-                        *reinterpret_cast<float2*>(out + (size_t)(tok0 + t1) * N + rowbase + c1) = make_float2(v.z, v.w);
+                    if constexpr (SCALAR) {
+                        float* o0 = out + (size_t)(tok0 + t0) * N + rowbase + c0;
+                        float* o1 = out + (size_t)(tok0 + t1) * N + rowbase + c1;
+                        if (tok0 + t0 < M) {
+                            o0[0] = v.x;
+                            o0[1] = v.y;
+                        }
+                        if (tok0 + t1 < M) {
+                            o1[0] = v.z;
+                            o1[1] = v.w;
+                        }
+                    } else {
+                        if (tok0 + t0 < M) {
+                            *reinterpret_cast<float2*>(out + (size_t)(tok0 + t0) * N + rowbase + c0) = make_float2(v.x, v.y);
+                        }
+                        if (tok0 + t1 < M) {
+                            *reinterpret_cast<float2*>(out + (size_t)(tok0 + t1) * N + rowbase + c1) = make_float2(v.z, v.w);
+                        }
                     }
                 }
             }

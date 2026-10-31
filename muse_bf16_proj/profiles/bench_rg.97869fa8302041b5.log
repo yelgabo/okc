@@ -1,0 +1,41 @@
+RGBUILD prod 21.4 s, bench 13.5 s, 21 wd arms, donor on, round rg-a
+RGDONOR failed RuntimeError: tiation of "int rwdl_128_launch_t<BN,S,ST,SW,RED,PIPE,WP,XP>(int64_t, int64_t, int64_t, int, int64_t, int) [with BN=64, S=8, ST=8, SW=1, RED=2, PIPE=1, WP=64, XP=64]" at line 205
+
+Remark: The warnings can be suppressed with "-diag-suppress <warning-number>"
+
+ninja: build stopped: subcommand failed.
+
+RGDONOR failed ImportError: /tmp/muse_bf16_proj-v58tg9hs/sandbox/cache/torch_extensions/rg_rw_a01ab2a9ac0c/rg_rw_a01ab2a9ac0c.so: cannot open shared object file: No such file or directory
+RGOVH 4.26 us
+RGCHECK m=128 dropped: r64c8s8:vKLUSEYZGA@65=twin r64c8s8:vKLUEYZGA failed r64c8s8:vKLUSEDYZGA@65=twin r64c8s8:vKLUEDYZGA failed r64c8s8:vKLUSEYZGA@o65=twin r64c8s8:vKLUEYZGA failed r64c8s8:vKLUSEDYZGA@o65=twin r64c8s8:vKLUEDYZGA failed
+RG m=128 med r64c8s8:vKLUSEYZA=6.91 r64c8s8:vKLUEYZG=6.98 r64c8s8:vKLUEDYZ=7.01 r64c8s8k:prod=7.07 r64c8s8:vKLUEYZ=7.07 r64c8s8:vKLUEYZA=7.55
+RG m=128 d r64c8s8:vKLUEYZ r64c8s8:vKLUSEYZA=-0.22/84 r64c8s8:vKLUEYZG=-0.13/69 r64c8s8:vKLUEDYZ=-0.03/54 r64c8s8k:prod=-0.03/52 r64c8s8:vKLUEYZA=+0.48/8
+RGCHECK m=256 dropped: r128c8s6:vKLUSEYZGA@129=twin r128c8s6:vKLUEYZGA failed r128c8s6:vKLUSEDYZGA@129=twin r128c8s6:vKLUEDYZGA failed r64c4s8:vKLUSEWXYZA@129=twin r64c4s8:vKLUEWXYZA failed r64c4s8:vKLUSEWXYZGAQ@129=twin r64c4s8:vKLUEWXYZGAQ failed r64c4s8:vKLUSEDWXYZGAQ@129=twin r64c4s8:vKLUEDWXYZGAQ failed r128c8s6:vKLUSEYZGA@o129=twin r128c8s6:vKLUEYZGA failed r128c8s6:vKLUSEDYZGA@o129=twin r128c8s6:vKLUEDYZGA failed r64c4s8:vKLUSEWXYZA@o129=twin r64c4s8:vKLUEWXYZA failed r64c4s8:vKLUSEWXYZGAQ@o129=twin r64c4s8:vKLUEWXYZGAQ failed r64c4s8:vKLUSEDWXYZGAQ@o129=twin r64c4s8:vKLUEDWXYZGAQ failed
+RG m=256 med r128c8s6k:prod=9.57 r128c8s6:vKLUEYZ=9.57 r128c8s6:vKLUEYZG=9.57 r128c8s6:vKLUEDYZ=9.58 r128c8s6:vKLUSEYZA=9.60 r128c8s6:vKLUEYZA=9.73 r64c4s8:vKLUEWXYZG=10.66 r64c4s8:vKLUEWXYZ=10.69 r64c4s8:vKLUEWXYZQ=10.69 r64c4s8:vKLUEDWXYZ=10.72
+RG m=256 d r128c8s6:vKLUEYZ r128c8s6k:prod=+0.00/47 r128c8s6:vKLUEYZG=+0.03/44 r128c8s6:vKLUEDYZ=+0.00/47 r128c8s6:vKLUSEYZA=+0.03/40 r128c8s6:vKLUEYZA=+0.19/24 r64c4s8:vKLUEWXYZG=+1.06/5 r64c4s8:vKLUEWXYZ=+1.18/2 r64c4s8:vKLUEWXYZQ=+1.12/0 r64c4s8:vKLUEDWXYZ=+1.15/2
+RGDONE 36.8 s
+judged| sk build 0.0 s
+judged| tune router    m= 1: rgemv 8.1, router8 9.6, rt8w8 8.6, rt16w8 8.9, rt16w8p8 8.9, baseline 15.5 -> rgemv
+judged| tune router    m= 8: router8 9.6, rt8w8 8.7, rt16w8 8.8, rt16w8p8 8.9, baseline 30.9 -> rt8w8
+judged| tune router    m=16: router16 9.6, rt8w8 9.2, rt16w8 8.9, rt16w8p8 9.0, baseline 20.6 -> rt16w8
+judged| tune router    m=32: router32 9.9, rt8w8 11.8, rt16w8 9.7, rt16w8p8 9.8, baseline 21.1 -> rt16w8
+judged| tune router    m=64: baseline 21.3, r64c8 13.4, r64c16 11.7, r64c8s8 12.2, r64c4s8 15.8, rm64k4r4 18.9, r64c8s8k 11.2, r64c4s8a 14.7 -> r64c8s8k
+judged| tune router    m=128: baseline 22.7, r64c8 13.5, r64c16 14.3, r128c8 14.8, r128c16 13.3, r64c8s8 12.1, r64c4s8 15.9, r128c8s6 14.5, rm64k4r4 18.9, rm128k4r4 21.8, r64c8s8k 11.2, r128c8s6k 13.5, r64c4s8a 14.9 -> r64c8s8k
+judged| tune router    m=256: baseline 23.1, r64c8 15.0, r64c16 19.9, r128c8 15.2, r128c16 21.2, r64c8s8 19.3, r64c4s8 16.3, r128c8s6 14.7, rm64k4r4 19.2, rm128k4r4 21.9, r64c8s8k 17.5, r128c8s6k 13.8, r64c4s8a 15.1 -> r128c8s6k
+judged| prepare done 84.5 s
+RGBUILD prod 21.4 s, bench 13.5 s, 21 wd arms, donor on, round rg-a
+RGDONOR failed RuntimeError: tiation of "int rwdl_128_launch_t<BN,S,ST,SW,RED,PIPE,WP,XP>(int64_t, int64_t, int64_t, int, int64_t, int) [with BN=64, S=8, ST=8, SW=1, RED=2, PIPE=1, WP=64, XP=64]" at line 205
+
+Remark: The warnings can be suppressed with "-diag-suppress <warning-number>"
+
+ninja: build stopped: subcommand failed.
+
+RGDONOR failed ImportError: /tmp/muse_bf16_proj-v58tg9hs/sandbox/cache/torch_extensions/rg_rw_a01ab2a9ac0c/rg_rw_a01ab2a9ac0c.so: cannot open shared object file: No such file or directory
+RGOVH 4.26 us
+RGCHECK m=128 dropped: r64c8s8:vKLUSEYZGA@65=twin r64c8s8:vKLUEYZGA failed r64c8s8:vKLUSEDYZGA@65=twin r64c8s8:vKLUEDYZGA failed r64c8s8:vKLUSEYZGA@o65=twin r64c8s8:vKLUEYZGA failed r64c8s8:vKLUSEDYZGA@o65=twin r64c8s8:vKLUEDYZGA failed
+RG m=128 med r64c8s8:vKLUSEYZA=6.91 r64c8s8:vKLUEYZG=6.98 r64c8s8:vKLUEDYZ=7.01 r64c8s8k:prod=7.07 r64c8s8:vKLUEYZ=7.07 r64c8s8:vKLUEYZA=7.55
+RG m=128 d r64c8s8:vKLUEYZ r64c8s8:vKLUSEYZA=-0.22/84 r64c8s8:vKLUEYZG=-0.13/69 r64c8s8:vKLUEDYZ=-0.03/54 r64c8s8k:prod=-0.03/52 r64c8s8:vKLUEYZA=+0.48/8
+RGCHECK m=256 dropped: r128c8s6:vKLUSEYZGA@129=twin r128c8s6:vKLUEYZGA failed r128c8s6:vKLUSEDYZGA@129=twin r128c8s6:vKLUEDYZGA failed r64c4s8:vKLUSEWXYZA@129=twin r64c4s8:vKLUEWXYZA failed r64c4s8:vKLUSEWXYZGAQ@129=twin r64c4s8:vKLUEWXYZGAQ failed r64c4s8:vKLUSEDWXYZGAQ@129=twin r64c4s8:vKLUEDWXYZGAQ failed r128c8s6:vKLUSEYZGA@o129=twin r128c8s6:vKLUEYZGA failed r128c8s6:vKLUSEDYZGA@o129=twin r128c8s6:vKLUEDYZGA failed r64c4s8:vKLUSEWXYZA@o129=twin r64c4s8:vKLUEWXYZA failed r64c4s8:vKLUSEWXYZGAQ@o129=twin r64c4s8:vKLUEWXYZGAQ failed r64c4s8:vKLUSEDWXYZGAQ@o129=twin r64c4s8:vKLUEDWXYZGAQ failed
+RG m=256 med r128c8s6k:prod=9.57 r128c8s6:vKLUEYZ=9.57 r128c8s6:vKLUEYZG=9.57 r128c8s6:vKLUEDYZ=9.58 r128c8s6:vKLUSEYZA=9.60 r128c8s6:vKLUEYZA=9.73 r64c4s8:vKLUEWXYZG=10.66 r64c4s8:vKLUEWXYZ=10.69 r64c4s8:vKLUEWXYZQ=10.69 r64c4s8:vKLUEDWXYZ=10.72
+RG m=256 d r128c8s6:vKLUEYZ r128c8s6k:prod=+0.00/47 r128c8s6:vKLUEYZG=+0.03/44 r128c8s6:vKLUEDYZ=+0.00/47 r128c8s6:vKLUSEYZA=+0.03/40 r128c8s6:vKLUEYZA=+0.19/24 r64c4s8:vKLUEWXYZG=+1.06/5 r64c4s8:vKLUEWXYZ=+1.18/2 r64c4s8:vKLUEWXYZQ=+1.12/0 r64c4s8:vKLUEDWXYZ=+1.15/2
+RGDONE 36.8 s

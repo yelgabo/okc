@@ -98,7 +98,9 @@ constexpr int COOP_POLL_LIMIT = 1 << 24;
 // ONE_STAMP=1 records per-CTA times and wait cycles into dbg[STAMP_BASE ..] (flat producer
 // builds); ONE_PROBE=1 makes the producer's cached-row copies zero-fill without reading the cache
 // (consumer-bound time, wrong output); ONE_PROBE=2 drops the consumers' per-tile
-// fence.proxy.async after the full barrier (its cost, ordering not guaranteed).
+// fence.proxy.async after the full barrier (its cost, ordering not guaranteed); ONE_PROBE=3
+// (q_len 1 flat) zero-fills as 1 and the consumers release each stage without computing on it
+// (the producer-bound pace).
 #ifndef ONE_STAMP
 #define ONE_STAMP 0
 #endif
@@ -182,6 +184,23 @@ constexpr int COOP_POLL_LIMIT = 1 << 24;
 #ifndef ONE_HMRG
 #define ONE_HMRG 1
 #endif
+// ONE_HMRGF (flat q_len 1 modes 17, 49): the same key-half handoff at the end of every flat
+// segment. The producer ring owns the stages across segments, so the handoff uses the query /
+// staging bytes [S::Q, S::KN), which nothing reads between a segment's tile loop and the next
+// segment's query pass. The public flat q_len 1 kernel merges the halves the same way.
+#ifndef ONE_HMRGF
+#define ONE_HMRGF 0
+#endif
+// ONE_F1 (bit mask, flat q_len 1 modes 17, 49): 1 QK2: each key block's Q.K runs as two
+// independent mma.sync chains of two k-steps (even / odd) summed at the end, instead of one
+// chain of four, as the public flat kernel does; 2 PE16 (mode 49 producer): with page size 1 a
+// fully cached tile's page entries three tiles ahead are loaded from one 32-bit-indexed base
+// with immediate row offsets. Bench 4 stamps: the two CTAs of an SM end 6.2 us apart at
+// decode 32 full against the public kernel's 2.1, and without DRAM traffic mode 49 trails it by
+// 17.6 us: the per-tile streams set the partner CTA's pace.
+#ifndef ONE_F1
+#define ONE_F1 0
+#endif
 // ONE_T9 (bench builds): adds the last-CTA instances of the cooperative per-request plans
 // (q_len 1 mode 9, q_len 8 modes 9 and 13), so a bench can time the ticket finalize without
 // the cooperative launch or grid barrier at batch-1 full and verify-1 sliding.
@@ -227,8 +246,16 @@ constexpr int M_PROD = 32;
 // with the full 168-register budget instead of 80 with spills.
 constexpr int M_SOLO = 64;
 
+// ONE_NS1: ring depth of the flat q_len 1 producer build (mode 49). Stamps of bce37d22a0ec4045:
+// with DRAM in the loop mode 49's consumers wait on the full barrier about 50 us and its
+// producer on the empty barrier about 95 us of a 165 us call at decode 32 full, both at once,
+// and the partner CTA of each SM ends 5-6 us after its pair.
+#ifndef ONE_NS1
+#define ONE_NS1 3
+#endif
+
 __host__ __device__ constexpr int one_ns(int L, int mode) {
-    return (mode & M_PROD) && L == 8 ? 4 : STAGES;
+    return (mode & M_PROD) && L == 8 ? 4 : ((mode & M_PROD) && L == 1 ? ONE_NS1 : STAGES);
 }
 
 __host__ __device__ constexpr int one_threads(int L, int mode) {
@@ -910,7 +937,7 @@ attn_one_kernel(const Params p) {
     // several tiles per CTA; cooperative, or last-CTA under ONE_T9); other instances keep the
     // rolled loop.
     constexpr bool FIN8 = ONE_FIN8 && SPEC && !ONE;
-    constexpr bool HMRG = ONE_HMRG && !FLAT && L == 1;
+    constexpr bool HMRG = (ONE_HMRG && !FLAT && L == 1) || (ONE_HMRGF && FLAT && L == 1);
     constexpr bool QKOV = ONE_QKOV && PROD && L == 8;
     constexpr bool EREL = ONE_EREL && PROD && L == 8;
     constexpr bool PCHK = ONE_PCHK && PROD && L == 8;
@@ -923,6 +950,8 @@ attn_one_kernel(const Params p) {
     constexpr bool WAVE = ONE_WAVE > 0 && PROD && !SOLO && L == 8;
     constexpr bool DETM = ONE_DETM && FLAT && !COOP && L == 1;
     constexpr int PRQ = !FLAT && L == 8 ? ONE_PRQ : 0;
+    constexpr bool QK2 = (ONE_F1 & 1) && FLAT && L == 1;
+    constexpr bool PE16 = (ONE_F1 & 2) && PROD && L == 1;
     // NC consumer threads (one warpgroup per KV head at q_len 8, four warps at q_len 1); in
     // producer mode one more warpgroup gathers the tiles.
     constexpr int NC = L == 8 ? 256 : 128;
@@ -1176,7 +1205,7 @@ attn_one_kernel(const Params p) {
                 }
                 return __ldg(pt + (psize == 1 ? pos : pos / psize));
             };
-            constexpr uint32_t CPB = ONE_PROBE == 1 ? 0u : 16u;
+            constexpr uint32_t CPB = ONE_PROBE == 1 || ONE_PROBE == 3 ? 0u : 16u;
             const bool fast32 = ONE_PFAST && p.off32 != 0;
             long long s_emw = 0;
             const long long s_p0 = STAMPS ? clock64() : 0;
@@ -1245,7 +1274,14 @@ attn_one_kernel(const Params p) {
                         }
                         cp_async_mbar_arrive_noinc(full0 + 8 * pst);
                         const int tn = t + PF;
-                        if (fast32 && tn < ntiles && lo + tn * BN + BN <= seq) {
+                        if (PE16 && fast32 && p.lp == 0 && tn < ntiles
+                            && lo + tn * BN + BN <= seq) {
+                            const int* q = pt + static_cast<uint32_t>(lo + tn * BN + r0);
+#pragma unroll
+                            for (int i = 0; i < 4; ++i) {
+                                pe[u][i] = __ldg(q + 16 * i);
+                            }
+                        } else if (fast32 && tn < ntiles && lo + tn * BN + BN <= seq) {
 #pragma unroll
                             for (int i = 0; i < 4; ++i) {
                                 pe[u][i] = __ldg(pt + ((lo + tn * BN + r0 + 16 * i) >> p.lp));
@@ -1811,6 +1847,11 @@ attn_one_kernel(const Params p) {
             int st = PROD ? cst : 0;
             for (int it = 0; it < ntiles; ++it) {
                 acquire(it, st);
+                if constexpr (ONE_PROBE == 3 && PROD) {
+                    release(st);
+                    st = cst;
+                    continue;
+                }
                 const uint8_t* ks = smem + S::KV + st * 2 * TILE_BYTES;
                 const uint8_t* vs = ks + TILE_BYTES;
                 const int pos0 = lo + it * BN;
@@ -1830,10 +1871,23 @@ attn_one_kernel(const Params p) {
                         kf[2 * e + 1] = f16x2_from_e4m3x2(kwv[e] >> 16);
                     }
                     s[kb][0] = s[kb][1] = s[kb][2] = s[kb][3] = 0.f;
+                    if constexpr (QK2) {
+                        float so[4] = {0.f, 0.f, 0.f, 0.f};
 #pragma unroll
-                    for (int j2 = 0; j2 < 4; ++j2) {
-                        mma_f16(s[kb], qf[2 * j2], 0u, qf[2 * j2 + 1], 0u, kf[2 * j2],
-                                kf[2 * j2 + 1]);
+                        for (int j2 = 0; j2 < 4; j2 += 2) {
+                            mma_f16(s[kb], qf[2 * j2], 0u, qf[2 * j2 + 1], 0u, kf[2 * j2],
+                                    kf[2 * j2 + 1]);
+                            mma_f16(so, qf[2 * j2 + 2], 0u, qf[2 * j2 + 3], 0u, kf[2 * j2 + 2],
+                                    kf[2 * j2 + 3]);
+                        }
+                        s[kb][0] += so[0];
+                        s[kb][1] += so[1];
+                    } else {
+#pragma unroll
+                        for (int j2 = 0; j2 < 4; ++j2) {
+                            mma_f16(s[kb], qf[2 * j2], 0u, qf[2 * j2 + 1], 0u, kf[2 * j2],
+                                    kf[2 * j2 + 1]);
+                        }
                     }
                 }
                 float mx = NEG_INF;
@@ -1915,6 +1969,15 @@ attn_one_kernel(const Params p) {
                 release(st);
                 st = PROD ? cst : (st == STAGES - 1 ? 0 : st + 1);
             }
+            if constexpr (STAMPS) {
+                s_loop += clock64() - s_l0;
+                s_tiles += ntiles;
+                ++s_nseg;
+                if (tid == 0) {
+                    srec(3, snow());
+                    srec(13, clock64() - s_k0);
+                }
+            }
             stamp(16);
             PHASE_EXIT(10)
             // Fixed-frame merge: this warp's rows scaled by 2^m into the workspace. Thread
@@ -1940,13 +2003,17 @@ attn_one_kernel(const Params p) {
             } else
 #endif
             if constexpr (HMRG) {
-                // Shared-memory handoff in the first stage: after every thread's cp_wait<0> and
-                // the barrier, no copy is pending into it and no warp still reads it. Laid out
+                // Shared-memory handoff in the first stage (flat: the query bytes, since the
+                // producer may already fill the stages for the next segment): after every
+                // thread's cp_wait<0> and the barrier, no copy is pending into it and no warp
+                // still reads it; the next writes there follow the next segment's csync. Laid out
                 // [value][thread] so each store and load instruction is conflict-free.
                 const float lq = quad_sum(l) * f;
                 cp_wait<0>();
                 csync();
-                float* xs = reinterpret_cast<float*>(smem + S::KV) + hk * 32 + lane;
+                static_assert(!FLAT || S::Q + 17 * 64 * 4 <= S::KN, "flat handoff bytes");
+                float* xs = reinterpret_cast<float*>(smem + (FLAT ? S::Q : S::KV)) + hk * 32
+                            + lane;
                 if (wsub == 1) {
 #pragma unroll
                     for (int e = 0; e < 8; ++e) {
@@ -2839,9 +2906,25 @@ attn_one_kernel(const Params p) {
             }
             run_segment();
             if constexpr (!COOP) {
+                if constexpr (STAMPS) {
+                    if (tid == 0) {
+                        srec(4, snow());
+                    }
+                }
                 ticket();
             } else {
                 mine_total += hi - lo;
+            }
+        }
+        if constexpr (STAMPS && !COOP) {
+            if (tid == 0) {
+                srec(5, snow());
+                srec(6, s_tiles);
+                srec(7, s_nseg);
+                srec(8, s_fullw);
+                srec(9, s_pro);
+                srec(10, s_loop);
+                srec(14, clock64() - s_k0);
             }
         }
         if constexpr (COOP) {

@@ -2823,3 +2823,476 @@ full, the producer kernels 51 and 49), which no round-2 or round-3 change touche
 ### Scored: 1896e72c11ae4b0f 2.521x (2026-10-30)
 
 Submit of submission.py at a70192d (ONE_PRQ=31, _ONE_WS_PICK=3, ONE_HMRG on), submitted by the coordinator under the standing authorization. Passed. Above the bench-file entry e9085c86d89449c2 (2.504x), so a clean file of our own code becomes the attention board entry. Receipt: muse_attention_decode/profiles/scored.1896e72c11ae4b0f.json.
+
+## Standalone round 4 (10-30): the flat full-context rows (modes 49 and 51)
+
+Brief: attribute the flat full-context gap to the public flat kernels in one process (stamps,
+SASS of the per-tile paths), name the mechanism, build one switch (off = SASS-identical), gate
+written here before the check that tests it (modeled >= 0.2% standalone score gain beyond the
+independent null). Start: main 15cc6b9 (HMRG, PRQ=31, `_ONE_WS_PICK` 3; board entry
+1896e72c11ae4b0f, 2.521x). Quota at the start (`okc problems`, 19:09 UTC): 5 of 20 attention
+checks, 8 of 10 runs, all expiring at 00:00 UTC. Gaps to the public kernel this round starts from
+(bench 3c6e1a7f1cc644b6, cold, pub - p31): v16 full -1.95 us (0.24%), d32 full -1.50 (0.13%), d16
+full -0.73 (0.11%); d1 full -0.74 runs the per-request mode 11 and is not in this round's scope.
+
+### Static comparison of the q_len 1 flat kernels (SASS, CUDA 12.8.1)
+
+Ours mode 49 (`tools/attn_one_sass.sh`, 3448 instructions, consumer region R115, no spills)
+against the public `attn_kernel<1, true, 0>` (`tools/attn_pub_compile.sh` on the public file sha1
+0e9d4c78, 3416 instructions, 128 registers; the public copy stays in the scratchpad):
+
+| piece | ours (mode 49) | public flat q_len 1 |
+|---|---|---|
+| consumer tile body (mbarrier wait to empty arrive) | 381 instructions: 32 HMMA, 13 LDS, 68 F2FP, 9 MUFU, 2 SHFL, one VOTE (alpha) | 403: 32 HMMA, 26 LDS, 68 F2FP, 9 MUFU, 2 SHFL |
+| producer, page entries | `__ldg` per row, three tiles ahead in registers, 64-bit pointer math (about 31 instructions per tile for 4 entries) | one bulk copy (`cp.async.bulk`) of the tile's 64 entries per tile into a shared-memory slot, three tiles ahead, an mbarrier per slot and a producer `bar.sync` per tile |
+| producer, cached-row copies | PFAST: 8 `LDGSTS` per tile per thread, 32-bit offsets | the same shape (8 `LDGSTS`, 32-bit offsets) |
+| ring across segments | continuous (the producer runs ahead into the next segment) | drained and re-initialized per segment |
+| merge after each segment | each of the 4 warps (2 KV heads x 2 key halves) reds its own partial: every workspace address takes 2 reds per CTA | the second key half hands (m, l, o) to the first through shared memory; only the first issues reds (the same handoff as its per-request path) |
+| partition, grid | 264 CTAs, equal shares of a virtual key axis, 400 keys per request boundary | the same (264, `SEGKF` 400) |
+
+The tile loops are within 6% of each other in instructions, ours shorter. The one structural
+difference after the loop is the merge: the per-request q_len 1 modes got the key-half handoff in
+round 2 (`ONE_HMRG`, judged; -0.80 / -1.44 us at d32 / d16 sliding, where the reds were the
+measured mechanism in ce92d32e26024bd2), but it was scoped to `!FLAT`, so mode 49 still issues
+twice the public kernel's reds. In the flat kernel the grid finishes together by construction
+(equal shares), so the last segments' reds of all 264 CTAs land on L2 in one burst at the end
+of the call, about 8 CTAs per request on the same 1,040 addresses, and the last CTA of each
+request waits for them before its finalize. Hypothesis (H1): the doubled reds at the flat
+kernel's tail are the d16 / d32 full gap. The stamps below test where the time goes; the switch
+tests H1 directly.
+
+### The switch: `ONE_HMRGF` (default 0)
+
+`attn_one.cu`: the HMRG handoff for the flat q_len 1 instances (17, 49). In producer mode the
+stage ring belongs to the producer across segments (it may already be filling the next
+segment's tiles while the consumers merge), so the handoff cannot use stage 0 as HMRG does; it
+uses the 4,352 bytes from `S::Q` (query fragments, bf16 query staging, raw new rows: 4,608 bytes
+up to `S::KN`, checked by a static_assert), which nothing reads between a segment's tile loop and
+the next segment's query pass. Arithmetic as in HMRG: each half scales by its own 2^m, one FP32
+add before the red.
+
+SASS (CUDA 12.8.1, all 13 instances, per-function compare with namespace hashes normalized,
+scratchpad `flat/sass_all.sh`): with `ONE_HMRGF=0` (and `ONE_STAMP=0`) every instance is
+identical to main 15cc6b9; with 1 only modes 17 and 49 change (3448 -> 3520 and 2648 -> 2712
+instructions), mode 49 consumer region R109, no spills, no warnings beyond the usual unused ones.
+
+`ONE_STAMP=1` now also records the q_len 1 flat kernel (bench-only): 3 the last segment's tile
+loop end, 4 its reds issued (before its ticket), 5 the kernel end. The bench prints them per CTA
+and a compact `STSUM` line per shape and arm (medians over five cold calls) at the end of the log.
+The public stamp copy `pubstamp1` (scratchpad `flat/make_pubstamp1.py`, never committed) records
+start, SM, tiles and, at q_len 1, the last tile-loop end and the kernel end.
+
+### Ordering argument (no fence or barrier removed or moved)
+
+The handoff adds the judged HMRG sequence to mode 49's merge: `cp_wait<0>`, consumer barrier
+(`bar.sync 1, 128`; mode 17 `__syncthreads`), generic `st.shared` by the second-half warps,
+consumer barrier, generic `ld.shared` by the first-half warps, their reds. The reds are still
+issued before the ticket's consumer barrier that precedes thread 0's `atom.acq_rel.gpu`, so the
+release chain to the finalizing CTA is the judged one. The buffer's previous contents are read
+only before or inside the tile loop: the query fragments (`ld.shared` into registers before the
+loop), the bf16 query rows and raw new rows (written by the consumers' own `cp.async`, waited by
+`cp.async.wait_group` and a barrier, read in the query and new-token passes). Every consumer
+thread finishes those reads in program order before it arrives at the merge's first barrier, and
+`cp_wait<0>` leaves no copy of its own in flight. The next writes into those bytes are the next
+segment's query copies, issued after that segment's `cp_wait<0>` and consumer barrier, which
+every first-half thread reaches only after its loads (and after the ticket's two barriers). The
+producer warpgroup writes only the stages and arrives on the stage mbarriers; it never touches
+`[S::Q, S::KN)`. At q_len 1 no async-proxy instruction (wgmma, bulk copy) reads shared memory, so
+no proxy fence is involved. A segment the CTA does not own (`seg_bounds` false) runs no merge.
+
+### Gate for check 1 (written before the bench that tests it)
+
+Bench `bench_j` (scratchpad `flat/gen_j.sh`; `tools/attn_make_bench_ab.py --pub <0e9d4c78> --pub
+pubstamp1 --pub pubnc_probe --null --shapes full --inputs 2 --rounds 200 --seed 20261040`):
+`ctrl`, `ctrl2` (own state, the independent null), `ctrlb` (`-DONE_HMRGF=0`, the control's code in
+a separate build on ctrl's state: the matched null), `hf` (`-DONE_HMRGF=1`, ctrl's state), `hfown`
+(the same build, own state), `stamp` (`-DONE_STAMP=1`), `nocopy_probe` (`-DONE_PROBE=1`: cached
+rows zero-filled, no cache reads), `pub`, `pub2`, `pubstamp1`, `pubnc_probe` (the public file
+with its producer's cached-row copies at src-size 0).
+
+Modeled gain G(X) = sum over d16 full and d32 full (the rows whose code the switch changes) of
+(ctrl - X) x sensitivity, cold pooled medians, sensitivities from the board run
+1896e72c11ae4b0f (d16 full 0.147, d32 full 0.084 %/us; v16 / v32 full 0.121 / 0.072).
+
+`ONE_HMRGF=1` goes to a confirmation bench only if all hold:
+1. ABCHECKSUM passes for every real arm; `hf` against ctrl differs only at the red-order level
+   and leaves the workspace zero.
+2. G(hfown) - G(ctrl2) >= 0.20% (the independent null) and G(hf) - G(ctrlb) >= 0.20% (the matched
+   null).
+3. `hf` has the same sign on both held-out inputs on d16 full and d32 full (ABIN).
+4. No row of `hf` slower than ctrl by more than max(|ctrlb - ctrl|, 1%) (v16 / v32 full run
+   unchanged code).
+
+If `hf` is faster on both rows but misses clause 2, it is recorded as a measured standalone gain
+below the bar (not promoted, a row in docs/ruled-out.md with its size). If it is not faster, H1 is
+a measured loss and the stamps name what is left.
+
+Attribution (no gate): per flat row, ours against the public: start and first-tile time, loop
+end (min / median / max), tail from the loop end to the kernel end, per-SM end, pair gap
+(`STSUM`), and the no-copy probes (`nocopy_probe` against `pubnc_probe`: the instruction streams
+without DRAM).
+
+Independent read-only review of the ordering argument (fresh agent, 10-30, during check 1,
+source only): **sound**, with caveats: (a) `ONE_DETM=1` takes the merge branch first, so HMRGF
+has no effect in a DETM build; (b) the static_assert bounds the buffer by `S::KN` only, and the
+overlap with the raw new rows (`KVST`, first 256 bytes) is safe because those are read before the
+loop and drained by `cp.async.wait_group` and a barrier; a future change that reads `KVST` after
+the loop would not be caught; (c) the buffer in use is [S::Q, S::Q + 4352), narrower than the
+comment's [S::Q, S::KN).
+
+### Check bce37d22a0ec4045 (bench `bench_j`, at d12b20e): HMRGF misses its gate; the gap is the per-SM pair spread
+
+| date | job | commit | file | result | notes |
+|---|---|---|---|---|---|
+| 2026-10-30 | bce37d22a0ec4045 (check) | d12b20e | bench `bench_j` (`flat/gen_j.sh`, 11 arms, `--shapes full`) | 2.571x (CI 2.533-2.610) judged path = board code, 16/16 tests, ABCHECKSUM 11/0 every real arm | HMRGF G +0.054% (bar 0.20%); stamps name the pair spread |
+
+Profiles: `muse_attention_decode/profiles/bench_j.bce37d22a0ec4045.*`. Cold medians pooled over two
+held-out inputs, arm - ctrl (us):
+
+| row | ctrl | ctrlb | ctrl2 | hf | hfown | pub | pub2 | nocopy_probe | pubnc_probe |
+|---|---|---|---|---|---|---|---|---|---|
+| d16 full (49) | 97.89 | +0.06 | +0.00 | -0.29 | -0.22 | -0.90 | -1.06 | -22.14 | -31.42 |
+| d32 full (49) | 173.25 | +0.03 | +0.00 | -0.13 | -0.10 | -1.66 | -1.76 | -34.62 | -52.22 |
+| v16 full (51) | 111.78 | -0.58 | -0.35 | -0.96 | -0.77 | -3.26 | -3.14 | -26.56 | -22.88 |
+| v32 full (51) | 189.12 | -0.29 | -0.19 | -0.06 | -0.26 | -0.93 | -1.02 | -37.47 | -30.30 |
+
+HMRGF against its gate: (1) holds (11/0); (2) **fails**: G(hfown) - G(ctrl2) = 0.042%, G(hf) -
+G(ctrlb) = 0.065%, against 0.20%; (3) holds (d16 -0.29 / -0.22, d32 -0.32 / -0.06); (4) holds.
+Recorded as a measured standalone gain below the bar (about 0.05%), not promoted.
+
+Stamps (five cold calls per shape, medians of the per-call statistics, `STSUM`; times from the
+grid's first start, us; ours `stamp`, public `pubstamp1`; the stamp builds cost +0.5 / +0.9 us at
+d16 / d32 full and +1.3 / +2.7 at v16 / v32 full over their unstamped builds):
+
+| row | arm | loop end min / median / max | tail after the loop, median / max | per-SM end median / max (loop) | pair gap (median) | span (kernel end) |
+|---|---|---|---|---|---|---|
+| d16 full | ours | 80.9 / 86.9 / 90.8 | 1.3 / 2.4 | 88.2 / 90.8 | 3.1 | 92.8 |
+| | public | 82.0 / 86.7 / 89.4 | 1.2 / 2.4 | 87.3 / 89.4 | 1.0 | 91.4 |
+| d32 full | ours | 152.1 / 161.3 / 168.1 | 1.3 / 2.6 | 164.6 / 168.1 | 6.2 | 170.0 |
+| | public | 154.1 / 161.5 / 166.2 | 1.2 / 2.8 | 162.2 / 166.2 | 2.1 | 167.9 |
+| v16 full | ours | 80.6 / 92.1 / 101.5 | 12.3 / 23.1 (barrier + finalize) | 97.0 / 101.5 | 11.5 | 104.1 |
+| | public | 82.5 / 92.5 / 100.4 | 10.0 / 19.6 | 95.2 / 100.4 | 7.0 | 102.9 |
+| v32 full | ours | 148.6 / 171.1 / 183.7 | 23.0 / 37.1 | 177.5 / 183.7 | 22.3 | 186.4 |
+| | public | 151.6 / 169.0 / 180.2 | 14.6 / 31.3 | 174.5 / 180.2 | 16.0 | 183.3 |
+
+What this names (measured):
+
+- **Not the merge.** At q_len 1 the tail from the last loop end to the kernel end is the same in
+  both kernels (1.3 vs 1.2 us median, 2.4-2.6 vs 2.4-2.8 max). H1 (the doubled reds) is at most
+  the 0.1-0.3 us HMRGF measured. The first tile is ready 4.4 us after the start in ours (the
+  public copy has no first-tile stamp); starts spread 0.2 us in both.
+- **Not the median throughput.** The median CTA's loop ends at the same time in both kernels at
+  every row (86.9 vs 86.7, 161.3 vs 161.5, 92.1 vs 92.5, 171.1 vs 169.0).
+- **The pair spread.** The two CTAs of an SM end 3.1 / 6.2 us apart in mode 49 against 1.0 / 2.1 in
+  the public kernel (d16 / d32 full), 11.5 / 22.3 against 7.0 / 16.0 in mode 51. The favoured CTA
+  ends earlier than the public one (loop min 152.1 vs 154.1 at d32), the partner later, and the
+  latest SM ends 1.4-3.5 us later than the public kernel's: the size of each row's cold gap.
+  Mode 51 showed the same pattern before DCARRY / PK16 / VHOIST (bench e9085c86d89449c2), and its
+  pair gap fell as its per-tile instructions fell.
+- **The instruction streams differ without DRAM.** With the cache reads removed, mode 49 trails
+  the public q_len 1 kernel by 9.3 / 17.6 us (75.7 vs 66.5, 138.6 vs 121.0), while mode 51 is ahead
+  of the public q_len 8 kernel by 3.7 / 7.2 us. So at q_len 1 the partner CTA's pace is set by a
+  heavier or longer per-tile stream; at q_len 8 the remaining spread is not an instruction-count
+  deficit (mode 51 keeps the per-tile proxy fence the public kernel omits, 1.2-1.4 us in
+  e9085c86d89449c2).
+- v16 full's gap depends on the input: -5.47 / -1.50 us (input 0 / 1), the largest per-input
+  difference in this bench; not pursued this round.
+
+### The switch for check 2: `ONE_F1` (bit mask, default 0; modes 17 and 49 only)
+
+Two pieces of mode 49's per-tile stream that differ from the public kernel, measured separately:
+bit 1 `QK2`: each key block's Q.K was one chain of four dependent `mma.sync` (k-steps 0..3 into one
+accumulator); it becomes two independent chains of two (even and odd k-steps, as the public
+kernel's se / so) summed with one FP32 add per element (a different FP32 summation order, the
+same products); bit 2 `PE16` (producer): with page size 1 the page entries three tiles ahead of a
+fully cached tile load from one base with immediate offsets (32-bit index) instead of a 64-bit
+pointer per row (the refill drops from about 31 to about 10 SASS instructions per tile). No
+fence, barrier, mbarrier, wait or commit is added, removed or moved: QK2 changes register
+arithmetic only, PE16 loads the same addresses (pos >> 0 = pos) into the same registers.
+
+SASS (all 13 instances, `flat/sass_all.sh`): `ONE_F1=0` identical to main 15cc6b9; 1 changes only
+17 and 49 (3448 -> 3472, consumer region R121), 2 only 49 (3496), 3 only 17 and 49 (3520); no spills.
+
+### Gate for check 2 (written before the bench that tests it)
+
+Bench `bench_k` (`flat/gen_k.sh`, `--pub <0e9d4c78> --null --shapes full --inputs 2 --rounds 200
+--seed 20261041`): `ctrl`, `ctrl2` (independent null), `ctrlb` (`-DONE_F1=0`, matched null on
+ctrl's state), `f1`, `f2`, `f3` (`-DONE_F1=1/2/3`, ctrl's state), `f3h` (`-DONE_F1=3
+-DONE_HMRGF=1`), `f3own` (`-DONE_F1=3`, own state), `stampf3` (`-DONE_F1=3 -DONE_STAMP=1`), `pub`,
+`pub2`. G as in check 1 (d16 / d32 full, 0.147 / 0.084 %/us).
+
+An arm X goes to confirmation only if: (1) ABCHECKSUM passes for every real arm; (2) G(X) -
+G(ctrlb) >= 0.20%, and for f3 or f3h also G(f3own) - G(ctrl2) >= 0.20% (another winner needs an
+own-state twin in the confirmation); (3) same sign on both inputs at d16 and d32 full; (4) no
+row slower than ctrl by more than max(|ctrlb - ctrl|, 1%). Choice: largest G; a smaller bit set
+within 0.05% of it is preferred. An arm faster on both rows but below the bar is a measured gain
+below the bar (not promoted). The stamps of `stampf3` against check 1's `stamp` say whether the
+pair gap moved.
+
+### Check c8e99e038d9f4575 (bench `bench_k`, at 2bf3967): ONE_F1 is a measured loss
+
+| date | job | commit | file | result | notes |
+|---|---|---|---|---|---|
+| 2026-10-30 | c8e99e038d9f4575 (check) | 2bf3967 | bench `bench_k` (`flat/gen_k.sh`, 11 arms, `--shapes full`) | 2.504x (CI 2.466-2.541) judged path = board code, 16/16 tests, ABCHECKSUM 11/0 every arm | no arm passes; QK2 slower, PE16 null |
+
+Profiles: `muse_attention_decode/profiles/bench_k.c8e99e038d9f4575.*`. A slower machine than check 1
+(ctrl 100.58 / 179.36 at d16 / d32 full against 97.89 / 173.25). Cold pooled, arm - ctrl (us):
+
+| row | ctrl | ctrlb | ctrl2 | f1 (QK2) | f2 (PE16) | f3 | f3h (+HMRGF) | f3own | pub |
+|---|---|---|---|---|---|---|---|---|---|
+| d16 full | 100.58 | +0.06 | +0.00 | +0.12 | -0.04 | -0.04 | -0.16 | -0.10 | -0.80 |
+| d32 full | 179.36 | +0.13 | +0.16 | +0.32 | +0.03 | +0.10 | +0.03 | +0.13 | -1.31 |
+| G (d16 + d32 full) | | -0.02% | -0.01% | -0.05% | +0.00% | -0.00% | +0.02% | +0.00% | +0.23% |
+
+Against the gate: (1) holds (11/0 every arm); (2) fails for every arm (the best, f3h, is +0.04%
+over the matched null). QK2 is slower on both rows and both inputs (+0.10 / +0.26 at d16, +0.13 /
++0.22 at d32): the four-step Q.K chain is not on mode 49's critical path, and the extra adds and
+six more registers cost a little. PE16 moves nothing (-0.04 / +0.03). Both are measured losses for
+the switches as built (rows in docs/ruled-out.md). `stampf3`: pair gap 2.8 / 5.2 us at d16 / d32
+full (check 1's `stamp`: 3.1 / 6.2 on a faster machine), tails 1.3 us as before. The v16 / v32 full
+rows (code unchanged in every arm) moved by -1.1 to +0.6 us across arms, mostly on input 0: the
+q_len 8 flat rows carry about 1 us of run noise in this bench.
+
+### Check 3 (diagnostic, no gate): the producer-bound pace of both q_len 1 kernels
+
+What is left unnamed: without DRAM traffic mode 49 trails the public q_len 1 kernel by 9-18 us,
+and neither the consumer's Q.K chain nor the producer's page-entry refill is it. Bench `bench_l`
+(`flat/gen_l.sh`, `--null --shapes full --inputs 2 --rounds 200 --seed 20261042`): `nocopy_probe`
+(`ONE_PROBE=1`) and `pubnc_probe` as before; `prodonly_probe` (`ONE_PROBE=3`, new: no cache reads,
+and the consumers release each stage without computing on it; mode 49 only, SASS of every other
+instance unchanged by it apart from the zero-fill it shares with 1) and `pubncc_probe` (the public
+no-copy copy whose q_len 1 consumers do the same: one `mbarrier.arrive` per thread per stage,
+scratchpad `flat/pubncc.py`); `hf` / `hfown` (HMRGF repeat for the ledger) with `ctrl2`, `pub`,
+`pub2`. Reading: producer-only time, ours against the public, says whether the producer stream or
+the consumer stream holds the no-DRAM deficit. No candidate is judged by this check.
+
+### Check 4b60264a276c4805 (bench `bench_l`, at 0b326a4): both q_len 1 streams carry the no-DRAM deficit; HMRGF repeats small
+
+| date | job | commit | file | result | notes |
+|---|---|---|---|---|---|
+| 2026-10-30 | 4b60264a276c4805 (check) | 0b326a4 | bench `bench_l` (`flat/gen_l.sh`, 10 arms, `--shapes full`) | 2.498x (CI 2.461-2.535) judged path = board code, 16/16 tests, ABCHECKSUM 11/0 every real arm | diagnostic, no gate |
+
+Profiles: `muse_attention_decode/profiles/bench_l.4b60264a276c4805.*`. Cold pooled (us):
+
+| row | ctrl | pub | nocopy (ours / public) | producer only (ours / public) | hf - ctrl | hfown - ctrl | ctrl2 - ctrl |
+|---|---|---|---|---|---|---|---|
+| d16 full | 100.45 | 99.49 | 75.55 / 66.05 | 37.63 / 32.93 | -0.22 | -0.29 | -0.06 |
+| d32 full | 179.39 | 177.60 | 138.43 / 120.93 | 63.23 / 55.20 | -0.19 | -0.35 | -0.22 |
+
+- Producer only (no cache reads, consumers release each stage untouched): mode 49's producer is
+  4.7 / 8.0 us (14%) slower than the public producer at d16 / d32 full, about half of the no-DRAM
+  deficit (9.5 / 17.5 us). The rest is in the consumers' stream or in how the two interleave. Both
+  kernels take about twice as long with the consumers computing as without them.
+- With DRAM both deficits shrink to the 1.0 / 1.8 us gap: DRAM sets the median pace and the
+  streams decide how unevenly the two CTAs of an SM share it.
+- HMRGF again: -0.22 / -0.19 (hf), -0.29 / -0.35 (hfown, null -0.06 / -0.22), same sign on all
+  four per-input rows: about +0.05-0.07%, as in check 1. Still below the 0.20% bar.
+- The v16 full row varies with the input again (pub - ctrl -4.6 / -0.5 us on inputs 0 / 1).
+
+### The switch for check 4: `ONE_NS1` (mode 49 ring depth, default 3)
+
+Check 1's stamps at d32 full: the consumers wait on the full barrier about 50 us (median thread 0)
+and the producer on the empty barrier about 95 us of a 165 us call, at the same time; the ring
+(3 stages of 16 KB) is full from the producer's side while the consumer of the partner CTA starves.
+`ONE_NS1` sets mode 49's stage count (`one_ns`); shared memory per CTA is NS x 16 KB + 9.9 KB (4:
+75.4 KB, 6: 108.2 KB), so two CTAs per SM still fit up to 6 (2 x (108.2 + 1) KB of 228 KB). The
+ring code is generic in NS (mbarrier init, phase flip, the producer's final drain); no fence,
+barrier, wait or arrive changes, only the ring length. SASS: `ONE_NS1=3` identical to main on all
+13 instances; 4 and 6 change only mode 49 (3448 -> 3472 / 3520 instructions, consumer region R115,
+no spills).
+
+### Gate for check 4 (written before the bench that tests it)
+
+Bench `bench_m` (`flat/gen_m.sh`, `--pub <0e9d4c78> --null --shapes full --inputs 2 --rounds 200
+--seed 20261043`): `ctrl`, `ctrl2`, `ctrlb` (`-DONE_NS1=3`), `ns4`, `ns5`, `ns6` (`-DONE_NS1=4/5/6`,
+ctrl's state), `ns6h` (`-DONE_NS1=6 -DONE_HMRGF=1`), `ns4own`, `ns6own` (own state), `stampns6`
+(`-DONE_NS1=6 -DONE_STAMP=1`), `pub`, `pub2`. ABPLAN must show 264 CTAs in mode 49 for every ns arm.
+
+An arm goes to confirmation (check 5) only if: (1) ABCHECKSUM passes for every real arm; (2) G(X) -
+G(ctrlb) >= 0.20%, and for ns4 / ns6 / ns6h also G(own twin) - G(ctrl2) >= 0.20%; (3) same sign on
+both inputs at d16 and d32 full; (4) no row slower than ctrl by more than max(|ctrlb - ctrl|, 1%).
+Choice: largest G; a shallower ring within 0.05% is preferred (less shared memory). The quota
+leaves no judged check today: a passing arm is confirmed in check 5 and judged after the reset.
+
+### Check 42c4739cf6b247c4 (bench `bench_m`, at 5064e2b): a deeper mode 49 ring is a measured loss, monotonic in depth
+
+| date | job | commit | file | result | notes |
+|---|---|---|---|---|---|
+| 2026-10-30 | 42c4739cf6b247c4 (check) | 5064e2b | bench `bench_m` (`flat/gen_m.sh`, 12 arms, `--shapes full`) | 2.492x (CI 2.455-2.530) judged path = board code, 16/16 tests, ABCHECKSUM 11/0 every arm | every ns arm slower; 264 CTAs in mode 49 for all (ABPLAN) |
+
+Profiles: `muse_attention_decode/profiles/bench_m.42c4739cf6b247c4.*`. Cold pooled, arm - ctrl (us):
+
+| row | ctrl | ctrlb | ctrl2 | ns4 | ns5 | ns6 | ns6h | ns4own | ns6own | pub |
+|---|---|---|---|---|---|---|---|---|---|---|
+| d16 full | 100.58 | -0.07 | +0.00 | +0.80 | +1.24 | +1.72 | +1.85 | +0.67 | +1.69 | -0.71 |
+| d32 full | 179.49 | -0.07 | -0.13 | +0.29 | +0.99 | +2.24 | +2.27 | +0.19 | +1.95 | -1.63 |
+
+Against the gate: (1) holds; (2) fails for every arm (G from -0.11% to -0.46%); slower on both
+inputs on both rows for every depth. `stampns6` at d32 full against check 1's `stamp`: the producer's
+empty-barrier wait falls from about 95 to 31 us, the consumers' full-barrier wait stays about 54, and
+the loop ends spread wider (148.0 / 167.1 / 176.9 against 152.1 / 161.3 / 168.1; pair gap 4.8, latest
+SM 176.9). A deeper ring lets each SM's favoured CTA run further ahead of its partner on the shared
+DRAM bandwidth, and the partner, which sets the end, finishes later. So the ring is not too shallow;
+if anything the reverse.
+
+### Gate for check 5 (written before the bench that tests it)
+
+Bench `bench_n` (`flat/gen_n.sh`, `--pub <0e9d4c78> --null --shapes full --inputs 2 --rounds 200
+--seed 20261044`): `ctrl`, `ctrl2`, `ctrlb` (`-DONE_NS1=3`), `ns2` (`-DONE_NS1=2`, ctrl's state),
+`ns2h` (`-DONE_NS1=2 -DONE_HMRGF=1`), `ns2own`, `ns2hown` (own state), `stampns2` (`-DONE_NS1=2
+-DONE_STAMP=1`), `pub`, `pub2`. SASS: `ONE_NS1=2` changes only mode 49 (3416 instructions, R115,
+no spills). Same clauses as check 4: (1) ABCHECKSUM; (2) G(X) - G(ctrlb) >= 0.20% and G(own twin) -
+G(ctrl2) >= 0.20%; (3) same sign on both inputs at d16 and d32 full; (4) no row beyond max(|ctrlb -
+ctrl|, 1%). This is the last check of the day: a passing arm still needs a confirmation bench and a
+judged check after the reset before it can be offered.
+
+### Check a7e5331d89ba4f77 (bench `bench_n`, at 5cb2be0): a two-stage ring narrows the pair spread and loses the median pace
+
+| date | job | commit | file | result | notes |
+|---|---|---|---|---|---|
+| 2026-10-30 | a7e5331d89ba4f77 (check) | 5cb2be0 | bench `bench_n` (`flat/gen_n.sh`, 10 arms, `--shapes full`) | 2.506x (CI 2.469-2.544) judged path = board code, 16/16 tests, ABCHECKSUM 11/0 every arm | ns2 +3.7 / +8.9 us at d16 / d32 full |
+
+Profiles: `muse_attention_decode/profiles/bench_n.a7e5331d89ba4f77.*`. Cold pooled, arm - ctrl (us):
+d16 full (ctrl 100.61) ns2 +3.65, ns2h +3.39, ns2own +3.68, ns2hown +3.42, ctrlb +0.00, ctrl2 +0.00,
+pub -0.87; d32 full (ctrl 179.26) ns2 +8.87, ns2h +8.80, ns2own +8.77, ns2hown +8.64, ctrlb +0.20,
+ctrl2 +0.07, pub -0.96. Gate: fails clause 2 for every arm (G -1.2 to -1.3%). Stamps (`stampns2`, d32
+full): pair gap 3.2 us (6.2 at three stages in check 1, 4.8 at six in check 4), loop ends 169.9 /
+178.2 / 183.0, consumer full-barrier wait 75.7 us: the spread narrows, and the median CTA slows by
+more because two stages do not cover the DRAM latency.
+
+Ring depth at d32 full over checks 1, 4 and 5 (median loop end; pair gap; cold time against the
+three-stage control): two stages 178.2, 3.2 us, +8.9; three 161.3, 6.2, 0; six 167.1, 4.8 (latest SM
+176.9), +2.2. Three stages, the depth the public kernel also uses, is the best of the five tried.
+
+## Standalone round 4 (10-30): family ledger update
+
+Checks used by this round: bce37d22a0ec4045, c8e99e038d9f4575, 4b60264a276c4805, 42c4739cf6b247c4,
+a7e5331d89ba4f77 (5 of 5). Quota after them (`okc problems`): 0 of 20 attention checks, 8 of 10
+runs. No file was offered for submission: nothing passed its gate.
+
+| family | state | evidence | reopening trigger |
+|---|---|---|---|
+| Key-half merge in the flat q_len 1 kernel (`ONE_HMRGF`) | measured gain below the bar, off | bce37d22a0ec4045 (+0.04-0.07%), 4b60264a276c4805 (+0.05-0.07%), same sign on every input; review sound | promote with any flat q_len 1 change that passes (it adds about 0.05%); or a lower bar for riders |
+| Mode 49 Q.K as two chains (`ONE_F1` bit 1) | measured loss | c8e99e038d9f4575: +0.12 / +0.32 us | a stamp showing the consumers' per-tile latency on the critical path |
+| Mode 49 page-entry refill from one base (`ONE_F1` bit 2) | measured null | c8e99e038d9f4575: -0.04 / +0.03 us | a producer-bound probe showing its issue as the limit |
+| Mode 49 ring depth (`ONE_NS1` 2, 4, 5, 6) | measured loss, 3 is best | 42c4739cf6b247c4, a7e5331d89ba4f77 | a change that equalizes the two CTAs' DRAM share |
+| The public kernel's page-index bulk copies in mode 49 | untested, motivated | 4b60264a276c4805: mode 49's producer alone is 4.7 / 8.0 us (14%) slower than the public producer at d16 / d32 full without DRAM; the refill's instruction count is not it (PE16 null) | next round's first q_len 1 candidate |
+| v16 full (mode 51) | attributed, no change | bce37d22a0ec4045 stamps: same median loop end as the public kernel, pair gap 11.5 vs 7.0 us, tail 12.3 vs 10.0; the gap depends on the input (-5.5 / -1.5 us in two benches); mode 51 keeps the per-tile proxy fence (1.2-1.4 us) | a per-input attribution of the input-0 case |
+
+Where the flat gap is (measured): not in the merge, the start or the median CTA's pace. In both flat
+kernels the two CTAs of an SM progress unequally and the later one sets each SM's end; ours more
+unequal than the public kernel's (q_len 1: 3.1 / 6.2 us vs 1.0 / 2.1 at d16 / d32 full; q_len 8: 11.5 /
+22.3 vs 7.0 / 16.0). Without DRAM, mode 49's producer and consumer streams each trail the public ones
+by about half of a 9.5 / 17.5 us deficit. Ring depth trades the median pace against the spread and
+three stages is the best point. Next round, in order: (1) bulk-copied page indices in mode 49's
+producer (the public design; its producer-only pace is the measured target, 4.7 / 8.0 us), judged
+first by the producer-only probe and then by cold time; (2) the consumer half of the no-DRAM deficit
+(SASS of the mode 49 tile body against the public one, instruction by instruction on the path from the
+full-barrier wait to the empty arrive); (3) the input dependence of v16 full.
+
+## F-ATTN-0 (10-31): the complete donor attention file against our release
+
+Steering: docs/steering/2026-10-30-family-f-donor-baseline.md (F-ATTN, priority 0) and its parent
+donor-first report. Donor `alygg77/okc-muse-spark-kernels` at 6cae49a, `kernels/muse_attention_decode.py`
+(sha256 e6d929d4..., 3182 lines; its RESULTS.md: judge job 1c8d81a0dbd94ee0, 2.6530x, an archived
+donor result, not ours). The donor's attention file is vjeux's public file submitted unchanged:
+`diff` against our `pub` arm (sha1 0e9d4c78, the public kernel of every bench since d57d1fe064164611)
+shows only the two added attribution comment lines. So F0 for attention is the public kernel, and
+F0 vs our release is the comparison our scorecards have tracked (latest all-shape public lead about
+1%: rows listed in the round 3 ledger), now run under the F protocol. Our frozen release: board
+entry 1896e72c11ae4b0f, `submission.py` at a70192d (identical to main 15cc6b9's).
+
+Eligibility finding (for the coordinator): the F protocol says not to select favorable allocation
+layouts to improve a judged score. Our release's `_ONE_WS_PICK = 3` times three workspace
+allocations at state creation and keeps the fastest (measured 0.3-0.4 us at d1 full when the first
+allocation lands slow). That is an allocation-layout selection. This comparison therefore carries a
+release arm with the pick off (`_ONE_WS_PICK = 1`) so its weight in the result is visible; whether
+the release may keep it is a coordinator / user decision.
+
+### Decision rule (written before the check)
+
+Bench `bench_o` (`flat/gen_o.sh`; generated from the a70192d `submission.py`; `--null --shapes all
+--inputs 3 --rounds 150 --seed 20261101`): R1 `ctrl` and R2 `ctrl2` (the release, independent states),
+`rnp` (the release with `_ONE_WS_PICK = 1`, own state), D1 `pubf0` and D2 `pubf02` (the exact donor
+file, independent modules and workspaces). Cold medians pooled over three held-out inputs; the
+weighted standalone ratio is ABSCORE (prod over loads of C_ctrl / C_arm, ^(1/6)); warm (16 queued
+replays) reported alongside.
+
+- D wins overall if ABSCORE(pubf0) - 1 and ABSCORE(pubf02) - 1 both exceed |ABSCORE(ctrl2) - 1| +
+  |ABSCORE(pubf02) / ABSCORE(pubf0) - 1| and 0.3%, and ABCHECK passes for both D arms.
+- Per row, a side wins a shape if both D arms differ from both R arms in the same direction by more
+  than that row's larger null (|ctrl2 - ctrl|, |pubf02 - pubf0|). Rows won by each side define the F2
+  hybrid proposal (not built in this round).
+- Otherwise inconclusive. The judge checks of the exact files (two of F0, one or two of the
+  release) give the judged ratios; they are compared by the mean of each pair against the judge's
+  1-3% run-to-run spread, and decide nothing alone.
+
+### Check 0519d0b15e9c4583 (bench `bench_o`, generated from release a70192d): the donor file leads beyond both nulls
+
+| date | job | commit | file | result | notes |
+|---|---|---|---|---|---|
+| 2026-10-31 | 0519d0b15e9c4583 (check) | 589fb00 (bench from a70192d) | bench `bench_o` (`flat/gen_o.sh`, 5 arms, all 12 shapes, 3 inputs) | 2.512x (CI 2.474-2.550) judged path = release, 16/16 tests, ABCHECKSUM 19/0 every arm | ABSCORE donor 1.0097 / 1.0083 against the release |
+| 2026-10-31 | 45adaeddef9d464e (check) | donor 6cae49a | the exact donor file (sha256 e6d929d4) | 2.574x (CI 2.535-2.628) | judged F0 |
+| 2026-10-31 | cb99c110c9cd4c01 (check) | a70192d | the exact release file | duplicate of 640ee49b691b45ac (2.588x on 10-30), no run | |
+| 2026-10-31 | b90af2a967b946b1 (check) | a70192d + one comment line | release, same-day control | 2.542x (CI 2.504-2.580) | judged R |
+| 2026-10-31 | ab38543d2c8642fb (check) | donor + one comment line | donor repeat | 2.605x (CI 2.566-2.644) | judged F0 |
+
+Profiles: `muse_attention_decode/profiles/bench_o.0519d0b15e9c4583.*`, `release_r.b90af2a967b946b1.*`,
+`f0_donor.45adaeddef9d464e.json`, `f0_donor_r.ab38543d2c8642fb.json` (result receipts only; no donor
+source is committed). Cold medians pooled over three held-out inputs (us):
+
+| row | R1 ctrl | R2 ctrl2 | rnp (pick off) | D1 pubf0 | D2 pubf02 | D - R (means) | side |
+|---|---|---|---|---|---|---|---|
+| d1 sliding | 9.06 | 9.28 | 9.15 | 9.06 | 9.06 | -0.11 | null |
+| d1 full | 16.99 | 17.02 | 17.18 | 16.48 | 16.58 | -0.47 | donor |
+| d16 sliding | 12.83 | 12.93 | 12.90 | 12.80 | 12.96 | +0.00 | null |
+| d16 full | 100.38 | 100.45 | 100.38 | 99.52 | 99.52 | -0.89 | donor |
+| d32 sliding | 15.62 | 15.62 | 15.55 | 15.58 | 15.55 | -0.05 | donor (0.05 us) |
+| d32 full | 179.42 | 179.65 | 179.42 | 177.95 | 178.08 | -1.52 | donor |
+| v1 sliding | 11.01 | 10.91 | 10.91 | 10.85 | 10.88 | -0.10 | null |
+| v1 full | 19.04 | 19.14 | 19.01 | 19.04 | 18.98 | -0.08 | null |
+| v16 sliding | 15.68 | 15.58 | 15.52 | 15.49 | 15.52 | -0.12 | null |
+| v16 full | 112.61 | 113.73 | 112.61 | 111.04 | 111.04 | -2.13 | donor |
+| v32 sliding | 19.97 | 19.90 | 19.78 | 19.30 | 19.36 | -0.61 | donor |
+| v32 full | 193.70 | 194.02 | 193.28 | 193.25 | 193.44 | -0.52 | null |
+
+ABSCORE against ctrl: ctrl2 0.9964 (R null 0.36%), rnp 1.0003, pubf0 1.0097, pubf02 1.0083 (D null
+0.14%). Warm (16 queued replays) the donor is faster on all 12 rows. By the rule written before the
+check, the donor wins overall: both D arms exceed 1 by more than 0.50% (the sum of the nulls) and
+0.3%. It wins six rows and the release wins none, so an F2 hybrid would take nothing from the
+release. Judged, same day: release 2.542x, donor 2.574x / 2.605x (means 2.542 vs 2.590, +1.9%, inside
+the judge's 1-3% run spread but in the direction and about the size the bench measured). The pick
+(`rnp` against ctrl) moved d1 full by +0.19 us, inside the R null; ABSCORE 1.0003.
+
+What the donor's lead is made of: on the per-request q_len 1 / 8 rows it is gone after HMRG and PRQ
+(every per-request row null except d1 full, which is placement-sensitive); it sits in the flat full
+rows (d16 / d32 / v16 full) that round 4 attributed to the per-SM pair spread, plus v32 sliding and
+d1 full.
+
+### User decisions recorded 2026-10-31 (relayed by the coordinator)
+
+1. Remove the workspace placement pick: `_ONE_WS_PICK = 0` (default allocation), everything else
+   unchanged (HMRG, PRQ=31), so the board entry does not depend on a selected placement.
+2. Family F is measurement and learning only: never submit donor code. Where the donor wins,
+   re-implement the mechanism in our own code with attribution comments. For attention the donor
+   file is vjeux's public file, so F-ATTN-0 is the public-kernel comparison this log has tracked
+   since d57d1fe064164611; the rows above are its current state.
+
+The pick-off release is the control from now on.
+
+### Check 3250ab04126b4865: the pick-off release
+
+| date | job | commit | file | result | notes |
+|---|---|---|---|---|---|
+| 2026-10-31 | 3250ab04126b4865 (check) | dcda02e | `submission.py` with `_ONE_WS_PICK = 0` | 2.537x (CI 2.499-2.575), passed | handed to the coordinator for a scored run |
+
+The host code differs from release a70192d only in the pick line (plus its comment); the inlined
+kernel equals `attn_one.cu`, whose default build is SASS-identical to main 15cc6b9 on all 13
+instances (`flat/sass_all.sh`, last run with the round 4 switches in). Same-day release with the pick:
+2.542x (b90af2a967b946b1), so turning the pick off costs nothing visible in the judge.
+Profiles: `muse_attention_decode/profiles/sub_nopick.3250ab04126b4865.*`.
+
+Next for attention, by the evidence above: the flat full rows (d16 / d32 / v16 full, about 0.4% of
+the donor's 0.9%), re-implementing in our kernel what makes the public kernel's two co-resident CTAs
+share an SM more evenly (round 4: bulk-copied page indices in mode 49's producer first), then v32
+sliding (-0.6 us) and d1 full.

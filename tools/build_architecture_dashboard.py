@@ -9,8 +9,8 @@ ROOT = Path(__file__).resolve().parents[1]
 tracker = ROOT / 'docs/architecture-performance-tracker.md'
 text = tracker.read_text()
 data = json.loads((ROOT / 'docs/architecture-dashboard.json').read_text())
-assert len(data['families']) == 5
-assert {f['id'] for f in data['families']} == set('ABCDE')
+assert len(data['families']) == 6
+assert {f['id'] for f in data['families']} == set('ABCDEF')
 header = re.search(r'Last review: (.*?)\. Evidence snapshot: `(.*?)`\.', text)
 assert header, 'Tracker review header missing'
 reviewed = datetime.fromisoformat(data['reviewed_at']).astimezone(ZoneInfo('America/Vancouver'))

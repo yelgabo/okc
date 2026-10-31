@@ -1,6 +1,6 @@
 {
-  "reviewed_at": "2026-10-30T12:44:00-07:00",
-  "snapshot": "c98018f",
+  "reviewed_at": "2026-10-30T14:05:00-07:00",
+  "snapshot": "bc10cb1",
   "family_registry_update": {
     "date": "2026-10-30",
     "evidence_snapshot": "7a5965531103f275ac104d340ef30f1508e32353",
@@ -11,7 +11,7 @@
     "score": "2.014×",
     "interval": "1.984–2.045",
     "job": "3fbb3ad027e84c6b",
-    "note": "Layer remains 2.014×; layer_hp still awaits GPU testing. Stream-K phase-A mode 72 loses versus owned units at every tested size/routing. PRQ standalone win, earlier pipeline losses and all pending layer candidates are unchanged."
+    "note": "Layer remains 2.014×; layer_hp and revised mode-51 candidates await testing. Designated-finisher mode 74 fails its component diagnostic; no gate run. Family F is registered, with complete-file comparisons pending."
   },
   "families": [
     {
@@ -50,12 +50,15 @@
       "label": "Ownership retained; alternative loses",
       "metric": "−2.1 / −3.8 µs",
       "unit": "128 / 256 tokens: mode 20 versus mode 16",
-      "summary": "Whole-owned phase A stays. Retested stream-K mode 72 with last-arrival fixup loses 12.6/6.6 µs at 128/256 layer-like routing.",
+      "summary": "Whole-owned phase A stays. Corrected designated-finisher mode 74 loses 4.6/2.0 µs at 128/256 layer-like routing versus 51.",
       "layer": "Present in tested layer descendants",
       "pending": [],
-      "limit": "Mode 72 loses all 36 size/routing seeds. Scope: this partition/fixup on current components. A cheaper designated finisher or refitted cost table is untested.",
+      "limit": "Mode 74 narrows phase-A end spread but setup remains 3.4-3.6 µs slower. No gate run. Mode 72 losses stand. Reopen with cheaper setup/fixups or a refitted cost table.",
       "source": "runs-moe.md",
-      "outcomes": ["win", "loss"]
+      "outcomes": [
+        "win",
+        "loss"
+      ]
     },
     {
       "id": "D",
@@ -79,10 +82,15 @@
       "unit": "PRQ31 cold sliding gain, 128 / 256 tokens",
       "summary": "PRQ31 improves per-request q_len8 attention with five combined changes. Full-context XPIPE losses remain valid; earlier bundle stays integrated.",
       "layer": "layer_hp built: PRQ + HMRG + placement, GPU test pending",
-      "pending": ["layer_hp: PRQ31 + HMRG + workspace pick"],
+      "pending": [
+        "layer_hp: PRQ31 + HMRG + workspace pick"
+      ],
       "limit": "PRQ confirmation uses matched-state nulls after the prior bench missed its written gate. Three-bench modeled score contribution 0.55–0.86%, not a layer gain. Full-context paths unchanged.",
       "source": "runs-attention.md",
-      "outcomes": ["win", "loss"]
+      "outcomes": [
+        "win",
+        "loss"
+      ]
     },
     {
       "id": "F",
@@ -102,17 +110,20 @@
       ],
       "limit": "Donor alygg77/okc-muse-spark-kernels pinned at 6cae49a639ee6d14b929a5fd4a63c627f96d7dc0. Archived donor scores are not our F results. Preserve precision, ordering, replay, attribution and submission permissions. Do not fold this family into A/E because of shared ancestry.",
       "source": "steering/2026-10-30-family-f-donor-baseline.md",
-      "outcomes": ["untested"]
+      "outcomes": [
+        "untested"
+      ]
     }
   ],
   "context_pending": [
     {
       "name": "Projection relaxed split exit barrier",
-      "summary": "Separate projection context. Paired router savings versus ce25f67: 0.22 us at 16, 0.45/0.32 us at 128/256 (5.84%/3.13%). 8/32 inconclusive; release split loses on rt. Scored 1.4976x, aggregate gain inconclusive. Ordering caveat retained in port guide. Layer port/test pending; P3 parked."
+      "summary": "Separate projection context. Paired router savings versus ce25f67: 0.22 us at 16, 0.45/0.32 us at 128/256 (5.84%/3.13%). 8/32 inconclusive; release split loses on rt. Scored 1.4976x, aggregate gain inconclusive. Ordering caveat retained in port guide. Layer port/test pending; P3 parked. New QKV c4 experiment loses 9.4-12.3 us at 8/16/32 in one tuner preparation; paired loop failed. Parked."
     },
     {
       "name": "Family F complete-file adoption decision",
-      "summary": "Projection and attention owners compare the pinned exact donor with frozen releases before new GPU rewrites. Whole-file adoption, minimal conforming adaptation, or a measured hybrid may win. No comparison or promotion has occurred in this registration."
+      "summary": "Projection and attention owners compare the pinned exact donor with frozen releases before new GPU rewrites. Whole-file adoption, minimal conforming adaptation, or a measured hybrid may win. No comparison or promotion has occurred in this registration. Tracks: F-PROJ-0, F-ATTN-0, F-MOE-0 and F-LAYER-0.",
+      "label": "Family F / controlled comparisons pending"
     }
   ]
 }

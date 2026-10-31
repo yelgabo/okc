@@ -66,7 +66,7 @@ At import the bench prints, before the judge's own tests and timing:
 Arms whose name ends in `_probe` are timing probes with wrong or unguaranteed output: ABCHECK
 prints PROBE for them and does not count them as failures. An arm whose name starts with `stamp`
 (built with -DONE_STAMP=1) also gets STAMP and STAMPWAVE lines: per-CTA records of five cold
-calls per full-context q_len 8 shape (attn_one.cu, ONE_STAMP). `--nocoop` adds the arm `nocoop`:
+calls per flat full-context shape, q_len 1 and 8 (attn_one.cu, ONE_STAMP). `--nocoop` adds the arm `nocoop`:
 the control's module launched without cudaLaunchAttributeCooperative, same grid.
 
 A public arm whose name starts with `pubstamp` (a copy of the public file with globaltimer
@@ -516,6 +516,27 @@ def _ab_summary():
 
 
 _ST_BASE, _ST_W = 1024, 16
+# Per (shape, arm): statistic -> one value per repetition; STSUM prints their medians at the end
+# of the log, where the judge's 16,000-character tail keeps them.
+_ST_SUM = {}
+
+
+def _st_add(tag, name, **vals):
+    d = _ST_SUM.setdefault((tag, name), {})
+    for k, v in vals.items():
+        d.setdefault(k, []).append(float(v))
+
+
+def _st_q(xs):
+    xs = sorted(float(x) for x in xs)
+    return xs[0], xs[len(xs) // 2], xs[-1]
+
+
+def _ab_stsum():
+    for (tag, name), d in _ST_SUM.items():
+        med = {k: sorted(v)[len(v) // 2] for k, v in d.items()}
+        print(f"STSUM {tag} {name} reps={len(next(iter(d.values())))} " + " ".join(
+            f"{k}={v:.1f}" for k, v in med.items()), flush=True)
 
 
 def _ab_wave(tag, name, rep, ends, sms):
@@ -535,6 +556,10 @@ def _ab_wave(tag, name, rep, ends, sms):
     gaps = [ends[b] - ends[a] for a, b in pairs]
     low_first = sum(1 for g in gaps if g > 0)
     sm_end = [max(ends[c] for c in v) for v in by_sm.values()]
+    if sm_end:
+        _st_add(tag, name, smend_med=_st_q(sm_end)[1], smend_max=_st_q(sm_end)[2])
+    if gaps:
+        _st_add(tag, name, pairgap_med=_st_q([abs(g) for g in gaps])[1])
     print(f"STAMPWAVE {tag} {name} rep={rep} ctas={n} sms={len(by_sm)} pairs={len(pairs)} "
           f"wave1_end={q(ends[:h])} wave2_end={q(ends[h:])} "
           f"pair_gap_hi_minus_lo={q(gaps)} abs_gap={q([abs(g) for g in gaps])} "
@@ -551,7 +576,7 @@ def _ab_pubstamps(reps=5):
         if not name.startswith("pubstamp"):
             continue
         for batch, layer, q_len in _ab_scored():
-            if layer == "sliding" or q_len != 8:
+            if layer == "sliding" or batch == 1:
                 continue
             data = _ob_inputs(batch, 80000, "tp8", layer, q_len, "agentic", "coherent", 1, 1.0)
             tag = f"b={batch:2d} {layer:7s} L={q_len}"
@@ -565,8 +590,15 @@ def _ab_pubstamps(reps=5):
                 rec = rec[:n]
                 ref = int(rec[:, 0].min())
                 start = [(int(x) - ref) / 1000.0 for x in rec[:, 0]]
-                ends = [(int(x) - ref) / 1000.0 for x in rec[:, 1]]
-                fin = [(int(x) - ref) / 1000.0 for x in rec[:, 2]]
+                # q_len 1 copies (field 6 set): loop end 6, kernel end 1.
+                lcol, fcol = (6, 1) if int(rec[:, 6].min()) > 0 else (1, 2)
+                ends = [(int(x) - ref) / 1000.0 for x in rec[:, lcol]]
+                fin = [(int(x) - ref) / 1000.0 for x in rec[:, fcol]]
+                tails = [f - e for f, e in zip(fin, ends)]
+                _st_add(tag, name, start_max=_st_q(start)[2], loop_min=_st_q(ends)[0],
+                        loop_med=_st_q(ends)[1], loop_max=_st_q(ends)[2],
+                        tail_med=_st_q(tails)[1], tail_max=_st_q(tails)[2],
+                        kend_med=_st_q(fin)[1], span=max(fin))
 
                 def q(xs):
                     xs = sorted(xs)
@@ -577,6 +609,8 @@ def _ab_pubstamps(reps=5):
                       f"tiles={q([int(x) for x in rec[:, 4]])} segs={q([int(x) for x in rec[:, 5]])} "
                       f"{_ob_elapsed()}", flush=True)
                 _ab_wave(tag, name, r, ends, [int(x) for x in rec[:, 3]])
+                if q_len == 1:
+                    _ab_wave(tag, name + "_kend", r, fin, [int(x) for x in rec[:, 3]])
                 if r == 0:
                     order = sorted(range(n), key=lambda i: ends[i])
                     pick = order[:4] + order[n // 2 - 2:n // 2 + 2] + order[-4:]
@@ -588,9 +622,10 @@ def _ab_pubstamps(reps=5):
 
 
 def _ab_stamps(reps=5):
-    """Per-CTA records of the ONE_STAMP build on the full-context q_len 8 shapes, cold calls.
-    Fields: 0 start, 1 partition done, 2 first tile ready, 3 tile loops done, 4 grid barrier
-    passed, 5 finalize done (globaltimer ns, low 32 bits); 6 tiles, 7 segments, 8 consumer
+    """Per-CTA records of the ONE_STAMP build on the flat full-context shapes, cold calls.
+    Fields: 0 start, 1 partition done, 2 first tile ready, 3 tile loops done (q_len 1: the last
+    segment's), 4 grid barrier passed (q_len 1: last segment's reds issued, before its ticket),
+    5 finalize done (q_len 1: kernel end) (globaltimer ns, low 32 bits); 6 tiles, 7 segments, 8 consumer
     full-barrier wait, 9 segment prologues, 10 tile loops, 11 producer empty-barrier wait,
     12 producer lifetime, 13 / 14 consumer cycles to loop end / to kernel end; 15 SM id."""
     for sname in _AB_MODS:
@@ -601,7 +636,7 @@ def _ab_stamps(reps=5):
 def _ab_stamps_one(sname, reps):
     flush = torch.empty(256 << 20, dtype=torch.uint8, device="cuda")
     for batch, layer, q_len in _ab_scored():
-        if layer == "sliding" or q_len != 8:
+        if layer == "sliding" or batch == 1:
             continue
         data = _ob_inputs(batch, 80000, "tp8", layer, q_len, "agentic", "coherent", 1, 1.0)
         tag = f"b={batch:2d} {layer:7s} L={q_len}"
@@ -624,7 +659,20 @@ def _ab_stamps_one(sname, reps):
             def q(x):
                 xs = sorted(float(v) for v in x)
                 return "{:.1f}/{:.1f}/{:.1f}".format(xs[0], xs[len(xs) // 2], xs[-1])
+            lend = [float(x) for x in ns[:, 3]]
+            kend = [float(x) for x in ns[:, 5]]
+            _st_add(tag, sname, start_max=_st_q(ns[:, 0])[2],
+                    first_med=_st_q(ns[:, 2] - ns[:, 0])[1], loop_min=_st_q(lend)[0],
+                    loop_med=_st_q(lend)[1], loop_max=_st_q(lend)[2],
+                    mid_med=_st_q(ns[:, 4] - ns[:, 3])[1], mid_max=_st_q(ns[:, 4] - ns[:, 3])[2],
+                    tail_med=_st_q([k - e for k, e in zip(kend, lend)])[1],
+                    tail_max=_st_q([k - e for k, e in zip(kend, lend)])[2],
+                    kend_med=_st_q(kend)[1], span=max(kend),
+                    fullwait_med=_st_q(us[:, 0])[1], prodwait_med=_st_q(us[:, 3])[1])
             _ab_wave(tag, sname, r, [float(x) for x in ns[:, 3]], [int(x) for x in rec[:, 15]])
+            if q_len == 1:
+                _ab_wave(tag, sname + "_kend", r, [float(x) for x in ns[:, 5]],
+                         [int(x) for x in rec[:, 15]])
             print(f"STAMP {tag} {sname} rep={r} ctas={n} ghz={ghz:.3f} "
                   f"span={float(ns[:, 5].max()):.1f} start={q(ns[:, 0])} "
                   f"part={q(ns[:, 1] - ns[:, 0])} first_tile={q(ns[:, 2] - ns[:, 0])} "
@@ -667,6 +715,10 @@ if not _os.environ.get("ATTN_AB_DONE"):
         except Exception as _exc:
             print(f"ABBENCH failed: {type(_exc).__name__}: {_exc}", flush=True)
         # Repeated last: the run log keeps only its final 16,000 characters.
+        try:
+            _ab_stsum()
+        except Exception as _exc:
+            print(f"STSUM failed: {type(_exc).__name__}: {_exc}", flush=True)
         try:
             _ab_addr()
             _ab_summary()
