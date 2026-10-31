@@ -61,6 +61,13 @@ ranked portfolio sums to 2.7-3.5%, below the target. Only a denser lossless weig
 ceiling above it. The m = 256 dense GEMMs hold about 20 us against the 989 TFLOP/s floor
 (qkv and o run 590 / 560 TFLOP/s); a batched-GEMM diagnostic is the cheapest test.
 
+Addendum 2026-10-31 (UTC), round 6, checks `cab546f978974515`, `97869fa8302041b5`,
+`8b9e8b7c1ecd4c3e`: the codec work model (entropy 10.5 bits; best fixed-rate lossless codes save
+4.0-7.1% of the m <= 32 bytes, +1.4 to +2.6% of score if decode stays hidden; one factorial check
+decides), the dense whole-tile sketch dropped (identical to the incumbent geometries), qkv_gate
+256's loss located in the 72x64 tile's per-k-step efficiency (cuBLASLt split-K large tiles lose
++2.7 to +3.1 us), and router reference toggles worth 0.1-0.2 us at m = 128 only.
+
 ## Latest projection decision: corrected top-100 portfolio
 
 **[2026-10-30: Projection top-100 — corrected evidence and structural tests](2026-10-30-projection-top100-portfolio.md)**

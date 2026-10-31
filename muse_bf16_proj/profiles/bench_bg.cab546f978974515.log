@@ -1,0 +1,64 @@
+BGBUILD 15.6 s, cublasLt 130101, round bg-a
+BGOVH 4.19 us
+BG qkv_gate cfg b1 L0 a66t124s35k1r0z0c0i0g2w0v0.97 (fixed)
+BG qkv_gate cfg b1n L0 a66t124s35k1r0z0c0i0g2w0v0.97 (fixed)
+BG qkv_gate cfg b2 L0 a66t124s35k1r0z0c0i0g2w0v0.97 (fixed)
+BG qkv_gate cfg h2 L0 a66t183s35k1r0z0c2i0g5w0v0.48 (heuristic 8)
+BG qkv_gate cfg b4 L0 a66t124s35k1r0z0c0i0g2w0v0.97 (fixed)
+BG qkv_gate cfg h4 L0 a66t184s35k1r0z0c2i0g5w0v0.24 (heuristic 8)
+BG qkv_gate cfg M512 L0 a66t124s35k1r0z0c0i0g2w0v1.94 (fixed)
+BG qkv_gate cfg M1024 L0 a66t124s35k1r0z0c0i0g2w0v3.88 (fixed)
+BG qkv_gate med b1n=17.39 b1=17.47 h2=33.07 s2=35.82 b2=37.54 M512=39.81 h4=49.82 s4=72.50 b4=96.42 M1024=104.03
+BG qkv_gate d b1 b1n=-0.08/31 h2=+15.60/0 s2=+18.00/0 b2=+19.89/0 M512=+21.90/0 h4=+32.21/0 s4=+54.86/0 b4=+78.72/0 M1024=+86.40/0
+BG qkv_gate fit a=-11.97 s=26.76 a/t1=-0.68 b1/inst=17.47 b2/inst=18.77 b4/inst=24.10 s2/inst=17.91 s4/inst=18.12 null(b1n-b1)=-0.08 steady TFLOP/s 361 single 553
+BG qkv_gate prof unavailable: AttributeError: 'FunctionEventAvg' object has no attribute 'name'
+BG o cfg b1 L3 a66t20s35k1r0z0c4i0g3w0v0.97 (fixed)
+BG o cfg b1n L3 a66t20s35k1r0z0c4i0g3w0v0.97 (fixed)
+BG o cfg b2 L3 a66t20s35k1r0z0c4i0g3w0v0.97 (fixed)
+BG o cfg h2 L3 a66t24s35k1r0z0c7i0g5w0v0.48 (heuristic 8)
+BG o cfg b4 L3 a66t20s35k1r0z0c4i0g3w0v0.97 (fixed)
+BG o cfg h4 L3 a66t24s35k1r0z0c7i0g5w0v0.48 (heuristic 8)
+BG o cfg M512 L3 a66t20s35k1r0z0c4i0g3w0v1.94 (fixed)
+BG o cfg M1024 L3 a66t20s35k1r0z0c4i0g3w0v3.88 (fixed)
+BG o med b1=8.70 b1n=8.70 M512=14.38 b2=14.53 h2=15.36 s2=17.76 h4=26.54 M1024=27.25 b4=28.82 s4=36.99
+BG o d b1 b1n=-0.02/30 M512=+5.63/0 b2=+5.84/0 h2=+6.67/0 s2=+9.02/0 h4=+17.82/0 M1024=+18.53/0 b4=+20.06/0 s4=+28.27/0
+BG o fit a=1.56 s=6.77 a/t1=0.18 b1/inst=8.70 b2/inst=7.26 b4/inst=7.20 s2/inst=8.88 s4/inst=9.25 null(b1n-b1)=-0.02 steady TFLOP/s 635 single 493
+BG o prof unavailable: AttributeError: 'FunctionEventAvg' object has no attribute 'name'
+BGDONE 16.0 s
+judged| lt build 15.6 s, cublasLt 130101, torch cuda 13.0
+judged| ltune qkv_gate  m=128: base 18.9, f0=L2:a66t92s35k1r0z0c0i0g5w0v0.73 19.8, f1=L2:a66t104s35k1r0z0c0i0g2w0v0.64 19.8, f2=L0:a66t80s35k1r0z0c0i0g5w0v0.88 19.8, f3=L0:a66t92s35k1r0z0c0i0g5w0v0.73 19.8, f4=L2:a66t104s35k1r0z0c0i0g6w0v0.64 19.9; pref base margin 0.30 f0 -0.93/1 f1 -0.83/1 f2 -0.86/1 f3 -0.80/1 f4 -0.83/0 -> base
+judged| ltune o         m=128: base 11.4, f0=L1:a66t18s35k1r0z0c7i0g5w0v0.97 11.2, f1=L3:a66t18s35k1r0z0c5i0g2w0v0.97 11.2, f2=L3:a66t18s35k1r0z0c0i0g2w0v0.97 11.3, f3=L0:a66t18s35k1r0z0c2i0g5w0v0.97 11.4, f4=L1:a66t17s35k1r0z0c0i0g2w0v0.97 11.1; pref base margin 0.30 f0 +0.13/8 f1 +0.06/7 f2 +0.06/6 f3 -0.06/3 f4 +0.19/7 -> base
+judged| ltune pooler    m=128: base 26.2, pref=L0:a66t134s35k1r0z0c0i0g7w0v0.79 24.8, f0=L0:a66t124s35k1r0z0c0i0g4w0v0.86 24.4, f1=L2:a66t124s35k1r0z0c0i0g4w0v0.86 24.4, f2=L2:a66t124s35k1r0z0c2i0g7w0v0.86 25.0, f3=L0:a66t134s35k1r0z0c0i0g7w0v0.79 24.8, f4=L0:a66t124s35k1r0z0c0i0g7w0v0.86 25.2; pref pref margin 0.30 base -1.47/0 f0 +0.35/8 f1 +0.35/7 f2 -0.26/1 f3 +0.00/4 f4 -0.42/2 -> f0
+judged| ltune unpooler  m=128: base 24.7, pref=L3:a66t18s35k1r0z0c2i0g5w0v0.97 23.0, f0=L1:a66t18s35k1r0z0c4i0g5w0v0.97 22.7, f1=L1:a66t18s35k1r0z0c6i0g5w0v0.97 22.7, f2=L1:a66t18s35k1r0z0c5i0g5w0v0.97 22.8, f3=L3:a66t18s35k1r0z0c6i0g5w0v0.97 22.6, f4=L1:a66t18s35k1r0z0c7i0g5w0v0.97 22.6; pref pref margin 0.58 base -1.86/0 f0 -0.10/4 f1 +0.35/6 f2 +0.13/7 f3 +0.45/6 f4 +0.38/7 -> pref
+judged| ltune qkv_gate  m=256: base 23.7, pref=L0:a66t124s35k1r0z0c0i0g2w0v0.97 22.0, f0=L0:a66t124s35k1r0z0c0i0g2w0v0.97 21.5, f1=L2:a66t124s35k1r0z0c0i0g2w0v0.97 21.6, f2=L2:a66t134s35k1r0z0c2i0g9w0v0.88 22.3, f3=L2:a66t134s35k1r0z0c0i0g2w0v0.88 22.1, f4=L2:a66t134s35k1r0z0c0i0g8w0v0.88 22.6; pref pref margin 0.90 base -1.82/0 f0 +0.42/5 f1 +0.29/7 f2 -0.38/2 f3 -0.19/3 f4 -0.42/1 -> pref
+judged| ltune o         m=256: base 13.2, pref=L3:a66t20s35k1r0z0c4i0g3w0v0.97 13.0, f0=L3:a66t20s35k1r0z0c5i0g3w0v0.97 13.0, f1=L1:a66t20s35k1r0z0c5i0g3w0v0.97 13.0, f2=L0:a66t18s35k1r0z0c0i0g2w0v1.94 13.3, f3=L0:a66t20s35k1r0z0c0i0g3w0v0.97 13.2, f4=L3:a66t20s35k1r0z0c5i0g2w0v0.97 13.2; pref pref margin 0.30 base -0.29/1 f0 -0.16/3 f1 -0.03/4 f2 -0.35/1 f3 -0.26/1 f4 -0.38/1 -> pref
+judged| ltune pooler    m=256: base 31.2, pref=L1:a66t18s35k1r0z0c0i0g2w0v0.97 27.9, f0=L1:a66t18s35k1r0z0c0i0g2w0v0.97 27.7, f1=L3:a66t18s35k1r0z0c0i0g2w0v0.97 27.8, f2=L1:a66t18s35k1r0z0c0i0g3w0v0.97 28.1, f3=L3:a66t18s35k1r0z0c0i0g3w0v0.97 28.3, f4=L2:a66t18s35k1r0z0c0i0g2w0v0.97 29.3; pref pref margin 0.30 base -3.36/0 f0 +0.26/7 f1 +0.22/6 f2 -0.32/1 f3 -0.32/1 f4 -1.34/0 -> pref
+judged| ltune unpooler  m=256: base 28.8, pref=L1:a66t20s35k1r0z0c4i0g3w0v0.97 28.1, f0=L1:a66t20s35k1r0z0c0i0g5w0v0.97 28.4, f1=L1:a66t20s35k1r0z0c0i0g2w0v0.97 28.3, f2=L1:a66t20s35k1r0z0c6i0g5w0v0.97 28.1, f3=L3:a66t20s35k1r0z0c4i0g2w0v0.97 28.2, f4=L1:a66t20s35k1r0z0c4i0g5w0v0.97 27.8; pref pref margin 0.38 base -0.51/1 f0 -0.35/4 f1 +0.00/4 f2 +0.00/4 f3 +0.00/4 f4 +0.29/8 -> pref
+judged| prepare done 89.4 s
+BGBUILD 15.6 s, cublasLt 130101, round bg-a
+BGOVH 4.19 us
+BG qkv_gate cfg b1 L0 a66t124s35k1r0z0c0i0g2w0v0.97 (fixed)
+BG qkv_gate cfg b1n L0 a66t124s35k1r0z0c0i0g2w0v0.97 (fixed)
+BG qkv_gate cfg b2 L0 a66t124s35k1r0z0c0i0g2w0v0.97 (fixed)
+BG qkv_gate cfg h2 L0 a66t183s35k1r0z0c2i0g5w0v0.48 (heuristic 8)
+BG qkv_gate cfg b4 L0 a66t124s35k1r0z0c0i0g2w0v0.97 (fixed)
+BG qkv_gate cfg h4 L0 a66t184s35k1r0z0c2i0g5w0v0.24 (heuristic 8)
+BG qkv_gate cfg M512 L0 a66t124s35k1r0z0c0i0g2w0v1.94 (fixed)
+BG qkv_gate cfg M1024 L0 a66t124s35k1r0z0c0i0g2w0v3.88 (fixed)
+BG qkv_gate med b1n=17.39 b1=17.47 h2=33.07 s2=35.82 b2=37.54 M512=39.81 h4=49.82 s4=72.50 b4=96.42 M1024=104.03
+BG qkv_gate d b1 b1n=-0.08/31 h2=+15.60/0 s2=+18.00/0 b2=+19.89/0 M512=+21.90/0 h4=+32.21/0 s4=+54.86/0 b4=+78.72/0 M1024=+86.40/0
+BG qkv_gate fit a=-11.97 s=26.76 a/t1=-0.68 b1/inst=17.47 b2/inst=18.77 b4/inst=24.10 s2/inst=17.91 s4/inst=18.12 null(b1n-b1)=-0.08 steady TFLOP/s 361 single 553
+BG qkv_gate prof unavailable: AttributeError: 'FunctionEventAvg' object has no attribute 'name'
+BG o cfg b1 L3 a66t20s35k1r0z0c4i0g3w0v0.97 (fixed)
+BG o cfg b1n L3 a66t20s35k1r0z0c4i0g3w0v0.97 (fixed)
+BG o cfg b2 L3 a66t20s35k1r0z0c4i0g3w0v0.97 (fixed)
+BG o cfg h2 L3 a66t24s35k1r0z0c7i0g5w0v0.48 (heuristic 8)
+BG o cfg b4 L3 a66t20s35k1r0z0c4i0g3w0v0.97 (fixed)
+BG o cfg h4 L3 a66t24s35k1r0z0c7i0g5w0v0.48 (heuristic 8)
+BG o cfg M512 L3 a66t20s35k1r0z0c4i0g3w0v1.94 (fixed)
+BG o cfg M1024 L3 a66t20s35k1r0z0c4i0g3w0v3.88 (fixed)
+BG o med b1=8.70 b1n=8.70 M512=14.38 b2=14.53 h2=15.36 s2=17.76 h4=26.54 M1024=27.25 b4=28.82 s4=36.99
+BG o d b1 b1n=-0.02/30 M512=+5.63/0 b2=+5.84/0 h2=+6.67/0 s2=+9.02/0 h4=+17.82/0 M1024=+18.53/0 b4=+20.06/0 s4=+28.27/0
+BG o fit a=1.56 s=6.77 a/t1=0.18 b1/inst=8.70 b2/inst=7.26 b4/inst=7.20 s2/inst=8.88 s4/inst=9.25 null(b1n-b1)=-0.02 steady TFLOP/s 635 single 493
+BG o prof unavailable: AttributeError: 'FunctionEventAvg' object has no attribute 'name'
+BGDONE 16.0 s

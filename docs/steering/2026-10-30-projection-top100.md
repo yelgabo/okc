@@ -320,3 +320,177 @@ rejected. Reopen trigger and code path are in docs/ruled-out.md.
 - The 4.05 TB/s line was measured on the MoE problem's judge; cases slightly under it (Nathen
   pooler m = 1) show it is not a hard bound.
 - Cluster residency on the judge's chip (max active 4-CTA clusters) is not measured directly.
+
+## Addendum 2026-10-31 (UTC): round 6, codec work model, dense-tile verdict, three diagnostics
+
+Owner: projection agent (branch `proj-r6`, based on main `bc10cb1`). Checks this round, all on
+muse_bf16_proj with every test passing and the judged path equal to the production file:
+`cab546f978974515` (bench BG, 1.496x), `97869fa8302041b5` (bench RG, 1.505x),
+`8b9e8b7c1ecd4c3e` (bench LTS, 1.505x). Receipts are in `muse_bf16_proj/profiles/`. No candidate
+for scoring came out of this round. Measured results and hypotheses are labelled as such.
+
+Not covered here: the researcher's newer priority, the complete donor projection file against
+our release (Family F, `docs/steering/2026-10-30-family-f-donor-baseline.md`).
+
+### 1. Denser lossless weight code (portfolio item E)
+
+Method (`tools/proj_codec_model.py`, no GPU). Weights follow reference.py's formula
+(`randn / sqrt(K)`, cast to BF16) on torch's CPU generator, which gives the judge's distribution
+but not its bits; the judge redraws weights every run anyway. Sanity check against the judge: the
+shipped 12-bit code's escape counts in this model are 2606 / 1009 / 4667 / 3240 (qkv_gate / o /
+pooler / unpooler) against 2583-2656 / 936-981 / 4553-4561 / 3133-3265 in the judge's own pack
+lines. Seeds 5151, 1 and 2 agree to two or three digits in every number below. Every scheme
+round-trips every weight bit-exactly once its escapes are restored (the tool asserts it).
+
+Field statistics (measured on the model weights): sign 1 bit, mantissa 6.97 bits, exponent 2.54
+bits of entropy, 10.515 bits per weight in all. The shipped code spends 12 bits, so the ideal
+lossless saving is 12.4% of the m <= 32 weight bytes.
+
+Schemes, with escape entries costed at 32 bits (a compact position + original value; the shipped
+table uses 64):
+
+| scheme | code bits | escapes per weight | bits incl. escapes (32 / 64) | bytes saved | max escapes per CTA, qkv16 / pool16 / unp16 / slice8 / cgemv | decode thread-instr per weight (estimate) |
+|---|---:|---:|---:|---:|---|---:|
+| shipped 12-bit | 12.00 | 1.0-1.4e-4 | 12.004 / 12.009 | | 40 / 52 / 23 / 8 / 10 | 1.6 |
+| b11: byte = sign + 7 mantissa bits, 3-bit offset of the full exponent | 11.00 | 1.25-1.35e-2 | 11.40-11.43 / 11.80-11.87 | 4.8% | 2786 / 3717 / 1778 / 467 / 277 | 1.75-2.5 |
+| p11: shipped layout with a 2-bit pair offset | 11.00 | as b11; unpooler 2.5e-2 (window alignment) | up to 11.80 / 12.59 | 1.7-4.8% | | 1.75 |
+| pair7: 7-bit code for the two exponents of one mma B register, 128-entry LUT | 11.50 | 6.1-7.2e-4 | 11.52 / 11.55 | 4.0% | 174 / 219 / 108 / 31 / 25 | 2.65 + 0.5 LDS |
+| pair6 | 11.00 | 0.87-0.95e-2 | 11.28-11.30 / 11.55-11.61 | 5.8% | 1943 / 2652 / 1221 / 331 / 199 | 2.65 + 0.5 LDS |
+| quad12: 12-bit code for four exponents, 4096-entry LUT (32 KB) | 11.00 | 4.7-4.9e-3 | 11.15-11.16 / 11.30-11.31 | 7.1% | 1014 / 1418 / 695 / 190 / 110 | 2 + 0.25 LDS |
+| quad13 (64 KB LUT) | 11.25 | 0.9-1.1e-3 | 11.28 / 11.32 | 6.0% | 239 / 327 / 172 / 53 / 34 | 2 + 0.25 LDS |
+| pair5, quad10, quad11 | 10.5-10.75 | 1.5-11% | 11.2-14.4 | 0-6% | thousands | |
+
+A miss in the LUT schemes decodes as the LUT entry matching the most of its exponents; only
+the mismatching weights are escapes. The LUT is built per matrix in prepare(), so it carries no
+per-tile metadata.
+
+Predicted effect, assuming decode and escapes stay hidden (hypothesis). Two models: the HBM line
+(saved bytes / 4.05 TB/s), and a calibrated one that scales each sk case's measured gap between
+its raw-BF16 and 12-bit twins (tuner, scored receipt `d85d0081fa8a4a43`: 4 bits per weight cost
+0.0 to 3.7 us per case, 0.3 to 0.9 of the HBM line) by saved bits / 4; the m = 1 cgemv cases use
+the HBM line because they already sit on it.
+
+| scheme | decode 1 / 16 / 32, verify 1 (us, calibrated) | score, HBM line | score, calibrated | from 1.4947 |
+|---|---|---:|---:|---:|
+| pair7 | 0.96 / 1.09 / 0.87 / 0.73 | +1.81% | +1.44% | 1.516 |
+| b11 | 1.14 / 1.30 / 1.04 / 0.87 | +2.18% | +1.72% | 1.520 |
+| pair6 | 1.40 / 1.59 / 1.28 / 1.07 | +2.69% | +2.13% | 1.527 |
+| quad12 | 1.70 / 1.92 / 1.54 / 1.29 | +3.27% | +2.58% | 1.533 |
+| entropy bound | 2.98 / 3.38 / 2.71 / 2.26 | +5.93% | +4.65% | 1.564 |
+
+Decode cost model (estimate, not measured). Per shipped sk geometry, consumer-warp instructions
+per stage against the measured stage interval (profiled kernel time / stages): the shipped code
+uses 13-24% of one SM sub-partition's issue slots, pair7 17-35%, quad12 15-28%. So issue rate
+does not bind on this model; per-stage latency is the open question, and it is what the
+donor's report of "issue pressure consuming the byte savings" was about in its own kernel. A
+128-entry LUT read by 32 random lanes needs a bank-replicated copy (16 KB, or 8 KB at 16-bit
+entries) to stay conflict-free. qkv8 (213 KB of shared memory at 11.5 bits per weight) and the
+2-CTA-per-SM geometries (o, unp32: up to 99 KB each) have room only for the 8 KB form.
+
+Escape cost. The shipped escape warps take one entry at a time (lane = token), roughly 60-100
+cycles per entry by dependency count. pair7 raises that to 9-18 entries per stage per escape
+warp, against stage intervals of 1000-1800 cycles and 4-5-deep rings: it fits except at qkv8,
+where it is marginal. b11, pair6 and quad12 carry 10x more escapes and need a lane-parallel
+escape path (lane = entry, loop over tokens), which does not exist yet.
+
+Verdict: GO for one bounded measurement, NO-GO for building a codec before it. The ceiling
+of realistic schemes (1.4-2.6% calibrated) is below the 4.1% target on its own; with the other
+items it is the largest single contributor. Cheapest decisive test (one check, no codec): a
+factorial on the shipped sk picks at their own m, with duplicate nulls: (a) bytes only, tiles
+shortened to 736 B and 704 B (bench-only flag, outputs not checked); (b) decode only, +16 and
++32 dependent ALU instructions per tile (combined with a runtime zero so outputs stay exact) and
+8 LDS per tile from a 16 KB replicated LUT; (c) both. Build pair7 if (a) and (c) predict at least
++1.0% of score summed over the 16 cases, with nulls under 0.15 us; consider quad12 only if (b)
+costs at most 0.1 us per extra instruction per weight and a lane-parallel escape path is costed.
+
+### 2. Dense whole-output-tile kernel (portfolio doc section 6): drop
+
+Concrete comparison with the incumbents (profiler symbols from `d85d0081fa8a4a43`, tile ids from
+the LT_PREF table and cuBLASLt's tile enum):
+
+| case | incumbent | the sketch | difference |
+|---|---|---|---|
+| qkv_gate 256 | nvjet 72x64_64x12, cluster 1x1 (L0, tile 124): 72 channels x 64 tokens, full K, 128 tiles, 0.97 waves | 64 tokens x 72 channels, cluster 1, no K split, 128 tiles | none |
+| pooler 256 | nvjet 128x64_64x8, cluster 1x1 (tile 18): 128 channels x 64 tokens, 128 tiles | 64 x 128, cluster 1, 128 tiles | none |
+| o, unpooler 256 | nvjet 128x128_64x6, cluster 2x1, cooperative (tile 20): two consumer warpgroups on one 128 x 128 tile, 128 tiles | 128 x 128, two warpgroups, cluster 1 | the sketch only removes the 2x1 multicast |
+| o, unpooler 128 | nvjet 128x64_64x8, cluster 1x2 | full tile, no K split, cluster 1 | removes the multicast; the no-multicast form was built as wd b1n128c1s8h and lost +0.3 / +0.4 us (4098aa2361554229) |
+| pooler 128 | nvjet 80x64_64x11, cluster 4x2 (tile 134) | 64 x 64 tiles to reach 128 CTAs | doubles L2-to-SM weight traffic without multicast |
+| qkv_gate 128 | wd b1n128c3s8h, K split 3 (108 CTAs) | | no legal tile reaches more than 96 one-wave CTAs without a K split |
+
+At 256 tokens each sketch row is the incumbent's own geometry; at 128 the only differences remove
+a multicast that the winners chose. No schedule, retirement or epilogue difference is named, so
+the sketch is dropped without a check (row in docs/ruled-out.md, "Proposals declined").
+
+### 3. Diagnostics run this round
+
+**BG, batched GEMM at m = 256 (`cab546f978974515`, `tools/proj_make_bench_bg.py`).** Four
+independent weight copies, cold L2, 60 paired rounds, overhead 4.19 us removed; null b1n - b1 =
+-0.08 (qkv) / -0.02 (o).
+
+| arm (us) | qkv_gate | o |
+|---|---:|---:|
+| b1: production config, one instance | 17.47 | 8.70 |
+| b2 / b4: same config, strided-batched, one launch (per instance) | 18.77 / 24.10 | 7.26 / 7.20 |
+| s2 / s4: separate launches in one graph (per instance) | 17.91 / 18.12 | 8.88 / 9.25 |
+| h2 / h4: cuBLASLt's own batched choice (per instance) | 16.54 (144x64) / 12.46 (144x128) | 7.68 / 6.64 |
+| M512 / M1024: one GEMM, 2x / 4x tokens, same weights (per 256 tokens) | 19.9 / 26.0 | 7.19 / 6.81 |
+
+Reading (measured): for o the fixed config scales cleanly, t(b) = 1.56 + 6.77 b us, so about 1.6
+us (18%) of the single call is per-launch ramp and tail; the steady part runs at 635 TFLOP/s. For
+qkv_gate the production 72x64 config gets slower per instance when batched, so the fit is
+meaningless there; but four instances on a 144x128 tile run 12.46 us each (776 TFLOP/s) against
+17.47 for one instance on 72x64, and each extra separate launch adds about 0.9 us (close to the
+1.09 us graph cost of any extra kernel). So qkv_gate's loss at m = 256 is the small tile's
+per-k-step efficiency (128 CTAs, each running a 72 x 64 tile over all of K at about 58% of
+per-SM peak), not ramp or tail. The torch.profiler lines failed on
+an attribute name, so kernel names were not captured (fixable, not needed for the reading).
+
+**LTS, large tiles with a K split in cuBLASLt (`8b9e8b7c1ecd4c3e`, `tools/proj_make_bench_lts.py`).**
+The follow-up to BG: tiles 18 / 20 / 24 / 124 / 134 / 183 / 184 with split-K 1-6 (FP32 reduction),
+three cluster ids, two custom options, two stage ids, four layouts (1680 configs per shape, 480 /
+288 / 480 accepted). Paired against the production pick with a duplicate (prefdup +0.02 / +0.18):
+
+- qkv_gate 256: the best large-tile split configs lose by +2.74 (144x64, split 2) to +3.10 (144x128,
+  split 4); the 72x64 pick in layout L2 is -0.18 (36 of 60 rounds, inside the null).
+- o 256: nothing beats the pin (+0.13 to +0.54).
+- qkv_gate 128: every config loses to the wd pick by +1.18 to +1.46.
+
+So cuBLASLt's own split-K reduction costs more than the larger tile saves (consistent with the
+donor's split-K-7 loss). Recovering qkv_gate 256's 3-5 us needs a large-tile kernel whose K
+reduction is cheap (in-cluster DSMEM), which runs into the cluster-residency limit that sank the
+c4 build (donor: 30 active 4-CTA clusters at about 200 KB). Parked; trigger in ruled-out.
+
+**RG, router reference differences at m = 128 / 256 (`97869fa8302041b5`, `tools/proj_make_bench_rg.py`).**
+New bench-only VAR bits in the wd kernel: G (4-warp producer group, 256-thread CTA), A (consumer
+full and producer empty waits as `try_wait.parity.acquire.cluster`; with S the reference's
+single-branch loop), Q (scalar stores in the XA epilogue). Production SASS is unchanged (81 of 81
+kernels instruction-identical against `bc10cb1`); 21 bench instances, 58-90 registers, no spills.
+Paired against the bench copy of the production config, 100 rounds, nulls -0.03 / +0.00:
+
+| arm | m = 128 (r64c8s8) | m = 256 (r128c8s6) |
+|---|---:|---:|
+| A, spin loop (A + S) | -0.22 / 84 of 100 | +0.03 / 40 |
+| G | -0.13 / 69 | +0.03 / 44 |
+| A with the watchdog loop | +0.48 / 8 | +0.19 / 24 |
+| reference geometry r64c4s8 XA: base / + Q / + G | | +1.18 / +1.12 / +1.06 |
+
+G + A arms were dropped: the arm set lacked their watchdog twins, so the spin rule removed them
+(fixed in the builder, round "rg-b"). The reference's own kernels (positive control) failed to
+compile on the judge's CUDA 13 toolchain (they compile with nvcc 12.8 locally). Reading
+(measured): at 256 none of the three differences matters; at 128 the reference's spin-loop form
+is worth about 0.2 us and the producer group about 0.1 us, against a remaining gap of about 0.4-0.5
+us. The spin loop has no watchdog, so it is not shippable under the fail-closed rule as is.
+
+### 4. Portfolio after round 6
+
+| item | status | score effect |
+|---|---|---|
+| E denser code | work model done; pair7 / quad12 best; one factorial check decides | +1.4 to +2.6% if decode stays hidden (unverified) |
+| C qkv_gate / o at 256 | mechanism located (small-tile efficiency for qkv, 1.6 us fixed for o); library split-K loses | 0 until a DSMEM-reduced large-tile kernel exists |
+| dense whole-tile sketch | dropped, identical to the incumbents | 0 |
+| B router 128 / 256 | 0.2-0.3 us at 128 attributed (spin loop, producer group); 256 gap not attributed | about +0.05% |
+| D short shapes | unchanged hypothesis | about +0.4% |
+
+On this evidence the 4.1% gap to rank 100 is not covered: item E is the only item above 1%,
+and its first gate is the factorial check above. The complete-donor comparison (Family F) is the
+other open route and is not measured here.
