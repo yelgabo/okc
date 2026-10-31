@@ -95,3 +95,125 @@ Four-arm bench c8d1e57261dd4901: inc = release_s, cand = layer_mb1s, all six loa
 seeds 260001+, order seed 79, `--dup=own`. Read against 3aee22ba4a404c8a (the same inc against
 layer_m1rt51s): the slice's effect is the difference of the two pooled ratios per load, which
 is only meaningful where each bench's nulls are under the difference.
+
+Result (c8d1e57261dd4901): the slice lost inside prepare. Both cand copies left the preferred
+o+front+unp at 8, 16 and 32 tokens (`{8: 'o+front', 16: 'o', 32: 'o'}`), which the stable rule
+does only when another mode is faster beyond max(0.3 us, 2 x MAD) in at least 8 of 9 rounds.
+The timed bench then ran layer_m1rt51s's policy and read pooled 1.0106 against release_s, a
+second reading of that candidate (3aee22ba4a404c8a read 1.0052). Slice 1 is closed in
+`docs/ruled-out.md` with its revisit trigger.
+
+Next, in order (no quota left this round for the layer):
+
+1. Print the M1 tuner's per-mode stable notes in one compact line that the bench keeps in its
+   tail, so the next slice's whole-step savings are visible even when it is not picked.
+2. Slice 2: an early `griddepcontrol.launch_dependents` in the fused MoE kernels after their
+   last weight stage and in the sk projections, with slice 1 retested on top. The
+   co-residency question: a trigger lets secondaries occupy SMs while primary CTAs still run,
+   so a grid-synchronized primary must trigger only after its last grid barrier.
+3. Attention after qkv (`_ONE_PDL` per bucket), then the 1-token cgemv chain.
+
+Diagram: [plan-2026-10-31-m-b-pdl-chain.html](plan-2026-10-31-m-b-pdl-chain.html).
+
+## Slices 2 and 3 (built: `tools/dl_mb_chain_patch.py`, `layer_mb2s`)
+
+Built on layer_m1rt51s. M1's mode becomes a set of switches joined by "+", and the stable M1
+tuner times `M1_MODES` = off, o, o+front, o+front+trig, o+front+unp+trig,
+o+front+unp+trig+attn per bucket against the incumbent's preferred mode; the gate replays the
+last (every switch on). Switches:
+
+| switch | what changes | where it is read |
+|---|---|---|
+| unp | the unpooler sk pick launches with the PDL bit (slice 1) | `_m1_pdl` in `_proj` |
+| trig | every sk / skf launch at that bucket sets bit 17 of its config; `sk_fwd` / `skf_fwd` pass it as bit 29 of M; `sk_kernel` (built with SK_PDL, single-CTA) executes `griddepcontrol.launch_dependents` at entry when it is set | `_proj`, the two front call sites |
+| attn | `_attn_one` passes PDL for the attention launch at 9-32 tokens; the host drops it on cooperative modes (`pdl && !coop`); the launch is counted by the M1 census | `_attn_pdl` |
+| (always) | both fused MoE kernels (the four skinny copies and `moe_main_kernel`) execute `griddepcontrol.launch_dependents` right after their grid barrier's `__syncthreads()` | device |
+
+Trigger placement (from a read-only review of the kernels, layer_m1rt51s line numbers): the
+skinny MoE's last inter-CTA wait is the grid barrier ending at 10110, mode 51's at 13146; the
+fused MoE kernels had no trigger before. `sk_kernel` has no inter-CTA wait in its single-CTA
+configs (the FUSE last-block reduction counts with `atomicAdd` and never waits), so its entry
+is safe. Both MoE kernels run one CTA per SM on a grid of all SMs (persistent by grid size, not
+cooperative). Shared memory leaves room for an unpooler sk CTA beside a MoE CTA only at 16
+tokens (skinny MoE about 155.5 KB; unp16 about 69-75 KB); at 8 and 32 tokens a secondary CTA
+can only start on an SM whose MoE CTA has exited, so there the trigger hides launch latency
+only (computed from the structs, not measured).
+
+PTX: `griddepcontrol.launch_dependents` only lets the dependent grid be scheduled once every
+CTA of this grid has issued it or exited; it orders no memory. `griddepcontrol.wait` waits
+until the prerequisite grids have completed and their memory operations are performed and
+visible to the current grid (PTX ISA, griddepcontrol). So a trigger can change what runs
+concurrently and what a secondary may read before its wait, never what it reads after. Every
+pre-wait read in the chain is listed in the next section.
+
+Progress: a secondary CTA can only be placed after every primary CTA has triggered or exited,
+so it never takes an SM a primary CTA still needs; the MoE triggers after its grid barrier,
+so its barrier cannot be affected at all.
+
+## Slice 4 (designed, not built): the 1-token chain
+
+At one token the projections are cgemv (`_SKP_GEMV_SRC`): qkv `cgemv40<256,2>`, o
+`cgemv<64,1>`, the FP32 front's pooler `cgemv<512,1>`, the unpooler slice `cgemv40<128,2>`;
+none has a `griddepcontrol` instruction and `cgemv_launch` sets no launch attribute. Design:
+a runtime flags argument (bit 0: PDL launch and wait, bit 1: trigger at entry); in
+`cgemv_body` the compute warps issue their weight loads (low bytes and codes) and then wait,
+and the escape warp loads its first table entry and then waits, before any read of x; x is read
+with `ld.global.cg` instead of `__ldg` in the PDL build, because the non-coherent path is
+specified for data that is read-only for the kernel's lifetime, which a PDL secondary's input
+is not; the host launches through `cudaLaunchKernelEx` with the programmatic attribute when
+bit 0 is set. No CTA waits on another, so the entry trigger is safe.
+
+Two obstacles keep it out of this round. The M1 tuner's buckets are 8 / 16 / 32 and one token
+falls in bucket 8 (the v1 shapes time it), so the 1-token chain needs its own bucket and its
+own whole-step rounds on d1 shapes. And the M1 gate would then judge 1x1 sliding and full,
+the shapes where it failed on a one-replay BF16-rounding difference with a bitwise control
+(d6c30f88c617438b, 6ce5be0ba29642ea), and a failure turns M1 off for the whole run. The earlier
+PDL-across-the-chain attempt moved d1 by -2.3 / +0.5 us (179cecdac87b4872), so the slice also
+needs the per-mode evidence of slices 2-3 before it is worth a check.
+
+## Queued beside M-B: MoE mode 78 at 32 tokens (coordinator, 2026-10-31)
+
+Mode 78 (51 + paired-row scale decode + the fin4 final pass below 64 tokens, muse_moe_w4a16 at
+d73c4fd) was 1.5-3.5 us under 51 at 32 tokens on 35 of 36 paired seeds and failed its gate at 128
+std (docs/runs-moe.md, "Donor MoE (M-A) against mode 51"). Port: `tools/dl_moe_inline.py` now
+takes a target file and builds `LAYER_MAIN_EXTRA = ((78, 64),)`, writing
+`_MOE1_MAIN_MAX_M = {'main-lean-grp-fin4ps': 64}` and a tuner filter, so 78 is offered at 32
+tokens only. ybuf check: the layer allocates ybuf as `(_MOE1_EMAX, D_EXPERT)` =
+(512 x 8, 4096) = (4096, 4096) FP32, the device's kEmax x kH; 78's partials use rows 4064-4095
+and only below 64 tokens, where the pair rows end under 63 x 8 = 504 (the source's static_assert
+states the same bound); nothing else in the layer uses ybuf. So the last 32 rows are free.
+
+Pre-registered rule (written before any check of it): 78 ships only if (1) the stable MoE
+tuner picks it at 32 tokens over the preferred 51 in both cand prepares (a saving above
+max(0.3 us, 2 x MAD) in at least 8 of 9 rounds on its four routings), and (2) a four-arm bench
+on fresh seeds (280001+) against the incumbent reads, on the d32 load, all four cross ratios
+above 1 and the pooled d32 ratio above 1 + 2 x the larger d32 null, with no other load's pooled
+ratio below 1 - 2 x its larger null. The whole-score decision rule is not used for it alone:
+one load out of six moves, about 0.1-0.2% of the score.
+
+## Trigger-order invariant (applies to every new trigger)
+
+Several kernels read, before their own wait, data written two or more launches back, and rely
+on that writer being complete. In the source: `boundary_kernel` (the FFN boundary at T <= 8)
+loads the stream written by the attention boundary before its wait on the unpooler, citing
+"every path from it to here passes GEMM1 or Marlin, which wait before they trigger"; the audit
+table in docs/runs-decode-layer.md ("PDL provenance of every load before a
+griddepcontrol.wait") rests on "every kernel completes only after its own wait". A secondary
+can launch once every CTA of its primary has triggered, so with triggers placed before waits a
+chain of early triggers could start a reader while a writer two launches back still runs.
+
+Rule for M-B: for each pre-wait read of a writer two or more launches back, the chain between
+them must contain a kernel that waits before it triggers. The MoE's new trigger follows its
+own wait (the grid barrier comes after it). The sk entry trigger precedes its wait, so its
+successors were checked one by one (layer_mb2s, all switches on):
+
+| sk launch -> successor | successor's pre-wait reads | safe because |
+|---|---|---|
+| qkv -> attention (attn) | K/V cache rows below `seq_lens`, page table, `seq_lens` | harness inputs, written before the step |
+| o -> attention boundary | the step's input stream, alpha, beta, the next norm weight | harness input and prepare-time state |
+| skf front -> route | the pre-expert norm weight, the router bias | prepare-time state |
+| unpooler -> FFN boundary (T <= 8) | the stream written by the attention boundary in this step, gate and norm weights | the unpooler launches only after the MoE triggered, which is after the MoE's wait, so route is complete; route and skf complete only after every one of their CTAs passed its wait, so the attention boundary is complete |
+
+Entry triggers that already existed (`attn_boundary_kernel`, ONE_TRIG in attention) are
+unchanged; with attn on, attention launches early behind qkv and ONE_TRIG lets o launch
+early in turn, and o reads only weights before its wait.

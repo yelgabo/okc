@@ -1,0 +1,158 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>M-B PDL chain</title>
+<style>
+    :root { color-scheme: dark; }
+    body { margin: 0; padding: 24px 16px; background: #101013; color: #f0ece3;
+           font: 15px/1.6 "Avenir Next", Avenir, system-ui, sans-serif; }
+    main { max-width: 1240px; margin: 0 auto; }
+    h1 { font-size: 22px; margin: 0 0 6px; }
+    p { color: #c0bcb6; max-width: 900px; }
+    #mb-figure { margin: 18px 0; }
+    #mb-figure .diagram-scroll { overflow-x: auto; background: #101013; border-radius: 10px;
+                                 border: 1px solid #2a2a30; }
+    #mb-figure svg { display: block; width: 100%; min-width: 1180px; height: auto; }
+    #mb-figure text { font-family: "Avenir Next", Avenir, system-ui, sans-serif;
+                      fill: #f0ece3; font-size: 17px; }
+    #mb-figure .detail { fill: #c0bcb6; font-size: 13.5px; }
+    #mb-figure .lab { font-size: 13.5px; font-weight: 600; }
+    #mb-figure .node { fill: #1b1b20; stroke: #686158; stroke-width: 1.4; }
+    #mb-figure .edge { fill: none; stroke-width: 2; }
+    #mb-figure .plain { stroke: #8a8580; stroke-dasharray: 6 5; marker-end: url(#mb-a-plain); }
+    #mb-figure .pdl { stroke: #dec18a; marker-end: url(#mb-a-pdl); }
+    #mb-figure .new { stroke: #7fc7a8; marker-end: url(#mb-a-new); }
+    #mb-figure .lost { stroke: #d98a7a; marker-end: url(#mb-a-lost); }
+    #mb-figure figcaption { margin-top: 10px; color: #c0bcb6; font-size: 14px; }
+</style>
+</head>
+<body>
+<main>
+<h1>M-B: PDL boundaries in one decode step at 8-32 tokens</h1>
+<p>Each arrow is the stream order from one kernel to the next on the main stream. Its colour says
+how the next kernel is launched, and the line under it says what that kernel may read before its
+<code>griddepcontrol.wait</code>. Source: docs/plan-2026-10-31-m-b-pdl-chain.md (layer_m1rt51s).</p>
+<figure id="mb-figure">
+  <div class="diagram-scroll" tabindex="0" role="region"
+       aria-label="Kernel chain diagram, scroll horizontally on small screens">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1180 520" role="img"
+         aria-labelledby="mb-title mb-desc">
+      <title id="mb-title">Kernel boundaries of the decode layer and their PDL state</title>
+      <desc id="mb-desc">Top row left to right: qkv projection, attention, o projection,
+        attention boundary, MoE front. Bottom row right to left: route kernel, fused MoE,
+        unpooler projection, FFN boundary. Arrows between neighbours show whether the next
+        kernel launches plain, as an existing PDL secondary, as an M1 PDL secondary, or as an
+        M-B slice, with what it loads before its wait.</desc>
+      <defs>
+        <marker id="mb-a-plain" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7"
+                markerHeight="7" orient="auto-start-reverse">
+          <path d="M0 0L10 5L0 10Z" fill="#8a8580"/></marker>
+        <marker id="mb-a-pdl" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7"
+                markerHeight="7" orient="auto-start-reverse">
+          <path d="M0 0L10 5L0 10Z" fill="#dec18a"/></marker>
+        <marker id="mb-a-new" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7"
+                markerHeight="7" orient="auto-start-reverse">
+          <path d="M0 0L10 5L0 10Z" fill="#7fc7a8"/></marker>
+        <marker id="mb-a-lost" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7"
+                markerHeight="7" orient="auto-start-reverse">
+          <path d="M0 0L10 5L0 10Z" fill="#d98a7a"/></marker>
+      </defs>
+      <rect width="1180" height="520" fill="#101013"/>
+
+      <!-- top row: y 60..150, nodes 170 wide, gaps 62 -->
+      <rect class="node" x="30" y="60" width="170" height="90" rx="9"/>
+      <text x="115" y="95" text-anchor="middle" font-weight="600">qkv proj</text>
+      <text class="detail" x="115" y="120" text-anchor="middle">sk (cgemv at 1 token)</text>
+
+      <rect class="node" x="262" y="60" width="170" height="90" rx="9"/>
+      <text x="347" y="95" text-anchor="middle" font-weight="600">attention</text>
+      <text class="detail" x="347" y="120" text-anchor="middle">attn_one, ONE_TRIG</text>
+
+      <rect class="node" x="494" y="60" width="170" height="90" rx="9"/>
+      <text x="579" y="95" text-anchor="middle" font-weight="600">o proj</text>
+      <text class="detail" x="579" y="120" text-anchor="middle">sk, M1 at 8-32</text>
+
+      <rect class="node" x="726" y="60" width="170" height="90" rx="9"/>
+      <text x="811" y="95" text-anchor="middle" font-weight="600">attn boundary</text>
+      <text class="detail" x="811" y="120" text-anchor="middle">residual + norms</text>
+
+      <rect class="node" x="958" y="60" width="190" height="90" rx="9"/>
+      <text x="1053" y="95" text-anchor="middle" font-weight="600">MoE front</text>
+      <text class="detail" x="1053" y="120" text-anchor="middle">skf pooler + router</text>
+
+      <!-- bottom row: y 330..420, right to left -->
+      <rect class="node" x="958" y="330" width="190" height="90" rx="9"/>
+      <text x="1053" y="365" text-anchor="middle" font-weight="600">route</text>
+      <text class="detail" x="1053" y="390" text-anchor="middle">top-8, metadata</text>
+
+      <rect class="node" x="726" y="330" width="170" height="90" rx="9"/>
+      <text x="811" y="365" text-anchor="middle" font-weight="600">fused MoE</text>
+      <text class="detail" x="811" y="390" text-anchor="middle">sk8w3s / mode 51</text>
+
+      <rect class="node" x="494" y="330" width="170" height="90" rx="9"/>
+      <text x="579" y="365" text-anchor="middle" font-weight="600">unpooler proj</text>
+      <text class="detail" x="579" y="390" text-anchor="middle">sk (slice at 8)</text>
+
+      <rect class="node" x="262" y="330" width="170" height="90" rx="9"/>
+      <text x="347" y="365" text-anchor="middle" font-weight="600">FFN boundary</text>
+      <text class="detail" x="347" y="390" text-anchor="middle">norm + residual</text>
+
+      <!-- edges top row -->
+      <path class="edge new" d="M200 105H262"/>
+      <text class="lab" x="231" y="178" text-anchor="middle" fill="#7fc7a8">slice 3</text>
+      <text class="detail" x="231" y="198" text-anchor="middle">K/V cache rows</text>
+
+      <path class="edge pdl" d="M432 105H494"/>
+      <text class="lab" x="463" y="178" text-anchor="middle" fill="#dec18a">M1</text>
+      <text class="detail" x="463" y="198" text-anchor="middle">o weights</text>
+
+      <path class="edge pdl" d="M664 105H726"/>
+      <text class="lab" x="695" y="178" text-anchor="middle" fill="#dec18a">PDL</text>
+      <text class="detail" x="695" y="198" text-anchor="middle">norm weights</text>
+
+      <path class="edge pdl" d="M896 105H958"/>
+      <text class="lab" x="927" y="178" text-anchor="middle" fill="#dec18a">M1 o+front</text>
+      <text class="detail" x="927" y="198" text-anchor="middle">pooler weights</text>
+
+      <!-- front -> route (vertical on the right) -->
+      <path class="edge pdl" d="M1053 150V330"/>
+      <text class="lab" x="1040" y="236" text-anchor="end" fill="#dec18a">PDL</text>
+      <text class="detail" x="1040" y="256" text-anchor="end">router bias, norm weights</text>
+
+      <!-- bottom row right to left -->
+      <path class="edge pdl" d="M958 375H896"/>
+      <text class="lab" x="927" y="452" text-anchor="middle" fill="#dec18a">PDL</text>
+      <text class="detail" x="927" y="472" text-anchor="middle">ring init, L2 hint</text>
+
+      <path class="edge lost" d="M726 375H664"/>
+      <text class="lab" x="695" y="452" text-anchor="middle" fill="#d98a7a">slice 1 lost</text>
+      <text class="detail" x="695" y="472" text-anchor="middle">unpooler weights</text>
+
+      <path class="edge pdl" d="M494 375H432"/>
+      <text class="lab" x="463" y="452" text-anchor="middle" fill="#dec18a">PDL</text>
+      <text class="detail" x="463" y="472" text-anchor="middle">gate, norm weights</text>
+
+      <!-- slice 2 marker: early trigger in the MoE -->
+      <text class="lab" x="811" y="300" text-anchor="middle" fill="#7fc7a8">slice 2: early trigger</text>
+      <text class="detail" x="811" y="318" text-anchor="middle">after the last grid wait</text>
+
+      <!-- legend -->
+      <path class="edge pdl" d="M40 262H90"/>
+      <text class="detail" x="98" y="267">PDL secondary today</text>
+      <path class="edge new" d="M270 262H320"/>
+      <text class="detail" x="328" y="267">M-B slice planned</text>
+      <path class="edge lost" d="M480 262H530"/>
+      <text class="detail" x="538" y="267">M-B slice measured, lost</text>
+      <text class="detail" x="40" y="300">No kernel reads its primary's output before its wait.</text>
+      <text class="detail" x="40" y="318">New triggers go after the kernel's own wait (plan, rule).</text>
+    </svg>
+  </div>
+  <figcaption>Main stream only; the side-stream L2 prefetch of o, router and unpooler-slice
+    weights during attention is omitted. At one token every projection is cgemv and launches
+    plain (slice 4). Slice numbers follow the plan's "Next" list.</figcaption>
+</figure>
+</main>
+</body>
+</html>

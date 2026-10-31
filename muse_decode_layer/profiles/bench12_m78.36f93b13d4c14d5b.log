@@ -1,0 +1,117 @@
+1 sliding page 1 _attn_one: output rel diff 2.10e-02
+attn self-test case 10 16x1 full page 1 _attn_one: output rel diff 1.79e-02
+attn self-test case 11 1x8 sliding page 1 _attn_one: output rel diff 2.27e-02
+attn self-test case 12 16x8 full page 1 _attn_one: output rel diff 2.87e-02
+attn self-test case 13 32x8 sliding page 1 _attn_one: output rel diff 2.78e-02
+attn self-test case 14 4x8 sliding page 1 _attn_one: output rel diff 3.62e-02
+attn self-test case 15 3x8 full page 64 _attn_one: output rel diff 2.59e-02
+attn self-test case 16 5x8 full page 1 _attn_one: output rel diff 3.00e-02
+attn self-test case 17 1x1 full page 1 _attn_one: output rel diff 6.16e-03
+attn self-test case 18 1x8 full page 1 _attn_one: output rel diff 4.08e-02
+attn self-test case 19 1x1 full page 64 _attn_one: output rel diff 4.84e-02
+attn self-test case 20 1x8 full page 64 _attn_one: output rel diff 2.44e-02
+attn self-test case 21 1x1 sliding page 64 ctx 10 _attn_one: output rel diff 2.63e-02
+attn self-test: norm-gate alone 0.00e+00
+attn self-test: worst rel diff vs SGLang path: output 4.84e-02, new cache rows 2.76e-02
+attn one: cases 0.0 s
+attn one: stress 1x1 sliding plan=(32, 1, 13): replays=2000 (one host sync after the batch; retained: the last replay's output) replayed_vs_eager=0.0e+00 vs_sglang=3.44e-03 finite=True max_polls=0 ws rows_nonzero=0 l_nonzero=0 tickets_nonzero=0 coop_next_parity_nonzero=0 flat_next_parity_nonzero=0; fresh qkv: replays=50 (one host sync after the batch; retained: the last replay's output) replayed_vs_eager=0.0e+00 vs_sglang=1.91e-02 finite=True max_polls=0 ws rows_nonzero=0 l_nonzero=0 tickets_nonzero=0 coop_next_parity_nonzero=0 flat_next_parity_nonzero=0; spec fallback (seq - 64): replays=50 (one host sync after the batch; retained: the last replay's output) replayed_vs_eager=0.0e+00 vs_sglang=4.67e-03 finite=True max_polls=0 ws rows_nonzero=0 l_nonzero=0 tickets_nonzero=0 coop_next_parity_nonzero=0 flat_next_parity_nonzero=0 (0.0 s)
+attn one: stress 16x1 full plan=(264, 1, 49): replays=2000 (one host sync after the batch; retained: the last replay's output) replayed_vs_eager=0.0e+00 vs_sglang=1.73e-02 finite=True max_polls=0 ws rows_nonzero=0 l_nonzero=0 tickets_nonzero=0 coop_next_parity_nonzero=0 flat_next_parity_nonzero=0; fresh qkv: replays=50 (one host sync after the batch; retained: the last replay's output) replayed_vs_eager=0.0e+00 vs_sglang=1.47e-02 finite=True max_polls=0 ws rows_nonzero=0 l_nonzero=0 tickets_nonzero=0 coop_next_parity_nonzero=0 flat_next_parity_nonzero=0 (0.0 s)
+attn one: stress 1x8 sliding plan=(33, 1, 15): replays=2000 (one host sync after the batch; retained: the last replay's output) replayed_vs_eager=0.0e+00 vs_sglang=2.32e-02 finite=True max_polls=2 ws rows_nonzero=0 l_nonzero=0 tickets_nonzero=0 coop_next_parity_nonzero=0 flat_next_parity_nonzero=0; fresh qkv: replays=50 (one host sync after the batch; retained: the last replay's output) replayed_vs_eager=0.0e+00 vs_sglang=2.81e-02 finite=True max_polls=2 ws rows_nonzero=0 l_nonzero=0 tickets_nonzero=0 coop_next_parity_nonzero=0 flat_next_parity_nonzero=0; spec fallback (seq - 64): replays=50 (one host sync after the batch; retained: the last replay's output) replayed_vs_eager=0.0e+00 vs_sglang=2.35e-02 finite=True max_polls=2 ws rows_nonzero=0 l_nonzero=0 tickets_nonzero=0 coop_next_parity_nonzero=0 flat_next_parity_nonzero=0 (0.0 s)
+attn one: stress 16x8 full plan=(264, 1, 51): replays=2000 (one host sync after the batch; retained: the last replay's output) replayed_vs_eager=9.2e-06 vs_sglang=2.48e-02 finite=True max_polls=26 ws rows_nonzero=0 l_nonzero=0 tickets_nonzero=0 coop_next_parity_nonzero=0 flat_next_parity_nonzero=0; fresh qkv: replays=50 (one host sync after the batch; retained: the last replay's output) replayed_vs_eager=1.8e-05 vs_sglang=2.74e-02 finite=True max_polls=28 ws rows_nonzero=0 l_nonzero=0 tickets_nonzero=0 coop_next_parity_nonzero=0 flat_next_parity_nonzero=0 (0.0 s)
+attn one: stress 32x8 full plan=(264, 1, 51): replays=2000 (one host sync after the batch; retained: the last replay's output) replayed_vs_eager=2.0e-07 vs_sglang=2.98e-02 finite=True max_polls=46 ws rows_nonzero=0 l_nonzero=0 tickets_nonzero=0 coop_next_parity_nonzero=0 flat_next_parity_nonzero=0; fresh qkv: replays=50 (one host sync after the batch; retained: the last replay's output) replayed_vs_eager=7.4e-06 vs_sglang=2.90e-02 finite=True max_polls=41 ws rows_nonzero=0 l_nonzero=0 tickets_nonzero=0 coop_next_parity_nonzero=0 flat_next_parity_nonzero=0 (0.1 s)
+attn one: stress 1x1 full plan=(252, 8, 11): replays=2000 (one host sync after the batch; retained: the last replay's output) replayed_vs_eager=0.0e+00 vs_sglang=3.25e-03 finite=True max_polls=7 ws rows_nonzero=0 l_nonzero=0 tickets_nonzero=0 coop_next_parity_nonzero=0 flat_next_parity_nonzero=0; fresh qkv: replays=50 (one host sync after the batch; retained: the last replay's output) replayed_vs_eager=0.0e+00 vs_sglang=6.87e-03 finite=True max_polls=6 ws rows_nonzero=0 l_nonzero=0 tickets_nonzero=0 coop_next_parity_nonzero=0 flat_next_parity_nonzero=0; spec fallback (seq - 64): replays=50 (one host sync after the batch; retained: the last replay's output) replayed_vs_eager=0.0e+00 vs_sglang=3.47e-03 finite=True max_polls=8 ws rows_nonzero=0 l_nonzero=0 tickets_nonzero=0 coop_next_parity_nonzero=0 flat_next_parity_nonzero=0 (0.0 s)
+attn one: stress 1x8 full plan=(252, 8, 11): replays=2000 (one host sync after the batch; retained: the last replay's output) replayed_vs_eager=0.0e+00 vs_sglang=2.41e-02 finite=True max_polls=9 ws rows_nonzero=0 l_nonzero=0 tickets_nonzero=0 coop_next_parity_nonzero=0 flat_next_parity_nonzero=0; fresh qkv: replays=50 (one host sync after the batch; retained: the last replay's output) replayed_vs_eager=0.0e+00 vs_sglang=1.49e-02 finite=True max_polls=7 ws rows_nonzero=0 l_nonzero=0 tickets_nonzero=0 coop_next_parity_nonzero=0 flat_next_parity_nonzero=0; spec fallback (seq - 64): replays=50 (one host sync after the batch; retained: the last replay's output) replayed_vs_eager=1.8e-05 vs_sglang=2.40e-02 finite=True max_polls=10 ws rows_nonzero=0 l_nonzero=0 tickets_nonzero=0 coop_next_parity_nonzero=0 flat_next_parity_nonzero=0 (0.0 s)
+attn one fallback on fresh rows vs FP32: 1x1s ours 1.63e-03 sglang 5.21e-02 ours-vs-sglang 5.20e-02; 1x8s ours 3.63e-02 sglang 4.06e-02 ours-vs-sglang 3.09e-02; 1x1f ours 1.75e-03 sglang 6.75e-03 ours-vs-sglang 7.14e-03; 1x8f ours 1.76e-02 sglang 2.19e-02 ours-vs-sglang 1.46e-02
+attn one: on (0.3 s)
+TUNE front T=1 fp32:25.5 skf:30.0 skf-r:31.3 | +moe fp32:45.4 skf:47.9 skf-r:48.0 -> fp32 (vs fp32: fp32 0.0e+00/1.000 skf 2.3e-04/1.000 skf-r 2.3e-04/1.000)
+TUNE front T=8 skf:30.9 skf-r:31.4 fp32:38.0 | +moe skf-r:77.2 skf:77.7 fp32:87.5 -> skf-r (vs fp32: fp32 0.0e+00/1.000 skf 0.0e+00/1.000 skf-r 0.0e+00/1.000)
+TUNE front T=16 skf:30.9 skf-r:31.5 mma:35.1 concat-r:37.0 concat:38.3 split:41.9 | +moe skf-r:124.8 skf:125.2 concat-r:130.1 concat:132.5 mma:132.6 split:138.0 -> skf-r (vs split: split 0.0e+00/1.000 mma 0.0e+00/1.000 concat 1.0e-04/1.000 skf 0.0e+00/1.000 concat-r 1.0e-04/1.000 skf-r 0.0e+00/1.000)
+TUNE front T=32 mma dropped: rel diff 0.00e+00, routes 0.973 against split
+moe front tuner: SGLang fallback (AcceleratorError: CUDA error: an illegal memory access was encountered
+Search for `cudaErrorIllegalAddress' in https://docs.nvidia.com/cuda/cuda-runtime-api/group__CUDART__TYPES.html for more information.
+CUDA kernel errors might be asynchronously reported at some other API call, so the stacktrace below might be incorrect.
+For debugging consider passing CUDA_LAUNCH_BLOCKING=1
+The CUDA driver logged these messages, which may provide useful details:
+Returning 700 (CUDA_ERROR_ILLEGAL_ADDRESS) from cuCtxSynchronize_v2
+
+)
+[W1031 04:35:00.096846041 CUDAEvent.h:57] Warning: CUDA warning: an illegal memory access was encountered (function ~CUDAEvent)
+[W1031 04:35:00.096857539 CUDAEvent.h:57] Warning: CUDA warning: an illegal memory access was encountered (function ~CUDAEvent)
+[W1031 04:35:00.096861758 CUDAEvent.h:57] Warning: CUDA warning: an illegal memory access was encountered (function ~CUDAEvent)
+[W1031 04:35:00.096866921 CUDAEvent.h:57] Warning: CUDA warning: an illegal memory access was encountered (function ~CUDAEvent)
+[W1031 04:35:00.096870971 CUDAEvent.h:57] Warning: CUDA warning: an illegal memory access was encountered (function ~CUDAEvent)
+[W1031 04:35:00.096874993 CUDAEvent.h:57] Warning: CUDA warning: an illegal memory access was encountered (function ~CUDAEvent)
+[W1031 04:35:00.096878328 CUDAEvent.h:57] Warning: CUDA warning: an illegal memory access was encountered (function ~CUDAEvent)
+[W1031 04:35:00.096882058 CUDAEvent.h:57] Warning: CUDA warning: an illegal memory access was encountered (function ~CUDAEvent)
+[W1031 04:35:00.096885524 CUDAEvent.h:57] Warning: CUDA warning: an illegal memory access was encountered (function ~CUDAEvent)
+[W1031 04:35:00.096889360 CUDAEvent.h:57] Warning: CUDA warning: an illegal memory access was encountered (function ~CUDAEvent)
+[W1031 04:35:00.096892604 CUDAEvent.h:57] Warning: CUDA warning: an illegal memory access was encountered (function ~CUDAEvent)
+[W1031 04:35:00.096896501 CUDAEvent.h:57] Warning: CUDA warning: an illegal memory access was encountered (function ~CUDAEvent)
+[W1031 04:35:00.096900343 CUDAEvent.h:57] Warning: CUDA warning: an illegal memory access was encountered (function ~CUDAEvent)
+[W1031 04:35:00.096904328 CUDAEvent.h:57] Warning: CUDA warning: an illegal memory access was encountered (function ~CUDAEvent)
+[W1031 04:35:00.096907578 CUDAEvent.h:57] Warning: CUDA warning: an illegal memory access was encountered (function ~CUDAEvent)
+[W1031 04:35:00.096911455 CUDAEvent.h:57] Warning: CUDA warning: an illegal memory access was encountered (function ~CUDAEvent)
+[W1031 04:35:00.096914634 CUDAEvent.h:57] Warning: CUDA warning: an illegal memory access was encountered (function ~CUDAEvent)
+[W1031 04:35:00.096918713 CUDAEvent.h:57] Warning: CUDA warning: an illegal memory access was encountered (function ~CUDAEvent)
+[W1031 04:35:00.096921914 CUDAEvent.h:57] Warning: CUDA warning: an illegal memory access was encountered (function ~CUDAEvent)
+[W1031 04:35:00.096925785 CUDAEvent.h:57] Warning: CUDA warning: an illegal memory access was encountered (function ~CUDAEvent)
+[W1031 04:35:00.096929065 CUDAEvent.h:57] Warning: CUDA warning: an illegal memory access was encountered (function ~CUDAEvent)
+[W1031 04:35:00.096934040 CUDAEvent.h:57] Warning: CUDA warning: an illegal memory access was encountered (function ~CUDAEvent)
+[W1031 04:35:00.096937325 CUDAEvent.h:57] Warning: CUDA warning: an illegal memory access was encountered (function ~CUDAEvent)
+[W1031 04:35:00.096941208 CUDAEvent.h:57] Warning: CUDA warning: an illegal memory access was encountered (function ~CUDAEvent)
+[W1031 04:35:00.096944397 CUDAEvent.h:57] Warning: CUDA warning: an illegal memory access was encountered (function ~CUDAEvent)
+[W1031 04:35:00.096948146 CUDAEvent.h:57] Warning: CUDA warning: an illegal memory access was encountered (function ~CUDAEvent)
+[W1031 04:35:00.096951928 CUDAEvent.h:57] Warning: CUDA warning: an illegal memory access was encountered (function ~CUDAEvent)
+[W1031 04:35:00.096956136 CUDAEvent.h:57] Warning: CUDA warning: an illegal memory access was encountered (function ~CUDAEvent)
+[W1031 04:35:00.096959564 CUDAEvent.h:57] Warning: CUDA warning: an illegal memory access was encountered (function ~CUDAEvent)
+[W1031 04:35:00.096965335 CUDAEvent.h:57] Warning: CUDA warning: an illegal memory access was encountered (function ~CUDAEvent)
+[W1031 04:35:00.096969278 CUDAEvent.h:57] Warning: CUDA warning: an illegal memory access was encountered (function ~CUDAEvent)
+[W1031 04:35:00.096972444 CUDAEvent.h:57] Warning: CUDA warning: an illegal memory access was encountered (function ~CUDAEvent)
+[W1031 04:35:00.096976171 CUDAEvent.h:57] Warning: CUDA warning: an illegal memory access was encountered (function ~CUDAEvent)
+[W1031 04:35:00.096979372 CUDAEvent.h:57] Warning: CUDA warning: an illegal memory access was encountered (function ~CUDAEvent)
+[W1031 04:35:00.096983394 CUDAEvent.h:57] Warning: CUDA warning: an illegal memory access was encountered (function ~CUDAEvent)
+[W1031 04:35:00.096986439 CUDAEvent.h:57] Warning: CUDA warning: an illegal memory access was encountered (function ~CUDAEvent)
+[W1031 04:35:00.096990039 CUDAEvent.h:57] Warning: CUDA warning: an illegal memory access was encountered (function ~CUDAEvent)
+[W1031 04:35:00.096994249 CUDAEvent.h:57] Warning: CUDA warning: an illegal memory access was encountered (function ~CUDAEvent)
+[W1031 04:35:00.096997968 CUDAEvent.h:57] Warning: CUDA warning: an illegal memory access was encountered (function ~CUDAEvent)
+[W1031 04:35:00.097005219 CUDAEvent.h:57] Warning: CUDA warning: an illegal memory access was encountered (function ~CUDAEvent)
+terminate called after throwing an instance of 'c10::AcceleratorError'
+  what():  CUDA error: an illegal memory access was encountered
+Search for `cudaErrorIllegalAddress' in https://docs.nvidia.com/cuda/cuda-runtime-api/group__CUDART__TYPES.html for more information.
+CUDA kernel errors might be asynchronously reported at some other API call, so the stacktrace below might be incorrect.
+For debugging consider passing CUDA_LAUNCH_BLOCKING=1
+The CUDA driver logged these messages, which may provide useful details:
+Sticky error detected
+Returning 700 (CUDA_ERROR_ILLEGAL_ADDRESS) from cuEventRecord
+
+
+Exception raised from insert_events at /__w/pytorch/pytorch/c10/cuda/CUDACachingAllocator.cpp:4352 (most recent call first):
+frame #0: c10::Error::Error(c10::SourceLocation, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >) + 0x9d (0x1400e26b460d in /opt/sglang/lib/python3.12/site-packages/torch/lib/libc10.so)
+frame #1: <unknown function> + 0xc4f4 (0x1400e27624f4 in /opt/sglang/lib/python3.12/site-packages/torch/lib/libc10_cuda.so)
+frame #2: <unknown function> + 0x1a44e (0x1400e277044e in /opt/sglang/lib/python3.12/site-packages/torch/lib/libc10_cuda.so)
+frame #3: <unknown function> + 0x1d8ab (0x1400e27738ab in /opt/sglang/lib/python3.12/site-packages/torch/lib/libc10_cuda.so)
+frame #4: <unknown function> + 0x1e0ce (0x1400e27740ce in /opt/sglang/lib/python3.12/site-packages/torch/lib/libc10_cuda.so)
+frame #5: <unknown function> + 0x88d54 (0x1400e2692d54 in /opt/sglang/lib/python3.12/site-packages/torch/lib/libc10.so)
+frame #6: c10::TensorImpl::~TensorImpl() + 0x9 (0x1400e268c869 in /opt/sglang/lib/python3.12/site-packages/torch/lib/libc10.so)
+frame #7: <unknown function> + 0x8a3285 (0x140059ff0285 in /opt/sglang/lib/python3.12/site-packages/torch/lib/libtorch_python.so)
+frame #8: <unknown function> + 0x8a3311 (0x140059ff0311 in /opt/sglang/lib/python3.12/site-packages/torch/lib/libtorch_python.so)
+frame #9: /opt/sglang/bin/python() [0x59f273]
+frame #10: /opt/sglang/bin/python() [0x54c835]
+frame #11: /opt/sglang/bin/python() [0x558e11]
+frame #12: /opt/sglang/bin/python() [0x610885]
+frame #13: /opt/sglang/bin/python() [0x610895]
+frame #14: /opt/sglang/bin/python() [0x610895]
+frame #15: /opt/sglang/bin/python() [0x55338b]
+frame #16: /opt/sglang/bin/python() [0x59f273]
+frame #17: _PyEval_EvalFrameDefault + 0x92f9 (0x5df929 in /opt/sglang/bin/python)
+frame #18: PyEval_EvalCode + 0x15b (0x5d55eb in /opt/sglang/bin/python)
+frame #19: /opt/sglang/bin/python() [0x608852]
+frame #20: /opt/sglang/bin/python() [0x6b50d3]
+frame #21: _PyRun_SimpleFileObject + 0x1aa (0x6b4e3a in /opt/sglang/bin/python)
+frame #22: _PyRun_AnyFileObject + 0x4f (0x6b4c6f in /opt/sglang/bin/python)
+frame #23: Py_RunMain + 0x3b5 (0x6bccd5 in /opt/sglang/bin/python)
+frame #24: Py_BytesMain + 0x2d (0x6bc7bd in /opt/sglang/bin/python)
+frame #25: <unknown function> + 0x2a1ca (0x1400e36c31ca in /lib/x86_64-linux-gnu/libc.so.6)
+frame #26: __libc_start_main + 0x8b (0x1400e36c328b in /lib/x86_64-linux-gnu/libc.so.6)
+frame #27: _start + 0x25 (0x657a05 in /opt/sglang/bin/python)
+
