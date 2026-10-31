@@ -4,7 +4,11 @@ This is the stable entry point for steering reports across research, implementat
 and coordinator sessions. The user requested on 2026-10-29 that every project-steering
 report be checked into this repository so other sessions can read it.
 
-## Latest family registration: F — donor-based baseline and hybrid
+## Family F registration, historical policy
+
+Current policy supersedes the adoption language below. All four tracks now have measurements,
+and donor code is measurement-only. Reimplement winning mechanisms in owned code.
+[Policy addendum](2026-10-30-family-f-donor-baseline.md#addendum-2026-10-31-user-decision-on-the-use-of-f-results).
 
 **[2026-10-30: Family F — Donor-based baseline and hybrid](2026-10-30-family-f-donor-baseline.md)**
 
@@ -100,7 +104,15 @@ The existing CUTLASS pooler, wide 8-stage picks, DCARRY/PK16/VHOIST and failed l
 are explicitly accounted for. No kernels, validation policies, GPU runs or submissions changed.
 This is separate from the layer's M1/tuner-stability work below.
 
-## Latest hourly report, 21:26
+## Latest hourly report, 22:35
+
+**[2026-10-30 22:35 PDT: projection wins and resolved layer attribution](2026-10-30-2235-performance-review.md)**
+
+Snapshot `9bf7f05`. Owned projection C1/C2 win successive paired tests; C1 layer port
+is inconclusive. Recovered M-B receipt measures the existing M1 + 51 policy. Mode 79
+loses; attention PBULK hangs and its compile fix awaits GPU retest.
+
+## Previous hourly report, 21:26
 
 **[2026-10-30 21:26 PDT: F measurements, combined layer gain and attribution gap](2026-10-30-2126-performance-review.md)**
 
