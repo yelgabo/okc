@@ -100,8 +100,8 @@ how the next kernel is launched, and the line under it says what that kernel may
       <text class="detail" x="347" y="390" text-anchor="middle">norm + residual</text>
 
       <!-- edges top row -->
-      <path class="edge new" d="M200 105H262"/>
-      <text class="lab" x="231" y="178" text-anchor="middle" fill="#7fc7a8">slice 3</text>
+      <path class="edge lost" d="M200 105H262"/>
+      <text class="lab" x="231" y="178" text-anchor="middle" fill="#d98a7a">slice 3: no gain</text>
       <text class="detail" x="231" y="198" text-anchor="middle">K/V cache rows</text>
 
       <path class="edge pdl" d="M432 105H494"/>
@@ -126,32 +126,32 @@ how the next kernel is launched, and the line under it says what that kernel may
       <text class="lab" x="927" y="452" text-anchor="middle" fill="#dec18a">PDL</text>
       <text class="detail" x="927" y="472" text-anchor="middle">ring init, L2 hint</text>
 
-      <path class="edge lost" d="M726 375H664"/>
-      <text class="lab" x="695" y="452" text-anchor="middle" fill="#d98a7a">slice 1 lost</text>
-      <text class="detail" x="695" y="472" text-anchor="middle">unpooler weights</text>
+      <path class="edge new" d="M726 375H664"/>
+      <text class="lab" x="695" y="452" text-anchor="middle" fill="#7fc7a8">slices 1+2: +0.8 us at 8</text>
+      <text class="detail" x="695" y="472" text-anchor="middle">unpooler weights; none at 16 / 32</text>
 
       <path class="edge pdl" d="M494 375H432"/>
       <text class="lab" x="463" y="452" text-anchor="middle" fill="#dec18a">PDL</text>
       <text class="detail" x="463" y="472" text-anchor="middle">gate, norm weights</text>
 
       <!-- slice 2 marker: early trigger in the MoE -->
-      <text class="lab" x="811" y="300" text-anchor="middle" fill="#7fc7a8">slice 2: early trigger</text>
-      <text class="detail" x="811" y="318" text-anchor="middle">after the last grid wait</text>
+      <text class="lab" x="811" y="300" text-anchor="middle" fill="#7fc7a8">slice 2: MoE trigger (built)</text>
+      <text class="detail" x="811" y="318" text-anchor="middle">after its grid barrier</text>
 
       <!-- legend -->
       <path class="edge pdl" d="M40 262H90"/>
       <text class="detail" x="98" y="267">PDL secondary today</text>
       <path class="edge new" d="M270 262H320"/>
-      <text class="detail" x="328" y="267">M-B slice planned</text>
-      <path class="edge lost" d="M480 262H530"/>
-      <text class="detail" x="538" y="267">M-B slice measured, lost</text>
+      <text class="detail" x="328" y="267">M-B slice measured, small gain</text>
+      <path class="edge lost" d="M580 262H630"/>
+      <text class="detail" x="638" y="267">M-B slice measured, no gain</text>
       <text class="detail" x="40" y="300">No kernel reads its primary's output before its wait.</text>
-      <text class="detail" x="40" y="318">New triggers go after the kernel's own wait (plan, rule).</text>
+      <text class="detail" x="40" y="318">Every pre-wait read stays safe under the new triggers (plan).</text>
     </svg>
   </div>
   <figcaption>Main stream only; the side-stream L2 prefetch of o, router and unpooler-slice
     weights during attention is omitted. At one token every projection is cgemv and launches
-    plain (slice 4). Slice numbers follow the plan's "Next" list.</figcaption>
+    plain (slice 4, designed only). The blanket sk entry trigger (slice 2b) cost 1-6 us and is not drawn. Results: plan, "Results of 2026-10-31".</figcaption>
 </figure>
 </main>
 </body>

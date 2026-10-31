@@ -191,6 +191,24 @@ above 1 and the pooled d32 ratio above 1 + 2 x the larger d32 null, with no othe
 ratio below 1 - 2 x its larger null. The whole-score decision rule is not used for it alone:
 one load out of six moves, about 0.1-0.2% of the score.
 
+## Results of 2026-10-31 (five checks)
+
+| check | what | result |
+|---|---|---|
+| a3760918c13c4e40 | slices 1-3 with the blanket sk trigger (layer_mb2s) | sk entry trigger -1.0 us at 8 tokens, -5.5 to -6.1 at 16 / 32; unp + trig +1.39 at 8; bench not resolved |
+| 6e51f2c9dc774a79 | round 3 without the blanket trigger (layer_mb3s) | unp + unpooler trigger +0.80 us at 8 (9 of 9 rounds); every mode -1.7 to -2.5 at 16; attn + unp +0.15 over o at 32; bench not resolved |
+| 36f93b13d4c14d5b | mode 78 at 32 tokens | illegal memory access in the cand's front tuner, inside the two-layer bench |
+| 18d48c5676fa4461 | 78 diagnostic, one layer | no fault; 78 picked at 32, 1.2-2.0 us under 47 / 51 / 37 in 9 of 9 rounds |
+| a03039679e304d95 | 78 bench rerun | no fault; 47 picked at 32 in both files, so rule (1) failed; bench "cand slower" 0.13% with identical policies, which shows `--dup=shared` nulls are too tight to decide |
+
+Conclusion: M-B as PDL chaining of this layer's kernels is worth at most about 0.8 us at 8
+tokens (v1), below what a scored run or a bench can resolve, and negative elsewhere. Slices 1-3
+and mode 78 are in docs/ruled-out.md with revisit triggers. Slice 4 stays designed and unbuilt.
+Method note: four M1 prepares do not fit in 300 s, so benches of two M1 files used
+`--dup=shared`; its nulls share one prepare and miss module and prepare effects, so a
+shared-state bench can resolve a 0.1% difference between near-identical files. Such readings
+are not decisions; the in-process stable rounds are the trustworthy per-slice measurement.
+
 ## Trigger-order invariant (applies to every new trigger)
 
 Several kernels read, before their own wait, data written two or more launches back, and rely
