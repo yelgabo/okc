@@ -97,6 +97,9 @@ SGLang with its 95% interval. Profiles and logs are in `muse_moe_w4a16/profiles/
 | 2026-10-30 | 098949b28fe84bd1 (check, bench file from tools/moe_make_bench_ab.py --base=51 --sizes=32,128,256 --routings=layer,std --seeds=83,84,85,86,87,88 o72=72, not committed) | 86a633e | diagnostic of mode 72 (stream-K phase A with cut-unit fixups, mode 16's partition, on 51's stage loop, epilogue and phase B claims) with its stamped twin 73 | 2.193x (2.160-2.226) | passed; spin flags 0. 72 minus 51 +13.5 / +9.4 / +12.6 / +7.1 / +6.6 / +9.2 us at 32 / 128 / 256 (layer / std), 0 of 6 seeds lower in all six cells; 73's A end spread 18.9 / 16.9 at 256 against 55's 10.0 / 8.8; fixups 9.4-10.9 us per CTA at 128 / 256 (ABFIX). Diagnostic rule failed, no gate run; docs/ruled-out.md |
 | 2026-10-30 | eaa881a934aa471e (check, bench file from tools/moe_make_bench_ab.py --base=51 --sizes=32,128,256 --routings=layer,std --seeds=95,96,97,98,99,100 o74=74, not committed) | 5f35018 | diagnostic of mode 74 (72 with a designated-finisher fixup; 75 stamped); the build had fast_silu ending at 73 (review finding after the check), so 74 ran the slow SiLU, and its serial setup designation cost about 3 us | 2.202x (2.169-2.235) | 74 minus 51, us: +8.2 / +9.0 at 32, +8.3 / +7.2 at 128, +2.1 / +3.8 at 256 (layer / std; 0, 0, 0, 0, 0, 1 of 6 lower); public -0.9 to -19.1. Fixups 3.7-4.0 us per CTA (72: 8.7-10.9), 1.7-1.9 us per counting share, finisher 1.9-2.2 incl. 0.8-0.9 waiting; A end spread 6.7-7.2 at 128 (55: 11.4-14.0, public 6.8). Rule failed for this build; corrected build gets its own rule (docs section "Designated finisher for stream-K phase A") |
 | 2026-10-30 | e02f60fec94f45cb (scored run submitted by the coordinator, bench file from tools/moe_make_bench_ab.py --nopub=1 --base=51 --sizes=32,128,256 --routings=layer,std --seeds=107,108,109,110,111,112 o74=74, no public code, judged path the board dispatch, not committed) | 4187b8b | corrected mode 74 (fast SiLU, lane-parallel designation) | 2.197x (2.164-2.230) | 74 minus 51, us: +7.9 / +7.6 at 32, +4.6 / +7.4 at 128, +2.0 / +4.1 at 256 (layer / std; 0, 0, 0, 1, 1, 1 of 6 lower). A end spread 6.6-8.3 at 128 / 256 against 55's 10.9-19.5; fixups 3.9-4.5 us per CTA; route + setup still +3.4-3.6 us over 55. Rule failed; no gate; family parked |
+| 2026-10-31 | 5b2db8029f094a66 (check, bench file from tools/moe_make_bench_ab.py --base=51 --sizes=32,128,256 --routings=layer,std,skewed --seeds=121,...,126 --gate=1 o76=76 o77=77 o78=78 with the donor's standalone file as the public arm, not committed) | 45f990d | gate of 76-78 (rule committed in 45f990d) | 2.205x (2.172-2.238) | passed; no A/B: the donor's `MID_DEFINES +=` line re-enabled the MID build the tool empties and its build failed, which stops the A/B block. Prepare bench (synthetic) put 76 first at 128 / 256. Section "Donor MoE (M-A) against mode 51" |
+| 2026-10-31 | 64254f49676c4ce6 (check, the same bench with that donor line removed, not committed) | 5f19bc1 | gate of 76-78 against 51, donor MAIN build as the public arm | 2.188x (2.155-2.221) | passed; spin flags 0. Minus 51 at 32 / 128 / 256, layer: 76 -0.1 / -0.6 / -0.8, 77 -3.1 / +0.7 / +0.1, 78 -3.5 / -0.4 / -0.9, donor -2.3 / -9.9 / -22.5; std: 76 -0.1 / -0.0 / -0.5, 77 -1.8 / -0.0 / +0.5, 78 -2.4 / -0.2 / -1.0, donor -6.3 / -13.4 / -26.3. 76 failed rule 1, 77 rule 2 (+0.7 at 128 layer), so 78 was not shipped under the rule; 78 lower than 51 in all nine cells. Outputs 0 at 128 / 256. Section "Donor MoE (M-A) against mode 51" |
+| 2026-10-31 | c8fc5f669fa34d06 (check, bench file from tools/moe_make_bench_ab.py --base=51 --sizes=32,128,256 --routings=layer,std,skewed --seeds=131,...,136 --gate=1 o78=78, donor MAIN build as the public arm, not committed) | 95c9848 | 78's own gate (rule committed in 95c9848) | 2.194x (2.162-2.227) | passed; spin flags 0. 78 minus 51 at 32 / 128 / 256: layer -2.6 / -0.6 / -0.6, std -1.5 / +0.6 / -0.4, skewed -3.1 / -0.8 / -1.3; donor minus 51 layer -3.2 / -11.6 / -19.8, std -8.7 / -10.1 / -20.1. Rule 2 failed (+0.6 at 128 std, limit +0.5): 78 not kept. Outputs 0 at 128 / 256. Section "Donor MoE (M-A) against mode 51" |
 | 2026-10-31 | 40b8c798289a4258 (check; F-MOE-0 bench: release ec565a7 byte for byte + the exact donor file lzma-carried, not committed) | ec565a7 (release) | Family F F0: R1/R2 (two release prepares) against D1/D2 (two prepares of alygg77 muse_moe_w4a16.py at 6cae49a, SHA256 b3307089...), std seeds 501-512, layer 521-526, pad/off64 541-544, order seed 8101 | 2.195x (2.163-2.228), the release's judged path | passed; 0 output failures, fresh-input replay ok. Score D/R pooled 1.0387 (nulls 0.9996 / 0.9993, D faster); per load R/D 0.960 / 1.013 / 1.006 / 1.060 / 1.079 / 1.120 at 1 / 8 / 16 / 32 / 128 / 256. Section "F-MOE-0 (Family F donor comparison)" |
 | 2026-10-31 | 218ff300de7d4c22 (check; F-MOE-0 confirmation, same writer, not committed) | ec565a7 (release) | as 40b8c798289a4258 on std 601-612, layer 621-626, pad/off64 641-644, order seed 9203 | 2.194x (2.161-2.227), the release's judged path | passed; 0 failures. Score D/R pooled 1.0297 (nulls 1.0017 / 0.9977, D faster); per load 0.964 / 1.014 / 1.004 / 1.010 / 1.078 / 1.116. Decision per load: keep ours at 1, re-implement TINY2 at 8, inconclusive at 16, re-implement WGS (with proxy fences) at 32 / 128 / 256 |
 
@@ -3280,6 +3283,287 @@ Reading under the rule set before the run:
   than 55's (the fixups and the larger kernel). Phase B and the tail are within 1 us of 55's.
 - Decision: parked in docs/ruled-out.md with this evidence. Budget used: the day's last MoE check
   (eaa881a934aa471e) and one scored run (e02f60fec94f45cb).
+
+## Donor MoE (M-A) against mode 51, 2026-10-31
+
+Brief: F-LAYER-0 (checks 20abe6291eb04ed6, 00607fc6f8c84c77, docs/runs-decode-layer.md on the
+F-LAYER branch) put the donor layer about 9% ahead of ours and its MoE ("M-A") at about -11 us at
+decode 32 sliding and -21 us at verify 16 / 32 sliding; F-MOE-0 (40b8c798289a4258,
+218ff300de7d4c22) put the exact donor MoE 3-4% ahead of our board file standalone, 1.08 / 1.12 at
+128 / 256 tokens on standalone routing. User rule (2026-10-31): the donor is for measurement and
+learning; a winning mechanism is re-implemented in our code with an attribution comment. Donor:
+alygg77/okc-muse-spark-kernels at 6cae49a639ee6d14b929a5fd4a63c627f96d7dc0 (Apache-2.0),
+`kernels/muse_moe_w4a16.py` (SHA256 b33070898927b7b92df6c7a2515f9c02dd12723c43ca63682fa164e915dd4281)
+and `kernels/muse_decode_layer.py`, read in the session scratchpad only. Line numbers below are the
+donor standalone file's unless marked "layer".
+
+### What M-A is
+
+The donor's standalone MoE file is the public file this log has measured against since
+2026-10-29 (vjeux/okc-2026 at f35a41e, scratchpad copy SHA256 10e0690d...) plus 137 diff lines:
+the KPERM3 permutation (the weight copy `_kperm_codes` / `_kperm_rows` 3223-3251 and 3258-3268,
+the x gather 2049-2055, the stage loop's scale load 2204-2212), a helper-warp source used only by
+its MID build (16 tokens), and a CUDA context bind around kernel_fn. The OKC_ flag sets differ by
+one flag (OKC_WSH0, MID only); the PRMT scale decode (OKC_PRMTSC) is already in the public file.
+The layer copy adds one build: `-DOKC_B4FIN=1` for 16 < M <= 32 (layer 3870, 5768-5786,
+6323-6378, dispatch 13097-13116). So every gap this log attributed "against the public kernel"
+is M-A's gap too, with KPERM3 and, in the layer at 17-32 tokens, B4FIN on top.
+
+A side finding for the layer owner: the F-LAYER-0 ABPOL lines show our layer running mode 47 at
+32 / 128 / 256 tokens (its _MOE1_VARIANTS ends at 47). Mode 51 is -3.9 / -4.4 us against 47 at
+128 / 256 tokens on held-out seeds (c6b0e500c3a84c9a) and has not been ported, so about 4 us of
+M-A's 21 us at verify 16 / 32 is already in hand (Port, below).
+
+### M-A against mode 51, mechanism by mechanism
+
+| # | mechanism | M-A (donor source) | mode 51 | tested by us |
+|---|---|---|---|---|
+| 1 | phase A partition | static cost-weighted stage ranges per CTA (`wgs_range`, tables OKC_WGSA / OKC_WGSB 1838-1839), about 1.85 cut units per CTA; a CTA runs its trailing cut unit first (`wgs_split`, OKC_WGSREORD, 1945-1953) so the share holding a unit's last stage runs early; cut units finish by last arrival (OKC_WGSDFIN = 2 sets the designated finisher for phase B only, 1855) | whole 16-stage units dealt in snake order by n-tile count, no cut, no fixup | 72 (stream-K A, last arrival: +6.6 to +13.5 us, 098949b28fe84bd1); 74 (designated finisher, the share ending last under our walk: +2.0 to +7.9, e02f60fec94f45cb). The donor's walk order (trailing cut share first) was not tested |
+| 2 | phase B partition | the same static ranges over phase B's cost prefix; the share holding stage 0 finishes the unit (designated, `wgs_flush` kind 3, 2113-2140) | whole units claimed at run time (ctr[10], S.bq) | only as mode 16 (both phases stream-K) on the 2026-10-29 stage loop, which lost to 20 and 23; never under 51's components |
+| 3 | readiness between phases | x producer spins on xready per job (phase A) and on doneAs >= 8 per (job, phase B stage) before each phase B stage's bulk copy (2011-2014) | the same granularity (done_as [job][16]) | same design |
+| 4 | rings and producers | 3 weights slots of 36 KB, 3 x slots, one producer warp each, lane 0 issues one cp.async.bulk per stage (1819-1820, producers 1955-2023) | 5, 4 or 3 weights slots by the largest job's N, 3 x slots, one producer thread each | same structure |
+| 5 | scale decode | KPERM3 makes k16 step j of every 4-step load group scale block 4 t + j of lane t, so one 8-byte scale load per stage and 4 bf16x2 scale pairs per stage (rows g and g + 8 in the two halves: one PRMT, one IMAD with an opaque 16 on the FMA pipe), applied by HMUL2 with half broadcasts (2204-2232) | our fat layout (repack_expert_fat, since mode 0) already gives each lane one scale block per 4-step chunk, two 4-byte scale loads per stage; but it builds each row's scale separately (8 PRMT + 8 LEA per stage) | not tested before: mode 76 |
+| 6 | weights slot release | lane 0 arrives after its warp's last code load, no `__syncwarp`, no proxy fence (2214) | every thread fences (fence.proxy.async.shared::cta) and arrives, count 512, behind group s = 10 | not adoptable: unproven under the PTX model ("Which public releases are provable", above) |
+| 7 | x tile publish | the gather and the phase A epilogue store xA / xB with generic stores; another CTA's cp.async.bulk reads them after ld.acquire with no fence.proxy.async on either side (gather stores 2061, epilogue store 2093, their releases 2066-2069, 2118-2122 and 2171-2172, copy 2018 after ld.acquire 2011 / 2014) | fence.proxy.async.global by every writer and by the issuer after its acquire | not adoptable: the 2026-10-29 proxy-ordering defect class ("Proxy ordering of the x tiles"); the donor's times understate a fenced version's |
+| 8 | phase A publish | deferred behind commit group 3 of the next segment's first stage (`wgs_flush` kind 1, OKC_WGSFCI) | right after the epilogue: bar.sync and one red.release (37) | 32-34: the deferral lost or tied (c7db20e053254b52) |
+| 9 | phase B epilogue and final pass from 64 tokens | y rows only; each route's sum of squares formed in the final pass, one token per item (OKC_WGSFINSS) | the same since 50 / 51 | adopted (51) |
+| 10 | final pass at 17-32 tokens (layer B4FIN) | the epilogue stores each route's sum of squares per (route, 16-row block): 256 fixed partials per route, no atomics; items (token, 1024 columns), 4 M items, sums in a fixed order (layer 5768-5786, 6323-6378) | below 64 tokens: 47's path, epilogue atomics into ss, items (token, 2048 columns), 2 M items | not tested before: mode 77 |
+| 11 | precision | gate, up and the GEMM2 output stay FP32 (2.35e-3 against FP32) | rounded to BF16 where SGLang rounds (3.88e-3) | ours kept |
+| 12 | spin timeouts | none | clock reads and a flag off the fast path | kept (the self-tests read ctr[8]) |
+
+Which of the five losing attempts on phase A at 128 / 256 tested what: 60 (the gather's
+per-thread fence) touches our side of item 7 only; 62-66 and 68-71 (phase A's last rounds claimed
+at run time) test a mechanism M-A does not have; 72 and 74 test item 1 with our walk order and
+51's dynamic phase B. None tested item 2 under a stream-K phase A, the donor's
+trailing-cut-share-first order, item 5's decode side or item 10.
+
+What the gap is made of (cross-run subtraction, a hypothesis, not a paired measurement): the
+public file trailed by -9.6 / -14.9 us at 128 / 256 tokens against 51 (3d8902381a194d56,
+standalone routing); the donor led our board file (47 at 128 / 256) by -13 / -24 there
+(218ff300de7d4c22), and 51 is -3.8 / -4.4 against 47 (c6b0e500c3a84c9a), so the donor leads 51 by
+about -9 / -20. KPERM3 over the public kernel is then worth about 0 at 128 and -5 at 256; the rest
+(about 10-15 us) is the public kernel's design, which earlier sections split into setup +4.3 /
++4.4 us, phase A +2.3 / +7.7, phase B +2.9 / +7.3 and tail +3.7 / +3.6 at 128 / 256 tokens
+(d47c78bdc130424b against 47; 51 has since closed the final pass and part of phase B). Items 6 and
+7 are part of that and stay out.
+
+### The change: modes 76 to 78
+
+Re-implemented in our code with attribution comments (`pair_sc`, `fin4`, `final_pass_part`); no
+donor line is copied.
+
+- 76 (pair_sc) is 51 with the paired-row scale decode on the wgmma stage loop: `scale_pair`
+  selects bytes b and b + 1 of the lane's scale word into the two halves of one word (one PRMT),
+  shifts and biases them as `scale_word` does (one LEA), and `dequant_pair` multiplies registers
+  0 and 2 by the low half and 1 and 3 by the high half. Each half is bit-for-bit the word
+  `scale_word` built (CPU check of all selector cases on 200,000 random words: 0 mismatches), so the
+  products and the outputs are 51's. Loads, waits, releases and fences are unchanged. The mma.sync
+  path (jobs of 1-2 n-tiles) keeps its decode.
+- 77 (fin4) is 51 with the B4FIN-style final pass below 64 tokens: epilogue_b stores each 16-column
+  sum of squares to slot (route, rb) of a partial buffer in ybuf's last 32 rows instead of the two
+  atomicAdds, and `final_pass_part` runs (token, 1024-column) items, warp w summing half w & 1 of
+  slot w >> 1's 256 partials (4 per lane, fixed xor tree), so every item of a token gets the same
+  sums. From 64 tokens up 77 is 51.
+- 78 is both.
+
+Ordering, 77 (76 changes no memory operation). The partials follow ybuf's chain: writer thread W's
+st.global of a partial precedes, in program order, W's arrival at the `__syncthreads` before the
+grid barrier; bar.sync synchronizes its participants at CTA scope (PTX ISA 8.9.4, 9.7.13.1), so
+the store precedes thread 0's `__threadfence` (fence.sc.gpu) and relaxed atomicAdd on the barrier
+counter, a release pattern at gpu scope (8.8); the reading CTA's thread 0 observes the count with
+ld.acquire.gpu, an acquire pattern that synchronizes with it (8.9.4), then `__syncthreads` again;
+the reader's ld.global.cg is after all of that in base causality order (8.9.5, transitive), so it
+reads the partial (8.10.6). Every slot a final pass reads is written in the same launch: each local
+route sits in one job, whose 16 phase B units each write rb = 16 u + 4 wg + w for all 16 warps,
+256 slots, through the same epilogue_b on the wgmma and mma.sync paths. `red` in shared memory
+alternates halves by item parity behind one named barrier per item, as `final_pass_ss`: the next
+item's writes to the other half come after every consumer warp passed this item's barrier, so
+after their reads of it. The rings are idle at that point (every bulk copy was waited on before the
+grid barrier), as for `final_pass_ss`; the same unproven step after a spin timeout applies. No
+fence, barrier or release of 51 is removed or moved; the partial buffer needs no reset (written
+before read in every launch that reads it).
+
+Local compile gate (nvcc 12.8.1 in Docker, sm_90a, `tools/moe_compile_fused.sh`, MAIN_MODES (0, 16,
+26, 28, 37, 47, 51, 76, 77, 78) against HEAD bc10cb1's (0, 16, 26, 28, 37, 47, 51)): modes 0, 16,
+26, 28, 37, 47, 51 and the four skinny kernels have identical instruction text; no C7510-C7515;
+76, 77, 78 at 96 registers with no stack frame and no spill. Stage loops 387 instructions for 51
+(393 for the widest), 379 / 385 for 76 and 78; 76 has 50 fewer PRMT and 24 fewer LEA than 51 over
+the kernel. MEMBAR 43, FENCE.VIEW.ASYNC.S 21, FENCE.VIEW.ASYNC.G 11, SYNCS 186, HGMMA 192 in all
+four; 77 and 78 have one more BAR (the final pass's named barrier) and 12 fewer ATOMG (the
+epilogue's sums). `tools/moe_dryrun.py` and `tools/moe_host_check.sh` pass. Profile:
+`muse_moe_w4a16/profiles/sass_mode76.2026-10-31.txt`.
+
+Expected effect (hypotheses): 76 removes 8 of about 387 instructions per stage (2%); if the stage
+loop is issue-bound that is up to 3 us at 256 tokens, and nothing if it is memory-bound. 77 acts at
+32 tokens only; 51's final pass there is about 2 us, so at most about 1 us. Neither closes the
+partition share of the gap (items 1-2), which is the next test (below).
+
+### Gate rule (set before the check is submitted)
+
+One check of `tools/moe_make_bench_ab.py OUT.py DONOR.py --base=51 --sizes=32,128,256
+--routings=layer,std,skewed --seeds=121,122,123,124,125,126 --gate=1 o76=76 o77=77 o78=78`, with
+the donor's exact standalone file in the public slot (its MAIN build, measurement only; the bench
+file stays in the scratchpad). Seeds 121-126 are new on every routing. "76 - 51" is the paired per-seed difference (negative = faster); counts are seeds lower of 6.
+
+Keep 76 only if all hold:
+1. 256 tokens: mean -1.0 us or lower on layer and on standalone routing, at least 5 of 6 seeds
+   lower on each, and 0 or lower on skewed.
+2. 128 tokens: mean -0.5 or lower on layer and standalone, +0.5 or lower on skewed.
+3. 32 tokens: +0.5 or lower on every routing.
+4. Output against 51 within 1e-5 relative L2 on every case (bit-identical products; only 51's own
+   atomic order at 32 tokens can differ).
+5. Prepare's FP32 self-test passes for 76 (no FAIL line, spin flags 0).
+6. The compile gate above holds on the checked commit.
+
+Keep 77 only if all hold:
+1. 32 tokens: mean -0.5 us or lower on layer and on standalone routing with at least 4 of 6 seeds
+   lower on each, and +0.3 or lower on skewed.
+2. 128 and 256 tokens (51's code there): mean +0.5 or lower on every routing.
+3. Output against 51 within 1e-4 relative L2 on every case.
+4. and 5. as 76's 5 and 6.
+
+78: if 76 and 77 are both kept, ship 78 when its mean is within +0.3 us of the better of 76 and
+77 at every size on layer and standalone routing, else ship the better single mode per the rules.
+If neither is kept, both go to docs/ruled-out.md scoped to these designs on 51. Budget: this
+gate check, then at most one check of the shippable file; the line stops at 3 checks.
+
+### First submission of the gate bench (check 5b2db8029f094a66): no A/B
+
+The bench's public prepare failed to build: `patch_public` empties MID_DEFINES, and the donor file
+appends to it afterwards (`MID_DEFINES += ("-DOKC_WSH0=1", "@helper0")`, a helper source for its
+16-token build), which left a MID build with only those defines; it did not compile and the A/B
+block stops on any exception. The judged path ran (2.205x, 2.172-2.238, passed; the prepare-time
+bench put 76 first at 128 and 256 tokens by 0.3 / 1.0 us, two synthetic routings, not a rule
+input). Fixes: the gate was re-sent with that one donor line removed in the scratchpad copy (it
+touches only the donor's 16-token build; its MAIN build, the arm timed here, is unchanged), and
+`tools/moe_make_bench_ab.py` now refuses a public file that extends an emptied build list.
+
+### Gate result (check 64254f49676c4ce6, bench at 5f19bc1)
+
+2.188x (2.155-2.221), passed, spin flags 0. Self-tests: 51, 76, 77, 78 all 3.89e-3 against FP32.
+Minus 51, us, same process, seeds 121-126 (count = seeds lower of 6); "donor" is the exact donor
+MAIN build (minus its MID helper line):
+
+| arm | 32 layer | 32 std | 32 skewed | 128 layer | 128 std | 128 skewed | 256 layer | 256 std | 256 skewed |
+|---|---|---|---|---|---|---|---|---|---|
+| 76 | -0.1 (3) | -0.1 (4) | -0.0 (3) | -0.6 (5) | -0.0 (3) | -0.3 (4) | -0.8 (6) | -0.5 (3) | -1.1 (6) |
+| 77 | -3.1 (6) | -1.8 (6) | -1.9 (6) | +0.7 (2) | -0.0 (4) | +0.4 (1) | +0.1 (3) | +0.5 (3) | +0.0 (3) |
+| 78 | -3.5 (6) | -2.4 (6) | -2.9 (6) | -0.4 (4) | -0.2 (4) | -0.3 (5) | -0.9 (6) | -1.0 (5) | -1.3 (6) |
+| donor | -2.3 (6) | -6.3 (6) | -10.4 (6) | -9.9 (6) | -13.4 (6) | -1.8 (4) | -22.5 (6) | -26.3 (6) | -6.5 (5) |
+
+Means of 51: 90.7 / 149.3 / 69.0 us at 32 tokens, 157.3 / 202.9 / 94.5 at 128, 223.0 / 247.3 /
+149.6 at 256 (layer / std / skewed). Outputs against 51: 0 (bit-identical) for 76, 77 and 78 at
+128 and 256 tokens on every seed; at 32 tokens 1e-7 to 4.7e-5 for all three, including 76, whose
+products are 51's: the difference there is 51's own FP32 atomics order in ss, which changes from
+call to call.
+
+Reading under the rule set before the check:
+- 76: rule 1 fails (256 tokens -0.8 / -0.5 us on layer / standalone, against -1.0; 3 of 6 lower on
+  standalone). Rule 4 also fails as written (3.5e-5 at 32 tokens against 1e-5), a badly set bound:
+  76's products are bit-identical (0 at 128 and 256) and the 32-token spread is 51's atomics.
+  Not kept. Measured: removing 8 of 387 instructions per stage gives 0.5-1.1 us at 256 tokens and
+  about 0.5 at 128, so the stage loop is close to issue-bound but the gain is small.
+- 77: rule 1 passes (32 tokens -3.1 / -1.8 / -1.9, 6 of 6 lower everywhere); rule 2 fails at 128
+  tokens on layer routing (+0.7 against +0.5, 2 of 6 lower), where 77 runs 51's code (the
+  difference is the larger kernel or noise; not separated). Not kept.
+- 78: the rule ships it only if 76 and 77 both pass. Not kept under this rule.
+- Measured, not a rule input: 78 is lower than 51 in all nine cells (-0.2 to -3.5 us, 4-6 of 6 seeds
+  lower in each), and at 32 tokens on layer routing it is 1.2 us under the donor's MAIN build
+  (87.1 against 88.3 us). The fin4 final pass carries the 32-token gain (-1.8 to -3.1 us, larger
+  than the 1 us expected: the epilogue's atomics as well as the item count); the scale pairs carry
+  the 256-token one.
+
+The donor's lead over 51 in this run: -2.3 / -6.3 us at 32 tokens, -9.9 / -13.4 at 128, -22.5 /
+-26.3 at 256 (layer / standalone). 78 takes 0.9-3.5 us of it.
+
+### Gate rule for 78 alone (set before its check; the new evidence is the table above)
+
+One check of `tools/moe_make_bench_ab.py OUT.py DONOR_MAIN_ONLY.py --base=51 --sizes=32,128,256
+--routings=layer,std,skewed --seeds=131,132,133,134,135,136 --gate=1 o78=78`; seeds 131-136 are new
+on every routing. Keep 78 only if all hold:
+
+1. 32 tokens: mean -1.0 us or lower on layer and on standalone routing, at least 5 of 6 seeds lower
+   on each, and 0 or lower on skewed.
+2. 128 tokens: mean +0.5 or lower on every routing.
+3. 256 tokens: mean 0 or lower on layer and standalone, +0.5 or lower on skewed.
+4. Output against 51: 0 at 128 and 256 tokens; within 1e-4 at 32.
+5. Prepare's FP32 self-test passes for 78 (no FAIL line, spin flags 0).
+6. The compile gate above holds on the checked commit.
+
+If all hold, 78 joins MAIN_MODES and MAIN_CANDIDATES and the file goes to the coordinator; if any
+fails, 78 goes to docs/ruled-out.md with 76 and 77. This is the line's third and last check.
+
+### Gate result for 78 (check c8fc5f669fa34d06, bench at 95c9848)
+
+2.194x (2.162-2.227), passed, spin flags 0; self-test 78 3.88e-3 (51: 3.88e-3). Minus 51, us,
+seeds 131-136 (count = seeds lower of 6):
+
+| arm | 32 layer | 32 std | 32 skewed | 128 layer | 128 std | 128 skewed | 256 layer | 256 std | 256 skewed |
+|---|---|---|---|---|---|---|---|---|---|
+| 78 | -2.6 (6) | -1.5 (5) | -3.1 (5) | -0.6 (4) | +0.6 (1) | -0.8 (5) | -0.6 (6) | -0.4 (5) | -1.3 (5) |
+| donor | -3.2 (5) | -8.7 (6) | -8.6 (6) | -11.6 (6) | -10.1 (6) | -2.4 (5) | -19.8 (6) | -20.1 (6) | -7.4 (6) |
+
+Means of 51: 90.8 / 145.0 / 70.5 us at 32 tokens (78: 88.1 / 143.5 / 67.4; donor 87.6 / 136.3 /
+61.9), 161.6 / 191.3 / 99.7 at 128, 218.5 / 236.7 / 163.3 at 256. Outputs against 51: 0 at 128 and
+256 on every seed, at most 3.8e-5 at 32.
+
+1. 32 tokens: -2.6 (6 of 6) / -1.5 (5 of 6) / -3.1. Pass.
+2. 128 tokens: +0.6 on standalone routing (1 of 6 lower), against +0.5. Fail.
+3. 256 tokens: -0.6 / -0.4 / -1.3. Pass.
+4. Outputs: pass. 5. Self-test: pass. 6. Compile gate (95c9848 has the device code of 45f990d plus a
+   comment): pass.
+
+Decision under the rule: 78 is not kept and goes to docs/ruled-out.md with 76 and 77. The line's
+three checks are spent (5b2db8029f094a66, 64254f49676c4ce6, c8fc5f669fa34d06).
+
+Reading (measured unless marked):
+- At 32 tokens the fin4 final pass is a gain in both runs: 77 / 78 against 51 -1.5 to -3.5 us on
+  every routing, 35 of 36 paired seeds lower. In the layer, which runs the fat path at 32 tokens
+  on judge-like routing, that is the size where a microsecond is worth most of the three.
+- At 128 tokens, where 77 and 78 run 51's code apart from the scale pairs, they sit +0.6 to +0.7
+  us above 51 in one routing per run (77 layer in the first, 78 standalone in the second) and
+  below it elsewhere. The cause is not separated (hypothesis: the larger kernel's instruction
+  layout, as 62 and 69 suggested; or noise of about that size).
+- Both rules judged a mode as a replacement for 51 at every size. The policy chooses per size, so
+  a mode that only acts below 64 tokens can be offered at 32 alone and never runs at 128. That
+  design (fin4 as a candidate restricted to M < 64, the donor's own B4FIN arrangement: a separate
+  build at 17-32 tokens) is the revisit trigger, with its own rule and fresh seeds.
+- The donor keeps its lead at 128 / 256 tokens (-10 to -20 us); 78 recovers 0.4-1.3 us of it. The
+  remaining gap is the partition (items 1 and 2) and the two unprovable orderings (items 6 and 7).
+
+### Next test: the partition share (items 1 and 2), not built
+
+What 72 and 74 left open is the combination M-A actually runs: stream-K in both phases, phase A
+walked trailing cut share first (so the share holding a unit's last stage runs early and the
+last-arrival finish lands on a share that started early), phase B finished by the share holding
+stage 0 at its CTA's end, and no run-time claims. 74's stamps showed the phase A end spread at the
+public kernel's level once a designated finisher was used, but route + setup grew 3.4-3.6 us and the
+mean CTA's phase A 1.3-5.6 us (fixups and a larger kernel). The donor's version carries no
+designation search at all: the finisher is fixed by position (stage 15 in phase A through the
+reorder, stage 0 in phase B), which is what 74's setup cost suggests to copy. Smallest coherent
+build: 72's phase A ranges with the donor's walk order and last arrival, plus static phase B ranges
+over the phase B cost prefix with a stage-0 finisher (16's phase B fixup with the count read only by
+that share), on 51's stage loop; a null arm with phase B kept on claims separates the two halves.
+Budget: two checks (diagnostic with stamps, then a gate), rule written first; reopen trigger for the
+whole family stays the one in docs/ruled-out.md.
+
+### Port (layer)
+
+1. The layer runs 47 at 32 / 128 / 256 tokens; 51 is in `tools/dl_moe_inline.py`'s LAYER_MODES and
+   MAIN_NAMES already. Re-running the inliner on this tree adds `('main-lean-grp-finss64', 'main',
+   'launch_main<51>')` to `_MOE1_VARIANTS` (checked on a scratch copy: 6,501 device lines, run twice
+   byte-identical). The layer's judge-like MoE bench then chooses between 47 and 51 per size.
+2. A kept 76 / 77 / 78 needs, in `tools/dl_moe_inline.py` (layer owner's file): its number in
+   LAYER_MODES and a MAIN_NAMES entry ("main-finss64-psc", "main-finss64-fin4",
+   "main-finss64-psc-fin4"), and in the standalone file MAIN_MODES and MAIN_CANDIDATES.
+3. 77 / 78 write ybuf's last 32 rows (kEmax - 32 .. kEmax - 1) below 64 tokens. The layer's MoE
+   scratch passes a ybuf of at least kEmax x kH floats (host check at moe_run), so the rows exist;
+   the layer owner must confirm nothing else in the layer uses those rows between the MoE's phase B
+   and its final pass (the MoE launch owns its scratch for its whole duration in the standalone).
+4. Validation before a check: inliner twice, Docker compile (`tools/dl_compile_check.sh`),
+   per-instance SASS fence / barrier / mbarrier / atomic counts equal to the standalone
+   (`tools/dl_moe_sass_counts.sh`), no new spills, and the layer self-test covering the new mode at
+   17-32 tokens (fin4 acts only below 64).
 
 ## Staged pair on current components, 2026-10-29
 

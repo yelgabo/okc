@@ -209,6 +209,10 @@ def patch_public(src, small=False, ranges=False, unitstamps=False, skew=False):
         src, n = re.subn(rf"^{name} = \(.*?\)\n(?=\S)", f"{name} = ()\n", src, count=1,
                          flags=re.S | re.M)
         assert n == 1, name
+        # A later `+=` re-enables the emptied build with only its extra defines, which does not
+        # compile, and the failed public prepare ends the whole A/B (check 5b2db8029f094a66, the
+        # donor file's MID_DEFINES += helper line).
+        assert not re.search(rf"^{name} \+=", src, flags=re.M), name
     pairs = [
         ("#define OKC_DEBUG 0\n", "#ifndef OKC_DEBUG\n#define OKC_DEBUG 0\n#endif\n"),
         ("    wgs_phase<true>(p, S, ring, S.wgr[2], S.wgr[3], seq);\n    DBG(3);\n",
