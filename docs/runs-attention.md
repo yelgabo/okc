@@ -3189,3 +3189,40 @@ producer (the public design; its producer-only pace is the measured target, 4.7 
 first by the producer-only probe and then by cold time; (2) the consumer half of the no-DRAM deficit
 (SASS of the mode 49 tile body against the public one, instruction by instruction on the path from the
 full-barrier wait to the empty arrive); (3) the input dependence of v16 full.
+
+## F-ATTN-0 (10-31): the complete donor attention file against our release
+
+Steering: docs/steering/2026-10-30-family-f-donor-baseline.md (F-ATTN, priority 0) and its parent
+donor-first report. Donor `alygg77/okc-muse-spark-kernels` at 6cae49a, `kernels/muse_attention_decode.py`
+(sha256 e6d929d4..., 3182 lines; its RESULTS.md: judge job 1c8d81a0dbd94ee0, 2.6530x, an archived
+donor result, not ours). The donor's attention file is vjeux's public file submitted unchanged:
+`diff` against our `pub` arm (sha1 0e9d4c78, the public kernel of every bench since d57d1fe064164611)
+shows only the two added attribution comment lines. So F0 for attention is the public kernel, and
+F0 vs our release is the comparison our scorecards have tracked (latest all-shape public lead about
+1%: rows listed in the round 3 ledger), now run under the F protocol. Our frozen release: board
+entry 1896e72c11ae4b0f, `submission.py` at a70192d (identical to main 15cc6b9's).
+
+Eligibility finding (for the coordinator): the F protocol says not to select favorable allocation
+layouts to improve a judged score. Our release's `_ONE_WS_PICK = 3` times three workspace
+allocations at state creation and keeps the fastest (measured 0.3-0.4 us at d1 full when the first
+allocation lands slow). That is an allocation-layout selection. This comparison therefore carries a
+release arm with the pick off (`_ONE_WS_PICK = 1`) so its weight in the result is visible; whether
+the release may keep it is a coordinator / user decision.
+
+### Decision rule (written before the check)
+
+Bench `bench_o` (`flat/gen_o.sh`; generated from the a70192d `submission.py`; `--null --shapes all
+--inputs 3 --rounds 150 --seed 20261101`): R1 `ctrl` and R2 `ctrl2` (the release, independent states),
+`rnp` (the release with `_ONE_WS_PICK = 1`, own state), D1 `pubf0` and D2 `pubf02` (the exact donor
+file, independent modules and workspaces). Cold medians pooled over three held-out inputs; the
+weighted standalone ratio is ABSCORE (prod over loads of C_ctrl / C_arm, ^(1/6)); warm (16 queued
+replays) reported alongside.
+
+- D wins overall if ABSCORE(pubf0) - 1 and ABSCORE(pubf02) - 1 both exceed |ABSCORE(ctrl2) - 1| +
+  |ABSCORE(pubf02) / ABSCORE(pubf0) - 1| and 0.3%, and ABCHECK passes for both D arms.
+- Per row, a side wins a shape if both D arms differ from both R arms in the same direction by more
+  than that row's larger null (|ctrl2 - ctrl|, |pubf02 - pubf0|). Rows won by each side define the F2
+  hybrid proposal (not built in this round).
+- Otherwise inconclusive. The judge checks of the exact files (two of F0, one or two of the
+  release) give the judged ratios; they are compared by the mean of each pair against the judge's
+  1-3% run-to-run spread, and decide nothing alone.
