@@ -828,6 +828,9 @@ def _ab_policy(ns, state):
         f"{k[3:]} " + v.replace("pref ", "").replace(" rounds 9", "")
         for k, v in sorted(state.get("stable_report", {}).items()) if k.startswith("m1 "))
         or "-")
+    # M-C C-1 at one token: the switch and its stable pick's paired saving (_mc1_tune).
+    put("mc1", lambda: f"on={int(bool(state.get('mc1_on')))} ok={int(bool(state.get('mc1_ok')))} "
+        + state.get("stable_report", {}).get("mc1 T=1", "-").replace("pref ", ""))
     # Layers with the attention workspace pick (tools/dl_one_port_patch.py) record it here; a
     # pick is per prepare, so the four arms differ by design.
     put("wspick", lambda: str((state.get("one") or {}).get("ws_pick", "-")))
