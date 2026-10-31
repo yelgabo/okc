@@ -99,6 +99,7 @@ SGLang with its 95% interval. Profiles and logs are in `muse_moe_w4a16/profiles/
 | 2026-10-30 | e02f60fec94f45cb (scored run submitted by the coordinator, bench file from tools/moe_make_bench_ab.py --nopub=1 --base=51 --sizes=32,128,256 --routings=layer,std --seeds=107,108,109,110,111,112 o74=74, no public code, judged path the board dispatch, not committed) | 4187b8b | corrected mode 74 (fast SiLU, lane-parallel designation) | 2.197x (2.164-2.230) | 74 minus 51, us: +7.9 / +7.6 at 32, +4.6 / +7.4 at 128, +2.0 / +4.1 at 256 (layer / std; 0, 0, 0, 1, 1, 1 of 6 lower). A end spread 6.6-8.3 at 128 / 256 against 55's 10.9-19.5; fixups 3.9-4.5 us per CTA; route + setup still +3.4-3.6 us over 55. Rule failed; no gate; family parked |
 | 2026-10-31 | 5b2db8029f094a66 (check, bench file from tools/moe_make_bench_ab.py --base=51 --sizes=32,128,256 --routings=layer,std,skewed --seeds=121,...,126 --gate=1 o76=76 o77=77 o78=78 with the donor's standalone file as the public arm, not committed) | 45f990d | gate of 76-78 (rule committed in 45f990d) | 2.205x (2.172-2.238) | passed; no A/B: the donor's `MID_DEFINES +=` line re-enabled the MID build the tool empties and its build failed, which stops the A/B block. Prepare bench (synthetic) put 76 first at 128 / 256. Section "Donor MoE (M-A) against mode 51" |
 | 2026-10-31 | 64254f49676c4ce6 (check, the same bench with that donor line removed, not committed) | 5f19bc1 | gate of 76-78 against 51, donor MAIN build as the public arm | 2.188x (2.155-2.221) | passed; spin flags 0. Minus 51 at 32 / 128 / 256, layer: 76 -0.1 / -0.6 / -0.8, 77 -3.1 / +0.7 / +0.1, 78 -3.5 / -0.4 / -0.9, donor -2.3 / -9.9 / -22.5; std: 76 -0.1 / -0.0 / -0.5, 77 -1.8 / -0.0 / +0.5, 78 -2.4 / -0.2 / -1.0, donor -6.3 / -13.4 / -26.3. 76 failed rule 1, 77 rule 2 (+0.7 at 128 layer), so 78 was not shipped under the rule; 78 lower than 51 in all nine cells. Outputs 0 at 128 / 256. Section "Donor MoE (M-A) against mode 51" |
+| 2026-10-31 | c8fc5f669fa34d06 (check, bench file from tools/moe_make_bench_ab.py --base=51 --sizes=32,128,256 --routings=layer,std,skewed --seeds=131,...,136 --gate=1 o78=78, donor MAIN build as the public arm, not committed) | 95c9848 | 78's own gate (rule committed in 95c9848) | 2.194x (2.162-2.227) | passed; spin flags 0. 78 minus 51 at 32 / 128 / 256: layer -2.6 / -0.6 / -0.6, std -1.5 / +0.6 / -0.4, skewed -3.1 / -0.8 / -1.3; donor minus 51 layer -3.2 / -11.6 / -19.8, std -8.7 / -10.1 / -20.1. Rule 2 failed (+0.6 at 128 std, limit +0.5): 78 not kept. Outputs 0 at 128 / 256. Section "Donor MoE (M-A) against mode 51" |
 
 ## Why the layer keeps the W4 chain at 128 tokens, 2026-10-29
 
@@ -3322,6 +3323,78 @@ on every routing. Keep 78 only if all hold:
 
 If all hold, 78 joins MAIN_MODES and MAIN_CANDIDATES and the file goes to the coordinator; if any
 fails, 78 goes to docs/ruled-out.md with 76 and 77. This is the line's third and last check.
+
+### Gate result for 78 (check c8fc5f669fa34d06, bench at 95c9848)
+
+2.194x (2.162-2.227), passed, spin flags 0; self-test 78 3.88e-3 (51: 3.88e-3). Minus 51, us,
+seeds 131-136 (count = seeds lower of 6):
+
+| arm | 32 layer | 32 std | 32 skewed | 128 layer | 128 std | 128 skewed | 256 layer | 256 std | 256 skewed |
+|---|---|---|---|---|---|---|---|---|---|
+| 78 | -2.6 (6) | -1.5 (5) | -3.1 (5) | -0.6 (4) | +0.6 (1) | -0.8 (5) | -0.6 (6) | -0.4 (5) | -1.3 (5) |
+| donor | -3.2 (5) | -8.7 (6) | -8.6 (6) | -11.6 (6) | -10.1 (6) | -2.4 (5) | -19.8 (6) | -20.1 (6) | -7.4 (6) |
+
+Means of 51: 90.8 / 145.0 / 70.5 us at 32 tokens (78: 88.1 / 143.5 / 67.4; donor 87.6 / 136.3 /
+61.9), 161.6 / 191.3 / 99.7 at 128, 218.5 / 236.7 / 163.3 at 256. Outputs against 51: 0 at 128 and
+256 on every seed, at most 3.8e-5 at 32.
+
+1. 32 tokens: -2.6 (6 of 6) / -1.5 (5 of 6) / -3.1. Pass.
+2. 128 tokens: +0.6 on standalone routing (1 of 6 lower), against +0.5. Fail.
+3. 256 tokens: -0.6 / -0.4 / -1.3. Pass.
+4. Outputs: pass. 5. Self-test: pass. 6. Compile gate (95c9848 has the device code of 45f990d plus a
+   comment): pass.
+
+Decision under the rule: 78 is not kept and goes to docs/ruled-out.md with 76 and 77. The line's
+three checks are spent (5b2db8029f094a66, 64254f49676c4ce6, c8fc5f669fa34d06).
+
+Reading (measured unless marked):
+- At 32 tokens the fin4 final pass is a gain in both runs: 77 / 78 against 51 -1.5 to -3.5 us on
+  every routing, 35 of 36 paired seeds lower. In the layer, which runs the fat path at 32 tokens
+  on judge-like routing, that is the size where a microsecond is worth most of the three.
+- At 128 tokens, where 77 and 78 run 51's code apart from the scale pairs, they sit +0.6 to +0.7
+  us above 51 in one routing per run (77 layer in the first, 78 standalone in the second) and
+  below it elsewhere. The cause is not separated (hypothesis: the larger kernel's instruction
+  layout, as 62 and 69 suggested; or noise of about that size).
+- Both rules judged a mode as a replacement for 51 at every size. The policy chooses per size, so
+  a mode that only acts below 64 tokens can be offered at 32 alone and never runs at 128. That
+  design (fin4 as a candidate restricted to M < 64, the donor's own B4FIN arrangement: a separate
+  build at 17-32 tokens) is the revisit trigger, with its own rule and fresh seeds.
+- The donor keeps its lead at 128 / 256 tokens (-10 to -20 us); 78 recovers 0.4-1.3 us of it. The
+  remaining gap is the partition (items 1 and 2) and the two unprovable orderings (items 6 and 7).
+
+### Next test: the partition share (items 1 and 2), not built
+
+What 72 and 74 left open is the combination M-A actually runs: stream-K in both phases, phase A
+walked trailing cut share first (so the share holding a unit's last stage runs early and the
+last-arrival finish lands on a share that started early), phase B finished by the share holding
+stage 0 at its CTA's end, and no run-time claims. 74's stamps showed the phase A end spread at the
+public kernel's level once a designated finisher was used, but route + setup grew 3.4-3.6 us and the
+mean CTA's phase A 1.3-5.6 us (fixups and a larger kernel). The donor's version carries no
+designation search at all: the finisher is fixed by position (stage 15 in phase A through the
+reorder, stage 0 in phase B), which is what 74's setup cost suggests to copy. Smallest coherent
+build: 72's phase A ranges with the donor's walk order and last arrival, plus static phase B ranges
+over the phase B cost prefix with a stage-0 finisher (16's phase B fixup with the count read only by
+that share), on 51's stage loop; a null arm with phase B kept on claims separates the two halves.
+Budget: two checks (diagnostic with stamps, then a gate), rule written first; reopen trigger for the
+whole family stays the one in docs/ruled-out.md.
+
+### Port (layer)
+
+1. The layer runs 47 at 32 / 128 / 256 tokens; 51 is in `tools/dl_moe_inline.py`'s LAYER_MODES and
+   MAIN_NAMES already. Re-running the inliner on this tree adds `('main-lean-grp-finss64', 'main',
+   'launch_main<51>')` to `_MOE1_VARIANTS` (checked on a scratch copy: 6,501 device lines, run twice
+   byte-identical). The layer's judge-like MoE bench then chooses between 47 and 51 per size.
+2. A kept 76 / 77 / 78 needs, in `tools/dl_moe_inline.py` (layer owner's file): its number in
+   LAYER_MODES and a MAIN_NAMES entry ("main-finss64-psc", "main-finss64-fin4",
+   "main-finss64-psc-fin4"), and in the standalone file MAIN_MODES and MAIN_CANDIDATES.
+3. 77 / 78 write ybuf's last 32 rows (kEmax - 32 .. kEmax - 1) below 64 tokens. The layer's MoE
+   scratch passes a ybuf of at least kEmax x kH floats (host check at moe_run), so the rows exist;
+   the layer owner must confirm nothing else in the layer uses those rows between the MoE's phase B
+   and its final pass (the MoE launch owns its scratch for its whole duration in the standalone).
+4. Validation before a check: inliner twice, Docker compile (`tools/dl_compile_check.sh`),
+   per-instance SASS fence / barrier / mbarrier / atomic counts equal to the standalone
+   (`tools/dl_moe_sass_counts.sh`), no new spills, and the layer self-test covering the new mode at
+   17-32 tokens (fin4 acts only below 64).
 
 ## Staged pair on current components, 2026-10-29
 
