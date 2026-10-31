@@ -1,0 +1,118 @@
+-01,1e+00) elem:R(2e-03,2e-01); stream none:pass(1e-04,3e-03) tile:R(2e-01,1e+00) 1%:R(1e-01,1e+00) 0.1%:R(4e-02,1e+00) row:R(3e-01,1e+00) elem:R(2e-03,2e-01)
+ABCAND gate_negctl m1 32x1s hidden none:pass(1e-04,4e-03) tile:R(2e-01,2e+00) 1%:R(1e-01,1e+00) 0.1%:R(4e-02,1e+00) row:R(2e-01,1e+00) elem:R(2e-03,2e-01); stream none:pass(9e-05,3e-03) tile:R(2e-01,1e+00) 1%:R(1e-01,1e+00) 0.1%:R(4e-02,1e+00) row:R(2e-01,1e+00) elem:R(3e-03,4e-01)
+ABCAND gate_negctl m1 32x1f hidden none:pass(1e-04,4e-03) tile:R(2e-01,1e+00) 1%:R(1e-01,1e+00) 0.1%:R(4e-02,9e-01) row:R(2e-01,1e+00) elem:R(7e-03,8e-01); stream none:pass(8e-05,3e-03) tile:R(2e-01,1e+00) 1%:R(1e-01,1e+00) 0.1%:R(4e-02,1e+00) row:R(2e-01,1e+00) elem:R(2e-03,2e-01)
+ABCAND manifest moe checked 11 rejected none; route gates ok 8/8; failures reference 0 replay 0 nonfinite 0 workspace 0 sensitivity 2 other 0
+ABCAND failed [sensitivity] moe main-d2 T=256: negative controls ['elem']
+ABCAND failed [sensitivity] moe main-d2 T=256: negative controls ['elem']
+ABKN K0 cgemv40_kernel<256,2>
+ABKN K1 one::attn_one_kernel<1,13>
+ABKN K2 cgemv_kernel<64,1>
+ABKN K3 bnd::attn_boundary_kernel
+ABKN K4 cgemv_kernel<512,1>
+ABKN K5 pre_norm_kernel<__nv_bfloat16>
+ABKN K6 router_kernel<1>
+ABKN K7 muse_spark::routing_kernel<muse_spark::R
+ABKN K8 moe1::sk_8_3_0::moe_fused_kernel<1>
+ABKN K9 cgemv40_kernel<128,2>
+ABKN K10 bnd::boundary_kernel
+ABKN K11 one::attn_one_kernel<1,11>
+ABKN K12 sk_kernel<1,16,3,1,4,2,5,true,false,1,1,
+ABKN K13 one::attn_one_kernel<1,1>
+ABKN K14 sk_kernel<1,16,2,2,2,2,3,true,false,1,1,
+ABKN K15 sk_kernel<1,16,2,2,2,4,4,true,false,1,1,
+ABKN K16 route_kernel<__nv_bfloat16,false>
+ABKN K17 muse_spark_norm_residual_kernel<8192l,25
+ABKN K18 one::attn_one_kernel<1,49>
+ABKN K19 sk_kernel<2,32,3,1,4,2,4,true,false,1,1,
+ABKN K20 sk_kernel<2,32,2,2,2,2,3,true,false,1,1,
+ABKN K21 nvjet_sm90_tss_64x32_64x16_4x1_v_bz_spli
+ABKN K22 cublasLt::splitKreduce_kernel<32,16,int,
+ABKN K23 route_kernel<float,true>
+ABKN K24 moe1::moe_main_kernel<47>
+ABKN K25 sk_kernel<2,32,2,2,2,4,3,true,false,1,1,
+ABKN K26 moe1::moe_main_kernel<51>
+ABKN K27 sk_kernel<1,8,3,1,4,4,4,true,false,1,1,_
+ABKN K28 one::attn_one_kernel<8,15>
+ABKN K29 sk_kernel<1,8,4,1,4,1,4,true,false,1,1,_
+ABKN K30 sk_kernel<1,8,1,2,2,4,3,true,false,1,1,_
+ABKN K31 sk_kernel<1,8,1,1,8,2,4,true,false,1,1,_
+ABKN K32 one::attn_one_kernel<8,11>
+ABKN K33 wd_kernel<1,128,3,1,false,8,__nv_bfloat1
+ABKN K34 one::attn_one_kernel<8,3>
+ABKN K35 nvjet_sm90_tst_128x64_64x8_1x2_h_bz_TNT
+ABKN K36 nvjet_sm90_tss_96x64_64x10_4x2_h_bz_TNN
+ABKN K37 one::attn_one_kernel<8,51>
+ABKN K38 nvjet_sm90_tst_96x64_64x10_2x4_h_bz_TNN
+ABKN K39 nvjet_sm90_tst_128x128_64x6_2x1_v_bz_TNT
+ABKN K40 muse_spark_norm_residual_kernel<8192l,51
+ABKN K41 nvjet_sm90_tss_80x128_64x8_4x2_h_bz_TNN
+ABKN K42 bnd::attn_boundary_geo_kernel<1,512>
+ABK d1s inc span 93.4 sum 92.4: K0 10.7 K1 5.3 K2 5.5 K3 4.2 K4 16.0 K5 2.2 K6 5.1 K7 4.2 K8 31.8 K9 3.6 K10 3.9
+ABK d1s cand span 88.7 sum 104.6: K0 10.7 K1 5.4 K2 5.4 K3 5.8 K6 8.8 K7 10.6 K4 16.6 K5 1.5 K8 32.3 K9 3.6 K10 4.1
+ABK d1f inc span 109.3 sum 107.6: K0 10.6 K11 13.6 K2 6.0 K3 4.0 K4 15.9 K5 1.9 K6 5.1 K7 4.2 K8 39.2 K9 3.5 K10 3.7
+ABK d1f cand span 102.4 sum 117.7: K0 10.5 K11 13.0 K2 5.9 K3 5.6 K6 8.6 K7 10.1 K4 16.3 K5 1.6 K8 39.0 K9 3.4 K10 3.7
+ABK d16s inc span 155.1 sum 154.6: K12 12.9 K13 10.3 K14 21.4x2 K3 4.2 K15 21.2 K16 4.7 K8 75.5 K17 4.5
+ABK d16s cand span 151.6 sum 157.1: K12 12.7 K13 10.6 K14 24.6x2 K17 8.2x2 K15 20.8 K16 4.6 K8 75.5
+ABK d16f inc span 224.4 sum 224.5: K12 12.5 K18 92.5 K14 20.0x2 K3 4.0 K15 18.8 K16 4.7 K8 67.6 K17 4.4
+ABK d16f cand span 223.9 sum 232.5: K12 13.0 K18 92.4 K14 27.6x2 K17 8.0x2 K15 18.9 K16 4.7 K8 67.9
+ABK d32s inc span 170.1 sum 172.7: K19 13.9 K13 12.5 K20 22.9x2 K17 8.4x2 K21 22.9 K22 2.4 K23 5.5 K24 84.2
+ABK d32s cand span 164.8 sum 171.0: K19 14.0 K13 13.1 K20 25.2x2 K17 8.5x2 K25 22.2 K16 5.4 K26 82.6
+ABK d32f inc span 343.4 sum 345.4: K19 13.9 K18 172.7 K20 21.9x2 K17 8.3x2 K21 22.8 K22 2.3 K23 5.2 K24 98.3
+ABK d32f cand span 339.9 sum 352.5: K19 13.9 K18 173.1 K20 31.1x2 K17 8.3x2 K25 21.7 K16 5.3 K26 99.2
+ABK v1s inc span 147.1 sum 147.2: K27 13.1 K28 6.6 K29 6.9 K3 4.0 K30 21.2 K16 4.7 K8 82.8 K31 4.3 K10 3.7
+ABK v1s cand span 145.3 sum 157.1: K27 12.8 K28 8.6 K29 11.6 K3 4.8 K30 23.7 K16 4.9 K8 82.0 K31 4.6 K10 4.0
+ABK v1f inc span 140.2 sum 139.6: K27 12.8 K32 15.1 K29 6.9 K3 4.0 K30 19.7 K16 4.7 K8 68.2 K31 4.3 K10 3.8
+ABK v1f cand span 138.7 sum 145.0: K27 12.7 K32 15.4 K29 9.0 K3 4.8 K30 22.0 K16 4.6 K8 68.0 K31 4.5 K10 3.9
+ABK v16s inc span 288.9 sum 288.7: K33 16.2 K34 11.7 K35 30.9x2 K17 10.3x2 K36 27.6 K23 4.8 K24 187.3
+ABK v16s cand span 281.1 sum 280.8: K33 16.1 K34 11.5 K35 30.6x2 K17 10.4x2 K36 27.5 K23 4.8 K26 179.9
+ABK v16f inc span 383.1 sum 383.7: K33 16.2 K37 109.8 K35 29.8x2 K17 9.7x2 K36 26.6 K23 4.8 K24 186.9
+ABK v16f cand span 378.1 sum 378.0: K33 16.0 K37 108.9 K35 29.8x2 K17 9.8x2 K36 26.6 K23 4.9 K26 182.1
+ABK v32s inc span 333.2 sum 331.1: K38 25.1 K34 15.8 K39 35.9x2 K40 16.0x2 K41 33.5 K23 5.2 K24 199.6
+ABK v32s cand span 334.7 sum 332.3: K38 24.9 K34 16.1 K39 35.6x2 K42 7.6 K41 33.4 K23 5.1 K26 201.9 K40 7.6
+ABK v32f inc span 499.8 sum 497.9: K38 25.1 K37 181.6 K39 36.7x2 K40 16.0x2 K41 32.4 K23 5.2 K24 200.8
+ABK v32f cand span 497.6 sum 495.3: K38 24.9 K37 182.2 K39 36.0x2 K42 7.3 K41 32.5 K23 5.1 K26 199.6 K40 7.6
+ABPIN inc sha256 b9c23bda16bb9d6311f025062e415841c67b16284737172badaa190fdc506a49 git-blob a891f169e73a100eaaf64e3efc70bd4758f05f5e as read (submission.py); comment-stripped and patched as sent: sha256 84b4cc1e885a315dc0769c28a36b1d777a893e32615f5f3258ee2019b31f185a git-blob 6ac7ab6564fd566f689139ba6c77f7410f6ed069
+ABPIN cand sha256 1eda8ec96ded87b1298a8fed54e93583db73b85894eb1400fe4639680659d801 git-blob c222a4ff02f7ef3614c7c900bbdf316e75983542 (layer_m1rt51c.py); comment-stripped as sent: sha256 1c0c409716467eb7cfe6ba42563dbceb10b881baa086b08560c3abbdf35f91de git-blob b716b6318c300d05d6efcb00005050ce71fc88ad
+ABDIAG cand attention fallback on fresh rows vs FP32: 1x1s ours 1.63e-03 sglang 5.21e-02 ours-vs-sglang 5.20e-02; 1x8s ours 3.63e-02 sglang 4.06e-02 ours-vs-sglang 3.09e-02; 1x1f ours 1.75e-03 sglang 6.75e-03 ours-vs-sglang 7.14e-03; 1x8f ours 1.76e-02 sglang 2.19e-02 ours-vs-sglang 1.46e-02; attn_one_ours=1
+ABPREP order inc2 inc cand2 cand (dup own, seed 61)
+ABPREP inc2 19 s
+ABPREP inc 17 s
+ABPREP cand2 67 s
+ABPREP cand 67 s
+ABPREP all at 170 s
+ABEND prepare at 173 s
+ABCHK inc 24 of 24 PASS; shapes with a FAIL 0
+ABCHK inc2 24 of 24 PASS; shapes with a FAIL 0
+ABCHK cand 24 of 24 PASS; shapes with a FAIL 0
+ABCHK cand2 24 of 24 PASS; shapes with a FAIL 0
+ABPOS dev by position in the round: inc: p0 +0.02% (53) p1 -0.05% (55) p2 +0.01% (46) p3 +0.04% (38) | inc2: p0 +0.02% (45) p1 +0.03% (42) p2 +0.00% (57) p3 -0.03% (48) | cand: p0 -0.18% (53) p1 +0.10% (45) p2 -0.00% (43) p3 +0.06% (51) | cand2: p0 -0.03% (41) p1 -0.08% (50) p2 +0.02% (46) p3 +0.08% (55)
+ABPRED dev from the arm's per-input median by the arm replayed before it: inc: cand +0.06% (64) cand2 -0.03% (49) first +1.49% (10) inc -0.31% (10) inc2 +0.00% (59) | inc2: cand +0.00% (55) cand2 -0.06% (68) first +2.05% (7) inc +0.05% (51) inc2 -0.02% (11) | cand: cand -0.11% (16) cand2 -0.01% (56) first +0.72% (4) inc +0.01% (62) inc2 +0.02% (54) | cand2: cand -0.08% (52) cand2 +0.00% (11) first +0.08% (3) inc +0.01% (64) inc2 +0.02% (62)
+ABTWIN inc after inc2 minus after others +0.04%; inc2 after inc minus after others +0.09%; cand after cand2 minus after others -0.01%; cand2 after cand minus after others -0.09%
+ABPOL moe DIFF: inc 1:sk8w3s 8:sk8w3s 16:sk8w3s 32:main-lean-grp-nohoist 128:main-lean-grp-nohoist 256:main-lean-grp-nohoist | inc2 1:sk8w3s 8:sk8w3s 16:sk8w3s 32:main-lean-grp-nohoist 128:main-lean-grp-nohoist 256:main-lean-grp-nohoist | cand 1:sk8w3s 8:sk8w3s 16:sk8w3s 32:main-lean-grp-finss64 128:main-lean-grp-finss64 256:main-lean-grp-finss64 | cand2 1:sk8w3s 8:sk8w3s 16:sk8w3s 32:main-lean-grp-finss64 128:main-lean-grp-finss64 256:main-lean-grp-finss64
+ABPOL w4 DIFF: inc 1:27/21 8:26/24 16:26/28 32:26/28 128:4/29 256:30/29 | inc2 1:27/21 8:2/24 16:26/28 32:26/28 128:4/29 256:30/29 | cand 1:27/21 8:26/24 16:26/11 32:26/28 128:4/29 256:30/29 | cand2 1:17/21 8:2/24 16:17/28 32:26/28 128:4/29 256:30/29
+ABPOL front DIFF: inc 1:fp32 8:skf-r 16:skf-r 32:concat-r 128:concat-r 256:concat-r | inc2 1:fp32 8:skf-r 16:skf-r 32:skf-r 128:concat-r 256:concat-r | cand 1:fp32 8:skf-r 16:skf-r 32:skf-r 128:concat-r 256:concat-r | cand2 1:fp32 8:skf-r 16:skf-r 32:skf-r 128:concat-r 256:concat-r
+ABPOL abnd DIFF: inc 1:c8x256 8:c8x256 16:c8x256 32:sglang 128:sglang 256:sglang | inc2 1:c8x256 8:c8x256 16:sglang 32:sglang 128:sglang 256:c1x512 | cand 1:c8x256 8:c8x256 16:sglang 32:sglang 128:sglang 256:c1x512 | cand2 1:c8x256 8:c8x256 16:sglang 32:sglang 128:sglang 256:c1x512
+ABPOL skp same: o1:cgemv o2:o8 o3:o8 o4:o8 o5:o8 o6:o8 o7:o8 o8:o8 o9:o16 o10:o16 o11:o16 o12:o16 o13:o16 o14:o16 o15:o16 o16:o16 o17:o32 o18:o32 o19:o32 o20:o32 o21:o32 o22:o32 o23:o32 o24:o32 o25:o32 o26:o32 o27:o32 o28:o32 o29:o32 o30:o32 o31:o32 o32:o32 p1:cgemv p2:pool8 p3:pool8 p4:pool8 p5:pool8 p6:pool8 p7:pool8 p8:pool8 p9:pool16 p10:pool16 p11:pool16 p12:pool16 p13:pool16 p14:pool16 p15:pool16 p16:pool16 p17:pool32 p18:pool32 p19:pool32 p20:pool32 p21:pool32 p22:pool32 p23:pool32 p24:pool32 p25:pool32 p26:pool32 p27:pool32 p28:pool32 p29:pool32 p30:pool32 p31:pool32 p32:pool32 q1:cgemv q2:qkv8 q3:qkv8 q4:qkv8 q5:qkv8 q6:qkv8 q7:qkv8 q8:qkv8 q9:qkv16 q10:qkv16 q11:qkv16 q12:qkv16 q13:qkv16 q14:qkv16 q15:qkv16 q16:qkv16 q17:qkv32 q18:qkv32 q19:qkv32 q20:qkv32 q21:qkv32 q22:qkv32 q23:qkv32 q24:qkv32 q25:qkv32 q26:qkv32 q27:qkv32 q28:qkv32 q29:qkv32 q30:qkv32 q31:qkv32 q32:qkv32 u1:cgemv u2:slice8 u3:slice8 u4:slice8 u5:slice8 u6:slice8 u7:slice8 u8:slice8 u9:unp16 u10:unp16 u11:unp16 u12:unp16 u13:unp16 u14:unp16 u15:unp16 u16:unp16 u17:unp32 u18:unp32 u19:unp32 u20:unp32 u21:unp32 u22:unp32 u23:unp32 u24:unp32 u25:unp32 u26:unp32 u27:unp32 u28:unp32 u29:unp32 u30:unp32 u31:unp32 u32:unp32
+ABPOL wide same: pooler:b1n128c2s8h qkv_gate:b1n128c3s8h
+ABPOL m1 DIFF: inc none | inc2 none | cand {8: 'o+front', 16: 'o', 32: 'o+front'} | cand2 {8: 'o+front', 16: 'o', 32: 'o'}
+ABPOL stages same: 11111111111111
+ABTIME d1s inc 92.3 inc2 87.9 cand 88.0 cand2 88.4 | paired cand-inc -4.6 cand2-inc -4.0 cand-inc2 -0.6 cand2-inc2 +0.2 | null inc2-inc -3.8 cand2-cand +0.7 (n=16)
+ABTIME d1f inc 104.5 inc2 99.6 cand 98.7 cand2 99.1 | paired cand-inc -5.0 cand2-inc -5.6 cand-inc2 -0.3 cand2-inc2 -0.6 | null inc2-inc -4.8 cand2-cand -0.1 (n=16)
+ABTIME d16s inc 160.9 inc2 159.7 cand 158.0 cand2 158.5 | paired cand-inc -2.2 cand2-inc -2.1 cand-inc2 -1.3 cand2-inc2 -1.1 | null inc2-inc -1.0 cand2-cand +0.4 (n=16)
+ABTIME d16f inc 226.3 inc2 223.4 cand 223.1 cand2 223.5 | paired cand-inc -0.5 cand2-inc -0.3 cand-inc2 +0.1 cand2-inc2 -0.3 | null inc2-inc -0.5 cand2-cand -0.1 (n=16)
+ABTIME d32s inc 191.5 inc2 186.3 cand 185.5 cand2 184.6 | paired cand-inc -5.3 cand2-inc -6.7 cand-inc2 +0.4 cand2-inc2 -1.2 | null inc2-inc -5.3 cand2-cand -0.4 (n=16)
+ABTIME d32f inc 335.0 inc2 331.1 cand 331.2 cand2 330.3 | paired cand-inc -3.2 cand2-inc -3.0 cand-inc2 +0.5 cand2-inc2 +0.4 | null inc2-inc -3.7 cand2-cand -0.2 (n=16)
+ABTIME v1s inc 139.2 inc2 140.4 cand 137.0 cand2 137.6 | paired cand-inc -2.1 cand2-inc -1.7 cand-inc2 -2.3 cand2-inc2 -1.8 | null inc2-inc +0.2 cand2-cand +0.1 (n=16)
+ABTIME v1f inc 135.5 inc2 136.0 cand 135.1 cand2 134.4 | paired cand-inc -1.2 cand2-inc -0.9 cand-inc2 -1.3 cand2-inc2 -1.0 | null inc2-inc +0.2 cand2-cand +0.4 (n=16)
+ABTIME v16s inc 281.4 inc2 282.0 cand 279.0 cand2 281.4 | paired cand-inc -2.7 cand2-inc -1.9 cand-inc2 -2.6 cand2-inc2 -2.5 | null inc2-inc +0.0 cand2-cand +1.6 (n=16)
+ABTIME v16f inc 363.7 inc2 364.2 cand 358.2 cand2 357.6 | paired cand-inc -5.4 cand2-inc -5.1 cand-inc2 -6.9 cand2-inc2 -7.3 | null inc2-inc +0.8 cand2-cand +0.5 (n=16)
+ABTIME v32s inc 325.4 inc2 325.6 cand 323.7 cand2 322.4 | paired cand-inc -3.0 cand2-inc -2.9 cand-inc2 -2.5 cand2-inc2 -3.9 | null inc2-inc +0.6 cand2-cand -1.1 (n=16)
+ABTIME v32f inc 501.2 inc2 500.8 cand 498.5 cand2 497.3 | paired cand-inc -3.1 cand2-inc -3.9 cand-inc2 -2.8 cand2-inc2 -3.6 | null inc2-inc -0.7 cand2-cand -0.4 (n=16)
+ABLOAD d1 (46 sliding + 16 full) / 62: inc 95.5 inc2 90.9 cand 90.7 cand2 91.2 | cross inc/cand 1.0520 inc/cand2 1.0470 inc2/cand 1.0020 inc2/cand2 0.9972 pooled 1.0242 | null inc2/inc 0.9525 cand2/cand 1.0048
+ABLOAD d16 (46 sliding + 16 full) / 62: inc 177.8 inc2 176.1 cand 174.8 cand2 175.2 | cross inc/cand 1.0172 inc/cand2 1.0145 inc2/cand 1.0078 inc2/cand2 1.0051 pooled 1.0111 | null inc2/inc 0.9907 cand2/cand 1.0027
+ABLOAD d32 (46 sliding + 16 full) / 62: inc 228.5 inc2 223.7 cand 223.1 cand2 222.2 | cross inc/cand 1.0242 inc/cand2 1.0284 inc2/cand 1.0025 inc2/cand2 1.0066 pooled 1.0154 | null inc2/inc 0.9788 cand2/cand 0.9959
+ABLOAD v1 (46 sliding + 16 full) / 62: inc 138.2 inc2 139.2 cand 136.5 cand2 136.8 | cross inc/cand 1.0128 inc/cand2 1.0107 inc2/cand 1.0203 inc2/cand2 1.0182 pooled 1.0155 | null inc2/inc 1.0075 cand2/cand 1.0021
+ABLOAD v16 (46 sliding + 16 full) / 62: inc 302.6 inc2 303.2 cand 299.5 cand2 301.1 | cross inc/cand 1.0105 inc/cand2 1.0052 inc2/cand 1.0126 inc2/cand2 1.0073 pooled 1.0089 | null inc2/inc 1.0020 cand2/cand 1.0053
+ABLOAD v32 (46 sliding + 16 full) / 62: inc 370.8 inc2 370.8 cand 368.8 cand2 367.5 | cross inc/cand 1.0053 inc/cand2 1.0089 inc2/cand 1.0054 inc2/cand2 1.0090 pooled 1.0071 | null inc2/inc 1.0001 cand2/cand 0.9965
+ABSCORE geometric mean over 6 loads of load-time ratios (above 1: the right-hand arm faster): inc/cand 1.0202; cross inc/cand 1.0202 inc/cand2 1.0190 inc2/cand 1.0084 inc2/cand2 1.0072; pooled 1.0137; null inc2/inc 0.9884 cand2/cand 1.0012
+ABDECIDE not resolved: pooled inc/cand 1.0137 (log +0.0136), cross range 1.0072-1.0202, larger null |log| 0.0116; rule: all four cross ratios on one side of 1 and |log pooled| above twice the larger null

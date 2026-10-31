@@ -33,6 +33,35 @@ routing-id flips judged against the control's envelope, and extended the gate to
 the control's envelope) and report-only negative controls were added at the researcher's
 caution; see the addendum in docs/runs-decode-layer.md.
 
+## Candidate (2026-10-31): layer_m1rt51s (not submitted)
+
+layer_m1rt51c plus the stable prepare-time picks (docs/plan-2026-10-30-tuner-stability.md,
+design 1; A/A e582fde557114062), with a preference table that matches this candidate.
+
+| field | value |
+|---|---|
+| file | `muse_decode_layer/cand/layer_m1rt51s.py`, SHA256 `f12353566c5c665dda603a495462922778a461f9bfb3675bc65e95b2361bdd33` |
+| made from | `tools/dl_stable_tuner_patch.py muse_decode_layer/cand/layer_m1rt51c.py OUT "HEADER" --pref=moe:32=main-lean-grp-finss64 --pref=moe:128=main-lean-grp-finss64 --pref=moe:256=main-lean-grp-finss64 --pref=m1:8=o+front --pref=m1:16=o --pref=m1:32=o+front --m1` at this commit. Byte-identical on a second build |
+| preference table | MoE sk8w3s at 1 / 8 / 16, mode 51 (`main-lean-grp-finss64`) at 32 / 128 / 256 (every copy of layer_m1rt51 / 51c picked it in d6c30f88c617438b and 4d4ea5db46db4a10); front fp32 / skf-r / skf-r / skf-r / concat-r / concat-r and attention boundary c8x256 / c1x1024 / sglang / sglang / sglang / c1x512 (the release's receipt); M1 o+front at 8, o at 16, o+front at 32 (4d4ea5db46db4a10's cand copy; its cand2 picked o at 32, a tie) |
+| against layer_m1rt51c | Python only, every `_*SRC` region equal, so the SASS is layer_m1rt51c's = layer_m1rt51's (counts in that section). Changed: `_moe1_tune`, `_front_tune` (the route variant keeps the fresh-input gate), `_abnd_tune`, `_m1_tune` (whole-step loads per mode in 9 rotated rounds, `_stable_pick` per bucket; the 8-token stop rule unchanged), `_selection_summary` (one `stable` line per tuner and token count); added `STABLE_*`, `_stable_pick`, `_m1_rounds`. The M1 gate region equals `dl_gate_patch.M1_SRC` except `_m1_tune`; the shared gate code equals `GATE_SRC` |
+| offline tests | `python3 tools/dl_stable_pick_test.py tools muse_decode_layer/cand/layer_m1rt51s.py`: all cases pass, `_stable_pick` equals the tool's, M1 ties kept on the preferred mode 497-500 of 500, a 3 us win switches, `_m1_rounds` rotates as designed. `uv run --with torch python tools/dl_m1_gate_census_test.py tools muse_decode_layer/cand/layer_m1rt51s.py` (gate code taken from the file): all five cases as expected |
+| build switches | as layer_m1rt51c: M1 runtime order, `ONE_TRIG`, `_ONE_PDL = False`, `MOE1_HELD = ()`; no workspace pick (`_ONE_WS_PICK` absent), no donor code |
+| evidence | four-arm bench 3aee22ba4a404c8a against release_s (both arms stable): **cand faster**, pooled 1.0052, cross 1.0036-1.0068, nulls 0.08% / 0.24%; v16 +1.6%, v1 +1.5%, d16 +0.7%, d32 +0.5%, v32 -0.1%, d1 -1.1% (one cand copy slow at d1s). Policies in both cand copies: MoE 51 at 32 / 128 / 256, M1 `{8: 'o+front', 16: 'o', 32: 'o'}`, front and abnd the release's. Every gate passed, 24 of 24 checks per arm. Prepare 62-64 s per copy in the bench |
+| unpatched judge check of this exact file | none (the bench ran it comment-stripped) |
+
+## Candidate (2026-10-31): release_s (not submitted)
+
+The board entry plus the stable prepare-time picks with the release's own preference table:
+the incumbent arm for comparisons with stable candidates, and a candidate for a more stable
+board entry.
+
+| field | value |
+|---|---|
+| file | `muse_decode_layer/cand/release_s.py`, SHA256 `a45fae28aed1a7f2e47565301270487130f904b912acb09664d6d5202aba6ae6` |
+| made from | `tools/dl_stable_tuner_patch.py muse_decode_layer/submission.py OUT "HEADER"` (the release, b9c23bda...). Byte-identical on a second build; differs from `muse_decode_layer/cand/layer_stable.py` (the A/A file of e582fde557114062) only in line 2, so both send the same comment-stripped code (SHA256 11420923...) |
+| evidence | A/A e582fde557114062: every tuner but W4 picked the same in all four copies, nulls 0.12% / 0.03%; check score 2.001x (1.971-2.031) as a bench, not a direct check of this file |
+| build switches | as the board entry |
+
 ## Candidate (2026-10-30): layer_hp (not checked, not submitted)
 
 Release + the standalone attention of rounds 2 and 3 (HMRG, PRQ = 31) + the workspace placement
