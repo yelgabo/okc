@@ -1,6 +1,6 @@
 # Architecture performance tracker
 
-Last review: 2026-10-30 12:44 PDT. Evidence snapshot: `c98018f`.
+Last review: 2026-10-30 14:05 PDT. Evidence snapshot: `bc10cb1`.
 First review reconciles progress since `aab7d75`, the snapshot in the
 [architecture-family guide](architecture-families-2026-10-29.md).
 This is a review of recorded experiments, not a new benchmark run.
@@ -14,11 +14,113 @@ named control, not changes in aggregate score. Families overlap; their gains can
 |---|---|---|---|
 | A. Hybrid persistent/legacy MoE | Component wins; mode 51 layer gain inconclusive | Four-arm mode 51 comparison reports 1.0057 pooled, below its noise gate. Old three-arm deltas remain observations, not established isolated gains. | Board stays mode 47. Stabilize prepare-time picks and resolve arm bias before promoting 51. |
 | B. Staged grouped MoE | Retested loss | Modes 45 + 46 on mode 37 components lose 30.4/24.4 us at 128/256 versus 37, six seeds each. | Parked until phase B alone drops below about 50 us at 128 or the fused phase A tail disappears. |
-| C. Owner-completes tiles | Retained; stream-K alternative retested and loses | Mode 72 replaces owned phase A with cut-unit fixups on 51 components: +12.6/+6.6 us at 128/256 layer-like routing, zero of six faster. | Loss is scoped to this partition/fixup; cheaper designated finishing remains untested. |
+| C. Owner-completes tiles | Retained; stream-K alternative retested and loses | Corrected designated-finisher mode 74 loses +4.6/+2.0 us at 128/256 layer-like routing versus 51; earlier mode 72 losses remain. | Designated finishing is tested; setup and fixup costs still exceed its timing-spread benefit. Revisit triggers remain scoped to this implementation. |
 | D. Dependency-aware scheduling | Dynamic claiming retained; new phase-A claim layouts lose | Phase-A modes 62/63 and K=0 controls 66/69 lose; lean claimed mode 68 is not timed. Earlier split-tail 52/53 losses stand. | Full ready-only queue remains untested. Reopen phase-A claims only after the no-work control ties mode 51 within 1 us at 128/256. |
 | E. Attention producer-consumer pipeline | PRQ per-request win; XPIPE cold losses retained | PRQ31 saves 0.48/0.96 us at 128/256 sliding in matched-null confirmation. Earlier DCARRY/PK16/VHOIST remains integrated. | layer_hp combines PRQ + HMRG + placement and awaits GPU testing; full-context XPIPE losses stand. |
+| F. Donor-based baseline/hybrid | Registered, untested | F0 exact donor, F1 conforming adaptation, F2 measured hybrid; no controlled result. | Projection, attention, MoE and layer comparisons pending. [Registry](steering/2026-10-30-family-f-donor-baseline.md). |
 
-## Latest review: projection split exit barrier wins paired router tests
+## Latest review: designated finisher tested; ownership stays ahead
+
+Corrected mode 74 at `4187b8b` loses against mode 51 in job `e02f60fec94f45cb`.
+This is a stream-K alternative to C inside A, retaining D-related phase-B claims.
+It uses a designated finisher instead of mode 72's last-arrival fixup. The finisher is
+chosen during setup from the cost walk. It is now tested, rather than an untested idea.
+[Design and gate](runs-moe.md#designated-finisher-for-stream-k-phase-a-modes-74-and-75-2026-10-30).
+
+Six seeds 107-112 per size/routing use cold-L2 graph replay, medians of 20 replays per arm.
+The following are means of paired component deltas, not whole-layer results. Percentages
+use the logged control means; rounding can differ from subtracting the displayed arm means.
+No paired confidence interval is recorded.
+
+| Tokens / routing | Mode 51 control | Mode 74 delta | Percent | Seeds faster |
+|---|---:|---:|---:|---:|
+| 32 / layer-like | 80.3 us | +7.9 us | +9.84% | 0/6 |
+| 32 / standalone | 143.6 us | +7.6 us | +5.29% | 0/6 |
+| 128 / layer-like | 163.2 us | +4.6 us | +2.82% | 0/6 |
+| 128 / standalone | 201.4 us | +7.4 us | +3.67% | 1/6 |
+| 256 / layer-like | 219.9 us | +2.0 us | +0.91% | 1/6 |
+| 256 / standalone | 233.1 us | +4.1 us | +1.76% | 1/6 |
+
+The receipt passes, 2.1974x with 95% interval 2.1645-2.2304. Its judged path is the
+unchanged board dispatch, so this score is not mode 74's standalone score. First-seed
+output checks against 51 are 1.3e-4 to 3.4e-4 relative L2; spin flags are zero.
+The diagnostic requires a negative mean at 256 on both routings. It fails, so no held-out
+or skewed gate ran and mode 74 remains parked.
+[Raw log](../muse_moe_w4a16/profiles/bench_sk74fix.e02f60fec94f45cb.log),
+[receipt](../muse_moe_w4a16/profiles/bench_sk74fix.e02f60fec94f45cb.json).
+
+The earlier build `5f35018`, job `eaa881a934aa471e`, used slow SiLU because its predicate
+excluded modes 74/75 and used serial finisher designation. Preserve its results as that
+build's loss, not the corrected design's result. Six seeds 95-100, same replay method:
+
+| Tokens / routing | Mode 51 control | Earlier mode 74 delta | Percent | Seeds faster |
+|---|---:|---:|---:|---:|
+| 32 / layer-like | 85.1 us | +8.2 us | +9.64% | 0/6 |
+| 32 / standalone | 142.1 us | +9.0 us | +6.33% | 0/6 |
+| 128 / layer-like | 159.9 us | +8.3 us | +5.19% | 0/6 |
+| 128 / standalone | 209.3 us | +7.2 us | +3.44% | 0/6 |
+| 256 / layer-like | 222.0 us | +2.1 us | +0.95% | 0/6 |
+| 256 / standalone | 248.9 us | +3.8 us | +1.53% | 1/6 |
+
+That receipt passes, 2.2023x with interval 2.1693-2.2354. First-seed output differences
+are 1.5e-4 to 2.0e-4, spin flags zero. No paired interval is recorded.
+[Earlier log](../muse_moe_w4a16/profiles/bench_sk74.eaa881a934aa471e.log),
+[earlier receipt](../muse_moe_w4a16/profiles/bench_sk74.eaa881a934aa471e.json).
+
+The corrected stamped twin reduces phase-A end spread to 6.6-8.3 us at 128/256,
+versus 10.9-19.5 for the control. Fixups cost 3.9-4.5 us per CTA, but route plus setup
+still costs 3.4-3.6 us more. Mode 72's larger fixup cost and the public kernel's similar
+end spread come from other processes/seeds. They are diagnostic comparisons, not paired
+speedups. The remaining setup cause is unresolved. Reopen this implementation only with
+setup under 1 us above 51, per-share fixup under 1 us, or a refitted cost table, then apply
+the paired gate. These findings retain C for this comparison, not reject stream-K generally.
+[Measured stamps and hypotheses](runs-moe.md), [revisit triggers](ruled-out.md).
+
+### Separate projection context: one-wave QKV cluster split loses
+
+Job `ad6c673d9a444c1e`, source `90ee4b9`, tests qkv8c4/qkv16c4/qkv32c4 and wider
+c4w variants, 72 rows per CTA and four CTAs per cluster. All configurations passed FP64,
+2-ulp twin checks and 22 identical one-hot columns. The dedicated paired timing loop failed
+with a `torch.sum(out=)` error. These results are prepare-time tuner observations only:
+cold-L2 graph replay, 24 alternating repetitions, one preparation, overhead included.
+
+| Tokens | Unsplit qkv reference us | c4 us / delta / percent | c4w us / delta / percent |
+|---|---:|---|---|
+| 1 | 13.8 | 23.0 / +9.2 / +66.67% | 24.9 / +11.1 / +80.43% |
+| 8 | 13.9 | 23.7 / +9.8 / +70.50% | 25.5 / +11.6 / +83.45% |
+| 16 | 14.7 | 24.1 / +9.4 / +63.95% | 25.7 / +11.0 / +74.83% |
+| 32 | 15.6 | 27.9 / +12.3 / +78.85% | Not tested |
+
+At one token the tuner selects cgemv at 12.8 us; the table uses qkv8 at 13.8 us
+as the unsplit geometry reference, not the selected incumbent.
+No paired confidence interval exists, and 128/256 were not tested by this experiment.
+Raw twins also lose. Receipt passes 9 tests, 1.5089x with interval 1.4863-1.5315, but the
+judge selected production picks, not c4. The experiment is parked; production is unchanged.
+Cluster residency and decode geometry are hypotheses for the loss, not established causes.
+Reopen with measured active clusters at least 32, or a configuration at most 113 KB shared
+memory whose raw twin beats qkv16raw.
+[Run record](runs.md), [raw log](../muse_bf16_proj/profiles/proj_c4_bench.ad6c673d9a444c1e.log),
+[receipt](../muse_bf16_proj/profiles/proj_c4_bench.ad6c673d9a444c1e.json), [scoped rejection](ruled-out.md).
+
+### Family F registration and next decision
+
+Family F is now registered separately as the donor-based baseline/hybrid, pinned to
+alygg77 source `6cae49a639ee6d14b929a5fd4a63c627f96d7dc0`. F0 is the exact donor,
+F1 a documented conforming adaptation, F2 a measured hybrid. Projection, attention, MoE
+and layer tracks are pending. No controlled F gain, correctness clearance or promotion is
+established. Archived donor scores are external evidence only.
+[Registration](steering/2026-10-30-family-f-donor-baseline.md).
+
+The shared decision now prioritizes complete donor-versus-release projection and attention
+comparisons before new GPU rewrites, with independent preparations and null controls.
+A coherent replacement or measured hybrid is an allowed outcome. A-versus-B at 128/256
+remains unchanged: retain the working baseline, and reopen staged B only under its stated
+phase-B/phase-A-tail trigger. E's PRQ gain and XPIPE losses stand; layer_hp and revised
+mode-51 layer candidates remain pending. Whole-layer release stays 2.014x. No gains are
+added across families or projection context.
+[Donor-first decision](steering/2026-10-30-donor-first-adoption.md), [layer log](runs-decode-layer.md).
+
+## Historical review, 12:44: projection split exit barrier wins paired router tests
 
 This is separate projection context, with no new A-E or whole-layer result. Job
 `4f3ff774981a494c` at `db0f8ad` compares relaxed split exit barriers (wd KLUEYZ,
@@ -111,8 +213,8 @@ causes. A shorter gather in the stamped twin does not help: the last first-x-rea
 C's ownership choice remains favored for this comparison. Preserve the loss at its tested
 scope: mode 72's partition plus last-arrival fixup on current components at 32-256 tokens.
 Revisit with a fixup well below 1 us per share on the critical path, or a stage-cost table
-refitted to the current loop, then compare in-process with ABFIX. A designated finisher or
-cuts where the finisher is idle are untested alternatives. [Scoped rejection](ruled-out.md).
+refitted to the current loop, then compare in-process with ABFIX. At that checkpoint, designated finishing was untested. Mode 74 has since tested it and lost,
+as recorded in the latest review; other cut placements remain open. [Scoped rejection](ruled-out.md).
 
 A-versus-B is unchanged: the staged pair still needs its phase-B or phase-A-tail trigger.
 D's full ready-only queue remains untested. PRQ's E win and previous XPIPE losses stand.
@@ -1027,12 +1129,14 @@ are hypotheses. This correction motivates a test, not a new winning-family badge
 | E: mode 115 + XPIPE=1 | Attention mode 51 | +28.10 us, +25.48% | +52.61 us, +28.09% | Same job, controls and correctness; overlap helps within mode 115 at 256 but cannot recover residency loss. [Attention log](runs-attention.md). |
 | E: PRQ31 per-request tile pipeline | HMRG-on attention, PRQ off | Sliding -0.48 us, -3.02%; full unchanged code | Sliding -0.96 us, -4.59%; full unchanged code | `409996a7214f411a`, `8a6c8bb`, two inputs, 120 rounds, controls 15.87/20.93 us, same-state null +0.03/+0.09 us; 16/16 and 19/0 arm checks. Combined five-bit design. [Attention log](runs-attention.md). |
 | Alternative to C inside A: mode 72 stream-K phase A | Mode 51 owned phase A | +12.6 us, +7.59% | +6.6 us, +3.00% | `098949b28fe84bd1`, `86a633e`, six seeds 83-88, layer-like routing, controls 166.1/220.3 us; 0/6 faster, receipt 5/5, first-seed L2 checks 1.5e-4 to 2.4e-4 across cells. Standalone +7.1/+9.2 us. No gate run. [MoE log](runs-moe.md). |
+| Alternative to C inside A: mode 74 designated finisher | Mode 51 owned phase A | +4.6 us, +2.82% | +2.0 us, +0.91% | `e02f60fec94f45cb`, `4187b8b`, six seeds 107-112, layer-like routing, controls 163.2/219.9 us; 0/6 and 1/6 faster. First-seed L2 checks 1.3e-4 to 3.4e-4; spin flags zero. Standalone +7.4/+4.1 us. No gate. [MoE log](runs-moe.md). |
 
 Percentages use the logged paired delta divided by the logged control mean, except the explicit pooled-median subtraction rows.  Paired summaries use logged paired deltas rather than subtraction of separately summarized
 arm timings. Layer deltas are medians of per-round differences; these can differ by several
 microseconds from differences of arm medians. Rows without a comparable control mean report
 microseconds only. Seed counts are reported instead of inventing confidence intervals for the
 paired differences.
+
 
 ## Small-token results and rejected changes
 
@@ -1080,9 +1184,15 @@ result. The tested mode-49 history lead supports merge-order rounding; ordering 
 complete within their scope. B remains parked, and the new gather variants do not revive it.
 D's full ready-only queue is still untested; phase-A claim layouts and their K=0 controls lose. E's XPIPE variants fail their cold gates, while PRQ31 wins on per-request paths.
 The combined layer_hp (PRQ + HMRG + placement) is built but has no GPU result. Projection
-uses conforming push paths; current cross-run results retain no gain at 32/256 tokens. [Rejection register](ruled-out.md).
+retains its paired split-barrier gains at 128/256; aggregate cross-run gains remain inconclusive.
+The new QKV cluster split loses in tuner observations. Corrected mode 74 also loses, so C stays.
+Family F complete-file comparisons now take priority over new projection/attention rewrites. [Rejection register](ruled-out.md).
 
 ## Review history and checkpoint
+
+- 2026-10-30 14:05 PDT: inspected through `bc10cb1`, including jobs `eaa881a934aa471e`,
+  `e02f60fec94f45cb` and `ad6c673d9a444c1e`. Added corrected mode 74 loss, earlier build
+  caveat, QKV tuner loss and Family F registration. No new attention or layer result.
 
 - 2026-10-30 12:44 PDT: inspected through `c98018f`, including projection round 4
   jobs `4f3ff774981a494c`, `25ea2b62ff8a47a7` and `d85d0081fa8a4a43`.

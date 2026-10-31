@@ -93,7 +93,14 @@ The existing CUTLASS pooler, wide 8-stage picks, DCARRY/PK16/VHOIST and failed l
 are explicitly accounted for. No kernels, validation policies, GPU runs or submissions changed.
 This is separate from the layer's M1/tuner-stability work below.
 
-## Latest hourly report, 12:44
+## Latest hourly report, 14:05
+
+**[2026-10-30 14:05 PDT: Designated finisher and QKV losses; Family F registered](2026-10-30-1405-performance-review.md)**
+
+Evidence `bc10cb1`. Corrected mode 74 loses at 128/256; ownership retained. QKV c4 loses
+in tuner observations; paired loop failed. F is registered, untested. Layer outcomes unchanged.
+
+## Previous hourly report, 12:44
 
 **[2026-10-30 12:44 PDT: Projection split exit barrier gains](2026-10-30-1244-performance-review.md)**
 
