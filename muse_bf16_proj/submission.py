@@ -1637,13 +1637,23 @@ __device__ __forceinline__ void chunk_fma(uint4 l, unsigned c0, unsigned c1, uin
 // result is deterministic. The escape terms use
 // separately rounded multiply and add so a CPU emulation in float32 reproduces them bit for bit
 // (the main FMAs are exact products, so they need no such care).
-template <int NTH, int CPT>
+// VB: codec factorial bits as in rd_kernel (bench only): 1 / 2 skip the code loads of every 8th
+// / 4th group of 4 threads (whole 32-byte sectors, about 4.2% / 8.3% of the stream), 4 adds 16
+// ALU instructions per row-chunk, 8 adds 8 shared-memory loads per row-chunk.
+template <int NTH, int CPT, int VB = 0>
 __device__ __forceinline__ void cgemv_body(const uint8_t* __restrict__ stream, int half_n,
                                            const int2* __restrict__ table, int pmax, unsigned base4,
                                            const __nv_bfloat16* __restrict__ x,
                                            __nv_bfloat16* __restrict__ out) {
     constexpr int NW = NTH / 32, K = 16 * NTH * CPT;
     __shared__ float red[2][NW + 1];
+    __shared__ uint32_t vlut[(VB & 8) ? 1024 : 1];
+    if constexpr ((VB & 8) != 0) {
+        for (int i = threadIdx.x; i < 1024; i += NTH + 32) {
+            vlut[i] = 0u;
+        }
+        __syncthreads();
+    }
     const int c = blockIdx.x, t = threadIdx.x, lane = t & 31, warp = t >> 5;
     if (warp < NW) {
         const uint8_t* lp = stream + (size_t)c * 2 * K;
@@ -1656,8 +1666,14 @@ __device__ __forceinline__ void cgemv_body(const uint8_t* __restrict__ stream, i
             const int j = i * NTH + t;
             l0[i] = ld_stream(reinterpret_cast<const uint4*>(lp) + j);
             l1[i] = ld_stream(reinterpret_cast<const uint4*>(lp + K) + j);
-            q0[i] = __ldg(reinterpret_cast<const uint2*>(cp) + j);
-            q1[i] = __ldg(reinterpret_cast<const uint2*>(cp + K / 2) + j);
+            const bool skip = ((VB & 1) && ((t >> 2) & 7) == 7) || ((VB & 2) && ((t >> 2) & 3) == 3);
+            if (skip) {
+                q0[i] = make_uint2(l0[i].x, l0[i].y);
+                q1[i] = make_uint2(l1[i].x, l1[i].y);
+            } else {
+                q0[i] = __ldg(reinterpret_cast<const uint2*>(cp) + j);
+                q1[i] = __ldg(reinterpret_cast<const uint2*>(cp + K / 2) + j);
+            }
         }
 #pragma unroll
         for (int i = 0; i < CPT; ++i) {
@@ -1667,7 +1683,33 @@ __device__ __forceinline__ void cgemv_body(const uint8_t* __restrict__ stream, i
         float acc0 = 0.f, acc1 = 0.f;
 #pragma unroll
         for (int i = 0; i < CPT; ++i) {
+            if constexpr ((VB & 12) != 0) {
+                const uint32_t zero = (uint32_t)half_n >> 30;
+                uint32_t z = l0[i].x;
+#pragma unroll
+                for (int r = 0; r < ((VB & 4) ? 8 : 0); ++r) {
+                    z = (z ^ (z << 1)) + l0[i].y;
+                }
+#pragma unroll
+                for (int r = 0; r < ((VB & 8) ? 8 : 0); ++r) {
+                    z += vlut[(t + 32 * r + (z & zero)) & 1023];
+                }
+                l0[i].x ^= z & zero;
+            }
             chunk_fma(l0[i], q0[i].x, q0[i].y, xa[i], xb[i], base4, acc0);
+            if constexpr ((VB & 12) != 0) {
+                const uint32_t zero = (uint32_t)half_n >> 30;
+                uint32_t z = l1[i].x;
+#pragma unroll
+                for (int r = 0; r < ((VB & 4) ? 8 : 0); ++r) {
+                    z = (z ^ (z << 1)) + l1[i].y;
+                }
+#pragma unroll
+                for (int r = 0; r < ((VB & 8) ? 8 : 0); ++r) {
+                    z += vlut[(t + 32 * r + 512 + (z & zero)) & 1023];
+                }
+                l1[i].x ^= z & zero;
+            }
             chunk_fma(l1[i], q1[i].x, q1[i].y, xa[i], xb[i], base4, acc1);
         }
         acc0 = warp_sum(acc0);
@@ -1726,27 +1768,27 @@ __device__ __forceinline__ void cgemv_body(const uint8_t* __restrict__ stream, i
 // 17-warp pooler CTA (b135dd8ee10f4b24). With two chunks per thread (qkv_gate, the slice) 40
 // registers win over 32 (5ff76a62b0044378, cgemvp40 against cgemvp: -0.3 / -0.2 us on qkv_gate,
 // -0.2 / -0.2 on the slice), as in the public cgemv.
-template <int NTH, int CPT>
+template <int NTH, int CPT, int VB = 0>
 __global__ void __maxnreg__(32)
 cgemv_kernel(const uint8_t* __restrict__ stream, int half_n, const int2* __restrict__ table, int pmax,
              unsigned base4, const __nv_bfloat16* __restrict__ x, __nv_bfloat16* __restrict__ out) {
-    cgemv_body<NTH, CPT>(stream, half_n, table, pmax, base4, x, out);
+    cgemv_body<NTH, CPT, VB>(stream, half_n, table, pmax, base4, x, out);
 }
 
-template <int NTH, int CPT>
+template <int NTH, int CPT, int VB = 0>
 __global__ void __maxnreg__(40)
 cgemv40_kernel(const uint8_t* __restrict__ stream, int half_n, const int2* __restrict__ table, int pmax,
                unsigned base4, const __nv_bfloat16* __restrict__ x, __nv_bfloat16* __restrict__ out) {
-    cgemv_body<NTH, CPT>(stream, half_n, table, pmax, base4, x, out);
+    cgemv_body<NTH, CPT, VB>(stream, half_n, table, pmax, base4, x, out);
 }
 
-template <int NTH, int CPT>
+template <int NTH, int CPT, int VB = 0>
 void cgemv_launch(const uint8_t* stream, const int2* table, int pmax, unsigned base4,
                   const __nv_bfloat16* x, __nv_bfloat16* out, int half_n, cudaStream_t s) {
     if constexpr (CPT == 1) {
-        cgemv_kernel<NTH, CPT><<<half_n, NTH + 32, 0, s>>>(stream, half_n, table, pmax, base4, x, out);
+        cgemv_kernel<NTH, CPT, VB><<<half_n, NTH + 32, 0, s>>>(stream, half_n, table, pmax, base4, x, out);
     } else {
-        cgemv40_kernel<NTH, CPT><<<half_n, NTH + 32, 0, s>>>(stream, half_n, table, pmax, base4, x, out);
+        cgemv40_kernel<NTH, CPT, VB><<<half_n, NTH + 32, 0, s>>>(stream, half_n, table, pmax, base4, x, out);
     }
 }
 
@@ -1874,6 +1916,31 @@ void cgemv_fwd(at::Tensor stream, at::Tensor table, int64_t pmax, int64_t base4,
                 " (need threads in {64,128,256,512} and K/16/threads in {1,2,4})");
 }
 
+#ifdef OKC_BENCH_VARIANTS
+// Bench-only entry: the four layer shapes' cgemv with codec factorial bits vb (cgemv_body).
+void cgemvx_fwd(at::Tensor stream, at::Tensor table, int64_t pmax, int64_t base4, at::Tensor x,
+                at::Tensor out, int64_t nthreads, int64_t vb) {
+    const int64_t half_n = stream.size(0), chunks = stream.size(1);
+    const uint8_t* sp = stream.data_ptr<uint8_t>();
+    const int2* tp = reinterpret_cast<const int2*>(table.data_ptr<int32_t>());
+    const __nv_bfloat16* xp = reinterpret_cast<const __nv_bfloat16*>(x.data_ptr<at::BFloat16>());
+    __nv_bfloat16* op = reinterpret_cast<__nv_bfloat16*>(out.data_ptr<at::BFloat16>());
+    cudaStream_t s = at::cuda::getCurrentCUDAStream().stream();
+#define CGEMVX_CASE(NTH, CPT, VB)                                                                  \
+    if (nthreads == NTH && chunks == NTH * CPT && vb == VB) {                                      \
+        cgemv_launch<NTH, CPT, VB>(sp, tp, (int)pmax, (unsigned)base4, xp, op, (int)half_n, s);   \
+        C10_CUDA_KERNEL_LAUNCH_CHECK();                                                            \
+        return;                                                                                    \
+    }
+#define CGEMVX_SHAPE(NTH, CPT) CGEMVX_CASE(NTH, CPT, 0) CGEMVX_CASE(NTH, CPT, 1) CGEMVX_CASE(NTH, CPT, 2) \
+    CGEMVX_CASE(NTH, CPT, 4) CGEMVX_CASE(NTH, CPT, 12) CGEMVX_CASE(NTH, CPT, 13) CGEMVX_CASE(NTH, CPT, 14)
+    CGEMVX_SHAPE(256, 2) CGEMVX_SHAPE(64, 1) CGEMVX_SHAPE(512, 1) CGEMVX_SHAPE(128, 2)
+#undef CGEMVX_SHAPE
+#undef CGEMVX_CASE
+    TORCH_CHECK(false, "cgemvx_fwd: unsupported shape or bits");
+}
+#endif
+
 void rgemv_fwd(at::Tensor w, at::Tensor x, at::Tensor out) {
     TORCH_CHECK(w.is_cuda() && w.scalar_type() == at::kFloat && w.is_contiguous() && w.dim() == 2
                 && w.size(1) == ROUTER_K && aligned_to(w, 16),
@@ -1959,7 +2026,7 @@ WD_POL = {nm for nm in WD_GEOM if nm.endswith("h")}
 WV_NOPROD, WV_PACK, WV_PROMO64, WV_PUSH, WV_EARLY, WV_TAILSYNC = 1, 2, 4, 8, 32, 128
 WV_NOSLEEP, WV_NOEMPTY, WV_XA, WV_TAILSPLIT, WV_TAILRLX = 256, 512, 1024, 2048, 4096
 WV_PGROUP, WV_ACQCL, WV_SCALAR, WV_GRED, WV_GZERO = 8192, 16384, 32768, 65536, 131072
-WV_E1, WV_RKORD, WV_GTICKET = 262144, 524288, 1048576
+WV_E1, WV_RKORD, WV_GTICKET, WV_PFTM, WV_UDESC = 262144, 524288, 1048576, 2097152, 4194304
 # Packed hi/lo box, 64 B promotion, push reduction and early prologue (KLUE) on the two router
 # picks; paired against the pick in a91f2152d8974458 / ba85985b8c5e4969: -0.77 / -0.90 us at
 # m = 128, -0.90 / -0.90 at 256, the push reduction alone -0.46 / -0.54 and -0.48 / -0.66.
@@ -2693,6 +2760,13 @@ constexpr int WV_RKORD = 524288;
 // adds its partial only after reading that value (acquire). A CTA waits only for a CTA that has
 // already taken its ticket and waits for nobody, so no co-residency is needed.
 constexpr int WV_GTICKET = 1048576;
+// From the SASS diff of the donor rk against wd at the same geometry (round 9): rk prefetches
+// both tensor maps (UTMACCTL.PF) at kernel start and builds every wgmma descriptor in uniform
+// registers; wd prefetches neither and moves one descriptor per HGMMA through R2UR because the
+// warpgroup index g = warp >> 2 is not provably 0. PFTM adds the two prefetches (a hint, no
+// ordering); UDESC makes g a constant 0 when WG == 1 (consumer warps are 0-3 there).
+constexpr int WV_PFTM = 2097152;
+constexpr int WV_UDESC = 4194304;
 constexpr int GRED_TOK = 256;
 constexpr int GRED_N = 256;
 constexpr int GRED_TILES = 64;
@@ -2857,6 +2931,10 @@ wd_kernel(const __grid_constant__ CUtensorMap wmap, const __grid_constant__ CUte
     };
 
     if (tid == pt) {
+        if constexpr ((VAR & WV_PFTM) != 0) {
+            asm volatile("prefetch.tensormap [%0];" :: "l"(&wmap) : "memory");
+            asm volatile("prefetch.tensormap [%0];" :: "l"(&xmap) : "memory");
+        }
         for (int s = 0; s < NST; ++s) {
             mbar_init(full0 + 8 * s, 1);
             mbar_init(empty0 + 8 * s, (VAR & WV_E1) ? 1 : 4 * WG * CLR);
@@ -2952,7 +3030,7 @@ wd_kernel(const __grid_constant__ CUtensorMap wmap, const __grid_constant__ CUte
         }
         __syncwarp();
     } else {
-        const int g = warp >> 2;
+        const int g = ((VAR & WV_UDESC) != 0 && WG == 1) ? 0 : warp >> 2;
         for (int i = 0; i < ktl; ++i) {
             const int s = i % NST;
             if constexpr (ACQCL && SPIN) {
@@ -4130,6 +4208,8 @@ RD_GEOM = {
 # Which layer / bucket gets which rd candidates (the tuner times them beside the sk pick).
 RD_USE = {("pooler", 8): ["rdp8"], ("o", 8): ["rdo8"]}
 RD_NAMES = list(RD_GEOM)
+# Codec factorial bit sets compiled into the bench-only rdx_fwd / cgemvx_fwd (OKC_BENCH_VARIANTS).
+CODEC_VB = (0, 1, 2, 4, 12, 13, 14)
 
 _RD_SRC = r"""
 namespace {
@@ -4148,7 +4228,12 @@ __device__ __forceinline__ uint4 rd_ldx(const void* p) {
     return v;
 }
 
-template <int MT, int WR, int WK, int KU, int PF>
+// VB: codec factorial bits (bench only; 0 everywhere in production). 1 / 2 shrink the unit to
+// 1472 / 1408 bytes (the 11.5 / 11-bit codes) by skipping the code-plane loads of the last 4 / 8
+// lanes, timing only; 4 adds 32 dependent ALU instructions per unit and lane (pair7's decode
+// over the 12-bit one), 8 adds 16 conflict-free shared-memory loads (its LUT reads); both folded
+// in through a runtime zero so outputs stay exact.
+template <int MT, int WR, int WK, int KU, int PF, int VB = 0>
 __global__ void __launch_bounds__(WR * WK * 32) rd_kernel(const uint8_t* __restrict__ ws,
                                                           const uint32_t* __restrict__ esc,
                                                           const __nv_bfloat16* __restrict__ x,
@@ -4156,6 +4241,15 @@ __global__ void __launch_bounds__(WR * WK * 32) rd_kernel(const uint8_t* __restr
                                                           uint32_t base4) {
     constexpr int NWARP = WR * WK;
     __shared__ float4 red[NWARP][MT][32];
+    constexpr int UB = 1536 - ((VB & 1) ? 64 : 0) - ((VB & 2) ? 128 : 0);
+    constexpr int CLANES = (VB & 2) ? 24 : (VB & 1) ? 28 : 32;
+    __shared__ uint32_t vlut[(VB & 8) ? 1024 : 1];
+    if constexpr ((VB & 8) != 0) {
+        for (int i = threadIdx.x; i < 1024; i += NWARP * 32) {
+            vlut[i] = 0u;
+        }
+        __syncthreads();
+    }
     const int lane = threadIdx.x & 31, warp = threadIdx.x >> 5;
     const int wr = warp / WK, wk = warp % WK;
     const int nrg = N / 16;
@@ -4169,8 +4263,8 @@ __global__ void __launch_bounds__(WR * WK * 32) rd_kernel(const uint8_t* __restr
     for (int nt = 0; nt < MT; ++nt) {
         tok[nt] = min(nt * 8 + g, M - 1);
     }
-    const size_t ustride = (size_t)nrg * 1536;
-    const uint8_t* wp = ws + ((size_t)(wk * KU) * nrg + rg) * 1536 + lane * 16;
+    const size_t ustride = (size_t)nrg * UB;
+    const uint8_t* wp = ws + ((size_t)(wk * KU) * nrg + rg) * UB + lane * 16;
     float acc[MT][4];
 #pragma unroll
     for (int nt = 0; nt < MT; ++nt) {
@@ -4184,7 +4278,7 @@ __global__ void __launch_bounds__(WR * WK * 32) rd_kernel(const uint8_t* __restr
         const uint8_t* q = wp + (size_t)p * ustride;
         rl0[p] = rd_ldw(q);
         rl1[p] = rd_ldw(q + 512);
-        rcw[p] = rd_ldw(q + 1024);
+        rcw[p] = lane < CLANES ? rd_ldw(q + 1024) : rl0[p];
     }
 #pragma unroll
     for (int s = 0; s < KU; ++s) {
@@ -4192,7 +4286,7 @@ __global__ void __launch_bounds__(WR * WK * 32) rd_kernel(const uint8_t* __restr
             const uint8_t* q = wp + (size_t)(s + PF) * ustride;
             rl0[(s + PF) % RG] = rd_ldw(q);
             rl1[(s + PF) % RG] = rd_ldw(q + 512);
-            rcw[(s + PF) % RG] = rd_ldw(q + 1024);
+            rcw[(s + PF) % RG] = lane < CLANES ? rd_ldw(q + 1024) : rl0[(s + PF) % RG];
         }
         const uint4 l0 = rl0[s % RG], l1 = rl1[s % RG], cw = rcw[s % RG];
         const int k0 = (wk * KU + s) * 64 + 16 * a;
@@ -4208,6 +4302,18 @@ __global__ void __launch_bounds__(WR * WK * 32) rd_kernel(const uint8_t* __restr
         decode8(l0.z, l0.w, cw.y, base4, &r0[4]);
         decode8(l1.x, l1.y, cw.z, base4, &r8[0]);
         decode8(l1.z, l1.w, cw.w, base4, &r8[4]);
+        if constexpr ((VB & 12) != 0) {
+            uint32_t t = l0.x;
+#pragma unroll
+            for (int i = 0; i < ((VB & 4) ? 16 : 0); ++i) {
+                t = (t ^ (t << 1)) + l1.y;
+            }
+#pragma unroll
+            for (int i = 0; i < ((VB & 8) ? 16 : 0); ++i) {
+                t += vlut[(lane + 32 * i) & 1023];
+            }
+            r0[0] ^= t & ((uint32_t)M >> 16);
+        }
         while ((int)(e >> 17) == s) {
             if (lane == (int)((e >> 12) & 31)) {
                 const int reg = (e >> 8) & 15;
@@ -4268,7 +4374,7 @@ __global__ void __launch_bounds__(WR * WK * 32) rd_kernel(const uint8_t* __restr
 }
 
 #ifndef SK_DEVICE_ONLY
-template <int MT, int WR, int WK, int KU, int PF>
+template <int MT, int WR, int WK, int KU, int PF, int VB = 0>
 void launch_rd(const at::Tensor& ws, const at::Tensor& esc, const at::Tensor& x, at::Tensor& out, int N, int K,
                uint32_t base4) {
     const int M = (int)x.size(0);
@@ -4276,7 +4382,7 @@ void launch_rd(const at::Tensor& ws, const at::Tensor& esc, const at::Tensor& x,
                 && reinterpret_cast<uintptr_t>(x.data_ptr()) % 16 == 0, "rd: bad x");
     TORCH_CHECK(N % (16 * WR) == 0 && K == 64 * WK * KU, "rd: shape does not tile");
     TORCH_CHECK(esc.numel() >= (int64_t)(N / 16) * WK * RD_ESCN, "rd: escape lists too short");
-    rd_kernel<MT, WR, WK, KU, PF><<<N / (16 * WR), WR * WK * 32, 0, at::cuda::getCurrentCUDAStream()>>>(
+    rd_kernel<MT, WR, WK, KU, PF, VB><<<N / (16 * WR), WR * WK * 32, 0, at::cuda::getCurrentCUDAStream()>>>(
         reinterpret_cast<const uint8_t*>(ws.data_ptr()), reinterpret_cast<const uint32_t*>(esc.data_ptr()),
         reinterpret_cast<const __nv_bfloat16*>(x.data_ptr()), reinterpret_cast<__nv_bfloat16*>(out.data_ptr()), M, N,
         K, base4);
@@ -4285,6 +4391,18 @@ void launch_rd(const at::Tensor& ws, const at::Tensor& esc, const at::Tensor& x,
 #endif
 
 }  // namespace
+
+#if defined(OKC_BENCH_VARIANTS) && !defined(SK_DEVICE_ONLY)
+// Bench-only entry: rd config cfg with codec factorial bits vb (see rd_kernel).
+void rdx_fwd(int64_t cfg, at::Tensor ws, at::Tensor esc, at::Tensor x, at::Tensor out, int64_t n, int64_t k,
+             int64_t base4, int64_t vb) {
+    switch (cfg * 16 + vb) {
+@@RDXDISPATCH@@
+    default:
+        TORCH_CHECK(false, "rdx: unknown config ", cfg, " / ", vb);
+    }
+}
+#endif
 
 #ifdef SK_DEVICE_ONLY
 @@RDINSTANCES@@
@@ -4310,7 +4428,11 @@ def rd_source():
                          for i, nm in enumerate(RD_NAMES))
     inst = "\n".join(f"template __global__ void rd_kernel<{t}>(const uint8_t*, const uint32_t*, const __nv_bfloat16*, "
                      f"__nv_bfloat16*, int, int, int, uint32_t);" for t in dict.fromkeys(targs.values()))
+    xdispatch = "\n".join(
+        f"    case {i * 16 + vb}: launch_rd<{targs[nm]}, {vb}>(ws, esc, x, out, (int)n, (int)k, (uint32_t)base4); break;"
+        for i, nm in enumerate(RD_NAMES) for vb in CODEC_VB)
     return (_RD_SRC.replace("RD_ESCN", str(RD_ESC)).replace("@@RDDISPATCH@@", dispatch)
+            .replace("@@RDXDISPATCH@@", xdispatch)
             .replace("@@RDINSTANCES@@", "namespace {\n" + inst + "\n}"))
 
 

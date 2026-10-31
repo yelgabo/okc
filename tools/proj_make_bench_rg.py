@@ -37,9 +37,9 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 
 N, K, L, U, S, E, D, T, W, B, X, Y, Z = 1, 2, 4, 8, 16, 32, 64, 128, 256, 512, 1024, 2048, 4096
-G, A, Q, R, M, J, O, H = 8192, 16384, 32768, 65536, 131072, 262144, 524288, 1048576
-BITS = (N, K, L, U, S, E, D, T, W, B, X, Y, Z, G, A, Q, R, M, J, O, H)
-TAGS = "NKLUSEDTWBXYZGAQRMJOH"
+G, A, Q, R, M, J, O, H, F, V = 8192, 16384, 32768, 65536, 131072, 262144, 524288, 1048576, 2097152, 4194304
+BITS = (N, K, L, U, S, E, D, T, W, B, X, Y, Z, G, A, Q, R, M, J, O, H, F, V)
+TAGS = "NKLUSEDTWBXYZGAQRMJOHFV"
 KLUE = K | L | U | E
 P = KLUE | Y | Z
 # Round a (check 97869fa8302041b5) lacked the watchdog twins of the G|A|S arms, so the spin rule
@@ -57,7 +57,11 @@ P = KLUE | Y | Z
 # Round rk-b (after 3fd0c7a7cea74ab4: the rk block order O is worth about 1.1 us and the
 # memset node about 1.1 us): H = WV_GTICKET, the tile cleared inside the kernel by the CTA with
 # the first ticket (no zeroing node, no co-residency), with O, against the GZ + O form.
-ROUND = "rk-b"
+# Round rk-c (round 9, after a SASS diff of rk against wd): F = WV_PFTM (prefetch both tensor
+# maps, which rk does and wd does not), V = WV_UDESC (uniform wgmma descriptors, no R2UR per
+# HGMMA), on the production routers; and the order-only form without a new cross-CTA protocol
+# (O with the memset-zeroed red.add, R + M) at m = 256, alone and with F + V.
+ROUND = "rk-c"
 KLE = K | L | E
 GEOM_EXTRA = {"r64c12s8": (1, 64, 12, 1, True, 8), "r64c16s8": (1, 64, 16, 1, True, 8),
               "r64c6s8": (1, 64, 6, 1, True, 8), "r64c8s6": (1, 64, 8, 1, True, 6),
@@ -77,12 +81,10 @@ LE = L | E
 GZ = R | M
 TK = R | H
 WD_SETS = {
-    "r64c8s8": [P, P | D, KLE | GZ | O, KLE | TK | O, KLE | TK | O | D, KLE | TK | O | J, LE | TK | O, KLE | TK],
-    "r128c8s6": [P, P | D],
-    "r64c12s8": [KLE | GZ | O, KLE | TK | O, KLE | TK | O | D],
-    "r64c16s8": [KLE | TK | O],
+    "r64c8s8": [P, P | D, P | F, P | V, P | F | V, P | F | V | D, KLE | GZ | O, KLE | GZ | O | F | V],
+    "r128c8s6": [P, P | D, P | F, P | V, P | F | V, P | F | V | D],
 }
-WD_BASES = {128: ("r64c8s8", "r64c12s8", "r64c16s8"), 256: ("r128c8s6", "r64c8s8")}
+WD_BASES = {128: ("r64c8s8",), 256: ("r128c8s6", "r64c8s8")}
 WD_PROD = {"r64c8s8": "r64c8s8k", "r128c8s6": "r128c8s6k"}
 WD_REF = {128: "r64c8s8:vKLUEYZ", 256: "r128c8s6:vKLUEYZ"}
 
