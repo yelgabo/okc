@@ -3226,3 +3226,73 @@ replays) reported alongside.
 - Otherwise inconclusive. The judge checks of the exact files (two of F0, one or two of the
   release) give the judged ratios; they are compared by the mean of each pair against the judge's
   1-3% run-to-run spread, and decide nothing alone.
+
+### Check 0519d0b15e9c4583 (bench `bench_o`, generated from release a70192d): the donor file leads beyond both nulls
+
+| date | job | commit | file | result | notes |
+|---|---|---|---|---|---|
+| 2026-10-31 | 0519d0b15e9c4583 (check) | 589fb00 (bench from a70192d) | bench `bench_o` (`flat/gen_o.sh`, 5 arms, all 12 shapes, 3 inputs) | 2.512x (CI 2.474-2.550) judged path = release, 16/16 tests, ABCHECKSUM 19/0 every arm | ABSCORE donor 1.0097 / 1.0083 against the release |
+| 2026-10-31 | 45adaeddef9d464e (check) | donor 6cae49a | the exact donor file (sha256 e6d929d4) | 2.574x (CI 2.535-2.628) | judged F0 |
+| 2026-10-31 | cb99c110c9cd4c01 (check) | a70192d | the exact release file | duplicate of 640ee49b691b45ac (2.588x on 10-30), no run | |
+| 2026-10-31 | b90af2a967b946b1 (check) | a70192d + one comment line | release, same-day control | 2.542x (CI 2.504-2.580) | judged R |
+| 2026-10-31 | ab38543d2c8642fb (check) | donor + one comment line | donor repeat | 2.605x (CI 2.566-2.644) | judged F0 |
+
+Profiles: `muse_attention_decode/profiles/bench_o.0519d0b15e9c4583.*`, `release_r.b90af2a967b946b1.*`,
+`f0_donor.45adaeddef9d464e.json`, `f0_donor_r.ab38543d2c8642fb.json` (result receipts only; no donor
+source is committed). Cold medians pooled over three held-out inputs (us):
+
+| row | R1 ctrl | R2 ctrl2 | rnp (pick off) | D1 pubf0 | D2 pubf02 | D - R (means) | side |
+|---|---|---|---|---|---|---|---|
+| d1 sliding | 9.06 | 9.28 | 9.15 | 9.06 | 9.06 | -0.11 | null |
+| d1 full | 16.99 | 17.02 | 17.18 | 16.48 | 16.58 | -0.47 | donor |
+| d16 sliding | 12.83 | 12.93 | 12.90 | 12.80 | 12.96 | +0.00 | null |
+| d16 full | 100.38 | 100.45 | 100.38 | 99.52 | 99.52 | -0.89 | donor |
+| d32 sliding | 15.62 | 15.62 | 15.55 | 15.58 | 15.55 | -0.05 | donor (0.05 us) |
+| d32 full | 179.42 | 179.65 | 179.42 | 177.95 | 178.08 | -1.52 | donor |
+| v1 sliding | 11.01 | 10.91 | 10.91 | 10.85 | 10.88 | -0.10 | null |
+| v1 full | 19.04 | 19.14 | 19.01 | 19.04 | 18.98 | -0.08 | null |
+| v16 sliding | 15.68 | 15.58 | 15.52 | 15.49 | 15.52 | -0.12 | null |
+| v16 full | 112.61 | 113.73 | 112.61 | 111.04 | 111.04 | -2.13 | donor |
+| v32 sliding | 19.97 | 19.90 | 19.78 | 19.30 | 19.36 | -0.61 | donor |
+| v32 full | 193.70 | 194.02 | 193.28 | 193.25 | 193.44 | -0.52 | null |
+
+ABSCORE against ctrl: ctrl2 0.9964 (R null 0.36%), rnp 1.0003, pubf0 1.0097, pubf02 1.0083 (D null
+0.14%). Warm (16 queued replays) the donor is faster on all 12 rows. By the rule written before the
+check, the donor wins overall: both D arms exceed 1 by more than 0.50% (the sum of the nulls) and
+0.3%. It wins six rows and the release wins none, so an F2 hybrid would take nothing from the
+release. Judged, same day: release 2.542x, donor 2.574x / 2.605x (means 2.542 vs 2.590, +1.9%, inside
+the judge's 1-3% run spread but in the direction and about the size the bench measured). The pick
+(`rnp` against ctrl) moved d1 full by +0.19 us, inside the R null; ABSCORE 1.0003.
+
+What the donor's lead is made of: on the per-request q_len 1 / 8 rows it is gone after HMRG and PRQ
+(every per-request row null except d1 full, which is placement-sensitive); it sits in the flat full
+rows (d16 / d32 / v16 full) that round 4 attributed to the per-SM pair spread, plus v32 sliding and
+d1 full.
+
+### User decisions recorded 2026-10-31 (relayed by the coordinator)
+
+1. Remove the workspace placement pick: `_ONE_WS_PICK = 0` (default allocation), everything else
+   unchanged (HMRG, PRQ=31), so the board entry does not depend on a selected placement.
+2. Family F is measurement and learning only: never submit donor code. Where the donor wins,
+   re-implement the mechanism in our own code with attribution comments. For attention the donor
+   file is vjeux's public file, so F-ATTN-0 is the public-kernel comparison this log has tracked
+   since d57d1fe064164611; the rows above are its current state.
+
+The pick-off release is the control from now on.
+
+### Check 3250ab04126b4865: the pick-off release
+
+| date | job | commit | file | result | notes |
+|---|---|---|---|---|---|
+| 2026-10-31 | 3250ab04126b4865 (check) | dcda02e | `submission.py` with `_ONE_WS_PICK = 0` | 2.537x (CI 2.499-2.575), passed | handed to the coordinator for a scored run |
+
+The host code differs from release a70192d only in the pick line (plus its comment); the inlined
+kernel equals `attn_one.cu`, whose default build is SASS-identical to main 15cc6b9 on all 13
+instances (`flat/sass_all.sh`, last run with the round 4 switches in). Same-day release with the pick:
+2.542x (b90af2a967b946b1), so turning the pick off costs nothing visible in the judge.
+Profiles: `muse_attention_decode/profiles/sub_nopick.3250ab04126b4865.*`.
+
+Next for attention, by the evidence above: the flat full rows (d16 / d32 / v16 full, about 0.4% of
+the donor's 0.9%), re-implementing in our kernel what makes the public kernel's two co-resident CTAs
+share an SM more evenly (round 4: bulk-copied page indices in mode 49's producer first), then v32
+sliding (-0.6 us) and d1 full.
