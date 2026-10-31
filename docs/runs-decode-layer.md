@@ -636,3 +636,19 @@ a bench that prints ABKN first (or names the kernels in ABK) would make it a mea
 ## Ruled out
 
 The losers of the W0 checks (PDL across our own chain, the two L2 prefetch forms, the hi/lo mma router against the one-GEMM front) are in `docs/ruled-out.md` under muse_decode_layer.
+
+### Scored: layer_m1rt51s, three runs (2026-10-31)
+
+layer_m1rt51s.py from 0bc16c6 (SHA256 f1235356...; M1 on the stable rule, MoE mode 51 at
+32/128/256, stable tuner; no workspace pick, no donor code), submitted by the coordinator after
+four-arm benches 3aee22ba4a404c8a (pooled 1.0052) and c8d1e57261dd4901 (pooled 1.0106) both read
+cand faster than release_s. Runs 2 and 3 differ only by a trailing `# repeat N` comment. All
+passed. The best, 2.0148x, is a hair above the previous entry 2.0143x, inside run-to-run noise.
+
+| job | score (95% CI) |
+|---|---|
+| ad42a066bd3a4e01 | 2.0069x (1.977-2.037) |
+| 138ae1a402934c44 | 2.0016x (1.972-2.032) |
+| 0f58d5d8223f45af | 2.0148x (1.985-2.045) |
+
+Receipts: muse_decode_layer/profiles/scored.<job>.json.

@@ -3296,3 +3296,11 @@ Next for attention, by the evidence above: the flat full rows (d16 / d32 / v16 f
 the donor's 0.9%), re-implementing in our kernel what makes the public kernel's two co-resident CTAs
 share an SM more evenly (round 4: bulk-copied page indices in mode 49's producer first), then v32
 sliding (-0.6 us) and d1 full.
+
+### Scored: 68d3b88fbc8b40da 2.537x (2026-10-31)
+
+Submit of submission.py at dcda02e (`_ONE_WS_PICK = 0` per the user's decision, ONE_PRQ=31,
+ONE_HMRG on; kernel SASS identical to a70192d on all 13 instances; no public code), submitted by
+the coordinator under the standing authorization. Passed, 2.537x (CI 2.499-2.575), above
+1896e72c11ae4b0f (2.521x), so the board entry no longer uses the workspace pick. Receipt:
+muse_attention_decode/profiles/scored.68d3b88fbc8b40da.json.
