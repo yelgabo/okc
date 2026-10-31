@@ -1232,3 +1232,119 @@ scored file's path (cw rejected by the tuner), and its 1.496x matches the two co
 | P3 cw: 12-bit stream decoded into wgmma A tiles in shared memory | pooler 128 | measured loss: +28 us vs the Lt pick, +12.8 over its own raw twin; saving 1.0 us | 4922f366a0c142ca | parked; reopen trigger in ruled-out |
 | raw 128-row x 128-token, K split 4 wgmma geometry (b2n128c4s6) | pooler 128 | measured loss: +15.0 us vs Lt, +13.3 vs wd8 | 4922f366a0c142ca | the in-house geometry that compression would sit in must first reach Lt |
 | everything else | | unchanged from round 2 | | |
+
+## 2026-10-30 round 4: split exit cluster barrier (branch worktree-agent-a8fe8ec879e99f5af)
+
+Brief (coordinator): pick the highest score-value item among the conforming exit barrier's cost
+(+0.58 us at m = 128 on the judge), the untested reference-router differences at m = 256 and the
+o m = 128 cuBLASLt flip. Picked the exit barrier: it cost up to about 0.3% of score across the
+five router loads, the mechanism was known, and a fix needs no new kernel. Budget: 3 checks.
+
+Change (db0f8ad, 2265fa2): the same exit cluster barrier, with the arrive moved from after the
+reduction and output stores to right after the receive mbarrier wait; the wait stays just before
+exit. wd `WV_TAILSPLIT` (+ `WV_TAILRLX` for a relaxed arrive), rt `RT_GEOM` mode 2 (release
+arrive) or 3 (relaxed). Production: wd KLUE | TAILSPLIT | TAILRLX, rt mode 3. The ce25f67 wd
+tail was a release arrive after the global stores, which compiles to `MEMBAR.ALL.CTA`,
+`MEMBAR.ALL.GPU`, `ERRBAR`, `CGAERRBAR` and so waited for the stores to drain. PTX argument and
+the independent review (sound with notes) are in docs/proj-port-guide.md, "Split exit barrier".
+SASS against ce25f67 (nvcc 12.8, sm_90a): 69 kernels instruction-identical; the 9 rt instances
+keep the same barrier and fence counts (reordered, -1 WARPSYNC); the 3 wd router instances drop
+2 MEMBAR, 1 ERRBAR and 1 CGAERRBAR and gain one UCGABAR_ARV site (consumer and producer warp
+arrive at different points); no spills, no C75xx warnings. `tools/proj_make_bench_tail.py`
+builds the bench.
+
+| date | job | kind | commit | change | score (95% CI) | notes |
+|---|---|---|---|---|---|---|
+| 10-30 | 4f3ff774981a494c | check (bench TB) | db0f8ad | exit-barrier arms with duplicate nulls; judged path = the relaxed split candidate | 1.497x (1.475-1.520) | table below; judged router us 3.12 / 4.41 / 5.25 / 4.14 / 7.20 / 9.62 (decode 1 / 16 / 32, verify 1 / 16 / 32) |
+| 10-30 | 25ea2b62ff8a47a7 | check (clean candidate) | 2265fa2 | submission.py, sha1 1afd831b | 1.493x (1.471-1.516) | judged router us 3.70 / 4.76 / 5.83 / 4.25 / 6.55 / 9.37 |
+
+Bench lines (in-process, 100 seeded rounds, cold L2, paired median difference against the bench
+copy of the ce25f67 form, us / rounds faster out of 100; all arms passed FP64 checks on two router
+matrices, adjacent sizes and two graph replays):
+
+| arm | m=8 rt8w8 | m=16 rt16w8 | m=32 rt16w8p8 | m=128 r64c8s8 | m=256 r128c8s6 |
+|---|---:|---:|---:|---:|---:|
+| ce25f67 form, duplicate (wd D twin) | | | | +0.00 / 46 | -0.03 / 53 |
+| split, relaxed arrive (YZ / mode 3) | +0.00 / 45 | -0.22 / 76 | -0.03 / 51 | -0.45 / 94 | -0.32 / 86 |
+| split, relaxed, duplicate (DYZ) | | | | -0.42 / 88 | -0.29 / 87 |
+| split, relaxed, production extension | -0.06 / 61 | -0.18 / 69 | +0.00 / 48 | -0.32 / 86 | -0.26 / 77 |
+| split, release arrive (Y / mode 2) | +0.35 / 7 | +0.26 / 16 | +0.40 / 9 | -0.14 / 71 | -0.16 / 72 |
+| no exit barrier (non-conforming bound) | -0.13 / 67 | -0.32 / 82 | -0.16 / 74 | -0.48 / 94 | -0.26 / 81 |
+
+What it shows (measured, in process): the relaxed split recovers the whole exit-barrier cost on
+wd (-0.45 of -0.48 at 128; at 256 it ties the no-barrier bound) and part of it on rt at 16
+tokens; at 8 and 32 tokens rt is a null. A release arrive costs more than it saves: on rt it adds
+`MEMBAR.ALL.GPU` that the ce25f67 relaxed tail did not have (+0.26 to +0.40), and on wd it keeps
+two thirds of the cost. So the cost was the release's membar draining the output stores, not
+the wait for the slowest CTA.
+
+Judged (two samples of the candidate against the two conforming checks 3abb1cd9 / d7c66229 and
+the scored ce25f67 path): verify 16 router 7.20 and 6.55 us against 7.14 / 7.24 (the
+non-conforming file ran 6.63 / 6.59); verify 32 9.62 / 9.37 against 9.90 / 9.71; decode 16 4.41
+/ 4.76 against 4.82 / 4.78; decode 32 5.25 / 5.83 against 5.49 / 5.48 (SGLang's own m = 32
+median was also 0.3-0.4 us higher in that run). Scores 1.497 / 1.493 against 1.495 / 1.496: the
+expected gain (about 0.45 x 0.23 + 0.32 x 0.18 + 0.2 x 0.34, roughly 0.2% of score) is far below
+the judge's run-to-run spread, so the judge can neither confirm nor reject it; the paired
+in-process evidence with duplicate nulls is the decision basis. Candidate handed to the
+coordinator (scratchpad file, sha1 1afd831b, identical to submission.py at 2265fa2).
+
+Not done this round: the o m = 128 pin. Across six preparations (f2373ded, b80b817c, 3abb1cd9,
+d7c66229, 4f3ff774, 25ea2b62) the best cuBLASLt finalist always beat base, by +0.13 to +0.45 us,
+but the winning config changed each time (tile 18 every time; layouts L0-L3, custom 4-7, cluster
+g2 / g5), so no single config to pin has evidence. Worth at most about 0.1% of score.
+
+Scored 2026-10-30: d85d0081fa8a4a43 1.4976x, submission.py at 2265fa2 (split exit cluster barrier, relaxed arrive after the receive wait), submitted by the coordinator. Receipt: muse_bf16_proj/profiles/scored.d85d0081fa8a4a43.json.
+
+## 2026-10-30 round 5: frontier map and the qkv_gate one-wave cluster split (branch worktree-agent-a397d671218195a46)
+
+Brief (coordinator): top 100 on this board (rank 100 at 1.5560, we are 1.4976). Frontier map and
+portfolio in docs/steering/2026-10-30-projection-top100.md (`tools/proj_frontier.py`). Built the
+top structural option that fit the one check left today: qkv_gate at 8 / 16 / 32 tokens in one
+wave. The P2 decline row names the reopen condition (a geometry with <= 132 CTAs); its cited
+losers ran 144-192 CTAs, and the coordinator agreed this meets it.
+
+Design (code parked in `muse_bf16_proj/experiments/qkv_c4_submission.py`): 72 rows per CTA,
+K split over a 4-CTA cluster, 32 clusters = 128 CTAs at one per SM (qkv8c4 / qkv16c4: 6
+consumer warps, UPS 4, 8 stages per CTA; qkv8c4w / qkv16c4w: 12 warps; qkv32c4). The 12-bit
+escape tables are loaded by every rank; each rank's escape warps skip entries below its K range
+and correct only their own stages; ranks 1-3 add their corrections to the partials they push
+to rank 0 by `st.async`; every CTA ends with the split exit cluster barrier (relaxed arrive
+after rank 0's receive wait), the conforming form. Exact one-hot match against the unsplit pick
+at escape columns and K-range edges of every rank (`_escape_cols`, `_match_twin`). Compile
+gate (nvcc 12.8 sm_90a, against c98018f): 81 kernels instruction-identical, 10 added, 59-108
+registers, no spills. Independent read-only review: sound (escape ownership, exit-barrier
+phases, prologue, balancing); one fix taken (a `__syncwarp` before the escape warps' `.aligned`
+cluster wait), SASS re-checked identical for the other 81.
+
+| date | job | kind | commit | change | score (95% CI) | notes |
+|---|---|---|---|---|---|---|
+| 10-30 | ad6c673d9a444c1e | check (bench C4) | 90ee4b9 | qkv c4 configs offered to the tuner, A/B bench block | 1.509x (1.486-1.532) | every c4 config passed FP64, the 2-ulp twin match and 22 identical one-hot columns (pmax R24 32, R72 90); bench timing loop crashed on my `torch.sum(out=)` call, so no paired A/B lines; the tuner (cold L2, 24 alternating reps, one preparation) rejected every c4 config by 9-12 us; judged path = the production picks |
+
+In-process tuner us (graph replay, overhead not removed), ad6c673d9a444c1e:
+
+| m | pick | c4 | c4w | pick raw | c4 raw | c4w raw |
+|---:|---:|---:|---:|---:|---:|---:|
+| 1 | qkv8 13.8 | 23.0 | 24.9 | 15.5 | 20.5 | 22.8 |
+| 8 | qkv8 13.9 | 23.7 | 25.5 | 16.4 | 20.8 | 23.4 |
+| 16 | qkv16 14.7 | 24.1 | 25.7 | 16.4 | 21.1 | 23.9 |
+| 32 | qkv32 15.6 | 27.9 | | 16.2 | 24.6 | |
+
+What it shows (measured): the one-wave cluster split as built is +9.2 to +12.3 us slower than
+the 96-CTA picks at every m, 12-bit and raw alike (raw +4.7 to +8.4). The loss is 30x any
+null this problem has seen, so the missing paired lines do not change the decision. Not
+attributed. Hypotheses, not tested: (1) not all 32 one-CTA-per-SM clusters of 4 are
+co-resident, so part of the grid runs a second wave (consistent with the 12-bit kernel time
+roughly doubling and the raw one rising by about 1.5x at 0.75x work per CTA); (2) the 72-row
+CTA with 6 or 12 warps decodes slower per byte than the 24-row, 4-warp one (the 12-bit c4 loses
+3 us more than its raw twin, while the 24-row 12-bit pick beats its raw twin by 1.7-2.6).
+
+Decision: stop rule fired. `submission.py` stays at the c98018f content; the build is parked as an
+experiment file; `tools/proj_make_bench_c4.py` (timing bug fixed) builds its bench. No candidate
+handed to the coordinator.
+
+### Family ledger (muse_bf16_proj, after round 5)
+
+| family | shapes | status | evidence | next |
+|---|---|---|---|---|
+| qkv one-wave 4-CTA cluster K split (72 rows, 128 CTAs) | qkv 8 / 16 / 32 | measured loss +9 to +12 us, cause not attributed | ad6c673d9a444c1e | parked; reopen trigger in ruled-out |
+| everything else | | unchanged from round 4 | | |

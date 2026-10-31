@@ -1,6 +1,6 @@
 # Architecture performance tracker
 
-Last review: 2026-10-30 04:43 PDT. Evidence snapshot: `b5b8a34`.
+Last review: 2026-10-30 12:44 PDT. Evidence snapshot: `c98018f`.
 First review reconciles progress since `aab7d75`, the snapshot in the
 [architecture-family guide](architecture-families-2026-10-29.md).
 This is a review of recorded experiments, not a new benchmark run.
@@ -14,11 +14,112 @@ named control, not changes in aggregate score. Families overlap; their gains can
 |---|---|---|---|
 | A. Hybrid persistent/legacy MoE | Component wins; mode 51 layer gain inconclusive | Four-arm mode 51 comparison reports 1.0057 pooled, below its noise gate. Old three-arm deltas remain observations, not established isolated gains. | Board stays mode 47. Stabilize prepare-time picks and resolve arm bias before promoting 51. |
 | B. Staged grouped MoE | Retested loss | Modes 45 + 46 on mode 37 components lose 30.4/24.4 us at 128/256 versus 37, six seeds each. | Parked until phase B alone drops below about 50 us at 128 or the fused phase A tail disappears. |
-| C. Owner-completes tiles | Retained in the persistent descendants | Mode 20's owned phase A saves about 2-3 us at 128 and 4 us at 256 over mode 16. Later modes combine ownership with other changes. | Later gains cannot be credited to ownership alone. |
+| C. Owner-completes tiles | Retained; stream-K alternative retested and loses | Mode 72 replaces owned phase A with cut-unit fixups on 51 components: +12.6/+6.6 us at 128/256 layer-like routing, zero of six faster. | Loss is scoped to this partition/fixup; cheaper designated finishing remains untested. |
 | D. Dependency-aware scheduling | Dynamic claiming retained; new phase-A claim layouts lose | Phase-A modes 62/63 and K=0 controls 66/69 lose; lean claimed mode 68 is not timed. Earlier split-tail 52/53 losses stand. | Full ready-only queue remains untested. Reopen phase-A claims only after the no-work control ties mode 51 within 1 us at 128/256. |
 | E. Attention producer-consumer pipeline | PRQ per-request win; XPIPE cold losses retained | PRQ31 saves 0.48/0.96 us at 128/256 sliding in matched-null confirmation. Earlier DCARRY/PK16/VHOIST remains integrated. | layer_hp combines PRQ + HMRG + placement and awaits GPU testing; full-context XPIPE losses stand. |
 
-## Latest review: PRQ wins within E; claiming and compression implementations lose
+## Latest review: projection split exit barrier wins paired router tests
+
+This is separate projection context, with no new A-E or whole-layer result. Job
+`4f3ff774981a494c` at `db0f8ad` compares relaxed split exit barriers (wd KLUEYZ,
+rt mode 3) with a copy of `ce25f67`'s conforming tail (wd KLUET, rt mode 1).
+The arrive moves after the receive wait and before reduction/output stores; the exit wait
+stays. Router workloads use 8/16/32/128/256 tokens, not MoE routing distributions.
+All arms passed FP64 checks on two router matrices, adjacent sizes and two graph replays.
+[Run record](runs.md), [raw paired log](../muse_bf16_proj/profiles/proj_tail_bench.4f3ff774981a494c.log).
+
+One same-process experiment uses 100 seeded cold-L2 rounds. Deltas are paired medians;
+percentages divide that delta by the logged control median, rather than subtracting marginal
+medians. No paired confidence interval is recorded.
+
+| Router tokens | Control median | Relaxed split delta | Percent | Rounds faster | Production-copy delta |
+|---|---:|---:|---:|---:|---:|
+| 8 | 4.64 us | +0.00 us | +0.00% | 45/100 | -0.06 us (-1.29%) |
+| 16 | 4.96 us | -0.22 us | -4.44% | 76/100 | -0.18 us (-3.63%) |
+| 32 | 5.79 us | -0.03 us | -0.52% | 51/100 | +0.00 us (+0.00%) |
+| 128 | 7.71 us | -0.45 us | -5.84% | 94/100 | -0.32 us (-4.15%) |
+| 256 | 10.21 us | -0.32 us | -3.13% | 86/100 | -0.26 us (-2.55%) |
+
+The wd relaxed duplicate saves 0.42/0.29 us at 128/256 (5.45%/2.84%; 88/87 rounds
+faster), while duplicate-control nulls are +0.00/-0.03 us. The rt 8/32 results remain
+inconclusive. The release-arrive split loses +0.35/+0.26/+0.40 us at 8/16/32
+(+7.54%/+5.24%/+6.91%; 7/16/9 rounds faster); its wd savings are only 0.14/0.16 us
+(1.82%/1.57%; 71/72 rounds faster). The no-exit-barrier arm is a diagnostic bound,
+not a candidate. [Scoped rejection](ruled-out.md).
+
+The bench receipt passes 9 tests and scores 1.4972x (95% CI 1.4747-1.5196).
+Clean check `25ea2b62ff8a47a7` at `2265fa2` passes 9 tests, 1.4931x
+(1.4707-1.5155). Coordinator scored run `d85d0081fa8a4a43`, same source, passes
+and scores 1.4976x (1.4751-1.5200). These overlap the previous 1.495/1.496 runs:
+aggregate improvement remains inconclusive across runs. The paired gain is relative to
+`ce25f67`, not proof of a gain over the older projection baseline at 256.
+[Bench receipt](../muse_bf16_proj/profiles/proj_tail_bench.4f3ff774981a494c.json),
+[clean receipt](../muse_bf16_proj/profiles/submission_tail1.25ea2b62ff8a47a7.json),
+[scored receipt](../muse_bf16_proj/profiles/scored.d85d0081fa8a4a43.json).
+
+The recorded ordering review calls the split sound with notes. Its relaxed form relies on
+arrive executing after the receive-wait loop; the guide notes that the ISA does not explicitly
+state the barrier-speculation property. Passing tests do not establish ordering safety.
+A future CLR>1 PUSH configuration needs a fresh review. The o128 library pin is still
+unresolved because six preparations select different winning configurations; P3 stays parked.
+[Ordering argument and caveats](proj-port-guide.md), [run record](runs.md).
+
+Keep standalone promotion separate from layer integration. Projection still needs a layer
+port and paired layer test. A-versus-B, C ownership, D's untested full ready queue and E's
+PRQ win/XPIPE losses are unchanged. `layer_hp`, `layer_g51b` and `layer_m1rt51c` still
+await their recorded tests; the layer release remains 2.014x. Do not add projection savings
+to any family score. [Layer run log](runs-decode-layer.md), [release manifest](release-manifest.md).
+
+## Historical review, 05:39: stream-K phase-A retest loses
+
+Job `098949b28fe84bd1`, source `86a633e`, tests mode 72 against mode 51. It replaces
+whole-owned phase-A units with mode 16's cost-weighted stream-K partition and last-arrival
+fixup while retaining 51's current stage loop, epilogue and dynamic phase-B claims.
+This is the split-K alternative to family C inside A, with D-related phase-B claiming retained.
+It is not staged family B or a full dependency-ready scheduler.
+[Experiment and ordering review](runs-moe.md#stream-k-phase-a-on-51s-components-modes-72-and-73-2026-10-30).
+
+Same-process cold measurements use six seeds 83-88 for each size and routing distribution,
+20 graph replays per arm per seed after L2 flush. Layer-like routing is a component workload,
+not a whole-layer test. Percentages divide the logged paired mean delta by the control mean.
+
+| Tokens / routing | Mode 51 control | Mode 72 minus control | Percent | Seeds faster |
+|---|---:|---:|---:|---:|
+| 32 / layer-like | 88.7 us | +13.5 us | +15.22% | 0/6 |
+| 32 / standalone | 151.0 us | +9.4 us | +6.23% | 0/6 |
+| 128 / layer-like | 166.1 us | +12.6 us | +7.59% | 0/6 |
+| 128 / standalone | 195.3 us | +7.1 us | +3.64% | 0/6 |
+| 256 / layer-like | 220.3 us | +6.6 us | +3.00% | 0/6 |
+| 256 / standalone | 227.9 us | +9.2 us | +4.04% | 0/6 |
+
+No paired confidence interval is recorded. Individual seed deltas remain in the
+[raw log](../muse_moe_w4a16/profiles/bench_sk72.098949b28fe84bd1.log).
+The [receipt](../muse_moe_w4a16/profiles/bench_sk72.098949b28fe84bd1.json) passes 5/5,
+2.193x (2.160-2.226); that judge score is not an isolated mode 72 gain. First-seed output
+checks in all six cells differ from 51 by 1.5e-4 to 2.4e-4 relative L2, consistent with the
+changed FP32 summation order. Spin flags are zero. The diagnostic condition fails at 256 on
+both routings, so the held-out/skewed gate was not run and nothing ships.
+
+Stamped mode 73 versus 55 shows phase-A end spread widening to 15-19 us at 128/256 from 8-15 us.
+Fixups are estimated at 9.4-10.9 us per CTA, with about 1.85 cut segments per CTA. The per-share
+count path is about 3.3 us and finishing read-back 6-9 us. ABFIX's total subtracts a mean
+pre-count time and is an estimate; the per-share and per-finish columns are measured directly.
+Unlike the previous claiming builds, this kernel compiles no duplicate loop. Global fixup
+round trips and an outdated cost table are hypotheses for the loss, not separately measured
+causes. A shorter gather in the stamped twin does not help: the last first-x-ready is later.
+
+C's ownership choice remains favored for this comparison. Preserve the loss at its tested
+scope: mode 72's partition plus last-arrival fixup on current components at 32-256 tokens.
+Revisit with a fixup well below 1 us per share on the critical path, or a stage-cost table
+refitted to the current loop, then compare in-process with ABFIX. A designated finisher or
+cuts where the finisher is idle are untested alternatives. [Scoped rejection](ruled-out.md).
+
+A-versus-B is unchanged: the staged pair still needs its phase-B or phase-A-tail trigger.
+D's full ready-only queue remains untested. PRQ's E win and previous XPIPE losses stand.
+`layer_hp` still has no GPU check; the whole-layer release remains 2.014x. No new attention,
+projection or layer measurement appears in this checkpoint. [Layer manifest](release-manifest.md).
+
+## Historical review, 04:43: PRQ wins within E; claiming and compression implementations lose
 
 Family E now has a per-request pipeline win: `ONE_PRQ=31` combines transpose overlap,
 Q.K-first issue, fast copies, split P.V issue and an offset-test change on q_len=8 modes
@@ -925,6 +1026,7 @@ are hypotheses. This correction motivates a test, not a new winning-family badge
 | E: mode 115, one CTA/SM | Attention mode 51 | +27.52 us, +24.96% | +57.67 us, +30.80% | `318ae6fc3c3746ce`, source `682aeaa`, two inputs, cold pooled medians; controls 110.27/187.26, nulls +0.06/+0.42. 16/16 and real-arm ABCHECKSUM 19/0. [Attention log](runs-attention.md). |
 | E: mode 115 + XPIPE=1 | Attention mode 51 | +28.10 us, +25.48% | +52.61 us, +28.09% | Same job, controls and correctness; overlap helps within mode 115 at 256 but cannot recover residency loss. [Attention log](runs-attention.md). |
 | E: PRQ31 per-request tile pipeline | HMRG-on attention, PRQ off | Sliding -0.48 us, -3.02%; full unchanged code | Sliding -0.96 us, -4.59%; full unchanged code | `409996a7214f411a`, `8a6c8bb`, two inputs, 120 rounds, controls 15.87/20.93 us, same-state null +0.03/+0.09 us; 16/16 and 19/0 arm checks. Combined five-bit design. [Attention log](runs-attention.md). |
+| Alternative to C inside A: mode 72 stream-K phase A | Mode 51 owned phase A | +12.6 us, +7.59% | +6.6 us, +3.00% | `098949b28fe84bd1`, `86a633e`, six seeds 83-88, layer-like routing, controls 166.1/220.3 us; 0/6 faster, receipt 5/5, first-seed L2 checks 1.5e-4 to 2.4e-4 across cells. Standalone +7.1/+9.2 us. No gate run. [MoE log](runs-moe.md). |
 
 Percentages use the logged paired delta divided by the logged control mean, except the explicit pooled-median subtraction rows.  Paired summaries use logged paired deltas rather than subtraction of separately summarized
 arm timings. Layer deltas are medians of per-round differences; these can differ by several
@@ -981,6 +1083,56 @@ The combined layer_hp (PRQ + HMRG + placement) is built but has no GPU result. P
 uses conforming push paths; current cross-run results retain no gain at 32/256 tokens. [Rejection register](ruled-out.md).
 
 ## Review history and checkpoint
+
+- 2026-10-30 12:44 PDT: inspected through `c98018f`, including projection round 4
+  jobs `4f3ff774981a494c`, `25ea2b62ff8a47a7` and `d85d0081fa8a4a43`.
+  Paired router gains at 16/128/256, nulls at 8/32, release-split losses retained.
+  Four run logs, ruled-out entries, port guide and release manifest reconciled;
+  18 untracked receipts remain historical provisional evidence. A-E and layer status unchanged.
+
+- 2026-10-30 11:49 PDT: checkout remains `5a8e7f9`; fetched origin/main has no
+  remote-only commits. Four run logs, rejection register, release manifest and project
+  instructions are unchanged. All 18 untracked profile JSONs parse and are already logged.
+  Family outcomes and pending layer tests remain unchanged. Review metadata refreshed
+  locally; no new-evidence commit or push.
+
+- 2026-10-30 10:45 PDT: checkout remains `5a8e7f9`; fetched origin/main has no
+  remote-only commits. Four run logs, rejection register, release manifest and project
+  instructions are unchanged. All 18 untracked profile JSONs parse and are already logged.
+  Family outcomes and pending layer tests remain unchanged. Review metadata refreshed
+  locally; no new-evidence commit or push.
+
+- 2026-10-30 09:44 PDT: checkout remains `5a8e7f9`; fetched origin/main has no
+  remote-only commits. Four run logs, rejection register, release manifest and project
+  instructions are unchanged. All 18 untracked profile JSONs parse and are already logged.
+  Family outcomes and pending layer tests remain unchanged. Review metadata refreshed
+  locally; no new-evidence commit or push.
+
+- 2026-10-30 08:44 PDT: checkout remains `5a8e7f9`; fetched origin/main has no
+  remote-only commits. Four run logs, rejection register, release manifest and project
+  instructions are unchanged. Parsed all 18 untracked profile JSONs, all already logged.
+  No new result or correction; family outcomes and pending layer tests remain unchanged.
+  Review metadata refreshed locally; no new-evidence commit or push.
+
+- 2026-10-30 07:49 PDT: checkout and fetched origin/main remain `5a8e7f9`. Four run
+  logs, rejection register and release manifest are unchanged. All 18 untracked profile
+  JSONs parse and are already logged. Existing local edits contain only the prior review's
+  metadata refresh. Family outcomes and pending layer tests are unchanged. Review metadata
+  refreshed locally; no new-evidence commit or push.
+
+- 2026-10-30 06:46 PDT: checkout remains `5a8e7f9`; only the previous review commit
+  follows evidence snapshot `15cc6b9`. Four run logs, rejection register and release manifest
+  are unchanged. Fetched origin/main with no remote-only commits. Parsed all 18 untracked
+  profile JSONs; all are already logged jobs. Accessible chat inventory provides no newer
+  frontier result. Family outcomes and pending layer tests are unchanged. Review metadata
+  refreshed locally; no new-evidence commit or push.
+
+- 2026-10-30 05:39 PDT: inspected `b5b8a34..15cc6b9`, mode 72 job
+  `098949b28fe84bd1` and its raw receipt/log, ruled-out entry and source/ordering notes.
+  Receipt 5/5; stream-K alternative loses all six size/routing cells. Attention, projection
+  and layer logs unchanged; layer_hp still untested. All 18 untracked profile JSONs are
+  already logged. Fetched origin/main with no remote-only commits at inspection. No
+  benchmark, submission or push by this review.
 
 - 2026-10-30 04:43 PDT: inspected `16573a6..b5b8a34`. Checkpointed five PRQ checks,
   scored attention `1896e72c11ae4b0f`, five MoE scorecard/claim checks and P3 check `4922f366a0c142ca`

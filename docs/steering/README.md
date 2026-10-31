@@ -4,7 +4,79 @@ This is the stable entry point for steering reports across research, implementat
 and coordinator sessions. The user requested on 2026-10-29 that every project-steering
 report be checked into this repository so other sessions can read it.
 
-## Latest standalone decision: attention and projection research roadmaps
+## Latest family registration: F — donor-based baseline and hybrid
+
+**[2026-10-30: Family F — Donor-based baseline and hybrid](2026-10-30-family-f-donor-baseline.md)**
+
+Registered at the user's request against evidence snapshot `7a59655`; donor
+`alygg77/okc-muse-spark-kernels` remains pinned at `6cae49a`.
+F is a first-class implementation/adoption family alongside A–E, not an incremental tweak
+that must be folded into the incumbent. F0 is the exact donor, F1 a documented minimal
+conforming adaptation when required, and F2 a measured hybrid. F-PROJ and F-ATTN are the
+first independent comparison tracks; F-MOE and F-LAYER remain separately owned.
+Status: registered / untested against our releases. Archived donor scores are not F wins.
+Compare complete files and choose the better base; whole-file replacement is allowed.
+The dashboard data registers F while retaining the older A–E performance snapshot.
+No kernels, validation gates, GPU jobs, releases or scored submissions changed.
+
+## Previous decision: evaluate the complete donor as a replacement baseline
+
+**[2026-10-30: Donor-first adoption — test complete implementations before more invention](2026-10-30-donor-first-adoption.md)**
+
+Own snapshot `5b88889`; donor `alygg77/okc-muse-spark-kernels` at `6cae49a`.
+The user correctly challenged treating the better-ranked donor mainly as a list of ideas.
+Supersedes the preceding audit's premature restriction against whole-file replacement:
+compare the exact complete donor projection and attention files with our actual releases,
+then choose the donor, ours, or a measured hybrid. Shared ancestry is not performance parity;
+novelty is not an acceptance criterion. Archived projection 1.5502x versus our 1.4976x is a
+strong comparison lead, not a promised 3.5% gain. Run independent duplicate controls and
+retain all precision, ordering, replay and attribution requirements. Full-file comparisons
+are pending; no kernels, gates, GPU runs or scored submissions changed in this report.
+Prioritize this adoption decision ahead of new codec/dense rewrites; layer/MoE comparisons
+remain separately owned. The next deliverable must identify what code we should use now.
+
+## Previous external-source steering: alygg77 measurement audit
+
+**[2026-10-30: alygg77 public kernels — measured constraints and a narrower next round](2026-10-30-alygg77-public-kernel-audit.md)**
+
+Own snapshot `269c110`; donor `alygg77/okc-muse-spark-kernels` at `6cae49a`.
+The supplied X post itself was not retrievable; this is an independently located repository
+review, not a quotation of the post. Archived projection 1.5502x is not a fresh rank or a
+paired improvement over us. Compare the donor's selected O8/pool8/pool16 routes and router;
+query exact four-CTA-cluster occupancy before reopening the failed QKV design. External
+measurements distinguish QKV256 transfer pressure from O256's busy mainloop and epilogue,
+and document split-K losses despite 94%-peak mainloop throughput. Denser compression stays
+CPU-gated, not the sole assumed route to top 100. Attention is unchanged vjeux; KPERM3 merits
+a static overlap audit against current MoE work. No kernels, gates, GPU runs or submissions
+changed. The report explicitly separates donor reports, our evidence and proposed tests.
+
+## Latest projection report: frontier map and the route to top 100
+
+**[2026-10-30: Projection frontier map and the route to top 100](2026-10-30-projection-top100.md)**
+
+Evidence `c98018f`, check `ad6c673d9a444c1e`. Rank 100 (1.556) needs +4.1% over the
+current code's six-receipt median (1.4947), about a third of all headroom to the measured floors.
+The qkv one-wave cluster split was built and lost by 9-12 us (parked). The remaining
+ranked portfolio sums to 2.7-3.5%, below the target. Only a denser lossless weight code has a
+ceiling above it. The m = 256 dense GEMMs hold about 20 us against the 989 TFLOP/s floor
+(qkv and o run 590 / 560 TFLOP/s); a batched-GEMM diagnostic is the cheapest test.
+
+## Latest projection decision: corrected top-100 portfolio
+
+**[2026-10-30: Projection top-100 — corrected evidence and structural tests](2026-10-30-projection-top100-portfolio.md)**
+
+Evidence snapshot `c98018f`; verified scored receipt `d85d0081fa8a4a43`, 1.4975856x.
+The user's official-CLI cutoff is 1.5560x; the audit did not issue a new CLI query.
+P1 Lt enumeration, rt/KLUE router and split exit barriers are shipped; shared-tile P3 lost.
+Finish the in-progress QKV split-K, checking actual cluster residency rather than assuming
+128 CTAs fit in one wave. Start a bounded raw-BF16 m=256 schedule/epilogue workstream,
+not another generic CUTLASS sweep. The report supplies a non-overlapping load budget that
+would reach 1.5574x from the user's six-receipt 1.4947x baseline, explicitly a target envelope,
+not measured gains. At 800 TF/s only part of the 989-TF/s floor gap is recoverable.
+Router/picker cleanup and an offline lossless-code feasibility question remain reserves.
+No kernel, gate, GPU run or submission changed. Attention and layer work remain separate.
+
+## Previous standalone decision: attention and projection research roadmaps
 
 **[2026-10-30: Standalone attention and projection — widen the search](2026-10-30-attention-projection-standalone-roadmap.md)**
 
@@ -21,7 +93,22 @@ The existing CUTLASS pooler, wide 8-stage picks, DCARRY/PK16/VHOIST and failed l
 are explicitly accounted for. No kernels, validation policies, GPU runs or submissions changed.
 This is separate from the layer's M1/tuner-stability work below.
 
-## Latest hourly report, 04:43
+## Latest hourly report, 12:44
+
+**[2026-10-30 12:44 PDT: Projection split exit barrier gains](2026-10-30-1244-performance-review.md)**
+
+Evidence snapshot `c98018f`. Paired router savings at 16/128/256; 8/32 inconclusive.
+Release split loses on rt. Standalone score change is inconclusive; layer port/test pending.
+A-E standings and pending layer candidates are unchanged.
+
+## Previous hourly report, 05:39
+
+**[2026-10-30 05:39 PDT: Stream-K phase-A retest loses](2026-10-30-0539-performance-review.md)**
+
+Evidence snapshot `15cc6b9`. Mode 72 loses against owned units at 32/128/256 on both
+routings. No gate run; layer_hp still awaits GPU tests.
+
+## Previous hourly report, 04:43
 
 **[2026-10-30 04:43 PDT: PRQ win, MoE claiming losses and P3 loss](2026-10-30-0443-performance-review.md)**
 
@@ -166,7 +253,7 @@ A/E and projection bundle `b694b4a` is assembled but unjudged. PDL overlap is co
 **[2026-10-29 14:25 PDT: Attention component gains and validation gaps](2026-10-29-1425-performance-review.md)**
 
 Evidence snapshot `efddc84`. PK16/VHOIST improves 128/256-token attention beyond DCARRY;
-the combined package still awaits layer tests. Local commit under the automation's no-push rule.
+the combined package still awaits layer tests. Local commit under the hourly automation's no-push rule.
 
 ## Latest community audit
 
@@ -234,6 +321,10 @@ recommendations, not execution of those tasks; check current code and run logs f
 
 | Report | Evidence snapshot | Scope |
 |---|---|---|
+| [2026-10-30 Family F registration](2026-10-30-family-f-donor-baseline.md) | ours `7a59655`; donor `6cae49a` | Separate donor-based baseline/hybrid family; F0/F1/F2 variants and independent problem tracks; registered/untested, no adoption or benchmark claim |
+| [2026-10-30 donor-first adoption](2026-10-30-donor-first-adoption.md) | ours `5b88889`; donor `6cae49a` | Correct premature restriction on whole-file replacement; exact donor versus release comparison first; choose donor, ours or measured hybrid before new invention |
+| [2026-10-30 alygg77 source audit](2026-10-30-alygg77-public-kernel-audit.md) | ours `269c110`; donor `6cae49a` | Scoped external measurements; selective projection routes; cluster residency; dense transfer/epilogue attribution; codec feasibility; attention provenance and KPERM overlap audit |
+| [2026-10-30 projection top-100 portfolio](2026-10-30-projection-top100-portfolio.md) | `c98018f`; scored `d85d0081fa8a4a43`; user CLI/frontier review | Corrected target and completed work; QKV residency gate; raw-BF16 m=256 schedule/epilogue test; explicit target envelope versus measured gains |
 | [2026-10-30 standalone attention/projection roadmap](2026-10-30-attention-projection-standalone-roadmap.md) | `a48edef`; component sources/logs and public archived references | Independent standalone scorecards and promotion gates; cross-tile attention, resource/reduction challengers; router/Lt portfolio, compressed qkv split-K, lossless WGMMA |
 | [2026-10-29 course check: validation and prefetch](2026-10-29-course-check-validation-prefetch.md) | `b41cb8d`; release `3fbb3ad027e84c6b` | Keep release; mode-51 integration; isolate MoE prefetch; stage-level M1 validation; reconcile smaller 32-token MoE gap |
 | [2026-10-30 layer release and attribution](2026-10-30-layer-release-attribution.md) | branch `worktree-agent-a39812d9e0cf11e26` after `fa7200c`; scored `3fbb3ad027e84c6b` | Clean release manifest, mode 47 isolation, M1 fresh-input diagnosis, verify 1 / decode 32 exposed-time attribution against the public layer |

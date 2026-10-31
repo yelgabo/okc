@@ -1,11 +1,17 @@
 {
-  "reviewed_at": "2026-10-30T04:43:00-07:00",
-  "snapshot": "b5b8a34",
+  "reviewed_at": "2026-10-30T12:44:00-07:00",
+  "snapshot": "c98018f",
+  "family_registry_update": {
+    "date": "2026-10-30",
+    "evidence_snapshot": "7a5965531103f275ac104d340ef30f1508e32353",
+    "note": "Family F registered at the user's request. A-E performance evidence and the layer receipt below are unchanged; this is not a new benchmark review.",
+    "source": "steering/2026-10-30-family-f-donor-baseline.md"
+  },
   "layer": {
-    "score": "2.014\u00d7",
-    "interval": "1.984\u20132.045",
+    "score": "2.014×",
+    "interval": "1.984–2.045",
     "job": "3fbb3ad027e84c6b",
-    "note": "Layer remains 2.014\u00d7. New layer_hp combines PRQ31, HMRG and workspace picking; built, no GPU result. Standalone attention now scores 2.521\u00d7. MoE claiming layouts lose, including no-work controls; projection P3 loses and is parked."
+    "note": "Layer remains 2.014×; layer_hp still awaits GPU testing. Stream-K phase-A mode 72 loses versus owned units at every tested size/routing. PRQ standalone win, earlier pipeline losses and all pending layer candidates are unchanged."
   },
   "families": [
     {
@@ -13,7 +19,7 @@
       "name": "Hybrid persistent / legacy MoE",
       "status": "win",
       "label": "Component wins; layer unresolved",
-      "metric": "1.0057\u00d7",
+      "metric": "1.0057×",
       "unit": "Mode 51 four-arm layer ratio, below noise gate",
       "summary": "Mode 51 component wins stand. Its earlier three-arm layer gain is unestablished because the control arm can run slow.",
       "layer": "Mode 47 released; mode 51 layer result inconclusive",
@@ -29,33 +35,34 @@
       "name": "Staged grouped MoE",
       "status": "loss",
       "label": "Retested loss",
-      "metric": "+30.4 / +24.4 \u00b5s",
+      "metric": "+30.4 / +24.4 µs",
       "unit": "128 / 256 tokens versus mode 37",
       "summary": "Modes 45 + 46 retest current components and lose on all six layer-routing seeds.",
       "layer": "Stopped at complete-MoE component gate",
       "pending": [],
-      "limit": "Parked until phase B alone is below about 50 \u00b5s at 128 or the fused phase A tail disappears. This scopes the loss to the tested design.",
+      "limit": "Parked until phase B alone is below about 50 µs at 128 or the fused phase A tail disappears. This scopes the loss to the tested design.",
       "source": "runs-moe.md"
     },
     {
       "id": "C",
       "name": "Owner-completes tiles",
       "status": "win",
-      "label": "Retained win",
-      "metric": "\u22122.1 / \u22123.8 \u00b5s",
+      "label": "Ownership retained; alternative loses",
+      "metric": "−2.1 / −3.8 µs",
       "unit": "128 / 256 tokens: mode 20 versus mode 16",
-      "summary": "Owned phase A improves the fused design. Later persistent modes retain it.",
+      "summary": "Whole-owned phase A stays. Retested stream-K mode 72 with last-arrival fixup loses 12.6/6.6 µs at 128/256 layer-like routing.",
       "layer": "Present in tested layer descendants",
       "pending": [],
-      "limit": "Later combined gains cannot be assigned to ownership alone.",
-      "source": "runs-moe.md"
+      "limit": "Mode 72 loses all 36 size/routing seeds. Scope: this partition/fixup on current components. A cheaper designated finisher or refitted cost table is untested.",
+      "source": "runs-moe.md",
+      "outcomes": ["win", "loss"]
     },
     {
       "id": "D",
       "name": "Dependency-aware scheduling",
       "status": "partial",
       "label": "Partial design wins",
-      "metric": "\u221216 to \u221223 \u00b5s",
+      "metric": "−16 to −23 µs",
       "unit": "dynamic phase B claiming versus mode 20",
       "summary": "Dynamic claiming stays. New phase-A claiming layouts lose even with no claims; mode 68 was not timed. Earlier tail-split losses stand.",
       "layer": "Dynamic claiming retained in layer descendants",
@@ -68,25 +75,44 @@
       "name": "Attention producer / consumer",
       "status": "win",
       "label": "PRQ win; XPIPE losses retained",
-      "metric": "\u22120.48 / \u22120.96 \u00b5s",
+      "metric": "−0.48 / −0.96 µs",
       "unit": "PRQ31 cold sliding gain, 128 / 256 tokens",
       "summary": "PRQ31 improves per-request q_len8 attention with five combined changes. Full-context XPIPE losses remain valid; earlier bundle stays integrated.",
       "layer": "layer_hp built: PRQ + HMRG + placement, GPU test pending",
-      "pending": [
-        "layer_hp: PRQ31 + HMRG + workspace pick"
-      ],
-      "limit": "PRQ confirmation uses matched-state nulls after the prior bench missed its written gate. Three-bench modeled score contribution 0.55\u20130.86%, not a layer gain. Full-context paths unchanged.",
+      "pending": ["layer_hp: PRQ31 + HMRG + workspace pick"],
+      "limit": "PRQ confirmation uses matched-state nulls after the prior bench missed its written gate. Three-bench modeled score contribution 0.55–0.86%, not a layer gain. Full-context paths unchanged.",
       "source": "runs-attention.md",
-      "outcomes": [
-        "win",
-        "loss"
-      ]
+      "outcomes": ["win", "loss"]
+    },
+    {
+      "id": "F",
+      "name": "Donor-based baseline and hybrid (alygg77)",
+      "status": "untested",
+      "label": "Registered; full-file comparisons pending",
+      "metric": "Not measured",
+      "unit": "No controlled gain over our releases established",
+      "summary": "Treat complete donor files as replacement candidates. F0: exact donor; F1: minimal conforming adaptation; F2: measured hybrid. Choose the winning base rather than preserving ours by default.",
+      "layer": "Standalone and layer adoption are separate; no F release promoted",
+      "pending": [],
+      "evaluation_pending": [
+        "F-PROJ-0: complete 30-case projection comparison",
+        "F-ATTN-0: complete 12-case attention comparison",
+        "F-MOE-0: separately owned complete MoE comparison",
+        "F-LAYER-0: separately owned complete-layer comparison"
+      ],
+      "limit": "Donor alygg77/okc-muse-spark-kernels pinned at 6cae49a639ee6d14b929a5fd4a63c627f96d7dc0. Archived donor scores are not our F results. Preserve precision, ordering, replay, attribution and submission permissions. Do not fold this family into A/E because of shared ancestry.",
+      "source": "steering/2026-10-30-family-f-donor-baseline.md",
+      "outcomes": ["untested"]
     }
   ],
   "context_pending": [
     {
-      "name": "Projection rt / KLUE with conforming push paths",
-      "summary": "Separate projection context. Exit barriers and local own-rank stores are enabled. Current cross-run gains at 8/16/128; no retained gain at 32/256. Layer port/test pending. P3 compression was tested separately and lost; it is parked."
+      "name": "Projection relaxed split exit barrier",
+      "summary": "Separate projection context. Paired router savings versus ce25f67: 0.22 us at 16, 0.45/0.32 us at 128/256 (5.84%/3.13%). 8/32 inconclusive; release split loses on rt. Scored 1.4976x, aggregate gain inconclusive. Ordering caveat retained in port guide. Layer port/test pending; P3 parked."
+    },
+    {
+      "name": "Family F complete-file adoption decision",
+      "summary": "Projection and attention owners compare the pinned exact donor with frozen releases before new GPU rewrites. Whole-file adoption, minimal conforming adaptation, or a measured hybrid may win. No comparison or promotion has occurred in this registration."
     }
   ]
 }
