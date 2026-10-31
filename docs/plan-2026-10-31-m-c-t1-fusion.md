@@ -273,3 +273,44 @@ is in docs/ruled-out.md and C-2 is not built. Together with M-B, both forms of g
 tested on our own kernels (PDL chaining and fusion behind grid barriers) lost or gained under
 1 us at the stage where the donor gains most, so the remaining gap at d1 is more likely the
 speed of individual kernels (the one-token front above all: 28.3 us summed against 23.4).
+
+## Reframe: the one-token front per kernel (2026-10-31, after three weak structural results)
+
+The 28.3 us front in the table above came from F-LAYER-0 (00607fc6f8c84c77), whose "ours" arm was
+the release (b9c23bda), where the four front kernels ran one after another (kernel sum 85.7 us
+equal to the step span 85.9). The current incumbent runs them differently. Per-kernel medians
+at decode 1 sliding, us (layer_m1rt51s from bench b70cfa48c0264d20's inc arm, kernel names from
+its ABKN lines; donor and release from 00607fc6f8c84c77, roles of the donor's kernels inferred
+from launch order; different benches have different inputs, so compare within a column pair
+only where noted):
+
+| stage | release (00607) | donor (00607, same inputs) | layer_m1rt51s (b70cfa48) |
+|---|---|---|---|
+| qkv | 10.8 | 11.3 | 10.5 |
+| attention | 5.0 | 5.9 | 5.0 |
+| o | 5.5 | 7.0 (o + boundary fused) | 5.4 |
+| attention boundary | 3.9 | (in the above) | 6.0 (PDL secondary: includes its wait) |
+| router (FP32, side stream) | 5.1 | 20.4 (front, fused) | 9.1 (launched first, overlaps the pooler) |
+| routing (side stream) | 4.3 | (in the above) | 10.6 (PDL secondary of the router: includes its wait) |
+| pooler (cgemv 512) | 17.0 | (in the above) | 17.2 |
+| pre-expert norm | 1.9 | 3.0 | 1.5 |
+| MoE | 24.9 | 25.3 | 32.0 (other inputs) |
+| unpooler + FFN boundary | 7.4 | 7.2 | 7.3 |
+| step span / kernel sum | 85.9 / 85.7 | 74.0 / 80.0 | 87.9 / 104.6 |
+
+Readings:
+
+- In the incumbent the router and routing overlap the pooler (kernel sum 16.7 us above the
+  span), so its main-stream front is the pooler plus the pre-expert norm, 18.7 us, against the
+  donor's 23.4. The pooler streams 8192 x 4096 12-bit weights, about 50 MB, whose time at the
+  H200's 3.35 TB/s is about 15 us, so it is within about 2 us of its floor. The front is no
+  longer where the donor gains.
+- The F-LAYER-0 gap (11.9 us at d1s) was measured against the release, not the incumbent. On
+  the stages that line up, the release and the donor are within 1 us of each other except the
+  front (serial in the release) and the o + boundary pair (2.4 us). Whether the incumbent still
+  trails the donor at d1, and where, needs a same-input bench of the incumbent against the
+  donor with kernel names printed; the per-kernel attack has no target until then.
+- Proposed measurement (one check, a bench with the donor as the public arm, scratchpad only,
+  never submitted): cand = layer_m1rt51sc1g, loads d1 and v1 only so the ABKN map and every
+  ABK line survive the tail. The largest same-input single-kernel gap it shows is the target
+  for the A/B.

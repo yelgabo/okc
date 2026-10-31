@@ -1,0 +1,100 @@
+-02,1e+00) row:R(7e-02,2e+00) elem:R(7e-04,2e-01)
+SUMMARY gate negctl moe main-lean-grp-nohoist T=256: none:pass(3e-05,4e-03) tile:R(1e-01,1e+00) 1%:R(1e-01,2e+00) 0.1%:R(4e-02,1e+00) row:R(7e-02,2e+00) elem:R(1e-03,3e-01)
+SUMMARY gate negctl moe main-lean-grp-finss64 T=256: none:pass(0e+00,0e+00) tile:R(1e-01,1e+00) 1%:R(1e-01,2e+00) 0.1%:R(4e-02,1e+00) row:R(7e-02,2e+00) elem:R(1e-03,4e-01)
+SUMMARY gate negctl route side@1: none:pass(0e+00,0e+00) tile:R(2e-01,8e-01) 1%:R(1e-01,8e-01) 0.1%:R(2e-02,3e-01) row:R(1e+00,1e+00) elem:R(1e-02,2e-01)
+SUMMARY gate negctl route side@8: none:pass(2e-05,7e-04) tile:R(3e-01,1e+00) 1%:R(2e-01,1e+00) 0.1%:R(4e-02,8e-01) row:R(6e-01,2e+00) elem:R(1e-03,6e-02)
+SUMMARY gate negctl route side@16: none:pass(1e-06,6e-05) tile:R(3e-01,1e+00) 1%:R(1e-01,1e+00) 0.1%:R(5e-02,1e+00) row:R(4e-01,1e+00) elem:R(2e-03,1e-01)
+SUMMARY gate negctl route side@32: none:pass(4e-06,3e-04) tile:R(3e-01,2e+00) 1%:R(1e-01,1e+00) 0.1%:R(4e-02,1e+00) row:R(2e-01,2e+00) elem:R(7e-04,6e-02)
+SUMMARY gate negctl route side@128: none:pass(0e+00,0e+00) tile:R(2e-01,2e+00) 1%:R(1e-01,1e+00) 0.1%:R(4e-02,1e+00) row:R(1e-01,2e+00) elem:R(2e-03,3e-01)
+SUMMARY gate negctl route side@256: none:pass(0e+00,0e+00) tile:R(1e-01,2e+00) 1%:R(2e-01,2e+00) 0.1%:R(5e-02,2e+00) row:R(1e-01,2e+00) elem:R(1e-04,3e-02)
+SUMMARY gate negctl route skf-r@1: none:pass(0e+00,0e+00) tile:R(1e+12,3e+11) 1%:R(8e+11,3e+11) 0.1%:R(3e+11,2e+11) row:R(8e+12,5e+11) elem:R(3e+09,3e+09)
+SUMMARY gate negctl route skf-r@8: none:pass(8e-06,2e-04) tile:R(2e-01,7e+11) 1%:R(1e-01,4e+11) 0.1%:R(3e-02,3e+11) row:R(6e-01,1e+00) elem:R(4e-03,2e-01)
+SUMMARY gate negctl route concat-r@16: none:pass(2e-07,1e-05) tile:R(3e-01,6e+11) 1%:R(1e-01,6e+11) 0.1%:R(4e-02,4e+11) row:R(5e-01,1e+00) elem:R(4e-03,3e-01)
+SUMMARY gate negctl route skf-r@16: none:pass(1e-05,8e-04) tile:R(3e-01,6e+11) 1%:R(1e-01,6e+11) 0.1%:R(4e-02,4e+11) row:R(5e-01,1e+00) elem:R(3e-03,3e-01)
+SUMMARY gate negctl route concat-r@32: none:pass(4e-05,3e-03) tile:R(2e-01,6e+11) 1%:R(1e-01,5e+11) 0.1%:R(4e-02,4e+11) row:R(3e-01,1e+00) elem:R(5e-03,4e-01)
+SUMMARY gate negctl route skf-r@32: none:pass(2e-05,1e-03) tile:R(2e-01,6e+11) 1%:R(1e-01,5e+11) 0.1%:R(4e-02,4e+11) row:R(3e-01,1e+00) elem:R(3e-03,3e-01)
+SUMMARY gate negctl route concat-r@128: none:pass(0e+00,0e+00) tile:R(2e-01,8e+11) 1%:R(1e-01,7e+11) 0.1%:R(4e-02,5e+11) row:R(1e-01,2e+00) elem:R(2e-03,4e-01)
+SUMMARY gate negctl route concat-r@256: none:pass(0e+00,0e+00) tile:R(1e-01,7e+11) 1%:R(1e-01,7e+11) 0.1%:R(5e-02,5e+11) row:R(1e-01,2e+00) elem:R(3e-03,5e-01)
+SUMMARY gate negctl m1 1x8s: hidden none:pass(0e+00,0e+00) tile:R(1e-01,1e+00) 1%:R(1e-01,1e+00) 0.1%:R(4e-02,7e-01) row:R(5e-01,1e+00) elem:R(4e-03,2e-01); stream none:pass(0e+00,0e+00) tile:R(1e-01,1e+00) 1%:R(1e-01,1e+00) 0.1%:R(4e-02,7e-01) row:R(4e-01,1e+00) elem:R(4e-03,2e-01)
+SUMMARY gate negctl m1 1x8f: hidden none:pass(0e+00,0e+00) tile:R(1e-01,9e-01) 1%:R(1e-01,2e+00) 0.1%:R(4e-02,9e-01) row:R(5e-01,1e+00) elem:R(2e-02,5e-01); stream none:pass(0e+00,0e+00) tile:R(1e-01,1e+00) 1%:R(1e-01,1e+00) 0.1%:R(4e-02,7e-01) row:R(5e-01,1e+00) elem:R(6e-03,4e-01)
+SUMMARY gate negctl m1 16x1s: hidden none:pass(5e-05,2e-03) tile:R(2e-01,1e+00) 1%:R(1e-01,1e+00) 0.1%:R(5e-02,1e+00) row:R(3e-01,1e+00) elem:R(3e-03,2e-01); stream none:pass(5e-05,2e-03) tile:R(2e-01,1e+00) 1%:R(1e-01,1e+00) 0.1%:R(4e-02,7e-01) row:R(3e-01,1e+00) elem:R(7e-03,6e-01)
+SUMMARY gate negctl m1 16x1f: hidden none:pass(9e-04,6e-03) tile:R(2e-01,1e+00) 1%:R(1e-01,1e+00) 0.1%:R(5e-02,1e+00) row:R(3e-01,1e+00) elem:R(3e-03,2e-01); stream none:pass(8e-04,6e-03) tile:R(2e-01,1e+00) 1%:R(1e-01,1e+00) 0.1%:R(4e-02,7e-01) row:R(3e-01,1e+00) elem:R(3e-03,2e-01)
+SUMMARY gate negctl m1 32x1s: hidden none:pass(1e-04,4e-03) tile:R(2e-01,1e+00) 1%:R(1e-01,1e+00) 0.1%:R(4e-02,1e+00) row:R(2e-01,1e+00) elem:R(2e-03,2e-01); stream none:pass(8e-05,3e-03) tile:R(2e-01,1e+00) 1%:R(1e-01,1e+00) 0.1%:R(4e-02,9e-01) row:R(2e-01,1e+00) elem:R(2e-03,3e-01)
+SUMMARY gate negctl m1 32x1f: hidden none:pass(9e-05,6e-03) tile:R(2e-01,1e+00) 1%:R(1e-01,1e+00) 0.1%:R(4e-02,1e+00) row:R(2e-01,1e+00) elem:R(2e-03,2e-01); stream none:pass(8e-05,6e-03) tile:R(2e-01,1e+00) 1%:R(1e-01,1e+00) 0.1%:R(4e-02,9e-01) row:R(2e-01,1e+00) elem:R(4e-03,5e-01)
+SUMMARY route side gate T=1 ok rel 6e-05|6e-05 el 1e-03|1e-03 >1e-4 0/200|0/200 o1 0|0
+SUMMARY route side gate T=8 ok rel 5e-05|6e-05 el 2e-03|3e-03 >1e-4 0/200|0/200 o1 0|0
+SUMMARY route side gate T=16 ok rel 4e-05|4e-05 el 2e-03|2e-03 >1e-4 0/200|0/200 o1 0|0
+SUMMARY route side gate T=32 ok rel 8e-05|8e-05 el 5e-03|5e-03 >1e-4 0/200|0/200 o1 0|0
+SUMMARY route side gate T=128 ok rel 0e+00|0e+00 el 0e+00|0e+00 >1e-4 0/200|0/200 o1 0|0
+SUMMARY route side gate T=256 ok rel 0e+00|0e+00 el 0e+00|0e+00 >1e-4 0/200|0/200 o1 0|0
+SUMMARY manifest moe checked 11 rejected none; route gates ok 14/14; failures reference 0 replay 0 nonfinite 0 workspace 0 sensitivity 0 other 0
+SUMMARY attn fallback vs fp32 1x1s ours 1.63e-03 sglang 5.21e-02 ours-vs-sglang 5.20e-02; 1x8s ours 3.63e-02 sglang 4.06e-02 ours-vs-sglang 3.09e-02; 1x1f ours 1.75e-03 sglang 6.75e-03 ours-vs-sglang 7.14e-03; 1x8f ours 1.76e-02 sglang 2.19e-02 ours-vs-sglang 1.46e-02
+SUMMARY m1 ok=1 policy {8: 'o+front', 16: 'o', 32: 'o'}
+SUMMARY m1 selftest PDL = plain bitwise on 14 launches
+SUMMARY m1 gate 1x1s skipped: no M1 launch
+SUMMARY m1 gate 1x1f skipped: no M1 launch
+SUMMARY m1 gate 1x8s ok cand rel 1.2e-03/1.1e-03 el 8.2e-03/6.5e-03 >1e-4 686/2000 o1 0 | ctrl rel 1.2e-03/1.1e-03 el 8.2e-03/6.5e-03 >1e-4 692/2000 o1 0 pdl launches in capture 6
+SUMMARY m1 gate 1x8f ok cand rel 1.0e-03/9.8e-04 el 5.6e-03/5.0e-03 >1e-4 530/2000 o1 0 | ctrl rel 1.0e-03/9.8e-04 el 5.6e-03/5.0e-03 >1e-4 527/2000 o1 0 pdl launches in capture 6
+SUMMARY m1 gate 16x1s ok cand rel 1.2e-03/1.1e-03 el 8.0e-03/7.3e-03 >1e-4 790/2000 o1 0 | ctrl rel 1.2e-03/1.1e-03 el 8.0e-03/7.3e-03 >1e-4 872/2000 o1 0 pdl launches in capture 6
+SUMMARY m1 gate 16x1f ok cand rel 1.2e-03/1.1e-03 el 7.4e-03/7.4e-03 >1e-4 748/2000 o1 0 | ctrl rel 1.2e-03/1.1e-03 el 7.4e-03/7.4e-03 >1e-4 733/2000 o1 0 pdl launches in capture 6
+SUMMARY m1 gate 32x1s ok cand rel 1.1e-03/1.0e-03 el 7.7e-03/7.4e-03 >1e-4 1207/2000 o1 0 ids!= 485 | ctrl rel 1.1e-03/1.0e-03 el 7.7e-03/7.4e-03 >1e-4 1205/2000 o1 0 ids!= 481 pdl launches in capture 6
+SUMMARY m1 gate 32x1f ok cand rel 1.0e-03/9.2e-04 el 8.2e-03/7.0e-03 >1e-4 990/2000 o1 0 | ctrl rel 1.0e-03/9.4e-04 el 8.2e-03/7.0e-03 >1e-4 998/2000 o1 0 pdl launches in capture 6
+SUMMARY m1 chain s plain/pdl us: T=8 attn-o-bnd 22.3/21.0 (+1.38) bnd-front 36.5/35.6 (+0.96); T=16 attn-o-bnd 25.1/23.9 (+1.18) bnd-front 35.6/36.6 (-0.99); T=32 attn-o-bnd 27.9/26.5 (+1.44) bnd-front 37.4/38.1 (-0.67)
+SUMMARY m1 chain f plain/pdl us: T=8 attn-o-bnd 31.6/31.5 (+0.03) bnd-front 36.6/35.3 (+1.28); T=16 attn-o-bnd 109.4/107.8 (+1.57) bnd-front 36.0/36.6 (-0.61); T=32 attn-o-bnd 190.2/188.0 (+2.18) bnd-front 37.0/38.0 (-0.96)
+SUMMARY m1 T=8 step s/f off 102.6/109.8 o 101.2/110.2 o+front 99.6/107.9 load off 104.5 o 103.5 o+front 101.7 -> o+front
+SUMMARY m1 T=16 step s/f off 176.6/254.9 o 175.2/254.1 o+front 175.7/254.2 load off 196.9 o 195.6 o+front 195.9 -> o
+SUMMARY m1 T=32 step s/f off 217.0/372.7 o 215.1/372.6 o+front 215.8/373.0 load off 257.2 o 255.7 o+front 256.5 -> o
+SUMMARY m1 open: whole step at 8 tokens sliding saves 3.01 us
+SUMMARY moe T=1: sk8w3s [sk8w3s 31.8 sk8w4s 32.5 sk8w4s-er 33.2 sk16w4s 34.8 w4 43.5] judge-like routing, busiest expert [1, 1, 1, 1] w4 g1=27 g2=21 pdl=1 cl=8 front fp32
+SUMMARY moe T=8: sk8w3s [sk8w3s 58.1 sk8w4s 59.1 sk8w4s-er 59.8 sk16w4s 61.6 w4 69.2] judge-like routing, busiest expert [3, 3, 5, 6] w4 g1=2 g2=24 pdl=1 cl=1 front skf-r
+SUMMARY moe T=16: sk8w3s [sk8w3s 74.6 sk8w4s 77.2 sk8w4s-er 77.4 sk16w4s 79.8 w4 83.4] judge-like routing, busiest expert [10, 9, 9, 11] w4 g1=26 g2=28 pdl=1 cl=4 front skf-r
+SUMMARY moe T=32: main-lean-grp-finss64 [main-lean-grp-nohoist 94.0 main-lean-grp-finss64 94.1 main-lean-silu-bar 94.8 main-lean 97.5 main-dynb-fs 102.9 sk8w3s 106.6 sk8w4s 109.3 sk8w4s-er 112.3 w4 114.5 sk16w4s 117.3 main-m2-ar2-ub 118.2 main-d2 120.8] judge-like routing, busiest expert [15, 20, 18, 17] w4 g1=26 g2=11 pdl=1 cl=4 front skf-r
+SUMMARY moe T=128: main-lean-grp-finss64 [main-lean-grp-finss64 173.6 main-lean-grp-nohoist 178.4 main-lean-silu-bar 181.2 main-lean 184.2 main-dynb-fs 192.9 main-m2-ar2-ub 219.4 main-d2 223.5 w4 247.6 sk8w3s 272.8 sk8w4s 276.1 sk8w4s-er 287.7 sk16w4s 297.5] judge-like routing, busiest expert [46, 37, 54, 57] w4 g1=4 g2=13 pdl=1 cl=1 front concat-r
+SUMMARY moe T=256: main-lean-grp-finss64 [main-lean-grp-finss64 222.6 main-lean-grp-nohoist 227.3 main-lean-silu-bar 229.6 main-lean 234.1 main-dynb-fs 244.6 main-m2-ar2-ub 278.2 main-d2 286.9 w4 357.1 sk8w3s 436.0 sk8w4s 439.3 sk8w4s-er 461.8 sk16w4s 475.5] judge-like routing, busiest expert [99, 86, 95, 94] w4 g1=30 g2=13 pdl=1 cl=1 front concat-r
+SUMMARY front T=1 (front / front+moe us): fp32 25.8/45.4 skf 30.0/47.9 skf-r 31.3/48.1
+SUMMARY front T=8 (front / front+moe us): skf-r 31.7/90.6 skf 30.4/90.8 fp32 38.0/99.9
+SUMMARY front T=16 (front / front+moe us): skf-r 31.5/118.0 skf 30.9/118.4 concat-r 37.0/123.0 concat 38.1/125.2 mma 35.3/125.7 split 41.5/130.8
+SUMMARY front T=32 (front / front+moe us): skf-r 33.3/166.6 skf 31.9/169.1 concat-r 37.7/169.5 concat 38.2/173.8 mma 37.5/175.3 split 43.3/181.2
+SUMMARY front T=128 (front / front+moe us): concat-r 38.8/252.8 concat 39.5/254.0 wide 41.4/267.1 split 47.6/272.3
+SUMMARY front T=256 (front / front+moe us): concat-r 45.1/293.4 concat 46.4/298.9 split 59.3/314.0
+SUMMARY abnd occupancy (CTAs/SM, resident clusters) c8x256=8,124 c2x512=2,132 c4x256=5,154 c1x256=3,396 c1x512=2,264 c1x1024=1,132
+SUMMARY abnd T=1: c8x256 [c8x256 13.86 c1x1024 14.02 sglang 14.69 c4x256 14.82 c1x512 14.82 c2x512 14.98 c1x256 16.26]
+SUMMARY abnd T=8: c1x1024 [c8x256 14.82 c1x1024 14.91 sglang 15.33 c4x256 15.62 c2x512 15.78 c1x512 15.78 c1x256 17.18]
+SUMMARY abnd T=16: sglang [sglang 14.40 c1x1024 14.56 c8x256 14.82 c1x512 15.14 c4x256 15.55 c2x512 15.94 c1x256 16.54]
+SUMMARY abnd T=32: sglang [sglang 14.72 c1x1024 14.85 c8x256 15.71 c1x512 15.74 c4x256 15.94 c2x512 16.16 c1x256 16.99]
+SUMMARY abnd T=128: sglang [sglang 17.73 c1x1024 18.34 c1x512 18.59 c2x512 19.33 c4x256 19.55 c1x256 19.84 c8x256 22.30]
+SUMMARY abnd T=256: c1x512 [c1x512 22.24 sglang 22.40 c1x256 23.30 c1x1024 23.71 c2x512 26.27 c4x256 26.53 c8x256 29.41]
+SUMMARY attn d1 sliding: attn_one plan(splits,nc,mode)=(32, 1, 13)
+SUMMARY attn d1 full: attn_one plan(splits,nc,mode)=(252, 8, 11)
+SUMMARY attn d16 sliding: attn_one plan(splits,nc,mode)=(16, 1, 1)
+SUMMARY attn d16 full: attn_one plan(splits,nc,mode)=(264, 1, 49)
+SUMMARY attn d32 sliding: attn_one plan(splits,nc,mode)=(8, 1, 1)
+SUMMARY attn d32 full: attn_one plan(splits,nc,mode)=(264, 1, 49)
+SUMMARY attn v1 sliding: attn_one plan(splits,nc,mode)=(33, 1, 15)
+SUMMARY attn v1 full: attn_one plan(splits,nc,mode)=(252, 8, 11)
+SUMMARY attn v16 sliding: attn_one plan(splits,nc,mode)=(8, 1, 3)
+SUMMARY attn v16 full: attn_one plan(splits,nc,mode)=(264, 1, 51)
+SUMMARY attn v32 sliding: attn_one plan(splits,nc,mode)=(4, 1, 3)
+SUMMARY attn v32 full: attn_one plan(splits,nc,mode)=(264, 1, 51)
+SUMMARY stable moe T=1: pref sk8w3s 32.0 margin 0.30 rounds 9 sk8w4s -0.74/0 sk8w4s-er -1.41/0 -> sk8w3s
+SUMMARY stable moe T=8: pref sk8w3s 58.3 margin 0.30 rounds 9 sk8w4s -0.98/0 sk8w4s-er -1.70/0 -> sk8w3s
+SUMMARY stable moe T=16: pref sk8w3s 74.8 margin 0.30 rounds 9 sk8w4s -2.98/0 sk8w4s-er -2.63/0 -> sk8w3s
+SUMMARY stable moe T=32: pref main-lean-grp-finss64 94.5 margin 0.30 rounds 9 main-lean-silu-bar -1.20/0 main-lean-grp-nohoist +0.15/8 -> main-lean-grp-finss64
+SUMMARY stable moe T=128: pref main-lean-grp-finss64 174.2 margin 0.30 rounds 9 main-lean-grp-nohoist -4.43/0 -> main-lean-grp-finss64
+SUMMARY stable moe T=256: pref main-lean-grp-finss64 223.5 margin 0.45 rounds 9 main-lean-grp-nohoist -4.69/0 -> main-lean-grp-finss64
+SUMMARY stable abnd T=1: pref c8x256 13.9 margin 0.30 rounds 9 c2x512 -1.06/0 c4x256 -0.99/0 c1x256 -2.43/0 c1x512 -0.90/0 c1x1024 -0.16/0 sglang -0.90/0 -> c8x256
+SUMMARY stable abnd T=8: pref c1x1024 14.9 margin 0.30 rounds 9 c8x256 +0.13/5 c2x512 -0.96/0 c4x256 -0.54/0 c1x256 -2.27/0 c1x512 -0.96/0 sglang -0.42/0 -> c1x1024
+SUMMARY stable abnd T=16: pref sglang 14.4 margin 0.30 rounds 9 c8x256 -0.48/0 c2x512 -1.63/0 c4x256 -1.18/0 c1x256 -2.18/0 c1x512 -0.77/0 c1x1024 -0.22/2 -> sglang
+SUMMARY stable abnd T=32: pref sglang 14.7 margin 0.30 rounds 9 c8x256 -0.96/0 c2x512 -1.63/0 c4x256 -1.18/0 c1x256 -2.46/0 c1x512 -0.93/0 c1x1024 -0.16/3 -> sglang
+SUMMARY stable abnd T=128: pref sglang 17.7 margin 0.30 rounds 9 c8x256 -4.58/0 c2x512 -1.63/0 c4x256 -1.79/0 c1x256 -2.14/0 c1x512 -0.93/0 c1x1024 -0.64/0 -> sglang
+SUMMARY stable abnd T=256: pref c1x512 22.2 margin 0.30 rounds 9 c8x256 -7.10/0 c2x512 -4.00/0 c4x256 -4.26/0 c1x256 -0.99/0 c1x1024 -1.44/0 sglang -0.06/0 -> c1x512
+SUMMARY stable front T=1: pref fp32 45.4 margin 0.30 rounds 9 skf -2.53/0 skf-r -2.69/0 -> fp32
+SUMMARY stable front T=8: pref skf-r 90.6 margin 0.30 rounds 9 fp32 -9.31/0 skf -0.26/1 -> skf-r
+SUMMARY stable front T=16: pref skf-r 118.0 margin 0.58 rounds 9 split -12.83/0 mma -7.68/0 concat -7.26/0 skf -0.48/1 concat-r -4.99/0 -> skf-r
+SUMMARY stable front T=32: pref skf-r 166.6 margin 0.38 rounds 9 split -14.88/0 mma -8.67/0 concat -7.30/0 skf -2.62/0 concat-r -2.94/0 -> skf-r
+SUMMARY stable front T=128: pref concat-r 252.8 margin 0.30 rounds 9 split -19.42/0 concat -1.02/0 wide -14.14/0 -> concat-r
+SUMMARY stable front T=256: pref concat-r 293.4 margin 1.09 rounds 9 split -20.61/0 concat -5.25/0 -> concat-r
+SUMMARY stable m1 T=8: pref o+front 101.7 margin 0.30 rounds 9 off -2.79/0 o -1.92/0 -> o+front
+SUMMARY stable m1 T=16: pref o 195.6 margin 0.30 rounds 9 off -1.37/0 o+front -0.50/2 -> o
+SUMMARY stable m1 T=32: pref o+front 256.5 margin 0.39 rounds 9 off -0.55/1 o +1.04/9 -> o
+SUMMARY failed 0: none

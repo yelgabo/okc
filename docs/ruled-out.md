@@ -198,6 +198,17 @@ components, in the same process, before calling it lost again.
 | MoE mode 78 (51 + paired-row scale decode + fin4 final pass) at 32 tokens in the layer (`muse_decode_layer/cand/layer_m1rt51s78.py`, rule pre-registered in docs/plan-2026-10-31-m-b-pdl-chain.md) | 36f93b13d4c14d5b: illegal memory access in the cand's front tuner at 32 tokens inside the two-layer bench, cause not found; 18d48c5676fa4461 (one layer, 78 preferred): no fault, 78 at 91.8 us against 51's 93.2 and 47's 92.9, stable rounds 51 -1.31/0, 47 -1.19/0; a03039679e304d95 (bench rerun, fresh seeds): no fault, the cand's tuner picked 47 at 32 tokens, so 78 did not beat 51 by more than 47 did | not shipped: the pre-registered in-process rule failed in one of two prepares, and one of three runs faulted without a found cause. In the layer 78's edge over 47 at 32 tokens is under the tuner's run-to-run spread (47 vs 51 itself flips: ad42a066bd3a4e01 picked 47, other runs 51). Revisit trigger: a root cause for the fault of 36f93b13d4c14d5b (the MoE owner's standalone has never shown it), then a bench with its own copies (`--dup=own`, which needs a smaller prepare) |
 | Attention rounds 2 and 3 in the layer (HMRG on q_len 1, PRQ 31 on q_len 8) plus the workspace placement pick (candidate `muse_decode_layer/cand/layer_hp.py`) | four-arm bench 6001272c2b1c4852 against the release: pooled 1.0003, cross 0.9964-1.0042, larger null 0.64%, not resolved; per load d16 1.0101 (all four crosses 1.0074-1.0127), v1 1.0028, v16 0.9964, v32 1.0015, d32 1.0055, d1 0.9857 (cand2 alone slow) | no layer gain from the standalone's v1 / v16 / v32 savings (-0.5 to -1.4 us each, a fraction of a percent per load), which do not show above the old tuners' nulls. The workspace pick is removed by user decision (2026-10-31) and is not carried into any layer candidate. Revisit trigger: the attention kernels alone (HMRG / PRQ, without the pick) on a stable-pick build against release_s, if the d16 reading is worth one check |
 
+Follow-up (open, 2026-10-31): two illegal memory accesses inside two-layer four-arm bench
+processes, 36f93b13d4c14d5b (cand layer_m1rt51s78, during the cand's front tuner at 32 tokens)
+and 5ae9ce318e014edf (cand layer_mc1s, during the third of four prepares, after the cand's
+prepare had finished). In both the cand arm carried an extension the incumbent arm lacked (the
+mode 78 MoE source; the separate C-1 module), and single-file checks of the same code ran clean
+(18d48c5676fa4461 for 78). Cause unknown: the bench exec's the incumbent's comment-stripped
+source beside the cand's module in one process, so a module- or device-global shared by the
+two copies of one file (four prepares, two states per module) is a suspect, not established.
+Until it is found, a fault inside a bench does not count against a candidate, and a candidate
+whose single-file check faults stops the work.
+
 ## Proposals declined without a run
 
 | Proposal | Reason |
