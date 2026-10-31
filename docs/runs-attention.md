@@ -3490,3 +3490,63 @@ and PRQ. Bench `bench_s` (`flat/gen_s.sh`, `--null --shapes all --inputs 2 --rou
 20261105`): our DIAG phase exits `p9_probe` .. `p12_probe` and `diag0_probe` (own state) against the
 public phase copies `pubph1_probe` .. `pubph4_probe` (scratchpad `a3/pubph0.py`, as in round 2),
 `ctrl2`, `pub`, `pub2`, and `pb1` a third time.
+
+### Check 1c861d3944f149a0 (bench `bench_s`, at a191c34): where the per-request gap is now
+
+| date | job | commit | file | result | notes |
+|---|---|---|---|---|---|
+| 2026-10-31 | 1c861d3944f149a0 (check) | a191c34 (bench generated one comment edit earlier; same code) | bench `bench_s` (15 arms, all 12 shapes, 2 inputs) | 2.584x (CI 2.546-2.635) judged path = board code, 16/16 tests, ABCHECKSUM 19/0 every real arm | attribution, no gate |
+
+Profiles: `muse_attention_decode/profiles/bench_s.1c861d3944f149a0.*`. Phase times, cold pooled (us),
+ours (`p9` / `p10` / `p11` / `p12` / `diag0`, own state, DIAG build of the board code) against the
+public phase copies (`pubph1` .. `pubph4`, `pub`). Each column is the difference of consecutive
+exits, so a red's drain lands in the phase that issued it:
+
+| row | prologue | tile loop | reds | ticket / barrier | finalize | whole |
+|---|---|---|---|---|---|---|
+| d1 sliding | 7.10 / 6.98 | 0.64 / 0.54 | 0.32 / 0.38 | 0.80 / 0.64 | 0.77 / 0.74 | 9.63 / 9.28 |
+| d1 full | **10.27 / 9.73** | 4.58 / 4.48 | 0.41 / 0.35 | 1.19 / 1.47 | 0.57 / 0.61 | 17.02 / 16.64 |
+| d16 sliding | 10.34 / 10.27 | 0.99 / 0.67 | 0.38 / 0.52 | 0.83 / 0.96 | 0.96 / 0.54 | 13.50 / 12.96 |
+| d32 sliding | 10.40 / 10.24 | 3.58 / 3.49 | 0.36 / 0.38 | 0.70 / 0.67 | 0.90 / 0.93 | 15.94 / 15.71 |
+| v1 sliding | 7.55 / 7.17 | 1.19 / 1.09 | 0.80 / 0.99 | 0.99 / 0.80 | 0.73 / 0.83 | 11.26 / 10.88 |
+| v1 full | 9.82 / 9.76 | **6.21 / 5.79** | 1.35 / 1.35 | 1.15 / 1.05 | 1.02 / 1.06 | 19.55 / 19.01 |
+| v16 sliding | 8.93 / 8.77 | **4.35 / 3.93** | 0.74 / 0.84 | 1.21 / 0.83 | 0.77 / 1.28 | 16.00 / 15.65 |
+| v32 sliding | 9.18 / 9.06 | **8.13 / 7.26** | 0.74 / 0.90 | 1.28 / 0.92 | 1.09 / 1.28 | 20.42 / 19.42 |
+
+What it names (measured):
+
+- **q_len 8 per-request tile loop**: 0.42 / 0.42 / 0.87 us behind at v1 full / v16 sliding / v32
+  sliding after PRQ. At this run's sensitivities that is about 0.20% + 0.15% + 0.18%, the largest
+  pool left (the flat full rows hold about 0.25%). Round 3 found the public per-request tile body
+  longer than ours in instructions (645 vs about 530 before PRQ), so the remaining difference is
+  in latency or order, not count; its per-tile descriptor and V^T address carries (the per-request
+  counterpart of DCARRY / VHOIST, which ours applies only to the flat mode 51) are one untested
+  candidate.
+- **d1 full prologue**: 10.27 vs 9.73 us (+0.54, about 0.33%). The q_len 8 batch-1 full prologue
+  (same mode 11 plan, same grid) is level (9.82 vs 9.76), and the sliding prologues trail by 0.07-0.38.
+  So the deficit is specific to the q_len 1 batch-1 full prologue; the public phase copy has no
+  sub-phase exits, so which load in the chain it is has not been measured.
+- Ticket / barrier and finalize trade a few tenths both ways (ours faster at d1 full's barrier,
+  slower at v16 / v32 sliding's barrier and faster in their finalize).
+- With the pick off, the judged path's own state sat 0.3-0.5 us slow at d1 full in this process
+  (ctrl 17.47, ctrl2 17.15, `pub` 16.67).
+- `pb1` (`ONE_PBULK=1`) a third time: d16 / d32 full -0.10 / -0.80 us; ABSCORE 0.9974, which is inside
+  the run's null spread on rows it does not change (ctrl2 0.9968).
+
+## Attention round 5 (10-31): ledger
+
+Checks used: fcf904b32d9a427b (hang), 61069efbf90d4c44 (diagnostic), bb06f8e57bd84636,
+f3f1e4a5249a4228, 1c861d3944f149a0 (5 of the 10 budgeted). No file beat the board entry
+(68d3b88fbc8b40da, the pick-off release), so none was offered.
+
+| family | state | evidence | reopening trigger |
+|---|---|---|---|
+| Mode 49 page indices by bulk copy (`ONE_PBULK=1`) | measured gain below the bar, off | bb06f8e57bd84636 (+0.063%), f3f1e4a5249a4228 (+0.074%), 1c861d3944f149a0 (d32 -0.80 us); review sound | a rider for any promoted mode 49 change, or a producer that keeps it without the per-tile lockstep |
+| Same with per-window free barriers (`ONE_PBULK=2`) | measured loss | f3f1e4a5249a4228: +1.4 / +2.9 us | a refill that does not wait for the slowest reader of the previous fill |
+| `if constexpr (...) { } else for (...)` (unbraced `else` statement) | compiler trap, fixed by bracing | 61069efbf90d4c44 plus offline bisection: CUDA 12.8.1 dropped the producer drain and `exit` | any new `if constexpr` with an unbraced `else`: check the producer `EXIT` count in SASS |
+
+Next, in order of measured value: (1) the q_len 8 per-request tile loop (0.4-0.9 us on v1 full, v16
+and v32 sliding, about 0.5% together); first test the per-tile descriptor / V^T address carries in
+the PRQ loop against the public order, with a stamp copy of the public per-request loop to split the
+latency; (2) the d1 full prologue (0.54 us): sub-phase exits on both sides (page indices, query
+group, first tiles) before any change; (3) the flat full rows by the pair spread (round 4).
