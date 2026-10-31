@@ -19853,6 +19853,10 @@ __device__ __forceinline__ void grid_barrier(int* ctr, int slot, int G, bool bum
         __threadfence();
         const int old = atomicAdd(bc, 1);
         if (bump && old == G - 1) {
+            // The arrival atomics are relaxed; this fence makes the bump an acquire of every
+            // CTA's arrival, so a reader of the new generation is ordered after all of them
+            // (independent review of C-1, 2026-10-31).
+            __threadfence();
             atomicAdd(ctr + kGen, 1);
         }
         if (ld_acquire(bc) < G) {
@@ -20635,7 +20639,8 @@ def _selection_summary(state):
     lines.append(f"m1 ok={int(bool(state.get('m1_ok')))} policy {state.get('m1_policy', {})}")
     for item in state.get("m1_report", []):
         lines.append("m1 " + item)
-    lines.append(f"mc1 ok={int(bool(state.get('mc1_ok')))} on={int(bool(state.get('mc1_on')))}")
+    lines.append(f"mc1 ok={int(bool(state.get('mc1_ok')))} on={int(bool(state.get('mc1_on')))}"
+                 + (f" timeout flags {int(state['mc1']['ctr'][1])}" if state.get("mc1") else ""))
     for item in state.get("mc1_report", []):
         lines.append("mc1 " + item)
     bench = state.get("moe1_bench", {})

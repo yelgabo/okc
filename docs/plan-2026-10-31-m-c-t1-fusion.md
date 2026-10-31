@@ -124,12 +124,12 @@ fence followed by the strong write is a release pattern (8.8). In every CTA B, t
 
 1. The value G that B's acquire reads was written by the last `atom.add` on the counter; each
    CTA's `atom.add` precedes it in the counter's read-modify-write chain (coherence order of the
-   location, 8.10.1, and atomicity, 8.10.3). So A's release write precedes B's acquire read in
+   location, 8.9.6, the coherence axiom 8.10.1, and atomicity, 8.10.3). So A's release write precedes B's acquire read in
    observation order, and A's release pattern synchronizes with B's acquire (8.9.4).
 2. Base causality order (8.9.5) then runs: A's stores, program order and `bar.sync` (a CTA-scope
    synchronization) to A's thread 0, its fence and atom, synchronizes-with to B's acquire, then
    `bar.sync` to B's reading threads. Each B load is preceded in causality order by each A store
-   to the same location, so it cannot read an older value (causality axiom, 8.10).
+   to the same location, so it cannot read an older value (causality axiom, 8.10.6).
 3. The same chain needs no `fence.sc` total order (8.9.3) beyond what the release pattern gives;
    `fence.sc` is kept because it is the documented MoE pattern and stronger than
    `fence.acq_rel`.
@@ -140,7 +140,12 @@ Counter and generation reuse:
   to g + 1 is made by the last arrival at barrier 2, whose RMW observes every CTA's barrier-2
   arrival, which each CTA makes after its barrier-1 wait, which comes after its read of g in
   program order. If a read returned g + 1 the bump would precede the read in causality order
-  and follow it as well, which the causality axiom forbids.
+  and follow it as well, which the causality axiom forbids. Review fix (2026-10-31): the
+  arrival atomics are relaxed, so without a fence the bump's ordering after the arrivals rests
+  on the control dependency on `old == G - 1` only; the last arrival now executes
+  `__threadfence()` before the bump, which makes it an acquire of the RMW chain.
+- The SUMMARY's `mc1 ok=... on=... timeout flags N` reads `ctr[1]` after the timeline, so a
+  timeout in any of prepare's C-1 launches is visible in the log tail (review should-fix).
 - Launch g uses the counters of parity g & 1; CTA 0 of launch g zeroes the parity (g + 1) & 1
   counters at entry. Those were launch g - 1's, which completed before launch g started (stream
   order: launch g carries no PDL attribute). The zeros are ordered before launch g + 1, which

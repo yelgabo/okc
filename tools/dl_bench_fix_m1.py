@@ -6,7 +6,8 @@ scaffolding and never part of a candidate:
 - M1's policy is fixed (default {8: o+front, 16: o, 32: o}, what layer_m1rt51s picked in
   3aee22ba4a404c8a, c8d1e57261dd4901 and ad42a066bd3a4e01): _m1_tune still runs the bit-16
   self-test and the gate, then sets the policy without timing the chains and whole steps.
-- The M1 gate replays REPLAYS times per arm and shape instead of 2000 (default 500).
+- The M1 gate replays REPLAYS times per arm and shape instead of 2000 (default 500), and so
+  does the C-1 gate of an M-C file (MC1_STRESS_REPLAYS, --mc1-replays, default 500).
 
 Apply the same arguments to both files of a bench so the arms differ only by the candidate.
 
@@ -23,7 +24,7 @@ ANCHOR = '''    for line in _m1_stress(state):
 def main():
     args = [a for a in sys.argv[1:] if not a.startswith("--")]
     opts = dict(a[2:].split("=", 1) for a in sys.argv[1:] if a.startswith("--"))
-    if len(args) != 2 or not set(opts) <= {"policy", "replays"}:
+    if len(args) != 2 or not set(opts) <= {"policy", "replays", "mc1-replays"}:
         raise SystemExit(__doc__)
     policy = ast.literal_eval(opts.get("policy", "{8: 'o+front', 16: 'o', 32: 'o'}"))
     replays = int(opts.get("replays", "500"))
@@ -37,6 +38,9 @@ def main():
         f"    rep.append(\"bench: fixed policy {policy!r}, gate replays {replays}\")\n"
         f"    return\n"))
     text = text.replace("\nM1_STRESS_REPLAYS = 2000\n", f"\nM1_STRESS_REPLAYS = {replays}\n")
+    if "\nMC1_STRESS_REPLAYS = 2000\n" in text:
+        mc1 = int(opts.get("mc1-replays", "500"))
+        text = text.replace("\nMC1_STRESS_REPLAYS = 2000\n", f"\nMC1_STRESS_REPLAYS = {mc1}\n")
     open(out, "w").write(text)
     print("wrote", out, len(text))
 
