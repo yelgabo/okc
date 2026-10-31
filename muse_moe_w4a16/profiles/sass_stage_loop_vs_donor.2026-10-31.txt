@@ -1,0 +1,54 @@
+# One wgmma stage loop (m64n24k16, 16 HGMMA) of mode 51 (nvcc 12.8.1, tools/moe_compile_fused.sh at 587da5d)
+# against the donor's MAIN build (alygg77 6cae49a, its MAIN defines + PRMTSC + DQ7, OKC_DEBUG 0;
+# compiled locally from the scratchpad copy, never committed). Opcode counts ours / donor.
+N=24: ours 387 donor 295
+  IMAD: 61 / 40 (+21)
+  ISETP: 12 / 2 (+10)
+  LEA: 9 / 1 (+8)
+  BRA: 9 / 3 (+6)
+  IADD3: 5 / 0 (+5)
+  PRMT: 8 / 4 (+4)
+  CS2R: 4 / 0 (+4)
+  R2UR: 4 / 0 (+4)
+  S2R: 2 / 0 (+2)
+  SEL: 2 / 0 (+2)
+  LOP3: 82 / 80 (+2)
+  BSSY: 2 / 0 (+2)
+  ULDC: 2 / 0 (+2)
+  SYNCS.PHASECHK.TRANS64.TRYWAIT: 4 / 2 (+2)
+  UIADD3: 19 / 17 (+2)
+  YIELD: 2 / 0 (+2)
+  REDUX: 2 / 0 (+2)
+  BSYNC: 2 / 0 (+2)
+  UFLO: 2 / 0 (+2)
+  VOTEU: 2 / 0 (+2)
+  VIADD: 3 / 1 (+2)
+  MOV: 2 / 0 (+2)
+  SHF: 35 / 33 (+2)
+  LDS: 2 / 0 (+2)
+  ATOMG: 2 / 0 (+2)
+  NOP: 1 / 0 (+1)
+  SHFL: 1 / 0 (+1)
+  MEMBAR.ALL.CTA: 1 / 0 (+1)
+  FENCE.VIEW.ASYNC.S: 1 / 0 (+1)
+  WARPSYNC: 1 / 0 (+1)
+  SYNCS.ARRIVE.TRANS64.ART0: 1 / 0 (+1)
+  USHF: 0 / 1 (-1)
+  SYNCS.ARRIVE.TRANS64.A1T0: 1 / 2 (-1)
+  LDS.64: 0 / 1 (-1)
+  UMOV: 1 / 2 (-1)
+  ULOP3: 0 / 1 (-1)
+  UIMAD: 0 / 2 (-2)
+  ULEA: 0 / 3 (-3)
+# Whole kernels (stage loops = backward-branch regions with 16 HGMMA under 450 instructions):
+main51: instr 17280 MEMBAR 43 FENCE.VIEW.ASYNC.S 21 FENCE.VIEW.ASYNC.G 11 BAR.SYNC 16 SYNCS 186 HGMMA 192 RED 0 ATOM 0 LDL 0 STL 0 ERRBAR 11 CCTL 8 UBLKCP 4
+  stage loops [387, 387, 387, 387, 387, 387, 387, 387, 387, 387, 387, 393]
+  unit loops  [664, 705, 739, 740, 782, 801, 830, 892, 908, 962, 1032, 1102]
+_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE: instr 22280 MEMBAR 113 FENCE.VIEW.ASYNC.S 1 FENCE.VIEW.ASYNC.G 0 BAR.SYNC 60 SYNCS 210 HGMMA 512 RED 0 ATOM 0 LDL 0 STL 0 ERRBAR 56 CCTL 53 UBLKCP 2
+  stage loops [295, 295, 295, 295, 295, 295, 295, 298, 298, 298, 298, 298, 298, 298, 298, 299]
+  unit loops  []
+# The donor MAIN build with OKC_DEBUG=1 and the --pubfix stamps: same stage loops, 16 / 20 B spill
+# outside every stage loop, wgmma pipelining unchanged (HGMMA 512, wait1 256, wait0 16):
+_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE: instr 23128 MEMBAR 113 FENCE.VIEW.ASYNC.S 1 FENCE.VIEW.ASYNC.G 0 BAR.SYNC 60 SYNCS 210 HGMMA 512 RED 0 ATOM 0 LDL 5 STL 4 ERRBAR 56 CCTL 53 UBLKCP 2
+  stage loops [295, 295, 295, 295, 295, 295, 295, 298, 298, 298, 298, 298, 298, 298, 298, 299]
+  unit loops  []
