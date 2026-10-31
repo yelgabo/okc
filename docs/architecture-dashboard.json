@@ -1,34 +1,35 @@
 {
-  "reviewed_at": "2026-10-30T14:05:00-07:00",
-  "snapshot": "bc10cb1",
+  "reviewed_at": "2026-10-30T21:26:00-07:00",
+  "snapshot": "d73c4fd",
   "family_registry_update": {
     "date": "2026-10-30",
     "evidence_snapshot": "7a5965531103f275ac104d340ef30f1508e32353",
-    "note": "Family F registered at the user's request. A-E performance evidence and the layer receipt below are unchanged; this is not a new benchmark review.",
+    "note": "Historical registration metadata only. Current measured outcomes and review timestamp are recorded separately.",
     "source": "steering/2026-10-30-family-f-donor-baseline.md"
   },
   "layer": {
-    "score": "2.014×",
-    "interval": "1.984–2.045",
-    "job": "3fbb3ad027e84c6b",
-    "note": "Layer remains 2.014×; layer_hp and revised mode-51 candidates await testing. Designated-finisher mode 74 fails its component diagnostic; no gate run. Family F is registered, with complete-file comparisons pending."
+    "score": "2.0148×",
+    "interval": "1.9846–2.0450",
+    "job": "0f58d5d8223f45af",
+    "note": "Stable M1 + mode 51 wins one paired layer comparison by a 1.0052 score ratio. Scored repeats remain within prior-release noise. Another claimed confirmation has conflicting attribution and no local receipt."
   },
   "families": [
     {
       "id": "A",
       "name": "Hybrid persistent / legacy MoE",
       "status": "win",
-      "label": "Component wins; layer unresolved",
-      "metric": "1.0057×",
-      "unit": "Mode 51 four-arm layer ratio, below noise gate",
-      "summary": "Mode 51 component wins stand. Its earlier three-arm layer gain is unestablished because the control arm can run slow.",
-      "layer": "Mode 47 released; mode 51 layer result inconclusive",
-      "pending": [
-        "layer_g51b: mode 51 with revised gate",
-        "layer_m1rt51c: mode 51 + M1, revised census gate"
-      ],
-      "limit": "Four-arm nulls are 0.9898 / 0.9972, with prepare-time policy differences. Older isolated layer magnitudes need the arm-bias caveat. Gather mode 57 loses; 59 ties.",
-      "source": "runs-decode-layer.md"
+      "label": "Combined layer gain; isolated A unresolved",
+      "metric": "1.0052×",
+      "unit": "Stable M1 + mode 51 paired layer score ratio",
+      "summary": "Mode 51 alone remains inconclusive. Combined M1 + 51 clears its paired null rule. Modes 76-78 miss promotion gates despite 32-token gains.",
+      "layer": "Combined candidate scored; gain over old scored release unresolved",
+      "pending": [],
+      "limit": "No isolated A credit from M1 bundle. c8d1e57261dd4901 attribution unresolved, receipt absent. Size-restricted fin4 remains untested.",
+      "source": "runs-decode-layer.md",
+      "outcomes": [
+        "win",
+        "loss"
+      ]
     },
     {
       "id": "B",
@@ -80,12 +81,10 @@
       "label": "PRQ win; XPIPE losses retained",
       "metric": "−0.48 / −0.96 µs",
       "unit": "PRQ31 cold sliding gain, 128 / 256 tokens",
-      "summary": "PRQ31 improves per-request q_len8 attention with five combined changes. Full-context XPIPE losses remain valid; earlier bundle stays integrated.",
-      "layer": "layer_hp built: PRQ + HMRG + placement, GPU test pending",
-      "pending": [
-        "layer_hp: PRQ31 + HMRG + workspace pick"
-      ],
-      "limit": "PRQ confirmation uses matched-state nulls after the prior bench missed its written gate. Three-bench modeled score contribution 0.55–0.86%, not a layer gain. Full-context paths unchanged.",
+      "summary": "PRQ31 gains remain. NS2/4/5/6 ring variants lose at 16/32 full attention. HMRGF merge gain stays below its gate.",
+      "layer": "layer_hp tested inconclusive; workspace-pick bundle withdrawn",
+      "pending": [],
+      "limit": "Pick-free standalone scored 2.5366x; no isolated gain from removing workspace selection. Updated attention bundle still needs a layer comparison. Full-context XPIPE losses stand.",
       "source": "runs-attention.md",
       "outcomes": [
         "win",
@@ -95,35 +94,46 @@
     {
       "id": "F",
       "name": "Donor-based baseline and hybrid (alygg77)",
-      "status": "untested",
-      "label": "Registered; full-file comparisons pending",
-      "metric": "Not measured",
-      "unit": "No controlled gain over our releases established",
-      "summary": "Treat complete donor files as replacement candidates. F0: exact donor; F1: minimal conforming adaptation; F2: measured hybrid. Choose the winning base rather than preserving ours by default.",
-      "layer": "Standalone and layer adoption are separate; no F release promoted",
+      "status": "win",
+      "label": "Four tracks measured; eligibility caveats",
+      "metric": "1.0897–1.0949×",
+      "unit": "F-LAYER paired weighted score ratio, not adoption",
+      "summary": "F-PROJ +3.63–3.96%, F-ATTN +0.83–0.97%, F-MOE +2.97–3.87% weighted ratios. Per-case losses and nulls remain. Do not add these gains.",
+      "layer": "Complete layer tested; donor stays measurement only",
       "pending": [],
       "evaluation_pending": [
-        "F-PROJ-0: complete 30-case projection comparison",
-        "F-ATTN-0: complete 12-case attention comparison",
-        "F-MOE-0: separately owned complete MoE comparison",
-        "F-LAYER-0: separately owned complete-layer comparison"
+        "Owned reimplementations of winning mechanisms",
+        "Ordering repairs and F1 cost measurements",
+        "Resolve layer c8d1 receipt and candidate attribution"
       ],
-      "limit": "Donor alygg77/okc-muse-spark-kernels pinned at 6cae49a639ee6d14b929a5fd4a63c627f96d7dc0. Archived donor scores are not our F results. Preserve precision, ordering, replay, attribution and submission permissions. Do not fold this family into A/E because of shared ancestry.",
+      "limit": "Latest recorded user policy forbids verbatim donor submission. MoE proxy-fence omissions, layer ordering/lifetime findings and precision questions remain. Passing output checks do not clear them.",
       "source": "steering/2026-10-30-family-f-donor-baseline.md",
       "outcomes": [
-        "untested"
+        "win",
+        "loss"
       ]
     }
   ],
   "context_pending": [
     {
-      "name": "Projection relaxed split exit barrier",
-      "summary": "Separate projection context. Paired router savings versus ce25f67: 0.22 us at 16, 0.45/0.32 us at 128/256 (5.84%/3.13%). 8/32 inconclusive; release split loses on rt. Scored 1.4976x, aggregate gain inconclusive. Ordering caveat retained in port guide. Layer port/test pending; P3 parked. New QKV c4 experiment loses 9.4-12.3 us at 8/16/32 in one tuner preparation; paired loop failed. Parked."
+      "name": "Owned attention layer integration",
+      "label": "Family E / next comparison",
+      "summary": "layer_hp was measured and inconclusive, then withdrawn because of workspace selection. Compare the updated pick-free attention bundle before assigning a layer gain."
     },
     {
-      "name": "Family F complete-file adoption decision",
-      "summary": "Projection and attention owners compare the pinned exact donor with frozen releases before new GPU rewrites. Whole-file adoption, minimal conforming adaptation, or a measured hybrid may win. No comparison or promotion has occurred in this registration. Tracks: F-PROJ-0, F-ATTN-0, F-MOE-0 and F-LAYER-0.",
-      "label": "Family F / controlled comparisons pending"
+      "name": "F mechanisms and ordering repairs",
+      "label": "Family F / reimplementation pending",
+      "summary": "All four donor tracks have measurements. Reimplement winning mechanisms with attribution and required ordering repairs, then measure the complete owned build. No donor adoption."
+    },
+    {
+      "name": "Layer attribution gap",
+      "label": "Missing evidence",
+      "summary": "c8d1e57261dd4901 is labeled M1+51 in the run log and M-B in its plan. Local receipt absent; do not count as a confirming result."
+    },
+    {
+      "name": "Projection diagnostic follow-ups",
+      "label": "Separate projection context",
+      "summary": "F-PROJ donor wins guide reimplementation. RG has small bench-only gains at 128 and nulls at 256; LTS large-tile splits lose. BG changes workload. Codec gains remain predictions."
     }
   ]
 }

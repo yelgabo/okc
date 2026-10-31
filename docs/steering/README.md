@@ -100,7 +100,15 @@ The existing CUTLASS pooler, wide 8-stage picks, DCARRY/PK16/VHOIST and failed l
 are explicitly accounted for. No kernels, validation policies, GPU runs or submissions changed.
 This is separate from the layer's M1/tuner-stability work below.
 
-## Latest hourly report, 14:05
+## Latest hourly report, 21:26
+
+**[2026-10-30 21:26 PDT: F measurements, combined layer gain and attribution gap](2026-10-30-2126-performance-review.md)**
+
+Evidence `d73c4fd`. Four F tracks measured, with eligibility caveats and measurement-only policy.
+Stable M1 + 51 wins a paired layer test; scored gain unresolved. Older pending bundles tested;
+hp withdrawn. Modes76-78 miss gates. Missing c8d1 receipt has conflicting candidate attribution.
+
+## Previous hourly report, 14:05
 
 **[2026-10-30 14:05 PDT: Designated finisher and QKV losses; Family F registered](2026-10-30-1405-performance-review.md)**
 
