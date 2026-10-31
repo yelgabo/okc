@@ -1608,6 +1608,28 @@ Readings (measured):
 Candidate C1 (commit 05286d9, file SHA256 f41418489a1096697c2299b59a547e6488a1570e9d05beee6ff81cb295d3eeb7)
 handed to the coordinator; not submitted by this agent.
 
+### F-PROJ-1 continued: register-direct 12-bit kernel rd, candidate C2
+
+rd (`_RD_SRC`, `rd_pack`, docs in the source header): the weights are the 16-row A operand of
+mma.m16n8k16, loaded from a 1536-byte-per-unit 12-bit stream straight into registers and decoded
+there (decode8), x the n8 B operand loaded as two 16-byte vectors per lane per 64-k unit (a k
+permutation applied to both operands keeps them contiguous), escapes patched by XOR from per-warp
+lists of at most 32 entries, split-K over the CTA's warps reduced in shared memory. Mechanism of
+the donor's smallm2 / v18s routes (Nathen Fernandes, MIT, inside alygg77's Apache-2.0 file),
+re-implemented. Packing verified bit-exact on CPU (rd_emu, o and pooler shapes with planted
+escapes) before any check.
+
+| date | job | kind | commit | change | score (95% CI) | notes |
+|---|---|---|---|---|---|---|
+| 10-31 | bcabe48caa884e67 | check (bench f6) | 3044ee7^ | rd at pooler 8 / 16, o 8 against C1's sk picks | failed test pooler m=7 ("rd: bad x": the runner closure late-bound the layer loop's k, fixed in 3044ee7) | rdp8 -0.54 / -0.62 (two extensions), rdo8 -0.38 / -0.34; pooler 16 +1.1 |
+| 10-31 | 1759290da58047ab | check (bench f7) | 3044ee7^ | rd prefetch depth, rd on qkv 8 / 16 and the slice | failed the same test (fix not yet in that file) | rdp8 -0.54 / -0.48; rdo8 -0.29 / -0.30, PF 2 -0.35; pooler 16 PF 2 / 3 +0.94 / +0.70; qkv 8 / 16 +1.7 / +2.9; slice +0.00 to +1.5 |
+| 10-31 | 5c4e4e99b6ec450f | check (candidate C2, clean) | 3044ee7 | C1 + rd offered to the tuner at pooler 8 and o 8 | **1.517x** (1.494-1.540) | 9/9 tests; tuner picks rdp8 at pooler 1 and 8, rdo8 at o 8; prepare 108 s |
+| 10-31 | 696179090d264f38 | check (four-arm C2 vs C1) | 3044ee7 | R = C1, D = C2 | stub | pooled D/R **1.0066** (crosses 1.0060-1.0072), nulls 1.0001 / 0.9990, 129/129 checks per arm; pooler 8 -1.02 to -1.09 us, o 8 -0.35 to -0.38, pooler 1 -0.29 to -0.32 |
+
+Candidate C2: file SHA256 b2c4c096410e2d282d5e1eb3f2afa083f61e68d26d085deede43915bfc7efbdc
+(commit 3044ee7), handed to the coordinator. C1 against the release pooled 1.0092 and C2 against
+C1 1.0066, about 1.6% over the release in all.
+
 ### Scored: F-PROJ-1 C1, three runs (2026-10-31)
 
 cand_c1.py, byte-identical to muse_bf16_proj/submission.py at 05286d9 (SHA256 f4141848...;

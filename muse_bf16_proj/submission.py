@@ -1307,7 +1307,8 @@ def sk_source(device_only=False):
     pairs = sorted({(int(a), int(b)) for a, b in re.findall(r"CGEMV_CASE\((\d+), (\d+)\)", GEMV_CUDA_SRC)})
     ginst = "".join(f"template void cgemv_launch<{nth}, {cpt}>({ptypes});\n" for nth, cpt in pairs)
     gemv = GEMV_CUDA_SRC.replace("}  // namespace", ginst + "}  // namespace", 1)
-    return "#define SK_DEVICE_ONLY 1\n#define GEMV_DEVICE_ONLY 1\n" + src + gemv + wd_source() + rt_source()
+    return ("#define SK_DEVICE_ONLY 1\n#define GEMV_DEVICE_ONLY 1\n" + src + gemv + wd_source() + rt_source()
+            + rd_source())
 
 
 # --------------------------------------------------------------------------------------------
@@ -3986,11 +3987,281 @@ def _lt_search(lt, state, layer, m, ws, flush, gen, diag, fallback):
     return out
 
 
+
+# --------------------------------------------------------------------------------------------
+# rd: register-direct 12-bit GEMM for m <= 16 (mechanism of the smallm2 / v18s / decodediet
+# routes in alygg77 okc-muse-spark-kernels @ 6cae49a, kernels/muse_bf16_proj.py, which carry
+# Nathen Fernandes' MIT routes; re-implemented here). The weights are the 16-row A operand of
+# mma.m16n8k16 and come from global memory straight into registers, decoded there; x is the
+# n8 B operand, two 16-byte loads per lane per 64-k unit. No shared-memory ring, no barriers in
+# the main loop, no escape warps: escapes are patched by XOR into the decoded A register.
+#
+# Unit = 16 rows x 64 k, 1536 B, three 512-byte planes read lane-major (16 B per lane): low
+# bytes of row g, low bytes of row g + 8, then the 4-bit codes (8 B for row g, 8 B for row g + 8;
+# byte b of word w holds values 8w + b and 8w + 4 + b, as decode8 expects). Lane 4g + a holds the
+# 16 contiguous k 16a .. 16a + 15 of its two rows: k16 step b uses k 16a + 4b .. 16a + 4b + 3 for
+# the A positions (2a, 2a + 1, 2a + 8, 2a + 9) and the same k for the B positions, so the
+# product is unchanged and every x load is contiguous. Stream order: unit u of all row groups
+# together ([u][row group][1536 B]), so the GPU reads one contiguous region at a time.
+# Escapes: per warp at most RD_ESC entries, sorted by unit, each
+#   seq << 17 | lane << 12 | reg << 8 | half << 7 | xor7
+# (reg 0-7 row g pairs, 8-15 row g + 8 pairs; xor7 the difference of the top seven exponent
+# bits), padded with seq = 127. A matrix whose escapes overflow a warp's list is not offered.
+# RD_GEOM name -> (MT n8 token tiles, WR row groups per CTA, WK warps splitting K, KU units per
+# warp, PF units of weights in flight ahead of the one being computed); K = 64 * WK * KU.
+# --------------------------------------------------------------------------------------------
+RD_ESC = 32
+RD_GEOM = {
+    # Bench f6 (bcabe48caa884e67), paired against C1's sk picks: rdp8 -0.54 / -0.62 us (two
+    # extensions), rdo8 -0.38 / -0.34; rdp8w8 +1.2, rdp16 / rdp16w16 at PF 1 +1.1.
+    "rdp8": (1, 2, 16, 8, 1),
+    "rdo8": (1, 1, 8, 2, 1),
+}
+# Which layer / bucket gets which rd candidates (the tuner times them beside the sk pick).
+RD_USE = {("pooler", 8): ["rdp8"], ("o", 8): ["rdo8"]}
+RD_NAMES = list(RD_GEOM)
+
+_RD_SRC = r"""
+namespace {
+
+__device__ __forceinline__ uint4 rd_ldw(const void* p) {
+    uint4 v;
+    asm volatile("ld.global.nc.L1::no_allocate.v4.u32 {%0,%1,%2,%3}, [%4];"
+                 : "=r"(v.x), "=r"(v.y), "=r"(v.z), "=r"(v.w) : "l"(p));
+    return v;
+}
+
+__device__ __forceinline__ uint4 rd_ldx(const void* p) {
+    uint4 v;
+    asm volatile("ld.global.nc.v4.u32 {%0,%1,%2,%3}, [%4];"
+                 : "=r"(v.x), "=r"(v.y), "=r"(v.z), "=r"(v.w) : "l"(p));
+    return v;
+}
+
+template <int MT, int WR, int WK, int KU, int PF>
+__global__ void __launch_bounds__(WR * WK * 32) rd_kernel(const uint8_t* __restrict__ ws,
+                                                          const uint32_t* __restrict__ esc,
+                                                          const __nv_bfloat16* __restrict__ x,
+                                                          __nv_bfloat16* __restrict__ out, int M, int N, int K,
+                                                          uint32_t base4) {
+    constexpr int NWARP = WR * WK;
+    __shared__ float4 red[NWARP][MT][32];
+    const int lane = threadIdx.x & 31, warp = threadIdx.x >> 5;
+    const int wr = warp / WK, wk = warp % WK;
+    const int nrg = N / 16;
+    const int rg = blockIdx.x * WR + wr;
+    const int g = lane >> 2, a = lane & 3;
+    const uint32_t mine = esc[((size_t)rg * WK + wk) * RD_ESCN + lane];
+    int nxt = 0;
+    uint32_t e = __shfl_sync(0xffffffffu, mine, 0);
+    int tok[MT];
+#pragma unroll
+    for (int nt = 0; nt < MT; ++nt) {
+        tok[nt] = min(nt * 8 + g, M - 1);
+    }
+    const size_t ustride = (size_t)nrg * 1536;
+    const uint8_t* wp = ws + ((size_t)(wk * KU) * nrg + rg) * 1536 + lane * 16;
+    float acc[MT][4];
+#pragma unroll
+    for (int nt = 0; nt < MT; ++nt) {
+        acc[nt][0] = acc[nt][1] = acc[nt][2] = acc[nt][3] = 0.f;
+    }
+    // A ring of PF + 1 units in registers; the loop is unrolled so every ring index is constant.
+    constexpr int RG = PF + 1;
+    uint4 rl0[RG], rl1[RG], rcw[RG];
+#pragma unroll
+    for (int p = 0; p < PF && p < KU; ++p) {
+        const uint8_t* q = wp + (size_t)p * ustride;
+        rl0[p] = rd_ldw(q);
+        rl1[p] = rd_ldw(q + 512);
+        rcw[p] = rd_ldw(q + 1024);
+    }
+#pragma unroll
+    for (int s = 0; s < KU; ++s) {
+        if (s + PF < KU) {
+            const uint8_t* q = wp + (size_t)(s + PF) * ustride;
+            rl0[(s + PF) % RG] = rd_ldw(q);
+            rl1[(s + PF) % RG] = rd_ldw(q + 512);
+            rcw[(s + PF) % RG] = rd_ldw(q + 1024);
+        }
+        const uint4 l0 = rl0[s % RG], l1 = rl1[s % RG], cw = rcw[s % RG];
+        const int k0 = (wk * KU + s) * 64 + 16 * a;
+        uint4 xb[MT][2];
+#pragma unroll
+        for (int nt = 0; nt < MT; ++nt) {
+            const __nv_bfloat16* xp = x + (size_t)tok[nt] * K + k0;
+            xb[nt][0] = rd_ldx(xp);
+            xb[nt][1] = rd_ldx(xp + 8);
+        }
+        uint32_t r0[8], r8[8];
+        decode8(l0.x, l0.y, cw.x, base4, &r0[0]);
+        decode8(l0.z, l0.w, cw.y, base4, &r0[4]);
+        decode8(l1.x, l1.y, cw.z, base4, &r8[0]);
+        decode8(l1.z, l1.w, cw.w, base4, &r8[4]);
+        while ((int)(e >> 17) == s) {
+            if (lane == (int)((e >> 12) & 31)) {
+                const int reg = (e >> 8) & 15;
+                const uint32_t mask = (e & 127u) << (8 + 16 * ((e >> 7) & 1));
+#pragma unroll
+                for (int i = 0; i < 8; ++i) {
+                    r0[i] ^= reg == i ? mask : 0u;
+                    r8[i] ^= reg == 8 + i ? mask : 0u;
+                }
+            }
+            ++nxt;
+            e = __shfl_sync(0xffffffffu, mine, nxt & 31);
+            if (nxt >= RD_ESCN) {
+                e = 127u << 17;
+            }
+        }
+        const uint32_t* xw[MT];
+#pragma unroll
+        for (int nt = 0; nt < MT; ++nt) {
+            xw[nt] = reinterpret_cast<const uint32_t*>(&xb[nt][0]);
+        }
+#pragma unroll
+        for (int b = 0; b < 4; ++b) {
+            const uint32_t av[4] = {r0[2 * b], r8[2 * b], r0[2 * b + 1], r8[2 * b + 1]};
+#pragma unroll
+            for (int nt = 0; nt < MT; ++nt) {
+                mma_bf16(acc[nt], av, xw[nt][2 * b], xw[nt][2 * b + 1]);
+            }
+        }
+    }
+#pragma unroll
+    for (int nt = 0; nt < MT; ++nt) {
+        red[warp][nt][lane] = make_float4(acc[nt][0], acc[nt][1], acc[nt][2], acc[nt][3]);
+    }
+    __syncthreads();
+    for (int i = threadIdx.x; i < WR * MT * 32; i += NWARP * 32) {
+        const int ln = i & 31, nt = (i >> 5) % MT, w = i / (32 * MT);
+        float4 v = red[w * WK][nt][ln];
+#pragma unroll
+        for (int j = 1; j < WK; ++j) {
+            const float4 u = red[w * WK + j][nt][ln];
+            v.x += u.x;
+            v.y += u.y;
+            v.z += u.z;
+            v.w += u.w;
+        }
+        const int row = (blockIdx.x * WR + w) * 16 + (ln >> 2);
+        const int t = nt * 8 + 2 * (ln & 3);
+        if (t < M) {
+            out[(size_t)t * N + row] = __float2bfloat16_rn(v.x);
+            out[(size_t)t * N + row + 8] = __float2bfloat16_rn(v.z);
+        }
+        if (t + 1 < M) {
+            out[(size_t)(t + 1) * N + row] = __float2bfloat16_rn(v.y);
+            out[(size_t)(t + 1) * N + row + 8] = __float2bfloat16_rn(v.w);
+        }
+    }
+}
+
+#ifndef SK_DEVICE_ONLY
+template <int MT, int WR, int WK, int KU, int PF>
+void launch_rd(const at::Tensor& ws, const at::Tensor& esc, const at::Tensor& x, at::Tensor& out, int N, int K,
+               uint32_t base4) {
+    const int M = (int)x.size(0);
+    TORCH_CHECK(M >= 1 && M <= 8 * MT && x.is_contiguous() && x.size(1) == K && x.data_ptr() != nullptr
+                && reinterpret_cast<uintptr_t>(x.data_ptr()) % 16 == 0, "rd: bad x");
+    TORCH_CHECK(N % (16 * WR) == 0 && K == 64 * WK * KU, "rd: shape does not tile");
+    TORCH_CHECK(esc.numel() >= (int64_t)(N / 16) * WK * RD_ESCN, "rd: escape lists too short");
+    rd_kernel<MT, WR, WK, KU, PF><<<N / (16 * WR), WR * WK * 32, 0, at::cuda::getCurrentCUDAStream()>>>(
+        reinterpret_cast<const uint8_t*>(ws.data_ptr()), reinterpret_cast<const uint32_t*>(esc.data_ptr()),
+        reinterpret_cast<const __nv_bfloat16*>(x.data_ptr()), reinterpret_cast<__nv_bfloat16*>(out.data_ptr()), M, N,
+        K, base4);
+    C10_CUDA_KERNEL_LAUNCH_CHECK();
+}
+#endif
+
+}  // namespace
+
+#ifdef SK_DEVICE_ONLY
+@@RDINSTANCES@@
+#else
+void rd_fwd(int64_t cfg, at::Tensor ws, at::Tensor esc, at::Tensor x, at::Tensor out, int64_t n, int64_t k,
+            int64_t base4) {
+    switch (cfg) {
+@@RDDISPATCH@@
+    default:
+        TORCH_CHECK(false, "rd: unknown config ", cfg);
+    }
+}
+#endif
+"""
+
+_RD_CPP = ("void rd_fwd(int64_t cfg, at::Tensor ws, at::Tensor esc, at::Tensor x, at::Tensor out, int64_t n, "
+           "int64_t k, int64_t base4);\n")
+
+
+def rd_source():
+    targs = {nm: ", ".join(str(v) for v in g) for nm, g in RD_GEOM.items()}
+    dispatch = "\n".join(f"    case {i}: launch_rd<{targs[nm]}>(ws, esc, x, out, (int)n, (int)k, (uint32_t)base4); break;"
+                         for i, nm in enumerate(RD_NAMES))
+    inst = "\n".join(f"template __global__ void rd_kernel<{t}>(const uint8_t*, const uint32_t*, const __nv_bfloat16*, "
+                     f"__nv_bfloat16*, int, int, int, uint32_t);" for t in dict.fromkeys(targs.values()))
+    return (_RD_SRC.replace("RD_ESCN", str(RD_ESC)).replace("@@RDDISPATCH@@", dispatch)
+            .replace("@@RDINSTANCES@@", "namespace {\n" + inst + "\n}"))
+
+
+def rd_pack(w, geom_name):
+    """Stream (uint8) and escape lists (int32 [N/16 * WK, RD_ESC]) for rd_fwd, or None when a
+    warp's escapes overflow RD_ESC. Uses the 12-bit code's window base (window_base)."""
+    mt, wr, wk, ku, _ = RD_GEOM[geom_name]
+    n, k = w.shape
+    if n % (16 * wr) or k != 64 * wk * ku:
+        return None
+    bits = bf16_bits(w)
+    base = window_base(bits)
+    code, escape, _ = code_bits(bits, base)
+    nrg, nu = n // 16, k // 64
+    # [rg, h, g, u, a, j]: row 16 rg + 8 h + g, k 64 u + 16 a + j
+    b6 = bits.view(nrg, 2, 8, nu, 4, 16)
+    c6 = code.view(nrg, 2, 8, nu, 4, 16)
+    lo = (b6 & 0xFF).permute(3, 0, 1, 2, 4, 5)  # [u, rg, h, g, a, j]
+    cd = c6.permute(3, 0, 1, 2, 4, 5)
+    # codes: byte b of word w: value 8w + b (low nibble), 8w + 4 + b (high nibble)
+    cw = cd.reshape(nu, nrg, 2, 8, 4, 2, 2, 4)  # j = 8w + 4hi + b
+    cbytes = (cw[..., 0, :] | (cw[..., 1, :] << 4))  # [u, rg, h, g, a, w, b]
+    lo_planes = lo.reshape(nu, nrg, 2, 32, 16)  # lane = 4g + a
+    code_plane = cbytes.permute(0, 1, 3, 4, 2, 5, 6).reshape(nu, nrg, 32, 16)  # per lane: row g 8 B, row g+8 8 B
+    unit = torch.cat([lo_planes[:, :, 0], lo_planes[:, :, 1], code_plane], dim=2)  # [u, rg, 96 (3 planes x 32 lanes), 16]
+    stream = unit.to(torch.uint8).reshape(-1).contiguous()
+    # escapes
+    rows, cols = escape.nonzero(as_tuple=True)
+    tab = torch.full((nrg * wk, RD_ESC), 127 << 17, dtype=torch.int64, device=w.device)
+    if rows.numel():
+        rgi, rr = rows // 16, rows % 16
+        h, gg = rr // 8, rr % 8
+        u, kk = cols // 64, cols % 64
+        a, j = kk // 16, kk % 16
+        wki, seq = u // ku, u % ku
+        lane = 4 * gg + a
+        reg = 8 * h + 2 * (j // 4) + (j % 4) // 2
+        half = j % 2
+        e71 = (bits[rows, cols] >> 8) & 0x7F
+        dec = base + (e71 - base).clamp(0, 7)
+        xor7 = e71 ^ dec
+        warp = rgi * wk + wki
+        key = warp * 4096 + seq
+        order = key.argsort()
+        warp, seq, lane, reg, half, xor7 = (t[order] for t in (warp, seq, lane, reg, half, xor7))
+        cnt = torch.bincount(warp, minlength=nrg * wk)
+        if int(cnt.max()) > RD_ESC:
+            return None
+        start = torch.cumsum(cnt, 0) - cnt
+        pos = torch.arange(warp.numel(), device=w.device) - start[warp]
+        tab[warp, pos] = (seq << 17) | (lane << 12) | (reg << 8) | (half << 7) | xor7
+    return {"stream": stream, "esc": tab.to(torch.int32).contiguous(), "base4": base * 0x01010101,
+            "escapes": int(rows.numel()), "max_esc": int(cnt.max()) if rows.numel() else 0}
+
+
 def _build_ext():
-    src = sk_source() + GEMV_CUDA_SRC + wd_source() + rt_source()
-    kwargs = dict(name="okc_sk_v2", cpp_sources="#include <torch/extension.h>\n" + _SK_CPP + GEMV_CPP_DECLS + _WD_CPP + _RT_CPP,
+    src = sk_source() + GEMV_CUDA_SRC + wd_source() + rt_source() + rd_source()
+    kwargs = dict(name="okc_sk_v2", cpp_sources="#include <torch/extension.h>\n" + _SK_CPP + GEMV_CPP_DECLS + _WD_CPP + _RT_CPP
+                  + _RD_CPP,
                   cuda_sources=src,
-                  functions=["sk_fwd", "skf_fwd", "cgemv_fwd", "rgemv_fwd", "sgemv_fwd", "wd_fwd", "rt_fwd"],
+                  functions=["sk_fwd", "skf_fwd", "cgemv_fwd", "rgemv_fwd", "sgemv_fwd", "wd_fwd", "rt_fwd", "rd_fwd"],
                   extra_cuda_cflags=["-O3", "-gencode=arch=compute_90a,code=sm_90a"], verbose=False)
     try:
         return load_inline(no_implicit_headers=True, **kwargs)
@@ -4122,6 +4393,26 @@ def prepare(weights):
                 nrows = slices[rnm]
                 fn = _sk_runner(ext, rnm, raw[rnm], diag, 0, 0, nrows, k, torch.bfloat16, diag)
                 add(layer, b, rnm, fn, w, nrows, ms_of[b], SELFTEST_TOL["bf16"])
+        for (lname, b), rnames in RD_USE.items():
+            if lname != layer:
+                continue
+            for rnm in rnames:
+                pk = rd_pack(w[:rows_of(b)], rnm)
+                if pk is None:
+                    print(f"rd {layer} {rnm}: not offered (shape or escape list overflow)")
+                    continue
+                cid = RD_NAMES.index(rnm)
+                nrows = rows_of(b)
+
+                # Every loop variable is bound here: prepare() calls these after the loop ends.
+                def rd_run(x, pk=pk, cid=cid, nrows=nrows, k=k):
+                    # rd's 16-byte vector loads of x need an aligned, contiguous row-major x.
+                    if x.data_ptr() % 16 or not x.is_contiguous():
+                        x = x.clone(memory_format=torch.contiguous_format)
+                    out = torch.empty((x.shape[0], nrows), dtype=torch.bfloat16, device=x.device)
+                    ext.rd_fwd(cid, pk["stream"], pk["esc"], x, out, nrows, k, pk["base4"])
+                    return out
+                add(layer, b, rnm, rd_run, w, nrows, ms_of[b], SELFTEST_TOL["bf16"])
         w1 = w[:rows_of(8)]
         cg = pack_cgemv(w1)
         if cg is not None:
