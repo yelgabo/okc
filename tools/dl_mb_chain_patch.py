@@ -24,7 +24,7 @@ kernel's own primary started: the attention boundary reads the step's input stre
 route reads prepare-time weights, the FFN boundary's two-back read is covered by the MoE's
 post-wait trigger, and attention (after qkv) reads harness K/V rows and page tables.
 
-    python3 tools/dl_mb_chain_patch.py IN.py OUT.py "HEADER LINE 2"
+    python3 tools/dl_mb_chain_patch.py IN.py OUT.py "HEADER LINE 2" [--round=3]
 """
 import sys
 
@@ -188,6 +188,27 @@ def _attn_pdl(tokens, state):
 
 MODES_OLD = '("off", "o", "o+front")'
 
+# --round=3 (after a3760918c13c4e40): the sk entry trigger on every launch cost 1.0 us at 8
+# tokens and 5.5-6.1 us at 16 / 32 in the stable M1 tuner's paired whole-step rounds, while
+# unp + trig saved 1.39 us at 8 (9 of 9 rounds). Round 3 drops the blanket trigger from the
+# tuner's modes, adds utrig (the trigger on the unpooler launch only, whose successor is the
+# FFN boundary) and times unp and attn without it. The gate replays every switch at once.
+ROUND3 = [
+    ('''M1_MODES = ("off", "o", "o+front", "o+front+trig", "o+front+unp+trig", "o+front+unp+trig+attn")
+M1_GATE_MODE = M1_MODES[-1]''',
+     '''M1_MODES = ("off", "o", "o+front", "o+unp", "o+front+unp", "o+front+unp+utrig", "o+unp+attn")
+M1_GATE_MODE = "o+front+unp+utrig+trig+attn"'''),
+    ('''                return pick[1](x.contiguous(), _m1_pdl(layer, m, state),
+                               _m1_has(m, state, "trig"))''',
+     '''                return pick[1](x.contiguous(), _m1_pdl(layer, m, state),
+                               _m1_has(m, state, "trig") or (
+                                   layer == "unpooler" and _m1_has(m, state, "utrig")))'''),
+    ('''    """M1's choice for this token count: "off" or switches joined by "+" (o, front, unp,
+    trig, attn; tools/dl_mb_chain_patch.py)."""''',
+     '''    """M1's choice for this token count: "off" or switches joined by "+" (o, front, unp,
+    trig, utrig, attn; tools/dl_mb_chain_patch.py)."""'''),
+]
+
 
 def apply(text, reps, what):
     for old, new, n in reps:
@@ -198,14 +219,18 @@ def apply(text, reps, what):
 
 
 def main():
-    if len(sys.argv) != 4:
+    args = [a for a in sys.argv[1:] if not a.startswith("--")]
+    opts = [a for a in sys.argv[1:] if a.startswith("--")]
+    if len(args) != 3 or not set(opts) <= {"--round=3"}:
         raise SystemExit(__doc__)
-    src, out, header = sys.argv[1:]
+    src, out, header = args
     text = open(src).read()
     if "_m1_has(" in text or "def _m1_rounds(" not in text:
         raise SystemExit("IN must be a stable M1 file without M-B (layer_m1rt51s)")
     text = apply(text, DEVICE, "device")
     text = apply(text, [r if len(r) == 3 else (r[0], r[1], 1) for r in PY], "python")
+    if "--round=3" in opts:
+        text = apply(text, [(o, n, 1) for o, n in ROUND3], "round 3")
     a = text.index("def _m1_tune(state):")
     b = text.index("def _m1_enable(state):", a)
     body = text[a:b]

@@ -150,6 +150,27 @@ Progress: a secondary CTA can only be placed after every primary CTA has trigger
 so it never takes an SM a primary CTA still needs; the MoE triggers after its grid barrier,
 so its barrier cannot be affected at all.
 
+## Slice 4 (designed, not built): the 1-token chain
+
+At one token the projections are cgemv (`_SKP_GEMV_SRC`): qkv `cgemv40<256,2>`, o
+`cgemv<64,1>`, the FP32 front's pooler `cgemv<512,1>`, the unpooler slice `cgemv40<128,2>`;
+none has a `griddepcontrol` instruction and `cgemv_launch` sets no launch attribute. Design:
+a runtime flags argument (bit 0: PDL launch and wait, bit 1: trigger at entry); in
+`cgemv_body` the compute warps issue their weight loads (low bytes and codes) and then wait,
+and the escape warp loads its first table entry and then waits, before any read of x; x is read
+with `ld.global.cg` instead of `__ldg` in the PDL build, because the non-coherent path is
+specified for data that is read-only for the kernel's lifetime, which a PDL secondary's input
+is not; the host launches through `cudaLaunchKernelEx` with the programmatic attribute when
+bit 0 is set. No CTA waits on another, so the entry trigger is safe.
+
+Two obstacles keep it out of this round. The M1 tuner's buckets are 8 / 16 / 32 and one token
+falls in bucket 8 (the v1 shapes time it), so the 1-token chain needs its own bucket and its
+own whole-step rounds on d1 shapes. And the M1 gate would then judge 1x1 sliding and full,
+the shapes where it failed on a one-replay BF16-rounding difference with a bitwise control
+(d6c30f88c617438b, 6ce5be0ba29642ea), and a failure turns M1 off for the whole run. The earlier
+PDL-across-the-chain attempt moved d1 by -2.3 / +0.5 us (179cecdac87b4872), so the slice also
+needs the per-mode evidence of slices 2-3 before it is worth a check.
+
 ## Queued beside M-B: MoE mode 78 at 32 tokens (coordinator, 2026-10-31)
 
 Mode 78 (51 + paired-row scale decode + the fin4 final pass below 64 tokens, muse_moe_w4a16 at

@@ -28,8 +28,9 @@ def state(mode):
     return {"m1_ok": True, "m1_policy": {b: mode for b in ns["M1_BUCKETS"]}}
 
 
-check("gate mode has every switch", sorted(ns["M1_GATE_MODE"].split("+")),
-      ["attn", "front", "o", "trig", "unp"])
+used = {s for mode in ns["M1_MODES"] if mode != "off" for s in mode.split("+")}
+check("gate mode covers every switch the modes use",
+      used <= set(ns["M1_GATE_MODE"].split("+")), True)
 for mode in ns["M1_MODES"]:
     st = state(mode)
     for t in (1, 8, 16, 32, 128):
