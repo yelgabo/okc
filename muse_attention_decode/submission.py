@@ -3106,6 +3106,14 @@ constexpr int M_SOLO = 64;
 #ifndef ONE_PBDBG
 #define ONE_PBDBG 0
 #endif
+// ONE_PROF (bench-only): the per-request q_len 8 tile loop (ONE_PRQ path) accumulates clock64
+// cycles per phase in consumer thread 0 and writes them per CTA to dbg[STAMP_BASE + 16 c ..]
+// (c = blockIdx.y * gridDim.x + blockIdx.x): 0 copy wait (loop top to the CTA barrier passed),
+// 1 barrier to Q.K done, 2 Q.K done to the first P.V issue, 3 first P.V issue to the tile's last
+// wgmma wait, 4 tiles, 5 SM id, 6 / 7 globaltimer (low 32 bits) at loop start / end.
+#ifndef ONE_PROF
+#define ONE_PROF 0
+#endif
 
 __host__ __device__ constexpr bool one_pb(int L, int mode) {
     return ONE_PBULK != 0 && L == 1 && (mode & M_PROD) && !(mode & M_SOLO);
@@ -5529,8 +5537,33 @@ attn_one_kernel(const Params p) {
                 constexpr bool QKF = (PRQ & 2) != 0;
                 constexpr bool SPV = (PRQ & 8) != 0;
                 constexpr bool TCHK = (PRQ & 16) != 0;
+                constexpr bool PROF = ONE_PROF != 0;
+                long long pf_acc[4] = {0, 0, 0, 0};
+                long long pf_t = 0;
+                int* const pf_row = PROF && p.dbg != nullptr && tid == 0
+                                        ? p.dbg + STAMP_BASE
+                                              + (blockIdx.y * gridDim.x + blockIdx.x) * STAMP_W
+                                        : nullptr;
+                auto pf_mark = [&](int k) {
+                    if constexpr (PROF) {
+                        const long long now = clock64();
+                        if (k >= 0) {
+                            pf_acc[k] += now - pf_t;
+                        }
+                        pf_t = now;
+                    }
+                };
+                if constexpr (PROF) {
+                    if (pf_row != nullptr) {
+                        uint32_t smid;
+                        asm volatile("mov.u32 %0, %%smid;\n" : "=r"(smid));
+                        pf_row[5] = static_cast<int>(smid);
+                        pf_row[6] = static_cast<int>(globaltimer_ns() & 0xffffffffull);
+                    }
+                }
                 int st = 0;
                 for (int it = 0; it < ntiles; ++it) {
+                    pf_mark(-1);
                     // acquire() of the judged loop, with the copy issue split off so QKF can
                     // place it after the Q.K issue.
                     cp_wait<STAGES - 2>();
@@ -5542,6 +5575,7 @@ attn_one_kernel(const Params p) {
                     if (it == 0) {
                         stamp(15);
                     }
+                    pf_mark(0);
                     auto issue_next = [&]() {
                         if constexpr (!ONE) {
                             if (it + STAGES - 1 < ntiles) {
@@ -5595,6 +5629,7 @@ attn_one_kernel(const Params p) {
                     }
                     wg_wait<0>();
                     reg_fence(s);
+                    pf_mark(1);
                     if (!interior) {
 #pragma unroll
                         for (int i = 0; i < 8; ++i) {
@@ -5685,6 +5720,7 @@ attn_one_kernel(const Params p) {
                         }
                         fence_proxy_async();
                         named_sync(2 + hk, 128);
+                        pf_mark(2);
                         wg_fence();
                         wgmma_pv(o, pa[0], vd);
                         wg_commit();
@@ -5707,7 +5743,18 @@ attn_one_kernel(const Params p) {
                     }
                     wg_wait<0>();
                     reg_fence(o);
+                    pf_mark(3);
                     st = st == STAGES - 1 ? 0 : st + 1;
+                }
+                if constexpr (PROF) {
+                    if (pf_row != nullptr) {
+#pragma unroll
+                        for (int k = 0; k < 4; ++k) {
+                            pf_row[k] = static_cast<int>(pf_acc[k]);
+                        }
+                        pf_row[4] = ntiles;
+                        pf_row[7] = static_cast<int>(globaltimer_ns() & 0xffffffffull);
+                    }
                 }
             } else {
                 int st = PROD ? cst : 0;

@@ -532,6 +532,54 @@ def _st_q(xs):
     return xs[0], xs[len(xs) // 2], xs[-1]
 
 
+def _ab_prof(reps=5):
+    """Per-phase cycle profile of the per-request q_len 8 tile loop: arms named prof* (ours,
+    -DONE_PROF=1, int32 dbg[1024 + 16 c ..]) and pubprof* (the public copy, int64
+    dbg[65536 + 8 c ..]). Per cold call: the median CTA's cycles per tile in each phase (copy wait,
+    barrier to Q.K done, Q.K done to the first P.V issue, first P.V issue to the tile end) and the
+    loop wall time (median / max CTA, us); medians over the calls go to STSUM."""
+    flush = torch.empty(256 << 20, dtype=torch.uint8, device="cuda")
+    arms = [n for n in _AB_MODS if n.startswith("prof")]
+    arms += [n for n in _AB_PUBS if n.startswith("pubprof")]
+    for batch, layer, q_len in _ab_scored():
+        if q_len != 8 or (layer == "full" and batch > 1):
+            continue
+        data = _ob_inputs(batch, 80000, "tp8", layer, q_len, "agentic",
+                          "coherent" if layer == "full" else "soft", 1, 1.0)
+        tag = f"b={batch:2d} {layer:7s} L={q_len}"
+        for name in arms:
+            for r in range(reps):
+                flush.zero_()
+                if name.startswith("pubprof"):
+                    buf = torch.zeros(65536 + 8 * 1024, dtype=torch.int64, device="cuda")
+                    _AB_PUBS[name]._launch(data, dbg=buf)
+                    torch.cuda.synchronize()
+                    rec = buf[65536:].view(1024, 8).cpu().long()
+                    rec = rec[rec[:, 4] > 0]
+                    ns = (rec[:, 7] - rec[:, 6]).double()
+                else:
+                    buf = torch.zeros(_ST_BASE + 512 * _ST_W, dtype=torch.int32, device="cuda")
+                    with _ab_ctx(name):
+                        _one(data, dbg=buf)
+                    torch.cuda.synchronize()
+                    rec = buf[_ST_BASE:].view(512, _ST_W).cpu().long()
+                    rec = rec[rec[:, 4] > 0]
+                    ns = (((rec[:, 7] - rec[:, 6]) % (1 << 32))).double()
+                if rec.shape[0] == 0:
+                    print(f"PROF {tag} {name} rep={r} no records", flush=True)
+                    continue
+                tiles = rec[:, 4].double()
+                per = [float((rec[:, k].double() / tiles).median()) for k in range(4)]
+                _st_add(tag, name, cyc_wait=per[0], cyc_qk=per[1], cyc_soft=per[2],
+                        cyc_pv=per[3], cyc_tile=sum(per), loop_us_med=float(ns.median()) / 1e3,
+                        loop_us_max=float(ns.max()) / 1e3, tiles=float(tiles.median()))
+                if r == 0:
+                    print(f"PROF {tag} {name} ctas={rec.shape[0]} tiles={int(tiles.median())} "
+                          + " ".join(f"{v:.0f}" for v in per), flush=True)
+        data = None
+        torch.cuda.empty_cache()
+
+
 def _ab_stsum():
     for (tag, name), d in _ST_SUM.items():
         med = {k: sorted(v)[len(v) // 2] for k, v in d.items()}
@@ -710,6 +758,10 @@ if not _os.environ.get("ATTN_AB_DONE"):
             _ab_pubstamps()
         except Exception as _exc:
             print(f"PUBSTAMP failed: {type(_exc).__name__}: {_exc}", flush=True)
+        try:
+            _ab_prof()
+        except Exception as _exc:
+            print(f"PROF failed: {type(_exc).__name__}: {_exc}", flush=True)
         try:
             _ab_bench()
         except Exception as _exc:

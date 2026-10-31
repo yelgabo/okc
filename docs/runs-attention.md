@@ -3550,3 +3550,30 @@ and v32 sliding, about 0.5% together); first test the per-tile descriptor / V^T 
 the PRQ loop against the public order, with a stamp copy of the public per-request loop to split the
 latency; (2) the d1 full prologue (0.54 us): sub-phase exits on both sides (page indices, query
 group, first tiles) before any change; (3) the flat full rows by the pair spread (round 4).
+
+## Attention round 6 (10-31): measuring the q_len 8 per-request tile loop and the d1 full prologue
+
+Brief (coordinator, 10-31, after merging 1ec4193 as 8bfda4b): measure first, then build. Targets in
+order: the q_len 8 per-request tile loop (about 0.5% at v1 full, v16 and v32 sliding), then the d1
+full prologue (about 0.33%). `ONE_PBULK=1` (+0.07%) is a component to stack: a second sub-bar gain on
+the same rows gets benched together with it against the bar. Budget: up to 6 attention checks.
+
+### Instruments (bench-only, no judged code changes)
+
+- `ONE_PROF` (`attn_one.cu`, default 0): in the per-request q_len 8 loop (`ONE_PRQ` path), consumer
+  thread 0 accumulates `clock64` cycles in four phases per tile: copy wait (loop top to the CTA
+  barrier passed, including `cp.async.wait_group` and the proxy fence), barrier to Q.K done (Q.K
+  issue, the next tile's copy issue, the V^T transpose under Q.K, the Q.K wait), Q.K done to the
+  first P.V issue (mask, max, vote, first-half exponentials and pack, the V^T fence and warpgroup
+  barrier), first P.V issue to the tile's last wgmma wait (second half, the P.V latency). Written per
+  CTA to `dbg`. SASS: 0 identical to main on all 13 instances; 1 changes only q_len 8 modes 1, 3,
+  11, 15.
+- `pubprof_probe` (scratchpad `flat/make_pubprof.py`, never committed): the public file with the same
+  four marks at the same boundaries in its per-request q_len 8 loop (`PROF_TILE` already marks its
+  tile end); compiled with its own flags, no spills.
+- Bench: `_ab_prof` in `tools/attn_make_bench_ab.py` runs five cold calls per per-request q_len 8
+  shape for each `prof*` / `pubprof*` arm and prints the median CTA's cycles per tile in each phase
+  and the loop wall time (STSUM).
+
+Check 1 of this round, bench `bench_t` (`flat/gen_t.sh`, `--null --shapes all --inputs 1 --rounds 80
+--seed 20261106`): `prof_probe`, `pubprof_probe`, `ctrl2`, `pub`, `pub2`. No gate (attribution).
