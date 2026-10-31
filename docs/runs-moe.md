@@ -3840,6 +3840,63 @@ The budget's second check (a repeat) was not used: the per-phase differences mat
 gaps within 1-3 us at every size and both routings, and the earlier public-kernel stamps
 (d47c78bdc130424b, 7063f86352344efa) put the gap in the same pieces.
 
+## Stage cost ablations (modes 83 to 85), 2026-10-31
+
+Brief (coordinator): the stamped run above put the donor's stage at about 1.12 us against our
+1.38-1.47, a 23% time gap on a fast-path instruction gap of about 14% (on a line-by-line reading
+of the m64n24 loop, the excess is about 40 instructions, not the 60 first estimated: the scale
+build 8, which 76 removes, the x descriptor's SHFL / R2UR / convergence check about 10, ring
+bookkeeping about 10, the per-thread release 4; our dequant is already the donor's 7 ALU + 2
+IMAD.SHL per word, and the spin-timeout path runs only after a failed first try). So mode 80 as
+proposed above would cut about 20 executed instructions and project to -1 to -3 us at 256 tokens,
+under its own rule; it was not built. Instead, one check prices candidate causes with timing-only
+ablations of 51.
+
+### The arms, and what keeps them out of any policy
+
+None of 83-85 is in MAIN_MODES, MAIN_CANDIDATES or any policy table; a kernel instantiated for one
+fails to compile unless OKC_MOE_ABLATE is defined (static_assert, checked: a build with 84 and no
+define stops with "ablation modes are bench-only"), and only `tools/moe_make_bench_ab.py
+--ablate=1` defines it, in the bench copy. The tool refuses ablation arms in --gate or --nopub
+benches. Prepare's self-test and policy never run them (not candidates); its policy bench times
+non-candidates for the record only.
+
+- 83: 51 without the per-thread fence.proxy.async.shared::cta before the weights-slot arrive
+  (arrive kept). It measures what that fence costs. It does not license removing it: the chain in
+  "Ordering of the ring slot releases" needs a cross-proxy fence between the generic reads and the
+  bulk refill, and any narrowing (for example one elected lane after `__syncwarp`) is a separate,
+  reviewed switch. SASS: 2 instructions fewer per stage (385), MEMBAR 31 and FENCE.VIEW.ASYNC.S 9
+  against 51's 43 and 21; wgmma pipelining as 51.
+- 84 (built, not run): the decode's ALU share. Feeding raw code words to wgmma made ptxas
+  serialize every wgmma (C7513); one XOR per register, and dequant's bit extraction without the
+  scale build and HMUL2 (319 instructions per stage), still serialized (C7520, compiler-inserted
+  WG.AR in a divergent path; wait1 0, wait0 192). A serialized loop does not price the decode, so
+  84 stays out of the check. If it were run, the bench excludes it from the output comparison
+  and says so in the log (`_AB_WRONG`).
+- 85 (built, not run): 3 weights and 3 x slots fixed at compile time. Its stage loops compiled to
+  51's 387 instructions, and at 128 / 256 tokens the largest job has 8 n-tiles, so 51's ring is
+  already 3 + 3 x 32 KB there; it would time 51 again.
+
+Compile gate (nvcc 12.8.1, Docker, sm_90a; MAIN_MODES (0, 16, 26, 28, 37, 47, 51, 72, 74, 79, 83,
+84, 85) with the define, against 25558d2's (0, 16, 26, 28, 37, 47, 51, 72, 74, 79)): every
+production mode and 72, 74, 79 and the four skinny kernels have identical instruction text; no
+spills; C7520 only in 84.
+
+### Run and reading rule (set before the check)
+
+One check of `tools/moe_make_bench_ab.py OUT.py DONOR_MAIN_ONLY.py --base=51 --sizes=128,256
+--routings=layer,std --seeds=161,162,163,164,165,166 --ablate=1 o83=83 o76=76` (light twin 55
+and the donor's stamps as above; seeds new on both routings). Reading, per size and routing, with
+D = donor minus 51 and A = 83 minus 51 (means of 6 seeds):
+1. If A is at most 0.5 D at 256 tokens on both routings, the per-thread fence is the main per-stage
+   cost: the next step is the separate, reviewed narrowing switch (PTX chain first).
+2. If A is between 0.5 D and 2 us of saving, the fence is a part, not the main piece.
+3. Otherwise the fence is not it, and the line's second check goes to the latency arm the
+   coordinator named (51 with the donor's wgmma wait-group depth and issue order) instead of a
+   repeat.
+76 rides along as a second measurement of the scale pairs (two earlier runs: -0.4 to -1.1 us at
+256 tokens).
+
 ## Staged pair on current components, 2026-10-29
 
 The staged two-launch MoE (mode 19, phase A alone on owned units, then mode 21, phase B and the
