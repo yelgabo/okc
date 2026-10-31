@@ -1,0 +1,116 @@
+tart
+F4K o256 R1=nvjet_sm90_tst_128x128_64x6_ D1=nvjet_sm90_tst_128x128_64x6_
+F4K pooler256 R1=nvjet_sm90_tst_128x64_64x8_1 D1=nvjet_sm90_tst_128x64_64x8_1
+F4K unpooler256 R1=nvjet_sm90_tst_128x128_64x6_ D1=nvjet_sm90_tst_128x128_64x6_
+F4K router256 R1=- D1=-
+F4END 206 s
+F4K qkv_gate1 R1=- D1=-
+F4K o1 R1=- D1=-
+F4K pooler1 R1=- D1=-
+F4K unpooler1 R1=- D1=-
+F4K router1 R1=- D1=-
+F4K qkv_gate16 R1=- D1=-
+F4K o16 R1=- D1=-
+F4K pooler16 R1=- D1=-
+F4K unpooler16 R1=- D1=-
+F4K router16 R1=- D1=-
+F4K qkv_gate32 R1=- D1=-
+F4K o32 R1=- D1=-
+F4K pooler32 R1=- D1=-
+F4K unpooler32 R1=- D1=-
+F4K router32 R1=- D1=-
+F4K qkv_gate8 R1=- D1=-
+F4K o8 R1=- D1=-
+F4K pooler8 R1=- D1=-
+F4K unpooler8 R1=- D1=-
+F4K router8 R1=- D1=-
+F4K qkv_gate128 R1=- D1=-
+F4K o128 R1=nvjet_sm90_tst_128x64_64x8_1 D1=nvjet_sm90_tst_128x64_64x8_1
+F4K pooler128 R1=nvjet_sm90_tst_64x64_64x13_1 D1=nvjet_sm90_tst_64x64_64x13_1
+F4K unpooler128 R1=nvjet_sm90_tst_128x64_64x8_1 D1=nvjet_sm90_tst_128x64_64x8_1
+F4K router128 R1=- D1=-
+F4K qkv_gate256 R1=nvjet_sm90_tst_72x64_64x12_1 D1=nvjet_sm90_tst_72x64_64x12_1
+F4K o256 R1=nvjet_sm90_tst_128x128_64x6_ D1=nvjet_sm90_tst_128x128_64x6_
+F4K pooler256 R1=nvjet_sm90_tst_128x64_64x8_1 D1=nvjet_sm90_tst_128x64_64x8_1
+F4K unpooler256 R1=nvjet_sm90_tst_128x128_64x6_ D1=nvjet_sm90_tst_128x128_64x6_
+F4K router256 R1=- D1=-
+F4PIN R=f41418489a109669 D=b2c4c096410e2d28 Dpatched=b2c4c096410e2d28 order=2203 seed0=930000 prep=RDRD
+F4LOAD R 7.4 s
+F4LOAD D 0.0 s
+F4OVH 3.78 us
+F4POL R1 o=cgemv o=o8 o16=o16 o32=o32 o64=cublas o128=cublas o256=cublas pooler=cgemv pooler=pool8 pooler16=pool16 pooler32=pool32 pooler64=b1n64c2 pooler128=b1n128c2s8h pooler256=cut128x64 qkv_gate=cgemv qkv_gate=qkv8 qkv_gate16=qkv16 qkv_gate32=qkv32 qkv_gate64=cublas qkv_gate128=b1n128c3s8h qkv_gate256=cublas router=rgemv router=rt8w8 router16=rt16w8p8 router32=rt16w8p8 router64=r64c8s8k router128=r64c8s8k router256=r128c8s6k unpooler=cgemv unpooler=slice8 unpooler16=unp16 unpooler32=unp32 unpooler64=cublas unpooler128=cublas unpooler256=cublas qkv_gate128:lt=pref base ma o128:lt=pref base ma pooler128:lt=pref pref ma unpooler128:lt=pref pref ma qkv_gate256:lt=pref pref ma o256:lt=pref pref ma pooler256:lt=pref pref ma unpooler256:lt=pref pref ma
+F4POL R2 o=cgemv o=o8 o16=o16 o32=o32 o64=cublas o128=cublas o256=cublas pooler=cgemv pooler=pool8 pooler16=pool16 pooler32=pool32 pooler64=b1n64c2 pooler128=b1n128c2s8h pooler256=cut128x64 qkv_gate=cgemv qkv_gate=qkv8 qkv_gate16=qkv16 qkv_gate32=qkv32 qkv_gate64=cublas qkv_gate128=b1n128c3s8h qkv_gate256=cublas router=rgemv router=rt8w8 router16=rt16w8p8 router32=rt16w8 router64=r64c8s8k router128=r64c8s8k router256=r128c8s6k unpooler=cgemv unpooler=slice8 unpooler16=unp16 unpooler32=unp32 unpooler64=cublas unpooler128=cublas unpooler256=cublas qkv_gate128:lt=pref base ma o128:lt=pref base ma pooler128:lt=pref pref ma unpooler128:lt=pref pref ma qkv_gate256:lt=pref pref ma o256:lt=pref pref ma pooler256:lt=pref pref ma unpooler256:lt=pref pref ma
+F4POL D1  | klarge=[] iv_router24=False iv_cg=None u32=False cut=[] disabled=[]
+F4POL D2  | klarge=[] iv_router24=False iv_cg=None u32=False cut=[] disabled=[]
+F4PREP R1 107.5 s pad 19652096 at 115 s
+F4PREP D1 35.8 s pad 26747904 at 151 s
+F4PREP R2 25.6 s pad 3742720 at 176 s
+F4PREP D2 26.4 s pad 4131328 at 203 s
+F4T qkv_gate m=1 sgl=15.18 R1=9.45 R2=9.51 D1=9.49 D2=9.47
+F4T o m=1 sgl=7.46 R1=5.91 R2=5.89 D1=5.98 D2=5.96
+F4T pooler m=1 sgl=22.85 R1=14.43 R2=14.43 D1=14.14 D2=14.12
+F4T unpooler m=1 sgl=7.87 R1=4.20 R2=4.21 D1=4.24 D2=4.26
+F4T router m=1 sgl=11.55 R1=4.27 R2=4.27 D1=4.32 D2=4.25
+F4T qkv_gate m=16 sgl=14.98 R1=10.57 R2=10.56 D1=10.59 D2=10.54
+F4T o m=16 sgl=7.42 R1=6.20 R2=6.27 D1=6.30 D2=6.35
+F4T pooler m=16 sgl=22.75 R1=15.46 R2=15.42 D1=15.46 D2=15.50
+F4T unpooler m=16 sgl=19.68 R1=15.07 R2=15.00 D1=14.94 D2=15.08
+F4T router m=16 sgl=16.66 R1=5.30 R2=5.26 D1=5.20 D2=5.20
+F4T qkv_gate m=32 sgl=15.42 R1=11.64 R2=11.48 D1=11.60 D2=11.60
+F4T o m=32 sgl=7.46 R1=6.56 R2=6.60 D1=6.61 D2=6.56
+F4T pooler m=32 sgl=23.04 R1=16.04 R2=15.96 D1=15.93 D2=16.14
+F4T unpooler m=32 sgl=19.71 R1=15.68 R2=15.69 D1=15.55 D2=15.62
+F4T router m=32 sgl=17.58 R1=6.09 R2=6.01 D1=5.96 D2=6.02
+F4T qkv_gate m=8 sgl=15.54 R1=10.45 R2=10.63 D1=10.50 D2=10.75
+F4T o m=8 sgl=7.33 R1=6.40 R2=6.40 D1=6.00 D2=6.00
+F4T pooler m=8 sgl=22.58 R1=15.21 R2=15.22 D1=14.20 D2=14.19
+F4T unpooler m=8 sgl=8.19 R1=5.32 R2=5.16 D1=5.12 D2=5.23
+F4T router m=8 sgl=27.52 R1=4.94 R2=4.97 D1=4.88 D2=4.87
+F4T qkv_gate m=128 sgl=17.92 R1=15.19 R2=15.32 D1=15.19 D2=15.24
+F4T o m=128 sgl=8.03 R1=7.94 R2=8.03 D1=7.82 D2=7.67
+F4T pooler m=128 sgl=26.43 R1=20.66 R2=20.74 D1=21.11 D2=20.83
+F4T unpooler m=128 sgl=20.70 R1=19.46 R2=19.42 D1=19.50 D2=19.64
+F4T router m=128 sgl=18.16 R1=7.46 R2=7.50 D1=7.44 D2=7.44
+F4T qkv_gate m=256 sgl=20.32 R1=18.01 R2=17.83 D1=18.12 D2=18.02
+F4T o m=256 sgl=9.98 R1=9.28 R2=9.62 D1=9.45 D2=9.32
+F4T pooler m=256 sgl=31.89 R1=25.05 R2=25.08 D1=25.22 D2=25.08
+F4T unpooler m=256 sgl=25.22 R1=24.16 R2=24.02 D1=24.16 D2=24.15
+F4T router m=256 sgl=19.20 R1=10.23 R2=10.06 D1=9.95 D2=9.94
+F4D qkv_gate m=1 D1-R1=+0.03 D2-R1=-0.03 D1-R2=-0.10 D2-R2=-0.10 nullR=+0.06 nullD=-0.03
+F4D o m=1 D1-R1=+0.08 D2-R1=+0.03 D1-R2=+0.03 D2-R2=+0.05 nullR=+0.03 nullD=-0.03
+F4D pooler m=1 D1-R1=-0.32 D2-R1=-0.29 D1-R2=-0.29 D2-R2=-0.29 nullR=+0.00 nullD=+0.00
+F4D unpooler m=1 D1-R1=+0.03 D2-R1=+0.06 D1-R2=+0.03 D2-R2=+0.06 nullR=+0.00 nullD=+0.03
+F4D router m=1 D1-R1=+0.00 D2-R1=-0.03 D1-R2=+0.06 D2-R2=+0.00 nullR=-0.05 nullD=-0.06
+F4D qkv_gate m=16 D1-R1=+0.00 D2-R1=-0.03 D1-R2=+0.00 D2-R2=+0.00 nullR=-0.02 nullD=+0.00
+F4D o m=16 D1-R1=+0.06 D2-R1=+0.16 D1-R2=+0.03 D2-R2=+0.06 nullR=+0.03 nullD=+0.05
+F4D pooler m=16 D1-R1=+0.00 D2-R1=+0.06 D1-R2=+0.03 D2-R2=+0.06 nullR=+0.00 nullD=-0.02
+F4D unpooler m=16 D1-R1=-0.13 D2-R1=-0.03 D1-R2=-0.03 D2-R2=+0.10 nullR=-0.06 nullD=+0.19
+F4D router m=16 D1-R1=-0.06 D2-R1=-0.10 D1-R2=-0.06 D2-R2=-0.10 nullR=+0.00 nullD=-0.03
+F4D qkv_gate m=32 D1-R1=+0.02 D2-R1=+0.00 D1-R2=+0.10 D2-R2=+0.10 nullR=-0.13 nullD=-0.02
+F4D o m=32 D1-R1=+0.03 D2-R1=+0.00 D1-R2=+0.00 D2-R2=+0.00 nullR=+0.02 nullD=-0.05
+F4D pooler m=32 D1-R1=-0.13 D2-R1=+0.06 D1-R2=-0.03 D2-R2=+0.13 nullR=-0.16 nullD=+0.19
+F4D unpooler m=32 D1-R1=-0.10 D2-R1=-0.06 D1-R2=-0.13 D2-R2=-0.06 nullR=-0.03 nullD=+0.06
+F4D router m=32 D1-R1=-0.10 D2-R1=-0.03 D1-R2=-0.03 D2-R2=+0.05 nullR=-0.06 nullD=+0.03
+F4D qkv_gate m=8 D1-R1=+0.06 D2-R1=+0.30 D1-R2=-0.06 D2-R2=+0.13 nullR=+0.19 nullD=+0.26
+F4D o m=8 D1-R1=-0.35 D2-R1=-0.35 D1-R2=-0.38 D2-R2=-0.38 nullR=+0.06 nullD=+0.00
+F4D pooler m=8 D1-R1=-1.06 D2-R1=-1.02 D1-R2=-1.06 D2-R2=-1.09 nullR=-0.02 nullD=+0.00
+F4D unpooler m=8 D1-R1=-0.16 D2-R1=-0.10 D1-R2=+0.00 D2-R2=+0.03 nullR=-0.13 nullD=+0.10
+F4D router m=8 D1-R1=-0.10 D2-R1=-0.10 D1-R2=-0.10 D2-R2=-0.13 nullR=+0.03 nullD=+0.00
+F4D qkv_gate m=128 D1-R1=-0.06 D2-R1=+0.03 D1-R2=-0.26 D2-R2=-0.13 nullR=+0.16 nullD=+0.10
+F4D o m=128 D1-R1=-0.13 D2-R1=-0.26 D1-R2=-0.19 D2-R2=-0.37 nullR=+0.06 nullD=-0.16
+F4D pooler m=128 D1-R1=+0.32 D2-R1=+0.19 D1-R2=+0.22 D2-R2=+0.13 nullR=-0.02 nullD=-0.19
+F4D unpooler m=128 D1-R1=+0.00 D2-R1=+0.16 D1-R2=+0.00 D2-R2=+0.19 nullR=+0.03 nullD=+0.18
+F4D router m=128 D1-R1=-0.03 D2-R1=+0.00 D1-R2=-0.05 D2-R2=-0.03 nullR=+0.03 nullD=+0.00
+F4D qkv_gate m=256 D1-R1=+0.19 D2-R1=+0.00 D1-R2=+0.29 D2-R2=+0.19 nullR=-0.14 nullD=-0.10
+F4D o m=256 D1-R1=+0.11 D2-R1=-0.03 D1-R2=-0.18 D2-R2=-0.32 nullR=+0.29 nullD=-0.16
+F4D pooler m=256 D1-R1=-0.10 D2-R1=-0.11 D1-R2=-0.06 D2-R2=-0.13 nullR=-0.10 nullD=-0.06
+F4D unpooler m=256 D1-R1=-0.08 D2-R1=-0.10 D1-R2=+0.14 D2-R2=+0.10 nullR=-0.19 nullD=+0.00
+F4D router m=256 D1-R1=-0.32 D2-R1=-0.32 D1-R2=-0.16 D2-R2=-0.14 nullR=-0.13 nullD=-0.03
+F4CHK R1=129/129 R2=129/129 D1=129/129 D2=129/129
+F4SCORE R1 inproc=1.5106 receipt=1.4056 | decode1=1.5605 decode16=1.4419 decode32=1.3747 verify1=1.7790 verify16=1.1949 verify32=1.1730
+F4SCORE R2 inproc=1.5107 receipt=1.4058 | decode1=1.5584 decode16=1.4443 decode32=1.3816 verify1=1.7761 verify16=1.1895 verify32=1.1748
+F4SCORE D1 inproc=1.5214 receipt=1.4157 | decode1=1.5640 decode16=1.4450 decode32=1.3837 verify1=1.8496 verify16=1.1888 verify32=1.1708
+F4SCORE D2 inproc=1.5198 receipt=1.4142 | decode1=1.5681 decode16=1.4401 decode32=1.3766 verify1=1.8346 verify16=1.1929 verify32=1.1762
+F4DECIDE inproc D1/R1=1.0072 D1/R2=1.0071 D2/R1=1.0061 D2/R2=1.0060 pooled=1.0066 nullR=1.0001 nullD=0.9990 -> D faster
+F4DECIDE receipt D1/R1=1.0072 D1/R2=1.0071 D2/R1=1.0061 D2/R2=1.0060 pooled=1.0066 nullR=1.0001 nullD=0.9990 -> D faster
+F4END 206 s
