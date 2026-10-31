@@ -1,0 +1,75 @@
+# Mode 79 compile gate, nvcc 12.8.1 sm_90a, tools/moe_compile_fused.sh.
+# Old: d73c4fd MAIN_MODES (0,16,26,28,37,47,51,72,74); new: this commit with 79 added.
+main51: instr 17280 MEMBAR 43 FENCE.VIEW.ASYNC.S 21 FENCE.VIEW.ASYNC.G 11 BAR.SYNC 16 SYNCS 186 HGMMA 192 RED 0 ATOM 0 LDL 0 STL 0 ERRBAR 11 CCTL 8 UBLKCP 4
+  stage loops [387, 387, 387, 387, 387, 387, 387, 387, 387, 387, 387, 393]
+  unit loops  [664, 705, 739, 740, 782, 801, 830, 892, 908, 962, 1032, 1102]
+main72: instr 18680 MEMBAR 91 FENCE.VIEW.ASYNC.S 21 FENCE.VIEW.ASYNC.G 11 BAR.SYNC 32 SYNCS 186 HGMMA 192 RED 0 ATOM 0 LDL 0 STL 0 ERRBAR 35 CCTL 32 UBLKCP 4
+  stage loops [389, 389, 389, 389, 389, 389, 389, 390, 390, 390, 390, 398]
+  unit loops  [741, 762, 803, 830, 869, 894, 916, 962, 964, 1034, 1054, 1104]
+main74: instr 19312 MEMBAR 91 FENCE.VIEW.ASYNC.S 21 FENCE.VIEW.ASYNC.G 11 BAR.SYNC 32 SYNCS 186 HGMMA 192 RED 0 ATOM 0 LDL 0 STL 0 ERRBAR 35 CCTL 40 UBLKCP 4
+  stage loops [389, 389, 389, 389, 389, 389, 389, 390, 390, 390, 390, 398]
+  unit loops  [742, 794, 804, 861, 895, 900, 947, 965, 996, 1035, 1087, 1105]
+main79: instr 24424 MEMBAR 138 FENCE.VIEW.ASYNC.S 21 FENCE.VIEW.ASYNC.G 11 BAR.SYNC 48 SYNCS 184 HGMMA 192 RED 0 ATOM 0 LDL 1 STL 1 ERRBAR 59 CCTL 64 UBLKCP 4
+  stage loops [390, 390, 390, 390, 390, 390, 390, 390, 390, 390, 390, 399]
+  unit loops  [760, 832, 870, 917, 965, 1032, 1060, 1153, 1341]
+# Identity against d73c4fd (instruction text, addresses stripped, branch targets relative):
+main0: identical (27944 / 27944)
+main16: identical (28032 / 28032)
+main26: identical (16528 / 16528)
+main28: identical (16656 / 16656)
+main37: identical (15560 / 15560)
+main47: identical (16360 / 16360)
+main51: identical (17280 / 17280)
+main72: identical (18680 / 18680)
+main74: identical (19312 / 19312)
+main79: only in new
+sk_16_4_016: identical (2808 / 2808)
+sk_8_3_016: identical (2992 / 2992)
+sk_8_4_016: identical (2992 / 2992)
+sk_8_4_116: identical (2376 / 2376)
+# Local loads/stores by region:
+main79 {'big': 2} of 24424
+# ptxas -v (new):
+tr: misaligned [:upper:] and/or [:lower:] construct
+Compiling entry function '_ZN41_GLOBAL__N__dbbda534_6_moe_cu_b210bb38_328sk_8_3_016moe_fused_kernelILi1EEEvNS_6ParamsE' for 'sm_90a'
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+Used 130 registers, used 16 barriers
+Compiling entry function '_ZN41_GLOBAL__N__dbbda534_6_moe_cu_b210bb38_328sk_8_4_116moe_fused_kernelILi1EEEvNS_6ParamsE' for 'sm_90a'
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+Used 64 registers, used 16 barriers
+Compiling entry function '_ZN41_GLOBAL__N__dbbda534_6_moe_cu_b210bb38_329sk_16_4_016moe_fused_kernelILi1EEEvNS_6ParamsE' for 'sm_90a'
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+Used 96 registers, used 16 barriers
+Compiling entry function '_ZN41_GLOBAL__N__dbbda534_6_moe_cu_b210bb38_328sk_8_4_016moe_fused_kernelILi1EEEvNS_6ParamsE' for 'sm_90a'
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+Used 140 registers, used 16 barriers
+Compiling entry function '_ZN41_GLOBAL__N__dbbda534_6_moe_cu_b210bb38_3215moe_main_kernelILi79EEEvNS_6ParamsE' for 'sm_90a'
+    8 bytes stack frame, 4 bytes spill stores, 4 bytes spill loads
+Used 96 registers, used 16 barriers, 8 bytes cumulative stack size
+Compiling entry function '_ZN41_GLOBAL__N__dbbda534_6_moe_cu_b210bb38_3215moe_main_kernelILi74EEEvNS_6ParamsE' for 'sm_90a'
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+Used 96 registers, used 16 barriers
+Compiling entry function '_ZN41_GLOBAL__N__dbbda534_6_moe_cu_b210bb38_3215moe_main_kernelILi72EEEvNS_6ParamsE' for 'sm_90a'
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+Used 96 registers, used 16 barriers
+Compiling entry function '_ZN41_GLOBAL__N__dbbda534_6_moe_cu_b210bb38_3215moe_main_kernelILi51EEEvNS_6ParamsE' for 'sm_90a'
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+Used 96 registers, used 16 barriers
+Compiling entry function '_ZN41_GLOBAL__N__dbbda534_6_moe_cu_b210bb38_3215moe_main_kernelILi47EEEvNS_6ParamsE' for 'sm_90a'
+    8 bytes stack frame, 4 bytes spill stores, 88 bytes spill loads
+Used 96 registers, used 16 barriers, 8 bytes cumulative stack size
+Compiling entry function '_ZN41_GLOBAL__N__dbbda534_6_moe_cu_b210bb38_3215moe_main_kernelILi37EEEvNS_6ParamsE' for 'sm_90a'
+    56 bytes stack frame, 156 bytes spill stores, 416 bytes spill loads
+Used 96 registers, used 16 barriers, 56 bytes cumulative stack size
+Compiling entry function '_ZN41_GLOBAL__N__dbbda534_6_moe_cu_b210bb38_3215moe_main_kernelILi28EEEvNS_6ParamsE' for 'sm_90a'
+    80 bytes stack frame, 184 bytes spill stores, 512 bytes spill loads
+Used 96 registers, used 16 barriers, 80 bytes cumulative stack size
+Compiling entry function '_ZN41_GLOBAL__N__dbbda534_6_moe_cu_b210bb38_3215moe_main_kernelILi26EEEvNS_6ParamsE' for 'sm_90a'
+    64 bytes stack frame, 120 bytes spill stores, 308 bytes spill loads
+Used 96 registers, used 16 barriers, 64 bytes cumulative stack size
+Compiling entry function '_ZN41_GLOBAL__N__dbbda534_6_moe_cu_b210bb38_3215moe_main_kernelILi16EEEvNS_6ParamsE' for 'sm_90a'
+    80 bytes stack frame, 136 bytes spill stores, 228 bytes spill loads
+Used 96 registers, used 16 barriers, 80 bytes cumulative stack size
+Compiling entry function '_ZN41_GLOBAL__N__dbbda534_6_moe_cu_b210bb38_3215moe_main_kernelILi0EEEvNS_6ParamsE' for 'sm_90a'
+    80 bytes stack frame, 136 bytes spill stores, 236 bytes spill loads
+Used 96 registers, used 16 barriers, 80 bytes cumulative stack size

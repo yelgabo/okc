@@ -1,0 +1,17 @@
+✓ muse_moe_w4a16  passed  check run, off the board  job 2a4fb39964aa448c
+
+  2.196×  ━━━━━━━━━╋━━━━━━━━━━────────  faster than SGLang  95%: 2.164–2.229×
+
+  time        6,122.8 µs
+  tests       5/5 passed
+  profile     /private/tmp/claude-501/-Users-gretchengabo-GitHub/4e9778d1-55dc-4e88-9d29-4844bd573620/scratchpad/ma/profiles/gate79.2a4fb39964aa448c.txt  and .json
+  output      /private/tmp/claude-501/-Users-gretchengabo-GitHub/4e9778d1-55dc-4e88-9d29-4844bd573620/scratchpad/ma/profiles/gate79.2a4fb39964aa448c.log
+
+  CASE                       SGLANG      YOURS   SPEEDUP
+  ─────────────────────────────────────────────────────────────────────
+  decode 1                  79.0 µs    28.1 µs    2.813×   ━━━━━━╋━━━━━
+  decode 16                189.1 µs    97.1 µs    1.947×   ━━━━━━╋━━━━━
+  decode 32                206.0 µs   133.1 µs    1.547×   ━━━━━━╋━━━──
+  verify 1 · 8 tokens      146.6 µs    69.4 µs    2.111×   ━━━━━━╋━━━━━
+  verify 16 · 128 tokens   473.5 µs   197.3 µs    2.400×   ━━━━━━╋━━━━━
+  verify 32 · 256 tokens   621.6 µs   237.6 µs    2.617×   ━━━━━━╋━━━━━

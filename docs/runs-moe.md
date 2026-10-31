@@ -100,6 +100,7 @@ SGLang with its 95% interval. Profiles and logs are in `muse_moe_w4a16/profiles/
 | 2026-10-31 | 5b2db8029f094a66 (check, bench file from tools/moe_make_bench_ab.py --base=51 --sizes=32,128,256 --routings=layer,std,skewed --seeds=121,...,126 --gate=1 o76=76 o77=77 o78=78 with the donor's standalone file as the public arm, not committed) | 45f990d | gate of 76-78 (rule committed in 45f990d) | 2.205x (2.172-2.238) | passed; no A/B: the donor's `MID_DEFINES +=` line re-enabled the MID build the tool empties and its build failed, which stops the A/B block. Prepare bench (synthetic) put 76 first at 128 / 256. Section "Donor MoE (M-A) against mode 51" |
 | 2026-10-31 | 64254f49676c4ce6 (check, the same bench with that donor line removed, not committed) | 5f19bc1 | gate of 76-78 against 51, donor MAIN build as the public arm | 2.188x (2.155-2.221) | passed; spin flags 0. Minus 51 at 32 / 128 / 256, layer: 76 -0.1 / -0.6 / -0.8, 77 -3.1 / +0.7 / +0.1, 78 -3.5 / -0.4 / -0.9, donor -2.3 / -9.9 / -22.5; std: 76 -0.1 / -0.0 / -0.5, 77 -1.8 / -0.0 / +0.5, 78 -2.4 / -0.2 / -1.0, donor -6.3 / -13.4 / -26.3. 76 failed rule 1, 77 rule 2 (+0.7 at 128 layer), so 78 was not shipped under the rule; 78 lower than 51 in all nine cells. Outputs 0 at 128 / 256. Section "Donor MoE (M-A) against mode 51" |
 | 2026-10-31 | c8fc5f669fa34d06 (check, bench file from tools/moe_make_bench_ab.py --base=51 --sizes=32,128,256 --routings=layer,std,skewed --seeds=131,...,136 --gate=1 o78=78, donor MAIN build as the public arm, not committed) | 95c9848 | 78's own gate (rule committed in 95c9848) | 2.194x (2.162-2.227) | passed; spin flags 0. 78 minus 51 at 32 / 128 / 256: layer -2.6 / -0.6 / -0.6, std -1.5 / +0.6 / -0.4, skewed -3.1 / -0.8 / -1.3; donor minus 51 layer -3.2 / -11.6 / -19.8, std -8.7 / -10.1 / -20.1. Rule 2 failed (+0.6 at 128 std, limit +0.5): 78 not kept. Outputs 0 at 128 / 256. Section "Donor MoE (M-A) against mode 51" |
+| 2026-10-31 | 2a4fb39964aa448c (check, bench file from tools/moe_make_bench_ab.py --base=51 --sizes=32,128,256 --routings=layer,std,skewed --seeds=141,...,146 --gate=1 o72=72 o79=79, donor MAIN build as the public arm, not committed) | 587da5d | gate of 79 (stream-K in both phases, stage-0 finisher in phase B) with the null 72 (rule committed in 587da5d) | 2.196x (2.164-2.229) | passed; spin flags 0. Minus 51 at 32 / 128 / 256, layer: 72 +13.1 / +11.3 / +6.1, 79 +16.4 / +19.4 / +21.4, donor -1.9 / -11.3 / -21.0; std: 72 +10.3 / +9.8 / +4.3, 79 +17.5 / +24.8 / +11.3, donor -4.7 / -13.3 / -25.6; skewed 79 +6.0 / +27.9 / +31.4. 0 of 6 seeds lower for 79 in every cell. Not kept; family parked. Section "Stream-K in both phases (mode 79)" |
 | 2026-10-31 | 40b8c798289a4258 (check; F-MOE-0 bench: release ec565a7 byte for byte + the exact donor file lzma-carried, not committed) | ec565a7 (release) | Family F F0: R1/R2 (two release prepares) against D1/D2 (two prepares of alygg77 muse_moe_w4a16.py at 6cae49a, SHA256 b3307089...), std seeds 501-512, layer 521-526, pad/off64 541-544, order seed 8101 | 2.195x (2.163-2.228), the release's judged path | passed; 0 output failures, fresh-input replay ok. Score D/R pooled 1.0387 (nulls 0.9996 / 0.9993, D faster); per load R/D 0.960 / 1.013 / 1.006 / 1.060 / 1.079 / 1.120 at 1 / 8 / 16 / 32 / 128 / 256. Section "F-MOE-0 (Family F donor comparison)" |
 | 2026-10-31 | 218ff300de7d4c22 (check; F-MOE-0 confirmation, same writer, not committed) | ec565a7 (release) | as 40b8c798289a4258 on std 601-612, layer 621-626, pad/off64 641-644, order seed 9203 | 2.194x (2.161-2.227), the release's judged path | passed; 0 failures. Score D/R pooled 1.0297 (nulls 1.0017 / 0.9977, D faster); per load 0.964 / 1.014 / 1.004 / 1.010 / 1.078 / 1.116. Decision per load: keep ours at 1, re-implement TINY2 at 8, inconclusive at 16, re-implement WGS (with proxy fences) at 32 / 128 / 256 |
 
@@ -3313,6 +3314,9 @@ A side finding for the layer owner: the F-LAYER-0 ABPOL lines show our layer run
 32 / 128 / 256 tokens (its _MOE1_VARIANTS ends at 47). Mode 51 is -3.9 / -4.4 us against 47 at
 128 / 256 tokens on held-out seeds (c6b0e500c3a84c9a) and has not been ported, so about 4 us of
 M-A's 21 us at verify 16 / 32 is already in hand (Port, below).
+[Corrected 2026-10-31, coordinator: 51 is already ported. The layer candidate layer_m1rt51s
+runs 51 at 32 / 128 / 256 tokens (best scored run 0f58d5d8223f45af, 2.0148x); the F-LAYER-0 ABPOL
+lines came from the older release file. The 4 us is not extra headroom against the current layer.]
 
 ### M-A against mode 51, mechanism by mechanism
 
@@ -3553,6 +3557,7 @@ whole family stays the one in docs/ruled-out.md.
    MAIN_NAMES already. Re-running the inliner on this tree adds `('main-lean-grp-finss64', 'main',
    'launch_main<51>')` to `_MOE1_VARIANTS` (checked on a scratch copy: 6,501 device lines, run twice
    byte-identical). The layer's judge-like MoE bench then chooses between 47 and 51 per size.
+   [Corrected 2026-10-31: already done in the layer candidate layer_m1rt51s (0f58d5d8223f45af).]
 2. A kept 76 / 77 / 78 needs, in `tools/dl_moe_inline.py` (layer owner's file): its number in
    LAYER_MODES and a MAIN_NAMES entry ("main-finss64-psc", "main-finss64-fin4",
    "main-finss64-psc-fin4"), and in the standalone file MAIN_MODES and MAIN_CANDIDATES.
@@ -3564,6 +3569,138 @@ whole family stays the one in docs/ruled-out.md.
    per-instance SASS fence / barrier / mbarrier / atomic counts equal to the standalone
    (`tools/dl_moe_sass_counts.sh`), no new spills, and the layer self-test covering the new mode at
    17-32 tokens (fin4 acts only below 64).
+
+## Stream-K in both phases (mode 79), 2026-10-31
+
+Brief (coordinator, 2026-10-31): test the partition share of M-A's lead at 128 / 256 tokens,
+items 1 and 2 of the M-A table above: stream-K stage ranges in both phases on 51's components,
+the donor's walk order, position-designated finishers in phase B, readiness per (job, stage), and
+a null arm with phase B on claims. Every fence stays. Budget 2 checks, rule set first.
+
+### What already existed, and the change
+
+- The donor's phase A walk order is already ours: `seg_get` (mode 16's, kept by 72) runs a CTA's
+  trailing cut share first, then the leading share, then whole units, which is `wgs_split`. Under
+  our walk by n-tile count (largest first in 72) the two orders differ only for ranges that span
+  jobs of different n-tile counts.
+- Readiness per (job, phase B stage) is already ours (done_as [job][16], count 8 per stage, the
+  x producer's spin and fence.proxy.async.global before each phase B bulk copy).
+- So the null arm is 72 itself (stream-K phase A, last-arrival fixup, phase B claimed), and the new
+  arm 79 changes phase B only:
+  - static cost-weighted phase B ranges, not unit-aligned (S.align_b 0), found by a warp in setup
+    (`stage_at_b_warp`, the same arithmetic as `stage_at` for phase B), with the leading cut share's
+    slot found there too and packed into S.lead_slot's high half (no SmemMain change);
+  - phase B segments in range order (`seg_get_inorder`; a phase B stage waits for its phase A units
+    in order, and the finisher must run late), walked largest n-tile count first in both phases
+    (`walk_desc`, as 72's phase A);
+  - a cut phase B unit is finished by the share holding its stage 0 through mode 74's `fixup_df`
+    (every share adds its partial; the others fence, pass the warpgroup barrier and count with one
+    red.release; the finisher spins with ld.acquire until the count reaches 16 less its own stages,
+    passes the barrier, fences and reads the sum back), on slots G .. 2G - 1 of p.fix and p.fixcnt
+    (phase A's last-arrival `fixup` uses 0 .. G - 1).
+- No claim counter, no S.bq, no ctr[10] in 79 (dyn_b is false); everything else is 72's.
+
+Why the stage-0 share and range order: the stage-0 share of a cut unit is the trailing segment of
+the range of the CTA that holds it, and every other share is the first segment of a later CTA's
+range. So the finisher runs at the end of its CTA's phase B and the shares it waits for run at the
+start of later CTAs' (the donor's arrangement), and every wait points to a higher CTA index: no
+cycle is possible, and CTA G - 1 never waits, so progress holds by induction with all CTAs
+co-resident (the grid barrier's existing assumption). Under our walk by n-tile count a CTA can run
+its own finisher before its counting share when the finisher's job has more n-tiles; then the CTA
+before it waits for that finisher too (a chain, still acyclic). A CPU model of the partition
+(`stage_at` arithmetic, kCostB, 200 synthetic routings per size, scratchpad model79.py) found every
+unit covered once, one stage-0 share per cut unit, the counting shares' slot equal to the
+finisher's CTA, at most 2 shares per unit, about 115-125 cut phase B units per launch, and 0 / 0.6 /
+6.5 CTAs per launch at 32 / 128 / 256 tokens that walk their finisher before their counting share
+(hypothesis for the judge's routing: similar).
+
+Ordering. Phase A is 72's (reviewed sound, "Stream-K phase A on 51's components"). The phase B
+fixup is mode 74's `fixup_df` chain (reviewed sound, "Designated finisher for stream-K phase A"):
+each counting thread's red.add of its partial precedes its fence.acq_rel.gpu and the warpgroup's
+bar.sync; thread 0's red.release.gpu is a release pattern (PTX ISA 8.8) observed by the finisher's
+ld.acquire.gpu spin (acquire pattern, synchronizes-with 8.9.4); the finisher's bar.sync and
+fence.acq_rel.gpu then order its warpgroup's ld.global.cg reads after it (base causality, 8.9.5;
+8.10.6). The finisher's own adds precede its reads in program order (same thread, same addresses).
+It clears the slot and the count; the next launch is ordered by the kernel boundary, and fixcnt is
+also zeroed after the grid barrier. The phase B epilogue's ybuf / ss writes go through the grid
+barrier as before; the phase B x copies keep the done_as acquire and fence.proxy.async.global.
+Independent read-only review: below.
+
+Local compile gate (nvcc 12.8.1, Docker, sm_90a, `tools/moe_compile_fused.sh`; MAIN_MODES (0, 16,
+26, 28, 37, 47, 51, 72, 74, 79) against d73c4fd's (0, 16, 26, 28, 37, 47, 51, 72, 74)): 0, 16, 26,
+28, 37, 47, 51, 72, 74 and the four skinny kernels have identical instruction text; no
+C7510-C7515. 79: 96 registers, 8-byte stack frame, 4 B spill store and load, both outside every
+stage and unit loop (in the phase loop region); stage loops 390 (399 widest; 72: 389 / 398);
+24,424 instructions against 72's 18,680 and 51's 17,280 (the static phase B path compiles 8 n-tile
+groups with the fixup); MEMBAR 138, BAR 48, ERRBAR 59, CCTL 64 (72: 91, 32, 35, 32). The size is a
+risk: 62 and 69 lost 3-5 us everywhere from larger kernels (hypothesis: instruction cache).
+`tools/moe_dryrun.py` and `tools/moe_host_check.sh` pass. Profile:
+`muse_moe_w4a16/profiles/sass_mode79.2026-10-31.txt`.
+
+### Gate rule (set before the check is submitted)
+
+One check of `tools/moe_make_bench_ab.py OUT.py DONOR_MAIN_ONLY.py --base=51 --sizes=32,128,256
+--routings=layer,std,skewed --seeds=141,142,143,144,145,146 --gate=1 o72=72 o79=79` (seeds new on
+every routing; the donor's MAIN build in the public slot, measurement only). The policy chooses
+per size, so 79 is judged where it would run, at 128 and 256 tokens; 32 tokens is reported.
+
+Keep 79 (as a 128 / 256-token candidate) only if all hold:
+1. 256 tokens: 79 minus 51 mean -1.5 us or lower on layer and on standalone routing, at least 5 of
+   6 seeds lower on each, and 0 or lower on skewed.
+2. 128 tokens: mean -1.0 or lower on layer and on standalone routing, +0.5 or lower on skewed.
+3. Output against 51 within 5e-4 relative L2 on every case (cut units change the FP32 sum order;
+   72 against 51 was 1.5e-4 to 2.4e-4).
+4. Prepare's FP32 self-test passes for 79 (no FAIL line, spin flags 0).
+5. The compile gate above holds on the checked commit, and the independent review finds no
+   ordering or progress defect.
+
+Reported, not conditions: 79 minus 72 (the phase B partition against claims, both on stream-K
+phase A), 72 minus 51 (the null against the board mode), the donor's lead, 32 tokens. If 79 is
+kept, the shippable file (79 in MAIN_MODES and MAIN_CANDIDATES) takes the second check; if not, 79
+goes to docs/ruled-out.md with the stream-K row.
+
+Independent read-only review (2026-10-31): no bug. Every predicate of 79 equals 72's except dyn_b,
+skb, walk_desc and S.align_b (0); `stage_at_b_warp` equals `stage_at` for phase B; the ranges cover
+every phase B stage once; the lead search returns the stage-0 holder even across empty ranges;
+slots G .. 2G - 1 stay inside p.fix and p.fixcnt and clear of phase A's; no wait cycle (CTA G - 1
+never waits as a finisher, and nothing in phase A waits on phase B); the fixup chain is 74's. It
+flagged as a possible performance issue the chained finisher waits when a CTA's finisher group runs
+before its counting share's, and two comment wordings (fixed in the source comments after the
+check; comment-only).
+
+### Gate result (check 2a4fb39964aa448c, bench at 587da5d)
+
+2.196x (2.164-2.229), passed, spin flags 0; self-tests 51, 72 and 79 at 3.89e-3. Minus 51, us,
+seeds 141-146 (count = seeds lower of 6):
+
+| arm | 32 layer | 32 std | 32 skewed | 128 layer | 128 std | 128 skewed | 256 layer | 256 std | 256 skewed |
+|---|---|---|---|---|---|---|---|---|---|
+| 72 (null: phase B claimed) | +13.1 (0) | +10.3 (0) | +9.1 (0) | +11.3 (0) | +9.8 (0) | +20.1 (0) | +6.1 (0) | +4.3 (1) | +18.8 (0) |
+| 79 (phase B stream-K) | +16.4 (0) | +17.5 (0) | +6.0 (0) | +19.4 (0) | +24.8 (0) | +27.9 (0) | +21.4 (0) | +11.3 (0) | +31.4 (0) |
+| donor | -1.9 (2) | -4.7 (6) | -10.4 (6) | -11.3 (6) | -13.3 (6) | -3.3 (5) | -21.0 (6) | -25.6 (6) | -5.4 (5) |
+
+Means of 51: 88.0 / 139.3 / 69.4 us at 32 tokens, 166.2 / 205.6 / 101.7 at 128, 215.7 / 250.3 /
+159.2 at 256. Outputs against 51: 72 1.5e-4 to 5.0e-4, 79 1.6e-4 to 5.1e-4 (the cut units' FP32
+order); both at 5.0e-4 / 5.1e-4 on one skewed 32-token seed.
+
+Reading under the rule set before the check:
+- 79 fails rules 1 and 2 by 11-25 us (0 of 6 seeds lower in every cell); rule 3 fails on one
+  skewed 32-token seed (5.1e-4 against 5e-4, the same order of error as the null 72's 5.0e-4).
+  Not kept; the shippable check is not run (one of the line's two checks used).
+- Measured: replacing 72's claimed phase B with static stream-K ranges and a stage-0 finisher
+  costs 8-15 us at 128 / 256 tokens (79 minus 72: +8.1 / +15.0 at 128, +15.3 / +7.0 at 256 on
+  layer / standalone, +7.8 / +12.6 skewed). The null 72 repeats its 098949b28fe84bd1 loss (+6 to
+  +20 us here). The donor runs the same partition 11-26 us under 51.
+- Not separated (no stamps in this run; hypotheses): the phase B fixups (about 120 cut phase B
+  units per launch, each with a v4 red.add per n-tile, a gpu fence, two warpgroup barriers and a
+  read-back on the finisher) on top of phase A's; the chained finisher waits the review and the
+  model point to (0.6 / 6.5 CTAs per launch at 128 / 256 in the model, here up to +43 us on one
+  skewed seed); and the kernel's size (24,424 instructions, 41% over 51). The donor's lower fixup
+  cost is part of its unfenced design (its weights-slot and x-tile orderings, items 6 and 7) and
+  its smaller per-segment code; neither is adoptable as is.
+- Decision: the stream-K family stays parked in docs/ruled-out.md with both phases now measured on
+  current components. What it would take to reopen: a fixup that costs well under 1 us per share
+  on the critical path in both phases (74 measured 2-2.5), shown by stamps before any timed gate.
 
 ## Staged pair on current components, 2026-10-29
 

@@ -1,0 +1,106 @@
+ABBUILD ours 57 s
+ABBUILD pub 110 s
+ABROUTE layer router seed 8 (mean relative miss 0.030)
+ABROUTE T=32 layer busiest local expert routes [23, 18, 21, 20, 20, 20]
+ABCHECK T=32 layer vs fp32 o51 3.83e-03 pub 2.34e-03; vs o51: o72 2.3e-04 o79 2.4e-04
+ABTIME T=32 layer mean of 6 o51 88.0 o72 101.1 o79 104.3 pub 86.1 sk8w4s 102.6
+ABPAIR T=32 layer o72 minus o51 +11.7 +13.1 +15.2 +15.2 +13.4 +9.8 (mean +13.1, 0 of 6 lower)
+ABPAIR T=32 layer o79 minus o51 +10.6 +18.8 +19.6 +19.3 +18.9 +10.9 (mean +16.4, 0 of 6 lower)
+ABPAIR T=32 layer pub minus o51 -7.5 +1.2 +0.3 +1.8 +0.1 -7.3 (mean -1.9, 2 of 6 lower)
+ABPAIR T=32 layer sk8w4s minus o51 +22.7 +8.7 +8.4 +17.0 +8.2 +22.8 (mean +14.6, 0 of 6 lower)
+ABCHECKALL T=32 layer o72 vs o51 per seed 2.3e-04 1.5e-04 1.6e-04 2.1e-04 1.8e-04 2.4e-04 (max 2.4e-04)
+ABCHECKALL T=32 layer o79 vs o51 per seed 2.4e-04 1.6e-04 1.7e-04 2.2e-04 2.0e-04 2.5e-04 (max 2.5e-04)
+ABROUTE T=32 std busiest local expert routes [15, 6, 13, 16, 12, 29]
+ABCHECK T=32 std vs fp32 o51 3.82e-03 pub 2.35e-03; vs o51: o72 9.0e-05 o79 1.0e-04
+ABTIME T=32 std mean of 6 o51 139.3 o72 149.6 o79 156.8 pub 134.7 sk8w4s 139.1
+ABPAIR T=32 std o72 minus o51 +3.3 +16.0 +10.4 +13.5 +8.8 +9.6 (mean +10.3, 0 of 6 lower)
+ABPAIR T=32 std o79 minus o51 +7.5 +13.6 +17.8 +13.9 +28.5 +23.6 (mean +17.5, 0 of 6 lower)
+ABPAIR T=32 std pub minus o51 -10.0 -3.6 -4.9 -2.6 -5.5 -1.2 (mean -4.7, 6 of 6 lower)
+ABPAIR T=32 std sk8w4s minus o51 -6.4 -7.4 +5.1 -0.1 -3.0 +10.1 (mean -0.3, 4 of 6 lower)
+ABCHECKALL T=32 std o72 vs o51 per seed 8.8e-05 7.4e-05 3.3e-05 1.9e-04 9.0e-05 1.3e-04 (max 1.9e-04)
+ABCHECKALL T=32 std o79 vs o51 per seed 1.0e-04 8.5e-05 6.6e-05 2.0e-04 1.2e-04 1.5e-04 (max 2.0e-04)
+ABROUTE T=32 skewed busiest local expert routes [32, 31, 29, 30, 31, 32]
+ABCHECK T=32 skewed vs fp32 o51 3.87e-03 pub 2.35e-03; vs o51: o72 2.6e-04 o79 2.8e-04
+ABTIME T=32 skewed mean of 6 o51 69.4 o72 78.5 o79 75.4 pub 58.9 sk8w4s 89.5
+ABPAIR T=32 skewed o72 minus o51 +11.9 +12.4 +9.7 +5.9 +6.5 +8.1 (mean +9.1, 0 of 6 lower)
+ABPAIR T=32 skewed o79 minus o51 +9.9 +9.0 +11.0 +2.9 +1.3 +1.9 (mean +6.0, 0 of 6 lower)
+ABPAIR T=32 skewed pub minus o51 -4.0 -8.3 -8.3 -13.2 -16.3 -12.5 (mean -10.4, 6 of 6 lower)
+ABPAIR T=32 skewed sk8w4s minus o51 +9.3 +27.0 +24.7 +26.2 +10.3 +23.2 (mean +20.1, 0 of 6 lower)
+ABCHECKALL T=32 skewed o72 vs o51 per seed 2.6e-04 3.2e-04 3.1e-04 5.0e-04 3.6e-04 3.4e-04 (max 5.0e-04)
+ABCHECKALL T=32 skewed o79 vs o51 per seed 2.9e-04 3.2e-04 3.2e-04 5.1e-04 3.8e-04 3.6e-04 (max 5.1e-04)
+ABROUTE T=128 layer busiest local expert routes [53, 56, 59, 52, 45, 62]
+ABCHECK T=128 layer vs fp32 o51 3.85e-03 pub 2.34e-03; vs o51: o72 2.4e-04 o79 2.5e-04
+ABTIME T=128 layer mean of 6 o51 166.2 o72 177.5 o79 185.6 pub 154.8
+ABPAIR T=128 layer o72 minus o51 +9.4 +12.6 +11.8 +11.0 +11.9 +11.2 (mean +11.3, 0 of 6 lower)
+ABPAIR T=128 layer o79 minus o51 +18.9 +18.8 +23.1 +15.4 +20.4 +19.9 (mean +19.4, 0 of 6 lower)
+ABPAIR T=128 layer pub minus o51 -8.4 -11.5 -12.9 -14.0 -12.2 -9.2 (mean -11.3, 6 of 6 lower)
+ABCHECKALL T=128 layer o72 vs o51 per seed 2.4e-04 1.4e-04 1.5e-04 2.0e-04 1.8e-04 1.5e-04 (max 2.4e-04)
+ABCHECKALL T=128 layer o79 vs o51 per seed 2.5e-04 1.5e-04 1.7e-04 2.2e-04 1.9e-04 1.7e-04 (max 2.5e-04)
+ABROUTE T=128 std busiest local expert routes [128, 128, 128, 39, 15, 58]
+ABCHECK T=128 std vs fp32 o51 3.84e-03 pub 2.34e-03; vs o51: o72 1.3e-04 o79 1.4e-04
+ABTIME T=128 std mean of 6 o51 205.6 o72 215.4 o79 230.4 pub 192.2
+ABPAIR T=128 std o72 minus o51 +9.9 +13.8 +12.3 +9.2 +5.9 +7.9 (mean +9.8, 0 of 6 lower)
+ABPAIR T=128 std o79 minus o51 +36.9 +22.5 +42.2 +13.8 +14.0 +19.5 (mean +24.8, 0 of 6 lower)
+ABPAIR T=128 std pub minus o51 -13.0 -10.6 -12.8 -17.7 -16.0 -9.8 (mean -13.3, 6 of 6 lower)
+ABCHECKALL T=128 std o72 vs o51 per seed 1.3e-04 2.3e-04 1.7e-04 1.4e-04 5.9e-05 1.2e-04 (max 2.3e-04)
+ABCHECKALL T=128 std o79 vs o51 per seed 1.4e-04 2.4e-04 1.8e-04 1.6e-04 6.6e-05 1.4e-04 (max 2.4e-04)
+ABROUTE T=128 skewed busiest local expert routes [128, 127, 125, 124, 124, 128]
+ABCHECK T=128 skewed vs fp32 o51 3.84e-03 pub 2.34e-03; vs o51: o72 3.6e-04 o79 3.8e-04
+ABTIME T=128 skewed mean of 6 o51 101.7 o72 121.8 o79 129.6 pub 98.4
+ABPAIR T=128 skewed o72 minus o51 +12.2 +17.3 +16.3 +27.2 +17.6 +30.0 (mean +20.1, 0 of 6 lower)
+ABPAIR T=128 skewed o79 minus o51 +16.4 +30.1 +30.8 +23.1 +23.0 +43.9 (mean +27.9, 0 of 6 lower)
+ABPAIR T=128 skewed pub minus o51 -10.5 -3.9 -5.4 -1.1 -2.7 +3.9 (mean -3.3, 5 of 6 lower)
+ABCHECKALL T=128 skewed o72 vs o51 per seed 3.6e-04 2.7e-04 3.0e-04 3.8e-04 2.6e-04 3.3e-04 (max 3.8e-04)
+ABCHECKALL T=128 skewed o79 vs o51 per seed 3.8e-04 2.9e-04 3.3e-04 4.0e-04 2.8e-04 3.5e-04 (max 4.0e-04)
+ABROUTE T=256 layer busiest local expert routes [100, 101, 115, 101, 101, 110]
+ABCHECK T=256 layer vs fp32 o51 3.85e-03 pub 2.34e-03; vs o51: o72 1.6e-04 o79 1.8e-04
+ABTIME T=256 layer mean of 6 o51 215.7 o72 221.8 o79 237.1 pub 194.7
+ABPAIR T=256 layer o72 minus o51 +4.9 +6.3 +8.5 +6.2 +5.0 +5.5 (mean +6.1, 0 of 6 lower)
+ABPAIR T=256 layer o79 minus o51 +17.1 +16.4 +35.8 +17.9 +15.2 +26.0 (mean +21.4, 0 of 6 lower)
+ABPAIR T=256 layer pub minus o51 -23.7 -20.9 -16.7 -20.8 -23.0 -20.6 (mean -21.0, 6 of 6 lower)
+ABCHECKALL T=256 layer o72 vs o51 per seed 1.6e-04 2.0e-04 1.8e-04 1.5e-04 1.6e-04 1.7e-04 (max 2.0e-04)
+ABCHECKALL T=256 layer o79 vs o51 per seed 1.8e-04 2.1e-04 2.0e-04 1.7e-04 1.7e-04 2.0e-04 (max 2.1e-04)
+ABROUTE T=256 std busiest local expert routes [92, 66, 48, 83, 125, 100]
+ABCHECK T=256 std vs fp32 o51 3.85e-03 pub 2.35e-03; vs o51: o72 1.7e-04 o79 1.8e-04
+ABTIME T=256 std mean of 6 o51 250.3 o72 254.6 o79 261.5 pub 224.7
+ABPAIR T=256 std o72 minus o51 +0.5 -0.1 +4.1 +7.7 +5.9 +7.9 (mean +4.3, 1 of 6 lower)
+ABPAIR T=256 std o79 minus o51 +13.3 +8.4 +7.0 +7.2 +14.9 +16.7 (mean +11.3, 0 of 6 lower)
+ABPAIR T=256 std pub minus o51 -22.0 -26.3 -27.0 -22.5 -26.9 -28.6 (mean -25.6, 6 of 6 lower)
+ABCHECKALL T=256 std o72 vs o51 per seed 1.7e-04 1.3e-04 1.6e-04 1.4e-04 1.4e-04 1.9e-04 (max 1.9e-04)
+ABCHECKALL T=256 std o79 vs o51 per seed 1.8e-04 1.4e-04 1.7e-04 1.6e-04 1.5e-04 2.0e-04 (max 2.0e-04)
+ABROUTE T=256 skewed busiest local expert routes [255, 249, 235, 256, 215, 254]
+ABCHECK T=256 skewed vs fp32 o51 3.85e-03 pub 2.34e-03; vs o51: o72 2.2e-04 o79 2.3e-04
+ABTIME T=256 skewed mean of 6 o51 159.2 o72 178.0 o79 190.6 pub 153.8
+ABPAIR T=256 skewed o72 minus o51 +23.7 +21.7 +17.5 +19.0 +14.5 +16.1 (mean +18.8, 0 of 6 lower)
+ABPAIR T=256 skewed o79 minus o51 +29.7 +33.4 +28.3 +29.2 +25.1 +43.0 (mean +31.4, 0 of 6 lower)
+ABPAIR T=256 skewed pub minus o51 -5.2 -4.2 -7.8 +1.9 -11.5 -5.7 (mean -5.4, 5 of 6 lower)
+ABCHECKALL T=256 skewed o72 vs o51 per seed 2.2e-04 2.2e-04 2.4e-04 2.5e-04 2.2e-04 2.4e-04 (max 2.5e-04)
+ABCHECKALL T=256 skewed o79 vs o51 per seed 2.3e-04 2.4e-04 2.5e-04 2.7e-04 2.3e-04 2.6e-04 (max 2.7e-04)
+ABMOE spin flags 0; total 112 s
+TEST sk8w4s worst rel err vs fp32 4.00e-03, spin flags 0
+TEST sk16w4s worst rel err vs fp32 4.00e-03, spin flags 0
+TEST sk8w3s worst rel err vs fp32 4.00e-03, spin flags 0
+TEST main-d2 worst rel err vs fp32 3.89e-03, spin flags 0
+TEST main-lean-grp-finss64 worst rel err vs fp32 3.89e-03, spin flags 0
+TEST main-finss64-sk worst rel err vs fp32 3.89e-03, spin flags 0
+TEST main-finss64-skab worst rel err vs fp32 3.89e-03, spin flags 0
+TEST legacy32 worst rel err vs fp32 4.30e-03, spin flags 0
+TEST legacy128 worst rel err vs fp32 4.30e-03, spin flags 0
+TEST legacy256 worst rel err vs fp32 4.30e-03, spin flags 0
+BENCH bs=128 main-lean-grp-finss64:207.8 main-finss64-sk:212.5 main-finss64-skab:221.5 legacy128:250.8 legacy256:253.2 main-d2:253.5 sk8w4s-loads:254.9 sk8w3s:259.4 sk8w4s:264.0 legacy32:275.4 sk16w4s:281.8 us (graph replay, cold L2, mean of 2 routings)
+BENCH bs=256 main-lean-grp-finss64:222.8 main-finss64-sk:229.3 main-finss64-skab:239.8 main-d2:282.8 legacy256:360.3 legacy128:387.6 sk8w4s-loads:399.8 sk8w3s:427.6 sk8w4s:430.8 sk16w4s:466.1 legacy32:470.1 us (graph replay, cold L2, mean of 2 routings)
+POLICY {1: sk8w3s, 8: sk8w3s, 16: sk8w3s, 32: sk8w3s, 128: main-lean-grp-finss64, 256: main-lean-grp-finss64}
+TEST policy worst rel err vs fp32 4.00e-03, spin flags 0
+PREPARE repack 0.7 s, build 84.5 s, self-test 0.3 s, bench 0.7 s, smem 228736 B, ok True, main True
+USDT:2026-10-31 04:36:37 77:77 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-10-31 04:36:37 77:77 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-10-31 04:36:37 77:77 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-10-31 04:36:37 77:77 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-10-31 04:36:37 77:77 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-10-31 04:36:37 77:77 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-10-31 04:36:37 77:77 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-10-31 04:36:37 77:77 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-10-31 04:36:37 77:77 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-10-31 04:36:37 77:77 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-10-31 04:36:37 77:77 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-10-31 04:36:37 77:77 SyncActivityProfilerHandler.cpp:46] profiler_stop
