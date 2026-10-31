@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>M-C one-token fusion</title>
+<style>
+    :root { color-scheme: dark; }
+    body { margin: 0; padding: 24px 16px; background: #101013; color: #f0ece3;
+           font: 15px/1.6 "Avenir Next", Avenir, system-ui, sans-serif; }
+    main { max-width: 1240px; margin: 0 auto; }
+    h1 { font-size: 22px; margin: 0 0 6px; }
+    p { color: #c0bcb6; max-width: 900px; }
+    #mc-figure { margin: 18px 0; }
+    #mc-figure .diagram-scroll { overflow-x: auto; border-radius: 10px; border: 1px solid #2a2a30; }
+    #mc-figure svg { display: block; width: 100%; min-width: 1180px; height: auto; }
+    #mc-figure text { font-family: "Avenir Next", Avenir, system-ui, sans-serif; fill: #f0ece3;
+                      font-size: 15px; }
+    #mc-figure .detail { fill: #c0bcb6; font-size: 13px; }
+    #mc-figure .row { fill: #dec18a; font-size: 14px; font-weight: 600; }
+    #mc-figure .node { fill: #1b1b20; stroke: #686158; stroke-width: 1.4; }
+    #mc-figure .fused { fill: #1b2420; stroke: #7fc7a8; stroke-width: 1.6; }
+    #mc-figure .edge { fill: none; stroke: #dec18a; stroke-width: 1.8; marker-end: url(#mc-arrow); }
+    #mc-figure .span { fill: none; stroke: #7fc7a8; stroke-width: 1.4; stroke-dasharray: 5 4; }
+    #mc-figure figcaption { margin-top: 10px; color: #c0bcb6; font-size: 14px; }
+</style>
+</head>
+<body>
+<main>
+<h1>M-C: the one-token step with fused glue kernels</h1>
+<p>Top: today's decode 1 sliding step, 11 kernels in launch order with their median times
+(check 00607fc6f8c84c77). Bottom: M-C's step, where C-1 replaces two kernels and C-2 four.
+Green boxes are the fused kernels; the dashed brackets show which of today's kernels each one
+replaces. Source: docs/plan-2026-10-31-m-c-t1-fusion.md.</p>
+<figure id="mc-figure">
+  <div class="diagram-scroll" tabindex="0" role="region"
+       aria-label="Kernel chain comparison, scroll horizontally on small screens">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1180 420" role="img"
+         aria-labelledby="mc-title mc-desc">
+      <title id="mc-title">Decode-1 kernel chain today and with M-C</title>
+      <desc id="mc-desc">Today: qkv, attention, o, attention boundary, pooler, pre-norm, router,
+        routing, MoE, unpooler, FFN boundary. With M-C: qkv, attention, C-1 (o projection with
+        the boundary in its epilogue), C-2 (pooler, pre-norm, router and routing in one launch),
+        MoE, unpooler, FFN boundary.</desc>
+      <defs>
+        <marker id="mc-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6"
+                markerHeight="6" orient="auto-start-reverse">
+          <path d="M0 0L10 5L0 10Z" fill="#dec18a"/></marker>
+      </defs>
+      <rect width="1180" height="420" fill="#101013"/>
+      <text class="row" x="24" y="40">Today (11 kernels, span 85.9 us)</text>
+      <g>
+        <rect class="node" x="24" y="56" width="90" height="62" rx="8"/>
+        <text x="69" y="82" text-anchor="middle">qkv</text>
+        <text class="detail" x="69" y="102" text-anchor="middle">10.8</text>
+        <rect class="node" x="130" y="56" width="90" height="62" rx="8"/>
+        <text x="175" y="82" text-anchor="middle">attention</text>
+        <text class="detail" x="175" y="102" text-anchor="middle">5.0</text>
+        <rect class="node" x="236" y="56" width="90" height="62" rx="8"/>
+        <text x="281" y="82" text-anchor="middle">o</text>
+        <text class="detail" x="281" y="102" text-anchor="middle">5.5</text>
+        <rect class="node" x="342" y="56" width="90" height="62" rx="8"/>
+        <text x="387" y="82" text-anchor="middle">boundary</text>
+        <text class="detail" x="387" y="102" text-anchor="middle">3.9</text>
+        <rect class="node" x="448" y="56" width="90" height="62" rx="8"/>
+        <text x="493" y="82" text-anchor="middle">pooler</text>
+        <text class="detail" x="493" y="102" text-anchor="middle">17.0</text>
+        <rect class="node" x="554" y="56" width="90" height="62" rx="8"/>
+        <text x="599" y="82" text-anchor="middle">pre-norm</text>
+        <text class="detail" x="599" y="102" text-anchor="middle">1.9</text>
+        <rect class="node" x="660" y="56" width="90" height="62" rx="8"/>
+        <text x="705" y="82" text-anchor="middle">router</text>
+        <text class="detail" x="705" y="102" text-anchor="middle">5.1</text>
+        <rect class="node" x="766" y="56" width="90" height="62" rx="8"/>
+        <text x="811" y="82" text-anchor="middle">routing</text>
+        <text class="detail" x="811" y="102" text-anchor="middle">4.3</text>
+        <rect class="node" x="872" y="56" width="90" height="62" rx="8"/>
+        <text x="917" y="82" text-anchor="middle">MoE</text>
+        <text class="detail" x="917" y="102" text-anchor="middle">24.9</text>
+        <rect class="node" x="978" y="56" width="90" height="62" rx="8"/>
+        <text x="1023" y="82" text-anchor="middle">unpooler</text>
+        <text class="detail" x="1023" y="102" text-anchor="middle">3.5</text>
+        <rect class="node" x="1084" y="56" width="80" height="62" rx="8"/>
+        <text x="1124" y="82" text-anchor="middle">FFN bnd</text>
+        <text class="detail" x="1124" y="102" text-anchor="middle">3.9</text>
+      </g>
+      <path class="edge" d="M114 87H130"/><path class="edge" d="M220 87H236"/>
+      <path class="edge" d="M326 87H342"/><path class="edge" d="M432 87H448"/>
+      <path class="edge" d="M538 87H554"/><path class="edge" d="M644 87H660"/>
+      <path class="edge" d="M750 87H766"/><path class="edge" d="M856 87H872"/>
+      <path class="edge" d="M962 87H978"/><path class="edge" d="M1068 87H1084"/>
+
+      <path class="span" d="M236 134V146H432V134"/>
+      <path class="span" d="M448 134V146H856V134"/>
+      <text class="detail" x="334" y="166" text-anchor="middle">9.4 us today</text>
+      <text class="detail" x="652" y="166" text-anchor="middle">28.3 us today (router and routing on a side stream)</text>
+
+      <text class="row" x="24" y="230">M-C (7 kernels)</text>
+      <g>
+        <rect class="node" x="24" y="246" width="90" height="62" rx="8"/>
+        <text x="69" y="282" text-anchor="middle">qkv</text>
+        <rect class="node" x="130" y="246" width="90" height="62" rx="8"/>
+        <text x="175" y="282" text-anchor="middle">attention</text>
+        <rect class="fused" x="236" y="246" width="196" height="62" rx="8"/>
+        <text x="334" y="272" text-anchor="middle">C-1: o + boundary</text>
+        <text class="detail" x="334" y="292" text-anchor="middle">last-arriver join for the norms</text>
+        <rect class="fused" x="448" y="246" width="408" height="62" rx="8"/>
+        <text x="652" y="272" text-anchor="middle">C-2: pooler + pre-norm + router + routing</text>
+        <text class="detail" x="652" y="292" text-anchor="middle">reads the boundary outputs only after its wait (no E2 read)</text>
+        <rect class="node" x="872" y="246" width="90" height="62" rx="8"/>
+        <text x="917" y="282" text-anchor="middle">MoE</text>
+        <rect class="node" x="978" y="246" width="90" height="62" rx="8"/>
+        <text x="1023" y="282" text-anchor="middle">unpooler</text>
+        <rect class="node" x="1084" y="246" width="80" height="62" rx="8"/>
+        <text x="1124" y="282" text-anchor="middle">FFN bnd</text>
+      </g>
+      <path class="edge" d="M114 277H130"/><path class="edge" d="M220 277H236"/>
+      <path class="edge" d="M432 277H448"/><path class="edge" d="M856 277H872"/>
+      <path class="edge" d="M962 277H978"/><path class="edge" d="M1068 277H1084"/>
+      <text class="detail" x="334" y="336" text-anchor="middle">donor's fused stage: 7.0 us</text>
+      <text class="detail" x="652" y="336" text-anchor="middle">donor's fused stage: 20.4 + 3.0 us</text>
+      <text class="detail" x="24" y="390">Arrows: launch order on the main stream. Times: median us per step, ours and the donor's (roles inferred).</text>
+    </svg>
+  </div>
+  <figcaption>Design only. C-1 alone is the first slice and the test of the fused-glue hypothesis;
+    stop if it saves under 1 us at decode 1 sliding.</figcaption>
+</figure>
+</main>
+</body>
+</html>
