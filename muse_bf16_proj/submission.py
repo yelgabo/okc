@@ -1959,7 +1959,7 @@ WD_POL = {nm for nm in WD_GEOM if nm.endswith("h")}
 WV_NOPROD, WV_PACK, WV_PROMO64, WV_PUSH, WV_EARLY, WV_TAILSYNC = 1, 2, 4, 8, 32, 128
 WV_NOSLEEP, WV_NOEMPTY, WV_XA, WV_TAILSPLIT, WV_TAILRLX = 256, 512, 1024, 2048, 4096
 WV_PGROUP, WV_ACQCL, WV_SCALAR, WV_GRED, WV_GZERO = 8192, 16384, 32768, 65536, 131072
-WV_E1, WV_RKORD = 262144, 524288
+WV_E1, WV_RKORD, WV_GTICKET = 262144, 524288, 1048576
 # Packed hi/lo box, 64 B promotion, push reduction and early prologue (KLUE) on the two router
 # picks; paired against the pick in a91f2152d8974458 / ba85985b8c5e4969: -0.77 / -0.90 us at
 # m = 128, -0.90 / -0.90 at 256, the push reduction alone -0.46 / -0.54 and -0.48 / -0.66.
@@ -2686,11 +2686,21 @@ constexpr int WV_GZERO = 131072;
 // token tile, K slice slowest, one-dimensional grid).
 constexpr int WV_E1 = 262144;
 constexpr int WV_RKORD = 524288;
+// With GRED instead of GZERO: the join of the donor rk (output cleared inside the kernel,
+// overlapping the main loop) without its grid-wide barrier. At start, idle producer-warp lanes take
+// a ticket on the tile (one counter per split count and tile); the CTA holding ticket 0 of a
+// generation clears the tile and publishes generation + 1 (fence, then release store). Every CTA
+// adds its partial only after reading that value (acquire). A CTA waits only for a CTA that has
+// already taken its ticket and waits for nobody, so no co-residency is needed.
+constexpr int WV_GTICKET = 1048576;
 constexpr int GRED_TOK = 256;
 constexpr int GRED_N = 256;
 constexpr int GRED_TILES = 64;
 __device__ __align__(16) float wd_gred_acc[GRED_TOK * GRED_N];
 __device__ unsigned int wd_gred_cnt[GRED_TILES];
+// Ticket and ready counters of WV_GTICKET, per split count (index CLK) and tile.
+__device__ unsigned int wd_tk_cnt[17 * GRED_TILES];
+__device__ unsigned int wd_tk_ready[17 * GRED_TILES];
 
 __device__ __forceinline__ void red_add_v4(float* p, float4 v) {
     asm volatile("red.relaxed.gpu.global.add.v4.f32 [%0], {%1, %2, %3, %4};"
@@ -2795,6 +2805,7 @@ wd_kernel(const __grid_constant__ CUtensorMap wmap, const __grid_constant__ CUte
     const int rr = rank / CLK;
     const int rowbase = RKORD ? (int)(blockIdx.x % nrb_o) * C::BM : ((int)(blockIdx.x / CL) * CLR + rr) * C::BM;
     const int tok0 = RKORD ? (int)((blockIdx.x / nrb_o) % ntt_o) * BN : (int)blockIdx.y * BN;
+    __shared__ int gred_gen;
     // Uneven split when CLK does not divide the k tiles (qkv_gate's 128 over 3 ranks).
     const int kt0 = rk * (K / 64) / CLK;
     const int ktl = (rk + 1) * (K / 64) / CLK - kt0;
@@ -2910,6 +2921,33 @@ wd_kernel(const __grid_constant__ CUtensorMap wmap, const __grid_constant__ CUte
                     }
                 }
                 issue(i, wpol, xpol);
+            }
+        }
+        if constexpr ((VAR & WV_GTICKET) != 0) {
+            if (warp == 4 * WG && lane != 0) {
+                const int tile = CLK * GRED_TILES + (tok0 / BN) * (N / C::BM) + rowbase / C::BM;
+                unsigned int t = 0;
+                if (lane == 1) {
+                    t = atomicAdd(&wd_tk_cnt[tile], 1u);
+                    gred_gen = (int)(t / (unsigned)CLK);
+                }
+                t = __shfl_sync(0xfffffffeu, t, 1);
+                if (t % (unsigned)CLK == 0u) {
+                    constexpr int C4T = C::BM / 4;
+                    const int nt = min(BN, M - tok0);
+                    for (int i = lane - 1; i < nt * C4T; i += 31) {
+                        __stcg(reinterpret_cast<float4*>(reinterpret_cast<float*>(out) + (size_t)(tok0 + i / C4T) * N
+                                                         + rowbase + 4 * (i % C4T)),
+                               make_float4(0.f, 0.f, 0.f, 0.f));
+                    }
+                    __syncwarp(0xfffffffeu);
+                    if (lane == 1) {
+                        __threadfence();
+                        const unsigned int g1 = t / (unsigned)CLK + 1u;
+                        unsigned int* rp = wd_tk_ready + tile;
+                        asm volatile("st.release.gpu.global.u32 [%0], %1;" :: "l"(rp), "r"(g1) : "memory");
+                    }
+                }
             }
         }
         __syncwarp();
@@ -3151,6 +3189,39 @@ wd_kernel(const __grid_constant__ CUtensorMap wmap, const __grid_constant__ CUte
         __syncthreads();
     }
 
+    if constexpr (C::GRED && (VAR & WV_GTICKET) != 0) {
+        static_assert((VAR & WV_GZERO) == 0, "wd: GTICKET replaces GZERO");
+        if (tid == 0) {
+            const int tile = CLK * GRED_TILES + (tok0 / BN) * (N / C::BM) + rowbase / C::BM;
+            const unsigned int want = (unsigned int)gred_gen + 1u;
+            const long long t0 = clock64();
+            for (;;) {
+                unsigned int v;
+                const unsigned int* rp = wd_tk_ready + tile;
+                asm volatile("ld.acquire.gpu.global.u32 %0, [%1];" : "=r"(v) : "l"(rp) : "memory");
+                if ((int)(v - want) >= 0) {
+                    break;
+                }
+                if (clock64() - t0 > WAIT_LIMIT) {
+                    if (diag != nullptr) {
+                        atomicOr(diag, 128);
+                    }
+                    break;
+                }
+            }
+        }
+        __syncthreads();
+        constexpr int C4G = C::BM / 4;
+        for (int it = tid; it < ((ABL & 2) ? 0 : BN * C4G); it += C::THREADS) {
+            const int t = it / C4G;
+            const int c4 = it % C4G;
+            if (tok0 + t < M) {
+                red_add_v4(reinterpret_cast<float*>(out) + (size_t)(tok0 + t) * N + rowbase + 4 * c4,
+                           wd_ld_local(sbase + (uint32_t)(t * C::RS + 4 * c4) * 4u));
+            }
+        }
+        return;
+    }
     if constexpr (C::GRED && (VAR & WV_GZERO) != 0) {
         constexpr int C4G = C::BM / 4;
         for (int it = tid; it < ((ABL & 2) ? 0 : BN * C4G); it += C::THREADS) {

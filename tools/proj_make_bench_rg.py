@@ -37,9 +37,9 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 
 N, K, L, U, S, E, D, T, W, B, X, Y, Z = 1, 2, 4, 8, 16, 32, 64, 128, 256, 512, 1024, 2048, 4096
-G, A, Q, R, M, J, O = 8192, 16384, 32768, 65536, 131072, 262144, 524288
-BITS = (N, K, L, U, S, E, D, T, W, B, X, Y, Z, G, A, Q, R, M, J, O)
-TAGS = "NKLUSEDTWBXYZGAQRMJO"
+G, A, Q, R, M, J, O, H = 8192, 16384, 32768, 65536, 131072, 262144, 524288, 1048576
+BITS = (N, K, L, U, S, E, D, T, W, B, X, Y, Z, G, A, Q, R, M, J, O, H)
+TAGS = "NKLUSEDTWBXYZGAQRMJOH"
 KLUE = K | L | U | E
 P = KLUE | Y | Z
 # Round a (check 97869fa8302041b5) lacked the watchdog twins of the G|A|S arms, so the spin rule
@@ -54,7 +54,10 @@ P = KLUE | Y | Z
 # join R + M), then its differences swapped into ours one at a time: J (WV_E1, one empty arrive
 # per stage), O (WV_RKORD, rk block order), S + W (spin consumer waits, no producer hint), no
 # packed box (K off), 6 stages, and all of them together. t_zero times the zeroing node alone.
-ROUND = "rk-a"
+# Round rk-b (after 3fd0c7a7cea74ab4: the rk block order O is worth about 1.1 us and the
+# memset node about 1.1 us): H = WV_GTICKET, the tile cleared inside the kernel by the CTA with
+# the first ticket (no zeroing node, no co-residency), with O, against the GZ + O form.
+ROUND = "rk-b"
 KLE = K | L | E
 GEOM_EXTRA = {"r64c12s8": (1, 64, 12, 1, True, 8), "r64c16s8": (1, 64, 16, 1, True, 8),
               "r64c6s8": (1, 64, 6, 1, True, 8), "r64c8s6": (1, 64, 8, 1, True, 6),
@@ -72,17 +75,14 @@ WD_SETS_B = {
 }
 LE = L | E
 GZ = R | M
-# Every spin (S) arm has its watchdog twin (S removed), which the spin rule requires.
+TK = R | H
 WD_SETS = {
-    "r64c8s8": [P, P | D, KLE | GZ, KLE | GZ | D, KLE | GZ | J, KLE | GZ | O, KLE | GZ | W, KLE | GZ | S | W,
-                LE | GZ, LE | GZ | J | O | W, LE | GZ | J | O | S | W],
+    "r64c8s8": [P, P | D, KLE | GZ | O, KLE | TK | O, KLE | TK | O | D, KLE | TK | O | J, LE | TK | O, KLE | TK],
     "r128c8s6": [P, P | D],
-    "r64c12s8": [KLE | GZ, KLE | GZ | J, KLE | GZ | O, KLE | GZ | W, KLE | GZ | S | W, LE | GZ,
-                 LE | GZ | J | O | W, LE | GZ | J | O | S | W],
-    "r64c8s6": [KLE | GZ, LE | GZ | J | O | W, LE | GZ | J | O | S | W],
-    "r64c12s6": [KLE | GZ, LE | GZ | J | O | W, LE | GZ | J | O | S | W],
+    "r64c12s8": [KLE | GZ | O, KLE | TK | O, KLE | TK | O | D],
+    "r64c16s8": [KLE | TK | O],
 }
-WD_BASES = {128: ("r64c8s8", "r64c12s8", "r64c12s6"), 256: ("r128c8s6", "r64c8s8", "r64c8s6")}
+WD_BASES = {128: ("r64c8s8", "r64c12s8", "r64c16s8"), 256: ("r128c8s6", "r64c8s8")}
 WD_PROD = {"r64c8s8": "r64c8s8k", "r128c8s6": "r128c8s6k"}
 WD_REF = {128: "r64c8s8:vKLUEYZ", 256: "r128c8s6:vKLUEYZ"}
 

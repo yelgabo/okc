@@ -1697,3 +1697,27 @@ by the agreed rule: pair7 is below +1.0% on the sk picks, so it is not built. No
 same codes on rd (pooler / o 8) and cgemv (m = 1), which are on the HBM line and would add up to
 about +0.8% if their decode stays free (hypothesis); a factorial on those kernels is the next
 codec check if the coordinator wants it.
+
+| date | job | kind | commit | change | score (95% CI) | notes |
+|---|---|---|---|---|---|---|
+| 10-31 | 3fd0c7a7cea74ab4 | check (bench rk-a, stamp the donor) | proj-r8 | donor rk itself (check only) beside our wd at its geometry, then J (one empty arrive), O (rk block order), S + W (spin, no hint), no packed box, 6 stages, all together; t_zero = a zeroing node alone | 1.510x | table below |
+
+Router stamp (us, paired against the production pick; nulls within 0.03):
+
+| arm | m = 128 | m = 256 |
+|---|---:|---:|
+| donor rk | -0.93 (95/100) | -2.21 (100/100) |
+| t_zero (one fill kernel node) | 1.09 us absolute | 1.15 us absolute |
+| ours, rk geometry, memset-zeroed red.add (KLE R M) | +1.73 (r64c12s8) / +1.62 (r64c8s8) | +0.64 |
+| + O (rk block order: row block fastest, then token tile, K slice slowest) | +0.82 / +1.38 | **-0.45** (83/100) |
+| + J (one empty arrive per stage) | +1.76 / +1.18 | +0.85 |
+| + S + W | +1.68 / +1.25 | +0.64 |
+| no packed box (two TMA loads) | +1.97 / +1.38 | +0.75 |
+| 6 stages | +1.12 (r64c12s6) | +0.50 (r64c8s6) |
+| all (LE R M J O S W) | +0.82 / +1.62 | -0.56 |
+
+Attribution (measured differences, us): of rk's lead over our memset-zeroed version at its own
+geometry, the block order is about 1.1 (both m), the zeroing node about 1.1 (its absolute cost);
+the barrier count, spin waits, box packing and stage count are within +-0.3. The remainder at
+m = 256 (rk 7.30 against our 8.96 - 1.15 = 7.81 without the node) is about 0.5 us. Next: clear
+the tile inside the kernel without a grid barrier (WV_GTICKET, bench rk-b).
