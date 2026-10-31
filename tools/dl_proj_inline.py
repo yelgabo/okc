@@ -16,7 +16,9 @@ The wide kernel (wd_source()) goes in as _SKP_WD_SRC, built for the configs in L
 with its geometry table as _SKP_WD_GEOM; the layer compiles it into the same extension after
 _SKP_SRC, whose helpers (mbarrier waits, named barriers, the tensor-map encoder) it uses.
 
-    python3 tools/dl_proj_inline.py [path/to/muse_bf16_proj/submission.py]
+    python3 tools/dl_proj_inline.py [path/to/muse_bf16_proj/submission.py [TARGET_LAYER.py]]
+
+TARGET_LAYER.py defaults to muse_decode_layer/submission.py and is rewritten in place.
 """
 
 import ast
@@ -31,7 +33,7 @@ SRC = ROOT / "muse_bf16_proj/submission.py"
 BUILD_NAMES = {"_SK_SRC", "_SK_CPP", "GEMV_CPP_DECLS", "GEMV_CUDA_SRC", "SK_GEOM", "ROUTER_GEOM",
                "FUSED_GEOM", "SK_USE", "SK_EXTRA", "SMEM_BUDGET", "SMEM_PER_SM", "UNPOOL_SLICE",
                "WD_GEOM", "WD_POL", "WD_ABLATE", "WD_ABL", "WD_NAMES", "WD_INDEX", "_WD_SRC",
-               "_WD_CPP"}
+               "_WD_CPP", "SK_NOVOTE", "SK_NACC", "SK_FULL"}
 BUILD_FUNCS = {"_sk_configs", "_sk_smem", "_fit_stages", "_sk_targs", "wd_smem", "wd_geom",
                "wd_fits", "_wgmma_spec", "_wd_targs", "wd_source"}
 # Copied verbatim, in this order (constants first).
@@ -150,7 +152,8 @@ def main():
     src_path = Path(sys.argv[1]) if len(sys.argv) > 1 else SRC
     text = src_path.read_text()
     ns, segments = load(text)
-    sub = SUB.read_text()
+    target = Path(sys.argv[2]) if len(sys.argv) > 2 else SUB
+    sub = target.read_text()
     layer_slice = int(re.search(r"^UNPOOL_SLICE = (.*)$", sub, re.M).group(1).replace("HIDDEN // 8", "1024"))
     if layer_slice != ns["UNPOOL_SLICE"]:
         raise SystemExit("UNPOOL_SLICE differs between the layer and the source")
@@ -172,7 +175,7 @@ def main():
     body = "\n\n\n".join(segments[n] for n in COPY_CONSTS + COPY_FUNCS)
     sub = replace_once(sub, r"# @SKP_PY_BEGIN@\n.*?# @SKP_PY_END@\n",
                        lambda _: "# @SKP_PY_BEGIN@\n" + body + "\n# @SKP_PY_END@\n", "@SKP_PY@ region")
-    SUB.write_text(sub)
+    target.write_text(sub)
     lines = len(code.splitlines()) + len(gemv.splitlines()) + len(wd.splitlines())
     print(f"inlined {lines} device lines, {len(cfgs)} sk configs ({sum(1 for c in cfgs if c[13])} "
           f"fused), wide configs {list(wd_geom)} and {len(COPY_FUNCS)} functions from {src_path}")
