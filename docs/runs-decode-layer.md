@@ -668,3 +668,18 @@ passed. The best, 2.0148x, is a hair above the previous entry 2.0143x, inside ru
 | 0f58d5d8223f45af | 2.0148x (1.985-2.045) |
 
 Receipts: muse_decode_layer/profiles/scored.<job>.json.
+
+### Scored: layer_m1rt51sc1g, two runs (2026-10-31)
+
+layer_m1rt51sc1g.py from 2840157 (SHA256 a00a0efa...; layer_m1rt51s + projection C1 + the route
+side-stream self-test on the fresh-input gate per the user's 2026-10-31 decision), submitted by the
+coordinator after single-file check 2edb120747cb4611 (2.005x, route side gate passing at all six
+token counts, no fallback). Run 2 differs only by a trailing `# repeat 2` comment. Both passed.
+
+| job | score (95% CI) |
+|---|---|
+| dc25fef4d65642a9 | 2.0063x (1.976-2.036) |
+| 7b84ed4346d5497b | 2.0187x (1.988-2.049) |
+
+Board entry moves from 0f58d5d8223f45af (2.0148x) to 7b84ed4346d5497b, inside run-to-run noise.
+Receipts: muse_decode_layer/profiles/scored.<job>.json.
