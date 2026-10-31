@@ -1661,3 +1661,75 @@ which stays on the board; the paired evidence, not these single runs, is the com
 |---|---|
 | e745eb8ca902471e | 1.5152x (1.492-1.538) |
 | 355fc7894f6546ed | 1.5082x (1.486-1.531) |
+
+## 2026-10-31 (UTC) round 8: codec factorial and the rk router stamp (branch proj-r8)
+
+Brief (coordinator): (1) the codec factorial on C2's shipped small-batch picks, pair7 only if
+bytes and combined predict at least +1.0% of score; (2) stamp the donor rk router beside our wd
+and swap its pieces into ours. Budget 3 checks. Bench-only bits (sk NACC 11-15: tile bytes,
+extra ALU, extra LDS; wd WV_E1, WV_RKORD); production SASS 92 / 92 kernels identical to C2.
+
+| date | job | kind | commit | change | score (95% CI) | notes |
+|---|---|---|---|---|---|---|
+| 10-31 | 077b210c2087470d | check (bench f8, codec factorial) | proj-r8 | C2's sk picks at m = TOKR: y736 / y704 bytes only (timing only), a16 / a32 / l8 decode only, p7 (736 + 16 ALU + 8 LDS, the pair7 model), q12 (704 + 16 ALU + 8 LDS), null xc | 1.511x (1.488-1.534) | table below |
+
+Paired against the production pick, us (null xc in the last column):
+
+| case | y736 | y704 | a16 | l8 | p7 | q12 | null |
+|---|---:|---:|---:|---:|---:|---:|---:|
+| qkv 8 | -0.26 | -0.48 | -0.02 | -0.13 | -0.37 | -0.53 | +0.06 |
+| slice 8 | -0.06 | -0.03 | +0.00 | -0.06 | -0.11 | -0.02 | -0.03 |
+| qkv 16 | -0.11 | -0.16 | -0.02 | -0.03 | -0.08 | -0.10 | -0.03 |
+| o 16 | -0.14 | -0.13 | -0.02 | -0.18 | -0.24 | -0.32 | -0.03 |
+| pool 16 | -0.18 | -0.58 | -0.03 | +0.16 | -0.19 | -0.54 | +0.29 |
+| unp 16 | -0.38 | -0.75 | +0.06 | +0.10 | -0.29 | -0.69 | -0.06 |
+| qkv 32 | -0.16 | -0.19 | +1.81 | +3.01 | +3.04 | +3.04 | -0.10 |
+| o 32 | -0.13 | -0.29 | -0.13 | -0.06 | -0.18 | -0.16 | -0.13 |
+| pool 32 | -0.21 | -0.56 | -0.19 | +0.05 | -0.35 | -0.67 | +0.18 |
+| unp 32 | -0.48 | -1.15 | -0.16 | +0.06 | -0.66 | -0.93 | -0.21 |
+
+Reading (measured, then arithmetic): bytes help every case except slice 8; decode cost is free
+except at qkv 32, where 16 extra ALU instructions per tile cost 1.8 us (its consumer warp is
+issue-bound at 32 tokens). Score with the per-load values (verify 1 0.434, decode 16 0.337,
+decode 32 0.312 %/us), qkv 32 kept on the 12-bit code: pair7 (p7) +0.85%, bytes-only 736 +0.72%,
+q12 +1.35% (but q12 leaves out its 35x escape count and its 32 KB LUT's bank conflicts). Decision
+by the agreed rule: pair7 is below +1.0% on the sk picks, so it is not built. Not measured: the
+same codes on rd (pooler / o 8) and cgemv (m = 1), which are on the HBM line and would add up to
+about +0.8% if their decode stays free (hypothesis); a factorial on those kernels is the next
+codec check if the coordinator wants it.
+
+| date | job | kind | commit | change | score (95% CI) | notes |
+|---|---|---|---|---|---|---|
+| 10-31 | 3fd0c7a7cea74ab4 | check (bench rk-a, stamp the donor) | proj-r8 | donor rk itself (check only) beside our wd at its geometry, then J (one empty arrive), O (rk block order), S + W (spin, no hint), no packed box, 6 stages, all together; t_zero = a zeroing node alone | 1.510x | table below |
+
+Router stamp (us, paired against the production pick; nulls within 0.03):
+
+| arm | m = 128 | m = 256 |
+|---|---:|---:|
+| donor rk | -0.93 (95/100) | -2.21 (100/100) |
+| t_zero (one fill kernel node) | 1.09 us absolute | 1.15 us absolute |
+| ours, rk geometry, memset-zeroed red.add (KLE R M) | +1.73 (r64c12s8) / +1.62 (r64c8s8) | +0.64 |
+| + O (rk block order: row block fastest, then token tile, K slice slowest) | +0.82 / +1.38 | **-0.45** (83/100) |
+| + J (one empty arrive per stage) | +1.76 / +1.18 | +0.85 |
+| + S + W | +1.68 / +1.25 | +0.64 |
+| no packed box (two TMA loads) | +1.97 / +1.38 | +0.75 |
+| 6 stages | +1.12 (r64c12s6) | +0.50 (r64c8s6) |
+| all (LE R M J O S W) | +0.82 / +1.62 | -0.56 |
+
+Attribution (measured differences, us): of rk's lead over our memset-zeroed version at its own
+geometry, the block order is about 1.1 (both m); the barrier count, spin waits, box packing and
+stage count are within +-0.3. t_zero (a graph holding only a fill kernel) costs 1.1 us, but
+that includes a graph launch; inside the router's graph the zeroing node cost only about 0.2
+(rk-b below), so it is not the remaining gap.
+
+| date | job | kind | commit | change | score (95% CI) | notes |
+|---|---|---|---|---|---|---|
+| 10-31 | e9d9499a465d4548 | check (bench rk-b) | 6d7f6a1 | H = WV_GTICKET: the tile cleared inside the kernel by the CTA with the first ticket, published by fence + release store, every CTA's adds after an acquire of it (no zeroing node, no co-residency), with O | 1.524x | m = 256 r64c8s8: H + O -0.61 (90/100), its null -0.67, H + O + J -0.70, M + O -0.45, H without O +0.05; m = 128: H + O +0.26 (r64c16s8) / +0.54 (r64c12s8) / +1.28 (r64c8s8); donor rk -0.88 / -2.27; all H arms passed FP64 and replay checks |
+
+Reading: in-kernel clearing beats the memset node by only 0.16-0.25 us. The rk block order is
+the one large mechanism found (about 1.1 us); with it our kernel beats the production router at
+m = 256 by 0.6-0.7 us (about +0.13% of score) and still trails rk by about 1.6 us there and 1.1
+at m = 128. That remainder is not attributed by any toggle tried (join, order, barrier count,
+spin waits, box packing, stages, CTA shape at 128 vs 96 CTAs). Not built as a candidate:
+WV_GTICKET is a new cross-CTA ordering protocol and needs a PTX chain review first, for 0.13%.
+

@@ -37,9 +37,9 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 
 N, K, L, U, S, E, D, T, W, B, X, Y, Z = 1, 2, 4, 8, 16, 32, 64, 128, 256, 512, 1024, 2048, 4096
-G, A, Q, R, M = 8192, 16384, 32768, 65536, 131072
-BITS = (N, K, L, U, S, E, D, T, W, B, X, Y, Z, G, A, Q, R, M)
-TAGS = "NKLUSEDTWBXYZGAQRM"
+G, A, Q, R, M, J, O, H = 8192, 16384, 32768, 65536, 131072, 262144, 524288, 1048576
+BITS = (N, K, L, U, S, E, D, T, W, B, X, Y, Z, G, A, Q, R, M, J, O, H)
+TAGS = "NKLUSEDTWBXYZGAQRMJOH"
 KLUE = K | L | U | E
 P = KLUE | Y | Z
 # Round a (check 97869fa8302041b5) lacked the watchdog twins of the G|A|S arms, so the spin rule
@@ -49,10 +49,19 @@ P = KLUE | Y | Z
 # 64 tokens, split 12 at m = 128 (96 CTAs) and 8 at m = 256 (128 CTAs), with neighbours.
 # Round d: R + M (WV_GZERO), out zeroed by a memset node and the partials added into it as the
 # CTA's last stores (round c's counter join cost about 4 us: rk's reds are fire-and-forget).
-ROUND = "rg-d"
+# Round rk-a (stamp the donor): the donor rk router itself (--donor-rk, check only) beside our
+# wd at its geometry (64 x 64 tiles, split 12 at m = 128 and 8 at m = 256, memset-zeroed red.add
+# join R + M), then its differences swapped into ours one at a time: J (WV_E1, one empty arrive
+# per stage), O (WV_RKORD, rk block order), S + W (spin consumer waits, no producer hint), no
+# packed box (K off), 6 stages, and all of them together. t_zero times the zeroing node alone.
+# Round rk-b (after 3fd0c7a7cea74ab4: the rk block order O is worth about 1.1 us and the
+# memset node about 1.1 us): H = WV_GTICKET, the tile cleared inside the kernel by the CTA with
+# the first ticket (no zeroing node, no co-residency), with O, against the GZ + O form.
+ROUND = "rk-b"
 KLE = K | L | E
 GEOM_EXTRA = {"r64c12s8": (1, 64, 12, 1, True, 8), "r64c16s8": (1, 64, 16, 1, True, 8),
-              "r64c6s8": (1, 64, 6, 1, True, 8)}
+              "r64c6s8": (1, 64, 6, 1, True, 8), "r64c8s6": (1, 64, 8, 1, True, 6),
+              "r64c12s6": (1, 64, 12, 1, True, 6)}
 # Production picks r64c8s8 (m = 128) and r128c8s6 (m = 256) with every untested difference alone
 # and together; at m = 256 also the reference's own geometry and orientation (r64c4s8, XA), where
 # the gap at identical tiling was 2.4 us (6cc72e840403402b).
@@ -64,14 +73,16 @@ WD_SETS_B = {
                 P | W | X | G | A | Q, P | W | X | G | A | Q | D, P | W | X | G | A | S | Q,
                 P | W | X | G | A | S | Q | D],
 }
+LE = L | E
+GZ = R | M
+TK = R | H
 WD_SETS = {
-    "r64c8s8": [P, P | D, KLE | R | M, KLE | R | M | D],
-    "r128c8s6": [P, P | D, KLE | R | M],
-    "r64c12s8": [KLE | R | M],
-    "r64c16s8": [KLE | R | M],
-    "r64c6s8": [KLE | R | M],
+    "r64c8s8": [P, P | D, KLE | GZ | O, KLE | TK | O, KLE | TK | O | D, KLE | TK | O | J, LE | TK | O, KLE | TK],
+    "r128c8s6": [P, P | D],
+    "r64c12s8": [KLE | GZ | O, KLE | TK | O, KLE | TK | O | D],
+    "r64c16s8": [KLE | TK | O],
 }
-WD_BASES = {128: ("r64c8s8", "r64c12s8", "r64c16s8"), 256: ("r128c8s6", "r64c8s8", "r64c6s8", "r64c12s8")}
+WD_BASES = {128: ("r64c8s8", "r64c12s8", "r64c16s8"), 256: ("r128c8s6", "r64c8s8")}
 WD_PROD = {"r64c8s8": "r64c8s8k", "r128c8s6": "r128c8s6k"}
 WD_REF = {128: "r64c8s8:vKLUEYZ", 256: "r128c8s6:vKLUEYZ"}
 
@@ -138,10 +149,39 @@ def _rg_wd_run(ext, cid, w, n, k, diag):
     return run
 
 
+def _rg_donor_rk(router):
+    # Check-only: the donor's rk kernel compiled from its source, as published.
+    import hashlib as _hl
+    hi = router.to(torch.bfloat16)
+    lo = (router - hi.float()).to(torch.bfloat16)
+    wc = torch.cat([hi, lo], dim=1).contiguous()
+    zc = torch.zeros(16, dtype=torch.int32, device=router.device)
+    src = ("#include <cuda.h>\n#include <cudaTypedefs.h>\n#include <ATen/ATen.h>\n"
+           "#include <ATen/cuda/CUDAContext.h>\n#include <c10/cuda/CUDAException.h>\n" + _RG_DONOR["rk"])
+    ext = load_inline("rk_stamp_" + _hl.sha256(src.encode()).hexdigest()[:12],
+                      "#include <torch/extension.h>\nvoid rk(at::Tensor Wc, at::Tensor x, at::Tensor out, int64_t S, "
+                      "at::Tensor zc);", cuda_sources=src, functions=["rk"],
+                      extra_cuda_cflags=["-O3", "-gencode=arch=compute_90a,code=sm_90a"], verbose=False)
+    arms = {}
+    for m, sp in ((128, 12), (256, 8)):
+        def run(x, sp=sp):
+            out = torch.empty((x.shape[0], 256), device=x.device, dtype=torch.float32)
+            ext.rk(wc, x, out, sp, zc)
+            return out
+        arms[m] = run
+    return arms
+
+
 def _rg_donor(router):
     # Check-only positive control: the reference's router kernels compiled from its source.
     if _RG_DONOR is None:
         return {}
+    if "rk" in _RG_DONOR:
+        try:
+            return _rg_donor_rk(router)
+        except Exception as exc:
+            _rgprint(f"RGDONOR rk failed {type(exc).__name__}: {str(exc)[-400:]}")
+            return {}
     import hashlib as _hl
     arms = {}
     hi = router.to(torch.bfloat16)
@@ -242,6 +282,10 @@ def _rg_arms(m, st, diag):
                 arms[f"{base}:{nm.split('_', 1)[1]}"] = _rg_wd_run(bench, wd_idx[nm], w, 256, 8192, diag)
     if m in st["donor"]:
         arms["d_rw"] = st["donor"][m]
+
+    def t_zero(x):
+        return torch.zeros((x.shape[0], 256), device=x.device, dtype=torch.float32)
+    arms["t_zero"] = t_zero
     return arms
 
 
@@ -260,6 +304,8 @@ def _rg_check_all(arms, router, ms, gen, dev, label):
         ref = x.double() @ router.double().T
         for nm in order:
             if nm not in arms:
+                continue
+            if nm.startswith("t_"):
                 continue
             twin = _rg_spin_twin(nm)
             if twin is not None and twin not in arms:
@@ -325,7 +371,7 @@ def _rg_run():
                     g.replay()
                     torch.cuda.synchronize()
                     ok, err, perr = _check(out, x2.double() @ w_main.double().T, probes, SELFTEST_TOL["router"])
-                    if not ok:
+                    if not ok and not nm.startswith("t_"):
                         raise RuntimeError(f"replay {rep} err {err:.1e}/{perr:.1e}")
                 graphs[nm] = g
             except Exception as exc:
@@ -375,6 +421,16 @@ if not _rgos.environ.get("PROJ_RG_DONE"):
 '''
 
 
+def donor_rk(path):
+    # The donor's RK_SRC string, read as a literal without executing its file.
+    import ast
+    tree = ast.parse(Path(path).read_text())
+    for node in tree.body:
+        if isinstance(node, ast.Assign) and len(node.targets) == 1 and getattr(node.targets[0], "id", "") == "RK_SRC":
+            return {"rk": ast.literal_eval(node.value)}
+    raise SystemExit(f"{path}: no RK_SRC")
+
+
 def donor_rw(path):
     # The reference's two router sources, read as literals without executing its file.
     import ast
@@ -399,6 +455,8 @@ def main():
             cu = Path(args.pop(0))
         elif a == "--donor":
             donor = donor_rw(args.pop(0))
+        elif a == "--donor-rk":
+            donor = donor_rk(args.pop(0))
     sub = (ROOT / "muse_bf16_proj/submission.py").read_text()
     wd = bench_wd()
     bench = (BENCH.replace("@@WD@@", repr(wd)).replace("@@BASES@@", repr(WD_BASES))

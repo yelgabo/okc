@@ -403,6 +403,12 @@ __device__ __forceinline__ uint4 lds128(uint32_t a) {
     return v;
 }
 
+__device__ __forceinline__ uint32_t lds32(uint32_t a) {
+    uint32_t v;
+    asm volatile("ld.shared.u32 %0, [%1];" : "=r"(v) : "r"(a) : "memory");
+    return v;
+}
+
 __device__ __forceinline__ uint2 lds64(uint32_t a) {
     uint2 v;
     asm volatile("ld.shared.v2.u32 {%0,%1}, [%2];" : "=r"(v.x), "=r"(v.y) : "r"(a) : "memory");
@@ -452,7 +458,14 @@ struct SkCfg {
     static constexpr int NC = NW * 32;
     static constexpr int R = NWR * NT * 8;
     static constexpr int UPS = WSK * UPW;
-    static constexpr int TU = COMP ? 768 : (HL ? 2048 : 1024);
+    // Codec factorial (bench only, never dispatched): NACC bits 11 / 12 shrink the compressed tile
+    // to 736 / 704 bytes (the 11.5 / 11-bit codes' byte counts; the weights read are garbage),
+    // bits 13 / 14 add 16 / 32 dependent ALU instructions per tile and bit 15 eight conflict-free
+    // shared-memory loads per tile (a replicated LUT's reads), folded in through a runtime zero
+    // so outputs stay exact.
+    static constexpr int TU = COMP ? ((NACC & 2048) ? 736 : (NACC & 4096) ? 704 : 768) : (HL ? 2048 : 1024);
+    static constexpr int XALU = (NACC & 8192) ? 16 : (NACC & 16384) ? 32 : 0;
+    static constexpr bool XLDS = (NACC & 32768) != 0;
     static constexpr int WBY = NW * UPW * NT * TU;
     static constexpr int XBY = UPS * TOKR * 128;
     // Fused pooler + router: after its pooler stages a CTA streams one 8-row router piece (hi
@@ -884,6 +897,18 @@ sk_kernel(const __grid_constant__ CUtensorMap xmap, const uint8_t* __restrict__ 
                 for (int nt = 0; nt < NT; ++nt) {
                     decode8(lw[nt].x, lw[nt].y, cw[nt].x, base4, &b[nt][0]);
                     decode8(lw[nt].z, lw[nt].w, cw[nt].y, base4, &b[nt][4]);
+                    if constexpr (C::XALU > 0 || C::XLDS) {
+                        uint32_t t = lw[nt].x;
+#pragma unroll
+                        for (int i = 0; i < C::XALU / 2; ++i) {
+                            t = (t ^ (t << 1)) + lw[nt].y;
+                        }
+#pragma unroll
+                        for (int i = 0; i < (C::XLDS ? 8 : 0); ++i) {
+                            t += lds32(wb + nt * TU + ((lane * 4 + i * 128) & 511));
+                        }
+                        b[nt][0] ^= t & ((uint32_t)M >> 16);
+                    }
                 }
             }
 #pragma unroll
@@ -1934,6 +1959,7 @@ WD_POL = {nm for nm in WD_GEOM if nm.endswith("h")}
 WV_NOPROD, WV_PACK, WV_PROMO64, WV_PUSH, WV_EARLY, WV_TAILSYNC = 1, 2, 4, 8, 32, 128
 WV_NOSLEEP, WV_NOEMPTY, WV_XA, WV_TAILSPLIT, WV_TAILRLX = 256, 512, 1024, 2048, 4096
 WV_PGROUP, WV_ACQCL, WV_SCALAR, WV_GRED, WV_GZERO = 8192, 16384, 32768, 65536, 131072
+WV_E1, WV_RKORD, WV_GTICKET = 262144, 524288, 1048576
 # Packed hi/lo box, 64 B promotion, push reduction and early prologue (KLUE) on the two router
 # picks; paired against the pick in a91f2152d8974458 / ba85985b8c5e4969: -0.77 / -0.90 us at
 # m = 128, -0.90 / -0.90 at 256, the push reduction alone -0.46 / -0.54 and -0.48 / -0.66.
@@ -2653,11 +2679,28 @@ constexpr int WV_GRED = 65536;
 // are added into it directly, so the reds are the CTA's last memory operations and there is no
 // counter, fence or last-arriver pass.
 constexpr int WV_GZERO = 131072;
+// Bench toggles of the donor rk router's remaining differences (stamp round rk-a): E1 one
+// empty-barrier arrive per stage from thread 0 after the warpgroup's wait_group (CUTLASS's one
+// signalling thread per consumer warpgroup; wait_group retires the warpgroup-wide wgmma, so its
+// shared-memory reads are complete); RKORD the rk block order with GRED (row block fastest, then
+// token tile, K slice slowest, one-dimensional grid).
+constexpr int WV_E1 = 262144;
+constexpr int WV_RKORD = 524288;
+// With GRED instead of GZERO: the join of the donor rk (output cleared inside the kernel,
+// overlapping the main loop) without its grid-wide barrier. At start, idle producer-warp lanes take
+// a ticket on the tile (one counter per split count and tile); the CTA holding ticket 0 of a
+// generation clears the tile and publishes generation + 1 (fence, then release store). Every CTA
+// adds its partial only after reading that value (acquire). A CTA waits only for a CTA that has
+// already taken its ticket and waits for nobody, so no co-residency is needed.
+constexpr int WV_GTICKET = 1048576;
 constexpr int GRED_TOK = 256;
 constexpr int GRED_N = 256;
 constexpr int GRED_TILES = 64;
 __device__ __align__(16) float wd_gred_acc[GRED_TOK * GRED_N];
 __device__ unsigned int wd_gred_cnt[GRED_TILES];
+// Ticket and ready counters of WV_GTICKET, per split count (index CLK) and tile.
+__device__ unsigned int wd_tk_cnt[17 * GRED_TILES];
+__device__ unsigned int wd_tk_ready[17 * GRED_TILES];
 
 __device__ __forceinline__ void red_add_v4(float* p, float4 v) {
     asm volatile("red.relaxed.gpu.global.add.v4.f32 [%0], {%1, %2, %3, %4};"
@@ -2752,11 +2795,17 @@ wd_kernel(const __grid_constant__ CUtensorMap wmap, const __grid_constant__ CUte
     const int tid = threadIdx.x;
     const int warp = tid >> 5;
     const int lane = tid & 31;
-    const int rank = C::GRED ? (int)(blockIdx.x % CL) : (CL > 1 ? (int)wd_cluster_rank() : 0);
+    constexpr bool RKORD = (VAR & WV_RKORD) != 0;
+    static_assert(!RKORD || C::GRED, "wd: RKORD needs GRED");
+    const int nrb_o = N / C::BM;
+    const int ntt_o = (M + BN - 1) / BN;
+    const int rank = RKORD ? (int)(blockIdx.x / (nrb_o * ntt_o))
+                           : (C::GRED ? (int)(blockIdx.x % CL) : (CL > 1 ? (int)wd_cluster_rank() : 0));
     const int rk = rank % CLK;
     const int rr = rank / CLK;
-    const int rowbase = ((int)(blockIdx.x / CL) * CLR + rr) * C::BM;
-    const int tok0 = (int)blockIdx.y * BN;
+    const int rowbase = RKORD ? (int)(blockIdx.x % nrb_o) * C::BM : ((int)(blockIdx.x / CL) * CLR + rr) * C::BM;
+    const int tok0 = RKORD ? (int)((blockIdx.x / nrb_o) % ntt_o) * BN : (int)blockIdx.y * BN;
+    __shared__ int gred_gen;
     // Uneven split when CLK does not divide the k tiles (qkv_gate's 128 over 3 ranks).
     const int kt0 = rk * (K / 64) / CLK;
     const int ktl = (rk + 1) * (K / 64) / CLK - kt0;
@@ -2810,7 +2859,7 @@ wd_kernel(const __grid_constant__ CUtensorMap wmap, const __grid_constant__ CUte
     if (tid == pt) {
         for (int s = 0; s < NST; ++s) {
             mbar_init(full0 + 8 * s, 1);
-            mbar_init(empty0 + 8 * s, 4 * WG * CLR);
+            mbar_init(empty0 + 8 * s, (VAR & WV_E1) ? 1 : 4 * WG * CLR);
         }
         if constexpr (PUSH) {
             mbar_init(rbar, 1);
@@ -2874,6 +2923,33 @@ wd_kernel(const __grid_constant__ CUtensorMap wmap, const __grid_constant__ CUte
                 issue(i, wpol, xpol);
             }
         }
+        if constexpr ((VAR & WV_GTICKET) != 0) {
+            if (warp == 4 * WG && lane != 0) {
+                const int tile = CLK * GRED_TILES + (tok0 / BN) * (N / C::BM) + rowbase / C::BM;
+                unsigned int t = 0;
+                if (lane == 1) {
+                    t = atomicAdd(&wd_tk_cnt[tile], 1u);
+                    gred_gen = (int)(t / (unsigned)CLK);
+                }
+                t = __shfl_sync(0xfffffffeu, t, 1);
+                if (t % (unsigned)CLK == 0u) {
+                    constexpr int C4T = C::BM / 4;
+                    const int nt = min(BN, M - tok0);
+                    for (int i = lane - 1; i < nt * C4T; i += 31) {
+                        __stcg(reinterpret_cast<float4*>(reinterpret_cast<float*>(out) + (size_t)(tok0 + i / C4T) * N
+                                                         + rowbase + 4 * (i % C4T)),
+                               make_float4(0.f, 0.f, 0.f, 0.f));
+                    }
+                    __syncwarp(0xfffffffeu);
+                    if (lane == 1) {
+                        __threadfence();
+                        const unsigned int g1 = t / (unsigned)CLK + 1u;
+                        unsigned int* rp = wd_tk_ready + tile;
+                        asm volatile("st.release.gpu.global.u32 [%0], %1;" :: "l"(rp), "r"(g1) : "memory");
+                    }
+                }
+            }
+        }
         __syncwarp();
     } else {
         const int g = warp >> 2;
@@ -2909,7 +2985,7 @@ wd_kernel(const __grid_constant__ CUtensorMap wmap, const __grid_constant__ CUte
             // With at most this iteration's group pending, the previous group has finished
             // reading its stage.
             wg_wait<1>();
-            if (i > 0 && lane == 0) {
+            if (i > 0 && ((VAR & WV_E1) ? tid == 0 : lane == 0)) {
                 const uint32_t eb = empty0 + 8 * ((i - 1) % NST);
                 if constexpr (CLR > 1) {
 #pragma unroll
@@ -3113,6 +3189,39 @@ wd_kernel(const __grid_constant__ CUtensorMap wmap, const __grid_constant__ CUte
         __syncthreads();
     }
 
+    if constexpr (C::GRED && (VAR & WV_GTICKET) != 0) {
+        static_assert((VAR & WV_GZERO) == 0, "wd: GTICKET replaces GZERO");
+        if (tid == 0) {
+            const int tile = CLK * GRED_TILES + (tok0 / BN) * (N / C::BM) + rowbase / C::BM;
+            const unsigned int want = (unsigned int)gred_gen + 1u;
+            const long long t0 = clock64();
+            for (;;) {
+                unsigned int v;
+                const unsigned int* rp = wd_tk_ready + tile;
+                asm volatile("ld.acquire.gpu.global.u32 %0, [%1];" : "=r"(v) : "l"(rp) : "memory");
+                if ((int)(v - want) >= 0) {
+                    break;
+                }
+                if (clock64() - t0 > WAIT_LIMIT) {
+                    if (diag != nullptr) {
+                        atomicOr(diag, 128);
+                    }
+                    break;
+                }
+            }
+        }
+        __syncthreads();
+        constexpr int C4G = C::BM / 4;
+        for (int it = tid; it < ((ABL & 2) ? 0 : BN * C4G); it += C::THREADS) {
+            const int t = it / C4G;
+            const int c4 = it % C4G;
+            if (tok0 + t < M) {
+                red_add_v4(reinterpret_cast<float*>(out) + (size_t)(tok0 + t) * N + rowbase + 4 * c4,
+                           wd_ld_local(sbase + (uint32_t)(t * C::RS + 4 * c4) * 4u));
+            }
+        }
+        return;
+    }
     if constexpr (C::GRED && (VAR & WV_GZERO) != 0) {
         constexpr int C4G = C::BM / 4;
         for (int it = tid; it < ((ABL & 2) ? 0 : BN * C4G); it += C::THREADS) {
@@ -3141,7 +3250,7 @@ wd_kernel(const __grid_constant__ CUtensorMap wmap, const __grid_constant__ CUte
         // its own fence. atomicInc wraps the counter back to 0 for the next launch.
         __threadfence();
         __syncthreads();
-        const int tile = (int)blockIdx.y * (N / C::BM) + rowbase / C::BM;
+        const int tile = (tok0 / BN) * (N / C::BM) + rowbase / C::BM;
         if (tid == 0) {
             gred_last = atomicInc(&wd_gred_cnt[tile], (unsigned)(CLK - 1)) == (unsigned)(CLK - 1);
         }
@@ -3255,7 +3364,8 @@ void launch_wd(const at::Tensor& w, const at::Tensor& x, at::Tensor& out, int N,
         TORCH_CHECK(M <= GRED_TOK && N <= GRED_N && (N / C::BM) * ((M + BN - 1) / BN) <= GRED_TILES,
                     "wd: GRED workspace too small for this shape");
     }
-    lc.gridDim = dim3((unsigned)(N / (C::BM * CLR) * C::CL), (unsigned)((M + BN - 1) / BN));
+    lc.gridDim = (VAR & WV_RKORD) ? dim3((unsigned)(N / C::BM * C::CL * ((M + BN - 1) / BN)), 1u)
+                                  : dim3((unsigned)(N / (C::BM * CLR) * C::CL), (unsigned)((M + BN - 1) / BN));
     lc.blockDim = dim3(C::THREADS);
     lc.dynamicSmemBytes = C::SMEM;
     lc.stream = at::cuda::getCurrentCUDAStream();
