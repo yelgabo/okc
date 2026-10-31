@@ -103,6 +103,7 @@ SGLang with its 95% interval. Profiles and logs are in `muse_moe_w4a16/profiles/
 | 2026-10-31 | 2a4fb39964aa448c (check, bench file from tools/moe_make_bench_ab.py --base=51 --sizes=32,128,256 --routings=layer,std,skewed --seeds=141,...,146 --gate=1 o72=72 o79=79, donor MAIN build as the public arm, not committed) | 587da5d | gate of 79 (stream-K in both phases, stage-0 finisher in phase B) with the null 72 (rule committed in 587da5d) | 2.196x (2.164-2.229) | passed; spin flags 0. Minus 51 at 32 / 128 / 256, layer: 72 +13.1 / +11.3 / +6.1, 79 +16.4 / +19.4 / +21.4, donor -1.9 / -11.3 / -21.0; std: 72 +10.3 / +9.8 / +4.3, 79 +17.5 / +24.8 / +11.3, donor -4.7 / -13.3 / -25.6; skewed 79 +6.0 / +27.9 / +31.4. 0 of 6 seeds lower for 79 in every cell. Not kept; family parked. Section "Stream-K in both phases (mode 79)" |
 | 2026-10-31 | 43c35d18b5504eb5 (check, bench file from tools/moe_make_bench_ab.py --base=51 --sizes=32,128,256 --routings=layer,std --seeds=151,...,156 --work=1 --pubfix=1, the donor MAIN build stamped as a bench-only copy, not committed) | 1d42779 | diagnostic: donor per-phase stamps (DBG points plus its fixup, doneA release and finisher-wait cycles) against 55 (51's light twin) | 2.197x (2.164-2.230) | passed; spin flags 0. Donor minus 51 replay -3.0 / -6.2 / -9.8 / -12.1 / -21.8 / -22.4 us (32 / 128 / 256, layer / std). Per phase at 128 / 256 layer: start -3.4 / -3.8, phase A mean -3.4 / -10.3, A end spread -5.4 / -2.7, phase B 0.0 / -2.1, barrier + final -3.3 / -4.4. Donor fixups 10.4-12.8 us/CTA in phase A, 5.4-8.5 in phase B, releases 2.5-7.7; derived per stage 1.12 us (donor) against 1.38-1.47 (51). Stage loop 295 against 387 instructions. Section "The donor kernel stamped against 51" |
 | 2026-10-31 | 1d767886e86d46e1 (check, bench file from tools/moe_make_bench_ab.py --base=51 --sizes=128,256 --routings=layer,std --seeds=161,...,166 --ablate=1 o83=83 o76=76, donor MAIN build as the public arm, not committed) | 2921d50 | stage-cost ablation: 83 (51 without the per-thread weights-slot fence, timing only, never a candidate) and 76 | 2.193x (2.160-2.225) | passed; spin flags 0; outputs 0 against 51. Minus 51 at 128 / 256: 83 -0.1 / -0.3 (layer), +0.2 / -0.5 (std); 76 +0.2 / -0.9, +0.3 / -0.8; donor -9.3 / -20.0, -13.4 / -25.3. The fence is not the per-stage cost (reading rule case 3). Section "Stage cost ablations" |
+| 2026-10-31 | a00b49f8372042a9 (check, bench file from tools/moe_make_bench_ab.py --base=51 --sizes=32,128,256 --routings=layer,std,skewed --seeds=181,...,186 --gate=1 o86=86, donor MAIN build as the public arm, not committed) | 30d6b96 | gate of 86 (51 with each stage's x slot released after wait_group 0 at the stage end; rule committed in 30d6b96) | 2.195x (2.162-2.228) | passed; spin flags 0; outputs 0 against 51 at 128 / 256. 86 minus 51 at 32 / 128 / 256: layer +0.2 / -0.3 / -0.6, std -0.8 / +0.0 / -0.1, skewed -0.1 / -0.1 / -1.4. Rules 1 and 2 failed: not kept. Section "Earlier x slot release (mode 86)" |
 | 2026-10-31 | 40b8c798289a4258 (check; F-MOE-0 bench: release ec565a7 byte for byte + the exact donor file lzma-carried, not committed) | ec565a7 (release) | Family F F0: R1/R2 (two release prepares) against D1/D2 (two prepares of alygg77 muse_moe_w4a16.py at 6cae49a, SHA256 b3307089...), std seeds 501-512, layer 521-526, pad/off64 541-544, order seed 8101 | 2.195x (2.163-2.228), the release's judged path | passed; 0 output failures, fresh-input replay ok. Score D/R pooled 1.0387 (nulls 0.9996 / 0.9993, D faster); per load R/D 0.960 / 1.013 / 1.006 / 1.060 / 1.079 / 1.120 at 1 / 8 / 16 / 32 / 128 / 256. Section "F-MOE-0 (Family F donor comparison)" |
 | 2026-10-31 | 218ff300de7d4c22 (check; F-MOE-0 confirmation, same writer, not committed) | ec565a7 (release) | as 40b8c798289a4258 on std 601-612, layer 621-626, pad/off64 641-644, order seed 9203 | 2.194x (2.161-2.227), the release's judged path | passed; 0 failures. Score D/R pooled 1.0297 (nulls 1.0017 / 0.9977, D faster); per load 0.964 / 1.014 / 1.004 / 1.010 / 1.078 / 1.116. Decision per load: keep ours at 1, re-implement TINY2 at 8, inconclusive at 16, re-implement WGS (with proxy fences) at 32 / 128 / 256 |
 
@@ -4016,6 +4017,89 @@ each testable as one mode on 51 with every fence kept:
    jobs with fewer n-tiles could use more, smaller x slots (deeper x ring for small jobs), which
    needs per-job x slot sizes in the ring arithmetic.
 Budget: the coordinator's 2 remaining MoE checks today are unspent.
+
+## Earlier x slot release (mode 86), 2026-10-31
+
+Brief (coordinator): build direction (a) above on 51, every fence kept, one check under a rule set
+first; if it gains but leaves most of the gap, per-job x slot sizing (b) follows after the reset.
+
+### The change
+
+Mode 86 is 51 with each stage's x slot released at the end of that stage: after the stage's eighth
+commit group, `wgmma.wait_group 0`, then lane 0 of each warp arrives on the slot's empty barrier
+(`x_release_warp`, count 32 per warp as in 51). 51 releases the slot one group into the next
+stage, after `wait_group 1` retires the previous stage's last group. The x producer can then
+issue the copy three stages ahead about one commit group earlier; the cost is that a stage's last
+group no longer overlaps the next stage's first. Nothing else changes: the weights slot, its
+per-thread fence and arrive, the phase A publish, the waits and every barrier are 51's.
+
+Ordering: the same chain as 51's x release ("Ordering of the ring slot releases", the x slot):
+the x slot is read only by wgmma through its descriptor (async proxy, 9.7.17.4); the reads of
+every wgmma of the stage complete before `wgmma.wait_group 0` returns in each thread of the
+warpgroup; lane 0's `mbarrier.arrive` follows in program order with release semantics at cta
+scope (9.7.15.16.16); the x producer's `try_wait.parity` (acquire, 9.7.15.16.19) synchronizes with
+the phase it completes (8.9.4), and its `cp.async.bulk` (async proxy, 9.7.10.28.2) is ordered
+after it (8.9.1.1). Reads and the refill are in the same proxy, so no proxy fence is needed
+(8.9.5), as for 51. The release is only moved earlier in program order to a point where the
+retirement it depends on has already happened (wait_group 0 is stronger than 51's wait_group 1).
+
+Local compile gate (nvcc 12.8.1, Docker, sm_90a; MAIN_MODES (0, 16, 26, 28, 37, 47, 51, 72, 74, 79,
+86) against 14069cf's without 86): every other kernel has identical instruction text; no C75xx; 86
+at 96 registers, no spill; stage loops 383 (389 widest) against 387; wgmma pipelining intact
+(wait1 96 as 51, wait0 24 against 12: one per stage loop); SYNCS 174 against 186.
+
+### Gate rule (set before the check)
+
+One check of `tools/moe_make_bench_ab.py OUT.py DONOR_MAIN_ONLY.py --base=51 --sizes=32,128,256
+--routings=layer,std,skewed --seeds=181,182,183,184,185,186 --gate=1 o86=86` (seeds new on every
+routing). Keep 86 only if all hold:
+1. 256 tokens: 86 minus 51 mean -1.5 us or lower on layer and on standalone routing, at least 5 of
+   6 seeds lower on each, and 0 or lower on skewed.
+2. 128 tokens: -1.0 or lower on layer and standalone, +0.5 or lower on skewed.
+3. 32 tokens: +0.5 or lower on every routing.
+4. Output against 51: 0 at 128 and 256 tokens (same products and accumulation order); within
+   1e-4 at 32 (51's own atomics order).
+5. Prepare's FP32 self-test passes for 86; spin flags 0.
+6. The compile gate above on the checked commit, and an independent read-only review of the
+   moved release.
+If all hold, 86 joins MAIN_MODES and MAIN_CANDIDATES and the file goes to the coordinator; if any
+fails, 86 goes to docs/ruled-out.md and (b) is the next candidate after the reset.
+
+Independent read-only review (2026-10-31): no bug. 86 has exactly 51's predicates plus early_x;
+every x slot is released once per use (xrel is never set on 86's wgmma path, so the s == 0 and
+segment-end releases do nothing, and the mma.sync path releases its own slots); the release
+follows `wgmma.wait_group 0` (.sync.aligned) in every lane. Notes: the segment end repeats a
+redundant `wait_group 0` and `a_pin` (harmless); "MAIN_MODES (... 86)" above describes the local
+compile build, not the committed file.
+
+### Gate result (check a00b49f8372042a9, bench at 30d6b96)
+
+2.195x (2.162-2.228), passed, spin flags 0; self-test 86 3.88e-3 (51: 3.88e-3). Outputs against
+51: 0 at 128 and 256 tokens on every seed, at most 3.4e-5 at 32. 86 minus 51, us, seeds 181-186
+(count = seeds lower of 6):
+
+| routing | 32 tokens | 128 tokens | 256 tokens |
+|---|---|---|---|
+| layer | +0.2 (0) | -0.3 (3) | -0.6 (5) |
+| standalone | -0.8 (3) | +0.0 (4) | -0.1 (3) |
+| skewed | -0.1 (3) | -0.1 (2) | -1.4 (6) |
+
+Donor minus 51 in the same run: -3.5 / -7.2 / -10.6 at 32, -11.7 / -10.8 / -0.7 at 128, -20.9 /
+-24.8 / -7.1 at 256 (layer / standalone / skewed).
+
+Reading under the rule: rule 1 fails (-0.6 / -0.1 at 256 tokens against -1.5) and rule 2 fails
+(-0.3 / +0.0 at 128 against -1.0). 86 is not kept and goes to docs/ruled-out.md.
+
+Measured: one more commit group of x lead per stage moves 128 and 256 tokens by 0.6 us or less on
+judge-like routing (-1.4 skewed). Together with 56's split (x copy latency 2.2-2.4 us against a
+3.4-4.1 us lead), this says the x waits are not set by the last group's position in the stage. The
+x copies themselves are slow or late: the x producer also waits on done_as per phase B stage and on
+xready per phase A job before issuing, which 56's "x copy latency" (issue to wait end) does not
+include, and each x copy competes with the 36 KB weights copies for the same HBM bandwidth
+(hypothesis, not separated). (b), per-job x slot sizing, gives the x ring more slots only for jobs
+of 4 n-tiles or fewer, which are a minority at 128 / 256 tokens; before building it, the x
+producer's own waits (readiness, empty slot) per stage should be split out of the existing
+stamps or a producer-side counter, at no GPU cost if 56's log tail holds them.
 
 ## Staged pair on current components, 2026-10-29
 
