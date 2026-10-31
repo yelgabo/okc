@@ -263,3 +263,13 @@ donor's lead is rejected at this stage too, and the remaining gap is per-kernel 
   boundaries were not read for this plan.
 - Whether the pooler (512 rows per CTA group in cgemv) and the router (FP32, 256 rows) can share
   one launch without slowing the pooler's memory stream is unmeasured.
+
+## Result (2026-10-31, check 5ae9ce318e014edf)
+
+C-1 passed its cooperative probe, self-test and fresh-input gate on the judge's GPU and was
+then timed by its stable pick against the two-kernel path: the whole 1x1 step was 1.16 us
+slower with C-1 on, in all 9 rounds. The stopping rule (stop under 1 us of saving) is met; C-1
+is in docs/ruled-out.md and C-2 is not built. Together with M-B, both forms of glue overlap
+tested on our own kernels (PDL chaining and fusion behind grid barriers) lost or gained under
+1 us at the stage where the donor gains most, so the remaining gap at d1 is more likely the
+speed of individual kernels (the one-token front above all: 28.3 us summed against 23.4).

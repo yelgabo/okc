@@ -28,6 +28,11 @@ def main():
         raise SystemExit(__doc__)
     policy = ast.literal_eval(opts.get("policy", "{8: 'o+front', 16: 'o', 32: 'o'}"))
     replays = int(opts.get("replays", "500"))
+    # At 250 the M1 gate failed at 1x8 sliding in two of four copies (5ae9ce318e014edf: ids
+    # flips and the element envelope against a control measured on too few calls), which
+    # turned M1 off there; 500 passed in all four copies of b70cfa48c0264d20.
+    if replays < 500 or int(opts.get("mc1-replays", "500")) < 500:
+        raise SystemExit("gate replays below 500 break the M1 gate (5ae9ce318e014edf)")
     src, out = args
     text = open(src).read()
     if text.count(ANCHOR) != 1 or text.count("\nM1_STRESS_REPLAYS = 2000\n") != 1:
