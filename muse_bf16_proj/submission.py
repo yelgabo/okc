@@ -119,6 +119,10 @@ SK_USE = {
 }
 # tools/make_bench.py adds alternative geometries here; prepare() times them beside the picks.
 SK_EXTRA = {}
+# name -> NACC template value for SK_GEOM configs (default 1): bits 0-3 the accumulator count,
+# SK_ESCG the global-x escape corrections (SkCfg::ESCG).
+SK_ESCG = 16
+SK_NACC = {}
 SMEM_BUDGET = 227 * 1024
 SMEM_PER_SM = 228 * 1024
 
@@ -129,8 +133,9 @@ def _sk_configs():
     for name, (mt, tokr, nt, nwr, wsk, upw, nstage) in SK_GEOM.items():
         for comp in (True, False):
             cname = name if comp else name + "raw"
+            nacc = SK_NACC.get(name, 1) if comp else SK_NACC.get(name, 1) & 15
             cfgs.append((cname, mt, tokr, nt, nwr, wsk, upw,
-                         _fit_stages(mt, tokr, nt, nwr, wsk, upw, nstage, comp, False, 1), comp, False, 1, 1, "bf16",
+                         _fit_stages(mt, tokr, nt, nwr, wsk, upw, nstage, comp, False, 1), comp, False, nacc, 1, "bf16",
                          False))
     for name, (mt, tokr, nt, nwr, wsk, upw, nstage) in ROUTER_GEOM.items():
         cfgs.append((name, mt, tokr, nt, nwr, wsk, upw,
@@ -398,7 +403,23 @@ struct SkCfg {
     static constexpr int RP = R + ((40 - (R % 32)) % 32);
     // Correction row stride, odd so the per-token updates of a warp hit distinct banks.
     static constexpr int CP = R + 1;
-    static constexpr int NESC = COMP ? (NSTAGE >= 4 ? 4 : NSTAGE) : 0;
+    // NACC bit 4 (SK_ESCG in Python) selects escape corrections read from x in global memory:
+    // the escape warps then never touch the ring, so they take table entries round-robin instead
+    // of stages and are not counted on the empty barriers (the scheme of alygg77's
+    // kernels/muse_bf16_proj.py `_escape_source`, re-implemented here). Bits 0-3 are the
+    // accumulator count.
+    static constexpr bool ESCG = (NACC & 16) != 0;
+    static constexpr int NA = NACC & 15;
+    // Bench variants (bits 5-8): FULL compiles the x-tile addressing for M == TOKR (the launch
+    // checks it); ESCFAST reads escape entries and x with plain loads that the compiler may
+    // overlap across entries; NOWD drops the consumer full-wait watchdog and vote; ESCOFF skips
+    // the corrections (attribution only, outputs inexact, never dispatched by prepare()).
+    static constexpr bool FULL = (NACC & 32) != 0;
+    static constexpr bool ESCFAST = (NACC & 64) != 0;
+    static constexpr bool NOWD = (NACC & 128) != 0;
+    static constexpr bool ESCOFF = (NACC & 256) != 0;
+    static constexpr int NESC = COMP ? (ESCG ? 4 : (NSTAGE >= 4 ? 4 : NSTAGE)) : 0;
+    static constexpr int EMPTY_COUNT = NW + (ESCG ? 0 : NESC);
     static constexpr int THREADS = (NW + 1 + NESC) * 32;
     static constexpr int CSZ = (TOKS * CP + 3) & ~3;
     static constexpr int CORR_FLOATS = COMP ? NESC * CSZ : 0;
@@ -417,7 +438,9 @@ struct SkCfg {
                   "fused piece geometry");
     static_assert(TOKR == 16 * MT || (TOKR == 8 && MT == 1), "TOKR must match MT");
     static_assert(!(COMP && CL > 1), "escape warps are not clustered");
-    static_assert(NESC <= NSTAGE, "escape warps take turns on stages");
+    static_assert(ESCG || NESC <= NSTAGE, "escape warps take turns on stages");
+    static_assert(!ESCG || (COMP && !FUSE && CL == 1), "global-x escapes: compressed, unfused, unclustered");
+    static_assert(!FULL || TOKR == 16 * MT || TOKR == 8, "FULL: bad TOKR");
 };
 
 template <int MT, int TOKR, int NT, int NWR, int WSK, int UPW, int NSTAGE, bool COMP, bool HL, int NACC, int CL,
@@ -429,6 +452,9 @@ sk_kernel(const __grid_constant__ CUtensorMap xmap, const uint8_t* __restrict__ 
           const uint8_t* __restrict__ rws, float* __restrict__ rpart, int* __restrict__ rcount,
           float* __restrict__ rout) {
     using C = SkCfg<MT, TOKR, NT, NWR, WSK, UPW, NSTAGE, COMP, HL, NACC, CL, FUSE>;
+    if constexpr (C::FULL) {
+        M = TOKR;
+    }
     constexpr int NW = C::NW, NC = C::NC, R = C::R, UPS = C::UPS, TU = C::TU, WBY = C::WBY, XBY = C::XBY;
     constexpr int SST = C::SST, TOKS = C::TOKS, RP = C::RP, CP = C::CP, NESC = C::NESC, CSZ = C::CSZ;
     constexpr int KST = UPS * 64, RUPW = C::RUPW, RWBY = C::RWBY;
@@ -525,7 +551,7 @@ sk_kernel(const __grid_constant__ CUtensorMap xmap, const uint8_t* __restrict__ 
             bulk_g2s(smem_u32(tab), ptab + (size_t)rb * tab_ints, tab_ints * 4, pbar);
         }
         for (int i = 0; i < NSTAGE; ++i) {
-            mbar_init(empty0 + 8 * i, NW + NESC);
+            mbar_init(empty0 + 8 * i, C::EMPTY_COUNT);
         }
         mbar_init(cbar, NESC > 0 ? NESC : 1);
         fence_mbar_init();
@@ -536,7 +562,7 @@ sk_kernel(const __grid_constant__ CUtensorMap xmap, const uint8_t* __restrict__ 
             // is ready before the first copy here.
             for (int i = 0; i < NSTAGE; ++i) {
                 mbar_init(full0 + 8 * i, 1);
-                mbar_init(empty0 + 8 * i, NW + NESC);
+                mbar_init(empty0 + 8 * i, C::EMPTY_COUNT);
             }
             mbar_init(qbar, 1);
             if (crank == 0) {
@@ -559,7 +585,7 @@ sk_kernel(const __grid_constant__ CUtensorMap xmap, const uint8_t* __restrict__ 
                 mbar_init(full0 + 8 * i, 1);
             }
             for (int i = 0; i < NSTAGE; ++i) {
-                mbar_init(empty0 + 8 * i, NW + NESC);
+                mbar_init(empty0 + 8 * i, C::EMPTY_COUNT);
             }
             mbar_init(cbar, NESC > 0 ? NESC : 1);
             fence_mbar_init();
@@ -616,7 +642,26 @@ sk_kernel(const __grid_constant__ CUtensorMap xmap, const uint8_t* __restrict__ 
             if (!__all_sync(0xffffffffu, mbar_wait<true>(pbar, 0, dead, diag, 2))) {
                 dead = true;
             }
-            const int cnt = dead ? 0 : tab[0];
+            const int cnt = (dead || C::ESCOFF) ? 0 : tab[0];
+            if constexpr (C::ESCG) {
+                // x is the kernel's input in global memory (written before launch, read-only
+                // here), so these reads need no ordering with the ring; rws carries its pointer.
+                const __nv_bfloat16* xg = reinterpret_cast<const __nv_bfloat16*>(rws);
+                const int kbeg = gs0 * KST, kend = (gs0 + nst) * KST;
+                for (int pe = 1 + ew; pe <= cnt; pe += NESC) {
+                    const int e0 = tab[2 * pe];
+                    const int kk = e0 & 0xFFFF;
+                    if (lane < M && kk >= kbeg && kk < kend) {
+                        cr[lane * CP + (e0 >> 16)] +=
+                            __int_as_float(tab[2 * pe + 1]) * __bfloat162float(xg[(size_t)lane * K + kk]);
+                    }
+                }
+                __syncwarp();
+                if (lane == 0) {
+                    mbar_arrive(cbar);
+                }
+                return;
+            }
             int pe = 1;
             for (int st = 0; st < nst_tot; ++st) {
                 const int slot = st % NSTAGE;
@@ -631,7 +676,28 @@ sk_kernel(const __grid_constant__ CUtensorMap xmap, const uint8_t* __restrict__ 
                     }
                 } else {
                     const uint32_t xs = sbase + slot * SST;
-                    while (pe <= cnt) {
+                    if constexpr (C::ESCFAST) {
+                        // Plain loads: the full-barrier wait above and the proxy fence below
+                        // are asm with memory clobbers, so nothing moves across them.
+                        const int2* te = reinterpret_cast<const int2*>(tab);
+                        const unsigned char* xg = gbase + (xs - sbase);
+                        while (pe <= cnt) {
+                            const int2 e = te[pe];
+                            const int kk = e.x & 0xFFFF;
+                            if (kk >= kend) {
+                                break;
+                            }
+                            if (lane < M) {
+                                const int kl = kk - kbeg, u = kl >> 6, kc = kl & 63;
+                                const uint32_t off = u * XU + lane * 128 + (((kc >> 3) ^ ((u * M + lane) & 7)) << 4)
+                                                     + (kc & 7) * 2;
+                                const float xv = __bfloat162float(*reinterpret_cast<const __nv_bfloat16*>(xg + off));
+                                cr[lane * CP + (e.x >> 16)] += __int_as_float(e.y) * xv;
+                            }
+                            ++pe;
+                        }
+                    }
+                    while (!C::ESCFAST && pe <= cnt) {
                         const int e0 = tab[2 * pe];
                         const int kk = e0 & 0xFFFF;
                         if (kk >= kend) {
@@ -681,9 +747,10 @@ sk_kernel(const __grid_constant__ CUtensorMap xmap, const uint8_t* __restrict__ 
             }
         }
     };
-    float acc[NACC][MT][NT][4];
+    constexpr int NA = C::NA;
+    float acc[NA][MT][NT][4];
 #pragma unroll
-    for (int c = 0; c < NACC; ++c) {
+    for (int c = 0; c < NA; ++c) {
 #pragma unroll
         for (int mt = 0; mt < MT; ++mt) {
 #pragma unroll
@@ -695,7 +762,10 @@ sk_kernel(const __grid_constant__ CUtensorMap xmap, const uint8_t* __restrict__ 
     bool dead = false;
     for (int st = 0; st < nst; ++st) {
         const int slot = st % NSTAGE;
-        if (!__all_sync(0xffffffffu, mbar_wait<false>(full0 + 8 * slot, (st / NSTAGE) & 1, dead, diag, 8))) {
+        if constexpr (C::NOWD) {
+            while (!mbar_test(full0 + 8 * slot, (st / NSTAGE) & 1)) {
+            }
+        } else if (!__all_sync(0xffffffffu, mbar_wait<false>(full0 + 8 * slot, (st / NSTAGE) & 1, dead, diag, 8))) {
             dead = true;
             break;
         }
@@ -750,9 +820,9 @@ sk_kernel(const __grid_constant__ CUtensorMap xmap, const uint8_t* __restrict__ 
 #pragma unroll
                     for (int nt = 0; nt < NT; ++nt) {
                         constexpr int HM = HL ? 2 : 1;
-                        mma_bf16(acc[((uu * 4 + j) * HM) % NACC][mt][nt], a[j][mt], b[nt][2 * j], b[nt][2 * j + 1]);
+                        mma_bf16(acc[((uu * 4 + j) * HM) % NA][mt][nt], a[j][mt], b[nt][2 * j], b[nt][2 * j + 1]);
                         if constexpr (HL) {
-                            mma_bf16(acc[((uu * 4 + j) * HM + 1) % NACC][mt][nt], a[j][mt], bl[nt][2 * j],
+                            mma_bf16(acc[((uu * 4 + j) * HM + 1) % NA][mt][nt], a[j][mt], bl[nt][2 * j],
                                      bl[nt][2 * j + 1]);
                         }
                     }
@@ -834,7 +904,7 @@ sk_kernel(const __grid_constant__ CUtensorMap xmap, const uint8_t* __restrict__ 
                 for (int e = 0; e < 4; ++e) {
                     v[e] = acc[0][mt][nt][e];
 #pragma unroll
-                    for (int c = 1; c < NACC; ++c) {
+                    for (int c = 1; c < NA; ++c) {
                         v[e] += acc[c][mt][nt][e];
                     }
                 }
@@ -863,7 +933,7 @@ sk_kernel(const __grid_constant__ CUtensorMap xmap, const uint8_t* __restrict__ 
             for (int e = 0; e < 4; ++e) {
                 v[e] = acc[0][mt][nt][e];
 #pragma unroll
-                for (int c = 1; c < NACC; ++c) {
+                for (int c = 1; c < NA; ++c) {
                     v[e] += acc[c][mt][nt][e];
                 }
             }
@@ -1027,6 +1097,13 @@ void launch_sk(const at::Tensor& ws, const at::Tensor& x, at::Tensor& out, const
     }
     TORCH_CHECK(smem <= 227 * 1024, "sk: shared memory over budget");
     const CUtensorMap xmap = make_xmap(x.data_ptr(), (uint64_t)M, (uint64_t)K, C::UPS);
+    if constexpr (C::FULL) {
+        TORCH_CHECK(M == TOKR, "sk: FULL configs need M == TOKR");
+    }
+    if constexpr (C::ESCG) {
+        TORCH_CHECK(x.is_contiguous(), "sk: global-x escapes need a contiguous x");
+        rws = reinterpret_cast<const uint8_t*>(x.data_ptr());
+    }
     const uint8_t* wsp = reinterpret_cast<const uint8_t*>(ws.data_ptr());
     OutT* op = reinterpret_cast<OutT*>(out.data_ptr());
     const int32_t* tp = COMP ? ptab.data_ptr<int32_t>() : nullptr;
@@ -1782,7 +1859,7 @@ WD_POL = {nm for nm in WD_GEOM if nm.endswith("h")}
 # packed router weights (router_pack()).
 WV_NOPROD, WV_PACK, WV_PROMO64, WV_PUSH, WV_EARLY, WV_TAILSYNC = 1, 2, 4, 8, 32, 128
 WV_NOSLEEP, WV_NOEMPTY, WV_XA, WV_TAILSPLIT, WV_TAILRLX = 256, 512, 1024, 2048, 4096
-WV_PGROUP, WV_ACQCL, WV_SCALAR = 8192, 16384, 32768
+WV_PGROUP, WV_ACQCL, WV_SCALAR, WV_GRED = 8192, 16384, 32768, 65536
 # Packed hi/lo box, 64 B promotion, push reduction and early prologue (KLUE) on the two router
 # picks; paired against the pick in a91f2152d8974458 / ba85985b8c5e4969: -0.77 / -0.90 us at
 # m = 128, -0.90 / -0.90 at 256, the push reduction alone -0.46 / -0.54 and -0.48 / -0.66.
@@ -2487,6 +2564,24 @@ constexpr int WV_TAILRLX = 4096;
 constexpr int WV_PGROUP = 8192;
 constexpr int WV_ACQCL = 16384;
 constexpr int WV_SCALAR = 32768;
+// The K split without a cluster: CTAs of one output tile add their FP32 partials into a
+// zero-kept global accumulator with red.add, and the last of them (a per-tile counter) copies
+// the tile to out and zeroes it again. No co-residency is needed, so the split can exceed the
+// 8-CTA portable cluster and the grid can exceed one wave. Mechanism of the rk router in
+// alygg77's kernels/muse_bf16_proj.py, re-implemented here with a last-arriver join instead of
+// its grid-wide barrier; ordering as CUDA's threadFenceReduction sample (docs/proj-port-guide.md,
+// "Global split-K join").
+constexpr int WV_GRED = 65536;
+constexpr int GRED_TOK = 256;
+constexpr int GRED_N = 256;
+constexpr int GRED_TILES = 64;
+__device__ float wd_gred_acc[GRED_TOK * GRED_N];
+__device__ unsigned int wd_gred_cnt[GRED_TILES];
+
+__device__ __forceinline__ void red_add_v4(float* p, float4 v) {
+    asm volatile("red.relaxed.gpu.global.add.v4.f32 [%0], {%1, %2, %3, %4};"
+                 :: "l"(p), "f"(v.x), "f"(v.y), "f"(v.z), "f"(v.w) : "memory");
+}
 
 __device__ __forceinline__ void mbar_spin_cluster(uint32_t bar, uint32_t parity) {
     asm volatile("{\n.reg .pred p;\nwd_spin:\nmbarrier.try_wait.parity.acquire.cluster.shared::cta.b64 p, [%0], %1;\n"
@@ -2523,6 +2618,9 @@ struct WdCfg {
     static constexpr int RS = BM + 4;
     static constexpr int PBY = BN * RS * 4;
     static constexpr bool PGROUP = (VAR & WV_PGROUP) != 0;
+    static constexpr bool GRED = (VAR & WV_GRED) != 0;
+    // Cluster size actually launched: GRED splits K without one.
+    static constexpr int LCL = GRED ? 1 : CLK * CLR;
     static constexpr int THREADS = NCT + (NOPROD ? 0 : (PGROUP ? 128 : 32));
     static constexpr int SMEM = 1024 + RING + 16 * NST + (PUSH ? 16 + RECV : 0);
     static_assert(!PUSH || (CLR == 1 && CLK > 1 && TPR % 8 == 0 && HL), "wd: push needs CLR 1, 8-token owners, f32 out");
@@ -2535,7 +2633,8 @@ struct WdCfg {
     // Each multicast slice must start on a 1024-byte swizzle atom so the slices tile exactly
     // like one box.
     static_assert(BN % CLR == 0 && XS % 8 == 0, "wd: bad x slice");
-    static_assert(CL <= 16, "wd: cluster too large");
+    static_assert(LCL <= 16, "wd: cluster too large");
+    static_assert(!GRED || (HL && CLR == 1 && !PUSH && !NOPROD), "wd: GRED is built for the f32 router only");
     static_assert(SMEM <= 227 * 1024, "wd: shared memory over budget");
 };
 
@@ -2572,7 +2671,7 @@ wd_kernel(const __grid_constant__ CUtensorMap wmap, const __grid_constant__ CUte
     const int tid = threadIdx.x;
     const int warp = tid >> 5;
     const int lane = tid & 31;
-    const int rank = CL > 1 ? (int)wd_cluster_rank() : 0;
+    const int rank = C::GRED ? (int)(blockIdx.x % CL) : (CL > 1 ? (int)wd_cluster_rank() : 0);
     const int rk = rank % CLK;
     const int rr = rank / CLK;
     const int rowbase = ((int)(blockIdx.x / CL) * CLR + rr) * C::BM;
@@ -2927,10 +3026,47 @@ wd_kernel(const __grid_constant__ CUtensorMap wmap, const __grid_constant__ CUte
 
     // Also keeps a CTA's ring alive until every peer's multicast into it and every remote
     // arrive on it has landed: all of them precede the peers' arrival here.
-    if constexpr (CL > 1) {
+    if constexpr (CL > 1 && !C::GRED) {
         wd_cluster_sync();
     } else {
         __syncthreads();
+    }
+
+    if constexpr (C::GRED) {
+        constexpr int C4G = C::BM / 4;
+        __shared__ int gred_last;
+        for (int it = tid; it < ((ABL & 2) ? 0 : BN * C4G); it += C::THREADS) {
+            const int t = it / C4G;
+            const int c4 = it % C4G;
+            if (tok0 + t < M) {
+                red_add_v4(wd_gred_acc + (size_t)(tok0 + t) * N + rowbase + 4 * c4,
+                           wd_ld_local(sbase + (uint32_t)(t * C::RS + 4 * c4) * 4u));
+            }
+        }
+        // Each thread's adds are ordered before thread 0's counter increment (fence, then CTA
+        // barrier); the CTA that takes the counter to CLK - 1 sees every add of the tile after
+        // its own fence. atomicInc wraps the counter back to 0 for the next launch.
+        __threadfence();
+        __syncthreads();
+        const int tile = (int)blockIdx.y * (N / C::BM) + rowbase / C::BM;
+        if (tid == 0) {
+            gred_last = atomicInc(&wd_gred_cnt[tile], (unsigned)(CLK - 1)) == (unsigned)(CLK - 1);
+        }
+        __syncthreads();
+        if (gred_last) {
+            __threadfence();
+            for (int it = tid; it < BN * C4G; it += C::THREADS) {
+                const int t = it / C4G;
+                const int c4 = it % C4G;
+                if (tok0 + t < M) {
+                    float4* a = reinterpret_cast<float4*>(wd_gred_acc + (size_t)(tok0 + t) * N + rowbase + 4 * c4);
+                    const float4 v = __ldcg(a);
+                    __stcg(a, make_float4(0.f, 0.f, 0.f, 0.f));
+                    *reinterpret_cast<float4*>(out + (size_t)(tok0 + t) * N + rowbase + 4 * c4) = v;
+                }
+            }
+        }
+        return;
     }
 
     const int tb = rk * BN / CLK;
@@ -2995,7 +3131,7 @@ void launch_wd(const at::Tensor& w, const at::Tensor& x, at::Tensor& out, int N,
     static bool configured = false;
     if (!configured) {
         C10_CUDA_CHECK(cudaFuncSetAttribute(kern, cudaFuncAttributeMaxDynamicSharedMemorySize, C::SMEM));
-        if (C::CL > 8) {
+        if (C::LCL > 8) {
             C10_CUDA_CHECK(cudaFuncSetAttribute(kern, cudaFuncAttributeNonPortableClusterSizeAllowed, 1));
         }
         configured = true;
@@ -3022,17 +3158,21 @@ void launch_wd(const at::Tensor& w, const at::Tensor& x, at::Tensor& out, int N,
     const CUtensorMap xmap = make_2d_map(x.data_ptr(), (uint64_t)M, (uint64_t)K, C::XS, promo);
     OutT* op = reinterpret_cast<OutT*>(out.data_ptr());
     cudaLaunchConfig_t lc = {};
+    if constexpr (C::GRED) {
+        TORCH_CHECK(M <= GRED_TOK && N <= GRED_N && (N / C::BM) * ((M + BN - 1) / BN) <= GRED_TILES,
+                    "wd: GRED workspace too small for this shape");
+    }
     lc.gridDim = dim3((unsigned)(N / (C::BM * CLR) * C::CL), (unsigned)((M + BN - 1) / BN));
     lc.blockDim = dim3(C::THREADS);
     lc.dynamicSmemBytes = C::SMEM;
     lc.stream = at::cuda::getCurrentCUDAStream();
     cudaLaunchAttribute attr[1];
     attr[0].id = cudaLaunchAttributeClusterDimension;
-    attr[0].val.clusterDim.x = C::CL;
+    attr[0].val.clusterDim.x = C::LCL;
     attr[0].val.clusterDim.y = 1;
     attr[0].val.clusterDim.z = 1;
     lc.attrs = attr;
-    lc.numAttrs = C::CL > 1 ? 1 : 0;
+    lc.numAttrs = C::LCL > 1 ? 1 : 0;
     C10_CUDA_CHECK(cudaLaunchKernelEx(&lc, kern, wmap, xmap, op, M, N, K, diag));
 }
 #endif
