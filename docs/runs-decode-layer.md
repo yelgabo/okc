@@ -472,6 +472,160 @@ SUMMARY now also prints the SKP self-test count with the layers whose cgemv pass
 fastest SKP candidates per layer at m = 1 and 8, and the MoE PDL self-test line, next to the
 existing stage flags, MoE picks per token count, front picks, attention plans and failures.
 
+## F-LAYER-0 (Family F donor comparison), 2026-10-31 UTC
+
+Measurement only. User decision of 2026-10-31 (relayed by the coordinator): Family F is for
+learning; donor files and donor code are never submitted, and a donor win is re-implemented in
+our own code with attribution in comments. The bench files below carried the donor only inside
+check runs; no donor source is in this repository.
+
+### Arms and pins
+
+| arm | file | SHA256 |
+|---|---|---|
+| R1 = cand, R2 = cand2 | our board entry 3fbb3ad027e84c6b, `muse_decode_layer/submission.py` at 2cee446 | b9c23bda16bb9d6311f025062e415841c67b16284737172badaa190fdc506a49 as read; sent comment-stripped (whole-line comments only, `strip_comments`), e88797b0e18e3646d6b98695493935ae968f3df5d70331aa2ea265358a848b64 |
+| D1 = donor, D2 = donor2 | alygg77/okc-muse-spark-kernels at 6cae49a639ee6d14b929a5fd4a63c627f96d7dc0, `kernels/muse_decode_layer.py` (Apache-2.0, NOTICE credits vjeux f35a41e and Matsvei) | 8f17613bafb2369152f2739638bf8f6dfb193f6a79dbad3e6d25795cf1ebaf4a as read and as sent (byte-identical: no patch, no strip); equals the donor results.json `kernel_sha256` of its receipt a61afb9687f14eff (2.2058x, rank 40 at 2026-10-29 20:54 UTC) |
+
+Bench builder: `tools/dl_make_bench_pub.py` (at bc10cb1) passed through a scratchpad patch script
+(`make_donor_tool.py`, 12 asserted string edits, not committed) that adds `--other=donor`:
+the donor travels exact (lzma + base85, exec'd from a string as the pub arm is); its extensions
+(`_att7`, the five `_moe*` builds, `bfp__get_ext`, `_graft_glue_module`, `_graft_b2_module`,
+`_sl_cluster_module`, `_de_ext`, `_router_fp32_ext`, `_gle_ext`, `_gle_b1x_module`, and
+`_moe(T, state)` for T in 1, 8, 16, 32, 128, 256) build on the bench's import threads with
+`_MA_SFX` preset to the PRMT suffix, as the pub arm does; ABPOL prints each side's own picks;
+`--pad-seed` allocates a seeded 0-32 MiB pad (512-byte steps) before every arm's prepare(),
+imitating the judge's `prepare_pad`. Each arm has its own prepare() (`--dup=own`): D2's tuner
+ran independently (its picks differ from D1's at T = 64 in run 1 and at T = 128 in run 2) but
+shares the donor module's per-device scratch (`_WS7`, `_CL7`, lines 3721-3737, 3841-3856) and
+compiled extensions, so the donor null is weaker than the incumbent's on allocation layout. D2's
+prepare took 1 s against D1's 16 s (Triton JIT and module caches warm). Both benches: all six
+loads (12 cases), 12 rounds x 2 inputs (busiest / second-busiest EP range), cold L2 (256 MB
+memset before every replay), graph replays in a seeded random order per round, every arm on its
+own copy of the inputs, ABCHECK against the restated judge checks for every arm and input.
+
+| run | job | bench SHA256 (922,559 bytes) | seeds | order / prep / pad seed | prepare order | pads (MiB) | judge (cand path) |
+|---|---|---|---|---|---|---|---|
+| 1 | 20abe6291eb04ed6 (check) | 664acccb... (benchF0a) | 410001+ | 71 / 72 / 73 | cand cand2 donor donor2 | 21.9 / 2.3 / 16.7 / 16.7 | 1.995x, passed |
+| 2 | 00607fc6f8c84c77 (check) | 304a4117... (benchF0b) | 420001+ | 81 / 84 / 89 | cand2 donor donor2 cand | 15.0 / 15.7 / 26.9 / 3.7 | 1.994x, passed |
+
+ABCHK: every arm 24 of 24 PASS in both runs (48 judge-rule checks per arm). ABEND at 55 s in
+both; no ABSTOP. Logs, JSON and profiles: `muse_decode_layer/profiles/benchF0a.20abe6291eb04ed6.*`,
+`benchF0b.00607fc6f8c84c77.*`. The seed ranges were unused in this log before.
+
+### Per case (us, medians, n = 24 per arm)
+
+| case | run 1 R1 / R2 / D1 / D2 | run 1 paired D - R (four cross) | run 2 R1 / R2 / D1 / D2 | run 2 paired D - R (four cross) |
+|---|---|---|---|---|
+| d1s | 87.6 / 92.8 / 83.0 / 81.6 | -6.2 -6.3 -10.9 -11.2 | 84.3 / 79.0 / 73.6 / 74.4 | -10.6 -10.7 -6.2 -5.8 |
+| d1f | 95.2 / 99.6 / 88.4 / 88.1 | -8.4 -8.3 -12.9 -13.2 | 100.2 / 96.5 / 87.0 / 86.7 | -13.6 -13.5 -9.0 -9.0 |
+| v1s | 133.0 / 132.8 / 118.9 / 120.4 | -14.1 -13.2 -12.7 -11.6 | 136.7 / 135.5 / 123.0 / 122.8 | -13.2 -14.4 -12.6 -12.8 |
+| v1f | 128.8 / 128.4 / 114.4 / 114.3 | -14.3 -14.4 -13.7 -14.1 | 125.9 / 126.3 / 110.7 / 110.6 | -15.2 -15.8 -14.9 -15.1 |
+| d16s | 153.4 / 152.5 / 140.6 / 140.5 | -12.8 -12.3 -12.9 -12.1 | 146.1 / 145.6 / 133.3 / 133.0 | -12.1 -13.6 -11.9 -12.6 |
+| d16f | 231.8 / 232.5 / 219.8 / 220.3 | -13.4 -13.2 -12.7 -12.3 | 233.3 / 231.6 / 217.9 / 218.3 | -14.2 -13.7 -13.3 -12.8 |
+| d32s | 174.4 / 171.5 / 153.6 / 154.6 | -20.4 -20.2 -18.5 -18.0 | 174.6 / 175.3 / 154.8 / 155.3 | -19.3 -19.4 -19.6 -19.7 |
+| d32f | 341.8 / 342.8 / 320.6 / 322.0 | -21.8 -21.0 -21.6 -21.6 | 343.5 / 344.0 / 321.8 / 322.5 | -22.4 -23.0 -22.4 -22.1 |
+| v16s | 295.0 / 293.3 / 272.9 / 275.6 | -20.4 -20.9 -20.3 -20.8 | 286.2 / 279.1 / 262.5 / 264.0 | -20.9 -21.1 -16.0 -16.2 |
+| v16f | 383.1 / 379.9 / 355.2 / 354.6 | -24.7 -26.8 -23.9 -25.0 | 394.7 / 388.9 / 372.7 / 372.4 | -22.5 -20.3 -17.0 -12.7 |
+| v32s | 362.3 / 362.0 / 330.4 / 328.2 | -34.8 -33.5 -32.8 -32.6 | 367.0 / 362.2 / 328.8 / 328.8 | -36.2 -37.5 -32.5 -33.7 |
+| v32f | 515.1 / 512.5 / 492.9 / 495.5 | -19.4 -20.3 -17.2 -16.6 | 521.6 / 514.1 / 494.4 / 490.2 | -27.7 -30.8 -22.4 -24.1 |
+
+Cross order: D1-R1, D2-R1, D1-R2, D2-R2. Every one of the 96 paired medians is negative.
+
+### Weighted layer score (load C = 46 t_sliding + 16 t_full; score ratio = geometric mean of the six load-time ratios R / D)
+
+| load | run 1 pooled R/D | run 1 nulls R2/R1, D2/D1 | run 2 pooled R/D | run 2 nulls |
+|---|---:|---|---:|---|
+| d1 | 1.0976 | 1.0563, 0.9870 | 1.1116 | 0.9445, 1.0059 |
+| v1 | 1.1144 | 0.9982, 1.0090 | 1.1154 | 0.9942, 0.9983 |
+| d16 | 1.0763 | 0.9971, 1.0003 | 1.0849 | 0.9952, 0.9995 |
+| d32 | 1.0981 | 0.9913, 1.0056 | 1.1027 | 1.0030, 1.0025 |
+| v16 | 1.0734 | 0.9935, 1.0061 | 1.0664 | 0.9786, 1.0036 |
+| v32 | 1.0792 | 0.9978, 0.9975 | 1.0893 | 0.9865, 0.9969 |
+| **six loads** | **1.0897** (cross 1.0863-1.0932) | 1.0054, 1.0009 | **1.0949** (cross 1.0852-1.1047) | 0.9835, 1.0011 |
+
+ABDECIDE "donor faster" in both runs: all four cross ratios above 1 and |log pooled| (0.0859,
+0.0907) above twice the larger null (0.0054, 0.0167). The large R null at d1 in both runs (5.6%,
+5.5%) is the known first-prepared/last-prepared d1 arm effect (docs/steering/2026-10-30-layer-bench-arm-bias.md),
+which the four-way pooling covers. Projected donor layer score if the ratio carried to the judge:
+2.014 x 1.09 = about 2.19-2.21 (hypothesis; the donor's own receipt reads 2.2058).
+
+### Where the donor's microseconds come from (ABK, run 2, per-kernel median sums per step)
+
+The bench's 16 KB log tail kept the ABK tables but lost most ABKN code-to-name lines (only
+K81 `_graft_row_boundary`, K82 an nvjet cuBLASLt tile, K83 `_graft_route` survived), so the
+kernel identities below come from launch order in the donor source and ours and are inferred,
+not printed. Treat the stage split as provisional; the totals are measured.
+
+| load | ours span / sum | donor span / sum | MoE ours / donor | front (o, boundary 1, pooler, router, route) ours / donor | qkv ours / donor |
+|---|---|---|---|---|---|
+| d1s | 85.9 / 85.7 | 74.0 / 80.0 | 24.9 / 25.3 | 37.7 / 30.4 | 10.8 / 11.3 |
+| v1s | 134.3 / 130.5 | 119.7 / 129.5 | 66.2 / 68.1 | 36.8 / 35.4 | 12.6 / 10.9 |
+| d16s | 147.6 / 144.2 | 134.7 / 143.4 | 67.1 / 68.9 | similar | 12.8 / 11.5 |
+| d32s | 181.5 / 179.0 | 158.8 / 167.9 | 96.1 / 84.8 | similar | 14.0 / 12.7 |
+| v16s | 273.5 / 267.7 | 248.8 / 244.5 | 164.3 / 143.1 | 31.0 / 39.4 | 16.6 / 19.8 |
+| v32s | 359.1 / 353.8 | 324.5 / 320.5 | 220.9 / 199.3 | 22.7 / 31.1 (glue only) | 25.8 / 23.1 |
+
+Mechanisms, each to be re-implemented by its owner (decision column per the user's rule):
+
+| # | mechanism | stage | where it pays (measured) | donor file:line | decision |
+|---|---|---|---|---|---|
+| M-A | Routed experts at 32 / 128 / 256 tokens: the donor's persistent WGS MoE build with the PRMT block-scale decode and the KPERM3 K-permuted weight copy (scale pairs decoded once per stage), and at 17-32 tokens a separate `-DOKC_B4FIN=1` finish build | MoE variant | MoE kernel -11.3 us at d32s, -21.2 at v16s, -21.6 at v32s (similar on full layers); ties or loses 1.8-1.9 us at T = 8 / 16 | `_moe(M, state)` dispatch 13097-13116 (b4 key for 16 < M <= 32), `_main_defines` 6905, `_wgs_on` 6911, `_kperm_src` / `_kperm_codes` / `_kperm_rows` 6851-6880, `_wgs_copy` 6882, `_ma_prepare` 9883 | re-implement mechanism M-A (MoE owner; the standalone F-MOE-0 comparison should attribute it) |
+| M-B | PDL chaining at T <= 32 across every glue and projection launch, each kernel issuing its first weight stages before `griddepcontrol.wait` and triggering dependents after its main loop, so the step's kernels overlap | fusion / PDL chaining | donor sum - span = 6.0 (d1s), 9.8 (v1s), 8.7 (d16s), 9.1 (d32s) us; ours is 0 or negative (span above sum by up to 3.8 us at v1s) | `PDL = True`, `PDL_MAX_T = 32`, `_pdl` 87-96; `BFP_PDL_N = 2`, `_bfp_pdl` 9852-9858; sk2 pre-wait weight stream 7853-7858, wait 7885, trigger 8072; Triton glue `launch_pdl=True` with `gdc_launch` / `gdc_wait` (e.g. 9963-9965, 11841-11846) | re-implement mechanism M-B (our M1 / PORT_SK_PDL family is the same idea on fewer kernels; the donor result says the whole-chain version is worth about 6-10 us per small step) |
+| M-C | T = 1 front by deferred normalization: the o projection's epilogue forms boundary 1 (alpha s + beta P) and writes the router input in FP32 plus the pooler input in BF16 and per-CTA partial sums; one fused pooler + FP32-router sk2 launch; a route kernel that also forms the residual carry | front / norm, fusion | front 37.7 -> 30.4 us at d1s (inferred mapping) | `GLE_T`, `GLE_FRT`, `GLE_RC` and design comment 13227-13241; `_gle_source` 13246; `_gle_route` 13577; `_gle_frt` 13651; `_gle_after_attention` 13690 | re-implement mechanism M-C only with the ordering repair below (finding E2) |
+| M-D | 256-token QKV through a pinned cuBLASLt plan | projection route | qkv -2.7 us at v32s; +3.2 at v16s | `_GRAFT_QKV256` 11986, `_graft_lt_plan` 11992 | inconclusive (mixed sign) |
+| - | v16 / v32 boundaries (`_graft_row_boundary` x2, 13.9 us each at v32s) | front / norm | donor slower by about 8 us of glue at v16s / v32s | 11786 | keep ours |
+| - | attention | attention plan | q_len 8 sliding: donor 8.2 against ours 6.9 at v1s; other cases within 1.5 us | `_decode_attention7` 11051 | keep ours |
+
+### Eligibility review (static, bounded; not a complete ordering audit of the 13,887-line file)
+
+- E1, precision, q_len 8 attention, kv_scale other than 1 (open). The donor's own comment at
+  lines 11136-11137 records that its q_len 8 attention path "rounds coarser than FA3" on the
+  kv_scale = 1/64 test (1.41x SGLang's error), and says FA3 keeps every q_len 8 shape; the code
+  at 11143 (`agent_attn = state["att_ok"] and _supported7(cfg) and _att_fits7(data, cfg)`)
+  sends every supported q_len 8 shape to that kernel, so the comment is stale against the code.
+  TASK.md allows FP8 E4M3 queries "and no coarser". Scored cases have kv_scale 1, so the timing
+  is unaffected; we did not reproduce the claim. Not a mechanism we would copy (M-A to M-C do
+  not touch attention).
+- E2, asynchronous ordering, T = 1 `_gle_route` (blocks M-C as written). Every program of
+  `_gle_route` (13577-13650) reads `PART` (the o epilogue's partial sums) before `_gdc_wait()`,
+  and the carry programs (`kind > PARTS`) read `PO` (the o output) and `PART` and never wait.
+  The kernel is a PDL secondary of the fused pooler `gle_pr`, not of `gle_o`, which wrote those
+  buffers. In practice `gle_pr` triggers dependents only after its own wait (sk2 source 7885
+  before 8072), so `gle_o` has completed when `_gle_route` starts; but the PTX ISA makes a
+  prerequisite grid's memory visible only to a grid that executes `griddepcontrol.wait`, and only
+  for its own prerequisites. The comment's safety argument (13581-13582: "the FP32 router is a
+  plain launch") describes the `GLE_FRT = False` path, not the shipped `GLE_FRT = True` one.
+  Repair for a re-implementation: read `PART` and `PO` after the wait in every program,
+  including the carry programs, and measure that version.
+- E3, lifetimes (low). `_workspace7` (3725-3737) and `_cluster_bufs7` (3844-3856) replace their
+  module-level buffers when a larger shape arrives, which frees memory an earlier captured graph
+  may still reference. `_attn_selftest` (11090) sizes them for the scored shapes, so only an
+  unscored larger shape after a capture could hit it. Do not copy the grow-on-demand pattern.
+- E4, data-derived caching: none found. Module-level caches hold extensions, per-device scratch
+  and the T = 1 norm-weight pointer `_GLE_W_CUR` (13866, set from state weights per call);
+  `fused_part` (9458-9462, 13660-13662) is per-state scratch allocated on first use in prepare's
+  tuner. The compose tuner (`_policy_parent_prepare` wrapper, ~12315-12347) times synthetic
+  inputs only; `_tune` restores the router bias it perturbs (13075-13080).
+- E5, router precision: conforming as read. T <= 8: FP32 GEMV on FP32 weights with the FP32
+  router input (`_router_fp32_gemv`, `_gle_frt` with `x32` and `w32`); T = 16 / 32: BF16 hi + lo
+  router pair with FP32 accumulation in the fused sk2 (9449-9455); T = 128 / 256: hi + lo rows of
+  `st["pr"]` (10893) summed in FP32 by `_graft_route` (11861; also 12768, 12839). TASK.md allows hi + lo above 8
+  tokens.
+- E6, PDL completion: the Triton glue kernels (`_gemm_splitk`, `_qk_prep`, `_graft_route`) have
+  no early return before their wait; sk2 waits in every thread (7885). The CUDA attention q8
+  staging fences (`fence_proxy_async` after the generic q8s stores, 2002). Not audited: the
+  attention and MoE CUDA sources in full (inherited from vjeux and the donor's MoE entry).
+
+### Decision
+
+Our release stays the layer entry, and nothing donor-derived is a submission candidate. The
+donor layer is faster by 8.97% / 9.49% pooled in two independent same-process runs, beyond both
+nulls, on every case. Re-implement M-A (MoE at 32-256 tokens) and M-B (whole-chain PDL with
+pre-wait weight streaming) in our own code with attribution comments; M-C only with the E2
+ordering repair; M-D inconclusive; keep our boundaries at v16 / v32 and our attention. The
+per-stage attribution is inferred from launch order because the log tail lost the kernel names;
+a bench that prints ABKN first (or names the kernels in ABK) would make it a measurement.
+
 ## Ruled out
 
 The losers of the W0 checks (PDL across our own chain, the two L2 prefetch forms, the hi/lo mma router against the one-GEMM front) are in `docs/ruled-out.md` under muse_decode_layer.

@@ -97,6 +97,175 @@ SGLang with its 95% interval. Profiles and logs are in `muse_moe_w4a16/profiles/
 | 2026-10-30 | 098949b28fe84bd1 (check, bench file from tools/moe_make_bench_ab.py --base=51 --sizes=32,128,256 --routings=layer,std --seeds=83,84,85,86,87,88 o72=72, not committed) | 86a633e | diagnostic of mode 72 (stream-K phase A with cut-unit fixups, mode 16's partition, on 51's stage loop, epilogue and phase B claims) with its stamped twin 73 | 2.193x (2.160-2.226) | passed; spin flags 0. 72 minus 51 +13.5 / +9.4 / +12.6 / +7.1 / +6.6 / +9.2 us at 32 / 128 / 256 (layer / std), 0 of 6 seeds lower in all six cells; 73's A end spread 18.9 / 16.9 at 256 against 55's 10.0 / 8.8; fixups 9.4-10.9 us per CTA at 128 / 256 (ABFIX). Diagnostic rule failed, no gate run; docs/ruled-out.md |
 | 2026-10-30 | eaa881a934aa471e (check, bench file from tools/moe_make_bench_ab.py --base=51 --sizes=32,128,256 --routings=layer,std --seeds=95,96,97,98,99,100 o74=74, not committed) | 5f35018 | diagnostic of mode 74 (72 with a designated-finisher fixup; 75 stamped); the build had fast_silu ending at 73 (review finding after the check), so 74 ran the slow SiLU, and its serial setup designation cost about 3 us | 2.202x (2.169-2.235) | 74 minus 51, us: +8.2 / +9.0 at 32, +8.3 / +7.2 at 128, +2.1 / +3.8 at 256 (layer / std; 0, 0, 0, 0, 0, 1 of 6 lower); public -0.9 to -19.1. Fixups 3.7-4.0 us per CTA (72: 8.7-10.9), 1.7-1.9 us per counting share, finisher 1.9-2.2 incl. 0.8-0.9 waiting; A end spread 6.7-7.2 at 128 (55: 11.4-14.0, public 6.8). Rule failed for this build; corrected build gets its own rule (docs section "Designated finisher for stream-K phase A") |
 | 2026-10-30 | e02f60fec94f45cb (scored run submitted by the coordinator, bench file from tools/moe_make_bench_ab.py --nopub=1 --base=51 --sizes=32,128,256 --routings=layer,std --seeds=107,108,109,110,111,112 o74=74, no public code, judged path the board dispatch, not committed) | 4187b8b | corrected mode 74 (fast SiLU, lane-parallel designation) | 2.197x (2.164-2.230) | 74 minus 51, us: +7.9 / +7.6 at 32, +4.6 / +7.4 at 128, +2.0 / +4.1 at 256 (layer / std; 0, 0, 0, 1, 1, 1 of 6 lower). A end spread 6.6-8.3 at 128 / 256 against 55's 10.9-19.5; fixups 3.9-4.5 us per CTA; route + setup still +3.4-3.6 us over 55. Rule failed; no gate; family parked |
+| 2026-10-31 | 40b8c798289a4258 (check; F-MOE-0 bench: release ec565a7 byte for byte + the exact donor file lzma-carried, not committed) | ec565a7 (release) | Family F F0: R1/R2 (two release prepares) against D1/D2 (two prepares of alygg77 muse_moe_w4a16.py at 6cae49a, SHA256 b3307089...), std seeds 501-512, layer 521-526, pad/off64 541-544, order seed 8101 | 2.195x (2.163-2.228), the release's judged path | passed; 0 output failures, fresh-input replay ok. Score D/R pooled 1.0387 (nulls 0.9996 / 0.9993, D faster); per load R/D 0.960 / 1.013 / 1.006 / 1.060 / 1.079 / 1.120 at 1 / 8 / 16 / 32 / 128 / 256. Section "F-MOE-0 (Family F donor comparison)" |
+| 2026-10-31 | 218ff300de7d4c22 (check; F-MOE-0 confirmation, same writer, not committed) | ec565a7 (release) | as 40b8c798289a4258 on std 601-612, layer 621-626, pad/off64 641-644, order seed 9203 | 2.194x (2.161-2.227), the release's judged path | passed; 0 failures. Score D/R pooled 1.0297 (nulls 1.0017 / 0.9977, D faster); per load 0.964 / 1.014 / 1.004 / 1.010 / 1.078 / 1.116. Decision per load: keep ours at 1, re-implement TINY2 at 8, inconclusive at 16, re-implement WGS (with proxy fences) at 32 / 128 / 256 |
+
+## F-MOE-0 (Family F donor comparison), 2026-10-31 UTC (2026-10-30 PDT)
+
+Question (docs/steering/2026-10-30-family-f-donor-baseline.md, track F-MOE): is the complete
+alygg77 standalone MoE file faster than our frozen release under matched controls, and if so,
+on which token counts and through which mechanism? User decision relayed by the coordinator on
+2026-10-31: Family F is measurement and learning only. A donor win means "re-implement
+mechanism X in our own code, with attribution in comments"; donor code is never submitted and
+F0 / F2 are not submission candidates. Both runs below are checks; nothing was submitted, and the
+judged path of each check was the release file itself.
+
+### Files and provenance
+
+| item | value |
+|---|---|
+| donor | `alygg77/okc-muse-spark-kernels` at `6cae49a639ee6d14b929a5fd4a63c627f96d7dc0`, `kernels/muse_moe_w4a16.py`, 326,062 bytes, SHA256 `b33070898927b7b92df6c7a2515f9c02dd12723c43ca63682fa164e915dd4281` |
+| donor receipt | its `results.json` maps that exact SHA256 (MATCH) to job `e1bcad5a55cd4a29`, 2.4015x, rank 41 read at 2026-10-29 20:54 UTC (archived, not re-verified) |
+| donor license | Apache-2.0 (LICENSE, NOTICE): vjeux/okc-2026 at f35a41e is the base; the per-thread CUDA-context bind helper follows Matsvei's (kernarc 'matvey') posted code. Any re-implementation keeps that attribution in comments |
+| release (control) | `git show ec565a7:muse_moe_w4a16/submission.py`, 235,700 bytes, SHA256 `b35d321730f67b8157eef0683011b118bf3644dc5e9602ee29d823d8056c4e14`; scored run abe7651dbaa44458 (2.216x). Its judge content hash `084911f39cdd77d1...` equals that of check b50351288b504e81, which the run table records as ec565a7 |
+| bench | the release file byte for byte, then a block that carries the donor file lzma-compressed and base85-encoded, checks its SHA256 at run time (F0PIN MATCH in both runs), and execs it unchanged into its own module. No donor line was patched: its `import threading` / `ctypes` context bind is inside the blob and the judge's static check passed. Writer: scratchpad `fmoe/make_f0_bench.py` (not committed; no donor code in the tree) |
+
+### Method
+
+- Arms: R1, R2 = two `prepare()` calls of the release; D1, D2 = two `prepare()` calls of the
+  donor. Each prepare allocates its own weights copy and scratch; only compiled extensions are
+  shared within a side. Prepare order seeded (run 1: R2, R1, D2, D1; run 2: R1, D2, D1, R2);
+  the first prepare of each side builds its extensions (150 s release, 165-169 s donor). Same weights for all arms: nvfp4.random_weights restated (log-normal
+  block scales clamped to [8, 448], as the judge's), 32 local experts, seed 5252.
+- Inputs: every arm gets its own copy of the same input values. std = reference.py's
+  generate_input (the scored distribution); layer = the layer's judge routing restated (router
+  seed 8, mean busiest-expert miss 3.0%).
+- Timing: CUDA graph replay after a 256 MB L2 flush, median of 20 per (arm, seed), arm order per
+  seed a seeded rotation of a seeded permutation, reversed every four seeds (each arm in each
+  position equally often over 12 seeds).
+- Held-out seeds (unused before in this file): run 1 std 501-512, layer 521-526, robustness
+  541-544, order seed 8101; run 2 std 601-612, layer 621-626, robustness 641-644, order seed
+  9203.
+- Robustness (not used to pick anything): "pad" puts a seeded 4-252 MB allocation before each
+  arm's input copy; "off64" makes each input tensor a view at element offset 64.
+- Correctness: every timed graph's own output after its replays against the FP32 reference with
+  the judge's rules (1.5% relative L2, rows within 5x, finite): 0 failures in both runs. Fresh
+  input replay: capture on one input, copy another input into the captured buffers, replay,
+  check against the second input's reference: ok for all four arms at all six sizes in both
+  runs.
+- Score: per arm, geometric mean over the six loads of receipt abe7651dbaa44458's
+  overhead-subtracted SGLang time over (the arm's bench median minus 4.1 us of replay
+  overhead). Bench medians run a few us above the judge's, so the absolute scores sit below the
+  board; the ratios between arms are the result. Decision rule (as tools/dl_make_bench_pub.py):
+  all four cross ratios on one side of 1 and |log pooled| above twice the larger |log null|.
+
+### Selected policies (identical in both runs and in both copies of each side)
+
+| tokens | release (R1 = R2) | donor build (D1 = D2; scales PRMT-exact) | donor dispatch |
+|---|---|---|---|
+| 1 | sk8w3s | TINY | donor:3377 (M <= TINY_MAX_M 4) |
+| 8 | sk8w3s | TINY2 | donor:3379 (M <= 8) |
+| 16 | sk8w3s | MID with the `@helper0` source | donor:3381, 3543-3544 |
+| 32 | sk8w3s | MAIN, WGS (RS-wgmma) | donor:3383-3384, comment donor:150 |
+| 128 | main-lean-grp-nohoist (mode 47) | MAIN, WGS | as above |
+| 256 | main-lean-grp-nohoist (mode 47) | MAIN, WGS | as above |
+
+### Results
+
+Weighted standalone score (bench-based, std routing, the scored distribution):
+
+| run | R1 | R2 | D1 | D2 | cross D/R (R1/D1, R1/D2, R2/D1, R2/D2) | pooled | null R2/R1 | null D2/D1 | rule |
+|---|---:|---:|---:|---:|---|---:|---:|---:|---|
+| 40b8c798289a4258 | 2.0784 | 2.0775 | 2.1592 | 2.1576 | 1.0389, 1.0381, 1.0393, 1.0385 | **1.0387** | 0.9996 | 0.9993 | D faster |
+| 218ff300de7d4c22 | 2.1409 | 2.1445 | 2.2089 | 2.2038 | 1.0318, 1.0294, 1.0301, 1.0276 | **1.0297** | 1.0017 | 0.9977 | D faster |
+
+The same scores on the other routings and layouts, pooled D/R (null R / null D): layer 1.0601
+(0.9975 / 0.9981) and 1.0628 (1.0003 / 0.9977); pad 1.0312 and 1.0312; off64 1.0319 and 1.0309;
+all "D faster". The allocation layout moves both sides together; no layout changes the sign of
+any load below.
+
+Per load, pooled time ratio R/D (above 1: the donor is faster), run 1 / run 2; nulls are the
+larger of R2/R1 and D2/D1 distance from 1 in that run:
+
+| tokens | std | layer | pad | off64 | std nulls (max) | readout |
+|---:|---|---|---|---|---|---|
+| 1 | 0.9603 / 0.9644 | 0.9650 / 0.9634 | 0.9686 / 0.9608 | 0.9680 / 0.9629 | 0.29% / 0.22% | release faster by 3.5-4%, every arm pair, both runs |
+| 8 | 1.0133 / 1.0143 | 1.0210 / 1.0172 | 1.0131 / 1.0114 | 1.0149 / 1.0106 | 0.27% / 0.10% | donor faster by 1.0-2.1% |
+| 16 | 1.0061 / 1.0038 | 0.9942 / 0.9916 | 0.9972 / 1.0000 | 0.9966 / 0.9978 | 0.03% / 0.24% | sign depends on routing: inconclusive |
+| 32 | 1.0598 / 1.0098 | 1.1398 / 1.1726 | 1.0323 / 1.0403 | 1.0346 / 1.0422 | 0.14% / 0.07% | donor faster; std is bimodal at 32 (per-seed sd 6-8 us, as in 3d8902381a194d56), layer 14-17% |
+| 128 | 1.0792 / 1.0778 | 1.1104 / 1.1070 | 1.0644 / 1.0703 | 1.0642 / 1.0692 | 0.29% / 0.46% | donor faster by 6.4-11% |
+| 256 | 1.1201 / 1.1160 | 1.1353 / 1.1341 | 1.1186 / 1.1117 | 1.1197 / 1.1095 | 0.36% / 0.51% | donor faster by 11-14% |
+
+Raw means, us (std routing, 12 seeds), from the logs' F0TIME lines; the 16 KB log tail kept the
+128 and 256 rows only (the small sizes are in the ratios above and in the robustness rows of the
+logs):
+
+| run | tokens | R1 | R2 | D1 | D2 | paired D1-R1 (lower / 12) | paired D2-R2 |
+|---|---:|---:|---:|---:|---:|---|---|
+| 40b8c798289a4258 | 128 | 197.36 | 197.40 | 182.63 | 183.16 | -14.73 (12) | -14.24 (12) |
+| 40b8c798289a4258 | 256 | 255.85 | 256.77 | 228.85 | 228.81 | -27.00 (12) | -27.97 (12) |
+| 218ff300de7d4c22 | 128 | 210.00 | 209.04 | 194.17 | 194.62 | -15.82 (12) | -14.42 (12) |
+| 218ff300de7d4c22 | 256 | 246.26 | 245.25 | 219.65 | 220.76 | -26.61 (12) | -24.49 (12) |
+
+Layer routing, run 1 / run 2, us (R1, D1): 1 token 33.3 / 34.6 and 32.5 / 33.7; 8: 67.4 / 65.9 and
+75.7 / 74.5; 16: 76.8 / 77.4 and 85.0 / 85.9; 32: 89.2 / 78.1 and 103.4 / 88.1; 128: 161.6 / 145.4
+and 160.1 / 143.5; 256: 225.8 / 199.2 and 229.9 / 202.1.
+
+Accuracy: relative L2 against FP32, release 3.9e-3 to 4.0e-3, donor 2.3e-3 to 2.5e-3 at every
+size (both within the 1.5e-2 bound). Release spin flags 0. The checks' own judged scores (the
+release file): 2.195x (2.163-2.228) and 2.194x (2.161-2.227), two more readings of the release.
+
+Hypothesis, not measured: taking the donor's mechanism at 8, 32, 128 and 256 tokens and keeping
+ours at 1 would give about 1.045x on the run-1 std ratios (geometric mean of the per-load wins,
+1 and 16 counted as 1.0). That sum of isolated wins is not a hybrid measurement.
+
+### Eligibility review of the donor file (against muse_moe_w4a16/TASK.md and reference.py)
+
+1. **Proxy ordering, WGS path (used at 32, 128, 256 tokens): defect.** The x gather writes xA with
+   generic stores (`*d[k] = v[k]`, donor:2061), syncs the CTA (donor:2063) and publishes with
+   `red.release.gpu` on `xready` (donor:2069); phase A's epilogue writes xB with generic stores and
+   publishes with `red.release.gpu` on `doneAs` (donor:2118-2122, 2171-2172). Another CTA's x
+   producer acquires those counters (donor:2011, 2014) and reads xA / xB with
+   `cp.async.bulk` (donor:2018-2019), an async-proxy operation. The file has no
+   `fence.proxy.async.global` on either side (its only proxy fences are `.shared::cta`, donor:760,
+   974, 1446, 1482, 1550, 1579, 2488). This is the defect class this file's section "Proxy
+   ordering of the x tiles, 2026-10-29" found and fixed in our fat path (PTX ISA 9.7.10.28.2 and
+   8.9.5); our release fences both sides. It passed every test here, which does not make it
+   safe. Consequence: a re-implementation of the WGS mechanism must carry
+   `fence.proxy.async.global` on the writers before the release and in the x producer after the
+   acquire, as our release does. The donor timings above are without those fences; their cost on
+   the WGS path is unmeasured.
+2. Skinny paths (1, 8, 16 tokens): bulk copies read only the prepared weights (donor:690, 1136,
+   1974); inter is published with a per-thread `__threadfence`, CTA barrier and relaxed
+   `atomicAdd` (donor:941-953) and read with generic loads after `ld.acquire` (donor:836, 1384).
+   Our release uses the same publish pattern (`credit`, release file line 2980-2989). No
+   donor-specific finding.
+3. Precision: weights are repacked by bit and byte permutations only, never requantized
+   (donor:3287-3343; KPERM3 permutes K inside each 256-K stage for weights and x together,
+   donor:3223-3251); block scales decode exactly (PRMT only when every scale byte is a positive
+   normal E4M3, checked in prepare, donor:3104-3111, 3332; LUT otherwise); post_norm_w stays BF16
+   and 1 + w is formed in FP32 (donor:3296, 2101); x and inter are BF16 as in SGLang; accumulation,
+   ybuf and the norm sums are FP32; output BF16. topk_weights are taken as FP32 (donor:3374). This
+   problem has no router (topk ids and weights are inputs), so FP32 router semantics do not apply.
+   Conforms.
+4. Caching: the only module cache is `_EXTS` (compiled code, donor:3069-3100); `state["sfx"]`
+   derives from the weights in prepare, not from data. kernel_fn branches on shapes and on the
+   pointer alignment of topk_ids (donor:3372, an aligned copy when misaligned), not on values.
+   The fresh-input replay test passed. Conforms.
+5. Lifetimes: one scratch per state, counters re-zeroed in-kernel by generation, the norm-sum
+   buffer double-buffered by launch generation (donor:2541-2558, 2630-2641); calls are serialized
+   on the stream. The persistent grid (one CTA per SM) spins at a grid barrier
+   (donor:2630-2634) with no timeout flag, so it relies on co-residency, as our release does.
+6. Host: the per-thread context bind (donor:3546-3601, ctypes `libcuda`) is outside the task's
+   numerical scope; the judge accepted the file. Not needed by any re-implementation.
+
+### Decision (per load, under the measurement-only rule)
+
+| tokens | decision | mechanism to re-implement (donor file:line) |
+|---:|---|---|
+| 1 | **keep ours** | release sk8w3s is 3.5-4% faster than the donor's TINY build in both runs |
+| 8 | **re-implement mechanism**: the TINY2 skinny build | TINY2_DEFINES (donor:139-142): 8 compute warps (`OKC_NW=8`), skinny-only (`OKC_TINY=1`), `OKC_CPF=0`, `OKC_FAST1=2`, 4 accumulators (`OKC_NACC=4`), `OKC_UWARP=0`, a helper warp (`OKC_WS=1`, `OKC_WSB=1`, `OKC_WSBL=2`, `OKC_WSBLK=1`), final-pass prefetch (`OKC_FINPF=1`), 3-slot ring (`MAIN_NS`, donor:152), DQ7 bit layout (donor:172, 3114-3140), PRMT scale decode; dispatch M in (4, 8] (donor:3379). Gain 1.0-2.1% of that load |
+| 16 | **inconclusive** | MID + `@helper0` (donor:145-149, 3543-3544) is +0.4-0.6% on std and -0.6 to -0.8% on layer routing |
+| 32 | **re-implement mechanism**: dispatch 17-63 tokens to the WGS fat kernel | donor:150, 3383-3384: above 16 tokens the donor runs its WGS MAIN build where we run the skinny sk8w3s. 1-6% on std, 14-17% on layer routing. Same kernel as the next row |
+| 128, 256 | **re-implement mechanism**: WGS, the RS-wgmma producer/consumer fat path | MAIN_DEFINES (donor:130: `OKC_NW=16`, `OKC_FAST1=0`, `OKC_EPI4=0`, `OKC_WGS=1`) with PRMT scales; weight copy per 256-row unit x 16 K-stages x 4 warpgroups of 9,216 B, warpgroup q owning rows 64q..64q+63, codes in natural mma k order then scales (`_wgs_copy`, donor:3254-3269); KPERM3 K order inside each 256-K stage so a lane's columns of one k16 step fall in one scale block (`_kperm_src` / `_kperm_codes` / `_kperm_rows`, donor:3223-3251; the x gather applies the same permutation, donor:2049-2054); stream-K stage ranges over (256-row unit, 16 stages) per CTA (`wgs_ranges` / `wgs_split`, donor:1950-1954, 2334) with FP32 fixups through `red.global.add.v4.f32` (donor:2267), 160 fixup slots (donor:120-122) and a designated finisher in phase B (`OKC_WGSDFIN=2`, donor:1855, `wgs_flush` donor:2113-2174); weights ring of 3 x 36 KB slots freed once codes are in registers (`WGS_NS`, donor:1820) and x ring of 3 slots (`OKC_WGSNX`, donor:1819); a dedicated x producer issuing one bulk copy per stage (`wgs_xproducer`, donor:1983-2023); phase A x gathered once by all consumer threads into the per-stage wgmma layout, 8 rows of loads before their stores (`OKC_GATHB`, donor:1853; `wgs_gather`, donor:2026-2073); phase B readiness per (job, stage) through `doneAs[j * 16 + st]` rather than per job (donor:2014, 2122). 6.4-11% at 128 and 11-14% at 256 |
+
+The WGS rows must include the proxy fences of finding 1. Earlier same-process benches against
+"the public kernel" in this file (for example 3d8902381a194d56, 7063f86352344efa) measured gaps
+of the same sign and size at 128 / 256; whether that public file is this donor file's ancestor
+with the same WGS path was not established here.
+
+Not done: an F1 arm (the donor with the two proxy fences added) to price the fences, and any
+F2 hybrid. Both are now re-implementation work in our own file, not donor candidates.
 
 ## Why the layer keeps the W4 chain at 128 tokens, 2026-10-29
 

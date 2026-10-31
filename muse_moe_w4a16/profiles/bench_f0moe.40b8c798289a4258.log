@@ -1,0 +1,234 @@
+2-R1 -7.70 sd 6.24 10/12 lower
+F0PAIR std T=32 D1-R2 -7.92 sd 6.93 10/12 lower
+F0PAIR std T=32 D2-R2 -7.73 sd 6.36 10/12 lower
+F0PAIR std T=32 R2-R1 +0.04 sd 0.56 6/12 lower
+F0PAIR std T=32 D2-D1 +0.18 sd 0.86 5/12 lower
+F0TIME std T=128 n=12 R1 197.36 R2 197.40 D1 182.63 D2 183.16 | err R1 3.90e-03 R2 3.90e-03 D1 2.35e-03 D2 2.35e-03
+F0RAW std T=128 R1 220.1,205.3,211.6,184.5,172.1,184.4,194.8,173.7,245.4,223.9,181.2,171.2 ; R2 221.2,204.9,213.3,185.0,171.1,184.1,193.8,174.0,245.3,223.7,181.6,170.7 ; D1 207.1,190.1,194.0,170.1,161.3,169.6,180.4,160.6,223.5,205.0,168.0,161.9 ; D2 208.5,190.3,193.2,171.6,162.4,168.7,180.1,161.5,223.6,207.3,168.4,162.2
+F0PAIR std T=128 D1-R1 -14.73 sd 3.46 12/12 lower
+F0PAIR std T=128 D2-R1 -14.20 sd 3.63 12/12 lower
+F0PAIR std T=128 D1-R2 -14.77 sd 3.74 12/12 lower
+F0PAIR std T=128 D2-R2 -14.24 sd 3.89 12/12 lower
+F0PAIR std T=128 R2-R1 +0.04 sd 0.82 7/12 lower
+F0PAIR std T=128 D2-D1 +0.53 sd 0.96 3/12 lower
+F0TIME std T=256 n=12 R1 255.85 R2 256.77 D1 228.85 D2 228.81 | err R1 3.88e-03 R2 3.88e-03 D1 2.35e-03 D2 2.35e-03
+F0RAW std T=256 R1 288.7,226.8,279.1,257.7,275.5,248.2,244.8,251.4,250.3,222.2,259.4,266.2 ; R2 293.0,227.8,280.9,260.0,275.8,247.3,245.4,250.2,251.1,222.0,260.5,267.3 ; D1 255.6,199.6,249.2,231.1,248.3,222.7,218.4,224.6,221.2,199.2,240.1,236.3 ; D2 256.5,199.4,248.9,230.9,248.8,222.5,218.5,223.9,221.6,199.5,239.3,235.9
+F0PAIR std T=256 D1-R1 -27.00 sd 3.53 12/12 lower
+F0PAIR std T=256 D2-R1 -27.05 sd 3.31 12/12 lower
+F0PAIR std T=256 D1-R2 -27.92 sd 4.46 12/12 lower
+F0PAIR std T=256 D2-R2 -27.97 sd 4.22 12/12 lower
+F0PAIR std T=256 R2-R1 +0.92 sd 1.47 3/12 lower
+F0PAIR std T=256 D2-D1 -0.05 sd 0.49 7/12 lower
+F0T std done 327 s
+F0TIME layer T=1 n=6 R1 33.32 R2 33.50 D1 34.61 D2 34.63 | err R1 3.98e-03 R2 3.98e-03 D1 2.36e-03 D2 2.36e-03
+F0PAIR layer T=1 D1-R1 +1.29 sd 0.44 0/6 lower
+F0PAIR layer T=1 D2-R1 +1.31 sd 0.38 0/6 lower
+F0PAIR layer T=1 D1-R2 +1.11 sd 0.64 0/6 lower
+F0PAIR layer T=1 D2-R2 +1.14 sd 0.46 0/6 lower
+F0PAIR layer T=1 R2-R1 +0.18 sd 0.47 1/6 lower
+F0PAIR layer T=1 D2-D1 +0.03 sd 0.36 2/6 lower
+F0TIME layer T=8 n=6 R1 67.35 R2 67.16 D1 65.89 D2 65.86 | err R1 3.91e-03 R2 3.91e-03 D1 2.37e-03 D2 2.37e-03
+F0PAIR layer T=8 D1-R1 -1.46 sd 0.59 6/6 lower
+F0PAIR layer T=8 D2-R1 -1.49 sd 0.55 6/6 lower
+F0PAIR layer T=8 D1-R2 -1.27 sd 0.39 6/6 lower
+F0PAIR layer T=8 D2-R2 -1.31 sd 0.45 6/6 lower
+F0PAIR layer T=8 R2-R1 -0.19 sd 0.48 4/6 lower
+F0PAIR layer T=8 D2-D1 -0.04 sd 0.49 3/6 lower
+F0TIME layer T=16 n=6 R1 76.83 R2 77.02 D1 77.35 D2 77.39 | err R1 3.88e-03 R2 3.88e-03 D1 2.37e-03 D2 2.37e-03
+F0PAIR layer T=16 D1-R1 +0.53 sd 0.72 1/6 lower
+F0PAIR layer T=16 D2-R1 +0.57 sd 0.67 0/6 lower
+F0PAIR layer T=16 D1-R2 +0.34 sd 0.37 2/6 lower
+F0PAIR layer T=16 D2-R2 +0.37 sd 0.43 2/6 lower
+F0PAIR layer T=16 R2-R1 +0.19 sd 0.45 1/6 lower
+F0PAIR layer T=16 D2-D1 +0.04 sd 0.32 3/6 lower
+F0TIME layer T=32 n=6 R1 89.19 R2 89.27 D1 78.12 D2 78.46 | err R1 3.90e-03 R2 3.90e-03 D1 2.35e-03 D2 2.35e-03
+F0PAIR layer T=32 D1-R1 -11.08 sd 2.71 6/6 lower
+F0PAIR layer T=32 D2-R1 -10.73 sd 2.75 6/6 lower
+F0PAIR layer T=32 D1-R2 -11.15 sd 2.48 6/6 lower
+F0PAIR layer T=32 D2-R2 -10.81 sd 2.52 6/6 lower
+F0PAIR layer T=32 R2-R1 +0.07 sd 0.28 3/6 lower
+F0PAIR layer T=32 D2-D1 +0.35 sd 0.38 2/6 lower
+F0TIME layer T=128 n=6 R1 161.55 R2 162.19 D1 145.43 D2 146.12 | err R1 3.90e-03 R2 3.90e-03 D1 2.35e-03 D2 2.35e-03
+F0PAIR layer T=128 D1-R1 -16.12 sd 1.52 6/6 lower
+F0PAIR layer T=128 D2-R1 -15.43 sd 1.35 6/6 lower
+F0PAIR layer T=128 D1-R2 -16.76 sd 2.16 6/6 lower
+F0PAIR layer T=128 D2-R2 -16.07 sd 2.51 6/6 lower
+F0PAIR layer T=128 R2-R1 +0.64 sd 1.65 2/6 lower
+F0PAIR layer T=128 D2-D1 +0.69 sd 0.97 1/6 lower
+F0TIME layer T=256 n=6 R1 225.84 R2 226.77 D1 199.23 D2 199.42 | err R1 3.89e-03 R2 3.89e-03 D1 2.35e-03 D2 2.35e-03
+F0PAIR layer T=256 D1-R1 -26.61 sd 1.39 6/6 lower
+F0PAIR layer T=256 D2-R1 -26.42 sd 1.60 6/6 lower
+F0PAIR layer T=256 D1-R2 -27.54 sd 0.99 6/6 lower
+F0PAIR layer T=256 D2-R2 -27.34 sd 1.08 6/6 lower
+F0PAIR layer T=256 R2-R1 +0.93 sd 1.09 1/6 lower
+F0PAIR layer T=256 D2-D1 +0.20 sd 0.38 2/6 lower
+F0T layer done 329 s
+F0TIME pad T=1 n=4 R1 29.81 R2 29.90 D1 30.79 D2 30.85 | err R1 3.99e-03 R2 3.99e-03 D1 2.45e-03 D2 2.45e-03
+F0PAIR pad T=1 D1-R1 +0.98 sd 0.29 0/4 lower
+F0PAIR pad T=1 D2-R1 +1.04 sd 0.29 0/4 lower
+F0PAIR pad T=1 D1-R2 +0.90 sd 0.08 0/4 lower
+F0PAIR pad T=1 D2-R2 +0.95 sd 0.17 0/4 lower
+F0PAIR pad T=1 R2-R1 +0.09 sd 0.32 1/4 lower
+F0PAIR pad T=1 D2-D1 +0.06 sd 0.09 1/4 lower
+F0TIME pad T=8 n=4 R1 72.71 R2 72.64 D1 71.66 D2 71.81 | err R1 3.88e-03 R2 3.88e-03 D1 2.37e-03 D2 2.37e-03
+F0PAIR pad T=8 D1-R1 -1.05 sd 0.84 4/4 lower
+F0PAIR pad T=8 D2-R1 -0.90 sd 0.43 4/4 lower
+F0PAIR pad T=8 D1-R2 -0.98 sd 0.91 3/4 lower
+F0PAIR pad T=8 D2-R2 -0.83 sd 0.19 4/4 lower
+F0PAIR pad T=8 R2-R1 -0.07 sd 0.33 2/4 lower
+F0PAIR pad T=8 D2-D1 +0.14 sd 0.85 2/4 lower
+F0TIME pad T=16 n=4 R1 97.04 R2 97.05 D1 97.27 D2 97.37 | err R1 3.90e-03 R2 3.90e-03 D1 2.35e-03 D2 2.35e-03
+F0PAIR pad T=16 D1-R1 +0.23 sd 1.23 3/4 lower
+F0PAIR pad T=16 D2-R1 +0.33 sd 1.17 1/4 lower
+F0PAIR pad T=16 D1-R2 +0.22 sd 0.75 2/4 lower
+F0PAIR pad T=16 D2-R2 +0.32 sd 0.63 1/4 lower
+F0PAIR pad T=16 R2-R1 +0.01 sd 0.60 2/4 lower
+F0PAIR pad T=16 D2-D1 +0.10 sd 0.45 2/4 lower
+F0TIME pad T=32 n=4 R1 131.69 R2 131.39 D1 127.43 D2 127.42 | err R1 3.89e-03 R2 3.89e-03 D1 2.35e-03 D2 2.35e-03
+F0PAIR pad T=32 D1-R1 -4.26 sd 5.62 3/4 lower
+F0PAIR pad T=32 D2-R1 -4.26 sd 5.63 3/4 lower
+F0PAIR pad T=32 D1-R2 -3.96 sd 5.43 3/4 lower
+F0PAIR pad T=32 D2-R2 -3.97 sd 5.49 3/4 lower
+F0PAIR pad T=32 R2-R1 -0.30 sd 0.28 3/4 lower
+F0PAIR pad T=32 D2-D1 -0.01 sd 1.36 3/4 lower
+F0TIME pad T=128 n=4 R1 205.36 R2 205.59 D1 192.98 D2 193.12 | err R1 3.88e-03 R2 3.88e-03 D1 2.35e-03 D2 2.35e-03
+F0PAIR pad T=128 D1-R1 -12.38 sd 3.95 4/4 lower
+F0PAIR pad T=128 D2-R1 -12.24 sd 3.73 4/4 lower
+F0PAIR pad T=128 D1-R2 -12.61 sd 3.70 4/4 lower
+F0PAIR pad T=128 D2-R2 -12.47 sd 3.48 4/4 lower
+F0PAIR pad T=128 R2-R1 +0.23 sd 0.25 0/4 lower
+F0PAIR pad T=128 D2-D1 +0.14 sd 0.41 2/4 lower
+F0TIME pad T=256 n=4 R1 241.32 R2 241.38 D1 215.50 D2 216.03 | err R1 3.88e-03 R2 3.88e-03 D1 2.35e-03 D2 2.35e-03
+F0PAIR pad T=256 D1-R1 -25.82 sd 6.66 4/4 lower
+F0PAIR pad T=256 D2-R1 -25.29 sd 6.85 4/4 lower
+F0PAIR pad T=256 D1-R2 -25.87 sd 7.24 4/4 lower
+F0PAIR pad T=256 D2-R2 -25.34 sd 7.41 4/4 lower
+F0PAIR pad T=256 R2-R1 +0.06 sd 0.81 2/4 lower
+F0PAIR pad T=256 D2-D1 +0.53 sd 0.50 1/4 lower
+F0TIME off64 T=1 n=4 R1 29.92 R2 29.94 D1 30.94 D2 30.90 | err R1 3.99e-03 R2 3.99e-03 D1 2.45e-03 D2 2.45e-03
+F0PAIR off64 T=1 D1-R1 +1.02 sd 0.22 0/4 lower
+F0PAIR off64 T=1 D2-R1 +0.98 sd 0.26 0/4 lower
+F0PAIR off64 T=1 D1-R2 +1.00 sd 0.07 0/4 lower
+F0PAIR off64 T=1 D2-R2 +0.96 sd 0.03 0/4 lower
+F0PAIR off64 T=1 R2-R1 +0.02 sd 0.26 2/4 lower
+F0PAIR off64 T=1 D2-D1 -0.04 sd 0.08 2/4 lower
+F0TIME off64 T=8 n=4 R1 72.94 R2 72.79 D1 71.91 D2 71.68 | err R1 3.88e-03 R2 3.88e-03 D1 2.37e-03 D2 2.37e-03
+F0PAIR off64 T=8 D1-R1 -1.02 sd 1.16 4/4 lower
+F0PAIR off64 T=8 D2-R1 -1.26 sd 0.68 4/4 lower
+F0PAIR off64 T=8 D1-R2 -0.88 sd 0.82 3/4 lower
+F0PAIR off64 T=8 D2-R2 -1.11 sd 0.55 4/4 lower
+F0PAIR off64 T=8 R2-R1 -0.14 sd 0.56 2/4 lower
+F0PAIR off64 T=8 D2-D1 -0.23 sd 0.79 2/4 lower
+F0TIME off64 T=16 n=4 R1 97.17 R2 97.10 D1 97.39 D2 97.53 | err R1 3.90e-03 R2 3.90e-03 D1 2.35e-03 D2 2.35e-03
+F0PAIR off64 T=16 D1-R1 +0.22 sd 0.83 3/4 lower
+F0PAIR off64 T=16 D2-R1 +0.36 sd 0.45 0/4 lower
+F0PAIR off64 T=16 D1-R2 +0.30 sd 0.92 2/4 lower
+F0PAIR off64 T=16 D2-R2 +0.43 sd 0.56 1/4 lower
+F0PAIR off64 T=16 R2-R1 -0.07 sd 0.15 3/4 lower
+F0PAIR off64 T=16 D2-D1 +0.14 sd 0.41 1/4 lower
+F0TIME off64 T=32 n=4 R1 131.56 R2 131.56 D1 126.95 D2 127.37 | err R1 3.89e-03 R2 3.89e-03 D1 2.35e-03 D2 2.35e-03
+F0PAIR off64 T=32 D1-R1 -4.61 sd 5.05 4/4 lower
+F0PAIR off64 T=32 D2-R1 -4.19 sd 5.25 3/4 lower
+F0PAIR off64 T=32 D1-R2 -4.61 sd 5.03 3/4 lower
+F0PAIR off64 T=32 D2-R2 -4.19 sd 5.23 3/4 lower
+F0PAIR off64 T=32 R2-R1 +0.00 sd 0.14 2/4 lower
+F0PAIR off64 T=32 D2-D1 +0.42 sd 0.28 0/4 lower
+F0TIME off64 T=128 n=4 R1 205.63 R2 205.82 D1 193.46 D2 193.18 | err R1 3.88e-03 R2 3.88e-03 D1 2.35e-03 D2 2.35e-03
+F0PAIR off64 T=128 D1-R1 -12.18 sd 4.20 4/4 lower
+F0PAIR off64 T=128 D2-R1 -12.45 sd 4.32 4/4 lower
+F0PAIR off64 T=128 D1-R2 -12.37 sd 4.17 4/4 lower
+F0PAIR off64 T=128 D2-R2 -12.64 sd 4.41 4/4 lower
+F0PAIR off64 T=128 R2-R1 +0.19 sd 0.78 2/4 lower
+F0PAIR off64 T=128 D2-D1 -0.27 sd 0.70 2/4 lower
+F0TIME off64 T=256 n=4 R1 241.59 R2 242.50 D1 216.34 D2 216.01 | err R1 3.88e-03 R2 3.88e-03 D1 2.35e-03 D2 2.35e-03
+F0PAIR off64 T=256 D1-R1 -25.25 sd 5.94 4/4 lower
+F0PAIR off64 T=256 D2-R1 -25.58 sd 6.55 4/4 lower
+F0PAIR off64 T=256 D1-R2 -26.15 sd 6.84 4/4 lower
+F0PAIR off64 T=256 D2-R2 -26.49 sd 7.43 4/4 lower
+F0PAIR off64 T=256 R2-R1 +0.90 sd 0.90 0/4 lower
+F0PAIR off64 T=256 D2-D1 -0.34 sd 0.97 3/4 lower
+F0T robust done 332 s
+F0FRESH T=1 R1 first 3.94e-03 second 3.93e-03 ok
+F0FRESH T=1 R2 first 3.94e-03 second 3.93e-03 ok
+F0FRESH T=1 D1 first 2.29e-03 second 2.41e-03 ok
+F0FRESH T=1 D2 first 2.29e-03 second 2.41e-03 ok
+F0FRESH T=8 R1 first 4.00e-03 second 3.87e-03 ok
+F0FRESH T=8 R2 first 4.00e-03 second 3.87e-03 ok
+F0FRESH T=8 D1 first 2.33e-03 second 2.32e-03 ok
+F0FRESH T=8 D2 first 2.33e-03 second 2.32e-03 ok
+F0FRESH T=16 R1 first 3.82e-03 second 3.88e-03 ok
+F0FRESH T=16 R2 first 3.82e-03 second 3.88e-03 ok
+F0FRESH T=16 D1 first 2.34e-03 second 2.34e-03 ok
+F0FRESH T=16 D2 first 2.34e-03 second 2.34e-03 ok
+F0FRESH T=32 R1 first 3.84e-03 second 3.87e-03 ok
+F0FRESH T=32 R2 first 3.84e-03 second 3.87e-03 ok
+F0FRESH T=32 D1 first 2.34e-03 second 2.34e-03 ok
+F0FRESH T=32 D2 first 2.34e-03 second 2.34e-03 ok
+F0FRESH T=128 R1 first 3.88e-03 second 3.88e-03 ok
+F0FRESH T=128 R2 first 3.88e-03 second 3.88e-03 ok
+F0FRESH T=128 D1 first 2.33e-03 second 2.34e-03 ok
+F0FRESH T=128 D2 first 2.33e-03 second 2.34e-03 ok
+F0FRESH T=256 R1 first 3.86e-03 second 3.88e-03 ok
+F0FRESH T=256 R2 first 3.86e-03 second 3.88e-03 ok
+F0FRESH T=256 D1 first 2.34e-03 second 2.34e-03 ok
+F0FRESH T=256 D2 first 2.34e-03 second 2.34e-03 ok
+F0SCORE std R1 2.0784 R2 2.0775 D1 2.1592 D2 2.1576 | cross(D/R score) R1/D1 1.0389 R1/D2 1.0381 R2/D1 1.0393 R2/D2 1.0385 | pooled 1.0387 null R2/R1 0.9996 D2/D1 0.9993 -> D faster
+F0LOAD std T=1 R/D 0.9605 0.9629 0.9577 0.9602 pooled 0.9603 nulls 0.9971 0.9974
+F0LOAD std T=8 R/D 1.0140 1.0113 1.0154 1.0126 pooled 1.0133 nulls 1.0013 1.0027
+F0LOAD std T=16 R/D 1.0061 1.0059 1.0064 1.0061 pooled 1.0061 nulls 1.0002 1.0003
+F0LOAD std T=32 R/D 1.0604 1.0589 1.0607 1.0592 pooled 1.0598 nulls 1.0003 1.0014
+F0LOAD std T=128 R/D 1.0806 1.0775 1.0808 1.0777 pooled 1.0792 nulls 1.0002 1.0029
+F0LOAD std T=256 R/D 1.1180 1.1182 1.1220 1.1222 pooled 1.1201 nulls 1.0036 0.9998
+F0SCORE layer R1 2.6245 R2 2.6180 D1 2.7813 D2 2.7761 | cross(D/R score) R1/D1 1.0598 R1/D2 1.0578 R2/D1 1.0624 R2/D2 1.0604 | pooled 1.0601 null R2/R1 0.9975 D2/D1 0.9981 -> D faster
+F0LOAD layer T=1 R/D 0.9629 0.9621 0.9679 0.9672 pooled 0.9650 nulls 1.0053 1.0008
+F0LOAD layer T=8 R/D 1.0221 1.0227 1.0193 1.0198 pooled 1.0210 nulls 0.9972 0.9994
+F0LOAD layer T=16 R/D 0.9932 0.9927 0.9957 0.9952 pooled 0.9942 nulls 1.0025 1.0005
+F0LOAD layer T=32 R/D 1.1418 1.1368 1.1428 1.1377 pooled 1.1398 nulls 1.0008 1.0044
+F0LOAD layer T=128 R/D 1.1108 1.1056 1.1152 1.1100 pooled 1.1104 nulls 1.0040 1.0047
+F0LOAD layer T=256 R/D 1.1336 1.1325 1.1382 1.1371 pooled 1.1353 nulls 1.0041 1.0010
+F0SCORE pad R1 2.2527 R2 2.2521 D1 2.3244 D2 2.3211 | cross(D/R score) R1/D1 1.0318 R1/D2 1.0304 R2/D1 1.0321 R2/D2 1.0306 | pooled 1.0312 null R2/R1 0.9997 D2/D1 0.9986 -> D faster
+F0LOAD pad T=1 R/D 0.9680 0.9663 0.9709 0.9691 pooled 0.9686 nulls 1.0030 1.0018
+F0LOAD pad T=8 R/D 1.0146 1.0126 1.0136 1.0116 pooled 1.0131 nulls 0.9990 1.0020
+F0LOAD pad T=16 R/D 0.9976 0.9966 0.9977 0.9967 pooled 0.9972 nulls 1.0001 1.0010
+F0LOAD pad T=32 R/D 1.0334 1.0335 1.0311 1.0311 pooled 1.0323 nulls 0.9978 0.9999
+F0LOAD pad T=128 R/D 1.0641 1.0634 1.0653 1.0646 pooled 1.0644 nulls 1.0011 1.0007
+F0LOAD pad T=256 R/D 1.1198 1.1171 1.1201 1.1173 pooled 1.1186 nulls 1.0002 1.0025
+F0SCORE off64 R1 2.2488 R2 2.2478 D1 2.3194 D2 2.3206 | cross(D/R score) R1/D1 1.0314 R1/D2 1.0319 R2/D1 1.0318 R2/D2 1.0324 | pooled 1.0319 null R2/R1 0.9996 D2/D1 1.0005 -> D faster
+F0LOAD off64 T=1 R/D 0.9672 0.9684 0.9677 0.9689 pooled 0.9680 nulls 1.0005 0.9987
+F0LOAD off64 T=8 R/D 1.0142 1.0175 1.0122 1.0155 pooled 1.0149 nulls 0.9980 0.9968
+F0LOAD off64 T=16 R/D 0.9977 0.9963 0.9970 0.9956 pooled 0.9966 nulls 0.9993 1.0014
+F0LOAD off64 T=32 R/D 1.0363 1.0329 1.0363 1.0329 pooled 1.0346 nulls 1.0000 1.0033
+F0LOAD off64 T=128 R/D 1.0629 1.0644 1.0639 1.0654 pooled 1.0642 nulls 1.0009 0.9986
+F0LOAD off64 T=256 R/D 1.1167 1.1184 1.1209 1.1226 pooled 1.1197 nulls 1.0037 0.9984
+F0FAIL 0 
+F0END R spin flags 0; total 333 s
+F0PIN tag=F-MOE-0 donor sha256 b33070898927b7b92df6c7a2515f9c02dd12723c43ca63682fa164e915dd4281 MATCH bytes 326062; release sha256 b35d321730f67b8157eef0683011b118bf3644dc5e9602ee29d823d8056c4e14 (offline, file prefix)
+F0PREP R2 150.9 s POLICY {1: sk8w3s, 8: sk8w3s, 16: sk8w3s, 32: sk8w3s, 128: main-lean-grp-nohoist, 256: main-lean-grp-nohoist} | PREPARE repack 0.8 s, build 147.8 s, self-test 1.5 s, bench 0.9 s, smem 228736 B, ok True, main True
+F0PREP R1 3.0 s POLICY {1: sk8w3s, 8: sk8w3s, 16: sk8w3s, 32: sk8w3s, 128: main-lean-grp-nohoist, 256: main-lean-grp-nohoist} | PREPARE repack 0.7 s, build 0.0 s, self-test 1.3 s, bench 0.9 s, smem 228736 B, ok True, main True
+F0PREP D2 168.6 s 
+F0PREP D1 0.4 s 
+F0POL R1 1:sk8w3s 8:sk8w3s 16:sk8w3s 32:sk8w3s 128:main-lean-grp-nohoist 256:main-lean-grp-nohoist
+F0POL R2 1:sk8w3s 8:sk8w3s 16:sk8w3s 32:sk8w3s 128:main-lean-grp-nohoist 256:main-lean-grp-nohoist
+F0POL D1 sfx=PRMT 1:TINY 8:TINY2 16:MID(@helper0) 32:MAIN-WGS 128:MAIN-WGS 256:MAIN-WGS
+F0POL D2 sfx=PRMT 1:TINY 8:TINY2 16:MID(@helper0) 32:MAIN-WGS 128:MAIN-WGS 256:MAIN-WGS
+F0ROUTE layer router seed 8 (mean relative miss 0.030)
+F0SCORE std R1 2.0784 R2 2.0775 D1 2.1592 D2 2.1576 | cross(D/R score) R1/D1 1.0389 R1/D2 1.0381 R2/D1 1.0393 R2/D2 1.0385 | pooled 1.0387 null R2/R1 0.9996 D2/D1 0.9993 -> D faster
+F0SCORE layer R1 2.6245 R2 2.6180 D1 2.7813 D2 2.7761 | cross(D/R score) R1/D1 1.0598 R1/D2 1.0578 R2/D1 1.0624 R2/D2 1.0604 | pooled 1.0601 null R2/R1 0.9975 D2/D1 0.9981 -> D faster
+F0SCORE pad R1 2.2527 R2 2.2521 D1 2.3244 D2 2.3211 | cross(D/R score) R1/D1 1.0318 R1/D2 1.0304 R2/D1 1.0321 R2/D2 1.0306 | pooled 1.0312 null R2/R1 0.9997 D2/D1 0.9986 -> D faster
+F0SCORE off64 R1 2.2488 R2 2.2478 D1 2.3194 D2 2.3206 | cross(D/R score) R1/D1 1.0314 R1/D2 1.0319 R2/D1 1.0318 R2/D2 1.0324 | pooled 1.0319 null R2/R1 0.9996 D2/D1 1.0005 -> D faster
+F0FAIL 0 
+F0END R spin flags 0; total 333 s
+POLICY {1: sk8w3s, 8: sk8w3s, 16: sk8w3s, 32: sk8w3s, 128: main-lean-grp-nohoist, 256: main-lean-grp-nohoist}
+PREPARE repack 0.7 s, build 0.0 s, self-test 1.0 s, bench 0.8 s, smem 228736 B, ok True, main True
+USDT:2026-10-31 03:42:05 75:75 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-10-31 03:42:05 75:75 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-10-31 03:42:05 75:75 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-10-31 03:42:05 75:75 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-10-31 03:42:05 75:75 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-10-31 03:42:05 75:75 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-10-31 03:42:05 75:75 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-10-31 03:42:05 75:75 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-10-31 03:42:05 75:75 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-10-31 03:42:05 75:75 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-10-31 03:42:05 75:75 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-10-31 03:42:05 75:75 SyncActivityProfilerHandler.cpp:46] profiler_stop
