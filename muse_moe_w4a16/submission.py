@@ -266,8 +266,8 @@ __device__ __forceinline__ void dequant_pair(unsigned w, unsigned sp, unsigned (
     a[2] = bmul2_lo(r2, sp);
     a[3] = bmul2_hi(r3, sp);
 }
-// Bytes b and b + 1 of scw go to the two halves; byte * 16 stays under 0x1000, so the add
-// cannot carry from the low half into the high one.
+// Bytes b and b + 1 of scw go to the two halves; byte * 16 + 0x7780 is at most 0x8770, so the
+// add cannot carry from the low half into the high one.
 __device__ __forceinline__ unsigned scale_pair(unsigned scw, int b) {
     return __byte_perm(scw, 0u, 0x4040u + b + ((b + 1) << 8)) * 16u + 0x77807780u;
 }
