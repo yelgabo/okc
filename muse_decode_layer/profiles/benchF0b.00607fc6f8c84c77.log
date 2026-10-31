@@ -1,0 +1,90 @@
+x2_h_bz_coo
+ABKN K81 _graft_row_boundary
+ABKN K82 nvjet_sm90_tss_144x64_64x8_1x1_v_bz_TNN
+ABKN K83 _graft_route
+ABK d1s cand span 85.9 sum 85.7: K0 10.8 K1 5.0 K2 5.5 K3 3.9 K4 17.0 K5 1.9 K6 5.1 K7 4.3 K8 24.9 K9 3.5 K10 3.9
+ABK d1s donor span 74.0 sum 80.0: K11 11.3 K12 5.9 K13 7.0 K14 20.4 K15 3.0 K16 25.3 K17 4.9 K18 2.3
+ABK d1f cand span 100.7 sum 100.0: K0 10.8 K19 13.0 K2 6.0 K3 4.0 K4 15.8 K5 2.1 K6 5.0 K7 4.1 K8 31.8 K9 3.5 K10 4.2
+ABK d1f donor span 86.8 sum 94.9: K11 11.1 K20 12.7 K13 7.9 K14 21.3 K15 2.7 K16 32.5 K17 4.4 K18 2.3
+ABK v1s cand span 134.3 sum 130.5: K21 12.6 K22 6.9 K23 6.9 K24 4.2 K25 21.3 K5 1.6 K7 2.8 K8 66.2 K26 4.3 K10 3.8
+ABK v1s donor span 119.7 sum 129.5: K27 10.9 K28 8.2 K29 7.2 K30 4.4 K14 20.6 K31 3.2 K16 68.1 K17 4.6 K18 2.3
+ABK v1f cand span 133.8 sum 130.4: K21 12.6 K32 15.3 K23 7.0 K24 4.2 K25 19.8 K5 1.5 K7 2.7 K8 59.2 K26 4.2 K10 4.0
+ABK v1f donor span 118.1 sum 127.9: K27 10.9 K33 14.9 K29 8.0 K30 4.3 K14 20.4 K31 3.4 K16 59.1 K17 4.6 K18 2.4
+ABK d16s cand span 147.6 sum 144.2: K34 12.8 K35 9.7 K36 21.3x2 K37 8.0x2 K38 20.7 K5 1.9 K7 2.8 K8 67.1
+ABK d16s donor span 134.7 sum 143.4: K39 11.5 K40 9.5 K41 7.0 K42 3.7 K43 19.9 K31 4.1 K16 68.9 K44 14.9 K45 3.9
+ABK d16f cand span 232.5 sum 229.5: K34 12.5 K46 93.6 K36 19.9x2 K37 8.0x2 K38 18.7 K5 1.6 K7 2.7 K8 72.6
+ABK d16f donor span 220.0 sum 229.3: K39 11.5 K47 96.2 K41 6.4 K42 3.6 K43 18.6 K31 4.4 K16 70.4 K44 14.4 K45 3.8
+ABK d32s cand span 181.5 sum 179.0: K48 14.0 K35 12.2 K49 22.5x2 K37 8.4x2 K50 21.3 K5 1.7 K7 2.8 K51 96.1
+ABK d32s donor span 158.8 sum 167.9: K52 12.7 K40 11.4 K53 7.1 K54 7.9x2 K55 18.2 K56 5.4 K31 2.2 K16 84.8 K57 18.1
+ABK d32f cand span 339.2 sum 336.8: K48 14.1 K46 174.0 K49 21.6x2 K37 8.1x2 K50 19.7 K5 1.8 K7 2.8 K51 94.7
+ABK d32f donor span 322.7 sum 331.7: K52 12.7 K47 177.6 K53 6.4 K54 7.7x2 K55 16.4 K56 5.3 K31 2.2 K16 86.2 K57 17.1
+ABK v16s cand span 273.5 sum 267.7: K58 16.6 K59 11.6 K60 31.2x2 K37 9.9x2 K61 27.6 K62 2.0 K63 1.8 K7 2.8 K51 164.3
+ABK v16s donor span 248.8 sum 244.5: K64 19.8 K65 11.6 K66 28.9x2 K67 5.5 K68 25.1 K69 4.7 K70 143.1 K71 5.8
+ABK v16f cand span 378.6 sum 373.1: K58 16.1 K72 106.7 K60 29.4x2 K37 9.5x2 K61 25.9 K62 2.0 K63 1.9 K7 2.8 K51 178.8
+ABK v16f donor span 356.8 sum 352.4: K64 19.7 K73 102.6 K66 28.4x2 K67 5.5 K68 25.4 K69 4.6 K70 160.6 K71 5.7
+ABK v32s cand span 359.1 sum 353.8: K74 25.8 K59 16.0 K75 35.4x2 K76 7.6 K77 32.9 K62 2.6 K63 1.9 K7 2.9 K51 220.9 K78 7.7
+ABK v32s donor span 324.5 sum 320.5: K79 23.1 K65 14.6 K80 34.8x2 K81 13.9x2 K82 31.5 K83 3.3 K70 199.3
+ABK v32f cand span 526.3 sum 520.7: K74 25.0 K72 183.7 K75 35.6x2 K76 7.5 K77 32.6 K62 2.6 K63 1.9 K7 2.9 K51 221.3 K78 7.5
+ABK v32f donor span 497.1 sum 492.4: K79 22.7 K73 189.0 K80 34.4x2 K81 13.6x2 K82 31.4 K83 3.3 K70 198.0
+ABPIN donor sha256 8f17613bafb2369152f2739638bf8f6dfb193f6a79dbad3e6d25795cf1ebaf4a git-blob 02389585ece4c36bf983e2cd616a50c0f3a9364f as read (muse_decode_layer.py); comment-stripped and patched as sent: sha256 8f17613bafb2369152f2739638bf8f6dfb193f6a79dbad3e6d25795cf1ebaf4a git-blob 02389585ece4c36bf983e2cd616a50c0f3a9364f
+ABPIN cand sha256 b9c23bda16bb9d6311f025062e415841c67b16284737172badaa190fdc506a49 git-blob a891f169e73a100eaaf64e3efc70bd4758f05f5e (submission.py); comment-stripped as sent: sha256 e88797b0e18e3646d6b98695493935ae968f3df5d70331aa2ea265358a848b64 git-blob cdf81fe1d875db4bd42ab0ff0a9347f19587d886
+ABDIAG cand attention fallback on fresh rows vs FP32: 1x1s ours 1.63e-03 sglang 5.21e-02 ours-vs-sglang 5.20e-02; 1x8s ours 3.63e-02 sglang 4.06e-02 ours-vs-sglang 3.09e-02; 1x1f ours 1.75e-03 sglang 6.75e-03 ours-vs-sglang 7.14e-03; 1x8f ours 1.76e-02 sglang 2.19e-02 ours-vs-sglang 1.46e-02; attn_one_ours=1
+ABPAD cand2 15683584 bytes
+ABPAD donor 16493568 bytes
+ABPAD donor2 28180480 bytes
+ABPAD cand 3909120 bytes
+ABPREP order cand2 donor donor2 cand (dup own, seed 84)
+ABPREP cand2 19 s
+ABPREP donor 16 s
+ABPREP donor2 1 s
+ABPREP cand 15 s
+ABPREP all at 52 s
+ABEND prepare at 55 s
+ABCHK cand 24 of 24 PASS; shapes with a FAIL 0
+ABCHK cand2 24 of 24 PASS; shapes with a FAIL 0
+ABCHK donor 24 of 24 PASS; shapes with a FAIL 0
+ABCHK donor2 24 of 24 PASS; shapes with a FAIL 0
+ABPOS dev by position in the round: cand: p0 -0.06% (75) p1 -0.07% (73) p2 +0.07% (62) p3 +0.13% (78) | cand2: p0 -0.00% (71) p1 -0.05% (83) p2 +0.02% (66) p3 +0.06% (68) | donor: p0 -0.05% (67) p1 -0.05% (65) p2 +0.03% (82) p3 +0.06% (74) | donor2: p0 +0.00% (75) p1 +0.05% (67) p2 -0.02% (78) p3 -0.03% (68)
+ABPRED dev from the arm's per-input median by the arm replayed before it: cand: cand -0.15% (18) cand2 -0.06% (80) donor +0.06% (97) donor2 +0.00% (87) first +1.44% (6) | cand2: cand -0.05% (83) cand2 -0.18% (19) donor -0.02% (90) donor2 +0.10% (93) first +1.74% (3) | donor: cand -0.02% (81) cand2 -0.05% (91) donor -0.07% (20) donor2 +0.13% (92) first +1.28% (4) | donor2: cand -0.06% (100) cand2 -0.02% (92) donor +0.07% (77) donor2 +0.02% (8) first +1.17% (11)
+ABTWIN cand after cand2 minus after others -0.07%; cand2 after cand minus after others -0.07%; donor after donor2 minus after others +0.18%; donor2 after donor minus after others +0.09%
+ABPOL cand/cand2 moe same: 1:sk8w3s 8:sk8w3s 16:sk8w3s 32:main-lean-grp-nohoist 128:main-lean-grp-nohoist 256:main-lean-grp-nohoist
+ABPOL cand/cand2 w4 DIFF: cand 1:27/21 8:26/24 16:18/28 32:26/28 128:4/29 256:30/29 | cand2 1:17/21 8:26/24 16:18/28 32:26/28 128:4/13 256:30/29
+ABPOL cand/cand2 front DIFF: cand 1:fp32 8:skf 16:skf 32:skf 128:concat 256:concat | cand2 1:fp32 8:skf-r 16:skf-r 32:skf-r 128:concat-r 256:concat-r
+ABPOL cand/cand2 abnd DIFF: cand 1:c8x256 8:c1x1024 16:sglang 32:sglang 128:sglang 256:c1x512 | cand2 1:c8x256 8:c8x256 16:sglang 32:c1x1024 128:sglang 256:c1x512
+ABPOL cand/cand2 skp same: o1:cgemv o2:o8 o3:o8 o4:o8 o5:o8 o6:o8 o7:o8 o8:o8 o9:o16 o10:o16 o11:o16 o12:o16 o13:o16 o14:o16 o15:o16 o16:o16 o17:o32 o18:o32 o19:o32 o20:o32 o21:o32 o22:o32 o23:o32 o24:o32 o25:o32 o26:o32 o27:o32 o28:o32 o29:o32 o30:o32 o31:o32 o32:o32 p1:cgemv p2:pool8 p3:pool8 p4:pool8 p5:pool8 p6:pool8 p7:pool8 p8:pool8 p9:pool16 p10:pool16 p11:pool16 p12:pool16 p13:pool16 p14:pool16 p15:pool16 p16:pool16 p17:pool32 p18:pool32 p19:pool32 p20:pool32 p21:pool32 p22:pool32 p23:pool32 p24:pool32 p25:pool32 p26:pool32 p27:pool32 p28:pool32 p29:pool32 p30:pool32 p31:pool32 p32:pool32 q1:cgemv q2:qkv8 q3:qkv8 q4:qkv8 q5:qkv8 q6:qkv8 q7:qkv8 q8:qkv8 q9:qkv16 q10:qkv16 q11:qkv16 q12:qkv16 q13:qkv16 q14:qkv16 q15:qkv16 q16:qkv16 q17:qkv32 q18:qkv32 q19:qkv32 q20:qkv32 q21:qkv32 q22:qkv32 q23:qkv32 q24:qkv32 q25:qkv32 q26:qkv32 q27:qkv32 q28:qkv32 q29:qkv32 q30:qkv32 q31:qkv32 q32:qkv32 u1:cgemv u2:slice8 u3:slice8 u4:slice8 u5:slice8 u6:slice8 u7:slice8 u8:slice8 u9:unp16 u10:unp16 u11:unp16 u12:unp16 u13:unp16 u14:unp16 u15:unp16 u16:unp16 u17:unp32 u18:unp32 u19:unp32 u20:unp32 u21:unp32 u22:unp32 u23:unp32 u24:unp32 u25:unp32 u26:unp32 u27:unp32 u28:unp32 u29:unp32 u30:unp32 u31:unp32 u32:unp32
+ABPOL cand/cand2 wide same: pooler:b1n128c2s8h qkv_gate:b1n128c3s8h
+ABPOL cand/cand2 m1 same: none
+ABPOL cand/cand2 wspick same: -
+ABPOL cand/cand2 stages DIFF: cand 11111111111110 | cand2 11111111111111
+ABPOL donor/donor2 donor mm_pick DIFF: donor [((1, 'o'), 'bfp'), ((1, 'pr'), 'bfpf'), ((1, 'qkv'), 'bfp'), ((1, 'un'), 'bfp'), ((2, 'o'), 'bfp'), ((2, 'pr'), 'bfpf'), ((2, 'qkv'), 'bfp'), ((2, 'un'), False), ((4, 'o'), 'bfp'), ((4, 'pr'), 'bfpf'), ((4, 'qkv'), 'bfp'), ((4, 'un'), False), ((8, 'o'), 'bfp'), ((8, 'pr'), 'bfpf'), ((8, 'qkv'), 'bfp'), ((8, 'un'), 'bfp'), ((16, 'o'), 'bfp'), ((16, 'pr'), 'bfpf'), ((16, 'qkv'), 'bfp'), ((16, 'un'), 'bfp'), ((32, 'o'), 'bfp'), ((32, 'pr'), 'bfp'), ((32, 'qkv'), 'bfp'), ((32, 'un'), 'bfp'), ((64, 'o'), 'bfp'), ((64, 'pr'), False), ((64, 'qkv'), 'bfp'), ((64, 'un'), 'bfp'), ((128, 'o'), True), ((128, 'pr'), True), ((128, 'qkv'), True), ((128, 'un'), True), ((256, 'o'), True), ((256, 'pr'), True | donor2 [((1, 'o'), 'bfp'), ((1, 'pr'), 'bfpf'), ((1, 'qkv'), 'bfp'), ((1, 'un'), 'bfp'), ((2, 'o'), 'bfp'), ((2, 'pr'), 'bfpf'), ((2, 'qkv'), 'bfp'), ((2, 'un'), False), ((4, 'o'), 'bfp'), ((4, 'pr'), 'bfpf'), ((4, 'qkv'), 'bfp'), ((4, 'un'), False), ((8, 'o'), 'bfp'), ((8, 'pr'), 'bfpf'), ((8, 'qkv'), 'bfp'), ((8, 'un'), 'bfp'), ((16, 'o'), 'bfp'), ((16, 'pr'), 'bfpf'), ((16, 'qkv'), 'bfp'), ((16, 'un'), 'bfp'), ((32, 'o'), 'bfp'), ((32, 'pr'), 'bfp'), ((32, 'qkv'), 'bfp'), ((32, 'un'), 'bfp'), ((64, 'o'), True), ((64, 'pr'), False), ((64, 'qkv'), 'bfp'), ((64, 'un'), 'bfp'), ((128, 'o'), True), ((128, 'pr'), True), ((128, 'qkv'), True), ((128, 'un'), True), ((256, 'o'), True), ((256, 'pr'), True)
+ABPOL donor/donor2 donor moe_pick same: [(1, 'agent'), (2, 'agent'), (4, 'agent'), (8, 'agent'), (16, 'agent'), (32, 'agent'), (64, 'agent'), (128, 'agent'), (256, 'agent')]
+ABPOL donor/donor2 donor gluev2 same: [(1, False), (2, False), (4, False), (8, False), (16, False), (32, False), (64, False), (128, False), (256, False)]
+ABPOL donor/donor2 donor compose_graft_enabled same: [(1, True), (8, True), (16, True), (32, True), (128, False), (256, True)]
+ABPOL donor/donor2 donor compose_boundary_warps DIFF: donor [(1, 16), (8, 16), (16, 16), (32, 16), (128, 16), (256, 16)] | donor2 [(1, 16), (8, 16), (16, 16), (32, 16), (128, 8), (256, 16)]
+ABPOL donor/donor2 donor pbmax same: 0
+ABPOL donor/donor2 donor att_ok same: True
+ABPOL donor/donor2 donor ma_ok same: True
+ABPOL donor/donor2 donor ma_sfx same: ('-DOKC_PRMTSC=1',)
+ABPOL donor/donor2 donor marlin_cfg same: []
+ABPOL donor/donor2 donor graft_lt same: ["('o', 128)", "('o', 256)", "('pr', 128)", "('pr', 256)", "('qkv', 128)", "('qkv', 256)", "('un', 128)", "('un', 256)"]
+ABPOL donor/donor2 donor compose DIFF: donor T1:(True, 16, ()) T8:(True, 16, ()) T16:(True, 16, ()) T32:(True, 16, ()) T128:(False, 16, ()) T256:(True, 16, ()) | donor2 T1:(True, 16, ()) T8:(True, 16, ()) T16:(True, 16, ()) T32:(True, 16, ()) T128:(False, 8, ()) T256:(True, 16, ())
+ABTIME d1s cand 84.3 cand2 79.0 donor 73.6 donor2 74.4 | paired donor-cand -10.6 donor2-cand -10.7 donor-cand2 -6.2 donor2-cand2 -5.8 | null cand2-cand -4.4 donor2-donor +0.2 (n=24)
+ABTIME d1f cand 100.2 cand2 96.5 donor 87.0 donor2 86.7 | paired donor-cand -13.6 donor2-cand -13.5 donor-cand2 -9.0 donor2-cand2 -9.0 | null cand2-cand -4.6 donor2-donor +0.1 (n=24)
+ABTIME v1s cand 136.7 cand2 135.5 donor 123.0 donor2 122.8 | paired donor-cand -13.2 donor2-cand -14.4 donor-cand2 -12.6 donor2-cand2 -12.8 | null cand2-cand -1.4 donor2-donor -0.5 (n=24)
+ABTIME v1f cand 125.9 cand2 126.3 donor 110.7 donor2 110.6 | paired donor-cand -15.2 donor2-cand -15.8 donor-cand2 -14.9 donor2-cand2 -15.1 | null cand2-cand -0.1 donor2-donor -0.1 (n=24)
+ABTIME d16s cand 146.1 cand2 145.6 donor 133.3 donor2 133.0 | paired donor-cand -12.1 donor2-cand -13.6 donor-cand2 -11.9 donor2-cand2 -12.6 | null cand2-cand -0.7 donor2-donor -1.3 (n=24)
+ABTIME d16f cand 233.3 cand2 231.6 donor 217.9 donor2 218.3 | paired donor-cand -14.2 donor2-cand -13.7 donor-cand2 -13.3 donor2-cand2 -12.8 | null cand2-cand -0.7 donor2-donor +0.3 (n=24)
+ABTIME d32s cand 174.6 cand2 175.3 donor 154.8 donor2 155.3 | paired donor-cand -19.3 donor2-cand -19.4 donor-cand2 -19.6 donor2-cand2 -19.7 | null cand2-cand -0.1 donor2-donor -0.3 (n=24)
+ABTIME d32f cand 343.5 cand2 344.0 donor 321.8 donor2 322.5 | paired donor-cand -22.4 donor2-cand -23.0 donor-cand2 -22.4 donor2-cand2 -22.1 | null cand2-cand +0.4 donor2-donor -0.3 (n=24)
+ABTIME v16s cand 286.2 cand2 279.1 donor 262.5 donor2 264.0 | paired donor-cand -20.9 donor2-cand -21.1 donor-cand2 -16.0 donor2-cand2 -16.2 | null cand2-cand -4.4 donor2-donor -0.1 (n=24)
+ABTIME v16f cand 394.7 cand2 388.9 donor 372.7 donor2 372.4 | paired donor-cand -22.5 donor2-cand -20.3 donor-cand2 -17.0 donor2-cand2 -12.7 | null cand2-cand -5.8 donor2-donor +1.2 (n=24)
+ABTIME v32s cand 367.0 cand2 362.2 donor 328.8 donor2 328.8 | paired donor-cand -36.2 donor2-cand -37.5 donor-cand2 -32.5 donor2-cand2 -33.7 | null cand2-cand -3.9 donor2-donor -0.8 (n=24)
+ABTIME v32f cand 521.6 cand2 514.1 donor 494.4 donor2 490.2 | paired donor-cand -27.7 donor2-cand -30.8 donor-cand2 -22.4 donor2-cand2 -24.1 | null cand2-cand -5.5 donor2-donor -2.7 (n=24)
+ABLOAD d1 (46 sliding + 16 full) / 62: cand 88.4 cand2 83.5 donor 77.1 donor2 77.5 | cross cand/donor 1.1471 cand/donor2 1.1404 cand2/donor 1.0835 cand2/donor2 1.0771 pooled 1.1116 | null cand2/cand 0.9445 donor2/donor 1.0059
+ABLOAD v1 (46 sliding + 16 full) / 62: cand 133.9 cand2 133.1 donor 119.8 donor2 119.6 | cross cand/donor 1.1176 cand/donor2 1.1196 cand2/donor 1.1112 cand2/donor2 1.1131 pooled 1.1154 | null cand2/cand 0.9942 donor2/donor 0.9983
+ABLOAD d16 (46 sliding + 16 full) / 62: cand 168.6 cand2 167.8 donor 155.1 donor2 155.0 | cross cand/donor 1.0872 cand/donor2 1.0878 cand2/donor 1.0821 cand2/donor2 1.0826 pooled 1.0849 | null cand2/cand 0.9952 donor2/donor 0.9995
+ABLOAD d32 (46 sliding + 16 full) / 62: cand 218.2 cand2 218.9 donor 197.9 donor2 198.4 | cross cand/donor 1.1025 cand/donor2 1.0997 cand2/donor 1.1058 cand2/donor2 1.1030 pooled 1.1027 | null cand2/cand 1.0030 donor2/donor 1.0025
+ABLOAD v16 (46 sliding + 16 full) / 62: cand 314.2 cand2 307.5 donor 290.9 donor2 292.0 | cross cand/donor 1.0800 cand/donor2 1.0761 cand2/donor 1.0569 cand2/donor2 1.0530 pooled 1.0664 | null cand2/cand 0.9786 donor2/donor 1.0036
+ABLOAD v32 (46 sliding + 16 full) / 62: cand 406.9 cand2 401.4 donor 371.6 donor2 370.4 | cross cand/donor 1.0951 cand/donor2 1.0985 cand2/donor 1.0802 cand2/donor2 1.0836 pooled 1.0893 | null cand2/cand 0.9865 donor2/donor 0.9969
+ABSCORE geometric mean over 6 loads of load-time ratios (above 1: the right-hand arm faster): cand/donor 1.1047; cross cand/donor 1.1047 cand/donor2 1.1035 cand2/donor 1.0864 cand2/donor2 1.0852; pooled 1.0949; null cand2/cand 0.9835 donor2/donor 1.0011
+ABDECIDE donor faster: pooled cand/donor 1.0949 (log +0.0907), cross range 1.0852-1.1047, larger null |log| 0.0167; rule: all four cross ratios on one side of 1 and |log pooled| above twice the larger null

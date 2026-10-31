@@ -70,3 +70,9 @@ Future reviews must carry F forward as a separate family even while its comparis
 This report is F's initial definition and track ledger. The [steering index](README.md) and [dashboard data](../architecture-dashboard.json) register F alongside A–E. The dated [A–E guide](../architecture-families-2026-10-29.md) and [performance tracker](../architecture-performance-tracker.md) retain their historical evidence snapshots; their earlier five-family statements do not exclude F.
 
 Sources: the [donor-first adoption report](2026-10-30-donor-first-adoption.md) and [alygg77 audit](2026-10-30-alygg77-public-kernel-audit.md), which retain source pins, external results and caveats. This task registers the family; it does not perform a fresh technical audit, query live ranks/quotas, import kernels, run benchmarks, change test tolerances or replace any release.
+
+## Addendum, 2026-10-31: user decision on the use of F results
+
+The user decided, in chat to the coordinator on 2026-10-31 (relayed to the F comparison owner), that **Family F is measurement and learning only.** When a donor path wins a case, an owner re-implements that mechanism in our own code with attribution in comments, as was done for vjeux. Donor files and donor code are never submitted verbatim, and F0 and F2 are not submission candidates. F1 likewise stays a measurement arm.
+
+This narrows the outcome table above: "use it as the replacement release candidate" and "build F2" become "re-implement the winning mechanism in our code and measure that build against the incumbent". The comparisons themselves continue as checks. Each F result names, for every case the donor wins, the mechanism precisely enough for an owner to re-implement it (route or kernel, geometry, stage count, packing, dispatch rule, with the donor file and line).
