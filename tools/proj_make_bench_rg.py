@@ -85,6 +85,17 @@ WD_SETS = {
     "r128c8s6": [P, P | D, P | F, P | V, P | F | V, P | F | V | D],
 }
 WD_BASES = {128: ("r64c8s8",), 256: ("r128c8s6", "r64c8s8")}
+# Round rk-d (--round rk-d, after rk-c): the in-kernel tile clear H (WV_GTICKET, reviewed, with
+# its fixes) as its own arm beside the order-only form R + M + O, each with and without F + V,
+# at m = 256 (r64c8s8, 128 CTAs) and at m = 128 (r64c16s8, 128 CTAs), with duplicate nulls.
+ROUNDS = {
+    "rk-d": ({
+        "r64c8s8": [P, P | D, KLE | GZ | O, KLE | GZ | O | F | V, KLE | TK | O, KLE | TK | O | D,
+                    KLE | TK | O | F | V],
+        "r128c8s6": [P, P | D],
+        "r64c16s8": [KLE | GZ | O, KLE | TK | O, KLE | TK | O | F | V],
+    }, {128: ("r64c8s8", "r64c16s8"), 256: ("r128c8s6", "r64c8s8")}),
+}
 WD_PROD = {"r64c8s8": "r64c8s8k", "r128c8s6": "r128c8s6k"}
 WD_REF = {128: "r64c8s8:vKLUEYZ", 256: "r128c8s6:vKLUEYZ"}
 
@@ -445,6 +456,7 @@ def donor_rw(path):
 
 
 def main():
+    global ROUND, WD_SETS, WD_BASES
     args = sys.argv[1:]
     if not args:
         raise SystemExit(__doc__)
@@ -457,6 +469,9 @@ def main():
             cu = Path(args.pop(0))
         elif a == "--donor":
             donor = donor_rw(args.pop(0))
+        elif a == "--round":
+            ROUND = args.pop(0)
+            WD_SETS, WD_BASES = ROUNDS[ROUND]
         elif a == "--donor-rk":
             donor = donor_rk(args.pop(0))
     sub = (ROOT / "muse_bf16_proj/submission.py").read_text()
