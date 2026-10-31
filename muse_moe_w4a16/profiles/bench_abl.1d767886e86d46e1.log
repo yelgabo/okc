@@ -1,0 +1,69 @@
+ABBUILD ours 59 s
+ABBUILD pub 162 s
+ABROUTE layer router seed 8 (mean relative miss 0.030)
+ABROUTE T=128 layer busiest local expert routes [50, 51, 52, 54, 47, 53]
+ABCHECK T=128 layer vs fp32 o51 3.84e-03 pub 2.34e-03; vs o51: o83 0.0e+00 o76 0.0e+00
+ABTIME T=128 layer mean of 6 o51 154.8 o83 154.8 o76 155.1 pub 145.5
+ABPAIR T=128 layer o83 minus o51 -0.5 +0.7 -0.3 +0.3 -0.2 -0.3 (mean -0.1, 4 of 6 lower)
+ABPAIR T=128 layer o76 minus o51 +0.3 +0.0 +0.1 +0.4 +0.3 +0.3 (mean +0.2, 0 of 6 lower)
+ABPAIR T=128 layer pub minus o51 -8.6 -6.0 -12.1 -12.3 -8.3 -8.5 (mean -9.3, 6 of 6 lower)
+ABSTAMP T=128 layer o55 route 3.2, start 9.8, phase A 87.5, A done max 108.7, phase B 41.8, tail 6.6, barrier+final 11.7, end 151.6, A end spread 11.4
+ABSTAMP T=128 layer pub route 2.4, start 5.8, phase A 83.4, A done max 96.0, phase B 41.2, tail 5.9, barrier+final 9.8, end 141.6, A end spread 6.7
+ABGATHER T=128 layer o55 stores 1.68, fences+barrier 4.27, release 0.45, first x ready after release 2.21, last first-x-ready from first gather start 10.20, gather total 6.40, pub gather 3.29, pub join 0.03
+ABPUB T=128 layer phase A mean 83.44, p10 79.80, p50 83.67, p90 86.69, max 90.50, stages min -10966.67, mean -9007.39, max 2868.17, cut units per CTA 1.00, rho(time, stages) 0.27
+ABROUTE T=128 std busiest local expert routes [30, 128, 92, 85, 64, 47]
+ABCHECK T=128 std vs fp32 o51 3.88e-03 pub 2.34e-03; vs o51: o83 0.0e+00 o76 0.0e+00
+ABTIME T=128 std mean of 6 o51 206.2 o83 206.4 o76 206.5 pub 192.8
+ABPAIR T=128 std o83 minus o51 +0.5 +0.0 -0.3 -0.2 +0.4 +0.9 (mean +0.2, 2 of 6 lower)
+ABPAIR T=128 std o76 minus o51 +1.0 +0.1 -1.0 -0.1 +0.5 +1.4 (mean +0.3, 2 of 6 lower)
+ABPAIR T=128 std pub minus o51 -17.4 -11.6 -16.4 -19.4 -6.2 -9.1 (mean -13.4, 6 of 6 lower)
+ABSTAMP T=128 std o55 route 3.6, start 9.0, phase A 123.0, A done max 143.5, phase B 57.2, tail 7.8, barrier+final 13.0, end 203.2, A end spread 11.5
+ABSTAMP T=128 std pub route 2.6, start 6.5, phase A 115.0, A done max 128.3, phase B 55.6, tail 5.4, barrier+final 9.3, end 187.9, A end spread 6.7
+ABGATHER T=128 std o55 stores 1.87, fences+barrier 2.78, release 0.60, first x ready after release 3.72, last first-x-ready from first gather start 11.43, gather total 5.26, pub gather 3.74, pub join 0.04
+ABPUB T=128 std phase A mean 115.03, p10 108.18, p50 116.33, p90 119.38, max 122.20, stages min -16861.50, mean -12146.64, max -1794.67, cut units per CTA 1.00, rho(time, stages) 0.38
+ABROUTE T=256 layer busiest local expert routes [107, 101, 99, 97, 107, 104]
+ABCHECK T=256 layer vs fp32 o51 3.85e-03 pub 2.34e-03; vs o51: o83 0.0e+00 o76 0.0e+00
+ABTIME T=256 layer mean of 6 o51 212.7 o83 212.4 o76 211.8 pub 192.6
+ABPAIR T=256 layer o83 minus o51 -0.8 +0.2 -0.4 -0.9 -0.1 +0.4 (mean -0.3, 4 of 6 lower)
+ABPAIR T=256 layer o76 minus o51 -1.5 -0.9 -1.2 -2.4 +0.4 +0.2 (mean -0.9, 4 of 6 lower)
+ABPAIR T=256 layer pub minus o51 -23.5 -19.6 -19.0 -19.9 -15.7 -22.4 (mean -20.0, 6 of 6 lower)
+ABSTAMP T=256 layer o55 route 4.1, start 12.3, phase A 123.7, A done max 145.2, phase B 57.9, tail 5.6, barrier+final 13.6, end 209.3, A end spread 9.2
+ABSTAMP T=256 layer pub route 3.4, start 8.4, phase A 112.2, A done max 128.2, phase B 54.9, tail 5.0, barrier+final 11.4, end 188.8, A end spread 7.6
+ABGATHER T=256 layer o55 stores 5.39, fences+barrier 2.29, release 0.46, first x ready after release 2.63, last first-x-ready from first gather start 12.03, gather total 8.14, pub gather 4.83, pub join 0.05
+ABPUB T=256 layer phase A mean 112.20, p10 107.06, p50 112.81, p90 116.43, max 120.28, stages min -4138.50, mean -2411.03, max 682.83, cut units per CTA 1.00, rho(time, stages) 0.28
+ABROUTE T=256 std busiest local expert routes [256, 64, 78, 237, 256, 209]
+ABCHECK T=256 std vs fp32 o51 3.84e-03 pub 2.34e-03; vs o51: o83 0.0e+00 o76 0.0e+00
+ABTIME T=256 std mean of 6 o51 241.9 o83 241.4 o76 241.0 pub 216.6
+ABPAIR T=256 std o83 minus o51 -0.4 +0.4 -1.3 -0.9 -0.3 -0.4 (mean -0.5, 5 of 6 lower)
+ABPAIR T=256 std o76 minus o51 -0.5 +1.0 -0.9 -1.7 -1.7 -1.2 (mean -0.8, 5 of 6 lower)
+ABPAIR T=256 std pub minus o51 -33.1 -15.2 -21.2 -25.0 -32.0 -25.2 (mean -25.3, 6 of 6 lower)
+ABSTAMP T=256 std o55 route 4.2, start 11.4, phase A 142.5, A done max 168.6, phase B 65.7, tail 9.6, barrier+final 17.6, end 239.1, A end spread 14.6
+ABSTAMP T=256 std pub route 3.3, start 8.7, phase A 126.5, A done max 142.6, phase B 62.3, tail 6.1, barrier+final 12.3, end 211.8, A end spread 7.5
+ABGATHER T=256 std o55 stores 4.77, fences+barrier 1.92, release 0.44, first x ready after release 3.48, last first-x-ready from first gather start 12.03, gather total 7.13, pub gather 5.15, pub join 0.05
+ABPUB T=256 std phase A mean 126.47, p10 121.22, p50 126.38, p90 131.58, max 134.87, stages min 4488.83, mean 6763.98, max 10110.17, cut units per CTA 1.00, rho(time, stages) 0.36
+ABMOE spin flags 0; total 164 s
+TEST sk8w4s worst rel err vs fp32 3.90e-03, spin flags 0
+TEST sk16w4s worst rel err vs fp32 3.90e-03, spin flags 0
+TEST sk8w3s worst rel err vs fp32 3.90e-03, spin flags 0
+TEST main-d2 worst rel err vs fp32 3.88e-03, spin flags 0
+TEST main-lean-grp-finss64 worst rel err vs fp32 3.88e-03, spin flags 0
+TEST legacy32 worst rel err vs fp32 4.28e-03, spin flags 0
+TEST legacy128 worst rel err vs fp32 4.28e-03, spin flags 0
+TEST legacy256 worst rel err vs fp32 4.28e-03, spin flags 0
+BENCH bs=128 main-lean-grp-finss64:206.7 ablate-nofence:207.2 main-finss64-psc:207.8 main-finss64-light:208.2 legacy128:250.8 legacy256:253.7 sk8w4s-loads:254.9 main-d2:255.0 sk8w3s:260.1 sk8w4s:263.3 legacy32:275.4 sk16w4s:283.2 us (graph replay, cold L2, mean of 2 routings)
+BENCH bs=256 main-finss64-psc:221.5 ablate-nofence:222.1 main-lean-grp-finss64:222.4 main-finss64-light:223.7 main-d2:282.8 legacy256:358.6 legacy128:386.0 sk8w4s-loads:401.4 sk8w3s:426.0 sk8w4s:430.2 sk16w4s:463.9 legacy32:468.3 us (graph replay, cold L2, mean of 2 routings)
+POLICY {1: sk8w3s, 8: sk8w3s, 16: sk8w3s, 32: sk8w3s, 128: main-lean-grp-finss64, 256: main-lean-grp-finss64}
+TEST policy worst rel err vs fp32 3.90e-03, spin flags 0
+PREPARE repack 0.7 s, build 83.6 s, self-test 0.3 s, bench 0.7 s, smem 228736 B, ok True, main True
+USDT:2026-10-31 05:12:29 77:77 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-10-31 05:12:29 77:77 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-10-31 05:12:29 77:77 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-10-31 05:12:29 77:77 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-10-31 05:12:29 77:77 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-10-31 05:12:29 77:77 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-10-31 05:12:29 77:77 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-10-31 05:12:29 77:77 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-10-31 05:12:29 77:77 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-10-31 05:12:29 77:77 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-10-31 05:12:29 77:77 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-10-31 05:12:29 77:77 SyncActivityProfilerHandler.cpp:46] profiler_stop

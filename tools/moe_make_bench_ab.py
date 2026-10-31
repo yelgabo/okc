@@ -304,6 +304,7 @@ _AB_STAMP_SIZES = @STAMPSIZES@
 _AB_SKEW = @SKEW@
 _AB_PUBSKEW = @PUBSKEW@
 _AB_PUBFIX = @PUBFIX@
+_AB_WRONG = @WRONG@
 _AB_SK_PER = @SKPER@
 _AB_GATHER = @GATHER@
 _AB_FIX = @FIX@
@@ -899,7 +900,9 @@ def _ab_main():
                 line += f" pub {_rel(pub.kernel_fn(data, pstate).float(), ref):.2e}"
             line += f"; vs {base}:"
             for name, v in {**timed, **padiag}.items():
-                if name != base:
+                if name in _AB_WRONG:
+                    line += f" {name} excluded (ablation, numerically wrong by design)"
+                elif name != base:
                     line += f" {name} {_rel(_run(data, state, v).float(), ob):.1e}"
             print(line, flush=True)
             arms = {n: (lambda vv: lambda d: _run(d, state, vv))(v) for n, v in timed.items()}
@@ -1264,7 +1267,7 @@ def main():
     rest = sys.argv[3:]
     opts = {"base": "28", "seeds": "1,2,3,4,5,6", "sizes": "32,128,256", "routings": "layer,std",
             "pairs": "", "small": "", "pubranges": "", "skextra": "", "unitstamps": "",
-            "stampsizes": "", "gate": "", "skew": "", "pubskew": "", "pubfix": "", "skst": "",
+            "stampsizes": "", "gate": "", "skew": "", "pubskew": "", "pubfix": "", "ablate": "", "skst": "",
             "work": "", "score": "", "nopub": ""}
     arms = {}
     for a in rest:
@@ -1316,6 +1319,15 @@ def main():
         assert n == 1
     src, n = re.subn(r"^MAIN_MODES = \(.*?\)$", f"MAIN_MODES = {tuple(modes)}", src, flags=re.M)
     assert n == 1
+    # Ablation arms (83-85, timing only) compile only with OKC_MOE_ABLATE, which only this flag
+    # defines; they are never added to MAIN_CANDIDATES, so prepare never tests or picks them.
+    abl = {m for m in arms.values() if isinstance(m, int) and 83 <= m <= 85}
+    assert bool(abl) == bool(opts["ablate"]), "ablation arms need --ablate=1 and vice versa"
+    assert not (abl and (gate or nopub)), "ablations are diagnostics, not gate or scored arms"
+    if abl:
+        src, n = re.subn(r'^_CUDA_SRC = r"""\n', '_CUDA_SRC = r"""\n#define OKC_MOE_ABLATE 1\n', src,
+                         flags=re.M)
+        assert n == 1
     src, n = re.subn(r"^GATE_RUNS = \(.*?\)$", "GATE_RUNS = ()", src, flags=re.M)
     assert n == 1
     if gate and not nopub:
@@ -1344,6 +1356,7 @@ def main():
                      ("@SKEW@", repr(skewt)), ("@SKPER@", repr(SK_PER)),
                      ("@PUBSKEW@", repr(bool(opts["pubskew"]))),
                      ("@PUBFIX@", repr(bool(opts["pubfix"]))),
+                     ("@WRONG@", repr(tuple(k for k, m in arms.items() if m == 84))),
                      ("@WORK@", repr(bool(opts["work"]))),
                      ("@GATHER@", repr(GATHER_TWINS)), ("@FIX@", repr(FIX_TWINS)),
                      ("@DF@", repr(DF_TWINS)), ("@NOPUB@", repr(nopub))):
