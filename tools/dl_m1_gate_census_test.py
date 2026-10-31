@@ -6,7 +6,10 @@ rounding level, as in d6c30f88c617438b; here relative about 2e-3) must be skippe
 without an M1 launch, judged and rejected at a shape with one, and judged and rejected
 wherever the census fails.
 
-    uv run --with torch python tools/dl_m1_gate_census_test.py tools
+    uv run --with torch python tools/dl_m1_gate_census_test.py tools [LAYER.py]
+
+With LAYER.py, the gate and M1 code come from that file instead (from the shared gate
+comment to _moe1_tune and from the M1 negative-control comment to _m1_enable).
 """
 import sys
 import torch
@@ -17,8 +20,17 @@ import dl_gate_patch as gp  # noqa: E402
 torch.cuda.synchronize = lambda: None
 ns = {"torch": torch, "_FAILED": [], "M1_BUCKETS": (8, 16, 32), "M1_STRESS_REPLAYS": 60,
       "HIDDEN": 256, "RMS_EPS": 1e-6}
-exec(gp.GATE_SRC, ns)
-exec(gp.M1_SRC, ns)
+if len(sys.argv) > 2:
+    layer = open(sys.argv[2]).read()
+    exec(layer[layer.index("# Fresh-input replay gate"):layer.index("def _moe1_tune(")], ns)
+    if "\nM1_GATE_MODE = " in layer:
+        exec(layer[layer.index("\nM1_GATE_MODE = "):].split("\n")[1], ns)
+    a = layer.index("# The single-element negative control in the M1 gate")
+    exec(layer[a:layer.index("def _m1_enable(state):", a)], ns)
+    print(f"gate and M1 code from {sys.argv[2]}")
+else:
+    exec(gp.GATE_SRC, ns)
+    exec(gp.M1_SRC, ns)
 CFG = {"inject": None, "census_broken": False}
 calls = {}
 

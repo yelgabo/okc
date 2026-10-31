@@ -9,7 +9,14 @@ unchanged: its configs only matter when no fused MoE variant is picked. SUMMARY 
 "stable" line per tuner and token count with every paired saving, its round count and the
 margin. No device code changes.
 
-    python3 tools/dl_stable_tuner_patch.py IN.py OUT.py "HEADER LINE 2"
+--pref=KIND:T=NAME (repeatable) replaces one preferred pick, for a candidate whose own receipt
+differs from the release's (KIND moe, front, abnd or m1). --m1 also moves _m1_tune (an M1 file)
+to the rule: per bucket, off / o / o+front are timed as whole-step loads in STABLE_ROUNDS
+rotated rounds and the preferred mode (STABLE_PREF["m1"], which --pref must then fill for
+every bucket) stays unless another wins beyond the noise; the stop rule at 8 tokens is
+unchanged. Without either option the output is byte-identical to the earlier tool's.
+
+    python3 tools/dl_stable_tuner_patch.py IN.py OUT.py "HEADER LINE 2" [--pref=...] [--m1]
 """
 import sys
 
@@ -272,8 +279,103 @@ def cut(text, start, end, new):
     return text[:a] + new + text[b:]
 
 
+# A file built by tools/dl_gate_patch.py checks route variants with the fresh-input gate
+# instead of replaying the timing graph; the stable front tuner keeps whichever check the file
+# has.
+GATED_FRONT = [
+    ('''    within 1e-3, and after ROUTE_STRESS more replays of its graph the same output and a clean
+    MoE scratch (no spin timeout)."""''',
+     '''    within 1e-3, the fresh-input replay gate (_route_fresh_gate, ROUTE_STRESS replays against
+    as many eager calls) and a clean MoE scratch (no spin timeout)."""'''),
+    ('''                if variant in ROUTE_VARIANTS and cres.get("y") is not None:
+                    for _ in range(ROUTE_STRESS):
+                        cgraph.replay()
+                    torch.cuda.synchronize()
+                    outs[variant].append(cres["y"].clone())''',
+     '''                if variant in ROUTE_VARIANTS and cres.get("y") is not None:
+                    outs[variant].append(_route_fresh_gate(
+                        lambda: front_moe(cres), cres, ffn_input, router_input,
+                        f"{variant}@{tokens}", state))'''),
+]
+FRONT_ENDS = ("# Extra replays of a route variant's front + MoE graph in the tuner",
+              "# Replays of a route variant's front + MoE graph in the tuner under the")
+
+M1_OLD = '''        med = _m1_pair(state, graphs, flush, 9)
+        del graphs
+        load = {mode: (46 * med[(mode, "sliding")] + 16 * med[(mode, "full")]) / 62
+                for mode in ("off", "o", "o+front")}
+        best = min(load, key=load.get)
+'''
+M1_NEW = '''        per = _m1_rounds(graphs, flush)
+        del graphs
+        med = {k: sorted(v)[len(v) // 2] for k, v in per.items()}
+        rounds = {mode: [(46 * s + 16 * f) / 62 for s, f in zip(per[(mode, "sliding")],
+                                                               per[(mode, "full")])]
+                  for mode in ("off", "o", "o+front")}
+        load = {mode: sorted(v)[len(v) // 2] for mode, v in rounds.items()}
+        best, note = _stable_pick(rounds, STABLE_PREF["m1"].get(bucket))
+        state.setdefault("stable_report", {})[f"m1 T={bucket}"] = note
+'''
+M1_ROUNDS = '''def _m1_rounds(graphs, flush):
+    """STABLE_ROUNDS rounds over M1's modes, the mode order rotated each round and both layers
+    of a mode back to back; (mode, layer) -> its cold-L2 graph median (us) in each round."""
+    modes = list(dict.fromkeys(m for m, _ in graphs))
+    times = {k: [] for k in graphs}
+    for r in range(STABLE_ROUNDS):
+        for m in modes[r % len(modes):] + modes[:r % len(modes)]:
+            for k in graphs:
+                if k[0] == m:
+                    times[k].append(_graph_median(graphs[k], flush, 10))
+    return times
+
+
+def _m1_tune(state):'''
+
+DEFAULT_PREF = {
+    "moe": {1: "sk8w3s", 8: "sk8w3s", 16: "sk8w3s", 32: "main-lean-grp-nohoist",
+            128: "main-lean-grp-nohoist", 256: "main-lean-grp-nohoist"},
+    "front": {1: "fp32", 8: "skf-r", 16: "skf-r", 32: "skf-r", 128: "concat-r", 256: "concat-r"},
+    "abnd": {1: "c8x256", 8: "c1x1024", 16: "sglang", 32: "sglang", 128: "sglang",
+             256: "c1x512"},
+}
+
+
+def pref_block(pref):
+    lines = ["STABLE_PREF = {"]
+    for kind, table in pref.items():
+        lines.append(f'    "{kind}": {{')
+        lines += [f'        {t}: "{name}",' for t, name in table.items()]
+        lines.append("    },")
+    return "\n".join(lines) + "\n}\n"
+
+
 def main():
-    src, out, header = sys.argv[1], sys.argv[2], sys.argv[3]
+    args = [a for a in sys.argv[1:] if not a.startswith("--")]
+    if len(args) != 3:
+        raise SystemExit(__doc__)
+    src, out, header = args
+    pref = {k: dict(v) for k, v in DEFAULT_PREF.items()}
+    m1 = False
+    for a in sys.argv[1:]:
+        if a == "--m1":
+            m1 = True
+        elif a.startswith("--pref="):
+            kind, _, rest = a[len("--pref="):].partition(":")
+            t, _, name = rest.partition("=")
+            if kind not in ("moe", "front", "abnd", "m1") or not t.isdigit() or not name:
+                raise SystemExit(f"bad {a}")
+            pref.setdefault(kind, {})[int(t)] = name
+        elif a.startswith("--"):
+            raise SystemExit(f"unknown option {a}")
+    if m1 and sorted(pref.get("m1", {})) != [8, 16, 32]:
+        raise SystemExit("--m1 needs --pref=m1:8=..., --pref=m1:16=... and --pref=m1:32=...")
+    if "m1" in pref and not m1:
+        raise SystemExit("--pref=m1:... needs --m1")
+    helper = HELPER
+    if pref != DEFAULT_PREF:
+        a = helper.index("STABLE_PREF = {")
+        b = helper.index("\n}\n", a) + 3
+        helper = helper[:a] + pref_block(pref) + helper[b:]
     text = open(src).read()
     if "STABLE_ROUNDS" in text:
         raise SystemExit("IN already has the stable tuners")
@@ -281,11 +383,26 @@ def main():
                   "def _moe1_enable(state, weights):"):
         if text.count(start) != 1:
             raise SystemExit(f"expected one {start!r}")
+    ends = [e for e in FRONT_ENDS if text.count(e) == 1]
+    if len(ends) != 1:
+        raise SystemExit("the comment after _front_tune is not where expected")
+    front = FRONT_TUNE
+    if ends[0] == FRONT_ENDS[1]:
+        if "def _route_fresh_gate(" not in text:
+            raise SystemExit("gated front comment without _route_fresh_gate")
+        for old, new in GATED_FRONT:
+            if front.count(old) != 1:
+                raise SystemExit(f"FRONT_TUNE changed: {old[:60]!r}")
+            front = front.replace(old, new)
     text = cut(text, "def _moe1_tune(state, variants", "def _moe1_enable(state, weights):",
-               HELPER + MOE_TUNE)
-    text = cut(text, "def _front_tune(state):",
-               "# Extra replays of a route variant's front + MoE graph in the tuner", FRONT_TUNE)
-    for old, new in ABND_REPS + [(SUMMARY_OLD, SUMMARY_NEW)]:
+               helper + MOE_TUNE)
+    text = cut(text, "def _front_tune(state):", ends[0], front)
+    reps = ABND_REPS + [(SUMMARY_OLD, SUMMARY_NEW)]
+    if m1:
+        reps += [(M1_OLD, M1_NEW), ("def _m1_tune(state):", M1_ROUNDS),
+                 ("    off, o and o + front per bucket; the fastest load wins per bucket. Stop",
+                  "    off, o and o + front per bucket; _stable_pick decides per bucket. Stop")]
+    for old, new in reps:
         if text.count(old) != 1:
             raise SystemExit(f"not where expected: {old[:60]!r}")
         text = text.replace(old, new)
