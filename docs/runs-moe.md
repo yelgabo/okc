@@ -4017,6 +4017,53 @@ each testable as one mode on 51 with every fence kept:
    needs per-job x slot sizes in the ring arithmetic.
 Budget: the coordinator's 2 remaining MoE checks today are unspent.
 
+## Earlier x slot release (mode 86), 2026-10-31
+
+Brief (coordinator): build direction (a) above on 51, every fence kept, one check under a rule set
+first; if it gains but leaves most of the gap, per-job x slot sizing (b) follows after the reset.
+
+### The change
+
+Mode 86 is 51 with each stage's x slot released at the end of that stage: after the stage's eighth
+commit group, `wgmma.wait_group 0`, then lane 0 of each warp arrives on the slot's empty barrier
+(`x_release_warp`, count 32 per warp as in 51). 51 releases the slot one group into the next
+stage, after `wait_group 1` retires the previous stage's last group. The x producer can then
+issue the copy three stages ahead about one commit group earlier; the cost is that a stage's last
+group no longer overlaps the next stage's first. Nothing else changes: the weights slot, its
+per-thread fence and arrive, the phase A publish, the waits and every barrier are 51's.
+
+Ordering: the same chain as 51's x release ("Ordering of the ring slot releases", the x slot):
+the x slot is read only by wgmma through its descriptor (async proxy, 9.7.17.4); the reads of
+every wgmma of the stage complete before `wgmma.wait_group 0` returns in each thread of the
+warpgroup; lane 0's `mbarrier.arrive` follows in program order with release semantics at cta
+scope (9.7.15.16.16); the x producer's `try_wait.parity` (acquire, 9.7.15.16.19) synchronizes with
+the phase it completes (8.9.4), and its `cp.async.bulk` (async proxy, 9.7.10.28.2) is ordered
+after it (8.9.1.1). Reads and the refill are in the same proxy, so no proxy fence is needed
+(8.9.5), as for 51. The release is only moved earlier in program order to a point where the
+retirement it depends on has already happened (wait_group 0 is stronger than 51's wait_group 1).
+
+Local compile gate (nvcc 12.8.1, Docker, sm_90a; MAIN_MODES (0, 16, 26, 28, 37, 47, 51, 72, 74, 79,
+86) against 14069cf's without 86): every other kernel has identical instruction text; no C75xx; 86
+at 96 registers, no spill; stage loops 383 (389 widest) against 387; wgmma pipelining intact
+(wait1 96 as 51, wait0 24 against 12: one per stage loop); SYNCS 174 against 186.
+
+### Gate rule (set before the check)
+
+One check of `tools/moe_make_bench_ab.py OUT.py DONOR_MAIN_ONLY.py --base=51 --sizes=32,128,256
+--routings=layer,std,skewed --seeds=181,182,183,184,185,186 --gate=1 o86=86` (seeds new on every
+routing). Keep 86 only if all hold:
+1. 256 tokens: 86 minus 51 mean -1.5 us or lower on layer and on standalone routing, at least 5 of
+   6 seeds lower on each, and 0 or lower on skewed.
+2. 128 tokens: -1.0 or lower on layer and standalone, +0.5 or lower on skewed.
+3. 32 tokens: +0.5 or lower on every routing.
+4. Output against 51: 0 at 128 and 256 tokens (same products and accumulation order); within
+   1e-4 at 32 (51's own atomics order).
+5. Prepare's FP32 self-test passes for 86; spin flags 0.
+6. The compile gate above on the checked commit, and an independent read-only review of the
+   moved release.
+If all hold, 86 joins MAIN_MODES and MAIN_CANDIDATES and the file goes to the coordinator; if any
+fails, 86 goes to docs/ruled-out.md and (b) is the next candidate after the reset.
+
 ## Staged pair on current components, 2026-10-29
 
 The staged two-launch MoE (mode 19, phase A alone on owned units, then mode 21, phase B and the
