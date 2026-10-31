@@ -1348,3 +1348,39 @@ handed to the coordinator.
 |---|---|---|---|---|
 | qkv one-wave 4-CTA cluster K split (72 rows, 128 CTAs) | qkv 8 / 16 / 32 | measured loss +9 to +12 us, cause not attributed | ad6c673d9a444c1e | parked; reopen trigger in ruled-out |
 | everything else | | unchanged from round 4 | | |
+
+## 2026-10-31 (UTC) round 6: codec work model, dense-tile verdict, BG / RG / LTS diagnostics (branch proj-r6)
+
+Brief (coordinator): no-quota work model for a denser lossless code, a verdict on the dense
+whole-output-tile sketch, and two prepared benches (batched GEMM at m = 256, router reference
+differences); after the reset, up to 4 checks. Full write-up: addendum 2026-10-31 in
+docs/steering/2026-10-30-projection-top100.md. Code: `tools/proj_codec_model.py`,
+`tools/proj_make_bench_bg.py`, `tools/proj_make_bench_rg.py`, `tools/proj_make_bench_lts.py`;
+bench-only wd VAR bits WV_PGROUP / WV_ACQCL / WV_SCALAR in submission.py (production SASS 81 of 81
+kernels instruction-identical against bc10cb1, nvcc 12.8 sm_90a).
+
+| date | job | kind | commit | change | score (95% CI) | notes |
+|---|---|---|---|---|---|---|
+| 10-31 | cab546f978974515 | check (bench BG) | proj-r6 | qkv_gate / o at m = 256: 1, 2, 4 instances as one strided-batched launch, as separate launches, cuBLASLt's batched choice, 2x / 4x tokens | 1.496x | qkv: b1 17.47, batched 144x128 12.46 per instance, separate launches +0.9 each; o: t(b) = 1.56 + 6.77 b; nulls -0.08 / -0.02 |
+| 10-31 | 97869fa8302041b5 | check (bench RG) | proj-r6 | router: G producer group, A acquire.cluster waits, Q scalar XA stores, alone and with S | 1.505x | m = 128: A+S -0.22 (84/100), G -0.13 (69), A with watchdog +0.48; m = 256 all within +-0.03 except A +0.19; G+A arms dropped (missing twins); donor control failed to build on CUDA 13 |
+| 10-31 | 8b9e8b7c1ecd4c3e | check (bench LTS) | proj-r6 | cuBLASLt tiles 18 / 20 / 24 / 124 / 134 / 183 / 184 x split-K 1-6 (FP32 reduce) x clusters x layouts, qkv_gate 128 / 256 and o 256 | 1.505x | qkv 256: large-tile splits +2.74 to +3.10 vs the 72x64 pin; o 256: none beats the pin; qkv 128: all +1.18 to +1.46 vs wd c3 |
+
+Codec work model (no GPU): entropy 10.515 bits per weight (12.4% under the 12-bit code); best
+fixed-rate lossless schemes pair7 (11.52 bits with escapes, 4.0% fewer bytes, escape counts
+that the current escape path can carry) and quad12 (11.16 bits, 7.1%, needs a lane-parallel
+escape path and a 32 KB LUT). Calibrated prediction if decode stays hidden: +1.44% (pair7) to
++2.58% (quad12) of score. Next: one factorial check (bytes-only and decode-only knock-ins on the
+shipped sk picks) before any codec build.
+
+Dense whole-output-tile sketch: declined without a run; at 256 tokens it is the incumbent cuBLASLt
+geometry, at 128 it only removes the incumbents' multicast (ruled-out, declined proposals).
+
+### Family ledger (muse_bf16_proj, after round 6)
+
+| family | shapes | status | evidence | next |
+|---|---|---|---|---|
+| denser lossless code (pair7 / quad12) | 16 cases at m <= 32 | work model only | tools/proj_codec_model.py | factorial knock-in check |
+| cuBLASLt large tile + split-K | qkv 128 / 256, o 256 | measured loss +1.2 to +3.1 us | 8b9e8b7c1ecd4c3e | parked |
+| router G / A / Q toggles | router 128 / 256 | A+S -0.22 and G -0.13 at 128 (bench-only spin); nulls at 256 | 97869fa8302041b5 | G+A twins in round rg-b if the router lane gets a check |
+| dense whole-tile sketch | dense 128 / 256 | declined | geometry comparison | none |
+| everything else | | unchanged from round 5 | | |
