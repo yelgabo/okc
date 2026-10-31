@@ -4098,8 +4098,9 @@ attn_one_kernel(const Params p) {
             const long long s_p0 = STAMPS ? clock64() : 0;
             if constexpr (PBULK) {
                 // Tile g (counted over all segments) reads window g % PB_SLOTS, filled by ptid 0
-                // PBD tiles ahead. A window is refilled only after the producers' bar.sync at
-                // the end of the tile that last read it (PBD < PB_SLOTS). A tile without cached
+                // PBD tiles ahead. A window is refilled only after every producer has read its
+                // previous fill: the producers' bar.sync at the end of each tile (ONE_PBULK=1,
+                // PBD < PB_SLOTS) or the window's free mbarrier (ONE_PBULK=2). A tile without cached
                 // rows, outside the table, or with an unaligned table takes the old loads; every
                 // producer thread evaluates the same predicate, so fills and waits pair up.
                 constexpr int PBD = 3;
@@ -4141,7 +4142,7 @@ attn_one_kernel(const Params p) {
                                 fbits ^= 1u << s;
                             }
                             // The window's previous generic reads (ordered before this thread
-                            // by the producers' bar.sync) precede the async-proxy write.
+                            // by the bar.sync or the free barrier) precede the async-proxy write.
                             fence_proxy_async();
                             mbar_expect_tx(bar, bytes);
                             bulk_g2s(smem_base + S::PSL + s * PB_SLOT_BYTES, p.page_table + w0,

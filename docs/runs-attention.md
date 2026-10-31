@@ -3457,3 +3457,36 @@ HMRGF), `prodonly_probe`, `pb2prod_probe`, `pub`, `pub2`. The check-1 clauses ap
 `pb2own` as its own-state twin) and to `pb2h`: (1) ABCHECKSUM; (2) G(X) - G(ctrlb) >= 0.10% and
 G(pb2own) - G(ctrl2) >= 0.10%; (3) same sign on all three inputs at d16 and d32 full; (4) no row beyond
 max(|ctrlb - ctrl|, 1%). `pb1` repeats check 3's arm for the ledger.
+
+Independent read-only review of `ONE_PBULK=2` (fresh agent, 10-31, source at 8bdf607): **sound**;
+the caveat (two comments that still named the producer `bar.sync` as the only ordering) is fixed in
+the source (comments only, no SASS change).
+
+### Check f3f1e4a5249a4228 (bench `bench_r`, at 8bdf607): `ONE_PBULK=2` loses; `ONE_PBULK=1` repeats its small gain
+
+| date | job | commit | file | result | notes |
+|---|---|---|---|---|---|
+| 2026-10-31 | f3f1e4a5249a4228 (check) | 8bdf607 | bench `bench_r` (11 arms, `--shapes full`, 3 inputs) | 2.519x (CI 2.481-2.570) judged path = board code, 16/16 tests, ABCHECKSUM 11/0 every real arm | pb2 +1.4 / +2.9 us; pb1 G +0.074% |
+
+Profiles: `muse_attention_decode/profiles/bench_r.f3f1e4a5249a4228.*`. Cold pooled, arm - ctrl (us):
+
+| row | ctrl | ctrlb | ctrl2 | pb1 | pb2 | pb2own | pb2h | pub | prodonly / pb2prod (abs.) |
+|---|---|---|---|---|---|---|---|---|---|
+| d16 full | 100.42 | +0.03 | +0.00 | -0.16 | +1.37 | +1.34 | +0.22 | -0.96 | 37.57 / 53.73 |
+| d32 full | 179.58 | +0.04 | -0.12 | -0.60 | +2.92 | +2.98 | +0.71 | -1.24 | 63.49 / 95.39 |
+
+Gate: `pb2` and `pb2h` fail clause 2 (G -0.45% / -0.09%) and `pb2` clause 4 (beyond 1% at d32).
+`pb1` again: G +0.074%, d32 -0.48 / -0.67 / -0.48 on the three inputs, d16 +0.00 / -0.26 / -0.13.
+Two benches put `ONE_PBULK=1` at +0.06-0.07% (rows in docs/ruled-out.md: a real gain below the bar;
+`ONE_PBULK=2` a loss). The free-barrier variant makes thread 0 wait each tile for the slowest
+producer's read of the previous fill before refilling, which slowed the producer more than the
+lockstep did (producer-only 53.7 / 95.4 us against 47.3 / 82.8).
+
+### Check 5 (attribution, no gate): the per-request rows by phase, with HMRG and PRQ in
+
+Outside the flat rows the donor / public lead is d1 full (0.47 us, about 0.28%), v32 sliding (0.61
+us, 0.13%) and d1 sliding. The last phase comparison (ce92d32e26024bd2) predates HMRG's promotion
+and PRQ. Bench `bench_s` (`flat/gen_s.sh`, `--null --shapes all --inputs 2 --rounds 120 --seed
+20261105`): our DIAG phase exits `p9_probe` .. `p12_probe` and `diag0_probe` (own state) against the
+public phase copies `pubph1_probe` .. `pubph4_probe` (scratchpad `a3/pubph0.py`, as in round 2),
+`ctrl2`, `pub`, `pub2`, and `pb1` a third time.
