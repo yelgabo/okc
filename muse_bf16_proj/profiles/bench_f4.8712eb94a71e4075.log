@@ -1,0 +1,61 @@
+RGBUILD prod 21.3 s, bench 13.2 s, 10 wd arms, donor off, round rg-d
+RGOVH 4.03 us
+RG m=128 med r64c8s8k:prod=7.17 r64c8s8:vKLUEYZ=7.17 r64c8s8:vKLUEDYZ=7.17 r64c8s8:vKLEDRM=8.42 r64c8s8:vKLERM=8.67 r64c16s8:vKLERM=8.67 r64c12s8:vKLERM=9.09
+RG m=128 d r64c8s8:vKLUEYZ r64c8s8k:prod=-0.03/54 r64c8s8:vKLUEDYZ=-0.02/50 r64c8s8:vKLEDRM=+1.25/1 r64c8s8:vKLERM=+1.50/1 r64c16s8:vKLERM=+1.47/1 r64c12s8:vKLERM=+1.92/1
+RG m=256 med r128c8s6k:prod=9.66 r128c8s6:vKLUEYZ=9.68 r128c8s6:vKLUEDYZ=9.73 r64c8s8:vKLERM=10.46 r64c8s8:vKLEDRM=10.59 r128c8s6:vKLERM=10.88 r64c6s8:vKLERM=11.39 r64c8s8k:prod=13.34 r64c8s8:vKLUEYZ=13.36 r64c8s8:vKLUEDYZ=13.66 r64c12s8:vKLERM=13.86
+RG m=256 d r128c8s6:vKLUEYZ r128c8s6k:prod=+0.00/48 r128c8s6:vKLUEDYZ=+0.03/40 r64c8s8:vKLERM=+0.83/4 r64c8s8:vKLEDRM=+0.94/1 r128c8s6:vKLERM=+1.22/2 r64c6s8:vKLERM=+1.66/0 r64c8s8k:prod=+3.74/0 r64c8s8:vKLUEYZ=+3.74/0 r64c8s8:vKLUEDYZ=+3.97/0 r64c12s8:vKLERM=+4.21/0
+RGDONE 35.1 s
+F1BUILD prod 0.0 s, bench 18.4 s, 60 sk configs, round f4-a: qkv8c:s4a1 qkv8l:s4a513 qkv8fl:s4a545 qkv8n:s4a129 qkv8fn:s4a161 slice8c:s4a1 slice8l:s4a513 slice8fl:s4a545 slice8n:s4a129 slice8fn:s4a161 o8c:s4a1 o8l:s4a513 o8fl:s4a545 o8n:s4a129 o8fn:s4a161 pool8c:s3a1 pool8l:s3a513 pool8fl:s3a545 pool8n:s3a129 pool8fn:s3a161 qkv16c:s5a1 qkv16l:s5a513 qkv16fl:s5a545 qkv16n:s5a129 qkv16fn:s5a161 o16c:s3a1 o16l:s3a513 o16fl:s3a545 o16n:s3a129 o16fn:s3a161 pool16c:s4a1 pool16l:s4a513 pool16fl:s4a545 pool16n:s4a129 pool16fn:s4a161 unp16c:s3a1 unp16l:s3a513 unp16fl:s3a545 unp16n:s3a129 unp16fn:s3a161 qkv32c:s4a1 qkv32l:s4a513 qkv32fl:s4a545 qkv32n:s4a129 qkv32fn:s4a161 o32c:s3a1 o32l:s3a513 o32fl:s3a545 o32n:s3a129 o32fn:s3a161 pool32c:s3a1 pool32l:s3a513 pool32fl:s3a545 pool32n:s3a129 pool32fn:s3a161 unp32c:s3a1 unp32l:s3a513 unp32fl:s3a545 unp32n:s3a129 unp32fn:s3a161
+F1OVH 3.81 us
+F1 qkv_gate m=8 med qkv8fl=10.43 qkv8n=10.56 qkv8fn=10.61 qkv8c=10.70 prod=10.72 qkv8l=10.78
+F1 qkv_gate m=8 d prod qkv8fl=-0.29/82 qkv8n=-0.16/65 qkv8fn=-0.14/63 qkv8c=+0.02/47 qkv8l=+0.03/44
+F1 unpooler m=8 med slice8fl=4.96 slice8c=4.99 slice8fn=4.99 slice8l=5.01 slice8n=5.02 prod=5.12
+F1 unpooler m=8 d prod slice8fl=-0.16/65 slice8c=-0.13/73 slice8fn=-0.13/74 slice8l=-0.14/72 slice8n=-0.16/70
+F1 o m=8 med o8fn=6.13 o8n=6.14 o8fl=6.22 prod=6.30 o8l=6.30 o8c=6.37
+F1 o m=8 d prod o8fn=-0.19/80 o8n=-0.13/71 o8fl=-0.06/60 o8l=-0.02/50 o8c=+0.06/37
+F1 pooler m=8 med pool8n=14.62 pool8fn=14.62 pool8fl=14.64 pool8c=14.85 pool8l=14.85 prod=14.88
+F1 pooler m=8 d prod pool8n=-0.26/70 pool8fn=-0.22/73 pool8fl=-0.24/70 pool8c=+0.00/49 pool8l=-0.03/52
+F1 qkv_gate m=16 med qkv16fn=10.34 qkv16n=10.50 qkv16fl=10.53 prod=10.82 qkv16c=10.88 qkv16l=10.90
+F1 qkv_gate m=16 d prod qkv16fn=-0.45/91 qkv16n=-0.34/85 qkv16fl=-0.27/81 qkv16c=+0.13/32 qkv16l=+0.06/36
+F1 o m=16 med o16fn=5.95 o16n=5.98 o16fl=6.02 prod=6.08 o16c=6.08 o16l=6.11
+F1 o m=16 d prod o16fn=-0.13/75 o16n=-0.10/67 o16fl=-0.08/64 o16c=+0.00/47 o16l=+0.00/43
+F1 pooler m=16 med pool16fn=14.78 pool16fl=14.88 prod=15.01 pool16n=15.01 pool16c=15.10 pool16l=15.14
+F1 pooler m=16 d prod pool16fn=-0.29/74 pool16fl=-0.10/60 pool16n=-0.02/50 pool16c=+0.08/40 pool16l=+0.10/38
+F1 unpooler m=16 med unp16n=14.37 unp16fn=14.43 unp16fl=14.50 unp16c=14.54 unp16l=14.58 prod=14.61
+F1 unpooler m=16 d prod unp16n=-0.26/69 unp16fn=-0.19/62 unp16fl=-0.08/57 unp16c=-0.06/57 unp16l=+0.03/47
+F1 qkv_gate m=32 med qkv32fn=11.04 qkv32n=11.46 qkv32c=11.94 qkv32l=11.94 prod=12.00 qkv32fl=12.10
+F1 qkv_gate m=32 d prod qkv32fn=-0.96/96 qkv32n=-0.51/89 qkv32c=-0.10/57 qkv32l=-0.03/51 qkv32fl=+0.10/33
+F1 o m=32 med o32fn=6.46 o32fl=6.56 o32n=6.56 o32l=6.62 prod=6.75 o32c=6.85
+F1 o m=32 d prod o32fn=-0.27/79 o32fl=-0.19/72 o32n=-0.19/76 o32l=-0.16/66 o32c=+0.06/40
+F1 pooler m=32 med pool32fn=15.47 pool32fl=15.55 pool32l=15.90 prod=15.97 pool32n=16.02 pool32c=16.10
+F1 pooler m=32 d prod pool32fn=-0.51/90 pool32fl=-0.40/80 pool32l=-0.05/53 pool32n=+0.05/47 pool32c=+0.08/41
+F1 unpooler m=32 med unp32n=15.33 prod=15.39 unp32fn=15.39 unp32c=15.41 unp32fl=15.46 unp32l=15.58
+F1 unpooler m=32 d prod unp32n=-0.05/51 unp32fn=+0.08/44 unp32c=+0.03/45 unp32fl=+0.10/35 unp32l=+0.22/33
+F1DONE 19.6 s
+F1BUILD prod 0.0 s, bench 18.4 s, 60 sk configs, round f4-a: qkv8c:s4a1 qkv8l:s4a513 qkv8fl:s4a545 qkv8n:s4a129 qkv8fn:s4a161 slice8c:s4a1 slice8l:s4a513 slice8fl:s4a545 slice8n:s4a129 slice8fn:s4a161 o8c:s4a1 o8l:s4a513 o8fl:s4a545 o8n:s4a129 o8fn:s4a161 pool8c:s3a1 pool8l:s3a513 pool8fl:s3a545 pool8n:s3a129 pool8fn:s3a161 qkv16c:s5a1 qkv16l:s5a513 qkv16fl:s5a545 qkv16n:s5a129 qkv16fn:s5a161 o16c:s3a1 o16l:s3a513 o16fl:s3a545 o16n:s3a129 o16fn:s3a161 pool16c:s4a1 pool16l:s4a513 pool16fl:s4a545 pool16n:s4a129 pool16fn:s4a161 unp16c:s3a1 unp16l:s3a513 unp16fl:s3a545 unp16n:s3a129 unp16fn:s3a161 qkv32c:s4a1 qkv32l:s4a513 qkv32fl:s4a545 qkv32n:s4a129 qkv32fn:s4a161 o32c:s3a1 o32l:s3a513 o32fl:s3a545 o32n:s3a129 o32fn:s3a161 pool32c:s3a1 pool32l:s3a513 pool32fl:s3a545 pool32n:s3a129 pool32fn:s3a161 unp32c:s3a1 unp32l:s3a513 unp32fl:s3a545 unp32n:s3a129 unp32fn:s3a161
+F1OVH 3.81 us
+F1 qkv_gate m=8 med qkv8fl=10.43 qkv8n=10.56 qkv8fn=10.61 qkv8c=10.70 prod=10.72 qkv8l=10.78
+F1 qkv_gate m=8 d prod qkv8fl=-0.29/82 qkv8n=-0.16/65 qkv8fn=-0.14/63 qkv8c=+0.02/47 qkv8l=+0.03/44
+F1 unpooler m=8 med slice8fl=4.96 slice8c=4.99 slice8fn=4.99 slice8l=5.01 slice8n=5.02 prod=5.12
+F1 unpooler m=8 d prod slice8fl=-0.16/65 slice8c=-0.13/73 slice8fn=-0.13/74 slice8l=-0.14/72 slice8n=-0.16/70
+F1 o m=8 med o8fn=6.13 o8n=6.14 o8fl=6.22 prod=6.30 o8l=6.30 o8c=6.37
+F1 o m=8 d prod o8fn=-0.19/80 o8n=-0.13/71 o8fl=-0.06/60 o8l=-0.02/50 o8c=+0.06/37
+F1 pooler m=8 med pool8n=14.62 pool8fn=14.62 pool8fl=14.64 pool8c=14.85 pool8l=14.85 prod=14.88
+F1 pooler m=8 d prod pool8n=-0.26/70 pool8fn=-0.22/73 pool8fl=-0.24/70 pool8c=+0.00/49 pool8l=-0.03/52
+F1 qkv_gate m=16 med qkv16fn=10.34 qkv16n=10.50 qkv16fl=10.53 prod=10.82 qkv16c=10.88 qkv16l=10.90
+F1 qkv_gate m=16 d prod qkv16fn=-0.45/91 qkv16n=-0.34/85 qkv16fl=-0.27/81 qkv16c=+0.13/32 qkv16l=+0.06/36
+F1 o m=16 med o16fn=5.95 o16n=5.98 o16fl=6.02 prod=6.08 o16c=6.08 o16l=6.11
+F1 o m=16 d prod o16fn=-0.13/75 o16n=-0.10/67 o16fl=-0.08/64 o16c=+0.00/47 o16l=+0.00/43
+F1 pooler m=16 med pool16fn=14.78 pool16fl=14.88 prod=15.01 pool16n=15.01 pool16c=15.10 pool16l=15.14
+F1 pooler m=16 d prod pool16fn=-0.29/74 pool16fl=-0.10/60 pool16n=-0.02/50 pool16c=+0.08/40 pool16l=+0.10/38
+F1 unpooler m=16 med unp16n=14.37 unp16fn=14.43 unp16fl=14.50 unp16c=14.54 unp16l=14.58 prod=14.61
+F1 unpooler m=16 d prod unp16n=-0.26/69 unp16fn=-0.19/62 unp16fl=-0.08/57 unp16c=-0.06/57 unp16l=+0.03/47
+F1 qkv_gate m=32 med qkv32fn=11.04 qkv32n=11.46 qkv32c=11.94 qkv32l=11.94 prod=12.00 qkv32fl=12.10
+F1 qkv_gate m=32 d prod qkv32fn=-0.96/96 qkv32n=-0.51/89 qkv32c=-0.10/57 qkv32l=-0.03/51 qkv32fl=+0.10/33
+F1 o m=32 med o32fn=6.46 o32fl=6.56 o32n=6.56 o32l=6.62 prod=6.75 o32c=6.85
+F1 o m=32 d prod o32fn=-0.27/79 o32fl=-0.19/72 o32n=-0.19/76 o32l=-0.16/66 o32c=+0.06/40
+F1 pooler m=32 med pool32fn=15.47 pool32fl=15.55 pool32l=15.90 prod=15.97 pool32n=16.02 pool32c=16.10
+F1 pooler m=32 d prod pool32fn=-0.51/90 pool32fl=-0.40/80 pool32l=-0.05/53 pool32n=+0.05/47 pool32c=+0.08/41
+F1 unpooler m=32 med unp32n=15.33 prod=15.39 unp32fn=15.39 unp32c=15.41 unp32fl=15.46 unp32l=15.58
+F1 unpooler m=32 d prod unp32n=-0.05/51 unp32fn=+0.08/44 unp32c=+0.03/45 unp32fl=+0.10/35 unp32l=+0.22/33
+F1DONE 19.6 s

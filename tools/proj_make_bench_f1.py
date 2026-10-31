@@ -34,25 +34,28 @@ ROOT = Path(__file__).resolve().parent.parent
 # Round f2-a (check 6d5554de901143d0) dropped every FULL arm: the FP64 check ran them at adjacent
 # sizes, which FULL configs refuse. Round f3-a checks FULL arms at m = TOKR only, adds the
 # watchdog-free consumer wait alone and with FULL, and keeps the escape-off attribution arm.
-ROUND = "f3-a"
-E, F, X, N, Z = 16, 32, 64, 128, 256
+# Round f3-a (check a8de7b162c9f41d5): the watchdog-free consumer wait (n) was the largest sk
+# lever (qkv32 -0.51, with FULL -0.77). Round f4-a adds LITEWD (l: the clock read once per 256
+# polls, still failing closed), alone and with FULL, against n / fn.
+# Round f4-a (check 8712eb94a71e4075): LITEWD kept the vote and recovered little; FULL + no
+# watchdog (fn) won up to 0.96 us. Round f5-a: NOVOTE (v: per-thread wait, no vote, no break,
+# clock every 256 polls, still fails closed through diag), alone and with FULL, against fn.
+ROUND = "f5-a"
+E, F, X, N, Z, LW, NV = 16, 32, 64, 128, 256, 512, 1024
 # name -> (geometry name or (MT, TOKR, NT, NWR, WSK, UPW, NSTAGE), NACC bits).
 VARIANTS = {}
 CASES = []
-for _layer, _m, _base in (("qkv_gate", 8, "qkv8"), ("o", 8, "o8"), ("pooler", 8, "pool8"),
-                          ("qkv_gate", 16, "qkv16"), ("pooler", 16, "pool16"), ("qkv_gate", 32, "qkv32"),
-                          ("o", 32, "o32"), ("pooler", 32, "pool32"), ("unpooler", 32, "unp32")):
+for _layer, _m, _base in (("qkv_gate", 8, "qkv8"), ("unpooler", 8, "slice8"), ("o", 8, "o8"), ("pooler", 8, "pool8"),
+                          ("qkv_gate", 16, "qkv16"), ("o", 16, "o16"), ("pooler", 16, "pool16"),
+                          ("unpooler", 16, "unp16"), ("qkv_gate", 32, "qkv32"), ("o", 32, "o32"),
+                          ("pooler", 32, "pool32"), ("unpooler", 32, "unp32")):
     _arms = []
-    for _tag, _bits in (("f", F), ("fx", F | X), ("n", N), ("fn", F | N), ("z", Z)):
+    for _tag, _bits in (("v", NV), ("fv", F | NV), ("fn", F | N)):
         VARIANTS[_base + _tag] = (_base, 1 | _bits)
         _arms.append(_base + _tag)
     CASES.append((_layer, _m, _base, _arms))
-FULL_TAGS = ("f", "fx", "fn")
-# pooler m = 128 cuBLASLt configs: (layout, nine config fields).
-LT_ARMS = {
-    "donor": (1, [66, 15, 1, 0, 0, 4, 35, 0, 2]),
-    "t15c4g5": (1, [66, 15, 1, 0, 0, 4, 35, 0, 5]),
-}
+FULL_TAGS = ("fv", "fn")
+LT_ARMS = {}
 
 BENCH = r'''
 
@@ -266,32 +269,33 @@ def _f1_run():
             _f1print(f"F1 {layer} m={m} failed: {type(exc).__name__}: {str(exc)[:200]} {_tb.format_exc()[-500:]}")
         torch.cuda.synchronize()
         torch.cuda.empty_cache()
-    try:
-        lt = _build_lt()
-        w = weights["pooler"]
-        n, k = w.shape
-        ws = torch.empty(LT_WS_BYTES, dtype=torch.uint8, device=dev)
-        wt = w.t().contiguous()
-        fallback = lambda x: x @ w.t()
-        arms = {}
-        pref = _lt_pref(lt, {"pooler": w, "lt_ws": ws}, "pooler", 128, gen, diag, fallback)
-        if pref is not None:
-            arms["prod"] = pref[1]
-            dup = _lt_pref(lt, {"pooler": w, "lt_ws": ws}, "pooler", 128, gen, diag, fallback)
-            if dup is not None:
-                arms["prefdup"] = dup[1]
-        for nm, (layout, cfg) in _F1_LT.items():
-            p = lt.lt_plan_new(128, n, k, layout, ws.numel())
-            idx = lt.lt_add_config(p, list(cfg)) if p >= 0 else -1
-            if idx < 0:
-                _f1print(f"F1 pooler m=128: {nm} rejected")
-                continue
-            _f1print(f"F1 pooler m=128 cfg {nm} L{layout}:{_lt_cfg_str(list(lt.lt_info(p, idx)))}")
-            arms[nm] = _lt_runner(lt, p, idx, wt if layout % 2 else w, 128, n, ws, fallback)
-        _f1_measure("pooler m=128", arms, w, n, (128,), 128, 60, 9000, flush, ovh, gen, dev)
-    except Exception as exc:
-        import traceback as _tb
-        _f1print(f"F1 pooler m=128 failed: {type(exc).__name__}: {str(exc)[:200]} {_tb.format_exc()[-500:]}")
+    if _F1_LT:
+        try:
+            lt = _build_lt()
+            w = weights["pooler"]
+            n, k = w.shape
+            ws = torch.empty(LT_WS_BYTES, dtype=torch.uint8, device=dev)
+            wt = w.t().contiguous()
+            fallback = lambda x: x @ w.t()
+            arms = {}
+            pref = _lt_pref(lt, {"pooler": w, "lt_ws": ws}, "pooler", 128, gen, diag, fallback)
+            if pref is not None:
+                arms["prod"] = pref[1]
+                dup = _lt_pref(lt, {"pooler": w, "lt_ws": ws}, "pooler", 128, gen, diag, fallback)
+                if dup is not None:
+                    arms["prefdup"] = dup[1]
+            for nm, (layout, cfg) in _F1_LT.items():
+                p = lt.lt_plan_new(128, n, k, layout, ws.numel())
+                idx = lt.lt_add_config(p, list(cfg)) if p >= 0 else -1
+                if idx < 0:
+                    _f1print(f"F1 pooler m=128: {nm} rejected")
+                    continue
+                _f1print(f"F1 pooler m=128 cfg {nm} L{layout}:{_lt_cfg_str(list(lt.lt_info(p, idx)))}")
+                arms[nm] = _lt_runner(lt, p, idx, wt if layout % 2 else w, 128, n, ws, fallback)
+            _f1_measure("pooler m=128", arms, w, n, (128,), 128, 60, 9000, flush, ovh, gen, dev)
+        except Exception as exc:
+            import traceback as _tb
+            _f1print(f"F1 pooler m=128 failed: {type(exc).__name__}: {str(exc)[:200]} {_tb.format_exc()[-500:]}")
     _f1print(f"F1DONE {time.time() - t0:.1f} s")
     torch.cuda.synchronize()
     torch.cuda.empty_cache()

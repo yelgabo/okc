@@ -37,9 +37,9 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 
 N, K, L, U, S, E, D, T, W, B, X, Y, Z = 1, 2, 4, 8, 16, 32, 64, 128, 256, 512, 1024, 2048, 4096
-G, A, Q, R = 8192, 16384, 32768, 65536
-BITS = (N, K, L, U, S, E, D, T, W, B, X, Y, Z, G, A, Q, R)
-TAGS = "NKLUSEDTWBXYZGAQR"
+G, A, Q, R, M = 8192, 16384, 32768, 65536, 131072
+BITS = (N, K, L, U, S, E, D, T, W, B, X, Y, Z, G, A, Q, R, M)
+TAGS = "NKLUSEDTWBXYZGAQRM"
 KLUE = K | L | U | E
 P = KLUE | Y | Z
 # Round a (check 97869fa8302041b5) lacked the watchdog twins of the G|A|S arms, so the spin rule
@@ -47,7 +47,9 @@ P = KLUE | Y | Z
 # Round c (F-PROJ-1): R = WV_GRED, the K split without a cluster (red.add into a global
 # accumulator, last-arriver copy), the donor rk router's mechanism, at its CTA counts: 64 rows x
 # 64 tokens, split 12 at m = 128 (96 CTAs) and 8 at m = 256 (128 CTAs), with neighbours.
-ROUND = "rg-c"
+# Round d: R + M (WV_GZERO), out zeroed by a memset node and the partials added into it as the
+# CTA's last stores (round c's counter join cost about 4 us: rk's reds are fire-and-forget).
+ROUND = "rg-d"
 KLE = K | L | E
 GEOM_EXTRA = {"r64c12s8": (1, 64, 12, 1, True, 8), "r64c16s8": (1, 64, 16, 1, True, 8),
               "r64c6s8": (1, 64, 6, 1, True, 8)}
@@ -63,11 +65,11 @@ WD_SETS_B = {
                 P | W | X | G | A | S | Q | D],
 }
 WD_SETS = {
-    "r64c8s8": [P, P | D, KLE | R, KLE | R | D],
-    "r128c8s6": [P, P | D, KLE | R],
-    "r64c12s8": [KLE | R, KLE | R | W],
-    "r64c16s8": [KLE | R],
-    "r64c6s8": [KLE | R],
+    "r64c8s8": [P, P | D, KLE | R | M, KLE | R | M | D],
+    "r128c8s6": [P, P | D, KLE | R | M],
+    "r64c12s8": [KLE | R | M],
+    "r64c16s8": [KLE | R | M],
+    "r64c6s8": [KLE | R | M],
 }
 WD_BASES = {128: ("r64c8s8", "r64c12s8", "r64c16s8"), 256: ("r128c8s6", "r64c8s8", "r64c6s8", "r64c12s8")}
 WD_PROD = {"r64c8s8": "r64c8s8k", "r128c8s6": "r128c8s6k"}

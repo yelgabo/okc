@@ -1,0 +1,61 @@
+RGBUILD prod 21.6 s, bench 13.5 s, 11 wd arms, donor off, round rg-c
+RGOVH 4.06 us
+RG m=128 med r64c8s8:vKLUEYZ=7.12 r64c8s8k:prod=7.14 r64c8s8:vKLUEDYZ=7.17 r64c12s8:vKLER=10.62 r64c12s8:vKLEWR=10.70 r64c16s8:vKLER=10.78 r64c8s8:vKLEDR=11.07 r64c8s8:vKLER=11.10
+RG m=128 d r64c8s8:vKLUEYZ r64c8s8k:prod=+0.00/48 r64c8s8:vKLUEDYZ=+0.03/42 r64c12s8:vKLER=+3.49/0 r64c12s8:vKLEWR=+3.55/0 r64c16s8:vKLER=+3.68/0 r64c8s8:vKLEDR=+3.94/0 r64c8s8:vKLER=+3.94/0
+RG m=256 med r128c8s6k:prod=9.54 r128c8s6:vKLUEYZ=9.54 r128c8s6:vKLUEDYZ=9.58 r64c8s8:vKLEDR=12.21 r64c8s8:vKLER=12.26 r64c6s8:vKLER=12.94 r64c8s8:vKLUEYZ=13.15 r64c8s8:vKLUEDYZ=13.28 r64c8s8k:prod=13.34 r128c8s6:vKLER=14.53 r64c12s8:vKLER=16.37 r64c12s8:vKLEWR=16.43
+RG m=256 d r128c8s6:vKLUEYZ r128c8s6k:prod=+0.03/47 r128c8s6:vKLUEDYZ=+0.00/48 r64c8s8:vKLEDR=+2.72/0 r64c8s8:vKLER=+2.74/0 r64c6s8:vKLER=+3.39/0 r64c8s8:vKLUEYZ=+3.66/0 r64c8s8:vKLUEDYZ=+3.76/0 r64c8s8k:prod=+3.81/0 r128c8s6:vKLER=+5.06/0 r64c12s8:vKLER=+6.85/0 r64c12s8:vKLEWR=+6.86/0
+RGDONE 36.0 s
+F1BUILD prod 0.0 s, bench 18.4 s, 54 sk configs, round f3-a: qkv8c:s4a1 qkv8f:s4a33 qkv8fx:s4a97 qkv8n:s4a129 qkv8fn:s4a161 qkv8z:s4a257 o8c:s4a1 o8f:s4a33 o8fx:s4a97 o8n:s4a129 o8fn:s4a161 o8z:s4a257 pool8c:s3a1 pool8f:s3a33 pool8fx:s3a97 pool8n:s3a129 pool8fn:s3a161 pool8z:s3a257 qkv16c:s5a1 qkv16f:s5a33 qkv16fx:s5a97 qkv16n:s5a129 qkv16fn:s5a161 qkv16z:s5a257 pool16c:s4a1 pool16f:s4a33 pool16fx:s4a97 pool16n:s4a129 pool16fn:s4a161 pool16z:s4a257 qkv32c:s4a1 qkv32f:s4a33 qkv32fx:s4a97 qkv32n:s4a129 qkv32fn:s4a161 qkv32z:s4a257 o32c:s3a1 o32f:s3a33 o32fx:s3a97 o32n:s3a129 o32fn:s3a161 o32z:s3a257 pool32c:s3a1 pool32f:s3a33 pool32fx:s3a97 pool32n:s3a129 pool32fn:s3a161 pool32z:s3a257 unp32c:s3a1 unp32f:s3a33 unp32fx:s3a97 unp32n:s3a129 unp32fn:s3a161 unp32z:s3a257
+F1OVH 3.81 us
+F1 qkv_gate m=8 med qkv8fn=10.18 qkv8n=10.24 qkv8f=10.27 prod=10.29 qkv8c=10.34 qkv8fx=10.34 qkv8z=10.59
+F1 qkv_gate m=8 d prod qkv8fn=-0.08/57 qkv8n=-0.03/51 qkv8f=+0.08/42 qkv8c=+0.10/41 qkv8fx=+0.03/44 qkv8z=+0.29/21
+F1CHECK o m=8 dropped: o8z=m=5 err 8.5e-03/3.4e-02
+F1 o m=8 med o8fn=6.30 o8n=6.34 o8fx=6.37 o8f=6.40 prod=6.43 o8c=6.46
+F1 o m=8 d prod o8fn=-0.13/61 o8n=-0.10/59 o8fx=-0.06/58 o8f=-0.03/52 o8c=+0.03/45
+F1 pooler m=8 med pool8fn=14.50 pool8z=14.56 pool8n=14.62 pool8fx=14.67 pool8c=14.69 pool8f=14.72 prod=14.82
+F1 pooler m=8 d prod pool8fn=-0.30/78 pool8z=-0.32/77 pool8n=-0.24/71 pool8fx=-0.10/60 pool8c=-0.16/64 pool8f=-0.11/58
+F1 qkv_gate m=16 med qkv16fn=10.24 qkv16fx=10.46 qkv16n=10.48 qkv16f=10.50 qkv16c=10.72 qkv16z=10.72 prod=10.78
+F1 qkv_gate m=16 d prod qkv16fn=-0.58/91 qkv16fx=-0.35/83 qkv16n=-0.32/85 qkv16f=-0.29/80 qkv16c=-0.08/54 qkv16z=-0.06/58
+F1 pooler m=16 med pool16z=14.85 pool16c=14.98 pool16f=15.01 pool16fx=15.01 pool16n=15.01 pool16fn=15.06 prod=15.23
+F1 pooler m=16 d prod pool16z=-0.38/78 pool16c=-0.22/64 pool16f=-0.26/70 pool16fx=-0.26/72 pool16n=-0.26/69 pool16fn=-0.16/64
+F1 qkv_gate m=32 med qkv32fn=10.99 qkv32n=11.30 prod=11.78 qkv32c=11.87 qkv32f=12.00 qkv32z=12.00 qkv32fx=12.06
+F1 qkv_gate m=32 d prod qkv32fn=-0.77/91 qkv32n=-0.51/86 qkv32c=+0.03/45 qkv32f=+0.26/24 qkv32z=+0.19/21 qkv32fx=+0.26/20
+F1CHECK o m=32 dropped: o32z=m=17 err 2.7e-02/3.3e-02
+F1 o m=32 med o32n=6.50 o32c=6.56 o32fn=6.56 o32fx=6.58 o32f=6.59 prod=6.62
+F1 o m=32 d prod o32n=-0.16/75 o32c=-0.08/58 o32fn=+0.00/49 o32fx=-0.03/57 o32f=-0.03/51
+F1 pooler m=32 med pool32fn=15.71 pool32f=15.74 pool32fx=15.78 pool32z=15.81 pool32c=16.06 prod=16.10 pool32n=16.32
+F1 pooler m=32 d prod pool32fn=-0.46/88 pool32f=-0.35/80 pool32fx=-0.35/77 pool32z=-0.29/74 pool32c=-0.08/58 pool32n=+0.19/34
+F1 unpooler m=32 med unp32fn=15.22 unp32n=15.30 unp32z=15.30 prod=15.33 unp32fx=15.36 unp32c=15.41 unp32f=15.42
+F1 unpooler m=32 d prod unp32fn=-0.16/65 unp32n=-0.03/51 unp32z=-0.03/54 unp32fx=-0.03/53 unp32c=+0.08/42 unp32f=+0.11/41
+F1 pooler m=128 cfg donor L1:a66t15s35k1r0z0c4i0g2w0v0.97
+F1 pooler m=128 cfg t15c4g5 L1:a66t15s35k1r0z0c4i0g5w0v0.97
+F1 pooler m=128 med donor=20.03 t15c4g5=20.06 prefdup=21.22 prod=21.25
+F1 pooler m=128 d prod donor=-1.22/59 t15c4g5=-1.15/58 prefdup=-0.03/30
+F1DONE 38.1 s
+F1BUILD prod 0.0 s, bench 18.4 s, 54 sk configs, round f3-a: qkv8c:s4a1 qkv8f:s4a33 qkv8fx:s4a97 qkv8n:s4a129 qkv8fn:s4a161 qkv8z:s4a257 o8c:s4a1 o8f:s4a33 o8fx:s4a97 o8n:s4a129 o8fn:s4a161 o8z:s4a257 pool8c:s3a1 pool8f:s3a33 pool8fx:s3a97 pool8n:s3a129 pool8fn:s3a161 pool8z:s3a257 qkv16c:s5a1 qkv16f:s5a33 qkv16fx:s5a97 qkv16n:s5a129 qkv16fn:s5a161 qkv16z:s5a257 pool16c:s4a1 pool16f:s4a33 pool16fx:s4a97 pool16n:s4a129 pool16fn:s4a161 pool16z:s4a257 qkv32c:s4a1 qkv32f:s4a33 qkv32fx:s4a97 qkv32n:s4a129 qkv32fn:s4a161 qkv32z:s4a257 o32c:s3a1 o32f:s3a33 o32fx:s3a97 o32n:s3a129 o32fn:s3a161 o32z:s3a257 pool32c:s3a1 pool32f:s3a33 pool32fx:s3a97 pool32n:s3a129 pool32fn:s3a161 pool32z:s3a257 unp32c:s3a1 unp32f:s3a33 unp32fx:s3a97 unp32n:s3a129 unp32fn:s3a161 unp32z:s3a257
+F1OVH 3.81 us
+F1 qkv_gate m=8 med qkv8fn=10.18 qkv8n=10.24 qkv8f=10.27 prod=10.29 qkv8c=10.34 qkv8fx=10.34 qkv8z=10.59
+F1 qkv_gate m=8 d prod qkv8fn=-0.08/57 qkv8n=-0.03/51 qkv8f=+0.08/42 qkv8c=+0.10/41 qkv8fx=+0.03/44 qkv8z=+0.29/21
+F1CHECK o m=8 dropped: o8z=m=5 err 8.5e-03/3.4e-02
+F1 o m=8 med o8fn=6.30 o8n=6.34 o8fx=6.37 o8f=6.40 prod=6.43 o8c=6.46
+F1 o m=8 d prod o8fn=-0.13/61 o8n=-0.10/59 o8fx=-0.06/58 o8f=-0.03/52 o8c=+0.03/45
+F1 pooler m=8 med pool8fn=14.50 pool8z=14.56 pool8n=14.62 pool8fx=14.67 pool8c=14.69 pool8f=14.72 prod=14.82
+F1 pooler m=8 d prod pool8fn=-0.30/78 pool8z=-0.32/77 pool8n=-0.24/71 pool8fx=-0.10/60 pool8c=-0.16/64 pool8f=-0.11/58
+F1 qkv_gate m=16 med qkv16fn=10.24 qkv16fx=10.46 qkv16n=10.48 qkv16f=10.50 qkv16c=10.72 qkv16z=10.72 prod=10.78
+F1 qkv_gate m=16 d prod qkv16fn=-0.58/91 qkv16fx=-0.35/83 qkv16n=-0.32/85 qkv16f=-0.29/80 qkv16c=-0.08/54 qkv16z=-0.06/58
+F1 pooler m=16 med pool16z=14.85 pool16c=14.98 pool16f=15.01 pool16fx=15.01 pool16n=15.01 pool16fn=15.06 prod=15.23
+F1 pooler m=16 d prod pool16z=-0.38/78 pool16c=-0.22/64 pool16f=-0.26/70 pool16fx=-0.26/72 pool16n=-0.26/69 pool16fn=-0.16/64
+F1 qkv_gate m=32 med qkv32fn=10.99 qkv32n=11.30 prod=11.78 qkv32c=11.87 qkv32f=12.00 qkv32z=12.00 qkv32fx=12.06
+F1 qkv_gate m=32 d prod qkv32fn=-0.77/91 qkv32n=-0.51/86 qkv32c=+0.03/45 qkv32f=+0.26/24 qkv32z=+0.19/21 qkv32fx=+0.26/20
+F1CHECK o m=32 dropped: o32z=m=17 err 2.7e-02/3.3e-02
+F1 o m=32 med o32n=6.50 o32c=6.56 o32fn=6.56 o32fx=6.58 o32f=6.59 prod=6.62
+F1 o m=32 d prod o32n=-0.16/75 o32c=-0.08/58 o32fn=+0.00/49 o32fx=-0.03/57 o32f=-0.03/51
+F1 pooler m=32 med pool32fn=15.71 pool32f=15.74 pool32fx=15.78 pool32z=15.81 pool32c=16.06 prod=16.10 pool32n=16.32
+F1 pooler m=32 d prod pool32fn=-0.46/88 pool32f=-0.35/80 pool32fx=-0.35/77 pool32z=-0.29/74 pool32c=-0.08/58 pool32n=+0.19/34
+F1 unpooler m=32 med unp32fn=15.22 unp32n=15.30 unp32z=15.30 prod=15.33 unp32fx=15.36 unp32c=15.41 unp32f=15.42
+F1 unpooler m=32 d prod unp32fn=-0.16/65 unp32n=-0.03/51 unp32z=-0.03/54 unp32fx=-0.03/53 unp32c=+0.08/42 unp32f=+0.11/41
+F1 pooler m=128 cfg donor L1:a66t15s35k1r0z0c4i0g2w0v0.97
+F1 pooler m=128 cfg t15c4g5 L1:a66t15s35k1r0z0c4i0g5w0v0.97
+F1 pooler m=128 med donor=20.03 t15c4g5=20.06 prefdup=21.22 prod=21.25
+F1 pooler m=128 d prod donor=-1.22/59 t15c4g5=-1.15/58 prefdup=-0.03/30
+F1DONE 38.1 s

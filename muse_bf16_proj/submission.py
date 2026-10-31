@@ -122,7 +122,18 @@ SK_EXTRA = {}
 # name -> NACC template value for SK_GEOM configs (default 1): bits 0-3 the accumulator count,
 # SK_ESCG the global-x escape corrections (SkCfg::ESCG).
 SK_ESCG = 16
-SK_NACC = {}
+SK_NOVOTE = 1024
+# Every compressed sk config waits on its full barriers per thread without the warp vote and
+# with the clock read once per 256 polls (mbar_wait_novote; still fails closed through diag).
+# Paired against the voted per-poll wait in benches 8712eb94a71e4075 / eebd764690d5470f
+# (F-PROJ-1, docs/runs.md): qkv32 -0.45, other cases 0 to -0.16 alone, more with FULL below.
+SK_NACC = {nm: 1 | SK_NOVOTE for nm in SK_GEOM}
+# Compressed configs that also get a twin compiled for M == TOKR (name + "F", SkCfg::FULL:
+# compile-time x-tile addressing, the donor sk2's packed-off layout at full tiles); _sk_runner
+# dispatches to it when the call has exactly TOKR tokens. With NOVOTE: pool32 -0.45, pool16
+# -0.34, qkv16 / unp16 / qkv8 / pool8 -0.18 / -0.18 / -0.18 / -0.19 us (eebd764690d5470f);
+# qkv32 is left out (its FULL twin lost 0.2 us to the plain NOVOTE form there).
+SK_FULL = {nm for nm in SK_GEOM if nm != "qkv32"}
 SMEM_BUDGET = 227 * 1024
 SMEM_PER_SM = 228 * 1024
 
@@ -134,9 +145,10 @@ def _sk_configs():
         for comp in (True, False):
             cname = name if comp else name + "raw"
             nacc = SK_NACC.get(name, 1) if comp else SK_NACC.get(name, 1) & 15
-            cfgs.append((cname, mt, tokr, nt, nwr, wsk, upw,
-                         _fit_stages(mt, tokr, nt, nwr, wsk, upw, nstage, comp, False, 1), comp, False, nacc, 1, "bf16",
-                         False))
+            nst = _fit_stages(mt, tokr, nt, nwr, wsk, upw, nstage, comp, False, 1)
+            cfgs.append((cname, mt, tokr, nt, nwr, wsk, upw, nst, comp, False, nacc, 1, "bf16", False))
+            if comp and name in SK_FULL:
+                cfgs.append((name + "F", mt, tokr, nt, nwr, wsk, upw, nst, comp, False, nacc | 32, 1, "bf16", False))
     for name, (mt, tokr, nt, nwr, wsk, upw, nstage) in ROUTER_GEOM.items():
         cfgs.append((name, mt, tokr, nt, nwr, wsk, upw,
                      _fit_stages(mt, tokr, nt, nwr, wsk, upw, nstage, False, True, 3), False, True, 2, 3, "f32",
@@ -300,6 +312,56 @@ __device__ __forceinline__ bool mbar_wait(uint32_t bar, uint32_t parity, bool& d
     return true;
 }
 
+// The same wait with the clock read once per 256 polls instead of every poll; still fails
+// closed after WAIT_LIMIT cycles (sk consumer variant LITEWD, bench round f4).
+__device__ __forceinline__ bool mbar_wait_lite(uint32_t bar, uint32_t parity, bool& dead, int* diag, int code) {
+    if (dead) {
+        return false;
+    }
+    if (mbar_test(bar, parity)) {
+        return true;
+    }
+    const long long t0 = clock64();
+    int n = 0;
+    while (!mbar_test(bar, parity)) {
+        if (++n == 256) {
+            n = 0;
+            if (clock64() - t0 > WAIT_LIMIT) {
+                dead = true;
+                if (diag != nullptr) {
+                    atomicOr(diag, code);
+                }
+                return false;
+            }
+        }
+    }
+    return true;
+}
+
+// Per-thread wait without a warp vote: once a thread times out it marks itself dead and skips
+// every later wait, so all lanes still run the same stage loop (the mma.sync stays converged)
+// and the result is garbage with diag set, which the self-test rejects (fail closed). The
+// clock is read once per 256 polls. Measured against the voted per-poll form in round f4.
+__device__ __forceinline__ void mbar_wait_novote(uint32_t bar, uint32_t parity, bool& dead, int* diag, int code) {
+    if (dead || mbar_test(bar, parity)) {
+        return;
+    }
+    const long long t0 = clock64();
+    int n = 0;
+    while (!mbar_test(bar, parity)) {
+        if (++n == 256) {
+            n = 0;
+            if (clock64() - t0 > WAIT_LIMIT) {
+                dead = true;
+                if (diag != nullptr) {
+                    atomicOr(diag, code);
+                }
+                return;
+            }
+        }
+    }
+}
+
 // Initialized barriers must be visible to the cluster and to the async proxy before a copy
 // can complete on them (CUDA programming guide, TMA example).
 __device__ __forceinline__ void fence_mbar_init() {
@@ -418,6 +480,10 @@ struct SkCfg {
     static constexpr bool ESCFAST = (NACC & 64) != 0;
     static constexpr bool NOWD = (NACC & 128) != 0;
     static constexpr bool ESCOFF = (NACC & 256) != 0;
+    // LITEWD: the consumer full wait polls the clock once per 256 polls (still fails closed).
+    static constexpr bool LITEWD = (NACC & 512) != 0;
+    // NOVOTE: the consumer full wait is mbar_wait_novote (no vote, no break, fails closed).
+    static constexpr bool NOVOTE = (NACC & 1024) != 0;
     static constexpr int NESC = COMP ? (ESCG ? 4 : (NSTAGE >= 4 ? 4 : NSTAGE)) : 0;
     static constexpr int EMPTY_COUNT = NW + (ESCG ? 0 : NESC);
     static constexpr int THREADS = (NW + 1 + NESC) * 32;
@@ -764,6 +830,13 @@ sk_kernel(const __grid_constant__ CUtensorMap xmap, const uint8_t* __restrict__ 
         const int slot = st % NSTAGE;
         if constexpr (C::NOWD) {
             while (!mbar_test(full0 + 8 * slot, (st / NSTAGE) & 1)) {
+            }
+        } else if constexpr (C::NOVOTE) {
+            mbar_wait_novote(full0 + 8 * slot, (st / NSTAGE) & 1, dead, diag, 8);
+        } else if constexpr (C::LITEWD) {
+            if (!__all_sync(0xffffffffu, mbar_wait_lite(full0 + 8 * slot, (st / NSTAGE) & 1, dead, diag, 8))) {
+                dead = true;
+                break;
             }
         } else if (!__all_sync(0xffffffffu, mbar_wait<false>(full0 + 8 * slot, (st / NSTAGE) & 1, dead, diag, 8))) {
             dead = true;
@@ -1859,7 +1932,7 @@ WD_POL = {nm for nm in WD_GEOM if nm.endswith("h")}
 # packed router weights (router_pack()).
 WV_NOPROD, WV_PACK, WV_PROMO64, WV_PUSH, WV_EARLY, WV_TAILSYNC = 1, 2, 4, 8, 32, 128
 WV_NOSLEEP, WV_NOEMPTY, WV_XA, WV_TAILSPLIT, WV_TAILRLX = 256, 512, 1024, 2048, 4096
-WV_PGROUP, WV_ACQCL, WV_SCALAR, WV_GRED = 8192, 16384, 32768, 65536
+WV_PGROUP, WV_ACQCL, WV_SCALAR, WV_GRED, WV_GZERO = 8192, 16384, 32768, 65536, 131072
 # Packed hi/lo box, 64 B promotion, push reduction and early prologue (KLUE) on the two router
 # picks; paired against the pick in a91f2152d8974458 / ba85985b8c5e4969: -0.77 / -0.90 us at
 # m = 128, -0.90 / -0.90 at 256, the push reduction alone -0.46 / -0.54 and -0.48 / -0.66.
@@ -2349,7 +2422,10 @@ LT_SWEEP_TILES = 4
 # max(STABLE_MARGIN_US, 2 x the preference's round MAD) in median paired difference and is
 # faster in all rounds but one. Values: (layout, the nine lt_info config fields).
 LT_PREF = {
-    ("pooler", 128): (0, [66, 134, 1, 0, 0, 0, 35, 0, 7]),
+    # The donor's pin (alygg77 kernels/muse_bf16_proj.py _KLARGE_CONFIGS: "nn" on a K-major copy,
+    # tile 15 = 64x64, custom 4, cluster id 2): -0.78 / -1.36 / -1.22 us against the old
+    # preference (L0 tile 134, cluster 7) in a63fa0c3 / 6d5554de / a8de7b16.
+    ("pooler", 128): (1, [66, 15, 1, 0, 0, 4, 35, 0, 2]),
     ("unpooler", 128): (3, [66, 18, 1, 0, 0, 2, 35, 0, 5]),
     ("qkv_gate", 256): (0, [66, 124, 1, 0, 0, 0, 35, 0, 2]),
     ("pooler", 256): (1, [66, 18, 1, 0, 0, 0, 35, 0, 2]),
@@ -2572,10 +2648,14 @@ constexpr int WV_SCALAR = 32768;
 // its grid-wide barrier; ordering as CUDA's threadFenceReduction sample (docs/proj-port-guide.md,
 // "Global split-K join").
 constexpr int WV_GRED = 65536;
+// With GRED: out is zeroed by a memset node ahead of the kernel (stream order) and the partials
+// are added into it directly, so the reds are the CTA's last memory operations and there is no
+// counter, fence or last-arriver pass.
+constexpr int WV_GZERO = 131072;
 constexpr int GRED_TOK = 256;
 constexpr int GRED_N = 256;
 constexpr int GRED_TILES = 64;
-__device__ float wd_gred_acc[GRED_TOK * GRED_N];
+__device__ __align__(16) float wd_gred_acc[GRED_TOK * GRED_N];
 __device__ unsigned int wd_gred_cnt[GRED_TILES];
 
 __device__ __forceinline__ void red_add_v4(float* p, float4 v) {
@@ -3032,6 +3112,18 @@ wd_kernel(const __grid_constant__ CUtensorMap wmap, const __grid_constant__ CUte
         __syncthreads();
     }
 
+    if constexpr (C::GRED && (VAR & WV_GZERO) != 0) {
+        constexpr int C4G = C::BM / 4;
+        for (int it = tid; it < ((ABL & 2) ? 0 : BN * C4G); it += C::THREADS) {
+            const int t = it / C4G;
+            const int c4 = it % C4G;
+            if (tok0 + t < M) {
+                red_add_v4(reinterpret_cast<float*>(out) + (size_t)(tok0 + t) * N + rowbase + 4 * c4,
+                           wd_ld_local(sbase + (uint32_t)(t * C::RS + 4 * c4) * 4u));
+            }
+        }
+        return;
+    }
     if constexpr (C::GRED) {
         constexpr int C4G = C::BM / 4;
         __shared__ int gred_last;
@@ -3173,6 +3265,10 @@ void launch_wd(const at::Tensor& w, const at::Tensor& x, at::Tensor& out, int N,
     attr[0].val.clusterDim.z = 1;
     lc.attrs = attr;
     lc.numAttrs = C::LCL > 1 ? 1 : 0;
+    if constexpr ((VAR & WV_GZERO) != 0) {
+        static_assert(C::GRED, "wd: GZERO needs GRED");
+        C10_CUDA_CHECK(cudaMemsetAsync(op, 0, (size_t)M * N * sizeof(OutT), lc.stream));
+    }
     C10_CUDA_CHECK(cudaLaunchKernelEx(&lc, kern, wmap, xmap, op, M, N, K, diag));
 }
 #endif
@@ -3614,10 +3710,13 @@ def _router_baseline(x, state):
 
 def _sk_runner(ext, cfg_name, stream, tab, pmax, base4, n, k, out_dtype, diag):
     cid = SK_INDEX[cfg_name]
+    full = SK_INDEX.get(cfg_name + "F")
+    tokr = SK_CONFIGS[cid][2]
 
     def run(x):
         out = torch.empty((x.shape[0], n), dtype=out_dtype, device=x.device)
-        ext.sk_fwd(cid, stream, x, out, tab, pmax, base4, n, k, diag)
+        c = full if full is not None and x.shape[0] == tokr else cid
+        ext.sk_fwd(c, stream, x, out, tab, pmax, base4, n, k, diag)
         return out
     return run
 

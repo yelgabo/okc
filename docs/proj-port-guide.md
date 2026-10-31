@@ -422,6 +422,11 @@ not all fit at once, which is why r64c8s8 at m = 256 lost by 5 us). The donor jo
 with a grid-wide barrier that needs every CTA resident; ours uses a per-tile last-arriver join
 that needs no co-residency.
 
+- Measured (check a8de7b162c9f41d5): this join costs about 4 us against the cluster push at
+  the same geometry (the trailing fences wait for every red to complete, then the last CTA
+  copies the tile). `WV_GZERO` replaces it: a memset node zeroes `out` ahead of the kernel
+  (stream order) and the partials are added into `out` as each CTA's last stores, with no
+  counter, fence or state; this is the donor's mechanism without its in-kernel clear.
 - State: `wd_gred_acc` (FP32, 256 tokens x 256 rows) and `wd_gred_cnt` (64 tile counters),
   `__device__` globals, zero at module load and zero again after every launch (below).
 - Per CTA, after the main loop: the consumers write their FP32 partial tile into shared memory
@@ -432,11 +437,15 @@ that needs no co-residency.
   `__threadfence()`, its threads read the tile with `ld.global.cg`, store it to `out` and write
   zeros back with `st.global.cg`. `atomicInc` wraps the counter to 0.
 - Ordering argument (the CUDA Programming Guide's memory-fence example, threadFenceReduction;
-  PTX ISA memory consistency model: `red` and `atom` are morally strong at .gpu scope, fence
-  cumulativity and base causality through `bar.sync`): each thread's reds precede its fence,
-  which precedes thread 0's atomic through the CTA barrier; the last CTA's atomic reads the
-  value written by every other CTA's atomic (atomicity, one RMW chain), and its threads' reads
-  follow its fence. So every red of the tile happens before the last CTA's reads. The zeros it
+  PTX ISA 9.4 memory consistency model, as corrected by the independent review): `red` and
+  `atom` are morally strong at .gpu scope (8.7). `__threadfence()` is `membar.gl`, a synonym for
+  `fence.sc` on sm_70+, and Fence-SC order is total over these fences (8.9.3). If a reader's
+  fence in the last CTA preceded a writer thread's fence in another CTA, base causality (8.9.5:
+  atom, bar, fence, fence, bar, atom) would put the last CTA's atomic before that CTA's atomic in
+  coherence order (8.10.1), contradicting the last CTA reading CLK - 1 through the RMW chain
+  (8.10.3). So every writer's fence synchronizes with every reader's fence (8.9.4), and each red
+  precedes each reader's load in causality order. The argument needs `fence.sc`: with
+  `fence.acq_rel` thread 0's fence would have to move after the `__syncthreads()`. The zeros it
   writes are ordered before the next launch by kernel completion (stream order).
 - Graph replay: no host reset; each launch leaves the counters and accumulator zero.
 - Hazards: two launches of GRED configs running concurrently (other streams, PDL overlap in the
