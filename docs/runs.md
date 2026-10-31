@@ -1717,7 +1717,19 @@ Router stamp (us, paired against the production pick; nulls within 0.03):
 | all (LE R M J O S W) | +0.82 / +1.62 | -0.56 |
 
 Attribution (measured differences, us): of rk's lead over our memset-zeroed version at its own
-geometry, the block order is about 1.1 (both m), the zeroing node about 1.1 (its absolute cost);
-the barrier count, spin waits, box packing and stage count are within +-0.3. The remainder at
-m = 256 (rk 7.30 against our 8.96 - 1.15 = 7.81 without the node) is about 0.5 us. Next: clear
-the tile inside the kernel without a grid barrier (WV_GTICKET, bench rk-b).
+geometry, the block order is about 1.1 (both m); the barrier count, spin waits, box packing and
+stage count are within +-0.3. t_zero (a graph holding only a fill kernel) costs 1.1 us, but
+that includes a graph launch; inside the router's graph the zeroing node cost only about 0.2
+(rk-b below), so it is not the remaining gap.
+
+| date | job | kind | commit | change | score (95% CI) | notes |
+|---|---|---|---|---|---|---|
+| 10-31 | e9d9499a465d4548 | check (bench rk-b) | 6d7f6a1 | H = WV_GTICKET: the tile cleared inside the kernel by the CTA with the first ticket, published by fence + release store, every CTA's adds after an acquire of it (no zeroing node, no co-residency), with O | 1.524x | m = 256 r64c8s8: H + O -0.61 (90/100), its null -0.67, H + O + J -0.70, M + O -0.45, H without O +0.05; m = 128: H + O +0.26 (r64c16s8) / +0.54 (r64c12s8) / +1.28 (r64c8s8); donor rk -0.88 / -2.27; all H arms passed FP64 and replay checks |
+
+Reading: in-kernel clearing beats the memset node by only 0.16-0.25 us. The rk block order is
+the one large mechanism found (about 1.1 us); with it our kernel beats the production router at
+m = 256 by 0.6-0.7 us (about +0.13% of score) and still trails rk by about 1.6 us there and 1.1
+at m = 128. That remainder is not attributed by any toggle tried (join, order, barrier count,
+spin waits, box packing, stages, CTA shape at 128 vs 96 CTAs). Not built as a candidate:
+WV_GTICKET is a new cross-CTA ordering protocol and needs a PTX chain review first, for 0.13%.
+
