@@ -1626,3 +1626,16 @@ All passed.
 
 Board entry moves from d85d0081 (1.4976x) to e1d3d341549c484d. Receipts:
 muse_bf16_proj/profiles/scored.<job>.json.
+
+### Scored: F-PROJ-1 C2, two runs (2026-10-31)
+
+cand_c2.py, byte-identical to muse_bf16_proj/submission.py at 3044ee7 (SHA256 b2c4c096...; C1
+plus the register-direct rd kernel at pooler m=1/8 and o m=8), submitted by the coordinator
+after four-arm check 696179090d264f38 (pooled 1.0066 against C1). Run 2 differs only by a
+trailing `# repeat 2` comment. Both passed, both below the C1 entry e1d3d341549c484d (1.5170x),
+which stays on the board; the paired evidence, not these single runs, is the comparison.
+
+| job | score (95% CI) |
+|---|---|
+| e745eb8ca902471e | 1.5152x (1.492-1.538) |
+| 355fc7894f6546ed | 1.5082x (1.486-1.531) |
