@@ -1,0 +1,78 @@
+F1BUILD prod 21.6 s, bench 19.3 s, 55 sk configs, round f2-a: qkv8c:s4a1 qkv8f:s4a33 qkv8x:s4a65 qkv8fx:s4a97 qkv8fxn:s4a225 qkv8z:s4a257 qkv8d:s4a1 slice8c:s4a1 slice8f:s4a33 slice8x:s4a65 slice8fx:s4a97 slice8fxn:s4a225 slice8z:s4a257 o8c:s4a1 o8f:s4a33 o8x:s4a65 o8fx:s4a97 o8fxn:s4a225 o8z:s4a257 pool8c:s3a1 pool8f:s3a33 pool8x:s3a65 pool8fx:s3a97 pool8fxn:s3a225 pool8z:s3a257 qkv16c:s5a1 qkv16f:s5a33 qkv16x:s5a65 qkv16fx:s5a97 qkv16fxn:s5a225 qkv16z:s5a257 pool16c:s4a1 pool16f:s4a33 pool16x:s4a65 pool16fx:s4a97 pool16fxn:s4a225 pool16z:s4a257 qkv32c:s4a1 qkv32f:s4a33 qkv32x:s4a65 qkv32fx:s4a97 qkv32fxn:s4a225 qkv32z:s4a257 o32c:s3a1 o32f:s3a33 o32x:s3a65 o32fx:s3a97 o32fxn:s3a225 o32z:s3a257 pool32c:s3a1 pool32f:s3a33 pool32x:s3a65 pool32fx:s3a97 pool32fxn:s3a225 pool32z:s3a257
+F1OVH 4.26 us
+F1CHECK qkv_gate m=8 dropped: qkv8f=sk: FULL configs need M == TOKR qkv8fx=sk: FULL configs need M == TOKR qkv8fxn=sk: FULL configs need M == TOKR
+F1 qkv_gate m=8 med qkv8c=10.02 qkv8d=10.11 qkv8x=10.19 prod=10.21 qkv8z=10.58
+F1 qkv_gate m=8 d prod qkv8c=-0.16/70 qkv8d=-0.16/61 qkv8x=-0.05/55 qkv8z=+0.35/17
+F1CHECK unpooler m=8 dropped: slice8f=sk: FULL configs need M == TOKR slice8fx=sk: FULL configs need M == TOKR slice8fxn=sk: FULL configs need M == TOKR
+F1 unpooler m=8 med prod=4.67 slice8c=4.70 slice8x=4.70 slice8z=4.70
+F1 unpooler m=8 d prod slice8c=+0.02/44 slice8x=+0.03/43 slice8z=+0.03/45
+F1CHECK o m=8 dropped: o8f=sk: FULL configs need M == TOKR o8fx=sk: FULL configs need M == TOKR o8fxn=sk: FULL configs need M == TOKR o8z=m=5 err 2.4e-02/0.0e+00
+F1 o m=8 med o8x=5.94 prod=5.95 o8c=5.98
+F1 o m=8 d prod o8x=-0.03/52 o8c=+0.06/37
+F1CHECK pooler m=8 dropped: pool8f=sk: FULL configs need M == TOKR pool8fx=sk: FULL configs need M == TOKR pool8fxn=sk: FULL configs need M == TOKR
+F1 pooler m=8 med pool8z=14.37 prod=14.43 pool8c=14.43 pool8x=14.56
+F1 pooler m=8 d prod pool8z=-0.08/60 pool8c=+0.00/49 pool8x=+0.13/37
+F1CHECK qkv_gate m=16 dropped: qkv16f=sk: FULL configs need M == TOKR qkv16fx=sk: FULL configs need M == TOKR qkv16fxn=sk: FULL configs need M == TOKR
+F1 qkv_gate m=16 med qkv16x=10.37 prod=10.40 qkv16c=10.40 qkv16z=10.40
+F1 qkv_gate m=16 d prod qkv16x=+0.00/49 qkv16c=+0.00/47 qkv16z=+0.00/46
+F1CHECK pooler m=16 dropped: pool16f=sk: FULL configs need M == TOKR pool16fx=sk: FULL configs need M == TOKR pool16fxn=sk: FULL configs need M == TOKR
+F1 pooler m=16 med pool16z=14.59 prod=14.70 pool16c=14.82 pool16x=14.93
+F1 pooler m=16 d prod pool16z=-0.10/62 pool16c=+0.10/36 pool16x=+0.21/35
+F1CHECK qkv_gate m=32 dropped: qkv32f=sk: FULL configs need M == TOKR qkv32fx=sk: FULL configs need M == TOKR qkv32fxn=sk: FULL configs need M == TOKR
+F1 qkv_gate m=32 med qkv32x=11.46 qkv32c=11.52 prod=11.55 qkv32z=11.74
+F1 qkv_gate m=32 d prod qkv32x=-0.13/62 qkv32c=-0.05/52 qkv32z=+0.16/28
+F1CHECK o m=32 dropped: o32f=sk: FULL configs need M == TOKR o32fx=sk: FULL configs need M == TOKR o32fxn=sk: FULL configs need M == TOKR o32z=m=17 err 1.7e-02/3.6e-02
+F1 o m=32 med prod=6.21 o32c=6.30 o32x=6.30
+F1 o m=32 d prod o32c=+0.06/38 o32x=+0.06/38
+F1CHECK pooler m=32 dropped: pool32f=sk: FULL configs need M == TOKR pool32fx=sk: FULL configs need M == TOKR pool32fxn=sk: FULL configs need M == TOKR
+F1 pooler m=32 med pool32z=15.30 prod=15.58 pool32x=15.62 pool32c=15.65
+F1 pooler m=32 d prod pool32z=-0.34/76 pool32x=+0.05/43 pool32c=+0.03/44
+F1 pooler m=128 cfg donor L1:a66t15s35k1r0z0c4i0g2w0v0.97
+F1 pooler m=128 cfg t15c4g5 L1:a66t15s35k1r0z0c4i0g5w0v0.97
+F1 pooler m=128: t15c4g0 rejected
+F1 pooler m=128 cfg t15c4g3 L1:a66t15s35k1r0z0c4i0g3w0v0.97
+F1 pooler m=128 cfg L3t15c4g5 L3:a66t15s35k1r0z0c4i0g5w0v0.97
+F1 pooler m=128 med donor=19.71 t15c4g5=19.74 L3t15c4g5=19.74 prefdup=20.96 prod=21.02 t15c4g3=25.17
+F1 pooler m=128 d prod donor=-1.36/59 t15c4g5=-1.38/56 L3t15c4g5=-1.34/58 prefdup=-0.03/31 t15c4g3=+4.06/0
+F1DONE 60.9 s
+judged| sk build 0.0 s
+judged| ltune pooler    m=128: base 26.3, pref=L0:a66t134s35k1r0z0c0i0g7w0v0.79 24.9, f0=L0:a66t124s35k1r0z0c0i0g4w0v0.86 24.7, f1=L2:a66t124s35k1r0z0c0i0g4w0v0.86 24.6, f2=L2:a66t134s35k1r0z0c0i0g7w0v0.79 24.8, f3=L0:a66t134s35k1r0z0c2i0g7w0v0.79 24.9, f4=L2:a66t134s35k1r0z0c2i0g7w0v0.79 25.0; pref pref margin 0.30 base -1.44/1 f0 +0.22/8 f1 +0.29/7 f2 +0.16/6 f3 -0.06/4 f4 +0.10/5 -> pref
+judged| ltune pooler    m=256: base 31.5, pref=L1:a66t18s35k1r0z0c0i0g2w0v0.97 27.8, f0=L3:a66t18s35k1r0z0c0i0g2w0v0.97 27.6, f1=L3:a66t18s35k1r0z0c0i0g3w0v0.97 28.1, f2=L1:a66t18s35k1r0z0c0i0g2w0v0.97 27.5, f3=L1:a66t18s35k1r0z0c0i0g3w0v0.97 27.9, f4=L3:a66t18s35k1r0z0c1i0g2w0v0.97 28.3; pref pref margin 0.30 base -3.68/0 f0 +0.26/7 f1 -0.26/1 f2 +0.32/9 f3 -0.03/3 f4 -0.42/1 -> f2
+judged| prepare done 64.5 s
+F1BUILD prod 21.6 s, bench 19.3 s, 55 sk configs, round f2-a: qkv8c:s4a1 qkv8f:s4a33 qkv8x:s4a65 qkv8fx:s4a97 qkv8fxn:s4a225 qkv8z:s4a257 qkv8d:s4a1 slice8c:s4a1 slice8f:s4a33 slice8x:s4a65 slice8fx:s4a97 slice8fxn:s4a225 slice8z:s4a257 o8c:s4a1 o8f:s4a33 o8x:s4a65 o8fx:s4a97 o8fxn:s4a225 o8z:s4a257 pool8c:s3a1 pool8f:s3a33 pool8x:s3a65 pool8fx:s3a97 pool8fxn:s3a225 pool8z:s3a257 qkv16c:s5a1 qkv16f:s5a33 qkv16x:s5a65 qkv16fx:s5a97 qkv16fxn:s5a225 qkv16z:s5a257 pool16c:s4a1 pool16f:s4a33 pool16x:s4a65 pool16fx:s4a97 pool16fxn:s4a225 pool16z:s4a257 qkv32c:s4a1 qkv32f:s4a33 qkv32x:s4a65 qkv32fx:s4a97 qkv32fxn:s4a225 qkv32z:s4a257 o32c:s3a1 o32f:s3a33 o32x:s3a65 o32fx:s3a97 o32fxn:s3a225 o32z:s3a257 pool32c:s3a1 pool32f:s3a33 pool32x:s3a65 pool32fx:s3a97 pool32fxn:s3a225 pool32z:s3a257
+F1OVH 4.26 us
+F1CHECK qkv_gate m=8 dropped: qkv8f=sk: FULL configs need M == TOKR qkv8fx=sk: FULL configs need M == TOKR qkv8fxn=sk: FULL configs need M == TOKR
+F1 qkv_gate m=8 med qkv8c=10.02 qkv8d=10.11 qkv8x=10.19 prod=10.21 qkv8z=10.58
+F1 qkv_gate m=8 d prod qkv8c=-0.16/70 qkv8d=-0.16/61 qkv8x=-0.05/55 qkv8z=+0.35/17
+F1CHECK unpooler m=8 dropped: slice8f=sk: FULL configs need M == TOKR slice8fx=sk: FULL configs need M == TOKR slice8fxn=sk: FULL configs need M == TOKR
+F1 unpooler m=8 med prod=4.67 slice8c=4.70 slice8x=4.70 slice8z=4.70
+F1 unpooler m=8 d prod slice8c=+0.02/44 slice8x=+0.03/43 slice8z=+0.03/45
+F1CHECK o m=8 dropped: o8f=sk: FULL configs need M == TOKR o8fx=sk: FULL configs need M == TOKR o8fxn=sk: FULL configs need M == TOKR o8z=m=5 err 2.4e-02/0.0e+00
+F1 o m=8 med o8x=5.94 prod=5.95 o8c=5.98
+F1 o m=8 d prod o8x=-0.03/52 o8c=+0.06/37
+F1CHECK pooler m=8 dropped: pool8f=sk: FULL configs need M == TOKR pool8fx=sk: FULL configs need M == TOKR pool8fxn=sk: FULL configs need M == TOKR
+F1 pooler m=8 med pool8z=14.37 prod=14.43 pool8c=14.43 pool8x=14.56
+F1 pooler m=8 d prod pool8z=-0.08/60 pool8c=+0.00/49 pool8x=+0.13/37
+F1CHECK qkv_gate m=16 dropped: qkv16f=sk: FULL configs need M == TOKR qkv16fx=sk: FULL configs need M == TOKR qkv16fxn=sk: FULL configs need M == TOKR
+F1 qkv_gate m=16 med qkv16x=10.37 prod=10.40 qkv16c=10.40 qkv16z=10.40
+F1 qkv_gate m=16 d prod qkv16x=+0.00/49 qkv16c=+0.00/47 qkv16z=+0.00/46
+F1CHECK pooler m=16 dropped: pool16f=sk: FULL configs need M == TOKR pool16fx=sk: FULL configs need M == TOKR pool16fxn=sk: FULL configs need M == TOKR
+F1 pooler m=16 med pool16z=14.59 prod=14.70 pool16c=14.82 pool16x=14.93
+F1 pooler m=16 d prod pool16z=-0.10/62 pool16c=+0.10/36 pool16x=+0.21/35
+F1CHECK qkv_gate m=32 dropped: qkv32f=sk: FULL configs need M == TOKR qkv32fx=sk: FULL configs need M == TOKR qkv32fxn=sk: FULL configs need M == TOKR
+F1 qkv_gate m=32 med qkv32x=11.46 qkv32c=11.52 prod=11.55 qkv32z=11.74
+F1 qkv_gate m=32 d prod qkv32x=-0.13/62 qkv32c=-0.05/52 qkv32z=+0.16/28
+F1CHECK o m=32 dropped: o32f=sk: FULL configs need M == TOKR o32fx=sk: FULL configs need M == TOKR o32fxn=sk: FULL configs need M == TOKR o32z=m=17 err 1.7e-02/3.6e-02
+F1 o m=32 med prod=6.21 o32c=6.30 o32x=6.30
+F1 o m=32 d prod o32c=+0.06/38 o32x=+0.06/38
+F1CHECK pooler m=32 dropped: pool32f=sk: FULL configs need M == TOKR pool32fx=sk: FULL configs need M == TOKR pool32fxn=sk: FULL configs need M == TOKR
+F1 pooler m=32 med pool32z=15.30 prod=15.58 pool32x=15.62 pool32c=15.65
+F1 pooler m=32 d prod pool32z=-0.34/76 pool32x=+0.05/43 pool32c=+0.03/44
+F1 pooler m=128 cfg donor L1:a66t15s35k1r0z0c4i0g2w0v0.97
+F1 pooler m=128 cfg t15c4g5 L1:a66t15s35k1r0z0c4i0g5w0v0.97
+F1 pooler m=128: t15c4g0 rejected
+F1 pooler m=128 cfg t15c4g3 L1:a66t15s35k1r0z0c4i0g3w0v0.97
+F1 pooler m=128 cfg L3t15c4g5 L3:a66t15s35k1r0z0c4i0g5w0v0.97
+F1 pooler m=128 med donor=19.71 t15c4g5=19.74 L3t15c4g5=19.74 prefdup=20.96 prod=21.02 t15c4g3=25.17
+F1 pooler m=128 d prod donor=-1.36/59 t15c4g5=-1.38/56 L3t15c4g5=-1.34/58 prefdup=-0.03/31 t15c4g3=+4.06/0
+F1DONE 60.9 s

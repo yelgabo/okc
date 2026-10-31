@@ -412,3 +412,45 @@ The preferred candidate (LT_PREF, else the pre-Lt pick) stays unless another sav
 max(0.3 us, 2 x the preferred's round MAD) in median paired difference and is faster in at least
 8 of 9 rounds. Same rule as `tools/dl_stable_tuner_patch.py`. The `ltune` line prints every
 candidate's median, each paired saving with its win count, the margin and the pick.
+
+## Global split-K join (`WV_GRED`, F-PROJ-1 candidate, 2026-10-31)
+
+Mechanism of the donor router (alygg77 okc-muse-spark-kernels @ 6cae49a,
+`kernels/muse_bf16_proj.py`, `RK_SRC`, Apache-2.0), re-implemented in the wd kernel: the K split
+runs without a cluster, so its CTA count is not limited by cluster residency (16 clusters of 8 do
+not all fit at once, which is why r64c8s8 at m = 256 lost by 5 us). The donor joins its CTAs
+with a grid-wide barrier that needs every CTA resident; ours uses a per-tile last-arriver join
+that needs no co-residency.
+
+- Measured (check a8de7b162c9f41d5): this join costs about 4 us against the cluster push at
+  the same geometry (the trailing fences wait for every red to complete, then the last CTA
+  copies the tile). `WV_GZERO` replaces it: a memset node zeroes `out` ahead of the kernel
+  (stream order) and the partials are added into `out` as each CTA's last stores, with no
+  counter, fence or state; this is the donor's mechanism without its in-kernel clear.
+- State: `wd_gred_acc` (FP32, 256 tokens x 256 rows) and `wd_gred_cnt` (64 tile counters),
+  `__device__` globals, zero at module load and zero again after every launch (below).
+- Per CTA, after the main loop: the consumers write their FP32 partial tile into shared memory
+  (as the pull path does), `__syncthreads()`, then every thread adds float4s of the tile into
+  `wd_gred_acc` with `red.relaxed.gpu.global.add.v4.f32`, executes `__threadfence()` and
+  `__syncthreads()`; thread 0 runs `atomicInc(&wd_gred_cnt[tile], CLK - 1)`. The CTA that reads
+  CLK - 1 is the last: after `__syncthreads()` (flag through shared memory) and
+  `__threadfence()`, its threads read the tile with `ld.global.cg`, store it to `out` and write
+  zeros back with `st.global.cg`. `atomicInc` wraps the counter to 0.
+- Ordering argument (the CUDA Programming Guide's memory-fence example, threadFenceReduction;
+  PTX ISA 9.4 memory consistency model, as corrected by the independent review): `red` and
+  `atom` are morally strong at .gpu scope (8.7). `__threadfence()` is `membar.gl`, a synonym for
+  `fence.sc` on sm_70+, and Fence-SC order is total over these fences (8.9.3). If a reader's
+  fence in the last CTA preceded a writer thread's fence in another CTA, base causality (8.9.5:
+  atom, bar, fence, fence, bar, atom) would put the last CTA's atomic before that CTA's atomic in
+  coherence order (8.10.1), contradicting the last CTA reading CLK - 1 through the RMW chain
+  (8.10.3). So every writer's fence synchronizes with every reader's fence (8.9.4), and each red
+  precedes each reader's load in causality order. The argument needs `fence.sc`: with
+  `fence.acq_rel` thread 0's fence would have to move after the `__syncthreads()`. The zeros it
+  writes are ordered before the next launch by kernel completion (stream order).
+- Graph replay: no host reset; each launch leaves the counters and accumulator zero.
+- Hazards: two launches of GRED configs running concurrently (other streams, PDL overlap in the
+  layer) would share the state; the layer must not port it without per-call state or a
+  `griddepcontrol.wait` before the first red. A launch killed mid-way leaves the state dirty
+  (the watchdog path still runs the epilogue, so a timeout yields wrong output, caught by the
+  self-test, but a clean state afterwards). `red.add.f32` flushes subnormals (PTX `red`), far
+  below the router's 1e-4 bound. FP32 summation order varies between runs (about 1e-7 relative).

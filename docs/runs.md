@@ -1567,3 +1567,43 @@ geometry, at 128 it only removes the incumbents' multicast (ruled-out, declined 
 | router G / A / Q toggles | router 128 / 256 | A+S -0.22 and G -0.13 at 128 (bench-only spin); nulls at 256 | 97869fa8302041b5 | G+A twins in round rg-b if the router lane gets a check |
 | dense whole-tile sketch | dense 128 / 256 | declined | geometry comparison | none |
 | everything else | | unchanged from round 5 | | |
+
+## 2026-10-31 (UTC) F-PROJ-1: donor mechanisms re-implemented in our code (branch proj-r7)
+
+Brief (coordinator): re-implement in our own code the mechanisms by which the donor projection
+file (alygg77 okc-muse-spark-kernels @ 6cae49a, `kernels/muse_bf16_proj.py`, Apache-2.0) beats
+release d85d0081 (F-PROJ-0 above); no donor code in any submission; up to 12 checks. Two
+independent read-only reads of both files (sk2 against our sk; rk and qbig against our wd; the
+small-m GEMV routes) set the arm list. Bench builders: `tools/proj_make_bench_f1.py` (rounds
+f1-f5), `tools/proj_make_bench_rg.py` (rounds rg-c, rg-d); the candidate-vs-release four-arm
+bench is the F-PROJ-0 harness (`make_f4.py`, scratchpad) with no donor patches, both arms ours.
+All bench variants are bench-only template bits; production SASS was checked instruction
+identical (81 / 81) until the candidate commit.
+
+| date | job | kind | commit | change | score (95% CI) | notes |
+|---|---|---|---|---|---|---|
+| 10-31 | a63fa0c391fd40fc | check (bench f1) | 79f9043 | sk global-x escapes (donor `_escape_source`), donor sk2 geometries, pooler 128 cuBLASLt pin | 1.495x | escapes from global: +0.13 qkv8, -0.13 slice8, +0.4 to +1.2 at m >= 16; donor geometries +0.02 to +1.17 (pool32t); pooler 128 donor config -0.78 (56/60), t15c4g5 -0.90; qkv8 null 0.45 |
+| 10-31 | 6d5554de901143d0 | check (bench f2) | 79f9043 | escape-loop plain loads (x), escape-off attribution (z), FULL arms (dropped: checked at sizes they refuse) | 1.498x | x: -0.13 qkv32, else +-0.13; z: pool32 -0.34, pool16 -0.10; pooler 128 donor -1.36 (59/60) |
+| 10-31 | a8de7b162c9f41d5 | check (bench f3 + rg-c) | 79f9043 | FULL (compile-time M = TOKR), consumer wait without watchdog or vote (n), both; router GRED counter join | 1.489x | fn: qkv32 -0.77, qkv16 -0.58, pool32 -0.46, pool8 -0.30; n alone qkv32 -0.51; GRED +3.5 to +6.9 us (the join costs about 4 us at equal geometry); pooler 128 donor -1.22 |
+| 10-31 | 8712eb94a71e4075 | check (bench f4 + rg-d) | 79f9043 | LITEWD (vote kept, clock per 256 polls), router GRED with a memset-zeroed out (GZERO) | 1.484x | fl recovers little where fn wins (qkv32 +0.10 vs -0.96); GZERO +0.83 (m = 256, 128 CTAs) to +1.92 us |
+| 10-31 | eebd764690d5470f | check (bench f5) | 79f9043 | NOVOTE (per-thread wait, no vote, no break, clock per 256 polls, fails closed via diag) alone and with FULL | 1.490x | fv: pool32 -0.45, pool16 -0.34, qkv8 / qkv16 / unp16 / pool8 -0.18 / -0.18 / -0.18 / -0.19, o16 -0.11, o32 -0.10; v alone qkv32 -0.45 (fv -0.22) |
+| 10-31 | a4ce752c0f434ac5 | check (candidate C1, clean) | 05286d9 | NOVOTE on every compressed sk config, FULL twins dispatched at M = TOKR (all but qkv32), pooler 128 LT_PREF = donor config | 1.495x (1.472-1.517) | judge sample inside run noise; prepare 108 s; picks as before plus the new pooler 128 pin |
+| 10-31 | 5ec16ca4d42a4e13 | check (four-arm C1 vs release 2265fa2) | C1 | R1 / R2 = release, D1 / D2 = C1, RDRD prepare order, 3 seeds x 50 rounds | stub (meaningless) | pooled D/R **1.0092** (crosses 1.0082-1.0102), nulls 0.9981 / 1.0002, 129/129 checks per arm: candidate faster |
+
+Readings (measured):
+
+- The sk gap at m = 8-32 is mostly the consumer full-barrier wait: the per-poll `clock64`
+  watchdog with a warp vote costs up to 0.5 us (qkv32), and compile-time x-tile addressing
+  (FULL) adds up to 0.3 us on top where M = TOKR. The fail-closed NOVOTE form keeps the watchdog
+  (clock once per 256 polls, diag code, no break so the warp stays converged) and recovers most
+  of the no-watchdog gain. No fence or barrier changed (SASS: MEMBAR / FENCE / SYNCS counts per
+  config equal to the voted build).
+- The donor's global-x escapes and its sk2 geometries do not carry its gain in our kernel.
+- Router 128 / 256: the donor's 64 x 64 tiles at 96 / 128 CTAs do not run faster in our wd kernel
+  with either a counter join or a memset-zeroed red.add; the cluster version at 128 CTAs is +3.7
+  us (residency). The donor's lead is in its kernel body, not the join; not attributed.
+- pooler 128: the donor's cuBLASLt pin (layout 1, tile 64x64, custom 4, cluster id 2) wins in
+  four of four checks (-0.78 to -1.36 us).
+
+Candidate C1 (commit 05286d9, file SHA256 f41418489a1096697c2299b59a547e6488a1570e9d05beee6ff81cb295d3eeb7)
+handed to the coordinator; not submitted by this agent.

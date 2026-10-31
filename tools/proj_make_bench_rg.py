@@ -37,26 +37,41 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 
 N, K, L, U, S, E, D, T, W, B, X, Y, Z = 1, 2, 4, 8, 16, 32, 64, 128, 256, 512, 1024, 2048, 4096
-G, A, Q = 8192, 16384, 32768
-BITS = (N, K, L, U, S, E, D, T, W, B, X, Y, Z, G, A, Q)
-TAGS = "NKLUSEDTWBXYZGAQ"
+G, A, Q, R, M = 8192, 16384, 32768, 65536, 131072
+BITS = (N, K, L, U, S, E, D, T, W, B, X, Y, Z, G, A, Q, R, M)
+TAGS = "NKLUSEDTWBXYZGAQRM"
 KLUE = K | L | U | E
 P = KLUE | Y | Z
 # Round a (check 97869fa8302041b5) lacked the watchdog twins of the G|A|S arms, so the spin rule
 # dropped them; round b adds them.
-ROUND = "rg-b"
+# Round c (F-PROJ-1): R = WV_GRED, the K split without a cluster (red.add into a global
+# accumulator, last-arriver copy), the donor rk router's mechanism, at its CTA counts: 64 rows x
+# 64 tokens, split 12 at m = 128 (96 CTAs) and 8 at m = 256 (128 CTAs), with neighbours.
+# Round d: R + M (WV_GZERO), out zeroed by a memset node and the partials added into it as the
+# CTA's last stores (round c's counter join cost about 4 us: rk's reds are fire-and-forget).
+ROUND = "rg-d"
+KLE = K | L | E
+GEOM_EXTRA = {"r64c12s8": (1, 64, 12, 1, True, 8), "r64c16s8": (1, 64, 16, 1, True, 8),
+              "r64c6s8": (1, 64, 6, 1, True, 8)}
 # Production picks r64c8s8 (m = 128) and r128c8s6 (m = 256) with every untested difference alone
 # and together; at m = 256 also the reference's own geometry and orientation (r64c4s8, XA), where
 # the gap at identical tiling was 2.4 us (6cc72e840403402b).
 _SET = [P, P | D, P | A, P | A | S, P | G, P | G | A, P | G | A | D, P | G | A | S, P | G | A | S | D]
-WD_SETS = {
+WD_SETS_B = {
     "r64c8s8": _SET,
     "r128c8s6": _SET,
     "r64c4s8": [P | W | X, P | W | X | D, P | W | X | Q, P | W | X | A, P | W | X | A | S, P | W | X | G,
                 P | W | X | G | A | Q, P | W | X | G | A | Q | D, P | W | X | G | A | S | Q,
                 P | W | X | G | A | S | Q | D],
 }
-WD_BASES = {128: ("r64c8s8",), 256: ("r128c8s6", "r64c4s8")}
+WD_SETS = {
+    "r64c8s8": [P, P | D, KLE | R | M, KLE | R | M | D],
+    "r128c8s6": [P, P | D, KLE | R | M],
+    "r64c12s8": [KLE | R | M],
+    "r64c16s8": [KLE | R | M],
+    "r64c6s8": [KLE | R | M],
+}
+WD_BASES = {128: ("r64c8s8", "r64c12s8", "r64c16s8"), 256: ("r128c8s6", "r64c8s8", "r64c6s8", "r64c12s8")}
 WD_PROD = {"r64c8s8": "r64c8s8k", "r128c8s6": "r128c8s6k"}
 WD_REF = {128: "r64c8s8:vKLUEYZ", 256: "r128c8s6:vKLUEYZ"}
 
@@ -76,6 +91,7 @@ BENCH = r'''
 _RG_WD = @@WD@@
 _RG_BASES = @@BASES@@
 _RG_PROD = @@PROD@@
+_RG_GEOM_EXTRA = @@GEOMX@@
 _RG_REF = @@REF@@
 _RG_ROUND = @@ROUND@@
 _RG_DONOR = @@DONOR@@
@@ -98,7 +114,7 @@ def _rg_build_bench(name, wd):
     try:
         g["SK_CONFIGS"] = [c for c in saved["SK_CONFIGS"] if c[0] in ROUTER_GEOM]
         g["SK_INDEX"] = {c[0]: i for i, c in enumerate(g["SK_CONFIGS"])}
-        g["WD_GEOM"] = {nm: saved["WD_GEOM"][b] for nm, (b, v) in wd.items()}
+        g["WD_GEOM"] = {nm: {**saved["WD_GEOM"], **_RG_GEOM_EXTRA}[b] for nm, (b, v) in wd.items()}
         g["WD_VAR"] = {nm: v for nm, (b, v) in wd.items()}
         g["WD_ABL"] = {}
         g["WD_NAMES"] = list(wd)
@@ -386,7 +402,7 @@ def main():
     sub = (ROOT / "muse_bf16_proj/submission.py").read_text()
     wd = bench_wd()
     bench = (BENCH.replace("@@WD@@", repr(wd)).replace("@@BASES@@", repr(WD_BASES))
-             .replace("@@PROD@@", repr(WD_PROD)).replace("@@REF@@", repr(WD_REF))
+             .replace("@@PROD@@", repr(WD_PROD)).replace("@@GEOMX@@", repr(GEOM_EXTRA)).replace("@@REF@@", repr(WD_REF))
              .replace("@@ROUND@@", repr(ROUND)).replace("@@DONOR@@", repr(donor)))
     out.write_text(sub + bench)
     print(f"wrote {out}: {len(wd)} wd arms, donor arms {'on (check only, never submit)' if donor else 'off'}")
@@ -395,7 +411,7 @@ def main():
         spec = importlib.util.spec_from_file_location("sub", ROOT / "muse_bf16_proj/submission.py")
         mod = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(mod)
-        mod.WD_GEOM = {nm: mod.WD_GEOM[b] for nm, (b, v) in wd.items()}
+        mod.WD_GEOM = {nm: {**mod.WD_GEOM, **GEOM_EXTRA}[b] for nm, (b, v) in wd.items()}
         mod.WD_VAR = {nm: v for nm, (b, v) in wd.items()}
         mod.WD_ABL = {}
         mod.WD_NAMES = list(wd)
