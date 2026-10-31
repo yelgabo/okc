@@ -3411,3 +3411,142 @@ instructions, one `UBLKCP` in the prologue fill and one in the loop, `BAR.SYNC 0
 `EXIT`s back), consumer region R115, no spills. The ordering argument and the review above are
 unchanged (the brace changes no statement). Check 3 repeats `bench_p` unchanged on the fixed source,
 under the check-1 gate as written.
+
+### Check bb06f8e57bd84636 (bench `bench_p` repeated, at 0671cc7): `ONE_PBULK=1` is a small gain below the bar
+
+| date | job | commit | file | result | notes |
+|---|---|---|---|---|---|
+| 2026-10-31 | bb06f8e57bd84636 (check) | 0671cc7 | bench `bench_p` (11 arms, `--shapes full`, 3 inputs) | 2.496x (CI 2.459-2.534) judged path = board code, 16/16 tests, ABCHECKSUM 11/0 every real arm | G +0.063% over each null, bar 0.10% |
+
+Profiles: `muse_attention_decode/profiles/bench_p.bb06f8e57bd84636.*`. Cold pooled over three inputs,
+arm - ctrl (us):
+
+| row | ctrl | ctrlb | ctrl2 | pb | pbown | pbh | pub | prodonly_probe / pbprod_probe (abs.) |
+|---|---|---|---|---|---|---|---|---|
+| d16 full | 100.45 | +0.03 | +0.06 | -0.07 | -0.13 | -0.19 | -0.80 | 37.60 / 47.33 |
+| d32 full | 179.42 | +0.07 | -0.09 | -0.51 | -0.51 | -0.38 | -1.34 | 63.42 / 82.75 |
+
+Against the gate: (1) holds; (2) **fails**: G(pb) - G(ctrlb) = +0.063%, G(pbown) - G(ctrl2) = +0.063%,
+under 0.10%; (3) d32 full has the same sign on all three inputs (-0.61 / -0.67 / -0.32), d16 full does
+not (+0.03 / -0.13 / -0.16); (4) holds. A measured gain below the bar, not promoted.
+
+The producer-only probe got slower with the switch (37.6 -> 47.3 and 63.4 -> 82.8 us): the per-tile
+producer `bar.sync` locks the four producer warps together, and each waits for its window and for the
+empty stage in lockstep. The stamps (`stamppb`, d32 full) show the producer's empty-barrier wait down
+from about 95 to 57 us and the pair gap unchanged (6.2 us). So the real-time gain comes while
+DRAM sets the pace, and the lockstep costs the producer pace without DRAM.
+
+### The variant for check 4: `ONE_PBULK=2` (free mbarriers in place of the producer barrier)
+
+Each window gets a second mbarrier (`Smem::PFREE`, count 128). Every producer thread arrives on it
+after reading its 4 entries; thread 0 waits on it before refilling the window (fill k waits for phase
+k - 1; fill 0 passes at once) and then executes `fence.proxy.async.shared::cta` and the bulk copy. The
+per-tile `bar.sync 4` is gone, so the producer warps no longer run in lockstep. Ordering of the WAR:
+each reader's generic loads, then its `mbarrier.arrive` (release, CTA scope), then thread 0's
+`mbarrier.try_wait.parity` (acquire), then the proxy fence and the async-proxy write. The RAW is
+unchanged. A refill cannot overtake: fill k + 1 is issued only after the 128 arrivals for fill k, and
+readers of fill k + 1 arrive only after it lands. No fence or barrier of the K / V ring changes.
+SASS: `ONE_PBULK=2` changes only mode 49 (2864 instructions, consumer region R119, no spills,
+producer drain and `EXIT` present); 0 is still identical to main on all 13 instances.
+
+### Gate for check 4 (written before the bench that tests it)
+
+Bench `bench_r` (`flat/gen_r.sh`, `--pub <0e9d4c78> --null --shapes full --inputs 3 --rounds 200
+--seed 20261104`): `ctrl`, `ctrl2`, `ctrlb` (`-DONE_PBULK=0`), `pb1`, `pb2`, `pb2own`, `pb2h` (with
+HMRGF), `prodonly_probe`, `pb2prod_probe`, `pub`, `pub2`. The check-1 clauses apply to `pb2` (with
+`pb2own` as its own-state twin) and to `pb2h`: (1) ABCHECKSUM; (2) G(X) - G(ctrlb) >= 0.10% and
+G(pb2own) - G(ctrl2) >= 0.10%; (3) same sign on all three inputs at d16 and d32 full; (4) no row beyond
+max(|ctrlb - ctrl|, 1%). `pb1` repeats check 3's arm for the ledger.
+
+Independent read-only review of `ONE_PBULK=2` (fresh agent, 10-31, source at 8bdf607): **sound**;
+the caveat (two comments that still named the producer `bar.sync` as the only ordering) is fixed in
+the source (comments only, no SASS change).
+
+### Check f3f1e4a5249a4228 (bench `bench_r`, at 8bdf607): `ONE_PBULK=2` loses; `ONE_PBULK=1` repeats its small gain
+
+| date | job | commit | file | result | notes |
+|---|---|---|---|---|---|
+| 2026-10-31 | f3f1e4a5249a4228 (check) | 8bdf607 | bench `bench_r` (11 arms, `--shapes full`, 3 inputs) | 2.519x (CI 2.481-2.570) judged path = board code, 16/16 tests, ABCHECKSUM 11/0 every real arm | pb2 +1.4 / +2.9 us; pb1 G +0.074% |
+
+Profiles: `muse_attention_decode/profiles/bench_r.f3f1e4a5249a4228.*`. Cold pooled, arm - ctrl (us):
+
+| row | ctrl | ctrlb | ctrl2 | pb1 | pb2 | pb2own | pb2h | pub | prodonly / pb2prod (abs.) |
+|---|---|---|---|---|---|---|---|---|---|
+| d16 full | 100.42 | +0.03 | +0.00 | -0.16 | +1.37 | +1.34 | +0.22 | -0.96 | 37.57 / 53.73 |
+| d32 full | 179.58 | +0.04 | -0.12 | -0.60 | +2.92 | +2.98 | +0.71 | -1.24 | 63.49 / 95.39 |
+
+Gate: `pb2` and `pb2h` fail clause 2 (G -0.45% / -0.09%) and `pb2` clause 4 (beyond 1% at d32).
+`pb1` again: G +0.074%, d32 -0.48 / -0.67 / -0.48 on the three inputs, d16 +0.00 / -0.26 / -0.13.
+Two benches put `ONE_PBULK=1` at +0.06-0.07% (rows in docs/ruled-out.md: a real gain below the bar;
+`ONE_PBULK=2` a loss). The free-barrier variant makes thread 0 wait each tile for the slowest
+producer's read of the previous fill before refilling, which slowed the producer more than the
+lockstep did (producer-only 53.7 / 95.4 us against 47.3 / 82.8).
+
+### Check 5 (attribution, no gate): the per-request rows by phase, with HMRG and PRQ in
+
+Outside the flat rows the donor / public lead is d1 full (0.47 us, about 0.28%), v32 sliding (0.61
+us, 0.13%) and d1 sliding. The last phase comparison (ce92d32e26024bd2) predates HMRG's promotion
+and PRQ. Bench `bench_s` (`flat/gen_s.sh`, `--null --shapes all --inputs 2 --rounds 120 --seed
+20261105`): our DIAG phase exits `p9_probe` .. `p12_probe` and `diag0_probe` (own state) against the
+public phase copies `pubph1_probe` .. `pubph4_probe` (scratchpad `a3/pubph0.py`, as in round 2),
+`ctrl2`, `pub`, `pub2`, and `pb1` a third time.
+
+### Check 1c861d3944f149a0 (bench `bench_s`, at a191c34): where the per-request gap is now
+
+| date | job | commit | file | result | notes |
+|---|---|---|---|---|---|
+| 2026-10-31 | 1c861d3944f149a0 (check) | a191c34 (bench generated one comment edit earlier; same code) | bench `bench_s` (15 arms, all 12 shapes, 2 inputs) | 2.584x (CI 2.546-2.635) judged path = board code, 16/16 tests, ABCHECKSUM 19/0 every real arm | attribution, no gate |
+
+Profiles: `muse_attention_decode/profiles/bench_s.1c861d3944f149a0.*`. Phase times, cold pooled (us),
+ours (`p9` / `p10` / `p11` / `p12` / `diag0`, own state, DIAG build of the board code) against the
+public phase copies (`pubph1` .. `pubph4`, `pub`). Each column is the difference of consecutive
+exits, so a red's drain lands in the phase that issued it:
+
+| row | prologue | tile loop | reds | ticket / barrier | finalize | whole |
+|---|---|---|---|---|---|---|
+| d1 sliding | 7.10 / 6.98 | 0.64 / 0.54 | 0.32 / 0.38 | 0.80 / 0.64 | 0.77 / 0.74 | 9.63 / 9.28 |
+| d1 full | **10.27 / 9.73** | 4.58 / 4.48 | 0.41 / 0.35 | 1.19 / 1.47 | 0.57 / 0.61 | 17.02 / 16.64 |
+| d16 sliding | 10.34 / 10.27 | 0.99 / 0.67 | 0.38 / 0.52 | 0.83 / 0.96 | 0.96 / 0.54 | 13.50 / 12.96 |
+| d32 sliding | 10.40 / 10.24 | 3.58 / 3.49 | 0.36 / 0.38 | 0.70 / 0.67 | 0.90 / 0.93 | 15.94 / 15.71 |
+| v1 sliding | 7.55 / 7.17 | 1.19 / 1.09 | 0.80 / 0.99 | 0.99 / 0.80 | 0.73 / 0.83 | 11.26 / 10.88 |
+| v1 full | 9.82 / 9.76 | **6.21 / 5.79** | 1.35 / 1.35 | 1.15 / 1.05 | 1.02 / 1.06 | 19.55 / 19.01 |
+| v16 sliding | 8.93 / 8.77 | **4.35 / 3.93** | 0.74 / 0.84 | 1.21 / 0.83 | 0.77 / 1.28 | 16.00 / 15.65 |
+| v32 sliding | 9.18 / 9.06 | **8.13 / 7.26** | 0.74 / 0.90 | 1.28 / 0.92 | 1.09 / 1.28 | 20.42 / 19.42 |
+
+What it names (measured):
+
+- **q_len 8 per-request tile loop**: 0.42 / 0.42 / 0.87 us behind at v1 full / v16 sliding / v32
+  sliding after PRQ. At this run's sensitivities that is about 0.20% + 0.15% + 0.18%, the largest
+  pool left (the flat full rows hold about 0.25%). Round 3 found the public per-request tile body
+  longer than ours in instructions (645 vs about 530 before PRQ), so the remaining difference is
+  in latency or order, not count; its per-tile descriptor and V^T address carries (the per-request
+  counterpart of DCARRY / VHOIST, which ours applies only to the flat mode 51) are one untested
+  candidate.
+- **d1 full prologue**: 10.27 vs 9.73 us (+0.54, about 0.33%). The q_len 8 batch-1 full prologue
+  (same mode 11 plan, same grid) is level (9.82 vs 9.76), and the sliding prologues trail by 0.07-0.38.
+  So the deficit is specific to the q_len 1 batch-1 full prologue; the public phase copy has no
+  sub-phase exits, so which load in the chain it is has not been measured.
+- Ticket / barrier and finalize trade a few tenths both ways (ours faster at d1 full's barrier,
+  slower at v16 / v32 sliding's barrier and faster in their finalize).
+- With the pick off, the judged path's own state sat 0.3-0.5 us slow at d1 full in this process
+  (ctrl 17.47, ctrl2 17.15, `pub` 16.67).
+- `pb1` (`ONE_PBULK=1`) a third time: d16 / d32 full -0.10 / -0.80 us; ABSCORE 0.9974, which is inside
+  the run's null spread on rows it does not change (ctrl2 0.9968).
+
+## Attention round 5 (10-31): ledger
+
+Checks used: fcf904b32d9a427b (hang), 61069efbf90d4c44 (diagnostic), bb06f8e57bd84636,
+f3f1e4a5249a4228, 1c861d3944f149a0 (5 of the 10 budgeted). No file beat the board entry
+(68d3b88fbc8b40da, the pick-off release), so none was offered.
+
+| family | state | evidence | reopening trigger |
+|---|---|---|---|
+| Mode 49 page indices by bulk copy (`ONE_PBULK=1`) | measured gain below the bar, off | bb06f8e57bd84636 (+0.063%), f3f1e4a5249a4228 (+0.074%), 1c861d3944f149a0 (d32 -0.80 us); review sound | a rider for any promoted mode 49 change, or a producer that keeps it without the per-tile lockstep |
+| Same with per-window free barriers (`ONE_PBULK=2`) | measured loss | f3f1e4a5249a4228: +1.4 / +2.9 us | a refill that does not wait for the slowest reader of the previous fill |
+| `if constexpr (...) { } else for (...)` (unbraced `else` statement) | compiler trap, fixed by bracing | 61069efbf90d4c44 plus offline bisection: CUDA 12.8.1 dropped the producer drain and `exit` | any new `if constexpr` with an unbraced `else`: check the producer `EXIT` count in SASS |
+
+Next, in order of measured value: (1) the q_len 8 per-request tile loop (0.4-0.9 us on v1 full, v16
+and v32 sliding, about 0.5% together); first test the per-tile descriptor / V^T address carries in
+the PRQ loop against the public order, with a stamp copy of the public per-request loop to split the
+latency; (2) the d1 full prologue (0.54 us): sub-phase exits on both sides (page indices, query
+group, first tiles) before any change; (3) the flat full rows by the pair spread (round 4).

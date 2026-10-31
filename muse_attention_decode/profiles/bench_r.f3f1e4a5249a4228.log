@@ -1,0 +1,70 @@
+ickets_nonzero=0 coop_next_parity_nonzero=0 flat_next_parity_nonzero=0
+ABCHECK PASS pub b3 ctx4000 tp8 sliding L8 fixed normal page1 scale0.015625 [n_splits=33,flat=0,cs=0,ncl=1,nc=1,coop=1] vs_ctrl=0.0e+00 diff_elems=0/24576 
+ABCHECK PASS pub2 b3 ctx4000 tp8 sliding L8 fixed normal page1 scale0.015625 [n_splits=33,flat=0,cs=0,ncl=1,nc=1,coop=1] vs_ctrl=7.2e-07 diff_elems=1/24576 max_ulp=1.0 max_abs=6.1e-05 
+ABCHECK PASS ctrl b2 ctx9000 tp8 full L1 fixed normal page64 scale0.015625 [splits=264,nc=1,mode=49] err=5.338e-03 bound=0.150 worst_row=1.226e-02 k=0.00e+00 v=0.00e+00 ws_rows_nonzero=0 l_nonzero=0 tickets_nonzero=0 coop_next_parity_nonzero=0 flat_next_parity_nonzero=0
+ABCHECK PASS ctrlb b2 ctx9000 tp8 full L1 fixed normal page64 scale0.015625 [splits=264,nc=1,mode=49] vs_ctrl=0.0e+00 diff_elems=0/2048 ws_rows_nonzero=0 l_nonzero=0 tickets_nonzero=0 coop_next_parity_nonzero=0 flat_next_parity_nonzero=0
+ABCHECK PASS pb1 b2 ctx9000 tp8 full L1 fixed normal page64 scale0.015625 [splits=264,nc=1,mode=49] vs_ctrl=0.0e+00 diff_elems=0/2048 ws_rows_nonzero=0 l_nonzero=0 tickets_nonzero=0 coop_next_parity_nonzero=0 flat_next_parity_nonzero=0
+ABCHECK PASS pb2 b2 ctx9000 tp8 full L1 fixed normal page64 scale0.015625 [splits=264,nc=1,mode=49] vs_ctrl=0.0e+00 diff_elems=0/2048 ws_rows_nonzero=0 l_nonzero=0 tickets_nonzero=0 coop_next_parity_nonzero=0 flat_next_parity_nonzero=0
+ABCHECK PASS pb2own b2 ctx9000 tp8 full L1 fixed normal page64 scale0.015625 [splits=264,nc=1,mode=49] vs_ctrl=1.6e-07 diff_elems=1/2048 max_ulp=1.0 max_abs=3.8e-06 ws_rows_nonzero=0 l_nonzero=0 tickets_nonzero=0 coop_next_parity_nonzero=0 flat_next_parity_nonzero=0
+ABCHECK PASS pb2h b2 ctx9000 tp8 full L1 fixed normal page64 scale0.015625 [splits=264,nc=1,mode=49] vs_ctrl=0.0e+00 diff_elems=0/2048 ws_rows_nonzero=0 l_nonzero=0 tickets_nonzero=0 coop_next_parity_nonzero=0 flat_next_parity_nonzero=0
+ABCHECK PROBE prodonly_probe b2 ctx9000 tp8 full L1 fixed normal page64 scale0.015625 [splits=264,nc=1,mode=49] vs_ctrl=1.0e+00 diff_elems=2048/2048 max_ulp=255.0 max_abs=2.2e+00 ws_rows_nonzero=0 l_nonzero=0 tickets_nonzero=0 coop_next_parity_nonzero=0 flat_next_parity_nonzero=0
+ABCHECK PROBE pb2prod_probe b2 ctx9000 tp8 full L1 fixed normal page64 scale0.015625 [splits=264,nc=1,mode=49] vs_ctrl=1.0e+00 diff_elems=2048/2048 max_ulp=255.0 max_abs=2.2e+00 ws_rows_nonzero=0 l_nonzero=0 tickets_nonzero=0 coop_next_parity_nonzero=0 flat_next_parity_nonzero=0
+ABCHECK PASS ctrl2 b2 ctx9000 tp8 full L1 fixed normal page64 scale0.015625 [splits=264,nc=1,mode=49] vs_ctrl=0.0e+00 diff_elems=0/2048 ws_rows_nonzero=0 l_nonzero=0 tickets_nonzero=0 coop_next_parity_nonzero=0 flat_next_parity_nonzero=0
+ABCHECK PASS pub b2 ctx9000 tp8 full L1 fixed normal page64 scale0.015625 [n_splits=264,flat=1,cs=0,ncl=1,nc=1] vs_ctrl=3.7e-04 diff_elems=8/2048 max_ulp=1.0 max_abs=7.8e-03 
+ABCHECK PASS pub2 b2 ctx9000 tp8 full L1 fixed normal page64 scale0.015625 [n_splits=264,flat=1,cs=0,ncl=1,nc=1] vs_ctrl=3.7e-04 diff_elems=8/2048 max_ulp=1.0 max_abs=7.8e-03 
+ABCHECK done: 0 failing t=421s
+ABORDER seed=20261104 rounds=200 inputs=3 timing_seeds=[1000, 1001, 1002] arms=['ctrl', 'ctrlb', 'pb1', 'pb2', 'pb2own', 'pb2h', 'prodonly_probe', 'pb2prod_probe', 'ctrl2', 'pub', 'pub2']
+ABPLAN b=16 full    L=1 ctrl=[splits=264,nc=1,mode=49] ctrlb=[splits=264,nc=1,mode=49] pb1=[splits=264,nc=1,mode=49] pb2=[splits=264,nc=1,mode=49] pb2own=[splits=264,nc=1,mode=49] pb2h=[splits=264,nc=1,mode=49] prodonly_probe=[splits=264,nc=1,mode=49] pb2prod_probe=[splits=264,nc=1,mode=49] ctrl2=[splits=264,nc=1,mode=49] pub=[n_splits=264,flat=1,cs=0,ncl=1,nc=1] pub2=[n_splits=264,flat=1,cs=0,ncl=1,nc=1]
+ABCOLD b=16 full    L=1 in=0 ctrl=100.32 ctrlb=100.35 pb1=100.32 pb2=101.60 pb2own=101.44 pb2h=100.61 prodonly_probe=37.28 pb2prod_probe=53.31 ctrl2=100.22 pub=99.17 pub2=99.20 cap0=pub2 t=421s
+ABWARM b=16 full    L=1 in=0 ctrl=87.59 ctrlb=87.57 pb1=87.06 pb2=88.24 pb2own=88.41 pb2h=87.32 prodonly_probe=28.55 pb2prod_probe=49.63 ctrl2=87.68 pub=86.26 pub2=86.29 t=421s
+ABCOLD b=16 full    L=1 in=1 ctrl=100.67 ctrlb=100.70 pb1=100.42 pb2=101.98 pb2own=101.98 pb2h=100.64 prodonly_probe=37.76 pb2prod_probe=54.18 ctrl2=100.64 pub=100.03 pub2=100.00 cap0=pub t=422s
+ABWARM b=16 full    L=1 in=1 ctrl=87.95 ctrlb=88.03 pb1=87.29 pb2=88.83 pb2own=88.86 pb2h=87.89 prodonly_probe=29.63 pb2prod_probe=51.24 ctrl2=88.11 pub=87.04 pub2=87.23 t=422s
+ABCOLD b=16 full    L=1 in=2 ctrl=100.22 ctrlb=100.26 pb1=100.10 pb2=101.89 pb2own=101.79 pb2h=100.70 prodonly_probe=37.60 pb2prod_probe=53.76 ctrl2=100.35 pub=99.33 pub2=99.23 cap0=pub t=423s
+ABWARM b=16 full    L=1 in=2 ctrl=87.51 ctrlb=87.55 pb1=87.08 pb2=88.18 pb2own=88.45 pb2h=87.33 prodonly_probe=29.06 pb2prod_probe=49.84 ctrl2=87.54 pub=86.26 pub2=86.20 t=423s
+ABCOLD b=16 full    L=1 pooled ctrl=100.42 ctrlb=100.45 pb1=100.26 pb2=101.79 pb2own=101.76 pb2h=100.64 prodonly_probe=37.57 pb2prod_probe=53.73 ctrl2=100.42 pub=99.46 pub2=99.46
+ABWARM b=16 full    L=1 pooled ctrl=87.66 ctrlb=87.63 pb1=87.11 pb2=88.44 pb2own=88.55 pb2h=87.48 prodonly_probe=29.06 pb2prod_probe=50.34 ctrl2=87.69 pub=86.35 pub2=86.36
+ABPLAN b=32 full    L=1 ctrl=[splits=264,nc=1,mode=49] ctrlb=[splits=264,nc=1,mode=49] pb1=[splits=264,nc=1,mode=49] pb2=[splits=264,nc=1,mode=49] pb2own=[splits=264,nc=1,mode=49] pb2h=[splits=264,nc=1,mode=49] prodonly_probe=[splits=264,nc=1,mode=49] pb2prod_probe=[splits=264,nc=1,mode=49] ctrl2=[splits=264,nc=1,mode=49] pub=[n_splits=264,flat=1,cs=0,ncl=1,nc=1] pub2=[n_splits=264,flat=1,cs=0,ncl=1,nc=1]
+ABCOLD b=32 full    L=1 in=0 ctrl=179.01 ctrlb=179.07 pb1=178.53 pb2=181.92 pb2own=181.79 pb2h=179.84 prodonly_probe=63.20 pb2prod_probe=94.85 ctrl2=178.82 pub=177.44 pub2=177.34 cap0=pb2 t=424s
+ABWARM b=32 full    L=1 in=0 ctrl=167.62 ctrlb=167.69 pb1=166.80 pb2=171.44 pb2own=172.28 pb2h=168.85 prodonly_probe=52.41 pb2prod_probe=96.11 ctrl2=167.25 pub=165.09 pub2=165.00 t=424s
+ABCOLD b=32 full    L=1 in=1 ctrl=179.71 ctrlb=179.78 pb1=179.04 pb2=182.85 pb2own=183.07 pb2h=180.45 prodonly_probe=63.65 pb2prod_probe=95.65 ctrl2=179.78 pub=178.69 pub2=178.46 cap0=pb2 t=425s
+ABWARM b=32 full    L=1 in=1 ctrl=167.90 ctrlb=167.95 pb1=166.83 pb2=171.80 pb2own=173.71 pb2h=169.11 prodonly_probe=52.62 pb2prod_probe=96.71 ctrl2=167.93 pub=166.46 pub2=166.54 t=426s
+ABCOLD b=32 full    L=1 in=2 ctrl=180.00 ctrlb=180.13 pb1=179.52 pb2=182.82 pb2own=182.75 pb2h=180.48 prodonly_probe=63.68 pb2prod_probe=95.74 ctrl2=179.87 pub=178.82 pub2=178.53 cap0=ctrl t=426s
+ABWARM b=32 full    L=1 in=2 ctrl=168.02 ctrlb=167.99 pb1=166.88 pb2=171.78 pb2own=172.40 pb2h=168.75 prodonly_probe=52.47 pb2prod_probe=96.12 ctrl2=167.93 pub=166.24 pub2=165.90 t=427s
+ABCOLD b=32 full    L=1 pooled ctrl=179.58 ctrlb=179.62 pb1=178.98 pb2=182.50 pb2own=182.56 pb2h=180.29 prodonly_probe=63.49 pb2prod_probe=95.39 ctrl2=179.46 pub=178.34 pub2=178.18
+ABWARM b=32 full    L=1 pooled ctrl=167.85 ctrlb=167.90 pb1=166.82 pb2=171.63 pb2own=172.50 pb2h=168.85 prodonly_probe=52.48 pb2prod_probe=96.16 ctrl2=167.83 pub=166.14 pub2=166.04
+ABPLAN b=16 full    L=8 ctrl=[splits=264,nc=1,mode=51] ctrlb=[splits=264,nc=1,mode=51] pb1=[splits=264,nc=1,mode=51] pb2=[splits=264,nc=1,mode=51] pb2own=[splits=264,nc=1,mode=51] pb2h=[splits=264,nc=1,mode=51] prodonly_probe=[splits=264,nc=1,mode=51] pb2prod_probe=[splits=264,nc=1,mode=51] ctrl2=[splits=264,nc=1,mode=51] pub=[n_splits=264,flat=1,cs=0,ncl=1,nc=1] pub2=[n_splits=264,flat=1,cs=0,ncl=1,nc=1]
+ABCOLD b=16 full    L=8 in=0 ctrl=115.30 ctrlb=114.69 pb1=113.60 pb2=113.76 pb2own=114.05 pb2h=114.82 prodonly_probe=85.73 pb2prod_probe=85.89 ctrl2=113.79 pub=110.66 pub2=110.56 cap0=ctrlb t=427s
+ABWARM b=16 full    L=8 in=0 ctrl=100.64 ctrlb=100.65 pb1=100.55 pb2=100.40 pb2own=100.62 pb2h=100.57 prodonly_probe=83.88 pb2prod_probe=84.02 ctrl2=100.67 pub=99.04 pub2=98.80 t=428s
+ABCOLD b=16 full    L=8 in=1 ctrl=112.70 ctrlb=112.58 pb1=112.35 pb2=112.74 pb2own=113.06 pb2h=112.54 prodonly_probe=86.40 pb2prod_probe=86.14 ctrl2=112.58 pub=111.62 pub2=111.52 cap0=ctrl2 t=428s
+ABWARM b=16 full    L=8 in=1 ctrl=102.64 ctrlb=102.30 pb1=102.19 pb2=102.03 pb2own=102.71 pb2h=102.44 prodonly_probe=85.82 pb2prod_probe=85.37 ctrl2=102.30 pub=100.62 pub2=100.54 t=429s
+ABCOLD b=16 full    L=8 in=2 ctrl=113.44 ctrlb=113.60 pb1=113.50 pb2=112.64 pb2own=112.90 pb2h=114.11 prodonly_probe=85.38 pb2prod_probe=85.34 ctrl2=113.95 pub=110.59 pub2=110.75 cap0=pb2h t=429s
+ABWARM b=16 full    L=8 in=2 ctrl=101.52 ctrlb=101.08 pb1=101.22 pb2=101.00 pb2own=101.34 pb2h=101.39 prodonly_probe=84.26 pb2prod_probe=84.42 ctrl2=100.96 pub=99.12 pub2=99.01 t=430s
+ABCOLD b=16 full    L=8 pooled ctrl=113.54 ctrlb=113.34 pb1=113.15 pb2=112.99 pb2own=113.22 pb2h=113.79 prodonly_probe=85.86 pb2prod_probe=85.79 ctrl2=113.41 pub=111.01 pub2=110.94
+ABWARM b=16 full    L=8 pooled ctrl=101.29 ctrlb=101.09 pb1=101.21 pb2=101.00 pb2own=101.49 pb2h=101.39 prodonly_probe=84.50 pb2prod_probe=84.51 ctrl2=101.41 pub=99.52 pub2=99.48
+ABPLAN b=32 full    L=8 ctrl=[splits=264,nc=1,mode=51] ctrlb=[splits=264,nc=1,mode=51] pb1=[splits=264,nc=1,mode=51] pb2=[splits=264,nc=1,mode=51] pb2own=[splits=264,nc=1,mode=51] pb2h=[splits=264,nc=1,mode=51] prodonly_probe=[splits=264,nc=1,mode=51] pb2prod_probe=[splits=264,nc=1,mode=51] ctrl2=[splits=264,nc=1,mode=51] pub=[n_splits=264,flat=1,cs=0,ncl=1,nc=1] pub2=[n_splits=264,flat=1,cs=0,ncl=1,nc=1]
+ABCOLD b=32 full    L=8 in=0 ctrl=192.00 ctrlb=192.54 pb1=192.54 pb2=192.03 pb2own=192.06 pb2h=192.42 prodonly_probe=151.49 pb2prod_probe=151.49 ctrl2=191.87 pub=191.39 pub2=191.39 cap0=ctrl2 t=430s
+ABWARM b=32 full    L=8 in=0 ctrl=189.71 ctrlb=192.27 pb1=189.30 pb2=189.39 pb2own=192.20 pb2h=189.81 prodonly_probe=166.56 pb2prod_probe=166.52 ctrl2=189.44 pub=188.90 pub2=187.63 t=431s
+ABCOLD b=32 full    L=8 in=1 ctrl=193.82 ctrlb=193.12 pb1=193.15 pb2=192.90 pb2own=192.61 pb2h=194.18 prodonly_probe=152.22 pb2prod_probe=152.26 ctrl2=192.96 pub=192.54 pub2=192.32 cap0=pb2prod_probe t=432s
+ABWARM b=32 full    L=8 in=1 ctrl=192.63 ctrlb=196.26 pb1=192.48 pb2=192.23 pb2own=194.32 pb2h=194.98 prodonly_probe=170.11 pb2prod_probe=167.49 ctrl2=192.91 pub=193.11 pub2=193.22 t=433s
+ABCOLD b=32 full    L=8 in=2 ctrl=193.12 ctrlb=192.77 pb1=193.41 pb2=193.28 pb2own=193.09 pb2h=193.09 prodonly_probe=152.45 pb2prod_probe=152.48 ctrl2=193.12 pub=192.74 pub2=192.77 cap0=pb2 t=433s
+ABWARM b=32 full    L=8 in=2 ctrl=191.82 ctrlb=193.10 pb1=192.39 pb2=192.46 pb2own=193.18 pb2h=194.48 prodonly_probe=167.18 pb2prod_probe=165.93 ctrl2=193.26 pub=191.24 pub2=190.64 t=434s
+ABCOLD b=32 full    L=8 pooled ctrl=192.93 ctrlb=192.80 pb1=193.06 pb2=192.64 pb2own=192.61 pb2h=193.09 prodonly_probe=152.06 pb2prod_probe=152.03 ctrl2=192.64 pub=192.26 pub2=192.13
+ABWARM b=32 full    L=8 pooled ctrl=191.78 ctrlb=193.14 pb1=192.12 pb2=191.82 pb2own=192.96 pb2h=192.54 prodonly_probe=167.33 pb2prod_probe=167.20 ctrl2=191.92 pub=190.87 pub2=190.29
+ABADDR ctrl:acc=0xe07b4000000,l=0xe07a6a2e000,cnt=0xe07a6a6e000 pb2own:acc=0xe0762000000,l=0xe07a6a9e000,cnt=0xe07a6ade000 ctrl2:acc=0xe0763000000,l=0xe07a6afe000,cnt=0xe07a6b3e000
+ABSUM cold b=16 full    L=1 ctrl=100.42 ctrlb=100.45 pb1=100.26 pb2=101.79 pb2own=101.76 pb2h=100.64 prodonly_probe=37.57 pb2prod_probe=53.73 ctrl2=100.42 pub=99.46 pub2=99.46 null:ctrl2-ctrl=+0.00 null:pub2-pub=+0.00 d:ctrlb=+0.03 d:pb1=-0.16 d:pb2=+1.38 d:pb2own=+1.34 d:pb2h=+0.22 d:prodonly_probe=-62.85 d:pb2prod_probe=-46.69 d:pub=-0.96
+ABSUM cold b=32 full    L=1 ctrl=179.58 ctrlb=179.62 pb1=178.98 pb2=182.50 pb2own=182.56 pb2h=180.29 prodonly_probe=63.49 pb2prod_probe=95.39 ctrl2=179.46 pub=178.34 pub2=178.18 null:ctrl2-ctrl=-0.13 null:pub2-pub=-0.16 d:ctrlb=+0.03 d:pb1=-0.61 d:pb2=+2.91 d:pb2own=+2.98 d:pb2h=+0.70 d:prodonly_probe=-116.10 d:pb2prod_probe=-84.19 d:pub=-1.25
+ABSUM cold b=16 full    L=8 ctrl=113.54 ctrlb=113.34 pb1=113.15 pb2=112.99 pb2own=113.22 pb2h=113.79 prodonly_probe=85.86 pb2prod_probe=85.79 ctrl2=113.41 pub=111.01 pub2=110.94 null:ctrl2-ctrl=-0.13 null:pub2-pub=-0.06 d:ctrlb=-0.19 d:pb1=-0.38 d:pb2=-0.54 d:pb2own=-0.32 d:pb2h=+0.26 d:prodonly_probe=-27.68 d:pb2prod_probe=-27.74 d:pub=-2.53
+ABSUM cold b=32 full    L=8 ctrl=192.93 ctrlb=192.80 pb1=193.06 pb2=192.64 pb2own=192.61 pb2h=193.09 prodonly_probe=152.06 pb2prod_probe=152.03 ctrl2=192.64 pub=192.26 pub2=192.13 null:ctrl2-ctrl=-0.29 null:pub2-pub=-0.13 d:ctrlb=-0.13 d:pb1=+0.13 d:pb2=-0.29 d:pb2own=-0.32 d:pb2h=+0.16 d:prodonly_probe=-40.86 d:pb2prod_probe=-40.90 d:pub=-0.67
+ABIN b=16 full    L=1 in=0 ctrlb=+0.03 pb1=+0.00 pb2=+1.28 pb2own=+1.12 pb2h=+0.29 ctrl2=-0.10 pub=-1.15 pub2=-1.12
+ABIN b=16 full    L=1 in=1 ctrlb=+0.03 pb1=-0.26 pb2=+1.31 pb2own=+1.31 pb2h=-0.03 ctrl2=-0.03 pub=-0.64 pub2=-0.67
+ABIN b=16 full    L=1 in=2 ctrlb=+0.03 pb1=-0.13 pb2=+1.66 pb2own=+1.57 pb2h=+0.48 ctrl2=+0.13 pub=-0.90 pub2=-0.99
+ABIN b=32 full    L=1 in=0 ctrlb=+0.06 pb1=-0.48 pb2=+2.91 pb2own=+2.78 pb2h=+0.83 ctrl2=-0.19 pub=-1.57 pub2=-1.66
+ABIN b=32 full    L=1 in=1 ctrlb=+0.06 pb1=-0.67 pb2=+3.14 pb2own=+3.36 pb2h=+0.74 ctrl2=+0.06 pub=-1.02 pub2=-1.25
+ABIN b=32 full    L=1 in=2 ctrlb=+0.13 pb1=-0.48 pb2=+2.82 pb2own=+2.75 pb2h=+0.48 ctrl2=-0.13 pub=-1.18 pub2=-1.47
+ABIN b=16 full    L=8 in=0 ctrlb=-0.61 pb1=-1.70 pb2=-1.54 pb2own=-1.25 pb2h=-0.48 ctrl2=-1.50 pub=-4.64 pub2=-4.74
+ABIN b=16 full    L=8 in=1 ctrlb=-0.13 pb1=-0.35 pb2=+0.03 pb2own=+0.35 pb2h=-0.16 ctrl2=-0.13 pub=-1.09 pub2=-1.18
+ABIN b=16 full    L=8 in=2 ctrlb=+0.16 pb1=+0.06 pb2=-0.80 pb2own=-0.54 pb2h=+0.67 ctrl2=+0.51 pub=-2.85 pub2=-2.69
+ABIN b=32 full    L=8 in=0 ctrlb=+0.54 pb1=+0.54 pb2=+0.03 pb2own=+0.06 pb2h=+0.42 ctrl2=-0.13 pub=-0.61 pub2=-0.61
+ABIN b=32 full    L=8 in=1 ctrlb=-0.70 pb1=-0.67 pb2=-0.93 pb2own=-1.22 pb2h=+0.35 ctrl2=-0.86 pub=-1.28 pub2=-1.50
+ABIN b=32 full    L=8 in=2 ctrlb=-0.35 pb1=+0.29 pb2=+0.16 pb2own=-0.03 pb2h=-0.03 ctrl2=+0.00 pub=-0.38 pub2=-0.35
+ABCHECKSUM ctrl=11/0/0 ctrlb=11/0/0 pb1=11/0/0 pb2=11/0/0 pb2own=11/0/0 pb2h=11/0/0 prodonly_probe=0/0/11 pb2prod_probe=0/0/11 ctrl2=11/0/0 pub=11/0/0 pub2=11/0/0 (pass/fail/probe)

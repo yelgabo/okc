@@ -3206,7 +3206,9 @@ struct Smem {
     // mbarrier per window.
     static constexpr int PSL = (BAR + 2 * NS * 8 + 127) / 128 * 128;
     static constexpr int PBAR = PSL + PB_SLOTS * PB_SLOT_BYTES;
-    static constexpr int BYTES = PB ? PBAR + PB_SLOTS * 8 : BAR + 2 * NS * 8;
+    // ONE_PBULK=2: a "free" mbarrier per window (the producers' reads done) after the full ones.
+    static constexpr int PFREE = PBAR + PB_SLOTS * 8;
+    static constexpr int BYTES = PB ? PFREE + PB_SLOTS * 8 : BAR + 2 * NS * 8;
     static_assert(Q % 1024 == 0 && VT % 1024 == 0, "swizzled tiles need 1024-byte bases");
 };
 
@@ -4014,6 +4016,7 @@ attn_one_kernel(const Params p) {
 #pragma unroll
                     for (int s = 0; s < PB_SLOTS; ++s) {
                         mbar_init(smem_base + S::PBAR + 8 * s, 1);
+                        mbar_init(smem_base + S::PFREE + 8 * s, 128);
                     }
                 }
                 asm volatile("fence.mbarrier_init.release.cluster;\n" ::: "memory");
@@ -4095,8 +4098,9 @@ attn_one_kernel(const Params p) {
             const long long s_p0 = STAMPS ? clock64() : 0;
             if constexpr (PBULK) {
                 // Tile g (counted over all segments) reads window g % PB_SLOTS, filled by ptid 0
-                // PBD tiles ahead. A window is refilled only after the producers' bar.sync at
-                // the end of the tile that last read it (PBD < PB_SLOTS). A tile without cached
+                // PBD tiles ahead. A window is refilled only after every producer has read its
+                // previous fill: the producers' bar.sync at the end of each tile (ONE_PBULK=1,
+                // PBD < PB_SLOTS) or the window's free mbarrier (ONE_PBULK=2). A tile without cached
                 // rows, outside the table, or with an unaligned table takes the old loads; every
                 // producer thread evaluates the same predicate, so fills and waits pair up.
                 constexpr int PBD = 3;
@@ -4104,6 +4108,7 @@ attn_one_kernel(const Params p) {
                 const long long pt_total = static_cast<long long>(p.n_splits) * p.pt_stride;
                 const bool pt_al = (reinterpret_cast<uintptr_t>(p.page_table) & 15u) == 0;
                 uint32_t pbits = 0;
+                uint32_t fbits = 0;
                 int g = 0;
                 for (int bb = b_first; bb <= b_last; ++bb) {
                     if (!seg_bounds(bb)) {
@@ -4130,8 +4135,14 @@ attn_one_kernel(const Params p) {
                         if (ONE_PBDBG != 2 && ptid == 0 && win(t, w0, bytes)) {
                             const int s = gt % PB_SLOTS;
                             const uint32_t bar = smem_base + S::PBAR + 8 * s;
+                            if constexpr (ONE_PBULK == 2) {
+                                // Fill k of window s waits for the 128 reads of fill k - 1
+                                // (phase k - 1 of its free barrier); fill 0 passes at once.
+                                mbar_wait(smem_base + S::PFREE + 8 * s, ((fbits >> s) & 1u) ^ 1u);
+                                fbits ^= 1u << s;
+                            }
                             // The window's previous generic reads (ordered before this thread
-                            // by the producers' bar.sync) precede the async-proxy write.
+                            // by the bar.sync or the free barrier) precede the async-proxy write.
                             fence_proxy_async();
                             mbar_expect_tx(bar, bytes);
                             bulk_g2s(smem_base + S::PSL + s * PB_SLOT_BYTES, p.page_table + w0,
@@ -4161,6 +4172,9 @@ attn_one_kernel(const Params p) {
                             for (int i = 0; i < 4; ++i) {
                                 const int pos = pos0 + r0 + 16 * i;
                                 pe[i] = pos < seq ? sl[(pos >> p.lp) + d] : 0;
+                            }
+                            if constexpr (ONE_PBULK == 2) {
+                                mbar_arrive(smem_base + S::PFREE + 8 * s);
                             }
                             if constexpr (ONE_PBDBG == 1) {
 #pragma unroll
@@ -4221,8 +4235,10 @@ attn_one_kernel(const Params p) {
                             pst = 0;
                             pph ^= 1u;
                         }
-                        // Every producer thread has read window (g + t) % PB_SLOTS.
-                        named_sync(4, 128);
+                        if constexpr (ONE_PBULK != 2) {
+                            // Every producer thread has read window (g + t) % PB_SLOTS.
+                            named_sync(4, 128);
+                        }
                     }
                     g += ntiles;
                 }
