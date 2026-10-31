@@ -3411,3 +3411,49 @@ instructions, one `UBLKCP` in the prologue fill and one in the loop, `BAR.SYNC 0
 `EXIT`s back), consumer region R115, no spills. The ordering argument and the review above are
 unchanged (the brace changes no statement). Check 3 repeats `bench_p` unchanged on the fixed source,
 under the check-1 gate as written.
+
+### Check bb06f8e57bd84636 (bench `bench_p` repeated, at 0671cc7): `ONE_PBULK=1` is a small gain below the bar
+
+| date | job | commit | file | result | notes |
+|---|---|---|---|---|---|
+| 2026-10-31 | bb06f8e57bd84636 (check) | 0671cc7 | bench `bench_p` (11 arms, `--shapes full`, 3 inputs) | 2.496x (CI 2.459-2.534) judged path = board code, 16/16 tests, ABCHECKSUM 11/0 every real arm | G +0.063% over each null, bar 0.10% |
+
+Profiles: `muse_attention_decode/profiles/bench_p.bb06f8e57bd84636.*`. Cold pooled over three inputs,
+arm - ctrl (us):
+
+| row | ctrl | ctrlb | ctrl2 | pb | pbown | pbh | pub | prodonly_probe / pbprod_probe (abs.) |
+|---|---|---|---|---|---|---|---|---|
+| d16 full | 100.45 | +0.03 | +0.06 | -0.07 | -0.13 | -0.19 | -0.80 | 37.60 / 47.33 |
+| d32 full | 179.42 | +0.07 | -0.09 | -0.51 | -0.51 | -0.38 | -1.34 | 63.42 / 82.75 |
+
+Against the gate: (1) holds; (2) **fails**: G(pb) - G(ctrlb) = +0.063%, G(pbown) - G(ctrl2) = +0.063%,
+under 0.10%; (3) d32 full has the same sign on all three inputs (-0.61 / -0.67 / -0.32), d16 full does
+not (+0.03 / -0.13 / -0.16); (4) holds. A measured gain below the bar, not promoted.
+
+The producer-only probe got slower with the switch (37.6 -> 47.3 and 63.4 -> 82.8 us): the per-tile
+producer `bar.sync` locks the four producer warps together, and each waits for its window and for the
+empty stage in lockstep. The stamps (`stamppb`, d32 full) show the producer's empty-barrier wait down
+from about 95 to 57 us and the pair gap unchanged (6.2 us). So the real-time gain comes while
+DRAM sets the pace, and the lockstep costs the producer pace without DRAM.
+
+### The variant for check 4: `ONE_PBULK=2` (free mbarriers in place of the producer barrier)
+
+Each window gets a second mbarrier (`Smem::PFREE`, count 128). Every producer thread arrives on it
+after reading its 4 entries; thread 0 waits on it before refilling the window (fill k waits for phase
+k - 1; fill 0 passes at once) and then executes `fence.proxy.async.shared::cta` and the bulk copy. The
+per-tile `bar.sync 4` is gone, so the producer warps no longer run in lockstep. Ordering of the WAR:
+each reader's generic loads, then its `mbarrier.arrive` (release, CTA scope), then thread 0's
+`mbarrier.try_wait.parity` (acquire), then the proxy fence and the async-proxy write. The RAW is
+unchanged. A refill cannot overtake: fill k + 1 is issued only after the 128 arrivals for fill k, and
+readers of fill k + 1 arrive only after it lands. No fence or barrier of the K / V ring changes.
+SASS: `ONE_PBULK=2` changes only mode 49 (2864 instructions, consumer region R119, no spills,
+producer drain and `EXIT` present); 0 is still identical to main on all 13 instances.
+
+### Gate for check 4 (written before the bench that tests it)
+
+Bench `bench_r` (`flat/gen_r.sh`, `--pub <0e9d4c78> --null --shapes full --inputs 3 --rounds 200
+--seed 20261104`): `ctrl`, `ctrl2`, `ctrlb` (`-DONE_PBULK=0`), `pb1`, `pb2`, `pb2own`, `pb2h` (with
+HMRGF), `prodonly_probe`, `pb2prod_probe`, `pub`, `pub2`. The check-1 clauses apply to `pb2` (with
+`pb2own` as its own-state twin) and to `pb2h`: (1) ABCHECKSUM; (2) G(X) - G(ctrlb) >= 0.10% and
+G(pb2own) - G(ctrl2) >= 0.10%; (3) same sign on all three inputs at d16 and d32 full; (4) no row beyond
+max(|ctrlb - ctrl|, 1%). `pb1` repeats check 3's arm for the ledger.
