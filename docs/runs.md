@@ -1607,3 +1607,22 @@ Readings (measured):
 
 Candidate C1 (commit 05286d9, file SHA256 f41418489a1096697c2299b59a547e6488a1570e9d05beee6ff81cb295d3eeb7)
 handed to the coordinator; not submitted by this agent.
+
+### Scored: F-PROJ-1 C1, three runs (2026-10-31)
+
+cand_c1.py, byte-identical to muse_bf16_proj/submission.py at 05286d9 (SHA256 f4141848...;
+per-thread full-barrier waits in the compressed sk configs, M == TOKR full-tile twins, pooler
+m=128 cuBLASLt pin; our own code with attribution), submitted by the coordinator after four-arm
+check 5ec16ca4d42a4e13 (pooled 1.0092 against release 2265fa2) and an independent read-only
+review (safe to ship; SASS shows VOTEU.ANY + WARPSYNC.ALL before the first LDSM in all 19 NOVOTE
+kernels, scratchpad r7/cand.sass). Runs 2 and 3 differ only by a trailing `# repeat N` comment.
+All passed.
+
+| job | score (95% CI) |
+|---|---|
+| 2d897770a75a4f3f | 1.4969x (1.474-1.519) |
+| e1d3d341549c484d | 1.5170x (1.494-1.540) |
+| 8a9c8ca810f142dc | 1.5159x (1.493-1.539) |
+
+Board entry moves from d85d0081 (1.4976x) to e1d3d341549c484d. Receipts:
+muse_bf16_proj/profiles/scored.<job>.json.
