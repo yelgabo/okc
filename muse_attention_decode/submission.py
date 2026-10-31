@@ -3092,6 +3092,25 @@ constexpr int M_SOLO = 64;
 #define ONE_NS1 3
 #endif
 
+// ONE_PBULK (mode 49): the producer's page entries arrive by one bulk copy per tile into a
+// shared ring of PB_SLOTS windows, three tiles ahead, instead of four `ld.global.nc` per thread
+// per tile held in registers. The mechanism is the public flat q_len 1 kernel's (vjeux,
+// okc-2026, Apache-2.0: `fetch_pages` / `load_pages_t`); this is our own code for our ring.
+// Bench 4b60264a276c4805: mode 49's producer alone trails the public producer by 4.7 / 8.0 us
+// at decode 16 / 32 full without DRAM traffic.
+#ifndef ONE_PBULK
+#define ONE_PBULK 0
+#endif
+// ONE_PBDBG (bench-only, with ONE_PBULK): 2 = the PBULK loop without fills or window waits
+// (entries by the old loads); 1 = fills and window waits, entries still by the old loads.
+#ifndef ONE_PBDBG
+#define ONE_PBDBG 0
+#endif
+
+__host__ __device__ constexpr bool one_pb(int L, int mode) {
+    return ONE_PBULK != 0 && L == 1 && (mode & M_PROD) && !(mode & M_SOLO);
+}
+
 __host__ __device__ constexpr int one_ns(int L, int mode) {
     return (mode & M_PROD) && L == 8 ? 4 : ((mode & M_PROD) && L == 1 ? ONE_NS1 : STAGES);
 }
@@ -3158,7 +3177,10 @@ struct Params {
     int wave_n;
 };
 
-template <int L, int NS>
+constexpr int PB_SLOTS = 4;
+constexpr int PB_SLOT_BYTES = 320;
+
+template <int L, int NS, bool PB = false>
 struct Smem {
     static constexpr int ROWS = HQ * L;
     static constexpr int KV = 0;
@@ -3180,7 +3202,11 @@ struct Smem {
     static constexpr int OFF = FLAG + 32;
     // Producer mode: NS full and NS empty mbarriers.
     static constexpr int BAR = OFF + 2304;
-    static constexpr int BYTES = BAR + 2 * NS * 8;
+    // ONE_PBULK: PB_SLOTS page-index windows (16-byte aligned, up to 68 entries each) and one
+    // mbarrier per window.
+    static constexpr int PSL = (BAR + 2 * NS * 8 + 127) / 128 * 128;
+    static constexpr int PBAR = PSL + PB_SLOTS * PB_SLOT_BYTES;
+    static constexpr int BYTES = PB ? PBAR + PB_SLOTS * 8 : BAR + 2 * NS * 8;
     static_assert(Q % 1024 == 0 && VT % 1024 == 0, "swizzled tiles need 1024-byte bases");
 };
 
@@ -3251,6 +3277,19 @@ __device__ __forceinline__ void mbar_init(uint32_t bar, int count) {
 
 __device__ __forceinline__ void mbar_arrive(uint32_t bar) {
     asm volatile("mbarrier.arrive.shared::cta.b64 _, [%0];\n" :: "r"(bar) : "memory");
+}
+
+__device__ __forceinline__ void mbar_expect_tx(uint32_t bar, int bytes) {
+    asm volatile("mbarrier.arrive.expect_tx.shared::cta.b64 _, [%0], %1;\n"
+                 :: "r"(bar), "r"(bytes) : "memory");
+}
+
+// Global -> shared bulk copy (async proxy) that completes `bytes` of transaction count on
+// `bar`. The CTA's own shared::cta address is valid as a shared::cluster address.
+__device__ __forceinline__ void bulk_g2s(uint32_t dst, const void* src, int bytes, uint32_t bar) {
+    asm volatile("cp.async.bulk.shared::cluster.global.mbarrier::complete_tx::bytes "
+                 "[%0], [%1], %2, [%3];\n"
+                 :: "r"(dst), "l"(src), "r"(bytes), "r"(bar) : "memory");
 }
 
 // Arrives on the barrier once every cp.async this thread issued before has landed; .noinc
@@ -3797,7 +3836,8 @@ attn_one_kernel(const Params p) {
     constexpr int ROWS = HQ * L;
     constexpr int SEGK = L == 8 ? SEGK8 : SEGK1;
     constexpr int PF = 3;
-    using S = Smem<L, NS>;
+    constexpr bool PBULK = one_pb(L, MODE);
+    using S = Smem<L, NS, PBULK>;
     extern __shared__ __align__(1024) uint8_t smem[];
     const int split = blockIdx.x;
     const int tid = threadIdx.x;
@@ -3970,6 +4010,12 @@ attn_one_kernel(const Params p) {
                     mbar_init(full0 + 8 * s, 128);
                     mbar_init(empty0 + 8 * s, NC);
                 }
+                if constexpr (PBULK) {
+#pragma unroll
+                    for (int s = 0; s < PB_SLOTS; ++s) {
+                        mbar_init(smem_base + S::PBAR + 8 * s, 1);
+                    }
+                }
                 asm volatile("fence.mbarrier_init.release.cluster;\n" ::: "memory");
             }
         }
@@ -4047,6 +4093,143 @@ attn_one_kernel(const Params p) {
             const bool fast32 = ONE_PFAST && p.off32 != 0;
             long long s_emw = 0;
             const long long s_p0 = STAMPS ? clock64() : 0;
+            if constexpr (PBULK) {
+                // Tile g (counted over all segments) reads window g % PB_SLOTS, filled by ptid 0
+                // PBD tiles ahead. A window is refilled only after the producers' bar.sync at
+                // the end of the tile that last read it (PBD < PB_SLOTS). A tile without cached
+                // rows, outside the table, or with an unaligned table takes the old loads; every
+                // producer thread evaluates the same predicate, so fills and waits pair up.
+                constexpr int PBD = 3;
+                static_assert(PBD < PB_SLOTS, "a window is refilled after its last read");
+                const long long pt_total = static_cast<long long>(p.n_splits) * p.pt_stride;
+                const bool pt_al = (reinterpret_cast<uintptr_t>(p.page_table) & 15u) == 0;
+                uint32_t pbits = 0;
+                int g = 0;
+                for (int bb = b_first; bb <= b_last; ++bb) {
+                    if (!seg_bounds(bb)) {
+                        continue;
+                    }
+                    const long long rowbase = static_cast<long long>(bb) * p.pt_stride;
+                    // Entries [w0, w0 + bytes / 4) cover the tile's cached rows.
+                    auto win = [&](int t, long long& w0, int& bytes) -> bool {
+                        const int pos0 = lo + t * BN;
+                        const int pend = min(pos0 + BN, seq);
+                        if (!pt_al || t >= ntiles || pend <= pos0) {
+                            return false;
+                        }
+                        const long long e0 = rowbase + (pos0 >> p.lp);
+                        const long long e1 = rowbase + ((pend - 1) >> p.lp) + 1;
+                        w0 = e0 & ~3ll;
+                        const long long w1 = (e1 + 3) & ~3ll;
+                        bytes = static_cast<int>(w1 - w0) * 4;
+                        return w1 <= pt_total;
+                    };
+                    auto fill = [&](int t, int gt) {
+                        long long w0 = 0;
+                        int bytes = 0;
+                        if (ONE_PBDBG != 2 && ptid == 0 && win(t, w0, bytes)) {
+                            const int s = gt % PB_SLOTS;
+                            const uint32_t bar = smem_base + S::PBAR + 8 * s;
+                            // The window's previous generic reads (ordered before this thread
+                            // by the producers' bar.sync) precede the async-proxy write.
+                            fence_proxy_async();
+                            mbar_expect_tx(bar, bytes);
+                            bulk_g2s(smem_base + S::PSL + s * PB_SLOT_BYTES, p.page_table + w0,
+                                     bytes, bar);
+                        }
+                    };
+#pragma unroll 1
+                    for (int t = 0; t < PBD; ++t) {
+                        fill(t, g + t);
+                    }
+#pragma unroll 1
+                    for (int t = 0; t < ntiles; ++t) {
+                        fill(t + PBD, g + t + PBD);
+                        const int pos0 = lo + t * BN;
+                        int pe[4];
+                        long long w0 = 0;
+                        int bytes = 0;
+                        if (ONE_PBDBG != 2 && win(t, w0, bytes)) {
+                            const int s = (g + t) % PB_SLOTS;
+                            mbar_wait(smem_base + S::PBAR + 8 * s, (pbits >> s) & 1u);
+                            pbits ^= 1u << s;
+                            const int* sl =
+                                reinterpret_cast<const int*>(smem + S::PSL + s * PB_SLOT_BYTES);
+                            // Window index of position pos: (pos >> lp) + rowbase - w0.
+                            const int d = static_cast<int>(rowbase - w0);
+#pragma unroll
+                            for (int i = 0; i < 4; ++i) {
+                                const int pos = pos0 + r0 + 16 * i;
+                                pe[i] = pos < seq ? sl[(pos >> p.lp) + d] : 0;
+                            }
+                            if constexpr (ONE_PBDBG == 1) {
+#pragma unroll
+                                for (int i = 0; i < 4; ++i) {
+                                    pe[i] = entry(t, r0 + 16 * i);
+                                }
+                            }
+                        } else {
+#pragma unroll
+                            for (int i = 0; i < 4; ++i) {
+                                pe[i] = entry(t, r0 + 16 * i);
+                            }
+                        }
+                        const long long s_w0 = STAMPS ? clock64() : 0;
+                        mbar_wait(empty0 + 8 * pst, pph ^ 1u);
+                        if constexpr (STAMPS) {
+                            s_emw += clock64() - s_w0;
+                        }
+                        const uint32_t kdst = smem_base + S::KV + pst * 2 * TILE_BYTES;
+                        const uint32_t vdst = kdst + TILE_BYTES;
+                        if (fast32 && pos0 + BN <= seq) {
+#pragma unroll
+                            for (int i = 0; i < 4; ++i) {
+                                const int r = r0 + 16 * i;
+                                const uint32_t row = (static_cast<uint32_t>(pe[i]) << p.lp)
+                                                     + (static_cast<uint32_t>(pos0 + r) & (psize - 1));
+                                const uint32_t off = (row << 7) + ch * 16;
+                                cp_async16(kdst + r * ROWB + k_swz<L>(ch, r) * 16, p.k_cache + off,
+                                           CPB);
+                                cp_async16(vdst + r * ROWB + v_swz<L>(ch, r) * 16, p.v_cache + off,
+                                           CPB);
+                            }
+                        } else {
+#pragma unroll
+                            for (int i = 0; i < 4; ++i) {
+                                const int r = r0 + 16 * i;
+                                const int pos = pos0 + r;
+                                const uint32_t kd = kdst + r * ROWB + k_swz<L>(ch, r) * 16;
+                                const uint32_t vd = vdst + r * ROWB + v_swz<L>(ch, r) * 16;
+                                if (pos < seq) {
+                                    int64_t row = pe[i];
+                                    if constexpr (DIET) {
+                                        row = (row << p.lp) + (pos & (psize - 1));
+                                    } else if (psize != 1) {
+                                        row = row * psize + pos % psize;
+                                    }
+                                    const int64_t off = row * ROWB + ch * 16;
+                                    cp_async16(kd, p.k_cache + off, CPB);
+                                    cp_async16(vd, p.v_cache + off, CPB);
+                                } else if (pos >= hi) {
+                                    cp_async16(kd, p.k_cache, 0);
+                                    cp_async16(vd, p.v_cache, 0);
+                                }
+                            }
+                        }
+                        cp_async_mbar_arrive_noinc(full0 + 8 * pst);
+                        if (++pst == NS) {
+                            pst = 0;
+                            pph ^= 1u;
+                        }
+                        // Every producer thread has read window (g + t) % PB_SLOTS.
+                        named_sync(4, 128);
+                    }
+                    g += ntiles;
+                }
+            } else {
+            // Braced on purpose: with `} else for (...)` and PBULK true, CUDA 12.8.1 dropped the
+            // statements after this branch (the drain and the producer `exit`; the producers
+            // then ran into the consumers' setmaxnreg.inc and hung, check fcf904b32d9a427b).
             for (int bb = b_first; bb <= b_last; ++bb) {
                 if (!seg_bounds(bb)) {
                     continue;
@@ -4136,6 +4319,7 @@ attn_one_kernel(const Params p) {
                         }
                     }
                 }
+            }
             }
             // Leave only once every stage has been released: no copy of this thread is then
             // in flight and the consumers no longer need the ring.
@@ -5811,7 +5995,7 @@ attn_one_kernel(const Params p) {
 template <int L, int MODE>
 struct Instance {
     static constexpr int NT = one_threads(L, MODE);
-    static constexpr int BYTES = Smem<L, one_ns(L, MODE)>::BYTES;
+    static constexpr int BYTES = Smem<L, one_ns(L, MODE), one_pb(L, MODE)>::BYTES;
     static int resident;
     static int per_sm;
 

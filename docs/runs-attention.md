@@ -3304,3 +3304,110 @@ ONE_HMRG on; kernel SASS identical to a70192d on all 13 instances; no public cod
 the coordinator under the standing authorization. Passed, 2.537x (CI 2.499-2.575), above
 1896e72c11ae4b0f (2.521x), so the board entry no longer uses the workspace pick. Receipt:
 muse_attention_decode/profiles/scored.68d3b88fbc8b40da.json.
+
+## Attention round 5 (10-31): page indices by bulk copy in mode 49 (`ONE_PBULK`)
+
+Brief (coordinator, 10-31): the pick-off file scored 68d3b88fbc8b40da (2.537x) and is the board entry
+and the control. Rank 100 is 2.6289, about 3.6% above it. Start with page indices fetched by bulk
+copy in mode 49's producer, in our own code with attribution, aimed at the flat full rows where the
+public / donor kernel leads (d16 / d32 / v16 full); then v32 sliding and d1 full. Budget: up to 10
+attention checks today. Rules unchanged: paired same-process evidence, every fence kept, no submits.
+
+### The switch: `ONE_PBULK` (default 0, mode 49 only)
+
+Mechanism (the public flat q_len 1 kernel's `fetch_pages` / `load_pages_t`, vjeux okc-2026,
+Apache-2.0; re-implemented for our ring, attribution in the source): producer thread 0 issues one
+`cp.async.bulk` per tile of the 16-byte-aligned window of page entries that covers the tile's cached
+rows (at most 68 entries) into one of 4 shared windows (`Smem::PSL`, 320 bytes each, an mbarrier
+each at `Smem::PBAR`), three tiles ahead, armed by `mbarrier.arrive.expect_tx`. Every producer thread
+waits on the window's phase, reads its 4 entries from shared memory, then issues its K / V copies
+exactly as before; after its `cp.async.mbarrier.arrive.noinc` the producers `bar.sync 4, 128`, which
+frees the window the tile used. Tiles with no cached rows, a window past the table's end, or a
+table base not 16-byte aligned take the old `__ldg` entries; the predicate is the same for the
+issuing thread and the readers, so fills and waits pair one to one per window. This replaces 16
+warp-level `LDG` per tile per CTA (4 per producer thread, three tiles ahead in 12 registers) with one
+bulk copy, four `LDS` per thread and one producer barrier.
+
+Ordering: nothing is removed or moved. Added: the window's RAW (bulk write, `complete_tx`, phase
+observed by `mbarrier.try_wait.parity`, then generic loads) and WAR (every producer's generic loads,
+then `bar.sync 4`, then thread 0's `fence.proxy.async.shared::cta` before the async-proxy refill,
+three tiles later). The K / V ring, its full / empty mbarriers and the consumers are unchanged. The
+`fence.proxy.async` before the refill is one more fence than the public kernel uses.
+
+SASS (CUDA 12.8.1, `flat/sass_all.sh`, all 13 instances): `ONE_PBULK=0` identical to main 15cc6b9;
+1 changes only mode 49 (3448 -> 2912 instructions: the three-way unrolled register lookahead is
+gone; 1 `UBLKCP`), consumer region R113, no spills.
+
+### Gate for check 1 (written before the bench that tests it)
+
+Bench `bench_p` (`flat/gen_p.sh`; from the pick-off `submission.py`; `--pub <0e9d4c78> --null
+--shapes full --inputs 3 --rounds 200 --seed 20261102`): `ctrl` (the board entry's code), `ctrl2`
+(independent null), `ctrlb` (`-DONE_PBULK=0`, matched null), `pb` (ctrl's state), `pbown` (own state),
+`pbh` (`ONE_PBULK=1 ONE_HMRGF=1`), the producer-pace probes `prodonly_probe` (`ONE_PROBE=3`) and
+`pbprod_probe` (`ONE_PBULK=1 ONE_PROBE=3`), `stamppb` (stamps), `pub`, `pub2`. G over d16 / d32 full
+at 0.147 / 0.084 %/us.
+
+`pb` (or `pbh`) goes to a confirmation bench if all hold: (1) ABCHECKSUM passes for every real arm
+(the seven tp8 test shapes include page size 64 and the batch-4 full shape, so `p.lp` > 0 and the
+mode 49 test path are covered); (2) G(X) - G(ctrlb) >= 0.10% and G(Xown or pbown) - G(ctrl2) >=
+0.10%; (3) same sign on all three inputs at d16 and d32 full; (4) no row slower than ctrl by more
+than max(|ctrlb - ctrl|, 1%). The bar is lower than round 4's 0.20%: the coordinator's criterion is
+beating the board entry on paired evidence, and each confirmed 0.1% counts toward the 3.6%; the
+confirmation bench and two judged checks still follow before any file is offered.
+Diagnostic: `pbprod_probe` against `prodonly_probe` says whether the producer-only pace (4.7 / 8.0
+us behind the public producer in 4b60264a276c4805) moved.
+
+Independent read-only review of `ONE_PBULK` (fresh agent, 10-31, source and SASS layout): **sound**, with
+caveats: the local tile counter `g` shadows the outer `g = lane >> 2` (unused there); `pt_total`
+assumes a contiguous table of at least `batch` rows, as the old path does; the per-tile producer
+`bar.sync` is a performance question.
+
+### Check fcf904b32d9a427b (bench `bench_p`, at 03675e8): `pb` hung in ABCHECK
+
+| date | job | commit | file | result | notes |
+|---|---|---|---|---|---|
+| 2026-10-31 | fcf904b32d9a427b (check) | 03675e8 | bench `bench_p` | failed: the bench's HANG guard ended the process | `HANG pb b16 ctx80000 tp8 full L1 ... t=366s: device busy for 20s`; ctrl and ctrlb had passed ABCHECK on that shape |
+
+Profiles: `muse_attention_decode/profiles/bench_p.fcf904b32d9a427b.*`. No timing; nothing judged; the
+board is unaffected. The first launch of the `ONE_PBULK=1` build at decode 16 full did not finish.
+A static read of the source and of the mode 49 SASS (slot index, parity bits in a uniform register,
+`SYNCS.ARRIVE.TRANS64` with the same byte count as the `UBLKCP`, the elect loop around it, the warp
+reconverged at `BAR.SYNC 0x4, 0x80`) did not find the cause, and neither did the review.
+
+### Check 2 (diagnostic, no gate): which piece hangs
+
+Bench `bench_q` (`flat/gen_q.sh`, `--shapes full --inputs 1 --rounds 60`): ABCHECK runs the arms in
+order and the HANG guard stops at the first hang. `dbg2` (`ONE_PBULK=1 ONE_PBDBG=2`: the new loop
+and its per-tile producer `bar.sync`, no fills, no window waits, entries by the old loads), `dbg1`
+(`ONE_PBDBG=1`: fills and window waits run, entries still by the old loads), `pb` (entries from the
+windows). A hang in `dbg2` puts it in the loop structure or the producer barrier; in `dbg1`, in the
+bulk copy / mbarrier protocol; only in `pb`, in the entries read from the windows (wrong entries
+feeding the K / V copies). SASS: both debug builds change only mode 49, no spills.
+
+### Check 61069efbf90d4c44 (bench `bench_q`, at c811908): the hang is in the loop structure; root cause found offline
+
+| date | job | commit | file | result | notes |
+|---|---|---|---|---|---|
+| 2026-10-31 | 61069efbf90d4c44 (check) | c811908 | bench `bench_q` (diagnostic) | failed by design at the first hang: `HANG dbg2 b16 ... full L1` | `dbg2` has no bulk copy and no window wait |
+
+Profile: `muse_attention_decode/profiles/bench_q.61069efbf90d4c44.log`. Since `dbg2` hung, the cause lay
+outside the bulk-copy protocol. Offline bisection (Docker, CUDA 12.8.1, mode 49 only):
+- In every `ONE_PBULK=1` build, mode 49's SASS had no producer `EXIT` and no producer drain; the
+  producer loop's exit edge fell straight into the consumers' `USETMAXREG.TRY_ALLOC 0xc8`. The
+  PTX had no `exit;` at all, so the front end, not ptxas, had treated the code after the loop as
+  unreachable. With the producer warps running into consumer code, the kernel hung.
+- Removing the producer `bar.sync`, the fills, the window reads, or the lambdas: still no `EXIT`.
+  The PBULK branch holding a verbatim copy of the old loop: still no `EXIT`. `if constexpr
+  (false)` in place of `if constexpr (PBULK)` with the old loop in the `else`: `EXIT`s present.
+- So the trigger was the shape `if constexpr (PBULK) { ... } else for (...) { ... }`: with the
+  condition true, the statements after the discarded, unbraced `else` statement (the drain and
+  the inline-asm `exit`) were dropped. With the `else` braced (`} else { for (...) {...} }`), mode
+  49 has its five `EXIT`s again, in the default build's pattern. The other `} else` sites in the file
+  sit inside `#if ONE_DETM` (off) and are followed by braced blocks.
+
+The fix carries a comment at the `else`. SASS after it (`flat/sass_all.sh`): `ONE_PBULK=0`
+identical to main 15cc6b9 on all 13 instances; `ONE_PBULK=1` changes only mode 49 (2832
+instructions, one `UBLKCP` in the prologue fill and one in the loop, `BAR.SYNC 0x4, 0x80`, producer
+`EXIT`s back), consumer region R115, no spills. The ordering argument and the review above are
+unchanged (the brace changes no statement). Check 3 repeats `bench_p` unchanged on the fixed source,
+under the check-1 gate as written.

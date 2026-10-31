@@ -1,0 +1,17 @@
+attn prep kernels: loaded
+attn fused kernel: loaded
+attn ws kernel: loaded
+attn one kernel: loaded
+ABBUILD ctrlb ['-DONE_PBULK=0'] own_state=False loaded t=38s
+ABBUILD pb ['-DONE_PBULK=1'] own_state=False loaded t=76s
+ABBUILD pbown ['-DONE_PBULK=1'] shares a build own_state=True
+ABBUILD pbh ['-DONE_PBULK=1', '-DONE_HMRGF=1'] own_state=False loaded t=114s
+ABBUILD prodonly_probe ['-DONE_PROBE=3'] own_state=False loaded t=154s
+ABBUILD pbprod_probe ['-DONE_PBULK=1', '-DONE_PROBE=3'] own_state=False loaded t=193s
+ABBUILD stamppb ['-DONE_PBULK=1', '-DONE_STAMP=1'] own_state=False loaded t=231s
+ABBUILD ctrl2 [] own_state=True loaded t=269s
+ABBUILD pub loaded t=308s
+ABBUILD pub2 loaded t=346s
+ABCHECK PASS ctrl b16 ctx80000 tp8 full L1 agentic coherent page1 scale1 [splits=264,nc=1,mode=49] err=1.788e-03 bound=0.052 worst_row=8.310e-03 k=0.00e+00 v=0.00e+00 ws_rows_nonzero=0 l_nonzero=0 tickets_nonzero=0 coop_next_parity_nonzero=0 flat_next_parity_nonzero=0
+ABCHECK PASS ctrlb b16 ctx80000 tp8 full L1 agentic coherent page1 scale1 [splits=264,nc=1,mode=49] vs_ctrl=0.0e+00 diff_elems=0/16384 ws_rows_nonzero=0 l_nonzero=0 tickets_nonzero=0 coop_next_parity_nonzero=0 flat_next_parity_nonzero=0
+HANG pb b16 ctx80000 tp8 full L1 agentic coherent page1 scale1 t=366s: device busy for 20s; stamps unreadable
