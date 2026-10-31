@@ -2773,8 +2773,16 @@ constexpr int GRED_TILES = 64;
 __device__ __align__(16) float wd_gred_acc[GRED_TOK * GRED_N];
 __device__ unsigned int wd_gred_cnt[GRED_TILES];
 // Ticket and ready counters of WV_GTICKET, per split count (index CLK) and tile.
-__device__ unsigned int wd_tk_cnt[17 * GRED_TILES];
-__device__ unsigned int wd_tk_ready[17 * GRED_TILES];
+// 64-bit: a 32-bit ticket wraps after 2^32 tickets, and 2^32 is not a multiple of CLK = 12, so the
+// generation (ticket / CLK) would restart while the published value stays high (review finding).
+__device__ unsigned long long wd_tk_cnt[17 * GRED_TILES];
+__device__ unsigned long long wd_tk_ready[17 * GRED_TILES];
+// The output pointer of the launch whose CTA cleared the tile for the published generation.
+// Generation identity assumes two launches with the same split count never run at the same time
+// (other streams, parallel graph branches, a PDL attribute): their tickets would interleave and a
+// CTA could wait on a clear of another launch's out. Each waiter compares this pointer with its
+// own out and, on a mismatch, adds nothing and sets diag bit 256 (fail closed).
+__device__ unsigned long long wd_tk_owner[17 * GRED_TILES];
 
 __device__ __forceinline__ void red_add_v4(float* p, float4 v) {
     asm volatile("red.relaxed.gpu.global.add.v4.f32 [%0], {%1, %2, %3, %4};"
@@ -2871,6 +2879,7 @@ wd_kernel(const __grid_constant__ CUtensorMap wmap, const __grid_constant__ CUte
     const int lane = tid & 31;
     constexpr bool RKORD = (VAR & WV_RKORD) != 0;
     static_assert(!RKORD || C::GRED, "wd: RKORD needs GRED");
+    static_assert((VAR & WV_GTICKET) == 0 || (C::GRED && CLK <= 16), "wd: GTICKET counters cover CLK <= 16");
     const int nrb_o = N / C::BM;
     const int ntt_o = (M + BN - 1) / BN;
     const int rank = RKORD ? (int)(blockIdx.x / (nrb_o * ntt_o))
@@ -2879,7 +2888,7 @@ wd_kernel(const __grid_constant__ CUtensorMap wmap, const __grid_constant__ CUte
     const int rr = rank / CLK;
     const int rowbase = RKORD ? (int)(blockIdx.x % nrb_o) * C::BM : ((int)(blockIdx.x / CL) * CLR + rr) * C::BM;
     const int tok0 = RKORD ? (int)((blockIdx.x / nrb_o) % ntt_o) * BN : (int)blockIdx.y * BN;
-    __shared__ int gred_gen;
+    __shared__ unsigned long long gred_gen;
     // Uneven split when CLK does not divide the k tiles (qkv_gate's 128 over 3 ranks).
     const int kt0 = rk * (K / 64) / CLK;
     const int ktl = (rk + 1) * (K / 64) / CLK - kt0;
@@ -3004,13 +3013,13 @@ wd_kernel(const __grid_constant__ CUtensorMap wmap, const __grid_constant__ CUte
         if constexpr ((VAR & WV_GTICKET) != 0) {
             if (warp == 4 * WG && lane != 0) {
                 const int tile = CLK * GRED_TILES + (tok0 / BN) * (N / C::BM) + rowbase / C::BM;
-                unsigned int t = 0;
+                unsigned long long t = 0;
                 if (lane == 1) {
-                    t = atomicAdd(&wd_tk_cnt[tile], 1u);
-                    gred_gen = (int)(t / (unsigned)CLK);
+                    t = atomicAdd(&wd_tk_cnt[tile], 1ull);
+                    gred_gen = t / (unsigned long long)CLK;
                 }
                 t = __shfl_sync(0xfffffffeu, t, 1);
-                if (t % (unsigned)CLK == 0u) {
+                if (t % (unsigned long long)CLK == 0ull) {
                     constexpr int C4T = C::BM / 4;
                     const int nt = min(BN, M - tok0);
                     for (int i = lane - 1; i < nt * C4T; i += 31) {
@@ -3021,9 +3030,10 @@ wd_kernel(const __grid_constant__ CUtensorMap wmap, const __grid_constant__ CUte
                     __syncwarp(0xfffffffeu);
                     if (lane == 1) {
                         __threadfence();
-                        const unsigned int g1 = t / (unsigned)CLK + 1u;
-                        unsigned int* rp = wd_tk_ready + tile;
-                        asm volatile("st.release.gpu.global.u32 [%0], %1;" :: "l"(rp), "r"(g1) : "memory");
+                        const unsigned long long g1 = t / (unsigned long long)CLK + 1ull;
+                        wd_tk_owner[tile] = reinterpret_cast<unsigned long long>(out);
+                        unsigned long long* rp = wd_tk_ready + tile;
+                        asm volatile("st.release.gpu.global.u64 [%0], %1;" :: "l"(rp), "l"(g1) : "memory");
                     }
                 }
             }
@@ -3269,28 +3279,41 @@ wd_kernel(const __grid_constant__ CUtensorMap wmap, const __grid_constant__ CUte
 
     if constexpr (C::GRED && (VAR & WV_GTICKET) != 0) {
         static_assert((VAR & WV_GZERO) == 0, "wd: GTICKET replaces GZERO");
+        // Fails closed: a tile whose clear never became visible gets no adds (its output stays
+        // wrong, diag bit 128 is set and _self_test rejects the config on it).
+        __shared__ int gred_ok;
         if (tid == 0) {
             const int tile = CLK * GRED_TILES + (tok0 / BN) * (N / C::BM) + rowbase / C::BM;
-            const unsigned int want = (unsigned int)gred_gen + 1u;
+            const unsigned long long want = gred_gen + 1ull;
             const long long t0 = clock64();
+            int ok = 1;
             for (;;) {
-                unsigned int v;
-                const unsigned int* rp = wd_tk_ready + tile;
-                asm volatile("ld.acquire.gpu.global.u32 %0, [%1];" : "=r"(v) : "l"(rp) : "memory");
-                if ((int)(v - want) >= 0) {
+                unsigned long long v;
+                const unsigned long long* rp = wd_tk_ready + tile;
+                asm volatile("ld.acquire.gpu.global.u64 %0, [%1];" : "=l"(v) : "l"(rp) : "memory");
+                if (v >= want) {
+                    // Ordered after the acquire; written before the release that published v.
+                    if (v != want || wd_tk_owner[tile] != reinterpret_cast<unsigned long long>(out)) {
+                        ok = 0;
+                        if (diag != nullptr) {
+                            atomicOr(diag, 256);
+                        }
+                    }
                     break;
                 }
                 if (clock64() - t0 > WAIT_LIMIT) {
+                    ok = 0;
                     if (diag != nullptr) {
                         atomicOr(diag, 128);
                     }
                     break;
                 }
             }
+            gred_ok = ok;
         }
         __syncthreads();
         constexpr int C4G = C::BM / 4;
-        for (int it = tid; it < ((ABL & 2) ? 0 : BN * C4G); it += C::THREADS) {
+        for (int it = tid; it < ((ABL & 2) || !gred_ok ? 0 : BN * C4G); it += C::THREADS) {
             const int t = it / C4G;
             const int c4 = it % C4G;
             if (tok0 + t < M) {
@@ -3848,7 +3871,9 @@ def _self_test(name, fn, w, nrows, ms, tol, gen, diag):
         if out.dtype == torch.bfloat16:
             ref = ref.to(torch.bfloat16).double()
         ok, err, perr = _check(out, ref, probes, tol)
-        if not ok:
+        # A kernel that timed out or detected a broken join marks diag; reject it even when the
+        # numbers happen to pass.
+        if not ok or int(diag[0]) != 0:
             raise RuntimeError(f"{name} m={m}: rel err {err:.3e}, probe err {perr:.3e}, diag {int(diag[0])}")
 
 

@@ -510,3 +510,24 @@ itself executed `fence.sc` after the barrier (it does); the wrap-around of `wd_t
 tickets (CLK does not divide 2^32 for CLK = 12: generations misalign after about 3.6e8 launches);
 and any interaction with `out` being freshly allocated by the caching allocator (a block reused
 from the previous call: covered by stream order).
+
+Review (2026-10-31, independent, arranged by the coordinator): the ordering chain is sound (the
+`fence.sc` before the release is redundant). Fixes taken, none of them a fence:
+
+1. Tickets and published generations are 64-bit (`atom.add.u64`, `st.release.gpu.u64`,
+   `ld.acquire.gpu.u64`): with 32 bits the counter wraps after 2^32 tickets, and 2^32 is not a
+   multiple of CLK = 12, so the generation restarted while the published value stayed high and
+   every later launch would have added into an uncleared tile.
+2. Fail closed: a waiter that times out adds nothing (diag bit 128); `_self_test` now rejects any
+   candidate whose run leaves diag nonzero, for every kernel family, not only GTICKET.
+3. `static_assert(CLK <= 16)` for the [17 * 64] arrays.
+4. Overlap guard: the clearing CTA also writes its launch's `out` pointer to `wd_tk_owner` before
+   the release; a waiter whose acquired generation is not exactly its own or whose owner pointer
+   differs adds nothing and sets diag bit 256. Comment in the source says why (two same-split
+   launches in flight at once would interleave tickets).
+
+SASS check (nvcc 12.8, sm_90a, the r64c8s8 GRED + RKORD + GTICKET instance): the `.cg` zero
+stores are `STG.E.128.STRONG.GPU`; `__threadfence` is `MEMBAR.SC.GPU`; the owner store is a weak
+`STG.E.64`, then the release store is `MEMBAR.ALL.GPU` + `STG.E.64.STRONG.GPU`; the acquire is
+`LDG.E.64.STRONG.GPU` followed by `CCTL.IVALL`, then the weak owner load; the adds are
+`REDG.E.ADD.F32x4.STRONG.GPU`.
