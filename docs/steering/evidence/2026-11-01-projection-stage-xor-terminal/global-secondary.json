@@ -1,0 +1,10 @@
+{
+  "job": "2b537518091248f1",
+  "official_score": 1.3941200708702308,
+  "official_ci": [
+    1.3732082698071773,
+    1.4150318719332842
+  ],
+  "receipt_sha256": "16ae423f02431a8f0dc53a13f365898e483d85647bf24934d55b8f420bdf3aea",
+  "scope": "Secondary across-job failed-global context only, not paired and not a baseline to beat."
+}
