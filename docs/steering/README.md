@@ -446,3 +446,5 @@ Hourly review history: [11:20 PDT performance review](2026-10-29-1120-performanc
 - 2026-11-01: [Owned standalone MoE locality scope and local population addendum](2026-11-01-owned-moe-locality-scope.md): exact incumbent8-row order; new preregistered64-bank local input census finds repeats14/32 atM16 and29/32 atM32, revising the old four-bank gate. Conditional score scenario+3.073%, not traffic/bound/forecast; exposed H200 opportunity still required, no kernel/check request.
 
 - 2026-11-01: [Owned fixed-band32 private-check registration](2026-11-01-owned-moe-band32-registration.md): disjoint preregistered heldouts, actual activation/credit request costs, exact631897B artifact493d1678, sevenCPU host gates; root review required, no dispatch by reviewer.
+
+- 2026-11-01: [Owned band32 terminal closure](2026-11-01-owned-moe-band32-terminal.md): a5c7c7e3fe344919 PASS5/all264 privatechecks but all six targeted rows lose; full-score factors0.9422-0.9460, KEEP=false. Exact band32 and offline identity variant closed; no pure/public candidate or automatic sweep.

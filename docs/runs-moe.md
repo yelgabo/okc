@@ -4571,3 +4571,16 @@ replay/empty/spin/budget/11KB gates. SevenTorchCPUhosttests PASS, localdevice
 compilation belongs topatcher; no H200result claimed. Fullsourcepins/costs:
 docs/steering/2026-11-01-owned-moe-band32-registration.md. Root owns exactjob
 status/receipt/profile archival; no publicsubmit, production unchanged.
+
+
+Terminal a5c7c7e3fe344919: PASS5 official, common-control score2.1982215352150547,
+95%CI[2.165248212186829,2.2311948582432803], all18timing records/264privatechecks,
+prepare38.673292553s. Band32 loses all6targeted rows: duplicate-mean delta
+M16 +18.368/+15.416/+20.872us; M32 +31.048/+22.000/+30.304us. Four full-six-load
+factors0.945964140872/0.944172658054/0.943986837861/0.942199099693 vsnull0.006715307314;
+allseed/1pct/2xnull/regression gates FAIL, KEEPfalse. Actual all4skinny resources
+130regs/0local/0static/155520dynamic/1CTA/288threads; MAIN47 identical96regs/8local.
+Exact493d1678 source unchanged, no production/pure qualification/public submission.
+Root owns canonical receipt/log/profile; independent decoded report and closure:
+docs/steering/2026-11-01-owned-moe-band32-terminal.md. Fixedband32 and offline
+153reg identity shortcut closed; no automatic band/cache/cap/credit sweep.
