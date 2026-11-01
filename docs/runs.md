@@ -1939,3 +1939,15 @@ Timing bridge: `4ca25ee4eccc495c`'s Lt26.624us is raw graph time on fresh hardwa
 fresh prepare choices. Old `cab546f978974515`'s17.47us was overhead-adjusted on its hardware
 and its pinned algorithm. They are not a paired regression comparison. New attribution
 must use the same-run baseline and common graph overhead, not subtract these cross-run values.
+
+Ablation result `e6e5bd6d0a104faf`: control passed9/9,1.538579x (95%CI1.515500–1.561658).
+Same-run raw times: Lt26.912us; full A39.536/B39.648; no-reduction A36.384/B36.336;
+memory-only with reduction A35.616/B35.776; memory-only without reduction A32.224/B32.240.
+All measured variants have62activeclusters and2blocks/SM,0localbytes; full/no-reduction90regs,
+memory-only40regs. Full arms retain FP64/probe/replay correctness; ablations are unscored probes.
+
+Conclusion: removing the entire reduction still leaves~9.44us to Lt; removing both math and
+reduction leaves~5.3us. Thus a cheaper DSMEM epilogue alone cannot rescue this unchanged
+geometry. Memory pipeline or work scheduling must change first. These non-additive ablations
+do not measure separate additive component costs; removing math changes register pressure.
+No barrier removal or new production kernel is justified by them.

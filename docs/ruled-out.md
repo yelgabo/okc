@@ -21,6 +21,10 @@ components, in the same process, before calling it lost again.
 
 | Experiment | Evidence | Rules out |
 |---|---|---|
+| Cheaper DSMEM epilogue alone as repair for raw qkv256 wd128x128/4-way/3-stage |e6e5bd6d0a104faf: full39.5us, no-reduction36.3us, memory+no-reduction32.2us versus same-runLt26.9us; all62clusters,2CTA/SM,no local memory |An epilogue-only fix for this geometry. New memory-pipeline/work-order mechanism needed first. Ablations are wrong-output unscored probes and nonadditive; no barrier changes authorized |
+
+| Experiment | Evidence | Rules out |
+|---|---|---|
 | Raw qkv256 wd tile128x128,4-way DSMEM K split,3-stage ring at99KB (new two-CTA residency trigger) |4ca25ee4eccc495c: actual62clusters>=36,2blocks/SM,90regs,0localbytes; FP64/probes/replay pass; +12.656/+12.816us versus selectedLt,0/100 faster;4-stage30clusters skipped |This raw large-tile3-stage geometry as a winner; residency/spills as explanation of its loss. Mainloop versus DSMEM cost unassigned. Reopen with a measured phase-specific mechanism, not another one-wave assumption |
 
 | Experiment | Evidence | Rules out |
