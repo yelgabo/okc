@@ -1,12 +1,13 @@
 """Offline source gates. Optional --Torch tests run in the persistent CPU venv."""
 import ast
 import hashlib
+import os
 from pathlib import Path
 import unittest
 import dl_fork_moe as patcher
 
 ROOT=Path(__file__).resolve().parent.parent
-SOURCE=Path('C:/Users/gretc/Documents/GitHub/okc/.build/today/kel/kernels/muse_decode_layer.py')
+SOURCE=Path(os.environ.get('OKC_FORK_LAYER', ROOT/'.build/today/kel/kernels/muse_decode_layer.py'))
 
 
 def strings(src):
