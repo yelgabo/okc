@@ -445,6 +445,8 @@ recommendations, not execution of those tasks; check current code and run logs f
 
 ## Report history
 
+- [Eligibility of the attributed single-arm G layer measurement](2026-11-01-g-stage-public-measurement-eligibility.md).
+
 - [Whole-layer G versus owned comparison constraints](2026-11-01-layer-legacy-pair-closure.md). The legacy harness needs an adapter and exceeds the file limit when both complete sources are included in readable form.
 
 - [Attention outcomes, rank gaps and expert pipeline evidence](2026-11-01-attention-results-expert-pipeline.md), [complete-head screen](2026-11-01-attention-complete-output-clusters.md), [per-request QK study](2026-11-01-attention-per-request-qk2.md) and [owned layer control repair](2026-11-01-owned-layer-attention-boundary.md).
