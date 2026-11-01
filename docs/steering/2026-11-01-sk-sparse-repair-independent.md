@@ -73,3 +73,23 @@ The chosen4096flag is unused elsewhere in the EXACT pinned C2 CUDA body; its TU 
 The owner reports a successful sm90a device-only compile at `/root/.cache/okc-sparse-xor-before-a`; I inspected the emitted source/manifest identity but did not independently rerun that compiler or CUDA host link. Local compilation is not actual H200 admission, capture, correctness or latency. The current separate returned runner owns a private diagnostic tensor and out allocation; packed weight/table storage is immutable and may be shared read-only. A future matched harness must keep writable diagnostics/outputs/captures independent and preserve rejection/fallback coverage. Root owns host integration and any actual check decision.
 
 **Scope of clearance:** exact prototype algorithm, actual pack/stream mapping and reader-lifetime source proof only. No speedup, H200 correctness, resource-admission, release, or public-submit clearance. The frozen full-score gates and independent numerical/replay tests remain prerequisites; any further emitted-source change requires a delta review.
+
+## Local RTX exact-helper execution — bounded follow-up
+
+Root authorized one no-quota local GPU bit-operation check. `tools/sk_sparse_repair_local_gpu.py` extracts the exact `sx_lds32`/`sx_repair` helper slice from the emitted CUDA literal and requires helper SHA256 `61920951c9e7734be27dfc032b0760d0d5fc465e444a55fc1883db27968d1a3e`, independently matched to the retained4907 local-compile source. It supplies a one-warp-per-unit uint32 wrapper, immutable uint16 record array and unit headers. No SK/TMA kernel or matrix arithmetic runs.
+
+**PASS on local NVIDIA GeForce RTX5070, capability12.0, PyTorch2.10.0+cu128/CUDA12.8.** NVRTC12.8 compiled sm120 CUBIN; CUDA driver loaded and launched it using Torch's current context/stream. No host compiler, new toolchain or environment migration was needed. Three eager banks and20CUDA-graph replays with changed input/header/record contents produced exact uint32 equality on all23observations. Output is poisoned inside the captured graph before the helper launch.
+
+Each bank contains128units covering all65536BF16 bit patterns, plus four explicit units with0/512/511/1patch counts (the singleton targets last lane31/register7/high half). Every lane/register/half field is exercised. Three cyclically permuted bit banks change exponent XOR values, unit headers and record contents while reusing fixed pointers/capture; every replay's final output is checked against its own CPU reference. This checks finite/subnormal/NaN payload BIT transport without interpreting those values numerically.
+
+The first execution correctly stopped before CUDA on the old whole-artifact pin because the owner had regenerated host code. The final probe pins the exact helper independently; input artifact SHA is `24440c2d36469858da564aab3d59fd50c35e428dd758ff59b2e338304c626258`, while the helper is byte-identical to the reviewed4907 source. This result does not clear unrelated24440changes. An initial CUDA-driver load returned201(no current context); creating an ordinary Torch CUDA allocation before module loading fixed initialization. Neither initial failure was a helper output mismatch.
+
+Raw device source, sm120CUBIN, NVRTC log and result are retained under `evidence/2026-11-01-sk-sparse-repair-local-gpu/`. Device source SHA `ef46390cbe0f7cd57798694b6239ef43b4a48c5017e3b043851d1daa23d5c8ee`; CUBIN SHA `53dd6eb6edc841e0c2cdf870f3e8dcf0061a94aa728a984bda25a9f68fb10944`. The successful script's compile/setup/validation wall time1.867s is recorded solely for reproducibility, not a kernel performance result.
+
+Reproduce in the existing WSL CUDA environment:
+
+```sh
+/root/.cache/okc-graph-cu128/bin/python tools/sk_sparse_repair_local_gpu.py ARTIFACT OUTPUT_DIR
+```
+
+**Limits unchanged:** no full projection/FP64 numerical test, Hopper shared-ring ordering, H200 capture/admission, throughput, latency or architecture-transfer claim. No H200 quota or public action used. Root retains all official measurement and release decisions.

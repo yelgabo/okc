@@ -1,0 +1,34 @@
+{
+  "artifact_sha256": "24440c2d36469858da564aab3d59fd50c35e428dd758ff59b2e338304c626258",
+  "reviewed_helper_owner_artifact": "4907db9cd12e47269f79c2d1e08e5362c537225ee654cccaeb1176cb9d1de3d7",
+  "helper_sha256": "61920951c9e7734be27dfc032b0760d0d5fc465e444a55fc1883db27968d1a3e",
+  "device_sha256": "ef46390cbe0f7cd57798694b6239ef43b4a48c5017e3b043851d1daa23d5c8ee",
+  "cubin_sha256": "53dd6eb6edc841e0c2cdf870f3e8dcf0061a94aa728a984bda25a9f68fb10944",
+  "nvrtc": "/root/.cache/okc-cuda128/packages/nvidia/cuda_nvrtc/lib/libnvrtc.so.12",
+  "options": [
+    "--gpu-architecture=sm_120",
+    "--std=c++17",
+    "--generate-line-info"
+  ],
+  "torch": "2.10.0+cu128",
+  "cuda": "12.8",
+  "device": "NVIDIA GeForce RTX 5070",
+  "capability": [
+    12,
+    0
+  ],
+  "units_per_launch": 132,
+  "unique_BF16_patterns_per_bank": 65536,
+  "explicit_patch_counts": [
+    0,
+    512,
+    511,
+    1
+  ],
+  "eager_banks": 3,
+  "fresh_changed_record_graph_replays": 20,
+  "exact_uint32_checks": 23,
+  "passed": true,
+  "elapsed_setup_validation_seconds": 1.8665975330000038,
+  "scope": "BIT OPS ONLY; not full SK, Hopper, projection math, latency/performance or H200 qualification"
+}

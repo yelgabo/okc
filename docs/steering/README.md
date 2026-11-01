@@ -1,6 +1,6 @@
 # Shared project steering
 
-Latest independent projection proof: [SK sparse E7 repair](2026-11-01-sk-sparse-repair-independent.md). Exact4907db9 prototype source/lifetime review and7independent scalar/actual-packer CPU tests pass; H200/math/runtime/performance remain unqualified. No GPU action.
+Latest independent projection proof: [SK sparse E7 repair](2026-11-01-sk-sparse-repair-independent.md). Exact4907db9 source/lifetime review and7CPU tests pass; exact helper also passes23local RTX bit checks including20changed-record graph replays. H200/projection math/performance remain unqualified; no official/public action.
 
 Latest owned low-token audit: [Immutable decode and activation-read feasibility](2026-11-01-owned-lowtoken-representation.md). Source/CPU traffic model; no candidate clears the admission/opportunity screen and no GPU action.
 
