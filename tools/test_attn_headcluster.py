@@ -12,7 +12,7 @@ class HeadCluster(unittest.TestCase):
         # attention-value boundary; vectorization/layout remain independently checked.
         source=inspect.getsource(original.ReferenceLayout.test_vector_reference)
         import textwrap
-        source=textwrap.dedent(source).replace('result.view(1,8,16,64)',
+        source=textwrap.dedent(source).replace("env['reference'](query)","env['reference'](query,True)").replace('result.view(1,8,16,64)',
             'result.to(torch.bfloat16).float().view(1,8,16,64)')
         scope={'FRESH':FRESH,'ast':__import__('ast')}
         exec(source,scope)

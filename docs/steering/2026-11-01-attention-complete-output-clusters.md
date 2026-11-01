@@ -18,7 +18,7 @@ Aggregate cache bytes retain equivalent head coverage: each cluster copies only 
 
 CUDA12.8.1 [DSM guide](https://docs.nvidia.com/cuda/archive/12.8.1/cuda-c-programming-guide/index.html#distributed-shared-memory) gives initialization/retirement pattern; PTX8.7 [barrier.cluster](https://docs.nvidia.com/cuda/archive/12.8.1/parallel-thread-execution/index.html#parallel-synchronization-and-communication-instructions-barrier-cluster), section9.7.13.3, supplies default release/acquire and prior nonasync completion. Existing async waits remain explicit. No intercluster dependency/cooperative grid launch.
 
-Attention value is explicitly BF16 RNE then widened BEFORE RMS/gate, matching standalone baseline.py129. Existing owned FP8 probability conversion unchanged; no new approximate probability conversion. New queued FP32 reference also includes this BF16 boundary. Actual Torch2.10 CPU midpoint/tie fixture passes. Independent scalar versus vector reference relative errors9.19e-5(BF16 query),0(FP8 query). Five CPU ownership/precision tests pass.
+Attention value is explicitly BF16 RNE then widened BEFORE RMS/gate, matching SGLang standalone baseline.py129 (judge reference.py336 instead RMSes the FP32 attention value). Existing owned FP8 probability conversion unchanged; no new approximate probability conversion. New queued FP32 reference also includes this BF16 boundary. Actual Torch2.10 CPU midpoint/tie fixture passes. Independent scalar versus vector reference relative errors9.19e-5(BF16 query),0(FP8 query). Five CPU ownership/precision tests pass.
 
 ## Compilation and prospective check
 
@@ -36,4 +36,9 @@ First screen dispatched `eac485ea0d554e50` from `eee3b5b`, normalized LF SHA4559
 
 Prospective harness now clones all data/cache tensors/config per arm, captures using that arm, and feeds all64banks to each private QKV. Actual extracted AST CPU fixture verifies pointer distinction and mutation isolation. Six CPU tests pass. Prospective artifact `.build/today-attn/headcluster-private.py` uses write_bytes, physical=normalized SHA1e1ab4c70fb8116d1770548fa442720cb7ee9863a0283c8d461834af4981a8a8. This corrected artifact has NOT been dispatched.
 
-Legacy production finalizers attn_one.cu850/946 retain FP32 attention values through RMS; new HC correctly rounds BF16 per official baseline129. Thus A/B timing includes both ownership change and required BF16 correction. It does not isolate ownership alone. Probability conversion unchanged. No promotion based on shared-cache screen.
+Legacy production finalizers attn_one.cu850/946 retain FP32 attention values through RMS; new HC rounds BF16 per SGLang baseline129. Thus A/B timing includes both ownership change and SGLang-parity BF16 correction. It does not isolate ownership alone. Probability conversion unchanged. No promotion based on shared-cache screen.
+
+
+## Reference attribution correction
+
+SGLang baseline.py129 rounds attention value toBF16. Official judge reference.py336 RMSes the FP32 value. These are distinct: new HC preserves SGLang BF16 parity, not exact judge-reference arithmetic. Both must pass official output tolerance. Screen eager `_ob_check` uses unrounded FP32 references; its queued BF16 reference is only SGLang-parity coverage and must not be labeled exact every-fresh judge parity. Prospective harness now retains FP32 default queued references/bounds, optional BF16 CPU parity fixture, and unchanged FP32 `_ob_check`. Latest undispatched private artifact physical=LF SHA8c549b5bd17cb28786db2da8c893b53c36f16e7aa94be04b7ea9fe4070c40ab7 supersedes earlier private hashes. Six CPU tests pass. No second dispatch without screen performance win.
