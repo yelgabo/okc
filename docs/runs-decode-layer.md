@@ -815,3 +815,5 @@ CPU compiler only; no GPU/official call, score/CI or GPU failure. Exact607 ba9e3
 ## 2026-11-01 - G short paired-RNE source/compiler screen (no job ID)
 
 One OFF representation, exact607 control vs19cfb4ee/870233B, no GPU/API/official run or score. CPU2PASS/524288rounding-classpairs. CUDA12.8 sm90a selectedTiny/Tiny2 each147regs/3bars/0stack/spills unchanged;12scalarF2F->6PACK_AB but8PRMT added. Tiny5272->5280static instructions (nonNOP5230->5233);Tiny25328->5328 (nonNOP5279->5281). Gate now waits for scaled up plus PRMT before EX2. CLOSED_DEPENDENCY_BUDGET, no harness/alternateunpack/sweep; no credible >=1% sixload budget. Conditional3us shortcuts are sizing only. Report2026-11-01-g-short-pair-rne.md.
+
+| 2026-11-01 | source/CPU only; no job | G short scale-to-BF16 feasibility after aafc32d | No score | CLOSED_NO_EXACT_DEPENDENCY_REMOVAL. Scale multiply preexists G0; moving across required BF16 changes finite values (1.015625 vs 1.0078125). No variant, GPU or second compiler screen. Evidence: docs/steering/2026-11-01-g-short-scale-feasibility.md. |
