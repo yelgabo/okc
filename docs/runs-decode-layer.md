@@ -765,3 +765,23 @@ Affected128/256 MoE/front/abnd/wide policies match. Unaffectedsmall-M front/M1/W
 between independentprepares; no full-six-load extrapolation from this receipt. Root requests
 common-prepared-policy all-six-load combined Lt+short-boundary follow-up; no public submit yet.
 Raw receipt and normalizedprofiles archived.
+
+Combined follow-up authorized by root: `tools/dl_proj_lt_matched.py` uses root's exact
+`dl_short_rms_owner.candidate` for pure combined source and its matched-short duplication
+helper for diagnostic source. Pure SHA851c46951e1940b6874d35314d8ff7cc00a966a4718094881c764135ef13392a,
+927545B; probe SHAa6411cbdc528ef0b39d009f008e85503d2caa603e0d273d6e19b829a029ec736,
+957176B. One original prepare, common policies/compiled boundary extension/mutable scratch;
+baseline shallow-state clone removes Lt entries, candidate routes owner boundary and Lt.
+Private arm input/cache/output tensors, synchronized sequential graph replays. Shared-state
+controls do not measure independent preparation/build variability; clean pure gate follows
+only if this comparison wins. No production correctness/tuning gates reduced.
+
+Before timing: all3 Lt fullFP64/exactprobe/3freshgraph gates; T1/T8 old/owner boundary
+bitwise ABI on two fresh inputs. All6loads×2contexts×2fresh seeds,4arms,96 full judge-equivalent
+FP32/FP8-relative reference gates including routing/newcache;40randomized cold rounds.
+Reset stream/attn_input before each replay; busiestgroup actualargmax. Score independently
+per seed with46sliding+16full per load, geometricmean over6loads. Both seeds must have
+all4cross ratios>1 and pooledlog improvement>2×larger nullabslog. No aggregate forecast.
+CPU actual score helper winner/loser and dual-route parse/count gates pass. Deadline275s
+fails closed on missing coverage; no public submit. Root authorizes a clean exact pure
+file check only after all these gates pass. Standalone quota untouched.
