@@ -1,0 +1,11 @@
+test_c2_direct_score_and_sensitivity (test_stage_release_reader_independent.ReaderContract.test_c2_direct_score_and_sensitivity) ... ok
+test_duplicate_profile_is_not_silent (test_stage_release_reader_independent.ReaderContract.test_duplicate_profile_is_not_silent) ... ok
+test_odd_and_different_control_table_rejected (test_stage_release_reader_independent.ReaderContract.test_odd_and_different_control_table_rejected) ... ok
+test_all_targets_lose_and_qualification_complete (proj_test_stage_xor_terminal.Terminal.test_all_targets_lose_and_qualification_complete) ... ok
+test_forty_resources_capacities_and_input_pin (proj_test_stage_xor_terminal.Terminal.test_forty_resources_capacities_and_input_pin) ... ok
+test_official_sixload_and_raw_reconstruction (proj_test_stage_xor_terminal.Terminal.test_official_sixload_and_raw_reconstruction) ... ok
+
+----------------------------------------------------------------------
+Ran 6 tests in 0.094s
+
+OK

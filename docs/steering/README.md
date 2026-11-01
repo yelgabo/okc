@@ -8,14 +8,14 @@ Latest performance pivot: [After both sparse-repair losses](2026-11-01-post-xor-
 
 Latest G contract audit: [Precision requirements versus conservative policy](2026-11-01-g-fork-precision-contract.md). BF16 stage edges retained; internal split-partial bans distinguished from explicit rules; active JIT FP32 router clarified. No reopening, code or GPU action.
 
-Latest single-arm stage qualifier: [Stage-local projection qualification](2026-11-01-projection-stage-xor-release.md) - exact de1111b9/450781 B, fixed ten targets plus ordinary neighbors; five CPU host gates pass. Actual H200 admission, correctness, setup time and performance remain unqualified; root-only measurement decision.
+Latest single-arm stage qualifier: [Stage-local projection qualification](2026-11-01-projection-stage-xor-release.md) - exact de1111b9/450781 B, fixed ten targets plus ordinary neighbors; five CPU host gates pass. Subsequent H200 jobdfcfdd01 passed admission/math but lost; see the terminal report above.
 
-Latest stage-local source review: [Sparse stage arena proof](2026-11-01-sk-stage-repair-independent.md). Exactb726 format/lifetime and shared-helper RTX23bit checks pass. Separatede1111 single-arm qualifier source/5CPU tests clear; H200 resources/math/performance unqualified and global variant remains closed.
+Latest stage-local source review: [Sparse stage arena proof](2026-11-01-sk-stage-repair-independent.md). Exactb726 format/lifetime and shared-helper RTX23bit checks pass. Separatede1111 single-arm qualifier source/5CPU tests clear; Subsequent H200dfcfdd01 passed all qualification but lost; both exact variants remain closed.
 
 Latest projection terminal: [SK-XOR single-arm H200 closure](2026-11-01-sk-xor-release-terminal.md). Public2b537518 PASS9/all10SX startup,1.394120x belowC2; all10targets regress. Exact production variant closed, no retry/layerport; dependency wording corrected.
-Latest projection representation: [Stage-local sparse repair](2026-11-01-projection-stage-xor.md) - previous global-record H200 version closed as a loss; new OFF-by-default stage arena passes actual CPU stream proof and local sm90a compilation. No GPU execution or performance qualification for the new representation.
+Latest projection representation: [Stage-local sparse repair](2026-11-01-projection-stage-xor.md) - previous global-record H200 version closed as a loss; new OFF-by-default stage arena passes actual CPU stream proof and local sm90a compilation. Subsequent H200dfcfdd01 is a correctness-passing performance loss; no promotion.
 
-Latest single-arm artifact: [Owned sparse-XOR prepare-qualified projection](2026-11-01-projection-sparse-xor-release.md) - exact685ffab5/321640B, fixed ordinary buckets, fiveCPU host gates pass; no comparative timings. Actual H200 gates and prepare limit remain unproved; root-only measurement decision.
+Latest single-arm artifact: [Owned sparse-XOR prepare-qualified projection](2026-11-01-projection-sparse-xor-release.md) - exact685ffab5/321640B, fixed ordinary buckets, fiveCPU host gates pass; no comparative timings. Subsequent H2002b537518 passed all qualification and lost; exact variant closed.
 
 Latest single-arm source review: [SK-XOR production qualifier](2026-11-01-sk-xor-release-source-review.md). Exact685ffab5 source scope clear;5TorchCPU tests pass. H200 production qualification and performance were subsequently measured in2b537518; see the terminal closure above.
 
@@ -53,9 +53,9 @@ report be checked into this repository so other sessions can read it.
 
 ## Latest review
 
-[Stage-local projection measurement](2026-11-01-stage-local-projection-measurement.md) registers exact de1111/450781B after12 root CPU tests and independent source/local bit gates. One authorized fixed single-arm projection measurement is selected; H200 gates and performance remain unknown. Original C2 and607e remain incumbents.
+[November1 stage-local H200 result and retained submissions](2026-11-01-stage-local-projection-measurement.md) records exact450781B/de1111 source, PASS9/30 and all160startup checks, but1.419147x below C21.527806x. Both global and stage-local sparse-repair variants are closed. It links all30latencies/40resourcevectors, fresh ranks, the precision correction, a ranked reset queue and the updated release manifest. No new layer port or performance win; first two reset jobs unchanged.
 
-[November 1 sparse-repair experiment and H200 result](2026-11-01-projection-sparse-repair.md) records PASS9/30 with all10SX active, but1.394120× belowC21.527806×. Exact global-record variant closed; complete archive, resource vectors and a distinct stage-local delivery assessment retained. No new layer port is selected.
+[Previous global-record experiment](2026-11-01-projection-sparse-repair.md) preserves its separate1.394120x loss and the dated registration that led to stage-local delivery.
 
 **Latest attention boundary audit:** [2026-11-01 source, SASS and score sensitivity](2026-11-01-attention-next-boundary.md). No new justified check; exact full-context dependency and counter-access gaps recorded.
 
