@@ -4600,3 +4600,17 @@ Directcomparatordescriptiveonly. SevenactualTorchCPUhosttestsPASS, realistic
 transport4419B; no H200successclaim. Fullsourcepins/registration:
 docs/steering/2026-11-01-owned-cached-band32-registration.md. Rootownsstatus/raw
 receipt/log/profilearchive; nochildGPU, no publiccandidate unlessstrongfullscorewin.
+
+
+Terminal903e5b03411c4e2d: PASS5/no flags, common-control2.190787796885395,
+95%CI[2.1579259799321138,2.2236496138386754], all396privatechecks/18sixarmrecords,
+prepare89.029513961s. Cached-vs-control fullsixfactors0.994470147488/0.997004522138/
+0.996364377034/0.998903579067 vsnull0.009646480237; allseed/regression gatesFAIL,
+KEEPfalse. TargetmeanM16ctrl102.554667/cached103.808001/direct117.456000us;
+M32ctrl137.653333/cached139.448001/direct160.367999us. Cached-vs-direct1.043792..
+1.046898 is recoveryfromfailedvariant, NOTwinvsbaseline. Actualcached128regs/
+0local/156928dynamic vsctrl/direct130/0/155520, all288threads/1CTA;MAINexact96regs/
+8local/228736dynamic. Independentactual_bc_summary recomputation matchesallgates
+exactly. Fullterminal/decoded: docs/steering/2026-11-01-owned-cached-band32-terminal.md.
+Closecachedrepresentation/directband/CPUidentity; no purequalification/public
+candidate/automaticknobsweep. Rootowns canonicalrawarchive, productionunchanged.

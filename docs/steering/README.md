@@ -450,3 +450,5 @@ Hourly review history: [11:20 PDT performance review](2026-10-29-1120-performanc
 - 2026-11-01: [Owned band32 terminal closure](2026-11-01-owned-moe-band32-terminal.md): a5c7c7e3fe344919 PASS5/all264 privatechecks but all six targeted rows lose; full-score factors0.9422-0.9460, KEEP=false. Exact band32 and offline identity variant closed; no pure/public candidate or automatic sweep.
 
 - 2026-11-01: [Cached band32 six-arm registration](2026-11-01-owned-cached-band32-registration.md): same physical schedule/credits, new bounded shared representation; new945013B artifact4bf3864b, disjoint heldouts, three binaries/six private owners,396math gates and sevenCPU tests. Root/peer review required, no GPU by worker.
+
+- 2026-11-01: [Final cached band32 closure](2026-11-01-owned-cached-band32-terminal.md):903e5b03411c4e2d PASS5/all396 checks; cached recovers failed direct loss but full-score versus control0.99447-0.99890 fails, KEEP=false. No pure/public candidate, knob sweep or production change.
