@@ -1,0 +1,2841 @@
+{
+  "schema": 1,
+  "audit_reference": "0f51f77",
+  "current_human_priority": "ccb5e19",
+  "source_only": true,
+  "gpu_execution": false,
+  "partial_snapshots_are_conforming": false,
+  "input_files": {
+    "upstream": {
+      "path": ".build\\today\\kel\\kernels\\muse_decode_layer.py",
+      "lf_sha256": "82c098ae7534b20b5d80f59d547650cb0853fc7d5e313fe29e1e9d9373e1bb19"
+    },
+    "incumbent": {
+      "path": "muse_decode_layer\\cand\\g1b4_stage_release.py",
+      "lf_sha256": "ba9e327cd7b96595ace4d0c1d0d78fe27c128f23ed0debcda97c7169fc3164ab"
+    },
+    "repair": {
+      "path": "tools\\dl_fork_moe.py",
+      "lf_sha256": "1350676ca93663b1379ed6520381c20b6c7b164ef2c45aabccafe39e62266eed"
+    },
+    "stage": {
+      "path": "tools\\dl_g1_stage_retire.py",
+      "lf_sha256": "5121b2605474b0fc1ce169e30841148370dffd1e03e38a0cc734125332da9524"
+    },
+    "empty": {
+      "path": "tools\\dl_fork_moe_empty.py",
+      "lf_sha256": "dd1d806758115a453282492a1787a6fe74e7d7627f45c58ea0d5048e066d33be"
+    }
+  },
+  "taxonomy": [
+    {
+      "id": "scope_and_mfin",
+      "classification": "mixed",
+      "active_families": [
+        "tiny",
+        "tiny2",
+        "mid",
+        "b4",
+        "main"
+      ],
+      "requirement": "Compile-time exclusion of unreviewed nonWS/nonWGS fallback; MFIN0 excludes unsafe readiness fallthrough. A different proved finalizer is possible, not flag rollback."
+    },
+    {
+      "id": "bf16_primitive",
+      "classification": "implementation",
+      "active_families": [
+        "tiny",
+        "tiny2",
+        "mid",
+        "b4",
+        "main"
+      ],
+      "requirement": "Helper definition only; numerical changes appear in subsequent groups."
+    },
+    {
+      "id": "effective_gamma",
+      "classification": "required_baseline_parity",
+      "active_families": [
+        "tiny",
+        "tiny2",
+        "mid",
+        "b4",
+        "main"
+      ],
+      "requirement": "BF16(1+rawBF16) effective parameter. Immutable preparation hoisting may preserve it; no measured cost."
+    },
+    {
+      "id": "gate_up_boundary",
+      "classification": "required_stage_boundary",
+      "active_families": [
+        "tiny",
+        "tiny2",
+        "mid",
+        "b4",
+        "main"
+      ],
+      "requirement": "Round scaled gate/up before nonlinear SiLU. Removing rounds is not a conforming ablation."
+    },
+    {
+      "id": "down_boundary",
+      "classification": "required_stage_boundary",
+      "active_families": [
+        "tiny",
+        "tiny2",
+        "mid",
+        "b4",
+        "main"
+      ],
+      "requirement": "Round scaled GEMM2 before gamma. Coupled to WGS scale/gamma separation below."
+    },
+    {
+      "id": "wgs_scale_boundary",
+      "classification": "required_stage_boundary",
+      "active_families": [
+        "b4",
+        "main"
+      ],
+      "requirement": "Separate global scale from gamma so the BF16 round is at the correct edge. Unexecuted WGS branches also exist in helper source."
+    },
+    {
+      "id": "ybf_policy",
+      "classification": "conservative_precision_choice",
+      "active_families": [
+        "b4",
+        "main"
+      ],
+      "requirement": "Disable extra postgamma BF16 quantization; not the required pregamma round. No certified rollback or isolated cost."
+    },
+    {
+      "id": "skinny_reader_proxy",
+      "classification": "required_protocol_property",
+      "active_families": [
+        "tiny",
+        "tiny2",
+        "mid"
+      ],
+      "requirement": "Retain generic-reader to async-refill proxy lifetime bridge. Actual WS-mode applicability needs selected preprocessor path, not source-count cost."
+    },
+    {
+      "id": "wgs_reader_release",
+      "classification": "required_protocol_property",
+      "active_families": [
+        "b4",
+        "main"
+      ],
+      "requirement": "All-reader proxy arrivals and NT expected counts are one coupled protocol; cannot test either half alone."
+    },
+    {
+      "id": "wgs_writer_proxy",
+      "classification": "required_protocol_property",
+      "active_families": [
+        "b4",
+        "main"
+      ],
+      "requirement": "Generic gather/epilogue stores must publish to TMA including finisher stores made after flush entry."
+    },
+    {
+      "id": "final_counter_strengthening",
+      "classification": "conservative_implementation_choice",
+      "active_families": [
+        "tiny",
+        "tiny2",
+        "mid",
+        "b4",
+        "main"
+      ],
+      "requirement": "Acq_rel RMW chosen atop retained fences/joins/acquire. Only Tiny/Tiny2 have a separately proved relaxed returning-RMW alternative so far."
+    },
+    {
+      "id": "cooperative_admission",
+      "classification": "required_progress_property_with_policy_choice",
+      "active_families": [
+        "tiny",
+        "tiny2",
+        "mid",
+        "b4",
+        "main"
+      ],
+      "requirement": "Enforce resident-grid progress by checked cooperative launch. PDLoff ordinary same-stream completion is the selected safe policy, not a universal PDL ban."
+    }
+  ],
+  "native_ladders": {
+    "MOE_CUDA_SRC": {
+      "upstream_literal_line": 3880,
+      "incumbent_literal_line": 3842,
+      "upstream_literal_sha256": "b7ecaf14698e217bf07a28484e6bade62a23d81c603e93d7074ab2fdd9630175",
+      "incumbent_literal_sha256": "c7c201ae145c6a33f2d5e6b1f80d2a6e56e8d75502f9fd09ace40927ad0f7c71",
+      "upstream_literal_bytes": 153709,
+      "incumbent_literal_bytes": 155790,
+      "exact_reconstruction": true,
+      "steps": [
+        {
+          "group": "scope_and_mfin",
+          "tool_line": 186,
+          "before_sha256": "b7ecaf14698e217bf07a28484e6bade62a23d81c603e93d7074ab2fdd9630175",
+          "after_sha256": "edacf75984d2c5d590d496b884ba96831d4d474e2bce766fedd0de8b3e1a834c",
+          "changed_hunks": [
+            {
+              "op": "insert",
+              "before_lines": [
+                111,
+                110
+              ],
+              "after_lines": [
+                111,
+                119
+              ],
+              "before": [],
+              "after": [
+                "",
+                "#if !OKC_WGS && !OKC_WS",
+                "#error FORK_MOE_UNPROVEN_FALLBACK_select_owned_or_Marlin_adapter",
+                "#endif",
+                "#if OKC_WGS",
+                "#undef OKC_MFIN",
+                "#define OKC_MFIN 0",
+                "#endif",
+                ""
+              ],
+              "context_before": [
+                "",
+                "namespace okc {"
+              ],
+              "context_after": [
+                "",
+                "#ifndef OKC_L2H"
+              ]
+            }
+          ]
+        },
+        {
+          "group": "bf16_primitive",
+          "tool_line": 187,
+          "before_sha256": "edacf75984d2c5d590d496b884ba96831d4d474e2bce766fedd0de8b3e1a834c",
+          "after_sha256": "88bd5275b1d23d26df06cef8289313427aa175d5343ff62782be1e3a216120df",
+          "changed_hunks": [
+            {
+              "op": "insert",
+              "before_lines": [
+                443,
+                442
+              ],
+              "after_lines": [
+                443,
+                443
+              ],
+              "before": [],
+              "after": [
+                "__device__ __forceinline__ float fork_bf16(float v) { return __bfloat162float(__float2bfloat16_rn(v)); }"
+              ],
+              "context_before": [
+                "// ---------------------------------------------------------------- epilogues (one 16-row block, tokens 2t,2t+1 of n-tile)",
+                "// r[0..1] rows g (gate / out row n0), r[2..3] rows g+8 (up / out row n1), tokens tk0 = 2t, 2t+1 relative to tile"
+              ],
+              "context_after": [
+                "__device__ __forceinline__ float probe_q(float v) {",
+                "  return v;"
+              ]
+            }
+          ]
+        },
+        {
+          "group": "effective_gamma",
+          "tool_line": 191,
+          "before_sha256": "88bd5275b1d23d26df06cef8289313427aa175d5343ff62782be1e3a216120df",
+          "after_sha256": "af0732a38ed6c9fc874b60f94403a86ff040a66ff725e1fa0ea6702338cf767d",
+          "changed_hunks": [
+            {
+              "op": "replace",
+              "before_lines": [
+                461,
+                461
+              ],
+              "after_lines": [
+                461,
+                461
+              ],
+              "before": [
+                "  const float w0 = 1.f + __bfloat162float(p.normw[n0]), w1 = 1.f + __bfloat162float(p.normw[n0 + 8]);"
+              ],
+              "after": [
+                "  const float w0 = fork_bf16(1.f + __bfloat162float(p.normw[n0])), w1 = fork_bf16(1.f + __bfloat162float(p.normw[n0 + 8]));"
+              ],
+              "context_before": [
+                "__device__ __forceinline__ void epi_B(const Params& p, int pstart, int ntok, int tok0, int n0, float gsc, const float* r,",
+                "                                      float* sq) {"
+              ],
+              "context_after": [
+                "#pragma unroll",
+                "  for (int h = 0; h < 2; ++h) {"
+              ]
+            },
+            {
+              "op": "replace",
+              "before_lines": [
+                670,
+                670
+              ],
+              "after_lines": [
+                670,
+                670
+              ],
+              "before": [
+                "    nwc0 = 1.f + __bfloat162float(__ldg(p.normw + rbq * 16 + egg)); nwc1 = 1.f + __bfloat162float(__ldg(p.normw + rbq * 16 + egg + 8));"
+              ],
+              "after": [
+                "    nwc0 = fork_bf16(1.f + __bfloat162float(__ldg(p.normw + rbq * 16 + egg))); nwc1 = fork_bf16(1.f + __bfloat162float(__ldg(p.normw + rbq * 16 + egg + 8)));"
+              ],
+              "context_before": [
+                "    const int u0 = nU > 0 ? v0 : (S.uslot[seq0 % OKC_NS] & ~BFLAG);",
+                "    const int rbq = (u0 < 0 ? 0 : u0) & (rbs - 1);"
+              ],
+              "context_after": [
+                "  }",
+                "  int nproc = 0;"
+              ]
+            },
+            {
+              "op": "replace",
+              "before_lines": [
+                688,
+                688
+              ],
+              "after_lines": [
+                688,
+                688
+              ],
+              "before": [
+                "      nwn0 = 1.f + __bfloat162float(__ldg(p.normw + rbq * 16 + egg)); nwn1 = 1.f + __bfloat162float(__ldg(p.normw + rbq * 16 + egg + 8));"
+              ],
+              "after": [
+                "      nwn0 = fork_bf16(1.f + __bfloat162float(__ldg(p.normw + rbq * 16 + egg))); nwn1 = fork_bf16(1.f + __bfloat162float(__ldg(p.normw + rbq * 16 + egg + 8)));"
+              ],
+              "context_before": [
+                "    if (PB && tid < 128 && vn >= 0) {",
+                "      const int rbq = (vn & ~BFLAG) & (rbs - 1);"
+              ],
+              "context_after": [
+                "    }",
+                "    if (j != curj) {"
+              ]
+            },
+            {
+              "op": "replace",
+              "before_lines": [
+                850,
+                850
+              ],
+              "after_lines": [
+                850,
+                850
+              ],
+              "before": [
+                "  if (PB && tid < 128) { const int rbq = v0 % rbs; nwc0 = 1.f + __bfloat162float(__ldg(p.normw + rbq * 16 + egg)); nwc1 = 1.f + __bfloat162float(__ldg(p.normw + rbq * 16 + egg + 8)); }"
+              ],
+              "after": [
+                "  if (PB && tid < 128) { const int rbq = v0 % rbs; nwc0 = fork_bf16(1.f + __bfloat162float(__ldg(p.normw + rbq * 16 + egg))); nwc1 = fork_bf16(1.f + __bfloat162float(__ldg(p.normw + rbq * 16 + egg + 8))); }"
+              ],
+              "context_before": [
+                "  float nwc0 = 0.f, nwc1 = 0.f;",
+                "  const int egg = (tid & 31) >> 2;"
+              ],
+              "context_after": [
+                "  for (int i = 0; i < nU; ++i) {",
+                "    const int v = v0 + i;"
+              ]
+            },
+            {
+              "op": "replace",
+              "before_lines": [
+                857,
+                857
+              ],
+              "after_lines": [
+                857,
+                857
+              ],
+              "before": [
+                "      nwn0 = 1.f + __bfloat162float(__ldg(p.normw + rbq * 16 + egg)); nwn1 = 1.f + __bfloat162float(__ldg(p.normw + rbq * 16 + egg + 8));"
+              ],
+              "after": [
+                "      nwn0 = fork_bf16(1.f + __bfloat162float(__ldg(p.normw + rbq * 16 + egg))); nwn1 = fork_bf16(1.f + __bfloat162float(__ldg(p.normw + rbq * 16 + egg + 8)));"
+              ],
+              "context_before": [
+                "    if (PB && tid < 128 && i + 1 < nU) {",
+                "      const int rbq = (v + 1) % rbs;"
+              ],
+              "context_after": [
+                "    }",
+                "    if (j != curj) {"
+              ]
+            },
+            {
+              "op": "replace",
+              "before_lines": [
+                1618,
+                1618
+              ],
+              "after_lines": [
+                1618,
+                1618
+              ],
+              "before": [
+                "      const float nw0 = 1.f + __bfloat162float(p.normw[n0]), nw1 = 1.f + __bfloat162float(p.normw[n0 + 8]);"
+              ],
+              "after": [
+                "      const float nw0 = fork_bf16(1.f + __bfloat162float(p.normw[n0])), nw1 = fork_bf16(1.f + __bfloat162float(p.normw[n0 + 8]));"
+              ],
+              "context_before": [
+                "      const float gsc = p.gsB[ce] * TWO62;",
+                "      const int n0 = rb * 16 + gg;"
+              ],
+              "context_after": [
+                "#pragma unroll",
+                "      for (int h = 0; h < 2; ++h) {"
+              ]
+            },
+            {
+              "op": "replace",
+              "before_lines": [
+                1982,
+                1982
+              ],
+              "after_lines": [
+                1982,
+                1982
+              ],
+              "before": [
+                "    const float w0 = (1.f + __bfloat162float(__ldg(p.normw + n0))) * gsc, w1 = (1.f + __bfloat162float(__ldg(p.normw + n0 + 8))) * gsc;"
+              ],
+              "after": [
+                "    const float w0 = (fork_bf16(1.f + __bfloat162float(__ldg(p.normw + n0)))) * gsc, w1 = (fork_bf16(1.f + __bfloat162float(__ldg(p.normw + n0 + 8)))) * gsc;"
+              ],
+              "context_before": [
+                "    const int n0 = r16 * 16 + g, tok0 = nt * 8 + 2 * t;",
+                "    const float gsc = p.gsB[e] * TWO62;"
+              ],
+              "context_after": [
+                "#pragma unroll",
+                "    for (int h = 0; h < 2; ++h) {"
+              ]
+            }
+          ]
+        },
+        {
+          "group": "effective_gamma",
+          "tool_line": 192,
+          "before_sha256": "af0732a38ed6c9fc874b60f94403a86ff040a66ff725e1fa0ea6702338cf767d",
+          "after_sha256": "39a80a99260ec7a626ed0ad19e5fc55f034175789b6e7c62e817c158ca05a6a1",
+          "changed_hunks": [
+            {
+              "op": "replace",
+              "before_lines": [
+                1538,
+                1538
+              ],
+              "after_lines": [
+                1538,
+                1538
+              ],
+              "before": [
+                "    const float nw0 = 1.f + __uint_as_float(lnw0 << 16), nw1 = 1.f + __uint_as_float(lnw1 << 16);"
+              ],
+              "after": [
+                "    const float nw0 = fork_bf16(1.f + __uint_as_float(lnw0 << 16)), nw1 = fork_bf16(1.f + __uint_as_float(lnw1 << 16));"
+              ],
+              "context_before": [
+                "    const int n0 = rb * 16 + gg;",
+                "    const float gsc = lgs * TWO62;"
+              ],
+              "context_after": [
+                "#pragma unroll",
+                "    for (int h = 0; h < 2; ++h) {"
+              ]
+            }
+          ]
+        },
+        {
+          "group": "gate_up_boundary",
+          "tool_line": 195,
+          "before_sha256": "39a80a99260ec7a626ed0ad19e5fc55f034175789b6e7c62e817c158ca05a6a1",
+          "after_sha256": "dc6b7e56ba5ae3f9f9ff4a09c391684fb143309fa56ff994f14ff772b9ff89ba",
+          "changed_hunks": [
+            {
+              "op": "replace",
+              "before_lines": [
+                452,
+                452
+              ],
+              "after_lines": [
+                452,
+                452
+              ],
+              "before": [
+                "      float gt = r[h] * gsc, up = r[2 + h] * gsc;"
+              ],
+              "after": [
+                "      float gt = fork_bf16(r[h] * gsc), up = fork_bf16(r[2 + h] * gsc);"
+              ],
+              "context_before": [
+                "    int tk = tok0 + h;",
+                "    if (tk < ntok) {"
+              ],
+              "context_after": [
+                "      float v = SILU_DIV(gt, 1.f + __expf(-gt)) * up;",
+                "      st_keep_bf16(p.inter + ((size_t)(pstart + tk) * ID + col), __float2bfloat16(probe_q(v)));"
+              ]
+            },
+            {
+              "op": "replace",
+              "before_lines": [
+                776,
+                776
+              ],
+              "after_lines": [
+                776,
+                776
+              ],
+              "before": [
+                "          const float gt = s0 * gsc, up = s1 * gsc;"
+              ],
+              "after": [
+                "          const float gt = fork_bf16(s0 * gsc), up = fork_bf16(s1 * gsc);"
+              ],
+              "context_before": [
+                "        if (tk < cnt) {",
+                "          const float gsc = p.gsA[ce] * TWO62;"
+              ],
+              "context_after": [
+                "          st_keep_bf16(p.inter + ((size_t)(st + tk) * ID + rb * 8 + gg), __float2bfloat16(probe_q(SILU_DIV(gt, 1.f + __expf(-gt)) * up)));",
+                "        }"
+              ]
+            },
+            {
+              "op": "replace",
+              "before_lines": [
+                944,
+                944
+              ],
+              "after_lines": [
+                944,
+                944
+              ],
+              "before": [
+                "          const float gt = s0 * gsc, up = s1 * gsc;"
+              ],
+              "after": [
+                "          const float gt = fork_bf16(s0 * gsc), up = fork_bf16(s1 * gsc);"
+              ],
+              "context_before": [
+                "        if (tk < cnt) {",
+                "          const float gsc = p.gsA[ce] * TWO62;"
+              ],
+              "context_after": [
+                "          st_keep_bf16(p.inter + ((size_t)(st + tk) * ID + rb * 8 + gg), __float2bfloat16(probe_q(SILU_DIV(gt, 1.f + __expf(-gt)) * up)));",
+                "        }"
+              ]
+            },
+            {
+              "op": "replace",
+              "before_lines": [
+                1600,
+                1600
+              ],
+              "after_lines": [
+                1600,
+                1600
+              ],
+              "before": [
+                "          const float gt = (h ? sm.y : sm.x) * gsc, up = (h ? sm.w : sm.z) * gsc;"
+              ],
+              "after": [
+                "          const float gt = fork_bf16((h ? sm.y : sm.x) * gsc), up = fork_bf16((h ? sm.w : sm.z) * gsc);"
+              ],
+              "context_before": [
+                "        const int tk = 2 * tt + h;",
+                "        if (tk < cnt) {"
+              ],
+              "context_after": [
+                "          st_keep_bf16(p.inter + ((size_t)(st + tk) * ID + rb * 8 + gg), __float2bfloat16(probe_q(SILU_DIV(gt, 1.f + __expf(-gt)) * up)));",
+                "        }"
+              ]
+            },
+            {
+              "op": "replace",
+              "before_lines": [
+                1972,
+                1972
+              ],
+              "after_lines": [
+                1972,
+                1972
+              ],
+              "before": [
+                "        const float gt = d4[h] * gsc, up = d4[2 + h] * gsc;"
+              ],
+              "after": [
+                "        const float gt = fork_bf16(d4[h] * gsc), up = fork_bf16(d4[2 + h] * gsc);"
+              ],
+              "context_before": [
+                "      const int tk = nt * 8 + 2 * t + h;",
+                "      if (tk < cnt) {"
+              ],
+              "context_after": [
+                "        const float v = SILU_DIV(gt, 1.f + __expf(-gt)) * up;",
+                "        st_keep_bf16(xb + (size_t)((((col >> 8) * ntt + (tk >> 3)) * 32 + ((col & 255) >> 3)) * 64 + (tk & 7) * 8),"
+              ]
+            }
+          ]
+        },
+        {
+          "group": "down_boundary",
+          "tool_line": 198,
+          "before_sha256": "dc6b7e56ba5ae3f9f9ff4a09c391684fb143309fa56ff994f14ff772b9ff89ba",
+          "after_sha256": "2b1b65b08849c3a76ecb9ef1f8c5f8d34ef417cf9e70ea523cf669f13ae4a59e",
+          "changed_hunks": [
+            {
+              "op": "replace",
+              "before_lines": [
+                465,
+                465
+              ],
+              "after_lines": [
+                465,
+                465
+              ],
+              "before": [
+                "    float v0 = r[h] * gsc * w0, v1 = r[2 + h] * gsc * w1;"
+              ],
+              "after": [
+                "    float v0 = fork_bf16(r[h] * gsc) * w0, v1 = fork_bf16(r[2 + h] * gsc) * w1;"
+              ],
+              "context_before": [
+                "  for (int h = 0; h < 2; ++h) {",
+                "    int tk = tok0 + h;"
+              ],
+              "context_after": [
+                "    sq[h] = v0 * v0 + v1 * v1;",
+                "    if (tk < ntok) {"
+              ]
+            },
+            {
+              "op": "replace",
+              "before_lines": [
+                782,
+                782
+              ],
+              "after_lines": [
+                782,
+                782
+              ],
+              "before": [
+                "        const float v0f = s0 * gsc * nwc0, v1f = s1 * gsc * nwc1;"
+              ],
+              "after": [
+                "        const float v0f = fork_bf16(s0 * gsc) * nwc0, v1f = fork_bf16(s1 * gsc) * nwc1;"
+              ],
+              "context_before": [
+                "        const float gsc = p.gsB[ce] * TWO62;",
+                "        const int n0 = rb * 16 + gg;"
+              ],
+              "context_after": [
+                "        float sq = v0f * v0f + v1f * v1f;",
+                "        if (tk < cnt) {"
+              ]
+            },
+            {
+              "op": "replace",
+              "before_lines": [
+                950,
+                950
+              ],
+              "after_lines": [
+                950,
+                950
+              ],
+              "before": [
+                "        const float v0f = s0 * gsc * nwc0, v1f = s1 * gsc * nwc1;"
+              ],
+              "after": [
+                "        const float v0f = fork_bf16(s0 * gsc) * nwc0, v1f = fork_bf16(s1 * gsc) * nwc1;"
+              ],
+              "context_before": [
+                "        const float gsc = p.gsB[ce] * TWO62;",
+                "        const int n0 = rb * 16 + gg;"
+              ],
+              "context_after": [
+                "        float sq = v0f * v0f + v1f * v1f;",
+                "        if (tk < cnt) {"
+              ]
+            },
+            {
+              "op": "replace",
+              "before_lines": [
+                1542,
+                1542
+              ],
+              "after_lines": [
+                1542,
+                1542
+              ],
+              "before": [
+                "      const float v0f = (h ? sm.y : sm.x) * gsc * nw0, v1f = (h ? sm.w : sm.z) * gsc * nw1;"
+              ],
+              "after": [
+                "      const float v0f = fork_bf16((h ? sm.y : sm.x) * gsc) * nw0, v1f = fork_bf16((h ? sm.w : sm.z) * gsc) * nw1;"
+              ],
+              "context_before": [
+                "    for (int h = 0; h < 2; ++h) {",
+                "      const int tk = 2 * tt + h;"
+              ],
+              "context_after": [
+                "      float sq = v0f * v0f + v1f * v1f;",
+                "      if (tk < cnt) {"
+              ]
+            },
+            {
+              "op": "replace",
+              "before_lines": [
+                1622,
+                1622
+              ],
+              "after_lines": [
+                1622,
+                1622
+              ],
+              "before": [
+                "        const float v0f = (h ? sm.y : sm.x) * gsc * nw0, v1f = (h ? sm.w : sm.z) * gsc * nw1;"
+              ],
+              "after": [
+                "        const float v0f = fork_bf16((h ? sm.y : sm.x) * gsc) * nw0, v1f = fork_bf16((h ? sm.w : sm.z) * gsc) * nw1;"
+              ],
+              "context_before": [
+                "      for (int h = 0; h < 2; ++h) {",
+                "        const int tk = 2 * tt + h;"
+              ],
+              "context_after": [
+                "        float sq = v0f * v0f + v1f * v1f;",
+                "        if (tk < cnt) {"
+              ]
+            }
+          ]
+        },
+        {
+          "group": "wgs_scale_boundary",
+          "tool_line": 202,
+          "before_sha256": "2b1b65b08849c3a76ecb9ef1f8c5f8d34ef417cf9e70ea523cf669f13ae4a59e",
+          "after_sha256": "c30ec1f91ca8447b6e0a987ee30504fda293fa18f134013abb4caca9ba4c6521",
+          "changed_hunks": [
+            {
+              "op": "replace",
+              "before_lines": [
+                1982,
+                1982
+              ],
+              "after_lines": [
+                1982,
+                1982
+              ],
+              "before": [
+                "    const float w0 = (fork_bf16(1.f + __bfloat162float(__ldg(p.normw + n0)))) * gsc, w1 = (fork_bf16(1.f + __bfloat162float(__ldg(p.normw + n0 + 8)))) * gsc;"
+              ],
+              "after": [
+                "    const float w0 = fork_bf16(1.f + __bfloat162float(__ldg(p.normw + n0))), w1 = (fork_bf16(1.f + __bfloat162float(__ldg(p.normw + n0 + 8)))) * gsc;"
+              ],
+              "context_before": [
+                "    const int n0 = r16 * 16 + g, tok0 = nt * 8 + 2 * t;",
+                "    const float gsc = p.gsB[e] * TWO62;"
+              ],
+              "context_after": [
+                "#pragma unroll",
+                "    for (int h = 0; h < 2; ++h) {"
+              ]
+            }
+          ]
+        },
+        {
+          "group": "wgs_scale_boundary",
+          "tool_line": 204,
+          "before_sha256": "c30ec1f91ca8447b6e0a987ee30504fda293fa18f134013abb4caca9ba4c6521",
+          "after_sha256": "60dfe89d382e0b579fd21a1fd00b98f87323ee4daa125addfe8b23da7c8df1d6",
+          "changed_hunks": [
+            {
+              "op": "replace",
+              "before_lines": [
+                1982,
+                1982
+              ],
+              "after_lines": [
+                1982,
+                1982
+              ],
+              "before": [
+                "    const float w0 = fork_bf16(1.f + __bfloat162float(__ldg(p.normw + n0))), w1 = (fork_bf16(1.f + __bfloat162float(__ldg(p.normw + n0 + 8)))) * gsc;"
+              ],
+              "after": [
+                "    const float w0 = fork_bf16(1.f + __bfloat162float(__ldg(p.normw + n0))), w1 = fork_bf16(1.f + __bfloat162float(__ldg(p.normw + n0 + 8)));"
+              ],
+              "context_before": [
+                "    const int n0 = r16 * 16 + g, tok0 = nt * 8 + 2 * t;",
+                "    const float gsc = p.gsB[e] * TWO62;"
+              ],
+              "context_after": [
+                "#pragma unroll",
+                "    for (int h = 0; h < 2; ++h) {"
+              ]
+            }
+          ]
+        },
+        {
+          "group": "wgs_scale_boundary",
+          "tool_line": 206,
+          "before_sha256": "60dfe89d382e0b579fd21a1fd00b98f87323ee4daa125addfe8b23da7c8df1d6",
+          "after_sha256": "8eea08bffe20031ce68543fab49b03dad7ac639ec34fcc280f41a10b532472c0",
+          "changed_hunks": [
+            {
+              "op": "replace",
+              "before_lines": [
+                1988,
+                1989
+              ],
+              "after_lines": [
+                1988,
+                1989
+              ],
+              "before": [
+                "        st_keep_bf16(reinterpret_cast<__nv_bfloat16*>(p.ybuf) + ((size_t)(jst + tk) * HD + n0), __float2bfloat16(d4[h] * w0));",
+                "        st_keep_bf16(reinterpret_cast<__nv_bfloat16*>(p.ybuf) + ((size_t)(jst + tk) * HD + n0 + 8), __float2bfloat16(d4[2 + h] * w1));"
+              ],
+              "after": [
+                "        st_keep_bf16(reinterpret_cast<__nv_bfloat16*>(p.ybuf) + ((size_t)(jst + tk) * HD + n0), __float2bfloat16(fork_bf16(d4[h] * gsc) * w0));",
+                "        st_keep_bf16(reinterpret_cast<__nv_bfloat16*>(p.ybuf) + ((size_t)(jst + tk) * HD + n0 + 8), __float2bfloat16(fork_bf16(d4[2 + h] * gsc) * w1));"
+              ],
+              "context_before": [
+                "      if (tk < cnt) {",
+                "#if OKC_YBF"
+              ],
+              "context_after": [
+                "#else",
+                "        st_keep_f32(p.ybuf + ((size_t)(jst + tk) * HD + n0), d4[h] * w0);"
+              ]
+            },
+            {
+              "op": "replace",
+              "before_lines": [
+                1991,
+                1992
+              ],
+              "after_lines": [
+                1991,
+                1992
+              ],
+              "before": [
+                "        st_keep_f32(p.ybuf + ((size_t)(jst + tk) * HD + n0), d4[h] * w0);",
+                "        st_keep_f32(p.ybuf + ((size_t)(jst + tk) * HD + n0 + 8), d4[2 + h] * w1);"
+              ],
+              "after": [
+                "        st_keep_f32(p.ybuf + ((size_t)(jst + tk) * HD + n0), fork_bf16(d4[h] * gsc) * w0);",
+                "        st_keep_f32(p.ybuf + ((size_t)(jst + tk) * HD + n0 + 8), fork_bf16(d4[2 + h] * gsc) * w1);"
+              ],
+              "context_before": [
+                "        st_keep_bf16(reinterpret_cast<__nv_bfloat16*>(p.ybuf) + ((size_t)(jst + tk) * HD + n0 + 8), __float2bfloat16(d4[2 + h] * w1));",
+                "#else"
+              ],
+              "context_after": [
+                "#endif",
+                "      }"
+              ]
+            },
+            {
+              "op": "replace",
+              "before_lines": [
+                1999,
+                2000
+              ],
+              "after_lines": [
+                1999,
+                2000
+              ],
+              "before": [
+                "      if (tok0 < cnt) { const float a = d4[0] * w0, b = d4[2] * w1; q0 = a * a + b * b; }",
+                "      if (tok0 + 1 < cnt) { const float a = d4[1] * w0, b = d4[3] * w1; q1 = a * a + b * b; }"
+              ],
+              "after": [
+                "      if (tok0 < cnt) { const float a = fork_bf16(d4[0] * gsc) * w0, b = fork_bf16(d4[2] * gsc) * w1; q0 = a * a + b * b; }",
+                "      if (tok0 + 1 < cnt) { const float a = fork_bf16(d4[1] * gsc) * w0, b = fork_bf16(d4[3] * gsc) * w1; q1 = a * a + b * b; }"
+              ],
+              "context_before": [
+                "    {  // bet4_claude: this tile's 16-column sum of squares per token, reduced over the 8 column lanes (fixed tree)",
+                "      float q0 = 0.f, q1 = 0.f;"
+              ],
+              "context_after": [
+                "#pragma unroll",
+                "      for (int o = 4; o < 32; o <<= 1) {"
+              ]
+            }
+          ]
+        },
+        {
+          "group": "ybf_policy",
+          "tool_line": 209,
+          "before_sha256": "8eea08bffe20031ce68543fab49b03dad7ac639ec34fcc280f41a10b532472c0",
+          "after_sha256": "57ba1147b84623f8666d46bc4ebb9ba128fa3ee729492848183aaee51b0a5715",
+          "changed_hunks": [
+            {
+              "op": "replace",
+              "before_lines": [
+                1956,
+                1956
+              ],
+              "after_lines": [
+                1956,
+                1956
+              ],
+              "before": [
+                "#define OKC_YBF 1   // ybf: WGS ybuf in bf16"
+              ],
+              "after": [
+                "#define OKC_YBF 0   // fork: preserve FP32 gamma product after BF16 GEMM2 result"
+              ],
+              "context_before": [
+                "template <bool PB>",
+                "#if !OKC_B4FIN"
+              ],
+              "context_after": [
+                "#else",
+                "#define OKC_YBF 0"
+              ]
+            }
+          ]
+        },
+        {
+          "group": "skinny_reader_proxy",
+          "tool_line": 215,
+          "before_sha256": "57ba1147b84623f8666d46bc4ebb9ba128fa3ee729492848183aaee51b0a5715",
+          "after_sha256": "db5b79bc1bae6e3643d51c08df297ae155d6027ef0b50b74d3635981ff33187a",
+          "changed_hunks": [
+            {
+              "op": "insert",
+              "before_lines": [
+                1517,
+                1516
+              ],
+              "after_lines": [
+                1517,
+                1517
+              ],
+              "before": [],
+              "after": [
+                "    asm volatile(\"fence.proxy.async.shared::cta;\\n\" ::: \"memory\");"
+              ],
+              "context_before": [
+                "    mbar_wait(S.wsre + bb, (uint32_t)(((q / NRB) & 1) ^ 1));  // the helper has consumed this buffer's previous unit",
+                "    *reinterpret_cast<float4*>(&S.red[bb][warp][lane][0]) = make_float4(acc[0], acc[1], acc[2], acc[3]);"
+              ],
+              "context_after": [
+                "    CTA_SYNC();",
+                "    if (tid == 0) {"
+              ]
+            }
+          ]
+        },
+        {
+          "group": "wgs_reader_release",
+          "tool_line": 220,
+          "before_sha256": "db5b79bc1bae6e3643d51c08df297ae155d6027ef0b50b74d3635981ff33187a",
+          "after_sha256": "c1a31866f533cf8f23715f69d4e031ba8a3c80934b4c96da2f68c89652d723ce",
+          "changed_hunks": [
+            {
+              "op": "replace",
+              "before_lines": [
+                2508,
+                2508
+              ],
+              "after_lines": [
+                2508,
+                2508
+              ],
+              "before": [
+                "    for (int k = 0; k < BX_E + WGS_NX; ++k) mbar_init(S.bars + k, k < BW_E ? 1 : k < BX_F ? NW : k < BX_E ? 1 : NW);"
+              ],
+              "after": [
+                "    for (int k = 0; k < BX_E + WGS_NX; ++k) mbar_init(S.bars + k, k < BW_E ? 1 : k < BX_F ? NT : k < BX_E ? 1 : NT);"
+              ],
+              "context_before": [
+                "    // full slots (TMA tx), empty slots (one arrival per consumer warp), partials ready (every consumer thread),",
+                "    // partial buffer free (the epilogue warpgroup)"
+              ],
+              "context_after": [
+                "#else",
+                "    for (int k = 0; k < 12; ++k) mbar_init(S.bars + k, 1);"
+              ]
+            }
+          ]
+        },
+        {
+          "group": "wgs_reader_release",
+          "tool_line": 222,
+          "before_sha256": "c1a31866f533cf8f23715f69d4e031ba8a3c80934b4c96da2f68c89652d723ce",
+          "after_sha256": "045e58a8125dedd607eb7c3a73b970931b918a622c8147dc1d9094eb98dfc3ca",
+          "changed_hunks": [
+            {
+              "op": "replace",
+              "before_lines": [
+                2149,
+                2149
+              ],
+              "after_lines": [
+                2149,
+                2150
+              ],
+              "before": [
+                "      } else if (lane == 0) {"
+              ],
+              "after": [
+                "      } else {",
+                "        asm volatile(\"fence.proxy.async.shared::cta;\\n\" ::: \"memory\");"
+              ],
+              "context_before": [
+                "      if (lg < 3) {",
+                "        cwn = *reinterpret_cast<const uint4*>(pc + (((lg + 1) * 4 + wp) * 32 + lane) * 16);"
+              ],
+              "context_after": [
+                "        mbar_arrive1(S.bars + BW_E + ws);  // every code and scale of this stage is in registers: weights slot free",
+                "      }"
+              ]
+            }
+          ]
+        },
+        {
+          "group": "wgs_reader_release",
+          "tool_line": 224,
+          "before_sha256": "045e58a8125dedd607eb7c3a73b970931b918a622c8147dc1d9094eb98dfc3ca",
+          "after_sha256": "e5042a1001a0550fe67dffb7273ed49de592a6efc661c0e9c76e6053c703bf5a",
+          "changed_hunks": [
+            {
+              "op": "replace",
+              "before_lines": [
+                2186,
+                2186
+              ],
+              "after_lines": [
+                2186,
+                2187
+              ],
+              "before": [
+                "            if (lane == 0) mbar_arrive1(S.bars + BX_E + prev);"
+              ],
+              "after": [
+                "            asm volatile(\"fence.proxy.async.shared::cta;\\n\" ::: \"memory\");",
+                "            mbar_arrive1(S.bars + BX_E + prev);"
+              ],
+              "context_before": [
+                "        if (ci == 0) {",
+                "          if (prev >= 0) {  // the previous stage's last group just retired: its x slot is free"
+              ],
+              "context_after": [
+                "            prev = -1;",
+                "          }"
+              ]
+            },
+            {
+              "op": "replace",
+              "before_lines": [
+                2202,
+                2202
+              ],
+              "after_lines": [
+                2203,
+                2204
+              ],
+              "before": [
+                "  if (lane == 0) mbar_arrive1(S.bars + BX_E + prev);"
+              ],
+              "after": [
+                "  asm volatile(\"fence.proxy.async.shared::cta;\\n\" ::: \"memory\");",
+                "            mbar_arrive1(S.bars + BX_E + prev);"
+              ],
+              "context_before": [
+                "  for (int st = s0 + 1; st < s1; ++st) stage(std::false_type{});",
+                "  wg_wait<0>();"
+              ],
+              "context_after": [
+                "  if (OKC_WGSX & 8) { if (d[0][0] == 1234.5f) S.wglast[0] = 7; return; }",
+                "  if (slot >= 0) {  // a share of a unit split between CTAs: add it now, count it later (deferred)"
+              ]
+            }
+          ]
+        },
+        {
+          "group": "wgs_writer_proxy",
+          "tool_line": 227,
+          "before_sha256": "e5042a1001a0550fe67dffb7273ed49de592a6efc661c0e9c76e6053c703bf5a",
+          "after_sha256": "24bd0ee45c01ada2036f1581059f13ef1afe810ba67eb4d118d97d478e720615",
+          "changed_hunks": [
+            {
+              "op": "insert",
+              "before_lines": [
+                1940,
+                1939
+              ],
+              "after_lines": [
+                1940,
+                1940
+              ],
+              "before": [],
+              "after": [
+                "  asm volatile(\"fence.proxy.async.global;\\n\" ::: \"memory\");"
+              ],
+              "context_before": [
+                "      if (d[k]) *d[k] = v[k];",
+                "  }"
+              ],
+              "context_after": [
+                "  CTA_SYNC();",
+                "  if (tid == 0) {  // count this CTA's rows per job (release: the CTA's stores are ordered before by the barrier)"
+              ]
+            }
+          ]
+        },
+        {
+          "group": "wgs_writer_proxy",
+          "tool_line": 229,
+          "before_sha256": "24bd0ee45c01ada2036f1581059f13ef1afe810ba67eb4d118d97d478e720615",
+          "after_sha256": "766d5a3a4e3736d961c46c7c9a7ddb3ab0f8058da5baa6b11558d1131d5a529e",
+          "changed_hunks": [
+            {
+              "op": "insert",
+              "before_lines": [
+                2019,
+                2018
+              ],
+              "after_lines": [
+                2019,
+                2019
+              ],
+              "before": [],
+              "after": [
+                "  if constexpr (!PB) { asm volatile(\"fence.proxy.async.global;\\n\" ::: \"memory\"); }"
+              ],
+              "context_before": [
+                "__device__ __forceinline__ void wgs_flush(const Params& p, Smem& S, WgsPend& pd) {",
+                "  if (pd.kind == 0) return;"
+              ],
+              "context_after": [
+                "  const int tid = threadIdx.x, warp = WARP_IDX(tid), wg = warp >> 2, wp = warp & 3, wt = tid & 127;",
+                "  constexpr int UBL = PB ? 4 : 5;"
+              ]
+            }
+          ]
+        },
+        {
+          "group": "wgs_writer_proxy",
+          "tool_line": 233,
+          "before_sha256": "766d5a3a4e3736d961c46c7c9a7ddb3ab0f8058da5baa6b11558d1131d5a529e",
+          "after_sha256": "7e0b3bcbb6f6e87e44c1ff17d2ed04bba1fb869bd912f6f2a5fa84cc30838200",
+          "changed_hunks": [
+            {
+              "op": "insert",
+              "before_lines": [
+                2089,
+                2088
+              ],
+              "after_lines": [
+                2089,
+                2089
+              ],
+              "before": [],
+              "after": [
+                "    asm volatile(\"fence.proxy.async.global;\\n\" ::: \"memory\");"
+              ],
+              "context_before": [
+                "#endif",
+                "  if (!PB) {"
+              ],
+              "context_after": [
+                "    asm volatile(\"bar.sync %0, 128;\\n\" ::\"r\"(3 + wg) : \"memory\");",
+                "    if (wt == 0) asm volatile(\"red.release.gpu.global.add.s32 [%0], %1;\\n\" ::\"l\"(mf_da(p, S) + j * 16 + (ub >> 1)), \"r\"(1) : \"memory\");"
+              ]
+            }
+          ]
+        },
+        {
+          "group": "final_counter_strengthening",
+          "tool_line": 237,
+          "before_sha256": "7e0b3bcbb6f6e87e44c1ff17d2ed04bba1fb869bd912f6f2a5fa84cc30838200",
+          "after_sha256": "7ef07361dad689cfe3db633115dc5ec60a75a85f70175786610cccaea2cbc745",
+          "changed_hunks": [
+            {
+              "op": "replace",
+              "before_lines": [
+                2634,
+                2634
+              ],
+              "after_lines": [
+                2634,
+                2635
+              ],
+              "before": [
+                "    const int old = atomicAdd(bc, 1);"
+              ],
+              "after": [
+                "    int old;",
+                "    asm volatile(\"atom.acq_rel.gpu.global.add.s32 %0, [%1], %2;\\n\" : \"=r\"(old) : \"l\"(bc), \"r\"(1) : \"memory\");"
+              ],
+              "context_before": [
+                "    int* bc = p.ctr + 4 + (S.gen & 1);",
+                "    __threadfence();"
+              ],
+              "context_after": [
+                "    if (old == (int)gridDim.x - 1) atomicAdd(p.ctr + 3, 1);",
+                "    while (ld_acquire(bc) < (int)gridDim.x) __nanosleep(64);"
+              ]
+            }
+          ]
+        },
+        {
+          "group": "cooperative_admission",
+          "tool_line": 243,
+          "before_sha256": "7ef07361dad689cfe3db633115dc5ec60a75a85f70175786610cccaea2cbc745",
+          "after_sha256": "1540fe13d00083d90f9e51f84b6002d18c51c41a4d8259197cb7d62d73f76215",
+          "changed_hunks": [
+            {
+              "op": "replace",
+              "before_lines": [
+                2979,
+                2997
+              ],
+              "after_lines": [
+                2979,
+                3004
+              ],
+              "before": [
+                "  // large batches run the variant with the fat path inlined (and wgmma); small ones keep it out of line, which",
+                "  // leaves the skinny loop's code and registers as tuned",
+                "  if (g_okc_pdl) {",
+                "    cudaLaunchConfig_t cfg = {};",
+                "    cfg.gridDim = dim3((unsigned)grid);",
+                "    cfg.blockDim = dim3(okc::NTL);",
+                "    cfg.dynamicSmemBytes = sm;",
+                "    cfg.stream = st;",
+                "    cudaLaunchAttribute at[1];",
+                "    at[0].id = cudaLaunchAttributeProgrammaticStreamSerialization;",
+                "    at[0].val.programmaticStreamSerializationAllowed = 1;",
+                "    cfg.attrs = at;",
+                "    cfg.numAttrs = 1;",
+                "    if (p.M >= OKC_BIGM) cudaLaunchKernelEx(&cfg, okc::moe_fused<true>, p);",
+                "    else cudaLaunchKernelEx(&cfg, okc::moe_fused<false>, p);",
+                "    return;",
+                "  }",
+                "  if (p.M >= OKC_BIGM) okc::moe_fused<true><<<(int)grid, okc::NTL, sm, st>>>(p);",
+                "  else okc::moe_fused<false><<<(int)grid, okc::NTL, sm, st>>>(p);"
+              ],
+              "after": [
+                "",
+                "  // Ordinary same-stream cooperative launch: prior PDL producers finish first.",
+                "  // No native launch may depend on an oversubscribed software grid barrier.",
+                "  int device=0; cudaDeviceProp prop{}; int resident=0;",
+                "  TORCH_CHECK(cudaGetDevice(&device)==cudaSuccess && cudaGetDeviceProperties(&prop,device)==cudaSuccess,",
+                "              \"FORK_MOE_RESOURCE device properties\");",
+                "  TORCH_CHECK(prop.major==9 && prop.minor==0 && prop.cooperativeLaunch,",
+                "              \"FORK_MOE_RESOURCE requires SM90 cooperative launch; use owned/Marlin adapter\");",
+                "  TORCH_CHECK(grid>0 && grid<=prop.multiProcessorCount && grid<=136 && grid<160,",
+                "              \"FORK_MOE_RESOURCE grid/fixup bound; use owned/Marlin adapter\");",
+                "  TORCH_CHECK(p.M>0 && p.M<=okc::MMAX && p.nloc==32 && p.lo==0,",
+                "              \"FORK_MOE_RESOURCE shape/local-ID ABI\");",
+                "  TORCH_CHECK(x.scalar_type()==torch::kBFloat16 && out.scalar_type()==torch::kBFloat16",
+                "              && ids.scalar_type()==torch::kInt32 && tw.scalar_type()==torch::kFloat32,",
+                "              \"FORK_MOE_RESOURCE activation/routing dtype ABI\");",
+                "  auto kernel = p.M>=OKC_BIGM ? okc::moe_fused<true> : okc::moe_fused<false>;",
+                "  TORCH_CHECK(cudaFuncSetAttribute(kernel,cudaFuncAttributeMaxDynamicSharedMemorySize,(int)sm)==cudaSuccess,",
+                "              \"FORK_MOE_RESOURCE dynamic shared-memory attribute\");",
+                "  TORCH_CHECK(cudaOccupancyMaxActiveBlocksPerMultiprocessor(&resident,kernel,okc::NTL,sm)==cudaSuccess",
+                "              && resident>=1 && grid<=resident*prop.multiProcessorCount,",
+                "              \"FORK_MOE_RESOURCE cooperative residency\");",
+                "  void* args[]={&p};",
+                "  const cudaError_t launch=cudaLaunchCooperativeKernel((const void*)kernel,dim3((unsigned)grid),",
+                "      dim3(okc::NTL),args,sm,st);",
+                "  TORCH_CHECK(launch==cudaSuccess,\"FORK_MOE_LAUNCH \",cudaGetErrorString(launch));",
+                ""
+              ],
+              "context_before": [
+                "  }",
+                "  cudaStream_t st = at::cuda::getCurrentCUDAStream();"
+              ],
+              "context_after": [
+                "}",
+                ""
+              ]
+            }
+          ]
+        },
+        {
+          "group": "stage_retirement",
+          "tool": "dl_g1_stage_retire.py::patch_device",
+          "before_sha256": "1540fe13d00083d90f9e51f84b6002d18c51c41a4d8259197cb7d62d73f76215",
+          "after_sha256": "1e975d14678a510bf224cb2887e1d0349defce1dbda0f7d50d01423b85aed74a",
+          "changed_hunks": [
+            {
+              "op": "delete",
+              "before_lines": [
+                2109,
+                2109
+              ],
+              "after_lines": [
+                2109,
+                2108
+              ],
+              "before": [
+                "  int prev = -1;  // x slot the last committed group may still read"
+              ],
+              "after": [],
+              "context_before": [
+                "  constexpr int GS = OKC_WGSGS;",
+                "  uint32_t af[2][GS][4];"
+              ],
+              "context_after": [
+                "  // slot-0 descriptor and code pointer, once per segment: a stage adds its slot's offset (the address field cannot",
+                "  // carry: shared addresses >> 4 stay below 2^14) instead of rebuilding the descriptor (~8 uniform ops per stage)"
+              ]
+            },
+            {
+              "op": "delete",
+              "before_lines": [
+                2187,
+                2193
+              ],
+              "after_lines": [
+                2186,
+                2185
+              ],
+              "before": [
+                "        if (ci == 0) {",
+                "          if (prev >= 0) {  // the previous stage's last group just retired: its x slot is free",
+                "            asm volatile(\"fence.proxy.async.shared::cta;\\n\" ::: \"memory\");",
+                "            mbar_arrive1(S.bars + BX_E + prev);",
+                "            prev = -1;",
+                "          }",
+                "        }"
+              ],
+              "after": [],
+              "context_before": [
+                "        wg_commit();",
+                "        wg_wait<1>();"
+              ],
+              "context_after": [
+                "        // the previous segment's deferred work, behind group OKC_WGSFCI of the first stage (scout: CI 3 lets this WG's",
+                "        // own red.adds / epilogue stores drain a little longer before the count / release atomics: +0.5-1%)"
+              ]
+            },
+            {
+              "op": "replace",
+              "before_lines": [
+                2199,
+                2199
+              ],
+              "after_lines": [
+                2191,
+                2194
+              ],
+              "before": [
+                "    prev = xs;"
+              ],
+              "after": [
+                "    // All reads of this activation slot are complete before the ring can reuse it.",
+                "    wg_wait<0>();",
+                "    asm volatile(\"fence.proxy.async.shared::cta;\\n\" ::: \"memory\");",
+                "    mbar_arrive1(S.bars + BX_E + xs);"
+              ],
+              "context_before": [
+                "      }",
+                "    }"
+              ],
+              "context_after": [
+                "    ++seq;",
+                "  };"
+              ]
+            },
+            {
+              "op": "delete",
+              "before_lines": [
+                2206,
+                2207
+              ],
+              "after_lines": [
+                2201,
+                2200
+              ],
+              "before": [
+                "  asm volatile(\"fence.proxy.async.shared::cta;\\n\" ::: \"memory\");",
+                "            mbar_arrive1(S.bars + BX_E + prev);"
+              ],
+              "after": [],
+              "context_before": [
+                "  for (int st = s0 + 1; st < s1; ++st) stage(std::false_type{});",
+                "  wg_wait<0>();"
+              ],
+              "context_after": [
+                "  if (OKC_WGSX & 8) { if (d[0][0] == 1234.5f) S.wglast[0] = 7; return; }",
+                "  if (slot >= 0) {  // a share of a unit split between CTAs: add it now, count it later (deferred)"
+              ]
+            }
+          ]
+        },
+        {
+          "group": "empty_routing",
+          "tool": "dl_fork_moe_empty.py::HEAD/GUARD",
+          "before_sha256": "1e975d14678a510bf224cb2887e1d0349defce1dbda0f7d50d01423b85aed74a",
+          "after_sha256": "c7c201ae145c6a33f2d5e6b1f80d2a6e56e8d75502f9fd09ace40927ad0f7c71",
+          "changed_hunks": [
+            {
+              "op": "insert",
+              "before_lines": [
+                2268,
+                2267
+              ],
+              "after_lines": [
+                2268,
+                2268
+              ],
+              "before": [],
+              "after": [
+                "  if (nj == 0) return 0;  // Empty routing: no initialized job metadata exists."
+              ],
+              "context_before": [
+                "// stage at cost position x (phase pb), the stage whose cost interval holds x",
+                "__device__ __forceinline__ int wgs_stage_at(const Smem& S, int nj, int pb, uint32_t x) {"
+              ],
+              "context_after": [
+                "  const int* pre = pb ? S.wcpB : S.wcp;",
+                "  int lo = 0, hi = nj;  // job: last j with prefix(j) <= x"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "_MA_ALT_SRCS['moe_helper0']": {
+      "upstream_literal_line": 12583,
+      "incumbent_literal_line": 12481,
+      "upstream_literal_sha256": "84f501957a280cb3703bf9a29843153557e280725457162cb8b203b74b8d0f9f",
+      "incumbent_literal_sha256": "b8ed85438c06673f411ff4203080bfbacd0c0c2dc5cb624e6f10d4877fe7a716",
+      "upstream_literal_bytes": 138010,
+      "incumbent_literal_bytes": 139768,
+      "exact_reconstruction": true,
+      "steps": [
+        {
+          "group": "scope_and_mfin",
+          "tool_line": 186,
+          "before_sha256": "84f501957a280cb3703bf9a29843153557e280725457162cb8b203b74b8d0f9f",
+          "after_sha256": "46b2232ec7705b5ab29c2102a974ac65c29eb62de5195b003416eb25cbea5de9",
+          "changed_hunks": [
+            {
+              "op": "insert",
+              "before_lines": [
+                84,
+                83
+              ],
+              "after_lines": [
+                84,
+                92
+              ],
+              "before": [],
+              "after": [
+                "",
+                "#if !OKC_WGS && !OKC_WS",
+                "#error FORK_MOE_UNPROVEN_FALLBACK_select_owned_or_Marlin_adapter",
+                "#endif",
+                "#if OKC_WGS",
+                "#undef OKC_MFIN",
+                "#define OKC_MFIN 0",
+                "#endif",
+                ""
+              ],
+              "context_before": [
+                "",
+                "namespace okc {"
+              ],
+              "context_after": [
+                "",
+                "#ifndef OKC_L2H"
+              ]
+            }
+          ]
+        },
+        {
+          "group": "bf16_primitive",
+          "tool_line": 187,
+          "before_sha256": "46b2232ec7705b5ab29c2102a974ac65c29eb62de5195b003416eb25cbea5de9",
+          "after_sha256": "975cc41e17bbbd11a1e50f603763104bcccad4e5dfab8bc6bedb68962da4964a",
+          "changed_hunks": [
+            {
+              "op": "insert",
+              "before_lines": [
+                415,
+                414
+              ],
+              "after_lines": [
+                415,
+                415
+              ],
+              "before": [],
+              "after": [
+                "__device__ __forceinline__ float fork_bf16(float v) { return __bfloat162float(__float2bfloat16_rn(v)); }"
+              ],
+              "context_before": [
+                "// ---------------------------------------------------------------- epilogues (one 16-row block, tokens 2t,2t+1 of n-tile)",
+                "// r[0..1] rows g (gate / out row n0), r[2..3] rows g+8 (up / out row n1), tokens tk0 = 2t, 2t+1 relative to tile"
+              ],
+              "context_after": [
+                "__device__ __forceinline__ float probe_q(float v) {",
+                "  return v;"
+              ]
+            }
+          ]
+        },
+        {
+          "group": "effective_gamma",
+          "tool_line": 191,
+          "before_sha256": "975cc41e17bbbd11a1e50f603763104bcccad4e5dfab8bc6bedb68962da4964a",
+          "after_sha256": "1828304158bf6ddbd95b2d2ae8757d3502e786823469334b45de08cd8a71297a",
+          "changed_hunks": [
+            {
+              "op": "replace",
+              "before_lines": [
+                433,
+                433
+              ],
+              "after_lines": [
+                433,
+                433
+              ],
+              "before": [
+                "  const float w0 = 1.f + __bfloat162float(p.normw[n0]), w1 = 1.f + __bfloat162float(p.normw[n0 + 8]);"
+              ],
+              "after": [
+                "  const float w0 = fork_bf16(1.f + __bfloat162float(p.normw[n0])), w1 = fork_bf16(1.f + __bfloat162float(p.normw[n0 + 8]));"
+              ],
+              "context_before": [
+                "__device__ __forceinline__ void epi_B(const Params& p, int pstart, int ntok, int tok0, int n0, float gsc, const float* r,",
+                "                                      float* sq) {"
+              ],
+              "context_after": [
+                "#pragma unroll",
+                "  for (int h = 0; h < 2; ++h) {"
+              ]
+            },
+            {
+              "op": "replace",
+              "before_lines": [
+                616,
+                616
+              ],
+              "after_lines": [
+                616,
+                616
+              ],
+              "before": [
+                "    nwc0 = 1.f + __bfloat162float(__ldg(p.normw + rbq * 16 + egg)); nwc1 = 1.f + __bfloat162float(__ldg(p.normw + rbq * 16 + egg + 8));"
+              ],
+              "after": [
+                "    nwc0 = fork_bf16(1.f + __bfloat162float(__ldg(p.normw + rbq * 16 + egg))); nwc1 = fork_bf16(1.f + __bfloat162float(__ldg(p.normw + rbq * 16 + egg + 8)));"
+              ],
+              "context_before": [
+                "    const int u0 = nU > 0 ? v0 : (S.uslot[seq0 % OKC_NS] & ~BFLAG);",
+                "    const int rbq = (u0 < 0 ? 0 : u0) & (rbs - 1);"
+              ],
+              "context_after": [
+                "  }",
+                "  int nproc = 0;"
+              ]
+            },
+            {
+              "op": "replace",
+              "before_lines": [
+                634,
+                634
+              ],
+              "after_lines": [
+                634,
+                634
+              ],
+              "before": [
+                "      nwn0 = 1.f + __bfloat162float(__ldg(p.normw + rbq * 16 + egg)); nwn1 = 1.f + __bfloat162float(__ldg(p.normw + rbq * 16 + egg + 8));"
+              ],
+              "after": [
+                "      nwn0 = fork_bf16(1.f + __bfloat162float(__ldg(p.normw + rbq * 16 + egg))); nwn1 = fork_bf16(1.f + __bfloat162float(__ldg(p.normw + rbq * 16 + egg + 8)));"
+              ],
+              "context_before": [
+                "    if (PB && tid < 128 && vn >= 0) {",
+                "      const int rbq = (vn & ~BFLAG) & (rbs - 1);"
+              ],
+              "context_after": [
+                "    }",
+                "    if (j != curj) {"
+              ]
+            },
+            {
+              "op": "replace",
+              "before_lines": [
+                796,
+                796
+              ],
+              "after_lines": [
+                796,
+                796
+              ],
+              "before": [
+                "  if (PB && tid < 128) { const int rbq = v0 % rbs; nwc0 = 1.f + __bfloat162float(__ldg(p.normw + rbq * 16 + egg)); nwc1 = 1.f + __bfloat162float(__ldg(p.normw + rbq * 16 + egg + 8)); }"
+              ],
+              "after": [
+                "  if (PB && tid < 128) { const int rbq = v0 % rbs; nwc0 = fork_bf16(1.f + __bfloat162float(__ldg(p.normw + rbq * 16 + egg))); nwc1 = fork_bf16(1.f + __bfloat162float(__ldg(p.normw + rbq * 16 + egg + 8))); }"
+              ],
+              "context_before": [
+                "  float nwc0 = 0.f, nwc1 = 0.f;",
+                "  const int egg = (tid & 31) >> 2;"
+              ],
+              "context_after": [
+                "  for (int i = 0; i < nU; ++i) {",
+                "    const int v = v0 + i;"
+              ]
+            },
+            {
+              "op": "replace",
+              "before_lines": [
+                803,
+                803
+              ],
+              "after_lines": [
+                803,
+                803
+              ],
+              "before": [
+                "      nwn0 = 1.f + __bfloat162float(__ldg(p.normw + rbq * 16 + egg)); nwn1 = 1.f + __bfloat162float(__ldg(p.normw + rbq * 16 + egg + 8));"
+              ],
+              "after": [
+                "      nwn0 = fork_bf16(1.f + __bfloat162float(__ldg(p.normw + rbq * 16 + egg))); nwn1 = fork_bf16(1.f + __bfloat162float(__ldg(p.normw + rbq * 16 + egg + 8)));"
+              ],
+              "context_before": [
+                "    if (PB && tid < 128 && i + 1 < nU) {",
+                "      const int rbq = (v + 1) % rbs;"
+              ],
+              "context_after": [
+                "    }",
+                "    if (j != curj) {"
+              ]
+            },
+            {
+              "op": "replace",
+              "before_lines": [
+                1564,
+                1564
+              ],
+              "after_lines": [
+                1564,
+                1564
+              ],
+              "before": [
+                "      const float nw0 = 1.f + __bfloat162float(p.normw[n0]), nw1 = 1.f + __bfloat162float(p.normw[n0 + 8]);"
+              ],
+              "after": [
+                "      const float nw0 = fork_bf16(1.f + __bfloat162float(p.normw[n0])), nw1 = fork_bf16(1.f + __bfloat162float(p.normw[n0 + 8]));"
+              ],
+              "context_before": [
+                "      const float gsc = p.gsB[ce] * TWO62;",
+                "      const int n0 = rb * 16 + gg;"
+              ],
+              "context_after": [
+                "#pragma unroll",
+                "      for (int h = 0; h < 2; ++h) {"
+              ]
+            },
+            {
+              "op": "replace",
+              "before_lines": [
+                1899,
+                1899
+              ],
+              "after_lines": [
+                1899,
+                1899
+              ],
+              "before": [
+                "    const float w0 = (1.f + __bfloat162float(__ldg(p.normw + n0))) * gsc, w1 = (1.f + __bfloat162float(__ldg(p.normw + n0 + 8))) * gsc;"
+              ],
+              "after": [
+                "    const float w0 = (fork_bf16(1.f + __bfloat162float(__ldg(p.normw + n0)))) * gsc, w1 = (fork_bf16(1.f + __bfloat162float(__ldg(p.normw + n0 + 8)))) * gsc;"
+              ],
+              "context_before": [
+                "    const int n0 = r16 * 16 + g, tok0 = nt * 8 + 2 * t;",
+                "    const float gsc = p.gsB[e] * TWO62;"
+              ],
+              "context_after": [
+                "#pragma unroll",
+                "    for (int h = 0; h < 2; ++h) {"
+              ]
+            }
+          ]
+        },
+        {
+          "group": "effective_gamma",
+          "tool_line": 192,
+          "before_sha256": "1828304158bf6ddbd95b2d2ae8757d3502e786823469334b45de08cd8a71297a",
+          "after_sha256": "5a27618fb4be44a79356e6548bbfc6e3060fcc8f8815ded9c84a47192b13819a",
+          "changed_hunks": [
+            {
+              "op": "replace",
+              "before_lines": [
+                1484,
+                1484
+              ],
+              "after_lines": [
+                1484,
+                1484
+              ],
+              "before": [
+                "    const float nw0 = 1.f + __uint_as_float(lnw0 << 16), nw1 = 1.f + __uint_as_float(lnw1 << 16);"
+              ],
+              "after": [
+                "    const float nw0 = fork_bf16(1.f + __uint_as_float(lnw0 << 16)), nw1 = fork_bf16(1.f + __uint_as_float(lnw1 << 16));"
+              ],
+              "context_before": [
+                "    const int n0 = rb * 16 + gg;",
+                "    const float gsc = lgs * TWO62;"
+              ],
+              "context_after": [
+                "#pragma unroll",
+                "    for (int h = 0; h < 2; ++h) {"
+              ]
+            }
+          ]
+        },
+        {
+          "group": "gate_up_boundary",
+          "tool_line": 195,
+          "before_sha256": "5a27618fb4be44a79356e6548bbfc6e3060fcc8f8815ded9c84a47192b13819a",
+          "after_sha256": "f44aa96d4d9ab3780d7b0d56b434c68971ddfe10403bf6da17201492f80546cb",
+          "changed_hunks": [
+            {
+              "op": "replace",
+              "before_lines": [
+                424,
+                424
+              ],
+              "after_lines": [
+                424,
+                424
+              ],
+              "before": [
+                "      float gt = r[h] * gsc, up = r[2 + h] * gsc;"
+              ],
+              "after": [
+                "      float gt = fork_bf16(r[h] * gsc), up = fork_bf16(r[2 + h] * gsc);"
+              ],
+              "context_before": [
+                "    int tk = tok0 + h;",
+                "    if (tk < ntok) {"
+              ],
+              "context_after": [
+                "      float v = SILU_DIV(gt, 1.f + __expf(-gt)) * up;",
+                "      st_keep_bf16(p.inter + ((size_t)(pstart + tk) * ID + col), __float2bfloat16(probe_q(v)));"
+              ]
+            },
+            {
+              "op": "replace",
+              "before_lines": [
+                722,
+                722
+              ],
+              "after_lines": [
+                722,
+                722
+              ],
+              "before": [
+                "          const float gt = s0 * gsc, up = s1 * gsc;"
+              ],
+              "after": [
+                "          const float gt = fork_bf16(s0 * gsc), up = fork_bf16(s1 * gsc);"
+              ],
+              "context_before": [
+                "        if (tk < cnt) {",
+                "          const float gsc = p.gsA[ce] * TWO62;"
+              ],
+              "context_after": [
+                "          st_keep_bf16(p.inter + ((size_t)(st + tk) * ID + rb * 8 + gg), __float2bfloat16(probe_q(SILU_DIV(gt, 1.f + __expf(-gt)) * up)));",
+                "        }"
+              ]
+            },
+            {
+              "op": "replace",
+              "before_lines": [
+                890,
+                890
+              ],
+              "after_lines": [
+                890,
+                890
+              ],
+              "before": [
+                "          const float gt = s0 * gsc, up = s1 * gsc;"
+              ],
+              "after": [
+                "          const float gt = fork_bf16(s0 * gsc), up = fork_bf16(s1 * gsc);"
+              ],
+              "context_before": [
+                "        if (tk < cnt) {",
+                "          const float gsc = p.gsA[ce] * TWO62;"
+              ],
+              "context_after": [
+                "          st_keep_bf16(p.inter + ((size_t)(st + tk) * ID + rb * 8 + gg), __float2bfloat16(probe_q(SILU_DIV(gt, 1.f + __expf(-gt)) * up)));",
+                "        }"
+              ]
+            },
+            {
+              "op": "replace",
+              "before_lines": [
+                1546,
+                1546
+              ],
+              "after_lines": [
+                1546,
+                1546
+              ],
+              "before": [
+                "          const float gt = (h ? sm.y : sm.x) * gsc, up = (h ? sm.w : sm.z) * gsc;"
+              ],
+              "after": [
+                "          const float gt = fork_bf16((h ? sm.y : sm.x) * gsc), up = fork_bf16((h ? sm.w : sm.z) * gsc);"
+              ],
+              "context_before": [
+                "        const int tk = 2 * tt + h;",
+                "        if (tk < cnt) {"
+              ],
+              "context_after": [
+                "          st_keep_bf16(p.inter + ((size_t)(st + tk) * ID + rb * 8 + gg), __float2bfloat16(probe_q(SILU_DIV(gt, 1.f + __expf(-gt)) * up)));",
+                "        }"
+              ]
+            },
+            {
+              "op": "replace",
+              "before_lines": [
+                1889,
+                1889
+              ],
+              "after_lines": [
+                1889,
+                1889
+              ],
+              "before": [
+                "        const float gt = d4[h] * gsc, up = d4[2 + h] * gsc;"
+              ],
+              "after": [
+                "        const float gt = fork_bf16(d4[h] * gsc), up = fork_bf16(d4[2 + h] * gsc);"
+              ],
+              "context_before": [
+                "      const int tk = nt * 8 + 2 * t + h;",
+                "      if (tk < cnt) {"
+              ],
+              "context_after": [
+                "        const float v = SILU_DIV(gt, 1.f + __expf(-gt)) * up;",
+                "        st_keep_bf16(xb + (size_t)((((col >> 8) * ntt + (tk >> 3)) * 32 + ((col & 255) >> 3)) * 64 + (tk & 7) * 8),"
+              ]
+            }
+          ]
+        },
+        {
+          "group": "down_boundary",
+          "tool_line": 198,
+          "before_sha256": "f44aa96d4d9ab3780d7b0d56b434c68971ddfe10403bf6da17201492f80546cb",
+          "after_sha256": "4a7ddac6e50421a7d2ae4f1bb22359be8d48efb8ca9b7a1369298a06d178dc5d",
+          "changed_hunks": [
+            {
+              "op": "replace",
+              "before_lines": [
+                437,
+                437
+              ],
+              "after_lines": [
+                437,
+                437
+              ],
+              "before": [
+                "    float v0 = r[h] * gsc * w0, v1 = r[2 + h] * gsc * w1;"
+              ],
+              "after": [
+                "    float v0 = fork_bf16(r[h] * gsc) * w0, v1 = fork_bf16(r[2 + h] * gsc) * w1;"
+              ],
+              "context_before": [
+                "  for (int h = 0; h < 2; ++h) {",
+                "    int tk = tok0 + h;"
+              ],
+              "context_after": [
+                "    sq[h] = v0 * v0 + v1 * v1;",
+                "    if (tk < ntok) {"
+              ]
+            },
+            {
+              "op": "replace",
+              "before_lines": [
+                728,
+                728
+              ],
+              "after_lines": [
+                728,
+                728
+              ],
+              "before": [
+                "        const float v0f = s0 * gsc * nwc0, v1f = s1 * gsc * nwc1;"
+              ],
+              "after": [
+                "        const float v0f = fork_bf16(s0 * gsc) * nwc0, v1f = fork_bf16(s1 * gsc) * nwc1;"
+              ],
+              "context_before": [
+                "        const float gsc = p.gsB[ce] * TWO62;",
+                "        const int n0 = rb * 16 + gg;"
+              ],
+              "context_after": [
+                "        float sq = v0f * v0f + v1f * v1f;",
+                "        if (tk < cnt) {"
+              ]
+            },
+            {
+              "op": "replace",
+              "before_lines": [
+                896,
+                896
+              ],
+              "after_lines": [
+                896,
+                896
+              ],
+              "before": [
+                "        const float v0f = s0 * gsc * nwc0, v1f = s1 * gsc * nwc1;"
+              ],
+              "after": [
+                "        const float v0f = fork_bf16(s0 * gsc) * nwc0, v1f = fork_bf16(s1 * gsc) * nwc1;"
+              ],
+              "context_before": [
+                "        const float gsc = p.gsB[ce] * TWO62;",
+                "        const int n0 = rb * 16 + gg;"
+              ],
+              "context_after": [
+                "        float sq = v0f * v0f + v1f * v1f;",
+                "        if (tk < cnt) {"
+              ]
+            },
+            {
+              "op": "replace",
+              "before_lines": [
+                1488,
+                1488
+              ],
+              "after_lines": [
+                1488,
+                1488
+              ],
+              "before": [
+                "      const float v0f = (h ? sm.y : sm.x) * gsc * nw0, v1f = (h ? sm.w : sm.z) * gsc * nw1;"
+              ],
+              "after": [
+                "      const float v0f = fork_bf16((h ? sm.y : sm.x) * gsc) * nw0, v1f = fork_bf16((h ? sm.w : sm.z) * gsc) * nw1;"
+              ],
+              "context_before": [
+                "    for (int h = 0; h < 2; ++h) {",
+                "      const int tk = 2 * tt + h;"
+              ],
+              "context_after": [
+                "      float sq = v0f * v0f + v1f * v1f;",
+                "      if (tk < cnt) {"
+              ]
+            },
+            {
+              "op": "replace",
+              "before_lines": [
+                1568,
+                1568
+              ],
+              "after_lines": [
+                1568,
+                1568
+              ],
+              "before": [
+                "        const float v0f = (h ? sm.y : sm.x) * gsc * nw0, v1f = (h ? sm.w : sm.z) * gsc * nw1;"
+              ],
+              "after": [
+                "        const float v0f = fork_bf16((h ? sm.y : sm.x) * gsc) * nw0, v1f = fork_bf16((h ? sm.w : sm.z) * gsc) * nw1;"
+              ],
+              "context_before": [
+                "      for (int h = 0; h < 2; ++h) {",
+                "        const int tk = 2 * tt + h;"
+              ],
+              "context_after": [
+                "        float sq = v0f * v0f + v1f * v1f;",
+                "        if (tk < cnt) {"
+              ]
+            }
+          ]
+        },
+        {
+          "group": "wgs_scale_boundary",
+          "tool_line": 202,
+          "before_sha256": "4a7ddac6e50421a7d2ae4f1bb22359be8d48efb8ca9b7a1369298a06d178dc5d",
+          "after_sha256": "3578c1e19f49cac1af03bd044d901ae4bb8afebf315793c0196ec91b6de8db94",
+          "changed_hunks": [
+            {
+              "op": "replace",
+              "before_lines": [
+                1899,
+                1899
+              ],
+              "after_lines": [
+                1899,
+                1899
+              ],
+              "before": [
+                "    const float w0 = (fork_bf16(1.f + __bfloat162float(__ldg(p.normw + n0)))) * gsc, w1 = (fork_bf16(1.f + __bfloat162float(__ldg(p.normw + n0 + 8)))) * gsc;"
+              ],
+              "after": [
+                "    const float w0 = fork_bf16(1.f + __bfloat162float(__ldg(p.normw + n0))), w1 = (fork_bf16(1.f + __bfloat162float(__ldg(p.normw + n0 + 8)))) * gsc;"
+              ],
+              "context_before": [
+                "    const int n0 = r16 * 16 + g, tok0 = nt * 8 + 2 * t;",
+                "    const float gsc = p.gsB[e] * TWO62;"
+              ],
+              "context_after": [
+                "#pragma unroll",
+                "    for (int h = 0; h < 2; ++h) {"
+              ]
+            }
+          ]
+        },
+        {
+          "group": "wgs_scale_boundary",
+          "tool_line": 204,
+          "before_sha256": "3578c1e19f49cac1af03bd044d901ae4bb8afebf315793c0196ec91b6de8db94",
+          "after_sha256": "8389688e0b9eefe4f17dab7d427d461399458feafb9e16745c3c40d4401392f9",
+          "changed_hunks": [
+            {
+              "op": "replace",
+              "before_lines": [
+                1899,
+                1899
+              ],
+              "after_lines": [
+                1899,
+                1899
+              ],
+              "before": [
+                "    const float w0 = fork_bf16(1.f + __bfloat162float(__ldg(p.normw + n0))), w1 = (fork_bf16(1.f + __bfloat162float(__ldg(p.normw + n0 + 8)))) * gsc;"
+              ],
+              "after": [
+                "    const float w0 = fork_bf16(1.f + __bfloat162float(__ldg(p.normw + n0))), w1 = fork_bf16(1.f + __bfloat162float(__ldg(p.normw + n0 + 8)));"
+              ],
+              "context_before": [
+                "    const int n0 = r16 * 16 + g, tok0 = nt * 8 + 2 * t;",
+                "    const float gsc = p.gsB[e] * TWO62;"
+              ],
+              "context_after": [
+                "#pragma unroll",
+                "    for (int h = 0; h < 2; ++h) {"
+              ]
+            }
+          ]
+        },
+        {
+          "group": "wgs_scale_boundary",
+          "tool_line": 206,
+          "before_sha256": "8389688e0b9eefe4f17dab7d427d461399458feafb9e16745c3c40d4401392f9",
+          "after_sha256": "2483f3dfea85ea14ab1f8ca55cc820ea608170ed8b985f3d01d1947e17dcfe7d",
+          "changed_hunks": [
+            {
+              "op": "replace",
+              "before_lines": [
+                1904,
+                1905
+              ],
+              "after_lines": [
+                1904,
+                1905
+              ],
+              "before": [
+                "        st_keep_f32(p.ybuf + ((size_t)(jst + tk) * HD + n0), d4[h] * w0);",
+                "        st_keep_f32(p.ybuf + ((size_t)(jst + tk) * HD + n0 + 8), d4[2 + h] * w1);"
+              ],
+              "after": [
+                "        st_keep_f32(p.ybuf + ((size_t)(jst + tk) * HD + n0), fork_bf16(d4[h] * gsc) * w0);",
+                "        st_keep_f32(p.ybuf + ((size_t)(jst + tk) * HD + n0 + 8), fork_bf16(d4[2 + h] * gsc) * w1);"
+              ],
+              "context_before": [
+                "      const int tk = tok0 + h;",
+                "      if (tk < cnt) {"
+              ],
+              "context_after": [
+                "      }",
+                "    }"
+              ]
+            }
+          ]
+        },
+        {
+          "group": "skinny_reader_proxy",
+          "tool_line": 215,
+          "before_sha256": "2483f3dfea85ea14ab1f8ca55cc820ea608170ed8b985f3d01d1947e17dcfe7d",
+          "after_sha256": "31c0124b882dab6cc882570f022dbc5c4ba0c1731fc36a091f3c6218568c137f",
+          "changed_hunks": [
+            {
+              "op": "insert",
+              "before_lines": [
+                1463,
+                1462
+              ],
+              "after_lines": [
+                1463,
+                1463
+              ],
+              "before": [],
+              "after": [
+                "    asm volatile(\"fence.proxy.async.shared::cta;\\n\" ::: \"memory\");"
+              ],
+              "context_before": [
+                "    mbar_wait(S.wsre + bb, (uint32_t)(((q / NRB) & 1) ^ 1));  // the helper has consumed this buffer's previous unit",
+                "    *reinterpret_cast<float4*>(&S.red[bb][warp][lane][0]) = make_float4(acc[0], acc[1], acc[2], acc[3]);"
+              ],
+              "context_after": [
+                "    CTA_SYNC();",
+                "    if (tid == 0) {"
+              ]
+            }
+          ]
+        },
+        {
+          "group": "final_counter_strengthening",
+          "tool_line": 237,
+          "before_sha256": "31c0124b882dab6cc882570f022dbc5c4ba0c1731fc36a091f3c6218568c137f",
+          "after_sha256": "daee9f8fc977eff416054d0ccba2275194a52032f1bdac2876cad4b58824e233",
+          "changed_hunks": [
+            {
+              "op": "replace",
+              "before_lines": [
+                2430,
+                2430
+              ],
+              "after_lines": [
+                2430,
+                2431
+              ],
+              "before": [
+                "    const int old = atomicAdd(bc, 1);"
+              ],
+              "after": [
+                "    int old;",
+                "    asm volatile(\"atom.acq_rel.gpu.global.add.s32 %0, [%1], %2;\\n\" : \"=r\"(old) : \"l\"(bc), \"r\"(1) : \"memory\");"
+              ],
+              "context_before": [
+                "    int* bc = p.ctr + 4 + (S.gen & 1);",
+                "    __threadfence();"
+              ],
+              "context_after": [
+                "    if (old == (int)gridDim.x - 1) atomicAdd(p.ctr + 3, 1);",
+                "    while (ld_acquire(bc) < (int)gridDim.x) __nanosleep(64);"
+              ]
+            }
+          ]
+        },
+        {
+          "group": "cooperative_admission",
+          "tool_line": 243,
+          "before_sha256": "daee9f8fc977eff416054d0ccba2275194a52032f1bdac2876cad4b58824e233",
+          "after_sha256": "b8ed85438c06673f411ff4203080bfbacd0c0c2dc5cb624e6f10d4877fe7a716",
+          "changed_hunks": [
+            {
+              "op": "replace",
+              "before_lines": [
+                2662,
+                2680
+              ],
+              "after_lines": [
+                2662,
+                2687
+              ],
+              "before": [
+                "  // large batches run the variant with the fat path inlined (and wgmma); small ones keep it out of line, which",
+                "  // leaves the skinny loop's code and registers as tuned",
+                "  if (g_okc_pdl) {",
+                "    cudaLaunchConfig_t cfg = {};",
+                "    cfg.gridDim = dim3((unsigned)grid);",
+                "    cfg.blockDim = dim3(okc::NTL);",
+                "    cfg.dynamicSmemBytes = sm;",
+                "    cfg.stream = st;",
+                "    cudaLaunchAttribute at[1];",
+                "    at[0].id = cudaLaunchAttributeProgrammaticStreamSerialization;",
+                "    at[0].val.programmaticStreamSerializationAllowed = 1;",
+                "    cfg.attrs = at;",
+                "    cfg.numAttrs = 1;",
+                "    if (p.M >= OKC_BIGM) cudaLaunchKernelEx(&cfg, okc::moe_fused<true>, p);",
+                "    else cudaLaunchKernelEx(&cfg, okc::moe_fused<false>, p);",
+                "    return;",
+                "  }",
+                "  if (p.M >= OKC_BIGM) okc::moe_fused<true><<<(int)grid, okc::NTL, sm, st>>>(p);",
+                "  else okc::moe_fused<false><<<(int)grid, okc::NTL, sm, st>>>(p);"
+              ],
+              "after": [
+                "",
+                "  // Ordinary same-stream cooperative launch: prior PDL producers finish first.",
+                "  // No native launch may depend on an oversubscribed software grid barrier.",
+                "  int device=0; cudaDeviceProp prop{}; int resident=0;",
+                "  TORCH_CHECK(cudaGetDevice(&device)==cudaSuccess && cudaGetDeviceProperties(&prop,device)==cudaSuccess,",
+                "              \"FORK_MOE_RESOURCE device properties\");",
+                "  TORCH_CHECK(prop.major==9 && prop.minor==0 && prop.cooperativeLaunch,",
+                "              \"FORK_MOE_RESOURCE requires SM90 cooperative launch; use owned/Marlin adapter\");",
+                "  TORCH_CHECK(grid>0 && grid<=prop.multiProcessorCount && grid<=136 && grid<160,",
+                "              \"FORK_MOE_RESOURCE grid/fixup bound; use owned/Marlin adapter\");",
+                "  TORCH_CHECK(p.M>0 && p.M<=okc::MMAX && p.nloc==32 && p.lo==0,",
+                "              \"FORK_MOE_RESOURCE shape/local-ID ABI\");",
+                "  TORCH_CHECK(x.scalar_type()==torch::kBFloat16 && out.scalar_type()==torch::kBFloat16",
+                "              && ids.scalar_type()==torch::kInt32 && tw.scalar_type()==torch::kFloat32,",
+                "              \"FORK_MOE_RESOURCE activation/routing dtype ABI\");",
+                "  auto kernel = p.M>=OKC_BIGM ? okc::moe_fused<true> : okc::moe_fused<false>;",
+                "  TORCH_CHECK(cudaFuncSetAttribute(kernel,cudaFuncAttributeMaxDynamicSharedMemorySize,(int)sm)==cudaSuccess,",
+                "              \"FORK_MOE_RESOURCE dynamic shared-memory attribute\");",
+                "  TORCH_CHECK(cudaOccupancyMaxActiveBlocksPerMultiprocessor(&resident,kernel,okc::NTL,sm)==cudaSuccess",
+                "              && resident>=1 && grid<=resident*prop.multiProcessorCount,",
+                "              \"FORK_MOE_RESOURCE cooperative residency\");",
+                "  void* args[]={&p};",
+                "  const cudaError_t launch=cudaLaunchCooperativeKernel((const void*)kernel,dim3((unsigned)grid),",
+                "      dim3(okc::NTL),args,sm,st);",
+                "  TORCH_CHECK(launch==cudaSuccess,\"FORK_MOE_LAUNCH \",cudaGetErrorString(launch));",
+                ""
+              ],
+              "context_before": [
+                "  }",
+                "  cudaStream_t st = at::cuda::getCurrentCUDAStream();"
+              ],
+              "context_after": [
+                "}",
+                ""
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "configuration": {
+    "upstream": {
+      "PDL": true,
+      "MOE_DEFINES": [
+        "-DOKC_NW=16",
+        "-DOKC_FAST1=0",
+        "-DOKC_EPI4=0",
+        "-DOKC_WGS=1"
+      ],
+      "MOE_TINY_DEFINES": [
+        "-DOKC_NW=8",
+        "-DOKC_TINY=1",
+        "-DOKC_EPI4=0",
+        "-DOKC_FAST1=2",
+        "-DOKC_L2H=0",
+        "-DOKC_NACC=4",
+        "-DOKC_UWARP=0",
+        "-DOKC_WS=1",
+        "-DOKC_WSB=1",
+        "-DOKC_WSBL=2",
+        "-DOKC_WSBLK=2",
+        "@moe_helper0",
+        "-DOKC_FINPF=1"
+      ],
+      "MOE_TINY_MAX_M": 4,
+      "MOE_TINY2_DEFINES": [
+        "-DOKC_NW=8",
+        "-DOKC_TINY=1",
+        "-DOKC_CPF=0",
+        "-DOKC_EPI4=0",
+        "-DOKC_FAST1=2",
+        "-DOKC_NACC=4",
+        "-DOKC_UWARP=0",
+        "-DOKC_WS=1",
+        "-DOKC_WSB=1",
+        "-DOKC_WSBL=2",
+        "-DOKC_WSBLK=1",
+        "-DOKC_FINPF=1",
+        "@moe_helper0"
+      ],
+      "MOE_TINY2_MAX_M": 8,
+      "MOE_MID_DEFINES": [
+        "-DOKC_NW=8",
+        "-DOKC_TINY=1",
+        "-DOKC_SPLIT=1",
+        "-DOKC_CPF=0",
+        "-DOKC_EPI4=0",
+        "-DOKC_FAST1=2",
+        "-DOKC_NACC=4",
+        "-DOKC_UWARP=0",
+        "-DOKC_WS=1",
+        "-DOKC_WSB=1",
+        "-DOKC_WSBL=2",
+        "-DOKC_WSBLK=2",
+        "-DOKC_FINPF=1",
+        "@moe_helper0df"
+      ],
+      "MOE_MID_MAX_M": 16,
+      "MOE_HAS_PDL": true,
+      "SC6_WGS": true,
+      "DQ7": true,
+      "MFAB_LAYER": true
+    },
+    "incumbent": {
+      "PDL": false,
+      "MOE_DEFINES": [
+        "-DOKC_NW=16",
+        "-DOKC_FAST1=0",
+        "-DOKC_EPI4=0",
+        "-DOKC_WGS=1"
+      ],
+      "MOE_TINY_DEFINES": [
+        "-DOKC_NW=8",
+        "-DOKC_TINY=1",
+        "-DOKC_EPI4=0",
+        "-DOKC_FAST1=2",
+        "-DOKC_L2H=0",
+        "-DOKC_NACC=4",
+        "-DOKC_UWARP=0",
+        "-DOKC_WS=1",
+        "-DOKC_WSB=1",
+        "-DOKC_WSBL=2",
+        "-DOKC_WSBLK=2",
+        "@moe_helper0",
+        "-DOKC_FINPF=1"
+      ],
+      "MOE_TINY_MAX_M": 4,
+      "MOE_TINY2_DEFINES": [
+        "-DOKC_NW=8",
+        "-DOKC_TINY=1",
+        "-DOKC_CPF=0",
+        "-DOKC_EPI4=0",
+        "-DOKC_FAST1=2",
+        "-DOKC_NACC=4",
+        "-DOKC_UWARP=0",
+        "-DOKC_WS=1",
+        "-DOKC_WSB=1",
+        "-DOKC_WSBL=2",
+        "-DOKC_WSBLK=1",
+        "-DOKC_FINPF=1",
+        "@moe_helper0"
+      ],
+      "MOE_TINY2_MAX_M": 8,
+      "MOE_MID_DEFINES": [
+        "-DOKC_NW=8",
+        "-DOKC_TINY=1",
+        "-DOKC_SPLIT=1",
+        "-DOKC_CPF=0",
+        "-DOKC_EPI4=0",
+        "-DOKC_FAST1=2",
+        "-DOKC_NACC=4",
+        "-DOKC_UWARP=0",
+        "-DOKC_WS=1",
+        "-DOKC_WSB=1",
+        "-DOKC_WSBL=2",
+        "-DOKC_WSBLK=2",
+        "-DOKC_FINPF=1",
+        "@moe_helper0df"
+      ],
+      "MOE_MID_MAX_M": 16,
+      "MOE_HAS_PDL": false,
+      "SC6_WGS": true,
+      "DQ7": true
+    }
+  },
+  "mid_df": {
+    "upstream_transform_line": 12587,
+    "transform_sha256": "97b2e95b0618ca8f6782367e67a8d6583ee013481057ac9ec6f5180ed9f39b40",
+    "upstream_actual_source_sha256": "21df34c999f54e7a69e22d96851d052d351adf4d751a987762b5b22d6a85c8d3",
+    "incumbent_actual_source_sha256": "b8ed85438c06673f411ff4203080bfbacd0c0c2dc5cb624e6f10d4877fe7a716",
+    "classification": "unproved_protocol_excluded",
+    "difference_hunks": [
+      {
+        "op": "delete",
+        "before_lines": [
+          82,
+          86
+        ],
+        "after_lines": [
+          82,
+          81
+        ],
+        "before": [
+          "#ifndef OKC_PRMTSC",
+          "#define OKC_PRMTSC 0",
+          "#endif",
+          "#define OKC_DF OKC_PRMTSC   // data-flag A->B hand-off (needs the PRMT scale decode builds)",
+          "#define INTER_SENT_ROWS 128"
+        ],
+        "after": [],
+        "context_before": [
+          "#define OKC_WSNR 4  // partial-sum buffers between the compute warps and the helper warp",
+          "#define OKC_NOLOAD 0"
+        ],
+        "context_after": [
+          "",
+          "namespace okc {"
+        ]
+      },
+      {
+        "op": "delete",
+        "before_lines": [
+          524,
+          549
+        ],
+        "after_lines": [
+          519,
+          518
+        ],
+        "before": [
+          "  }",
+          "}",
+          "",
+          "// DF: phase-B x rows (the job's inter) straight from L2 until every value is written (sentinel 0xFFFF = bf16 NaN)",
+          "__device__ __forceinline__ uint32_t df_bad(const uint4& v) {",
+          "  const uint32_t w[4] = {v.x, v.y, v.z, v.w};",
+          "  uint32_t b = 0;",
+          "#pragma unroll",
+          "  for (int i = 0; i < 4; ++i) b |= (uint32_t)(((w[i] & 0xFFFFu) == 0xFFFFu) | ((w[i] >> 16) == 0xFFFFu));",
+          "  return b;",
+          "}",
+          "__device__ __forceinline__ void load_x_inter_df(const Params& p, const Smem& S, int j, int lane, int warp, uint4 (&x)[2 * NCH]) {",
+          "  const int g = lane >> 2, t = lane & 3;",
+          "  const int cnt = S.jC[j], st = S.jS[j];",
+          "  const bool act = g < cnt;",
+          "  const uint4* src = reinterpret_cast<const uint4*>(p.inter + (size_t)(st + (act ? g : 0)) * ID + warp * (64 * NCH) + 16 * t);",
+          "  for (int spin = 0;; ++spin) {",
+          "    uint32_t bad = 0;",
+          "#pragma unroll",
+          "    for (int c = 0; c < NCH; ++c) {",
+          "      x[2 * c] = act ? __ldcg(src + c * 8) : make_uint4(0, 0, 0, 0);",
+          "      x[2 * c + 1] = act ? __ldcg(src + c * 8 + 1) : make_uint4(0, 0, 0, 0);",
+          "      bad |= df_bad(x[2 * c]) | df_bad(x[2 * c + 1]);",
+          "    }",
+          "    if (!__any_sync(0xffffffffu, bad != 0) || spin > 200000) break;",
+          "    __nanosleep(32);"
+        ],
+        "after": [],
+        "context_before": [
+          "      for (int c = 0; c < 2 * NCH; ++c) x[c] = make_uint4(0, 0, 0, 0);",
+          "    }"
+        ],
+        "context_after": [
+          "  }",
+          "}"
+        ]
+      },
+      {
+        "op": "replace",
+        "before_lines": [
+          1444,
+          1451
+        ],
+        "after_lines": [
+          1413,
+          1415
+        ],
+        "before": [
+          "      if (PB && OKC_DF) {",
+          "        load_x_inter_df(p, S, j, lane, warp, x0);",
+          "      } else {",
+          "        if (PB) {",
+          "          if (lane == 0) { while (ld_acquire(p.doneA + j) < RB_A) __nanosleep(64); }",
+          "          __syncwarp();",
+          "        }",
+          "        load_x_regs<PB>(p, S, j, lane, warp, x0);"
+        ],
+        "after": [
+          "      if (PB) {",
+          "        if (lane == 0) { while (ld_acquire(p.doneA + j) < RB_A) __nanosleep(64); }",
+          "        __syncwarp();"
+        ],
+        "context_before": [
+          "    if (j != curj) {",
+          "      curj = j;"
+        ],
+        "context_after": [
+          "      }",
+          "    }"
+        ]
+      },
+      {
+        "op": "insert",
+        "before_lines": [
+          1453,
+          1452
+        ],
+        "after_lines": [
+          1417,
+          1417
+        ],
+        "before": [],
+        "after": [
+          "      load_x_regs<PB>(p, S, j, lane, warp, x0);"
+        ],
+        "context_before": [
+          "        load_x_regs<PB>(p, S, j, lane, warp, x0);",
+          "      }"
+        ],
+        "context_after": [
+          "    }",
+          "    const int q = seq0 + i;"
+        ]
+      },
+      {
+        "op": "replace",
+        "before_lines": [
+          1575,
+          1575
+        ],
+        "after_lines": [
+          1540,
+          1540
+        ],
+        "before": [
+          "      if (!OKC_DF && q == nA - 1) {  // this CTA's phase A is done: credit its units to the jobs' counters"
+        ],
+        "after": [
+          "      if (q == nA - 1) {  // this CTA's phase A is done: credit its units to the jobs' counters"
+        ],
+        "context_before": [
+          "        }",
+          "      }"
+        ],
+        "context_after": [
+          "        __threadfence();",
+          "        __syncwarp();"
+        ]
+      },
+      {
+        "op": "delete",
+        "before_lines": [
+          2470,
+          2476
+        ],
+        "after_lines": [
+          2435,
+          2434
+        ],
+        "before": [
+          "#if !OKC_WGS",
+          "  if (OKC_DF) {  // every CTA is past phase B: inter is dead until the next launch; give it back its \"not yet written\" sentinel",
+          "    const int rows = min(INTER_SENT_ROWS, p.M * 8);",
+          "    uint4* ip = reinterpret_cast<uint4*>(p.inter);",
+          "    for (int i = blockIdx.x * NT + tid; i < rows * (ID / 8); i += gridDim.x * NT) ip[i] = make_uint4(0xFFFFFFFFu, 0xFFFFFFFFu, 0xFFFFFFFFu, 0xFFFFFFFFu);",
+          "  }",
+          "#endif"
+        ],
+        "after": [],
+        "context_before": [
+          "#endif",
+          "  }"
+        ],
+        "context_after": [
+          "  // final: out[t] = sum_s w * rsqrt(ss/HD + eps) * ybuf[pos]",
+          "#if OKC_WGS && OKC_WGSFINSS"
+        ]
+      },
+      {
+        "op": "delete",
+        "before_lines": [
+          2669,
+          2671
+        ],
+        "after_lines": [
+          2627,
+          2626
+        ],
+        "before": [
+          "#if OKC_DF",
+          "  p.inter += (size_t)128 * 4096;   // DF sentinel rows [128, 256) of the scratch: only DF launches (MID) use them",
+          "#endif"
+        ],
+        "after": [],
+        "context_before": [
+          "  p.ybuf = p.ss + okc::EMAX;",
+          "  p.inter = (__nv_bfloat16*)scratch[2].data_ptr();"
+        ],
+        "context_after": [
+          "#if OKC_WGS",
+          "  TORCH_CHECK((size_t)scratch[2].numel() >= ((size_t)okc::EMAX + 2 * (size_t)okc::WGS_XROWS) * okc::HD,"
+        ]
+      }
+    ]
+  },
+  "additional_groups": [
+    {
+      "id": "stage_retirement",
+      "classification": "safe_implementation_recovery",
+      "active_families": [
+        "b4",
+        "main"
+      ],
+      "evidence": "63f5a2a8ed2341d1; already in607e"
+    },
+    {
+      "id": "empty_routing",
+      "classification": "required_bounds_correction",
+      "active_families": [
+        "b4",
+        "main"
+      ],
+      "evidence": "zero-local wgs_stage_at nj0 guard"
+    },
+    {
+      "id": "state_scale_ownership",
+      "classification": "required_layout_ownership",
+      "active_families": [
+        "all"
+      ],
+      "evidence": "state-local ma_sc6 and defines/pack match; no timed cost measurement"
+    },
+    {
+      "id": "df_alias",
+      "classification": "unproved_protocol_excluded",
+      "active_families": [
+        "mid"
+      ],
+      "evidence": "different data-sentinel protocol; no isolated cost"
+    },
+    {
+      "id": "sc6",
+      "classification": "retained",
+      "active_families": [
+        "b4",
+        "main"
+      ],
+      "evidence": "both SC6_WGS true; eligible state only"
+    }
+  ],
+  "gamma": {
+    "native_prepare_line": 10156,
+    "bank_assignment_line": 10172,
+    "native_slot7_expression": "weights['post_expert_norm'].contiguous()",
+    "already_effective": false,
+    "source_sites": {
+      "MOE_CUDA_SRC": [
+        {
+          "line": 461,
+          "expression": "fork_bf16(1.f + __bfloat162float(p.normw[n0]))",
+          "containing_device_header": "__device__ __forceinline__ void epi_B(const Params& p, int pstart, int ntok, int tok0, int n0, float gsc, const float* r,                                       float* sq) ",
+          "in_selected_short_WS_function": false
+        },
+        {
+          "line": 461,
+          "expression": "fork_bf16(1.f + __bfloat162float(p.normw[n0 + 8]))",
+          "containing_device_header": "__device__ __forceinline__ void epi_B(const Params& p, int pstart, int ntok, int tok0, int n0, float gsc, const float* r,                                       float* sq) ",
+          "in_selected_short_WS_function": false
+        },
+        {
+          "line": 670,
+          "expression": "fork_bf16(1.f + __bfloat162float(__ldg(p.normw + rbq * 16 + egg)))",
+          "containing_device_header": "__device__ void skinny_ring(const Params& p, Smem& S, int v0, int v1, unsigned char* ring, uint64_t* bars, int& seq,                             __nv_bfloat16* x1base, bool cpf_ok, int cB0, int cBn, int nSall, int poolBase) ",
+          "in_selected_short_WS_function": false
+        },
+        {
+          "line": 670,
+          "expression": "fork_bf16(1.f + __bfloat162float(__ldg(p.normw + rbq * 16 + egg + 8)))",
+          "containing_device_header": "__device__ void skinny_ring(const Params& p, Smem& S, int v0, int v1, unsigned char* ring, uint64_t* bars, int& seq,                             __nv_bfloat16* x1base, bool cpf_ok, int cB0, int cBn, int nSall, int poolBase) ",
+          "in_selected_short_WS_function": false
+        },
+        {
+          "line": 688,
+          "expression": "fork_bf16(1.f + __bfloat162float(__ldg(p.normw + rbq * 16 + egg)))",
+          "containing_device_header": "__device__ void skinny_ring(const Params& p, Smem& S, int v0, int v1, unsigned char* ring, uint64_t* bars, int& seq,                             __nv_bfloat16* x1base, bool cpf_ok, int cB0, int cBn, int nSall, int poolBase) ",
+          "in_selected_short_WS_function": false
+        },
+        {
+          "line": 688,
+          "expression": "fork_bf16(1.f + __bfloat162float(__ldg(p.normw + rbq * 16 + egg + 8)))",
+          "containing_device_header": "__device__ void skinny_ring(const Params& p, Smem& S, int v0, int v1, unsigned char* ring, uint64_t* bars, int& seq,                             __nv_bfloat16* x1base, bool cpf_ok, int cB0, int cBn, int nSall, int poolBase) ",
+          "in_selected_short_WS_function": false
+        },
+        {
+          "line": 850,
+          "expression": "fork_bf16(1.f + __bfloat162float(__ldg(p.normw + rbq * 16 + egg)))",
+          "containing_device_header": "__device__ void skinny_ring(const Params& p, Smem& S, int v0, int v1, unsigned char* ring, uint64_t* bars, int& seq,                             __nv_bfloat16* x1base, bool cpf_ok, int cB0, int cBn, int nSall, int poolBase) ",
+          "in_selected_short_WS_function": false
+        },
+        {
+          "line": 850,
+          "expression": "fork_bf16(1.f + __bfloat162float(__ldg(p.normw + rbq * 16 + egg + 8)))",
+          "containing_device_header": "__device__ void skinny_ring(const Params& p, Smem& S, int v0, int v1, unsigned char* ring, uint64_t* bars, int& seq,                             __nv_bfloat16* x1base, bool cpf_ok, int cB0, int cBn, int nSall, int poolBase) ",
+          "in_selected_short_WS_function": false
+        },
+        {
+          "line": 857,
+          "expression": "fork_bf16(1.f + __bfloat162float(__ldg(p.normw + rbq * 16 + egg)))",
+          "containing_device_header": "__device__ void skinny_ring(const Params& p, Smem& S, int v0, int v1, unsigned char* ring, uint64_t* bars, int& seq,                             __nv_bfloat16* x1base, bool cpf_ok, int cB0, int cBn, int nSall, int poolBase) ",
+          "in_selected_short_WS_function": false
+        },
+        {
+          "line": 857,
+          "expression": "fork_bf16(1.f + __bfloat162float(__ldg(p.normw + rbq * 16 + egg + 8)))",
+          "containing_device_header": "__device__ void skinny_ring(const Params& p, Smem& S, int v0, int v1, unsigned char* ring, uint64_t* bars, int& seq,                             __nv_bfloat16* x1base, bool cpf_ok, int cB0, int cBn, int nSall, int poolBase) ",
+          "in_selected_short_WS_function": false
+        },
+        {
+          "line": 1539,
+          "expression": "fork_bf16(1.f + __uint_as_float(lnw0 << 16))",
+          "containing_device_header": "__device__ void skinny_ring_ws(const Params& p, Smem& S, int v0, int v1, unsigned char* ring, uint64_t* bars, int& seq) ",
+          "in_selected_short_WS_function": true
+        },
+        {
+          "line": 1539,
+          "expression": "fork_bf16(1.f + __uint_as_float(lnw1 << 16))",
+          "containing_device_header": "__device__ void skinny_ring_ws(const Params& p, Smem& S, int v0, int v1, unsigned char* ring, uint64_t* bars, int& seq) ",
+          "in_selected_short_WS_function": true
+        },
+        {
+          "line": 1619,
+          "expression": "fork_bf16(1.f + __bfloat162float(p.normw[n0]))",
+          "containing_device_header": "__device__ void ws_helper(const Params& p, Smem& S, unsigned char* ring) ",
+          "in_selected_short_WS_function": true
+        },
+        {
+          "line": 1619,
+          "expression": "fork_bf16(1.f + __bfloat162float(p.normw[n0 + 8]))",
+          "containing_device_header": "__device__ void ws_helper(const Params& p, Smem& S, unsigned char* ring) ",
+          "in_selected_short_WS_function": true
+        },
+        {
+          "line": 1984,
+          "expression": "fork_bf16(1.f + __bfloat162float(__ldg(p.normw + n0)))",
+          "containing_device_header": "__device__ __forceinline__ void wgs_epi_tile(const Params& p, const Smem& S, int j, int r16, int nt, const float* d4) ",
+          "in_selected_short_WS_function": false
+        },
+        {
+          "line": 1984,
+          "expression": "fork_bf16(1.f + __bfloat162float(__ldg(p.normw + n0 + 8)))",
+          "containing_device_header": "__device__ __forceinline__ void wgs_epi_tile(const Params& p, const Smem& S, int j, int r16, int nt, const float* d4) ",
+          "in_selected_short_WS_function": false
+        }
+      ],
+      "_MA_ALT_SRCS['moe_helper0']": [
+        {
+          "line": 433,
+          "expression": "fork_bf16(1.f + __bfloat162float(p.normw[n0]))",
+          "containing_device_header": "__device__ __forceinline__ void epi_B(const Params& p, int pstart, int ntok, int tok0, int n0, float gsc, const float* r,                                       float* sq) ",
+          "in_selected_short_WS_function": false
+        },
+        {
+          "line": 433,
+          "expression": "fork_bf16(1.f + __bfloat162float(p.normw[n0 + 8]))",
+          "containing_device_header": "__device__ __forceinline__ void epi_B(const Params& p, int pstart, int ntok, int tok0, int n0, float gsc, const float* r,                                       float* sq) ",
+          "in_selected_short_WS_function": false
+        },
+        {
+          "line": 616,
+          "expression": "fork_bf16(1.f + __bfloat162float(__ldg(p.normw + rbq * 16 + egg)))",
+          "containing_device_header": "__device__ void skinny_ring(const Params& p, Smem& S, int v0, int v1, unsigned char* ring, uint64_t* bars, int& seq,                             __nv_bfloat16* x1base, bool cpf_ok, int cB0, int cBn, int nSall, int poolBase) ",
+          "in_selected_short_WS_function": false
+        },
+        {
+          "line": 616,
+          "expression": "fork_bf16(1.f + __bfloat162float(__ldg(p.normw + rbq * 16 + egg + 8)))",
+          "containing_device_header": "__device__ void skinny_ring(const Params& p, Smem& S, int v0, int v1, unsigned char* ring, uint64_t* bars, int& seq,                             __nv_bfloat16* x1base, bool cpf_ok, int cB0, int cBn, int nSall, int poolBase) ",
+          "in_selected_short_WS_function": false
+        },
+        {
+          "line": 634,
+          "expression": "fork_bf16(1.f + __bfloat162float(__ldg(p.normw + rbq * 16 + egg)))",
+          "containing_device_header": "__device__ void skinny_ring(const Params& p, Smem& S, int v0, int v1, unsigned char* ring, uint64_t* bars, int& seq,                             __nv_bfloat16* x1base, bool cpf_ok, int cB0, int cBn, int nSall, int poolBase) ",
+          "in_selected_short_WS_function": false
+        },
+        {
+          "line": 634,
+          "expression": "fork_bf16(1.f + __bfloat162float(__ldg(p.normw + rbq * 16 + egg + 8)))",
+          "containing_device_header": "__device__ void skinny_ring(const Params& p, Smem& S, int v0, int v1, unsigned char* ring, uint64_t* bars, int& seq,                             __nv_bfloat16* x1base, bool cpf_ok, int cB0, int cBn, int nSall, int poolBase) ",
+          "in_selected_short_WS_function": false
+        },
+        {
+          "line": 796,
+          "expression": "fork_bf16(1.f + __bfloat162float(__ldg(p.normw + rbq * 16 + egg)))",
+          "containing_device_header": "__device__ void skinny_ring(const Params& p, Smem& S, int v0, int v1, unsigned char* ring, uint64_t* bars, int& seq,                             __nv_bfloat16* x1base, bool cpf_ok, int cB0, int cBn, int nSall, int poolBase) ",
+          "in_selected_short_WS_function": false
+        },
+        {
+          "line": 796,
+          "expression": "fork_bf16(1.f + __bfloat162float(__ldg(p.normw + rbq * 16 + egg + 8)))",
+          "containing_device_header": "__device__ void skinny_ring(const Params& p, Smem& S, int v0, int v1, unsigned char* ring, uint64_t* bars, int& seq,                             __nv_bfloat16* x1base, bool cpf_ok, int cB0, int cBn, int nSall, int poolBase) ",
+          "in_selected_short_WS_function": false
+        },
+        {
+          "line": 803,
+          "expression": "fork_bf16(1.f + __bfloat162float(__ldg(p.normw + rbq * 16 + egg)))",
+          "containing_device_header": "__device__ void skinny_ring(const Params& p, Smem& S, int v0, int v1, unsigned char* ring, uint64_t* bars, int& seq,                             __nv_bfloat16* x1base, bool cpf_ok, int cB0, int cBn, int nSall, int poolBase) ",
+          "in_selected_short_WS_function": false
+        },
+        {
+          "line": 803,
+          "expression": "fork_bf16(1.f + __bfloat162float(__ldg(p.normw + rbq * 16 + egg + 8)))",
+          "containing_device_header": "__device__ void skinny_ring(const Params& p, Smem& S, int v0, int v1, unsigned char* ring, uint64_t* bars, int& seq,                             __nv_bfloat16* x1base, bool cpf_ok, int cB0, int cBn, int nSall, int poolBase) ",
+          "in_selected_short_WS_function": false
+        },
+        {
+          "line": 1485,
+          "expression": "fork_bf16(1.f + __uint_as_float(lnw0 << 16))",
+          "containing_device_header": "__device__ void skinny_ring_ws(const Params& p, Smem& S, int v0, int v1, unsigned char* ring, uint64_t* bars, int& seq) ",
+          "in_selected_short_WS_function": true
+        },
+        {
+          "line": 1485,
+          "expression": "fork_bf16(1.f + __uint_as_float(lnw1 << 16))",
+          "containing_device_header": "__device__ void skinny_ring_ws(const Params& p, Smem& S, int v0, int v1, unsigned char* ring, uint64_t* bars, int& seq) ",
+          "in_selected_short_WS_function": true
+        },
+        {
+          "line": 1565,
+          "expression": "fork_bf16(1.f + __bfloat162float(p.normw[n0]))",
+          "containing_device_header": "__device__ void ws_helper(const Params& p, Smem& S, unsigned char* ring) ",
+          "in_selected_short_WS_function": true
+        },
+        {
+          "line": 1565,
+          "expression": "fork_bf16(1.f + __bfloat162float(p.normw[n0 + 8]))",
+          "containing_device_header": "__device__ void ws_helper(const Params& p, Smem& S, unsigned char* ring) ",
+          "in_selected_short_WS_function": true
+        },
+        {
+          "line": 1900,
+          "expression": "fork_bf16(1.f + __bfloat162float(__ldg(p.normw + n0)))",
+          "containing_device_header": "__device__ __forceinline__ void wgs_epi_tile(const Params& p, const Smem& S, int j, int r16, int nt, const float* d4) ",
+          "in_selected_short_WS_function": false
+        },
+        {
+          "line": 1900,
+          "expression": "fork_bf16(1.f + __bfloat162float(__ldg(p.normw + n0 + 8)))",
+          "containing_device_header": "__device__ __forceinline__ void wgs_epi_tile(const Params& p, const Smem& S, int j, int r16, int nt, const float* d4) ",
+          "in_selected_short_WS_function": false
+        }
+      ]
+    },
+    "host_coefficient_bytes": 8192,
+    "raw_weights_must_remain_unchanged": true,
+    "scope_and_mfin_subscopes": {
+      "scope_guard": [
+        "all_compiled_native"
+      ],
+      "MFIN0": [
+        "b4",
+        "main"
+      ]
+    }
+  },
+  "f042": {
+    "classification": "proved_alternative_to_conservative_strengthening",
+    "group": "final_counter_strengthening",
+    "affected": [
+      "tiny",
+      "tiny2"
+    ],
+    "required_repairs_removed": false,
+    "is_original_G0_helper": false,
+    "measured_cost": null,
+    "hold": "Inherited ATT7 ordinary-launch progress gap; future common repair to both arms required"
+  }
+}
