@@ -1,0 +1,132 @@
+{
+  "attention-discovery-code.json": {
+    "raw_sha256": "1a0608fc8940991a7a1f879c32ecdb626468392de16f216b72dc8d2c297c6860",
+    "returned": 100,
+    "total_count": null,
+    "repositories": [
+      "PostTrainLLM/posttrainllm",
+      "Ranoobaba/okc-campaign",
+      "alygg77/okc-muse-spark-kernels",
+      "lee101/openkernels",
+      "lilaclilac09/open-kernel-challenge",
+      "rohanarun/Auto-research-agent",
+      "tommyyliu/okc",
+      "vjeux/okc-2026"
+    ]
+  },
+  "attention-discovery-filtered.json": {
+    "raw_sha256": "9965961f1c06e2f416bf65c93b77c67226e85086ecd94a1973805e0a12e89567",
+    "returned": 100,
+    "total_count": 213,
+    "repositories": [
+      "Kushagrabainsla/muse-spark-open",
+      "Madhavan113/ParadigmKernelChallenge",
+      "PostTrainLLM/posttrainllm",
+      "Ranoobaba/okc-campaign",
+      "lilaclilac09/open-kernel-challenge",
+      "ruwwww/open-kernel-challenge",
+      "theluckystrike/muse-spark-open-kernels",
+      "tommyyliu/okc",
+      "xharshvardhan/open-kernel-challenge"
+    ]
+  },
+  "attention-discovery-filtered2.json": {
+    "raw_sha256": "6217c88f254356523d6531fc7cc97563fd978b5bdb97e7d4c817559de73bcd1e",
+    "returned": 100,
+    "total_count": 218,
+    "repositories": [
+      "Kushagrabainsla/muse-spark-open",
+      "Madhavan113/ParadigmKernelChallenge",
+      "Okohedeki/autoinference",
+      "PostTrainLLM/posttrainllm",
+      "Ranoobaba/okc-campaign",
+      "hieptran1812/my-website",
+      "ozgureyilmaz/okc-muse-kernels",
+      "ruwwww/open-kernel-challenge",
+      "tommyyliu/okc",
+      "xharshvardhan/open-kernel-challenge"
+    ]
+  },
+  "attention-discovery-filtered3.json": {
+    "raw_sha256": "ec458fc27f1b0ae843c683d52382b0d06a3f57025df4430496cfed52d7e2f8b2",
+    "returned": 21,
+    "total_count": 221,
+    "repositories": [
+      "Kushagrabainsla/muse-spark-open",
+      "Madhavan113/ParadigmKernelChallenge",
+      "Ranoobaba/okc-campaign",
+      "hieptran1812/my-website",
+      "ruwwww/agent-skills"
+    ]
+  },
+  "attention-discovery-repos.json": {
+    "raw_sha256": "e4458192c5bb60f5a93d4df3f126921be53779934a4c91b5ed0628987496b38f",
+    "returned": 29,
+    "total_count": null,
+    "repositories": [
+      "Aravind-11/muse-moe-w4a16",
+      "Aryia-Behroziuan/neurons",
+      "GiulianoIntelligence/Muse-FlashSpeed-Kernel",
+      "JudeIghomena/School-Management-Portal-",
+      "KingCobra52/muse_bf16_optimization",
+      "Kushagrabainsla/muse-spark-open",
+      "Lurrobert/guild",
+      "MadanChaollaPark/open-kernel-experiments",
+      "NathenFernandes/muse-bf16-proj",
+      "Ranoobaba/okc-campaign",
+      "Reedo3/Muse_Attention_Decode",
+      "SOYJUN/FTP-implement-based-on-UDP",
+      "Xuefeng-Zhu/open-kernel-challenge",
+      "alygg77/okc-muse-spark-kernels",
+      "ayazhassan/RT-CUDA-GUI-Development",
+      "chrisneagu/FTC-Skystone-Dark-Angels-Romania-2020",
+      "danyloooah-web/okc-claims",
+      "infraax/okc-kernel-challenge",
+      "keell0renz/muse-open-kernel-challenge",
+      "lilaclilac09/open-kernel-challenge",
+      "msaroufim/openkernelchallenge-audit",
+      "mthd98/Project-Algorithm-for-a-Dog-Identification-App",
+      "operatorstack/open-kernel-challenge-solutions",
+      "ruwwww/open-kernel-challenge",
+      "theluckystrike/muse-spark-open-kernels",
+      "trxphxle/okc-2026-muse-kernels",
+      "vjeux/okc-2026",
+      "xharshvardhan/open-kernel-challenge",
+      "yelgabo/okc"
+    ]
+  },
+  "attention-discovery-upstream.json": {
+    "raw_sha256": "2b1bbaa9a14c01f632f6d03b93fe58d35644f8b77708c864b002db473f7e922a",
+    "returned": 82,
+    "total_count": null,
+    "repositories": [
+      "Antolin1/DMG-Python",
+      "Antolin1/all-generators-uam-presentation",
+      "JDowns412/GFW-Tester",
+      "Ranoobaba/okc-campaign",
+      "ZhimaoLin/rssagg-go",
+      "Zzzz123-bot/dataset",
+      "bifenglin/BotHawk",
+      "cirosantilli/expired-domain-names-by-day-2012",
+      "cirosantilli/expired-domain-names-by-day-2013",
+      "cirosantilli/expired-domain-names-by-day-2015",
+      "cirosantilli/expired-domain-names-by-day-2017",
+      "cirosantilli/expired-domain-names-by-day-2018",
+      "cirosantilli/expired-domain-names-by-day-2019",
+      "cirosantilli/expired-domain-names-by-day-2020",
+      "cirosantilli/expired-domain-names-by-day-2023",
+      "cirosantilli/expired-domain-names-by-day-2024",
+      "cmput401-fall2018/web-app-ci-cd-with-travis-ci-ZhimaoLin",
+      "cncf/gitdm",
+      "cyberconnecthq/cybercontracts",
+      "dirusulixes/github-data-fetcher",
+      "greenvilleassociates/FusionExtranetV25Open",
+      "jengler/bench_ds_projects",
+      "kriss-u/QRepoAnalysis-Paper",
+      "miyanoyuriko/FoYing",
+      "miyanoyuriko/MiYing",
+      "opensource-observer/insights",
+      "yuguo-Jack/HCU-TrainFlow"
+    ]
+  }
+}

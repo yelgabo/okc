@@ -1,0 +1,583 @@
+{
+  "queried_utc": "2026-11-01T14:30:00Z",
+  "command": "okc leaderboard muse_attention_decode --json",
+  "full_snapshot_sha256": "c01de431f0611d57a94b0a3bd651e9403a55c82cf94a9e57320168201f94e373",
+  "you": {
+    "rank": 220,
+    "team": "yelgabo",
+    "speedup": 2.6043,
+    "first": false,
+    "ahead": 219,
+    "to_first": 1.2821
+  },
+  "rows": [
+    {
+      "attempts": 17,
+      "job": "d64f5ae375bd434d",
+      "rank": 1,
+      "screened_speedup": 3.0316324960627803,
+      "screening": "pending",
+      "speedup": 3.3389,
+      "submitted_at": 1793484333.7628322,
+      "team": "pjmullin3",
+      "value": 1127.9992224649493
+    },
+    {
+      "attempts": 9,
+      "job": "7d1f783733cf49c6",
+      "rank": 2,
+      "screening": "screened",
+      "speedup": 3.2221,
+      "submitted_at": 1793320748.8132067,
+      "team": "tjiang-fair",
+      "value": 1168.9055342770528
+    },
+    {
+      "attempts": 81,
+      "job": "5ac60fa2f51f40bd",
+      "rank": 3,
+      "screened_speedup": 3.036521557855449,
+      "screening": "pending",
+      "speedup": 3.0658,
+      "submitted_at": 1793347880.7095356,
+      "team": "olety",
+      "value": 1228.5023776518026
+    },
+    {
+      "attempts": 2,
+      "job": "342ee78f9ebf4858",
+      "rank": 4,
+      "screening": "pending",
+      "speedup": 3.0542,
+      "submitted_at": 1793226394.365846,
+      "team": "LeshengJin",
+      "value": 1233.1587413734894
+    },
+    {
+      "attempts": 16,
+      "job": "667297c395fb4309",
+      "rank": 5,
+      "screening": "screened",
+      "speedup": 3.0182,
+      "submitted_at": 1793457179.6660469,
+      "team": "gauravjain14",
+      "value": 1247.8820355484902
+    },
+    {
+      "attempts": 25,
+      "job": "f6664be67ca54e57",
+      "rank": 6,
+      "screened_speedup": 2.8950152691075415,
+      "screening": "pending",
+      "speedup": 3.0077,
+      "submitted_at": 1793191482.7830539,
+      "team": "zzz0906",
+      "value": 1252.206365750579
+    },
+    {
+      "attempts": 66,
+      "job": "0cf4c33145454d87",
+      "rank": 7,
+      "screened_speedup": 2.907212535909125,
+      "speedup": 3.0028,
+      "submitted_at": 1793492046.4575064,
+      "team": "mgpai22",
+      "value": 1254.2554293918695
+    },
+    {
+      "attempts": 9,
+      "job": "77b9ca8b725b4b69",
+      "rank": 8,
+      "screening": "under_review",
+      "speedup": 2.9986,
+      "submitted_at": 1793382635.6876838,
+      "team": "YounesElhjouji",
+      "value": 1256.0364219105752
+    },
+    {
+      "attempts": 31,
+      "job": "1c4f41dbee7f49ba",
+      "rank": 9,
+      "screening": "screened",
+      "speedup": 2.9969,
+      "submitted_at": 1792999433.1819117,
+      "team": "colinlikescode",
+      "value": 1256.7448015200787
+    },
+    {
+      "attempts": 39,
+      "job": "ae320e4fb37d421f",
+      "rank": 10,
+      "speedup": 2.9331,
+      "submitted_at": 1793531690.8537703,
+      "team": "miketung",
+      "value": 1284.0704465741649
+    },
+    {
+      "attempts": 53,
+      "job": "d12bb0921d054b3f",
+      "rank": 11,
+      "screened_speedup": 2.7999560296314185,
+      "speedup": 2.9203,
+      "submitted_at": 1793541496.3862853,
+      "team": "abhishekgahlot2",
+      "value": 1289.6935584056837
+    },
+    {
+      "attempts": 6,
+      "job": "5cb3655bf3c9499a",
+      "rank": 12,
+      "screening": "screened",
+      "speedup": 2.9098,
+      "submitted_at": 1793487806.752925,
+      "team": "jt914",
+      "value": 1294.3528183361889
+    },
+    {
+      "attempts": 38,
+      "job": "652c08c4dc2e4ab9",
+      "rank": 13,
+      "screened_speedup": 2.835522644274862,
+      "screening": "pending",
+      "speedup": 2.9098,
+      "submitted_at": 1793402111.4531267,
+      "team": "Lurrobert",
+      "value": 1294.3536672002244
+    },
+    {
+      "attempts": 28,
+      "job": "f6a6d62f40de4ab5",
+      "rank": 14,
+      "screened_speedup": 2.8930743806807198,
+      "speedup": 2.9036,
+      "submitted_at": 1793514907.1917753,
+      "team": "DTennant",
+      "value": 1297.1031900625276
+    },
+    {
+      "attempts": 27,
+      "job": "52cbc4fb8dd3448f",
+      "rank": 15,
+      "screening": "screened",
+      "speedup": 2.8867,
+      "submitted_at": 1793457461.0380518,
+      "team": "seezatnap",
+      "value": 1304.6933714187612
+    },
+    {
+      "attempts": 2,
+      "job": "d74751469d41451b",
+      "rank": 16,
+      "speedup": 2.8699,
+      "submitted_at": 1793513930.7431755,
+      "team": "Fangzhou66",
+      "value": 1312.326069889638
+    },
+    {
+      "attempts": 9,
+      "job": "9a90c51880eb4fa7",
+      "rank": 17,
+      "screened_speedup": 2.7962060479226123,
+      "screening": "pending",
+      "speedup": 2.8699,
+      "submitted_at": 1793337435.0720415,
+      "team": "Dogacel",
+      "value": 1312.3414543323395
+    },
+    {
+      "attempts": 24,
+      "job": "f197343cbee84363",
+      "rank": 18,
+      "screened_speedup": 2.8222107218091557,
+      "speedup": 2.8603,
+      "submitted_at": 1793527827.8316576,
+      "team": "CFC87",
+      "value": 1316.76307997268
+    },
+    {
+      "attempts": 19,
+      "job": "6164b37921004360",
+      "rank": 19,
+      "speedup": 2.8484,
+      "submitted_at": 1793474879.2999752,
+      "team": "Viraj12356",
+      "value": 1322.2358813885203
+    },
+    {
+      "attempts": 9,
+      "job": "fd8b0709176b432a",
+      "rank": 20,
+      "speedup": 2.8462,
+      "submitted_at": 1793438913.831413,
+      "team": "agol",
+      "value": 1323.2784651624024
+    },
+    {
+      "attempts": 1,
+      "job": "01142733709d4ddc",
+      "rank": 21,
+      "screening": "pending",
+      "speedup": 2.8351,
+      "submitted_at": 1793334152.0644147,
+      "team": "Abarbir12",
+      "value": 1328.439687747178
+    },
+    {
+      "attempts": 14,
+      "job": "23d85848724b467b",
+      "rank": 22,
+      "screening": "pending",
+      "speedup": 2.826,
+      "submitted_at": 1793326883.3425958,
+      "team": "reyanshsolis",
+      "value": 1332.7451122082882
+    },
+    {
+      "attempts": 1,
+      "job": "f7b83f791e8e49d0",
+      "rank": 23,
+      "screening": "pending",
+      "speedup": 2.8216,
+      "submitted_at": 1793306658.207099,
+      "team": "taroigarashi2001",
+      "value": 1334.8217271517467
+    },
+    {
+      "attempts": 62,
+      "job": "330783a5922e47a8",
+      "rank": 24,
+      "speedup": 2.8203,
+      "submitted_at": 1793487236.8678865,
+      "team": "shouryamaanjain",
+      "value": 1335.4351866653801
+    },
+    {
+      "attempts": 2,
+      "job": "34b9ab8f4716459e",
+      "rank": 25,
+      "speedup": 2.8049,
+      "submitted_at": 1793491268.3241818,
+      "team": "k9thebeast",
+      "value": 1342.7388649724476
+    },
+    {
+      "attempts": 67,
+      "job": "e18af181e07a4d39",
+      "rank": 26,
+      "speedup": 2.8042,
+      "submitted_at": 1793493145.9973724,
+      "team": "Aspect5",
+      "value": 1343.1085686869335
+    },
+    {
+      "attempts": 7,
+      "job": "bbbf16a738e543cd",
+      "rank": 27,
+      "speedup": 2.8021,
+      "submitted_at": 1793521850.7660475,
+      "team": "Meganpark980320",
+      "value": 1344.117702815097
+    },
+    {
+      "attempts": 6,
+      "job": "1efbc733d7ba41fb",
+      "rank": 28,
+      "speedup": 2.7986,
+      "submitted_at": 1793361687.220749,
+      "team": "nhat-nguyen",
+      "value": 1345.7773165804967
+    },
+    {
+      "attempts": 16,
+      "job": "95bc28f9fdc246a8",
+      "rank": 29,
+      "speedup": 2.7962,
+      "submitted_at": 1793461432.0457618,
+      "team": "Raphael-Hao",
+      "value": 1346.92796076947
+    },
+    {
+      "attempts": 8,
+      "job": "6278e038287e4827",
+      "rank": 30,
+      "screening": "screened",
+      "speedup": 2.7932,
+      "submitted_at": 1793050110.7002149,
+      "team": "schrepa",
+      "value": 1348.4036548071037
+    },
+    {
+      "attempts": 38,
+      "job": "efa22e1fda2e4cb1",
+      "rank": 31,
+      "speedup": 2.7928,
+      "submitted_at": 1793525985.3867843,
+      "team": "mpeng19",
+      "value": 1348.562097540973
+    },
+    {
+      "attempts": 42,
+      "job": "c1163fb4322a42fa",
+      "rank": 32,
+      "speedup": 2.7867,
+      "submitted_at": 1793494367.218564,
+      "team": "surya-koritala",
+      "value": 1351.525952415611
+    },
+    {
+      "attempts": 29,
+      "job": "43fa5397d8604f28",
+      "rank": 33,
+      "speedup": 2.7862,
+      "submitted_at": 1793448907.3671067,
+      "team": "josemiguel",
+      "value": 1351.7807663547992
+    },
+    {
+      "attempts": 36,
+      "job": "dab47d9a609e450c",
+      "rank": 34,
+      "speedup": 2.7841,
+      "submitted_at": 1793291747.691472,
+      "team": "ZhimaoL",
+      "value": 1352.7688490589612
+    },
+    {
+      "attempts": 6,
+      "job": "a9c67d15307a48ff",
+      "rank": 35,
+      "screened_speedup": 2.677169732034103,
+      "speedup": 2.7838,
+      "submitted_at": 1793496752.2653,
+      "team": "zro-inference",
+      "value": 1352.943400975422
+    },
+    {
+      "attempts": 6,
+      "job": "f903b081e14846b0",
+      "rank": 36,
+      "speedup": 2.7728,
+      "submitted_at": 1793512287.171922,
+      "team": "AlexCuadron",
+      "value": 1358.2971058029657
+    },
+    {
+      "attempts": 16,
+      "job": "5116da7e78d141a8",
+      "rank": 37,
+      "speedup": 2.7696,
+      "submitted_at": 1793430927.2548416,
+      "team": "AkshitPareek",
+      "value": 1359.8557687175744
+    },
+    {
+      "attempts": 3,
+      "job": "04ba5433ce294bcc",
+      "rank": 38,
+      "speedup": 2.7639,
+      "submitted_at": 1793539838.971999,
+      "team": "rigoryan",
+      "value": 1362.6661059603546
+    },
+    {
+      "attempts": 2,
+      "job": "7704a6662be74181",
+      "rank": 39,
+      "screened_speedup": 2.6701007749110373,
+      "screening": "pending",
+      "speedup": 2.7629,
+      "submitted_at": 1793144339.2011313,
+      "team": "harshagundala",
+      "value": 1363.1538750401353
+    },
+    {
+      "attempts": 31,
+      "job": "b12c2958bf9d4442",
+      "rank": 40,
+      "speedup": 2.76,
+      "submitted_at": 1793501961.1962295,
+      "team": "SilentKnight87",
+      "value": 1364.6176175398857
+    },
+    {
+      "attempts": 3,
+      "job": "ba9a7c78106a49bb",
+      "rank": 41,
+      "speedup": 2.7581,
+      "submitted_at": 1793512332.8169534,
+      "team": "raskin1",
+      "value": 1365.5203972003299
+    },
+    {
+      "attempts": 11,
+      "job": "f00531e3c45746b9",
+      "rank": 42,
+      "speedup": 2.7575,
+      "submitted_at": 1793469165.2026167,
+      "team": "can1357",
+      "value": 1365.839616989237
+    },
+    {
+      "attempts": 10,
+      "job": "a38527b2f8e34e2b",
+      "rank": 43,
+      "speedup": 2.7423,
+      "submitted_at": 1793268659.1392329,
+      "team": "booth-algo",
+      "value": 1373.3967861600022
+    },
+    {
+      "attempts": 65,
+      "job": "afa7b84399314889",
+      "rank": 44,
+      "speedup": 2.739,
+      "submitted_at": 1793486650.6495357,
+      "team": "Maher4Ever",
+      "value": 1375.0639527935928
+    },
+    {
+      "attempts": 48,
+      "job": "92fa1855057d4580",
+      "rank": 45,
+      "speedup": 2.7318,
+      "submitted_at": 1793434450.6584933,
+      "team": "steelep",
+      "value": 1378.7120687744284
+    },
+    {
+      "attempts": 30,
+      "job": "f06a813826614198",
+      "rank": 46,
+      "speedup": 2.729,
+      "submitted_at": 1793494962.4670615,
+      "team": "benboren",
+      "value": 1380.0923681541015
+    },
+    {
+      "attempts": 20,
+      "job": "e03da80b32f74057",
+      "rank": 47,
+      "speedup": 2.7253,
+      "submitted_at": 1793478581.7044406,
+      "team": "saarthak314",
+      "value": 1381.9914340947
+    },
+    {
+      "attempts": 23,
+      "job": "7ca2993992984ed6",
+      "rank": 48,
+      "speedup": 2.7208,
+      "submitted_at": 1793456750.2458766,
+      "team": "adityakm24",
+      "value": 1384.2677466949674
+    },
+    {
+      "attempts": 20,
+      "job": "4f8621d7ad67453e",
+      "rank": 49,
+      "speedup": 2.7168,
+      "submitted_at": 1793316843.6213655,
+      "team": "keell0renz",
+      "value": 1386.2916299146739
+    },
+    {
+      "attempts": 10,
+      "job": "1c46a32005004a8b",
+      "rank": 50,
+      "speedup": 2.7119,
+      "submitted_at": 1793360691.5538661,
+      "team": "Sheape",
+      "value": 1388.8103806479821
+    },
+    {
+      "attempts": 41,
+      "job": "bd59d00e5c534f60",
+      "rank": 51,
+      "speedup": 2.7093,
+      "submitted_at": 1793425908.4728465,
+      "team": "concept-guest",
+      "value": 1390.118870955221
+    },
+    {
+      "attempts": 32,
+      "job": "494b50318bc54f9b",
+      "rank": 52,
+      "speedup": 2.7075,
+      "submitted_at": 1793465445.5468004,
+      "team": "lxe",
+      "value": 1391.0855165741712
+    },
+    {
+      "attempts": 10,
+      "job": "11810138a2b84b4b",
+      "rank": 53,
+      "speedup": 2.7065,
+      "submitted_at": 1793516167.4214048,
+      "team": "pepinu",
+      "value": 1391.5592812170992
+    },
+    {
+      "attempts": 1,
+      "job": "3e346cddb2314e75",
+      "rank": 54,
+      "speedup": 2.7057,
+      "submitted_at": 1793306300.930125,
+      "team": "Akashneelesh",
+      "value": 1391.981476800762
+    },
+    {
+      "attempts": 51,
+      "job": "bb6f636a36554a08",
+      "rank": 55,
+      "speedup": 2.7051,
+      "submitted_at": 1793349179.1245093,
+      "team": "e-shizz",
+      "value": 1392.3107881890642
+    },
+    {
+      "attempts": 4,
+      "job": "4fa5010fd256461f",
+      "rank": 56,
+      "speedup": 2.7024,
+      "submitted_at": 1793306413.5842493,
+      "team": "michaelbzhu",
+      "value": 1393.6909218238313
+    },
+    {
+      "attempts": 65,
+      "job": "89c8001170e0439f",
+      "rank": 57,
+      "speedup": 2.699,
+      "submitted_at": 1793520506.7293231,
+      "team": "GodlyDonuts",
+      "value": 1395.4545797740616
+    },
+    {
+      "attempts": 20,
+      "job": "980f9d374e214ee9",
+      "rank": 58,
+      "speedup": 2.6974,
+      "submitted_at": 1793485010.531383,
+      "team": "vnicula",
+      "value": 1396.2911839389424
+    },
+    {
+      "attempts": 22,
+      "job": "04efcd82a60a4dbf",
+      "rank": 59,
+      "speedup": 2.6963,
+      "submitted_at": 1793505714.1378021,
+      "team": "Alecdemp13",
+      "value": 1396.8428989407053
+    },
+    {
+      "attempts": 21,
+      "job": "7b70659aa78e4a2a",
+      "rank": 60,
+      "speedup": 2.696,
+      "submitted_at": 1793507122.725189,
+      "team": "d42me",
+      "value": 1397.0143296831873
+    }
+  ]
+}

@@ -606,3 +606,4 @@ Latest: [Dense projection transfer to the decode layer](2026-11-01-layer-dense-t
 - 2026-11-01: [Cached band32 six-arm registration](2026-11-01-owned-cached-band32-registration.md): same physical schedule/credits, new bounded shared representation; new945013B artifact4bf3864b, disjoint heldouts, three binaries/six private owners,396math gates and sevenCPU tests. Root/peer review required, no GPU by worker.
 
 - 2026-11-01: [Final cached band32 closure](2026-11-01-owned-cached-band32-terminal.md):903e5b03411c4e2d PASS5/all396 checks; cached recovers failed direct loss but full-score versus control0.99447-0.99890 fails, KEEP=false. No pure/public candidate, knob sweep or production change.
+- [2026-11-01 attention public-source delta search](2026-11-01-attention-public-source-delta.md): fresh board, unchanged stronger comparators, targeted branch/content widening and scoped miss; no GPU.
