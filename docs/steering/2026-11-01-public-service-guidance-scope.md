@@ -1,6 +1,8 @@
 # Public service guidance: scoped inspection
 
-Observed 2026-11-01, approximately 22:59–23:05 UTC. Read-only public-source investigation; no judge API, CLI status, GPU, submission, login, registration or external message was used.
+Inspection completed by the owning commit `7e74778`, recorded at 2026-11-01 23:00:31 UTC. A tool clock reading during retrieval was 22:59:51 UTC; the exact inspection start was not recorded. Read-only public-source investigation; no judge API, CLI status, GPU, submission, login, registration or external message was used.
+
+Timestamp correction: the initial report's estimated 23:05 end was in the future and was incorrect. The times above use the actual tool clock and Git commit timestamp; the scoped findings are unchanged.
 
 ## Result
 
