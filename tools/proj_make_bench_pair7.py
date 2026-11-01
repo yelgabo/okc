@@ -182,7 +182,11 @@ def _p7pack(w):
         sg=torch.stack([(ii>>5)&1,(ii>>6)&1],-1).reshape(n,k)
         restored=low.int()|(ee.int()<<8)|(sg.int()<<15)
     else:restored=(low.int()&127)|((low.int()&128)<<8)|(ee.int()<<7)
-    restored.reshape(n//2,2,k)[ci,ri,ki]=tab[ci,pos,1]
+    if _P7_TOP7:
+        entries=tab[ci,pos];er=(entries[:,0]>>13)&1;ek=entries[:,0]&8191
+        assert torch.equal(((entries[:,1]&0x80ff)|(((entries[:,0]>>14)&127)<<8)),decoded.reshape(n//2,2,k)[ci,er,ek]),'serialized escape decoder mismatch'
+        restored.reshape(n//2,2,k)[ci,er,ek]=entries[:,1]
+    else:restored.reshape(n//2,2,k)[ci,ri,ki]=tab[ci,pos,1]
     assert torch.equal(restored,b),'pair7 stored-byte roundtrip failed'
     if _P7_TOP7:
         lu=(lut&127)|((lut>>7)<<8)
