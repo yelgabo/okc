@@ -21,6 +21,10 @@ components, in the same process, before calling it lost again.
 
 | Experiment | Evidence | Rules out |
 |---|---|---|
+| TOP7 exponent-pair LUT32 +2sign bits, unchanged rawlow and vector fma4 |ee39ec933a8542d8: exactstoredweights/LUT/FP64 probes pass; qkv/o/pool512/pool256/slice +4.48/+2.16/+11.34/+8.53/+1.63us, null<=0.032; bytes3–3.4%lower,no localmemory |This cheaper actual pair7 decoder in currentcgemv schedule; smallerLUT/registers alone insufficient. No production adoption. Reopen only after materially cheaper decode placement or a competitive encoded consumer, not another register/LUT knob sweep |
+
+| Experiment | Evidence | Rules out |
+|---|---|---|
 | One128row W TMA replacing two64row W copies in raw dense wd128x128 |7803be789c624f8e: exactSW128/bytes/count gates and GPU correctness pass; full saves~0.5us but remains~12us behindLt, memory-only gain negligible; resources unchanged62clusters/90regs/no local |This local copy-issue reduction as repair of the dense deficit. Stop further local TMA knobs without counters/new mechanism; no production adoption |
 
 | Experiment | Evidence | Rules out |
@@ -307,3 +311,6 @@ the public entry vjeux/okc-2026 with its design memos (see `docs/gap-analysis-20
 | Standalone MoE Humming INDEXED routed heuristic |8d64807ea7504495,5tests pass,0.911512837x CI0.897840–0.925186|Loses1/8/16/32;128/256 only slightly beat SGLang and trail owned persistent kernel. No replacement; GROUPED_MASKED is a separate new mechanism.|
 | Layer second attentionport repeatability |9414182118414889 pooled1.0015,maxlognull0.0011,allM1{}|Not resolved in new prepared regime; no repeated causal-gain claim. Reopen with matched policies/new bottleneck evidence, not weaker gate.|
 | First matched M1 observability harness |273ff292536e4429 official control passes but early diagnostic lines outside tail|No diagnostic inference. Fixed reprint03bb478f8b0b4629 preserves unchanged gates; does not reproduce prior0.14event.|
+| Experiment | Evidence | Closure / reopening trigger |
+|---|---|---|
+| Original12-bit cgemv integrated escape consumerwarp0 instead of extra warp | bac995b3b94541c4: actual zero-spill blocks/SM qkv5→6,o21→32,pool3→4,slice9→12; independent A/B two-heldout paired deltas +0.96,+1.50,+2.24–2.27,+0.45–0.48us; FP64 gates pass | This schedule loses despite real occupancy gains; no register-cap sweep. Reopen with a different escape schedule that preserves concurrency or materially reduces correction work, not another occupancy assertion. |
