@@ -1,5 +1,7 @@
 # Shared project steering
 
+Latest progress repair review: [Owned MODE51 cooperative/fatal-watchdog source audit](2026-11-01-owned-progress-repair-review.md). All explicit readiness polling paths trap on expiry; source-only clearance, H200 qualification pending.
+
 Latest separate progress prototype: [Owned verify51 cooperative+fatal-timeout epoch](2026-11-01-owned-verify-progress-prototype.md). Exact oldlauncher reused, PDLoff and timeouttrap; threeCPU tests/local96reg0spill compile pass. Source/peer/H200 qualification still required; no queue/public action.
 
 Latest production size milestone: [Transparent comment-only hybrid fit](2026-11-01-production-comment-fit.md) - mask4 907642 B and mask15 951539 B fit with notices/anchors retained and actual source-factory/local selected compiler equivalence. Inherited owned progress contract blocks GPU/public readiness; separate repair and full runtime gates remain required.
