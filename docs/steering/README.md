@@ -1,5 +1,7 @@
 # Shared project steering
 
+Latest standalone eligibility audit: [Historical MoE best progress gap](2026-11-01-historical-moe-progress-gap.md). Exactec565/b35 plusabe765policy/profiles prove bothselectedskinny/main47 useordinarysoftware-grid joins andnonfatalwatchdog. Historical2.215711562 retained; no qualifiedreplacement, production/public/GPU action.
+
 Latest single-arm hybrid host review: [Actual startup qualification](2026-11-01-hybrid-onearm-host-review.md). Exact4ad326c3/980787B passes7 independentCPU tests:48/8/24 full +40empty/8emptycaps/32restored, getters/negativefailures. Scopedsource/host only; H20013/12,setup/runtime/score remain unqualified.
 
 Latest separate progress prototype: [Owned verify51 cooperative+fatal-timeout epoch](2026-11-01-owned-verify-progress-prototype.md). Exact oldlauncher reused, PDLoff and timeouttrap; threeCPU tests/local96reg0spill compile pass. Source/peer/H200 qualification still required; no queue/public action.
