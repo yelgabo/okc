@@ -1,0 +1,13 @@
+...
+----------------------------------------------------------------------
+Ran 3 tests in 0.122s
+
+OK
+/root/.cache/okc-host-validate/lib/python3.14/site-packages/torch/_subclasses/functional_tensor.py:283: UserWarning: Failed to initialize NumPy: No module named 'numpy' (Triggered internally at /pytorch/torch/csrc/utils/tensor_numpy.cpp:84.)
+  cpu = _conversion_method_template(device=torch.device("cpu"))
+...
+----------------------------------------------------------------------
+Ran 3 tests in 0.140s
+
+OK
+Host-only validation Torch=2.10.0+cpu CUDA_available=False

@@ -597,6 +597,29 @@ branches pass; a negativecontrol recreates the old shadowing TypeError. Three so
 host tests pass, syntax passes. Correctedcheck252df4a54d764ca5 dispatched from
 `.build/today-moe/moe_skinny_testwait_v2.py`; same preregistration/reviewedCUDA, pending.
 
+252df4a54d764ca5 FAILED optional stamp-host decoding after the complete core loop:
+inter is rank2; `.view(int64)[:G*16]` sliced rows, so reshape132x16 saw2162688 elements.
+No core summary had yet printed, therefore no per-shape timing or contribution score
+is recoverable/claimed. Baseline build153.4s/selftests spin0; the stack location is
+after core math/timing, not evidence of a wait-policy win. Failedreceipt/log saved
+`profiles/testwait_stamp_harness.252df4a54d764ca5.*`. No newGPU authorized yet.
+
+Host-v3 repair flattens the dtype-view before selecting2112 counter values, prints
+the complete core summary BEFORE optional stamps, and catches only decoder errors
+as explicit no-attribution. Kernel execution and spin-timeout failures remain fatal
+outside that catch. Core280s/stamp265s guards and registered performance gates unchanged.
+Persistent local `/root/.cache/okc-host-validate` now has officialCPU-onlyTorch2.10.0
+(Python3.14); CUDA_availableFalse. It is host validation, not a GPU benchmark.
+
+Six tests pass: source scope, callable-shadow check, ACTUAL20-round loop/all16compact
+case formatting and winning/losing scoregate/summary; plus REAL CPU Torch2D4096x4096BF16
+inter decoding, full valid headers, zero-header rejection, reproducedoldreshapeerror,
+core-preserving error/guard summaries and fatal CUDA-execution/spin/coreguard branches.
+CPUfixture A/B wait values are synthetic and not reported as hardware measurements.
+Validation log `profiles/testwait_host_cpu.2026-11-01.log`. V3scratch source generated
+and syntaxchecked; independenttoday_proj host-source re-review requested before root
+decides whether to authorize a further corrected check. CUDA/constants unchanged.
+
 ## Source facts (SGLang a55ab7d5, read from GitHub and hashed against the image)
 
 - `fused_post_expert_norm_weighted_sum` falls back to PyTorch ops below

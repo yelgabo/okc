@@ -45,6 +45,13 @@ QUERY=r'''
 BENCH=r'''
 import math
 import random as _tw_random
+def _tw_decode_wait_counters(inter,g):
+    # dtype-view retains rank: flatten before selecting the counter prefix.
+    d=inter.view(torch.int64).reshape(-1)[:g*16].reshape(g,16).double().cpu()
+    ghz=(d[:,13]-d[:,12])/(d[:,7]-d[:,0])
+    assert bool(torch.isfinite(ghz).all()) and bool((ghz>0).all()),"invalid stamp clock header"
+    return float((d[:,8]/ghz/1000).mean()),float((d[:,9]/ghz/1000).mean())
+
 _tw_original_prepare=prepare
 def prepare(weights):
     began=time.monotonic()
@@ -121,31 +128,38 @@ def prepare(weights):
     nullnoise=abs(math.log(scores["null"]))
     gain=all(math.log(scores[t])>=math.log(1.01) and math.log(scores[t])>2*nullnoise for t in ("test","test2"))
     regress=any(r[4][t]>max(.25,2*abs(r[4]["null"])) for r in records for t in ("test","test2"))
+    core=["TWCORE_RESULT complete16cases resources_equivalentTrue",
+        f"TWRESOURCE mode,regs,local,static,dynamic,blocksSM,maxThreads={rows}",
+        f"TWCHECK eager={checks}/64 graph={postchecks}/64 spin0True thresholdsrel{TEST_TOL}/row.075",
+        *logs,f"TWSCORE sixload_contribution={scores} null_abslog={nullnoise:.8g} gain1pct_2xnull={gain} no_regress={not regress} KEEP={gain and not regress}"]
+    core_text="\n".join(core)
+    assert len(core_text.encode())<10000,"testwait core summary exceeds10KB"
+    print(core_text,flush=True)
     # Fully counted corrected wait windows, untimed twins AFTER all four-arm timing.
     stamp_complete=True
+    stamp_error=None
     for m in (1,8,16,32):
         for routing in ("layer","std"):
             if time.monotonic()-began>265:
-                stamp_complete=False; break
+                stamp_complete=False; stamp_error="guard265"; break
             data=inputs(m,routing,321)
             row=[]
             for mode in (2,130):
                 v=SKINNY_VARIANTS.index((8,3,mode))
                 flush.zero_(); _run(data,states["base"],v); torch.cuda.synchronize()
                 g=torch.cuda.get_device_properties(dev).multi_processor_count
-                d=states["base"]["scratch"]["inter"].view(torch.int64)[:g*16].reshape(g,16).double().cpu()
-                ghz=(d[:,13]-d[:,12])/(d[:,7]-d[:,0])
-                assert bool(torch.isfinite(ghz).all()) and bool((ghz>0).all())
-                a=float((d[:,8]/ghz/1000).mean()); b=float((d[:,9]/ghz/1000).mean())
-                row.append((mode,round(a,3),round(b,3)))
                 assert int(states["base"]["scratch"]["ctr"][8])==0,"stamp spin timeout"
+                try:
+                    a,b=_tw_decode_wait_counters(states["base"]["scratch"]["inter"],g)
+                except Exception as exc:
+                    stamp_complete=False
+                    stamp_error=f"{type(exc).__name__}: {str(exc)[:240]}"
+                    break
+                row.append((mode,round(a,3),round(b,3)))
+            if not stamp_complete: break
             stamps.append(f"TWSTAMP M={m} route={routing} mode,A_wait_us,B_wait_us={row}")
         if not stamp_complete: break
-    summary=["TWRESULT core_complete16cases resources_equivalentTrue",
-        f"TWRESOURCE mode,regs,local,static,dynamic,blocksSM,maxThreads={rows}",
-        f"TWCHECK eager={checks}/64 graph={postchecks}/64 spin0True thresholdsrel{TEST_TOL}/row.075",
-        *logs,*stamps,f"TWSTAMP_COMPLETE {stamp_complete} (noattributionifFalse)",
-        f"TWSCORE sixload_contribution={scores} null_abslog={nullnoise:.8g} gain1pct_2xnull={gain} no_regress={not regress} KEEP={gain and not regress}"]
+    summary=core+stamps+[f"TWSTAMP_COMPLETE {stamp_complete} (noattributionifFalse) error={stamp_error}"]
     text="\n".join(summary)
     assert len(text.encode())<10000,"testwait compact summary exceeds10KB"
     print(text,flush=True)

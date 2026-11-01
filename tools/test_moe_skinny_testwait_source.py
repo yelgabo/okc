@@ -90,10 +90,15 @@ class SkinnyWaitSource(unittest.TestCase):
             deltas={t:v-100. for t,v in times.items()}
             scope.update(math=math,records=[(m,r,s,times,deltas) for m in (1,8,16,32)
                 for r in ('layer','std') for s in (321,322)],checks=64,postchecks=64,
-                TEST_TOL=.008,stamps=[],stamp_complete=True,
+                TEST_TOL=.008,stamps=[],stamp_complete=True,stamp_error=None,
                 rows=[[mode,140,0,0,155520,1,288] for mode in (0,256,128,384)])
-            execute(wrapper.body[begin:end],scope)
+            scope['logs']=[]
+            for m,r,s,raw,paired in scope['records']:
+                scope.update(m=m,routing=r,seed=s,raw=raw,paired=paired)
+                execute([formatter],scope)
+            self.assertEqual(len(scope['logs']),16)
             with contextlib.redirect_stdout(io.StringIO()) as printed:
+                execute(wrapper.body[begin:end],scope)
                 execute([n for n in wrapper.body[summary:] if not isinstance(n,ast.Return)],scope)
             self.assertEqual(scope['gain'] and not scope['regress'],win)
             self.assertIn(f'KEEP={win}',printed.getvalue())

@@ -194,3 +194,14 @@ equal between frozenoriginal andv2. The CPU scaffold now executes the actual tim
 loop/formatter, scoregate and compactsummary using no-op CUDA scaffolding, tests both
 winning and losing synthetic decisions, and reproduces the original failure as a
 negativecontrol. Three tests pass. No threshold, kernel or hypothesis change; pending.
+
+November1 second harness failure:252df... reached optional stamps after the core
+loop but rank2 dtype-view slicing made the132x16 decode fail. Because core summary
+had not printed, no timing/contribution result is recoverable. V3 flattens first and
+prints core before stamps, with decoder-only errors explicitly no-attribution;
+execution/spin failures remain fatal. Six tests now execute actual host formatting,
+score/summary and optional decode/error/guard paths with officialCPU-onlyTorch2.10
+and a real4096x4096BF16 scratch tensor. Both winning/losing synthetic decisions,
+zero/full headers and the old reshape failure are covered. No GPU timing is inferred
+from these fixtures. Log at profiles/testwait_host_cpu.2026-11-01.log under MoE.
+Further source review/root authorization is required before another check.
