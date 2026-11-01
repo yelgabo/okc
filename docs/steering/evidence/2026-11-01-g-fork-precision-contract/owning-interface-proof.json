@@ -1,0 +1,10 @@
+{
+  "job": "607eb52bdaf24160",
+  "board": "muse_decode_layer",
+  "source_sha256": "ba9e327cd7b96595ace4d0c1d0d78fe27c128f23ed0debcda97c7169fc3164ab",
+  "baseline_reference_match": {
+    "baseline.py": "87d95a0c4b78f0fd6c772436b959330ca45652b10e82dfc8add9acf0549227d4",
+    "reference.py": "23e177b87aee70c0d4990515989b95bff2972270cdac8ab967445b21fa2f5163"
+  },
+  "image": "localhost:30500/kc/judge@sha256:9a7f287b80d772c6f636bbcb57422c619fe326e2aabc53803b85007bca93f68e"
+}
