@@ -1,0 +1,151 @@
+ptxas info    : 3282 bytes gmem
+ptxas info    : Compiling entry function '_ZN58_GLOBAL__N__00000000_21_projection_control_cu_8ad8c1c4_5079sk_kernelILi1ELi8ELi1ELi1ELi8ELi2ELi4ELb1ELb0ELi5121ELi1E13__nv_bfloat16Lb0EEEv14CUtensorMap_stPKhPT10_PKiijiiiPiS4_PfS9_SA_' for 'sm_90a'
+ptxas info    : Function properties for _ZN58_GLOBAL__N__00000000_21_projection_control_cu_8ad8c1c4_5079sk_kernelILi1ELi8ELi1ELi1ELi8ELi2ELi4ELb1ELb0ELi5121ELi1E13__nv_bfloat16Lb0EEEv14CUtensorMap_stPKhPT10_PKiijiiiPiS4_PfS9_SA_
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 53 registers, used 2 barriers
+ptxas info    : Compile time = 42.030 ms
+ptxas info    : Compiling entry function '_ZN58_GLOBAL__N__00000000_21_projection_control_cu_8ad8c1c4_5079sk_kernelILi1ELi8ELi1ELi1ELi8ELi2ELi4ELb1ELb0ELi5153ELi1E13__nv_bfloat16Lb0EEEv14CUtensorMap_stPKhPT10_PKiijiiiPiS4_PfS9_SA_' for 'sm_90a'
+ptxas info    : Function properties for _ZN58_GLOBAL__N__00000000_21_projection_control_cu_8ad8c1c4_5079sk_kernelILi1ELi8ELi1ELi1ELi8ELi2ELi4ELb1ELb0ELi5153ELi1E13__nv_bfloat16Lb0EEEv14CUtensorMap_stPKhPT10_PKiijiiiPiS4_PfS9_SA_
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 52 registers, used 2 barriers
+ptxas info    : Compile time = 27.517 ms
+ptxas info    : Compiling entry function '_ZN58_GLOBAL__N__00000000_21_projection_control_cu_8ad8c1c4_5079sk_kernelILi1ELi8ELi1ELi1ELi8ELi2ELi4ELb1ELb0ELi1025ELi1E13__nv_bfloat16Lb0EEEv14CUtensorMap_stPKhPT10_PKiijiiiPiS4_PfS9_SA_' for 'sm_90a'
+ptxas info    : Function properties for _ZN58_GLOBAL__N__00000000_21_projection_control_cu_8ad8c1c4_5079sk_kernelILi1ELi8ELi1ELi1ELi8ELi2ELi4ELb1ELb0ELi1025ELi1E13__nv_bfloat16Lb0EEEv14CUtensorMap_stPKhPT10_PKiijiiiPiS4_PfS9_SA_
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 58 registers, used 2 barriers
+ptxas info    : Compile time = 22.789 ms
+ptxas info    : Compiling entry function '_ZN58_GLOBAL__N__00000000_21_projection_control_cu_8ad8c1c4_5079sk_kernelILi1ELi8ELi1ELi1ELi8ELi2ELi4ELb1ELb0ELi1057ELi1E13__nv_bfloat16Lb0EEEv14CUtensorMap_stPKhPT10_PKiijiiiPiS4_PfS9_SA_' for 'sm_90a'
+ptxas info    : Function properties for _ZN58_GLOBAL__N__00000000_21_projection_control_cu_8ad8c1c4_5079sk_kernelILi1ELi8ELi1ELi1ELi8ELi2ELi4ELb1ELb0ELi1057ELi1E13__nv_bfloat16Lb0EEEv14CUtensorMap_stPKhPT10_PKiijiiiPiS4_PfS9_SA_
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 58 registers, used 2 barriers
+ptxas info    : Compile time = 21.686 ms
+ptxas info    : Compiling entry function '_ZN58_GLOBAL__N__00000000_21_projection_control_cu_8ad8c1c4_5079sk_kernelILi2ELi32ELi2ELi2ELi2ELi4ELi3ELb1ELb0ELi5121ELi1E13__nv_bfloat16Lb0EEEv14CUtensorMap_stPKhPT10_PKiijiiiPiS4_PfS9_SA_' for 'sm_90a'
+ptxas info    : Function properties for _ZN58_GLOBAL__N__00000000_21_projection_control_cu_8ad8c1c4_5079sk_kernelILi2ELi32ELi2ELi2ELi2ELi4ELi3ELb1ELb0ELi5121ELi1E13__nv_bfloat16Lb0EEEv14CUtensorMap_stPKhPT10_PKiijiiiPiS4_PfS9_SA_
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 81 registers, used 2 barriers
+ptxas info    : Compile time = 60.530 ms
+ptxas info    : Compiling entry function '_ZN58_GLOBAL__N__00000000_21_projection_control_cu_8ad8c1c4_5079sk_kernelILi2ELi32ELi2ELi2ELi2ELi4ELi3ELb1ELb0ELi5153ELi1E13__nv_bfloat16Lb0EEEv14CUtensorMap_stPKhPT10_PKiijiiiPiS4_PfS9_SA_' for 'sm_90a'
+ptxas info    : Function properties for _ZN58_GLOBAL__N__00000000_21_projection_control_cu_8ad8c1c4_5079sk_kernelILi2ELi32ELi2ELi2ELi2ELi4ELi3ELb1ELb0ELi5153ELi1E13__nv_bfloat16Lb0EEEv14CUtensorMap_stPKhPT10_PKiijiiiPiS4_PfS9_SA_
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 79 registers, used 2 barriers
+ptxas info    : Compile time = 54.101 ms
+ptxas info    : Compiling entry function '_ZN58_GLOBAL__N__00000000_21_projection_control_cu_8ad8c1c4_5079sk_kernelILi2ELi32ELi2ELi2ELi2ELi4ELi3ELb1ELb0ELi1025ELi1E13__nv_bfloat16Lb0EEEv14CUtensorMap_stPKhPT10_PKiijiiiPiS4_PfS9_SA_' for 'sm_90a'
+ptxas info    : Function properties for _ZN58_GLOBAL__N__00000000_21_projection_control_cu_8ad8c1c4_5079sk_kernelILi2ELi32ELi2ELi2ELi2ELi4ELi3ELb1ELb0ELi1025ELi1E13__nv_bfloat16Lb0EEEv14CUtensorMap_stPKhPT10_PKiijiiiPiS4_PfS9_SA_
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 108 registers, used 2 barriers
+ptxas info    : Compile time = 43.538 ms
+ptxas info    : Compiling entry function '_ZN58_GLOBAL__N__00000000_21_projection_control_cu_8ad8c1c4_5079sk_kernelILi2ELi32ELi2ELi2ELi2ELi4ELi3ELb1ELb0ELi1057ELi1E13__nv_bfloat16Lb0EEEv14CUtensorMap_stPKhPT10_PKiijiiiPiS4_PfS9_SA_' for 'sm_90a'
+ptxas info    : Function properties for _ZN58_GLOBAL__N__00000000_21_projection_control_cu_8ad8c1c4_5079sk_kernelILi2ELi32ELi2ELi2ELi2ELi4ELi3ELb1ELb0ELi1057ELi1E13__nv_bfloat16Lb0EEEv14CUtensorMap_stPKhPT10_PKiijiiiPiS4_PfS9_SA_
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 86 registers, used 2 barriers
+ptxas info    : Compile time = 30.936 ms
+ptxas info    : Compiling entry function '_ZN58_GLOBAL__N__00000000_21_projection_control_cu_8ad8c1c4_5079sk_kernelILi1ELi16ELi2ELi2ELi2ELi4ELi4ELb1ELb0ELi5121ELi1E13__nv_bfloat16Lb0EEEv14CUtensorMap_stPKhPT10_PKiijiiiPiS4_PfS9_SA_' for 'sm_90a'
+ptxas info    : Function properties for _ZN58_GLOBAL__N__00000000_21_projection_control_cu_8ad8c1c4_5079sk_kernelILi1ELi16ELi2ELi2ELi2ELi4ELi4ELb1ELb0ELi5121ELi1E13__nv_bfloat16Lb0EEEv14CUtensorMap_stPKhPT10_PKiijiiiPiS4_PfS9_SA_
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 70 registers, used 2 barriers
+ptxas info    : Compile time = 49.139 ms
+ptxas info    : Compiling entry function '_ZN58_GLOBAL__N__00000000_21_projection_control_cu_8ad8c1c4_5079sk_kernelILi1ELi16ELi2ELi2ELi2ELi4ELi4ELb1ELb0ELi5153ELi1E13__nv_bfloat16Lb0EEEv14CUtensorMap_stPKhPT10_PKiijiiiPiS4_PfS9_SA_' for 'sm_90a'
+ptxas info    : Function properties for _ZN58_GLOBAL__N__00000000_21_projection_control_cu_8ad8c1c4_5079sk_kernelILi1ELi16ELi2ELi2ELi2ELi4ELi4ELb1ELb0ELi5153ELi1E13__nv_bfloat16Lb0EEEv14CUtensorMap_stPKhPT10_PKiijiiiPiS4_PfS9_SA_
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 62 registers, used 2 barriers
+ptxas info    : Compile time = 48.351 ms
+ptxas info    : Compiling entry function '_ZN58_GLOBAL__N__00000000_21_projection_control_cu_8ad8c1c4_5079sk_kernelILi1ELi16ELi2ELi2ELi2ELi4ELi4ELb1ELb0ELi1025ELi1E13__nv_bfloat16Lb0EEEv14CUtensorMap_stPKhPT10_PKiijiiiPiS4_PfS9_SA_' for 'sm_90a'
+ptxas info    : Function properties for _ZN58_GLOBAL__N__00000000_21_projection_control_cu_8ad8c1c4_5079sk_kernelILi1ELi16ELi2ELi2ELi2ELi4ELi4ELb1ELb0ELi1025ELi1E13__nv_bfloat16Lb0EEEv14CUtensorMap_stPKhPT10_PKiijiiiPiS4_PfS9_SA_
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 62 registers, used 2 barriers
+ptxas info    : Compile time = 37.915 ms
+ptxas info    : Compiling entry function '_ZN58_GLOBAL__N__00000000_21_projection_control_cu_8ad8c1c4_5079sk_kernelILi1ELi16ELi2ELi2ELi2ELi4ELi4ELb1ELb0ELi1057ELi1E13__nv_bfloat16Lb0EEEv14CUtensorMap_stPKhPT10_PKiijiiiPiS4_PfS9_SA_' for 'sm_90a'
+ptxas info    : Function properties for _ZN58_GLOBAL__N__00000000_21_projection_control_cu_8ad8c1c4_5079sk_kernelILi1ELi16ELi2ELi2ELi2ELi4ELi4ELb1ELb0ELi1057ELi1E13__nv_bfloat16Lb0EEEv14CUtensorMap_stPKhPT10_PKiijiiiPiS4_PfS9_SA_
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 60 registers, used 2 barriers
+ptxas info    : Compile time = 29.865 ms
+ptxas info    : Compiling entry function '_ZN58_GLOBAL__N__00000000_21_projection_control_cu_8ad8c1c4_5079sk_kernelILi2ELi32ELi2ELi2ELi2ELi2ELi3ELb1ELb0ELi5121ELi1E13__nv_bfloat16Lb0EEEv14CUtensorMap_stPKhPT10_PKiijiiiPiS4_PfS9_SA_' for 'sm_90a'
+ptxas info    : Function properties for _ZN58_GLOBAL__N__00000000_21_projection_control_cu_8ad8c1c4_5079sk_kernelILi2ELi32ELi2ELi2ELi2ELi2ELi3ELb1ELb0ELi5121ELi1E13__nv_bfloat16Lb0EEEv14CUtensorMap_stPKhPT10_PKiijiiiPiS4_PfS9_SA_
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 84 registers, used 2 barriers
+ptxas info    : Compile time = 34.892 ms
+ptxas info    : Compiling entry function '_ZN58_GLOBAL__N__00000000_21_projection_control_cu_8ad8c1c4_5079sk_kernelILi2ELi32ELi2ELi2ELi2ELi2ELi3ELb1ELb0ELi5153ELi1E13__nv_bfloat16Lb0EEEv14CUtensorMap_stPKhPT10_PKiijiiiPiS4_PfS9_SA_' for 'sm_90a'
+ptxas info    : Function properties for _ZN58_GLOBAL__N__00000000_21_projection_control_cu_8ad8c1c4_5079sk_kernelILi2ELi32ELi2ELi2ELi2ELi2ELi3ELb1ELb0ELi5153ELi1E13__nv_bfloat16Lb0EEEv14CUtensorMap_stPKhPT10_PKiijiiiPiS4_PfS9_SA_
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 79 registers, used 2 barriers
+ptxas info    : Compile time = 32.057 ms
+ptxas info    : Compiling entry function '_ZN58_GLOBAL__N__00000000_21_projection_control_cu_8ad8c1c4_5079sk_kernelILi2ELi32ELi2ELi2ELi2ELi2ELi3ELb1ELb0ELi1025ELi1E13__nv_bfloat16Lb0EEEv14CUtensorMap_stPKhPT10_PKiijiiiPiS4_PfS9_SA_' for 'sm_90a'
+ptxas info    : Function properties for _ZN58_GLOBAL__N__00000000_21_projection_control_cu_8ad8c1c4_5079sk_kernelILi2ELi32ELi2ELi2ELi2ELi2ELi3ELb1ELb0ELi1025ELi1E13__nv_bfloat16Lb0EEEv14CUtensorMap_stPKhPT10_PKiijiiiPiS4_PfS9_SA_
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 88 registers, used 2 barriers
+ptxas info    : Compile time = 33.168 ms
+ptxas info    : Compiling entry function '_ZN58_GLOBAL__N__00000000_21_projection_control_cu_8ad8c1c4_5079sk_kernelILi2ELi32ELi2ELi2ELi2ELi2ELi3ELb1ELb0ELi1057ELi1E13__nv_bfloat16Lb0EEEv14CUtensorMap_stPKhPT10_PKiijiiiPiS4_PfS9_SA_' for 'sm_90a'
+ptxas info    : Function properties for _ZN58_GLOBAL__N__00000000_21_projection_control_cu_8ad8c1c4_5079sk_kernelILi2ELi32ELi2ELi2ELi2ELi2ELi3ELb1ELb0ELi1057ELi1E13__nv_bfloat16Lb0EEEv14CUtensorMap_stPKhPT10_PKiijiiiPiS4_PfS9_SA_
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 84 registers, used 2 barriers
+ptxas info    : Compile time = 26.011 ms
+ptxas info    : Compiling entry function '_ZN58_GLOBAL__N__00000000_21_projection_control_cu_8ad8c1c4_5079sk_kernelILi1ELi16ELi2ELi2ELi2ELi2ELi3ELb1ELb0ELi5121ELi1E13__nv_bfloat16Lb0EEEv14CUtensorMap_stPKhPT10_PKiijiiiPiS4_PfS9_SA_' for 'sm_90a'
+ptxas info    : Function properties for _ZN58_GLOBAL__N__00000000_21_projection_control_cu_8ad8c1c4_5079sk_kernelILi1ELi16ELi2ELi2ELi2ELi2ELi3ELb1ELb0ELi5121ELi1E13__nv_bfloat16Lb0EEEv14CUtensorMap_stPKhPT10_PKiijiiiPiS4_PfS9_SA_
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 63 registers, used 2 barriers
+ptxas info    : Compile time = 36.023 ms
+ptxas info    : Compiling entry function '_ZN58_GLOBAL__N__00000000_21_projection_control_cu_8ad8c1c4_5079sk_kernelILi1ELi16ELi2ELi2ELi2ELi2ELi3ELb1ELb0ELi5153ELi1E13__nv_bfloat16Lb0EEEv14CUtensorMap_stPKhPT10_PKiijiiiPiS4_PfS9_SA_' for 'sm_90a'
+ptxas info    : Function properties for _ZN58_GLOBAL__N__00000000_21_projection_control_cu_8ad8c1c4_5079sk_kernelILi1ELi16ELi2ELi2ELi2ELi2ELi3ELb1ELb0ELi5153ELi1E13__nv_bfloat16Lb0EEEv14CUtensorMap_stPKhPT10_PKiijiiiPiS4_PfS9_SA_
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 61 registers, used 2 barriers
+ptxas info    : Compile time = 29.676 ms
+ptxas info    : Compiling entry function '_ZN58_GLOBAL__N__00000000_21_projection_control_cu_8ad8c1c4_5079sk_kernelILi1ELi16ELi2ELi2ELi2ELi2ELi3ELb1ELb0ELi1025ELi1E13__nv_bfloat16Lb0EEEv14CUtensorMap_stPKhPT10_PKiijiiiPiS4_PfS9_SA_' for 'sm_90a'
+ptxas info    : Function properties for _ZN58_GLOBAL__N__00000000_21_projection_control_cu_8ad8c1c4_5079sk_kernelILi1ELi16ELi2ELi2ELi2ELi2ELi3ELb1ELb0ELi1025ELi1E13__nv_bfloat16Lb0EEEv14CUtensorMap_stPKhPT10_PKiijiiiPiS4_PfS9_SA_
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 60 registers, used 2 barriers
+ptxas info    : Compile time = 31.971 ms
+ptxas info    : Compiling entry function '_ZN58_GLOBAL__N__00000000_21_projection_control_cu_8ad8c1c4_5079sk_kernelILi1ELi16ELi2ELi2ELi2ELi2ELi3ELb1ELb0ELi1057ELi1E13__nv_bfloat16Lb0EEEv14CUtensorMap_stPKhPT10_PKiijiiiPiS4_PfS9_SA_' for 'sm_90a'
+ptxas info    : Function properties for _ZN58_GLOBAL__N__00000000_21_projection_control_cu_8ad8c1c4_5079sk_kernelILi1ELi16ELi2ELi2ELi2ELi2ELi3ELb1ELb0ELi1057ELi1E13__nv_bfloat16Lb0EEEv14CUtensorMap_stPKhPT10_PKiijiiiPiS4_PfS9_SA_
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 56 registers, used 2 barriers
+ptxas info    : Compile time = 22.974 ms
+ptxas info    : Compiling entry function '_ZN58_GLOBAL__N__00000000_21_projection_control_cu_8ad8c1c4_5079sk_kernelILi2ELi32ELi3ELi1ELi4ELi2ELi4ELb1ELb0ELi5121ELi1E13__nv_bfloat16Lb0EEEv14CUtensorMap_stPKhPT10_PKiijiiiPiS4_PfS9_SA_' for 'sm_90a'
+ptxas info    : Function properties for _ZN58_GLOBAL__N__00000000_21_projection_control_cu_8ad8c1c4_5079sk_kernelILi2ELi32ELi3ELi1ELi4ELi2ELi4ELb1ELb0ELi5121ELi1E13__nv_bfloat16Lb0EEEv14CUtensorMap_stPKhPT10_PKiijiiiPiS4_PfS9_SA_
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 101 registers, used 2 barriers
+ptxas info    : Compile time = 44.818 ms
+ptxas info    : Compiling entry function '_ZN58_GLOBAL__N__00000000_21_projection_control_cu_8ad8c1c4_5079sk_kernelILi2ELi32ELi3ELi1ELi4ELi2ELi4ELb1ELb0ELi1025ELi1E13__nv_bfloat16Lb0EEEv14CUtensorMap_stPKhPT10_PKiijiiiPiS4_PfS9_SA_' for 'sm_90a'
+ptxas info    : Function properties for _ZN58_GLOBAL__N__00000000_21_projection_control_cu_8ad8c1c4_5079sk_kernelILi2ELi32ELi3ELi1ELi4ELi2ELi4ELb1ELb0ELi1025ELi1E13__nv_bfloat16Lb0EEEv14CUtensorMap_stPKhPT10_PKiijiiiPiS4_PfS9_SA_
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 112 registers, used 2 barriers
+ptxas info    : Compile time = 29.658 ms
+ptxas info    : Compiling entry function '_ZN58_GLOBAL__N__00000000_21_projection_control_cu_8ad8c1c4_5079sk_kernelILi1ELi16ELi3ELi1ELi4ELi2ELi5ELb1ELb0ELi5121ELi1E13__nv_bfloat16Lb0EEEv14CUtensorMap_stPKhPT10_PKiijiiiPiS4_PfS9_SA_' for 'sm_90a'
+ptxas info    : Function properties for _ZN58_GLOBAL__N__00000000_21_projection_control_cu_8ad8c1c4_5079sk_kernelILi1ELi16ELi3ELi1ELi4ELi2ELi5ELb1ELb0ELi5121ELi1E13__nv_bfloat16Lb0EEEv14CUtensorMap_stPKhPT10_PKiijiiiPiS4_PfS9_SA_
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 75 registers, used 2 barriers
+ptxas info    : Compile time = 36.404 ms
+ptxas info    : Compiling entry function '_ZN58_GLOBAL__N__00000000_21_projection_control_cu_8ad8c1c4_5079sk_kernelILi1ELi16ELi3ELi1ELi4ELi2ELi5ELb1ELb0ELi5153ELi1E13__nv_bfloat16Lb0EEEv14CUtensorMap_stPKhPT10_PKiijiiiPiS4_PfS9_SA_' for 'sm_90a'
+ptxas info    : Function properties for _ZN58_GLOBAL__N__00000000_21_projection_control_cu_8ad8c1c4_5079sk_kernelILi1ELi16ELi3ELi1ELi4ELi2ELi5ELb1ELb0ELi5153ELi1E13__nv_bfloat16Lb0EEEv14CUtensorMap_stPKhPT10_PKiijiiiPiS4_PfS9_SA_
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 72 registers, used 2 barriers
+ptxas info    : Compile time = 36.565 ms
+ptxas info    : Compiling entry function '_ZN58_GLOBAL__N__00000000_21_projection_control_cu_8ad8c1c4_5079sk_kernelILi1ELi16ELi3ELi1ELi4ELi2ELi5ELb1ELb0ELi1025ELi1E13__nv_bfloat16Lb0EEEv14CUtensorMap_stPKhPT10_PKiijiiiPiS4_PfS9_SA_' for 'sm_90a'
+ptxas info    : Function properties for _ZN58_GLOBAL__N__00000000_21_projection_control_cu_8ad8c1c4_5079sk_kernelILi1ELi16ELi3ELi1ELi4ELi2ELi5ELb1ELb0ELi1025ELi1E13__nv_bfloat16Lb0EEEv14CUtensorMap_stPKhPT10_PKiijiiiPiS4_PfS9_SA_
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 70 registers, used 2 barriers
+ptxas info    : Compile time = 26.887 ms
+ptxas info    : Compiling entry function '_ZN58_GLOBAL__N__00000000_21_projection_control_cu_8ad8c1c4_5079sk_kernelILi1ELi16ELi3ELi1ELi4ELi2ELi5ELb1ELb0ELi1057ELi1E13__nv_bfloat16Lb0EEEv14CUtensorMap_stPKhPT10_PKiijiiiPiS4_PfS9_SA_' for 'sm_90a'
+ptxas info    : Function properties for _ZN58_GLOBAL__N__00000000_21_projection_control_cu_8ad8c1c4_5079sk_kernelILi1ELi16ELi3ELi1ELi4ELi2ELi5ELb1ELb0ELi1057ELi1E13__nv_bfloat16Lb0EEEv14CUtensorMap_stPKhPT10_PKiijiiiPiS4_PfS9_SA_
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 66 registers, used 2 barriers
+ptxas info    : Compile time = 24.624 ms
+ptxas info    : Compiling entry function '_ZN58_GLOBAL__N__00000000_21_projection_control_cu_8ad8c1c4_5079sk_kernelILi1ELi8ELi3ELi1ELi4ELi4ELi4ELb1ELb0ELi5121ELi1E13__nv_bfloat16Lb0EEEv14CUtensorMap_stPKhPT10_PKiijiiiPiS4_PfS9_SA_' for 'sm_90a'
+ptxas info    : Function properties for _ZN58_GLOBAL__N__00000000_21_projection_control_cu_8ad8c1c4_5079sk_kernelILi1ELi8ELi3ELi1ELi4ELi4ELi4ELb1ELb0ELi5121ELi1E13__nv_bfloat16Lb0EEEv14CUtensorMap_stPKhPT10_PKiijiiiPiS4_PfS9_SA_
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 77 registers, used 2 barriers
+ptxas info    : Compile time = 68.044 ms
+ptxas info    : Compiling entry function '_ZN58_GLOBAL__N__00000000_21_projection_control_cu_8ad8c1c4_5079sk_kernelILi1ELi8ELi3ELi1ELi4ELi4ELi4ELb1ELb0ELi5153ELi1E13__nv_bfloat16Lb0EEEv14CUtensorMap_stPKhPT10_PKiijiiiPiS4_PfS9_SA_' for 'sm_90a'
+ptxas info    : Function properties for _ZN58_GLOBAL__N__00000000_21_projection_control_cu_8ad8c1c4_5079sk_kernelILi1ELi8ELi3ELi1ELi4ELi4ELi4ELb1ELb0ELi5153ELi1E13__nv_bfloat16Lb0EEEv14CUtensorMap_stPKhPT10_PKiijiiiPiS4_PfS9_SA_
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 76 registers, used 2 barriers
+ptxas info    : Compile time = 63.232 ms
+ptxas info    : Compiling entry function '_ZN58_GLOBAL__N__00000000_21_projection_control_cu_8ad8c1c4_5079sk_kernelILi1ELi8ELi3ELi1ELi4ELi4ELi4ELb1ELb0ELi1025ELi1E13__nv_bfloat16Lb0EEEv14CUtensorMap_stPKhPT10_PKiijiiiPiS4_PfS9_SA_' for 'sm_90a'
+ptxas info    : Function properties for _ZN58_GLOBAL__N__00000000_21_projection_control_cu_8ad8c1c4_5079sk_kernelILi1ELi8ELi3ELi1ELi4ELi4ELi4ELb1ELb0ELi1025ELi1E13__nv_bfloat16Lb0EEEv14CUtensorMap_stPKhPT10_PKiijiiiPiS4_PfS9_SA_
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 82 registers, used 2 barriers
+ptxas info    : Compile time = 36.383 ms
+ptxas info    : Compiling entry function '_ZN58_GLOBAL__N__00000000_21_projection_control_cu_8ad8c1c4_5079sk_kernelILi1ELi8ELi3ELi1ELi4ELi4ELi4ELb1ELb0ELi1057ELi1E13__nv_bfloat16Lb0EEEv14CUtensorMap_stPKhPT10_PKiijiiiPiS4_PfS9_SA_' for 'sm_90a'
+ptxas info    : Function properties for _ZN58_GLOBAL__N__00000000_21_projection_control_cu_8ad8c1c4_5079sk_kernelILi1ELi8ELi3ELi1ELi4ELi4ELi4ELb1ELb0ELi1057ELi1E13__nv_bfloat16Lb0EEEv14CUtensorMap_stPKhPT10_PKiijiiiPiS4_PfS9_SA_
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 76 registers, used 2 barriers
+ptxas info    : Compile time = 34.354 ms
