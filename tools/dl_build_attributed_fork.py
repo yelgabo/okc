@@ -2,6 +2,7 @@
 import argparse
 import hashlib
 from pathlib import Path
+import re
 from dl_fork_attention import patch_attention
 from dl_fork_projection import patch_projection
 
@@ -94,6 +95,12 @@ def build(raw, notices):
     # weight pointer to form a second copy. Use the materialized branch.
     source = replace(source,'GLE_B1X = True','GLE_B1X = False')
     source = patch_projection(source)
+    # Establish a sequential reference for G1. Some graft calls set the
+    # launch attribute directly, bypassing the top-level PDL switch.
+    source = replace(source,'\nPDL = True\n','\nPDL = False\n')
+    source = replace(source,'launch_pdl=True','launch_pdl=False',14)
+    source, count = re.subn(r'(programmaticStreamSerializationAllowed\s*=\s*)1;',r'\g<1>0;',source)
+    assert count == 7
     source += '\n'+'\n'.join('# '+line for line in notices.splitlines())+'\n'
     compile(source,'<attributed layer>','exec')
     return source.encode('utf-8')
