@@ -380,6 +380,16 @@ image; replay/math failure unresolved. All printed configs and resources saved i
 `profiles/humming_masked.c1f6023f03d34c72.*`. Independent source review investigating
 TMA physical row footprint and grouped StreamK fixups; no blind sameconfig rerun approved.
 
+Concrete source hypothesis found after failure: own grouped Triton row*stride uses signed
+I32 arithmetic. AtCAP16544,32*CAP*4096=2168430592 elements exceeds2^31; C1 stride8192
+exceeds2^32. This matches16384 failure onset, while smaller shapes fit. Every grouped
+row is now widened to tl.int64 BEFORE stride multiplication at four sites: gather,
+tailzero, SiLU, scatter. Original failing artifact preserved; corrected frozen source
+`.build/today-moe/prefill_humming_masked_i64.py`. CPU boundary test confirms row itself
+fitsI32 but final offsets wrap; both contract tests pass. TMA A descriptor source
+`csrc/launcher/tensor.h:261–276` uses exact block_shape_m, no176->192 padding found.
+Independent exact-fix review requested; GPU confirmation still needed before causality claim.
+
 ## Source facts (SGLang a55ab7d5, read from GitHub and hashed against the image)
 
 - `fused_post_expert_norm_weighted_sum` falls back to PyTorch ops below

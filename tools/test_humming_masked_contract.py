@@ -5,6 +5,18 @@ import unittest
 
 
 class MaskedContract(unittest.TestCase):
+    def test_large_offsets_require_i64(self):
+        cap=16544
+        row=31*cap+cap-1
+        for stride in (4096,8192):
+            expected=row*stride+stride-1
+            self.assertGreater(expected,2**31-1)
+            wrapped=(expected+2**31)%(2**32)-2**31
+            self.assertNotEqual(expected,wrapped)
+            # The row index itself is safe in I32. Widen BEFORE stride multiply.
+            self.assertLess(row,2**31)
+            self.assertLess(expected,2**63)
+
     def test_routes_tails_bounds(self):
         rng=random.Random(3317)
         for m in (1,8,32,753,3012,16384):
