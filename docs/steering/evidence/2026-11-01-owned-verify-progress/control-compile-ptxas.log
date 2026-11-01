@@ -1,0 +1,6 @@
+ptxas info    : 140 bytes gmem
+ptxas info    : Compiling entry function '_ZN53_GLOBAL__N__00000000_16_owned_decoder_cu_dcaac4b3_3274moe115moe_main_kernelILi51EEEvNS0_6ParamsE' for 'sm_90a'
+ptxas info    : Function properties for _ZN53_GLOBAL__N__00000000_16_owned_decoder_cu_dcaac4b3_3274moe115moe_main_kernelILi51EEEvNS0_6ParamsE
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 96 registers, used 16 barriers
+ptxas info    : Compile time = 1410.860 ms
