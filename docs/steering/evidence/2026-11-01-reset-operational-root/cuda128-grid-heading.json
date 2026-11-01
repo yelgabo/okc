@@ -1,0 +1,7 @@
+{
+  "retrieval_date_utc": "2026-11-01",
+  "source_url": "https://docs.nvidia.com/cuda/archive/12.8.0/cuda-c-programming-guide/index.html#grid-synchronization-cg",
+  "actual_heading": "8.7. Grid Synchronization",
+  "finding": "Primary archive describes cooperative launch and resident-grid capacity for co-residency. Root's earlier 11.7 correction was wrong; this fixes the label without changing the launch-progress finding.",
+  "other_version": "The 12.8.1 URL timed out during retrieval; no section-number claim is made for it."
+}

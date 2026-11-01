@@ -125,3 +125,14 @@ generation equivalence. Git whitespace diagnostics on those inherited
 lines are expected; they are not silently trimmed after the frozen audit.
 All non-source edits receive the normal whitespace check. Upload manifest
 and raw CLI response are retained alongside root preflight evidence.
+
+## Service interruption: result unavailable
+
+Subsequent own-ID and jobs queries return API530 during maintenance;
+leaderboards still respond. The local wait/retrieval is not an observed
+kernel timeout, correctness failure or loss. Job1fad70bbe3854cbc remains
+accepted with unknown outcome. Do not resubmit it or infer a refunded slot.
+The existing reset reminder now requires reconciling that exact ID and
+fresh service/ledger/quota before any queued GPU job. See
+[the maintenance handoff](2026-11-01-maintenance-and-progress-handoff.md)
+for fresh cutoffs, eligibility corrections and frozen next gates.

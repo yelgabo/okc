@@ -31,3 +31,8 @@ For every main51 launch, query cooperative support and actual selected-function 
 Do not silently fall through on a failed attribute/occupancy/launch check. Require private-state initialization, graph capture/replay and occupied-stream startup coverage, fresh math/reference checks and all selected native paths. Admission and capture compatibility must be checked on H200; local sm90a device compilation cannot validate host API behavior. Existing inter-CTA publication/reset protocol still needs its independent proof; cooperative admission repairs only progress/co-residency. No fence removal, weaker tolerance or numerical shortcut is proposed.
 
 Stop public eligibility claims until the host-progress gap and any separately open dataflow/ownership defects are resolved. Source equivalence and byte fit can freeze independently without claiming this old policy was already safe.
+
+Root citation addendum, November1: the linked12.8.0 primary archive
+currently labels Grid Synchronization **8.7**, not11.7. Fresh retrieval
+confirms the same cooperative-launch and resident-grid argument. This
+corrects the displayed section label above; the source finding is unchanged.

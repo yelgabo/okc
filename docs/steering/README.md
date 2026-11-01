@@ -1,5 +1,7 @@
 # Shared project steering
 
+Latest root handoff: [Maintenance and measured-opportunity queue](2026-11-01-maintenance-and-progress-handoff.md). Accepted1fad70bbe3854cbc resultUNKNOWN after status/jobsAPI530; no retry/promotion. Exact980787B candidate/CPU reviews, fresh20:12 boards, MoEhistoricaleligibilitygap and conditional same-reset queue published. Top10/top50 remain unestablished.
+
 Latest root measurement: [One fixed four-cell layer measurement](2026-11-01-owned-verify-public-measurement.md). PublicH2001fad70bbe3854cbc running exact4ad326c3/980787B from43c6c09 after source/CPU/remote/preflight gates. No H200 result or promotion yet; incumbent607e retained.
 
 Latest standalone eligibility audit: [Historical MoE best progress gap](2026-11-01-historical-moe-progress-gap.md). Exactec565/b35 plusabe765policy/profiles prove bothselectedskinny/main47 useordinarysoftware-grid joins andnonfatalwatchdog. Historical2.215711562 retained; no qualifiedreplacement, production/public/GPU action.
@@ -571,6 +573,8 @@ accounting, and running a corrected matched whole-layer comparison. It records
 recommendations, not execution of those tasks; check current code and run logs for status.
 
 ## Report history
+
+- 2026-11-01 approximately20:12UTC: [Service interruption and progress handoff](2026-11-01-maintenance-and-progress-handoff.md): accepted job unknown, fresh four-board gaps, retained candidates/qualified-source distinctions and exact reset acceptance/stop gates.
 
 - 2026-11-01: [Fixed four-cell public measurement registration](2026-11-01-owned-verify-public-measurement.md): exact980787B source, strict startup/full-score gates and no paired/promotion claim; own H200 result pending.
 

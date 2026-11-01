@@ -23,3 +23,10 @@ Root must separately repair/qualify the reachable owned launch host path with co
 Until then preserve the queued diagnostics' intended order but do not silently mark the owned four-cell/production hybrid eligible. Parent owns whether to revise a payload or its queue entry. No additional GPU run, automatic retry, native edit or public action is authorized by this addendum.
 
 Root citation-label correction, November1: the linked CUDA12.8 grid-synchronization section is11.7; the earlier8.7 label reflects an older guide layout. The missing-admission finding is unchanged.
+
+Root correction of that label, subsequent November1 primary-page retrieval:
+of the actual linked **12.8.0** archive shows **8.7. Grid Synchronization**.
+The preceding root11.7 correction was wrong and is retracted. Its quoted
+cooperative-launch/admission contract is unchanged. A separate12.8.1 URL
+timed out during this retrieval; no section-number claim is made for it.
+See `evidence/2026-11-01-reset-operational-root/cuda128-grid-heading.json`.

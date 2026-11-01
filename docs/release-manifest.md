@@ -1,5 +1,23 @@
 # Decode-layer release manifest
 
+## November1 subsequent eligibility update
+
+Historical standalone MoE bestabe7651dbaa44458 remains the recorded public
+2.215711562x point, but it is **not a source-clear recommendation for a new
+submission**. Exactec565a7/b35d3217 source and its owning policy/six profiles
+show ordinary launches plus software-grid joins and nonfatal watchdogs in
+both selected skinny and main47 paths. Passing historical tests do not
+establish that progress contract. No exact repaired replacement is qualified,
+and no withdrawal or production mutation occurred. See
+`docs/steering/2026-11-01-historical-moe-progress-gap.md`.
+
+The same issue was **not** found in retained projectionC2's selected custom
+SK/RD/WD paths: its joins are within a CTA or an explicitly launched cluster;
+see `docs/steering/2026-11-01-c2-projection-progress.md`. This is a bounded
+progress audit, not a new performance or complete vendor-library proof.
+Layer607e remains the retained recommendation. New public single-arm
+layer1fad70bbe3854cbc is running and is not promoted by this update.
+
 ## November 1 current recommendation (18:19 UTC snapshot)
 
 The current layer board entry is **607eb52bdaf24160**, not the historical
