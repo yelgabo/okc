@@ -1,8 +1,10 @@
 # Architecture performance tracker
 
-**November 1 registration. Family G is the attributed keell0renz decode-layer fork.** It descends from the alygg77 lineage registered as Family F. G0 is the pinned upstream comparison. G1 is our fork with ordering, precision and lifetime repairs. Only G0 currently has the 2.248791× measurement. The owned Lt plus short-boundary candidate remains on the incumbent line. [Family G registration and run evidence](steering/2026-11-01-top50-reset.md)
+**November 1. Family G is our attributed fork of keell0renz's decode layer.** It descends from the alygg77 implementation registered as Family F. The Muse Spark model and H200 target are the same. G0 is the pinned upstream comparator, measured privately at 2.248791×. G1 includes our ordering, precision and lifetime repairs. [Family G registration](steering/2026-11-01-top50-reset.md).
 
-Last review: 2026-10-30 22:35 PDT. Evidence snapshot: `9bf7f05`.
+The scored incumbent is **G1b4 with stage retirement**, job `607eb52bdaf24160`, at **2.126083×**. It passed all 13 H200 cases, improved on the owned public entry at 2.043438×, and was rank 304 overall and on the layer at 04:18 PST. The G1b4 control scored 2.052870× and the later delayed-publication variant scored 2.102308×. These are independent public measurements. [Submitted code](../muse_decode_layer/cand/g1b4_stage_release.py). [Judge receipts, per-shape timings and open comparisons](steering/2026-11-01-g-public-layer-measurement.md#november-1-0418-pst--keep-the-stage-retirement-release).
+
+The historical family review below uses the October 30, 22:35 PDT snapshot `9bf7f05`.
 First review reconciles progress since `aab7d75`, the snapshot in the
 [architecture-family guide](architecture-families-2026-10-29.md).
 This is a review of recorded experiments, not a new benchmark run.
