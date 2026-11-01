@@ -82,3 +82,31 @@ Even a compiler pass would still require independent host/progress review,
 the fixed abe765 six-load policy qualification and actual H200 gates before
 a measured candidate recommendation. The separate retained C2 projection
 progress report is unchanged.
+
+## Authorized termination-contract screen: also closed
+
+After the first result, root authorized exactly one distinct compiler-contract
+screen. Private source237565 bytes, SHA256
+`db0b8cc1512f85c8967924a3e0f0fc53645be482f071f74cf0257224379210af`,
+adds only `__builtin_unreachable();` immediately after the existing fatal
+`asm volatile("trap;" ::: "memory");`. The diagnostic atomic and memory
+clobber remain. It does not edit the owner's frozen7c915 source or generator.
+
+New justification was the documented optimizer hint in
+[CUDA12.8 section7.18.5](https://docs.nvidia.com/cuda/archive/12.8.0/cuda-c-programming-guide/index.html#builtin-unreachable),
+combined with trap's terminating contract. The hypothesis was that declaring
+the continuation unreachable might avoid compiler liveness costs; this was
+a hypothesis, not a diagnosed cause of the first spill change.
+
+The identical two-entry compiler gate still fails: main47 remains96 registers,
+16 barriers,16-byte stack,16 spill-store and128 spill-load bytes versus the
+control's12/112. Main47 has16696 static instructions and all73 trap sites;
+its full recorded math/fence operand sequence still differs from the control.
+Skinny remains140 registers,16 barriers,zero stack/spills,3000 instructions,
+three traps and identical recorded math/fence operands. Main math/fence/barrier
+opcode counts remain equal. No hot-path/performance improvement is claimed.
+
+Archive `unreachable-comparison.json` and `unreachable/` preserve this actual
+result. Close both exact termination representations; no further compiler-hint,
+cap, trap-placement or arithmetic sweep is authorized by this report. The
+unsafe old launch/progress contract is not thereby certified as a fallback.
