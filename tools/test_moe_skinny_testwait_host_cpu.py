@@ -24,6 +24,7 @@ class HostStampCPU(unittest.TestCase):
     def setUpClass(cls):
         tree=ast.parse(build((ROOT/'muse_moe_w4a16/submission.py').read_text()))
         cls.decoder=next(n for n in tree.body if isinstance(n,ast.FunctionDef) and n.name=='_tw_decode_wait_counters')
+        cls.snapshot=next(n for n in tree.body if isinstance(n,ast.FunctionDef) and n.name=='_tw_snapshot_wait_counters')
         cls.wrapper=[n for n in tree.body if isinstance(n,ast.FunctionDef) and n.name=='prepare'][-1]
         cls.variants=next(ast.literal_eval(n.value) for n in tree.body if assigned(n,'SKINNY_VARIANTS'))
         a=next(i for i,n in enumerate(cls.wrapper.body) if assigned(n,'stamp_complete'))
@@ -60,12 +61,13 @@ class HostStampCPU(unittest.TestCase):
             states={'base':{'scratch':{'inter':inter,'ctr':ctr}}},
             flush=SimpleNamespace(zero_=lambda:None),stamps=[],
             core=['TWCORE_RESULT complete16cases resources_equivalentTrue',f'KEEP={win}'],calls=calls)
-        self.execute([self.decoder],scope)
-        if kind=='old_shape_error':
-            # Actual former expression must fail on the real rank2 dtype view.
-            def old_decoder(x,g):
-                return x.view(torch.int64)[:g*16].reshape(g,16).double().cpu()
-            scope['_tw_decode_wait_counters']=old_decoder
+        self.execute([self.snapshot,self.decoder],scope)
+        if kind=='cpu_shape_error':
+            # A CPU-only malformed prefix is optional; no CUDA work here.
+            scope['_tw_decode_wait_counters']=lambda raw,g:raw[:-1].reshape(g,16)
+        if kind=='snapshot_error':
+            def failed_snapshot(x,g): raise RuntimeError('simulated CUDA snapshot transfer error')
+            scope['_tw_snapshot_wait_counters']=failed_snapshot
         return scope
 
     def test_complete_real_tensor_decode_and_summary(self):
@@ -73,6 +75,9 @@ class HostStampCPU(unittest.TestCase):
             scope=self.scope(win=win)
             self.execute(self.optional,scope)
             self.assertTrue(scope['stamp_complete'])
+            self.assertEqual(scope['snapshot'].device.type,'cpu')
+            self.assertEqual(scope['snapshot'].dtype,torch.int64)
+            self.assertEqual(scope['snapshot'].shape,(132*16,))
             self.assertEqual(len(scope['calls']),16)
             self.assertEqual(len(scope['stamps']),8)
             self.assertTrue(all('(2, 1.0, 2.0)' in line and '(130, 0.5, 1.0)' in line for line in scope['stamps']))
@@ -81,7 +86,7 @@ class HostStampCPU(unittest.TestCase):
             self.assertIn('TWSTAMP_COMPLETE True',output.getvalue())
 
     def test_zero_and_shape_decode_failures_preserve_core(self):
-        for kind in ('zero','old_shape_error'):
+        for kind in ('zero','cpu_shape_error'):
             for win in (True,False):
                 scope=self.scope(kind=kind,win=win)
                 self.execute(self.optional,scope)
@@ -92,6 +97,9 @@ class HostStampCPU(unittest.TestCase):
                 self.assertIn('TWCORE_RESULT',output.getvalue())
                 self.assertIn(f'KEEP={win}',output.getvalue())
                 self.assertIn('noattributionifFalse',output.getvalue())
+        # Reproduce the actual old rank2 slicing failure with real Torch data.
+        inter=self.scope()['states']['base']['scratch']['inter']
+        with self.assertRaises(RuntimeError): inter.view(torch.int64)[:132*16].reshape(132,16)
 
     def test_stamp_guard_and_execution_fail_closed(self):
         scope=self.scope(elapsed=270.)
@@ -108,6 +116,8 @@ class HostStampCPU(unittest.TestCase):
         with self.assertRaisesRegex(RuntimeError,'280s'): scope['guard']()
         with self.assertRaisesRegex(RuntimeError,'simulated CUDA'):
             self.execute(self.optional,self.scope(kind='execution_error'))
+        with self.assertRaisesRegex(RuntimeError,'snapshot transfer'):
+            self.execute(self.optional,self.scope(kind='snapshot_error'))
         with self.assertRaisesRegex(AssertionError,'spin timeout'):
             self.execute(self.optional,self.scope(spin=1))
 

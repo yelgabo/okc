@@ -205,3 +205,11 @@ and a real4096x4096BF16 scratch tensor. Both winning/losing synthetic decisions,
 zero/full headers and the old reshape failure are covered. No GPU timing is inferred
 from these fixtures. Log at profiles/testwait_host_cpu.2026-11-01.log under MoE.
 Further source review/root authorization is required before another check.
+
+Final host-review addendum: reviewer caught GPU conversion/transfer still within the
+optionalcatch. Corrected before dispatch: flattened int64 counter snapshot/CPUtransfer
+is outside, only CPU reshape/header/math inside. Snapshottransfer errors are tested
+fatal. today_proj independently reran all6 tests and cleared exactV3SHA
+528dea8ff79888a2b8f6693e9c5c63c20210547d6128f9bf8fc80b9f9cdcb4d1. Root's conditional
+third/final retry authorized check9be599cf333a47c4. No CUDA/hypothesis/gate change;
+no fourth retry without new review. Pending, no recovered timing claim from old jobs.

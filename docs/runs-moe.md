@@ -620,6 +620,21 @@ Validation log `profiles/testwait_host_cpu.2026-11-01.log`. V3scratch source gen
 and syntaxchecked; independenttoday_proj host-source re-review requested before root
 decides whether to authorize a further corrected check. CUDA/constants unchanged.
 
+Independent v3 host review caught a further exception-scope issue before any retry:
+GPU `.double()`/`.cpu()` were still inside a broad decodercatch. Finalv3 moves a
+flattened int64 prefix snapshot/CPUtransfer OUTSIDE the catch, after launch/sync/spin
+checks. Only CPUint64 reshape/header/math is optional inside. Snapshottransfer error
+negativecontrol stays fatal; zero/badCPUheaders remain no-attribution. Actual2DTorch
+tests and source/formatter tests all pass6/6, independently rerun by today_proj.
+Verbose validation log `profiles/testwait_host_cpu_v3.2026-11-01.log`.
+
+Root authorized ONE third/final corrected retry after this clearance.9be599cf333a47c4
+dispatched from `_skinny_testwait_v3.py`, exact reviewedSHA256
+528dea8ff79888a2b8f6693e9c5c63c20210547d6128f9bf8fc80b9f9cdcb4d1. SameCUDA/constants
+and preregistered gates; no fourth retry without new root review. Core prints before
+optional stamps, finalsummary always on decoder/guard fallback; kernel/transfer/spin
+errors remain fatal. Pending, no performance or promotion claim.
+
 ## Source facts (SGLang a55ab7d5, read from GitHub and hashed against the image)
 
 - `fused_post_expert_norm_weighted_sum` falls back to PyTorch ops below

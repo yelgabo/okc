@@ -45,9 +45,14 @@ QUERY=r'''
 BENCH=r'''
 import math
 import random as _tw_random
-def _tw_decode_wait_counters(inter,g):
+def _tw_snapshot_wait_counters(inter,g):
     # dtype-view retains rank: flatten before selecting the counter prefix.
-    d=inter.view(torch.int64).reshape(-1)[:g*16].reshape(g,16).double().cpu()
+    # CUDA transfer errors must remain fatal outside the optional decoder catch.
+    return inter.view(torch.int64).reshape(-1)[:g*16].cpu()
+
+def _tw_decode_wait_counters(raw,g):
+    assert raw.device.type=="cpu" and raw.dtype==torch.int64,"stamp decoder requires CPU int64 snapshot"
+    d=raw.reshape(g,16).double()
     ghz=(d[:,13]-d[:,12])/(d[:,7]-d[:,0])
     assert bool(torch.isfinite(ghz).all()) and bool((ghz>0).all()),"invalid stamp clock header"
     return float((d[:,8]/ghz/1000).mean()),float((d[:,9]/ghz/1000).mean())
@@ -149,8 +154,9 @@ def prepare(weights):
                 flush.zero_(); _run(data,states["base"],v); torch.cuda.synchronize()
                 g=torch.cuda.get_device_properties(dev).multi_processor_count
                 assert int(states["base"]["scratch"]["ctr"][8])==0,"stamp spin timeout"
+                snapshot=_tw_snapshot_wait_counters(states["base"]["scratch"]["inter"],g)
                 try:
-                    a,b=_tw_decode_wait_counters(states["base"]["scratch"]["inter"],g)
+                    a,b=_tw_decode_wait_counters(snapshot,g)
                 except Exception as exc:
                     stamp_complete=False
                     stamp_error=f"{type(exc).__name__}: {str(exc)[:240]}"
