@@ -1,0 +1,135 @@
+[
+  {
+    "board": "muse_decode_layer",
+    "you": {
+      "rank": 377,
+      "team": "yelgabo",
+      "speedup": 2.0434,
+      "first": false,
+      "ahead": 376,
+      "to_first": 1.2158
+    },
+    "ranked": 1155,
+    "top": [
+      {
+        "attempts": 73,
+        "job": "d8b3fb90f4c248b8",
+        "rank": 10,
+        "screened_speedup": 2.368920438730032,
+        "speedup": 2.3834,
+        "submitted_at": 1793491425.0069733,
+        "team": "mgpai22",
+        "value": 9490.799903378942
+      },
+      {
+        "attempts": 6,
+        "job": "4f9d497f4cef4071",
+        "rank": 50,
+        "screened_speedup": 2.2605406599837035,
+        "speedup": 2.279,
+        "submitted_at": 1793259291.4628081,
+        "team": "tie-pilot-qxw",
+        "value": 9925.352948515565
+      }
+    ]
+  },
+  {
+    "board": "muse_moe_w4a16",
+    "you": {
+      "rank": 377,
+      "team": "yelgabo",
+      "speedup": 2.2157,
+      "first": false,
+      "ahead": 376,
+      "to_first": 1.2476
+    },
+    "ranked": 1284,
+    "top": [
+      {
+        "attempts": 27,
+        "job": "1084b630433041f9",
+        "rank": 10,
+        "screened_speedup": 2.55513797546463,
+        "speedup": 2.6077,
+        "submitted_at": 1793521489.0131469,
+        "team": "gauravjain14",
+        "value": 5157.219766158455
+      },
+      {
+        "attempts": 15,
+        "job": "48494e439a5749ff",
+        "rank": 50,
+        "speedup": 2.4534,
+        "submitted_at": 1793411809.4047737,
+        "team": "vishaal-drkm",
+        "value": 5481.6036609196235
+      }
+    ]
+  },
+  {
+    "board": "muse_attention_decode",
+    "you": {
+      "rank": 212,
+      "team": "yelgabo",
+      "speedup": 2.6043,
+      "first": false,
+      "ahead": 211,
+      "to_first": 1.2821
+    },
+    "ranked": 1230,
+    "top": [
+      {
+        "attempts": 6,
+        "job": "5cb3655bf3c9499a",
+        "rank": 10,
+        "screening": "screened",
+        "speedup": 2.9098,
+        "submitted_at": 1793487806.752925,
+        "team": "jt914",
+        "value": 1294.3528183361889
+      },
+      {
+        "attempts": 41,
+        "job": "bd59d00e5c534f60",
+        "rank": 50,
+        "speedup": 2.7093,
+        "submitted_at": 1793425908.4728465,
+        "team": "concept-guest",
+        "value": 1390.118870955221
+      }
+    ]
+  },
+  {
+    "board": "muse_bf16_proj",
+    "you": {
+      "rank": 300,
+      "team": "yelgabo",
+      "speedup": 1.5278,
+      "first": false,
+      "ahead": 299,
+      "to_first": 1.0815
+    },
+    "ranked": 1592,
+    "top": [
+      {
+        "attempts": 6,
+        "job": "051c31382b724ae1",
+        "rank": 10,
+        "screening": "pending",
+        "speedup": 1.6045,
+        "submitted_at": 1793471735.9558287,
+        "team": "RunFMe",
+        "value": 3010.7502335769227
+      },
+      {
+        "attempts": 9,
+        "job": "f2bfe372207c4aa5",
+        "rank": 50,
+        "speedup": 1.5805,
+        "submitted_at": 1793374305.6302214,
+        "team": "2018kguo",
+        "value": 3056.4110801033576
+      }
+    ]
+  }
+]

@@ -4212,3 +4212,5 @@ Resource111regs/0local/90704dynamic/2blocksSM; maxcluster capacity14 (launch2).
 Fresh256math/cache/row+3negative gates passed by terminal fail-closed source
 logic; stdout/maxima truncated. Closed, no production promotion or newjob.
 2026-11-01 | cd6805e7ebce45ee | exact public rohanarun/Auto-research-agent attention artifact at 018b7a10, SHA256 394f2517ca8eaf69b7d422832edfd59451a9f73103981d13b1059070abb17b4b | Off-board exact-file comparator; source-matched published banks have uniform per-shape baseline/candidate times and are insufficient for stage attribution. Pending.
+cd6805e7ebce45ee PASS16, flags empty, 2.639606424× (95% CI 2.600012327–2.679200520), 12 shape medians and profiles. Best new evidence at decode 1 sliding/full. Private comparator only. See evidence/2026-11-01-component-frontier/attention-shapes.md in steering.
+Attribution correction for cd6805e7ebce45ee: the independent published evaluation repeats the same speedup ratio, not identical absolute times. Its baseline starts at 100 µs and increments by 15 µs per case. All shape medians used for our decision come from official receipts.

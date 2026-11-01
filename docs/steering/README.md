@@ -6,6 +6,8 @@ report be checked into this repository so other sessions can read it.
 
 ## Latest review
 
+[November 1 standalone MoE and attention experiments](2026-11-01-component-frontier-round.md) records two measured MoE stops, a newly verified attention comparator and the read-only Kernarc research.
+
 [November 1 projection dispatch audit](2026-11-01-projection-weighted-dispatch-audit.md) reconstructs all 30 score-weighted opportunities and closes the four-cell follow-up pending new legal kernel evidence.
 
 [November 1 strategy beyond an incorporated Family G](2026-11-01-beyond-family-g.md) sizes two independent investigations under the user's hypothetical incumbent.
@@ -434,6 +436,8 @@ accounting, and running a corrected matched whole-layer comparison. It records
 recommendations, not execution of those tasks; check current code and run logs for status.
 
 ## Report history
+
+- [Standalone experiments and source survey](2026-11-01-component-frontier-round.md), [finalizer dependency trace](2026-11-01-native-finalizer-frontier.md), [byte and SC6 comparison](2026-11-01-moe-sc6-controlled.md), [local CUDA compilation](2026-11-01-local-cuda128-compile.md) and [fused boundary audit](2026-11-01-rohan-finalizer-fusion-audit.md).
 
 - [November 1 empty-routing fix, compiled host fixtures and unresolved native finalizer](2026-11-01-native-moe-empty-routing.md)
 

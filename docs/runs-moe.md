@@ -5316,3 +5316,5 @@ No SC6 port/promotion; no publicsubmit. Full perseedrows/resources/officialprofi
 retained underprofiles/sc6_compare.05e51ddeb7014dd9.*, full interpretation inSC6report.
 This closescompression-first ontherepairedcontrolledbackend, notall compression
 architectures; per-expertfrontier measurement is next, notanotherSC6knobsweep.
+2026-11-01 | 1c6ebc76b91d4b7f | native WGS frontier, private file SHA256 76c5b0e7483aba481f605a4d2a93363e1e8e968288f0bf977660da115ff9628b | Off-board measured writer/owner/finalizer schedule, separate from SC6 comparison. Pending.
+1c6ebc76b91d4b7f PASS5 and flags empty, 2.256419844× (95% CI 2.222573546–2.290266141), ordinary SC6 control. 6 benchmarks/6 profiles; all six attribution cases and the representative trace re-evaluation passed. Favorable fixed-owner model 1.003616/1.004271/1.003445 across seeds. Registered stop.
