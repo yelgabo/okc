@@ -327,10 +327,16 @@ the public entry vjeux/okc-2026 with its design memos (see `docs/gap-analysis-20
 
 
 
-| 2026-10-31 | indexed routed noStreamK as performance-only replacement | 74eb65dad3fa4e54 | All fresh32/753/3012 stats exactly0; official pass1.092871 CI1.076478–1.109264 vs scored incumbent1.146466. Not promoted as a speed improvement. Deterministic base retained for isolated compensation experiments. |
 
 | 2026-10-31 | Standalone GROUPED_MASKED default schedule at128/256, exactFP32gamma | ae8993f4e3e1435c:5official,40eager+32graph armchecks pass;128 layer/std +145–184us,256 +203–235us; duplicateownednull<=2.69us.256std292 G1/G2=380.51us vsowned217.15us; total421.60us | This testeddefaultlibrary schedule128/256 loses materially; glue-only fusion cannot repair because GEMMs alone exceedowned. Not all TMA/dequantarchitectures. No fresh/tile rerun; reopen only with new mainloop/traffic evidence. |
 
 | Experiment | Evidence | Closure / revisit condition |
 |---|---|---|
 | rd16 two-stage private cp.async ring, MT2/WR2/WK16/KU8 |b103af15ba564ef6; all correctness/resource gates pass, ring0localvsold24B, both1CTA; ring+0.48–0.61us vsproduction,12–17/100wins | Close schedule; no PF/cap sweep. Reopen only with a new measured latency mechanism. Memory-only twins have differing occupancy and are nonadditive. |
+
+
+
+| 2026-10-31 | indexed routed noStreamK as performance-only replacement | 74eb65dad3fa4e54 | All fresh32/753/3012 stats exactly0; official pass1.092871 CI1.076478–1.109264 vs scored incumbent1.146466. Not promoted as a speed improvement. Deterministic base retained for isolated compensation experiments. |
+
+
+| 2026-10-31 | Registered skinny16/32 weight reuse via two-CTA multicast, fresh-count screen | 53c07507b9fd4f8c:all8casecounts retained,G132; pairable fraction16layer/std0/0/0/0,32layer18.18/18.18%,32std0/0;>=10%allcases fails6/8 | Park beforecopy/fullrewrite; no GPUmulticast or physicalHBMmeasurement. Standalone std hasno repeatedweightjob onallfourcases; betterpairalignmentcannotrepairthat. Doesnotclose allcache/layoutarchitectures; reopenonlywithnewscore-covered measuredtraffic/routing evidence. |
