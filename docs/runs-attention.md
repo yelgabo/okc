@@ -4096,3 +4096,38 @@ VTcompactionalone doesnot reopenNS4at2CTA. A differentquery-staging/register/lay
 would need explicitconsuming-layout/lifetime/resourceproof and newmeasuredbottleneck evidence;
 wait currentq8attribution before anysuchredesign. Initial113248claim is superseded by this
 explicitcorrected accounting, not a measuredconfiguration.
+
+### 2026-11-01: mode51 producer/cache-copy attribution, terminal result
+
+Evidence source commit `4f99802`; check `8ac6563343f74bcd`, receipts
+`muse_attention_decode/profiles/q8attrib.8ac6563343f74bcd.{json,log}`.
+Unmodified judged control passed 16/16 official tests, score 2.575636x
+(95% CI 2.537002-2.614271). This is not a new candidate score.
+All six independent arms passed the resource gate BEFORE timing: mode8/51,
+264 CTAs, 107104 dynamic bytes/CTA, two resident CTAs/SM. Control and control2
+passed both targeted correctness rows; all four deliberately wrong-output
+probes remained classified probes, never candidates.
+
+Cold graph medians include replay overhead, microseconds:
+
+|shape|control|control2|read-only producer, consumer math removed|zero producer, consumer math removed|no-cache-copy, consumer math retained|stamped control|
+|---|---:|---:|---:|---:|---:|---:|
+|v16 full|110.88|110.82|110.69|74.24|85.15|112.70|
+|v32 full|188.38|188.10|197.06|132.51|151.17|190.85|
+
+Both held-out inputs agree on the large zero/no-copy effects. Consumer-math
+removal is mixed at v16 (112.86->110.46 and109.89->110.85), and slower at v32
+(187.94->196.58 and188.86->197.63). Removing consumer arithmetic alone is
+therefore closed as the next optimization. Cache traffic and producer pacing
+are the next investigation, with no claim these perturbations subtract into
+recoverable gains: instruction pacing, compilation and occupancy-compatible
+register allocation can still change.
+
+Stamped control adds 1.82/2.46us versus control. Five-repetition medians:
+consumer full-barrier wait13.2/17.5us; producer empty-slot wait35.1/75.0us;
+SM pair completion spread12.1/22.7us (v16/v32). These are thread-local wait
+sums and completion spreads, NOT measured SM idle time or additive budgets.
+Map the split->virtual range->request/pages and natural tile/segment counts
+before attributing pair spread to scheduling. No stage sweep or fence change.
+Main's production late-tid2 promotion is owned by root and must survive merge;
+this worktree's default0 remains a pinned diagnostic control.
