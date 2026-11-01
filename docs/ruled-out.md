@@ -367,3 +367,7 @@ the public entry vjeux/okc-2026 with its design memos (see `docs/gap-analysis-20
 
 | 2026-11-01 | H200 in-process hardware counter collection under current judge permissions | 04f0339fa9f24807, counter image read returned CUPTI_ERROR_INSUFFICIENT_PRIVILEGES after successful size query | Close under observed permissions. Use matched timing interventions. Reopen if the organizer provides a runner with counter access. |
 | 2026-11-01 | Preorder tokens by smallest local expert, stable ties | bfbedf7d48e248a0, all four six-load factors below 1.001 even excluding sorting cost | Park this token grouping. Reopen with a different locality mechanism and evidence across scored loads. |
+
+| Experiment | Evidence | Closure / reopening trigger |
+|---|---|---|
+| QKV128 owned64×128/3split/8stage WGMMA depth2 with matching stagei-2 release |4542b2b04cb344ec: fullFP64 M100/127/128/129,exactonehot,3freshgraphs pass; identical90regs/0local/197760Bshared/39clusters. Independentbuilds/twoheldouts depth2-prod+.512–.640us anddepth2-owncontrol+.512–.640us,9–19/100faster; rebuiltdepth1-prod-.048..+.064us | Depth2 alone as explanation of donorqbig lead; no localdepth sweep. Distinct push/stmatrixepilogue/CTA changes remainunattributed, so notallqbig mechanismsclosed. Reopen depthonly with new pipeline-specific evidence. |

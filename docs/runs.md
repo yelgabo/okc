@@ -2150,3 +2150,23 @@ timing. Interpretgain only ifbothdepth2arms beatprod andowncontrol bymax(.2us,2n
 and>=90/100 rounds inbothheldouts, allcomputinggatespass. No projectedstandalonescoregain;
 wholepublished13.987us isn't a pairedcurrentmeasurement. Rootauthorizedoneoffboardcheck;
 quota beforedispatch17used/3left. No scoredsubmission orprefillwork.
+
+Check `4542b2b04cb344ec` (sourcee67b7ec, benchSHA919a2a38e62f303486ec9650d9e11652c5144f321a95ee29653196492d103a2d)
+completed: unchangedC3control9/9pass,1.517510x (95%CI1.494747–1.540272),prepare135.0s.
+All4fullarms pass fullFP64 atM100/127/128/129 (randomL2.001659–.001666),onehotprobesexact;
+all5arms includingprodpass3freshcapturedinputs; watchdogs0. Bothbuilds/depths have identical
+resources90regs,0local,0static,197760Bdynamic,1CTA/SM,39activeclusters vs36required.
+Actualresourcegate passes, so one-wave/residency/spills do not explain this comparison.
+
+| heldout | prod rawus | Adepth1-prod | Bdepth1-prod | Adepth2-prod | Bdepth2-prod | Adepth2-depth1 | Bdepth2-depth1 |
+|---|---:|---:|---:|---:|---:|---:|---:|
+|0|20.192|+.064|.000|+.576|+.640|+.512|+.640|
+|1|20.224|-.048|.000|+.640|+.512|+.608|+.544|
+
+Depth2 is faster thanowncontrol only9–19of100 rounds andloses toprod inbothbuilds/inputs;
+no promotion. Duplicate depth1 B-A medians-.112/-.064us, MAD.304/.256, registeredthresholds
+.608/.512us. No causalgain survives; don'tcredit thecontrolaggregate to depth2.
+The historicaldonor wholepath difference cannot be attributedto depth2 alone. Its distinct
+push/stmatrix epilogue and256-threadCTA remainunattributed by this check; no broadclosure
+of allqbig mechanisms. Stop depth2local tuning, preserveC3; no publicsubmission orprefill.
+Receipt plusnormalizedprofile JSON/text retained. Two officialprojectionchecks remain.
