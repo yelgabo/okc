@@ -1,0 +1,24 @@
+test_eager_aliases_dynamic_globals_and_mutation_history (test_dl_g_production_slice.ProductionSlice.test_eager_aliases_dynamic_globals_and_mutation_history) ... ok
+test_empty_flag_proof_and_negative_mutations (test_dl_g_production_slice.ProductionSlice.test_empty_flag_proof_and_negative_mutations) ... ok
+test_every_retained_statement_unchanged_and_native_literals_exact (test_dl_g_production_slice.ProductionSlice.test_every_retained_statement_unchanged_and_native_literals_exact) ... ok
+test_no_additional_unbound_module_globals (test_dl_g_production_slice.ProductionSlice.test_no_additional_unbound_module_globals) ... ok
+test_pinned_budget_and_no_claim_of_fit (test_dl_g_production_slice.ProductionSlice.test_pinned_budget_and_no_claim_of_fit) ... ok
+test_exact_and_outside_ast (test_dl_g_literal_factor.Factoring.test_exact_and_outside_ast) ... ok
+test_visible_literal_roundtrip (test_dl_g_literal_factor.Factoring.test_visible_literal_roundtrip) ... ok
+test_projection_pins_and_selected_policies (test_dl_owned_verify_production.Production.test_projection_pins_and_selected_policies) ... ok
+test_selected_device_bodies_exact (test_dl_owned_verify_production.Production.test_selected_device_bodies_exact) ... ok
+test_sources_globals_and_visible_literals (test_dl_owned_verify_production.Production.test_sources_globals_and_visible_literals) ... ok
+test_all_masks_route_all_twelve_cells (test_dl_verify_hybrid.VerifyHybrid.test_all_masks_route_all_twelve_cells) ... ok
+test_bad_mask_and_missing_backends_are_rejected (test_dl_verify_hybrid.VerifyHybrid.test_bad_mask_and_missing_backends_are_rejected) ... ok
+test_deadline_also_covers_unsupported_weight_preflight (test_dl_verify_hybrid.VerifyHybrid.test_deadline_also_covers_unsupported_weight_preflight) ... ok
+test_outside_owned_domain_uses_incumbent (test_dl_verify_hybrid.VerifyHybrid.test_outside_owned_domain_uses_incumbent) ... ok
+test_preparation_is_per_call_and_default_skips_owned (test_dl_verify_hybrid.VerifyHybrid.test_preparation_is_per_call_and_default_skips_owned) ... ok
+test_raw_abi_metadata_mismatch_uses_incumbent (test_dl_verify_hybrid.VerifyHybrid.test_raw_abi_metadata_mismatch_uses_incumbent) ... ok
+test_readable_source_transport_and_module_isolation (test_dl_verify_hybrid.VerifyHybrid.test_readable_source_transport_and_module_isolation) ... ok
+test_unsupported_weights_preserve_incumbent_fallback (test_dl_verify_hybrid.VerifyHybrid.test_unsupported_weights_preserve_incumbent_fallback) ... ok
+test_zero_mask_keeps_exact_scored_file (test_dl_verify_hybrid.VerifyHybrid.test_zero_mask_keeps_exact_scored_file) ... ok
+
+----------------------------------------------------------------------
+Ran 19 tests in 8.140s
+
+OK
