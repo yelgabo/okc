@@ -2227,3 +2227,5 @@ their individual contributions remain unmeasured. Receipt and normalized profile
 Nineteen projection checks used; one remains subject to root coordination.
 2026-11-01 | 3c6a2baf7b4b4bf3 | exact keell0renz projection source at 8e30e1be SHA256 922da8e54073b2836610d2832e06cf694dba691362dfc9969fc2e50c108c591b | off-board 30-shape comparator. Pending.
 3c6a2baf7b4b4bf3 PASS9, external comparator 1.573015516x CI 1.549420283–1.596610748. Archived all 30 medians and profiles; no public submission. No standalone projection checks remain this UTC day.
+
+2026-11-01 | 40b9f54be6fe4d4e | PUBLIC scored C3 measurement by coordinator, user renewed go-ahead. Verified exact checked candidate 61330d87d32c4190 and current tracked production SHA256 9fd8e794f7eb989943718348da2bf21ece934be3b4527b349eed34ccbceea4a4, plus one trailing repeat label. Submitted SHA256 8e45ef098ed58c56754fb8040666ab1d1021c8bf7cb190b393080dac5bf40c12, byte prefix and Python AST verified. No algorithm change. Prior two scored C3 jobs 7a15f46e673b43d5 and 2383f5173a934c63; prior C2 public best 9eba96894ee1402e at 1.527806483x. Paired router evidence 7d2fe593fdfa4720. Pending.
