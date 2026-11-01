@@ -5305,3 +5305,14 @@ Preregistered1% whole-six-load BOTHpaired ratios plus2x bothduplicate null, per-
 regression <=max(.5us,1%), official math/fresh replay/empty/resource gates.
 Independent today_proj source/host clearance on exactfile,2source+4TorchCPUtestsPASS.
 Full registration: docs/steering/2026-11-01-moe-sc6-controlled.md.
+
+Terminal addendum05e51ddeb7014dd9: H200 DONE/PASS5, official BYTE path2.2593108797x
+(95%CI2.2254212165-2.2932005429), prepare116.574s. All48normal/48fresh/48empty
+computing-arm comparisons pass, worstMarlinrelativeglobal.0062058/row.0067433.
+SC6whole-six-load pairs0.999806837/1.007118932 vsduplicateabsolute-lognull.006403393;
+registered1%+2xnull gateFAIL and percase-regression gateFAIL (256/901 +2.576us).
+Bothmainresources96regs/0local/0static/231168dynamic/1residentCTA/576threads.
+No SC6 port/promotion; no publicsubmit. Full perseedrows/resources/officialprofile
+retained underprofiles/sc6_compare.05e51ddeb7014dd9.*, full interpretation inSC6report.
+This closescompression-first ontherepairedcontrolledbackend, notall compression
+architectures; per-expertfrontier measurement is next, notanotherSC6knobsweep.
