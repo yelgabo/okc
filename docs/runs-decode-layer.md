@@ -906,3 +906,4 @@ Raw receipt and normalizedprofiles retained. Root independently verified bytes a
 user's standing authorization, publicly submitted exact pure as **cb71acec29d141c6**;
 scored receipt root-owned. Paired fullsixload result remains the algorithm evidence,
 not cross-run comparison of this noisy headline with other candidates.
+cb71acec29d141c6 PASS13, 2.043438469x (95% CI 2.012786892–2.074090046), selected by public board at rank 373. Old best 2.022870479x. Owned incumbent line. Added SGLang paired hotspot table.

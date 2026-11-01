@@ -3,6 +3,7 @@ import argparse
 import hashlib
 from pathlib import Path
 from dl_fork_attention import patch_attention
+from dl_fork_projection import patch_projection
 
 SOURCE_SHA = '82c098ae7534b20b5d80f59d547650cb0853fc7d5e313fe29e1e9d9373e1bb19'
 UPSTREAM = '8e30e1be994db4310794b8d04e90d18d895deb84'
@@ -53,6 +54,8 @@ def build(raw, notices):
         ('    n = a * tl.rsqrt', '    a = a'+bf16+'\n    n = a * tl.rsqrt'),
         ('b1v * n\n','b1v * n'+bf16+'\n')])
     source = edit_function(source,'_boundary2',[
+        ('    s1v = tl.load(S1 + t * 8192 + offs)\n', ''),
+        ('    f = tl.zeros([8192]', '    s1v = tl.load(S1 + t * 8192 + offs)\n    f = tl.zeros([8192]'),
         ('    f = f * gp', '    f = (f'+bf16+' * gp)'+bf16),
         ('b2v * n\n','b2v * n'+bf16+'\n')])
     for name in ('_graft_row_boundary','_graft_row_boundary_pre'):
@@ -68,6 +71,10 @@ def build(raw, notices):
     body = replace(original, wait, '')
     body = replace(body, '    carry = tl.load(', wait+'    carry = tl.load(')
     source = replace(source, original, body)
+    for kernel, count in [('void glue_cluster_boundary(GlueArgs a) {',2),
+                          ('BF* out, float* next, int rows) {\n  constexpr int J=1024/P',1)]:
+        head,sep,rest=kernel.partition('{')
+        source=replace(source,kernel,head+sep+'\n  asm volatile("griddepcontrol.wait;" ::: "memory");'+rest,count)
     # The upstream preparation benchmark compares captured outputs before replay.
     # Omit that diagnostic and its extra extension builds from the candidate.
     source = replace(source, 'MFAB_LAYER = True', 'MFAB_LAYER = False')
@@ -86,6 +93,7 @@ def build(raw, notices):
     # Its GLE extension uses different normalization arithmetic and a global
     # weight pointer to form a second copy. Use the materialized branch.
     source = replace(source,'GLE_B1X = True','GLE_B1X = False')
+    source = patch_projection(source)
     source += '\n'+'\n'.join('# '+line for line in notices.splitlines())+'\n'
     compile(source,'<attributed layer>','exec')
     return source.encode('utf-8')

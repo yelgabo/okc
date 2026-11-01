@@ -217,3 +217,4 @@ Scored 2.013x (1.983-2.043), passed 13/13, prepare 143 s, against the board entr
 | front | 1: fp32; 8 / 16 / 32: skf-r; 128 / 256: concat-r |
 | attention boundary | 1 / 8: c8x256; 16: sglang; 32: c1x1024; 128: sglang; 256: c1x512 |
 | per shape us (s / f) | d1 76.8 / 84.6, d16 138.2 / 221.2, d32 171.3 / 327.9, v1 122.6 / 122.4, v16 270.0 / 356.4, v32 366.5 / 514.3 |
+2026-11-01 new owned layer release: muse_decode_layer/cand/layer_lt_boundary.py SHA256 851c46951e1940b6874d35314d8ff7cc00a966a4718094881c764135ef13392a, paired 828974e3bbcc4d9b, clean 47bec92021ef4bbe, scored cb71acec29d141c6 PASS13 at 2.043438469x. Official board selects this job at rank 373. Separate from Family G.
