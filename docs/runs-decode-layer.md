@@ -913,3 +913,4 @@ caad524754b54680 | 0329226 | H200 setup failed in _gle_source before correctness
 606f47f251f34873 PASS13, 2.010975134× (95% CI 1.980810507–2.041139761), 12 shapes/profiles. Selected owned experts, eight Lt plans. Keep as control. Public incumbent stays cb71acec29d141c6.
 2026-11-01 | ffe303a12a954304 | G1b repaired native fork, source patch 710f2b8, file SHA256 7935ff411d5e7ec1af41b25c7fecbff3524c4311efa65b6635b05e1d5bd41025 | Same layer paths as G1a, native precision/order/scale repairs, explicit fallback. Off-board check pending.
 ffe303a12a954304 | 90cff63 | native SC6 selected, seven startup probes completed. Official setup FAIL, 353.520482 s > 300 s. No score, CI, tests, or shape/kernel profile. Raw receipt and log archived.
+2026-11-01 | 736a5cbc977f4ad4 | 148ecb5, native G1b2 prep-only revision (SHA256 258c848c662149f9c6ac178039f179de6f0b0ec4cb0b503451d2974c7a7a8dfc) | Five parallel build keys. Owned/Marlin fallback prepared only if selected. Pending.
