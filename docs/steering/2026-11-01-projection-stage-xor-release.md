@@ -86,3 +86,44 @@ the actual full-30 scoring function and explicit coverage; recovery from
 global SX's 1.39412 loss alone does not beat C2's 1.527806 baseline. No claim
 of a repeatable gain or top-10/top-50 feasibility follows from these offline
 gates. No public layer port is included.
+
+## Independent host clearance and terminal-analysis preparation
+
+MoE commit `d276cc8` independently cleared exact `de1111` source and reran
+all five real Torch CPU facade tests. Its additional RTX5070 helper-only
+bit test covers the exact shared repair helper; it does not establish H200
+kernel math, admission or performance.
+
+Root registration `a08f501260ea7e9625c01aa4eeecda0934afa7f9` dispatched the
+same exact file as public projection job `dfcfdd01d6f04525`. At this addendum
+the worker has not received a completed receipt and reports no run result.
+Root owns waiting, receipt verification and archiving. No additional official
+call is made by this worker.
+
+`tools/proj_stage_xor_release_analyze.py` is separate from the original
+global-record analyzer and takes explicit receipt/log/source/job paths. It
+requires the owning completed `muse_bf16_proj` run, exact release source pin,
+clean official tests/checks, thirty unique cells, six official load sums and
+exact score reconstruction. It parses the actual `SXSRELEASE_*` capacity,
+arena, fallback and resource fields; compares each stage FULL/NF admission
+to its matching C2 control; derives stage bytes from source layout functions;
+and verifies reported qualification/neighbor counts. It supports explicit
+partial packing fallback rather than silently treating fallback as stage
+coverage. Outputs are UTF8 JSON/CSV with thirty rows, six loads, all resource
+vectors, raw/adjusted/offset data and input seeds.
+
+The primary comparator is original C2 `9eba96894ee1402e`. Any ten-cell
+replacement into archived C2 remains clearly labeled as a cross-job
+sensitivity scenario, not a paired test or official hybrid score. The failed
+global version is secondary context only. The analyzer contains no automatic
+winner claim or preset closure outcome.
+
+Four synthetic tests pass: exact six-load reconstruction; explicit fallback
+totals; foreign/running receipt, duplicate cells, nonfinite timing and score
+mismatch negatives; capacity/arena mismatch, C2 admission loss and missing
+coverage negatives. These tests produce synthetic values only, not an H200
+measurement. Run analysis only after root supplies the terminal receipt:
+
+```text
+python tools/proj_stage_xor_release_analyze.py --job dfcfdd01d6f04525 --receipt RECEIPT --control C2_RECEIPT --log BUILD_LOG --source .build/today-proj/stage-xor-release.py --output OUTPUT_DIRECTORY
+```
