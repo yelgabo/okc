@@ -352,3 +352,9 @@ the public entry vjeux/okc-2026 with its design memos (see `docs/gap-analysis-20
 
 | 2026-11-01 | Skinny FULL-slot-only test_wait vs try_wait, fixed sk8/3, modes0/256/128/384 | 9be599cf333a47c4: all16cases,64eager+64graph checks, resources exact, all8stamp pairs complete. Contribution test1.000956258 / duplicate0.998638858 vs null1.000295776; >=1pct/2xnull and regression gates fail. Official unchangedowned control2.207723314 CI2.174607465-2.240839164 | Close this exact wait-policy replacement; no production promotion or fourth retry. Stamped regions shift modestly but not repeatable whole-kernel gain. No hint sweep under this authorization; reopen only with new evidence/mechanism. |
 
+### Offline Q8 layout bound, 2026-10-31 PDT
+
+| Proposal | Evidence | Scope / revisit trigger |
+|---|---|---|
+| SingleVTpair alone tofundNS4at2CTA | StaticSmemlayout max(QST_BYTES16384,VT_BYTES20480): singleVT10240 stillneedsrawQST16384; saves4096, so NS4requires119392B/CTA and238784Bfor2>233472B | Declinedbeforecode/check. Initialoffline113248B calculation wronglyignoredrawqueryaliasconstraint. Reopenonlywith namedadditionalstaging/layoutsavings, completeconsuming-layout/lifetimeproof and actualresourcegate, afterfreshmode51attribution. |
+| Mode51 consumer arithmetic removal as the next q8 full optimization | 8ac6563343f74bcd, source4f99802: same107104bytes/2CTA resource gate; copy-only read probe110.69/197.06us vscontrol110.88/188.38 atv16/v32full, two inputs; deliberately wrong outputs | No standalone consumer-math-only win; v32 slows. Reopen only with a new measured overlap/layout mechanism. Copy/producer pacing remains open; probe differences are not additive recoverable gains. |

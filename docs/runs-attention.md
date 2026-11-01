@@ -4055,3 +4055,139 @@ Olddefault0 preserved in1764d15/1241557; normalizedsourceSHA498161899c637f599d69
 Paired full-only score sensitivity~0.24% is measured; a higher public aggregate is not proven.
 Rootdeferslayerport:0.4usd1full alone has0.021980% six-loadlayer sensitivity under actual
 8f2780d7382047e6 medians/46:16weights, below pairedlayernoise. No tinyport check dispatched.
+## New Q8 full-context producer attribution, registered before dispatch
+
+Goal is measurement, not a performancecandidate: distinguish current mode51 cache-gather /
+producer pace from consumer-compute/synchronization costs at verify16/32full. No morelate-tid
+sweeps. Latestfull-mode51 resources in80415fe736bb4890:107104dynamicbytes/CTA,384threads,
+80registers/staticthread allocation,localbytes0,2blocks/SM capacity.
+
+New wrong-output ONE_PROBE4/5 branches retain acquire(it,st,common), its existingoptional
+patch/proxyfences/firsttilecsync, two warpgroupfence/commit/wait0 sequences, bothcompiler
+reg_fences, earlyEREL release (or its mutuallyexclusive latealternative), postQKproxyfence,
+named_sync(2+hk,128), and cst/cph advancement through existingrelease. All256consumerthreads
+arrive onemptybarriers exactlyonce/tile; producerfull init/count128 is unchanged. Probe4
+readsactualcachedrows;5usesexistingCPBzero-fill mechanism. QK/softmax/Vtranspose/PV arithmetic
+is absent, so outputs are intentionallywrong and everyarmname ends_probe. Never publicsubmit.
+
+PTX8.7 section9.7.15.7.2 explicitly permits emptywgmma-groups; section9.7.15.7.3 defines wait0
+completion. Allwarpgroup lanes execute samegroups uniformly. Primarysource:
+https://docs.nvidia.com/cuda/archive/12.8.2/parallel-thread-execution/index.html#asynchronous-warpgroup-level-matrix-instructions-wgmma-commit-group
+No fence/barrier/arrive is removed or weakened. Emptygroups preservecollectives but removal
+of math stillchanges instruction/SMresource pacing: interpretas producer-boundpace with
+retainedcollectives, NOT purememorybandwidth or additive recoverablelatency.
+
+Tool `tools/attn_make_q8_attrib.py`: unmodifiedcontrol +independentcontrol2, read_probe,
+zero_probe, existingnocopycomputeprobe1, stamp_probe, eachprivateworkspace. Onlytwoexacttarget
+shapes timed,2heldoutinputs,120coldrounds,seed311109. Allvariantsmust show L8mode51
+107104dynamicbytes AND2blocks/SM BEFOREANYtiming; failure abortsimport. Controlbuilds retainall
+normalinstances; probe-onlybuilds compileonly8/51 tofitpreparebudget, a compile-layout
+perturbation explicitlyaccepted forattributiononly. Resourcegate repeatedattail. Nearbymodes
+not supportedby these probe-onlymodules are notrun. No donorcode or sourceadoption.
+
+CPU/source audit: Python/generationcompile, exactkernelbranchcountacquire1; release2 source
+sitesbutmutuallyexclusiveERELconditionsgive1dynamicrelease; proxyfence1explicitplusunchanged
+acquirefences;2wgfence/commit/wait0/regfence;1namedbar128 perWG/tile. Independentread-only
+review bytoday_moe found no blocker andconfirmedallhandshakeparticipants andlifetimes;
+requiresactualoccupancy gatebeforerun. No measuredresource/performanceclaimuntilreceipt.
+
+|date|job|commit|change|score (95%CI)|notes|
+|---|---|---|---|---|---|
+|2026-10-31|8ac6563343f74bcd (check)|4f99802|CHECKONLYmode51producer/memoryattribution|pending|Occupancy/SMem gate beforetiming; wrong-outputprobes neverpublic.|
+|2026-10-31|d331aca81c554d70 (root check)|pureSHA cbee36a...b356|Exactclean standalonefull-onlylate-tid2 candidate, noTF32/harness/resourceexport|2.569431x (2.530890-2.619575)|Passed16/16 official tests,checks.oktrue,flags[]; exactreceiptsaved.|
+|2026-10-31|c9bc5fbd85b440e2 (root submit)|samepureSHA cbee36a...b356|User-authorizedtoday publicsubmission ofexactcleancheckedcandidate|pending|Root ownsdispatch/promotion; productionmainflag0 untilmanifestdecision.|
+
+FullpureSHA256 `cbee36a852fbc62f5491e75f957eeb4298dce2db50947984cdbbcd08aa69b356`;
+root's preserved cand/late_full.py and owned .build/today-attn/attention_latefull.py agree.
+Cleanofficialscore2.569431 overlaps priorheadlinevariation; causalperformanceevidence remains
+~0.24% froma9b416a0c7324ecc, not the differencebetweenindependentscores. No wholelayerport:
+value2 affects onlyL1SPECnon-one-tile (d1full), and actual46/16layerloadweights/six-loadGM dilute
+0.4us to roughly0.02%wholelayerscore, belowcurrentfour-armnoise (exactlayerpairedmedians
+would be needed for a preciseestimate). Do not spendalayercheck assuming standalonegaintransfers.
+
+### Offline layout proposal corrected and closed before experiment
+
+An offline sketch assumed that reducing fourVTbuffers20480bytes to two10240bytes would
+reclaim10240bytes and permit a fourthrawstage at113248bytes/CTA. This was WRONG: rawquery
+stagingaliasesVT and requiresQST_BYTES16384. The actualmax(QST_BYTES,VT_BYTES) therefore
+shrinks20480->16384, savingONLY4096bytes. NS4 wouldrequire107104+16384-4096=119392bytes/CTA;
+twoCTAs238784bytes EXCEED233472bytes. No code/job/stagesweep was made from that sketch.
+VTcompactionalone doesnot reopenNS4at2CTA. A differentquery-staging/register/layoutmechanism
+would need explicitconsuming-layout/lifetime/resourceproof and newmeasuredbottleneck evidence;
+wait currentq8attribution before anysuchredesign. Initial113248claim is superseded by this
+explicitcorrected accounting, not a measuredconfiguration.
+
+### 2026-11-01: mode51 producer/cache-copy attribution, terminal result
+
+Evidence source commit `4f99802`; check `8ac6563343f74bcd`, receipts
+`muse_attention_decode/profiles/q8attrib.8ac6563343f74bcd.{json,log}`.
+Unmodified judged control passed 16/16 official tests, score 2.575636x
+(95% CI 2.537002-2.614271). This is not a new candidate score.
+All six independent arms passed the resource gate BEFORE timing: mode8/51,
+264 CTAs, 107104 dynamic bytes/CTA, two resident CTAs/SM. Control and control2
+passed both targeted correctness rows; all four deliberately wrong-output
+probes remained classified probes, never candidates.
+
+Cold graph medians include replay overhead, microseconds:
+
+|shape|control|control2|read-only producer, consumer math removed|zero producer, consumer math removed|no-cache-copy, consumer math retained|stamped control|
+|---|---:|---:|---:|---:|---:|---:|
+|v16 full|110.88|110.82|110.69|74.24|85.15|112.70|
+|v32 full|188.38|188.10|197.06|132.51|151.17|190.85|
+
+Both held-out inputs agree on the large zero/no-copy effects. Consumer-math
+removal is mixed at v16 (112.86->110.46 and109.89->110.85), and slower at v32
+(187.94->196.58 and188.86->197.63). Removing consumer arithmetic alone is
+therefore closed as the next optimization. Cache traffic and producer pacing
+are the next investigation, with no claim these perturbations subtract into
+recoverable gains: instruction pacing, compilation and occupancy-compatible
+register allocation can still change.
+
+Stamped control adds 1.82/2.46us versus control. Five-repetition medians:
+consumer full-barrier wait13.2/17.5us; producer empty-slot wait35.1/75.0us;
+SM pair completion spread12.1/22.7us (v16/v32). These are thread-local wait
+sums and completion spreads, NOT measured SM idle time or additive budgets.
+Map the split->virtual range->request/pages and natural tile/segment counts
+before attributing pair spread to scheduling. No stage sweep or fence change.
+Main's production late-tid2 promotion is owned by root and must survive merge;
+this worktree's default0 remains a pinned diagnostic control.
+
+### Offline source map after q8 attribution (2026-11-01)
+
+`lo_first` counts lower CUDA blockIdx.x finishing before its measured same-SM
+partner (`tools/attn_make_bench_ab.py:_ab_wave`); it does not identify KV head,
+SM id ordering, or a formal dispatch priority. Each mode51 CTA contains both
+KV heads (consumer hk=warp>>2, four warps/head). DefaultONE_WAVE0 assigns
+v0=floor(total_v*bid/264), v1=floor(total_v*(bid+1)/264), where total_v is
+sum(seq_lens+8+600)-600. Request prefix offsets include600 virtual keys per
+boundary, compensating segment setup. seg_bounds intersects each request,
+rounds interior boundaries DOWN to64 keys, and iterates requests then
+ascending64-key tiles. Thus adjacent block ids mean adjacent virtual ranges,
+but do not guarantee equal tile/segment counts or neighboring physical pages.
+
+Producer ptid=tid-256, ch=ptid&7, r0=ptid>>3. Each producer handles rows
+r0+16*i (i0..3), issuing16-byte K then V copies at channel16*ch; row bytes128
+contain BOTH64-byte KV heads. Physical row=(page_table[request*pt_stride+
+(position>>lp)]<<lp)+(position&(page_size-1)); byte offset=row*128+ch*16.
+Page1 benchmarks therefore follow the actual page-table permutation, not
+necessarily contiguous physical rows. Existing retained receipt prints only
+selected CTA examples and aggregated pair statistics; it cannot reconstruct
+all paired block ids, their exact seq_lens/page lists, or physical address
+locality. Do not infer a copy-order remedy from lo_first132/132 alone.
+
+Natural variation is visible: v16 stamped examples include c132 with67tiles/
+2segments ending93us and c22 with76tiles/1segment ending82us. This rules out
+simple "more tiles explains every late CTA", not all possible segment/page
+variation. Full paired records plus exact input metadata would be needed for
+causal correlation, without calling the spread SM idle time.
+
+Previously tested scope matters. 4b60264a276c4805 no-DRAM producer deficit,
+c8e99e038d9f4575 PE16, bb06/f3f page bulk, and42c4739cf6b247c4 deeper ring
+are mode49 L1 studies, not mode51 L8. However mode51 pair weighting ALREADY
+lost:7631033a0c93485d block-index heavy firsthalf +4.9/+9.8us atv16/v32
+(weight1.15), and4ff339332fef4aff runtime SM-counter weight1.4 +5.47/+8.99us.
+The counter arrival order did not identify the favored CTA, worstpair72-83us.
+A generic pair-spread/reweight sweep is therefore closed. New proposal needs
+an independently identified copy-issue/address mechanism with identical
+bytes, ranges, fences and resources; no new mechanism is yet justified by
+these aggregate stamps. No additional GPU job dispatched.

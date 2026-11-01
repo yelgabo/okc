@@ -1,0 +1,88 @@
+ero=0 flat_next_parity_nonzero=0
+ABCHECK PASS ctrl b32 ctx80000 tp8 full L8 agentic coherent page1 scale1 [splits=264,nc=1,mode=51] err=2.109e-02 bound=0.065 worst_row=2.259e-01 k=0.00e+00 v=0.00e+00 ws_rows_nonzero=0 l_nonzero=0 tickets_nonzero=0 coop_next_parity_nonzero=0 flat_next_parity_nonzero=0
+ABCHECK PROBE read_probe b32 ctx80000 tp8 full L8 agentic coherent page1 scale1 [splits=264,nc=1,mode=51] vs_ctrl=1.0e+00 diff_elems=262144/262144 max_ulp=255.0 max_abs=3.1e+00 ws_rows_nonzero=0 l_nonzero=0 tickets_nonzero=0 coop_next_parity_nonzero=0 flat_next_parity_nonzero=0
+ABCHECK PROBE zero_probe b32 ctx80000 tp8 full L8 agentic coherent page1 scale1 [splits=264,nc=1,mode=51] vs_ctrl=1.0e+00 diff_elems=262144/262144 max_ulp=255.0 max_abs=3.1e+00 ws_rows_nonzero=0 l_nonzero=0 tickets_nonzero=0 coop_next_parity_nonzero=0 flat_next_parity_nonzero=0
+ABCHECK PROBE nocopy_probe b32 ctx80000 tp8 full L8 agentic coherent page1 scale1 [splits=264,nc=1,mode=51] vs_ctrl=1.2e+00 diff_elems=261837/262144 max_ulp=509.0 max_abs=4.3e+00 ws_rows_nonzero=0 l_nonzero=0 tickets_nonzero=0 coop_next_parity_nonzero=0 flat_next_parity_nonzero=0
+ABCHECK PROBE stamp_probe b32 ctx80000 tp8 full L8 agentic coherent page1 scale1 [splits=264,nc=1,mode=51] vs_ctrl=2.8e-05 diff_elems=5/262144 max_ulp=21.0 max_abs=7.8e-03 ws_rows_nonzero=0 l_nonzero=0 tickets_nonzero=0 coop_next_parity_nonzero=0 flat_next_parity_nonzero=0
+ABCHECK PASS ctrl2 b32 ctx80000 tp8 full L8 agentic coherent page1 scale1 [splits=264,nc=1,mode=51] vs_ctrl=2.9e-05 diff_elems=6/262144 max_ulp=16.0 max_abs=7.8e-03 ws_rows_nonzero=0 l_nonzero=0 tickets_nonzero=0 coop_next_parity_nonzero=0 flat_next_parity_nonzero=0
+ABCHECK done: 0 failing t=216s
+STAMPWAVE b=16 full    L=8 stamp_probe rep=0 ctas=264 sms=132 pairs=132 wave1_end=82.2/85.7/99.0 wave2_end=83.4/97.8/102.4 pair_gap_hi_minus_lo=3.5/12.4/18.3 abs_gap=3.5/12.4/18.3 lo_first=132/132 sm_end=94.2/97.8/102.4 mean_end=91.8 max_end=102.4
+STAMP b=16 full    L=8 stamp_probe rep=0 ctas=264 ghz=1.746 span=106.3 start=0.0/0.1/0.2 part=1.2/1.4/1.6 first_tile=4.1/5.0/7.8 loop_end=82.2/94.3/102.4 barrier_wait=2.0/10.0/22.0 fin=0.3/2.0/2.1 tiles=67.0/76.0/78.0 segs=1.0/1.0/2.0 fullwait_us=3.5/9.9/15.1 prologue_us=2.4/3.1/7.9 loop_us=73.2/84.3/95.4 prod_emptywait_us=24.2/42.4/53.6 prod_life_us=80.8/92.3/99.6 t=216s
+STAMPCTA b=16 full    L=8 stamp_probe c22:sm58:t76:s1:end82.2:pro4.1:fw9.2 c120:sm96:t76:s1:end82.8:pro3.5:fw11.0 c26:sm86:t76:s1:end83.0:pro3.4:fw12.1 c45:sm103:t76:s1:end83.0:pro2.9:fw12.8 c132:sm70:t67:s2:end93.0:pro6.7:fw10.9 c218:sm20:t76:s1:end94.2:pro3.3:fw6.2 c14:sm128:t76:s1:end94.3:pro3.1:fw6.9 c173:sm121:t76:s1:end94.7:pro3.6:fw7.9 c164:sm74:t68:s2:end100.8:pro6.2:fw6.2 c142:sm26:t77:s1:end101.6:pro3.7:fw7.8 c263:sm113:t78:s1:end101.8:pro4.2:fw5.5 c174:sm14:t77:s1:end102.4:pro3.2:fw11.3
+STAMPWAVE b=16 full    L=8 stamp_probe rep=1 ctas=264 sms=132 pairs=132 wave1_end=80.6/85.5/100.3 wave2_end=82.2/96.8/102.3 pair_gap_hi_minus_lo=5.8/11.7/17.5 abs_gap=5.8/11.7/17.5 lo_first=132/132 sm_end=92.4/96.9/102.3 mean_end=91.1 max_end=102.3
+STAMP b=16 full    L=8 stamp_probe rep=1 ctas=264 ghz=1.727 span=105.2 start=0.0/0.1/0.3 part=1.1/1.3/1.6 first_tile=4.2/4.9/7.7 loop_end=80.6/92.4/102.3 barrier_wait=1.5/12.0/23.3 fin=0.2/1.0/1.3 tiles=67.0/76.0/78.0 segs=1.0/1.0/2.0 fullwait_us=6.7/13.4/18.6 prologue_us=2.7/3.2/9.5 loop_us=70.3/82.4/94.9 prod_emptywait_us=20.8/35.8/50.4 prod_life_us=79.3/89.5/99.6 t=216s
+STAMPWAVE b=16 full    L=8 stamp_probe rep=2 ctas=264 sms=132 pairs=132 wave1_end=80.4/85.0/99.2 wave2_end=83.6/97.1/103.1 pair_gap_hi_minus_lo=6.6/12.1/18.5 abs_gap=6.6/12.1/18.5 lo_first=132/132 sm_end=93.2/97.1/103.1 mean_end=91.0 max_end=103.1
+STAMP b=16 full    L=8 stamp_probe rep=2 ctas=264 ghz=1.730 span=105.7 start=0.0/0.1/0.3 part=1.2/1.4/1.5 first_tile=4.0/5.1/7.5 loop_end=80.4/93.2/103.1 barrier_wait=1.3/14.3/24.0 fin=0.2/1.0/1.3 tiles=67.0/76.0/78.0 segs=1.0/1.0/2.0 fullwait_us=7.0/13.5/20.7 prologue_us=2.4/3.3/9.4 loop_us=69.3/83.3/95.2 prod_emptywait_us=20.1/34.7/50.1 prod_life_us=77.9/90.1/98.5 t=216s
+STAMPWAVE b=16 full    L=8 stamp_probe rep=3 ctas=264 sms=132 pairs=132 wave1_end=80.6/85.1/98.3 wave2_end=82.2/96.3/102.4 pair_gap_hi_minus_lo=6.5/11.6/17.1 abs_gap=6.5/11.6/17.1 lo_first=132/132 sm_end=91.4/96.4/102.4 mean_end=90.6 max_end=102.4
+STAMP b=16 full    L=8 stamp_probe rep=3 ctas=264 ghz=1.723 span=105.2 start=0.0/0.1/0.2 part=1.2/1.3/1.4 first_tile=3.9/4.9/7.2 loop_end=80.6/91.4/102.4 barrier_wait=1.5/14.3/23.3 fin=0.2/1.0/1.2 tiles=67.0/76.0/78.0 segs=1.0/1.0/2.0 fullwait_us=5.4/12.6/18.9 prologue_us=2.3/3.2/9.2 loop_us=68.9/83.1/94.4 prod_emptywait_us=19.1/35.1/48.8 prod_life_us=78.6/88.2/97.9 t=216s
+STAMPWAVE b=16 full    L=8 stamp_probe rep=4 ctas=264 sms=132 pairs=132 wave1_end=81.3/85.2/98.0 wave2_end=82.6/97.0/102.3 pair_gap_hi_minus_lo=7.0/12.4/18.3 abs_gap=7.0/12.4/18.3 lo_first=132/132 sm_end=93.2/97.2/102.3 mean_end=91.1 max_end=102.3
+STAMP b=16 full    L=8 stamp_probe rep=4 ctas=264 ghz=1.720 span=105.2 start=0.0/0.1/0.2 part=1.2/1.4/1.5 first_tile=4.0/5.0/8.6 loop_end=81.3/93.2/102.3 barrier_wait=1.5/14.4/22.4 fin=0.2/1.0/1.3 tiles=67.0/76.0/78.0 segs=1.0/1.0/2.0 fullwait_us=6.5/13.2/18.6 prologue_us=2.4/3.2/8.8 loop_us=70.6/83.2/95.9 prod_emptywait_us=19.8/33.4/48.5 prod_life_us=79.0/90.1/99.0 t=216s
+STAMPWAVE b=32 full    L=8 stamp_probe rep=0 ctas=264 sms=132 pairs=132 wave1_end=150.7/156.0/181.2 wave2_end=153.4/178.4/185.7 pair_gap_hi_minus_lo=11.9/22.8/27.9 abs_gap=11.9/22.8/27.9 lo_first=132/132 sm_end=174.3/178.6/185.7 mean_end=167.4 max_end=185.7
+STAMP b=32 full    L=8 stamp_probe rep=0 ctas=264 ghz=1.703 span=189.1 start=0.0/0.1/0.2 part=1.2/1.4/1.6 first_tile=4.2/5.4/7.1 loop_end=150.7/174.3/185.7 barrier_wait=1.3/21.3/36.0 fin=0.3/2.3/2.4 tiles=143.0/152.0/153.0 segs=1.0/1.0/2.0 fullwait_us=7.7/14.7/22.3 prologue_us=2.5/3.7/9.1 loop_us=143.7/165.5/175.9 prod_emptywait_us=48.4/79.7/104.5 prod_life_us=147.5/170.9/183.2 t=216s
+STAMPCTA b=32 full    L=8 stamp_probe c116:sm64:t148:s1:end150.7:pro3.8:fw15.3 c113:sm35:t152:s1:end151.1:pro3.1:fw15.6 c44:sm98:t153:s1:end151.7:pro4.5:fw17.5 c30:sm110:t152:s1:end151.7:pro3.5:fw15.5 c25:sm69:t143:s2:end163.4:pro7.8:fw14.1 c33:sm9:t144:s2:end165.4:pro6.8:fw17.6 c215:sm77:t145:s1:end174.3:pro4.3:fw9.8 c233:sm3:t152:s1:end174.6:pro3.7:fw10.2 c227:sm17:t153:s1:end182.3:pro3.5:fw10.5 c198:sm88:t144:s2:end182.5:pro8.2:fw11.5 c230:sm48:t143:s2:end184.4:pro7.7:fw14.6 c248:sm4:t143:s2:end185.7:pro8.7:fw7.7
+STAMPWAVE b=32 full    L=8 stamp_probe rep=1 ctas=264 sms=132 pairs=132 wave1_end=149.1/155.2/181.8 wave2_end=154.8/178.1/182.0 pair_gap_hi_minus_lo=16.8/22.7/28.6 abs_gap=16.8/22.7/28.6 lo_first=132/132 sm_end=171.8/178.3/182.0 mean_end=166.8 max_end=182.0
+STAMP b=32 full    L=8 stamp_probe rep=1 ctas=264 ghz=1.694 span=184.7 start=0.0/0.1/0.3 part=1.2/1.4/1.6 first_tile=4.5/5.5/7.6 loop_end=149.1/171.8/182.0 barrier_wait=1.4/20.8/34.1 fin=0.2/1.1/1.3 tiles=143.0/152.0/153.0 segs=1.0/1.0/2.0 fullwait_us=10.0/17.9/26.6 prologue_us=2.9/3.8/10.4 loop_us=141.1/164.0/175.4 prod_emptywait_us=40.1/75.7/94.5 prod_life_us=146.0/169.4/180.2 t=216s
+STAMPWAVE b=32 full    L=8 stamp_probe rep=2 ctas=264 sms=132 pairs=132 wave1_end=146.6/155.5/180.0 wave2_end=151.1/177.8/181.6 pair_gap_hi_minus_lo=16.5/22.4/30.0 abs_gap=16.5/22.4/30.0 lo_first=132/132 sm_end=170.9/177.9/181.6 mean_end=166.4 max_end=181.6
+STAMP b=32 full    L=8 stamp_probe rep=2 ctas=264 ghz=1.698 span=184.1 start=0.0/0.1/0.2 part=1.2/1.3/1.4 first_tile=4.2/5.4/6.6 loop_end=146.6/170.9/181.6 barrier_wait=1.1/21.4/36.0 fin=0.2/1.1/1.4 tiles=143.0/152.0/153.0 segs=1.0/1.0/2.0 fullwait_us=10.8/18.0/25.6 prologue_us=2.6/3.7/10.9 loop_us=140.0/163.4/175.3 prod_emptywait_us=44.6/74.8/95.5 prod_life_us=143.2/169.0/179.4 t=216s
+STAMPWAVE b=32 full    L=8 stamp_probe rep=3 ctas=264 sms=132 pairs=132 wave1_end=148.2/154.9/181.8 wave2_end=153.5/177.2/182.3 pair_gap_hi_minus_lo=15.7/22.4/28.9 abs_gap=15.7/22.4/28.9 lo_first=132/132 sm_end=171.3/177.3/182.3 mean_end=165.8 max_end=182.3
+STAMP b=32 full    L=8 stamp_probe rep=3 ctas=264 ghz=1.693 span=184.8 start=0.0/0.1/0.2 part=1.2/1.3/1.4 first_tile=4.1/5.3/7.5 loop_end=148.2/171.3/182.3 barrier_wait=1.1/22.0/35.2 fin=0.2/1.1/1.4 tiles=143.0/152.0/153.0 segs=1.0/1.0/2.0 fullwait_us=8.4/17.5/25.2 prologue_us=2.6/3.7/10.1 loop_us=138.6/162.2/175.9 prod_emptywait_us=42.6/71.0/94.9 prod_life_us=146.2/168.7/180.0 t=216s
+STAMPWAVE b=32 full    L=8 stamp_probe rep=4 ctas=264 sms=132 pairs=132 wave1_end=147.3/153.9/182.2 wave2_end=151.1/177.0/181.8 pair_gap_hi_minus_lo=17.6/23.4/30.0 abs_gap=17.6/23.4/30.0 lo_first=132/132 sm_end=171.0/177.3/182.2 mean_end=165.6 max_end=182.2
+STAMP b=32 full    L=8 stamp_probe rep=4 ctas=264 ghz=1.689 span=184.8 start=0.0/0.1/0.3 part=1.2/1.4/1.5 first_tile=4.2/5.3/7.5 loop_end=147.3/171.0/182.2 barrier_wait=1.1/23.1/36.0 fin=0.2/1.1/1.3 tiles=143.0/152.0/153.0 segs=1.0/1.0/2.0 fullwait_us=9.2/17.2/23.8 prologue_us=2.7/3.7/9.6 loop_us=138.8/162.7/175.7 prod_emptywait_us=43.0/75.0/96.6 prod_life_us=144.5/167.9/179.9 t=216s
+ABORDER seed=311109 rounds=120 inputs=2 timing_seeds=[1000, 1001] arms=['ctrl', 'read_probe', 'zero_probe', 'nocopy_probe', 'stamp_probe', 'ctrl2']
+ABPLAN b=16 full    L=8 ctrl=[splits=264,nc=1,mode=51] read_probe=[splits=264,nc=1,mode=51] zero_probe=[splits=264,nc=1,mode=51] nocopy_probe=[splits=264,nc=1,mode=51] stamp_probe=[splits=264,nc=1,mode=51] ctrl2=[splits=264,nc=1,mode=51]
+ABCOLD b=16 full    L=8 in=0 ctrl=112.86 read_probe=110.46 zero_probe=74.08 nocopy_probe=84.86 stamp_probe=114.78 ctrl2=112.48 cap0=nocopy_probe t=216s
+ABWARM b=16 full    L=8 in=0 ctrl=94.83 read_probe=100.18 zero_probe=55.33 nocopy_probe=78.98 stamp_probe=95.99 ctrl2=94.75 t=217s
+ABCOLD b=16 full    L=8 in=1 ctrl=109.89 read_probe=110.85 zero_probe=74.34 nocopy_probe=85.41 stamp_probe=111.49 ctrl2=109.79 cap0=stamp_probe t=217s
+ABWARM b=16 full    L=8 in=1 ctrl=95.94 read_probe=100.96 zero_probe=55.74 nocopy_probe=79.74 stamp_probe=97.02 ctrl2=96.08 t=217s
+ABCOLD b=16 full    L=8 pooled ctrl=110.88 read_probe=110.69 zero_probe=74.24 nocopy_probe=85.15 stamp_probe=112.70 ctrl2=110.82
+ABWARM b=16 full    L=8 pooled ctrl=95.73 read_probe=100.41 zero_probe=55.62 nocopy_probe=79.47 stamp_probe=96.72 ctrl2=95.63
+ABPLAN b=32 full    L=8 ctrl=[splits=264,nc=1,mode=51] read_probe=[splits=264,nc=1,mode=51] zero_probe=[splits=264,nc=1,mode=51] nocopy_probe=[splits=264,nc=1,mode=51] stamp_probe=[splits=264,nc=1,mode=51] ctrl2=[splits=264,nc=1,mode=51]
+ABCOLD b=32 full    L=8 in=0 ctrl=187.94 read_probe=196.58 zero_probe=132.19 nocopy_probe=150.82 stamp_probe=190.40 ctrl2=187.68 cap0=ctrl2 t=217s
+ABWARM b=32 full    L=8 in=0 ctrl=173.12 read_probe=186.68 zero_probe=99.69 nocopy_probe=144.70 stamp_probe=174.65 ctrl2=173.16 t=218s
+ABCOLD b=32 full    L=8 in=1 ctrl=188.86 read_probe=197.63 zero_probe=132.80 nocopy_probe=151.52 stamp_probe=191.42 ctrl2=188.80 cap0=read_probe t=218s
+ABWARM b=32 full    L=8 in=1 ctrl=173.83 read_probe=187.32 zero_probe=100.39 nocopy_probe=145.88 stamp_probe=175.44 ctrl2=173.85 t=218s
+ABCOLD b=32 full    L=8 pooled ctrl=188.38 read_probe=197.06 zero_probe=132.51 nocopy_probe=151.17 stamp_probe=190.85 ctrl2=188.10
+ABWARM b=32 full    L=8 pooled ctrl=173.32 read_probe=186.93 zero_probe=99.83 nocopy_probe=145.27 stamp_probe=174.93 ctrl2=173.53
+Q8RESOURCE ctrl L,mode,resident,dynamic_bytes,blocks_per_sm=[8, 51, 264, 107104, 2]
+Q8RESOURCE read_probe L,mode,resident,dynamic_bytes,blocks_per_sm=[8, 51, 264, 107104, 2]
+Q8RESOURCE zero_probe L,mode,resident,dynamic_bytes,blocks_per_sm=[8, 51, 264, 107104, 2]
+Q8RESOURCE nocopy_probe L,mode,resident,dynamic_bytes,blocks_per_sm=[8, 51, 264, 107104, 2]
+Q8RESOURCE stamp_probe L,mode,resident,dynamic_bytes,blocks_per_sm=[8, 51, 264, 107104, 2]
+Q8RESOURCE ctrl2 L,mode,resident,dynamic_bytes,blocks_per_sm=[8, 51, 264, 107104, 2]
+STSUM b=16 full    L=8 stamp_probe reps=5 start_max=0.2 first_med=5.0 loop_min=80.6 loop_med=93.2 loop_max=102.4 mid_med=14.3 mid_max=23.3 tail_med=15.2 tail_max=24.2 kend_med=104.8 span=105.2 fullwait_med=13.2 prodwait_med=35.1 smend_med=97.1 smend_max=102.4 pairgap_med=12.1
+STSUM b=32 full    L=8 stamp_probe reps=5 start_max=0.2 first_med=5.4 loop_min=148.2 loop_med=171.3 loop_max=182.2 mid_med=21.4 mid_max=36.0 tail_med=23.2 tail_max=37.2 kend_med=184.4 span=184.8 fullwait_med=17.5 prodwait_med=75.0 smend_med=177.9 smend_max=182.2 pairgap_med=22.7
+ABADDR ctrl:acc=0x11466c000000,l=0x11465e890000,cnt=0x11465e8d0000 read_probe:acc=0x114622000000,l=0x11465e930000,cnt=0x11465e970000 zero_probe:acc=0x114623000000,l=0x11465e8f0000,cnt=0x11465e9d0000 nocopy_probe:acc=0x114624000000,l=0x11465e990000,cnt=0x114721ac8200 stamp_probe:acc=0x114625000000,l=0x114721a88200,cnt=0x114721b28200 ctrl2:acc=0x114626000000,l=0x114721ae8200,cnt=0x114721b88200
+ABSUM cold b=16 full    L=8 ctrl=110.88 read_probe=110.69 zero_probe=74.24 nocopy_probe=85.15 stamp_probe=112.70 ctrl2=110.82 null:ctrl2-ctrl=-0.06 d:read_probe=-0.19 d:zero_probe=-36.64 d:nocopy_probe=-25.73 d:stamp_probe=+1.82
+ABSUM warm b=16 full    L=8 ctrl=95.73 read_probe=100.41 zero_probe=55.62 nocopy_probe=79.47 stamp_probe=96.72 ctrl2=95.63 null:ctrl2-ctrl=-0.10 d:read_probe=+4.67 d:zero_probe=-40.11 d:nocopy_probe=-16.27 d:stamp_probe=+0.99
+ABSUM cold b=32 full    L=8 ctrl=188.38 read_probe=197.06 zero_probe=132.51 nocopy_probe=151.17 stamp_probe=190.85 ctrl2=188.10 null:ctrl2-ctrl=-0.29 d:read_probe=+8.67 d:zero_probe=-55.87 d:nocopy_probe=-37.22 d:stamp_probe=+2.46
+ABSUM warm b=32 full    L=8 ctrl=173.32 read_probe=186.93 zero_probe=99.83 nocopy_probe=145.27 stamp_probe=174.93 ctrl2=173.53 null:ctrl2-ctrl=+0.21 d:read_probe=+13.61 d:zero_probe=-73.49 d:nocopy_probe=-28.05 d:stamp_probe=+1.61
+ABIN b=16 full    L=8 in=0 ctrl2=-0.38
+ABIN b=16 full    L=8 in=1 ctrl2=-0.10
+ABIN b=32 full    L=8 in=0 ctrl2=-0.26
+ABIN b=32 full    L=8 in=1 ctrl2=-0.06
+ABCHECKSUM ctrl=2/0/0 read_probe=0/0/2 zero_probe=0/0/2 nocopy_probe=0/0/2 stamp_probe=0/0/2 ctrl2=2/0/0 (pass/fail/probe)
+USDT:2026-11-01 07:01:20 77:77 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-01 07:01:20 77:77 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-01 07:01:20 77:77 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-01 07:01:20 77:77 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-01 07:01:20 77:77 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-01 07:01:20 77:77 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-01 07:01:20 77:77 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-01 07:01:20 77:77 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-01 07:01:20 77:77 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-01 07:01:20 77:77 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-01 07:01:20 77:77 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-01 07:01:20 77:77 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-01 07:01:20 77:77 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-01 07:01:21 77:77 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-01 07:01:21 77:77 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-01 07:01:21 77:77 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-01 07:01:21 77:77 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-01 07:01:21 77:77 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-01 07:01:21 77:77 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-01 07:01:21 77:77 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-01 07:01:21 77:77 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-01 07:01:21 77:77 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-01 07:01:21 77:77 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-01 07:01:21 77:77 SyncActivityProfilerHandler.cpp:46] profiler_stop
+
