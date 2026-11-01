@@ -1,5 +1,7 @@
 # Shared project steering
 
+Latest independent terminal: [Stage-local SX result and reader review](2026-11-01-sk-stage-terminal-independent.md). Owningdfcfdd01 PASS9/1.419147x, all10targets slower thanC2; independent6score/resources matchfixedreader. No retry/tuning/layerport.
+
 Latest performance pivot: [After both sparse-repair losses](2026-11-01-post-xor-ranking-pivot.md). Fresh official ranks/cutoffs, exact stage-local loss and one next investigation; preserve first-two reset order. No new kernel or GPU action.
 
 Latest G contract audit: [Precision requirements versus conservative policy](2026-11-01-g-fork-precision-contract.md). BF16 stage edges retained; internal split-partial bans distinguished from explicit rules; active JIT FP32 router clarified. No reopening, code or GPU action.
