@@ -1,0 +1,103 @@
+{
+  "source": {
+    "G0": {
+      "path": ".build/today/kel/kernels/muse_decode_layer.py",
+      "sha256": "1ec189dc6f306cec1694946eb62d64b54daf378c6fc1ada2f0f5e501e973ff2a",
+      "policies": {
+        "FORCE_GLUEV2": null,
+        "GLE_T": {
+          "1": true
+        },
+        "GLE_B1X": true
+      }
+    },
+    "607": {
+      "path": "muse_decode_layer/cand/g1b4_stage_release.py",
+      "sha256": "ba9e327cd7b96595ace4d0c1d0d78fe27c128f23ed0debcda97c7169fc3164ab",
+      "policies": {
+        "FORCE_GLUEV2": false,
+        "GLE_T": {}
+      }
+    }
+  },
+  "profiles": {
+    "G0": [
+      {
+        "load": "decode 1",
+        "context": "sliding",
+        "selected": [
+          "_gle_route                                                         2.6 \u00b5s   3.6%      1"
+        ]
+      },
+      {
+        "load": "decode 1",
+        "context": "full",
+        "selected": [
+          "_gle_route                                                         2.5 \u00b5s   3.2%      1"
+        ]
+      },
+      {
+        "load": "verify 1",
+        "context": "sliding",
+        "selected": [
+          "void glue_cluster_boundary<4, 32, false, false, true, tru...       3.2 \u00b5s   3.2%      1",
+          "_sl_tile_route                                                     1.9 \u00b5s   1.9%      1"
+        ]
+      },
+      {
+        "load": "verify 1",
+        "context": "full",
+        "selected": [
+          "void glue_cluster_boundary<4, 32, false, false, true, tru...       3.4 \u00b5s   2.9%      1",
+          "_sl_tile_route                                                     2.0 \u00b5s   1.6%      1"
+        ]
+      }
+    ],
+    "607": [
+      {
+        "load": "decode 1",
+        "context": "sliding",
+        "selected": [
+          "void glue_cluster_boundary<4, 32, false, false, true, fal...       3.4 \u00b5s   4.1%      1",
+          "_sl_tile_route                                                     2.0 \u00b5s   2.5%      1"
+        ]
+      },
+      {
+        "load": "decode 1",
+        "context": "full",
+        "selected": [
+          "void glue_cluster_boundary<4, 32, false, false, true, fal...       3.3 \u00b5s   3.3%      1",
+          "_sl_tile_route                                                     2.0 \u00b5s   2.0%      1"
+        ]
+      },
+      {
+        "load": "verify 1",
+        "context": "sliding",
+        "selected": [
+          "void glue_cluster_boundary<4, 32, false, false, true, tru...       3.0 \u00b5s   2.5%      1",
+          "_sl_tile_route                                                     1.9 \u00b5s   1.5%      1"
+        ]
+      },
+      {
+        "load": "verify 1",
+        "context": "full",
+        "selected": [
+          "void glue_cluster_boundary<4, 32, false, false, true, tru...       3.2 \u00b5s   2.7%      1",
+          "_sl_tile_route                                                     2.0 \u00b5s   1.7%      1"
+        ]
+      }
+    ]
+  },
+  "b1_us": {
+    "decode 1 sliding": 3.4,
+    "decode 1 full": 3.3,
+    "verify 1 sliding": 3.0,
+    "verify 1 full": 3.2
+  },
+  "counterfactual_zero_b1_D1_only": 1.0073445824448926,
+  "counterfactual_zero_b1_bothshort": 1.0118307393719694,
+  "current_boundary_output_bytes_per_token": 81924,
+  "last_owner_extra_partial_ss_bytes_per_token_each_direction": 1024,
+  "interpretation": "Profile-activity substitution screen only: no exposed gain, hard speed ceiling, new implementation or eligibility claim.",
+  "GPU": false
+}
