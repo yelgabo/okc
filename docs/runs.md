@@ -1913,3 +1913,142 @@ FP64/probe tests at129/200/256, fresh-input graph replay checks,100 randomized c
 against the actual prepare-selected qkv256 incumbent. New configs remain benchmark-only.
 Stop this geometry if occupancy fails or its reduction/mainloop cost erases the large-tile
 gain; a failure does not reopen the previous200KB one-wave assumption.
+
+Result `4ca25ee4eccc495c`: passed9/9 on C3 control,1.529206x (95%CI1.506268–1.552144).
+The NEW3-stage residency trigger is **met**, not assumed: both independent builds report
+62activeclusters,2blocks/SM,90registers,0localbytes,0staticshared,99376dynamicshared bytes.
+4-stage reports30clusters,1block/SM,90regs,132160dynamic bytes and is skipped before timing.
+All3-stage FP64/probe tests129/200/256 and both fresh-input replay checks pass, error~1.6e-3.
+
+Nonetheless the raw3-stage kernel loses: production median26.624us raw, A39.472/B39.408us,
+paired +12.656/+12.816us,0/100 faster in both copies. Actual cold resource/residency success
+therefore does not make this large-tile wd geometry competitive. No promotion. Unlike the old
+200KB c4 result, insufficient cluster residency and spills cannot explain this measured loss.
+Not yet attributed: mainloop versus DSMEM epilogue cost. A skip-reduction/memory-only diagnostic
+could test whether a cheaper reduction is even a credible repair; no claim that one is.
+
+Root approved one diagnostic follow-up, `e6e5bd6d0a104faf` (pending), builder
+`proj_make_bench_dense_dsm.py --ablate`. Same62-cluster geometry plus ABL1 (no WGMMA),
+ABL2 (skip partial stores/reduction), ABL3 (both), independent extension duplicates and
+actual resource query for every variant. Wrong/unguaranteed-output arms are explicitly
+`_probe`, not correctness-tested/promoted/scored. The full arms retain FP64 and fresh-replay
+gates. Purpose: if the no-reduction mainloop still loses to Lt, a cheaper DSMEM epilogue
+cannot rescue this geometry, so park it until a new compute/schedule mechanism exists.
+
+Timing bridge: `4ca25ee4eccc495c`'s Lt26.624us is raw graph time on fresh hardware and
+fresh prepare choices. Old `cab546f978974515`'s17.47us was overhead-adjusted on its hardware
+and its pinned algorithm. They are not a paired regression comparison. New attribution
+must use the same-run baseline and common graph overhead, not subtract these cross-run values.
+
+Ablation result `e6e5bd6d0a104faf`: control passed9/9,1.538579x (95%CI1.515500–1.561658).
+Same-run raw times: Lt26.912us; full A39.536/B39.648; no-reduction A36.384/B36.336;
+memory-only with reduction A35.616/B35.776; memory-only without reduction A32.224/B32.240.
+All measured variants have62activeclusters and2blocks/SM,0localbytes; full/no-reduction90regs,
+memory-only40regs. Full arms retain FP64/probe/replay correctness; ablations are unscored probes.
+
+Conclusion: removing the entire reduction still leaves~9.44us to Lt; removing both math and
+reduction leaves~5.3us. Thus a cheaper DSMEM epilogue alone cannot rescue this unchanged
+geometry. Memory pipeline or work scheduling must change first. These non-additive ablations
+do not measure separate additive component costs; removing math changes register pressure.
+No barrier removal or new production kernel is justified by them.
+
+Root approved one changed scheduling test: `303ba7fc3bb44b9d`, pending, builder
+`proj_make_bench_dense_dsm.py --tokenfast`. It interleaves the two128-token tiles for each
+128-channel row block, instead of processing all18 row blocks for token tile0 before tile1.
+Same144CTAs,4-CTA clusters,low shared ring,math and every fence/barrier; only independent
+clusters' work order changes. Potential L2 temporal weight reuse is a hypothesis, not measured
+bandwidth. Full and memory/no-reduction probes are paired against old order in two extension
+builds. CPU checks establish bijection of cluster(row,tok,Ksplit), agreement within each
+cluster and unique output writers at129/200/256 before dispatch. No new production config.
+Stop if memory reuse gains cannot bridge full-kernel Lt deficit; no identical sweep.
+
+Harness result `303ba7fc3bb44b9d`: failed before CUDA build, because the builder's string-patch
+loop reused `old`, shadowing the saved-globals dictionary and making `finally: g.update(old)`
+raise ValueError. Renamed the anchor variable; retry `d271218896df4a85` dispatched, pending.
+Added a no-GPU builder generation/global-restoration gate using the actual `_WD_SRC`, a stub
+compiler and the real build function; both tokenfast and ablation modes pass. No schedule or
+performance inference follows from the failed harness. Submitted retry also queries tokenfast's
+actual144x1 launch shape; first failed source's query used equivalent144CTA72x2 dimensions.
+
+### Pair7 in the original cgemv vector/prefetch scaffold
+
+Check `4aef50bcd265448b`, pending; `proj_make_bench_pair7.py --vector`. Same actual11.5-bit
+stored stream and sparse exact escapes; change is the compute schedule. Both output rows and
+all CPT chunks are prefetched as in original cgemv, then a128-entry shared LUT emits exponent
+LSB masks/high bytes for the original vector `fma4` math order. No scalar per-value decode/FMA
+loop. The actual LUT transform has its own bit-exact inverse gate, in addition to full stored
+weight roundtrip and CPU all-BF16 gate. FP64 random/probes, independent control/null graphs,
+100 cold randomized rounds. Pooler includes NTH256/CPT2 beside512/CPT1, with runtime resource
+queries (registers/localbytes/staticshared/blocks perSM) rather than assuming no spills.
+This is a codec-in-competitive-scaffold test, not a claim of hidden decoding; no production
+adoption unless end-to-end time improves repeatably. Parent notified of both live job IDs.
+
+Tokenfast retry `d271218896df4a85` completed: control passed9/9,1.521036x (95%CI
+1.498220–1.543851), full new/old arms pass all FP64/probe/replay gates. All resource fields
+agree: full62clusters/2blocks/90regs/0localbytes, memory probes40regs. Raw times:
+Lt26.592us, old full39.328/39.440, tokenfast full39.504/39.376; old memory-no-reduction
+31.856/32.000, tokenfast memory31.728/31.728. Memory probe saves only~0.1–0.3us and full
+kernel does not improve materially; it cannot bridge the~12.7us deficit. Park this work-order
+repair. No bandwidth counters were collected; this does not prove or disprove a specific
+L2 miss rate. Retain current incumbent; no production schedule change.
+
+Vector pair7 `4aef50bcd265448b` completed: control passed9/9,1.531006x (95%CI
+1.508041–1.553971). Stored-byte roundtrip/LUT inverse and FP64 random/power-of-two checks
+all pass, including pooler NTH256. Vector/scaffold change reduces scalar trial's overhead
+but still loses: qkv+4.960us, o+3.392, pooler NTH512+13.024/NTH256+7.568, slice+1.312.
+Duplicate null0 to-0.064us. Runtime resources (regs/localbytes/sharedbytes/blocks perSM):
+qkv256threads[48,0,584,4],o64[40,0,536,16],pool512[40,0,648,2],pool256[48,0,584,4],
+slice128[48,0,552,8]. No spills/local-memory allocation explains the loss. Lookup/bit-unpack
+and lower occupancy consume more than1–3% physical byte saving, on this implementation.
+No codec adoption; broader codecs require a genuinely cheaper decode placement/mechanism.
+
+### One128-row weight TMA instead of two64-row copies
+
+Root-approved new memory-pipeline mechanism, check `7803be789c624f8e` pending, builder
+`proj_make_bench_dense_dsm.py --widew`. Same raw WG2/BN128/CLK4/3-stage geometry and
+independent full/memory-no-reduction A/B arms. A single128-row weight tensor-map box fills
+the same16KB weights region that two64-row boxes did; producer issue count per stage is
+2 total (weight+activation) instead of3 (two weight+activation). Physical bytes unchanged.
+No speedup is predicted from the instruction count alone.
+
+CPU gates passed before dispatch: real builder/source-global restoration; exact SW128
+byte-address identity across all3stages,128weight rows and128bytes/row; last output row2303
+bounds; expected transaction byte equality. Full-barrier expect_tx stays32768bytes per
+stage (old8192+8192+16384, new16384+16384), with the same one producer expect/arrive and
+unchanged consumer/empty-barrier counts, phases, waits and proxy fences. One transfer's
+completion covers16KB rather than8KB; the barrier still releases only after all expected
+bytes complete. Flag is restricted to raw BF16,WG2,unpacked weights; all consumers retain
+the old two64-row WGMMA descriptors. No donated code and no production feature enabled.
+
+Actual resource query and FP64/probe/adjacent-M/replay gates precede timing. Stop further
+local dense TMA knobs if this copy-schedule mechanism does not materially reduce the deficit;
+new counters or a different established mechanism would be needed.
+
+Combined-TMA result `7803be789c624f8e`: control passed9/9,1.518411x (95%CI
+1.495635–1.541187). Full CPU swizzle/source gates and GPU FP64/probe/replay pass. Resource
+fields remain62clusters,2CTA/SM,90regs full/40regs memory,0localbytes,99376dynamicshared.
+Same-run raw Lt26.160us, oldfull38.832/38.816,newfull38.320/38.336; memory-no-reduction
+old31.312/31.328,new31.344/31.184. Saving~0.5us in full kernel leaves~12us gap; memory
+probe benefit negligible. Stop this local dense TMA/geometry series. Fewer TMA instructions
+alone are not enough; no production adoption. New counters or a genuinely new schedule are
+needed before reopening this family.
+
+### TOP7 exponent-pair LUT32 codec: rawlow unchanged
+
+Root approved CPU workmodel then one bounded check. Pure-CPU
+`tools/proj_pair_e7_model.py`, three Gaussian-distribution proxy seeds71031–71033,262144weights
+each: actual escape fraction0.001129–0.001163,11.572–11.574bits/weight including8-byte entries
+but excluding per-CTA table padding. This is not the judge's Philox draw or a GPU speedup.
+Every proxy roundtrip is exact. Actual CPU exhaustive gate covers all65536 BF16 patterns
+in both pair positions,7byte packing/sign bits,compact escape fields and the actual
+fma4 `__byte_perm(lo,hi,0x5140)` low/high-byte ABI.
+
+Check `ee39ec933a8542d8`, pending; `proj_make_bench_pair7.py --top7`. Rawlow is exactly
+original BF16 bits0–7 (mantissa plus exponentLSB);7-bit pair code is5-bit index into a32-entry
+LUT of TOP7 exponent pairs plus2sign bits. LUT returns final high bytes and sign bits are
+ORed in. The original vector fma4 sees rawlow unchanged; no exponentLSB mask or reconstructed
+lowword, unlike prior vector pair7. Compact int2 escapes store original bits plus the chosen
+decoded exponent in unused index-word bits; correction retains separately rounded multiply/add.
+GPU stored-byte/escape and LUT ABI gates must pass before FP64 random/probe and cold timing.
+Same paired control/null and runtime register/localmemory/shared/occupancy queries as before;
+no production feature enabled and no math-bound relaxation.

@@ -1,0 +1,113 @@
+ooler  m= 1: slice8 8.6, slice8raw 8.9, cgemv 7.6, sgemv 7.8, cublas 11.3 -> cgemv
+tune unpooler  m= 8: slice8 8.4, slice8raw 8.7, cublas 11.2 -> slice8
+tune unpooler  m=16: unp16 17.8, unp16raw 21.9, cublas 22.0 -> unp16
+tune unpooler  m=32: unp32 18.7, unp32raw 22.8, cublas 22.4 -> unp32
+tune unpooler  m=64: cublas 22.7, b1n64c2 24.3, m64k2r4 35.7, m64k1r8 29.8 -> cublas
+tune unpooler  m=128: cublas 23.3, b1n64c2 42.7, b1n128c2 25.8, m64k2r4 52.8, m64k1r8 48.1, m128k2r4 39.2, m128k1r4 34.1, m128k1r8 35.7, m128k2r8 39.7, m128k4r2 39.1, b1n128c2s8h 29.4, b1n128c3s8h 38.4 -> cublas
+tune unpooler  m=256: cublas 28.8, b1n128c2 46.7, b2n256c2 32.6, m128k2r4 60.0, m128k1r4 55.1, m128k1r8 62.6, m128k2r8 62.0, m128k4r2 65.3, m256k2r4 53.9, m256k1r4 57.2, m256k1r8 59.6, m256k2r8 56.4, m256k2r2 54.1, b1n128c2s8h 52.9, b1n128c3s8h 64.9 -> cublas
+lt build 15.5 s, cublasLt 130101, torch cuda 13.0
+lt qkv_gate m=128: 64 heuristic, 792 swept, 214 other, screen best L2:a66t104s35k1r0z0c0i0g6w0v0.64 18.9, L0:a66t92s35k1r0z0c0i0g2w0v0.73 19.0, L0:a66t104s35k1r0z0c0i0g6w0v0.64 19.2, L0:a66t80s35k1r0z0c0i0g5w0v0.88 19.2, L2:a66t92s35k1r0z0c0i0g2w0v0.73 19.4
+ltune qkv_gate  m=128: base 19.0, f0=L2:a66t104s35k1r0z0c0i0g6w0v0.64 19.3, f1=L0:a66t92s35k1r0z0c0i0g2w0v0.73 19.1, f2=L0:a66t104s35k1r0z0c0i0g6w0v0.64 19.3, f3=L0:a66t80s35k1r0z0c0i0g5w0v0.88 19.4, f4=L2:a66t92s35k1r0z0c0i0g2w0v0.73 19.1; pref base margin 0.30 f0 -0.35/0 f1 -0.16/1 f2 -0.35/0 f3 -0.42/0 f4 -0.22/0 -> base
+lt o m=128: 32 heuristic, 788 swept, 221 other, screen best L1:a66t18s35k1r0z0c4i0g2w0v0.97 10.7, L1:a66t18s35k1r0z0c5i0g5w0v0.97 10.7, L0:a66t18s35k1r0z0c4i0g2w0v0.97 10.8, L2:a66t18s35k1r0z0c0i0g2w0v0.97 10.8, L0:a66t18s35k1r0z0c0i0g2w0v0.97 10.9
+ltune o         m=128: base 11.0, f0=L1:a66t18s35k1r0z0c4i0g2w0v0.97 10.9, f1=L1:a66t18s35k1r0z0c5i0g5w0v0.97 11.2, f2=L0:a66t18s35k1r0z0c4i0g2w0v0.97 11.0, f3=L2:a66t18s35k1r0z0c0i0g2w0v0.97 11.0, f4=L0:a66t18s35k1r0z0c0i0g2w0v0.97 11.0; pref base margin 0.30 f0 +0.06/5 f1 -0.22/2 f2 +0.00/4 f3 +0.00/3 f4 +0.03/5 -> base
+lt pooler m=128: 60 heuristic, 792 swept, 209 other, screen best L0:a66t134s35k1r0z0c2i0g7w0v0.79 24.7, L2:a66t134s35k1r0z0c2i0g7w0v0.79 24.7, L0:a66t134s35k1r0z0c0i0g5w0v0.79 24.7, L2:a66t134s35k1r0z0c0i0g7w0v0.79 24.7, L0:a66t143s35k1r0z0c0i0g5w0v0.71 24.7
+ltune pooler    m=128: base 26.3, pref=L1:a66t15s35k1r0z0c4i0g2w0v0.97 24.6, f0=L0:a66t134s35k1r0z0c2i0g7w0v0.79 24.6, f1=L2:a66t134s35k1r0z0c2i0g7w0v0.79 24.5, f2=L0:a66t134s35k1r0z0c0i0g5w0v0.79 25.3, f3=L2:a66t134s35k1r0z0c0i0g7w0v0.79 24.5, f4=L0:a66t143s35k1r0z0c0i0g5w0v0.71 24.7; pref pref margin 0.64 base -1.66/0 f0 -0.10/4 f1 +0.10/5 f2 -0.54/1 f3 -0.26/4 f4 -0.13/4 -> pref
+lt unpooler m=128: 44 heuristic, 788 swept, 212 other, screen best L3:a66t18s35k1r0z0c7i0g5w0v0.97 22.2, L1:a66t18s35k1r0z0c7i0g5w0v0.97 22.3, L3:a66t18s35k1r0z0c0i0g5w0v0.97 22.4, L1:a66t18s35k1r0z0c4i0g2w0v0.97 22.4, L3:a66t18s35k1r0z0c6i0g5w0v0.97 22.4
+ltune unpooler  m=128: base 23.4, pref=L3:a66t18s35k1r0z0c2i0g5w0v0.97 22.8, f0=L3:a66t18s35k1r0z0c7i0g5w0v0.97 22.7, f1=L1:a66t18s35k1r0z0c7i0g5w0v0.97 22.7, f2=L3:a66t18s35k1r0z0c0i0g5w0v0.97 22.8, f3=L1:a66t18s35k1r0z0c4i0g2w0v0.97 22.5, f4=L3:a66t18s35k1r0z0c6i0g5w0v0.97 22.6; pref pref margin 0.45 base -0.64/2 f0 +0.06/5 f1 +0.32/5 f2 +0.19/7 f3 +0.26/7 f4 +0.26/6 -> pref
+lt qkv_gate m=256: 60 heuristic, 792 swept, 200 other, screen best L2:a66t124s35k1r0z0c0i0g3w0v0.97 22.0, L0:a66t134s35k1r0z0c0i0g9w0v0.88 22.2, L2:a66t124s35k1r0z0c0i0g2w0v0.97 22.2, L2:a66t134s35k1r0z0c2i0g9w0v0.88 22.3, L2:a66t134s35k1r0z0c0i0g9w0v0.88 22.4
+ltune qkv_gate  m=256: base 23.4, pref=L0:a66t124s35k1r0z0c0i0g2w0v0.97 21.9, f0=L2:a66t124s35k1r0z0c0i0g3w0v0.97 22.9, f1=L0:a66t134s35k1r0z0c0i0g9w0v0.88 21.9, f2=L2:a66t124s35k1r0z0c0i0g2w0v0.97 21.7, f3=L2:a66t134s35k1r0z0c2i0g9w0v0.88 21.8, f4=L2:a66t134s35k1r0z0c0i0g9w0v0.88 22.0; pref pref margin 0.38 base -1.38/1 f0 -1.06/2 f1 -0.06/3 f2 +0.22/6 f3 -0.10/4 f4 -0.29/2 -> pref
+lt o m=256: 32 heuristic, 788 swept, 213 other, screen best L1:a66t20s35k1r0z0c4i0g2w0v0.97 12.8, L1:a66t20s35k1r0z0c5i0g3w0v0.97 12.9, L3:a66t20s35k1r0z0c4i0g3w0v0.97 12.9, L1:a66t20s35k1r0z0c4i0g5w0v0.97 12.9, L2:a66t20s35k1r0z0c4i0g3w0v0.97 12.9
+ltune o         m=256: base 13.2, pref=L3:a66t20s35k1r0z0c4i0g3w0v0.97 12.7, f0=L1:a66t20s35k1r0z0c4i0g2w0v0.97 12.7, f1=L1:a66t20s35k1r0z0c5i0g3w0v0.97 13.1, f2=L3:a66t20s35k1r0z0c4i0g3w0v0.97 12.7, f3=L1:a66t20s35k1r0z0c4i0g5w0v0.97 12.7, f4=L2:a66t20s35k1r0z0c4i0g3w0v0.97 12.7; pref pref margin 0.30 base -0.54/0 f0 +0.03/6 f1 -0.42/0 f2 +0.10/5 f3 +0.10/6 f4 +0.00/3 -> pref
+lt pooler m=256: 50 heuristic, 790 swept, 222 other, screen best L3:a66t18s35k1r0z0c0i0g2w0v0.97 27.5, L1:a66t18s35k1r0z0c0i0g2w0v0.97 27.6, L3:a66t18s35k1r0z0c0i0g3w0v0.97 28.0, L1:a66t18s35k1r0z0c0i0g3w0v0.97 28.1, L1:a66t18s35k1r0z0c1i0g2w0v0.97 28.3
+ltune pooler    m=256: base 31.4, pref=L1:a66t18s35k1r0z0c0i0g2w0v0.97 27.8, f0=L3:a66t18s35k1r0z0c0i0g2w0v0.97 27.6, f1=L1:a66t18s35k1r0z0c0i0g2w0v0.97 27.5, f2=L3:a66t18s35k1r0z0c0i0g3w0v0.97 27.9, f3=L1:a66t18s35k1r0z0c0i0g3w0v0.97 27.8, f4=L1:a66t18s35k1r0z0c1i0g2w0v0.97 28.4; pref pref margin 0.70 base -3.30/0 f0 +0.16/6 f1 +0.22/6 f2 -0.03/4 f3 +0.06/5 f4 -0.83/1 -> pref
+lt unpooler m=256: 32 heuristic, 788 swept, 216 other, screen best L1:a66t20s35k1r0z0c4i0g5w0v0.97 27.3, L1:a66t20s35k1r0z0c4i0g2w0v0.97 27.6, L0:a66t20s35k1r0z0c4i0g2w0v0.97 27.6, L3:a66t20s35k1r0z0c4i0g2w0v0.97 27.6, L1:a66t20s35k1r0z0c4i0g3w0v0.97 27.6
+ltune unpooler  m=256: base 28.6, pref=L1:a66t20s35k1r0z0c4i0g3w0v0.97 27.7, f0=L1:a66t20s35k1r0z0c4i0g5w0v0.97 27.6, f1=L1:a66t20s35k1r0z0c4i0g2w0v0.97 27.6, f2=L0:a66t20s35k1r0z0c4i0g2w0v0.97 27.7, f3=L3:a66t20s35k1r0z0c4i0g2w0v0.97 27.5, f4=L1:a66t20s35k1r0z0c4i0g3w0v0.97 27.8; pref pref margin 0.30 base -0.86/2 f0 +0.06/5 f1 +0.19/7 f2 -0.03/3 f3 +0.29/7 f4 -0.03/4 -> pref
+ablate pooler m=128: m128k2r4 35.6, m128k2r4_a1 30.9, m128k2r4_a3 28.5
+ablate o m=256: m256k1r4 25.2, m256k1r4_a1 23.1, m256k1r4_a3 18.3
+prepare done 92.1 s
+DRES as3 clusters/blocks/regs/localbytes/staticshared/dynamicshared=[62, 2, 90, 0, 0, 99376]
+DCHECK as3 m=129 True err=0.00157/0
+DCHECK as3 m=200 True err=0.0016/0
+DCHECK as3 m=256 True err=0.00162/0
+DRES as3_a3_probe clusters/blocks/regs/localbytes/staticshared/dynamicshared=[62, 2, 40, 0, 0, 99376]
+DPROBE as3_a3_probe: wrong/unguaranteed output, never scored or correctness evidence
+DRES as3_ww clusters/blocks/regs/localbytes/staticshared/dynamicshared=[62, 2, 90, 0, 0, 99376]
+DCHECK as3 m=129 True err=0.00158/0
+DCHECK as3 m=200 True err=0.0016/0
+DCHECK as3 m=256 True err=0.00162/0
+DRES as3_ww_a3_probe clusters/blocks/regs/localbytes/staticshared/dynamicshared=[62, 2, 40, 0, 0, 99376]
+DPROBE as3_ww_a3_probe: wrong/unguaranteed output, never scored or correctness evidence
+DRES bs3 clusters/blocks/regs/localbytes/staticshared/dynamicshared=[62, 2, 90, 0, 0, 99376]
+DCHECK bs3 m=129 True err=0.00165/0
+DCHECK bs3 m=200 True err=0.00158/0
+DCHECK bs3 m=256 True err=0.00157/0
+DRES bs3_a3_probe clusters/blocks/regs/localbytes/staticshared/dynamicshared=[62, 2, 40, 0, 0, 99376]
+DPROBE bs3_a3_probe: wrong/unguaranteed output, never scored or correctness evidence
+DRES bs3_ww clusters/blocks/regs/localbytes/staticshared/dynamicshared=[62, 2, 90, 0, 0, 99376]
+DCHECK bs3 m=129 True err=0.00164/0
+DCHECK bs3 m=200 True err=0.00155/0
+DCHECK bs3 m=256 True err=0.00157/0
+DRES bs3_ww_a3_probe clusters/blocks/regs/localbytes/staticshared/dynamicshared=[62, 2, 40, 0, 0, 99376]
+DPROBE bs3_ww_a3_probe: wrong/unguaranteed output, never scored or correctness evidence
+DREPLAY prod rep=0 True err=0.00159/0
+DREPLAY as3 rep=0 True err=0.00159/0
+DREPLAY as3_ww rep=0 True err=0.00159/0
+DREPLAY bs3 rep=0 True err=0.00159/0
+DREPLAY bs3_ww rep=0 True err=0.00159/0
+DREPLAY prod rep=1 True err=0.00159/0
+DREPLAY as3 rep=1 True err=0.00159/0
+DREPLAY as3_ww rep=1 True err=0.00159/0
+DREPLAY bs3 rep=1 True err=0.00159/0
+DREPLAY bs3_ww rep=1 True err=0.00159/0
+DTIME prod median_raw_us=26.1600 delta=+0.0000 faster=0/100
+DTIME as3 median_raw_us=38.8320 delta=+12.5920 faster=0/100
+DTIME as3_a3_probe median_raw_us=31.3120 delta=+5.1200 faster=0/100
+DTIME as3_ww median_raw_us=38.3200 delta=+12.0000 faster=0/100
+DTIME as3_ww_a3_probe median_raw_us=31.3440 delta=+5.1520 faster=0/100
+DTIME bs3 median_raw_us=38.8160 delta=+12.4800 faster=0/100
+DTIME bs3_a3_probe median_raw_us=31.3280 delta=+5.0560 faster=0/100
+DTIME bs3_ww median_raw_us=38.3360 delta=+12.0960 faster=0/100
+DTIME bs3_ww_a3_probe median_raw_us=31.1840 delta=+4.9600 faster=0/100
+DRES as3 clusters/blocks/regs/localbytes/staticshared/dynamicshared=[62, 2, 90, 0, 0, 99376]
+DCHECK as3 m=129 True err=0.00157/0
+DCHECK as3 m=200 True err=0.0016/0
+DCHECK as3 m=256 True err=0.00162/0
+DRES as3_a3_probe clusters/blocks/regs/localbytes/staticshared/dynamicshared=[62, 2, 40, 0, 0, 99376]
+DPROBE as3_a3_probe: wrong/unguaranteed output, never scored or correctness evidence
+DRES as3_ww clusters/blocks/regs/localbytes/staticshared/dynamicshared=[62, 2, 90, 0, 0, 99376]
+DCHECK as3 m=129 True err=0.00158/0
+DCHECK as3 m=200 True err=0.0016/0
+DCHECK as3 m=256 True err=0.00162/0
+DRES as3_ww_a3_probe clusters/blocks/regs/localbytes/staticshared/dynamicshared=[62, 2, 40, 0, 0, 99376]
+DPROBE as3_ww_a3_probe: wrong/unguaranteed output, never scored or correctness evidence
+DRES bs3 clusters/blocks/regs/localbytes/staticshared/dynamicshared=[62, 2, 90, 0, 0, 99376]
+DCHECK bs3 m=129 True err=0.00165/0
+DCHECK bs3 m=200 True err=0.00158/0
+DCHECK bs3 m=256 True err=0.00157/0
+DRES bs3_a3_probe clusters/blocks/regs/localbytes/staticshared/dynamicshared=[62, 2, 40, 0, 0, 99376]
+DPROBE bs3_a3_probe: wrong/unguaranteed output, never scored or correctness evidence
+DRES bs3_ww clusters/blocks/regs/localbytes/staticshared/dynamicshared=[62, 2, 90, 0, 0, 99376]
+DCHECK bs3 m=129 True err=0.00164/0
+DCHECK bs3 m=200 True err=0.00155/0
+DCHECK bs3 m=256 True err=0.00157/0
+DRES bs3_ww_a3_probe clusters/blocks/regs/localbytes/staticshared/dynamicshared=[62, 2, 40, 0, 0, 99376]
+DPROBE bs3_ww_a3_probe: wrong/unguaranteed output, never scored or correctness evidence
+DREPLAY prod rep=0 True err=0.00159/0
+DREPLAY as3 rep=0 True err=0.00159/0
+DREPLAY as3_ww rep=0 True err=0.00159/0
+DREPLAY bs3 rep=0 True err=0.00159/0
+DREPLAY bs3_ww rep=0 True err=0.00159/0
+DREPLAY prod rep=1 True err=0.00159/0
+DREPLAY as3 rep=1 True err=0.00159/0
+DREPLAY as3_ww rep=1 True err=0.00159/0
+DREPLAY bs3 rep=1 True err=0.00159/0
+DREPLAY bs3_ww rep=1 True err=0.00159/0
+DTIME prod median_raw_us=26.1600 delta=+0.0000 faster=0/100
+DTIME as3 median_raw_us=38.8320 delta=+12.5920 faster=0/100
+DTIME as3_a3_probe median_raw_us=31.3120 delta=+5.1200 faster=0/100
+DTIME as3_ww median_raw_us=38.3200 delta=+12.0000 faster=0/100
+DTIME as3_ww_a3_probe median_raw_us=31.3440 delta=+5.1520 faster=0/100
+DTIME bs3 median_raw_us=38.8160 delta=+12.4800 faster=0/100
+DTIME bs3_a3_probe median_raw_us=31.3280 delta=+5.0560 faster=0/100
+DTIME bs3_ww median_raw_us=38.3360 delta=+12.0960 faster=0/100
+DTIME bs3_ww_a3_probe median_raw_us=31.1840 delta=+4.9600 faster=0/100
