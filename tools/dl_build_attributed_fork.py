@@ -1,5 +1,6 @@
 """Prepare a review candidate from the user's approved upstream layer pin."""
 import argparse
+import ast
 import hashlib
 from pathlib import Path
 import re
@@ -15,6 +16,24 @@ def replace(source, before, after, count=1):
     if source.count(before) != count:
         raise ValueError(f'unexpected source count for {before[:60]}')
     return source.replace(before, after)
+
+
+def verify_gle_generator(source):
+    """Execute the actual generated payload's fused pooler/router source builder on CPU."""
+    functions = {'_gle_source', 'bfp__sk2_geom'}
+    constants = {'bfp_SK2_CONFIGS', 'bfp_SK2_PICK', 'bfp_SK2_K', 'bfp_SK2_SRC',
+                 'bfp_CUDA_SRC', 'bfp_MBAR_HELPERS', 'bfp_MAP_SRC'}
+    nodes = []
+    for node in ast.parse(source).body:
+        if isinstance(node, ast.FunctionDef) and node.name in functions:
+            nodes.append(node)
+        if isinstance(node, ast.Assign) and any(isinstance(t, ast.Name) and t.id in constants for t in node.targets):
+            nodes.append(node)
+    namespace = {}
+    exec(compile(ast.Module(nodes, []), '<gle generators>', 'exec'), namespace)
+    cuda = namespace['_gle_source']()
+    assert 'static thread_local GleEpi g_gle;' in cuda and 'void gle_pr(' in cuda
+    assert '@@' not in cuda
 
 
 def build(raw, notices, owned):
@@ -95,6 +114,8 @@ def build(raw, notices, owned):
     # Its GLE extension uses different normalization arithmetic and a global
     # weight pointer to form a second copy. Use the materialized branch.
     source = replace(source,'GLE_B1X = True','GLE_B1X = False')
+    # Each host launch copies its own argument into the kernel Params.
+    source = replace(source,'static GleEpi g_gle;', 'static thread_local GleEpi g_gle;')
     source = replace(source,'    _gle_ext()\n    return _gle_prior_prepare(weights)',
                      '    return _gle_prior_prepare(weights)')
     source = replace(source,'    _gle_b1x_module()\n    return _gle_b1x_prior_prepare(weights)',
@@ -135,6 +156,7 @@ def prepare(weights):
 '''
     source += '\n'+'\n'.join('# '+line for line in notices.splitlines())+'\n'
     compile(source,'<attributed layer>','exec')
+    verify_gle_generator(source)
     return source.encode('utf-8')
 
 

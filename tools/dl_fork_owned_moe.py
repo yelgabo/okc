@@ -5,8 +5,20 @@ the adapter; native backend policy and Marlin remain the coordinator's decision.
 """
 import ast
 import hashlib
+import io
 import re
-from dl_make_bench_pub import strip_comments
+import tokenize
+
+
+def strip_python_comments(source):
+    """Keep embedded CUDA and source-generator replacement strings byte-exact."""
+    lines = source.splitlines(keepends=True)
+    for token in tokenize.generate_tokens(io.StringIO(source).readline):
+        if token.type == tokenize.COMMENT:
+            row, col = token.start
+            if not lines[row-1][:col].strip():
+                lines[row-1] = ''
+    return ''.join(lines)
 
 RUNTIME=r'''
 class _OwnedLayerMoe:
@@ -68,6 +80,14 @@ def module_source(owned):
         z=device.index('}  // namespace '+ns,a)+len('}  // namespace '+ns)
         device=device[:a]+device[z:]
     assert device.count('namespace sk_8_3_0 {')==1
+    # This is the final owned translation unit. No later template patches
+    # address its comments. Keep line endings so macro continuations cannot join.
+    device_lines = device.splitlines(keepends=True)
+    for i, line in enumerate(device_lines):
+        if line.lstrip().startswith('//'):
+            assert not line.rstrip().endswith('\\') and not device_lines[i-1].rstrip().endswith('\\')
+            device_lines[i] = '\n'
+    device = ''.join(device_lines)
     host=vals['_MOE1_HOST_SRC'].replace('//@MOE1_DISPATCH@',
         'case 0: sk_8_3_0::launch<1>(p,sms,stream); break;\ncase 1: launch_main<51>(p,sms,stream); break;')
     names=('moe1_unit_rows','moe1_repack_expert','moe1_repack_expert_fat',
@@ -92,8 +112,7 @@ def module_source(owned):
 def patch_owned_moe(source, owned):
     """Return a fully wired owned-only expert backend with no donor expert launches.
 
-    Whole-line comments are removed by the repository's established safe stripper;
-    attribution/NOTICE must be appended by the coordinator after this composition.
+    Strip Python comments only. The coordinator restores upstream attribution.
     """
     # Strip all reachable native build/repack entry points. Keep native source strings
     # inert for now; deleting import-time string patches would introduce new dependencies.
@@ -138,7 +157,7 @@ def patch_owned_moe(source, owned):
     assert source.count(prewarm)==1
     source=source.replace(prewarm,'')
     header=source.splitlines()[0]
-    out=strip_comments(source+module_source(owned))
+    out=strip_python_comments(source+module_source(owned))
     if header.startswith('# okc:'):out=header+'\n'+out
     ast.parse(out)
     if len(out.encode())>=1_000_000:raise ValueError(f'owned fallback payload {len(out.encode())} exceeds genuine limit')

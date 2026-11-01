@@ -6,6 +6,8 @@ report be checked into this repository so other sessions can read it.
 
 ## Latest review
 
+[Family G qualification and check receipts](2026-11-01-family-g-qualification.md) tracks G0, the G1a repaired fork with owned experts, and G1b with audited native experts.
+
 [November 1 research ownership retrospective](2026-11-01-research-ownership.md) adds the experiment-selection gate to both root instruction files and defines how to assess it prospectively.
 
 [November 1 comparator discovery and reasoning review](2026-11-01-discovery-and-reasoning.md) tests an owner-independent search and updates the coordinator workflow.
