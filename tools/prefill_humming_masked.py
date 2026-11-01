@@ -22,7 +22,8 @@ def _hm_gather(X, Rank, Local, GX, R:tl.constexpr, CAP:tl.constexpr,
     e=tl.load(Local+route)
     live=(e>=0)&(rank>=0)&(rank<CAP)
     x=tl.load(X+(route//8)*K+k,live&(k<K),other=0)
-    tl.store(GX+(tl.maximum(e,0)*CAP+tl.maximum(rank,0))*K+k,x,live&(k<K))
+    row=(tl.maximum(e,0)*CAP+tl.maximum(rank,0)).to(tl.int64)
+    tl.store(GX+row*K+k,x,live&(k<K))
 
 @triton.jit
 def _hm_tail(C, GX, M:tl.constexpr, CAP:tl.constexpr, BM:tl.constexpr,
@@ -33,14 +34,15 @@ def _hm_tail(C, GX, M:tl.constexpr, CAP:tl.constexpr, BM:tl.constexpr,
     i=tl.program_id(1)*B+tl.arange(0,B)
     row=c+i//K
     live=(row<tl.cdiv(c,BM)*BM)&(row<CAP)
-    tl.store(GX+(e*CAP+row)*K+i%K,0,live)
+    offset=(e*CAP+row).to(tl.int64)*K+i%K
+    tl.store(GX+offset,0,live)
 
 @triton.jit
 def _hm_silu(Rank, Local, G1, G2, CAP:tl.constexpr, B:tl.constexpr=4096):
     route=tl.program_id(0)
     rank=tl.load(Rank+route)
     e=tl.load(Local+route)
-    row=tl.maximum(e,0)*CAP+tl.maximum(rank,0)
+    row=(tl.maximum(e,0)*CAP+tl.maximum(rank,0)).to(tl.int64)
     k=tl.arange(0,B)
     live=(e>=0)&(rank>=0)&(rank<CAP)
     a=tl.load(G1+row*8192+k,live,other=0).to(tl.float32)
@@ -55,7 +57,8 @@ def _hm_scatter(Rank, Local, G3, Y, CAP:tl.constexpr, B:tl.constexpr=256):
     rank=tl.load(Rank+route)
     e=tl.load(Local+route)
     live=(e>=0)&(rank>=0)&(rank<CAP)
-    y=tl.load(G3+(tl.maximum(e,0)*CAP+tl.maximum(rank,0))*4096+k,live,other=0)
+    row=(tl.maximum(e,0)*CAP+tl.maximum(rank,0)).to(tl.int64)
+    y=tl.load(G3+row*4096+k,live,other=0)
     tl.store(Y+route*4096+k,y)
 
 def _hi_workspace(x,state):

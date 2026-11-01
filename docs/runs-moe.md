@@ -332,10 +332,85 @@ Ordering source: [PTX8.7 section8.9.4 API synchronization](https://docs.nvidia.c
 Completed prior same-stream task synchronizes with next start; kernel/graph dependency
 boundaries participate in proxy-preserved base causality. Thus ordinary gather/tailzero/
 SiLU kernel completion orders global writes before subsequent TMA reads. No PDL,
-overlapping dependent kernels or runtime tensormap mutation; all Humming internal shared
-proxy fences preserved. Independent read-review requested before any masked dispatch.
+overlapping dependent kernels or helper-written tensormap mutation; all Humming internal
+fences preserved. Humming's existing grouped-C descriptor updates (`scheduler.cuh:333–345`)
+retain tensor_map_release_cta/tensor_map_acquire_cta; these are a separate library chain
+from the completed-kernel global-input visibility argument. Independent read-review
+requested before any masked dispatch.
 Correction: INDEXED disables TMA/warp specialization, not necessarily WGMMA. No instruction
 family comparison is measured without SASS. Masked exactNVFP4 support still needs GPU check.
+
+Independent audit_attention_moe read-review found no layout/lifetime issue; confirmed
+both tail invocations explicitly enable debug=True. Provided tuning dictionary preserves
+the actual chosen BM (same explicit-config API chain cited above). Root approved plain
+correctness/resource/performance check c1f6023f03d34c72, dispatched from
+`.build/today-moe/prefill_humming_masked.py`, SHA256
+3314d555570555271f944adf4c8ef19553a4252a1d1f499d4d81732ebdfd75e5.
+Pending. Default StreamK policy retained for this new-backend initial gate; separate
+deterministic prerequisite, if needed, will be recorded and validated before promotion.
+Pure indexed-noStreamK source SHA256d88863eede8104c35948c0ad8c29fd7cca8aa0db291f3e272f45562e368fb1a4.
+
+Indexed-noStreamK74eb65dad3fa4e54 completed5/5 tests,1.092871x (95%CI1.076478–1.109264).
+All ten fresh statistics exactly0 at32/753/3012: matched64 eager and2000 queued per
+shape, including metadata, zero-local and nonfinite. Printed configs allFalse; BM24 at32,
+104 at300,160 at1506,176 at600/753/3012/4096/16384; corresponding remaining tile config
+unchanged. This is strong evidence that disabling StreamK resolves the observed replay
+variation on these cases, but it loses aggregate performance versus scoredR incumbent
+1.146466 (different runs, no isolated speedup claim). Candidate/SGLang per-shape median us:
+
+| shape | noStreamK | SGLang |
+|---|---:|---:|
+|753 turn1 sliding|1157.6|1081.2|
+|753 turn1 full|1512.7|1483.5|
+|3012 turn4 sliding|2862.4|3216.0|
+|3012 turn4 full|4392.9|4842.7|
+|16384 firstturn full ctx0|13938.0|17230.7|
+|16384 firstturn sliding ctx32768|13726.0|17245.9|
+|16384 firstturn full ctx32768|17529.2|20570.6|
+|16384 firstturn full ctx65536|21118.9|24225.5|
+
+Root approved deterministic-base bounded753/3012 localM factor to seek compensation.
+Checkda9700816b1641ea pending, pure `.build/today-moe/prefill_humming_nostream_bounded.py`
+differs only shape_estimate=bounded, all othersR, StreamKFalse. Same unchanged fresh3shape
+gate. No zero/masked combination; paired controls required before promotion.
+
+Maskedc1f6023f03d34c72 completed5/5 initial correctness tests but FAILED16384 benchmark
+recheck0: residual update relL2 0.6951 exceeds0.0422345 bound. No aggregate score. Smaller
+753/3012 benchmark setup reached, not enough to claim backend correctness. At16384:
+CAP16544,planned22759342208B,free93950246912B,total150109880320B; BM176,N256,K64,
+four stages, TMA/warpspec/mbarrier/StreamKTrue. Thus capacity allocation feasible on this
+image; replay/math failure unresolved. All printed configs and resources saved in
+`profiles/humming_masked.c1f6023f03d34c72.*`. Independent source review investigating
+TMA physical row footprint and grouped StreamK fixups; no blind sameconfig rerun approved.
+
+Concrete source hypothesis found after failure: own grouped Triton row*stride uses signed
+I32 arithmetic. AtCAP16544,32*CAP*4096=2168455168 elements exceeds2^31; C1 stride8192
+exceeds2^32. This matches16384 failure onset, while smaller shapes fit. Every grouped
+row is now widened to tl.int64 BEFORE stride multiplication at four sites: gather,
+tailzero, SiLU, scatter. Original failing artifact preserved; corrected frozen source
+`.build/today-moe/prefill_humming_masked_i64.py`. CPU boundary test confirms row itself
+fitsI32 but final offsets wrap; both contract tests pass. TMA A descriptor source
+`csrc/launcher/tensor.h:261–276` uses exact block_shape_m, no176->192 padding found.
+Independent exact-fix review requested; GPU confirmation still needed before causality claim.
+
+Independent audit confirms all four widened-before-stride sites and unchanged exact176-row
+TMA footprint. Root approved corrected single-factor gate f92ffc2953284a9a, dispatched
+from frozen `_masked_i64.py`, SHA256
+63eb4171f1813887b8f4c6b855770b54ebaa761f7176b1344ee21881002ded5f. Pending;
+only four pointer-width casts differ, no noStreamK/heuristic/zeroing change.
+
+Deterministic boundedda9700816b1641ea completed5/5 and all ten fresh statistics exactly0
+at32/753/3012,64 eager and2000 queued each. Headline1.161679904x,95%CI1.144254706–1.179105103.
+Actual753 BM48: G1N256K64,G2N128K128;3012 BM128,N256,K64 both. All use_stream_kFalse.
+Other shapes retain originalR configs. Candidate/SGLang medianus by officialindex0–7:
+1024.4/1063.5,1416.3/1435.7,2600.8/3316.2,4185.7/4907.4,13958.4/17261.1,
+13419.5/16795.9,17532.2/20533.4,21149.7/24278.2. Aggregate versus incumbent is
+cross-run and overlappingCI; paired component compensation gate remains required.
+Pure `_nostream_bounded.py`, SHA25629770518d1e74dae4a645193a06c8f76c5346d7263933352abf101c932bcaf5d,
+is exact prefix of passing stress source. New generator policy arg reproduces AST exactly.
+Paired duplicate component21e98162b7114898 dispatched: same original six arms, heldout271/272,
+cold random12rounds, shapes753/3012 only, allR/R2/M/M2 use_stream_kFalse. Pending; no
+zero-removal/masked combination. Status/log saved `profiles/humming_nostream_bounded.da9700816b1641ea.*`.
 
 ## Source facts (SGLang a55ab7d5, read from GitHub and hashed against the image)
 
