@@ -1,0 +1,18 @@
+        /*d9f0*/                   QGMMA.64x64x32.F32.E4M3.E4M3 R60, gdesc[UR24], RZ, !UPT ;
+        /*da60*/                   QGMMA.64x64x32.F32.E4M3.E4M3 R60, gdesc[UR20], R60, gsb0 ;
+        /*daf0*/                   WARPGROUP.DEPBAR.LE gsb0, 0x0 ;
+        /*fa50*/                   QGMMA.64x72x32.F32.E4M3.E4M3 R24, R96, gdesc[UR16], R24 ;
+        /*fa70*/                   QGMMA.64x72x32.F32.E4M3.E4M3 R24, R92, gdesc[UR16], R24, gsb0 ;
+        /*fab0*/                   WARPGROUP.DEPBAR.LE gsb0, 0x0 ;
+        /*ff70*/                   QGMMA.64x64x32.F32.E4M3.E4M3 R60, gdesc[UR24], RZ, !UPT ;
+        /*10010*/                   QGMMA.64x64x32.F32.E4M3.E4M3 R60, gdesc[UR20], R60, gsb0 ;
+        /*10090*/                   WARPGROUP.DEPBAR.LE gsb0, 0x0 ;
+        /*11a00*/                   QGMMA.64x72x32.F32.E4M3.E4M3 R24, R96, gdesc[UR16], R24 ;
+        /*11a20*/                   QGMMA.64x72x32.F32.E4M3.E4M3 R24, R92, gdesc[UR16], R24, gsb0 ;
+        /*11a30*/                   WARPGROUP.DEPBAR.LE gsb0, 0x0 ;
+        /*12040*/                   QGMMA.64x64x32.F32.E4M3.E4M3 R60, gdesc[UR24], RZ, !UPT ;
+        /*120b0*/                   QGMMA.64x64x32.F32.E4M3.E4M3 R60, gdesc[UR20], R60, gsb0 ;
+        /*12130*/                   WARPGROUP.DEPBAR.LE gsb0, 0x0 ;
+        /*14080*/                   QGMMA.64x72x32.F32.E4M3.E4M3 R24, R96, gdesc[UR16], R24 ;
+        /*140e0*/                   QGMMA.64x72x32.F32.E4M3.E4M3 R24, R92, gdesc[UR16], R24, gsb0 ;
+        /*14110*/                   WARPGROUP.DEPBAR.LE gsb0, 0x0 ;

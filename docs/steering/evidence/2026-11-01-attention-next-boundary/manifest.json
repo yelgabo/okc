@@ -1,0 +1,57 @@
+{
+  "source": ".build/today-attn/full-boundary-native.cu",
+  "source_sha256": "3350b5a34aaf9241528a845455c0e2634b29f854b413894aa051dd9d2f547df4",
+  "original_device_prefix_sha256": "54cacfc9b8981abdc35be917b2a96a245ff2b5317e7c0121d2b5e647ad0a59fa",
+  "compiled_device_prefix_sha256": "b8a0d23c39574532bcb7c69aa85608a1ce471a767316b37618612ff30743268f",
+  "host_boundary": "template <int L, int MODE>\nstruct Instance {",
+  "virtual_headers": {
+    "type_traits": "#pragma once\nnamespace std { template<class T,T v> struct integral_constant {\nstatic constexpr T value=v; constexpr operator T() const noexcept {return value;}\n}; using true_type=integral_constant<bool,true>; using false_type=integral_constant<bool,false>; }\n",
+    "stdint.h": "#pragma once\n#include <cuda/std/cstdint>\n"
+  },
+  "options": [
+    "--gpu-architecture=compute_90a",
+    "--std=c++17",
+    "--generate-line-info",
+    "--device-as-default-execution-space",
+    "--include-path=/root/.cache/okc-cuda128/packages/nvidia/cuda_runtime/include",
+    "--include-path=/root/.cache/okc-cuda128/packages/nvidia/cuda_nvcc/include",
+    "--include-path=/root/.cache/okc-cuda128/cccl/nvidia/cuda_cccl/include"
+  ],
+  "declaration_adapter": {
+    "old": "constexpr float NEG_INF = -INFINITY;",
+    "new": "#define NEG_INF (__int_as_float((int)0xff800000u))"
+  },
+  "header_adapter": "Torch/ATen/algorithm/vector removed; cuda_runtime, CUDA cstdint, overflow float literal INFINITY (positive infinity); anonymous namespace closed after extract",
+  "nvrtc_status": 0,
+  "gpu_execution": false,
+  "lowered": [
+    "_ZN52_GLOBAL__N__00000000_15_exact_device_cu_9e9f5b88_32415attn_one_kernelILi8ELi51EEEvNS_6ParamsE"
+  ],
+  "ptx_sha256": "fbd474084e1b0f8cf804d2b59855e5a41d95e6b251bbd9d965dff9c804bfb2c7",
+  "cubin_sha256": "9345466ebcf7f7cda1553aaa9c9fc376b99a24209a3d816e3698cbb3259722ae",
+  "ptxas": [
+    "/root/.cache/okc-cuda128/packages/nvidia/cuda_nvcc/bin/ptxas",
+    "-arch=sm_90a",
+    "-O3",
+    "-v",
+    "--warn-on-spills",
+    ".build/today-attn/full-boundary-native/device.ptx",
+    "-o",
+    ".build/today-attn/full-boundary-native/device.cubin"
+  ],
+  "exitcode": 0,
+  "resources": {
+    "_ZN52_GLOBAL__N__00000000_15_exact_device_cu_9e9f5b88_32415attn_one_kernelILi8ELi51EEEvNS_6ParamsE": {
+      "stack_bytes": 0,
+      "spill_store_bytes": 0,
+      "spill_load_bytes": 0,
+      "registers": 80,
+      "barriers": 16
+    }
+  },
+  "ptx_launch_bounds": [
+    ".maxntid 384, 1, 1",
+    ".minnctapersm 2"
+  ],
+  "ptxas_wgmma_serialization_warnings": 0
+}

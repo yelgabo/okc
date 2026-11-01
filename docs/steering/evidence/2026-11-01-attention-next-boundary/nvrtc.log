@@ -1,0 +1,34 @@
+exact_device.cu(996): warning #177-D: variable "DETM" was declared but never referenced
+      constexpr bool DETM = ONE_DETM && FLAT && !COOP && L == 1;
+                     ^
+
+Remark: The warnings can be suppressed with "-diag-suppress <warning-number>"
+
+exact_device.cu(22): warning #177-D: variable "<unnamed>::GROUP" was declared but never referenced
+  constexpr int GROUP = HQ / HKV;
+                ^
+
+exact_device.cu(310): warning #177-D: variable "<unnamed>::CNT_INTS" was declared but never referenced
+  constexpr int CNT_INTS = 32768;
+                ^
+
+exact_device.cu(377): warning #177-D: member "<unnamed>::Smem<L, NS, PB>::BYTES [with L=8, NS=4, PB=false]" was declared but never referenced
+      static constexpr int BYTES = PB ? PFREE + PB_SLOTS * 8 : BAR + 2 * NS * 8;
+                           ^
+
+exact_device.cu(399): warning #177-D: function "<unnamed>::cp_async16_if" was declared but never referenced
+  __device__ __forceinline__ void cp_async16_if(uint32_t dst, const void* src, uint32_t bytes,
+                                  ^
+
+exact_device.cu(457): warning #177-D: function "<unnamed>::bulk_g2s" was declared but never referenced
+  __device__ __forceinline__ void bulk_g2s(uint32_t dst, const void* src, int bytes, uint32_t bar) {
+                                  ^
+
+exact_device.cu(560): warning #177-D: function "<unnamed>::e4m3x2" was declared but never referenced
+  __device__ __forceinline__ uint16_t e4m3x2(float a, float b) {
+                                      ^
+
+exact_device.cu(577): warning #177-D: function "<unnamed>::warp_sum" was declared but never referenced
+  __device__ __forceinline__ float warp_sum(float v) {
+                                   ^
+
