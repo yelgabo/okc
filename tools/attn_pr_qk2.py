@@ -57,10 +57,20 @@ std::vector<int64_t> attn_q2_resources() {
 }
 '''
 
+ROUND_OLD = 'acc[e] *= inv;'
+ROUND_NEW = 'acc[e] = __bfloat162float(__float2bfloat16_rn(acc[e] * inv));'
+
+
+def bf16_boundary(device):
+    # Common control/treatment repair: actual decoded attention is a BF16
+    # activation before output RMSNorm/gate, including the deterministic helper.
+    assert device.count(ROUND_OLD) == 2 and ROUND_NEW not in device
+    return device.replace(ROUND_OLD, ROUND_NEW)
+
 
 def resource_source(source):
     node = _assignment(source, '_ONE_SRC')
-    device = ast.literal_eval(node.value)
+    device = bf16_boundary(ast.literal_eval(node.value))
     anchor = 'std::vector<int64_t> attn_one_prepare() {'
     assert device.count(anchor) == 1
     device = device.replace(anchor, RESOURCE + '\n' + anchor)
@@ -79,13 +89,16 @@ def build(control_path, output_path, harness_root):
     import importlib.util
     source = control_path.read_text(encoding='utf-8')
     patched = patch_source(source)
-    # Only retained privately; release route defaults remain zero.
-    Path(str(output_path) + '.device.cu').write_text(ast.literal_eval(_assignment(patched, '_ONE_SRC').value), encoding='utf-8')
     spec = importlib.util.spec_from_file_location('_q2_helpers', harness_root / 'tools/attn_make_bench_one.py')
     helpers = importlib.util.module_from_spec(spec); spec.loader.exec_module(helpers)
     runner = helpers.RUNNER.format(variants=['_one'], coop_probe=True)
     head, sep, _ = runner.rpartition('\nimport os as _os\n'); assert sep
+    oracle = 'out = _ob_rms(out) * torch.sigmoid(gate.float()).view(batch, length, hq, d)'
+    assert head.count(oracle) == 1
+    head = head.replace(oracle, 'out = _ob_rms(out.to(torch.bfloat16)) * torch.sigmoid(gate.float()).view(batch, length, hq, d)')
     common = resource_source(patched)
+    # Compile this exact common BF16 boundary for both local off/on analyses.
+    Path(str(output_path) + '.device.cu').write_text(ast.literal_eval(_assignment(common, '_ONE_SRC').value), encoding='utf-8')
     # The judged function remains the original control. Diagnostic
     # modules execute one embedded owned body under distinct extension names.
     body = (Path(__file__).parent / 'attn_pr_qk2_body.py').read_text(encoding='utf-8')
