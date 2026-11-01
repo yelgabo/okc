@@ -1,0 +1,20 @@
+{
+  "original_lf_sha256": "c7854a71ad4639ed1c0ef7ff3013a831765344bf82f27caba15f034a030e03d7",
+  "control_lf_sha256": "f5ba8c860bcfd8c08d46220ee5daa1a91dd04e0cd6365cc711959d1ace4e6a49",
+  "candidate_lf_sha256": "4e9df15d32972a104254346c80cd51609f1b58a1e7d5b6ab7a95d779b19fbe43",
+  "direct_lf_sha256": "c8ff319f444da50303cf337ec807e8f27a231297723b7ed1a3eafea96946802b",
+  "patcher_sha256": "57e7470e8a3fe8c71a9b3e49d0141235fc424bcf0aacf265db80cf53fdd86fcd",
+  "direct_patcher_sha256": "01db747b7a9d2ba3d9f9a268dc4a42e46d4c46269101c8d0bf18cd7fce9ae694",
+  "cooperative_sha256": "50894dd3f4e522066c916bcd83f2e06dc068f6645e314b66b828fa4638514274",
+  "body_sha256": "baa5cc6391ff79a143bf69625758d164ce5b1314e1ae42ceacaadc9ad0b8d337",
+  "seeds": [
+    993727,
+    993733,
+    993739
+  ],
+  "treatment_m": [
+    16,
+    32
+  ],
+  "shared_duplicate_binaries": true
+}
