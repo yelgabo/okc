@@ -7,6 +7,7 @@ from types import SimpleNamespace
 import unittest
 
 from dl_fork_native_prepare import patch
+from dl_fork_marlin_fallback import patch_fallback
 import test_dl_fork_moe_cpu as fixtures
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -15,6 +16,18 @@ NODES = ast.parse(patch(BASE)).body
 
 
 class Preparation(unittest.TestCase):
+    def test_release_fallback_always_warms_the_baseline_library(self):
+        env, state, weights = fixtures.FallbackHost().scope()
+        source = patch_fallback(patch(BASE))
+        names = {'_fork_install_fallback', '_fork_moe_fallback'}
+        nodes = [n for n in ast.parse(source).body if isinstance(n, ast.FunctionDef) and n.name in names]
+        exec(compile(ast.Module(nodes, []), '<release fallback>', 'exec'), env)
+        env['_fork_install_fallback'](weights, state, 'synthetic native resource miss')
+        self.assertEqual(env['calls'].count('run'), 7)
+        self.assertNotIn('install', env['calls'])
+        self.assertFalse(state['_fork_native_eligible'])
+        self.assertIs(env['_fork_moe_fallback'](32,state), state['_fork_marlin_adapter'])
+
     def exercise(self, kind='success', suffix=True, owned=True):
         env, state, weights = fixtures.FallbackHost().scope(suffix=suffix, kind=kind, installed=owned)
         env['torch'].cuda.device = lambda dev: nullcontext()

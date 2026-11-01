@@ -133,3 +133,5 @@ tests. Stop on unsupported scale, unresolved compilation/ABI issue, missing cove
 new precision/order mismatch. Runtime pack/compile overhead and extra copy latency are
 unmeasured; no speedup forecast. This is an implementation option between experimental
 native experts and the slow library fallback, subject to the coordinator's final check.
+
+November 1 coordinator addendum. The optional cooperative-launch helper’s emitted C++17 host mock now compiles and runs under Zig 0.15.2 in WSL. Its assertions exercised success and rejection of occupancy, PDL, architecture, cooperative capability, shape, dynamic shared-memory and launch-error cases. These are simulated CUDA services. Device residency and graph capture for this optional owned fallback still require an H200 check. The proposed next native qualification file instead uses baseline Marlin on a native miss.

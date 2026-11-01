@@ -292,3 +292,5 @@ complete output partition, avoiding the inter-cluster global finalize, and
 prove its head/tile address map and lifetime before another check. Do not
 remove the current global barrier from this half-context/both-head design:
 its two clusters still need each other's partials. No further job dispatched.
+
+November 1 source URL correction. The upstream remote in the downloaded checkout is keell0renz/muse-open-kernel-challenge. The earlier abbreviated keell0renz/okc URL above is incorrect. HEAD is 8e30e1be994db4310794b8d04e90d18d895deb84. The local attention file matches the recorded SHA256 496d460e0bb1e7489684de2742f1ff22f3959d9d5fe30674199e74b3d002d651. [Pinned upstream attention file](https://github.com/keell0renz/muse-open-kernel-challenge/blob/8e30e1be994db4310794b8d04e90d18d895deb84/kernels/muse_attention_decode.py).
