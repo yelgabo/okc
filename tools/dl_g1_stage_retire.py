@@ -66,5 +66,6 @@ if __name__ == '__main__':
     parser.add_argument('output', type=Path)
     args = parser.parse_args()
     payload = build_layer(args.pure_g1b4.read_text('utf8'))
+    args.output.parent.mkdir(parents=True, exist_ok=True)
     args.output.write_bytes(payload)
     print(len(payload), hashlib.sha256(payload).hexdigest())

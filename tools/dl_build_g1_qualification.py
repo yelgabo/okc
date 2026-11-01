@@ -69,5 +69,6 @@ if __name__ == '__main__':
     parser.add_argument('--bf16-attention', action='store_true', help='restore the native attention value round before RMS/gate (G1b4)')
     args = parser.parse_args()
     payload = build(args.input.read_text('utf-8'), args.probe, args.bf16_attention)
+    args.output.parent.mkdir(parents=True, exist_ok=True)
     args.output.write_bytes(payload)
     print(len(payload), hashlib.sha256(payload).hexdigest())
