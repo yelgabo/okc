@@ -442,3 +442,5 @@ Hourly review history: [11:20 PDT performance review](2026-10-29-1120-performanc
 - 2026-11-01: [Independent attention wait-trace review](2026-11-01-attention-wait-independent-review.md): finala882bd2 source/API cleared for scoped diagnostic afterallresourceparityfix; sixCPU+actualC++mockpass, no H200 or physicalmetricclaim.
 
 - 2026-11-01: [Independent G stage-probe device checkpoint](2026-11-01-g-stage-probe-independent-review.md): shared-field lifetime, exact trace bounds and actual SASS/resource review; final host artifact and source-version reconciliation remain open, no dispatch clearance.
+
+- 2026-11-01: [Owned standalone MoE locality scope](2026-11-01-owned-moe-locality-scope.md): exact incumbent8-row order vs old53c075 census; distinct transpose remains unmeasured but four retained standalone count cases have zero duplicates, so no implementation/check request.
