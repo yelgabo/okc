@@ -2337,3 +2337,18 @@ earlier receipts; only same-run paired deltas support this causal loss. Dedicate
 receive storage holds occupancy constant but does not remove copy/transpose/barrier cost;
 their individual contributions remain unmeasured. Receipt and normalized profiles retained.
 Nineteen projection checks used; one remains subject to root coordination.
+
+
+### Offline C2 WGMMA/lifetime audit, 2026-11-01 (no GPU job)
+
+Pinned public C2 owner9eba96894ee1402e/source3044ee7-commentrepeat, persistent
+projection_best.py rawSHA5610b8a64e25f70c639ac0523fe7c14754a6c54d349eb005210123b4e19fb3b4.
+Actual localCUDA12.8NVRTC/PTXASsm90a22existingdeviceentries compile; three activeWD
+entries have4/8/8HGMMA, oneloopwait1 andoneterminalwait0 each, noC751x,0spill.
+AllshortSK/RT/RD compiledHMMA/noHGMMA. Sourcealreadyreleasespreviousstageafter
+wait1; terminaldrainrequiredbeforepartials/ringreuse. NoMoE-styleinnerdrain found.
+Full30C2/SGLang/floor/scoremap andsource/SASSresources in
+docs/steering/2026-11-01-projection-wgmma-lifetime-audit.md. Hypothetical10percent
+cuttoall3wholeWDoperators gives1.007287507factor, notmeasuredwaitbudget. Existing
+depth24542b2b04cb344ec/pushepilogue4edaa20c98904404 closuresremain. No source
+optimization/check/C3repeat; opaqueLtactualSASS remainsunobserved.

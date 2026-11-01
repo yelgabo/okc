@@ -1,0 +1,46 @@
+projection_control.cu(284): warning #177-D: member "<unnamed>::SkCfg<MT, TOKR, NT, NWR, WSK, UPW, NSTAGE, COMP, HL, NACC, CL, FUSE>::LITEWD [with MT=1, TOKR=8, NT=1, NWR=1, WSK=8, UPW=2, NSTAGE=4, COMP=true, HL=false, NACC=1057, CL=1, FUSE=false]" was declared but never referenced
+      static constexpr bool LITEWD = (NACC & 512) != 0;
+                            ^
+
+Remark: The warnings can be suppressed with "-diag-suppress <warning-number>"
+
+projection_control.cu(284): warning #177-D: member "<unnamed>::SkCfg<MT, TOKR, NT, NWR, WSK, UPW, NSTAGE, COMP, HL, NACC, CL, FUSE>::LITEWD [with MT=2, TOKR=32, NT=2, NWR=2, WSK=2, UPW=4, NSTAGE=3, COMP=true, HL=false, NACC=1057, CL=1, FUSE=false]" was declared but never referenced
+      static constexpr bool LITEWD = (NACC & 512) != 0;
+                            ^
+
+projection_control.cu(284): warning #177-D: member "<unnamed>::SkCfg<MT, TOKR, NT, NWR, WSK, UPW, NSTAGE, COMP, HL, NACC, CL, FUSE>::LITEWD [with MT=1, TOKR=16, NT=2, NWR=2, WSK=2, UPW=4, NSTAGE=4, COMP=true, HL=false, NACC=1057, CL=1, FUSE=false]" was declared but never referenced
+      static constexpr bool LITEWD = (NACC & 512) != 0;
+                            ^
+
+projection_control.cu(284): warning #177-D: member "<unnamed>::SkCfg<MT, TOKR, NT, NWR, WSK, UPW, NSTAGE, COMP, HL, NACC, CL, FUSE>::LITEWD [with MT=2, TOKR=32, NT=2, NWR=2, WSK=2, UPW=2, NSTAGE=3, COMP=true, HL=false, NACC=1057, CL=1, FUSE=false]" was declared but never referenced
+      static constexpr bool LITEWD = (NACC & 512) != 0;
+                            ^
+
+projection_control.cu(284): warning #177-D: member "<unnamed>::SkCfg<MT, TOKR, NT, NWR, WSK, UPW, NSTAGE, COMP, HL, NACC, CL, FUSE>::LITEWD [with MT=1, TOKR=16, NT=2, NWR=2, WSK=2, UPW=2, NSTAGE=3, COMP=true, HL=false, NACC=1057, CL=1, FUSE=false]" was declared but never referenced
+      static constexpr bool LITEWD = (NACC & 512) != 0;
+                            ^
+
+projection_control.cu(284): warning #177-D: member "<unnamed>::SkCfg<MT, TOKR, NT, NWR, WSK, UPW, NSTAGE, COMP, HL, NACC, CL, FUSE>::LITEWD [with MT=2, TOKR=32, NT=3, NWR=1, WSK=4, UPW=2, NSTAGE=4, COMP=true, HL=false, NACC=1025, CL=1, FUSE=false]" was declared but never referenced
+      static constexpr bool LITEWD = (NACC & 512) != 0;
+                            ^
+
+projection_control.cu(284): warning #177-D: member "<unnamed>::SkCfg<MT, TOKR, NT, NWR, WSK, UPW, NSTAGE, COMP, HL, NACC, CL, FUSE>::LITEWD [with MT=1, TOKR=16, NT=3, NWR=1, WSK=4, UPW=2, NSTAGE=5, COMP=true, HL=false, NACC=1057, CL=1, FUSE=false]" was declared but never referenced
+      static constexpr bool LITEWD = (NACC & 512) != 0;
+                            ^
+
+projection_control.cu(284): warning #177-D: member "<unnamed>::SkCfg<MT, TOKR, NT, NWR, WSK, UPW, NSTAGE, COMP, HL, NACC, CL, FUSE>::LITEWD [with MT=1, TOKR=8, NT=3, NWR=1, WSK=4, UPW=4, NSTAGE=4, COMP=true, HL=false, NACC=1057, CL=1, FUSE=false]" was declared but never referenced
+      static constexpr bool LITEWD = (NACC & 512) != 0;
+                            ^
+
+projection_control.cu(1205): warning #177-D: function "<unnamed>::tma_2d_mc" was declared but never referenced
+  __device__ __forceinline__ void tma_2d_mc(uint32_t dst, const CUtensorMap* map, uint32_t bar, int c0, int c1,
+                                  ^
+
+projection_control.cu(1232): warning #177-D: variable "<unnamed>::WV_PROMO64" was declared but never referenced
+  constexpr int WV_PROMO64 = 4;    // 64-byte L2 promotion on both tensor maps (host side)
+                ^
+
+projection_control.cu(1236): warning #177-D: variable "<unnamed>::WV_DUP" was declared but never referenced
+  constexpr int WV_DUP = 64;       // no effect: a separately compiled copy, for an independent null
+                ^
+
