@@ -1,0 +1,20 @@
+{
+  "job": "c79ddddb840a4fb7",
+  "problem": "muse_attention_decode",
+  "mode": "check",
+  "status_at_registration": "pending",
+  "owner": "root",
+  "artifact_sha256": "866845554b3d694c40165fabbdfde6739f6fa22b1efb5abb6b5831f32e368f24",
+  "artifact_bytes": 412952,
+  "source": "e86b0d5",
+  "freeze": "23fb760",
+  "requirements": {
+    "official_tests": 16,
+    "official_benchmarks": 12,
+    "private_cases": 36,
+    "private_checks": 640,
+    "private_VP2_host_calls": 20,
+    "private_owned_host_calls": 284
+  },
+  "no_public_submission": true
+}

@@ -17,6 +17,8 @@ def close(a,b):
     return math.isfinite(a) and math.isfinite(b) and abs(a-b)<=1e-12
 
 def analyze(receipt):
+    if 'result' not in receipt or 'board' not in receipt:
+        raise ValueError('Requires raw terminal status JSON with result.log_tail and official test/benchmark records; normalized profile JSON is insufficient')
     assert receipt['board']=='muse_attention_decode' and receipt['status']=='done'
     result=receipt['result'];assert result['passed'] and not result.get('flags'), 'requires passing official comparator'
     lines=result['log_tail'].splitlines()

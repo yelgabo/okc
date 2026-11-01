@@ -3616,3 +3616,7 @@ Decision: revert experimental edits from attn_one.cu, retain exact patch and sou
 mechanism as a possible rider only after another per-request loop change makes its saved
 instructions material, or a bounded shape-specialized test is supported by a larger gap.
 Do not spend a second check repeating the same general toggle.
+
+## 2026-11-01 07:32 PST — private VP2 BF16-output signal requalification
+
+Root dispatched **c79ddddb840a4fb7**, exact artifact866845554b3d694c40165fabbdfde6739f6fa22b1efb5abb6b5831f32e368f24 (412952B), source e86b0d5/freeze23fb760. Pending; no score, timings or GPU qualification yet. Four independent modules/owners, all12cells x3 heldouts,640 private math/cache checks and20VP2/284native host warm/capture coverage. PRIVATE normal judged path actual VP2 only eligible V1sliding; native BF16 owned others, stock SGLang nonTP8. All16official/12benchmarks required. No public action or donor adoption. Root owns wait/status/archive; no duplicate dispatch or automatic retry. Frozen contemporary-offset/raw-sign score decision and proof: docs/steering/2026-11-01-attention-vp2-bf16-requalification.md. Reader requires raw terminal status JSON, not normalized profile JSON.

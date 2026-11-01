@@ -229,3 +229,19 @@ oracles/checker also execute independently. Resource/compile/capture/H200 math/t
 remain mandatory and fatal. Root alone owns the ONE private dispatch/receipt. Frozen
 manifest is in evidence/2026-11-01-attention-vp2-bf16-private/artifact-frozen.manifest.json.
 No GPU result, public submission, owned rewrite or private-code adoption is claimed.
+
+
+## Root-owned private dispatch — pending
+
+Root dispatched exact86684555/412952B as **c79ddddb840a4fb7**, 2026-11-01 07:32 PST.
+No result at registration. Root owns status--wait/receipt/archive and contemporary-offset
+reader. No additional GPU, duplicate dispatch or automatic timeout retry. Requirements
+remain16official tests/12benchmarks,36private cases/640checks and20VP2/284owned host-call
+coverage. No public action or adoption.
+
+Reader-format audit: existing raw exact_split4862 receipt has result.records with16test
+and12benchmark events including median_raw_ns/median_ns/case.load/case.layer; that is the
+format used for contemporary offsets. Normalized3f44 profile has top-level benchmarks/
+profiles/summary and omits diagnostic log/test coverage, so it is deliberately insufficient.
+Decoder now rejects that format explicitly; it must not manufacture a terminal receipt
+from normalized profiles. Three reader tests PASS, including normalized rejection.
