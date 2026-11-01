@@ -1,0 +1,5 @@
+# Attributed layer fork under review
+
+Upstream is keell0renz/muse-open-kernel-challenge, commit 8e30e1be994db4310794b8d04e90d18d895deb84. The canonical LF layer file has SHA256 82c098ae7534b20b5d80f59d547650cb0853fc7d5e313fe29e1e9d9373e1bb19. The raw Windows checkout used for off-board job 3a5f879df0d44825 has SHA256 1ec189dc6f306cec1694946eb62d64b54daf378c6fc1ada2f0f5e501e973ff2a. They have identical normalized contents.
+
+Generate the current review build with `python -X utf8 tools/dl_build_attributed_fork.py PATH/TO/kernels/muse_decode_layer.py OUTPUT.py`. The generator verifies the source digest, identifies our changes in the header, retains all original attribution and embeds the upstream LICENSE and NOTICE as comments in the output. Obtain these files from the exact pinned repository. This initial transform covers only residual, pooler and routing glue. Attention, MoE and projection audits must clear their active paths before public use. Validation and any later submission must refer to the hash of the final generated file.
