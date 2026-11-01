@@ -1,0 +1,28 @@
+{
+  "package_input_sha256": "3b205d408edd8a238dec686fac306b5a28ac9136b42512939ae80db7c79611ec",
+  "package_output_sha256": "d82f3c9d105a4e66ea338767bb67e6116cb79bda1726db54b12cdf651e6f8ce6",
+  "package_input_bytes": 907642,
+  "package_output_bytes": 908412,
+  "only_owned_backend_and_private_pin_change": true,
+  "backend": {
+    "input_sha256": "7612276301d5da296d35995f852b51328f6f33d20c0fd7b9c17bec5fbfe8656c",
+    "output_sha256": "a7fe86cf16ae95e983036b352259db85d646ffffd2faa3b92eef057dabb9b784",
+    "input_bytes": 282153,
+    "output_bytes": 282923,
+    "device_before_sha256": "aa7b24a3d9a4ba3a6ae4e9480167b569d95bc9f2e921501f4e25b505f07a3c23",
+    "device_after_sha256": "fa97606fcedcb1dc40ca5918da5be1454f93a6b77b5ef751fb799c936cc77be3",
+    "reused_launcher_sha256": "38026abe7a6f3c70dc36980317c17d62e82e3823f9a78de16246c9e7502b2d28",
+    "changes": [
+      "exact existing checked cooperative host launcher",
+      "kernel_fn selected MAIN51 call PDLFalse",
+      "spin_failed timeout traps before return",
+      "distinct extension module name"
+    ],
+    "device_delta_only_host_launcher_and_timeout": true,
+    "GPU": false,
+    "H200_qualified": false
+  },
+  "first_two_G_payloads_unchanged": true,
+  "GPU": false,
+  "H200_qualified": false
+}
