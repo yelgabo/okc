@@ -430,3 +430,5 @@ Hourly review history: [11:20 PDT performance review](2026-10-29-1120-performanc
 - [2026-11-01 G expert-run unit order proof obligations](2026-11-01-g-expert-run-order-proof.md): source-only bounded transpose specification; no GPU or production change.
 
 - [2026-11-01 owned skinny band progress proof](2026-11-01-owned-skinny-band-progress.md): physical512 credits, analytic last occurrence and async handoff obligations; CPU-only.
+
+- [2026-11-01 attention public-source delta search](2026-11-01-attention-public-source-delta.md): fresh board, unchanged stronger comparators, targeted branch/content widening and scoped miss; no GPU.
