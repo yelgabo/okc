@@ -15,7 +15,9 @@ import types as _dn_types
 import triton as _dn_triton
 import triton.language as _dt
 _dn_mods = {"0a": None}
-for _tag, _src in _DN_SOURCES.items():
+for _tag, _mode in _DN_MODES.items():
+    _src = _DN_BASE_SRC.replace("#define ONE_LATE_TID 0", f"#define ONE_LATE_TID {_mode}")
+    _src = _src.replace('name="okc_attn_one_v1"', f'name="okc_attn_null_{_tag}"')
     _mod = _dn_types.ModuleType("fresh_diag_" + _tag)
     exec(compile(_src, "fresh_diag_" + _tag + ".py", "exec"), _mod.__dict__)
     _dn_mods[_tag] = _mod
@@ -92,15 +94,11 @@ _dn_run()
 def main():
     src = (ROOT / "muse_attention_decode/submission.py").read_text()
     assert src.count("#define ONE_LATE_TID 0") == 1
-    sources = {}
-    for tag, mode in (("0b",0),("2a",2),("2b",2)):
-        other = src.replace("#define ONE_LATE_TID 0", f"#define ONE_LATE_TID {mode}")
-        other = other.replace('name="okc_attn_one_v1"', f'name="okc_attn_null_{tag}"')
-        sources[tag] = other
     runner = base.RUNNER.format(variants=["_one"],coop_probe=True)
     head, sep, _ = runner.rpartition("\nimport os as _os\n")
     assert sep
-    Path(sys.argv[1]).write_text(src + head + "\n_DN_SOURCES = " + repr(sources) + "\n" + BODY)
+    config = "\n_DN_BASE_SRC = " + repr(src) + "\n_DN_MODES = {'0b':0,'2a':2,'2b':2}\n"
+    Path(sys.argv[1]).write_text(src + head + config + BODY)
 
 
 if __name__ == "__main__": main()
