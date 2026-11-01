@@ -116,6 +116,159 @@ fixed4slot/one-less-weight-slot tradeoff, not all deeper or per-job rings. Hypot
 weight lead outweighs extra x lead; neither purecause is isolated. Root asked to pivot to a
 structurally different official-library groupedMoE comparison, not repeat this geometry.
 
+### Primary-source Humming API feasibility (read-only, not a performance result)
+
+Source pinned `vllm-project/humming` commit948e6fd547e703065be51529ac1db5569256774e,
+inspected in ignored `.build/humming-api`; root separately probes the actual installed image.
+CurrentGitHub API cannot be assumed to match the image's package.
+
+- [`tests/kernels/humming/test_moe.py`](https://github.com/vllm-project/humming/blob/948e6fd547e703065be51529ac1db5569256774e/tests/kernels/humming/test_moe.py)
+  explicitly covers grouped-contiguous BF16 input/output with float4e2m1 weights,
+  float8e4m3 group scales,16-element scale groups and tensor secondary scales.
+- [`humming/schema/humming.py`](https://github.com/vllm-project/humming/blob/948e6fd547e703065be51529ac1db5569256774e/humming/schema/humming.py)
+  expects raw weight int32[E,N,K/8], scale[E,N,K/16], secondary scale[E,1]float32.
+  Original packed uint8 weights can be viewed as int32 without changing bits. Use
+  `HummingLayer.load_from_tensors`, NOT `load_from_unquantized` (which requantizes),
+  and call transform only in prepare. Preserve original NVFP4/E4M3/FP32 scale values.
+- [`humming/layer.py`](https://github.com/vllm-project/humming/blob/948e6fd547e703065be51529ac1db5569256774e/humming/layer.py)
+  exposes HummingLayer(shape_n,shape_k,weight_config,input_config,num_experts,torch_dtype)
+  and forward(expert_layout,compute_config,top_k,...). Config: weight float4e2m1,
+  bs float8e4m3, group16, tensor scale2; input/output BF16, input quantization disabled,
+  compute use_f16_accum=False. Original SGLang Marlin baseline likewise passes one FP32
+  tensor scale per local expert, so that tensor-granularity mapping is supported.
+- [`humming/testing/data.py`](https://github.com/vllm-project/humming/blob/948e6fd547e703065be51529ac1db5569256774e/humming/testing/data.py)
+  shows grouped-contiguous expert_layout as int64 exclusive-prefix offsets[E+1].
+  Gather BF16 route rows contiguously by expert; use top_k=1 once replicated. GEMM2 can
+  reuse the grouped ordering. Inverse scatter and weighted per-expert normalization
+  remain explicit. Test runner's `.item()`-sized allocation must NOT be copied into
+  timed kernel_fn: reserve fixed shape/config-derived capacity and pass device offsets.
+
+Legal integration must retain BF16 gate/up, BF16 filtered-SiLU product before GEMM2,
+BF16 GEMM2 output before per-expert RMSNorm, then routing weights. No FP8 activation
+shortcut, no routing-before-norm movement, no requantized weight cache. Prefer explicit
+GEMM stages over a fused MoE API that hides those boundaries. Compilation/correctness,
+nearby shapes, graph capture and speed remain entirely untested here.
+
+### Humming0.1.12 indexed integration prototype (no dispatch yet)
+
+Root capability check e30ec1bf8e8142df confirms installed Humming0.1.12. Exact release
+source inspected at `636ba85648c30ae2c2bfb335c9399593a67ecc1d` (tagv0.1.12), not the newer
+GitHub API above. **Grouped-contiguous is unsuitable for a partially filled fixed-capacity
+matrix in this release**: scheduler.cuh160 computes last expert length from shape_m, ignoring
+the final device offset. It would assign unused R=M*8 tail rows to expert31, wasting work.
+No such backend was dispatched. INDEXED instead supports device num_tokens_padded and
+sentinel masked row IDs without dynamic host sizing.
+
+`tools/prefill_humming_indexed.py BASELINE.py OUT.py` constructs only a prefill expert
+replacement and prepare extras, preserving every other baseline stage. Own Triton kernels
+count/rank local routes, construct per-GEMM padded prefixes, sorted IDs and block expert IDs.
+Caller-relative IDs0..31 are local; all others become -1 in the postnorm slot mask. Arbitrary
+device local_start remains handled by the original caller's shifted-ID expression.
+
+For each GEMM, BM comes from the explicitly passed Humming heuristic config, so metadata
+alignment matches the kernel's BlockShape::M. R=M*8; Sorted capacity is
+`(ceil(R/BM)+32)*BM`, expert-block capacity `ceil(R/BM)+32`, initialized sentinel R and
+expert0 respectively. Only blocks for actual local experts0..31 enter device NP. Every
+valid route occupies exactly one block row and retains its original route ID as write index.
+Humming scheduler.cuh139 reads NP to limit blocks; scheduler.cuh306–330 divides sorted IDs
+by top_k for input rows. loader_a.cuh108/140 masks reads by input shape_m; gmem_writer.cuh73/105
+masks output IDs by shape_m*top_k. Thus sentinelR maps to M (out of bounds) with GEMM1top_k8
+and to R with GEMM2top_k1, and is masked in both. Zero-routes produces NP0 safely without
+fake expert blocks. Partially filled final multicast tiles also have safe sentinel/expert0
+metadata. All matrices c1/c2/c3 are zeroed every call so unused nonlocal rows remain finite.
+
+GEMM1 uses BF16 x[M,4096] and BF16 output[R,8192]; unchanged SGLang silu_and_mul writes
+BF16[R,4096]; GEMM2 writes BF16[R,4096]; unchanged fused post-expert norm/weighted sum uses
+original topk weights and the filtered local slot mask. FP32 accumulation is explicit.
+Weights are loaded from original packed bits, E4M3 scales and FP32 tensor scales and only
+transformed in prepare. No activation quantization or weight requantization is introduced.
+
+Scratch is cached by metadata shape M, retaining old allocations so captured graphs remain
+valid. Every replay zeroes counts and matrix outputs and rewrites all rank/local entries and
+metadata; no input-derived answer is cached. No item()/CPU sync or input-dependent allocation
+occurs in the new experts call. Streams serialize rank->prefix->sort->GEMM stages. Distinct
+HummingLayer objects retain distinct lock buffers. Cache capacity is about4GiB at M16384,
+plus smaller per-shape buffers, not32 separate expert-capacity matrices.
+
+Generator output passes Python compilation. CPU contract oracle
+`tools/test_humming_route_contract.py` passes adversarial all-nonlocal/all-expert0/all-expert31,
+distributed and random routes under shuffled atomic order at BM16/32/64/128, verifying
+capacity, valid-route bijection, expert block ownership and sentinel bounds. This does NOT
+execute Triton or prove runtime Humming compatibility. Root requested independent source
+review before a backend check; queued replay, official correctness and cold timing remain
+required. No Humming performance or candidate promotion is claimed yet.
+
+### Prefill Humming backend check dispatch and ABI correction
+
+Root requested and reviewed the fixed-capacity INDEXED prototype; independent reviewer
+verified v0.1.12 scheduler/sentinel ABI, capacity, row mapping, precision and graph lifetimes.
+Preserve original FP32 contiguous topk weights and I32 contiguous IDs. A cache miss during
+capture now fails closed; scratch must first be warmed eagerly. First dispatch was
+be3cbc7f5a234c64 (`muse_prefill_layer`), file SHA256
+e53d374f6cf4239705cd3d20998ca3364ef0477dadd49031bafda0bff7324319.
+
+It failed in prepare before any GEMM: installed Humming0.1.12 expects tensor-scale parameter
+shape[32], whereas the source-derived wrapper supplied[32,1]. This is an integration ABI
+failure, not evidence of a mathematical failure or slow backend. Receipt/log retained as
+`profiles/prefill_humming.be3cbc7f5a234c64.{json,log}`. Corrected wrapper uses
+`gs.reshape_as(layer.weight_scale_2)`, a metadata-only operation on original FP32 scale values.
+
+Corrected plain check0de84000097946c9 dispatched, file SHA256
+bf6d95ae1cbba377dc5bd4a2cd9774815a54ebb26ddcfcab9a33834220c87232, pending. After this
+dispatch, generator additionally asserts both scale tensors contain32 values and are FP32,
+and uses contiguous original values instead of a redundant .float() no-op. The in-flight
+file remains frozen. These guards must be in the later fresh-stress/release build and checked
+before promotion. Package version alone did not guarantee the exact parameter ABI.
+
+`tools/prefill_humming_stress.py` is prepared, not dispatched: M32 four synthetic banks
+(zero-local, one-local expert, eight-local, changing mixed routing) and2000 queued graph
+replays with copied fresh x/IDs/topk weights. Device checks compare counts/NP to expected
+local counts, enforce exact zero on nonlocal cases and compare numerical error to a matched
+64-call eager envelope. This detects stale state/replay errors; official plain tests supply
+independent mathematical correctness. No stress dispatch until corrected plain check passes.
+
+### First passing Humming prefill candidate and fresh replay gate
+
+Corrected plain0de84000097946c9 passed5/5 at1.176449x (95%CI1.158802–1.194096), versus
+SGLang in the same run. This is a real candidate score, not an instrumented arm's control.
+Judged times us (candidate/SGLang): turn1 sliding935.6/1024.3, full1344.0/1437.2;
+turn4 sliding2750.1/3314.4, full4385.3/4944.5; firstturn's four cases
+14233.8/18455.6,13276.0/17184.6,17701.8/21581.7,21406.1/25391.9.
+Receipt/log/profile text retained as `profiles/prefill_humming_v2.0de84000097946c9.*`.
+
+Runtime heuristic BM values were104,160,176 (not necessarily powers of two), N256/K64,
+4stages, FP32 accumulation. CPU capacity oracle now also covers these observed BM values.
+
+Fresh-stress ece54526780a4f28 passed5 official tests and the M32 synthetic gate:2000 queued
+fresh x/IDs/weights replays versus64 eager controls, all four input banks. Peak relative error
+0.00242335 in both graph and eager, peak row-unit error0.0097561 in both, nonfinite0,
+share over1e-4 graph0.1265 versus eager0.203125, bad counts/NP0, nonlocal output exact0.
+Matched eager-envelope, row/share and order1 gates passed without relaxing official tests.
+This is state freshness evidence; plain/official tests establish independent model correctness.
+The stress build's1.140469x (95%CI1.123362–1.157576) must not be compared as an isolated
+optimization with the separate1.176449x run: prepare/allocation/process effects differ.
+Receipt/log/profile text: `profiles/humming_stress.ece54526780a4f28.*`.
+
+Root requested a pure first-submission candidate. Frozen `.build/today-moe/prefill_humming_v3.py`,
+SHA256f3024d1b01a5ef2bf655dcffe3110849ab6b0de15aecad6dba388f09e7ffb8fa, is byte-for-byte
+the prefix of the passing stress file. The only removed code is its appended prepare-time
+diagnostic wrapper. GPU functions, core prepare, _experts and FP32 ABI guards are identical.
+Path/hash/proof sent to root; this agent has not submitted publicly.
+
+### Experts-component paired confirmation and heuristic shape factor
+
+Check7598f81b9b4645f9 dispatched, SHA256c8e4e3bebccf01b7ea05defd2b99ed3e48f357775923e807b897c9568bc1168b.
+`tools/prefill_humming_component_bench.py CANDIDATE BASELINE OUT` uses Marlin/Marlin2,
+HummingR/R2, HummingM/M2 on identical supplied weights and held-out activation/routing seeds
+271/272 at753,3012,16384 tokens,12 randomized cold-L2 graph rounds. Duplicate Humming arms
+share only read-only transformed weights; each owns lock buffers, mutable metadata and
+scratch. Duplicate Marlin banks have independent workspace. Config factor only: Humming
+heuristics see R=M*8 versus estimated local M; actual tensor dimensions and device metadata
+remain unchanged, and no input-derived value chooses a policy. No zeroing removal is mixed in.
+All arms compare mathematical outputs with Marlin before timing; component time is not a
+whole-prefill score. HBSTOP explicitly marks incomplete coverage beyond the230s setup guard.
+No component result is claimed while this check is pending.
+
 ## Source facts (SGLang a55ab7d5, read from GitHub and hashed against the image)
 
 - `fused_post_expert_norm_weighted_sum` falls back to PyTorch ops below
