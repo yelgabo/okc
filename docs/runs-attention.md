@@ -3777,3 +3777,31 @@ Measured conclusion: the full-context scheduling improvement repeats across buil
 and inputs; sliding has no independently established gain. A new proposal may restrict the
 mechanism to SPEC/non-one-tile L1 instances and preregister a full-only causal scoring gate.
 This restriction would be based on new evidence above, not a repeat of the general knob.
+
+## Fresh restricted late-tid registration, 2026-10-31 PDT
+
+This is a NEW variant, not retroactive promotion of ONE_LATE_TID1, which failed its original
+changed-instance gate in ab53721b09854717. New evidence is the repeated full-context gain and
+sliding null shift in that check. Value2 applies only to L1 SPEC non-one-tile instances;
+value1 retains the original broad toggle for reproducibility. Default0 remains unchanged.
+Restriction uses launch geometry (`SPEC && !ONE`), never tensor values or benchmark identity.
+
+Fresh four-arm generation: `--null --shapes all --inputs 3 --rounds 150 --seed 311106
+late1@own=-DONE_LATE_TID=2 late2@own=-DONE_LATE_TID=2,-DOKC_LATE_NULL=1`.
+Both candidates have separate builds/states, and controls ctrl/ctrl2 are independent.
+
+Gate preregistered before dispatch:
+1. All real-arm harness checks pass; all official unchanged-control tests pass.
+2. At d1full, all4 candidate/control cross comparisons improve on every held-out input.
+3. Full-only causal standalone score: hold all unchanged shapes, including d1sliding, exactly
+at ctrl's measured time. Subtract each official shape's saved replay overhead from matching
+raw medians, then compute the actual weighted load formula46sliding+16full and six-load
+geometric mean. Pooled cross loggain must exceed twice the larger absolute lognull from
+ctrl2/ctrl and late2/late1 under this SAME full-only calculation. These remain calibration
+sensitivity estimates until candidate-only official timing, not separately measured scores.
+4. No real regression at changed d1full. Unchanged rows' improvements receive zero credit;
+any anomalous unmodified row must be documented and not used as the winning mechanism.
+5. After confirmation, candidate-only official correctness plus2000fresh queued inputs per
+changed/sentinel batch1 shape, every output compared on device with independent owned control,
+three additional FP32-reference samples, explicit speculative-length misses, clean workspace,
+and prepare-time resource attributes. No public submission before these gates pass.

@@ -46,7 +46,8 @@ constexpr int COOP_POLL_LIMIT = 1 << 24;
 // log2), with straight-line query copies and query pass, branch-free predicated row copies in
 // the prologue issue, and no page-index copies for tiles past the CTA's range. Off and on are
 // timed side by side in bench d57d1fe064164611 (docs/runs-attention.md, 10-29).
-// Bench-only d1 SPEC query-address scheduling: opaque tid after page copies.
+// Bench-only late query-address scheduling after page copies: 1 = L1 SPEC;
+// 2 = L1 SPEC non-one-tile instances only. Default remains off pending gates.
 #ifndef ONE_LATE_TID
 #define ONE_LATE_TID 0
 #endif
@@ -1720,7 +1721,7 @@ attn_one_kernel(const Params p) {
         stamp(1);
         PHASE_EXIT(1)
         int qtid = tid;
-        if constexpr (ONE_LATE_TID && SPEC && L == 1) {
+        if constexpr (ONE_LATE_TID && SPEC && L == 1 && ((ONE_LATE_TID & 1) || !ONE)) {
             asm volatile("mov.u32 %0, %%tid.x;" : "=r"(qtid));
         }
         // Query rows, the block's new key/value rows (if this range may hold them),
@@ -3436,4 +3437,5 @@ torch::Tensor attn_one(torch::Tensor qkv, torch::Tensor page_table, torch::Tenso
                 ", coop ", coop, "): ", cudaGetErrorString(err));
     return out;
 }
+
 
