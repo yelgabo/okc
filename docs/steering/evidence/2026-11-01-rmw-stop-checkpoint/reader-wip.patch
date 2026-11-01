@@ -1,0 +1,87 @@
+diff --git a/tools/g_common_rmw_receipt.py b/tools/g_common_rmw_receipt.py
+index 4b85249..e428b1a 100644
+--- a/tools/g_common_rmw_receipt.py
++++ b/tools/g_common_rmw_receipt.py
+@@ -8,6 +8,8 @@ from hybrid_layer_measurement import read as official_read, owning_log, compare
+ 
+ SOURCE_SHA='97935e7dc45d9fa69f5b4965bd70a5c2946cd8b829cedffb7a2aefc598cb53c7'
+ SOURCE_BYTES=914572
++# Reviewed immutable source epochs only. Draft822 is deliberately excluded.
++ALLOWED_SOURCES={SOURCE_SHA:dict(bytes=SOURCE_BYTES,reference_cache=False)}
+ BASE_SHA='2884adb6d0d6947391c81cd67a0c727a04e7d41694d7c780cf8cee80dfa9dbcd'
+ COUNTS=dict(cells=12,checks=72,captures=12,fresh_checked=36,empty_checks=60,empty_captures=12,restored=48)
+ LOADS=(1,8,16,32,128,256)
+@@ -15,11 +17,17 @@ CELLS={(t,c) for t in LOADS for c in ('sliding','full')}
+ KEYS={'tiny','tiny2','mid','b4','main'}
+ 
+ def source_contract(path):
+-    raw=path.read_bytes();assert len(raw)==SOURCE_BYTES and hashlib.sha256(raw).hexdigest()==SOURCE_SHA,'wrong frozen source'
++    raw=path.read_bytes();digest=hashlib.sha256(raw).hexdigest()
++    assert digest in ALLOWED_SOURCES,'wrong frozen source'
++    contract=ALLOWED_SOURCES[digest]
++    assert len(raw)==contract['bytes'],'wrong frozen source length'
+     tree=ast.parse(raw.decode('utf8'))
+     node=next(n for n in tree.body if isinstance(n,ast.FunctionDef) and n.name=='_gq_attn_record')
+     ns={};exec(compile(ast.Module(body=[node],type_ignores=[]),'<frozen CPU metadata predicate>','exec'),ns)
+-    return ns['_gq_attn_record']
++    check=ns['_gq_attn_record']
++    check.source_sha256=digest;check.source_bytes=len(raw)
++    check.requires_reference_cache=contract['reference_cache']
++    return check
+ 
+ def finite_tree(x):
+     if isinstance(x,float):assert math.isfinite(x),'nonfinite capsule'
+@@ -41,6 +49,12 @@ def qualification(log,check_attention):
+     assert r['arm']=='short-rmw' and r['base_sha']==BASE_SHA,'wrong fixed arm/base'
+     for k,v in COUNTS.items():assert type(r[k])is int and r[k]==v,('coverage',k)
+     assert r['native_expert'] is True and r['rmw_exercised'] is True,'treatment not exercised'
++    if getattr(check_attention,'requires_reference_cache',False):
++        cache=r.get('reference_cache')
++        assert isinstance(cache,dict) and set(cache)=={'hit','miss','peak_entries'},'reference cache schema'
++        assert all(type(v)is int for v in cache.values()),'reference cache integer stats'
++        assert 0<=cache['hit']<=96 and 48<=cache['miss']<=144 and cache['hit']+cache['miss']==144,'reference cache coverage'
++        assert cache['peak_entries']==4,'reference cache owner coverage'
+     identity=r['identity'];assert isinstance(identity,dict)
+     assert identity['capability']==[9,0] and type(identity['sm_count'])is int and identity['sm_count']>0
+     for k in ('cuda_driver_version','cuda_runtime_version'):assert type(identity[k])is int and identity[k]>0
+@@ -71,8 +85,9 @@ def analyze(receipt,job,log,source,control=None,control_job='607eb52bdaf24160'):
+     # Terminal success first: DONE is printed before the final prepare deadline.
+     official_rows,summary=official_read(receipt,job)
+     assert summary['prepare_seconds']<295,'qualification prepare deadline'
+-    q=qualification(log,source_contract(source))
+-    result=dict(official=summary,qualification=q,source_sha256=SOURCE_SHA,source_bytes=SOURCE_BYTES,paired=False,release_decision=False,causal_RMW_effect=None,scope='Single-arm official observation with runtime startup gates. Flags are source-asserted, not separately printed per-module flag vectors. Native exercise is necessary but not sufficient for causal attribution.')
++    contract=source_contract(source)
++    q=qualification(log,contract)
++    result=dict(official=summary,qualification=q,source_sha256=contract.source_sha256,source_bytes=contract.source_bytes,paired=False,release_decision=False,causal_RMW_effect=None,scope='Single-arm official observation with runtime startup gates. Flags are source-asserted, not separately printed per-module flag vectors. Native exercise is necessary but not sufficient for causal attribution.')
+     result['official_rows']=[official_rows[k] for k in sorted(official_rows)]
+     result['weighted_six']=[dict(load=l,**{metric:sum((46 if c=='sliding' else 16)*official_rows[l,c][field] for c in ('sliding','full'))/62000 for metric,field in (('adjusted_us','median_ns'),('raw_us','median_raw_ns'),('baseline_adjusted_us','baseline_ns'),('baseline_raw_us','baseline_raw_ns'))}) for l in ('decode 1','decode 16','decode 32','verify 1','verify 16','verify 32')]
+     rr=receipt['result']
+diff --git a/tools/test_g_common_rmw_receipt.py b/tools/test_g_common_rmw_receipt.py
+index 3753faf..f66d87b 100644
+--- a/tools/test_g_common_rmw_receipt.py
++++ b/tools/test_g_common_rmw_receipt.py
+@@ -69,6 +69,24 @@ class Reader(unittest.TestCase):
+         self.assertEqual(out['qualification']['status'],'unexercised');self.assertFalse(out['qualification']['treatment_exercised']);self.assertIsNone(out['causal_RMW_effect'])
+         for bad in (text+log(capsule()),text.replace('rmw_exercised=0','rmw_exercised=1')):
+             with self.assertRaises(AssertionError):analyze(fixture(),'synthetic123',bad,SOURCE)
++    def test_budget_cache_stats(self):
++        check=source_contract(SOURCE);check.requires_reference_cache=True
++        for hit in (0,1,95,96):
++            r=capsule();r['reference_cache']=dict(hit=hit,miss=144-hit,peak_entries=4)
++            self.assertEqual(qualification(log(r),check)['status'],'complete_native')
++        bad=[None,{},dict(hit=96,miss=48,peak_entries=3),dict(hit=97,miss=47,peak_entries=4),
++             dict(hit=0,miss=145,peak_entries=4),dict(hit=96.,miss=48,peak_entries=4),
++             dict(hit=True,miss=143,peak_entries=4),dict(hit=95,miss=48,peak_entries=4),
++             dict(hit=96,miss=48,peak_entries=4,extra=0)]
++        for value in bad:
++            r=capsule();r['reference_cache']=value
++            with self.assertRaises(AssertionError):qualification(log(r),check)
++        r=capsule()
++        with self.assertRaises(AssertionError):qualification(log(r),check)
++        # Valid fallback remains unexercised, without fictional native cache stats.
++        result=qualification('G_COMMON_QUAL_UNEXERCISED native_expert_Marlin_fallback rmw_exercised=0 backend\n',check)
++        self.assertFalse(result['treatment_exercised'])
++
+     def test_owning_log_and_source(self):
+         with tempfile.TemporaryDirectory()as d:
+             p=Path(d)/'synthetic123.log';p.write_bytes(log(capsule()).encode());r=fixture();r['output']['log']=str(p)

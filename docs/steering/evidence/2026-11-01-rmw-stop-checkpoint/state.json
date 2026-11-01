@@ -1,0 +1,24 @@
+{
+  "UTC": "2026-11-01T23:18:32.3946194Z",
+  "reason": "User cleared goal; stop optimization and submissions, preserve checkpoint only",
+  "active_goal": null,
+  "root_head_before_handoff": "0f090a10cad5ad6d4826c91456767b6fb701db0a",
+  "last_judge_job": "3fd1317143304bd5",
+  "last_judge_outcome": "terminal setup fail GQUAL_PREPARE_BUDGET, H200, no test/benchmark/profile/score",
+  "new_submission_after_goal_clear": false,
+  "owner_worktree": "C:\\Users\\gretc\\Documents\\GitHub\\okc-today-moe",
+  "owner_HEAD": "b13ac0fd90dedc53a25edd5b1a739cd6103a1ea1",
+  "owner_status": [],
+  "reader_worktree": "C:\\Users\\gretc\\Documents\\GitHub\\okc-today-attn",
+  "reader_HEAD": "3a08ce4c233a8563a7a627118498c67f69f2529f",
+  "reader_status": [
+    " M tools/g_common_rmw_receipt.py",
+    " M tools/test_g_common_rmw_receipt.py"
+  ],
+  "reader_uncommitted_patch": "reader-wip.patch",
+  "reader_patch_bytes": 6609,
+  "draft_budget_SHA256": "82234b757e64242fa23d704a909c6996c602e3f0dae327fb66a67260243544d8",
+  "draft_budget_bytes": 917896,
+  "draft_readiness": "NOT_READY: full CPU prepare under torch.inference_mode raises RuntimeError on Tensor._version; no corrected pin/H200 qualification",
+  "required_user_action_before_resuming_optimization": "Explicit resume or new instruction; do not infer from this handoff"
+}

@@ -1,0 +1,24 @@
+FORK_MOE_SCALE ('-DOKC_PRMTSC=1',) True
+FORK_MOE_ROUTE native repaired: cooperative+BF16, MFIN/DF/YBF/PDL off
+G1b4 backend native repaired: cooperative+BF16, MFIN/DF/YBF/PDL off Lt plans [('o', 128), ('o', 256), ('pr', 128), ('pr', 256), ('qkv', 128), ('qkv', 256), ('un', 128), ('un', 256)]
+G_RELEASE_STARTUP_OK native (128, 32, 33, 256, 1, 8, 16) 56 verified_replays
+Traceback (most recent call last):
+  File "/tmp/muse_decode_layer-rt98ne2c/run/worker.py", line 423, in child_main
+    send(_setup_op(msg, module, state, sync, perf))
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/muse_decode_layer-rt98ne2c/run/worker.py", line 322, in _setup_op
+    state["prep"] = prepare(weights)
+                    ^^^^^^^^^^^^^^^^
+  File "/tmp/muse_decode_layer-rt98ne2c/run/submission.py", line 18099, in prepare
+    report=_gq_private(weights,production,start)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/muse_decode_layer-rt98ne2c/run/submission.py", line 18036, in _gq_private
+    empty_graph,empty_out=_gq_empty(private,tokens,start);empty_checks+=2;empty_captures+=1
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/muse_decode_layer-rt98ne2c/run/submission.py", line 17997, in _gq_empty
+    _gq_budget(start);dev=state['qkv'].device
+    ^^^^^^^^^^^^^^^^^
+  File "/tmp/muse_decode_layer-rt98ne2c/run/submission.py", line 17881, in _gq_budget
+    assert time.monotonic()-start<295,'GQUAL_PREPARE_BUDGET'
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: GQUAL_PREPARE_BUDGET

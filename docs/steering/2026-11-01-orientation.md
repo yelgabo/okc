@@ -1,5 +1,12 @@
 # Orientation checkpoint, November 1
 
+Concurrent handoff reconciliation: the23:18:32UTC stop checkpoint records that
+the user cleared the campaign goal. Optimization/testing/submissions are stopped
+and reset automation remains paused. The next gates below are conditional future
+work, not an instruction to resume. A new explicit user instruction is required.
+See `2026-11-01-rmw-terminal-stop-checkpoint.md`; its index entry arrived during
+this orientation and was preserved.
+
 Evidence checkout: `C:/Users/gretc/Documents/GitHub/okc`, main at
 `0f090a10cad5ad6d4826c91456767b6fb701db0a`; origin is
 `https://github.com/yelgabo/okc.git`. Fetch found origin/main at bf40c95,
