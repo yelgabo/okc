@@ -4191,3 +4191,11 @@ A generic pair-spread/reweight sweep is therefore closed. New proposal needs
 an independently identified copy-issue/address mechanism with identical
 bytes, ranges, fences and resources; no new mechanism is yet justified by
 these aggregate stamps. No additional GPU job dispatched.
+
+Terminal4862f8e0dc8a4b5a: unchangedcontrol2.528391542x CI2.490465669–2.566317415,
+16/16official/checks.okflags[]. Fourarms21/21 math/row/cache checks. Native
+WST+VP2 matrix FAILS: corrected changed-native-only pooled .997059624;
+v16fullWST+12.10us, v1slidingVP2−.77us. VP2-only prospective signal~1.086%
+aggregate, needs new restricted gate/owned sourceproof; not retroactivepass.
+Resource minimum gates executed, numeric stdout truncated; no exactregister
+claim. Fullreceipt/log committed; details in alternate-engine steering report.
