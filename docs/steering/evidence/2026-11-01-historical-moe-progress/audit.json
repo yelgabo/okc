@@ -1,0 +1,89 @@
+{
+  "scope": "Historical source/receipt progress-contract audit only; no new failure/performance observation, production change or public action.",
+  "source": {
+    "commit": "ec565a7",
+    "path": "muse_moe_w4a16/submission.py",
+    "bytes": 235700,
+    "sha256": "b35d321730f67b8157eef0683011b118bf3644dc5e9602ee29d823d8056c4e14"
+  },
+  "job": {
+    "id": "abe7651dbaa44458",
+    "mode": "run",
+    "board": "muse_moe_w4a16",
+    "upload_content_hash": "084911f39cdd77d1d9ea6130d42b01cfe3a928b3fff3f8ac375ada4b444984ea",
+    "receipt_raw_sha256": "11a42097eddaf94e01ea1d92107a50566ea7a6cf0c1c84d2336ba7a3f74308b9",
+    "check_same_upload_id": "b50351288b504e81",
+    "status": "ok",
+    "passed": true,
+    "score": 2.2157115620135492,
+    "ci": [
+      2.182475888583346,
+      2.2489472354437523
+    ],
+    "correctness_tests": 5
+  },
+  "policy": "POLICY {1: sk8w3s, 8: sk8w3s, 16: sk8w3s, 32: sk8w3s, 128: main-lean-grp-nohoist, 256: main-lean-grp-nohoist}",
+  "paths": [
+    {
+      "tokens": 1,
+      "load": "decode 1",
+      "selected_family": "sk_8_3_0::moe_fused_kernel<1>",
+      "ordinary_launch": true,
+      "software_global_join": true,
+      "adjusted_median_ns": 27000.975244260186,
+      "profile_report": "kernel                                                           GPU time  share  calls\nvoid (anonymous namespace)::sk_8_3_0::moe_fused_kernel<1>...      37.1 \u00b5s 100.0%      1\ntotal                                                             37.1 \u00b5s"
+    },
+    {
+      "tokens": 8,
+      "load": "verify 1",
+      "selected_family": "sk_8_3_0::moe_fused_kernel<1>",
+      "ordinary_launch": true,
+      "software_global_join": true,
+      "adjusted_median_ns": 67387.85858648528,
+      "profile_report": "kernel                                                           GPU time  share  calls\nvoid (anonymous namespace)::sk_8_3_0::moe_fused_kernel<1>...      57.3 \u00b5s 100.0%      1\ntotal                                                             57.3 \u00b5s"
+    },
+    {
+      "tokens": 16,
+      "load": "decode 16",
+      "selected_family": "sk_8_3_0::moe_fused_kernel<1>",
+      "ordinary_launch": true,
+      "software_global_join": true,
+      "adjusted_median_ns": 95426.2325723929,
+      "profile_report": "kernel                                                           GPU time  share  calls\nvoid (anonymous namespace)::sk_8_3_0::moe_fused_kernel<1>...      79.5 \u00b5s 100.0%      1\ntotal                                                             79.5 \u00b5s"
+    },
+    {
+      "tokens": 32,
+      "load": "decode 32",
+      "selected_family": "sk_8_3_0::moe_fused_kernel<1>",
+      "ordinary_launch": true,
+      "software_global_join": true,
+      "adjusted_median_ns": 136746.6359204389,
+      "profile_report": "kernel                                                           GPU time  share  calls\nvoid (anonymous namespace)::sk_8_3_0::moe_fused_kernel<1>...     128.1 \u00b5s 100.0%      1\ntotal                                                            128.1 \u00b5s"
+    },
+    {
+      "tokens": 128,
+      "load": "verify 16",
+      "selected_family": "moe_main_kernel<47>",
+      "ordinary_launch": true,
+      "software_global_join": true,
+      "adjusted_median_ns": 192869.42906429773,
+      "profile_report": "kernel                                                           GPU time  share  calls\nvoid (anonymous namespace)::moe_main_kernel<47>((anonymou...     185.5 \u00b5s 100.0%      1\ntotal                                                            185.5 \u00b5s"
+    },
+    {
+      "tokens": 256,
+      "load": "verify 32",
+      "selected_family": "moe_main_kernel<47>",
+      "ordinary_launch": true,
+      "software_global_join": true,
+      "adjusted_median_ns": 240838.56801896243,
+      "profile_report": "kernel                                                           GPU time  share  calls\nvoid (anonymous namespace)::moe_main_kernel<47>((anonymou...     217.7 \u00b5s 100.0%      1\ntotal                                                            217.7 \u00b5s"
+    }
+  ],
+  "source_helpers": {
+    "main": "template <int MODE>\nvoid launch_main(const Params& p, int sms, cudaStream_t stream) {\n    static bool ready = false;\n    if (!ready) {\n        C10_CUDA_CHECK(cudaFuncSetAttribute(moe_main_kernel<MODE>,\n                                            cudaFuncAttributeMaxDynamicSharedMemorySize,\n                                            static_cast<int>(sizeof(SmemMain))));\n        ready = true;\n    }\n    moe_main_kernel<MODE><<<sms, kNTM, sizeof(SmemMain), stream>>>(p);\n    C10_CUDA_KERNEL_LAUNCH_CHECK();\n}",
+    "skinny": "template <int SPLIT>\nvoid launch(const Params& p, int sms, cudaStream_t stream) {\n    static bool ready = false;\n    if (!ready) {\n        C10_CUDA_CHECK(cudaFuncSetAttribute(moe_fused_kernel<SPLIT>,\n                                            cudaFuncAttributeMaxDynamicSharedMemorySize,\n                                            static_cast<int>(sizeof(Smem))));\n        ready = true;\n    }\n    moe_fused_kernel<SPLIT><<<sms, kNTL, sizeof(Smem), stream>>>(p);\n    C10_CUDA_KERNEL_LAUNCH_CHECK();\n}",
+    "spin_failed": "__device__ __forceinline__ bool spin_failed(long long t0, int* ctr, int code) {\n    if (clock64() - t0 < kSpinLimit) {\n        return false;\n    }\n    atomicOr(ctr + 8, code);\n    return true;\n}"
+  },
+  "global_join_sites": 2,
+  "eligibility_gap": "Ordinary sms-sized launch does not request guaranteed cooperative co-residency; shared watchdog returns to dependent code on expiry. Affects all six actually profiled paths, not only main47."
+}
