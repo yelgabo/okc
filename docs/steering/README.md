@@ -1,5 +1,7 @@
 # Shared project steering
 
+Latest MoE diagnostic addendum: [Native G stage observer terminal closure](2026-11-01-g-stage-observed-readiness.md), source5c1a1f8 / jobf147d06a64504c1e. Correctness passes; all detail attribution rows rejected.
+
 This is the stable entry point for steering reports across research, implementation,
 and coordinator sessions. The user requested on 2026-10-29 that every project-steering
 report be checked into this repository so other sessions can read it.

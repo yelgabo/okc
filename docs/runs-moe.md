@@ -5350,3 +5350,18 @@ both0local/155520dynamic/1CTA; main96regs/8local/228736dynamic/1CTA unchanged.
 LocalNVRTC140->128predictionmustnotbequotedasanH200measurement. Noport/promotion,
 nopublicsubmit. Stopmultiply-onlyvariant; nosecondcheck/selectivelarge-onlypolicy.
 Receipt/summarymultiply_decode.835253441a214a1c.*, CLIprofile/logmultiply_check.835253441a214a1c.*.
+
+## 2026-11-01 — native G stage observed-ready/retirement diagnostic
+
+Source5c1a1f8, artifactbf0ca4ae…392222B. Root dispatched/waited
+**f147d06a64504c1e** standalone MoE off-board. PASS5 control2.3402777977x
+CI[2.305173631,2.375381965], prepare171.324839s. Six private computing arms,
+MAIN128/256 seeds76111/76117/76123; B4FIN32 explicitly unmeasured.
+All216 registered normal/fresh/skew/remote/restored math checks passed
+(worst.0060922033/.0071880231 versus.008/.075). All12 detail mode/case
+attribution gates FAIL: whole4.91–9.54%, phase10.26–14.90% displacement.
+No causal weight/X/retire bottleneck conclusion, no candidate win, no rerun.
+Root owns canonical profiles g-stage-check.f147d06a64504c1e.{json,log,txt}.
+Derived completecapsule/report: docs/steering/2026-11-01-g-stage-observed-readiness.md.
+New H200 route census yields conditional proportional three-pair six-load
+scenario1.012567/1.004403/1.004607, not measured gain/HBM/timing bound.
