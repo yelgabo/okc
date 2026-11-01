@@ -1843,3 +1843,23 @@ remains closed at the knock-in-model scope; a real packed-code design needs new 
 Root dispatched scored C3 `7a15f46e673b43d5` from the exact frozen file SHA256
 `9fd8e794f7eb989943718348da2bf21ece934be3b4527b349eed34ccbceea4a4`, under today's explicit
 user authorization. Pending at this entry; do not infer a new board score before its receipt.
+
+### Actual pair7 packed-stream experiment
+
+`0ab8f0510515473b` (check, muse_bf16_proj), source this branch after `ed506b0`, pending.
+Builder `tools/proj_make_bench_pair7.py`; `.build/today/pair7_actual.py` is C3's unchanged
+judged path plus an untimed prepare benchmark. New CPU gate checks all65536 BF16 bitpatterns
+through the raw sign/mantissa/exponent reconstruction and a complete56-bit packing roundtrip.
+Prepare packs actual weights, then reconstructs the stored bytes plus escape table and
+requires a bit-exact match with every original weight before any kernel timing.
+
+Physical code: sign+mantissa byte per weight,7-bit LUT index for each adjacent exponent pair,
+128-entry exponent-pair LUT, sparse exact escapes. Seven byte planes per32-thread warp
+preserve coalescing; no fake skipped loads or conditional byte-saving probe. New synchronous
+FP32 GEMV computes every output and applies original-minus-decoded escape corrections before
+the BF16 output boundary. This is owned experimental code, not donor code.
+
+Single check: all four m1 projection shapes, FP64 random and power-of-two probes, independent
+control/null graphs,100 seeded randomized cold rounds. No promotion before correctness and
+repeatable end-to-end latency improvement; stop actual codec if decode/escape overhead exceeds
+its physical savings. This directly addresses why `075dc89d74d144d6`'s knock-in was ambiguous.
