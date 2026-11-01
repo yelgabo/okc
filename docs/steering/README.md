@@ -1,6 +1,8 @@
 # Shared project steering
 
 Latest MoE diagnostic addendum: [Native G stage observer terminal closure](2026-11-01-g-stage-observed-readiness.md), source5c1a1f8 / jobf147d06a64504c1e. Correctness passes; all detail attribution rows rejected.
+Latest production packaging: [Full G backend reduction](2026-11-01-g-production-size.md) -854399B exact-native closure,720525B after transparent shared CUDA text. FiveCPU gates pass; G+owned still exceeds1MB beforedispatcher. No H200/public readiness claim.
+
 Latest projection scope: [Async-mailbox audit](2026-11-01-projection-mailbox-scope.md) - RT and prior QKV push already use async complete_tx; active short SK/RD are CTA-local. Full30 score sensitivity retained, no measured reducer budget or new check proposal.
 
 Updated independent review: [Corrected four-cell verify package](2026-11-01-verify-four-cell-slice-review.md#2026-11-01-corrected-package-addendum) - final2bad52ce/968389B fixes actual128 WD/SG policies; sevenCPU gates pass. Source/host diagnostic clearance only; H200, setup deadline and future public-hybrid size remain unqualified.
