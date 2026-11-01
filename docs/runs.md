@@ -1951,3 +1951,13 @@ reduction leaves~5.3us. Thus a cheaper DSMEM epilogue alone cannot rescue this u
 geometry. Memory pipeline or work scheduling must change first. These non-additive ablations
 do not measure separate additive component costs; removing math changes register pressure.
 No barrier removal or new production kernel is justified by them.
+
+Root approved one changed scheduling test: `303ba7fc3bb44b9d`, pending, builder
+`proj_make_bench_dense_dsm.py --tokenfast`. It interleaves the two128-token tiles for each
+128-channel row block, instead of processing all18 row blocks for token tile0 before tile1.
+Same144CTAs,4-CTA clusters,low shared ring,math and every fence/barrier; only independent
+clusters' work order changes. Potential L2 temporal weight reuse is a hypothesis, not measured
+bandwidth. Full and memory/no-reduction probes are paired against old order in two extension
+builds. CPU checks establish bijection of cluster(row,tok,Ksplit), agreement within each
+cluster and unique output writers at129/200/256 before dispatch. No new production config.
+Stop if memory reuse gains cannot bridge full-kernel Lt deficit; no identical sweep.

@@ -4,19 +4,20 @@ import sys
 ROOT=Path(__file__).resolve().parents[1]
 RESOURCE=r'''
 #include <vector>
-template<int S,int A=0> std::vector<int64_t> dense_info_one() {
- using C=WdCfg<2,128,4,1,false,S,0>;
- auto k=wd_kernel<2,128,4,1,false,S,__nv_bfloat16,A,false,0>;
+template<int S,int A=0,int V=0> std::vector<int64_t> dense_info_one() {
+ using C=WdCfg<2,128,4,1,false,S,V>;
+ auto k=wd_kernel<2,128,4,1,false,S,__nv_bfloat16,A,false,V>;
  C10_CUDA_CHECK(cudaFuncSetAttribute(k,cudaFuncAttributeMaxDynamicSharedMemorySize,C::SMEM));
  cudaFuncAttributes a;C10_CUDA_CHECK(cudaFuncGetAttributes(&a,k));
- cudaLaunchConfig_t lc={};lc.gridDim=dim3(72,2);lc.blockDim=dim3(C::THREADS);lc.dynamicSmemBytes=C::SMEM;
+ cudaLaunchConfig_t lc={};lc.gridDim=V?dim3(144,1):dim3(72,2);lc.blockDim=dim3(C::THREADS);lc.dynamicSmemBytes=C::SMEM;
  cudaLaunchAttribute at[1];at[0].id=cudaLaunchAttributeClusterDimension;
  at[0].val.clusterDim.x=4;at[0].val.clusterDim.y=1;at[0].val.clusterDim.z=1;lc.attrs=at;lc.numAttrs=1;
  int clusters=0,blocks=0;C10_CUDA_CHECK(cudaOccupancyMaxActiveClusters(&clusters,k,&lc));
  C10_CUDA_CHECK(cudaOccupancyMaxActiveBlocksPerMultiprocessor(&blocks,k,C::THREADS,C::SMEM));
  return {clusters,blocks,a.numRegs,(int64_t)a.localSizeBytes,(int64_t)a.sharedSizeBytes,C::SMEM};
 }
-std::vector<int64_t> dense_info(int64_t s,int64_t a){
+std::vector<int64_t> dense_info(int64_t s,int64_t a,int64_t v){
+ if(v)return a==3?dense_info_one<3,3,8388608>():dense_info_one<3,0,8388608>();
  if(a==1)return dense_info_one<3,1>();if(a==2)return dense_info_one<3,2>();if(a==3)return dense_info_one<3,3>();
  return s==3?dense_info_one<3>():dense_info_one<4>();}
 '''
@@ -25,9 +26,10 @@ import random as _dsrandom
 import statistics as _dsstats
 _DS_OUT=[]
 _DS_ABLATE=@@ABLATE@@
+_DS_TOKFAST=@@TOKFAST@@
 def _dsprint(s):_DS_OUT.append(s);print(s,flush=True)
 def _dsbuild(name):
-    names=('SK_CONFIGS','SK_INDEX','WD_GEOM','WD_VAR','WD_NAMES','WD_INDEX','WD_ABL')
+    names=('SK_CONFIGS','SK_INDEX','WD_GEOM','WD_VAR','WD_NAMES','WD_INDEX','WD_ABL','_WD_SRC')
     g=globals();old={n:g[n] for n in names}
     try:
         g['SK_CONFIGS']=[c for c in old['SK_CONFIGS'] if c[0] in ROUTER_GEOM]
@@ -37,19 +39,32 @@ def _dsbuild(name):
         if _DS_ABLATE:
             g['WD_ABL']={f'ds3_a{a}':('ds3',a) for a in (1,2,3)}
             g['WD_NAMES']+=list(g['WD_ABL'])
+        if _DS_TOKFAST:
+            g['WD_GEOM']['ds3tf']=(2,128,4,1,False,3)
+            g['WD_VAR']={'ds3tf':8388608,'ds3tf_a3':8388608}
+            g['WD_ABL']={'ds3_a3':('ds3',3),'ds3tf_a3':('ds3tf',3)}
+            g['WD_NAMES']=['ds3','ds4','ds3_a3','ds3tf','ds3tf_a3']
+            changes=[
+                ('const int rowbase = RKORD ?', 'static_assert((VAR & 8388608) == 0 || (!C::GRED && CLR == 1), "tokenfast cluster form");\n    const int rowbase = (VAR & 8388608) ? (int)(blockIdx.x / (CL * ntt_o)) * C::BM : RKORD ?'),
+                ('const int tok0 = RKORD ?', 'const int tok0 = (VAR & 8388608) ? (int)((blockIdx.x / CL) % ntt_o) * BN : RKORD ?'),
+                ('lc.gridDim = (VAR & WV_RKORD) ?', 'lc.gridDim = (VAR & 8388608) ? dim3((unsigned)(N / C::BM * C::CL * ((M + BN - 1) / BN)), 1u) : (VAR & WV_RKORD) ?')]
+            for old,new in changes:
+                assert g['_WD_SRC'].count(old)==1,old
+                g['_WD_SRC']=g['_WD_SRC'].replace(old,new)
         g['WD_INDEX']={n:i for i,n in enumerate(g['WD_NAMES'])}
         source=sk_source()+wd_source()+@@RESOURCE@@
     finally:g.update(old)
-    return load_inline(name=name,cpp_sources='#include <torch/extension.h>\n'+_SK_CPP+_WD_CPP+'std::vector<int64_t> dense_info(int64_t,int64_t);',cuda_sources=source,functions=['sk_fwd','wd_fwd','dense_info'],extra_cuda_cflags=['-O3','-gencode=arch=compute_90a,code=sm_90a'],no_implicit_headers=True,verbose=False)
+    return load_inline(name=name,cpp_sources='#include <torch/extension.h>\n'+_SK_CPP+_WD_CPP+'std::vector<int64_t> dense_info(int64_t,int64_t,int64_t);',cuda_sources=source,functions=['sk_fwd','wd_fwd','dense_info'],extra_cuda_cflags=['-O3','-gencode=arch=compute_90a,code=sm_90a'],no_implicit_headers=True,verbose=False)
 def _dsbench(weights,state):
     dev=weights['qkv_gate'].device;w=weights['qkv_gate'];gen=torch.Generator(device=dev).manual_seed(71031)
     diag=torch.zeros(4,dtype=torch.int32,device=dev);arms={'prod':state['pick']['qkv_gate',256]}
     for label in ('a','b'):
         mod=_dsbuild('okc_dense_dsm_'+label)
-        cases=[(3,0,0),(4,0,1)]+([(3,a,a+1) for a in (1,2,3)] if _DS_ABLATE else [])
-        for st,abl,cid in cases:
-            tag=label+'s'+str(st)+(f'_a{abl}_probe' if abl else '')
-            info=mod.dense_info(st,abl)
+        cases=[(3,0,0,0),(4,0,1,0)]+([(3,a,a+1,0) for a in (1,2,3)] if _DS_ABLATE else [])
+        if _DS_TOKFAST:cases=[(3,0,0,0),(3,3,2,0),(3,0,3,8388608),(3,3,4,8388608)]
+        for st,abl,cid,var in cases:
+            tag=label+'s'+str(st)+('_tf' if var else '')+(f'_a{abl}_probe' if abl else '')
+            info=mod.dense_info(st,abl,var)
             _dsprint(f'DRES {tag} clusters/blocks/regs/localbytes/staticshared/dynamicshared={info}')
             if info[0]<36:
                 _dsprint(f'DSKIP {label}s{st} active clusters below36 for144CTA grid');continue
@@ -97,5 +112,17 @@ def prepare(weights):
     return state
 '''
 if __name__=='__main__':
-    Path(sys.argv[1]).write_text((ROOT/'muse_bf16_proj/submission.py').read_text()+RUN.replace('@@RESOURCE@@',repr(RESOURCE)).replace('@@ABLATE@@',repr('--ablate' in sys.argv)))
+    if '--tokenfast' in sys.argv:
+        for m in (129,200,256):
+            nt=(m+127)//128;seen=set();writers=set()
+            for block in range(18*nt*4):
+                row=block//(4*nt);tok=(block//4)%nt;rank=block%4
+                assert (row,tok,rank) not in seen;seen.add((row,tok,rank))
+                assert len({((b//4)%nt,b//(4*nt)) for b in range(block//4*4,block//4*4+4)})==1
+                for t in range(tok*128+rank*32,min(tok*128+(rank+1)*32,m)):
+                    assert (row,t) not in writers;writers.add((row,t))
+            assert len(seen)==18*nt*4 and len(writers)==18*m
+            assert [k for r in range(4) for k in range(r*128//4,(r+1)*128//4)]==list(range(128))
+        print('CPU tokenfast cluster mapping/unique-writer gate PASS')
+    Path(sys.argv[1]).write_text((ROOT/'muse_bf16_proj/submission.py').read_text()+RUN.replace('@@RESOURCE@@',repr(RESOURCE)).replace('@@ABLATE@@',repr('--ablate' in sys.argv)).replace('@@TOKFAST@@',repr('--tokenfast' in sys.argv)))
     print('wrote',sys.argv[1])
