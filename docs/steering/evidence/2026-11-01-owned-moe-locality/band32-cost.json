@@ -1,0 +1,2375 @@
+{
+  "schema": "OWNED_BAND32_CPU_REQUEST_MODEL",
+  "grid": 132,
+  "band": 32,
+  "source": "owned8-row/fullK16weightrows; xr reload only at job/phase change",
+  "limits": "Logical loads/ownership only. No L1/L2/DRAM bytes, latency or speedup.",
+  "aggregate": {
+    "16": {
+      "phaseA": {
+        "extra_activation_requested_bytes": 684544,
+        "old": {
+          "job_runs": 139.4375,
+          "activation_requested_bytes": 2569984,
+          "unique_cta_jobs": 139.4375
+        },
+        "band32": {
+          "job_runs": 153.1875,
+          "activation_requested_bytes": 3254528,
+          "unique_cta_jobs": 150.875
+        },
+        "max_extra_activation_requested_bytes": 2949120
+      },
+      "phaseB": {
+        "extra_activation_requested_bytes": 286720,
+        "old": {
+          "job_runs": 139.4375,
+          "activation_requested_bytes": 2569984,
+          "unique_cta_jobs": 139.4375
+        },
+        "band32": {
+          "job_runs": 145.21875,
+          "activation_requested_bytes": 2856704,
+          "unique_cta_jobs": 145.21875
+        },
+        "max_extra_activation_requested_bytes": 1318912
+      }
+    },
+    "32": {
+      "phaseA": {
+        "extra_activation_requested_bytes": 2585856,
+        "old": {
+          "job_runs": 146.5,
+          "activation_requested_bytes": 3654912,
+          "unique_cta_jobs": 146.5
+        },
+        "band32": {
+          "job_runs": 195.25,
+          "activation_requested_bytes": 6240768,
+          "unique_cta_jobs": 184.9375
+        },
+        "max_extra_activation_requested_bytes": 7045120
+      },
+      "phaseB": {
+        "extra_activation_requested_bytes": 1163008,
+        "old": {
+          "job_runs": 146.5,
+          "activation_requested_bytes": 3654912,
+          "unique_cta_jobs": 146.5
+        },
+        "band32": {
+          "job_runs": 168.625,
+          "activation_requested_bytes": 4817920,
+          "unique_cta_jobs": 167.84375
+        },
+        "max_extra_activation_requested_bytes": 3244032
+      }
+    }
+  },
+  "records": [
+    {
+      "m": 16,
+      "seed": 65001,
+      "phaseA": {
+        "units": 512,
+        "old": {
+          "job_runs": 144,
+          "activation_requested_bytes": 2531328,
+          "unique_cta_jobs": 144
+        },
+        "band32": {
+          "job_runs": 144,
+          "activation_requested_bytes": 2531328,
+          "unique_cta_jobs": 144
+        },
+        "extra_activation_requested_bytes": 0,
+        "band_weight_unique_bytes": 1179648,
+        "max_expert_jobs": 1
+      },
+      "phaseB": {
+        "units": 256,
+        "old": {
+          "job_runs": 144,
+          "activation_requested_bytes": 2531328,
+          "unique_cta_jobs": 144
+        },
+        "band32": {
+          "job_runs": 144,
+          "activation_requested_bytes": 2531328,
+          "unique_cta_jobs": 144
+        },
+        "extra_activation_requested_bytes": 0,
+        "band_weight_unique_bytes": 1179648,
+        "max_expert_jobs": 1
+      }
+    },
+    {
+      "m": 16,
+      "seed": 65002,
+      "phaseA": {
+        "units": 512,
+        "old": {
+          "job_runs": 144,
+          "activation_requested_bytes": 2211840,
+          "unique_cta_jobs": 144
+        },
+        "band32": {
+          "job_runs": 144,
+          "activation_requested_bytes": 2211840,
+          "unique_cta_jobs": 144
+        },
+        "extra_activation_requested_bytes": 0,
+        "band_weight_unique_bytes": 1179648,
+        "max_expert_jobs": 1
+      },
+      "phaseB": {
+        "units": 256,
+        "old": {
+          "job_runs": 144,
+          "activation_requested_bytes": 2211840,
+          "unique_cta_jobs": 144
+        },
+        "band32": {
+          "job_runs": 144,
+          "activation_requested_bytes": 2211840,
+          "unique_cta_jobs": 144
+        },
+        "extra_activation_requested_bytes": 0,
+        "band_weight_unique_bytes": 1179648,
+        "max_expert_jobs": 1
+      }
+    },
+    {
+      "m": 16,
+      "seed": 65003,
+      "phaseA": {
+        "units": 512,
+        "old": {
+          "job_runs": 132,
+          "activation_requested_bytes": 3833856,
+          "unique_cta_jobs": 132
+        },
+        "band32": {
+          "job_runs": 180,
+          "activation_requested_bytes": 6782976,
+          "unique_cta_jobs": 180
+        },
+        "extra_activation_requested_bytes": 2949120,
+        "band_weight_unique_bytes": 1179648,
+        "max_expert_jobs": 2
+      },
+      "phaseB": {
+        "units": 256,
+        "old": {
+          "job_runs": 132,
+          "activation_requested_bytes": 3833856,
+          "unique_cta_jobs": 132
+        },
+        "band32": {
+          "job_runs": 148,
+          "activation_requested_bytes": 4816896,
+          "unique_cta_jobs": 148
+        },
+        "extra_activation_requested_bytes": 983040,
+        "band_weight_unique_bytes": 1179648,
+        "max_expert_jobs": 2
+      }
+    },
+    {
+      "m": 16,
+      "seed": 65004,
+      "phaseA": {
+        "units": 512,
+        "old": {
+          "job_runs": 138,
+          "activation_requested_bytes": 2785280,
+          "unique_cta_jobs": 138
+        },
+        "band32": {
+          "job_runs": 166,
+          "activation_requested_bytes": 4161536,
+          "unique_cta_jobs": 166
+        },
+        "extra_activation_requested_bytes": 1376256,
+        "band_weight_unique_bytes": 1179648,
+        "max_expert_jobs": 2
+      },
+      "phaseB": {
+        "units": 256,
+        "old": {
+          "job_runs": 138,
+          "activation_requested_bytes": 2785280,
+          "unique_cta_jobs": 138
+        },
+        "band32": {
+          "job_runs": 150,
+          "activation_requested_bytes": 3375104,
+          "unique_cta_jobs": 150
+        },
+        "extra_activation_requested_bytes": 589824,
+        "band_weight_unique_bytes": 1179648,
+        "max_expert_jobs": 2
+      }
+    },
+    {
+      "m": 16,
+      "seed": 65005,
+      "phaseA": {
+        "units": 512,
+        "old": {
+          "job_runs": 132,
+          "activation_requested_bytes": 3063808,
+          "unique_cta_jobs": 132
+        },
+        "band32": {
+          "job_runs": 162,
+          "activation_requested_bytes": 4415488,
+          "unique_cta_jobs": 154
+        },
+        "extra_activation_requested_bytes": 1351680,
+        "band_weight_unique_bytes": 1179648,
+        "max_expert_jobs": 2
+      },
+      "phaseB": {
+        "units": 256,
+        "old": {
+          "job_runs": 132,
+          "activation_requested_bytes": 3063808,
+          "unique_cta_jobs": 132
+        },
+        "band32": {
+          "job_runs": 146,
+          "activation_requested_bytes": 3694592,
+          "unique_cta_jobs": 146
+        },
+        "extra_activation_requested_bytes": 630784,
+        "band_weight_unique_bytes": 1179648,
+        "max_expert_jobs": 2
+      }
+    },
+    {
+      "m": 16,
+      "seed": 65006,
+      "phaseA": {
+        "units": 512,
+        "old": {
+          "job_runs": 140,
+          "activation_requested_bytes": 3670016,
+          "unique_cta_jobs": 140
+        },
+        "band32": {
+          "job_runs": 197,
+          "activation_requested_bytes": 6496256,
+          "unique_cta_jobs": 189
+        },
+        "extra_activation_requested_bytes": 2826240,
+        "band_weight_unique_bytes": 1179648,
+        "max_expert_jobs": 2
+      },
+      "phaseB": {
+        "units": 256,
+        "old": {
+          "job_runs": 140,
+          "activation_requested_bytes": 3670016,
+          "unique_cta_jobs": 140
+        },
+        "band32": {
+          "job_runs": 166,
+          "activation_requested_bytes": 4988928,
+          "unique_cta_jobs": 166
+        },
+        "extra_activation_requested_bytes": 1318912,
+        "band_weight_unique_bytes": 1179648,
+        "max_expert_jobs": 2
+      }
+    },
+    {
+      "m": 16,
+      "seed": 65007,
+      "phaseA": {
+        "units": 512,
+        "old": {
+          "job_runs": 140,
+          "activation_requested_bytes": 2981888,
+          "unique_cta_jobs": 140
+        },
+        "band32": {
+          "job_runs": 140,
+          "activation_requested_bytes": 2981888,
+          "unique_cta_jobs": 140
+        },
+        "extra_activation_requested_bytes": 0,
+        "band_weight_unique_bytes": 1179648,
+        "max_expert_jobs": 1
+      },
+      "phaseB": {
+        "units": 256,
+        "old": {
+          "job_runs": 140,
+          "activation_requested_bytes": 2981888,
+          "unique_cta_jobs": 140
+        },
+        "band32": {
+          "job_runs": 140,
+          "activation_requested_bytes": 2981888,
+          "unique_cta_jobs": 140
+        },
+        "extra_activation_requested_bytes": 0,
+        "band_weight_unique_bytes": 1179648,
+        "max_expert_jobs": 1
+      }
+    },
+    {
+      "m": 16,
+      "seed": 65008,
+      "phaseA": {
+        "units": 512,
+        "old": {
+          "job_runs": 144,
+          "activation_requested_bytes": 2129920,
+          "unique_cta_jobs": 144
+        },
+        "band32": {
+          "job_runs": 172,
+          "activation_requested_bytes": 3104768,
+          "unique_cta_jobs": 160
+        },
+        "extra_activation_requested_bytes": 974848,
+        "band_weight_unique_bytes": 1179648,
+        "max_expert_jobs": 2
+      },
+      "phaseB": {
+        "units": 256,
+        "old": {
+          "job_runs": 144,
+          "activation_requested_bytes": 2129920,
+          "unique_cta_jobs": 144
+        },
+        "band32": {
+          "job_runs": 156,
+          "activation_requested_bytes": 2572288,
+          "unique_cta_jobs": 156
+        },
+        "extra_activation_requested_bytes": 442368,
+        "band_weight_unique_bytes": 1179648,
+        "max_expert_jobs": 2
+      }
+    },
+    {
+      "m": 16,
+      "seed": 65009,
+      "phaseA": {
+        "units": 512,
+        "old": {
+          "job_runs": 140,
+          "activation_requested_bytes": 3211264,
+          "unique_cta_jobs": 140
+        },
+        "band32": {
+          "job_runs": 140,
+          "activation_requested_bytes": 3211264,
+          "unique_cta_jobs": 140
+        },
+        "extra_activation_requested_bytes": 0,
+        "band_weight_unique_bytes": 1179648,
+        "max_expert_jobs": 1
+      },
+      "phaseB": {
+        "units": 256,
+        "old": {
+          "job_runs": 140,
+          "activation_requested_bytes": 3211264,
+          "unique_cta_jobs": 140
+        },
+        "band32": {
+          "job_runs": 140,
+          "activation_requested_bytes": 3211264,
+          "unique_cta_jobs": 140
+        },
+        "extra_activation_requested_bytes": 0,
+        "band_weight_unique_bytes": 1179648,
+        "max_expert_jobs": 1
+      }
+    },
+    {
+      "m": 16,
+      "seed": 65010,
+      "phaseA": {
+        "units": 512,
+        "old": {
+          "job_runs": 138,
+          "activation_requested_bytes": 3719168,
+          "unique_cta_jobs": 138
+        },
+        "band32": {
+          "job_runs": 166,
+          "activation_requested_bytes": 4980736,
+          "unique_cta_jobs": 166
+        },
+        "extra_activation_requested_bytes": 1261568,
+        "band_weight_unique_bytes": 1179648,
+        "max_expert_jobs": 2
+      },
+      "phaseB": {
+        "units": 256,
+        "old": {
+          "job_runs": 138,
+          "activation_requested_bytes": 3719168,
+          "unique_cta_jobs": 138
+        },
+        "band32": {
+          "job_runs": 150,
+          "activation_requested_bytes": 4259840,
+          "unique_cta_jobs": 150
+        },
+        "extra_activation_requested_bytes": 540672,
+        "band_weight_unique_bytes": 1179648,
+        "max_expert_jobs": 2
+      }
+    },
+    {
+      "m": 16,
+      "seed": 65011,
+      "phaseA": {
+        "units": 512,
+        "old": {
+          "job_runs": 144,
+          "activation_requested_bytes": 2162688,
+          "unique_cta_jobs": 144
+        },
+        "band32": {
+          "job_runs": 144,
+          "activation_requested_bytes": 2162688,
+          "unique_cta_jobs": 144
+        },
+        "extra_activation_requested_bytes": 0,
+        "band_weight_unique_bytes": 1179648,
+        "max_expert_jobs": 1
+      },
+      "phaseB": {
+        "units": 256,
+        "old": {
+          "job_runs": 144,
+          "activation_requested_bytes": 2162688,
+          "unique_cta_jobs": 144
+        },
+        "band32": {
+          "job_runs": 144,
+          "activation_requested_bytes": 2162688,
+          "unique_cta_jobs": 144
+        },
+        "extra_activation_requested_bytes": 0,
+        "band_weight_unique_bytes": 1179648,
+        "max_expert_jobs": 1
+      }
+    },
+    {
+      "m": 16,
+      "seed": 65012,
+      "phaseA": {
+        "units": 512,
+        "old": {
+          "job_runs": 144,
+          "activation_requested_bytes": 2277376,
+          "unique_cta_jobs": 144
+        },
+        "band32": {
+          "job_runs": 144,
+          "activation_requested_bytes": 2277376,
+          "unique_cta_jobs": 144
+        },
+        "extra_activation_requested_bytes": 0,
+        "band_weight_unique_bytes": 1179648,
+        "max_expert_jobs": 1
+      },
+      "phaseB": {
+        "units": 256,
+        "old": {
+          "job_runs": 144,
+          "activation_requested_bytes": 2277376,
+          "unique_cta_jobs": 144
+        },
+        "band32": {
+          "job_runs": 144,
+          "activation_requested_bytes": 2277376,
+          "unique_cta_jobs": 144
+        },
+        "extra_activation_requested_bytes": 0,
+        "band_weight_unique_bytes": 1179648,
+        "max_expert_jobs": 1
+      }
+    },
+    {
+      "m": 16,
+      "seed": 65013,
+      "phaseA": {
+        "units": 512,
+        "old": {
+          "job_runs": 144,
+          "activation_requested_bytes": 2351104,
+          "unique_cta_jobs": 144
+        },
+        "band32": {
+          "job_runs": 144,
+          "activation_requested_bytes": 2351104,
+          "unique_cta_jobs": 144
+        },
+        "extra_activation_requested_bytes": 0,
+        "band_weight_unique_bytes": 1179648,
+        "max_expert_jobs": 1
+      },
+      "phaseB": {
+        "units": 256,
+        "old": {
+          "job_runs": 144,
+          "activation_requested_bytes": 2351104,
+          "unique_cta_jobs": 144
+        },
+        "band32": {
+          "job_runs": 144,
+          "activation_requested_bytes": 2351104,
+          "unique_cta_jobs": 144
+        },
+        "extra_activation_requested_bytes": 0,
+        "band_weight_unique_bytes": 1179648,
+        "max_expert_jobs": 1
+      }
+    },
+    {
+      "m": 16,
+      "seed": 65014,
+      "phaseA": {
+        "units": 512,
+        "old": {
+          "job_runs": 144,
+          "activation_requested_bytes": 1957888,
+          "unique_cta_jobs": 144
+        },
+        "band32": {
+          "job_runs": 144,
+          "activation_requested_bytes": 1957888,
+          "unique_cta_jobs": 144
+        },
+        "extra_activation_requested_bytes": 0,
+        "band_weight_unique_bytes": 1179648,
+        "max_expert_jobs": 1
+      },
+      "phaseB": {
+        "units": 256,
+        "old": {
+          "job_runs": 144,
+          "activation_requested_bytes": 1957888,
+          "unique_cta_jobs": 144
+        },
+        "band32": {
+          "job_runs": 144,
+          "activation_requested_bytes": 1957888,
+          "unique_cta_jobs": 144
+        },
+        "extra_activation_requested_bytes": 0,
+        "band_weight_unique_bytes": 1179648,
+        "max_expert_jobs": 1
+      }
+    },
+    {
+      "m": 16,
+      "seed": 65015,
+      "phaseA": {
+        "units": 512,
+        "old": {
+          "job_runs": 144,
+          "activation_requested_bytes": 2441216,
+          "unique_cta_jobs": 144
+        },
+        "band32": {
+          "job_runs": 174,
+          "activation_requested_bytes": 4407296,
+          "unique_cta_jobs": 162
+        },
+        "extra_activation_requested_bytes": 1966080,
+        "band_weight_unique_bytes": 1179648,
+        "max_expert_jobs": 2
+      },
+      "phaseB": {
+        "units": 256,
+        "old": {
+          "job_runs": 144,
+          "activation_requested_bytes": 2441216,
+          "unique_cta_jobs": 144
+        },
+        "band32": {
+          "job_runs": 158,
+          "activation_requested_bytes": 3358720,
+          "unique_cta_jobs": 158
+        },
+        "extra_activation_requested_bytes": 917504,
+        "band_weight_unique_bytes": 1179648,
+        "max_expert_jobs": 2
+      }
+    },
+    {
+      "m": 16,
+      "seed": 65016,
+      "phaseA": {
+        "units": 512,
+        "old": {
+          "job_runs": 132,
+          "activation_requested_bytes": 2252800,
+          "unique_cta_jobs": 132
+        },
+        "band32": {
+          "job_runs": 162,
+          "activation_requested_bytes": 3358720,
+          "unique_cta_jobs": 154
+        },
+        "extra_activation_requested_bytes": 1105920,
+        "band_weight_unique_bytes": 1179648,
+        "max_expert_jobs": 2
+      },
+      "phaseB": {
+        "units": 256,
+        "old": {
+          "job_runs": 132,
+          "activation_requested_bytes": 2252800,
+          "unique_cta_jobs": 132
+        },
+        "band32": {
+          "job_runs": 146,
+          "activation_requested_bytes": 2768896,
+          "unique_cta_jobs": 146
+        },
+        "extra_activation_requested_bytes": 516096,
+        "band_weight_unique_bytes": 1179648,
+        "max_expert_jobs": 2
+      }
+    },
+    {
+      "m": 16,
+      "seed": 65017,
+      "phaseA": {
+        "units": 512,
+        "old": {
+          "job_runs": 144,
+          "activation_requested_bytes": 1851392,
+          "unique_cta_jobs": 144
+        },
+        "band32": {
+          "job_runs": 144,
+          "activation_requested_bytes": 1851392,
+          "unique_cta_jobs": 144
+        },
+        "extra_activation_requested_bytes": 0,
+        "band_weight_unique_bytes": 1179648,
+        "max_expert_jobs": 1
+      },
+      "phaseB": {
+        "units": 256,
+        "old": {
+          "job_runs": 144,
+          "activation_requested_bytes": 1851392,
+          "unique_cta_jobs": 144
+        },
+        "band32": {
+          "job_runs": 144,
+          "activation_requested_bytes": 1851392,
+          "unique_cta_jobs": 144
+        },
+        "extra_activation_requested_bytes": 0,
+        "band_weight_unique_bytes": 1179648,
+        "max_expert_jobs": 1
+      }
+    },
+    {
+      "m": 16,
+      "seed": 65018,
+      "phaseA": {
+        "units": 512,
+        "old": {
+          "job_runs": 132,
+          "activation_requested_bytes": 2162688,
+          "unique_cta_jobs": 132
+        },
+        "band32": {
+          "job_runs": 132,
+          "activation_requested_bytes": 2162688,
+          "unique_cta_jobs": 132
+        },
+        "extra_activation_requested_bytes": 0,
+        "band_weight_unique_bytes": 1179648,
+        "max_expert_jobs": 1
+      },
+      "phaseB": {
+        "units": 256,
+        "old": {
+          "job_runs": 132,
+          "activation_requested_bytes": 2162688,
+          "unique_cta_jobs": 132
+        },
+        "band32": {
+          "job_runs": 132,
+          "activation_requested_bytes": 2162688,
+          "unique_cta_jobs": 132
+        },
+        "extra_activation_requested_bytes": 0,
+        "band_weight_unique_bytes": 1179648,
+        "max_expert_jobs": 1
+      }
+    },
+    {
+      "m": 16,
+      "seed": 65019,
+      "phaseA": {
+        "units": 512,
+        "old": {
+          "job_runs": 144,
+          "activation_requested_bytes": 1769472,
+          "unique_cta_jobs": 144
+        },
+        "band32": {
+          "job_runs": 144,
+          "activation_requested_bytes": 1769472,
+          "unique_cta_jobs": 144
+        },
+        "extra_activation_requested_bytes": 0,
+        "band_weight_unique_bytes": 1179648,
+        "max_expert_jobs": 1
+      },
+      "phaseB": {
+        "units": 256,
+        "old": {
+          "job_runs": 144,
+          "activation_requested_bytes": 1769472,
+          "unique_cta_jobs": 144
+        },
+        "band32": {
+          "job_runs": 144,
+          "activation_requested_bytes": 1769472,
+          "unique_cta_jobs": 144
+        },
+        "extra_activation_requested_bytes": 0,
+        "band_weight_unique_bytes": 1179648,
+        "max_expert_jobs": 1
+      }
+    },
+    {
+      "m": 16,
+      "seed": 65020,
+      "phaseA": {
+        "units": 512,
+        "old": {
+          "job_runs": 144,
+          "activation_requested_bytes": 2351104,
+          "unique_cta_jobs": 144
+        },
+        "band32": {
+          "job_runs": 144,
+          "activation_requested_bytes": 2351104,
+          "unique_cta_jobs": 144
+        },
+        "extra_activation_requested_bytes": 0,
+        "band_weight_unique_bytes": 1179648,
+        "max_expert_jobs": 1
+      },
+      "phaseB": {
+        "units": 256,
+        "old": {
+          "job_runs": 144,
+          "activation_requested_bytes": 2351104,
+          "unique_cta_jobs": 144
+        },
+        "band32": {
+          "job_runs": 144,
+          "activation_requested_bytes": 2351104,
+          "unique_cta_jobs": 144
+        },
+        "extra_activation_requested_bytes": 0,
+        "band_weight_unique_bytes": 1179648,
+        "max_expert_jobs": 1
+      }
+    },
+    {
+      "m": 16,
+      "seed": 65021,
+      "phaseA": {
+        "units": 512,
+        "old": {
+          "job_runs": 144,
+          "activation_requested_bytes": 2351104,
+          "unique_cta_jobs": 144
+        },
+        "band32": {
+          "job_runs": 144,
+          "activation_requested_bytes": 2351104,
+          "unique_cta_jobs": 144
+        },
+        "extra_activation_requested_bytes": 0,
+        "band_weight_unique_bytes": 1179648,
+        "max_expert_jobs": 1
+      },
+      "phaseB": {
+        "units": 256,
+        "old": {
+          "job_runs": 144,
+          "activation_requested_bytes": 2351104,
+          "unique_cta_jobs": 144
+        },
+        "band32": {
+          "job_runs": 144,
+          "activation_requested_bytes": 2351104,
+          "unique_cta_jobs": 144
+        },
+        "extra_activation_requested_bytes": 0,
+        "band_weight_unique_bytes": 1179648,
+        "max_expert_jobs": 1
+      }
+    },
+    {
+      "m": 16,
+      "seed": 65022,
+      "phaseA": {
+        "units": 512,
+        "old": {
+          "job_runs": 132,
+          "activation_requested_bytes": 2973696,
+          "unique_cta_jobs": 132
+        },
+        "band32": {
+          "job_runs": 162,
+          "activation_requested_bytes": 4571136,
+          "unique_cta_jobs": 154
+        },
+        "extra_activation_requested_bytes": 1597440,
+        "band_weight_unique_bytes": 1179648,
+        "max_expert_jobs": 2
+      },
+      "phaseB": {
+        "units": 256,
+        "old": {
+          "job_runs": 132,
+          "activation_requested_bytes": 2973696,
+          "unique_cta_jobs": 132
+        },
+        "band32": {
+          "job_runs": 146,
+          "activation_requested_bytes": 3719168,
+          "unique_cta_jobs": 146
+        },
+        "extra_activation_requested_bytes": 745472,
+        "band_weight_unique_bytes": 1179648,
+        "max_expert_jobs": 2
+      }
+    },
+    {
+      "m": 16,
+      "seed": 65023,
+      "phaseA": {
+        "units": 512,
+        "old": {
+          "job_runs": 144,
+          "activation_requested_bytes": 2170880,
+          "unique_cta_jobs": 144
+        },
+        "band32": {
+          "job_runs": 173,
+          "activation_requested_bytes": 3211264,
+          "unique_cta_jobs": 163
+        },
+        "extra_activation_requested_bytes": 1040384,
+        "band_weight_unique_bytes": 1179648,
+        "max_expert_jobs": 2
+      },
+      "phaseB": {
+        "units": 256,
+        "old": {
+          "job_runs": 144,
+          "activation_requested_bytes": 2170880,
+          "unique_cta_jobs": 144
+        },
+        "band32": {
+          "job_runs": 157,
+          "activation_requested_bytes": 2678784,
+          "unique_cta_jobs": 157
+        },
+        "extra_activation_requested_bytes": 507904,
+        "band_weight_unique_bytes": 1179648,
+        "max_expert_jobs": 2
+      }
+    },
+    {
+      "m": 16,
+      "seed": 65024,
+      "phaseA": {
+        "units": 512,
+        "old": {
+          "job_runs": 144,
+          "activation_requested_bytes": 1687552,
+          "unique_cta_jobs": 144
+        },
+        "band32": {
+          "job_runs": 144,
+          "activation_requested_bytes": 1687552,
+          "unique_cta_jobs": 144
+        },
+        "extra_activation_requested_bytes": 0,
+        "band_weight_unique_bytes": 1179648,
+        "max_expert_jobs": 1
+      },
+      "phaseB": {
+        "units": 256,
+        "old": {
+          "job_runs": 144,
+          "activation_requested_bytes": 1687552,
+          "unique_cta_jobs": 144
+        },
+        "band32": {
+          "job_runs": 144,
+          "activation_requested_bytes": 1687552,
+          "unique_cta_jobs": 144
+        },
+        "extra_activation_requested_bytes": 0,
+        "band_weight_unique_bytes": 1179648,
+        "max_expert_jobs": 1
+      }
+    },
+    {
+      "m": 16,
+      "seed": 65025,
+      "phaseA": {
+        "units": 512,
+        "old": {
+          "job_runs": 144,
+          "activation_requested_bytes": 1974272,
+          "unique_cta_jobs": 144
+        },
+        "band32": {
+          "job_runs": 144,
+          "activation_requested_bytes": 1974272,
+          "unique_cta_jobs": 144
+        },
+        "extra_activation_requested_bytes": 0,
+        "band_weight_unique_bytes": 1179648,
+        "max_expert_jobs": 1
+      },
+      "phaseB": {
+        "units": 256,
+        "old": {
+          "job_runs": 144,
+          "activation_requested_bytes": 1974272,
+          "unique_cta_jobs": 144
+        },
+        "band32": {
+          "job_runs": 144,
+          "activation_requested_bytes": 1974272,
+          "unique_cta_jobs": 144
+        },
+        "extra_activation_requested_bytes": 0,
+        "band_weight_unique_bytes": 1179648,
+        "max_expert_jobs": 1
+      }
+    },
+    {
+      "m": 16,
+      "seed": 65026,
+      "phaseA": {
+        "units": 512,
+        "old": {
+          "job_runs": 138,
+          "activation_requested_bytes": 3260416,
+          "unique_cta_jobs": 138
+        },
+        "band32": {
+          "job_runs": 138,
+          "activation_requested_bytes": 3260416,
+          "unique_cta_jobs": 138
+        },
+        "extra_activation_requested_bytes": 0,
+        "band_weight_unique_bytes": 1179648,
+        "max_expert_jobs": 1
+      },
+      "phaseB": {
+        "units": 256,
+        "old": {
+          "job_runs": 138,
+          "activation_requested_bytes": 3260416,
+          "unique_cta_jobs": 138
+        },
+        "band32": {
+          "job_runs": 138,
+          "activation_requested_bytes": 3260416,
+          "unique_cta_jobs": 138
+        },
+        "extra_activation_requested_bytes": 0,
+        "band_weight_unique_bytes": 1179648,
+        "max_expert_jobs": 1
+      }
+    },
+    {
+      "m": 16,
+      "seed": 65027,
+      "phaseA": {
+        "units": 512,
+        "old": {
+          "job_runs": 136,
+          "activation_requested_bytes": 2924544,
+          "unique_cta_jobs": 136
+        },
+        "band32": {
+          "job_runs": 136,
+          "activation_requested_bytes": 2924544,
+          "unique_cta_jobs": 136
+        },
+        "extra_activation_requested_bytes": 0,
+        "band_weight_unique_bytes": 1179648,
+        "max_expert_jobs": 1
+      },
+      "phaseB": {
+        "units": 256,
+        "old": {
+          "job_runs": 136,
+          "activation_requested_bytes": 2924544,
+          "unique_cta_jobs": 136
+        },
+        "band32": {
+          "job_runs": 136,
+          "activation_requested_bytes": 2924544,
+          "unique_cta_jobs": 136
+        },
+        "extra_activation_requested_bytes": 0,
+        "band_weight_unique_bytes": 1179648,
+        "max_expert_jobs": 1
+      }
+    },
+    {
+      "m": 16,
+      "seed": 65028,
+      "phaseA": {
+        "units": 512,
+        "old": {
+          "job_runs": 132,
+          "activation_requested_bytes": 2252800,
+          "unique_cta_jobs": 132
+        },
+        "band32": {
+          "job_runs": 162,
+          "activation_requested_bytes": 3481600,
+          "unique_cta_jobs": 154
+        },
+        "extra_activation_requested_bytes": 1228800,
+        "band_weight_unique_bytes": 1179648,
+        "max_expert_jobs": 2
+      },
+      "phaseB": {
+        "units": 256,
+        "old": {
+          "job_runs": 132,
+          "activation_requested_bytes": 2252800,
+          "unique_cta_jobs": 132
+        },
+        "band32": {
+          "job_runs": 146,
+          "activation_requested_bytes": 2826240,
+          "unique_cta_jobs": 146
+        },
+        "extra_activation_requested_bytes": 573440,
+        "band_weight_unique_bytes": 1179648,
+        "max_expert_jobs": 2
+      }
+    },
+    {
+      "m": 16,
+      "seed": 65029,
+      "phaseA": {
+        "units": 512,
+        "old": {
+          "job_runs": 132,
+          "activation_requested_bytes": 2752512,
+          "unique_cta_jobs": 132
+        },
+        "band32": {
+          "job_runs": 156,
+          "activation_requested_bytes": 3833856,
+          "unique_cta_jobs": 156
+        },
+        "extra_activation_requested_bytes": 1081344,
+        "band_weight_unique_bytes": 1179648,
+        "max_expert_jobs": 2
+      },
+      "phaseB": {
+        "units": 256,
+        "old": {
+          "job_runs": 132,
+          "activation_requested_bytes": 2752512,
+          "unique_cta_jobs": 132
+        },
+        "band32": {
+          "job_runs": 140,
+          "activation_requested_bytes": 3112960,
+          "unique_cta_jobs": 140
+        },
+        "extra_activation_requested_bytes": 360448,
+        "band_weight_unique_bytes": 1179648,
+        "max_expert_jobs": 2
+      }
+    },
+    {
+      "m": 16,
+      "seed": 65030,
+      "phaseA": {
+        "units": 512,
+        "old": {
+          "job_runs": 132,
+          "activation_requested_bytes": 2555904,
+          "unique_cta_jobs": 132
+        },
+        "band32": {
+          "job_runs": 156,
+          "activation_requested_bytes": 4128768,
+          "unique_cta_jobs": 156
+        },
+        "extra_activation_requested_bytes": 1572864,
+        "band_weight_unique_bytes": 1179648,
+        "max_expert_jobs": 2
+      },
+      "phaseB": {
+        "units": 256,
+        "old": {
+          "job_runs": 132,
+          "activation_requested_bytes": 2555904,
+          "unique_cta_jobs": 132
+        },
+        "band32": {
+          "job_runs": 140,
+          "activation_requested_bytes": 3080192,
+          "unique_cta_jobs": 140
+        },
+        "extra_activation_requested_bytes": 524288,
+        "band_weight_unique_bytes": 1179648,
+        "max_expert_jobs": 2
+      }
+    },
+    {
+      "m": 16,
+      "seed": 65031,
+      "phaseA": {
+        "units": 512,
+        "old": {
+          "job_runs": 144,
+          "activation_requested_bytes": 2080768,
+          "unique_cta_jobs": 144
+        },
+        "band32": {
+          "job_runs": 144,
+          "activation_requested_bytes": 2080768,
+          "unique_cta_jobs": 144
+        },
+        "extra_activation_requested_bytes": 0,
+        "band_weight_unique_bytes": 1179648,
+        "max_expert_jobs": 1
+      },
+      "phaseB": {
+        "units": 256,
+        "old": {
+          "job_runs": 144,
+          "activation_requested_bytes": 2080768,
+          "unique_cta_jobs": 144
+        },
+        "band32": {
+          "job_runs": 144,
+          "activation_requested_bytes": 2080768,
+          "unique_cta_jobs": 144
+        },
+        "extra_activation_requested_bytes": 0,
+        "band_weight_unique_bytes": 1179648,
+        "max_expert_jobs": 1
+      }
+    },
+    {
+      "m": 16,
+      "seed": 65032,
+      "phaseA": {
+        "units": 512,
+        "old": {
+          "job_runs": 132,
+          "activation_requested_bytes": 3538944,
+          "unique_cta_jobs": 132
+        },
+        "band32": {
+          "job_runs": 156,
+          "activation_requested_bytes": 5111808,
+          "unique_cta_jobs": 156
+        },
+        "extra_activation_requested_bytes": 1572864,
+        "band_weight_unique_bytes": 1179648,
+        "max_expert_jobs": 2
+      },
+      "phaseB": {
+        "units": 256,
+        "old": {
+          "job_runs": 132,
+          "activation_requested_bytes": 3538944,
+          "unique_cta_jobs": 132
+        },
+        "band32": {
+          "job_runs": 140,
+          "activation_requested_bytes": 4063232,
+          "unique_cta_jobs": 140
+        },
+        "extra_activation_requested_bytes": 524288,
+        "band_weight_unique_bytes": 1179648,
+        "max_expert_jobs": 2
+      }
+    },
+    {
+      "m": 32,
+      "seed": 65001,
+      "phaseA": {
+        "units": 512,
+        "old": {
+          "job_runs": 154,
+          "activation_requested_bytes": 3178496,
+          "unique_cta_jobs": 154
+        },
+        "band32": {
+          "job_runs": 212,
+          "activation_requested_bytes": 5865472,
+          "unique_cta_jobs": 175
+        },
+        "extra_activation_requested_bytes": 2686976,
+        "band_weight_unique_bytes": 1179648,
+        "max_expert_jobs": 2
+      },
+      "phaseB": {
+        "units": 256,
+        "old": {
+          "job_runs": 154,
+          "activation_requested_bytes": 3178496,
+          "unique_cta_jobs": 154
+        },
+        "band32": {
+          "job_runs": 180,
+          "activation_requested_bytes": 4358144,
+          "unique_cta_jobs": 174
+        },
+        "extra_activation_requested_bytes": 1179648,
+        "band_weight_unique_bytes": 1179648,
+        "max_expert_jobs": 2
+      }
+    },
+    {
+      "m": 32,
+      "seed": 65002,
+      "phaseA": {
+        "units": 512,
+        "old": {
+          "job_runs": 148,
+          "activation_requested_bytes": 3874816,
+          "unique_cta_jobs": 148
+        },
+        "band32": {
+          "job_runs": 192,
+          "activation_requested_bytes": 6021120,
+          "unique_cta_jobs": 192
+        },
+        "extra_activation_requested_bytes": 2146304,
+        "band_weight_unique_bytes": 1179648,
+        "max_expert_jobs": 3
+      },
+      "phaseB": {
+        "units": 256,
+        "old": {
+          "job_runs": 148,
+          "activation_requested_bytes": 3874816,
+          "unique_cta_jobs": 148
+        },
+        "band32": {
+          "job_runs": 169,
+          "activation_requested_bytes": 4907008,
+          "unique_cta_jobs": 169
+        },
+        "extra_activation_requested_bytes": 1032192,
+        "band_weight_unique_bytes": 1179648,
+        "max_expert_jobs": 3
+      }
+    },
+    {
+      "m": 32,
+      "seed": 65003,
+      "phaseA": {
+        "units": 512,
+        "old": {
+          "job_runs": 144,
+          "activation_requested_bytes": 5750784,
+          "unique_cta_jobs": 144
+        },
+        "band32": {
+          "job_runs": 262,
+          "activation_requested_bytes": 12795904,
+          "unique_cta_jobs": 262
+        },
+        "extra_activation_requested_bytes": 7045120,
+        "band_weight_unique_bytes": 1179648,
+        "max_expert_jobs": 4
+      },
+      "phaseB": {
+        "units": 256,
+        "old": {
+          "job_runs": 144,
+          "activation_requested_bytes": 5750784,
+          "unique_cta_jobs": 144
+        },
+        "band32": {
+          "job_runs": 198,
+          "activation_requested_bytes": 8994816,
+          "unique_cta_jobs": 198
+        },
+        "extra_activation_requested_bytes": 3244032,
+        "band_weight_unique_bytes": 1179648,
+        "max_expert_jobs": 4
+      }
+    },
+    {
+      "m": 32,
+      "seed": 65004,
+      "phaseA": {
+        "units": 512,
+        "old": {
+          "job_runs": 144,
+          "activation_requested_bytes": 3465216,
+          "unique_cta_jobs": 144
+        },
+        "band32": {
+          "job_runs": 188,
+          "activation_requested_bytes": 5857280,
+          "unique_cta_jobs": 188
+        },
+        "extra_activation_requested_bytes": 2392064,
+        "band_weight_unique_bytes": 1179648,
+        "max_expert_jobs": 3
+      },
+      "phaseB": {
+        "units": 256,
+        "old": {
+          "job_runs": 144,
+          "activation_requested_bytes": 3465216,
+          "unique_cta_jobs": 144
+        },
+        "band32": {
+          "job_runs": 165,
+          "activation_requested_bytes": 4612096,
+          "unique_cta_jobs": 165
+        },
+        "extra_activation_requested_bytes": 1146880,
+        "band_weight_unique_bytes": 1179648,
+        "max_expert_jobs": 3
+      }
+    },
+    {
+      "m": 32,
+      "seed": 65005,
+      "phaseA": {
+        "units": 512,
+        "old": {
+          "job_runs": 150,
+          "activation_requested_bytes": 3817472,
+          "unique_cta_jobs": 150
+        },
+        "band32": {
+          "job_runs": 222,
+          "activation_requested_bytes": 7438336,
+          "unique_cta_jobs": 197
+        },
+        "extra_activation_requested_bytes": 3620864,
+        "band_weight_unique_bytes": 1179648,
+        "max_expert_jobs": 3
+      },
+      "phaseB": {
+        "units": 256,
+        "old": {
+          "job_runs": 150,
+          "activation_requested_bytes": 3817472,
+          "unique_cta_jobs": 150
+        },
+        "band32": {
+          "job_runs": 182,
+          "activation_requested_bytes": 5390336,
+          "unique_cta_jobs": 180
+        },
+        "extra_activation_requested_bytes": 1572864,
+        "band_weight_unique_bytes": 1179648,
+        "max_expert_jobs": 3
+      }
+    },
+    {
+      "m": 32,
+      "seed": 65006,
+      "phaseA": {
+        "units": 512,
+        "old": {
+          "job_runs": 144,
+          "activation_requested_bytes": 4325376,
+          "unique_cta_jobs": 144
+        },
+        "band32": {
+          "job_runs": 247,
+          "activation_requested_bytes": 10297344,
+          "unique_cta_jobs": 245
+        },
+        "extra_activation_requested_bytes": 5971968,
+        "band_weight_unique_bytes": 1179648,
+        "max_expert_jobs": 4
+      },
+      "phaseB": {
+        "units": 256,
+        "old": {
+          "job_runs": 144,
+          "activation_requested_bytes": 4325376,
+          "unique_cta_jobs": 144
+        },
+        "band32": {
+          "job_runs": 191,
+          "activation_requested_bytes": 7061504,
+          "unique_cta_jobs": 191
+        },
+        "extra_activation_requested_bytes": 2736128,
+        "band_weight_unique_bytes": 1179648,
+        "max_expert_jobs": 4
+      }
+    },
+    {
+      "m": 32,
+      "seed": 65007,
+      "phaseA": {
+        "units": 512,
+        "old": {
+          "job_runs": 144,
+          "activation_requested_bytes": 3817472,
+          "unique_cta_jobs": 144
+        },
+        "band32": {
+          "job_runs": 188,
+          "activation_requested_bytes": 6012928,
+          "unique_cta_jobs": 188
+        },
+        "extra_activation_requested_bytes": 2195456,
+        "band_weight_unique_bytes": 1179648,
+        "max_expert_jobs": 3
+      },
+      "phaseB": {
+        "units": 256,
+        "old": {
+          "job_runs": 144,
+          "activation_requested_bytes": 3817472,
+          "unique_cta_jobs": 144
+        },
+        "band32": {
+          "job_runs": 164,
+          "activation_requested_bytes": 4784128,
+          "unique_cta_jobs": 164
+        },
+        "extra_activation_requested_bytes": 966656,
+        "band_weight_unique_bytes": 1179648,
+        "max_expert_jobs": 3
+      }
+    },
+    {
+      "m": 32,
+      "seed": 65008,
+      "phaseA": {
+        "units": 512,
+        "old": {
+          "job_runs": 144,
+          "activation_requested_bytes": 3612672,
+          "unique_cta_jobs": 144
+        },
+        "band32": {
+          "job_runs": 174,
+          "activation_requested_bytes": 5406720,
+          "unique_cta_jobs": 159
+        },
+        "extra_activation_requested_bytes": 1794048,
+        "band_weight_unique_bytes": 1179648,
+        "max_expert_jobs": 2
+      },
+      "phaseB": {
+        "units": 256,
+        "old": {
+          "job_runs": 144,
+          "activation_requested_bytes": 3612672,
+          "unique_cta_jobs": 144
+        },
+        "band32": {
+          "job_runs": 157,
+          "activation_requested_bytes": 4317184,
+          "unique_cta_jobs": 157
+        },
+        "extra_activation_requested_bytes": 704512,
+        "band_weight_unique_bytes": 1179648,
+        "max_expert_jobs": 2
+      }
+    },
+    {
+      "m": 32,
+      "seed": 65009,
+      "phaseA": {
+        "units": 512,
+        "old": {
+          "job_runs": 144,
+          "activation_requested_bytes": 4481024,
+          "unique_cta_jobs": 144
+        },
+        "band32": {
+          "job_runs": 174,
+          "activation_requested_bytes": 5586944,
+          "unique_cta_jobs": 162
+        },
+        "extra_activation_requested_bytes": 1105920,
+        "band_weight_unique_bytes": 1179648,
+        "max_expert_jobs": 2
+      },
+      "phaseB": {
+        "units": 256,
+        "old": {
+          "job_runs": 144,
+          "activation_requested_bytes": 4481024,
+          "unique_cta_jobs": 144
+        },
+        "band32": {
+          "job_runs": 158,
+          "activation_requested_bytes": 4997120,
+          "unique_cta_jobs": 158
+        },
+        "extra_activation_requested_bytes": 516096,
+        "band_weight_unique_bytes": 1179648,
+        "max_expert_jobs": 2
+      }
+    },
+    {
+      "m": 32,
+      "seed": 65010,
+      "phaseA": {
+        "units": 512,
+        "old": {
+          "job_runs": 144,
+          "activation_requested_bytes": 3883008,
+          "unique_cta_jobs": 144
+        },
+        "band32": {
+          "job_runs": 217,
+          "activation_requested_bytes": 7602176,
+          "unique_cta_jobs": 205
+        },
+        "extra_activation_requested_bytes": 3719168,
+        "band_weight_unique_bytes": 1179648,
+        "max_expert_jobs": 3
+      },
+      "phaseB": {
+        "units": 256,
+        "old": {
+          "job_runs": 144,
+          "activation_requested_bytes": 3883008,
+          "unique_cta_jobs": 144
+        },
+        "band32": {
+          "job_runs": 177,
+          "activation_requested_bytes": 5529600,
+          "unique_cta_jobs": 177
+        },
+        "extra_activation_requested_bytes": 1646592,
+        "band_weight_unique_bytes": 1179648,
+        "max_expert_jobs": 3
+      }
+    },
+    {
+      "m": 32,
+      "seed": 65011,
+      "phaseA": {
+        "units": 512,
+        "old": {
+          "job_runs": 154,
+          "activation_requested_bytes": 4022272,
+          "unique_cta_jobs": 154
+        },
+        "band32": {
+          "job_runs": 214,
+          "activation_requested_bytes": 6774784,
+          "unique_cta_jobs": 176
+        },
+        "extra_activation_requested_bytes": 2752512,
+        "band_weight_unique_bytes": 1179648,
+        "max_expert_jobs": 2
+      },
+      "phaseB": {
+        "units": 256,
+        "old": {
+          "job_runs": 154,
+          "activation_requested_bytes": 4022272,
+          "unique_cta_jobs": 154
+        },
+        "band32": {
+          "job_runs": 181,
+          "activation_requested_bytes": 5242880,
+          "unique_cta_jobs": 174
+        },
+        "extra_activation_requested_bytes": 1220608,
+        "band_weight_unique_bytes": 1179648,
+        "max_expert_jobs": 2
+      }
+    },
+    {
+      "m": 32,
+      "seed": 65012,
+      "phaseA": {
+        "units": 512,
+        "old": {
+          "job_runs": 150,
+          "activation_requested_bytes": 2654208,
+          "unique_cta_jobs": 150
+        },
+        "band32": {
+          "job_runs": 150,
+          "activation_requested_bytes": 2654208,
+          "unique_cta_jobs": 150
+        },
+        "extra_activation_requested_bytes": 0,
+        "band_weight_unique_bytes": 1179648,
+        "max_expert_jobs": 1
+      },
+      "phaseB": {
+        "units": 256,
+        "old": {
+          "job_runs": 150,
+          "activation_requested_bytes": 2654208,
+          "unique_cta_jobs": 150
+        },
+        "band32": {
+          "job_runs": 150,
+          "activation_requested_bytes": 2654208,
+          "unique_cta_jobs": 150
+        },
+        "extra_activation_requested_bytes": 0,
+        "band_weight_unique_bytes": 1179648,
+        "max_expert_jobs": 1
+      }
+    },
+    {
+      "m": 32,
+      "seed": 65013,
+      "phaseA": {
+        "units": 512,
+        "old": {
+          "job_runs": 132,
+          "activation_requested_bytes": 2408448,
+          "unique_cta_jobs": 132
+        },
+        "band32": {
+          "job_runs": 160,
+          "activation_requested_bytes": 4128768,
+          "unique_cta_jobs": 144
+        },
+        "extra_activation_requested_bytes": 1720320,
+        "band_weight_unique_bytes": 1179648,
+        "max_expert_jobs": 2
+      },
+      "phaseB": {
+        "units": 256,
+        "old": {
+          "job_runs": 132,
+          "activation_requested_bytes": 2408448,
+          "unique_cta_jobs": 132
+        },
+        "band32": {
+          "job_runs": 144,
+          "activation_requested_bytes": 3145728,
+          "unique_cta_jobs": 144
+        },
+        "extra_activation_requested_bytes": 737280,
+        "band_weight_unique_bytes": 1179648,
+        "max_expert_jobs": 2
+      }
+    },
+    {
+      "m": 32,
+      "seed": 65014,
+      "phaseA": {
+        "units": 512,
+        "old": {
+          "job_runs": 144,
+          "activation_requested_bytes": 3096576,
+          "unique_cta_jobs": 144
+        },
+        "band32": {
+          "job_runs": 144,
+          "activation_requested_bytes": 3096576,
+          "unique_cta_jobs": 144
+        },
+        "extra_activation_requested_bytes": 0,
+        "band_weight_unique_bytes": 1179648,
+        "max_expert_jobs": 1
+      },
+      "phaseB": {
+        "units": 256,
+        "old": {
+          "job_runs": 144,
+          "activation_requested_bytes": 3096576,
+          "unique_cta_jobs": 144
+        },
+        "band32": {
+          "job_runs": 144,
+          "activation_requested_bytes": 3096576,
+          "unique_cta_jobs": 144
+        },
+        "extra_activation_requested_bytes": 0,
+        "band_weight_unique_bytes": 1179648,
+        "max_expert_jobs": 1
+      }
+    },
+    {
+      "m": 32,
+      "seed": 65015,
+      "phaseA": {
+        "units": 512,
+        "old": {
+          "job_runs": 156,
+          "activation_requested_bytes": 3506176,
+          "unique_cta_jobs": 156
+        },
+        "band32": {
+          "job_runs": 214,
+          "activation_requested_bytes": 7307264,
+          "unique_cta_jobs": 214
+        },
+        "extra_activation_requested_bytes": 3801088,
+        "band_weight_unique_bytes": 1179648,
+        "max_expert_jobs": 4
+      },
+      "phaseB": {
+        "units": 256,
+        "old": {
+          "job_runs": 156,
+          "activation_requested_bytes": 3506176,
+          "unique_cta_jobs": 156
+        },
+        "band32": {
+          "job_runs": 182,
+          "activation_requested_bytes": 5210112,
+          "unique_cta_jobs": 182
+        },
+        "extra_activation_requested_bytes": 1703936,
+        "band_weight_unique_bytes": 1179648,
+        "max_expert_jobs": 4
+      }
+    },
+    {
+      "m": 32,
+      "seed": 65016,
+      "phaseA": {
+        "units": 512,
+        "old": {
+          "job_runs": 144,
+          "activation_requested_bytes": 3530752,
+          "unique_cta_jobs": 144
+        },
+        "band32": {
+          "job_runs": 187,
+          "activation_requested_bytes": 5775360,
+          "unique_cta_jobs": 187
+        },
+        "extra_activation_requested_bytes": 2244608,
+        "band_weight_unique_bytes": 1179648,
+        "max_expert_jobs": 3
+      },
+      "phaseB": {
+        "units": 256,
+        "old": {
+          "job_runs": 144,
+          "activation_requested_bytes": 3530752,
+          "unique_cta_jobs": 144
+        },
+        "band32": {
+          "job_runs": 163,
+          "activation_requested_bytes": 4530176,
+          "unique_cta_jobs": 163
+        },
+        "extra_activation_requested_bytes": 999424,
+        "band_weight_unique_bytes": 1179648,
+        "max_expert_jobs": 3
+      }
+    },
+    {
+      "m": 32,
+      "seed": 65017,
+      "phaseA": {
+        "units": 512,
+        "old": {
+          "job_runs": 144,
+          "activation_requested_bytes": 3244032,
+          "unique_cta_jobs": 144
+        },
+        "band32": {
+          "job_runs": 172,
+          "activation_requested_bytes": 4587520,
+          "unique_cta_jobs": 162
+        },
+        "extra_activation_requested_bytes": 1343488,
+        "band_weight_unique_bytes": 1179648,
+        "max_expert_jobs": 2
+      },
+      "phaseB": {
+        "units": 256,
+        "old": {
+          "job_runs": 144,
+          "activation_requested_bytes": 3244032,
+          "unique_cta_jobs": 144
+        },
+        "band32": {
+          "job_runs": 157,
+          "activation_requested_bytes": 3899392,
+          "unique_cta_jobs": 157
+        },
+        "extra_activation_requested_bytes": 655360,
+        "band_weight_unique_bytes": 1179648,
+        "max_expert_jobs": 2
+      }
+    },
+    {
+      "m": 32,
+      "seed": 65018,
+      "phaseA": {
+        "units": 512,
+        "old": {
+          "job_runs": 148,
+          "activation_requested_bytes": 3530752,
+          "unique_cta_jobs": 148
+        },
+        "band32": {
+          "job_runs": 236,
+          "activation_requested_bytes": 7577600,
+          "unique_cta_jobs": 186
+        },
+        "extra_activation_requested_bytes": 4046848,
+        "band_weight_unique_bytes": 1179648,
+        "max_expert_jobs": 2
+      },
+      "phaseB": {
+        "units": 256,
+        "old": {
+          "job_runs": 148,
+          "activation_requested_bytes": 3530752,
+          "unique_cta_jobs": 148
+        },
+        "band32": {
+          "job_runs": 189,
+          "activation_requested_bytes": 5357568,
+          "unique_cta_jobs": 183
+        },
+        "extra_activation_requested_bytes": 1826816,
+        "band_weight_unique_bytes": 1179648,
+        "max_expert_jobs": 2
+      }
+    },
+    {
+      "m": 32,
+      "seed": 65019,
+      "phaseA": {
+        "units": 512,
+        "old": {
+          "job_runs": 144,
+          "activation_requested_bytes": 3153920,
+          "unique_cta_jobs": 144
+        },
+        "band32": {
+          "job_runs": 144,
+          "activation_requested_bytes": 3153920,
+          "unique_cta_jobs": 144
+        },
+        "extra_activation_requested_bytes": 0,
+        "band_weight_unique_bytes": 1179648,
+        "max_expert_jobs": 1
+      },
+      "phaseB": {
+        "units": 256,
+        "old": {
+          "job_runs": 144,
+          "activation_requested_bytes": 3153920,
+          "unique_cta_jobs": 144
+        },
+        "band32": {
+          "job_runs": 144,
+          "activation_requested_bytes": 3153920,
+          "unique_cta_jobs": 144
+        },
+        "extra_activation_requested_bytes": 0,
+        "band_weight_unique_bytes": 1179648,
+        "max_expert_jobs": 1
+      }
+    },
+    {
+      "m": 32,
+      "seed": 65020,
+      "phaseA": {
+        "units": 512,
+        "old": {
+          "job_runs": 148,
+          "activation_requested_bytes": 4145152,
+          "unique_cta_jobs": 148
+        },
+        "band32": {
+          "job_runs": 220,
+          "activation_requested_bytes": 7815168,
+          "unique_cta_jobs": 205
+        },
+        "extra_activation_requested_bytes": 3670016,
+        "band_weight_unique_bytes": 1179648,
+        "max_expert_jobs": 3
+      },
+      "phaseB": {
+        "units": 256,
+        "old": {
+          "job_runs": 148,
+          "activation_requested_bytes": 4145152,
+          "unique_cta_jobs": 148
+        },
+        "band32": {
+          "job_runs": 181,
+          "activation_requested_bytes": 5849088,
+          "unique_cta_jobs": 181
+        },
+        "extra_activation_requested_bytes": 1703936,
+        "band_weight_unique_bytes": 1179648,
+        "max_expert_jobs": 3
+      }
+    },
+    {
+      "m": 32,
+      "seed": 65021,
+      "phaseA": {
+        "units": 512,
+        "old": {
+          "job_runs": 144,
+          "activation_requested_bytes": 3850240,
+          "unique_cta_jobs": 144
+        },
+        "band32": {
+          "job_runs": 202,
+          "activation_requested_bytes": 7012352,
+          "unique_cta_jobs": 202
+        },
+        "extra_activation_requested_bytes": 3162112,
+        "band_weight_unique_bytes": 1179648,
+        "max_expert_jobs": 4
+      },
+      "phaseB": {
+        "units": 256,
+        "old": {
+          "job_runs": 144,
+          "activation_requested_bytes": 3850240,
+          "unique_cta_jobs": 144
+        },
+        "band32": {
+          "job_runs": 170,
+          "activation_requested_bytes": 5210112,
+          "unique_cta_jobs": 170
+        },
+        "extra_activation_requested_bytes": 1359872,
+        "band_weight_unique_bytes": 1179648,
+        "max_expert_jobs": 4
+      }
+    },
+    {
+      "m": 32,
+      "seed": 65022,
+      "phaseA": {
+        "units": 512,
+        "old": {
+          "job_runs": 144,
+          "activation_requested_bytes": 4063232,
+          "unique_cta_jobs": 144
+        },
+        "band32": {
+          "job_runs": 188,
+          "activation_requested_bytes": 6815744,
+          "unique_cta_jobs": 186
+        },
+        "extra_activation_requested_bytes": 2752512,
+        "band_weight_unique_bytes": 1179648,
+        "max_expert_jobs": 3
+      },
+      "phaseB": {
+        "units": 256,
+        "old": {
+          "job_runs": 144,
+          "activation_requested_bytes": 4063232,
+          "unique_cta_jobs": 144
+        },
+        "band32": {
+          "job_runs": 164,
+          "activation_requested_bytes": 5324800,
+          "unique_cta_jobs": 164
+        },
+        "extra_activation_requested_bytes": 1261568,
+        "band_weight_unique_bytes": 1179648,
+        "max_expert_jobs": 3
+      }
+    },
+    {
+      "m": 32,
+      "seed": 65023,
+      "phaseA": {
+        "units": 512,
+        "old": {
+          "job_runs": 148,
+          "activation_requested_bytes": 2965504,
+          "unique_cta_jobs": 148
+        },
+        "band32": {
+          "job_runs": 192,
+          "activation_requested_bytes": 5357568,
+          "unique_cta_jobs": 185
+        },
+        "extra_activation_requested_bytes": 2392064,
+        "band_weight_unique_bytes": 1179648,
+        "max_expert_jobs": 3
+      },
+      "phaseB": {
+        "units": 256,
+        "old": {
+          "job_runs": 148,
+          "activation_requested_bytes": 2965504,
+          "unique_cta_jobs": 148
+        },
+        "band32": {
+          "job_runs": 168,
+          "activation_requested_bytes": 4014080,
+          "unique_cta_jobs": 168
+        },
+        "extra_activation_requested_bytes": 1048576,
+        "band_weight_unique_bytes": 1179648,
+        "max_expert_jobs": 3
+      }
+    },
+    {
+      "m": 32,
+      "seed": 65024,
+      "phaseA": {
+        "units": 512,
+        "old": {
+          "job_runs": 148,
+          "activation_requested_bytes": 3022848,
+          "unique_cta_jobs": 148
+        },
+        "band32": {
+          "job_runs": 177,
+          "activation_requested_bytes": 4407296,
+          "unique_cta_jobs": 162
+        },
+        "extra_activation_requested_bytes": 1384448,
+        "band_weight_unique_bytes": 1179648,
+        "max_expert_jobs": 2
+      },
+      "phaseB": {
+        "units": 256,
+        "old": {
+          "job_runs": 148,
+          "activation_requested_bytes": 3022848,
+          "unique_cta_jobs": 148
+        },
+        "band32": {
+          "job_runs": 162,
+          "activation_requested_bytes": 3538944,
+          "unique_cta_jobs": 162
+        },
+        "extra_activation_requested_bytes": 516096,
+        "band_weight_unique_bytes": 1179648,
+        "max_expert_jobs": 2
+      }
+    },
+    {
+      "m": 32,
+      "seed": 65025,
+      "phaseA": {
+        "units": 512,
+        "old": {
+          "job_runs": 144,
+          "activation_requested_bytes": 4038656,
+          "unique_cta_jobs": 144
+        },
+        "band32": {
+          "job_runs": 202,
+          "activation_requested_bytes": 6488064,
+          "unique_cta_jobs": 180
+        },
+        "extra_activation_requested_bytes": 2449408,
+        "band_weight_unique_bytes": 1179648,
+        "max_expert_jobs": 2
+      },
+      "phaseB": {
+        "units": 256,
+        "old": {
+          "job_runs": 144,
+          "activation_requested_bytes": 4038656,
+          "unique_cta_jobs": 144
+        },
+        "band32": {
+          "job_runs": 171,
+          "activation_requested_bytes": 5218304,
+          "unique_cta_jobs": 171
+        },
+        "extra_activation_requested_bytes": 1179648,
+        "band_weight_unique_bytes": 1179648,
+        "max_expert_jobs": 2
+      }
+    },
+    {
+      "m": 32,
+      "seed": 65026,
+      "phaseA": {
+        "units": 512,
+        "old": {
+          "job_runs": 144,
+          "activation_requested_bytes": 4464640,
+          "unique_cta_jobs": 144
+        },
+        "band32": {
+          "job_runs": 173,
+          "activation_requested_bytes": 5873664,
+          "unique_cta_jobs": 163
+        },
+        "extra_activation_requested_bytes": 1409024,
+        "band_weight_unique_bytes": 1179648,
+        "max_expert_jobs": 2
+      },
+      "phaseB": {
+        "units": 256,
+        "old": {
+          "job_runs": 144,
+          "activation_requested_bytes": 4464640,
+          "unique_cta_jobs": 144
+        },
+        "band32": {
+          "job_runs": 157,
+          "activation_requested_bytes": 5087232,
+          "unique_cta_jobs": 157
+        },
+        "extra_activation_requested_bytes": 622592,
+        "band_weight_unique_bytes": 1179648,
+        "max_expert_jobs": 2
+      }
+    },
+    {
+      "m": 32,
+      "seed": 65027,
+      "phaseA": {
+        "units": 512,
+        "old": {
+          "job_runs": 150,
+          "activation_requested_bytes": 2670592,
+          "unique_cta_jobs": 150
+        },
+        "band32": {
+          "job_runs": 179,
+          "activation_requested_bytes": 4079616,
+          "unique_cta_jobs": 162
+        },
+        "extra_activation_requested_bytes": 1409024,
+        "band_weight_unique_bytes": 1179648,
+        "max_expert_jobs": 2
+      },
+      "phaseB": {
+        "units": 256,
+        "old": {
+          "job_runs": 150,
+          "activation_requested_bytes": 2670592,
+          "unique_cta_jobs": 150
+        },
+        "band32": {
+          "job_runs": 163,
+          "activation_requested_bytes": 3325952,
+          "unique_cta_jobs": 161
+        },
+        "extra_activation_requested_bytes": 655360,
+        "band_weight_unique_bytes": 1179648,
+        "max_expert_jobs": 2
+      }
+    },
+    {
+      "m": 32,
+      "seed": 65028,
+      "phaseA": {
+        "units": 512,
+        "old": {
+          "job_runs": 150,
+          "activation_requested_bytes": 3129344,
+          "unique_cta_jobs": 150
+        },
+        "band32": {
+          "job_runs": 194,
+          "activation_requested_bytes": 5439488,
+          "unique_cta_jobs": 186
+        },
+        "extra_activation_requested_bytes": 2310144,
+        "band_weight_unique_bytes": 1179648,
+        "max_expert_jobs": 3
+      },
+      "phaseB": {
+        "units": 256,
+        "old": {
+          "job_runs": 150,
+          "activation_requested_bytes": 3129344,
+          "unique_cta_jobs": 150
+        },
+        "band32": {
+          "job_runs": 170,
+          "activation_requested_bytes": 4194304,
+          "unique_cta_jobs": 170
+        },
+        "extra_activation_requested_bytes": 1064960,
+        "band_weight_unique_bytes": 1179648,
+        "max_expert_jobs": 3
+      }
+    },
+    {
+      "m": 32,
+      "seed": 65029,
+      "phaseA": {
+        "units": 512,
+        "old": {
+          "job_runs": 144,
+          "activation_requested_bytes": 3686400,
+          "unique_cta_jobs": 144
+        },
+        "band32": {
+          "job_runs": 187,
+          "activation_requested_bytes": 5701632,
+          "unique_cta_jobs": 187
+        },
+        "extra_activation_requested_bytes": 2015232,
+        "band_weight_unique_bytes": 1179648,
+        "max_expert_jobs": 3
+      },
+      "phaseB": {
+        "units": 256,
+        "old": {
+          "job_runs": 144,
+          "activation_requested_bytes": 3686400,
+          "unique_cta_jobs": 144
+        },
+        "band32": {
+          "job_runs": 163,
+          "activation_requested_bytes": 4587520,
+          "unique_cta_jobs": 163
+        },
+        "extra_activation_requested_bytes": 901120,
+        "band_weight_unique_bytes": 1179648,
+        "max_expert_jobs": 3
+      }
+    },
+    {
+      "m": 32,
+      "seed": 65030,
+      "phaseA": {
+        "units": 512,
+        "old": {
+          "job_runs": 150,
+          "activation_requested_bytes": 3612672,
+          "unique_cta_jobs": 150
+        },
+        "band32": {
+          "job_runs": 208,
+          "activation_requested_bytes": 7413760,
+          "unique_cta_jobs": 208
+        },
+        "extra_activation_requested_bytes": 3801088,
+        "band_weight_unique_bytes": 1179648,
+        "max_expert_jobs": 4
+      },
+      "phaseB": {
+        "units": 256,
+        "old": {
+          "job_runs": 150,
+          "activation_requested_bytes": 3612672,
+          "unique_cta_jobs": 150
+        },
+        "band32": {
+          "job_runs": 176,
+          "activation_requested_bytes": 5316608,
+          "unique_cta_jobs": 176
+        },
+        "extra_activation_requested_bytes": 1703936,
+        "band_weight_unique_bytes": 1179648,
+        "max_expert_jobs": 4
+      }
+    },
+    {
+      "m": 32,
+      "seed": 65031,
+      "phaseA": {
+        "units": 512,
+        "old": {
+          "job_runs": 150,
+          "activation_requested_bytes": 2834432,
+          "unique_cta_jobs": 150
+        },
+        "band32": {
+          "job_runs": 179,
+          "activation_requested_bytes": 4243456,
+          "unique_cta_jobs": 162
+        },
+        "extra_activation_requested_bytes": 1409024,
+        "band_weight_unique_bytes": 1179648,
+        "max_expert_jobs": 2
+      },
+      "phaseB": {
+        "units": 256,
+        "old": {
+          "job_runs": 150,
+          "activation_requested_bytes": 2834432,
+          "unique_cta_jobs": 150
+        },
+        "band32": {
+          "job_runs": 163,
+          "activation_requested_bytes": 3489792,
+          "unique_cta_jobs": 161
+        },
+        "extra_activation_requested_bytes": 655360,
+        "band_weight_unique_bytes": 1179648,
+        "max_expert_jobs": 2
+      }
+    },
+    {
+      "m": 32,
+      "seed": 65032,
+      "phaseA": {
+        "units": 512,
+        "old": {
+          "job_runs": 148,
+          "activation_requested_bytes": 5120000,
+          "unique_cta_jobs": 148
+        },
+        "band32": {
+          "job_runs": 250,
+          "activation_requested_bytes": 11116544,
+          "unique_cta_jobs": 250
+        },
+        "extra_activation_requested_bytes": 5996544,
+        "band_weight_unique_bytes": 1179648,
+        "max_expert_jobs": 4
+      },
+      "phaseB": {
+        "units": 256,
+        "old": {
+          "job_runs": 148,
+          "activation_requested_bytes": 5120000,
+          "unique_cta_jobs": 148
+        },
+        "band32": {
+          "job_runs": 193,
+          "activation_requested_bytes": 7774208,
+          "unique_cta_jobs": 193
+        },
+        "extra_activation_requested_bytes": 2654208,
+        "band_weight_unique_bytes": 1179648,
+        "max_expert_jobs": 4
+      }
+    }
+  ]
+}
