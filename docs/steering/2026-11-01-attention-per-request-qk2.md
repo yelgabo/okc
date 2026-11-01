@@ -1,5 +1,40 @@
 # Attention decode1: public comparator audit and owned two-chain experiment
 
+## Terminal result: chain-only negative; separate host preparation failure
+
+`fe75e566c1ae4d51` is DONE/passedfalse. Official test0 failed the280s host guard;
+the other15 official tests passed. No official score, CI or benchmark profiles were
+produced. This blocks qualification and must not be called a16-test pass.
+
+The retained log also contains a **later complete cached diagnostic run**: Q2_CORE
+48 eager/80 fresh-final dual-oracle checks pass; all six timing rows and three seed
+decisions are present, ending Q2_DONE21.108s. All four runtime resource vectors
+match exactly, including L1MODE13R72 and MODE11R114,0local,58960B dynamic shared,
+128threads and3blocks/SM. Actual compiler13 resources differ from local12.8 numbers;
+neither is substituted for the other. The first cold invocation printed resources
+but hit the host budget; a later cached invocation completed. These are distinct
+events, not permission to discard the official failure.
+
+|Context|Control0/1 range us|Two-chain2/3 range us|
+|---|---:|---:|
+|decode1 sliding, three seeds|8.864–8.992|8.992–9.024|
+|decode1 full, three seeds|16.768–16.992|16.736–16.864|
+
+Sixth-root score cross-factor ranges by seed are.998703–.999766,
+.998247–1.000335 and.998072–.999797. None clears the1.002 plus twice-null gate;
+all context regression gates fail. The corrected complete comparison therefore
+rejects the **chain alone**, even though the file's cold preparation did not qualify.
+Raw event times include capture/launch overhead and are not compared as adjusted
+latencies with historical891 or cd6805. No speedup projection or aggregate score.
+
+Receipt, retained log and parsed six-row/resource/failure evidence are committed as
+`muse_attention_decode/profiles/pr_qk2.fe75e566c1ae4d51.*`. Default production remains
+unchanged. Stop: no retry, automatic query quad permutation, cap or barrier sweep.
+A distinct fragment/layout mechanism would need its own exposure model and root
+review; this outcome does not close every per-request architecture. The separate
+host budget issue should be repaired offline for future diagnostics, not used to
+rerun a performance hypothesis already rejected by its retained complete core.
+
 ## Primary-reference distinction and final dispatch gate
 
 The previous correction's description of the **official judge** is amended:
