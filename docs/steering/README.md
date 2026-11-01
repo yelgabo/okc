@@ -6,6 +6,8 @@ report be checked into this repository so other sessions can read it.
 
 ## Latest review
 
+[Hourly coordination and next experiments from rank 303](2026-11-01-rank303-next-experiments.md) sizes the remaining gap and assigns work alongside the running G1b4 control.
+
 [November 1 Family G public layer measurement and ROI decisions](2026-11-01-g-public-layer-measurement.md) records the single-arm scored candidate, private startup checks and the bounded cross-architecture comparison attempt.
 
 [November 1 G release priority and C3 closure](2026-11-01-g-roi-priority.md) records the user's ROI steering and the whole-layer decision gates.
