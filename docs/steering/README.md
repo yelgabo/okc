@@ -13,6 +13,8 @@ report be checked into this repository so other sessions can read it.
 
 ## Latest review
 
+[08:02 PST hourly review](2026-11-01-0802-g-progress.md) records the attention closure and assigns public-hybrid byte-fit work ahead of reset.
+
 [November 1 four-cell verify package, CUDA13 audit and attention result](2026-11-01-verify-and-attention.md) records the policy-correct968389-byte package, conditional score leverage, local CUDA13 proof and completed private VP2 jobc79ddddb840a4fb7. PASS16/640 private checks, target5.71% faster, but whole-score gate fails. No production or public change.
 
 [November 1, 06:30 PST — completed H200 round and retained submission](2026-11-01-0630-measurement-outcome.md) records four owned receipts, both implemented MoE variants, failed full-score gates, current actual rank/cutoffs, source-backed research corrections, stop criteria and the16:00 reset checks. No new production win or public submission; best layer607e remains2.126083×.
