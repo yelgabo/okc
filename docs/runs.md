@@ -2125,3 +2125,28 @@ Ring-minus-production+0.480/+0.528us input0,+0.528/+0.608us input1,only12–17/1
 Rebuiltold controls-.544 to-.784us but null-.192us,MAD.272–.304 and85–92/100faster,
 so no retrospective promotion. Memoryprobes have2oldCTA versus1ringCTA; nonadditive costs.
 Close this rd16 ring schedule. No PF/registercap sweep or public candidate submission.
+
+### QKV128 isolated WGMMA outstanding-group depth
+
+New hypothesis from exact donor inspection, not importing donor code: Nathen v18 pinned
+86aff75e6aca72511bf9b41b6dc190bf1e763373 qbig route(64,36,128,3,8,539,5) uses PIPE539bit512
+for wait_group2 and releases stagei-2; owned dense b1n128c3s8h uses wait_group1 andi-1.
+The donor also has a different push/stmatrix epilogue and256threads, so its historical
+wholepathgain434c01d39a1b4fa6/1ea00e9b5bbd49b0 (-.80–1.04us) cannot be attributed todepth.
+No qkv128 depth2 experiment found in runs/ruled-out; today's qkv256 DSMEM variants keptdepth1.
+
+Generator tools/proj_make_bench_qkv_depth.py builds owned depth1/depth2 twins, no donor
+source in uploadedbenchmark and no productionedit. Geometry64×128,3split,8stages unchanged,
+same cachehints/fences/watchdogs/epilogue. Only new outstandingdepth changes and matching
+emptyrelease movesi-1→i-2, preserving lifetime: wait_groupD aftercommit i completes all
+throughi-D before consumeremptyarrive; producerrefills only after allfourconsumerwarpsarrive.
+Finalwait_group0 andallreduction/exitbarriers unchanged. CPU gates cover42/43Ksteps,8slots,
+unchangedepiloguesource andactualhostbuilder restore viafakecompiler; generatedPythonparses.
+
+Preregisteredresourcegate:0localmemory,nondegradedblocks/SM,>=36activeclusters for108CTAgrid.
+Two independentbuilds/fourfullarms pluscurrentC3pick; M100/127/128/129 fullFP64 andonehot
+probes,3freshcapturedinputs eacharm; twoheldouts×100randomcoldrounds. Resourcequery before
+timing. Interpretgain only ifbothdepth2arms beatprod andowncontrol bymax(.2us,2nullMAD)
+and>=90/100 rounds inbothheldouts, allcomputinggatespass. No projectedstandalonescoregain;
+wholepublished13.987us isn't a pairedcurrentmeasurement. Rootauthorizedoneoffboardcheck;
+quota beforedispatch17used/3left. No scoredsubmission orprefillwork.
