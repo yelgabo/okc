@@ -1,0 +1,17 @@
+ptxas info    : (C7513) Potential Performance Loss: wgmma.mma_async instructions are serialized due to non wgmma instructions defining input registers of a wgmma between start and end of the pipeline stage in the function '_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE'
+ptxas info    : (C7513) Potential Performance Loss: wgmma.mma_async instructions are serialized due to non wgmma instructions defining input registers of a wgmma between start and end of the pipeline stage in the function '_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE'
+ptxas info    : 286 bytes gmem
+ptxas info    : Compiling entry function '_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE' for 'sm_90a'
+ptxas info    : Function properties for _ZN3okc9moe_fusedILb1EEEvNS_6ParamsE
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 96 registers, used 16 barriers
+ptxas info    : Compile time = 3329.625 ms
+ptxas info    : Function properties for _ZN3okc10wgs_rangesERKNS_6ParamsERNS_4SmemE
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Compiling entry function '_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE' for 'sm_90a'
+ptxas info    : Function properties for _ZN3okc9moe_fusedILb0EEEvNS_6ParamsE
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 96 registers, used 16 barriers
+ptxas info    : Compile time = 3074.718 ms
+ptxas info    : Function properties for _ZN3okc10wgs_rangesERKNS_6ParamsERNS_4SmemE
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
