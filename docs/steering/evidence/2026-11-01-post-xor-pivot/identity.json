@@ -1,0 +1,161 @@
+{
+  "retrieved_utc": "2026-11-01T18:21:04.933299+00:00",
+  "boards": {
+    "overall": {
+      "sha256": "a7f2a9b910736024e7c52d282dc01887d05cd6a0bc06f0d449fcf49797f10196",
+      "rows": 1823,
+      "ranked": 1823
+    },
+    "layer": {
+      "sha256": "daf4a75f7031a5a01d6c25b50d55f4c5be788e4b8697ab089ee79959faec5129",
+      "rows": 1168,
+      "ranked": 1167
+    },
+    "proj": {
+      "sha256": "a9d41d232d105efc06bca72304bf4ede4398c54915d013da42008cfe2f5b6b87",
+      "rows": 1607,
+      "ranked": 1606
+    },
+    "attn": {
+      "sha256": "888eb4d7df9c1b0a24d9f56ce4870607ff98aaef7857458de962142ec19061b3",
+      "rows": 1242,
+      "ranked": 1241
+    },
+    "moe": {
+      "sha256": "930316612d95dec7505055ecf8ec6ac7e89a7c7bd51674e6b2efa773b991ca91",
+      "rows": 1298,
+      "ranked": 1297
+    }
+  },
+  "overall_you": {
+    "rank": 318,
+    "team": "yelgabo",
+    "first": false,
+    "ahead": 317
+  },
+  "first500_identical": false,
+  "summary": {
+    "layer": {
+      "you": {
+        "rank": 318,
+        "team": "yelgabo",
+        "speedup": 2.1261,
+        "first": false,
+        "ahead": 317,
+        "to_first": 1.1685
+      },
+      "rank50": {
+        "attempts": 16,
+        "job": "9694f906cdd94cbc",
+        "rank": 50,
+        "speedup": 2.2907,
+        "submitted_at": 1793507237.643405,
+        "team": "jiangularity",
+        "value": 9874.937841541087
+      },
+      "rank10": {
+        "attempts": 50,
+        "job": "0585b7cd8ed1462d",
+        "rank": 10,
+        "screened_speedup": 2.3462738673160075,
+        "speedup": 2.4035,
+        "submitted_at": 1793540784.6411228,
+        "team": "ntovas",
+        "value": 9411.429986884334
+      },
+      "gap50": 0.07741874794224168,
+      "gap10": 0.13047363717604998
+    },
+    "proj": {
+      "you": {
+        "rank": 319,
+        "team": "yelgabo",
+        "speedup": 1.5278,
+        "first": false,
+        "ahead": 318,
+        "to_first": 1.0815
+      },
+      "rank50": {
+        "attempts": 56,
+        "job": "0186743c00aa41f9",
+        "rank": 50,
+        "speedup": 1.5858,
+        "submitted_at": 1793348061.219743,
+        "team": "e-shizz",
+        "value": 3046.2763986911054
+      },
+      "rank10": {
+        "attempts": 13,
+        "job": "8fcdce9fca2b4197",
+        "rank": 10,
+        "speedup": 1.609,
+        "submitted_at": 1793546296.3249226,
+        "team": "orisberlo-cell",
+        "value": 3002.4205410454315
+      },
+      "gap50": 0.03796308417332117,
+      "gap10": 0.053148317842649506
+    },
+    "attn": {
+      "you": {
+        "rank": 228,
+        "team": "yelgabo",
+        "speedup": 2.6043,
+        "first": false,
+        "ahead": 227,
+        "to_first": 1.2821
+      },
+      "rank50": {
+        "attempts": 23,
+        "job": "7ca2993992984ed6",
+        "rank": 50,
+        "speedup": 2.7208,
+        "submitted_at": 1793456750.2458766,
+        "team": "adityakm24",
+        "value": 1384.2677466949674
+      },
+      "rank10": {
+        "attempts": 39,
+        "job": "ae320e4fb37d421f",
+        "rank": 10,
+        "speedup": 2.9331,
+        "submitted_at": 1793531690.8537703,
+        "team": "miketung",
+        "value": 1284.0704465741649
+      },
+      "gap50": 0.044733709634066754,
+      "gap10": 0.12625273585992414
+    },
+    "moe": {
+      "you": {
+        "rank": 396,
+        "team": "yelgabo",
+        "speedup": 2.2157,
+        "first": false,
+        "ahead": 395,
+        "to_first": 1.2476
+      },
+      "rank50": {
+        "attempts": 40,
+        "job": "1efb0caf82764f57",
+        "rank": 50,
+        "speedup": 2.4584,
+        "submitted_at": 1793397652.7347488,
+        "team": "pierrelouisdelx",
+        "value": 5470.417587366838
+      },
+      "rank10": {
+        "attempts": 28,
+        "job": "1084b630433041f9",
+        "rank": 10,
+        "screened_speedup": 2.55513797546463,
+        "speedup": 2.6077,
+        "submitted_at": 1793521489.0131469,
+        "team": "gauravjain14",
+        "value": 5157.219766158455
+      },
+      "gap50": 0.10953648959696727,
+      "gap10": 0.17691925802229536
+    }
+  }
+}

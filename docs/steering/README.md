@@ -1,5 +1,7 @@
 # Shared project steering
 
+Latest performance pivot: [After both sparse-repair losses](2026-11-01-post-xor-ranking-pivot.md). Fresh official ranks/cutoffs, exact stage-local loss and one next investigation; preserve first-two reset order. No new kernel or GPU action.
+
 Latest G contract audit: [Precision requirements versus conservative policy](2026-11-01-g-fork-precision-contract.md). BF16 stage edges retained; internal split-partial bans distinguished from explicit rules; active JIT FP32 router clarified. No reopening, code or GPU action.
 
 Latest single-arm stage qualifier: [Stage-local projection qualification](2026-11-01-projection-stage-xor-release.md) - exact de1111b9/450781 B, fixed ten targets plus ordinary neighbors; five CPU host gates pass. Actual H200 admission, correctness, setup time and performance remain unqualified; root-only measurement decision.

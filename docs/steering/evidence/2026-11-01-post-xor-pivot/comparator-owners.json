@@ -1,0 +1,34 @@
+[
+  {
+    "board": "attention",
+    "job": "cd6805e7ebce45ee",
+    "path": "muse_attention_decode/profiles/rohan.cd6805e7ebce45ee.json",
+    "receipt_sha256": "52b536bb02397aa9f2f8d2363902f4c938a6fecb511e1105491a3077912e791f",
+    "score": 2.639606423830666,
+    "meaning": "Previously measured external comparator; not paired proof or approved adoption"
+  },
+  {
+    "board": "projection",
+    "job": "3c6a2baf7b4b4bf3",
+    "path": "muse_bf16_proj/profiles/kel.3c6a2baf7b4b4bf3.json",
+    "receipt_sha256": "9a30651f94d5f9976a6cec386b027891659717f3cb9b66c8a095f0a9df4f86e6",
+    "score": 1.5730155157616463,
+    "meaning": "Previously measured external comparator; not paired proof or approved adoption"
+  },
+  {
+    "board": "moe",
+    "job": "b65c4c878014416c",
+    "path": "muse_moe_w4a16/profiles/kel_exact.b65c4c878014416c.receipt.json",
+    "receipt_sha256": "19793090e2e66b655962d67385f08e4dc5224a55a45b2246dd914849fcd4c5e2",
+    "score": 2.3957029341323293,
+    "meaning": "Previously measured external comparator; not paired proof or approved adoption"
+  },
+  {
+    "board": "layer",
+    "job": "3a5f879df0d44825",
+    "path": "muse_decode_layer/profiles/muse_decode_layer.3a5f879df0d44825.json",
+    "receipt_sha256": "2307242ab66177b59f7cf5168098093415a1a01f8a5bac6835064bc514212408",
+    "score": 2.2487905322335195,
+    "meaning": "Previously measured external comparator; not paired proof or approved adoption"
+  }
+]

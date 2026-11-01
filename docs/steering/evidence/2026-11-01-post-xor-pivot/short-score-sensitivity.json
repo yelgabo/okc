@@ -1,0 +1,14 @@
+{
+  "job": "607eb52bdaf24160",
+  "weighted_us": {
+    "decode 1": 78.54904481802234,
+    "verify 1": 115.9908228996333
+  },
+  "both_short_loads_equal_absolute_savings_for_1percent_us": 2.7531839899423933,
+  "sliding_only_equal_cell_savings_for_1percent_us": 3.7108132038353996,
+  "one_load_savings_for_1percent_us": {
+    "decode 1": 4.5522914134352686,
+    "verify 1": 6.722220853819236
+  },
+  "meaning": "Sensitivity only; no claim of exposed or attainable savings"
+}

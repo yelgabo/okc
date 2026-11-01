@@ -1,0 +1,95 @@
+{
+  "job": "dfcfdd01d6f04525",
+  "board": "muse_bf16_proj",
+  "score": 1.4191468393881441,
+  "ci": [
+    1.397859636797322,
+    1.440434041978966
+  ],
+  "receipt_sha256": "fea1189cf02a3648690ef0b0dced398e6640864d40d3d49522561e3a24fb5285",
+  "tests": 9,
+  "benchmarks": 30,
+  "target_rows": [
+    {
+      "layer": "qkv_gate",
+      "m": 16,
+      "stage_us": 12.945854774659773,
+      "c2_us": 9.740725613059029,
+      "adjusted_ratio": 1.3290441892032918,
+      "raw_ratio": 1.2275862032052216
+    },
+    {
+      "layer": "o",
+      "m": 16,
+      "stage_us": 6.700904329021453,
+      "c2_us": 5.366495229132077,
+      "adjusted_ratio": 1.248655601638388,
+      "raw_ratio": 1.1279461259664776
+    },
+    {
+      "layer": "pooler",
+      "m": 16,
+      "stage_us": 16.95587767362157,
+      "c2_us": 13.800227922817053,
+      "adjusted_ratio": 1.228666495108173,
+      "raw_ratio": 1.1491228258288848
+    },
+    {
+      "layer": "unpooler",
+      "m": 16,
+      "stage_us": 15.568184580589882,
+      "c2_us": 13.557459114885717,
+      "adjusted_ratio": 1.1483113796372393,
+      "raw_ratio": 1.1075268660171262
+    },
+    {
+      "layer": "qkv_gate",
+      "m": 32,
+      "stage_us": 14.85758319174234,
+      "c2_us": 10.556945377174689,
+      "adjusted_ratio": 1.4073752075923514,
+      "raw_ratio": 1.3069414405032778
+    },
+    {
+      "layer": "o",
+      "m": 32,
+      "stage_us": 6.819021525440461,
+      "c2_us": 5.8693635951602445,
+      "adjusted_ratio": 1.161799131180642,
+      "raw_ratio": 1.1258064694810195
+    },
+    {
+      "layer": "pooler",
+      "m": 32,
+      "stage_us": 18.66409859621702,
+      "c2_us": 15.083590829366269,
+      "adjusted_ratio": 1.2373776779916261,
+      "raw_ratio": 1.1937658072789883
+    },
+    {
+      "layer": "unpooler",
+      "m": 32,
+      "stage_us": 16.52041341386177,
+      "c2_us": 14.720666492591041,
+      "adjusted_ratio": 1.1222598801607622,
+      "raw_ratio": 1.1311902530743607
+    },
+    {
+      "layer": "qkv_gate",
+      "m": 8,
+      "stage_us": 12.789416906402314,
+      "c2_us": 9.770655625109255,
+      "adjusted_ratio": 1.308961997753278,
+      "raw_ratio": 1.2385965404361476
+    },
+    {
+      "layer": "unpooler",
+      "m": 8,
+      "stage_us": 4.819375188358559,
+      "c2_us": 4.534867803249206,
+      "adjusted_ratio": 1.0627377461599885,
+      "raw_ratio": 1.058601138999561
+    }
+  ],
+  "meaning": "Cross-receipt comparison only; not paired effect or causal attribution"
+}
