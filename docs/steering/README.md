@@ -8,6 +8,8 @@ report be checked into this repository so other sessions can read it.
 
 ## Latest review
 
+[November 1 owned locality H200 result](2026-11-01-locality-and-attribution.md#owned-band32-terminal-result-and-one-representation-follow-up) records the direct band32 loss on all six targeted inputs, the unchanged baselines and one bounded cached-mapping hypothesis with new held-outs. All correctness gates passed; no speedup or public promotion.
+
 [November 1, 06:04 PST — owned MoE experiment reopened by a broader input census](2026-11-01-locality-and-attribution.md#november-1-0604-pst-new-population-evidence-reopens-one-owned-experiment) records64 prespecified local input banks, a fixed32-unit-band prototype, credit/progress proof and the preregistered full-score comparison. No candidate latency or H200 dispatch yet.
 
 [November 1 locality intake and H200 attribution decisions](2026-11-01-locality-and-attribution.md#november-1-0555-pst-terminal-decisions) records both completed correctness-passing but distorted probes, the new source-checked paste, scoped locality deferrals, four actual board gaps and the reset priorities. The public incumbent remains 607eb52bdaf24160 at rank308 in the05:51 snapshot.

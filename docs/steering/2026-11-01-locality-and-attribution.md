@@ -214,3 +214,54 @@ regression gate. No H200 check is authorized until concrete source, resource,
 ownership, timing-budget and independent review gates pass. Root retains the
 remaining two MoE private checks. No candidate speedup or public action is
 claimed at this checkpoint.
+
+## Owned band32 terminal result and one representation follow-up
+
+Evidence1796b88 includes independent terminal analysis. Private H200 job
+**a5c7c7e3fe344919** passed5 official tests, all6 benchmark/profile cells,
+all264 registered private checks and all18 held-out timing rows. Preparation
+finished in38.673seconds. The ordinary judged entry is the common control:
+2.198221535×, 95% CI[2.165248212,2.231194858]. That is not a candidate score.
+[Raw receipt](../../muse_moe_w4a16/profiles/owned_band32_check.a5c7c7e3fe344919.receipt.json),
+[decoded private comparison](../../muse_moe_w4a16/profiles/owned_band32_check.a5c7c7e3fe344919.decoded.json),
+[independent verification](2026-11-01-owned-moe-band32-terminal.md).
+
+| Target | Control event median average, µs | Direct band32 average, µs | Latency change |
+|---|---:|---:|---:|
+|16 tokens|97.552|115.770668|+18.68%|
+|32 tokens|153.397333|181.181333|+18.11%|
+
+These averages cover both duplicates and all three preregistered inputs; they
+are private cold-event measurements, not official adjusted medians. Every one
+of the six targeted input rows loses. The four full-six-load score factors are
+0.945964/0.944173/0.943987/0.942199, versus duplicate null0.006715. All per-seed,
+aggregate and regression gates fail. Actual H200 skinny resources are identical
+for control and treatment:130registers,0local bytes,155520dynamic shared bytes,
+288threads and one-CTA/SM admission. The local compiler's register reduction did
+not occur on H200. MAIN47 is unchanged. Close the direct band32 implementation;
+do not promote it, qualify a pure release or sweep band sizes/cache hints.
+Production files and public incumbents remain unchanged.
+
+The exact cause of the loss is unmeasured. Source inspection identifies a
+separate representation hypothesis: direct mapping and last-credit divisions
+are repeated in issue, compute and helper hot loops. A cached representation
+precomputes the identical physical order and credit values once per CTA, then
+uses one packed shared-memory read per unit. This does not reduce activation
+reloads or dynamic credit calls and does not assume they were free.
+
+The bounded contract is M≤32 and actual grid≥132. At most60 jobs imply at most
+233 phase-A plus117 phase-B local units;350 packed32-bit entries need1400bytes,
+with structure alignment expected to add1408bytes. Physical unit indices and
+credit counts fit their16-bit fields. Helper pre-fill and post-fill warp syncs
+plus the existing CTA join publish the table; ring q/parity, physical math,
+publication fences and credit totals remain unchanged. A host guard rejects
+unsupported launches. Large loads must use the untouched control module.
+
+One final private experiment is conditional on the concrete cached-source,
+compiler, host-harness and independent review gates. Preregistered new seeds
+993727/993733/993739, all six loads, two control/two cached/two direct-band arms.
+The direct arms isolate the representation on the same input banks; promotion
+still requires the unchanged four-cross/per-seed full-score and regression
+gates against control. Preserve the first experiment's frozen payload. No band,
+tile or cache-policy sweep is authorized. A loss closes this representation
+follow-up; a win requires a real production qualification before promotion.
