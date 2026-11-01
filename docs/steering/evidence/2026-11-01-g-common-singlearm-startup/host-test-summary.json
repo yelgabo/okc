@@ -1,8 +1,8 @@
 {
   "scope": "Actual generated orchestration and validators on CPU; native/CUDA arithmetic and plans are stand-ins",
-  "tests": 6,
+  "tests": 7,
   "returncode": 0,
-  "seconds": 8.574,
+  "seconds": 9.98,
   "per_arm": {
     "model_checks": 72,
     "model_captures": 12,
@@ -34,5 +34,10 @@
   ],
   "raw_transcript": "tool output retained in session; this file is a structured summary",
   "peer_header_resource_commit": "1142844",
-  "GPU_execution": false
+  "GPU_execution": false,
+  "final_source_pins": {
+    "common": "4e3895be33d3d8f60670b4e8138eb09654ddc6d64aa930170dc89cc3f019d270",
+    "short-rmw": "97935e7dc45d9fa69f5b4965bd70a5c2946cd8b829cedffb7a2aefc598cb53c7"
+  },
+  "fallback_fixture": "actual _ForkMarlinAdapter AST with state/bank/workspace cycle; preserved UNEXERCISED, no clone/no DONE"
 }

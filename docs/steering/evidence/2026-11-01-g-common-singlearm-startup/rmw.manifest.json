@@ -2,8 +2,8 @@
   "arm": "short-rmw",
   "base607_sha256": "ba9e327cd7b96595ace4d0c1d0d78fe27c128f23ed0debcda97c7169fc3164ab",
   "common_input_sha256": "2884adb6d0d6947391c81cd67a0c727a04e7d41694d7c780cf8cee80dfa9dbcd",
-  "source_sha256": "a12eb0d5744551c067403762b72cf272ef672c213c32822c0dc028149fed1043",
-  "bytes": 914133,
+  "source_sha256": "97935e7dc45d9fa69f5b4965bd70a5c2946cd8b829cedffb7a2aefc598cb53c7",
+  "bytes": 914572,
   "reference": {
     "helper_source_sha256": "54881e3c51e58af323021e439e8ea3dd8c63bb2db7b7dbb184ca60c22adc9e4a",
     "prelude_sha256": "50a546330f1a0f3ad98d0d564b42858c1b960311b7e38880dfbce07b17b56f8f",
@@ -25,7 +25,7 @@
     "helper_bytes": 13945
   },
   "owners_sha256": "1d888635f63a586496f49c5ac2cc7b0be994f29844421d919d241cd7a02eee00",
-  "body_sha256": "187e83f32c665cf1f185053a664eea636e2cba733b61102f4261dd63f6682e9d",
+  "body_sha256": "1b0db77db3821cd2020f92a0cb05859980f8bf07c4814718764910f99c875a91",
   "source_gpu_work_unchanged": true,
   "timed_kernel_fn_AST_unchanged": true,
   "prepare_only_host_audit": true,
