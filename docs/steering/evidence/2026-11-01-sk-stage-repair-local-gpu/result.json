@@ -1,0 +1,40 @@
+{
+  "artifact_sha256": "b726aebd42c0749d3ff736fdb72d667d1143dce90819fc45b785580a1832bc2e",
+  "reviewed_helper_owner_artifact": "b726aebd42c0749d3ff736fdb72d667d1143dce90819fc45b785580a1832bc2e",
+  "helper_sha256": "48a651aa0138c31e0f83a9eb1f7667513ec33b442efeb0cd71270af259332149",
+  "device_sha256": "87553868fd1ec57e4c01f794a37818594c0961f515808a52b1315e7facc88134",
+  "cubin_sha256": "64a08a7b463dc305afbebf507aebe108ec66d14cfbbd465e5b9e28c179530766",
+  "nvrtc": "/root/.cache/okc-cuda128/packages/nvidia/cuda_nvrtc/lib/libnvrtc.so.12",
+  "options": [
+    "--gpu-architecture=sm_120",
+    "--std=c++17",
+    "--generate-line-info"
+  ],
+  "torch": "2.10.0+cu128",
+  "cuda": "12.8",
+  "device": "NVIDIA GeForce RTX 5070",
+  "capability": [
+    12,
+    0
+  ],
+  "units_per_launch": 132,
+  "unique_BF16_patterns_per_bank": 65536,
+  "explicit_patch_counts": [
+    0,
+    512,
+    511,
+    1
+  ],
+  "nonzero_local_prefix_range": [
+    1,
+    17
+  ],
+  "shared_uint16_capacity_per_CTA": 544,
+  "padding_poison": "0xa55a",
+  "eager_banks": 3,
+  "fresh_changed_record_graph_replays": 20,
+  "exact_uint32_checks": 23,
+  "passed": true,
+  "elapsed_setup_validation_seconds": 2.4856462730000004,
+  "scope": "BIT OPS ONLY; generic shared BIT OPS ONLY; not async TMA/ring protocol, full SK, Hopper, projection math, latency/performance or H200 qualification"
+}
