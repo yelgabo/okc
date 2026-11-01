@@ -501,3 +501,40 @@ Precision correction for later reuse: prefill baseline explicitly rounds effecti
 weight toBF16; standalone production51 instead consumes FP32(1+w). The original standalone
 INDEXED losing adapter used the inherited BF16gamma; do not describe it as an exact51norm
 comparison. The new standalone MASKED diagnostic corrects gamma toFP32 before dispatch.
+
+### Four-problem execution update, October31 late PDT
+
+Owning MoE receipt ae8993f4e3e1435c verified terminalPASS (judged owned control2.200396579x,
+95%CI2.167390630–2.233402528). All40eager and32graph computing-arm checks pass. MASKED
+candidate loses all8pairedcases:128layer +180/+180us,std+184/+145;256layer+235/+232,
+std+229/+203, duplicatecontrols within2.69us. No promotion. At256/std292, GEMM1/GEMM2
+profile244.45/136.06us account for90.3% of421.6us profile total; they already exceed the
+complete owned eventtime~217us. This direction rules out a glue-only rescue of the tested
+schedule. Exactactualcfg/counts were outside16KBtail and are NOT reconstructed or invented.
+Close defaultgrouped128/256 schedule; no local tile/gather/fresh rerun without newevidence.
+
+New MoE research registration (OFFLINE ONLY): expert-weight reuse across repeated8-token
+jobs at16/32. First measure logical duplicate36KBunit bytes on freshlayer/std inputs,
+then a resource-compatible copy-only multicast ceiling; logical duplicate bytes do not
+prove HBMduplication because L2 may already serve them. Pair-aware runtime jobmapping must
+keep fused-phase credits and all existing fences. Plain bulk multicast supports cluster,
+but current jobchunk scheduling does not put duplicate units in adjacent CTAs, so this is
+not a one-instruction toggle. Stop if measured copy gain/coverage is insufficient. Two-load
+only uniform speedup would need1.607605x (37.8%latencycut at both) to cover the currentMoE
+scoregap; this is algebra, not a forecast. Current measured loads-only/computing deltas are
+~1–2us on prepare routing, so an ALU-only replacement has little evidenced headroom.
+
+Attention80415fe736bb4890 and projectionb103af15ba564ef6 explicitly queried running byroot.
+Attention is the prospective all-inputFP32compliance diagnostic; its inflight generator
+c8e709a leaves torchTF32False during officialphase afterreferencework. Later e0e0533 restores
+the original flag in try/finally; the in-flight artifact is NOT changed. Any reported score
+from the diagnostic is qualified; pure candidate-only official check still precedes scoring.
+Projection is boundedrd16cp.asyncring, with actualresourcegate before timing and unchanged
+judgedC3. CPUprivate-slot/lifetime/bounds proof and originalmath/barriers stay. PTX8.7
+section8.9.1.1 orders nonbulkcp.async after prior same-thread loads; wait_group completes
+copy before LDS. Inlineasm memoryclobbers preservecompilerorder. Resourcefailure printsSKIP,
+returnsvalidcontrol and provides no candidatewin. No occupancy or speedup is assumed.
+
+Root canonical-reference-layout CPU suite passes2/2. Completed projection source+harness
+work remains preserved on pushed branchcodex/today-proj (including frozenpre-fill tools),
+not an active prefill integration. Active standalone code stays unpromoted until its gates.

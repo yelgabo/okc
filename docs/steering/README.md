@@ -11,7 +11,8 @@ Latest addendum: October31 23:26 PDT. User defers prefill; active work is projec
 attention, standalone MoE and decode layer. Already dispatched prefill results are frozen.
 No active board is top10; observed score gaps5.02/11.73/17.15/17.82% respectively.
 Attention identical-code nulls also fail strict1e-4; prospective direct-FP32 compliance
-gate is separate, with no promotion yet. Standalone masked MoE comparison is running.
+gate is separate, with no promotion yet. Standalone masked MoE comparison lost; the
+tested schedule is closed. Projection ring and attention FP32 diagnostics are running.
 Exact sources, receipts, new hypotheses and stop/pivot gates are in the active report.
 User now explicitly authorizes today's checks and scored submissions. Independent problem
 workers are running; root owns layer/prefill and scored promotion. See the live dispatch ledger.
