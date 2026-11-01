@@ -1,0 +1,11 @@
+test_cross_segment_ordinals (test_attn_wait_trace.WaitTraceTests.test_cross_segment_ordinals) ... ok
+test_fences_and_copy_counts (test_attn_wait_trace.WaitTraceTests.test_fences_and_copy_counts) ... ok
+test_full_report_codec (test_attn_wait_trace.WaitTraceTests.test_full_report_codec) ... ok
+test_generated_and_compiled_pin (test_attn_wait_trace.WaitTraceTests.test_generated_and_compiled_pin) ... ok
+test_private_graph_and_coverage (test_attn_wait_trace.WaitTraceTests.test_private_graph_and_coverage) ... ok
+test_signed_wrap_and_presence (test_attn_wait_trace.WaitTraceTests.test_signed_wrap_and_presence) ... ok
+
+----------------------------------------------------------------------
+Ran 6 tests in 0.095s
+
+OK

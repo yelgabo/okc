@@ -570,3 +570,5 @@ Latest: [Dense projection transfer to the decode layer](2026-11-01-layer-dense-t
 - 2026-11-01: [One inactive diagnostic helper size pass](2026-11-01-inactive-detm-size-pass.md):2772B saved,2328selectedSASSinstructions identical; combinedlowerbound1062406Bwithharness stillfails, no H200.
 
 - 2026-11-01: [Private G verify32 slice review](2026-11-01-g-verify-slice-independent-review.md): selectedpipeline/precision matches, actual86008pagecapacity+workspacewarm/domainguards required; no final readiness claim.
+
+- [2026-11-01 owned full-context sparse wait timeline](2026-11-01-attention-full-wait-trace.md): CPU/device-compile checkpoint; no H200 run.
