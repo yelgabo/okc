@@ -227,6 +227,48 @@ local counts, enforce exact zero on nonlocal cases and compare numerical error t
 64-call eager envelope. This detects stale state/replay errors; official plain tests supply
 independent mathematical correctness. No stress dispatch until corrected plain check passes.
 
+### First passing Humming prefill candidate and fresh replay gate
+
+Corrected plain0de84000097946c9 passed5/5 at1.176449x (95%CI1.158802–1.194096), versus
+SGLang in the same run. This is a real candidate score, not an instrumented arm's control.
+Judged times us (candidate/SGLang): turn1 sliding935.6/1024.3, full1344.0/1437.2;
+turn4 sliding2750.1/3314.4, full4385.3/4944.5; firstturn's four cases
+14233.8/18455.6,13276.0/17184.6,17701.8/21581.7,21406.1/25391.9.
+Receipt/log/profile text retained as `profiles/prefill_humming_v2.0de84000097946c9.*`.
+
+Runtime heuristic BM values were104,160,176 (not necessarily powers of two), N256/K64,
+4stages, FP32 accumulation. CPU capacity oracle now also covers these observed BM values.
+
+Fresh-stress ece54526780a4f28 passed5 official tests and the M32 synthetic gate:2000 queued
+fresh x/IDs/weights replays versus64 eager controls, all four input banks. Peak relative error
+0.00242335 in both graph and eager, peak row-unit error0.0097561 in both, nonfinite0,
+share over1e-4 graph0.1265 versus eager0.203125, bad counts/NP0, nonlocal output exact0.
+Matched eager-envelope, row/share and order1 gates passed without relaxing official tests.
+This is state freshness evidence; plain/official tests establish independent model correctness.
+The stress build's1.140469x (95%CI1.123362–1.157576) must not be compared as an isolated
+optimization with the separate1.176449x run: prepare/allocation/process effects differ.
+Receipt/log/profile text: `profiles/humming_stress.ece54526780a4f28.*`.
+
+Root requested a pure first-submission candidate. Frozen `.build/today-moe/prefill_humming_v3.py`,
+SHA256f3024d1b01a5ef2bf655dcffe3110849ab6b0de15aecad6dba388f09e7ffb8fa, is byte-for-byte
+the prefix of the passing stress file. The only removed code is its appended prepare-time
+diagnostic wrapper. GPU functions, core prepare, _experts and FP32 ABI guards are identical.
+Path/hash/proof sent to root; this agent has not submitted publicly.
+
+### Experts-component paired confirmation and heuristic shape factor
+
+Check7598f81b9b4645f9 dispatched, SHA256c8e4e3bebccf01b7ea05defd2b99ed3e48f357775923e807b897c9568bc1168b.
+`tools/prefill_humming_component_bench.py CANDIDATE BASELINE OUT` uses Marlin/Marlin2,
+HummingR/R2, HummingM/M2 on identical supplied weights and held-out activation/routing seeds
+271/272 at753,3012,16384 tokens,12 randomized cold-L2 graph rounds. Duplicate Humming arms
+share only read-only transformed weights; each owns lock buffers, mutable metadata and
+scratch. Duplicate Marlin banks have independent workspace. Config factor only: Humming
+heuristics see R=M*8 versus estimated local M; actual tensor dimensions and device metadata
+remain unchanged, and no input-derived value chooses a policy. No zeroing removal is mixed in.
+All arms compare mathematical outputs with Marlin before timing; component time is not a
+whole-prefill score. HBSTOP explicitly marks incomplete coverage beyond the230s setup guard.
+No component result is claimed while this check is pending.
+
 ## Source facts (SGLang a55ab7d5, read from GitHub and hashed against the image)
 
 - `fused_post_expert_norm_weighted_sum` falls back to PyTorch ops below

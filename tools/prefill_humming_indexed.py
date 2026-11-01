@@ -77,7 +77,8 @@ def _hi_workspace(x,state):
             raise RuntimeError("Humming scratch must be warmed eagerly before capture")
         r=m*8
         dev=x.device
-        cfg=[_hcfg(layer.humming_config,shape_m=r,gemm_type="indexed",
+        estimate=m if hum.get("shape_estimate","routed")=="local" else r
+        cfg=[_hcfg(layer.humming_config,shape_m=estimate,gemm_type="indexed",
                    use_f16_accum=False) for layer in hum["layers"]]
         ws={"rank":torch.empty((r,),dtype=torch.int32,device=dev),
             "local":torch.empty((r,),dtype=torch.int32,device=dev),
