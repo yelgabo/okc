@@ -1,0 +1,3 @@
+# These single-file submissions and their size checks use canonical LF bytes.
+g1a_owned_experts.py text eol=lf
+g1b_native_experts.py text eol=lf

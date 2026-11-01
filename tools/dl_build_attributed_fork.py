@@ -6,7 +6,7 @@ from pathlib import Path
 import re
 from dl_fork_attention import patch_attention
 from dl_fork_projection import patch_projection
-from dl_fork_owned_moe import patch_owned_moe
+from dl_fork_owned_moe import module_source, patch_owned_moe, strip_python_comments
 
 SOURCE_SHA = '82c098ae7534b20b5d80f59d547650cb0853fc7d5e313fe29e1e9d9373e1bb19'
 UPSTREAM = '8e30e1be994db4310794b8d04e90d18d895deb84'
@@ -36,11 +36,19 @@ def verify_gle_generator(source):
     assert '@@' not in cuda
 
 
-def build(raw, notices, owned):
+def build(raw, notices, owned, experts="owned"):
+    if experts not in ("owned", "native"):
+        raise ValueError("unknown expert backend")
     raw = raw.replace(b'\r\n',b'\n')
     if hashlib.sha256(raw).hexdigest() != SOURCE_SHA:
         raise ValueError('unrecognized upstream layer')
     source = raw.decode('utf-8').replace('\r\n','\n')
+    if experts == 'native':
+        from dl_fork_moe import HOST_BRIDGE, patch_moe
+        source = patch_moe(source)
+        if not source.endswith(HOST_BRIDGE):
+            raise ValueError('native host bridge missing')
+        source = source[:-len(HOST_BRIDGE)]
     header, body = source.split('\n', 1)
     source = (header + '\n# Modified by yelgabo, 2026-11-01. Architecture review fork.\n'
         + f'# Based on keell0renz/muse-open-kernel-challenge at {UPSTREAM} (Apache-2.0).\n'
@@ -98,7 +106,9 @@ def build(raw, notices, owned):
         source=replace(source,kernel,head+sep+'\n  asm volatile("griddepcontrol.wait;" ::: "memory");'+rest,count)
     # The upstream preparation benchmark compares captured outputs before replay.
     # Omit that diagnostic and its extra extension builds from the candidate.
-    source = replace(source, 'MFAB_LAYER = True', 'MFAB_LAYER = False')
+    if experts == 'owned':
+        source = replace(source, 'MFAB_LAYER = True', 'MFAB_LAYER = False')
+    assert 'MFAB_LAYER = False' in source
     source = patch_attention(source)
     # Pass an immutable weight-prefetch descriptor by value. A host launch on
     # another thread or state must never replace the pointer for this launch.
@@ -126,37 +136,60 @@ def build(raw, notices, owned):
     source = replace(source,'\nPDL = True\n','\nPDL = False\n')
     source = replace(source,'launch_pdl=True','launch_pdl=False',14)
     source, count = re.subn(r'(programmaticStreamSerializationAllowed\s*=\s*)1;',r'\g<1>0;',source)
-    assert count == 7
-    source = patch_owned_moe(source, owned)
-    # Valid weights outside the owned packing domain use the baseline Marlin
-    # bank. Choose it at prepare time and keep the native path unavailable.
-    source = replace(source,"if not _fork_install_owned_moe(weights,st):raise RuntimeError('owned expert scales unsupported')",
-                     "_fork_install_owned_moe(weights,st)\n    st['fallback_gamma']=(1+weights['post_expert_norm'].float()).to(torch.bfloat16)")
-    source = replace(source,'    st["bank"] = None\n','    st["bank"] = _marlin_bank(weights) if st["owned_moe"] is None else None\n')
-    source = replace(source,'    st["ma_ok"] = True','    st["ma_ok"] = st["owned_moe"] is not None')
-    # An upstream assignment in the FA3 import block clears the Marlin bank.
-    line = next(l for l in source.splitlines() if l.startswith('        st["bank"] = None'))
-    source = replace(source,line+'\n','')
-    start=source.index('    m = torch.empty((num_tokens, size_k)',source.index('def _marlin_experts('))
-    stop=source.index('    return m',start)+len('    return m')
-    source=source[:start]+'''    from sglang.kernels.ops.muse_spark_v12.fused_post_expert_norm_weighted_sum_triton import fused_post_expert_norm_weighted_sum
+    assert count == (7 if experts == 'owned' else 5), count
+    if experts == 'native':
+        # The B1X wrapper only forwards calls once its experiment is disabled.
+        # Removing the whole wrapper also removes its stale host weight pointer.
+        start = source.index('GLE_B1X = False')
+        end = source.index('_pin_parent_prepare = prepare', start)
+        suffix = source[end:]
+        assert not re.search(r'\b(?:_GleB1x|_gle_b1x_\w+|_GLE_W_CUR|GLE_B1X)\b', suffix)
+        source = source[:start] + suffix
+        source = header+'\n'+strip_python_comments(source+'\n'+HOST_BRIDGE+module_source(owned))
+        selection = 'state["_fork_moe_status"]'
+        name = 'G1b'
+    else:
+        name = 'G1a'
+        selection = '"owned" if state["ma_ok"] else "Marlin"'
+        source = patch_owned_moe(source, owned)
+        # Valid weights outside the owned packing domain use the baseline Marlin
+        # bank. Choose it at prepare time and keep the native path unavailable.
+        source = replace(source,"if not _fork_install_owned_moe(weights,st):raise RuntimeError('owned expert scales unsupported')",
+                         "_fork_install_owned_moe(weights,st)\n    st['fallback_gamma']=(1+weights['post_expert_norm'].float()).to(torch.bfloat16)")
+        source = replace(source,'    st["bank"] = None\n','    st["bank"] = _marlin_bank(weights) if st["owned_moe"] is None else None\n')
+        source = replace(source,'    st["ma_ok"] = True','    st["ma_ok"] = st["owned_moe"] is not None')
+        # An upstream assignment in the FA3 import block clears the Marlin bank.
+        line = next(l for l in source.splitlines() if l.startswith('        st["bank"] = None'))
+        source = replace(source,line+'\n','')
+        start=source.index('    m = torch.empty((num_tokens, size_k)',source.index('def _marlin_experts('))
+        stop=source.index('    return m',start)+len('    return m')
+        source=source[:start]+'''    from sglang.kernels.ops.muse_spark_v12.fused_post_expert_norm_weighted_sum_triton import fused_post_expert_norm_weighted_sum
     return fused_post_expert_norm_weighted_sum(y, topk_weights, norm_weight=state["fallback_gamma"], eps=1e-8,
                                                 weight_first=True, slot_expert_ids=local_ids)'''+source[stop:]
-    # The safe whole-line comment stripper used by the owned backend removes
+    # Removing Python comments from the published file also removes
     # the Python header. Restore the entire upstream attribution with our notice.
     upstream_header=raw.decode('utf-8').split('"""',1)[0]
-    source=upstream_header+'# Modified by yelgabo: G1a, owned MoE, repaired precision and ordered layer dispatch.\n'+source.split('\n',1)[1]
-    source += '''
+    source=upstream_header+f'# Modified by yelgabo: {name}, {experts} MoE, repaired precision and ordered layer dispatch.\n' +source.split('\n',1)[1]
+    source += f'''
 _g1a_prepare=prepare
 def prepare(weights):
     state=_g1a_prepare(weights)
-    print("G1a backend", "owned" if state["ma_ok"] else "Marlin",
-          "Lt plans", sorted(state.get("graft_lt", {})), flush=True)
+    print("{name} backend", {selection},
+          "Lt plans", sorted(state.get("graft_lt", {{}})), flush=True)
     return state
 '''
     source += '\n'+'\n'.join('# '+line for line in notices.splitlines())+'\n'
     compile(source,'<attributed layer>','exec')
     verify_gle_generator(source)
+    if experts == 'native':
+        functions = {n.name: n for n in ast.parse(source).body if isinstance(n, ast.FunctionDef)}
+        for name, references in {
+            '_ma_prepare': {'_fork_install_owned_moe', '_fork_native_ma_prepare', '_fork_native_moe'},
+            '_moe': {'_fork_moe_fallback', '_fork_native_moe'},
+        }.items():
+            calls = {n.func.id for n in ast.walk(functions[name]) if isinstance(n, ast.Call) and isinstance(n.func, ast.Name)}
+            if not references <= calls or not references <= functions.keys():
+                raise ValueError(f'{name} lost its native/fallback host bridge')
     return source.encode('utf-8')
 
 
@@ -164,12 +197,13 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('upstream',type=Path)
     parser.add_argument('output',type=Path)
+    parser.add_argument('--experts', choices=('owned','native'), default='owned')
     args=parser.parse_args()
     repo = args.upstream.parent.parent
     notices = '\n'.join((repo/name).read_text(encoding='utf-8') for name in ('LICENSE','NOTICE'))
     owned=(Path(__file__).resolve().parents[1]/'muse_decode_layer/cand/layer_attn31s.py').read_text(encoding='utf-8')
-    payload=build(args.upstream.read_bytes(), notices, owned)
+    payload=build(args.upstream.read_bytes(), notices, owned, args.experts)
     if len(payload)>=1_000_000:
-        raise ValueError('payload exceeds judge limit')
+        raise ValueError(f'payload exceeds judge limit ({len(payload)} bytes)')
     args.output.write_bytes(payload)
     print(len(payload), hashlib.sha256(payload).hexdigest())

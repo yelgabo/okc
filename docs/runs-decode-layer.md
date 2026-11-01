@@ -911,3 +911,4 @@ cb71acec29d141c6 PASS13, 2.043438469x (95% CI 2.012786892–2.074090046), select
 caad524754b54680 | 0329226 | H200 setup failed in _gle_source before correctness/timing. Source substitution anchor lost during packaging. No score, CI or profile timings. JSON and log archived.
 2026-11-01 | 606f47f251f34873 | 76a8d09, corrected G1a owned expert fork, SHA256 f564944e53db0ddf94d2af3453571d0c34878ddd329bcf647a5bc40134cfac28 | Exact payload CUDA generator and Linux/Windows reproduction pass. Off-board check pending.
 606f47f251f34873 PASS13, 2.010975134× (95% CI 1.980810507–2.041139761), 12 shapes/profiles. Selected owned experts, eight Lt plans. Keep as control. Public incumbent stays cb71acec29d141c6.
+2026-11-01 | ffe303a12a954304 | G1b repaired native fork, source patch 710f2b8, file SHA256 7935ff411d5e7ec1af41b25c7fecbff3524c4311efa65b6635b05e1d5bd41025 | Same layer paths as G1a, native precision/order/scale repairs, explicit fallback. Off-board check pending.

@@ -48,14 +48,6 @@ class FallbackHost(unittest.TestCase):
         self.assertEqual(scope['_moe'](256,st),('owned',256))
         self.assertIsNone(scope['_moe']())
 
-    def test_budget_fallback_precedes_native_pack_and_build(self):
-        scope,st,w=self.scope()
-        st['_fork_prepare_began']=0
-        scope['_fork_time']=SimpleNamespace(monotonic=lambda:201.)
-        scope['_ma_prepare'](w,st)
-        self.assertEqual(scope['calls'],['install','sync'])
-        self.assertFalse(st['_fork_native_eligible'])
-
     def test_resource_and_compile_fallback_are_explicit(self):
         for kind in ('compile','resource'):
             scope,st,w=self.scope(kind=kind)

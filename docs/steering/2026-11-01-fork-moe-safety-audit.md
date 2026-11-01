@@ -124,3 +124,5 @@ fallback costs. Require official full-layer correctness and matched fresh/replay
 gates, record whether native or fallback actually ran, then compare whole-layer
 score. On any unsupported native route select owned/Marlin; on an execution fault
 stop and diagnose. No public promotion based on the unmodified donor check.
+
+Coordinator addendum for the dispatched G1b. The independently reviewed 997766-byte candidate at SHA256 7935ff411d5e7ec1af41b25c7fecbff3524c4311efa65b6635b05e1d5bd41025 predates the worker’s optional 200 s wall-clock fallback. The integrated builder reproduces that exact candidate, with four source and six CPU tests applicable to it. The later timer and its extra test at worker commit 710f2b8 never ran on this H200 check. Deterministic scale, capability, compile and residency fallbacks remain.

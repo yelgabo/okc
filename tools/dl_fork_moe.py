@@ -60,7 +60,6 @@ COOPERATIVE=r'''
 '''
 
 HOST_BRIDGE=r'''
-import time as _fork_time
 # The attributed native code is optional. A proven owned adapter is mandatory,
 # including when scales do not admit the native PRMT path or resources fail.
 # Its generator is tools/dl_fork_owned_moe.py (composed by the coordinator).
@@ -108,16 +107,15 @@ def _fork_moe_fallback(M,st):
     return st['_fork_marlin_adapter']
 
 def _ma_prepare(weights, st):
-    began=st.setdefault('_fork_prepare_began',_fork_time.monotonic())
     installed=_fork_install_owned_moe(weights, st)
     st['_fork_fallback_kind']='owned' if installed else 'Marlin'
     if not installed: _fork_prepare_marlin(weights,st)
     torch.cuda.synchronize()  # packing/earlier execution faults never become optional
     dev=weights['w13'].device
     prop=torch.cuda.get_device_properties(dev)
-    eligible=bool(st['ma_sfx']) and prop.major==9 and prop.minor==0 and _fork_time.monotonic()-began<=200
+    eligible=bool(st['ma_sfx']) and prop.major==9 and prop.minor==0
     st['_fork_native_eligible']=eligible
-    st['_fork_moe_status']='native pending' if eligible else st['_fork_fallback_kind']+': scale/architecture/budget fallback'
+    st['_fork_moe_status']='native pending' if eligible else st['_fork_fallback_kind']+': scale/architecture fallback'
     if not eligible:
         st['ma_w']=()
         st['ma_scratch']=()
@@ -135,11 +133,6 @@ def _ma_prepare(weights, st):
     torch.cuda.synchronize()  # separate GPU repack from CPU-only compilation fallback
     try:
         for m in (1,8,16,32,33,128,256):
-            if _fork_time.monotonic()-began>200:
-                st['_fork_native_eligible']=False
-                st['_fork_moe_status']=st['_fork_fallback_kind']+': native compile budget200'
-                print('FORK_MOE_ROUTE',st['_fork_moe_status'],flush=True)
-                return
             _fork_native_moe(m,st)  # compile outside capture, only supported paths
     except RuntimeError as exc:
         # No kernels are executed by module compilation. CUDA execution failures
@@ -277,7 +270,6 @@ def patch_moe(source):
     prep=next(n for n in tree.body if isinstance(n,ast.FunctionDef) and n.name=='prepare'
         and any(isinstance(g,ast.Global) and '_MA_SFX' in g.names for g in n.body))
     text=ast.get_source_segment(source,prep)
-    text=once(text,'    st = {}','    st = {"_fork_prepare_began": _fork_time.monotonic()}')
     a=text.index('    global _MA_SFX, _MA_SC6W');z=text.index('    st["ma_ext"] = {}',a)
     text=text[:a]+'''    st["ma_sfx"] = _MA_SFX_IF_PRMT if (_MA_PRMT_SCALES and _ma_scales_prmt_exact(weights["w13_sf"], weights["w2_sf"])) else ()
     st["ma_sc6"] = bool(SC6_WGS and st["ma_sfx"] and _wgs_on() and _sc6_ok(weights["w13_sf"], weights["w2_sf"]))
