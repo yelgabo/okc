@@ -1,0 +1,80 @@
+{
+  "source_sha256": "4ad326c3451d1b9a7ba22e6c89a2b06ebd8f565c20300abd9fc0d3b0a35001bc",
+  "cells": [
+    {
+      "batch": 1,
+      "q_len": 1,
+      "window": 2048,
+      "bit": 0
+    },
+    {
+      "batch": 1,
+      "q_len": 1,
+      "window": 0,
+      "bit": 0
+    },
+    {
+      "batch": 1,
+      "q_len": 8,
+      "window": 2048,
+      "bit": 0
+    },
+    {
+      "batch": 1,
+      "q_len": 8,
+      "window": 0,
+      "bit": 0
+    },
+    {
+      "batch": 16,
+      "q_len": 1,
+      "window": 2048,
+      "bit": 0
+    },
+    {
+      "batch": 16,
+      "q_len": 1,
+      "window": 0,
+      "bit": 0
+    },
+    {
+      "batch": 16,
+      "q_len": 8,
+      "window": 2048,
+      "bit": 1
+    },
+    {
+      "batch": 16,
+      "q_len": 8,
+      "window": 0,
+      "bit": 2
+    },
+    {
+      "batch": 32,
+      "q_len": 1,
+      "window": 2048,
+      "bit": 0
+    },
+    {
+      "batch": 32,
+      "q_len": 1,
+      "window": 0,
+      "bit": 0
+    },
+    {
+      "batch": 32,
+      "q_len": 8,
+      "window": 2048,
+      "bit": 4
+    },
+    {
+      "batch": 32,
+      "q_len": 8,
+      "window": 0,
+      "bit": 8
+    }
+  ],
+  "negative_metadata": 6,
+  "nonselected_early_fallback": true,
+  "gpu": false
+}

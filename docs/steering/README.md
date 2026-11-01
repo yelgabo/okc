@@ -1,5 +1,7 @@
 # Shared project steering
 
+Latest public startup source review: [Mask15 one-arm qualification wrapper](2026-11-01-public-mask15-startup-review.md). Independent12-cell selector/oracle/timed-path checks pass at4ad326c3; private empty/fresh coverage reviewed. H200 resources/capture/budget/performance unqualified.
+
 Latest progress repair review: [Owned MODE51 cooperative/fatal-watchdog source audit](2026-11-01-owned-progress-repair-review.md). All explicit readiness polling paths trap on expiry; source-only clearance, H200 qualification pending.
 
 Latest eligibility audit: [Owned layer MoE51 launch progress](2026-11-01-owned-moe-progress-contract.md). Pre-existing ordinary/PDL software-grid join lacks documented co-residency guarantee; cooperative host repair/admission gate required separately from byte/code equivalence.
