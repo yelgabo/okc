@@ -1913,3 +1913,16 @@ FP64/probe tests at129/200/256, fresh-input graph replay checks,100 randomized c
 against the actual prepare-selected qkv256 incumbent. New configs remain benchmark-only.
 Stop this geometry if occupancy fails or its reduction/mainloop cost erases the large-tile
 gain; a failure does not reopen the previous200KB one-wave assumption.
+
+Result `4ca25ee4eccc495c`: passed9/9 on C3 control,1.529206x (95%CI1.506268–1.552144).
+The NEW3-stage residency trigger is **met**, not assumed: both independent builds report
+62activeclusters,2blocks/SM,90registers,0localbytes,0staticshared,99376dynamicshared bytes.
+4-stage reports30clusters,1block/SM,90regs,132160dynamic bytes and is skipped before timing.
+All3-stage FP64/probe tests129/200/256 and both fresh-input replay checks pass, error~1.6e-3.
+
+Nonetheless the raw3-stage kernel loses: production median26.624us raw, A39.472/B39.408us,
+paired +12.656/+12.816us,0/100 faster in both copies. Actual cold resource/residency success
+therefore does not make this large-tile wd geometry competitive. No promotion. Unlike the old
+200KB c4 result, insufficient cluster residency and spills cannot explain this measured loss.
+Not yet attributed: mainloop versus DSMEM epilogue cost. A skip-reduction/memory-only diagnostic
+could test whether a cheaper reduction is even a credible repair; no claim that one is.

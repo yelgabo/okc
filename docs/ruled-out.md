@@ -21,6 +21,10 @@ components, in the same process, before calling it lost again.
 
 | Experiment | Evidence | Rules out |
 |---|---|---|
+| Raw qkv256 wd tile128x128,4-way DSMEM K split,3-stage ring at99KB (new two-CTA residency trigger) |4ca25ee4eccc495c: actual62clusters>=36,2blocks/SM,90regs,0localbytes; FP64/probes/replay pass; +12.656/+12.816us versus selectedLt,0/100 faster;4-stage30clusters skipped |This raw large-tile3-stage geometry as a winner; residency/spills as explanation of its loss. Mainloop versus DSMEM cost unassigned. Reopen with a measured phase-specific mechanism, not another one-wave assumption |
+
+| Experiment | Evidence | Rules out |
+|---|---|---|
 | Actual lossless pair7 cgemv trial:7 byte planes/warp,128-entry exponent LUT,sparse exact escapes,scalar FP32 GEMV |962d2f9c1d9644f7: all weight roundtrips and FP64 probes pass; qkv/o/pooler/slice +9.952/+5.344/+24.944/+4.384us vs12-bit cgemv; null<=0.064us; actual bytes save1–2.9% |This scalar packed-GEMV implementation, not all denser codes. No production adoption. Reopen with vectorized decode in a competitive consumer and measured decode costs; first0ab8f0510515473b was C++17/toolchain failure only |
 
 | Experiment | Evidence | Rules out |
