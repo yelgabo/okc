@@ -120,3 +120,28 @@ The owner explained the endpoint source-version difference as an uninstantiated
 helper's PTX predicate repair, and is rerunning endpoint/control with the exact
 current source rather than claiming those raw hashes are identical. Final CPU
 host facade/negative tests and frozen artifact identity remain outstanding.
+
+## Final host addendum — scoped clearance
+
+Supersedes the outstanding host findings above. Final frozen private artifact
+`g-stage-check.py`: **392222 B**, SHA256
+`bf0ca4ae44281d30efd80b988566dd8c431f3095a1d38e4310029c39667f8170`.
+Independently reran `python -m unittest test_dl_g_stage_host -v` using actual
+TorchCPU in `/root/.cache/okc-host-validate`: **5/5 PASS**. This executes the
+complete host prepare/formatter/transport facade and negative stale-output,
+nonfinite-reference, inner-budget and distortion cases; it is not CUDA math.
+
+Reviewed finite reference/metrics plus strict `.008/.075` rejection, per-lap and
+per-snapshot/final275s guards, binary four475-word trace capsule with local expert
+masks, and fail-closed `<11000` transport. Fifth scratch ABI, independent mutable
+owners, explicit replay/synchronization before decoding, and mode0/3/1/2 mapping
+to the exact patched CUDA are consistent. The returned ordinary state remains
+uninstrumented. Latest analyzer additionally rejects zero-duration phase spans.
+
+**No remaining source/API blocker for one scoped private MAIN128/256 diagnostic.**
+Root alone may dispatch. Owner is retaining rerun endpoint/control manifests for
+the exact current source; earlier endpoint hash difference was an uninstantiated
+helper repair, not a changed active endpoint path. Actual TorchCUDA host compile,
+prepare time, natural routing/math, real log size and distortion remain mandatory
+runtime gates. A successful official control does not make distorted regions
+usable, nor does this clearance authorize a public release or a speedup claim.
