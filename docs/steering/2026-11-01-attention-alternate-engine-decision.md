@@ -228,3 +228,18 @@ no unresolved selected-shape regressions. Missing resource/math/fresh data is
 failure. If no repeatable gain, revert/close this ownership variant and keep
 purecheckedbaseline; no public submit. Passing motivates candidate-onlyofficial
 and largerfreshvalidation later, not immediate promotion.
+
+### Independent ordering correction before dispatch
+
+Coordinator review found a blocker in the initial key-count barrier argument:
+an entirely empty cluster could finish later than the nonempty cluster's total
+key arrival, then issue zero global reds after finalization or load a newer
+epoch. Initial claim that key-count release was sufficient is superseded.
+For clmerge ONLY, existing coop_barrier now receives weight1,total32; allother
+paths retain hi-lo/n_keys. Every CTA must read its stagedepoch BEFORE its
+arrival, so total32 cannot advance until all32 have captured the old epoch
+and both cluster leaders' reds precede arrivals through unchanged CTA/cluster
+barriers. New adversarial CPU test runs emptycluster0 last after nonempty
+cluster1: oldkeycount reaches8 at16arrivals; newcount remains16/32 and cannot
+release. All captured epochs stay0 until final32ndarrival. CPUcontracts now
+3/3PASS. This correction was made before any GPU dispatch.
