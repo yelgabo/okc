@@ -2200,3 +2200,28 @@ resourcequery must show0local,nondiminishedblocks and>=36clusters beforetiming. 
 Accept onlybothnewarms beatingprod andowncontrol bymax(.2us,2nullMAD),>=90/100faster,
 allcomputinggates pass. No claim of HBMweightsaving or predicted .8us gain: primary change
 avoidsdependent remoteLD/localpartialtraffic; newcopy/shuffle/barriercost could eraseit.
+
+Terminal 2026-11-01: **4edaa20c98904404**, source `aded9cf`, DONE/pass, judged unchanged
+C3 control **1.5049090625**, 95% CI **[1.4823354266,1.5274826985]**. This aggregate is
+control measurement, not a push-epilogue speedup. Prepare computing gates complete113.4s.
+Both independent builds have pull/push90regs,0local,0static,1CTA/SM,39activeclusters;
+dynamicshared197760/222352B. All FP64 M100/127/128/129, exact onehot and three fresh
+captured-input replays per arm pass; observed normalized errors~.001660, watchdog zero.
+
+| Heldout | Arm | Raw us | Paired vs production us | Push minus own pull us |
+|---|---|---:|---:|---:|
+|0|production|20.432|0|—|
+|0|a pull / push|20.416 /20.832|-.032 /+.320|+.384|
+|0|b pull / push|20.384 /20.768|-.064 /+.288|+.384|
+|1|production|20.448|0|—|
+|1|a pull / push|20.416 /20.864|-.016 /+.416|+.480|
+|1|b pull / push|20.320 /20.704|-.096 /+.272|+.352|
+
+Push beats production only18–26/100 rounds and ownpull17–28/100. Null B-A medians
+-.032/-.096us, MAD.320/.272, preregistered thresholds.640/.544us. No improvement:
+retain C3 and close this cyclic-push/register-own/shared-transpose schedule. No barrier
+or cap sweep, retry, public submission, or prefill work. Absolute timings differ from
+earlier receipts; only same-run paired deltas support this causal loss. Dedicated
+receive storage holds occupancy constant but does not remove copy/transpose/barrier cost;
+their individual contributions remain unmeasured. Receipt and normalized profiles retained.
+Nineteen projection checks used; one remains subject to root coordination.
