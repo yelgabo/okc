@@ -4556,3 +4556,18 @@ withdrawn (see docs/context.md). The board entry was then da9225e4f89441fc (2.00
 The losers of the fused-kernel runs are in `docs/ruled-out.md` under muse_moe_w4a16.
 
 Losers from these runs are in docs/ruled-out.md.
+
+## Owned fixed-band32 private paired check, 2026-11-01
+
+Root dispatched a5c7c7e3fe344919 (pending), harness evidence1bf61d2 and
+owned patcherfc28a77. Exact private artifact SHA256
+493d1678f7d92ffb2a9908675fcfa33257d235bd3b88cfc0b8696e27108b4c0c,
+631897bytes. Two control/two treatment computing arms; onlyM16/32 use the
+owned32-output-unit sameexpert8-row-job transpose. Other fourloads and judged
+entry use frozen common cooperative/BF16-effective-gamma control. No decoder
+or packing change. Seeds preregistered993701/993703/993709, all18cells required;
+four-cross pooled AND perseed1%/2xnull, percell regression, resource/math/fresh
+replay/empty/spin/budget/11KB gates. SevenTorchCPUhosttests PASS, localdevice
+compilation belongs topatcher; no H200result claimed. Fullsourcepins/costs:
+docs/steering/2026-11-01-owned-moe-band32-registration.md. Root owns exactjob
+status/receipt/profile archival; no publicsubmit, production unchanged.

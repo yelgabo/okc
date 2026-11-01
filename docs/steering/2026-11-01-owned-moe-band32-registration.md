@@ -139,3 +139,11 @@ host compilation or GPU math was simulated as measured success.
 Next action: root and MoE owner independently review the frozen artifact before
 any single off-board check. On source/resource/math/budget/score failure, stop;
 no band-size, cache-hint or identity-fastpath sweep is authorized here.
+
+## Dispatch addendum
+
+Root dispatched the one authorized private MoE check **`a5c7c7e3fe344919`**
+using the exact493d1678 artifact above, source/harness evidence `1bf61d2` and
+patcher `fc28a77`. Status/receipt/profile archiving belongs to root. Pending:
+no timing, correctness result, score or KEEP decision is asserted here. No
+additional job is authorized by this worker; production remains unchanged.
