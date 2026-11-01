@@ -1,6 +1,6 @@
 # Shared project steering
 
-Latest standalone native repair review: [Historical main47/skinny1 progress](2026-11-01-standalone-progress-native-review.md). Two cooperative wrappers/sharedtrap and canonical credit/queue bounds reviewed at7c915127; frozen policy/strict qualification still pending, noGPU/performance claim.
+Latest standalone native repair review: [Historical main47/skinny1 progress](2026-11-01-standalone-progress-native-review.md). Two cooperative wrappers/sharedtrap and canonical credit/queue bounds reviewed;7c915 and sole authorized db0b8 termination screen subsequently fail no-new-spill static gate. Both closed, noGPU/performance claim.
 
 Latest measurement-reader review: [One-arm hybrid owning receipt](2026-11-01-hybrid-measurement-reader-review.md).46:16/six-load/raw-adjusted formulas pass; terminal/log/source/resource ownership safeguards identified for root before result interpretation.
 
