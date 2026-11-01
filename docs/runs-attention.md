@@ -4131,3 +4131,43 @@ Map the split->virtual range->request/pages and natural tile/segment counts
 before attributing pair spread to scheduling. No stage sweep or fence change.
 Main's production late-tid2 promotion is owned by root and must survive merge;
 this worktree's default0 remains a pinned diagnostic control.
+
+### Offline source map after q8 attribution (2026-11-01)
+
+`lo_first` counts lower CUDA blockIdx.x finishing before its measured same-SM
+partner (`tools/attn_make_bench_ab.py:_ab_wave`); it does not identify KV head,
+SM id ordering, or a formal dispatch priority. Each mode51 CTA contains both
+KV heads (consumer hk=warp>>2, four warps/head). DefaultONE_WAVE0 assigns
+v0=floor(total_v*bid/264), v1=floor(total_v*(bid+1)/264), where total_v is
+sum(seq_lens+8+600)-600. Request prefix offsets include600 virtual keys per
+boundary, compensating segment setup. seg_bounds intersects each request,
+rounds interior boundaries DOWN to64 keys, and iterates requests then
+ascending64-key tiles. Thus adjacent block ids mean adjacent virtual ranges,
+but do not guarantee equal tile/segment counts or neighboring physical pages.
+
+Producer ptid=tid-256, ch=ptid&7, r0=ptid>>3. Each producer handles rows
+r0+16*i (i0..3), issuing16-byte K then V copies at channel16*ch; row bytes128
+contain BOTH64-byte KV heads. Physical row=(page_table[request*pt_stride+
+(position>>lp)]<<lp)+(position&(page_size-1)); byte offset=row*128+ch*16.
+Page1 benchmarks therefore follow the actual page-table permutation, not
+necessarily contiguous physical rows. Existing retained receipt prints only
+selected CTA examples and aggregated pair statistics; it cannot reconstruct
+all paired block ids, their exact seq_lens/page lists, or physical address
+locality. Do not infer a copy-order remedy from lo_first132/132 alone.
+
+Natural variation is visible: v16 stamped examples include c132 with67tiles/
+2segments ending93us and c22 with76tiles/1segment ending82us. This rules out
+simple "more tiles explains every late CTA", not all possible segment/page
+variation. Full paired records plus exact input metadata would be needed for
+causal correlation, without calling the spread SM idle time.
+
+Previously tested scope matters. 4b60264a276c4805 no-DRAM producer deficit,
+c8e99e038d9f4575 PE16, bb06/f3f page bulk, and42c4739cf6b247c4 deeper ring
+are mode49 L1 studies, not mode51 L8. However mode51 pair weighting ALREADY
+lost:7631033a0c93485d block-index heavy firsthalf +4.9/+9.8us atv16/v32
+(weight1.15), and4ff339332fef4aff runtime SM-counter weight1.4 +5.47/+8.99us.
+The counter arrival order did not identify the favored CTA, worstpair72-83us.
+A generic pair-spread/reweight sweep is therefore closed. New proposal needs
+an independently identified copy-issue/address mechanism with identical
+bytes, ranges, fences and resources; no new mechanism is yet justified by
+these aggregate stamps. No additional GPU job dispatched.
