@@ -121,3 +121,12 @@ wins are recorded but do not justify a major rewrite. Passing is comparator
 motivation only; owned implementation, all-input queuedstress and official
 candidate checks remain mandatory before any promotion. Source, precision
 and public-versus-owned attribution stay explicit.
+
+Dispatched `4862f8e0dc8a4b5a` (muse_attention_decode confirmed), source3842beb,
+generated SHA256b76e1ce7591b47dc46e721262f305567505c43e17cd1415d6e17e7581ec33402.
+WST host resource queries are inside one-time reporting guard, as VP2; warmed
+capture retains original host launch path. Offline AST double-parse confirms
+bothSCH0 flags, independently rewritten duplicate extension names, proper
+CUDA printf backslash-n, and exactly one TF32-isolated/restoring reference
+wrapper. Private generated artifact lives `.build/today-attn/exact_split.py`.
+Pending result; no actual counter/resource/performance claim yet.

@@ -4171,3 +4171,9 @@ A generic pair-spread/reweight sweep is therefore closed. New proposal needs
 an independently identified copy-issue/address mechanism with identical
 bytes, ranges, fences and resources; no new mechanism is yet justified by
 these aggregate stamps. No additional GPU job dispatched.
+
+### Exact public split-engine comparator (measurement only)
+
+|date|job|source|change|result|notes|
+|---|---|---|---|---|---|
+|2026-11-01|4862f8e0dc8a4b5a (check)|3842beb|Owned current source versus pinned public native WST/VP2 SCH0, independent nulls|pending|No donor adoption; prospective1%changed-native-only aggregate and2xnull gate in steering/2026-11-01-attention-alternate-engine-decision.md.|
