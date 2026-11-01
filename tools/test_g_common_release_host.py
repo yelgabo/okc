@@ -256,5 +256,38 @@ class Startup(unittest.TestCase):
         ns['torch'].cuda.synchronize=lambda:(_ for _ in ()).throw(RuntimeError('fatal CUDA'))
         with self.assertRaisesRegex(RuntimeError,'fatal CUDA'):self.call(ns)
 
+    def test_actual_marlin_adapter_fallback_is_preserved_unexercised(self):
+        for arm,source in self.sources.items():
+            ns,stats,prod,audit=fixture(source,arm)
+            node=next(n for n in ast.parse(source).body if isinstance(n,ast.ClassDef) and n.name=='_ForkMarlinAdapter')
+            exec(ast.get_source_segment(source,node),ns)
+            parent=ns['_GQ_NORMAL_PREPARE'];saved={}
+            def fallback(weights):
+                state=parent(weights);state['_fork_native_eligible']=False;state['_fork_fallback_kind']='Marlin'
+                state['_fork_marlin_bank']={'workspace':torch.ones(16)}
+                state['_fork_marlin_gamma']=torch.ones(4096,dtype=torch.bfloat16)
+                state['_fork_marlin_adapter']=ns['_ForkMarlinAdapter'](state)
+                saved.update(state=state,bank=state['_fork_marlin_bank'],adapter=state['_fork_marlin_adapter'])
+                return state
+            ns['_GQ_NORMAL_PREPARE']=fallback
+            original_clone=ns['_wl_clone']
+            ns['_wl_clone']=lambda *a:(_ for _ in ()).throw(AssertionError('fallback must not be cloned'))
+            old_tf32=torch.backends.cuda.matmul.allow_tf32
+            old_hooks=tuple(ns[n] for n in ('_ma_ext','_decode_attention7','_moe'))
+            text=io.StringIO()
+            with contextlib.redirect_stdout(text):
+                result=ns['prepare']({'attn_residual_gate':torch.ones(1),'ffn_residual_gate':torch.ones(1)})
+            self.assertIs(result,saved['state']);self.assertIs(result['_fork_marlin_bank'],saved['bank'])
+            self.assertIs(result['_fork_marlin_adapter'],saved['adapter']);self.assertIs(saved['adapter'].state,result)
+            self.assertEqual(old_hooks,tuple(ns[n] for n in ('_ma_ext','_decode_attention7','_moe')))
+            self.assertEqual(old_tf32,torch.backends.cuda.matmul.allow_tf32);self.assertFalse(ns['_AB_DEQ']);self.assertFalse(audit.active)
+            self.assertEqual(stats['prepares'],1);self.assertEqual(stats['validators'],0)
+            self.assertIn('G_COMMON_QUAL_UNEXERCISED native_expert_Marlin_fallback',text.getvalue())
+            self.assertNotIn('G_COMMON_QUAL_DONE',text.getvalue())
+            # The real cyclic adapter is exactly the owner the generic cloner
+            # refuses; this fixture does not just flip a native-eligible boolean.
+            readonly=ns['_wl_readonly'](result,{})
+            with self.assertRaisesRegex(RuntimeError,'_ForkMarlinAdapter'):original_clone(result,readonly,False)
+
 
 if __name__=='__main__':unittest.main()

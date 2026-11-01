@@ -6,7 +6,7 @@ replacement. New AGENTS/CLAUDE principles at root `fcc15d5` were read before
 continuing work. README/integration remain root-owned.
 
 **Result:** one reusable single-arm startup qualifier fits below1MB and passes
-six actual TorchCPU orchestration tests plus scoped C++/real-CUDA-header gates.
+seven actual TorchCPU orchestration tests plus scoped C++/real-CUDA-header gates.
 It can emit one fixed short-RMW treatment or its common control; these are
 **one implemented candidate plus a control**, not two independent candidates.
 Neither source is H200-qualified. An authorized later scored attempt can run
@@ -21,8 +21,8 @@ inputs by rebuilding from exact607 and checking their complete source hashes:
 
 |arm|strict prepared-source input|startup-gated output|bytes|
 |---|---|---|---:|
-|common control|`4cbb13a9a359c9fe870a94ebcabc4706447778849f71d4aa54e47d69abbd1280`|`bded49570e1192dd5d9b6a3f19c702e7ac9e0004c1bda3be59b41eb9eb534873`|913645|
-|fixed short-RMW|`2884adb6d0d6947391c81cd67a0c727a04e7d41694d7c780cf8cee80dfa9dbcd`|`a12eb0d5744551c067403762b72cf272ef672c213c32822c0dc028149fed1043`|914133|
+|common control|`4cbb13a9a359c9fe870a94ebcabc4706447778849f71d4aa54e47d69abbd1280`|`4e3895be33d3d8f60670b4e8138eb09654ddc6d64aa930170dc89cc3f019d270`|914084|
+|fixed short-RMW|`2884adb6d0d6947391c81cd67a0c727a04e7d41694d7c780cf8cee80dfa9dbcd`|`97935e7dc45d9fa69f5b4965bd70a5c2946cd8b829cedffb7a2aefc598cb53c7`|914572|
 
 The closed native-gamma treatment is excluded. No arbitrary-source pin override
 or runtime timing selection is supplied. Root's disjoint common/RMW composition
@@ -78,7 +78,12 @@ unrelated owned-kernel rule. Existing cooperative launches still check actual
 admission on each call. Tiny/Tiny2 carry the RMW define only in the fixed RMW
 arm; MID/main/B4 cannot. A closed gamma or stage-disable flag is rejected.
 Marlin is the only existing native expert fallback and retains its own format.
-If that fallback is used, report native/RMW-exercised fields explicitly say so.
+Its adapter is a cyclic owner not supported by the generic cloner. If normal
+prepare selected that fallback (format, build or resource reason), the qualifier
+returns the original production state **before cloning**, with an explicit
+UNEXERCISED marker, `rmw_exercised=0` and the existing backend status. No72check
+DONE stamp is printed. G56 and ordinary valid-input fallback behavior remain.
+A valid fallback result is not an RMW measurement or promotion.
 
 Runtime identity captures actual Torch/build-CUDA, driver/runtime/NVCC versions,
 GPU name/UUID/capability/SM count where reported. Missing/compiler-host-adapter
@@ -135,7 +140,7 @@ The tests reject caught native failures that otherwise return correct FA3-like
 outputs, wrong ordinary/cooperative metadata/window, stale empty/model capture,
 nonfinite reference/output, bad cache, shared workspace/scratch, guard overwrite,
 wrong arm flags, failed residency, inner deadline and fatal CUDA error. Six tests
-pass in8.574s; this is not a model/kernel math result on a GPU.
+pass in9.980s on the final bytes; this is not a model/kernel math result on a GPU.
 
 The first native getter host-header check rejected implicit function-pointer to
 void-pointer conversions. Explicit `(const void*)kernel` casts fixed that ABI
@@ -156,8 +161,8 @@ argv invocation supplied the exact intended header paths. Final real-header and
 mock returncodes are recorded; failed command plumbing was not a kernel failure.
 
 Focused resource/header peer scope is clear at the exact two output pins.
-Final full-protocol peer seal is pending at this owning commit and will be
-integrated separately by root. No H200-ready or whole-model-success claim is made.
+Final full-protocol peer seal is pending on the corrected pins at this owning
+commit and will be integrated separately by root. No H200-ready or whole-model-success claim is made.
 All actual H200 setup/capture/resources/correctness and official13/12 outcomes
 remain missing. A printed source manifest or CPU pass cannot supply those.
 
@@ -177,3 +182,23 @@ private matched attribution remains a separate question. Stop on any source/
 proof/owner/native-coverage/finite/cache/capture/guard/resource/budget failure,
 or a valid measured loss. No new candidate, mask sweep, gamma retry or automatic
 submission follows this source handoff.
+
+## Late fallback correction, before qualification
+
+The first owning source `15c3a84`/bded4957+a12eb0d5 is **superseded**.
+Independent protocol review found that valid nativeFalse states contain the
+real `_ForkMarlinAdapter`, which stores its state (including its private bank)
+cyclically. The generic whole-G cloner rejects that unknown owner before the
+old downstream fallback resource branch could run. Six nativeTrue facade tests
+did not cover that case; no GPU or scored attempt used those bytes.
+
+The narrow fix detects the original Marlin fallback before private cloning and
+preserves its adapter, bank, workspace and state identities. No opaque owner
+handler is added. A seventh test extracts the **actual adapter class** from the
+generated source, creates its real state cycle/bank/workspace, verifies the old
+cloner still rejects it, and proves the normal prepare path returns untouched
+with UNEXERCISED/no-DONE and all bindings/TF32/deq/TLS restored. All seven tests
+pass on final4e3895be/97935e7d bytes. The C++/resource/header code is unchanged
+from peer1142844; the fix is confined to the Python pre-clone eligibility branch
+and its reporting. The unsupported-layout path remains explicitly unqualified,
+not silently credited with the native72check coverage.

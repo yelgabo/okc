@@ -213,8 +213,14 @@ def prepare(weights):
     try:
         _ma_ext=_gq_build
         production=_GQ_NORMAL_PREPARE(weights);_gq_budget(start)
-        # Unsupported weight interfaces preserve their existing legitimate fallback.
-        if tuple(production['qkv'].shape)!=(QKV_ROWS,HIDDEN):
+        # The generic clone does not own Marlin's cyclic adapter/bank. Preserve
+        # the normal G56-checked fallback unchanged rather than fake coverage.
+        if not production['_fork_native_eligible']:
+            assert production['_fork_fallback_kind']=='Marlin','GQUAL_UNREVIEWED_FALLBACK'
+            unexercised='native_expert_Marlin_fallback'
+            report=None
+        elif tuple(production['qkv'].shape)!=(QKV_ROWS,HIDDEN):
+            unexercised='unsupported_weight_interface'
             report=None
         else:
             assert production['att_ok'],'GQUAL_ATTENTION_NOT_NATIVE'
@@ -233,7 +239,8 @@ def prepare(weights):
             _GUARDED_IDS.clear();_GUARDED_IDS.update(guarded_ids)
     _gq_budget(start)
     if report is None:
-        print('G_COMMON_QUAL_UNEXERCISED unsupported_weight_interface',flush=True)
+        print('G_COMMON_QUAL_UNEXERCISED '+unexercised,'rmw_exercised=0',
+              str(production.get('_fork_moe_status','backend_status_unreported')),flush=True)
         _gq_budget(start);return production
     import json
     encoded=json.dumps(report,separators=(',',':'))
