@@ -3952,3 +3952,85 @@ and printed byPython duringprepare; nativekernel bodies are unchanged. This avoi
 bufferedC++prints missing from the failedstressreceipt. Everyindexedcheckerargument isruntime,
 not constexpr perinput, avoiding2000JITspecializations. Final280s guard failsclosed ifcoverage
 is not complete. Source/state controlseparate; ordinarysame-stream graph/copy dependencies.
+
+|date|job|commit|change|score (95%CI)|notes|
+|---|---|---|---|---|---|
+|2026-10-31|80415fe736bb4890 (check)|c8e709a|NEWprospective official-math FP32 gate, candidate2 judgedpath|pending|Bothshapes2000uniqueinputs each, everycandidate/controloutput+cachechecked; canonicalbothreferencecrosschecks, negativecontrols,280sprepareguard.|
+
+Postdispatch tool-only correction e0e0533 restores savedtorch.allow_tf32 in try/finally after
+referencevalidation. Inflight80415fe736bb4890 usedc8e709a and therefore leaves allow_tf32False
+into its officialphase (typically alreadydefaultFalse). Nativecandidate is unchanged and
+usesexplicitmma; nevertheless anyscore from thisvalidationfile will be qualified and a
+cleanpurefile officialcheck is preferred beforepromotion. This doesnot alter the runningjob
+or retroactively change its receipt/source. Fullcomparison/checkprotocol above is unchanged.
+
+## Post-microknob attention portfolio evidence
+
+Latest official board snapshot15ce65e needs11.73% more score for observedrank10. The only new
+bounded mechanism here has~0.24% full-only causal sensitivity and stillneedsprospectivefresh
+math/cleanofficialvalidation. Closing that mechanism must NOT become another late-tid sweep.
+
+Larger arithmetic gaps exist in currentbest8914751e3b9f468b profiles: verify16full101.6us
+versus63.4us analyticfloor, verify32full183.6versus126.8us. These use4.8TB/s floors, not measured
+recoverable time or expected gains. They justify fresh whole mode51 memory/producer/consumer
+attribution only, not an optimization claim. Baselineprofile24daba2202e547d6 is retained.
+
+The matched per-shape donor DELTA evidence belongs to bench_o0519d0b15e9c4583 (sourcea70192d,
+evidencecommit589fb00): d16full~0.9us,d32full~1.5us,v16full~2.1us donorlead,v32fullnull.
+Separate donor-only receipts45adaeddef9d464e/ab38543d2c8642fb are NOT the source of thosepaired
+deltas. Matching this donor doesnot establish11.73%. Userpolicy remains mechanismlearning,
+never donoradoption. Relevant closed experiments: c8e99e038d9f4575 QKchain/page-refill,
+42c4739cf6b247c4 deeper mode49 ring,4b60264a276c4805 producer/no-DRAM attribution;
+mode49pagebulk bb06f8e57bd84636/f3f1e4a5249a4228 belowpromotionbar. Do not repeat them without
+new structural evidence, different components or named ceiling change.
+
+Priority afterfreshmathclassification: establish current mode51 per-phase/copy-latency and
+per-SM partner-spread attribution against measured streaming bandwidth, or obtain actual
+rank10 per-shape evidence. A read-only `okc status5cb3655bf3c9499a --json` attempt returned
+'no such job' despite thatjob's presence in the publicboardrow; it establishes only API lookup
+failure, not absence of the run. No per-shape leaderboardcutoffs are inferred. Stop if proposed
+mechanism's bounded score value is below independentnull spread; pivot to measuredlarger
+MoE/layer opportunities instead of spending remaining attentionquota on repeated smalltoggles.
+
+### Prospective TASK-math gate80415fe736bb4890 PASSED
+
+Owning receipt confirmsboard muse_attention_decode/id80415fe736bb4890. Candidate2 official
+16/16 tests passed; score2.623065x (95%CI2.583719-2.677442). This score remainsqualified by
+validationfile's allow_tf32False setting discussedabove; root ischecking exactpurefile
+cbee36a852fbc62f5491e75f957eeb4298dce2db50947984cdbbcd08aa69b356 separatelybeforepublic.
+Receipt/log `profiles/fp32fresh.80415fe736bb4890.{json,log}`. Ownedselftest0failures.
+
+All4000candidate outputs AND4000independentcontrol outputs passed the NEWofficial-math
+FP32/global/row/cache gate (2000uniqueinputs on EACHsliding/full). Bothreferenceflavors
+canonicalcrosschecked at3inputs/shape. All6negativecontrols rejected (stale/zero/+10head,
+bothshapes). Bothworkspace scans clean: rowaccumulators, sums, tickets and nextparitycounters
+allzero. CandidateactualnewKV equals collectedcontrolKV for everycheckedinput; cachebound
+against ownrawquantreference also passes. This establishesmathcompliance on coveredcases,
+not a proof of everyfutureinput or a replacement for memoryordering reasoning.
+
+|Shape|candidatebad/controlbad|maxglobalrel candidate/control|maxrowrel candidate/control|maxKrel|maxVrel|referencecomputeactualseconds|
+|---|---:|---:|---:|---:|---:|---:|
+|sliding|0/0|0.00652552/0.00652552|0.01905027/0.01905027|0.002761647|0|0.038|
+|full|0/0|0.004721837/0.004721837|0.01575174/0.01575174|0|0|0.443|
+
+Officialbounds acrossinputs: sliding0.10383-0.15, full0.037465-0.15. Canonicalbatchedreference
+differences are0to1.137e-4relative sliding,1.286e-4to5.288e-4full (within registered1e-3
+referencecrosscheck; oneFP8queryfullsample hasmax4ULP on a small element). This is reference
+summationvariation, explicitlyretained; no threshold was retroactivelychanged.
+Fullprepare includingcompilation/selftests/freshreference/queue took233.05s (<280s guard).
+Referencecompute elapsed was measured by CPUwalltime with devicesync. Temporarybyte counts
+remain analyticshape calculations, not measuredallocation/SMutilization counters.
+
+Read-only CUDAresourceattributes are IDENTICAL candidate/control for all13instances.
+AffectedL1mode11:114registers,localbytes0,staticsmem0,dynamicsmem58960bytes,128threads,
+3blocks/SM capacity. UnchangedL1mode13:72registers,local0,58960dynamicbytes,128threads,3blocks/SM.
+Currentlarge-fullL1mode49:128registers,local0,58960dynamicbytes,256threads,2blocks/SM;
+verifyfullL8mode51:80registers,local0,107104dynamicbytes,384threads,2blocks/SM.
+These are allocation/residencyattributes, NOT measuredSMutilization or a SASSspillanalysis.
+
+The strict1e-4 studies3588375a529c4fe8 and26c8a3ea28554454 remainFAILED, with theiroriginal
+records and descriptions preserved. This prospectivelyregistered official-math gate answers a
+differentquestion and doesnot erase those failures. No furthertuning of thelate-tid knob:
+finishpurefilevalidation/publicdecision underroot, then closeit and use freshinternal
+mode51 attribution before any newstructuralattention optimization.
+
