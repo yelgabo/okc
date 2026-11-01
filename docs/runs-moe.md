@@ -3,6 +3,81 @@
 Every `okc check` on `muse_moe_w4a16`, newest last. Scores are the judge's speedup over
 SGLang with its 95% interval. Profiles and logs are in `muse_moe_w4a16/profiles/`.
 
+## October31 PDT active top10 campaign (post-login)
+
+Source baseline `d3eeeda`. Two checks dispatched from `codex/today-moe`; neither is a scored
+submission. Existing precision, ordering, gate thresholds and production policy unchanged.
+
+| job | source/artifact | purpose | status at dispatch |
+|---|---|---|---|
+|7631974774944a2a | current submission.py copied unchanged to `.build/today-moe/production51.py`; SHA25666618198aafc4d14cfe0350bf561fe8abc66f3d5bc9f6df1dbd2518508297c01 | fresh single-file correctness/timing for owned mode51 policy before coordinator's scored runs | pending |
+|e06255199f6d4de1 | `.build/today-moe/xp_diag.py`; SHA25665439aaad129401c62c40400e2a2eaccf5a360255f318c1b8469ad85b7622e3a | producer readiness/empty-slot attribution before any ring resizing | pending |
+
+Diagnostic reproduction:
+
+```
+python3 tools/moe_make_bench_ab.py .build/today-moe/xp_base.py unused.py --nopub=1 --base=51 --sizes=128,256 --routings=layer,std --seeds=211,212 xp=56
+python3 tools/moe_xprod_diag_patch.py .build/today-moe/xp_base.py .build/today-moe/xp_diag.py
+```
+
+The generated file repurposes diagnostic56 as51 plus xproducer-only local counters, disabling
+56's old light/skew/gather instrumentation so consumers match51. Other production predicates
+are unchanged. Phase A/B and job<=4/>4 n-tile buckets each store ready cycles, empty-region
+cycles, stage count and readiness-event count. StaticA times its xready spin only; claimedB
+times the done_as acquire **and proxy-fence region**. Empty region includes clock overhead
+and first-lap paths without a barrier wait. These are regions, not pure spin or utilization.
+Mode56, like51, does not claim phaseA dynamically (claim_a/claim_lean false).
+
+Counter storage is16 int64 values at `(1<<20)-16384+cta*64` in inter, below existing stage
+stamps at1<<20. G<=256 bounds the entire reservation; the host asserts both this and allocation
+bounds. Numerical fat51/56 paths do not use inter; skinny modes are not active for this arm.
+Single lane0 xproducer owns each CTA's16 words and writes all counters including zeros every
+launch. Host reads only after synchronization. Root read-only review confirms no changed
+acquire, proxy fence, barrier or release, and no consumer lifetime/alias issue at these bounds.
+Instrumentation can change producer pacing/register use; compare its timing with clean51 and
+use counters directionally. This is attribution only, never a submission candidate.
+
+Production check7631974774944a2a completed:5/5 official tests,2.193073x (95%CI
+2.160177–2.225969), spin flags0, policy FP32 worst error3.94e-3. Selected sk8w3s at
+1/8/16/32 and mode51 at128/256. Prepare reports228736B shared memory and152.3s build.
+This is below the existing2.215712x board best within normal variance; no new algorithmic
+gain is attributed. Frozen artifact/hash sent to coordinator for today's authorized scored
+runs. Saved status JSON, raw log and normalized profile text under
+`muse_moe_w4a16/profiles/production51.7631974774944a2a.*`.
+
+Coordinator dispatched scored336f3a63bd6a44f3 from the frozen production51 artifact after
+the successful exact-file check. Pending at dispatch. This file tunes policy; the check
+selected skinny at32, so the name does not mean mode51 executes at every token count.
+
+### Producer diagnostic result: e06255199f6d4de1
+
+Passed5 official tests; control score2.191867x,95%CI2.158989–2.224745. All measured xp outputs
+equal clean51 at128/256 on layer/std seeds211/212. Instrumentation slows the full kernel by
+1.7/2.0us at128 (layer/std) and1.0/1.3us at256. These are diagnostic costs, not improvements.
+All32 ABXP bucket rows survive in the saved log; status/log/profile text committed under
+`profiles/xprod.e06255199f6d4de1.*`.
+
+Measured phase-A empty-region cycles dominate readiness: for256 layer seed211 summed over
+CTAs and both size buckets, empty18.847M versus ready0.962M. Phase B empty6.794M versus
+ready2.586M. At128 std seed211 (all small jobs), A empty19.852M versus ready1.555M, B
+empty6.828M versus ready3.192M. These sums overlap across CTAs, include instrumentation and
+the regions specified above, and are NOT additive wall time or attainable savings.
+
+**Correction to the preceding minority premise:** at256 layer seed211, A small-job stages
+9216 versus large2560 (78.3% small); std seed21112288 versus1536 (88.9% small). At128 std
+both seeds100% small. Small means<=4 n-tiles. This directly contradicts the older expectation
+that such jobs are a minority on these inputs, so a bounded deeper-ring capacity test is now
+justified by new evidence. It does not prove variable-sized per-job rings profitable or safe.
+
+Next proposed test, independent of the diagnostic: fixed four x slots at the launch's current
+stride, retaining208896-byte ring budget by reducing weight slots (3+3 becomes2+4 at32KB).
+The exact release/acquire sequence remains; every producer/consumer moves modulo4. Reuse
+diagnostic-only S.dg[0][0:2] for fourth xfull/xempty barriers, avoiding production shared-layout
+changes. Mode87 aliases51 traits; production mode51 remains3slots. Independent ordering and
+alias review required before dispatch. Gate:>=1.5us at256 and>=1us at128 on layer/std with
+consistent fresh seeds; no material32-token regression, no correctness/spin/replay failure.
+Any win needs a second paired confirmation, no promise of a score gain from wait-cycle totals.
+
 ## Source facts (SGLang a55ab7d5, read from GitHub and hashed against the image)
 
 - `fused_post_expert_norm_weighted_sum` falls back to PyTorch ops below
