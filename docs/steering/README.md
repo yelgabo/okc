@@ -14,6 +14,10 @@ Official snapshots, current per-shape hotspot/score reconstruction, reconciled b
 restart steps are saved. WSL2.7.14 installed; Windows requires restart before Linux/okc setup
 can finish. No kernel changes or new GPU jobs. Receipt-analysis tools fixed and4/4 tests pass.
 
+Post-restart addendum: Ubuntu and `okc 0.7.2` are now installed and verified;
+all four analysis tests pass under Ubuntu. Authentication is the remaining blocker.
+The user must run `wsl -d Ubuntu --exec okc login` interactively before checks can resume.
+
 ## Family F registration, historical policy
 
 Current policy supersedes the adoption language below. All four tracks now have measurements,

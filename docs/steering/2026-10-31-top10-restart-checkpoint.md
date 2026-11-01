@@ -179,3 +179,35 @@ remaining pre-deadline budget on repeated sub-threshold tuning. If the first ref
 attribution and bounded MoE experiment fail, pivot to preserving the best release and
 standalone opportunities rather than asserting a top-10 trajectory. Complete and verify a
 final candidate before November4; reserve time for correctness, replay and attribution.
+
+## Addendum: post-restart installation completed, October 31, 2026
+
+Resumed at `b57ed24`; fetched `origin/main`, with no newer commits or local changes.
+After the restart WSL worked but had no distribution. Installed Ubuntu successfully
+with `wsl --install --distribution Ubuntu --no-launch`; WSL can now execute Linux
+commands. The distribution currently executes as root (no interactive first-user setup
+has been completed). Do not assume a separate Linux user or its home directory exists.
+
+Fetched and inspected the official installer again, then executed it in Ubuntu with
+`OKC_INSTALL_DIR=/usr/local/bin OKC_NO_MODIFY_PATH=1`. Installed **okc 0.7.2**,
+Linux amd64, verified SHA256 prefix `84883d7f0370` against the release checksum list.
+`wsl -d Ubuntu --exec okc --version` succeeds. Installing in `/usr/local/bin` makes
+the CLI available to a future normal Ubuntu user as well; credentials remain per-user.
+
+`okc problems --json` successfully reached the official service and returned public
+problem limits. `okc jobs --json` reports **not signed in**. No account quota has been
+verified and no job dispatched. All four receipt-analysis tests also pass under Ubuntu's
+Python3 from `/mnt/c/Users/gretc/Documents/GitHub/okc`.
+
+Next user action in PowerShell:
+
+```powershell
+wsl -d Ubuntu --exec okc login
+```
+
+The user must personally accept the rules and complete GitHub device login, as required
+by [the official instructions](https://openkernelchallenge.dev/llms.txt). Do not run
+the login acceptance on their behalf. After login, verify the account without printing
+tokens, query shared remaining quota/recent jobs, then resume priorities0/1 above.
+If the user instead creates a normal Ubuntu account before login, use that same account
+for subsequent commands so its per-user CLI configuration is read consistently.
