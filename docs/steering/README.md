@@ -471,3 +471,4 @@ Projection follow-up 4542b2b04cb344ec closed the QKV128 depth-two variant after 
 Latest: [November 1 short-boundary and projection experiments](2026-11-01-short-boundary.md).
 Results: [short boundary and QKV epilogue](2026-11-01-short-boundary.md), [sliding attention opportunity](2026-11-01-sliding-attention-score-opportunity.md), and [single-warp MoE position map](2026-11-01-moe-singlewarp-position.md).
 Latest: [Matched short-boundary comparison](2026-11-01-matched-short-boundary.md).
+Matched boundary confirmation completed. Both affected loads improved across both new seeds. One full-score comparison missed its noise threshold. See the latest report above.
