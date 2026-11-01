@@ -1,0 +1,8 @@
+test_actual_dispatch_and_all_fallbacks (test_dl_owned_attention_boundary.SourceTests.test_actual_dispatch_and_all_fallbacks) ... ok
+test_exact_source_delta (test_dl_owned_attention_boundary.SourceTests.test_exact_source_delta) ... ok
+test_existing_bf16_fallbacks_and_diagnostic_unchanged (test_dl_owned_attention_boundary.SourceTests.test_existing_bf16_fallbacks_and_diagnostic_unchanged) ... ok
+
+----------------------------------------------------------------------
+Ran 3 tests in 2.950s
+
+OK
