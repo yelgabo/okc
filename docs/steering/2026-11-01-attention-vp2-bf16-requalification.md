@@ -157,3 +157,41 @@ uncertainty (old ~.73us mean versus current calibration.722329us required), rath
 measuring a storage-only effect or spending an invented remaining-wait budget. If matched
 signal fails, no owned rewrite follows; even if it passes, a later owned causal test must
 separately establish transfer. No isolated barrier deletion is proposed.
+
+
+## Pre-dispatch scoring registration and normal private comparator (supersedes earlier drafts)
+
+Root explicitly authorized judging the foreign comparator PRIVATELY. Current artifact
+78ce14e90f20cd3b406cd185d67d76e3624676739239d66032ff516e25a55d64,
+411975B. Normal kernel_fn now uses the exported run closure on private owner2 with
+record=False: actual VP2 only at exact eligible V1sliding, owned native on other TP8
+cells, existing SGLang fallback otherwise. Official16tests/12benchmarks therefore qualify
+the PRIVATE comparator, not merely its control. No public or adoption permission.
+CUDA/math/ordering strings remain unchanged from the local compiler receipts.
+
+Preparation separately asserts exactly20 VP2 and284 owned Python warm/capture calls;
+actual graph replay calls are not host-counted. Coverage assertion completes before any
+official calls. Thus legitimate unsupported-input fallback works but cannot silently
+qualify an all-fallback private experiment. Actual plan rows identify VP2 grid32/cluster16/
+threads256 or owned(splits,copies,mode), not a falsely attributed native plan for VP2.
+Four independently compiled build IDs are included in the source manifest.
+
+**Decision registration fixed before any H200 dispatch:**
+
+- Preserve all36x4 raw times unchanged. Old3f44-offset gate and raw keep flags are
+  separately descriptive; neither alone selects an owned rewrite.
+- Derive12 raw-minus-adjusted offsets from THIS official comparator receipt, apply each
+  offset equally to its four paired arms, reject any nonpositive adjusted latency.
+- Require contemporaneous six-load46/16 factor>=1% and >2x duplicate null pooled AND
+  every seed/all four crosses, with the frozen per-case regression gate.
+- Also require all four RAW cross factors positive for every seed and no raw regression.
+- Report actual official comparator score separately. Recalculated paired sensitivity is
+  still a counterfactual scenario, not an actual official paired score or a storage-only gain.
+
+`tools/moe_attn_vp2_read.py` validates the owning passing16test/12benchmark receipt,
+complete coverage/dispatch/resources/plan metadata, recomputes raw and old-offset summaries,
+then applies the registered contemporaneous-offset and raw-sign/regression rule. Two
+synthetic-receipt tests PASS including independently different contemporaneous offsets,
+flags/incomplete-backend coverage and nonpositive-adjusted negatives. Synthetic test
+receipts are explicitly not H200 measurements. Source2tests and actual CPU oracle2tests
+still pass; independent whole-host re-review against the final normal-path API is pending.

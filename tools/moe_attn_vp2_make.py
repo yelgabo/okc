@@ -88,8 +88,10 @@ def make(root,output):
  manifest={'owned_lf':OWN,'public_raw':PUBLIC,'public_commit':'8e30e1be994db4310794b8d04e90d18d895deb84',
   'owned_cuda':hashlib.sha256(cu.encode()).hexdigest(),'vp2_cuda':hashlib.sha256(vcu.encode()).hexdigest(),
   'notice_sha256':hashlib.sha256(notice.encode()).hexdigest(),'license_sha256':hashlib.sha256(license.encode()).hexdigest(),
-  'seeds':SEEDS,'policy':'VP2 only B1/q8/sliding/page1/unitKV; all other scored cells actual BF16 owned ONE; nonTP8 existing SGLang fallback',
+  'seeds':SEEDS,'policy':'PRIVATE judged comparator VP2 only B1/q8/sliding/page1/unitKV; all other scored cells actual BF16 owned ONE; nonTP8 existing SGLang fallback',
   'measurement_only':True,'sch':0,
+  'decision_rule':'THIS official job raw-minus-adjusted offsets applied commonly to private raw arms; contemporaneous >=1% and >2x null pooled and every seed, no regression/no nonpositive times; raw all4 crosses positive every seed and no regression. Old-offset/raw keep flags descriptive only.',
+  'build_ids':['vp2bf_owned824731_0','vp2bf_owned824731_1','vp2bf_foreign824731_2','vp2bf_foreign824731_3'],
   'error_order':['FP32judge_global','FP32judge_row','BF16output_global','BF16output_row','newK','newV']}
  calibration=root/'muse_attention_decode/profiles/wait-trace.3f44f891d0ef47db.json'
  records=json.loads(calibration.read_text(encoding='utf8'))['benchmarks'];offsets={}

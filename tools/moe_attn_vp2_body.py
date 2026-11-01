@@ -94,12 +94,19 @@ def _vp_prepare():
         ptrs=[v.untyped_storage().data_ptr() for n in ns for k,v in n['_ONE_STATE'][dev].items() if isinstance(v,torch.Tensor)]
         assert len(ptrs)==len(set(ptrs)),'VP2_STATE_ALIAS'
         plans=[]
-        def run(i,data):
+        dispatch_counts={'ONE':0,'VP2':0}
+        def eligible(c):
+            return(c['batch']==1 and c['q_len']==8 and c['window']==2048 and c['page_size']==1 and
+                   c['kv_scale']==1 and c['num_q_heads']==16 and c['num_kv_heads']==2)
+        def run(i,data,record=True):
             c=data['config']
-            assert ns[i]['_one_ok'](c),'VP2_NATIVE_CONTROL_REQUIRED'
-            eligible=(c['batch']==1 and c['q_len']==8 and c['window']==2048 and c['page_size']==1 and
-                      c['kv_scale']==1 and c['num_q_heads']==16 and c['num_kv_heads']==2)
-            if i<2 or not eligible:return ns[i]['_one'](data)
+            if not ns[i]['_one_ok'](c):
+                assert not record,'VP2_NATIVE_CONTROL_REQUIRED'
+                return ns[i]['kernel_fn'](data)
+            if i<2 or not eligible(c):
+                if record:dispatch_counts['ONE']+=1
+                return ns[i]['_one'](data)
+            if record:dispatch_counts['VP2']+=1
             out=torch.empty((1,8,1024),device=data['qkv'].device,dtype=torch.bfloat16)
             q=data['qkv'];p=data['page_table'];freq=ns[i]['_inv_freq'](c['rope_theta'],64,q.device)
             mods[i].muse_vp2_launch(q.data_ptr(),p.data_ptr(),p.stride(0),data['seq_lens'].data_ptr(),data['cache_loc'].data_ptr(),
@@ -107,7 +114,7 @@ def _vp_prepare():
                 c['qk_scale_factor']*c['sm_scale']*ns[i]['LOG2E'],1.,1.,1.,1e-5,0,torch.cuda.current_stream().cuda_stream)
             return out
         flush=torch.empty(256<<20,device='cuda',dtype=torch.uint8)
-        rows=[];counts=dict(eager_extra=0,normal=0,fresh=0,post=0);worst=[0.]*6
+        rows=[];raw_rows=[];counts=dict(eager_extra=0,normal=0,fresh=0,post=0);worst=[0.]*6
         # Same target ABI, short/empty source partitions; never contributes timing credit.
         for context in (0,10,2047,2048):
             _vp_guard();base=_ob_inputs(1,context,'tp8','sliding',8,'fixed','soft',1,1.,seed=824719+context)
@@ -130,7 +137,9 @@ def _vp_prepare():
                             assert (length,plan[2]) in st['resident'] and st['resident'][(length,plan[2])]>0,'VP2_NATIVE_PLAN'
                             rr=resources[i%2];selected=next(rr[q:q+7] for q in range(0,len(rr),7) if rr[q:q+2]==[length,plan[2]])
                             assert selected[3]==0 and selected[6]>0,('VP2_NATIVE_RESOURCE',selected)
-                            if seed==_VP_MANIFEST['seeds'][0]:plans.append([batch,length,window,i,*plan])
+                            if seed==_VP_MANIFEST['seeds'][0]:
+                                actual=['VP2_grid_cluster_threads',32,16,256] if i>=2 and eligible(base['config']) else ['ONE_splits_copies_mode',*plan]
+                                plans.append([batch,length,window,i,actual])
                         graphs=[];outputs=[]
                         for i in range(4):
                             run(i,inputs[i]);g=torch.cuda.CUDAGraph()
@@ -166,19 +175,24 @@ def _vp_prepare():
                         offset=_VP_OFFSETS[(batch,length,window)]
                         adjusted=[v-offset for v in raw];assert min(adjusted)>0,'VP2_BAD_CALIBRATION'
                         rows.append((batch,length,window,seed,adjusted))
+                        raw_rows.append((batch,length,window,seed,raw))
                         del graphs,outputs,inputs,base,refs
         _vp_guard();assert counts==dict(eager_extra=16,normal=144,fresh=336,post=144),counts
+        # Count host warm/capture calls, not graph replays. An all-fallback run cannot qualify.
+        assert dispatch_counts=={'ONE':284,'VP2':20},('VP2_DISPATCH_COVERAGE',dispatch_counts)
         report=dict(schema='PRIVATE_VP2_BF16_V1',source=_VP_MANIFEST,resources=resources,plans=plans,
-                    counts=counts,worst=worst,rows=rows,gate=_vp_score(rows),seconds=time.monotonic()-_VP_BEGIN,
-                    calibration='fixed earlier3f44 per-cell raw-minus-adjusted; counterfactual, not official candidate score')
+                    counts=counts,dispatch_counts=dispatch_counts,worst=worst,rows=raw_rows,row_kind='raw_us',
+                    fixed_offsets=[[b,l,w,v] for (b,l,w),v in _VP_OFFSETS.items()],
+                    gate=_vp_score(rows),raw_gate=_vp_score(raw_rows),seconds=time.monotonic()-_VP_BEGIN,
+                    calibration='gate uses fixed earlier3f44 offsets, NOT decision alone; root must recompute paired sensitivity using contemporaneous official offsets; raw_gate unadjusted')
         text=__import__('json').dumps(report,separators=(',',':'),allow_nan=False)
         assert len(text.encode())<11000,'VP2_LOG_BUDGET';_vp_guard()
         print('VP2_PRIVATE_REPORT',text,flush=True);print('VP2_PRIVATE_DONE 36 private_only',flush=True)
-        return ns,mods
+        return ns,mods,run
     finally:torch.backends.cuda.matmul.allow_tf32=prior
 
-_VP_NS,_VP_MODS=_vp_prepare()
+_VP_NS,_VP_MODS,_VP_RUN=_vp_prepare()
 
 def kernel_fn(data):
-    # Actual judged path is always common-BF16 owned native TP8; existing SGLang otherwise.
-    return _VP_NS[0]['kernel_fn'](data)
+    # PRIVATE comparator is judged on VP2 only where eligible; owned/native or stock otherwise.
+    return _VP_RUN(2,data,record=False)
