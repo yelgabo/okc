@@ -1,0 +1,50 @@
+{
+  "utc": "2026-11-01T17:27:25.685711+00:00",
+  "board": "muse_bf16_proj",
+  "you": {
+    "rank": 317,
+    "team": "yelgabo",
+    "speedup": 1.5278,
+    "first": false,
+    "ahead": 316,
+    "to_first": 1.0815
+  },
+  "rows": [
+    {
+      "attempts": 13,
+      "job": "8fcdce9fca2b4197",
+      "rank": 10,
+      "speedup": 1.609,
+      "submitted_at": 1793546296.3249226,
+      "team": "orisberlo-cell",
+      "value": 3002.4205410454315
+    },
+    {
+      "attempts": 56,
+      "job": "0186743c00aa41f9",
+      "rank": 50,
+      "speedup": 1.5858,
+      "submitted_at": 1793348061.219743,
+      "team": "e-shizz",
+      "value": 3046.2763986911054
+    },
+    {
+      "attempts": 34,
+      "job": "a935ef0eb67744bb",
+      "rank": 100,
+      "speedup": 1.5709,
+      "submitted_at": 1793205197.567965,
+      "team": "narayanacharyuluchitroju",
+      "value": 3075.1314203330007
+    },
+    {
+      "attempts": 31,
+      "job": "9eba96894ee1402e",
+      "rank": 317,
+      "speedup": 1.5278,
+      "submitted_at": 1793509752.4725015,
+      "team": "yelgabo",
+      "value": 3161.918773020326
+    }
+  ]
+}

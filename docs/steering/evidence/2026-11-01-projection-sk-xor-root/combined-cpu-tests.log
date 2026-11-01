@@ -1,0 +1,47 @@
+test_actual_shared_read_and_mma_ordering (proj_test_sparse_xor.SparseXOR.test_actual_shared_read_and_mma_ordering) ... ok
+test_all_BF16_bits_and_all_windows_exact (proj_test_sparse_xor.SparseXOR.test_all_BF16_bits_and_all_windows_exact) ... ok
+test_exact_layout_matches_original_control_formula (proj_test_sparse_xor.SparseXOR.test_exact_layout_matches_original_control_formula) ... ok
+test_tracked_raw_pin_and_unchanged_normal_entry (proj_test_sparse_xor.SparseXOR.test_tracked_raw_pin_and_unchanged_normal_entry) ... ok
+test_all_BF16_patterns_and_windows (test_sk_sparse_repair_independent.IndependentSKRepair.test_all_BF16_patterns_and_windows) ... ok
+test_geometry_bijection_and_inverse (test_sk_sparse_repair_independent.IndependentSKRepair.test_geometry_bijection_and_inverse) ... ok
+test_pair_half_repair_isolated (test_sk_sparse_repair_independent.IndependentSKRepair.test_pair_half_repair_isolated) ... ok
+test_sparse_record_and_header_bit_domains (test_sk_sparse_repair_independent.IndependentSKRepair.test_sparse_record_and_header_bit_domains) ... ok
+test_actual_all_offered_geometry_packs (test_sk_sparse_repair_packer_cpu.ActualPacker.test_actual_all_offered_geometry_packs) ... ok
+test_actual_dense_all_bit_patterns_transport (test_sk_sparse_repair_packer_cpu.ActualPacker.test_actual_dense_all_bit_patterns_transport) ... ok
+test_empty_and_nonfinite_rejection (test_sk_sparse_repair_packer_cpu.ActualPacker.test_empty_and_nonfinite_rejection) ... ok
+test_bad_offsets_lengths_and_float (test_proj_make_bench_sk_xor.Gates.test_bad_offsets_lengths_and_float) ... ok
+test_capture_replay_and_stream_joins (test_proj_make_bench_sk_xor.Gates.test_capture_replay_and_stream_joins) ... ok
+test_codec_framing_dictionary_and_two_byte_ids (test_proj_make_bench_sk_xor.Gates.test_codec_framing_dictionary_and_two_byte_ids) ... ok
+test_embedding_matches_model (test_proj_make_bench_sk_xor.Gates.test_embedding_matches_model) ... ok
+test_fail_closed_budget_and_source (test_proj_make_bench_sk_xor.Gates.test_fail_closed_budget_and_source) ... ok
+test_full_host_scope (test_proj_make_bench_sk_xor.Gates.test_full_host_scope) ... ok
+test_lossless_full_payload (test_proj_make_bench_sk_xor.Gates.test_lossless_full_payload) ... ok
+test_oracle_and_view_alias_reject (test_proj_make_bench_sk_xor.Gates.test_oracle_and_view_alias_reject) ... ok
+test_terminal_tail_reserve (test_proj_make_bench_sk_xor.Gates.test_terminal_tail_reserve) ... ok
+test_current_offsets_apply_to_all_arms_without_changing_raw_samples (test_proj_sk_xor_read.ScoreGate.test_current_offsets_apply_to_all_arms_without_changing_raw_samples) ... ok
+test_full_thirty_formula_and_no_win_on_identical_arms (test_proj_sk_xor_read.ScoreGate.test_full_thirty_formula_and_no_win_on_identical_arms) ... ok
+test_one_losing_seed_cannot_be_hidden_by_pooled_gain (test_proj_sk_xor_read.ScoreGate.test_one_losing_seed_cannot_be_hidden_by_pooled_gain) ... ok
+test_partial_or_malformed_evidence_is_rejected (test_proj_sk_xor_read.ScoreGate.test_partial_or_malformed_evidence_is_rejected) ... ok
+test_real_anchor_prevents_credit_for_slower_rebuilt_controls (test_proj_sk_xor_read.ScoreGate.test_real_anchor_prevents_credit_for_slower_rebuilt_controls) ... ok
+test_regression_and_duplicate_noise_reject_apparent_gain (test_proj_sk_xor_read.ScoreGate.test_regression_and_duplicate_noise_reject_apparent_gain) ... ok
+test_builder_preserves_timed_entry_and_no_new_benchmark (proj_test_sk_xor_release.Release.test_builder_preserves_timed_entry_and_no_new_benchmark) ... ok
+test_finite_and_deadline_negative (proj_test_sk_xor_release.Release.test_finite_and_deadline_negative) ... ok
+test_math_stale_resource_diag_fail_before_publication (proj_test_sk_xor_release.Release.test_math_stale_resource_diag_fail_before_publication) ... ok
+test_unsupported_pack_explicit_incumbent_fallback (proj_test_sk_xor_release.Release.test_unsupported_pack_explicit_incumbent_fallback) ... ok
+test_whole_prepare_and_all_M1_33_policy (proj_test_sk_xor_release.Release.test_whole_prepare_and_all_M1_33_policy) ... ok
+test_cli_requires_job (test_proj_sk_xor_receipt.ReceiptTests.test_cli_requires_job) ... ok
+test_false_gate_and_pass_rejected (test_proj_sk_xor_receipt.ReceiptTests.test_false_gate_and_pass_rejected) ... ok
+test_invalid_adjusted_domain_preserves_raw (test_proj_sk_xor_receipt.ReceiptTests.test_invalid_adjusted_domain_preserves_raw) ... ok
+test_missing_truncated_duplicate_messages (test_proj_sk_xor_receipt.ReceiptTests.test_missing_truncated_duplicate_messages) ... ok
+test_official_failure_flags_tests_and_benchmarks (test_proj_sk_xor_receipt.ReceiptTests.test_official_failure_flags_tests_and_benchmarks) ... ok
+test_owning_job_board_private_terminal (test_proj_sk_xor_receipt.ReceiptTests.test_owning_job_board_private_terminal) ... ok
+test_positive_domain_can_fail_adjusted_gate (test_proj_sk_xor_receipt.ReceiptTests.test_positive_domain_can_fail_adjusted_gate) ... ok
+test_real_loser_is_complete_not_exception (test_proj_sk_xor_receipt.ReceiptTests.test_real_loser_is_complete_not_exception) ... ok
+test_resource_native_ownership_and_expected_layout (test_proj_sk_xor_receipt.ReceiptTests.test_resource_native_ownership_and_expected_layout) ... ok
+test_rows_counts_pins_and_header (test_proj_sk_xor_receipt.ReceiptTests.test_rows_counts_pins_and_header) ... ok
+test_valid_and_contemporary_offsets (test_proj_sk_xor_receipt.ReceiptTests.test_valid_and_contemporary_offsets) ... ok
+
+----------------------------------------------------------------------
+Ran 42 tests in 17.451s
+
+OK

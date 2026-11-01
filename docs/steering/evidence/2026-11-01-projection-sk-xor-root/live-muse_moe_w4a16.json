@@ -1,0 +1,51 @@
+{
+  "utc": "2026-11-01T17:27:24.614891+00:00",
+  "board": "muse_moe_w4a16",
+  "you": {
+    "rank": 395,
+    "team": "yelgabo",
+    "speedup": 2.2157,
+    "first": false,
+    "ahead": 394,
+    "to_first": 1.2476
+  },
+  "rows": [
+    {
+      "attempts": 28,
+      "job": "1084b630433041f9",
+      "rank": 10,
+      "screened_speedup": 2.55513797546463,
+      "speedup": 2.6077,
+      "submitted_at": 1793521489.0131469,
+      "team": "gauravjain14",
+      "value": 5157.219766158455
+    },
+    {
+      "attempts": 14,
+      "job": "d6f8e0edcc5548d5",
+      "rank": 50,
+      "speedup": 2.4579,
+      "submitted_at": 1793523386.919227,
+      "team": "bobrenjc93",
+      "value": 5471.593762933469
+    },
+    {
+      "attempts": 19,
+      "job": "0abd9a1f74574aa0",
+      "rank": 100,
+      "speedup": 2.4043,
+      "submitted_at": 1793545835.2350366,
+      "team": "Ashish-Soni08",
+      "value": 5593.546416793705
+    },
+    {
+      "attempts": 25,
+      "job": "abe7651dbaa44458",
+      "rank": 395,
+      "speedup": 2.2157,
+      "submitted_at": 1793321438.0973241,
+      "team": "yelgabo",
+      "value": 6069.607719056422
+    }
+  ]
+}
