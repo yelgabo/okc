@@ -1982,3 +1982,22 @@ weight roundtrip and CPU all-BF16 gate. FP64 random/probes, independent control/
 queries (registers/localbytes/staticshared/blocks perSM) rather than assuming no spills.
 This is a codec-in-competitive-scaffold test, not a claim of hidden decoding; no production
 adoption unless end-to-end time improves repeatably. Parent notified of both live job IDs.
+
+Tokenfast retry `d271218896df4a85` completed: control passed9/9,1.521036x (95%CI
+1.498220–1.543851), full new/old arms pass all FP64/probe/replay gates. All resource fields
+agree: full62clusters/2blocks/90regs/0localbytes, memory probes40regs. Raw times:
+Lt26.592us, old full39.328/39.440, tokenfast full39.504/39.376; old memory-no-reduction
+31.856/32.000, tokenfast memory31.728/31.728. Memory probe saves only~0.1–0.3us and full
+kernel does not improve materially; it cannot bridge the~12.7us deficit. Park this work-order
+repair. No bandwidth counters were collected; this does not prove or disprove a specific
+L2 miss rate. Retain current incumbent; no production schedule change.
+
+Vector pair7 `4aef50bcd265448b` completed: control passed9/9,1.531006x (95%CI
+1.508041–1.553971). Stored-byte roundtrip/LUT inverse and FP64 random/power-of-two checks
+all pass, including pooler NTH256. Vector/scaffold change reduces scalar trial's overhead
+but still loses: qkv+4.960us, o+3.392, pooler NTH512+13.024/NTH256+7.568, slice+1.312.
+Duplicate null0 to-0.064us. Runtime resources (regs/localbytes/sharedbytes/blocks perSM):
+qkv256threads[48,0,584,4],o64[40,0,536,16],pool512[40,0,648,2],pool256[48,0,584,4],
+slice128[48,0,552,8]. No spills/local-memory allocation explains the loss. Lookup/bit-unpack
+and lower occupancy consume more than1–3% physical byte saving, on this implementation.
+No codec adoption; broader codecs require a genuinely cheaper decode placement/mechanism.

@@ -21,6 +21,11 @@ components, in the same process, before calling it lost again.
 
 | Experiment | Evidence | Rules out |
 |---|---|---|
+| Tokenfast independent cluster order on raw qkv256 wd128x128/4-way/3-stage |d271218896df4a85: all full correctness/replay pass; oldfull39.33/39.44us,new39.50/39.38 vsLt26.59; memory probes save0.1–0.3us only, identical62clusters/no localmemory |This work-order change as repair of the12.7us deficit. L2 reuse remains unmeasured; new copy-pipeline mechanism needed, not another ordering sweep. First303ba... failed builder restoration before CUDA |
+| Actual pair7 in two-row/CPT-prefetch cgemv scaffold, shared LUT and vector fma4 |4aef50bcd265448b: stored weight/LUT/FP64 probes pass; qkv/o/pool512/pool256/slice +4.96/+3.39/+13.02/+7.57/+1.31us; null<=0.064;40–48regs,no localmemory |This shared-LUT/vector decoder despite improved scalar scaffold. Physical1–3% savings insufficient for decode/occupancy cost. No production adoption; revisit with materially cheaper codec/decode placement, not register tuning alone |
+
+| Experiment | Evidence | Rules out |
+|---|---|---|
 | Cheaper DSMEM epilogue alone as repair for raw qkv256 wd128x128/4-way/3-stage |e6e5bd6d0a104faf: full39.5us, no-reduction36.3us, memory+no-reduction32.2us versus same-runLt26.9us; all62clusters,2CTA/SM,no local memory |An epilogue-only fix for this geometry. New memory-pipeline/work-order mechanism needed first. Ablations are wrong-output unscored probes and nonadditive; no barrier changes authorized |
 
 | Experiment | Evidence | Rules out |
