@@ -1,0 +1,233 @@
+{
+  "root_evidence_commit": "9714e8f6760dbbf8cbc3c9b31a8e74864befa97b",
+  "jobs": [
+    {
+      "label": "G0",
+      "job": "3a5f879df0d44825",
+      "receipt_sha256": "60e7b55e80af0b613bb09d2f7b67043077e1a6902184adf6b52b030efc503289",
+      "score": 2.2487905322335195,
+      "content_hash": "c53f66a694fdf2b2a9f123300d9a7f9df2250b6bce3f69ebf4b8da54776aa05e",
+      "rows": [
+        {
+          "load": "decode 1",
+          "layer": "sliding",
+          "weight": 46,
+          "median_ns": 66352.49414906673,
+          "raw_ns": 68496.00002169609
+        },
+        {
+          "load": "decode 1",
+          "layer": "full",
+          "weight": 16,
+          "median_ns": 73526.59258610664,
+          "raw_ns": 79600.0026166439
+        },
+        {
+          "load": "decode 16",
+          "layer": "sliding",
+          "weight": 46,
+          "median_ns": 130187.37489708104,
+          "raw_ns": 132624.00031089783
+        },
+        {
+          "load": "decode 16",
+          "layer": "full",
+          "weight": 16,
+          "median_ns": 205801.54735499658,
+          "raw_ns": 210704.006254673
+        },
+        {
+          "load": "decode 32",
+          "layer": "sliding",
+          "weight": 46,
+          "median_ns": 152172.41208225774,
+          "raw_ns": 155808.0017566681
+        },
+        {
+          "load": "decode 32",
+          "layer": "full",
+          "weight": 16,
+          "median_ns": 301540.56615077023,
+          "raw_ns": 305872.00820446014
+        },
+        {
+          "load": "verify 1",
+          "layer": "sliding",
+          "weight": 46,
+          "median_ns": 100606.25839685391,
+          "raw_ns": 106063.99923563004
+        },
+        {
+          "load": "verify 1",
+          "layer": "full",
+          "weight": 16,
+          "median_ns": 112279.17896790929,
+          "raw_ns": 115136.00125908852
+        },
+        {
+          "load": "verify 16",
+          "layer": "sliding",
+          "weight": 46,
+          "median_ns": 237373.01270655368,
+          "raw_ns": 240640.00695943832
+        },
+        {
+          "load": "verify 16",
+          "layer": "full",
+          "weight": 16,
+          "median_ns": 319901.5758914454,
+          "raw_ns": 323888.00382614136
+        },
+        {
+          "load": "verify 32",
+          "layer": "sliding",
+          "weight": 46,
+          "median_ns": 308691.2949593431,
+          "raw_ns": 316128.0006170273
+        },
+        {
+          "load": "verify 32",
+          "layer": "full",
+          "weight": 16,
+          "median_ns": 471850.79554383794,
+          "raw_ns": 475951.99942588806
+        }
+      ]
+    },
+    {
+      "label": "607e",
+      "job": "607eb52bdaf24160",
+      "receipt_sha256": "c641ede77cd5cd560b8df7ad2787d706654ebca7b9a63fa2bc49c1b9f6e00029",
+      "score": 2.1260826764231093,
+      "content_hash": "5cf950e1819c8c2bf0edf9bfdc0ccf05b191759c0a8263a45cd962f4e934ff5e",
+      "rows": [
+        {
+          "load": "decode 1",
+          "layer": "sliding",
+          "weight": 46,
+          "median_ns": 76748.10129226928,
+          "raw_ns": 81024.00228381157
+        },
+        {
+          "load": "decode 1",
+          "layer": "full",
+          "weight": 16,
+          "median_ns": 83726.75745456238,
+          "raw_ns": 86640.00034332275
+        },
+        {
+          "load": "decode 16",
+          "layer": "sliding",
+          "weight": 46,
+          "median_ns": 138660.71382597237,
+          "raw_ns": 139872.0070719719
+        },
+        {
+          "load": "decode 16",
+          "layer": "full",
+          "weight": 16,
+          "median_ns": 214534.35984694035,
+          "raw_ns": 218560.00274419785
+        },
+        {
+          "load": "decode 32",
+          "layer": "sliding",
+          "weight": 46,
+          "median_ns": 154820.44500163072,
+          "raw_ns": 157760.00171899796
+        },
+        {
+          "load": "decode 32",
+          "layer": "full",
+          "weight": 16,
+          "median_ns": 297882.6968304272,
+          "raw_ns": 312319.9939727783
+        },
+        {
+          "load": "verify 1",
+          "layer": "sliding",
+          "weight": 46,
+          "median_ns": 115431.8604351975,
+          "raw_ns": 120783.99956226349
+        },
+        {
+          "load": "verify 1",
+          "layer": "full",
+          "weight": 16,
+          "median_ns": 117597.83998488622,
+          "raw_ns": 122480.00130057335
+        },
+        {
+          "load": "verify 16",
+          "layer": "sliding",
+          "weight": 46,
+          "median_ns": 247130.99535493978,
+          "raw_ns": 253216.01331233978
+        },
+        {
+          "load": "verify 16",
+          "layer": "full",
+          "weight": 16,
+          "median_ns": 333218.12616334675,
+          "raw_ns": 336111.99259757996
+        },
+        {
+          "load": "verify 32",
+          "layer": "sliding",
+          "weight": 46,
+          "median_ns": 316389.53688780323,
+          "raw_ns": 318752.0056962967
+        },
+        {
+          "load": "verify 32",
+          "layer": "full",
+          "weight": 16,
+          "median_ns": 482656.7937941269,
+          "raw_ns": 487440.00494480133
+        }
+      ]
+    }
+  ],
+  "score_ratio": 1.0577154675926583,
+  "source_sha256": "ba9e327cd7b96595ace4d0c1d0d78fe27c128f23ed0debcda97c7169fc3164ab",
+  "helper_sha256": "b8ed85438c06673f411ff4203080bfbacd0c0c2dc5cb624e6f10d4877fe7a716",
+  "helper_bytes": 139768,
+  "helper_assignment_line": 12481,
+  "anchors": {
+    "writer_fence": 1582,
+    "helper_join": 1583,
+    "helper_return_kernel_branch": 2211,
+    "compute_join": 2405,
+    "pre_counter_join": 2426,
+    "counter_pointer": 2428,
+    "leader_fence": 2429,
+    "RMW": 2431,
+    "last_generation_bump": 2432,
+    "reader_acquire": 2433,
+    "post_counter_join": 2435,
+    "cleanup": 2440,
+    "capture_generation": 2341,
+    "zero_opposite_counter": 2356,
+    "untouched_fc_RMW": 1942
+  },
+  "weighted_us": {
+    "G0": {
+      "decode 1": 68.20387439088347,
+      "decode 16": 149.7007097249302,
+      "decode 32": 190.71903248703515,
+      "verify 1": 103.61862499583596,
+      "verify 16": 258.67070643168705,
+      "verify 32": 350.7969725295353
+    },
+    "607e": {
+      "decode 1": 78.54904481802234,
+      "decode 16": 158.24100957331893,
+      "decode 32": 191.73973579615884,
+      "verify 1": 115.9908228996333,
+      "verify 16": 269.347029111948,
+      "verify 32": 359.29721608943515
+    }
+  },
+  "conditional_all_G0_times_factor": 1.065243721279844,
+  "conditional_short_G0_times_factor": 1.0432449180720351
+}
