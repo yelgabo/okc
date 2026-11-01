@@ -1,0 +1,487 @@
+{
+  "scope": "Static reachable-and-conditional assignment sites; not runtime state or completeness proof. Native-eligible path is separately represented in the CPU fixture.",
+  "source": "muse_decode_layer\\cand\\g1b4_control_release.py",
+  "sha256": "706ca85d5c048ae4d9c1e3919d2f0895cda31561f6ed2f39ad7351e07621daa1",
+  "assignments": [
+    {
+      "scope": "bfp_sk2_prepare",
+      "key": "sk2",
+      "line": 9680,
+      "expression": "{}"
+    },
+    {
+      "scope": "bfp_fused_pooler_router",
+      "key": "fused_part",
+      "line": 9732,
+      "expression": "torch.empty(32 * 4 * 32 * 8, dtype=torch.float32, device=x.device)"
+    },
+    {
+      "scope": "bfp_fused_pooler_router",
+      "key": "fused_cnt",
+      "line": 9733,
+      "expression": "torch.zeros(32, dtype=torch.int32, device=x.device)"
+    },
+    {
+      "scope": "bfp_prepare",
+      "key": "dummy",
+      "line": 9755,
+      "expression": "torch.zeros(2, dtype=torch.int32, device=dev)"
+    },
+    {
+      "scope": "bfp_prepare",
+      "key": "ws_shared",
+      "line": 9762,
+      "expression": "torch.empty(ws_floats, dtype=torch.float32, device=dev)"
+    },
+    {
+      "scope": "bfp_prepare",
+      "key": "mid_ws_shared",
+      "line": 9768,
+      "expression": "torch.empty(gemm_floats, dtype=torch.float32, device=dev)"
+    },
+    {
+      "scope": "bfp_prepare",
+      "key": "ws_shared_diag",
+      "line": 9770,
+      "expression": "torch.empty(4 * 1024 * 1024, dtype=torch.float32, device=dev)"
+    },
+    {
+      "scope": "bfp_prepare",
+      "key": "router_hi_t",
+      "line": 9775,
+      "expression": "hi.t().contiguous()"
+    },
+    {
+      "scope": "bfp_prepare",
+      "key": "router_lo_t",
+      "line": 9776,
+      "expression": "lo.t().contiguous()"
+    },
+    {
+      "scope": "bfp_prepare",
+      "key": "router_cat",
+      "line": 9777,
+      "expression": "torch.cat([hi, lo], dim=1).contiguous()"
+    },
+    {
+      "scope": "bfp_prepare",
+      "key": "sm90",
+      "line": 9840,
+      "expression": "sm90_"
+    },
+    {
+      "scope": "bfp_prepare",
+      "key": "old_paths",
+      "line": 9841,
+      "expression": "old_paths"
+    },
+    {
+      "scope": "bfp__selftest",
+      "key": "disabled",
+      "line": 9888,
+      "expression": "set()"
+    },
+    {
+      "scope": "bfp__autotune",
+      "key": "choice",
+      "line": 10024,
+      "expression": "{}"
+    },
+    {
+      "scope": "_bfp_prepare",
+      "key": "bfp",
+      "line": 10107,
+      "expression": "None"
+    },
+    {
+      "scope": "_bfp_prepare",
+      "key": "bfp",
+      "line": 10110,
+      "expression": "bfp_prepare(w5)"
+    },
+    {
+      "scope": "_fork_native_ma_prepare",
+      "key": "ma_w",
+      "line": 10179,
+      "expression": "[torch.cat(wA), torch.cat(sA), weights['w13_gs'].float().contiguous(), torch.cat(wB), torch.cat(sB), weights['w2_gs'].float().contiguous(), lut.contiguous(), weights['post_expert_norm'].contiguous(), torch.cat([_fat_order(x, y) for x, y in zip(wA, sA)]), torch.cat([_fat_order(x, y) for x, y in zip(wB, sB)]), torch.cat([_unit_order(x, y) for x, y in zip(wA, sA)]), torch.cat([_unit_order(x, y) for x, y in zip(wB, sB)])]"
+    },
+    {
+      "scope": "_fork_native_ma_prepare",
+      "key": "ma_scratch",
+      "line": 10191,
+      "expression": "[_guarded(t) for t in _ma_make_scratch(dev)]"
+    },
+    {
+      "scope": "_tune",
+      "key": "moe_pick",
+      "line": 11018,
+      "expression": "{}"
+    },
+    {
+      "scope": "_tune",
+      "key": "gluev2",
+      "line": 11019,
+      "expression": "{}"
+    },
+    {
+      "scope": "_tune",
+      "key": "marlin_cfg",
+      "line": 11020,
+      "expression": "{}"
+    },
+    {
+      "scope": "_tune",
+      "key": "mm_pick",
+      "line": 11021,
+      "expression": "{}"
+    },
+    {
+      "scope": "_tune",
+      "key": "pbmax",
+      "line": 11133,
+      "expression": "0 if FORCE_PBMAX is None else FORCE_PBMAX"
+    },
+    {
+      "scope": "prepare",
+      "key": "attention_scratch",
+      "line": 11145,
+      "expression": "{'rows': {}, 'cluster': {}, 'retained': []}"
+    },
+    {
+      "scope": "prepare",
+      "key": "router_fp32",
+      "line": 11146,
+      "expression": "router.contiguous()"
+    },
+    {
+      "scope": "prepare",
+      "key": "qkv",
+      "line": 11147,
+      "expression": "weights['qkv_gate'].contiguous()"
+    },
+    {
+      "scope": "prepare",
+      "key": "o",
+      "line": 11148,
+      "expression": "weights['o'].contiguous()"
+    },
+    {
+      "scope": "prepare",
+      "key": "pr",
+      "line": 11149,
+      "expression": "torch.cat([weights['pooler'], hi, lo], 0).contiguous()"
+    },
+    {
+      "scope": "prepare",
+      "key": "unpool",
+      "line": 11150,
+      "expression": "weights['unpooler'].contiguous()"
+    },
+    {
+      "scope": "prepare",
+      "key": "unpool_slice",
+      "line": 11151,
+      "expression": "weights['unpooler'][:1024].contiguous()"
+    },
+    {
+      "scope": "prepare",
+      "key": "gate1",
+      "line": 11152,
+      "expression": "weights['attn_residual_gate'].contiguous()"
+    },
+    {
+      "scope": "prepare",
+      "key": "gate2",
+      "line": 11153,
+      "expression": "weights['ffn_residual_gate'].contiguous()"
+    },
+    {
+      "scope": "prepare",
+      "key": "g_preffn",
+      "line": 11154,
+      "expression": "weights['pre_ffn_norm'].contiguous()"
+    },
+    {
+      "scope": "prepare",
+      "key": "g_preexp",
+      "line": 11155,
+      "expression": "weights['pre_expert_norm'].contiguous()"
+    },
+    {
+      "scope": "prepare",
+      "key": "g_postexp",
+      "line": 11156,
+      "expression": "weights['post_expert_norm'].contiguous()"
+    },
+    {
+      "scope": "prepare",
+      "key": "g_postffn",
+      "line": 11157,
+      "expression": "weights['post_ffn_norm'].contiguous()"
+    },
+    {
+      "scope": "prepare",
+      "key": "g_next",
+      "line": 11158,
+      "expression": "weights['next_pre_attn_norm'].contiguous()"
+    },
+    {
+      "scope": "prepare",
+      "key": "bias",
+      "line": 11159,
+      "expression": "weights['router_bias'].float().contiguous()"
+    },
+    {
+      "scope": "prepare",
+      "key": "gs13",
+      "line": 11160,
+      "expression": "weights['w13_gs'].float().contiguous()"
+    },
+    {
+      "scope": "prepare",
+      "key": "gs2",
+      "line": 11161,
+      "expression": "weights['w2_gs'].float().contiguous()"
+    },
+    {
+      "scope": "prepare",
+      "key": "invf0",
+      "line": 11162,
+      "expression": "torch.zeros(32, device=dev)"
+    },
+    {
+      "scope": "prepare",
+      "key": "invf",
+      "line": 11163,
+      "expression": "(1.0 / ROPE_THETA ** (torch.arange(0, HEAD_DIM, 2, device=dev).float() / HEAD_DIM)).contiguous()"
+    },
+    {
+      "scope": "prepare",
+      "key": "ma_sfx",
+      "line": 11172,
+      "expression": "_MA_SFX_IF_PRMT if _MA_PRMT_SCALES and _ma_scales_prmt_exact(weights['w13_sf'], weights['w2_sf']) else ()"
+    },
+    {
+      "scope": "prepare",
+      "key": "ma_sc6",
+      "line": 11173,
+      "expression": "bool(SC6_WGS and st['ma_sfx'] and _wgs_on() and _sc6_ok(weights['w13_sf'], weights['w2_sf']))"
+    },
+    {
+      "scope": "prepare",
+      "key": "ma_ext",
+      "line": 11175,
+      "expression": "{}"
+    },
+    {
+      "scope": "prepare",
+      "key": "nsm",
+      "line": 11187,
+      "expression": "torch.cuda.get_device_properties(dev).multi_processor_count"
+    },
+    {
+      "scope": "prepare",
+      "key": "fa3",
+      "line": 11188,
+      "expression": "None"
+    },
+    {
+      "scope": "prepare",
+      "key": "bank",
+      "line": 11189,
+      "expression": "None"
+    },
+    {
+      "scope": "prepare",
+      "key": "att_ok",
+      "line": 11190,
+      "expression": "True"
+    },
+    {
+      "scope": "prepare",
+      "key": "ma_ok",
+      "line": 11191,
+      "expression": "True"
+    },
+    {
+      "scope": "prepare",
+      "key": "pbmax",
+      "line": 11192,
+      "expression": "2"
+    },
+    {
+      "scope": "prepare",
+      "key": "moe_pick",
+      "line": 11193,
+      "expression": "{}"
+    },
+    {
+      "scope": "prepare",
+      "key": "fa3",
+      "line": 11196,
+      "expression": "flash_attn_with_kvcache"
+    },
+    {
+      "scope": "prepare",
+      "key": "bank",
+      "line": 11197,
+      "expression": "None"
+    },
+    {
+      "scope": "prepare",
+      "key": "pbmax",
+      "line": 11204,
+      "expression": "2"
+    },
+    {
+      "scope": "prepare",
+      "key": "moe_pick",
+      "line": 11205,
+      "expression": "{}"
+    },
+    {
+      "scope": "prepare",
+      "key": "gluev2",
+      "line": 11206,
+      "expression": "{}"
+    },
+    {
+      "scope": "prepare",
+      "key": "marlin_cfg",
+      "line": 11207,
+      "expression": "{}"
+    },
+    {
+      "scope": "prepare",
+      "key": "mm_pick",
+      "line": 11208,
+      "expression": "{}"
+    },
+    {
+      "scope": "_graft_lt_plan",
+      "key": "graft_lt",
+      "line": 12275,
+      "expression": "plans"
+    },
+    {
+      "scope": "_graft_lt_plan",
+      "key": "graft_lt_status",
+      "line": 12276,
+      "expression": "{f'{k[0]}:{k[1]}': v for k, v in status.items()}"
+    },
+    {
+      "scope": "prepare",
+      "key": "graft",
+      "line": 12475,
+      "expression": "g"
+    },
+    {
+      "scope": "prepare",
+      "key": "compose_base_mm",
+      "line": 15322,
+      "expression": "dict(st['mm_pick'])"
+    },
+    {
+      "scope": "prepare",
+      "key": "compose_base_graft_lt",
+      "line": 15323,
+      "expression": "dict(st['graft_lt'])"
+    },
+    {
+      "scope": "prepare",
+      "key": "compose_active",
+      "line": 15324,
+      "expression": "set()"
+    },
+    {
+      "scope": "prepare",
+      "key": "compose_selection",
+      "line": 15325,
+      "expression": "[]"
+    },
+    {
+      "scope": "prepare",
+      "key": "compose_graft_enabled",
+      "line": 15326,
+      "expression": "{T: T in (1, 8, 128, 256) for T in (1, 8, 16, 32, 128, 256)}"
+    },
+    {
+      "scope": "prepare",
+      "key": "compose_boundary_warps",
+      "line": 15327,
+      "expression": "{}"
+    },
+    {
+      "scope": "prepare",
+      "key": "graft_lt",
+      "line": 15346,
+      "expression": "picked['graft_lt']"
+    },
+    {
+      "scope": "prepare",
+      "key": "router_fp32_ext",
+      "line": 16212,
+      "expression": "_RouterExt(_router_fp32_ext())"
+    },
+    {
+      "scope": "_router_fp32_gemv",
+      "key": "router_fp32_ext",
+      "line": 16219,
+      "expression": "_RouterExt(_router_fp32_ext())"
+    },
+    {
+      "scope": "_fork_prepare_marlin",
+      "key": "_fork_marlin_bank",
+      "line": 16788,
+      "expression": "_marlin_bank(weights)"
+    },
+    {
+      "scope": "_fork_prepare_marlin",
+      "key": "_fork_marlin_gamma",
+      "line": 16789,
+      "expression": "(weights['post_expert_norm'].float() + 1).to(torch.bfloat16)"
+    },
+    {
+      "scope": "_fork_prepare_marlin",
+      "key": "_fork_marlin_adapter",
+      "line": 16790,
+      "expression": "_ForkMarlinAdapter(st)"
+    },
+    {
+      "scope": "_fork_build_tasks",
+      "key": "_fork_native_eligible",
+      "line": 16800,
+      "expression": "eligible"
+    },
+    {
+      "scope": "_fork_build_tasks",
+      "key": "_fork_build_errors",
+      "line": 16801,
+      "expression": "{}"
+    },
+    {
+      "scope": "_fork_install_fallback",
+      "key": "_fork_native_eligible",
+      "line": 16814,
+      "expression": "False"
+    },
+    {
+      "scope": "_fork_install_fallback",
+      "key": "_fork_fallback_kind",
+      "line": 16816,
+      "expression": "'Marlin'"
+    },
+    {
+      "scope": "_fork_install_fallback",
+      "key": "_fork_moe_status",
+      "line": 16828,
+      "expression": "st['_fork_fallback_kind'] + ': ' + reason"
+    },
+    {
+      "scope": "_ma_prepare",
+      "key": "_fork_moe_status",
+      "line": 16858,
+      "expression": "'native repaired: cooperative+BF16, MFIN/DF/YBF/PDL off'"
+    }
+  ]
+}

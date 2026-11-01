@@ -1,5 +1,7 @@
 # Shared project steering
 
+Latest reset readiness: [Shared set-owner repair](2026-11-01-reset-host-readiness.md). Old stage/short/four-cell pins block on real G sets; narrow clone repair passes six CPU host tests and double regeneration. New pins require root review; actual H200 setup/capture remain unqualified. No queue or GPU action.
+
 Latest independent terminal: [Stage-local SX result and reader review](2026-11-01-sk-stage-terminal-independent.md). Owningdfcfdd01 PASS9/1.419147x, all10targets slower thanC2; independent6score/resources matchfixedreader. No retry/tuning/layerport.
 
 Latest stage-local source review: [Sparse stage arena proof](2026-11-01-sk-stage-repair-independent.md). Exactb726 format/lifetime and shared-helper RTX23bit checks pass. Separatede1111 single-arm qualifier source/5CPU tests clear; H200 resources/math/performance unqualified and global variant remains closed.
