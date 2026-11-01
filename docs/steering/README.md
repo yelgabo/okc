@@ -6,6 +6,8 @@ Latest root handoff: [Maintenance and measured-opportunity queue](2026-11-01-mai
 
 Latest root measurement: [One fixed four-cell layer measurement](2026-11-01-owned-verify-public-measurement.md). PublicH2001fad70bbe3854cbc running exact4ad326c3/980787B from43c6c09 after source/CPU/remote/preflight gates. No H200 result or promotion yet; incumbent607e retained.
 
+Latest private registration: [Short RMW whole-layer four-owner gate](2026-11-01-g-short-rmw-private-registration.md). Exactf0426f71/906841B, both arms607stage-on, onlyTiny/Tiny2counterflag differs; 36rows/allcross1%2xnull, normaljudgedcontrol. Source/score tests pass; finalpeerCPU/source commits pending, noGPU/queueclearance.
+
 Latest OFF native prototype: [Short helper final-counter RMW](2026-11-01-g-short-final-rmw-off.md). Exact607 Tiny/Tiny2 optional relaxed GPU RMW retains writer fences/acquire/joins and all math; threeCPUtests and selected sm90a PTX/SASS/resource gates pass. Compute-tail CTA-relay proof made explicit; no GPU/qualification/performance claim.
 
 Latest native repair audit: [G0 to607e expert inventory](2026-11-01-g-native-repair-inventory.md). Short helper paths carry the largest unexplained cross-profile gap; main MFIN/SC6 do not explain it. Required BF16/publication repairs separated from conservative PDL/YBF/DF choices; no large safe restoration or new GPU action.
