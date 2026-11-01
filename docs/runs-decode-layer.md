@@ -819,3 +819,4 @@ negativecapture-without-replaycontrolpass. NoadditionalGPUchecksolelymetadata. N
 2026-11-01 | a0da77c5f3c647c3 | baseline 32f1970 plus tools/dl_make_matched_short_boundary.py | identical prepared state, boundary and whole layer, four graphs per case and two seeds. Pending.
 a0da77c5f3c647c3 PASS13, control 2.017944x CI 1.987675–2.048213. Complete affected-load gate passes each seed on d1/v1. Fresh six-load confirm 35f2b5d66f51465b dispatched.
 35f2b5d66f51465b PASS13 control 2.022121x CI 1.991789–2.052452. All 24 rows. Six-load 1.003428 vs threshold 1.001450 and 1.001829 vs 1.003343. Both affected loads faster, second seed misses aggregate gate. Preserve experiment for combination.
+2026-11-01 | 59cc1343940f4bcb | 68c769d plus tools/dl_make_concat_layout.py | matched physical weight layout for concat-r at 128/256 tokens, FP64 and whole-layer comparisons. Pending.
