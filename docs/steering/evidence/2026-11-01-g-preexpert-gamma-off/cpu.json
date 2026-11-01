@@ -1,0 +1,10 @@
+{
+  "tests": 3,
+  "seconds": 3.484,
+  "finite_BF16_patterns": 65280,
+  "GPU": false,
+  "tools": {
+    "tools\\proj_g_preexpert_gamma.py": "d0d53f5ff24165219e007d524210fac5e9b976bf7c31b98e3491bf087ea08d7f",
+    "tools\\test_proj_g_preexpert_gamma.py": "7a87846eb888f76292bae5ac1ec35563061d6cc1e8674fc55f206e9cf51418ae"
+  }
+}
