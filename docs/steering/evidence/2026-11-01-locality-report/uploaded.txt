@@ -1,0 +1,262 @@
+# Accelerating MoE Inference with Locality-Aware Kernel Design: Technical Analysis and Reproduction Guide
+
+## Executive summary
+
+The April 2024 PyTorch post **“Accelerating MoE model inference with Locality-Aware Kernel Design”** investigates a narrow but important bottleneck in sparse Mixture-of-Experts inference: the expert GEMMs executed after top-*k* routing, especially the “skinny” matrix multiplications characteristic of autoregressive decoding. Starting from vLLM’s fused Mixtral MoE Triton kernel, the authors first apply **Split-K decomposition**, reporting roughly **18–20% kernel speedup**, then change the GEMM tile-launch order so output tiles are visited in **column-major order**, increasing temporal locality for expert-weight tiles. PyTorch reports up to **4× acceleration on A100 and 4.4× on H100**, a **2.7× kernel speedup at batch/token dimension \(M=2\)** on H100, **2.54× higher L2 hit rate**, about **49–50% fewer global/DRAM loads**, and an initial **70% end-to-end improvement** in an experimental integration. citeturn672743view0turn607345search0
+
+Those headline numbers need a substantial qualification. Independent integration attempts uncovered **correctness failures**, including vLLM PR #3905, whose author reported that several shapes failed CI and that DeepSeek-MoE produced garbage output. A later issue in the original `applied-ai` repository identifies what appears to be a concrete indexing error in the published column-major scheduling helper: the code computes `pid_m = pid % grid_n` while the intended traversal described in the blog requires advancing `pid_m` over the number of **M tiles**, i.e. `grid_m`. The issue observes that the published expression can assign invalid M tile indices, causing many programs to return early and potentially making an incorrect kernel look artificially fast. The repository issue remains open in the archived repository. citeturn201148view0turn733916view1
+
+This does **not** invalidate the underlying optimization principle. Reordering GEMM tiles to exploit cache reuse is standard and remains important in current Triton, PyTorch and production MoE implementations. PyTorch’s later 2025 grouped-GEMM work reports a **1.33× gain and +60% L2-hit-rate improvement** from cache-aware launch ordering, while modern Triton provides grouped and persistent GEMM tutorials and PyTorch now exposes `torch.nn.functional.grouped_mm` specifically for jagged per-expert token counts. Meta’s later MetaShuffling MoE system also sorts tokens by expert and uses GroupedGEMM to avoid host synchronization and unnecessary padding. citeturn254933search0turn254933search2turn254933search8turn486751search3
+
+The most defensible interpretation of the 2024 post is therefore: **its cache-locality diagnosis and general technique are valuable, but the exact published v2 implementation and its benchmark numbers should not be treated as validated production results without correcting and revalidating the launch mapping.** The strongest community reproduction I found measured the supplied microbenchmark at **2–3× faster on H100**, but only about **25% faster in a two-H100 Mixtral experiment and essentially no end-to-end throughput improvement on eight H100s**. Another user reported a purported reproduction running almost **10× slower than the posted number** for one GEMM shape even after adding CUDA graphs and moving allocation outside the measured call. citeturn865466view0turn733916view0
+
+I searched the original blog title and URL, GitHub repositories/issues, PyTorch and vLLM discussions, and broader web results for the specific assertion that someone used this material to move a **leaderboard rank from 170 to 80**. I found **no credible post, thread, repository, benchmark record, or issue connecting this article or these MoE optimizations to a 170→80 leaderboard improvement**. Searches for the exact rank pair and combinations with “MoE,” “Triton,” “column-major,” and the repository name produced unrelated leaderboard records. The claim should therefore be considered **unsubstantiated based on publicly indexed evidence available through November 1, 2026**. citeturn318984search0turn318984search1turn318984search7
+
+## What the PyTorch article actually does
+
+Mixtral 8x7B replaces each Transformer feed-forward block with eight experts and routes every token to its top two experts. Although the model contains roughly **47B parameters**, only about **13B are active for a token**. The MoE GEMM receives stacked expert weights plus a token-to-expert mapping produced by the router; the blog focuses specifically on accelerating this operation during inference/decode rather than optimizing the routing network itself or the whole serving stack. citeturn672743view0turn692396academia6
+
+The kernel implementation groups routed token assignments by expert, pads the assignments so each expert’s token count is compatible with the M tile size, and performs each selected expert matrix multiplication inside a fused Triton kernel. The public code family contains three conceptual stages: a grouped-launch baseline, a Split-K variant, and the column-major variant. The current indexed repository documentation describes `hidden_states` as `[M,K]`, expert weights as stacked tensors, `topk_ids`/`topk_weights` as routing metadata, and `sorted_token_ids` as token assignments sorted by expert. citeturn829516search3turn865466view0
+
+The central code-level change is tiny. The scheduling helper maps a one-dimensional Triton program ID into the output tile coordinates `(pid_m, pid_n)`. Conceptually, the desired mapping is:
+
+```python
+grid_m = triton.cdiv(M, BLOCK_M)
+grid_n = triton.cdiv(N, BLOCK_N)
+
+# Intended column-major traversal:
+pid_m = pid % grid_m
+pid_n = pid // grid_m
+```
+
+That produces the sequence \(C_{0,0}, C_{1,0}, C_{2,0}, \ldots\), keeping a given expert-weight column tile “hot” while multiple M tiles reuse it. The blog explicitly describes this traversal and contrasts it with row-major \(C_{0,0}, C_{0,1}, C_{0,2},\ldots\), which revisits the same weight tile less promptly and therefore risks more L2 eviction. citeturn808979search1
+
+The **published repository implementation indexed today, however, is different**:
+
+```python
+grid_m = tl.cdiv(m, block_m)
+grid_n = tl.cdiv(n, block_n)
+
+pid_m = pid % grid_n
+pid_n = pid // grid_m
+```
+
+That discrepancy was independently flagged in issue #25: when `grid_m != grid_n`, `pid_m` may range according to the wrong dimension, and the kernel’s subsequent bounds check can cause programs to exit. This is precisely the sort of issue that demands correctness-before-performance validation. citeturn733916view1turn808979search0
+
+The other major change, **Split-K**, divides the reduction dimension \(K\) among multiple CTAs. Instead of one CTA producing a complete C tile, `split_k` CTAs each compute a partial reduction and combine their results with atomics. This increases available parallelism from roughly the number of MN output tiles to MN × `split_k`, which is valuable when M is tiny and the conventional grid cannot fill the GPU. PyTorch reports an **18–20% gain over the original data-parallel decomposition**. citeturn672743view0turn196849view2
+
+The cost is extra reduction traffic, atomic contention and intermediate/output synchronization. The authors' preceding W4A16 Split-K study found an average **65% improvement on A100** and **124% on H100**, with a peak of **295%**, across skinny GEMM workloads, but those measurements are a different quantized GEMM experiment and should not be conflated with the 18–20% MoE result. citeturn196849view2
+
+The following figure from the PyTorch article illustrates why the scheduling optimization looked attractive at the kernel level:
+
+iturn632788image0
+
+### Reported performance
+
+| Measurement | Reported result | Scope | Confidence / caveat |
+|---|---:|---|---|
+| Split-K vs original data-parallel MoE kernel | ~18–20% faster | Kernel | Plausible, but shape-dependent. citeturn672743view0 |
+| Column-major vs alternative schedules, A100 | Up to ~4× | Kernel | Published result; affected by later correctness concern. citeturn672743view0turn733916view1 |
+| Column-major, H100 | Up to 4.4× | Kernel | Published result; same qualification. citeturn672743view0 |
+| H100 at \(M=2\) | 2.7× faster | Kernel | Accompanied by hardware profiling. citeturn672743view0 |
+| L1 hit-rate increase at \(M=2\) | +2696% | Nsight metric | Relative increase from a very low baseline; absolute hit rate matters more. citeturn672743view0 |
+| L2 hit-rate increase | +254%, described as 2.54× | Nsight metric | The article uses both formulations. citeturn672743view0 |
+| Global-memory-load reduction | 49%, roughly 50% DRAM reduction | Nsight metric | Supports the intended locality mechanism. citeturn672743view0 |
+| Preliminary end-to-end test | ~70% faster | Model inference | Authors explicitly say routing inconsistencies prevented treating this as production-ready. citeturn672743view0 |
+| Independent supplied microbenchmark, H100 | 2–3× | Kernel | Community report. citeturn865466view0 |
+| Independent Mixtral, 2×H100 | ~25% | End-to-end/serving | Community report, much smaller than microbenchmark gain. citeturn865466view0 |
+| Independent Mixtral, 8×H100 | No observable acceleration | End-to-end/serving | Communication/system overhead dominates or hides kernel gain. citeturn865466view0 |
+| Independent M=1, N=K=8192 attempt | ~350 µs, claimed nearly 10× slower than post | Microbenchmark | User could not reproduce headline number with defaults. citeturn733916view0 |
+
+The gap between kernel and model-level performance is expected. An MoE request also pays for router softmax/top-k, token sorting or padding, activation functions, combine/scatter, attention, scheduler overhead, kernel launches and, when distributed, inter-GPU dispatch/combine communication. Modern vLLM’s expert-parallel design explicitly separates these concerns and offers different all-to-all backends for prefill and latency-sensitive decode. citeturn486751search0turn486751search2
+
+## Techniques, prerequisites, and expected effects
+
+| Technique | Mechanism | Main prerequisite | Throughput / latency effect | Memory effect | Where it helps most |
+|---|---|---|---|---|---|
+| **Top-k routing** | Router scores experts; only selected experts process each token. Mixtral uses top-2 of 8. | Sparse-MoE architecture and routing metadata. | Cuts expert FLOPs relative to evaluating all experts, but introduces routing and irregularity overhead. | All experts normally remain resident unless sharded/offloaded; active computation is sparse but model storage is not automatically sparse. citeturn692396academia6turn462072search4 | Fundamental MoE mechanism. |
+| **Token sorting / expert grouping** | Reorder token-expert assignments so tokens for one expert are contiguous. | Routing IDs and a fast sort/alignment kernel. | Enables larger GEMMs and coherent expert access; sorting itself costs bandwidth. | May require temporary index/output buffers; padding can add waste. citeturn865466view0turn486751search3 | All MoE GEMM implementations. |
+| **Block alignment / padding** | Pad each expert’s token count to a tile multiple. | Fixed GEMM block size. | Simplifies efficient tile execution but wastes compute when expert loads are small/imbalanced. | Adds temporary padded activations/indices. citeturn865466view0turn692396academia5 | Simple fused MoE kernels. |
+| **Split-K** | Several CTAs reduce different K ranges of the same output tile, then atomically accumulate. | Output atomic support and sufficient K dimension. | Improves occupancy/load balance for tiny M; can hurt when atomic overhead exceeds extra parallelism. | Extra output/reduction traffic; may require FP32 accumulation buffer for unsupported atomic types. citeturn672743view0turn196849view2 | Decode / skinny GEMMs. |
+| **Column-major tile scheduling** | Traverse M tiles for a fixed N tile before moving across N. | Weight-reuse opportunity and tile mapping that is mathematically correct. | Reduces L2/DRAM traffic; potentially large latency benefit when memory-bound. | Does not materially reduce model memory; reduces memory **traffic**. citeturn808979search1 | Skinny A × large expert B matrices. |
+| **Grouped launch ordering** | Process a band of M rows while traversing N, balancing A and B reuse. | Tunable group size. | Often a safer general-purpose locality strategy; PyTorch’s later grouped-GEMM work reports 1.33× from scheduling alone in one tested shape. | Mainly reduces traffic, not storage. citeturn254933search0 | Prefill/training and larger per-expert GEMMs. |
+| **Grouped GEMM** | Execute multiple experts’ independent GEMMs inside one kernel. | Tokens grouped by expert; compatible shapes/layout. | Reduces launch overhead and raises GPU utilization versus one GEMM launch per expert. | Avoids some per-GEMM temporary overhead; jagged layouts can avoid padding. citeturn254933search2turn254933search8 | Prefill and batched MoE. |
+| **Persistent kernels** | Launch roughly one CTA per SM and feed each CTA several output tiles. | Kernel implementation capable of work-loop scheduling. | Reduces launch/scheduling overhead and wave quantization; better for large grouped-GEMM workloads. | Can retain state/registers longer; no intrinsic reduction in parameter storage. citeturn254933search4turn254933search0 | Larger Hopper/Blackwell workloads. |
+| **CUDA Graphs** | Capture and replay a fixed GPU execution graph. | Graph-safe operations, stable addresses and sufficiently static control/shape behavior. | Removes much Python/C++/driver launch overhead, especially important for small-batch decode. | Requires stable buffers/workspaces, often increasing reserved memory. citeturn254933search6turn254933search7 | Latency-sensitive decode. |
+| **Kernel fusion** | Fuse routing weights, activation/dequantization or adjacent operations into GEMM. | Custom kernel and compatible layouts/numerics. | Reduces reads/writes and launches. | Reduces intermediate-memory traffic, sometimes buffers. citeturn672743view1turn486751search3 | Decode and quantized paths. |
+| **W4A16 / fused dequantization** | Store 4-bit weights, dequantize while performing GEMM. | Quantized checkpoint, scales/zero-points and specialized kernel. | Much lower weight bandwidth; dequantization adds instructions but can remain bandwidth-positive. | Approximately quarters raw weight storage versus FP16 before metadata, and reduces bandwidth. citeturn196849view2turn486751search2 | Memory-bound inference. |
+| **Expert parallelism** | Place different experts on different GPUs and dispatch tokens via collectives. | Multi-GPU system and high-bandwidth communication. | Increases effective capacity/locality, but dispatch/combine all-to-all can dominate latency. | Reduces expert parameters resident per GPU. citeturn462072search4turn486751search0 | Models whose expert weights do not fit efficiently on each GPU. |
+| **Block-sparse expert computation** | Represent dynamically routed expert work as sparse blocks instead of padding/dropping tokens. | Specialized sparse kernels such as MegaBlocks. | MegaBlocks reports up to 40% training gain over Tutel while avoiding token dropping. | Avoids padded compute/storage for empty token positions. citeturn692396academia5turn692396search0 | Training; conceptually relevant to inference irregularity. |
+| **MetaShuffling / static dense interface** | Sort routed tokens by expert while preserving a static-shaped dense interface. | Custom shuffling/scatter kernels and grouped GEMM. | Avoids host-device synchronization and padding compute; graph-friendly. | Avoids padding computation, while static buffers may still reserve space. citeturn486751search3 | Modern production MoE inference. |
+
+A subtle point is that **“column-major” here is not about changing the tensor’s physical storage order**. It is a change in the **logical order in which Triton program instances compute output tiles**. The intended benefit is temporal locality in L2: consecutive CTAs request the same or nearby portions of the expert-weight matrix before those cache lines are evicted. citeturn808979search1
+
+Likewise, “sparsity” in MoE does not by itself make memory capacity proportional to the active parameter count. Without expert sharding or offloading, every expert’s weights still have to exist somewhere accessible to the accelerator. PyTorch’s own MoE training write-up explicitly notes this distinction, which is one reason expert parallelism is so important at larger scale. citeturn462072search4
+
+## Community reproduction and validation record
+
+The community record is unusually important here because it changes how the original benchmarks should be interpreted.
+
+| Artifact | Type | What happened | Evaluation |
+|---|---|---|---|
+| vLLM issue **#3855** | GitHub issue | Proposed adopting the PyTorch Labs kernel because of the reported 2.7–4.4× gains. vLLM maintainers initially welcomed collaboration. citeturn672743view1 | Shows serious downstream interest, but is not a reproduction. |
+| vLLM PR **#3905** | GitHub PR | Attempted direct integration. Several matrix shapes failed correctness tests; DeepSeek-MoE generated nonsensical output. PR was eventually closed for prioritization. citeturn201148view0turn201148view1 | Strong negative correctness evidence against simply copying the published kernel. |
+| `applied-ai` issue **#17** | GitHub issue | Tracks the same vLLM integration and explicitly reports correctness failures on several shapes. citeturn733916view2 | Corroborates PR #3905. |
+| `applied-ai` issue **#23** | GitHub issue | User reports ~350 µs for M=1, N=K=8192—almost 10× slower than the number they believed the post implied—even after CUDA graph capture and moving allocation outside the call. citeturn733916view0 | Suggests benchmark configuration/tuning was insufficiently specified for exact reproduction. |
+| `applied-ai` issue **#24** | GitHub issue | 8×H100: supplied microbenchmark 2–3× faster, 2×H100 Mixtral about 25% faster, 8×H100 Mixtral no visible gain. citeturn865466view0 | Best public evidence that the locality idea can improve the microkernel while having much smaller system-level impact. |
+| `applied-ai` issue **#25** | GitHub issue | Identifies `pid_m = pid % grid_n` as apparently incorrect and notes that many blocks may return without computing. citeturn733916view1 | Most serious challenge to the original headline numbers; must be resolved before trusting v2 results. |
+| Current vLLM fused-MoE code | Production repo/docs | vLLM continues using optimized fused MoE kernels, including grouped ordering, sorting/alignment, quantized paths and modern EP backends. citeturn808979search3turn486751search2 | The ideas survived, but not as an obvious direct adoption of the published v2 kernel. |
+| PyTorch 2025 persistent grouped GEMM | PyTorch blog/code | Uses persistent execution plus cache-aware grouped ordering; reports up to 2.62× over a PyTorch loop and 1.33×/+60% L2 from scheduling in one experiment. citeturn254933search0 | Strong later confirmation of the locality principle with a different implementation. |
+| MetaShuffling | PyTorch/FBGEMM design | Sorts tokens by expert, avoids padding/splitting and uses GroupedGEMM with graph-friendly static layouts. citeturn486751search3 | Represents a more mature production direction for the same underlying irregular-MoE problem. |
+
+The original repository itself has since been **archived and made read-only**, which further argues against treating it as a maintained production kernel source. citeturn865466view0turn498142search0
+
+The **170→80 leaderboard claim** did not appear in any of these artifacts, nor in indexed PyTorch forums, GitHub issues/repositories or broader searches I performed. Because a leaderboard name was not specified, there is always a possibility of an unindexed private Discord/X post or a competition record that does not mention the blog explicitly, but there is no public evidence sufficient to attribute such an improvement to this work. citeturn318984search0turn318984search7
+
+## Related research and where the field moved
+
+The blog rests on ideas substantially older than this particular implementation. **Switch Transformers** established the practical appeal of sparse expert activation at very large scale while emphasizing that communication and routing complexity are central costs. **Mixtral of Experts** provides the exact architecture targeted by the PyTorch experiment: eight FFN experts with two selected per token. citeturn692396academia7turn692396academia6
+
+**MegaBlocks** attacks the complementary problem of routing-induced irregularity by expressing expert computation as block-sparse operations. It avoids both token dropping and wasteful dense padding and reports up to **40% end-to-end training speedup over Tutel** and up to **2.4× over dense Megatron-LM** in its study. This is mostly a training result, but it demonstrates a broader principle that remains relevant to inference: hardware efficiency depends less on “sparse FLOP count” than on how irregular work is mapped onto dense tensor-core-friendly tiles. citeturn692396academia5turn692396search0
+
+PyTorch’s later **persistent cache-aware Grouped GEMM** work shifts from the 2024 decode-oriented kernel to BF16 grouped GEMMs applicable to DeepSeek-style MoE training/inference. It combines a fixed/persistent CTA population, grouped launch order and Hopper-specific data movement, and reports up to **2.62× versus a manual PyTorch loop** on H100. This work provides useful independent validation of cache-aware scheduling without relying on the questionable v2 tile mapping. citeturn254933search0
+
+The current Triton documentation now includes a **Group GEMM** tutorial that dispatches a fixed number of CTAs and performs scheduling on-device, plus persistent-kernel material explaining why keeping programs alive across multiple work tiles can reduce scheduler overhead and improve pipelining. citeturn254933search2turn254933search4
+
+Current PyTorch also has `torch.nn.functional.grouped_mm`, whose API is explicitly designed for the jagged per-expert token counts common in MoE layers. Its current documentation says CUDA inputs are expected to be BF16 and require **SM80 or newer**, with layout constraints determined by the grouped-GEMM kernels. This should be considered before writing a bespoke 2024-style kernel from scratch. citeturn254933search8
+
+For system-level serving, **expert parallelism** has become increasingly sophisticated. Current vLLM provides multiple dispatch/combine backends, including different DeepEP modes tuned for high-throughput prefill and low-latency decode; this reflects the fact that once expert GEMM itself is optimized, all-to-all communication and load imbalance become first-order bottlenecks. citeturn486751search0turn486751search1
+
+Meta’s **MetaShuffling** work makes the same progression explicit: sort by expert, avoid host/device synchronization, eliminate unnecessary padding, aggressively fuse kernels, then overlap compute, memory and network traffic where possible. That is a more complete optimization hierarchy than focusing solely on GEMM tile order. citeturn486751search3
+
+## Reproduction methodology and actionable implementation path
+
+Because no model, hardware or dataset was specified, the replication procedure should first establish whether your workload is **decode-dominated or prefill-dominated**, whether all experts fit on one GPU, and whether you are measuring one kernel or a full serving system. A100/H100 are the closest hardware to the original experiment; on Hopper and newer GPUs, modern grouped/persistent kernels may be a stronger baseline than the 2024 code. citeturn672743view0turn254933search0
+
+A rigorous reproduction should proceed in this order:
+
+1. **Freeze a baseline environment and workload.** Record GPU model, CUDA driver/runtime, PyTorch, Triton, vLLM, clock/power settings, dtype, expert count \(E\), top-*k*, hidden/intermediate dimensions, token count \(M\), prefill/decode mix and tensor/expert-parallel topology. For an original-style Mixtral experiment, use `E=8`, `top_k=2` and sweep M from tiny decode values through several hundred tokens. The original repo’s benchmark targeted Mixtral-like \(K≈4096\) and intermediate dimensions around 14336. citeturn692396academia6turn829516search3
+
+2. **Build a trusted numerical reference before changing scheduling.** Implement routing and expert FFNs in straightforward PyTorch or use the current vLLM implementation. Generate random but deterministic inputs and routing assignments. Compare every candidate kernel against the reference for many shapes, expert imbalances and routing distributions using absolute/relative tolerances appropriate for FP16/BF16. Do this **before** timing anything. The published v2 kernel’s launch-map issue makes this mandatory. citeturn733916view1turn201148view0
+
+3. **Reproduce the baseline fused MoE path.** Sort or align token assignments by expert, construct `sorted_token_ids`, `expert_ids` and the post-padding token count, then execute a conventional grouped-launch GEMM. Verify that routing weights, activation (`SwiGLU`/SiLU-and-multiply where applicable) and final expert combination are numerically identical to the reference. vLLM’s fused-MoE documentation provides a useful production comparison point. citeturn486751search2turn865466view0
+
+4. **Add Split-K independently.** Parameterize `SPLIT_K ∈ {1,2,4,...}` and partition K so each CTA advances by `BLOCK_K × SPLIT_K`; combine partial outputs atomically or through a dedicated reduction buffer. Do not assume Split-K helps all shapes: the extra parallelism is most useful when M is so small that the MN tile grid underfills the GPU. citeturn672743view0turn196849view2
+
+5. **Implement the corrected column-major mapping, not the literal archived v2 expression.** The traversal described in the article requires `pid_m = pid % grid_m` and `pid_n = pid // grid_m`. Assert at development time that every legal `(m_tile,n_tile)` is generated exactly once. A simple CPU enumeration over program IDs can catch missing, duplicated or out-of-range tiles before GPU benchmarking. The archived code's `grid_n` modulus should be treated as suspect unless independently proven correct for your dimension convention. citeturn808979search1turn733916view1
+
+6. **Autotune block shape and scheduling separately.** Sweep `BLOCK_M`, `BLOCK_N`, `BLOCK_K`, number of warps/stages, group size and Split-K. PyTorch’s official custom-Triton tutorial supports `triton.autotune`, and current `torch.compile` supports user-defined Triton kernels. Keep a separate tuning cache per GPU architecture and relevant M regime; a decode optimum is unlikely to be a prefill optimum. citeturn254933search1turn254933search7
+
+7. **Measure kernel latency with CUDA events or Triton’s benchmark utilities, not wall-clock Python time.** Warm up compilation and caches, run enough repetitions for stable percentiles, synchronize appropriately, and exclude allocations, weight loading, compilation and autotuning from steady-state timing unless you explicitly want cold-start latency. Issue #23 is a cautionary example of how graph capture and allocation placement materially change small-kernel measurements. citeturn733916view0turn254933search6
+
+8. **Profile the mechanism, not only elapsed time.** Use Nsight Compute to collect L1/L2 hit rates, DRAM bytes/transactions, achieved occupancy, tensor-core utilization, SM active time, warp stalls and global load counts. A valid locality win should show reduced memory traffic or improved cache reuse *without* reduced output coverage. The original post’s most useful evidence is the combination of speedup with lower global loads and higher cache hit rates. citeturn672743view0
+
+9. **Use CUDA Graphs for decode only after correctness is established.** Graph replay can eliminate Python, C++ and driver launch overhead, which becomes significant when individual MoE kernels are tens of microseconds. Static addresses/control flow are important; dynamic routing complicates capture, so either use fixed-capacity/static buffers or a graph-friendly design similar to later shuffling-based systems. citeturn254933search6turn486751search3
+
+10. **Measure complete MoE-layer and full-model performance separately.** Record routing, sort/alignment, first expert GEMM, activation, second expert GEMM, combine/scatter, attention and communication. Report kernel-only latency, MoE-layer latency, tokens/s, TTFT and inter-token latency independently. The public 8×H100 reproduction demonstrates why a 2–3× GEMM improvement can disappear at whole-model scale. citeturn865466view0
+
+11. **For multi-GPU workloads, test expert parallelism explicitly.** Compare TP-only against EP where the model/framework permits it; collect all-to-all dispatch and combine durations independently from GEMM time. On multi-node systems, network topology, NVLink/NVSwitch versus PCIe, and the chosen collective backend can dominate any single-kernel gain. Current vLLM exposes distinct low-latency and high-throughput EP backends for exactly this reason. citeturn486751search0
+
+12. **Benchmark against a modern grouped-GEMM baseline before shipping.** At minimum compare your custom kernel against current vLLM fused MoE, PyTorch `grouped_mm`, and an appropriate Triton grouped/persistent implementation. For H100-class hardware, a 2024 kernel may lose to newer TMA/persistent designs even if its locality optimization is sound. citeturn254933search0turn254933search2turn254933search8
+
+```mermaid
+flowchart TD
+    A[Freeze hardware, software, model shapes] --> B[Create trusted PyTorch/vLLM numerical reference]
+    B --> C[Baseline grouped fused MoE]
+    C --> D{Correct for all shapes and routes?}
+    D -- No --> B
+    D -- Yes --> E[Add Split-K]
+    E --> F[Add corrected column-major tile schedule]
+    F --> G[Autotune tile sizes, warps, stages, Split-K]
+    G --> H[Kernel microbenchmark]
+    H --> I[Nsight: L2, DRAM, occupancy, tensor cores]
+    I --> J{Speedup caused by real locality?}
+    J -- No --> G
+    J -- Yes --> K[CUDA Graph / launch-overhead optimization]
+    K --> L[End-to-end MoE layer benchmark]
+    L --> M[Full model: TTFT, ITL, tokens/s]
+    M --> N{Multi-GPU?}
+    N -- Yes --> O[Measure EP dispatch/combine and topology]
+    N -- No --> P[Production validation]
+    O --> P
+```
+
+A representative corrected scheduling fragment is therefore:
+
+```python
+@triton.jit
+def col_major(pid, m, n,
+              BLOCK_M: tl.constexpr,
+              BLOCK_N: tl.constexpr):
+    grid_m = tl.cdiv(m, BLOCK_M)
+    grid_n = tl.cdiv(n, BLOCK_N)
+
+    # C(0,0), C(1,0), ..., then C(0,1), ...
+    pid_m = pid % grid_m
+    pid_n = pid // grid_m
+    return pid_m, pid_n
+```
+
+For development, add a host-side invariant test equivalent to:
+
+```python
+tiles = []
+for pid in range(grid_m * grid_n):
+    pm = pid % grid_m
+    pn = pid // grid_m
+    tiles.append((pm, pn))
+
+assert len(tiles) == grid_m * grid_n
+assert len(set(tiles)) == len(tiles)
+assert set(tiles) == {
+    (m, n)
+    for n in range(grid_n)
+    for m in range(grid_m)
+}
+```
+
+The invariant matters more than the exact spelling of the mapping: every output tile must be computed once, routing metadata must select the correct expert, padded tokens must be masked rather than mistaken for real tokens, and the final weighted expert sum must remain numerically equivalent to the reference. The vLLM integration failures demonstrate that a faster kernel without these guarantees is not a valid result. citeturn201148view0turn733916view1
+
+## Risks, limitations, and interpretation
+
+The largest limitation is **correctness uncertainty in the original released column-major code**. The discrepancy between the blog’s intended tile order and the indexed v2 implementation is concrete, and independent users reported both output errors and skipped-work concerns. Until the exact benchmark commit and corrected scheduling logic are reconstructed and validated, the reported 4×/4.4× maxima should be treated as **historical experimental claims, not independently verified speedups**. citeturn733916view1turn201148view0
+
+The second limitation is **microbenchmark-to-system extrapolation**. Kernel-level TFLOPS can improve dramatically while tokens/s barely move if router/sort/activation/attention/communication or CPU launch overhead dominates. The 8×H100 community test is the clearest empirical example: 2–3× on the supplied microbenchmark, ~25% with two H100s, and no visible acceleration with eight. citeturn865466view0
+
+The third is **shape dependence**. Column-major scheduling is motivated by small-M, large-weight GEMMs. Large prefill batches change arithmetic intensity, occupancy and reuse behavior; grouped launch or persistent grouped GEMM can become preferable. Current Triton and PyTorch work therefore relies heavily on autotuning and workload-specific scheduling rather than one universal mapping. citeturn254933search0turn254933search2
+
+The fourth is **dtype and architecture dependence**. The original post tested its primary kernel claims in FP16 and noted BF16/Split-K atomic limitations at the time. Triton’s APIs and GPU-native atomic capabilities have evolved since 2024, so those historical constraints should not be assumed unchanged; current Triton exposes `atomic_add`, while actual supported efficient dtypes remain hardware- and lowering-dependent and need direct testing. citeturn672743view0turn545331search0turn545331search2
+
+The fifth is **memory versus bandwidth confusion**. Column-major scheduling can drastically reduce weight traffic without shrinking the model. If a MoE does not fit, the relevant techniques are quantization, expert parallelism or offloading; locality alone cannot solve capacity. Expert parallelism then introduces communication that may overwhelm the GEMM savings. citeturn462072search4turn486751search0
+
+Finally, the optimization landscape has moved considerably since 2024. For a new implementation in 2026, reproducing this blog is most useful as an **educational experiment and a locality baseline**. For production, the practical starting point should generally be a maintained current vLLM/PyTorch grouped-MoE path, with custom scheduling introduced only after profiling shows that expert GEMM memory traffic remains the dominant bottleneck. citeturn486751search2turn254933search8turn254933search0
+
+## Sources and primary references
+
+| Source | Type | Relevance | Link |
+|---|---|---|---|
+| Hoque et al., “Accelerating MoE model inference with Locality-Aware Kernel Design” | PyTorch blog | Primary article under analysis | [PyTorch](https://pytorch.org/blog/accelerating-moe-model/) citeturn672743view0 |
+| `meta-pytorch/applied-ai` | Repository | Original experimental Triton kernels; now archived | [GitHub](https://github.com/meta-pytorch/applied-ai) citeturn498142search0 |
+| vLLM issue #3855 | GitHub issue | Proposal to integrate the reported kernel | [GitHub](https://github.com/vllm-project/vllm/issues/3855) citeturn672743view1 |
+| vLLM PR #3905 | GitHub PR | Integration attempt exposing correctness failures | [GitHub](https://github.com/vllm-project/vllm/pull/3905) citeturn201148view0 |
+| `applied-ai` issue #17 | GitHub issue | Additional report of vLLM correctness failures | [GitHub](https://github.com/meta-pytorch/applied-ai/issues/17) citeturn733916view2 |
+| `applied-ai` issue #23 | GitHub issue | Failed attempt to reproduce posted latency numbers | [GitHub](https://github.com/meta-pytorch/applied-ai/issues/23) citeturn733916view0 |
+| `applied-ai` issue #24 | GitHub issue / benchmark report | 2–3× microbenchmark, ~25% 2-GPU, no 8-GPU gain | [GitHub](https://github.com/meta-pytorch/applied-ai/issues/24) citeturn865466view0 |
+| `applied-ai` issue #25 | GitHub issue | Identifies apparent column-major program-ID bug | [GitHub](https://github.com/meta-pytorch/applied-ai/issues/25) citeturn733916view1 |
+| Hoque et al., “Accelerating a Triton Fused Kernel for W4A16 Quantized Inference with SplitK…” | Paper | Primary source for Split-K antecedent | [arXiv](https://arxiv.org/abs/2402.00025) citeturn196849view2 |
+| Jiang et al., “Mixtral of Experts” | Paper | Architecture targeted by the blog | [arXiv](https://arxiv.org/abs/2401.04088) citeturn692396academia6 |
+| Fedus et al., “Switch Transformers” | Paper | Foundational sparse-MoE routing/scaling work | [arXiv](https://arxiv.org/abs/2101.03961) citeturn692396academia7 |
+| Gale et al., “MegaBlocks” | Paper | Block-sparse dropless MoE implementation | [arXiv](https://arxiv.org/abs/2211.15841) citeturn692396academia5 |
+| `databricks/megablocks` | Repository | Reference implementation of MegaBlocks | [GitHub](https://github.com/databricks/megablocks) citeturn692396search0 |
+| PyTorch, “Accelerating MoE’s with a Triton Persistent Cache-Aware Grouped GEMM Kernel” | PyTorch blog | Later cache-aware persistent/grouped GEMM work | [PyTorch](https://pytorch.org/blog/accelerating-moes-with-a-triton-persistent-cache-aware-grouped-gemm-kernel/) citeturn254933search0 |
+| PyTorch, “MetaShuffling: Accelerating Llama 4 MoE Inference” | PyTorch blog | Later production-oriented MoE routing/grouped-GEMM design | [PyTorch](https://pytorch.org/blog/metashuffling-accelerating-llama-4-moe-inference/) citeturn486751search3 |
+| Triton Group GEMM tutorial | Official documentation | Current grouped-GEMM implementation pattern | [Triton](https://triton-lang.org/main/getting-started/tutorials/08-grouped-gemm.html) citeturn254933search2 |
+| Triton Persistent Kernels tutorial | Official documentation | Persistent work scheduling | [Triton](https://triton-lang.org/main/getting-started/tutorials/gluon/persistence.html) citeturn254933search4 |
+| PyTorch `grouped_mm` | Official documentation | Native current grouped GEMM API for MoE-style jagged groups | [PyTorch docs](https://docs.pytorch.org/docs/main/generated/torch.nn.functional.grouped_mm.html) citeturn254933search8 |
+| PyTorch custom Triton + `torch.compile` tutorial | Official documentation | Recommended integration/autotuning mechanism | [PyTorch docs](https://docs.pytorch.org/tutorials/recipes/torch_compile_user_defined_triton_kernel_tutorial.html) citeturn254933search1 |
+| PyTorch CUDA Graphs documentation | Official documentation | Launch-overhead reduction and graph constraints | [PyTorch docs](https://docs.pytorch.org/docs/main/notes/cuda.html) citeturn254933search6 |
+| vLLM Fused MoE documentation | Official documentation | Current fused-MoE implementation reference | [vLLM docs](https://docs.vllm.ai/en/latest/api/vllm/model_executor/layers/fused_moe/fused_moe/) citeturn486751search2 |
+| vLLM Expert Parallel Deployment | Official documentation | Current EP and all-to-all design choices | [vLLM docs](https://docs.vllm.ai/en/latest/serving/expert_parallel_deployment/) citeturn486751search0 |
+| PyTorch, “Training MoEs at Scale with PyTorch” | PyTorch blog | MegaBlocks, expert parallelism, FSDP context | [PyTorch](https://pytorch.org/blog/training-moes/) citeturn462072search4 |
+| Triton `atomic_add` documentation | Official documentation | Current atomic primitive API | [Triton](https://triton-lang.org/main/python-api/generated/triton.language.atomic_add.html) citeturn545331search2 |
+| Triton issue #1387 | GitHub issue | Historical BF16 atomic-add limitation mentioned by the blog | [GitHub](https://github.com/triton-lang/triton/issues/1387) citeturn545331search0 |

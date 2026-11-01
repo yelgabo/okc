@@ -6,6 +6,8 @@ report be checked into this repository so other sessions can read it.
 
 ## Latest review
 
+[November 1 locality intake and H200 attribution decisions](2026-11-01-locality-and-attribution.md) preserves the new paste, corrects its primary-source attribution, closes the distorted attention trace and records private G phase job f147d06a64504c1e. The public incumbent remains 607eb52bdaf24160.
+
 [November 1 selected-cell comparison and new attention measurement](2026-11-01-selected-layer-pair.md) records the 850769-byte BF16-matched package, identical selected MoE machine code, corrected page capacity, explicit private-state ownership and H200 wait job 3f44f891d0ef47db.
 
 [05:02 PST hourly Family G review](2026-11-01-0502-g-progress.md) confirms the three subsequent public measurements and the next multi-load expert investigation.

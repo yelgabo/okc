@@ -25,3 +25,35 @@ Local CUDA12.8 NVRTC/PTXAS sm90a device-only compilation passes for off/on MODE4
 Pending: independent source review; host/runtime compilation, runtime resource gate and bounded H200 receipt, owned by coordinator. No performance claim or public release is authorized by these CPU results. Stop after this one attribution check if timing perturbation fails or producer/consumer ordinal coverage disagrees. If transparent, inspect stable readiness versus empty-slot pressure across both detail builds and all three inputs before designing one legal copy/address/lifetime change. No old ring, QK or weighting sweep.
 
 Reproduction (CPU generation only): `python tools/attn_make_wait_trace.py .build/today-attn/wait-trace.py --root C:/Users/gretc/Documents/GitHub/okc`.
+
+## November 1, 05:48 PST terminal result
+
+Owned check **3f44f891d0ef47db** completed on H200. All 16 official tests,
+12 benchmark cells and 12 profiles completed; policy checks passed without flags.
+The common BF16-rounded control scored **2.490692705×**, 95% CI
+[2.453332314, 2.528053095]. This is a diagnostic control score, not an improvement
+over the historical public implementation. The four scoped arms each completed
+four cases without numerical failures; the diagnostic finished in 167 seconds.
+[Raw receipt](../../muse_attention_decode/profiles/wait-trace.3f44f891d0ef47db.receipt.json).
+[Full log](../../muse_attention_decode/profiles/wait-trace.3f44f891d0ef47db.log).
+[Decoded measurements](../../muse_attention_decode/profiles/wait-trace.3f44f891d0ef47db.decoded.json).
+
+All four arms matched actual resource vectors. MODE49 uses 128 registers,
+zero local memory, 58960 bytes shared memory, 256 threads and two CTAs/SM;
+MODE51 uses 80 registers, zero local memory, 107104 bytes shared memory,
+384 threads and two CTAs/SM. Despite this parity, **all 12 timing rows fail
+the preregistered perturbation gate**.
+
+| Cell | Faster control range, µs | Worst detail perturbation range, µs | Permitted perturbation range, µs |
+|---|---:|---:|---:|
+| B16 decode | 99.008–99.840 | 3.776–5.088 | 0.990–0.998 |
+| B32 decode | 179.360–179.584 | 9.504–10.464 | 1.794–1.796 |
+| B16 verify | 110.720–113.440 | 11.744–13.760 | 1.107–1.134 |
+| B32 verify | 194.720–195.904 | 21.216–23.136 | 1.947–1.959 |
+
+Retain the 24 raw detail records as descriptions of perturbed execution only.
+They cannot identify the uninstrumented producer/consumer bottleneck, physical
+memory traffic or recoverable score. Close this exact trace implementation;
+do not spend another check on a stamp-placement sweep. Reopening requires a
+different attribution mechanism with demonstrated low perturbation. Production
+attention and the layer incumbent remain unchanged. No public submission occurred.

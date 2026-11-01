@@ -4228,3 +4228,14 @@ Attribution correction for cd6805e7ebce45ee: the independent published evaluatio
 Terminal fe75e566c1ae4d51: DONE, passedfalse, official15/16 (test0 host Q2 incomplete before280s), no official score/CI/benchmark profiles. Retained later cached preparation completed the entire scoped diagnostic in21.108s:48 all12 eager and80 fresh/final dual-oracle checks pass, six paired timing rows, all resource vectors equal (L1M13R72,L1M11R114,0local,58960B dynamicshared,3CTA/SM). All three preregistered seeds fail score and context-regression gates. Sliding: control8.864–8.992us versusQK2 8.992–9.024; full control16.768–16.992 versusQK2 16.736–16.864. Six-load cross factors seed713301 .998703–.999766,713302 .998247–1.000335,713303 .998072–.999797, below1.002+2xnull requirements. Negative chain-only result retained separately from cold-prepare failure. No candidate promotion or retry. Receipt/log/parsed analysis: profiles/pr_qk2.fe75e566c1ae4d51.*.
 
 2026-11-01 | 3f44f891d0ef47db | Private full-context owned producer/consumer wait trace, source 9dc5788 plus final artifact manifest a882bd2ad7d9ebf36a5d4f739e6c0b60930a6e733e24fed06712090bc751d9c0 (361621 bytes). Six CPU tests and four local sm90a compiles pass, independent review41a1e10. Two controls, two independent detail builds, three identical held-outs per full16/32 decode/verify cell, common BF16 output boundary and unrounded judge oracle. Require identical runtime registers/local/shared/threads/residency, all math/cache checks, and perturbation<=max(.5us,1% control) including duplicate null before interpreting rows. Pending.
+
+Terminal 3f44f891d0ef47db: PASS16, 12 benchmarks/profiles, checks.ok and no flags;
+common diagnostic control2.490692705× CI[2.453332314,2.528053095]. All four arms
+4/0/0 scoped correctness, done167s. Actual resource parity PASS: mode49
+128regs/0local/58960shared/256threads/2CTA; mode51
+80regs/0local/107104shared/384threads/2CTA. Causal usability FAIL all12 rows:
+detail perturbation3.776–23.136µs versus permitted0.990–1.959µs. Retain24
+descriptive traces only; no bottleneck or speedup inference. Exact probe closed,
+no automatic retry or public promotion. Canonical receipt/log/profile/decoded
+JSON: profiles/wait-trace.3f44f891d0ef47db.*. Report:
+docs/steering/2026-11-01-attention-full-wait-trace.md#november-1-0548-pst-terminal-result.
