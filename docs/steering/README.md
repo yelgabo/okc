@@ -1,5 +1,7 @@
 # Shared project steering
 
+Latest projection representation: [Stage-local sparse repair](2026-11-01-projection-stage-xor.md) - previous global-record H200 version closed as a loss; new OFF-by-default stage arena passes actual CPU stream proof and local sm90a compilation. No GPU execution or performance qualification for the new representation.
+
 Latest single-arm artifact: [Owned sparse-XOR prepare-qualified projection](2026-11-01-projection-sparse-xor-release.md) - exact685ffab5/321640B, fixed ordinary buckets, fiveCPU host gates pass; no comparative timings. Actual H200 gates and prepare limit remain unproved; root-only measurement decision.
 
 Latest owned projection prototype: [Sparse exact E7-XOR repair in SK](2026-11-01-projection-sparse-xor-prototype.md) - distinct correction dataflow, exact all-bit/actual-packer gates, local sm90a controls identical and SX spill-free. No H200 latency/score/prepare qualification; full30 paired gate pending.
