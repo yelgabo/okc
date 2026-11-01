@@ -32,6 +32,8 @@ Latest single-arm layer qualifier: [Repaired full-four-cell startup checks](2026
 
 Latest measurement-reader review: [One-arm hybrid owning receipt](2026-11-01-hybrid-measurement-reader-review.md).46:16/six-load/raw-adjusted formulas pass; identified terminal/log/resource ownership gaps repaired and independently rechecked with4 tests. Server identity and physical source SHA remain separately associated by the upload manifest.
 
+Latest strict reader: [Private short-RMW owning receipt](2026-11-01-short-rmw-owning-reader.md). Frozen f042 source/log binding, terminal-success-before-capsule and exact raw full-six gate; five synthetic CPU tests pass. No GPU result.
+
 Latest private harness review: [Short final-RMW whole-layer four-placement gate](2026-11-01-short-rmw-private-review.md). Exact f042 source cleared conditionally; two builds/four placements, raw all-six score gate, empty-to-occupied and final-fresh-output scope explicit. No GPU measurement.
 
 Latest ordering necessity/proof: [G0→607e and one minimal short-counter restoration](2026-11-01-g-ordering-restoration-proof.md). ExactTiny/Tiny2d339 explicitrelaxedATOM retainsfences/joins/acquire and hasconditionalsource+actualPTX/load proof; OFF/localcompileonly, no gainforecast orGPUaction.
