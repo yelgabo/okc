@@ -412,6 +412,79 @@ Paired duplicate component21e98162b7114898 dispatched: same original six arms, h
 cold random12rounds, shapes753/3012 only, allR/R2/M/M2 use_stream_kFalse. Pending; no
 zero-removal/masked combination. Status/log saved `profiles/humming_nostream_bounded.da9700816b1641ea.*`.
 
+Corrected maskedf92ffc2953284a9a PASSED5/5 and all8 benchmark rechecks,1.294149997x
+(95%CI1.274737747–1.313562247). Four casts alone fix the large-shape failure under
+unchanged configuration; this confirms the specific overflow fix on all official shapes.
+Candidate/SGLang medianus index0–7:968.2/1050.5,1342.6/1442.8,2339.4/3236.7,
+3942.8/4871.7,11138.3/16974.8,10813.7/16884.5,14799.2/20750.1,18662.9/24540.5.
+Largest allocation plan22.759GB, full coverage fits with last observed free43.369GB before
+allocation. Same TMA/warpspec/mbarrier/StreamKTrue configs. Not promoted until fresh edge
+gate; component score improvement versus other runs is not an isolated backend speedup.
+Receipt/log committed as `profiles/humming_masked_i64.f92ffc2953284a9a.*`.
+
+Root approved poisoned fresh gate defbb042449d44e7, pending. Pure63eb4171... source
+prefix unchanged; appended `tools/prefill_humming_masked_stress.py` suffix runs32/753/3012,
+64 eager controls/2000 fresh queued each, same unchanged envelope. Exactcounts, bounds,
+zero-local and nonfinite tested; indexedNP removed because masked backend has noNP.
+Before each bank reference, groupedGX/C1/C2/C3 are NaN poisoned. Same0local/singleexpert/
+all8local/mixed alternatives, counts=M extremes testCAPtails. All fresh reporting retained;
+230s setup guard before each new shape fails incomplete coverage. No NST/Mpolicy mixed in.
+
+Deterministic component21e98162b7114898 PASSED5/5 official tests and all six arm
+mathematical checks, no HBSTOP. Control headline1.101533x (95%CI1.085010–1.118056),
+not a bounded-policy score. M minus R paired medians at753 seeds271/272:
+-197.9/-191.6us; M2 -195.6/-190.8us; R2 null -0.90/+0.74us. At3012:
+M -399.8/-260.7us, M2 -399.9/-260.3us; R2 -0.61/-0.83us. All four Humming
+arms explicitly use_stream_kFalse with independent scratch/locks and shared readonly
+weights. This confirms compensation under deterministic config; no mixing with nozero
+or masked backend. Passed pure deterministic bounded candidate/hash sent to root;
+root alone decides scored runs/production integration. Receipt and complete component
+log saved `profiles/humming_nostream_component.21e98162b7114898.*`.
+
+### User defers prefill; only already-dispatched receipt completion
+
+User requested "ignore prefill for now" while defbb042449d44e7 was in flight. No new
+prefill dispatch, promotion or code change after that steering. Read-only completion:
+defbb passed5/5 and all poisoned fresh32/753/3012 gates,1.300970887x
+(95%CI1.281456324–1.320485450). Metadata/nonfinite/zero-local all0 at each shape.
+Matched eager/graph rel32 .0024736/.0024736;753 .003194/.003197;3012 .003217/.003280.
+Shares>1e-4 .375/.268,.75/.75,.75/.75; rows .00862/.00862,.01307/.01266,
+.01538/.01613. Registered2x-envelope passes; this is not deterministic arithmetic and
+does not authorize promotion. Receipt/log saved `profiles/humming_masked_fresh.defbb042449d44e7.*`.
+
+### Standalone structural hypothesis: device-count GROUPED_MASKED at128/256
+
+Root approved up to3 standalone checks (including fresh only if winner) after reviewing
+current standalone indexed loser8d64807ea7504495 and ring4/staged-pair closures. New
+mechanism is grouped slabs with GPUcounts enabling library TMA/warp specialization,
+not another fixed-ring geometry. Prior indexed128 G1/G2≈242/135us,256≈291/152us;
+that path loses to ownedpersistent47/51. Prior staged45/46 same mma.sync pipeline loses
+~30us; it does not test this library backend. Completed larger-shape library measurements
+prove API/math feasibility, not standalone performance. No projected speedup claimed.
+
+`tools/moe_humming_masked_bench.py` builds `.build/today-moe/moe_masked_ab.py` from frozen
+production51. Official kernel_fn remains entirely ownedcontrol;<=32 unchanged. One
+originalprepare/extension build. Four arms owned51/owned51dup share readonlyrepackedweights,
+each own_scratch; masked/maskeddup share readonlytransformedweights with independentlocks
+and metadata/workspace. All four arms checked against ownedFP32reference at everycase
+(original TEST_TOL .008, row.075, finite).128/256 layer/std heldout291/292 and skew291
+correctness; fixed previouslycalibrated layerrouter8, no fresh seed search.20 randomized
+cold-L2 rounds, duplicate null controls,280s entireprepare guard fails incomplete coverage.
+Acceptance:>=3us at128 and>=4us at256 plus2xnull consistently on both measured routings;
+all official/fresh gates before promotion. Stop if launch/gather/tail/norm costs erase GEMM
+gain; no geometry retune without new measured stage evidence. Syntax passes, independent
+adapter/alias read-review requested. No dispatch yet.
+
+Standalone gateae8993f4e3e1435c dispatched after root and independent read-review.
+Root caught required interface correction before dispatch: standalone gamma=(1+post_norm_w)
+is FP32 (ownedstate nw), while prefill's BF16 effectivegamma boundary differs. New adapter
+preserves FP32 gamma contiguous; no BF16 cast. Earlier indexed8d648... adapter used BF16gamma,
+so its numerical interface differs slightly as well as its kernel schedule; no promotion.
+Independent reviewer required post-graph output checks: all four arms now checked against
+FP32 ref after20 queued replays+sync with unchanged .008/.075 criteria, not only eager.
+One untimed CUDA profiler sample at256/std292 after AB timing attributes masked stages.
+Generated syntax passes; original officialjudged owned kernel_fn untouched. Pending.
+
 ## Source facts (SGLang a55ab7d5, read from GitHub and hashed against the image)
 
 - `fused_post_expert_norm_weighted_sum` falls back to PyTorch ops below

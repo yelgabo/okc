@@ -1,0 +1,94 @@
+HBWORK M=753 seed=271 local_routes,max_expert,distinct=[1649, 404, 25]
+HBCHECK M=753 seed=271 marlin rel=8.68e-05
+HBCHECK M=753 seed=271 marlin2 rel=0.000102
+HUMINDEX workspace M=753 cfg=[{'block_shape': (176, 256, 64), 'warp_shape': (176, 32, 64), 'use_stream_k': False, 'use_f16_accum': False, 'num_stages': 4}, {'block_shape': (176, 256, 64), 'warp_shape': (176, 32, 64), 'use_stream_k': False, 'use_f16_accum': False, 'num_stages': 4}]
+HBCHECK M=753 seed=271 R rel=0.00587
+HUMINDEX workspace M=753 cfg=[{'block_shape': (176, 256, 64), 'warp_shape': (176, 32, 64), 'use_stream_k': False, 'use_f16_accum': False, 'num_stages': 4}, {'block_shape': (176, 256, 64), 'warp_shape': (176, 32, 64), 'use_stream_k': False, 'use_f16_accum': False, 'num_stages': 4}]
+HBCHECK M=753 seed=271 R2 rel=0.00587
+HUMINDEX workspace M=753 cfg=[{'block_shape': (48, 256, 64), 'warp_shape': (48, 32, 64), 'use_stream_k': False, 'use_f16_accum': False, 'num_stages': 4}, {'block_shape': (48, 128, 128), 'warp_shape': (48, 32, 64), 'use_stream_k': False, 'use_f16_accum': False, 'num_stages': 4}]
+HBCHECK M=753 seed=271 M rel=0.00587
+HUMINDEX workspace M=753 cfg=[{'block_shape': (48, 256, 64), 'warp_shape': (48, 32, 64), 'use_stream_k': False, 'use_f16_accum': False, 'num_stages': 4}, {'block_shape': (48, 128, 128), 'warp_shape': (48, 32, 64), 'use_stream_k': False, 'use_f16_accum': False, 'num_stages': 4}]
+HBCHECK M=753 seed=271 M2 rel=0.00587
+HBTIME M=753 seed=271 raw_us={'marlin': 1093.5039520263672, 'marlin2': 1095.4879522323608, 'R': 1151.9999504089355, 'R2': 1150.4319906234741, 'M': 953.7280201911926, 'M2': 956.1280012130737}
+HBPAIR M=753 seed=271 vsR_us={'marlin': -57.31201171875, 'marlin2': -56.19204044342041, 'R': 0.0, 'R2': -0.8959770202636719, 'M': -197.88801670074463, 'M2': -195.58405876159668}
+HBWORK M=753 seed=272 local_routes,max_expert,distinct=[1004, 280, 22]
+HBCHECK M=753 seed=272 marlin rel=5.82e-05
+HBCHECK M=753 seed=272 marlin2 rel=6.91e-05
+HBCHECK M=753 seed=272 R rel=0.00591
+HBCHECK M=753 seed=272 R2 rel=0.00591
+HBCHECK M=753 seed=272 M rel=0.00591
+HBCHECK M=753 seed=272 M2 rel=0.00591
+HBTIME M=753 seed=272 raw_us={'marlin': 819.9679851531982, 'marlin2': 821.2159872055054, 'R': 888.8000249862671, 'R2': 888.7360095977783, 'M': 697.376012802124, 'M2': 697.4719762802124}
+HBPAIR M=753 seed=272 vsR_us={'marlin': -66.6239857673645, 'marlin2': -68.12798976898193, 'R': 0.0, 'R2': 0.7359981536865234, 'M': -191.58399105072021, 'M2': -190.8159852027893}
+HBWORK M=3012 seed=271 local_routes,max_expert,distinct=[5551, 2329, 23]
+HBCHECK M=3012 seed=271 marlin rel=7.53e-05
+HBCHECK M=3012 seed=271 marlin2 rel=5.84e-05
+HUMINDEX workspace M=3012 cfg=[{'block_shape': (176, 256, 64), 'warp_shape': (176, 32, 64), 'use_stream_k': False, 'use_f16_accum': False, 'num_stages': 4}, {'block_shape': (176, 256, 64), 'warp_shape': (176, 32, 64), 'use_stream_k': False, 'use_f16_accum': False, 'num_stages': 4}]
+HBCHECK M=3012 seed=271 R rel=0.00607
+HUMINDEX workspace M=3012 cfg=[{'block_shape': (176, 256, 64), 'warp_shape': (176, 32, 64), 'use_stream_k': False, 'use_f16_accum': False, 'num_stages': 4}, {'block_shape': (176, 256, 64), 'warp_shape': (176, 32, 64), 'use_stream_k': False, 'use_f16_accum': False, 'num_stages': 4}]
+HBCHECK M=3012 seed=271 R2 rel=0.00607
+HUMINDEX workspace M=3012 cfg=[{'block_shape': (128, 256, 64), 'warp_shape': (128, 32, 64), 'use_stream_k': False, 'use_f16_accum': False, 'num_stages': 4}, {'block_shape': (128, 256, 64), 'warp_shape': (128, 32, 64), 'use_stream_k': False, 'use_f16_accum': False, 'num_stages': 4}]
+HBCHECK M=3012 seed=271 M rel=0.00607
+HUMINDEX workspace M=3012 cfg=[{'block_shape': (128, 256, 64), 'warp_shape': (128, 32, 64), 'use_stream_k': False, 'use_f16_accum': False, 'num_stages': 4}, {'block_shape': (128, 256, 64), 'warp_shape': (128, 32, 64), 'use_stream_k': False, 'use_f16_accum': False, 'num_stages': 4}]
+HBCHECK M=3012 seed=271 M2 rel=0.00607
+HBTIME M=3012 seed=271 raw_us={'marlin': 2445.280075073242, 'marlin2': 2419.5520877838135, 'R': 2140.7999992370605, 'R2': 2140.0320529937744, 'M': 1742.624044418335, 'M2': 1741.4079904556274}
+HBPAIR M=3012 seed=271 vsR_us={'marlin': 282.9439640045166, 'marlin2': 282.5281620025635, 'R': 0.0, 'R2': -0.6079673767089844, 'M': -399.7759819030762, 'M2': -399.93607997894287}
+HBWORK M=3012 seed=272 local_routes,max_expert,distinct=[6408, 2108, 24]
+HBCHECK M=3012 seed=272 marlin rel=8.12e-05
+HBCHECK M=3012 seed=272 marlin2 rel=7.37e-05
+HBCHECK M=3012 seed=272 R rel=0.00587
+HBCHECK M=3012 seed=272 R2 rel=0.00587
+HBCHECK M=3012 seed=272 M rel=0.00587
+HBCHECK M=3012 seed=272 M2 rel=0.00587
+HBTIME M=3012 seed=272 raw_us={'marlin': 2748.512029647827, 'marlin2': 2751.0080337524414, 'R': 2204.1280269622803, 'R2': 2192.15989112854, 'M': 1941.1519765853882, 'M2': 1932.5759410858154}
+HBPAIR M=3012 seed=272 vsR_us={'marlin': 562.432050704956, 'marlin2': 559.9360466003418, 'R': 0.0, 'R2': -0.8320808410644531, 'M': -260.6719732284546, 'M2': -260.2880001068115}
+HBRESULT
+HBWORK M=753 seed=271 local_routes,max_expert,distinct=[1649, 404, 25]
+HBCHECK M=753 seed=271 marlin rel=8.68e-05
+HBCHECK M=753 seed=271 marlin2 rel=0.000102
+HBCHECK M=753 seed=271 R rel=0.00587
+HBCHECK M=753 seed=271 R2 rel=0.00587
+HBCHECK M=753 seed=271 M rel=0.00587
+HBCHECK M=753 seed=271 M2 rel=0.00587
+HBTIME M=753 seed=271 raw_us={'marlin': 1093.5039520263672, 'marlin2': 1095.4879522323608, 'R': 1151.9999504089355, 'R2': 1150.4319906234741, 'M': 953.7280201911926, 'M2': 956.1280012130737}
+HBPAIR M=753 seed=271 vsR_us={'marlin': -57.31201171875, 'marlin2': -56.19204044342041, 'R': 0.0, 'R2': -0.8959770202636719, 'M': -197.88801670074463, 'M2': -195.58405876159668}
+HBWORK M=753 seed=272 local_routes,max_expert,distinct=[1004, 280, 22]
+HBCHECK M=753 seed=272 marlin rel=5.82e-05
+HBCHECK M=753 seed=272 marlin2 rel=6.91e-05
+HBCHECK M=753 seed=272 R rel=0.00591
+HBCHECK M=753 seed=272 R2 rel=0.00591
+HBCHECK M=753 seed=272 M rel=0.00591
+HBCHECK M=753 seed=272 M2 rel=0.00591
+HBTIME M=753 seed=272 raw_us={'marlin': 819.9679851531982, 'marlin2': 821.2159872055054, 'R': 888.8000249862671, 'R2': 888.7360095977783, 'M': 697.376012802124, 'M2': 697.4719762802124}
+HBPAIR M=753 seed=272 vsR_us={'marlin': -66.6239857673645, 'marlin2': -68.12798976898193, 'R': 0.0, 'R2': 0.7359981536865234, 'M': -191.58399105072021, 'M2': -190.8159852027893}
+HBWORK M=3012 seed=271 local_routes,max_expert,distinct=[5551, 2329, 23]
+HBCHECK M=3012 seed=271 marlin rel=7.53e-05
+HBCHECK M=3012 seed=271 marlin2 rel=5.84e-05
+HBCHECK M=3012 seed=271 R rel=0.00607
+HBCHECK M=3012 seed=271 R2 rel=0.00607
+HBCHECK M=3012 seed=271 M rel=0.00607
+HBCHECK M=3012 seed=271 M2 rel=0.00607
+HBTIME M=3012 seed=271 raw_us={'marlin': 2445.280075073242, 'marlin2': 2419.5520877838135, 'R': 2140.7999992370605, 'R2': 2140.0320529937744, 'M': 1742.624044418335, 'M2': 1741.4079904556274}
+HBPAIR M=3012 seed=271 vsR_us={'marlin': 282.9439640045166, 'marlin2': 282.5281620025635, 'R': 0.0, 'R2': -0.6079673767089844, 'M': -399.7759819030762, 'M2': -399.93607997894287}
+HBWORK M=3012 seed=272 local_routes,max_expert,distinct=[6408, 2108, 24]
+HBCHECK M=3012 seed=272 marlin rel=8.12e-05
+HBCHECK M=3012 seed=272 marlin2 rel=7.37e-05
+HBCHECK M=3012 seed=272 R rel=0.00587
+HBCHECK M=3012 seed=272 R2 rel=0.00587
+HBCHECK M=3012 seed=272 M rel=0.00587
+HBCHECK M=3012 seed=272 M2 rel=0.00587
+HBTIME M=3012 seed=272 raw_us={'marlin': 2748.512029647827, 'marlin2': 2751.0080337524414, 'R': 2204.1280269622803, 'R2': 2192.15989112854, 'M': 1941.1519765853882, 'M2': 1932.5759410858154}
+HBPAIR M=3012 seed=272 vsR_us={'marlin': 562.432050704956, 'marlin2': 559.9360466003418, 'R': 0.0, 'R2': -0.8320808410644531, 'M': -260.6719732284546, 'M2': -260.2880001068115}
+HUMINDEX workspace M=300 cfg=[{'block_shape': (104, 256, 64), 'warp_shape': (104, 32, 64), 'use_stream_k': False, 'use_f16_accum': False, 'num_stages': 4}, {'block_shape': (104, 256, 64), 'warp_shape': (104, 32, 64), 'use_stream_k': False, 'use_f16_accum': False, 'num_stages': 4}]
+HUMINDEX workspace M=753 cfg=[{'block_shape': (176, 256, 64), 'warp_shape': (176, 32, 64), 'use_stream_k': False, 'use_f16_accum': False, 'num_stages': 4}, {'block_shape': (176, 256, 64), 'warp_shape': (176, 32, 64), 'use_stream_k': False, 'use_f16_accum': False, 'num_stages': 4}]
+HUMINDEX workspace M=1506 cfg=[{'block_shape': (160, 256, 64), 'warp_shape': (160, 32, 64), 'use_stream_k': False, 'use_f16_accum': False, 'num_stages': 4}, {'block_shape': (160, 256, 64), 'warp_shape': (160, 32, 64), 'use_stream_k': False, 'use_f16_accum': False, 'num_stages': 4}]
+HUMINDEX workspace M=600 cfg=[{'block_shape': (176, 256, 64), 'warp_shape': (176, 32, 64), 'use_stream_k': False, 'use_f16_accum': False, 'num_stages': 4}, {'block_shape': (176, 256, 64), 'warp_shape': (176, 32, 64), 'use_stream_k': False, 'use_f16_accum': False, 'num_stages': 4}]
+HUMINDEX workspace M=4096 cfg=[{'block_shape': (176, 256, 64), 'warp_shape': (176, 32, 64), 'use_stream_k': False, 'use_f16_accum': False, 'num_stages': 4}, {'block_shape': (176, 256, 64), 'warp_shape': (176, 32, 64), 'use_stream_k': False, 'use_f16_accum': False, 'num_stages': 4}]
+HUMINDEX workspace M=753 cfg=[{'block_shape': (176, 256, 64), 'warp_shape': (176, 32, 64), 'use_stream_k': False, 'use_f16_accum': False, 'num_stages': 4}, {'block_shape': (176, 256, 64), 'warp_shape': (176, 32, 64), 'use_stream_k': False, 'use_f16_accum': False, 'num_stages': 4}]
+HUMINDEX workspace M=753 cfg=[{'block_shape': (176, 256, 64), 'warp_shape': (176, 32, 64), 'use_stream_k': False, 'use_f16_accum': False, 'num_stages': 4}, {'block_shape': (176, 256, 64), 'warp_shape': (176, 32, 64), 'use_stream_k': False, 'use_f16_accum': False, 'num_stages': 4}]
+HUMINDEX workspace M=3012 cfg=[{'block_shape': (176, 256, 64), 'warp_shape': (176, 32, 64), 'use_stream_k': False, 'use_f16_accum': False, 'num_stages': 4}, {'block_shape': (176, 256, 64), 'warp_shape': (176, 32, 64), 'use_stream_k': False, 'use_f16_accum': False, 'num_stages': 4}]
+HUMINDEX workspace M=3012 cfg=[{'block_shape': (176, 256, 64), 'warp_shape': (176, 32, 64), 'use_stream_k': False, 'use_f16_accum': False, 'num_stages': 4}, {'block_shape': (176, 256, 64), 'warp_shape': (176, 32, 64), 'use_stream_k': False, 'use_f16_accum': False, 'num_stages': 4}]
+HUMINDEX workspace M=3012 cfg=[{'block_shape': (176, 256, 64), 'warp_shape': (176, 32, 64), 'use_stream_k': False, 'use_f16_accum': False, 'num_stages': 4}, {'block_shape': (176, 256, 64), 'warp_shape': (176, 32, 64), 'use_stream_k': False, 'use_f16_accum': False, 'num_stages': 4}]
+HUMINDEX workspace M=16384 cfg=[{'block_shape': (176, 256, 64), 'warp_shape': (176, 32, 64), 'use_stream_k': False, 'use_f16_accum': False, 'num_stages': 4}, {'block_shape': (176, 256, 64), 'warp_shape': (176, 32, 64), 'use_stream_k': False, 'use_f16_accum': False, 'num_stages': 4}]
+HUMINDEX workspace M=16384 cfg=[{'block_shape': (176, 256, 64), 'warp_shape': (176, 32, 64), 'use_stream_k': False, 'use_f16_accum': False, 'num_stages': 4}, {'block_shape': (176, 256, 64), 'warp_shape': (176, 32, 64), 'use_stream_k': False, 'use_f16_accum': False, 'num_stages': 4}]
+HUMINDEX workspace M=16384 cfg=[{'block_shape': (176, 256, 64), 'warp_shape': (176, 32, 64), 'use_stream_k': False, 'use_f16_accum': False, 'num_stages': 4}, {'block_shape': (176, 256, 64), 'warp_shape': (176, 32, 64), 'use_stream_k': False, 'use_f16_accum': False, 'num_stages': 4}]
