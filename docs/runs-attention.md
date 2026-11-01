@@ -4203,3 +4203,11 @@ claim. Fullreceipt/log committed; details in alternate-engine steering report.
 |date|job|source|change|result|notes|
 |---|---|---|---|---|---|
 |2026-11-01|f74cbe27819147c1 (check)|36622ef|Owned restricted v1sliding mode3 hierarchical cluster merge|pending|GeneratedSHA1fe0b4b27a2f651c2c67228f01f9db1da4c2b20abec07adf930a53ffd24f8240; allCTAcount correction beforedispatch; 1%/2xnull gate preregistered.|
+
+f74cbe27819147c1 terminal: official control16/16/checks.ok,2.572180524x
+(CI2.533597816–2.610763232); all4arms19/19 correctness. Ownedclustermerge
+FAILS performance: v1sliding11.17us control vs32.22/32.03, every3input
++20.7–21.5us. Corrected affected-only score sensitivity pooled .846482815.
+Resource111regs/0local/90704dynamic/2blocksSM; maxcluster capacity14 (launch2).
+Fresh256math/cache/row+3negative gates passed by terminal fail-closed source
+logic; stdout/maxima truncated. Closed, no production promotion or newjob.

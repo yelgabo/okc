@@ -249,3 +249,46 @@ TORCH_CHECK rejects native clustered launch when coop=false before the original
 noncooperative fast path. f74cbe27819147c1 remains the earlier36622ef bytes;
 no result from it tests this new assertion, and no second job was dispatched.
 H200 probe is expected true, but that expectation is not a source precondition.
+
+### Terminal owned cluster mergef74cbe27819147c1: correctness passes, decisive loss
+
+Submitted source36622ef/SHA1fe0b4b2...f8240. Official unchanged control16/16,
+checks.ok/flags[],2.572180524x CI2.533597816–2.610763232. Not a candidate score.
+Four arms each19/19 official-style math/row/cache cases pass. Terminal process
+return0 and final fail-closed _CM_CHECK_FAILED assertion establish that the
+64freshQKV inputs×4graphs=256 queued math/cache/row checks and3negativecontrols
+also passed; the CMFRESH stdout lines themselves were truncated. Fresh metadata
+used fixed80000 context/page table with distinct QKV; no error maxima retained,
+no claim of2000replays or arbitrary metadata/recapture coverage.
+
+|native verify1sliding|ctrl|ctrl2|cm1|cm2|
+|---|---:|---:|---:|---:|
+|cold rawgraph median us|11.17|11.17|32.22|32.03|
+|warm rawgraph median us|6.82|6.80|27.84|27.69|
+
+All three cold input deltas cm1+21.50/+20.90/+20.83us; cm2+21.31/+20.70/+20.80.
+Restricted sixload corrected sensitivity cm1 .846078612,cm2 .846887210;
+pooled .846482815 (−15.35%), controlnull1.0,candidatenull1.000955702. GateFAILS
+by a large margin; no attempt to credit unchanged-row placement differences.
+Borrowed official replay correction and rounded AB medians remain sensitivity,
+not official candidate scores. Full receipt/log committed under
+`profiles/cluster_merge.f74cbe27819147c1.{json,log}`.
+
+Both candidate resource exports:111registers,0localbytes,90704dynamicbytes,
+2blocks/SM,14maximumactiveclusters from occupancy API. Base8mode3 reports
+90704dynamicbytes/2blocks perSM. The launch uses TWOclusters, not14; these
+are resource/residency capacities, not measured SM-utilization percentages.
+Resource gate passed, so the large regression is not a local-memory spill or
+shared-memory occupancy drop under this recorded comparison. Native control
+is mode15/33CTAs, while experiment is mode3/32CTAs plus hierarchical merge;
+this does not isolate DSM read latency from lost one-tile/SPEC specialization.
+
+Decision: close this OWNED global-finalize-preserving cluster ownership variant;
+keep production checked baseline unchanged. No sweep of cluster size, remote
+load hints or stage counts follows from this loss. The measured public VP2
+signal is NOT disproved: its one-KV-head128-key tile and cluster-local finalizer
+are a different architecture. A future design needs to give each cluster a
+complete output partition, avoiding the inter-cluster global finalize, and
+prove its head/tile address map and lifetime before another check. Do not
+remove the current global barrier from this half-context/both-head design:
+its two clusters still need each other's partials. No further job dispatched.
