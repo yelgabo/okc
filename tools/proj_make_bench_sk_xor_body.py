@@ -87,6 +87,14 @@ def _sx_validate_anchor(fn,name,m):
     assert actual==SK_INDEX[name], ('SX C2pick changed',name,actual,d)
     return d
 
+def _sx_pack_key(name,weight,variant):
+    g=_XOR_CONFIG[name]['geom']
+    # stage_stream/header byte order depends on these fields, not TOKR/NSTAGE.
+    # Identity requires the same actual supplied weight object and row-balancing rule.
+    nrows=1024 if name=='slice8F' else weight.shape[0]
+    assert g['comp'] and not g['hl'] and g['cl']==1 and not g['fuse']
+    return (id(weight),variant,nrows,name.startswith('qkv'))+tuple(g[k] for k in ('R','NW','UPW','NT','WSK','UPS'))
+
 def _sx_layout(name,variant,pmax):
     c=SK_CONFIGS[SK_INDEX[name]]
     _,mt,tokr,nt,nwr,wsk,upw,nstage,comp,hl,nacc,cl,_,fuse=c
@@ -135,10 +143,16 @@ def _sx_bench(weights,state,start):
     modules=[xor_build('sx_a'),xor_build('sx_b')]
     assert modules[0] is not modules[1]
     _sx_guard(start)
-    runners={};infos={};anchors={};all_diags={};checks=0;captures=0;replay_checks=0;post_checks=0;onehot_checks=0;outlier_checks=0
+    runners={};infos={};anchors={};all_diags={};pack_cache={};checks=0;captures=0;replay_checks=0;post_checks=0;onehot_checks=0;outlier_checks=0
     for (layer,m),name in _SX_TARGET.items():
-        w=weights[layer]; packs=[xor_pack(name,w,v) for v in (0,1)]
-        assert all(p is not None for p in packs), ('SX pack rejected',name)
+        w=weights[layer];packs=[]
+        for variant in (0,1):
+            key=_sx_pack_key(name,w,variant)
+            if key not in pack_cache:
+                pk=xor_pack(name,w,variant);assert pk is not None, ('SX pack rejected',name)
+                pack_cache[key]=pk
+            packs.append(dict(pack_cache[key],name=name,source_pack_name=pack_cache[key]['name']))
+
         pair={};detail={}
         for i,tag in enumerate(_SX_ARMS[:4]):
             v=int(tag.startswith('t'));fn,info=xor_runner(modules[i%2],name,w,v,packed=packs[v])
@@ -177,6 +191,7 @@ def _sx_bench(weights,state,start):
                     if bank=='onehot':onehot_checks+=1
                     else:outlier_checks+=1
         _sx_guard(start)
+    assert len(pack_cache)==12, ('SX unexpected immutable pack topology',len(pack_cache))
     flush=torch.empty(256<<20,dtype=torch.uint8,device=dev)
     report={'format':'PROJ_SK_XOR_V1','pins':_SX_PIN,'rounds':_SX_ROUNDS,'seeds':list(_SX_SEEDS),'rows':[],'resources':infos,
             'anchors':{str(k):v for k,v in anchors.items()},'weight_inventory':{k:{'shape':list(w.shape),'dtype':str(w.dtype),'bytes':w.numel()*w.element_size()} for k,w in weights.items()},
@@ -210,7 +225,7 @@ def _sx_bench(weights,state,start):
     assert (captures,checks,replay_checks,post_checks,onehot_checks,outlier_checks)==(210,840,420,210,80,80), ('SX incomplete checks',captures,checks,replay_checks,post_checks,onehot_checks,outlier_checks)
     for tensors in all_diags.values():
         for diag in tensors:assert torch.count_nonzero(diag).item()==0, 'SX device diagnostics'
-    report['checks']={'captured_placements':captures,'oracle_checks':checks,'fresh_replay_checks':replay_checks,'post_timing_checks':post_checks,'onehot_nearby_checks':onehot_checks,'outlier_nearby_checks':outlier_checks}
+    report['checks']={'immutable_pack_formats':len(pack_cache),'captured_placements':captures,'oracle_checks':checks,'fresh_replay_checks':replay_checks,'post_timing_checks':post_checks,'onehot_nearby_checks':onehot_checks,'outlier_nearby_checks':outlier_checks}
     report['elapsed']=time.monotonic()-start;report['complete']=len(report['rows'])==90
     report['raw_gate']=_sx_score_model(report['rows']);report['raw_pass']=report['raw_gate']['keep']
     print('SXPINS '+_sxjson.dumps({'pins':_SX_PIN,'checks':report['checks'],'rows':len(report['rows']),'rounds':_SX_ROUNDS},separators=(',',':')),flush=True)

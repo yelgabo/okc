@@ -1,5 +1,7 @@
 # Shared project steering
 
+Latest private projection scaffold: [SK10 sparse-XOR paired harness](2026-11-01-projection-sk-xor-private-harness.md). Nine CPU gates and80 native-layout crosschecks pass; strict9KB lossless transport and immutable sharing added. No GPU action; runtime/admission remain unqualified.
+
 This is the stable entry point for steering reports across research, implementation,
 and coordinator sessions. The user requested on 2026-10-29 that every project-steering
 report be checked into this repository so other sessions can read it.

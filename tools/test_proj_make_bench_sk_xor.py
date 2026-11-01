@@ -1,5 +1,5 @@
 """CPU transport/source/host-scope gates; no H200 or CUDA performance claim."""
-import ast,base64,copy,importlib.util,json,os,random,struct,types,unittest,zlib
+import ast,base64,copy,importlib.util,json,os,random,struct,types,unittest,lzma
 from pathlib import Path
 from unittest.mock import patch
 from proj_make_bench_sk_xor import score_helper
@@ -44,14 +44,16 @@ def report_fixture():
 
 
 def mutate_header(encoded,fn):
-    b=zlib.decompress(base64.b85decode(encoded));n=struct.unpack_from('<I',b)[0];h=json.loads(b[4:4+n]);fn(h)
-    j=json.dumps(h).encode();return base64.b85encode(zlib.compress(struct.pack('<I',len(j))+j+b[4+n:])).decode()
+    b=lzma.decompress(base64.b85decode(encoded[4:]));n=struct.unpack_from('<I',b,4)[0];h=json.loads(b[8:8+n]);fn(h)
+    j=json.dumps(h,separators=(',',':'),sort_keys=True).encode();blob=b'SXE2'+struct.pack('<I',len(j))+j+b[8+n:]
+    f=[dict(id=lzma.FILTER_LZMA2,dict_size=1<<20,lc=3,lp=0,pb=0)]
+    return 'SX2:'+base64.b85encode(lzma.compress(blob,filters=f)).decode()
 
 
 class Gates(unittest.TestCase):
     def test_lossless_full_payload(self):
         report=report_fixture();encoded=encode_report(report)
-        self.assertLess(len(encoded),13000);self.assertEqual(decode_report(encoded),report)
+        self.assertLess(len(encoded),9000);self.assertEqual(decode_report(encoded),report)
         print('SX realistic90row payloadbytes',len(encoded))
     def test_bad_offsets_lengths_and_float(self):
         e=encode_report(report_fixture())
@@ -62,6 +64,29 @@ class Gates(unittest.TestCase):
         with self.assertRaises(AssertionError):decode_report(bad)
         report=report_fixture();report['rows'][0]['samples_us']['common'][0]=1.234567890123
         with self.assertRaises(AssertionError):encode_report(report)
+    def test_codec_framing_dictionary_and_two_byte_ids(self):
+        fixture=report_fixture();i=0
+        for row in fixture['rows']:
+            for tag,values in row['samples_us'].items():
+                for j in range(len(values)):
+                    values[j]=1000*struct.unpack('<f',struct.pack('<I',0x3c000000+(i%300)*4096))[0];i+=1
+        encoded=encode_report(fixture);self.assertEqual(decode_report(encoded),fixture)
+        blob=bytearray(lzma.decompress(base64.b85decode(encoded[4:])));n=struct.unpack_from('<I',blob,4)[0];start=8+n
+        unique,count,width=struct.unpack_from('<IIB',blob,start);self.assertEqual(width,2)
+        ids=start+9+unique*4
+        for kind in ('bad_id','duplicate_dictionary','bad_version'):
+            b=bytearray(blob)
+            if kind=='bad_id':struct.pack_into('<H',b,ids,unique)
+            elif kind=='duplicate_dictionary':b[start+13:start+17]=b[start+9:start+13]
+            else:b[:4]=b'BAD!'
+            bad='SX2:'+base64.b85encode(lzma.compress(bytes(b))).decode()
+            with self.assertRaises(AssertionError):decode_report(bad)
+    def test_terminal_tail_reserve(self):
+        encoded=encode_report(report_fixture())
+        pins='SXPINS '+('p'*1000)+'\n';report='SXREPORT1 '+encoded+'\n';footer='SXDONE '+('f'*300)+'\n'
+        # Observed owning C2 appended4890chars of official profiler output.
+        tail=(pins+report+footer+'x'*4890)[-16000:]
+        self.assertIn(report,tail);self.assertLess(len(footer),500)
     def test_embedding_matches_model(self):
         ns=helper_ns();spec=importlib.util.spec_from_file_location('score_reader',READER);module=importlib.util.module_from_spec(spec);spec.loader.exec_module(module)
         rows=report_fixture()['rows'];self.assertEqual(ns['_sx_score_model'](rows),module.score_model(rows))
@@ -69,7 +94,7 @@ class Gates(unittest.TestCase):
     def test_fail_closed_budget_and_source(self):
         ns=helper_ns()
         with self.assertRaises(AssertionError):ns['_sx_guard'](ns['time'].monotonic()-296)
-        self.assertIn('len(packed)<13000',ast.get_source_segment(Path(__file__).with_name('proj_sk_xor_codec.py').read_text(encoding='utf-8-sig'),next(n for n in ast.parse(Path(__file__).with_name('proj_sk_xor_codec.py').read_text(encoding='utf-8-sig')).body if isinstance(n,ast.FunctionDef) and n.name=='encode_report')))
+        self.assertIn('len(packed)<9000',ast.get_source_segment(Path(__file__).with_name('proj_sk_xor_codec.py').read_text(encoding='utf-8-sig'),next(n for n in ast.parse(Path(__file__).with_name('proj_sk_xor_codec.py').read_text(encoding='utf-8-sig')).body if isinstance(n,ast.FunctionDef) and n.name=='encode_report')))
         self.assertNotIn('import reference',BODY);self.assertNotIn('subprocess',BODY.split('# Private')[0])
     def test_oracle_and_view_alias_reject(self):
         try:import torch
@@ -105,7 +130,8 @@ class Gates(unittest.TestCase):
         weights={name:torch.randn(4,65).to(torch.float32 if name=='router' else torch.bfloat16) for name in ns['_SX_LAYERS']}
         configs=[];indices={};metadata={}
         for (layer,m),name in ns['_SX_TARGET'].items():
-            indices[name]=len(configs);configs.append((name,1,m,1,1,1,1,4,True,False,0,1,False,False));metadata[name]={'geom':{'NW':1}}
+            upw=4 if name=='qkv8F' else 1 if name=='slice8F' else 2
+            indices[name]=len(configs);configs.append((name,1,m,1,1,1,upw,4,True,False,0,1,False,False));metadata[name]={'geom':{'NW':1,'R':8,'UPW':upw,'NT':1,'WSK':1,'UPS':upw,'comp':True,'hl':False,'cl':1,'fuse':False}}
         ns['SK_INDEX']=indices;ns['SK_CONFIGS']=configs;ns['_XOR_CONFIG']=metadata
         def _sk_runner(ext,cfg_name,stream,tab,pmax,base4,n,k,out_dtype,diag):
             cid=indices[cfg_name];full=None;tokr=configs[cid][2]
@@ -136,7 +162,7 @@ class Gates(unittest.TestCase):
         with patch.object(torch,'cuda',types.SimpleNamespace(synchronize=lambda:None)):
             ns['_sx_bench'](weights,state,ns['time'].monotonic())
         payload=next(x.split(' ',1)[1] for x in printed if x.startswith('SXREPORT1 '));result=decode_report(payload)
-        self.assertEqual(result['checks'],dict(captured_placements=210,oracle_checks=840,fresh_replay_checks=420,post_timing_checks=210,onehot_nearby_checks=80,outlier_nearby_checks=80))
+        self.assertEqual(result['checks'],dict(immutable_pack_formats=12,captured_placements=210,oracle_checks=840,fresh_replay_checks=420,post_timing_checks=210,onehot_nearby_checks=80,outlier_nearby_checks=80))
         self.assertTrue(result['complete']);self.assertTrue(result['raw_pass'])
         self.assertEqual(state['pick'],original_picks)
         self.assertTrue(all(torch.equal(v,original_weights[k]) for k,v in weights.items()))
