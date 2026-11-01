@@ -1,6 +1,6 @@
 # Shared project steering
 
-Latest root registration: [One fixed four-cell layer measurement](2026-11-01-owned-verify-public-measurement.md). Frozen4ad326c3/980787B, root7 host+2 builder tests pass, independent source/host/receipt-reader reviews clear. Authorized expiring-slot one-arm measurement pending root dispatch; no H200 performance claim or promotion.
+Latest root measurement: [One fixed four-cell layer measurement](2026-11-01-owned-verify-public-measurement.md). PublicH2001fad70bbe3854cbc running exact4ad326c3/980787B from43c6c09 after source/CPU/remote/preflight gates. No H200 result or promotion yet; incumbent607e retained.
 
 Latest single-arm hybrid host review: [Actual startup qualification](2026-11-01-hybrid-onearm-host-review.md). Exact4ad326c3/980787B passes7 independentCPU tests:48/8/24 full +40empty/8emptycaps/32restored, getters/negativefailures. Scopedsource/host only; H20013/12,setup/runtime/score remain unqualified.
 

@@ -109,3 +109,19 @@ either target before November4. This experiment is not credited with a
 projected gain. Stage/short reset investigations and their frozen acceptance
 criteria remain the next measured-opportunity priorities. Private four-cell
 comparison remains held until root explicitly updates its manifest.
+
+## Dispatch addendum
+
+Root publicly dispatched **1fad70bbe3854cbc**, exact source commit
+`43c6c09b848b8ab1c28c57ebbed455b6b76821e9`, after verifying the candidate,
+registration and index blobs from GitHub. Physical980787-byte source equals
+that committed Git blob and SHA4ad326c3 exactly. Immediate CLI preflight
+showed0 layer checks/2 scored slots and no live jobs. The own-ID wait is in
+progress; no result is inferred. Independent host reviewd18dff2 is now
+integrated as95c8611, and owner peer-pin addendum59a3901 asb83c4c5.
+
+The source preserves whitespace left by removed comments for phase2/source
+generation equivalence. Git whitespace diagnostics on those inherited
+lines are expected; they are not silently trimmed after the frozen audit.
+All non-source edits receive the normal whitespace check. Upload manifest
+and raw CLI response are retained alongside root preflight evidence.

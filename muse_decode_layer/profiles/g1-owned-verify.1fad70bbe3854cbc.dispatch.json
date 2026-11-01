@@ -1,0 +1,26 @@
+{
+  "source_commit": "43c6c09b848b8ab1c28c57ebbed455b6b76821e9",
+  "source": "muse_decode_layer/cand/g1b4_owned_verify_release.py",
+  "bytes": 980787,
+  "sha256": "4ad326c3451d1b9a7ba22e6c89a2b06ebd8f565c20300abd9fc0d3b0a35001bc",
+  "physical_equals_committed_blob": true,
+  "quota": {
+    "scored": {
+      "per_day": 10,
+      "used": 8,
+      "left": 2
+    },
+    "checks": {
+      "per_day": 20,
+      "used": 20,
+      "left": 0
+    }
+  },
+  "live_jobs": [],
+  "job_id": "1fad70bbe3854cbc",
+  "mode": "public scored single-arm measurement",
+  "submission_response": {
+    "job_id": "1fad70bbe3854cbc",
+    "problem": "muse_decode_layer"
+  }
+}
