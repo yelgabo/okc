@@ -10,6 +10,34 @@ The optional `module_source(owned_source)` remains definitions-only for G1b's na
 selector to use as fallback. Do not apply the owned-only transform to G1b: it deliberately
 removes native selection. Root composes attention/front/projection repairs and notices.
 
+## Independent G1b review, subsequent same-day addendum
+
+Reviewed `okc-today-moe/tools/dl_fork_moe.py` live SHA256
+`7a695ad5591c8bcf71b0cb6e11b26981f410b0f174e827a4933eabd38a62f1c8`.
+Its three source/scale tests and six actual Torch CPU host tests pass independently.
+The native repair uses ordinary same-stream cooperative launch, actual occupancy/grid
+and fixup bounds, per-reader proxy fences with NT arrival counts, BF16 GEMM1/GEMM2
+results, BF16 effective gamma, FP32 post-gamma products and disabled MFIN/DF/YBF/PDL.
+Source review found no further device ordering/math blocker in those changes. Global
+release/acquire handoffs retain writer and reader proxy bridges. Marlin fallback uses
+baseline BF16 GEMMs and official fused post-expert normalization, direct local IDs and
+effective BF16 gamma. This is source/CPU review, not GPU correctness certification.
+
+Composition blocker reported to both owners: patch_moe appends HOST_BRIDGE at EOF,
+but projection repair truncates at `_make_chen`. In that order the bridge disappears
+after renaming original `_ma_prepare`, leaving its caller undefined. Root must move
+or reappend HOST_BRIDGE after the cut and confirm those final AST definitions before
+dispatch, then append owned adapter definitions. Native agent acknowledges this and
+root owns the integration fix. Do not interpret this review as approving the broken
+composition order.
+
+The reviewed live source includes synchronization outside optional catches after
+owned/Marlin packing, after native repack and before each resource probe; post-probe
+synchronization is also outside. The actual CPU injected synchronization error stays
+fatal. This addresses the suggested risk of an outstanding execution error masquerading
+as optional resource fallback. Final composed CUDA compilation, numerical validation
+and complete shape coverage remain root-owned; no extra judge dispatch here.
+
 ## Interface and reachability
 
 Only sk8w3s and main51 dispatch are compiled. The computing templates and original
