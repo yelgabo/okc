@@ -131,3 +131,29 @@ CPU cache backing in these fixtures is FP32 stand-in for GPU FP8 indexing, while
 new-row conversion really uses E4M3. This proves host/reference/checker behavior, not CUDA.
 Command: hostvalidate Python fromtools `-m unittest test_moe_attn_vp2_math_cpu -v`.
 Independent full36-case host facade remains pending; root must not dispatch this draft yet.
+
+
+## Explicit wait-budget gap and logical byte accounting
+
+No qualified V1sliding native wait-duration bound exists. Failed3f44 instrumentation is
+full16/32, not V1; it cannot fill this gap. HC14.98/15.01us versus11.10us is an entire
+architecture/precision screen, not the duration of its two cluster barriers. Source proves
+two late blocking points exist; it does not prove positive exposed savings from eliminating
+one or both. A trivial whole-kernel upper envelope is not an actionable wait budget.
+
+For long V1 sliding, owned shape plan has33 nonempty64-key splits covering128 output rows.
+Each contributes64 FP32 partials +one sum per row:1,098,240 logical global-update bytes,
+plus66,560B final read/zero traffic (counter traffic omitted). These are payload requests,
+not atomic transactions or HBM. Failed HC uses32 one-head senders*64rows*65FP32=532,480
+logical DSM payload bytes. VP2 uses32senders*16owners*1056B=540,672 DSM payload bytes;
+it carries explicit maxima as well as sums. Thus VP2 async transport does NOT reduce
+payload versus HC. No measured cache-miss/DRAM/copy-latency conclusion follows.
+
+Distinct storage/lifetime mechanism is dedicated mailbox versus dead-stage alias: dedicated
+buffer permits early readiness setup, producer register pushes and owner acquire receipt,
+then local-only reads without a post-drain raw-reader-alias barrier. N128/QK/P math remains
+bundled. The justified private check resolves BF16-output-matched performance threshold
+uncertainty (old ~.73us mean versus current calibration.722329us required), rather than
+measuring a storage-only effect or spending an invented remaining-wait budget. If matched
+signal fails, no owned rewrite follows; even if it passes, a later owned causal test must
+separately establish transfer. No isolated barrier deletion is proposed.
