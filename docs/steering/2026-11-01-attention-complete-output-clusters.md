@@ -29,3 +29,11 @@ First authorized check:4independent modules/states,3heldout inputs,all12scored s
 Preregistered acceptance: v1sliding faster in all12crosses(2candidates x2controls x3inputs). Score counterfactual credits ONLY changed row using six equal loads, each46sliding+16full. Require >=1% aggregate factor and loggain>2xindependent control/candidate nulls. Unchanged rows sensitivity only. Any accuracy/order/resource failure closes candidate; performance loss closes this architecture. Only repeatable win merits second authorized candidate-only check with actual judged path/private state and expanded fresh coverage. No public submit here.
 
 Runtime residency, DSM cost and old PRQ31 efficiency remain unmeasured. Future pure candidate must give concurrent calls separate state or explicit serialization; benchmark arms already private. No top50 claim before actual candidate score.
+
+## Dispatch qualification and correction
+
+First screen dispatched `eac485ea0d554e50` from `eee3b5b`, normalized LF SHA4559fc2ff4541d2db6f0aa7e9b7da75fcccad225d06c551c04c58e20ec5120f5; physical CRLF upload SHAfdd91207817299a1db9d72aaca36bedf154681e5133fd27113760f4ecc327e45. Final source read caught inherited fresh loop sharing input/cache tensors across arm graphs, although modules/scratch were private. Root explicitly retained the job as performance/math SCREEN ONLY; this does not prove independent fresh-cache correctness. No second check if it loses performance.
+
+Prospective harness now clones all data/cache tensors/config per arm, captures using that arm, and feeds all64banks to each private QKV. Actual extracted AST CPU fixture verifies pointer distinction and mutation isolation. Six CPU tests pass. Prospective artifact `.build/today-attn/headcluster-private.py` uses write_bytes, physical=normalized SHA1e1ab4c70fb8116d1770548fa442720cb7ee9863a0283c8d461834af4981a8a8. This corrected artifact has NOT been dispatched.
+
+Legacy production finalizers attn_one.cu850/946 retain FP32 attention values through RMS; new HC correctly rounds BF16 per official baseline129. Thus A/B timing includes both ownership change and required BF16 correction. It does not isolate ownership alone. Probability conversion unchanged. No promotion based on shared-cache screen.

@@ -4197,3 +4197,7 @@ FAILS performance: v1sliding11.17us control vs32.22/32.03, every3input
 Resource111regs/0local/90704dynamic/2blocksSM; maxcluster capacity14 (launch2).
 Fresh256math/cache/row+3negative gates passed by terminal fail-closed source
 logic; stdout/maxima truncated. Closed, no production promotion or newjob.
+
+### 2026-11-01 complete-head cluster screen (pending)
+
+- `eac485ea0d554e50`, source `eee3b5b`, generated fourarm complete-head q8sliding B1 experiment. Pending, no score/CI yet. Local NVRTC/PTXAS96regs/0spills only; runtime resources not yet known. SCREEN ONLY: inherited fresh loop shared data/cache across arms, corrected offline after dispatch. Report: docs/steering/2026-11-01-attention-complete-output-clusters.md. No public submit. Final result and loser/gates to append.
