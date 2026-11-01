@@ -1,0 +1,2 @@
+WAIT_EXPORT_ACTUAL_CPP_PASS 2rows7fields CUDAerrorfatal
+Independent six worker CPU tests PASS. No GPU execution.
