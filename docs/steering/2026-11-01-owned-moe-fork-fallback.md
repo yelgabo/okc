@@ -38,6 +38,42 @@ fatal. This addresses the suggested risk of an outstanding execution error masqu
 as optional resource fallback. Final composed CUDA compilation, numerical validation
 and complete shape coverage remain root-owned; no extra judge dispatch here.
 
+Final integration addendum: root draft SHA
+`7935ff411d5e7ec1af41b25c7fecbff3524c4311efa65b6635b05e1d5bd41025`
+and worker patcher SHA119c5c1aa1580033b9fcf82061984a6eb70da5391f19cb6db605967a2576a846
+reviewed. Four source tests and six Torch CPU tests independently pass. Final bridge
+survives the cut: last `_ma_prepare`16793, `_moe`16846, installer17008. Executed final
+AST flags/selector at1/8/16/32/128/256 for both SC6 states: small paths select repaired
+helper0/helper0df alias with WS1; large select repaired WGS main (B4FIN at32). SC6 is
+per-state and enabled only for corresponding WGS packs. Source-level integration
+cleared for root's off-board check; no GPU certification from this review.
+
+## Optional owned cooperative launch, not enabled in G1a/G1b
+
+Parent identified a launch-contract gap: ordinary owned launches avoid same-stream
+PDL overlap but do not request guaranteed co-residency for the software global barrier.
+`tools/dl_fork_owned_cooperative.py:cooperative_module_source(owned)` changes only the
+shared host `moe1_launch` helper and extension build name. Computing kernels, packing,
+scratch, BF16 gamma, ABI and barriers stay identical. Current G1a/G1b sources unchanged.
+
+The optional helper rejects PDL, requires SM90/cooperativeLaunch, queries actual active
+blocks per SM for the exact kernel/block/shared tuple, bounds grid by SM count/resident
+capacity, then uses `cudaLaunchCooperativeKernel` with a by-value Params copy. CUDA
+query/attribute/launch errors are fatal. Generated module169743B,
+SHA81790204ede654ef03ecb92988653ee98a16c5dd5106fc5ca006f61547f049c4.
+AST comparisons verify only helper/build-name differences; Python parse/compile pass.
+Exact-helper C++ mock test emitter included, but execution is **not verified**:
+neither WSL nor Windows has g++/clang++/cl/nvcc available.
+
+CUDA supports cooperative kernel capture since CUDA11. This does not establish our
+exact resource-query/capture/runner combination. Host graphs differ from device-launched
+graph restrictions; the latter's MPS restriction is not a blanket prohibition here.
+[NVIDIA CUDA11 graph support](https://developer.nvidia.com/blog/cuda-11-features-revealed/),
+[CUDA graph/runtime constraints](https://docs.nvidia.com/cuda/cuda-runtime-api/group__CUDART__GRAPH.html).
+Hardware support, actual residency, capture/replay, mixed-shape correctness and performance
+need a future permitted GPU check. No speedup estimate; cooperative admission may change
+overlap/performance. Stop if resource/capture validation fails. No new check dispatched.
+
 ## Interface and reachability
 
 Only sk8w3s and main51 dispatch are compiled. The computing templates and original
