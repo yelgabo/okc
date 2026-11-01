@@ -115,11 +115,12 @@ def kernel_fn(data,state):
     return nxt,stream,ids
 '''
 
-def build(source):
+def build(source, custom_source=None):
     assert hashlib.sha256(source.encode()).hexdigest()==PIN,"owned input pin mismatch"
+    custom_source = CUSTOM if custom_source is None else custom_source
     from dl_owned_attention_boundary import patch_owned_attention
     source=patch_owned_attention(source)
-    tree=ast.parse(source); custom=ast.parse(CUSTOM)
+    tree=ast.parse(source); custom=ast.parse(custom_source)
     overrides={n.name for n in custom.body if isinstance(n,ast.FunctionDef)}
     nodes={}
     for n in tree.body:
@@ -139,7 +140,7 @@ def build(source):
     kept=[n for n in tree.body if id(n) in selected or isinstance(n,(ast.Import,ast.ImportFrom))]
     # Retain selected functions and device literals byte-for-byte, rather than unparse C++.
     body="\n\n".join(ast.get_source_segment(source,n) for n in kept)
-    output="# okc: problem=muse_decode_layer\n# CHECK-ONLY single-load diagnostic; source/CPU qualification only.\n"+body+"\n_slice_main=_slice_moe=_slice_one=None\n"+CUSTOM
+    output="# okc: problem=muse_decode_layer\n# CHECK-ONLY single-load diagnostic; source/CPU qualification only.\n"+body+"\n_slice_main=_slice_moe=_slice_one=None\n"+custom_source
     ast.parse(output)
     literals={}
     for n in kept:

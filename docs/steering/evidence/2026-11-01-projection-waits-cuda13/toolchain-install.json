@@ -1,0 +1,63 @@
+{
+  "packages": {
+    "nvidia-cuda-runtime": "13.0.88",
+    "nvidia-cuda-nvcc": "13.0.88",
+    "nvidia-cuda-nvrtc": "13.0.88",
+    "nvidia-nvvm": "13.0.88",
+    "nvidia-cuda-crt": "13.0.88"
+  },
+  "primary_redistrib": "https://developer.download.nvidia.com/compute/cuda/redist/redistrib_13.0.2.json",
+  "components": {
+    "cuda_nvdisasm": {
+      "name": "CUDA nvdisasm",
+      "license": "CUDA Toolkit",
+      "license_path": "cuda_nvdisasm/LICENSE.txt",
+      "version": "13.0.85",
+      "linux-x86_64": {
+        "relative_path": "cuda_nvdisasm/linux-x86_64/cuda_nvdisasm-linux-x86_64-13.0.85-archive.tar.xz",
+        "sha256": "0541e0230f724a43d67288ef882c63351d0c302bf567591b7620d40f93c2c93c",
+        "md5": "c087569ce5afb128f99fadf280c98815",
+        "size": "4129456"
+      },
+      "linux-sbsa": {
+        "relative_path": "cuda_nvdisasm/linux-sbsa/cuda_nvdisasm-linux-sbsa-13.0.85-archive.tar.xz",
+        "sha256": "77e2ef1494270839829d5608352ba67a278e80fdaf4e3cc3c8ac9cb73e1c463c",
+        "md5": "004432bcd5466fdc6a4bcb8ce67c14cc",
+        "size": "4057500"
+      },
+      "windows-x86_64": {
+        "relative_path": "cuda_nvdisasm/windows-x86_64/cuda_nvdisasm-windows-x86_64-13.0.85-archive.zip",
+        "sha256": "c15885ed180cc6439b92a59fede41082434fdd9baac7280d5f0570f1d0786b04",
+        "md5": "00cd56f73b5de05c94c7858cb1219c79",
+        "size": "4450492"
+      }
+    },
+    "cuda_cccl": {
+      "name": "CXX Core Compute Libraries",
+      "license": "CUDA Toolkit",
+      "license_path": "cuda_cccl/LICENSE.txt",
+      "version": "13.0.85",
+      "linux-x86_64": {
+        "relative_path": "cuda_cccl/linux-x86_64/cuda_cccl-linux-x86_64-13.0.85-archive.tar.xz",
+        "sha256": "ed845eae8c1767706b6ee91e40c608a03f6f633551a849b63f7346d32d73ee60",
+        "md5": "c0dd26e0c41dc35bd73435a4799c7508",
+        "size": "991284"
+      },
+      "linux-sbsa": {
+        "relative_path": "cuda_cccl/linux-sbsa/cuda_cccl-linux-sbsa-13.0.85-archive.tar.xz",
+        "sha256": "eca22ded176804a78afcba3fe1909e7d473366ee1cb9f3784080df23bc8e74d5",
+        "md5": "e50b07ae0a9920ce07a107a5c7030157",
+        "size": "990368"
+      },
+      "windows-x86_64": {
+        "relative_path": "cuda_cccl/windows-x86_64/cuda_cccl-windows-x86_64-13.0.85-archive.zip",
+        "sha256": "f4f5187f7976d8057d76e1e04e72c8b7d0a2a22793107a671ad709b1d8d3408d",
+        "md5": "8dba9713ce4b4e6f0c58a92a8a1379db",
+        "size": "3119228"
+      }
+    }
+  },
+  "nvrtc_sha256": "a49e67e8e74590f1e98de55c39c6287efd3f59e3c3797464d7bbe0fe01349b11",
+  "ptxas_sha256": "daba837a68265cae38c832d13399b61dab811891de9b8914defddef143b849f2",
+  "scope": "local pinned compiler tools, not official H200 CUBIN"
+}

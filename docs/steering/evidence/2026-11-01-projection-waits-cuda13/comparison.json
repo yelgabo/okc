@@ -1,0 +1,35 @@
+{
+  "same_device_input_sha256": "f86b8064b33c1f516144392e4633bf54a2bdffc6985662f022cf86cd23292b66",
+  "wd_resource_wait_counts_equal_12_8_and_13_0": true,
+  "entries": {
+    "ILi1ELi128ELi8ELi1ELb1ELi6EfLi0ELb0ELi6190EEEv14CUtensorMap_stS1_PT5_iiiPi": {
+      "hgmma": 8,
+      "wait1": 1,
+      "wait0": 1,
+      "registers": 90,
+      "stack": 0,
+      "spill_stores": 0,
+      "spill_loads": 0
+    },
+    "ILi1ELi64ELi8ELi1ELb1ELi8EfLi0ELb0ELi6190EEEv14CUtensorMap_stS1_PT5_iiiPi": {
+      "hgmma": 8,
+      "wait1": 1,
+      "wait0": 1,
+      "registers": 58,
+      "stack": 0,
+      "spill_stores": 0,
+      "spill_loads": 0
+    },
+    "ILi1ELi128ELi3ELi1ELb0ELi8E13__nv_bfloat16Li0ELb1ELi0EEEv14CUtensorMap_stS2_PT5_iiiPi": {
+      "hgmma": 4,
+      "wait1": 1,
+      "wait0": 1,
+      "registers": 90,
+      "stack": 0,
+      "spill_stores": 0,
+      "spill_loads": 0
+    }
+  },
+  "official_H200_cubin_observed": false,
+  "gpu_execution": false
+}

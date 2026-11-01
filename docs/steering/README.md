@@ -11,6 +11,8 @@ report be checked into this repository so other sessions can read it.
 
 ## Latest review
 
+[November 1 four-cell verify package, CUDA13 audit and attention result](2026-11-01-verify-and-attention.md) records the policy-correct968389-byte package, conditional score leverage, local CUDA13 proof and completed private VP2 jobc79ddddb840a4fb7. PASS16/640 private checks, target5.71% faster, but whole-score gate fails. No production or public change.
+
 [November 1, 06:30 PST — completed H200 round and retained submission](2026-11-01-0630-measurement-outcome.md) records four owned receipts, both implemented MoE variants, failed full-score gates, current actual rank/cutoffs, source-backed research corrections, stop criteria and the16:00 reset checks. No new production win or public submission; best layer607e remains2.126083×.
 
 [November 1 owned locality H200 result](2026-11-01-locality-and-attribution.md#owned-band32-terminal-result-and-one-representation-follow-up) records the direct band32 loss on all six targeted inputs, the unchanged baselines and one bounded cached-mapping hypothesis with new held-outs. All correctness gates passed; no speedup or public promotion.
