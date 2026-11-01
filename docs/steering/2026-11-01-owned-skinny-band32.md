@@ -128,3 +128,19 @@ crosses; require >=1% whole-six-load improvement in every seed and >2x duplicate
 plus prospective per-case regression gate. No input timing selects the implementation.
 No posthoc band-size sweep or selective seed policy. Failures close this exact hypothesis.
 This checkpoint does not authorize dispatch, promotion, or public submission.
+
+
+## Source-only no-op fastpath closure
+
+Before freezing the harness, root asked to evaluate a jobs==1 identity shortcut.
+This added `if(jobs==1)return v` before mapper off/job_q loads and a simple physical
+job/CTA intersection credit count before the variable-divisor prefix path.
+Actual generated source302006B SHA
+`8e0161d58604855f56fbecb800f8ecb7a1a2b90878c8f3948474992f27f56819`,
+retained `.build/today-moe/owned_band32_identity.py`; actual compiler manifest/logs
+under `evidence/2026-11-01-owned-band32/identity-fastpath-closed/`.
+Local sm90a skinny153registers,0stack/0spill,16barriers versus140 control/130 frozen
+band32. The branch/control-flow representation worsens register liveness, failing the
+prospective no-worse-register gate. No GPU or performance measurement. Root accepted
+closure; generator was restored exactly to fc28a77. The single band32 candidate and
+its review pin remain unchanged. No further identity or band-size sweep is proposed.
