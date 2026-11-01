@@ -94,3 +94,31 @@ Live IDs verified:1c1fcf1d49924050,191e57a0f45a4717,e06255199f6d4de1,09ba15bd18f
 36e57280ff1f4c63,cccc131c55874949,9eba96894ee1402e,7631974774944a2a. Updated API snapshots
 are in the evidence directory. Wait these exact jobs; do not restart them on observation timeout.
 Projection worker separately owns the two earlier live projection mechanism checks.
+
+## Progress addendum: first completed results and prefill tile experiment
+
+Prefill baseline09ba15bd18fd4000 completed and passed at1.000953x (95%CI approximately
+0.985939–1.015967). Saved raw status and normalized profiles under muse_prefill_layer/
+baseline_profile. Running hotspots.py with that same baseline-as-submission source shows
+Marlin MoE40–67% of time; representative sliding rows749.8/2383.1/11547us at753/3012/16384
+tokens. This satisfies profiling before writing the first prefill optimization.
+
+Dispatched fixed Marlin M16 (e6c12149c99a4a96) and M32 (334149df33f64c54) checks, changing
+only the existing M-tile selection. No weight/activation precision or mathematical boundary
+changes. Full hypothesis, acceptance and run ledger: docs/runs-prefill.md. Also submitted the
+validated baseline as181880202c5742db to establish a first entry, not as an optimization claim.
+
+MoE exact production validation7631974774944a2a passed5tests,2.193073x (2.160177–2.225969).
+Prepare selected skinny sk8w3s at1/8/16/32 and51 at128/256; it is not fixed51 at32.
+Frozen SHA66618198aafc4d14cfe0350bf561fe8abc66f3d5bc9f6df1dbd2518508297c01 submitted as
+336f3a63bd6a44f3, problem confirmed; no diagnostic included.
+
+Projection scored9eba96894ee1402e completed/pass1.527806x, above prior best1.516978x,
+but a single headline change is not an isolated kernel gain. Projection owner retains receipt,
+CI and attribution in docs/runs.md. Its router F/V check produced a promising128-token paired
+signal; candidate confirmation is in progress. Codec model perturbation prevents treating the
+bytes-only timing as a usable compression ceiling; no real codec is promoted from that model.
+
+Layer36e57280ff1f4c63, attentioncccc131c55874949 and layer-port1c1fcf1d49924050 were freshly
+verified running. Continue exact-ID waits; do not replace them because a watch ends. Active
+goal still requires verified top10 on every board and today's remaining authorized experiments.
