@@ -444,3 +444,5 @@ Hourly review history: [11:20 PDT performance review](2026-10-29-1120-performanc
 - 2026-11-01: [Independent G stage-probe device checkpoint](2026-11-01-g-stage-probe-independent-review.md): shared-field lifetime, exact trace bounds and actual SASS/resource review; final host artifact and source-version reconciliation remain open, no dispatch clearance.
 
 - 2026-11-01: [Owned standalone MoE locality scope and local population addendum](2026-11-01-owned-moe-locality-scope.md): exact incumbent8-row order; new preregistered64-bank local input census finds repeats14/32 atM16 and29/32 atM32, revising the old four-bank gate. Conditional score scenario+3.073%, not traffic/bound/forecast; exposed H200 opportunity still required, no kernel/check request.
+
+- 2026-11-01: [Owned fixed-band32 private-check registration](2026-11-01-owned-moe-band32-registration.md): disjoint preregistered heldouts, actual activation/credit request costs, exact631897B artifact493d1678, sevenCPU host gates; root review required, no dispatch by reviewer.
