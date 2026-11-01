@@ -15,3 +15,8 @@ Source content_hash/payload_ref should also be reconciled with the actual author
 Optional reporting improvement: include weighted raw load averages/raw reconstructed sensitivity alongside adjusted load summaries. Existing per-cell raw values are already correctly labeled; this is additional visibility, not a formula correction or promotion criterion.
 
 Pending terminal gate: root supplies exact owning job/receipt/log/source association; independently verify all13 tests,12 unique benchmarks/profiles,46:16 weights, startup selected4/checks48/captures8/fresh24/empty40/emptycaptures8/restored32, native resource/admission vectors, flags, preparation budget and score reconstruction. Keep failed receipts too. No terminal result exists in this review and no speedup is inferred.
+
+
+## Same-day fix review
+
+Root addressed the review in the working tree: terminal top-level done/result ok checks; server content_hash format plus payload_ref coherence; CLI log path must resolve to receipt.output.log and contain the job ID, with log SHA recorded; shared cap and MoE576-thread guards. Independently reran all four updated CPU tests: PASS. Reviewed reader SHA256 `bfb85988cd27358905cf08f85329f4adbf31dd60635e4902d7c79d4538dd1281`, tests `e2c5611c5ee6a7e3836824265cdf5c314250fdaa1a5ba564789bef2e87552dfb`. This fixes the identified terminal/log binding gaps for execution in the environment owning the CLI path (WSL). Exact ONE geometry remains supplied by its actual Instance getter rather than a guessed hard-coded value. Server content identity is still distinct from physical file SHA; root must retain the upload manifest association. No new official result is inferred.
