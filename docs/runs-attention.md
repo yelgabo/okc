@@ -3809,3 +3809,10 @@ and prepare-time resource attributes. No public submission before these gates pa
 |date|job|commit|change|score (95%CI)|notes|
 |---|---|---|---|---|---|
 |2026-10-31|a9b416a0c7324ecc (check)|554445d|ONE_LATE_TID2 full/non-one-tile restriction, fresh four-arm gate above|pending|Three inputs,150coldrounds,independent candidate builds+states; judged source defaultoff.|
+
+Live standalone attention snapshot during restricted experiment (2026-10-31 late PDT):
+`profiles/leaderboard.2026-10-31-late-campaign.json` reports ours rank206,2.6043x;
+rank10 is jt914,2.9098x, screened job5cb3655bf3c9499a. The ratio2.9098/2.6043
+requires approximately11.73% more score at this snapshot. This is a live official-row
+comparison, not an invented cutoff or forecast. The bounded late-tid mechanism alone does
+not establish that gap; the final review/rerun ranking remains provisional.
