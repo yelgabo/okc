@@ -3,6 +3,7 @@ import hashlib
 import os
 from pathlib import Path
 import subprocess
+import shutil
 import unittest
 
 from dl_fork_moe_empty import DEVICE_PIN, GUARD, HEAD, device_node, patch_empty_routing
@@ -90,12 +91,13 @@ int main() {
         folder.mkdir(parents=True, exist_ok=True)
         cpp = folder / 'empty_host.cpp'
         cpp.write_text(common + old.replace('wgs_stage_at(', 'old_stage_at(') + '\n' + new + '\n' + main, encoding='utf-8')
-        linux_root = '/mnt/c/' + str(ROOT).replace('\\', '/')[3:]
+        runner = ['wsl', '-d', 'Ubuntu', '--exec'] if os.name == 'nt' else []
+        cxx = os.environ.get('CXX') or (shutil.which('c++') if not runner else None)
         zig = os.environ.get('OKC_EMPTY_ZIG', '/root/.cache/okc-host-tools/zig-0-15-2/ziglang/zig')
-        args = ['wsl', '-d', 'Ubuntu', '--exec', zig, 'c++', '-std=c++17', '-O1',
-                linux_root + '/.build/today-moe/empty_host.cpp', '-o', linux_root + '/.build/today-moe/empty_host']
-        subprocess.run(args, check=True, timeout=180)
-        result = subprocess.run(['wsl', '-d', 'Ubuntu', '--exec', linux_root + '/.build/today-moe/empty_host'], check=True, text=True, capture_output=True)
+        compiler = [cxx] if cxx else [zig, 'c++']
+        subprocess.run(runner + compiler + ['-std=c++17', '-O1', 'empty_host.cpp', '-o', 'empty_host'],
+                       cwd=folder, check=True, timeout=180)
+        result = subprocess.run(runner + ['./empty_host'], cwd=folder, check=True, text=True, capture_output=True)
         print(result.stdout.strip())
 
 

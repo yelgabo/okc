@@ -11,7 +11,7 @@ report be checked into this repository so other sessions can read it.
 [November 1 strategy beyond an incorporated Family G](2026-11-01-beyond-family-g.md) sizes two independent investigations under the user's hypothetical incumbent.
 
 
-[Family G qualification and check receipts](2026-11-01-family-g-qualification.md) records G0 at 2.248791×, G1a with owned experts at 2.010975× and G1b2 with repaired native experts at 2.065559×. The public incumbent remains 2.043438×. Empty-routing and repeated whole-layer validation are the next release gates.
+[Family G qualification and check receipts](2026-11-01-family-g-qualification.md) records G0 at 2.248791×, G1a at 2.010975× and repaired native G1b2 at 2.065559×. G1b3 fixes the empty-routing metadata read and uses Marlin fallback. It is ready for an off-board H200 qualification after quota reset. The scored incumbent is 2.043438×.
 
 [November 1 research ownership retrospective](2026-11-01-research-ownership.md) adds the experiment-selection gate to both root instruction files and defines how to assess it prospectively.
 
@@ -434,6 +434,8 @@ accounting, and running a corrected matched whole-layer comparison. It records
 recommendations, not execution of those tasks; check current code and run logs for status.
 
 ## Report history
+
+- [November 1 empty-routing fix, compiled host fixtures and unresolved native finalizer](2026-11-01-native-moe-empty-routing.md)
 
 - [November 1 projection dispatch audit](2026-11-01-projection-weighted-dispatch-audit.md) reconstructs all 30 score-weighted opportunities and closes the four-cell follow-up pending new legal kernel evidence.
 
