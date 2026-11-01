@@ -1,0 +1,175 @@
+okc run 942ebdec400d4e68 on muse_decode_layer
+submission  /mnt/c/Users/gretc/Documents/GitHub/okc/muse_decode_layer/cand/g1b4_short_overlap_release.py
+status      ok
+passed      true
+speedup     2.0959003158036755
+speedup_ci  [2.06446181106662 2.1273388205407304]
+score_us    10792.641152557018
+tests       13/13 passed
+
+scored shapes (µs; speed of light is the reference's bound)
+case                                                         sglang      yours  speedup        sol  
+batch=1 ctx=80000 dist=soft layer=sliding load=decode 1 page=1     172.43      81.38   2.119x      40.02  
+batch=1 ctx=80000 dist=soft layer=full load=decode 1 page=1     182.37      87.85   2.076x      44.18  
+batch=16 ctx=80000 dist=soft layer=sliding load=decode 16 page=1 spread=agentic     256.98     132.50   1.939x      76.72  
+batch=16 ctx=80000 dist=soft layer=full load=decode 16 page=1 spread=agentic     434.75     209.81   2.072x     137.46  
+batch=32 ctx=80000 dist=soft layer=sliding load=decode 32 page=1 spread=agentic     268.83     156.18   1.721x      84.51  
+batch=32 ctx=80000 dist=soft layer=full load=decode 32 page=1 spread=agentic     619.12     304.62   2.032x     208.10  
+batch=1 ctx=80000 dist=soft layer=sliding load=verify 1 page=1 q_len=8     252.30     110.13   2.291x      62.29  
+batch=1 ctx=80000 dist=soft layer=full load=verify 1 page=1 q_len=8     270.48     123.39   2.192x      66.44  
+batch=16 ctx=80000 dist=soft layer=sliding load=verify 16 page=1 q_len=8 spread=agentic     521.14     248.84   2.094x     126.61  
+batch=16 ctx=80000 dist=soft layer=full load=verify 16 page=1 q_len=8 spread=agentic     698.67     332.33   2.102x     188.68  
+batch=32 ctx=80000 dist=soft layer=sliding load=verify 32 page=1 q_len=8 spread=agentic     735.94     315.88   2.330x     143.81  
+batch=32 ctx=80000 dist=soft layer=full load=verify 32 page=1 q_len=8 spread=agentic    1077.50     474.04   2.273x     267.18  
+
+profile 0: batch=1 ctx=80000 dist=soft layer=sliding load=decode 1 page=1
+kernel                                                           GPU time  share  calls
+void okc::moe_fused<false>(okc::Params)                           29.2 µs  34.7%      1
+void sk2_kernel<1, 8, 1, 2, 2, 4, 3, true, false, 1, 1, _...      15.3 µs  18.2%      1
+void sk2_kernel<1, 8, 3, 1, 4, 2, 6, true, false, 1, 1, _...      10.2 µs  12.2%      1
+router_fp32_kernel(float const*, float const*, float*, int)        6.9 µs   8.2%      1
+void sk2_kernel<1, 8, 4, 1, 4, 1, 4, true, false, 2, 1, _...       5.8 µs   6.9%      1
+void (anonymous namespace)::attn_kernel<1, false, 13>((an...       5.4 µs   6.5%      1
+void sk2_kernel<1, 8, 1, 1, 8, 2, 4, true, false, 2, 1, _...       4.3 µs   5.1%      1
+void glue_cluster_boundary<4, 32, false, false, true, fal...       3.3 µs   3.9%      1
+_sl_tile_route                                                     1.9 µs   2.3%      1
+_sl_cluster_finish                                                 1.8 µs   2.1%      1
+total                                                             84.1 µs
+
+profile 1: batch=1 ctx=80000 dist=soft layer=full load=decode 1 page=1
+kernel                                                           GPU time  share  calls
+void okc::moe_fused<false>(okc::Params)                           22.0 µs  26.7%      1
+void sk2_kernel<1, 8, 1, 2, 2, 4, 3, true, false, 1, 1, _...      14.3 µs  17.4%      1
+void (anonymous namespace)::attn_kernel<1, false, 11>((an...      12.1 µs  14.7%      1
+void sk2_kernel<1, 8, 3, 1, 4, 2, 6, true, false, 1, 1, _...      10.3 µs  12.5%      1
+router_fp32_kernel(float const*, float const*, float*, int)        6.7 µs   8.1%      1
+void sk2_kernel<1, 8, 4, 1, 4, 1, 4, true, false, 2, 1, _...       5.7 µs   6.9%      1
+void sk2_kernel<1, 8, 1, 1, 8, 2, 4, true, false, 2, 1, _...       4.4 µs   5.3%      1
+void glue_cluster_boundary<4, 32, false, false, true, fal...       3.1 µs   3.8%      1
+_sl_tile_route                                                     2.0 µs   2.4%      1
+_sl_cluster_finish                                                 1.9 µs   2.2%      1
+total                                                             82.6 µs
+
+profile 2: batch=16 ctx=80000 dist=soft layer=sliding load=decode 16 page=1 spread=agentic
+kernel                                                           GPU time  share  calls
+void okc::moe_fused<false>(okc::Params)                           65.2 µs  49.5%      1
+void sk2_kernel<1, 16, 4, 1, 8, 1, 5, true, false, 2, 1, ...      18.5 µs  14.0%      1
+void sk2_kernel<1, 16, 4, 1, 4, 1, 5, true, false, 2, 1, ...      14.7 µs  11.2%      1
+void sk2_kernel<1, 16, 3, 1, 4, 2, 5, true, false, 1, 1, ...      11.1 µs   8.4%      1
+void (anonymous namespace)::attn_kernel<1, false, 1>((ano...       7.8 µs   5.9%      1
+void sk2_kernel<1, 16, 4, 1, 4, 1, 4, true, false, 2, 1, ...       5.9 µs   4.4%      1
+void glue_cluster_boundary<4, 32, true, false, false, tru...       3.4 µs   2.6%      1
+void glue_cluster_boundary<4, 32, false, false, false, tr...       3.2 µs   2.4%      1
+_sl_tile_route                                                     2.0 µs   1.5%      1
+total                                                            131.9 µs
+
+profile 3: batch=16 ctx=80000 dist=soft layer=full load=decode 16 page=1 spread=agentic
+kernel                                                           GPU time  share  calls
+void (anonymous namespace)::attn_kernel<1, true, 0>((anon...      85.9 µs  42.6%      1
+void okc::moe_fused<false>(okc::Params)                           58.6 µs  29.1%      1
+void sk2_kernel<1, 16, 4, 1, 8, 1, 5, true, false, 2, 1, ...      17.3 µs   8.6%      1
+void sk2_kernel<1, 16, 4, 1, 4, 1, 5, true, false, 2, 1, ...      14.2 µs   7.1%      1
+void sk2_kernel<1, 16, 3, 1, 4, 2, 5, true, false, 1, 1, ...      10.1 µs   5.0%      1
+void sk2_kernel<1, 16, 4, 1, 4, 1, 4, true, false, 2, 1, ...       6.0 µs   3.0%      1
+void glue_cluster_boundary<4, 32, true, false, false, tru...       3.7 µs   1.8%      1
+void glue_cluster_boundary<4, 32, false, false, false, tr...       3.6 µs   1.8%      1
+_sl_tile_route                                                     2.0 µs   1.0%      1
+total                                                            201.5 µs
+
+profile 4: batch=32 ctx=80000 dist=soft layer=sliding load=decode 32 page=1 spread=agentic
+kernel                                                           GPU time  share  calls
+void okc::moe_fused<false>(okc::Params)                           75.5 µs  51.5%      1
+void sk2_kernel<2, 32, 4, 1, 8, 1, 3, true, false, 2, 1, ...      20.2 µs  13.8%      1
+void sk2_kernel<2, 32, 4, 2, 2, 2, 3, true, false, 1, 1, ...      15.1 µs  10.3%      1
+void sk2_kernel<2, 32, 3, 1, 4, 2, 4, true, false, 1, 1, ...      11.0 µs   7.5%      1
+void (anonymous namespace)::attn_kernel<1, false, 1>((ano...       9.6 µs   6.5%      1
+_graft_row_boundary_pre                                            7.0 µs   4.8%      2
+void sk2_kernel<2, 32, 2, 2, 2, 2, 3, true, false, 1, 1, ...       6.2 µs   4.2%      1
+_sl_tile_route                                                     2.0 µs   1.4%      1
+total                                                            146.6 µs
+
+profile 5: batch=32 ctx=80000 dist=soft layer=full load=decode 32 page=1 spread=agentic
+kernel                                                           GPU time  share  calls
+void (anonymous namespace)::attn_kernel<1, true, 0>((anon...     164.0 µs  51.1%      1
+void okc::moe_fused<false>(okc::Params)                           95.4 µs  29.8%      1
+void sk2_kernel<2, 32, 4, 1, 8, 1, 3, true, false, 2, 1, ...      19.5 µs   6.1%      1
+void sk2_kernel<2, 32, 4, 2, 2, 2, 3, true, false, 1, 1, ...      15.2 µs   4.7%      1
+void sk2_kernel<2, 32, 3, 1, 4, 2, 4, true, false, 1, 1, ...      10.8 µs   3.4%      1
+_graft_row_boundary_pre                                            7.5 µs   2.3%      2
+void sk2_kernel<2, 32, 2, 2, 2, 2, 3, true, false, 1, 1, ...       6.1 µs   1.9%      1
+_sl_tile_route                                                     2.2 µs   0.7%      1
+total                                                            320.6 µs
+
+profile 6: batch=1 ctx=80000 dist=soft layer=sliding load=verify 1 page=1 q_len=8
+kernel                                                           GPU time  share  calls
+void okc::moe_fused<false>(okc::Params)                           36.7 µs  39.9%      1
+void sk2_kernel<1, 8, 1, 2, 2, 4, 3, true, false, 1, 1, _...      14.9 µs  16.2%      1
+void sk2_kernel_narrow_5ca70d56e6dc<1, 8, 3, 1, 4, 2, 5, ...       9.9 µs  10.7%      1
+void (anonymous namespace)::attn_kernel<8, false, 15>((an...       7.3 µs   7.9%      1
+void sk2_kernel<1, 8, 4, 1, 4, 1, 4, true, false, 2, 1, _...       6.0 µs   6.5%      1
+router_fp32_kernel(float const*, float const*, float*, int)        6.0 µs   6.5%      1
+void sk2_kernel<1, 8, 1, 1, 8, 2, 4, true, false, 2, 1, _...       4.4 µs   4.8%      1
+void glue_cluster_boundary<4, 32, false, false, true, tru...       3.2 µs   3.5%      1
+_sl_tile_route                                                     1.9 µs   2.1%      1
+_sl_cluster_finish                                                 1.7 µs   1.8%      1
+total                                                             92.0 µs
+
+profile 7: batch=1 ctx=80000 dist=soft layer=full load=verify 1 page=1 q_len=8
+kernel                                                           GPU time  share  calls
+void okc::moe_fused<false>(okc::Params)                           56.5 µs  46.7%      1
+void sk2_kernel<1, 8, 1, 2, 2, 4, 3, true, false, 1, 1, _...      15.3 µs  12.6%      1
+void (anonymous namespace)::attn_kernel<8, false, 11>((an...      15.0 µs  12.4%      1
+void sk2_kernel_narrow_5ca70d56e6dc<1, 8, 3, 1, 4, 2, 5, ...       9.6 µs   7.9%      1
+void sk2_kernel<1, 8, 4, 1, 4, 1, 4, true, false, 2, 1, _...       6.5 µs   5.4%      1
+router_fp32_kernel(float const*, float const*, float*, int)        6.5 µs   5.3%      1
+void sk2_kernel<1, 8, 1, 1, 8, 2, 4, true, false, 2, 1, _...       4.5 µs   3.7%      1
+void glue_cluster_boundary<4, 32, false, false, true, tru...       3.3 µs   2.7%      1
+_sl_tile_route                                                     2.1 µs   1.7%      1
+_sl_cluster_finish                                                 1.9 µs   1.6%      1
+total                                                            121.2 µs
+
+profile 8: batch=16 ctx=80000 dist=soft layer=sliding load=verify 16 page=1 q_len=8 spread=agentic
+kernel                                                           GPU time  share  calls
+void okc::moe_fused<true>(okc::Params)                           172.8 µs  64.6%      1
+nvjet_sm90_tst_128x64_64x8_1x2_h_bz_NNT                           28.5 µs  10.7%      2
+nvjet_sm90_tss_80x64_64x11_4x2_h_bz_coopB_TNN                     25.0 µs   9.3%      1
+nvjet_sm90_tst_48x64_64x15_1x2_h_bz_TNN                           16.6 µs   6.2%      1
+void (anonymous namespace)::attn_kernel<8, false, 3>((ano...      12.4 µs   4.6%      1
+_graft_row_boundary                                                9.4 µs   3.5%      2
+_graft_route                                                       2.8 µs   1.1%      1
+total                                                            267.6 µs
+
+profile 9: batch=16 ctx=80000 dist=soft layer=full load=verify 16 page=1 q_len=8 spread=agentic
+kernel                                                           GPU time  share  calls
+void okc::moe_fused<true>(okc::Params)                           166.7 µs  47.7%      1
+void (anonymous namespace)::attn_kernel<8, true, 0>((anon...     101.2 µs  29.0%      1
+nvjet_sm90_tst_128x64_64x8_1x2_h_bz_NNT                           27.8 µs   8.0%      2
+nvjet_sm90_tss_80x64_64x11_4x2_h_bz_coopB_TNN                     24.8 µs   7.1%      1
+nvjet_sm90_tst_48x64_64x15_1x2_h_bz_TNN                           16.8 µs   4.8%      1
+_graft_row_boundary                                                9.1 µs   2.6%      2
+_graft_route                                                       2.9 µs   0.8%      1
+total                                                            349.3 µs
+
+profile 10: batch=32 ctx=80000 dist=soft layer=sliding load=verify 32 page=1 q_len=8 spread=agentic
+kernel                                                           GPU time  share  calls
+void okc::moe_fused<true>(okc::Params)                           193.2 µs  61.9%      1
+nvjet_sm90_tss_144x64_64x8_1x1_v_bz_TNN                           31.2 µs  10.0%      1
+nvjet_sm90_tst_128x128_64x6_1x2_h_bz_coopA_NNT                    25.4 µs   8.1%      1
+nvjet_sm90_tst_72x64_64x12_1x1_v_bz_TNN                           19.9 µs   6.4%      1
+void (anonymous namespace)::attn_kernel<8, false, 3>((ano...      15.7 µs   5.0%      1
+_graft_row_boundary                                               13.9 µs   4.4%      2
+nvjet_sm90_tst_128x128_64x6_1x2_h_bz_coopA_NNN                     8.9 µs   2.8%      1
+_graft_route                                                       4.2 µs   1.3%      1
+total                                                            312.3 µs
+
+profile 11: batch=32 ctx=80000 dist=soft layer=full load=verify 32 page=1 q_len=8 spread=agentic
+kernel                                                           GPU time  share  calls
+void okc::moe_fused<true>(okc::Params)                           223.5 µs  43.8%      1
+void (anonymous namespace)::attn_kernel<8, true, 0>((anon...     181.9 µs  35.7%      1
+nvjet_sm90_tss_144x64_64x8_1x1_v_bz_TNN                           32.4 µs   6.4%      1
+nvjet_sm90_tst_128x128_64x6_1x2_h_bz_coopA_NNT                    25.4 µs   5.0%      1
+nvjet_sm90_tst_72x64_64x12_1x1_v_bz_TNN                           20.0 µs   3.9%      1
+_graft_row_boundary                                               13.7 µs   2.7%      2
+nvjet_sm90_tst_128x128_64x6_1x2_h_bz_coopA_NNN                     9.1 µs   1.8%      1
+_graft_route                                                       3.6 µs   0.7%      1
+total                                                            509.6 µs

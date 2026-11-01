@@ -57,3 +57,25 @@ Job `27b2ed49fc6344ec` used the same startup checks as `607eb52bdaf24160`. All 1
 | verify 32 | 359.297 | 313.884 | 478.023 | 356.243 | −0.85% |
 
 Decode-32 and verify-16/32 dispatch the changed expert kernel. Both runs had fresh route inputs and their own baseline measurements. The overlapping score intervals and the movement in unaffected loads preclude assigning these differences to publication timing alone.
+
+## Concurrent short pooler and router
+
+Public job `942ebdec400d4e68` passed all 13 tests. The judge confirmed the real SK2 pooler and separate FP32 router at one and eight tokens, 56 expert replays and 32 producer replays. The six weighted ratios reconstruct the official 2.095900315804×. The two targeted loads are marked in bold. [Raw judge receipt](../../../../muse_decode_layer/profiles/scored.942ebdec400d4e68.json).
+
+| Load | Fused incumbent weighted µs | New sliding µs | New full µs | New weighted µs | Latency change |
+|---|---:|---:|---:|---:|---:|
+| **decode 1** | 78.549 | 81.382 | 87.849 | 83.051 | +5.73% |
+| decode 16 | 158.241 | 132.505 | 209.809 | 152.455 | −3.66% |
+| decode 32 | 191.740 | 156.184 | 304.622 | 194.491 | +1.43% |
+| **verify 1** | 115.991 | 110.126 | 123.391 | 113.549 | −2.10% |
+| verify 16 | 269.347 | 248.842 | 332.329 | 270.387 | +0.39% |
+| verify 32 | 359.297 | 315.877 | 474.045 | 356.694 | −0.72% |
+
+| Targeted cell | Fused producer activity in incumbent µs | SK2 pooler activity µs | FP32 router activity µs |
+|---|---:|---:|---:|
+| decode 1, sliding | 17.9 | 15.3 | 6.9 |
+| decode 1, full | 17.9 | 14.3 | 6.7 |
+| verify 1, sliding | 18.7 | 14.9 | 6.0 |
+| verify 1, full | 18.6 | 15.3 | 6.5 |
+
+The score runs used fresh inputs. The scored profiles give per-kernel durations and activity shares. They do not contain issue timestamps, a measured stream-overlap interval, SM utilization or HBM bandwidth. Adding the pooler and router durations would double-count any concurrent execution. [Profile tables](../../../../muse_decode_layer/profiles/g1-short-overlap.942ebdec400d4e68.txt).

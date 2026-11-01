@@ -89,3 +89,20 @@ Public job `942ebdec400d4e68` measures a fixed, single-arm production change. An
 We tested stream behavior locally on an RTX 5070 with CUDA PyTorch 2.10. The fixture recompiles the original router device function for SM120 and uses the original Triton routing and normalization code. It substitutes a same-size BF16 linear operation for the Hopper SK2 pooler. The final source passed two concurrent graph captures and 20 fresh replays with a maximum absolute discrepancy of 5.37e-7 in the router/downstream FP32 check. Its additional startup validator passed all 32 replays with separate owners for both token counts. Runtime performance and correctness of the complete native layer require the H200 receipt. [Local GPU fixture](../../muse_decode_layer/profiles/short-overlap-local-2026-11-01/rtx_short_graph.py). [Exact-source output](../../muse_decode_layer/profiles/short-overlap-local-2026-11-01/final-startup.log). [PyTorch CUDA build](https://pytorch.org/get-started/previous-versions/).
 
 One further byte-budget test removed an inactive owned diagnostic helper. The selected SM90a attention kernel kept all 2328 SASS instructions, 114 registers and zero spills. The saving was 2772 bytes. Even the four mandatory G literals, reduced owned slice and current private harness alone total 1062406 bytes before G host support and notices. The strict BF16-matched cross-family comparison remains open. [Size accounting and compiled equivalence](2026-11-01-inactive-detm-size-pass.md).
+
+## November 1, 04:48 PST — H200 result and submission decision
+
+**Keep the fused G1b4 stage-retirement release at 2.126083×.** The concurrent short producer reached **2.095900×** (95% CI 2.064462–2.127339). Preparation took 127.82 s. The real H200 selected the SK2/FP32 path at both token counts, exercised two owners per count and passed 32 producer replays plus the incumbent's 56 expert replays. All 13 official cases passed with all twelve benchmarks and profiles and no flags. The full score was 1.42% below the incumbent. [Authenticated receipt](../../muse_decode_layer/profiles/scored.942ebdec400d4e68.json).
+
+Weighted decode-one latency rose by 4.502 µs and verify-one fell by 2.442 µs. Holding the other four incumbent workloads and their baselines fixed gives a 0.994274× score factor for these two changes together, or 1.003552× for verify-one alone. Both calculations use independent runs. Kernel activity totals do not measure how much the streams overlapped. Close this exact two-load implementation and the verify-only public retry. Keep the separate fixed-routing trace to measure the original dependency. [Twelve medians, weighted comparison and kernel durations](evidence/2026-11-01-g-public/stage-shapes.md#concurrent-short-pooler-and-router).
+
+| Board | Our rank | Our public score | Rank 50 | Rank 10 |
+|---|---:|---:|---:|---:|
+| Decode layer | 305 | 2.1261× | 2.2894× | 2.3940× |
+| Attention | 219 | 2.6043× | 2.7093× | 2.9331× |
+| BF16 projections | 309 | 1.5278× | 1.5848× | 1.6083× |
+| W4A16 MoE | 385 | 2.2157× | 2.4547× | 2.6077× |
+
+Overall rank is 305. Rank ten on the layer moved during the experiment. From the full-precision incumbent the required score increase is now **12.60% for tenth** and **7.68% for fiftieth**. The four public G measurements and the source audits support keeping the current entry. They do not establish a route to either threshold by November 4. [Official score and threshold rows](evidence/2026-11-01-g-public/short-overlap-board.json).
+
+**Next decision.** At the 16:00 PST quota reset, the coordinator has two independent private jobs ready. Run the six-load matched G1b4 versus stage-retirement experiment and the fused versus serial fixed-routing short-path trace using the pinned generators above. Require the registered coverage, duplicate-control and per-cell regression gates. If neither yields a portable change, shift implementation time to a measured multi-load effect in expert execution. Public retries of the delayed publication, short overlap and projection C3 are closed. The one-time reset runner and the hourly coordinator share the run ledger.
