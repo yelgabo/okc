@@ -1,0 +1,29 @@
+{
+  "helper_source_sha256": "54881e3c51e58af323021e439e8ea3dd8c63bb2db7b7dbb184ca60c22adc9e4a",
+  "prelude_sha256": "50a546330f1a0f3ad98d0d564b42858c1b960311b7e38880dfbce07b17b56f8f",
+  "copied_helpers_sha256": "2d4a1fbd192bc26d7e22434d50a65d1ca1342688f6857c025eac3b69adc9eb65",
+  "helper_names": [
+    "_ab_inputs",
+    "_ab_rms",
+    "_ab_rope",
+    "_ab_coeffs",
+    "_ab_attention",
+    "_ab_ref_front",
+    "_ab_deq",
+    "_ab_ref_back",
+    "_ab_local",
+    "_ab_check_routing",
+    "_ab_compare",
+    "_ab_validate"
+  ],
+  "helper_bytes": 13945,
+  "bytes": 980787,
+  "sha256": "4ad326c3451d1b9a7ba22e6c89a2b06ebd8f565c20300abd9fc0d3b0a35001bc",
+  "base_sha256": "81f056f5e495f5cab0a66183a5b56cab783e7fa47732ed58e0ffa4feed5127a1",
+  "owned_base": "2b4e0740de26a92fa9ef0f260c28e55f48f9fb2ae8fa20de863e4d8e8718635d",
+  "owned_with_resource_api": "5c4fcd800a95822f9818935e1721f8fdcafd710b45942e9ba7b6a4486dff27fa",
+  "body_sha256": "54a4abc825a93ec80c50bd9422d7d5f7bdc3e4cf3c1e207557da26f19dcbcfdb",
+  "timed_kernel_unchanged": true,
+  "new_comparative_timings": false,
+  "H200_qualified": false
+}
