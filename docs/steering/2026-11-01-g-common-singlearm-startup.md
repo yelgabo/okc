@@ -161,8 +161,10 @@ argv invocation supplied the exact intended header paths. Final real-header and
 mock returncodes are recorded; failed command plumbing was not a kernel failure.
 
 Focused resource/header peer scope is clear at the exact two output pins.
-Final full-protocol peer seal is pending on the corrected pins at this owning
-commit and will be integrated separately by root. No H200-ready or whole-model-success claim is made.
+Final full-protocol peer seal `000ee51` now clears the corrected pins. The peer
+independently reran all seven host facades (10.219s) and the focused real-class
+fallback test (4.222s), and verified physical source/manifests. Root integrates
+that separate review. No H200-ready or whole-model-success claim is made.
 All actual H200 setup/capture/resources/correctness and official13/12 outcomes
 remain missing. A printed source manifest or CPU pass cannot supply those.
 
