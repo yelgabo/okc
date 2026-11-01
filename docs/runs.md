@@ -1819,3 +1819,57 @@ duplicate `68248e326be14626`): passed9/9, **1.527806x**,95%CI1.504889–1.550724
 This becomes a higher headline than C1's1.516978x, with overlapping uncertainty. Do not
 attribute the full headline movement to a new kernel; C2's owned paired improvement remains
 the earlier `696179090d264f38` evidence. Receipt saved as profiles/scored.9eba96894ee1402e.json.
+
+### C3 validation and confirmation completed
+
+`61330d87d32c4190`: clean C3 passed9/9,1.52325653x (95%CI1.500408–1.546105),prepare107.8s.
+Tuner selects r64c8s8fv at128 (10.8us vs incumbent11.3 in prepare) and r64c8s8ordfv at256
+(12.8 vs13.9). Frozen candidate SHA256
+`9fd8e794f7eb989943718348da2bf21ece934be3b4527b349eed34ccbceea4a4`, pure file
+`.build/today/cand_c3.py`, copied before dispatch; do not substitute a benchmark wrapper.
+
+Independent paired confirmation `7d2fe593fdfa4720`: passed9/9 on C3 judged path,
+1.53493683x (95%CI1.511913–1.557961). Repeated FV128 -0.45/-0.46us in both independent
+arms (88/87 of100), duplicate null-0.06; order-only256 -0.45us90/100, +FV -0.69us85/100,
+duplicate null-0.06. The prepare again selects both added configurations. All component
+FP64/probe/adjacent-size and fresh-input replay checks pass; no dropped RGCHECK arms.
+This repeats the~0.4us128 and~0.6us256 component benefit. Aggregate score effect is small,
+around0.1%; headline1.535x is not an isolated causal measurement. Root notified that pure
+C3 is ready for scored comparison under the user's current authorization.
+
+No GTICKET or ordering/fence changes were needed. No donor code is in C3. The codec loss
+remains closed at the knock-in-model scope; a real packed-code design needs new evidence.
+
+Root dispatched scored C3 `7a15f46e673b43d5` from the exact frozen file SHA256
+`9fd8e794f7eb989943718348da2bf21ece934be3b4527b349eed34ccbceea4a4`, under today's explicit
+user authorization. Pending at this entry; do not infer a new board score before its receipt.
+
+Result addendum: `7a15f46e673b43d5` passed9/9,1.513805x (95%CI1.491098–1.536512), below
+C2's best headline1.527806x with overlapping intervals. No causal standalone-score regression
+is established by this single run; repeated paired router gains remain the adoption evidence.
+Receipt `profiles/scored.7a15f46e673b43d5.json`. Board incumbent remains C2 at this observation.
+
+### Actual pair7 packed-stream experiment
+
+`0ab8f0510515473b` (check, muse_bf16_proj), source this branch after `ed506b0`, pending.
+Builder `tools/proj_make_bench_pair7.py`; `.build/today/pair7_actual.py` is C3's unchanged
+judged path plus an untimed prepare benchmark. New CPU gate checks all65536 BF16 bitpatterns
+through the raw sign/mantissa/exponent reconstruction and a complete56-bit packing roundtrip.
+Prepare packs actual weights, then reconstructs the stored bytes plus escape table and
+requires a bit-exact match with every original weight before any kernel timing.
+
+Physical code: sign+mantissa byte per weight,7-bit LUT index for each adjacent exponent pair,
+128-entry exponent-pair LUT, sparse exact escapes. Seven byte planes per32-thread warp
+preserve coalescing; no fake skipped loads or conditional byte-saving probe. New synchronous
+FP32 GEMV computes every output and applies original-minus-decoded escape corrections before
+the BF16 output boundary. This is owned experimental code, not donor code.
+
+Single check: all four m1 projection shapes, FP64 random and power-of-two probes, independent
+control/null graphs,100 seeded randomized cold rounds. No promotion before correctness and
+repeatable end-to-end latency improvement; stop actual codec if decode/escape overhead exceeds
+its physical savings. This directly addresses why `075dc89d74d144d6`'s knock-in was ambiguous.
+
+Build result: `0ab8f0510515473b` failed before GPU execution because the judge's current
+PyTorch requires C++20, while the new small extension explicitly selected C++17. No codec
+correctness or performance inference follows. Changed only its compiler-standard flag to20;
+CPU gate passes again. Retry `962d2f9c1d9644f7` dispatched with the same codec design, pending.
