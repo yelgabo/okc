@@ -37,6 +37,14 @@ acquire, proxy fence, barrier or release, and no consumer lifetime/alias issue a
 Instrumentation can change producer pacing/register use; compare its timing with clean51 and
 use counters directionally. This is attribution only, never a submission candidate.
 
+Production check7631974774944a2a completed:5/5 official tests,2.193073x (95%CI
+2.160177–2.225969), spin flags0, policy FP32 worst error3.94e-3. Selected sk8w3s at
+1/8/16/32 and mode51 at128/256. Prepare reports228736B shared memory and152.3s build.
+This is below the existing2.215712x board best within normal variance; no new algorithmic
+gain is attributed. Frozen artifact/hash sent to coordinator for today's authorized scored
+runs. Saved status JSON, raw log and normalized profile text under
+`muse_moe_w4a16/profiles/production51.7631974774944a2a.*`.
+
 ## Source facts (SGLang a55ab7d5, read from GitHub and hashed against the image)
 
 - `fused_post_expert_norm_weighted_sum` falls back to PyTorch ops below
