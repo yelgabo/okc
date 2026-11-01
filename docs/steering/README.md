@@ -1,5 +1,7 @@
 # Shared project steering
 
+Latest G0-to-607e precision inventory: [Actual repairs and short-load gap](2026-11-01-g-upstream-precision-inventory.md) - exact active ATT7 pr8 BF16 round, conditional SK2 fence scope and all-eight-Lt selection verified; no per-repair causal cost. Short expert/finalization remains largest unresolved lead, no safe precision rollback or job request.
+
 Latest standalone MoE compiler gate: [Historical progress repair](2026-11-01-standalone-moe-progress-compile.md) - exact7c915127 and authorized db0b8cc1 unreachable screen both add main47 spills versus ec565 control; skinny unchanged. Close both termination representations; no GPU or official calls.
 
 Latest retained projection eligibility: [C2 progress scope](2026-11-01-c2-projection-progress.md) - active SK/RD waits are CTA-local; WD and RT use checked explicit cluster launches. No whole-grid residency defect found in selected custom paths; no GPU or production changes.

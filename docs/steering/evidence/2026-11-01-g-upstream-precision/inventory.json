@@ -1,0 +1,336 @@
+{
+  "source_pins": [
+    {
+      "path": "..\\okc\\.build\\today\\kel\\kernels\\muse_decode_layer.py",
+      "bytes": 995999,
+      "sha256": "1ec189dc6f306cec1694946eb62d64b54daf378c6fc1ada2f0f5e501e973ff2a"
+    },
+    {
+      "path": "..\\okc\\muse_decode_layer\\cand\\g1b4_stage_release.py",
+      "bytes": 869076,
+      "sha256": "ba9e327cd7b96595ace4d0c1d0d78fe27c128f23ed0debcda97c7169fc3164ab"
+    }
+  ],
+  "literal_proof": {
+    "ATT7_CUDA_SRC": {
+      "equal": false,
+      "bytes": [
+        191952,
+        191991
+      ],
+      "sha256": [
+        "575c21f8950cd19a379abd1d40f8f06c10f764b27b101c2ab417ac397ebc1b07",
+        "22c116a45f1817fbaf27a1cc3656380affad49d2cb2367dd23aac83f20b7cef5"
+      ]
+    },
+    "ATT7_CPP_SRC": {
+      "equal": true,
+      "bytes": [
+        657,
+        657
+      ],
+      "sha256": [
+        "c6bb9a9f78b05b7f9b12a510d13eaada9878fc9e2d5188d5f8af5703c911aa74",
+        "c6bb9a9f78b05b7f9b12a510d13eaada9878fc9e2d5188d5f8af5703c911aa74"
+      ]
+    },
+    "bfp_SK2_SRC": {
+      "equal": false,
+      "bytes": [
+        32300,
+        32498
+      ],
+      "sha256": [
+        "89754524a5294d88c51a078db06f3b9b7ca349e326d1a27df6d6c92309ca7d25",
+        "fde7b73e118417c74c5e80f054c674a65c5a1b7f9da6986f93d8436f18cf1573"
+      ]
+    }
+  },
+  "ordinary_sk2_delta_only_two_proxy_fences_and_pdl_attr": true,
+  "att7_delta_only_pr8_round_and_pdl_attr": true,
+  "scores": [
+    2.2487905322335195,
+    2.1260826764231098
+  ],
+  "score_ratio": 1.057715467592658,
+  "weighted_load_us": [
+    {
+      "decode 1": 68.20387439088347,
+      "decode 16": 149.7007097249302,
+      "decode 32": 190.71903248703518,
+      "verify 1": 103.61862499583594,
+      "verify 16": 258.67070643168705,
+      "verify 32": 350.7969725295353
+    },
+    {
+      "decode 1": 78.54904481802232,
+      "decode 16": 158.24100957331896,
+      "decode 32": 191.73973579615887,
+      "verify 1": 115.99082289963329,
+      "verify 16": 269.3470291119481,
+      "verify 32": 359.2972160894351
+    }
+  ],
+  "baseline_load_us": [
+    {
+      "decode 1": 174.45522626381248,
+      "decode 16": 312.0758657103344,
+      "decode 32": 365.74710588601806,
+      "verify 1": 262.2379428526807,
+      "verify 16": 571.2108385689075,
+      "verify 32": 793.8616825868526
+    },
+    {
+      "decode 1": 173.2898073631429,
+      "decode 16": 310.5388330746322,
+      "decode 32": 357.24438862093996,
+      "verify 1": 266.5878654637885,
+      "verify 16": 583.5463209528356,
+      "verify 32": 826.1760061366424
+    }
+  ],
+  "common607_baseline_g0_score": 2.264796221981564,
+  "short_positive_profile_gap_scenarios": {
+    "attention": 1.0006934033795714,
+    "dense": 1.0,
+    "expert": 1.056961677724243,
+    "glue": 1.0067263417814671
+  },
+  "per_group_positive_profile_gap_scenarios": {
+    "attention": 1.0010015094093017,
+    "dense": 1.0048454765233548,
+    "expert": 1.0807318689427035,
+    "glue": 1.0067906599076673
+  },
+  "caveat": "Cross-receipt profiler-gap arithmetic only; overlaps, bundled changes and independent input/GPU/calibration prevent causal attribution.",
+  "rows": [
+    {
+      "load": "decode 1",
+      "context": "sliding",
+      "weight": 46,
+      "g0_us": 66.35249414906673,
+      "g607_us": 76.74810129226927,
+      "g0_profile_groups_us": {
+        "attention": 5.2,
+        "dense": 39.8,
+        "expert": 23.6,
+        "glue": 4.5
+      },
+      "g607_profile_groups_us": {
+        "attention": 5.4,
+        "dense": 38.8,
+        "expert": 29.8,
+        "glue": 7.699999999999999
+      }
+    },
+    {
+      "load": "decode 1",
+      "context": "full",
+      "weight": 16,
+      "g0_us": 73.52659258610663,
+      "g607_us": 83.72675745456237,
+      "g0_profile_groups_us": {
+        "attention": 11.8,
+        "dense": 39.5,
+        "expert": 21.8,
+        "glue": 4.4
+      },
+      "g607_profile_groups_us": {
+        "attention": 12.1,
+        "dense": 38.9,
+        "expert": 42.8,
+        "glue": 7.199999999999999
+      }
+    },
+    {
+      "load": "decode 16",
+      "context": "sliding",
+      "weight": 46,
+      "g0_us": 130.18737489708104,
+      "g607_us": 138.66071382597238,
+      "g0_profile_groups_us": {
+        "attention": 7.8,
+        "dense": 50.800000000000004,
+        "expert": 65.5,
+        "glue": 9.0
+      },
+      "g607_profile_groups_us": {
+        "attention": 8.0,
+        "dense": 50.5,
+        "expert": 77.0,
+        "glue": 8.5
+      }
+    },
+    {
+      "load": "decode 16",
+      "context": "full",
+      "weight": 16,
+      "g0_us": 205.8015473549966,
+      "g607_us": 214.53435984694036,
+      "g0_profile_groups_us": {
+        "attention": 89.0,
+        "dense": 51.9,
+        "expert": 57.4,
+        "glue": 9.5
+      },
+      "g607_profile_groups_us": {
+        "attention": 87.5,
+        "dense": 48.4,
+        "expert": 65.2,
+        "glue": 9.3
+      }
+    },
+    {
+      "load": "decode 32",
+      "context": "sliding",
+      "weight": 46,
+      "g0_us": 152.17241208225775,
+      "g607_us": 154.82044500163073,
+      "g0_profile_groups_us": {
+        "attention": 9.4,
+        "dense": 58.300000000000004,
+        "expert": 81.7,
+        "glue": 9.5
+      },
+      "g607_profile_groups_us": {
+        "attention": 9.6,
+        "dense": 54.0,
+        "expert": 70.6,
+        "glue": 9.0
+      }
+    },
+    {
+      "load": "decode 32",
+      "context": "full",
+      "weight": 16,
+      "g0_us": 301.54056615077025,
+      "g607_us": 297.8826968304272,
+      "g0_profile_groups_us": {
+        "attention": 169.9,
+        "dense": 61.900000000000006,
+        "expert": 82.4,
+        "glue": 12.1
+      },
+      "g607_profile_groups_us": {
+        "attention": 170.0,
+        "dense": 53.1,
+        "expert": 87.6,
+        "glue": 9.6
+      }
+    },
+    {
+      "load": "verify 1",
+      "context": "sliding",
+      "weight": 46,
+      "g0_us": 100.60625839685392,
+      "g607_us": 115.43186043519749,
+      "g0_profile_groups_us": {
+        "attention": 7.2,
+        "dense": 40.4,
+        "expert": 44.2,
+        "glue": 7.1
+      },
+      "g607_profile_groups_us": {
+        "attention": 7.4,
+        "dense": 38.5,
+        "expert": 71.6,
+        "glue": 6.6000000000000005
+      }
+    },
+    {
+      "load": "verify 1",
+      "context": "full",
+      "weight": 16,
+      "g0_us": 112.27917896790929,
+      "g607_us": 117.59783998488622,
+      "g0_profile_groups_us": {
+        "attention": 15.0,
+        "dense": 38.599999999999994,
+        "expert": 57.6,
+        "glue": 7.4
+      },
+      "g607_profile_groups_us": {
+        "attention": 15.0,
+        "dense": 38.5,
+        "expert": 58.8,
+        "glue": 7.1
+      }
+    },
+    {
+      "load": "verify 16",
+      "context": "sliding",
+      "weight": 46,
+      "g0_us": 237.37301270655368,
+      "g607_us": 247.13099535493978,
+      "g0_profile_groups_us": {
+        "attention": 11.9,
+        "dense": 64.4,
+        "expert": 161.1,
+        "glue": 12.5
+      },
+      "g607_profile_groups_us": {
+        "attention": 11.8,
+        "dense": 70.8,
+        "expert": 155.3,
+        "glue": 12.5
+      }
+    },
+    {
+      "load": "verify 16",
+      "context": "full",
+      "weight": 16,
+      "g0_us": 319.9015758914454,
+      "g607_us": 333.21812616334677,
+      "g0_profile_groups_us": {
+        "attention": 107.2,
+        "dense": 62.5,
+        "expert": 145.2,
+        "glue": 11.799999999999999
+      },
+      "g607_profile_groups_us": {
+        "attention": 104.1,
+        "dense": 70.3,
+        "expert": 178.1,
+        "glue": 12.2
+      }
+    },
+    {
+      "load": "verify 32",
+      "context": "sliding",
+      "weight": 46,
+      "g0_us": 308.6912949593431,
+      "g607_us": 316.3895368878032,
+      "g0_profile_groups_us": {
+        "attention": 15.8,
+        "dense": 85.9,
+        "expert": 197.2,
+        "glue": 17.3
+      },
+      "g607_profile_groups_us": {
+        "attention": 15.4,
+        "dense": 86.89999999999999,
+        "expert": 204.8,
+        "glue": 17.2
+      }
+    },
+    {
+      "load": "verify 32",
+      "context": "full",
+      "weight": 16,
+      "g0_us": 471.85079554383793,
+      "g607_us": 482.6567937941269,
+      "g0_profile_groups_us": {
+        "attention": 186.7,
+        "dense": 84.6,
+        "expert": 190.2,
+        "glue": 17.0
+      },
+      "g607_profile_groups_us": {
+        "attention": 186.2,
+        "dense": 86.7,
+        "expert": 203.3,
+        "glue": 17.0
+      }
+    }
+  ]
+}
