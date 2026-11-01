@@ -3550,3 +3550,31 @@ and v32 sliding, about 0.5% together); first test the per-tile descriptor / V^T 
 the PRQ loop against the public order, with a stamp copy of the public per-request loop to split the
 latency; (2) the d1 full prologue (0.54 us): sub-phase exits on both sides (page indices, query
 group, first tiles) before any change; (3) the flat full rows by the pair spread (round 4).
+
+## October 31 PDT, post-restart: PRQ address carry hypothesis
+
+Authenticated Ubuntu okc 0.7.2; account reports 20/20 checks per problem before dispatch
+(shared quota, not a reservation). Control remains pick-off entry `68d3b88fbc8b40da`, PRQ31.
+
+One mechanism: reduce per-tile address reconstruction in the per-request verify loop. New
+bench-only PRQ bits32/64 reuse the flat loop's address identities:32 carries the Q.K descriptor
+from stage0;64 toggles V^T addresses/descriptor words by precomputed XOR and hoists transpose
+offsets. Default31, submission.py and production candidates are unchanged. Precision, memory
+operations, waits, fences and synchronization retain their order. V^T toggles only after the
+existing `wg_wait<0>()` and register fence.
+
+Check `c77ce71c81af4fb1`, pending at dispatch, problem confirmed `muse_attention_decode`.
+Bench SHA256 `2fa39d4bae82fdfe1d1e1793fc0207d2a2a97e512d72409524797b809863f1be`,350281bytes,
+generated outside the repository at `/tmp/okc-top10/attn_prqcarry.py`:
+
+```
+python3 tools/attn_make_bench_ab.py /tmp/okc-top10/attn_prqcarry.py --null --shapes all --seed 311031 --inputs 2 --rounds 80 kcarry@own=-DONE_PRQ=63 vcarry@own=-DONE_PRQ=95 both@own=-DONE_PRQ=127
+python3 tools/attn_inline_one.py /tmp/okc-top10/attn_prqcarry.py
+```
+
+Independent compiled/prepared control duplicate, independent state per candidate, all12 shapes,
+two held-out timing inputs, randomized paired cold-L2 graph replays, judge-style/relative-output
+checks. Official tests run the unchanged control; a winning experimental arm still needs
+candidate-only official tests and queued replay stress. Acceptance: repeatable score gain
+beyond independent null variation, localized to changed verify shapes, then layer confirmation.
+Stop/revert if the mechanism fails its gate; headline control score is not candidate score.

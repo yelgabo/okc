@@ -695,3 +695,31 @@ token counts, no fallback). Run 2 differs only by a trailing `# repeat 2` commen
 
 Board entry moves from 0f58d5d8223f45af (2.0148x) to 7b84ed4346d5497b, inside run-to-run noise.
 Receipts: muse_decode_layer/profiles/scored.<job>.json.
+
+### Recovered after Windows login: d1/v1 donor comparison `0778baa78efa4aad`
+
+Historical check completed October31 UTC, recovered October31 PDT; not a new dispatch.
+Verified board/job from its authenticated receipt, passed13 tests,2.013476x (95%CI
+1.983274–2.043678) on the candidate judged path. Source build `layer_m1rt51sc1g.py`, source
+SHA a00a0efa..., sent comment-stripped b7dd9976...; donor exact8f17613b... at pinned6cae49a.
+Receipt/log saved as `muse_decode_layer/profiles/recovered.0778baa78efa4aad.{json,log}`.
+
+Only d1/v1,24 observations per arm. Candidate independent copies differ: cand M1
+`{8:o+front,16:o,32:o+front}`, cand2 rejects M1 on the fresh-input gate and falls back to{}.
+MoE/front/attention-boundary policies agree; W4 picks differ. Donor picks also differ at64/128,
+outside timed loads. Therefore this is not a fixed-M1 comparison or a six-load layer gain.
+
+| Case | cand / cand2 us | donor / donor2 us | donor-cand paired us |
+|---|---:|---:|---:|
+| d1s |83.4 /83.8 |77.6 /77.6 |-5.6 /-5.9 |
+| d1f |91.5 /92.0 |83.1 /83.6 |-8.4 /-8.0 |
+| v1s |126.3 /129.2 |120.4 /120.5 |-6.4 /-6.0 |
+| v1f |143.7 /146.0 |132.4 /132.3 |-12.3 /-11.7 |
+
+Pooled two-load ratio1.0768, crosses1.0693–1.0843; nulls1.0132/1.0009. Bench declares
+donor faster beyond its null rule, with selection asymmetry above. d1 policies do not use M1;
+its donor advantage survives both independent candidate arms. Named kernel profile shows
+o+boundary cand5.5+5.9 vs donor fused6.8 at d1s, but the secondary boundary includes a wait;
+the apparent4.6us sum gap is not exposed-time savings. Current front already overlaps router.
+This receipt satisfies the previously proposed d1/v1 attribution pass, with M1 qualification;
+do not dispatch that exact measurement again as missing. Keep donor measurement-only.
