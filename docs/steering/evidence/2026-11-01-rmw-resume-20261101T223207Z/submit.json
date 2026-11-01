@@ -1,0 +1,15 @@
+{
+  "start_UTC": "2026-11-01T22:33:41.182535+00:00",
+  "argv": [
+    "okc",
+    "submit",
+    "muse_decode_layer/cand/g1b4_common_short_rmw_release.py",
+    "--no-wait",
+    "--json"
+  ],
+  "returncode": 0,
+  "stdout": "{\n  \"job_id\": \"3fd1317143304bd5\",\n  \"problem\": \"muse_decode_layer\"\n}\n",
+  "stderr": "",
+  "local_timeout": false,
+  "finished_UTC": "2026-11-01T22:33:44.406528+00:00"
+}

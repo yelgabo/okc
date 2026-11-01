@@ -46,5 +46,20 @@
   "H200_result": null,
   "score": null,
   "source_change": false,
-  "dispatch_job": null
+  "dispatch_job": "3fd1317143304bd5",
+  "dispatch_commit": "faa1befebdf465395a954769ea8889b76fd8eb5d",
+  "immediate_layer_quota": {
+    "scored": {
+      "per_day": 10,
+      "used": 8,
+      "left": 2
+    },
+    "checks": {
+      "per_day": 20,
+      "used": 20,
+      "left": 0
+    }
+  },
+  "dispatch_problem": "muse_decode_layer",
+  "state": "accepted_waiting_own_ID"
 }
