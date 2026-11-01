@@ -34,5 +34,21 @@
   {
     "section": "9.7.13.2. Parallel Synchronization and Communication Instructions: bar.warp.sync\uf0c1",
     "url": "https://docs.nvidia.com/cuda/archive/12.8.0/parallel-thread-execution/index.html#parallel-synchronization-and-communication-instructions-bar-warp-sync"
+  },
+  {
+    "section": "8.9.5. Causality Order",
+    "url": "https://docs.nvidia.com/cuda/archive/12.8.0/parallel-thread-execution/index.html#causality-order"
+  },
+  {
+    "section": "9.7.13.1. bar, barrier",
+    "url": "https://docs.nvidia.com/cuda/archive/12.8.0/parallel-thread-execution/index.html#parallel-synchronization-and-communication-instructions-bar-barrier"
+  },
+  {
+    "section": "9.7.13.4. membar/fence",
+    "url": "https://docs.nvidia.com/cuda/archive/12.8.0/parallel-thread-execution/index.html#parallel-synchronization-and-communication-instructions-membar-fence"
+  },
+  {
+    "section": "9.7.13.5. atom",
+    "url": "https://docs.nvidia.com/cuda/archive/12.8.0/parallel-thread-execution/index.html#parallel-synchronization-and-communication-instructions-atom"
   }
 ]
