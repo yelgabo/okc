@@ -3805,3 +3805,7 @@ any anomalous unmodified row must be documented and not used as the winning mech
 changed/sentinel batch1 shape, every output compared on device with independent owned control,
 three additional FP32-reference samples, explicit speculative-length misses, clean workspace,
 and prepare-time resource attributes. No public submission before these gates pass.
+
+|date|job|commit|change|score (95%CI)|notes|
+|---|---|---|---|---|---|
+|2026-10-31|a9b416a0c7324ecc (check)|554445d|ONE_LATE_TID2 full/non-one-tile restriction, fresh four-arm gate above|pending|Three inputs,150coldrounds,independent candidate builds+states; judged source defaultoff.|
