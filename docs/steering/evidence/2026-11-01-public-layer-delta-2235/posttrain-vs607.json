@@ -163,5 +163,5 @@
       "owned607_weighted_mean_us": 359.29721608943515
     }
   ],
-  "all_load_insertion_factor": 0.591619400486213
+  "cross_job_geomean_latency_ratio_owned607_over_posttrain": 0.591619400486213
 }
