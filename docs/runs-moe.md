@@ -430,6 +430,17 @@ Before each bank reference, groupedGX/C1/C2/C3 are NaN poisoned. Same0local/sing
 all8local/mixed alternatives, counts=M extremes testCAPtails. All fresh reporting retained;
 230s setup guard before each new shape fails incomplete coverage. No NST/Mpolicy mixed in.
 
+Deterministic component21e98162b7114898 PASSED5/5 official tests and all six arm
+mathematical checks, no HBSTOP. Control headline1.101533x (95%CI1.085010–1.118056),
+not a bounded-policy score. M minus R paired medians at753 seeds271/272:
+-197.9/-191.6us; M2 -195.6/-190.8us; R2 null -0.90/+0.74us. At3012:
+M -399.8/-260.7us, M2 -399.9/-260.3us; R2 -0.61/-0.83us. All four Humming
+arms explicitly use_stream_kFalse with independent scratch/locks and shared readonly
+weights. This confirms compensation under deterministic config; no mixing with nozero
+or masked backend. Passed pure deterministic bounded candidate/hash sent to root;
+root alone decides scored runs/production integration. Receipt and complete component
+log saved `profiles/humming_nostream_component.21e98162b7114898.*`.
+
 ## Source facts (SGLang a55ab7d5, read from GitHub and hashed against the image)
 
 - `fused_post_expert_norm_weighted_sum` falls back to PyTorch ops below
