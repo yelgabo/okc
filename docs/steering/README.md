@@ -1,5 +1,7 @@
 # Shared project steering
 
+Latest single-arm stage qualifier: [Stage-local projection qualification](2026-11-01-projection-stage-xor-release.md) - exact de1111b9/450781 B, fixed ten targets plus ordinary neighbors; five CPU host gates pass. Actual H200 admission, correctness, setup time and performance remain unqualified; root-only measurement decision.
+
 Latest stage-local source review: [Sparse stage arena proof](2026-11-01-sk-stage-repair-independent.md). Exactb726aebd format/lifetime clear,3focused actualCPU tests pass. H200 resources/math/performance unqualified; closed global variant remains closed.
 
 Latest projection terminal: [SK-XOR single-arm H200 closure](2026-11-01-sk-xor-release-terminal.md). Public2b537518 PASS9/all10SX startup,1.394120x belowC2; all10targets regress. Exact production variant closed, no retry/layerport; dependency wording corrected.
