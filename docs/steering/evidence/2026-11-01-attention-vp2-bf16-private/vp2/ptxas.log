@@ -1,0 +1,16 @@
+ptxas info    : 5439 bytes gmem
+ptxas info    : Compiling entry function '_ZN5vfgns12vfgm2_kernelEPKfiPK13__nv_bfloat16PS2_ff' for 'sm_90a'
+ptxas info    : Function properties for _ZN5vfgns12vfgm2_kernelEPKfiPK13__nv_bfloat16PS2_ff
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 50 registers, used 0 barriers
+ptxas info    : Compile time = 30.951 ms
+ptxas info    : Compiling entry function '_ZN5vfgns11vfgm_kernelEPKfiPK13__nv_bfloat16PS2_ff' for 'sm_90a'
+ptxas info    : Function properties for _ZN5vfgns11vfgm_kernelEPKfiPK13__nv_bfloat16PS2_ff
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 48 registers, used 1 barriers, 4096 bytes smem
+ptxas info    : Compile time = 20.816 ms
+ptxas info    : Compiling entry function '_ZN5vfgns5b1vp210vp2_kernelEPK13__nv_bfloat16PKiS5_PKxPhS8_PKfiffffPyPS1_fi' for 'sm_90a'
+ptxas info    : Function properties for _ZN5vfgns5b1vp210vp2_kernelEPK13__nv_bfloat16PKiS5_PKxPhS8_PKfiffffPyPS1_fi
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 97 registers, used 2 barriers
+ptxas info    : Compile time = 66.529 ms
