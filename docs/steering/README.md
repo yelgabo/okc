@@ -1,5 +1,7 @@
 # Shared project steering
 
+Latest independent review: [VP2 private attention host scaffold](2026-11-01-vp2-independent-host-review.md) - exact6ca280a3 artifact, seven TorchCPU tests pass; bounded diagnostic host clearance only, no GPU or release claim.
+
 This is the stable entry point for steering reports across research, implementation,
 and coordinator sessions. The user requested on 2026-10-29 that every project-steering
 report be checked into this repository so other sessions can read it.
