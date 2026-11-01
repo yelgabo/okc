@@ -1,5 +1,7 @@
 # Shared project steering
 
+Latest progress repair review: [Owned MODE51 cooperative/fatal-watchdog source audit](2026-11-01-owned-progress-repair-review.md). All explicit readiness polling paths trap on expiry; source-only clearance, H200 qualification pending.
+
 Latest eligibility audit: [Owned layer MoE51 launch progress](2026-11-01-owned-moe-progress-contract.md). Pre-existing ordinary/PDL software-grid join lacks documented co-residency guarantee; cooperative host repair/admission gate required separately from byte/code equivalence.
 
 Latest owned compiler gate: [Comment-only native equivalence](2026-11-01-owned-comment-compile.md). ONE L8 modes3/51 and MoE51 have identical normalized SASS/resources at revised notice-preserving pins. CPU-only; no runtime/performance qualification.

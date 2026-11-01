@@ -1,0 +1,44 @@
+{
+  "artifact_sha256": "2b4e0740de26a92fa9ef0f260c28e55f48f9fb2ae8fa20de863e4d8e8718635d",
+  "native_sha256": "fa97606fcedcb1dc40ca5918da5be1454f93a6b77b5ef751fb799c936cc77be3",
+  "loops": [
+    {
+      "line": 877,
+      "text": "while (!mbar_try(bar, parity)) {"
+    },
+    {
+      "line": 891,
+      "text": "while (!mbar_try(bar, parity)) {"
+    },
+    {
+      "line": 915,
+      "text": "while (ld_acquire(p) < target) {"
+    },
+    {
+      "line": 942,
+      "text": "while ((m = ld_acquire_cta(&S.bq[i])) == kBqEmpty) {"
+    },
+    {
+      "line": 1116,
+      "text": "while (j + 1 < nj && static_cast<unsigned>(pre[j + 1]) <= target) {"
+    },
+    {
+      "line": 1211,
+      "text": "while (k > 0 && stage_at(S, ph, k, G) > gs0) {"
+    },
+    {
+      "line": 2034,
+      "text": "while (qi < kBqMax) {"
+    },
+    {
+      "line": 2640,
+      "text": "while (own_unit(n, cta, G) < units) {"
+    },
+    {
+      "line": 2777,
+      "text": "while (ld_acquire(bc) < G) {"
+    }
+  ],
+  "owner_commit": "44e64988254c8998fd91a37591731bd49556cdd0",
+  "gpu": false
+}
