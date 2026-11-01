@@ -1,5 +1,43 @@
 # Attention decode1: public comparator audit and owned two-chain experiment
 
+## Qualification correction: common BF16 boundary, November1 subsequent revision
+
+Root identified that the historical owned finalizer and comparator both normalize
+the decoded attention value in FP32, whereas the official attention/layer baselines
+round it to BF16 before output RMSNorm/gate. The initial638149-byte artifact976c...
+below is **superseded and must not be dispatched**. Its resource evidence is only
+the initial unrepaired baseline study, not the final experiment.
+
+Both treatment and matched controls now use a common exact repair in
+`resource_source`: in `finalize_rows` and `finalize_det`, after `v_scale/lsum`,
+each component is `BF16_RN(acc*inv)` promoted to FP32 **before** forming the RMS sum,
+normalizing and gating. This applies identically to all four modules/all native
+routes; the QK flag still changes only L1MODE11/13. The judged path is this newly
+BF16-repaired QK-off control, **not historical891 bytes or historical score parity**.
+No old score is attributed to the repaired common baseline.
+
+The actual `_ob_reference` helper now applies the same BF16 activation boundary
+before `_ob_rms` in both BF16-query and E4M3-query references. A fifth real Torch
+CPU test executes that exact extracted oracle on an independent small attention
+fixture for both query modes; removing the BF16 cast is a negative control with
+different results. Five CPU tests pass. Each fresh replay additionally requires
+bitwise-equal complete K/V caches across the independent arms. The attention owner
+independently re-reviewed the common boundary/oracle repair and found no blocker.
+
+Final generated `.build/attn_pr_qk2.py`:638640bytes, SHA256
+**7ce6bbe7761916e4917c8304d765987652b3459804b2b37f7b8a441f85e68049**.
+Refreshed actual NVRTC/PTXAS compilation passes: MODE13off/on72/72registers,
+MODE11off/on128/124; all stack/spills0,32HMMA each. SASS counts including NOPs
+are1648/1648 and2448/2464 respectively. Every sampled finalizer now contains the
+BF16 conversions. Unaffected L1MODE1 and L8MODE3 off/on instructions remain
+identical under the common repair (2048 and2328instructions respectively).
+The final manifests/logs/test evidence are in
+`muse_attention_decode/profiles/pr_qk2-bf16.local.2026-11-01/`.
+No GPU job has been launched. The rest of this report records initial source
+discovery and experiment design; this correction governs its precision and artifact.
+
+## Initial source discovery and registration
+
 November1. Frozen owned `8914751e3b9f468b`; external `cd6805e7ebce45ee`.
 No public action or H200 check yet. New owned variant is **OFF by default**.
 

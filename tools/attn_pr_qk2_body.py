@@ -100,6 +100,7 @@ def _q2_run():
                     budget()
                     original=_ob_inputs(batch,80000,'tp8',kind,length,'fixed' if batch==1 else 'agentic',
                                         'soft' if kind=='sliding' else 'coherent',1,1.,seed=713101)
+                    print('Q2_EAGER_BEGIN',batch,length,kind,flush=True)
                     for mod in mods:
                         data=_q2_clone(original); output=mod.kernel_fn(data)
                         torch.cuda.synchronize(); _q2_math(data,output); eager_checks+=1
@@ -132,6 +133,9 @@ def _q2_run():
                 for graph in graphs: graph.replay()
                 torch.cuda.synchronize()
                 for d,out in zip(data,outputs): _q2_math(d,out); fresh_checks+=1
+                for d in data[1:]:
+                    for key in ('k_cache','v_cache'):
+                        assert torch.equal(d[key].view(torch.uint8),data[0][key].view(torch.uint8)),('Q2 cache bits',key)
                 # Keep one known-old result for a stale-output negative control.
                 stale=outputs[0].clone()
                 d=data[0]
