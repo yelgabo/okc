@@ -1,5 +1,7 @@
 # Shared project steering
 
+Latest private harness review: [SK-XOR final private scope](2026-11-01-sk-xor-private-harness-review.md). Exacte5d82cf2 source/host scope clear;9CPU tests pass. H200/runtime/performance and separate one-arm public qualifier remain unqualified.
+
 Latest layer applicability: [607e / sparse-XOR projection map](2026-11-01-g-sk-xor-applicability.md). Exact12medians, direct BF16 qkv/O/un interfaces, fused PR exclusions, conditional1%layer budget and830130Bslim source plan. No port/GPU/public proposal.
 
 Latest independent projection proof: [SK sparse E7 repair](2026-11-01-sk-sparse-repair-independent.md). Exact4907db9 source/lifetime review and7CPU tests pass; exact helper also passes23local RTX bit checks including20changed-record graph replays. H200/projection math/performance remain unqualified; no official/public action.
