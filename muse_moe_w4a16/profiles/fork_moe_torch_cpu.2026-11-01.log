@@ -1,0 +1,19 @@
+/root/.cache/okc-host-validate/lib/python3.14/site-packages/torch/_subclasses/functional_tensor.py:283: UserWarning: Failed to initialize NumPy: No module named 'numpy' (Triggered internally at /pytorch/torch/csrc/utils/tensor_numpy.cpp:84.)
+  cpu = _conversion_method_template(device=torch.device("cpu"))
+test_actual_marlin_adapter_body_dtype_alias_and_ids (__main__.FallbackHost.test_actual_marlin_adapter_body_dtype_alias_and_ids) ... ok
+test_budget_fallback_precedes_native_pack_and_build (__main__.FallbackHost.test_budget_fallback_precedes_native_pack_and_build) ... FORK_MOE_ROUTE owned: scale/architecture/budget fallback
+ok
+test_exact_bf16_boundaries_distinguish_old_path (__main__.FallbackHost.test_exact_bf16_boundaries_distinguish_old_path) ... ok
+test_execution_errors_fatal_and_success_uses_native (__main__.FallbackHost.test_execution_errors_fatal_and_success_uses_native) ... ok
+test_outside_compression_domain_never_compiles_native (__main__.FallbackHost.test_outside_compression_domain_never_compiles_native) ... FORK_MOE_ROUTE owned: scale/architecture/budget fallback
+ok
+test_outside_owned_domain_prepares_and_warms_marlin (__main__.FallbackHost.test_outside_owned_domain_prepares_and_warms_marlin) ... FORK_MOE_ROUTE Marlin: scale/architecture/budget fallback
+ok
+test_resource_and_compile_fallback_are_explicit (__main__.FallbackHost.test_resource_and_compile_fallback_are_explicit) ... FORK_MOE_ROUTE owned: native build failed synthetic nvcc failure
+FORK_MOE_ROUTE owned: FORK_MOE_RESOURCE synthetic residency
+ok
+
+----------------------------------------------------------------------
+Ran 7 tests in 0.048s
+
+OK
