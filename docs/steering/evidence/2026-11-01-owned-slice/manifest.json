@@ -1,0 +1,66 @@
+{
+  "input_sha256": "851c46951e1940b6874d35314d8ff7cc00a966a4718094881c764135ef13392a",
+  "output_sha256": "43ee0f46af76349f4e48ae7bb9c5c77b07564858ee6ac096fda4bf73e0b724a1",
+  "bytes": 504940,
+  "device_literals": {
+    "_CPP_SRC": {
+      "bytes": 2914,
+      "sha256": "39a8e095c7a54737feeea9acdc729e9eec4a07b2b9be45bcf79b369587acd38f"
+    },
+    "_CUDA_SRC": {
+      "bytes": 47511,
+      "sha256": "7434b16fe826b944507e970ae214309c250b16508be6ae20d23506a2ebfeb5ea"
+    },
+    "_ONE_SRC": {
+      "bytes": 151256,
+      "sha256": "beba98d82228815d58d4a5be3e7a3836ef58064ad06085542f198782fca66708"
+    },
+    "_ONE_HOST_SRC": {
+      "bytes": 10208,
+      "sha256": "7576cfb4427d8ba3e0ce54be7cdc8776b279b41d6f314ca4fc821dc6f8712ba7"
+    },
+    "_BND_SRC": {
+      "bytes": 21743,
+      "sha256": "1409883014993708e87576f92749599e9b13abef232a8daa892913a4daabd72e"
+    },
+    "_MOE1_SRC": {
+      "bytes": 229944,
+      "sha256": "1d8591ecd58f897bce6e521c95a68f7acbe6d4fcda3ce3c559be32b3ce5f4ec8"
+    },
+    "_MOE1_HOST_SRC": {
+      "bytes": 6023,
+      "sha256": "f3b90ff3508402306425d33c9a760762e5bf00b7eda79bf3e0421070d7b79275"
+    },
+    "_DLPLT_CPP": {
+      "bytes": 13882,
+      "sha256": "7eb7df3830db1927210a462128f7f8aecc9fe20893af1366fac6cbba4d1ef370"
+    }
+  },
+  "functions": [
+    "_perm",
+    "_stack_last",
+    "_to_i64",
+    "_w4_scales_ok",
+    "_gemm",
+    "_param",
+    "_norm",
+    "_residual",
+    "_moe1_load",
+    "moe1_unit_rows",
+    "moe1_repack_expert",
+    "moe1_repack_expert_fat",
+    "_to_u8_words",
+    "_cat_last",
+    "_moe1_scratch",
+    "_moe1_prepare",
+    "_moe1_run",
+    "_one_load",
+    "_one_setup",
+    "_one_plan",
+    "_attn_one",
+    "_abnd",
+    "_route_fwd",
+    "_dlplt_build"
+  ],
+  "qualification": "source-only; not H200 qualified; no performance claim"
+}
