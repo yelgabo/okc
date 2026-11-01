@@ -1,0 +1,17 @@
+{
+  "job_id": "74a29e0384324952",
+  "problem": "muse_decode_layer",
+  "mode": "public scored run",
+  "source": "muse_decode_layer/cand/g1b4_control_release.py",
+  "source_commit": "a2de34ea15a473cca1c8291d59755ebeb3f09251",
+  "bytes": 870877,
+  "sha256": "706ca85d5c048ae4d9c1e3919d2f0895cda31561f6ed2f39ad7351e07621daa1",
+  "pure_compute_sha256": "1607293eee3403109df5d37b6e2d1ee34b528c3578afa6c2c8668440afde1658",
+  "long_private_replays": 2000,
+  "sizes": [
+    32,
+    33,
+    128,
+    256
+  ]
+}

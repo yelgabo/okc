@@ -48,7 +48,17 @@ def conformance(path):
     assert obj['board']=='muse_decode_layer' and obj['status']=='done' and r['passed'] and r['checks']['ok']
     tests=[x for x in r['records'] if x.get('event')=='test']
     assert len(tests)==13 and all(x['status']=='pass' for x in tests),'13 baseline tests required'
-    assert 'EMPTY_CONFORMANCE_ALL' in r['log_tail'] and 'G1b4 backend' in r['log_tail'],'G1b4 native conformance transcript required'
+    log = r['log_tail']
+    assert 'G1b4 backend native repaired' in log and not r['flags'], 'native G1b4 qualification required'
+    if obj['id'] == '74a29e0384324952':
+        # The pinned public control ran the production G1b4 kernel, with more
+        # fresh-route checks and the same four 2000-replay stress sizes.
+        assert obj['mode'] == 'run' and 'G_RELEASE_STARTUP_OK native (128, 32, 33, 256, 1, 8, 16) 56 verified_replays' in log
+        assert all(log.count(f'G1B4_PRIVATE_LONG_OK {m} 2000 remote_and_restored_checked') == 1
+                   for m in (32, 33, 128, 256)), 'incomplete private stress coverage'
+        assert len([x for x in r['records'] if x.get('event') == 'benchmark']) == 12
+    else:
+        assert 'EMPTY_CONFORMANCE_ALL' in log, 'G1b4 native conformance transcript required'
     return {'job_id':obj['id'],'candidate_pin':PIN,'status':'done_pass13_native_empty','evaluator_code':r['evaluator']['code_sha256']}
 
 def build(source,root,part,proof=None):

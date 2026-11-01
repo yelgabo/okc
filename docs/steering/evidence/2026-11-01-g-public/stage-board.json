@@ -1,0 +1,55 @@
+{
+  "overall": {
+    "you": {
+      "rank": 303,
+      "team": "yelgabo",
+      "first": false,
+      "ahead": 302
+    },
+    "ranked": 1810,
+    "thresholds": [
+      {
+        "rank": 10,
+        "solved": 4,
+        "team": "mgpai22"
+      },
+      {
+        "rank": 50,
+        "solved": 4,
+        "team": "pepinu"
+      }
+    ]
+  },
+  "muse_decode_layer": {
+    "you": {
+      "rank": 303,
+      "team": "yelgabo",
+      "speedup": 2.1261,
+      "first": false,
+      "ahead": 302,
+      "to_first": 1.1685
+    },
+    "ranked": 1159,
+    "thresholds": [
+      {
+        "attempts": 73,
+        "job": "d8b3fb90f4c248b8",
+        "rank": 10,
+        "screened_speedup": 2.368920438730032,
+        "speedup": 2.3834,
+        "submitted_at": 1793491425.0069733,
+        "team": "mgpai22",
+        "value": 9490.799903378942
+      },
+      {
+        "attempts": 26,
+        "job": "6931364ea8464cf7",
+        "rank": 50,
+        "speedup": 2.2894,
+        "submitted_at": 1793516673.2765467,
+        "team": "pepinu",
+        "value": 9880.414613097584
+      }
+    ]
+  }
+}
