@@ -54,8 +54,8 @@ class Gate(unittest.TestCase):
         self.assertFalse(decide(bad)['decision'])
     def test_generated_parts_share_exact_device_and_core(self):
         from dl_g1_layer_gate import build,PIN
-        root=Path(__file__).resolve().parents[1].parent/'okc'
-        source=(root/'.build/today/g1b4_native_experts.py').read_text(encoding='utf8')
+        root=Path(__file__).resolve().parents[1]
+        source=(root/'muse_decode_layer/cand/g1b4_control_release.py').read_text(encoding='utf8')
         outputs=[build(source,root,p) for p in ('decode','verify')]
         def assignments(source):return {getattr(n.targets[0],'id',''):ast.literal_eval(n.value) for n in ast.parse(source).body if isinstance(n,ast.Assign) and getattr(n.targets[0],'id','') in ('_WL_CORE_SHA','_WL_DEVICE_SHA','_WL_CONFORMANCE')}
         self.assertEqual(assignments(outputs[0]),assignments(outputs[1]))
@@ -65,6 +65,44 @@ class Gate(unittest.TestCase):
             self.assertIn('G1b4 conformance receipt required before measurement',out)
             self.assertIn('OKC_STAGE_RETIRE=1',out)
             self.assertIn('wl_resources',out)
+
+    def test_generated_reference_dependencies(self):
+        import builtins,symtable
+        from dl_g1_layer_gate import build,NAMES
+        root=Path(__file__).resolve().parents[1]
+        source=(root/'muse_decode_layer/cand/g1b4_control_release.py').read_text(encoding='utf8')
+        out=build(source,root,'all')
+        def missing_globals(code):
+            table=symtable.symtable(code,'generated-layer','exec')
+            bound=set(dir(builtins))|{s.get_name() for s in table.get_symbols() if s.is_assigned() or s.is_imported()}
+            def required(scope):
+                names={s.get_name() for s in scope.get_symbols() if s.is_global()}
+                return names.union(*(required(child) for child in scope.get_children()))
+            return set().union(*(required(f) for f in table.get_children() if f.get_name() in NAMES))-bound
+        self.assertEqual(missing_globals(out),set())
+        self.assertEqual(missing_globals(out.replace('ROUTE_EPS=1e-15','')),{'ROUTE_EPS'})
+        def constant(text,key):
+            return next(ast.literal_eval(n.value) for n in ast.parse(text).body if isinstance(n,ast.Assign)
+                        and any(isinstance(t,ast.Name) and t.id==key for t in n.targets))
+        self.assertEqual(constant(out,'ROUTE_EPS'),constant((root/'muse_decode_layer/reference.py').read_text(encoding='utf8'),'ROUTE_EPS'))
+
+    def test_judged_state_keeps_full_preparation(self):
+        from types import SimpleNamespace
+        body=Path(__file__).with_name('dl_g1_layer_body.py').read_text(encoding='utf8')
+        node=next(n for n in ast.parse(body).body if isinstance(n,ast.FunctionDef) and n.name=='_wl_judged_state')
+        modules={k:SimpleNamespace(_module=object()) for k in ('main','b4')}
+        flags={id(x._module):('-DOKC_STAGE_RETIRE=1',)+(('-DOKC_B4FIN=1',) if k=='b4' else ()) for k,x in modules.items()}
+        env={'_WL_EXT_FLAGS':flags};exec(compile(ast.Module(body=[node],type_ignores=[]),'state','exec'),env)
+        scratch,small=object(),object()
+        production={'attention_scratch':scratch,'ma_ext':{'tiny':small}}
+        stage={'attention_scratch':object(),'ma_ext':modules}
+        self.assertIs(env['_wl_judged_state'](production,stage),production)
+        self.assertIs(production['attention_scratch'],scratch)
+        self.assertIs(production['ma_ext']['tiny'],small)
+        self.assertIs(production['ma_ext']['b4'],modules['b4'])
+        self.assertTrue(production['_wl_stage_on'])
+        flags[id(modules['b4']._module)]=('-DOKC_STAGE_RETIRE=1',)
+        with self.assertRaises(AssertionError):env['_wl_judged_state'](production,stage)
 
     def test_actual_b4_compiled_flag_gate(self):
         body=Path(__file__).with_name('dl_g1_layer_body.py').read_text(encoding='utf8')
@@ -84,10 +122,15 @@ class Gate(unittest.TestCase):
         import torch
         body=Path(__file__).with_name('dl_g1_layer_body.py').read_text(encoding='utf8')
         node=next(n for n in ast.parse(body).body if isinstance(n,ast.FunctionDef) and n.name=='prepare')
-        def failure(w):raise RuntimeError('budget')
-        env={'torch':torch,'_wl_prepare':failure};exec(compile(ast.Module(body=[node],type_ignores=[]),'prepare','exec'),env)
+        cache={'stale':object()}
+        def failure(w):
+            self.assertEqual(cache,{})
+            cache['partial']=object()
+            raise RuntimeError('budget')
+        env={'torch':torch,'_wl_prepare':failure,'_AB_DEQ':cache};exec(compile(ast.Module(body=[node],type_ignores=[]),'prepare','exec'),env)
         old=torch.backends.cuda.matmul.allow_tf32
         with self.assertRaises(RuntimeError):env['prepare']({})
+        self.assertEqual(cache,{})
         self.assertEqual(torch.backends.cuda.matmul.allow_tf32,old)
 
 if __name__=='__main__':unittest.main()

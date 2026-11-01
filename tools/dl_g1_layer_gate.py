@@ -1,7 +1,7 @@
 """Generate next-reset whole-layer G1b4/stage-retire gate. ZERO dispatch.
 
 Example AFTER the normal G1b4 conformance receipt passes:
-  python tools/dl_g1_layer_gate.py .build/today/g1b4_native_experts.py \
+  python tools/dl_g1_layer_gate.py muse_decode_layer/cand/g1b4_control_release.py \
     .build/today/stage-layer-decode.py --root . --part decode \
     --g1b4-receipt path/to/g1b4-terminal.json
 Repeat with --part verify, then use dl_g1_layer_merge.py on BOTH terminal
@@ -21,6 +21,7 @@ standalone-to-layer extrapolation can qualify it. Pure candidate remains separat
 import argparse,ast,hashlib,importlib.util,sys,json
 from pathlib import Path
 PIN='1607293eee3403109df5d37b6e2d1ee34b528c3578afa6c2c8668440afde1658'
+PUBLIC_CONTROL='706ca85d5c048ae4d9c1e3919d2f0895cda31561f6ed2f39ad7351e07621daa1'
 NAMES=('_ab_inputs','_ab_rms','_ab_rope','_ab_coeffs','_ab_attention','_ab_ref_front','_ab_deq','_ab_ref_back','_ab_local','_ab_check_routing','_ab_compare','_ab_validate')
 PRELUDE='''
 import time
@@ -28,6 +29,7 @@ FP8=torch.float8_e4m3fn
 RMS_EPS=1e-5
 POST_NORM_EPS=1e-8
 ROUTER_MULTIPLIER=0.1767766952966369
+ROUTE_EPS=1e-15
 SLICED_UNPOOL_MAX_TOKENS=8
 UNPOOL_SLICE=1024
 _E2M1=[0.,.5,1.,1.5,2.,3.,4.,6.]
@@ -62,6 +64,10 @@ def conformance(path):
     return {'job_id':obj['id'],'candidate_pin':PIN,'status':'done_pass13_native_empty','evaluator_code':r['evaluator']['code_sha256']}
 
 def build(source,root,part,proof=None):
+    if hashlib.sha256(source.encode()).hexdigest()==PUBLIC_CONTROL:
+        # The public control prepends the entire pinned pure source to its
+        # startup-only extension. Keep its license and notice in the prefix.
+        source=source.partition('\n# Added by yelgabo, November 1, 2026: private-state startup validation.\n')[0]
     assert hashlib.sha256(source.encode()).hexdigest()==PIN
     sys.path.insert(0,str(root/'tools'))
     stage=load(root/'tools/dl_g1_stage_retire.py','_wl_stage')

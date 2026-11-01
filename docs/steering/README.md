@@ -6,6 +6,8 @@ report be checked into this repository so other sessions can read it.
 
 ## Latest review
 
+[November 1, 04:25 PST — reset check repair and second expert experiment](2026-11-01-g-public-layer-measurement.md#november-1-0425-pst--private-checks-before-the-reset) gives the current reproducible private payload, eight CPU tests and the two-stage retirement compile stop.
+
 [November 1, 04:18 PST — public result and retained submission](2026-11-01-g-public-layer-measurement.md#november-1-0418-pst--keep-the-stage-retirement-release) records the 2.102308× expert-placement result, the 2.126083× incumbent at rank 304, the current non-prefill cutoffs and the two forward experiments.
 
 [Hourly coordination and next experiments from rank 303](2026-11-01-rank303-next-experiments.md) sizes the remaining gap and assigns work alongside the running G1b4 control.
@@ -450,6 +452,8 @@ accounting, and running a corrected matched whole-layer comparison. It records
 recommendations, not execution of those tasks; check current code and run logs for status.
 
 ## Report history
+
+- November 1, 04:25 PST. [Private reset runner corrected](2026-11-01-g-public-layer-measurement.md#november-1-0425-pst--private-checks-before-the-reset). [Two-stage activation retirement compile results](2026-11-01-g-next-expert-pair-closure.md).
 
 - November 1, 04:18 PST. [Post-stage expert publication closed after the official H200 run](2026-11-01-g-public-layer-measurement.md#november-1-0418-pst--keep-the-stage-retirement-release). [All twelve adjusted medians](evidence/2026-11-01-g-public/stage-shapes.md#post-stage-publication).
 

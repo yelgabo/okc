@@ -125,6 +125,17 @@ def _wl_empty(arms):
     assert checked==12
     return checked
 
+def _wl_judged_state(production, stage):
+    # Keep the full preparation's plans and scratch, including routes outside
+    # a partial diagnostic. Only the two immutable native modules change.
+    for key in ('main','b4'):
+        ext=stage['ma_ext'][key]
+        flags=_WL_EXT_FLAGS[id(ext._module)]
+        assert '-DOKC_STAGE_RETIRE=1' in flags and ('-DOKC_B4FIN=1' in flags)==(key=='b4')
+        production['ma_ext'][key]=ext
+    production['_wl_stage_on']=True
+    return production
+
 def _wl_prepare(weights):
     import statistics,random,json,zlib,base64
     assert _WL_CONFORMANCE is not None and _WL_CONFORMANCE['candidate_pin']==_WL_PIN,'G1b4 conformance receipt required before measurement'
@@ -139,7 +150,7 @@ def _wl_prepare(weights):
     # Retain base plus4clones, graph tensors/caches and two FP32 reference banks.
     assert mutable_bytes*4<=8<<30 and free>mutable_bytes*4+(8<<30),('WL_MEMORY_PREFLIGHT',mutable_bytes,free,total)
     arms=[_wl_clone(state,readonly,i>=2) for i in range(4)]
-    owned=_wl_check_owners(arms,readonly);budget()
+    owned=_wl_check_owners([state,*arms],readonly)[1:];budget()
     resources={}
     for key,t in (('b4',32),('main',128)):
         rr=[]
@@ -214,17 +225,19 @@ def _wl_prepare(weights):
     budget();blob=base64.b64encode(zlib.compress(json.dumps(report,separators=(',',':')).encode(),9)).decode()
     assert len(blob)<11000,'WL_FULL_REPORT_LOG_OVERFLOW'
     print('WL_STAGE_REPORT '+blob,flush=True)
-    # Keep all graph-captured backing allocations alive during private work above;
-    # the judged state uses its own retained owner and the exact stage-on backend.
-    state=arms[2];state['_wl_probe']=False
-    return state
+    _wl_check_owners([state,*arms],readonly)
+    _check_guards()
+    return _wl_judged_state(state,arms[2])
 
 def prepare(weights):
     previous=torch.backends.cuda.matmul.allow_tf32
     try:
+        _AB_DEQ.clear()
         torch.backends.cuda.matmul.allow_tf32=False
         return _wl_prepare(weights)
-    finally:torch.backends.cuda.matmul.allow_tf32=previous
+    finally:
+        _AB_DEQ.clear()
+        torch.backends.cuda.matmul.allow_tf32=previous
 
 def kernel_fn(data,state):
     return _WL_KERNEL(data,state)
