@@ -2103,3 +2103,26 @@ Measured higher CTA residency fails to improve this schedule; serializing correc
 on an active compute warp is a plausible explanation, not an isolated timing attribution.
 Stop this ownership variant and local register-cap sweeps. Original dedicated escape warp
 and C3 production remain unchanged. Raw receipt plus CLI profile JSON/text committed.
+
+### Prefill large-M dense Lt diagnostic on unchanged projection path
+
+Check `e15f6a9a9ff047ef`, pending; generator `tools/prefill_proj_lt_diag.py`.
+Judged projection C3 unchanged. Root approved spending one projection check to protect
+scarce prefill checks. Evidence: prefill scored92408f1b65c643c4 reports M16384 coopB_TNN
+2526.7–2541.9us as THREE calls, plus one coopB_TNT1395–1504us; individual op attribution
+is unknown until this diagnostic profiles each baseline separately. Four dense source
+calls qkv/o/pool/unpool; same raw BF16 weights/interfaces. Pure transposition inprepare
+is lossless. Existing LT_CPP uses general M with FP32compute/BF16in/out; no256limit.
+
+At M16384, theoretical989TF/s math floors qkv625.35,o277.94,pool1111.74,unpool1111.74us;
+one-read/write4.8TB/s floors79.52/66.41/97.87/97.87us. Datasheet floors are not predicted
+recoverable gains. Pinned SGLang dispatcher fallback is F.linear (unquant.py397–428 at
+commit a55ab7d5ae1bba59ac351e55026fe7f7644ecc5f); diagnostic calls actual dispatcher.
+Baseline o is attributed/timed only. Each otherop scans fourlayouts×two workspacecaps
+(0/32MB),req12 percap,≤96acceptedconfigs,3coldgraphscreen rounds; no expansion/tile sweep.
+Top2configs recreated in twin independentplan handles/privateworkspaces/outputs, paired
+against duplicatebaseline over2heldouts×30randomcoldrounds. Alloutput L2vsbaseline plus
+selectedrow/fullKFP64, power2probes, nearbyM16383 candidateplan checks; all<.005L2.
+Preregistered perinput/arm gain threshold max(2%baseline,2×duplicate-nullMAD); bothinputs
+and bothtwinplans must pass. Deadline240sprepare skipsremainingops explicitly. No prefill
+aggregateforecast; any promotion requires exactintegratedprefill official/freshvalidation.
