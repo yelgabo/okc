@@ -823,3 +823,34 @@ a0da77c5f3c647c3 PASS13, control 2.017944x CI 1.987675–2.048213. Complete affe
 59cc1343940f4bcb passed 13 tests, control 2.015711x CI 1.985476–2.045947. Contiguous K-major concatenated weight slower in every GEMM and whole-layer comparison, both seeds and sizes. Retain original.
 2026-11-01 | 3a5f879df0d44825 | off-board external comparator keell0renz at 8e30e1be, source 1ec189dc... | exact file check for current per-shape attribution. Never a public submission.
 3a5f879df0d44825 PASS13, exact external layer 2.248790532x CI 2.215059–2.282522. Independent from owned best, 12 lower shape medians. User authorized attributed fork after audits. Upstream comparison alone is not an accepted release.
+
+### 2026-11-01: scoped standalone Lt pins in selected decode layer
+
+Root authorizes one layer check; no public submission, standalone check or prefill work.
+Baseline exact `layer_attn31s.py` SHA585d46e2cd059ea7ea76c25110fd199bb228d2ee7f96239b44ae0bfb8025893b.
+Source audit: `_proj`20975-20991 has no direct Lt route; wide128 tuner can override _gemm,
+256 falls through to `_bf16_gemm_dispatch_impl`. Prior M-D row is decoded donor attribution,
+not an owned port trial. C1 port explicitly excluded pooler128 because its front is concat.
+
+`tools/dl_proj_lt_port.py` ports frozen standalone LT_CPP (FP32 compute, BF16 input/output)
+and three existing validated pins only: QKV256 L0 tile124/cluster2; unpooler128 L3
+tile18/custom2/cluster5; unpooler256 L1 tile20/custom4/cluster3. O128 was near zero in
+standalone trials, O256 marginal, so both excluded. No fused pooler/router route touched.
+Candidate SHAda7f00fbb5f6f7e3cea296abce6f450ad864e99f5ddd2e55959ca6ae7ece638d.
+Original layer executable/CUDA AST unchanged except appended wrapper; only Python
+docstrings become pass for payload size. Actual CPU dispatch gates verify shape, full
+output, contiguous/aligned BF16, fallback and baseline without the new state key.
+
+Each route gets its own plan/32MiB workspace and exact-layout weight copy. Prepare requires
+accepted pin, full FP64 random error<.005 and row<.01, exact onehot, three fresh graph inputs.
+Original projection and every other route remain fallback. No heuristic search or math change.
+`tools/dl_proj_lt_probe.py` wraps the established four-arm layer benchmark, independent
+baseline/candidate prepares and shared-state duplicate controls (limitation: duplicates do
+not sample independent tuner/build noise). v16/v32, sliding/full, busiest+second distributions,
+fresh seeds1101433+,12 randomized cold rounds; all32 whole-layer reference checks required.
+Busiest uses actual argmax tie semantics. Fail/skip evidence prints before failclosed gates.
+Payload966038B; only two affected loads timed, so no full-score claim from their geometricmean.
+Acceptance: whole-layer improvement beyond both nulls in all four cross-ratios on affected
+loads, no consistent context regression, all FP64/fresh/reference gates and policy attribution
+complete. Otherwise retain baseline and record loser; no automatic retry. Layer quota before
+dispatch12used/8left, standalone19used/1left untouched. Job pending source breadcrumb.
