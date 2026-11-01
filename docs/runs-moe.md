@@ -337,6 +337,16 @@ proxy fences preserved. Independent read-review requested before any masked disp
 Correction: INDEXED disables TMA/warp specialization, not necessarily WGMMA. No instruction
 family comparison is measured without SASS. Masked exactNVFP4 support still needs GPU check.
 
+Independent audit_attention_moe read-review found no layout/lifetime issue; confirmed
+both tail invocations explicitly enable debug=True. Provided tuning dictionary preserves
+the actual chosen BM (same explicit-config API chain cited above). Root approved plain
+correctness/resource/performance check c1f6023f03d34c72, dispatched from
+`.build/today-moe/prefill_humming_masked.py`, SHA256
+3314d555570555271f944adf4c8ef19553a4252a1d1f499d4d81732ebdfd75e5.
+Pending. Default StreamK policy retained for this new-backend initial gate; separate
+deterministic prerequisite, if needed, will be recorded and validated before promotion.
+Pure indexed-noStreamK source SHA256d88863eede8104c35948c0ad8c29fd7cca8aa0db291f3e272f45562e368fb1a4.
+
 ## Source facts (SGLang a55ab7d5, read from GitHub and hashed against the image)
 
 - `fused_post_expert_norm_weighted_sum` falls back to PyTorch ops below
