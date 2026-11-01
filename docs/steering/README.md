@@ -6,6 +6,8 @@ report be checked into this repository so other sessions can read it.
 
 ## Latest review
 
+[November 1 Family G qualification update](2026-11-01-family-g-qualification.md#november-1-addendum--run-g1b4-at-the-next-reset) supersedes the G1b3 reset instructions. G1b4 restores the native attention BF16 boundary. Its pure and diagnostic builds reproduce on Windows and Linux. The next layer qualification requires an H200 check.
+
 [November 1 standalone MoE and attention experiments](2026-11-01-component-frontier-round.md) records two measured MoE stops, a newly verified attention comparator and the read-only Kernarc research.
 
 [November 1 projection dispatch audit](2026-11-01-projection-weighted-dispatch-audit.md) reconstructs all 30 score-weighted opportunities and closes the four-cell follow-up pending new legal kernel evidence.
@@ -13,7 +15,7 @@ report be checked into this repository so other sessions can read it.
 [November 1 strategy beyond an incorporated Family G](2026-11-01-beyond-family-g.md) sizes two independent investigations under the user's hypothetical incumbent.
 
 
-[Family G qualification and check receipts](2026-11-01-family-g-qualification.md) records G0 at 2.248791×, G1a at 2.010975× and repaired native G1b2 at 2.065559×. G1b3 fixes the empty-routing metadata read and uses Marlin fallback. It is ready for an off-board H200 qualification after quota reset. The scored incumbent is 2.043438×.
+[Family G qualification and check receipts](2026-11-01-family-g-qualification.md) records G0 at 2.248791×, G1a at 2.010975× and repaired native G1b2 at 2.065559×. G1b3 fixed the empty-routing metadata read and selected the Marlin fallback. G1b4 adds the native attention precision repair. The scored incumbent is 2.043438×.
 
 [November 1 research ownership retrospective](2026-11-01-research-ownership.md) adds the experiment-selection gate to both root instruction files and defines how to assess it prospectively.
 
@@ -436,6 +438,8 @@ accounting, and running a corrected matched whole-layer comparison. It records
 recommendations, not execution of those tasks; check current code and run logs for status.
 
 ## Report history
+
+- [G1b4 reset instructions, hashes and promotion criteria](2026-11-01-family-g-qualification.md#november-1-addendum--run-g1b4-at-the-next-reset) and [independent boundary review](2026-11-01-g1b4-attention-boundary-review.md).
 
 - [Standalone experiments and source survey](2026-11-01-component-frontier-round.md), [finalizer dependency trace](2026-11-01-native-finalizer-frontier.md), [byte and SC6 comparison](2026-11-01-moe-sc6-controlled.md), [local CUDA compilation](2026-11-01-local-cuda128-compile.md) and [fused boundary audit](2026-11-01-rohan-finalizer-fusion-audit.md).
 

@@ -64,3 +64,23 @@ After the layer check quota resets at 00:00 UTC, check that file off-board with 
 The integrated off-board probe is 865899 bytes, SHA256 ac8964c6b912dff40721a5b342d76be768f05a3939089cdf8c5466ce8b3c93bf. Independent host execution of the extracted C++ helper completed 181169 checks with zero empty metadata reads and one read in the original negative control. Four CPU Torch graph-facade tests exercised the explicit empty checks, including failure on a stale or unwritten output. The H200 launch and graph behavior are unverified for G1b3. [Empty-routing proof, probe coverage and finalizer design limits](2026-11-01-native-moe-empty-routing.md).
 
 Independent read-only review of the device guard at 3bb91e0 found no remaining reachable job-count or CTA lookup on the empty WGS range and no changed joins, fences, precision or layout. The reviewer reproduced the source and CPU replay-facade checks against the tracked G1b2 baseline. H200 validation remains the next gate.
+
+## November 1 addendum — run G1b4 at the next reset
+
+Evidence commits 058531a (campaign) and dddd534 (independent source review). Family G remains the attributed keell0renz layer fork. G0 is the unmodified external comparator. G1b4 is a revision of G1b3 with the same expert backend, empty-route guard and Marlin fallback.
+
+The official layer and standalone attention baselines round the attention value vector to BF16 before output RMS normalization and gating. G1b3 already did this in its FA3 fallback. Its five native ATT7 finalizers instead used an identity conversion on the scaled values. G1b4 changes that conversion to BF16 round-to-nearest-even. Reversing the conversion restores the exact G1b3 device source. Two CPU Torch checks passed, including a fixture on which the rounding changes the final BF16 result. The challenge's general precision rule and our stricter requirement to reproduce this particular operation boundary are separate. [Layer baseline](../../muse_decode_layer/baseline.py#L312). [Attention baseline](../../muse_attention_decode/baseline.py#L129). [Official rules](https://openkernelchallenge.dev/rules). [Independent review](2026-11-01-g1b4-attention-boundary-review.md).
+
+Reproduce from the pinned G1b2 input (SHA256 `258c848c662149f9c6ac178039f179de6f0b0ec4cb0b503451d2974c7a7a8dfc`). Windows and Linux produced identical files. The earlier G1b3 build still reproduces its original hash.
+
+```sh
+python tools/dl_build_g1_qualification.py muse_decode_layer/cand/g1b2_native_experts.py .build/today/g1b4_native_experts.py --bf16-attention
+python tools/dl_build_g1_qualification.py muse_decode_layer/cand/g1b2_native_experts.py .build/today/g1b4_qualify.py --bf16-attention --probe
+```
+
+| G1b4 file | Bytes | SHA256 |
+|---|---:|---|
+| Pure candidate | 862176 | `1607293eee3403109df5d37b6e2d1ee34b528c3578afa6c2c8668440afde1658` |
+| Empty-routing diagnostic | 865960 | `a52b364e0bb6061fec57e97b2dc3098552f6b7700743b454e8ec5efa3d7c6ba0` |
+
+After 00:00 UTC on November 2, check the diagnostic and wait for its exact job ID. Require native selection, the empty/occupied graph probes, 13 official correctness cases and 12 measured cells. Then check the exact pure candidate and require a matched whole-layer gain over the incumbent beyond twice the duplicate-control log variability on independent seeds. A failure stops promotion. G1b4 has no H200 measurement. The 2.065559× score belongs to G1b2 job 736a5cbc977f4ad4. The public 2.043438× record belongs to cb71acec29d141c6. Its owned native attention also warrants a boundary repair before re-use. No revised layer candidate currently qualifies for submission.
