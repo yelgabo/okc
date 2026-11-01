@@ -1,0 +1,23 @@
+owned_decoder.cu(2794): warning #177-D: variable "g" was declared but never referenced
+      const int g = lane >> 2;
+                ^
+          detected during:
+            instantiation of "void <unnamed>::run_group<NTT,PH,MODE>(const <unnamed>::Params &, <unnamed>::SmemMain &, float *, float (&)[32], <unnamed>::Ring &, int &, int &, int, int) [with NTT=8, PH=0, MODE=47]" at line 3412
+            instantiation of "void <unnamed>::consumer_phase<PH,MODE>(const <unnamed>::Params &, <unnamed>::SmemMain &, float *, float (&)[32], <unnamed>::Ring &, int &, int &, int, int) [with PH=0, MODE=47]" at line 3554
+            instantiation of "void <unnamed>::consumers<MODE>(const <unnamed>::Params &, <unnamed>::SmemMain &, float *, int, int) [with MODE=47]" at line 4381
+            instantiation of "void <unnamed>::moe_main_kernel<MODE>(<unnamed>::Params) [with MODE=47]" 
+
+Remark: The warnings can be suppressed with "-diag-suppress <warning-number>"
+
+owned_decoder.cu(175): warning #177-D: function "<unnamed>::dequant_pair" was declared but never referenced
+  __device__ __forceinline__ void dequant_pair(unsigned w, unsigned sp, unsigned (&a)[4]) {
+                                  ^
+
+owned_decoder.cu(187): warning #177-D: function "<unnamed>::dequant_noscale" was declared but never referenced
+  __device__ __forceinline__ void dequant_noscale(unsigned w, unsigned (&a)[4]) {
+                                  ^
+
+owned_decoder.cu(1964): warning #177-D: function "<unnamed>::make_desc" was declared but never referenced
+  __device__ __forceinline__ uint64_t make_desc(const void* ptr, int lbo, int sbo) {
+                                      ^
+
