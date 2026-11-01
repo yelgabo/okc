@@ -1,5 +1,7 @@
 # Shared project steering
 
+Latest performance pivot: [After both sparse-repair losses](2026-11-01-post-xor-ranking-pivot.md). Fresh official ranks/cutoffs, exact stage-local loss and one next investigation; preserve first-two reset order. No new kernel or GPU action.
+
 Latest G contract audit: [Precision requirements versus conservative policy](2026-11-01-g-fork-precision-contract.md). BF16 stage edges retained; internal split-partial bans distinguished from explicit rules; active JIT FP32 router clarified. No reopening, code or GPU action.
 
 Latest projection reader: [Private SK-XOR owning receipt validator](2026-11-01-projection-sk-xor-receipt.md). Eleven synthetic CPU tests; exact job/manifest/resource/coverage gates and invalid-calibration raw preservation. Frozen scoring policy unchanged; no GPU action.
