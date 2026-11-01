@@ -3777,3 +3777,77 @@ Measured conclusion: the full-context scheduling improvement repeats across buil
 and inputs; sliding has no independently established gain. A new proposal may restrict the
 mechanism to SPEC/non-one-tile L1 instances and preregister a full-only causal scoring gate.
 This restriction would be based on new evidence above, not a repeat of the general knob.
+
+## Fresh restricted late-tid registration, 2026-10-31 PDT
+
+This is a NEW variant, not retroactive promotion of ONE_LATE_TID1, which failed its original
+changed-instance gate in ab53721b09854717. New evidence is the repeated full-context gain and
+sliding null shift in that check. Value2 applies only to L1 SPEC non-one-tile instances;
+value1 retains the original broad toggle for reproducibility. Default0 remains unchanged.
+Restriction uses launch geometry (`SPEC && !ONE`), never tensor values or benchmark identity.
+
+Fresh four-arm generation: `--null --shapes all --inputs 3 --rounds 150 --seed 311106
+late1@own=-DONE_LATE_TID=2 late2@own=-DONE_LATE_TID=2,-DOKC_LATE_NULL=1`.
+Both candidates have separate builds/states, and controls ctrl/ctrl2 are independent.
+
+Gate preregistered before dispatch:
+1. All real-arm harness checks pass; all official unchanged-control tests pass.
+2. At d1full, all4 candidate/control cross comparisons improve on every held-out input.
+3. Full-only causal standalone score: hold all unchanged shapes, including d1sliding, exactly
+at ctrl's measured time. Subtract each official shape's saved replay overhead from matching
+raw medians, then compute the actual weighted load formula46sliding+16full and six-load
+geometric mean. Pooled cross loggain must exceed twice the larger absolute lognull from
+ctrl2/ctrl and late2/late1 under this SAME full-only calculation. These remain calibration
+sensitivity estimates until candidate-only official timing, not separately measured scores.
+4. No real regression at changed d1full. Unchanged rows' improvements receive zero credit;
+any anomalous unmodified row must be documented and not used as the winning mechanism.
+5. After confirmation, candidate-only official correctness plus2000fresh queued inputs per
+changed/sentinel batch1 shape, every output compared on device with independent owned control,
+three additional FP32-reference samples, explicit speculative-length misses, clean workspace,
+and prepare-time resource attributes. No public submission before these gates pass.
+
+|date|job|commit|change|score (95%CI)|notes|
+|---|---|---|---|---|---|
+|2026-10-31|a9b416a0c7324ecc (check)|554445d|ONE_LATE_TID2 full/non-one-tile restriction, fresh four-arm gate above|pending|Three inputs,150coldrounds,independent candidate builds+states; judged source defaultoff.|
+
+Live standalone attention snapshot during restricted experiment (2026-10-31 late PDT):
+`profiles/leaderboard.2026-10-31-late-campaign.json` reports ours rank206,2.6043x;
+rank10 is jt914,2.9098x, screened job5cb3655bf3c9499a. The ratio2.9098/2.6043
+requires approximately11.73% more score at this snapshot. This is a live official-row
+comparison, not an invented cutoff or forecast. The bounded late-tid mechanism alone does
+not establish that gap; the final review/rerun ranking remains provisional.
+
+### Restricted full-only result: a9b416a0c7324ecc
+
+Owning attention receipt verified,16/16 official control tests passed; control2.498407x
+(95%CI2.460931-2.535883), not a candidate-only score. Every arm19/19 harnesschecks.
+`profiles/latefull.a9b416a0c7324ecc.{json,log,gate.json}` retains receipt, log and evaluator
+output. Registered value2 source is554445d, generated exactly as its predispatch command.
+
+|Cold rawus|ctrl|ctrl2|late1|late2|
+|---|---:|---:|---:|---:|
+|decode1 full|17.28|17.25|16.90|16.80|
+|decode1 sliding (unchanged)|9.31|9.28|9.34|9.31|
+
+Full cross differences by input, candidate-minus-control microseconds:
+input0 late1/R1 -0.32,L1/R2 -0.29,L2/R1 -0.42,L2/R2 -0.39;
+input1 -0.42/-0.39/-0.48/-0.45; input2 -0.42/-0.39/-0.51/-0.48.
+All12 cross comparisons improve. Pooled full-only corrected sensitivity ratio1.0023928;
+controlnull1.0001715,candidatenull1.0005802. Loggain exceeds2largerlognull: gatePASS.
+Tool `tools/attn_causal_score.py` gives the reproducible calculation; all unchanged rows,
+including sliding, receive zero credit. Raw wholeABSCORE1.0014/1.0028 versusnull0.9998
+is also recorded but is not the causal gate. The preceding value1 failure remains unchanged.
+
+Candidate-only official/stress check dispatched3588375a529c4fe8, source194b92b+stress-tool
+b470ab1/5c546fc: generated owned file enables ONE_LATE_TID2 in actual judged path;
+repository productiondefault stays0 pending correctness/stress. Generator
+`tools/attn_make_candidate_stress.py` uses independent defaultoff owned control and two
+batch1 shapes, each with2000unique queued qkv inputs and a device error comparator for EVERY
+output; additionally3FP32-reference samples,50replays after shortening sequence64tokens,
+workspace scans and host prepare resource attributes. Comparator threshold is relativeL2
+1e-4, stricter than official math thresholds; classify any BF16/atomic-order null before
+attributing a failure to the scheduling change. No public submission yet.
+
+|date|job|commit|change|score (95%CI)|notes|
+|---|---|---|---|---|---|
+|2026-10-31|3588375a529c4fe8 (check)|554445d + owned stress generator5c546fc|Actual full-only late-tid2 candidate, fresh queued stress/resource gate|pending|Productiondefault0; official judgedpath2;2000uniqueinputs peraffected/sentinelshape,alloutputs device-compared.|

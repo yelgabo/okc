@@ -113,7 +113,7 @@ def main():
 ''')
     control = src.replace('name="okc_attn_one_v1"', 'name="okc_attn_late_stress_control"')
     assert control != src
-    src = src.replace("#define ONE_LATE_TID 0", "#define ONE_LATE_TID 1")
+    src = src.replace("#define ONE_LATE_TID 0", "#define ONE_LATE_TID 2")
     runner = base.RUNNER.format(variants=["_one"], coop_probe=True)
     head, sep, _ = runner.rpartition("\nimport os as _os\n")
     assert sep
@@ -122,3 +122,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+
