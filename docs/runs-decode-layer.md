@@ -744,3 +744,7 @@ unchanged. Do not credit standalone check gain until this paired gate completes.
 Scored control repeat36e57280ff1f4c63: pass13tests,2.014780x CI1.984558–2.045002,
 M1 open (8-token whole-step saves3.68us), mode51 at32/128/256, no reported preparation
 failures. Below best2.018705x within ordinary run variance. Rawreceipt retained in profiles/.
+
+Second authorized scored control repeat43026195f8c84ffb dispatched: same frozen
+layer_best.py plus comment-only repeat2, no new kernel change. Pending at dispatch;
+records fresh run variation while paired attention-port c0402e4c92bc4b20 is unresolved.

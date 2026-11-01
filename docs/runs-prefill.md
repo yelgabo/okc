@@ -44,3 +44,20 @@ rather than repeat the tile sweep. Pinned SGLang wrapper inspected at
 public Python signature has no thread-N/thread-K tuning knobs. It allocates FP32 c_tmp when
 use_fp32_reduce and not use_atomic_add; do not toggle atomic output as a speed shortcut without
 proving precision parity. No such toggle is built or authorized by this evidence.
+
+## Capability check before a structural expert-backend experiment
+
+Checke30ec1bf8e8142df dispatched from the unchanged validated baseline plus prepare-time
+imports/version reports for Humming/FlashInfer/TileLang/CUTLASS and Humming grouped-layer API.
+Source preserved in experiments/capabilities.py. No timing-path, arithmetic, precision or
+policy changes. Purpose: determine installed judge capabilities before implementing a new
+expert backend; do not assume a library from current online docs exists in the pinned image.
+
+Primary [Humming source](https://github.com/vllm-project/humming/tree/948e6fd547e703065be51529ac1db5569256774e)
+documents BF16 grouped NVFP4 with E4M3 group16 scales and per-expert FP32 global scales.
+The required path is load_from_tensors on exact packed weights then transform inprepare,
+not load_from_unquantized/requantization. Set use_f16_accum=False; retain BF16 GEMM1,
+SiLU output, GEMM2, post-expert norm and weighted-sum boundaries. Expert layout is a device
+int64 prefix array. Any implementation needs fixed-capacity route buffers and device-only
+metadata generation; test helpers that use .item() to size outputs are not timed-call code.
+No backend candidate has been built or measured yet. Capability check still running.

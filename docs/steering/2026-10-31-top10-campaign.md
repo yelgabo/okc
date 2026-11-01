@@ -154,3 +154,40 @@ Projection C3 cleared exact9test check61330d87d32c4190 and independent router co
 as7a15f46e673b43d5. This is a small aggregate mechanism, not the entire top10 gap. Codec worker
 is moving to an actual packed lossless stream trial because old load-skipping models changed
 codegen and do not establish a compression ceiling. Goal remains active, all-five-board target.
+
+## Progress addendum: MoE ring closure and next structural comparison
+
+Previous goal turn made measured progress; current work reverified live handles, merged
+worker evidence, and selected the next experiment from new attribution. Ring4 check
+39804be1a59c429c passed5tests but lost at128layer/std/skew by2.2/1.5/1.2us and256 by
+2.9/3.9/1.9us; every256seed loses. Close this coupled x-depth/weight-depth tradeoff,
+not all ring designs. Default production unchanged; loss/register/source evidence retained
+through cc8252a in root. No repeat of identical four-slot capacity is planned.
+
+Attention diagnostic191e57a0f45a4717 completed/pass. The d1full gap is already present at
+the first page-group drain: owned7.04us versus pinned donor6.02us; complete-prologue
+9.79vs9.41. v1full complete prologue9.57vs9.54. These are drained exits, not additive
+live-kernel stages. Therefore defer the speculative newKV staging rewrite. Owned late-tid
+address-scheduling testb4d75c3185744d0a is now running with default-off source toggle,
+all12shapes,3heldoutinputs and independent control. Existing fences/waits retained.
+Evidence/source merged through db2e545; actual promotion remains gated by timing and stress.
+
+Root is investigating a structurally different grouped expert backend for MoE/prefill.
+Official Humming primary API pinned948e6fd supports an exact NVFP4 tensor-load path,
+BF16 inputs/outputs and FP32 accumulation. Installed compatibility is still unknown:
+baseline-only capability checke30ec1bf8e8142df is live. No judge dependency installation,
+requantization, coarser activation, host-synchronized route sizing or unvalidated backend
+substitution is allowed. See runs-prefill for concrete ABI/precision constraints.
+
+Projection actual packed pair7 first attempt0ab8f0510515473b failed compilation because
+the experiment requested C++17 against current PyTorch's C++20 requirement. That is not
+a kernel or codec performance loss. Corrected retry962d2f9c1d9644f7 is live after a stronger
+all-BF16-bitpattern CPU packing/escape gate. Projection C3 scored7a15f46e673b43d5 passes
+1.513805x (1.491098–1.536512); consistent component gains do not imply a higher headline
+in one noisy scored run. C2's1.527806x remains the best observed projection score.
+
+Authorized fresh-control repeats dispatched43026195f8c84ffb (layer) and8914751e3b9f468b
+(attention), comment-only changes to already checked frozen controls. Reserve remaining
+slots for confirmed candidates; these repeats measure run variation and are not new speedups.
+Paired-layer c0402e4c92bc4b20 was freshly verified running and must be waited, not restarted.
+All-five-board top10 objective remains active and unproved.
