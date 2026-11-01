@@ -619,3 +619,6 @@ Latest: [Dense projection transfer to the decode layer](2026-11-01-layer-dense-t
 
 - 2026-11-01: [Four-cell verify slice first-draft review](2026-11-01-verify-four-cell-slice-review.md): owned128 policy mismatches identified from cb71 source/receipts: actualQKVwide and SGlang attention boundary were omitted. Root correcting; no later artifact or H200 clearance implied.
 - [2026-11-01 VP2 private source contract](2026-11-01-vp2-private-source-review.md): Apache provenance, exact16896B mailbox/DSM lifetime and CPU ownership proof; frozen harness review pending.
+- [Attention VP2 BF16-output private requalification](2026-11-01-attention-vp2-bf16-requalification.md): 8f5155a, source-only audit and draft; no GPU qualification.
+
+- [Private BF16-output VP2 terminal result](2026-11-01-attention-vp2-bf16-terminal.md): c79ddddb840a4fb7 passes correctness, target cell wins, frozen full-score gate fails; scoped closure.
