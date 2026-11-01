@@ -1,0 +1,16 @@
+{
+  "board": "muse_moe_w4a16",
+  "call_id": "kc-e06255199f6d4de1",
+  "cluster": "sfo3",
+  "content_hash": "9db31394837ffc89cf08ef60033aee1847b9ae4a1fcf7515e5a8e39eb12315c7",
+  "created_at": 1793509791.3263032,
+  "dedicated": false,
+  "duplicate_of": null,
+  "id": "e06255199f6d4de1",
+  "mode": "check",
+  "payload_ref": "muse_moe_w4a16/9db31394837ffc89cf08ef60033aee1847b9ae4a1fcf7515e5a8e39eb12315c7.py",
+  "result": null,
+  "started_at": 1793509804.6043677,
+  "status": "running",
+  "team": "yelgabo"
+}

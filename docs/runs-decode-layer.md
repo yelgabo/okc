@@ -723,3 +723,14 @@ o+boundary cand5.5+5.9 vs donor fused6.8 at d1s, but the secondary boundary incl
 the apparent4.6us sum gap is not exposed-time savings. Current front already overlaps router.
 This receipt satisfies the previously proposed d1/v1 attribution pass, with M1 qualification;
 do not dispatch that exact measurement again as missing. Keep donor measurement-only.
+
+### October31 PDT campaign: stable attention-only port, check pending
+
+Check1c1fcf1d49924050, problem confirmed muse_decode_layer. Candidate
+`cand/layer_attn31s.py`, SHA256585d46e2cd059ea7ea76c25110fd199bb228d2ee7f96239b44ae0bfb8025893b,
+copies layer_m1rt51sc1g then replaces only _ONE_SRC through dl_one_inline.py using current
+owned attn_one.cu (HMRG1,PRQ31). No workspace pick. Attention Params ABI matches explicitly,
+two dependency waits preserved, host PDL flags unchanged. Revisit trigger: stable-pick build
+and removal of workspace-placement pick from old layer_hp. Await official correctness, then
+paired whole-layer timing; no score or gain inferred yet. Status snapshot is under
+docs/steering/evidence/2026-10-31-top10-campaign/1c1fcf1d49924050.json.

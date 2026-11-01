@@ -58,3 +58,39 @@ Stop an individual mechanism on its registered failure criterion; pivot to the n
 gap while retaining the overall top10 objective. Do not loosen a gate, remove ordering fences,
 claim projected speedups as measurements, or mark the goal complete without all five official
 board ranks proving top10. Deadline remains November4 at11:59pmPT.
+
+## Progress addendum: October31, 22:13 PDT
+
+Previous turn classified as progress (live checks/scored dispatches, committed ledger).
+Refreshed authoritative state: root clean at e0ce491; eight named jobs below were all verified
+running, not inferred from old state or session locks. Goal remains active and incomplete.
+
+Additional checks:
+
+| Job | Problem | Purpose |
+|---|---|---|
+|191e57a0f45a4717|attention|Matched owned/donor prologue phase exits, three held-out inputs, independent nulls; diagnostic only|
+|e06255199f6d4de1|MoE|Producer-only wait attribution, phase and job-size split, clean51 control; diagnostic only|
+|1c1fcf1d49924050|decode layer|Candidate-only check of owned standalone attention HMRG/PRQ31 in current stable M1+51+C1 layer|
+
+Layer candidate saved as `muse_decode_layer/cand/layer_attn31s.py`, SHA256
+`585d46e2cd059ea7ea76c25110fd199bb228d2ee7f96239b44ae0bfb8025893b`.
+Reproduce by copying layer_m1rt51sc1g.py then running dl_one_inline.py on current attn_one.cu.
+Only `_ONE_SRC` changes: attention Params ABI compared explicitly via AST string extraction,
+both dependency waits retained, host PDL flags unchanged. No workspace-placement tuner added.
+This revisits the documented stable-build/no-workspace trigger of the inconclusive layer_hp
+experiment, not its old coupled tuner. New candidate must pass full layer correctness and then
+independent paired timing before performance promotion; the pending check alone will not prove
+an improvement. Existing best candidate remains the scored control.
+
+Root reviewed MoE diagnostic storage/ordering: per-CTA64-word reserved region ends below
+kSkOff for G<=256, host bounds assertions cover allocation, single xproducer lane writes its
+CTA's counters, host reads after synchronization. No changed waits/releases/fences observed.
+Timing caveats retained: phaseB readiness includes proxy-fence region; empty-region timing
+includes clock overhead and first-lap no-wait path. These are attribution counters, not pure
+wait cycles or measured GPU utilization. claim_a/claim_lean56 are false as in51.
+
+Live IDs verified:1c1fcf1d49924050,191e57a0f45a4717,e06255199f6d4de1,09ba15bd18fd4000,
+36e57280ff1f4c63,cccc131c55874949,9eba96894ee1402e,7631974774944a2a. Updated API snapshots
+are in the evidence directory. Wait these exact jobs; do not restart them on observation timeout.
+Projection worker separately owns the two earlier live projection mechanism checks.
