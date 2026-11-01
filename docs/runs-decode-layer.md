@@ -812,3 +812,5 @@ BUG: reportedactualrouting counts were readfromcapturedoutputBEFOREfirstreplay, 
 referencegroup/local_startvalid, actualtimedgraphs/officialtestsunaffected. Decoder marks
 routing_metadata_validFalse. Hosthelperfixedreplay+syncbeforeinspection;5CPUtestswith
 negativecapture-without-replaycontrolpass. NoadditionalGPUchecksolelymetadata. No submit.
+
+2026-11-01 | 04f0339fa9f24807 | beedbca | CUPTI availability on official SGLang baseline | PASS 0.997335x (95% CI 0.982375–1.012295). Size 9184 bytes, image read denied with CUPTI_ERROR_INSUFFICIENT_PRIVILEGES. Baseline timing only. Full receipt and CLI profiles saved.
