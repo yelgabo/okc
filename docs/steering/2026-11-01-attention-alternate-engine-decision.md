@@ -168,3 +168,63 @@ keytile/global cooperative finalize. Do not transplant its source. Establish
 whether this reduces duplicate prologue/finalization or changes critical-path
 work and prove DSMEM writer/reader lifetime through cluster exit. Keep every
 fence/barrier. No new check or forcedVFGroute was dispatched after this result.
+
+### Owned restricted cluster merge: prospective gate and proof
+
+Evidence screen4862f8e0dc8a4b5a's VP2-only signal; new OWNED source generator
+`tools/attn_cluster_merge_patch.py`, no public source adoption. This hypothesis
+changes ownership/merge, not query precision or tile math: current mode3 PRQ31
+64-key/both-KV-head CTA,32 balanced tile partitions, two16-CTA clusters. It
+preserves existing global cooperative barrier/parity/finalization, reduces
+per-row global partial additions32->2. It is not a claim to reproduce VP2's
+one-head128-key pipeline. Old418d8d492c074b88's q8 cluster engine used slow
+mma.sync math and serial128 DSM reads; this specific modern wgmma merge has
+not been measured. No generic ring/stage/reweight sweep.
+
+Uniform native guard: L8,MODE3,grid32x1,window2048,nc1. Other rows call PRIMARY
+unmodified control, so no incidental recompilation credit. Quotient partition
+covers every64-key tile exactly once including short-context empty partitions;
+empty CTAs do NOT take the former early exit, still initialize zero accumulators,
+join BOTHcluster syncs and existing global grid barrier. nact32 gives all128
+finalizer rows one owner. Copy=split%nc=0; b0 makes shared rowmod128 and global
+row0..127 exact. The optimization is disabled ifnc!=1; no cross-copy aliasing.
+
+End-of-loop own wgmma wait0 remains; newcp_wait0 andcsync join all pending raw
+copies/readers before alias. DeadrawKV[0:49152] is reused as128x68float partials
+[0:34816]; Q at49152 and later constants/epoch/flags remain intact. Every partial
+dim and row sum has exactly one writer (CPUbijection). Allthreads CTAjoin then
+cluster.sync, rank0 reads each16 peer partials and emits existing fixed-frame
+FP32reds; secondcluster.sync ensures all remote reads finish before anyblock
+exits/reuses shared storage. Existing fences/acquires/releases remain unchanged.
+NVIDIA DSM lifecycle requires synchronization before peer access and before
+block exit: https://docs.nvidia.com/cuda/cuda-c-programming-guide/index.html#distributed-shared-memory
+
+Host cluster opt-in cudaFuncSetAttribute is checked once during prepare.
+First actual clustered cooperative launch uses its EXACTcfg to require
+cudaOccupancyMaxActiveClusters>=2 before launch; subsequent captures don't
+query occupancy. Resource export records regs/local/dynamicSMem/blocksSM/
+activeclusters, resource gate requires local0, sameSMem and no occupancy loss
+versus base8mode3, >=2clusters; numeric metadata repeats atterminaltail.
+
+Four independent ctrl/ctrl2/cm1/cm2 builds/states.120cold paired rounds over
+THREE timing inputs, all12 scored shapes plus test shapes. All arms use own
+FP32/global/row/cache checks; candidate failures prevent timing. Additional
+fresh gate queues64 distinct QKV inputs through all4 capture graphs (256
+checked outputs), every output versus BOTHown FP32query references and official
+cache/global/row bounds, no inter-replay hostsync, oneverdict drain. Three
+negative controls (zero,stale,+10) mustreject; finalworkspace scans require
+allbuffers/tickets zero. This is64freshcases/arm, not2000mathchecked replays.
+
+CPU partition/bijection tests2/2pass. Actual CPU Torch reference-layout test
+executes generated vectorreference math against independent per-token/head
+attention; BF16queryrelative0, FP8query5.18e-6, below1e-3layoutcrosscheck.
+These do not certify GPU lowering/resources; one authorized check remains
+pending independent source/ordering review.
+
+Preregistered restricted gate: onlyv1sliding rows allowed to earn score;
+all others heldfixed. Corrected sixload pooled cross gain >=1.0% AND >2times
+max independent lognull; all12 crosses (2candidates×2controls×3inputs) faster,
+no unresolved selected-shape regressions. Missing resource/math/fresh data is
+failure. If no repeatable gain, revert/close this ownership variant and keep
+purecheckedbaseline; no public submit. Passing motivates candidate-onlyofficial
+and largerfreshvalidation later, not immediate promotion.

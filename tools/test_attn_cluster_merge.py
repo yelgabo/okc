@@ -25,6 +25,9 @@ class Contract(unittest.TestCase):
                 for pp in range(4):
                     for e in range(4):elements[row*68+c*4+pp*16+e]+=1
                 if c==0:sums[row*68+64]+=1
+        # clmerge is enabled only for b=0,nc=1, hence copy=split%nc=0.
+        for split in range(32):
+            self.assertEqual(split % 1,0)
         expected={r*68+d for r in range(128) for d in range(64)}
         self.assertEqual(set(elements),expected);self.assertEqual(set(elements.values()),{1})
         self.assertEqual(set(sums),{r*68+64 for r in range(128)})
