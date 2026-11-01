@@ -1,0 +1,32 @@
+|Load|Projection|Owned µs|External µs|Own minus external µs|
+|---|---|---:|---:|---:|
+|decode 1|qkv_gate|9.058|9.268|-0.210|
+|decode 1|o|5.036|5.002|+0.034|
+|decode 1|pooler|13.516|13.393|+0.123|
+|decode 1|unpooler|3.734|3.571|+0.163|
+|decode 1|router|3.838|3.763|+0.075|
+|decode 16|qkv_gate|9.741|9.945|-0.204|
+|decode 16|o|5.366|5.634|-0.267|
+|decode 16|pooler|13.800|13.948|-0.148|
+|decode 16|unpooler|13.557|13.976|-0.419|
+|decode 16|router|4.449|4.707|-0.258|
+|decode 32|qkv_gate|10.557|10.479|+0.078|
+|decode 32|o|5.869|6.035|-0.166|
+|decode 32|pooler|15.084|15.076|+0.008|
+|decode 32|unpooler|14.721|15.071|-0.351|
+|decode 32|router|5.490|5.517|-0.026|
+|verify 1|qkv_gate|9.771|9.060|+0.710|
+|verify 1|o|5.476|5.350|+0.126|
+|verify 1|pooler|13.419|13.945|-0.526|
+|verify 1|unpooler|4.535|4.490|+0.045|
+|verify 1|router|4.468|4.329|+0.138|
+|verify 16|qkv_gate|14.664|12.118|+2.547|
+|verify 16|o|6.812|7.014|-0.202|
+|verify 16|pooler|19.994|17.187|+2.807|
+|verify 16|unpooler|18.987|17.458|+1.529|
+|verify 16|router|6.639|6.137|+0.501|
+|verify 32|qkv_gate|16.941|17.038|-0.096|
+|verify 32|o|8.338|8.765|-0.427|
+|verify 32|pooler|24.434|24.456|-0.022|
+|verify 32|unpooler|23.441|22.924|+0.517|
+|verify 32|router|9.261|7.170|+2.091|

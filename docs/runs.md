@@ -2226,3 +2226,4 @@ receive storage holds occupancy constant but does not remove copy/transpose/barr
 their individual contributions remain unmeasured. Receipt and normalized profiles retained.
 Nineteen projection checks used; one remains subject to root coordination.
 2026-11-01 | 3c6a2baf7b4b4bf3 | exact keell0renz projection source at 8e30e1be SHA256 922da8e54073b2836610d2832e06cf694dba691362dfc9969fc2e50c108c591b | off-board 30-shape comparator. Pending.
+3c6a2baf7b4b4bf3 PASS9, external comparator 1.573015516x CI 1.549420283–1.596610748. Archived all 30 medians and profiles; no public submission. No standalone projection checks remain this UTC day.
