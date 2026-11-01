@@ -6,6 +6,8 @@ report be checked into this repository so other sessions can read it.
 
 ## Latest review
 
+[November 1 comparator discovery and reasoning review](2026-11-01-discovery-and-reasoning.md) tests an owner-independent search and updates the coordinator workflow.
+
 [Family G registration](2026-11-01-top50-reset.md#family-g--attributed-keell0renz-layer-fork) distinguishes the measured upstream comparator G0 from the attributed fork G1 under audit. Family F retains its historical alygg77 definition.
 
 [November 1 retrospective on which earlier tasks covered keell0renz](2026-11-01-keell-backlog.md) compares pre-comparator plans and mode 79 with the new MFIN and SC6 work.

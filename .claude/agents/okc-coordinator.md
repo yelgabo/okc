@@ -113,6 +113,18 @@ duplicate state here: the facts live in the files listed under "Where state live
 
 ## Research method
 
+At campaign restart and before renewing a family of experiments, refresh public comparators.
+Search by problem identifier and challenge name without entrant names, inspect result pages
+beyond the first few entries, then cross-check target-board handles, forks and credited upstream
+projects. Record the date, queries, coverage limits, candidate pins and available judge evidence.
+A team score and an exact-file score are separate observations.
+
+For the strongest unexplained comparator, record the loads it wins, the end-to-end gap,
+and one experiment that distinguishes competing explanations. If an owned port loses while
+the comparator wins, retain the discrepancy in the queue. Inspect consumer dependencies,
+bytes actually moved and preparation/dispatch before spending another round on local tuning.
+See docs/steering/2026-11-01-discovery-and-reasoning.md for the retrieval check and limits.
+
 - Whole picture first: separate the goal from inherited choices and test one structurally
   different alternative with a budget, not only tuning.
 - Parked is not pruned: a family that lost keeps a revisit trigger in `docs/ruled-out.md`;
