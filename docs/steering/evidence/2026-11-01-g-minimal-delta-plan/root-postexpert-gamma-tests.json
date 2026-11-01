@@ -1,0 +1,18 @@
+{
+  "scope": "Root actual generated host coefficient/selector and source proof only; no CUDA device/resources/performance",
+  "argv": [
+    "/root/.cache/okc-host-validate/bin/python",
+    "-m",
+    "unittest",
+    "discover",
+    "-s",
+    "tools",
+    "-p",
+    "test_g_native_gamma_precompute.py",
+    "-v"
+  ],
+  "returncode": 0,
+  "seconds": 3.705983204000006,
+  "stdout": "",
+  "stderr": "test_actual_five_key_selector_format (test_g_native_gamma_precompute.Gamma.test_actual_five_key_selector_format) ... ok\ntest_all_finite_bf16_scalars_actual_prepare_helper (test_g_native_gamma_precompute.Gamma.test_all_finite_bf16_scalars_actual_prepare_helper) ... ok\ntest_complete_consumer_reversal_and_other_AST_unchanged (test_g_native_gamma_precompute.Gamma.test_complete_consumer_reversal_and_other_AST_unchanged) ... ok\n\n----------------------------------------------------------------------\nRan 3 tests in 0.905s\n\nOK\n"
+}

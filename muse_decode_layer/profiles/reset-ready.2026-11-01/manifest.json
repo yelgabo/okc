@@ -7,7 +7,8 @@
       "bytes": 907822,
       "repetitions": 2,
       "identical": true,
-      "dispatch_status": "Private check after fresh quota and job-ledger preflight; H200 setup unqualified"
+      "dispatch_status": "HOLD: see dated dispatch addendum; original payload source pins are historical only",
+      "historical_dispatch_status": "Private check after fresh quota and job-ledger preflight; H200 setup unqualified"
     },
     {
       "name": "short",
@@ -15,7 +16,8 @@
       "bytes": 904020,
       "repetitions": 2,
       "identical": true,
-      "dispatch_status": "Private check after fresh quota and job-ledger preflight; H200 setup unqualified"
+      "dispatch_status": "HOLD: see dated dispatch addendum; original payload source pins are historical only",
+      "historical_dispatch_status": "Private check after fresh quota and job-ledger preflight; H200 setup unqualified"
     },
     {
       "name": "verify",
@@ -24,7 +26,8 @@
       "repetitions": 2,
       "identical": true,
       "old_sha256": "195bba34415dd614733100cc4e26022fd25891fad747ee393aaac9ab4c8d4fa0",
-      "dispatch_status": "HOLD: owned51 cooperative/progress repair required"
+      "dispatch_status": "HOLD: see dated dispatch addendum; original payload source pins are historical only",
+      "historical_dispatch_status": "HOLD: owned51 cooperative/progress repair required"
     }
   ],
   "proof": {
@@ -45,5 +48,9 @@
     "dl_timeline_codec.py": "1d7ab30ff92611378b26050d5631785c5c3d78c019e8e652e4b48f772fc56b48"
   },
   "owners_override_sha256": null,
-  "eligibility_addendum": "2026-11-01-owned-verify-progress-addendum.md"
+  "eligibility_addendum": "2026-11-01-owned-verify-progress-addendum.md",
+  "dispatch_addendum_2026_11_01": {
+    "report": "docs/steering/2026-11-01-g-minimal-delta-plan.md",
+    "status": "HOLD: app goal paused; G integration priority supersedes old order; inherited common ATT7/preexpert control unqualified"
+  }
 }

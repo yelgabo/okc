@@ -1,6 +1,6 @@
 {
   "scope": "Private check only; no GPU run or scored-submission authorization from this manifest",
-  "queue_position": "After existing full-G stage and serial front checks; old owned-four-cell remains HOLD",
+  "queue_position": "HOLD: common control must qualify, then explicitly regenerate/review a new artifact and reader; old first-two reset order superseded",
   "source_bytes": 906841,
   "source_sha256": "f0426f7160768de01997b271744542ae3442d0851a1c27e586ced322a8fc6864",
   "generator": "tools/g_short_rmw_check.py",
@@ -32,5 +32,10 @@
     "Require terminal own private check13tests/12bench/12profiles/flags/guards+complete SRM_REPORT",
     "Private full-six cold-event gate >1% and2xnull all four crosses/all three banks plus context regression"
   ],
-  "no_new_GPU_job": true
+  "no_new_GPU_job": true,
+  "historical_queue_position": "After existing full-G stage and serial front checks; old owned-four-cell remains HOLD",
+  "dispatch_addendum_2026_11_01": {
+    "report": "docs/steering/2026-11-01-g-minimal-delta-plan.md",
+    "status": "HOLD: app goal paused and inherited common control unqualified; keep f042/readers frozen as historical source evidence"
+  }
 }
