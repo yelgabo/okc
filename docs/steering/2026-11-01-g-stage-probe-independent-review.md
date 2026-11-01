@@ -89,3 +89,34 @@ Before source/API clearance, review the final generated host artifact and requir
 
 Next action is final host-artifact review, then root alone decides whether to
 dispatch the bounded diagnostic. No new mechanism or quota request is proposed.
+
+## Subsequent host-draft review
+
+Inspected `g-stage-check.py` 391252 B, SHA256
+`2703fe825a3416e069698ff13b78afec3a3c7f7a88d0505367f6b64004d649a7`
+and `moe_make_g_stage_probe.py` / `moe_g_stage_body.py`. The scratch construction
+is correctly three original buffers plus an unused placeholder and trace. Mutable
+scratch/output/trace allocations are checked for storage aliasing. Instrumented
+traces are cleared before timed and decoded replays; decoding follows explicit
+replay and synchronization. Natural routing, fresh values, skew, all-remote and
+restored inputs are exercised at both128/256 with three seeds.
+
+The following were sent immediately to the owner and coordinator, so this draft
+is not yet cleared:
+
+- `_gsp_errors` tests output finiteness only. A nonfinite reference can produce
+  NaN error metrics, making both `>` rejection comparisons false. Require
+  finite reference and finite metrics, with a CPU negative test.
+- Budget checks occur before cases, but not inside the150 timed laps/case,
+  snapshot loops or after the last case. Require fail-closed inner/final guards.
+- The transport assertion allows14000 characters. Require an executed realistic
+  six-case report plus four475-word traces fixture against the confirmed retained
+  log limit; the earlier diagnostic practical budget is11KB.
+- The `.015` global parity tolerance follows the old SC6 harness but must be
+  described as layer-style parity, not the literal standalone `.008` test gate.
+  The normal official control certification remains separate.
+
+The owner explained the endpoint source-version difference as an uninstantiated
+helper's PTX predicate repair, and is rerunning endpoint/control with the exact
+current source rather than claiming those raw hashes are identical. Final CPU
+host facade/negative tests and frozen artifact identity remain outstanding.
