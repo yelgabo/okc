@@ -32,6 +32,12 @@ class AttentionTransform(unittest.TestCase):
         self.assertEqual(literal(self.original,'ATT7_CUDA_SRC'),literal(self.patched,'ATT7_CUDA_SRC'))
         self.assertEqual(self.patched.count('cfg.get("kv_scale", 1.0) != 1.0'),3)
         self.assertIn('attention_state=state, **pdl)',self.patched)
+        for name in ('qe','qo','ke','ko','v','g'):
+            self.assertIn(name+' = '+name+'.to(tl.bfloat16).to(tl.float32)',self.patched)
+        self.assertIn('o_in = (a * torch.sigmoid(gate.view(T, 16, 64).float())).to(torch.bfloat16)',self.patched)
+        self.assertIn('return _after_attention(data, state, o_in, None, T)',self.patched)
+        self.assertNotIn('ties are measure-zero',self.patched)
+
         compile(self.patched,'patched_layer','exec')
         with self.assertRaises(AssertionError):patch_attention(self.patched)
 
