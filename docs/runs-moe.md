@@ -149,6 +149,55 @@ shortcut, no routing-before-norm movement, no requantized weight cache. Prefer e
 GEMM stages over a fused MoE API that hides those boundaries. Compilation/correctness,
 nearby shapes, graph capture and speed remain entirely untested here.
 
+### Humming0.1.12 indexed integration prototype (no dispatch yet)
+
+Root capability check e30ec1bf8e8142df confirms installed Humming0.1.12. Exact release
+source inspected at `636ba85648c30ae2c2bfb335c9399593a67ecc1d` (tagv0.1.12), not the newer
+GitHub API above. **Grouped-contiguous is unsuitable for a partially filled fixed-capacity
+matrix in this release**: scheduler.cuh160 computes last expert length from shape_m, ignoring
+the final device offset. It would assign unused R=M*8 tail rows to expert31, wasting work.
+No such backend was dispatched. INDEXED instead supports device num_tokens_padded and
+sentinel masked row IDs without dynamic host sizing.
+
+`tools/prefill_humming_indexed.py BASELINE.py OUT.py` constructs only a prefill expert
+replacement and prepare extras, preserving every other baseline stage. Own Triton kernels
+count/rank local routes, construct per-GEMM padded prefixes, sorted IDs and block expert IDs.
+Caller-relative IDs0..31 are local; all others become -1 in the postnorm slot mask. Arbitrary
+device local_start remains handled by the original caller's shifted-ID expression.
+
+For each GEMM, BM comes from the explicitly passed Humming heuristic config, so metadata
+alignment matches the kernel's BlockShape::M. R=M*8; Sorted capacity is
+`(ceil(R/BM)+32)*BM`, expert-block capacity `ceil(R/BM)+32`, initialized sentinel R and
+expert0 respectively. Only blocks for actual local experts0..31 enter device NP. Every
+valid route occupies exactly one block row and retains its original route ID as write index.
+Humming scheduler.cuh139 reads NP to limit blocks; scheduler.cuh306–330 divides sorted IDs
+by top_k for input rows. loader_a.cuh108/140 masks reads by input shape_m; gmem_writer.cuh73/105
+masks output IDs by shape_m*top_k. Thus sentinelR maps to M (out of bounds) with GEMM1top_k8
+and to R with GEMM2top_k1, and is masked in both. Zero-routes produces NP0 safely without
+fake expert blocks. Partially filled final multicast tiles also have safe sentinel/expert0
+metadata. All matrices c1/c2/c3 are zeroed every call so unused nonlocal rows remain finite.
+
+GEMM1 uses BF16 x[M,4096] and BF16 output[R,8192]; unchanged SGLang silu_and_mul writes
+BF16[R,4096]; GEMM2 writes BF16[R,4096]; unchanged fused post-expert norm/weighted sum uses
+original topk weights and the filtered local slot mask. FP32 accumulation is explicit.
+Weights are loaded from original packed bits, E4M3 scales and FP32 tensor scales and only
+transformed in prepare. No activation quantization or weight requantization is introduced.
+
+Scratch is cached by metadata shape M, retaining old allocations so captured graphs remain
+valid. Every replay zeroes counts and matrix outputs and rewrites all rank/local entries and
+metadata; no input-derived answer is cached. No item()/CPU sync or input-dependent allocation
+occurs in the new experts call. Streams serialize rank->prefix->sort->GEMM stages. Distinct
+HummingLayer objects retain distinct lock buffers. Cache capacity is about4GiB at M16384,
+plus smaller per-shape buffers, not32 separate expert-capacity matrices.
+
+Generator output passes Python compilation. CPU contract oracle
+`tools/test_humming_route_contract.py` passes adversarial all-nonlocal/all-expert0/all-expert31,
+distributed and random routes under shuffled atomic order at BM16/32/64/128, verifying
+capacity, valid-route bijection, expert block ownership and sentinel bounds. This does NOT
+execute Triton or prove runtime Humming compatibility. Root requested independent source
+review before a backend check; queued replay, official correctness and cold timing remain
+required. No Humming performance or candidate promotion is claimed yet.
+
 ## Source facts (SGLang a55ab7d5, read from GitHub and hashed against the image)
 
 - `fused_post_expert_norm_weighted_sum` falls back to PyTorch ops below
