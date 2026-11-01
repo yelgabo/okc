@@ -2160,3 +2160,43 @@ L2 .00164–.00167. Bothselectedconfigs perop pass nearbyM16383 and onehot×2 pr
 Potentialpromotion is pooler/unpooler only atlargeM, after exact integratedprefill
 correctness/freshinput and wholelayerpairedscore gates; no measured aggregateprefill
 speedup exists yet. Keep qkvbaseline under preregisteredthreshold, no post-hoc lowering.
+
+### Standalone rd16 asynchronous shared ring: offline design gate
+
+User steering: ignore prefill; completed prefill tools frozen. No newprefillwork/dispatch.
+Read-only C2scored9eba96894ee1402e score reconstruction: loadtotals35.18/46.91/51.72/
+37.67/67.10/82.42us; score sensitivity.474/.355/.322/.442/.248/.202%perus.
+Pooler largest aggregate scoreelasticity32.01%, unpool22.79%,qkv22.55%. The olddonor
+pool16 -.69–.90us belongs F-PROJ0 vsrelease2265fa2; C1later improvespool16, so this is
+NOT a currentC3ceiling. Registerprefetch rd16PF1/2/3 lose+1.10/.94/.70us in1759290da58047ab.
+A cp.async sharedring is the explicit untried reopeningtrigger inruled-out; no evidence
+identifies it as currentbottleneck or covers the5.02%scoregap. Delta-table remainsdeferred:
+no same-run cgemv escape-only attribution, and dominantpoold1 actuallyselectsrd.
+
+Root approved OFFLINEsource/CPUgates only. `tools/proj_rd_ring_source.py` emits rawCUDA
+control/ring/memory-only probe variants, noGPUdispatch. Geometry fixedMT2,WR2,WK16,KU8,
+PF1,1024threads,128CTAs. Each32-thread warp'sunit1536bytes has three16Bperlane spans;
+2stage ring98,304B plus32,768B reduction (actualstaticpadding queriedlater).
+Originalmain math, XORescapeownership andfinalCTAbarrier/reduction source tails identical.
+No sharedaliaswithred, avoiding a newcrosswarp phasehandoff. Genericreads are laneprivate.
+Eachlane commits3nonoverlappingcp.async.cg16B copies/group; wait_group1 observes current
+stage among2pendinggroups, finaliterationwait_group0 drainslastgroup. Additional syncwarp
+keepsparticipatinglanes converged; copies neverreadanotherlane's genericstores. This is
+non-bulk cp.async (notTMA/wgmma asyncproxy). PTX non-bulk-copy completion specifies perthread
+commit/wait visibility; bulk-copy asyncproxy fence rules are separate:
+https://docs.nvidia.com/cuda/parallel-thread-execution/index.html#data-movement-and-conversion-instructions-cp-async-wait-group-cp-async-wait-all
+All preexisting ordering primitives retained; inlineasm memoryclobbers keepLDS before
+same-lane slotrewrite. No interthreadmainloopreader means noCTAvisibilitybarrier is needed
+there; original finalCTAbarrier still publishesall sharedreductions.
+
+CPUgate passes perthreadpendinggroup lifetimes across8stages,16Balignment, completeunique
+partition of98,304Bringbytes, fullglobal compressedunitcoverage, and unique fulloutput
+writes atM1/7/15/16. No localcompileravailable, so CUDA remainsuncompiled. Proposedactual
+resourcegate beforetiming: cudaFuncGetAttributes numRegs/local/staticshared, optin98,304B
+dynamic, cudaOccupancyMaxActiveBlocksPerMultiprocessor; require0localmemory andringblocks
+atleastcontrolblocks. Ring131KBforces1CTA/SM; ifcontrol2CTAabort. No occupancyincreasepromise.
+Changedloadplacement mightreduce live rawprefetchregistersets24→12, butactualcompilerdata
+mustdecide. AddedLDS/issue/syncwarpcost maylose; no speedupforecast. Memory-only twins keep
+loads/decode/escape via volatileasm operands whileomittingMMA; wrong-outputprobesneverpublic.
+Onepairedcheck proposal needsrootreview beforedispatch, withcurrentC3control,independent
+buildnulls,FP64/probes/freshinputs andfull weightedscoreimpact. No registercap sweep.
