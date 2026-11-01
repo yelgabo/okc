@@ -1,6 +1,6 @@
 {
-  "reviewed_at": "2026-11-01T12:45:00-07:00",
-  "snapshot": "08d336a",
+  "reviewed_at": "2026-11-01T13:47:00-07:00",
+  "snapshot": "e1adc0e",
   "family_registry_update": {
     "date": "2026-10-30",
     "evidence_snapshot": "7a5965531103f275ac104d340ef30f1508e32353",
@@ -11,7 +11,7 @@
     "score": "2.1261×",
     "interval": "2.0942–2.1580",
     "job": "607eb52bdaf24160",
-    "note": "The retained G1b4 stage-release layer passed 13 official tests and 56 private replays. The matched six-load layer comparison is pending."
+    "note": "G1b4 retains the verified score. Public four-cell job 1fad70bbe3854cbc was accepted. Its terminal result is unknown during service maintenance."
   },
   "families": [
     {
@@ -24,7 +24,7 @@
       "summary": "Position map, token locality, multiply decoder and direct/cached band32 variants fail their gates. Owned hybrid baseline retained.",
       "layer": "Earlier owned layer tests combine M1 and mode 51. The current retained layer belongs to G.",
       "pending": [],
-      "limit": "Cached band32 improves over the failed direct schedule but loses against original. New scheduling work needs distinct measured opportunity.",
+      "limit": "The historical skinny and main47 paths need launch-progress qualification. Both disabled repairs failed the local no-new-spill gate before H200 timing.",
       "source": "runs-decode-layer.md",
       "outcomes": [
         "win",
@@ -143,9 +143,9 @@
       "summary": "All ten targets ran slower than archived C2. Stage-local scored 1.4191× versus C2 at 1.5278× across separate runs."
     },
     {
-      "name": "Four-cell verify hybrid",
-      "label": "Source fits • H200 qualification pending",
-      "summary": "The repaired 952,309-byte production core fits. Cooperative launch and fatal-timeout handling still need H200 validation. The private four-cell diagnostic is on hold."
+      "name": "Four-cell public verify measurement",
+      "label": "Accepted • outcome unknown",
+      "summary": "Status retrieval for 1fad70bbe3854cbc returned HTTP 530. Its 128/256-token verify results require the terminal receipt. The private diagnostic remains on hold."
     },
     {
       "name": "G stage and short-path studies",

@@ -1,6 +1,6 @@
 # Architecture performance tracker
 
-Last review: 2026-11-01 12:45 MST. Evidence snapshot: `08d336a`.
+Last review: 2026-11-01 13:47 MST. Evidence snapshot: `e1adc0e`.
 First review reconciles progress since `aab7d75`, the snapshot in the
 [architecture-family guide](architecture-families-2026-10-29.md).
 This is a review of recorded experiments, not a new benchmark run.
@@ -12,13 +12,30 @@ named control, not changes in aggregate score. Families overlap; their gains can
 
 | Family | Current result | What has actually been measured | Visibility gap |
 |---|---|---|---|
-| A. Hybrid persistent/legacy MoE | Retained owned baseline; new variants fail gates | Position map, token locality, multiply decoder, direct band32 and cached band32 fail their aggregate/regression gates. | Cached schedule recovers direct-band overhead but fails against original. Physical traffic opportunity remains open. |
+| A. Hybrid persistent/legacy MoE | Retained owned baseline; new variants fail gates | Position map, token locality, multiply decoder, direct band32 and cached band32 fail their aggregate/regression gates. | Cached schedule recovers direct-band overhead but fails against original. Physical traffic opportunity remains open. Historical standalone skinny/main47 progress remains unqualified. Both disabled repairs failed the compiler spill gate. |
 | B. Staged grouped MoE | New masked library schedule loses | GROUPED_MASKED versus51 loses about 145-235 us across 128/256 layer/std cases, with math checks passing. Earlier45+46 losses remain. | Failure is scoped to tested library schedule; two GEMMs already exceed owned whole-call time in the profiled256 case. |
 | C. Owner-completes tiles | Earlier ownership gains retained | The complete private VP2 design wins its eight-token sliding cell. Both owned cluster implementations previously lost. | The comparison leaves the contribution of output ownership unresolved. |
 | D. Dependency-aware scheduling | Dynamic claiming retained; new phase-A claim layouts lose | Phase-A modes 62/63 and K=0 controls 66/69 lose; lean claimed mode 68 is not timed. Earlier split-tail 52/53 losses stand. | Full ready-only queue remains untested. Reopen phase-A claims only after the no-work control ties mode 51 within 1 us at 128/256. |
 | E. Attention producer-consumer pipeline | Private VP2 cell win, six-load gate failed | VP2 took 10.168 µs versus 10.784 µs for the owned control on eight-token sliding attention. All three held-outs missed the full-score gate. | The historical owned QK2 and wait-probe limits still apply. VP2 only changes the eight-token target. |
 | F. Donor-based baseline/hybrid | Historical alygg77 measurement track | Prior F comparisons and owned C3 router gains remain recorded. Two new QKV128 variants lose despite correctness/resource passes. | G has a separate attributed-fork policy. Projection C2 remains best scored, with C3 paired component wins retained. |
-| G. Attributed keell0renz layer fork | Retained scored layer2.126083x | Repaired SC6 stage retirement has matched component factors1.018493-1.028699; integrated G1b4 stage file passes13 official tests. | Matched six-load layer stage comparison remains queued. The verify hybrid fits the byte limit and awaits H200 progress qualification. |
+| G. Attributed keell0renz layer fork | Retained scored layer2.126083x | Repaired SC6 stage retirement has matched component factors1.018493-1.028699; integrated G1b4 stage file passes13 official tests. | Matched six-load layer stage comparison remains queued. Public four-cell job 1fad70bbe3854cbc was accepted. Terminal result unavailable during maintenance. |
+
+## November 1 review at 13:47 Vancouver time
+
+**The four-cell verify candidate reached H200 dispatch. Its outcome is unknown.** The service accepted public job `1fad70bbe3854cbc` from source `43c6c09` and reported it running. The 980,787-byte single-arm file selects the owned backend for 128- and 256-token verify, in both sliding and full contexts. The remaining cells use G. A local status wait expired after 1,100 seconds. Subsequent requests for the same job and the job list returned HTTP 530 during maintenance. The archive contains no terminal receipt, timings, correctness verdict, confidence interval or runtime resource counts. The private four-cell comparison is a separate held job plan. [Dispatch](https://github.com/yelgabo/okc/blob/e1adc0e/muse_decode_layer/profiles/g1-owned-verify.1fad70bbe3854cbc.dispatch.json) · [Last status response](https://github.com/yelgabo/okc/blob/e1adc0e/docs/steering/evidence/2026-11-01-reset-operational-root/maintenance-final-status.json) · [Handoff](https://github.com/yelgabo/okc/blob/e1adc0e/docs/steering/2026-11-01-maintenance-and-progress-handoff.md)
+
+**Family A has a new qualification gap.** Historical standalone MoE job `abe7651dbaa44458` scored 2.215712×. Its selected skinny and main47 kernels use software grid joins under ordinary launches, with a watchdog that can return before readiness. The separate disabled cooperative-launch repair passed five host tests. On local CUDA 12.8, main47 spill stores/loads rose from 12/112 bytes to 16/128 bytes. Skinny stayed at zero. Both termination variants failed the no-new-spill rule before GPU qualification. The measured A-versus-B comparisons at 128/256 still stand, while reuse of the historical A file requires separate progress qualification. The C2 projection audit found CTA-local waits or checked cluster launches on its selected custom paths. [Standalone audit](https://github.com/yelgabo/okc/blob/e1adc0e/docs/steering/2026-11-01-historical-moe-progress-gap.md) · [Compiler comparison](https://github.com/yelgabo/okc/blob/e1adc0e/docs/steering/2026-11-01-standalone-progress-off-prototype.md) · [C2 audit](https://github.com/yelgabo/okc/blob/e1adc0e/docs/steering/2026-11-01-c2-projection-progress.md)
+
+**The G0 integration gap remains open.** Earlier independent jobs `3a5f879df0d44825` (upstream G0, 2.248791×) and `607eb52bdaf24160` (retained G, 2.126083×) differ by 5.77% in score. The largest relative latency differences occur at one-token decode and eight-token verify. Different routing, inputs, baseline times and bundled repairs limit attribution. The next distinguishing evidence is a matched short-path comparison. [Receipt reconstruction and repair inventory](https://github.com/yelgabo/okc/blob/e1adc0e/docs/steering/2026-11-01-g0-607e-integration-gap.md)
+
+| Tokens | G0 weighted latency | Retained G weighted latency | Retained minus G0 |
+|---|---:|---:|---:|
+| 128 | 258.671 µs | 269.347 µs | +10.676 µs (+4.13%) |
+| 256 | 350.797 µs | 359.297 µs | +8.500 µs (+2.42%) |
+
+Each row uses sliding and full adjusted medians with weights 46 and 16, one official run per file. The score CIs are 2.215059–2.282522 for G0 and 2.094191–2.157974 for retained G. No matched-effect CI is available. [Underlying records](https://github.com/yelgabo/okc/blob/e1adc0e/docs/steering/evidence/2026-11-01-g-integration-gap/cross-job-gap.json)
+
+The coordinator’s reset plan requires recovery of the accepted job’s terminal receipt and a live quota check before another dispatch. The registered six-load G stage comparison and the fixed-routing short-path trace retain priority. [Reset conditions](https://github.com/yelgabo/okc/blob/e1adc0e/docs/steering/2026-11-01-maintenance-and-progress-handoff.md)
 
 ## November 1 review at 12:45 Vancouver time
 
@@ -2325,6 +2342,7 @@ paired differences.
 | Owned global sparse-XOR projection, coverage context | Archived C2, independent run | Sum of five adjusted medians +1.496 µs (+2.23%) | Sum +1.654 µs (+2.01%) | `2b537518091248f1`. Both sizes use C2 paths. Only the ten target cells at 8/16/32 exercised sparse XOR. [Cell records](https://github.com/yelgabo/okc/blob/fa8173a/docs/steering/evidence/2026-11-01-sk-xor-release-terminal/rows30.csv). |
 | Private VP2 attention, coverage context | Matched BF16-output owned controls | Existing owned path | Existing owned path | `c79ddddb840a4fb7`. Only eight-token sliding attention exercised VP2. [Full-score result](https://github.com/yelgabo/okc/blob/fa8173a/docs/steering/2026-11-01-attention-vp2-bf16-terminal.md). |
 | Stage-local XOR coverage | Archived C2, sum of five adjusted medians | +1.140 µs (+1.70%) | +1.117 µs (+1.35%) | Cross-run observations on unchanged paths. Only the 8/16/32 targets used sparse XOR. [Cell records](https://github.com/yelgabo/okc/blob/08d336a/docs/steering/evidence/2026-11-01-projection-stage-xor-terminal/rows30.csv). |
+| Retained G versus upstream G0 | Earlier independent official runs | +10.676 µs (+4.13%) | +8.500 µs (+2.42%) | Weighted verify latency. Cross-run reconstruction of existing jobs, no isolated repair timing. [Source records](https://github.com/yelgabo/okc/blob/e1adc0e/docs/steering/evidence/2026-11-01-g-integration-gap/cross-job-gap.json). |
 
 
 ## Small-token results and rejected changes
@@ -2381,7 +2399,7 @@ remains untested. Further scheduling work needs a distinct mechanism and measure
 The G lineage has an approved attributed-fork policy, while F retains its alygg77 history.
 The retained G1b4 layer includes stage retirement. Its matched gain was measured in standalone MoE. The next registered check compares
 G control and stage candidates across six loads with matched natural routing and independent
-controls. The prepared short-path trace requires low-distortion rows. The expanded four-cell verify diagnostic still needs H200 linking, preparation and oracle validation. The repaired production core fits. Its cooperative launch and fail-closed waits still need H200 qualification.
+controls. The prepared short-path trace requires low-distortion rows. The expanded four-cell verify diagnostic still needs H200 linking, preparation and oracle validation. The 980,787-byte public startup qualifier was accepted as job 1fad70bbe3854cbc. Recover its terminal receipt before drawing an H200 conclusion.
 
 Historical owned attention requires the documented intermediate BF16 repair before reuse.
 The new QK2 and wait studies use repaired controls. The attention and G detail observers
@@ -2393,6 +2411,8 @@ Prefill remains deferred. The final recorded campaign goal remains unmet.
 [Family G qualification](https://github.com/yelgabo/okc/blob/af3b550/docs/steering/2026-11-01-family-g-qualification.md).
 
 ## Review history and checkpoint
+
+- 2026-11-01 13:47 Vancouver time. Reviewed `08d336a..e1adc0e`, including the dispatch and final maintenance status for `1fad70bbe3854cbc`. 18 untracked local receipts already appear in the ledgers. The G0 comparison reuses two historical receipts.
 
 - 2026-11-01 12:45 MST (America/Vancouver). Local checkout `1f0b7dd`. Reviewed `fa8173a..08d336a`, including terminal projection job `dfcfdd01d6f04525`, the progress audit and the 19:38 UTC reset evidence. Historical untracked receipts were already logged.
 
