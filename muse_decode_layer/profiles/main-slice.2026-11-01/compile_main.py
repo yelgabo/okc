@@ -1,8 +1,8 @@
 """WSL CPU-only NVRTC12.8/PTXAS sm90a gate. No CUDA driver or GPU execution.
 
-Adapted from owned tools/local_cuda128_compile.py NVRTC driver. Owned MoE math
-is retained up to host Instance, Torch/ATen/host-only standard headers removed,
-cuda_runtime/stdint declarations supplied; no host/API or GPU execution proof.
+Adapted from tools/local_cuda128_compile.py. Device functions stay intact.
+Torch/ATen includes and unused host launch wrappers are removed, with CUDA
+runtime/stdint declarations supplied. This does not test host linking or GPU execution.
 """
 import argparse
 import ctypes as C
