@@ -5268,3 +5268,16 @@ withdrawn (see docs/context.md). The board entry was then da9225e4f89441fc (2.00
 The losers of the fused-kernel runs are in `docs/ruled-out.md` under muse_moe_w4a16.
 
 Losers from these runs are in docs/ruled-out.md.
+
+
+## Controlled standalone SC6 / byte scales, 2026-11-01
+
+Evidence7886294, private frozen file SHA54d819e6482aaaa16c8a4e6d38f60e1e98b044b8888120f40b5ab7f3bccfb4cf.
+Check05e51ddeb7014dd9 dispatched on muse_moe_w4a16, pending. Real supplied256-expert
+weights/global IDs; four private mutable scratch states, byte/byte/SC6/SC6; all six
+loads and seeds901/902. Common repaired BF16/fences/cooperative launch, MFIN/DFoff,
+empty scheduler guard. Private attributed comparator only, no public submit.
+Preregistered1% whole-six-load BOTHpaired ratios plus2x bothduplicate null, per-case
+regression <=max(.5us,1%), official math/fresh replay/empty/resource gates.
+Independent today_proj source/host clearance on exactfile,2source+4TorchCPUtestsPASS.
+Full registration: docs/steering/2026-11-01-moe-sc6-controlled.md.
