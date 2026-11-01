@@ -2200,3 +2200,21 @@ mustdecide. AddedLDS/issue/syncwarpcost maylose; no speedupforecast. Memory-only
 loads/decode/escape via volatileasm operands whileomittingMMA; wrong-outputprobesneverpublic.
 Onepairedcheck proposal needsrootreview beforedispatch, withcurrentC3control,independent
 buildnulls,FP64/probes/freshinputs andfull weightedscoreimpact. No registercap sweep.
+
+Bounded rd16ring check `b103af15ba564ef6` dispatched afterrootreview. Generator
+`tools/proj_make_bench_rd_ring.py`; unchangedC3judgedpath. Actualresourcegatebeforetiming,
+2independentbuilds+immutablepacks,old/old2/ring/ring2 separateoutputs; prodcontrol.
+M1/7/15/16 random+onehotFP64fullKsampledoutputrows andwholebaselineL2<.005; all4fullarms
+plusprodM16 freshcapturedreplay2values. Wrongoutputmemorytwins excludedfromcorrectness/
+promotion. Twoheldouts×100randomcoldrounds. Preregistered meaningfulgain max(.3us,2nullMAD),
+>=90/100faster onbothheldouts/builds, allcomputingchecksrequired. 280spreparedeadline;
+resource/deadlinefailure printsSKIP andreturnsvalidunchangedC3, notmissingcasepromotion.
+
+Ordering proof refined: PTX8.7 §8.9.1.1 states asyncoperations (includingallcp.asyncvariants)
+are orderedafterpriorinstructions in sameissuingthread (wgmmaexceptiondoesnotapply).
+This orders eachlane's ordinaryLDS beforeitsownnextnonbulkcp.asyncstore; asm memoryclobber
+preservescompilerorder. §9.7.9.25.3.3 wait_group completionmakescopywritesvisible tosame
+thread fornextLDS. Threecopies/group destinations disjoint; consecutivegroupssame-slot
+reuse occursaftercompletedoldgroup/LDS. No interthreadringreader, so no extraCTAvisibility
+handoff andnoTMA/wgmmaasyncproxyfenceclaim. OriginalfinalCTAbarrierunchanged.
+[PTX8.7 asynchronousoperations](https://docs.nvidia.com/cuda/archive/12.8.0/parallel-thread-execution/index.html#asynchronous-operations).
