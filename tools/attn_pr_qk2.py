@@ -95,15 +95,25 @@ def build(control_path, output_path, harness_root):
     head, sep, _ = runner.rpartition('\nimport os as _os\n'); assert sep
     oracle = 'out = _ob_rms(out) * torch.sigmoid(gate.float()).view(batch, length, hq, d)'
     assert head.count(oracle) == 1
-    head = head.replace(oracle, 'out = _ob_rms(out.to(torch.bfloat16)) * torch.sigmoid(gate.float()).view(batch, length, hq, d)')
+    helper_tree = ast.parse(head)
+    reference = ast.get_source_segment(head, next(n for n in helper_tree.body if isinstance(n, ast.FunctionDef) and n.name == '_ob_reference'))
+    check = ast.get_source_segment(head, next(n for n in helper_tree.body if isinstance(n, ast.FunctionDef) and n.name == '_ob_check'))
+    # Keep _ob_reference/_ob_check as the literal unrounded judge-style oracle.
+    # Separately test the baseline's BF16-before-RMS numerical contract.
+    baseline_reference = reference.replace('def _ob_reference(', 'def _q2_baseline_reference(').replace(oracle,
+        'out = _ob_rms(out.to(torch.bfloat16)) * torch.sigmoid(gate.float()).view(batch, length, hq, d)')
+    baseline_check = check.replace('def _ob_check(', 'def _q2_baseline_check(').replace('_ob_reference(', '_q2_baseline_reference(')
     common = resource_source(patched)
     # Compile this exact common BF16 boundary for both local off/on analyses.
     Path(str(output_path) + '.device.cu').write_text(ast.literal_eval(_assignment(common, '_ONE_SRC').value), encoding='utf-8')
     # The judged function remains the original control. Diagnostic
     # modules execute one embedded owned body under distinct extension names.
     body = (Path(__file__).parent / 'attn_pr_qk2_body.py').read_text(encoding='utf-8')
-    result = ('import time as _q2_time\n_Q2_IMPORT_STARTED = _q2_time.monotonic()\n' + common
-              + '\n_Q2_STARTED_SOURCE = ' + repr(common) + '\n' + head + '\n' + body)
+    first, rest = common.split('\n', 1)
+    assert first == '# okc: problem=muse_attention_decode'
+    result = (first + '\nimport time as _q2_time\n_Q2_IMPORT_STARTED = _q2_time.monotonic()\n' + rest
+              + '\n_Q2_STARTED_SOURCE = ' + repr(common) + '\n' + head + '\n'
+              + baseline_reference + '\n' + baseline_check + '\n' + body)
     ast.parse(result)
     assert len(result.encode()) < 1_000_000
     output_path.write_text(result, encoding='utf-8', newline='\n')

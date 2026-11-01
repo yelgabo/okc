@@ -21,10 +21,13 @@ def _q2_copy(dst, src):
 
 
 def _q2_math(data, out):
-    # Existing judge-style independent FP32 references include actual stored new
-    # KV and official output/row/cache limits. No candidate-fitted tolerance.
+    # Judge reference intentionally uses FP32 decoded attention before RMS.
+    # Baseline parity separately rounds that activation to BF16 before RMS.
+    # Both use actual stored new KV and fixed output/row/cache tolerance policy.
     okay, message = _ob_check(data, out)
-    assert okay, ('Q2 official math', message)
+    assert okay, ('Q2 unrounded judge math', message)
+    okay, message = _q2_baseline_check(data, out)
+    assert okay, ('Q2 BF16 baseline math', message)
     assert bool(torch.isfinite(out).all()), 'Q2 nonfinite'
 
 

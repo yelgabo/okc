@@ -79,19 +79,24 @@ class HostTests(unittest.TestCase):
         self.ns['_ob_check']=lambda data,out:(False,'deliberate negative')
         with self.assertRaises(AssertionError):self.ns['_q2_math']({},t.ones(1))
         self.ns['_ob_check']=lambda data,out:(True,'')
+        self.ns['_q2_baseline_check']=lambda data,out:(False,'baseline negative')
+        with self.assertRaises(AssertionError):self.ns['_q2_math']({},t.ones(1))
+        self.ns['_q2_baseline_check']=lambda data,out:(True,'')
         with self.assertRaises(AssertionError):self.ns['_q2_math']({},t.tensor([float('nan')]))
 
     def test_actual_oracle_bf16_boundary_and_negative(self):
         t=self.torch
         generated=(ROOT/'.build/attn_pr_qk2.py').read_text(encoding='utf-8')
         tree=ast.parse(generated)
-        nodes=[n for n in tree.body if isinstance(n,ast.FunctionDef) and n.name in ('_ob_rms','_ob_reference')]
+        self.assertTrue(generated.startswith('# okc: problem=muse_attention_decode\n'))
+        nodes=[n for n in tree.body if isinstance(n,ast.FunctionDef) and n.name in ('_ob_rms','_ob_reference','_q2_baseline_reference')]
         ns={'torch':t,'FP8':t.float8_e4m3fn,'RMS_EPS':1e-5}
         exec(compile(ast.Module(body=nodes,type_ignores=[]),'<actual-oracle>','exec'),ns)
-        src=ast.unparse(next(n for n in nodes if n.name=='_ob_reference'))
+        src=ast.unparse(next(n for n in nodes if n.name=='_q2_baseline_reference'))
         self.assertIn('_ob_rms(out.to(torch.bfloat16))',src)
-        negative=src.replace('def _ob_reference(', 'def _old_reference(').replace('_ob_rms(out.to(torch.bfloat16))','_ob_rms(out)')
-        exec(negative,ns)
+        judge=ast.unparse(next(n for n in nodes if n.name=='_ob_reference'))
+        self.assertIn('_ob_rms(out)',judge)
+        self.assertNotIn('_ob_rms(out.to(torch.bfloat16))',judge)
         gen=t.Generator().manual_seed(711)
         data={'qkv':t.randn((1,1,2304),generator=gen).to(t.bfloat16),
               'seq_lens':t.tensor([3]),'page_table':t.arange(4)[None,:],
@@ -102,8 +107,8 @@ class HostTests(unittest.TestCase):
                             qk_scale_factor=5.4730064863875,sm_scale=.125,page_size=1,window=0,rope_theta=0.)}
         newkv=tuple(t.randn((1,1,2,64),generator=gen).to(t.float8_e4m3fn).float() for _ in range(2))
         for query_fp8 in (False,True):
-            actual=ns['_ob_reference'](data,query_fp8,newkv)
-            old=ns['_old_reference'](data,query_fp8,newkv)
+            actual=ns['_q2_baseline_reference'](data,query_fp8,newkv)
+            old=ns['_ob_reference'](data,query_fp8,newkv)
             self.assertTrue(t.isfinite(actual).all())
             self.assertGreater(float((actual-old).abs().max()),1e-4)
 

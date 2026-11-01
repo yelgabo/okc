@@ -7,6 +7,6 @@ test_private_inputs_and_complete_copy (__main__.HostTests.test_private_inputs_an
 test_exact_scope_and_abi (__main__.SourceTests.test_exact_scope_and_abi) ... ok
 
 ----------------------------------------------------------------------
-Ran 5 tests in 0.917s
+Ran 5 tests in 0.978s
 
 OK
