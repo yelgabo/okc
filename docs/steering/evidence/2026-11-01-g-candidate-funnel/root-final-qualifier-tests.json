@@ -1,0 +1,18 @@
+{
+  "scope": "Root actual generated prepare facade; CUDA/native math/capture execution are explicit stand-ins, not H200 qualification",
+  "argv": [
+    "/root/.cache/okc-host-validate/bin/python",
+    "-m",
+    "unittest",
+    "discover",
+    "-s",
+    "tools",
+    "-p",
+    "test_g_common_release_host.py",
+    "-v"
+  ],
+  "returncode": 0,
+  "seconds": 10.58370798,
+  "stdout": "",
+  "stderr": "test_actual_marlin_adapter_fallback_is_preserved_unexercised (test_g_common_release_host.Startup.test_actual_marlin_adapter_fallback_is_preserved_unexercised) ... ok\ntest_caught_native_failure_and_actual_metadata (test_g_common_release_host.Startup.test_caught_native_failure_and_actual_metadata) ... ok\ntest_complete_actual_orchestration_both_fixed_arms (test_g_common_release_host.Startup.test_complete_actual_orchestration_both_fixed_arms) ... ok\ntest_fixed_arm_flag_and_fatal_cuda (test_g_common_release_host.Startup.test_fixed_arm_flag_and_fatal_cuda) ... ok\ntest_reference_output_cache_and_guard_negatives (test_g_common_release_host.Startup.test_reference_output_cache_and_guard_negatives) ... ok\ntest_resource_owner_and_budget_failures (test_g_common_release_host.Startup.test_resource_owner_and_budget_failures) ... ok\ntest_stale_empty_capture_and_model_capture (test_g_common_release_host.Startup.test_stale_empty_capture_and_model_capture) ... ok\n\n----------------------------------------------------------------------\nRan 7 tests in 8.050s\n\nOK\n"
+}

@@ -1,0 +1,69 @@
+{
+  "kind": "single_fixed_arm_startup_gated_measurement",
+  "independent_performance_candidates": 1,
+  "candidate_path": "muse_decode_layer/cand/g1b4_common_short_rmw_release.py",
+  "source_bytes": 914572,
+  "source_sha256": "97935e7dc45d9fa69f5b4965bd70a5c2946cd8b829cedffb7a2aefc598cb53c7",
+  "generator": "python tools/g_common_release.py ROOT OUTPUT --arm short-rmw",
+  "common_control_sha256": "4e3895be33d3d8f60670b4e8138eb09654ddc6d64aa930170dc89cc3f019d270",
+  "common_control_bytes": 914084,
+  "leaf_RMW_common_input_sha256": "2884adb6d0d6947391c81cd67a0c727a04e7d41694d7c780cf8cee80dfa9dbcd",
+  "source_review_root_commits": [
+    "e515134",
+    "a88d6e0",
+    "fe772ed",
+    "4de9770"
+  ],
+  "source_review_owner_commits": [
+    "1142844",
+    "000ee51",
+    "e6c6c34",
+    "45a6c82"
+  ],
+  "root_cpu_facade_tests": 7,
+  "local_source_host_readiness": true,
+  "H200_qualified": false,
+  "dispatch_allowed_now": false,
+  "current_blockers": [
+    "explicit app goal pause",
+    "accepted1fad outcome/live ledger/quota must be reconciled"
+  ],
+  "private_check_required_before_authorized_singlearm_measurement": false,
+  "prior_separate_common_GPU_run_required": false,
+  "requires_own_terminal_success": true,
+  "required_official_counts": {
+    "tests": 13,
+    "benchmarks": 12,
+    "profiles": 12
+  },
+  "required_native_startup_counts": {
+    "cells": 12,
+    "checks": 72,
+    "captures": 12,
+    "fresh_checked": 36,
+    "empty_checks": 60,
+    "empty_captures": 12,
+    "restored": 48
+  },
+  "requires_actual_native_expert_and_RMW_exercise_for_attribution": true,
+  "fallback": "Original Marlin adapter/bank/state retained; explicit UNEXERCISED/rmw0, not native72 coverage",
+  "regeneration_dependency_normalized_sha256": {
+    "g_common_release.py": "da75449ac7d6de9a00261802927f867b138eda724175e20b0fab0c28a39c1fbe",
+    "g_common_release_attn.py": "d31bfeea1fd591c5798e1056a50819b3cf9de72bd27fdce2ce6ec194597738ed",
+    "g_common_release_body.py": "80218b4c2886c86bfd14f566655cec8722113cb57d1ff5630cc506c317ed179c",
+    "g_integration_rmw_release.py": "7fcb9d306d046a12bf540f8f78862dbe71ce6b343fd2c251fedeed8e182f65c3",
+    "g_integration_common.py": "78447f9aa9b59084601456fd84016ee3a3f94a461354bd312dc0b9ab3b8fd092",
+    "g_short_final_rmw.py": "cf613c75b81951bafef77798fc39ae5ad6daa53af0c205ba3a2da1a75a36d2e6",
+    "attention_g_cooperative_host.py": "f5c58db2ac5b15e140ab8d73627e478afc0e1632af2cfe983c79fc499f57d034",
+    "proj_g_preexpert_gamma.py": "d0d53f5ff24165219e007d524210fac5e9b976bf7c31b98e3491bf087ea08d7f",
+    "prod_size_qualify.py": "0839a5cab64b031cc9257632b59b68c14221520e2a70e9857b48af85459a9bb3",
+    "prod_size_qualify_body.py": "75825a14d0ec841936687706bae32d63dd306cd7a84b59795c5ce3841ae69dca",
+    "dl_g1_layer_owners.py": "41c13eabb542e4e182e4ea1b4109ee72ea4a95e43c5fe777aa362ee422b1df5f",
+    "dl_make_bench_pub.py": "36fc43453b74e55d968f390ca2c7b5c70b1b7711d7be1f2047a9926e627d0504"
+  },
+  "no_new_GPU_job": true,
+  "latency_measurements": null,
+  "official_score": null,
+  "paired_causal_effect": null,
+  "report": "docs/steering/2026-11-01-g-candidate-funnel-qualification.md"
+}
