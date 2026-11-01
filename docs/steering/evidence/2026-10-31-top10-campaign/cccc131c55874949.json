@@ -1,0 +1,16 @@
+{
+  "board": "muse_attention_decode",
+  "call_id": "kc-cccc131c55874949",
+  "cluster": "sfo3",
+  "content_hash": "27d3fb8ec44bca825ab3abb512bf63e6b92743a359aa499c33e115c9dea6e922",
+  "created_at": 1793509695.8937678,
+  "dedicated": false,
+  "duplicate_of": null,
+  "id": "cccc131c55874949",
+  "mode": "run",
+  "payload_ref": "muse_attention_decode/27d3fb8ec44bca825ab3abb512bf63e6b92743a359aa499c33e115c9dea6e922.py",
+  "result": null,
+  "started_at": 1793509702.8979955,
+  "status": "running",
+  "team": "yelgabo"
+}

@@ -1,0 +1,16 @@
+{
+  "board": "muse_bf16_proj",
+  "call_id": "kc-075dc89d74d144d6",
+  "cluster": "sfo3",
+  "content_hash": "a193a831abe67a00b258fcc94d6a22fa18ee9afb194a841a1234449e65835cb0",
+  "created_at": 1793509655.240798,
+  "dedicated": false,
+  "duplicate_of": null,
+  "id": "075dc89d74d144d6",
+  "mode": "check",
+  "payload_ref": "muse_bf16_proj/a193a831abe67a00b258fcc94d6a22fa18ee9afb194a841a1234449e65835cb0.py",
+  "result": null,
+  "started_at": 1793509664.2406394,
+  "status": "running",
+  "team": "yelgabo"
+}
