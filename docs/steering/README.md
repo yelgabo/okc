@@ -1,5 +1,7 @@
 # Shared project steering
 
+Latest retained projection eligibility: [C2 progress scope](2026-11-01-c2-projection-progress.md) - active SK/RD waits are CTA-local; WD and RT use checked explicit cluster launches. No whole-grid residency defect found in selected custom paths; no GPU or production changes.
+
 Latest single-arm layer qualifier: [Repaired full-four-cell startup checks](2026-11-01-production-startup-qualifier.md) - exact4ad326c3/980787 B, normal timed path unchanged, private full-model/fresh/cache/empty/resource gates prepared and CPU-reviewed. H200 correctness, admission, setup and performance remain unmeasured; root-only official decision.
 
 Latest production size milestone: [Transparent comment-only hybrid fit](2026-11-01-production-comment-fit.md) - mask4 907642 B and mask15 951539 B fit with notices/anchors retained and actual source-factory/local selected compiler equivalence. Inherited owned progress contract blocks GPU/public readiness; separate repair and full runtime gates remain required.
