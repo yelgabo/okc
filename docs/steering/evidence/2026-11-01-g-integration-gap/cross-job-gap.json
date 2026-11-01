@@ -1,0 +1,239 @@
+{
+  "source_receipts": {
+    "G0": {
+      "path": "muse_decode_layer/profiles/muse_decode_layer.3a5f879df0d44825.json",
+      "sha256": "2307242ab66177b59f7cf5168098093415a1a01f8a5bac6835064bc514212408",
+      "job": "3a5f879df0d44825",
+      "score": 2.2487905322335195,
+      "CI": [
+        2.2150586742500167,
+        2.282522390217022
+      ]
+    },
+    "G1": {
+      "path": "muse_decode_layer/profiles/scored.607eb52bdaf24160.json",
+      "sha256": "c641ede77cd5cd560b8df7ad2787d706654ebca7b9a63fa2bc49c1b9f6e00029",
+      "job": "607eb52bdaf24160",
+      "score": 2.1260826764231098,
+      "CI": [
+        2.0941914362767626,
+        2.1579739165694556
+      ]
+    }
+  },
+  "rows": [
+    {
+      "load": "decode 1",
+      "layer": "sliding",
+      "G0_adjusted_us": 66.35249414906673,
+      "G1_adjusted_us": 76.74810129226927,
+      "G0_raw_us": 68.49600002169609,
+      "G1_raw_us": 81.02400228381157,
+      "G0_baseline_us": 171.79200192913413,
+      "G1_baseline_us": 170.67200224846601,
+      "latency_change_percent": 15.667243977065738,
+      "G0_seed": 8286697271054136343,
+      "G1_seed": 2594116087711408936
+    },
+    {
+      "load": "decode 1",
+      "layer": "full",
+      "G0_adjusted_us": 73.52659258610663,
+      "G1_adjusted_us": 83.72675745456237,
+      "G0_raw_us": 79.6000026166439,
+      "G1_raw_us": 86.64000034332275,
+      "G0_baseline_us": 182.1119962260127,
+      "G1_baseline_us": 180.8159970678389,
+      "latency_change_percent": 13.872756114069041,
+      "G0_seed": 8286943481265429916,
+      "G1_seed": 2594202932468765874
+    },
+    {
+      "load": "decode 16",
+      "layer": "sliding",
+      "G0_adjusted_us": 130.18737489708104,
+      "G1_adjusted_us": 138.66071382597238,
+      "G0_raw_us": 132.62400031089783,
+      "G1_raw_us": 139.8720070719719,
+      "G0_baseline_us": 268.303990829736,
+      "G1_baseline_us": 267.0559878461063,
+      "latency_change_percent": 6.508571922269635,
+      "G0_seed": 8287189691476723490,
+      "G1_seed": 2594289777226122813
+    },
+    {
+      "load": "decode 16",
+      "layer": "full",
+      "G0_adjusted_us": 205.8015473549966,
+      "G1_adjusted_us": 214.53435984694036,
+      "G0_raw_us": 210.704006254673,
+      "G1_raw_us": 218.56000274419785,
+      "G0_baseline_us": 437.92000599205494,
+      "G1_baseline_us": 435.55201310664415,
+      "latency_change_percent": 4.243317217085907,
+      "G0_seed": 8287435901688017065,
+      "G1_seed": 2594376621983479753
+    },
+    {
+      "load": "decode 32",
+      "layer": "sliding",
+      "G0_adjusted_us": 152.17241208225775,
+      "G1_adjusted_us": 154.82044500163073,
+      "G0_raw_us": 155.8080017566681,
+      "G1_raw_us": 157.76000171899796,
+      "G0_baseline_us": 275.6640105508268,
+      "G1_baseline_us": 264.30400367826223,
+      "latency_change_percent": 1.7401530823744737,
+      "G0_seed": 8287682111899310641,
+      "G1_seed": 2594463466740836694
+    },
+    {
+      "load": "decode 32",
+      "layer": "full",
+      "G0_adjusted_us": 301.54056615077025,
+      "G1_adjusted_us": 297.8826968304272,
+      "G0_raw_us": 305.87200820446014,
+      "G1_raw_us": 312.3199939727783,
+      "G0_baseline_us": 624.7360049746931,
+      "G1_baseline_us": 624.4479953311384,
+      "latency_change_percent": -1.2130604406022427,
+      "G0_seed": 8287928322110604218,
+      "G1_seed": 2594550311498193636
+    },
+    {
+      "load": "verify 1",
+      "layer": "sliding",
+      "G0_adjusted_us": 100.60625839685392,
+      "G1_adjusted_us": 115.43186043519749,
+      "G0_raw_us": 106.06399923563004,
+      "G1_raw_us": 120.78399956226349,
+      "G0_baseline_us": 258.4640090353787,
+      "G1_baseline_us": 265.31199319288135,
+      "latency_change_percent": 14.736262211305128,
+      "G0_seed": 8288174532321897796,
+      "G1_seed": 2594637156255550579
+    },
+    {
+      "load": "verify 1",
+      "layer": "full",
+      "G0_adjusted_us": 112.27917896790929,
+      "G1_adjusted_us": 117.59783998488622,
+      "G0_raw_us": 115.13600125908852,
+      "G1_raw_us": 122.48000130057335,
+      "G0_baseline_us": 273.08800257742405,
+      "G1_baseline_us": 270.25599824264646,
+      "latency_change_percent": 4.736996712896402,
+      "G0_seed": 8288420742533191375,
+      "G1_seed": 2594724001012907523
+    },
+    {
+      "load": "verify 16",
+      "layer": "sliding",
+      "G0_adjusted_us": 237.37301270655368,
+      "G1_adjusted_us": 247.13099535493978,
+      "G0_raw_us": 240.64000695943832,
+      "G1_raw_us": 253.21601331233978,
+      "G0_baseline_us": 530.1599963568151,
+      "G1_baseline_us": 539.5680009387434,
+      "latency_change_percent": 4.110822261184821,
+      "G0_seed": 8288666952744484955,
+      "G1_seed": 2594810845770264468
+    },
+    {
+      "load": "verify 16",
+      "layer": "full",
+      "G0_adjusted_us": 319.9015758914454,
+      "G1_adjusted_us": 333.21812616334677,
+      "G0_raw_us": 323.88800382614136,
+      "G1_raw_us": 336.11199259757996,
+      "G0_baseline_us": 689.2320099286735,
+      "G1_baseline_us": 709.9839909933507,
+      "latency_change_percent": 4.1627023045426315,
+      "G0_seed": 8288913162955778536,
+      "G1_seed": 2594897690527621414
+    },
+    {
+      "load": "verify 32",
+      "layer": "sliding",
+      "G0_adjusted_us": 308.6912949593431,
+      "G1_adjusted_us": 316.3895368878032,
+      "G0_raw_us": 316.1280006170273,
+      "G1_raw_us": 318.7520056962967,
+      "G0_baseline_us": 706.6400134935975,
+      "G1_baseline_us": 733.6320159956813,
+      "latency_change_percent": 2.493831881289066,
+      "G0_seed": 8289159373167072118,
+      "G1_seed": 2594984535284978361
+    },
+    {
+      "load": "verify 32",
+      "layer": "full",
+      "G0_adjusted_us": 471.85079554383793,
+      "G1_adjusted_us": 482.6567937941269,
+      "G0_raw_us": 475.95199942588806,
+      "G1_raw_us": 487.44000494480133,
+      "G0_baseline_us": 1044.623981229961,
+      "G1_baseline_us": 1092.2399777919054,
+      "latency_change_percent": 2.2901303446642096,
+      "G0_seed": 8289405583378365701,
+      "G1_seed": 2595071380042335309
+    }
+  ],
+  "weighted_loads": [
+    {
+      "load": "decode 1",
+      "G0_us": 68.20387439088347,
+      "G1_us": 78.54904481802234,
+      "latency_change_percent": 15.168009910770785,
+      "conditional_single_load_score_factor": 1.0238161525714482
+    },
+    {
+      "load": "decode 16",
+      "G0_us": 149.7007097249302,
+      "G1_us": 158.24100957331893,
+      "latency_change_percent": 5.704916071594623,
+      "conditional_single_load_score_factor": 1.0092897536208385
+    },
+    {
+      "load": "decode 32",
+      "G0_us": 190.71903248703515,
+      "G1_us": 191.73973579615884,
+      "latency_change_percent": 0.5351869164883061,
+      "conditional_single_load_score_factor": 1.0008899956122417
+    },
+    {
+      "load": "verify 1",
+      "G0_us": 103.61862499583596,
+      "G1_us": 115.9908228996333,
+      "latency_change_percent": 11.940129396905764,
+      "conditional_single_load_score_factor": 1.018976810877411
+    },
+    {
+      "load": "verify 16",
+      "G0_us": 258.67070643168705,
+      "G1_us": 269.347029111948,
+      "latency_change_percent": 4.127379875185255,
+      "conditional_single_load_score_factor": 1.006763565323674
+    },
+    {
+      "load": "verify 32",
+      "G0_us": 350.7969725295353,
+      "G1_us": 359.29721608943515,
+      "latency_change_percent": 2.423123409134953,
+      "conditional_single_load_score_factor": 1.003998358135069
+    }
+  ],
+  "scope": "Independent jobs: input/routing/tuning/environment/baseline/overhead differ. Conditional G0-time substitution into607e holds other607e timings and own baselines fixed; not causal attribution, not forecast or a hybrid score.",
+  "official_score_ratio_to_G0": 1.057715467592658,
+  "conditional_all_G0_times_factor": 1.065243721279844,
+  "conditional_short_two_loads_factor": 1.0432449180720353,
+  "keell_team_snapshot": {
+    "attempts": 31,
+    "job": "232de027eda1481f",
+    "rank": 76,
+    "speedup": 2.2659,
+    "submitted_at": 1793423180.69917,
+    "team": "keell0renz",
+    "value": 9982.801332192916
+  }
+}

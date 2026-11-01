@@ -1,0 +1,10 @@
+test_actual_selected_selftest_diagnostics (moe_standalone_progress_test.Tests.test_actual_selected_selftest_diagnostics) ... ok
+test_fixed_prepare_private_scratch_and_boolean (moe_standalone_progress_test.Tests.test_fixed_prepare_private_scratch_and_boolean) ... ok
+test_per_chunk_scope_and_budget (moe_standalone_progress_test.Tests.test_per_chunk_scope_and_budget) ... ok
+test_source_scope_and_public_off (moe_standalone_progress_test.Tests.test_source_scope_and_public_off) ... ok
+test_strict_math_finite_rows_and_empty (moe_standalone_progress_test.Tests.test_strict_math_finite_rows_and_empty) ... ok
+
+----------------------------------------------------------------------
+Ran 5 tests in 0.145s
+
+OK
