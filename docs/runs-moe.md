@@ -49,6 +49,11 @@ Coordinator dispatched scored336f3a63bd6a44f3 from the frozen production51 artif
 the successful exact-file check. Pending at dispatch. This file tunes policy; the check
 selected skinny at32, so the name does not mean mode51 executes at every token count.
 
+Scored336f3a63bd6a44f3 completed: passed5/5,2.199082x (95%CI2.166096–2.232068),
+policy again skinny1/8/16/32 and51 at128/256, spin flags0, policy FP32 worst3.96e-3.
+Below board best2.215712x; no headline improvement. Receipt/log saved
+`profiles/scored.336f3a63bd6a44f3.{json,log}`. Submitted by root, not this agent.
+
 ### Producer diagnostic result: e06255199f6d4de1
 
 Passed5 official tests; control score2.191867x,95%CI2.158989–2.224745. All measured xp outputs
@@ -77,6 +82,22 @@ changes. Mode87 aliases51 traits; production mode51 remains3slots. Independent o
 alias review required before dispatch. Gate:>=1.5us at256 and>=1us at128 on layer/std with
 consistent fresh seeds; no material32-token regression, no correctness/spin/replay failure.
 Any win needs a second paired confirmation, no promise of a score gain from wait-cycle totals.
+
+### Fixed four-slot capacity gate dispatched
+
+Check39804be1a59c429c: `.build/today-moe/ring4_gate.py`, SHA256
+5e8eaa8f1704c50be4d174f0ac2a2980bc0f86408852d4bbf34a81ca9156de31.
+Builder: `moe_make_bench_ab.py --nopub=1 --base=51 --gate=1 --sizes=32,128,256
+--routings=layer,std,skewed --seeds=221,222,223,224 o87=87`, then
+`tools/moe_ring4_patch.py IN OUT`. Production submission.py is unmodified.
+
+Independent audit_attention_moe review found no issue: all7 x advances use modulo4;
+init/access covers the fourth barrier; mode87 traits equal51, including align_b. Diagnostic
+traits are false, so S.dg[0][0:2] has no overlapping writer. Ring byte usage for8K/16K/32K
+slots is180224/176128/204800B, all<=208896. Same producer/consumer stream and unchanged
+WGMMA-retire/release chains preserve phase/lifetime. Remaining constant3 stamp ordinals
+compile out for87. This proves only the reviewed source chain, not compiled correctness
+or profitability. Fewer weight slots remain a coupled performance cost to measure.
 
 ## Source facts (SGLang a55ab7d5, read from GitHub and hashed against the image)
 
