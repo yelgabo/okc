@@ -885,3 +885,15 @@ all4cross ratios>1 and pooledlog improvement>2×larger nullabslog. No aggregate 
 CPU actual score helper winner/loser and dual-route parse/count gates pass. Deadline275s
 fails closed on missing coverage; no public submit. Root authorizes a clean exact pure
 file check only after all these gates pass. Standalone quota untouched.
+
+Terminal **828974e3bbcc4d9b**, sourcedd1a4b6: DONE/pass13; diagnostic control2.0211224939,
+95%CI[1.9908056565,2.0514393313], not algorithmcredit. Commonpolicy comparison complete188.9s,
+96/96 reference checks, three Lt gates and T1/T8 twofresh bitwise boundaryABI pass.
+Seed0 sixload cross[1.0027005,1.0038941,1.0029371,1.0041309],pooled1.0034154,
+null[1.0002359,.9988111]; seed1cross[1.0032824,1.0045025,1.0027918,1.0040113],
+pooled1.0036468,null[.999511,.9987853]. Both preregistered2×null gates pass.
+Raw per-shape/seed4arm medians retained in receipt; these are ~0.34–0.36% paired aggregate
+gains, not a top50 or top10 promise. Mutable scratch/extension sharing qualification remains.
+Consequently root's conditional cleancheck authorized: **47bec92021ef4bbe**, exact frozen pure
+SHA851c46951e1940b6874d35314d8ff7cc00a966a4718094881c764135ef13392a, pending.
+No public submission. Original selected baseline unchanged; purecandidate in persistent scratch.
