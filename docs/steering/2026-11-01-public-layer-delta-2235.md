@@ -39,3 +39,18 @@ This is a genuinely unread complete permissively licensed base. Its lower aggreg
 ### Decision and stopping criteria
 
 Close this retrieval gap by content, not date. One newly read complete base has exact source/result provenance but no stronger aggregate lead; two leads are articles/audit artifacts. Stop this intake lane unless changed complete source, credible stronger source-specific evidence or a concrete component opportunity appears. Per-cell PostTrainLLM comparison remains a stated gap, not a negative measurement. Existing keell/upstream and runNburn lanes are separate. This bounded miss does not establish absence of stronger public implementations.
+
+## Published12-cell follow-up, 2026-11-01 UTC
+
+The matching published `beb82b4224554523` entry contains all12 benchmark rows and13 correctness rows, **but no profile records**. Extracted per-cell medians and each job's own baselines are retained in [posttrain-vs607.json](evidence/2026-11-01-public-layer-delta-2235/posttrain-vs607.json), alongside the archived owning607 receipt comparison. These are adjusted `median_ns` cross-job observations, not paired causal results, common baselines, transfer predictions or raw-event comparisons.
+
+| Load | PostTrain46:16 weighted us |607 weighted us |607/PostTrain time |
+|---|---:|---:|---:|
+| decode1 |7392.691|4870.041|0.658764|
+| decode16|15129.885|9810.943|0.648448|
+| decode32|18784.442|11887.864|0.632857|
+| verify1|11898.030|7191.431|0.604422|
+| verify16|33459.043|16699.516|0.499103|
+| verify32|42367.458|22276.427|0.525791|
+
+All12 published layer-cell medians are slower than archived607:607/PostTrain ranges0.498040–0.666507. Thus no faster **whole-cell/load** lead appears to trigger deeper selected-pipeline intake. Profiles/component timings are absent from this published record, so a useful isolated component is not disproved. Source names identify fused QK/cache, paged partial/merge attention and GEMV atop FA3/Marlin, but no new source-specific component performance evidence was found. Stop without deep device audit, new check or speedup forecast; current G priority remains. Reopen on actual component profiles or a stronger changed source, not the lower aggregate alone.
