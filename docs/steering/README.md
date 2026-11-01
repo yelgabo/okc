@@ -1,5 +1,7 @@
 # Shared project steering
 
+Latest session audit: [November 1 provider failure after worker spawn](2026-11-01-session-provider-failure.md), evidence b6def23 and T3 activity ordinals 2-5. ChatGPT-sharing compatibility rejection follows native worker spawn and persists across model changes. Exact receipt archived; no provider switch, worker retry or campaign resume.
+
 Latest orientation: [November 1 reconciled checkpoint](2026-11-01-orientation.md), evidence0f090a1. RMW3fd is terminal preparation-budget failure with no score; earlier running entries below are historical. Proposed reference memo remains blocked by reproduced inference-tensor version-counter failure. Existing owner retains repair/dispatch ownership; no new run or campaign resume from orientation. Preserves terminalbf40c95 and subsequent source reviews02876a3/0f090a1.
 
 Latest stop checkpoint: [RMW H200 setup failure and cleared goal](2026-11-01-rmw-terminal-stop-checkpoint.md). The user cleared the goal; no active goal and no further optimization/submissions. Own3fd is terminal setup FAIL/GQUAL_PREPARE_BUDGET on H200,0 tests/benchmarks/profiles and no score. G56/56 expert checks printed success; phase/cell cost unknown. Exact receipt/log/evaluator/machine evidence archived. Draft822 prepare-only memo is NOT READY: full CPU prepare fails under inference_mode; no corrected pin. Owner branch and reader WIP patch preserved. Resume only on a new user instruction. Earlier ACTIVE/RUNNING snapshots below are historical.
