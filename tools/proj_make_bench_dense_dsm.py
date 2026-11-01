@@ -1,0 +1,88 @@
+"""Bounded qkv256 low-smem large-tile DSMEM test, actual cluster residency gate."""
+from pathlib import Path
+import sys
+ROOT=Path(__file__).resolve().parents[1]
+RESOURCE=r'''
+#include <vector>
+template<int S> std::vector<int64_t> dense_info_one() {
+ using C=WdCfg<2,128,4,1,false,S,0>;
+ auto k=wd_kernel<2,128,4,1,false,S,__nv_bfloat16,0,false,0>;
+ C10_CUDA_CHECK(cudaFuncSetAttribute(k,cudaFuncAttributeMaxDynamicSharedMemorySize,C::SMEM));
+ cudaFuncAttributes a;C10_CUDA_CHECK(cudaFuncGetAttributes(&a,k));
+ cudaLaunchConfig_t lc={};lc.gridDim=dim3(72,2);lc.blockDim=dim3(C::THREADS);lc.dynamicSmemBytes=C::SMEM;
+ cudaLaunchAttribute at[1];at[0].id=cudaLaunchAttributeClusterDimension;
+ at[0].val.clusterDim.x=4;at[0].val.clusterDim.y=1;at[0].val.clusterDim.z=1;lc.attrs=at;lc.numAttrs=1;
+ int clusters=0,blocks=0;C10_CUDA_CHECK(cudaOccupancyMaxActiveClusters(&clusters,k,&lc));
+ C10_CUDA_CHECK(cudaOccupancyMaxActiveBlocksPerMultiprocessor(&blocks,k,C::THREADS,C::SMEM));
+ return {clusters,blocks,a.numRegs,(int64_t)a.localSizeBytes,(int64_t)a.sharedSizeBytes,C::SMEM};
+}
+std::vector<int64_t> dense_info(int64_t s){return s==3?dense_info_one<3>():dense_info_one<4>();}
+'''
+RUN=r'''
+import random as _dsrandom
+import statistics as _dsstats
+_DS_OUT=[]
+def _dsprint(s):_DS_OUT.append(s);print(s,flush=True)
+def _dsbuild(name):
+    names=('SK_CONFIGS','SK_INDEX','WD_GEOM','WD_VAR','WD_NAMES','WD_INDEX','WD_ABL')
+    g=globals();old={n:g[n] for n in names}
+    try:
+        g['SK_CONFIGS']=[c for c in old['SK_CONFIGS'] if c[0] in ROUTER_GEOM]
+        g['SK_INDEX']={c[0]:i for i,c in enumerate(g['SK_CONFIGS'])}
+        g['WD_GEOM']={'ds3':(2,128,4,1,False,3),'ds4':(2,128,4,1,False,4)}
+        g['WD_VAR']={};g['WD_NAMES']=['ds3','ds4'];g['WD_INDEX']={'ds3':0,'ds4':1};g['WD_ABL']={}
+        source=sk_source()+wd_source()+@@RESOURCE@@
+    finally:g.update(old)
+    return load_inline(name=name,cpp_sources='#include <torch/extension.h>\n'+_SK_CPP+_WD_CPP+'std::vector<int64_t> dense_info(int64_t);',cuda_sources=source,functions=['sk_fwd','wd_fwd','dense_info'],extra_cuda_cflags=['-O3','-gencode=arch=compute_90a,code=sm_90a'],no_implicit_headers=True,verbose=False)
+def _dsbench(weights,state):
+    dev=weights['qkv_gate'].device;w=weights['qkv_gate'];gen=torch.Generator(device=dev).manual_seed(71031)
+    diag=torch.zeros(4,dtype=torch.int32,device=dev);arms={'prod':state['pick']['qkv_gate',256]}
+    for label in ('a','b'):
+        mod=_dsbuild('okc_dense_dsm_'+label)
+        for st in (3,4):
+            info=mod.dense_info(st)
+            _dsprint(f'DRES {label}s{st} clusters/blocks/regs/localbytes/staticshared/dynamicshared={info}')
+            if info[0]<36:
+                _dsprint(f'DSKIP {label}s{st} active clusters below36 for144CTA grid');continue
+            def run(x,mod=mod,st=st):
+                out=torch.empty((x.shape[0],2304),dtype=torch.bfloat16,device=dev)
+                mod.wd_fwd(st-3,w,x,out,2304,8192,diag);return out
+            good=True
+            for m in (129,200,256):
+                x,probes=_gen_x(m,8192,gen,dev);out=run(x)
+                ok,err,pe=_check(out,x.double()@w.double().T,probes,SELFTEST_TOL['bf16'])
+                _dsprint(f'DCHECK {label}s{st} m={m} {ok} err={err:.3g}/{pe:.3g}')
+                if not ok:good=False
+            if good:arms[label+'s'+str(st)]=run
+    x,_=_gen_x(256,8192,gen,dev);graphs={};outs={}
+    for nm,fn in arms.items():
+        fn(x);g=torch.cuda.CUDAGraph()
+        with torch.cuda.graph(g):out=fn(x)
+        graphs[nm]=g;outs[nm]=out
+    for rep in range(2):
+        xx,probes=_gen_x(256,8192,gen,dev);x.copy_(xx)
+        ref=xx.double()@w.double().T
+        for nm,g in list(graphs.items()):
+            g.replay();torch.cuda.synchronize();ok,err,pe=_check(outs[nm],ref,probes,SELFTEST_TOL['bf16'])
+            _dsprint(f'DREPLAY {nm} rep={rep} {ok} err={err:.3g}/{pe:.3g}')
+            if not ok:graphs.pop(nm)
+    flush=torch.empty(256*1024*1024,dtype=torch.uint8,device=dev)
+    times={nm:[] for nm in graphs};rng=_dsrandom.Random(71031)
+    for rd in range(100):
+        order=list(graphs);rng.shuffle(order)
+        for nm in order:
+            flush.zero_();a=torch.cuda.Event(enable_timing=True);z=torch.cuda.Event(enable_timing=True)
+            a.record();graphs[nm].replay();z.record();z.synchronize();times[nm].append(1000*a.elapsed_time(z))
+    for nm,t in times.items():
+        delta=[a-b for a,b in zip(t,times['prod'])]
+        _dsprint(f'DTIME {nm} median_raw_us={_dsstats.median(t):.4f} delta={_dsstats.median(delta):+.4f} faster={sum(v<0 for v in delta)}/100')
+_ds_original_prepare=prepare
+def prepare(weights):
+    state=_ds_original_prepare(weights)
+    _dsbench(weights,state)
+    for line in _DS_OUT:print(line,flush=True)
+    return state
+'''
+if __name__=='__main__':
+    Path(sys.argv[1]).write_text((ROOT/'muse_bf16_proj/submission.py').read_text()+RUN.replace('@@RESOURCE@@',repr(RESOURCE)))
+    print('wrote',sys.argv[1])
