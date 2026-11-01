@@ -1,8 +1,12 @@
 # Shared project steering
 
+Latest orientation: [November 1 reconciled checkpoint](2026-11-01-orientation.md), evidence0f090a1. RMW3fd is terminal preparation-budget failure with no score; earlier running entries below are historical. Proposed reference memo remains blocked by reproduced inference-tensor version-counter failure. Existing owner retains repair/dispatch ownership; no new run or campaign resume from orientation. Preserves terminalbf40c95 and subsequent source reviews02876a3/0f090a1.
+
+Latest stop checkpoint: [RMW H200 setup failure and cleared goal](2026-11-01-rmw-terminal-stop-checkpoint.md). The user cleared the goal; no active goal and no further optimization/submissions. Own3fd is terminal setup FAIL/GQUAL_PREPARE_BUDGET on H200,0 tests/benchmarks/profiles and no score. G56/56 expert checks printed success; phase/cell cost unknown. Exact receipt/log/evaluator/machine evidence archived. Draft822 prepare-only memo is NOT READY: full CPU prepare fails under inference_mode; no corrected pin. Owner branch and reader WIP patch preserved. Resume only on a new user instruction. Earlier ACTIVE/RUNNING snapshots below are historical.
+
 Latest root measurement registration: [RMW H200 resume after service recovery](2026-11-01-rmw-h200-resume.md). User explicitly resumed one fixed RMW run; prefill excluded. Recovered1fad terminal is infra_error/refunded=true, without measurements. Live22:32UTC layer quota2scored/0checks and no active jobs; exact97935e7d/914572B regeneration and dependency pins verified. Source unchanged; root owns one scored measurement and its own ID. Earlier pause snapshots below are historical for this request; reset automation stays paused.
 
-Execution update23:06:12UTC: RMW **3fd1317143304bd5** is RUNNING in sfo3; own status reports worker start23:04:18.295910UTC. Source remains exact97935e7d/914572B from registrationfaa1bef. The persistent same-ID wait is live; no resubmission. Startup/official results, GPU identity, resources and score remain unknown. Goal ACTIVE; reset automation separately paused. Last live layer quota1scored/0checks at22:55. Exact source/reader/evidence in the latest report.
+Historical23:06 running snapshot is superseded by the terminal stop checkpoint above. Own3fd finished23:10:10UTC with setup failure, not a score. The persistent observer ended with CLI exit1 and valid terminal JSON. Last live quota1scored/0checks at23:12:57UTC; reset automation separately paused. Failed source97935e7d/914572B preserved; no retry after the user cleared the goal.
 
 Latest operational source check: [Public service-guidance scope](2026-11-01-public-service-guidance-scope.md), root0d67895/6df1986, owners7e74778/dd0259f. No verified kernel-worker recovery notice, prescribed action or ETA found in inspected official material; announcement access incomplete. Serving-track queue guidance and an illustrative kernel UI are not current worker telemetry. Preserve3fd; no outage, recovery, queue SLA or resubmission remedy inferred.
 
@@ -630,6 +634,10 @@ accounting, and running a corrected matched whole-layer comparison. It records
 recommendations, not execution of those tasks; check current code and run logs for status.
 
 ## Report history
+
+- [2026-11-01 RMW H200 terminal and cleared-goal stop](2026-11-01-rmw-terminal-stop-checkpoint.md): evidence0f090a1; failed owning3fd archived, no benchmark result, source295s failure scope, draft inference-mode blocker and branch/WIP pickup preserved. No active goal or new submission.
+- [2026-11-01 independent qualifier-budget review](2026-11-01-g-qualifier-budget-independent.md): rootda8c9c6/0f090a1; unknown failing cell/stage, bounded memo obligations and reproduced inference-mode draft failure.
+- [2026-11-01 reference preparation work inventory](2026-11-01-g-reference-prepare-budget.md): root02876a3/ownerae0301c; exact source counts and already-existing dequant cache; no measured stage attribution or promised fit.
 
 - [2026-11-01 public service-guidance scope](2026-11-01-public-service-guidance-scope.md): root0d67895/6df1986; official public scope/access limits and corrected actual observation timestamp. No verified kernel-worker notice/action/ETA; no judge calls or change to accepted-job classification.
 
