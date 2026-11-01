@@ -67,6 +67,14 @@ def _ob_check(data,out):
     finally:torch.backends.cuda.matmul.allow_tf32=previous
 '''
 FRESH=OLD_FRESH.replace('_cm','_hc').replace('CMFRESH','HCFRESH')
+FRESH=once(FRESH,'    functions=_ab_fns();graphs={}',"""    functions=_ab_fns();graphs={}
+    armdata={name:{k:(v.clone() if isinstance(v,torch.Tensor) else dict(v) if isinstance(v,dict) else v)
+                   for k,v in data.items()} for name in functions}
+    for key in ('qkv','k_cache','v_cache'):
+        assert len({d[key].data_ptr() for d in armdata.values()})==len(functions)""")
+FRESH=once(FRESH,'    for name,fn in functions.items():','    for name,fn in functions.items():\n        data=armdata[name]')
+FRESH=once(FRESH,"            data['qkv'].copy_(bank[i])","            for d in armdata.values():d['qkv'].copy_(bank[i])")
+FRESH=once(FRESH,'            for name,(graph,out) in graphs.items():','            for name,(graph,out) in graphs.items():\n                data=armdata[name]')
 FRESH=once(FRESH,"a=torch.einsum('lhgt,thd->lhgd',prob,values).reshape(1,8,16,64)","a=torch.einsum('lhgt,thd->lhgd',prob,values).reshape(1,8,16,64).to(torch.bfloat16).float()")
 FRESH=once(FRESH,'    verdicts=[];negatives=[];old=None','    global _HC_FRESH_STATS\n    verdicts=[];negatives=[];old=None;maxima=[]')
 FRESH=once(FRESH,'                verdicts.append(valid(out) & (_hc_rel(k,expected_k)<=0.08) & (_hc_rel(v,expected_v)<=0.08))','''                worst=((out.float()-ref.float()).view(-1,64).norm(dim=-1)/torch.maximum(rownorm,floor)).max()
@@ -100,7 +108,7 @@ def generate(control,output):
     s=once(s,'def _ab_bench(warm_calls=16, warm_reps=25):','def _ab_bench(warm_calls=16, warm_reps=25):\n    assert not _HC_CHECK_FAILED,"no timing after failed head gate"')
     s=once(s,'            _ab_stsum()','            _hc_resources()\n            _ab_stsum()')
     s += '\nassert not _HC_CHECK_FAILED,"head check failed"\n'
-    compile(s,str(output),'exec');output.write_text(s,encoding='utf-8');print('HEADCLUSTER_BENCH_SHA',hashlib.sha256(s.encode()).hexdigest())
+    compile(s,str(output),'exec');output.write_bytes(s.encode('utf-8'));print('HEADCLUSTER_BENCH_SHA',hashlib.sha256(s.encode()).hexdigest())
 
 
 if __name__=='__main__':

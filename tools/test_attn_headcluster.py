@@ -18,6 +18,23 @@ class HeadCluster(unittest.TestCase):
         exec(source,scope)
         scope['test_vector_reference'](self)
 
+    def test_fresh_arm_ownership(self):
+        import ast, torch
+        from attn_make_headcluster import FRESH
+        function=next(n for n in ast.parse(FRESH).body if isinstance(n,ast.FunctionDef) and n.name=='_hc_fresh')
+        assignment=next(n for n in function.body if isinstance(n,ast.Assign) and any(isinstance(t,ast.Name) and t.id=='armdata' for t in n.targets))
+        data={k:torch.arange(8.) for k in ('qkv','k_cache','v_cache')}
+        data['config']={'batch':1};env={'data':data,'functions':dict.fromkeys(('ctrl','ctrl2','hc1','hc2')),'torch':torch}
+        exec(compile(ast.Module(body=[assignment],type_ignores=[]),'fresh_owner','exec'),env)
+        arms=env['armdata']
+        for key in ('qkv','k_cache','v_cache'):
+            self.assertEqual(len({d[key].data_ptr() for d in arms.values()}),4)
+            self.assertTrue(all(d[key].data_ptr()!=data[key].data_ptr() for d in arms.values()))
+        arms['ctrl']['k_cache'].zero_()
+        self.assertEqual(float(arms['hc1']['k_cache'].sum()),28.)
+        self.assertIn('data=armdata[name]',FRESH)
+        self.assertIn("for d in armdata.values():d['qkv'].copy_(bank[i])",FRESH)
+
     def test_attention_bf16_boundary(self):
         import torch
         # Midpoints exercise RNE ties on both even and odd BF16 mantissas.
