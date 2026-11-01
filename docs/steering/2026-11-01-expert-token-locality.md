@@ -1,0 +1,5 @@
+# Expert token locality screen
+
+Evidence baseline `6e078b5`. The previous round established that the judge denied the physical counter image. Check `bfbedf7d48e248a0` on standalone MoE tests whether clustering input rows by the smallest local expert improves expert execution. Matching hidden states, all eight routes and their weights are permuted together. This holds expert counts, per-token arithmetic and weight-bank placement fixed. Two independent input allocations and graphs per order share the same prepared expert state. Each of two fresh seeds covers all six loads. The diagnostic checks row equivariance after an actual replay and measures 24 randomized cold rounds.
+
+The screen excludes permutation and inverse-permutation costs. To justify implementing an on-device layout, both duplicate comparisons on both seeds must exceed 1% six-load contribution and twice the larger absolute log-null. A pass would require a subsequent test charging the full reorder cost and fresh independent preparations. A loss parks this order. Retain the proven candidate for public runs pending a measured end-to-end improvement.
