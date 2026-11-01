@@ -4070,3 +4070,17 @@ sitesbutmutuallyexclusiveERELconditionsgive1dynamicrelease; proxyfence1explicitp
 acquirefences;2wgfence/commit/wait0/regfence;1namedbar128 perWG/tile. Independentread-only
 review bytoday_moe found no blocker andconfirmedallhandshakeparticipants andlifetimes;
 requiresactualoccupancy gatebeforerun. No measuredresource/performanceclaimuntilreceipt.
+
+|date|job|commit|change|score (95%CI)|notes|
+|---|---|---|---|---|---|
+|2026-10-31|8ac6563343f74bcd (check)|4f99802|CHECKONLYmode51producer/memoryattribution|pending|Occupancy/SMem gate beforetiming; wrong-outputprobes neverpublic.|
+|2026-10-31|d331aca81c554d70 (root check)|pureSHA cbee36a...b356|Exactclean standalonefull-onlylate-tid2 candidate, noTF32/harness/resourceexport|2.569431x (2.530890-2.619575)|Passed16/16 official tests,checks.oktrue,flags[]; exactreceiptsaved.|
+|2026-10-31|c9bc5fbd85b440e2 (root submit)|samepureSHA cbee36a...b356|User-authorizedtoday publicsubmission ofexactcleancheckedcandidate|pending|Root ownsdispatch/promotion; productionmainflag0 untilmanifestdecision.|
+
+FullpureSHA256 `cbee36a852fbc62f5491e75f957eeb4298dce2db50947984cdbbcd08aa69b356`;
+root's preserved cand/late_full.py and owned .build/today-attn/attention_latefull.py agree.
+Cleanofficialscore2.569431 overlaps priorheadlinevariation; causalperformanceevidence remains
+~0.24% froma9b416a0c7324ecc, not the differencebetweenindependentscores. No wholelayerport:
+value2 affects onlyL1SPECnon-one-tile (d1full), and actual46/16layerloadweights/six-loadGM dilute
+0.4us to roughly0.02%wholelayerscore, belowcurrentfour-armnoise (exactlayerpairedmedians
+would be needed for a preciseestimate). Do not spendalayercheck assuming standalonegaintransfers.
