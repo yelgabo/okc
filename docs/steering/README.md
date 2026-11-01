@@ -6,6 +6,8 @@ report be checked into this repository so other sessions can read it.
 
 ## Latest review
 
+[November 1 Family G public layer measurement and ROI decisions](2026-11-01-g-public-layer-measurement.md) records the single-arm scored candidate, private startup checks and the bounded cross-architecture comparison attempt.
+
 [November 1 G release priority and C3 closure](2026-11-01-g-roi-priority.md) records the user's ROI steering and the whole-layer decision gates.
 
 [November 1 H200 expert win and release decisions](2026-11-01-attention-results-expert-pipeline.md#h200-component-result) records the 1.85–2.87% paired MoE gain and 2.348799× direct qualification. It includes the [public C3 result and refreshed ranks](2026-11-01-attention-results-expert-pipeline.md#public-scored-slots) and [the 16:00 PST layer handoff](2026-11-01-attention-results-expert-pipeline.md#restart-at-the-layer-quota-reset).
@@ -444,6 +446,8 @@ accounting, and running a corrected matched whole-layer comparison. It records
 recommendations, not execution of those tasks; check current code and run logs for status.
 
 ## Report history
+
+- [Family G whole-layer public measurement](2026-11-01-g-public-layer-measurement.md), [private startup state audit](2026-11-01-g1b4-startup-isolation-review.md) and [owned verify-32 diagnostic slice](2026-11-01-owned-load-slice-checkpoint.md).
 
 - [Eligibility of the attributed single-arm G layer measurement](2026-11-01-g-stage-public-measurement-eligibility.md).
 
