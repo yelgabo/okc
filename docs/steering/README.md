@@ -470,3 +470,4 @@ Current projection assessment: [November 1 comparison of all 30 published H200 s
 Projection follow-up 4542b2b04cb344ec closed the QKV128 depth-two variant after a 0.512–0.640 µs regression. See the projection comparison above.
 Latest: [November 1 short-boundary and projection experiments](2026-11-01-short-boundary.md).
 Results: [short boundary and QKV epilogue](2026-11-01-short-boundary.md), [sliding attention opportunity](2026-11-01-sliding-attention-score-opportunity.md), and [single-warp MoE position map](2026-11-01-moe-singlewarp-position.md).
+Latest: [Matched short-boundary comparison](2026-11-01-matched-short-boundary.md).
