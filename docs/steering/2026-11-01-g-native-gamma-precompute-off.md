@@ -55,10 +55,12 @@ gamma multiplication, RMS/sum ordering and output conversion remain in place.
 No threadfence, proxy fence, atomic, barrier, launch/admission, PDL/MFIN/DF/YBF,
 routing, stage retirement or empty guard is edited. The whole-source AST test
 proves everything outside the two native literals, native packer/selector and
-new helper/constant is identical, including both fallback implementations.
+new helper/constant is identical, including the existing fallback paths.
 
-Marlin keeps its own effective-gamma preparation from the original raw weights;
-owned fallback keeps its separate effective-FP32 ABI. Their code is unchanged.
+Current607 selects Marlin as native fallback; it keeps its own effective-gamma
+preparation from the original raw weights. No owned adapter is installed by
+this source or prototype; the separate owned adapter's effective-FP32 ABI is
+outside this format change. The existing fallback code is unchanged.
 If a native resource fallback occurs after native packing, its existing adapter
 uses its private bank/gamma, not native slot7. No globally supplied gamma field
 is rewritten, and no raw tensor alias is modified.
@@ -77,8 +79,8 @@ This is host scalar equivalence, not an executed CUDA helper or kernel proof.
 The second reverses all32native expression edits and the helper insertion to
 recover exact prior literal bytes. It restores only the two allowed host
 functions/removes the new definitions and asserts full original AST equality.
-It also executes the actual packer's slot7 expression structurally: that slot
-calls the derived coefficient helper. The third executes the **actual modified
+It also checks the actual packer's slot7 expression in the AST: that slot calls
+the derived coefficient helper, whose execution is tested separately. The third executes the **actual modified
 native selector** on all1/8/16/32/128/256 token sizes under both formats, with
 five independently recorded module keys, unchanged source suffixes/SC6/B4
 selection, cache reuse and rejected mismatched state-format metadata. CUDA

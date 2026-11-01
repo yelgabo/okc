@@ -133,9 +133,10 @@ Feasible alternative: prepare a new immutable8192-byte BF16 coefficient
 gamma-add/round expressions by direct conversion of that effective coefficient.
 Direct BF16, cached BF16 and unsigned16-bit→float load forms must agree. Leave
 GEMM2 scaling/BF16 rounding, norm/sum arithmetic and every publication edge
-unchanged. Raw input weight storage, Marlin effective-gamma state and owned
-fallback formats must remain independent. Both fallbacks already precompute
-their effective coefficient through their own interfaces.
+unchanged. Raw input weight storage and Marlin effective-gamma state must remain
+independent. Current607's native fallback is Marlin, already preparing its
+effective coefficient. The separate owned-adapter tool also prepares an
+effective coefficient through its own ABI, but is not selected in this607file.
 
 This removes the new effective-weight rounding **and the old FP32 add** that
 G0 already performed. It is a coupled host/native format alternative, not an
