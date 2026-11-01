@@ -2023,3 +2023,32 @@ the old two64-row WGMMA descriptors. No donated code and no production feature e
 Actual resource query and FP64/probe/adjacent-M/replay gates precede timing. Stop further
 local dense TMA knobs if this copy-schedule mechanism does not materially reduce the deficit;
 new counters or a different established mechanism would be needed.
+
+Combined-TMA result `7803be789c624f8e`: control passed9/9,1.518411x (95%CI
+1.495635–1.541187). Full CPU swizzle/source gates and GPU FP64/probe/replay pass. Resource
+fields remain62clusters,2CTA/SM,90regs full/40regs memory,0localbytes,99376dynamicshared.
+Same-run raw Lt26.160us, oldfull38.832/38.816,newfull38.320/38.336; memory-no-reduction
+old31.312/31.328,new31.344/31.184. Saving~0.5us in full kernel leaves~12us gap; memory
+probe benefit negligible. Stop this local dense TMA/geometry series. Fewer TMA instructions
+alone are not enough; no production adoption. New counters or a genuinely new schedule are
+needed before reopening this family.
+
+### TOP7 exponent-pair LUT32 codec: rawlow unchanged
+
+Root approved CPU workmodel then one bounded check. Pure-CPU
+`tools/proj_pair_e7_model.py`, three Gaussian-distribution proxy seeds71031–71033,262144weights
+each: actual escape fraction0.001129–0.001163,11.572–11.574bits/weight including8-byte entries
+but excluding per-CTA table padding. This is not the judge's Philox draw or a GPU speedup.
+Every proxy roundtrip is exact. Actual CPU exhaustive gate covers all65536 BF16 patterns
+in both pair positions,7byte packing/sign bits,compact escape fields and the actual
+fma4 `__byte_perm(lo,hi,0x5140)` low/high-byte ABI.
+
+Check `ee39ec933a8542d8`, pending; `proj_make_bench_pair7.py --top7`. Rawlow is exactly
+original BF16 bits0–7 (mantissa plus exponentLSB);7-bit pair code is5-bit index into a32-entry
+LUT of TOP7 exponent pairs plus2sign bits. LUT returns final high bytes and sign bits are
+ORed in. The original vector fma4 sees rawlow unchanged; no exponentLSB mask or reconstructed
+lowword, unlike prior vector pair7. Compact int2 escapes store original bits plus the chosen
+decoded exponent in unused index-word bits; correction retains separately rounded multiply/add.
+GPU stored-byte/escape and LUT ABI gates must pass before FP64 random/probe and cold timing.
+Same paired control/null and runtime register/localmemory/shared/occupancy queries as before;
+no production feature enabled and no math-bound relaxation.

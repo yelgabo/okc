@@ -132,44 +132,63 @@ import random as _p7random
 import statistics as _p7stats
 _P7_LINES=[]
 _P7_VECTOR=@@VECTOR@@
+_P7_TOP7=@@TOP7@@
 def _p7print(s):
     _P7_LINES.append(s);print(s,flush=True)
 def _p7pack(w):
-    n,k=w.shape;b=w.view(torch.int16).to(torch.int32)&65535;e=(b>>7)&255
-    pairs=e.reshape(n,k//2,2);key=pairs[:,:,0]+256*pairs[:,:,1]
-    hist=torch.bincount(key.flatten().long(),minlength=65536)
-    lut=hist.argsort(descending=True)[:128].to(torch.int32)
-    mapping=torch.empty(65536,dtype=torch.int64,device=w.device)
-    le0=lut&255;le1=lut>>8
-    for start in range(0,65536,4096):
+    n,k=w.shape;b=w.view(torch.int16).to(torch.int32)&65535
+    ebits=7 if _P7_TOP7 else 8;mask=(1<<ebits)-1;space=1<<(2*ebits)
+    e=(b>>(8 if _P7_TOP7 else 7))&mask
+    pairs=e.reshape(n,k//2,2);key=pairs[:,:,0]+(1<<ebits)*pairs[:,:,1]
+    hist=torch.bincount(key.flatten().long(),minlength=space)
+    nL=32 if _P7_TOP7 else 128;lut=hist.argsort(descending=True)[:nL].to(torch.int32)
+    mapping=torch.empty(space,dtype=torch.int64,device=w.device)
+    le0=lut&mask;le1=lut>>ebits
+    for start in range(0,space,4096):
         v=torch.arange(start,start+4096,device=w.device)
-        matches=((v[:,None]&255)==le0).int()+((v[:,None]>>8)==le1).int()
+        matches=((v[:,None]&mask)==le0).int()+((v[:,None]>>ebits)==le1).int()
         mapping[start:start+4096]=matches.argmax(1)
-    mapping[lut.long()]=torch.arange(128,device=w.device)
+    mapping[lut.long()]=torch.arange(nL,device=w.device)
     idx=mapping[key.long()];dec=lut[idx].long()
-    de=torch.stack([dec&255,dec>>8],-1).reshape(n,k)
-    low=((b&127)|((b>>8)&128)).to(torch.uint8).contiguous()
-    decoded=(low.int()&127)|((low.int()&128)<<8)|(de.int()<<7)
+    de=torch.stack([dec&mask,dec>>ebits],-1).reshape(n,k)
+    if _P7_TOP7:
+        low=(b&255).to(torch.uint8).contiguous();decoded=(b&0x80ff)|(de.int()<<8)
+        signs=(b>>15).reshape(n,k//2,2)
+        streamidx=idx|(signs[:,:,0].long()<<5)|(signs[:,:,1].long()<<6)
+    else:
+        low=((b&127)|((b>>8)&128)).to(torch.uint8).contiguous()
+        decoded=(low.int()&127)|((low.int()&128)<<8)|(de.int()<<7);streamidx=idx
     esc=decoded!=b
     ci,ri,ki=esc.reshape(n//2,2,k).nonzero().unbind(1)
     count=torch.bincount(ci,minlength=n//2);pm=int(count.max())+1
     pos=torch.arange(len(ci),device=w.device)-(count.cumsum(0)-count)[ci]+1
-    tab=torch.zeros((n//2,pm,4),dtype=torch.int32,device=w.device)
-    tab[:,0,0]=count.int();tab[ci,pos,0]=((ri<<16)|ki).int()
+    tab=torch.zeros((n//2,pm,2 if _P7_TOP7 else 4),dtype=torch.int32,device=w.device)
+    tab[:,0,0]=count.int()
+    if _P7_TOP7:
+        assert k<=8192
+        tab[ci,pos,0]=((ri<<13)|ki|(((decoded.reshape(n//2,2,k)[ci,ri,ki]>>8)&127).long()<<14)).int()
+    else:tab[ci,pos,0]=((ri<<16)|ki).int()
     tab[ci,pos,1]=b.reshape(n//2,2,k)[ci,ri,ki]
-    tab[ci,pos,2]=decoded.reshape(n//2,2,k)[ci,ri,ki]
-    groups=idx.reshape(n,k//16,8);packed=torch.zeros((n,k//16),dtype=torch.int64,device=w.device)
+    if not _P7_TOP7:tab[ci,pos,2]=decoded.reshape(n//2,2,k)[ci,ri,ki]
+    groups=streamidx.reshape(n,k//16,8);packed=torch.zeros((n,k//16),dtype=torch.int64,device=w.device)
     for j in range(8):packed|=groups[:,:,j]<<(7*j)
     cp=torch.stack([(packed>>(8*j))&255 for j in range(7)],-1).reshape(n,k//512,32,7).transpose(2,3).contiguous().byte()
     # Decode stored bytes, not idx, for an exact weight roundtrip gate.
     rec=cp.transpose(2,3).reshape(n,k//16,7).long();rr=torch.zeros_like(packed)
     for j in range(7):rr|=rec[:,:,j]<<(8*j)
     ii=torch.stack([(rr>>(7*j))&127 for j in range(8)],-1).reshape(n,k//2)
-    dd=lut[ii].long();ee=torch.stack([dd&255,dd>>8],-1).reshape(n,k)
-    restored=(low.int()&127)|((low.int()&128)<<8)|(ee.int()<<7)
+    dd=lut[ii&(31 if _P7_TOP7 else 127)].long();ee=torch.stack([dd&mask,dd>>ebits],-1).reshape(n,k)
+    if _P7_TOP7:
+        sg=torch.stack([(ii>>5)&1,(ii>>6)&1],-1).reshape(n,k)
+        restored=low.int()|(ee.int()<<8)|(sg.int()<<15)
+    else:restored=(low.int()&127)|((low.int()&128)<<8)|(ee.int()<<7)
     restored.reshape(n//2,2,k)[ci,ri,ki]=tab[ci,pos,1]
     assert torch.equal(restored,b),'pair7 stored-byte roundtrip failed'
-    if _P7_VECTOR:
+    if _P7_TOP7:
+        lu=(lut&127)|((lut>>7)<<8)
+        assert torch.equal((lu&127)|((lu>>8)<<7),lut),'top7 LUT high-byte ABI gate'
+        lut=lu.int()
+    elif _P7_VECTOR:
         vl=((lut&1)<<7)|(((lut>>8)&1)<<15)|(((lut&255)>>1)<<16)|((lut>>9)<<24)
         inv=(((vl>>16)&127)*2+((vl>>7)&1))|((((vl>>24)&127)*2+((vl>>15)&1))<<8)
         assert torch.equal(inv,lut),'vector LUT roundtrip failed'
@@ -269,6 +288,51 @@ def cpu_gate():
 if __name__=='__main__':
     cpu_gate()
     src=(ROOT/'muse_bf16_proj/submission.py').read_text()
-    vector='--vector' in sys.argv
-    Path(sys.argv[1]).write_text(src+RUN.replace('@@CUDA@@',repr(VECTOR_CUDA if vector else CUDA)).replace('@@VECTOR@@',repr(vector)))
+    top7='--top7' in sys.argv;vector='--vector' in sys.argv or top7
+    cuda=VECTOR_CUDA if vector else CUDA
+    if top7:
+        start=cuda.index('__device__ __forceinline__ void p7fma(');end=cuda.index('template<int NT,int CPT>',start)
+        cuda=cuda[:start]+r'''
+__device__ __forceinline__ void p7fma(uint4 raw,unsigned long long c,uint4 xa,uint4 xb,const unsigned* lut,float& acc){
+ unsigned h[4]={0,0,0,0};
+ #pragma unroll
+ for(int p=0;p<8;p++){
+  unsigned code=(c>>(7*p))&127,z=lut[code&31]|((code&32)<<2)|((code&64)<<9);
+  h[p/2]|=z<<((p&1)*16);
+ }
+ f4(raw.x,h[0],xa.x,xa.y,acc);f4(raw.y,h[1],xa.z,xa.w,acc);
+ f4(raw.z,h[2],xb.x,xb.y,acc);f4(raw.w,h[3],xb.z,xb.w,acc);
+}
+'''+cuda[end:]
+        changes=[('sl[128]','sl[32]'),('i<128;i+=NT+32','i<32;i+=NT+32'),
+                 ('const int4* tab','const int2* tab'),('const int4* tb','const int2* tb'),
+                 ('int4 e=tb[i]','int2 e=tb[i]'),('reinterpret_cast<const int4*>(tab.data_ptr<int>())','reinterpret_cast<const int2*>(tab.data_ptr<int>())'),
+                 ('float d=__fsub_rn(lf((unsigned)e.y),lf((unsigned)e.z));','unsigned dec=((unsigned)e.y&0x80ffu)|(((unsigned)e.x>>14&127u)<<8);float d=__fsub_rn(lf((unsigned)e.y),lf(dec));'),
+                 ('(e.x&65535)','(e.x&8191)'),('if(e.x>>16)','if((e.x>>13)&1)')]
+        for old,new in changes:
+            assert old in cuda,old
+            cuda=cuda.replace(old,new)
+        assert 'e.z' not in cuda
+        for b in range(65536):
+            raw=b&255;hi=(b>>8)&255
+            assert raw|(hi<<8)==b # actual fma4 low/high byte ABI
+            k=b&8191;row=(b>>13)&1;de=((b>>8)&127)^9
+            ent=(de<<14)|(row<<13)|k
+            assert ent&8191==k and (ent>>13)&1==row and (ent>>14)&127==de
+            other=(b*4051+17)&65535;i=b&31
+            lutword=((3*i)&127)|(((5*i+9)&127)<<8)
+            code=i|((b>>15)<<5)|((other>>15)<<6)
+            packed=code.to_bytes(1,'little')[0]
+            assert packed&31==i
+            high=lutword|((packed&32)<<2)|((packed&64)<<9)
+            low=(b&255)|((other&255)<<8)
+            # fma4's actual __byte_perm(lo,hi,0x5140) creates the two BF16 values.
+            lb=low.to_bytes(4,'little');hb=high.to_bytes(4,'little');srcb=lb+hb
+            perm=sum(srcb[(0x5140>>(4*j))&15]<<(8*j) for j in range(4))
+            for h,orig in enumerate((b,other)):
+                decoded=(perm>>(16*h))&65535
+                escape=orig if decoded!=orig else None
+                assert (escape if escape is not None else decoded)==orig
+        print('CPU top7 actual fma4 ABI/all-BF16/escape-field gate PASS')
+    Path(sys.argv[1]).write_text(src+RUN.replace('@@CUDA@@',repr(cuda)).replace('@@VECTOR@@',repr(vector)).replace('@@TOP7@@',repr(top7)))
     print('CPU all-BF16/56-bit packing gate PASS; wrote',sys.argv[1])

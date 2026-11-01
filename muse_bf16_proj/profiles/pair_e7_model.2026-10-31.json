@@ -1,0 +1,32 @@
+[
+  {
+    "seed": 71031,
+    "count": 262144,
+    "escape_fraction": 0.001132965087890625,
+    "bits_with_8byte_escape_entry": 11.572509765625,
+    "unmodeled": "per-CTA table padding, decode instructions, GPU Philox differs",
+    "stored_code_bytes": 114688,
+    "lut_entries": 32,
+    "roundtrip": true
+  },
+  {
+    "seed": 71032,
+    "count": 262144,
+    "escape_fraction": 0.001163482666015625,
+    "bits_with_8byte_escape_entry": 11.574462890625,
+    "unmodeled": "per-CTA table padding, decode instructions, GPU Philox differs",
+    "stored_code_bytes": 114688,
+    "lut_entries": 32,
+    "roundtrip": true
+  },
+  {
+    "seed": 71033,
+    "count": 262144,
+    "escape_fraction": 0.001129150390625,
+    "bits_with_8byte_escape_entry": 11.572265625,
+    "unmodeled": "per-CTA table padding, decode instructions, GPU Philox differs",
+    "stored_code_bytes": 114688,
+    "lut_entries": 32,
+    "roundtrip": true
+  }
+]

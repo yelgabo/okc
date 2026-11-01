@@ -21,6 +21,10 @@ components, in the same process, before calling it lost again.
 
 | Experiment | Evidence | Rules out |
 |---|---|---|
+| One128row W TMA replacing two64row W copies in raw dense wd128x128 |7803be789c624f8e: exactSW128/bytes/count gates and GPU correctness pass; full saves~0.5us but remains~12us behindLt, memory-only gain negligible; resources unchanged62clusters/90regs/no local |This local copy-issue reduction as repair of the dense deficit. Stop further local TMA knobs without counters/new mechanism; no production adoption |
+
+| Experiment | Evidence | Rules out |
+|---|---|---|
 | Tokenfast independent cluster order on raw qkv256 wd128x128/4-way/3-stage |d271218896df4a85: all full correctness/replay pass; oldfull39.33/39.44us,new39.50/39.38 vsLt26.59; memory probes save0.1–0.3us only, identical62clusters/no localmemory |This work-order change as repair of the12.7us deficit. L2 reuse remains unmeasured; new copy-pipeline mechanism needed, not another ordering sweep. First303ba... failed builder restoration before CUDA |
 | Actual pair7 in two-row/CPT-prefetch cgemv scaffold, shared LUT and vector fma4 |4aef50bcd265448b: stored weight/LUT/FP64 probes pass; qkv/o/pool512/pool256/slice +4.96/+3.39/+13.02/+7.57/+1.31us; null<=0.064;40–48regs,no localmemory |This shared-LUT/vector decoder despite improved scalar scaffold. Physical1–3% savings insufficient for decode/occupancy cost. No production adoption; revisit with materially cheaper codec/decode placement, not register tuning alone |
 
