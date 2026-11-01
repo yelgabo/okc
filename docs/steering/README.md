@@ -1,6 +1,7 @@
 # Shared project steering
 
 Latest MoE diagnostic addendum: [Native G stage observer terminal closure](2026-11-01-g-stage-observed-readiness.md), source5c1a1f8 / jobf147d06a64504c1e. Correctness passes; all detail attribution rows rejected.
+Latest independent review: [VP2 private attention host scaffold](2026-11-01-vp2-independent-host-review.md) - exact6ca280a3 artifact, seven TorchCPU tests pass; bounded diagnostic host clearance only, no GPU or release claim.
 
 This is the stable entry point for steering reports across research, implementation,
 and coordinator sessions. The user requested on 2026-10-29 that every project-steering
