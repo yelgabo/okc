@@ -2,7 +2,8 @@
 
 Audited upstream 8e30e1be994db4310794b8d04e90d18d895deb84, layer SHA
 1ec189dc6f306cec1694946eb62d64b54daf378c6fc1ada2f0f5e501e973ff2a.
-No device source/fence/math changes. One prepared state must not be replayed
+Embedded ATT7 CUDA and its fences/barriers stay unchanged; fallback prep
+restores BF16 boundaries and exact E4M3 RNE. One prepared state must not be replayed
 concurrently; independent states have independent attention scratch.
 """
 import ast
