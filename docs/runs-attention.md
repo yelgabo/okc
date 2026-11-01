@@ -4034,3 +4034,39 @@ differentquestion and doesnot erase those failures. No furthertuning of thelate-
 finishpurefilevalidation/publicdecision underroot, then closeit and use freshinternal
 mode51 attribution before any newstructuralattention optimization.
 
+
+## New Q8 full-context producer attribution, registered before dispatch
+
+Goal is measurement, not a performancecandidate: distinguish current mode51 cache-gather /
+producer pace from consumer-compute/synchronization costs at verify16/32full. No morelate-tid
+sweeps. Latestfull-mode51 resources in80415fe736bb4890:107104dynamicbytes/CTA,384threads,
+80registers/staticthread allocation,localbytes0,2blocks/SM capacity.
+
+New wrong-output ONE_PROBE4/5 branches retain acquire(it,st,common), its existingoptional
+patch/proxyfences/firsttilecsync, two warpgroupfence/commit/wait0 sequences, bothcompiler
+reg_fences, earlyEREL release (or its mutuallyexclusive latealternative), postQKproxyfence,
+named_sync(2+hk,128), and cst/cph advancement through existingrelease. All256consumerthreads
+arrive onemptybarriers exactlyonce/tile; producerfull init/count128 is unchanged. Probe4
+readsactualcachedrows;5usesexistingCPBzero-fill mechanism. QK/softmax/Vtranspose/PV arithmetic
+is absent, so outputs are intentionallywrong and everyarmname ends_probe. Never publicsubmit.
+
+PTX8.7 section9.7.15.7.2 explicitly permits emptywgmma-groups; section9.7.15.7.3 defines wait0
+completion. Allwarpgroup lanes execute samegroups uniformly. Primarysource:
+https://docs.nvidia.com/cuda/archive/12.8.2/parallel-thread-execution/index.html#asynchronous-warpgroup-level-matrix-instructions-wgmma-commit-group
+No fence/barrier/arrive is removed or weakened. Emptygroups preservecollectives but removal
+of math stillchanges instruction/SMresource pacing: interpretas producer-boundpace with
+retainedcollectives, NOT purememorybandwidth or additive recoverablelatency.
+
+Tool `tools/attn_make_q8_attrib.py`: unmodifiedcontrol +independentcontrol2, read_probe,
+zero_probe, existingnocopycomputeprobe1, stamp_probe, eachprivateworkspace. Onlytwoexacttarget
+shapes timed,2heldoutinputs,120coldrounds,seed311109. Allvariantsmust show L8mode51
+107104dynamicbytes AND2blocks/SM BEFOREANYtiming; failure abortsimport. Controlbuilds retainall
+normalinstances; probe-onlybuilds compileonly8/51 tofitpreparebudget, a compile-layout
+perturbation explicitlyaccepted forattributiononly. Resourcegate repeatedattail. Nearbymodes
+not supportedby these probe-onlymodules are notrun. No donorcode or sourceadoption.
+
+CPU/source audit: Python/generationcompile, exactkernelbranchcountacquire1; release2 source
+sitesbutmutuallyexclusiveERELconditionsgive1dynamicrelease; proxyfence1explicitplusunchanged
+acquirefences;2wgfence/commit/wait0/regfence;1namedbar128 perWG/tile. Independentread-only
+review bytoday_moe found no blocker andconfirmedallhandshakeparticipants andlifetimes;
+requiresactualoccupancy gatebeforerun. No measuredresource/performanceclaimuntilreceipt.
