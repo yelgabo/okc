@@ -262,3 +262,9 @@ the public entry vjeux/okc-2026 with its design memos (see `docs/gap-analysis-20
 | Experiment | Evidence | Scope and revisit trigger |
 |---|---|---|
 | Actual full-only late-tid2 candidate with strict1e-4 fresh-output comparator | 3588375a529c4fe8 prepare failed: sliding17/2000 above threshold, maxrelativeL2~4.48e-4; fullstress/officialtests/timing not reached | No promotion despite passing pairedperformancegatea9b416a0c7324ecc. Attribute only after independent0-vs-0/2-vs-2 nulls on BOTHshapes with unchanged comparator; diagnostic26c8a3ea28554454 is the registered next step. Do not call this correctness loss or benignnoise before that evidence. |
+
+### Offline Q8 layout bound, 2026-10-31 PDT
+
+| Proposal | Evidence | Scope / revisit trigger |
+|---|---|---|
+| SingleVTpair alone tofundNS4at2CTA | StaticSmemlayout max(QST_BYTES16384,VT_BYTES20480): singleVT10240 stillneedsrawQST16384; saves4096, so NS4requires119392B/CTA and238784Bfor2>233472B | Declinedbeforecode/check. Initialoffline113248B calculation wronglyignoredrawqueryaliasconstraint. Reopenonlywith namedadditionalstaging/layoutsavings, completeconsuming-layout/lifetimeproof and actualresourcegate, afterfreshmode51attribution. |

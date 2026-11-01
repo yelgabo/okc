@@ -4084,3 +4084,15 @@ Cleanofficialscore2.569431 overlaps priorheadlinevariation; causalperformanceevi
 value2 affects onlyL1SPECnon-one-tile (d1full), and actual46/16layerloadweights/six-loadGM dilute
 0.4us to roughly0.02%wholelayerscore, belowcurrentfour-armnoise (exactlayerpairedmedians
 would be needed for a preciseestimate). Do not spendalayercheck assuming standalonegaintransfers.
+
+### Offline layout proposal corrected and closed before experiment
+
+An offline sketch assumed that reducing fourVTbuffers20480bytes to two10240bytes would
+reclaim10240bytes and permit a fourthrawstage at113248bytes/CTA. This was WRONG: rawquery
+stagingaliasesVT and requiresQST_BYTES16384. The actualmax(QST_BYTES,VT_BYTES) therefore
+shrinks20480->16384, savingONLY4096bytes. NS4 wouldrequire107104+16384-4096=119392bytes/CTA;
+twoCTAs238784bytes EXCEED233472bytes. No code/job/stagesweep was made from that sketch.
+VTcompactionalone doesnot reopenNS4at2CTA. A differentquery-staging/register/layoutmechanism
+would need explicitconsuming-layout/lifetime/resourceproof and newmeasuredbottleneck evidence;
+wait currentq8attribution before anysuchredesign. Initial113248claim is superseded by this
+explicitcorrected accounting, not a measuredconfiguration.
