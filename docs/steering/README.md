@@ -120,6 +120,8 @@ report be checked into this repository so other sessions can read it.
 
 ## Latest review
 
+[Working principles applied to both root instruction files](2026-11-01-working-principles.md#november-1-addendum--applied-in-both-root-instruction-files) records the ten mandatory research/execution rules, including lessons from public implementations.
+
 [Retained principles for how we work](2026-11-01-working-principles.md) summarizes general research, experimentation and coordination lessons; current G integration priorities remain in force.
 
 [G integration candidate-funnel review](2026-11-01-g-candidate-funnel.md) counts one surviving implemented treatment and assigns parallel, directly relevant source investigations without inflating controls or audits into candidates.
