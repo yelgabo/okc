@@ -1,9 +1,9 @@
 """Synthetic receipt transport/decision tests; no claimed H200 measurements."""
 import copy,json,unittest
-from moe_attn_vp2_read import analyze,score_function
+from moe_attn_vp2_read import analyze,score_function,OWN,PUBLIC
 
 def fixture():
- manifest={'seeds':[824731,824737,824743],'sch':0,'measurement_only':True}
+ manifest={'seeds':[824731,824737,824743],'sch':0,'measurement_only':True,'owned_lf':OWN,'public_raw':PUBLIC}
  rows=[(b,l,w,s,[100.,100.,88. if (b,l,w)==(1,8,1) else 100.,88. if (b,l,w)==(1,8,1) else 100.]) for b in (1,16,32) for l in (1,8) for w in (0,1) for s in manifest['seeds']]
  fixed=[[b,l,w,4.] for b in (1,16,32) for l in (1,8) for w in (0,1)]
  plans=[[b,l,w,i,['VP2_grid_cluster_threads',32,16,256] if (b,l,w)==(1,8,1) and i>=2 else ['ONE_splits_copies_mode',33,1,15]] for b in (1,16,32) for l in (1,8) for w in (0,1) for i in range(4)]

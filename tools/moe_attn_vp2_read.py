@@ -1,6 +1,7 @@
 """Validate complete private VP2 receipt and recompute all paired score sensitivities."""
 import ast,json,math,statistics
 from pathlib import Path
+from moe_attn_vp2_make import OWN,PUBLIC
 
 def score_function(manifest):
     source=Path(__file__).with_name('moe_attn_vp2_body.py').read_text(encoding='utf8')
@@ -25,6 +26,7 @@ def analyze(receipt):
     assert r['counts']=={'eager_extra':16,'normal':144,'fresh':336,'post':144}
     assert r['dispatch_counts']=={'ONE':284,'VP2':20},'all-fallback/incomplete coverage'
     assert r['source']['sch']==0 and r['source']['measurement_only']
+    assert r['source']['owned_lf']==OWN and r['source']['public_raw']==PUBLIC,'source pin mismatch'
     assert len(r['plans'])==48 and sum(p[4][0]=='VP2_grid_cluster_threads' for p in r['plans'])==2
     assert all(p[:3]==[1,8,1] and p[3] in (2,3) and p[4][1:]==[32,16,256] for p in r['plans'] if p[4][0]=='VP2_grid_cluster_threads')
     res=r['resources'];assert len(res)==4 and res[0]==res[1] and res[2]==res[3]
