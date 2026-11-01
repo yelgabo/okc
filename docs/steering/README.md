@@ -607,3 +607,5 @@ Latest: [Dense projection transfer to the decode layer](2026-11-01-layer-dense-t
 
 - 2026-11-01: [Final cached band32 closure](2026-11-01-owned-cached-band32-terminal.md):903e5b03411c4e2d PASS5/all396 checks; cached recovers failed direct loss but full-score versus control0.99447-0.99890 fails, KEEP=false. No pure/public candidate, knob sweep or production change.
 - [2026-11-01 attention public-source delta search](2026-11-01-attention-public-source-delta.md): fresh board, unchanged stronger comparators, targeted branch/content widening and scoped miss; no GPU.
+
+- 2026-11-01: [Owned C2 projection WGMMA lifetime audit](2026-11-01-projection-wgmma-lifetime-audit.md): exact C2/control22-entry sm90a compile and full30-cell score map; all3 active WD loops already wait1 then release prior stage, wait0 only terminal. No MoE-style drain opportunity, kernel/check proposal or C3 repeat.

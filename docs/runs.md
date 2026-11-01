@@ -2231,3 +2231,18 @@ Nineteen projection checks used; one remains subject to root coordination.
 2026-11-01 | 40b9f54be6fe4d4e | PUBLIC scored C3 measurement by coordinator, user renewed go-ahead. Verified exact checked candidate 61330d87d32c4190 and current tracked production SHA256 9fd8e794f7eb989943718348da2bf21ece934be3b4527b349eed34ccbceea4a4, plus one trailing repeat label. Submitted SHA256 8e45ef098ed58c56754fb8040666ab1d1021c8bf7cb190b393080dac5bf40c12, byte prefix and Python AST verified. No algorithm change. Prior two scored C3 jobs 7a15f46e673b43d5 and 2383f5173a934c63; prior C2 public best 9eba96894ee1402e at 1.527806483x. Paired router evidence 7d2fe593fdfa4720. Pending.
 
 40b9f54be6fe4d4e terminal PUBLIC run PASS 9/9, 30 timed cells and 30 profiles, no flags. Scored 1.516021653x (95% CI 1.493281329-1.538761978). Post-run board retains C2 at 1.527806483x, rank 307. This is the third scored C3 observation below C2; no further C3 repetitions are planned without a new candidate or decision.
+
+
+### Offline C2 WGMMA/lifetime audit, 2026-11-01 (no GPU job)
+
+Pinned public C2 owner9eba96894ee1402e/source3044ee7-commentrepeat, persistent
+projection_best.py rawSHA5610b8a64e25f70c639ac0523fe7c14754a6c54d349eb005210123b4e19fb3b4.
+Actual localCUDA12.8NVRTC/PTXASsm90a22existingdeviceentries compile; three activeWD
+entries have4/8/8HGMMA, oneloopwait1 andoneterminalwait0 each, noC751x,0spill.
+AllshortSK/RT/RD compiledHMMA/noHGMMA. Sourcealreadyreleasespreviousstageafter
+wait1; terminaldrainrequiredbeforepartials/ringreuse. NoMoE-styleinnerdrain found.
+Full30C2/SGLang/floor/scoremap andsource/SASSresources in
+docs/steering/2026-11-01-projection-wgmma-lifetime-audit.md. Hypothetical10percent
+cuttoall3wholeWDoperators gives1.007287507factor, notmeasuredwaitbudget. Existing
+depth24542b2b04cb344ec/pushepilogue4edaa20c98904404 closuresremain. No source
+optimization/check/C3repeat; opaqueLtactualSASS remainsunobserved.
