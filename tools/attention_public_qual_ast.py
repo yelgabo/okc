@@ -1,0 +1,16 @@
+from pathlib import Path
+import ast,json,hashlib,sys
+s=Path('../okc-today-proj/.build/today-proj/prod-size/qualify-mask15.py').read_text(encoding='utf8');t=ast.parse(s)
+root=Path('../okc');code=(root/'tools/dl_make_bench_pub.py').read_text(encoding='utf8');body=next(ast.literal_eval(n.value) for n in ast.parse(code).body if isinstance(n,ast.Assign) and getattr(n.targets[0],'id','')=='BODY');orig=next(n for n in ast.parse(body).body if isinstance(n,ast.FunctionDef) and n.name=='_ab_validate')
+new=next(n for n in t.body if isinstance(n,ast.FunctionDef) and n.name=='_qual_oracle');new.name='_ab_validate';bound=next(n for n in ast.walk(new) if isinstance(n,ast.FunctionDef) and n.name=='bound');assert isinstance(bound.body[0],ast.Assert);bound.body.pop(0)
+rel=next(n for n in ast.walk(new) if isinstance(n,ast.FunctionDef) and n.name=='rel');assert isinstance(rel.body[1],ast.Assert);rel.body=[ast.Return(value=rel.body[0].value)];assert ast.dump(new)==ast.dump(orig)
+base=Path('../okc-today-moe/.build/today-moe/verify-owned-progress/hybrid-mask15.py').read_text(encoding='utf8');bt=ast.parse(base)
+fn=lambda tree,name:next(n for n in tree.body if isinstance(n,ast.FunctionDef) and n.name==name)
+lit=lambda tree,name:next(ast.literal_eval(n.value) for n in tree.body if isinstance(n,ast.Assign) and getattr(n.targets[0],'id','')==name)
+assert ast.dump(fn(t,'kernel_fn'))==ast.dump(fn(bt,'kernel_fn'))
+assert lit(t,'_VERIFY_HYBRID_SOURCE_G')==lit(bt,'_VERIFY_HYBRID_SOURCE_G')
+a,b=map(ast.parse,[lit(bt,'_VERIFY_HYBRID_SOURCE_OWNED'),lit(t,'_VERIFY_HYBRID_SOURCE_OWNED')])
+for name in ['_MOE1_SRC','_ONE_SRC']:assert lit(a,name)==lit(b,name)
+for name in ['prepare','kernel_fn','_moe1_run','_one_setup','_one_plan']:assert ast.dump(fn(a,name))==ast.dump(fn(b,name))
+report=dict(source_sha256=hashlib.sha256(s.encode()).hexdigest(),oracle_guard_reversal_exact=True,normal_kernel_ast_identical=True,G_bytes_identical=True,owned_device_literals_identical=True,owned_prepare_kernel_and_dispatch_unchanged=True,GPU=False)
+p=Path('.build/today-attn/public-qual-ast-draft.json');p.write_text(json.dumps(report,indent=2));print(json.dumps(report))

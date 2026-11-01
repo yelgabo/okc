@@ -1,0 +1,9 @@
+{
+  "source_sha256": "4ad326c3451d1b9a7ba22e6c89a2b06ebd8f565c20300abd9fc0d3b0a35001bc",
+  "oracle_guard_reversal_exact": true,
+  "normal_kernel_ast_identical": true,
+  "G_bytes_identical": true,
+  "owned_device_literals_identical": true,
+  "owned_prepare_kernel_and_dispatch_unchanged": true,
+  "GPU": false
+}
