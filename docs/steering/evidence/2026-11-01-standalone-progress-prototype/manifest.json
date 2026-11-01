@@ -1,0 +1,17 @@
+{
+  "input_sha256": "b35d321730f67b8157eef0683011b118bf3644dc5e9602ee29d823d8056c4e14",
+  "core_sha256": "5b4f3158c65bd736456be927e1b5107e32f0a24f7aca76499ae4e8c0d9c2f73d",
+  "native_delta_only_two_launchers_and_watchdog": true,
+  "main_launch_sha256": "fc79a24683e52de1a26f83fa0ba756a747908cb31cf83e0b4c8f8ead86c30e1d",
+  "skinny_launch_sha256": "648bc217697e567c47874ed6ca602a86bbd81c6609d2a6529e83ac092d6c7592",
+  "qualification_scope": "EP8 local_start0/local_count32; 1..512 tokens per original chunk; H200-compatible admitted SM90 grid with dynamic B queue capacity; no circular/nonzero weight bank claim",
+  "GPU": false,
+  "policy_choice": "Freeze exact abe765 six-load policy, no tuner/bench called by new prepare",
+  "static_gate": "FAIL: main47spill12/112 ->16/128, skinny unchanged",
+  "full_fresh_empty_graph_qualification": "DESIGN ONLY; blocked by static gate",
+  "normal_entry_OFF": true,
+  "output_sha256": "68bf4c1f336611bd7f8e0356fda07b131afa35a10579ad5fd50f941e7a7be6a6",
+  "bytes": 241838,
+  "OFF_by_default": true,
+  "H200_qualified": false
+}
