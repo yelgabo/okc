@@ -4211,3 +4211,4 @@ FAILS performance: v1sliding11.17us control vs32.22/32.03, every3input
 Resource111regs/0local/90704dynamic/2blocksSM; maxcluster capacity14 (launch2).
 Fresh256math/cache/row+3negative gates passed by terminal fail-closed source
 logic; stdout/maxima truncated. Closed, no production promotion or newjob.
+2026-11-01 | cd6805e7ebce45ee | exact public rohanarun/Auto-research-agent attention artifact at 018b7a10, SHA256 394f2517ca8eaf69b7d422832edfd59451a9f73103981d13b1059070abb17b4b | Off-board exact-file comparator; source-matched published banks have uniform per-shape baseline/candidate times and are insufficient for stage attribution. Pending.
