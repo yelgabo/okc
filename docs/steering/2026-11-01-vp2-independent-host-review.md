@@ -132,3 +132,26 @@ ratio greater than1 and no raw regression. Historical-offset and raw
 no terminal receipt exists in this review and no measured decision is made.
 Any actual nonpositive adjusted timing fails through the existing score
 gate. Root retains final receipt validation and dispatch ownership.
+
+### Subsequent strict metadata correction
+
+The independent device auditor identified that normal raw-pointer dispatch
+also needs tensor ABI eligibility. Final reviewed replacement is 412952 bytes,
+SHA256 `866845554b3d694c40165fabbdfde6739f6fa22b1efb5abb6b5831f32e368f24`.
+This supersedes the78ce artifact clearance. `_vp_eligible(data)` now checks
+BF16 QKV shape/contiguity, int32 page/sequence metadata and stride limits,
+int64 locations, matching contiguous FP8 cache shapes, scalar float32 scale
+metadata, common devices and the exact supported configuration. Unsupported
+metadata delegates to the existing owned dispatcher.
+
+Eight independent TorchCPU tests pass in 7.507 seconds. The added test calls
+the actual predicate on real CPU Float8 tensor metadata, then rejects bad
+Q/sequence/location/page/cache/scale dtypes, noncontiguous Q/page tensors,
+cache shape mismatch and unsupported configurations. The actual normal
+entry with the real predicate routes the fixture's FP32-cache input to owned,
+so it cannot reinterpret those pointers as FP8. For whole-flow arithmetic
+only, the fixture explicitly replaces its FP32 cache metadata with equivalent
+Float8 metadata before invoking the real predicate; full-flow cache arithmetic
+remains the disclosed CPU stand-in. All prior coverage, fresh-state, score,
+transport and failure tests remain passing. This is host-source clearance
+for the bounded private diagnostic, with all earlier device/runtime limits.

@@ -116,7 +116,7 @@ def inputs(batch,ctx,head,layer,length,spread,dist,page,scale,seed):
     seq=torch.full((batch,),min(ctx,8),dtype=torch.int32)
     table=torch.arange(batch*width,dtype=torch.int32).reshape(batch,width)
     return dict(config=c,qkv=q,page_table=table,seq_lens=seq,
-                cache_loc=torch.gather(table,1,(seq[:,None]+torch.arange(length,dtype=torch.int32)).long()),
+                cache_loc=torch.gather(table,1,(seq[:,None]+torch.arange(length,dtype=torch.int32)).long()).long(),
                 k_cache=torch.zeros(batch*width,2,64),v_cache=torch.zeros(batch*width,2,64),
                 k_scale=torch.ones(1),v_scale=torch.ones(1))
 
@@ -163,6 +163,14 @@ def namespace():
             _VP_CPP='',_VP_CUDA='',_VP_MANIFEST=pins['_VP_MANIFEST'],_VP_OFFSETS=pins['_VP_OFFSETS'])
     exec(compile(tree,'<actual-VP2-host>','exec'),ns)
     ns['_ob_inputs']=inputs;ns['_vp_refs']=refs
+    # Whole-flow arithmetic deliberately uses FP32 cache stand-ins. Exercise
+    # the real metadata predicate on equivalent FP8 metadata, not on fake dtype.
+    real_eligible=ns['_vp_eligible'];ns['_test_real_eligible']=real_eligible
+    def facade_eligible(data):
+        meta=dict(data)
+        for key in ('k_cache','v_cache'):meta[key]=torch.empty_like(data[key],dtype=torch.float8_e4m3fn)
+        return real_eligible(meta)
+    ns['_vp_eligible']=facade_eligible
     ns['_ob_rel']=lambda a,b:float((a.float()-b.float()).norm()/b.float().norm().clamp_min(1e-12))
     return ns
 
@@ -202,6 +210,11 @@ class HostTests(unittest.TestCase):
             self.assertEqual(API.calls[-1][2],'vp2')
             d['config']['kv_scale']=.5
             ns['kernel_fn'](d);self.assertEqual(API.calls[-1][2],'owned')
+            ns['_vp_eligible']=ns['_test_real_eligible']
+            d['config']['kv_scale']=1.
+            # Actual metadata guard sees the fixture's unsupported FP32 caches
+            # and must delegate instead of interpreting their pointers as FP8.
+            ns['kernel_fn'](d);self.assertEqual(API.calls[-1][2],'owned')
             d['config']['num_q_heads']=24
             self.assertEqual(ns['kernel_fn'](d),'sglang-fallback')
         self.assertEqual(report['dispatch_counts'],dict(ONE=284,VP2=20))
@@ -233,6 +246,26 @@ class HostTests(unittest.TestCase):
         self.assertTrue(all(math.isfinite(x) for x in errors))
         self.assertEqual(errors[2:],[0.,0.,0.,0.])
         self.assertGreater(float((rr[0].float()-rr[1].float()).abs().max()),0.)
+    def test_real_metadata_eligibility_positive_and_negative(self):
+        fn=namespace()['_test_real_eligible']
+        data=inputs(1,8,'tp8','sliding',8,'fixed','soft',1,1.,37)
+        for key in ('k_cache','v_cache'):data[key]=torch.empty_like(data[key],dtype=torch.float8_e4m3fn)
+        self.assertTrue(fn(data))
+        mutations={
+            'qkv':data['qkv'].float(), 'seq_lens':data['seq_lens'].long(),
+            'cache_loc':data['cache_loc'].int(), 'page_table':data['page_table'].long(),
+            'k_cache':data['k_cache'].float(), 'v_cache':data['v_cache'].float(),
+            'k_scale':data['k_scale'].double(),
+        }
+        for key,value in mutations.items():
+            with self.subTest(key=key):self.assertFalse(fn({**data,key:value}))
+        badq=torch.empty(1,8,4608,dtype=torch.bfloat16)[...,::2]
+        self.assertFalse(fn({**data,'qkv':badq}))
+        badpage=torch.empty(1,data['page_table'].shape[1]*2,dtype=torch.int32)[:,::2]
+        self.assertFalse(fn({**data,'page_table':badpage}))
+        self.assertFalse(fn({**data,'v_cache':torch.empty(1,2,64,dtype=torch.float8_e4m3fn)}))
+        for key,value in [('page_size',2),('kv_scale',.5),('num_q_heads',24),('head_dim',128)]:
+            self.assertFalse(fn({**data,'config':{**data['config'],key:value}}))
     def test_actual_checker_finite_output_reference_cache(self):
         ns=namespace();d=inputs(1,0,'tp8','sliding',8,'fixed','soft',1,1,4);rr=refs(d)
         execute(d['qkv'],d['page_table'],d['seq_lens'],d['k_cache'],d['v_cache'],rr[0].clone(),1,8,'test')
