@@ -1,6 +1,6 @@
 {
-  "reviewed_at": "2026-11-01T11:19:00-07:00",
-  "snapshot": "fa8173a",
+  "reviewed_at": "2026-11-01T12:45:00-07:00",
+  "snapshot": "08d336a",
   "family_registry_update": {
     "date": "2026-10-30",
     "evidence_snapshot": "7a5965531103f275ac104d340ef30f1508e32353",
@@ -139,13 +139,13 @@
   "context_pending": [
     {
       "name": "Stage-local sparse XOR",
-      "label": "Projection job pending",
-      "summary": "Job dfcfdd01d6f04525 awaits H200 results. The earlier global-record version passed correctness and regressed on every target cell."
+      "label": "Projection loss • experiment closed",
+      "summary": "All ten targets ran slower than archived C2. Stage-local scored 1.4191× versus C2 at 1.5278× across separate runs."
     },
     {
-      "name": "Four-cell verify diagnostic",
-      "label": "Private diagnostic fits • production package exceeds limit",
-      "summary": "H200 qualification is pending for the diagnostic. Every tested production hybrid exceeds the file-size limit."
+      "name": "Four-cell verify hybrid",
+      "label": "Source fits • H200 qualification pending",
+      "summary": "The repaired 952,309-byte production core fits. Cooperative launch and fatal-timeout handling still need H200 validation. The private four-cell diagnostic is on hold."
     },
     {
       "name": "G stage and short-path studies",
