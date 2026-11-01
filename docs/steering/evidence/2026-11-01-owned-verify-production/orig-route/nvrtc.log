@@ -1,0 +1,58 @@
+owned_decoder.cu(33): warning #177-D: variable "<unnamed>::kPdlGlue" was declared but never referenced
+  constexpr bool kPdlGlue = true;
+                 ^
+
+Remark: The warnings can be suppressed with "-diag-suppress <warning-number>"
+
+owned_decoder.cu(40): warning #177-D: function "<unnamed>::route_align_kernel" was declared but never referenced
+  __global__ void __launch_bounds__(1024) route_align_kernel(
+                                          ^
+
+owned_decoder.cu(147): warning #177-D: function "<unnamed>::finalize_row_kernel" was declared but never referenced
+  __global__ void __launch_bounds__(512) finalize_row_kernel(
+                                         ^
+
+owned_decoder.cu(237): warning #177-D: variable "<unnamed>::RN" was declared but never referenced
+  constexpr int RN = 256;
+                ^
+
+owned_decoder.cu(239): warning #177-D: variable "<unnamed>::R_ROWS_PER_BLOCK" was declared but never referenced
+  constexpr int R_ROWS_PER_BLOCK = 16;
+                ^
+
+owned_decoder.cu(242): warning #177-D: variable "<unnamed>::R_STEPS" was declared but never referenced
+  constexpr int R_STEPS = R_K_SLICE / 128;
+                ^
+
+owned_decoder.cu(600): warning #177-D: function "<unnamed>::prefetch_kernel" was declared but never referenced
+  __global__ void __launch_bounds__(PF_THREADS) prefetch_kernel(const char* p0, long long n0,
+                                                ^
+
+owned_decoder.cu(650): warning #177-D: variable "<unnamed>::STAGES" was declared but never referenced
+  constexpr int STAGES = 4;
+                ^
+
+owned_decoder.cu(670): warning #177-D: function "<unnamed>::cp_async16" was declared but never referenced
+  __device__ __forceinline__ void cp_async16(void* dst, const void* src, bool valid) {
+                                  ^
+
+owned_decoder.cu(676): warning #177-D: function "<unnamed>::ldmatrix_x2" was declared but never referenced
+  __device__ __forceinline__ uint2 ldmatrix_x2(const __nv_bfloat16* p) {
+                                   ^
+
+owned_decoder.cu(688): warning #177-D: function "<unnamed>::store_out(float *, float)" was declared but never referenced
+  __device__ __forceinline__ void store_out(float* p, float v) {
+                                  ^
+
+owned_decoder.cu(684): warning #177-D: function "<unnamed>::store_out(__nv_bfloat16 *, float)" was declared but never referenced
+  __device__ __forceinline__ void store_out(__nv_bfloat16* p, float v) {
+                                  ^
+
+owned_decoder.cu(694): warning #177-D: function "<unnamed>::mma_bf16" was declared but never referenced
+  __device__ __forceinline__ void mma_bf16(float* c, const uint4& a, const uint2& b) {
+                                  ^
+
+owned_decoder.cu(879): warning #177-D: function "<unnamed>::router_mma" was declared but never referenced
+  void router_mma(const uint4* wp, const __nv_bfloat16* xp, float* op, int m,
+       ^
+

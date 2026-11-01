@@ -1,0 +1,62 @@
+owned_decoder.cu(119): warning #177-D: function "<unnamed>::mbar_wait_lite" was declared but never referenced
+  __device__ __forceinline__ bool mbar_wait_lite(uint32_t bar, uint32_t parity, bool& dead, int* diag, int code) {
+                                  ^
+
+Remark: The warnings can be suppressed with "-diag-suppress <warning-number>"
+
+owned_decoder.cu(147): warning #177-D: function "<unnamed>::mbar_wait_novote" was declared but never referenced
+  __device__ __forceinline__ void mbar_wait_novote(uint32_t bar, uint32_t parity, bool& dead, int* diag, int code) {
+                                  ^
+
+owned_decoder.cu(174): warning #177-D: function "<unnamed>::fence_proxy_async" was declared but never referenced
+  __device__ __forceinline__ void fence_proxy_async() {
+                                  ^
+
+owned_decoder.cu(190): warning #177-D: function "<unnamed>::bulk_g2s" was declared but never referenced
+  __device__ __forceinline__ void bulk_g2s(uint32_t dst, const void* src, uint32_t bytes, uint32_t bar) {
+                                  ^
+
+owned_decoder.cu(195): warning #177-D: function "<unnamed>::tma_3d" was declared but never referenced
+  __device__ __forceinline__ void tma_3d(uint32_t dst, const CUtensorMap* map, uint32_t bar, int c0, int c1, int c2) {
+                                  ^
+
+owned_decoder.cu(201): warning #177-D: function "<unnamed>::lds128" was declared but never referenced
+  __device__ __forceinline__ uint4 lds128(uint32_t a) {
+                                   ^
+
+owned_decoder.cu(208): warning #177-D: function "<unnamed>::lds64" was declared but never referenced
+  __device__ __forceinline__ uint2 lds64(uint32_t a) {
+                                   ^
+
+owned_decoder.cu(214): warning #177-D: function "<unnamed>::lds_bf16" was declared but never referenced
+  __device__ __forceinline__ float lds_bf16(uint32_t a) {
+                                   ^
+
+owned_decoder.cu(220): warning #177-D: function "<unnamed>::ldsm_x4" was declared but never referenced
+  __device__ __forceinline__ void ldsm_x4(uint32_t a, uint32_t* r) {
+                                  ^
+
+owned_decoder.cu(226): warning #177-D: function "<unnamed>::mma_bf16" was declared but never referenced
+  __device__ __forceinline__ void mma_bf16(float* c, const uint32_t* a, uint32_t b0, uint32_t b1) {
+                                  ^
+
+owned_decoder.cu(241): warning #177-D: function "<unnamed>::decode8" was declared but never referenced
+  __device__ __forceinline__ void decode8(uint32_t lw0, uint32_t lw1, uint32_t codes, uint32_t base4, uint32_t* r) {
+                                  ^
+
+owned_decoder.cu(1162): warning #177-D: function "<unnamed>::tma_2d" was declared but never referenced
+  __device__ __forceinline__ void tma_2d(uint32_t dst, const CUtensorMap* map, uint32_t bar, int c0, int c1) {
+                                  ^
+
+owned_decoder.cu(1233): warning #177-D: function "<unnamed>::tma_2d_mc" was declared but never referenced
+  __device__ __forceinline__ void tma_2d_mc(uint32_t dst, const CUtensorMap* map, uint32_t bar, int c0, int c1,
+                                  ^
+
+owned_decoder.cu(1260): warning #177-D: variable "<unnamed>::WV_PROMO64" was declared but never referenced
+  constexpr int WV_PROMO64 = 4;    // 64-byte L2 promotion on both tensor maps (host side)
+                ^
+
+owned_decoder.cu(1264): warning #177-D: variable "<unnamed>::WV_DUP" was declared but never referenced
+  constexpr int WV_DUP = 64;       // no effect: a separately compiled copy, for an independent null
+                ^
+

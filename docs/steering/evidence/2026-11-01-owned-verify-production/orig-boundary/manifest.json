@@ -1,0 +1,41 @@
+{
+  "source_sha256": "384933697aadb2ebfc2abe672b216751e55fd5949e01c0c57d03caa586fe6fe3",
+  "device_sha256": "0e81070a8c5bace5293e96a02c0b1563c9d4e5db0fb755a9723983597da03104",
+  "adapters": [
+    "device-only family extraction; Torch/ATen/driver header adapters",
+    "CUDA cstdint; route is_same_v alias",
+    "selected original device entry; no host API proof"
+  ],
+  "options": [
+    "-DSK_PDL=1",
+    "--gpu-architecture=compute_90a",
+    "--std=c++17",
+    "--generate-line-info",
+    "--device-as-default-execution-space",
+    "--include-path=/root/.cache/okc-cuda128/packages/nvidia/cuda_runtime/include",
+    "--include-path=/root/.cache/okc-cuda128/packages/nvidia/cuda_nvcc/include",
+    "--include-path=/root/.cache/okc-cuda128/cccl/nvidia/cuda_cccl/include"
+  ],
+  "expressions": [
+    "&bnd::attn_boundary_geo_kernel<1,512>"
+  ],
+  "nvrtc_status": 0,
+  "gpu_execution": false,
+  "lowered": [
+    "_ZN53_GLOBAL__N__00000000_16_owned_decoder_cu_6364c0cd_4763bnd24attn_boundary_geo_kernelILi1ELi512EEEvPKfPK13__nv_bfloat16S3_S3_S6_PfPS4_S7_ff"
+  ],
+  "cubin_sha256": "9c6c8c168e18e632de32e420d5240c8cf7c2fdf1fdab206f8fa8af2030dbb672",
+  "ptx_sha256": "bdff91144abd01885395a2137f60716b27ea0b38528289e4bb4b813a5d76dbc6",
+  "sass_sha256": "3ba884fd0487c8da239dae840acdc5a05c4229d684ff446a686b387775b332ec",
+  "ptxas_command": [
+    "/root/.cache/okc-cuda128/packages/nvidia/cuda_nvcc/bin/ptxas",
+    "-arch=sm_90a",
+    "-O3",
+    "-v",
+    "--warn-on-spills",
+    "/root/.cache/okc-owned-orig-boundary/device.ptx",
+    "-o",
+    "/root/.cache/okc-owned-orig-boundary/device.cubin"
+  ],
+  "ptxas_status": 0
+}

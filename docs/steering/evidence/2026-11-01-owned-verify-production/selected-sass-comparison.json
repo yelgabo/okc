@@ -1,0 +1,50 @@
+{
+  "wd": {
+    "selected": "wd_kernelILi1ELi128ELi3",
+    "SASS_equal": true,
+    "variants": [
+      {
+        "tag": "orig-wd",
+        "instructions": 776,
+        "opcode_operand_sha256": "acdf6f369d13fef98e920127119276ce78bedb297aa5532df5d9f1b9a4029ced"
+      },
+      {
+        "tag": "prod-wd",
+        "instructions": 776,
+        "opcode_operand_sha256": "acdf6f369d13fef98e920127119276ce78bedb297aa5532df5d9f1b9a4029ced"
+      }
+    ]
+  },
+  "boundary": {
+    "selected": "attn_boundary_geo_kernelILi1ELi512",
+    "SASS_equal": true,
+    "variants": [
+      {
+        "tag": "orig-boundary",
+        "instructions": 424,
+        "opcode_operand_sha256": "d92ab4dccffd9ce80a727f94802903807b9bfa73112c7e14cfe8dee78ee766a8"
+      },
+      {
+        "tag": "prod-boundary",
+        "instructions": 424,
+        "opcode_operand_sha256": "d92ab4dccffd9ce80a727f94802903807b9bfa73112c7e14cfe8dee78ee766a8"
+      }
+    ]
+  },
+  "route": {
+    "selected": "route_kernelIfLb1",
+    "SASS_equal": true,
+    "variants": [
+      {
+        "tag": "orig-route",
+        "instructions": 1664,
+        "opcode_operand_sha256": "13a33d1bbcff0bd288d94288e9ec5a7342f807bfe830f77c7403622f46b73bf0"
+      },
+      {
+        "tag": "prod-route",
+        "instructions": 1664,
+        "opcode_operand_sha256": "13a33d1bbcff0bd288d94288e9ec5a7342f807bfe830f77c7403622f46b73bf0"
+      }
+    ]
+  }
+}
