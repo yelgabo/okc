@@ -1,0 +1,123 @@
+{
+  "input_sha256": "ba9e327cd7b96595ace4d0c1d0d78fe27c128f23ed0debcda97c7169fc3164ab",
+  "output_sha256": "4b3b42632d43cf95e830491993df66b1117fd7e56200b5d3b113ee45b98729a3",
+  "bytes": 869292,
+  "enabled": true,
+  "field": "_g_preexp_effective",
+  "raw_field_retained": true,
+  "census": {
+    "consumers": {
+      "_route_b": {
+        "line": 10643,
+        "loads": [
+          10648
+        ]
+      },
+      "_route": {
+        "line": 10730,
+        "loads": [
+          10737
+        ]
+      },
+      "_route_split": {
+        "line": 10776,
+        "loads": [
+          10782
+        ]
+      },
+      "_graft_route": {
+        "line": 12069,
+        "loads": [
+          12083
+        ]
+      },
+      "_sl_graft_route": {
+        "line": 15740,
+        "loads": [
+          15754
+        ]
+      },
+      "_sl_tile_route": {
+        "line": 15794,
+        "loads": [
+          15801,
+          15810
+        ]
+      },
+      "_gle_route": {
+        "line": 16548,
+        "loads": [
+          16570
+        ]
+      }
+    },
+    "callers": [
+      {
+        "line": 11507,
+        "kernel": "_route_split"
+      },
+      {
+        "line": 11515,
+        "kernel": "_route_b"
+      },
+      {
+        "line": 11518,
+        "kernel": "_route"
+      },
+      {
+        "line": 12375,
+        "kernel": "_sl_tile_route"
+      },
+      {
+        "line": 12379,
+        "kernel": "_graft_route"
+      },
+      {
+        "line": 12386,
+        "kernel": "_sl_tile_route"
+      },
+      {
+        "line": 12390,
+        "kernel": "_graft_route"
+      },
+      {
+        "line": 12393,
+        "kernel": "_route"
+      },
+      {
+        "line": 15693,
+        "kernel": "_sl_graft_route"
+      },
+      {
+        "line": 15698,
+        "kernel": "_sl_graft_route"
+      },
+      {
+        "line": 15701,
+        "kernel": "_route"
+      },
+      {
+        "line": 15895,
+        "kernel": "_sl_tile_route"
+      },
+      {
+        "line": 15900,
+        "kernel": "_sl_tile_route"
+      },
+      {
+        "line": 15903,
+        "kernel": "_route"
+      },
+      {
+        "line": 16687,
+        "kernel": "_gle_route"
+      }
+    ],
+    "load_count": 8,
+    "caller_count": 15
+  },
+  "default_off": true,
+  "source_reverse_proof": true,
+  "GPU": false,
+  "scope": "Inherited pre-expert effective coefficient parity only; not integration delta or performance treatment"
+}
