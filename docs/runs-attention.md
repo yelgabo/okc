@@ -4185,3 +4185,7 @@ v16fullWST+12.10us, v1slidingVP2−.77us. VP2-only prospective signal~1.086%
 aggregate, needs new restricted gate/owned sourceproof; not retroactivepass.
 Resource minimum gates executed, numeric stdout truncated; no exactregister
 claim. Fullreceipt/log committed; details in alternate-engine steering report.
+
+|date|job|source|change|result|notes|
+|---|---|---|---|---|---|
+|2026-11-01|f74cbe27819147c1 (check)|36622ef|Owned restricted v1sliding mode3 hierarchical cluster merge|pending|GeneratedSHA1fe0b4b27a2f651c2c67228f01f9db1da4c2b20abec07adf930a53ffd24f8240; allCTAcount correction beforedispatch; 1%/2xnull gate preregistered.|
