@@ -347,6 +347,39 @@ Pending. Default StreamK policy retained for this new-backend initial gate; sepa
 deterministic prerequisite, if needed, will be recorded and validated before promotion.
 Pure indexed-noStreamK source SHA256d88863eede8104c35948c0ad8c29fd7cca8aa0db291f3e272f45562e368fb1a4.
 
+Indexed-noStreamK74eb65dad3fa4e54 completed5/5 tests,1.092871x (95%CI1.076478–1.109264).
+All ten fresh statistics exactly0 at32/753/3012: matched64 eager and2000 queued per
+shape, including metadata, zero-local and nonfinite. Printed configs allFalse; BM24 at32,
+104 at300,160 at1506,176 at600/753/3012/4096/16384; corresponding remaining tile config
+unchanged. This is strong evidence that disabling StreamK resolves the observed replay
+variation on these cases, but it loses aggregate performance versus scoredR incumbent
+1.146466 (different runs, no isolated speedup claim). Candidate/SGLang per-shape median us:
+
+| shape | noStreamK | SGLang |
+|---|---:|---:|
+|753 turn1 sliding|1157.6|1081.2|
+|753 turn1 full|1512.7|1483.5|
+|3012 turn4 sliding|2862.4|3216.0|
+|3012 turn4 full|4392.9|4842.7|
+|16384 firstturn full ctx0|13938.0|17230.7|
+|16384 firstturn sliding ctx32768|13726.0|17245.9|
+|16384 firstturn full ctx32768|17529.2|20570.6|
+|16384 firstturn full ctx65536|21118.9|24225.5|
+
+Root approved deterministic-base bounded753/3012 localM factor to seek compensation.
+Checkda9700816b1641ea pending, pure `.build/today-moe/prefill_humming_nostream_bounded.py`
+differs only shape_estimate=bounded, all othersR, StreamKFalse. Same unchanged fresh3shape
+gate. No zero/masked combination; paired controls required before promotion.
+
+Maskedc1f6023f03d34c72 completed5/5 initial correctness tests but FAILED16384 benchmark
+recheck0: residual update relL2 0.6951 exceeds0.0422345 bound. No aggregate score. Smaller
+753/3012 benchmark setup reached, not enough to claim backend correctness. At16384:
+CAP16544,planned22759342208B,free93950246912B,total150109880320B; BM176,N256,K64,
+four stages, TMA/warpspec/mbarrier/StreamKTrue. Thus capacity allocation feasible on this
+image; replay/math failure unresolved. All printed configs and resources saved in
+`profiles/humming_masked.c1f6023f03d34c72.*`. Independent source review investigating
+TMA physical row footprint and grouped StreamK fixups; no blind sameconfig rerun approved.
+
 ## Source facts (SGLang a55ab7d5, read from GitHub and hashed against the image)
 
 - `fused_post_expert_norm_weighted_sum` falls back to PyTorch ops below
