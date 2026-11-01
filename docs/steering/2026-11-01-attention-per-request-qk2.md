@@ -1,5 +1,26 @@
 # Attention decode1: public comparator audit and owned two-chain experiment
 
+## Primary-reference distinction and final dispatch gate
+
+The previous correction's description of the **official judge** is amended:
+`reference.py:336` RMS-normalizes the FP32 decoded attention output directly;
+`baseline.py:129` rounds to BF16 before SGLang RMS/gate. The BF16 common experimental
+control/treatment is retained for baseline parity, but is not relabeled as literal
+judge math. The final diagnostic independently checks **both** reference paths on
+every eager/fresh/final output. `_ob_reference` / `_ob_check` retain the unrounded
+judge-style computation and its fixed tolerance. Separate `_q2_baseline_reference`
+and `_q2_baseline_check` add the baseline BF16 activation boundary with the same
+fixed checking policy. CPU tests verify both actual oracle functions and fail-closed
+behavior of both gates. No native CUDA change since the previous local compile.
+
+Root reviewed the prior concrete artifact/resources and authorized one off-board
+check after these two host fixes: restore the required first-line problem header
+and add the unrounded judge gate. Both are now implemented; all5 CPU tests pass.
+Final artifact is642645bytes, SHA256
+**4dca6a77725c2c5115956375ce8122d7877ae4904c2ff4943dd0d80227ac8bfb**.
+Pre-dispatch `okc problems --json` reports attention14/20 checks used,6left;
+only one check is authorized here. All older hashes below are superseded.
+
 ## Qualification correction: common BF16 boundary, November1 subsequent revision
 
 Root identified that the historical owned finalizer and comparator both normalize
