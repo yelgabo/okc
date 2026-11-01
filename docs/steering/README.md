@@ -95,6 +95,8 @@ report be checked into this repository so other sessions can read it.
 
 ## Latest review
 
+[Locality outcomes and the remaining public-G integration gap](2026-11-01-locality-outcome-and-g-gap.md) records the two tested losses, exact-source score and unresolved cost of integration changes.
+
 [Reset host repair and production byte plan](2026-11-01-reset-and-production-fit.md) records the reproduced set-clone failure, fixed/double-regenerated three-payload queue and unchanged one-shot reset handoff. A new comment-only production fit is undergoing marker/notice/host-generation and compiler qualification; no new GPU result or candidate promotion.
 
 [November1 stage-local H200 result and retained submissions](2026-11-01-stage-local-projection-measurement.md) records exact450781B/de1111 source, PASS9/30 and all160startup checks, but1.419147x below C21.527806x. Both global and stage-local sparse-repair variants are closed. It links all30latencies/40resourcevectors, fresh ranks, the precision correction, a ranked reset queue and the updated release manifest. No new layer port or performance win; first two reset jobs unchanged.
