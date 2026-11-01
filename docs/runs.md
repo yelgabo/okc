@@ -1926,3 +1926,16 @@ therefore does not make this large-tile wd geometry competitive. No promotion. U
 200KB c4 result, insufficient cluster residency and spills cannot explain this measured loss.
 Not yet attributed: mainloop versus DSMEM epilogue cost. A skip-reduction/memory-only diagnostic
 could test whether a cheaper reduction is even a credible repair; no claim that one is.
+
+Root approved one diagnostic follow-up, `e6e5bd6d0a104faf` (pending), builder
+`proj_make_bench_dense_dsm.py --ablate`. Same62-cluster geometry plus ABL1 (no WGMMA),
+ABL2 (skip partial stores/reduction), ABL3 (both), independent extension duplicates and
+actual resource query for every variant. Wrong/unguaranteed-output arms are explicitly
+`_probe`, not correctness-tested/promoted/scored. The full arms retain FP64 and fresh-replay
+gates. Purpose: if the no-reduction mainloop still loses to Lt, a cheaper DSMEM epilogue
+cannot rescue this geometry, so park it until a new compute/schedule mechanism exists.
+
+Timing bridge: `4ca25ee4eccc495c`'s Lt26.624us is raw graph time on fresh hardware and
+fresh prepare choices. Old `cab546f978974515`'s17.47us was overhead-adjusted on its hardware
+and its pinned algorithm. They are not a paired regression comparison. New attribution
+must use the same-run baseline and common graph overhead, not subtract these cross-run values.
