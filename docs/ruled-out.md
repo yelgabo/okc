@@ -295,3 +295,5 @@ the public entry vjeux/okc-2026 with its design memos (see `docs/gap-analysis-20
 | G high-load duplicate-weight census | H200WGF1job1c6ebc76b91d4b7f exact20experts21jobs; local64bankSM120census with explicitH200mask mismatch; docs/steering/2026-11-01-g-highload-weight-census.md | Duplicate64rowjobrequests exist, but not measuredHBM. Local proportional scoremean+.628% is a scenario, no physicalbound or reliable>=1%candidate. Parkrewrite untilH200L2/DRAM/exposedstall evidence; noGPUcheck. |
 
 | Native G sparse stage readiness/retire observer | f147d06a64504c1e PASS5; all12 distortion rows fail (whole4.91-9.54%, phase10.26-14.90%); docs/steering/2026-11-01-g-stage-observed-readiness.md | Close exact observer/no rerun. No causal bottleneck conclusion; actual route counts valid, proportional scenario only +.72%, not robust>=1% or measured traffic. |
+
+| Owned band32 jobs==1 identity shortcut | Local sm90a source8e0161d5... skinny153regs vs140control/130frozenband,0spills; docs/steering/2026-11-01-owned-skinny-band32.md | CPU/compiler-only closure, no GPU. No-op branch worsens static register gate; restored fc28a77. Does not close the unchanged band32 candidate. |
