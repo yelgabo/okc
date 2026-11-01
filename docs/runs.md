@@ -2246,3 +2246,7 @@ docs/steering/2026-11-01-projection-wgmma-lifetime-audit.md. Hypothetical10perce
 cuttoall3wholeWDoperators gives1.007287507factor, notmeasuredwaitbudget. Existing
 depth24542b2b04cb344ec/pushepilogue4edaa20c98904404 closuresremain. No source
 optimization/check/C3repeat; opaqueLtactualSASS remainsunobserved.
+
+### 2026-11-01 offline async-mailbox scope closure
+
+No GPU job. Evidence e778443, C2 9eba96894ee1402e and old push4edaa20c98904404. Selected SK/RD reducers are CTA-local, RT already async complete_tx, old QKV push already dedicated async mailbox and lost. Full30-cell sensitivity: hypothetical1us from all16 SK/RT/RD operators gives1.066379526 factor, NOT measured reducer budget/forecast. No direct-port proposal; retain C2. Report docs/steering/2026-11-01-projection-mailbox-scope.md; reopen only distinct legal mechanism with exposed component evidence.
