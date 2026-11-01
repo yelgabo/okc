@@ -42,3 +42,18 @@ Control job 74a29e0384324952 passed 13 official cases, 56 individually checked p
 | verify 1 | 115.903 | 115.991 | 112.684/125.157 | 115.432/117.598 |
 | verify 16 | 291.310 | 269.347 | 269.541/353.895 | 247.131/333.218 |
 | verify 32 | 375.677 | 359.297 | 332.181/500.726 | 316.390/482.657 |
+
+## Post-stage publication
+
+Job `27b2ed49fc6344ec` used the same startup checks as `607eb52bdaf24160`. All 13 official cases and 56 private replays passed. The new weighted score reconstructed from its own 12 SGLang and submission medians was 2.102308440336×. Stage retirement with the original publication point retains the higher public score. [Judge receipt](../../../../muse_decode_layer/profiles/scored.27b2ed49fc6344ec.json).
+
+| Load | Incumbent weighted µs | New sliding µs | New full µs | New weighted µs | Latency change |
+|---|---:|---:|---:|---:|---:|
+| decode 1 | 78.549 | 78.094 | 85.098 | 79.901 | +1.72% |
+| decode 16 | 158.241 | 136.177 | 214.112 | 156.289 | −1.23% |
+| decode 32 | 191.740 | 156.613 | 306.434 | 195.277 | +1.84% |
+| verify 1 | 115.991 | 115.241 | 122.983 | 117.239 | +1.08% |
+| verify 16 | 269.347 | 254.424 | 334.463 | 275.079 | +2.13% |
+| verify 32 | 359.297 | 313.884 | 478.023 | 356.243 | −0.85% |
+
+Decode-32 and verify-16/32 dispatch the changed expert kernel. Both runs had fresh route inputs and their own baseline measurements. The overlapping score intervals and the movement in unaffected loads preclude assigning these differences to publication timing alone.

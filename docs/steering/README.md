@@ -6,6 +6,8 @@ report be checked into this repository so other sessions can read it.
 
 ## Latest review
 
+[November 1, 04:18 PST — public result and retained submission](2026-11-01-g-public-layer-measurement.md#november-1-0418-pst--keep-the-stage-retirement-release) records the 2.102308× expert-placement result, the 2.126083× incumbent at rank 304, the current non-prefill cutoffs and the two forward experiments.
+
 [Hourly coordination and next experiments from rank 303](2026-11-01-rank303-next-experiments.md) sizes the remaining gap and assigns work alongside the running G1b4 control.
 
 [November 1 Family G public layer results and forward candidates](2026-11-01-g-public-layer-measurement.md#two-public-whole-layer-results) records the new rank-303 layer at 2.126083×, the 2.052870× G1b4 control, both public receipts, the completed native qualification and [the forward candidate ledger](2026-11-01-g-public-layer-measurement.md#forward-work-from-the-rank-303-file).
@@ -448,6 +450,8 @@ accounting, and running a corrected matched whole-layer comparison. It records
 recommendations, not execution of those tasks; check current code and run logs for status.
 
 ## Report history
+
+- November 1, 04:18 PST. [Post-stage expert publication closed after the official H200 run](2026-11-01-g-public-layer-measurement.md#november-1-0418-pst--keep-the-stage-retirement-release). [All twelve adjusted medians](evidence/2026-11-01-g-public/stage-shapes.md#post-stage-publication).
 
 - [Family G whole-layer public measurement](2026-11-01-g-public-layer-measurement.md), [private startup state audit](2026-11-01-g1b4-startup-isolation-review.md) and [owned verify-32 diagnostic slice](2026-11-01-owned-load-slice-checkpoint.md).
 
