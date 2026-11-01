@@ -4,7 +4,16 @@ This is the stable entry point for steering reports across research, implementat
 and coordinator sessions. The user requested on 2026-10-29 that every project-steering
 report be checked into this repository so other sessions can read it.
 
-## Latest checkpoint: four active tracks; prefill deferred
+## Latest checkpoint: exact-paste fusion audit; prefill deferred
+
+**Latest report: [November1 fusion-opportunity audit](2026-11-01-fusion-opportunity-audit.md).**
+Maps the pasted recommendations to current layer interfaces and already implemented work.
+Supporting [primary-source provenance](2026-11-01-pasted-source-provenance.md) resolves the
+H100 example and external BF16 result owners; [attention boundary map](2026-11-01-pasted-attention-boundaries.md)
+documents the seven existing specialization/fusion mechanisms. No measured top10 portfolio
+is established. Final MoE wait-policy9be599cf333a47c4 fails the registered performance gate;
+production unchanged. A diagnostic all12 owned/SGLang graph timeline collector is under
+review before dispatch. Timing activity is not physical HBM/SM utilization.
 
 **Exact-paste attribution correction:** [November1 pasted-report review](2026-11-01-pasted-top10-report-review.md).
 The newly attached *Reaching the Top 10 in the Muse Spark Open Kernel Challenge* is a
@@ -13,7 +22,7 @@ Execution Plan*. It has now been read in full and preserved with raw/normalized 
 Fusion-first recommendations still require an explicit current-code boundary mapping;
 its estimated gain ranges are not measured results. External citation verification is incomplete.
 
-**Latest report: [November1 four-track progress](2026-11-01-four-track-progress.md).**
+**Earlier checkpoint: [November1 four-track progress](2026-11-01-four-track-progress.md).**
 User defers prefill. Projection, attention, standalone MoE and decode layer remain active;
 none is top10. Observed score gaps at00:05PDT are5.02/11.73/17.15/17.82% respectively.
 Validated attention default2 is promoted in working source, with clean16/16 tests and
@@ -396,6 +405,10 @@ accounting, and running a corrected matched whole-layer comparison. It records
 recommendations, not execution of those tasks; check current code and run logs for status.
 
 ## Report history
+
+- [2026-11-01 exact-paste fusion-opportunity audit](2026-11-01-fusion-opportunity-audit.md)
+- [2026-11-01 pasted-source primary provenance](2026-11-01-pasted-source-provenance.md)
+- [2026-11-01 pasted attention boundary map](2026-11-01-pasted-attention-boundaries.md)
 
 | Report | Evidence snapshot | Scope |
 |---|---|---|
