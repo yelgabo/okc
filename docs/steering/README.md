@@ -572,3 +572,5 @@ Latest: [Dense projection transfer to the decode layer](2026-11-01-layer-dense-t
 - 2026-11-01: [Private G verify32 slice review](2026-11-01-g-verify-slice-independent-review.md): selectedpipeline/precision matches, actual86008pagecapacity+workspacewarm/domainguards required; no final readiness claim.
 
 - [2026-11-01 owned full-context sparse wait timeline](2026-11-01-attention-full-wait-trace.md): CPU/device-compile checkpoint; no H200 run.
+
+- 2026-11-01: [Independent attention wait-trace review](2026-11-01-attention-wait-independent-review.md): finala882bd2 source/API cleared for scoped diagnostic afterallresourceparityfix; sixCPU+actualC++mockpass, no H200 or physicalmetricclaim.
