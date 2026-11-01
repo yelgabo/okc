@@ -61,4 +61,9 @@ need root-approved fresh candidate promotion validation, never submit this harne
 Three CPU tests execute duplicate/partial/all-nonlocal bijection fixtures (all
 lengths1..128 plus explicit extremes), exact source restoration/fat exclusion,
 and actual20round host formatter/16case scoregate with synthetic winner/loser.
-CPU fixtures are not GPU measurements. Independent review pending; no GPU yet.
+CPU fixtures are not GPU measurements. today_proj independently reran all3 tests
+and cleared exact a776f32 generated SHA256
+f5762dbdaebd9f646781fd5eba6e931246ad5228ddef5841fd68b4732687902f,
+including invalid-lane participation, duplicate ranking, shared publication and
+unchanged wait/proxy/watchdog paths. Root's conditional approval dispatched
+`85a113a3f11d47a5` on muse_moe_w4a16. Pending; no speed/correctness claim yet.
