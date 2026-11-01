@@ -810,3 +810,8 @@ not cross-run comparison of this noisy headline with other candidates.
 ## 2026-11-01 - native gamma OFF/ON local compiler gate (no job ID)
 
 CPU compiler only; no GPU/official call, score/CI or GPU failure. Exact607 ba9e327c versus OFF e17901d5 and ON d6756bb5, 15 fixed CUDA12.8 sm90a build requests /30 bool entry instances across Tiny/Tiny2/Mid/B4/MAIN. Baseline-to-OFF normalized PTX/SASS/resources/bounds identical all5. ON MAIN both entries spill stores4->44B and loads32->68B (96regs/16barriers/8Bstack unchanged); other4 resource vectors unchanged. Status CLOSED_RESOURCE; no retry, short-only mask, format/cap sweep or speed claim. Full report/evidence: docs/steering/2026-11-01-g-native-gamma-compile.md.
+
+
+## 2026-11-01 - G short paired-RNE source/compiler screen (no job ID)
+
+One OFF representation, exact607 control vs19cfb4ee/870233B, no GPU/API/official run or score. CPU2PASS/524288rounding-classpairs. CUDA12.8 sm90a selectedTiny/Tiny2 each147regs/3bars/0stack/spills unchanged;12scalarF2F->6PACK_AB but8PRMT added. Tiny5272->5280static instructions (nonNOP5230->5233);Tiny25328->5328 (nonNOP5279->5281). Gate now waits for scaled up plus PRMT before EX2. CLOSED_DEPENDENCY_BUDGET, no harness/alternateunpack/sweep; no credible >=1% sixload budget. Conditional3us shortcuts are sizing only. Report2026-11-01-g-short-pair-rne.md.
