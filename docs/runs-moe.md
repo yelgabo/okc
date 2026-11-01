@@ -441,6 +441,40 @@ or masked backend. Passed pure deterministic bounded candidate/hash sent to root
 root alone decides scored runs/production integration. Receipt and complete component
 log saved `profiles/humming_nostream_component.21e98162b7114898.*`.
 
+### User defers prefill; only already-dispatched receipt completion
+
+User requested "ignore prefill for now" while defbb042449d44e7 was in flight. No new
+prefill dispatch, promotion or code change after that steering. Read-only completion:
+defbb passed5/5 and all poisoned fresh32/753/3012 gates,1.300970887x
+(95%CI1.281456324–1.320485450). Metadata/nonfinite/zero-local all0 at each shape.
+Matched eager/graph rel32 .0024736/.0024736;753 .003194/.003197;3012 .003217/.003280.
+Shares>1e-4 .375/.268,.75/.75,.75/.75; rows .00862/.00862,.01307/.01266,
+.01538/.01613. Registered2x-envelope passes; this is not deterministic arithmetic and
+does not authorize promotion. Receipt/log saved `profiles/humming_masked_fresh.defbb042449d44e7.*`.
+
+### Standalone structural hypothesis: device-count GROUPED_MASKED at128/256
+
+Root approved up to3 standalone checks (including fresh only if winner) after reviewing
+current standalone indexed loser8d64807ea7504495 and ring4/staged-pair closures. New
+mechanism is grouped slabs with GPUcounts enabling library TMA/warp specialization,
+not another fixed-ring geometry. Prior indexed128 G1/G2≈242/135us,256≈291/152us;
+that path loses to ownedpersistent47/51. Prior staged45/46 same mma.sync pipeline loses
+~30us; it does not test this library backend. Completed larger-shape library measurements
+prove API/math feasibility, not standalone performance. No projected speedup claimed.
+
+`tools/moe_humming_masked_bench.py` builds `.build/today-moe/moe_masked_ab.py` from frozen
+production51. Official kernel_fn remains entirely ownedcontrol;<=32 unchanged. One
+originalprepare/extension build. Four arms owned51/owned51dup share readonlyrepackedweights,
+each own_scratch; masked/maskeddup share readonlytransformedweights with independentlocks
+and metadata/workspace. All four arms checked against ownedFP32reference at everycase
+(original TEST_TOL .008, row.075, finite).128/256 layer/std heldout291/292 and skew291
+correctness; fixed previouslycalibrated layerrouter8, no fresh seed search.20 randomized
+cold-L2 rounds, duplicate null controls,280s entireprepare guard fails incomplete coverage.
+Acceptance:>=3us at128 and>=4us at256 plus2xnull consistently on both measured routings;
+all official/fresh gates before promotion. Stop if launch/gather/tail/norm costs erase GEMM
+gain; no geometry retune without new measured stage evidence. Syntax passes, independent
+adapter/alias read-review requested. No dispatch yet.
+
 ## Source facts (SGLang a55ab7d5, read from GitHub and hashed against the image)
 
 - `fused_post_expert_norm_weighted_sum` falls back to PyTorch ops below
