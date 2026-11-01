@@ -213,3 +213,21 @@ fatal. today_proj independently reran all6 tests and cleared exactV3SHA
 528dea8ff79888a2b8f6693e9c5c63c20210547d6128f9bf8fc80b9f9cdcb4d1. Root's conditional
 third/final retry authorized check9be599cf333a47c4. No CUDA/hypothesis/gate change;
 no fourth retry without new review. Pending, no recovered timing claim from old jobs.
+
+November 1 measured closure, source/dispatch commit036b581: final corrected check
+`9be599cf333a47c4` completed all16 cases,64eager+64graph checks, and all8 corrected
+stamp pairs. Exact resources match all4 arms:130regs,0local/static,155520dynamic,
+1block/SM,maxThreads288. Contribution test1.000956258 and independent duplicate
+0.998638858 versus null1.000295776 fail the preregistered1%/2xnull and per-case
+regression gates (KEEP=False). This is a fixedsk8/3 relative contribution with128/256
+assumedunchanged, not the official policy score. Official unchangedowned control
+passes5tests at2.207723314x CI2.174607465–2.240839164. No production change/promotion.
+
+Stamped mean CTA A/B full-wait regions are retained in runs-moe and receipt. Largest
+A reduction is .552us (M1layer), M32layer instead increases .122us; these are serial
+instrumented regions, not wall-time savings. No evidence for a useful polling-policy
+gain. Close this exact full-slot-only test_wait replacement; do not run a hint sweep
+or fourth retry under this authorization. New mechanism requires new evidence/review.
+All16 per-case timing rows and successful complete summaries remain in
+`muse_moe_w4a16/profiles/testwait.9be599cf333a47c4.*`. Old failed harnesses still do
+not supply timing claims. Parent coordinates report index and publication.

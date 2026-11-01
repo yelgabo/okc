@@ -635,6 +635,43 @@ and preregistered gates; no fourth retry without new root review. Core prints be
 optional stamps, finalsummary always on decoder/guard fallback; kernel/transfer/spin
 errors remain fatal. Pending, no performance or promotion claim.
 
+### November 1 final skinny FULL-slot wait-policy result: close
+
+Check `9be599cf333a47c4`, source/dispatch commit `036b581`, reviewed generated SHA256
+`528dea8ff79888a2b8f6693e9c5c63c20210547d6128f9bf8fc80b9f9cdcb4d1`, completed
+on H200. All 5 official tests pass. The official path remains owned production control:
+2.207723314x (95% CI 2.174607465–2.240839164), not a test_wait candidate score.
+Its median us at M1/8/16/32/128/256 are 27.401/68.636/95.941/134.509/192.134/237.144;
+baseline medians used by the receipt are 77.648/145.904/186.976/209.360/460.368/627.152.
+
+Complete four-arm timing evidence survives the receipt: all 16 layer/std cases at fixed
+seeds321/322, 64 eager +64 postgraph FP32 checks pass, spin flags0. All arms have exactly
+130 registers, 0 local/static bytes, 155520 dynamic bytes, 1 block/SM, maxThreads288.
+Fixed-sk8/3 six-load contribution multipliers: null1.000295776, test1.000956258,
+test duplicate0.998638858. These assume unchanged128/256 and are NOT actual official
+policy gains. Both the prospective >=1%/2xnull gate and per-case regression gate fail;
+KEEP=False. Exact two-full-slot test_wait mechanism closed; no production edit, fresh
+promotion check or fourth harness retry. Reopen only with new evidence/mechanism.
+
+Optional corrected stamped twins completed all8 cases. Mean CTA thread0 A/B full-wait
+regions in us (try_wait -> test_wait), not critical-path savings:
+
+| M / routing | A region | B region |
+|---|---:|---:|
+| 1 layer | 2.677 -> 2.125 | .226 -> .224 |
+| 1 std | 2.908 -> 2.494 | .380 -> .383 |
+| 8 layer | 5.897 -> 5.812 | 1.955 -> 1.769 |
+| 8 std | 5.794 -> 5.261 | 1.771 -> 1.761 |
+| 16 layer | 4.280 -> 4.119 | 1.321 -> 1.272 |
+| 16 std | 5.857 -> 5.858 | 1.953 -> 1.947 |
+| 32 layer | 4.791 -> 4.913 | 1.973 -> 1.996 |
+| 32 std | 8.031 -> 7.693 | 3.011 -> 2.998 |
+
+Modest changes in these instrumented regions do not produce a repeatable whole-kernel
+improvement. Raw per-case medians/paired deltas, all resource vectors, stamp rows and
+official profiles/receipt are preserved in `profiles/testwait.9be599cf333a47c4.*`.
+Earlier87f.../252df... remain distinct host failures with no recoverable timing claim.
+
 ## Source facts (SGLang a55ab7d5, read from GitHub and hashed against the image)
 
 - `fused_post_expert_norm_weighted_sum` falls back to PyTorch ops below
