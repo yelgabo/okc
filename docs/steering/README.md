@@ -1,5 +1,7 @@
 # Shared project steering
 
+Latest independent projection proof: [SK sparse E7 repair](2026-11-01-sk-sparse-repair-independent.md). Four scalar bit/address tests pass; emitted candidate source review remains pending. No GPU clearance.
+
 Latest owned low-token audit: [Immutable decode and activation-read feasibility](2026-11-01-owned-lowtoken-representation.md). Source/CPU traffic model; no candidate clears the admission/opportunity screen and no GPU action.
 
 Latest owned packaging audit: [Owned verify production closure NOFIT](2026-11-01-owned-verify-production-nofit.md). Three source/CPU tests and selected device SASS equivalence pass; all three source closures exceed the hybrid byte allowance. No H200 or public action.
