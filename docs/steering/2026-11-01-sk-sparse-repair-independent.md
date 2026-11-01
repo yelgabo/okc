@@ -93,3 +93,7 @@ Reproduce in the existing WSL CUDA environment:
 ```
 
 **Limits unchanged:** no full projection/FP64 numerical test, Hopper shared-ring ordering, H200 capture/admission, throughput, latency or architecture-transfer claim. No H200 quota or public action used. Root retains all official measurement and release decisions.
+
+## 2b537518091248f1 dependency wording correction
+
+See `2026-11-01-sk-xor-release-terminal.md` for the actual losing H200 result and explicit correction to the4907addendum's “requires no new producer dependency” phrase. Safety/acyclicity does not mean free pipeline overlap: immutable global-record repair before A/empty can defer stage credit and potentially add producer backpressure. This is a source possibility, not causal stall quantification. MT2/UPW2 late-arrive cells retain release after MMA, so an after-A relocation is not universally after-release. No retry or layer port follows from the old wording.

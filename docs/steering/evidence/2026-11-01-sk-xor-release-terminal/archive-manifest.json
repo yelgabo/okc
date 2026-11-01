@@ -1,0 +1,18 @@
+{
+  "full_receipt_parent_owned": "muse_bf16_proj/profiles/sk-xor-release.2b537518091248f1.receipt.json",
+  "normalized_records_match_full_receipt_except_CLI_drops_empty_benchmark_flags": true,
+  "archives": {
+    "sk-xor-release.2b537518091248f1.json": {
+      "bytes": 177095,
+      "sha256": "b2a6a6da18c6f92a9bab2068cd304c9a76d6ac741fb96d2d4a771af7a700cbcd"
+    },
+    "sk-xor-release.2b537518091248f1.log": {
+      "bytes": 11110,
+      "sha256": "d4537b94830425b2ed8823dff68306c2de5022fcb9028508f67ced0959949c0d"
+    },
+    "sk-xor-release.2b537518091248f1.txt": {
+      "bytes": 12422,
+      "sha256": "072c3c0652c5c86e7b372acb5ed20fd7530d024b3d114ea3855d02cb02684260"
+    }
+  }
+}
