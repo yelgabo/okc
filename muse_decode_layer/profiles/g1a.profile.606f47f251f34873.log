@@ -1,0 +1,2 @@
+[sc6] scales ok -> wgs sc6 False
+G1a backend owned Lt plans [('o', 128), ('o', 256), ('pr', 128), ('pr', 256), ('qkv', 128), ('qkv', 256), ('un', 128), ('un', 256)]

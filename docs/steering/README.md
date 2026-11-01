@@ -430,6 +430,8 @@ recommendations, not execution of those tasks; check current code and run logs f
 
 ## Report history
 
+- [November 1 Family G qualification and H200 receipts](2026-11-01-family-g-qualification.md)
+
 - [November 1 top-50 reset and authorized layer fork](2026-11-01-top50-reset.md)
 
 - [November 1 campaign accountability and steering review](2026-11-01-campaign-accountability.md)

@@ -1,0 +1,44 @@
+{
+  "board": "muse_decode_layer",
+  "measure": "speedup over SGLang; higher ranks higher",
+  "ranked": 1154,
+  "you": {
+    "rank": 374,
+    "team": "yelgabo",
+    "speedup": 2.0434,
+    "first": false,
+    "ahead": 373,
+    "to_first": 1.2158
+  },
+  "rows": [
+    {
+      "attempts": 73,
+      "job": "d8b3fb90f4c248b8",
+      "rank": 10,
+      "screened_speedup": 2.368920438730032,
+      "speedup": 2.3834,
+      "submitted_at": 1793491425.0069733,
+      "team": "mgpai22",
+      "value": 9490.799903378942
+    },
+    {
+      "attempts": 6,
+      "job": "4f9d497f4cef4071",
+      "rank": 50,
+      "screened_speedup": 2.2605406599837035,
+      "speedup": 2.279,
+      "submitted_at": 1793259291.4628081,
+      "team": "tie-pilot-qxw",
+      "value": 9925.352948515565
+    },
+    {
+      "attempts": 37,
+      "job": "cb71acec29d141c6",
+      "rank": 374,
+      "speedup": 2.0434,
+      "submitted_at": 1793524948.069978,
+      "team": "yelgabo",
+      "value": 11069.724066019202
+    }
+  ]
+}
