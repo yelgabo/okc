@@ -1819,3 +1819,23 @@ duplicate `68248e326be14626`): passed9/9, **1.527806x**,95%CI1.504889–1.550724
 This becomes a higher headline than C1's1.516978x, with overlapping uncertainty. Do not
 attribute the full headline movement to a new kernel; C2's owned paired improvement remains
 the earlier `696179090d264f38` evidence. Receipt saved as profiles/scored.9eba96894ee1402e.json.
+
+### C3 validation and confirmation completed
+
+`61330d87d32c4190`: clean C3 passed9/9,1.52325653x (95%CI1.500408–1.546105),prepare107.8s.
+Tuner selects r64c8s8fv at128 (10.8us vs incumbent11.3 in prepare) and r64c8s8ordfv at256
+(12.8 vs13.9). Frozen candidate SHA256
+`9fd8e794f7eb989943718348da2bf21ece934be3b4527b349eed34ccbceea4a4`, pure file
+`.build/today/cand_c3.py`, copied before dispatch; do not substitute a benchmark wrapper.
+
+Independent paired confirmation `7d2fe593fdfa4720`: passed9/9 on C3 judged path,
+1.53493683x (95%CI1.511913–1.557961). Repeated FV128 -0.45/-0.46us in both independent
+arms (88/87 of100), duplicate null-0.06; order-only256 -0.45us90/100, +FV -0.69us85/100,
+duplicate null-0.06. The prepare again selects both added configurations. All component
+FP64/probe/adjacent-size and fresh-input replay checks pass; no dropped RGCHECK arms.
+This repeats the~0.4us128 and~0.6us256 component benefit. Aggregate score effect is small,
+around0.1%; headline1.535x is not an isolated causal measurement. Root notified that pure
+C3 is ready for scored comparison under the user's current authorization.
+
+No GTICKET or ordering/fence changes were needed. No donor code is in C3. The codec loss
+remains closed at the knock-in-model scope; a real packed-code design needs new evidence.
