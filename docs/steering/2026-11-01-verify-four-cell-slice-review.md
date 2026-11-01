@@ -70,3 +70,76 @@ geometry/cache/scale domains. Then independent final package/owner/transport/
 deadline review is needed before any reset-time GPU check. No global same-
 process or historical incumbent performance equivalence can be claimed from
 these source-only slices.
+
+## 2026-11-01 corrected package addendum
+
+**Source/host review cleared for the scoped diagnostic.** This supersedes
+the two first-draft selector blockers, not the remaining H200 qualifications.
+Final package is968389 bytes, SHA256
+`2bad52ceca9ef72d73baa539dc9db0c776a51b6009a4e4a4f8a8d9b725761c0f`.
+Reviewed root `tools/dl_verify_pair_slices.py`, `dl_verify_pair_body.py`,
+`dl_verify_pair.py`, both test modules and the unchanged underlying single-
+cell slice/owner/reference helpers. Root's source was uncommitted during
+review; this report pins the generated artifact, not an invented root commit.
+Reviewer checkpoint `bc07b23`. No root files edited or GPU job dispatched.
+
+The owned128 QKV now uses `_skp_wd_runner(_skp_load(),"b1n128c3s8h",...)`
+with private `verify_diag`. Three additional SKP native literals are exact
+copies from source851c. `_slice_proj` selects that runner at128, QKV256 Lt,
+and ordinary O GEMM at128/256. Owned Lt plans are exactly unpool128 layout3
+`[66,18,1,0,0,2,35,0,5]`, unpool256 layout1
+`[66,20,1,0,0,4,35,0,3]`, QKV256 layout0
+`[66,124,1,0,0,0,35,0,2]`; all have independent weight/workspace closures.
+The128 SG attention boundary now constructs
+`FusedPostNormResidualPreNorm(post,ar,pre)` and calls it through original
+`_abnd(...,"sglang")` with BF16 branch and no router output. At256 it retains
+`c1x512`. Both retain original effective norm/gate weights, FP32 concatenated
+pool/router output, original main51 MoE with BF16-effective expert gamma,
+and original FFN boundary. Common BF16 attention-output repair remains an
+explicit difference from historical cb71.
+
+G's four selected pipelines retain all original selected native literals,
+eight Lt plans, ATT7 call, SC6 eligibility/packing/flags and original native
+cooperative-launch guard. The row-boundary constructor/launch uses NW32
+at128 and NW16 at256 as in607. Unsupported shapes/scales/context capacity
+fail closed rather than silently selecting an unmodeled fallback. This
+does not certify support for every valid general challenge input.
+
+Two separately prepared owned states have separate resident tensors,
+SGLang module buffers and Lt workspaces; two G owners use the audited clone
+with private scratch/workspaces and retained immutable weights/code only.
+The alias walker includes lazy `torch.nn.Module` buffers and Lt closure
+defaults; tests reject both alias types. Each capture owns/retains its
+private input bank and output. Prewarm uses an ordered side stream before
+capture. Original and changed-input replays each require all four natural
+global ID outputs to be exactly equal; no fixed external IDs bypass routing.
+Four cells/two seeds require96 numerical checks: four owners times original,
+fresh and post-timing checks. Repeated fresh replays use one changed bank,
+not four independently drawn fresh banks. WD diagnostics, original G guard
+storage and cloned guards are checked. The final narrow addition checks
+both owned MoE `ctr[8]` spin flags after synchronized post math, outside
+capture; it changes no timed entry or native literal.
+
+Seven actual TorchCPU tests reran successfully in7.374 seconds, including
+four-cell actual entry launch-policy facades, selected128 projection and
+boundary selectors, three Lt plan/closure contracts, native literal/global
+binding equivalence, lazy module/workspace alias negatives and report
+transport. Independent in-memory regeneration produced exactly the final
+size/hash above and included the spin check. Legacy single-cell builder
+default output remains850769 bytes/SHA305d8e2804d8d10c3fdda902d659c25177ce7ad31d7575dda803c318830e8dc7.
+These tests do not execute the complete four-owner CUDA preparation.
+
+The report retains all eight records/four-arm24-sample vectors, mandatory
+finite positive timing checks and96-count assertion. It labels the46/16
+mixture comparison as only two of six loads. Per-cell sixth-root leverage
+uses owning G607 cell medians and a conditional transfer of private event
+ratios; it is not a measured full-six-load hybrid score. No other-cell
+speedups, cross-receipt equality or public hybrid size compliance are
+claimed. SGLang remains the normal judged path of this private artifact.
+
+Remaining gates: actual H200 host/device compilation and resource admission,
+runtime memory/capture behavior,96 oracle checks/natural IDs, lossless log
+transport with real timings and completion within the295-second local guard
+and300-second external setup limit. The source package's sub1MB fit does
+not establish a future public hybrid's byte fit. No H200 readiness or
+performance decision is made by this offline clearance.

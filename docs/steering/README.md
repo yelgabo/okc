@@ -2,6 +2,8 @@
 
 Latest projection scope: [Async-mailbox audit](2026-11-01-projection-mailbox-scope.md) - RT and prior QKV push already use async complete_tx; active short SK/RD are CTA-local. Full30 score sensitivity retained, no measured reducer budget or new check proposal.
 
+Updated independent review: [Corrected four-cell verify package](2026-11-01-verify-four-cell-slice-review.md#2026-11-01-corrected-package-addendum) - final2bad52ce/968389B fixes actual128 WD/SG policies; sevenCPU gates pass. Source/host diagnostic clearance only; H200, setup deadline and future public-hybrid size remain unqualified.
+
 Latest independent review: [VP2 private attention host scaffold](2026-11-01-vp2-independent-host-review.md) - exact6ca280a3 artifact, seven TorchCPU tests pass; bounded diagnostic host clearance only, no GPU or release claim.
 
 This is the stable entry point for steering reports across research, implementation,
