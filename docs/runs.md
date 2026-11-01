@@ -1758,3 +1758,64 @@ and on rd at pooler 8 / o 8: bytes 736 / 704 equivalents, decode ALU, ALU + LUT 
 and q12 models; cgemv CPT 2 variants checked spill-free after making the LUT reads dependent).
 Production SASS 92 / 92 instruction-identical to C2 (names normalized for the new defaulted
 template parameters).
+
+## October31 PDT, top10 campaign: prepared round9 checks dispatched
+
+Owner branch `codex/today-proj`, evidence/source `d3eeeda`; separate worktree
+`C:/Users/gretc/Documents/GitHub/okc-today-proj`. User goal now expressly authorizes using
+today's checks and submits toward top10 on each board; only root dispatches scored runs.
+Existing C2 exact file from `3044ee7`, SHA256
+`b2c4c096410e2d282d5e1eb3f2afa083f61e68d26d085deede43915bfc7efbdc`, frozen for root at
+`.build/today/cand_c2.py`. Its existing single-file receipt `5c4e4e99b6ec450f` and paired
+`696179090d264f38` remain the validation evidence; no redundant check dispatched.
+
+| date | job | kind | source | change | score (95%CI) | notes |
+|---|---|---|---|---|---|---|
+|10-31 PDT|075dc89d74d144d6|check|d3eeeda|tools/proj_make_bench_cx.py: remaining codec factorial, cgemv m1 and rd m8|pending|Timing-only arms are models, not submission candidates; control judged path unchanged|
+|10-31 PDT|3170985420f74869|check|d3eeeda|tools/proj_make_bench_rg.py round rk-c: tensor-map prefetch F, uniform descriptor V, F+V, order-only memset join|pending|14 owned wd arms, no donor code; independent nulls; no ordering protocol change in tested candidate additions|
+
+Both jobs confirmed problem muse_bf16_proj at dispatch. Bench sources are in persistent
+ignored `.build/today/codec_cx.py` and `.build/today/router_rkc.py`; generated directly by
+the committed builders, then checked with `okc check FILE --no-wait --json`. Wait on these
+exact job IDs; save receipts and log every outcome before adopting or closing a mechanism.
+
+### Round9 results and owned router candidate C3
+
+`075dc89d74d144d6`: passed9/9, unchanged control1.520695x (95%CI1.497885–1.543506).
+The cgemv/rd codec model did not justify a real codec build. Pair7 model minus prod: qkv1
++2.50us, o1 +2.02, pooler1 +6.34, slice1 +1.34, rdpool8 +1.23, rdo8 +0.42. Even bytes-only
+model unexpectedly loses qkv1 +0.96us and pooler1 +4us, so branch/load-shape/codegen
+perturbation prevents treating it as an ideal memory-traffic ceiling. This closes this
+knock-in model as positive evidence for immediate implementation, not all denser codecs.
+
+`3170985420f74869`: passed9/9, unchanged control1.519524x (95%CI1.496731–1.542317).
+Router paired100-round differences against the owned base, after replay overhead:
+
+|tokens|variant|delta us / rounds faster|duplicate/null|
+|---|---|---|---|
+|128|F tensor-map prefetch|-0.03/53|base duplicate+0.03/46|
+|128|V uniform descriptors|-0.34/76|same|
+|128|F+V|-0.42/88|independent F+V duplicate-0.46/92|
+|256|F+V production r128c8s6|-0.06/53|base duplicate-0.03/51|
+|256|r64c8s8 KLE+GRED+GZERO+RKORD|-0.46/85|production copy-0.03/58|
+|256|same +F+V|-0.62/91|same|
+
+Owned candidate C3 adds two configurations to prepare's existing correctness-gated tuner:
+`r64c8s8fv` at KLUEYZ+F+V, `r64c8s8ordfv` at KLE+GRED+GZERO+RKORD+F+V. Incumbents retained.
+No GTICKET, unbounded spin, fence removal or new ordering protocol. Existing `launch_wd`
+GZERO code calls cudaMemsetAsync on the full output before its atomic-red kernel, so no
+host wrapper change is needed. Router128 signal is strong;256 remains a component signal
+pending clean-candidate and independent confirmation. Not yet a shippable gain.
+
+|date|job|kind|source|change|score (95%CI)|notes|
+|---|---|---|---|---|---|---|
+|10-31 PDT|61330d87d32c4190|check|today-proj C3|clean source with the two measured router configurations|pending|.build/today/cand_c3.py; judged candidate rather than appended bench|
+|10-31 PDT|7d2fe593fdfa4720|check|today-proj C3 + committed rk-c builder|paired confirmation of F/V and order-only join|pending|generator5353/order4000 replacing4343/3000; fresh weights and same independent nulls|
+
+### Scored by root: C2 repeat, October31 PDT
+
+Root scored `9eba96894ee1402e`, same C2 source `3044ee7` (comment-only repeat after
+duplicate `68248e326be14626`): passed9/9, **1.527806x**,95%CI1.504889–1.550724.
+This becomes a higher headline than C1's1.516978x, with overlapping uncertainty. Do not
+attribute the full headline movement to a new kernel; C2's owned paired improvement remains
+the earlier `696179090d264f38` evidence. Receipt saved as profiles/scored.9eba96894ee1402e.json.

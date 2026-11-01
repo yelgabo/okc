@@ -21,6 +21,10 @@ components, in the same process, before calling it lost again.
 
 | Experiment | Evidence | Rules out |
 |---|---|---|
+| cgemv m1 / rd m8 codec factorial knock-ins (pair7/q12 timing models), October31 PDT |075dc89d74d144d6: pair7 model qkv1 +2.50us, pooler1 +6.34us, rdpool8 +1.23us; even bytes-only qkv1 +0.96us, pooler1 +4us; control/null within0.03–0.18us |This knock-in as positive evidence for immediate codec implementation. Unexpected bytes-only loss exposes branch/load/codegen perturbation; it does not establish all denser codecs lose. Reopen with a physically packed stream or cleaner memory/decode model, not another identical factorial |
+
+| Experiment | Evidence | Rules out |
+|---|---|---|
 | CUDA-core router v2 (x in smem, 8-block cluster reduce) above 8 tokens | job 3d746c76cadc46fa, 1.031x: 15.4 / 26.1 us at m=16 / 32 vs v1's 10.3 / 19.3 | CUDA-core FP32 math at m >= 16: smem/L1-bound, one FMA per weight per token |
 | mma projection kernel, serial 4-byte x staging (proj v1) | job 04a9c46b48164048, 0.802x | scattered dependent staging loads; use wide coalesced loads |
 | Larger row groups per block above 8 tokens (proj v4, R tiles per warp) | job 17ebe3d9f831439d, 0.952x | L2 re-reads of x as the m >= 16 bottleneck |

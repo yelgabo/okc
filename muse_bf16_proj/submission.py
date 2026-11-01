@@ -2042,6 +2042,14 @@ WV_E1, WV_RKORD, WV_GTICKET, WV_PFTM, WV_UDESC = 262144, 524288, 1048576, 209715
 _WD_KLUE = WV_PACK | WV_PROMO64 | WV_PUSH | WV_EARLY | WV_TAILSPLIT | WV_TAILRLX
 WD_GEOM.update({"r64c8s8k": WD_GEOM["r64c8s8"], "r128c8s6k": WD_GEOM["r128c8s6"], "r64c4s8a": WD_GEOM["r64c4s8"]})
 WD_VAR = {"r64c8s8k": _WD_KLUE, "r128c8s6k": _WD_KLUE, "r64c4s8a": _WD_KLUE | WV_NOSLEEP | WV_XA}
+# Owned round9 router additions, 3170985420f74869: F+V saves 0.42-0.46 us at128;
+# the cluster-free row-fast split with an explicit zeroing node saves0.62 us at256.
+# Keep incumbents available to the correctness-gated cold prepare tuner. No GTICKET,
+# spin-wait or ordering changes: launch_wd's existing GZERO path clears out before reds.
+WD_GEOM.update({"r64c8s8fv": WD_GEOM["r64c8s8"], "r64c8s8ordfv": WD_GEOM["r64c8s8"]})
+WD_VAR.update({"r64c8s8fv": _WD_KLUE | WV_PFTM | WV_UDESC,
+               "r64c8s8ordfv": WV_PACK | WV_PROMO64 | WV_EARLY | WV_GRED | WV_GZERO
+                                  | WV_RKORD | WV_PFTM | WV_UDESC})
 # Diagnostic builds timed in prepare(), never dispatched: ABL bit 1 skips the wgmma (memory
 # pipeline alone), bit 2 skips the cluster reduction and the stores.
 WD_ABLATE = {("pooler", 128): "m128k2r4", ("o", 256): "m256k1r4"}
