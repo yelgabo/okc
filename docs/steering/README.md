@@ -120,6 +120,8 @@ report be checked into this repository so other sessions can read it.
 
 ## Latest review
 
+[G integration candidate-funnel review](2026-11-01-g-candidate-funnel.md) counts one surviving implemented treatment and assigns parallel, directly relevant source investigations without inflating controls or audits into candidates.
+
 [User priority: G integration gap first](2026-11-01-g-integration-first.md) supersedes unrelated optimization priorities and aligns the hourly coordinator with measured upstream-to-fork attribution.
 
 [Locality outcomes and the remaining public-G integration gap](2026-11-01-locality-outcome-and-g-gap.md) records the two tested losses, exact-source score and unresolved cost of integration changes.
