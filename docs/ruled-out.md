@@ -283,3 +283,10 @@ the public entry vjeux/okc-2026 with its design memos (see `docs/gap-analysis-20
 | Closed owned mechanism (2026-11-01) | Evidence | Scope / reopen condition |
 |---|---|---|
 | Synthesized multiply16648/mask001b001b lossless decoder as the single owned six-load improvement | H200check835253441a214a1c PASS5 andall264reportednormal/fresh/skew/empty/postgates, packedbyteproof3.22Bcodes. Commoncoop+BF16parametercontrol. Fourfullscorecrossratios1.001248/1.002204/1.001996/1.002952 vsnull.008029;1%+2xnull/all-seed/regressiongatesFAIL despiteactualCUBIN390->374instructions. H200skinny130->128regs, occupancyunchanged. | Close this exact decoder/dispatch alone; no multiplier sweep orposthoclarge-onlypromotion. Doesnotclosea materiallydifferent decode/packing/pipeline combination; reopeningneedsnewmeasuredwhole-scoreheadroom. Fullreport2026-11-01-owned-multiply-decode.md. |
+
+## November1 Family G expert scheduling follow-up
+
+| Experiment | Evidence | Decision and scope |
+|---|---|---|
+| Move pending previous-unit flush from first-stageCI4 to after first-stage full retirement | public27b2ed49fc6344ec PASS13,2.10230844 vs best2.12608268; docs/steering/2026-11-01-g-next-expert-poststage-flush.md | Close exact placement for more public slots. Static spills improved, single-arm whole score did not. No causal latency or universal flush-placement claim. |
+| Drain/release pairs of activation stages on exact #303 control | CPU-onlysm90a main4/32→208/504B spills,B4FIN120/216→172/308; tests3PASS; docs/steering/2026-11-01-g-next-expert-pair-closure.md | Source-only closure after severe liveness/spill regression. No GPU, measured loss or failed residency claim. Reopen only with structural representation/compiler evidence, not a ring/tile sweep. |

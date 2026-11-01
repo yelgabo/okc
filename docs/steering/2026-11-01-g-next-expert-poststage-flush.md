@@ -136,3 +136,11 @@ reordering preserves that ownership and does not duplicate a single-unit range. 
 regions are separate. Therefore the delayed previous flush cannot encounter premature slot
 reuse/zeroing by this newly computed first stage of a later unit. All normal global joins,
 phase cleanup and cooperative admission remain unchanged. No H200 result is implied.
+
+## Terminal public measurement
+
+Root's exact release job `27b2ed49fc6344ec` passed13 but scored2.10230844,
+below incumbent2.12608268. Targeted-load changes were mixed (per coordinator receipt).
+This single-arm result does not establish a causal loss, but does not justify another
+public slot on the same placement. Close the exact post-stage flush candidate and retain
+#303 stage-retirement production. Do not present static spill savings as measured latency.
