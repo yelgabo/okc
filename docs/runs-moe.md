@@ -582,6 +582,21 @@ Reviewer notes timeoutbreak can reach loads withoutTrue exactlyasbaseline; timeo
 flag rejection remains required, never an acquire proof or successfulmeasurement.
 Pending; no promotion before exactcandidate official/fresh gates.
 
+87f22aa71e614460 FAILED prepare in host harness formatting: `for round in range(20)`
+shadowed built-inround, then compact `round(v,3)` raised TypeError at firstcase summary.
+Baseline preparation/selftests completed, build153.6s, policy skinny1/8/16/32+51large,
+spin0. Exactresourcegate and firstcase math reached, but no resourcevector or complete
+16case table retained; no official score or wait-policy timing conclusion. Failedreceipt/log
+saved `profiles/testwait_harness.87f22aa71e614460.*`. This is a tooling error, not kernel loss.
+
+Root authorized one host-only correction. Changed loop variable to round_idx; all
+CUDA/CPP/skinny/variant constant values exactly equal between frozenoriginal andv2.
+Added CPU scaffold executing ACTUAL20-round hostloop, compactformatter, scoregate and
+summary via AST with no-op event/graph stubs. Synthetic winning and losing scoregate
+branches pass; a negativecontrol recreates the old shadowing TypeError. Three source/
+host tests pass, syntax passes. Correctedcheck252df4a54d764ca5 dispatched from
+`.build/today-moe/moe_skinny_testwait_v2.py`; same preregistration/reviewedCUDA, pending.
+
 ## Source facts (SGLang a55ab7d5, read from GitHub and hashed against the image)
 
 - `fused_post_expert_norm_weighted_sum` falls back to PyTorch ops below

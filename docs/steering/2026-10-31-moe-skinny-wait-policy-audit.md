@@ -185,3 +185,12 @@ approval then dispatched check87f22aa71e614460 on muse_moe_w4a16. TWSCORE is exp
 a fixedsk8/3 contribution with two large loads assumedunchanged, not the actual
 official policy score. The timeoutbreak has the baseline's preexisting behavior and
 must reject through ctr8; no successful ordering claim applies on a timeout. Pending.
+
+November1 harness correction:87f22aa71e614460 failed a first-case host formatting
+TypeError because the round loop variable shadowed built-inround(). No complete
+timing result or official score. Root authorized host-only round_idx correction and
+one corrected check252df4a54d764ca5. CUDA/CPP/skinny/variant constants remain exactly
+equal between frozenoriginal andv2. The CPU scaffold now executes the actual timing
+loop/formatter, scoregate and compactsummary using no-op CUDA scaffolding, tests both
+winning and losing synthetic decisions, and reproduces the original failure as a
+negativecontrol. Three tests pass. No threshold, kernel or hypothesis change; pending.

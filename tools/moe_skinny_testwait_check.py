@@ -85,8 +85,8 @@ def prepare(weights):
                     graphs[tag]=torch.cuda.CUDAGraph()
                     with torch.cuda.graph(graphs[tag]): output[tag]=run(tag,data)
                     events[tag]=[]
-                for round in range(20):
-                    order=list(variants); _tw_random.Random(seed+round).shuffle(order)
+                for round_idx in range(20):
+                    order=list(variants); _tw_random.Random(seed+round_idx).shuffle(order)
                     for tag in order:
                         flush.zero_()
                         a=torch.cuda.Event(enable_timing=True); z=torch.cuda.Event(enable_timing=True)
