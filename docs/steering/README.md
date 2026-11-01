@@ -16,6 +16,8 @@ Latest single-arm layer qualifier: [Repaired full-four-cell startup checks](2026
 
 Latest measurement-reader review: [One-arm hybrid owning receipt](2026-11-01-hybrid-measurement-reader-review.md).46:16/six-load/raw-adjusted formulas pass; identified terminal/log/resource ownership gaps repaired and independently rechecked with4 tests. Server identity and physical source SHA remain separately associated by the upload manifest.
 
+Latest standalone native repair review: [Historical main47/skinny1 progress](2026-11-01-standalone-progress-native-review.md). Two cooperative wrappers/sharedtrap and canonical credit/queue bounds reviewed at7c915127; frozen policy/strict qualification still pending, noGPU/performance claim.
+
 Latest public startup source review: [Mask15 one-arm qualification wrapper](2026-11-01-public-mask15-startup-review.md). Independent12-cell selector/oracle/timed-path checks pass at4ad326c3; private empty/fresh coverage reviewed. H200 resources/capture/budget/performance unqualified.
 
 Latest root checkpoint: [Reset and production fit, 19:34 UTC addendum](2026-11-01-reset-and-production-fit.md#1934-utc-addendum-source-fit-and-separate-progress-repair-cleared-locally). Repaired four-cell core952309B fits; root12 CPU tests and independent scoped progress review pass. Explicit private repaired regeneration and7 slice tests also pass after correcting a stale pre-set-repair fixture. A one-arm startup qualifier is being built; no H200 result or promotion, third private diagnostic remains held.
