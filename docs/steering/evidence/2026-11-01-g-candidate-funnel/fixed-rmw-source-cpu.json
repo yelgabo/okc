@@ -1,0 +1,7 @@
+{
+  "command": "python3 -m unittest discover -s tools -p test_g_integration_rmw_release.py -v",
+  "tests": 2,
+  "passed": true,
+  "reported_unittest_seconds": 4.973,
+  "scope": "Actual fixed-source composition/provenance checks; no GPU/CUDA arithmetic/capture/performance"
+}

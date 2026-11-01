@@ -1,0 +1,60 @@
+{
+  "scope": "Root CPU/source/bounds and compiler archive reconciliation; no GPU/API/timing",
+  "runs": [
+    {
+      "argv": [
+        "/root/.cache/okc-host-validate/bin/python",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tools",
+        "-p",
+        "test_proj_g_short_pair_rne.py",
+        "-v"
+      ],
+      "returncode": 0,
+      "stdout": "RNE_BINARY32_ROUNDING_CLASS_PAIRS 524288\n",
+      "stderr": "test_independent_all_rounding_classes_and_lane_order (test_proj_g_short_pair_rne.Tests.test_independent_all_rounding_classes_and_lane_order) ... ok\ntest_source_scope_default_and_exact_products (test_proj_g_short_pair_rne.Tests.test_source_scope_default_and_exact_products) ... ok\n\n----------------------------------------------------------------------\nRan 2 tests in 1.824s\n\nOK\n",
+      "seconds": 2.7598103310000113
+    },
+    {
+      "argv": [
+        "/root/.cache/okc-host-validate/bin/python",
+        "tools/proj_g_short_scale_feasibility.py",
+        ".",
+        "/mnt/c/Users/gretc/Documents/GitHub/okc/.build/g-minimal-rootreview/funnel/scale.json"
+      ],
+      "returncode": 0,
+      "stdout": "{\n  \"status\": \"CLOSED_NO_EXACT_DEPENDENCY_REMOVAL\",\n  \"sources\": [\n    {\n      \"source_sha256\": \"1ec189dc6f306cec1694946eb62d64b54daf378c6fc1ada2f0f5e501e973ff2a\",\n      \"helper_sha256\": \"84f501957a280cb3703bf9a29843153557e280725457162cb8b203b74b8d0f9f\",\n      \"source_assignment_line\": 12583,\n      \"selected_scaled_sites\": [\n        \"const float v0f = (h ? sm.y : sm.x) * gsc * nw0, v1f = (h ? sm.w : sm.z) * gsc * nw1;\",\n        \"const float gt = (h ? sm.y : sm.x) * gsc, up = (h ? sm.w : sm.z) *  [full result archived separately]",
+      "stderr": "",
+      "seconds": 1.286963159999999
+    },
+    {
+      "argv": [
+        "python3",
+        "tools/attention_g_pdl_edge_bounds.py",
+        ".",
+        "/mnt/c/Users/gretc/Documents/GitHub/okc/.build/g-minimal-rootreview/funnel/pdl.json"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": "",
+      "seconds": 0.1721248199999934
+    },
+    {
+      "argv": [
+        "python3",
+        "tools/attention_g_boundary_bounds.py",
+        ".",
+        "/mnt/c/Users/gretc/Documents/GitHub/okc/.build/g-minimal-rootreview/funnel/boundary.json"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": "",
+      "seconds": 0.27625099100001194
+    }
+  ],
+  "paired_RNE_archive_files_verified": 16,
+  "passed": true
+}
