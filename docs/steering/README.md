@@ -1,5 +1,7 @@
 # Shared project steering
 
+Latest projection reader: [Private SK-XOR owning receipt validator](2026-11-01-projection-sk-xor-receipt.md). Eleven synthetic CPU tests; exact job/manifest/resource/coverage gates and invalid-calibration raw preservation. Frozen scoring policy unchanged; no GPU action.
+
 Latest private projection scaffold: [SK10 sparse-XOR paired harness](2026-11-01-projection-sk-xor-private-harness.md). Nine CPU gates and80 native-layout crosschecks pass; strict9KB lossless transport and immutable sharing added. No GPU action; runtime/admission remain unqualified.
 
 This is the stable entry point for steering reports across research, implementation,
