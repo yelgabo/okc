@@ -113,3 +113,12 @@ not dispatch. Stop on source/resource/math/report/budget failure or missed
 whole-score gate. No additional band/height/hint/credit/cap experiment follows
 automatically. A faster cached-versus-direct result alone cannot pass the
 control-versus-cached release gate.
+
+## Root dispatch addendum
+
+Root dispatched the last authorized private MoE check **`903e5b03411c4e2d`**
+using exact4bf3864b artifact945013 B, harness evidence `6460509`, device patch
+evidence `e99d848` and direct `fc28a77`. Root owns exact-job status and canonical
+receipt/log/profile archival. Pending: no H200 timing, correctness or KEEP result
+is asserted here. No additional check or public candidate is authorized by this
+worker; production remains unchanged.
