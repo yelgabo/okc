@@ -1,6 +1,8 @@
 # Shared project steering
 
 Latest MoE diagnostic addendum: [Native G stage observer terminal closure](2026-11-01-g-stage-observed-readiness.md), source5c1a1f8 / jobf147d06a64504c1e. Correctness passes; all detail attribution rows rejected.
+Latest projection scope: [Async-mailbox audit](2026-11-01-projection-mailbox-scope.md) - RT and prior QKV push already use async complete_tx; active short SK/RD are CTA-local. Full30 score sensitivity retained, no measured reducer budget or new check proposal.
+
 Latest independent review: [VP2 private attention host scaffold](2026-11-01-vp2-independent-host-review.md) - exact6ca280a3 artifact, seven TorchCPU tests pass; bounded diagnostic host clearance only, no GPU or release claim.
 
 This is the stable entry point for steering reports across research, implementation,
