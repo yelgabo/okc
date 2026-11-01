@@ -2089,3 +2089,17 @@ Actual cudaFuncAttributes and occupancy are queried before candidate timing: ski
 blocks/SM fail to increase or local memory appears. FP64 random and power-of-two probe
 correctness gates precede timing. Expected occupancy is a hypothesis until the receipt;
 no production change, register-cap sweep, or predicted speedup is authorized by this check.
+
+Result `bac995b3b94541c4` (source experiment committed `0680370`): control passed9/9,
+1.550070x (95%CI1.526819–1.573322). This is the unchanged production path's aggregate,
+not the measured candidate's projected score. FP64 random/probe pass for every arm.
+Actual resources(regs/local/shared/blocks), old→inline: qkv[40,0,72,5]→[40,0,72,6],
+o[32,0,24,21]→[32,0,24,32],pool512[32,0,136,3]→[32,0,136,4],
+slice[40,0,40,9]→[40,0,40,12]. Occupancy trigger genuinely met without spills.
+Despite this, paired two-input medians in independent builds A/B lose qkv+0.960/+0.960us,
+o+1.504/+1.504,pool+2.272/+2.240,slice+0.448/+0.480. Rebuilt-old nulls range -0.128
+to+0.032us. All200 pool/o rounds lose; qkv/slice win only1–7of100 per input.
+Measured higher CTA residency fails to improve this schedule; serializing corrections
+on an active compute warp is a plausible explanation, not an isolated timing attribution.
+Stop this ownership variant and local register-cap sweeps. Original dedicated escape warp
+and C3 production remain unchanged. Raw receipt plus CLI profile JSON/text committed.
