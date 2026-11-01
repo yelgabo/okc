@@ -3654,3 +3654,50 @@ plus the trailing comment `# Authorized daily scored control 2026-10-31, repeat 
 Selected kernel instances from receipt profiles: decode sliding batch1/16/32 modes13/1/1;
 decode full11/49/49; verify sliding15/3/3; verify full11/51/51. Receipt identifies
 board muse_attention_decode and id cccc131c55874949; no new resource counters were collected.
+
+### Result of 191e57a0f45a4717
+
+Correct owning receipt: board `muse_attention_decode`, id `191e57a0f45a4717`; passed16/16
+official tests. Unchanged owned control scored2.514672x (95%CI2.476952-2.552392).
+All four complete real arms passed11/11 harness checks (four batch-1 shapes plus seven
+nearby tests); the twelve early-exit arms are explicitly probes, not correctness candidates.
+No resource-utilization or SASS counters were collected. Receipt and retained log are
+`profiles/prologue.191e57a0f45a4717.{json,log}`. All batch-1 full plans use252splits/nc8;
+owned mode11 and donor per-request cooperative plans agree (donor verify full coop derived).
+
+Cold drained-exit medians over three inputs, microseconds including graph replay overhead:
+
+| Boundary | d1 full owned | d1 full donor | v1 full owned | v1 full donor |
+|---|---:|---:|---:|---:|
+|1 pages committed/drained|7.04|6.02|5.98|6.18|
+|2 query/new-row/constants committed/drained|7.20|6.08|6.18|6.34|
+|3 page wait and barrier|7.23|6.14|6.18|6.34|
+|5 initial K/V tiles issued, query waited/barrier|9.79|9.41|9.57|9.50|
+|7 query packed|9.82|9.38|9.57|9.50|
+|9 new rows/patching before loop|9.79|9.41|9.57|9.54|
+|complete diagnostic build|17.18|16.22|19.17|18.59|
+|independent complete duplicate|16.96|16.48|19.14|18.78|
+
+Measured: d1-full has an approximately1us difference already at the first drained page group,
+shrinking to0.38us after initial tile issue. The corresponding v1-full startup has no comparable
+deficit. Complete-call null spreads are0.22/0.26us at d1 full,0.03/0.19us at v1 full.
+Do not subtract these drained phase medians as live pipeline costs: moving a drain destroys overlap.
+
+Hypothesis selected: d1 SPEC query-address preparation may be hoisted before page issue;
+the pinned donor explicitly re-reads tid after the page group to prevent such hoisting.
+Test an owned opaque late-tid scheduling toggle while preserving address formulas and ordering.
+New-KV-only staging is deferred: its omission cannot explain the deficit already present atphase1.
+No optimization is promoted by this diagnostic.
+
+## Late thread-index scheduling experiment, 2026-10-31 PDT
+
+|date|job|commit|change|score (95%CI)|notes|
+|---|---|---|---|---|---|
+|2026-10-31|b4d75c3185744d0a (check)|fac5188|ONE_LATE_TID=1 for L1 SPEC staging, defaultoff|pending|Own control/candidate/independent duplicate over all12shapes,3heldoutinputs,100coldrounds; seed311102. No donor code in bench.|
+
+Generator command: `python3 tools/attn_make_bench_ab.py /tmp/okc-attn-campaign/latetid.py
+--null --shapes all --inputs 3 --rounds 100 --seed 311102 late@own=-DONE_LATE_TID=1`.
+Acceptance: d1-full cold improvement on all3inputs beyond independent control variation,
+weighted standalone gain beyond nulls; then candidate-only official correctness and explicit
+SPEC-miss/fresh-input replay stress before any promotion. Unaffected shapes must not supply the
+gain through placement noise. No precision change; no fence, copy, commit, wait or barrier moved.
