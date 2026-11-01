@@ -10,8 +10,8 @@ import sys
 from prefill_humming_indexed import build as indexed_build
 
 
-def build(src):
-    out=indexed_build(src)
+def build(src,policy="routed"):
+    out=indexed_build(src,policy)
     anchor='        ws={"rank":torch.empty((r,),dtype=torch.int32,device=dev),'
     assert out.count(anchor)==1
     out=out.replace(anchor,'        for config in cfg: config["use_stream_k"]=False\n'+anchor)
@@ -20,4 +20,5 @@ def build(src):
 
 
 if __name__=='__main__':
-    Path(sys.argv[2]).write_text(build(Path(sys.argv[1]).read_text()))
+    Path(sys.argv[2]).write_text(build(Path(sys.argv[1]).read_text(),
+                                     sys.argv[3] if len(sys.argv)>3 else "routed"))

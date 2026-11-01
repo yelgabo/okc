@@ -399,6 +399,19 @@ from frozen `_masked_i64.py`, SHA256
 63eb4171f1813887b8f4c6b855770b54ebaa761f7176b1344ee21881002ded5f. Pending;
 only four pointer-width casts differ, no noStreamK/heuristic/zeroing change.
 
+Deterministic boundedda9700816b1641ea completed5/5 and all ten fresh statistics exactly0
+at32/753/3012,64 eager and2000 queued each. Headline1.161679904x,95%CI1.144254706–1.179105103.
+Actual753 BM48: G1N256K64,G2N128K128;3012 BM128,N256,K64 both. All use_stream_kFalse.
+Other shapes retain originalR configs. Candidate/SGLang medianus by officialindex0–7:
+1024.4/1063.5,1416.3/1435.7,2600.8/3316.2,4185.7/4907.4,13958.4/17261.1,
+13419.5/16795.9,17532.2/20533.4,21149.7/24278.2. Aggregate versus incumbent is
+cross-run and overlappingCI; paired component compensation gate remains required.
+Pure `_nostream_bounded.py`, SHA25629770518d1e74dae4a645193a06c8f76c5346d7263933352abf101c932bcaf5d,
+is exact prefix of passing stress source. New generator policy arg reproduces AST exactly.
+Paired duplicate component21e98162b7114898 dispatched: same original six arms, heldout271/272,
+cold random12rounds, shapes753/3012 only, allR/R2/M/M2 use_stream_kFalse. Pending; no
+zero-removal/masked combination. Status/log saved `profiles/humming_nostream_bounded.da9700816b1641ea.*`.
+
 ## Source facts (SGLang a55ab7d5, read from GitHub and hashed against the image)
 
 - `fused_post_expert_norm_weighted_sum` falls back to PyTorch ops below
