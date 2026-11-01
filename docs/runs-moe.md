@@ -485,6 +485,51 @@ FP32 ref after20 queued replays+sync with unchanged .008/.075 criteria, not only
 One untimed CUDA profiler sample at256/std292 after AB timing attributes masked stages.
 Generated syntax passes; original officialjudged owned kernel_fn untouched. Pending.
 
+ae8993f4e3e1435c completed5/5 official tests, judgedownedcontrol2.200397x
+(95%CI2.167391–2.233403); prepare159.6s. Full MHRESULT retained, all40eager and32postgraph
+FP32 checks pass. Masked losses (us, seeds291/292):128 layer+180.2/+180.0,std+184.2/+144.6;
+256 layer+234.9/+231.8,std+228.7/+202.8. Maskedduplicate agrees; ownednull maximum2.69us.
+No confirmation/fresh or localtile retune; production source/policy unchanged.
+
+Untimed256/std292 masked profile: G1 244.447us,G2 136.064us (90.25% of421.599us total);
+tail17.344us/2calls,SiLU8.064,scatter5.888,norm4.160,gather3.296,rank1.600.
+GEMMs alone exceed samecase owned217.15us, so glue-only fusion cannot repair this loss.
+This closes the tested default GROUPED_MASKED schedule at128/256, not all TMA/dequant
+architectures. Actualcfg/CAP/counts/padding printed before final summary fell outside16KB
+receipt tail; no exact observed values asserted. No GPU reconstruction/rerun warranted.
+Receipt/log saved `profiles/humming_masked_moe.ae8993f4e3e1435c.*`.
+
+### Prospective standalone backlog after masked closure (no dispatch)
+
+Scoring source `TASK.md`: six equally weighted log load ratios.128/256-only work covers
+2/6 logscore;1/8/16/32 covers4/6; repeated8-token job reuse affects only16/32,2/6.
+At root's23:26PDT board snapshot,2.595612/2.215712=1.171457 required score ratio.
+If only two loads improve equally, each needs1.607605x (37.8% latency reduction); if
+four improve equally, each needs1.267914x (21.1% reduction). These are algebraic required
+changes under an unchanged cutoff, **not** speedup forecasts. Representative763197 medians
+versus statedhardwarefloors yield optimistic floor-only aggregate multipliers1.2715 for
+128/256,1.5947 for smallfour,1.2292 for16/32 only. Floors are lowerbounds, not attainable
+targets or measurements of any proposed mechanism. Rankcutoff may move.
+
+Priority1 is a traffic-attribution diagnostic before any new kernel: quantify duplicated
+36KB weightunits from multiple8-token jobs per expert at16/32 and compare existing
+loads-only/current skinny controls.763197 prepare-route means: loads-only39.9/69.7/105.4/
+146.7us at1/8/16/32, computing41.6/70.9/106.3/149.2us. These are not the official median
+latencies or a rigorous upperbound, but little arithmetic headroom is demonstrated on
+those inputs. New structural hypothesis: share one expert weightunit across paired
+8-token jobs via CTA-cluster TMA multicast with existing consumers/ring/fences, rather than
+another ALU/MMA-only replacement or old TMA/barrier geometry. Requires a primary-source
+instruction/descriptor proof and measured duplicatebyte/copy-only opportunity first.
+M<=8 has no repeated8-token job; a broad lowtoken score claim would be false.
+
+Acceptance before implementation: repeatable copy-only gain beyond2xduplicate null on
+heldout layer/std routing and meaningful aggregate score coverage; source shows multicast
+compatible with original36KB packing and barrier/lifetime semantics. Stop before a
+prototype if duplicatebyte share and coldcopy gain are insufficient. A new kernel must
+retain BF16 activation boundaries and FP32 standalone gamma, all fences, officialcorrectness,
+fresh replay gates and paired whole-score compensation. No claimed stage/core utilization
+beyond the measured timings; no occupancy/HBM/L2 hardware counters were collected here.
+
 ## Source facts (SGLang a55ab7d5, read from GitHub and hashed against the image)
 
 - `fused_post_expert_norm_weighted_sum` falls back to PyTorch ops below

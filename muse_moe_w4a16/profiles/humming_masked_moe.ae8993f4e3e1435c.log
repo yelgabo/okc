@@ -1,0 +1,133 @@
+lf CPU   CPU total %     CPU total  CPU time avg     Self CUDA   Self CUDA %    CUDA total  CUDA time avg    # of Calls  
+-------------------------------------------------------  ------------  ------------  ------------  ------------  ------------  ------------  ------------  ------------  ------------  ------------  
+void humming<MmaOpClass, Shape<0u, 8192u, 4096u>, Sh...         0.00%       0.000us         0.00%       0.000us       0.000us     244.447us        57.98%     244.447us     244.447us             1  
+void humming<MmaOpClass, Shape<0u, 4096u, 4096u>, Sh...         0.00%       0.000us         0.00%       0.000us       0.000us     136.064us        32.27%     136.064us     136.064us             1  
+                                               _hm_tail         0.00%       0.000us         0.00%       0.000us       0.000us      17.344us         4.11%      17.344us       8.672us             2  
+                                               _hm_silu         0.00%       0.000us         0.00%       0.000us       0.000us       8.064us         1.91%       8.064us       8.064us             1  
+                                            _hm_scatter         0.00%       0.000us         0.00%       0.000us       0.000us       5.888us         1.40%       5.888us       5.888us             1  
+                  _post_expert_norm_weighted_sum_kernel         0.00%       0.000us         0.00%       0.000us       0.000us       4.160us         0.99%       4.160us       4.160us             1  
+                                             _hm_gather         0.00%       0.000us         0.00%       0.000us       0.000us       3.296us         0.78%       3.296us       3.296us             1  
+                                               _hi_rank         0.00%       0.000us         0.00%       0.000us       0.000us       1.600us         0.38%       1.600us       1.600us             1  
+void at::native::vectorized_elementwise_kernel<4, at...         0.00%       0.000us         0.00%       0.000us       0.000us       0.736us         0.17%       0.736us       0.736us             1  
+                                Activity Buffer Request        88.19%       1.726ms        88.19%       1.726ms       1.726ms       0.000us         0.00%       0.000us       0.000us             1  
+                                       cudaLaunchKernel         1.41%      27.675us         1.41%      27.675us      27.675us       0.000us         0.00%       0.000us       0.000us             1  
+                                       cuLaunchKernelEx         2.07%      40.480us         2.07%      40.480us       4.498us       0.000us         0.00%       0.000us       0.000us             9  
+                                  cudaDeviceSynchronize         8.33%     163.053us         8.33%     163.053us      81.526us       0.000us         0.00%       0.000us       0.000us             2  
+-------------------------------------------------------  ------------  ------------  ------------  ------------  ------------  ------------  ------------  ------------  ------------  ------------  
+Self CPU time total: 1.957ms
+Self CUDA time total: 421.599us
+
+MHCHECK M=256 route=skewed seed=291 arm=owned rel=0.00387583 row=0.00414762
+MHCHECK M=256 route=skewed seed=291 arm=owned2 rel=0.00387583 row=0.00414762
+MHCHECK M=256 route=skewed seed=291 arm=masked rel=0.00395351 row=0.00481332
+MHCHECK M=256 route=skewed seed=291 arm=masked2 rel=0.00395419 row=0.00481332
+MHRESULT complete requested128/256 layer/std two-seed +skew correctness
+MHCHECK M=128 route=layer seed=291 arm=owned rel=0.00388609 row=0.00427346
+MHCHECK M=128 route=layer seed=291 arm=owned2 rel=0.00388609 row=0.00427346
+MHCHECK M=128 route=layer seed=291 arm=masked rel=0.00397714 row=0.0048139
+MHCHECK M=128 route=layer seed=291 arm=masked2 rel=0.00397604 row=0.0048139
+MHCHECKGRAPH M=128 route=layer seed=291 arm=owned rel=0.00388609 row=0.00427346
+MHCHECKGRAPH M=128 route=layer seed=291 arm=owned2 rel=0.00388609 row=0.00427346
+MHCHECKGRAPH M=128 route=layer seed=291 arm=masked rel=0.00397363 row=0.0048139
+MHCHECKGRAPH M=128 route=layer seed=291 arm=masked2 rel=0.00397363 row=0.0048139
+MHTIME M=128 route=layer seed=291 raw_us={'owned': 172.86400496959686, 'owned2': 172.03199863433838, 'masked': 353.2480001449585, 'masked2': 352.8960049152374}
+MHPAIR M=128 route=layer seed=291 vsowned_us={'owned': 0.0, 'owned2': -0.48001110553741455, 'masked': 180.16000092029572, 'masked2': 180.2240014076233}
+MHCHECK M=128 route=layer seed=292 arm=owned rel=0.00387331 row=0.00418087
+MHCHECK M=128 route=layer seed=292 arm=owned2 rel=0.00387331 row=0.00418087
+MHCHECK M=128 route=layer seed=292 arm=masked rel=0.00402377 row=0.00496073
+MHCHECK M=128 route=layer seed=292 arm=masked2 rel=0.00402695 row=0.00496073
+MHCHECKGRAPH M=128 route=layer seed=292 arm=owned rel=0.00387331 row=0.00418087
+MHCHECKGRAPH M=128 route=layer seed=292 arm=owned2 rel=0.00387331 row=0.00418087
+MHCHECKGRAPH M=128 route=layer seed=292 arm=masked rel=0.00402687 row=0.00496073
+MHCHECKGRAPH M=128 route=layer seed=292 arm=masked2 rel=0.0040253 row=0.00496073
+MHTIME M=128 route=layer seed=292 raw_us={'owned': 172.89599776268005, 'owned2': 169.15200650691986, 'masked': 352.86399722099304, 'masked2': 352.31998562812805}
+MHPAIR M=128 route=layer seed=292 vsowned_us={'owned': 0.0, 'owned2': -2.048000693321228, 'masked': 180.00000715255737, 'masked2': 179.87200617790222}
+MHCHECK M=128 route=std seed=291 arm=owned rel=0.00386566 row=0.00417049
+MHCHECK M=128 route=std seed=291 arm=owned2 rel=0.00386566 row=0.00417049
+MHCHECK M=128 route=std seed=291 arm=masked rel=0.00397756 row=0.00527539
+MHCHECK M=128 route=std seed=291 arm=masked2 rel=0.00397756 row=0.00527539
+MHCHECKGRAPH M=128 route=std seed=291 arm=owned rel=0.00386566 row=0.00417049
+MHCHECKGRAPH M=128 route=std seed=291 arm=owned2 rel=0.00386566 row=0.00417049
+MHCHECKGRAPH M=128 route=std seed=291 arm=masked rel=0.00397756 row=0.00527539
+MHCHECKGRAPH M=128 route=std seed=291 arm=masked2 rel=0.00397756 row=0.00527539
+MHTIME M=128 route=std seed=291 raw_us={'owned': 204.0960043668747, 'owned2': 205.1520049571991, 'masked': 387.87201046943665, 'masked2': 387.3920142650604}
+MHPAIR M=128 route=std seed=291 vsowned_us={'owned': 0.0, 'owned2': 0.8639991283416748, 'masked': 184.1920167207718, 'masked2': 183.71199071407318}
+MHCHECK M=128 route=std seed=292 arm=owned rel=0.00386916 row=0.00421256
+MHCHECK M=128 route=std seed=292 arm=owned2 rel=0.00386916 row=0.00421256
+MHCHECK M=128 route=std seed=292 arm=masked rel=0.00396196 row=0.00585047
+MHCHECK M=128 route=std seed=292 arm=masked2 rel=0.00396162 row=0.00580014
+MHCHECKGRAPH M=128 route=std seed=292 arm=owned rel=0.00386916 row=0.00421256
+MHCHECKGRAPH M=128 route=std seed=292 arm=owned2 rel=0.00386916 row=0.00421256
+MHCHECKGRAPH M=128 route=std seed=292 arm=masked rel=0.00396445 row=0.00595586
+MHCHECKGRAPH M=128 route=std seed=292 arm=masked2 rel=0.00396153 row=0.00581312
+MHTIME M=128 route=std seed=292 raw_us={'owned': 227.29599475860596, 'owned2': 220.7999974489212, 'masked': 371.5200126171112, 'masked2': 370.0160086154938}
+MHPAIR M=128 route=std seed=292 vsowned_us={'owned': 0.0, 'owned2': -2.688005566596985, 'masked': 144.6399837732315, 'masked2': 143.71198415756226}
+MHCHECK M=128 route=skewed seed=291 arm=owned rel=0.0038667 row=0.00415128
+MHCHECK M=128 route=skewed seed=291 arm=owned2 rel=0.0038667 row=0.00415128
+MHCHECK M=128 route=skewed seed=291 arm=masked rel=0.00401774 row=0.0049611
+MHCHECK M=128 route=skewed seed=291 arm=masked2 rel=0.00401515 row=0.00476354
+MHCHECK M=256 route=layer seed=291 arm=owned rel=0.00387908 row=0.00434614
+MHCHECK M=256 route=layer seed=291 arm=owned2 rel=0.00387908 row=0.00434614
+MHCHECK M=256 route=layer seed=291 arm=masked rel=0.00388842 row=0.00463625
+MHCHECK M=256 route=layer seed=291 arm=masked2 rel=0.00388842 row=0.00463625
+MHCHECKGRAPH M=256 route=layer seed=291 arm=owned rel=0.00387908 row=0.00434614
+MHCHECKGRAPH M=256 route=layer seed=291 arm=owned2 rel=0.00387908 row=0.00434614
+MHCHECKGRAPH M=256 route=layer seed=291 arm=masked rel=0.00388842 row=0.00463625
+MHCHECKGRAPH M=256 route=layer seed=291 arm=masked2 rel=0.00388825 row=0.0046048
+MHTIME M=256 route=layer seed=291 raw_us={'owned': 212.25599944591522, 'owned2': 212.16000616550446, 'masked': 447.1679925918579, 'masked2': 447.488009929657}
+MHPAIR M=256 route=layer seed=291 vsowned_us={'owned': 0.0, 'owned2': 0.0959932804107666, 'masked': 234.8800003528595, 'masked2': 235.23201048374176}
+MHCHECK M=256 route=layer seed=292 arm=owned rel=0.00387843 row=0.00424798
+MHCHECK M=256 route=layer seed=292 arm=owned2 rel=0.00387843 row=0.00424798
+MHCHECK M=256 route=layer seed=292 arm=masked rel=0.0038952 row=0.00508827
+MHCHECK M=256 route=layer seed=292 arm=masked2 rel=0.0038952 row=0.00508827
+MHCHECKGRAPH M=256 route=layer seed=292 arm=owned rel=0.00387843 row=0.00424798
+MHCHECKGRAPH M=256 route=layer seed=292 arm=owned2 rel=0.00387843 row=0.00424798
+MHCHECKGRAPH M=256 route=layer seed=292 arm=masked rel=0.0038952 row=0.00508827
+MHCHECKGRAPH M=256 route=layer seed=292 arm=masked2 rel=0.0038952 row=0.00508827
+MHTIME M=256 route=layer seed=292 raw_us={'owned': 214.11199867725372, 'owned2': 214.36800062656403, 'masked': 445.98400592803955, 'masked2': 446.6559886932373}
+MHPAIR M=256 route=layer seed=292 vsowned_us={'owned': 0.0, 'owned2': -0.19200146198272705, 'masked': 231.77599906921387, 'masked2': 232.00000822544098}
+MHCHECK M=256 route=std seed=291 arm=owned rel=0.00386019 row=0.00415624
+MHCHECK M=256 route=std seed=291 arm=owned2 rel=0.00386019 row=0.00415624
+MHCHECK M=256 route=std seed=291 arm=masked rel=0.00388905 row=0.00509154
+MHCHECK M=256 route=std seed=291 arm=masked2 rel=0.00388905 row=0.00509154
+MHCHECKGRAPH M=256 route=std seed=291 arm=owned rel=0.00386019 row=0.00415624
+MHCHECKGRAPH M=256 route=std seed=291 arm=owned2 rel=0.00386019 row=0.00415624
+MHCHECKGRAPH M=256 route=std seed=291 arm=masked rel=0.00388905 row=0.00509154
+MHCHECKGRAPH M=256 route=std seed=291 arm=masked2 rel=0.00388905 row=0.00509154
+MHTIME M=256 route=std seed=291 raw_us={'owned': 225.8560061454773, 'owned2': 224.38399493694305, 'masked': 454.27200198173523, 'masked2': 455.07198572158813}
+MHPAIR M=256 route=std seed=291 vsowned_us={'owned': 0.0, 'owned2': -0.48001110553741455, 'masked': 228.70399057865143, 'masked2': 228.83200645446777}
+MHCHECK M=256 route=std seed=292 arm=owned rel=0.00388733 row=0.00420474
+MHCHECK M=256 route=std seed=292 arm=owned2 rel=0.00388733 row=0.00420474
+MHCHECK M=256 route=std seed=292 arm=masked rel=0.00395877 row=0.0051427
+MHCHECK M=256 route=std seed=292 arm=masked2 rel=0.00395877 row=0.0051427
+MHCHECKGRAPH M=256 route=std seed=292 arm=owned rel=0.00388733 row=0.00420474
+MHCHECKGRAPH M=256 route=std seed=292 arm=owned2 rel=0.00388733 row=0.00420474
+MHCHECKGRAPH M=256 route=std seed=292 arm=masked rel=0.00395877 row=0.0051427
+MHCHECKGRAPH M=256 route=std seed=292 arm=masked2 rel=0.00395877 row=0.0051427
+MHTIME M=256 route=std seed=292 raw_us={'owned': 217.15199947357178, 'owned2': 215.61600267887115, 'masked': 419.3600118160248, 'masked2': 419.3600118160248}
+MHPAIR M=256 route=std seed=292 vsowned_us={'owned': 0.0, 'owned2': -0.8639991283416748, 'masked': 202.7520090341568, 'masked2': 202.239990234375}
+MHPROFILE masked256 std292
+-------------------------------------------------------  ------------  ------------  ------------  ------------  ------------  ------------  ------------  ------------  ------------  ------------  
+                                                   Name    Self CPU %      Self CPU   CPU total %     CPU total  CPU time avg     Self CUDA   Self CUDA %    CUDA total  CUDA time avg    # of Calls  
+-------------------------------------------------------  ------------  ------------  ------------  ------------  ------------  ------------  ------------  ------------  ------------  ------------  
+void humming<MmaOpClass, Shape<0u, 8192u, 4096u>, Sh...         0.00%       0.000us         0.00%       0.000us       0.000us     244.447us        57.98%     244.447us     244.447us             1  
+void humming<MmaOpClass, Shape<0u, 4096u, 4096u>, Sh...         0.00%       0.000us         0.00%       0.000us       0.000us     136.064us        32.27%     136.064us     136.064us             1  
+                                               _hm_tail         0.00%       0.000us         0.00%       0.000us       0.000us      17.344us         4.11%      17.344us       8.672us             2  
+                                               _hm_silu         0.00%       0.000us         0.00%       0.000us       0.000us       8.064us         1.91%       8.064us       8.064us             1  
+                                            _hm_scatter         0.00%       0.000us         0.00%       0.000us       0.000us       5.888us         1.40%       5.888us       5.888us             1  
+                  _post_expert_norm_weighted_sum_kernel         0.00%       0.000us         0.00%       0.000us       0.000us       4.160us         0.99%       4.160us       4.160us             1  
+                                             _hm_gather         0.00%       0.000us         0.00%       0.000us       0.000us       3.296us         0.78%       3.296us       3.296us             1  
+                                               _hi_rank         0.00%       0.000us         0.00%       0.000us       0.000us       1.600us         0.38%       1.600us       1.600us             1  
+void at::native::vectorized_elementwise_kernel<4, at...         0.00%       0.000us         0.00%       0.000us       0.000us       0.736us         0.17%       0.736us       0.736us             1  
+                                Activity Buffer Request        88.19%       1.726ms        88.19%       1.726ms       1.726ms       0.000us         0.00%       0.000us       0.000us             1  
+                                       cudaLaunchKernel         1.41%      27.675us         1.41%      27.675us      27.675us       0.000us         0.00%       0.000us       0.000us             1  
+                                       cuLaunchKernelEx         2.07%      40.480us         2.07%      40.480us       4.498us       0.000us         0.00%       0.000us       0.000us             9  
+                                  cudaDeviceSynchronize         8.33%     163.053us         8.33%     163.053us      81.526us       0.000us         0.00%       0.000us       0.000us             2  
+-------------------------------------------------------  ------------  ------------  ------------  ------------  ------------  ------------  ------------  ------------  ------------  ------------  
+Self CPU time total: 1.957ms
+Self CUDA time total: 421.599us
+
+MHCHECK M=256 route=skewed seed=291 arm=owned rel=0.00387583 row=0.00414762
+MHCHECK M=256 route=skewed seed=291 arm=owned2 rel=0.00387583 row=0.00414762
+MHCHECK M=256 route=skewed seed=291 arm=masked rel=0.00395351 row=0.00481332
+MHCHECK M=256 route=skewed seed=291 arm=masked2 rel=0.00395419 row=0.00481332
