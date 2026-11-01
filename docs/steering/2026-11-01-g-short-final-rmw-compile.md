@@ -113,3 +113,31 @@ all BF16 rounds, cooperative progress, PDL-off policy, diagnostics and explicit
 publication/acquire chains. Stop if independent proof fails, resources worsen,
 or any later measured gain fails the full-score/null/regression gates. Never
 broaden this into a relaxed-atomic sweep across WGS or other joins.
+
+## Post-counter mutable-load cache-policy addendum
+
+Root requested an additional cache-policy check because removing the RMW's
+compiler-generated CCTL must not expose an unmodeled noncoherent reader of
+another CTA's writes. Actual selected PTX from all four compiled builds has
+the same final-region load census, mapped through `.loc` to the original
+helper source (accounting for the disclosed one-line declaration adapter):
+
+| Loads in selected final region | Count per entry | Pointer origin |
+|---|---:|---|
+|`ld.global.cg.f32`|16|mutable `ss_cur()`, FINPF first item and remainder|
+|`ld.global.cg.v4.f32`|16|mutable `p.ybuf`, FINPF first item and remainder|
+|`ld.acquire.gpu.global.b32`|2|final bc initial/poll reads|
+|`ld.global.nc.f32`|8|immutable `p.topk_w`, before final CTA/counter barrier|
+|`ld.global.f32`|8|immutable `p.topk_w`, remainder|
+
+The only `.nc` loads map exactly to helper2423's prebarrier
+`__ldg(p.topk_w + tkp * 8 + s)`. Shared `S.pos` is read locally. Mutable
+sum and output pointers map to helper2527/2528 and2553/2554 (`__ldcg`),
+after the GPU acquire and subsequent CTA join. No selected mutable ss/ybuf
+consumer uses `.nc`. These statements concern these exact FINCOL+FINPF
+entries, not dormant WGS/finalizer variants or other parameter fields.
+
+`post-counter-loads.json` archives every instruction/source association;
+`proj_g_short_rmw_loads.py` reproduces the census from the pinned local outputs.
+This closes this additional compiler/source question; it adds no runtime,
+performance or official validation claim.

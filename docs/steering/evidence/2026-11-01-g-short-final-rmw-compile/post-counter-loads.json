@@ -1,0 +1,2642 @@
+[
+  {
+    "build": "tiny-control",
+    "loads": [
+      {
+        "ptx_line": 7497,
+        "location": ".loc\t1 2424 5",
+        "instruction": "ld.global.nc.f32 %f1315, [%rd534];",
+        "source": [
+          {
+            "line": 2423,
+            "text": "    wvp[s] = (qvp[s] >= 0) ? __ldg(p.topk_w + tkp * 8 + s) : 0.f;"
+          }
+        ]
+      },
+      {
+        "ptx_line": 7518,
+        "location": ".loc\t1 2424 5",
+        "instruction": "ld.global.nc.f32 %f1316, [%rd536];",
+        "source": [
+          {
+            "line": 2423,
+            "text": "    wvp[s] = (qvp[s] >= 0) ? __ldg(p.topk_w + tkp * 8 + s) : 0.f;"
+          }
+        ]
+      },
+      {
+        "ptx_line": 7539,
+        "location": ".loc\t1 2424 5",
+        "instruction": "ld.global.nc.f32 %f1317, [%rd539];",
+        "source": [
+          {
+            "line": 2423,
+            "text": "    wvp[s] = (qvp[s] >= 0) ? __ldg(p.topk_w + tkp * 8 + s) : 0.f;"
+          }
+        ]
+      },
+      {
+        "ptx_line": 7560,
+        "location": ".loc\t1 2424 5",
+        "instruction": "ld.global.nc.f32 %f1318, [%rd542];",
+        "source": [
+          {
+            "line": 2423,
+            "text": "    wvp[s] = (qvp[s] >= 0) ? __ldg(p.topk_w + tkp * 8 + s) : 0.f;"
+          }
+        ]
+      },
+      {
+        "ptx_line": 7581,
+        "location": ".loc\t1 2424 5",
+        "instruction": "ld.global.nc.f32 %f1319, [%rd545];",
+        "source": [
+          {
+            "line": 2423,
+            "text": "    wvp[s] = (qvp[s] >= 0) ? __ldg(p.topk_w + tkp * 8 + s) : 0.f;"
+          }
+        ]
+      },
+      {
+        "ptx_line": 7602,
+        "location": ".loc\t1 2424 5",
+        "instruction": "ld.global.nc.f32 %f1320, [%rd548];",
+        "source": [
+          {
+            "line": 2423,
+            "text": "    wvp[s] = (qvp[s] >= 0) ? __ldg(p.topk_w + tkp * 8 + s) : 0.f;"
+          }
+        ]
+      },
+      {
+        "ptx_line": 7623,
+        "location": ".loc\t1 2424 5",
+        "instruction": "ld.global.nc.f32 %f1321, [%rd551];",
+        "source": [
+          {
+            "line": 2423,
+            "text": "    wvp[s] = (qvp[s] >= 0) ? __ldg(p.topk_w + tkp * 8 + s) : 0.f;"
+          }
+        ]
+      },
+      {
+        "ptx_line": 7644,
+        "location": ".loc\t1 2424 5",
+        "instruction": "ld.global.nc.f32 %f1322, [%rd554];",
+        "source": [
+          {
+            "line": 2423,
+            "text": "    wvp[s] = (qvp[s] >= 0) ? __ldg(p.topk_w + tkp * 8 + s) : 0.f;"
+          }
+        ]
+      },
+      {
+        "ptx_line": 7689,
+        "location": ".loc\t1 265 3, function_name $L__info_string26, inlined_at 1 2434 5",
+        "instruction": "ld.acquire.gpu.global.b32 %r4461, [%rd557];",
+        "source": [
+          {
+            "line": 264,
+            "text": "  int v;"
+          },
+          {
+            "line": 2433,
+            "text": "    while (ld_acquire(bc) < (int)gridDim.x) __nanosleep(64);"
+          }
+        ]
+      },
+      {
+        "ptx_line": 7707,
+        "location": ".loc\t1 265 3, function_name $L__info_string26, inlined_at 1 2434 5",
+        "instruction": "ld.acquire.gpu.global.b32 %r4464, [%rd557];",
+        "source": [
+          {
+            "line": 264,
+            "text": "  int v;"
+          },
+          {
+            "line": 2433,
+            "text": "    while (ld_acquire(bc) < (int)gridDim.x) __nanosleep(64);"
+          }
+        ]
+      },
+      {
+        "ptx_line": 7845,
+        "location": ".loc\t1 2521 7",
+        "instruction": "ld.global.cg.f32 %f983, [%rd578];",
+        "source": [
+          {
+            "line": 2520,
+            "text": "      ssv[s] = qvp[s] >= 0 ? __ldcg(ss_cur() + qvp[s]) : 0.f;"
+          }
+        ]
+      },
+      {
+        "ptx_line": 7863,
+        "location": ".loc\t1 2522 7",
+        "instruction": "ld.global.cg.v4.f32 {%f1324,%f1325,%f1326,%f1327}, [%rd581];",
+        "source": [
+          {
+            "line": 2521,
+            "text": "      yv[s] = qvp[s] >= 0 ? __ldcg(reinterpret_cast<const float4*>(p.ybuf + (size_t)qvp[s] * HD + col)) : make_float4(0.f, 0.f, 0.f, 0.f);"
+          }
+        ]
+      },
+      {
+        "ptx_line": 7878,
+        "location": ".loc\t1 2521 7",
+        "instruction": "ld.global.cg.f32 %f993, [%rd585];",
+        "source": [
+          {
+            "line": 2520,
+            "text": "      ssv[s] = qvp[s] >= 0 ? __ldcg(ss_cur() + qvp[s]) : 0.f;"
+          }
+        ]
+      },
+      {
+        "ptx_line": 7896,
+        "location": ".loc\t1 2522 7",
+        "instruction": "ld.global.cg.v4.f32 {%f1329,%f1330,%f1331,%f1332}, [%rd588];",
+        "source": [
+          {
+            "line": 2521,
+            "text": "      yv[s] = qvp[s] >= 0 ? __ldcg(reinterpret_cast<const float4*>(p.ybuf + (size_t)qvp[s] * HD + col)) : make_float4(0.f, 0.f, 0.f, 0.f);"
+          }
+        ]
+      },
+      {
+        "ptx_line": 7911,
+        "location": ".loc\t1 2521 7",
+        "instruction": "ld.global.cg.f32 %f1003, [%rd592];",
+        "source": [
+          {
+            "line": 2520,
+            "text": "      ssv[s] = qvp[s] >= 0 ? __ldcg(ss_cur() + qvp[s]) : 0.f;"
+          }
+        ]
+      },
+      {
+        "ptx_line": 7929,
+        "location": ".loc\t1 2522 7",
+        "instruction": "ld.global.cg.v4.f32 {%f1334,%f1335,%f1336,%f1337}, [%rd595];",
+        "source": [
+          {
+            "line": 2521,
+            "text": "      yv[s] = qvp[s] >= 0 ? __ldcg(reinterpret_cast<const float4*>(p.ybuf + (size_t)qvp[s] * HD + col)) : make_float4(0.f, 0.f, 0.f, 0.f);"
+          }
+        ]
+      },
+      {
+        "ptx_line": 7944,
+        "location": ".loc\t1 2521 7",
+        "instruction": "ld.global.cg.f32 %f1013, [%rd599];",
+        "source": [
+          {
+            "line": 2520,
+            "text": "      ssv[s] = qvp[s] >= 0 ? __ldcg(ss_cur() + qvp[s]) : 0.f;"
+          }
+        ]
+      },
+      {
+        "ptx_line": 7962,
+        "location": ".loc\t1 2522 7",
+        "instruction": "ld.global.cg.v4.f32 {%f1339,%f1340,%f1341,%f1342}, [%rd602];",
+        "source": [
+          {
+            "line": 2521,
+            "text": "      yv[s] = qvp[s] >= 0 ? __ldcg(reinterpret_cast<const float4*>(p.ybuf + (size_t)qvp[s] * HD + col)) : make_float4(0.f, 0.f, 0.f, 0.f);"
+          }
+        ]
+      },
+      {
+        "ptx_line": 7977,
+        "location": ".loc\t1 2521 7",
+        "instruction": "ld.global.cg.f32 %f1023, [%rd606];",
+        "source": [
+          {
+            "line": 2520,
+            "text": "      ssv[s] = qvp[s] >= 0 ? __ldcg(ss_cur() + qvp[s]) : 0.f;"
+          }
+        ]
+      },
+      {
+        "ptx_line": 7995,
+        "location": ".loc\t1 2522 7",
+        "instruction": "ld.global.cg.v4.f32 {%f1344,%f1345,%f1346,%f1347}, [%rd609];",
+        "source": [
+          {
+            "line": 2521,
+            "text": "      yv[s] = qvp[s] >= 0 ? __ldcg(reinterpret_cast<const float4*>(p.ybuf + (size_t)qvp[s] * HD + col)) : make_float4(0.f, 0.f, 0.f, 0.f);"
+          }
+        ]
+      },
+      {
+        "ptx_line": 8010,
+        "location": ".loc\t1 2521 7",
+        "instruction": "ld.global.cg.f32 %f1033, [%rd613];",
+        "source": [
+          {
+            "line": 2520,
+            "text": "      ssv[s] = qvp[s] >= 0 ? __ldcg(ss_cur() + qvp[s]) : 0.f;"
+          }
+        ]
+      },
+      {
+        "ptx_line": 8028,
+        "location": ".loc\t1 2522 7",
+        "instruction": "ld.global.cg.v4.f32 {%f1349,%f1350,%f1351,%f1352}, [%rd616];",
+        "source": [
+          {
+            "line": 2521,
+            "text": "      yv[s] = qvp[s] >= 0 ? __ldcg(reinterpret_cast<const float4*>(p.ybuf + (size_t)qvp[s] * HD + col)) : make_float4(0.f, 0.f, 0.f, 0.f);"
+          }
+        ]
+      },
+      {
+        "ptx_line": 8043,
+        "location": ".loc\t1 2521 7",
+        "instruction": "ld.global.cg.f32 %f1043, [%rd620];",
+        "source": [
+          {
+            "line": 2520,
+            "text": "      ssv[s] = qvp[s] >= 0 ? __ldcg(ss_cur() + qvp[s]) : 0.f;"
+          }
+        ]
+      },
+      {
+        "ptx_line": 8061,
+        "location": ".loc\t1 2522 7",
+        "instruction": "ld.global.cg.v4.f32 {%f1354,%f1355,%f1356,%f1357}, [%rd623];",
+        "source": [
+          {
+            "line": 2521,
+            "text": "      yv[s] = qvp[s] >= 0 ? __ldcg(reinterpret_cast<const float4*>(p.ybuf + (size_t)qvp[s] * HD + col)) : make_float4(0.f, 0.f, 0.f, 0.f);"
+          }
+        ]
+      },
+      {
+        "ptx_line": 8076,
+        "location": ".loc\t1 2521 7",
+        "instruction": "ld.global.cg.f32 %f1053, [%rd627];",
+        "source": [
+          {
+            "line": 2520,
+            "text": "      ssv[s] = qvp[s] >= 0 ? __ldcg(ss_cur() + qvp[s]) : 0.f;"
+          }
+        ]
+      },
+      {
+        "ptx_line": 8095,
+        "location": ".loc\t1 2522 7",
+        "instruction": "ld.global.cg.v4.f32 {%f1359,%f1360,%f1361,%f1362}, [%rd630];",
+        "source": [
+          {
+            "line": 2521,
+            "text": "      yv[s] = qvp[s] >= 0 ? __ldcg(reinterpret_cast<const float4*>(p.ybuf + (size_t)qvp[s] * HD + col)) : make_float4(0.f, 0.f, 0.f, 0.f);"
+          }
+        ]
+      },
+      {
+        "ptx_line": 8275,
+        "location": ".loc\t1 2547 9",
+        "instruction": "ld.global.f32 \t%f1095, [%rd73];",
+        "source": [
+          {
+            "line": 2546,
+            "text": "        const float r = p.topk_w[tk * 8 + s] * rsqrtf(__ldcg(ss_cur() + q) * (1.f / HD) + 1e-8f);"
+          }
+        ]
+      },
+      {
+        "ptx_line": 8284,
+        "location": ".loc\t1 2547 9",
+        "instruction": "ld.global.cg.f32 %f1090, [%rd647];",
+        "source": [
+          {
+            "line": 2546,
+            "text": "        const float r = p.topk_w[tk * 8 + s] * rsqrtf(__ldcg(ss_cur() + q) * (1.f / HD) + 1e-8f);"
+          }
+        ]
+      },
+      {
+        "ptx_line": 8295,
+        "location": ".loc\t1 2548 9",
+        "instruction": "ld.global.cg.v4.f32 {%f1091,%f1092,%f1093,%f1094}, [%rd648];",
+        "source": [
+          {
+            "line": 2547,
+            "text": "        const float4 v = __ldcg(reinterpret_cast<const float4*>(p.ybuf + (size_t)q * HD + col));"
+          }
+        ]
+      },
+      {
+        "ptx_line": 8311,
+        "location": ".loc\t1 2547 9",
+        "instruction": "ld.global.f32 \t%f1104, [%rd73+4];",
+        "source": [
+          {
+            "line": 2546,
+            "text": "        const float r = p.topk_w[tk * 8 + s] * rsqrtf(__ldcg(ss_cur() + q) * (1.f / HD) + 1e-8f);"
+          }
+        ]
+      },
+      {
+        "ptx_line": 8319,
+        "location": ".loc\t1 2547 9",
+        "instruction": "ld.global.cg.f32 %f1099, [%rd654];",
+        "source": [
+          {
+            "line": 2546,
+            "text": "        const float r = p.topk_w[tk * 8 + s] * rsqrtf(__ldcg(ss_cur() + q) * (1.f / HD) + 1e-8f);"
+          }
+        ]
+      },
+      {
+        "ptx_line": 8330,
+        "location": ".loc\t1 2548 9",
+        "instruction": "ld.global.cg.v4.f32 {%f1100,%f1101,%f1102,%f1103}, [%rd655];",
+        "source": [
+          {
+            "line": 2547,
+            "text": "        const float4 v = __ldcg(reinterpret_cast<const float4*>(p.ybuf + (size_t)q * HD + col));"
+          }
+        ]
+      },
+      {
+        "ptx_line": 8346,
+        "location": ".loc\t1 2547 9",
+        "instruction": "ld.global.f32 \t%f1113, [%rd73+8];",
+        "source": [
+          {
+            "line": 2546,
+            "text": "        const float r = p.topk_w[tk * 8 + s] * rsqrtf(__ldcg(ss_cur() + q) * (1.f / HD) + 1e-8f);"
+          }
+        ]
+      },
+      {
+        "ptx_line": 8354,
+        "location": ".loc\t1 2547 9",
+        "instruction": "ld.global.cg.f32 %f1108, [%rd661];",
+        "source": [
+          {
+            "line": 2546,
+            "text": "        const float r = p.topk_w[tk * 8 + s] * rsqrtf(__ldcg(ss_cur() + q) * (1.f / HD) + 1e-8f);"
+          }
+        ]
+      },
+      {
+        "ptx_line": 8365,
+        "location": ".loc\t1 2548 9",
+        "instruction": "ld.global.cg.v4.f32 {%f1109,%f1110,%f1111,%f1112}, [%rd662];",
+        "source": [
+          {
+            "line": 2547,
+            "text": "        const float4 v = __ldcg(reinterpret_cast<const float4*>(p.ybuf + (size_t)q * HD + col));"
+          }
+        ]
+      },
+      {
+        "ptx_line": 8381,
+        "location": ".loc\t1 2547 9",
+        "instruction": "ld.global.f32 \t%f1122, [%rd73+12];",
+        "source": [
+          {
+            "line": 2546,
+            "text": "        const float r = p.topk_w[tk * 8 + s] * rsqrtf(__ldcg(ss_cur() + q) * (1.f / HD) + 1e-8f);"
+          }
+        ]
+      },
+      {
+        "ptx_line": 8389,
+        "location": ".loc\t1 2547 9",
+        "instruction": "ld.global.cg.f32 %f1117, [%rd668];",
+        "source": [
+          {
+            "line": 2546,
+            "text": "        const float r = p.topk_w[tk * 8 + s] * rsqrtf(__ldcg(ss_cur() + q) * (1.f / HD) + 1e-8f);"
+          }
+        ]
+      },
+      {
+        "ptx_line": 8400,
+        "location": ".loc\t1 2548 9",
+        "instruction": "ld.global.cg.v4.f32 {%f1118,%f1119,%f1120,%f1121}, [%rd669];",
+        "source": [
+          {
+            "line": 2547,
+            "text": "        const float4 v = __ldcg(reinterpret_cast<const float4*>(p.ybuf + (size_t)q * HD + col));"
+          }
+        ]
+      },
+      {
+        "ptx_line": 8416,
+        "location": ".loc\t1 2547 9",
+        "instruction": "ld.global.f32 \t%f1131, [%rd73+16];",
+        "source": [
+          {
+            "line": 2546,
+            "text": "        const float r = p.topk_w[tk * 8 + s] * rsqrtf(__ldcg(ss_cur() + q) * (1.f / HD) + 1e-8f);"
+          }
+        ]
+      },
+      {
+        "ptx_line": 8424,
+        "location": ".loc\t1 2547 9",
+        "instruction": "ld.global.cg.f32 %f1126, [%rd675];",
+        "source": [
+          {
+            "line": 2546,
+            "text": "        const float r = p.topk_w[tk * 8 + s] * rsqrtf(__ldcg(ss_cur() + q) * (1.f / HD) + 1e-8f);"
+          }
+        ]
+      },
+      {
+        "ptx_line": 8435,
+        "location": ".loc\t1 2548 9",
+        "instruction": "ld.global.cg.v4.f32 {%f1127,%f1128,%f1129,%f1130}, [%rd676];",
+        "source": [
+          {
+            "line": 2547,
+            "text": "        const float4 v = __ldcg(reinterpret_cast<const float4*>(p.ybuf + (size_t)q * HD + col));"
+          }
+        ]
+      },
+      {
+        "ptx_line": 8451,
+        "location": ".loc\t1 2547 9",
+        "instruction": "ld.global.f32 \t%f1140, [%rd73+20];",
+        "source": [
+          {
+            "line": 2546,
+            "text": "        const float r = p.topk_w[tk * 8 + s] * rsqrtf(__ldcg(ss_cur() + q) * (1.f / HD) + 1e-8f);"
+          }
+        ]
+      },
+      {
+        "ptx_line": 8459,
+        "location": ".loc\t1 2547 9",
+        "instruction": "ld.global.cg.f32 %f1135, [%rd682];",
+        "source": [
+          {
+            "line": 2546,
+            "text": "        const float r = p.topk_w[tk * 8 + s] * rsqrtf(__ldcg(ss_cur() + q) * (1.f / HD) + 1e-8f);"
+          }
+        ]
+      },
+      {
+        "ptx_line": 8470,
+        "location": ".loc\t1 2548 9",
+        "instruction": "ld.global.cg.v4.f32 {%f1136,%f1137,%f1138,%f1139}, [%rd683];",
+        "source": [
+          {
+            "line": 2547,
+            "text": "        const float4 v = __ldcg(reinterpret_cast<const float4*>(p.ybuf + (size_t)q * HD + col));"
+          }
+        ]
+      },
+      {
+        "ptx_line": 8486,
+        "location": ".loc\t1 2547 9",
+        "instruction": "ld.global.f32 \t%f1149, [%rd73+24];",
+        "source": [
+          {
+            "line": 2546,
+            "text": "        const float r = p.topk_w[tk * 8 + s] * rsqrtf(__ldcg(ss_cur() + q) * (1.f / HD) + 1e-8f);"
+          }
+        ]
+      },
+      {
+        "ptx_line": 8494,
+        "location": ".loc\t1 2547 9",
+        "instruction": "ld.global.cg.f32 %f1144, [%rd689];",
+        "source": [
+          {
+            "line": 2546,
+            "text": "        const float r = p.topk_w[tk * 8 + s] * rsqrtf(__ldcg(ss_cur() + q) * (1.f / HD) + 1e-8f);"
+          }
+        ]
+      },
+      {
+        "ptx_line": 8505,
+        "location": ".loc\t1 2548 9",
+        "instruction": "ld.global.cg.v4.f32 {%f1145,%f1146,%f1147,%f1148}, [%rd690];",
+        "source": [
+          {
+            "line": 2547,
+            "text": "        const float4 v = __ldcg(reinterpret_cast<const float4*>(p.ybuf + (size_t)q * HD + col));"
+          }
+        ]
+      },
+      {
+        "ptx_line": 8521,
+        "location": ".loc\t1 2547 9",
+        "instruction": "ld.global.f32 \t%f1158, [%rd73+28];",
+        "source": [
+          {
+            "line": 2546,
+            "text": "        const float r = p.topk_w[tk * 8 + s] * rsqrtf(__ldcg(ss_cur() + q) * (1.f / HD) + 1e-8f);"
+          }
+        ]
+      },
+      {
+        "ptx_line": 8529,
+        "location": ".loc\t1 2547 9",
+        "instruction": "ld.global.cg.f32 %f1153, [%rd696];",
+        "source": [
+          {
+            "line": 2546,
+            "text": "        const float r = p.topk_w[tk * 8 + s] * rsqrtf(__ldcg(ss_cur() + q) * (1.f / HD) + 1e-8f);"
+          }
+        ]
+      },
+      {
+        "ptx_line": 8540,
+        "location": ".loc\t1 2548 9",
+        "instruction": "ld.global.cg.v4.f32 {%f1154,%f1155,%f1156,%f1157}, [%rd697];",
+        "source": [
+          {
+            "line": 2547,
+            "text": "        const float4 v = __ldcg(reinterpret_cast<const float4*>(p.ybuf + (size_t)q * HD + col));"
+          }
+        ]
+      }
+    ],
+    "opcode_counts": {
+      "ld.global.nc.f32": 8,
+      "ld.acquire.gpu.global.b32": 2,
+      "ld.global.cg.f32": 16,
+      "ld.global.cg.v4.f32": 16,
+      "ld.global.f32": 8
+    },
+    "nc": [
+      {
+        "ptx_line": 7497,
+        "location": ".loc\t1 2424 5",
+        "instruction": "ld.global.nc.f32 %f1315, [%rd534];",
+        "source": [
+          {
+            "line": 2423,
+            "text": "    wvp[s] = (qvp[s] >= 0) ? __ldg(p.topk_w + tkp * 8 + s) : 0.f;"
+          }
+        ]
+      },
+      {
+        "ptx_line": 7518,
+        "location": ".loc\t1 2424 5",
+        "instruction": "ld.global.nc.f32 %f1316, [%rd536];",
+        "source": [
+          {
+            "line": 2423,
+            "text": "    wvp[s] = (qvp[s] >= 0) ? __ldg(p.topk_w + tkp * 8 + s) : 0.f;"
+          }
+        ]
+      },
+      {
+        "ptx_line": 7539,
+        "location": ".loc\t1 2424 5",
+        "instruction": "ld.global.nc.f32 %f1317, [%rd539];",
+        "source": [
+          {
+            "line": 2423,
+            "text": "    wvp[s] = (qvp[s] >= 0) ? __ldg(p.topk_w + tkp * 8 + s) : 0.f;"
+          }
+        ]
+      },
+      {
+        "ptx_line": 7560,
+        "location": ".loc\t1 2424 5",
+        "instruction": "ld.global.nc.f32 %f1318, [%rd542];",
+        "source": [
+          {
+            "line": 2423,
+            "text": "    wvp[s] = (qvp[s] >= 0) ? __ldg(p.topk_w + tkp * 8 + s) : 0.f;"
+          }
+        ]
+      },
+      {
+        "ptx_line": 7581,
+        "location": ".loc\t1 2424 5",
+        "instruction": "ld.global.nc.f32 %f1319, [%rd545];",
+        "source": [
+          {
+            "line": 2423,
+            "text": "    wvp[s] = (qvp[s] >= 0) ? __ldg(p.topk_w + tkp * 8 + s) : 0.f;"
+          }
+        ]
+      },
+      {
+        "ptx_line": 7602,
+        "location": ".loc\t1 2424 5",
+        "instruction": "ld.global.nc.f32 %f1320, [%rd548];",
+        "source": [
+          {
+            "line": 2423,
+            "text": "    wvp[s] = (qvp[s] >= 0) ? __ldg(p.topk_w + tkp * 8 + s) : 0.f;"
+          }
+        ]
+      },
+      {
+        "ptx_line": 7623,
+        "location": ".loc\t1 2424 5",
+        "instruction": "ld.global.nc.f32 %f1321, [%rd551];",
+        "source": [
+          {
+            "line": 2423,
+            "text": "    wvp[s] = (qvp[s] >= 0) ? __ldg(p.topk_w + tkp * 8 + s) : 0.f;"
+          }
+        ]
+      },
+      {
+        "ptx_line": 7644,
+        "location": ".loc\t1 2424 5",
+        "instruction": "ld.global.nc.f32 %f1322, [%rd554];",
+        "source": [
+          {
+            "line": 2423,
+            "text": "    wvp[s] = (qvp[s] >= 0) ? __ldg(p.topk_w + tkp * 8 + s) : 0.f;"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "build": "tiny-relaxed",
+    "loads": [
+      {
+        "ptx_line": 7497,
+        "location": ".loc\t1 2424 5",
+        "instruction": "ld.global.nc.f32 %f1315, [%rd534];",
+        "source": [
+          {
+            "line": 2423,
+            "text": "    wvp[s] = (qvp[s] >= 0) ? __ldg(p.topk_w + tkp * 8 + s) : 0.f;"
+          }
+        ]
+      },
+      {
+        "ptx_line": 7518,
+        "location": ".loc\t1 2424 5",
+        "instruction": "ld.global.nc.f32 %f1316, [%rd536];",
+        "source": [
+          {
+            "line": 2423,
+            "text": "    wvp[s] = (qvp[s] >= 0) ? __ldg(p.topk_w + tkp * 8 + s) : 0.f;"
+          }
+        ]
+      },
+      {
+        "ptx_line": 7539,
+        "location": ".loc\t1 2424 5",
+        "instruction": "ld.global.nc.f32 %f1317, [%rd539];",
+        "source": [
+          {
+            "line": 2423,
+            "text": "    wvp[s] = (qvp[s] >= 0) ? __ldg(p.topk_w + tkp * 8 + s) : 0.f;"
+          }
+        ]
+      },
+      {
+        "ptx_line": 7560,
+        "location": ".loc\t1 2424 5",
+        "instruction": "ld.global.nc.f32 %f1318, [%rd542];",
+        "source": [
+          {
+            "line": 2423,
+            "text": "    wvp[s] = (qvp[s] >= 0) ? __ldg(p.topk_w + tkp * 8 + s) : 0.f;"
+          }
+        ]
+      },
+      {
+        "ptx_line": 7581,
+        "location": ".loc\t1 2424 5",
+        "instruction": "ld.global.nc.f32 %f1319, [%rd545];",
+        "source": [
+          {
+            "line": 2423,
+            "text": "    wvp[s] = (qvp[s] >= 0) ? __ldg(p.topk_w + tkp * 8 + s) : 0.f;"
+          }
+        ]
+      },
+      {
+        "ptx_line": 7602,
+        "location": ".loc\t1 2424 5",
+        "instruction": "ld.global.nc.f32 %f1320, [%rd548];",
+        "source": [
+          {
+            "line": 2423,
+            "text": "    wvp[s] = (qvp[s] >= 0) ? __ldg(p.topk_w + tkp * 8 + s) : 0.f;"
+          }
+        ]
+      },
+      {
+        "ptx_line": 7623,
+        "location": ".loc\t1 2424 5",
+        "instruction": "ld.global.nc.f32 %f1321, [%rd551];",
+        "source": [
+          {
+            "line": 2423,
+            "text": "    wvp[s] = (qvp[s] >= 0) ? __ldg(p.topk_w + tkp * 8 + s) : 0.f;"
+          }
+        ]
+      },
+      {
+        "ptx_line": 7644,
+        "location": ".loc\t1 2424 5",
+        "instruction": "ld.global.nc.f32 %f1322, [%rd554];",
+        "source": [
+          {
+            "line": 2423,
+            "text": "    wvp[s] = (qvp[s] >= 0) ? __ldg(p.topk_w + tkp * 8 + s) : 0.f;"
+          }
+        ]
+      },
+      {
+        "ptx_line": 7689,
+        "location": ".loc\t1 265 3, function_name $L__info_string26, inlined_at 1 2441 5",
+        "instruction": "ld.acquire.gpu.global.b32 %r4461, [%rd557];",
+        "source": [
+          {
+            "line": 264,
+            "text": "  int v;"
+          },
+          {
+            "line": 2440,
+            "text": "    while (ld_acquire(bc) < (int)gridDim.x) __nanosleep(64);"
+          }
+        ]
+      },
+      {
+        "ptx_line": 7707,
+        "location": ".loc\t1 265 3, function_name $L__info_string26, inlined_at 1 2441 5",
+        "instruction": "ld.acquire.gpu.global.b32 %r4464, [%rd557];",
+        "source": [
+          {
+            "line": 264,
+            "text": "  int v;"
+          },
+          {
+            "line": 2440,
+            "text": "    while (ld_acquire(bc) < (int)gridDim.x) __nanosleep(64);"
+          }
+        ]
+      },
+      {
+        "ptx_line": 7845,
+        "location": ".loc\t1 2528 7",
+        "instruction": "ld.global.cg.f32 %f983, [%rd578];",
+        "source": [
+          {
+            "line": 2527,
+            "text": "      ssv[s] = qvp[s] >= 0 ? __ldcg(ss_cur() + qvp[s]) : 0.f;"
+          }
+        ]
+      },
+      {
+        "ptx_line": 7863,
+        "location": ".loc\t1 2529 7",
+        "instruction": "ld.global.cg.v4.f32 {%f1324,%f1325,%f1326,%f1327}, [%rd581];",
+        "source": [
+          {
+            "line": 2528,
+            "text": "      yv[s] = qvp[s] >= 0 ? __ldcg(reinterpret_cast<const float4*>(p.ybuf + (size_t)qvp[s] * HD + col)) : make_float4(0.f, 0.f, 0.f, 0.f);"
+          }
+        ]
+      },
+      {
+        "ptx_line": 7878,
+        "location": ".loc\t1 2528 7",
+        "instruction": "ld.global.cg.f32 %f993, [%rd585];",
+        "source": [
+          {
+            "line": 2527,
+            "text": "      ssv[s] = qvp[s] >= 0 ? __ldcg(ss_cur() + qvp[s]) : 0.f;"
+          }
+        ]
+      },
+      {
+        "ptx_line": 7896,
+        "location": ".loc\t1 2529 7",
+        "instruction": "ld.global.cg.v4.f32 {%f1329,%f1330,%f1331,%f1332}, [%rd588];",
+        "source": [
+          {
+            "line": 2528,
+            "text": "      yv[s] = qvp[s] >= 0 ? __ldcg(reinterpret_cast<const float4*>(p.ybuf + (size_t)qvp[s] * HD + col)) : make_float4(0.f, 0.f, 0.f, 0.f);"
+          }
+        ]
+      },
+      {
+        "ptx_line": 7911,
+        "location": ".loc\t1 2528 7",
+        "instruction": "ld.global.cg.f32 %f1003, [%rd592];",
+        "source": [
+          {
+            "line": 2527,
+            "text": "      ssv[s] = qvp[s] >= 0 ? __ldcg(ss_cur() + qvp[s]) : 0.f;"
+          }
+        ]
+      },
+      {
+        "ptx_line": 7929,
+        "location": ".loc\t1 2529 7",
+        "instruction": "ld.global.cg.v4.f32 {%f1334,%f1335,%f1336,%f1337}, [%rd595];",
+        "source": [
+          {
+            "line": 2528,
+            "text": "      yv[s] = qvp[s] >= 0 ? __ldcg(reinterpret_cast<const float4*>(p.ybuf + (size_t)qvp[s] * HD + col)) : make_float4(0.f, 0.f, 0.f, 0.f);"
+          }
+        ]
+      },
+      {
+        "ptx_line": 7944,
+        "location": ".loc\t1 2528 7",
+        "instruction": "ld.global.cg.f32 %f1013, [%rd599];",
+        "source": [
+          {
+            "line": 2527,
+            "text": "      ssv[s] = qvp[s] >= 0 ? __ldcg(ss_cur() + qvp[s]) : 0.f;"
+          }
+        ]
+      },
+      {
+        "ptx_line": 7962,
+        "location": ".loc\t1 2529 7",
+        "instruction": "ld.global.cg.v4.f32 {%f1339,%f1340,%f1341,%f1342}, [%rd602];",
+        "source": [
+          {
+            "line": 2528,
+            "text": "      yv[s] = qvp[s] >= 0 ? __ldcg(reinterpret_cast<const float4*>(p.ybuf + (size_t)qvp[s] * HD + col)) : make_float4(0.f, 0.f, 0.f, 0.f);"
+          }
+        ]
+      },
+      {
+        "ptx_line": 7977,
+        "location": ".loc\t1 2528 7",
+        "instruction": "ld.global.cg.f32 %f1023, [%rd606];",
+        "source": [
+          {
+            "line": 2527,
+            "text": "      ssv[s] = qvp[s] >= 0 ? __ldcg(ss_cur() + qvp[s]) : 0.f;"
+          }
+        ]
+      },
+      {
+        "ptx_line": 7995,
+        "location": ".loc\t1 2529 7",
+        "instruction": "ld.global.cg.v4.f32 {%f1344,%f1345,%f1346,%f1347}, [%rd609];",
+        "source": [
+          {
+            "line": 2528,
+            "text": "      yv[s] = qvp[s] >= 0 ? __ldcg(reinterpret_cast<const float4*>(p.ybuf + (size_t)qvp[s] * HD + col)) : make_float4(0.f, 0.f, 0.f, 0.f);"
+          }
+        ]
+      },
+      {
+        "ptx_line": 8010,
+        "location": ".loc\t1 2528 7",
+        "instruction": "ld.global.cg.f32 %f1033, [%rd613];",
+        "source": [
+          {
+            "line": 2527,
+            "text": "      ssv[s] = qvp[s] >= 0 ? __ldcg(ss_cur() + qvp[s]) : 0.f;"
+          }
+        ]
+      },
+      {
+        "ptx_line": 8028,
+        "location": ".loc\t1 2529 7",
+        "instruction": "ld.global.cg.v4.f32 {%f1349,%f1350,%f1351,%f1352}, [%rd616];",
+        "source": [
+          {
+            "line": 2528,
+            "text": "      yv[s] = qvp[s] >= 0 ? __ldcg(reinterpret_cast<const float4*>(p.ybuf + (size_t)qvp[s] * HD + col)) : make_float4(0.f, 0.f, 0.f, 0.f);"
+          }
+        ]
+      },
+      {
+        "ptx_line": 8043,
+        "location": ".loc\t1 2528 7",
+        "instruction": "ld.global.cg.f32 %f1043, [%rd620];",
+        "source": [
+          {
+            "line": 2527,
+            "text": "      ssv[s] = qvp[s] >= 0 ? __ldcg(ss_cur() + qvp[s]) : 0.f;"
+          }
+        ]
+      },
+      {
+        "ptx_line": 8061,
+        "location": ".loc\t1 2529 7",
+        "instruction": "ld.global.cg.v4.f32 {%f1354,%f1355,%f1356,%f1357}, [%rd623];",
+        "source": [
+          {
+            "line": 2528,
+            "text": "      yv[s] = qvp[s] >= 0 ? __ldcg(reinterpret_cast<const float4*>(p.ybuf + (size_t)qvp[s] * HD + col)) : make_float4(0.f, 0.f, 0.f, 0.f);"
+          }
+        ]
+      },
+      {
+        "ptx_line": 8076,
+        "location": ".loc\t1 2528 7",
+        "instruction": "ld.global.cg.f32 %f1053, [%rd627];",
+        "source": [
+          {
+            "line": 2527,
+            "text": "      ssv[s] = qvp[s] >= 0 ? __ldcg(ss_cur() + qvp[s]) : 0.f;"
+          }
+        ]
+      },
+      {
+        "ptx_line": 8095,
+        "location": ".loc\t1 2529 7",
+        "instruction": "ld.global.cg.v4.f32 {%f1359,%f1360,%f1361,%f1362}, [%rd630];",
+        "source": [
+          {
+            "line": 2528,
+            "text": "      yv[s] = qvp[s] >= 0 ? __ldcg(reinterpret_cast<const float4*>(p.ybuf + (size_t)qvp[s] * HD + col)) : make_float4(0.f, 0.f, 0.f, 0.f);"
+          }
+        ]
+      },
+      {
+        "ptx_line": 8275,
+        "location": ".loc\t1 2554 9",
+        "instruction": "ld.global.f32 \t%f1095, [%rd73];",
+        "source": [
+          {
+            "line": 2553,
+            "text": "        const float r = p.topk_w[tk * 8 + s] * rsqrtf(__ldcg(ss_cur() + q) * (1.f / HD) + 1e-8f);"
+          }
+        ]
+      },
+      {
+        "ptx_line": 8284,
+        "location": ".loc\t1 2554 9",
+        "instruction": "ld.global.cg.f32 %f1090, [%rd647];",
+        "source": [
+          {
+            "line": 2553,
+            "text": "        const float r = p.topk_w[tk * 8 + s] * rsqrtf(__ldcg(ss_cur() + q) * (1.f / HD) + 1e-8f);"
+          }
+        ]
+      },
+      {
+        "ptx_line": 8295,
+        "location": ".loc\t1 2555 9",
+        "instruction": "ld.global.cg.v4.f32 {%f1091,%f1092,%f1093,%f1094}, [%rd648];",
+        "source": [
+          {
+            "line": 2554,
+            "text": "        const float4 v = __ldcg(reinterpret_cast<const float4*>(p.ybuf + (size_t)q * HD + col));"
+          }
+        ]
+      },
+      {
+        "ptx_line": 8311,
+        "location": ".loc\t1 2554 9",
+        "instruction": "ld.global.f32 \t%f1104, [%rd73+4];",
+        "source": [
+          {
+            "line": 2553,
+            "text": "        const float r = p.topk_w[tk * 8 + s] * rsqrtf(__ldcg(ss_cur() + q) * (1.f / HD) + 1e-8f);"
+          }
+        ]
+      },
+      {
+        "ptx_line": 8319,
+        "location": ".loc\t1 2554 9",
+        "instruction": "ld.global.cg.f32 %f1099, [%rd654];",
+        "source": [
+          {
+            "line": 2553,
+            "text": "        const float r = p.topk_w[tk * 8 + s] * rsqrtf(__ldcg(ss_cur() + q) * (1.f / HD) + 1e-8f);"
+          }
+        ]
+      },
+      {
+        "ptx_line": 8330,
+        "location": ".loc\t1 2555 9",
+        "instruction": "ld.global.cg.v4.f32 {%f1100,%f1101,%f1102,%f1103}, [%rd655];",
+        "source": [
+          {
+            "line": 2554,
+            "text": "        const float4 v = __ldcg(reinterpret_cast<const float4*>(p.ybuf + (size_t)q * HD + col));"
+          }
+        ]
+      },
+      {
+        "ptx_line": 8346,
+        "location": ".loc\t1 2554 9",
+        "instruction": "ld.global.f32 \t%f1113, [%rd73+8];",
+        "source": [
+          {
+            "line": 2553,
+            "text": "        const float r = p.topk_w[tk * 8 + s] * rsqrtf(__ldcg(ss_cur() + q) * (1.f / HD) + 1e-8f);"
+          }
+        ]
+      },
+      {
+        "ptx_line": 8354,
+        "location": ".loc\t1 2554 9",
+        "instruction": "ld.global.cg.f32 %f1108, [%rd661];",
+        "source": [
+          {
+            "line": 2553,
+            "text": "        const float r = p.topk_w[tk * 8 + s] * rsqrtf(__ldcg(ss_cur() + q) * (1.f / HD) + 1e-8f);"
+          }
+        ]
+      },
+      {
+        "ptx_line": 8365,
+        "location": ".loc\t1 2555 9",
+        "instruction": "ld.global.cg.v4.f32 {%f1109,%f1110,%f1111,%f1112}, [%rd662];",
+        "source": [
+          {
+            "line": 2554,
+            "text": "        const float4 v = __ldcg(reinterpret_cast<const float4*>(p.ybuf + (size_t)q * HD + col));"
+          }
+        ]
+      },
+      {
+        "ptx_line": 8381,
+        "location": ".loc\t1 2554 9",
+        "instruction": "ld.global.f32 \t%f1122, [%rd73+12];",
+        "source": [
+          {
+            "line": 2553,
+            "text": "        const float r = p.topk_w[tk * 8 + s] * rsqrtf(__ldcg(ss_cur() + q) * (1.f / HD) + 1e-8f);"
+          }
+        ]
+      },
+      {
+        "ptx_line": 8389,
+        "location": ".loc\t1 2554 9",
+        "instruction": "ld.global.cg.f32 %f1117, [%rd668];",
+        "source": [
+          {
+            "line": 2553,
+            "text": "        const float r = p.topk_w[tk * 8 + s] * rsqrtf(__ldcg(ss_cur() + q) * (1.f / HD) + 1e-8f);"
+          }
+        ]
+      },
+      {
+        "ptx_line": 8400,
+        "location": ".loc\t1 2555 9",
+        "instruction": "ld.global.cg.v4.f32 {%f1118,%f1119,%f1120,%f1121}, [%rd669];",
+        "source": [
+          {
+            "line": 2554,
+            "text": "        const float4 v = __ldcg(reinterpret_cast<const float4*>(p.ybuf + (size_t)q * HD + col));"
+          }
+        ]
+      },
+      {
+        "ptx_line": 8416,
+        "location": ".loc\t1 2554 9",
+        "instruction": "ld.global.f32 \t%f1131, [%rd73+16];",
+        "source": [
+          {
+            "line": 2553,
+            "text": "        const float r = p.topk_w[tk * 8 + s] * rsqrtf(__ldcg(ss_cur() + q) * (1.f / HD) + 1e-8f);"
+          }
+        ]
+      },
+      {
+        "ptx_line": 8424,
+        "location": ".loc\t1 2554 9",
+        "instruction": "ld.global.cg.f32 %f1126, [%rd675];",
+        "source": [
+          {
+            "line": 2553,
+            "text": "        const float r = p.topk_w[tk * 8 + s] * rsqrtf(__ldcg(ss_cur() + q) * (1.f / HD) + 1e-8f);"
+          }
+        ]
+      },
+      {
+        "ptx_line": 8435,
+        "location": ".loc\t1 2555 9",
+        "instruction": "ld.global.cg.v4.f32 {%f1127,%f1128,%f1129,%f1130}, [%rd676];",
+        "source": [
+          {
+            "line": 2554,
+            "text": "        const float4 v = __ldcg(reinterpret_cast<const float4*>(p.ybuf + (size_t)q * HD + col));"
+          }
+        ]
+      },
+      {
+        "ptx_line": 8451,
+        "location": ".loc\t1 2554 9",
+        "instruction": "ld.global.f32 \t%f1140, [%rd73+20];",
+        "source": [
+          {
+            "line": 2553,
+            "text": "        const float r = p.topk_w[tk * 8 + s] * rsqrtf(__ldcg(ss_cur() + q) * (1.f / HD) + 1e-8f);"
+          }
+        ]
+      },
+      {
+        "ptx_line": 8459,
+        "location": ".loc\t1 2554 9",
+        "instruction": "ld.global.cg.f32 %f1135, [%rd682];",
+        "source": [
+          {
+            "line": 2553,
+            "text": "        const float r = p.topk_w[tk * 8 + s] * rsqrtf(__ldcg(ss_cur() + q) * (1.f / HD) + 1e-8f);"
+          }
+        ]
+      },
+      {
+        "ptx_line": 8470,
+        "location": ".loc\t1 2555 9",
+        "instruction": "ld.global.cg.v4.f32 {%f1136,%f1137,%f1138,%f1139}, [%rd683];",
+        "source": [
+          {
+            "line": 2554,
+            "text": "        const float4 v = __ldcg(reinterpret_cast<const float4*>(p.ybuf + (size_t)q * HD + col));"
+          }
+        ]
+      },
+      {
+        "ptx_line": 8486,
+        "location": ".loc\t1 2554 9",
+        "instruction": "ld.global.f32 \t%f1149, [%rd73+24];",
+        "source": [
+          {
+            "line": 2553,
+            "text": "        const float r = p.topk_w[tk * 8 + s] * rsqrtf(__ldcg(ss_cur() + q) * (1.f / HD) + 1e-8f);"
+          }
+        ]
+      },
+      {
+        "ptx_line": 8494,
+        "location": ".loc\t1 2554 9",
+        "instruction": "ld.global.cg.f32 %f1144, [%rd689];",
+        "source": [
+          {
+            "line": 2553,
+            "text": "        const float r = p.topk_w[tk * 8 + s] * rsqrtf(__ldcg(ss_cur() + q) * (1.f / HD) + 1e-8f);"
+          }
+        ]
+      },
+      {
+        "ptx_line": 8505,
+        "location": ".loc\t1 2555 9",
+        "instruction": "ld.global.cg.v4.f32 {%f1145,%f1146,%f1147,%f1148}, [%rd690];",
+        "source": [
+          {
+            "line": 2554,
+            "text": "        const float4 v = __ldcg(reinterpret_cast<const float4*>(p.ybuf + (size_t)q * HD + col));"
+          }
+        ]
+      },
+      {
+        "ptx_line": 8521,
+        "location": ".loc\t1 2554 9",
+        "instruction": "ld.global.f32 \t%f1158, [%rd73+28];",
+        "source": [
+          {
+            "line": 2553,
+            "text": "        const float r = p.topk_w[tk * 8 + s] * rsqrtf(__ldcg(ss_cur() + q) * (1.f / HD) + 1e-8f);"
+          }
+        ]
+      },
+      {
+        "ptx_line": 8529,
+        "location": ".loc\t1 2554 9",
+        "instruction": "ld.global.cg.f32 %f1153, [%rd696];",
+        "source": [
+          {
+            "line": 2553,
+            "text": "        const float r = p.topk_w[tk * 8 + s] * rsqrtf(__ldcg(ss_cur() + q) * (1.f / HD) + 1e-8f);"
+          }
+        ]
+      },
+      {
+        "ptx_line": 8540,
+        "location": ".loc\t1 2555 9",
+        "instruction": "ld.global.cg.v4.f32 {%f1154,%f1155,%f1156,%f1157}, [%rd697];",
+        "source": [
+          {
+            "line": 2554,
+            "text": "        const float4 v = __ldcg(reinterpret_cast<const float4*>(p.ybuf + (size_t)q * HD + col));"
+          }
+        ]
+      }
+    ],
+    "opcode_counts": {
+      "ld.global.nc.f32": 8,
+      "ld.acquire.gpu.global.b32": 2,
+      "ld.global.cg.f32": 16,
+      "ld.global.cg.v4.f32": 16,
+      "ld.global.f32": 8
+    },
+    "nc": [
+      {
+        "ptx_line": 7497,
+        "location": ".loc\t1 2424 5",
+        "instruction": "ld.global.nc.f32 %f1315, [%rd534];",
+        "source": [
+          {
+            "line": 2423,
+            "text": "    wvp[s] = (qvp[s] >= 0) ? __ldg(p.topk_w + tkp * 8 + s) : 0.f;"
+          }
+        ]
+      },
+      {
+        "ptx_line": 7518,
+        "location": ".loc\t1 2424 5",
+        "instruction": "ld.global.nc.f32 %f1316, [%rd536];",
+        "source": [
+          {
+            "line": 2423,
+            "text": "    wvp[s] = (qvp[s] >= 0) ? __ldg(p.topk_w + tkp * 8 + s) : 0.f;"
+          }
+        ]
+      },
+      {
+        "ptx_line": 7539,
+        "location": ".loc\t1 2424 5",
+        "instruction": "ld.global.nc.f32 %f1317, [%rd539];",
+        "source": [
+          {
+            "line": 2423,
+            "text": "    wvp[s] = (qvp[s] >= 0) ? __ldg(p.topk_w + tkp * 8 + s) : 0.f;"
+          }
+        ]
+      },
+      {
+        "ptx_line": 7560,
+        "location": ".loc\t1 2424 5",
+        "instruction": "ld.global.nc.f32 %f1318, [%rd542];",
+        "source": [
+          {
+            "line": 2423,
+            "text": "    wvp[s] = (qvp[s] >= 0) ? __ldg(p.topk_w + tkp * 8 + s) : 0.f;"
+          }
+        ]
+      },
+      {
+        "ptx_line": 7581,
+        "location": ".loc\t1 2424 5",
+        "instruction": "ld.global.nc.f32 %f1319, [%rd545];",
+        "source": [
+          {
+            "line": 2423,
+            "text": "    wvp[s] = (qvp[s] >= 0) ? __ldg(p.topk_w + tkp * 8 + s) : 0.f;"
+          }
+        ]
+      },
+      {
+        "ptx_line": 7602,
+        "location": ".loc\t1 2424 5",
+        "instruction": "ld.global.nc.f32 %f1320, [%rd548];",
+        "source": [
+          {
+            "line": 2423,
+            "text": "    wvp[s] = (qvp[s] >= 0) ? __ldg(p.topk_w + tkp * 8 + s) : 0.f;"
+          }
+        ]
+      },
+      {
+        "ptx_line": 7623,
+        "location": ".loc\t1 2424 5",
+        "instruction": "ld.global.nc.f32 %f1321, [%rd551];",
+        "source": [
+          {
+            "line": 2423,
+            "text": "    wvp[s] = (qvp[s] >= 0) ? __ldg(p.topk_w + tkp * 8 + s) : 0.f;"
+          }
+        ]
+      },
+      {
+        "ptx_line": 7644,
+        "location": ".loc\t1 2424 5",
+        "instruction": "ld.global.nc.f32 %f1322, [%rd554];",
+        "source": [
+          {
+            "line": 2423,
+            "text": "    wvp[s] = (qvp[s] >= 0) ? __ldg(p.topk_w + tkp * 8 + s) : 0.f;"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "build": "tiny2-control",
+    "loads": [
+      {
+        "ptx_line": 7527,
+        "location": ".loc\t1 2424 5",
+        "instruction": "ld.global.nc.f32 %f1323, [%rd548];",
+        "source": [
+          {
+            "line": 2423,
+            "text": "    wvp[s] = (qvp[s] >= 0) ? __ldg(p.topk_w + tkp * 8 + s) : 0.f;"
+          }
+        ]
+      },
+      {
+        "ptx_line": 7548,
+        "location": ".loc\t1 2424 5",
+        "instruction": "ld.global.nc.f32 %f1324, [%rd550];",
+        "source": [
+          {
+            "line": 2423,
+            "text": "    wvp[s] = (qvp[s] >= 0) ? __ldg(p.topk_w + tkp * 8 + s) : 0.f;"
+          }
+        ]
+      },
+      {
+        "ptx_line": 7569,
+        "location": ".loc\t1 2424 5",
+        "instruction": "ld.global.nc.f32 %f1325, [%rd553];",
+        "source": [
+          {
+            "line": 2423,
+            "text": "    wvp[s] = (qvp[s] >= 0) ? __ldg(p.topk_w + tkp * 8 + s) : 0.f;"
+          }
+        ]
+      },
+      {
+        "ptx_line": 7590,
+        "location": ".loc\t1 2424 5",
+        "instruction": "ld.global.nc.f32 %f1326, [%rd556];",
+        "source": [
+          {
+            "line": 2423,
+            "text": "    wvp[s] = (qvp[s] >= 0) ? __ldg(p.topk_w + tkp * 8 + s) : 0.f;"
+          }
+        ]
+      },
+      {
+        "ptx_line": 7611,
+        "location": ".loc\t1 2424 5",
+        "instruction": "ld.global.nc.f32 %f1327, [%rd559];",
+        "source": [
+          {
+            "line": 2423,
+            "text": "    wvp[s] = (qvp[s] >= 0) ? __ldg(p.topk_w + tkp * 8 + s) : 0.f;"
+          }
+        ]
+      },
+      {
+        "ptx_line": 7632,
+        "location": ".loc\t1 2424 5",
+        "instruction": "ld.global.nc.f32 %f1328, [%rd562];",
+        "source": [
+          {
+            "line": 2423,
+            "text": "    wvp[s] = (qvp[s] >= 0) ? __ldg(p.topk_w + tkp * 8 + s) : 0.f;"
+          }
+        ]
+      },
+      {
+        "ptx_line": 7653,
+        "location": ".loc\t1 2424 5",
+        "instruction": "ld.global.nc.f32 %f1329, [%rd565];",
+        "source": [
+          {
+            "line": 2423,
+            "text": "    wvp[s] = (qvp[s] >= 0) ? __ldg(p.topk_w + tkp * 8 + s) : 0.f;"
+          }
+        ]
+      },
+      {
+        "ptx_line": 7674,
+        "location": ".loc\t1 2424 5",
+        "instruction": "ld.global.nc.f32 %f1330, [%rd568];",
+        "source": [
+          {
+            "line": 2423,
+            "text": "    wvp[s] = (qvp[s] >= 0) ? __ldg(p.topk_w + tkp * 8 + s) : 0.f;"
+          }
+        ]
+      },
+      {
+        "ptx_line": 7719,
+        "location": ".loc\t1 265 3, function_name $L__info_string26, inlined_at 1 2434 5",
+        "instruction": "ld.acquire.gpu.global.b32 %r4460, [%rd571];",
+        "source": [
+          {
+            "line": 264,
+            "text": "  int v;"
+          },
+          {
+            "line": 2433,
+            "text": "    while (ld_acquire(bc) < (int)gridDim.x) __nanosleep(64);"
+          }
+        ]
+      },
+      {
+        "ptx_line": 7737,
+        "location": ".loc\t1 265 3, function_name $L__info_string26, inlined_at 1 2434 5",
+        "instruction": "ld.acquire.gpu.global.b32 %r4463, [%rd571];",
+        "source": [
+          {
+            "line": 264,
+            "text": "  int v;"
+          },
+          {
+            "line": 2433,
+            "text": "    while (ld_acquire(bc) < (int)gridDim.x) __nanosleep(64);"
+          }
+        ]
+      },
+      {
+        "ptx_line": 7875,
+        "location": ".loc\t1 2521 7",
+        "instruction": "ld.global.cg.f32 %f987, [%rd592];",
+        "source": [
+          {
+            "line": 2520,
+            "text": "      ssv[s] = qvp[s] >= 0 ? __ldcg(ss_cur() + qvp[s]) : 0.f;"
+          }
+        ]
+      },
+      {
+        "ptx_line": 7893,
+        "location": ".loc\t1 2522 7",
+        "instruction": "ld.global.cg.v4.f32 {%f1332,%f1333,%f1334,%f1335}, [%rd595];",
+        "source": [
+          {
+            "line": 2521,
+            "text": "      yv[s] = qvp[s] >= 0 ? __ldcg(reinterpret_cast<const float4*>(p.ybuf + (size_t)qvp[s] * HD + col)) : make_float4(0.f, 0.f, 0.f, 0.f);"
+          }
+        ]
+      },
+      {
+        "ptx_line": 7908,
+        "location": ".loc\t1 2521 7",
+        "instruction": "ld.global.cg.f32 %f997, [%rd599];",
+        "source": [
+          {
+            "line": 2520,
+            "text": "      ssv[s] = qvp[s] >= 0 ? __ldcg(ss_cur() + qvp[s]) : 0.f;"
+          }
+        ]
+      },
+      {
+        "ptx_line": 7926,
+        "location": ".loc\t1 2522 7",
+        "instruction": "ld.global.cg.v4.f32 {%f1337,%f1338,%f1339,%f1340}, [%rd602];",
+        "source": [
+          {
+            "line": 2521,
+            "text": "      yv[s] = qvp[s] >= 0 ? __ldcg(reinterpret_cast<const float4*>(p.ybuf + (size_t)qvp[s] * HD + col)) : make_float4(0.f, 0.f, 0.f, 0.f);"
+          }
+        ]
+      },
+      {
+        "ptx_line": 7941,
+        "location": ".loc\t1 2521 7",
+        "instruction": "ld.global.cg.f32 %f1007, [%rd606];",
+        "source": [
+          {
+            "line": 2520,
+            "text": "      ssv[s] = qvp[s] >= 0 ? __ldcg(ss_cur() + qvp[s]) : 0.f;"
+          }
+        ]
+      },
+      {
+        "ptx_line": 7959,
+        "location": ".loc\t1 2522 7",
+        "instruction": "ld.global.cg.v4.f32 {%f1342,%f1343,%f1344,%f1345}, [%rd609];",
+        "source": [
+          {
+            "line": 2521,
+            "text": "      yv[s] = qvp[s] >= 0 ? __ldcg(reinterpret_cast<const float4*>(p.ybuf + (size_t)qvp[s] * HD + col)) : make_float4(0.f, 0.f, 0.f, 0.f);"
+          }
+        ]
+      },
+      {
+        "ptx_line": 7974,
+        "location": ".loc\t1 2521 7",
+        "instruction": "ld.global.cg.f32 %f1017, [%rd613];",
+        "source": [
+          {
+            "line": 2520,
+            "text": "      ssv[s] = qvp[s] >= 0 ? __ldcg(ss_cur() + qvp[s]) : 0.f;"
+          }
+        ]
+      },
+      {
+        "ptx_line": 7992,
+        "location": ".loc\t1 2522 7",
+        "instruction": "ld.global.cg.v4.f32 {%f1347,%f1348,%f1349,%f1350}, [%rd616];",
+        "source": [
+          {
+            "line": 2521,
+            "text": "      yv[s] = qvp[s] >= 0 ? __ldcg(reinterpret_cast<const float4*>(p.ybuf + (size_t)qvp[s] * HD + col)) : make_float4(0.f, 0.f, 0.f, 0.f);"
+          }
+        ]
+      },
+      {
+        "ptx_line": 8007,
+        "location": ".loc\t1 2521 7",
+        "instruction": "ld.global.cg.f32 %f1027, [%rd620];",
+        "source": [
+          {
+            "line": 2520,
+            "text": "      ssv[s] = qvp[s] >= 0 ? __ldcg(ss_cur() + qvp[s]) : 0.f;"
+          }
+        ]
+      },
+      {
+        "ptx_line": 8025,
+        "location": ".loc\t1 2522 7",
+        "instruction": "ld.global.cg.v4.f32 {%f1352,%f1353,%f1354,%f1355}, [%rd623];",
+        "source": [
+          {
+            "line": 2521,
+            "text": "      yv[s] = qvp[s] >= 0 ? __ldcg(reinterpret_cast<const float4*>(p.ybuf + (size_t)qvp[s] * HD + col)) : make_float4(0.f, 0.f, 0.f, 0.f);"
+          }
+        ]
+      },
+      {
+        "ptx_line": 8040,
+        "location": ".loc\t1 2521 7",
+        "instruction": "ld.global.cg.f32 %f1037, [%rd627];",
+        "source": [
+          {
+            "line": 2520,
+            "text": "      ssv[s] = qvp[s] >= 0 ? __ldcg(ss_cur() + qvp[s]) : 0.f;"
+          }
+        ]
+      },
+      {
+        "ptx_line": 8058,
+        "location": ".loc\t1 2522 7",
+        "instruction": "ld.global.cg.v4.f32 {%f1357,%f1358,%f1359,%f1360}, [%rd630];",
+        "source": [
+          {
+            "line": 2521,
+            "text": "      yv[s] = qvp[s] >= 0 ? __ldcg(reinterpret_cast<const float4*>(p.ybuf + (size_t)qvp[s] * HD + col)) : make_float4(0.f, 0.f, 0.f, 0.f);"
+          }
+        ]
+      },
+      {
+        "ptx_line": 8073,
+        "location": ".loc\t1 2521 7",
+        "instruction": "ld.global.cg.f32 %f1047, [%rd634];",
+        "source": [
+          {
+            "line": 2520,
+            "text": "      ssv[s] = qvp[s] >= 0 ? __ldcg(ss_cur() + qvp[s]) : 0.f;"
+          }
+        ]
+      },
+      {
+        "ptx_line": 8091,
+        "location": ".loc\t1 2522 7",
+        "instruction": "ld.global.cg.v4.f32 {%f1362,%f1363,%f1364,%f1365}, [%rd637];",
+        "source": [
+          {
+            "line": 2521,
+            "text": "      yv[s] = qvp[s] >= 0 ? __ldcg(reinterpret_cast<const float4*>(p.ybuf + (size_t)qvp[s] * HD + col)) : make_float4(0.f, 0.f, 0.f, 0.f);"
+          }
+        ]
+      },
+      {
+        "ptx_line": 8106,
+        "location": ".loc\t1 2521 7",
+        "instruction": "ld.global.cg.f32 %f1057, [%rd641];",
+        "source": [
+          {
+            "line": 2520,
+            "text": "      ssv[s] = qvp[s] >= 0 ? __ldcg(ss_cur() + qvp[s]) : 0.f;"
+          }
+        ]
+      },
+      {
+        "ptx_line": 8125,
+        "location": ".loc\t1 2522 7",
+        "instruction": "ld.global.cg.v4.f32 {%f1367,%f1368,%f1369,%f1370}, [%rd644];",
+        "source": [
+          {
+            "line": 2521,
+            "text": "      yv[s] = qvp[s] >= 0 ? __ldcg(reinterpret_cast<const float4*>(p.ybuf + (size_t)qvp[s] * HD + col)) : make_float4(0.f, 0.f, 0.f, 0.f);"
+          }
+        ]
+      },
+      {
+        "ptx_line": 8305,
+        "location": ".loc\t1 2547 9",
+        "instruction": "ld.global.f32 \t%f1099, [%rd74];",
+        "source": [
+          {
+            "line": 2546,
+            "text": "        const float r = p.topk_w[tk * 8 + s] * rsqrtf(__ldcg(ss_cur() + q) * (1.f / HD) + 1e-8f);"
+          }
+        ]
+      },
+      {
+        "ptx_line": 8314,
+        "location": ".loc\t1 2547 9",
+        "instruction": "ld.global.cg.f32 %f1094, [%rd661];",
+        "source": [
+          {
+            "line": 2546,
+            "text": "        const float r = p.topk_w[tk * 8 + s] * rsqrtf(__ldcg(ss_cur() + q) * (1.f / HD) + 1e-8f);"
+          }
+        ]
+      },
+      {
+        "ptx_line": 8325,
+        "location": ".loc\t1 2548 9",
+        "instruction": "ld.global.cg.v4.f32 {%f1095,%f1096,%f1097,%f1098}, [%rd662];",
+        "source": [
+          {
+            "line": 2547,
+            "text": "        const float4 v = __ldcg(reinterpret_cast<const float4*>(p.ybuf + (size_t)q * HD + col));"
+          }
+        ]
+      },
+      {
+        "ptx_line": 8341,
+        "location": ".loc\t1 2547 9",
+        "instruction": "ld.global.f32 \t%f1108, [%rd74+4];",
+        "source": [
+          {
+            "line": 2546,
+            "text": "        const float r = p.topk_w[tk * 8 + s] * rsqrtf(__ldcg(ss_cur() + q) * (1.f / HD) + 1e-8f);"
+          }
+        ]
+      },
+      {
+        "ptx_line": 8349,
+        "location": ".loc\t1 2547 9",
+        "instruction": "ld.global.cg.f32 %f1103, [%rd668];",
+        "source": [
+          {
+            "line": 2546,
+            "text": "        const float r = p.topk_w[tk * 8 + s] * rsqrtf(__ldcg(ss_cur() + q) * (1.f / HD) + 1e-8f);"
+          }
+        ]
+      },
+      {
+        "ptx_line": 8360,
+        "location": ".loc\t1 2548 9",
+        "instruction": "ld.global.cg.v4.f32 {%f1104,%f1105,%f1106,%f1107}, [%rd669];",
+        "source": [
+          {
+            "line": 2547,
+            "text": "        const float4 v = __ldcg(reinterpret_cast<const float4*>(p.ybuf + (size_t)q * HD + col));"
+          }
+        ]
+      },
+      {
+        "ptx_line": 8376,
+        "location": ".loc\t1 2547 9",
+        "instruction": "ld.global.f32 \t%f1117, [%rd74+8];",
+        "source": [
+          {
+            "line": 2546,
+            "text": "        const float r = p.topk_w[tk * 8 + s] * rsqrtf(__ldcg(ss_cur() + q) * (1.f / HD) + 1e-8f);"
+          }
+        ]
+      },
+      {
+        "ptx_line": 8384,
+        "location": ".loc\t1 2547 9",
+        "instruction": "ld.global.cg.f32 %f1112, [%rd675];",
+        "source": [
+          {
+            "line": 2546,
+            "text": "        const float r = p.topk_w[tk * 8 + s] * rsqrtf(__ldcg(ss_cur() + q) * (1.f / HD) + 1e-8f);"
+          }
+        ]
+      },
+      {
+        "ptx_line": 8395,
+        "location": ".loc\t1 2548 9",
+        "instruction": "ld.global.cg.v4.f32 {%f1113,%f1114,%f1115,%f1116}, [%rd676];",
+        "source": [
+          {
+            "line": 2547,
+            "text": "        const float4 v = __ldcg(reinterpret_cast<const float4*>(p.ybuf + (size_t)q * HD + col));"
+          }
+        ]
+      },
+      {
+        "ptx_line": 8411,
+        "location": ".loc\t1 2547 9",
+        "instruction": "ld.global.f32 \t%f1126, [%rd74+12];",
+        "source": [
+          {
+            "line": 2546,
+            "text": "        const float r = p.topk_w[tk * 8 + s] * rsqrtf(__ldcg(ss_cur() + q) * (1.f / HD) + 1e-8f);"
+          }
+        ]
+      },
+      {
+        "ptx_line": 8419,
+        "location": ".loc\t1 2547 9",
+        "instruction": "ld.global.cg.f32 %f1121, [%rd682];",
+        "source": [
+          {
+            "line": 2546,
+            "text": "        const float r = p.topk_w[tk * 8 + s] * rsqrtf(__ldcg(ss_cur() + q) * (1.f / HD) + 1e-8f);"
+          }
+        ]
+      },
+      {
+        "ptx_line": 8430,
+        "location": ".loc\t1 2548 9",
+        "instruction": "ld.global.cg.v4.f32 {%f1122,%f1123,%f1124,%f1125}, [%rd683];",
+        "source": [
+          {
+            "line": 2547,
+            "text": "        const float4 v = __ldcg(reinterpret_cast<const float4*>(p.ybuf + (size_t)q * HD + col));"
+          }
+        ]
+      },
+      {
+        "ptx_line": 8446,
+        "location": ".loc\t1 2547 9",
+        "instruction": "ld.global.f32 \t%f1135, [%rd74+16];",
+        "source": [
+          {
+            "line": 2546,
+            "text": "        const float r = p.topk_w[tk * 8 + s] * rsqrtf(__ldcg(ss_cur() + q) * (1.f / HD) + 1e-8f);"
+          }
+        ]
+      },
+      {
+        "ptx_line": 8454,
+        "location": ".loc\t1 2547 9",
+        "instruction": "ld.global.cg.f32 %f1130, [%rd689];",
+        "source": [
+          {
+            "line": 2546,
+            "text": "        const float r = p.topk_w[tk * 8 + s] * rsqrtf(__ldcg(ss_cur() + q) * (1.f / HD) + 1e-8f);"
+          }
+        ]
+      },
+      {
+        "ptx_line": 8465,
+        "location": ".loc\t1 2548 9",
+        "instruction": "ld.global.cg.v4.f32 {%f1131,%f1132,%f1133,%f1134}, [%rd690];",
+        "source": [
+          {
+            "line": 2547,
+            "text": "        const float4 v = __ldcg(reinterpret_cast<const float4*>(p.ybuf + (size_t)q * HD + col));"
+          }
+        ]
+      },
+      {
+        "ptx_line": 8481,
+        "location": ".loc\t1 2547 9",
+        "instruction": "ld.global.f32 \t%f1144, [%rd74+20];",
+        "source": [
+          {
+            "line": 2546,
+            "text": "        const float r = p.topk_w[tk * 8 + s] * rsqrtf(__ldcg(ss_cur() + q) * (1.f / HD) + 1e-8f);"
+          }
+        ]
+      },
+      {
+        "ptx_line": 8489,
+        "location": ".loc\t1 2547 9",
+        "instruction": "ld.global.cg.f32 %f1139, [%rd696];",
+        "source": [
+          {
+            "line": 2546,
+            "text": "        const float r = p.topk_w[tk * 8 + s] * rsqrtf(__ldcg(ss_cur() + q) * (1.f / HD) + 1e-8f);"
+          }
+        ]
+      },
+      {
+        "ptx_line": 8500,
+        "location": ".loc\t1 2548 9",
+        "instruction": "ld.global.cg.v4.f32 {%f1140,%f1141,%f1142,%f1143}, [%rd697];",
+        "source": [
+          {
+            "line": 2547,
+            "text": "        const float4 v = __ldcg(reinterpret_cast<const float4*>(p.ybuf + (size_t)q * HD + col));"
+          }
+        ]
+      },
+      {
+        "ptx_line": 8516,
+        "location": ".loc\t1 2547 9",
+        "instruction": "ld.global.f32 \t%f1153, [%rd74+24];",
+        "source": [
+          {
+            "line": 2546,
+            "text": "        const float r = p.topk_w[tk * 8 + s] * rsqrtf(__ldcg(ss_cur() + q) * (1.f / HD) + 1e-8f);"
+          }
+        ]
+      },
+      {
+        "ptx_line": 8524,
+        "location": ".loc\t1 2547 9",
+        "instruction": "ld.global.cg.f32 %f1148, [%rd703];",
+        "source": [
+          {
+            "line": 2546,
+            "text": "        const float r = p.topk_w[tk * 8 + s] * rsqrtf(__ldcg(ss_cur() + q) * (1.f / HD) + 1e-8f);"
+          }
+        ]
+      },
+      {
+        "ptx_line": 8535,
+        "location": ".loc\t1 2548 9",
+        "instruction": "ld.global.cg.v4.f32 {%f1149,%f1150,%f1151,%f1152}, [%rd704];",
+        "source": [
+          {
+            "line": 2547,
+            "text": "        const float4 v = __ldcg(reinterpret_cast<const float4*>(p.ybuf + (size_t)q * HD + col));"
+          }
+        ]
+      },
+      {
+        "ptx_line": 8551,
+        "location": ".loc\t1 2547 9",
+        "instruction": "ld.global.f32 \t%f1162, [%rd74+28];",
+        "source": [
+          {
+            "line": 2546,
+            "text": "        const float r = p.topk_w[tk * 8 + s] * rsqrtf(__ldcg(ss_cur() + q) * (1.f / HD) + 1e-8f);"
+          }
+        ]
+      },
+      {
+        "ptx_line": 8559,
+        "location": ".loc\t1 2547 9",
+        "instruction": "ld.global.cg.f32 %f1157, [%rd710];",
+        "source": [
+          {
+            "line": 2546,
+            "text": "        const float r = p.topk_w[tk * 8 + s] * rsqrtf(__ldcg(ss_cur() + q) * (1.f / HD) + 1e-8f);"
+          }
+        ]
+      },
+      {
+        "ptx_line": 8570,
+        "location": ".loc\t1 2548 9",
+        "instruction": "ld.global.cg.v4.f32 {%f1158,%f1159,%f1160,%f1161}, [%rd711];",
+        "source": [
+          {
+            "line": 2547,
+            "text": "        const float4 v = __ldcg(reinterpret_cast<const float4*>(p.ybuf + (size_t)q * HD + col));"
+          }
+        ]
+      }
+    ],
+    "opcode_counts": {
+      "ld.global.nc.f32": 8,
+      "ld.acquire.gpu.global.b32": 2,
+      "ld.global.cg.f32": 16,
+      "ld.global.cg.v4.f32": 16,
+      "ld.global.f32": 8
+    },
+    "nc": [
+      {
+        "ptx_line": 7527,
+        "location": ".loc\t1 2424 5",
+        "instruction": "ld.global.nc.f32 %f1323, [%rd548];",
+        "source": [
+          {
+            "line": 2423,
+            "text": "    wvp[s] = (qvp[s] >= 0) ? __ldg(p.topk_w + tkp * 8 + s) : 0.f;"
+          }
+        ]
+      },
+      {
+        "ptx_line": 7548,
+        "location": ".loc\t1 2424 5",
+        "instruction": "ld.global.nc.f32 %f1324, [%rd550];",
+        "source": [
+          {
+            "line": 2423,
+            "text": "    wvp[s] = (qvp[s] >= 0) ? __ldg(p.topk_w + tkp * 8 + s) : 0.f;"
+          }
+        ]
+      },
+      {
+        "ptx_line": 7569,
+        "location": ".loc\t1 2424 5",
+        "instruction": "ld.global.nc.f32 %f1325, [%rd553];",
+        "source": [
+          {
+            "line": 2423,
+            "text": "    wvp[s] = (qvp[s] >= 0) ? __ldg(p.topk_w + tkp * 8 + s) : 0.f;"
+          }
+        ]
+      },
+      {
+        "ptx_line": 7590,
+        "location": ".loc\t1 2424 5",
+        "instruction": "ld.global.nc.f32 %f1326, [%rd556];",
+        "source": [
+          {
+            "line": 2423,
+            "text": "    wvp[s] = (qvp[s] >= 0) ? __ldg(p.topk_w + tkp * 8 + s) : 0.f;"
+          }
+        ]
+      },
+      {
+        "ptx_line": 7611,
+        "location": ".loc\t1 2424 5",
+        "instruction": "ld.global.nc.f32 %f1327, [%rd559];",
+        "source": [
+          {
+            "line": 2423,
+            "text": "    wvp[s] = (qvp[s] >= 0) ? __ldg(p.topk_w + tkp * 8 + s) : 0.f;"
+          }
+        ]
+      },
+      {
+        "ptx_line": 7632,
+        "location": ".loc\t1 2424 5",
+        "instruction": "ld.global.nc.f32 %f1328, [%rd562];",
+        "source": [
+          {
+            "line": 2423,
+            "text": "    wvp[s] = (qvp[s] >= 0) ? __ldg(p.topk_w + tkp * 8 + s) : 0.f;"
+          }
+        ]
+      },
+      {
+        "ptx_line": 7653,
+        "location": ".loc\t1 2424 5",
+        "instruction": "ld.global.nc.f32 %f1329, [%rd565];",
+        "source": [
+          {
+            "line": 2423,
+            "text": "    wvp[s] = (qvp[s] >= 0) ? __ldg(p.topk_w + tkp * 8 + s) : 0.f;"
+          }
+        ]
+      },
+      {
+        "ptx_line": 7674,
+        "location": ".loc\t1 2424 5",
+        "instruction": "ld.global.nc.f32 %f1330, [%rd568];",
+        "source": [
+          {
+            "line": 2423,
+            "text": "    wvp[s] = (qvp[s] >= 0) ? __ldg(p.topk_w + tkp * 8 + s) : 0.f;"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "build": "tiny2-relaxed",
+    "loads": [
+      {
+        "ptx_line": 7527,
+        "location": ".loc\t1 2424 5",
+        "instruction": "ld.global.nc.f32 %f1323, [%rd548];",
+        "source": [
+          {
+            "line": 2423,
+            "text": "    wvp[s] = (qvp[s] >= 0) ? __ldg(p.topk_w + tkp * 8 + s) : 0.f;"
+          }
+        ]
+      },
+      {
+        "ptx_line": 7548,
+        "location": ".loc\t1 2424 5",
+        "instruction": "ld.global.nc.f32 %f1324, [%rd550];",
+        "source": [
+          {
+            "line": 2423,
+            "text": "    wvp[s] = (qvp[s] >= 0) ? __ldg(p.topk_w + tkp * 8 + s) : 0.f;"
+          }
+        ]
+      },
+      {
+        "ptx_line": 7569,
+        "location": ".loc\t1 2424 5",
+        "instruction": "ld.global.nc.f32 %f1325, [%rd553];",
+        "source": [
+          {
+            "line": 2423,
+            "text": "    wvp[s] = (qvp[s] >= 0) ? __ldg(p.topk_w + tkp * 8 + s) : 0.f;"
+          }
+        ]
+      },
+      {
+        "ptx_line": 7590,
+        "location": ".loc\t1 2424 5",
+        "instruction": "ld.global.nc.f32 %f1326, [%rd556];",
+        "source": [
+          {
+            "line": 2423,
+            "text": "    wvp[s] = (qvp[s] >= 0) ? __ldg(p.topk_w + tkp * 8 + s) : 0.f;"
+          }
+        ]
+      },
+      {
+        "ptx_line": 7611,
+        "location": ".loc\t1 2424 5",
+        "instruction": "ld.global.nc.f32 %f1327, [%rd559];",
+        "source": [
+          {
+            "line": 2423,
+            "text": "    wvp[s] = (qvp[s] >= 0) ? __ldg(p.topk_w + tkp * 8 + s) : 0.f;"
+          }
+        ]
+      },
+      {
+        "ptx_line": 7632,
+        "location": ".loc\t1 2424 5",
+        "instruction": "ld.global.nc.f32 %f1328, [%rd562];",
+        "source": [
+          {
+            "line": 2423,
+            "text": "    wvp[s] = (qvp[s] >= 0) ? __ldg(p.topk_w + tkp * 8 + s) : 0.f;"
+          }
+        ]
+      },
+      {
+        "ptx_line": 7653,
+        "location": ".loc\t1 2424 5",
+        "instruction": "ld.global.nc.f32 %f1329, [%rd565];",
+        "source": [
+          {
+            "line": 2423,
+            "text": "    wvp[s] = (qvp[s] >= 0) ? __ldg(p.topk_w + tkp * 8 + s) : 0.f;"
+          }
+        ]
+      },
+      {
+        "ptx_line": 7674,
+        "location": ".loc\t1 2424 5",
+        "instruction": "ld.global.nc.f32 %f1330, [%rd568];",
+        "source": [
+          {
+            "line": 2423,
+            "text": "    wvp[s] = (qvp[s] >= 0) ? __ldg(p.topk_w + tkp * 8 + s) : 0.f;"
+          }
+        ]
+      },
+      {
+        "ptx_line": 7719,
+        "location": ".loc\t1 265 3, function_name $L__info_string26, inlined_at 1 2441 5",
+        "instruction": "ld.acquire.gpu.global.b32 %r4460, [%rd571];",
+        "source": [
+          {
+            "line": 264,
+            "text": "  int v;"
+          },
+          {
+            "line": 2440,
+            "text": "    while (ld_acquire(bc) < (int)gridDim.x) __nanosleep(64);"
+          }
+        ]
+      },
+      {
+        "ptx_line": 7737,
+        "location": ".loc\t1 265 3, function_name $L__info_string26, inlined_at 1 2441 5",
+        "instruction": "ld.acquire.gpu.global.b32 %r4463, [%rd571];",
+        "source": [
+          {
+            "line": 264,
+            "text": "  int v;"
+          },
+          {
+            "line": 2440,
+            "text": "    while (ld_acquire(bc) < (int)gridDim.x) __nanosleep(64);"
+          }
+        ]
+      },
+      {
+        "ptx_line": 7875,
+        "location": ".loc\t1 2528 7",
+        "instruction": "ld.global.cg.f32 %f987, [%rd592];",
+        "source": [
+          {
+            "line": 2527,
+            "text": "      ssv[s] = qvp[s] >= 0 ? __ldcg(ss_cur() + qvp[s]) : 0.f;"
+          }
+        ]
+      },
+      {
+        "ptx_line": 7893,
+        "location": ".loc\t1 2529 7",
+        "instruction": "ld.global.cg.v4.f32 {%f1332,%f1333,%f1334,%f1335}, [%rd595];",
+        "source": [
+          {
+            "line": 2528,
+            "text": "      yv[s] = qvp[s] >= 0 ? __ldcg(reinterpret_cast<const float4*>(p.ybuf + (size_t)qvp[s] * HD + col)) : make_float4(0.f, 0.f, 0.f, 0.f);"
+          }
+        ]
+      },
+      {
+        "ptx_line": 7908,
+        "location": ".loc\t1 2528 7",
+        "instruction": "ld.global.cg.f32 %f997, [%rd599];",
+        "source": [
+          {
+            "line": 2527,
+            "text": "      ssv[s] = qvp[s] >= 0 ? __ldcg(ss_cur() + qvp[s]) : 0.f;"
+          }
+        ]
+      },
+      {
+        "ptx_line": 7926,
+        "location": ".loc\t1 2529 7",
+        "instruction": "ld.global.cg.v4.f32 {%f1337,%f1338,%f1339,%f1340}, [%rd602];",
+        "source": [
+          {
+            "line": 2528,
+            "text": "      yv[s] = qvp[s] >= 0 ? __ldcg(reinterpret_cast<const float4*>(p.ybuf + (size_t)qvp[s] * HD + col)) : make_float4(0.f, 0.f, 0.f, 0.f);"
+          }
+        ]
+      },
+      {
+        "ptx_line": 7941,
+        "location": ".loc\t1 2528 7",
+        "instruction": "ld.global.cg.f32 %f1007, [%rd606];",
+        "source": [
+          {
+            "line": 2527,
+            "text": "      ssv[s] = qvp[s] >= 0 ? __ldcg(ss_cur() + qvp[s]) : 0.f;"
+          }
+        ]
+      },
+      {
+        "ptx_line": 7959,
+        "location": ".loc\t1 2529 7",
+        "instruction": "ld.global.cg.v4.f32 {%f1342,%f1343,%f1344,%f1345}, [%rd609];",
+        "source": [
+          {
+            "line": 2528,
+            "text": "      yv[s] = qvp[s] >= 0 ? __ldcg(reinterpret_cast<const float4*>(p.ybuf + (size_t)qvp[s] * HD + col)) : make_float4(0.f, 0.f, 0.f, 0.f);"
+          }
+        ]
+      },
+      {
+        "ptx_line": 7974,
+        "location": ".loc\t1 2528 7",
+        "instruction": "ld.global.cg.f32 %f1017, [%rd613];",
+        "source": [
+          {
+            "line": 2527,
+            "text": "      ssv[s] = qvp[s] >= 0 ? __ldcg(ss_cur() + qvp[s]) : 0.f;"
+          }
+        ]
+      },
+      {
+        "ptx_line": 7992,
+        "location": ".loc\t1 2529 7",
+        "instruction": "ld.global.cg.v4.f32 {%f1347,%f1348,%f1349,%f1350}, [%rd616];",
+        "source": [
+          {
+            "line": 2528,
+            "text": "      yv[s] = qvp[s] >= 0 ? __ldcg(reinterpret_cast<const float4*>(p.ybuf + (size_t)qvp[s] * HD + col)) : make_float4(0.f, 0.f, 0.f, 0.f);"
+          }
+        ]
+      },
+      {
+        "ptx_line": 8007,
+        "location": ".loc\t1 2528 7",
+        "instruction": "ld.global.cg.f32 %f1027, [%rd620];",
+        "source": [
+          {
+            "line": 2527,
+            "text": "      ssv[s] = qvp[s] >= 0 ? __ldcg(ss_cur() + qvp[s]) : 0.f;"
+          }
+        ]
+      },
+      {
+        "ptx_line": 8025,
+        "location": ".loc\t1 2529 7",
+        "instruction": "ld.global.cg.v4.f32 {%f1352,%f1353,%f1354,%f1355}, [%rd623];",
+        "source": [
+          {
+            "line": 2528,
+            "text": "      yv[s] = qvp[s] >= 0 ? __ldcg(reinterpret_cast<const float4*>(p.ybuf + (size_t)qvp[s] * HD + col)) : make_float4(0.f, 0.f, 0.f, 0.f);"
+          }
+        ]
+      },
+      {
+        "ptx_line": 8040,
+        "location": ".loc\t1 2528 7",
+        "instruction": "ld.global.cg.f32 %f1037, [%rd627];",
+        "source": [
+          {
+            "line": 2527,
+            "text": "      ssv[s] = qvp[s] >= 0 ? __ldcg(ss_cur() + qvp[s]) : 0.f;"
+          }
+        ]
+      },
+      {
+        "ptx_line": 8058,
+        "location": ".loc\t1 2529 7",
+        "instruction": "ld.global.cg.v4.f32 {%f1357,%f1358,%f1359,%f1360}, [%rd630];",
+        "source": [
+          {
+            "line": 2528,
+            "text": "      yv[s] = qvp[s] >= 0 ? __ldcg(reinterpret_cast<const float4*>(p.ybuf + (size_t)qvp[s] * HD + col)) : make_float4(0.f, 0.f, 0.f, 0.f);"
+          }
+        ]
+      },
+      {
+        "ptx_line": 8073,
+        "location": ".loc\t1 2528 7",
+        "instruction": "ld.global.cg.f32 %f1047, [%rd634];",
+        "source": [
+          {
+            "line": 2527,
+            "text": "      ssv[s] = qvp[s] >= 0 ? __ldcg(ss_cur() + qvp[s]) : 0.f;"
+          }
+        ]
+      },
+      {
+        "ptx_line": 8091,
+        "location": ".loc\t1 2529 7",
+        "instruction": "ld.global.cg.v4.f32 {%f1362,%f1363,%f1364,%f1365}, [%rd637];",
+        "source": [
+          {
+            "line": 2528,
+            "text": "      yv[s] = qvp[s] >= 0 ? __ldcg(reinterpret_cast<const float4*>(p.ybuf + (size_t)qvp[s] * HD + col)) : make_float4(0.f, 0.f, 0.f, 0.f);"
+          }
+        ]
+      },
+      {
+        "ptx_line": 8106,
+        "location": ".loc\t1 2528 7",
+        "instruction": "ld.global.cg.f32 %f1057, [%rd641];",
+        "source": [
+          {
+            "line": 2527,
+            "text": "      ssv[s] = qvp[s] >= 0 ? __ldcg(ss_cur() + qvp[s]) : 0.f;"
+          }
+        ]
+      },
+      {
+        "ptx_line": 8125,
+        "location": ".loc\t1 2529 7",
+        "instruction": "ld.global.cg.v4.f32 {%f1367,%f1368,%f1369,%f1370}, [%rd644];",
+        "source": [
+          {
+            "line": 2528,
+            "text": "      yv[s] = qvp[s] >= 0 ? __ldcg(reinterpret_cast<const float4*>(p.ybuf + (size_t)qvp[s] * HD + col)) : make_float4(0.f, 0.f, 0.f, 0.f);"
+          }
+        ]
+      },
+      {
+        "ptx_line": 8305,
+        "location": ".loc\t1 2554 9",
+        "instruction": "ld.global.f32 \t%f1099, [%rd74];",
+        "source": [
+          {
+            "line": 2553,
+            "text": "        const float r = p.topk_w[tk * 8 + s] * rsqrtf(__ldcg(ss_cur() + q) * (1.f / HD) + 1e-8f);"
+          }
+        ]
+      },
+      {
+        "ptx_line": 8314,
+        "location": ".loc\t1 2554 9",
+        "instruction": "ld.global.cg.f32 %f1094, [%rd661];",
+        "source": [
+          {
+            "line": 2553,
+            "text": "        const float r = p.topk_w[tk * 8 + s] * rsqrtf(__ldcg(ss_cur() + q) * (1.f / HD) + 1e-8f);"
+          }
+        ]
+      },
+      {
+        "ptx_line": 8325,
+        "location": ".loc\t1 2555 9",
+        "instruction": "ld.global.cg.v4.f32 {%f1095,%f1096,%f1097,%f1098}, [%rd662];",
+        "source": [
+          {
+            "line": 2554,
+            "text": "        const float4 v = __ldcg(reinterpret_cast<const float4*>(p.ybuf + (size_t)q * HD + col));"
+          }
+        ]
+      },
+      {
+        "ptx_line": 8341,
+        "location": ".loc\t1 2554 9",
+        "instruction": "ld.global.f32 \t%f1108, [%rd74+4];",
+        "source": [
+          {
+            "line": 2553,
+            "text": "        const float r = p.topk_w[tk * 8 + s] * rsqrtf(__ldcg(ss_cur() + q) * (1.f / HD) + 1e-8f);"
+          }
+        ]
+      },
+      {
+        "ptx_line": 8349,
+        "location": ".loc\t1 2554 9",
+        "instruction": "ld.global.cg.f32 %f1103, [%rd668];",
+        "source": [
+          {
+            "line": 2553,
+            "text": "        const float r = p.topk_w[tk * 8 + s] * rsqrtf(__ldcg(ss_cur() + q) * (1.f / HD) + 1e-8f);"
+          }
+        ]
+      },
+      {
+        "ptx_line": 8360,
+        "location": ".loc\t1 2555 9",
+        "instruction": "ld.global.cg.v4.f32 {%f1104,%f1105,%f1106,%f1107}, [%rd669];",
+        "source": [
+          {
+            "line": 2554,
+            "text": "        const float4 v = __ldcg(reinterpret_cast<const float4*>(p.ybuf + (size_t)q * HD + col));"
+          }
+        ]
+      },
+      {
+        "ptx_line": 8376,
+        "location": ".loc\t1 2554 9",
+        "instruction": "ld.global.f32 \t%f1117, [%rd74+8];",
+        "source": [
+          {
+            "line": 2553,
+            "text": "        const float r = p.topk_w[tk * 8 + s] * rsqrtf(__ldcg(ss_cur() + q) * (1.f / HD) + 1e-8f);"
+          }
+        ]
+      },
+      {
+        "ptx_line": 8384,
+        "location": ".loc\t1 2554 9",
+        "instruction": "ld.global.cg.f32 %f1112, [%rd675];",
+        "source": [
+          {
+            "line": 2553,
+            "text": "        const float r = p.topk_w[tk * 8 + s] * rsqrtf(__ldcg(ss_cur() + q) * (1.f / HD) + 1e-8f);"
+          }
+        ]
+      },
+      {
+        "ptx_line": 8395,
+        "location": ".loc\t1 2555 9",
+        "instruction": "ld.global.cg.v4.f32 {%f1113,%f1114,%f1115,%f1116}, [%rd676];",
+        "source": [
+          {
+            "line": 2554,
+            "text": "        const float4 v = __ldcg(reinterpret_cast<const float4*>(p.ybuf + (size_t)q * HD + col));"
+          }
+        ]
+      },
+      {
+        "ptx_line": 8411,
+        "location": ".loc\t1 2554 9",
+        "instruction": "ld.global.f32 \t%f1126, [%rd74+12];",
+        "source": [
+          {
+            "line": 2553,
+            "text": "        const float r = p.topk_w[tk * 8 + s] * rsqrtf(__ldcg(ss_cur() + q) * (1.f / HD) + 1e-8f);"
+          }
+        ]
+      },
+      {
+        "ptx_line": 8419,
+        "location": ".loc\t1 2554 9",
+        "instruction": "ld.global.cg.f32 %f1121, [%rd682];",
+        "source": [
+          {
+            "line": 2553,
+            "text": "        const float r = p.topk_w[tk * 8 + s] * rsqrtf(__ldcg(ss_cur() + q) * (1.f / HD) + 1e-8f);"
+          }
+        ]
+      },
+      {
+        "ptx_line": 8430,
+        "location": ".loc\t1 2555 9",
+        "instruction": "ld.global.cg.v4.f32 {%f1122,%f1123,%f1124,%f1125}, [%rd683];",
+        "source": [
+          {
+            "line": 2554,
+            "text": "        const float4 v = __ldcg(reinterpret_cast<const float4*>(p.ybuf + (size_t)q * HD + col));"
+          }
+        ]
+      },
+      {
+        "ptx_line": 8446,
+        "location": ".loc\t1 2554 9",
+        "instruction": "ld.global.f32 \t%f1135, [%rd74+16];",
+        "source": [
+          {
+            "line": 2553,
+            "text": "        const float r = p.topk_w[tk * 8 + s] * rsqrtf(__ldcg(ss_cur() + q) * (1.f / HD) + 1e-8f);"
+          }
+        ]
+      },
+      {
+        "ptx_line": 8454,
+        "location": ".loc\t1 2554 9",
+        "instruction": "ld.global.cg.f32 %f1130, [%rd689];",
+        "source": [
+          {
+            "line": 2553,
+            "text": "        const float r = p.topk_w[tk * 8 + s] * rsqrtf(__ldcg(ss_cur() + q) * (1.f / HD) + 1e-8f);"
+          }
+        ]
+      },
+      {
+        "ptx_line": 8465,
+        "location": ".loc\t1 2555 9",
+        "instruction": "ld.global.cg.v4.f32 {%f1131,%f1132,%f1133,%f1134}, [%rd690];",
+        "source": [
+          {
+            "line": 2554,
+            "text": "        const float4 v = __ldcg(reinterpret_cast<const float4*>(p.ybuf + (size_t)q * HD + col));"
+          }
+        ]
+      },
+      {
+        "ptx_line": 8481,
+        "location": ".loc\t1 2554 9",
+        "instruction": "ld.global.f32 \t%f1144, [%rd74+20];",
+        "source": [
+          {
+            "line": 2553,
+            "text": "        const float r = p.topk_w[tk * 8 + s] * rsqrtf(__ldcg(ss_cur() + q) * (1.f / HD) + 1e-8f);"
+          }
+        ]
+      },
+      {
+        "ptx_line": 8489,
+        "location": ".loc\t1 2554 9",
+        "instruction": "ld.global.cg.f32 %f1139, [%rd696];",
+        "source": [
+          {
+            "line": 2553,
+            "text": "        const float r = p.topk_w[tk * 8 + s] * rsqrtf(__ldcg(ss_cur() + q) * (1.f / HD) + 1e-8f);"
+          }
+        ]
+      },
+      {
+        "ptx_line": 8500,
+        "location": ".loc\t1 2555 9",
+        "instruction": "ld.global.cg.v4.f32 {%f1140,%f1141,%f1142,%f1143}, [%rd697];",
+        "source": [
+          {
+            "line": 2554,
+            "text": "        const float4 v = __ldcg(reinterpret_cast<const float4*>(p.ybuf + (size_t)q * HD + col));"
+          }
+        ]
+      },
+      {
+        "ptx_line": 8516,
+        "location": ".loc\t1 2554 9",
+        "instruction": "ld.global.f32 \t%f1153, [%rd74+24];",
+        "source": [
+          {
+            "line": 2553,
+            "text": "        const float r = p.topk_w[tk * 8 + s] * rsqrtf(__ldcg(ss_cur() + q) * (1.f / HD) + 1e-8f);"
+          }
+        ]
+      },
+      {
+        "ptx_line": 8524,
+        "location": ".loc\t1 2554 9",
+        "instruction": "ld.global.cg.f32 %f1148, [%rd703];",
+        "source": [
+          {
+            "line": 2553,
+            "text": "        const float r = p.topk_w[tk * 8 + s] * rsqrtf(__ldcg(ss_cur() + q) * (1.f / HD) + 1e-8f);"
+          }
+        ]
+      },
+      {
+        "ptx_line": 8535,
+        "location": ".loc\t1 2555 9",
+        "instruction": "ld.global.cg.v4.f32 {%f1149,%f1150,%f1151,%f1152}, [%rd704];",
+        "source": [
+          {
+            "line": 2554,
+            "text": "        const float4 v = __ldcg(reinterpret_cast<const float4*>(p.ybuf + (size_t)q * HD + col));"
+          }
+        ]
+      },
+      {
+        "ptx_line": 8551,
+        "location": ".loc\t1 2554 9",
+        "instruction": "ld.global.f32 \t%f1162, [%rd74+28];",
+        "source": [
+          {
+            "line": 2553,
+            "text": "        const float r = p.topk_w[tk * 8 + s] * rsqrtf(__ldcg(ss_cur() + q) * (1.f / HD) + 1e-8f);"
+          }
+        ]
+      },
+      {
+        "ptx_line": 8559,
+        "location": ".loc\t1 2554 9",
+        "instruction": "ld.global.cg.f32 %f1157, [%rd710];",
+        "source": [
+          {
+            "line": 2553,
+            "text": "        const float r = p.topk_w[tk * 8 + s] * rsqrtf(__ldcg(ss_cur() + q) * (1.f / HD) + 1e-8f);"
+          }
+        ]
+      },
+      {
+        "ptx_line": 8570,
+        "location": ".loc\t1 2555 9",
+        "instruction": "ld.global.cg.v4.f32 {%f1158,%f1159,%f1160,%f1161}, [%rd711];",
+        "source": [
+          {
+            "line": 2554,
+            "text": "        const float4 v = __ldcg(reinterpret_cast<const float4*>(p.ybuf + (size_t)q * HD + col));"
+          }
+        ]
+      }
+    ],
+    "opcode_counts": {
+      "ld.global.nc.f32": 8,
+      "ld.acquire.gpu.global.b32": 2,
+      "ld.global.cg.f32": 16,
+      "ld.global.cg.v4.f32": 16,
+      "ld.global.f32": 8
+    },
+    "nc": [
+      {
+        "ptx_line": 7527,
+        "location": ".loc\t1 2424 5",
+        "instruction": "ld.global.nc.f32 %f1323, [%rd548];",
+        "source": [
+          {
+            "line": 2423,
+            "text": "    wvp[s] = (qvp[s] >= 0) ? __ldg(p.topk_w + tkp * 8 + s) : 0.f;"
+          }
+        ]
+      },
+      {
+        "ptx_line": 7548,
+        "location": ".loc\t1 2424 5",
+        "instruction": "ld.global.nc.f32 %f1324, [%rd550];",
+        "source": [
+          {
+            "line": 2423,
+            "text": "    wvp[s] = (qvp[s] >= 0) ? __ldg(p.topk_w + tkp * 8 + s) : 0.f;"
+          }
+        ]
+      },
+      {
+        "ptx_line": 7569,
+        "location": ".loc\t1 2424 5",
+        "instruction": "ld.global.nc.f32 %f1325, [%rd553];",
+        "source": [
+          {
+            "line": 2423,
+            "text": "    wvp[s] = (qvp[s] >= 0) ? __ldg(p.topk_w + tkp * 8 + s) : 0.f;"
+          }
+        ]
+      },
+      {
+        "ptx_line": 7590,
+        "location": ".loc\t1 2424 5",
+        "instruction": "ld.global.nc.f32 %f1326, [%rd556];",
+        "source": [
+          {
+            "line": 2423,
+            "text": "    wvp[s] = (qvp[s] >= 0) ? __ldg(p.topk_w + tkp * 8 + s) : 0.f;"
+          }
+        ]
+      },
+      {
+        "ptx_line": 7611,
+        "location": ".loc\t1 2424 5",
+        "instruction": "ld.global.nc.f32 %f1327, [%rd559];",
+        "source": [
+          {
+            "line": 2423,
+            "text": "    wvp[s] = (qvp[s] >= 0) ? __ldg(p.topk_w + tkp * 8 + s) : 0.f;"
+          }
+        ]
+      },
+      {
+        "ptx_line": 7632,
+        "location": ".loc\t1 2424 5",
+        "instruction": "ld.global.nc.f32 %f1328, [%rd562];",
+        "source": [
+          {
+            "line": 2423,
+            "text": "    wvp[s] = (qvp[s] >= 0) ? __ldg(p.topk_w + tkp * 8 + s) : 0.f;"
+          }
+        ]
+      },
+      {
+        "ptx_line": 7653,
+        "location": ".loc\t1 2424 5",
+        "instruction": "ld.global.nc.f32 %f1329, [%rd565];",
+        "source": [
+          {
+            "line": 2423,
+            "text": "    wvp[s] = (qvp[s] >= 0) ? __ldg(p.topk_w + tkp * 8 + s) : 0.f;"
+          }
+        ]
+      },
+      {
+        "ptx_line": 7674,
+        "location": ".loc\t1 2424 5",
+        "instruction": "ld.global.nc.f32 %f1330, [%rd568];",
+        "source": [
+          {
+            "line": 2423,
+            "text": "    wvp[s] = (qvp[s] >= 0) ? __ldg(p.topk_w + tkp * 8 + s) : 0.f;"
+          }
+        ]
+      }
+    ]
+  }
+]
