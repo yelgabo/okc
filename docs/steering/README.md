@@ -532,3 +532,5 @@ Results: [short boundary and QKV epilogue](2026-11-01-short-boundary.md), [slidi
 Latest: [Matched short-boundary comparison](2026-11-01-matched-short-boundary.md).
 Matched boundary confirmation completed. Both affected loads improved across both new seeds. One full-score comparison missed its noise threshold. See the latest report above.
 Latest: [Dense projection transfer to the decode layer](2026-11-01-layer-dense-transfer.md).
+
+- 2026-11-01: [G #303 dense ROI closure](2026-11-01-g-rank303-dense-roi.md): all12 profile/score weights, +0.54474% comparator-gap sensitivity, no new compliant multi-load mechanism or quota request.
