@@ -52,10 +52,11 @@ def prepare(weights):
     flush = torch.empty(256 << 20, dtype=torch.uint8, device='cuda')
     rng = random.Random(82117)
     rows = []
-    for length in (1,8):
+    shapes = ((1,1),(1,8)) if not _CONFIRM_ALL else ((1,1),(16,1),(32,1),(1,8),(16,8),(32,8))
+    for batch,length in shapes:
         for layer in ('sliding','full'):
-            for seed in (720181,720182):
-                base = _ab_inputs(1,length,layer,seed)
+            for seed in ((850313,850314) if _CONFIRM_ALL else (720181,720182)):
+                base = _ab_inputs(batch,length,layer,seed)
                 tf32 = torch.backends.cuda.matmul.allow_tf32
                 try:
                     torch.backends.cuda.matmul.allow_tf32 = False
@@ -63,7 +64,7 @@ def prepare(weights):
                     base['local_start'].fill_(32*int(torch.bincount((ids//32).flatten(),minlength=8).argmax()))
                 finally:
                     torch.backends.cuda.matmul.allow_tf32 = tf32
-                for scope in ('boundary','layer'):
+                for scope in (('layer',) if _CONFIRM_ALL else ('boundary','layer')):
                     f = torch.randn((length,1024),device='cuda',dtype=torch.bfloat16)
                     arms = []
                     for changed in (False,False,True,True):
@@ -102,7 +103,7 @@ def prepare(weights):
                             end.record()
                             end.synchronize()
                             samples[idx].append(start.elapsed_time(end)*1000)
-                    rows.append((scope,length,layer,seed,[round(statistics.median(t),3) for t in samples]))
+                    rows.append((scope,(batch,length),layer,seed,[round(statistics.median(t),3) for t in samples]))
     for row in rows:
         print('MATCHED_SHORT',*row,flush=True)
     return state
@@ -110,6 +111,7 @@ def prepare(weights):
 
 if __name__ == '__main__':
     source = build(Path('muse_decode_layer/cand/layer_attn31s.py').read_text(encoding='utf-8'))
+    source += '\n_CONFIRM_ALL = ' + repr('--confirm-all' in sys.argv[2:]) + '\n'
     assert len(source.encode()) < 1_000_000
     compile(source,'<matched>','exec')
     Path(sys.argv[1]).write_text(source,encoding='utf-8',newline='\n')

@@ -817,3 +817,4 @@ negativecapture-without-replaycontrolpass. NoadditionalGPUchecksolelymetadata. N
 2026-11-01 | 1023d9b0dcaa4c75 | 40b7b01 | Four-arm short-boundary experiment, rank zero computes live branch RMS. Twelve rounds, d1/v1, independent duplicate prepares. Pending.
 1023d9b0dcaa4c75 completed, official 13/13, 2.015410x CI 1.985179–2.045641. Four arms 6/6. D1 pooled 0.9956, null 1.0093. V1f missing at 280 s. V1s paired -0.4 to -0.9 us with different front paths. No promotion.
 2026-11-01 | a0da77c5f3c647c3 | baseline 32f1970 plus tools/dl_make_matched_short_boundary.py | identical prepared state, boundary and whole layer, four graphs per case and two seeds. Pending.
+a0da77c5f3c647c3 PASS13, control 2.017944x CI 1.987675–2.048213. Complete affected-load gate passes each seed on d1/v1. Fresh six-load confirm 35f2b5d66f51465b dispatched.
