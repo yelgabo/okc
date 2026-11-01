@@ -568,3 +568,5 @@ Latest: [Dense projection transfer to the decode layer](2026-11-01-layer-dense-t
 - 2026-11-01: [G full-context attention16/32 scope](2026-11-01-g-full-attention-scope.md): executed matching264CTAflatplans, soft/coherent and BF16boundary comparability limits, physicalroom retained but no new low-risk candidate.
 
 - 2026-11-01: [One inactive diagnostic helper size pass](2026-11-01-inactive-detm-size-pass.md):2772B saved,2328selectedSASSinstructions identical; combinedlowerbound1062406Bwithharness stillfails, no H200.
+
+- 2026-11-01: [Private G verify32 slice review](2026-11-01-g-verify-slice-independent-review.md): selectedpipeline/precision matches, actual86008pagecapacity+workspacewarm/domainguards required; no final readiness claim.
