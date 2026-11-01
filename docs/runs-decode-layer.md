@@ -814,3 +814,4 @@ routing_metadata_validFalse. Hosthelperfixedreplay+syncbeforeinspection;5CPUtest
 negativecapture-without-replaycontrolpass. NoadditionalGPUchecksolelymetadata. No submit.
 
 2026-11-01 | 04f0339fa9f24807 | beedbca | CUPTI availability on official SGLang baseline | PASS 0.997335x (95% CI 0.982375–1.012295). Size 9184 bytes, image read denied with CUPTI_ERROR_INSUFFICIENT_PRIVILEGES. Baseline timing only. Full receipt and CLI profiles saved.
+2026-11-01 | 1023d9b0dcaa4c75 | 40b7b01 | Four-arm short-boundary experiment, rank zero computes live branch RMS. Twelve rounds, d1/v1, independent duplicate prepares. Pending.

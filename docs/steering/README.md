@@ -468,3 +468,4 @@ Hourly review history: [11:20 PDT performance review](2026-10-29-1120-performanc
 Latest experiment: [November 1 expert token locality](2026-11-01-expert-token-locality.md).
 Current projection assessment: [November 1 comparison of all 30 published H200 shapes](2026-11-01-projection-shape-comparison.md).
 Projection follow-up 4542b2b04cb344ec closed the QKV128 depth-two variant after a 0.512–0.640 µs regression. See the projection comparison above.
+Latest: [November 1 short-boundary and projection experiments](2026-11-01-short-boundary.md).
