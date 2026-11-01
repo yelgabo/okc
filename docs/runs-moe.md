@@ -5305,3 +5305,14 @@ abe765DISPATCHonly(skinny<=32/main47>=128), notclaimedhistoricalpublicbytes.
 4privatepacks/scratch/inputs/captures,2binaries,18normalcases/seeds9919971009,
 FP32fresh/skew/allremote/post gates, all4cross+EVERYseed whole-six-load>=1% and2xnull.
 No publicsubmit. Fullregisteredproof/gates: docs/steering/2026-11-01-owned-multiply-decode.md.
+
+Terminal835253441a214a1c: H200 PASS5, officialCOMMONCONTROL2.189649236x
+(CI2.156804498-2.222493975), prepare46.253s. Reportedchecks72normal+72fresh+24skew+
+24empty+72post allpass, spin0, worstFP32.004383652/.004751944. Actualbank
+3,221,225,472codepositionsverified. Registeredall4crosswhole-six-load ratios
+1.001247993/1.002203525/1.001995933/1.002952178 vsduplicatenull.008029444;
+all-seed1%+2xnull gateFAIL, percase-regressionFAIL. ActualH200skinny130->128regs,
+both0local/155520dynamic/1CTA; main96regs/8local/228736dynamic/1CTA unchanged.
+LocalNVRTC140->128predictionmustnotbequotedasanH200measurement. Noport/promotion,
+nopublicsubmit. Stopmultiply-onlyvariant; nosecondcheck/selectivelarge-onlypolicy.
+Receipt/summarymultiply_decode.835253441a214a1c.*, CLIprofile/logmultiply_check.835253441a214a1c.*.

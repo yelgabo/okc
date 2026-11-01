@@ -278,3 +278,8 @@ the public entry vjeux/okc-2026 with its design memos (see `docs/gap-analysis-20
 | Closed hypothesis (2026-11-01) | Evidence | Scope and reopening rule |
 |---|---|---|
 | SC6 lossless block-scale compression explains the new comparator's8.1% MoE advantage | ActualMoE check05e51ddeb7014dd9 PASS5,2.259310880x BYTEpath; same-weight/global256-ID four-arm paired SC6/byte experiment,48normal+48fresh+48empty pass. Six-load pairratios0.999806837/1.007118932, null.006403393;1%+2xnull and percase-regression gates bothFAIL. Mainresources identical96regs/0local/231168dynamic/1residentCTA. | Compression-first on fullyfenced/BF16/MFINoff backend isclosed; nopromotion orselectiveM32retune. Doesnotclose materiallydifferent decoder/layout/cachebehavior, nor readiness/finalization scheduling. Reopenonlynewmeasuredmechanism. Fullreport2026-11-01-moe-sc6-controlled.md. |
+
+
+| Closed owned mechanism (2026-11-01) | Evidence | Scope / reopen condition |
+|---|---|---|
+| Synthesized multiply16648/mask001b001b lossless decoder as the single owned six-load improvement | H200check835253441a214a1c PASS5 andall264reportednormal/fresh/skew/empty/postgates, packedbyteproof3.22Bcodes. Commoncoop+BF16parametercontrol. Fourfullscorecrossratios1.001248/1.002204/1.001996/1.002952 vsnull.008029;1%+2xnull/all-seed/regressiongatesFAIL despiteactualCUBIN390->374instructions. H200skinny130->128regs, occupancyunchanged. | Close this exact decoder/dispatch alone; no multiplier sweep orposthoclarge-onlypromotion. Doesnotclosea materiallydifferent decode/packing/pipeline combination; reopeningneedsnewmeasuredwhole-scoreheadroom. Fullreport2026-11-01-owned-multiply-decode.md. |

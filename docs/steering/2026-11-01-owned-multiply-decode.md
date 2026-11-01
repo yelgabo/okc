@@ -102,3 +102,77 @@ fresh-stale negative and actual summary win/loss/null/unlucky-seed branches pass
 Root independently verified the final pin and host tests and authorized ONE free
 off-board MoE check. No public action is authorized. Any gain still needs exact
 pure-source qualification and replay coverage before a submission decision.
+
+## Terminal H200 outcome: correctness passes, registered speed gate fails
+
+Exact owning check `835253441a214a1c`: board=muse_moe_w4a16, mode=check, H200,
+status=done/ok, all5 official tests pass. Source preregistration574cc1c and dispatch
+61adcec; frozen628518B/b1e6e0886fe0058b9c5719950fb4dd06eef27b8f69975034affa234c440e98f3.
+Official COMMON CONTROL score2.189649236x,95%CI2.156804498–2.222493975;
+prepare46.253s. This is the cooperative/BF16-effective-gamma control, not the
+treatment score, and not a causal comparison against historical public bytes.
+
+Actual supplied-weight validation checks3221225472 code positions before timing.
+Reported tallies all pass:72normal,72fresh-captured-input,24skew,24exact-empty,
+72post-timing comparisons. Original inputs are also restored/rechecked before
+timing (not added to those counters). Worst FP32-reference relative error is
+.004383652 global and.004751944 row. Spin flags remain zero. CUDA graph capture
+and cooperative launches execute successfully on this H200; the earlier host mocks
+alone did not establish that runtime fact. No tolerances or gates were relaxed.
+
+| M | control mean of6 arm/case medians,us | multiply mean of6 medians,us | balanced mean-based ratio |
+|---:|---:|---:|---:|
+|1|37.541333|37.490666|1.001351|
+|8|71.709334|72.226667|0.992835|
+|16|81.682667|82.218665|0.993481|
+|32|146.536000|146.229334|1.002097|
+|128|184.048002|181.893334|1.011849|
+|256|255.288000|252.471998|1.011153|
+
+These rows use the same18 input cases within each condition; they are not pooled
+raw event samples or independently measured official-shape scores. Exact18x4
+medians are retained in the receipt/summary. The four registered whole-six-load
+ratios (B0/T0,B0/T1,B1/T0,B1/T1) are1.001247993/1.002203525/1.001995933/1.002952178,
+against duplicate null.008029444 (0.803%). None clears1%, let alone2xnull.
+
+| held-out seed | four six-load cross ratios | seed duplicate null |
+|---|---|---:|
+|991|1.001275/1.000400/1.004167/1.003289|.007338|
+|997|.998835/1.003684/.999263/1.004115|.008219|
+|1009|1.003760/1.002462/1.003260/1.001963|.008531|
+
+The per-seed gate and per-case regression gate both fail. For example at M16,
+seed997, a control median94.992us versus treatment96.784us is a1.792us loss,
+above its.950us allowance. Do not select the other duplicate or seed afterward.
+The observed large-load advantage is real in these case medians but too small
+to establish the registered whole-score win. Holding the four small-load ratios
+at1 and substituting only the two balanced large-load ratios gives a calculated
+six-load sensitivity1.003819, still below1%; this is not a measured hybrid run.
+
+Actual H200 resources differ from the local NVRTC frontend's register prediction:
+skinny control130registers versus multiply128, both0local/0static/155520dynamic
+shared bytes,1residentCTA,288threads. Main47 is96registers/8local/0static/
+228736dynamic/1residentCTA/576threads for all four arms. The getter's local bytes
+must not be relabeled as measured H200 spill-store/load counts. Occupancy does
+not increase. Local140→128register evidence remains valid for its archived CUBIN,
+but the actual H200 comparison is130→128. These are resource/admission queries,
+not measured SM utilization or HBM throughput.
+
+Official common-control median latencies at1/8/16/32/128/256 on separate fresh
+official cases are28.656/66.704/95.364/132.629/199.271/239.468us. Preserve their
+distinction from the matched table above. Current public owned47 remains the
+submission recommendation; no promotion or public action occurred.
+
+Artifacts: `profiles/multiply_decode.835253441a214a1c.receipt.json` and summary;
+CLI log/profile files are named `profiles/multiply_check.835253441a214a1c.*`.
+Independent today_proj reviewed the final exact pin and independently reran both
+cooperative source/C++ tests plus all three real TorchCPU host tests, finding no
+blocker. Known-good source bytes remain unchanged.
+
+**Decision/stop:** close this multiply-layout-only variant as a whole-six-load
+improvement on the measured controlled owned dispatch. Do not spend a second
+check retuning this multiplier or selectively adopting M128/256. This does not
+rule out a different decoder/packing architecture or combination with a genuinely
+different, measured pipeline; reopening requires a new mechanism and sufficient
+whole-score headroom. The experiment demonstrates why fewer static instructions
+and registers alone are insufficient. No generic per-stage/fence sweep follows.
