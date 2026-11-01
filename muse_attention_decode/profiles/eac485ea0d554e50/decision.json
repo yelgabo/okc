@@ -1,0 +1,35 @@
+{
+  "job_id": "eac485ea0d554e50",
+  "status": "done",
+  "control_score": 2.49015534234613,
+  "control_ci": [
+    2.452803012210938,
+    2.5275076724813217
+  ],
+  "checks": {
+    "flagged": [],
+    "ok": true,
+    "rejected": []
+  },
+  "candidate_official_judged": false,
+  "eager_each_arm_pass": 21,
+  "fresh_screen_qualified_shared_cache": true,
+  "candidate_us": [
+    14.98,
+    15.01
+  ],
+  "control_us": 11.1,
+  "runtime_resources_each": [
+    96,
+    0,
+    90704,
+    128,
+    2,
+    14
+  ],
+  "decision": "FAIL close no second check",
+  "affected_only_six_load_factors": [
+    0.9674859817510029,
+    0.9672618743807272
+  ]
+}
