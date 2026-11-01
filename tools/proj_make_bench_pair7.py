@@ -63,11 +63,75 @@ torch::Tensor p7_fwd(torch::Tensor raw,torch::Tensor codes,torch::Tensor lut,tor
 }
 '''
 
+VECTOR_CUDA = r'''
+#include <torch/extension.h>
+#include <ATen/cuda/CUDAContext.h>
+#include <cuda_bf16.h>
+__device__ float psum(float v){for(int s=16;s;s>>=1)v+=__shfl_down_sync(0xffffffff,v,s);return v;}
+__device__ __forceinline__ float lf(unsigned x){return __uint_as_float(x<<16);}
+__device__ __forceinline__ float hf(unsigned x){return __uint_as_float(x&0xffff0000u);}
+__device__ __forceinline__ void f4(unsigned l,unsigned h,unsigned x0,unsigned x1,float& a){
+ unsigned p=__byte_perm(l,h,0x5140),q=__byte_perm(l,h,0x7362);
+ a=fmaf(lf(p),lf(x0),a);a=fmaf(hf(p),hf(x0),a);a=fmaf(lf(q),lf(x1),a);a=fmaf(hf(q),hf(x1),a);
+}
+__device__ __forceinline__ void p7fma(uint4 raw,unsigned long long c,uint4 xa,uint4 xb,const unsigned* lut,float& acc){
+ unsigned l[4]={0,0,0,0},h[4]={0,0,0,0};const unsigned short* r=reinterpret_cast<const unsigned short*>(&raw);
+ #pragma unroll
+ for(int p=0;p<8;p++){
+  unsigned z=lut[(c>>(7*p))&127],rp=r[p];
+  l[p/2]|=((rp&0x7f7f)|(z&65535))<<((p&1)*16);
+  h[p/2]|=((rp&0x8080)|(z>>16))<<((p&1)*16);
+ }
+ f4(l[0],h[0],xa.x,xa.y,acc);f4(l[1],h[1],xa.z,xa.w,acc);
+ f4(l[2],h[2],xb.x,xb.y,acc);f4(l[3],h[3],xb.z,xb.w,acc);
+}
+template<int NT,int CPT> __global__ void p7(const unsigned char* raw,const unsigned char* codes,
+ const int* lut,const int4* tab,int pm,const __nv_bfloat16* x,__nv_bfloat16* out,int K){
+ __shared__ float red[2][NT/32+1];__shared__ unsigned sl[128];
+ int t=threadIdx.x,lane=t&31,warp=t>>5,c=blockIdx.x;
+ for(int i=t;i<128;i+=NT+32)sl[i]=lut[i];__syncthreads();
+ if(t<NT){
+  uint4 l0[CPT],l1[CPT],xa[CPT],xb[CPT];unsigned long long q0[CPT],q1[CPT];
+  #pragma unroll
+  for(int i=0;i<CPT;i++){
+   int j=i*NT+t;l0[i]=reinterpret_cast<const uint4*>(raw+(size_t)(2*c)*K)[j];
+   l1[i]=reinterpret_cast<const uint4*>(raw+(size_t)(2*c+1)*K)[j];
+   const unsigned char* p=codes+(size_t)(2*c)*(K/16)*7+(j/32)*224+(j&31);
+   q0[i]=0;q1[i]=0;
+   #pragma unroll
+   for(int b=0;b<7;b++){q0[i]|=(unsigned long long)p[b*32]<<(8*b);q1[i]|=(unsigned long long)p[(K/16)*7+b*32]<<(8*b);}
+  }
+  #pragma unroll
+  for(int i=0;i<CPT;i++){int j=i*NT+t;xa[i]=reinterpret_cast<const uint4*>(x)[2*j];xb[i]=reinterpret_cast<const uint4*>(x)[2*j+1];}
+  float a=0,b=0;
+  #pragma unroll
+  for(int i=0;i<CPT;i++){p7fma(l0[i],q0[i],xa[i],xb[i],sl,a);p7fma(l1[i],q1[i],xa[i],xb[i],sl,b);}
+  a=psum(a);b=psum(b);if(lane==0){red[0][warp]=a;red[1][warp]=b;}
+ }else{
+  const int4* tb=tab+(size_t)c*pm;int count=tb[0].x;float a=0,b=0;
+  for(int i=lane+1;i<=count;i+=32){int4 e=tb[i];float d=__fsub_rn(lf((unsigned)e.y),lf((unsigned)e.z));
+   unsigned xv=__ldg(reinterpret_cast<const unsigned short*>(x)+(e.x&65535));d=__fmul_rn(d,lf(xv));
+   if(e.x>>16)b=__fadd_rn(b,d);else a=__fadd_rn(a,d);}
+  a=psum(a);b=psum(b);if(lane==0){red[0][NT/32]=a;red[1][NT/32]=b;}
+ }
+ __syncthreads();if(t==0){float a=0,b=0;for(int i=0;i<=NT/32;i++){a+=red[0][i];b+=red[1][i];}out[2*c]=__float2bfloat16_rn(a);out[2*c+1]=__float2bfloat16_rn(b);}
+}
+torch::Tensor p7_fwd(torch::Tensor raw,torch::Tensor codes,torch::Tensor lut,torch::Tensor tab,torch::Tensor x,int64_t nt){
+ int N=raw.size(0),K=raw.size(1),pm=tab.size(1);auto out=torch::empty({1,N},x.options());
+ #define GO(T,C) p7<T,C><<<N/2,T+32,0,at::cuda::getCurrentCUDAStream()>>>(raw.data_ptr<unsigned char>(),codes.data_ptr<unsigned char>(),lut.data_ptr<int>(),reinterpret_cast<const int4*>(tab.data_ptr<int>()),pm,reinterpret_cast<const __nv_bfloat16*>(x.data_ptr()),reinterpret_cast<__nv_bfloat16*>(out.data_ptr()),K)
+ if(nt==64){GO(64,1);}else if(nt==128){GO(128,2);}else if(nt==256){GO(256,2);}else{GO(512,1);}
+ return out;
+}
+template<int N,int C> std::vector<int64_t> pinfo(){cudaFuncAttributes a{};TORCH_CHECK(cudaFuncGetAttributes(&a,p7<N,C>)==cudaSuccess,"p7 attributes");int b=0;TORCH_CHECK(cudaOccupancyMaxActiveBlocksPerMultiprocessor(&b,p7<N,C>,N+32,0)==cudaSuccess,"p7 occupancy");return {a.numRegs,(int64_t)a.localSizeBytes,(int64_t)a.sharedSizeBytes,b};}
+std::vector<int64_t> p7_info(int64_t nt){if(nt==64)return pinfo<64,1>();if(nt==128)return pinfo<128,2>();if(nt==256)return pinfo<256,2>();return pinfo<512,1>();}
+'''
+
 RUN = r'''
 # Actual pair7 packed trial; all packing is weight-only and outside timed calls.
 import random as _p7random
 import statistics as _p7stats
 _P7_LINES=[]
+_P7_VECTOR=@@VECTOR@@
 def _p7print(s):
     _P7_LINES.append(s);print(s,flush=True)
 def _p7pack(w):
@@ -105,16 +169,24 @@ def _p7pack(w):
     restored=(low.int()&127)|((low.int()&128)<<8)|(ee.int()<<7)
     restored.reshape(n//2,2,k)[ci,ri,ki]=tab[ci,pos,1]
     assert torch.equal(restored,b),'pair7 stored-byte roundtrip failed'
+    if _P7_VECTOR:
+        vl=((lut&1)<<7)|(((lut>>8)&1)<<15)|(((lut&255)>>1)<<16)|((lut>>9)<<24)
+        inv=(((vl>>16)&127)*2+((vl>>7)&1))|((((vl>>24)&127)*2+((vl>>15)&1))<<8)
+        assert torch.equal(inv,lut),'vector LUT roundtrip failed'
+        lut=vl.int()
     return low,cp,lut.contiguous(),tab
 def _p7bench(weights):
     from torch.utils.cpp_extension import load_inline
-    ext=load_inline(name='okc_owned_pair7_trial',cpp_sources='torch::Tensor p7_fwd(torch::Tensor,torch::Tensor,torch::Tensor,torch::Tensor,torch::Tensor,int64_t);',cuda_sources=@@CUDA@@,functions=['p7_fwd'],extra_cuda_cflags=['-O3','-std=c++20','-gencode=arch=compute_90a,code=sm_90a'],verbose=False)
+    decl='torch::Tensor p7_fwd(torch::Tensor,torch::Tensor,torch::Tensor,torch::Tensor,torch::Tensor,int64_t);'
+    if _P7_VECTOR:decl+='std::vector<int64_t> p7_info(int64_t);'
+    ext=load_inline(name='okc_owned_pair7_vector' if _P7_VECTOR else 'okc_owned_pair7_trial',cpp_sources=decl,cuda_sources=@@CUDA@@,functions=['p7_fwd']+(['p7_info'] if _P7_VECTOR else []),extra_cuda_cflags=['-O3','-std=c++20','-gencode=arch=compute_90a,code=sm_90a'],verbose=False)
     ctrl=_build_ext();dev=weights['pooler'].device;gen=torch.Generator(device=dev).manual_seed(61031)
     flush=torch.empty(256*1024*1024,dtype=torch.uint8,device=dev)
     for name in ('qkv_gate','o','pooler','unpooler'):
         w=weights[name];w=w[:1024] if name=='unpooler' else w
         pack=_p7pack(w);nt=cgemv_threads(*w.shape);old=pack_cgemv(w)
         if old is None:raise RuntimeError('control pack unavailable')
+        if _P7_VECTOR:_p7print(f'P7RES {name} nt={nt} regs/local/shared/blocks={ext.p7_info(nt)}')
         x=torch.randn((1,w.shape[1]),generator=gen,device=dev).to(torch.bfloat16)
         def prod():
             out=torch.empty((1,w.shape[0]),dtype=torch.bfloat16,device=dev)
@@ -124,12 +196,18 @@ def _p7bench(weights):
             x.normal_(generator=gen)
             if probe:x.zero_();x[0,17]=2
             ref=x.double()@w.double().T
-            for nm,fn in [('prod',prod),('p7',trial)]:
+            trials=[('prod',prod),('p7',trial)]
+            if _P7_VECTOR and name=='pooler':trials.append(('p7nt256',lambda:ext.p7_fwd(*pack,x,256)))
+            for nm,fn in trials:
                 out=fn();err=float(torch.linalg.vector_norm(out.double()-ref)/torch.linalg.vector_norm(ref))
                 assert err<0.005,(name,nm,err)
             _p7print(f'P7CHECK {name} probe={probe} PASS')
         x.normal_(generator=gen);graphs={}
-        for nm,fn in [('prod',prod),('null',prod),('p7',trial)]:
+        variants=[('prod',prod),('null',prod),('p7',trial)]
+        if _P7_VECTOR and name=='pooler':
+            variants.append(('p7nt256',lambda:ext.p7_fwd(*pack,x,256)))
+            _p7print(f'P7RES pooler nt=256 regs/local/shared/blocks={ext.p7_info(256)}')
+        for nm,fn in variants:
             fn();g=torch.cuda.CUDAGraph()
             with torch.cuda.graph(g):out=fn()
             graphs[nm]=g
@@ -155,6 +233,7 @@ def cpu_gate():
         raw=(b&127)|((b>>8)&128);e=(b>>7)&255
         dec=(raw&127)|((raw&128)<<8)|(e<<7)
         assert dec==b
+        assert ((raw&127)|((e&1)<<7)|(((e>>1)|(raw&128))<<8))==b
     vals=[(j*37)&127 for j in range(8)]
     packed=sum(v<<(7*j) for j,v in enumerate(vals))
     data=packed.to_bytes(7,'little');restored=int.from_bytes(data,'little')
@@ -190,5 +269,6 @@ def cpu_gate():
 if __name__=='__main__':
     cpu_gate()
     src=(ROOT/'muse_bf16_proj/submission.py').read_text()
-    Path(sys.argv[1]).write_text(src+RUN.replace('@@CUDA@@',repr(CUDA)))
+    vector='--vector' in sys.argv
+    Path(sys.argv[1]).write_text(src+RUN.replace('@@CUDA@@',repr(VECTOR_CUDA if vector else CUDA)).replace('@@VECTOR@@',repr(vector)))
     print('CPU all-BF16/56-bit packing gate PASS; wrote',sys.argv[1])

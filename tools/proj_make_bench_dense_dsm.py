@@ -1,6 +1,7 @@
 """Bounded qkv256 low-smem large-tile DSMEM test, actual cluster residency gate."""
 from pathlib import Path
 import sys
+import ast
 ROOT=Path(__file__).resolve().parents[1]
 RESOURCE=r'''
 #include <vector>
@@ -48,9 +49,9 @@ def _dsbuild(name):
                 ('const int rowbase = RKORD ?', 'static_assert((VAR & 8388608) == 0 || (!C::GRED && CLR == 1), "tokenfast cluster form");\n    const int rowbase = (VAR & 8388608) ? (int)(blockIdx.x / (CL * ntt_o)) * C::BM : RKORD ?'),
                 ('const int tok0 = RKORD ?', 'const int tok0 = (VAR & 8388608) ? (int)((blockIdx.x / CL) % ntt_o) * BN : RKORD ?'),
                 ('lc.gridDim = (VAR & WV_RKORD) ?', 'lc.gridDim = (VAR & 8388608) ? dim3((unsigned)(N / C::BM * C::CL * ((M + BN - 1) / BN)), 1u) : (VAR & WV_RKORD) ?')]
-            for old,new in changes:
-                assert g['_WD_SRC'].count(old)==1,old
-                g['_WD_SRC']=g['_WD_SRC'].replace(old,new)
+            for anchor,new in changes:
+                assert g['_WD_SRC'].count(anchor)==1,anchor
+                g['_WD_SRC']=g['_WD_SRC'].replace(anchor,new)
         g['WD_INDEX']={n:i for i,n in enumerate(g['WD_NAMES'])}
         source=sk_source()+wd_source()+@@RESOURCE@@
     finally:g.update(old)
@@ -111,7 +112,25 @@ def prepare(weights):
     for line in _DS_OUT:print(line,flush=True)
     return state
 '''
+def cpu_builder_gate(ablate,tokenfast):
+    tree=ast.parse((ROOT/'muse_bf16_proj/submission.py').read_text())
+    wd=next(ast.literal_eval(n.value) for n in tree.body if isinstance(n,ast.Assign)
+            and any(isinstance(t,ast.Name) and t.id=='_WD_SRC' for t in n.targets))
+    ns={'prepare':lambda w:w,'SK_CONFIGS':[('router',)],'SK_INDEX':{},'ROUTER_GEOM':{'router'},
+        'WD_GEOM':{},'WD_VAR':{},'WD_NAMES':[],'WD_INDEX':{},'WD_ABL':{},'_WD_SRC':wd,
+        '_SK_CPP':'','_WD_CPP':''}
+    ns['sk_source']=lambda:''
+    ns['wd_source']=lambda:ns['_WD_SRC']
+    ns['load_inline']=lambda **kw:kw
+    saved={k:ns[k] for k in ('SK_CONFIGS','SK_INDEX','WD_GEOM','WD_VAR','WD_NAMES','WD_INDEX','WD_ABL','_WD_SRC')}
+    exec(RUN.replace('@@RESOURCE@@',repr(RESOURCE)).replace('@@ABLATE@@',repr(ablate)).replace('@@TOKFAST@@',repr(tokenfast)),ns)
+    compiled=ns['_dsbuild']('cpu_gate')
+    assert all(ns[k] is v for k,v in saved.items()),'builder did not restore globals'
+    if tokenfast:assert 'tokenfast cluster form' in compiled['cuda_sources']
+
 if __name__=='__main__':
+    cpu_builder_gate('--ablate' in sys.argv,'--tokenfast' in sys.argv)
+    print('CPU builder generation/global-restoration gate PASS')
     if '--tokenfast' in sys.argv:
         for m in (129,200,256):
             nt=(m+127)//128;seen=set();writers=set()

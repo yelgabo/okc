@@ -1961,3 +1961,24 @@ bandwidth. Full and memory/no-reduction probes are paired against old order in t
 builds. CPU checks establish bijection of cluster(row,tok,Ksplit), agreement within each
 cluster and unique output writers at129/200/256 before dispatch. No new production config.
 Stop if memory reuse gains cannot bridge full-kernel Lt deficit; no identical sweep.
+
+Harness result `303ba7fc3bb44b9d`: failed before CUDA build, because the builder's string-patch
+loop reused `old`, shadowing the saved-globals dictionary and making `finally: g.update(old)`
+raise ValueError. Renamed the anchor variable; retry `d271218896df4a85` dispatched, pending.
+Added a no-GPU builder generation/global-restoration gate using the actual `_WD_SRC`, a stub
+compiler and the real build function; both tokenfast and ablation modes pass. No schedule or
+performance inference follows from the failed harness. Submitted retry also queries tokenfast's
+actual144x1 launch shape; first failed source's query used equivalent144CTA72x2 dimensions.
+
+### Pair7 in the original cgemv vector/prefetch scaffold
+
+Check `4aef50bcd265448b`, pending; `proj_make_bench_pair7.py --vector`. Same actual11.5-bit
+stored stream and sparse exact escapes; change is the compute schedule. Both output rows and
+all CPT chunks are prefetched as in original cgemv, then a128-entry shared LUT emits exponent
+LSB masks/high bytes for the original vector `fma4` math order. No scalar per-value decode/FMA
+loop. The actual LUT transform has its own bit-exact inverse gate, in addition to full stored
+weight roundtrip and CPU all-BF16 gate. FP64 random/probes, independent control/null graphs,
+100 cold randomized rounds. Pooler includes NTH256/CPT2 beside512/CPT1, with runtime resource
+queries (registers/localbytes/staticshared/blocks perSM) rather than assuming no spills.
+This is a codec-in-competitive-scaffold test, not a claim of hidden decoding; no production
+adoption unless end-to-end time improves repeatably. Parent notified of both live job IDs.
