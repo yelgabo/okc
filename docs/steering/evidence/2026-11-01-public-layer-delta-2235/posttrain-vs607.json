@@ -116,39 +116,51 @@
   "loads": [
     {
       "load": "decode 1",
-      "posttrain_weighted_us": 7392.690611458871,
-      "owned607_weighted_us": 4870.0407787173845,
-      "owned_over_posttrain": 0.6587643166303605
+      "owned_over_posttrain": 0.6587643166303605,
+      "posttrain_weighted_sum_us": 7392.690611458871,
+      "posttrain_weighted_mean_us": 119.23694534611083,
+      "owned607_weighted_sum_us": 4870.0407787173845,
+      "owned607_weighted_mean_us": 78.54904481802232
     },
     {
       "load": "decode 16",
-      "posttrain_weighted_us": 15129.885144578466,
-      "owned607_weighted_us": 9810.942593545775,
-      "owned_over_posttrain": 0.648447922756463
+      "owned_over_posttrain": 0.648447922756463,
+      "posttrain_weighted_sum_us": 15129.885144578466,
+      "posttrain_weighted_mean_us": 244.0304055577172,
+      "owned607_weighted_sum_us": 9810.942593545775,
+      "owned607_weighted_mean_us": 158.24100957331896
     },
     {
       "load": "decode 32",
-      "posttrain_weighted_us": 18784.442176369295,
-      "owned607_weighted_us": 11887.863619361848,
-      "owned_over_posttrain": 0.6328568880430584
+      "owned_over_posttrain": 0.6328568880430584,
+      "posttrain_weighted_sum_us": 18784.442176369295,
+      "posttrain_weighted_mean_us": 302.97487381240796,
+      "owned607_weighted_sum_us": 11887.863619361848,
+      "owned607_weighted_mean_us": 191.73973579615884
     },
     {
       "load": "verify 1",
-      "posttrain_weighted_us": 11898.029827057906,
-      "owned607_weighted_us": 7191.431019777265,
-      "owned_over_posttrain": 0.6044220029960651
+      "owned_over_posttrain": 0.6044220029960651,
+      "posttrain_weighted_sum_us": 11898.029827057906,
+      "posttrain_weighted_mean_us": 191.90370688803074,
+      "owned607_weighted_sum_us": 7191.431019777265,
+      "owned607_weighted_mean_us": 115.9908228996333
     },
     {
       "load": "verify 16",
-      "posttrain_weighted_us": 33459.04306347154,
-      "owned607_weighted_us": 16699.51580494078,
-      "owned_over_posttrain": 0.49910321025206633
+      "owned_over_posttrain": 0.49910321025206633,
+      "posttrain_weighted_sum_us": 33459.04306347154,
+      "posttrain_weighted_mean_us": 539.6619848947022,
+      "owned607_weighted_sum_us": 16699.51580494078,
+      "owned607_weighted_mean_us": 269.3470291119481
     },
     {
       "load": "verify 32",
-      "posttrain_weighted_us": 42367.45823163011,
-      "owned607_weighted_us": 22276.42739754498,
-      "owned_over_posttrain": 0.5257909803263617
+      "owned_over_posttrain": 0.5257909803263617,
+      "posttrain_weighted_sum_us": 42367.45823163011,
+      "posttrain_weighted_mean_us": 683.3461005101631,
+      "owned607_weighted_sum_us": 22276.42739754498,
+      "owned607_weighted_mean_us": 359.29721608943515
     }
   ],
   "all_load_insertion_factor": 0.591619400486213
