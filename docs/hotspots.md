@@ -412,4 +412,18 @@ SGLang kernels from the baseline-as-submission run in `muse_decode_layer/baselin
 | verify 32 batch=32 ctx=80000 dist=soft layer=sliding page=1 q_len=8 spread=agentic | 46 | 726.3 | 336.7 | 143.8 | 5.1x | 2.3x | okc::moe_fused<true> 217.8us 64%<br>nvjet_sm90_tss_144x64_64x8_1x1_v_bz_TNN 31.6us 9%<br>nvjet_sm90_tst_128x128_64x6_1x2_h_bz_coopA_NNT 25.7us 8% | sglang::device::marlin_moe::Marlin<__nv_bfloat16 513.0us 73%<br>nvjet_sm90_tst_128x128_64x6_2x1_v_bz_TNT 34.5us 5%<br>nvjet_sm90_tst_128x64_64x8_1x2_h_bz_TNT 31.0us 4% |
 | verify 32 batch=32 ctx=80000 dist=soft layer=full page=1 q_len=8 spread=agentic | 16 | 1081.4 | 499.8 | 267.2 | 4.0x | 1.9x | okc::moe_fused<true> 223.8us 43%<br>attn_kernel<8, true, 0> 187.3us 36%<br>nvjet_sm90_tss_144x64_64x8_1x1_v_bz_TNN 31.7us 6% | sglang::device::marlin_moe::Marlin<__nv_bfloat16 529.5us 48%<br>cutlass::device_kernel<flash::enable_sm90_or_lat 368.4us 33%<br>nvjet_sm90_tst_128x64_64x8_1x2_h_bz_TNT 38.5us 4% |
 
+Off-board component qualification for the attributed Family G layer experiment. The standalone public entry is owned and remains separate.
+
+### muse_moe_w4a16: job 46aafddc195c4c57, 2.349x (2.314-2.384)
+
+SGLang kernels from the baseline-as-submission run in `muse_moe_w4a16/baseline_profile/status.eae9a6b7d5dd4809.json`.
+
+| shape | weight | SGLang us | ours us | floor us | SGLang/floor | ours/floor | our top kernels | SGLang top kernels |
+|---|---|---|---|---|---|---|---|---|
+| decode 1 bs=1 sharding=ep8 | 60 | 77.8 | 25.6 | 11.4 | 6.8x | 2.2x | okc::moe_fused<false> 30.6us 100% | sglang::device::marlin_moe::Marlin<__nv_bfloat16 56.9us 62%<br>at::native::unrolled_elementwise_kernel<at::nati 5.8us 6%<br>at::native::reduce_kernel<512, 1, at::native::Re 5.4us 6% |
+| decode 16 bs=16 sharding=ep8 | 60 | 196.6 | 99.2 | 52.5 | 3.7x | 1.9x | okc::moe_fused<false> 78.9us 100% | sglang::device::marlin_moe::Marlin<__nv_bfloat16 159.0us 77%<br>at::native::reduce_kernel<512, 1, at::native::Re 8.9us 4%<br>at::native::elementwise_kernel<128, 2, at::nativ 8.6us 4% |
+| decode 32 bs=32 sharding=ep8 | 60 | 206.3 | 123.9 | 70.8 | 2.9x | 1.8x | okc::moe_fused<false> 114.1us 100% | sglang::device::marlin_moe::Marlin<__nv_bfloat16 178.5us 92%<br>_post_expert_norm_weighted_sum_kernel 4.5us 2%<br>moe_align_block_size_kernel<int> 2.7us 1% |
+| verify 1 bs=8 sharding=ep8 | 60 | 150.8 | 69.1 | 37.3 | 4.0x | 1.9x | okc::moe_fused<false> 57.3us 100% | sglang::device::marlin_moe::Marlin<__nv_bfloat16 74.9us 64%<br>at::native::reduce_kernel<512, 1, at::native::Re 8.7us 7%<br>at::native::elementwise_kernel<128, 2, at::nativ 6.6us 6% |
+| verify 16 bs=128 sharding=ep8 | 60 | 466.5 | 178.3 | 101.3 | 4.6x | 1.8x | okc::moe_fused<true> 172.4us 100% | sglang::device::marlin_moe::Marlin<__nv_bfloat16 420.5us 96%<br>_post_expert_norm_weighted_sum_kernel 5.1us 1%<br>sglang::act_and_mul_kernel<__nv_bfloat16, 3.5us 1% |
+| verify 32 bs=256 sharding=ep8 | 60 | 622.7 | 212.5 | 108.9 | 5.7x | 2.0x | okc::moe_fused<true> 213.9us 100% | sglang::device::marlin_moe::Marlin<__nv_bfloat16 583.8us 96%<br>_post_expert_norm_weighted_sum_kernel 5.6us 1%<br>sglang::act_and_mul_kernel<__nv_bfloat16, 5.5us 1% |
 
