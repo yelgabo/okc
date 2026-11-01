@@ -1,0 +1,50 @@
+[
+  {
+    "kind": "one",
+    "kernel": "_GLOBAL_one15attn_one_kernelILi8ELi51EEEvNS0_6ParamsE",
+    "instructions": 6344,
+    "normalized_sass_sha256": "d0e70d8ca065207b6bfee51d744333c97a45de21f5cc244ad1e7c1a726e71550",
+    "exact_instructions_operands_equal": true,
+    "special": {
+      "HGMMA": 0,
+      "QGMMA": 12,
+      "BAR": 43,
+      "MEMBAR": 11,
+      "FENCE": 10,
+      "LDL": 0,
+      "STL": 0
+    }
+  },
+  {
+    "kind": "one",
+    "kernel": "_GLOBAL_one15attn_one_kernelILi8ELi3EEEvNS0_6ParamsE",
+    "instructions": 2328,
+    "normalized_sass_sha256": "11b2fa6a9b91b9fe9483e00441d3a4e5ec334f79b27e7af8ea31bb83f1b385d3",
+    "exact_instructions_operands_equal": true,
+    "special": {
+      "HGMMA": 0,
+      "QGMMA": 4,
+      "BAR": 23,
+      "MEMBAR": 3,
+      "FENCE": 2,
+      "LDL": 0,
+      "STL": 0
+    }
+  },
+  {
+    "kind": "moe",
+    "kernel": "_GLOBAL_moe115moe_main_kernelILi51EEEvNS0_6ParamsE",
+    "instructions": 17528,
+    "normalized_sass_sha256": "81f732679ca7bff09a8ee5b378a289fc3693ca0ecb03468e53b9a396220c79c3",
+    "exact_instructions_operands_equal": true,
+    "special": {
+      "HGMMA": 192,
+      "QGMMA": 0,
+      "BAR": 189,
+      "MEMBAR": 43,
+      "FENCE": 33,
+      "LDL": 0,
+      "STL": 0
+    }
+  }
+]

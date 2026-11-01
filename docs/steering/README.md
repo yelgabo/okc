@@ -1,5 +1,7 @@
 # Shared project steering
 
+Latest owned compiler gate: [Comment-only native equivalence](2026-11-01-owned-comment-compile.md). ONE L8 modes3/51 and MoE51 have identical normalized SASS/resources at revised notice-preserving pins. CPU-only; no runtime/performance qualification.
+
 Latest reset readiness: [Shared set-owner repair](2026-11-01-reset-host-readiness.md). Old stage/short/four-cell pins block on real G sets; narrow clone repair passes six CPU host tests and double regeneration. New pins require root review; actual H200 setup/capture remain unqualified. No queue or GPU action.
 
 Latest byte-plan review: [Comment-only production source audit](2026-11-01-comment-byte-review.md).24 native literal checks and7 lexical/legal fixtures pass; final artifact/SASS/runtime gates remain separate.
