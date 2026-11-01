@@ -13,7 +13,6 @@ Latest owned low-token audit: [Immutable decode and activation-read feasibility]
 Latest owned packaging audit: [Owned verify production closure NOFIT](2026-11-01-owned-verify-production-nofit.md). Three source/CPU tests and selected device SASS equivalence pass; all three source closures exceed the hybrid byte allowance. No H200 or public action.
 
 Latest MoE diagnostic addendum: [Native G stage observer terminal closure](2026-11-01-g-stage-observed-readiness.md), source5c1a1f8 / jobf147d06a64504c1e. Correctness passes; all detail attribution rows rejected.
-Latest independent production review: [Owned pruning and fixed-mask dispatcher](2026-11-01-owned-production-independent-review.md) - tracked-source and unsupported-weight fallback fixes reviewed; nine dispatcher host tests pass. Owned selected compile evidence and nonzero byte fit/runtime qualification remain open.
 Latest single-arm artifact: [Owned sparse-XOR prepare-qualified projection](2026-11-01-projection-sparse-xor-release.md) - exact685ffab5/321640B, fixed ordinary buckets, fiveCPU host gates pass; no comparative timings. Actual H200 gates and prepare limit remain unproved; root-only measurement decision.
 
 Latest owned projection prototype: [Sparse exact E7-XOR repair in SK](2026-11-01-projection-sparse-xor-prototype.md) - distinct correction dataflow, exact all-bit/actual-packer gates, local sm90a controls identical and SX spill-free. No H200 latency/score/prepare qualification; full30 paired gate pending.
@@ -657,3 +656,5 @@ Latest: [Dense projection transfer to the decode layer](2026-11-01-layer-dense-t
 - [2026-11-01 public verify hybrid factoring](2026-11-01-public-hybrid-literal-factoring.md):133874B exact visible CUDA-chunk savings; corrected G720525B, owned embedded budget274542B; no fit/GPU claim.
 
 - [2026-11-01 verify production packaging](2026-11-01-verify-hybrid-packaging.md): default607e unchanged, nine host contracts pass, all nonzero byte budgets fail; retained incumbent and explicit next gates.
+
+- [2026-11-01 sparse projection repair](2026-11-01-projection-sparse-repair.md): current source/host/bit proofs, standalone measurement registration and separate46/16layer budget; prefill excluded.
