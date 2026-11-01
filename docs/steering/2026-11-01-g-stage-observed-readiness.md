@@ -169,3 +169,79 @@ Evidence finalcompiler manifests/logs/census and packing:
 Root owns f147d06a64504c1e wait/archive and report-index/publication. The new locality paste's
 expert-band/unit-major question will be evaluated only after this table gives genuine new
 headroom; the prior local proportional+.628% duplicate-byte scenario alone is insufficient.
+
+## Terminal addendum — f147d06a64504c1e, 2026-11-01 05:52 PDT
+
+Source evidence commit `5c1a1f8`; reviewed artifact bf0ca4ae44281d30efd80b988566dd8c431f3095a1d38e4310029c39667f8170 unchanged.
+H200 PASS5, uninstrumented official control 2.3402777977x, CI [2.305173631,2.375381965],
+prepare171.324839s. This off-board standalone score is not a layer score or candidate improvement.
+Root owns canonical receipt/profile archive for this exact ID; derived complete decoded capsule is
+`evidence/2026-11-01-g-stage-probe/f147d06a64504c1e.decoded.json`.
+All registered math coverage passed: normal72, fresh36, skew36, remote36, restored36;
+worst global/row error .0060922033/.0071880231 versus .008/.075. Every arm used96registers,
+231168B dynamic shared,576threads,1resident CTA; READY alone reports8B local, others0.
+
+**All12 detail mode/case rows fail the frozen attribution gates. No rerun.**
+
+|M / seed|Control GM us|READY whole / phase displacement|RETIRE whole / phase displacement|Endpoint phase duplicate spread|Qualified detail|
+|---|---:|---:|---:|---:|---|
+|128 / 76111|185.792|5.615% / 10.825%|4.909% / 10.256%|1.968%|neither|
+|128 / 76117|185.518|5.374% / 10.894%|5.426% / 11.209%|2.483%|neither|
+|128 / 76123|184.783|6.243% / 13.671%|5.568% / 11.315%|3.081%|neither|
+|256 / 76111|202.448|9.539% / 14.327%|8.670% / 13.042%|5.325%|neither|
+|256 / 76117|214.512|7.019% / 12.118%|5.825% / 11.455%|2.718%|neither|
+|256 / 76123|221.583|8.644% / 14.903%|7.835% / 12.672%|1.252%|neither|
+
+Control/endpoint whole duplicate spreads .259–.918% and endpoint whole displacement .043–.485%
+are stable; detail whole displacement4.91–9.54% exceeds3% in every case. Detail phase displacement
+10.26–14.90% also exceeds3%. Five of six endpoint phase duplicate spreads exceed1.5%.
+Thus observed startup/steady readiness and retirement numbers remain raw perturbed observations,
+not a bottleneck diagnosis, floor, or opportunity bound. Neither the median positive waits nor
+sparse ready-at-entry counts establish bandwidth limitation. Correctness and unchanged static
+HGMMA counts do not rescue failed distortion gates.
+
+### Updated incumbent opportunity table and decision
+
+|607 incumbent load|Layer / expert us|A startup / steady / retire|B startup / steady / retire|New attributable savings|
+|---|---:|---|---|---|
+|D32 B4FIN|191.738710 /74.987097|unmeasured|unmeasured|not established|
+|V16 MAIN|269.346774 /161.183871|detail probe rejected|detail probe rejected|not established|
+|V32 MAIN|359.298387 /204.412903|detail probe rejected|detail probe rejected|not established|
+
+Standalone held-out generator inputs have real global256 IDs and real expert weights, but are not
+actual layer router outputs. Their phase proportions cannot be substituted into607 layer timings.
+The already measured retirement gain is excluded. Equal9.052106us exposed saving on BOTH MAIN
+loads (or equal5.03870% expert reduction) still supplies only a conditional1% six-load target.
+There is no measured startup/cadence/retire decomposition to credit toward it after this check.
+
+### New retained H200 route population, independent of perturbed timing
+
+Counts/job metadata are valid replay input observations even though clocks fail attribution.
+SC6 payload per unique expert is27,525,120B: W13=18,350,080B, W2=9,175,040B.
+Extra jobs repeat both phases' logical weight requests. They are NOT measured L2 misses/HBM bytes.
+
+|M / seed|Local routes|Active experts /64-row jobs|Extra jobs|Extra W13 / W2 MB|Extra/request payload|
+|---|---:|---:|---:|---:|---:|
+|128 /76111|170|22 /23|1|18.350080 /9.175040|4.3478%|
+|256 /76111|332|22 /24|2|36.700160 /18.350080|8.3333%|
+|128 /76117|191|22 /23|1|18.350080 /9.175040|4.3478%|
+|256 /76117|307|26 /26|0|0.000000 /0.000000|0.0000%|
+|128 /76123|246|21 /22|1|18.350080 /9.175040|4.5455%|
+|256 /76123|336|27 /27|0|0.000000 /0.000000|0.0000%|
+
+Conditional scenario: delete that request fraction of the ENTIRE expert latency, hold the other
+four layer loads fixed, and apply those two new standalone populations to607 layer envelopes.
+Paired seed six-load factors are 1.012567288, 1.004403492, 1.004606903;
+geometric mean 1.007185400. This is an optimistic proportional scenario,
+NOT a timing bound, cache model, measured saving, or forecast for actual layer routing.
+Compared with the earlier local64-bank+.628% scenario, this retained H200 three-pair scenario
+is about+.72%, with only one pair exceeding1%. New evidence proves duplicate-job population
+at M128 too (max85/90/122); M256 max150 gives two extra jobs in one bank, none in the other two.
+
+Stop: close this exact observer, no additional GPU diagnostic. Park expert-band reordering:
+its bijection/ragged cost/fixup proof remains necessary but is insufficient without measured
+exposed traffic or robust score headroom. No source candidate, release or public action follows.
+A future reopening requires low-distortion hardware traffic/cadence evidence or a representation
+change with a stronger independently validated score-covered opportunity; no generic sweep.
+
+Resource qualification: 1 CTA/SM is the runtime occupancy/admission limit from the CUDA occupancy API, not measured achieved occupancy or utilization.
