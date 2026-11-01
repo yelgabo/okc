@@ -1,0 +1,17 @@
+vp.exe : note: You are running `vp test` as a Vite+ built-in command. If you meant to run the test npm script, use 
+`vpr test` instead.
+At <user-home>\AppData\Roaming\vite-plus\vp.ps1:83 char:5
++     & (Join-Path $__vp_bin "vp") @args
++     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (note: You are r... test` instead.:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+
+ RUN  v5.0.5 <t3-checkout>
+
+
+ Test Files  1 passed (1)
+      Tests  7 passed | 42 skipped (49)
+   Start at  15:48:46
+   Duration  25.30s (tests 60%, transform 23%, import 10%, setup 7%)
+

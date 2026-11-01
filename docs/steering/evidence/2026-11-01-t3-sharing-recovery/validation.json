@@ -1,0 +1,64 @@
+{
+  "t3_base": "fa31b66bbb2ae5234205a8628a78e038d917202f",
+  "t3_head": "332447eea868c2b89328187309e063c99fce1ebb",
+  "original_reproduction_okc_commit": "aff51efe21c8fe112bd89e1360ef76145375b032",
+  "new_regression_before": {
+    "passed": 3,
+    "failed": 4
+  },
+  "new_regression_after": {
+    "passed": 7,
+    "failed": 0
+  },
+  "selected_tests_after": {
+    "passed": 88,
+    "failed": 4,
+    "files": 3
+  },
+  "preexisting_failures_reproduced_on_base": [
+    "recovers the local or pushed thread tip, else the current branch, remote default, or detached HEAD",
+    "preserves recreation interrupts and retries, then fails the final attempt before provider start",
+    "coordinates provider startup with cleanup-first",
+    "coordinates provider startup with startup-first"
+  ],
+  "checks": {
+    "format_changed_files": "passed; also passed pre-commit hook",
+    "lint_changed_files": "passed; also passed pre-commit hook",
+    "server_graphql_generation": "vp run --filter t3 generate --check: passed",
+    "affected_typechecks": "t3, @t3tools/evals, @t3tools/scripts: passed",
+    "knip": "vp run knip:check: 2/2 passed; also passed pre-commit hook",
+    "check_changed": "Attempted; interrupted during git ls-files --others --ignored enumeration, which descends Windows pnpm junctions and emits Filename too long. Its selected check commands were run directly. Not a passing aggregate check."
+  },
+  "commands": {
+    "focused": "vp test run apps/server/src/orchestration-v2/testkit/ProviderSwitch.integration.test.ts -t \"recovers rejected Codex history\"",
+    "selected": "vp test run apps/server/src/orchestration-v2/testkit/ProviderSwitch.integration.test.ts apps/server/src/orchestration-v2/ProviderTurnStartService.test.ts apps/server/src/provider/AgentContextBudget.test.ts",
+    "base_comparison": "Same seven new cases plus four failing worktree cases against the original ProviderTurnStartService.ts from t3_base; restored patched bytes afterward and verified clean git status."
+  },
+  "scope": "T3 integration tests run the real orchestrator, SQLite projections and context handoff with a deterministic rejecting adapter. Separate native app-server validation uses the real managed provider and a copied broken rollout. The installed T3 UI was not patched or tested after deployment.",
+  "logs": {
+    "before-tests.txt": {
+      "source_sha256": "dcf10c473c8c0056cfc06e8d360611c0352853322894db1ebd03dd3ff6f383a4",
+      "published_sha256": "fe871c2c688477a7a7cdbb95f67b994d568973cd111cd0fe15c85a34bf99d6c7"
+    },
+    "after-focused-tests.txt": {
+      "source_sha256": "412b87ab157c0fd7d4505f3485187fe6023c587cd27c00648f609a744c892cbb",
+      "published_sha256": "3e60dc3f4ea500bcd835f1f66f187472b49971e936d8a3f0f501cd98b6f399ad"
+    },
+    "after-selected-tests.txt": {
+      "source_sha256": "9358485f29ae34cfafc36e4ff51a9fde555019cbc424a9c1eb8c204a140ccbdd",
+      "published_sha256": "9c07240b21693caaf85fd7bec48cdffe6b0c903635fcb7939ae5c465bec2517c"
+    },
+    "typecheck.txt": {
+      "source_sha256": "a0e800c1aab077ceb5648b5eb126c1d6a1d4aada5931e47d386f017cb70eb7ba",
+      "published_sha256": "17ee6ebddc5c05dbc050dec7555c31872d5b277db7c8e3f2164ae73638839167"
+    },
+    "dependent-typechecks.txt": {
+      "source_sha256": "7d14079d236d2b63ec9f87b85dcc8e85e791139199cef98e754b8826f89e5c9c",
+      "published_sha256": "3ffb1c4e387eae7538e1b3da935f0d3334ae277d7b36d7178e7dcc22e90b55c7"
+    },
+    "knip.txt": {
+      "source_sha256": "232e6a0fefb889a473d57921cbd0a9516e10e8f4abc5c4b8666b8e2108d5135d",
+      "published_sha256": "f473d91458ad6a7d722c5e670205ec80f5b48176670bdf7336c9be8295df5ee0"
+    }
+  }
+}

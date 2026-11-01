@@ -1,0 +1,234 @@
+vp.exe : note: You are running `vp test` as a Vite+ built-in command. If you meant to run the test npm script, use 
+`vpr test` instead.
+At <user-home>\AppData\Roaming\vite-plus\vp.ps1:83 char:5
++     & (Join-Path $__vp_bin "vp") @args
++     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (note: You are r... test` instead.:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+
+ RUN  v5.0.5 <t3-checkout>
+
+stdout | src/orchestration-v2/ProviderTurnStartService.test.ts > recovers the local or pushed thread tip, else the current branch, remote default, or detached HEAD
+[15:52:42.748] ERROR (#145): Error [GitCommandError]: Git command failed in test.worktreeRecovery (<user-home>\AppData\Local\Temp\t3-recreate-repo-fswG0O\worktrees\project\restore): Failed to spawn Git process.
+    at <t3-checkout>/apps/server/src/vcs/GitVcsDriverCore.ts:998:17
+    at file:///<t3-checkout>/node_modules/.pnpm/effect@4.0.5/node_modules/effect/dist/internal/effect.js:1483:96
+    at orchestrationV2.providerTurnStart.start (<t3-checkout>/apps/server/src/orchestration-v2/ProviderTurnStartService.ts:1772:69)
+    at orchestrationV2.providerTurnStart.start (definition) (<t3-checkout>/apps/server/src/orchestration-v2/ProviderTurnStartService.ts:337:26)
+    at ProviderTurnStartService.start (<t3-checkout>/apps/server/src/orchestration-v2/ProviderTurnStartService.test.ts:977:68)
+    at ProviderTurnStartService.start (definition) (<t3-checkout>/apps/server/src/orchestration-v2/ProviderTurnStartService.ts:1765:21) {
+  _tag: 'GitCommandError',
+  operation: 'test.worktreeRecovery',
+  command: 'git',
+  cwd: 'C:\\Users\\gretc\\AppData\\Local\\Temp\\t3-recreate-repo-fswG0O\\worktrees\\project\\restore',
+  argumentCount: 2,
+  detail: 'Failed to spawn Git process.',
+  [cause]: Error [PlatformError]: NotFound: FileSystem.access (<user-home>\AppData\Local\Temp\t3-recreate-repo-fswG0O\worktrees\project\restore)
+      at Module.systemError (file:///<t3-checkout>/node_modules/.pnpm/effect@4.0.5/node_modules/effect/dist/PlatformError.js:177:39)
+      at file:///<t3-checkout>/node_modules/.pnpm/@effect+platform-node-share_77f4239d41c029a1f6fc07bec3f908a9/node_modules/@effect/platform-node-shared/dist/internal/utils.js:28:24 {
+    reason: {
+      _tag: 'NotFound',
+      module: 'FileSystem',
+      method: 'access',
+      pathOrDescriptor: 'C:\\Users\\gretc\\AppData\\Local\\Temp\\t3-recreate-repo-fswG0O\\worktrees\\project\\restore',
+      syscall: 'access',
+      cause: [Error]
+    },
+    _tag: 'PlatformError',
+    '~effect/PlatformError': '~effect/PlatformError',
+    [cause]: [Error: ENOENT: no such file or directory, access '<user-home>\AppData\Local\Temp\t3-recreate-repo-fswG0O\worktrees\project\restore'] {
+      errno: -4058,
+      code: 'ENOENT',
+      syscall: 'access',
+      path: 'C:\\Users\\gretc\\AppData\\Local\\Temp\\t3-recreate-repo-fswG0O\\worktrees\\project\\restore',
+      [cause]: undefined
+    }
+  }
+}
+
+stdout | src/orchestration-v2/ProviderTurnStartService.test.ts > preserves recreation interrupts and retries, then fails the final attempt before provider start
+[15:52:42.758] ERROR (#296): Error [AssertionError]: expected 'Success' to be 'Failure' // Object.is equality
+    at <t3-checkout>/apps/server/src/orchestration-v2/ProviderTurnStartService.test.ts:1154:32 {
+  actual: 'Success',
+  expected: 'Failure',
+  showDiff: true,
+  operator: 'strictEqual',
+  [cause]: undefined
+}
+
+stdout | src/orchestration-v2/ProviderTurnStartService.test.ts > coordinates provider startup with cleanup-first
+[15:52:42.795] ERROR (#699): Error [AssertionError]: expected "vi.fn()" to be called with arguments: [ { …(3) } ]
+
+Number of calls: 0
+
+    at Proxy.<anonymous> (file:///<t3-checkout>/node_modules/.pnpm/vitest@5.0.5_@tsc-rs+typesc_844b5ecc141c2e2bcf9965912e411c65/node_modules/vitest/dist/chunks/index.aTZaPVhf.js:2249:10)
+    at Proxy.<anonymous> (file:///<t3-checkout>/node_modules/.pnpm/vitest@5.0.5_@tsc-rs+typesc_844b5ecc141c2e2bcf9965912e411c65/node_modules/vitest/dist/chunks/index.aTZaPVhf.js:1958:14)
+    at Proxy.methodWrapper (file:///<t3-checkout>/node_modules/.pnpm/chai@6.3.0/node_modules/chai/index.js:1737:25)
+    at <t3-checkout>/apps/server/src/orchestration-v2/ProviderTurnStartService.test.ts:1415:40 {
+  [cause]: undefined
+}
+
+stdout | src/orchestration-v2/ProviderTurnStartService.test.ts > coordinates provider startup with startup-first
+[15:52:42.799] ERROR (#730): Error [AssertionError]: expected true to be false // Object.is equality
+    at <t3-checkout>/apps/server/src/orchestration-v2/ProviderTurnStartService.test.ts:1409:61 {
+  actual: true,
+  expected: false,
+  showDiff: true,
+  operator: 'strictEqual',
+  [cause]: undefined
+}
+
+ ❯ |t3| src/orchestration-v2/ProviderTurnStartService.test.ts (42 tests | 4 failed) 1021ms
+   × recovers the local or pushed thread tip, else the current branch, remote default, or detached HEAD 935ms
+   × preserves recreation interrupts and retries, then fails the final attempt before provider start 10ms
+   × coordinates provider startup with cleanup-first 5ms
+   × coordinates provider startup with startup-first 5ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 4 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |t3| src/orchestration-v2/ProviderTurnStartService.test.ts > recovers the local or pushed thread tip, else the 
+current branch, remote default, or detached HEAD
+GitCommandError: Git command failed in test.worktreeRecovery 
+(<user-home>\AppData\Local\Temp\t3-recreate-repo-fswG0O\worktrees\project\restore): Failed to spawn Git process.
+ ❯ src/vcs/GitVcsDriverCore.ts:998:17
+    996|             Effect.mapError(
+    997|               (cause) =>
+    998|                 new GitCommandError({
+       |                 ^
+    999|                   ...gitCommandContext(commandInput),
+    1000|                   detail: "Failed to spawn Git process.",
+ ❯ ../../node_modules/.pnpm/effect@4.0.5/node_modules/effect/src/internal/effect.ts:3384:72
+ ❯ PrimitiveImpl.~effect/Effect/args 
+../../node_modules/.pnpm/effect@4.0.5/node_modules/effect/src/internal/effect.ts:1058:95
+ ❯ ~effect/Effect/evaluate ../../node_modules/.pnpm/effect@4.0.5/node_modules/effect/src/internal/effect.ts:981:22
+ ❯ FiberImpl.runLoop ../../node_modules/.pnpm/effect@4.0.5/node_modules/effect/src/internal/effect.ts:654:41
+ ❯ FiberImpl.evaluate ../../node_modules/.pnpm/effect@4.0.5/node_modules/effect/src/internal/effect.ts:595:23
+ ❯ FiberImpl.evaluate ../../node_modules/.pnpm/effect@4.0.5/node_modules/effect/src/internal/effect.ts:589:27
+ ❯ ../../node_modules/.pnpm/effect@4.0.5/node_modules/effect/src/internal/effect.ts:1159:17
+ ❯ ../../node_modules/.pnpm/effect@4.0.5/node_modules/effect/src/Effect.ts:26055:13
+
+Caused by: PlatformError: NotFound: FileSystem.access 
+(<user-home>\AppData\Local\Temp\t3-recreate-repo-fswG0O\worktrees\project\restore)
+ ❯ Module.systemError ../../node_modules/.pnpm/effect@4.0.5/node_modules/effect/dist/PlatformError.js:177:39
+ ❯ ../../node_modules/.pnpm/@effect+platform-node-share_77f4239d41c029a1f6fc07bec3f908a9/node_modules/@effect/platform-
+node-shared/dist/internal/utils.js:28:24
+ ❯ PrimitiveImpl.~effect/Effect/args ../../node_modules/.pnpm/effect@4.0.5/node_modules/effect/dist/Effect.js:8411:45
+ ❯ ~effect/Effect/evaluate ../../node_modules/.pnpm/effect@4.0.5/node_modules/effect/dist/internal/effect.js:709:22
+ ❯ FiberImpl.runLoop ../../node_modules/.pnpm/effect@4.0.5/node_modules/effect/dist/internal/effect.js:453:97
+ ❯ FiberImpl.evaluate ../../node_modules/.pnpm/effect@4.0.5/node_modules/effect/dist/internal/effect.js:402:23
+ ❯ FiberImpl.evaluate ../../node_modules/.pnpm/effect@4.0.5/node_modules/effect/dist/internal/effect.js:396:27
+ ❯ ../../node_modules/.pnpm/effect@4.0.5/node_modules/effect/dist/internal/effect.js:808:17
+ ❯ ../../node_modules/.pnpm/effect@4.0.5/node_modules/effect/dist/Effect.js:8411:9
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯
+Serialized Error: { reason: { _tag: 'NotFound', module: 'FileSystem', method: 'access', pathOrDescriptor: 
+'<user-home>\AppData\Local\Temp\t3-recreate-repo-fswG0O\worktrees\project\restore', syscall: 'access', cause: { 
+stack: 'Error: ENOENT: no such file or directory, access 
+'<user-home>\AppData\Local\Temp\t3-recreate-repo-fswG0O\worktrees\project\restore'', message: 'ENOENT: no such file 
+or directory, access '<user-home>\AppData\Local\Temp\t3-recreate-repo-fswG0O\worktrees\project\restore'', errno: 
+-4058, code: 'ENOENT', syscall: 'access', path: 
+'<user-home>\AppData\Local\Temp\t3-recreate-repo-fswG0O\worktrees\project\restore', constructor: 'Function<Error>', 
+name: 'Error', toString: 'Function<toString>' }, message: 'NotFound: FileSystem.access 
+(<user-home>\AppData\Local\Temp\t3-recreate-repo-fswG0O\worktrees\project\restore)', stack: 'Error: NotFound: 
+FileSystem.access (<user-home>\AppData\Local\Temp\t3-recreate-repo-fswG0O\worktrees\project\restore)
+    at Module.systemError (file:///<t3-checkout>/node_modules/.pnpm/effect@4.
+0.5/node_modules/effect/dist/PlatformError.js:177:57)
+    at file:///<t3-checkout>/node_modules/.pnpm/@effect+platform-node-share_7
+7f4239d41c029a1f6fc07bec3f908a9/node_modules/@effect/platform-node-shared/dist/internal/utils.js:28:24
+    at PrimitiveImpl.~effect/Effect/args (file:///<t3-checkout>/node_modules/
+.pnpm/effect@4.0.5/node_modules/effect/dist/Effect.js:8411:45)
+    at ~effect/Effect/evaluate (file:///<t3-checkout>/node_modules/.pnpm/effe
+ct@4.0.5/node_modules/effect/dist/internal/effect.js:709:22)
+    at FiberImpl.runLoop (file:///<t3-checkout>/node_modules/.pnpm/effect@4.0
+.5/node_modules/effect/dist/internal/effect.js:453:97)
+    at FiberImpl.evaluate (file:///<t3-checkout>/node_modules/.pnpm/effect@4.
+0.5/node_modules/effect/dist/internal/effect.js:402:23)
+    at AsyncResource.runInAsyncScope (node:async_hooks:227:14)
+    at FiberImpl.evaluate (file:///<t3-checkout>/node_modules/.pnpm/effect@4.
+0.5/node_modules/effect/dist/internal/effect.js:396:27)
+    at file:///<t3-checkout>/node_modules/.pnpm/effect@4.0.5/node_modules/eff
+ect/dist/internal/effect.js:808:17
+    at file:///<t3-checkout>/node_modules/.pnpm/effect@4.0.5/node_modules/eff
+ect/dist/Effect.js:8411:9', name: 'Error' }, _tag: 'PlatformError', '~effect/PlatformError': '~effect/PlatformError' }
+Caused by: Error: ENOENT: no such file or directory, access 
+'<user-home>\AppData\Local\Temp\t3-recreate-repo-fswG0O\worktrees\project\restore'
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯
+Serialized Error: { errno: -4058, code: 'ENOENT', syscall: 'access', path: 
+'<user-home>\AppData\Local\Temp\t3-recreate-repo-fswG0O\worktrees\project\restore' }
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/4]⎯
+
+ FAIL  |t3| src/orchestration-v2/ProviderTurnStartService.test.ts > preserves recreation interrupts and retries, then 
+fails the final attempt before provider start
+AssertionError: expected 'Success' to be 'Failure' // Object.is equality
+
+Expected: "Failure"
+Received: "Success"
+
+ ❯ src/orchestration-v2/ProviderTurnStartService.test.ts:1154:32
+    1152|
+    1153|       const interrupted = yield* Effect.exit(harness.start);
+    1154|       expect(interrupted._tag).toBe("Failure");
+       |                                ^
+    1155|       if (interrupted._tag === "Failure")
+    1156|         expect(Cause.hasInterruptsOnly(interrupted.cause)).toBe(true);
+ ❯ ~effect/Effect/successCont ../../node_modules/.pnpm/effect@4.0.5/node_modules/effect/src/internal/effect.ts:1422:28
+ ❯ FiberImpl.succeedWith ../../node_modules/.pnpm/effect@4.0.5/node_modules/effect/src/internal/effect.ts:711:30
+ ❯ ~effect/Effect/successCont ../../node_modules/.pnpm/effect@4.0.5/node_modules/effect/src/internal/effect.ts:3791:20
+ ❯ ~effect/Effect/evaluate ../../node_modules/.pnpm/effect@4.0.5/node_modules/effect/src/internal/core.ts:585:30
+ ❯ FiberImpl.runLoop ../../node_modules/.pnpm/effect@4.0.5/node_modules/effect/src/internal/effect.ts:654:41
+ ❯ FiberImpl.evaluate ../../node_modules/.pnpm/effect@4.0.5/node_modules/effect/src/internal/effect.ts:595:23
+ ❯ FiberImpl.evaluate ../../node_modules/.pnpm/effect@4.0.5/node_modules/effect/src/internal/effect.ts:589:27
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/4]⎯
+
+ FAIL  |t3| src/orchestration-v2/ProviderTurnStartService.test.ts > coordinates provider startup with cleanup-first
+AssertionError: expected "vi.fn()" to be called with arguments: [ { …(3) } ]
+
+Number of calls: 0
+
+ ❯ src/orchestration-v2/ProviderTurnStartService.test.ts:1415:40
+    1413|       if (laterCleanup !== undefined) yield* Fiber.join(laterCleanup);
+    1414|       if (order === "cleanup-first") {
+    1415|         expect(harness.createWorktree).toHaveBeenCalledWith({
+       |                                        ^
+    1416|           cwd: "/tmp/native-account-project",
+    1417|           refName: "feature/restore",
+ ❯ ~effect/Effect/successCont ../../node_modules/.pnpm/effect@4.0.5/node_modules/effect/src/internal/effect.ts:1422:28
+ ❯ ~effect/Effect/evaluate ../../node_modules/.pnpm/effect@4.0.5/node_modules/effect/src/internal/core.ts:585:30
+ ❯ FiberImpl.runLoop ../../node_modules/.pnpm/effect@4.0.5/node_modules/effect/src/internal/effect.ts:654:41
+ ❯ FiberImpl.evaluate ../../node_modules/.pnpm/effect@4.0.5/node_modules/effect/src/internal/effect.ts:595:23
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/4]⎯
+
+ FAIL  |t3| src/orchestration-v2/ProviderTurnStartService.test.ts > coordinates provider startup with startup-first
+AssertionError: expected true to be false // Object.is equality
+
+- Expected
++ Received
+
+- false
++ true
+
+ ❯ src/orchestration-v2/ProviderTurnStartService.test.ts:1409:61
+    1407|           ? yield* cleanupEffect.pipe(Effect.forkChild({ startImmediat…
+    1408|           : undefined;
+    1409|       if (order === "startup-first") expect(cleanupEntered).toBe(false…
+       |                                                             ^
+    1410|       yield* Deferred.succeed(release, undefined);
+    1411|       if (cleanup !== undefined) yield* Fiber.join(cleanup);
+ ❯ ~effect/Effect/successCont ../../node_modules/.pnpm/effect@4.0.5/node_modules/effect/src/internal/effect.ts:1422:28
+ ❯ ~effect/Effect/evaluate ../../node_modules/.pnpm/effect@4.0.5/node_modules/effect/src/internal/core.ts:585:30
+ ❯ FiberImpl.runLoop ../../node_modules/.pnpm/effect@4.0.5/node_modules/effect/src/internal/effect.ts:654:41
+ ❯ FiberImpl.evaluate ../../node_modules/.pnpm/effect@4.0.5/node_modules/effect/src/internal/effect.ts:595:23
+ ❯ FiberImpl.evaluate ../../node_modules/.pnpm/effect@4.0.5/node_modules/effect/src/internal/effect.ts:589:27
+ ❯ Array.<anonymous> ../../node_modules/.pnpm/effect@4.0.5/node_modules/effect/src/internal/effect.ts:1159:17
+ ❯ doneUnsafe ../../node_modules/.pnpm/effect@4.0.5/node_modules/effect/src/Deferred.ts:1707:17
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/4]⎯
+
+
+ Test Files  1 failed | 2 passed (3)
+      Tests  4 failed | 88 passed (92)
+   Start at  15:50:31
+   Duration  134.56s (tests 85%, transform 7%, import 6%, setup 1%)
+
