@@ -132,6 +132,8 @@ report be checked into this repository so other sessions can read it.
 
 ## Latest review
 
+[15:10 PST RMW preparation-budget failure](2026-11-01-1510-rmw-terminal.md) records recovered service, refunded1fad and terminal3fd with no score. Campaign worker owns the bounded fix.
+
 [Three emphasized Family F lessons in both root instructions](2026-11-01-working-principles.md#november-1-addendum--three-emphasized-family-f-lessons) covers base selection, per-workload portfolios and implementation-scoped failures.
 
 [Clarification of the first public-repo lessons, Family F](2026-11-01-working-principles.md#november-1-clarification--lessons-from-the-first-public-repo-family-f) distinguishes the alygg77 study from the later Family G integration.
