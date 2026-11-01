@@ -17,3 +17,5 @@ Concrete post-retrieval invocation:
 `python tools/g_common_rmw_receipt.py OWN_TERMINAL.json --job OWN_JOB --source muse_decode_layer/cand/g1b4_common_short_rmw_release.py --log EXACT_RECEIPT_OUTPUT_LOG --control muse_decode_layer/profiles/scored.607eb52bdaf24160.json --output REVIEWED.json`
 
 Retrieve status with the root-owned authenticated CLI `okc status OWN_JOB --wait --json`; profile JSON/text and original log locations are returned in receipt.profile.{json,text} and receipt.output.log when available. The12 profile reports also reside in result.records. Do not guess another job or invent a dedicated profile command. The older accepted1fad uses hybrid_layer_measurement's old48/8/24+40 hybrid qualification, not this new common capsule. Root alone reconciles jobs/quota and any dispatch.
+
+Peer caught an inherited generic comparison label: its old owned-hybrid target flag selected verify16/32. The new reader explicitly replaces that label with decode1/verify1, both contexts, and tests the target set. Arithmetic is unchanged; no old target scope is carried into RMW interpretation.
