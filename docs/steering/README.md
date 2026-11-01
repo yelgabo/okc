@@ -1,5 +1,7 @@
 # Shared project steering
 
+Latest single-arm stage qualifier: [Stage-local projection qualification](2026-11-01-projection-stage-xor-release.md) - exact de1111b9/450781 B, fixed ten targets plus ordinary neighbors; five CPU host gates pass. Actual H200 admission, correctness, setup time and performance remain unqualified; root-only measurement decision.
+
 Latest projection representation: [Stage-local sparse repair](2026-11-01-projection-stage-xor.md) - previous global-record H200 version closed as a loss; new OFF-by-default stage arena passes actual CPU stream proof and local sm90a compilation. No GPU execution or performance qualification for the new representation.
 
 Latest single-arm artifact: [Owned sparse-XOR prepare-qualified projection](2026-11-01-projection-sparse-xor-release.md) - exact685ffab5/321640B, fixed ordinary buckets, fiveCPU host gates pass; no comparative timings. Actual H200 gates and prepare limit remain unproved; root-only measurement decision.
