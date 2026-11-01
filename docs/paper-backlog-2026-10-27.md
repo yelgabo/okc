@@ -1,5 +1,11 @@
 # Open Kernel Challenge — Paper-Derived Experiment Backlog
 
+**Current status, November 1:** This is a historical research backlog, not the
+current work queue. Several ideas below have since been tested or closed.
+Start with the [immediate backlog reconciliation](steering/2026-11-01-immediate-backlog.md)
+and `ruled-out.md`; the immediate prerequisite is repairing the existing
+preparation qualifier and finishing its receipt reader.
+
 **Snapshot:** October 27, 2026, late night Pacific; some repository logs are dated October 28 UTC.  
 **Repository:** https://github.com/yelgabo/okc  
 **Purpose:** Research candidates for the existing H200 project, not a restart or authorization to submit.  

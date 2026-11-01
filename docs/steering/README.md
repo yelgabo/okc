@@ -1,5 +1,9 @@
 # Shared project steering
 
+Latest session reproduction: [November 1 clean T3 sharing failure](2026-11-01-t3-sharing-reproduction.md), evidence97a91df plus independent fresh-thread ordinals1-3. Baseline succeeds; native worker and plain `huh` follow-up fail. Raw error, persisted agent-message structure, ineffective disable flags and upstream issue21061/closed-unmerged PR20270 verified. Sanitized evidence and ready-to-post update prepared; no external issue/comment sent or campaign resumed.
+
+Latest backlog reconciliation: [November 1 immediate work while the researcher reviews](2026-11-01-immediate-backlog.md), evidence `97a91df`. Prioritize the existing inference-compatible qualifier repair, then its owning receipt reader; preserved owner branches/WIP remain untouched. Historical tracker and paper backlog now point to current closures. Documentation maintenance completed; no kernel changes, GPU jobs or automation resume.
+
 Latest session audit: [November 1 provider failure after worker spawn](2026-11-01-session-provider-failure.md), evidence b6def23 and T3 activity ordinals 2-5. ChatGPT-sharing compatibility rejection follows native worker spawn and persists across model changes. Exact receipt archived; no provider switch, worker retry or campaign resume.
 
 Latest orientation: [November 1 reconciled checkpoint](2026-11-01-orientation.md), evidence0f090a1. RMW3fd is terminal preparation-budget failure with no score; earlier running entries below are historical. Proposed reference memo remains blocked by reproduced inference-tensor version-counter failure. Existing owner retains repair/dispatch ownership; no new run or campaign resume from orientation. Preserves terminalbf40c95 and subsequent source reviews02876a3/0f090a1.

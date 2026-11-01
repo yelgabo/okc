@@ -1,5 +1,12 @@
 # Architecture performance tracker
 
+**November 1 current queue:** see [immediate backlog reconciliation](steering/2026-11-01-immediate-backlog.md).
+The next useful work is the existing qualifier inference-mode repair and its
+receipt reader. The later RMW run failed during setup without a performance
+result. The family table below is historical; its untested/queued entries are
+not current dispatch recommendations. Consult the latest steering report and
+`ruled-out.md` before reopening them. No new GPU campaign is started by this update.
+
 **November 1. Family G is our attributed fork of keell0renz's decode layer.** It descends from the alygg77 implementation registered as Family F. The Muse Spark model and H200 target are the same. G0 is the pinned upstream comparator, measured privately at 2.248791×. G1 includes our ordering, precision and lifetime repairs. [Family G registration](steering/2026-11-01-top50-reset.md).
 
 The scored incumbent is **G1b4 with stage retirement**, job `607eb52bdaf24160`, at **2.126083×**. It passed all 13 H200 cases, improved on the owned public entry at 2.043438×, and was rank 305 overall and on the layer at 04:48 PST. The G1b4 control scored 2.052870×, delayed expert publication scored 2.102308× and concurrent short pooler/router execution scored 2.095900×. These are independent public measurements. [Submitted code](../muse_decode_layer/cand/g1b4_stage_release.py). [Judge receipts, per-shape timings and open comparisons](steering/2026-11-01-g-public-layer-measurement.md#november-1-0448-pst--h200-result-and-submission-decision).
