@@ -426,3 +426,5 @@ Hourly review history: [11:20 PDT performance review](2026-10-29-1120-performanc
 - 2026-11-01: [Legacy G-versus-owned pairing offline closure](2026-11-01-layer-legacy-pair-closure.md): exact source/interface/size gates; no H200-ready input or new job.
 
 - 2026-11-01: [G-stage public measurement eligibility](2026-11-01-g-stage-public-measurement-eligibility.md): no policy/license blocker for authorized single-arm measurement; final real-routing/fresh-state wrapper still requires review; no dispatch.
+
+- 2026-11-01: [G #303 dense ROI closure](2026-11-01-g-rank303-dense-roi.md): all12 profile/score weights, +0.54474% comparator-gap sensitivity, no new compliant multi-load mechanism or quota request.
