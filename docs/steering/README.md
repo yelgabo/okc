@@ -12,6 +12,8 @@ Latest owned packaging audit: [Owned verify production closure NOFIT](2026-11-01
 
 Latest MoE diagnostic addendum: [Native G stage observer terminal closure](2026-11-01-g-stage-observed-readiness.md), source5c1a1f8 / jobf147d06a64504c1e. Correctness passes; all detail attribution rows rejected.
 Latest independent production review: [Owned pruning and fixed-mask dispatcher](2026-11-01-owned-production-independent-review.md) - tracked-source and unsupported-weight fallback fixes reviewed; nine dispatcher host tests pass. Owned selected compile evidence and nonzero byte fit/runtime qualification remain open.
+Latest single-arm artifact: [Owned sparse-XOR prepare-qualified projection](2026-11-01-projection-sparse-xor-release.md) - exact685ffab5/321640B, fixed ordinary buckets, fiveCPU host gates pass; no comparative timings. Actual H200 gates and prepare limit remain unproved; root-only measurement decision.
+
 Latest owned projection prototype: [Sparse exact E7-XOR repair in SK](2026-11-01-projection-sparse-xor-prototype.md) - distinct correction dataflow, exact all-bit/actual-packer gates, local sm90a controls identical and SX spill-free. No H200 latency/score/prepare qualification; full30 paired gate pending.
 
 Latest independent production review: [Owned pruning and fixed-mask dispatcher](2026-11-01-owned-production-independent-review.md) - nine host tests and final selected local compiler gate pass: WD776/boundary424/route1664 opcode/operand lists equal, resources unchanged. Every nonzero hybrid remains NOFIT; no H200/host-link/runtime qualification.
