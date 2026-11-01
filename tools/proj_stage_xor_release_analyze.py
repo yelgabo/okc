@@ -15,12 +15,19 @@ def benchmarks(result):
  assert len(rows)==30 and len({key(r) for r in rows})==30,'THIRTY_UNIQUE_CELLS'
  assert {key(r) for r in rows}=={(l,m) for l in LAYERS for m in MS},'CASE_COVERAGE'
  for r in rows:
+  assert r['status']=='pass','BENCHMARK_NOT_PASS'
   assert r['case']['weight']==62,'OFFICIAL_WEIGHT'
-  for f in ('median_ns','median_raw_ns','baseline_ns'):assert math.isfinite(r[f]) and r[f]>0,('FINITE_POSITIVE',key(r),f)
+  for f in ('median_ns','median_raw_ns','baseline_ns','baseline_raw_ns'):assert math.isfinite(r[f]) and r[f]>0,('FINITE_POSITIVE',key(r),f)
  return {key(r):r for r in rows}
 
-def score(by,field='median_ns'):
- return math.prod(sum(by[l,m]['baseline_ns'] for l in LAYERS)/sum(by[l,m][field] for l in LAYERS) for m in MS)**(1/6)
+def score(by,field='median_ns',baseline_field='baseline_ns'):
+ return math.prod(sum(by[l,m][baseline_field] for l in LAYERS)/sum(by[l,m][field] for l in LAYERS) for m in MS)**(1/6)
+
+def profiles(result,by):
+ rows=[r for r in result['records'] if r.get('event')=='profile']
+ assert len(rows)==30 and len({key(r) for r in rows})==30,'THIRTY_UNIQUE_PROFILES'
+ assert {key(r) for r in rows}==set(by),'PROFILE_COVERAGE'
+ return {key(r):r['report'] for r in rows}
 
 def layout_functions(source):
  ns={};tree=ast.parse(source)
@@ -45,6 +52,7 @@ def parse_qualification(log,source):
    expected=ns['sxs_expected_layout'](TARGETS[k],2,capacity)
    assert arena==expected['record_bytes'],'CAPACITY_ARENA'
    assert 0<=expected['dynamic']<=227*1024,'DYNAMIC_EXTENT'
+   control_pmax=[]
    for i,v in enumerate(vectors):
     assert all(isinstance(x,int) and x>=0 for x in v),'RESOURCE_VALUES'
     assert v[1]==0 and v[6]>=1,'LOCAL_OR_ADMISSION'
@@ -53,8 +61,11 @@ def parse_qualification(log,source):
      assert v[6]>=vectors[i-1][6],'C2_ADMISSION_REGRESSION'
     else:
      control=ns['sxs_expected_layout'](TARGETS[k],0,0)
-     delta=v[3]-control['dynamic'];assert delta>=0 and delta%8==0,'CONTROL_PMAX_LAYOUT'
+     delta=v[3]-control['dynamic'];assert delta>=16 and delta%16==0,'CONTROL_PMAX_LAYOUT'
+     control_pmax.append(delta//8)
      assert v[2]==control['static'] and v[4]==v[5]==control['threads'],'CONTROL_LAYOUT'
+   assert len(set(control_pmax))==1,'CONTROL_FULL_NF_PMAX_MISMATCH'
+   route['inferred_C2_pmax']=control_pmax[0]
    route['stage_expected_layout']=expected
   else:assert checks==capacity==arena==0 and vectors==[],'FALLBACK_RESOURCE_CLAIM'
   routes[k]=route
@@ -79,19 +90,18 @@ def analyze_records(receipt,control,log,source,job):
  assert math.isclose(score(cb),old['speedup'],rel_tol=1e-13),'CONTROL_SCORE_RECONSTRUCTION'
  setup=[r for r in result['records'] if r.get('event')=='setup'];assert len(setup)==1 and math.isfinite(setup[0]['prepare_s']) and 0<=setup[0]['prepare_s']<300,'SETUP_RECORD'
  tests=[r for r in result['records'] if r.get('event')=='test'];assert len(tests)==9 and all(r['status']=='pass' for r in tests),'OFFICIAL_TESTS'
- profiles={key(r):r['report'] for r in result['records'] if r.get('event')=='profile'};assert set(profiles)==set(by),'PROFILE_COVERAGE'
- oldprofiles={key(r):r['report'] for r in old['records'] if r.get('event')=='profile'}
+ newprofiles=profiles(result,by);oldprofiles=profiles(old,cb)
  routes,coverage=parse_qualification(log,source)
  rows=[];loads=[];hybrid={}
  for k,b in cb.items():
   hybrid[k]=dict(b,median_ns=by[k]['median_ns'] if k in TARGETS else b['median_ns'])
  for m in MS:
   for l in LAYERS:
-   k=l,m;n,b=by[k],cb[k];rows.append(dict(layer=l,m=m,target=k in TARGETS,stage_override=k in routes and routes[k]['status']=='override',new_seed=n['case']['seed'],old_seed=b['case']['seed'],new_adjusted_us=n['median_ns']/1000,old_adjusted_us=b['median_ns']/1000,delta_us=(n['median_ns']-b['median_ns'])/1000,latency_change_percent=100*(n['median_ns']/b['median_ns']-1),new_raw_us=n['median_raw_ns']/1000,old_raw_us=b['median_raw_ns']/1000,new_offset_us=(n['median_raw_ns']-n['median_ns'])/1000,old_offset_us=(b['median_raw_ns']-b['median_ns'])/1000,new_baseline_us=n['baseline_ns']/1000,old_baseline_us=b['baseline_ns']/1000,new_profile=profiles[k],old_profile=oldprofiles.get(k)))
+   k=l,m;n,b=by[k],cb[k];rows.append(dict(layer=l,m=m,target=k in TARGETS,stage_override=k in routes and routes[k]['status']=='override',new_seed=n['case']['seed'],old_seed=b['case']['seed'],new_adjusted_us=n['median_ns']/1000,old_adjusted_us=b['median_ns']/1000,delta_us=(n['median_ns']-b['median_ns'])/1000,latency_change_percent=100*(n['median_ns']/b['median_ns']-1),new_raw_us=n['median_raw_ns']/1000,old_raw_us=b['median_raw_ns']/1000,new_offset_us=(n['median_raw_ns']-n['median_ns'])/1000,old_offset_us=(b['median_raw_ns']-b['median_ns'])/1000,new_baseline_us=n['baseline_ns']/1000,old_baseline_us=b['baseline_ns']/1000,new_baseline_raw_us=n['baseline_raw_ns']/1000,old_baseline_raw_us=b['baseline_raw_ns']/1000,new_profile=newprofiles[k],old_profile=oldprofiles.get(k)))
   nsum=sum(by[l,m]['median_ns'] for l in LAYERS);bsum=sum(cb[l,m]['median_ns'] for l in LAYERS);hsum=sum(hybrid[l,m]['median_ns'] for l in LAYERS)
   loads.append(dict(m=m,candidate_sum_us=nsum/1000,archived_C2_sum_us=bsum/1000,candidate_baseline_sum_us=sum(by[l,m]['baseline_ns'] for l in LAYERS)/1000,archived_baseline_sum_us=sum(cb[l,m]['baseline_ns'] for l in LAYERS)/1000,counterfactual_replace10_sum_us=hsum/1000,counterfactual_factor_vs_archived_load=bsum/hsum))
  target=[r for r in rows if r['target']]
- summary=dict(job=job,control_job=CONTROL,official_score=result['speedup'],official_ci=result['speedup_ci'],reconstructed_score=score(by),archived_C2_official_score=old['speedup'],archived_C2_ci=old['speedup_ci'],reconstructed_C2_score=score(cb),reported_score_ratio=result['speedup']/old['speedup'],raw_score_using_current_baselines=score(by,'median_raw_ns'),archived_raw_score_using_archived_baselines=score(cb,'median_raw_ns'),prepare_seconds=setup[0]['prepare_s'],official_tests=len(tests),profiles=len(profiles),coverage=coverage,target_regressions=sum(r['delta_us']>0 for r in target),target_raw_regressions=sum(r['new_raw_us']>r['old_raw_us'] for r in target),target_change_percent_range=[min(r['latency_change_percent'] for r in target),max(r['latency_change_percent'] for r in target)],counterfactual_replace10_score_with_old_baselines=score(hybrid),counterfactual_replace10_factor_vs_old=score(hybrid)/old['speedup'],comparison_scope='Across-job archived C2 comparison: different input seeds, baseline measurements, environment, tuner and overhead. Ten-cell replacement is a sensitivity scenario, not a paired result or official hybrid score. Recovery from failed global SX is not evidence of a win over C2.',machine=result.get('machine'),control_machine=old.get('machine'),checks=result['checks'],flags=result['flags'])
+ summary=dict(job=job,control_job=CONTROL,official_score=result['speedup'],official_ci=result['speedup_ci'],reconstructed_score=score(by),archived_C2_official_score=old['speedup'],archived_C2_ci=old['speedup_ci'],reconstructed_C2_score=score(cb),reported_score_ratio=result['speedup']/old['speedup'],raw_sixload_ratio_using_raw_baselines=score(by,'median_raw_ns','baseline_raw_ns'),archived_raw_sixload_ratio_using_raw_baselines=score(cb,'median_raw_ns','baseline_raw_ns'),prepare_seconds=setup[0]['prepare_s'],official_tests=len(tests),profiles=len(newprofiles),coverage=coverage,target_regressions=sum(r['delta_us']>0 for r in target),target_raw_regressions=sum(r['new_raw_us']>r['old_raw_us'] for r in target),target_change_percent_range=[min(r['latency_change_percent'] for r in target),max(r['latency_change_percent'] for r in target)],counterfactual_replace10_score_with_old_baselines=score(hybrid),counterfactual_replace10_factor_vs_old=score(hybrid)/old['speedup'],comparison_scope='Across-job archived C2 comparison: different input seeds, baseline measurements, environment, tuner and overhead. Ten-cell replacement is a sensitivity scenario, not a paired result or official hybrid score. Recovery from failed global SX is not evidence of a win over C2.',machine=result.get('machine'),control_machine=old.get('machine'),checks=result['checks'],flags=result['flags'])
  return summary,rows,loads,{l+':'+str(m):v for (l,m),v in routes.items()}
 
 def analyze(receipt,control,log,source,output,job):

@@ -127,3 +127,26 @@ measurement. Run analysis only after root supplies the terminal receipt:
 ```text
 python tools/proj_stage_xor_release_analyze.py --job dfcfdd01d6f04525 --receipt RECEIPT --control C2_RECEIPT --log BUILD_LOG --source .build/today-proj/stage-xor-release.py --output OUTPUT_DIRECTORY
 ```
+
+### Analysis-only correction, before terminal data
+
+Independent review found the initial synthetic fixture's C2 `pmax=3` was
+impossible: pinned `escape_table` pads pmax to even and at least two. The
+reader now requires the corresponding allocation delta to be >=16 bytes
+and divisible by 16, saves inferred pmax, and rejects FULL/NF differences
+because both runners use the same packed table. The positive fixture uses
+pmax two; zero, odd and mismatched pmax have explicit negative tests.
+
+The initial `raw_score_using_current_baselines` field mixed adjusted
+`baseline_ns` with raw candidate time. It is removed. The replacement
+`raw_sixload_ratio_using_raw_baselines` uses `baseline_raw_ns` divided by
+`median_raw_ns` for both the new and archived receipts. This is a raw
+diagnostic, not the official adjusted score. Exported per-cell rows retain
+both raw baseline values for reconstruction. The reader additionally rejects
+failed benchmark records and requires exactly thirty unique profile records
+in each receipt rather than silently collapsing duplicate profiles.
+
+The expanded six-test synthetic suite passes. These corrections affect
+analysis only; production artifact `de1111` and its qualification math,
+dispatch, resource gates and exact source bytes are unchanged. No terminal
+receipt has been inspected by this worker at this correction checkpoint.
