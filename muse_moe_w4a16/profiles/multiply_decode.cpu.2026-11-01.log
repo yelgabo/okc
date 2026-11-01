@@ -1,0 +1,17 @@
+/root/.cache/okc-host-validate/lib/python3.14/site-packages/torch/_subclasses/functional_tensor.py:283: UserWarning: Failed to initialize NumPy: No module named 'numpy' (Triggered internally at /pytorch/torch/csrc/utils/tensor_numpy.cpp:84.)
+  cpu = _conversion_method_template(device=torch.device("cpu"))
+MULTIPLY_CPU fullshape 1 8192 4096 repack_expert codes 33554432
+MULTIPLY_CPU fullshape 1 8192 4096 repack_expert_fat codes 33554432
+MULTIPLY_CPU fullshape 1 8192 4096 w4_repack_values codes 33554432
+MULTIPLY_CPU fullshape 2 4096 4096 repack_expert codes 16777216
+MULTIPLY_CPU fullshape 2 4096 4096 repack_expert_fat codes 16777216
+MULTIPLY_CPU fullshape 2 4096 4096 w4_repack_values codes 16777216
+test_actual_full_shape_gate_up_down_and_legacy_bytes (test_moe_multiply_decode_cpu.DecodeTests.test_actual_full_shape_gate_up_down_and_legacy_bytes) ... ok
+test_bijection_carry_and_all_code_pairs (test_moe_multiply_decode_cpu.DecodeTests.test_bijection_carry_and_all_code_pairs) ... ok
+test_source_only_decoder_and_table (test_moe_multiply_decode_cpu.DecodeTests.test_source_only_decoder_and_table) ... ok
+
+----------------------------------------------------------------------
+Ran 3 tests in 9.521s
+
+OK
+MULTIPLY_CPU pairfixtures1024 carrysubsets256 exact

@@ -1,0 +1,8 @@
+test_actual_host_wrappers_with_cuda_api_mocks (test_moe_owned_cooperative_pair.CooperativeTests.test_actual_host_wrappers_with_cuda_api_mocks) ... ok
+test_only_two_host_wrapper_bodies_change (test_moe_owned_cooperative_pair.CooperativeTests.test_only_two_host_wrapper_bodies_change) ... ok
+OWNED_COOP_HOST_PASS two wrappers, M257/M512, ten rejected/fatal controls
+
+----------------------------------------------------------------------
+Ran 2 tests in 0.648s
+
+OK
