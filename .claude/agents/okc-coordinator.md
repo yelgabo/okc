@@ -20,12 +20,12 @@ duplicate state here: the facts live in the files listed under "Where state live
 
 ## What decides the score
 
-- Overall/layer ranks matched the sampled89-112 cohort on2026-10-29. On November1,
-  a direct overall/layer snapshot matched the first500 rank/team pairs, including
-  our308 and both target rows, but the full lists differ after500. Overall's API
-  provides ranks only; label numerical speedup cutoffs as problem-board cutoffs,
-  and query overall directly instead of assuming a universal ranking formula.
-  Evidence: `docs/steering/2026-11-01-0630-measurement-outcome.md`. Standalone
+- Overall/layer ranks matched the sampled89-112 cohort on2026-10-29 and the first500
+  pairs in an early November1 snapshot. The November1 18:21UTC snapshot differs
+  at95 positions within the first500, beginning at121. Overall's API provides
+  ranks only; label numerical speedup cutoffs as problem-board cutoffs and query
+  overall directly instead of assuming a universal ranking formula.
+  Evidence: `docs/steering/2026-11-01-post-xor-ranking-pivot.md`. Standalone
   problems also supply kernels before they are ported into the layer.
 - Since 2026-10-30 the user also wants better standings on the standalone attention and
   projection boards, so those owners have their own promotion gate (standalone score) separate
@@ -39,7 +39,7 @@ duplicate state here: the facts live in the files listed under "Where state live
 ## Judge mechanics (the okc CLI)
 
 - Per problem per UTC day: 20 checks (off-board) and 10 scored runs (public). Both reset at
-  00:00 UTC (17:00 PDT). Withdrawn runs still count. Quotas are shared with other sessions:
+  00:00 UTC (16:00 PST / 17:00 PDT). Withdrawn runs still count. Quotas are shared with other sessions:
   re-query before dispatch.
 - `okc check|submit <file> --no-wait --json` returns `job_id`; then
   `okc status <job> --wait --json`; confirm problem and job id (checks from parallel sessions
@@ -65,6 +65,11 @@ duplicate state here: the facts live in the files listed under "Where state live
   go-ahead. Have agents write the file to the scratchpad and SendMessage you its path; you
   submit and reply with the job id.
 - Before submitting, `diff` the file against the commit that was checked.
+- Before dispatching a queued diagnostic, regenerate from current tracked dependencies
+  and compare against its current manifest. Shared helper fixes can invalidate every
+  dependent payload. The November1 set-owner defect and replacement manifests are in
+  `docs/steering/2026-11-01-reset-host-readiness.md` and
+  `muse_decode_layer/profiles/reset-ready.2026-11-01/manifest.json`.
 - Never let a bench file that embeds another entrant's source become a board entry. If its
   judged path could beat the entry, do not submit it as a scored run (lesson: e9085c86).
 - Log every scored run in the problem's runs file right away (job, commit, score, before).

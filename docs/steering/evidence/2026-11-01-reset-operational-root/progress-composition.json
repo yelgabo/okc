@@ -1,0 +1,89 @@
+[
+  {
+    "name": "hybrid-mask4.py",
+    "package_input_sha256": "3b205d408edd8a238dec686fac306b5a28ac9136b42512939ae80db7c79611ec",
+    "package_output_sha256": "d82f3c9d105a4e66ea338767bb67e6116cb79bda1726db54b12cdf651e6f8ce6",
+    "package_input_bytes": 907642,
+    "package_output_bytes": 908412,
+    "only_owned_backend_and_private_pin_change": true,
+    "backend": {
+      "input_sha256": "7612276301d5da296d35995f852b51328f6f33d20c0fd7b9c17bec5fbfe8656c",
+      "output_sha256": "a7fe86cf16ae95e983036b352259db85d646ffffd2faa3b92eef057dabb9b784",
+      "input_bytes": 282153,
+      "output_bytes": 282923,
+      "device_before_sha256": "aa7b24a3d9a4ba3a6ae4e9480167b569d95bc9f2e921501f4e25b505f07a3c23",
+      "device_after_sha256": "fa97606fcedcb1dc40ca5918da5be1454f93a6b77b5ef751fb799c936cc77be3",
+      "reused_launcher_sha256": "38026abe7a6f3c70dc36980317c17d62e82e3823f9a78de16246c9e7502b2d28",
+      "changes": [
+        "exact existing checked cooperative host launcher",
+        "kernel_fn selected MAIN51 call PDLFalse",
+        "spin_failed timeout traps before return",
+        "distinct extension module name"
+      ],
+      "device_delta_only_host_launcher_and_timeout": true,
+      "GPU": false,
+      "H200_qualified": false
+    },
+    "first_two_G_payloads_unchanged": true,
+    "GPU": false,
+    "H200_qualified": false
+  },
+  {
+    "name": "hybrid-mask15.py",
+    "package_input_sha256": "d3f2b31ea0991e8b7e14709913e8a55d1304fe20fc47fd369e8a5f1c0334d689",
+    "package_output_sha256": "81f056f5e495f5cab0a66183a5b56cab783e7fa47732ed58e0ffa4feed5127a1",
+    "package_input_bytes": 951539,
+    "package_output_bytes": 952309,
+    "only_owned_backend_and_private_pin_change": true,
+    "backend": {
+      "input_sha256": "c1c6065a095efb407a15c8a1fe8f6936fc3078750b1ca7adb27447846342205e",
+      "output_sha256": "2b4e0740de26a92fa9ef0f260c28e55f48f9fb2ae8fa20de863e4d8e8718635d",
+      "input_bytes": 326021,
+      "output_bytes": 326791,
+      "device_before_sha256": "aa7b24a3d9a4ba3a6ae4e9480167b569d95bc9f2e921501f4e25b505f07a3c23",
+      "device_after_sha256": "fa97606fcedcb1dc40ca5918da5be1454f93a6b77b5ef751fb799c936cc77be3",
+      "reused_launcher_sha256": "38026abe7a6f3c70dc36980317c17d62e82e3823f9a78de16246c9e7502b2d28",
+      "changes": [
+        "exact existing checked cooperative host launcher",
+        "kernel_fn selected MAIN51 call PDLFalse",
+        "spin_failed timeout traps before return",
+        "distinct extension module name"
+      ],
+      "device_delta_only_host_launcher_and_timeout": true,
+      "GPU": false,
+      "H200_qualified": false
+    },
+    "first_two_G_payloads_unchanged": true,
+    "GPU": false,
+    "H200_qualified": false
+  },
+  {
+    "name": "private4.py",
+    "package_input_sha256": "195bba34415dd614733100cc4e26022fd25891fad747ee393aaac9ab4c8d4fa0",
+    "package_output_sha256": "094841bd26822392d9bcabbe80297dbd84df10a8f29a9749edc0a9dd143b8f3a",
+    "package_input_bytes": 969272,
+    "package_output_bytes": 970042,
+    "only_owned_backend_and_private_pin_change": true,
+    "backend": {
+      "input_sha256": "384933697aadb2ebfc2abe672b216751e55fd5949e01c0c57d03caa586fe6fe3",
+      "output_sha256": "a841443465c47656f3614885c41d851bb796cd917f6ef2505b8c77e6f8cabc08",
+      "input_bytes": 511911,
+      "output_bytes": 512681,
+      "device_before_sha256": "35fc183846d5b9bf23efb5c3f0d0f7f556b00bfbe5ea45a3c30c59a9a054b300",
+      "device_after_sha256": "2a9a386762ca7814c98537d89c8478895ebdb635664837046da634d5dc89f617",
+      "reused_launcher_sha256": "38026abe7a6f3c70dc36980317c17d62e82e3823f9a78de16246c9e7502b2d28",
+      "changes": [
+        "exact existing checked cooperative host launcher",
+        "kernel_fn selected MAIN51 call PDLFalse",
+        "spin_failed timeout traps before return",
+        "distinct extension module name"
+      ],
+      "device_delta_only_host_launcher_and_timeout": true,
+      "GPU": false,
+      "H200_qualified": false
+    },
+    "first_two_G_payloads_unchanged": true,
+    "GPU": false,
+    "H200_qualified": false
+  }
+]

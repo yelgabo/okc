@@ -121,3 +121,97 @@ unsubstantiated; the new work removes concrete execution/packaging obstacles
 and supplies no projected or measured speedup.
 
 Root evidence/transcripts: `evidence/2026-11-01-reset-operational-root/`.
+
+## Subsequent eligibility finding: hold the four-cell comparison
+
+The first two G diagnostics remain source-ready at their revised pins. The
+969272-byte four-cell file is now explicitly **HOLD**, not dispatch eligible.
+Its source construction is repaired, but independent audits found a separate
+pre-existing owned-MoE51 progress-contract gap; see
+[the exact call chain](2026-11-01-owned-verify-progress-addendum.md) and
+[primary-contract audit](2026-11-01-owned-moe-progress-contract.md).
+
+The owned entry passes PDLTrue to a launcher with ordinary triple-chevron or
+PDL-only launch attributes. Its software grid and cross-CTA waits assume
+resident progress, while bounded timeout sets a diagnostic flag and advances.
+An SM-count-sized ordinary grid does not supply a documented co-residency
+guarantee. NVIDIA's CUDA12.8.1 [grid synchronization contract](https://docs.nvidia.com/cuda/archive/12.8.1/cuda-c-programming-guide/index.html#grid-synchronization-cg)
+uses cooperative launch plus admission; its
+[PDL contract](https://docs.nvidia.com/cuda/archive/12.8.1/cuda-c-programming-guide/index.html#programmatic-dependent-launch-and-synchronization)
+does not guarantee concurrent execution. This identifies a missing proof,
+not a newly measured hang. Comment packing did not introduce the problem.
+
+A separate repair is underway, reusing the existing checked cooperative
+launcher with PDLFalse and reviewing fail-closed timeout handling. It must
+preserve all math/fences, prove the active wait dependencies, pass host and
+local compiler/resource gates, and receive new exact private/production pins.
+No old four-cell or packed-file hash authorizes a GPU run. The canonical
+reset manifest and the same ACTIVE one-shot reminder now explicitly hold
+that third diagnostic until its repair is reviewed; no new timer or
+first-two ordering change was made.
+
+## 19:34 UTC addendum: source fit and separate progress repair cleared locally
+
+Evidence checkpoint `4493fec` integrates the final pure-comment packager
+(`b0e46c4`), actual packed factory/dispatcher review (`f51ac3a`), separate
+progress repair (`5e59e2f`) and its independent review (`4493fec`). Root
+regenerated the pure and repaired files from these tracked dependencies.
+Earlier preliminary comment-fit pins are superseded. Final pure mask4 is
+907642 B / `3b205d408edd8a238dec686fac306b5a28ac9136b42512939ae80db7c79611ec`;
+pure mask15 is951539 B /
+`d3f2b31ea0991e8b7e14709913e8a55d1304fe20fc47fd369e8a5f1c0334d689`.
+Notices, author credits, both dispatch markers and runtime string anchors
+are retained. Actual native source factories and selected sm90a compilation
+clear the scoped equivalence gates; existing G spills remain, rather than
+being misreported as zero. The old all-nonzero-NOFIT conclusion applies to
+the older representation and is superseded by this distinct comment-only
+representation. No active math, fence or tuning was removed to fit.
+
+The separate repair adds770 bytes: full four-cell core952309 B /
+`81f056f5e495f5cab0a66183a5b56cab783e7fa47732ed58e0ffa4feed5127a1`;
+mask4 core908412 B /
+`d82f3c9d105a4e66ea338767bb67e6116cb79bda1726db54b12cdf651e6f8ce6`.
+It uses the exact existing checked cooperative launcher, PDLFalse and a
+fatal trap after the retained timeout diagnostic. All other native bytes
+and Python behavior reverse exactly to the preceding source. Independent
+[progress review](2026-11-01-owned-progress-repair-review.md) found no scoped
+blocker in the active readiness dependencies. Local selected MoE51 remains
+96 registers, zero stack/spills and16 barriers; the added cold trap sites
+are a real code change, with no measured latency implication. Neither this
+review nor cooperative admission proves every retained kernel invariant.
+
+Root's fresh12-test WSL run passed in5.490s: comment lexer/notice/marker and
+frozen-manifest gates, exact composition/AST scope and actual reused C++
+launcher success/rejection/fatal-timeout mocks. Native GPU arithmetic is
+not executed by these tests. Raw root regeneration, composition pins and
+test transcript are retained in the evidence directory linked above.
+
+Next priority is a **single fixed-mask15 production measurement**, using
+the attributed G backend plus our owned four verify cells. A prepare-only
+qualifier is being built around the unchanged timed dispatcher. It must
+use a separately prepared private owned state for startup checks: shallow
+or deep copying Python functions cannot isolate Lt/WD workspace closures.
+All four cells must run through the actual public owned route on normal,
+changed-input and graph replay checks with unchanged reference bounds,
+cache/routing checks, guard/resource admission and295s total budget.
+No private comparison, alternative timing arms, tuner or data-dependent
+public selector is eligible for a scored slot. Resource, numerical,
+capture, deadline or provenance failure stops dispatch. Source fit alone
+does not clear these gates.
+
+Under the user's standing permission to measure with expiring scored slots,
+root may use one layer slot before reset only after exact committed source,
+CPU orchestration and independent review clear. Such a result is a
+single-arm whole-layer observation, not a paired causal speedup. Require
+all13 official tests,12 benchmark cells, preparation record and resource/
+startup coverage. Reconstruct the six-load46/16 score against its own
+baseline, compare all12 raw/adjusted cells with607e, retain the incumbent
+on a loss and close the exact tested policy without post-hoc subset salvage.
+
+The private four-cell comparator also has a regenerated repaired core:
+970042 B / `094841bd26822392d9bcabbe80297dbd84df10a8f29a9749edc0a9dd143b8f3a`.
+This is **not a queued replacement** yet; its canonical manifest remains
+HOLD until root finishes the new runtime-harness/source-pin review. The
+first two reset diagnostics and the existing one-shot schedule stay in
+place. No job was dispatched by this checkpoint, and no score/rank gain
+or top10/top50 feasibility is established.

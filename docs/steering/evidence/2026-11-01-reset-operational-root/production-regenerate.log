@@ -1,0 +1,20 @@
+{
+  "(32,)": {
+    "original_bytes": 1072104,
+    "comment_only_bytes": 907642,
+    "saved": 164462,
+    "margin_to_strict_cap": 92357,
+    "G_bytes": 620061,
+    "owned_bytes": 282153,
+    "no_blank_or_docstring_removal": true
+  },
+  "(16, 32)": {
+    "original_bytes": 1125548,
+    "comment_only_bytes": 951539,
+    "saved": 174009,
+    "margin_to_strict_cap": 48460,
+    "G_bytes": 620061,
+    "owned_bytes": 326021,
+    "no_blank_or_docstring_removal": true
+  }
+}

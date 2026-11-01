@@ -6,14 +6,16 @@
       "sha256": "aa49352105b39538b79c454f49e9f8e2014fa99b5c8205f145131169f18358e4",
       "bytes": 907822,
       "repetitions": 2,
-      "identical": true
+      "identical": true,
+      "dispatch_status": "Private check after fresh quota and job-ledger preflight; H200 setup unqualified"
     },
     {
       "name": "short",
       "sha256": "4a1a68f5824bd51c130e03eb736a2e1fb19e011735169400b0be2c0d17448183",
       "bytes": 904020,
       "repetitions": 2,
-      "identical": true
+      "identical": true,
+      "dispatch_status": "Private check after fresh quota and job-ledger preflight; H200 setup unqualified"
     },
     {
       "name": "verify",
@@ -21,7 +23,8 @@
       "bytes": 969272,
       "repetitions": 2,
       "identical": true,
-      "old_sha256": "195bba34415dd614733100cc4e26022fd25891fad747ee393aaac9ab4c8d4fa0"
+      "old_sha256": "195bba34415dd614733100cc4e26022fd25891fad747ee393aaac9ab4c8d4fa0",
+      "dispatch_status": "HOLD: owned51 cooperative/progress repair required"
     }
   ],
   "proof": {
@@ -41,5 +44,6 @@
     "dl_short_path_body.py": "717160827a6183fda102d060b36ad2236ae0dc5ce084a93c57e15a00bc5a563e",
     "dl_timeline_codec.py": "1d7ab30ff92611378b26050d5631785c5c3d78c019e8e652e4b48f772fc56b48"
   },
-  "owners_override_sha256": null
+  "owners_override_sha256": null,
+  "eligibility_addendum": "2026-11-01-owned-verify-progress-addendum.md"
 }

@@ -1,5 +1,7 @@
 # Shared project steering
 
+Latest root checkpoint: [Reset and production fit, 19:34 UTC addendum](2026-11-01-reset-and-production-fit.md#1934-utc-addendum-source-fit-and-separate-progress-repair-cleared-locally). Repaired four-cell core952309B fits; root12 CPU tests and independent scoped progress review pass. A one-arm startup qualifier is being built; no H200 result or promotion, third private diagnostic remains held.
+
 Latest progress repair review: [Owned MODE51 cooperative/fatal-watchdog source audit](2026-11-01-owned-progress-repair-review.md). All explicit readiness polling paths trap on expiry; source-only clearance, H200 qualification pending.
 
 Latest separate progress prototype: [Owned verify51 cooperative+fatal-timeout epoch](2026-11-01-owned-verify-progress-prototype.md). Exact oldlauncher reused, PDLoff and timeouttrap; threeCPU tests/local96reg0spill compile pass. Source/peer/H200 qualification still required; no queue/public action.
@@ -555,6 +557,8 @@ accounting, and running a corrected matched whole-layer comparison. It records
 recommendations, not execution of those tasks; check current code and run logs for status.
 
 ## Report history
+
+- 2026-11-01 19:34 UTC: [Root production fit and progress-repair checkpoint](2026-11-01-reset-and-production-fit.md#1934-utc-addendum-source-fit-and-separate-progress-repair-cleared-locally): exact952309B core,12 root CPU tests and independent source review; startup qualifier/H200 still open.
 
 - November 1. [Selected-cell BF16-matched comparison](2026-11-01-selected-layer-pair.md). This removes the scoped file-size blocker. H200 execution and a complete score remain open.
 

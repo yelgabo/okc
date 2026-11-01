@@ -1,0 +1,17 @@
+test_every_author_and_license_group_preserved (prod_size_test_comments.Comments.test_every_author_and_license_group_preserved) ... ok
+test_phase2_created_delimiters_fail_closed (prod_size_test_comments.Comments.test_phase2_created_delimiters_fail_closed) ... ok
+test_preprocessor_multiline_and_line_builtin (prod_size_test_comments.Comments.test_preprocessor_multiline_and_line_builtin) ... ok
+test_python_ast_docstrings_legal_blocks_and_unicode (prod_size_test_comments.Comments.test_python_ast_docstrings_legal_blocks_and_unicode) ... ok
+test_quotes_raw_char_escapes_and_token_adjacency (prod_size_test_comments.Comments.test_quotes_raw_char_escapes_and_token_adjacency) ... ok
+test_runtime_dispatch_marker_and_literal_anchor (prod_size_test_comments.Comments.test_runtime_dispatch_marker_and_literal_anchor) ... ok
+test_frozen_files_fit_and_runtime_factories_link (prod_size_test_manifest.Evidence.test_frozen_files_fit_and_runtime_factories_link) ... ok
+test_owned_device_link_and_exact_three_entries (prod_size_test_manifest.Evidence.test_owned_device_link_and_exact_three_entries) ... ok
+test_selected_G_compiler_link_and_no_new_resources (prod_size_test_manifest.Evidence.test_selected_G_compiler_link_and_no_new_resources) ... ok
+test_composition_changes_only_owned_and_private_pin (verify_owned_progress_test.Tests.test_composition_changes_only_owned_and_private_pin) ... ok
+test_reused_launcher_and_timeout_actual_cpp (verify_owned_progress_test.Tests.test_reused_launcher_and_timeout_actual_cpp) ... ok
+test_scope_pdl_and_source_epoch (verify_owned_progress_test.Tests.test_scope_pdl_and_source_epoch) ... ok
+
+----------------------------------------------------------------------
+Ran 12 tests in 5.490s
+
+OK
