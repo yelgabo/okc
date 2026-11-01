@@ -1,0 +1,9 @@
+test_actual_extracted_cpp (test_dl_fork_moe_empty.EmptyTests.test_actual_extracted_cpp) ... ok
+test_empty_reachability_source (test_dl_fork_moe_empty.EmptyTests.test_empty_reachability_source) ... ok
+test_exact_transform_and_pin (test_dl_fork_moe_empty.EmptyTests.test_exact_transform_and_pin) ... ok
+
+----------------------------------------------------------------------
+Ran 3 tests in 3.057s
+
+OK
+EMPTY_CPP_PASS checks=181169 empty_reads=0 original_metadata_reads=1
