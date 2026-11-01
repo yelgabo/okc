@@ -101,4 +101,16 @@ source/score tests independently pass. The final owner and scratch-guard checks
 run after the printed capsule. Therefore a printed report is not success: root
 must require the owning terminal13tests/12benchmarks/checks.ok/no-flags result
 before interpreting a private decision. Six CPU whole-orchestration tests have
-passed; their durable peer fixture publication remains the last handoff item.
+passed. Their durable fixture/report is now published as `8c97643`; this owner
+independently reran all six actual TorchCPU tests using the WSL host-validate
+environment, PASS6 in2.657s. Actual generated orchestration executes576validator
+calls,144captures,36rows/144initial/144fresh/32empty checks. Negative controls
+include a captured empty call silently doing no native work after a valid eager
+zero, inner fresh-loop deadline, stale/cache/nonfinite/owner/flag/resource/
+routing/timing/fatal-CUDA errors. The exact sourcef042 remains unchanged.
+
+Thus source, local selected compile and CPU host gates are complete for root's
+private-check decision. Actual H200 execution, full setup budget/admission,
+conformance and performance remain unknown. This does not authorize dispatch,
+alter the first two reset jobs, release the held third job, or qualify a public
+candidate.

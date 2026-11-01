@@ -1,6 +1,6 @@
 # Shared project steering
 
-Latest private registration: [Short RMW whole-layer four-owner gate](2026-11-01-g-short-rmw-private-registration.md). Exactf0426f71/906841B, both arms607stage-on, onlyTiny/Tiny2counterflag differs; 36rows/allcross1%2xnull, normaljudgedcontrol. Source/score tests pass; finalpeerCPU/source commits pending, noGPU/queueclearance.
+Latest private registration: [Short RMW whole-layer four-owner gate](2026-11-01-g-short-rmw-private-registration.md). Exactf0426f71/906841B, both arms607stage-on, onlyTiny/Tiny2counterflag differs; 36rows/allcross1%2xnull, normaljudgedcontrol. Source/score tests and6 actualTorchCPUhost tests pass; peers8c97643/dd81b18 clear scoped host/source. NoGPU/performanceclaim; rootowns privatecheck decision.
 
 Latest OFF native prototype: [Short helper final-counter RMW](2026-11-01-g-short-final-rmw-off.md). Exact607 Tiny/Tiny2 optional relaxed GPU RMW retains writer fences/acquire/joins and all math; threeCPUtests and selected sm90a PTX/SASS/resource gates pass. Compute-tail CTA-relay proof made explicit; no GPU/qualification/performance claim.
 
