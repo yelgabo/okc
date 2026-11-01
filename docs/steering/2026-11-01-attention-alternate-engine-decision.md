@@ -243,3 +243,9 @@ barriers. New adversarial CPU test runs emptycluster0 last after nonempty
 cluster1: oldkeycount reaches8 at16arrivals; newcount remains16/32 and cannot
 release. All captured epochs stay0 until final32ndarrival. CPUcontracts now
 3/3PASS. This correction was made before any GPU dispatch.
+
+Post-dispatch source hardening for FUTURE generations only: explicit host
+TORCH_CHECK rejects native clustered launch when coop=false before the original
+noncooperative fast path. f74cbe27819147c1 remains the earlier36622ef bytes;
+no result from it tests this new assertion, and no second job was dispatched.
+H200 probe is expected true, but that expectation is not a source precondition.

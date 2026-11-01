@@ -98,6 +98,7 @@ def patch_cuda(s):
     s=once(s, '#pragma unroll\n            if (clmerge) { cp_wait<0>(); csync(); }', '            if (clmerge) { cp_wait<0>(); csync(); }')
     s=once(s, '            cudaFuncSetAttribute(kern, cudaFuncAttributeMaxDynamicSharedMemorySize, BYTES);', '            cudaFuncSetAttribute(kern, cudaFuncAttributeMaxDynamicSharedMemorySize, BYTES);\n            if (ONE_CLUSTER_MERGE && L==8 && MODE==3) TORCH_CHECK(cudaFuncSetAttribute(kern,cudaFuncAttributeNonPortableClusterSizeAllowed,1)==cudaSuccess, "cluster opt-in failed");')
     s=once(s, 'ep, hi - lo,\n                             n_keys, tid, p.dbg);', 'ep, clmerge ? 1 : hi - lo,\n                             clmerge ? 32 : n_keys, tid, p.dbg);')
+    s=once(s, '        prepare();\n        if (!coop) {', '        prepare();\n        TORCH_CHECK(!(ONE_CLUSTER_MERGE && L==8 && MODE==3 && gx==32 && gy==1 && p.window==2048 && p.nc==1) || coop, "cluster merge requires cooperative launch");\n        if (!coop) {')
     return s
 
 
