@@ -20,7 +20,7 @@ NVIDIA states “Thread blocks are required to execute independently.” Ordinar
 
 Its grid-synchronization section uses `cudaLaunchCooperativeKernel` and a launch-size/occupancy bound to guarantee co-residency; its SM-count example is a cooperative launch, not ordinary triple-chevron. [Programming Guide11.7](https://docs.nvidia.com/cuda/archive/12.8.0/cuda-c-programming-guide/index.html#grid-synchronization-cg).
 
-The12.8 launchEx API distinguishes the cooperative attribute from programmatic stream serialization: the first selects cooperative semantics; the latter permits resolving stream dependency programmatically and opportunistic overlap with a predecessor. Thus PDL is not a replacement for cooperative admission. [Driver API, cuLaunchKernelEx](https://docs.nvidia.com/cuda/archive/12.8.0/cuda-driver-api/group__CUDA__EXEC.html#group__CUDA__EXEC_1g9d6e0a5f0a7e046ca24bb14fa56bc779).
+The12.8 launchEx API distinguishes the cooperative attribute from programmatic stream serialization: the first selects cooperative semantics; the latter permits resolving stream dependency programmatically and opportunistic overlap with a predecessor. Thus PDL is not a replacement for cooperative admission. [Driver API, cuLaunchKernelEx](https://docs.nvidia.com/cuda/archive/12.8.0/cuda-driver-api/group__CUDA__EXEC.html).
 
 These docs establish a missing guarantee, not a claim that every measured H200 launch deadlocks. Old passing tests establish empirical success for covered executions only. Kernel fences/acquire-release publication remain independently necessary even after a proper launch repair.
 
