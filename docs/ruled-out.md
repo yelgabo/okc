@@ -21,6 +21,10 @@ components, in the same process, before calling it lost again.
 
 | Experiment | Evidence | Rules out |
 |---|---|---|
+| TOP7 exponent-pair LUT32 +2sign bits, unchanged rawlow and vector fma4 |ee39ec933a8542d8: exactstoredweights/LUT/FP64 probes pass; qkv/o/pool512/pool256/slice +4.48/+2.16/+11.34/+8.53/+1.63us, null<=0.032; bytes3–3.4%lower,no localmemory |This cheaper actual pair7 decoder in currentcgemv schedule; smallerLUT/registers alone insufficient. No production adoption. Reopen only after materially cheaper decode placement or a competitive encoded consumer, not another register/LUT knob sweep |
+
+| Experiment | Evidence | Rules out |
+|---|---|---|
 | One128row W TMA replacing two64row W copies in raw dense wd128x128 |7803be789c624f8e: exactSW128/bytes/count gates and GPU correctness pass; full saves~0.5us but remains~12us behindLt, memory-only gain negligible; resources unchanged62clusters/90regs/no local |This local copy-issue reduction as repair of the dense deficit. Stop further local TMA knobs without counters/new mechanism; no production adoption |
 
 | Experiment | Evidence | Rules out |

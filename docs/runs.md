@@ -2052,3 +2052,25 @@ decoded exponent in unused index-word bits; correction retains separately rounde
 GPU stored-byte/escape and LUT ABI gates must pass before FP64 random/probe and cold timing.
 Same paired control/null and runtime register/localmemory/shared/occupancy queries as before;
 no production feature enabled and no math-bound relaxation.
+
+TOP7 result `ee39ec933a8542d8`: control passed9/9,1.527047x (95%CI1.504141–1.549953).
+All stored-bit/LUT/FP64 random/probe gates pass. Nonetheless deltas versus original12-bit
+cgemv: qkv+4.480us,o+2.160,pool512+11.344,pool256+8.528,slice+1.632; null0–0.032us.
+Actual bytes: qkv27,454,592 vs28,403,712; o12,320,896 vs12,713,984;
+pool48,824,448 vs50,495,488; slice6,123,648 vs6,316,032. Saving~3–3.4% does not offset
+decode cost. Resources(regs/local/shared/blocks):qkv[40,0,200,5],o[32,0,152,21],pool512
+[39,0,264,2],pool256[40,0,200,5],slice[40,0,168,9]. Reduced register footprint alone does
+not rescue the codec. Close this codec series as built; no production adoption.
+
+Hard portfolio assessment at23:02PDT: live projection rank292/1574, incumbent C2 score1.527806;
+public rank10 RunFMe job051c31382b724ae1 pending at1.604517, requiring+5.021%score. Owned C3's
+two router savings are~0.1% aggregate, not a solution to that gap. Dense3-stage/residency,
+tokenfast,combinedTMA and all actual pair7 forms tested today fail promotion. Remaining
+known mechanisms do not establish a top10 trajectory. Goal remains active; neither repeated
+scored noise nor these failed experiments proves the requested ranking achieved.
+
+Hardware correction: older M-C plan's3.35TB/s is H100SXM, not H200SXM. NVIDIA's official
+[component table](https://docs.nvidia.com/enterprise-reference-architectures/hgx-ai-factory-h100-h200-b200/latest/components.html)
+gives H2004.8TB/s, consistent with TASK floors. Do not infer near-floor status from3.35.
+A datasheet ceiling is not a measured recoverable gain. Prior benchmark receipts report
+H200,SM1980MHz/memory3201MHz at capture; no counters measure actual bandwidth here.
