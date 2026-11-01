@@ -430,3 +430,5 @@ Hourly review history: [11:20 PDT performance review](2026-10-29-1120-performanc
 - [Owned cached band32 schedule source/compile checkpoint](2026-11-01-owned-cached-band32.md): e99d848, bounded1400B shared schedule; no H200 claim.
 
 - [Attention VP2 BF16-output private requalification](2026-11-01-attention-vp2-bf16-requalification.md): 8f5155a, source-only audit and draft; no GPU qualification.
+
+- [Private BF16-output VP2 terminal result](2026-11-01-attention-vp2-bf16-terminal.md): c79ddddb840a4fb7 passes correctness, target cell wins, frozen full-score gate fails; scoped closure.

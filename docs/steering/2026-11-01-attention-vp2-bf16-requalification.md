@@ -245,3 +245,8 @@ format used for contemporary offsets. Normalized3f44 profile has top-level bench
 profiles/summary and omits diagnostic log/test coverage, so it is deliberately insufficient.
 Decoder now rejects that format explicitly; it must not manufacture a terminal receipt
 from normalized profiles. Three reader tests PASS, including normalized rejection.
+
+
+## Terminal result
+
+Root-owned c79ddddb840a4fb7 passed16/12 and640 private checks; registered full-score decision FALSE. See [the terminal result and scoped closure](2026-11-01-attention-vp2-bf16-terminal.md). No owned rewrite, retry, public promotion or adoption.
