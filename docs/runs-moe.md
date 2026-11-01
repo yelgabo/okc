@@ -5292,3 +5292,16 @@ consumes FP32gamma; that adapter is not an exact51norm comparison (still a losin
 experiment). Correct new masked diagnostic before dispatch, preserve FP32gamma.
 2026-11-01 | bfbedf7d48e248a0 | baseline 6e078b5 plus tools/moe_token_locality_probe.py | off-board four-graph matched token order screen on six loads, seeds 781 and 782. Pending.
 bfbedf7d48e248a0 completed. Five tests passed, control 2.183905x (95% CI 2.151147–2.216664). All 12 cases retained. Six-load factors 0.998626/1.000309 and 1.000687/1.000423 miss 1% gate. Park sorted rows. No public submission.
+
+
+## Controlled standalone SC6 / byte scales, 2026-11-01
+
+Evidence7886294, private frozen file SHA54d819e6482aaaa16c8a4e6d38f60e1e98b044b8888120f40b5ab7f3bccfb4cf.
+Check05e51ddeb7014dd9 dispatched on muse_moe_w4a16, pending. Real supplied256-expert
+weights/global IDs; four private mutable scratch states, byte/byte/SC6/SC6; all six
+loads and seeds901/902. Common repaired BF16/fences/cooperative launch, MFIN/DFoff,
+empty scheduler guard. Private attributed comparator only, no public submit.
+Preregistered1% whole-six-load BOTHpaired ratios plus2x bothduplicate null, per-case
+regression <=max(.5us,1%), official math/fresh replay/empty/resource gates.
+Independent today_proj source/host clearance on exactfile,2source+4TorchCPUtestsPASS.
+Full registration: docs/steering/2026-11-01-moe-sc6-controlled.md.
