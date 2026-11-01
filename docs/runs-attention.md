@@ -3963,3 +3963,31 @@ into its officialphase (typically alreadydefaultFalse). Nativecandidate is uncha
 usesexplicitmma; nevertheless anyscore from thisvalidationfile will be qualified and a
 cleanpurefile officialcheck is preferred beforepromotion. This doesnot alter the runningjob
 or retroactively change its receipt/source. Fullcomparison/checkprotocol above is unchanged.
+
+## Post-microknob attention portfolio evidence
+
+Latest official board snapshot15ce65e needs11.73% more score for observedrank10. The only new
+bounded mechanism here has~0.24% full-only causal sensitivity and stillneedsprospectivefresh
+math/cleanofficialvalidation. Closing that mechanism must NOT become another late-tid sweep.
+
+Larger arithmetic gaps exist in currentbest8914751e3b9f468b profiles: verify16full101.6us
+versus63.4us analyticfloor, verify32full183.6versus126.8us. These use4.8TB/s floors, not measured
+recoverable time or expected gains. They justify fresh whole mode51 memory/producer/consumer
+attribution only, not an optimization claim. Baselineprofile24daba2202e547d6 is retained.
+
+The matched per-shape donor DELTA evidence belongs to bench_o0519d0b15e9c4583 (sourcea70192d,
+evidencecommit589fb00): d16full~0.9us,d32full~1.5us,v16full~2.1us donorlead,v32fullnull.
+Separate donor-only receipts45adaeddef9d464e/ab38543d2c8642fb are NOT the source of thosepaired
+deltas. Matching this donor doesnot establish11.73%. Userpolicy remains mechanismlearning,
+never donoradoption. Relevant closed experiments: c8e99e038d9f4575 QKchain/page-refill,
+42c4739cf6b247c4 deeper mode49 ring,4b60264a276c4805 producer/no-DRAM attribution;
+mode49pagebulk bb06f8e57bd84636/f3f1e4a5249a4228 belowpromotionbar. Do not repeat them without
+new structural evidence, different components or named ceiling change.
+
+Priority afterfreshmathclassification: establish current mode51 per-phase/copy-latency and
+per-SM partner-spread attribution against measured streaming bandwidth, or obtain actual
+rank10 per-shape evidence. A read-only `okc status5cb3655bf3c9499a --json` attempt returned
+'no such job' despite thatjob's presence in the publicboardrow; it establishes only API lookup
+failure, not absence of the run. No per-shape leaderboardcutoffs are inferred. Stop if proposed
+mechanism's bounded score value is below independentnull spread; pivot to measuredlarger
+MoE/layer opportunities instead of spending remaining attentionquota on repeated smalltoggles.
