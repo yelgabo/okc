@@ -1,0 +1,9 @@
+{
+  "base_sha256": "ba9e327cd7b96595ace4d0c1d0d78fe27c128f23ed0debcda97c7169fc3164ab",
+  "enabled": true,
+  "source_sha256": "dfac8955e5c45789b0cec40082498d75a133533253c84a5284db4c3dade80bbe",
+  "bytes": 870861,
+  "repair_sha256": "a8c2600f76977ecb42dfff360f281de5bb5c893275cc09dedb0eb44d51de76ca",
+  "scope": "OFF source-only; no runtime qualification or speedup",
+  "gpu_execution": false
+}

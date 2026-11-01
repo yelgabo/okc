@@ -31,6 +31,7 @@ Latest retained projection eligibility: [C2 progress scope](2026-11-01-c2-projec
 Latest single-arm layer qualifier: [Repaired full-four-cell startup checks](2026-11-01-production-startup-qualifier.md) - exact4ad326c3/980787 B, normal timed path unchanged, private full-model/fresh/cache/empty/resource gates prepared and CPU-reviewed. H200 correctness, admission, setup and performance remain unmeasured; root-only official decision.
 
 Latest measurement-reader review: [One-arm hybrid owning receipt](2026-11-01-hybrid-measurement-reader-review.md).46:16/six-load/raw-adjusted formulas pass; identified terminal/log/resource ownership gaps repaired and independently rechecked with4 tests. Server identity and physical source SHA remain separately associated by the upload manifest.
+Latest mandatory G attention chain: [Rules, native deltas and inherited selected join admission](2026-11-01-g-attention-mandatory-chain.md). Five definite software joins retain ordinary launch; OFF host-only repair has source/mock/real-CUDA-header gates, no GPU qualification. Old reset artifacts HOLD pending common-control decision.
 
 Latest strict reader: [Private short-RMW owning receipt](2026-11-01-short-rmw-owning-reader.md). Frozen f042 source/log binding, terminal-success-before-capsule and exact raw full-six gate; five synthetic CPU tests pass. No GPU result.
 
