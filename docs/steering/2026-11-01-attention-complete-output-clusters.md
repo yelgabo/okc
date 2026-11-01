@@ -42,3 +42,15 @@ Legacy production finalizers attn_one.cu850/946 retain FP32 attention values thr
 ## Reference attribution correction
 
 SGLang baseline.py129 rounds attention value toBF16. Official judge reference.py336 RMSes the FP32 value. These are distinct: new HC preserves SGLang BF16 parity, not exact judge-reference arithmetic. Both must pass official output tolerance. Screen eager `_ob_check` uses unrounded FP32 references; its queued BF16 reference is only SGLang-parity coverage and must not be labeled exact every-fresh judge parity. Prospective harness now retains FP32 default queued references/bounds, optional BF16 CPU parity fixture, and unchanged FP32 `_ob_check`. Latest undispatched private artifact physical=LF SHA8c549b5bd17cb28786db2da8c893b53c36f16e7aa94be04b7ea9fe4070c40ab7 supersedes earlier private hashes. Six CPU tests pass. No second dispatch without screen performance win.
+
+## Terminal screen: close this variant
+
+`eac485ea0d554e50` DONE. Judged unchanged control passes16official tests,2.49015534234613x CI[2.452803012210938,2.5275076724813217], checks.ok true, noflags. These official tests/score are CONTROL, not the HC judged path. Every privatearm passes21eager official-style math/cache/row cases. Qualified shared-cache/BF16-parity freshscreen256checks/3negatives passes; maximum relative.0765823,row.3389804,newK/newV0,boundmax.15. This is not independent-cache/everyfreshjudge proof.
+
+Runtime both HC builds96regs,0localbytes,90704dynamicshared,128threads,2blocks/SM,cudaOccupancyMaxActiveClusters14 under actual16CTA config. No resource-gate failure. Exact artifacts/logs/receipt and decision JSON preserved under muse_attention_decode/profiles/eac485ea0d554e50.
+
+Performance is decisive loss: pooled cold v1sliding control11.10us versusHC1 14.98/HC2 15.01us; warm6.87 versus10.72/10.69. Three fresh timing inputs HC1deltas+4.45,+3.68,+3.87us;HC2+4.45,+3.94,+3.84,controlnull0,−.03,0. No gain/null ambiguity. Raw allrow ABSCORE.9672/.9670 is diagnostic only. Exact affected-row-only six-load factors using observed rounded pooled cold medians and held full18.94us are in decision.json (~.9674). Unchanged full16/full32 placement noise gets no credit.
+
+Prospective gate fails all timing crosses and1%gain; NO secondcheck/purecandidate/no publicsubmit. Close this owned64-key PRQ31/generic-DSM complete-head architecture. Do not generalize to a blanket closure of VP2's still-positive N128/asynchronous-push implementation. Missing decision is whether its wider tile/producer-to-owner communication can be implemented efficiently with owned math; this run does not attribute the3.9us regression to any one part. No source-specific followup is authorized by this report. Best submission remains incumbent default2.
+
+Prospective private-cache harness retained offline with7CPUtests (both FP32 judge-style and BF16 SGLang-parity scalar/vector references). No GPU run for corrected harness because performance stopping criterion already fired.

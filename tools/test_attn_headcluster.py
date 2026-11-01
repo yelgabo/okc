@@ -4,6 +4,14 @@ from collections import Counter
 
 
 class HeadCluster(unittest.TestCase):
+    def test_fresh_official_fp32_reference(self):
+        import inspect, textwrap, ast
+        import test_attn_cluster_reference as original
+        from attn_make_headcluster import FRESH
+        scope={'FRESH':FRESH,'ast':ast}
+        exec(textwrap.dedent(inspect.getsource(original.ReferenceLayout.test_vector_reference)),scope)
+        scope['test_vector_reference'](self)
+
     def test_fresh_reference_bf16_boundary(self):
         import inspect
         import test_attn_cluster_reference as original

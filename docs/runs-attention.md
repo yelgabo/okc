@@ -4201,3 +4201,5 @@ logic; stdout/maxima truncated. Closed, no production promotion or newjob.
 ### 2026-11-01 complete-head cluster screen (pending)
 
 - `eac485ea0d554e50`, source `eee3b5b`, generated fourarm complete-head q8sliding B1 experiment. Pending, no score/CI yet. Local NVRTC/PTXAS96regs/0spills only; runtime resources not yet known. SCREEN ONLY: inherited fresh loop shared data/cache across arms, corrected offline after dispatch. Report: docs/steering/2026-11-01-attention-complete-output-clusters.md. No public submit. Final result and loser/gates to append.
+
+- Terminal `eac485ea0d554e50`: control16officialPASS2.49015534234613x CI[2.452803012210938,2.5275076724813217], policiesclean. HC4arm21/21eagereach, resources96regs/0local/90704dyn/128threads/2blocksSM/max14clusters. Clearloss v1sliding11.10→14.98/15.01us onall3inputs; sharedcache/BF16parityfreshscreen qualifiedonly. No secondcheck, no public. Decision/report/profiles preserveactualsourcehash. Closes this64key/genericDSMcomplete-head implementation, notVP2N128async implementation.
