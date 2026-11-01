@@ -9,8 +9,8 @@ from proj_stage_xor_release import build,audited_helpers
 from proj_stage_xor_release_body import BODY
 
 ROOT=Path(__file__).resolve().parents[1]
-MAIN=ROOT.parent/'okc'
-HELPER=(ROOT.parent/'okc-today-attn/tools/proj_make_bench_sk_xor_body.py').read_text(encoding='utf8')
+MAIN=ROOT
+HELPER=(ROOT/'tools/proj_make_bench_sk_xor_body.py').read_text(encoding='utf8')
 
 @lru_cache(maxsize=1)
 def source():return build(MAIN,HELPER)

@@ -47,6 +47,8 @@ report be checked into this repository so other sessions can read it.
 
 ## Latest review
 
+[Stage-local projection measurement](2026-11-01-stage-local-projection-measurement.md) registers exact de1111/450781B after12 root CPU tests and independent source/local bit gates. One authorized fixed single-arm projection measurement is selected; H200 gates and performance remain unknown. Original C2 and607e remain incumbents.
+
 [November 1 sparse-repair experiment and H200 result](2026-11-01-projection-sparse-repair.md) records PASS9/30 with all10SX active, but1.394120× belowC21.527806×. Exact global-record variant closed; complete archive, resource vectors and a distinct stage-local delivery assessment retained. No new layer port is selected.
 
 **Latest attention boundary audit:** [2026-11-01 source, SASS and score sensitivity](2026-11-01-attention-next-boundary.md). No new justified check; exact full-context dependency and counter-access gaps recorded.
