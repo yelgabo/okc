@@ -907,3 +907,4 @@ user's standing authorization, publicly submitted exact pure as **cb71acec29d141
 scored receipt root-owned. Paired fullsixload result remains the algorithm evidence,
 not cross-run comparison of this noisy headline with other candidates.
 cb71acec29d141c6 PASS13, 2.043438469x (95% CI 2.012786892–2.074090046), selected by public board at rank 373. Old best 2.022870479x. Owned incumbent line. Added SGLang paired hotspot table.
+2026-11-01 | caad524754b54680 | Family G1a complete attributed file muse_decode_layer/cand/g1a_owned_experts.py SHA256 63aa3a7a8fd5e784011a60869050f920f0948514006ee513cdaf419b818001c4 | repaired layer and owned MoE, ordinary ordered launches. Pending.

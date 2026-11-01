@@ -5,6 +5,7 @@ from pathlib import Path
 import re
 from dl_fork_attention import patch_attention
 from dl_fork_projection import patch_projection
+from dl_fork_owned_moe import patch_owned_moe
 
 SOURCE_SHA = '82c098ae7534b20b5d80f59d547650cb0853fc7d5e313fe29e1e9d9373e1bb19'
 UPSTREAM = '8e30e1be994db4310794b8d04e90d18d895deb84'
@@ -16,7 +17,7 @@ def replace(source, before, after, count=1):
     return source.replace(before, after)
 
 
-def build(raw, notices):
+def build(raw, notices, owned):
     raw = raw.replace(b'\r\n',b'\n')
     if hashlib.sha256(raw).hexdigest() != SOURCE_SHA:
         raise ValueError('unrecognized upstream layer')
@@ -94,6 +95,10 @@ def build(raw, notices):
     # Its GLE extension uses different normalization arithmetic and a global
     # weight pointer to form a second copy. Use the materialized branch.
     source = replace(source,'GLE_B1X = True','GLE_B1X = False')
+    source = replace(source,'    _gle_ext()\n    return _gle_prior_prepare(weights)',
+                     '    return _gle_prior_prepare(weights)')
+    source = replace(source,'    _gle_b1x_module()\n    return _gle_b1x_prior_prepare(weights)',
+                     '    return _gle_b1x_prior_prepare(weights)')
     source = patch_projection(source)
     # Establish a sequential reference for G1. Some graft calls set the
     # launch attribute directly, bypassing the top-level PDL switch.
@@ -101,6 +106,33 @@ def build(raw, notices):
     source = replace(source,'launch_pdl=True','launch_pdl=False',14)
     source, count = re.subn(r'(programmaticStreamSerializationAllowed\s*=\s*)1;',r'\g<1>0;',source)
     assert count == 7
+    source = patch_owned_moe(source, owned)
+    # Valid weights outside the owned packing domain use the baseline Marlin
+    # bank. Choose it at prepare time and keep the native path unavailable.
+    source = replace(source,"if not _fork_install_owned_moe(weights,st):raise RuntimeError('owned expert scales unsupported')",
+                     "_fork_install_owned_moe(weights,st)\n    st['fallback_gamma']=(1+weights['post_expert_norm'].float()).to(torch.bfloat16)")
+    source = replace(source,'    st["bank"] = None\n','    st["bank"] = _marlin_bank(weights) if st["owned_moe"] is None else None\n')
+    source = replace(source,'    st["ma_ok"] = True','    st["ma_ok"] = st["owned_moe"] is not None')
+    # An upstream assignment in the FA3 import block clears the Marlin bank.
+    line = next(l for l in source.splitlines() if l.startswith('        st["bank"] = None'))
+    source = replace(source,line+'\n','')
+    start=source.index('    m = torch.empty((num_tokens, size_k)',source.index('def _marlin_experts('))
+    stop=source.index('    return m',start)+len('    return m')
+    source=source[:start]+'''    from sglang.kernels.ops.muse_spark_v12.fused_post_expert_norm_weighted_sum_triton import fused_post_expert_norm_weighted_sum
+    return fused_post_expert_norm_weighted_sum(y, topk_weights, norm_weight=state["fallback_gamma"], eps=1e-8,
+                                                weight_first=True, slot_expert_ids=local_ids)'''+source[stop:]
+    # The safe whole-line comment stripper used by the owned backend removes
+    # the Python header. Restore the entire upstream attribution with our notice.
+    upstream_header=raw.decode('utf-8').split('"""',1)[0]
+    source=upstream_header+'# Modified by yelgabo: G1a, owned MoE, repaired precision and ordered layer dispatch.\n'+source.split('\n',1)[1]
+    source += '''
+_g1a_prepare=prepare
+def prepare(weights):
+    state=_g1a_prepare(weights)
+    print("G1a backend", "owned" if state["ma_ok"] else "Marlin",
+          "Lt plans", sorted(state.get("graft_lt", {})), flush=True)
+    return state
+'''
     source += '\n'+'\n'.join('# '+line for line in notices.splitlines())+'\n'
     compile(source,'<attributed layer>','exec')
     return source.encode('utf-8')
@@ -113,7 +145,8 @@ if __name__ == '__main__':
     args=parser.parse_args()
     repo = args.upstream.parent.parent
     notices = '\n'.join((repo/name).read_text(encoding='utf-8') for name in ('LICENSE','NOTICE'))
-    payload=build(args.upstream.read_bytes(), notices)
+    owned=(Path(__file__).resolve().parents[1]/'muse_decode_layer/cand/layer_attn31s.py').read_text(encoding='utf-8')
+    payload=build(args.upstream.read_bytes(), notices, owned)
     if len(payload)>=1_000_000:
         raise ValueError('payload exceeds judge limit')
     args.output.write_bytes(payload)
