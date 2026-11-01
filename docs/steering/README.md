@@ -1,5 +1,7 @@
 # Shared project steering
 
+Latest measurement-reader review: [One-arm hybrid owning receipt](2026-11-01-hybrid-measurement-reader-review.md).46:16/six-load/raw-adjusted formulas pass; terminal/log/source/resource ownership safeguards identified for root before result interpretation.
+
 Latest public startup source review: [Mask15 one-arm qualification wrapper](2026-11-01-public-mask15-startup-review.md). Independent12-cell selector/oracle/timed-path checks pass at4ad326c3; private empty/fresh coverage reviewed. H200 resources/capture/budget/performance unqualified.
 
 Latest root checkpoint: [Reset and production fit, 19:34 UTC addendum](2026-11-01-reset-and-production-fit.md#1934-utc-addendum-source-fit-and-separate-progress-repair-cleared-locally). Repaired four-cell core952309B fits; root12 CPU tests and independent scoped progress review pass. Explicit private repaired regeneration and7 slice tests also pass after correcting a stale pre-set-repair fixture. A one-arm startup qualifier is being built; no H200 result or promotion, third private diagnostic remains held.
