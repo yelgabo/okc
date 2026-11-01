@@ -1,0 +1,156 @@
+{
+  "control_sha256": "ba9e327cd7b96595ace4d0c1d0d78fe27c128f23ed0debcda97c7169fc3164ab",
+  "source_sha256": "d6756bb50a0362af9c9cd03d44a88c80fa593628254ffb2a931a643fccafdcad",
+  "bytes": 870702,
+  "enabled": true,
+  "consumer_literals": {
+    "MOE_CUDA_SRC": {
+      "before_sha256": "c7c201ae145c6a33f2d5e6b1f80d2a6e56e8d75502f9fd09ace40927ad0f7c71",
+      "after_sha256": "3ced6a551de75b969c3f5c4cd2a8ac7f3abd77a16e9ee41353b9facd9f770f1b",
+      "expressions": [
+        {
+          "old": "fork_bf16(1.f + __bfloat162float(p.normw[n0]))",
+          "new": "fork_gamma(__bfloat162float(p.normw[n0]))"
+        },
+        {
+          "old": "fork_bf16(1.f + __bfloat162float(p.normw[n0 + 8]))",
+          "new": "fork_gamma(__bfloat162float(p.normw[n0 + 8]))"
+        },
+        {
+          "old": "fork_bf16(1.f + __bfloat162float(__ldg(p.normw + rbq * 16 + egg)))",
+          "new": "fork_gamma(__bfloat162float(__ldg(p.normw + rbq * 16 + egg)))"
+        },
+        {
+          "old": "fork_bf16(1.f + __bfloat162float(__ldg(p.normw + rbq * 16 + egg + 8)))",
+          "new": "fork_gamma(__bfloat162float(__ldg(p.normw + rbq * 16 + egg + 8)))"
+        },
+        {
+          "old": "fork_bf16(1.f + __bfloat162float(__ldg(p.normw + rbq * 16 + egg)))",
+          "new": "fork_gamma(__bfloat162float(__ldg(p.normw + rbq * 16 + egg)))"
+        },
+        {
+          "old": "fork_bf16(1.f + __bfloat162float(__ldg(p.normw + rbq * 16 + egg + 8)))",
+          "new": "fork_gamma(__bfloat162float(__ldg(p.normw + rbq * 16 + egg + 8)))"
+        },
+        {
+          "old": "fork_bf16(1.f + __bfloat162float(__ldg(p.normw + rbq * 16 + egg)))",
+          "new": "fork_gamma(__bfloat162float(__ldg(p.normw + rbq * 16 + egg)))"
+        },
+        {
+          "old": "fork_bf16(1.f + __bfloat162float(__ldg(p.normw + rbq * 16 + egg + 8)))",
+          "new": "fork_gamma(__bfloat162float(__ldg(p.normw + rbq * 16 + egg + 8)))"
+        },
+        {
+          "old": "fork_bf16(1.f + __bfloat162float(__ldg(p.normw + rbq * 16 + egg)))",
+          "new": "fork_gamma(__bfloat162float(__ldg(p.normw + rbq * 16 + egg)))"
+        },
+        {
+          "old": "fork_bf16(1.f + __bfloat162float(__ldg(p.normw + rbq * 16 + egg + 8)))",
+          "new": "fork_gamma(__bfloat162float(__ldg(p.normw + rbq * 16 + egg + 8)))"
+        },
+        {
+          "old": "fork_bf16(1.f + __uint_as_float(lnw0 << 16))",
+          "new": "fork_gamma(__uint_as_float(lnw0 << 16))"
+        },
+        {
+          "old": "fork_bf16(1.f + __uint_as_float(lnw1 << 16))",
+          "new": "fork_gamma(__uint_as_float(lnw1 << 16))"
+        },
+        {
+          "old": "fork_bf16(1.f + __bfloat162float(p.normw[n0]))",
+          "new": "fork_gamma(__bfloat162float(p.normw[n0]))"
+        },
+        {
+          "old": "fork_bf16(1.f + __bfloat162float(p.normw[n0 + 8]))",
+          "new": "fork_gamma(__bfloat162float(p.normw[n0 + 8]))"
+        },
+        {
+          "old": "fork_bf16(1.f + __bfloat162float(__ldg(p.normw + n0)))",
+          "new": "fork_gamma(__bfloat162float(__ldg(p.normw + n0)))"
+        },
+        {
+          "old": "fork_bf16(1.f + __bfloat162float(__ldg(p.normw + n0 + 8)))",
+          "new": "fork_gamma(__bfloat162float(__ldg(p.normw + n0 + 8)))"
+        }
+      ]
+    },
+    "_MA_ALT_SRCS['moe_helper0']": {
+      "before_sha256": "b8ed85438c06673f411ff4203080bfbacd0c0c2dc5cb624e6f10d4877fe7a716",
+      "after_sha256": "dde0826bee790f5bc6e1bf11544d392a5a1780fff936db6647848c6328bd7d6c",
+      "expressions": [
+        {
+          "old": "fork_bf16(1.f + __bfloat162float(p.normw[n0]))",
+          "new": "fork_gamma(__bfloat162float(p.normw[n0]))"
+        },
+        {
+          "old": "fork_bf16(1.f + __bfloat162float(p.normw[n0 + 8]))",
+          "new": "fork_gamma(__bfloat162float(p.normw[n0 + 8]))"
+        },
+        {
+          "old": "fork_bf16(1.f + __bfloat162float(__ldg(p.normw + rbq * 16 + egg)))",
+          "new": "fork_gamma(__bfloat162float(__ldg(p.normw + rbq * 16 + egg)))"
+        },
+        {
+          "old": "fork_bf16(1.f + __bfloat162float(__ldg(p.normw + rbq * 16 + egg + 8)))",
+          "new": "fork_gamma(__bfloat162float(__ldg(p.normw + rbq * 16 + egg + 8)))"
+        },
+        {
+          "old": "fork_bf16(1.f + __bfloat162float(__ldg(p.normw + rbq * 16 + egg)))",
+          "new": "fork_gamma(__bfloat162float(__ldg(p.normw + rbq * 16 + egg)))"
+        },
+        {
+          "old": "fork_bf16(1.f + __bfloat162float(__ldg(p.normw + rbq * 16 + egg + 8)))",
+          "new": "fork_gamma(__bfloat162float(__ldg(p.normw + rbq * 16 + egg + 8)))"
+        },
+        {
+          "old": "fork_bf16(1.f + __bfloat162float(__ldg(p.normw + rbq * 16 + egg)))",
+          "new": "fork_gamma(__bfloat162float(__ldg(p.normw + rbq * 16 + egg)))"
+        },
+        {
+          "old": "fork_bf16(1.f + __bfloat162float(__ldg(p.normw + rbq * 16 + egg + 8)))",
+          "new": "fork_gamma(__bfloat162float(__ldg(p.normw + rbq * 16 + egg + 8)))"
+        },
+        {
+          "old": "fork_bf16(1.f + __bfloat162float(__ldg(p.normw + rbq * 16 + egg)))",
+          "new": "fork_gamma(__bfloat162float(__ldg(p.normw + rbq * 16 + egg)))"
+        },
+        {
+          "old": "fork_bf16(1.f + __bfloat162float(__ldg(p.normw + rbq * 16 + egg + 8)))",
+          "new": "fork_gamma(__bfloat162float(__ldg(p.normw + rbq * 16 + egg + 8)))"
+        },
+        {
+          "old": "fork_bf16(1.f + __uint_as_float(lnw0 << 16))",
+          "new": "fork_gamma(__uint_as_float(lnw0 << 16))"
+        },
+        {
+          "old": "fork_bf16(1.f + __uint_as_float(lnw1 << 16))",
+          "new": "fork_gamma(__uint_as_float(lnw1 << 16))"
+        },
+        {
+          "old": "fork_bf16(1.f + __bfloat162float(p.normw[n0]))",
+          "new": "fork_gamma(__bfloat162float(p.normw[n0]))"
+        },
+        {
+          "old": "fork_bf16(1.f + __bfloat162float(p.normw[n0 + 8]))",
+          "new": "fork_gamma(__bfloat162float(p.normw[n0 + 8]))"
+        },
+        {
+          "old": "fork_bf16(1.f + __bfloat162float(__ldg(p.normw + n0)))",
+          "new": "fork_gamma(__bfloat162float(__ldg(p.normw + n0)))"
+        },
+        {
+          "old": "fork_bf16(1.f + __bfloat162float(__ldg(p.normw + n0 + 8)))",
+          "new": "fork_gamma(__bfloat162float(__ldg(p.normw + n0 + 8)))"
+        }
+      ]
+    }
+  },
+  "native_slot": 7,
+  "fallback_unchanged": true,
+  "raw_input_mutated": false,
+  "coefficient_bytes": 8192,
+  "finite_scalar_domain": 65280,
+  "gpu_execution": false,
+  "compile_qualification": false,
+  "inherited_progress_repairs_pending": true
+}
