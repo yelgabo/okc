@@ -41,6 +41,17 @@ The 2026-10-28 incident and reproducible before/after evaluation are recorded in
 `docs/file-discovery-eval/report.md`. This rule must remain in the root instruction file
 so future sessions load the correction without needing the original conversation.
 
+## Choosing the next performance experiment
+
+At campaign restart, before spending another round on a design family, and before declaring a ceiling, the person choosing the experiment owns the following checks. Reuse a dated steering entry if the board, public sources and incumbent are still current.
+
+1. Search independently of user-supplied names. Search the challenge and problem identifiers, page through results, then follow leaderboard handles, forks and upstream credits. Record queries, date, results screened, access limits and promising source pins in the steering report. Inspect per-shape strengths as well as team rank. Distinguish team-best scores from measurements of the published file.
+2. Challenge our design even when no public source turns up. For the costly path, name the bytes that must move, which consumers need which producers, and what prepare/dispatch selects at the scored shapes. Derive one materially different design from those constraints. Compare its plausible whole-score impact with the target and the best queued local tweak. State which observation would change the choice.
+3. Carry an unexplained comparator win forward. If our port loses and the complete comparator wins on matched inputs, log the losing variant in ruled-out and keep the discrepancy open in steering. Record owning receipts, affected loads, competing explanations, one distinguishing test, an owner and a decision gate. Before another tuning round, either pursue that test or document why another use of quota has greater expected impact.
+4. At handoff, distinguish leads discovered independently from leads supplied by the user. Record which evidence changed the next experiment and whether it ultimately improved the validated whole score. A recovered known repo checks retrieval; new independent leads and better decisions test the process prospectively.
+
+Use the coordinator's Research method for execution. Existing rules govern external-code use, correctness and scored submissions.
+
 ## Evidence rules
 
 - **Profile SGLang before optimizing a problem.** A normal run profiles only our submission.
