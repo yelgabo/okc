@@ -1,0 +1,12 @@
+{
+  "start_UTC": "2026-11-01T23:02:40.710953+00:00",
+  "argv": [
+    "okc",
+    "status",
+    "3fd1317143304bd5",
+    "--wait",
+    "--json"
+  ],
+  "observation_timeout_seconds": null,
+  "scope": "Persistent owning CLI result retrieval; no GPU dispatch or remote cancellation"
+}

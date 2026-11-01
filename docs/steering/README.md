@@ -2,7 +2,9 @@
 
 Latest root measurement registration: [RMW H200 resume after service recovery](2026-11-01-rmw-h200-resume.md). User explicitly resumed one fixed RMW run; prefill excluded. Recovered1fad terminal is infra_error/refunded=true, without measurements. Live22:32UTC layer quota2scored/0checks and no active jobs; exact97935e7d/914572B regeneration and dependency pins verified. Source unchanged; root owns one scored measurement and its own ID. Earlier pause snapshots below are historical for this request; reset automation stays paused.
 
-Dispatch update22:55:18UTC: RMW **3fd1317143304bd5** accepted from registrationfaa1bef, exact97935e7d/914572B, stillqueued/no worker assigned. The first local1050s observation timed out; same-ID retrieval is reattached, not resubmitted. Goal ACTIVE; reset automation separately paused. Fresh layer quota1scored/0checks. No H200 execution/result yet. Exact resume command/reader/evidence in the latest report.
+Dispatch update23:02:05UTC: RMW **3fd1317143304bd5** accepted from registrationfaa1bef, exact97935e7d/914572B, still queued with no worker assigned. Both local observation windows ended without a terminal receipt; the remote job remains accepted. A persistent same-ID CLI wait started23:02:40UTC, with no resubmission. Goal ACTIVE; reset automation separately paused. Last live layer quota1scored/0checks at22:55. No H200 execution/result yet. Exact resume command/reader/evidence in the latest report.
+
+Latest operational source check: [Public service-guidance scope](2026-11-01-public-service-guidance-scope.md), root0d67895/6df1986, owners7e74778/dd0259f. No verified kernel-worker recovery notice, prescribed action or ETA found in inspected official material; announcement access incomplete. Serving-track queue guidance and an illustrative kernel UI are not current worker telemetry. Preserve3fd; no outage, recovery, queue SLA or resubmission remedy inferred.
 
 Latest bounded source check: [G upstream refresh22:46UTC](2026-11-01-keell-upstream-refresh-2246.md), root1324636/ownerb5b48d2. Primary connector and independent advertised refs still8e30e1be; complete layer blob matches archivedG0 exactly. No new source revision/candidate or reason to repeat its precision/compiler audit. The separate source search and four content checks are completed below; root still owns3fd.
 
@@ -626,6 +628,8 @@ accounting, and running a corrected matched whole-layer comparison. It records
 recommendations, not execution of those tasks; check current code and run logs for status.
 
 ## Report history
+
+- [2026-11-01 public service-guidance scope](2026-11-01-public-service-guidance-scope.md): root0d67895/6df1986; official public scope/access limits and corrected actual observation timestamp. No verified kernel-worker notice/action/ETA; no judge calls or change to accepted-job classification.
 
 - [2026-11-01 public layer delta and content/per-cell follow-up](2026-11-01-public-layer-delta-2235.md): root8bed2f0/2f3f5d7/93a94db/786b1d3/dcaf507; complete PostTrain base actually read and published12-cell comparison verified; source discovery limits, unit correction and component gaps explicit.
 - [2026-11-01 runNburn actual-source classification](2026-11-01-runnburn-source-discovery.md): root4935b6d/owner8d917fa;737-path inventory, genuine Muse runtime, GGUF/f16/FP32 contract and source-associated H200 evidence gap; no adoption or competitor score inferred.
