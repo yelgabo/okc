@@ -159,6 +159,33 @@ def cpu_gate():
     packed=sum(v<<(7*j) for j,v in enumerate(vals))
     data=packed.to_bytes(7,'little');restored=int.from_bytes(data,'little')
     assert [(restored>>(7*j))&127 for j in range(8)]==vals
+    # Exercise the real pair lookup, stored 7-byte words, and sparse escapes over
+    # all BF16 patterns in both pair positions (not merely the raw-byte identity).
+    from collections import Counter
+    originals=[(b,(b*4051+17)&65535) for b in range(65536)]
+    keys=[((a>>7)&255)|(((b>>7)&255)<<8) for a,b in originals]
+    lut=[k for k,_ in Counter(keys).most_common(128)]
+    indices={k:i for i,k in enumerate(lut)}
+    for key in set(keys)-indices.keys():
+        indices[key]=max(range(128),key=lambda i:
+            int((lut[i]&255)==(key&255))+int((lut[i]>>8)==(key>>8)))
+    codes=[indices[k] for k in keys]
+    stored=b''.join(sum(codes[c+j]<<(7*j) for j in range(8)).to_bytes(7,'little')
+                    for c in range(0,len(codes),8))
+    escapes={}
+    raw=[]
+    for i,(a,b) in enumerate(originals):
+        for h,v in enumerate((a,b)):
+            low=(v&127)|((v>>8)&128);raw.append(low)
+            decoded=(low&127)|((low&128)<<8)|(((lut[codes[i]]>>(8*h))&255)<<7)
+            if decoded!=v:escapes[2*i+h]=v
+    for i,(a,b) in enumerate(originals):
+        word=int.from_bytes(stored[(i//8)*7:(i//8+1)*7],'little')
+        ee=lut[(word>>(7*(i%8)))&127]
+        for h,v in enumerate((a,b)):
+            low=raw[2*i+h]
+            decoded=(low&127)|((low&128)<<8)|(((ee>>(8*h))&255)<<7)
+            assert escapes.get(2*i+h,decoded)==v
 
 if __name__=='__main__':
     cpu_gate()
