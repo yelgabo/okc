@@ -422,3 +422,5 @@ If a push is blocked, say so explicitly; do not claim the other session can read
 An explicit user request not to write to the repository takes precedence.
 
 Hourly review history: [11:20 PDT performance review](2026-10-29-1120-performance-review.md).
+
+- [2026-11-01 owned full-context sparse wait timeline](2026-11-01-attention-full-wait-trace.md): CPU/device-compile checkpoint; no H200 run.

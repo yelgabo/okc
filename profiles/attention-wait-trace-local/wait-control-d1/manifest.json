@@ -1,0 +1,58 @@
+{
+  "source": ".build/today-attn/wait-trace.cu",
+  "source_sha256": "e806266e3f920e4ceb3ec3f72cb2f39ff6fc1ab374dbe61f6269bb2521d0d834",
+  "original_device_prefix_sha256": "7a50967591da94beec79f4dc46d992a6850e36e97a26132603ee40a07edaaf9c",
+  "compiled_device_prefix_sha256": "75d270a8e0b1d90bf1f4f3bc1fa15a4d43a62984102ee7eadbf0f5daf09e0021",
+  "host_boundary": "template <int L, int MODE>\nstruct Instance {",
+  "virtual_headers": {
+    "type_traits": "#pragma once\nnamespace std { template<class T,T v> struct integral_constant {\nstatic constexpr T value=v; constexpr operator T() const noexcept {return value;}\n}; using true_type=integral_constant<bool,true>; using false_type=integral_constant<bool,false>; }\n",
+    "stdint.h": "#pragma once\n#include <cuda/std/cstdint>\n"
+  },
+  "options": [
+    "--gpu-architecture=compute_90a",
+    "--std=c++17",
+    "--generate-line-info",
+    "--device-as-default-execution-space",
+    "--include-path=/root/.cache/okc-cuda128/packages/nvidia/cuda_runtime/include",
+    "--include-path=/root/.cache/okc-cuda128/packages/nvidia/cuda_nvcc/include",
+    "--include-path=/root/.cache/okc-cuda128/cccl/nvidia/cuda_cccl/include",
+    "-DONE_WAIT_ONLY=1"
+  ],
+  "declaration_adapter": {
+    "old": "constexpr float NEG_INF = -INFINITY;",
+    "new": "#define NEG_INF (__int_as_float((int)0xff800000u))"
+  },
+  "header_adapter": "Torch/ATen/algorithm/vector removed; cuda_runtime, CUDA cstdint, overflow float literal INFINITY (positive infinity); anonymous namespace closed after extract",
+  "nvrtc_status": 0,
+  "gpu_execution": false,
+  "lowered": [
+    "_ZN52_GLOBAL__N__00000000_15_exact_device_cu_59bccf91_32615attn_one_kernelILi1ELi49EEEvNS_6ParamsE"
+  ],
+  "ptx_sha256": "45d687f7c3f5fd14972d0aed6bbc4dea90fd0a64c5170e9ab362c94cef716b02",
+  "cubin_sha256": "b1b41b5eee6cf78f5266e6bdce9a205e407d91fcf5e5de79bf73087a60c7dac4",
+  "ptxas": [
+    "/root/.cache/okc-cuda128/packages/nvidia/cuda_nvcc/bin/ptxas",
+    "-arch=sm_90a",
+    "-O3",
+    "-v",
+    "--warn-on-spills",
+    ".build/today-attn/wait-control-d1/device.ptx",
+    "-o",
+    ".build/today-attn/wait-control-d1/device.cubin"
+  ],
+  "exitcode": 0,
+  "resources": {
+    "_ZN52_GLOBAL__N__00000000_15_exact_device_cu_59bccf91_32615attn_one_kernelILi1ELi49EEEvNS_6ParamsE": {
+      "stack_bytes": 0,
+      "spill_store_bytes": 0,
+      "spill_load_bytes": 0,
+      "registers": 128,
+      "barriers": 2
+    }
+  },
+  "ptx_launch_bounds": [
+    ".maxntid 256, 1, 1",
+    ".minnctapersm 2"
+  ],
+  "ptxas_wgmma_serialization_warnings": 0
+}
