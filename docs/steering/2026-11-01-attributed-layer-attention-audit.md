@@ -148,3 +148,30 @@ conservative fallback. Either materialize the summed BF16 QKV before prep,
 or establish equivalent BF16→FP32 casts of ALL six arrays after the split
 sum, including values and gate. This audit flags the exact location;902f117
 changes ownership/dispatch only and intentionally leaves device math intact.
+
+### Fallback precision repair (supersedes the unpatched gap above)
+
+Extended offline transform restores BF16 projection-output rounding for all
+qe/qo/ke/ko/v/g arrays after FP32split reduction and before normalization.
+Replaces custom E4M3 helper with exact integer RNE including subnormal ties,
+signed zeros and signed NaN overflow: baseline torch conversion maps464 to448,
+but465/Inf toNaN; no silent448clipping. This is a fallback Triton helper change,
+not an ATT7_CUDA_SRC/fence/barrier change.
+
+Before O, fallback converts FA3 attention output toBF16, computes per-head
+RMSNorm/sigmoid gate in FP32, rounds gated result toBF16, and passes gate=None
+to _after_attention. Thus O paths receive the gated BF16 tensor and do not
+reapply norm/gate or consume an unrounded fused intermediate. Existing gate
+array has already crossed the BF16 QKV boundary. This costs additional glue
+launches deliberately; root must measure after correctness rather than assume
+it preserves the donor's speed.
+
+Validation: CPU Torch2.10.0+cpu at /root/.cache/okc-host-validate/bin/python,
+`tools/test_dl_fork_attention_fp8.py` executes the exact integer-helper AST
+operations on CPU torch tensors.11020 fixtures byte-match torch.float8_e4m3fn:
+all finite positive encoding values, signed values, every adjacent midpoint
+and FP32 neighbors,10000 random scales, signedzero/Inf/NaN and overflow464/465.
+Structural/ownership tests also pass2/2, check all six BF16 casts, finalBF16
+norm/gate before O, no repeatedgate, and unchanged ATT7 CUDA. No GPU conformance
+claim: Triton lowering, full attention math and whole-layer error/cache bounds
+still need the coordinator's official fork check. No additional GPU job.
