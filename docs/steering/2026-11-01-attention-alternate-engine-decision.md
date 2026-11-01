@@ -96,3 +96,28 @@ comparator and preserve the current checked submission. The prior mode51
 counter-rank weighting7631033a0c93485d/4ff339332fef4aff, deepermode49ring
 42c4739cf6b247c4, per-request carryc77ce71c81af4fb1 and currently-hoisted
 PF3pageIDs are not the proposed mechanism and are not reopened.
+
+## Prospective exact split-engine comparator gate
+
+Authorized one off-board check, measurement only. Generator
+`tools/attn_make_exact_split_comparator.py` embeds pinned scratch donor with
+ONLY SCH0 and host resource-query hooks; production source unchanged. Native
+routes only, no forced disabled route and no approximate SCH1 benchmarking.
+Four independent arms ctrl/ctrl2/pubkel/pubkel2,19 ordinary math cases plus
+fresh additional v16full/v1sliding banks, every arm checked against TWO own
+FP32 references, official global/row/cache bounds and incumbent relative2%.
+Failed correctness blocks timing. Resource gates reject local-memory spill
+in selected WST/VP2, require WSTresident>=1 and VP2activeclusters>=2; own
+resource metadata printed. No new actualresource claim before receipt.
+Private donor buffers and independent module naming are retained.100cold
+paired rounds, two input banks, seed311151; all12shapes preserve controls.
+
+Preregistered meaningful architecture threshold: holding every non-native
+row atctrl, pooled sixload improvement must exceed BOTH2xindependentlognulls
+AND1.0% aggregate (roughly one quarter of saved4.03%rank50scoregap). Both
+independent public arms must improve native affected loads on both held-out
+inputs, with no selectedrow loss greater thanmax(null,1%). Smaller resolved
+wins are recorded but do not justify a major rewrite. Passing is comparator
+motivation only; owned implementation, all-input queuedstress and official
+candidate checks remain mandatory before any promotion. Source, precision
+and public-versus-owned attribution stay explicit.
