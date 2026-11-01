@@ -187,7 +187,11 @@ def _fg_run(replays=2000):
     assert all(bad==0 for _,_,bad in all_stats), "prospective official-math fresh gate failed"
 
 _ob_selftest()
-_fg_run()
+_fg_saved_tf32=torch.backends.cuda.matmul.allow_tf32
+try:
+    _fg_run()
+finally:
+    torch.backends.cuda.matmul.allow_tf32=_fg_saved_tf32
 '''
 
 
