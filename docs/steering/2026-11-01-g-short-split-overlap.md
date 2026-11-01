@@ -119,3 +119,11 @@ and two concurrent captures plus20fresh overlap replays. Only the BFPsk2pooler a
 was represented by torchBF16linear. This closes local stream/API fixture execution;
 native H200 packed pooler correctness/performance and the official layer remain unqualified.
 Root archives owning local evidence; no H200 claim or dispatch by this worker.
+
+## Official split-overlap measurement
+
+Root's job942ebdec400d4e68 passed13official cases plus32front/56expert private replaychecks,
+score2.0959003. WeightedD1 regressed5.73%,V1improved2.10%; V1-only substitution contributes
+about0.3552% six-load score. The two-load candidate does not beat2.12608268 #303 production.
+Close these exact bytes for public retries; no V1-only adapter was authorized. This result
+supersedes the earlier conditional1.69–1.76% opportunity scenario. Root owns full receipts.
