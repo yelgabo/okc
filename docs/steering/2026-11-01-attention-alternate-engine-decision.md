@@ -24,7 +24,7 @@ FusedQKNorm, FP8 cache store/query cast, FA3 paged causal attention, RMSNorm
 gate. `submission.py:_fused_prep`303ff already fuses preparation and cache
 write around FA3 with a final fused gate. Receipt43ef868a181e49b2 measured
 this architecture1.128x, whereas current owned path is around2.6x. Full
-FA3 main was94–97% of largebatch time in baseline2b3c25820fee4b2d; measured
+FA3 main was94â€“97% of largebatch time in baseline2b3c25820fee4b2d; measured
 page-size1 gathering was the limitation. Generic prep+sameFA3 is therefore
 not an untested major improvement. Historical fused/ws paths are preserved
 in submission.py and `tools/attn_make_bench_one.py` can compare `_one`,
@@ -47,7 +47,7 @@ current GPU lengths, not branch on host copies or reuse prior input metadata.
 
 Root acquired public keell0renz/okc source at commit
 `8e30e1be994db4310794b8d04e90d18d895deb84`, pinned rawfile:
-https://raw.githubusercontent.com/keell0renz/okc/8e30e1be994db4310794b8d04e90d18d895deb84/kernels/muse_attention_decode.py
+https://raw.githubusercontent.com/keell0renz/muse-open-kernel-challenge/8e30e1be994db4310794b8d04e90d18d895deb84/kernels/muse_attention_decode.py
 Local scratch `.build/today/kel/kernels/muse_attention_decode.py`, SHA256
 `496d460e0bb1e7489684de2742f1ff22f3959d9d5fe30674199e74b3d002d651`.
 Repository origin/path should be verified by root against its fetch receipt;
@@ -134,14 +134,14 @@ Pending result; no actual counter/resource/performance claim yet.
 ## Terminal exact comparator4862f8e0dc8a4b5a: matrix loses, VP2 isolated signal
 
 Result passed16 official control tests/checks.ok/flags[], unchanged-control
-score2.528391542x (95%CI2.490465669–2.566317415). All four independent arms
+score2.528391542x (95%CI2.490465669â€“2.566317415). All four independent arms
 passed21/21 own two-reference FP32/global/row/cache checks. This is not a
 public candidate check or all-input queuedstress. Full receipt/log:
 `muse_attention_decode/profiles/exact_split.4862f8e0dc8a4b5a.{json,log}`.
 
-|native selected row|ctrl|ctrl2|public exact1|public exact2|per-input public1−ctrl|
+|native selected row|ctrl|ctrl2|public exact1|public exact2|per-input public1âˆ’ctrl|
 |---|---:|---:|---:|---:|---|
-|verify1sliding VP2|11.10|11.10|10.34|10.37|−0.93/−0.70us|
+|verify1sliding VP2|11.10|11.10|10.34|10.37|âˆ’0.93/âˆ’0.70us|
 |verify16full WST|114.02|113.95|126.11|126.40|+10.14/+14.21us|
 
 Raw cold graph medians in microseconds include replay overhead. Independent
@@ -149,7 +149,7 @@ public2 signs match both rows/inputs. WST exact-math engine is substantially
 slower; the registered native-matrix gate FAILS. Holding every non-native row
 fixed and subtracting this receipt's official per-shape overhead gives
 sensitivity public1 .997479993,public2 .996720914,ctrl2 1.000081757; pooled
-cross .997059624 (−0.294%). Publicnull ratio .999239003. These sensitivities
+cross .997059624 (âˆ’0.294%). Publicnull ratio .999239003. These sensitivities
 use rounded AB medians and borrowed calibration, NOT candidate scores.
 Other public vjeux-derived paths moved too; their gains cannot be attributed
 to the new WST/VP2 architecture or credited to this registered native gate.
@@ -232,7 +232,7 @@ pending independent source/ordering review.
 
 Preregistered restricted gate: onlyv1sliding rows allowed to earn score;
 all others heldfixed. Corrected sixload pooled cross gain >=1.0% AND >2times
-max independent lognull; all12 crosses (2candidates×2controls×3inputs) faster,
+max independent lognull; all12 crosses (2candidatesÃ—2controlsÃ—3inputs) faster,
 no unresolved selected-shape regressions. Missing resource/math/fresh data is
 failure. If no repeatable gain, revert/close this ownership variant and keep
 purecheckedbaseline; no public submit. Passing motivates candidate-onlyofficial
@@ -262,10 +262,10 @@ H200 probe is expected true, but that expectation is not a source precondition.
 ### Terminal owned cluster mergef74cbe27819147c1: correctness passes, decisive loss
 
 Submitted source36622ef/SHA1fe0b4b2...f8240. Official unchanged control16/16,
-checks.ok/flags[],2.572180524x CI2.533597816–2.610763232. Not a candidate score.
+checks.ok/flags[],2.572180524x CI2.533597816â€“2.610763232. Not a candidate score.
 Four arms each19/19 official-style math/row/cache cases pass. Terminal process
 return0 and final fail-closed _CM_CHECK_FAILED assertion establish that the
-64freshQKV inputs×4graphs=256 queued math/cache/row checks and3negativecontrols
+64freshQKV inputsÃ—4graphs=256 queued math/cache/row checks and3negativecontrols
 also passed; the CMFRESH stdout lines themselves were truncated. Fresh metadata
 used fixed80000 context/page table with distinct QKV; no error maxima retained,
 no claim of2000replays or arbitrary metadata/recapture coverage.
@@ -277,7 +277,7 @@ no claim of2000replays or arbitrary metadata/recapture coverage.
 
 All three cold input deltas cm1+21.50/+20.90/+20.83us; cm2+21.31/+20.70/+20.80.
 Restricted sixload corrected sensitivity cm1 .846078612,cm2 .846887210;
-pooled .846482815 (−15.35%), controlnull1.0,candidatenull1.000955702. GateFAILS
+pooled .846482815 (âˆ’15.35%), controlnull1.0,candidatenull1.000955702. GateFAILS
 by a large margin; no attempt to credit unchanged-row placement differences.
 Borrowed official replay correction and rounded AB medians remain sensitivity,
 not official candidate scores. Full receipt/log committed under
@@ -301,3 +301,8 @@ complete output partition, avoiding the inter-cluster global finalize, and
 prove its head/tile address map and lifetime before another check. Do not
 remove the current global barrier from this half-context/both-head design:
 its two clusters still need each other's partials. No further job dispatched.
+
+Dated source-link correction: the earlier raw URL used an unverified repository
+slug. The verified upstream is keell0renz/muse-open-kernel-challenge, confirmed
+by main top50 registration and the local pinned git checkout. Content/source
+hash evidence and comparator job IDs are unchanged.
