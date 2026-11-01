@@ -1,6 +1,9 @@
 # Shared project steering
 
 Latest projection terminal: [SK-XOR single-arm H200 closure](2026-11-01-sk-xor-release-terminal.md). Public2b537518 PASS9/all10SX startup,1.394120x belowC2; all10targets regress. Exact production variant closed, no retry/layerport; dependency wording corrected.
+Latest projection representation: [Stage-local sparse repair](2026-11-01-projection-stage-xor.md) - previous global-record H200 version closed as a loss; new OFF-by-default stage arena passes actual CPU stream proof and local sm90a compilation. No GPU execution or performance qualification for the new representation.
+
+Latest single-arm artifact: [Owned sparse-XOR prepare-qualified projection](2026-11-01-projection-sparse-xor-release.md) - exact685ffab5/321640B, fixed ordinary buckets, fiveCPU host gates pass; no comparative timings. Actual H200 gates and prepare limit remain unproved; root-only measurement decision.
 
 Latest single-arm source review: [SK-XOR production qualifier](2026-11-01-sk-xor-release-source-review.md). Exact685ffab5 source scope clear;5TorchCPU tests pass. H200 production qualification and performance were subsequently measured in2b537518; see the terminal closure above.
 

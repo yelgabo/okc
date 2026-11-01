@@ -1,0 +1,23 @@
+{
+  "control_raw": "5610b8a64e25f70c639ac0523fe7c14754a6c54d349eb005210123b4e19fb3b4",
+  "global_prototype": "d23aa17be4cf9e7c5869803b3b4603d8e72395953687adc0287fb1c75738d586",
+  "bytes": 438663,
+  "sha256": "b726aebd42c0749d3ff736fdb72d667d1143dce90819fc45b785580a1832bc2e",
+  "cuda_sha256": "998b5efbf26f762cefdcc308b23629fa51dbbdc36569d0a466077aa44a4344da",
+  "names": [
+    "qkv8F",
+    "qkv16F",
+    "qkv32",
+    "o16F",
+    "o32F",
+    "pool16F",
+    "pool32F",
+    "unp16F",
+    "unp32F",
+    "slice8F"
+  ],
+  "gpu_execution": false,
+  "H200_qualified": false,
+  "capacity": "maximum actual per-stage/CTA count, not tuned",
+  "normal_entry": "unchanged C2"
+}

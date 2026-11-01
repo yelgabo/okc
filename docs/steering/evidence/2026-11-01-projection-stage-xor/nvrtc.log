@@ -1,0 +1,422 @@
+projection_control.cu(327): warning #177-D: member "<unnamed>::SkCfg<MT, TOKR, NT, NWR, WSK, UPW, NSTAGE, COMP, HL, NACC, CL, FUSE>::ESCFAST [with MT=1, TOKR=8, NT=1, NWR=1, WSK=8, UPW=2, NSTAGE=4, COMP=true, HL=false, NACC=13313, CL=1, FUSE=false]" was declared but never referenced
+      static constexpr bool ESCFAST = (NACC & 64) != 0;
+                            ^
+
+Remark: The warnings can be suppressed with "-diag-suppress <warning-number>"
+
+projection_control.cu(329): warning #177-D: member "<unnamed>::SkCfg<MT, TOKR, NT, NWR, WSK, UPW, NSTAGE, COMP, HL, NACC, CL, FUSE>::ESCOFF [with MT=1, TOKR=8, NT=1, NWR=1, WSK=8, UPW=2, NSTAGE=4, COMP=true, HL=false, NACC=13313, CL=1, FUSE=false]" was declared but never referenced
+      static constexpr bool ESCOFF = (NACC & 256) != 0;
+                            ^
+
+projection_control.cu(331): warning #177-D: member "<unnamed>::SkCfg<MT, TOKR, NT, NWR, WSK, UPW, NSTAGE, COMP, HL, NACC, CL, FUSE>::LITEWD [with MT=1, TOKR=8, NT=1, NWR=1, WSK=8, UPW=2, NSTAGE=4, COMP=true, HL=false, NACC=13313, CL=1, FUSE=false]" was declared but never referenced
+      static constexpr bool LITEWD = (NACC & 512) != 0;
+                            ^
+
+projection_control.cu(327): warning #177-D: member "<unnamed>::SkCfg<MT, TOKR, NT, NWR, WSK, UPW, NSTAGE, COMP, HL, NACC, CL, FUSE>::ESCFAST [with MT=1, TOKR=8, NT=1, NWR=1, WSK=8, UPW=2, NSTAGE=4, COMP=true, HL=false, NACC=13345, CL=1, FUSE=false]" was declared but never referenced
+      static constexpr bool ESCFAST = (NACC & 64) != 0;
+                            ^
+
+projection_control.cu(329): warning #177-D: member "<unnamed>::SkCfg<MT, TOKR, NT, NWR, WSK, UPW, NSTAGE, COMP, HL, NACC, CL, FUSE>::ESCOFF [with MT=1, TOKR=8, NT=1, NWR=1, WSK=8, UPW=2, NSTAGE=4, COMP=true, HL=false, NACC=13345, CL=1, FUSE=false]" was declared but never referenced
+      static constexpr bool ESCOFF = (NACC & 256) != 0;
+                            ^
+
+projection_control.cu(331): warning #177-D: member "<unnamed>::SkCfg<MT, TOKR, NT, NWR, WSK, UPW, NSTAGE, COMP, HL, NACC, CL, FUSE>::LITEWD [with MT=1, TOKR=8, NT=1, NWR=1, WSK=8, UPW=2, NSTAGE=4, COMP=true, HL=false, NACC=13345, CL=1, FUSE=false]" was declared but never referenced
+      static constexpr bool LITEWD = (NACC & 512) != 0;
+                            ^
+
+projection_control.cu(327): warning #177-D: member "<unnamed>::SkCfg<MT, TOKR, NT, NWR, WSK, UPW, NSTAGE, COMP, HL, NACC, CL, FUSE>::ESCFAST [with MT=1, TOKR=8, NT=1, NWR=1, WSK=8, UPW=2, NSTAGE=4, COMP=true, HL=false, NACC=5121, CL=1, FUSE=false]" was declared but never referenced
+      static constexpr bool ESCFAST = (NACC & 64) != 0;
+                            ^
+
+projection_control.cu(329): warning #177-D: member "<unnamed>::SkCfg<MT, TOKR, NT, NWR, WSK, UPW, NSTAGE, COMP, HL, NACC, CL, FUSE>::ESCOFF [with MT=1, TOKR=8, NT=1, NWR=1, WSK=8, UPW=2, NSTAGE=4, COMP=true, HL=false, NACC=5121, CL=1, FUSE=false]" was declared but never referenced
+      static constexpr bool ESCOFF = (NACC & 256) != 0;
+                            ^
+
+projection_control.cu(331): warning #177-D: member "<unnamed>::SkCfg<MT, TOKR, NT, NWR, WSK, UPW, NSTAGE, COMP, HL, NACC, CL, FUSE>::LITEWD [with MT=1, TOKR=8, NT=1, NWR=1, WSK=8, UPW=2, NSTAGE=4, COMP=true, HL=false, NACC=5121, CL=1, FUSE=false]" was declared but never referenced
+      static constexpr bool LITEWD = (NACC & 512) != 0;
+                            ^
+
+projection_control.cu(327): warning #177-D: member "<unnamed>::SkCfg<MT, TOKR, NT, NWR, WSK, UPW, NSTAGE, COMP, HL, NACC, CL, FUSE>::ESCFAST [with MT=1, TOKR=8, NT=1, NWR=1, WSK=8, UPW=2, NSTAGE=4, COMP=true, HL=false, NACC=5153, CL=1, FUSE=false]" was declared but never referenced
+      static constexpr bool ESCFAST = (NACC & 64) != 0;
+                            ^
+
+projection_control.cu(329): warning #177-D: member "<unnamed>::SkCfg<MT, TOKR, NT, NWR, WSK, UPW, NSTAGE, COMP, HL, NACC, CL, FUSE>::ESCOFF [with MT=1, TOKR=8, NT=1, NWR=1, WSK=8, UPW=2, NSTAGE=4, COMP=true, HL=false, NACC=5153, CL=1, FUSE=false]" was declared but never referenced
+      static constexpr bool ESCOFF = (NACC & 256) != 0;
+                            ^
+
+projection_control.cu(331): warning #177-D: member "<unnamed>::SkCfg<MT, TOKR, NT, NWR, WSK, UPW, NSTAGE, COMP, HL, NACC, CL, FUSE>::LITEWD [with MT=1, TOKR=8, NT=1, NWR=1, WSK=8, UPW=2, NSTAGE=4, COMP=true, HL=false, NACC=5153, CL=1, FUSE=false]" was declared but never referenced
+      static constexpr bool LITEWD = (NACC & 512) != 0;
+                            ^
+
+projection_control.cu(331): warning #177-D: member "<unnamed>::SkCfg<MT, TOKR, NT, NWR, WSK, UPW, NSTAGE, COMP, HL, NACC, CL, FUSE>::LITEWD [with MT=1, TOKR=8, NT=1, NWR=1, WSK=8, UPW=2, NSTAGE=4, COMP=true, HL=false, NACC=1025, CL=1, FUSE=false]" was declared but never referenced
+      static constexpr bool LITEWD = (NACC & 512) != 0;
+                            ^
+
+projection_control.cu(331): warning #177-D: member "<unnamed>::SkCfg<MT, TOKR, NT, NWR, WSK, UPW, NSTAGE, COMP, HL, NACC, CL, FUSE>::LITEWD [with MT=1, TOKR=8, NT=1, NWR=1, WSK=8, UPW=2, NSTAGE=4, COMP=true, HL=false, NACC=1057, CL=1, FUSE=false]" was declared but never referenced
+      static constexpr bool LITEWD = (NACC & 512) != 0;
+                            ^
+
+projection_control.cu(327): warning #177-D: member "<unnamed>::SkCfg<MT, TOKR, NT, NWR, WSK, UPW, NSTAGE, COMP, HL, NACC, CL, FUSE>::ESCFAST [with MT=2, TOKR=32, NT=2, NWR=2, WSK=2, UPW=4, NSTAGE=3, COMP=true, HL=false, NACC=13313, CL=1, FUSE=false]" was declared but never referenced
+      static constexpr bool ESCFAST = (NACC & 64) != 0;
+                            ^
+
+projection_control.cu(329): warning #177-D: member "<unnamed>::SkCfg<MT, TOKR, NT, NWR, WSK, UPW, NSTAGE, COMP, HL, NACC, CL, FUSE>::ESCOFF [with MT=2, TOKR=32, NT=2, NWR=2, WSK=2, UPW=4, NSTAGE=3, COMP=true, HL=false, NACC=13313, CL=1, FUSE=false]" was declared but never referenced
+      static constexpr bool ESCOFF = (NACC & 256) != 0;
+                            ^
+
+projection_control.cu(331): warning #177-D: member "<unnamed>::SkCfg<MT, TOKR, NT, NWR, WSK, UPW, NSTAGE, COMP, HL, NACC, CL, FUSE>::LITEWD [with MT=2, TOKR=32, NT=2, NWR=2, WSK=2, UPW=4, NSTAGE=3, COMP=true, HL=false, NACC=13313, CL=1, FUSE=false]" was declared but never referenced
+      static constexpr bool LITEWD = (NACC & 512) != 0;
+                            ^
+
+projection_control.cu(327): warning #177-D: member "<unnamed>::SkCfg<MT, TOKR, NT, NWR, WSK, UPW, NSTAGE, COMP, HL, NACC, CL, FUSE>::ESCFAST [with MT=2, TOKR=32, NT=2, NWR=2, WSK=2, UPW=4, NSTAGE=3, COMP=true, HL=false, NACC=13345, CL=1, FUSE=false]" was declared but never referenced
+      static constexpr bool ESCFAST = (NACC & 64) != 0;
+                            ^
+
+projection_control.cu(329): warning #177-D: member "<unnamed>::SkCfg<MT, TOKR, NT, NWR, WSK, UPW, NSTAGE, COMP, HL, NACC, CL, FUSE>::ESCOFF [with MT=2, TOKR=32, NT=2, NWR=2, WSK=2, UPW=4, NSTAGE=3, COMP=true, HL=false, NACC=13345, CL=1, FUSE=false]" was declared but never referenced
+      static constexpr bool ESCOFF = (NACC & 256) != 0;
+                            ^
+
+projection_control.cu(331): warning #177-D: member "<unnamed>::SkCfg<MT, TOKR, NT, NWR, WSK, UPW, NSTAGE, COMP, HL, NACC, CL, FUSE>::LITEWD [with MT=2, TOKR=32, NT=2, NWR=2, WSK=2, UPW=4, NSTAGE=3, COMP=true, HL=false, NACC=13345, CL=1, FUSE=false]" was declared but never referenced
+      static constexpr bool LITEWD = (NACC & 512) != 0;
+                            ^
+
+projection_control.cu(327): warning #177-D: member "<unnamed>::SkCfg<MT, TOKR, NT, NWR, WSK, UPW, NSTAGE, COMP, HL, NACC, CL, FUSE>::ESCFAST [with MT=2, TOKR=32, NT=2, NWR=2, WSK=2, UPW=4, NSTAGE=3, COMP=true, HL=false, NACC=5121, CL=1, FUSE=false]" was declared but never referenced
+      static constexpr bool ESCFAST = (NACC & 64) != 0;
+                            ^
+
+projection_control.cu(329): warning #177-D: member "<unnamed>::SkCfg<MT, TOKR, NT, NWR, WSK, UPW, NSTAGE, COMP, HL, NACC, CL, FUSE>::ESCOFF [with MT=2, TOKR=32, NT=2, NWR=2, WSK=2, UPW=4, NSTAGE=3, COMP=true, HL=false, NACC=5121, CL=1, FUSE=false]" was declared but never referenced
+      static constexpr bool ESCOFF = (NACC & 256) != 0;
+                            ^
+
+projection_control.cu(331): warning #177-D: member "<unnamed>::SkCfg<MT, TOKR, NT, NWR, WSK, UPW, NSTAGE, COMP, HL, NACC, CL, FUSE>::LITEWD [with MT=2, TOKR=32, NT=2, NWR=2, WSK=2, UPW=4, NSTAGE=3, COMP=true, HL=false, NACC=5121, CL=1, FUSE=false]" was declared but never referenced
+      static constexpr bool LITEWD = (NACC & 512) != 0;
+                            ^
+
+projection_control.cu(327): warning #177-D: member "<unnamed>::SkCfg<MT, TOKR, NT, NWR, WSK, UPW, NSTAGE, COMP, HL, NACC, CL, FUSE>::ESCFAST [with MT=2, TOKR=32, NT=2, NWR=2, WSK=2, UPW=4, NSTAGE=3, COMP=true, HL=false, NACC=5153, CL=1, FUSE=false]" was declared but never referenced
+      static constexpr bool ESCFAST = (NACC & 64) != 0;
+                            ^
+
+projection_control.cu(329): warning #177-D: member "<unnamed>::SkCfg<MT, TOKR, NT, NWR, WSK, UPW, NSTAGE, COMP, HL, NACC, CL, FUSE>::ESCOFF [with MT=2, TOKR=32, NT=2, NWR=2, WSK=2, UPW=4, NSTAGE=3, COMP=true, HL=false, NACC=5153, CL=1, FUSE=false]" was declared but never referenced
+      static constexpr bool ESCOFF = (NACC & 256) != 0;
+                            ^
+
+projection_control.cu(331): warning #177-D: member "<unnamed>::SkCfg<MT, TOKR, NT, NWR, WSK, UPW, NSTAGE, COMP, HL, NACC, CL, FUSE>::LITEWD [with MT=2, TOKR=32, NT=2, NWR=2, WSK=2, UPW=4, NSTAGE=3, COMP=true, HL=false, NACC=5153, CL=1, FUSE=false]" was declared but never referenced
+      static constexpr bool LITEWD = (NACC & 512) != 0;
+                            ^
+
+projection_control.cu(331): warning #177-D: member "<unnamed>::SkCfg<MT, TOKR, NT, NWR, WSK, UPW, NSTAGE, COMP, HL, NACC, CL, FUSE>::LITEWD [with MT=2, TOKR=32, NT=2, NWR=2, WSK=2, UPW=4, NSTAGE=3, COMP=true, HL=false, NACC=1025, CL=1, FUSE=false]" was declared but never referenced
+      static constexpr bool LITEWD = (NACC & 512) != 0;
+                            ^
+
+projection_control.cu(331): warning #177-D: member "<unnamed>::SkCfg<MT, TOKR, NT, NWR, WSK, UPW, NSTAGE, COMP, HL, NACC, CL, FUSE>::LITEWD [with MT=2, TOKR=32, NT=2, NWR=2, WSK=2, UPW=4, NSTAGE=3, COMP=true, HL=false, NACC=1057, CL=1, FUSE=false]" was declared but never referenced
+      static constexpr bool LITEWD = (NACC & 512) != 0;
+                            ^
+
+projection_control.cu(327): warning #177-D: member "<unnamed>::SkCfg<MT, TOKR, NT, NWR, WSK, UPW, NSTAGE, COMP, HL, NACC, CL, FUSE>::ESCFAST [with MT=1, TOKR=16, NT=2, NWR=2, WSK=2, UPW=4, NSTAGE=4, COMP=true, HL=false, NACC=13313, CL=1, FUSE=false]" was declared but never referenced
+      static constexpr bool ESCFAST = (NACC & 64) != 0;
+                            ^
+
+projection_control.cu(329): warning #177-D: member "<unnamed>::SkCfg<MT, TOKR, NT, NWR, WSK, UPW, NSTAGE, COMP, HL, NACC, CL, FUSE>::ESCOFF [with MT=1, TOKR=16, NT=2, NWR=2, WSK=2, UPW=4, NSTAGE=4, COMP=true, HL=false, NACC=13313, CL=1, FUSE=false]" was declared but never referenced
+      static constexpr bool ESCOFF = (NACC & 256) != 0;
+                            ^
+
+projection_control.cu(331): warning #177-D: member "<unnamed>::SkCfg<MT, TOKR, NT, NWR, WSK, UPW, NSTAGE, COMP, HL, NACC, CL, FUSE>::LITEWD [with MT=1, TOKR=16, NT=2, NWR=2, WSK=2, UPW=4, NSTAGE=4, COMP=true, HL=false, NACC=13313, CL=1, FUSE=false]" was declared but never referenced
+      static constexpr bool LITEWD = (NACC & 512) != 0;
+                            ^
+
+projection_control.cu(327): warning #177-D: member "<unnamed>::SkCfg<MT, TOKR, NT, NWR, WSK, UPW, NSTAGE, COMP, HL, NACC, CL, FUSE>::ESCFAST [with MT=1, TOKR=16, NT=2, NWR=2, WSK=2, UPW=4, NSTAGE=4, COMP=true, HL=false, NACC=13345, CL=1, FUSE=false]" was declared but never referenced
+      static constexpr bool ESCFAST = (NACC & 64) != 0;
+                            ^
+
+projection_control.cu(329): warning #177-D: member "<unnamed>::SkCfg<MT, TOKR, NT, NWR, WSK, UPW, NSTAGE, COMP, HL, NACC, CL, FUSE>::ESCOFF [with MT=1, TOKR=16, NT=2, NWR=2, WSK=2, UPW=4, NSTAGE=4, COMP=true, HL=false, NACC=13345, CL=1, FUSE=false]" was declared but never referenced
+      static constexpr bool ESCOFF = (NACC & 256) != 0;
+                            ^
+
+projection_control.cu(331): warning #177-D: member "<unnamed>::SkCfg<MT, TOKR, NT, NWR, WSK, UPW, NSTAGE, COMP, HL, NACC, CL, FUSE>::LITEWD [with MT=1, TOKR=16, NT=2, NWR=2, WSK=2, UPW=4, NSTAGE=4, COMP=true, HL=false, NACC=13345, CL=1, FUSE=false]" was declared but never referenced
+      static constexpr bool LITEWD = (NACC & 512) != 0;
+                            ^
+
+projection_control.cu(327): warning #177-D: member "<unnamed>::SkCfg<MT, TOKR, NT, NWR, WSK, UPW, NSTAGE, COMP, HL, NACC, CL, FUSE>::ESCFAST [with MT=1, TOKR=16, NT=2, NWR=2, WSK=2, UPW=4, NSTAGE=4, COMP=true, HL=false, NACC=5121, CL=1, FUSE=false]" was declared but never referenced
+      static constexpr bool ESCFAST = (NACC & 64) != 0;
+                            ^
+
+projection_control.cu(329): warning #177-D: member "<unnamed>::SkCfg<MT, TOKR, NT, NWR, WSK, UPW, NSTAGE, COMP, HL, NACC, CL, FUSE>::ESCOFF [with MT=1, TOKR=16, NT=2, NWR=2, WSK=2, UPW=4, NSTAGE=4, COMP=true, HL=false, NACC=5121, CL=1, FUSE=false]" was declared but never referenced
+      static constexpr bool ESCOFF = (NACC & 256) != 0;
+                            ^
+
+projection_control.cu(331): warning #177-D: member "<unnamed>::SkCfg<MT, TOKR, NT, NWR, WSK, UPW, NSTAGE, COMP, HL, NACC, CL, FUSE>::LITEWD [with MT=1, TOKR=16, NT=2, NWR=2, WSK=2, UPW=4, NSTAGE=4, COMP=true, HL=false, NACC=5121, CL=1, FUSE=false]" was declared but never referenced
+      static constexpr bool LITEWD = (NACC & 512) != 0;
+                            ^
+
+projection_control.cu(327): warning #177-D: member "<unnamed>::SkCfg<MT, TOKR, NT, NWR, WSK, UPW, NSTAGE, COMP, HL, NACC, CL, FUSE>::ESCFAST [with MT=1, TOKR=16, NT=2, NWR=2, WSK=2, UPW=4, NSTAGE=4, COMP=true, HL=false, NACC=5153, CL=1, FUSE=false]" was declared but never referenced
+      static constexpr bool ESCFAST = (NACC & 64) != 0;
+                            ^
+
+projection_control.cu(329): warning #177-D: member "<unnamed>::SkCfg<MT, TOKR, NT, NWR, WSK, UPW, NSTAGE, COMP, HL, NACC, CL, FUSE>::ESCOFF [with MT=1, TOKR=16, NT=2, NWR=2, WSK=2, UPW=4, NSTAGE=4, COMP=true, HL=false, NACC=5153, CL=1, FUSE=false]" was declared but never referenced
+      static constexpr bool ESCOFF = (NACC & 256) != 0;
+                            ^
+
+projection_control.cu(331): warning #177-D: member "<unnamed>::SkCfg<MT, TOKR, NT, NWR, WSK, UPW, NSTAGE, COMP, HL, NACC, CL, FUSE>::LITEWD [with MT=1, TOKR=16, NT=2, NWR=2, WSK=2, UPW=4, NSTAGE=4, COMP=true, HL=false, NACC=5153, CL=1, FUSE=false]" was declared but never referenced
+      static constexpr bool LITEWD = (NACC & 512) != 0;
+                            ^
+
+projection_control.cu(331): warning #177-D: member "<unnamed>::SkCfg<MT, TOKR, NT, NWR, WSK, UPW, NSTAGE, COMP, HL, NACC, CL, FUSE>::LITEWD [with MT=1, TOKR=16, NT=2, NWR=2, WSK=2, UPW=4, NSTAGE=4, COMP=true, HL=false, NACC=1025, CL=1, FUSE=false]" was declared but never referenced
+      static constexpr bool LITEWD = (NACC & 512) != 0;
+                            ^
+
+projection_control.cu(331): warning #177-D: member "<unnamed>::SkCfg<MT, TOKR, NT, NWR, WSK, UPW, NSTAGE, COMP, HL, NACC, CL, FUSE>::LITEWD [with MT=1, TOKR=16, NT=2, NWR=2, WSK=2, UPW=4, NSTAGE=4, COMP=true, HL=false, NACC=1057, CL=1, FUSE=false]" was declared but never referenced
+      static constexpr bool LITEWD = (NACC & 512) != 0;
+                            ^
+
+projection_control.cu(327): warning #177-D: member "<unnamed>::SkCfg<MT, TOKR, NT, NWR, WSK, UPW, NSTAGE, COMP, HL, NACC, CL, FUSE>::ESCFAST [with MT=2, TOKR=32, NT=2, NWR=2, WSK=2, UPW=2, NSTAGE=3, COMP=true, HL=false, NACC=13313, CL=1, FUSE=false]" was declared but never referenced
+      static constexpr bool ESCFAST = (NACC & 64) != 0;
+                            ^
+
+projection_control.cu(329): warning #177-D: member "<unnamed>::SkCfg<MT, TOKR, NT, NWR, WSK, UPW, NSTAGE, COMP, HL, NACC, CL, FUSE>::ESCOFF [with MT=2, TOKR=32, NT=2, NWR=2, WSK=2, UPW=2, NSTAGE=3, COMP=true, HL=false, NACC=13313, CL=1, FUSE=false]" was declared but never referenced
+      static constexpr bool ESCOFF = (NACC & 256) != 0;
+                            ^
+
+projection_control.cu(331): warning #177-D: member "<unnamed>::SkCfg<MT, TOKR, NT, NWR, WSK, UPW, NSTAGE, COMP, HL, NACC, CL, FUSE>::LITEWD [with MT=2, TOKR=32, NT=2, NWR=2, WSK=2, UPW=2, NSTAGE=3, COMP=true, HL=false, NACC=13313, CL=1, FUSE=false]" was declared but never referenced
+      static constexpr bool LITEWD = (NACC & 512) != 0;
+                            ^
+
+projection_control.cu(327): warning #177-D: member "<unnamed>::SkCfg<MT, TOKR, NT, NWR, WSK, UPW, NSTAGE, COMP, HL, NACC, CL, FUSE>::ESCFAST [with MT=2, TOKR=32, NT=2, NWR=2, WSK=2, UPW=2, NSTAGE=3, COMP=true, HL=false, NACC=13345, CL=1, FUSE=false]" was declared but never referenced
+      static constexpr bool ESCFAST = (NACC & 64) != 0;
+                            ^
+
+projection_control.cu(329): warning #177-D: member "<unnamed>::SkCfg<MT, TOKR, NT, NWR, WSK, UPW, NSTAGE, COMP, HL, NACC, CL, FUSE>::ESCOFF [with MT=2, TOKR=32, NT=2, NWR=2, WSK=2, UPW=2, NSTAGE=3, COMP=true, HL=false, NACC=13345, CL=1, FUSE=false]" was declared but never referenced
+      static constexpr bool ESCOFF = (NACC & 256) != 0;
+                            ^
+
+projection_control.cu(331): warning #177-D: member "<unnamed>::SkCfg<MT, TOKR, NT, NWR, WSK, UPW, NSTAGE, COMP, HL, NACC, CL, FUSE>::LITEWD [with MT=2, TOKR=32, NT=2, NWR=2, WSK=2, UPW=2, NSTAGE=3, COMP=true, HL=false, NACC=13345, CL=1, FUSE=false]" was declared but never referenced
+      static constexpr bool LITEWD = (NACC & 512) != 0;
+                            ^
+
+projection_control.cu(327): warning #177-D: member "<unnamed>::SkCfg<MT, TOKR, NT, NWR, WSK, UPW, NSTAGE, COMP, HL, NACC, CL, FUSE>::ESCFAST [with MT=2, TOKR=32, NT=2, NWR=2, WSK=2, UPW=2, NSTAGE=3, COMP=true, HL=false, NACC=5121, CL=1, FUSE=false]" was declared but never referenced
+      static constexpr bool ESCFAST = (NACC & 64) != 0;
+                            ^
+
+projection_control.cu(329): warning #177-D: member "<unnamed>::SkCfg<MT, TOKR, NT, NWR, WSK, UPW, NSTAGE, COMP, HL, NACC, CL, FUSE>::ESCOFF [with MT=2, TOKR=32, NT=2, NWR=2, WSK=2, UPW=2, NSTAGE=3, COMP=true, HL=false, NACC=5121, CL=1, FUSE=false]" was declared but never referenced
+      static constexpr bool ESCOFF = (NACC & 256) != 0;
+                            ^
+
+projection_control.cu(331): warning #177-D: member "<unnamed>::SkCfg<MT, TOKR, NT, NWR, WSK, UPW, NSTAGE, COMP, HL, NACC, CL, FUSE>::LITEWD [with MT=2, TOKR=32, NT=2, NWR=2, WSK=2, UPW=2, NSTAGE=3, COMP=true, HL=false, NACC=5121, CL=1, FUSE=false]" was declared but never referenced
+      static constexpr bool LITEWD = (NACC & 512) != 0;
+                            ^
+
+projection_control.cu(327): warning #177-D: member "<unnamed>::SkCfg<MT, TOKR, NT, NWR, WSK, UPW, NSTAGE, COMP, HL, NACC, CL, FUSE>::ESCFAST [with MT=2, TOKR=32, NT=2, NWR=2, WSK=2, UPW=2, NSTAGE=3, COMP=true, HL=false, NACC=5153, CL=1, FUSE=false]" was declared but never referenced
+      static constexpr bool ESCFAST = (NACC & 64) != 0;
+                            ^
+
+projection_control.cu(329): warning #177-D: member "<unnamed>::SkCfg<MT, TOKR, NT, NWR, WSK, UPW, NSTAGE, COMP, HL, NACC, CL, FUSE>::ESCOFF [with MT=2, TOKR=32, NT=2, NWR=2, WSK=2, UPW=2, NSTAGE=3, COMP=true, HL=false, NACC=5153, CL=1, FUSE=false]" was declared but never referenced
+      static constexpr bool ESCOFF = (NACC & 256) != 0;
+                            ^
+
+projection_control.cu(331): warning #177-D: member "<unnamed>::SkCfg<MT, TOKR, NT, NWR, WSK, UPW, NSTAGE, COMP, HL, NACC, CL, FUSE>::LITEWD [with MT=2, TOKR=32, NT=2, NWR=2, WSK=2, UPW=2, NSTAGE=3, COMP=true, HL=false, NACC=5153, CL=1, FUSE=false]" was declared but never referenced
+      static constexpr bool LITEWD = (NACC & 512) != 0;
+                            ^
+
+projection_control.cu(331): warning #177-D: member "<unnamed>::SkCfg<MT, TOKR, NT, NWR, WSK, UPW, NSTAGE, COMP, HL, NACC, CL, FUSE>::LITEWD [with MT=2, TOKR=32, NT=2, NWR=2, WSK=2, UPW=2, NSTAGE=3, COMP=true, HL=false, NACC=1025, CL=1, FUSE=false]" was declared but never referenced
+      static constexpr bool LITEWD = (NACC & 512) != 0;
+                            ^
+
+projection_control.cu(331): warning #177-D: member "<unnamed>::SkCfg<MT, TOKR, NT, NWR, WSK, UPW, NSTAGE, COMP, HL, NACC, CL, FUSE>::LITEWD [with MT=2, TOKR=32, NT=2, NWR=2, WSK=2, UPW=2, NSTAGE=3, COMP=true, HL=false, NACC=1057, CL=1, FUSE=false]" was declared but never referenced
+      static constexpr bool LITEWD = (NACC & 512) != 0;
+                            ^
+
+projection_control.cu(327): warning #177-D: member "<unnamed>::SkCfg<MT, TOKR, NT, NWR, WSK, UPW, NSTAGE, COMP, HL, NACC, CL, FUSE>::ESCFAST [with MT=1, TOKR=16, NT=2, NWR=2, WSK=2, UPW=2, NSTAGE=3, COMP=true, HL=false, NACC=13313, CL=1, FUSE=false]" was declared but never referenced
+      static constexpr bool ESCFAST = (NACC & 64) != 0;
+                            ^
+
+projection_control.cu(329): warning #177-D: member "<unnamed>::SkCfg<MT, TOKR, NT, NWR, WSK, UPW, NSTAGE, COMP, HL, NACC, CL, FUSE>::ESCOFF [with MT=1, TOKR=16, NT=2, NWR=2, WSK=2, UPW=2, NSTAGE=3, COMP=true, HL=false, NACC=13313, CL=1, FUSE=false]" was declared but never referenced
+      static constexpr bool ESCOFF = (NACC & 256) != 0;
+                            ^
+
+projection_control.cu(331): warning #177-D: member "<unnamed>::SkCfg<MT, TOKR, NT, NWR, WSK, UPW, NSTAGE, COMP, HL, NACC, CL, FUSE>::LITEWD [with MT=1, TOKR=16, NT=2, NWR=2, WSK=2, UPW=2, NSTAGE=3, COMP=true, HL=false, NACC=13313, CL=1, FUSE=false]" was declared but never referenced
+      static constexpr bool LITEWD = (NACC & 512) != 0;
+                            ^
+
+projection_control.cu(327): warning #177-D: member "<unnamed>::SkCfg<MT, TOKR, NT, NWR, WSK, UPW, NSTAGE, COMP, HL, NACC, CL, FUSE>::ESCFAST [with MT=1, TOKR=16, NT=2, NWR=2, WSK=2, UPW=2, NSTAGE=3, COMP=true, HL=false, NACC=13345, CL=1, FUSE=false]" was declared but never referenced
+      static constexpr bool ESCFAST = (NACC & 64) != 0;
+                            ^
+
+projection_control.cu(329): warning #177-D: member "<unnamed>::SkCfg<MT, TOKR, NT, NWR, WSK, UPW, NSTAGE, COMP, HL, NACC, CL, FUSE>::ESCOFF [with MT=1, TOKR=16, NT=2, NWR=2, WSK=2, UPW=2, NSTAGE=3, COMP=true, HL=false, NACC=13345, CL=1, FUSE=false]" was declared but never referenced
+      static constexpr bool ESCOFF = (NACC & 256) != 0;
+                            ^
+
+projection_control.cu(331): warning #177-D: member "<unnamed>::SkCfg<MT, TOKR, NT, NWR, WSK, UPW, NSTAGE, COMP, HL, NACC, CL, FUSE>::LITEWD [with MT=1, TOKR=16, NT=2, NWR=2, WSK=2, UPW=2, NSTAGE=3, COMP=true, HL=false, NACC=13345, CL=1, FUSE=false]" was declared but never referenced
+      static constexpr bool LITEWD = (NACC & 512) != 0;
+                            ^
+
+projection_control.cu(327): warning #177-D: member "<unnamed>::SkCfg<MT, TOKR, NT, NWR, WSK, UPW, NSTAGE, COMP, HL, NACC, CL, FUSE>::ESCFAST [with MT=1, TOKR=16, NT=2, NWR=2, WSK=2, UPW=2, NSTAGE=3, COMP=true, HL=false, NACC=5121, CL=1, FUSE=false]" was declared but never referenced
+      static constexpr bool ESCFAST = (NACC & 64) != 0;
+                            ^
+
+projection_control.cu(329): warning #177-D: member "<unnamed>::SkCfg<MT, TOKR, NT, NWR, WSK, UPW, NSTAGE, COMP, HL, NACC, CL, FUSE>::ESCOFF [with MT=1, TOKR=16, NT=2, NWR=2, WSK=2, UPW=2, NSTAGE=3, COMP=true, HL=false, NACC=5121, CL=1, FUSE=false]" was declared but never referenced
+      static constexpr bool ESCOFF = (NACC & 256) != 0;
+                            ^
+
+projection_control.cu(331): warning #177-D: member "<unnamed>::SkCfg<MT, TOKR, NT, NWR, WSK, UPW, NSTAGE, COMP, HL, NACC, CL, FUSE>::LITEWD [with MT=1, TOKR=16, NT=2, NWR=2, WSK=2, UPW=2, NSTAGE=3, COMP=true, HL=false, NACC=5121, CL=1, FUSE=false]" was declared but never referenced
+      static constexpr bool LITEWD = (NACC & 512) != 0;
+                            ^
+
+projection_control.cu(327): warning #177-D: member "<unnamed>::SkCfg<MT, TOKR, NT, NWR, WSK, UPW, NSTAGE, COMP, HL, NACC, CL, FUSE>::ESCFAST [with MT=1, TOKR=16, NT=2, NWR=2, WSK=2, UPW=2, NSTAGE=3, COMP=true, HL=false, NACC=5153, CL=1, FUSE=false]" was declared but never referenced
+      static constexpr bool ESCFAST = (NACC & 64) != 0;
+                            ^
+
+projection_control.cu(329): warning #177-D: member "<unnamed>::SkCfg<MT, TOKR, NT, NWR, WSK, UPW, NSTAGE, COMP, HL, NACC, CL, FUSE>::ESCOFF [with MT=1, TOKR=16, NT=2, NWR=2, WSK=2, UPW=2, NSTAGE=3, COMP=true, HL=false, NACC=5153, CL=1, FUSE=false]" was declared but never referenced
+      static constexpr bool ESCOFF = (NACC & 256) != 0;
+                            ^
+
+projection_control.cu(331): warning #177-D: member "<unnamed>::SkCfg<MT, TOKR, NT, NWR, WSK, UPW, NSTAGE, COMP, HL, NACC, CL, FUSE>::LITEWD [with MT=1, TOKR=16, NT=2, NWR=2, WSK=2, UPW=2, NSTAGE=3, COMP=true, HL=false, NACC=5153, CL=1, FUSE=false]" was declared but never referenced
+      static constexpr bool LITEWD = (NACC & 512) != 0;
+                            ^
+
+projection_control.cu(331): warning #177-D: member "<unnamed>::SkCfg<MT, TOKR, NT, NWR, WSK, UPW, NSTAGE, COMP, HL, NACC, CL, FUSE>::LITEWD [with MT=1, TOKR=16, NT=2, NWR=2, WSK=2, UPW=2, NSTAGE=3, COMP=true, HL=false, NACC=1025, CL=1, FUSE=false]" was declared but never referenced
+      static constexpr bool LITEWD = (NACC & 512) != 0;
+                            ^
+
+projection_control.cu(331): warning #177-D: member "<unnamed>::SkCfg<MT, TOKR, NT, NWR, WSK, UPW, NSTAGE, COMP, HL, NACC, CL, FUSE>::LITEWD [with MT=1, TOKR=16, NT=2, NWR=2, WSK=2, UPW=2, NSTAGE=3, COMP=true, HL=false, NACC=1057, CL=1, FUSE=false]" was declared but never referenced
+      static constexpr bool LITEWD = (NACC & 512) != 0;
+                            ^
+
+projection_control.cu(327): warning #177-D: member "<unnamed>::SkCfg<MT, TOKR, NT, NWR, WSK, UPW, NSTAGE, COMP, HL, NACC, CL, FUSE>::ESCFAST [with MT=2, TOKR=32, NT=3, NWR=1, WSK=4, UPW=2, NSTAGE=4, COMP=true, HL=false, NACC=13313, CL=1, FUSE=false]" was declared but never referenced
+      static constexpr bool ESCFAST = (NACC & 64) != 0;
+                            ^
+
+projection_control.cu(329): warning #177-D: member "<unnamed>::SkCfg<MT, TOKR, NT, NWR, WSK, UPW, NSTAGE, COMP, HL, NACC, CL, FUSE>::ESCOFF [with MT=2, TOKR=32, NT=3, NWR=1, WSK=4, UPW=2, NSTAGE=4, COMP=true, HL=false, NACC=13313, CL=1, FUSE=false]" was declared but never referenced
+      static constexpr bool ESCOFF = (NACC & 256) != 0;
+                            ^
+
+projection_control.cu(331): warning #177-D: member "<unnamed>::SkCfg<MT, TOKR, NT, NWR, WSK, UPW, NSTAGE, COMP, HL, NACC, CL, FUSE>::LITEWD [with MT=2, TOKR=32, NT=3, NWR=1, WSK=4, UPW=2, NSTAGE=4, COMP=true, HL=false, NACC=13313, CL=1, FUSE=false]" was declared but never referenced
+      static constexpr bool LITEWD = (NACC & 512) != 0;
+                            ^
+
+projection_control.cu(327): warning #177-D: member "<unnamed>::SkCfg<MT, TOKR, NT, NWR, WSK, UPW, NSTAGE, COMP, HL, NACC, CL, FUSE>::ESCFAST [with MT=2, TOKR=32, NT=3, NWR=1, WSK=4, UPW=2, NSTAGE=4, COMP=true, HL=false, NACC=5121, CL=1, FUSE=false]" was declared but never referenced
+      static constexpr bool ESCFAST = (NACC & 64) != 0;
+                            ^
+
+projection_control.cu(329): warning #177-D: member "<unnamed>::SkCfg<MT, TOKR, NT, NWR, WSK, UPW, NSTAGE, COMP, HL, NACC, CL, FUSE>::ESCOFF [with MT=2, TOKR=32, NT=3, NWR=1, WSK=4, UPW=2, NSTAGE=4, COMP=true, HL=false, NACC=5121, CL=1, FUSE=false]" was declared but never referenced
+      static constexpr bool ESCOFF = (NACC & 256) != 0;
+                            ^
+
+projection_control.cu(331): warning #177-D: member "<unnamed>::SkCfg<MT, TOKR, NT, NWR, WSK, UPW, NSTAGE, COMP, HL, NACC, CL, FUSE>::LITEWD [with MT=2, TOKR=32, NT=3, NWR=1, WSK=4, UPW=2, NSTAGE=4, COMP=true, HL=false, NACC=5121, CL=1, FUSE=false]" was declared but never referenced
+      static constexpr bool LITEWD = (NACC & 512) != 0;
+                            ^
+
+projection_control.cu(331): warning #177-D: member "<unnamed>::SkCfg<MT, TOKR, NT, NWR, WSK, UPW, NSTAGE, COMP, HL, NACC, CL, FUSE>::LITEWD [with MT=2, TOKR=32, NT=3, NWR=1, WSK=4, UPW=2, NSTAGE=4, COMP=true, HL=false, NACC=1025, CL=1, FUSE=false]" was declared but never referenced
+      static constexpr bool LITEWD = (NACC & 512) != 0;
+                            ^
+
+projection_control.cu(327): warning #177-D: member "<unnamed>::SkCfg<MT, TOKR, NT, NWR, WSK, UPW, NSTAGE, COMP, HL, NACC, CL, FUSE>::ESCFAST [with MT=1, TOKR=16, NT=3, NWR=1, WSK=4, UPW=2, NSTAGE=5, COMP=true, HL=false, NACC=13313, CL=1, FUSE=false]" was declared but never referenced
+      static constexpr bool ESCFAST = (NACC & 64) != 0;
+                            ^
+
+projection_control.cu(329): warning #177-D: member "<unnamed>::SkCfg<MT, TOKR, NT, NWR, WSK, UPW, NSTAGE, COMP, HL, NACC, CL, FUSE>::ESCOFF [with MT=1, TOKR=16, NT=3, NWR=1, WSK=4, UPW=2, NSTAGE=5, COMP=true, HL=false, NACC=13313, CL=1, FUSE=false]" was declared but never referenced
+      static constexpr bool ESCOFF = (NACC & 256) != 0;
+                            ^
+
+projection_control.cu(331): warning #177-D: member "<unnamed>::SkCfg<MT, TOKR, NT, NWR, WSK, UPW, NSTAGE, COMP, HL, NACC, CL, FUSE>::LITEWD [with MT=1, TOKR=16, NT=3, NWR=1, WSK=4, UPW=2, NSTAGE=5, COMP=true, HL=false, NACC=13313, CL=1, FUSE=false]" was declared but never referenced
+      static constexpr bool LITEWD = (NACC & 512) != 0;
+                            ^
+
+projection_control.cu(327): warning #177-D: member "<unnamed>::SkCfg<MT, TOKR, NT, NWR, WSK, UPW, NSTAGE, COMP, HL, NACC, CL, FUSE>::ESCFAST [with MT=1, TOKR=16, NT=3, NWR=1, WSK=4, UPW=2, NSTAGE=5, COMP=true, HL=false, NACC=13345, CL=1, FUSE=false]" was declared but never referenced
+      static constexpr bool ESCFAST = (NACC & 64) != 0;
+                            ^
+
+projection_control.cu(329): warning #177-D: member "<unnamed>::SkCfg<MT, TOKR, NT, NWR, WSK, UPW, NSTAGE, COMP, HL, NACC, CL, FUSE>::ESCOFF [with MT=1, TOKR=16, NT=3, NWR=1, WSK=4, UPW=2, NSTAGE=5, COMP=true, HL=false, NACC=13345, CL=1, FUSE=false]" was declared but never referenced
+      static constexpr bool ESCOFF = (NACC & 256) != 0;
+                            ^
+
+projection_control.cu(331): warning #177-D: member "<unnamed>::SkCfg<MT, TOKR, NT, NWR, WSK, UPW, NSTAGE, COMP, HL, NACC, CL, FUSE>::LITEWD [with MT=1, TOKR=16, NT=3, NWR=1, WSK=4, UPW=2, NSTAGE=5, COMP=true, HL=false, NACC=13345, CL=1, FUSE=false]" was declared but never referenced
+      static constexpr bool LITEWD = (NACC & 512) != 0;
+                            ^
+
+projection_control.cu(327): warning #177-D: member "<unnamed>::SkCfg<MT, TOKR, NT, NWR, WSK, UPW, NSTAGE, COMP, HL, NACC, CL, FUSE>::ESCFAST [with MT=1, TOKR=16, NT=3, NWR=1, WSK=4, UPW=2, NSTAGE=5, COMP=true, HL=false, NACC=5121, CL=1, FUSE=false]" was declared but never referenced
+      static constexpr bool ESCFAST = (NACC & 64) != 0;
+                            ^
+
+projection_control.cu(329): warning #177-D: member "<unnamed>::SkCfg<MT, TOKR, NT, NWR, WSK, UPW, NSTAGE, COMP, HL, NACC, CL, FUSE>::ESCOFF [with MT=1, TOKR=16, NT=3, NWR=1, WSK=4, UPW=2, NSTAGE=5, COMP=true, HL=false, NACC=5121, CL=1, FUSE=false]" was declared but never referenced
+      static constexpr bool ESCOFF = (NACC & 256) != 0;
+                            ^
+
+projection_control.cu(331): warning #177-D: member "<unnamed>::SkCfg<MT, TOKR, NT, NWR, WSK, UPW, NSTAGE, COMP, HL, NACC, CL, FUSE>::LITEWD [with MT=1, TOKR=16, NT=3, NWR=1, WSK=4, UPW=2, NSTAGE=5, COMP=true, HL=false, NACC=5121, CL=1, FUSE=false]" was declared but never referenced
+      static constexpr bool LITEWD = (NACC & 512) != 0;
+                            ^
+
+projection_control.cu(327): warning #177-D: member "<unnamed>::SkCfg<MT, TOKR, NT, NWR, WSK, UPW, NSTAGE, COMP, HL, NACC, CL, FUSE>::ESCFAST [with MT=1, TOKR=16, NT=3, NWR=1, WSK=4, UPW=2, NSTAGE=5, COMP=true, HL=false, NACC=5153, CL=1, FUSE=false]" was declared but never referenced
+      static constexpr bool ESCFAST = (NACC & 64) != 0;
+                            ^
+
+projection_control.cu(329): warning #177-D: member "<unnamed>::SkCfg<MT, TOKR, NT, NWR, WSK, UPW, NSTAGE, COMP, HL, NACC, CL, FUSE>::ESCOFF [with MT=1, TOKR=16, NT=3, NWR=1, WSK=4, UPW=2, NSTAGE=5, COMP=true, HL=false, NACC=5153, CL=1, FUSE=false]" was declared but never referenced
+      static constexpr bool ESCOFF = (NACC & 256) != 0;
+                            ^
+
+projection_control.cu(331): warning #177-D: member "<unnamed>::SkCfg<MT, TOKR, NT, NWR, WSK, UPW, NSTAGE, COMP, HL, NACC, CL, FUSE>::LITEWD [with MT=1, TOKR=16, NT=3, NWR=1, WSK=4, UPW=2, NSTAGE=5, COMP=true, HL=false, NACC=5153, CL=1, FUSE=false]" was declared but never referenced
+      static constexpr bool LITEWD = (NACC & 512) != 0;
+                            ^
+
+projection_control.cu(331): warning #177-D: member "<unnamed>::SkCfg<MT, TOKR, NT, NWR, WSK, UPW, NSTAGE, COMP, HL, NACC, CL, FUSE>::LITEWD [with MT=1, TOKR=16, NT=3, NWR=1, WSK=4, UPW=2, NSTAGE=5, COMP=true, HL=false, NACC=1025, CL=1, FUSE=false]" was declared but never referenced
+      static constexpr bool LITEWD = (NACC & 512) != 0;
+                            ^
+
+projection_control.cu(331): warning #177-D: member "<unnamed>::SkCfg<MT, TOKR, NT, NWR, WSK, UPW, NSTAGE, COMP, HL, NACC, CL, FUSE>::LITEWD [with MT=1, TOKR=16, NT=3, NWR=1, WSK=4, UPW=2, NSTAGE=5, COMP=true, HL=false, NACC=1057, CL=1, FUSE=false]" was declared but never referenced
+      static constexpr bool LITEWD = (NACC & 512) != 0;
+                            ^
+
+projection_control.cu(327): warning #177-D: member "<unnamed>::SkCfg<MT, TOKR, NT, NWR, WSK, UPW, NSTAGE, COMP, HL, NACC, CL, FUSE>::ESCFAST [with MT=1, TOKR=8, NT=3, NWR=1, WSK=4, UPW=4, NSTAGE=4, COMP=true, HL=false, NACC=13313, CL=1, FUSE=false]" was declared but never referenced
+      static constexpr bool ESCFAST = (NACC & 64) != 0;
+                            ^
+
+projection_control.cu(329): warning #177-D: member "<unnamed>::SkCfg<MT, TOKR, NT, NWR, WSK, UPW, NSTAGE, COMP, HL, NACC, CL, FUSE>::ESCOFF [with MT=1, TOKR=8, NT=3, NWR=1, WSK=4, UPW=4, NSTAGE=4, COMP=true, HL=false, NACC=13313, CL=1, FUSE=false]" was declared but never referenced
+      static constexpr bool ESCOFF = (NACC & 256) != 0;
+                            ^
+
+projection_control.cu(331): warning #177-D: member "<unnamed>::SkCfg<MT, TOKR, NT, NWR, WSK, UPW, NSTAGE, COMP, HL, NACC, CL, FUSE>::LITEWD [with MT=1, TOKR=8, NT=3, NWR=1, WSK=4, UPW=4, NSTAGE=4, COMP=true, HL=false, NACC=13313, CL=1, FUSE=false]" was declared but never referenced
+      static constexpr bool LITEWD = (NACC & 512) != 0;
+                            ^
+
+projection_control.cu(327): warning #177-D: member "<unnamed>::SkCfg<MT, TOKR, NT, NWR, WSK, UPW, NSTAGE, COMP, HL, NACC, CL, FUSE>::ESCFAST [with MT=1, TOKR=8, NT=3, NWR=1, WSK=4, UPW=4, NSTAGE=4, COMP=true, HL=false, NACC=13345, CL=1, FUSE=false]" was declared but never referenced
+      static constexpr bool ESCFAST = (NACC & 64) != 0;
+                            ^
+
+projection_control.cu(329): warning #177-D: member "<unnamed>::SkCfg<MT, TOKR, NT, NWR, WSK, UPW, NSTAGE, COMP, HL, NACC, CL, FUSE>::ESCOFF [with MT=1, TOKR=8, NT=3, NWR=1, WSK=4, UPW=4, NSTAGE=4, COMP=true, HL=false, NACC=13345, CL=1, FUSE=false]" was declared but never referenced
+      static constexpr bool ESCOFF = (NACC & 256) != 0;
+                            ^
+
+projection_control.cu(331): warning #177-D: member "<unnamed>::SkCfg<MT, TOKR, NT, NWR, WSK, UPW, NSTAGE, COMP, HL, NACC, CL, FUSE>::LITEWD [with MT=1, TOKR=8, NT=3, NWR=1, WSK=4, UPW=4, NSTAGE=4, COMP=true, HL=false, NACC=13345, CL=1, FUSE=false]" was declared but never referenced
+      static constexpr bool LITEWD = (NACC & 512) != 0;
+                            ^
+
+projection_control.cu(327): warning #177-D: member "<unnamed>::SkCfg<MT, TOKR, NT, NWR, WSK, UPW, NSTAGE, COMP, HL, NACC, CL, FUSE>::ESCFAST [with MT=1, TOKR=8, NT=3, NWR=1, WSK=4, UPW=4, NSTAGE=4, COMP=true, HL=false, NACC=5121, CL=1, FUSE=false]" was declared but never referenced
+      static constexpr bool ESCFAST = (NACC & 64) != 0;
+                            ^
+
+projection_control.cu(329): warning #177-D: member "<unnamed>::SkCfg<MT, TOKR, NT, NWR, WSK, UPW, NSTAGE, COMP, HL, NACC, CL, FUSE>::ESCOFF [with MT=1, TOKR=8, NT=3, NWR=1, WSK=4, UPW=4, NSTAGE=4, COMP=true, HL=false, NACC=5121, CL=1, FUSE=false]" was declared but never referenced
+      static constexpr bool ESCOFF = (NACC & 256) != 0;
+                            ^
+
+projection_control.cu(331): warning #177-D: member "<unnamed>::SkCfg<MT, TOKR, NT, NWR, WSK, UPW, NSTAGE, COMP, HL, NACC, CL, FUSE>::LITEWD [with MT=1, TOKR=8, NT=3, NWR=1, WSK=4, UPW=4, NSTAGE=4, COMP=true, HL=false, NACC=5121, CL=1, FUSE=false]" was declared but never referenced
+      static constexpr bool LITEWD = (NACC & 512) != 0;
+                            ^
+
+projection_control.cu(327): warning #177-D: member "<unnamed>::SkCfg<MT, TOKR, NT, NWR, WSK, UPW, NSTAGE, COMP, HL, NACC, CL, FUSE>::ESCFAST [with MT=1, TOKR=8, NT=3, NWR=1, WSK=4, UPW=4, NSTAGE=4, COMP=true, HL=false, NACC=5153, CL=1, FUSE=false]" was declared but never referenced
+      static constexpr bool ESCFAST = (NACC & 64) != 0;
+                            ^
+
+projection_control.cu(329): warning #177-D: member "<unnamed>::SkCfg<MT, TOKR, NT, NWR, WSK, UPW, NSTAGE, COMP, HL, NACC, CL, FUSE>::ESCOFF [with MT=1, TOKR=8, NT=3, NWR=1, WSK=4, UPW=4, NSTAGE=4, COMP=true, HL=false, NACC=5153, CL=1, FUSE=false]" was declared but never referenced
+      static constexpr bool ESCOFF = (NACC & 256) != 0;
+                            ^
+
+projection_control.cu(331): warning #177-D: member "<unnamed>::SkCfg<MT, TOKR, NT, NWR, WSK, UPW, NSTAGE, COMP, HL, NACC, CL, FUSE>::LITEWD [with MT=1, TOKR=8, NT=3, NWR=1, WSK=4, UPW=4, NSTAGE=4, COMP=true, HL=false, NACC=5153, CL=1, FUSE=false]" was declared but never referenced
+      static constexpr bool LITEWD = (NACC & 512) != 0;
+                            ^
+
+projection_control.cu(331): warning #177-D: member "<unnamed>::SkCfg<MT, TOKR, NT, NWR, WSK, UPW, NSTAGE, COMP, HL, NACC, CL, FUSE>::LITEWD [with MT=1, TOKR=8, NT=3, NWR=1, WSK=4, UPW=4, NSTAGE=4, COMP=true, HL=false, NACC=1025, CL=1, FUSE=false]" was declared but never referenced
+      static constexpr bool LITEWD = (NACC & 512) != 0;
+                            ^
+
+projection_control.cu(331): warning #177-D: member "<unnamed>::SkCfg<MT, TOKR, NT, NWR, WSK, UPW, NSTAGE, COMP, HL, NACC, CL, FUSE>::LITEWD [with MT=1, TOKR=8, NT=3, NWR=1, WSK=4, UPW=4, NSTAGE=4, COMP=true, HL=false, NACC=1057, CL=1, FUSE=false]" was declared but never referenced
+      static constexpr bool LITEWD = (NACC & 512) != 0;
+                            ^
+
