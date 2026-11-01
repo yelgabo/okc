@@ -158,3 +158,59 @@ The reset wakeup remains registered. Best submission remains byte-pinned
 `ba9e327cd7b96595ace4d0c1d0d78fe27c128f23ed0debcda97c7169fc3164ab`.
 Both measurement failures are closed at their tested scope. No current evidence
 supports a promised top10 outcome, and no new public submission was made.
+
+## November 1, 06:04 PST: new population evidence reopens one owned experiment
+
+The four old natural standalone count cases are too narrow to establish the
+frequency of repeated expert chunks. Before execution, root requested a local
+input-only population census at16/32 tokens and every seed65001–65032. All64
+banks are retained, using the exact public generator, full hidden-state RNG
+consumption and busiest-group rotation. No weights, kernel execution, timing or
+H200 quota was used. [Data and corrective addendum](2026-11-01-owned-moe-locality-scope.md#dated-addendum-preregistered-local-input-only-population-census),
+root commit5843874.
+
+Repeated8-row jobs occur in14/32 of the16-token banks and29/32 of the32-token
+banks. Mean logical duplicate fractions are4.54% and12.05%. This materially
+revises the earlier sample-limited implementation gate. The conditional
+proportional six-load scenario is1.030729×; it remains an arithmetic scenario,
+not a traffic measurement, bound or projected speedup. Prior RTX-to-H200 seed
+reconstruction failed and remains explicitly uncorrected. G's different64-row
+workload remains deferred; its new H200 scenario is still about0.72%.
+
+Root now authorizes one source prototype for the **owned standalone skinny
+kernel**, using32-unit bands within adjacent jobs of the same expert. This is a
+different experiment from token sorting, physical packed-layout changes or
+multicast. It does not import an external standalone kernel. Full unit-by-unit
+transposition would reload activation registers at every job switch; the fixed
+band bounds that cost without a band-size sweep. Logical weight reuse distance
+is a hypothesis about performance; the controlled whole-kernel experiment will
+test it directly, because neither failed stamp probe measured native traffic.
+
+The required [fresh hotspot tables](evidence/2026-11-01-owned-moe-locality/hotspots.md)
+compare the public owned incumbent and latest owned common control with the
+SGLang baseline profileeae9a6b7d5dd4809. Skinny is the sole profiled kernel at16/32;
+the public adjusted medians95.426/136.747µs are above the task's52.519/70.755µs
+floor references. These are whole-kernel opportunities, not an attribution of
+that gap to cache misses. The separate profile durations must not be substituted
+for adjusted score medians.
+
+The [publication/progress specification](2026-11-01-owned-skinny-band-progress.md),
+root722f157, proves integer mapping/inverse and512 total phase-A credits per
+physical job across CTA partitions. Three CPU tests pass. All producers,
+consumers and helpers must use the same physical mapping while retaining the
+original ring q/parity. The helper must publish every A credit before any
+dependent B wait, retaining the exact fence→warp-sync→atomic chain. Actual
+source review, compilation and resources remain gates; the integer model alone
+does not clear a kernel.
+
+The planned private comparison preregisters new held-out seeds
+993701/993703/993709, all six loads, four independent state/graph/input owners,
+and18 timing records. Treatment dispatch is only16/32; four other loads retain
+control. Preserve common cooperative admission and effective BF16 parameters,
+all packing/math/fences, fresh repeated replays, skewed/remote correctness and
+finite references. Require all four control/treatment score ratios≥1.01 and
+above2× duplicate noise, per seed and aggregate, with the registered per-cell
+regression gate. No H200 check is authorized until concrete source, resource,
+ownership, timing-budget and independent review gates pass. Root retains the
+remaining two MoE private checks. No candidate speedup or public action is
+claimed at this checkpoint.
