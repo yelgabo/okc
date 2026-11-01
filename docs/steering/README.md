@@ -6,6 +6,9 @@ report be checked into this repository so other sessions can read it.
 
 ## Latest review
 
+[November 1 strategy beyond an incorporated Family G](2026-11-01-beyond-family-g.md) sizes two independent investigations under the user's hypothetical incumbent.
+
+
 [Family G qualification and check receipts](2026-11-01-family-g-qualification.md) tracks G0, the G1a repaired fork with owned experts, and G1b with audited native experts.
 
 [November 1 research ownership retrospective](2026-11-01-research-ownership.md) adds the experiment-selection gate to both root instruction files and defines how to assess it prospectively.
