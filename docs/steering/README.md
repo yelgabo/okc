@@ -1,5 +1,7 @@
 # Shared project steering
 
+Latest single-arm hybrid host review: [Actual startup qualification](2026-11-01-hybrid-onearm-host-review.md). Exact4ad326c3/980787B passes7 independentCPU tests:48/8/24 full +40empty/8emptycaps/32restored, getters/negativefailures. Scopedsource/host only; H20013/12,setup/runtime/score remain unqualified.
+
 Latest separate progress prototype: [Owned verify51 cooperative+fatal-timeout epoch](2026-11-01-owned-verify-progress-prototype.md). Exact oldlauncher reused, PDLoff and timeouttrap; threeCPU tests/local96reg0spill compile pass. Source/peer/H200 qualification still required; no queue/public action.
 
 Latest owned eligibility blocker: [Verify51 launch progress](2026-11-01-owned-verify-progress-addendum.md). Comment equivalence holds, but historical sms-sized ordinary/PDL launch lacks documented whole-grid co-residency for software waits. Separate cooperative/PDL-off repair and qualification required; no code or GPU action here.
