@@ -1,5 +1,7 @@
 # Shared project steering
 
+Latest independent terminal: [Stage-local SX result and reader review](2026-11-01-sk-stage-terminal-independent.md). Owningdfcfdd01 PASS9/1.419147x, all10targets slower thanC2; independent6score/resources matchfixedreader. No retry/tuning/layerport.
+
 Latest stage-local source review: [Sparse stage arena proof](2026-11-01-sk-stage-repair-independent.md). Exactb726 format/lifetime and shared-helper RTX23bit checks pass. Separatede1111 single-arm qualifier source/5CPU tests clear; H200 resources/math/performance unqualified and global variant remains closed.
 
 Latest projection terminal: [SK-XOR single-arm H200 closure](2026-11-01-sk-xor-release-terminal.md). Public2b537518 PASS9/all10SX startup,1.394120x belowC2; all10targets regress. Exact production variant closed, no retry/layerport; dependency wording corrected.
