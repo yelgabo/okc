@@ -1,5 +1,7 @@
 # Shared project steering
 
+Latest reset readiness: [Shared set-owner repair](2026-11-01-reset-host-readiness.md). Old stage/short/four-cell pins block on real G sets; narrow clone repair passes six CPU host tests and double regeneration. New pins require root review; actual H200 setup/capture remain unqualified. No queue or GPU action.
+
 Latest byte-plan review: [Comment-only production source audit](2026-11-01-comment-byte-review.md).24 native literal checks and7 lexical/legal fixtures pass; final artifact/SASS/runtime gates remain separate.
 
 Latest source discovery: [All four nonprefill boards, 18:30 continuation](2026-11-01-public-source-refresh-1830.md). Identifier-first paginated search and24 pinned repository trees; newly inspected author receipts do not justify another comparator check. Coverage limits explicit.

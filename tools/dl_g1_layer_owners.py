@@ -50,6 +50,24 @@ def _wl_clone(state,readonly,on):
             y=[];memo[id(x)]=y;y.extend(clone(v) for v in x);return y
         if isinstance(x,tuple):
             y=tuple(clone(v) for v in x);memo[id(x)]=y;return y
+        if type(x) is set:
+            # Actual prepare owns compose_active and bfp.disabled sets. Their
+            # members are immutable policy scalars/tuples, never tensor owners.
+            # Exact types avoid opaque/custom hash/iterator side effects.
+            active=set()
+            def member(v):
+                if type(v) in (str,int,float,bool,type(None)):return v
+                if type(v) is tuple:
+                    if id(v) in active:raise RuntimeError('cyclic policy set member')
+                    active.add(id(v))
+                    try:
+                        for item in v:member(item)
+                    finally:active.remove(id(v))
+                    return v
+                raise RuntimeError('unreviewed policy set member '+type(v).__name__)
+            y=set();memo[id(x)]=y
+            for item in x:y.add(member(item))
+            return y
         if type(x).__name__=='_GraftLt':
             y=type(x).__new__(type(x));memo[id(x)]=y
             for name in ('lib','handle','desc','alpha','beta'):setattr(y,name,getattr(x,name))
