@@ -295,3 +295,15 @@ the public entry vjeux/okc-2026 with its design memos (see `docs/gap-analysis-20
 | General L1 SPEC late-tid scheduling, ONE_LATE_TID1, defaultoff | First check b4d75c3185744d0a; confirmation ab53721b09854717: d1full ~0.4us faster across builds/states/inputs, but written changed-only2x-null gate fails (late1/late2 approx1.007110/1.006037 vs null1.003640, threshold~1.007294) | Not promoted as the general knob affecting full and one-tile sliding; sliding's apparent benefit is reproduced by its null. Revisit with a non-one-tile SPEC L1 restriction based on repeated full-context evidence and a fresh full-only causal scoring gate. No math/fence/ordering change. |
 
 | 2026-10-31 | prefill Humming global local-M heuristic | ec3618d1604e44ba | Fresh M32 gate failed: graph rel>1e-4 share0.5 vs eager0.046875, unchanged2x criterion; BM8 vs incumbent24. No official timing/math result. Rules out global promotion; bounded753/3012 policy justified by separate paired component evidence7598f81b9b4645f9 remains distinct. |
+
+| 2026-10-31 | prefill Humming global local-M heuristic | ec3618d1604e44ba | Fresh M32 gate failed: graph rel>1e-4 share0.5 vs eager0.046875, unchanged2x criterion; BM8 vs incumbent24. No official timing/math result. Rules out global promotion; bounded753/3012 policy justified by separate paired component evidence7598f81b9b4645f9 remains distinct. |
+
+| 2026-10-31 | prefill bounded local-M gate, unchanged M32 control | d26a87ca2f484145 | Failed unchanged32-token control before753/3012: eager64 no outliers; graph2000 four sparse .0023-relative outliers. No bounded policy result; no promotion. New deterministic StreamK-disabled mechanism approved to address replay nondeterminism; no gate relaxation. |
+
+### Coordinator dispositions, October31 23:08 PDT
+
+| Experiment | Evidence | Scope and revisit trigger |
+|---|---|---|
+| Standalone MoE Humming INDEXED routed heuristic |8d64807ea7504495,5tests pass,0.911512837x CI0.897840–0.925186|Loses1/8/16/32;128/256 only slightly beat SGLang and trail owned persistent kernel. No replacement; GROUPED_MASKED is a separate new mechanism.|
+| Layer second attentionport repeatability |9414182118414889 pooled1.0015,maxlognull0.0011,allM1{}|Not resolved in new prepared regime; no repeated causal-gain claim. Reopen with matched policies/new bottleneck evidence, not weaker gate.|
+| First matched M1 observability harness |273ff292536e4429 official control passes but early diagnostic lines outside tail|No diagnostic inference. Fixed reprint03bb478f8b0b4629 preserves unchanged gates; does not reproduce prior0.14event.|

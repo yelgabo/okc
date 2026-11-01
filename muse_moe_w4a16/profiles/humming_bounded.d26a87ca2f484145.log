@@ -1,0 +1,15 @@
+HUMINDEX workspace M=32 cfg=[{'block_shape': (24, 256, 128), 'warp_shape': (24, 32, 64), 'use_stream_k': True, 'use_f16_accum': False, 'num_stages': 4}, {'block_shape': (24, 128, 256), 'warp_shape': (24, 32, 64), 'use_stream_k': True, 'use_f16_accum': False, 'num_stages': 4}]
+HUMFRESH M32 replays2000 control64 [ctrl_rel,row,nonfinite,cand_rel,row,nonfinite,ctrl_share,cand_share,bad_metadata,zero_error] [0.0, 0.0, 0.0, 0.0023259446024894714, 0.010989011265337467, 0.0, 0.0, 0.0020000000949949026, 0.0, 0.0]
+Traceback (most recent call last):
+  File "/tmp/muse_prefill_layer-dz1jsjy1/run/worker.py", line 423, in child_main
+    send(_setup_op(msg, module, state, sync, perf))
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/muse_prefill_layer-dz1jsjy1/run/worker.py", line 322, in _setup_op
+    state["prep"] = prepare(weights)
+                    ^^^^^^^^^^^^^^^^
+  File "/tmp/muse_prefill_layer-dz1jsjy1/run/submission.py", line 517, in prepare
+    _hi_stress_one(weights,m,state)
+  File "/tmp/muse_prefill_layer-dz1jsjy1/run/submission.py", line 510, in _hi_stress_one
+    assert rr<1e-2 and rr<=max(1e-4,2*cr), "Humming fresh relative error exceeds eager envelope"
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Humming fresh relative error exceeds eager envelope

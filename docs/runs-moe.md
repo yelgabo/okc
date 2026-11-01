@@ -291,7 +291,51 @@ remains at32 and unresolved16384. Checkd26a87ca2f484145 dispatched from
 `.build/today-moe/prefill_humming_bounded_stress.py`. Pure core is
 `.build/today-moe/prefill_humming_bounded.py`; diagnostic suffix runs the unchanged
 four-bank/64 eager/2000 queued gate at each of32,753,3012. No zero-removal or masked
-layout mixed in. CPU route contract oracle and generated syntax pass. Pending.
+layout mixed in. CPU route contract oracle and generated syntax pass.
+
+Bounded d26a87ca2f484145 FAILED at unchanged32-token control before reaching either
+changed shape. Eager64 rel/row/share all0; graph2000 rel0.00232594,row0.010989,
+share0.002 (four outliers); metadata/nonfinite/zero-local errors all0. Same incumbent
+BM24. This is evidence of sparse nondeterminism and a short eager envelope, **not**
+evidence of a bounded753/3012 performance loss. No promotion or tolerance relaxation.
+Status/log committed `profiles/humming_bounded.d26a87ca2f484145.*`.
+
+Root approved a new isolated mechanism: disable Stream-K under original routed heuristic.
+Check74eb65dad3fa4e54 pending; pure `.build/today-moe/prefill_humming_nostream.py`,
+diagnostic `_nostream_stress.py` runs the unchanged32/753/3012 fresh gates. Pinned0.1.12
+`forward.py:110` serializes explicit tuning dict, `kernel/humming.py:505–513` uses provided
+tuning and merges into KernelConfig; `config/config.py:337` declares use_stream_k.
+No shape policy, precision, zeroing, routing or tolerance change. Generated syntax passes.
+
+### GROUPED_MASKED offline prototype (not dispatched)
+
+`tools/prefill_humming_masked.py` retains exact reviewed NVFP4 weight loading and rank
+metadata, using counts as Humming expert_layout. Source pinned0.1.12 scheduler masked
+case uses per-expert actual counts and capacity shape_m/32, allowing fixed GPU capacities
+without contiguous last-expert overcomputation. Shape-only tuning estimate m; real input
+shape32*MCAP. MCAP rounds m to lcm(BM1,BM2); top8 unique guarantees each expert count<=m.
+Device assert enabled explicitly with debug=True, pointer accesses also masked by rank<cap.
+No data-derived host reads/cache. Fresh counts reset each call, retained per-shape buffers
+fail closed on first allocation during capture. Planned bytes/free memory printed outside
+capture; insufficient memory fails the complete candidate, not partial coverage.
+
+Own gather writes one exclusive grouped slot per local route; G1 tailzero covers only
+[count,ceil(count/BM1)*BM1), no zero-count work. Guarded route-indexed SiLU uses FP32
+math and one BF16 store, reads only initialized valid G1 rows. G2 tailzero similarly covers
+BM2 remainder; G2 output scattered only for live rank/ID and other route rows explicitly0.
+Original expert norm then routing-weight order retained. No whole20GB buffer clears.
+CPU oracle `tools/test_humming_masked_contract.py` passes unique routing, slot bijection,
+capacity, tail disjointness and zero-count proof for1/8/32/753/3012/16384 tokens across
+BM8/24/64/104/128/160/176 combinations. Syntax passes; GPU correctness/performance untested.
+
+Ordering source: [PTX8.7 section8.9.4 API synchronization](https://docs.nvidia.com/cuda/archive/12.8.0/parallel-thread-execution/index.html#memory-synchronization).
+Completed prior same-stream task synchronizes with next start; kernel/graph dependency
+boundaries participate in proxy-preserved base causality. Thus ordinary gather/tailzero/
+SiLU kernel completion orders global writes before subsequent TMA reads. No PDL,
+overlapping dependent kernels or runtime tensormap mutation; all Humming internal shared
+proxy fences preserved. Independent read-review requested before any masked dispatch.
+Correction: INDEXED disables TMA/warp specialization, not necessarily WGMMA. No instruction
+family comparison is measured without SASS. Masked exactNVFP4 support still needs GPU check.
 
 ## Source facts (SGLang a55ab7d5, read from GitHub and hashed against the image)
 
