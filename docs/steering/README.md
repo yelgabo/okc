@@ -4,11 +4,15 @@ This is the stable entry point for steering reports across research, implementat
 and coordinator sessions. The user requested on 2026-10-29 that every project-steering
 report be checked into this repository so other sessions can read it.
 
-## Latest checkpoint: exact-paste fusion audit; prefill deferred
+## Latest review
+
+[November 1 campaign accountability](2026-11-01-campaign-accountability.md) compares public scores with the restart snapshot, identifies where experiment selection diverged from the research, and gives an opportunity-size gate for future work. The user cleared the optimization goal.
+
+## Earlier checkpoint: exact-paste fusion audit; prefill deferred
 
 Current follow-up and history entry, [November 1 H200 counter access and weighted launch gaps](2026-11-01-counter-access.md).
 
-**Latest report: [November1 fusion-opportunity audit](2026-11-01-fusion-opportunity-audit.md).**
+**[November1 fusion-opportunity audit](2026-11-01-fusion-opportunity-audit.md).**
 Maps the pasted recommendations to current layer interfaces and already implemented work.
 Supporting [primary-source provenance](2026-11-01-pasted-source-provenance.md) resolves the
 H100 example and external BF16 result owners; [attention boundary map](2026-11-01-pasted-attention-boundaries.md)
@@ -411,6 +415,8 @@ accounting, and running a corrected matched whole-layer comparison. It records
 recommendations, not execution of those tasks; check current code and run logs for status.
 
 ## Report history
+
+- [November 1 campaign accountability and steering review](2026-11-01-campaign-accountability.md)
 
 - [2026-11-01 exact-paste fusion-opportunity audit](2026-11-01-fusion-opportunity-audit.md)
 - [2026-11-01 pasted-source primary provenance](2026-11-01-pasted-source-provenance.md)
