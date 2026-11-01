@@ -1,0 +1,19 @@
+{
+  "UTC": "2026-11-01T22:35:14.215168+00:00",
+  "argv": [
+    "python3",
+    "-m",
+    "unittest",
+    "discover",
+    "-s",
+    "tools",
+    "-p",
+    "test_g_common_rmw_receipt.py",
+    "-v"
+  ],
+  "returncode": 0,
+  "seconds": 1.3574072609999916,
+  "stdout": "",
+  "stderr": "test_actual_dispatch_resources_identity_negatives (test_g_common_rmw_receipt.Reader.test_actual_dispatch_resources_identity_negatives) ... ok\ntest_counts_pins_and_capsule_transport (test_g_common_rmw_receipt.Reader.test_counts_pins_and_capsule_transport) ... ok\ntest_fallback_is_preserved_not_attributed (test_g_common_rmw_receipt.Reader.test_fallback_is_preserved_not_attributed) ... ok\ntest_owning_log_and_source (test_g_common_rmw_receipt.Reader.test_owning_log_and_source) ... ok\ntest_terminal_guards_before_capsule (test_g_common_rmw_receipt.Reader.test_terminal_guards_before_capsule) ... ok\ntest_valid_complete_and_comparison (test_g_common_rmw_receipt.Reader.test_valid_complete_and_comparison) ... ok\n\n----------------------------------------------------------------------\nRan 6 tests in 0.607s\n\nOK\n",
+  "scope": "Synthetic owning receipt and actual frozen-source CPU metadata predicate; no GPU arithmetic/scheduling/service call"
+}

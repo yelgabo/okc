@@ -623,6 +623,8 @@ recommendations, not execution of those tasks; check current code and run logs f
 
 ## Report history
 
+- [2026-11-01 common-RMW owning reader](2026-11-01-common-rmw-owning-reader.md): root5cedf46/30d6c99, six synthetic terminal/source/log/startup/resource/dispatch negatives; actual frozen metadata predicate, explicit unexercised fallback and corrected short-load comparison labels. No GPU result in fixtures.
+
 - [2026-11-01 RMW H200 resume registration](2026-11-01-rmw-h200-resume.md): evidence82b4ac0, explicit user resume;1fad recovered infra_error/refunded, live quota refreshed, exact fixed RMW source/gates registered before dispatch.
 
 - [2026-11-01 G candidate funnel and single-arm qualification](2026-11-01-g-candidate-funnel-qualification.md): evidence603ed5b; one frozen RMW measurement candidate, seven root CPU tests, scoped parallel closures and exact startup/resume gates. No H200 result; pause and accepted-job reconciliation retained.
