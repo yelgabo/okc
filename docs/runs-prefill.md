@@ -87,3 +87,24 @@ No .item()/host countallocation; metadata and outputs reset eachcall, everyshape
 retained, failclosed on firstallocationduringcapture. G1topk8 andG2topk1 sentinel bounds,
 deviceNP scheduler, BF16boundaries andexactweightload reviewed. This is only firstofficial
 correctness/performance gate; freshinput queued zero-local/one-expert stress precedes scores.
+
+## October31 23:07 PDT coordinator results
+
+| Job | Source / purpose | Result |
+|---|---|---|
+|0de84000097946c9|Exact Humming0.1.12 indexed expert stages after installed-scale ABI correction|5/5 pass;1.176448889x,95%CI1.158802–1.194096|
+|ece54526780a4f28|Pure-v3 plus appended2000freshM32/64matchedcontrol stress|5/5 official pass; fresh metadata/nonfinite/zero0; original envelope passes; never submit stress suffix|
+|92408f1b65c643c4|Scored pure-v3,cand/humming_indexed_v3.py,SHAf3024d1b...|5/5 pass;1.146465578x,95%CI1.129268595–1.163662562; publicrank629/job verified|
+|2bd4f06042864771|Four-arm zero/unfiltered vs nozero/filtered; routed heuristic unchanged|Pending; no promotion. PureSHA561e41804f402d3e3cf931a70c416347763a13e90d98384e403533d0468a017b|
+
+Nozero hypothesis removes c1/c2/c3 whole-output clearing and restores baseline filteredSiLU.
+Pinned SGLang activation.cuh skips nonlocal row before load; finalnorm has original localID
+mask. Humming indexed localroute bijection writes every consumed row. Controls/candidates
+own separate scratch/locks; poison all output buffersNaN after warmup before computing check.
+Two heldoutseeds at753/3012/16384,12random cold rounds,4arms. Independent source review found
+no ordering/missing-write blocker. Requires paired improvement beyond duplicate nulls and
+fresh/official candidate validation before scoring. Source tools/prefill_humming_nozero.py;
+exact generated pure artifact in experiments/humming_nozero.py. No Mheuristic/StreamK change.
+
+Further Humming heuristic/fresh-control failures are owned in docs/runs-moe.md with exact
+prefill board receipts; do not misattribute them to standalone MoE because of receipt folder.

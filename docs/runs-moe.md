@@ -4890,3 +4890,13 @@ withdrawn (see docs/context.md). The board entry was then da9225e4f89441fc (2.00
 The losers of the fused-kernel runs are in `docs/ruled-out.md` under muse_moe_w4a16.
 
 Losers from these runs are in docs/ruled-out.md.
+
+## October31 23:07 PDT indexed library adapter
+
+8d64807ea7504495, source experiments/humming_indexed_r.py from checked prefill-v3 BODY
+via tools/moe_humming_candidate.py:5/5 official tests,0.911512837x,95%CI
+0.897840145–0.925185530. No public submission. Baseline/ours us byBS:
+1=80.00/91.01,8=142.91/167.23,16=187.47/228.86,32=206.05/253.86,
+128=459.39/448.17,256=612.37/546.62. Profile with baseline eae9a6b7d5dd4809 before dispatch.
+The indexed routed heuristic is unsuitable as current persistent-kernel replacement;
+retain source and loss, do not infer masked/local-heuristic backend behavior from it.

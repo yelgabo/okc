@@ -300,7 +300,7 @@ the public entry vjeux/okc-2026 with its design memos (see `docs/gap-analysis-20
 
 | 2026-10-31 | prefill bounded local-M gate, unchanged M32 control | d26a87ca2f484145 | Failed unchanged32-token control before753/3012: eager64 no outliers; graph2000 four sparse .0023-relative outliers. No bounded policy result; no promotion. New deterministic StreamK-disabled mechanism approved to address replay nondeterminism; no gate relaxation. |
 
-### Coordinator dispositions, October31 23:08 PDT
+### Coordinator dispositions, October31 23:07 PDT
 
 | Experiment | Evidence | Scope and revisit trigger |
 |---|---|---|

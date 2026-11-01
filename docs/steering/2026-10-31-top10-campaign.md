@@ -277,3 +277,132 @@ Lt are not interchangeable cross-run baselines.
 Merged attention df8ed3b while preserving both appended newbest hotspot tables (layer and
 unchanged attention control). Main worktree clean at15974d7 before this addendum. Public
 best layer/source remains8f2780d7382047e6/585d46e2.... Goal not complete or blocked.
+
+## Progress addendum: October31 23:07 PDT — exact releases, repeatability, and pivots
+
+Evidence pin: root main after merging projection649990a, MoE c0f88ae and attention c374b9d
+(root evidence commit c6b8e30 before new root dispatch; `git log` is authoritative). New root experiments below derive
+from checked source at2d1572a. CLI installation/login is complete: WSL Ubuntu okc0.7.2;
+remote checks report H200. The Windows RTX5070 is not used as a performance proxy.
+
+Public API snapshots `evidence/2026-10-31-top10-campaign/board-2303-*.json` and
+`board-summary-2303.json` establish current standings (rank is ordered row index, not attempts):
+
+| Problem | Own rank | Best score | Observed rank10 | Required additional score |
+|---|---:|---:|---:|---:|
+| Projection |292|1.527806|1.604517|5.02096%|
+| Attention |206|2.604290|2.909794|11.73079%|
+| MoE |371|2.215712|2.593077|17.03133%|
+| Decode layer |375|2.022870|2.379747|17.64209%|
+| Prefill |629|1.146466|2.017961|76.01580%|
+
+These are measured cutoffs at this snapshot, not November4 predictions. No board is top10.
+The existing measured portfolio does not establish enough gain for any of these gaps.
+Projection is closest arithmetically, but its closed experiments do not supply the missing5%.
+The best honest assessment remains: top10 is unproved and requires a new structural win;
+no claimed projected speedups or probability of success. Objective stays active.
+
+### Completed measurements and exact candidate
+
+Prefill scored92408f1b65c643c4 passes5tests, **1.146465578x**,95%CI
+1.129268595–1.163662562. This creates the first verified ranked prefill entry. Exact pure
+candidate is `muse_prefill_layer/cand/humming_indexed_v3.py`, SHA256
+f3024d1b01a5ef2bf655dcffe3110849ab6b0de15aecad6dba388f09e7ffb8fa.
+It contains no stress suffix. Correctness-only checkece54526780a4f28's source begins with
+these exact bytes; plain first check0de84000097946c9 passes at1.176449x. Different run scores
+are not isolated mechanism estimates. All original NVFP4 weights/scales and BF16/FP32 stage
+boundaries remain. Installed Humming0.1.12 source pin636ba856... is used. Newbest hotspot table
+is appended to docs/hotspots.md against SGLang09ba15bd18fd4000. GEMM stages remain major costs.
+
+Standalone adapter8d64807ea7504495 passes5tests but loses overall:0.911512837x,
+95%CI0.897840145–0.925185530. PerBS1/8/16/32 is slower than SGLang;128/256 beat SGLang
+slightly but remain far behind our persistent owned kernel. Preserve experiment, close
+INDEXED/routed heuristic as a small-token replacement. This does not close GROUPED_MASKED.
+
+Layer second independent four-arm9414182118414889 passes24checks perarm, all6loads,
+but pooled1.0015 and cross1.0006–1.0024 do not clear2xmaxlognull0.0011. All arms selected
+M1{} after fresh gate fallback. This does not repeat the first prepared-regime gain from
+c0402e4c92bc4b20. One original gate reported rel0.14/order1count4; do not dismiss it as noise.
+Scored8f2780d7382047e6 remains the checked public best, with original failclosed runtime gates.
+Matched gate diagnostic273ff292536e4429 passes official control but early evidence was lost
+from the log tail: observability failure, no gate inference. Tail-fixed03bb478f8b0b4629 passes
+13official tests (control2.035941x,CI2.005402–2.066481). At16x1sliding and1x8sliding, all four
+matched off/off,on/off,on/on comparisons pass the original gate, order1zero. It does not
+reproduce the0.14 event and therefore does not identify its cause. Judged M1 is always off
+in this diagnostic; never promote its control score as a kernel gain.
+
+Attention full-only late-tid a9b416a0c7324ecc clears prospective paired gate, but actual
+candidate/stress3588375a529c4fe8 fails before official timing on unchanged sliding:
+17/2000 exceed strict1e-4 comparison, maximumrelative L2~4.48e-4. Full stress was not reached.
+No promotion; source defaults0. A prospectively registered independent0/0-versus2/0 null
+study must classify this, keeping the same comparator and printing both shapes before exit.
+A timing win and selftests do not override a fresh-output failure.
+
+Humming global local-M ec3618d1604e44ba fails M32 fresh share criterion (graph0.5 vs eager
+0.046875) with all metadata/nonfinite/zero controls clean. Bounded local-M only at753/3012,
+d26a87ca2f484145, also fails unchanged M32 first: eager64 share0,graph2000 share0.002.
+Do not attribute the latter to unexecuted changed sizes, or relax the gate. New single-factor
+no-StreamK74eb65dad3fa4e54 retains routed heuristic/zeroing and tests explicit deterministic
+config plus official timing. This is a numerical reproducibility investigation, not a win.
+
+Projection dense occupancy proof is now real (62clusters,2CTA/SM,90regs,0localbytes,
+99376Bshared), yet4ca25ee4eccc495c loses~12.7us to selected Lt. Ablation e6e5bd6d0a104faf:
+Lt26.912us, full~39.6, no-reduction~36.4, memory-no-reduction~32.2. Memory pipeline alone
+already trails Lt. Combined128-row TMA7803be789c624f8e saves~0.5us full but leaves~12us;
+stop this local dense family. Scalar/vector pair7 concrete decoders also lose; TOP7-LUT32
+checkee39ec933a8542d8 tests a different byte ABI after exhaustive CPU gates and is pending.
+Neither fake byte savings nor the theoretical entropy ratio is a score forecast.
+
+### Ranked next work and acceptance/stopping rules
+
+1. **Prefill expert execution and traffic:** new indexed nozero/filtered-SiLU hypothesis,
+   fixed routed heuristic;4independent arms,NaN-poisoned scratch,two heldoutseeds/all3M.
+   Require all computing checks, paired gains beyond duplicate nulls, official candidate
+   tests and fresh routing validation before public promotion. Pure generator
+   tools/prefill_humming_nozero.py does not alter Humming ordering/math. GROUPED_MASKED is
+   a separate larger prototype, reviewed before dispatch; bound MCAP with distinct-top8
+   proof and failclosed overflow. If its full overhead erases compute gain, close mechanism.
+2. **Attention full-decode scheduling:** classify fresh failure against independently built
+   nulls, covering full and sliding. No threshold changes justified solely by passing tests.
+   If candidate adds error relative to null, stop/revert. Only then consider layer port.
+3. **Low-token MoE:** existing producer counter/4slot evidence closes easy ring resizing;
+   indexed library adapter loses. Masked grouped execution is a new structural hypothesis,
+   no speedup promise and separate decode policy needed. Keep current persistent release.
+4. **Layer boundaries/router:** retain existing routing fusion and M1 gates; do not repeat
+   known mechanisms without new hotspot evidence. Current second paired result is unresolved;
+   an attention instruction claim requires matched prepared policies. No cross-stage fusion
+   is presumed legal or useful. Do not weaken fallback to recover benchmark speed.
+5. **BF16 projections:** one pending distinct TOP7 decoder; stop local dense knobs. Any codec
+   needs physical bytes including escapes/padding, exact bit roundtrip, FP64/replay/resource
+   checks, same-run paired improvement and official score validation. Insufficient score gain
+   means pivot to a structurally different measured hotspot, not endless config sweeps.
+
+New source correction to research plan306: H200SXM bandwidth is4.8TB/s;3.35TB/s is H100SXM.
+[NVIDIA hardware table](https://docs.nvidia.com/enterprise-reference-architectures/hgx-ai-factory-h100-h200-b200/latest/components.html)
+backs this correction. It invalidates a3.35-based near-floor argument, but does not establish
+recoverable bandwidth or a promised gain. Preserve old plan and this dated correction.
+
+New masked pipeline ordering proof: ordinary completed writer kernels and subsequent same-
+stream TMA kernels are ordered across proxies under
+[PTX8.7 section8.9.4 API synchronization](https://docs.nvidia.com/cuda/archive/12.8.0/parallel-thread-execution/index.html#memory-synchronization).
+This applies to completed kernels/graph dependencies, not PDL overlap. Retain library internal
+shared-memory proxy fences and descriptor handling; no runtime tensormap mutation is added.
+
+Recommended submissions now: keep exact existing public best jobs in the table; prefill uses
+f3024d1b... explicit candidate and layer585d46e2... explicit candidate, rather than assuming
+main/submission.py equals either. No failing fresh-stress candidate is submitted. Remaining
+checks/submits are for new evidence-selected mechanisms and validated candidates; fresh
+repeat scores alone cannot support causal improvement. Allfive-top10 objective remains open.
+
+Dispatch addendum: reviewed nozero four-arm experiment2bd4f06042864771 is running on prefill;
+judged purecandidate SHA561e4180...; no heuristic/StreamK change. TOP7-LUT32ee39ec933a8542d8
+now passes all correctness gates but loses every target despite3.0–3.4% fewer actualbytes.
+Close that codec series. One separately registered original12bit integrated-escape-warp
+resource-ownership experiment is approved after CPUproof, with actual occupancy gain gate;
+it is not another codec or denseTMA sweep. No claimed5%score coverage.
+
+Snapshot time clarification: board-2303 files were fetched23:03:57–23:03:59 PDT (filesystem
+receipt times), not the addendum publication time. CPU route and masked-contract tests each
+pass, generated root helpers/pure/bench files compile, and diff whitespace check passes.
+Plain reviewed GROUPED_MASKED c1f6023f03d34c72 and noStreamK74eb65dad3fa4e54 remain live;
+full source/config resource evidence must precede any promotion. No public stressbench sent.

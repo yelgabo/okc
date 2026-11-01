@@ -765,3 +765,16 @@ Scored attentionport8f2780d7382047e6 passed13tests at2.022870x (1.992527–2.053
 Official board selects this job at currentread; release-manifest.md records source, SHA and
 policy caveats, including3unselected/report-only diagnostic issues. Hotspot table appended
 with SGLang baselineprofile7d42771c3384449d. Second paired9414182118414889 stillpending.
+
+## October31 23:07 PDT repeatability qualification
+
+9414182118414889, independent second four-arm attentionport:24checks perarm,6loads,
+pooled1.0015,crosses1.0006–1.0024,maxlognull0.0011; registeredgate NOT RESOLVED.
+All four M1policies{} after failclosed gate; original candidate16x1s gate reports rel0.14
+with4order1events. Different prepared regime from c0402e4c92bc4b20; no repeated gain claim.
+273ff292536e4429 matched-M1 diagnostic passes13official tests but early diagnostic lines
+lost from logtail; observation failure,no math conclusion. Fixedtail03bb478f8b0b4629 passes
+13tests/control2.035941422x,95%CI2.005402301–2.066480543. Matchedoff/off,on/off,on/on gates
+at16x1sliding and1x8sliding allpass/order1zero; prior0.14 event not reproduced or explained.
+Judged M1forcedoff; never promote diagnostic controlscore. Thresholds/CUDA unchanged.
+Helper tools/dl_make_m1_matched_diag.py; raw receipt evidence retained in profiles/.

@@ -12,7 +12,8 @@ HMRG1/PRQ31, no workspace placement pick, host PDL/precision/gates retained.
 Paired gatec0402e4c92bc4b20: all24checks perarm, all6loads, independentprepared copies,
 pooledinc/cand1.0042, allcrosses1.0036–1.0048, maxnull0.0007log. M1policy differs at32
 in one incumbent arm, so this is the whole prepared candidate's gain, not isolated attention
-instruction attribution. Independent second paired confirmation9414182118414889 pending.
+instruction attribution. Second paired9414182118414889 is NOT RESOLVED: pooled1.0015,
+maxlognull0.0011,allM1{} after gatefallback. First regime gain was not independently repeated.
 Public score movement is within runnoise; do not infer a0.42%official-score guarantee.
 
 Scored policy: M1{8:o+front,16:o,32:o}, open (8token saving2.94us), M1PDL=plain bitwise
