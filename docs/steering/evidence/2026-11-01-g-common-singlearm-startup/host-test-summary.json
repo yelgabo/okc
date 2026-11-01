@@ -1,0 +1,38 @@
+{
+  "scope": "Actual generated orchestration and validators on CPU; native/CUDA arithmetic and plans are stand-ins",
+  "tests": 6,
+  "returncode": 0,
+  "seconds": 8.574,
+  "per_arm": {
+    "model_checks": 72,
+    "model_captures": 12,
+    "fresh_checks": 36,
+    "empty_checks": 60,
+    "empty_captures": 12,
+    "restored": 48
+  },
+  "arms": [
+    "common",
+    "short-rmw"
+  ],
+  "command": [
+    "wsl",
+    "-d",
+    "Ubuntu",
+    "--",
+    "env",
+    "OKC_REPO_ROOT=/mnt/c/Users/gretc/Documents/GitHub/okc",
+    "/root/.cache/okc-host-validate/bin/python",
+    "-m",
+    "unittest",
+    "discover",
+    "-s",
+    "/mnt/c/Users/gretc/Documents/GitHub/okc-today-moe/tools",
+    "-p",
+    "test_g_common_release_host.py",
+    "-v"
+  ],
+  "raw_transcript": "tool output retained in session; this file is a structured summary",
+  "peer_header_resource_commit": "1142844",
+  "GPU_execution": false
+}

@@ -1,0 +1,36 @@
+{
+  "arm": "common",
+  "base607_sha256": "ba9e327cd7b96595ace4d0c1d0d78fe27c128f23ed0debcda97c7169fc3164ab",
+  "common_input_sha256": "4cbb13a9a359c9fe870a94ebcabc4706447778849f71d4aa54e47d69abbd1280",
+  "source_sha256": "bded49570e1192dd5d9b6a3f19c702e7ac9e0004c1bda3be59b41eb9eb534873",
+  "bytes": 913645,
+  "reference": {
+    "helper_source_sha256": "54881e3c51e58af323021e439e8ea3dd8c63bb2db7b7dbb184ca60c22adc9e4a",
+    "prelude_sha256": "50a546330f1a0f3ad98d0d564b42858c1b960311b7e38880dfbce07b17b56f8f",
+    "copied_helpers_sha256": "2d4a1fbd192bc26d7e22434d50a65d1ca1342688f6857c025eac3b69adc9eb65",
+    "helper_names": [
+      "_ab_inputs",
+      "_ab_rms",
+      "_ab_rope",
+      "_ab_coeffs",
+      "_ab_attention",
+      "_ab_ref_front",
+      "_ab_deq",
+      "_ab_ref_back",
+      "_ab_local",
+      "_ab_check_routing",
+      "_ab_compare",
+      "_ab_validate"
+    ],
+    "helper_bytes": 13945
+  },
+  "owners_sha256": "1d888635f63a586496f49c5ac2cc7b0be994f29844421d919d241cd7a02eee00",
+  "body_sha256": "187e83f32c665cf1f185053a664eea636e2cba733b61102f4261dd63f6682e9d",
+  "source_gpu_work_unchanged": true,
+  "timed_kernel_fn_AST_unchanged": true,
+  "prepare_only_host_audit": true,
+  "normal_audit_disabled": true,
+  "H200_qualified": false,
+  "dispatch_enabled": false,
+  "comparative_timings": false
+}

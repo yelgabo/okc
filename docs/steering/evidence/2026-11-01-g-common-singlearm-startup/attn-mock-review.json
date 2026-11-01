@@ -1,0 +1,26 @@
+{
+  "scope": "CPU C++ mock, CUDA APIs substituted; no GPU",
+  "source_sha256": "b8bee936450d78949cc38406e0329a6ebc9a276fc808bd7abe45f782360652bb",
+  "compile": {
+    "argv": [
+      "/root/.cache/okc-host-tools/zig-0-15-2/ziglang/zig",
+      "c++",
+      "-std=c++17",
+      "-O2",
+      "/mnt/c/Users/gretc/Documents/GitHub/okc-today-moe/.build/today-moe/common-release/attn-mock.cpp",
+      "-o",
+      "/mnt/c/Users/gretc/Documents/GitHub/okc-today-moe/.build/today-moe/common-release/attn-mock"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  "execute": {
+    "argv": [
+      "/mnt/c/Users/gretc/Documents/GitHub/okc-today-moe/.build/today-moe/common-release/attn-mock"
+    ],
+    "returncode": 0,
+    "stdout": "GQUAL_ATT7_HOST_PASS disabled0calls cooperative cluster 9rejects\n",
+    "stderr": ""
+  }
+}
