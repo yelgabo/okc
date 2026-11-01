@@ -1,5 +1,7 @@
 # Shared project steering
 
+Latest mandatory G attention chain: [Rules, native deltas and inherited selected join admission](2026-11-01-g-attention-mandatory-chain.md). Five definite software joins retain ordinary launch; OFF host-only repair has source/mock/real-CUDA-header gates, no GPU qualification. Old reset artifacts HOLD pending common-control decision.
+
 Latest strict reader: [Private short-RMW owning receipt](2026-11-01-short-rmw-owning-reader.md). Frozen f042 source/log binding, terminal-success-before-capsule and exact raw full-six gate; five synthetic CPU tests pass. No GPU result.
 
 Latest private harness review: [Short final-RMW whole-layer four-placement gate](2026-11-01-short-rmw-private-review.md). Exact f042 source cleared conditionally; two builds/four placements, raw all-six score gate, empty-to-occupied and final-fresh-output scope explicit. No GPU measurement.
