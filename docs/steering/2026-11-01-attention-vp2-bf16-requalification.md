@@ -112,3 +112,22 @@ No gain from an unmeasured cell or raw-only isolated VP2 timing. Any ordering/li
 resource/correctness/budget/coverage failure stops. On loss close exact requalification,
 do not build/sweep the owned HC variant. On pass only propose the separately owned
 representation/layout with full proof and a new independent authorization.
+
+
+## Preflight refinement and real CPU math fixtures
+
+Current draft6ca280a3b32f90f6781489f8af5dcf879d192a03659dfffcaf46854da8cea7b5,
+410536B supersedes341132. Eligibility now includes page1/unitKV in the actual predicate;
+legitimate unsupported page/scale cases delegate native control. Added16 untimed eager
+checks (all4arms at contexts0/10/2047/2048), covering empty/partial source partitions.
+Timing36rows unchanged; intended counters now eager_extra16/normal144/fresh336/post144.
+Canonical CUDA device is explicit so preallocated private state key equals actual qkv.device.
+Device strings/compile receipts unchanged. Two source/score tests still PASS.
+
+Two additional actual Torch2.10 CPU tests PASS against EXTRACTED ACTUAL reference/checker
+functions: distinct unrounded FP32/BF16-output oracles exercised, exact expected new cache
+rows, and injected stale-output/NaN-reference/NaN-output/corrupt-cache negative controls.
+CPU cache backing in these fixtures is FP32 stand-in for GPU FP8 indexing, while reference
+new-row conversion really uses E4M3. This proves host/reference/checker behavior, not CUDA.
+Command: hostvalidate Python fromtools `-m unittest test_moe_attn_vp2_math_cpu -v`.
+Independent full36-case host facade remains pending; root must not dispatch this draft yet.

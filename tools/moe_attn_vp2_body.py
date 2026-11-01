@@ -97,8 +97,9 @@ def _vp_prepare():
         def run(i,data):
             c=data['config']
             assert ns[i]['_one_ok'](c),'VP2_NATIVE_CONTROL_REQUIRED'
-            if i<2 or not(c['batch']==1 and c['q_len']==8 and c['window']==2048):return ns[i]['_one'](data)
-            assert c['page_size']==1 and c['kv_scale']==1 and c['num_q_heads']==16 and c['num_kv_heads']==2
+            eligible=(c['batch']==1 and c['q_len']==8 and c['window']==2048 and c['page_size']==1 and
+                      c['kv_scale']==1 and c['num_q_heads']==16 and c['num_kv_heads']==2)
+            if i<2 or not eligible:return ns[i]['_one'](data)
             out=torch.empty((1,8,1024),device=data['qkv'].device,dtype=torch.bfloat16)
             q=data['qkv'];p=data['page_table'];freq=ns[i]['_inv_freq'](c['rope_theta'],64,q.device)
             mods[i].muse_vp2_launch(q.data_ptr(),p.data_ptr(),p.stride(0),data['seq_lens'].data_ptr(),data['cache_loc'].data_ptr(),
@@ -106,7 +107,14 @@ def _vp_prepare():
                 c['qk_scale_factor']*c['sm_scale']*ns[i]['LOG2E'],1.,1.,1.,1e-5,0,torch.cuda.current_stream().cuda_stream)
             return out
         flush=torch.empty(256<<20,device='cuda',dtype=torch.uint8)
-        rows=[];counts=dict(normal=0,fresh=0,post=0);worst=[0.]*6
+        rows=[];counts=dict(eager_extra=0,normal=0,fresh=0,post=0);worst=[0.]*6
+        # Same target ABI, short/empty source partitions; never contributes timing credit.
+        for context in (0,10,2047,2048):
+            _vp_guard();base=_ob_inputs(1,context,'tp8','sliding',8,'fixed','soft',1,1.,seed=824719+context)
+            refs=_vp_refs(base)
+            for i in range(4):
+                data=_vp_clone(base);out=run(i,data);torch.cuda.synchronize()
+                e=_vp_check(data,out,refs);worst=[max(a,b) for a,b in zip(worst,e)];counts['eager_extra']+=1
         for batch in (1,16,32):
             for length in (1,8):
                 for window in (0,1):
@@ -159,7 +167,7 @@ def _vp_prepare():
                         adjusted=[v-offset for v in raw];assert min(adjusted)>0,'VP2_BAD_CALIBRATION'
                         rows.append((batch,length,window,seed,adjusted))
                         del graphs,outputs,inputs,base,refs
-        _vp_guard();assert counts==dict(normal=144,fresh=336,post=144),counts
+        _vp_guard();assert counts==dict(eager_extra=16,normal=144,fresh=336,post=144),counts
         report=dict(schema='PRIVATE_VP2_BF16_V1',source=_VP_MANIFEST,resources=resources,plans=plans,
                     counts=counts,worst=worst,rows=rows,gate=_vp_score(rows),seconds=time.monotonic()-_VP_BEGIN,
                     calibration='fixed earlier3f44 per-cell raw-minus-adjusted; counterfactual, not official candidate score')
