@@ -1,5 +1,31 @@
 # Decode-layer release manifest
 
+## November 1 current recommendation (18:19 UTC snapshot)
+
+The current layer board entry is **607eb52bdaf24160**, not the historical
+October31 entry retained below. Use
+`muse_decode_layer/cand/g1b4_stage_release.py`,869076bytes, SHA256
+`ba9e327cd7b96595ace4d0c1d0d78fe27c128f23ed0debcda97c7169fc3164ab`.
+Official PASS13,2.1260826764231093x,95%CI[2.0941914362767626,2.1579739165694556].
+This is the attributed, repaired G fork with the recorded stage-retirement
+change. Receipt `muse_decode_layer/profiles/scored.607eb52bdaf24160.json`;
+source and eligibility: `docs/steering/2026-11-01-g-public-layer-measurement.md`.
+Do not substitute the older root submission.py or unqualified private hybrid.
+
+| Board | Retained best public job | Score | Reproducible source |
+|---|---|---:|---|
+| Layer |607eb52bdaf24160|2.1260826764x|Exact candidate above|
+| Projection |9eba96894ee1402e|1.5278064830x|C2 at3044ee7; tools/proj_sk_xor_control.py restores exact216576B/SHA5610b8a6 submitted file|
+| Attention |8914751e3b9f468b|2.6042902049x|d3eeeda plus repeatcomment2, SHA b296c13ad2745336e97488e297fcde751a5fc10c818c92b6f2250656369efe75; owning row in docs/runs-attention.md|
+| MoE |abe7651dbaa44458|2.2157115620x|ec565a7:muse_moe_w4a16/submission.py,235700B/SHA b35d321730f67b8157eef0683011b118bf3644dc5e9602ee29d823d8056c4e14|
+
+Projection's tracked submission.py is C3 and is not the best public C2 source.
+Do not choose it just because of its filename. Global repair2b537518 is closed
+as a measured loss; stage-local measurementdfcfdd01d6f04525 passed all9 official tests but
+scored1.419146839x and is also closed as a loss. Neither is promoted. New source/code/compiler/bit-test clearance alone does not establish
+a release improvement. Prefill remains excluded. The complete historical
+manifest follows unchanged.
+
 ## Board entry verified October31 PDT: attention port on stable M1+51+C1
 
 Job `8f2780d7382047e6`, scored **2.022870x**,95%CI1.992527–2.053214,13/13tests.
