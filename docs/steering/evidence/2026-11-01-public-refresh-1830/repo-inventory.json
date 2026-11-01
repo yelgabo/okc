@@ -1,0 +1,1505 @@
+[
+  {
+    "repo": "zhebrak/muse-spark-kernels",
+    "pin": "ff4d55ab669977f15874943044d20312d98a44d1",
+    "branch": "main",
+    "pushed_at": "2026-10-28T19:39:37Z",
+    "commit_date": "2026-10-28T19:39:35Z",
+    "fork": false,
+    "parent": null,
+    "license": "Apache-2.0",
+    "forks": 0,
+    "files": 10,
+    "truncated": false,
+    "interesting": [
+      {
+        "path": "LICENSE",
+        "mode": "100644",
+        "type": "blob",
+        "sha": "d645695673349e3947e8e5ae42332d0ac3164cd7",
+        "size": 11358,
+        "url": "https://api.github.com/repos/zhebrak/muse-spark-kernels/git/blobs/d645695673349e3947e8e5ae42332d0ac3164cd7"
+      },
+      {
+        "path": "README.md",
+        "mode": "100644",
+        "type": "blob",
+        "sha": "48093219a65b63877bd09fb47b9cd06ad96299c6",
+        "size": 5560,
+        "url": "https://api.github.com/repos/zhebrak/muse-spark-kernels/git/blobs/48093219a65b63877bd09fb47b9cd06ad96299c6"
+      },
+      {
+        "path": "winners/muse_attention_decode/result.json",
+        "mode": "100644",
+        "type": "blob",
+        "sha": "24799957e49087c091f28f858b520142bd0a286e",
+        "size": 65812,
+        "url": "https://api.github.com/repos/zhebrak/muse-spark-kernels/git/blobs/24799957e49087c091f28f858b520142bd0a286e"
+      },
+      {
+        "path": "winners/muse_attention_decode/submission.py",
+        "mode": "100644",
+        "type": "blob",
+        "sha": "b0c3f3aafd9719fca0b4f5dcdd11f5af7a00e327",
+        "size": 498019,
+        "url": "https://api.github.com/repos/zhebrak/muse-spark-kernels/git/blobs/b0c3f3aafd9719fca0b4f5dcdd11f5af7a00e327"
+      },
+      {
+        "path": "winners/muse_bf16_proj/result.json",
+        "mode": "100644",
+        "type": "blob",
+        "sha": "ea3ac90f074c0d65ef469a12f1c45c5c0ce387e3",
+        "size": 144767,
+        "url": "https://api.github.com/repos/zhebrak/muse-spark-kernels/git/blobs/ea3ac90f074c0d65ef469a12f1c45c5c0ce387e3"
+      },
+      {
+        "path": "winners/muse_bf16_proj/submission.py",
+        "mode": "100644",
+        "type": "blob",
+        "sha": "ccb08adfaa5ec678590c1f907432b0ac6ea7407b",
+        "size": 129044,
+        "url": "https://api.github.com/repos/zhebrak/muse-spark-kernels/git/blobs/ccb08adfaa5ec678590c1f907432b0ac6ea7407b"
+      },
+      {
+        "path": "winners/muse_decode_layer/result.json",
+        "mode": "100644",
+        "type": "blob",
+        "sha": "4ecf67d35a9eeba00188b4b12b66e18416972080",
+        "size": 59629,
+        "url": "https://api.github.com/repos/zhebrak/muse-spark-kernels/git/blobs/4ecf67d35a9eeba00188b4b12b66e18416972080"
+      },
+      {
+        "path": "winners/muse_decode_layer/submission.py",
+        "mode": "100644",
+        "type": "blob",
+        "sha": "7ef25a5b7cd07f96dd5d70f12966d6f6891c7ee9",
+        "size": 954030,
+        "url": "https://api.github.com/repos/zhebrak/muse-spark-kernels/git/blobs/7ef25a5b7cd07f96dd5d70f12966d6f6891c7ee9"
+      },
+      {
+        "path": "winners/muse_moe_w4a16/result.json",
+        "mode": "100644",
+        "type": "blob",
+        "sha": "886a2d75f7eab45e5e6f3b516aa624784b9dc3e3",
+        "size": 44922,
+        "url": "https://api.github.com/repos/zhebrak/muse-spark-kernels/git/blobs/886a2d75f7eab45e5e6f3b516aa624784b9dc3e3"
+      },
+      {
+        "path": "winners/muse_moe_w4a16/submission.py",
+        "mode": "100644",
+        "type": "blob",
+        "sha": "f131a7a72b7324e6c38d4e89774c266b78858670",
+        "size": 267553,
+        "url": "https://api.github.com/repos/zhebrak/muse-spark-kernels/git/blobs/f131a7a72b7324e6c38d4e89774c266b78858670"
+      }
+    ]
+  },
+  {
+    "repo": "lachydotmcg/muse-sputter",
+    "pin": "527bd70472e3842bbd6147f8cc2bba6d6452cf43",
+    "branch": "main",
+    "pushed_at": "2026-10-23T10:00:00Z",
+    "commit_date": "2026-10-23T09:59:59Z",
+    "fork": false,
+    "parent": null,
+    "license": "MIT",
+    "forks": 0,
+    "files": 19,
+    "truncated": false,
+    "interesting": [
+      {
+        "path": "LICENSE",
+        "mode": "100644",
+        "type": "blob",
+        "sha": "7108eb0a971dfbf173b412d2c1bd27fff06bef3d",
+        "size": 1068,
+        "url": "https://api.github.com/repos/lachydotmcg/muse-sputter/git/blobs/7108eb0a971dfbf173b412d2c1bd27fff06bef3d"
+      },
+      {
+        "path": "README.md",
+        "mode": "100644",
+        "type": "blob",
+        "sha": "cf7fa1caa36a338d75bcb544756da87e82775d04",
+        "size": 1702,
+        "url": "https://api.github.com/repos/lachydotmcg/muse-sputter/git/blobs/cf7fa1caa36a338d75bcb544756da87e82775d04"
+      },
+      {
+        "path": "reference/README.md",
+        "mode": "100644",
+        "type": "blob",
+        "sha": "5550f179c318538fa9c2e5e922e14a19e6765534",
+        "size": 593,
+        "url": "https://api.github.com/repos/lachydotmcg/muse-sputter/git/blobs/5550f179c318538fa9c2e5e922e14a19e6765534"
+      }
+    ]
+  },
+  {
+    "repo": "Madhavan113/ParadigmKernelChallenge",
+    "pin": "721c62729fa0b407799692f311790643706f292d",
+    "branch": "main",
+    "pushed_at": "2026-10-29T20:47:01Z",
+    "commit_date": "2026-10-29T20:47:00Z",
+    "fork": false,
+    "parent": null,
+    "license": null,
+    "forks": 0,
+    "files": 618,
+    "truncated": false,
+    "interesting": [
+      {
+        "path": "NOTICE",
+        "mode": "100644",
+        "type": "blob",
+        "sha": "da8e3bcfffba1ae88826d924a3c1dae9dbe76141",
+        "size": 479,
+        "url": "https://api.github.com/repos/Madhavan113/ParadigmKernelChallenge/git/blobs/da8e3bcfffba1ae88826d924a3c1dae9dbe76141"
+      },
+      {
+        "path": "README.md",
+        "mode": "100644",
+        "type": "blob",
+        "sha": "1deae0b984d97f5b385d76fbfd2b0e9188d14539",
+        "size": 399,
+        "url": "https://api.github.com/repos/Madhavan113/ParadigmKernelChallenge/git/blobs/1deae0b984d97f5b385d76fbfd2b0e9188d14539"
+      }
+    ]
+  },
+  {
+    "repo": "KingCobra52/muse_bf16_optimization",
+    "pin": "452eabcdf1f5ccc82223c4621511c7d147be5618",
+    "branch": "main",
+    "pushed_at": "2026-10-28T23:01:22Z",
+    "commit_date": "2026-10-28T23:01:10Z",
+    "fork": false,
+    "parent": null,
+    "license": null,
+    "forks": 0,
+    "files": 8,
+    "truncated": false,
+    "interesting": [
+      {
+        "path": "README.md",
+        "mode": "100644",
+        "type": "blob",
+        "sha": "79b0d905b58159c4d1600375fabd2212032ec00c",
+        "size": 25,
+        "url": "https://api.github.com/repos/KingCobra52/muse_bf16_optimization/git/blobs/79b0d905b58159c4d1600375fabd2212032ec00c"
+      }
+    ]
+  },
+  {
+    "repo": "Aravind-11/muse-moe-w4a16",
+    "pin": "399305738cfb9effc85555e05b8691ba6c769813",
+    "branch": "main",
+    "pushed_at": "2026-10-28T05:02:11Z",
+    "commit_date": "2026-10-28T05:02:10Z",
+    "fork": false,
+    "parent": null,
+    "license": null,
+    "forks": 0,
+    "files": 9,
+    "truncated": false,
+    "interesting": [
+      {
+        "path": "README.md",
+        "mode": "100644",
+        "type": "blob",
+        "sha": "7151310f81aeb56a10e0880cb8f20be8de435642",
+        "size": 1158,
+        "url": "https://api.github.com/repos/Aravind-11/muse-moe-w4a16/git/blobs/7151310f81aeb56a10e0880cb8f20be8de435642"
+      }
+    ]
+  },
+  {
+    "repo": "GiulianoIntelligence/Muse-FlashSpeed-Kernel",
+    "pin": "d47f9fc825fd2ae6c05b1af02e51f8d570a71437",
+    "branch": "main",
+    "pushed_at": "2026-10-27T22:33:28Z",
+    "commit_date": "2026-10-27T22:33:28Z",
+    "fork": false,
+    "parent": null,
+    "license": null,
+    "forks": 0,
+    "files": 60,
+    "truncated": false,
+    "interesting": [
+      {
+        "path": "README.md",
+        "mode": "100644",
+        "type": "blob",
+        "sha": "e06cf87fbe51750ec736b19b6399a895be470d75",
+        "size": 744,
+        "url": "https://api.github.com/repos/GiulianoIntelligence/Muse-FlashSpeed-Kernel/git/blobs/e06cf87fbe51750ec736b19b6399a895be470d75"
+      }
+    ]
+  },
+  {
+    "repo": "Saikat-too/muse_spark_kernel_challenge",
+    "pin": "d0b7a172dc93faefc464f3046ecdc8f18f70d1f5",
+    "branch": "main",
+    "pushed_at": "2026-10-27T18:01:08Z",
+    "commit_date": "2026-10-27T18:00:56Z",
+    "fork": false,
+    "parent": null,
+    "license": "MIT",
+    "forks": 0,
+    "files": 8,
+    "truncated": false,
+    "interesting": [
+      {
+        "path": "LICENSE",
+        "mode": "100644",
+        "type": "blob",
+        "sha": "3674f129dce2205405f54b54f8b53b8c3010ae6e",
+        "size": 1070,
+        "url": "https://api.github.com/repos/Saikat-too/muse_spark_kernel_challenge/git/blobs/3674f129dce2205405f54b54f8b53b8c3010ae6e"
+      }
+    ]
+  },
+  {
+    "repo": "infraax/okc-kernel-challenge",
+    "pin": "896b816dc5fd418e1f167578eb35680b116b68f3",
+    "branch": "main",
+    "pushed_at": "2026-10-27T11:46:00Z",
+    "commit_date": "2026-10-27T11:45:30Z",
+    "fork": false,
+    "parent": null,
+    "license": "Apache-2.0",
+    "forks": 0,
+    "files": 515,
+    "truncated": false,
+    "interesting": [
+      {
+        "path": "HYPOTHESES.md",
+        "mode": "100644",
+        "type": "blob",
+        "sha": "120e694c6eb7bb55f2f6f540fc6e2fcf73a63e8c",
+        "size": 4645,
+        "url": "https://api.github.com/repos/infraax/okc-kernel-challenge/git/blobs/120e694c6eb7bb55f2f6f540fc6e2fcf73a63e8c"
+      },
+      {
+        "path": "LESSONS.md",
+        "mode": "100644",
+        "type": "blob",
+        "sha": "cb95ec174fdabedc7a01c3a97c3d5cc8f36928f9",
+        "size": 2171,
+        "url": "https://api.github.com/repos/infraax/okc-kernel-challenge/git/blobs/cb95ec174fdabedc7a01c3a97c3d5cc8f36928f9"
+      },
+      {
+        "path": "LICENSE",
+        "mode": "100644",
+        "type": "blob",
+        "sha": "d645695673349e3947e8e5ae42332d0ac3164cd7",
+        "size": 11358,
+        "url": "https://api.github.com/repos/infraax/okc-kernel-challenge/git/blobs/d645695673349e3947e8e5ae42332d0ac3164cd7"
+      },
+      {
+        "path": "README.md",
+        "mode": "100644",
+        "type": "blob",
+        "sha": "065caba5cf34a38a68633f1c9dfb5ceb46f4e1fe",
+        "size": 6092,
+        "url": "https://api.github.com/repos/infraax/okc-kernel-challenge/git/blobs/065caba5cf34a38a68633f1c9dfb5ceb46f4e1fe"
+      },
+      {
+        "path": "design/redteam/README.md",
+        "mode": "100644",
+        "type": "blob",
+        "sha": "53047fceb2e6bf0a2f7d8016774a70b4f1b02853",
+        "size": 1045,
+        "url": "https://api.github.com/repos/infraax/okc-kernel-challenge/git/blobs/53047fceb2e6bf0a2f7d8016774a70b4f1b02853"
+      }
+    ]
+  },
+  {
+    "repo": "operatorstack/open-kernel-challenge-solutions",
+    "pin": "6d9b77656b6c295e421be9e1424b0f8f99299b0a",
+    "branch": "main",
+    "pushed_at": "2026-10-26T02:35:32Z",
+    "commit_date": "2026-10-26T02:35:32Z",
+    "fork": false,
+    "parent": null,
+    "license": "MIT",
+    "forks": 0,
+    "files": 17,
+    "truncated": false,
+    "interesting": [
+      {
+        "path": "LICENSE",
+        "mode": "100644",
+        "type": "blob",
+        "sha": "c9651ebac95daa62c1d52fd8604221d55ed01754",
+        "size": 1067,
+        "url": "https://api.github.com/repos/operatorstack/open-kernel-challenge-solutions/git/blobs/c9651ebac95daa62c1d52fd8604221d55ed01754"
+      },
+      {
+        "path": "NOTICE",
+        "mode": "100644",
+        "type": "blob",
+        "sha": "925213e989852e33a355c378aa9e0287e64e1116",
+        "size": 2479,
+        "url": "https://api.github.com/repos/operatorstack/open-kernel-challenge-solutions/git/blobs/925213e989852e33a355c378aa9e0287e64e1116"
+      },
+      {
+        "path": "README.md",
+        "mode": "100644",
+        "type": "blob",
+        "sha": "c26e61466935f7414612d2922627e0f52a10ed6b",
+        "size": 4484,
+        "url": "https://api.github.com/repos/operatorstack/open-kernel-challenge-solutions/git/blobs/c26e61466935f7414612d2922627e0f52a10ed6b"
+      },
+      {
+        "path": "muse_attention_decode/README.md",
+        "mode": "100644",
+        "type": "blob",
+        "sha": "cf6ad1a5204b75e24739c316937995cf759dc311",
+        "size": 4547,
+        "url": "https://api.github.com/repos/operatorstack/open-kernel-challenge-solutions/git/blobs/cf6ad1a5204b75e24739c316937995cf759dc311"
+      },
+      {
+        "path": "muse_attention_decode/RESULT.json",
+        "mode": "100644",
+        "type": "blob",
+        "sha": "35adbf51d04943ceca05a3fdd543709828e2be95",
+        "size": 777,
+        "url": "https://api.github.com/repos/operatorstack/open-kernel-challenge-solutions/git/blobs/35adbf51d04943ceca05a3fdd543709828e2be95"
+      },
+      {
+        "path": "muse_bf16_proj/README.md",
+        "mode": "100644",
+        "type": "blob",
+        "sha": "a232f764a1dff6ce8c106d80e7186ec90a23a45b",
+        "size": 4792,
+        "url": "https://api.github.com/repos/operatorstack/open-kernel-challenge-solutions/git/blobs/a232f764a1dff6ce8c106d80e7186ec90a23a45b"
+      },
+      {
+        "path": "muse_bf16_proj/RESULT.json",
+        "mode": "100644",
+        "type": "blob",
+        "sha": "e44251155347e153cd6e3881e6362560d8356482",
+        "size": 771,
+        "url": "https://api.github.com/repos/operatorstack/open-kernel-challenge-solutions/git/blobs/e44251155347e153cd6e3881e6362560d8356482"
+      },
+      {
+        "path": "muse_decode_layer/README.md",
+        "mode": "100644",
+        "type": "blob",
+        "sha": "d7d68694e754b567cfc575a2d5bef9d09ed20b4c",
+        "size": 7176,
+        "url": "https://api.github.com/repos/operatorstack/open-kernel-challenge-solutions/git/blobs/d7d68694e754b567cfc575a2d5bef9d09ed20b4c"
+      },
+      {
+        "path": "muse_decode_layer/RESULT.json",
+        "mode": "100644",
+        "type": "blob",
+        "sha": "4d798d1a00891bb4a7f22f450af174bd65fb9138",
+        "size": 773,
+        "url": "https://api.github.com/repos/operatorstack/open-kernel-challenge-solutions/git/blobs/4d798d1a00891bb4a7f22f450af174bd65fb9138"
+      },
+      {
+        "path": "muse_moe_w4a16/README.md",
+        "mode": "100644",
+        "type": "blob",
+        "sha": "153eca35c6f5e9f4a9d6e205e44d127d6dd7d8fd",
+        "size": 4603,
+        "url": "https://api.github.com/repos/operatorstack/open-kernel-challenge-solutions/git/blobs/153eca35c6f5e9f4a9d6e205e44d127d6dd7d8fd"
+      },
+      {
+        "path": "muse_moe_w4a16/RESULT.json",
+        "mode": "100644",
+        "type": "blob",
+        "sha": "38faa86b8595233363eb29e17b3bef60b19099e6",
+        "size": 767,
+        "url": "https://api.github.com/repos/operatorstack/open-kernel-challenge-solutions/git/blobs/38faa86b8595233363eb29e17b3bef60b19099e6"
+      }
+    ]
+  },
+  {
+    "repo": "iyerramji/open-kernel-challenge",
+    "pin": "1d57ff7749433d0d18b294744e607cd82e33057f",
+    "branch": "main",
+    "pushed_at": "2026-10-29T15:20:39Z",
+    "commit_date": "2026-10-29T15:20:38Z",
+    "fork": false,
+    "parent": null,
+    "license": "Apache-2.0",
+    "forks": 0,
+    "files": 702,
+    "truncated": false,
+    "interesting": [
+      {
+        "path": "LICENSE",
+        "mode": "100644",
+        "type": "blob",
+        "sha": "9c422689c8f5c317c7c65153b1209349ec57007e",
+        "size": 11346,
+        "url": "https://api.github.com/repos/iyerramji/open-kernel-challenge/git/blobs/9c422689c8f5c317c7c65153b1209349ec57007e"
+      },
+      {
+        "path": "NOTICE",
+        "mode": "100644",
+        "type": "blob",
+        "sha": "e6f95adfc5b1f6bacb80e318dfa30e2159a90c4c",
+        "size": 690,
+        "url": "https://api.github.com/repos/iyerramji/open-kernel-challenge/git/blobs/e6f95adfc5b1f6bacb80e318dfa30e2159a90c4c"
+      },
+      {
+        "path": "README.md",
+        "mode": "100644",
+        "type": "blob",
+        "sha": "fdc1e8fc1c3fceffa8d149b0a6addb330956003b",
+        "size": 10665,
+        "url": "https://api.github.com/repos/iyerramji/open-kernel-challenge/git/blobs/fdc1e8fc1c3fceffa8d149b0a6addb330956003b"
+      },
+      {
+        "path": "results/runs/14da83f6a21449d5/result.json",
+        "mode": "100644",
+        "type": "blob",
+        "sha": "d35072450868a3a09d2813da09de2b02ffdd5b03",
+        "size": 209374,
+        "url": "https://api.github.com/repos/iyerramji/open-kernel-challenge/git/blobs/d35072450868a3a09d2813da09de2b02ffdd5b03"
+      },
+      {
+        "path": "results/runs/1b4137234b3d4333/result.json",
+        "mode": "100644",
+        "type": "blob",
+        "sha": "d6c6e8866fc549f19db82aa3c31418b6a9b07b10",
+        "size": 209390,
+        "url": "https://api.github.com/repos/iyerramji/open-kernel-challenge/git/blobs/d6c6e8866fc549f19db82aa3c31418b6a9b07b10"
+      },
+      {
+        "path": "results/runs/247425e7386843e5/result.json",
+        "mode": "100644",
+        "type": "blob",
+        "sha": "ee237afa6d3430c6f0e5ab6198f72c55f8c045e2",
+        "size": 209434,
+        "url": "https://api.github.com/repos/iyerramji/open-kernel-challenge/git/blobs/ee237afa6d3430c6f0e5ab6198f72c55f8c045e2"
+      },
+      {
+        "path": "results/runs/2a1eac44ae824024/result.json",
+        "mode": "100644",
+        "type": "blob",
+        "sha": "f6751588e0219341a0eebcf6982c27106ac20a45",
+        "size": 209559,
+        "url": "https://api.github.com/repos/iyerramji/open-kernel-challenge/git/blobs/f6751588e0219341a0eebcf6982c27106ac20a45"
+      },
+      {
+        "path": "results/runs/3951752bc54040f1/result.json",
+        "mode": "100644",
+        "type": "blob",
+        "sha": "54266d0791dd96f6deea220cca8cca9cd0d2f344",
+        "size": 209475,
+        "url": "https://api.github.com/repos/iyerramji/open-kernel-challenge/git/blobs/54266d0791dd96f6deea220cca8cca9cd0d2f344"
+      },
+      {
+        "path": "results/runs/3de1392800fb4fd1/result.json",
+        "mode": "100644",
+        "type": "blob",
+        "sha": "630e3f9a5f02a53457b9e0c22e1b107590fa15b1",
+        "size": 209524,
+        "url": "https://api.github.com/repos/iyerramji/open-kernel-challenge/git/blobs/630e3f9a5f02a53457b9e0c22e1b107590fa15b1"
+      },
+      {
+        "path": "results/runs/433a8be9f5c14d37/result.json",
+        "mode": "100644",
+        "type": "blob",
+        "sha": "267cbde6c3b172234e91bd9b6f947a3833cba2ec",
+        "size": 209422,
+        "url": "https://api.github.com/repos/iyerramji/open-kernel-challenge/git/blobs/267cbde6c3b172234e91bd9b6f947a3833cba2ec"
+      },
+      {
+        "path": "results/runs/5455e67879604de5/result.json",
+        "mode": "100644",
+        "type": "blob",
+        "sha": "86d8b8617a0b775f55da0dacd0aadf2f4d7fd594",
+        "size": 582,
+        "url": "https://api.github.com/repos/iyerramji/open-kernel-challenge/git/blobs/86d8b8617a0b775f55da0dacd0aadf2f4d7fd594"
+      },
+      {
+        "path": "results/runs/6ac516b77af64444/result.json",
+        "mode": "100644",
+        "type": "blob",
+        "sha": "d636a868f0f52eac4f5242552fde5919691e67a7",
+        "size": 209180,
+        "url": "https://api.github.com/repos/iyerramji/open-kernel-challenge/git/blobs/d636a868f0f52eac4f5242552fde5919691e67a7"
+      },
+      {
+        "path": "results/runs/6ae7ccfd2e6f4648/result.json",
+        "mode": "100644",
+        "type": "blob",
+        "sha": "9a96e3f134802b26a883ecd9506285653059f2e9",
+        "size": 208946,
+        "url": "https://api.github.com/repos/iyerramji/open-kernel-challenge/git/blobs/9a96e3f134802b26a883ecd9506285653059f2e9"
+      },
+      {
+        "path": "results/runs/708758902e114c3a/result.json",
+        "mode": "100644",
+        "type": "blob",
+        "sha": "659f648c4a5ec873d16adc35bb44666ba96be714",
+        "size": 209537,
+        "url": "https://api.github.com/repos/iyerramji/open-kernel-challenge/git/blobs/659f648c4a5ec873d16adc35bb44666ba96be714"
+      },
+      {
+        "path": "results/runs/764ac132f5224473/result.json",
+        "mode": "100644",
+        "type": "blob",
+        "sha": "cec404bbd53b0481a924f7b2455f8a4dc3943412",
+        "size": 209267,
+        "url": "https://api.github.com/repos/iyerramji/open-kernel-challenge/git/blobs/cec404bbd53b0481a924f7b2455f8a4dc3943412"
+      },
+      {
+        "path": "results/runs/7e269cf271404c6b/result.json",
+        "mode": "100644",
+        "type": "blob",
+        "sha": "07803204e894c56547888c164b121b5bb34ebbef",
+        "size": 209875,
+        "url": "https://api.github.com/repos/iyerramji/open-kernel-challenge/git/blobs/07803204e894c56547888c164b121b5bb34ebbef"
+      },
+      {
+        "path": "results/runs/818293c2812c469e/result.json",
+        "mode": "100644",
+        "type": "blob",
+        "sha": "cf96d378e217a8e080a1cbed49d135221ef2f238",
+        "size": 209559,
+        "url": "https://api.github.com/repos/iyerramji/open-kernel-challenge/git/blobs/cf96d378e217a8e080a1cbed49d135221ef2f238"
+      },
+      {
+        "path": "results/runs/89611d34a31a4e91/result.json",
+        "mode": "100644",
+        "type": "blob",
+        "sha": "ff7c1a2a7ebba3a47781ca07d55c9deaf3ea9ea8",
+        "size": 210176,
+        "url": "https://api.github.com/repos/iyerramji/open-kernel-challenge/git/blobs/ff7c1a2a7ebba3a47781ca07d55c9deaf3ea9ea8"
+      },
+      {
+        "path": "results/runs/969e9b707e4c4a67/result.json",
+        "mode": "100644",
+        "type": "blob",
+        "sha": "81e7be2220c9f85397b6607138512feacbe2111f",
+        "size": 10979,
+        "url": "https://api.github.com/repos/iyerramji/open-kernel-challenge/git/blobs/81e7be2220c9f85397b6607138512feacbe2111f"
+      },
+      {
+        "path": "results/runs/9a6da5bd038c414e/result.json",
+        "mode": "100644",
+        "type": "blob",
+        "sha": "e05a3f60b556ec89ca40146d272ae748766a5b43",
+        "size": 209407,
+        "url": "https://api.github.com/repos/iyerramji/open-kernel-challenge/git/blobs/e05a3f60b556ec89ca40146d272ae748766a5b43"
+      },
+      {
+        "path": "results/runs/b5024e063ec34b1b/result.json",
+        "mode": "100644",
+        "type": "blob",
+        "sha": "04ca2f15d2f0fd113d89e475542ce2cae26ad25c",
+        "size": 209251,
+        "url": "https://api.github.com/repos/iyerramji/open-kernel-challenge/git/blobs/04ca2f15d2f0fd113d89e475542ce2cae26ad25c"
+      },
+      {
+        "path": "results/runs/bc65b67e2cf64705/result.json",
+        "mode": "100644",
+        "type": "blob",
+        "sha": "ff11e38cd3d2afe18249a750644c15d18bbf8331",
+        "size": 208987,
+        "url": "https://api.github.com/repos/iyerramji/open-kernel-challenge/git/blobs/ff11e38cd3d2afe18249a750644c15d18bbf8331"
+      },
+      {
+        "path": "results/runs/be8e2f9477dd409f/result.json",
+        "mode": "100644",
+        "type": "blob",
+        "sha": "344ee2831b7cd2c1cf0176ee58dcbd7ebe07c8c5",
+        "size": 209822,
+        "url": "https://api.github.com/repos/iyerramji/open-kernel-challenge/git/blobs/344ee2831b7cd2c1cf0176ee58dcbd7ebe07c8c5"
+      },
+      {
+        "path": "results/runs/c20ac75c8d374b01/result.json",
+        "mode": "100644",
+        "type": "blob",
+        "sha": "186c017ad0ac887f189573d093493d4dbbeb1901",
+        "size": 209590,
+        "url": "https://api.github.com/repos/iyerramji/open-kernel-challenge/git/blobs/186c017ad0ac887f189573d093493d4dbbeb1901"
+      },
+      {
+        "path": "results/runs/c8973da4cc39460c/result.json",
+        "mode": "100644",
+        "type": "blob",
+        "sha": "f34053f39102293d556a381c3b868c23a8fd211c",
+        "size": 209682,
+        "url": "https://api.github.com/repos/iyerramji/open-kernel-challenge/git/blobs/f34053f39102293d556a381c3b868c23a8fd211c"
+      },
+      {
+        "path": "results/runs/cdcb86c1ee9b4c0a/result.json",
+        "mode": "100644",
+        "type": "blob",
+        "sha": "82916517ee62b245db5ed17e4663e3600937d58f",
+        "size": 209304,
+        "url": "https://api.github.com/repos/iyerramji/open-kernel-challenge/git/blobs/82916517ee62b245db5ed17e4663e3600937d58f"
+      },
+      {
+        "path": "results/runs/d4fd3389b26f46d9/result.json",
+        "mode": "100644",
+        "type": "blob",
+        "sha": "dccb301f7ea69b9c3fa231438763b32aa5f6d93f",
+        "size": 210188,
+        "url": "https://api.github.com/repos/iyerramji/open-kernel-challenge/git/blobs/dccb301f7ea69b9c3fa231438763b32aa5f6d93f"
+      },
+      {
+        "path": "results/runs/e93e60835ffb4770/result.json",
+        "mode": "100644",
+        "type": "blob",
+        "sha": "98dc8efe34c98ebd941f1d65df8bacce0f6d3b9d",
+        "size": 209119,
+        "url": "https://api.github.com/repos/iyerramji/open-kernel-challenge/git/blobs/98dc8efe34c98ebd941f1d65df8bacce0f6d3b9d"
+      },
+      {
+        "path": "results/runs/f494abe5f9f94394/result.json",
+        "mode": "100644",
+        "type": "blob",
+        "sha": "634e28543b583f06e00ca59aad4e99433907ed87",
+        "size": 209336,
+        "url": "https://api.github.com/repos/iyerramji/open-kernel-challenge/git/blobs/634e28543b583f06e00ca59aad4e99433907ed87"
+      },
+      {
+        "path": "results/runs/f85b8fe876724e84/result.json",
+        "mode": "100644",
+        "type": "blob",
+        "sha": "39b6039ee298e37fbdadff8d8e2145f81d99a6a4",
+        "size": 209682,
+        "url": "https://api.github.com/repos/iyerramji/open-kernel-challenge/git/blobs/39b6039ee298e37fbdadff8d8e2145f81d99a6a4"
+      },
+      {
+        "path": "results/scored-pass1/leaderboard-final.json",
+        "mode": "100644",
+        "type": "blob",
+        "sha": "ff25705b4a6cba093ce4f19cb3f6445a213d9cac",
+        "size": 292062,
+        "url": "https://api.github.com/repos/iyerramji/open-kernel-challenge/git/blobs/ff25705b4a6cba093ce4f19cb3f6445a213d9cac"
+      },
+      {
+        "path": "results/scored-pass1/leaderboard.json",
+        "mode": "100644",
+        "type": "blob",
+        "sha": "b2f9c7a9bc7eba829c3ec4fecc7994338824d465",
+        "size": 292063,
+        "url": "https://api.github.com/repos/iyerramji/open-kernel-challenge/git/blobs/b2f9c7a9bc7eba829c3ec4fecc7994338824d465"
+      },
+      {
+        "path": "results/scored-pass1/v12_wide_native-result.json",
+        "mode": "100644",
+        "type": "blob",
+        "sha": "98dc8efe34c98ebd941f1d65df8bacce0f6d3b9d",
+        "size": 209119,
+        "url": "https://api.github.com/repos/iyerramji/open-kernel-challenge/git/blobs/98dc8efe34c98ebd941f1d65df8bacce0f6d3b9d"
+      },
+      {
+        "path": "results/scored-pass1/v20_router_group4-result.json",
+        "mode": "100644",
+        "type": "blob",
+        "sha": "d35072450868a3a09d2813da09de2b02ffdd5b03",
+        "size": 209374,
+        "url": "https://api.github.com/repos/iyerramji/open-kernel-challenge/git/blobs/d35072450868a3a09d2813da09de2b02ffdd5b03"
+      },
+      {
+        "path": "results/scored-pass1/v21_safe_bundle-result.json",
+        "mode": "100644",
+        "type": "blob",
+        "sha": "267cbde6c3b172234e91bd9b6f947a3833cba2ec",
+        "size": 209422,
+        "url": "https://api.github.com/repos/iyerramji/open-kernel-challenge/git/blobs/267cbde6c3b172234e91bd9b6f947a3833cba2ec"
+      },
+      {
+        "path": "results/scored-pass1/v24_tiny_unpooler-result.json",
+        "mode": "100644",
+        "type": "blob",
+        "sha": "ff11e38cd3d2afe18249a750644c15d18bbf8331",
+        "size": 208987,
+        "url": "https://api.github.com/repos/iyerramji/open-kernel-challenge/git/blobs/ff11e38cd3d2afe18249a750644c15d18bbf8331"
+      },
+      {
+        "path": "results/scored-pass1/v33-result.json",
+        "mode": "100644",
+        "type": "blob",
+        "sha": "634e28543b583f06e00ca59aad4e99433907ed87",
+        "size": 209336,
+        "url": "https://api.github.com/repos/iyerramji/open-kernel-challenge/git/blobs/634e28543b583f06e00ca59aad4e99433907ed87"
+      },
+      {
+        "path": "results/scored-pass1/v34-result.json",
+        "mode": "100644",
+        "type": "blob",
+        "sha": "cec404bbd53b0481a924f7b2455f8a4dc3943412",
+        "size": 209267,
+        "url": "https://api.github.com/repos/iyerramji/open-kernel-challenge/git/blobs/cec404bbd53b0481a924f7b2455f8a4dc3943412"
+      },
+      {
+        "path": "scripts/build_public_readme.py",
+        "mode": "100644",
+        "type": "blob",
+        "sha": "cdd2e5c22ec401744ebf952943f97b864f1b1840",
+        "size": 10326,
+        "url": "https://api.github.com/repos/iyerramji/open-kernel-challenge/git/blobs/cdd2e5c22ec401744ebf952943f97b864f1b1840"
+      },
+      {
+        "path": "third_party/licenses/SGLang-Apache-2.0.txt",
+        "mode": "100644",
+        "type": "blob",
+        "sha": "9c422689c8f5c317c7c65153b1209349ec57007e",
+        "size": 11346,
+        "url": "https://api.github.com/repos/iyerramji/open-kernel-challenge/git/blobs/9c422689c8f5c317c7c65153b1209349ec57007e"
+      }
+    ]
+  },
+  {
+    "repo": "xrey167/auto-research-agent",
+    "pin": "018b7a102348ea3b73701e8be52d24f82d8c91ee",
+    "branch": "main",
+    "pushed_at": "2026-10-30T15:54:28Z",
+    "commit_date": "2026-10-30T15:20:24Z",
+    "fork": true,
+    "parent": "rohanarun/Auto-research-agent",
+    "license": "MIT",
+    "forks": 0,
+    "files": 430,
+    "truncated": false,
+    "interesting": [
+      {
+        "path": "LICENSE",
+        "mode": "100644",
+        "type": "blob",
+        "sha": "b6d7ff74422387c5162aa626229678d42004128c",
+        "size": 1067,
+        "url": "https://api.github.com/repos/xrey167/auto-research-agent/git/blobs/b6d7ff74422387c5162aa626229678d42004128c"
+      },
+      {
+        "path": "README.md",
+        "mode": "100644",
+        "type": "blob",
+        "sha": "d1bf4e7ca5189531dd00c0b2c6e4cab6af8c34eb",
+        "size": 32103,
+        "url": "https://api.github.com/repos/xrey167/auto-research-agent/git/blobs/d1bf4e7ca5189531dd00c0b2c6e4cab6af8c34eb"
+      },
+      {
+        "path": "benchmarks/NOTICE.md",
+        "mode": "100644",
+        "type": "blob",
+        "sha": "247284dfdc971b9766e9256bc9b6f40e95957e5a",
+        "size": 1241,
+        "url": "https://api.github.com/repos/xrey167/auto-research-agent/git/blobs/247284dfdc971b9766e9256bc9b6f40e95957e5a"
+      },
+      {
+        "path": "benchmarks/README.md",
+        "mode": "100644",
+        "type": "blob",
+        "sha": "027408e58e52f473b3699e0138e6aecd18d22942",
+        "size": 10514,
+        "url": "https://api.github.com/repos/xrey167/auto-research-agent/git/blobs/027408e58e52f473b3699e0138e6aecd18d22942"
+      },
+      {
+        "path": "benchmarks/prompts/research-v2-lessons.txt",
+        "mode": "100644",
+        "type": "blob",
+        "sha": "bc755c6dee91d3bc69391044ff7f9fc640d973b0",
+        "size": 3332,
+        "url": "https://api.github.com/repos/xrey167/auto-research-agent/git/blobs/bc755c6dee91d3bc69391044ff7f9fc640d973b0"
+      },
+      {
+        "path": "docs/benchmarks/2026-10-15/README.md",
+        "mode": "100644",
+        "type": "blob",
+        "sha": "92f51a83e0712ffccadb7b5687544cafc3b0f306",
+        "size": 6348,
+        "url": "https://api.github.com/repos/xrey167/auto-research-agent/git/blobs/92f51a83e0712ffccadb7b5687544cafc3b0f306"
+      },
+      {
+        "path": "docs/benchmarks/2026-10-15/native-harness-progress/README.txt",
+        "mode": "100644",
+        "type": "blob",
+        "sha": "4e119841c27128d364bb7145ded5b731433a08d8",
+        "size": 2051,
+        "url": "https://api.github.com/repos/xrey167/auto-research-agent/git/blobs/4e119841c27128d364bb7145ded5b731433a08d8"
+      }
+    ]
+  },
+  {
+    "repo": "chenwainuo/okc",
+    "pin": "3d418e1625f6de2075b5684a27ddbc3d1442422d",
+    "branch": "main",
+    "pushed_at": "2026-10-29T03:22:59Z",
+    "commit_date": "2026-10-29T03:22:54Z",
+    "fork": false,
+    "parent": null,
+    "license": "Apache-2.0",
+    "forks": 0,
+    "files": 4777,
+    "truncated": false,
+    "interesting": [
+      {
+        "path": "LICENSE",
+        "mode": "100644",
+        "type": "blob",
+        "sha": "9c422689c8f5c317c7c65153b1209349ec57007e",
+        "size": 11346,
+        "url": "https://api.github.com/repos/chenwainuo/okc/git/blobs/9c422689c8f5c317c7c65153b1209349ec57007e"
+      },
+      {
+        "path": "README.md",
+        "mode": "100644",
+        "type": "blob",
+        "sha": "67d090bc554c7968ab2c11ec79c7f3bb5fe32e0e",
+        "size": 5705,
+        "url": "https://api.github.com/repos/chenwainuo/okc/git/blobs/67d090bc554c7968ab2c11ec79c7f3bb5fe32e0e"
+      },
+      {
+        "path": "handover_folder/03-rules-and-lessons.md",
+        "mode": "100644",
+        "type": "blob",
+        "sha": "2617721e80c1f042a44cb831371fd801cb8dc835",
+        "size": 4152,
+        "url": "https://api.github.com/repos/chenwainuo/okc/git/blobs/2617721e80c1f042a44cb831371fd801cb8dc835"
+      },
+      {
+        "path": "handover_folder/README.md",
+        "mode": "100644",
+        "type": "blob",
+        "sha": "86d22d3bf3277cede3c469e4a08127e2b0e2a469",
+        "size": 3744,
+        "url": "https://api.github.com/repos/chenwainuo/okc/git/blobs/86d22d3bf3277cede3c469e4a08127e2b0e2a469"
+      },
+      {
+        "path": "proj_rsi/audits/coordinator-observations-20261027/leaderboard-20261027T2125.json",
+        "mode": "100644",
+        "type": "blob",
+        "sha": "b3c96cf9a0f102bff5f67d9b085b5f6abe00433e",
+        "size": 252827,
+        "url": "https://api.github.com/repos/chenwainuo/okc/git/blobs/b3c96cf9a0f102bff5f67d9b085b5f6abe00433e"
+      },
+      {
+        "path": "proj_rsi/audits/current-leaderboard-gains-completeness.json",
+        "mode": "100644",
+        "type": "blob",
+        "sha": "d434854ed9823997c4c24f79740f126dc061e849",
+        "size": 1329624,
+        "url": "https://api.github.com/repos/chenwainuo/okc/git/blobs/d434854ed9823997c4c24f79740f126dc061e849"
+      },
+      {
+        "path": "proj_rsi/audits/current-leaderboard-gains-completeness.md",
+        "mode": "100644",
+        "type": "blob",
+        "sha": "8f75bfd01f75ac6823d2faf522ce444cf78682b4",
+        "size": 19191,
+        "url": "https://api.github.com/repos/chenwainuo/okc/git/blobs/8f75bfd01f75ac6823d2faf522ce444cf78682b4"
+      },
+      {
+        "path": "proj_rsi/audits/current-leaderboard-gains-official.md",
+        "mode": "100644",
+        "type": "blob",
+        "sha": "978ee1c12780ed136e7723ef0196e720a9de4dbc",
+        "size": 15412,
+        "url": "https://api.github.com/repos/chenwainuo/okc/git/blobs/978ee1c12780ed136e7723ef0196e720a9de4dbc"
+      },
+      {
+        "path": "proj_rsi/audits/current-leaderboard-gains-official.refs.json",
+        "mode": "100644",
+        "type": "blob",
+        "sha": "7c9c4988a2c41c946743860f7294308137e42c86",
+        "size": 615490,
+        "url": "https://api.github.com/repos/chenwainuo/okc/git/blobs/7c9c4988a2c41c946743860f7294308137e42c86"
+      },
+      {
+        "path": "proj_rsi/audits/current-leaderboard-stack-source.json",
+        "mode": "100644",
+        "type": "blob",
+        "sha": "34241d3002a80a0ffd0ece037a23fad36379f83f",
+        "size": 534962,
+        "url": "https://api.github.com/repos/chenwainuo/okc/git/blobs/34241d3002a80a0ffd0ece037a23fad36379f83f"
+      },
+      {
+        "path": "proj_rsi/audits/current-leaderboard-stack-source.md",
+        "mode": "100644",
+        "type": "blob",
+        "sha": "1e91cb14f43f96b3905e4497c97acb6a500d5bd6",
+        "size": 14644,
+        "url": "https://api.github.com/repos/chenwainuo/okc/git/blobs/1e91cb14f43f96b3905e4497c97acb6a500d5bd6"
+      },
+      {
+        "path": "proj_rsi/audits/cursor-matched-geometry-01/lesson.json",
+        "mode": "100644",
+        "type": "blob",
+        "sha": "3bd41027a302bca92becdc03d1e9c44359473425",
+        "size": 3387,
+        "url": "https://api.github.com/repos/chenwainuo/okc/git/blobs/3bd41027a302bca92becdc03d1e9c44359473425"
+      },
+      {
+        "path": "proj_rsi/audits/gv-keepchoice-focused-review/README.md",
+        "mode": "100644",
+        "type": "blob",
+        "sha": "3c15822373ed5103f53d5078d1ff3c702484461b",
+        "size": 3950,
+        "url": "https://api.github.com/repos/chenwainuo/okc/git/blobs/3c15822373ed5103f53d5078d1ff3c702484461b"
+      },
+      {
+        "path": "proj_rsi/audits/gv-keepchoice-focused-review/bindings-result.json",
+        "mode": "100644",
+        "type": "blob",
+        "sha": "c270568a1fc5dcde9c82864f5f00bfffa4a7eca8",
+        "size": 772,
+        "url": "https://api.github.com/repos/chenwainuo/okc/git/blobs/c270568a1fc5dcde9c82864f5f00bfffa4a7eca8"
+      },
+      {
+        "path": "proj_rsi/audits/gv-keepchoice-focused-review/compile-result.json",
+        "mode": "100644",
+        "type": "blob",
+        "sha": "3fe8aef97a63373d2ebbd714f847ed49c49b2f08",
+        "size": 1203,
+        "url": "https://api.github.com/repos/chenwainuo/okc/git/blobs/3fe8aef97a63373d2ebbd714f847ed49c49b2f08"
+      },
+      {
+        "path": "proj_rsi/audits/gv53-keyed-choice-analyzer-v1/README.md",
+        "mode": "100644",
+        "type": "blob",
+        "sha": "9fd1816a7c0c7b7cb49d0aaee19ea8db2061a1af",
+        "size": 1913,
+        "url": "https://api.github.com/repos/chenwainuo/okc/git/blobs/9fd1816a7c0c7b7cb49d0aaee19ea8db2061a1af"
+      },
+      {
+        "path": "proj_rsi/audits/gv53-keyed-half-official-diagnosis-v1/README.md",
+        "mode": "100644",
+        "type": "blob",
+        "sha": "96382810a545c371234156e1bd6af7a3adf928ff",
+        "size": 6552,
+        "url": "https://api.github.com/repos/chenwainuo/okc/git/blobs/96382810a545c371234156e1bd6af7a3adf928ff"
+      },
+      {
+        "path": "proj_rsi/audits/gv53-thin-cabi-validation-result-v1/README.md",
+        "mode": "100644",
+        "type": "blob",
+        "sha": "a28d7eb22a01a9ac37b1918b29846ef14adedf2a",
+        "size": 3672,
+        "url": "https://api.github.com/repos/chenwainuo/okc/git/blobs/a28d7eb22a01a9ac37b1918b29846ef14adedf2a"
+      },
+      {
+        "path": "proj_rsi/audits/gv53-wonly-result-v1/README.md",
+        "mode": "100644",
+        "type": "blob",
+        "sha": "42a801ed8592ad34b0ccafd91a5d04690836c24e",
+        "size": 3712,
+        "url": "https://api.github.com/repos/chenwainuo/okc/git/blobs/42a801ed8592ad34b0ccafd91a5d04690836c24e"
+      },
+      {
+        "path": "proj_rsi/audits/learning-earlyload-transfer-proposal-v1/README.md",
+        "mode": "100644",
+        "type": "blob",
+        "sha": "735355493e7b44fbc43734227e69d65429226694",
+        "size": 1417,
+        "url": "https://api.github.com/repos/chenwainuo/okc/git/blobs/735355493e7b44fbc43734227e69d65429226694"
+      },
+      {
+        "path": "proj_rsi/audits/learning-rq-refill-exposure-proposal-v1/README.md",
+        "mode": "100644",
+        "type": "blob",
+        "sha": "802b7e74d8ce7df8f3c16f179a48236ef5a1b1b8",
+        "size": 1166,
+        "url": "https://api.github.com/repos/chenwainuo/okc/git/blobs/802b7e74d8ce7df8f3c16f179a48236ef5a1b1b8"
+      },
+      {
+        "path": "proj_rsi/audits/learning-v8-projection-proposal-v1/README.md",
+        "mode": "100644",
+        "type": "blob",
+        "sha": "499b8b11db7f02b35e47b1a7094f0c54e59abab2",
+        "size": 3758,
+        "url": "https://api.github.com/repos/chenwainuo/okc/git/blobs/499b8b11db7f02b35e47b1a7094f0c54e59abab2"
+      },
+      {
+        "path": "proj_rsi/audits/learning-v9-projection-proposal-v1/README.md",
+        "mode": "100644",
+        "type": "blob",
+        "sha": "3877d9dcb28a01d82dd658366710f9b0780eef74",
+        "size": 2514,
+        "url": "https://api.github.com/repos/chenwainuo/okc/git/blobs/3877d9dcb28a01d82dd658366710f9b0780eef74"
+      },
+      {
+        "path": "proj_rsi/audits/projection-policy-stabilization-plan-v1/README.md",
+        "mode": "100644",
+        "type": "blob",
+        "sha": "224a6ee6a3c61178c8ee08301dfee0b261ec7182",
+        "size": 4231,
+        "url": "https://api.github.com/repos/chenwainuo/okc/git/blobs/224a6ee6a3c61178c8ee08301dfee0b261ec7182"
+      },
+      {
+        "path": "proj_rsi/audits/qkv-runtime-01/lessons.json",
+        "mode": "100644",
+        "type": "blob",
+        "sha": "5e2a4d44684db26f9a28dc64a2a918ca2ea16787",
+        "size": 3438,
+        "url": "https://api.github.com/repos/chenwainuo/okc/git/blobs/5e2a4d44684db26f9a28dc64a2a918ca2ea16787"
+      },
+      {
+        "path": "proj_rsi/audits/scheduler-latest-snapshot/activation-receipt.json",
+        "mode": "100644",
+        "type": "blob",
+        "sha": "cf8134731be29d98de7b46e93e582c43d15625c6",
+        "size": 703,
+        "url": "https://api.github.com/repos/chenwainuo/okc/git/blobs/cf8134731be29d98de7b46e93e582c43d15625c6"
+      },
+      {
+        "path": "proj_rsi/audits/scheduler-wal-cache/README.md",
+        "mode": "100644",
+        "type": "blob",
+        "sha": "6cbe63241559929dafeb3dd9a84e7c489b7ed13d",
+        "size": 8089,
+        "url": "https://api.github.com/repos/chenwainuo/okc/git/blobs/6cbe63241559929dafeb3dd9a84e7c489b7ed13d"
+      },
+      {
+        "path": "proj_rsi/audits/scheduler-work-snapshot-proposal/README.md",
+        "mode": "100644",
+        "type": "blob",
+        "sha": "7ff3e456cbe24dbec85f60a83a17d4c168ee64f8",
+        "size": 2976,
+        "url": "https://api.github.com/repos/chenwainuo/okc/git/blobs/7ff3e456cbe24dbec85f60a83a17d4c168ee64f8"
+      },
+      {
+        "path": "proj_rsi/audits/thin-cuda-cabi-poc-v1/README.md",
+        "mode": "100644",
+        "type": "blob",
+        "sha": "85dd32932fdb803555f3d47f9dd93e9c5b203a44",
+        "size": 6184,
+        "url": "https://api.github.com/repos/chenwainuo/okc/git/blobs/85dd32932fdb803555f3d47f9dd93e9c5b203a44"
+      },
+      {
+        "path": "proj_rsi/audits/wring-rebase-01/proposed-lesson.json",
+        "mode": "100644",
+        "type": "blob",
+        "sha": "ddf56f7c93e7dff72563e8cb644b0301d04b1a4a",
+        "size": 8654,
+        "url": "https://api.github.com/repos/chenwainuo/okc/git/blobs/ddf56f7c93e7dff72563e8cb644b0301d04b1a4a"
+      },
+      {
+        "path": "proj_rsi/candidates/aligned_epilogue/README.md",
+        "mode": "100644",
+        "type": "blob",
+        "sha": "6775e91e21c75c302320616d5a24bfdeff8d1adb",
+        "size": 8099,
+        "url": "https://api.github.com/repos/chenwainuo/okc/git/blobs/6775e91e21c75c302320616d5a24bfdeff8d1adb"
+      },
+      {
+        "path": "proj_rsi/candidates/eh_same_geometry_trial/README.md",
+        "mode": "100644",
+        "type": "blob",
+        "sha": "1bc8fad9ddbed51119d14bf1a62df540d6274685",
+        "size": 3761,
+        "url": "https://api.github.com/repos/chenwainuo/okc/git/blobs/1bc8fad9ddbed51119d14bf1a62df540d6274685"
+      },
+      {
+        "path": "proj_rsi/candidates/group8_qkv_runtime_trial/README.md",
+        "mode": "100644",
+        "type": "blob",
+        "sha": "064ac7886724acff3d0ccbf5fc6fc3620fb6329d",
+        "size": 5902,
+        "url": "https://api.github.com/repos/chenwainuo/okc/git/blobs/064ac7886724acff3d0ccbf5fc6fc3620fb6329d"
+      },
+      {
+        "path": "proj_rsi/candidates/group8_qkv_runtime_trial/history/v1-43402311/README.md",
+        "mode": "100644",
+        "type": "blob",
+        "sha": "02772b36b7cb46ac2246f56ed2b780792efbe615",
+        "size": 4940,
+        "url": "https://api.github.com/repos/chenwainuo/okc/git/blobs/02772b36b7cb46ac2246f56ed2b780792efbe615"
+      },
+      {
+        "path": "proj_rsi/candidates/gv53_earlyload_v1/README.md",
+        "mode": "100644",
+        "type": "blob",
+        "sha": "2ae50f1ab15b37627941b2d853db0c8557b5e849",
+        "size": 4179,
+        "url": "https://api.github.com/repos/chenwainuo/okc/git/blobs/2ae50f1ab15b37627941b2d853db0c8557b5e849"
+      },
+      {
+        "path": "proj_rsi/candidates/gv53_earlyload_wonly_v1/README.md",
+        "mode": "100644",
+        "type": "blob",
+        "sha": "01d5fdf0c368eb635526dd0d88573bb90edffd3e",
+        "size": 3929,
+        "url": "https://api.github.com/repos/chenwainuo/okc/git/blobs/01d5fdf0c368eb635526dd0d88573bb90edffd3e"
+      },
+      {
+        "path": "proj_rsi/candidates/gv53_exactso_counters_v1/README.md",
+        "mode": "100644",
+        "type": "blob",
+        "sha": "73744776a033d19ceb30515f5af81d0bb2d7754a",
+        "size": 4630,
+        "url": "https://api.github.com/repos/chenwainuo/okc/git/blobs/73744776a033d19ceb30515f5af81d0bb2d7754a"
+      },
+      {
+        "path": "proj_rsi/candidates/gv53_keyed_choice_v1/README.md",
+        "mode": "100644",
+        "type": "blob",
+        "sha": "6fc188ccaaa6b40b5e42c5c239badd87356577ae",
+        "size": 4602,
+        "url": "https://api.github.com/repos/chenwainuo/okc/git/blobs/6fc188ccaaa6b40b5e42c5c239badd87356577ae"
+      },
+      {
+        "path": "proj_rsi/candidates/gv53_keyed_half_v1/README.md",
+        "mode": "100644",
+        "type": "blob",
+        "sha": "9653ec617e811e797cdc3ecfeddbefe674b29452",
+        "size": 4171,
+        "url": "https://api.github.com/repos/chenwainuo/okc/git/blobs/9653ec617e811e797cdc3ecfeddbefe674b29452"
+      },
+      {
+        "path": "proj_rsi/candidates/gv53_maskgate_trial_v1/README.md",
+        "mode": "100644",
+        "type": "blob",
+        "sha": "dfcf8df65441dd56d4b33bdde413c5abea5398b7",
+        "size": 2995,
+        "url": "https://api.github.com/repos/chenwainuo/okc/git/blobs/dfcf8df65441dd56d4b33bdde413c5abea5398b7"
+      },
+      {
+        "path": "proj_rsi/candidates/gv53_quarter_sparse_header_v1/README.md",
+        "mode": "100644",
+        "type": "blob",
+        "sha": "3243dd941314fa5387a7821489a91bf644f67be9",
+        "size": 3877,
+        "url": "https://api.github.com/repos/chenwainuo/okc/git/blobs/3243dd941314fa5387a7821489a91bf644f67be9"
+      },
+      {
+        "path": "proj_rsi/candidates/gv53_quarter_sparse_trial_v1/README.md",
+        "mode": "100644",
+        "type": "blob",
+        "sha": "054195522304861ee8fade7b3bb01bfbf55115d9",
+        "size": 3597,
+        "url": "https://api.github.com/repos/chenwainuo/okc/git/blobs/054195522304861ee8fade7b3bb01bfbf55115d9"
+      },
+      {
+        "path": "proj_rsi/candidates/gv53_quarter_stream_trial_v1/README.md",
+        "mode": "100644",
+        "type": "blob",
+        "sha": "d985e7f2e28a6fa7c3d25c29dfe23012cd9fa804",
+        "size": 3056,
+        "url": "https://api.github.com/repos/chenwainuo/okc/git/blobs/d985e7f2e28a6fa7c3d25c29dfe23012cd9fa804"
+      },
+      {
+        "path": "proj_rsi/candidates/gv53_quarter_stream_v1/README.md",
+        "mode": "100644",
+        "type": "blob",
+        "sha": "95caa24a2f9ff034456c836bcf01bb90fb55c152",
+        "size": 5476,
+        "url": "https://api.github.com/repos/chenwainuo/okc/git/blobs/95caa24a2f9ff034456c836bcf01bb90fb55c152"
+      },
+      {
+        "path": "proj_rsi/candidates/gv53_selected_earlyload_v1/README.md",
+        "mode": "100644",
+        "type": "blob",
+        "sha": "8ca2e9bb2b72ca635d15b92433d4eb1f8ebeee6e",
+        "size": 4538,
+        "url": "https://api.github.com/repos/chenwainuo/okc/git/blobs/8ca2e9bb2b72ca635d15b92433d4eb1f8ebeee6e"
+      },
+      {
+        "path": "proj_rsi/candidates/gv53_splitcta_trial_v1/compile-result.json",
+        "mode": "100644",
+        "type": "blob",
+        "sha": "ece96f2ae213e39fcf4f2fa41f132a32fc681d76",
+        "size": 907,
+        "url": "https://api.github.com/repos/chenwainuo/okc/git/blobs/ece96f2ae213e39fcf4f2fa41f132a32fc681d76"
+      },
+      {
+        "path": "proj_rsi/candidates/gv53_thin_cabi_validation_v1/README.md",
+        "mode": "100644",
+        "type": "blob",
+        "sha": "2c149d8ca246e63af987a9a61eb5925e43d3c32c",
+        "size": 3584,
+        "url": "https://api.github.com/repos/chenwainuo/okc/git/blobs/2c149d8ca246e63af987a9a61eb5925e43d3c32c"
+      },
+      {
+        "path": "proj_rsi/candidates/gv_codec_frontier_v1/native_v2_capacity32_48/README.md",
+        "mode": "100644",
+        "type": "blob",
+        "sha": "4cb36444d23f70d011c46506a0980120dc145536",
+        "size": 3858,
+        "url": "https://api.github.com/repos/chenwainuo/okc/git/blobs/4cb36444d23f70d011c46506a0980120dc145536"
+      },
+      {
+        "path": "proj_rsi/candidates/gv_codec_frontier_v1/native_v3_preloadedmeta_highpatch/README.md",
+        "mode": "100644",
+        "type": "blob",
+        "sha": "eac1bcecb5db82bb37920a8df3be782ffa7ed26f",
+        "size": 4968,
+        "url": "https://api.github.com/repos/chenwainuo/okc/git/blobs/eac1bcecb5db82bb37920a8df3be782ffa7ed26f"
+      },
+      {
+        "path": "proj_rsi/candidates/gv_predxor_keepchoice_v1/README.md",
+        "mode": "100644",
+        "type": "blob",
+        "sha": "cf461b02854903016c7a789f8aa9aee9b3aee1f8",
+        "size": 4270,
+        "url": "https://api.github.com/repos/chenwainuo/okc/git/blobs/cf461b02854903016c7a789f8aa9aee9b3aee1f8"
+      },
+      {
+        "path": "proj_rsi/candidates/gv_predxor_trial/README.md",
+        "mode": "100644",
+        "type": "blob",
+        "sha": "de1e09e799a44d4f17a011b05f0d6420c2b58dcf",
+        "size": 5782,
+        "url": "https://api.github.com/repos/chenwainuo/okc/git/blobs/de1e09e799a44d4f17a011b05f0d6420c2b58dcf"
+      },
+      {
+        "path": "proj_rsi/candidates/gv_predxor_trial/history/v1-pair-order/README.md",
+        "mode": "100644",
+        "type": "blob",
+        "sha": "949e6629a4595c398affcc76efaa41abbcdc29b7",
+        "size": 4413,
+        "url": "https://api.github.com/repos/chenwainuo/okc/git/blobs/949e6629a4595c398affcc76efaa41abbcdc29b7"
+      },
+      {
+        "path": "proj_rsi/candidates/gv_predxor_trial/history/v2-missing-prepared-packs/README.md",
+        "mode": "100644",
+        "type": "blob",
+        "sha": "b404db8a11779915704479b96798d01239c72481",
+        "size": 4957,
+        "url": "https://api.github.com/repos/chenwainuo/okc/git/blobs/b404db8a11779915704479b96798d01239c72481"
+      },
+      {
+        "path": "proj_rsi/candidates/gv_qkv_half_xprefetch_v1/README.md",
+        "mode": "100644",
+        "type": "blob",
+        "sha": "9f6fadd23bb611c5bc40d976624618f41802cc2b",
+        "size": 2633,
+        "url": "https://api.github.com/repos/chenwainuo/okc/git/blobs/9f6fadd23bb611c5bc40d976624618f41802cc2b"
+      },
+      {
+        "path": "proj_rsi/candidates/gv_qkv_spill_tradeoff_trial_v1/README.md",
+        "mode": "100644",
+        "type": "blob",
+        "sha": "1352dc961c0610a62c5eb4ac659216573bfdcc0a",
+        "size": 3395,
+        "url": "https://api.github.com/repos/chenwainuo/okc/git/blobs/1352dc961c0610a62c5eb4ac659216573bfdcc0a"
+      },
+      {
+        "path": "proj_rsi/candidates/gv_qkv_xprefetch_v1/README.md",
+        "mode": "100644",
+        "type": "blob",
+        "sha": "ae77f905c150ef8c2dc99ba162f63860ad104c73",
+        "size": 2021,
+        "url": "https://api.github.com/repos/chenwainuo/okc/git/blobs/ae77f905c150ef8c2dc99ba162f63860ad104c73"
+      },
+      {
+        "path": "proj_rsi/candidates/gv_unpool16_deltakey_robust_v1/README.md",
+        "mode": "100644",
+        "type": "blob",
+        "sha": "9de4f27eac883966c44ee63321255e2f87cc7538",
+        "size": 1733,
+        "url": "https://api.github.com/repos/chenwainuo/okc/git/blobs/9de4f27eac883966c44ee63321255e2f87cc7538"
+      },
+      {
+        "path": "proj_rsi/candidates/gv_unpool16_deltakey_v1/README.md",
+        "mode": "100644",
+        "type": "blob",
+        "sha": "fce2cad5c4d0e739ed642041505e47ff2431d698",
+        "size": 3879,
+        "url": "https://api.github.com/repos/chenwainuo/okc/git/blobs/fce2cad5c4d0e739ed642041505e47ff2431d698"
+      },
+      {
+        "path": "proj_rsi/candidates/gv_unpool16_lanebase_v1/README.md",
+        "mode": "100644",
+        "type": "blob",
+        "sha": "9b233b40842ddd011d3ba2fc85323cdbd9c21cb9",
+        "size": 2159,
+        "url": "https://api.github.com/repos/chenwainuo/okc/git/blobs/9b233b40842ddd011d3ba2fc85323cdbd9c21cb9"
+      },
+      {
+        "path": "proj_rsi/candidates/gv_unpool16_xprefetch_choice_v1/README.md",
+        "mode": "100644",
+        "type": "blob",
+        "sha": "00e4739c21d1705edef494f2f69cf9723677d581",
+        "size": 3420,
+        "url": "https://api.github.com/repos/chenwainuo/okc/git/blobs/00e4739c21d1705edef494f2f69cf9723677d581"
+      }
+    ]
+  },
+  {
+    "repo": "keell0renz/muse-open-kernel-challenge",
+    "pin": "8e30e1be994db4310794b8d04e90d18d895deb84",
+    "branch": "main",
+    "pushed_at": "2026-11-01T07:11:10Z",
+    "commit_date": "2026-11-01T07:11:09Z",
+    "fork": false,
+    "parent": null,
+    "license": "Apache-2.0",
+    "forks": 0,
+    "files": 9,
+    "truncated": false,
+    "interesting": [
+      {
+        "path": "LESSONS.md",
+        "mode": "100644",
+        "type": "blob",
+        "sha": "36fa83cb4e913f05a1f7feb83e216cb651d05a28",
+        "size": 7770,
+        "url": "https://api.github.com/repos/keell0renz/muse-open-kernel-challenge/git/blobs/36fa83cb4e913f05a1f7feb83e216cb651d05a28"
+      },
+      {
+        "path": "LICENSE",
+        "mode": "100644",
+        "type": "blob",
+        "sha": "d645695673349e3947e8e5ae42332d0ac3164cd7",
+        "size": 11358,
+        "url": "https://api.github.com/repos/keell0renz/muse-open-kernel-challenge/git/blobs/d645695673349e3947e8e5ae42332d0ac3164cd7"
+      },
+      {
+        "path": "NOTICE",
+        "mode": "100644",
+        "type": "blob",
+        "sha": "3d086c00575f0caca10942974e6ae65244be4703",
+        "size": 2471,
+        "url": "https://api.github.com/repos/keell0renz/muse-open-kernel-challenge/git/blobs/3d086c00575f0caca10942974e6ae65244be4703"
+      },
+      {
+        "path": "README.md",
+        "mode": "100644",
+        "type": "blob",
+        "sha": "7c53568837d320d1cb294de490109bd85d419dc6",
+        "size": 4425,
+        "url": "https://api.github.com/repos/keell0renz/muse-open-kernel-challenge/git/blobs/7c53568837d320d1cb294de490109bd85d419dc6"
+      }
+    ]
+  },
+  {
+    "repo": "alygg77/okc-muse-spark-kernels",
+    "pin": "6cae49a639ee6d14b929a5fd4a63c627f96d7dc0",
+    "branch": "main",
+    "pushed_at": "2026-10-29T21:11:40Z",
+    "commit_date": "2026-10-29T21:11:39Z",
+    "fork": false,
+    "parent": null,
+    "license": "Apache-2.0",
+    "forks": 0,
+    "files": 19,
+    "truncated": false,
+    "interesting": [
+      {
+        "path": "LICENSE",
+        "mode": "100644",
+        "type": "blob",
+        "sha": "d645695673349e3947e8e5ae42332d0ac3164cd7",
+        "size": 11358,
+        "url": "https://api.github.com/repos/alygg77/okc-muse-spark-kernels/git/blobs/d645695673349e3947e8e5ae42332d0ac3164cd7"
+      },
+      {
+        "path": "NOTICE",
+        "mode": "100644",
+        "type": "blob",
+        "sha": "8d1069372b982b1f4fc7bcf263635ba56594a73c",
+        "size": 1547,
+        "url": "https://api.github.com/repos/alygg77/okc-muse-spark-kernels/git/blobs/8d1069372b982b1f4fc7bcf263635ba56594a73c"
+      },
+      {
+        "path": "README.md",
+        "mode": "100644",
+        "type": "blob",
+        "sha": "c2f6b29065b0f16c20bab470d0bcc49853383fba",
+        "size": 6781,
+        "url": "https://api.github.com/repos/alygg77/okc-muse-spark-kernels/git/blobs/c2f6b29065b0f16c20bab470d0bcc49853383fba"
+      },
+      {
+        "path": "licenses/LICENSE_NathenFernandes_muse-bf16-proj.txt",
+        "mode": "100644",
+        "type": "blob",
+        "sha": "7d77c3299a31acaac789ee1d8ad0327d7cda8e9c",
+        "size": 1073,
+        "url": "https://api.github.com/repos/alygg77/okc-muse-spark-kernels/git/blobs/7d77c3299a31acaac789ee1d8ad0327d7cda8e9c"
+      },
+      {
+        "path": "timing_kit/README.md",
+        "mode": "100644",
+        "type": "blob",
+        "sha": "673afaabb6638261b8dbe883807d66d3b564613c",
+        "size": 2334,
+        "url": "https://api.github.com/repos/alygg77/okc-muse-spark-kernels/git/blobs/673afaabb6638261b8dbe883807d66d3b564613c"
+      }
+    ]
+  },
+  {
+    "repo": "vjeux/okc-2026",
+    "pin": "f35a41ee1c13e316dabbf772830d47b23b453393",
+    "branch": "main",
+    "pushed_at": "2026-10-28T02:03:36Z",
+    "commit_date": "2026-10-28T02:03:32Z",
+    "fork": false,
+    "parent": null,
+    "license": "Apache-2.0",
+    "forks": 0,
+    "files": 7,
+    "truncated": false,
+    "interesting": [
+      {
+        "path": "LICENSE",
+        "mode": "100644",
+        "type": "blob",
+        "sha": "261eeb9e9f8b2b4b0d119366dda99c6fd7d35c64",
+        "size": 11357,
+        "url": "https://api.github.com/repos/vjeux/okc-2026/git/blobs/261eeb9e9f8b2b4b0d119366dda99c6fd7d35c64"
+      },
+      {
+        "path": "README.md",
+        "mode": "100644",
+        "type": "blob",
+        "sha": "c2d7c4649f31fa379fb0e352b7df0a845599e594",
+        "size": 1471,
+        "url": "https://api.github.com/repos/vjeux/okc-2026/git/blobs/c2d7c4649f31fa379fb0e352b7df0a845599e594"
+      }
+    ]
+  },
+  {
+    "repo": "lilaclilac09/open-kernel-challenge",
+    "pin": "d9bdcc9f01dff1018f2f256a0a1a63911a16557e",
+    "branch": "main",
+    "pushed_at": "2026-10-24T15:38:36Z",
+    "commit_date": "2026-10-24T15:38:36Z",
+    "fork": false,
+    "parent": null,
+    "license": null,
+    "forks": 0,
+    "files": 64,
+    "truncated": false,
+    "interesting": [
+      {
+        "path": "README.md",
+        "mode": "100644",
+        "type": "blob",
+        "sha": "3837acc1288917653679dde5d595f73c1d2ce76a",
+        "size": 1052,
+        "url": "https://api.github.com/repos/lilaclilac09/open-kernel-challenge/git/blobs/3837acc1288917653679dde5d595f73c1d2ce76a"
+      },
+      {
+        "path": "notes/README.md",
+        "mode": "100644",
+        "type": "blob",
+        "sha": "723cd6f63a894b3049459b43df98e89cfd7c2ee7",
+        "size": 269,
+        "url": "https://api.github.com/repos/lilaclilac09/open-kernel-challenge/git/blobs/723cd6f63a894b3049459b43df98e89cfd7c2ee7"
+      }
+    ]
+  },
+  {
+    "repo": "ruwwww/open-kernel-challenge",
+    "pin": "3b15eb8a6a16e0519378e28ea6c9b44d04e0a613",
+    "branch": "main",
+    "pushed_at": "2026-10-29T18:35:19Z",
+    "commit_date": "2026-10-29T18:35:16Z",
+    "fork": false,
+    "parent": null,
+    "license": null,
+    "forks": 0,
+    "files": 71,
+    "truncated": false,
+    "interesting": [
+      {
+        "path": "README.md",
+        "mode": "100644",
+        "type": "blob",
+        "sha": "4a04e2f970ed6327ba7d027804cb91f7a0d0c1d7",
+        "size": 7791,
+        "url": "https://api.github.com/repos/ruwwww/open-kernel-challenge/git/blobs/4a04e2f970ed6327ba7d027804cb91f7a0d0c1d7"
+      }
+    ]
+  }
+]

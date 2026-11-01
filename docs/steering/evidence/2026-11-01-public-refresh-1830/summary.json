@@ -1,0 +1,148 @@
+[
+  {
+    "label": "repos-challenge",
+    "q": "\"Open Kernel Challenge\" fork:true",
+    "page": 1,
+    "total": 29,
+    "incomplete": false,
+    "returned": 29,
+    "repos": [
+      "Aravind-11/muse-moe-w4a16",
+      "GiulianoIntelligence/Muse-FlashSpeed-Kernel",
+      "KingCobra52/muse_bf16_optimization",
+      "Kushagrabainsla/muse-spark-open",
+      "Lurrobert/guild",
+      "MadanChaollaPark/open-kernel-experiments",
+      "NathenFernandes/muse-bf16-proj",
+      "Ranoobaba/okc-campaign",
+      "Reedo3/Muse_Attention_Decode",
+      "Xuefeng-Zhu/open-kernel-challenge",
+      "alygg77/okc-muse-spark-kernels",
+      "arudomanenko/open_kernel_challenge",
+      "benpixel/guild",
+      "bra1nDump/guild",
+      "danyloooah-web/okc-claims",
+      "infraax/okc-kernel-challenge",
+      "iyerramji/open-kernel-challenge",
+      "keell0renz/muse-open-kernel-challenge",
+      "lilaclilac09/open-kernel-challenge",
+      "msaroufim/openkernelchallenge-audit",
+      "nibague/open-kernel-challenge",
+      "operatorstack/open-kernel-challenge-solutions",
+      "ruwwww/open-kernel-challenge",
+      "sid19991/open-kernel-challenge",
+      "theluckystrike/muse-spark-open-kernels",
+      "trxphxle/okc-2026-muse-kernels",
+      "vjeux/okc-2026",
+      "xharshvardhan/open-kernel-challenge",
+      "yelgabo/okc"
+    ],
+    "file": "repos-challenge-1.json"
+  },
+  {
+    "label": "repos-muse",
+    "q": "muse spark kernel fork:true",
+    "page": 1,
+    "total": 26,
+    "incomplete": false,
+    "returned": 26,
+    "repos": [
+      "GiulianoIntelligence/Muse-FlashSpeed-Kernel",
+      "JeelsBoobz/android-kernel-builder",
+      "KingCobra52/muse_bf16_optimization",
+      "Kushagrabainsla/muse-spark-open",
+      "Mahesh-Paul/AutoPatch-Kernel-Autonomous-Self-Healing-Codebase-Agent-Built-on-MCP",
+      "NathenFernandes/muse-bf16-proj",
+      "QOSB/android-kernel-builder",
+      "Reedo3/Muse_Attention_Decode",
+      "Saikat-too/muse_spark_kernel_challenge",
+      "alygg77/okc-muse-spark-kernels",
+      "arunjyotisarmarsece24-jpg/neuro-spark-accel",
+      "deviljin05/GKI-ANDROID-5.10-LTS-",
+      "hworr/android-kernel-builder",
+      "hworr93/android-kernel-builder",
+      "infraax/okc-kernel-challenge",
+      "keell0renz/muse-open-kernel-challenge",
+      "lilaclilac09/open-kernel-challenge",
+      "mary-jeon/realcad",
+      "ruwwww/open-kernel-challenge",
+      "sysretq0/android-kernel-builder",
+      "theluckystrike/muse-spark-open-kernels",
+      "trxphxle/okc-2026-muse-kernels",
+      "vjeux/okc-2026",
+      "yazzang-homelab/realcad",
+      "yelgabo/okc",
+      "zhebrak/muse-spark-kernels"
+    ],
+    "file": "repos-muse-1.json"
+  },
+  {
+    "label": "repos-h200",
+    "q": "Muse H200 fork:true",
+    "page": 1,
+    "total": 10,
+    "incomplete": false,
+    "returned": 10,
+    "repos": [
+      "Kushagrabainsla/muse-spark-open",
+      "NathenFernandes/muse-bf16-proj",
+      "alygg77/okc-muse-spark-kernels",
+      "arunjyotisarmarsece24-jpg/neuro-spark-accel",
+      "infraax/okc-kernel-challenge",
+      "iyerramji/open-kernel-challenge",
+      "keell0renz/muse-open-kernel-challenge",
+      "ruwwww/open-kernel-challenge",
+      "theluckystrike/muse-spark-open-kernels",
+      "trxphxle/okc-2026-muse-kernels"
+    ],
+    "file": "repos-h200-1.json"
+  },
+  {
+    "label": "muse_decode_layer",
+    "q": "muse_decode_layer NOT repo:lee101/openkernels NOT repo:rohanarun/Auto-research-agent fork:true",
+    "page": 1,
+    "total": 30,
+    "incomplete": false,
+    "returned": 30,
+    "repos": [
+      "xrey167/auto-research-agent"
+    ],
+    "file": "muse_decode_layer-1.json"
+  },
+  {
+    "label": "muse_bf16_proj",
+    "q": "muse_bf16_proj NOT repo:lee101/openkernels NOT repo:rohanarun/Auto-research-agent fork:true",
+    "page": 1,
+    "total": 28,
+    "incomplete": false,
+    "returned": 28,
+    "repos": [
+      "xrey167/auto-research-agent"
+    ],
+    "file": "muse_bf16_proj-1.json"
+  },
+  {
+    "label": "muse_attention_decode",
+    "q": "muse_attention_decode NOT repo:lee101/openkernels NOT repo:rohanarun/Auto-research-agent fork:true",
+    "page": 1,
+    "total": 31,
+    "incomplete": false,
+    "returned": 31,
+    "repos": [
+      "xrey167/auto-research-agent"
+    ],
+    "file": "muse_attention_decode-1.json"
+  },
+  {
+    "label": "muse_moe_w4a16",
+    "q": "muse_moe_w4a16 NOT repo:lee101/openkernels NOT repo:rohanarun/Auto-research-agent fork:true",
+    "page": 1,
+    "total": 29,
+    "incomplete": false,
+    "returned": 29,
+    "repos": [
+      "xrey167/auto-research-agent"
+    ],
+    "file": "muse_moe_w4a16-1.json"
+  }
+]
