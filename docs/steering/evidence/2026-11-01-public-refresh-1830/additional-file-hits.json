@@ -1,0 +1,777 @@
+[
+  {
+    "repo": "Ranoobaba/okc-campaign",
+    "pin": "3831ab3c3538a9878031b667624240bd24bb7082",
+    "path": "results/muse_attention_decode/20261025-034341_calib_baseline.json",
+    "blob": "53c5c1a074162e56378de4297b2f0993fe6dcd6f",
+    "hits": [
+      "   \"speedup\": 0.998,",
+      "   \"speedup\": 0.9738,",
+      "   \"speedup\": 0.9933,",
+      "   \"speedup\": 1.0046,",
+      "   \"speedup\": 0.978,",
+      "   \"speedup\": 0.9991,",
+      "   \"speedup\": 1.0024,",
+      "   \"speedup\": 0.9851,",
+      "   \"speedup\": 0.9908,",
+      "   \"speedup\": 0.9972,",
+      "   \"speedup\": 1.018,",
+      "   \"speedup\": 0.9983,"
+    ]
+  },
+  {
+    "repo": "Ranoobaba/okc-campaign",
+    "pin": "3831ab3c3538a9878031b667624240bd24bb7082",
+    "path": "results/muse_attention_decode/20261025-040056_v1_splitkv.json",
+    "blob": "6c45e507c8b1c40d9aeb3afd822abedfd4d0a323",
+    "hits": [
+      "   \"speedup\": 1.8943,",
+      "   \"speedup\": 1.1911,",
+      "   \"speedup\": 1.771,",
+      "   \"speedup\": 0.9978,",
+      "   \"speedup\": 1.5276,",
+      "   \"speedup\": 1.0774,",
+      "   \"speedup\": 1.4156,",
+      "   \"speedup\": 0.3056,",
+      "   \"speedup\": 1.3721,",
+      "   \"speedup\": 0.6818,",
+      "   \"speedup\": 1.2728,",
+      "   \"speedup\": 0.6757,"
+    ]
+  },
+  {
+    "repo": "Ranoobaba/okc-campaign",
+    "pin": "3831ab3c3538a9878031b667624240bd24bb7082",
+    "path": "results/muse_attention_decode/20261025-041018_v2_fp8qk.json",
+    "blob": "0b21b47a23f1d4a7696abc566c3748bd600e9444",
+    "hits": [
+      "   \"speedup\": 1.9367,",
+      "   \"speedup\": 1.2214,",
+      "   \"speedup\": 1.7972,",
+      "   \"speedup\": 1.0364,",
+      "   \"speedup\": 1.5755,",
+      "   \"speedup\": 1.1239,",
+      "   \"speedup\": 1.4576,",
+      "   \"speedup\": 0.3048,",
+      "   \"speedup\": 1.4158,",
+      "   \"speedup\": 0.7299,",
+      "   \"speedup\": 1.3094,",
+      "   \"speedup\": 0.7261,"
+    ]
+  },
+  {
+    "repo": "Ranoobaba/okc-campaign",
+    "pin": "3831ab3c3538a9878031b667624240bd24bb7082",
+    "path": "results/muse_attention_decode/20261025-041413_v3c_rowsplit.json",
+    "blob": "d158d589d1cb9befbd9d5342fbc58b7e696df03c",
+    "hits": [
+      "   \"speedup\": 1.8652,",
+      "   \"speedup\": 1.1581,",
+      "   \"speedup\": 1.789,",
+      "   \"speedup\": 1.0262,",
+      "   \"speedup\": 1.5568,",
+      "   \"speedup\": 1.1999,",
+      "   \"speedup\": 1.84,",
+      "   \"speedup\": 0.4222,",
+      "   \"speedup\": 0.9093,",
+      "   \"speedup\": 0.2005,",
+      "   \"speedup\": 0.6293,",
+      "   \"speedup\": 0.1865,"
+    ]
+  },
+  {
+    "repo": "Ranoobaba/okc-campaign",
+    "pin": "3831ab3c3538a9878031b667624240bd24bb7082",
+    "path": "results/muse_attention_decode/20261025-041449_v3a_warps8.json",
+    "blob": "df9d16192ca9d79627be8c6b8808d5ad1d835935",
+    "hits": [
+      "   \"speedup\": 1.4176,",
+      "   \"speedup\": 0.2714,",
+      "   \"speedup\": 1.2727,",
+      "   \"speedup\": 0.3721,",
+      "   \"speedup\": 0.9091,",
+      "   \"speedup\": 0.3608,",
+      "   \"speedup\": 0.5651",
+      "   \"speedup\": 0.4788",
+      "   \"speedup\": 0.4182",
+      " \"speedup\": 0.4837,"
+    ]
+  },
+  {
+    "repo": "Ranoobaba/okc-campaign",
+    "pin": "3831ab3c3538a9878031b667624240bd24bb7082",
+    "path": "results/muse_attention_decode/20261025-043225_v6_hybrid.json",
+    "blob": "5c11c402d3ad008294f8977656921156623a3493",
+    "hits": [
+      "   \"speedup\": 1.9433,",
+      "   \"speedup\": 1.2062,",
+      "   \"speedup\": 1.8131,",
+      "   \"speedup\": 1.0425,",
+      "   \"speedup\": 1.5642,",
+      "   \"speedup\": 1.1284,",
+      "   \"speedup\": 1.4316,",
+      "   \"speedup\": 0.9873,",
+      "   \"speedup\": 1.4347,",
+      "   \"speedup\": 0.999,",
+      "   \"speedup\": 1.3208,",
+      "   \"speedup\": 1.0007,"
+    ]
+  },
+  {
+    "repo": "Ranoobaba/okc-campaign",
+    "pin": "3831ab3c3538a9878031b667624240bd24bb7082",
+    "path": "results/muse_attention_decode/20261025-052639_v7_onelaunch.json",
+    "blob": "29981359d6c4f0c2d2460f9d1fe94401a2d2429b",
+    "hits": [
+      "   \"speedup\": 1.919,",
+      "   \"speedup\": 1.0514,",
+      "   \"speedup\": 1.783,",
+      "   \"speedup\": 1.0234,",
+      "   \"speedup\": 1.5916,",
+      "   \"speedup\": 1.097,",
+      "   \"speedup\": 1.4515,",
+      "   \"speedup\": 1.0098,",
+      "   \"speedup\": 1.395,",
+      "   \"speedup\": 0.9963,",
+      "   \"speedup\": 1.3086,",
+      "   \"speedup\": 0.9994,"
+    ]
+  },
+  {
+    "repo": "Ranoobaba/okc-campaign",
+    "pin": "3831ab3c3538a9878031b667624240bd24bb7082",
+    "path": "results/muse_attention_decode/20261025-053439_v8_window.json",
+    "blob": "bd1c3c79e0ec2e761dce30737dd544cab4c54275",
+    "hits": [
+      "   \"speedup\": 0.6196,",
+      "   \"speedup\": 1.1877,",
+      "   \"speedup\": 0.87,",
+      "   \"speedup\": 1.0259,",
+      "   \"speedup\": 1.0397,",
+      "   \"speedup\": 1.1231,",
+      "   \"speedup\": 0.3578,",
+      "   \"speedup\": 1.0389,",
+      "   \"speedup\": 0.4922,",
+      "   \"speedup\": 0.9958,",
+      "   \"speedup\": 0.5786,",
+      "   \"speedup\": 1.0021,"
+    ]
+  },
+  {
+    "repo": "Ranoobaba/okc-campaign",
+    "pin": "3831ab3c3538a9878031b667624240bd24bb7082",
+    "path": "results/muse_attention_decode/20261025-061035_v9_prefetch.json",
+    "blob": "ebbcfe09bb7d7c956d071ea802e58b96dc2a422e",
+    "hits": [
+      "   \"speedup\": 1.8035,",
+      "   \"speedup\": 1.122,",
+      "   \"speedup\": 1.6962,",
+      "   \"speedup\": 0.7538,",
+      "   \"speedup\": 1.472,",
+      "   \"speedup\": 0.7998,",
+      "   \"speedup\": 1.4125,",
+      "   \"speedup\": 0.9948,",
+      "   \"speedup\": 1.409,",
+      "   \"speedup\": 1.0016,",
+      "   \"speedup\": 1.3131,",
+      "   \"speedup\": 0.998,"
+    ]
+  },
+  {
+    "repo": "Ranoobaba/okc-campaign",
+    "pin": "3831ab3c3538a9878031b667624240bd24bb7082",
+    "path": "results/muse_attention_decode/20261025-062504_v10_tok_sliding.json",
+    "blob": "b08a56b83718d1b17949bbba7cdb3035272a624a",
+    "hits": [
+      "   \"speedup\": 1.9587,",
+      "   \"speedup\": 1.2169,",
+      "   \"speedup\": 1.7471,",
+      "   \"speedup\": 1.036,",
+      "   \"speedup\": 1.544,",
+      "   \"speedup\": 1.0624,",
+      "   \"speedup\": 1.8691,",
+      "   \"speedup\": 0.9803,",
+      "   \"speedup\": 0.8908,",
+      "   \"speedup\": 1.0041,",
+      "   \"speedup\": 0.6323,",
+      "   \"speedup\": 0.9976,"
+    ]
+  },
+  {
+    "repo": "Ranoobaba/okc-campaign",
+    "pin": "3831ab3c3538a9878031b667624240bd24bb7082",
+    "path": "results/muse_attention_decode/20261025-063102_v11_tok_small.json",
+    "blob": "31b9eb44d2e3f471380e930b7bdf7c32af378809",
+    "hits": [
+      "   \"speedup\": 1.9091,",
+      "   \"speedup\": 1.2281,",
+      "   \"speedup\": 1.7777,",
+      "   \"speedup\": 1.0339,",
+      "   \"speedup\": 1.5751,",
+      "   \"speedup\": 1.0362,",
+      "   \"speedup\": 1.8308,",
+      "   \"speedup\": 0.9807,",
+      "   \"speedup\": 1.3838,",
+      "   \"speedup\": 1.0074,",
+      "   \"speedup\": 1.2792,",
+      "   \"speedup\": 0.9985,"
+    ]
+  },
+  {
+    "repo": "Ranoobaba/okc-campaign",
+    "pin": "3831ab3c3538a9878031b667624240bd24bb7082",
+    "path": "results/muse_attention_decode/20261025-075638_v12_splits.json",
+    "blob": "f31dca98da50957ef031294594cbd54b8dda2113",
+    "hits": [
+      "   \"speedup\": 2.0118,",
+      "   \"speedup\": 1.0105,",
+      "   \"speedup\": 1.8053,",
+      "   \"speedup\": 1.1931,",
+      "   \"speedup\": 1.5547,",
+      "   \"speedup\": 1.2202,",
+      "   \"speedup\": 1.8689,",
+      "   \"speedup\": 0.9947,",
+      "   \"speedup\": 1.4243,",
+      "   \"speedup\": 1.0039,",
+      "   \"speedup\": 1.3107,",
+      "   \"speedup\": 0.998,"
+    ]
+  },
+  {
+    "repo": "Ranoobaba/okc-campaign",
+    "pin": "3831ab3c3538a9878031b667624240bd24bb7082",
+    "path": "results/muse_attention_decode/20261025-082254_v13_p2400.json",
+    "blob": "c7922810a4f6043c7f086e0beb424d7ad5dbc94c",
+    "hits": [
+      "   \"speedup\": 1.933,",
+      "   \"speedup\": 1.2031,",
+      "   \"speedup\": 1.8508,",
+      "   \"speedup\": 1.2751,",
+      "   \"speedup\": 1.5611,",
+      "   \"speedup\": 1.2953,",
+      "   \"speedup\": 1.8208,",
+      "   \"speedup\": 0.9925,",
+      "   \"speedup\": 1.4139,",
+      "   \"speedup\": 1.004,",
+      "   \"speedup\": 1.2891,",
+      "   \"speedup\": 1.0002,"
+    ]
+  },
+  {
+    "repo": "Ranoobaba/okc-campaign",
+    "pin": "3831ab3c3538a9878031b667624240bd24bb7082",
+    "path": "results/muse_attention_decode/20261025-091632_v14_sliding600.json",
+    "blob": "d5b2df43a2ebcae27a31118b6981300fe7c1c7ac",
+    "hits": [
+      "   \"speedup\": 1.8768,",
+      "   \"speedup\": 1.2132,",
+      "   \"speedup\": 1.8286,",
+      "   \"speedup\": 1.275,",
+      "   \"speedup\": 1.717,",
+      "   \"speedup\": 1.2993,",
+      "   \"speedup\": 1.795,",
+      "   \"speedup\": 0.977,",
+      "   \"speedup\": 1.4302,",
+      "   \"speedup\": 0.9997,",
+      "   \"speedup\": 1.3883,",
+      "   \"speedup\": 0.9996,"
+    ]
+  },
+  {
+    "repo": "Ranoobaba/okc-campaign",
+    "pin": "3831ab3c3538a9878031b667624240bd24bb7082",
+    "path": "results/muse_attention_decode/judge_3a85f99f7d384f0f.json",
+    "blob": "192d42edfcce48841998a41d1cfd6d3829cc5a0b",
+    "hits": [
+      "    \"speedup\": 1.9835807186395624,",
+      "    \"speedup_of_medians\": 1.9826498018690168",
+      "    \"speedup\": 1.1599254201640443,",
+      "    \"speedup_of_medians\": 1.1621783835213872",
+      "    \"speedup\": 1.819948828195496,",
+      "    \"speedup_of_medians\": 1.824444371505216",
+      "    \"speedup\": 0.9874253729009153,",
+      "    \"speedup_of_medians\": 0.9889537530815063",
+      "    \"speedup\": 1.56492397028963,",
+      "    \"speedup_of_medians\": 1.5678033293721196",
+      "    \"speedup\": 1.0189858060858068,",
+      "    \"speedup_of_medians\": 1.0137392786026427"
+    ]
+  },
+  {
+    "repo": "Ranoobaba/okc-campaign",
+    "pin": "3831ab3c3538a9878031b667624240bd24bb7082",
+    "path": "results/muse_attention_decode/judge_4a319b95232941f2.json",
+    "blob": "4ca9a42032b1f5006ca9683b18e9a705eb5ed7f6",
+    "hits": [
+      "    \"speedup\": 2.0002320580225685,",
+      "    \"speedup_of_medians\": 2.0080776059518133",
+      "    \"speedup\": 1.1839728076939071,",
+      "    \"speedup_of_medians\": 1.1872726726248735",
+      "    \"speedup\": 1.7984026419798629,",
+      "    \"speedup_of_medians\": 1.786469242622095",
+      "    \"speedup\": 1.2236691704425022,",
+      "    \"speedup_of_medians\": 1.2252410806302039",
+      "    \"speedup\": 1.5764061978068926,",
+      "    \"speedup_of_medians\": 1.5714286114705294",
+      "    \"speedup\": 1.2505988679694315,",
+      "    \"speedup_of_medians\": 1.2503639211920916"
+    ]
+  },
+  {
+    "repo": "Ranoobaba/okc-campaign",
+    "pin": "3831ab3c3538a9878031b667624240bd24bb7082",
+    "path": "results/muse_attention_decode/judge_dbe56f1082214984.json",
+    "blob": "1f1e231691106f33d5ee9ed6c4c1dbf66fb3f1d1",
+    "hits": [
+      "    \"speedup\": 2.0418059259983874,",
+      "    \"speedup_of_medians\": 2.0663431274949886",
+      "    \"speedup\": 0.985276399136022,",
+      "    \"speedup_of_medians\": 0.9821251036101423",
+      "    \"speedup\": 1.8249603593221033,",
+      "    \"speedup_of_medians\": 1.826901900066236",
+      "    \"speedup\": 1.142821241550777,",
+      "    \"speedup_of_medians\": 1.14737618224237",
+      "    \"speedup\": 1.5991539835138986,",
+      "    \"speedup_of_medians\": 1.5980471780415515",
+      "    \"speedup\": 1.162641119507017,",
+      "    \"speedup_of_medians\": 1.1622133237579508"
+    ]
+  },
+  {
+    "repo": "Ranoobaba/okc-campaign",
+    "pin": "3831ab3c3538a9878031b667624240bd24bb7082",
+    "path": "results/muse_attention_decode/micro_20261025-042519.json",
+    "blob": "feaa002273e5610cee480c32ef37fa6065d1e00f",
+    "hits": [
+      "   \"speedup\": 1.5362319041434305,",
+      "   \"speedup\": 1.2648084176914673,",
+      "   \"speedup\": 1.6816358378451273,",
+      "   \"speedup\": 1.0429012379835314,",
+      "   \"speedup\": 1.5203647557521556,",
+      "   \"speedup\": 1.0331812739650914,",
+      "   \"speedup\": 1.0218242899951941,",
+      "   \"speedup\": 0.34467257126609063,",
+      "   \"speedup\": 1.2079313646208971,",
+      "   \"speedup\": 0.6232743448243191,",
+      "   \"speedup\": 1.5871657526300214,",
+      "   \"speedup\": 1.2054079887640436,"
+    ]
+  },
+  {
+    "repo": "Ranoobaba/okc-campaign",
+    "pin": "3831ab3c3538a9878031b667624240bd24bb7082",
+    "path": "results/muse_attention_decode/micro_20261025-042806.json",
+    "blob": "01f50be079e55bde0ea1bf89098e644d2d20a9bb",
+    "hits": [
+      "   \"speedup\": 1.326203137257913,",
+      "   \"speedup\": 0.749113485607605,",
+      "   \"speedup\": 1.5736724615288502,",
+      "   \"speedup\": 1.0220932089435057,",
+      "   \"speedup\": 1.4495627552418715,",
+      "   \"speedup\": 1.0232643674344322,",
+      "   \"speedup\": 1.353958142176689,",
+      "   \"speedup\": 0.4331852254078704,",
+      "   \"speedup\": 1.4621265123070166,",
+      "   \"speedup\": 1.1190456346513806,",
+      "   \"speedup\": 1.326574204284351,",
+      "   \"speedup\": 1.1828064003547996,"
+    ]
+  },
+  {
+    "repo": "Ranoobaba/okc-campaign",
+    "pin": "3831ab3c3538a9878031b667624240bd24bb7082",
+    "path": "results/muse_attention_decode/micro_20261025-080954.json",
+    "blob": "72e86adb30b6c2e153c86b6e599e0ad13e296b43",
+    "hits": [
+      "   \"speedup\": 1.5408708710858627,",
+      "   \"speedup\": 1.211242850555411,",
+      "   \"speedup\": 1.4663546091135828,",
+      "   \"speedup\": 1.2287810212359465,",
+      "   \"speedup\": 1.5222641224632938,",
+      "   \"speedup\": 1.288062786416922,",
+      "   \"speedup\": 1.4819633185719028,",
+      "   \"speedup\": 1.311961867464647,",
+      "   \"speedup\": 1.5396946248425227,",
+      "   \"speedup\": 1.298004498557892,",
+      "   \"speedup\": 1.467213087099482,",
+      "   \"speedup\": 1.3099911464784604,"
+    ]
+  },
+  {
+    "repo": "Ranoobaba/okc-campaign",
+    "pin": "3831ab3c3538a9878031b667624240bd24bb7082",
+    "path": "results/muse_attention_decode/micro_20261025-081913.json",
+    "blob": "5d787ff94f3ae280f5deca0fa6ad95a0fb951c82",
+    "hits": [
+      "   \"speedup\": 1.5524109656156848,",
+      "   \"speedup\": 1.2129895037744083,",
+      "   \"speedup\": 1.659340634236868,",
+      "   \"speedup\": 1.2791136004535686,",
+      "   \"speedup\": 1.458830581666809,",
+      "   \"speedup\": 1.2978061535203713,",
+      "   \"speedup\": 1.5638860123117502,",
+      "   \"speedup\": 1.2095238602080332,",
+      "   \"speedup\": 1.6606441324530152,",
+      "   \"speedup\": 1.256716637606337,",
+      "   \"speedup\": 1.4165701091720773,",
+      "   \"speedup\": 1.3120281248480106,"
+    ]
+  },
+  {
+    "repo": "Ranoobaba/okc-campaign",
+    "pin": "3831ab3c3538a9878031b667624240bd24bb7082",
+    "path": "results/muse_attention_decode/micro_20261025-082749.json",
+    "blob": "620136a006d5456aab84a6a94d2bbad09b2c32f3",
+    "hits": [
+      "   \"speedup\": 1.5396396526313665,",
+      "   \"speedup\": 1.0080986123047553,",
+      "   \"speedup\": 1.3234438550876424,",
+      "   \"speedup\": 1.0005921584707063,",
+      "   \"speedup\": 1.2603248100931166,",
+      "   \"speedup\": 1.001862386794912,",
+      "   \"speedup\": 1.5593065683254628,",
+      "   \"speedup\": 0.3561831249173738,",
+      "   \"speedup\": 1.3335287008974797,",
+      "   \"speedup\": 0.7651553677669825,",
+      "   \"speedup\": 1.2685660688215192,",
+      "   \"speedup\": 0.9171805703933545,"
+    ]
+  },
+  {
+    "repo": "Ranoobaba/okc-campaign",
+    "pin": "3831ab3c3538a9878031b667624240bd24bb7082",
+    "path": "results/muse_attention_decode/micro_20261025-091232.json",
+    "blob": "2844314dd88b5b742ec6207b8c65cb2d3ec33a20",
+    "hits": [
+      "   \"speedup\": 1.559875656482634,",
+      "   \"speedup\": 1.2627244948721057,",
+      "   \"speedup\": 1.4921968542567514,",
+      "   \"speedup\": 1.2922542095291274,",
+      "   \"speedup\": 1.351764709024358,",
+      "   \"speedup\": 0.9986689586903716,",
+      "   \"speedup\": 1.234830892323162,",
+      "   \"speedup\": 1.0012708090826457,",
+      "   \"speedup\": 1.516250958523544,",
+      "   \"speedup\": 1.2601306982093128,",
+      "   \"speedup\": 1.47362175165376,",
+      "   \"speedup\": 1.298447598404545,"
+    ]
+  },
+  {
+    "repo": "Ranoobaba/okc-campaign",
+    "pin": "3831ab3c3538a9878031b667624240bd24bb7082",
+    "path": "results/muse_bf16_proj/20261025-033640_calib_baseline.json",
+    "blob": "26da4fb3418660c3968cb524b4474f366a34e0ec",
+    "hits": [
+      "   \"speedup\": 0.9662,",
+      "   \"speedup\": 1.041,",
+      "   \"speedup\": 1.0127,",
+      "   \"speedup\": 0.9811,",
+      "   \"speedup\": 0.9842,",
+      "   \"speedup\": 1.0194,",
+      "   \"speedup\": 1.0133,",
+      "   \"speedup\": 0.9972,",
+      "   \"speedup\": 1.0013,",
+      "   \"speedup\": 1.013,",
+      "   \"speedup\": 1.0102,",
+      "   \"speedup\": 0.9877,"
+    ]
+  },
+  {
+    "repo": "Ranoobaba/okc-campaign",
+    "pin": "3831ab3c3538a9878031b667624240bd24bb7082",
+    "path": "results/muse_bf16_proj/20261025-033656_calib_template.json",
+    "blob": "16c5e4a1f9ddaff8ce0263eb5f56672e4a66ee09",
+    "hits": [
+      "   \"speedup\": 0.9829,",
+      "   \"speedup\": 0.9898,",
+      "   \"speedup\": 0.9891,",
+      "   \"speedup\": 1.0289,",
+      "   \"speedup\": 0.952,",
+      "   \"speedup\": 1.0307,",
+      "   \"speedup\": 1.0136,",
+      "   \"speedup\": 1.0069,",
+      "   \"speedup\": 1.009,",
+      "   \"speedup\": 0.638,",
+      "   \"speedup\": 0.9906,",
+      "   \"speedup\": 0.9804,"
+    ]
+  },
+  {
+    "repo": "tommyyliu/okc",
+    "pin": "f134725e27f368588bd9ef27cb5e97d023b415a5",
+    "path": "muse_attention_decode/README.md",
+    "blob": "8ad72a719bbb2a08e22f9262380f274b391388d4",
+    "hits": [
+      "| `3819260aba274207` (scored) | `results/submitted_v1.py` | **1.559\u00d7** on the board, 16/16 tests |",
+      "| `c1e07a264d3e459a` (check) | same code | 1.574\u00d7 [1.550, 1.601] |",
+      "| bench12 (check) | current `submission.py` defaults | 1.717\u00d7, 16/16 tests \u2014 not yet submitted |",
+      "Leader at the time: 3.03\u00d7. Per-shape judged times for v1 are in"
+    ]
+  },
+  {
+    "repo": "tommyyliu/okc",
+    "pin": "f134725e27f368588bd9ef27cb5e97d023b415a5",
+    "path": "muse_attention_decode/results/runs/bench12.7965de6964c64d58.txt",
+    "blob": "19bbfe07b9e54632e662f534114db0ea5565b9d6",
+    "hits": [
+      "speedup     1.7173892477483463",
+      "speedup_ci  [1.6916284090321212 1.749627341884246]",
+      "score_us    2193.0380692309345",
+      "scored shapes (\u00b5s; speed of light is the reference's bound)",
+      "case                                                         sglang      yours  speedup        sol  ",
+      "batch=1 ctx=80000 dist=soft heads=tp8 layer=sliding load=decode 1 page=1      20.82       6.94   3.000x       0.11  ",
+      "batch=1 ctx=80000 dist=coherent heads=tp8 layer=full load=decode 1 page=1      31.33      16.25   1.927x       4.27  ",
+      "batch=16 ctx=80000 dist=soft heads=tp8 layer=sliding load=decode 16 page=1 spread=agentic      27.02      10.69   2.529x       1.65  ",
+      "batch=16 ctx=80000 dist=coherent heads=tp8 layer=full load=decode 16 page=1 spread=agentic     200.69     109.32   1.836x      63.18  ",
+      "batch=32 ctx=80000 dist=soft heads=tp8 layer=sliding load=decode 32 page=1 spread=agentic      31.54      16.80   1.877x       3.29  ",
+      "batch=32 ctx=80000 dist=coherent heads=tp8 layer=full load=decode 32 page=1 spread=agentic     385.25     199.86   1.928x     126.35  ",
+      "batch=1 ctx=80000 dist=soft heads=tp8 layer=sliding load=verify 1 page=1 q_len=8      22.74      10.94   2.079x       0.12  "
+    ]
+  },
+  {
+    "repo": "tommyyliu/okc",
+    "pin": "f134725e27f368588bd9ef27cb5e97d023b415a5",
+    "path": "muse_attention_decode/results/runs/check_c1e07a26_1.57x.json",
+    "blob": "6be7f298714a6b14edf95c244e0bc22139dc3cc6",
+    "hits": [
+      "    \"scored\": {",
+      "        \"speedup\": 3.1553240520156605,",
+      "        \"speedup_of_medians\": 3.139479722612299,",
+      "        \"speedup\": 1.8010946242888604,",
+      "        \"speedup_of_medians\": 1.7976190295338577,",
+      "        \"speedup\": 2.1986830574341027,",
+      "        \"speedup_of_medians\": 2.1840412418893203,",
+      "        \"speedup\": 1.8423267939977686,",
+      "        \"speedup_of_medians\": 1.8444378764120308,",
+      "        \"speedup\": 1.7018163074389943,",
+      "        \"speedup_of_medians\": 1.6967572566998754,",
+      "        \"speedup\": 1.9250381259563447,"
+    ]
+  },
+  {
+    "repo": "tommyyliu/okc",
+    "pin": "f134725e27f368588bd9ef27cb5e97d023b415a5",
+    "path": "muse_attention_decode/results/runs/submission.c1e07a264d3e459a.txt",
+    "blob": "b20a7cf5e0a4abad5d1a7071bbc83417ed798322",
+    "hits": [
+      "speedup     1.573665472868015",
+      "speedup_ci  [1.5500604907749949 1.601369190407164]",
+      "score_us    2393.3295004152915",
+      "scored shapes (\u00b5s; speed of light is the reference's bound)",
+      "case                                                         sglang      yours  speedup        sol  ",
+      "batch=1 ctx=80000 dist=soft heads=tp8 layer=sliding load=decode 1 page=1      21.25       6.73   3.155x       0.11  ",
+      "batch=1 ctx=80000 dist=coherent heads=tp8 layer=full load=decode 1 page=1      31.41      17.44   1.801x       4.27  ",
+      "batch=16 ctx=80000 dist=soft heads=tp8 layer=sliding load=decode 16 page=1 spread=agentic      27.15      12.35   2.199x       1.65  ",
+      "batch=16 ctx=80000 dist=coherent heads=tp8 layer=full load=decode 16 page=1 spread=agentic     199.76     108.43   1.842x      63.18  ",
+      "batch=32 ctx=80000 dist=soft heads=tp8 layer=sliding load=decode 32 page=1 spread=agentic      30.98      18.20   1.702x       3.29  ",
+      "batch=32 ctx=80000 dist=coherent heads=tp8 layer=full load=decode 32 page=1 spread=agentic     383.94     199.44   1.925x     126.35  ",
+      "batch=1 ctx=80000 dist=soft heads=tp8 layer=sliding load=verify 1 page=1 q_len=8      22.80      11.12   2.050x       0.12  "
+    ]
+  },
+  {
+    "repo": "tommyyliu/okc",
+    "pin": "f134725e27f368588bd9ef27cb5e97d023b415a5",
+    "path": "muse_bf16_proj/README.md",
+    "blob": "57987c688f7b9842820112dd0585d981a4715b23",
+    "hits": [
+      "Thirty scored cases: five projections at M = 1, 8, 16, 32, 128, 256. Start with",
+      "The default is the **PDL candidate measured at 1.2310594\u00d7**. This refactor retains",
+      "fresh measured banked control at **3830.40 us / 1.26117x**. Command networking",
+      "results. The selected `round7` preset passed at **3764.88 us / 1.28312x**;",
+      "| `projection/configs.py` | One explicit setting per scored `(layer, M)`; preset overrides and nearby-size fallback |",
+      "| `projection/shapes.py` | Dimensions and scored token counts |",
+      "| `tools/` | Build, tuning, GPU validation, compile audit, score analysis |",
+      "case using it. Editing a configuration affects that exact case. Non-scored",
+      "It passed an initial H200 check at 1.2324506x; confirmation and nearby"
+    ]
+  },
+  {
+    "repo": "tommyyliu/okc",
+    "pin": "f134725e27f368588bd9ef27cb5e97d023b415a5",
+    "path": "muse_bf16_proj/results/README.md",
+    "blob": "495fea44f1c8f341b1d2a95260ad727effa319a8",
+    "hits": [
+      "has **0 checks and 10 scored submissions remaining**. A QKV M32 S4 follow-up",
+      "splits lost. The selected confirmation passed at **3764.88 us / 1.28312x**,",
+      "| Preset | Original job | Measured speedup | Status |",
+      "| Selective | `027b6db0ef044348` | 1.2048418\u00d7 | Historical control |",
+      "| Orientation | `8fbfde82af1a4761` | 1.2150730\u00d7 | Historical O-projection experiment |",
+      "| PDL | `e6f6e1af0bd446a1` | 1.2310594\u00d7 | Default source configuration |",
+      "| Pooler TMA | `dc36c8ef363340e3` | 1.1739579\u00d7 | Correctness passed; both changed cases regressed |",
+      "| Pooler split-K | `a63715f545fc478d` | 1.1842914\u00d7 | Correctness passed; both changed cases still lose |",
+      "| PDL recheck | `706c118665f14447` | 1.2197188\u00d7 | Fresh control; correctness passed |",
+      "| Small streaming | `829a3acc7d344f38` | 1.2132923\u00d7 | Correctness passed; QKV M=32 alone gives no clear gain |",
+      "| Small weight-major | `5aa7a0e662a84bfd` | 1.2324506\u00d7 | Correctness passed; six promising cases, confirmation pending |",
+      "| Weight-major nearby | `67a1b145d83b4f89` | 1.2278289\u00d7 | Correctness passed, including new kernel at pooler M=7; 3934.42 us |"
+    ]
+  },
+  {
+    "repo": "tommyyliu/okc",
+    "pin": "f134725e27f368588bd9ef27cb5e97d023b415a5",
+    "path": "muse_bf16_proj/results/architectural_redesigns.md",
+    "blob": "fae98f3e7bdf0d488085db4a0a0024d81d0fac68",
+    "hits": [
+      "whole. Reaching the user-reported 2950 us target needs about **23.0%** less score",
+      "20% conditional score saving is about 141 us. Keep the existing selected",
+      "All router cases are only **11.0%** of projected score sensitivity. A 20%",
+      "packed exponent deltas and measured roughly 0.1076x. Its inline decoder produced"
+    ]
+  },
+  {
+    "repo": "tommyyliu/okc",
+    "pin": "f134725e27f368588bd9ef27cb5e97d023b415a5",
+    "path": "muse_bf16_proj/results/banked_control_20261026.txt",
+    "blob": "47d8d4f08ba902b63dd974e34e3cd4e439c8266e",
+    "hits": [
+      "{\"passed\": true, \"score_us\": 3830.401355752187, \"speedup\": 1.2611733213663094, \"speedup_ci\": [1.2422557215458148, 1.280090921186804]}"
+    ]
+  },
+  {
+    "repo": "tommyyliu/okc",
+    "pin": "f134725e27f368588bd9ef27cb5e97d023b415a5",
+    "path": "muse_bf16_proj/results/first_principles_analysis.json",
+    "blob": "3fa4d5e208014cd2a84fe17d93962b013d72893f",
+    "hits": [
+      "    \"composite_selected_score_us\": 3854.6416059577336,",
+      "    \"all_at_ideal_floor_score_us\": 2371.1508169543104,",
+      "      \"score_us\": 3744.535774890754,",
+      "      \"score_us\": 3804.826584370544,",
+      "      \"score_us\": 3681.1615022996225,",
+      "      \"score_us\": 3771.0182741245435,",
+      "      \"score_us\": 3649.449786435858,",
+      "      \"score_us\": 3753.9959567207106,",
+      "      \"score_us\": 3550.6793561499117,",
+      "      \"score_us\": 3695.904074500184,",
+      "  \"layer_score_sensitivity\": {"
+    ]
+  },
+  {
+    "repo": "tommyyliu/okc",
+    "pin": "f134725e27f368588bd9ef27cb5e97d023b415a5",
+    "path": "muse_bf16_proj/results/first_principles_analysis.md",
+    "blob": "77fb4aef8999da2602386d5d9d80ca81e52c0ca3",
+    "hits": [
+      "change any router roofline value: traffic still dominates at all scored sizes.",
+      "Applying the task's weighted load sums and geometric-mean score, rather than",
+      "adding shape times, gives an ideal score of **2371.15 us** on the round-six",
+      "target requires **23.5% less score latency**. The target has not been refreshed",
+      "| Assumption | Hypothetical aggregate score |",
+      "load (five times 62), before translating back to the score. The judge already",
+      "Crucially, the profile sum is about **4.3 us**, while the official paired score",
+      "experiment threshold, not a forecast. Reaching 4 us would save about **84 score",
+      "score sensitivity; even idealizing the entire router saves only **304 score us**.",
+      "diagnostic measurements remain outstanding. The table, bounds and score scenarios"
+    ]
+  },
+  {
+    "repo": "tommyyliu/okc",
+    "pin": "f134725e27f368588bd9ef27cb5e97d023b415a5",
+    "path": "muse_bf16_proj/results/handoff_2026-10-25.md",
+    "blob": "9bd1bfa81573b97db68862e2338f85b5d4f922b5",
+    "hits": [
+      "focused investigation. The ideal uncompressed workload score is about 2371 us;",
+      "Other 27 scored cases keep the selected `banked` settings. Nearby router",
+      "**3848.12 us / 1.25537x**, 95% speedup interval [1.23654, 1.27420].",
+      "router M128, so confirmation matters. Never equate profile sums with scored time."
+    ]
+  },
+  {
+    "repo": "ozgureyilmaz/okc-muse-kernels",
+    "pin": "74daa3a6990168b52359c80955014a945fc7aa4e",
+    "path": "README.md",
+    "blob": "c45f58e9e68e3f4d79d273e8a79ecb1a0575b6c1",
+    "hits": [
+      "| Candidate | Run | Correctness | Speedup (95% CI) | Normalized time |",
+      "| v006 | Previous scored | 9/9 | 1.0139\u00d7 (0.9987\u20131.0291) | 4764.5 \u00b5s |",
+      "| v027 | Check | 9/9 | 1.1804\u00d7 (1.1626\u20131.1981) | 4092.7 \u00b5s |",
+      "| v027 | **Scored** | **9/9** | **1.1718\u00d7 (1.1542\u20131.1893)** | **4122.6 \u00b5s** |",
+      "v027 is the current scored candidate and the best off-board check. Scored job `20251c5f78804f1f` promoted the exact checked source hash without edits. It uses FP32 register accumulation for small routers, BF16 hi/lo Tensor Core split-K for ",
+      "**Top ten has not been reached.** The live read at 2026-10-27T17:23:35.293809+00:00 shows the account at rank **820/1160**, with a scored value of **1.1718\u00d7**. Rank 10 is 1.5696\u00d7. The current scored point needs about 25.3% more normalized l",
+      "- Refreshed counters: 16/20 checks and 1/10 scored submissions today. Four checks remain reserved.",
+      "- After the check round, the user explicitly authorized one v027 scored promotion and merge into `master`, superseding the earlier top-ten-only promotion condition for this run.",
+      "- Both the 16-check allowance and that single scored authorization are used. Further GPU runs need fresh approval; a quota reset does not authorize them.",
+      "Submissions use Apache-2.0; see [`LICENSE`](LICENSE)."
+    ]
+  },
+  {
+    "repo": "ozgureyilmaz/okc-muse-kernels",
+    "pin": "74daa3a6990168b52359c80955014a945fc7aa4e",
+    "path": "state/best/muse_bf16_proj/meta.json",
+    "blob": "482470b4e4015670b490ce951366e56c592ab1d3",
+    "hits": [
+      "  \"speedup\": 1.1717726912393547,"
+    ]
+  },
+  {
+    "repo": "Kushagrabainsla/muse-spark-open",
+    "pin": "ca71144194e993c9769f20654fade8008c6868c7",
+    "path": "README.md",
+    "blob": "bf2617367ab8bb3e523ff023afa434dd15cb6eaf",
+    "hits": [
+      "one H200 per run). Each problem is one piece of a Muse decode step; a kernel is scored by how much faster it is",
+      "| Problem | What it is | Our speedup | Rank | Median | #1 | Job |",
+      "| [muse_attention_decode](muse_attention_decode) | gated attention decode over a paged FP8 cache | **1.525\u00d7** | 754 / 1152 | 1.79\u00d7 | 3.22\u00d7 | 09b49ea4276e4306 |",
+      "| [muse_moe_w4a16](muse_moe_w4a16) | routed experts, NVFP4 weights | **1.704\u00d7** | 688 / 1206 | 1.81\u00d7 | 2.76\u00d7 | 069f543bb3604714 |",
+      "| [muse_decode_layer](muse_decode_layer) | the whole decoder layer | **1.496\u00d7** | 703 / 1072 | 1.66\u00d7 | 2.42\u00d7 | 7a0ba34ed4ee4181 |",
+      "| [muse_bf16_proj](muse_bf16_proj) | dense BF16 projections (skinny GEMMs) | **1.190\u00d7** | 1096 / 1502 | 1.24\u00d7 | 1.65\u00d7 | fef2017d39ec4cc2 |",
+      "Speedup = geometric mean over the problem's loads (decode / verify at batch 1, 16, 32 and so on) of SGLang's",
+      "time over ours. Ranks, medians and #1 as of 2026-10-30 23:59 UTC. `muse_prefill_layer` is not entered.",
+      "| `bench.py` | judge-like timing of all scored shapes vs SGLang (`--check` runs the tests first) |",
+      "2. Attention: full verify at batch 16 / 32 (on FA3) is the weakest load (~1.05\u20131.2\u00d7)."
+    ]
+  },
+  {
+    "repo": "theluckystrike/muse-spark-open-kernels",
+    "pin": "778e47d7fe5836f6e19bb6d962caf02e40469035",
+    "path": "README.md",
+    "blob": "868376d6e5332f3a5727618e2218a83821e8212d",
+    "hits": [
+      "What this repo is for. Every kernel we submit is licensed Apache-2.0 by the challenge rules, so the best work can go upstream into SGLang. This repo will hold our kernels, the measurements behind them, and the notes on what did not work, pu",
+      "| muse_moe_w4a16 | routed experts, NVFP4 weights, BF16 activations | custom CUDA W4A16 GEMM, scored |",
+      "| muse_decode_layer | the whole decoder layer at verify shapes | fused glue + custom MoE, scored |",
+      "| muse_bf16_proj | dense BF16 projections and the router | skinny GEMM path, scored |"
+    ]
+  },
+  {
+    "repo": "xharshvardhan/open-kernel-challenge",
+    "pin": "4958d3141aa977c4b6b26df7a8d06c90dd094ee9",
+    "path": "README.md",
+    "blob": "b296a8a238bf3f8af9cfa41ce549a017d30c6305",
+    "hits": [
+      "Snapshot checked **27 October 2026, 03:20 UTC**. Rankings change as submissions arrive.",
+      "| Workload | Speedup over SGLang | Rank | Area optimized |",
+      "| [Dense projections](kernels/dense_projections.py) | **1.1991\u00d7** | 639 / 1,109 | Matrix projections and expert selection |",
+      "| [Routed experts](kernels/routed_experts.py) (4-bit weights, 16-bit activations) | **1.3749\u00d7** | 579 / 877 | Expert computation and output aggregation |",
+      "| [Attention decoding](kernels/attention_decode.py) | **1.2990\u00d7** | 663 / 836 | Attention processing and result combination |",
+      "| [Complete decoder layer](kernels/decoder_layer.py) | **1.2252\u00d7** | 611 / 758 | Integration of projection, attention and expert improvements |",
+      "The listed scored submissions passed the official correctness checks. Speedups are workload-level measurements relative to SGLang; the overall leaderboard reports a rank rather than a single combined speedup.",
+      "- **Decoder layer:** integrates projection, attention and expert improvements while preserving normalization boundaries, residual precision and stream dependencies. It is measured as a complete workload, independently of the component score",
+      "Published copies have cleaned comments and module descriptions. Their executable syntax trees match the verified submissions; the listed measurements belong to those official scored runs, not a new benchmark of the edited presentation.",
+      "Portions are adapted from SGLang. See [attribution](NOTICE) and the [upstream Apache-2.0 license](licenses/Apache-2.0.txt)."
+    ]
+  },
+  {
+    "repo": "Okohedeki/autoinference",
+    "pin": "0454fb5059e95928c4236620142f51c287f572fb",
+    "path": "README.md",
+    "blob": "b7e3b02c5d2fa07c8957fb36a99251205ed46c1a",
+    "hits": [
+      "- **Trust checks.** Every predicted pose is checked for clashes, overlapping atoms and a ligand that is not touching the protein. Optional consensus backends re-score the final survivors and report how well the models agree.",
+      "- **Tuning on assay data.** After lab testing, send the outcomes back. The service fits a re-scorer on every model score those candidates received, plus an isotonic calibration to the observed hit rate. Later campaigns that name the tuned m"
+    ]
+  },
+  {
+    "repo": "Okohedeki/autoinference",
+    "pin": "0454fb5059e95928c4236620142f51c287f572fb",
+    "path": "market_map/README.md",
+    "blob": "116ea5fef42c345960c05541ea320499d7bdeae8",
+    "hits": [
+      "A tool for finding open positions in the AI inference market. It embeds every known inference offering, searches the embedding space for voids that sit inside the market but far from every product, decodes each void back into a concrete pro",
+      "6. **Ranking.** By default, ideas are compared across the whole market by how they work, and industry is ignored. The score is a weighted geometric mean of:",
+      "   A new mechanism in a crowded layer counts as an opening, so crowding is reported but does not lower the score.",
+      "   With `--industries`, the tool instead looks for proven patterns moved into new industries. It adds an **adoption gap** term, which measures how low AI use is in the sector, using the Census Business Trends and Outlook Survey in [`data/ad",
+      "- `pipeline.py` writes `out/ideas.json` (the ranked ideas, with every score component) and `out/map.json` (2D positions from UMAP)."
+    ]
+  }
+]

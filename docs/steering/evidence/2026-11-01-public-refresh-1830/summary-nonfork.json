@@ -1,0 +1,147 @@
+[
+  {
+    "label": "muse_decode_layer-nonfork",
+    "q": "muse_decode_layer NOT repo:lee101/openkernels NOT repo:rohanarun/Auto-research-agent",
+    "page": 1,
+    "total": 235,
+    "incomplete": false,
+    "returned": 100,
+    "repos": [
+      "Kushagrabainsla/muse-spark-open",
+      "Madhavan113/ParadigmKernelChallenge",
+      "PostTrainLLM/posttrainllm",
+      "Ranoobaba/okc-campaign",
+      "alygg77/okc-muse-spark-kernels",
+      "lilaclilac09/open-kernel-challenge",
+      "ruwwww/open-kernel-challenge",
+      "theluckystrike/muse-spark-open-kernels",
+      "tommyyliu/okc",
+      "vjeux/okc-2026",
+      "xharshvardhan/open-kernel-challenge"
+    ],
+    "file": "muse_decode_layer-nonfork-1.json"
+  },
+  {
+    "label": "muse_decode_layer-nonfork",
+    "q": "muse_decode_layer NOT repo:lee101/openkernels NOT repo:rohanarun/Auto-research-agent",
+    "page": 2,
+    "total": 246,
+    "incomplete": false,
+    "returned": 100,
+    "repos": [
+      "Kushagrabainsla/muse-spark-open",
+      "Madhavan113/ParadigmKernelChallenge",
+      "Okohedeki/autoinference",
+      "PostTrainLLM/posttrainllm",
+      "Ranoobaba/okc-campaign",
+      "alygg77/okc-muse-spark-kernels",
+      "coderredlab/runNburn",
+      "hieptran1812/my-website",
+      "lilaclilac09/open-kernel-challenge",
+      "ozgureyilmaz/okc-muse-kernels",
+      "ruwwww/open-kernel-challenge",
+      "tommyyliu/okc",
+      "xharshvardhan/open-kernel-challenge"
+    ],
+    "file": "muse_decode_layer-nonfork-2.json"
+  },
+  {
+    "label": "muse_bf16_proj-nonfork",
+    "q": "muse_bf16_proj NOT repo:lee101/openkernels NOT repo:rohanarun/Auto-research-agent",
+    "page": 1,
+    "total": 386,
+    "incomplete": false,
+    "returned": 100,
+    "repos": [
+      "Kushagrabainsla/muse-spark-open",
+      "Madhavan113/ParadigmKernelChallenge",
+      "NathenFernandes/muse-bf16-proj",
+      "PostTrainLLM/posttrainllm",
+      "Ranoobaba/okc-campaign",
+      "alygg77/okc-muse-spark-kernels",
+      "lachydotmcg/muse-sputter",
+      "lilaclilac09/open-kernel-challenge",
+      "msaroufim/openkernelchallenge-audit",
+      "ozgureyilmaz/okc-muse-kernels",
+      "ruwwww/open-kernel-challenge",
+      "theluckystrike/muse-spark-open-kernels",
+      "tommyyliu/okc",
+      "vjeux/okc-2026"
+    ],
+    "file": "muse_bf16_proj-nonfork-1.json"
+  },
+  {
+    "label": "muse_bf16_proj-nonfork",
+    "q": "muse_bf16_proj NOT repo:lee101/openkernels NOT repo:rohanarun/Auto-research-agent",
+    "page": 2,
+    "total": 386,
+    "incomplete": false,
+    "returned": 100,
+    "repos": [
+      "Kushagrabainsla/muse-spark-open",
+      "Madhavan113/ParadigmKernelChallenge",
+      "Okohedeki/autoinference",
+      "PostTrainLLM/posttrainllm",
+      "Ranoobaba/okc-campaign",
+      "alygg77/okc-muse-spark-kernels",
+      "hieptran1812/my-website",
+      "lilaclilac09/open-kernel-challenge",
+      "msaroufim/openkernelchallenge-audit",
+      "ozgureyilmaz/okc-muse-kernels",
+      "ruwwww/open-kernel-challenge",
+      "tommyyliu/okc",
+      "xharshvardhan/open-kernel-challenge"
+    ],
+    "file": "muse_bf16_proj-nonfork-2.json"
+  },
+  {
+    "label": "muse_attention_decode-nonfork",
+    "q": "muse_attention_decode NOT repo:lee101/openkernels NOT repo:rohanarun/Auto-research-agent",
+    "page": 1,
+    "total": 222,
+    "incomplete": false,
+    "returned": 100,
+    "repos": [
+      "Kushagrabainsla/muse-spark-open",
+      "Madhavan113/ParadigmKernelChallenge",
+      "PostTrainLLM/posttrainllm",
+      "Ranoobaba/okc-campaign",
+      "alygg77/okc-muse-spark-kernels",
+      "lilaclilac09/open-kernel-challenge",
+      "ruwwww/open-kernel-challenge",
+      "theluckystrike/muse-spark-open-kernels",
+      "tommyyliu/okc",
+      "vjeux/okc-2026",
+      "xharshvardhan/open-kernel-challenge"
+    ],
+    "file": "muse_attention_decode-nonfork-1.json"
+  },
+  {
+    "label": "muse_attention_decode-nonfork",
+    "q": "muse_attention_decode NOT repo:lee101/openkernels NOT repo:rohanarun/Auto-research-agent",
+    "page": 2,
+    "total": 224,
+    "incomplete": false,
+    "returned": 100,
+    "repos": [
+      "Kushagrabainsla/muse-spark-open",
+      "Madhavan113/ParadigmKernelChallenge",
+      "Okohedeki/autoinference",
+      "PostTrainLLM/posttrainllm",
+      "Ranoobaba/okc-campaign",
+      "alygg77/okc-muse-spark-kernels",
+      "hieptran1812/my-website",
+      "ozgureyilmaz/okc-muse-kernels",
+      "ruwwww/open-kernel-challenge",
+      "tommyyliu/okc",
+      "xharshvardhan/open-kernel-challenge"
+    ],
+    "file": "muse_attention_decode-nonfork-2.json"
+  },
+  {
+    "label": "muse_moe_w4a16-nonfork",
+    "q": "muse_moe_w4a16 NOT repo:lee101/openkernels NOT repo:rohanarun/Auto-research-agent",
+    "page": 1,
+    "error": "gh: API rate limit exceeded for user ID 286596290. If you reach out to GitHub Support for help, please include the request ID DEED:3A61E:6749DB5:934E443:6AE785F2 and timestamp 2026-11-01 18:33:22 UTC. For more on scraping GitHub and how it may affect your rights, please review our Terms of Service (https://docs.github.com/en/site-policy/github-terms/github-terms-of-service) (HTTP 403)"
+  }
+]

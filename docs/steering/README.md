@@ -1,5 +1,7 @@
 # Shared project steering
 
+Latest source discovery: [All four nonprefill boards, 18:30 continuation](2026-11-01-public-source-refresh-1830.md). Identifier-first paginated search and24 pinned repository trees; newly inspected author receipts do not justify another comparator check. Coverage limits explicit.
+
 Latest performance pivot: [After both sparse-repair losses](2026-11-01-post-xor-ranking-pivot.md). Fresh official ranks/cutoffs, exact stage-local loss and one next investigation; preserve first-two reset order. No new kernel or GPU action.
 
 Latest G contract audit: [Precision requirements versus conservative policy](2026-11-01-g-fork-precision-contract.md). BF16 stage edges retained; internal split-partial bans distinguished from explicit rules; active JIT FP32 router clarified. No reopening, code or GPU action.

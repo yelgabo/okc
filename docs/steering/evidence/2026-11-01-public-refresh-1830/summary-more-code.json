@@ -1,0 +1,134 @@
+[
+  {
+    "query": "muse_decode_layer NOT repo:lee101/openkernels NOT repo:rohanarun/Auto-research-agent",
+    "page": 3,
+    "total": 266,
+    "returned": 66,
+    "repos": [
+      "Kushagrabainsla/muse-spark-open",
+      "Madhavan113/ParadigmKernelChallenge",
+      "PostTrainLLM/posttrainllm",
+      "Ranoobaba/okc-campaign",
+      "alygg77/okc-muse-spark-kernels",
+      "hieptran1812/my-website",
+      "msaroufim/openkernelchallenge-audit",
+      "ruwwww/open-kernel-challenge",
+      "tommyyliu/okc"
+    ],
+    "file": "muse_decode_layer-nonfork-3.json"
+  },
+  {
+    "query": "muse_bf16_proj NOT repo:lee101/openkernels NOT repo:rohanarun/Auto-research-agent",
+    "page": 3,
+    "total": 386,
+    "returned": 100,
+    "repos": [
+      "Kushagrabainsla/muse-spark-open",
+      "Madhavan113/ParadigmKernelChallenge",
+      "NathenFernandes/muse-bf16-proj",
+      "Okohedeki/autoinference",
+      "PostTrainLLM/posttrainllm",
+      "Ranoobaba/okc-campaign",
+      "hieptran1812/my-website",
+      "lachydotmcg/muse-sputter",
+      "lilaclilac09/open-kernel-challenge",
+      "msaroufim/openkernelchallenge-audit",
+      "ozgureyilmaz/okc-muse-kernels",
+      "ruwwww/open-kernel-challenge",
+      "tommyyliu/okc"
+    ],
+    "file": "muse_bf16_proj-nonfork-3.json"
+  },
+  {
+    "query": "muse_bf16_proj NOT repo:lee101/openkernels NOT repo:rohanarun/Auto-research-agent",
+    "page": 4,
+    "total": 396,
+    "returned": 96,
+    "repos": [
+      "Kushagrabainsla/muse-spark-open",
+      "Madhavan113/ParadigmKernelChallenge",
+      "PostTrainLLM/posttrainllm",
+      "Ranoobaba/okc-campaign",
+      "alygg77/okc-muse-spark-kernels",
+      "hieptran1812/my-website",
+      "lachydotmcg/muse-sputter",
+      "msaroufim/openkernelchallenge-audit",
+      "ozgureyilmaz/okc-muse-kernels",
+      "ruwwww/agent-skills",
+      "ruwwww/open-kernel-challenge",
+      "tommyyliu/okc"
+    ],
+    "file": "muse_bf16_proj-nonfork-4.json"
+  },
+  {
+    "query": "muse_attention_decode NOT repo:lee101/openkernels NOT repo:rohanarun/Auto-research-agent",
+    "page": 3,
+    "total": 231,
+    "returned": 31,
+    "repos": [
+      "Kushagrabainsla/muse-spark-open",
+      "Madhavan113/ParadigmKernelChallenge",
+      "Ranoobaba/okc-campaign",
+      "hieptran1812/my-website",
+      "ruwwww/agent-skills"
+    ],
+    "file": "muse_attention_decode-nonfork-3.json"
+  },
+  {
+    "query": "muse_moe_w4a16 NOT repo:lee101/openkernels NOT repo:rohanarun/Auto-research-agent",
+    "page": 1,
+    "total": 293,
+    "returned": 100,
+    "repos": [
+      "Kushagrabainsla/muse-spark-open",
+      "Madhavan113/ParadigmKernelChallenge",
+      "PostTrainLLM/posttrainllm",
+      "Ranoobaba/okc-campaign",
+      "alygg77/okc-muse-spark-kernels",
+      "lilaclilac09/open-kernel-challenge",
+      "msaroufim/openkernelchallenge-audit",
+      "ruwwww/open-kernel-challenge",
+      "theluckystrike/muse-spark-open-kernels",
+      "tommyyliu/okc",
+      "vjeux/okc-2026",
+      "xharshvardhan/open-kernel-challenge"
+    ],
+    "file": "muse_moe_w4a16-nonfork-1.json"
+  },
+  {
+    "query": "muse_moe_w4a16 NOT repo:lee101/openkernels NOT repo:rohanarun/Auto-research-agent",
+    "page": 2,
+    "total": 293,
+    "returned": 100,
+    "repos": [
+      "Kushagrabainsla/muse-spark-open",
+      "Madhavan113/ParadigmKernelChallenge",
+      "Okohedeki/autoinference",
+      "PostTrainLLM/posttrainllm",
+      "Ranoobaba/okc-campaign",
+      "alygg77/okc-muse-spark-kernels",
+      "hieptran1812/my-website",
+      "msaroufim/openkernelchallenge-audit",
+      "ozgureyilmaz/okc-muse-kernels",
+      "ruwwww/open-kernel-challenge"
+    ],
+    "file": "muse_moe_w4a16-nonfork-2.json"
+  },
+  {
+    "query": "muse_moe_w4a16 NOT repo:lee101/openkernels NOT repo:rohanarun/Auto-research-agent",
+    "page": 3,
+    "total": 246,
+    "returned": 46,
+    "repos": [
+      "Kushagrabainsla/muse-spark-open",
+      "Madhavan113/ParadigmKernelChallenge",
+      "Ranoobaba/okc-campaign",
+      "alygg77/okc-muse-spark-kernels",
+      "hieptran1812/my-website",
+      "ruwwww/agent-skills",
+      "ruwwww/open-kernel-challenge",
+      "xharshvardhan/open-kernel-challenge"
+    ],
+    "file": "muse_moe_w4a16-nonfork-3.json"
+  }
+]
