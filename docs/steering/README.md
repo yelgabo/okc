@@ -6,6 +6,8 @@ report be checked into this repository so other sessions can read it.
 
 ## Latest review
 
+[November 1, 04:44 PST — concurrent pooler and router sent to H200](2026-11-01-g-public-layer-measurement.md#november-1-0444-pst--concurrent-short-producer) records the single-arm candidate, local GPU correctness scope and remaining cross-family byte budget.
+
 [November 1, 04:35 PST — fixed-routing short-path comparison](2026-11-01-g-public-layer-measurement.md#november-1-0435-pst--short-path-experiment-ready-for-private-measurement) identifies the second private reset experiment and closes two scoped porting ideas. [Family lineage and incumbent](../architecture-performance-tracker.md).
 
 [November 1, 04:25 PST — reset check repair and second expert experiment](2026-11-01-g-public-layer-measurement.md#november-1-0425-pst--private-checks-before-the-reset) gives the current reproducible private payload, nine CPU tests and the two-stage retirement compile stop.
@@ -454,6 +456,8 @@ accounting, and running a corrected matched whole-layer comparison. It records
 recommendations, not execution of those tasks; check current code and run logs for status.
 
 ## Report history
+
+- November 1, 04:44 PST. [Concurrent short producer implementation and gates](2026-11-01-g-short-split-overlap.md). [Compilation and byte budget for the reduced cross-family slice](2026-11-01-inactive-detm-size-pass.md).
 
 - November 1, 04:35 PST. [Short-path measurement gates](2026-11-01-g-short-path-evidence.md), [tiny-expert weight ownership](2026-11-01-g-tiny-weight-metadata-audit.md) and [large full-context attention](2026-11-01-g-full-attention-scope.md).
 

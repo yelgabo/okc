@@ -1,0 +1,2 @@
+# The official uploads and their recorded SHA256 hashes use these exact LF bytes.
+muse_decode_layer/cand/g1b4_*_release.py text eol=lf
