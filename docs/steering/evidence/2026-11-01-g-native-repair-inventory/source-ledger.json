@@ -1,0 +1,224 @@
+{
+  "upstream": {
+    "lf_sha256": "82c098ae7534b20b5d80f59d547650cb0853fc7d5e313fe29e1e9d9373e1bb19",
+    "lf_bytes": 979654,
+    "base_assignments": {
+      "PDL": true,
+      "MOE_DEFINES": [
+        "-DOKC_NW=16",
+        "-DOKC_FAST1=0",
+        "-DOKC_EPI4=0",
+        "-DOKC_WGS=1"
+      ],
+      "MOE_TINY_DEFINES": [
+        "-DOKC_NW=8",
+        "-DOKC_TINY=1",
+        "-DOKC_EPI4=0",
+        "-DOKC_FAST1=2",
+        "-DOKC_L2H=0",
+        "-DOKC_NACC=4",
+        "-DOKC_UWARP=0",
+        "-DOKC_WS=1",
+        "-DOKC_WSB=1",
+        "-DOKC_WSBL=2",
+        "-DOKC_WSBLK=2"
+      ],
+      "MOE_TINY_MAX_M": 4,
+      "MOE_TINY2_DEFINES": [
+        "-DOKC_NW=8",
+        "-DOKC_TINY=1",
+        "-DOKC_CPF=0",
+        "-DOKC_EPI4=0",
+        "-DOKC_FAST1=2",
+        "-DOKC_NACC=4",
+        "-DOKC_UWARP=0",
+        "-DOKC_WS=1",
+        "-DOKC_WSB=1",
+        "-DOKC_WSBL=2",
+        "-DOKC_WSBLK=1",
+        "-DOKC_FINPF=1"
+      ],
+      "MOE_TINY2_MAX_M": 8,
+      "MOE_MID_DEFINES": [
+        "-DOKC_NW=8",
+        "-DOKC_TINY=1",
+        "-DOKC_SPLIT=1",
+        "-DOKC_CPF=0",
+        "-DOKC_EPI4=0",
+        "-DOKC_FAST1=2",
+        "-DOKC_NACC=4",
+        "-DOKC_UWARP=0",
+        "-DOKC_WS=1",
+        "-DOKC_WSB=1",
+        "-DOKC_WSBL=2",
+        "-DOKC_WSBLK=2",
+        "-DOKC_FINPF=1"
+      ],
+      "MOE_MID_MAX_M": 16,
+      "MOE_HAS_PDL": true,
+      "SC6_WGS": true,
+      "MFAB_LAYER": true
+    },
+    "native_literals": [
+      {
+        "target": "MOE_CUDA_SRC",
+        "line": 3880,
+        "sha256": "b7ecaf14698e217bf07a28484e6bade62a23d81c603e93d7074ab2fdd9630175",
+        "bytes": 153709,
+        "macro_definitions_in_literal": [
+          [
+            "OKC_MFIN",
+            "1   // WGS: per-expert completion counters instead of the grid barrier before the final pass"
+          ],
+          [
+            "OKC_MFIN",
+            "0"
+          ],
+          [
+            "OKC_WGSFCI",
+            "4  // st2 (E374): the deferred flush at commit group 4 (FCI 3..7 sweep best)"
+          ],
+          [
+            "OKC_YBF",
+            "1   // ybf: WGS ybuf in bf16"
+          ],
+          [
+            "OKC_YBF",
+            "0"
+          ]
+        ],
+        "cooperative_launch_calls": 0,
+        "gamma_round_expressions": 0
+      },
+      {
+        "target": "_MA_ALT_SRCS['moe_helper0']",
+        "line": 12583,
+        "sha256": "84f501957a280cb3703bf9a29843153557e280725457162cb8b203b74b8d0f9f",
+        "bytes": 138010,
+        "macro_definitions_in_literal": [
+          [
+            "OKC_WGSFCI",
+            "3"
+          ]
+        ],
+        "cooperative_launch_calls": 0,
+        "gamma_round_expressions": 0
+      }
+    ]
+  },
+  "incumbent": {
+    "lf_sha256": "ba9e327cd7b96595ace4d0c1d0d78fe27c128f23ed0debcda97c7169fc3164ab",
+    "lf_bytes": 869076,
+    "base_assignments": {
+      "PDL": false,
+      "MOE_DEFINES": [
+        "-DOKC_NW=16",
+        "-DOKC_FAST1=0",
+        "-DOKC_EPI4=0",
+        "-DOKC_WGS=1"
+      ],
+      "MOE_TINY_DEFINES": [
+        "-DOKC_NW=8",
+        "-DOKC_TINY=1",
+        "-DOKC_EPI4=0",
+        "-DOKC_FAST1=2",
+        "-DOKC_L2H=0",
+        "-DOKC_NACC=4",
+        "-DOKC_UWARP=0",
+        "-DOKC_WS=1",
+        "-DOKC_WSB=1",
+        "-DOKC_WSBL=2",
+        "-DOKC_WSBLK=2"
+      ],
+      "MOE_TINY_MAX_M": 4,
+      "MOE_TINY2_DEFINES": [
+        "-DOKC_NW=8",
+        "-DOKC_TINY=1",
+        "-DOKC_CPF=0",
+        "-DOKC_EPI4=0",
+        "-DOKC_FAST1=2",
+        "-DOKC_NACC=4",
+        "-DOKC_UWARP=0",
+        "-DOKC_WS=1",
+        "-DOKC_WSB=1",
+        "-DOKC_WSBL=2",
+        "-DOKC_WSBLK=1",
+        "-DOKC_FINPF=1"
+      ],
+      "MOE_TINY2_MAX_M": 8,
+      "MOE_MID_DEFINES": [
+        "-DOKC_NW=8",
+        "-DOKC_TINY=1",
+        "-DOKC_SPLIT=1",
+        "-DOKC_CPF=0",
+        "-DOKC_EPI4=0",
+        "-DOKC_FAST1=2",
+        "-DOKC_NACC=4",
+        "-DOKC_UWARP=0",
+        "-DOKC_WS=1",
+        "-DOKC_WSB=1",
+        "-DOKC_WSBL=2",
+        "-DOKC_WSBLK=2",
+        "-DOKC_FINPF=1"
+      ],
+      "MOE_MID_MAX_M": 16,
+      "MOE_HAS_PDL": false,
+      "SC6_WGS": true
+    },
+    "native_literals": [
+      {
+        "target": "MOE_CUDA_SRC",
+        "line": 3842,
+        "sha256": "c7c201ae145c6a33f2d5e6b1f80d2a6e56e8d75502f9fd09ace40927ad0f7c71",
+        "bytes": 155790,
+        "macro_definitions_in_literal": [
+          [
+            "OKC_MFIN",
+            "1   // WGS: per-expert completion counters instead of the grid barrier before the final pass"
+          ],
+          [
+            "OKC_MFIN",
+            "0"
+          ],
+          [
+            "OKC_MFIN",
+            "0"
+          ],
+          [
+            "OKC_WGSFCI",
+            "4  // st2 (E374): the deferred flush at commit group 4 (FCI 3..7 sweep best)"
+          ],
+          [
+            "OKC_YBF",
+            "0   // fork: preserve FP32 gamma product after BF16 GEMM2 result"
+          ],
+          [
+            "OKC_YBF",
+            "0"
+          ]
+        ],
+        "cooperative_launch_calls": 1,
+        "gamma_round_expressions": 16
+      },
+      {
+        "target": "_MA_ALT_SRCS['moe_helper0']",
+        "line": 12481,
+        "sha256": "b8ed85438c06673f411ff4203080bfbacd0c0c2dc5cb624e6f10d4877fe7a716",
+        "bytes": 139768,
+        "macro_definitions_in_literal": [
+          [
+            "OKC_MFIN",
+            "0"
+          ],
+          [
+            "OKC_WGSFCI",
+            "3"
+          ]
+        ],
+        "cooperative_launch_calls": 1,
+        "gamma_round_expressions": 16
+      }
+    ]
+  },
+  "scope": "AST literal inventory only; augmented assignments and runtime selection are separately audited in the report. No submission execution or GPU."
+}
