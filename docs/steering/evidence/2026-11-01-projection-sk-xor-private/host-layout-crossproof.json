@@ -1,0 +1,1126 @@
+{
+  "augmented_sha256": "d23aa17be4cf9e7c5869803b3b4603d8e72395953687adc0287fb1c75738d586",
+  "cases": [
+    {
+      "name": "qkv8F",
+      "variant": 0,
+      "pmax": 0,
+      "layout": {
+        "static": 0,
+        "dynamic": 220752,
+        "threads": 288,
+        "headers_per_stage": 0,
+        "stage_stride": 53248,
+        "fixed": 220656,
+        "escape_warps": 4
+      }
+    },
+    {
+      "name": "qkv8F",
+      "variant": 0,
+      "pmax": 1,
+      "layout": {
+        "static": 0,
+        "dynamic": 220760,
+        "threads": 288,
+        "headers_per_stage": 0,
+        "stage_stride": 53248,
+        "fixed": 220656,
+        "escape_warps": 4
+      }
+    },
+    {
+      "name": "qkv8F",
+      "variant": 0,
+      "pmax": 64,
+      "layout": {
+        "static": 0,
+        "dynamic": 221264,
+        "threads": 288,
+        "headers_per_stage": 0,
+        "stage_stride": 53248,
+        "fixed": 220656,
+        "escape_warps": 4
+      }
+    },
+    {
+      "name": "qkv8F",
+      "variant": 0,
+      "pmax": 256,
+      "layout": {
+        "static": 0,
+        "dynamic": 222800,
+        "threads": 288,
+        "headers_per_stage": 0,
+        "stage_stride": 53248,
+        "fixed": 220656,
+        "escape_warps": 4
+      }
+    },
+    {
+      "name": "qkv8F",
+      "variant": 1,
+      "pmax": 0,
+      "layout": {
+        "static": 0,
+        "dynamic": 218352,
+        "threads": 160,
+        "headers_per_stage": 192,
+        "stage_stride": 54272,
+        "fixed": 218352,
+        "escape_warps": 0
+      }
+    },
+    {
+      "name": "qkv8F",
+      "variant": 1,
+      "pmax": 1,
+      "layout": {
+        "static": 0,
+        "dynamic": 218352,
+        "threads": 160,
+        "headers_per_stage": 192,
+        "stage_stride": 54272,
+        "fixed": 218352,
+        "escape_warps": 0
+      }
+    },
+    {
+      "name": "qkv8F",
+      "variant": 1,
+      "pmax": 64,
+      "layout": {
+        "static": 0,
+        "dynamic": 218352,
+        "threads": 160,
+        "headers_per_stage": 192,
+        "stage_stride": 54272,
+        "fixed": 218352,
+        "escape_warps": 0
+      }
+    },
+    {
+      "name": "qkv8F",
+      "variant": 1,
+      "pmax": 256,
+      "layout": {
+        "static": 0,
+        "dynamic": 218352,
+        "threads": 160,
+        "headers_per_stage": 192,
+        "stage_stride": 54272,
+        "fixed": 218352,
+        "escape_warps": 0
+      }
+    },
+    {
+      "name": "qkv16F",
+      "variant": 0,
+      "pmax": 0,
+      "layout": {
+        "static": 0,
+        "dynamic": 181856,
+        "threads": 288,
+        "headers_per_stage": 0,
+        "stage_stride": 34816,
+        "fixed": 181760,
+        "escape_warps": 4
+      }
+    },
+    {
+      "name": "qkv16F",
+      "variant": 0,
+      "pmax": 1,
+      "layout": {
+        "static": 0,
+        "dynamic": 181864,
+        "threads": 288,
+        "headers_per_stage": 0,
+        "stage_stride": 34816,
+        "fixed": 181760,
+        "escape_warps": 4
+      }
+    },
+    {
+      "name": "qkv16F",
+      "variant": 0,
+      "pmax": 64,
+      "layout": {
+        "static": 0,
+        "dynamic": 182368,
+        "threads": 288,
+        "headers_per_stage": 0,
+        "stage_stride": 34816,
+        "fixed": 181760,
+        "escape_warps": 4
+      }
+    },
+    {
+      "name": "qkv16F",
+      "variant": 0,
+      "pmax": 256,
+      "layout": {
+        "static": 0,
+        "dynamic": 183904,
+        "threads": 288,
+        "headers_per_stage": 0,
+        "stage_stride": 34816,
+        "fixed": 181760,
+        "escape_warps": 4
+      }
+    },
+    {
+      "name": "qkv16F",
+      "variant": 1,
+      "pmax": 0,
+      "layout": {
+        "static": 0,
+        "dynamic": 180480,
+        "threads": 160,
+        "headers_per_stage": 96,
+        "stage_stride": 35840,
+        "fixed": 180480,
+        "escape_warps": 0
+      }
+    },
+    {
+      "name": "qkv16F",
+      "variant": 1,
+      "pmax": 1,
+      "layout": {
+        "static": 0,
+        "dynamic": 180480,
+        "threads": 160,
+        "headers_per_stage": 96,
+        "stage_stride": 35840,
+        "fixed": 180480,
+        "escape_warps": 0
+      }
+    },
+    {
+      "name": "qkv16F",
+      "variant": 1,
+      "pmax": 64,
+      "layout": {
+        "static": 0,
+        "dynamic": 180480,
+        "threads": 160,
+        "headers_per_stage": 96,
+        "stage_stride": 35840,
+        "fixed": 180480,
+        "escape_warps": 0
+      }
+    },
+    {
+      "name": "qkv16F",
+      "variant": 1,
+      "pmax": 256,
+      "layout": {
+        "static": 0,
+        "dynamic": 180480,
+        "threads": 160,
+        "headers_per_stage": 96,
+        "stage_stride": 35840,
+        "fixed": 180480,
+        "escape_warps": 0
+      }
+    },
+    {
+      "name": "qkv32",
+      "variant": 0,
+      "pmax": 0,
+      "layout": {
+        "static": 0,
+        "dynamic": 218960,
+        "threads": 288,
+        "headers_per_stage": 0,
+        "stage_stride": 51200,
+        "fixed": 218864,
+        "escape_warps": 4
+      }
+    },
+    {
+      "name": "qkv32",
+      "variant": 0,
+      "pmax": 1,
+      "layout": {
+        "static": 0,
+        "dynamic": 218968,
+        "threads": 288,
+        "headers_per_stage": 0,
+        "stage_stride": 51200,
+        "fixed": 218864,
+        "escape_warps": 4
+      }
+    },
+    {
+      "name": "qkv32",
+      "variant": 0,
+      "pmax": 64,
+      "layout": {
+        "static": 0,
+        "dynamic": 219472,
+        "threads": 288,
+        "headers_per_stage": 0,
+        "stage_stride": 51200,
+        "fixed": 218864,
+        "escape_warps": 4
+      }
+    },
+    {
+      "name": "qkv32",
+      "variant": 0,
+      "pmax": 256,
+      "layout": {
+        "static": 0,
+        "dynamic": 221008,
+        "threads": 288,
+        "headers_per_stage": 0,
+        "stage_stride": 51200,
+        "fixed": 218864,
+        "escape_warps": 4
+      }
+    },
+    {
+      "name": "qkv32",
+      "variant": 1,
+      "pmax": 0,
+      "layout": {
+        "static": 0,
+        "dynamic": 210160,
+        "threads": 160,
+        "headers_per_stage": 96,
+        "stage_stride": 52224,
+        "fixed": 210160,
+        "escape_warps": 0
+      }
+    },
+    {
+      "name": "qkv32",
+      "variant": 1,
+      "pmax": 1,
+      "layout": {
+        "static": 0,
+        "dynamic": 210160,
+        "threads": 160,
+        "headers_per_stage": 96,
+        "stage_stride": 52224,
+        "fixed": 210160,
+        "escape_warps": 0
+      }
+    },
+    {
+      "name": "qkv32",
+      "variant": 1,
+      "pmax": 64,
+      "layout": {
+        "static": 0,
+        "dynamic": 210160,
+        "threads": 160,
+        "headers_per_stage": 96,
+        "stage_stride": 52224,
+        "fixed": 210160,
+        "escape_warps": 0
+      }
+    },
+    {
+      "name": "qkv32",
+      "variant": 1,
+      "pmax": 256,
+      "layout": {
+        "static": 0,
+        "dynamic": 210160,
+        "threads": 160,
+        "headers_per_stage": 96,
+        "stage_stride": 52224,
+        "fixed": 210160,
+        "escape_warps": 0
+      }
+    },
+    {
+      "name": "o16F",
+      "variant": 0,
+      "pmax": 0,
+      "layout": {
+        "static": 0,
+        "dynamic": 69152,
+        "threads": 256,
+        "headers_per_stage": 0,
+        "stage_stride": 20480,
+        "fixed": 69024,
+        "escape_warps": 3
+      }
+    },
+    {
+      "name": "o16F",
+      "variant": 0,
+      "pmax": 1,
+      "layout": {
+        "static": 0,
+        "dynamic": 69160,
+        "threads": 256,
+        "headers_per_stage": 0,
+        "stage_stride": 20480,
+        "fixed": 69024,
+        "escape_warps": 3
+      }
+    },
+    {
+      "name": "o16F",
+      "variant": 0,
+      "pmax": 64,
+      "layout": {
+        "static": 0,
+        "dynamic": 69664,
+        "threads": 256,
+        "headers_per_stage": 0,
+        "stage_stride": 20480,
+        "fixed": 69024,
+        "escape_warps": 3
+      }
+    },
+    {
+      "name": "o16F",
+      "variant": 0,
+      "pmax": 256,
+      "layout": {
+        "static": 0,
+        "dynamic": 71200,
+        "threads": 256,
+        "headers_per_stage": 0,
+        "stage_stride": 20480,
+        "fixed": 69024,
+        "escape_warps": 3
+      }
+    },
+    {
+      "name": "o16F",
+      "variant": 1,
+      "pmax": 0,
+      "layout": {
+        "static": 0,
+        "dynamic": 65760,
+        "threads": 160,
+        "headers_per_stage": 64,
+        "stage_stride": 21504,
+        "fixed": 65760,
+        "escape_warps": 0
+      }
+    },
+    {
+      "name": "o16F",
+      "variant": 1,
+      "pmax": 1,
+      "layout": {
+        "static": 0,
+        "dynamic": 65760,
+        "threads": 160,
+        "headers_per_stage": 64,
+        "stage_stride": 21504,
+        "fixed": 65760,
+        "escape_warps": 0
+      }
+    },
+    {
+      "name": "o16F",
+      "variant": 1,
+      "pmax": 64,
+      "layout": {
+        "static": 0,
+        "dynamic": 65760,
+        "threads": 160,
+        "headers_per_stage": 64,
+        "stage_stride": 21504,
+        "fixed": 65760,
+        "escape_warps": 0
+      }
+    },
+    {
+      "name": "o16F",
+      "variant": 1,
+      "pmax": 256,
+      "layout": {
+        "static": 0,
+        "dynamic": 65760,
+        "threads": 160,
+        "headers_per_stage": 64,
+        "stage_stride": 21504,
+        "fixed": 65760,
+        "escape_warps": 0
+      }
+    },
+    {
+      "name": "o32F",
+      "variant": 0,
+      "pmax": 0,
+      "layout": {
+        "static": 0,
+        "dynamic": 100064,
+        "threads": 256,
+        "headers_per_stage": 0,
+        "stage_stride": 28672,
+        "fixed": 99936,
+        "escape_warps": 3
+      }
+    },
+    {
+      "name": "o32F",
+      "variant": 0,
+      "pmax": 1,
+      "layout": {
+        "static": 0,
+        "dynamic": 100072,
+        "threads": 256,
+        "headers_per_stage": 0,
+        "stage_stride": 28672,
+        "fixed": 99936,
+        "escape_warps": 3
+      }
+    },
+    {
+      "name": "o32F",
+      "variant": 0,
+      "pmax": 64,
+      "layout": {
+        "static": 0,
+        "dynamic": 100576,
+        "threads": 256,
+        "headers_per_stage": 0,
+        "stage_stride": 28672,
+        "fixed": 99936,
+        "escape_warps": 3
+      }
+    },
+    {
+      "name": "o32F",
+      "variant": 0,
+      "pmax": 256,
+      "layout": {
+        "static": 0,
+        "dynamic": 102112,
+        "threads": 256,
+        "headers_per_stage": 0,
+        "stage_stride": 28672,
+        "fixed": 99936,
+        "escape_warps": 3
+      }
+    },
+    {
+      "name": "o32F",
+      "variant": 1,
+      "pmax": 0,
+      "layout": {
+        "static": 0,
+        "dynamic": 90336,
+        "threads": 160,
+        "headers_per_stage": 64,
+        "stage_stride": 29696,
+        "fixed": 90336,
+        "escape_warps": 0
+      }
+    },
+    {
+      "name": "o32F",
+      "variant": 1,
+      "pmax": 1,
+      "layout": {
+        "static": 0,
+        "dynamic": 90336,
+        "threads": 160,
+        "headers_per_stage": 64,
+        "stage_stride": 29696,
+        "fixed": 90336,
+        "escape_warps": 0
+      }
+    },
+    {
+      "name": "o32F",
+      "variant": 1,
+      "pmax": 64,
+      "layout": {
+        "static": 0,
+        "dynamic": 90336,
+        "threads": 160,
+        "headers_per_stage": 64,
+        "stage_stride": 29696,
+        "fixed": 90336,
+        "escape_warps": 0
+      }
+    },
+    {
+      "name": "o32F",
+      "variant": 1,
+      "pmax": 256,
+      "layout": {
+        "static": 0,
+        "dynamic": 90336,
+        "threads": 160,
+        "headers_per_stage": 64,
+        "stage_stride": 29696,
+        "fixed": 90336,
+        "escape_warps": 0
+      }
+    },
+    {
+      "name": "pool16F",
+      "variant": 0,
+      "pmax": 0,
+      "layout": {
+        "static": 0,
+        "dynamic": 173680,
+        "threads": 288,
+        "headers_per_stage": 0,
+        "stage_stride": 40960,
+        "fixed": 173552,
+        "escape_warps": 4
+      }
+    },
+    {
+      "name": "pool16F",
+      "variant": 0,
+      "pmax": 1,
+      "layout": {
+        "static": 0,
+        "dynamic": 173688,
+        "threads": 288,
+        "headers_per_stage": 0,
+        "stage_stride": 40960,
+        "fixed": 173552,
+        "escape_warps": 4
+      }
+    },
+    {
+      "name": "pool16F",
+      "variant": 0,
+      "pmax": 64,
+      "layout": {
+        "static": 0,
+        "dynamic": 174192,
+        "threads": 288,
+        "headers_per_stage": 0,
+        "stage_stride": 40960,
+        "fixed": 173552,
+        "escape_warps": 4
+      }
+    },
+    {
+      "name": "pool16F",
+      "variant": 0,
+      "pmax": 256,
+      "layout": {
+        "static": 0,
+        "dynamic": 175728,
+        "threads": 288,
+        "headers_per_stage": 0,
+        "stage_stride": 40960,
+        "fixed": 173552,
+        "escape_warps": 4
+      }
+    },
+    {
+      "name": "pool16F",
+      "variant": 1,
+      "pmax": 0,
+      "layout": {
+        "static": 0,
+        "dynamic": 169200,
+        "threads": 160,
+        "headers_per_stage": 128,
+        "stage_stride": 41984,
+        "fixed": 169200,
+        "escape_warps": 0
+      }
+    },
+    {
+      "name": "pool16F",
+      "variant": 1,
+      "pmax": 1,
+      "layout": {
+        "static": 0,
+        "dynamic": 169200,
+        "threads": 160,
+        "headers_per_stage": 128,
+        "stage_stride": 41984,
+        "fixed": 169200,
+        "escape_warps": 0
+      }
+    },
+    {
+      "name": "pool16F",
+      "variant": 1,
+      "pmax": 64,
+      "layout": {
+        "static": 0,
+        "dynamic": 169200,
+        "threads": 160,
+        "headers_per_stage": 128,
+        "stage_stride": 41984,
+        "fixed": 169200,
+        "escape_warps": 0
+      }
+    },
+    {
+      "name": "pool16F",
+      "variant": 1,
+      "pmax": 256,
+      "layout": {
+        "static": 0,
+        "dynamic": 169200,
+        "threads": 160,
+        "headers_per_stage": 128,
+        "stage_stride": 41984,
+        "fixed": 169200,
+        "escape_warps": 0
+      }
+    },
+    {
+      "name": "pool32F",
+      "variant": 0,
+      "pmax": 0,
+      "layout": {
+        "static": 0,
+        "dynamic": 186080,
+        "threads": 256,
+        "headers_per_stage": 0,
+        "stage_stride": 57344,
+        "fixed": 185952,
+        "escape_warps": 3
+      }
+    },
+    {
+      "name": "pool32F",
+      "variant": 0,
+      "pmax": 1,
+      "layout": {
+        "static": 0,
+        "dynamic": 186088,
+        "threads": 256,
+        "headers_per_stage": 0,
+        "stage_stride": 57344,
+        "fixed": 185952,
+        "escape_warps": 3
+      }
+    },
+    {
+      "name": "pool32F",
+      "variant": 0,
+      "pmax": 64,
+      "layout": {
+        "static": 0,
+        "dynamic": 186592,
+        "threads": 256,
+        "headers_per_stage": 0,
+        "stage_stride": 57344,
+        "fixed": 185952,
+        "escape_warps": 3
+      }
+    },
+    {
+      "name": "pool32F",
+      "variant": 0,
+      "pmax": 256,
+      "layout": {
+        "static": 0,
+        "dynamic": 188128,
+        "threads": 256,
+        "headers_per_stage": 0,
+        "stage_stride": 57344,
+        "fixed": 185952,
+        "escape_warps": 3
+      }
+    },
+    {
+      "name": "pool32F",
+      "variant": 1,
+      "pmax": 0,
+      "layout": {
+        "static": 0,
+        "dynamic": 176352,
+        "threads": 160,
+        "headers_per_stage": 128,
+        "stage_stride": 58368,
+        "fixed": 176352,
+        "escape_warps": 0
+      }
+    },
+    {
+      "name": "pool32F",
+      "variant": 1,
+      "pmax": 1,
+      "layout": {
+        "static": 0,
+        "dynamic": 176352,
+        "threads": 160,
+        "headers_per_stage": 128,
+        "stage_stride": 58368,
+        "fixed": 176352,
+        "escape_warps": 0
+      }
+    },
+    {
+      "name": "pool32F",
+      "variant": 1,
+      "pmax": 64,
+      "layout": {
+        "static": 0,
+        "dynamic": 176352,
+        "threads": 160,
+        "headers_per_stage": 128,
+        "stage_stride": 58368,
+        "fixed": 176352,
+        "escape_warps": 0
+      }
+    },
+    {
+      "name": "pool32F",
+      "variant": 1,
+      "pmax": 256,
+      "layout": {
+        "static": 0,
+        "dynamic": 176352,
+        "threads": 160,
+        "headers_per_stage": 128,
+        "stage_stride": 58368,
+        "fixed": 176352,
+        "escape_warps": 0
+      }
+    },
+    {
+      "name": "unp16F",
+      "variant": 0,
+      "pmax": 0,
+      "layout": {
+        "static": 0,
+        "dynamic": 69152,
+        "threads": 256,
+        "headers_per_stage": 0,
+        "stage_stride": 20480,
+        "fixed": 69024,
+        "escape_warps": 3
+      }
+    },
+    {
+      "name": "unp16F",
+      "variant": 0,
+      "pmax": 1,
+      "layout": {
+        "static": 0,
+        "dynamic": 69160,
+        "threads": 256,
+        "headers_per_stage": 0,
+        "stage_stride": 20480,
+        "fixed": 69024,
+        "escape_warps": 3
+      }
+    },
+    {
+      "name": "unp16F",
+      "variant": 0,
+      "pmax": 64,
+      "layout": {
+        "static": 0,
+        "dynamic": 69664,
+        "threads": 256,
+        "headers_per_stage": 0,
+        "stage_stride": 20480,
+        "fixed": 69024,
+        "escape_warps": 3
+      }
+    },
+    {
+      "name": "unp16F",
+      "variant": 0,
+      "pmax": 256,
+      "layout": {
+        "static": 0,
+        "dynamic": 71200,
+        "threads": 256,
+        "headers_per_stage": 0,
+        "stage_stride": 20480,
+        "fixed": 69024,
+        "escape_warps": 3
+      }
+    },
+    {
+      "name": "unp16F",
+      "variant": 1,
+      "pmax": 0,
+      "layout": {
+        "static": 0,
+        "dynamic": 65760,
+        "threads": 160,
+        "headers_per_stage": 64,
+        "stage_stride": 21504,
+        "fixed": 65760,
+        "escape_warps": 0
+      }
+    },
+    {
+      "name": "unp16F",
+      "variant": 1,
+      "pmax": 1,
+      "layout": {
+        "static": 0,
+        "dynamic": 65760,
+        "threads": 160,
+        "headers_per_stage": 64,
+        "stage_stride": 21504,
+        "fixed": 65760,
+        "escape_warps": 0
+      }
+    },
+    {
+      "name": "unp16F",
+      "variant": 1,
+      "pmax": 64,
+      "layout": {
+        "static": 0,
+        "dynamic": 65760,
+        "threads": 160,
+        "headers_per_stage": 64,
+        "stage_stride": 21504,
+        "fixed": 65760,
+        "escape_warps": 0
+      }
+    },
+    {
+      "name": "unp16F",
+      "variant": 1,
+      "pmax": 256,
+      "layout": {
+        "static": 0,
+        "dynamic": 65760,
+        "threads": 160,
+        "headers_per_stage": 64,
+        "stage_stride": 21504,
+        "fixed": 65760,
+        "escape_warps": 0
+      }
+    },
+    {
+      "name": "unp32F",
+      "variant": 0,
+      "pmax": 0,
+      "layout": {
+        "static": 0,
+        "dynamic": 100064,
+        "threads": 256,
+        "headers_per_stage": 0,
+        "stage_stride": 28672,
+        "fixed": 99936,
+        "escape_warps": 3
+      }
+    },
+    {
+      "name": "unp32F",
+      "variant": 0,
+      "pmax": 1,
+      "layout": {
+        "static": 0,
+        "dynamic": 100072,
+        "threads": 256,
+        "headers_per_stage": 0,
+        "stage_stride": 28672,
+        "fixed": 99936,
+        "escape_warps": 3
+      }
+    },
+    {
+      "name": "unp32F",
+      "variant": 0,
+      "pmax": 64,
+      "layout": {
+        "static": 0,
+        "dynamic": 100576,
+        "threads": 256,
+        "headers_per_stage": 0,
+        "stage_stride": 28672,
+        "fixed": 99936,
+        "escape_warps": 3
+      }
+    },
+    {
+      "name": "unp32F",
+      "variant": 0,
+      "pmax": 256,
+      "layout": {
+        "static": 0,
+        "dynamic": 102112,
+        "threads": 256,
+        "headers_per_stage": 0,
+        "stage_stride": 28672,
+        "fixed": 99936,
+        "escape_warps": 3
+      }
+    },
+    {
+      "name": "unp32F",
+      "variant": 1,
+      "pmax": 0,
+      "layout": {
+        "static": 0,
+        "dynamic": 90336,
+        "threads": 160,
+        "headers_per_stage": 64,
+        "stage_stride": 29696,
+        "fixed": 90336,
+        "escape_warps": 0
+      }
+    },
+    {
+      "name": "unp32F",
+      "variant": 1,
+      "pmax": 1,
+      "layout": {
+        "static": 0,
+        "dynamic": 90336,
+        "threads": 160,
+        "headers_per_stage": 64,
+        "stage_stride": 29696,
+        "fixed": 90336,
+        "escape_warps": 0
+      }
+    },
+    {
+      "name": "unp32F",
+      "variant": 1,
+      "pmax": 64,
+      "layout": {
+        "static": 0,
+        "dynamic": 90336,
+        "threads": 160,
+        "headers_per_stage": 64,
+        "stage_stride": 29696,
+        "fixed": 90336,
+        "escape_warps": 0
+      }
+    },
+    {
+      "name": "unp32F",
+      "variant": 1,
+      "pmax": 256,
+      "layout": {
+        "static": 0,
+        "dynamic": 90336,
+        "threads": 160,
+        "headers_per_stage": 64,
+        "stage_stride": 29696,
+        "fixed": 90336,
+        "escape_warps": 0
+      }
+    },
+    {
+      "name": "slice8F",
+      "variant": 0,
+      "pmax": 0,
+      "layout": {
+        "static": 0,
+        "dynamic": 118288,
+        "threads": 416,
+        "headers_per_stage": 0,
+        "stage_stride": 28672,
+        "fixed": 118256,
+        "escape_warps": 4
+      }
+    },
+    {
+      "name": "slice8F",
+      "variant": 0,
+      "pmax": 1,
+      "layout": {
+        "static": 0,
+        "dynamic": 118296,
+        "threads": 416,
+        "headers_per_stage": 0,
+        "stage_stride": 28672,
+        "fixed": 118256,
+        "escape_warps": 4
+      }
+    },
+    {
+      "name": "slice8F",
+      "variant": 0,
+      "pmax": 64,
+      "layout": {
+        "static": 0,
+        "dynamic": 118800,
+        "threads": 416,
+        "headers_per_stage": 0,
+        "stage_stride": 28672,
+        "fixed": 118256,
+        "escape_warps": 4
+      }
+    },
+    {
+      "name": "slice8F",
+      "variant": 0,
+      "pmax": 256,
+      "layout": {
+        "static": 0,
+        "dynamic": 120336,
+        "threads": 416,
+        "headers_per_stage": 0,
+        "stage_stride": 28672,
+        "fixed": 118256,
+        "escape_warps": 4
+      }
+    },
+    {
+      "name": "slice8F",
+      "variant": 1,
+      "pmax": 0,
+      "layout": {
+        "static": 0,
+        "dynamic": 120048,
+        "threads": 288,
+        "headers_per_stage": 64,
+        "stage_stride": 29696,
+        "fixed": 120048,
+        "escape_warps": 0
+      }
+    },
+    {
+      "name": "slice8F",
+      "variant": 1,
+      "pmax": 1,
+      "layout": {
+        "static": 0,
+        "dynamic": 120048,
+        "threads": 288,
+        "headers_per_stage": 64,
+        "stage_stride": 29696,
+        "fixed": 120048,
+        "escape_warps": 0
+      }
+    },
+    {
+      "name": "slice8F",
+      "variant": 1,
+      "pmax": 64,
+      "layout": {
+        "static": 0,
+        "dynamic": 120048,
+        "threads": 288,
+        "headers_per_stage": 64,
+        "stage_stride": 29696,
+        "fixed": 120048,
+        "escape_warps": 0
+      }
+    },
+    {
+      "name": "slice8F",
+      "variant": 1,
+      "pmax": 256,
+      "layout": {
+        "static": 0,
+        "dynamic": 120048,
+        "threads": 288,
+        "headers_per_stage": 64,
+        "stage_stride": 29696,
+        "fixed": 120048,
+        "escape_warps": 0
+      }
+    }
+  ],
+  "gpu_execution": false
+}
