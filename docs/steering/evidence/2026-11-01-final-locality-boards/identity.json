@@ -1,0 +1,6 @@
+{
+  "fetched_utc": "2026-11-01T14:29:23.975210+00:00",
+  "source": "okc leaderboard [problem] --json",
+  "gap_ratios": "approximate from CLI rounded speedups",
+  "overall": "queried directly rather than inferred"
+}

@@ -20,9 +20,13 @@ duplicate state here: the facts live in the files listed under "Where state live
 
 ## What decides the score
 
-- Overall rank equals the decode-layer rank (checked 2026-10-29: every team ranked 89-112
-  overall had the same rank on muse_decode_layer). Standalone problems are also where kernels
-  get built before they are ported into the layer.
+- Overall/layer ranks matched the sampled89-112 cohort on2026-10-29. On November1,
+  a direct overall/layer snapshot matched the first500 rank/team pairs, including
+  our308 and both target rows, but the full lists differ after500. Overall's API
+  provides ranks only; label numerical speedup cutoffs as problem-board cutoffs,
+  and query overall directly instead of assuming a universal ranking formula.
+  Evidence: `docs/steering/2026-11-01-0630-measurement-outcome.md`. Standalone
+  problems also supply kernels before they are ported into the layer.
 - Since 2026-10-30 the user also wants better standings on the standalone attention and
   projection boards, so those owners have their own promotion gate (standalone score) separate
   from layer promotion (`docs/steering/2026-10-30-attention-projection-standalone-roadmap.md`).
