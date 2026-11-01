@@ -5269,6 +5269,7 @@ The losers of the fused-kernel runs are in `docs/ruled-out.md` under muse_moe_w4
 
 Losers from these runs are in docs/ruled-out.md.
 
+<<<<<<< HEAD
 ## October31 23:07 PDT indexed library adapter
 
 8d64807ea7504495, source experiments/humming_indexed_r.py from checked prefill-v3 BODY
@@ -5365,3 +5366,19 @@ Root owns canonical profiles g-stage-check.f147d06a64504c1e.{json,log,txt}.
 Derived completecapsule/report: docs/steering/2026-11-01-g-stage-observed-readiness.md.
 New H200 route census yields conditional proportional three-pair six-load
 scenario1.012567/1.004403/1.004607, not measured gain/HBM/timing bound.
+=======
+## Owned fixed-band32 private paired check, 2026-11-01
+
+Root dispatched a5c7c7e3fe344919 (pending), harness evidence1bf61d2 and
+owned patcherfc28a77. Exact private artifact SHA256
+493d1678f7d92ffb2a9908675fcfa33257d235bd3b88cfc0b8696e27108b4c0c,
+631897bytes. Two control/two treatment computing arms; onlyM16/32 use the
+owned32-output-unit sameexpert8-row-job transpose. Other fourloads and judged
+entry use frozen common cooperative/BF16-effective-gamma control. No decoder
+or packing change. Seeds preregistered993701/993703/993709, all18cells required;
+four-cross pooled AND perseed1%/2xnull, percell regression, resource/math/fresh
+replay/empty/spin/budget/11KB gates. SevenTorchCPUhosttests PASS, localdevice
+compilation belongs topatcher; no H200result claimed. Fullsourcepins/costs:
+docs/steering/2026-11-01-owned-moe-band32-registration.md. Root owns exactjob
+status/receipt/profile archival; no publicsubmit, production unchanged.
+>>>>>>> 91a14df (Log pending root-owned band32 check a5c7c7e3fe344919)
