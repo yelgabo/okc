@@ -11,9 +11,16 @@
     824737,
     824743
   ],
-  "policy": "VP2 only B1/q8/sliding/page1/unitKV; all other scored cells actual BF16 owned ONE; nonTP8 existing SGLang fallback",
+  "policy": "PRIVATE judged comparator VP2 only B1/q8/sliding/page1/unitKV; all other scored cells actual BF16 owned ONE; nonTP8 existing SGLang fallback",
   "measurement_only": true,
   "sch": 0,
+  "decision_rule": "THIS official job raw-minus-adjusted offsets applied commonly to private raw arms; contemporaneous >=1% and >2x null pooled and every seed, no regression/no nonpositive times; raw all4 crosses positive every seed and no regression. Old-offset/raw keep flags descriptive only.",
+  "build_ids": [
+    "vp2bf_owned824731_0",
+    "vp2bf_owned824731_1",
+    "vp2bf_foreign824731_2",
+    "vp2bf_foreign824731_3"
+  ],
   "error_order": [
     "FP32judge_global",
     "FP32judge_row",
