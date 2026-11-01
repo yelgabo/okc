@@ -1,0 +1,662 @@
+{
+  "g0-default": {
+    "input_sha256": "1d15823384bde016130912ad28d7d9a32fe9a802edb9cfd64769254278d67592",
+    "compiler": "NVRTC/PTXAS 12.8 sm90a",
+    "ptx_sha256": "6424dede55f3db642198cf82f35a9ed3e5ca50ec896471bfa938d85efa05730b",
+    "cubin_sha256": "801e74627e695e081b315e6f4f154b67a8b3bcd7a7aae79ca06cbc6c78ace9b8",
+    "wgmma_serialization_warnings": 0,
+    "both_entries_including_callees": {
+      "HGMMA.64": 1024,
+      "WARPGROUP.DEPBAR.LE gsb0, 0x1": 512,
+      "WARPGROUP.DEPBAR.LE gsb0, 0x0": 32,
+      "FENCE.VIEW.ASYNC.S": 2,
+      "FENCE.VIEW.ASYNC.G": 0
+    },
+    "resource_by_entry": {
+      "_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE": {
+        "stack_bytes": 16,
+        "spill_store_bytes": 56,
+        "spill_load_bytes": 184,
+        "registers": 96,
+        "barriers": 16
+      },
+      "_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE": {
+        "stack_bytes": 16,
+        "spill_store_bytes": 56,
+        "spill_load_bytes": 184,
+        "registers": 96,
+        "barriers": 16
+      }
+    }
+  },
+  "g0-grid": {
+    "input_sha256": "1d15823384bde016130912ad28d7d9a32fe9a802edb9cfd64769254278d67592",
+    "compiler": "NVRTC/PTXAS 12.8 sm90a",
+    "ptx_sha256": "f06828499452a5f26a51b24c97acb2f01351c063332cca3f3567b83476f7fd13",
+    "cubin_sha256": "51b9e8bb83595ff5d8c527cf02e0d0735f61f1a150fc141ac0a70444a3836372",
+    "wgmma_serialization_warnings": 0,
+    "both_entries_including_callees": {
+      "HGMMA.64": 1024,
+      "WARPGROUP.DEPBAR.LE gsb0, 0x1": 512,
+      "WARPGROUP.DEPBAR.LE gsb0, 0x0": 32,
+      "FENCE.VIEW.ASYNC.S": 2,
+      "FENCE.VIEW.ASYNC.G": 0
+    },
+    "resource_by_entry": {
+      "_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE": {
+        "stack_bytes": 8,
+        "spill_store_bytes": 44,
+        "spill_load_bytes": 68,
+        "registers": 96,
+        "barriers": 16
+      },
+      "_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE": {
+        "stack_bytes": 8,
+        "spill_store_bytes": 44,
+        "spill_load_bytes": 68,
+        "registers": 96,
+        "barriers": 16
+      }
+    }
+  },
+  "g0-plus-slot": {
+    "input_sha256": "094d25d148df8f8bd5b997fd0cc1210fe872ee48cfe40d2b67a2e2b3632ade11",
+    "compiler": "NVRTC/PTXAS 12.8 sm90a",
+    "ptx_sha256": "94d12da488de51a4fd1e3202f12d3163e29cf6868008c035bdd2a0898607111c",
+    "cubin_sha256": "54eeb5c573ca0a2a4e99f114dcd8cf605d6451e72bb9f4a824d20afe23946b38",
+    "wgmma_serialization_warnings": 2,
+    "both_entries_including_callees": {
+      "HGMMA.64": 1024,
+      "WARPGROUP.DEPBAR.LE gsb0, 0x1": 0,
+      "WARPGROUP.DEPBAR.LE gsb0, 0x0": 1024,
+      "FENCE.VIEW.ASYNC.S": 130,
+      "FENCE.VIEW.ASYNC.G": 0
+    },
+    "resource_by_entry": {
+      "_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE": {
+        "stack_bytes": 0,
+        "spill_store_bytes": 0,
+        "spill_load_bytes": 0,
+        "registers": 92,
+        "barriers": 16
+      },
+      "_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE": {
+        "stack_bytes": 0,
+        "spill_store_bytes": 0,
+        "spill_load_bytes": 0,
+        "registers": 92,
+        "barriers": 16
+      }
+    }
+  },
+  "g0-plus-global": {
+    "input_sha256": "be8d767b9366f92dd03f9bf0d7194779d9aed5cd521bc666d3d79e7b1050f08a",
+    "compiler": "NVRTC/PTXAS 12.8 sm90a",
+    "ptx_sha256": "de41e1f2556f7e8c2fee9636e0d3238ceeaec93c8f234fe533de62f328a3a17f",
+    "cubin_sha256": "64b768953561611663bddbab97566962050a5f62d1f87b975abf50ca4492a6cb",
+    "wgmma_serialization_warnings": 0,
+    "both_entries_including_callees": {
+      "HGMMA.64": 1024,
+      "WARPGROUP.DEPBAR.LE gsb0, 0x1": 512,
+      "WARPGROUP.DEPBAR.LE gsb0, 0x0": 32,
+      "FENCE.VIEW.ASYNC.S": 2,
+      "FENCE.VIEW.ASYNC.G": 38
+    },
+    "resource_by_entry": {
+      "_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE": {
+        "stack_bytes": 8,
+        "spill_store_bytes": 4,
+        "spill_load_bytes": 32,
+        "registers": 96,
+        "barriers": 16
+      },
+      "_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE": {
+        "stack_bytes": 8,
+        "spill_store_bytes": 4,
+        "spill_load_bytes": 32,
+        "registers": 96,
+        "barriers": 16
+      }
+    }
+  },
+  "g0-plus-math": {
+    "input_sha256": "2a41a4381a3c0d11dde21f2785e814e7c4b6278a5774210536e1804ff4c0b3d7",
+    "compiler": "NVRTC/PTXAS 12.8 sm90a",
+    "ptx_sha256": "2b8915bc1b72be47b9bfd6a1e21c1347adc27ccff319d41bc37e3c72f1423299",
+    "cubin_sha256": "e595e1f500b2f47dca5641341ce37c906b9c138f2a135874e4944c9ef06dbb8d",
+    "wgmma_serialization_warnings": 0,
+    "both_entries_including_callees": {
+      "HGMMA.64": 1024,
+      "WARPGROUP.DEPBAR.LE gsb0, 0x1": 512,
+      "WARPGROUP.DEPBAR.LE gsb0, 0x0": 32,
+      "FENCE.VIEW.ASYNC.S": 2,
+      "FENCE.VIEW.ASYNC.G": 0
+    },
+    "resource_by_entry": {
+      "_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE": {
+        "stack_bytes": 8,
+        "spill_store_bytes": 44,
+        "spill_load_bytes": 68,
+        "registers": 96,
+        "barriers": 16
+      },
+      "_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE": {
+        "stack_bytes": 8,
+        "spill_store_bytes": 44,
+        "spill_load_bytes": 68,
+        "registers": 96,
+        "barriers": 16
+      }
+    }
+  },
+  "g0-plus-empty": {
+    "input_sha256": "f1aa8ee04bcf2b3843c965568e88be22f6695976efd4064b629ccd9586a42cb5",
+    "compiler": "NVRTC/PTXAS 12.8 sm90a",
+    "ptx_sha256": "1ad48709271839942f32fa9fb77613ca9125618103be456c99582544721042b1",
+    "cubin_sha256": "a1765e9fc810d2261eed06be5f4e6e669f09b668f6e93030d58a27fdc7c03339",
+    "wgmma_serialization_warnings": 0,
+    "both_entries_including_callees": {
+      "HGMMA.64": 1024,
+      "WARPGROUP.DEPBAR.LE gsb0, 0x1": 512,
+      "WARPGROUP.DEPBAR.LE gsb0, 0x0": 32,
+      "FENCE.VIEW.ASYNC.S": 2,
+      "FENCE.VIEW.ASYNC.G": 0
+    },
+    "resource_by_entry": {
+      "_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE": {
+        "stack_bytes": 8,
+        "spill_store_bytes": 44,
+        "spill_load_bytes": 68,
+        "registers": 96,
+        "barriers": 16
+      },
+      "_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE": {
+        "stack_bytes": 8,
+        "spill_store_bytes": 44,
+        "spill_load_bytes": 68,
+        "registers": 96,
+        "barriers": 16
+      }
+    }
+  },
+  "ctrl": {
+    "input_sha256": "456af55b4793c85147764918f5946538f53ff129141e95d41d8b11f16268ae22",
+    "compiler": "NVRTC/PTXAS 12.8 sm90a",
+    "ptx_sha256": "217610f19819ea06474783871c75e9753a1c49137a83f1ae69dd504e16fbee6e",
+    "cubin_sha256": "69c074bb5f58e1f53cf412c543855f1d325b93fe7e7c56dd9856e3317c2ac137",
+    "wgmma_serialization_warnings": 2,
+    "both_entries_including_callees": {
+      "HGMMA.64": 1024,
+      "WARPGROUP.DEPBAR.LE gsb0, 0x1": 0,
+      "WARPGROUP.DEPBAR.LE gsb0, 0x0": 1024,
+      "FENCE.VIEW.ASYNC.S": 130,
+      "FENCE.VIEW.ASYNC.G": 38
+    },
+    "resource_by_entry": {
+      "_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE": {
+        "stack_bytes": 0,
+        "spill_store_bytes": 0,
+        "spill_load_bytes": 0,
+        "registers": 96,
+        "barriers": 16
+      },
+      "_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE": {
+        "stack_bytes": 0,
+        "spill_store_bytes": 0,
+        "spill_load_bytes": 0,
+        "registers": 96,
+        "barriers": 16
+      }
+    }
+  },
+  "preflush": {
+    "input_sha256": "962ddbaf4f048d192646f61f79f1329aa9aa91955dcdc08dc4af953a9156cc17",
+    "compiler": "NVRTC/PTXAS 12.8 sm90a",
+    "ptx_sha256": "c204e34ce715f34f790e0d629140708e00f6305dcb562e2a83bdbbaeeedcd7e8",
+    "cubin_sha256": "9ae90a81e2a809707946fcc4ef8ea026e83f3019010754cccaa4fe54ebe21916",
+    "wgmma_serialization_warnings": 2,
+    "both_entries_including_callees": {
+      "HGMMA.64": 1024,
+      "WARPGROUP.DEPBAR.LE gsb0, 0x1": 0,
+      "WARPGROUP.DEPBAR.LE gsb0, 0x0": 1024,
+      "FENCE.VIEW.ASYNC.S": 130,
+      "FENCE.VIEW.ASYNC.G": 38
+    },
+    "resource_by_entry": {
+      "_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE": {
+        "stack_bytes": 0,
+        "spill_store_bytes": 0,
+        "spill_load_bytes": 0,
+        "registers": 96,
+        "barriers": 16
+      },
+      "_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE": {
+        "stack_bytes": 0,
+        "spill_store_bytes": 0,
+        "spill_load_bytes": 0,
+        "registers": 96,
+        "barriers": 16
+      }
+    }
+  },
+  "outlined-flush": {
+    "input_sha256": "2dccfcb7bdcddcc916bec468a6be639bc6d39bd11a6470533ae3b0ac5208cd9e",
+    "compiler": "NVRTC/PTXAS 12.8 sm90a",
+    "ptx_sha256": "15a0654df20559e546f5eea9dd1f09ff15dc7041466b9bcbdc58a5674687c98d",
+    "cubin_sha256": "d3230ee689638ef48c73ec09ee4c7787e6cdefd65ca040f5968190b24f5f0463",
+    "wgmma_serialization_warnings": 2,
+    "both_entries_including_callees": {
+      "HGMMA.64": 1024,
+      "WARPGROUP.DEPBAR.LE gsb0, 0x1": 0,
+      "WARPGROUP.DEPBAR.LE gsb0, 0x0": 1024,
+      "FENCE.VIEW.ASYNC.S": 130,
+      "FENCE.VIEW.ASYNC.G": 6
+    },
+    "resource_by_entry": {
+      "_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE": {
+        "stack_bytes": 376,
+        "spill_store_bytes": 124,
+        "spill_load_bytes": 316,
+        "registers": 96,
+        "barriers": 16
+      },
+      "_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE": {
+        "stack_bytes": 376,
+        "spill_store_bytes": 124,
+        "spill_load_bytes": 316,
+        "registers": 96,
+        "barriers": 16
+      }
+    }
+  },
+  "outlined-seg": {
+    "input_sha256": "242b17d447909bb82d3240ce1515eb2ce7c34b251c29c99c3a6246c6b22e9385",
+    "compiler": "NVRTC/PTXAS 12.8 sm90a",
+    "ptx_sha256": "c5b79599e604ef853ae6e01008cb46091b8ffe551f506561f5861b9f03b2954d",
+    "cubin_sha256": "ee54f0a18b8081f34abd3cae5a049ae51677f07b4f163767f5b9e6558a7cfa16",
+    "wgmma_serialization_warnings": 0,
+    "both_entries_including_callees": {
+      "HGMMA.64": 1024,
+      "WARPGROUP.DEPBAR.LE gsb0, 0x1": 0,
+      "WARPGROUP.DEPBAR.LE gsb0, 0x0": 1024,
+      "FENCE.VIEW.ASYNC.S": 130,
+      "FENCE.VIEW.ASYNC.G": 38
+    },
+    "resource_by_entry": {
+      "_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE": {
+        "stack_bytes": 656,
+        "spill_store_bytes": 136,
+        "spill_load_bytes": 244,
+        "registers": 96,
+        "barriers": 16
+      },
+      "_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE": {
+        "stack_bytes": 656,
+        "spill_store_bytes": 136,
+        "spill_load_bytes": 244,
+        "registers": 96,
+        "barriers": 16
+      }
+    }
+  },
+  "identity-round-devonly": {
+    "input_sha256": "72a85e132a4df22acc646537d1097050361ec7e44bcabe61ec1fafdaea373077",
+    "compiler": "NVRTC/PTXAS 12.8 sm90a",
+    "ptx_sha256": "d32ffec1f2010f9ea63f0e74a3ffb2f8b07a8c515c5b46631ed0855dc25dbad3",
+    "cubin_sha256": "44dc41466795c7cf88c0d0b0f0b2a298d4d9657d6122bf434774aeb939cc4eb2",
+    "wgmma_serialization_warnings": 2,
+    "both_entries_including_callees": {
+      "HGMMA.64": 1024,
+      "WARPGROUP.DEPBAR.LE gsb0, 0x1": 0,
+      "WARPGROUP.DEPBAR.LE gsb0, 0x0": 1024,
+      "FENCE.VIEW.ASYNC.S": 130,
+      "FENCE.VIEW.ASYNC.G": 38
+    },
+    "resource_by_entry": {
+      "_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE": {
+        "stack_bytes": 0,
+        "spill_store_bytes": 0,
+        "spill_load_bytes": 0,
+        "registers": 96,
+        "barriers": 16
+      },
+      "_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE": {
+        "stack_bytes": 0,
+        "spill_store_bytes": 0,
+        "spill_load_bytes": 0,
+        "registers": 96,
+        "barriers": 16
+      }
+    }
+  },
+  "wait-release": {
+    "input_sha256": "b076fba39fa0c66d48b21c1d581342900230e7abc8b4bacdef8ed354815977a7",
+    "compiler": "NVRTC/PTXAS 12.8 sm90a",
+    "ptx_sha256": "bc27503340894378a6ece4b5ff1cc122caeb650360228c0fcfee8f4a4955f940",
+    "cubin_sha256": "1b075722a41909ebb91fdf213591fda464e9e774698610c497994508407149af",
+    "wgmma_serialization_warnings": 2,
+    "both_entries_including_callees": {
+      "HGMMA.64": 1024,
+      "WARPGROUP.DEPBAR.LE gsb0, 0x1": 0,
+      "WARPGROUP.DEPBAR.LE gsb0, 0x0": 1024,
+      "FENCE.VIEW.ASYNC.S": 130,
+      "FENCE.VIEW.ASYNC.G": 38
+    },
+    "resource_by_entry": {
+      "_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE": {
+        "stack_bytes": 0,
+        "spill_store_bytes": 0,
+        "spill_load_bytes": 0,
+        "registers": 96,
+        "barriers": 16
+      },
+      "_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE": {
+        "stack_bytes": 0,
+        "spill_store_bytes": 0,
+        "spill_load_bytes": 0,
+        "registers": 96,
+        "barriers": 16
+      }
+    }
+  },
+  "wait-weight": {
+    "input_sha256": "93a67ac7cd857dcc753859aa49b6ac1655aa90df4ae6a008520b834e2c85e072",
+    "compiler": "NVRTC/PTXAS 12.8 sm90a",
+    "ptx_sha256": "3724842b97cb925d3a298e4ed79a03d9d2ab26856f510c75d51303b425d442ba",
+    "cubin_sha256": "695e39db8a708054023d7b2fb9c2aa8e36ed6fde36b98c4ebbf24b4cd1935c77",
+    "wgmma_serialization_warnings": 2,
+    "both_entries_including_callees": {
+      "HGMMA.64": 1024,
+      "WARPGROUP.DEPBAR.LE gsb0, 0x1": 0,
+      "WARPGROUP.DEPBAR.LE gsb0, 0x0": 1024,
+      "FENCE.VIEW.ASYNC.S": 130,
+      "FENCE.VIEW.ASYNC.G": 38
+    },
+    "resource_by_entry": {
+      "_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE": {
+        "stack_bytes": 0,
+        "spill_store_bytes": 0,
+        "spill_load_bytes": 0,
+        "registers": 96,
+        "barriers": 16
+      },
+      "_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE": {
+        "stack_bytes": 0,
+        "spill_store_bytes": 0,
+        "spill_load_bytes": 0,
+        "registers": 96,
+        "barriers": 16
+      }
+    }
+  },
+  "fixed-drains": {
+    "input_sha256": "fd03f26845866d0cca7a4753f3e013dab6e9467dcd75e4f1df2f7f4d05982e78",
+    "compiler": "NVRTC/PTXAS 12.8 sm90a",
+    "ptx_sha256": "d4f778d82ee1e8151b5c8896df0b67ac23c3ad7473d845c7ef76064d5a0bed5d",
+    "cubin_sha256": "e76fbabdda2cd73402517a3ae8d5e975ac5a88463d08e41933a337d71b4cd598",
+    "wgmma_serialization_warnings": 2,
+    "both_entries_including_callees": {
+      "HGMMA.64": 1024,
+      "WARPGROUP.DEPBAR.LE gsb0, 0x1": 0,
+      "WARPGROUP.DEPBAR.LE gsb0, 0x0": 1024,
+      "FENCE.VIEW.ASYNC.S": 130,
+      "FENCE.VIEW.ASYNC.G": 38
+    },
+    "resource_by_entry": {
+      "_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE": {
+        "stack_bytes": 0,
+        "spill_store_bytes": 0,
+        "spill_load_bytes": 0,
+        "registers": 96,
+        "barriers": 16
+      },
+      "_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE": {
+        "stack_bytes": 0,
+        "spill_store_bytes": 0,
+        "spill_load_bytes": 0,
+        "registers": 96,
+        "barriers": 16
+      }
+    }
+  },
+  "wait-flush": {
+    "input_sha256": "daadacc4f2ca114eb3505e6ad8787c535529382ae0ef6e8f54ce8ebb6eaa9293",
+    "compiler": "NVRTC/PTXAS 12.8 sm90a",
+    "ptx_sha256": "c546ee7ad2e012cf586a3f6d798cef2fdb57bb90c42c9e27f3587ff5d123294d",
+    "cubin_sha256": "013cd709a7202fbf905854b5cd117ea7d00bc5a8699bb1c6c18beac2128d8044",
+    "wgmma_serialization_warnings": 2,
+    "both_entries_including_callees": {
+      "HGMMA.64": 1024,
+      "WARPGROUP.DEPBAR.LE gsb0, 0x1": 0,
+      "WARPGROUP.DEPBAR.LE gsb0, 0x0": 1024,
+      "FENCE.VIEW.ASYNC.S": 130,
+      "FENCE.VIEW.ASYNC.G": 38
+    },
+    "resource_by_entry": {
+      "_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE": {
+        "stack_bytes": 0,
+        "spill_store_bytes": 0,
+        "spill_load_bytes": 0,
+        "registers": 96,
+        "barriers": 16
+      },
+      "_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE": {
+        "stack_bytes": 0,
+        "spill_store_bytes": 0,
+        "spill_load_bytes": 0,
+        "registers": 96,
+        "barriers": 16
+      }
+    }
+  },
+  "stage-weight": {
+    "input_sha256": "6591593205839da52496ae6ce0313f3ab19e108f9d7f852bff73f5e5aa6064a7",
+    "compiler": "NVRTC/PTXAS 12.8 sm90a",
+    "ptx_sha256": "428cd696e70094b8b4a022c2d976b021761f87fd997e38a590a347333b672427",
+    "cubin_sha256": "28519a6dcdb6699145c61b47e886724b0f50877c413e990ac9494734af45e409",
+    "wgmma_serialization_warnings": 2,
+    "both_entries_including_callees": {
+      "HGMMA.64": 1024,
+      "WARPGROUP.DEPBAR.LE gsb0, 0x1": 0,
+      "WARPGROUP.DEPBAR.LE gsb0, 0x0": 1024,
+      "FENCE.VIEW.ASYNC.S": 130,
+      "FENCE.VIEW.ASYNC.G": 38
+    },
+    "resource_by_entry": {
+      "_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE": {
+        "stack_bytes": 0,
+        "spill_store_bytes": 0,
+        "spill_load_bytes": 0,
+        "registers": 96,
+        "barriers": 16
+      },
+      "_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE": {
+        "stack_bytes": 0,
+        "spill_store_bytes": 0,
+        "spill_load_bytes": 0,
+        "registers": 96,
+        "barriers": 16
+      }
+    }
+  },
+  "stage-retire": {
+    "input_sha256": "0044fa42d696f1510900bb797459d7023b4f8e9e639c0dff3b4e27855f5a09b2",
+    "compiler": "NVRTC/PTXAS 12.8 sm90a",
+    "ptx_sha256": "272ad6013b3e1c8d5b3e807f43fd6a98530229c6ad1cbc88a2acc6dc6b556e1a",
+    "cubin_sha256": "a88c008055c90c8f00bc1ac48ced6c7d834c5b673a10aacfa25f1bb0461722af",
+    "wgmma_serialization_warnings": 0,
+    "both_entries_including_callees": {
+      "HGMMA.64": 1024,
+      "WARPGROUP.DEPBAR.LE gsb0, 0x1": 512,
+      "WARPGROUP.DEPBAR.LE gsb0, 0x0": 96,
+      "FENCE.VIEW.ASYNC.S": 130,
+      "FENCE.VIEW.ASYNC.G": 38
+    },
+    "resource_by_entry": {
+      "_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE": {
+        "stack_bytes": 8,
+        "spill_store_bytes": 4,
+        "spill_load_bytes": 32,
+        "registers": 96,
+        "barriers": 16
+      },
+      "_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE": {
+        "stack_bytes": 8,
+        "spill_store_bytes": 4,
+        "spill_load_bytes": 32,
+        "registers": 96,
+        "barriers": 16
+      }
+    }
+  },
+  "prefetch-retire": {
+    "input_sha256": "4dd0aa15df22ece5ee9df0416a0b19dd064d2bfe9a61dd39c16f725c1841daec",
+    "compiler": "NVRTC/PTXAS 12.8 sm90a",
+    "ptx_sha256": "b56513915851b6870b40e06b174b8b7b16c000c161459805d3f4cb5ca066b53f",
+    "cubin_sha256": "06169750ac92c3536162acc39b234d97a899abcbc288e51784bf62e07d860040",
+    "wgmma_serialization_warnings": 0,
+    "both_entries_including_callees": {
+      "HGMMA.64": 1024,
+      "WARPGROUP.DEPBAR.LE gsb0, 0x1": 512,
+      "WARPGROUP.DEPBAR.LE gsb0, 0x0": 96,
+      "FENCE.VIEW.ASYNC.S": 130,
+      "FENCE.VIEW.ASYNC.G": 38
+    },
+    "resource_by_entry": {
+      "_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE": {
+        "stack_bytes": 16,
+        "spill_store_bytes": 80,
+        "spill_load_bytes": 144,
+        "registers": 96,
+        "barriers": 16
+      },
+      "_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE": {
+        "stack_bytes": 16,
+        "spill_store_bytes": 80,
+        "spill_load_bytes": 144,
+        "registers": 96,
+        "barriers": 16
+      }
+    }
+  },
+  "stage-x": {
+    "input_sha256": "118536b82a544d6f76363a1a41270d3342876cb3cf082d52a50eb6db89cf5dbf",
+    "compiler": "NVRTC/PTXAS 12.8 sm90a",
+    "ptx_sha256": "c8f45ec739a9d8959fdd494f6685aed5998a19334145ae2e48703019b5af566d",
+    "cubin_sha256": "9012527510bb38a69a19ee311e7f8519cfe7571ccf1a4e71ee2de9230ca0e587",
+    "wgmma_serialization_warnings": 0,
+    "both_entries_including_callees": {
+      "HGMMA.64": 1024,
+      "WARPGROUP.DEPBAR.LE gsb0, 0x1": 512,
+      "WARPGROUP.DEPBAR.LE gsb0, 0x0": 96,
+      "FENCE.VIEW.ASYNC.S": 130,
+      "FENCE.VIEW.ASYNC.G": 38
+    },
+    "resource_by_entry": {
+      "_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE": {
+        "stack_bytes": 8,
+        "spill_store_bytes": 4,
+        "spill_load_bytes": 32,
+        "registers": 96,
+        "barriers": 16
+      },
+      "_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE": {
+        "stack_bytes": 8,
+        "spill_store_bytes": 4,
+        "spill_load_bytes": 32,
+        "registers": 96,
+        "barriers": 16
+      }
+    }
+  },
+  "g1-ab1": {
+    "input_sha256": "5c57770cdbcd5b59f22412358b6fa576d5f51b0cb542eabe54124053d46b5f35",
+    "compiler": "NVRTC/PTXAS 12.8 sm90a",
+    "ptx_sha256": "3ebdc6902eb1f06ec6ec216184d2841d3513f24947e520c45e0348aba42deb24",
+    "cubin_sha256": "6578539a1b8e2bf16418946ec4337d1a9f6b4915a914439e893342cbfd937fcc",
+    "wgmma_serialization_warnings": 0,
+    "both_entries_including_callees": {
+      "HGMMA.64": 1024,
+      "WARPGROUP.DEPBAR.LE gsb0, 0x1": 512,
+      "WARPGROUP.DEPBAR.LE gsb0, 0x0": 96,
+      "FENCE.VIEW.ASYNC.S": 130,
+      "FENCE.VIEW.ASYNC.G": 38
+    },
+    "resource_by_entry": {
+      "_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE": {
+        "stack_bytes": 8,
+        "spill_store_bytes": 4,
+        "spill_load_bytes": 32,
+        "registers": 96,
+        "barriers": 16
+      },
+      "_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE": {
+        "stack_bytes": 8,
+        "spill_store_bytes": 4,
+        "spill_load_bytes": 32,
+        "registers": 96,
+        "barriers": 16
+      }
+    }
+  },
+  "st-ab0": {
+    "input_sha256": "9e383d8eb08dfca6a7434e40a512c27fef5be90a36036e95ad2c90781de9a5c1",
+    "compiler": "NVRTC/PTXAS 12.8 sm90a",
+    "ptx_sha256": "7fb92a1d3509577d08413ca709d779e502da3b7f735e66142cdf4a051e5662ac",
+    "cubin_sha256": "d84e0206b02cf16f9fa5b6a493e461125a4aa150e47b580ef377dadfd04ddbc6",
+    "wgmma_serialization_warnings": 2,
+    "both_entries_including_callees": {
+      "HGMMA.64": 1024,
+      "WARPGROUP.DEPBAR.LE gsb0, 0x1": 0,
+      "WARPGROUP.DEPBAR.LE gsb0, 0x0": 1024,
+      "FENCE.VIEW.ASYNC.S": 130,
+      "FENCE.VIEW.ASYNC.G": 38
+    },
+    "resource_by_entry": {
+      "_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE": {
+        "stack_bytes": 0,
+        "spill_store_bytes": 0,
+        "spill_load_bytes": 0,
+        "registers": 96,
+        "barriers": 16
+      },
+      "_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE": {
+        "stack_bytes": 0,
+        "spill_store_bytes": 0,
+        "spill_load_bytes": 0,
+        "registers": 96,
+        "barriers": 16
+      }
+    }
+  },
+  "st-ab1": {
+    "input_sha256": "9e383d8eb08dfca6a7434e40a512c27fef5be90a36036e95ad2c90781de9a5c1",
+    "compiler": "NVRTC/PTXAS 12.8 sm90a",
+    "ptx_sha256": "588673216a2c3e2f07fe5ed0851c048ea08d99810488f92acfff7d56313b76b9",
+    "cubin_sha256": "0d73244adc8e937bcd1e97159ebb287f1ade57c77c8fa9b7d084839eba4caf8c",
+    "wgmma_serialization_warnings": 0,
+    "both_entries_including_callees": {
+      "HGMMA.64": 1024,
+      "WARPGROUP.DEPBAR.LE gsb0, 0x1": 512,
+      "WARPGROUP.DEPBAR.LE gsb0, 0x0": 96,
+      "FENCE.VIEW.ASYNC.S": 130,
+      "FENCE.VIEW.ASYNC.G": 38
+    },
+    "resource_by_entry": {
+      "_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE": {
+        "stack_bytes": 8,
+        "spill_store_bytes": 44,
+        "spill_load_bytes": 68,
+        "registers": 96,
+        "barriers": 16
+      },
+      "_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE": {
+        "stack_bytes": 8,
+        "spill_store_bytes": 44,
+        "spill_load_bytes": 68,
+        "registers": 96,
+        "barriers": 16
+      }
+    }
+  }
+}

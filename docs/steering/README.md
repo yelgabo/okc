@@ -6,6 +6,8 @@ report be checked into this repository so other sessions can read it.
 
 ## Latest review
 
+[November 1 attention results and a layer expert pipeline discrepancy](2026-11-01-attention-results-expert-pipeline.md) records the two attention decisions, current non-prefill ranks, corrected MoE attribution and the G1b4 qualification plan.
+
 [November 1 independent review of the active improvement campaign](2026-11-01-active-campaign-direction.md) evaluates G1b4 qualification, the live rank-50 gap and standalone attention controls.
 
 [November 1 Family G qualification update](2026-11-01-family-g-qualification.md#november-1-addendum--run-g1b4-at-the-next-reset) supersedes the G1b3 reset instructions. G1b4 restores the native attention BF16 boundary. Its pure and diagnostic builds reproduce on Windows and Linux. The next layer qualification requires an H200 check.
@@ -440,6 +442,8 @@ accounting, and running a corrected matched whole-layer comparison. It records
 recommendations, not execution of those tasks; check current code and run logs for status.
 
 ## Report history
+
+- [Attention outcomes, rank gaps and expert pipeline evidence](2026-11-01-attention-results-expert-pipeline.md), [complete-head screen](2026-11-01-attention-complete-output-clusters.md), [per-request QK study](2026-11-01-attention-per-request-qk2.md) and [owned layer control repair](2026-11-01-owned-layer-attention-boundary.md).
 
 - [G1b4 reset instructions, hashes and promotion criteria](2026-11-01-family-g-qualification.md#november-1-addendum--run-g1b4-at-the-next-reset) and [independent boundary review](2026-11-01-g1b4-attention-boundary-review.md).
 

@@ -1,5 +1,7 @@
 # MoE architecture screen for top10–50
 
+November 1 source addendum. Job 3d8902381a194d56 below used the vjeux public comparator. The separate alygg77 comparisons are 40b8c798289a4258 and 218ff300de7d4c22. [Pins, source hashes and owning log](2026-11-01-attention-results-expert-pipeline.md#next-layer-experiments).
+
 Evidence pin b8b9ecb plus this report's receipt commit. November1 PDT. User resumed
 the goal as top10–50; prefill remains deferred. One off-board comparison authorized;
 no public submit or production adoption. Parent owns publication/index.

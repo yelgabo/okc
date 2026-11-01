@@ -1,0 +1,375 @@
+{
+  "ctrl": {
+    "source_sha256": "c5ececf50cb8893ca6189cda42a051228b4a8576faf71142cccfa0b5917c3fa4",
+    "device_hash": "786ce3e7dc51f5a606e2691b5a1c877ed3fca03eba1146c44e25c73497e86782",
+    "ptx_sha256": "217610f19819ea06474783871c75e9753a1c49137a83f1ae69dd504e16fbee6e",
+    "cubin_sha256": "69c074bb5f58e1f53cf412c543855f1d325b93fe7e7c56dd9856e3317c2ac137",
+    "warnings": 2,
+    "options": [
+      "--gpu-architecture=compute_90a",
+      "--std=c++17",
+      "--generate-line-info",
+      "--device-as-default-execution-space",
+      "--include-path=/root/.cache/okc-cuda128/packages/nvidia/cuda_runtime/include",
+      "--include-path=/root/.cache/okc-cuda128/packages/nvidia/cuda_nvcc/include",
+      "--include-path=/root/.cache/okc-cuda128/cccl/nvidia/cuda_cccl/include",
+      "-DOKC_NW=16",
+      "-DOKC_FAST1=0",
+      "-DOKC_EPI4=0",
+      "-DOKC_WGS=1",
+      "-DOKC_NS=3",
+      "-DOKC_NSF=3",
+      "-DOKC_PRMTSC=1",
+      "-DOKC_SC6W=1",
+      "-DOKC_DQ7=1"
+    ],
+    "entries": {
+      "_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE": {
+        "instructions": 24560,
+        "selected_ops": {
+          "FENCE.VIEW.ASYNC.S": 65,
+          "SYNCS.EXCH.64": 12,
+          "BAR.SYNC.DEFER_BLOCKING": 60,
+          "BAR.ARV": 1,
+          "FENCE.VIEW.ASYNC.G": 19,
+          "SYNCS.PHASECHK.TRANS64.TRYWAIT": 134,
+          "WARPGROUP.ARRIVE": 512,
+          "HGMMA.64x24x16.F32.BF16": 64,
+          "WARPGROUP.DEPBAR.LE gsb0, 0x0": 512,
+          "SYNCS.ARRIVE.TRANS64.A1T0": 64,
+          "HGMMA.64x8x16.F32.BF16": 64,
+          "HGMMA.64x16x16.F32.BF16": 64,
+          "HGMMA.64x40x16.F32.BF16": 64,
+          "HGMMA.64x32x16.F32.BF16": 64,
+          "HGMMA.64x56x16.F32.BF16": 64,
+          "HGMMA.64x64x16.F32.BF16": 64,
+          "HGMMA.64x48x16.F32.BF16": 64,
+          "SYNCS.ARRIVE.TRANS64": 2
+        },
+        "decoder_integer": {
+          "SHF": 1088,
+          "IMAD": 960,
+          "LOP3": 2560
+        },
+        "stack_bytes": 0,
+        "spill_store_bytes": 0,
+        "spill_load_bytes": 0,
+        "registers": 96,
+        "barriers": 16
+      },
+      "_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE": {
+        "instructions": 24560,
+        "selected_ops": {
+          "FENCE.VIEW.ASYNC.S": 65,
+          "SYNCS.EXCH.64": 12,
+          "BAR.SYNC.DEFER_BLOCKING": 60,
+          "BAR.ARV": 1,
+          "FENCE.VIEW.ASYNC.G": 19,
+          "SYNCS.PHASECHK.TRANS64.TRYWAIT": 134,
+          "WARPGROUP.ARRIVE": 512,
+          "HGMMA.64x24x16.F32.BF16": 64,
+          "WARPGROUP.DEPBAR.LE gsb0, 0x0": 512,
+          "SYNCS.ARRIVE.TRANS64.A1T0": 64,
+          "HGMMA.64x8x16.F32.BF16": 64,
+          "HGMMA.64x16x16.F32.BF16": 64,
+          "HGMMA.64x40x16.F32.BF16": 64,
+          "HGMMA.64x32x16.F32.BF16": 64,
+          "HGMMA.64x56x16.F32.BF16": 64,
+          "HGMMA.64x64x16.F32.BF16": 64,
+          "HGMMA.64x48x16.F32.BF16": 64,
+          "SYNCS.ARRIVE.TRANS64": 2
+        },
+        "decoder_integer": {
+          "SHF": 1088,
+          "IMAD": 960,
+          "LOP3": 2560
+        },
+        "stack_bytes": 0,
+        "spill_store_bytes": 0,
+        "spill_load_bytes": 0,
+        "registers": 96,
+        "barriers": 16
+      }
+    }
+  },
+  "scatter": {
+    "source_sha256": "e223c38cfec76fb90a193d077583e9c17026f6cf223442fe8afd9bdffeebd335",
+    "device_hash": "7901af910ba2094f7f225bbfe3c730f269720838dd3b521e8743607796be8b5e",
+    "ptx_sha256": "94aa71727a62ce315832b8a8a1d034273c7d77450cb8d3c9f06d62bc32556a46",
+    "cubin_sha256": "d9eacf9017d113dce68378ad6fa8dbe974eb29edbdb578ef13d2fb1255f056a6",
+    "warnings": 2,
+    "options": [
+      "--gpu-architecture=compute_90a",
+      "--std=c++17",
+      "--generate-line-info",
+      "--device-as-default-execution-space",
+      "--include-path=/root/.cache/okc-cuda128/packages/nvidia/cuda_runtime/include",
+      "--include-path=/root/.cache/okc-cuda128/packages/nvidia/cuda_nvcc/include",
+      "--include-path=/root/.cache/okc-cuda128/cccl/nvidia/cuda_cccl/include",
+      "-DOKC_NW=16",
+      "-DOKC_FAST1=0",
+      "-DOKC_EPI4=0",
+      "-DOKC_WGS=1",
+      "-DOKC_NS=3",
+      "-DOKC_NSF=3",
+      "-DOKC_PRMTSC=1",
+      "-DOKC_SC6W=1",
+      "-DOKC_DQ7=1"
+    ],
+    "entries": {
+      "_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE": {
+        "instructions": 24056,
+        "selected_ops": {
+          "FENCE.VIEW.ASYNC.S": 65,
+          "SYNCS.EXCH.64": 12,
+          "BAR.SYNC.DEFER_BLOCKING": 60,
+          "BAR.ARV": 1,
+          "FENCE.VIEW.ASYNC.G": 19,
+          "SYNCS.PHASECHK.TRANS64.TRYWAIT": 134,
+          "WARPGROUP.ARRIVE": 512,
+          "HGMMA.64x24x16.F32.BF16": 64,
+          "WARPGROUP.DEPBAR.LE gsb0, 0x0": 512,
+          "SYNCS.ARRIVE.TRANS64.A1T0": 64,
+          "HGMMA.64x8x16.F32.BF16": 64,
+          "HGMMA.64x16x16.F32.BF16": 64,
+          "HGMMA.64x40x16.F32.BF16": 64,
+          "HGMMA.64x32x16.F32.BF16": 64,
+          "HGMMA.64x56x16.F32.BF16": 64,
+          "HGMMA.64x64x16.F32.BF16": 64,
+          "HGMMA.64x48x16.F32.BF16": 64,
+          "SYNCS.ARRIVE.TRANS64": 2
+        },
+        "decoder_integer": {
+          "LOP3": 2560,
+          "SHF": 1024,
+          "IMAD": 512
+        },
+        "stack_bytes": 0,
+        "spill_store_bytes": 0,
+        "spill_load_bytes": 0,
+        "registers": 96,
+        "barriers": 16
+      },
+      "_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE": {
+        "instructions": 24056,
+        "selected_ops": {
+          "FENCE.VIEW.ASYNC.S": 65,
+          "SYNCS.EXCH.64": 12,
+          "BAR.SYNC.DEFER_BLOCKING": 60,
+          "BAR.ARV": 1,
+          "FENCE.VIEW.ASYNC.G": 19,
+          "SYNCS.PHASECHK.TRANS64.TRYWAIT": 134,
+          "WARPGROUP.ARRIVE": 512,
+          "HGMMA.64x24x16.F32.BF16": 64,
+          "WARPGROUP.DEPBAR.LE gsb0, 0x0": 512,
+          "SYNCS.ARRIVE.TRANS64.A1T0": 64,
+          "HGMMA.64x8x16.F32.BF16": 64,
+          "HGMMA.64x16x16.F32.BF16": 64,
+          "HGMMA.64x40x16.F32.BF16": 64,
+          "HGMMA.64x32x16.F32.BF16": 64,
+          "HGMMA.64x56x16.F32.BF16": 64,
+          "HGMMA.64x64x16.F32.BF16": 64,
+          "HGMMA.64x48x16.F32.BF16": 64,
+          "SYNCS.ARRIVE.TRANS64": 2
+        },
+        "decoder_integer": {
+          "LOP3": 2560,
+          "SHF": 1024,
+          "IMAD": 512
+        },
+        "stack_bytes": 0,
+        "spill_store_bytes": 0,
+        "spill_load_bytes": 0,
+        "registers": 96,
+        "barriers": 16
+      }
+    }
+  },
+  "g0-default": {
+    "source_sha256": "b7ecaf14698e217bf07a28484e6bade62a23d81c603e93d7074ab2fdd9630175",
+    "device_hash": "edcd982335dd1386c50c9f820cb90e067b40bde79cc5b43d6db8d46884de2100",
+    "ptx_sha256": "6424dede55f3db642198cf82f35a9ed3e5ca50ec896471bfa938d85efa05730b",
+    "cubin_sha256": "801e74627e695e081b315e6f4f154b67a8b3bcd7a7aae79ca06cbc6c78ace9b8",
+    "warnings": 0,
+    "options": [
+      "--gpu-architecture=compute_90a",
+      "--std=c++17",
+      "--generate-line-info",
+      "--device-as-default-execution-space",
+      "--include-path=/root/.cache/okc-cuda128/packages/nvidia/cuda_runtime/include",
+      "--include-path=/root/.cache/okc-cuda128/packages/nvidia/cuda_nvcc/include",
+      "--include-path=/root/.cache/okc-cuda128/cccl/nvidia/cuda_cccl/include",
+      "-DOKC_NW=16",
+      "-DOKC_FAST1=0",
+      "-DOKC_EPI4=0",
+      "-DOKC_WGS=1",
+      "-DOKC_NS=3",
+      "-DOKC_NSF=3",
+      "-DOKC_PRMTSC=1",
+      "-DOKC_SC6W=1",
+      "-DOKC_DQ7=1"
+    ],
+    "entries": {
+      "_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE": {
+        "instructions": 23896,
+        "selected_ops": {
+          "FENCE.VIEW.ASYNC.S": 1,
+          "SYNCS.EXCH.64": 12,
+          "BAR.SYNC.DEFER_BLOCKING": 68,
+          "BAR.ARV": 1,
+          "SYNCS.PHASECHK.TRANS64.TRYWAIT": 134,
+          "WARPGROUP.ARRIVE": 256,
+          "HGMMA.64x24x16.F32.BF16": 64,
+          "WARPGROUP.DEPBAR.LE gsb0, 0x1": 256,
+          "SYNCS.ARRIVE.TRANS64.A1T0": 64,
+          "WARPGROUP.DEPBAR.LE gsb0, 0x0": 16,
+          "HGMMA.64x8x16.F32.BF16": 64,
+          "HGMMA.64x16x16.F32.BF16": 64,
+          "HGMMA.64x40x16.F32.BF16": 64,
+          "HGMMA.64x32x16.F32.BF16": 64,
+          "HGMMA.64x56x16.F32.BF16": 64,
+          "HGMMA.64x64x16.F32.BF16": 64,
+          "HGMMA.64x48x16.F32.BF16": 64,
+          "SYNCS.ARRIVE.TRANS64": 2
+        },
+        "decoder_integer": {
+          "SHF": 1024,
+          "IMAD": 1024,
+          "LOP3": 2560
+        },
+        "stack_bytes": 16,
+        "spill_store_bytes": 56,
+        "spill_load_bytes": 184,
+        "registers": 96,
+        "barriers": 16
+      },
+      "_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE": {
+        "instructions": 23896,
+        "selected_ops": {
+          "FENCE.VIEW.ASYNC.S": 1,
+          "SYNCS.EXCH.64": 12,
+          "BAR.SYNC.DEFER_BLOCKING": 68,
+          "BAR.ARV": 1,
+          "SYNCS.PHASECHK.TRANS64.TRYWAIT": 134,
+          "WARPGROUP.ARRIVE": 256,
+          "HGMMA.64x24x16.F32.BF16": 64,
+          "WARPGROUP.DEPBAR.LE gsb0, 0x1": 256,
+          "SYNCS.ARRIVE.TRANS64.A1T0": 64,
+          "WARPGROUP.DEPBAR.LE gsb0, 0x0": 16,
+          "HGMMA.64x8x16.F32.BF16": 64,
+          "HGMMA.64x16x16.F32.BF16": 64,
+          "HGMMA.64x40x16.F32.BF16": 64,
+          "HGMMA.64x32x16.F32.BF16": 64,
+          "HGMMA.64x56x16.F32.BF16": 64,
+          "HGMMA.64x64x16.F32.BF16": 64,
+          "HGMMA.64x48x16.F32.BF16": 64,
+          "SYNCS.ARRIVE.TRANS64": 2
+        },
+        "decoder_integer": {
+          "SHF": 1024,
+          "IMAD": 1024,
+          "LOP3": 2560
+        },
+        "stack_bytes": 16,
+        "spill_store_bytes": 56,
+        "spill_load_bytes": 184,
+        "registers": 96,
+        "barriers": 16
+      }
+    }
+  },
+  "g0-grid": {
+    "source_sha256": "b7ecaf14698e217bf07a28484e6bade62a23d81c603e93d7074ab2fdd9630175",
+    "device_hash": "edcd982335dd1386c50c9f820cb90e067b40bde79cc5b43d6db8d46884de2100",
+    "ptx_sha256": "f06828499452a5f26a51b24c97acb2f01351c063332cca3f3567b83476f7fd13",
+    "cubin_sha256": "51b9e8bb83595ff5d8c527cf02e0d0735f61f1a150fc141ac0a70444a3836372",
+    "warnings": 0,
+    "options": [
+      "--gpu-architecture=compute_90a",
+      "--std=c++17",
+      "--generate-line-info",
+      "--device-as-default-execution-space",
+      "--include-path=/root/.cache/okc-cuda128/packages/nvidia/cuda_runtime/include",
+      "--include-path=/root/.cache/okc-cuda128/packages/nvidia/cuda_nvcc/include",
+      "--include-path=/root/.cache/okc-cuda128/cccl/nvidia/cuda_cccl/include",
+      "-DOKC_NW=16",
+      "-DOKC_FAST1=0",
+      "-DOKC_EPI4=0",
+      "-DOKC_WGS=1",
+      "-DOKC_NS=3",
+      "-DOKC_NSF=3",
+      "-DOKC_PRMTSC=1",
+      "-DOKC_SC6W=1",
+      "-DOKC_DQ7=1",
+      "-DOKC_MFIN=0"
+    ],
+    "entries": {
+      "_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE": {
+        "instructions": 23584,
+        "selected_ops": {
+          "FENCE.VIEW.ASYNC.S": 1,
+          "SYNCS.EXCH.64": 12,
+          "BAR.SYNC.DEFER_BLOCKING": 60,
+          "BAR.ARV": 1,
+          "SYNCS.PHASECHK.TRANS64.TRYWAIT": 134,
+          "WARPGROUP.ARRIVE": 256,
+          "HGMMA.64x24x16.F32.BF16": 64,
+          "WARPGROUP.DEPBAR.LE gsb0, 0x1": 256,
+          "SYNCS.ARRIVE.TRANS64.A1T0": 64,
+          "WARPGROUP.DEPBAR.LE gsb0, 0x0": 16,
+          "HGMMA.64x8x16.F32.BF16": 64,
+          "HGMMA.64x16x16.F32.BF16": 64,
+          "HGMMA.64x40x16.F32.BF16": 64,
+          "HGMMA.64x32x16.F32.BF16": 64,
+          "HGMMA.64x56x16.F32.BF16": 64,
+          "HGMMA.64x64x16.F32.BF16": 64,
+          "HGMMA.64x48x16.F32.BF16": 64,
+          "SYNCS.ARRIVE.TRANS64": 2
+        },
+        "decoder_integer": {
+          "SHF": 1024,
+          "IMAD": 1024,
+          "LOP3": 2560
+        },
+        "stack_bytes": 8,
+        "spill_store_bytes": 44,
+        "spill_load_bytes": 68,
+        "registers": 96,
+        "barriers": 16
+      },
+      "_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE": {
+        "instructions": 23584,
+        "selected_ops": {
+          "FENCE.VIEW.ASYNC.S": 1,
+          "SYNCS.EXCH.64": 12,
+          "BAR.SYNC.DEFER_BLOCKING": 60,
+          "BAR.ARV": 1,
+          "SYNCS.PHASECHK.TRANS64.TRYWAIT": 134,
+          "WARPGROUP.ARRIVE": 256,
+          "HGMMA.64x24x16.F32.BF16": 64,
+          "WARPGROUP.DEPBAR.LE gsb0, 0x1": 256,
+          "SYNCS.ARRIVE.TRANS64.A1T0": 64,
+          "WARPGROUP.DEPBAR.LE gsb0, 0x0": 16,
+          "HGMMA.64x8x16.F32.BF16": 64,
+          "HGMMA.64x16x16.F32.BF16": 64,
+          "HGMMA.64x40x16.F32.BF16": 64,
+          "HGMMA.64x32x16.F32.BF16": 64,
+          "HGMMA.64x56x16.F32.BF16": 64,
+          "HGMMA.64x64x16.F32.BF16": 64,
+          "HGMMA.64x48x16.F32.BF16": 64,
+          "SYNCS.ARRIVE.TRANS64": 2
+        },
+        "decoder_integer": {
+          "SHF": 1024,
+          "IMAD": 1024,
+          "LOP3": 2560
+        },
+        "stack_bytes": 8,
+        "spill_store_bytes": 44,
+        "spill_load_bytes": 68,
+        "registers": 96,
+        "barriers": 16
+      }
+    }
+  }
+}
