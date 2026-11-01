@@ -22,12 +22,12 @@ def build(control, donor, output):
     assert src.count('"-DZH_SCH=1"') == 2
     src = src.replace('"-DZH_SCH=1"', '"-DZH_SCH=0"')
     # Host-only resource gate/metadata; no device math or synchronization edits.
-    src = once(src, '    cudaLaunchConfig_t cfg = {};\n    cfg.gridDim = dim3((unsigned)G, 1, 1);', '''    cudaFuncAttributes a{}; int resident=0;
+    src = once(src, '    cudaLaunchConfig_t cfg = {};\n    cfg.gridDim = dim3((unsigned)G, 1, 1);', '''    static bool reported=false;
+    if(!reported){cudaFuncAttributes a{}; int resident=0;
     TORCH_CHECK(cudaFuncGetAttributes(&a, f0)==cudaSuccess, "resource attrs");
     TORCH_CHECK(cudaOccupancyMaxActiveBlocksPerMultiprocessor(&resident,f0,256+128*NPW,smem)==cudaSuccess && resident>=1, "resource residency");
     TORCH_CHECK(a.localSizeBytes==0, "WST spill/local memory gate");
-    static bool reported=false;
-    if(!reported){printf("KEL_RESOURCE WST regs=%d local=%zu dynamic=%d blocksSM=%d\\n",a.numRegs,a.localSizeBytes,smem,resident);fflush(stdout);reported=true;}
+    printf("KEL_RESOURCE WST regs=%d local=%zu dynamic=%d blocksSM=%d\\n",a.numRegs,a.localSizeBytes,smem,resident);fflush(stdout);reported=true;}
     cudaLaunchConfig_t cfg = {};
     cfg.gridDim = dim3((unsigned)G, 1, 1);''')
     src = once(src, '  cudaError_t e = cudaLaunchKernelEx(&cfg, vp2_kernel,', '''  static bool reported=false;
@@ -40,15 +40,15 @@ def build(control, donor, output):
     # Keep donor outside git, embed into diagnostic only.
     with tempfile.TemporaryDirectory() as tmp:
         root=Path(tmp);(root/'muse_attention_decode').mkdir()
-        (root/'muse_attention_decode/submission.py').write_text(control.read_text())
-        private=root/'exact_public.py';private.write_text(src)
+        (root/'muse_attention_decode/submission.py').write_text(control.read_text(encoding='utf-8'),encoding='utf-8')
+        private=root/'exact_public.py';private.write_text(src,encoding='utf-8')
         oldroot,oldargv=ab.ROOT,sys.argv
         try:
             ab.ROOT=root
             sys.argv=['attn_make_bench_ab.py',str(output),'--pub',f'pubkel={private}','--null','--shapes','all','--inputs','2','--rounds','100','--seed','311151']
             ab.main()
         finally:ab.ROOT,sys.argv=oldroot,oldargv
-    bench=output.read_text()
+    bench=output.read_text(encoding='utf-8')
     bench=once(bench,'def _ab_check():\n    fns = _ab_fns()', '''def _ab_check():
     global _KEL_CHECK_FAILED
     _KEL_CHECK_FAILED = True
@@ -67,8 +67,22 @@ def build(control, donor, output):
     assert not _KEL_CHECK_FAILED, 'official-math/cache/row comparator gate'
     print(f"ABCHECK done: {fails} failing {_ob_elapsed()}", flush=True)''')
     bench=once(bench,'def _ab_bench(warm_calls=16, warm_reps=25):','def _ab_bench(warm_calls=16, warm_reps=25):\n    assert not _KEL_CHECK_FAILED, "no timing after failed correctness"')
+    a=bench.index('def _ab_check():'); b=bench.index('def _ab_graph(',a)
+    segment=bench[a:b]
+    assert segment.count('ok, msg = _ob_check(data, out)') == 2
+    bench=bench[:a]+segment.replace('ok, msg = _ob_check(data, out)', 'ok, msg = _kel_math_check(data, out)')+bench[b:]
+    bench=once(bench, 'def _ab_check():', """def _kel_math_check(data, out):
+    previous = torch.backends.cuda.matmul.allow_tf32
+    try:
+        torch.backends.cuda.matmul.allow_tf32 = False
+        return _ob_check(data, out)
+    finally:
+        torch.backends.cuda.matmul.allow_tf32 = previous
+
+
+def _ab_check():""")
     bench += '\nassert not _KEL_CHECK_FAILED, "CHECK ONLY comparator failed; not a candidate"\n'
-    compile(bench,str(output),'exec');output.write_text(bench)
+    compile(bench,str(output),'exec');output.write_text(bench,encoding='utf-8')
     print('EXACT_COMPARATOR_SHA',hashlib.sha256(bench.encode()).hexdigest())
 
 
