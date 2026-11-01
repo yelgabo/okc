@@ -5248,3 +5248,4 @@ FP32(1+post_norm_w) toBF16 inherited from PREFILL's explicit boundary. Standalon
 consumes FP32gamma; that adapter is not an exact51norm comparison (still a losing/unpromoted
 experiment). Correct new masked diagnostic before dispatch, preserve FP32gamma.
 2026-11-01 | bfbedf7d48e248a0 | baseline 6e078b5 plus tools/moe_token_locality_probe.py | off-board four-graph matched token order screen on six loads, seeds 781 and 782. Pending.
+bfbedf7d48e248a0 completed. Five tests passed, control 2.183905x (95% CI 2.151147–2.216664). All 12 cases retained. Six-load factors 0.998626/1.000309 and 1.000687/1.000423 miss 1% gate. Park sorted rows. No public submission.
