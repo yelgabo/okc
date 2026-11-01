@@ -1,5 +1,7 @@
 # Shared project steering
 
+Latest single-arm layer qualifier: [Repaired full-four-cell startup checks](2026-11-01-production-startup-qualifier.md) - exact4ad326c3/980787 B, normal timed path unchanged, private full-model/fresh/cache/empty/resource gates prepared and CPU-reviewed. H200 correctness, admission, setup and performance remain unmeasured; root-only official decision.
+
 Latest production size milestone: [Transparent comment-only hybrid fit](2026-11-01-production-comment-fit.md) - mask4 907642 B and mask15 951539 B fit with notices/anchors retained and actual source-factory/local selected compiler equivalence. Inherited owned progress contract blocks GPU/public readiness; separate repair and full runtime gates remain required.
 
 Latest projection terminal result: [Stage-local sparse-XOR loss](2026-11-01-projection-stage-xor-terminal.md) - dfcfdd01 PASS9/30, score 1.419146839 versus C2 1.527806483; all ten targets regress, all forty resource gates pass. Close exact stage-local/global BEFORE-A representations; no retry or port.
