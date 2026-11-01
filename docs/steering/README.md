@@ -6,6 +6,8 @@ report be checked into this repository so other sessions can read it.
 
 ## Latest review
 
+**Latest architecture audit:** [November 1 keell0renz versus our architecture](2026-11-01-keell-architecture.md), with the [full interactive HTML study](2026-11-01-keell-architecture.html). Pins both source commits, compares twelve layer cells and profiles, diagrams both pipelines and MoE completion, distinguishes bundled MFIN/SC6 timing from invalid captured-output diagnostics, and reconciles the concurrently reviewed attributed fork. History: owned baseline `9aa3edf`; comparator check `3a5f879df0d44825`; public incumbent `8f2780d7382047e6`.
+
 **Active campaign:** [Top-50 thresholds, validated comparator and attributed layer fork](2026-11-01-top50-reset.md). The user resumed with a rank 10–50 objective on the overall and non-prefill boards and authorized an attributed layer fork after audit. The external layer check reached 2.248791×. The current fork is under precision, ordering and license review.
 
 [November 1 campaign accountability](2026-11-01-campaign-accountability.md) compares public scores with the restart snapshot, identifies where experiment selection diverged from the research, and gives an opportunity-size gate for future work. The user cleared the optimization goal.
