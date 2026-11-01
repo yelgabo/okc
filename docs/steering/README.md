@@ -546,3 +546,5 @@ Latest: [Dense projection transfer to the decode layer](2026-11-01-layer-dense-t
 - 2026-11-01: [Independent G pending-flush review](2026-11-01-g-pending-flush-independent-review.md): source-safety clearance for exact8195660 movement; publication/lifetime/progress proof, actual main/B4 compiler resources, no H200 or speedup claim.
 
 - 2026-11-01: [Focused short-path harness review](2026-11-01-short-path-harness-review.md): workload selection/production-state fixes and demonstrated48row transport risk; owner notified, no job or final readiness claim.
+
+- 2026-11-01: [G full-context attention16/32 scope](2026-11-01-g-full-attention-scope.md): executed matching264CTAflatplans, soft/coherent and BF16boundary comparability limits, physicalroom retained but no new low-risk candidate.
