@@ -21,6 +21,7 @@ Latest projection scope: [Async-mailbox audit](2026-11-01-projection-mailbox-sco
 Updated independent review: [Corrected four-cell verify package](2026-11-01-verify-four-cell-slice-review.md#2026-11-01-corrected-package-addendum) - final2bad52ce/968389B fixes actual128 WD/SG policies; sevenCPU gates pass. Source/host diagnostic clearance only; H200, setup deadline and future public-hybrid size remain unqualified.
 
 Latest independent review: [VP2 private attention host scaffold](2026-11-01-vp2-independent-host-review.md) - exact6ca280a3 artifact, seven TorchCPU tests pass; bounded diagnostic host clearance only, no GPU or release claim.
+Latest private projection scaffold: [SK10 sparse-XOR paired harness](2026-11-01-projection-sk-xor-private-harness.md). Nine CPU gates and80 native-layout crosschecks pass; strict9KB lossless transport and immutable sharing added. No GPU action; runtime/admission remain unqualified.
 
 This is the stable entry point for steering reports across research, implementation,
 and coordinator sessions. The user requested on 2026-10-29 that every project-steering
