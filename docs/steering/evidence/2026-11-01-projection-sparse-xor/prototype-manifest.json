@@ -1,0 +1,454 @@
+{
+  "source_pin": "5610b8a64e25f70c639ac0523fe7c14754a6c54d349eb005210123b4e19fb3b4",
+  "source_lf_sha256": "7f4fd58cdd940f36c8d4d355f3de85687bc7f6ab04981842ce936db76d78adc2",
+  "names": [
+    "qkv8F",
+    "qkv16F",
+    "qkv32",
+    "o16F",
+    "o32F",
+    "pool16F",
+    "pool32F",
+    "unp16F",
+    "unp32F",
+    "slice8F"
+  ],
+  "metadata": {
+    "qkv8F": {
+      "ids": [
+        [
+          0,
+          1
+        ],
+        [
+          2,
+          3
+        ]
+      ],
+      "geom": {
+        "R": 24,
+        "NT": 3,
+        "NWR": 1,
+        "WSK": 4,
+        "UPW": 4,
+        "NW": 4,
+        "UPS": 16,
+        "comp": true,
+        "hl": false,
+        "cl": 1,
+        "tokr": 8,
+        "fuse": false
+      },
+      "original_targs": "1, 8, 3, 1, 4, 4, 4, true, false, 1057, 1, __nv_bfloat16, false",
+      "original_cfg": [
+        "qkv8F",
+        1,
+        8,
+        3,
+        1,
+        4,
+        4,
+        4,
+        true,
+        false,
+        1057,
+        1,
+        "bf16",
+        false
+      ]
+    },
+    "qkv16F": {
+      "ids": [
+        [
+          4,
+          5
+        ],
+        [
+          6,
+          7
+        ]
+      ],
+      "geom": {
+        "R": 24,
+        "NT": 3,
+        "NWR": 1,
+        "WSK": 4,
+        "UPW": 2,
+        "NW": 4,
+        "UPS": 8,
+        "comp": true,
+        "hl": false,
+        "cl": 1,
+        "tokr": 16,
+        "fuse": false
+      },
+      "original_targs": "1, 16, 3, 1, 4, 2, 5, true, false, 1057, 1, __nv_bfloat16, false",
+      "original_cfg": [
+        "qkv16F",
+        1,
+        16,
+        3,
+        1,
+        4,
+        2,
+        5,
+        true,
+        false,
+        1057,
+        1,
+        "bf16",
+        false
+      ]
+    },
+    "qkv32": {
+      "ids": [
+        [
+          8,
+          9
+        ],
+        [
+          10,
+          11
+        ]
+      ],
+      "geom": {
+        "R": 24,
+        "NT": 3,
+        "NWR": 1,
+        "WSK": 4,
+        "UPW": 2,
+        "NW": 4,
+        "UPS": 8,
+        "comp": true,
+        "hl": false,
+        "cl": 1,
+        "tokr": 32,
+        "fuse": false
+      },
+      "original_targs": "2, 32, 3, 1, 4, 2, 4, true, false, 1025, 1, __nv_bfloat16, false",
+      "original_cfg": [
+        "qkv32",
+        2,
+        32,
+        3,
+        1,
+        4,
+        2,
+        4,
+        true,
+        false,
+        1025,
+        1,
+        "bf16",
+        false
+      ]
+    },
+    "o16F": {
+      "ids": [
+        [
+          12,
+          13
+        ],
+        [
+          14,
+          15
+        ]
+      ],
+      "geom": {
+        "R": 32,
+        "NT": 2,
+        "NWR": 2,
+        "WSK": 2,
+        "UPW": 2,
+        "NW": 4,
+        "UPS": 4,
+        "comp": true,
+        "hl": false,
+        "cl": 1,
+        "tokr": 16,
+        "fuse": false
+      },
+      "original_targs": "1, 16, 2, 2, 2, 2, 3, true, false, 1057, 1, __nv_bfloat16, false",
+      "original_cfg": [
+        "o16F",
+        1,
+        16,
+        2,
+        2,
+        2,
+        2,
+        3,
+        true,
+        false,
+        1057,
+        1,
+        "bf16",
+        false
+      ]
+    },
+    "o32F": {
+      "ids": [
+        [
+          16,
+          17
+        ],
+        [
+          18,
+          19
+        ]
+      ],
+      "geom": {
+        "R": 32,
+        "NT": 2,
+        "NWR": 2,
+        "WSK": 2,
+        "UPW": 2,
+        "NW": 4,
+        "UPS": 4,
+        "comp": true,
+        "hl": false,
+        "cl": 1,
+        "tokr": 32,
+        "fuse": false
+      },
+      "original_targs": "2, 32, 2, 2, 2, 2, 3, true, false, 1057, 1, __nv_bfloat16, false",
+      "original_cfg": [
+        "o32F",
+        2,
+        32,
+        2,
+        2,
+        2,
+        2,
+        3,
+        true,
+        false,
+        1057,
+        1,
+        "bf16",
+        false
+      ]
+    },
+    "pool16F": {
+      "ids": [
+        [
+          20,
+          21
+        ],
+        [
+          22,
+          23
+        ]
+      ],
+      "geom": {
+        "R": 32,
+        "NT": 2,
+        "NWR": 2,
+        "WSK": 2,
+        "UPW": 4,
+        "NW": 4,
+        "UPS": 8,
+        "comp": true,
+        "hl": false,
+        "cl": 1,
+        "tokr": 16,
+        "fuse": false
+      },
+      "original_targs": "1, 16, 2, 2, 2, 4, 4, true, false, 1057, 1, __nv_bfloat16, false",
+      "original_cfg": [
+        "pool16F",
+        1,
+        16,
+        2,
+        2,
+        2,
+        4,
+        4,
+        true,
+        false,
+        1057,
+        1,
+        "bf16",
+        false
+      ]
+    },
+    "pool32F": {
+      "ids": [
+        [
+          24,
+          25
+        ],
+        [
+          26,
+          27
+        ]
+      ],
+      "geom": {
+        "R": 32,
+        "NT": 2,
+        "NWR": 2,
+        "WSK": 2,
+        "UPW": 4,
+        "NW": 4,
+        "UPS": 8,
+        "comp": true,
+        "hl": false,
+        "cl": 1,
+        "tokr": 32,
+        "fuse": false
+      },
+      "original_targs": "2, 32, 2, 2, 2, 4, 3, true, false, 1057, 1, __nv_bfloat16, false",
+      "original_cfg": [
+        "pool32F",
+        2,
+        32,
+        2,
+        2,
+        2,
+        4,
+        3,
+        true,
+        false,
+        1057,
+        1,
+        "bf16",
+        false
+      ]
+    },
+    "unp16F": {
+      "ids": [
+        [
+          28,
+          29
+        ],
+        [
+          30,
+          31
+        ]
+      ],
+      "geom": {
+        "R": 32,
+        "NT": 2,
+        "NWR": 2,
+        "WSK": 2,
+        "UPW": 2,
+        "NW": 4,
+        "UPS": 4,
+        "comp": true,
+        "hl": false,
+        "cl": 1,
+        "tokr": 16,
+        "fuse": false
+      },
+      "original_targs": "1, 16, 2, 2, 2, 2, 3, true, false, 1057, 1, __nv_bfloat16, false",
+      "original_cfg": [
+        "unp16F",
+        1,
+        16,
+        2,
+        2,
+        2,
+        2,
+        3,
+        true,
+        false,
+        1057,
+        1,
+        "bf16",
+        false
+      ]
+    },
+    "unp32F": {
+      "ids": [
+        [
+          32,
+          33
+        ],
+        [
+          34,
+          35
+        ]
+      ],
+      "geom": {
+        "R": 32,
+        "NT": 2,
+        "NWR": 2,
+        "WSK": 2,
+        "UPW": 2,
+        "NW": 4,
+        "UPS": 4,
+        "comp": true,
+        "hl": false,
+        "cl": 1,
+        "tokr": 32,
+        "fuse": false
+      },
+      "original_targs": "2, 32, 2, 2, 2, 2, 3, true, false, 1057, 1, __nv_bfloat16, false",
+      "original_cfg": [
+        "unp32F",
+        2,
+        32,
+        2,
+        2,
+        2,
+        2,
+        3,
+        true,
+        false,
+        1057,
+        1,
+        "bf16",
+        false
+      ]
+    },
+    "slice8F": {
+      "ids": [
+        [
+          36,
+          37
+        ],
+        [
+          38,
+          39
+        ]
+      ],
+      "geom": {
+        "R": 8,
+        "NT": 1,
+        "NWR": 1,
+        "WSK": 8,
+        "UPW": 2,
+        "NW": 8,
+        "UPS": 16,
+        "comp": true,
+        "hl": false,
+        "cl": 1,
+        "tokr": 8,
+        "fuse": false
+      },
+      "original_targs": "1, 8, 1, 1, 8, 2, 4, true, false, 1057, 1, __nv_bfloat16, false",
+      "original_cfg": [
+        "slice8F",
+        1,
+        8,
+        1,
+        1,
+        8,
+        2,
+        4,
+        true,
+        false,
+        1057,
+        1,
+        "bf16",
+        false
+      ]
+    }
+  },
+  "runtime_sha256": "d23aa17be4cf9e7c5869803b3b4603d8e72395953687adc0287fb1c75738d586",
+  "cuda_sha256": "8cdbb4a99f226beb3f96ca662ae9d260bb7e002ef697337d8f80c075ccaa5068",
+  "bytes": 310434,
+  "gpu_execution": false,
+  "normal_entry": "unchanged C2",
+  "status": "prototype CPU/local compile gates pending"
+}
