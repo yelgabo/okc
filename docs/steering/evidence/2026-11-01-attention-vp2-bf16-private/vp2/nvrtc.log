@@ -1,0 +1,10 @@
+owned_decoder.cu(75): warning #47-D: incompatible redefinition of macro "V_TH" (declared at line 15)
+  #define V_TH 8
+          ^
+
+Remark: The warnings can be suppressed with "-diag-suppress <warning-number>"
+
+owned_decoder.cu(1396): warning #177-D: variable "ones" was declared but never referenced
+        uint32_t const ones[4] = {0x38383838u, 0x38383838u, 0x38383838u, 0x38383838u};
+                       ^
+
