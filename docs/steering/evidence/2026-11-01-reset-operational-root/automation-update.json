@@ -1,0 +1,10 @@
+{
+  "id": "qualify-family-g-at-the-november-1-h200-reset",
+  "kind": "heartbeat",
+  "status": "ACTIVE",
+  "one_shot_schedule_unchanged": true,
+  "scheduled_utc": "2026-11-02T00:00:00Z",
+  "prompt_sha256": "fde5123b9276a09d7f10f01284974bf02384af37df7c30b02c8c1c5ce2908e57",
+  "payloads_from": "muse_decode_layer/profiles/reset-ready.2026-11-01/manifest.json",
+  "first_two_order_unchanged": true
+}
