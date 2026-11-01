@@ -1,6 +1,6 @@
 # Locality report intake and H200 attribution decisions
 
-November 1, 05:54 PST. Evidence checkpoint `9904ded` includes the verified
+November 1, 05:51 PST. Evidence checkpoint `9904ded` includes the verified
 primary-source ledger (`5631967`) and final independent MoE probe clearance.
 This report follows the [selected-cell package](2026-11-01-selected-layer-pair.md),
 whose H200 execution remains pending. Prefill remains outside the active scope.
@@ -92,3 +92,69 @@ placed it305th, with a12.60% ratio gap to tenth. No newly measured portfolio
 closes that gap. There is no basis to promise top10 before the deadline; continue
 only through concrete opportunity and whole-score gates, not historical blog
 speedups. This report introduces no new public attempt.
+
+## November 1, 05:55 PST terminal decisions
+
+MoE **f147d06a64504c1e** completed: PASS5, all six benchmark cells and profiles,
+policy checks clean, uninstrumented diagnostic control **2.340277798×**, 95% CI
+[2.305173631,2.375381965]. All216 registered numerical cases passed, plus the
+separate decoded snapshots. Maximum global/row errors were0.0060922/0.0071880;
+preparation finished in171.325seconds. This private control contains the
+attributed layer backend and is not a standalone submission candidate.
+
+All12 READY/RETIRE mode-by-input rows fail the frozen attribution gate. Whole
+kernel displacement is4.91–9.54%; phase displacement10.26–14.90%. The endpoint
+whole kernels are close to control, but endpoint phase duplicate spread reaches
+5.33%. Close the exact probe without a rerun or a causal bottleneck claim.
+Actual resource attributes show96registers,231168dynamic shared bytes,
+576threads and a one-CTA/SM admission limit. RETIRE reports8local bytes;
+control/endpoint/READY report0. These are resource attributes, not achieved
+occupancy, bandwidth or measured utilization. The complete result is recorded
+in the [native G probe report](2026-11-01-g-stage-observed-readiness.md).
+
+The newly retained natural H200 route counts add useful population evidence:
+all three128-token banks have one extra64-row job, and one of three256-token
+banks has two extra jobs. Applying the prior explicitly hypothetical proportional
+model to the current607e expert/layer envelopes gives per-seed six-load factors
+1.012567/1.004403/1.004607, geometric mean about1.00719. This is not measured
+HBM traffic, an upper bound or a projected gain. Only one pair exceeds1%, and
+the probe supplies no qualified exposed-stall evidence. The bounded transpose
+therefore remains deferred. [Mapping and inverse proof obligations](2026-11-01-g-expert-run-order-proof.md).
+
+The [owned standalone audit](2026-11-01-owned-moe-locality-scope.md) separately
+confirms the8-row transpose is distinct from earlier experiments. It also finds
+zero repeated payloads in all four retained natural standalone16/32 count cases;
+M1/8 cannot repeat an8-row chunk. Positive layer-routing samples cannot stand in
+for standalone results. The large owned path has a different64-row scheduler.
+There is no justified standalone transpose implementation or quota request yet.
+
+### Refreshed actual target gaps
+
+The05:51 PST [four-board snapshot](evidence/2026-11-01-0551-boards/identity.json)
+uses official CLI results. Ratios below use its rounded display speedups, so gap
+percentages are approximate; they are required score increases, not predicted
+latency reductions. Overall remains represented by the layer board.
+
+| Board | Our rank | Our speedup | Rank50 | Rank10 | Gap to50 /10 |
+|---|---:|---:|---:|---:|---:|
+| Layer |308|2.1261×|2.2894×|2.3983×|7.68% /12.80%|
+| Attention |219|2.6043×|2.7119×|2.9331×|4.13% /12.63%|
+| MoE |387|2.2157×|2.4547×|2.6077×|10.79% /17.69%|
+| Projection |310|1.5278×|1.5848×|1.6087×|3.73% /5.30%|
+
+### Ranked next actions and acceptance
+
+| Priority | Action and evidence | Acceptance / stop |
+|---|---|---|
+|1|At16:00 PST, run the already repaired six-load incumbent-versus-stage comparison. Existing public607e improved the earlier owned public score, but matched six-load repeatability remains open.|All official math/order/resource gates; independent controls and routing; registered whole-score/null/regression gate. Keep607e if the comparison fails.|
+|2|Run the prepared independent short-path fixed-natural-routing trace, rather than repeating the losing concurrent producer.|Require all recorded math/cache/ownership and low-distortion gates. A useful exposed interval must support the whole-score budget before another fusion.|
+|3|Consider the850769-byte selected verify32/sliding cross-family package after the first reset checks.|Real H200 host linking, setup<300s, all24 private oracle checks, independent state and identical natural expert IDs. Report one-cell timing only; require broader evidence before promotion.|
+|Deferred|Same-expert bounded unit transpose, for G or owned standalone.|Reopen with actual matching-route multiplicities plus physical traffic or qualified exposed stalls and repeatable score-covered opportunity. New article/census alone is insufficient.|
+
+No speculative candidate should consume the remaining two layer public slots.
+Remaining free checks after these jobs: layer0, projection0, attention4, MoE2.
+The reset wakeup remains registered. Best submission remains byte-pinned
+**g1b4_stage_release.py /607eb52bdaf24160**, SHA256
+`ba9e327cd7b96595ace4d0c1d0d78fe27c128f23ed0debcda97c7169fc3164ab`.
+Both measurement failures are closed at their tested scope. No current evidence
+supports a promised top10 outcome, and no new public submission was made.

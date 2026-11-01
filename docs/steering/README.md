@@ -6,7 +6,7 @@ report be checked into this repository so other sessions can read it.
 
 ## Latest review
 
-[November 1 locality intake and H200 attribution decisions](2026-11-01-locality-and-attribution.md) preserves the new paste, corrects its primary-source attribution, closes the distorted attention trace and records private G phase job f147d06a64504c1e. The public incumbent remains 607eb52bdaf24160.
+[November 1 locality intake and H200 attribution decisions](2026-11-01-locality-and-attribution.md#november-1-0555-pst-terminal-decisions) records both completed correctness-passing but distorted probes, the new source-checked paste, scoped locality deferrals, four actual board gaps and the reset priorities. The public incumbent remains 607eb52bdaf24160 at rank308 in the05:51 snapshot.
 
 [November 1 selected-cell comparison and new attention measurement](2026-11-01-selected-layer-pair.md) records the 850769-byte BF16-matched package, identical selected MoE machine code, corrected page capacity, explicit private-state ownership and H200 wait job 3f44f891d0ef47db.
 
@@ -14,23 +14,23 @@ report be checked into this repository so other sessions can read it.
 
 [November 1 campaign decision and high-load expert results](2026-11-01-g-public-layer-measurement.md#november-1-0448-pst--h200-result-and-submission-decision) gives the current submission, measured rank gaps, [stop and pivot criteria](2026-11-01-g-public-layer-measurement.md#campaign-stop-and-pivot-criteria) and the [remaining expert-traffic question](2026-11-01-g-highload-weight-census.md).
 
-[November 1, 04:48 PST â€” H200 result and recommended submission](2026-11-01-g-public-layer-measurement.md#november-1-0448-pst--h200-result-and-submission-decision) records the qualifying 2.095900Ã— short-path result, the retained 2.126083Ã— incumbent at rank 305 and the updated 12.60% gap to tenth.
+[November 1, 04:48 PST — H200 result and recommended submission](2026-11-01-g-public-layer-measurement.md#november-1-0448-pst--h200-result-and-submission-decision) records the qualifying 2.095900× short-path result, the retained 2.126083× incumbent at rank 305 and the updated 12.60% gap to tenth.
 
-[November 1, 04:44 PST â€” concurrent pooler and router sent to H200](2026-11-01-g-public-layer-measurement.md#november-1-0444-pst--concurrent-short-producer) records the single-arm candidate, local GPU correctness scope and remaining cross-family byte budget.
+[November 1, 04:44 PST — concurrent pooler and router sent to H200](2026-11-01-g-public-layer-measurement.md#november-1-0444-pst--concurrent-short-producer) records the single-arm candidate, local GPU correctness scope and remaining cross-family byte budget.
 
-[November 1, 04:35 PST â€” fixed-routing short-path comparison](2026-11-01-g-public-layer-measurement.md#november-1-0435-pst--short-path-experiment-ready-for-private-measurement) identifies the second private reset experiment and closes two scoped porting ideas. [Family lineage and incumbent](../architecture-performance-tracker.md).
+[November 1, 04:35 PST — fixed-routing short-path comparison](2026-11-01-g-public-layer-measurement.md#november-1-0435-pst--short-path-experiment-ready-for-private-measurement) identifies the second private reset experiment and closes two scoped porting ideas. [Family lineage and incumbent](../architecture-performance-tracker.md).
 
-[November 1, 04:25 PST â€” reset check repair and second expert experiment](2026-11-01-g-public-layer-measurement.md#november-1-0425-pst--private-checks-before-the-reset) gives the current reproducible private payload, nine CPU tests and the two-stage retirement compile stop.
+[November 1, 04:25 PST — reset check repair and second expert experiment](2026-11-01-g-public-layer-measurement.md#november-1-0425-pst--private-checks-before-the-reset) gives the current reproducible private payload, nine CPU tests and the two-stage retirement compile stop.
 
-[November 1, 04:18 PST â€” public result and retained submission](2026-11-01-g-public-layer-measurement.md#november-1-0418-pst--keep-the-stage-retirement-release) records the 2.102308Ã— expert-placement result, the 2.126083Ã— incumbent at rank 304, the current non-prefill cutoffs and the two forward experiments.
+[November 1, 04:18 PST — public result and retained submission](2026-11-01-g-public-layer-measurement.md#november-1-0418-pst--keep-the-stage-retirement-release) records the 2.102308× expert-placement result, the 2.126083× incumbent at rank 304, the current non-prefill cutoffs and the two forward experiments.
 
 [Hourly coordination and next experiments from rank 303](2026-11-01-rank303-next-experiments.md) sizes the remaining gap and assigns work alongside the running G1b4 control.
 
-[November 1 Family G public layer results and forward candidates](2026-11-01-g-public-layer-measurement.md#two-public-whole-layer-results) records the new rank-303 layer at 2.126083Ã—, the 2.052870Ã— G1b4 control, both public receipts, the completed native qualification and [the forward candidate ledger](2026-11-01-g-public-layer-measurement.md#forward-work-from-the-rank-303-file).
+[November 1 Family G public layer results and forward candidates](2026-11-01-g-public-layer-measurement.md#two-public-whole-layer-results) records the new rank-303 layer at 2.126083×, the 2.052870× G1b4 control, both public receipts, the completed native qualification and [the forward candidate ledger](2026-11-01-g-public-layer-measurement.md#forward-work-from-the-rank-303-file).
 
 [November 1 G release priority and C3 closure](2026-11-01-g-roi-priority.md) records the user's ROI steering and the whole-layer decision gates.
 
-[November 1 H200 expert win and release decisions](2026-11-01-attention-results-expert-pipeline.md#h200-component-result) records the 1.85â€“2.87% paired MoE gain and 2.348799Ã— direct qualification. It includes the [public C3 result and refreshed ranks](2026-11-01-attention-results-expert-pipeline.md#public-scored-slots) and [the 16:00 PST layer handoff](2026-11-01-attention-results-expert-pipeline.md#restart-at-the-layer-quota-reset).
+[November 1 H200 expert win and release decisions](2026-11-01-attention-results-expert-pipeline.md#h200-component-result) records the 1.85–2.87% paired MoE gain and 2.348799× direct qualification. It includes the [public C3 result and refreshed ranks](2026-11-01-attention-results-expert-pipeline.md#public-scored-slots) and [the 16:00 PST layer handoff](2026-11-01-attention-results-expert-pipeline.md#restart-at-the-layer-quota-reset).
 
 [November 1 independent review of the active improvement campaign](2026-11-01-active-campaign-direction.md) evaluates G1b4 qualification, the live rank-50 gap and standalone attention controls.
 
@@ -43,7 +43,7 @@ report be checked into this repository so other sessions can read it.
 [November 1 strategy beyond an incorporated Family G](2026-11-01-beyond-family-g.md) sizes two independent investigations under the user's hypothetical incumbent.
 
 
-[Family G qualification and check receipts](2026-11-01-family-g-qualification.md) records G0 at 2.248791Ã—, G1a at 2.010975Ã— and repaired native G1b2 at 2.065559Ã—. G1b3 fixed the empty-routing metadata read and selected the Marlin fallback. G1b4 adds the native attention precision repair. The scored incumbent is 2.043438Ã—.
+[Family G qualification and check receipts](2026-11-01-family-g-qualification.md) records G0 at 2.248791×, G1a at 2.010975× and repaired native G1b2 at 2.065559×. G1b3 fixed the empty-routing metadata read and selected the Marlin fallback. G1b4 adds the native attention precision repair. The scored incumbent is 2.043438×.
 
 [November 1 research ownership retrospective](2026-11-01-research-ownership.md) adds the experiment-selection gate to both root instruction files and defines how to assess it prospectively.
 
@@ -55,7 +55,7 @@ report be checked into this repository so other sessions can read it.
 
 **Latest architecture audit:** [November 1 keell0renz versus our architecture](2026-11-01-keell-architecture.md), with the [full interactive HTML study](2026-11-01-keell-architecture.html). Pins both source commits, compares twelve layer cells and profiles, diagrams both pipelines and MoE completion, distinguishes bundled MFIN/SC6 timing from invalid captured-output diagnostics, and reconciles the concurrently reviewed attributed fork. History: owned baseline `9aa3edf`; comparator check `3a5f879df0d44825`; public incumbent `8f2780d7382047e6`.
 
-**Active campaign:** [Top-50 thresholds, validated comparator and attributed layer fork](2026-11-01-top50-reset.md). The user resumed with a rank 10â€“50 objective on the overall and non-prefill boards and authorized an attributed layer fork after audit. The external layer check reached 2.248791Ã—. The current fork is under precision, ordering and license review.
+**Active campaign:** [Top-50 thresholds, validated comparator and attributed layer fork](2026-11-01-top50-reset.md). The user resumed with a rank 10–50 objective on the overall and non-prefill boards and authorized an attributed layer fork after audit. The external layer check reached 2.248791×. The current fork is under precision, ordering and license review.
 
 [November 1 campaign accountability](2026-11-01-campaign-accountability.md) compares public scores with the restart snapshot, identifies where experiment selection diverged from the research, and gives an opportunity-size gate for future work. The user cleared the optimization goal.
 
@@ -124,22 +124,22 @@ Current policy supersedes the adoption language below. All four tracks now have 
 and donor code is measurement-only. Reimplement winning mechanisms in owned code.
 [Policy addendum](2026-10-30-family-f-donor-baseline.md#addendum-2026-10-31-user-decision-on-the-use-of-f-results).
 
-**[2026-10-30: Family F â€” Donor-based baseline and hybrid](2026-10-30-family-f-donor-baseline.md)**
+**[2026-10-30: Family F — Donor-based baseline and hybrid](2026-10-30-family-f-donor-baseline.md)**
 
 Registered at the user's request against evidence snapshot `7a59655`; donor
 `alygg77/okc-muse-spark-kernels` remains pinned at `6cae49a`.
-F is a first-class implementation/adoption family alongside Aâ€“E, not an incremental tweak
+F is a first-class implementation/adoption family alongside A–E, not an incremental tweak
 that must be folded into the incumbent. F0 is the exact donor, F1 a documented minimal
 conforming adaptation when required, and F2 a measured hybrid. F-PROJ and F-ATTN are the
 first independent comparison tracks; F-MOE and F-LAYER remain separately owned.
 Status: registered / untested against our releases. Archived donor scores are not F wins.
 Compare complete files and choose the better base; whole-file replacement is allowed.
-The dashboard data registers F while retaining the older Aâ€“E performance snapshot.
+The dashboard data registers F while retaining the older A–E performance snapshot.
 No kernels, validation gates, GPU jobs, releases or scored submissions changed.
 
 ## Previous decision: evaluate the complete donor as a replacement baseline
 
-**[2026-10-30: Donor-first adoption â€” test complete implementations before more invention](2026-10-30-donor-first-adoption.md)**
+**[2026-10-30: Donor-first adoption — test complete implementations before more invention](2026-10-30-donor-first-adoption.md)**
 
 Own snapshot `5b88889`; donor `alygg77/okc-muse-spark-kernels` at `6cae49a`.
 The user correctly challenged treating the better-ranked donor mainly as a list of ideas.
@@ -155,7 +155,7 @@ remain separately owned. The next deliverable must identify what code we should 
 
 ## Previous external-source steering: alygg77 measurement audit
 
-**[2026-10-30: alygg77 public kernels â€” measured constraints and a narrower next round](2026-10-30-alygg77-public-kernel-audit.md)**
+**[2026-10-30: alygg77 public kernels — measured constraints and a narrower next round](2026-10-30-alygg77-public-kernel-audit.md)**
 
 Own snapshot `269c110`; donor `alygg77/okc-muse-spark-kernels` at `6cae49a`.
 The supplied X post itself was not retrievable; this is an independently located repository
@@ -188,7 +188,7 @@ decides), the dense whole-tile sketch dropped (identical to the incumbent geomet
 
 ## Latest projection decision: corrected top-100 portfolio
 
-**[2026-10-30: Projection top-100 â€” corrected evidence and structural tests](2026-10-30-projection-top100-portfolio.md)**
+**[2026-10-30: Projection top-100 — corrected evidence and structural tests](2026-10-30-projection-top100-portfolio.md)**
 
 Evidence snapshot `c98018f`; verified scored receipt `d85d0081fa8a4a43`, 1.4975856x.
 The user's official-CLI cutoff is 1.5560x; the audit did not issue a new CLI query.
@@ -203,7 +203,7 @@ No kernel, gate, GPU run or submission changed. Attention and layer work remain 
 
 ## Previous standalone decision: attention and projection research roadmaps
 
-**[2026-10-30: Standalone attention and projection â€” widen the search](2026-10-30-attention-projection-standalone-roadmap.md)**
+**[2026-10-30: Standalone attention and projection — widen the search](2026-10-30-attention-projection-standalone-roadmap.md)**
 
 Evidence inspected through `a48edef` (preceded by `a2bdd7e`). The user explicitly wants better
 standings on both component problems, not only layer improvements. For these two owners,
@@ -321,7 +321,7 @@ input-history dependence remains an untested lead.
 
 ## Latest decision report: on course, with validation and prefetch priorities
 
-**[2026-10-29: Course check â€” validate overlap and isolate prefetch](2026-10-29-course-check-validation-prefetch.md)**
+**[2026-10-29: Course check — validate overlap and isolate prefetch](2026-10-29-course-check-validation-prefetch.md)**
 
 Evidence snapshot `b41cb8d` (October 30 02:19 UTC / October 29 19:19 PDT), unchanged from
 the preceding status answer. Keep the clean 2.014x release. Mode 51 passed its component gate
@@ -454,7 +454,7 @@ Addenda (2026-10-30): mode 43 built and dropped, 47 gated and kept; (3) warp ske
 
 ## Previous report
 
-**[2026-10-29 â€” After the overnight run](2026-10-29-overnight.md)**
+**[2026-10-29 — After the overnight run](2026-10-29-overnight.md)**
 
 Original evidence snapshot: `df03a59fc2ab02844e5003606e01b9a9de4bd5d2`.
 Publication addendum checked against `d0c062b4fd5a5342cf6df678709e0af9b2632b9d`:
@@ -558,7 +558,7 @@ An explicit user request not to write to the repository takes precedence.
 Hourly review history: [11:20 PDT performance review](2026-10-29-1120-performance-review.md).
 Latest experiment: [November 1 expert token locality](2026-11-01-expert-token-locality.md).
 Current projection assessment: [November 1 comparison of all 30 published H200 shapes](2026-11-01-projection-shape-comparison.md).
-Projection follow-up 4542b2b04cb344ec closed the QKV128 depth-two variant after a 0.512â€“0.640 Âµs regression. See the projection comparison above.
+Projection follow-up 4542b2b04cb344ec closed the QKV128 depth-two variant after a 0.512–0.640 µs regression. See the projection comparison above.
 Latest: [November 1 short-boundary and projection experiments](2026-11-01-short-boundary.md).
 Results: [short boundary and QKV epilogue](2026-11-01-short-boundary.md), [sliding attention opportunity](2026-11-01-sliding-attention-score-opportunity.md), and [single-warp MoE position map](2026-11-01-moe-singlewarp-position.md).
 Latest: [Matched short-boundary comparison](2026-11-01-matched-short-boundary.md).
@@ -586,4 +586,5 @@ Latest: [Dense projection transfer to the decode layer](2026-11-01-layer-dense-t
 - [2026-11-01 MoE locality primary-source ledger](2026-11-01-moe-locality-primary-ledger.md): exact mapping bug, corrected PR3905 distinction, later grouped schedule scope, CPU coverage proof.
 
 - [2026-11-01 G expert-run unit order proof obligations](2026-11-01-g-expert-run-order-proof.md): source-only bounded transpose specification; no GPU or production change.
+
 - 2026-11-01: [Owned standalone MoE locality scope](2026-11-01-owned-moe-locality-scope.md): exact incumbent8-row order vs old53c075 census; distinct transpose remains unmeasured but four retained standalone count cases have zero duplicates, so no implementation/check request.

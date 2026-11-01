@@ -1,0 +1,6 @@
+{
+  "fetched_utc": "2026-11-01T13:51Z",
+  "scope": "four non-prefill problem boards",
+  "source": "okc leaderboard <problem> --json",
+  "values": "displayed speedups rounded by CLI; ratio gaps approximate"
+}
