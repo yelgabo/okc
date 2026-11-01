@@ -2282,3 +2282,33 @@ The historicaldonor wholepath difference cannot be attributedto depth2 alone. It
 push/stmatrix epilogue and256-threadCTA remainunattributed by this check; no broadclosure
 of allqbig mechanisms. Stop depth2local tuning, preserveC3; no publicsubmission orprefill.
 Receipt plusnormalizedprofile JSON/text retained. Two officialprojectionchecks remain.
+
+### QKV128 cyclic push epilogue (owned, mainloop unchanged)
+
+Root authorizes one structurally distinct reduction/epilogue experiment, no retry/public
+submission/prefill. `tools/proj_make_bench_qkv_push.py` retains original owned mainloop,
+wait_group1,160-threadCTA,all original synchronization. The new epilogue assigns eight-token
+fragments cyclically j%3; sends only peerfloat4partials with existing st.async and retains
+ownpartial in registers. Per-rank receiveexpect_tx equals2×ownedfragments×128×16B;
+owner counts6/5/5 and fixed6slotstride use24576Breceivestorage. Summationrank0→1→2 matches
+oldpullreduction. BF16rounded results are paired acrossadjacentchannels via fullwarpshuffle,
+written into padded72-column sharedrows in the deadring, then read for16Bglobalstores.
+No donorcode copied; source inspection identified this reduction/epilogue difference.
+
+Ordering: rbar initialized/fenced/expect_tx before existing firstclusterrelease/acquire
+barrier. Pushes occur onlyafter thatbarrier andall WGwait0; receiveracquirewait observesall
+exactincomingst.async txbytes. Ownpartial needs no sharedhandoff. Sharedtransposegeneric
+writes are published to otherconsumerwarps by a namedbarrier; no asyncproxyconsumerreads
+that scratch. Ringreuse follows completionofallTMA andWGMMAreads plus existingclusterbarrier.
+Finalfullclusterrelease/acquirebarrier retained onallthreads beforeexit, ensuring every
+sender outlivesallremoteaccesses (samechain as docs/proj-port-guide.md Splitexitbarrier).
+Existing namedbarrierbeforeoldpartialmaterialization also retained; no fence removed.
+
+CPU gates pass uniqueincomingpeer slots/exactcounts, full64×128transposeownership,
+aligned16B reads/globalvectoroutputunique boundsM100/127/128/129, unchangedmainloopsource,
+actualhostbuilderrestore and generatedPythonparse. Sharedsize222352B<227KiB; actualCUDA
+resourcequery must show0local,nondiminishedblocks and>=36clusters beforetiming. Same2build,
+4arms+production,fullFP64/probe/freshgraph/twoheldout100round harness as prior depthcheck.
+Accept onlybothnewarms beatingprod andowncontrol bymax(.2us,2nullMAD),>=90/100faster,
+allcomputinggates pass. No claim of HBMweightsaving or predicted .8us gain: primary change
+avoidsdependent remoteLD/localpartialtraffic; newcopy/shuffle/barriercost could eraseit.
