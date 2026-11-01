@@ -253,10 +253,6 @@ the public entry vjeux/okc-2026 with its design memos (see `docs/gap-analysis-20
 
 ### Attention late-tid general toggle, 2026-10-31 PDT
 
-The general L1 SPEC late-tid toggle is not promoted: first check b4d75c3185744d0a and
-four-arm confirmation ab53721b09854717 both show a d1-full improvement (~0.4us), but the
-confirmation's preregistered changed-only2x-null gate fails because d1sliding's apparent
-benefit is reproduced by its independent control. Scope: the general toggle affecting both
-SPEC full and SPEC one-tile sliding. Revisit trigger: restrict scheduling to non-one-tile
-SPEC L1 based on the repeated full-context signal, with a fresh causal full-only gate.
-No fence, math or ordering change; production default remains off.
+| Experiment | Evidence | Scope and revisit trigger |
+|---|---|---|
+| General L1 SPEC late-tid scheduling, ONE_LATE_TID1, defaultoff | First check b4d75c3185744d0a; confirmation ab53721b09854717: d1full ~0.4us faster across builds/states/inputs, but written changed-only2x-null gate fails (late1/late2 approx1.007110/1.006037 vs null1.003640, threshold~1.007294) | Not promoted as the general knob affecting full and one-tile sliding; sliding's apparent benefit is reproduced by its null. Revisit with a non-one-tile SPEC L1 restriction based on repeated full-context evidence and a fresh full-only causal scoring gate. No math/fence/ordering change. |
