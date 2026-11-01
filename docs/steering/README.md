@@ -7,13 +7,18 @@ report be checked into this repository so other sessions can read it.
 ## Latest checkpoint: top-10 audit and Windows restart
 
 **Active goal: [October31 top10 campaign across all five boards](2026-10-31-top10-campaign.md).**
-Latest addendum: October31 23:26 PDT. User defers prefill; active work is projection,
+Latest addendum: October31 late PDT. User defers prefill; active work is projection,
 attention, standalone MoE and decode layer. Already dispatched prefill results are frozen.
 No active board is top10; observed score gaps5.02/11.73/17.15/17.82% respectively.
 Attention identical-code nulls also fail strict1e-4; prospective direct-FP32 compliance
-gate is separate, with no promotion yet. Standalone masked MoE comparison lost; the
-tested schedule is closed. Projection ring and attention FP32 diagnostics are running.
+gate passes; clean candidate-only attention check is pending before promotion.
+Standalone masked MoE and projection ring lost; those schedules are closed.
 Exact sources, receipts, new hypotheses and stop/pivot gates are in the active report.
+
+Supporting report: [Standalone MoE weight-reuse audit](2026-10-31-moe-weight-reuse-audit.md),
+evidence031b94f/ecb0058. Exact source mapping and CPU model are checked; cross-recipient
+retirement, actual cluster residency and physical traffic remain open. No new multicast
+kernel or barrier change. A fresh-count-only diagnostic is the next evidence gate.
 User now explicitly authorizes today's checks and scored submissions. Independent problem
 workers are running; root owns layer/prefill and scored promotion. See the live dispatch ledger.
 

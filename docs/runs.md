@@ -2112,3 +2112,16 @@ separate from fresh-run headline variation. Pending at dispatch.
 
 2383f5173a934c63 completed9tests:1.519919441x,CI1.497120649–1.542718233. CurrentbestC2
 1.527806x stays. Authorized fresh repeat, no newalgorithm gain. Receipt retained.
+
+## Bounded rd16 async ring — terminal result
+
+Sources exact from worker commitsc291a9d/dbfb451; receipt owner08d8150 preserved on remote
+codex/today-proj and copied here. Checkb103af15ba564ef6 passes9official control tests,
+C3control1.536215x,CI1.513172–1.559258; candidate ring loses and is NOT production.
+AllM1/7/15/16 random/probe/freshgraph checks pass. Resourcequeryold64regs/24Blocal/
+32768Bstatic/0dynamic/1CTA versus ring64regs/0local/32768Bstatic/98304Bdynamic/1CTA.
+The registered resourcegate passes; removing spills without residencygain is insufficient.
+Ring-minus-production+0.480/+0.528us input0,+0.528/+0.608us input1,only12–17/100faster.
+Rebuiltold controls-.544 to-.784us but null-.192us,MAD.272–.304 and85–92/100faster,
+so no retrospective promotion. Memoryprobes have2oldCTA versus1ringCTA; nonadditive costs.
+Close this rd16 ring schedule. No PF/registercap sweep or public candidate submission.

@@ -538,3 +538,50 @@ returnsvalidcontrol and provides no candidatewin. No occupancy or speedup is ass
 Root canonical-reference-layout CPU suite passes2/2. Completed projection source+harness
 work remains preserved on pushed branchcodex/today-proj (including frozenpre-fill tools),
 not an active prefill integration. Active standalone code stays unpromoted until its gates.
+
+Final same-turn correction: projectionb103af15ba564ef6 is now terminalPASScontrol9/9,
+1.536215x(CI1.513172–1.559258), but ring loses+0.48–0.61us and closes. Actualresources
+satisfy originalgate (both1CTA,64regs,ring0localversusold24Blocal;131072BtotalringSMEM).
+No production change or new sweep. Sources/rawreceipts preserved fromc291a9d/dbfb451/08d8150;
+root CPU ownership/lifetime/address/source gates rerun and pass. Only active projection
+artifacts were copied to main; deferred prefill integration tools stay frozen on workerbranch.
+Attention80415fe736bb4890 remains the explicitly verified live handle at last root read.
+
+Attention terminal update:80415fe736bb4890 passes16official tests and all2000candidate+
+2000control fresh inputs on each of sliding/full under exactTASKmath bounds. Every negative
+control rejects; bothworkspaces clean. Canonical batched-referencecrosscheckmaxrel5.288e-4
+passes registered1e-3 criterion; this is not bitwise equality. All13resourcevectors match,
+including affectedmode11(114regs,0local,58960dynamicshared,128threads,3blocks/SM).
+Checkscore2.623064713x,CI2.583718742–2.677442446, qualified by diagnosticglobalTF32flag
+handling described above. Prior strict1e-4 failures remain failures; the new test establishes
+mathematical compliance on these covered inputs, not stricter repeatability.
+
+Root independently verified exactpurecandidate SHA
+cbee36a852fbc62f5491e75f957eeb4298dce2db50947984cdbbcd08aa69b356,
+archived as muse_attention_decode/cand/late_full.py. Clean candidate-only official check
+d331aca81c554d70 dispatched with no diagnostic/TF32flag changes; it is the next promotion
+gate. The paired full-only causal gain remains~0.24%, not enough for the11.73%top10gap.
+A q8 mode51 producer-read/producer-zero attribution design is authorized offline, preserving
+all handshakes/fences; no repeated ring/QK/page knob sweep is planned.
+
+Supporting source audit published with this checkpoint:
+[Standalone MoE weight reuse](2026-10-31-moe-weight-reuse-audit.md), evidence031b94f/ecb0058.
+Root reviewed exactjob/unit/CTA mapping, opencross-recipientretirement andactualcluster
+residency requirements. CPUmodel2tests pass. A fresh-count-only diagnostic (owned51judged)
+is authorized for16/32layer/std,twoheldoutseeds; no multicastkernel or barrier change yet.
+Early>=10%pairablesavings is only a screening criterion; physicalHBM/L2traffic staysunmeasured.
+No validated currentportfolio covers any active top10gap. Prefill remains deferred.
+
+Read-only official-data gap check: public problem HTML points to asset
+https://openkernelchallenge.dev/assets/index-VBg5pvCv.js. The inspected public routing/API
+code exposes overall/board/queue/serving leaderboard reads and no per-job page route in that
+bundle. Competitor rank10 receipt5cb3655bf3c9499a is not accessible through ourCLI ('no such
+job', reported by attention owner). This scoped retrieval does not prove data unavailable
+elsewhere; do not invent per-shape top10times or infer them from aggregate speedups.
+
+New count-only MoE handle53c07507b9fd4f8c registered after a no-job static rejection of an
+initial embeddedCPUmodel sys.modules registration. Corrected source embeds ordinary direct
+definitions with no module edits/exec/runtimefile reads; original98top-levelASTnodes match
+owned51 and normalizednewlineprefix is identical. Eightcases16/32layer/std seeds311/312,
+fixedrouter8. Prints actualG/counts/CPUmap stats only; no new CUDA/synchronization path.
+WaitownexactID; early logicalsavings screen remains unknown until results.
