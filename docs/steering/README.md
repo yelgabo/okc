@@ -424,3 +424,5 @@ An explicit user request not to write to the repository takes precedence.
 Hourly review history: [11:20 PDT performance review](2026-10-29-1120-performance-review.md).
 
 - [2026-11-01 owned full-context sparse wait timeline](2026-11-01-attention-full-wait-trace.md): CPU/device-compile checkpoint; no H200 run.
+
+- [2026-11-01 MoE locality primary-source ledger](2026-11-01-moe-locality-primary-ledger.md): exact mapping bug, corrected PR3905 distinction, later grouped schedule scope, CPU coverage proof.
