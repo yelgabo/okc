@@ -22,6 +22,8 @@ def extract(receipt):
         raise ValueError('missing or duplicate shape/arm')
     report['owning_job'] = receipt['id']
     report['official_passed'] = (receipt.get('result') or {}).get('passed')
+    report['routing_metadata_valid'] = all(r.get('routing_sampled_after_replay', False)
+                                          for r in report['rows'])
     return report
 
 
@@ -30,6 +32,7 @@ def table(report):
              'Cold event medians are one-input diagnostics, not official per-shape medians.',
              'CUDA activity includes device waits; union is not SM utilization.',
              'Trace coordinates:0.1us. Aggregate span/union retain original resolution.', '',
+             'Recorded routing metadata valid: '+str(report['routing_metadata_valid'])+'.', '',
              '| Case | Owned cold us | SGLang cold us | Owned profile span us | SGLang profile span us | Owned uncovered us |',
              '|---|---:|---:|---:|---:|---:|']
     by = {(r['case'], r['arm']): r for r in report['rows']}

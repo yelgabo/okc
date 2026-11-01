@@ -801,3 +801,14 @@ Payload984798B SHA256dae91104f666fbfc323145dda56dfad39593e1631c12624f39b056b9bc2
 Varint delta/duration/name-stream transport, explicit0.1us eventcoordinates; unchanged
 kernel/workload. Independent56events×24row fixture10264B<11000, exactroundtrip;
 WSL4CPUtests pass. No fourth/further observation retry without scope review ifthisfails.
+
+01183c2992eb4153 completedPASS13,checksOK/no flags, unchangedcontrol2.017452507x
+CI1.987190720–2.047714295;prepare166.968s. All24tracesretained. Rawreceipt/log+normalized
+profile JSON/text committed. Decoded evidence andofficial12shapecomparison in
+docs/steering/evidence/2026-11-01-fusion-audit/. CandidateM1now{8:o+front,16:o,32:o+front};
+freshscore/per-shape changes notisolatedimprovement. T1topkfinish34.8/42.4 beforepoolnorm
+46.6/53.6us, noexposedroutertailinthesesamples; uncovered1.056–3.263us notSMutilization.
+BUG: reportedactualrouting counts were readfromcapturedoutputBEFOREfirstreplay, invalid;
+referencegroup/local_startvalid, actualtimedgraphs/officialtestsunaffected. Decoder marks
+routing_metadata_validFalse. Hosthelperfixedreplay+syncbeforeinspection;5CPUtestswith
+negativecapture-without-replaycontrolpass. NoadditionalGPUchecksolelymetadata. No submit.

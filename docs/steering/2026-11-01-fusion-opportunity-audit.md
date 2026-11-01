@@ -179,3 +179,89 @@ to validated `6da000f` (late-full2 retained). Tool commit `97b9070` now injects 
 probe branches only into the generated diagnostic, with source-pattern assertions. The full
 CPU generation test compares its CUDA AST literal against the recorded instrumented source
 and checks that the pure source is unchanged. No new production tuning or performance claim.
+
+## Completed measurement:01183c2992eb4153
+
+The corrected check passed13official tests, static checks OK and no flags. Unchanged owned
+control score2.017452507x,95%CI1.987190720–2.047714295; this is not a new optimization or
+candidate improvement. Preparation166.968s. Full raw receipt/log and normalized official
+profile JSON/text are committed under `muse_decode_layer/profiles/timeline*01183c2992eb4153*`.
+All24 owned/SGLang traces were retained and decoded into
+[full timeline evidence](evidence/2026-11-01-fusion-audit/layer-timeline.json) and its
+[per-shape table](evidence/2026-11-01-fusion-audit/layer-timeline.md).
+
+The [official per-shape comparison](evidence/2026-11-01-fusion-audit/official-shape-comparison.md)
+matches all12exact shape keys against best-entry receipt8f2780d7382047e6. It uses the judge's
+calibrated medians, not the diagnostic cold times. Current control ranges76.955us decode1
+sliding to501.347us verify32 full; some shapes improve and others regress versus the older
+receipt. Kernels are unchanged and M1policy differs at32tokens (`o+front` now versus `o` in
+the scored receipt); neither fresh-run differences nor policy changes are an isolated win.
+
+### Metadata defect and limits
+
+Root found that capture output buffers were inspected before their first replay. Therefore
+**all recorded actual-routing histograms/unique counts and pre-replay finite-value checks
+are invalid**. The decoded artifact explicitly marks `routing_metadata_valid:false`; do not
+use those fields. Reference group counts and local_start selection were computed before
+capture and remain valid. Independent review confirms the bad metadata feeds only report
+fields, never graph inputs/state/policy. Actual timed/profiled replays still reset inputs,
+flush L2, synchronize and execute normally; trace timing remains usable. Official13tests
+are separate actual-execution checks, not that faulty diagnostic inspection.
+
+The helper now performs an explicit replay+sync before inspecting outputs. Five CPU tests
+pass in WSL, including execution of the extracted capture helper and a negative control
+that reproduces uninitialized outputs when the replay is removed. No third GPU run was
+spent solely to recover routing metadata. The next diagnostic must use this fixed helper.
+
+Single-replay CUDA-event intervals include event-to-host-graph-launch delay; profiler spans
+start with the first activity and end with the last, and instrumentation can change the
+schedule. Their difference is not removable kernel latency. Use official calibrated medians
+for scoring, trace coordinates for dependencies, and neither as physical SM/HBM counters.
+
+### What changes the backlog
+
+For the two traced decode1 inputs:
+
+| Event completion/start | Sliding us | Full us |
+|---|---:|---:|
+| Router completion |31.3|39.1|
+| Top-k completion |34.8|42.4|
+| Pooler completion |44.3|52.0|
+| Pre-expert norm completion |46.6|53.6|
+| MoE start |47.2|54.0|
+
+Top-k already finishes11.8/11.2us before pooler normalization. **There is no exposed router
+tail in these samples.** Removing its profiled duration cannot be credited as equal layer
+savings. T1 router/top-k fusion alone is therefore deprioritized; preserve overlap in any
+future front design. This does not rule out a faster pooler or a structurally different front.
+At verify1, route and MoE already overlap through PDL; their durations are also nonadditive.
+
+Across the12owned median traces, uncovered activity intervals total1.056–3.263us per shape.
+This is absence of recorded CUDA activity, not idle SM time or an upper bound on all fusion
+benefit. It does not support explaining the17.82% score gap by launch gaps alone. Kernel
+execution and waits remain the larger target. **Next priority is physical traffic/stall
+attribution, not another generic fusion or PDL sweep.**
+
+## Counter-attribution feasibility and next gate
+
+NVIDIA documents an in-memory
+[CUPTI Range Profiler API](https://docs.nvidia.com/cupti/12.8.1/main/main.html#cupti-range-profiling-api)
+and [Profiler Host API](https://docs.nvidia.com/cupti/12.8.1/api/group__CUPTI__PROFILER__HOST__API.html).
+These can use host buffers without an external ncu process or report file. This is API
+feasibility, not evidence that the judge image exposes the headers/libraries, permissions
+or profiler coexistence needed. Trace-capable CUPTI does not by itself establish NVPerf
+availability or hardware-counter access.
+
+Before any counter-dependent rewrite, establish exact runtime dependency/support status,
+then one small successfully completed counter range. A device-support query alone does not
+prove permission. Report exact failures; stop on missing dependencies,
+[insufficient privileges](https://developer.nvidia.com/nvidia-development-tools-solutions-err-nvgpuctrperm-cupti)
+or an existing-profiler conflict. Do not change driver privileges or use subprocess/file
+workarounds. Review challenge rules and exact API signatures before implementation. Avoid
+checkpoint APIs that can write files. Per-kernel AutoRange serializes execution, so it
+cannot measure the original concurrent layer's utilization; a concurrent UserRange answers
+a different aggregate question. No physical metric values or metric names are asserted here.
+
+Current best candidates and top10 assessment above are unchanged. No new public submission
+is justified by the control score or diagnostic traces. Preserve quota for a new measured
+mechanism; prefill remains deferred.

@@ -12,9 +12,11 @@ Supporting [primary-source provenance](2026-11-01-pasted-source-provenance.md) r
 H100 example and external BF16 result owners; [attention boundary map](2026-11-01-pasted-attention-boundaries.md)
 documents the seven existing specialization/fusion mechanisms. No measured top10 portfolio
 is established. Final MoE wait-policy9be599cf333a47c4 fails the registered performance gate;
-production unchanged. First all12 timeline41788b39fb824179 failed only its final report-size
-guard; corrected diagnostic01183c2992eb4153 is confirmed running after independent review.
-Timing activity is not physical HBM/SM utilization; no new layer speedup is claimed.
+production unchanged. Corrected all12 timeline01183c2992eb4153 passed13official tests and
+retained24traces. T1 top-k already finishes11.8/11.2us before pooler normalization in the
+two traced inputs; no exposed router tail there. Capture-before-replay metadata defect is
+explicitly marked invalid and fixed with5CPUtests; timings and official tests remain usable.
+Next priority is physical traffic/stall attribution. No new layer speedup or public submit.
 
 **Exact-paste attribution correction:** [November1 pasted-report review](2026-11-01-pasted-top10-report-review.md).
 The newly attached *Reaching the Top 10 in the Muse Spark Open Kernel Challenge* is a

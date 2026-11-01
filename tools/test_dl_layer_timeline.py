@@ -1,5 +1,8 @@
 import ast
 import random
+import contextlib
+import copy
+import types
 import unittest
 from pathlib import Path
 
@@ -8,6 +11,58 @@ from dl_timeline_codec import decode_report, encode_report, summarize
 
 
 class TimelineTests(unittest.TestCase):
+    def test_capture_outputs_materialized_before_inspection(self):
+        node = next(n for n in ast.parse(RUNTIME).body if isinstance(n, ast.FunctionDef)
+                    and n.name == '_lt_capture')
+
+        def run(capture_node):
+            trace = []
+            current = {}
+
+            class Tensor:
+                def clone(self):
+                    return self
+                def copy_(self, other):
+                    return self
+
+            class Graph:
+                def replay(self):
+                    trace.append('replay')
+                    current['out']['materialized'] = True
+
+            class Stream:
+                def wait_stream(self, other):
+                    pass
+
+            @contextlib.contextmanager
+            def graph_context(graph):
+                current['capturing'] = True
+                yield
+                current['capturing'] = False
+
+            def fn(data, state):
+                current['out'] = {'materialized': not current.get('capturing', False)}
+                return current['out']
+
+            cuda = types.SimpleNamespace(Stream=Stream, current_stream=Stream,
+                stream=lambda s: contextlib.nullcontext(), CUDAGraph=Graph,
+                graph=graph_context, synchronize=lambda: trace.append('sync'))
+            ns = {'torch': types.SimpleNamespace(cuda=cuda),
+                  '_lt_reset': lambda data, saved: None}
+            exec(compile(ast.Module(body=[capture_node], type_ignores=[]), '<capture>', 'exec'), ns)
+            graph, out, saved = ns['_lt_capture'](fn, {}, {'stream':Tensor(), 'attn_input':Tensor()})
+            return out['materialized'], trace
+
+        valid, trace = run(node)
+        self.assertTrue(valid)
+        self.assertEqual(trace[-2:], ['replay','sync'])
+        # Negative reproduction: capture + synchronize without replay leaves outputs unwritten.
+        bad = copy.deepcopy(node)
+        bad.body = [n for n in bad.body if not (isinstance(n, ast.Expr)
+                    and isinstance(n.value, ast.Call) and isinstance(n.value.func, ast.Attribute)
+                    and n.value.func.attr == 'replay')]
+        self.assertFalse(run(bad)[0])
+
     def test_busiest_group_ties_actual_torch_cpu(self):
         try:
             import torch

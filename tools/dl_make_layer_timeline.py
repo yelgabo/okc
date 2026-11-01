@@ -29,10 +29,7 @@ def _lt_reset(data, saved):
     data['attn_input'].copy_(saved[1])
 
 
-def _lt_collect(fn, state, data, flush, deadline):
-    import statistics
-    from torch.autograd import DeviceType
-    from torch.profiler import ProfilerActivity, profile
+def _lt_capture(fn, state, data):
     saved = (data['stream'].clone(), data['attn_input'].clone())
     stream = torch.cuda.Stream()
     stream.wait_stream(torch.cuda.current_stream())
@@ -46,7 +43,17 @@ def _lt_collect(fn, state, data, flush, deadline):
     graph = torch.cuda.CUDAGraph()
     with torch.cuda.graph(graph):
         out = fn(data, state)
+    # Capture records work; outputs are uninitialized until a replay executes it.
+    graph.replay()
     torch.cuda.synchronize()
+    return graph, out, saved
+
+
+def _lt_collect(fn, state, data, flush, deadline):
+    import statistics
+    from torch.autograd import DeviceType
+    from torch.profiler import ProfilerActivity, profile
+    graph, out, saved = _lt_capture(fn, state, data)
     if len(out) != 3 or tuple(out[0].shape) != (data['config']['tokens'], HIDDEN):
         raise RuntimeError('invalid graph output shape')
     if out[0].dtype != torch.bfloat16 or out[1].dtype != torch.float32:
@@ -92,7 +99,7 @@ def _lt_collect(fn, state, data, flush, deadline):
     ordered = sorted(traces, key=lambda t: t['span_us'])
     return {'cold_us': cold, 'cold_median_us': statistics.median(cold),
             'profile_spans_us': [t['span_us'] for t in traces],
-            'trace': ordered[1], 'routing': route}
+            'trace': ordered[1], 'routing': route, 'routing_sampled_after_replay': True}
 
 
 def prepare(weights):

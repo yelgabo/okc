@@ -356,6 +356,8 @@ the public entry vjeux/okc-2026 with its design memos (see `docs/gap-analysis-20
 
 | 2026-11-01 | First all12 owned/SGLang timeline transport at1ns trace precision | 41788b39fb824179 all24collected, final12192B exceeds11000Bguard; preparefailed, no retainedtimings or officialscore | Host-observation failure only, not kernel/fusion result. Correct to explicit0.1us tracecoordinates while retaining raw aggregate metrics and all fullnames/streams/order, CPU+independentreview before one retry. |
 
+| 2026-11-01 | Capture-output routing/finite inspection before first replay | 01183c2992eb4153 official13pass and24timedtraces retained, but hostread of captured out before first replay yields unwrittenmetadata; counts invalid | Discard recordedactualrouting/finitecertification only; referencebusiestgroup and actualtimedgraphs unaffected. Fixed explicitreplay+syncbeforeinspection,5CPUtests inclnegativebugreproduction. No additionalchecksolelymetadata. |
+
 ### Offline Q8 layout bound, 2026-10-31 PDT
 
 | Proposal | Evidence | Scope / revisit trigger |
