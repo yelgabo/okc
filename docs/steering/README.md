@@ -1,5 +1,7 @@
 # Shared project steering
 
+Latest eligibility audit: [Owned layer MoE51 launch progress](2026-11-01-owned-moe-progress-contract.md). Pre-existing ordinary/PDL software-grid join lacks documented co-residency guarantee; cooperative host repair/admission gate required separately from byte/code equivalence.
+
 Latest owned compiler gate: [Comment-only native equivalence](2026-11-01-owned-comment-compile.md). ONE L8 modes3/51 and MoE51 have identical normalized SASS/resources at revised notice-preserving pins. CPU-only; no runtime/performance qualification.
 
 Latest byte-plan review: [Comment-only production source audit](2026-11-01-comment-byte-review.md).24 native literal checks and7 lexical/legal fixtures pass; final artifact/SASS/runtime gates remain separate.

@@ -17,3 +17,8 @@ Evidence: [resource vectors](evidence/2026-11-01-owned-comment-compile/resources
 Reproduction: from WSL invoke `tools/attention_owned_comment_compile.py SOURCE OUT {one,moe} --root ROOT` for both files, then `python tools/attention_owned_comment_compare.py` from the attention worktree using `.build/today-attn/comment-compile`. Cache `/root/.cache/okc-cuda128` contains the established CUDA12.8 toolchain. No installed GPU, official job or public action was used.
 
 Decision: selected owned device code equivalence is cleared at these pins. Final full-wrapper notice/source audit, G-family compiler review, native dispatch/ownership/startup qualification and separately authorized official check remain required. Stop/recompile if any source pin, active macro or device transform changes; comments/byte-fit cannot establish speedup.
+
+
+## Final marker-restored backend link
+
+Owner restored the runtime `//@MOE1_DISPATCH@` host-source anchor, adding16B: final326021B SHA256 `c1c6065a095efb407a15c8a1fe8f6936fc3078750b1ca7adb27447846342205e`. Independently re-extracted both final ONE and MoE device inputs and compared exact bytes against the archived compiled inputs: identical. [Digest relation](evidence/2026-11-01-owned-comment-compile/final-marker-link.json). This extends only the device equivalence gate, not host-source assembly or complete eligibility. A removed runtime comment anchor was a genuine packaging blocker even though CUDA instructions were unchanged; owner is separately testing actual assembly.
