@@ -1,0 +1,41 @@
+{
+  "source_sha256": "384933697aadb2ebfc2abe672b216751e55fd5949e01c0c57d03caa586fe6fe3",
+  "device_sha256": "8b19d8968b754ef511444427076e78f3802893048bc0b5ac074375a2cc2123f2",
+  "adapters": [
+    "device-only family extraction; Torch/ATen/driver header adapters",
+    "CUDA cstdint; route is_same_v alias",
+    "selected original device entry; no host API proof"
+  ],
+  "options": [
+    "-DSK_PDL=1",
+    "--gpu-architecture=compute_90a",
+    "--std=c++17",
+    "--generate-line-info",
+    "--device-as-default-execution-space",
+    "--include-path=/root/.cache/okc-cuda128/packages/nvidia/cuda_runtime/include",
+    "--include-path=/root/.cache/okc-cuda128/packages/nvidia/cuda_nvcc/include",
+    "--include-path=/root/.cache/okc-cuda128/cccl/nvidia/cuda_cccl/include"
+  ],
+  "expressions": [
+    "&wd_kernel<1,128,3,1,false,8,__nv_bfloat16,0,true,0>"
+  ],
+  "nvrtc_status": 0,
+  "gpu_execution": false,
+  "lowered": [
+    "_ZN53_GLOBAL__N__00000000_16_owned_decoder_cu_6364c0cd_4749wd_kernelILi1ELi128ELi3ELi1ELb0ELi8E13__nv_bfloat16Li0ELb1ELi0EEEv11CUtensorMapS2_PT5_iiiPi"
+  ],
+  "cubin_sha256": "d275ee66a408c720f48d083f3c67822a49ed3322697100661ad6640685fde41c",
+  "ptx_sha256": "0498068ee7a25122fdc76c58b5d4d0af2caba53dd28c1c93faf02ad4ab233230",
+  "sass_sha256": "d2dd0f8c981547eb1f8099de1d6b27f0a7bb9b8c98eb779d0e4899fd11517a92",
+  "ptxas_command": [
+    "/root/.cache/okc-cuda128/packages/nvidia/cuda_nvcc/bin/ptxas",
+    "-arch=sm_90a",
+    "-O3",
+    "-v",
+    "--warn-on-spills",
+    "/root/.cache/okc-owned-orig-wd/device.ptx",
+    "-o",
+    "/root/.cache/okc-owned-orig-wd/device.cubin"
+  ],
+  "ptxas_status": 0
+}

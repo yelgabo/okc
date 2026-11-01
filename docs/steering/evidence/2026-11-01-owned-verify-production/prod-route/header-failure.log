@@ -1,0 +1,27 @@
+owned_decoder.cu(151): error: identifier "INFINITY" is undefined
+          float best = -INFINITY;
+                        ^
+
+owned_decoder.cu(14): warning #177-D: variable "<unnamed>::kMaxLocal" was declared but never referenced
+  constexpr int kMaxLocal = 32;
+                ^
+
+Remark: The warnings can be suppressed with "-diag-suppress <warning-number>"
+
+owned_decoder.cu(15): warning #177-D: variable "<unnamed>::kMaxRoutes" was declared but never referenced
+  constexpr int kMaxRoutes = 4096;
+                ^
+
+owned_decoder.cu(16): warning #177-D: variable "<unnamed>::kTopK" was declared but never referenced
+  constexpr int kTopK = 8;
+                ^
+
+owned_decoder.cu(17): warning #177-D: variable "<unnamed>::kExpertHidden" was declared but never referenced
+  constexpr int kExpertHidden = 4096;
+                ^
+
+owned_decoder.cu(32): warning #177-D: variable "<unnamed>::kPdlGlue" was declared but never referenced
+  constexpr bool kPdlGlue = true;
+                 ^
+
+1 error detected in the compilation of "owned_decoder.cu".

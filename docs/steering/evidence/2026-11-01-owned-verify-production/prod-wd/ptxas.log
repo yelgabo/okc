@@ -1,0 +1,11 @@
+ptxas info    : 262668 bytes gmem
+ptxas info    : Compiling entry function '_ZN53_GLOBAL__N__00000000_16_owned_decoder_cu_224f7c97_4189wd_kernelILi1ELi128ELi3ELi1ELb0ELi8E13__nv_bfloat16Li0ELb1ELi0EEEv11CUtensorMapS2_PT5_iiiPi' for 'sm_90a'
+ptxas info    : Function properties for _ZN53_GLOBAL__N__00000000_16_owned_decoder_cu_224f7c97_4189wd_kernelILi1ELi128ELi3ELi1ELb0ELi8E13__nv_bfloat16Li0ELb1ELi0EEEv11CUtensorMapS2_PT5_iiiPi
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 90 registers, used 2 barriers
+ptxas info    : Compile time = 38.015 ms
+ptxas info    : Compiling entry function '_ZN53_GLOBAL__N__00000000_16_owned_decoder_cu_224f7c97_4189wd_kernelILi1ELi128ELi2ELi1ELb0ELi8E13__nv_bfloat16Li0ELb1ELi0EEEv11CUtensorMapS2_PT5_iiiPi' for 'sm_90a'
+ptxas info    : Function properties for _ZN53_GLOBAL__N__00000000_16_owned_decoder_cu_224f7c97_4189wd_kernelILi1ELi128ELi2ELi1ELb0ELi8E13__nv_bfloat16Li0ELb1ELi0EEEv11CUtensorMapS2_PT5_iiiPi
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 90 registers, used 2 barriers
+ptxas info    : Compile time = 25.261 ms
