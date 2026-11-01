@@ -132,8 +132,20 @@ components, in the same process, before calling it lost again.
 
 ## muse_attention_decode (`docs/runs-attention.md`)
 
+Post-login October31: PRQ address carry (QK descriptor bit32, V-transpose address/descriptor
+bit64, separately and together), check `c77ce71c81af4fb1`, source `fdaaa11`, is parked.
+All arms19/19 harness checks, official unchanged control16/16. Both raw aggregate1.0004
+versus identical-control1.0008; single-arm~1.002 gains mostly on unchanged decode instances.
+v1 full both -0.38us and v32 sliding -0.19us are localized but v1 sliding +0.13us and v16
+input-dependent; no repeatable whole-score gain established. Experimental source reverted;
+patch/receipt/log in `muse_attention_decode/profiles/prqcarry.c77ce71c81af4fb1.*`.
+Rules out this general address-carry addition to PRQ31 as a promotion on present evidence,
+not address hoisting generally. Revisit only as a rider after a new per-request loop change
+or stronger shape-specific evidence; preserve existing ordering and precision.
+
 | Experiment | Evidence | Rules out |
 |---|---|---|
+| PRQ31 address carry, bits32/64 (October31 post-login, source fdaaa11; reverted, patch retained) | c77ce71c81af4fb1: all arms19/19; both aggregate1.0004 vs identical-control1.0008; local v1full -0.38us, v32sliding -0.19us, v1sliding +0.13us | General address-carry promotion without aggregate gain beyond nulls; parked. Revisit after a new loop mechanism or stronger shape-specific evidence, not another identical sweep |
 | FP8 mma.sync Q.K / P.V | SASS: emulated (unpack + f16 HMMA) on H200 | FP8 mma.sync; use f16 or wgmma |
 | Fused q_len 8 kernel without warp specialization (six variants) | ~630 us vs FA3 383 at b32 full | per-tile block-barrier designs for verify |
 | Per-tile page-table load without prefetch | job 418d8d492c074b88, 0.642x | dependent page-entry loads; prefetch ahead |

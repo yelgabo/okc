@@ -3578,3 +3578,41 @@ checks. Official tests run the unchanged control; a winning experimental arm sti
 candidate-only official tests and queued replay stress. Acceptance: repeatable score gain
 beyond independent null variation, localized to changed verify shapes, then layer confirmation.
 Stop/revert if the mechanism fails its gate; headline control score is not candidate score.
+
+### Result: `c77ce71c81af4fb1`, no promotion
+
+H200, completed666.7s after start. Official control tests16/16 pass, control score2.524717x,
+95%CI2.486846–2.562588. Every arm's harness checks19/19 pass. All arms select the same launch
+plans; no new SM-utilization, register or spill counters were collected. Receipts/log/patch:
+`profiles/prqcarry.c77ce71c81af4fb1.{json,log,patch}`. The raw status JSON retains all benchmark
+and profile records. No candidate-only judge score or queued stress is claimed for the arms.
+
+Cold medians (microseconds; raw graph times include replay overhead), candidate minus control:
+
+| shape | control | QK carry | V carry | both | identical ctrl2 |
+|---|---:|---:|---:|---:|---:|
+| v1 sliding |11.17 |+0.06 |+0.00 |+0.13 |-0.03 |
+| v1 full |19.20 |-0.22 |-0.22 |-0.38 |+0.03 |
+| v16 sliding |15.58 |+0.03 |+0.06 |+0.00 |+0.10 |
+| v32 sliding |20.10 |+0.06 |+0.03 |-0.19 |+0.03 |
+
+Raw ABSCORE ratios versus control: QK1.0020, V1.0021, both1.0004, identical ctrl2 1.0008.
+The single-arm headline gains largely occur on unchanged decode instances (e.g. d1 full
+QK/V -0.26us, exactly ctrl2's -0.26us), so cannot be attributed to address carry. Both's aggregate
+is smaller than the identical-control variation. v16 sliding flips sign by held-out input
+(both -0.19/+0.19us); v1 full both -0.38us on each input, v32 sliding -0.16/-0.13us, a small
+localized signal that does not establish a beneficial general change.
+
+Scoring qualification: ABSCORE uses cold raw medians. Recomputing from rounded ABSUM rows with
+each official scored shape's replay overhead subtracted gives approximate QK1.002914,
+V1.003433, both1.000519, ctrl2 1.001257. These are sensitivity estimates, not candidate scores:
+the AB graphs did not separately measure their replay overhead. If unchanged instances are
+held fixed to control and only the four affected per-request verify rows vary, the analogous
+approximation is QK0.999968, V1.000749, both1.000438. No result supports a repeatable meaningful
+score gain; no selective dispatch is promoted on these two-input microsecond readings.
+
+Decision: revert experimental edits from attn_one.cu, retain exact patch and source commit
+`fdaaa11` for reproducibility, keep PRQ31/submission.py/board entry unchanged. Park this
+mechanism as a possible rider only after another per-request loop change makes its saved
+instructions material, or a bounded shape-specialized test is supported by a larger gap.
+Do not spend a second check repeating the same general toggle.

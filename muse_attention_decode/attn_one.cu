@@ -219,10 +219,6 @@ constexpr int COOP_POLL_LIMIT = 1 << 24;
 // Benches a7a4c23e98ca484a / 3c6e1a7f1cc644b6 / 409996a7214f411a, cold: verify 1 full -0.64 /
 // -0.70 / -0.64 us, verify 32 sliding -0.96 / -0.87 / -0.96; every bit adds. 0 restores the
 // judged loop of 5c11a11.
-// Bench-only additions, 2026-10-31: 32 carries the Q.K descriptor low word from
-// stage zero; 64 carries V^T buffer/descriptor words and hoists transpose offsets.
-// These reuse the flat loop's address identities; no arithmetic or ordering changes.
-// Default 31 leaves both off until paired cold-L2 evidence supports promotion.
 #ifndef ONE_PRQ
 #define ONE_PRQ 31
 #endif
@@ -2267,7 +2263,7 @@ attn_one_kernel(const Params p) {
             uint64_t qd1 = desc_kmaj(smem_base + S::Q + hk * 4096 + 256, 128, 512);
             uint32_t klo0 = 0;
             int it_c = 0;
-            if constexpr (DCARRY || (PRQ & 32)) {
+            if constexpr (DCARRY) {
                 qd0 = (qd0 & ~0xffffffffull)
                       | __shfl_sync(0xffffffffu, static_cast<uint32_t>(qd0), 0);
                 qd1 = (qd1 & ~0xffffffffull)
@@ -2285,7 +2281,7 @@ attn_one_kernel(const Params p) {
             uint32_t vd_x = 0;
             uint32_t ld_off = 0;
             uint32_t st_off = 0;
-            if constexpr (VHOIST || (PRQ & 64)) {
+            if constexpr (VHOIST) {
                 const uint32_t vt0 = smem_base + S::VT + hk * VT_STRIDE;
                 const uint32_t vt1 = smem_base + S::VT + (2 + hk) * VT_STRIDE;
                 vt_cur = __shfl_sync(0xffffffffu, vt0, 0);
@@ -2726,10 +2722,8 @@ attn_one_kernel(const Params p) {
                         pos0 + BN - 1 <= seq && (!p.window || pos0 >= seq + L - p.window);
                     float s[32];
                     {
-                        const uint64_t kd = (PRQ & 32)
-                            ? (desc_sw128(0) & ~0xffffffffull)
-                                  | (klo0 + static_cast<uint32_t>(st) * (2 * TILE_BYTES / 16))
-                            : desc_sw128(smem_base + S::KV + st * 2 * TILE_BYTES + hk * 64);
+                        const uint64_t kd =
+                            desc_sw128(smem_base + S::KV + st * 2 * TILE_BYTES + hk * 64);
                         wg_fence();
                         wgmma_qk<0>(s, qd0, kd);
                         wgmma_qk<1>(s, qd1, kd + 2);
@@ -2740,19 +2734,6 @@ attn_one_kernel(const Params p) {
                     }
                     uint8_t* vt = smem + S::VT + (2 * (it & 1) + hk) * VT_STRIDE;
                     auto transpose = [&]() {
-                        if constexpr (PRQ & 64) {
-#pragma unroll
-                            for (int half = 0; half < 2; ++half) {
-                                uint32_t t0, t1, t2, t3;
-                                ldsm_x4_trans(ld_off + static_cast<uint32_t>(st) * (2 * TILE_BYTES)
-                                                  + half * 32 * ROWB,
-                                              t0, t1, t2, t3);
-                                stsm_x4(vt_cur + (st_off ^ (half ? 32u : 0u)),
-                                        __byte_perm(t0, t1, 0x6420), __byte_perm(t0, t1, 0x7531),
-                                        __byte_perm(t2, t3, 0x6420), __byte_perm(t2, t3, 0x7531));
-                            }
-                            return;
-                        }
                         const int h4 = lane >> 3;
                         const int r8 = lane & 7;
 #pragma unroll
@@ -2858,9 +2839,7 @@ attn_one_kernel(const Params p) {
                         pa[kk][2] = e4m3x4(q0[8], q0[9], q0[12], q0[13]);
                         pa[kk][3] = e4m3x4(q0[10], q0[11], q0[14], q0[15]);
                     };
-                    const uint64_t vd = (PRQ & 64)
-                        ? (desc_sw64(0) & ~0xffffffffull) | vd_lo
-                        : desc_sw64(smem_u32(vt));
+                    const uint64_t vd = desc_sw64(smem_u32(vt));
                     if constexpr (SPV) {
                         pack_half(0);
                         if constexpr (!TOV) {
@@ -2890,10 +2869,6 @@ attn_one_kernel(const Params p) {
                     }
                     wg_wait<0>();
                     reg_fence(o);
-                    if constexpr (PRQ & 64) {
-                        vt_cur ^= vt_x;
-                        vd_lo ^= vd_x;
-                    }
                     st = st == STAGES - 1 ? 0 : st + 1;
                 }
             } else {

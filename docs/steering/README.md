@@ -6,6 +6,13 @@ report be checked into this repository so other sessions can read it.
 
 ## Latest checkpoint: top-10 audit and Windows restart
 
+**Latest execution: [2026-10-31 post-login experiments](2026-10-31-post-login-experiments.md).**
+Authentication works. Missing d1/v1 donor check recovered; M1-policy asymmetry retained.
+Attention address-carry check `c77ce71c81af4fb1` dispatched; results in the execution report.
+MoE's next step corrected to producer-wait attribution before any ring resizing.
+Completed: checks pass but no aggregate gain beyond nulls; experimental source reverted,
+patch retained. Best layer candidate unchanged. No public submissions.
+
 **[2026-10-31: Top-10 audit and restart handoff](2026-10-31-top10-restart-checkpoint.md)**
 
 Evidence `8f2c89b`; live layer rank371, best2.018705x against observed rank10 at2.379322x.
@@ -369,6 +376,7 @@ recommendations, not execution of those tasks; check current code and run logs f
 
 | Report | Evidence snapshot | Scope |
 |---|---|---|
+| [2026-10-31 post-login experiments](2026-10-31-post-login-experiments.md) | `fdaaa11` | Authenticated checks, recovered d1/v1 receipt, attention address carry and corrected MoE prerequisite |
 | [2026-10-31 top-10 restart checkpoint](2026-10-31-top10-restart-checkpoint.md) | `8f2c89b`; official board snapshots | Feasibility, current receipt analysis, ranked backlog, tool fixes and exact WSL/CLI resume steps |
 | [2026-10-30 Family F registration](2026-10-30-family-f-donor-baseline.md) | ours `7a59655`; donor `6cae49a` | Separate donor-based baseline/hybrid family; F0/F1/F2 variants and independent problem tracks; registered/untested, no adoption or benchmark claim |
 | [2026-10-30 donor-first adoption](2026-10-30-donor-first-adoption.md) | ours `5b88889`; donor `6cae49a` | Correct premature restriction on whole-file replacement; exact donor versus release comparison first; choose donor, ours or measured hybrid before new invention |
