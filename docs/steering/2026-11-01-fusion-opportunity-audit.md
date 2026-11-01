@@ -172,3 +172,10 @@ duration and combined name/stream index. The independent56event×24row fixture n
 984798B SHA256`dae91104f666fbfc323145dda56dfad39593e1631c12624f39b056b9bc26c66d`.
 Exact corrected layer job `01183c2992eb4153` is confirmed running. No kernel change or
 additional failed GPU check occurred during the offline transport corrections.
+
+Production-source hygiene: merging the attribution receipts also carried disabled probe
+branches into attention source. Root restored both attention production files byte-for-byte
+to validated `6da000f` (late-full2 retained). Tool commit `97b9070` now injects those exact
+probe branches only into the generated diagnostic, with source-pattern assertions. The full
+CPU generation test compares its CUDA AST literal against the recorded instrumented source
+and checks that the pure source is unchanged. No new production tuning or performance claim.

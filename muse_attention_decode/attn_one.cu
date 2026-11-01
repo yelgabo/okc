@@ -107,9 +107,6 @@ constexpr int COOP_POLL_LIMIT = 1 << 24;
 // fence.proxy.async after the full barrier (its cost, ordering not guaranteed); ONE_PROBE=3
 // (q_len 1 flat) zero-fills as 1 and the consumers release each stage without computing on it
 // (the producer-bound pace).
-// 4/5 (bench-only q_len8 producer builds): retain every acquire/release,
-// proxy fence, warpgroup fence/commit/wait and named barrier, omit tile math;
-// 4 reads real cached rows, 5 zero-fills them. Wrong outputs, never candidates.
 #ifndef ONE_STAMP
 #define ONE_STAMP 0
 #endif
@@ -1263,7 +1260,7 @@ attn_one_kernel(const Params p) {
                 }
                 return __ldg(pt + (psize == 1 ? pos : pos / psize));
             };
-            constexpr uint32_t CPB = ONE_PROBE == 1 || ONE_PROBE == 3 || ONE_PROBE == 5 ? 0u : 16u;
+            constexpr uint32_t CPB = ONE_PROBE == 1 || ONE_PROBE == 3 ? 0u : 16u;
             const bool fast32 = ONE_PFAST && p.off32 != 0;
             long long s_emw = 0;
             const long long s_p0 = STAMPS ? clock64() : 0;
@@ -2318,33 +2315,7 @@ attn_one_kernel(const Params p) {
             }
             float off[2] = {OFF_FLOOR, OFF_FLOOR};
             const int qp0 = seq + 2 * wq;
-            if constexpr (PROD && (ONE_PROBE == 4 || ONE_PROBE == 5)) {
-                int st = cst;
-                for (int it = 0; it < ntiles; ++it) {
-                    float s_probe[32] = {};
-                    const bool common = DCARRY && it < it_c;
-                    acquire(it, st, common);
-                    // Same collective sequence as the current promoted QKOV loop;
-                    // empty wgmma groups retire trivially, no raw-stage readers.
-                    wg_fence();
-                    wg_commit();
-                    wg_wait<0>();
-                    reg_fence(s_probe);
-                    if constexpr (EREL) {
-                        release(st);
-                    }
-                    fence_proxy_async();
-                    named_sync(2 + hk, 128);
-                    wg_fence();
-                    wg_commit();
-                    wg_wait<0>();
-                    reg_fence(o);
-                    if constexpr (!EREL) {
-                        release(st);
-                    }
-                    st = cst;
-                }
-            } else if constexpr (XPIPE != 0) {
+            if constexpr (XPIPE != 0) {
                 // Buffers and owners (docs/runs-attention.md, 10-30): s is written by the Q.K
                 // of tile t + 1 only after P(t) is packed from it; V^T buffer (t & 1) is read by
                 // P.V(t) and rewritten by the transpose of tile t + 2, which every warp of the
@@ -3310,9 +3281,7 @@ __global__ void coop_probe_kernel(int* out) {
 #else
 #define ONE_T9_INSTANCES(X)
 #endif
-#if defined(ONE_ATTRIB_ONLY) && ONE_ATTRIB_ONLY
-#define ONE_INSTANCES(X) X(8, 51)
-#elif ONE_DETM
+#if ONE_DETM
 #define ONE_INSTANCES(X) X(1, 49)
 #else
 #define ONE_INSTANCES(X) \
