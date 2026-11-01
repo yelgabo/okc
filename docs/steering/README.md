@@ -117,6 +117,8 @@ report be checked into this repository so other sessions can read it.
 
 ## Latest review
 
+[User priority: G integration gap first](2026-11-01-g-integration-first.md) supersedes unrelated optimization priorities and aligns the hourly coordinator with measured upstream-to-fork attribution.
+
 [Locality outcomes and the remaining public-G integration gap](2026-11-01-locality-outcome-and-g-gap.md) records the two tested losses, exact-source score and unresolved cost of integration changes.
 
 [Reset host repair and production byte plan](2026-11-01-reset-and-production-fit.md) records the reproduced set-clone failure, fixed/double-regenerated three-payload queue and unchanged one-shot reset handoff. A new comment-only production fit is undergoing marker/notice/host-generation and compiler qualification; no new GPU result or candidate promotion.
