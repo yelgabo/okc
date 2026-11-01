@@ -6,6 +6,8 @@ report be checked into this repository so other sessions can read it.
 
 ## Latest review
 
+[November 1 projection dispatch audit](2026-11-01-projection-weighted-dispatch-audit.md) reconstructs all 30 score-weighted opportunities and closes the four-cell follow-up pending new legal kernel evidence.
+
 [November 1 strategy beyond an incorporated Family G](2026-11-01-beyond-family-g.md) sizes two independent investigations under the user's hypothetical incumbent.
 
 
@@ -432,6 +434,8 @@ accounting, and running a corrected matched whole-layer comparison. It records
 recommendations, not execution of those tasks; check current code and run logs for status.
 
 ## Report history
+
+- [November 1 projection dispatch audit](2026-11-01-projection-weighted-dispatch-audit.md) reconstructs all 30 score-weighted opportunities and closes the four-cell follow-up pending new legal kernel evidence.
 
 - [November 1 Family G qualification and H200 receipts](2026-11-01-family-g-qualification.md)
 
