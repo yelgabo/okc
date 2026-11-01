@@ -6,6 +6,8 @@ report be checked into this repository so other sessions can read it.
 
 ## Latest review
 
+[November 1 retrospective on which earlier tasks covered keell0renz](2026-11-01-keell-backlog.md) compares pre-comparator plans and mode 79 with the new MFIN and SC6 work.
+
 **Latest architecture audit:** [November 1 keell0renz versus our architecture](2026-11-01-keell-architecture.md), with the [full interactive HTML study](2026-11-01-keell-architecture.html). Pins both source commits, compares twelve layer cells and profiles, diagrams both pipelines and MoE completion, distinguishes bundled MFIN/SC6 timing from invalid captured-output diagnostics, and reconciles the concurrently reviewed attributed fork. History: owned baseline `9aa3edf`; comparator check `3a5f879df0d44825`; public incumbent `8f2780d7382047e6`.
 
 **Active campaign:** [Top-50 thresholds, validated comparator and attributed layer fork](2026-11-01-top50-reset.md). The user resumed with a rank 10–50 objective on the overall and non-prefill boards and authorized an attributed layer fork after audit. The external layer check reached 2.248791×. The current fork is under precision, ordering and license review.
