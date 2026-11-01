@@ -624,3 +624,5 @@ Latest: [Dense projection transfer to the decode layer](2026-11-01-layer-dense-t
 - [Attention VP2 BF16-output private requalification](2026-11-01-attention-vp2-bf16-requalification.md): 8f5155a, source-only audit and draft; no GPU qualification.
 
 - [Private BF16-output VP2 terminal result](2026-11-01-attention-vp2-bf16-terminal.md): c79ddddb840a4fb7 passes correctness, target cell wins, frozen full-score gate fails; scoped closure.
+
+- [2026-11-01 public verify hybrid factoring](2026-11-01-public-hybrid-literal-factoring.md):133874B exact visible CUDA-chunk savings; corrected G720525B, owned embedded budget274542B; no fit/GPU claim.
