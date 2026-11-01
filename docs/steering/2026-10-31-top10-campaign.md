@@ -122,3 +122,35 @@ bytes-only timing as a usable compression ceiling; no real codec is promoted fro
 Layer36e57280ff1f4c63, attentioncccc131c55874949 and layer-port1c1fcf1d49924050 were freshly
 verified running. Continue exact-ID waits; do not replace them because a watch ends. Active
 goal still requires verified top10 on every board and today's remaining authorized experiments.
+
+## Progress addendum: completed controls and paired-layer follow-up
+
+Merged projection evidence throughda4fac3 and MoE evidence through41bf882, preserving
+independent workers. Root verified the completed diagnostic and scored owning receipts.
+Layer scored repeat36e57280ff1f4c63 passes13tests at2.014780x (1.984558–2.045002),
+M1open,mode51 at32/128/256, no prepare failures; best unchanged. Attention scoredcccc131c55874949
+passes at2.534850x,MoE scored336f3a63bd6a44f3 at2.199082x, within prior run spreads;
+owning workers preserve their CIs/profiles/logs.
+
+Layer attention-only port1c1fcf1d49924050 passes13tests at2.048010x (2.017290–2.078730).
+This prompts paired confirmation, not an immediate promotion: four-arm all-six-load
+checkc0402e4c92bc4b20, two held-outinputs,8rounds, independent prepares, fixedseed/order
+610001/601, deadline280s. Candidate stays585d46e2...; incumbent8112f37a....
+
+Prefill M16 andM32 pass correctness but lose0.715181x/0.884745x decisively. Both closed in
+ruled-out, no production change retained. Baseline scored181880202c5742db passes0.999115x,
+establishing an entry rather than an improvement. Full intervals/profiles in runs-prefill.
+The inspected pinned Marlin Python wrapper does not expose thread-N/K knobs; atomic-output
+mode is not a sanctioned precision shortcut. Underlying expert execution remains the target.
+
+MoE producer diagnostic contradicts the earlier small-job-minority assumption on its measured
+inputs:78.3%smallstages on256layer seed211,88.9%on256std. Empty-region sums dominate readiness,
+with instrumentation caveats. Reviewed fixed4-slot capacity tradeoff now checking39804be1a59c429c;
+the independent proof covers all7modulo updates, dead diagnostic-barrier storage, allocation
+budgets and preserved releases. This does not prove variable per-job resizing safe or profitable.
+
+Projection C3 cleared exact9test check61330d87d32c4190 and independent router confirmation
+7d2fe593fdfa4720, repeatable128FV -0.45us and256orderFV -0.69us. Root submitted pure candidate
+as7a15f46e673b43d5. This is a small aggregate mechanism, not the entire top10 gap. Codec worker
+is moving to an actual packed lossless stream trial because old load-skipping models changed
+codegen and do not establish a compression ceiling. Goal remains active, all-five-board target.

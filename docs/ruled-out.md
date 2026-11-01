@@ -239,6 +239,13 @@ whose single-file check faults stops the work.
 | Dense whole-output-tile kernel at 128 / 256 tokens, cluster 1, no K split (docs/steering/2026-10-30-projection-top100-portfolio.md, section 6), declined 2026-10-31 | At 256 tokens every sketch row is the incumbent cuBLASLt geometry (qkv 72x64 cluster 1, 128 tiles; pooler 128x64 cluster 1; o / unpooler 128x128 cooperative), and at 128 the sketch only removes the incumbents' cluster multicast, whose no-multicast form (wd b1n128c1s8h) lost +0.3 / +0.4 us (4098aa2361554229). No schedule, retirement or epilogue difference was named. Reopen with a named mechanism difference; the measured qkv_gate 256 loss is per-k-step efficiency of the small tile (cab546f978974515), which this sketch does not change |
 | P2: qkv_gate split-K at 16 / 32 tokens with clustered escape ownership (steering 2026-10-30) | Declined on its work model (docs/runs.md, 2026-10-30 round): the ceiling is about 2 us per load, but 96 row blocks with a K split give 144-192 CTAs on 132 SMs, and the configurations with that CTA count lost +1.41 / +2.98 us (01703396ea1a409e, qkv16n2 / n2b), while 2-CTA cluster split-K lost on pooler / unpooler (a9ff49372ffa4eaf). Reopen if a geometry with exactly one wave (<= 132 CTAs, or a persistent schedule) can be shown to keep qkv's per-CTA startup and escape tail at the current kernel's level |
 
+## muse_prefill_layer (`docs/runs-prefill.md`)
+
+| Experiment | Evidence | Rules out |
+|---|---|---|
+| Fixed Marlin M16 instead of baseline M64 | e6c12149c99a4a96,5tests pass,0.715181x CI0.704453–0.725909 | Smaller fixed M16 as general prefill improvement on these shapes; no promotion. Reopen only after new expert workload/layout mechanism |
+| Fixed Marlin M32 instead of baseline M64 | 334149df33f64c54,5tests pass,0.884745x CI0.871474–0.898016 | Smaller fixed M32 as general prefill improvement; no promotion. Does not reject asymmetric tile strategies with independent evidence |
+
 ## Reopened 2026-10-28
 
 Entries above whose mechanism was wrong rather than the idea. Each reopening names the new

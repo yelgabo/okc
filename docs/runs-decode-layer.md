@@ -734,3 +734,13 @@ two dependency waits preserved, host PDL flags unchanged. Revisit trigger: stabl
 and removal of workspace-placement pick from old layer_hp. Await official correctness, then
 paired whole-layer timing; no score or gain inferred yet. Status snapshot is under
 docs/steering/evidence/2026-10-31-top10-campaign/1c1fcf1d49924050.json.
+
+Result1c1fcf1d49924050: pass13tests,2.048010x CI2.017290–2.078730, candidate-only.
+Paired four-arm confirmation dispatchedc0402e4c92bc4b20, all6loads, twoheldoutinputs,
+8rounds, independentprepares, seed610001/order601, deadline280s. Builder dl_make_bench_pub.py
+with other=inc, dup=own, cand-strip=1; exact sourcepins printed and candidate585d46e2...
+unchanged. Do not credit standalone check gain until this paired gate completes.
+
+Scored control repeat36e57280ff1f4c63: pass13tests,2.014780x CI1.984558–2.045002,
+M1 open (8-token whole-step saves3.68us), mode51 at32/128/256, no reported preparation
+failures. Below best2.018705x within ordinary run variance. Rawreceipt retained in profiles/.
