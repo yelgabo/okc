@@ -300,3 +300,33 @@ The machine-readable [ordered ablation plan](evidence/2026-11-01-g-minimal-delta
 records exact source epochs, all12-cell coverage, independent versus
 interaction questions, unknown measurements, legacy HOLD/defer decisions,
 promotion gates and stopping conditions. It explicitly disables dispatch.
+
+## November1 dated addendum: one-arm measurement path
+
+Evidence checkpoint603ed5b; see the later
+[candidate funnel and qualification report](2026-11-01-g-candidate-funnel-qualification.md).
+This addendum supersedes any reading of steps2–3 as requiring a separate
+common-control GPU job before an eligible fixed RMW measurement. Common
+inherited repairs are now composed into one frozen914572B treatment,
+SHA25697935e7dc45d9fa69f5b4965bd70a5c2946cd8b829cedffb7a2aefc598cb53c7.
+Its reviewed fail-closed prepare can establish actual H200 compilation,
+admission, full-model/replay/empty/fresh/resource and setup-budget gates in
+the same authorized attempt. Seven root CPU facade tests pass; these are
+not H200 qualification. No prior private1% gain check or private quota is
+required merely to obtain a single-arm measurement. Matched duplicate
+controls remain necessary for causal cost attribution and the registered
+promotion gate remains unchanged.
+
+Only ONE implemented performance treatment survives. The global gamma,
+paired-RNE and scale representations are closed at their specified source/
+compiler gates; the bounded O-boundary proposal is closed without a
+prototype, and the mapped PDL edge is parked for missing exposed budget.
+Do not count those, the common control or qualifiers as candidate breadth.
+The old privatef042 and legacy diagnostic queue remain HOLD/deferred.
+
+The goal/reset pause still blocks dispatch. Accepted1fad70bbe3854cbc must
+be reconciled with its own receipt and live ledger/quota after explicit
+resume;22:23UTC probes hit15s local CLI retrieval timeouts, without any
+terminal job evidence. Source readiness does not bypass either barrier.
+The machine-readable ordered plan preserves its earlier snapshot and adds
+the current one-arm branch with a link to the newer candidate graph.

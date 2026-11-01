@@ -1,5 +1,39 @@
 {
   "schema": 1,
+  "dated_addendum_2026_11_01_qualification": {
+    "evidence_commit": "603ed5b081d5c8a2a6be8c04ea7788d51078ab4b",
+    "historical_ordered_steps_below": "Preserved earlier snapshot; use this addendum and newer candidate graph for current dispatch dependencies",
+    "current_report": "../../2026-11-01-g-candidate-funnel-qualification.md",
+    "current_candidate_graph": "../2026-11-01-g-candidate-funnel/candidate-graph.json",
+    "independent_surviving_performance_treatments": 1,
+    "singlearm_treatment": {
+      "source": "muse_decode_layer/cand/g1b4_common_short_rmw_release.py",
+      "bytes": 914572,
+      "sha256": "97935e7dc45d9fa69f5b4965bd70a5c2946cd8b829cedffb7a2aefc598cb53c7",
+      "status": "LOCAL_READY_FOR_STARTUP_GATED_MEASUREMENT_H200_UNQUALIFIED",
+      "shared_common_qualification": "May occur inside this fixed arm's own fail-closed prepare in the same authorized attempt",
+      "prior_separate_common_GPU_run_required": false,
+      "prior_private_gain_check_required_for_measurement": false,
+      "source_CPU_review_pass_is_H200_qualification": false,
+      "actual_native_RMW_exercise_required_for_attribution": true,
+      "matched_controls_still_required_for_causal_cost": true,
+      "promotion_gate_changed": false
+    },
+    "bounded_parallel_screens": {
+      "expert_unpool_PDL": "PARKED_MISSING_EXPOSED_BUDGET",
+      "O_boundary_last_owner": "CLOSED_SOURCE_BUDGET_SCREEN",
+      "paired_RNE": "CLOSED_DEPENDENCY_BUDGET",
+      "scale_boundary": "CLOSED_NO_EXACT_DEPENDENCY_REMOVAL",
+      "full_family_gamma": "CLOSED_RESOURCE"
+    },
+    "goal_status": "paused",
+    "dispatch_enabled": false,
+    "accepted1fad_outcome": "UNKNOWN",
+    "latest_API_probe_UTC": "2026-11-01T22:23:34Z",
+    "latest_API_result": "15s local status/jobs/quota retrieval timeouts, no terminal evidence",
+    "next_gate": "Explicit resume, own accepted job/live ledger/quota reconciliation, then exact fixed-source/startup/official gates",
+    "legacy_diagnostics": "Remain HOLD or deferred; never submit old privatef042"
+  },
   "date": "2026-11-01",
   "evidence_commit": "c932a89",
   "human_priority_commit": "ccb5e19",

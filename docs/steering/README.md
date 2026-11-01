@@ -1,6 +1,8 @@
 # Shared project steering
 
-Latest root decision: [G integration-first minimum control and ordered ablations](2026-11-01-g-minimal-delta-plan.md). Supersedes old reset order: recover accepted1fad, qualify common inherited attention/preexpert repairs, then isolate short-RMW representation. Exact source ladder closes the code inventory;5.77% causal cost remains unmeasured. OFF common871077B/4cbb source/CPU gates pass; H200 unqualified. Separate postexpert-gamma prototype CLOSED at MAIN spill gate, factorial HOLD. App goal/reset PAUSED, legacy artifacts HOLD, unrelated tuning deferred.
+Latest root handoff: [G candidate funnel and single-arm qualification](2026-11-01-g-candidate-funnel-qualification.md), evidence603ed5b. ONE surviving implemented performance treatment: common+shortRMW,914572B/SHA97935e7d; frozen code and7 rootCPU facade tests plus independent reviews pass. Actual H200 gates run in its own prepare; no prior private1% win or separate common GPU job is required merely to measure it. PDL/boundary/pairedRNE/scale/gamma lanes have scoped negative evidence, not extra candidates. No measured gain or top10/top50 feasibility established. Goal/reset PAUSED; accepted1fad outcome/live ledger/quota unknown after22:23UTC local CLI retrieval timeouts. See exact candidate/manifest, resume gates and machine graph in the report.
+
+Archived root decision: [G integration-first minimum control and ordered ablations](2026-11-01-g-minimal-delta-plan.md), with dated single-arm addendum. Supersedes old reset order; historical5.77% causal cost remains unmeasured. The later startup qualifier permits shared hardware qualification inside one fixed RMW measurement. App goal/reset PAUSED, legacy artifacts HOLD, unrelated tuning deferred.
 
 Archived21:12 G integration decision: [Why G0 remains ahead of607e, with dated correction](2026-11-01-g0-607e-integration-gap.md). Historical first-two reset ordering is superseded above. Source correction: BF16 SwiGLU output was already retained inG0; no inserted-round cost there. Service530 leaves1fad outcomeUNKNOWN; no new measured gain.
 
@@ -616,6 +618,8 @@ accounting, and running a corrected matched whole-layer comparison. It records
 recommendations, not execution of those tasks; check current code and run logs for status.
 
 ## Report history
+
+- [2026-11-01 G candidate funnel and single-arm qualification](2026-11-01-g-candidate-funnel-qualification.md): evidence603ed5b; one frozen RMW measurement candidate, seven root CPU tests, scoped parallel closures and exact startup/resume gates. No H200 result; pause and accepted-job reconciliation retained.
 
 - 2026-11-01: [G integration-first plan and working OFF controls](2026-11-01-g-minimal-delta-plan.md): complete source/native/dense/attention inventories, exact inherited common-control composition, separate postexpert representation, all12-cell measurement order and stop rules; no new GPU score.
 - 2026-11-01: [Exact native minimal-delta ladder](2026-11-01-g-native-minimal-delta-ladder.md): both native literals reconstructed without remainder;33 source checkpoints covering12 transform classes and retirement/empty groups; requirements versus mechanisms.

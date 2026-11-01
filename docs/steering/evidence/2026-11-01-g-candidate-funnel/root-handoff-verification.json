@@ -1,0 +1,38 @@
+{
+  "verified_at_UTC": "2026-11-01T22:30:05.882926+00:00",
+  "evidence_commit": "603ed5b081d5c8a2a6be8c04ea7788d51078ab4b",
+  "candidate_physical_bytes_equal_HEAD_blob": true,
+  "candidate_bytes": 914572,
+  "candidate_sha256": "97935e7dc45d9fa69f5b4965bd70a5c2946cd8b829cedffb7a2aefc598cb53c7",
+  "baseline607_bytes": 869076,
+  "baseline607_sha256": "ba9e327cd7b96595ace4d0c1d0d78fe27c128f23ed0debcda97c7169fc3164ab",
+  "normalized_dependency_hashes_verified": 12,
+  "JSON_files_parsed": [
+    "docs/steering/evidence/2026-11-01-g-candidate-funnel/candidate-graph.json",
+    "docs/steering/evidence/2026-11-01-g-candidate-funnel/latest-status.json",
+    "docs/steering/evidence/2026-11-01-g-candidate-funnel/latest-jobs.json",
+    "docs/steering/evidence/2026-11-01-g-candidate-funnel/latest-quota.json",
+    "docs/steering/evidence/2026-11-01-g-minimal-delta-plan/ordered-ablations.json"
+  ],
+  "graph_edges_resolve": true,
+  "new_report_local_links_verified": [
+    "2026-11-01-g-minimal-delta-plan.md",
+    "evidence/2026-11-01-g-candidate-funnel/candidate-graph.json",
+    "evidence/2026-11-01-g-candidate-funnel/fixed-rmw-source.manifest.json",
+    "2026-11-01-g-expert-unpool-pdl-edge.md",
+    "2026-11-01-g-boundary-alternative-closure.md",
+    "2026-11-01-g-short-pair-rne.md",
+    "2026-11-01-g-short-scale-feasibility.md",
+    "evidence/2026-11-01-g-candidate-funnel/root-lane-reviews.json",
+    "2026-11-01-common-singlearm-startup-requirements.md",
+    "../../muse_decode_layer/cand/g1b4_common_short_rmw_release.py",
+    "../../muse_decode_layer/profiles/g-common-rmw-ready.2026-11-01/manifest.json",
+    "2026-11-01-g-common-singlearm-startup.md",
+    "2026-11-01-g-common-host-resource-review.md",
+    "2026-11-01-common-singlearm-final-review.md",
+    "evidence/2026-11-01-g-candidate-funnel/latest-status.json"
+  ],
+  "old_funnel_report_normalized_content_preserved": true,
+  "H200_test_or_score": null,
+  "dispatch": false
+}

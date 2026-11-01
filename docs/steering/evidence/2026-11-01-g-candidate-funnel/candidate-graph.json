@@ -1,0 +1,185 @@
+{
+  "schema": 1,
+  "date": "2026-11-01",
+  "evidence_commit": "603ed5b081d5c8a2a6be8c04ea7788d51078ab4b",
+  "report": "../../2026-11-01-g-candidate-funnel-qualification.md",
+  "priority": "G0-to-607 integration discrepancy; prefill excluded and unrelated tuning deferred",
+  "goal_status": "paused",
+  "dispatch_enabled": false,
+  "independent_implemented_performance_treatments_surviving": 1,
+  "new_H200_results": null,
+  "top10_or_top50_feasibility_established": false,
+  "historical_gap": {
+    "G0_own_job": "3a5f879df0d44825",
+    "G0_score": 2.2487905322335195,
+    "G607_own_job": "607eb52bdaf24160",
+    "G607_score": 2.1260826764231093,
+    "unmatched_score_ratio": 1.057715467592658,
+    "causally_attributed_cost": null,
+    "guaranteed_recoverable_gain": null
+  },
+  "roles_excluded_from_candidate_count": [
+    "common control",
+    "prepare qualifier",
+    "source snapshots and patch ladder",
+    "readers and reviews",
+    "factorial containing a closed gamma arm"
+  ],
+  "nodes": [
+    {
+      "id": "common",
+      "role": "shared_control",
+      "owners": ["root", "today_moe", "audit_attention_moe", "today_proj"],
+      "status": "LOCAL_SOURCE_HOST_READY_H200_UNQUALIFIED",
+      "bytes": 914084,
+      "sha256": "4e3895be33d3d8f60670b4e8138eb09654ddc6d64aa930170dc89cc3f019d270",
+      "scope": "Inherited attention cooperative admission and pre-expert effective BF16 coefficient, plus one-arm startup guards",
+      "performance_candidate": false
+    },
+    {
+      "id": "short_rmw",
+      "role": "fixed_performance_treatment",
+      "owners": ["root", "today_moe"],
+      "status": "LOCAL_READY_FOR_STARTUP_GATED_MEASUREMENT",
+      "source": "muse_decode_layer/cand/g1b4_common_short_rmw_release.py",
+      "bytes": 914572,
+      "sha256": "97935e7dc45d9fa69f5b4965bd70a5c2946cd8b829cedffb7a2aefc598cb53c7",
+      "ready_manifest": "muse_decode_layer/profiles/g-common-rmw-ready.2026-11-01/manifest.json",
+      "mechanism": "Only Tiny/Tiny2 returning final-arrival strong GPU RMW qualifier; retain BF16, writer/proxy fences, acquire, joins and cooperative progress",
+      "root_CPU_facade_tests": 7,
+      "root_review_evidence": "root-final-qualifier-tests.json",
+      "H200_qualified": false,
+      "H200_compile_admission_math_capture_budget_performance": null,
+      "private_check_required_before_authorized_singlearm_measurement": false,
+      "prior_separate_common_GPU_run_required": false,
+      "requires_own_terminal_success": true,
+      "requires_actual_native_RMW_exercise_for_attribution": true,
+      "fallback": "Preserve actual cyclic Marlin adapter/state; explicit UNEXERCISED/rmw0 cannot establish RMW effect",
+      "runtime_gate": "Own prepare:12 cells/72 model checks/12 captures/36 checked fresh replays/60 empty checks/12 empty captures/48 occupied restores; actual native resources/attention selections;295s guard",
+      "official_gate": "Owning terminal success,13 tests/12 benchmarks/12 profiles, clean flags/errors and source/log/startup evidence",
+      "latency_score_CI_utilization": null
+    },
+    {
+      "id": "own_prepare",
+      "role": "qualification_gate",
+      "owner": "root",
+      "status": "LOCAL_REVIEW_PASS_RUNTIME_UNKNOWN",
+      "performance_candidate": false
+    },
+    {
+      "id": "official_tests_and_timing",
+      "role": "official_measurement_gate",
+      "owner": "root",
+      "status": "NOT_DISPATCHED",
+      "performance_candidate": false
+    },
+    {
+      "id": "existing_accepted_job",
+      "role": "prior_accepted_job",
+      "owner": "root",
+      "job": "1fad70bbe3854cbc",
+      "status": "OUTCOME_UNKNOWN",
+      "performance_candidate": false
+    },
+    {
+      "id": "dispatch_gate",
+      "role": "dispatch_gate",
+      "owner": "root",
+      "status": "PAUSED_AND_SERVICE_LEDGER_UNRECONCILED",
+      "performance_candidate": false
+    },
+    {
+      "id": "expert_unpool_pdl",
+      "role": "source_hypothesis",
+      "owner": "audit_attention_moe",
+      "status": "PARKED_MISSING_EXPOSED_BUDGET",
+      "implemented": false,
+      "root_commit": "b384ec4",
+      "report": "../../2026-11-01-g-expert-unpool-pdl-edge.md",
+      "closure": "Necessary shared bounds exclude same-SM overlap; only unknown primary retirement skew remains",
+      "reopen": "Controlled actual retirement/prefix critical intervals, with scoped publication/wait/proxy/lifetime/progress proof"
+    },
+    {
+      "id": "boundary_last_owner",
+      "role": "bounded_source_hypothesis",
+      "owner": "audit_attention_moe",
+      "status": "CLOSED_SOURCE_BUDGET_SCREEN",
+      "implemented": false,
+      "root_commit": "1eaf919",
+      "report": "../../2026-11-01-g-boundary-alternative-closure.md",
+      "closure": "T1 zero-activity scenario misses1%; two shorts leave little replacement budget and proposed finalizer collapses8CTA/token parallelism",
+      "reopen": "Distinct complete ownership/parallelism design plus exact boundaries and compiler cost screen; no old algebra rollback"
+    },
+    {
+      "id": "paired_rne",
+      "role": "closed_implemented_prototype",
+      "owner": "today_proj",
+      "status": "CLOSED_DEPENDENCY_BUDGET",
+      "implemented": true,
+      "root_commit": "6343c5e",
+      "report": "../../2026-11-01-g-short-pair-rne.md",
+      "closure": "Selected compiler adds8PRMT, non-NOP+3/+2 and new gate/up dependency;147regs/3bar/zero spills unchanged",
+      "GPU_job": null,
+      "reopen": "New dependency/codegen evidence and defensible full-six budget; no unpack sweep"
+    },
+    {
+      "id": "scale_boundary",
+      "role": "bounded_source_hypothesis",
+      "owner": "today_proj",
+      "status": "CLOSED_NO_EXACT_DEPENDENCY_REMOVAL",
+      "implemented": false,
+      "root_commit": "2707984",
+      "report": "../../2026-11-01-g-short-scale-feasibility.md",
+      "closure": "Multiply exists in G0; moving required BF16 cut changes finite values",
+      "GPU_job": null,
+      "reopen": "New exact representation with dependency and full-score budget evidence"
+    },
+    {
+      "id": "full_family_gamma",
+      "role": "closed_implemented_prototype",
+      "owner": "today_proj",
+      "status": "CLOSED_RESOURCE",
+      "implemented": true,
+      "root_commit": "c932a89",
+      "report": "../../2026-11-01-g-native-gamma-compile.md",
+      "closure": "Exact ON d6756bb5 MAIN spill stores4to44/load32to68 bytes; OFF equivalence verified",
+      "GPU_job": null,
+      "factorial_status": "HOLD",
+      "automatic_short_mask_or_retry": false
+    }
+  ],
+  "edges": [
+    ["common", "short_rmw", "shared repair composition"],
+    ["short_rmw", "dispatch_gate", "exact locally reviewed frozen source"],
+    ["dispatch_gate", "own_prepare", "only after explicit resume and job/live ledger reconciliation"],
+    ["short_rmw", "own_prepare", "same-attempt runtime qualification"],
+    ["own_prepare", "official_tests_and_timing", "fail closed before timing"],
+    ["existing_accepted_job", "dispatch_gate", "reconcile first; never duplicate"]
+  ],
+  "existing_accepted_job": {
+    "job": "1fad70bbe3854cbc",
+    "outcome": "UNKNOWN",
+    "source_commit": "43c6c09b848b8ab1c28c57ebbed455b6b76821e9",
+    "duplicate_allowed": false
+  },
+  "service": {
+    "earlier_21_38_UTC_API_status": 530,
+    "latest_probe_UTC": "2026-11-01T22:23:34Z",
+    "latest_status_jobs_quota": "15s local subprocess retrieval timeouts; no stdout/stderr/terminal receipt",
+    "evidence": ["latest-status.json", "latest-jobs.json", "latest-quota.json"],
+    "H200_job_timeout_observed": false,
+    "current_quota": null
+  },
+  "next_actions_after_explicit_resume": [
+    "Retrieve own1fad terminal/log/profiles and reconcile live jobs/quota; record migrated runner/evaluator/baseline/compiler identity or gaps",
+    "Verify frozen physical upload bytes and current source/review gates",
+    "Use eligible fixed single-arm with its own fail-closed prepare under standing measurement authorization; do not wait solely for private quota",
+    "Archive all owning results/resources/per-shape timings and preserve any valid loss or inconclusive outcome",
+    "Use matched independently prepared controls for causal attribution and registered all-six/noise/regression promotion gates"
+  ],
+  "stop": [
+    "Explicit pause or unreconciled service/job/ledger/quota",
+    "Identity/proof/actual-path/owner/capture/admission/math/cache/resource/guard/budget failure",
+    "Valid registered performance miss: no automatic retry or sweep"
+  ]
+}
