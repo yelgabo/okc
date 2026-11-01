@@ -1,0 +1,67 @@
+{
+  "query_scope": "source/static work accounting only; no stage elapsed measurements",
+  "source_sha256": "97935e7dc45d9fa69f5b4965bd70a5c2946cd8b829cedffb7a2aefc598cb53c7",
+  "job": "3fd1317143304bd5",
+  "receipt_setup_fail": true,
+  "cell_index_unknown": true,
+  "functions": {
+    "_ab_attention": {
+      "line": 17539,
+      "sha256": "ee9c53981d29a76f5dbffa2c14ebcf8abb2e185274ac9af3e13cee75d944a63e"
+    },
+    "_ab_ref_front": {
+      "line": 17581,
+      "sha256": "9865c3773109ff23935f1e8973c6204ad44b313c578e995b64ed065f12230e6d"
+    },
+    "_ab_deq": {
+      "line": 17593,
+      "sha256": "81d016ddda23e3a5bb42bfdb7191fc0ce40e89244a302209e95d7aa565db20c0"
+    },
+    "_ab_ref_back": {
+      "line": 17607,
+      "sha256": "0c38eda4a2f3cf703f056f77e7046faa3b79dc880c0feda8ce5b61a1d8af7afd"
+    },
+    "_qual_oracle": {
+      "line": 17708,
+      "sha256": "9c2f2d592831fc77cb0280e7f3bf781a9320e2a309eac29182ffcf10af09260f"
+    },
+    "_gq_inputs": {
+      "line": 17967,
+      "sha256": "1e4e33d108d520ba2555b48eb40700d1e8db77261df9b14fd8318d98d38fcc8a"
+    },
+    "_gq_private": {
+      "line": 18014,
+      "sha256": "c2484643f99d89cd615b2b69a370e463a920711cd44fd86891719ba7b8b3006e"
+    }
+  },
+  "front_calls": {
+    "cells": 12,
+    "banks_per_cell": 2,
+    "qdtypes_per_bank": 2,
+    "total": 48,
+    "before_each_empty": 4
+  },
+  "back_calls": {
+    "per_model_check": 2,
+    "model_checks": 72,
+    "total": 144,
+    "distinct_per_cell_if_same_bank_ids_stable": 4,
+    "distinct_total_under_that_condition": 48,
+    "conditional_removed_calls": 96
+  },
+  "float_weight_cast_output_bytes_per_front": {
+    "qkv_gate": 75497472,
+    "o": 33554432,
+    "router_double": 16777216
+  },
+  "front_cast_output_bytes_before_each_empty": 503316480,
+  "dequant_cache": {
+    "already_per_expert": true,
+    "float32_bytes_per_local_expert": 201326592,
+    "all32_bytes": 6442450944,
+    "dequant_called_before_current_cell_empty": false
+  },
+  "implemented_by_this_audit": false,
+  "next_epoch_owner": "today_moe: exact-ID per-cell ref_back memo + stage breadcrumbs only",
+  "no_forecast_or_GPU": true
+}
