@@ -8,9 +8,10 @@ whose H200 execution remains pending. Prefill remains outside the active scope.
 ## New pasted report: read and reconciled
 
 The complete new upload is *Accelerating MoE Inference with Locality-Aware Kernel
-Design: Technical Analysis and Reproduction Guide*. Its exact original bytes and
-identity are preserved in [uploaded.txt](evidence/2026-11-01-locality-report/uploaded.txt)
-and [identity.json](evidence/2026-11-01-locality-report/identity.json). SHA256:
+Design: Technical Analysis and Reproduction Guide*. Its complete text is preserved
+with normalized LF line endings in [uploaded.txt](evidence/2026-11-01-locality-report/uploaded.txt).
+[identity.json](evidence/2026-11-01-locality-report/identity.json) records both the
+normalized-text hash and the original 40965-byte attachment hash. Original SHA256:
 `e4b4b031f4856a6dcfe0a90d202fd7b66c8baae2f0aa60ad1b1417ef55ca2ca2`.
 This is distinct from the earlier *Reaching the Top 10* upload.
 
