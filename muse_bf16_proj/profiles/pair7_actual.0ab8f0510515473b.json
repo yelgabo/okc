@@ -1,0 +1,88 @@
+{
+  "board": "muse_bf16_proj",
+  "call_id": "kc-0ab8f0510515473b",
+  "cluster": "sfo3",
+  "content_hash": "777112174211c5c61cab27a0b32b755fc1dee98b7aacba44ddf2cf100e12f1ef",
+  "created_at": 1793510399.5623715,
+  "dedicated": false,
+  "duplicate_of": null,
+  "finished_at": 1793510457.1365728,
+  "id": "0ab8f0510515473b",
+  "mode": "check",
+  "output": {
+    "log": "/mnt/c/Users/gretc/Documents/GitHub/okc-today-proj/.build/today/profiles/pair7_actual.0ab8f0510515473b.log"
+  },
+  "payload_ref": "muse_bf16_proj/777112174211c5c61cab27a0b32b755fc1dee98b7aacba44ddf2cf100e12f1ef.py",
+  "result": {
+    "checks": {
+      "flagged": [],
+      "ok": true,
+      "rejected": []
+    },
+    "error": null,
+    "evaluator": {
+      "code_sha256": "986ed3ebb096eab83d16797609f4c0e7895248d6bce33252d25dd306cbe5d018",
+      "files": {
+        "challenge/checks.py": "9a046c3c38db28b325dcd1557baecdf6bc9ef941d2175f9a900ba4c230bb8055",
+        "challenge/nvfp4.py": "cfdf37c7bc14b10f7353aba7d4632f4767401b92b4b073941a8030d9a961aaaf",
+        "configs/muse-spark-open.yaml": "98f07230e4e64fe91b7c76d9a3ce04948053c043d494d5f1fae56cfe2de033af",
+        "harness/eval.py": "0051a1bfac67a9f1fad06086b306653c6643b2bb253e15a794aa672312f070a9",
+        "harness/runner.py": "c905e5c80264c6d27620b6fc7d55b162dccdb8ed7282f8a513a4d2e6f2f226f2",
+        "harness/static_checks.py": "c5588b69e9e86229459a525c61b30096f6f13ff2add6cadf98f272c4ac8ca0c2",
+        "harness/worker.py": "950437610f57ddffbc1176b65d9c2ae909c47bf67b1e3fe0716a81946986f568",
+        "problems/muse_bf16_proj/baseline.py": "39f52ea5b65505958aa9dee9c8129dd394cbba4e670046f862b5a88ce91a0574",
+        "problems/muse_bf16_proj/reference.py": "e62491abc9ddcad33f5faba8b0ee74cf6370b7be5dd2dc05031742f3ebf7147d",
+        "problems/muse_bf16_proj/task.yml": "18e9da6357144b0a1348434a18bd2d1938b1948d9f2130876f6b6706588470c9"
+      },
+      "image": "localhost:30500/kc/judge@sha256:9a7f287b80d772c6f636bbcb57422c619fe326e2aabc53803b85007bca93f68e"
+    },
+    "flags": [],
+    "gpu": "H200",
+    "log_tail": "Traceback (most recent call last):\n  File \"/opt/sglang/lib/python3.12/site-packages/torch/utils/cpp_extension.py\", line 2906, in _run_ninja_build\n    subprocess.run(\n  File \"/usr/lib/python3.12/subprocess.py\", line 571, in run\n    raise CalledProcessError(retcode, process.args,\nsubprocess.CalledProcessError: Command '['ninja', '-v']' returned non-zero exit status 1.\n\nThe above exception was the direct cause of the following exception:\n\nTraceback (most recent call last):\n  File \"/tmp/muse_bf16_proj-guuuvjno/run/worker.py\", line 423, in child_main\n    send(_setup_op(msg, module, state, sync, perf))\n         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/tmp/muse_bf16_proj-guuuvjno/run/worker.py\", line 322, in _setup_op\n    state[\"prep\"] = prepare(weights)\n                    ^^^^^^^^^^^^^^^^\n  File \"/tmp/muse_bf16_proj-guuuvjno/run/submission.py\", line 4918, in prepare\n    _p7bench(weights)\n  File \"/tmp/muse_bf16_proj-guuuvjno/run/submission.py\", line 4883, in _p7bench\n    ext=load_inline(name='okc_owned_pair7_trial',cpp_sources='torch::Tensor p7_fwd(torch::Tensor,torch::Tensor,torch::Tensor,torch::Tensor,torch::Tensor,int64_t);',cuda_sources='\\n#include \u003ctorch/extension.h\u003e\\n#include \u003cATen/cuda/CUDAContext.h\u003e\\n#include \u003ccuda_bf16.h\u003e\\n__device__ float psum(float v) { for(int s=16;s;s\u003e\u003e=1) v+=__shfl_down_sync(0xffffffff,v,s); return v; }\\ntemplate\u003cint NT\u003e __global__ void p7(const unsigned char* raw,const unsigned char* codes,\\n const int* lut,const int4* tab,int pm,const __nv_bfloat16* x,__nv_bfloat16* out,int K) {\\n __shared__ float red[2][NT/32+1]; int t=threadIdx.x, lane=t\u002631, warp=t\u003e\u003e5,c=blockIdx.x;\\n float a=0,b=0;\\n if(t\u003cNT) {\\n  for(int row=0;row\u003c2;row++) {\\n   float acc=0;\\n   for(int j=t;j\u003cK/16;j+=NT) {\\n    uint4 lo=reinterpret_cast\u003cconst uint4*\u003e(raw+(size_t)(2*c+row)*K)[j];\\n    uint4 xa=reinterpret_cast\u003cconst uint4*\u003e(x)[2*j], xb=reinterpret_cast\u003cconst uint4*\u003e(x)[2*j+1];\\n    const unsigned char* lp=reinterpret_cast\u003cconst unsigned char*\u003e(\u0026lo);\\n    const unsigned short* xp0=reinterpret_cast\u003cconst unsigned short*\u003e(\u0026xa);\\n    const unsigned short* xp1=reinterpret_cast\u003cconst unsigned short*\u003e(\u0026xb);\\n    const unsigned char* cp=codes+(size_t)(2*c+row)*(K/16)*7+(j/32)*224+(j\u002631);\\n    unsigned long long bits=0;\\n    #pragma unroll\\n    for(int q=0;q\u003c7;q++) bits|=(unsigned long long)cp[q*32]\u003c\u003c(8*q);\\n    #pragma unroll\\n    for(int p=0;p\u003c8;p++) {\\n     unsigned ee=__ldg(lut+((bits\u003e\u003e(7*p))\u0026127));\\n     #pragma unroll\\n     for(int h=0;h\u003c2;h++) {\\n      int k=2*p+h; unsigned low=lp[k];\\n      unsigned w=(low\u0026127)|((low\u0026128)\u003c\u003c8)|(((ee\u003e\u003e(8*h))\u0026255)\u003c\u003c7);\\n      unsigned xv=k\u003c8?xp0[k]:xp1[k-8];\\n      acc=__fmaf_rn(__uint_as_float(w\u003c\u003c16),__uint_as_float(xv\u003c\u003c16),acc);\\n     }\\n    }\\n   }\\n   acc=psum(acc); if(lane==0) red[row][warp]=acc;\\n  }\\n } else {\\n  const int4* tb=tab+(size_t)c*pm; int count=tb[0].x;\\n  for(int i=lane+1;i\u003c=count;i+=32) {\\n   int4 e=tb[i]; float delta=__fsub_rn(__uint_as_float((unsigned)e.y\u003c\u003c16),__uint_as_float((unsigned)e.z\u003c\u003c16));\\n   unsigned xv=__ldg(reinterpret_cast\u003cconst unsigned short*\u003e(x)+(e.x\u002665535));\\n   float d=__fmul_rn(delta,__uint_as_float(xv\u003c\u003c16));\\n   if(e.x\u003e\u003e16) b=__fadd_rn(b,d); else a=__fadd_rn(a,d);\\n  }\\n  a=psum(a);b=psum(b);if(lane==0){red[0][NT/32]=a;red[1][NT/32]=b;}\\n }\\n __syncthreads();\\n if(t==0){float aa=0,bb=0;for(int w=0;w\u003c=NT/32;w++){aa+=red[0][w];bb+=red[1][w];}out[2*c]=__float2bfloat16_rn(aa);out[2*c+1]=__float2bfloat16_rn(bb);}\\n}\\ntorch::Tensor p7_fwd(torch::Tensor raw,torch::Tensor codes,torch::Tensor lut,torch::Tensor tab,torch::Tensor x,int64_t nt){\\n int N=raw.size(0),K=raw.size(1),pm=tab.size(1);auto out=torch::empty({1,N},x.options());\\n #define GO(T) p7\u003cT\u003e\u003c\u003c\u003cN/2,T+32,0,at::cuda::getCurrentCUDAStream()\u003e\u003e\u003e(raw.data_ptr\u003cunsigned char\u003e(),codes.data_ptr\u003cunsigned char\u003e(),lut.data_ptr\u003cint\u003e(),reinterpret_cast\u003cconst int4*\u003e(tab.data_ptr\u003cint\u003e()),pm,reinterpret_cast\u003cconst __nv_bfloat16*\u003e(x.data_ptr()),reinterpret_cast\u003c__nv_bfloat16*\u003e(out.data_ptr()),K)\\n if(nt==64){GO(64);}else if(nt==128){GO(128);}else if(nt==256){GO(256);}else{GO(512);}\\n return out;\\n}\\n',functions=['p7_fwd'],extra_cuda_cflags=['-O3','-std=c++17','-gencode=arch=compute_90a,code=sm_90a'],verbose=False)\n        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/opt/sglang/lib/python3.12/site-packages/torch/utils/cpp_extension.py\", line 2295, in load_inline\n    return _jit_compile(\n           ^^^^^^^^^^^^^\n  File \"/opt/sglang/lib/python3.12/site-packages/torch/utils/cpp_extension.py\", line 2398, in _jit_compile\n    _write_ninja_file_and_build_library(\n  File \"/opt/sglang/lib/python3.12/site-packages/torch/utils/cpp_extension.py\", line 2555, in _write_ninja_file_and_build_library\n    _run_ninja_build(\n  File \"/opt/sglang/lib/python3.12/site-packages/torch/utils/cpp_extension.py\", line 2923, in _run_ninja_build\n    raise RuntimeError(message) from e\nRuntimeError: Error building extension 'okc_owned_pair7_trial': [1/3] ccache /usr/local/cuda/bin/nvcc -MD -MF cuda.cuda.o.d -DTORCH_EXTENSION_NAME=okc_owned_pair7_trial -DTORCH_API_INCLUDE_EXTENSION_H -isystem /opt/sglang/lib/python3.12/site-packages/torch/include -isystem /opt/sglang/lib/python3.12/site-packages/torch/include/torch/csrc/api/include -isystem /usr/local/cuda/include -isystem /usr/include/python3.12 -D__CUDA_NO_HALF_OPERATORS__ -D__CUDA_NO_HALF_CONVERSIONS__ -D__CUDA_NO_BFLOAT16_CONVERSIONS__ -D__CUDA_NO_HALF2_OPERATORS__ --expt-relaxed-constexpr --compiler-options '-fPIC' -O3 -std=c++17 -gencode=arch=compute_90a,code=sm_90a -c /tmp/muse_bf16_proj-guuuvjno/sandbox/cache/torch_extensions/okc_owned_pair7_trial/cuda.cu -o cuda.cuda.o \nFAILED: [code=1] cuda.cuda.o \nccache /usr/local/cuda/bin/nvcc -MD -MF cuda.cuda.o.d -DTORCH_EXTENSION_NAME=okc_owned_pair7_trial -DTORCH_API_INCLUDE_EXTENSION_H -isystem /opt/sglang/lib/python3.12/site-packages/torch/include -isystem /opt/sglang/lib/python3.12/site-packages/torch/include/torch/csrc/api/include -isystem /usr/local/cuda/include -isystem /usr/include/python3.12 -D__CUDA_NO_HALF_OPERATORS__ -D__CUDA_NO_HALF_CONVERSIONS__ -D__CUDA_NO_BFLOAT16_CONVERSIONS__ -D__CUDA_NO_HALF2_OPERATORS__ --expt-relaxed-constexpr --compiler-options '-fPIC' -O3 -std=c++17 -gencode=arch=compute_90a,code=sm_90a -c /tmp/muse_bf16_proj-guuuvjno/sandbox/cache/torch_extensions/okc_owned_pair7_trial/cuda.cu -o cuda.cuda.o \nIn file included from /opt/sglang/lib/python3.12/site-packages/torch/include/torch/csrc/api/include/torch/types.h:4,\n                 from /tmp/muse_bf16_proj-guuuvjno/sandbox/cache/torch_extensions/okc_owned_pair7_trial/cuda.cu:1:\n/opt/sglang/lib/python3.12/site-packages/torch/include/ATen/ATen.h:5:2: error: #error C++20 or later compatible compiler is required to use ATen.\n    5 | #error C++20 or later compatible compiler is required to use ATen.\n      |  ^~~~~\nIn file included from /opt/sglang/lib/python3.12/site-packages/torch/include/torch/extension.h:6,\n                 from /tmp/muse_bf16_proj-guuuvjno/sandbox/cache/torch_extensions/okc_owned_pair7_trial/cuda.cu:5:\n/opt/sglang/lib/python3.12/site-packages/torch/include/torch/csrc/api/include/torch/all.h:5:2: error: #error C++20 or later compatible compiler is required to use PyTorch.\n    5 | #error C++20 or later compatible compiler is required to use PyTorch.\n      |  ^~~~~\n[2/3] ccache c++ -MMD -MF main.o.d -DTORCH_EXTENSION_NAME=okc_owned_pair7_trial -DTORCH_API_INCLUDE_EXTENSION_H -isystem /opt/sglang/lib/python3.12/site-packages/torch/include -isystem /opt/sglang/lib/python3.12/site-packages/torch/include/torch/csrc/api/include -isystem /usr/local/cuda/include -isystem /usr/include/python3.12 -fPIC -std=c++20 -c /tmp/muse_bf16_proj-guuuvjno/sandbox/cache/torch_extensions/okc_owned_pair7_trial/main.cpp -o main.o \nninja: build stopped: subcommand failed.\n\n",
+    "machine": {
+      "gpu_after": {
+        "clocks.max.sm": 1980,
+        "clocks.mem": 3201,
+        "clocks.sm": 1980,
+        "driver_version": "580.159.03",
+        "name": "NVIDIA H200",
+        "power.draw": 127.17,
+        "power.limit": 700,
+        "temperature.gpu": 33
+      },
+      "gpu_before": {
+        "clocks.max.sm": 1980,
+        "clocks.mem": 3201,
+        "clocks.sm": 1980,
+        "driver_version": "580.159.03",
+        "name": "NVIDIA H200",
+        "power.draw": 133.88,
+        "power.limit": 700,
+        "temperature.gpu": 32
+      },
+      "node": "n-hg25ugy45aa3trrcfa4kf5iljz"
+    },
+    "passed": false,
+    "records": [
+      {
+        "baseline_copies": 16,
+        "baseline_prepare_pad": 23853056,
+        "copies": null,
+        "error": "RuntimeError: Error building extension 'okc_owned_pair7_trial': [1/3] ccache /usr/local/cuda/bin/nvcc -MD -MF cuda.cuda.o.d -DTORCH_EXTENSION_NAME=okc_owned_pair7_trial -DTORCH_API_INCLUDE_EXTENSION_H -isystem /opt/sglang/lib/python3.12/site-packages/torch/include -isystem /opt/sglang/lib/python3.12/site-packages/torch/include/torch/csrc/api/include -isystem /usr/local/cuda/include -isystem /usr/include/python3.12 -D__CUDA_NO_HALF_OPERATORS__ -D__CUDA_NO_HALF_CONVERSIONS__ -D__CUDA_NO_BFLOAT16_CONVERSIONS__ -D__CUDA_NO_HALF2_OPERATORS__ --expt-relaxed-constexpr --compiler-options '-fPIC' -O3 -std=c++17 -gencode=arch=compute_90a,code=sm_90a -c /tmp/muse_bf16_proj-guuuvjno/sandbox/cache/torch_extensions/okc_owned_pair7_trial/cuda.cu -o cuda.cuda.o \nFAILED: [code=1] cuda.cuda.o \nccache /usr/local/cuda/bin/nvcc -MD -MF cuda.cuda.o.d -DTORCH_EXTENSION_NAME=okc_owned_pair7_trial -DTORCH_API_INCLUDE_EXTENSION_H -isystem /opt/sglang/lib/python3.12/site-packages/torch/include -isystem /opt/sglang/lib/python3.12/site-packages/torch/include/torch/csrc/api/include -isystem /usr/local/cuda/include -isystem /usr/include/python3.12 -D__CUDA_NO_HALF_OPERATORS__ -D__CUDA_NO_HALF_CONVERSIONS__ -D__CUDA_NO_BFLOAT16_CONVERSIONS__ -D__CUDA_NO_HALF2_OPERATORS__ --expt-relaxed-constexpr --compiler-options '-fPIC' -O3 -std=c++17 -gencode=arch=compute_90a,code=sm_90a -c /tmp/muse_bf16_proj-guuuvjno/sandbox/cache/torch_extensions/okc_owned_pair7_trial/cuda.cu -o cuda.cuda.o \nIn file included from /opt/sglang/lib/python3.12/site-packages/torch/include/torch/csrc/api/include/torch/types.h:4,\n                 from /tmp/muse_bf16_proj-guuuvjno/sandbox/cache/torch_extensions/okc_owned_pair7_trial/cuda.cu:1:\n/opt/sglang/lib/python3.12/site-packages/torch/include/ATen/ATen.h:5:2: error: #error C++20 or later compatible compiler is required to use ATen.\n    5 | #error C++20 or later compatible compiler is required to use ATen.\n      |  ^~~~~\nIn file included from /opt/sglang/lib/python3.12/site-pack",
+        "event": "setup",
+        "first": "baseline",
+        "prepare_pad": null,
+        "prepare_s": null,
+        "status": "fail"
+      }
+    ],
+    "returncode": 112,
+    "score_us": null,
+    "speedup": null,
+    "speedup_ci": null,
+    "status": "ok"
+  },
+  "started_at": 1793510404.4201655,
+  "status": "done",
+  "team": "yelgabo"
+}

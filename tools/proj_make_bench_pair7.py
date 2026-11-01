@@ -108,7 +108,7 @@ def _p7pack(w):
     return low,cp,lut.contiguous(),tab
 def _p7bench(weights):
     from torch.utils.cpp_extension import load_inline
-    ext=load_inline(name='okc_owned_pair7_trial',cpp_sources='torch::Tensor p7_fwd(torch::Tensor,torch::Tensor,torch::Tensor,torch::Tensor,torch::Tensor,int64_t);',cuda_sources=@@CUDA@@,functions=['p7_fwd'],extra_cuda_cflags=['-O3','-std=c++17','-gencode=arch=compute_90a,code=sm_90a'],verbose=False)
+    ext=load_inline(name='okc_owned_pair7_trial',cpp_sources='torch::Tensor p7_fwd(torch::Tensor,torch::Tensor,torch::Tensor,torch::Tensor,torch::Tensor,int64_t);',cuda_sources=@@CUDA@@,functions=['p7_fwd'],extra_cuda_cflags=['-O3','-std=c++20','-gencode=arch=compute_90a,code=sm_90a'],verbose=False)
     ctrl=_build_ext();dev=weights['pooler'].device;gen=torch.Generator(device=dev).manual_seed(61031)
     flush=torch.empty(256*1024*1024,dtype=torch.uint8,device=dev)
     for name in ('qkv_gate','o','pooler','unpooler'):

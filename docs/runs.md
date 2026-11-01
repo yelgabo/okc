@@ -1868,3 +1868,8 @@ Single check: all four m1 projection shapes, FP64 random and power-of-two probes
 control/null graphs,100 seeded randomized cold rounds. No promotion before correctness and
 repeatable end-to-end latency improvement; stop actual codec if decode/escape overhead exceeds
 its physical savings. This directly addresses why `075dc89d74d144d6`'s knock-in was ambiguous.
+
+Build result: `0ab8f0510515473b` failed before GPU execution because the judge's current
+PyTorch requires C++20, while the new small extension explicitly selected C++17. No codec
+correctness or performance inference follows. Changed only its compiler-standard flag to20;
+CPU gate passes again. Retry `962d2f9c1d9644f7` dispatched with the same codec design, pending.
