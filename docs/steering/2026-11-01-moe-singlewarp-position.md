@@ -67,3 +67,28 @@ f5762dbdaebd9f646781fd5eba6e931246ad5228ddef5841fd68b4732687902f,
 including invalid-lane participation, duplicate ranking, shared publication and
 unchanged wait/proxy/watchdog paths. Root's conditional approval dispatched
 `85a113a3f11d47a5` on muse_moe_w4a16. Pending; no speed/correctness claim yet.
+
+## Measured closure
+
+Check85a113a3f11d47a5 completed on H200: all5official tests pass, all64 eager+
+64postgraph FP32 checks pass (.008global/.075row), spin0, complete16-case summary.
+All4 resource vectors match:130registers,0local/static,155520dynamicbytes,
+1block/SM,maxThreads288. Thus source, correctness and resource feasibility passed.
+
+The performance hypothesis fails: six-load contribution test0.999496192 and
+duplicate0.999798370 versus null0.998989769, both far below the preregistered1%
+improvement and2xnull gate. The no-regression gate also fails (KEEP=False).
+Modified-case paired deltas range -.320 to +.704us, without a repeatable gain;
+even the unchanged M32 path has between-arm noise. The old position-region cost
+was not recovered as whole-kernel latency. No new phase attribution was collected,
+so this run does not distinguish overlap, single-warp serialization or instruction
+scheduling as the cause. Do not claim the barriers were free or all metadata
+architectures closed. Close this exact M<=16 stable single-warp replacement.
+
+Official judged path stayed the unchanged owned control,2.203921580x
+(95%CI2.170862757–2.236980404), not the candidate's score. No production edit,
+public submit, retry, threshold change or parameter sweep. Root's one-check maximum
+is spent. Original skinny sk8/3 and persistent47/51 remain recommended.
+Full normalized profile/log/text and owning receipt are preserved at
+`muse_moe_w4a16/profiles/position.85a113a3f11d47a5.*`. Source/dispatch evidence
+is a776f32/f79022a. Reopen only with new measured mechanism and new authorization.

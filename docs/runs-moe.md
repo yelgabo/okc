@@ -687,6 +687,17 @@ change. Modes0/256/512/768, private workspaces, fresh fixed seeds441/442, layer/
 today_proj independent review found no blocker. Pending; root approved one check
 maximum, no retries/sweeps/public submit. Report: steering/2026-11-01-moe-singlewarp-position.md.
 
+85a113a3f11d47a5 DONE/ok H200:5official tests,64eager+64postgraph FP32 checks,
+all16cases,spin0, exact4arm resources130regs/0local/static/155520dynamic/1blockSM/
+maxThreads288. No candidate gain: fixed-sk8/3 six-load contribution test0.999496192,
+duplicate0.999798370, null0.998989769. >=1%/2xnull and per-case regression gates fail,
+KEEP=False. Modified-case paired deltas -.320 to +.704us; no repeatable improvement.
+Official unchangedowned control2.203921580x CI2.170862757–2.236980404; medians us
+M1/8/16/32/128/256=27.623/66.246/96.392/136.976/193.808/235.388. Candidate is
+not the judged production path. No new phase attribution; do not infer why metadata
+time did not translate into latency. Close exactsinglewarp-map mechanism; no retry,
+sweep, promotion or production edit. Full profiles/receipt `profiles/position.85a113a3f11d47a5.*`.
+
 ## Source facts (SGLang a55ab7d5, read from GitHub and hashed against the image)
 
 - `fused_post_expert_norm_weighted_sum` falls back to PyTorch ops below
