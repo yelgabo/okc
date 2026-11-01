@@ -20,6 +20,9 @@ def fixture():
  return dict(board='muse_attention_decode',status='done',id='CPU-SYNTHETIC-NOT-A-RUN',result=result)
 
 class Reader(unittest.TestCase):
+ def test_normalized_profile_is_explicitly_insufficient(self):
+  with self.assertRaisesRegex(ValueError,'normalized profile JSON is insufficient'):
+   analyze({'problem':'muse_attention_decode','job_id':'NORMALIZED-FIXTURE','benchmarks':[],'summary':{}})
  def test_contemporaneous_decision_recomputed(self):
   r=analyze(fixture());self.assertTrue(r['registered_decision']);self.assertTrue(r['registered_raw_sign_gate'])
   self.assertTrue(all(v[-1]==5. for v in r['contemporary_offsets']))
