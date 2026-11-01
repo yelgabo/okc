@@ -4040,3 +4040,18 @@ cand/late_full.py SHA256cbee36a852fbc62f5491e75f957eeb4298dce2db50947984cdbbcd08
 No diagnostic suffix or torchTF32flag mutation. Sourceonly0->2full/non-one-tile restriction
 on the owned file; math/fences unchanged. Prospective804...all-inputmathgate passes and
 strictstudiesremainfailed. Waitexactjob before publicsubmission; no productiondefaultchange.
+
+## November1 clean attention promotion and scored result
+
+Clean exactpure checkd331aca81c554d70 completes16/16, checks.oktrue, flags[],
+2.569431026x,95%CI2.530889561–2.619575175. Sourcecbee36a852fbc62f5491e75f957eeb4298dce2db50947984cdbbcd08aa69b356.
+Scored exactsamepure c9bc5fbd85b440e2 completes16/16 at2.515773722x,
+CI2.478037116–2.553510328. Public best stays8914751e3b9f468b/2.604290x.
+
+Working submission.py and attn_one.cu defaultONE_LATE_TID2 now promoted after paired gate
+and all official/reference gates. ExecutableAST exactlymatchescheckedpure after ignoring
+onlytwoCUDAcommentupdates. No native math/precision/fence/barrier/cachecoverage change.
+Olddefault0 preserved in1764d15/1241557; normalizedsourceSHA498161899c637f599d6987f22dcb1c2c2f922fb66f490ce0ef6e926b7ff6f7a4.
+Paired full-only score sensitivity~0.24% is measured; a higher public aggregate is not proven.
+Rootdeferslayerport:0.4usd1full alone has0.021980% six-loadlayer sensitivity under actual
+8f2780d7382047e6 medians/46:16weights, below pairedlayernoise. No tinyport check dispatched.

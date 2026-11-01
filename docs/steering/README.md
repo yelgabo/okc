@@ -4,25 +4,32 @@ This is the stable entry point for steering reports across research, implementat
 and coordinator sessions. The user requested on 2026-10-29 that every project-steering
 report be checked into this repository so other sessions can read it.
 
-## Latest checkpoint: top-10 audit and Windows restart
+## Latest checkpoint: four active tracks; prefill deferred
 
-**Active goal: [October31 top10 campaign across all five boards](2026-10-31-top10-campaign.md).**
-Latest addendum: October31 late PDT. User defers prefill; active work is projection,
-attention, standalone MoE and decode layer. Already dispatched prefill results are frozen.
-No active board is top10; observed score gaps5.02/11.73/17.15/17.82% respectively.
-Attention identical-code nulls also fail strict1e-4; prospective direct-FP32 compliance
-gate passes; clean candidate-only attention check is pending before promotion.
-Standalone masked MoE and projection ring lost; those schedules are closed.
-Exact sources, receipts, new hypotheses and stop/pivot gates are in the active report.
+**Exact-paste attribution correction:** [November1 pasted-report review](2026-11-01-pasted-top10-report-review.md).
+The newly attached *Reaching the Top 10 in the Muse Spark Open Kernel Challenge* is a
+different document from the earlier audited *OKC Community Audit Verification and Judge-Run
+Execution Plan*. It has now been read in full and preserved with raw/normalized hashes.
+Fusion-first recommendations still require an explicit current-code boundary mapping;
+its estimated gain ranges are not measured results. External citation verification is incomplete.
 
-Supporting report: [Standalone MoE weight-reuse audit](2026-10-31-moe-weight-reuse-audit.md),
-evidence031b94f/ecb0058. Exact source mapping and CPU model are checked; cross-recipient
-retirement, actual cluster residency and physical traffic remain open. No new multicast
-kernel or barrier change. A fresh-count-only diagnostic is the next evidence gate.
+**Latest report: [November1 four-track progress](2026-11-01-four-track-progress.md).**
+User defers prefill. Projection, attention, standalone MoE and decode layer remain active;
+none is top10. Observed score gaps at00:05PDT are5.02/11.73/17.15/17.82% respectively.
+Validated attention default2 is promoted in working source, with clean16/16 tests and
+all-input official-math validation. Scored2.515774x does not replace the older2.604290x
+public best. Paired improvement remains small. The report distinguishes both kinds of evidence.
+Earlier execution/history: [October31 campaign](2026-10-31-top10-campaign.md).
+
+Supporting [MoE weight-reuse audit](2026-10-31-moe-weight-reuse-audit.md), now with the
+53c07507b9fd4f8c addendum: screen fails6/8; all four standalone cases lack duplicate jobs.
+Multicast implementation is parked. Next separate investigation is the
+[skinny wait-policy audit](2026-10-31-moe-skinny-wait-policy-audit.md), with independent
+ordering review and a prospective whole-score gate before any promotion.
 User now explicitly authorizes today's checks and scored submissions. Independent problem
 workers are running; root owns layer/prefill and scored promotion. See the live dispatch ledger.
 
-**Latest execution: [2026-10-31 post-login experiments](2026-10-31-post-login-experiments.md).**
+**Earlier execution: [2026-10-31 post-login experiments](2026-10-31-post-login-experiments.md).**
 Authentication works. Missing d1/v1 donor check recovered; M1-policy asymmetry retained.
 Attention address-carry check `c77ce71c81af4fb1` dispatched; results in the execution report.
 MoE's next step corrected to producer-wait attribution before any ring resizing.

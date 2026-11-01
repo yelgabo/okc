@@ -1,0 +1,34 @@
+[
+  {
+    "problem": "muse_bf16_proj",
+    "rank": 292,
+    "score": 1.5278064829557674,
+    "job": "9eba96894ee1402e",
+    "top10": 1.6045170224103136,
+    "gap_percent": 5.020959153553162
+  },
+  {
+    "problem": "muse_attention_decode",
+    "rank": 207,
+    "score": 2.6042902049472674,
+    "job": "8914751e3b9f468b",
+    "top10": 2.9097939500308327,
+    "gap_percent": 11.730787317911506
+  },
+  {
+    "problem": "muse_moe_w4a16",
+    "rank": 371,
+    "score": 2.2157115620135492,
+    "job": "abe7651dbaa44458",
+    "top10": 2.59561233396598,
+    "gap_percent": 17.14576836017374
+  },
+  {
+    "problem": "muse_decode_layer",
+    "rank": 377,
+    "score": 2.022870479185006,
+    "job": "8f2780d7382047e6",
+    "top10": 2.383392362107082,
+    "gap_percent": 17.822291967369374
+  }
+]

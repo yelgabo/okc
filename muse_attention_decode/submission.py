@@ -2884,10 +2884,10 @@ constexpr int COOP_POLL_LIMIT = 1 << 24;
 // log2), with straight-line query copies and query pass, branch-free predicated row copies in
 // the prologue issue, and no page-index copies for tiles past the CTA's range. Off and on are
 // timed side by side in bench d57d1fe064164611 (docs/runs-attention.md, 10-29).
-// Bench-only late query-address scheduling after page copies: 1 = L1 SPEC;
-// 2 = L1 SPEC non-one-tile instances only. Default remains off pending gates.
+// Late query-address scheduling after page copies: 1 = L1 SPEC;
+// 2 = L1 SPEC non-one-tile only; checked d331aca81c554d70, fresh gate 80415fe736bb4890.
 #ifndef ONE_LATE_TID
-#define ONE_LATE_TID 0
+#define ONE_LATE_TID 2
 #endif
 
 #ifndef ONE_DIET

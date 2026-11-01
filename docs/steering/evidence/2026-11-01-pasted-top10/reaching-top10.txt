@@ -1,0 +1,274 @@
+# Reaching the Top 10 in the Muse Spark Open Kernel Challenge
+
+## Executive summary
+
+The available evidence supports your concern about **diminishing returns**. The straightforward kernel-level optimizations—better tiling, generic WGMMA/TMA conversion, split-K sweeps, cuBLASLt algorithm searches, L2 prefetching, and modest launch-count reductions—are no longer the path most likely to move a competent Muse implementation into the top 10. Public BF16-projection work is already within roughly 8–20% of measured cold-HBM read floors on several small-token projection shapes, and generic WGMMA/CUTLASS replacements have in some cases been slower than cuBLAS. citeturn966730view2turn928596search4
+
+The strongest public evidence points toward a different optimization regime: **optimize the whole decode layer around the low-token critical path**, especially `T ≤ 8`, rather than optimizing each GEMM independently. One public profile of a competitive decode-layer lineage showed only about 58% of HBM peak across an entire `T=1` graph despite individual batched kernels reaching 81–87% of peak; Tensor/FMA pipes were below 13%. That pattern strongly suggests the remaining opportunity is in stage boundaries, repeated memory traversal, synchronization, routing/metadata work, and underfilled kernels—not raw matrix-multiply throughput. citeturn475642search1turn928596search4
+
+The challenge itself makes `muse_decode_layer` unusually important because it contains QKV projection, attention, O projection, residual boundaries, pooler, router, routed experts, unpooler, and final normalization in one timed unit. It therefore exposes optimization opportunities unavailable in the isolated kernel boards, including fusion across what would otherwise be separately materialized tensors. citeturn713222search3
+
+My recommended target is therefore **a two-track strategy**. First, push isolated kernels only where a real bandwidth or launch floor remains: attention decode and MoE have more plausible standalone upside than BF16 projections. Second—and more important—build a dedicated low-token `muse_decode_layer` path that eliminates intermediate reads/writes and kernels across projection→normalization→routing and expert→unpooler→boundary transitions. Based on the public profiles and measured failures, I estimate this has a realistic **8–18% layer-latency opportunity**, with a wider 4–22% engineering-confidence interval, whereas another round of isolated GEMV tuning is more plausibly in the **0–4% overall** range. These percentages are my engineering estimates, not published leaderboard measurements. They are inferred from the observed stage-utilization gaps, already-near-floor projection kernels, and negative results from conventional tuning. citeturn475642search1turn966730view2
+
+There is an important data limitation: **your latest benchmark sheet and BF16 projection data are not actually present in this conversation or an accessible attached file**, so I cannot truthfully populate exact “ours” values from it. I therefore show those cells as missing and separately provide public comparison points. If the public 1.331–1.343× BF16 result is your work, the conclusions below line up particularly closely with your diminishing-returns observation; I have not assumed that ownership. citeturn966730view2
+
+The official leaderboard was unavailable to the web crawler during this research, so the **current exact overall top-10 cutoff cannot be verified**. The best externally visible hard reference I found is an unofficial Guild snapshot showing attention rank #10 at **2.910×**, while a rank-25 overall team had approximately 2.332× decode, 2.534× MoE, 2.910× attention, 1.571× BF16, and 1.921× prefill at one recent snapshot. Those figures should be treated as moving reference points, not official final thresholds. citeturn629973search0turn204706search2
+
+## Current position and top-tier comparison
+
+The challenge runs all kernel submissions on a single NVIDIA H200 SXM and alternates candidate and SGLang execution inside CUDA graphs. The H200 has 141 GB HBM3e and 4.8 TB/s nominal memory bandwidth, making bandwidth utilization particularly relevant for the small-token decode kernels. citeturn918798search2turn928596search6
+
+The five challenge kernels cover materially different regimes. `muse_bf16_proj` is a set of dense BF16/FP32 projections; `muse_attention_decode` combines QK normalization, RoPE, FP8-cache writes, paged GQA, softmax/value aggregation, RMSNorm and gating; `muse_moe_w4a16` performs top-8 routed NVFP4 experts; and `muse_decode_layer` combines essentially the entire decoder layer. Prefill is scored separately and does not count toward the overall kernel board according to the challenge page. citeturn918798search6turn713222search1turn713222search2turn713222search3turn713222search4
+
+| Metric / problem | Your latest sheet | Strong public reference | Top-tier signal | Interpretation |
+|---|---:|---:|---:|---|
+| BF16 projection | **Not supplied** | 1.5186× judged in public H200 repo; another public report 1.331–1.343× | Public leader reported at 1.637×; top eight reportedly ~1.55–1.64× | Very mature; small-token paths increasingly bandwidth-floor limited. citeturn966730view1turn966730view2 |
+| Attention decode | **Not supplied** | ~2.62–2.66× common among recent public Guild teams | Rank #10 publicly visible at 2.910× in one snapshot | Meaningful gap remains; likely requires architectural attention work, not parameter tuning. citeturn475642search5turn629973search8 |
+| MoE W4A16 | **Not supplied** | ~2.35–2.40× among mid-ranked public teams | A recent #23 value was 2.534×; therefore top-10 is above that snapshot | Strong opportunity in low-token routing/expert launch and metadata fusion. citeturn204706search2turn204513search4 |
+| Decode layer | **Not supplied** | ~2.20–2.26× for public ~rank 40–120 teams | A recent rank-25 overall snapshot had 2.332× decode; exact decode top-10 unavailable | Probably the most important board for overall position. citeturn204706search2turn629973search8 |
+| Prefill layer | **Not supplied** | ~1.80–1.92× among public teams | Separate from overall kernel board | Lower priority if objective is overall top-10 kernel standing. citeturn713222search4turn204706search2 |
+| T=1 HBM utilization | **Not supplied** | ~58% whole-graph on one competitive H100 profile | Batched MoE ~81%, B32 full attention ~87% in same profile | Small-token stage transitions are a major remaining gap. citeturn475642search1 |
+| Projection read-floor gap | **Not supplied** | qkv/pooler ~15–20% above measured cold-HBM floor; pooler sometimes within ~8% | Physical floor leaves little isolated upside | Confirms diminishing returns for pure GEMV work. citeturn966730view2 |
+| Register pressure / occupancy | **Not supplied** | No public Muse H200 counters located | Hopper: 64K 32-bit regs/SM, max 255 regs/thread, 64 warps/SM | Must measure before increasing fusion depth. citeturn928596search0 |
+
+A particularly informative public `T=1` decode-layer profile reported approximately 14.0 µs for QKV GEMV, 6.4 µs for sliding attention, 8.9 µs for O+boundary, 27.7 µs for pooler+router, 4.8 µs for top-8 routing, 20.6 µs for the locally active experts, 6.3 µs for unpooler, and 3.4 µs for the final boundary. About 139 MB of weights were read in the step. Even allowing for the fact that this profile was on H100 rather than H200, the shape of the profile is revealing: the costly stages are not dominated by Tensor Core utilization, and several operations are individually too small to efficiently fill the GPU. citeturn475642search1
+
+That matches the independent BF16 work. A public implementation measured cold-HBM floors directly, found the small projection kernels already close to those floors, and discovered that generic CUTLASS TMA/WGMMA kernels, cuBLASLt enumeration, persistent stream-K machinery, L2 prefetching, and cluster split-K either lost performance or produced sub-noise aggregate gains. citeturn966730view2
+
+The architectural implication is that your next 10% probably does **not** come from making the same sequence of kernels individually 10% faster. It comes from making the GPU execute less of that sequence.
+
+## Architectural gaps that matter
+
+### Cross-stage fusion in `muse_decode_layer`
+
+The highest-value hypothesis is to fuse operations at points where a large activation is currently materialized and immediately reread. The decode-layer specification exposes several such boundaries: projection output into Q/K preparation and attention; attention output through RMSNorm/gating into O projection; residual normalization into pooler/router; expert output through post-expert norm into unpooler; and unpooler output through final residual/norm. citeturn713222search3
+
+The best candidates are not necessarily giant “megakernels.” Hopper fusion becomes counterproductive when the fused kernel consumes enough registers or shared memory to reduce occupancy or cause spills. Hopper provides 64K 32-bit registers per SM and up to 255 registers per thread; NVIDIA explicitly notes that occupancy is affected by register and shared-memory use, and that higher occupancy is not always better once latency is hidden. citeturn928596search0turn928596search5
+
+I would therefore prefer **two or three medium-grain fused pipelines** over one full-layer monolith:
+
+1. QKV → QK norm/RoPE/cache-store → attention pre/post-processing.
+2. residual/pre-FFN norm → pooler + router + routing metadata.
+3. expert post-norm → unpooler → final boundary + next-layer pre-attention norm.
+
+The first is attractive because the attention challenge already treats QK norm, RoPE, FP8 cache handling, softmax/value aggregation, output RMSNorm and sigmoid gate as one logical operation. citeturn713222search1
+
+The second is attractive because public profiling shows pooler+router and routing together consume a large fraction of the `T=1` layer, while their Tensor/FMA usage is low. citeturn475642search1
+
+The third avoids writing a 4096-wide expert result only to read it back for unpooling and then write an 8192-wide result for another boundary operation. The official decode-layer formulation makes that exact producer-consumer sequence explicit. citeturn713222search3
+
+**Estimated gain:** 6–14% end-to-end decode-layer latency, with a rough 90% engineering-confidence range of 3–18%, assuming your implementation still materializes at least two of these boundaries. This is an inference from the public stage breakdown and memory-floor data, not a measured Muse top-10 result. citeturn475642search1turn966730view2
+
+### Attention restructuring
+
+Attention has the clearest standalone leaderboard gap. Current public mid-tier implementations cluster near roughly 2.6× while a visible rank-10 result was 2.910×, implying around an additional 10–12% latency reduction is needed just to cross that particular snapshot's top-10 line if starting around 2.63×. citeturn475642search5turn629973search8
+
+The scored attention shapes combine two very different regimes: a 2,048-token sliding window and approximately 80K-token full attention, each for decode `q_len=1` and verify `q_len=8`. A single tiling strategy is unlikely to be optimal across all four combinations. citeturn713222search1
+
+For the full-context cases, the strongest architectural template remains FlashAttention-3: warp specialization, overlap of Tensor Core work and TMA, and interleaving matmul and softmax. FlashAttention-3 reported 1.5–2.0× improvement over earlier attention kernels on H100 and up to 75% FP16 Tensor Core utilization, although those numbers are not directly transferable to this paged-GQA decode workload. citeturn928596academia10
+
+For Muse specifically, the most plausible wins are:
+
+- dedicate separate kernels/configs for `q_len=1` vs `q_len=8`;
+- dedicate separate paths for sliding vs full attention;
+- ensure each KV tile is reused across the eight query heads that share one KV head;
+- fuse Q/K normalization and RoPE into fragment preparation so Q/K are not round-tripped through global memory;
+- write K/V directly into FP8 cache format;
+- for `q_len=8`, maximize reuse of each K/V tile across the eight query positions before eviction;
+- use warp-specialized producer/consumer execution only where the additional registers and shared memory do not collapse occupancy.
+
+The rules explicitly allow attention queries to be rounded to FP8 E4M3, while KV cache remains FP8 E4M3, but prohibit lower precision and prohibit skipping keys or softmax/value terms. citeturn713222search5
+
+**Estimated gain:** 5–11% on a competent ~2.6× implementation; 90% engineering range 2–14%. The upper end requires `q_len=8` KV reuse or a materially better full-context schedule rather than just different block sizes. This is an inference from the visible leaderboard gap and FA3 architecture. citeturn475642search5turn928596academia10
+
+### MoE decode fusion
+
+The MoE kernel is top-8 over 256 experts, with each GPU holding 32 local experts, and the challenge deliberately feeds skewed routings so the timed GPU is the busiest rank. citeturn713222search2
+
+At small token counts, the critical inefficiency is likely insufficient work per expert rather than raw NVFP4 arithmetic. The public `T=1` decode profile found only 42% of HBM peak for the active experts, whereas high-token MoE reached approximately 81%. citeturn475642search1
+
+This makes **routing-aware persistent execution** more interesting than another general grouped-GEMM tune. The kernel should ideally produce all metadata needed by the expert path as part of top-k routing and keep local expert work queues compact. A contemporary Muse serving implementation on another stack similarly describes a low-batch path where the top-k kernel emits routing metadata directly for expert GEMMs, reducing the number of launches; that is serving-stack evidence rather than challenge-specific H200 proof, but it points in the same direction. citeturn283926search5
+
+The most promising low-token experiment is one CTA or warpgroup per active local expert, with tokens packed directly from top-k results and with w13 dequantization, SwiGLU, w2, post-expert normalization and route weighting kept in a streaming pipeline. The exact degree of fusion should be limited by register pressure.
+
+**Estimated gain:** 4–10% MoE latency at decode `M≤32`; 90% engineering range 1–14%. Expect much less at `M=128/256`, where public profiling already indicates much stronger bandwidth utilization. citeturn475642search1turn713222search2
+
+### BF16 projection and mixed precision
+
+BF16 projection is the clearest place to stop spending disproportionate effort. Public work already uses shape-specific CUDA paths, WGMMA/TMA where useful, lossless BF16 compression for small-token kernels, pinned cuBLASLt algorithms for larger shapes, and a permitted BF16-hi/lo router representation. citeturn966730view1
+
+The challenge forbids changing BF16 weights or activations to lower precision, apart from the explicit router and attention-query exceptions. Therefore the remaining BF16 projection opportunity is mostly in **lossless representation, data movement, dispatch and fusion**, not approximate arithmetic. citeturn713222search5
+
+A particularly useful result is the public 12-bit lossless-compression path. It improved a 1.25× solution to around 1.33–1.34×, but attempts to extend compressed WGMMA to `m=128/256` were slower than cuBLAS. The same work measured several small projection paths within roughly 15–20% of physical read floors. citeturn966730view2
+
+**Estimated remaining standalone gain:** 0–4% aggregate for an already good BF16 implementation; 90% range −2% to +6%. If your sheet is materially below ~1.5×, however, importing shape-specific public techniques could still be worth substantially more. citeturn966730view1turn966730view2
+
+## Prioritized experiments and test gates
+
+| Priority | Experiment | Expected decode-layer gain | Effort | Risk | Pass criterion | Rollback |
+|---|---|---:|---|---|---|---|
+| **P0** | Build exact per-stage profile for all 12 decode shapes | 0% directly | 0.5–1 day | Low | ≥95% of layer time attributed; bytes and occupancy for every kernel | None |
+| **P1** | Fuse residual/pre-FFN norm + pooler + router + routing metadata | **3–7%** | 2–4 days | Medium | ≥8% improvement in this stage and ≥3% full-layer, no spill regression | retain old stage dispatch |
+| **P1** | Fuse expert post-norm → unpooler → final boundary | **2–5%** | 2–4 days | Medium-high | eliminate ≥1 global activation round-trip; ≥2% full-layer win | shape-gated fallback |
+| **P1** | Attention split-path: `{decode,verify} × {sliding,full}` | **2–6% layer**, 5–11% attention | 3–6 days | Medium | ≥7% attention-board improvement or ≥2% layer | current FA3/SGLang path |
+| **P2** | Low-token persistent/routing-aware MoE | **2–5% layer**, 4–10% MoE | 4–7 days | High | ≥8% M≤32 MoE win, no >2% M≥128 regression | dispatch by `M` |
+| **P2** | Fuse QKV epilogue into QK norm/RoPE/FP8 cache prep | **1–4%** | 3–5 days | High | >25% less DRAM bytes for intermediate and ≥1.5% layer win | old qkv+attention boundary |
+| **P3** | WGMMA/TMA retile existing projection GEMMs | **0–2%** | 2–5 days | Medium | >1.5% full-load win, not one microshape | abandon otherwise |
+| **Stop** | L2 prefetch side-stream / generic CUTLASS sweep | likely ≤0% | — | — | Public evidence already negative | do not revisit without new evidence |
+
+The negative evidence for P3/stop-list items is unusually strong. Public work found L2 bulk prefetch never won, a persistent TMA streaming framework cost more than it saved, cross-CTA split-K reductions often lost to in-CTA reductions, and generic CUTLASS WGMMA was slower than cuBLAS in the high-token projection shapes. A separate public team also reported cross-stage L2 weight prefetch losing 0–18% across decode shapes. citeturn966730view2turn475642search2
+
+For each experiment I would use the same test discipline:
+
+1. Run all official correctness cases plus randomized stress around page size, routing skew, odd values where permitted, full/sliding attention and both `q_len` values. The challenge performs hidden random-input checks and final reruns, so a shape-specific optimization must remain semantically general. citeturn918798search2
+2. Require a local win larger than measurement noise **and** an end-to-end `muse_decode_layer` win. A 10% microkernel improvement that contributes 4% of layer time is only a 0.4% layer improvement.
+3. Record register count, spill traffic, occupancy, DRAM bytes, L2 sectors, eligible warps/cycle, long-scoreboard stalls and SM-pipe utilization before and after.
+4. Use shape-gated dispatch aggressively. The public best BF16 implementations already select different implementations by `(layer,m)` because no single kernel wins everywhere. citeturn966730view1turn966730view2
+
+A practical success gate for top-10 work is: **do not merge an experiment unless it saves at least ~2% of full decode-layer time or opens a clearly composable path to another ≥2%**. Once you are in the 2.2–2.4× region, sub-percent wins are unlikely to move tens of leaderboard positions unless they stack without resource conflicts. Recent public snapshots place ~2.2× decode around ranks 80–120 and ~2.33× around roughly rank 25, although leaderboard movement makes those rankings transient. citeturn629973search8turn204706search2
+
+## Microbenchmarks and profiling commands
+
+The first task should be a **roofline-by-stage** benchmark, not another tuning sweep. For every kernel in the `muse_decode_layer` graph, capture wall time, analytical useful bytes, actual DRAM bytes, L2 traffic, registers/thread, shared memory/block, achieved occupancy, eligible warps, long-scoreboard stalls, Tensor Core utilization and LSU utilization. NVIDIA's profiling guidance specifically recommends distinguishing DRAM, L2, L1/TEX and wavefront bottlenecks rather than relying on a single memory-throughput percentage. citeturn928596search4turn928596search3
+
+On a machine where performance counters are enabled, a useful Nsight Compute run is:
+
+```bash
+ncu \
+  --target-processes all \
+  --set full \
+  --section LaunchStats \
+  --section Occupancy \
+  --section MemoryWorkloadAnalysis \
+  --section SchedulerStats \
+  --section WarpStateStats \
+  --section SpeedOfLight \
+  -o muse_decode_ncu \
+  python bench_decode.py
+```
+
+For a lighter repeatable sweep:
+
+```bash
+ncu \
+  --target-processes all \
+  --metrics \
+launch__registers_per_thread,\
+sm__warps_active.avg.pct_of_peak_sustained_active,\
+smsp__warps_eligible.avg.per_cycle_active,\
+smsp__warp_issue_stalled_long_scoreboard_per_warp_active.pct,\
+gpu__dram_throughput.avg.pct_of_peak_sustained_elapsed,\
+lts__t_sectors.sum,\
+dram__bytes_read.sum,\
+dram__bytes_write.sum \
+  python bench_decode.py
+```
+
+Nsight Compute exposes register use, cache-sector metrics, memory workload analysis and occupancy information expressly for this kind of diagnosis. citeturn928596search3turn928596search7
+
+For graph-level launch structure:
+
+```bash
+nsys profile \
+  --trace=cuda,nvtx,cublas \
+  --cuda-graph-trace=node \
+  --sample=none \
+  -o muse_decode_graph \
+  python bench_decode.py
+```
+
+For compilation resource accounting:
+
+```bash
+nvcc -arch=sm_90a \
+  --ptxas-options=-v \
+  --resource-usage \
+  kernel.cu
+```
+
+Then inspect machine code where scheduling matters:
+
+```bash
+cuobjdump --dump-sass kernel.so > kernel.sass
+```
+
+Hopper-specific experiments should measure TMA and WGMMA rather than assuming they help. TMA can transfer multidimensional tensors without staging the transfer through registers and can free SM instructions while data movement occurs asynchronously, but that advantage only matters if the workload has sufficient reusable tiles and pipeline depth. citeturn928596search1
+
+For WGMMA pipelines, NVIDIA's current guidance notes strict alignment and tile-shape requirements, recommends beginning with 128- or 256-thread compute groups, and notes that three or four pipeline stages are often sufficient to hide load latency for large 16-bit tiles. citeturn928596search2
+
+The microbenchmark matrix I would run is:
+
+| Benchmark | Shapes | Question answered |
+|---|---|---|
+| Cold-HBM read floor | exact byte sizes of qkv, o, pooler, router, unpooler | Is a kernel bandwidth-floor limited? |
+| Producer→consumer round trip | 1024/4096/8192-wide tensors, T=1/8/16/32 | How much latency disappears if intermediate stays on-chip? |
+| Fused norm+GEMV epilogue | same projection shapes | Does fusion save bytes without register collapse? |
+| Router+top-k metadata | T=1/8/16/32 | Is routing latency launch/scan-bound? |
+| Active-expert persistent loop | 1–8 local experts, realistic skew | How much does expert batching/queue construction cost? |
+| Attention KV tile reuse | q=1 and q=8, window=2048 and ~80K | Are K/V tiles being redundantly loaded across GQA heads/query tokens? |
+| Register-pressure sweep | 64–192 regs/thread target bands | Where does fusion cross the occupancy/spill cliff? |
+| TMA depth sweep | 2/3/4 stages | Is memory latency hidden before occupancy falls? |
+
+For register-pressure experiments, do not optimize for occupancy as a scalar target. NVIDIA explicitly warns that maximum occupancy does not necessarily produce maximum performance; the objective is enough active warps to hide latency without giving up useful register reuse. citeturn928596search5
+
+## Projected gains and experiment timeline
+
+The chart below models a **representative competent implementation**, not your missing benchmark sheet. I use a starting decode-layer index of 100 and show the expected midpoint improvement from the prioritized work. Gains are applied multiplicatively, because each optimization shrinks the remaining runtime.
+
+```mermaid
+xychart-beta
+    title "Projected decode-layer latency index"
+    x-axis ["Current", "Pooler/router fuse", "Expert→unpool fuse", "Attention restructure", "Low-token MoE", "QKV→attn fuse"]
+    y-axis "Latency index (lower is better)" 65 --> 102
+    line [100, 95, 92, 88, 84, 82]
+```
+
+The midpoint scenario corresponds to roughly an **18% latency reduction** from the current optimized implementation. A conservative scenario, where several ideas interact badly, is closer to 8–10%; an aggressive scenario with successful cross-stage fusion is around 22–25%. Those ranges are engineering projections based on public stage utilization and measured tuning ceilings, not leaderboard guarantees. citeturn475642search1turn966730view2
+
+The diminishing-return curve is qualitatively different depending on whether you remain at the isolated-kernel level:
+
+```mermaid
+xychart-beta
+    title "Expected cumulative upside by optimization strategy"
+    x-axis ["Baseline", "Retile", "Split-K", "TMA/WGMMA tune", "Cross-stage fusion", "Attention/MoE redesign"]
+    y-axis "Cumulative latency reduction (%)" 0 --> 22
+    line [0, 2, 3, 4, 12, 19]
+```
+
+The first three points reflect the observed pattern that conventional tuning is nearing a physical or library floor, while the latter points represent removal of work and data movement rather than faster execution of the same work. Public projection experiments provide strong evidence for the first half of that curve: several conventional approaches delivered no win or only sub-percent aggregate gains. citeturn966730view2
+
+A reasonable experiment sequence is:
+
+```mermaid
+gantt
+    title Top-10 kernel experiment sequence
+    dateFormat  YYYY-MM-DD
+
+    section Measurement
+    Full 12-shape Nsight profile       :crit, p0, 2026-11-01, 1d
+    Roofline + DRAM-byte model         :p1, after p0, 1d
+
+    section Decode fusion
+    Norm + pooler + router fusion      :crit, d1, after p1, 3d
+    Expert norm + unpool + boundary    :crit, d2, after d1, 4d
+
+    section Attention
+    Four-path attention baseline       :a1, after p1, 2d
+    q=8 KV-reuse / warp specialization :crit, a2, after a1, 4d
+
+    section MoE
+    Routing metadata fusion            :m1, after d1, 2d
+    Persistent low-token expert path   :m2, after m1, 4d
+
+    section Integration
+    QKV-to-attention boundary fusion   :i1, after a2, 3d
+    Cross-shape regression sweep       :crit, i2, after i1, 2d
+```
+
+Because the challenge closes on **November 4, 2026 at 11:59 PM PT**, the full sequential timeline above is not literally executable before the current kernel-challenge deadline; it represents dependency order. The official challenge page lists the kernel phase as October 22 through November 4 and the serving phase beginning November 5. citeturn918798search0
+
+Given that deadline, I would compress the plan to **three immediate bets**: instrument the current decode layer today, implement the pooler/router boundary fusion first, and in parallel test a four-way attention dispatch split. Do not spend the remaining submission budget on generic GEMM sweeps unless the profile shows a specific kernel at low bandwidth with sufficient theoretical headroom. The challenge caps daily submissions and checks, so each judge run should test a materially different architectural hypothesis rather than a parameter perturbation. citeturn918798search2
+
+The decision rule is straightforward: if your current decode score is already around the public 2.2× cluster, reaching top 10 probably requires **a step-function architectural gain**, not another succession of 1–2% tweaks. Public rank data show teams around 2.2× decode scattered roughly around the 80–120 region, while one recent rank-25 overall snapshot was already at 2.332× decode and 2.534× MoE. Attention's visible top-10 threshold is 2.910×. citeturn629973search8turn204706search2turn475642search5
+
+That means the most likely route to top 10 is not “make every kernel a little better.” It is **remove one or two full memory/materialization boundaries from `muse_decode_layer`, restructure attention around its four scored regimes, and build a specialized low-token MoE path**. If those experiments fail to produce at least ~8–10% combined decode-layer improvement, the public evidence suggests the remaining top-10 gap is unlikely to be closed by conventional tuning alone. citeturn475642search1turn966730view2
