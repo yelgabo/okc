@@ -1,0 +1,18 @@
+Traceback (most recent call last):
+  File "/tmp/muse_prefill_layer-yzl4r58l/run/worker.py", line 423, in child_main
+    send(_setup_op(msg, module, state, sync, perf))
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/muse_prefill_layer-yzl4r58l/run/worker.py", line 322, in _setup_op
+    state["prep"] = prepare(weights)
+                    ^^^^^^^^^^^^^^^^
+  File "/tmp/muse_prefill_layer-yzl4r58l/run/submission.py", line 227, in prepare
+    "hum": _hi_prepare(weights),
+           ^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/muse_prefill_layer-yzl4r58l/run/submission.py", line 287, in _hi_prepare
+    layer.load_from_tensors({"weight":weights[name].contiguous().view(torch.int32),
+  File "/opt/sglang/lib/python3.12/site-packages/humming/layer.py", line 375, in load_from_tensors
+    self.load_state_dict(tensors, strict=False)
+  File "/opt/sglang/lib/python3.12/site-packages/torch/nn/modules/module.py", line 2643, in load_state_dict
+    raise RuntimeError(
+RuntimeError: Error(s) in loading state_dict for HummingLayer:
+	size mismatch for weight_scale_2: copying a param with shape torch.Size([32, 1]) from checkpoint, the shape in current model is torch.Size([32]).

@@ -94,6 +94,7 @@ components, in the same process, before calling it lost again.
 | Experiment | Evidence | Rules out |
 |---|---|---|
 | Mode87:51 with four fixed-stride x slots, unchanged208896B budget, one fewer weight slot |39804be1a59c429c: outputs128/256 exact,5judge tests pass;128layer/std +2.2/+1.5us,256 +2.9/+3.9us, every256seed loses;32 inconclusive | This capacity tradeoff on current51, not all deeper rings. Reopen only with a different byte/weight-lead model or new measured locality evidence. No production change |
+| Prefill Humming wrapper assumed global-scale parameter shape[E,1] |be3cbc7f5a234c64: prepare load_state_dict rejects[E,1] versus installed[E], before GEMM/tests | That hardcoded ABI assumption. Corrected to metadata reshape_as installed FP32 parameter, with numel/dtype guards. No conclusion about backend performance or mathematical correctness |
 
 | Experiment | Evidence | Rules out |
 |---|---|---|

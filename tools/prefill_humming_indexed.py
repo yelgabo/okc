@@ -59,9 +59,11 @@ def _hi_prepare(weights):
             weight_config={"b_dtype":_hd.float4e2m1,"bs_dtype":_hd.float8e4m3,
                 "weight_scale_group_size":16,"weight_scale_2_type":"tensor"},
             input_config={"dtype":_hd.bfloat16}).to(weights[name].device)
+        assert layer.weight_scale_2.numel()==32 and layer.weight_scale_2.dtype==torch.float32
+        assert weights[name+"_gs"].numel()==32 and weights[name+"_gs"].dtype==torch.float32
         layer.load_from_tensors({"weight":weights[name].contiguous().view(torch.int32),
             "weight_scale":weights[name+"_sf"].contiguous(),
-            "weight_scale_2":weights[name+"_gs"].float().reshape(32,1)})
+            "weight_scale_2":weights[name+"_gs"].contiguous().reshape_as(layer.weight_scale_2)})
         layer.transform()
         layers.append(layer)
     return {"layers":layers,"workspace":{}}
@@ -71,6 +73,8 @@ def _hi_workspace(x,state):
     hum=state["hum"]
     m=x.shape[0]
     if m not in hum["workspace"]:
+        if torch.cuda.is_current_stream_capturing():
+            raise RuntimeError("Humming scratch must be warmed eagerly before capture")
         r=m*8
         dev=x.device
         cfg=[_hcfg(layer.humming_config,shape_m=r,gemm_type="indexed",
@@ -107,6 +111,9 @@ def _hi_metadata(ws,m):
 def _experts(x,topk_weights,topk_ids,state):
     # Caller has already shifted IDs by device local_start modulo256.
     m=x.shape[0]
+    x=x.contiguous()
+    topk_ids=topk_ids.to(torch.int32).contiguous()
+    topk_weights=topk_weights.to(torch.float32).contiguous()
     ws=_hi_workspace(x,state)
     ws["counts"].zero_()
     _hi_rank[(triton.cdiv(m*8,256),)](topk_ids,ws["counts"],ws["rank"],ws["local"],m*8,256)

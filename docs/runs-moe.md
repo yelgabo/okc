@@ -198,6 +198,35 @@ execute Triton or prove runtime Humming compatibility. Root requested independen
 review before a backend check; queued replay, official correctness and cold timing remain
 required. No Humming performance or candidate promotion is claimed yet.
 
+### Prefill Humming backend check dispatch and ABI correction
+
+Root requested and reviewed the fixed-capacity INDEXED prototype; independent reviewer
+verified v0.1.12 scheduler/sentinel ABI, capacity, row mapping, precision and graph lifetimes.
+Preserve original FP32 contiguous topk weights and I32 contiguous IDs. A cache miss during
+capture now fails closed; scratch must first be warmed eagerly. First dispatch was
+be3cbc7f5a234c64 (`muse_prefill_layer`), file SHA256
+e53d374f6cf4239705cd3d20998ca3364ef0477dadd49031bafda0bff7324319.
+
+It failed in prepare before any GEMM: installed Humming0.1.12 expects tensor-scale parameter
+shape[32], whereas the source-derived wrapper supplied[32,1]. This is an integration ABI
+failure, not evidence of a mathematical failure or slow backend. Receipt/log retained as
+`profiles/prefill_humming.be3cbc7f5a234c64.{json,log}`. Corrected wrapper uses
+`gs.reshape_as(layer.weight_scale_2)`, a metadata-only operation on original FP32 scale values.
+
+Corrected plain check0de84000097946c9 dispatched, file SHA256
+bf6d95ae1cbba377dc5bd4a2cd9774815a54ebb26ddcfcab9a33834220c87232, pending. After this
+dispatch, generator additionally asserts both scale tensors contain32 values and are FP32,
+and uses contiguous original values instead of a redundant .float() no-op. The in-flight
+file remains frozen. These guards must be in the later fresh-stress/release build and checked
+before promotion. Package version alone did not guarantee the exact parameter ABI.
+
+`tools/prefill_humming_stress.py` is prepared, not dispatched: M32 four synthetic banks
+(zero-local, one-local expert, eight-local, changing mixed routing) and2000 queued graph
+replays with copied fresh x/IDs/topk weights. Device checks compare counts/NP to expected
+local counts, enforce exact zero on nonlocal cases and compare numerical error to a matched
+64-call eager envelope. This detects stale state/replay errors; official plain tests supply
+independent mathematical correctness. No stress dispatch until corrected plain check passes.
+
 ## Source facts (SGLang a55ab7d5, read from GitHub and hashed against the image)
 
 - `fused_post_expert_norm_weighted_sum` falls back to PyTorch ops below
