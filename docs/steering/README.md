@@ -596,3 +596,5 @@ Latest: [Dense projection transfer to the decode layer](2026-11-01-layer-dense-t
 - [2026-11-01 owned skinny band progress proof](2026-11-01-owned-skinny-band-progress.md): physical512 credits, analytic last occurrence and async handoff obligations; CPU-only.
 
 - 2026-11-01: [Owned fixed-band32 private-check registration](2026-11-01-owned-moe-band32-registration.md): disjoint preregistered heldouts, actual activation/credit request costs, exact631897B artifact493d1678, sevenCPU host gates; root review required, no dispatch by reviewer.
+
+- 2026-11-01: [Owned band32 terminal closure](2026-11-01-owned-moe-band32-terminal.md): a5c7c7e3fe344919 PASS5/all264 privatechecks but all six targeted rows lose; full-score factors0.9422-0.9460, KEEP=false. Exact band32 and offline identity variant closed; no pure/public candidate or automatic sweep.

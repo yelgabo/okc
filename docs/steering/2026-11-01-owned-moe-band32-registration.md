@@ -147,3 +147,8 @@ using the exact493d1678 artifact above, source/harness evidence `1bf61d2` and
 patcher `fc28a77`. Status/receipt/profile archiving belongs to root. Pending:
 no timing, correctness result, score or KEEP decision is asserted here. No
 additional job is authorized by this worker; production remains unchanged.
+
+Terminal addendum: `a5c7c7e3fe344919` passed official/private math but band32 lost
+all six targeted rows and all four full-score factors; KEEP=false. See the
+[independent terminal report](2026-11-01-owned-moe-band32-terminal.md).
+No public/pure qualification or knob sweep follows. Production remains unchanged.
