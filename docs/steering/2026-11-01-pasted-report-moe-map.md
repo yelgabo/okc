@@ -46,6 +46,13 @@ deliberately bypasses old Marlin/W4 alignment when a fused variant is selected, 
 future producer-metadata experiment must compare against this selected path, not
 against the older several-kernel alignment chain.
 
+One persistent launch does not mean every intermediate stays on-chip. Owned kernels
+still use global inter/xb activation scratch, ybuf and sum-of-squares storage plus
+cross-CTA publication/final synchronization. A genuinely different CTA/expert design
+could trade those internal transfers for less parallelism or higher register/shared
+use. That tradeoff remains a hypothesis; marking launch fusion as already done is
+not a proof that internal stage-boundary traffic is irreducible.
+
 ## Precision and ordering constraints on further fusion
 
 The existing expert pipeline rounds GEMM1 gate/up to BF16, computes SwiGLU and rounds
