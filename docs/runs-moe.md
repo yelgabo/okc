@@ -5326,3 +5326,16 @@ architectures; per-expertfrontier measurement is next, notanotherSC6knobsweep.
 2026-11-01 | 46aafddc195c4c57 | exact candidate-only standalone treatment, 364234B SHA256 fde6b1ee532f77d4d2d3fc6bae337e2ceeea9d7e07e458a42a382b787100891b | root official off-board check following the controlled win, no public entry. Pending.
 
 46aafddc195c4c57 terminal PASS 5/5, no flags, six timings and six profiles. Candidate-only stage retirement scored 2.348798659x (95% CI 2.313566679-2.384030639). Confirmed selected WGS/SC6 backend. Medians at 1/8/16/32/128/256 tokens: 25.601/69.097/99.162/123.898/178.264/212.460 us. Compared on matched inputs in 63f5a2a8ed2341d1, where all three seeds cleared the gate. Measurement only for the standalone board.
+
+
+## Owned multiply decoder, 2026-11-01
+
+Registered574cc1c before ONE authorizedcheck835253441a214a1c, pending on actualMoE
+board. Frozenprivateharness628518B SHAb1e6e0886fe0058b9c5719950fb4dd06eef27b8f69975034affa234c440e98f3.
+OwnedderivedW4permutation+multiply16648, noimporteddonorcode/table. Actualfullpacking
+CPUproofandactualsm90aCUBINhotloops390->374, skinny140->128regs. Commoncoop
+admissionandBF16effectivegamma inbotharms. Currenttrackedc785source, historical
+abe765DISPATCHonly(skinny<=32/main47>=128), notclaimedhistoricalpublicbytes.
+4privatepacks/scratch/inputs/captures,2binaries,18normalcases/seeds9919971009,
+FP32fresh/skew/allremote/post gates, all4cross+EVERYseed whole-six-load>=1% and2xnull.
+No publicsubmit. Fullregisteredproof/gates: docs/steering/2026-11-01-owned-multiply-decode.md.
