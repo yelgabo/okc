@@ -805,3 +805,8 @@ Raw receipt and normalizedprofiles retained. Root independently verified bytes a
 user's standing authorization, publicly submitted exact pure as **cb71acec29d141c6**;
 scored receipt root-owned. Paired fullsixload result remains the algorithm evidence,
 not cross-run comparison of this noisy headline with other candidates.
+
+
+## 2026-11-01 - native gamma OFF/ON local compiler gate (no job ID)
+
+CPU compiler only; no GPU/official call, score/CI or GPU failure. Exact607 ba9e327c versus OFF e17901d5 and ON d6756bb5, 15 fixed CUDA12.8 sm90a build requests /30 bool entry instances across Tiny/Tiny2/Mid/B4/MAIN. Baseline-to-OFF normalized PTX/SASS/resources/bounds identical all5. ON MAIN both entries spill stores4->44B and loads32->68B (96regs/16barriers/8Bstack unchanged); other4 resource vectors unchanged. Status CLOSED_RESOURCE; no retry, short-only mask, format/cap sweep or speed claim. Full report/evidence: docs/steering/2026-11-01-g-native-gamma-compile.md.
