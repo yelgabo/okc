@@ -239,3 +239,14 @@ Fresh19:38-named CLI snapshots show no live jobs, layer0 checks/2 scored
 slots, projection0/4, MoE0/8 and attention3/7. Re-query before actual
 dispatch because quotas are shared. The WSL CLI is `/usr/local/bin/okc`;
 the legacy coordinator's `~/.okc/bin/okc` path is not installed here.
+
+The owning-receipt reader `tools/hybrid_layer_measurement.py` is prepared
+for the proposed one-arm run. Its three CPU tests reconstruct archived
+607e from all12 records and reject wrong job/board/mode, missing records,
+bad values/weights/flags, failed correctness or a mismatched whole score.
+Startup parsing requires48 model checks/8 captures/24 changed replays,
+40 empty checks/8 empty captures/32 restored occupied checks, all3 actual
+resource vectors with zero local memory and complete cooperation/residency.
+It reports all12 raw and adjusted medians plus six46/16 weighted loads,
+and explicitly returns no paired attribution or release decision. Synthetic
+negative fixtures are parser tests, not new GPU measurements.
