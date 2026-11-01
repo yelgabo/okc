@@ -1,0 +1,204 @@
+l page1 scale0.015625 [splits=33,nc=1,mode=3] vs_ctrl=4.6e-05 diff_elems=2/24576 max_ulp=1.0 max_abs=3.9e-03 ws_rows_nonzero=0 l_nonzero=0 tickets_nonzero=0 coop_next_parity_nonzero=0 flat_next_parity_nonzero=0
+ABCHECK PASS ctrl b2 ctx9000 tp8 full L1 fixed normal page64 scale0.015625 [splits=264,nc=1,mode=49] err=5.338e-03 bound=0.150 worst_row=1.226e-02 k=0.00e+00 v=0.00e+00 ws_rows_nonzero=0 l_nonzero=0 tickets_nonzero=0 coop_next_parity_nonzero=0 flat_next_parity_nonzero=0
+ABCHECK PASS late b2 ctx9000 tp8 full L1 fixed normal page64 scale0.015625 [splits=264,nc=1,mode=49] vs_ctrl=0.0e+00 diff_elems=0/2048 ws_rows_nonzero=0 l_nonzero=0 tickets_nonzero=0 coop_next_parity_nonzero=0 flat_next_parity_nonzero=0
+ABCHECK PASS ctrl2 b2 ctx9000 tp8 full L1 fixed normal page64 scale0.015625 [splits=264,nc=1,mode=49] vs_ctrl=0.0e+00 diff_elems=0/2048 ws_rows_nonzero=0 l_nonzero=0 tickets_nonzero=0 coop_next_parity_nonzero=0 flat_next_parity_nonzero=0
+ABCHECK done: 0 failing t=96s
+ABORDER seed=311102 rounds=100 inputs=3 timing_seeds=[1000, 1001, 1002] arms=['ctrl', 'late', 'ctrl2']
+ABPLAN b= 1 sliding L=1 ctrl=[splits=32,nc=1,mode=13] late=[splits=32,nc=1,mode=13] ctrl2=[splits=32,nc=1,mode=13]
+ABCOLD b= 1 sliding L=1 in=0 ctrl=9.28 late=9.31 ctrl2=9.31 cap0=ctrl t=96s
+ABWARM b= 1 sliding L=1 in=0 ctrl=4.73 late=4.74 ctrl2=4.75 t=96s
+ABCOLD b= 1 sliding L=1 in=1 ctrl=9.28 late=9.28 ctrl2=9.47 cap0=ctrl2 t=96s
+ABWARM b= 1 sliding L=1 in=1 ctrl=4.75 late=4.72 ctrl2=4.77 t=96s
+ABCOLD b= 1 sliding L=1 in=2 ctrl=9.28 late=9.28 ctrl2=9.47 cap0=ctrl t=96s
+ABWARM b= 1 sliding L=1 in=2 ctrl=4.76 late=4.71 ctrl2=4.78 t=96s
+ABCOLD b= 1 sliding L=1 pooled ctrl=9.28 late=9.28 ctrl2=9.31
+ABWARM b= 1 sliding L=1 pooled ctrl=4.76 late=4.74 ctrl2=4.78
+ABPLAN b= 1 full    L=1 ctrl=[splits=252,nc=8,mode=11] late=[splits=252,nc=8,mode=11] ctrl2=[splits=252,nc=8,mode=11]
+ABCOLD b= 1 full    L=1 in=0 ctrl=17.34 late=16.83 ctrl2=17.22 cap0=late t=96s
+ABWARM b= 1 full    L=1 in=0 ctrl=11.42 late=11.05 ctrl2=11.10 t=96s
+ABCOLD b= 1 full    L=1 in=1 ctrl=17.18 late=16.77 ctrl2=17.12 cap0=late t=96s
+ABWARM b= 1 full    L=1 in=1 ctrl=11.51 late=11.06 ctrl2=11.10 t=96s
+ABCOLD b= 1 full    L=1 in=2 ctrl=17.31 late=16.86 ctrl2=17.22 cap0=ctrl t=96s
+ABWARM b= 1 full    L=1 in=2 ctrl=11.52 late=11.05 ctrl2=11.07 t=96s
+ABCOLD b= 1 full    L=1 pooled ctrl=17.28 late=16.80 ctrl2=17.15
+ABWARM b= 1 full    L=1 pooled ctrl=11.49 late=11.05 ctrl2=11.10
+ABPLAN b=16 sliding L=1 ctrl=[splits=16,nc=1,mode=1] late=[splits=16,nc=1,mode=1] ctrl2=[splits=16,nc=1,mode=1]
+ABCOLD b=16 sliding L=1 in=0 ctrl=13.06 late=12.77 ctrl2=13.06 cap0=ctrl t=96s
+ABWARM b=16 sliding L=1 in=0 ctrl=7.58 late=7.20 ctrl2=7.67 t=96s
+ABCOLD b=16 sliding L=1 in=1 ctrl=13.06 late=12.93 ctrl2=13.22 cap0=late t=96s
+ABWARM b=16 sliding L=1 in=1 ctrl=7.17 late=7.12 ctrl2=7.65 t=96s
+ABCOLD b=16 sliding L=1 in=2 ctrl=13.06 late=12.86 ctrl2=13.22 cap0=ctrl2 t=96s
+ABWARM b=16 sliding L=1 in=2 ctrl=7.67 late=7.44 ctrl2=7.37 t=96s
+ABCOLD b=16 sliding L=1 pooled ctrl=13.06 late=12.86 ctrl2=13.12
+ABWARM b=16 sliding L=1 pooled ctrl=7.58 late=7.20 ctrl2=7.64
+ABPLAN b=16 full    L=1 ctrl=[splits=264,nc=1,mode=49] late=[splits=264,nc=1,mode=49] ctrl2=[splits=264,nc=1,mode=49]
+ABCOLD b=16 full    L=1 in=0 ctrl=97.47 late=97.54 ctrl2=97.60 cap0=ctrl t=96s
+ABWARM b=16 full    L=1 in=0 ctrl=84.39 late=84.44 ctrl2=84.47 t=96s
+ABCOLD b=16 full    L=1 in=1 ctrl=97.89 late=97.98 ctrl2=98.02 cap0=late t=97s
+ABWARM b=16 full    L=1 in=1 ctrl=85.01 late=84.89 ctrl2=85.06 t=97s
+ABCOLD b=16 full    L=1 in=2 ctrl=97.79 late=97.79 ctrl2=97.95 cap0=late t=97s
+ABWARM b=16 full    L=1 in=2 ctrl=84.79 late=84.79 ctrl2=84.88 t=97s
+ABCOLD b=16 full    L=1 pooled ctrl=97.73 late=97.76 ctrl2=97.86
+ABWARM b=16 full    L=1 pooled ctrl=84.77 late=84.77 ctrl2=84.87
+ABPLAN b=32 sliding L=1 ctrl=[splits=8,nc=1,mode=1] late=[splits=8,nc=1,mode=1] ctrl2=[splits=8,nc=1,mode=1]
+ABCOLD b=32 sliding L=1 in=0 ctrl=15.39 late=15.52 ctrl2=15.49 cap0=late t=97s
+ABWARM b=32 sliding L=1 in=0 ctrl=9.54 late=9.57 ctrl2=9.43 t=97s
+ABCOLD b=32 sliding L=1 in=1 ctrl=15.46 late=15.52 ctrl2=15.62 cap0=late t=97s
+ABWARM b=32 sliding L=1 in=1 ctrl=9.51 late=9.41 ctrl2=9.67 t=97s
+ABCOLD b=32 sliding L=1 in=2 ctrl=15.55 late=15.55 ctrl2=15.58 cap0=late t=97s
+ABWARM b=32 sliding L=1 in=2 ctrl=9.47 late=9.42 ctrl2=9.53 t=97s
+ABCOLD b=32 sliding L=1 pooled ctrl=15.46 late=15.52 ctrl2=15.58
+ABWARM b=32 sliding L=1 pooled ctrl=9.51 late=9.45 ctrl2=9.54
+ABPLAN b=32 full    L=1 ctrl=[splits=264,nc=1,mode=49] late=[splits=264,nc=1,mode=49] ctrl2=[splits=264,nc=1,mode=49]
+ABCOLD b=32 full    L=1 in=0 ctrl=172.96 late=173.12 ctrl2=173.06 cap0=late t=97s
+ABWARM b=32 full    L=1 in=0 ctrl=161.71 late=161.92 ctrl2=161.98 t=97s
+ABCOLD b=32 full    L=1 in=1 ctrl=174.11 late=173.98 ctrl2=174.05 cap0=ctrl t=97s
+ABWARM b=32 full    L=1 in=1 ctrl=162.70 late=162.63 ctrl2=162.78 t=98s
+ABCOLD b=32 full    L=1 in=2 ctrl=174.11 late=173.95 ctrl2=174.05 cap0=ctrl2 t=98s
+ABWARM b=32 full    L=1 in=2 ctrl=163.05 late=162.93 ctrl2=162.66 t=98s
+ABCOLD b=32 full    L=1 pooled ctrl=173.66 late=173.63 ctrl2=173.73
+ABWARM b=32 full    L=1 pooled ctrl=162.22 late=162.44 ctrl2=162.31
+ABPLAN b= 1 sliding L=8 ctrl=[splits=33,nc=1,mode=15] late=[splits=33,nc=1,mode=15] ctrl2=[splits=33,nc=1,mode=15]
+ABCOLD b= 1 sliding L=8 in=0 ctrl=10.94 late=10.94 ctrl2=10.98 cap0=late t=98s
+ABWARM b= 1 sliding L=8 in=0 ctrl=6.94 late=6.91 ctrl2=6.95 t=98s
+ABCOLD b= 1 sliding L=8 in=1 ctrl=10.91 late=10.88 ctrl2=10.88 cap0=ctrl2 t=98s
+ABWARM b= 1 sliding L=8 in=1 ctrl=6.80 late=6.73 ctrl2=6.83 t=98s
+ABCOLD b= 1 sliding L=8 in=2 ctrl=10.62 late=10.40 ctrl2=10.62 cap0=ctrl2 t=98s
+ABWARM b= 1 sliding L=8 in=2 ctrl=6.73 late=6.78 ctrl2=6.78 t=98s
+ABCOLD b= 1 sliding L=8 pooled ctrl=10.88 late=10.85 ctrl2=10.88
+ABWARM b= 1 sliding L=8 pooled ctrl=6.80 late=6.79 ctrl2=6.83
+ABPLAN b= 1 full    L=8 ctrl=[splits=252,nc=8,mode=11] late=[splits=252,nc=8,mode=11] ctrl2=[splits=252,nc=8,mode=11]
+ABCOLD b= 1 full    L=8 in=0 ctrl=18.94 late=19.04 ctrl2=19.14 cap0=late t=98s
+ABWARM b= 1 full    L=8 in=0 ctrl=14.54 late=14.64 ctrl2=14.56 t=98s
+ABCOLD b= 1 full    L=8 in=1 ctrl=19.04 late=19.04 ctrl2=19.26 cap0=late t=98s
+ABWARM b= 1 full    L=8 in=1 ctrl=14.59 late=14.68 ctrl2=14.59 t=98s
+ABCOLD b= 1 full    L=8 in=2 ctrl=19.14 late=19.20 ctrl2=19.30 cap0=ctrl2 t=98s
+ABWARM b= 1 full    L=8 in=2 ctrl=14.62 late=14.70 ctrl2=14.64 t=98s
+ABCOLD b= 1 full    L=8 pooled ctrl=19.04 late=19.10 ctrl2=19.23
+ABWARM b= 1 full    L=8 pooled ctrl=14.59 late=14.68 ctrl2=14.60
+ABPLAN b=16 sliding L=8 ctrl=[splits=8,nc=1,mode=3] late=[splits=8,nc=1,mode=3] ctrl2=[splits=8,nc=1,mode=3]
+ABCOLD b=16 sliding L=8 in=0 ctrl=15.55 late=15.55 ctrl2=15.55 cap0=ctrl t=98s
+ABWARM b=16 sliding L=8 in=0 ctrl=11.12 late=11.20 ctrl2=11.21 t=98s
+ABCOLD b=16 sliding L=8 in=1 ctrl=15.68 late=15.65 ctrl2=15.65 cap0=ctrl t=98s
+ABWARM b=16 sliding L=8 in=1 ctrl=11.14 late=11.25 ctrl2=11.24 t=98s
+ABCOLD b=16 sliding L=8 in=2 ctrl=15.58 late=15.74 ctrl2=15.81 cap0=ctrl t=98s
+ABWARM b=16 sliding L=8 in=2 ctrl=11.14 late=11.26 ctrl2=11.24 t=98s
+ABCOLD b=16 sliding L=8 pooled ctrl=15.58 late=15.62 ctrl2=15.65
+ABWARM b=16 sliding L=8 pooled ctrl=11.14 late=11.25 ctrl2=11.24
+ABPLAN b=16 full    L=8 ctrl=[splits=264,nc=1,mode=51] late=[splits=264,nc=1,mode=51] ctrl2=[splits=264,nc=1,mode=51]
+ABCOLD b=16 full    L=8 in=0 ctrl=112.22 late=112.61 ctrl2=112.32 cap0=ctrl2 t=99s
+ABWARM b=16 full    L=8 in=0 ctrl=103.79 late=104.03 ctrl2=103.63 t=99s
+ABCOLD b=16 full    L=8 in=1 ctrl=111.49 late=111.17 ctrl2=111.20 cap0=late t=99s
+ABWARM b=16 full    L=8 in=1 ctrl=103.76 late=104.48 ctrl2=104.51 t=99s
+ABCOLD b=16 full    L=8 in=2 ctrl=111.68 late=111.46 ctrl2=111.78 cap0=late t=99s
+ABWARM b=16 full    L=8 in=2 ctrl=103.14 late=103.35 ctrl2=103.18 t=99s
+ABCOLD b=16 full    L=8 pooled ctrl=111.78 late=111.74 ctrl2=111.78
+ABWARM b=16 full    L=8 pooled ctrl=103.42 late=103.58 ctrl2=103.46
+ABPLAN b=32 sliding L=8 ctrl=[splits=4,nc=1,mode=3] late=[splits=4,nc=1,mode=3] ctrl2=[splits=4,nc=1,mode=3]
+ABCOLD b=32 sliding L=8 in=0 ctrl=20.22 late=20.54 ctrl2=20.35 cap0=ctrl t=99s
+ABWARM b=32 sliding L=8 in=0 ctrl=15.16 late=15.32 ctrl2=15.24 t=99s
+ABCOLD b=32 sliding L=8 in=1 ctrl=19.71 late=20.03 ctrl2=19.87 cap0=ctrl2 t=99s
+ABWARM b=32 sliding L=8 in=1 ctrl=14.92 late=15.16 ctrl2=15.06 t=99s
+ABCOLD b=32 sliding L=8 in=2 ctrl=19.87 late=19.97 ctrl2=19.94 cap0=ctrl2 t=99s
+ABWARM b=32 sliding L=8 in=2 ctrl=15.03 late=15.15 ctrl2=15.08 t=99s
+ABCOLD b=32 sliding L=8 pooled ctrl=19.97 late=20.16 ctrl2=20.06
+ABWARM b=32 sliding L=8 pooled ctrl=15.03 late=15.20 ctrl2=15.10
+ABPLAN b=32 full    L=8 ctrl=[splits=264,nc=1,mode=51] late=[splits=264,nc=1,mode=51] ctrl2=[splits=264,nc=1,mode=51]
+ABCOLD b=32 full    L=8 in=0 ctrl=188.93 late=188.22 ctrl2=188.10 cap0=ctrl2 t=99s
+ABWARM b=32 full    L=8 in=0 ctrl=193.50 late=193.32 ctrl2=193.38 t=100s
+ABCOLD b=32 full    L=8 in=1 ctrl=191.84 late=191.46 ctrl2=191.84 cap0=ctrl t=100s
+ABWARM b=32 full    L=8 in=1 ctrl=195.54 late=195.49 ctrl2=195.59 t=100s
+ABCOLD b=32 full    L=8 in=2 ctrl=190.46 late=191.23 ctrl2=190.98 cap0=ctrl t=100s
+ABWARM b=32 full    L=8 in=2 ctrl=204.69 late=204.94 ctrl2=204.32 t=100s
+ABCOLD b=32 full    L=8 pooled ctrl=190.27 late=190.30 ctrl2=190.18
+ABWARM b=32 full    L=8 pooled ctrl=195.26 late=194.92 ctrl2=194.72
+ABADDR ctrl:acc=0x126f1a000000,l=0x126fd1a59000,cnt=0x126fd1a99000 late:acc=0x126f1b000000,l=0x126fd1aba000,cnt=0x126fd1afa000 ctrl2:acc=0x126f16000000,l=0x126fd1b1a000,cnt=0x126fd1b5a000
+ABSUM cold b= 1 sliding L=1 ctrl=9.28 late=9.28 ctrl2=9.31 null:ctrl2-ctrl=+0.03 d:late=+0.00
+ABSUM warm b= 1 sliding L=1 ctrl=4.76 late=4.74 ctrl2=4.78 null:ctrl2-ctrl=+0.02 d:late=-0.02
+ABSUM cold b= 1 full    L=1 ctrl=17.28 late=16.80 ctrl2=17.15 null:ctrl2-ctrl=-0.13 d:late=-0.48
+ABSUM warm b= 1 full    L=1 ctrl=11.49 late=11.05 ctrl2=11.10 null:ctrl2-ctrl=-0.40 d:late=-0.44
+ABSUM cold b=16 sliding L=1 ctrl=13.06 late=12.86 ctrl2=13.12 null:ctrl2-ctrl=+0.06 d:late=-0.19
+ABSUM warm b=16 sliding L=1 ctrl=7.58 late=7.20 ctrl2=7.64 null:ctrl2-ctrl=+0.07 d:late=-0.38
+ABSUM cold b=16 full    L=1 ctrl=97.73 late=97.76 ctrl2=97.86 null:ctrl2-ctrl=+0.13 d:late=+0.03
+ABSUM warm b=16 full    L=1 ctrl=84.77 late=84.77 ctrl2=84.87 null:ctrl2-ctrl=+0.11 d:late=+0.00
+ABSUM cold b=32 sliding L=1 ctrl=15.46 late=15.52 ctrl2=15.58 null:ctrl2-ctrl=+0.13 d:late=+0.06
+ABSUM warm b=32 sliding L=1 ctrl=9.51 late=9.45 ctrl2=9.54 null:ctrl2-ctrl=+0.03 d:late=-0.06
+ABSUM cold b=32 full    L=1 ctrl=173.66 late=173.63 ctrl2=173.73 null:ctrl2-ctrl=+0.06 d:late=-0.03
+ABSUM warm b=32 full    L=1 ctrl=162.22 late=162.44 ctrl2=162.31 null:ctrl2-ctrl=+0.09 d:late=+0.22
+ABSUM cold b= 1 sliding L=8 ctrl=10.88 late=10.85 ctrl2=10.88 null:ctrl2-ctrl=+0.00 d:late=-0.03
+ABSUM warm b= 1 sliding L=8 ctrl=6.80 late=6.79 ctrl2=6.83 null:ctrl2-ctrl=+0.03 d:late=-0.01
+ABSUM cold b= 1 full    L=8 ctrl=19.04 late=19.10 ctrl2=19.23 null:ctrl2-ctrl=+0.19 d:late=+0.06
+ABSUM warm b= 1 full    L=8 ctrl=14.59 late=14.68 ctrl2=14.60 null:ctrl2-ctrl=+0.01 d:late=+0.08
+ABSUM cold b=16 sliding L=8 ctrl=15.58 late=15.62 ctrl2=15.65 null:ctrl2-ctrl=+0.06 d:late=+0.03
+ABSUM warm b=16 sliding L=8 ctrl=11.14 late=11.25 ctrl2=11.24 null:ctrl2-ctrl=+0.10 d:late=+0.11
+ABSUM cold b=16 full    L=8 ctrl=111.78 late=111.74 ctrl2=111.78 null:ctrl2-ctrl=+0.00 d:late=-0.03
+ABSUM warm b=16 full    L=8 ctrl=103.42 late=103.58 ctrl2=103.46 null:ctrl2-ctrl=+0.04 d:late=+0.16
+ABSUM cold b=32 sliding L=8 ctrl=19.97 late=20.16 ctrl2=20.06 null:ctrl2-ctrl=+0.10 d:late=+0.19
+ABSUM warm b=32 sliding L=8 ctrl=15.03 late=15.20 ctrl2=15.10 null:ctrl2-ctrl=+0.07 d:late=+0.17
+ABSUM cold b=32 full    L=8 ctrl=190.27 late=190.30 ctrl2=190.18 null:ctrl2-ctrl=-0.10 d:late=+0.03
+ABSUM warm b=32 full    L=8 ctrl=195.26 late=194.92 ctrl2=194.72 null:ctrl2-ctrl=-0.54 d:late=-0.34
+ABIN b= 1 sliding L=1 in=0 late=+0.03 ctrl2=+0.03
+ABIN b= 1 sliding L=1 in=1 late=+0.00 ctrl2=+0.19
+ABIN b= 1 sliding L=1 in=2 late=+0.00 ctrl2=+0.19
+ABIN b= 1 full    L=1 in=0 late=-0.51 ctrl2=-0.13
+ABIN b= 1 full    L=1 in=1 late=-0.42 ctrl2=-0.06
+ABIN b= 1 full    L=1 in=2 late=-0.45 ctrl2=-0.10
+ABIN b=16 sliding L=1 in=0 late=-0.29 ctrl2=+0.00
+ABIN b=16 sliding L=1 in=1 late=-0.13 ctrl2=+0.16
+ABIN b=16 sliding L=1 in=2 late=-0.19 ctrl2=+0.16
+ABIN b=16 full    L=1 in=0 late=+0.06 ctrl2=+0.13
+ABIN b=16 full    L=1 in=1 late=+0.10 ctrl2=+0.13
+ABIN b=16 full    L=1 in=2 late=+0.00 ctrl2=+0.16
+ABIN b=32 sliding L=1 in=0 late=+0.13 ctrl2=+0.10
+ABIN b=32 sliding L=1 in=1 late=+0.06 ctrl2=+0.16
+ABIN b=32 sliding L=1 in=2 late=+0.00 ctrl2=+0.03
+ABIN b=32 full    L=1 in=0 late=+0.16 ctrl2=+0.10
+ABIN b=32 full    L=1 in=1 late=-0.13 ctrl2=-0.06
+ABIN b=32 full    L=1 in=2 late=-0.16 ctrl2=-0.06
+ABIN b= 1 sliding L=8 in=0 late=+0.00 ctrl2=+0.03
+ABIN b= 1 sliding L=8 in=1 late=-0.03 ctrl2=-0.03
+ABIN b= 1 sliding L=8 in=2 late=-0.22 ctrl2=+0.00
+ABIN b= 1 full    L=8 in=0 late=+0.10 ctrl2=+0.19
+ABIN b= 1 full    L=8 in=1 late=+0.00 ctrl2=+0.22
+ABIN b= 1 full    L=8 in=2 late=+0.06 ctrl2=+0.16
+ABIN b=16 sliding L=8 in=0 late=+0.00 ctrl2=+0.00
+ABIN b=16 sliding L=8 in=1 late=-0.03 ctrl2=-0.03
+ABIN b=16 sliding L=8 in=2 late=+0.16 ctrl2=+0.22
+ABIN b=16 full    L=8 in=0 late=+0.38 ctrl2=+0.10
+ABIN b=16 full    L=8 in=1 late=-0.32 ctrl2=-0.29
+ABIN b=16 full    L=8 in=2 late=-0.22 ctrl2=+0.10
+ABIN b=32 sliding L=8 in=0 late=+0.32 ctrl2=+0.13
+ABIN b=32 sliding L=8 in=1 late=+0.32 ctrl2=+0.16
+ABIN b=32 sliding L=8 in=2 late=+0.10 ctrl2=+0.06
+ABIN b=32 full    L=8 in=0 late=-0.70 ctrl2=-0.83
+ABIN b=32 full    L=8 in=1 late=-0.38 ctrl2=+0.00
+ABIN b=32 full    L=8 in=2 late=+0.77 ctrl2=+0.51
+ABSCORE ctrl vs ctrl 1.0000 d1=1.0000 d16=1.0000 d32=1.0000 v1=1.0000 v16=1.0000 v32=1.0000
+ABSCORE late vs ctrl 1.0020 d1=1.0110 d16=1.0039 d32=0.9993 v1=1.0006 v16=0.9996 v32=0.9976
+ABSCORE ctrl2 vs ctrl 0.9985 d1=1.0008 d16=0.9977 d32=0.9980 v1=0.9962 v16=0.9988 v32=0.9993
+ABCHECKSUM ctrl=19/0/0 late=19/0/0 ctrl2=19/0/0 (pass/fail/probe)
+USDT:2026-11-01 05:31:27 77:77 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-01 05:31:27 77:77 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-01 05:31:27 77:77 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-01 05:31:27 77:77 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-01 05:31:27 77:77 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-01 05:31:27 77:77 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-01 05:31:27 77:77 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-01 05:31:27 77:77 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-01 05:31:27 77:77 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-01 05:31:27 77:77 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-01 05:31:27 77:77 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-01 05:31:27 77:77 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-01 05:31:27 77:77 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-01 05:31:27 77:77 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-01 05:31:27 77:77 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-01 05:31:27 77:77 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-01 05:31:27 77:77 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-01 05:31:27 77:77 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-01 05:31:27 77:77 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-01 05:31:27 77:77 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-01 05:31:27 77:77 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-01 05:31:27 77:77 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-01 05:31:27 77:77 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-01 05:31:27 77:77 SyncActivityProfilerHandler.cpp:46] profiler_stop
+
