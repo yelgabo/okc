@@ -283,3 +283,7 @@ the public entry vjeux/okc-2026 with its design memos (see `docs/gap-analysis-20
 | Experiment | Evidence | Closure / reopening trigger |
 |---|---|---|
 | Original12-bit cgemv integrated escape consumerwarp0 instead of extra warp | bac995b3b94541c4: actual zero-spill blocks/SM qkv5→6,o21→32,pool3→4,slice9→12; independent A/B two-heldout paired deltas +0.96,+1.50,+2.24–2.27,+0.45–0.48us; FP64 gates pass | This schedule loses despite real occupancy gains; no register-cap sweep. Reopen with a different escape schedule that preserves concurrency or materially reduces correction work, not another occupancy assertion. |
+
+| Experiment | Evidence | Closure / reopening trigger |
+|---|---|---|
+| M16384 qkv directLt heuristic plans vs pinned SGLang dispatcher | e15f6a9a9ff047ef: twoindependentplans each of layouts0/2, twoheldouts, paired-14.99 to-16.26us vs897–900us; nullunder1us; FP64/probe/nearby pass | Below preregistered2%gain17.95–17.99us, no promotion. Pooler/unpooler pass separately; do not lower qkvgate after seeing result. Reopen with new schedule/algorithm or wholelayer evidence sufficient to justify including smaller component gain. |

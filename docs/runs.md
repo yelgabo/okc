@@ -2136,3 +2136,27 @@ No dispatch or speedup claim. Reopening requires actual escape-region critical-p
 or larger potential than a tiny tail, exact originalGPU-subtraction vsnewtablebitidentity,
 allfiniteBF16×validbase CPU subtraction proof, FP64/probe/freshinput gates, and heldout
 paired gain beyond independentnulls. Integratedwarp loss does not prove this ALU is critical.
+
+Result `e15f6a9a9ff047ef` (generator05dc6df): unchanged projection C3 passes9/9,
+1.525830x (95%CI1.502943–1.548717). Diagnostic completes111.4sprepare, no skips.
+Named isolated baseline profiles identify o/qkv/unpooler as192x192_TNN, pooler as320x128_TNT;
+thus the previous three-call aggregate is o+qkv+unpooler, not pooler. Named profiles o377.7,
+qkv774.1,pool1483.0,unpool1723.7us are one-shot attribution, not paired benchmark medians.
+Actual32accepted heuristic configs per searchedop (≤96cap). Config order is
+[algo,tile,splitK,reduction,swizzle,custom,stages,inner,cluster]. No custom kernel resources
+or measured bandwidth counters are available for these library plans.
+
+| op | coldgraph baseline rawus (twoheldouts) | paired deltaus allfourarms | selectedlayouts and config | gate |
+|---|---|---|---|---|
+|qkv|897.34/899.74|-14.99 to-16.26|0/2:[66,184,1,0,0,2,35,0,5]|fails preregistered2% threshold17.95/17.99us|
+|pooler|1640.53/1651.94|-90.56 to-96.11|1/0:[66,29,1,0,0,1,35,0,3]|passes all4arms×2inputs,29–30of30faster,threshold32.81/33.04us|
+|unpooler|1666.34/1676.46|-109.15 to-117.84|2/0:[66,197,1,0,0,2,35,0,5]|passes all4arms×2inputs,30of30faster,threshold33.33/33.53us|
+|o|382.40/382.27 duplicatebaselines|no candidate|baselineonly|not searched|
+
+Duplicatebaseline deltas qkv-0.46/-0.82,pool+0.18/-0.40,unpool+1.73/+0.86us.
+Allcandidate outputs exactly equalbaseline at printedL2precision; selectedrow/fullKFP64
+L2 .00164–.00167. Bothselectedconfigs perop pass nearbyM16383 and onehot×2 probes
+(probeFP64error0). The candidate plans keepBF16weights/activations and FP32compute.
+Potentialpromotion is pooler/unpooler only atlargeM, after exact integratedprefill
+correctness/freshinput and wholelayerpairedscore gates; no measured aggregateprefill
+speedup exists yet. Keep qkvbaseline under preregisteredthreshold, no post-hoc lowering.
