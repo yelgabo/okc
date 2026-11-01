@@ -16,6 +16,24 @@ class Contract(unittest.TestCase):
         self.assertEqual(128*68*4,34816)
         self.assertLessEqual(34816,3*2*8192)
 
+    def test_empty_cluster_last_arrival(self):
+        # seq0 has8keys, all in CTA31/cluster1. Cluster0's zero reds may be late.
+        weights=[0]*31+[8]
+        late_empty_order=list(range(16,32))+list(range(16))
+        old=0;new=0;epoch=0;captured={}
+        self.assertEqual(sum(weights),8)
+        for index,cta in enumerate(late_empty_order):
+            captured[cta]=epoch  # prologue epoch must precede this CTA's arrival
+            old+=weights[cta];new+=1
+            if index==15:
+                self.assertEqual(old,8)  # old key count releases before empty-cluster reds
+                self.assertLess(new,32)
+                self.assertEqual(epoch,0)
+            if new==32:epoch+=1
+            if index<31:self.assertEqual(epoch,0)
+        self.assertEqual(set(captured.values()),{0})
+        self.assertEqual(epoch,1)
+
     def test_partial_and_merge_bijection(self):
         elements=Counter();sums=Counter()
         for tid in range(256):
