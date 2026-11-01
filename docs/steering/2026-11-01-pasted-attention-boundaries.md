@@ -105,3 +105,31 @@ nulls on affected shapes with aggregate score accounting. Stop a proposal
 that merely restates existing specialization, relies on an imported H100
 percentage, repeats a closed experiment without new evidence, or lacks a
 measured materialization cost. No GPU check was dispatched for this report.
+
+## Addendum: proposed current-tile page-ID hoist closed before coding
+
+Read-only follow-up at main6da000f: this latency-hiding mechanism already
+exists. `attn_one.cu`1011 sets PF=3. Initial pe[3][4] loads1423–1430 precede
+the first empty-slot wait1441. After each tile's async copies and full-slot
+arrival,1484–1504 refill pe[u] for tn=t+3, before later tiles' empty waits.
+No current-tile page-ID load follows its empty wait in this source path.
+This source ordering is not proof of final SASS scheduling; a compiler-sinking
+claim would require actual current SASS dependency/issue evidence.
+
+Page IDs depend on immutable request table,lo,seq,ntiles and page size, and
+live in12 integer registers per producer thread across three tile intervals.
+ID loads do not access the raw shared slot; its overwrite remains strictly
+after the existing empty acquire. Reusing the page-ID register after issuing
+cp.async is safe because its address operand has already been consumed.
+No fence/barrier or lifetime needs changing to implement the existing hoist.
+
+Precomputing byte offsets before the wait would be a DIFFERENT arithmetic
+scheduling hypothesis, currently unsupported by measured instruction-chain
+evidence. Producer dynamic allowance is32 registers (`one_prod_regs`300–302),
+launch allotment80 and consumers104; extra live offsets can spill or perturb
+register redistribution even at unchanged shared-memory occupancy. Require
+current-SASS proof, no spills and unchanged residency before any such design.
+Mode49 PE16 c8e99e038d9f4575 already tested related address arithmetic and was
+null; PFAST already specializes fully cached32-bit copies. These do not prove
+an L8 offset variant loses, but do prohibit presenting a generic address
+hoist as new. No code or GPU job resulted from this closed proposal.
