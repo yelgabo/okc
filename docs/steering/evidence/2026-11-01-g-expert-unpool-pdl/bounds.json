@@ -1,0 +1,50 @@
+{
+  "source_sha256": "ba9e327cd7b96595ace4d0c1d0d78fe27c128f23ed0debcda97c7169fc3164ab",
+  "job": "607eb52bdaf24160",
+  "edge": "Tiny/Tiny2 expert primary -> single slice8 unpool secondary",
+  "primary_trigger_unconditional": true,
+  "producer_lower_smem": 115712,
+  "secondary_min_smem": 118240,
+  "secondary_pmax_extra": "8*pmax",
+  "SM90_smem_capacity": 233472,
+  "same_SM_co_residency_possible": false,
+  "consumer_grid": 128,
+  "profile_single_call_evidence": [
+    {
+      "load": "decode 1",
+      "context": "sliding",
+      "line": "void sk2_kernel<1, 8, 1, 1, 8, 2, 4, true, false, 2, 1, _...       4.4 \u00b5s   5.5%      1"
+    },
+    {
+      "load": "decode 1",
+      "context": "full",
+      "line": "void sk2_kernel<1, 8, 1, 1, 8, 2, 4, true, false, 2, 1, _...       4.5 \u00b5s   4.5%      1"
+    },
+    {
+      "load": "verify 1",
+      "context": "sliding",
+      "line": "void sk2_kernel<1, 8, 1, 1, 8, 2, 4, true, false, 2, 1, _...       4.7 \u00b5s   3.8%      1"
+    },
+    {
+      "load": "verify 1",
+      "context": "full",
+      "line": "void sk2_kernel<1, 8, 1, 1, 8, 2, 4, true, false, 2, 1, _...       4.5 \u00b5s   3.8%      1"
+    }
+  ],
+  "first_weight_bytes_all_CTAs": 1572864,
+  "stage_count": 4,
+  "initial_stage_count": 1,
+  "weighted_short_us": {
+    "decode 1": 78.54904481802232,
+    "verify 1": 115.99082289963329
+  },
+  "whole_six_scenarios": {
+    "0.5": 1.0017858926924057,
+    "1": 1.0035849744743688,
+    "2": 1.007223412399114,
+    "3": 1.010916762999628
+  },
+  "same_delta_per_short_context_us_for_1percent": 2.7531839899423933,
+  "interpretation": "Necessary resource/counterfactual arithmetic only; legal overlap limited to first-to-last primary retirement spread, unmeasured. No speedup or physical-bandwidth claim.",
+  "GPU": false
+}
