@@ -1,5 +1,7 @@
 # Shared project steering
 
+Latest standalone native repair review: [Historical main47/skinny1 progress](2026-11-01-standalone-progress-native-review.md). Two cooperative wrappers/sharedtrap and canonical credit/queue bounds reviewed at7c915127; frozen policy/strict qualification still pending, noGPU/performance claim.
+
 Latest measurement-reader review: [One-arm hybrid owning receipt](2026-11-01-hybrid-measurement-reader-review.md).46:16/six-load/raw-adjusted formulas pass; terminal/log/source/resource ownership safeguards identified for root before result interpretation.
 
 Latest public startup source review: [Mask15 one-arm qualification wrapper](2026-11-01-public-mask15-startup-review.md). Independent12-cell selector/oracle/timed-path checks pass at4ad326c3; private empty/fresh coverage reviewed. H200 resources/capture/budget/performance unqualified.
