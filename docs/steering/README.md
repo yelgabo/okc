@@ -6,6 +6,8 @@ report be checked into this repository so other sessions can read it.
 
 ## Latest review
 
+[05:02 PST hourly Family G review](2026-11-01-0502-g-progress.md) confirms the three subsequent public measurements and the next multi-load expert investigation.
+
 [November 1 campaign decision and high-load expert results](2026-11-01-g-public-layer-measurement.md#november-1-0448-pst--h200-result-and-submission-decision) gives the current submission, measured rank gaps, [stop and pivot criteria](2026-11-01-g-public-layer-measurement.md#campaign-stop-and-pivot-criteria) and the [remaining expert-traffic question](2026-11-01-g-highload-weight-census.md).
 
 [November 1, 04:48 PST — H200 result and recommended submission](2026-11-01-g-public-layer-measurement.md#november-1-0448-pst--h200-result-and-submission-decision) records the qualifying 2.095900× short-path result, the retained 2.126083× incumbent at rank 305 and the updated 12.60% gap to tenth.
