@@ -1,5 +1,7 @@
 # Shared project steering
 
+Latest byte-plan review: [Comment-only production source audit](2026-11-01-comment-byte-review.md).24 native literal checks and7 lexical/legal fixtures pass; final artifact/SASS/runtime gates remain separate.
+
 Latest source discovery: [All four nonprefill boards, 18:30 continuation](2026-11-01-public-source-refresh-1830.md). Identifier-first paginated search and24 pinned repository trees; newly inspected author receipts do not justify another comparator check. Coverage limits explicit.
 
 Latest projection terminal result: [Stage-local sparse-XOR loss](2026-11-01-projection-stage-xor-terminal.md) - dfcfdd01 PASS9/30, score 1.419146839 versus C2 1.527806483; all ten targets regress, all forty resource gates pass. Close exact stage-local/global BEFORE-A representations; no retry or port.
