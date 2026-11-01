@@ -67,6 +67,18 @@ def build(control, donor, output):
     assert not _KEL_CHECK_FAILED, 'official-math/cache/row comparator gate'
     print(f"ABCHECK done: {fails} failing {_ob_elapsed()}", flush=True)''')
     bench=once(bench,'def _ab_bench(warm_calls=16, warm_reps=25):','def _ab_bench(warm_calls=16, warm_reps=25):\n    assert not _KEL_CHECK_FAILED, "no timing after failed correctness"')
+    assert bench.count('_ob_check(data, out)') == 2
+    bench=bench.replace('_ob_check(data, out)', '_kel_math_check(data, out)')
+    bench=once(bench, 'def _ab_check():', """def _kel_math_check(data, out):
+    previous = torch.backends.cuda.matmul.allow_tf32
+    try:
+        torch.backends.cuda.matmul.allow_tf32 = False
+        return _ob_check(data, out)
+    finally:
+        torch.backends.cuda.matmul.allow_tf32 = previous
+
+
+def _ab_check():""")
     bench += '\nassert not _KEL_CHECK_FAILED, "CHECK ONLY comparator failed; not a candidate"\n'
     compile(bench,str(output),'exec');output.write_text(bench)
     print('EXACT_COMPARATOR_SHA',hashlib.sha256(bench.encode()).hexdigest())
