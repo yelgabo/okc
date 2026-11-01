@@ -475,6 +475,16 @@ all official/fresh gates before promotion. Stop if launch/gather/tail/norm costs
 gain; no geometry retune without new measured stage evidence. Syntax passes, independent
 adapter/alias read-review requested. No dispatch yet.
 
+Standalone gateae8993f4e3e1435c dispatched after root and independent read-review.
+Root caught required interface correction before dispatch: standalone gamma=(1+post_norm_w)
+is FP32 (ownedstate nw), while prefill's BF16 effectivegamma boundary differs. New adapter
+preserves FP32 gamma contiguous; no BF16 cast. Earlier indexed8d648... adapter used BF16gamma,
+so its numerical interface differs slightly as well as its kernel schedule; no promotion.
+Independent reviewer required post-graph output checks: all four arms now checked against
+FP32 ref after20 queued replays+sync with unchanged .008/.075 criteria, not only eager.
+One untimed CUDA profiler sample at256/std292 after AB timing attributes masked stages.
+Generated syntax passes; original officialjudged owned kernel_fn untouched. Pending.
+
 ## Source facts (SGLang a55ab7d5, read from GitHub and hashed against the image)
 
 - `fused_post_expert_norm_weighted_sum` falls back to PyTorch ops below

@@ -44,7 +44,8 @@ def prepare(weights):
            ("w13","w13_sf","w13_gs","w2","w2_sf","w2_gs")}
     hum=_hi_prepare(local)
     duplicate=dict(base,scratch=_scratch(dev))
-    norm=(weights["post_norm_w"].float()+1).to(torch.bfloat16).contiguous()
+    # Standalone interface preserves FP32 gamma; prefill has a different boundary.
+    norm=(weights["post_norm_w"].float()+1).contiguous()
     states={"owned":base,"owned2":duplicate,
         "masked":{"hum":hum,"post_expert_w":norm},
         "masked2":{"hum":{"layers":[_MHView(l) for l in hum["layers"]],"workspace":{}},
@@ -84,12 +85,24 @@ def prepare(weights):
                         a=torch.cuda.Event(enable_timing=True); z=torch.cuda.Event(enable_timing=True)
                         a.record(); graph[tag].replay(); z.record(); events[tag].append((a,z))
                 torch.cuda.synchronize()
+                for tag,val in outputs.items():
+                    rel=_rel(val,ref)
+                    scale=ref.float().norm(dim=-1).clamp(min=.1*ref.float().norm(dim=-1).mean())
+                    row=float(((val.float()-ref.float()).norm(dim=-1)/scale.clamp(min=1e-12)).max())
+                    assert bool(torch.isfinite(val).all()) and rel<TEST_TOL and row<.075, f"MH graph correctness {m} {routing} {seed} {tag} rel{rel} row{row}"
+                    emit(f"MHCHECKGRAPH M={m} route={routing} seed={seed} arm={tag} rel={rel:.6g} row={row:.6g}")
                 times={tag:[a.elapsed_time(z)*1000 for a,z in pairs] for tag,pairs in events.items()}
                 med=lambda v:sorted(v)[len(v)//2]
                 raw={tag:med(t) for tag,t in times.items()}
                 paired={tag:med([a-b for a,b in zip(t,times["owned"])]) for tag,t in times.items()}
                 emit(f"MHTIME M={m} route={routing} seed={seed} raw_us={raw}")
                 emit(f"MHPAIR M={m} route={routing} seed={seed} vsowned_us={paired}")
+                if m==256 and routing=="std" and seed==292:
+                    guard()
+                    with torch.profiler.profile(activities=[torch.profiler.ProfilerActivity.CUDA]) as prof:
+                        run("masked",data)
+                        torch.cuda.synchronize()
+                    emit("MHPROFILE masked256 std292\n"+prof.key_averages().table(sort_by="self_cuda_time_total",row_limit=16))
                 del graph,outputs,ref
     guard()
     print("MHRESULT complete requested128/256 layer/std two-seed +skew correctness",flush=True)
