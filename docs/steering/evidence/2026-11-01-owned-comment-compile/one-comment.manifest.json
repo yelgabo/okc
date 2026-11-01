@@ -1,0 +1,45 @@
+{
+  "source_sha256": "38e5f274a2289d4cecff8e200f6cf3ebfa825054b867ecb3fdeb921aa98245b1",
+  "device_sha256": "be36f94d07371b0df95eb2127c44767cf6dd5e95490dd648d962a59737c885fb",
+  "adapters": [
+    "owned selected literal; remove host launcher/Instance only; preserve all device bodies",
+    "Torch/ATen and host std includes removed; CUDA runtime and fixed-width declarations",
+    "ONE infinity declaration adapter and DONE_TRIG=1; no host API proof"
+  ],
+  "options": [
+    "-DONE_TRIG=1",
+    "--gpu-architecture=compute_90a",
+    "--std=c++17",
+    "--generate-line-info",
+    "--device-as-default-execution-space",
+    "--include-path=/root/.cache/okc-cuda128/packages/nvidia/cuda_runtime/include",
+    "--include-path=/root/.cache/okc-cuda128/packages/nvidia/cuda_nvcc/include",
+    "--include-path=/root/.cache/okc-cuda128/cccl/nvidia/cuda_cccl/include"
+  ],
+  "expressions": [
+    "&one::attn_one_kernel<8,3>",
+    "&one::attn_one_kernel<8,51>"
+  ],
+  "nvrtc_status": 0,
+  "gpu_execution": false,
+  "lowered": [
+    "_ZN53_GLOBAL__N__00000000_16_owned_decoder_cu_79b6ab22_3283one15attn_one_kernelILi8ELi3EEEvNS0_6ParamsE",
+    "_ZN53_GLOBAL__N__00000000_16_owned_decoder_cu_79b6ab22_3283one15attn_one_kernelILi8ELi51EEEvNS0_6ParamsE"
+  ],
+  "cubin_sha256": "e7ade1cd960ea64e9f4cd3dd582b5e1e8470a56308bfe6a318db285a4fa24936",
+  "ptx_sha256": "acd50fe225460acc88bacd99b3e3ddccbeaf862f85f5f9a33f58908099b6f433",
+  "sass_sha256": "3d9fc0ab614fb048a963b6cf9fa109c0d05151133005d447336d55229bd1b4db",
+  "ptxas_command": [
+    "/root/.cache/okc-cuda128/packages/nvidia/cuda_nvcc/bin/ptxas",
+    "-arch=sm_90a",
+    "-O3",
+    "-v",
+    "--warn-on-spills",
+    "/mnt/c/Users/gretc/Documents/GitHub/okc-today-attn/.build/today-attn/comment-compile/one-comment/device.ptx",
+    "-o",
+    "/mnt/c/Users/gretc/Documents/GitHub/okc-today-attn/.build/today-attn/comment-compile/one-comment/device.cubin"
+  ],
+  "ptxas_status": 0,
+  "driver_source_sha256": "33648bbd67d7f4961a5040f42b5f74533c2cca2a1fb38657e5c66cd7227400ee",
+  "kind": "one"
+}
