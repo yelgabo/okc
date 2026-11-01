@@ -77,7 +77,12 @@ def analyze(receipt,job,log,source,control=None,control_job='607eb52bdaf24160'):
     result['weighted_six']=[dict(load=l,**{metric:sum((46 if c=='sliding' else 16)*official_rows[l,c][field] for c in ('sliding','full'))/62000 for metric,field in (('adjusted_us','median_ns'),('raw_us','median_raw_ns'),('baseline_adjusted_us','baseline_ns'),('baseline_raw_us','baseline_raw_ns'))}) for l in ('decode 1','decode 16','decode 32','verify 1','verify 16','verify 32')]
     rr=receipt['result']
     result['terminal_fields']=dict(status=receipt['status'],mode=receipt['mode'],result_status=rr['status'],passed=rr['passed'],returncode=rr['returncode'],checks=rr['checks'],flags=rr['flags'],error=rr['error'],gpu=rr.get('gpu'),setup=[x for x in rr['records'] if x.get('event')=='setup'])
-    if control is not None:result['cross_job_comparison']=compare(receipt,control,job,control_job,log=None)
+    if control is not None:
+        comparison=compare(receipt,control,job,control_job,log=None)
+        # Generic helper retains the older owned-verify target labels.
+        for row in comparison['rows']:row['target']=row['load'] in ('decode 1','verify 1')
+        comparison['target_scope']='Tiny/Tiny2 short-RMW only: decode1/verify1 both contexts'
+        result['cross_job_comparison']=comparison
     return result
 
 if __name__=='__main__':

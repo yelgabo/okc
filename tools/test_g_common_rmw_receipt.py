@@ -33,6 +33,7 @@ class Reader(unittest.TestCase):
         out=analyze(fixture(),'synthetic123',log(capsule()),SOURCE,fixture(),control_job='synthetic123')
         self.assertTrue(out['qualification']['treatment_exercised']);self.assertFalse(out['paired']);self.assertIsNone(out['causal_RMW_effect'])
         self.assertEqual(len(out['cross_job_comparison']['rows']),12);self.assertEqual(len(out['cross_job_comparison']['weighted_loads']),6)
+        self.assertEqual({r['load'] for r in out['cross_job_comparison']['rows'] if r['target']},{'decode 1','verify 1'})
     def test_terminal_guards_before_capsule(self):
         for key,val in [('id','wrong'),('board','muse_bf16_proj'),('mode','check'),('status','running')]:
             r=fixture();r[key]=val
