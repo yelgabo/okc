@@ -6,6 +6,8 @@ report be checked into this repository so other sessions can read it.
 
 ## Latest review
 
+**Active campaign:** [Top-50 thresholds, validated comparator and attributed layer fork](2026-11-01-top50-reset.md). The user resumed with a rank 10–50 objective on the overall and non-prefill boards and authorized an attributed layer fork after audit. The external layer check reached 2.248791×. The current fork is under precision, ordering and license review.
+
 [November 1 campaign accountability](2026-11-01-campaign-accountability.md) compares public scores with the restart snapshot, identifies where experiment selection diverged from the research, and gives an opportunity-size gate for future work. The user cleared the optimization goal.
 
 ## Earlier checkpoint: exact-paste fusion audit; prefill deferred
@@ -415,6 +417,8 @@ accounting, and running a corrected matched whole-layer comparison. It records
 recommendations, not execution of those tasks; check current code and run logs for status.
 
 ## Report history
+
+- [November 1 top-50 reset and authorized layer fork](2026-11-01-top50-reset.md)
 
 - [November 1 campaign accountability and steering review](2026-11-01-campaign-accountability.md)
 

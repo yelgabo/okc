@@ -2,6 +2,7 @@
 import argparse
 import hashlib
 from pathlib import Path
+from dl_fork_attention import patch_attention
 
 SOURCE_SHA = '82c098ae7534b20b5d80f59d547650cb0853fc7d5e313fe29e1e9d9373e1bb19'
 UPSTREAM = '8e30e1be994db4310794b8d04e90d18d895deb84'
@@ -70,6 +71,21 @@ def build(raw, notices):
     # The upstream preparation benchmark compares captured outputs before replay.
     # Omit that diagnostic and its extra extension builds from the candidate.
     source = replace(source, 'MFAB_LAYER = True', 'MFAB_LAYER = False')
+    source = patch_attention(source)
+    # Pass an immutable weight-prefetch descriptor by value. A host launch on
+    # another thread or state must never replace the pointer for this launch.
+    source = replace(source, 'pdl=None, attention_state=None, **override):',
+                     'pdl=None, attention_state=None, prefetch=(0,0), **override):')
+    source = replace(source, '*(_PF7 or (0, 0))', '*prefetch')
+    source = replace(source, '    global _PF7\n', '')
+    source = replace(source, '    _PF7 = None\n', '    prefetch = (0,0)\n')
+    source = replace(source, '        _PF7 = (_ps.data_ptr()', '        prefetch = (_ps.data_ptr()')
+    source = replace(source, 'attention_state=state, **pdl)', 'attention_state=state, prefetch=prefetch, **pdl)')
+    source = replace(source,'    _PF7 = None   # the pointer belongs to this call\'s state only\n','')
+    # The normal short-boundary b1 already computes and stores the router copy.
+    # Its GLE extension uses different normalization arithmetic and a global
+    # weight pointer to form a second copy. Use the materialized branch.
+    source = replace(source,'GLE_B1X = True','GLE_B1X = False')
     source += '\n'+'\n'.join('# '+line for line in notices.splitlines())+'\n'
     compile(source,'<attributed layer>','exec')
     return source.encode('utf-8')
