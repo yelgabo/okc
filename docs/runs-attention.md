@@ -3748,3 +3748,32 @@ Do not attribute the score increase over2.534850 to late-tid: this file does not
 Latest best's full per-shape hotspot table appended to docs/hotspots.md with saved baseline
 receipt24daba2202e547d6. Kernel-profile plans remain decode sliding13/1/1, full11/49/49;
 verify sliding15/3/3, full11/51/51. Rank must be read live; no cutoff inferred here.
+
+### Four-arm late-tid confirmation: ab53721b09854717
+
+Receipt confirms correct board/id,16/16 official tests passed. Default-off control score
+2.582317x (95%CI2.543582-2.630284); all4arms19/19 harnesschecks.
+Files `profiles/lateconfirm.ab53721b09854717.{json,log}`.
+
+|Cold rawus|ctrl|ctrl2|late1|late2|
+|---|---:|---:|---:|---:|
+|decode1 full|17.25|17.22|16.83|16.83|
+|decode1 sliding|9.54|9.34|9.28|9.34|
+
+Full-context candidate deltas by held-out input: late1 -0.38/-0.42/-0.38us;
+late2 -0.38/-0.38/-0.42us; controlnull +0.03/-0.03/-0.03us. All four full-context
+cross comparisons improve. Sliding differences are largely reproduced by the controlnull:
+late1 -0.19/-0.26/-0.22, late2 -0.19/-0.26/-0.19, null -0.19/-0.22/-0.22us.
+
+Raw whole ABSCORE late1/late2=1.0036, controlnull1.0010. Rounded-median official-overhead
+sensitivity: all-shape ratios late1=1.005989, late2=1.005881, null=1.001871;
+changed decode1-only ratios1.007110/1.006037/null1.003640. The preregistered
+changed-only gain >2maxnulllog gate FAILS (2nulllog requires approximately1.007294).
+This gate includes the sliding instance because ONE_LATE_TID1 changes its compiled code too.
+No candidate promotion or stress dispatch follows this result. These corrected ratios remain
+sensitivity estimates, not official candidate scores.
+
+Measured conclusion: the full-context scheduling improvement repeats across builds, states
+and inputs; sliding has no independently established gain. A new proposal may restrict the
+mechanism to SPEC/non-one-tile L1 instances and preregister a full-only causal scoring gate.
+This restriction would be based on new evidence above, not a repeat of the general knob.

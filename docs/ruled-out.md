@@ -250,3 +250,13 @@ the public entry vjeux/okc-2026 with its design memos (see `docs/gap-analysis-20
 | Speeding up the router in the layer (hidden under the pooler) | once the pre-expert norm leaves the main chain the side chain is co-critical at T >= 8; at T > 32 run pooler + router hi + router lo as one concatenated cuBLAS GEMM | the layer audit's margin analysis (14 / 7 / 5 us at T = 1 / 8 / >= 16); our router rows at verify 32 are 43 us on the side stream |
 | Scratch-buffer split-K, last block reduces (proj v5) | not reopened for projections; the MoE audit's P2 (per-unit last-split SwiGLU) is a different shape: the reduction is per unit and spread over the kernel, with `__ldcg` reads after a fence and an atomic | one launch hop (2-3 us) per MoE call in every profile |
 | Fused-shift / bounded-shift softmax (A1) | fixed reference frame for the whole merge: splits add o x 2^m and l x 2^m with FP32 atomics and no running max is exchanged | QK-norm bounds every logit (unit-RMS q and k, scale 5.473 / 8), so 2^s stays inside FP32 range; the public kernel runs every scored shape this way in one launch |
+
+### Attention late-tid general toggle, 2026-10-31 PDT
+
+The general L1 SPEC late-tid toggle is not promoted: first check b4d75c3185744d0a and
+four-arm confirmation ab53721b09854717 both show a d1-full improvement (~0.4us), but the
+confirmation's preregistered changed-only2x-null gate fails because d1sliding's apparent
+benefit is reproduced by its independent control. Scope: the general toggle affecting both
+SPEC full and SPEC one-tile sliding. Revisit trigger: restrict scheduling to non-one-tile
+SPEC L1 based on the repeated full-context signal, with a fresh causal full-only gate.
+No fence, math or ordering change; production default remains off.
