@@ -15,3 +15,8 @@ Reviewed source hashes:
 - tools\proj_g_preexpert_gamma.py: `d0d53f5ff24165219e007d524210fac5e9b976bf7c31b98e3491bf087ea08d7f`
 - tools\test_proj_g_preexpert_gamma.py: `7a87846eb888f76292bae5ac1ec35563061d6cc1e8674fc55f206e9cf51418ae`
 - docs\steering\2026-11-01-g-preexpert-gamma-off.md: `9e95b0d484174639847b984b9f10afdbd70988feb3d0b8191084b217d426a424`
+
+
+## Disjoint common composition review
+
+Also reviewed root tools/g_integration_common.py and its two tests. Both leaves remain exact607-only. The coordinator obtains host and coefficient treatments independently from the same source, verifies pre-expert transformation leaves ATT7 unchanged, inserts only the reviewed host assignment, and proves deleting the exact REPAIR body restores the complete coefficient-only source. The independent AST composition test agrees;2tests independently PASS5.593s. No new selector, global ownership or flag beyond the leaves is introduced. Combined output871077B/SHA4cbb13a9a359c9fe870a94ebcabc4706447778849f71d4aa54e47d69abbd1280 remains OFF/source-only, not H200-qualified. No new device-math, Torch-extension, capture/resource or speed claim follows from composition.
