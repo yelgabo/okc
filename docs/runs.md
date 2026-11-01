@@ -1839,3 +1839,7 @@ C3 is ready for scored comparison under the user's current authorization.
 
 No GTICKET or ordering/fence changes were needed. No donor code is in C3. The codec loss
 remains closed at the knock-in-model scope; a real packed-code design needs new evidence.
+
+Root dispatched scored C3 `7a15f46e673b43d5` from the exact frozen file SHA256
+`9fd8e794f7eb989943718348da2bf21ece934be3b4527b349eed34ccbceea4a4`, under today's explicit
+user authorization. Pending at this entry; do not infer a new board score before its receipt.
