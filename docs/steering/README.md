@@ -6,6 +6,8 @@ report be checked into this repository so other sessions can read it.
 
 ## Latest review
 
+[November 1 independent review of the active improvement campaign](2026-11-01-active-campaign-direction.md) evaluates G1b4 qualification, the live rank-50 gap and standalone attention controls.
+
 [November 1 Family G qualification update](2026-11-01-family-g-qualification.md#november-1-addendum--run-g1b4-at-the-next-reset) supersedes the G1b3 reset instructions. G1b4 restores the native attention BF16 boundary. Its pure and diagnostic builds reproduce on Windows and Linux. The next layer qualification requires an H200 check.
 
 [November 1 standalone MoE and attention experiments](2026-11-01-component-frontier-round.md) records two measured MoE stops, a newly verified attention comparator and the read-only Kernarc research.
