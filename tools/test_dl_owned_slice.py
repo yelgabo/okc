@@ -52,11 +52,31 @@ class SliceTests(unittest.TestCase):
    "_abnd":log("abnd",(z,z,None)),"_route_fwd":log("route",(z,z,z)),"_moe1_run":log("moe",z)}
   exec(compile(ast.Module([n],[]),"slice","exec"),ns)
   cfg=dict(batch=32,q_len=8,tokens=256,page_size=1,window=2048,hidden=8192,num_q_heads=16,num_kv_heads=2,head_dim=64,n_experts=256,top_k=8,local_experts=32)
-  data=dict(config=cfg,page_table=types.SimpleNamespace(shape=(32,80000)),attn_input=z,stream=z,local_start=z)
+  data=dict(config=cfg,page_table=types.SimpleNamespace(shape=(32,86008)),attn_input=z,stream=z,local_start=z)
   state={"pool_router":z,"ffn_boundary":log("ffn_boundary",(z,z,None))}
   ns["kernel_fn"](data,state)
   self.assertEqual(events,["qkv_gate","one","o","abnd","concat","route","moe","unpooler","ffn_boundary"])
   cfg["tokens"]=128
   with self.assertRaises(AssertionError):ns["kernel_fn"](data,state)
+
+ def test_reference_verify_metadata_capacity(self):
+  import importlib.util,sys
+  import torch
+  root=pathlib.Path(__file__).resolve().parents[1]
+  problem=root/"muse_decode_layer"
+  sys.path.insert(0,str(problem))
+  try:
+   spec=importlib.util.spec_from_file_location("_owned_slice_reference",problem/"reference.py")
+   module=importlib.util.module_from_spec(spec);spec.loader.exec_module(module)
+   # Skip only the large cache payload and optional FA3 scheduler. The actual
+   # generator still builds its lengths, permutation, page table and config.
+   module._fill_cache=lambda *a:(torch.empty(0),torch.empty(0))
+   module._fa3_scheduler_metadata=lambda *a:None
+   data=module.generate_input(batch=32,ctx=80000,layer="sliding",seed=940771,
+        q_len=8,spread="agentic",dist="soft",page=1,device="cpu")
+   self.assertEqual(tuple(data["page_table"].shape),(32,86008))
+   self.assertEqual(data["config"]["tokens"],256)
+   self.assertEqual(data["config"]["window"],2048)
+  finally:sys.path.pop(0)
 
 if __name__=="__main__":unittest.main()

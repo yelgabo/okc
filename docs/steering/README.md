@@ -6,6 +6,8 @@ report be checked into this repository so other sessions can read it.
 
 ## Latest review
 
+[November 1 selected-cell comparison and new attention measurement](2026-11-01-selected-layer-pair.md) records the 850756-byte BF16-matched package, identical selected MoE machine code, corrected page capacity, explicit private-state ownership and H200 wait job 3f44f891d0ef47db.
+
 [05:02 PST hourly Family G review](2026-11-01-0502-g-progress.md) confirms the three subsequent public measurements and the next multi-load expert investigation.
 
 [November 1 campaign decision and high-load expert results](2026-11-01-g-public-layer-measurement.md#november-1-0448-pst--h200-result-and-submission-decision) gives the current submission, measured rank gaps, [stop and pivot criteria](2026-11-01-g-public-layer-measurement.md#campaign-stop-and-pivot-criteria) and the [remaining expert-traffic question](2026-11-01-g-highload-weight-census.md).
@@ -462,6 +464,8 @@ accounting, and running a corrected matched whole-layer comparison. It records
 recommendations, not execution of those tasks; check current code and run logs for status.
 
 ## Report history
+
+- November 1. [Selected-cell BF16-matched comparison](2026-11-01-selected-layer-pair.md). This removes the scoped file-size blocker. H200 execution and a complete score remain open.
 
 - November 1, 04:56 PST. [High-load expert traffic census](2026-11-01-g-highload-weight-census.md) and [campaign decision thresholds](2026-11-01-g-public-layer-measurement.md#campaign-stop-and-pivot-criteria).
 

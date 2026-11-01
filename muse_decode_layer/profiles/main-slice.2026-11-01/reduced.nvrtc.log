@@ -1,0 +1,59 @@
+exact_device.cu(1459): warning #177-D: variable "g" was declared but never referenced
+      const int g = lane >> 2;
+                ^
+          detected during:
+            instantiation of "void <unnamed>::moe1::run_group<NTT,PH,MODE>(const <unnamed>::moe1::Params &, <unnamed>::moe1::SmemMain &, float *, float (&)[32], <unnamed>::moe1::Ring &, int &, int, int) [with NTT=8, PH=0, MODE=51]" at line 1981
+            instantiation of "void <unnamed>::moe1::consumer_phase<PH,MODE>(const <unnamed>::moe1::Params &, <unnamed>::moe1::SmemMain &, float *, float (&)[32], <unnamed>::moe1::Ring &, int &, int, int) [with PH=0, MODE=51]" at line 2079
+            instantiation of "void <unnamed>::moe1::consumers<MODE>(const <unnamed>::moe1::Params &, <unnamed>::moe1::SmemMain &, float *, int, int) [with MODE=51]" at line 2729
+            instantiation of "void <unnamed>::moe1::moe_main_kernel<MODE>(<unnamed>::moe1::Params) [with MODE=51]" 
+
+Remark: The warnings can be suppressed with "-diag-suppress <warning-number>"
+
+exact_device.cu(11): warning #177-D: variable "<unnamed>::moe1::kI" was declared but never referenced
+  constexpr int kI = 4096;
+                ^
+
+exact_device.cu(15): warning #177-D: variable "<unnamed>::moe1::kJmax" was declared but never referenced
+  constexpr int kJmax = kLocalMax + kEmax / 8;
+                ^
+
+exact_device.cu(17): warning #177-D: variable "<unnamed>::moe1::kUA" was declared but never referenced
+  constexpr int kUA = 512;
+                ^
+
+exact_device.cu(18): warning #177-D: variable "<unnamed>::moe1::kUB" was declared but never referenced
+  constexpr int kUB = 256;
+                ^
+
+exact_device.cu(19): warning #177-D: variable "<unnamed>::moe1::kNRB" was declared but never referenced
+  constexpr int kNRB = 4;
+                ^
+
+exact_device.cu(23): warning #177-D: variable "<unnamed>::moe1::kBarUnit" was declared but never referenced
+  constexpr int kBarUnit = 1;
+                ^
+
+exact_device.cu(24): warning #177-D: variable "<unnamed>::moe1::kBarFull" was declared but never referenced
+  constexpr int kBarFull = 2;
+                ^
+
+exact_device.cu(25): warning #177-D: variable "<unnamed>::moe1::kBarFree" was declared but never referenced
+  constexpr int kBarFree = 6;
+                ^
+
+exact_device.cu(111): warning #177-D: function "<unnamed>::moe1::named_arrive" was declared but never referenced
+  __device__ __forceinline__ void named_arrive(int id, int count) {
+                                  ^
+
+exact_device.cu(127): warning #177-D: function "<unnamed>::moe1::prefetch_l2" was declared but never referenced
+  __device__ __forceinline__ void prefetch_l2(const void* p) {
+                                  ^
+
+exact_device.cu(185): warning #177-D: function "<unnamed>::moe1::scale_word_k" was declared but never referenced
+  __device__ __forceinline__ unsigned scale_word_k(unsigned scw, int byte, unsigned k16) {
+                                      ^
+
+exact_device.cu(933): warning #177-D: function "<unnamed>::moe1::make_desc" was declared but never referenced
+  __device__ __forceinline__ uint64_t make_desc(const void* ptr, int lbo, int sbo) {
+                                      ^
+

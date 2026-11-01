@@ -1,0 +1,51 @@
+exact_device.cu(4203): warning #177-D: variable "g" was declared but never referenced
+      const int g = lane >> 2;
+                ^
+          detected during:
+            instantiation of "void <unnamed>::moe1::run_group<NTT,PH,MODE>(const <unnamed>::moe1::Params &, <unnamed>::moe1::SmemMain &, float *, float (&)[32], <unnamed>::moe1::Ring &, int &, int, int) [with NTT=8, PH=0, MODE=51]" at line 4725
+            instantiation of "void <unnamed>::moe1::consumer_phase<PH,MODE>(const <unnamed>::moe1::Params &, <unnamed>::moe1::SmemMain &, float *, float (&)[32], <unnamed>::moe1::Ring &, int &, int, int) [with PH=0, MODE=51]" at line 4823
+            instantiation of "void <unnamed>::moe1::consumers<MODE>(const <unnamed>::moe1::Params &, <unnamed>::moe1::SmemMain &, float *, int, int) [with MODE=51]" at line 5473
+            instantiation of "void <unnamed>::moe1::moe_main_kernel<MODE>(<unnamed>::moe1::Params) [with MODE=51]" 
+
+Remark: The warnings can be suppressed with "-diag-suppress <warning-number>"
+
+exact_device.cu(127): warning #177-D: function "<unnamed>::moe1::prefetch_l2" was declared but never referenced
+  __device__ __forceinline__ void prefetch_l2(const void* p) {
+                                  ^
+
+exact_device.cu(3677): warning #177-D: function "<unnamed>::moe1::make_desc" was declared but never referenced
+  __device__ __forceinline__ uint64_t make_desc(const void* ptr, int lbo, int sbo) {
+                                      ^
+
+exact_device.cu(576): warning #177-D: function "<unnamed>::moe1::sk_8_4_0::compute_loop" was declared but never referenced
+  __device__ __forceinline__ void compute_loop(const Params& p, Smem& S, uint64_t pol) {
+                                  ^
+
+exact_device.cu(812): warning #177-D: function "<unnamed>::moe1::sk_8_4_0::helper_loop" was declared but never referenced
+  __device__ __forceinline__ void helper_loop(const Params& p, Smem& S, float* ss) {
+                                  ^
+
+exact_device.cu(1264): warning #177-D: function "<unnamed>::moe1::sk_16_4_0::compute_loop" was declared but never referenced
+  __device__ __forceinline__ void compute_loop(const Params& p, Smem& S, uint64_t pol) {
+                                  ^
+
+exact_device.cu(1500): warning #177-D: function "<unnamed>::moe1::sk_16_4_0::helper_loop" was declared but never referenced
+  __device__ __forceinline__ void helper_loop(const Params& p, Smem& S, float* ss) {
+                                  ^
+
+exact_device.cu(1952): warning #177-D: function "<unnamed>::moe1::sk_8_3_0::compute_loop" was declared but never referenced
+  __device__ __forceinline__ void compute_loop(const Params& p, Smem& S, uint64_t pol) {
+                                  ^
+
+exact_device.cu(2188): warning #177-D: function "<unnamed>::moe1::sk_8_3_0::helper_loop" was declared but never referenced
+  __device__ __forceinline__ void helper_loop(const Params& p, Smem& S, float* ss) {
+                                  ^
+
+exact_device.cu(2640): warning #177-D: function "<unnamed>::moe1::sk_8_4_3::compute_loop" was declared but never referenced
+  __device__ __forceinline__ void compute_loop(const Params& p, Smem& S, uint64_t pol) {
+                                  ^
+
+exact_device.cu(2876): warning #177-D: function "<unnamed>::moe1::sk_8_4_3::helper_loop" was declared but never referenced
+  __device__ __forceinline__ void helper_loop(const Params& p, Smem& S, float* ss) {
+                                  ^
+

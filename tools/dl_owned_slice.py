@@ -86,7 +86,7 @@ def prepare(weights):
       "ffn_boundary":FusedPostNormResidualPreNorm(postffn,fr,nxt),
       "_modules":(pre,nxt,post,postffn,poste,pren,ar,fr)}
     _ext(); _one_setup(state)
-    assert _one_plan({"batch":32,"q_len":8,"page_size":1,"window":2048},80000,
+    assert _one_plan({"batch":32,"q_len":8,"page_size":1,"window":2048},86008,
                      state["one"]["resident"]) == (4,1,3), "slice attention selection mismatch"
     w=_moe1_prepare(weights)
     if w is None: raise RuntimeError("slice: unsupported expert scales; no fallback")
@@ -102,7 +102,7 @@ def kernel_fn(data,state):
     assert all(c[k]==v for k,v in {"batch":32,"q_len":8,"tokens":256,"page_size":1,
         "window":2048,"hidden":8192,"num_q_heads":16,"num_kv_heads":2,"head_dim":64,
         "n_experts":256,"top_k":8,"local_experts":32}.items()), "unsupported slice config"
-    assert data["page_table"].shape[1]==80000, "unsupported slice context capacity"
+    assert data["page_table"].shape[1]==86008, "unsupported slice context capacity"
     qkv=_slice_proj(data["attn_input"],"qkv_gate",state)
     o=_attn_one(qkv,data,state)
     attn_output=_slice_proj(o,"o",state)

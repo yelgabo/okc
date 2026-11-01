@@ -9,7 +9,7 @@ class WaitTraceTests(unittest.TestCase):
   import json
   cuda=(ROOT/'.build/today-attn/wait-trace.cu').read_bytes()
   for name in ('wait-trace-v8','wait-trace-d1','wait-control-v8','wait-control-d1'):
-   m=json.loads((ROOT/'.build/today-attn'/name/'manifest.json').read_text())
+   m=json.loads((ROOT/'profiles/attention-wait-trace-local'/name/'manifest.json').read_text())
    self.assertEqual(hashlib.sha256(cuda).hexdigest(),m['source_sha256'])
    self.assertEqual(m['exitcode'],0)
    for r in m['resources'].values():self.assertEqual((r['stack_bytes'],r['spill_store_bytes'],r['spill_load_bytes']),(0,0,0))
