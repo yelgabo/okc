@@ -898,3 +898,11 @@ Consequently root's conditional cleancheck authorized: **47bec92021ef4bbe**, exa
 SHA851c46951e1940b6874d35314d8ff7cc00a966a4718094881c764135ef13392a, pending.
 No public submission. Original selected baseline unchanged; purecandidate in persistent scratch.
 2026-11-01 | cb71acec29d141c6 | c80ab0e pure candidate muse_decode_layer/cand/layer_lt_boundary.py | scored after clean 47bec92021ef4bbe PASS13 (2.010247860×, 95% CI 1.980094142–2.040401578) and all-six paired 828974e3bbcc4d9b pass. Compared exact bytes with checked artifact, SHA256 851c46951e1940b6874d35314d8ff7cc00a966a4718094881c764135ef13392a. Previous board best 8f2780d7382047e6 (2.022870479×). Pending.
+
+Clean exact **47bec92021ef4bbe** DONE/pass13, pureSHA851c4695... above;
+score2.01024785996,95%CI[1.98009414206,2.04040157786]. Production manifest failures0;
+all3Lt fullFP64/probe/fresh gates pass (rel.001660–.001663,row.001696–.001735).
+Raw receipt and normalizedprofiles retained. Root independently verified bytes and, under
+user's standing authorization, publicly submitted exact pure as **cb71acec29d141c6**;
+scored receipt root-owned. Paired fullsixload result remains the algorithm evidence,
+not cross-run comparison of this noisy headline with other candidates.
