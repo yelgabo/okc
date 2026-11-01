@@ -319,3 +319,8 @@ the public entry vjeux/okc-2026 with its design memos (see `docs/gap-analysis-20
 
 | 2026-10-31 | indexed routed noStreamK as performance-only replacement | 74eb65dad3fa4e54 | All fresh32/753/3012 stats exactly0; official pass1.092871 CI1.076478–1.109264 vs scored incumbent1.146466. Not promoted as a speed improvement. Deterministic base retained for isolated compensation experiments. |
 | 2026-10-31 | initial GROUPED_MASKED default StreamK | c1f6023f03d34c72 | Initial5 correctness tests pass but16384 benchmark recheck0 fails residual relL2.6951 vs.0422345. Allocation22.76GB feasible; no full score/correctness claim. Source investigation required before rerun; not a blanket closure of masked backend. |
+### Attention candidate strict replay gate, 2026-10-31 PDT
+
+| Experiment | Evidence | Scope and revisit trigger |
+|---|---|---|
+| Actual full-only late-tid2 candidate with strict1e-4 fresh-output comparator | 3588375a529c4fe8 prepare failed: sliding17/2000 above threshold, maxrelativeL2~4.48e-4; fullstress/officialtests/timing not reached | No promotion despite passing pairedperformancegatea9b416a0c7324ecc. Attribute only after independent0-vs-0/2-vs-2 nulls on BOTHshapes with unchanged comparator; diagnostic26c8a3ea28554454 is the registered next step. Do not call this correctness loss or benignnoise before that evidence. |

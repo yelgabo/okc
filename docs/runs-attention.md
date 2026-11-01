@@ -3851,3 +3851,32 @@ attributing a failure to the scheduling change. No public submission yet.
 |date|job|commit|change|score (95%CI)|notes|
 |---|---|---|---|---|---|
 |2026-10-31|3588375a529c4fe8 (check)|554445d + owned stress generator5c546fc|Actual full-only late-tid2 candidate, fresh queued stress/resource gate|pending|Productiondefault0; official judgedpath2;2000uniqueinputs peraffected/sentinelshape,alloutputs device-compared.|
+
+### Candidate stress3588375a529c4fe8 FAILED, no promotion
+
+Owning receipt board/id verified; prepare/import failed before official tests or timing.
+No candidate score or CI exists. Owned selftest reports0failing shapes, but the strict queued
+sliding comparison reports17/2000 fresh outputs above relativeL2=1e-4;
+maxrelative_squared=2.0038797288179921e-7 (relativeL2 approximately4.48e-4).
+Full-context queued stress was NOT reached. These are all-output comparator results,
+not3reference samples. No source activation is promoted; productiondefault0 stays.
+Files `profiles/latestress.3588375a529c4fe8.{json,log}` preserve the failed check.
+Prepare host resource print records did not survive in the receipt tail, so no resource
+configuration change is claimed from this failed run.
+
+Sliding is compiled unchanged by value2, making an independent-control null diagnostic
+necessary before attributing the failure. This is a hypothesis, not dismissal as noise.
+The original strict failure remains a failure. No threshold or gate was weakened.
+
+Root-authorized diagnostic26c8a3ea28554454: four independent compiled modules/states
+0a/0b/2a/2b, identical2000freshqkv inputs on EACHsliding/full, sixcomparisons (bothnulls,
+all4crosses), original1e-4 global relativeL2 criterion, plus maximumrowerror androwcounts.
+Allshape statistics print before the final strict assertion. Three FP32reference samples
+perarm/pershape and owned selftests provide independent math coverage. Actual judged source
+remains0; failed diagnostic cannot promote performance. Generatorc2197bd+0d5901e.
+An initial >1MB payload was rejected422without a job; shared owned-source text reduced the
+accepted payload to624471bytes. No donor source, compression or extra package is used.
+
+|date|job|commit|change|score (95%CI)|notes|
+|---|---|---|---|---|---|
+|2026-10-31|26c8a3ea28554454 (check)|0d5901e|Strict fresh-output null/cross diagnostic,4independent modules/states|pending|Judgeddefault0; bothshapes beforefinalassert; unchanged1e-4 threshold.|
