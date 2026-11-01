@@ -1,5 +1,7 @@
 # Shared project steering
 
+Latest owned low-token audit: [Immutable decode and activation-read feasibility](2026-11-01-owned-lowtoken-representation.md). Source/CPU traffic model; no candidate clears the admission/opportunity screen and no GPU action.
+
 Latest owned packaging audit: [Owned verify production closure NOFIT](2026-11-01-owned-verify-production-nofit.md). Three source/CPU tests and selected device SASS equivalence pass; all three source closures exceed the hybrid byte allowance. No H200 or public action.
 
 Latest MoE diagnostic addendum: [Native G stage observer terminal closure](2026-11-01-g-stage-observed-readiness.md), source5c1a1f8 / jobf147d06a64504c1e. Correctness passes; all detail attribution rows rejected.
