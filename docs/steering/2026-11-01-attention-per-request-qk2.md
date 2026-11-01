@@ -181,3 +181,11 @@ permutation/extra caps/barrier tuning automatically. A future combined head-clus
 candidate has distinct shape dispatch but shared compilation/workspaces; its score
 must be measured, not inferred by adding this d1 counterfactual to a head-cluster gain.
 Root review is required before the authorized single off-board check; no submit.
+
+## Authorized dispatch
+
+Root reviewed the concrete build and authorized precisely the first-line header
+and dual-oracle host fixes. Source breadcrumb77fd87c; job **fe75e566c1ae4d51**
+confirmed problem muse_attention_decode. Final SHA4dca6a...bfb above; no public
+submission. Dispatch receipt archived, exact owned job wait pending. No numerical
+or speed result is inferred from local compilation or successful dispatch.

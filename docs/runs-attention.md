@@ -3616,3 +3616,7 @@ Decision: revert experimental edits from attn_one.cu, retain exact patch and sou
 mechanism as a possible rider only after another per-request loop change makes its saved
 instructions material, or a bounded shape-specialized test is supported by a larger gap.
 Do not spend a second check repeating the same general toggle.
+
+## Owned per-request QK two-chain diagnostic (BF16 common controls)
+
+2026-11-01 | fe75e566c1ae4d51 | 77fd87c | OFF-by-default ONE_PR_QK2 only L1MODE11/13; common BF16 attention-output activation boundary in control/treatment, separate literal unrounded judge and BF16 baseline parity gates. Four independent builds/private data/cache/state/graphs; 3 heldouts, all12 eager gates, duplicate-noise/full-score acceptance. Pending. Source .build/attn_pr_qk2.py SHA2564dca6a77725c2c5115956375ce8122d7877ae4904c2ff4943dd0d80227ac8bfb. Judged path is repaired QK-off control, not historical891. Root authorized ONE off-board check; no public action. Local NVRTC/PTXAS/scope/host evidence and registration: docs/steering/2026-11-01-attention-per-request-qk2.md.
