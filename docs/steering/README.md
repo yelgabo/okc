@@ -104,7 +104,11 @@ The existing CUTLASS pooler, wide 8-stage picks, DCARRY/PK16/VHOIST and failed l
 are explicitly accounted for. No kernels, validation policies, GPU runs or submissions changed.
 This is separate from the layer's M1/tuner-stability work below.
 
-## Latest hourly report, November 1 13:47 Vancouver time
+## Latest hourly report, November 1 14:49 Vancouver time
+
+G’s reset queue is held. The common control needs H200 qualification before the remaining short-counter hypothesis can be tested. [Review and evidence](2026-11-01-1449-performance-review.md)
+
+## Previous hourly report, November 1 13:47 Vancouver time
 
 The four-cell H200 job was accepted. Its result is unknown during service maintenance. Both standalone progress-repair forms failed the local spill gate. [Review and receipts](2026-11-01-1347-performance-review.md)
 

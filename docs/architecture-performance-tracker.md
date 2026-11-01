@@ -1,6 +1,6 @@
 # Architecture performance tracker
 
-Last review: 2026-11-01 13:47 MST. Evidence snapshot: `e1adc0e`.
+Last review: 2026-11-01 14:49 MST. Evidence snapshot: `d79089b`.
 First review reconciles progress since `aab7d75`, the snapshot in the
 [architecture-family guide](architecture-families-2026-10-29.md).
 This is a review of recorded experiments, not a new benchmark run.
@@ -18,9 +18,21 @@ named control, not changes in aggregate score. Families overlap; their gains can
 | D. Dependency-aware scheduling | Dynamic claiming retained; new phase-A claim layouts lose | Phase-A modes 62/63 and K=0 controls 66/69 lose; lean claimed mode 68 is not timed. Earlier split-tail 52/53 losses stand. | Full ready-only queue remains untested. Reopen phase-A claims only after the no-work control ties mode 51 within 1 us at 128/256. |
 | E. Attention producer-consumer pipeline | Private VP2 cell win, six-load gate failed | VP2 took 10.168 µs versus 10.784 µs for the owned control on eight-token sliding attention. All three held-outs missed the full-score gate. | The historical owned QK2 and wait-probe limits still apply. VP2 only changes the eight-token target. |
 | F. Donor-based baseline/hybrid | Historical alygg77 measurement track | Prior F comparisons and owned C3 router gains remain recorded. Two new QKV128 variants lose despite correctness/resource passes. | G has a separate attributed-fork policy. Projection C2 remains best scored, with C3 paired component wins retained. |
-| G. Attributed keell0renz layer fork | Retained scored layer2.126083x | Repaired SC6 stage retirement has matched component factors1.018493-1.028699; integrated G1b4 stage file passes13 official tests. | Matched six-load layer stage comparison remains queued. Public four-cell job 1fad70bbe3854cbc was accepted. Terminal result unavailable during maintenance. |
+| G. Attributed keell0renz layer fork | Retained scored layer2.126083x | Repaired SC6 stage retirement has matched component factors1.018493-1.028699; integrated G1b4 stage file passes13 official tests. | Previous stage comparison held. Common control awaits H200 qualification, followed by the rebased short-counter treatment. Accepted four-cell outcome unknown. |
+
+## November 1 review at 14:49 Vancouver time
+
+**G’s previous reset queue is on hold.** The new plan starts with recovery of accepted job `1fad70bbe3854cbc`. At 21:38 UTC the service still returned HTTP 530, so correctness, timing and score for all four 128/256-token verify cells remain unknown. The retained layer is still `607eb52bdaf24160` at 2.126083×. The previous stage comparison, short-path trace and private four-cell artifacts are held. [Integration plan and service status](https://github.com/yelgabo/okc/blob/d79089b/docs/steering/2026-11-01-g-minimal-delta-plan.md)
+
+The proposed common control `4cbb13a9` (871,077 bytes) combines attention progress and pre-expert coefficient repairs. Source and CPU checks passed. H200 qualification is pending. Of the two implemented performance hypotheses for the G0 integration gap, only the short final-counter read-modify-write (RMW) treatment survived its local checks. The old `f0426f71` harness requires rebasing and a new registration against the qualified common control. A proposed PDL dependency edge and a separate short-expert dataflow investigation remain at the source-analysis stage. [Candidate inventory](https://github.com/yelgabo/okc/blob/d79089b/docs/steering/2026-11-01-g-candidate-funnel.md)
+
+The post-expert gamma prototype `d6756bb5` stopped at the local CUDA 12.8 compiler gate. Across 15 builds and 30 entry instances, enabling it raised MAIN spill stores from 4 to 44 bytes and spill loads from 32 to 68 bytes in both MAIN entries. The other four resource vectors were unchanged. Its combination with the RMW treatment is on hold. These results have no GPU job ID, latency delta or score interval. [Compiler evidence](https://github.com/yelgabo/okc/blob/d79089b/docs/steering/2026-11-01-g-native-gamma-compile.md)
+
+The source inventory also corrects the precision explanation. G0 already retained the BF16 SwiGLU output boundary, so that rounding step cannot account for the fork’s cost as a newly added operation. The 5.77% G0-to-retained score gap remains a comparison across earlier jobs. This review adds no new timing at 128 or 256 tokens and leaves the measured A-versus-B decision intact. [Dated correction](https://github.com/yelgabo/okc/blob/d79089b/docs/steering/2026-11-01-g0-607e-integration-gap.md)
 
 ## November 1 review at 13:47 Vancouver time
+
+Historical checkpoint. The 14:49 review supersedes the reset order recorded below.
 
 **The four-cell verify candidate reached H200 dispatch. Its outcome is unknown.** The service accepted public job `1fad70bbe3854cbc` from source `43c6c09` and reported it running. The 980,787-byte single-arm file selects the owned backend for 128- and 256-token verify, in both sliding and full contexts. The remaining cells use G. A local status wait expired after 1,100 seconds. Subsequent requests for the same job and the job list returned HTTP 530 during maintenance. The archive contains no terminal receipt, timings, correctness verdict, confidence interval or runtime resource counts. The private four-cell comparison is a separate held job plan. [Dispatch](https://github.com/yelgabo/okc/blob/e1adc0e/muse_decode_layer/profiles/g1-owned-verify.1fad70bbe3854cbc.dispatch.json) · [Last status response](https://github.com/yelgabo/okc/blob/e1adc0e/docs/steering/evidence/2026-11-01-reset-operational-root/maintenance-final-status.json) · [Handoff](https://github.com/yelgabo/okc/blob/e1adc0e/docs/steering/2026-11-01-maintenance-and-progress-handoff.md)
 
@@ -2397,9 +2409,7 @@ ownership implementations retain their scoped outcomes. D's complete ready-only 
 remains untested. Further scheduling work needs a distinct mechanism and measured opportunity.
 
 The G lineage has an approved attributed-fork policy, while F retains its alygg77 history.
-The retained G1b4 layer includes stage retirement. Its matched gain was measured in standalone MoE. The next registered check compares
-G control and stage candidates across six loads with matched natural routing and independent
-controls. The prepared short-path trace requires low-distortion rows. The expanded four-cell verify diagnostic still needs H200 linking, preparation and oracle validation. The 980,787-byte public startup qualifier was accepted as job 1fad70bbe3854cbc. Recover its terminal receipt before drawing an H200 conclusion.
+The retained G1b4 layer includes stage retirement. Its matched gain was measured in standalone MoE. The old reset queue is held. Recover the accepted public result and qualify the common control before testing the rebased short-counter treatment. [Current plan](https://github.com/yelgabo/okc/blob/d79089b/docs/steering/2026-11-01-g-minimal-delta-plan.md).
 
 Historical owned attention requires the documented intermediate BF16 repair before reuse.
 The new QK2 and wait studies use repaired controls. The attention and G detail observers
@@ -2411,6 +2421,8 @@ Prefill remains deferred. The final recorded campaign goal remains unmet.
 [Family G qualification](https://github.com/yelgabo/okc/blob/af3b550/docs/steering/2026-11-01-family-g-qualification.md).
 
 ## Review history and checkpoint
+
+- 2026-11-01 14:49 Vancouver time. Local `545513d`, remote `e1adc0e..d79089b`. The 21:38 UTC service checkpoint retains unknown status for `1fad70bbe3854cbc`. Two prepared profile manifests and the compiler closure add no H200 timing. 18 untracked local receipts are already logged.
 
 - 2026-11-01 13:47 Vancouver time. Reviewed `08d336a..e1adc0e`, including the dispatch and final maintenance status for `1fad70bbe3854cbc`. 18 untracked local receipts already appear in the ledgers. The G0 comparison reuses two historical receipts.
 

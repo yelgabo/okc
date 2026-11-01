@@ -1,6 +1,6 @@
 {
-  "reviewed_at": "2026-11-01T13:47:00-07:00",
-  "snapshot": "e1adc0e",
+  "reviewed_at": "2026-11-01T14:49:00-07:00",
+  "snapshot": "d79089b",
   "family_registry_update": {
     "date": "2026-10-30",
     "evidence_snapshot": "7a5965531103f275ac104d340ef30f1508e32353",
@@ -121,14 +121,14 @@
       "metric": "2.1261×",
       "unit": "Public layer score, 95% CI 2.0942–2.1580",
       "summary": "G1b4 stage-release file retained. Repaired SC6 stage retirement wins matched standalone tests across six loads.",
-      "layer": "Scored in the full layer. Matched six-load comparison awaits testing.",
-      "pending": [
-        "Stage retirement versus the repaired G control across six matched layer loads"
-      ],
+      "layer": "Retained scored layer. Previous stage comparison on hold.",
+      "pending": [],
       "evaluation_pending": [
-        "Registered six-load G control-versus-stage comparison"
+        "Recover accepted four-cell receipt",
+        "Qualify common control on H200",
+        "Rebase and register short-counter treatment"
       ],
-      "limit": "The G audit retains BF16 stage boundaries and the FP32 short-router interface. The matched six-load layer comparison remains registered.",
+      "limit": "One implemented G-gap treatment survives local gates. Its short-counter comparison requires a qualified common control. The full-family gamma prototype failed the MAIN spill gate.",
       "source": "runs-decode-layer.md",
       "outcomes": [
         "win",
@@ -148,9 +148,9 @@
       "summary": "Status retrieval for 1fad70bbe3854cbc returned HTTP 530. Its 128/256-token verify results require the terminal receipt. The private diagnostic remains on hold."
     },
     {
-      "name": "G stage and short-path studies",
-      "label": "Layer checks pending",
-      "summary": "The retained G score is 2.1261×. A six-load stage comparison and fixed-routing short-path trace are registered."
+      "name": "G integration experiments",
+      "label": "Reset queue held",
+      "summary": "Common control 4cbb13a9 awaits H200 qualification. The short-counter treatment needs rebasing. The gamma prototype failed the compiler spill gate."
     }
   ]
 }

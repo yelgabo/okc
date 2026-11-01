@@ -1,0 +1,11 @@
+# Architecture performance review, November 1 at 14:49 Vancouver time
+
+Evidence snapshot `d79089b`.
+
+**G’s previous reset queue is on hold.** The new plan starts with recovery of accepted job `1fad70bbe3854cbc`. At 21:38 UTC the service still returned HTTP 530, so correctness, timing and score for all four 128/256-token verify cells remain unknown. The retained layer is still `607eb52bdaf24160` at 2.126083×. The previous stage comparison, short-path trace and private four-cell artifacts are held. [Integration plan and service status](https://github.com/yelgabo/okc/blob/d79089b/docs/steering/2026-11-01-g-minimal-delta-plan.md)
+
+The proposed common control `4cbb13a9` (871,077 bytes) combines attention progress and pre-expert coefficient repairs. Source and CPU checks passed. H200 qualification is pending. Of the two implemented performance hypotheses for the G0 integration gap, only the short final-counter read-modify-write (RMW) treatment survived its local checks. The old `f0426f71` harness requires rebasing and a new registration against the qualified common control. A proposed PDL dependency edge and a separate short-expert dataflow investigation remain at the source-analysis stage. [Candidate inventory](https://github.com/yelgabo/okc/blob/d79089b/docs/steering/2026-11-01-g-candidate-funnel.md)
+
+The post-expert gamma prototype `d6756bb5` stopped at the local CUDA 12.8 compiler gate. Across 15 builds and 30 entry instances, enabling it raised MAIN spill stores from 4 to 44 bytes and spill loads from 32 to 68 bytes in both MAIN entries. The other four resource vectors were unchanged. Its combination with the RMW treatment is on hold. These results have no GPU job ID, latency delta or score interval. [Compiler evidence](https://github.com/yelgabo/okc/blob/d79089b/docs/steering/2026-11-01-g-native-gamma-compile.md)
+
+The source inventory also corrects the precision explanation. G0 already retained the BF16 SwiGLU output boundary, so that rounding step cannot account for the fork’s cost as a newly added operation. The 5.77% G0-to-retained score gap remains a comparison across earlier jobs. This review adds no new timing at 128 or 256 tokens and leaves the measured A-versus-B decision intact. [Dated correction](https://github.com/yelgabo/okc/blob/d79089b/docs/steering/2026-11-01-g0-607e-integration-gap.md)
