@@ -1,0 +1,100 @@
+ soft page1 scale1 [splits=8 nc=1 mode=3] err=7.202e-02 bound=0.150 worst_row=3.509e-01 k=0.00e+00 v=0.00e+00 rerun: err=7.202e-02 bound=0.150 worst_row=3.509e-01 k=0.00e+00 v=0.00e+00 (rerun vs first 2.0e-05 diff_elems=3/131072 max_ulp=1.0 max_abs=3.9e-03) ws_rows_nonzero=0 l_nonzero=0 tickets_nonzero=0 coop_next_parity_nonzero=0 flat_next_parity_nonzero=0 max_polls=5
+SELFTEST start scored b16 ctx80000 tp8 full L8 agentic coherent page1 scale1 [splits=264 nc=1 mode=51] t=1s
+SELFTEST PASS scored b16 ctx80000 tp8 full L8 agentic coherent page1 scale1 [splits=264 nc=1 mode=51] err=2.044e-02 bound=0.064 worst_row=2.402e-01 k=0.00e+00 v=0.00e+00 rerun: err=2.044e-02 bound=0.064 worst_row=2.402e-01 k=0.00e+00 v=0.00e+00 (rerun vs first 1.1e-05 diff_elems=3/131072 max_ulp=1.0 max_abs=2.0e-03) ws_rows_nonzero=0 l_nonzero=0 tickets_nonzero=0 coop_next_parity_nonzero=0 flat_next_parity_nonzero=0 max_polls=53
+SELFTEST start scored b32 ctx80000 tp8 sliding L8 agentic soft page1 scale1 [splits=4 nc=1 mode=3] t=2s
+SELFTEST PASS scored b32 ctx80000 tp8 sliding L8 agentic soft page1 scale1 [splits=4 nc=1 mode=3] err=6.971e-02 bound=0.150 worst_row=3.052e-01 k=0.00e+00 v=0.00e+00 rerun: err=6.971e-02 bound=0.150 worst_row=3.052e-01 k=0.00e+00 v=0.00e+00 (rerun vs first 7.1e-09 diff_elems=3/262144 max_ulp=1.0 max_abs=1.9e-06) ws_rows_nonzero=0 l_nonzero=0 tickets_nonzero=0 coop_next_parity_nonzero=0 flat_next_parity_nonzero=0 max_polls=7
+SELFTEST start scored b32 ctx80000 tp8 full L8 agentic coherent page1 scale1 [splits=264 nc=1 mode=51] t=3s
+SELFTEST PASS scored b32 ctx80000 tp8 full L8 agentic coherent page1 scale1 [splits=264 nc=1 mode=51] err=2.109e-02 bound=0.065 worst_row=2.259e-01 k=0.00e+00 v=0.00e+00 rerun: err=2.109e-02 bound=0.065 worst_row=2.259e-01 k=0.00e+00 v=0.00e+00 (rerun vs first 8.6e-06 diff_elems=4/262144 max_ulp=7.0 max_abs=2.0e-03) ws_rows_nonzero=0 l_nonzero=0 tickets_nonzero=0 coop_next_parity_nonzero=0 flat_next_parity_nonzero=0 max_polls=101
+SELFTEST start test b1 ctx10 tp8 sliding L1 fixed normal page64 scale1 [splits=32 nc=1 mode=1] t=5s
+SELFTEST PASS test b1 ctx10 tp8 sliding L1 fixed normal page64 scale1 [splits=32 nc=1 mode=1] err=2.668e-03 bound=0.133 worst_row=5.738e-03 k=0.00e+00 v=0.00e+00 rerun: err=2.668e-03 bound=0.133 worst_row=5.738e-03 k=0.00e+00 v=0.00e+00 (rerun vs first 0.0e+00 diff_elems=0/1024) ws_rows_nonzero=0 l_nonzero=0 tickets_nonzero=0 coop_next_parity_nonzero=0 flat_next_parity_nonzero=0 max_polls=0
+SELFTEST start test b3 ctx2047 tp8 sliding L1 fixed normal page64 scale1 [splits=32 nc=1 mode=1] t=5s
+SELFTEST PASS test b3 ctx2047 tp8 sliding L1 fixed normal page64 scale1 [splits=32 nc=1 mode=1] err=4.489e-03 bound=0.150 worst_row=1.282e-02 k=0.00e+00 v=0.00e+00 rerun: err=4.489e-03 bound=0.150 worst_row=1.282e-02 k=0.00e+00 v=0.00e+00 (rerun vs first 0.0e+00 diff_elems=0/3072) ws_rows_nonzero=0 l_nonzero=0 tickets_nonzero=0 coop_next_parity_nonzero=0 flat_next_parity_nonzero=0 max_polls=0
+SELFTEST start test b5 ctx5000 tp8 sliding L8 mixed normal page1 scale1 [splits=26 nc=1 mode=3] t=5s
+SELFTEST PASS test b5 ctx5000 tp8 sliding L8 mixed normal page1 scale1 [splits=26 nc=1 mode=3] err=7.850e-02 bound=0.150 worst_row=3.085e-01 k=0.00e+00 v=0.00e+00 rerun: err=7.850e-02 bound=0.150 worst_row=3.085e-01 k=0.00e+00 v=0.00e+00 (rerun vs first 0.0e+00 diff_elems=0/40960) ws_rows_nonzero=0 l_nonzero=0 tickets_nonzero=0 coop_next_parity_nonzero=0 flat_next_parity_nonzero=0 max_polls=3
+SELFTEST start test b4 ctx3000 tp8 full L1 fixed normal page64 scale1 [splits=264 nc=1 mode=49] t=5s
+SELFTEST PASS test b4 ctx3000 tp8 full L1 fixed normal page64 scale1 [splits=264 nc=1 mode=49] err=5.673e-03 bound=0.150 worst_row=1.375e-02 k=0.00e+00 v=0.00e+00 rerun: err=5.673e-03 bound=0.150 worst_row=1.375e-02 k=0.00e+00 v=0.00e+00 (rerun vs first 0.0e+00 diff_elems=0/4096) ws_rows_nonzero=0 l_nonzero=0 tickets_nonzero=0 coop_next_parity_nonzero=0 flat_next_parity_nonzero=0 max_polls=0
+SELFTEST start test b8 ctx8192 dp full L1 mixed normal page64 scale1 [fallback] t=5s
+SELFTEST PASS test b8 ctx8192 dp full L1 mixed normal page64 scale1 [fallback] err=8.201e-02 bound=0.150 worst_row=3.000e-01 k=0.00e+00 v=0.00e+00 rerun: err=8.201e-02 bound=0.150 worst_row=3.000e-01 k=0.00e+00 v=0.00e+00 (rerun vs first 0.0e+00 diff_elems=0/65536) ws_rows_nonzero=0 l_nonzero=0 tickets_nonzero=0 coop_next_parity_nonzero=0 flat_next_parity_nonzero=0 max_polls=0
+SELFTEST start test b2 ctx100000 tp8 full L8 fixed normal page1 scale1 [splits=264 nc=1 mode=51] t=5s
+SELFTEST PASS test b2 ctx100000 tp8 full L8 fixed normal page1 scale1 [splits=264 nc=1 mode=51] err=9.162e-02 bound=0.150 worst_row=2.255e-01 k=0.00e+00 v=0.00e+00 rerun: err=9.162e-02 bound=0.150 worst_row=2.255e-01 k=0.00e+00 v=0.00e+00 (rerun vs first 5.5e-08 diff_elems=1/16384 max_ulp=1.0 max_abs=3.8e-06) ws_rows_nonzero=0 l_nonzero=0 tickets_nonzero=0 coop_next_parity_nonzero=0 flat_next_parity_nonzero=0 max_polls=17
+SELFTEST start test b4 ctx6000 tp8 sliding L1 fixed edges page1 scale1 [splits=32 nc=1 mode=1] t=6s
+SELFTEST PASS test b4 ctx6000 tp8 sliding L1 fixed edges page1 scale1 [splits=32 nc=1 mode=1] err=4.890e-03 bound=0.150 worst_row=1.581e-02 k=0.00e+00 v=0.00e+00 rerun: err=4.890e-03 bound=0.150 worst_row=1.581e-02 k=0.00e+00 v=0.00e+00 (rerun vs first 0.0e+00 diff_elems=0/4096) ws_rows_nonzero=0 l_nonzero=0 tickets_nonzero=0 coop_next_parity_nonzero=0 flat_next_parity_nonzero=0 max_polls=0
+SELFTEST start test b4 ctx6000 tp8 full L8 fixed edges page64 scale1 [splits=264 nc=1 mode=51] t=6s
+SELFTEST PASS test b4 ctx6000 tp8 full L8 fixed edges page64 scale1 [splits=264 nc=1 mode=51] err=8.169e-02 bound=0.150 worst_row=2.604e-01 k=0.00e+00 v=0.00e+00 rerun: err=8.169e-02 bound=0.150 worst_row=2.604e-01 k=0.00e+00 v=0.00e+00 (rerun vs first 6.1e-10 diff_elems=2/32768 max_ulp=1.0 max_abs=6.0e-08) ws_rows_nonzero=0 l_nonzero=0 tickets_nonzero=0 coop_next_parity_nonzero=0 flat_next_parity_nonzero=0 max_polls=32
+SELFTEST start test b1 ctx1048576 tp8 full L8 fixed normal page64 scale1 [splits=252 nc=8 mode=3] t=6s
+SELFTEST PASS test b1 ctx1048576 tp8 full L8 fixed normal page64 scale1 [splits=252 nc=8 mode=3] err=9.795e-02 bound=0.150 worst_row=2.437e-01 k=0.00e+00 v=0.00e+00 rerun: err=9.795e-02 bound=0.150 worst_row=2.437e-01 k=0.00e+00 v=0.00e+00 (rerun vs first 3.9e-08 diff_elems=1/8192 max_ulp=1.0 max_abs=1.9e-06) ws_rows_nonzero=0 l_nonzero=0 tickets_nonzero=0 coop_next_parity_nonzero=0 flat_next_parity_nonzero=0 max_polls=166
+SELFTEST start test b3 ctx4000 tp8 sliding L8 fixed normal page1 scale0.015625 [splits=33 nc=1 mode=3] t=7s
+SELFTEST PASS test b3 ctx4000 tp8 sliding L8 fixed normal page1 scale0.015625 [splits=33 nc=1 mode=3] err=7.403e-02 bound=0.150 worst_row=2.450e-01 k=0.00e+00 v=0.00e+00 rerun: err=7.403e-02 bound=0.150 worst_row=2.450e-01 k=0.00e+00 v=0.00e+00 (rerun vs first 7.2e-07 diff_elems=1/24576 max_ulp=1.0 max_abs=6.1e-05) ws_rows_nonzero=0 l_nonzero=0 tickets_nonzero=0 coop_next_parity_nonzero=0 flat_next_parity_nonzero=0 max_polls=4
+SELFTEST start test b2 ctx9000 tp8 full L1 fixed normal page64 scale0.015625 [splits=264 nc=1 mode=49] t=7s
+SELFTEST PASS test b2 ctx9000 tp8 full L1 fixed normal page64 scale0.015625 [splits=264 nc=1 mode=49] err=5.338e-03 bound=0.150 worst_row=1.226e-02 k=0.00e+00 v=0.00e+00 rerun: err=5.338e-03 bound=0.150 worst_row=1.226e-02 k=0.00e+00 v=0.00e+00 (rerun vs first 0.0e+00 diff_elems=0/2048) ws_rows_nonzero=0 l_nonzero=0 tickets_nonzero=0 coop_next_parity_nonzero=0 flat_next_parity_nonzero=0 max_polls=0
+SELFTEST start test b4 ctx80000 tp8 full L1 mixed soft page64 scale1 [splits=264 nc=1 mode=49] t=7s
+SELFTEST PASS test b4 ctx80000 tp8 full L1 mixed soft page64 scale1 [splits=264 nc=1 mode=49] err=4.514e-03 bound=0.150 worst_row=7.835e-03 k=0.00e+00 v=0.00e+00 rerun: err=4.514e-03 bound=0.150 worst_row=7.835e-03 k=0.00e+00 v=0.00e+00 (rerun vs first 0.0e+00 diff_elems=0/4096) ws_rows_nonzero=0 l_nonzero=0 tickets_nonzero=0 coop_next_parity_nonzero=0 flat_next_parity_nonzero=0 max_polls=0
+SELFTEST start test b4 ctx6000 tp8 sliding L8 fixed soft page1 scale1 [splits=33 nc=1 mode=3] t=7s
+SELFTEST PASS test b4 ctx6000 tp8 sliding L8 fixed soft page1 scale1 [splits=33 nc=1 mode=3] err=6.223e-02 bound=0.150 worst_row=2.331e-01 k=0.00e+00 v=0.00e+00 rerun: err=6.223e-02 bound=0.150 worst_row=2.331e-01 k=0.00e+00 v=0.00e+00 (rerun vs first 1.6e-07 diff_elems=1/32768 max_ulp=1.0 max_abs=1.5e-05) ws_rows_nonzero=0 l_nonzero=0 tickets_nonzero=0 coop_next_parity_nonzero=0 flat_next_parity_nonzero=0 max_polls=3
+SELFTEST start test b2 ctx20000 dp full L8 fixed soft page64 scale1 [fallback] t=7s
+SELFTEST PASS test b2 ctx20000 dp full L8 fixed soft page64 scale1 [fallback] err=7.045e-02 bound=0.150 worst_row=3.137e-01 k=0.00e+00 v=0.00e+00 rerun: err=7.045e-02 bound=0.150 worst_row=3.137e-01 k=0.00e+00 v=0.00e+00 (rerun vs first 0.0e+00 diff_elems=0/131072) ws_rows_nonzero=0 l_nonzero=0 tickets_nonzero=0 coop_next_parity_nonzero=0 flat_next_parity_nonzero=0 max_polls=0
+SELFTEST start test b4 ctx80000 tp8 full L1 mixed coherent page1 scale1 [splits=264 nc=1 mode=49] t=7s
+SELFTEST PASS test b4 ctx80000 tp8 full L1 mixed coherent page1 scale1 [splits=264 nc=1 mode=49] err=2.002e-03 bound=0.066 worst_row=4.607e-03 k=0.00e+00 v=0.00e+00 rerun: err=2.015e-03 bound=0.066 worst_row=4.607e-03 k=0.00e+00 v=0.00e+00 (rerun vs first 2.3e-04 diff_elems=1/4096 max_ulp=1.0 max_abs=7.8e-03) ws_rows_nonzero=0 l_nonzero=0 tickets_nonzero=0 coop_next_parity_nonzero=0 flat_next_parity_nonzero=0 max_polls=0
+SELFTEST start test b2 ctx20000 dp full L8 fixed coherent page64 scale1 [fallback] t=7s
+SELFTEST PASS test b2 ctx20000 dp full L8 fixed coherent page64 scale1 [fallback] err=2.607e-02 bound=0.079 worst_row=2.460e-01 k=0.00e+00 v=0.00e+00 rerun: err=2.607e-02 bound=0.079 worst_row=2.460e-01 k=0.00e+00 v=0.00e+00 (rerun vs first 0.0e+00 diff_elems=0/131072) ws_rows_nonzero=0 l_nonzero=0 tickets_nonzero=0 coop_next_parity_nonzero=0 flat_next_parity_nonzero=0 max_polls=0
+SELFTEST done: 0 failing shapes t=7s
+LATENULL sliding 0b/0a inputs=2000 strict_bad=19 max_rel=0.00045771824 max_row_rel=0.0017949866 row_bad=32
+LATENULL sliding 2a/0a inputs=2000 strict_bad=13 max_rel=0.00045811828 max_row_rel=0.0018755826 row_bad=28
+LATENULL sliding 2a/0b inputs=2000 strict_bad=14 max_rel=0.00045811828 max_row_rel=0.0018755826 row_bad=30
+LATENULL sliding 2b/0a inputs=2000 strict_bad=11 max_rel=0.00044278227 max_row_rel=0.00180121 row_bad=28
+LATENULL sliding 2b/0b inputs=2000 strict_bad=18 max_rel=0.00045773112 max_row_rel=0.00180121 row_bad=28
+LATENULL sliding 2b/2a inputs=2000 strict_bad=16 max_rel=0.00045813861 max_row_rel=0.0018769796 row_bad=32
+LATENULL REF sliding 0a sample=0 ok=True err=4.536e-03 bound=0.136 worst_row=7.214e-03 k=0.00e+00 v=0.00e+00
+LATENULL REF sliding 0b sample=0 ok=True err=4.537e-03 bound=0.136 worst_row=7.214e-03 k=0.00e+00 v=0.00e+00
+LATENULL REF sliding 2a sample=0 ok=True err=4.536e-03 bound=0.136 worst_row=7.214e-03 k=0.00e+00 v=0.00e+00
+LATENULL REF sliding 2b sample=0 ok=True err=4.537e-03 bound=0.136 worst_row=7.214e-03 k=0.00e+00 v=0.00e+00
+LATENULL REF sliding 0a sample=1000 ok=True err=3.708e-03 bound=0.142 worst_row=6.793e-03 k=0.00e+00 v=0.00e+00
+LATENULL REF sliding 0b sample=1000 ok=True err=3.708e-03 bound=0.142 worst_row=6.793e-03 k=0.00e+00 v=0.00e+00
+LATENULL REF sliding 2a sample=1000 ok=True err=3.708e-03 bound=0.142 worst_row=6.793e-03 k=0.00e+00 v=0.00e+00
+LATENULL REF sliding 2b sample=1000 ok=True err=3.708e-03 bound=0.142 worst_row=6.793e-03 k=0.00e+00 v=0.00e+00
+LATENULL REF sliding 0a sample=1999 ok=True err=4.668e-03 bound=0.145 worst_row=7.377e-03 k=0.00e+00 v=0.00e+00
+LATENULL REF sliding 0b sample=1999 ok=True err=4.668e-03 bound=0.145 worst_row=7.377e-03 k=0.00e+00 v=0.00e+00
+LATENULL REF sliding 2a sample=1999 ok=True err=4.668e-03 bound=0.145 worst_row=7.377e-03 k=0.00e+00 v=0.00e+00
+LATENULL REF sliding 2b sample=1999 ok=True err=4.668e-03 bound=0.145 worst_row=7.377e-03 k=0.00e+00 v=0.00e+00
+LATENULL full 0b/0a inputs=2000 strict_bad=10 max_rel=0.0002316252 max_row_rel=0.00098957239 row_bad=23
+LATENULL full 2a/0a inputs=2000 strict_bad=10 max_rel=0.00045230421 max_row_rel=0.0017463663 row_bad=19
+LATENULL full 2a/0b inputs=2000 strict_bad=10 max_rel=0.00045230421 max_row_rel=0.0017463663 row_bad=20
+LATENULL full 2b/0a inputs=2000 strict_bad=10 max_rel=0.00045230421 max_row_rel=0.0017463663 row_bad=27
+LATENULL full 2b/0b inputs=2000 strict_bad=14 max_rel=0.00045230421 max_row_rel=0.0017463663 row_bad=32
+LATENULL full 2b/2a inputs=2000 strict_bad=12 max_rel=0.00044478419 max_row_rel=0.001736855 row_bad=24
+LATENULL REF full 0a sample=0 ok=True err=2.188e-03 bound=0.049 worst_row=4.303e-03 k=0.00e+00 v=0.00e+00
+LATENULL REF full 0b sample=0 ok=True err=2.188e-03 bound=0.049 worst_row=4.303e-03 k=0.00e+00 v=0.00e+00
+LATENULL REF full 2a sample=0 ok=True err=2.188e-03 bound=0.049 worst_row=4.303e-03 k=0.00e+00 v=0.00e+00
+LATENULL REF full 2b sample=0 ok=True err=2.188e-03 bound=0.049 worst_row=4.303e-03 k=0.00e+00 v=0.00e+00
+LATENULL REF full 0a sample=1000 ok=True err=1.468e-03 bound=0.048 worst_row=2.594e-03 k=0.00e+00 v=0.00e+00
+LATENULL REF full 0b sample=1000 ok=True err=1.468e-03 bound=0.048 worst_row=2.594e-03 k=0.00e+00 v=0.00e+00
+LATENULL REF full 2a sample=1000 ok=True err=1.468e-03 bound=0.048 worst_row=2.594e-03 k=0.00e+00 v=0.00e+00
+LATENULL REF full 2b sample=1000 ok=True err=1.468e-03 bound=0.048 worst_row=2.594e-03 k=0.00e+00 v=0.00e+00
+LATENULL REF full 0a sample=1999 ok=True err=1.750e-03 bound=0.050 worst_row=2.884e-03 k=0.00e+00 v=0.00e+00
+LATENULL REF full 0b sample=1999 ok=True err=1.750e-03 bound=0.050 worst_row=2.884e-03 k=0.00e+00 v=0.00e+00
+LATENULL REF full 2a sample=1999 ok=True err=1.750e-03 bound=0.050 worst_row=2.884e-03 k=0.00e+00 v=0.00e+00
+LATENULL REF full 2b sample=1999 ok=True err=1.750e-03 bound=0.050 worst_row=2.884e-03 k=0.00e+00 v=0.00e+00
+LATENULL FINAL strict_pass=False failures=[('sliding', '0b', '0a', 19.0, 2.0950598411673127e-07), ('sliding', '2a', '0a', 13.0, 2.098723541621439e-07), ('sliding', '2a', '0b', 14.0, 2.098723541621439e-07), ('sliding', '2b', '0a', 11.0, 1.9605613488238305e-07), ('sliding', '2b', '0b', 18.0, 2.095177791261449e-07), ('sliding', '2b', '2a', 16.0, 2.0989098459267552e-07), ('full', '0b', '0a', 10.0, 5.365023270087477e-08), ('full', '2a', '0a', 10.0, 2.0457909499782545e-07), ('full', '2a', '0b', 10.0, 2.0457909499782545e-07), ('full', '2b', '0a', 10.0, 2.0457909499782545e-07), ('full', '2b', '0b', 14.0, 2.0457909499782545e-07), ('full', '2b', '2a', 12.0, 1.9783297489084362e-07)]
+Traceback (most recent call last):
+  File "/tmp/muse_attention_decode-x7sbfgxa/run/worker.py", line 484, in child_main
+    out = kernel()(state.get("data"))
+          ^^^^^^^^
+  File "/tmp/muse_attention_decode-x7sbfgxa/run/worker.py", line 408, in kernel
+    sub = importlib.import_module(module)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/importlib/__init__.py", line 90, in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<frozen importlib._bootstrap>", line 1387, in _gcd_import
+  File "<frozen importlib._bootstrap>", line 1360, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 1331, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 935, in _load_unlocked
+  File "<frozen importlib._bootstrap_external>", line 995, in exec_module
+  File "<frozen importlib._bootstrap>", line 488, in _call_with_frames_removed
+  File "/tmp/muse_attention_decode-x7sbfgxa/run/submission.py", line 7195, in <module>
+    _dn_run()
+  File "/tmp/muse_attention_decode-x7sbfgxa/run/submission.py", line 7192, in _dn_run
+    assert not failures, "strict1e-4 failed; classification diagnostic, no promotion"
+           ^^^^^^^^^^^^
+AssertionError: strict1e-4 failed; classification diagnostic, no promotion
+

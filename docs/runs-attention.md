@@ -3880,3 +3880,32 @@ accepted payload to624471bytes. No donor source, compression or extra package is
 |date|job|commit|change|score (95%CI)|notes|
 |---|---|---|---|---|---|
 |2026-10-31|26c8a3ea28554454 (check)|0d5901e|Strict fresh-output null/cross diagnostic,4independent modules/states|pending|Judgeddefault0; bothshapes beforefinalassert; unchanged1e-4 threshold.|
+
+### Strict matched null diagnostic26c8a3ea28554454
+
+Correct owning receipt verified. Prepare failed at final strict assertion AFTER bothshape
+statistics and all24FP32samples; no official test/timing score exists. Owned selftest0fails.
+Files `profiles/latenull.26c8a3ea28554454.{json,log}`.
+
+|Shape/pair|Strictbad/2000|maxglobalrel|maxrowrel|rowbad|
+|---|---:|---:|---:|---:|
+|sliding0b/0a|19|0.000457718|0.00179499|32|
+|sliding2b/2a|16|0.000458139|0.00187698|32|
+|slidingcandidate/controlcrosses|11-18|0.000442782-0.000458118|0.00180121-0.00187558|28-30|
+|full0b/0a|10|0.000231625|0.000989572|23|
+|full2b/2a|12|0.000444784|0.00173686|24|
+|fullcandidate/controlcrosses|10-14|0.000452304|0.00174637|19-32|
+
+Measured: strict1e-4 fails incumbent-null on BOTHshapes. Candidatefull maxerror is also larger
+than this singlecontrol-null maximum, so calling everydifference benign is unsupported.
+All24 independentFP32samples pass: sliding globalerr0.003708-0.004668 (bounds0.136-0.145),
+full0.001468-0.002188 (bounds0.048-0.050); cacheerrors0. These24samples doNOT establish
+FP32correctness for everyqueued input. Original strict failures remain failures; no threshold
+was changed, no candidate markedcorrect and no production/publicpromotion follows.
+
+Root's next authorized investigation is a NEWprospective official-TASK FP32-reference fresh
+gate for everyqueued input, with independentcontrol and stale/zero/order1 corruption controls.
+A different gate must be preregistered and measured independently, never used to relabel either
+failed strict check as passing. The causal~0.24% performancegain remains farbelow live11.73%
+top10score gap; afterfreshmathclassification, close thismicroknob and reassess larger measured
+opportunities rather than continuinglate-tid sweeps.
