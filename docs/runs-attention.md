@@ -4177,3 +4177,11 @@ these aggregate stamps. No additional GPU job dispatched.
 |date|job|source|change|result|notes|
 |---|---|---|---|---|---|
 |2026-11-01|4862f8e0dc8a4b5a (check)|3842beb|Owned current source versus pinned public native WST/VP2 SCH0, independent nulls|pending|No donor adoption; prospective1%changed-native-only aggregate and2xnull gate in steering/2026-11-01-attention-alternate-engine-decision.md.|
+
+Terminal4862f8e0dc8a4b5a: unchangedcontrol2.528391542x CI2.490465669–2.566317415,
+16/16official/checks.okflags[]. Fourarms21/21 math/row/cache checks. Native
+WST+VP2 matrix FAILS: corrected changed-native-only pooled .997059624;
+v16fullWST+12.10us, v1slidingVP2−.77us. VP2-only prospective signal~1.086%
+aggregate, needs new restricted gate/owned sourceproof; not retroactivepass.
+Resource minimum gates executed, numeric stdout truncated; no exactregister
+claim. Fullreceipt/log committed; details in alternate-engine steering report.

@@ -130,3 +130,50 @@ bothSCH0 flags, independently rewritten duplicate extension names, proper
 CUDA printf backslash-n, and exactly one TF32-isolated/restoring reference
 wrapper. Private generated artifact lives `.build/today-attn/exact_split.py`.
 Pending result; no actual counter/resource/performance claim yet.
+
+## Terminal exact comparator4862f8e0dc8a4b5a: matrix loses, VP2 isolated signal
+
+Result passed16 official control tests/checks.ok/flags[], unchanged-control
+score2.528391542x (95%CI2.490465669–2.566317415). All four independent arms
+passed21/21 own two-reference FP32/global/row/cache checks. This is not a
+public candidate check or all-input queuedstress. Full receipt/log:
+`muse_attention_decode/profiles/exact_split.4862f8e0dc8a4b5a.{json,log}`.
+
+|native selected row|ctrl|ctrl2|public exact1|public exact2|per-input public1−ctrl|
+|---|---:|---:|---:|---:|---|
+|verify1sliding VP2|11.10|11.10|10.34|10.37|−0.93/−0.70us|
+|verify16full WST|114.02|113.95|126.11|126.40|+10.14/+14.21us|
+
+Raw cold graph medians in microseconds include replay overhead. Independent
+public2 signs match both rows/inputs. WST exact-math engine is substantially
+slower; the registered native-matrix gate FAILS. Holding every non-native row
+fixed and subtracting this receipt's official per-shape overhead gives
+sensitivity public1 .997479993,public2 .996720914,ctrl2 1.000081757; pooled
+cross .997059624 (−0.294%). Publicnull ratio .999239003. These sensitivities
+use rounded AB medians and borrowed calibration, NOT candidate scores.
+Other public vjeux-derived paths moved too; their gains cannot be attributed
+to the new WST/VP2 architecture or credited to this registered native gate.
+
+VP2 alone, a NEW restricted follow-up decision rather than retroactive gate
+promotion, has calibrated ratios1.011088375/1.010634087; pooled1.010861205,
+publicnull .999550694. Thus the batch1sliding cluster architecture plausibly
+covers about one quarter of the saved4.03%rank50 score gap, while WST should
+not be rewritten on this evidence. Needs fresh restricted preregistration,
+source/layout/order proof and OWNED implementation before further benchmark.
+No donor adoption is authorized by this result.
+
+Resource hooks were required before native launches and all21checks completed,
+so minimum WSTresident/local0 and VP2cluster/local0 gates executed successfully.
+However their numeric printf lines were truncated from the retained log;
+DO NOT claim exact registers, occupancy counts or shared bytes from this
+receipt. Missing terminal resource summaries are an instrumentation gap, not
+an excuse to infer values from source. Private module/state ownership was
+built into the generated harness, but public workspace cleanup was not
+independently scanned; all-inputqueued replay correctness remains outstanding.
+
+Next justified source investigation is VP2's one-KV-head128-keytile and
+16-CTA cluster-local reduction/exit lifetime, compared to our two-KV-head64-
+keytile/global cooperative finalize. Do not transplant its source. Establish
+whether this reduces duplicate prologue/finalization or changes critical-path
+work and prove DSMEM writer/reader lifetime through cluster exit. Keep every
+fence/barrier. No new check or forcedVFGroute was dispatched after this result.
