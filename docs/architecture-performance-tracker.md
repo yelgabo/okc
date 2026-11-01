@@ -1,5 +1,7 @@
 # Architecture performance tracker
 
+**November 1 registration. Family G is the attributed keell0renz decode-layer fork.** It descends from the alygg77 lineage registered as Family F. G0 is the pinned upstream comparison. G1 is our fork with ordering, precision and lifetime repairs. Only G0 currently has the 2.248791× measurement. The owned Lt plus short-boundary candidate remains on the incumbent line. [Family G registration and run evidence](steering/2026-11-01-top50-reset.md)
+
 Last review: 2026-10-30 22:35 PDT. Evidence snapshot: `9bf7f05`.
 First review reconciles progress since `aab7d75`, the snapshot in the
 [architecture-family guide](architecture-families-2026-10-29.md).
