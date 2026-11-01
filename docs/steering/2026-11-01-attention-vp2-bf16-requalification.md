@@ -195,3 +195,23 @@ synthetic-receipt tests PASS including independently different contemporaneous o
 flags/incomplete-backend coverage and nonpositive-adjusted negatives. Synthetic test
 receipts are explicitly not H200 measurements. Source2tests and actual CPU oracle2tests
 still pass; independent whole-host re-review against the final normal-path API is pending.
+
+
+## Normal-entry ABI hardening and source clearance
+
+Auditor identified a real eligibility blocker in78ce: config-only selection did not retain
+original tensor dtype/stride constraints. New exact draft866845554b3d694c40165fabbdfde6739f6fa22b1efb5abb6b5831f32e368f24,
+412952B restores strict metadata eligibility for BF16 contiguous QKV/shape, int32 page
+columns with stride1/index bounds, int32 sequence, int64 contiguous cache locations,
+FP8 contiguous K/V with matching shape/head layout, Float32 scalar scale metadata and
+common device. Unsupported metadata delegates owned; an all-fallback private preparation
+still cannot qualify because20VP2/284owned coverage is mandatory.
+
+Actual source cleared by independent9bd60da; no remaining source blocker. Same CUDA
+strings/ordering/precision/compiler receipts. Two source/score tests PASS; three actual
+TorchCPU math/metadata tests PASS, including real Float8 metadata positive and wrong cache
+dtype/location dtype/page stride/QKV/cache contiguity/nonunit scale negatives. This is
+metadata testing only; no CUDA execution. The independent whole-host facade must mock
+metadata explicitly for its FP32 cache arithmetic stand-in, then independently test the
+REAL guard; the production guard is not weakened for fixtures. Final updated host review
+pending. Root alone owns any H200 dispatch after final freeze and runtime gate review.

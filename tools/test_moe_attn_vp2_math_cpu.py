@@ -9,7 +9,7 @@ ROOT=Path(__file__).resolve().parents[1]
 
 def namespace():
  tree=ast.parse((ROOT/'.build/today-moe/vp2_bf16_private.py').read_text(encoding='utf8'))
- names={'_ob_rms','_ob_rope','_ob_reference','_vp_bf_reference','_ob_rel','_vp_refs','_vp_check'}
+ names={'_ob_rms','_ob_rope','_ob_reference','_vp_bf_reference','_ob_rel','_vp_refs','_vp_check','_vp_eligible'}
  nodes=[n for n in tree.body if isinstance(n,ast.FunctionDef) and n.name in names]
  ns={'torch':torch,'math':math,'FP8':torch.float8_e4m3fn,'RMS_EPS':1e-5,'_OB_THETA':500000.}
  exec(compile(ast.Module(nodes,[]),'<actual-vp2-refs>','exec'),ns)
@@ -25,6 +25,17 @@ def inputs(seed):
    'window':2048,'rope_theta':500000.,'qk_scale_factor':5.4730064863875,'sm_scale':.125,'kv_scale':1.}}
 
 class Math(unittest.TestCase):
+ def test_actual_tensor_metadata_eligibility(self):
+  ns=namespace();d=inputs(824731);d['cache_loc']=torch.arange(8,dtype=torch.int64)
+  d['k_cache']=torch.empty((8,1,2,64),dtype=torch.float8_e4m3fn);d['v_cache']=torch.empty_like(d['k_cache'])
+  self.assertTrue(ns['_vp_eligible'](d))
+  for key,replacement in [('k_cache',d['k_cache'].float()),('cache_loc',d['cache_loc'].int()),
+                          ('page_table',torch.arange(16,dtype=torch.int32)[None,::2]),
+                          ('qkv',torch.empty((1,8,4608),dtype=torch.bfloat16)[:,:,::2]),
+                          ('k_cache',torch.empty((8,1,2,128),dtype=torch.float8_e4m3fn)[...,::2])]:
+   bad=dict(d);bad[key]=replacement;self.assertFalse(ns['_vp_eligible'](bad),key)
+  bad=dict(d,config=dict(d['config'],kv_scale=.5));self.assertFalse(ns['_vp_eligible'](bad))
+
  def test_actual_dual_oracle_and_cache(self):
   ns=namespace();d=inputs(824731);refs=ns['_vp_refs'](d)
   d['k_cache'].view(1,8,2,64).copy_(refs[2].float());d['v_cache'].view(1,8,2,64).copy_(refs[3].float())

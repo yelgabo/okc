@@ -7,6 +7,21 @@ def _vp_guard():
 def _vp_clone(data):
     return {k:v.clone() if isinstance(v,torch.Tensor) else dict(v) if isinstance(v,dict) else v for k,v in data.items()}
 
+def _vp_eligible(data):
+    c=data['config'];q=data['qkv'];p=data['page_table'];seq=data['seq_lens'];loc=data['cache_loc']
+    k=data['k_cache'];v=data['v_cache'];ks=data['k_scale'];vs=data['v_scale']
+    return (c['batch']==1 and c['q_len']==8 and c['window']==2048 and c['page_size']==1 and
+            c['kv_scale']==1 and c['num_q_heads']==16 and c['num_kv_heads']==2 and c['head_dim']==64 and
+            q.dtype==torch.bfloat16 and tuple(q.shape)==(1,8,2304) and q.is_contiguous() and
+            p.dtype==torch.int32 and p.ndim==2 and p.shape[0]==1 and p.shape[1]>=8 and p.stride(1)==1 and
+            p.numel()<(1<<31) and p.stride(0)<(1<<31) and
+            seq.dtype==torch.int32 and seq.numel()==1 and seq.is_contiguous() and
+            loc.dtype==torch.int64 and loc.numel()==8 and loc.is_contiguous() and
+            k.dtype==torch.float8_e4m3fn and v.dtype==torch.float8_e4m3fn and k.shape==v.shape and
+            k.ndim>=2 and tuple(k.shape[-2:])==(2,64) and k.is_contiguous() and v.is_contiguous() and
+            ks.dtype==torch.float32 and vs.dtype==torch.float32 and ks.numel()==vs.numel()==1 and
+            all(x.device==q.device for x in (p,seq,loc,k,v,ks,vs)))
+
 def _vp_refs(data):
     c=data['config'];b,l,h=c['batch'],c['q_len'],c['num_kv_heads']
     _,ki,vi,_=data['qkv'].split([c['num_q_heads']*64,h*64,h*64,c['num_q_heads']*64],-1)
@@ -95,15 +110,12 @@ def _vp_prepare():
         assert len(ptrs)==len(set(ptrs)),'VP2_STATE_ALIAS'
         plans=[]
         dispatch_counts={'ONE':0,'VP2':0}
-        def eligible(c):
-            return(c['batch']==1 and c['q_len']==8 and c['window']==2048 and c['page_size']==1 and
-                   c['kv_scale']==1 and c['num_q_heads']==16 and c['num_kv_heads']==2)
         def run(i,data,record=True):
             c=data['config']
             if not ns[i]['_one_ok'](c):
                 assert not record,'VP2_NATIVE_CONTROL_REQUIRED'
                 return ns[i]['kernel_fn'](data)
-            if i<2 or not eligible(c):
+            if i<2 or not _vp_eligible(data):
                 if record:dispatch_counts['ONE']+=1
                 return ns[i]['_one'](data)
             if record:dispatch_counts['VP2']+=1
@@ -138,7 +150,7 @@ def _vp_prepare():
                             rr=resources[i%2];selected=next(rr[q:q+7] for q in range(0,len(rr),7) if rr[q:q+2]==[length,plan[2]])
                             assert selected[3]==0 and selected[6]>0,('VP2_NATIVE_RESOURCE',selected)
                             if seed==_VP_MANIFEST['seeds'][0]:
-                                actual=['VP2_grid_cluster_threads',32,16,256] if i>=2 and eligible(base['config']) else ['ONE_splits_copies_mode',*plan]
+                                actual=['VP2_grid_cluster_threads',32,16,256] if i>=2 and _vp_eligible(base) else ['ONE_splits_copies_mode',*plan]
                                 plans.append([batch,length,window,i,actual])
                         graphs=[];outputs=[]
                         for i in range(4):
