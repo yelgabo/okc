@@ -1,5 +1,7 @@
 # Shared project steering
 
+Latest private harness review: [Short final-RMW whole-layer four-placement gate](2026-11-01-short-rmw-private-review.md). Exact f042 source cleared conditionally; two builds/four placements, raw all-six score gate, empty-to-occupied and final-fresh-output scope explicit. No GPU measurement.
+
 Latest ordering necessity/proof: [G0→607e and one minimal short-counter restoration](2026-11-01-g-ordering-restoration-proof.md). ExactTiny/Tiny2d339 explicitrelaxedATOM retainsfences/joins/acquire and hasconditionalsource+actualPTX/load proof; OFF/localcompileonly, no gainforecast orGPUaction.
 
 Latest standalone native repair review: [Historical main47/skinny1 progress](2026-11-01-standalone-progress-native-review.md). Two cooperative wrappers/sharedtrap and canonical credit/queue bounds reviewed;7c915 and sole authorized db0b8 termination screen subsequently fail no-new-spill static gate. Both closed, noGPU/performance claim.
