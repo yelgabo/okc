@@ -5292,3 +5292,16 @@ No SC6 port/promotion; no publicsubmit. Full perseedrows/resources/officialprofi
 retained underprofiles/sc6_compare.05e51ddeb7014dd9.*, full interpretation inSC6report.
 This closescompression-first ontherepairedcontrolledbackend, notall compression
 architectures; per-expertfrontier measurement is next, notanotherSC6knobsweep.
+
+
+## Owned multiply decoder, 2026-11-01
+
+Registered574cc1c before ONE authorizedcheck835253441a214a1c, pending on actualMoE
+board. Frozenprivateharness628518B SHAb1e6e0886fe0058b9c5719950fb4dd06eef27b8f69975034affa234c440e98f3.
+OwnedderivedW4permutation+multiply16648, noimporteddonorcode/table. Actualfullpacking
+CPUproofandactualsm90aCUBINhotloops390->374, skinny140->128regs. Commoncoop
+admissionandBF16effectivegamma inbotharms. Currenttrackedc785source, historical
+abe765DISPATCHonly(skinny<=32/main47>=128), notclaimedhistoricalpublicbytes.
+4privatepacks/scratch/inputs/captures,2binaries,18normalcases/seeds9919971009,
+FP32fresh/skew/allremote/post gates, all4cross+EVERYseed whole-six-load>=1% and2xnull.
+No publicsubmit. Fullregisteredproof/gates: docs/steering/2026-11-01-owned-multiply-decode.md.
