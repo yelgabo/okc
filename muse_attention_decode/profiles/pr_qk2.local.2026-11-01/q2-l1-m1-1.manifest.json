@@ -1,0 +1,58 @@
+{
+  "source": "/mnt/c/Users/gretc/Documents/GitHub/okc-today-proj/.build/attn_pr_qk2.py.device.cu",
+  "source_sha256": "79da7430fa5301d1105325ef508776d294e1d9e5d2a946fa4d5724d000ce0a4e",
+  "original_device_prefix_sha256": "55b76b600675cb11f949897fa8b97ff57add69f38c7f45edb15c1d11e5400588",
+  "compiled_device_prefix_sha256": "de8c6f256752c0bf88908e36725180e1caaae0df2862f55dc4d74c6a852b602a",
+  "host_boundary": "template <int L, int MODE>\nstruct Instance {",
+  "virtual_headers": {
+    "type_traits": "#pragma once\nnamespace std { template<class T,T v> struct integral_constant {\nstatic constexpr T value=v; constexpr operator T() const noexcept {return value;}\n}; using true_type=integral_constant<bool,true>; using false_type=integral_constant<bool,false>; }\n",
+    "stdint.h": "#pragma once\n#include <cuda/std/cstdint>\n"
+  },
+  "options": [
+    "--gpu-architecture=compute_90a",
+    "--std=c++17",
+    "--generate-line-info",
+    "--device-as-default-execution-space",
+    "--include-path=/root/.cache/okc-cuda128/packages/nvidia/cuda_runtime/include",
+    "--include-path=/root/.cache/okc-cuda128/packages/nvidia/cuda_nvcc/include",
+    "--include-path=/root/.cache/okc-cuda128/cccl/nvidia/cuda_cccl/include",
+    "-DONE_PR_QK2=1"
+  ],
+  "declaration_adapter": {
+    "old": "constexpr float NEG_INF = -INFINITY;",
+    "new": "#define NEG_INF (__int_as_float((int)0xff800000u))"
+  },
+  "header_adapter": "Torch/ATen/algorithm/vector removed; cuda_runtime, CUDA cstdint, overflow float literal INFINITY (positive infinity); anonymous namespace closed after extract",
+  "nvrtc_status": 0,
+  "gpu_execution": false,
+  "lowered": [
+    "_ZN52_GLOBAL__N__00000000_15_exact_device_cu_65d8a240_33115attn_one_kernelILi1ELi1EEEvNS_6ParamsE"
+  ],
+  "ptx_sha256": "2635811d6c05f06be055e75f1cbbe1cc99958754e1e425d6a1824e22147fd2af",
+  "cubin_sha256": "654c92b1df214727c85b5f1ceb69ec75bce9531f2ba305c6829bd60faa9f5b05",
+  "ptxas": [
+    "/root/.cache/okc-cuda128/packages/nvidia/cuda_nvcc/bin/ptxas",
+    "-arch=sm_90a",
+    "-O3",
+    "-v",
+    "--warn-on-spills",
+    "/mnt/c/Users/gretc/Documents/GitHub/okc-today-proj/.build/cuda128/q2-l1-m1-1/device.ptx",
+    "-o",
+    "/mnt/c/Users/gretc/Documents/GitHub/okc-today-proj/.build/cuda128/q2-l1-m1-1/device.cubin"
+  ],
+  "exitcode": 0,
+  "resources": {
+    "_ZN52_GLOBAL__N__00000000_15_exact_device_cu_65d8a240_33115attn_one_kernelILi1ELi1EEEvNS_6ParamsE": {
+      "stack_bytes": 0,
+      "spill_store_bytes": 0,
+      "spill_load_bytes": 0,
+      "registers": 117,
+      "barriers": 1
+    }
+  },
+  "ptx_launch_bounds": [
+    ".maxntid 128, 1, 1",
+    ".minnctapersm 4"
+  ],
+  "ptxas_wgmma_serialization_warnings": 0
+}
