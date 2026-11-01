@@ -611,3 +611,4 @@ Latest: [Dense projection transfer to the decode layer](2026-11-01-layer-dense-t
 - 2026-11-01: [Owned C2 projection WGMMA lifetime audit](2026-11-01-projection-wgmma-lifetime-audit.md): exact C2/control22-entry sm90a compile and full30-cell score map; all3 active WD loops already wait1 then release prior stage, wait0 only terminal. No MoE-style drain opportunity, kernel/check proposal or C3 repeat.
 
 - 2026-11-01: [Four-cell verify slice first-draft review](2026-11-01-verify-four-cell-slice-review.md): owned128 policy mismatches identified from cb71 source/receipts: actualQKVwide and SGlang attention boundary were omitted. Root correcting; no later artifact or H200 clearance implied.
+- [2026-11-01 VP2 private source contract](2026-11-01-vp2-private-source-review.md): Apache provenance, exact16896B mailbox/DSM lifetime and CPU ownership proof; frozen harness review pending.
