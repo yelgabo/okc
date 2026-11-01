@@ -183,3 +183,23 @@ publication times. Only if the fixed-owner critical-path ceiling is meaningful
 should generation-safe readiness counters/finalization be implemented in owned
 code. Old bounded-poll MFIN remains prohibited; this result does not rehabilitate
 it. Existing owned published47 remains the submission recommendation for MoE.
+
+## Narrow external discussion context (read-only, not our measurements)
+
+After the result, root supplied authenticated research thread
+`t_mvqqjkzx783052c6`; no thread body or code is checked in. Post
+`p_mvt72bdp3eca20d5` (alygg77, October29) attributes its WGS unit-end cost largely
+to consumer work: roughly1.8–2.0us whole,2.2–2.6us split,3.6–4.4us finisher,
+versus~.2us slot waiting. Its helper/producer handoff experiments reportedly lost
+9–15us. These are their architecture, instrumentation and runs, not evidence our
+same boundaries have those costs. Their phase-B MID consumer measurements do not
+establish an exposed final-normalization opportunity or authorize fence removal.
+
+Post `p_mvslupf3cb173142` reports a different five-bit codec losing despite fewer
+bytes, with spills and decode work implicated. Our SC6 pair has no spills and
+still fails, so that post does not establish our causal explanation. Scale-sharing
+posts `p_mvso7nv4fa0723b3` and `p_mvswpjvja89ae1e7` concern K-permutation/paired
+decode, already present in the external source. Owned76/78 tests64254f49676c4ce6
+andc8fc5f669fa34d06 limit that existing alternative; the posts alone do not reopen
+it. They reinforce measuring the producer-to-final-owner critical path before
+assuming global rendezvous time is removable.
