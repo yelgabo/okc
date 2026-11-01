@@ -45,6 +45,39 @@ gain is attributed. Frozen artifact/hash sent to coordinator for today's authori
 runs. Saved status JSON, raw log and normalized profile text under
 `muse_moe_w4a16/profiles/production51.7631974774944a2a.*`.
 
+Coordinator dispatched scored336f3a63bd6a44f3 from the frozen production51 artifact after
+the successful exact-file check. Pending at dispatch. This file tunes policy; the check
+selected skinny at32, so the name does not mean mode51 executes at every token count.
+
+### Producer diagnostic result: e06255199f6d4de1
+
+Passed5 official tests; control score2.191867x,95%CI2.158989–2.224745. All measured xp outputs
+equal clean51 at128/256 on layer/std seeds211/212. Instrumentation slows the full kernel by
+1.7/2.0us at128 (layer/std) and1.0/1.3us at256. These are diagnostic costs, not improvements.
+All32 ABXP bucket rows survive in the saved log; status/log/profile text committed under
+`profiles/xprod.e06255199f6d4de1.*`.
+
+Measured phase-A empty-region cycles dominate readiness: for256 layer seed211 summed over
+CTAs and both size buckets, empty18.847M versus ready0.962M. Phase B empty6.794M versus
+ready2.586M. At128 std seed211 (all small jobs), A empty19.852M versus ready1.555M, B
+empty6.828M versus ready3.192M. These sums overlap across CTAs, include instrumentation and
+the regions specified above, and are NOT additive wall time or attainable savings.
+
+**Correction to the preceding minority premise:** at256 layer seed211, A small-job stages
+9216 versus large2560 (78.3% small); std seed21112288 versus1536 (88.9% small). At128 std
+both seeds100% small. Small means<=4 n-tiles. This directly contradicts the older expectation
+that such jobs are a minority on these inputs, so a bounded deeper-ring capacity test is now
+justified by new evidence. It does not prove variable-sized per-job rings profitable or safe.
+
+Next proposed test, independent of the diagnostic: fixed four x slots at the launch's current
+stride, retaining208896-byte ring budget by reducing weight slots (3+3 becomes2+4 at32KB).
+The exact release/acquire sequence remains; every producer/consumer moves modulo4. Reuse
+diagnostic-only S.dg[0][0:2] for fourth xfull/xempty barriers, avoiding production shared-layout
+changes. Mode87 aliases51 traits; production mode51 remains3slots. Independent ordering and
+alias review required before dispatch. Gate:>=1.5us at256 and>=1us at128 on layer/std with
+consistent fresh seeds; no material32-token regression, no correctness/spin/replay failure.
+Any win needs a second paired confirmation, no promise of a score gain from wait-cycle totals.
+
 ## Source facts (SGLang a55ab7d5, read from GitHub and hashed against the image)
 
 - `fused_post_expert_norm_weighted_sum` falls back to PyTorch ops below
