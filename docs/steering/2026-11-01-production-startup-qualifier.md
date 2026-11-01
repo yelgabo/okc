@@ -123,6 +123,11 @@ for stale results, nonfinite output/reference, ownership/workspace aliases,
 bad routing/cache/resources/diagnostics/deadlines and fatal CUDA errors.
 These are CPU host contracts, not a GPU execution result.
 
+Final peer host evidence is published as `d18dff2`: seven tests pass on the
+actual frozen4ad artifact, including whole preparation, real metadata/oracle
+checks with explicit arithmetic/CUDA stand-ins and resource-getter mocks.
+This adds evidence only; no artifact/source change follows the review.
+
 Owner `prod_size_qualify_test.py` passes two additional tests: the exact
 checker reverse proof and actual getter C++ compiled/executed with isolated
 Zig CPU CUDA mocks. Normal resource vectors and all18 API error positions
