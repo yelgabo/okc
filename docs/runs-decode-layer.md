@@ -815,3 +815,4 @@ negativecapture-without-replaycontrolpass. NoadditionalGPUchecksolelymetadata. N
 
 2026-11-01 | 04f0339fa9f24807 | beedbca | CUPTI availability on official SGLang baseline | PASS 0.997335x (95% CI 0.982375–1.012295). Size 9184 bytes, image read denied with CUPTI_ERROR_INSUFFICIENT_PRIVILEGES. Baseline timing only. Full receipt and CLI profiles saved.
 2026-11-01 | 1023d9b0dcaa4c75 | 40b7b01 | Four-arm short-boundary experiment, rank zero computes live branch RMS. Twelve rounds, d1/v1, independent duplicate prepares. Pending.
+1023d9b0dcaa4c75 completed, official 13/13, 2.015410x CI 1.985179–2.045641. Four arms 6/6. D1 pooled 0.9956, null 1.0093. V1f missing at 280 s. V1s paired -0.4 to -0.9 us with different front paths. No promotion.

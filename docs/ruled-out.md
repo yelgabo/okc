@@ -371,3 +371,4 @@ the public entry vjeux/okc-2026 with its design memos (see `docs/gap-analysis-20
 | Experiment | Evidence | Closure / reopening trigger |
 |---|---|---|
 | QKV128 owned64×128/3split/8stage WGMMA depth2 with matching stagei-2 release |4542b2b04cb344ec: fullFP64 M100/127/128/129,exactonehot,3freshgraphs pass; identical90regs/0local/197760Bshared/39clusters. Independentbuilds/twoheldouts depth2-prod+.512–.640us anddepth2-owncontrol+.512–.640us,9–19/100faster; rebuiltdepth1-prod-.048..+.064us | Depth2 alone as explanation of donorqbig lead; no localdepth sweep. Distinct push/stmatrixepilogue/CTA changes remainunattributed, so notallqbig mechanismsclosed. Reopen depthonly with new pipeline-specific evidence. |
+| 2026-11-01 | Short branch RMS on rank zero only | 1023d9b0dcaa4c75, d1 pooled 0.9956 vs null 1.0093, v1f missing at deadline | Unresolved whole-layer gate. Reopen only with matched front policy and complete affected-load coverage. |
