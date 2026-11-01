@@ -432,3 +432,5 @@ Hourly review history: [11:20 PDT performance review](2026-10-29-1120-performanc
 - [2026-11-01 owned skinny band progress proof](2026-11-01-owned-skinny-band-progress.md): physical512 credits, analytic last occurrence and async handoff obligations; CPU-only.
 
 - [2026-11-01 attention public-source delta search](2026-11-01-attention-public-source-delta.md): fresh board, unchanged stronger comparators, targeted branch/content widening and scoped miss; no GPU.
+
+- [2026-11-01 VP2 private source contract](2026-11-01-vp2-private-source-review.md): Apache provenance, exact16896B mailbox/DSM lifetime and CPU ownership proof; frozen harness review pending.
