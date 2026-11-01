@@ -1,0 +1,133 @@
+{
+  "owner_builder_sha256": "da75449ac7d6de9a00261802927f867b138eda724175e20b0fab0c28a39c1fbe",
+  "getter_sha256": "7e41b5ea8409bcc2ef12e70a2e77d8f36e1d3661a1ddf61dd72d64380b471f16",
+  "commands": [
+    {
+      "command": [
+        "/root/.cache/okc-host-tools/zig-0-15-2/ziglang/zig",
+        "c++",
+        "-std=c++17",
+        "-c",
+        "/mnt/c/Users/gretc/Documents/GitHub/okc-today-proj/.build/today-proj/g-common-review/native-api.cpp",
+        "-o",
+        "/mnt/c/Users/gretc/Documents/GitHub/okc-today-proj/.build/today-proj/g-common-review/native-api.o",
+        "-I/root/.cache/okc-cuda128/packages/nvidia/cuda_runtime/include",
+        "-I/root/.cache/okc-cuda128/packages/nvidia/cuda_nvcc/include"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "/root/.cache/okc-host-tools/zig-0-15-2/ziglang/zig",
+        "c++",
+        "-std=c++17",
+        "-O1",
+        "/mnt/c/Users/gretc/Documents/GitHub/okc-today-proj/.build/today-proj/g-common-review/native-mock.cpp",
+        "-o",
+        "/mnt/c/Users/gretc/Documents/GitHub/okc-today-proj/.build/today-proj/g-common-review/native-mock"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "/mnt/c/Users/gretc/Documents/GitHub/okc-today-proj/.build/today-proj/g-common-review/native-mock"
+      ],
+      "returncode": 0,
+      "stdout": "PASS two10fieldrows nonzero-local-preserved fivefatalAPIs\n",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "/root/.cache/okc-host-validate/bin/python",
+        "/mnt/c/Users/gretc/Documents/GitHub/okc-today-moe/tools/test_g_common_release_attn.py",
+        "--emit-api",
+        "/mnt/c/Users/gretc/Documents/GitHub/okc-today-proj/.build/today-proj/g-common-review/attn-api.cpp"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "/root/.cache/okc-host-tools/zig-0-15-2/ziglang/zig",
+        "c++",
+        "-std=c++17",
+        "/mnt/c/Users/gretc/Documents/GitHub/okc-today-proj/.build/today-proj/g-common-review/attn-api.cpp",
+        "-o",
+        "/mnt/c/Users/gretc/Documents/GitHub/okc-today-proj/.build/today-proj/g-common-review/attn-api.o",
+        "-c",
+        "-I/root/.cache/okc-cuda128/packages/nvidia/cuda_runtime/include",
+        "-I/root/.cache/okc-cuda128/packages/nvidia/cuda_nvcc/include"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "/root/.cache/okc-host-validate/bin/python",
+        "/mnt/c/Users/gretc/Documents/GitHub/okc-today-moe/tools/test_g_common_release_attn.py",
+        "--emit-routes",
+        "/mnt/c/Users/gretc/Documents/GitHub/okc-today-proj/.build/today-proj/g-common-review/attn-routes.cpp"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "/root/.cache/okc-host-tools/zig-0-15-2/ziglang/zig",
+        "c++",
+        "-std=c++17",
+        "/mnt/c/Users/gretc/Documents/GitHub/okc-today-proj/.build/today-proj/g-common-review/attn-routes.cpp",
+        "-o",
+        "/mnt/c/Users/gretc/Documents/GitHub/okc-today-proj/.build/today-proj/g-common-review/attn-routes.o",
+        "-c",
+        "-I/root/.cache/okc-cuda128/packages/nvidia/cuda_runtime/include",
+        "-I/root/.cache/okc-cuda128/packages/nvidia/cuda_nvcc/include"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "/root/.cache/okc-host-validate/bin/python",
+        "/mnt/c/Users/gretc/Documents/GitHub/okc-today-moe/tools/test_g_common_release_attn.py",
+        "--emit-mock",
+        "/mnt/c/Users/gretc/Documents/GitHub/okc-today-proj/.build/today-proj/g-common-review/attn-mock.cpp"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "/root/.cache/okc-host-tools/zig-0-15-2/ziglang/zig",
+        "c++",
+        "-std=c++17",
+        "/mnt/c/Users/gretc/Documents/GitHub/okc-today-proj/.build/today-proj/g-common-review/attn-mock.cpp",
+        "-o",
+        "/mnt/c/Users/gretc/Documents/GitHub/okc-today-proj/.build/today-proj/g-common-review/attn-mock"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "/mnt/c/Users/gretc/Documents/GitHub/okc-today-proj/.build/today-proj/g-common-review/attn-mock"
+      ],
+      "returncode": 0,
+      "stdout": "GQUAL_ATT7_HOST_PASS disabled0calls cooperative cluster 7rejects\n",
+      "stderr": ""
+    }
+  ],
+  "attention_audit_sha256": "d31bfeea1fd591c5798e1056a50819b3cf9de72bd27fdce2ce6ec194597738ed",
+  "adapter": "Only okc kernel declarations/NTL/shared-byte stubs and TORCH_CHECK macro; exact getter unchanged.",
+  "scope": "Real CUDA12.8 host-header compile-only and CPU API mocks; no Torch link, device or GPU execution."
+}
