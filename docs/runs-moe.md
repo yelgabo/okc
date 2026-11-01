@@ -672,6 +672,21 @@ improvement. Raw per-case medians/paired deltas, all resource vectors, stamp row
 official profiles/receipt are preserved in `profiles/testwait.9be599cf333a47c4.*`.
 Earlier87f.../252df... remain distinct host failures with no recoverable timing claim.
 
+### November 1 single-warp stable position map, one check
+
+`85a113a3f11d47a5`, source a776f32, generatedSHA256
+f5762dbdaebd9f646781fd5eba6e931246ad5228ddef5841fd68b4732687902f,
+changes only skinny position_pass for M<=16 to one warp's stable32-slot chunk scan.
+Measured historical generic positions1.6/1.8/1.9us at M1/8/16 std motivate this
+mechanism; full removal would algebraically give1.01795 six-load factor using
+current medians, not an attainable forecast. Initial routing/jobs/copies, all async
+fences, watchdog, math and M32+ original map unchanged. No token-order or polling
+change. Modes0/256/512/768, private workspaces, fresh fixed seeds441/442, layer/std
+1/8/16/32,64eager+64postgraph correctness, exact resources before timing, unchanged
+>=1%/2xnull/no-regression gate. All3 CPU source/bijection/actualhost tests pass;
+today_proj independent review found no blocker. Pending; root approved one check
+maximum, no retries/sweeps/public submit. Report: steering/2026-11-01-moe-singlewarp-position.md.
+
 ## Source facts (SGLang a55ab7d5, read from GitHub and hashed against the image)
 
 - `fused_post_expert_norm_weighted_sum` falls back to PyTorch ops below
