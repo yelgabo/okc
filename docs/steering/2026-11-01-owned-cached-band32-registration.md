@@ -122,3 +122,9 @@ evidence `e99d848` and direct `fc28a77`. Root owns exact-job status and canonica
 receipt/log/profile archival. Pending: no H200 timing, correctness or KEEP result
 is asserted here. No additional check or public candidate is authorized by this
 worker; production remains unchanged.
+
+Terminal addendum:903e5b03411c4e2d PASS5/all396 checks, but cached fails every
+whole-score promotion gate and all six target duplicate means are slower than
+control. Cached improves only over the failed direct variant. See the
+[final terminal report](2026-11-01-owned-cached-band32-terminal.md).
+No pure qualification, public candidate or automatic sweep; production unchanged.
