@@ -102,6 +102,15 @@ _late_fresh_stress()
 def main():
     src = (ROOT / "muse_attention_decode/submission.py").read_text()
     assert src.count("#define ONE_LATE_TID 0") == 1
+    # Host-only prepare diagnostics; kernel code and timed launches are unchanged.
+    marker = "            resident = blocks * sms;"
+    assert src.count(marker) == 1
+    src = src.replace(marker, marker + '''
+            cudaFuncAttributes attr = {};
+            cudaFuncGetAttributes(&attr, kern);
+            printf("LATERES L=%d mode=%d regs=%d local_bytes=%zu static_smem=%zu dynamic_smem=%d threads=%d blocks_per_sm=%d\\n",
+                   L, MODE, attr.numRegs, attr.localSizeBytes, attr.sharedSizeBytes, BYTES, NT, blocks);
+''')
     control = src.replace('name="okc_attn_one_v1"', 'name="okc_attn_late_stress_control"')
     assert control != src
     src = src.replace("#define ONE_LATE_TID 0", "#define ONE_LATE_TID 1")
