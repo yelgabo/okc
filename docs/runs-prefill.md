@@ -78,3 +78,12 @@ verified before dispatch. No .item()/host count-based allocation is permitted in
 Board correction: the public snapshot at22:27PDT returns no yelgabo row for prefill despite
 the passed baseline scored0.999115x. The earlier 'establish an entry' language states intent;
 it did not establish a ranked entry. Actual prefill speedup is still required.
+
+First exact-Humming indexed candidate checkbe3cbc7f5a234c64 dispatched after root and
+independent read-only source review. Frozen generator output SHA256
+e53d374f6cf4239705cd3d20998ca3364ef0477dadd49031bafda0bff7324319 at MoE owner's
+.build/today-moe/prefill_humming.py; helpertools/prefill_humming_indexed.py in thatworktree.
+No .item()/host countallocation; metadata and outputs reset eachcall, everyshape's scratch
+retained, failclosed on firstallocationduringcapture. G1topk8 andG2topk1 sentinel bounds,
+deviceNP scheduler, BF16boundaries andexactweightload reviewed. This is only firstofficial
+correctness/performance gate; freshinput queued zero-local/one-expert stress precedes scores.

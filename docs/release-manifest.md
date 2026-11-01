@@ -1,5 +1,27 @@
 # Decode-layer release manifest
 
+## Board entry verified October31 PDT: attention port on stable M1+51+C1
+
+Job `8f2780d7382047e6`, scored **2.022870x**,95%CI1.992527–2.053214,13/13tests.
+Official public board was read and selects this job, replacing7b84ed4346d5497b (2.018705x).
+Candidate `muse_decode_layer/cand/layer_attn31s.py`, SHA256
+`585d46e2cd059ea7ea76c25110fd199bb228d2ee7f96239b44ae0bfb8025893b`, sourceaea73a1.
+Only the owned attention device source was refreshed from the stable prior candidate;
+HMRG1/PRQ31, no workspace placement pick, host PDL/precision/gates retained.
+
+Paired gatec0402e4c92bc4b20: all24checks perarm, all6loads, independentprepared copies,
+pooledinc/cand1.0042, allcrosses1.0036–1.0048, maxnull0.0007log. M1policy differs at32
+in one incumbent arm, so this is the whole prepared candidate's gain, not isolated attention
+instruction attribution. Independent second paired confirmation9414182118414889 pending.
+Public score movement is within runnoise; do not infer a0.42%official-score guarantee.
+
+Scored policy: M1{8:o+front,16:o,32:o}, open (8token saving2.94us), M1PDL=plain bitwise
+on14launches; unchanged-shape1x1 gates skipped as authorized. SUMMARY reports3non-promotional
+issues: sensitivity control on unpicked main-m2-ar2-ub@256, sensitivity route-side@128,
+and skf-r@1 fresh-input rejection (T1 usesfp32). Do not erase these by saying every diagnostic
+passed. Selected official path passes; full receipt retained in profiles/scored.8f2780d7382047e6.json.
+Main submission.py remains the older clean control; use the explicit candidate for this entry.
+
 The scored layer files, identified by full SHA256 of the file as submitted, with the source
 commit, build switches, the policies prepare() selected in the receipt run, and the receipt.
 Main's `muse_decode_layer/submission.py` was the M1 experiment (6377b5a, `PORT_SK_PDL = True`)

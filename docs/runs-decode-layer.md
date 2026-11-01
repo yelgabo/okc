@@ -760,3 +760,8 @@ same source,8rounds,6loads,dupown,deadline280s. First scored result pending at d
 
 Control repeat43026195f8c84ffb completed13tests pass,2.009960x CI1.979811–2.040110.
 No new speedup; keep control run variation visible. Receipts/profile records retained.
+
+Scored attentionport8f2780d7382047e6 passed13tests at2.022870x (1.992527–2.053214).
+Official board selects this job at currentread; release-manifest.md records source, SHA and
+policy caveats, including3unselected/report-only diagnostic issues. Hotspot table appended
+with SGLang baselineprofile7d42771c3384449d. Second paired9414182118414889 stillpending.

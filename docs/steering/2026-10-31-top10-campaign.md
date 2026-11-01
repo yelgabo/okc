@@ -226,3 +226,34 @@ baseline profile. Actual pair7 correctness now passes but its concrete scalar-pl
 loses; that implementation is closed, not all optimized lossless codecs. Next projection
 work is a bounded low-shared-memory DSMEM large-tile test with actual cluster-residency gate,
 explicitly distinct from the previous200KB/one-CTA c4loss. Workers retain source and receipts.
+
+## Progress addendum: new layer entry and first exact indexed backend check
+
+Scored layer8f2780d7382047e6 passed13tests at2.022870x (1.992527–2.053214); official
+board now selects it. The paired0.42% prepared-candidate gain cleared its gate, though the
+headline difference from2.018705x is within noise. Release manifest now pins585d46e2...
+and the exact source/policy. It explicitly preserves3unselected/report-only preparation
+issues rather than claiming all diagnostics clean. Newbest hotspot table appended.
+
+Root and independent review cleared fixed-capacity Humming0.1.12 INDEXED metadata, not the
+rejected grouped_contiguous padding scheme. First plain prefills checkbe3cbc7f5a234c64 is
+running, sourcee53d374f..., no probing/scored path substitution. DeviceNP limits localexpert
+blocks; sentinels are masked in both GEMMread/write paths; allocation/counter resets and
+BF16stage boundaries preserved. Still requires official result and queuedfreshinput edge
+gates before scoring. Installation/API support alone is not performance evidence.
+
+Attention late-tid firstcheckb4d75c3185744d0a passes19armchecks; d1full delta-0.48us,
+null-0.13us, across3inputs. New4arm independentbuild/state confirmationab53721b09854717
+running. Defaultoff; actualcandidate-only official tests and2000queuedfresh-reference checks
+must pass before promotion. Scored unchanged control8914751e3b9f468b passed2.604290x:
+attribute the headline change to fresh-run variation, not the late-tid toggle it did not use.
+
+Dense projection4ca25ee4eccc495c proves new3-stagegeometry residency62activeclusters,
+2CTA/SM,90registers,0localbytes,99376dynamicsmem, clearing occupancy gate. Yet it loses
+~12.7us against same-process selected Lt,0/100wins; four-stage is correctly skipped at30
+clusters. This rules out insufficient cluster residency for that geometry, not the cost of
+its DSMEM reduction/mainloop. One explicit timing-only partition diagnostic is next, with
+all synchronization preserved in legitimate computing arms. No new dense candidate promoted.
+
+Objective remains active: allfiveboards must become verifiedtop10, and today's remaining
+checks/submits are still being used for evidence-selected experiments and checked candidates.
