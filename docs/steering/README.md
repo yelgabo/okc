@@ -424,4 +424,5 @@ If a push is blocked, say so explicitly; do not claim the other session can read
 An explicit user request not to write to the repository takes precedence.
 
 Hourly review history: [11:20 PDT performance review](2026-10-29-1120-performance-review.md).
-`n- [Owned skinny fixed32 expert-band source/compile feasibility](2026-11-01-owned-skinny-band32.md): fc28a77, CPU/source review and local sm90a only; H200 pending, no production change.
+
+- [Owned skinny fixed32 expert-band source/compile feasibility](2026-11-01-owned-skinny-band32.md): fc28a77, CPU/source review and local sm90a only; H200 pending, no production change.
