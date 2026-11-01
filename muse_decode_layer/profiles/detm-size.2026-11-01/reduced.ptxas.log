@@ -1,0 +1,6 @@
+ptxas info    : 233 bytes gmem
+ptxas info    : Compiling entry function '_ZN52_GLOBAL__N__00000000_15_exact_device_cu_1753b6f4_5943one15attn_one_kernelILi8ELi3EEEvNS0_6ParamsE' for 'sm_90a'
+ptxas info    : Function properties for _ZN52_GLOBAL__N__00000000_15_exact_device_cu_1753b6f4_5943one15attn_one_kernelILi8ELi3EEEvNS0_6ParamsE
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 114 registers, used 16 barriers
+ptxas info    : Compile time = 100.816 ms
