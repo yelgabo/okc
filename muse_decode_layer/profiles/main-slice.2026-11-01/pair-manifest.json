@@ -1,6 +1,6 @@
 {
-  "bytes": 850756,
-  "sha256": "6cf6a3a701be05e7ac8e8b619b4e5b7f6a2c68131aa1f15ce2190a7ee0113492",
+  "bytes": 850769,
+  "sha256": "305d8e2804d8d10c3fdda902d659c25177ce7ad31d7575dda803c318830e8dc7",
   "arm_pins": {
     "G": "3526204bd59e0b231e8b9278dd5bd9bd2ec5cae805b5b618a3cc736742cd912b",
     "owned": "0cfaca8da24836962978e1722a3e7cecd20db1daa02feb326bb570c020dca8ba",

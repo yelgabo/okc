@@ -167,6 +167,7 @@ def _pair_prepare(weights):
               "source_pins": _PAIR_PINS, "rows": rows, "math_checks": checks,
               "identical_natural_global_ids": True, "prepare_s": time.monotonic() - started,
               "aggregate_score_claim": False}
+    budget()
     print("SELECTED_LAYER_PAIR " + json.dumps(report, separators=(",", ":")), flush=True)
     return baseline
 

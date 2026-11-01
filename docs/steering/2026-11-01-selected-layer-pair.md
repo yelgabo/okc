@@ -8,8 +8,8 @@ independent attention wait experiment to H200. The public incumbent remains
 
 ## What now fits
 
-The fixed verify-32 sliding comparison packages at **850756 bytes**, SHA256
-6cf6a3a701be05e7ac8e8b619b4e5b7f6a2c68131aa1f15ce2190a7ee0113492.
+The fixed verify-32 sliding comparison packages at **850769 bytes**, SHA256
+305d8e2804d8d10c3fdda902d659c25177ce7ad31d7575dda803c318830e8dc7.
 Windows and WSL generate identical bytes. It contains two explicit private
 implementations, the independently restated FP32 judge reference, and SGLang's
 normal layer as the official judged entry. The module sources are readable
@@ -101,3 +101,5 @@ The MoE owner is preparing a separate phase A/B experiment using the actual
 incumbent stage backend. It separates observed weight/X readiness, stage cadence
 and retirement, and uses endpoint controls to bound instrumentation effects.
 MAIN at 128/256 is the initial scope. B4FIN at 32 remains unmeasured.
+
+November 1, 05:34 PST addendum. Independent package review found no remaining source ownership, precision or ordering blocker. It requested a final budget assertion after guard checks. Adding it changes the interim 850756-byte payload to the final 850769-byte pin above. The loader has executed a small Triton GPU kernel on the RTX 5070. Native H200 linking, preparation budget and measured comparison remain open.
