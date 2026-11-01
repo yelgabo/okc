@@ -1,0 +1,16 @@
+/root/.cache/okc-host-validate/lib/python3.14/site-packages/torch/_subclasses/functional_tensor.py:283: UserWarning: Failed to initialize NumPy: No module named 'numpy' (Triggered internally at /pytorch/torch/csrc/utils/tensor_numpy.cpp:84.)
+  cpu = _conversion_method_template(device=torch.device("cpu"))
+EMPTY_CONFORMANCE (32, 3, 0.0, 0.0, 'EAGER_AND_FINAL_REPLAY_EMPTY_EXACT_ZERO')
+EMPTY_CONFORMANCE (33, 3, 0.0, 0.0, 'EAGER_AND_FINAL_REPLAY_EMPTY_EXACT_ZERO')
+EMPTY_CONFORMANCE (128, 3, 0.0, 0.0, 'EAGER_AND_FINAL_REPLAY_EMPTY_EXACT_ZERO')
+EMPTY_CONFORMANCE (256, 3, 0.0, 0.0, 'EAGER_AND_FINAL_REPLAY_EMPTY_EXACT_ZERO')
+EMPTY_CONFORMANCE_ALL [(32, 3, 0.0, 0.0, 'EAGER_AND_FINAL_REPLAY_EMPTY_EXACT_ZERO'), (33, 3, 0.0, 0.0, 'EAGER_AND_FINAL_REPLAY_EMPTY_EXACT_ZERO'), (128, 3, 0.0, 0.0, 'EAGER_AND_FINAL_REPLAY_EMPTY_EXACT_ZERO'), (256, 3, 0.0, 0.0, 'EAGER_AND_FINAL_REPLAY_EMPTY_EXACT_ZERO')]
+test_actual_probe_pass_all_sizes (test_dl_fork_moe_empty_cpu.EmptyProbeTests.test_actual_probe_pass_all_sizes) ... ok
+test_fallback_cannot_masquerade_as_native (test_dl_fork_moe_empty_cpu.EmptyProbeTests.test_fallback_cannot_masquerade_as_native) ... ok
+test_graph_replay_negative_control (test_dl_fork_moe_empty_cpu.EmptyProbeTests.test_graph_replay_negative_control) ... ok
+test_nonzero_empty_negative_control (test_dl_fork_moe_empty_cpu.EmptyProbeTests.test_nonzero_empty_negative_control) ... ok
+
+----------------------------------------------------------------------
+Ran 4 tests in 0.161s
+
+OK
