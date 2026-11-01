@@ -2001,3 +2001,25 @@ qkv256threads[48,0,584,4],o64[40,0,536,16],pool512[40,0,648,2],pool256[48,0,584,
 slice128[48,0,552,8]. No spills/local-memory allocation explains the loss. Lookup/bit-unpack
 and lower occupancy consume more than1–3% physical byte saving, on this implementation.
 No codec adoption; broader codecs require a genuinely cheaper decode placement/mechanism.
+
+### One128-row weight TMA instead of two64-row copies
+
+Root-approved new memory-pipeline mechanism, check `7803be789c624f8e` pending, builder
+`proj_make_bench_dense_dsm.py --widew`. Same raw WG2/BN128/CLK4/3-stage geometry and
+independent full/memory-no-reduction A/B arms. A single128-row weight tensor-map box fills
+the same16KB weights region that two64-row boxes did; producer issue count per stage is
+2 total (weight+activation) instead of3 (two weight+activation). Physical bytes unchanged.
+No speedup is predicted from the instruction count alone.
+
+CPU gates passed before dispatch: real builder/source-global restoration; exact SW128
+byte-address identity across all3stages,128weight rows and128bytes/row; last output row2303
+bounds; expected transaction byte equality. Full-barrier expect_tx stays32768bytes per
+stage (old8192+8192+16384, new16384+16384), with the same one producer expect/arrive and
+unchanged consumer/empty-barrier counts, phases, waits and proxy fences. One transfer's
+completion covers16KB rather than8KB; the barrier still releases only after all expected
+bytes complete. Flag is restricted to raw BF16,WG2,unpacked weights; all consumers retain
+the old two64-row WGMMA descriptors. No donated code and no production feature enabled.
+
+Actual resource query and FP64/probe/adjacent-M/replay gates precede timing. Stop further
+local dense TMA knobs if this copy-schedule mechanism does not materially reduce the deficit;
+new counters or a different established mechanism would be needed.

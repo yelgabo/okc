@@ -10,7 +10,7 @@ template<int S,int A=0,int V=0> std::vector<int64_t> dense_info_one() {
  auto k=wd_kernel<2,128,4,1,false,S,__nv_bfloat16,A,false,V>;
  C10_CUDA_CHECK(cudaFuncSetAttribute(k,cudaFuncAttributeMaxDynamicSharedMemorySize,C::SMEM));
  cudaFuncAttributes a;C10_CUDA_CHECK(cudaFuncGetAttributes(&a,k));
- cudaLaunchConfig_t lc={};lc.gridDim=V?dim3(144,1):dim3(72,2);lc.blockDim=dim3(C::THREADS);lc.dynamicSmemBytes=C::SMEM;
+ cudaLaunchConfig_t lc={};lc.gridDim=V==8388608?dim3(144,1):dim3(72,2);lc.blockDim=dim3(C::THREADS);lc.dynamicSmemBytes=C::SMEM;
  cudaLaunchAttribute at[1];at[0].id=cudaLaunchAttributeClusterDimension;
  at[0].val.clusterDim.x=4;at[0].val.clusterDim.y=1;at[0].val.clusterDim.z=1;lc.attrs=at;lc.numAttrs=1;
  int clusters=0,blocks=0;C10_CUDA_CHECK(cudaOccupancyMaxActiveClusters(&clusters,k,&lc));
@@ -18,7 +18,8 @@ template<int S,int A=0,int V=0> std::vector<int64_t> dense_info_one() {
  return {clusters,blocks,a.numRegs,(int64_t)a.localSizeBytes,(int64_t)a.sharedSizeBytes,C::SMEM};
 }
 std::vector<int64_t> dense_info(int64_t s,int64_t a,int64_t v){
- if(v)return a==3?dense_info_one<3,3,8388608>():dense_info_one<3,0,8388608>();
+ if(v==8388608)return a==3?dense_info_one<3,3,8388608>():dense_info_one<3,0,8388608>();
+ if(v==16777216)return a==3?dense_info_one<3,3,16777216>():dense_info_one<3,0,16777216>();
  if(a==1)return dense_info_one<3,1>();if(a==2)return dense_info_one<3,2>();if(a==3)return dense_info_one<3,3>();
  return s==3?dense_info_one<3>():dense_info_one<4>();}
 '''
@@ -28,6 +29,7 @@ import statistics as _dsstats
 _DS_OUT=[]
 _DS_ABLATE=@@ABLATE@@
 _DS_TOKFAST=@@TOKFAST@@
+_DS_WIDEW=@@WIDEW@@
 def _dsprint(s):_DS_OUT.append(s);print(s,flush=True)
 def _dsbuild(name):
     names=('SK_CONFIGS','SK_INDEX','WD_GEOM','WD_VAR','WD_NAMES','WD_INDEX','WD_ABL','_WD_SRC')
@@ -52,6 +54,21 @@ def _dsbuild(name):
             for anchor,new in changes:
                 assert g['_WD_SRC'].count(anchor)==1,anchor
                 g['_WD_SRC']=g['_WD_SRC'].replace(anchor,new)
+        if _DS_WIDEW:
+            assert not _DS_TOKFAST
+            g['WD_GEOM']['ds3ww']=(2,128,4,1,False,3)
+            g['WD_VAR']={'ds3ww':16777216,'ds3ww_a3':16777216}
+            g['WD_ABL']={'ds3_a3':('ds3',3),'ds3ww_a3':('ds3ww',3)}
+            g['WD_NAMES']=['ds3','ds4','ds3_a3','ds3ww','ds3ww_a3']
+            changes=[
+                ('for (int g = 0; g < WG; ++g) {','for (int g = 0; g < ((VAR & 16777216) ? 1 : WG); ++g) {'),
+                ('make_2d_map(w.data_ptr(), (uint64_t)w.size(0), (uint64_t)K, 64, promo)',
+                 'make_2d_map(w.data_ptr(), (uint64_t)w.size(0), (uint64_t)K, (VAR & 16777216) ? 128 : 64, promo)'),
+                ('constexpr int NACC = C::NACC;',
+                 'static_assert((VAR & 16777216) == 0 || (!HL && WG == 2 && !PACK), "wide weight box form");\n    constexpr int NACC = C::NACC;')]
+            for anchor,new in changes:
+                assert g['_WD_SRC'].count(anchor)==1,anchor
+                g['_WD_SRC']=g['_WD_SRC'].replace(anchor,new)
         g['WD_INDEX']={n:i for i,n in enumerate(g['WD_NAMES'])}
         source=sk_source()+wd_source()+@@RESOURCE@@
     finally:g.update(old)
@@ -63,8 +80,9 @@ def _dsbench(weights,state):
         mod=_dsbuild('okc_dense_dsm_'+label)
         cases=[(3,0,0,0),(4,0,1,0)]+([(3,a,a+1,0) for a in (1,2,3)] if _DS_ABLATE else [])
         if _DS_TOKFAST:cases=[(3,0,0,0),(3,3,2,0),(3,0,3,8388608),(3,3,4,8388608)]
+        if _DS_WIDEW:cases=[(3,0,0,0),(3,3,2,0),(3,0,3,16777216),(3,3,4,16777216)]
         for st,abl,cid,var in cases:
-            tag=label+'s'+str(st)+('_tf' if var else '')+(f'_a{abl}_probe' if abl else '')
+            tag=label+'s'+str(st)+('_ww' if var==16777216 else '_tf' if var else '')+(f'_a{abl}_probe' if abl else '')
             info=mod.dense_info(st,abl,var)
             _dsprint(f'DRES {tag} clusters/blocks/regs/localbytes/staticshared/dynamicshared={info}')
             if info[0]<36:
@@ -112,7 +130,7 @@ def prepare(weights):
     for line in _DS_OUT:print(line,flush=True)
     return state
 '''
-def cpu_builder_gate(ablate,tokenfast):
+def cpu_builder_gate(ablate,tokenfast,widew=False):
     tree=ast.parse((ROOT/'muse_bf16_proj/submission.py').read_text())
     wd=next(ast.literal_eval(n.value) for n in tree.body if isinstance(n,ast.Assign)
             and any(isinstance(t,ast.Name) and t.id=='_WD_SRC' for t in n.targets))
@@ -123,13 +141,14 @@ def cpu_builder_gate(ablate,tokenfast):
     ns['wd_source']=lambda:ns['_WD_SRC']
     ns['load_inline']=lambda **kw:kw
     saved={k:ns[k] for k in ('SK_CONFIGS','SK_INDEX','WD_GEOM','WD_VAR','WD_NAMES','WD_INDEX','WD_ABL','_WD_SRC')}
-    exec(RUN.replace('@@RESOURCE@@',repr(RESOURCE)).replace('@@ABLATE@@',repr(ablate)).replace('@@TOKFAST@@',repr(tokenfast)),ns)
+    exec(RUN.replace('@@RESOURCE@@',repr(RESOURCE)).replace('@@ABLATE@@',repr(ablate)).replace('@@TOKFAST@@',repr(tokenfast)).replace('@@WIDEW@@',repr(widew)),ns)
     compiled=ns['_dsbuild']('cpu_gate')
     assert all(ns[k] is v for k,v in saved.items()),'builder did not restore globals'
     if tokenfast:assert 'tokenfast cluster form' in compiled['cuda_sources']
+    if widew:assert 'wide weight box form' in compiled['cuda_sources']
 
 if __name__=='__main__':
-    cpu_builder_gate('--ablate' in sys.argv,'--tokenfast' in sys.argv)
+    cpu_builder_gate('--ablate' in sys.argv,'--tokenfast' in sys.argv,'--widew' in sys.argv)
     print('CPU builder generation/global-restoration gate PASS')
     if '--tokenfast' in sys.argv:
         for m in (129,200,256):
@@ -143,5 +162,15 @@ if __name__=='__main__':
             assert len(seen)==18*nt*4 and len(writers)==18*m
             assert [k for r in range(4) for k in range(r*128//4,(r+1)*128//4)]==list(range(128))
         print('CPU tokenfast cluster mapping/unique-writer gate PASS')
-    Path(sys.argv[1]).write_text((ROOT/'muse_bf16_proj/submission.py').read_text()+RUN.replace('@@RESOURCE@@',repr(RESOURCE)).replace('@@ABLATE@@',repr('--ablate' in sys.argv)).replace('@@TOKFAST@@',repr('--tokenfast' in sys.argv)))
+    if '--widew' in sys.argv:
+        for stage in range(3):
+            for row in range(128):
+                for byte in range(128):
+                    old=stage*32768+(row//64)*8192+((row%64)*128+byte)^(((row%64)&7)<<4)
+                    new=(stage*32768+row*128+byte)^((row&7)<<4)
+                    assert old==new
+        assert 2*8192+16384==16384+16384==32768
+        for rowbase in range(0,2304,128):assert rowbase+128<=2304
+        print('CPU SW128/stage/row bounds/expected transaction bytes gate PASS')
+    Path(sys.argv[1]).write_text((ROOT/'muse_bf16_proj/submission.py').read_text()+RUN.replace('@@RESOURCE@@',repr(RESOURCE)).replace('@@ABLATE@@',repr('--ablate' in sys.argv)).replace('@@TOKFAST@@',repr('--tokenfast' in sys.argv)).replace('@@WIDEW@@',repr('--widew' in sys.argv)))
     print('wrote',sys.argv[1])
