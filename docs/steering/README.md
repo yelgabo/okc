@@ -20,6 +20,8 @@ report be checked into this repository so other sessions can read it.
 
 ## Latest review
 
+[November 1 verify production packaging](2026-11-01-verify-hybrid-packaging.md) records the fixed-mask dispatcher, exact G factoring, unsupported-weight fallback and all16 source budgets. Every nonzero override remains over1MB; no new H200 measurement or submission.
+
 [08:02 PST hourly review](2026-11-01-0802-g-progress.md) records the attention closure and assigns public-hybrid byte-fit work ahead of reset.
 
 [November 1 four-cell verify package, CUDA13 audit and attention result](2026-11-01-verify-and-attention.md) records the policy-correct968389-byte package, conditional score leverage, local CUDA13 proof and completed private VP2 jobc79ddddb840a4fb7. PASS16/640 private checks, target5.71% faster, but whole-score gate fails. No production or public change.
@@ -633,3 +635,5 @@ Latest: [Dense projection transfer to the decode layer](2026-11-01-layer-dense-t
 - [Private BF16-output VP2 terminal result](2026-11-01-attention-vp2-bf16-terminal.md): c79ddddb840a4fb7 passes correctness, target cell wins, frozen full-score gate fails; scoped closure.
 
 - [2026-11-01 public verify hybrid factoring](2026-11-01-public-hybrid-literal-factoring.md):133874B exact visible CUDA-chunk savings; corrected G720525B, owned embedded budget274542B; no fit/GPU claim.
+
+- [2026-11-01 verify production packaging](2026-11-01-verify-hybrid-packaging.md): default607e unchanged, nine host contracts pass, all nonzero byte budgets fail; retained incumbent and explicit next gates.
