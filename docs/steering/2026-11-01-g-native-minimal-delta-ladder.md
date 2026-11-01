@@ -90,7 +90,7 @@ challenge rule or authorize dropping a proxy fence.
 The f042 harness is a **conforming alternative to one added implementation
 choice**, not an ablation of required ordering, and not exact G0. It replaces
 the strengthened final-counter acq_rel RMW with an explicit returning relaxed
-strong GPU RMW. All preceding606/607 numerical and protocol repairs remain.
+strong GPU RMW. All preceding607 numerical and protocol repairs remain.
 Thus it is related directly to the repair ladder; it is not an unrelated kernel
 optimization. A future win would measure that choice *conditional on current
 607e*, including compiler interactions, not the cost of every safety repair.
