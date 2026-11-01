@@ -16,7 +16,7 @@ def fixture(fallback=None):
   if (layer,m)==fallback:
    lines.append(f'SXSRELEASE_ROUTE {layer} {m} unsupported_pack_original_C2 checks=0 capacity=0 arena_bytes=0 resources=[]');continue
   n+=1;keys+=m-(2 if m==8 else 9 if m==16 else 17)+1
-  c=ns['sxs_expected_layout'](name,0,3);s=ns['sxs_expected_layout'](name,2,2)
+  c=ns['sxs_expected_layout'](name,0,2);s=ns['sxs_expected_layout'](name,2,2)
   cv=[80,0,c['static'],c['dynamic'],c['threads'],c['threads'],2]
   sv=[60,0,s['static'],s['dynamic'],s['threads'],s['threads'],2]
   lines.append(f'SXSRELEASE_ROUTE {layer} {m} override checks=16 capacity=2 arena_bytes=16 resources='+repr([cv,sv,cv,sv]))
@@ -27,7 +27,7 @@ def fixture(fallback=None):
    for l in LAYERS:
     k=l,m;value=9 if treatment and k in TARGETS and k!=fallback else 10
     case=dict(layer=l,m=m,weight=62,seed=123 if treatment else 456)
-    records.append(dict(event='benchmark',case=case,median_ns=value,median_raw_ns=value+2,baseline_ns=20))
+    records.append(dict(event='benchmark',case=case,status='pass',median_ns=value,median_raw_ns=value+2,baseline_ns=20,baseline_raw_ns=22))
     records.append(dict(event='profile',case=case,report='synthetic'))
   result=dict(records=records,passed=True,checks={'ok':True},flags=[],speedup_ci=[1,3])
   result['speedup']=score(benchmarks(result))
@@ -44,6 +44,9 @@ class Analysis(unittest.TestCase):
   self.assertAlmostEqual(summary['counterfactual_replace10_factor_vs_old'],expected)
   self.assertIn('not a paired result',summary['comparison_scope'])
   self.assertEqual(summary['target_regressions'],0)
+  self.assertAlmostEqual(summary['raw_sixload_ratio_using_raw_baselines'],score(benchmarks(r['result']),'median_raw_ns','baseline_raw_ns'))
+  self.assertNotAlmostEqual(summary['raw_sixload_ratio_using_raw_baselines'],score(benchmarks(r['result']),'median_raw_ns'))
+  self.assertTrue(all(v['inferred_C2_pmax']==2 for v in resources.values()))
  def test_explicit_fallback_and_exact_totals(self):
   r,c,log,source=fixture(('qkv_gate',8));s,rows,_,resources=analyze_records(r,c,log,source,'synthetic-stage')
   self.assertEqual(s['coverage'],dict(overrides=9,fallbacks=1,pick_keys=103,math_checks=144,captures=9,fresh=27))
@@ -67,5 +70,15 @@ class Analysis(unittest.TestCase):
    with self.subTest(label=label),self.assertRaisesRegex(AssertionError,label):parse_qualification(bad,source)
   lines=log.splitlines();prefix,tail=lines[0].split('resources=');v=ast.literal_eval(tail);v[1][6]=1;lines[0]=prefix+'resources='+repr(v)
   with self.assertRaisesRegex(AssertionError,'C2_ADMISSION_REGRESSION'):parse_qualification('\n'.join(lines),source)
+ def test_C2_pmax_zero_odd_and_full_nf_mismatch(self):
+  _,_,log,source=fixture()
+  for delta,label in [(-16,'CONTROL_PMAX_LAYOUT'),(8,'CONTROL_PMAX_LAYOUT'),(16,'CONTROL_FULL_NF_PMAX_MISMATCH')]:
+   lines=log.splitlines();prefix,tail=lines[0].split('resources=');v=ast.literal_eval(tail);v[2][3]+=delta;lines[0]=prefix+'resources='+repr(v)
+   with self.subTest(delta=delta),self.assertRaisesRegex(AssertionError,label):parse_qualification('\n'.join(lines),source)
+ def test_duplicate_profiles_and_failed_benchmark(self):
+  r,c,log,source=fixture();records=r['result']['records'];p=next(x for x in records if x['event']=='profile');records.append(copy.deepcopy(p))
+  with self.assertRaisesRegex(AssertionError,'THIRTY_UNIQUE_PROFILES'):analyze_records(r,c,log,source,'synthetic-stage')
+  r,c,log,source=fixture();next(x for x in r['result']['records'] if x['event']=='benchmark')['status']='fail'
+  with self.assertRaisesRegex(AssertionError,'BENCHMARK_NOT_PASS'):analyze_records(r,c,log,source,'synthetic-stage')
 
 if __name__=='__main__':unittest.main()
