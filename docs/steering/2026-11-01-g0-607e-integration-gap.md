@@ -192,3 +192,21 @@ CPU tests pass, but both native fatal representations fail main47's
 no-new-spill gate. That is a recorded local static miss, not a GPU slowdown
 or a reason to certify the old ordinary-launch source. It is unrelated to
 the new G short-counter candidate's positive bounded compiler gate.
+
+## 21:34 UTC correction and superseding user priority
+
+The new [G integration-first plan](2026-11-01-g-minimal-delta-plan.md)
+supersedes this report's old stage-first/serial-front-second reset ordering.
+Unrelated tuning is paused. Original stage/short/f042 artifacts are HOLD
+pending common inherited attention-progress and pre-expert coefficient
+qualification; f042 remains the first relevant repair-representation question
+after that common control. The app goal and its reset automation are paused.
+
+Exact-source correction: G0 already rounds the SwiGLU output before GEMM2.
+That boundary was preserved, not newly repaired. The table above bundled it
+with newly added gate/up and pre-gamma rounds too broadly. Do not assign an
+added SwiGLU-output-round cost to our fork. The full native ladder now
+reconstructs both actual607 literals with no unclassified remainder; causal
+H200 prices remain unmeasured. Shared inherited attention launch/pre-expert
+coefficient issues are eligibility dependencies, not explanations for the
+historical G0→607 difference.

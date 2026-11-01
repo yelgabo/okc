@@ -1,6 +1,8 @@
 # Shared project steering
 
-Latest G integration decision: [Why G0 remains ahead of607e, with21:12 handoff](2026-11-01-g0-607e-integration-gap.md). Exact5.77% gap remains unattributed; short expert paths lead. One OFF counter restoration has formal proof/selected compile and root16 CPU gates, exact906841B/f042 private check frozen after the unchanged first-two reset jobs. Service530 keeps1fad resultUNKNOWN; no gain/promotion claimed. Node/baseline identities and same-runner controls required on recovery.
+Latest root decision: [G integration-first minimum control and ordered ablations](2026-11-01-g-minimal-delta-plan.md). Supersedes old reset order: recover accepted1fad, qualify common inherited attention/preexpert repairs, then isolate short-RMW representation. Exact source ladder closes the code inventory;5.77% causal cost remains unmeasured. OFF common871077B/4cbb source/CPU gates pass; H200 unqualified. Separate postexpert-gamma prototype CLOSED at MAIN spill gate, factorial HOLD. App goal/reset PAUSED, legacy artifacts HOLD, unrelated tuning deferred.
+
+Archived21:12 G integration decision: [Why G0 remains ahead of607e, with dated correction](2026-11-01-g0-607e-integration-gap.md). Historical first-two reset ordering is superseded above. Source correction: BF16 SwiGLU output was already retained inG0; no inserted-round cost there. Service530 leaves1fad outcomeUNKNOWN; no new measured gain.
 
 Latest root handoff: [Maintenance and measured-opportunity queue](2026-11-01-maintenance-and-progress-handoff.md). Accepted1fad70bbe3854cbc resultUNKNOWN after status/jobsAPI530; no retry/promotion. Exact980787B candidate/CPU reviews, fresh20:12 boards, MoEhistoricaleligibilitygap and conditional same-reset queue published. Top10/top50 remain unestablished.
 
@@ -604,6 +606,14 @@ accounting, and running a corrected matched whole-layer comparison. It records
 recommendations, not execution of those tasks; check current code and run logs for status.
 
 ## Report history
+
+- 2026-11-01: [G integration-first plan and working OFF controls](2026-11-01-g-minimal-delta-plan.md): complete source/native/dense/attention inventories, exact inherited common-control composition, separate postexpert representation, all12-cell measurement order and stop rules; no new GPU score.
+- 2026-11-01: [Exact native minimal-delta ladder](2026-11-01-g-native-minimal-delta-ladder.md): both native literals reconstructed without remainder;33 source checkpoints covering12 transform classes and retirement/empty groups; requirements versus mechanisms.
+- 2026-11-01: [Dense minimum-delta inventory](2026-11-01-g-dense-minimal-delta.md): all12 cells, retained short configs/Lt plans, active RQ changes and shared coefficient/progress dependencies; no variant or cost attribution.
+- 2026-11-01: [Mandatory attention/host chain and OFF repair](2026-11-01-g-attention-mandatory-chain.md): inherited5 definite software joins, two runtime bits unresolved; source/mock/real-header host compile gates, H200 unqualified.
+- 2026-11-01: [OFF common pre-expert coefficient repair](2026-11-01-g-preexpert-gamma-off.md) and [independent common review](2026-11-01-preexpert-gamma-independent-review.md): complete seven-consumer closure,65,280 finite-BF16 checks and separately pinned composition; source/CPU only.
+- 2026-11-01: [OFF native post-expert gamma representation](2026-11-01-g-native-gamma-precompute-off.md) and [independent review](2026-11-01-postexpert-gamma-independent-review.md): coupled format/native selector/consumer proof,65,280 finite-BF16 checks; FADD plus RNE attribution limitation, no GPU gain claim.
+- 2026-11-01: [Full-family gamma compiler closure](2026-11-01-g-native-gamma-compile.md):15 fixed builds/30 entries; OFF equals607 across all five keys, ON MAIN spills4/32→44/68B, exact source CLOSED_RESOURCE. All60 compressed evidence hashes verified; no GPU slot or retry.
 
 - 2026-11-01 21:12UTC: [G-gap concrete handoff](2026-11-01-g0-607e-integration-gap.md#2112-utc-handoff-one-concrete-private-check-is-frozen): root16 tests, exact f042 third private check/strict reader and same existing conditional reminder; no new GPU result.
 

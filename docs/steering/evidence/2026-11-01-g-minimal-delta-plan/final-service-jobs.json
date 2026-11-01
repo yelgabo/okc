@@ -1,0 +1,11 @@
+{
+  "utc": "2026-11-01T21:38:04.957562+00:00",
+  "argv": [
+    "okc",
+    "jobs",
+    "--json"
+  ],
+  "returncode": 1,
+  "stdout": "",
+  "stderr": "\u2717 the API answered 530 ; try again in a minute\n"
+}
