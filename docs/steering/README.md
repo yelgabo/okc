@@ -1,5 +1,7 @@
 # Shared project steering
 
+Latest byte-plan review: [Comment-only production source audit](2026-11-01-comment-byte-review.md).24 native literal checks and7 lexical/legal fixtures pass; final artifact/SASS/runtime gates remain separate.
+
 Latest source discovery: [All four nonprefill boards, 18:30 continuation](2026-11-01-public-source-refresh-1830.md). Identifier-first paginated search and24 pinned repository trees; newly inspected author receipts do not justify another comparator check. Coverage limits explicit.
 
 Latest performance pivot: [After both sparse-repair losses](2026-11-01-post-xor-ranking-pivot.md). Fresh official ranks/cutoffs, exact stage-local loss and one next investigation; preserve first-two reset order. No new kernel or GPU action.
