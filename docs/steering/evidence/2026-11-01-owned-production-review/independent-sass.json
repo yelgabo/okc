@@ -1,0 +1,50 @@
+{
+  "wd": {
+    "opcode_operands_equal": true,
+    "normalization": "strip address prefix/outer whitespace; replace exact selected self-symbol only",
+    "rows": [
+      {
+        "tag": "orig",
+        "instructions": 776,
+        "independent_sha256": "b9472c7510f1885115db27701a328f4cf9ab90c3faf92a510c2a37c7acf115b5"
+      },
+      {
+        "tag": "prod",
+        "instructions": 776,
+        "independent_sha256": "b9472c7510f1885115db27701a328f4cf9ab90c3faf92a510c2a37c7acf115b5"
+      }
+    ]
+  },
+  "boundary": {
+    "opcode_operands_equal": true,
+    "normalization": "strip address prefix/outer whitespace; replace exact selected self-symbol only",
+    "rows": [
+      {
+        "tag": "orig",
+        "instructions": 424,
+        "independent_sha256": "01e950ac176d4b7ba108e578de93678ddf14119393b30102e108f15508238b45"
+      },
+      {
+        "tag": "prod",
+        "instructions": 424,
+        "independent_sha256": "01e950ac176d4b7ba108e578de93678ddf14119393b30102e108f15508238b45"
+      }
+    ]
+  },
+  "route": {
+    "opcode_operands_equal": true,
+    "normalization": "strip address prefix/outer whitespace; replace exact selected self-symbol only",
+    "rows": [
+      {
+        "tag": "orig",
+        "instructions": 1664,
+        "independent_sha256": "5ed4a69334e04589703e53ffb4c4774dd8299d7e3fe46b7e73be7fc16e0613b2"
+      },
+      {
+        "tag": "prod",
+        "instructions": 1664,
+        "independent_sha256": "5ed4a69334e04589703e53ffb4c4774dd8299d7e3fe46b7e73be7fc16e0613b2"
+      }
+    ]
+  }
+}

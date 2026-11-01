@@ -107,3 +107,72 @@ future public hybrid. Root retains the exact incumbent and owns any next
 qualification after reset. Reopen this review when the owner supplies frozen
 selected compile evidence or changes a native body/policy, not by silently
 extending this checkpoint to a later source hash.
+
+## Final selected local compiler addendum
+
+2026-11-01. **Selected local device-equivalence gate cleared** for the same
+399155-byte owned backend, SHA6de124667ee5b56c81771b4fd5d2591dc62e1bcfbf60f18baa680438d543bf42.
+Current generator raw SHA256 is
+`916e8fb67ab8318bf8a2051895eeee95c71440cae1da369f18559ae36397d70e`;
+compiler helper raw SHA256 is
+`38178c725f7771b6e9f6724bebf467c696077a1ab58dce3f2e4b48322ccfeade`.
+Worker evidence is in
+`docs/steering/evidence/2026-11-01-owned-verify-production/` with six
+original/production manifests, logs and selected-sass-comparison.json.
+
+All six manifests pin original384933 versus production6de12466, successful
+NVRTC/PTXAS status, compute90a/sm90a, C++17 and the same compiler options.
+The local CUDA12.8 driver emits only selected expressions plus incidental
+original globals; selected-resource comparison is per exact symbol, not an
+aggregate over additional unused kernels:
+
+| Selected entry | Instructions each | Registers | Barriers | Static shared | Stack/spill stores/spill loads |
+|---|---:|---:|---:|---:|---|
+| WD `<1,128,3,1,false,8,BF16,0,true,0>` |776|90|2|0B|0/0/0B|
+| Boundary `<1,512>` |424|64|1|64B|0/0/0B|
+| Route `<float,true>` |1664|80|1|20B|0/0/0B|
+
+Independently read the raw SASS caches under
+`/root/.cache/okc-owned-{orig,prod}-{wd,boundary,route}/` and compared the
+selected opcode/operand lists. WD and boundary match directly after removing
+address prefixes/outer whitespace. Route has only two differing operands:
+RET instructions refer to each compilation's own anonymous-namespace kernel
+symbol. Replacing exactly that selected self-symbol with a common marker
+makes all1664 instructions equal. No instruction, register, constant,
+predicate, memory operand or wait/barrier is otherwise normalized away.
+Our independent hashes differ from the owner's formatting normalization;
+both original/production lists match within this independent calculation.
+Results are retained in
+`evidence/2026-11-01-owned-production-review/independent-sass.json`.
+
+The extractor adaptations were inspected: remove Torch/ATen/driver headers
+and host extension launch sections; use CUDA runtime/cstdint headers;
+replace the route's missing host-header INFINITY with exact positive-infinity
+bits and supply the normal is_same_v primary/equal-type specialization;
+declare the128-byte/64-aligned opaque CUtensorMap for device-only WD and
+set existing SK_DEVICE_ONLY. SK_PDL=1 matches the selected owned flag. The
+boundary extractor stops before host launch_cl, and the route extractor
+replaces host launch helper bodies with declarations. These steps preserve
+the selected device math but expressly omit host APIs, tensor-map encoding,
+launch attributes and torch-extension linking. Thus this gate cannot certify
+them. Earlier header-adapter failures remain archived and are not kernel
+failures. ONE/MOE large active strings remain exact by source identity; this
+pass does not claim newly compiled ONE/MOE entries.
+
+The owner's three CPU tests were rerun independently with
+`OKC_HYBRID_ROOT` pointing to the tracked root checkout: PASS3.460s.
+They check generated globals/visible literals, exact selected function bodies
+and projection/pin contracts. An initial run without that environment used
+the older sibling checkout, which lacks the new tracked slice generator and
+failed before tests; setting the documented root selects the actual current
+tracked generator. This is a test-environment dependency, not a device
+correctness result.
+
+Root's final regenerated matrix reports **1,072,104 bytes** for a single
+verify32 override and **1,125,548 bytes** for mask15; every nonzero variant
+remains NOFIT. Those are root's final matrix figures, not a newly measured
+GPU result. They supersede earlier pre-wrapper size estimates. Source/local
+compiler review is complete for this checkpoint; full host linking, H200
+execution, preparation under300s and a fitting production hybrid remain
+unqualified. Preserve exact607 mask0. Do not submit or label a nonzero
+hybrid shippable on the basis of these local proofs.
