@@ -454,3 +454,5 @@ Hourly review history: [11:20 PDT performance review](2026-10-29-1120-performanc
 - 2026-11-01: [Final cached band32 closure](2026-11-01-owned-cached-band32-terminal.md):903e5b03411c4e2d PASS5/all396 checks; cached recovers failed direct loss but full-score versus control0.99447-0.99890 fails, KEEP=false. No pure/public candidate, knob sweep or production change.
 
 - 2026-11-01: [Owned C2 projection WGMMA lifetime audit](2026-11-01-projection-wgmma-lifetime-audit.md): exact C2/control22-entry sm90a compile and full30-cell score map; all3 active WD loops already wait1 then release prior stage, wait0 only terminal. No MoE-style drain opportunity, kernel/check proposal or C3 repeat.
+
+- 2026-11-01: [Four-cell verify slice first-draft review](2026-11-01-verify-four-cell-slice-review.md): owned128 policy mismatches identified from cb71 source/receipts: actualQKVwide and SGlang attention boundary were omitted. Root correcting; no later artifact or H200 clearance implied.
