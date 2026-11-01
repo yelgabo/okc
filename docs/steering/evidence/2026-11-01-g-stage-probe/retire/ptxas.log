@@ -1,0 +1,17 @@
+ptxas warning : Registers are spilled to local memory in function '_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE', 4 bytes spill stores, 32 bytes spill loads
+ptxas warning : Registers are spilled to local memory in function '_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE', 4 bytes spill stores, 32 bytes spill loads
+ptxas info    : 286 bytes gmem
+ptxas info    : Compiling entry function '_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE' for 'sm_90a'
+ptxas info    : Function properties for _ZN3okc9moe_fusedILb1EEEvNS_6ParamsE
+    8 bytes stack frame, 4 bytes spill stores, 32 bytes spill loads
+ptxas info    : Used 96 registers, used 16 barriers, 8 bytes cumulative stack size
+ptxas info    : Compile time = 5525.975 ms
+ptxas info    : Function properties for _ZN3okc10wgs_rangesERKNS_6ParamsERNS_4SmemE
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Compiling entry function '_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE' for 'sm_90a'
+ptxas info    : Function properties for _ZN3okc9moe_fusedILb0EEEvNS_6ParamsE
+    8 bytes stack frame, 4 bytes spill stores, 32 bytes spill loads
+ptxas info    : Used 96 registers, used 16 barriers, 8 bytes cumulative stack size
+ptxas info    : Compile time = 4249.144 ms
+ptxas info    : Function properties for _ZN3okc10wgs_rangesERKNS_6ParamsERNS_4SmemE
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads

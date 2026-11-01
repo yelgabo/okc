@@ -1,0 +1,35 @@
+{
+  "torch": "2.10.0+cpu",
+  "device": "CPU",
+  "all_bytes_equal": true,
+  "records": [
+    [
+      "W13",
+      "WGS",
+      false,
+      1179648,
+      "57f0e9b23be7ce62864dfd7cf7760af719e6a77f05ca61160e1e9d3ade77fbe2"
+    ],
+    [
+      "W13",
+      "WGS",
+      true,
+      1146880,
+      "aabac4448c75dd08d8a0ffb9257ec53c4fe40a9480b9f0a4e83ea81dc79eb5b4"
+    ],
+    [
+      "W2",
+      "WGS",
+      false,
+      589824,
+      "2b7f7572a110da344d36f3d1ded118a374b66b60dd3822d63a332b4d827b423c"
+    ],
+    [
+      "W2",
+      "WGS",
+      true,
+      573440,
+      "02b9281bc15f14773824f9933f53e7b3cf80bd4c2021b4e422bfc2c16db87dfb"
+    ]
+  ]
+}
