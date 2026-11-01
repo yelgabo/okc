@@ -1,0 +1,279 @@
+{
+  "records": [
+    {
+      "build": "main",
+      "flags": [
+        "--gpu-architecture=compute_90a",
+        "--std=c++17",
+        "--generate-line-info",
+        "--device-as-default-execution-space",
+        "--include-path=/root/.cache/okc-cuda128/packages/nvidia/cuda_runtime/include",
+        "--include-path=/root/.cache/okc-cuda128/packages/nvidia/cuda_nvcc/include",
+        "--include-path=/root/.cache/okc-cuda128/cccl/nvidia/cuda_cccl/include",
+        "-DOKC_NS=3",
+        "-DOKC_NSF=3",
+        "-DOKC_FNST=4",
+        "-DOKC_PRMTSC=1",
+        "-DOKC_DQ7=1",
+        "-DOKC_NW=16",
+        "-DOKC_FAST1=0",
+        "-DOKC_EPI4=0",
+        "-DOKC_WGS=1",
+        "-DOKC_SC6W=1"
+      ],
+      "entries": [
+        {
+          "symbol": "_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE",
+          "instructions": 24112,
+          "opcode_operand_sha256": "057002d553648b89f1b2d1df0545bedb00d397eb3b33f99e85df8a2e9ab8bd8e",
+          "resources": {
+            "stack_bytes": 8,
+            "spill_store_bytes": 4,
+            "spill_load_bytes": 32,
+            "registers": 96,
+            "barriers": 16
+          }
+        },
+        {
+          "symbol": "_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE",
+          "instructions": 24112,
+          "opcode_operand_sha256": "2e879157fbe979faa61cb2b8fd3817c4c5012860bfc2cd19d035ba67c3278a04",
+          "resources": {
+            "stack_bytes": 8,
+            "spill_store_bytes": 4,
+            "spill_load_bytes": 32,
+            "registers": 96,
+            "barriers": 16
+          }
+        }
+      ],
+      "original_cuda_sha256": "c7c201ae145c6a33f2d5e6b1f80d2a6e56e8d75502f9fd09ace40927ad0f7c71",
+      "comment_cuda_sha256": "08e4d5c4644873e88f73dcc1d12bcb7212d50cbde30a0122f487ce76f23e3f18"
+    },
+    {
+      "build": "b4",
+      "flags": [
+        "--gpu-architecture=compute_90a",
+        "--std=c++17",
+        "--generate-line-info",
+        "--device-as-default-execution-space",
+        "--include-path=/root/.cache/okc-cuda128/packages/nvidia/cuda_runtime/include",
+        "--include-path=/root/.cache/okc-cuda128/packages/nvidia/cuda_nvcc/include",
+        "--include-path=/root/.cache/okc-cuda128/cccl/nvidia/cuda_cccl/include",
+        "-DOKC_NS=3",
+        "-DOKC_NSF=3",
+        "-DOKC_FNST=4",
+        "-DOKC_PRMTSC=1",
+        "-DOKC_DQ7=1",
+        "-DOKC_NW=16",
+        "-DOKC_FAST1=0",
+        "-DOKC_EPI4=0",
+        "-DOKC_WGS=1",
+        "-DOKC_B4FIN=1",
+        "-DOKC_SC6W=1"
+      ],
+      "entries": [
+        {
+          "symbol": "_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE",
+          "instructions": 26984,
+          "opcode_operand_sha256": "f5069c3faf7eed605ac570691a6a2e4dc323401f0f5a0d198732932c0d998f47",
+          "resources": {
+            "stack_bytes": 16,
+            "spill_store_bytes": 120,
+            "spill_load_bytes": 216,
+            "registers": 96,
+            "barriers": 16
+          }
+        },
+        {
+          "symbol": "_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE",
+          "instructions": 26984,
+          "opcode_operand_sha256": "473f846904e4304cf2242b2071820ccf97e18f553b5a5e52ef908027cf8272c3",
+          "resources": {
+            "stack_bytes": 16,
+            "spill_store_bytes": 120,
+            "spill_load_bytes": 216,
+            "registers": 96,
+            "barriers": 16
+          }
+        }
+      ],
+      "original_cuda_sha256": "c7c201ae145c6a33f2d5e6b1f80d2a6e56e8d75502f9fd09ace40927ad0f7c71",
+      "comment_cuda_sha256": "08e4d5c4644873e88f73dcc1d12bcb7212d50cbde30a0122f487ce76f23e3f18"
+    },
+    {
+      "build": "tiny",
+      "flags": [
+        "--gpu-architecture=compute_90a",
+        "--std=c++17",
+        "--generate-line-info",
+        "--device-as-default-execution-space",
+        "--include-path=/root/.cache/okc-cuda128/packages/nvidia/cuda_runtime/include",
+        "--include-path=/root/.cache/okc-cuda128/packages/nvidia/cuda_nvcc/include",
+        "--include-path=/root/.cache/okc-cuda128/cccl/nvidia/cuda_cccl/include",
+        "-DOKC_NS=3",
+        "-DOKC_NSF=3",
+        "-DOKC_FNST=4",
+        "-DOKC_PRMTSC=1",
+        "-DOKC_DQ7=1",
+        "-DOKC_NW=8",
+        "-DOKC_TINY=1",
+        "-DOKC_EPI4=0",
+        "-DOKC_FAST1=2",
+        "-DOKC_L2H=0",
+        "-DOKC_NACC=4",
+        "-DOKC_UWARP=0",
+        "-DOKC_WS=1",
+        "-DOKC_WSB=1",
+        "-DOKC_WSBL=2",
+        "-DOKC_WSBLK=2",
+        "-DOKC_FINPF=1"
+      ],
+      "entries": [
+        {
+          "symbol": "_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE",
+          "instructions": 5272,
+          "opcode_operand_sha256": "25221484bf671e312c5adb6c75a4b8e12c7b4aab38aeb656ada764e4fa719478",
+          "resources": {
+            "stack_bytes": 0,
+            "spill_store_bytes": 0,
+            "spill_load_bytes": 0,
+            "registers": 147,
+            "barriers": 3
+          }
+        },
+        {
+          "symbol": "_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE",
+          "instructions": 5272,
+          "opcode_operand_sha256": "25221484bf671e312c5adb6c75a4b8e12c7b4aab38aeb656ada764e4fa719478",
+          "resources": {
+            "stack_bytes": 0,
+            "spill_store_bytes": 0,
+            "spill_load_bytes": 0,
+            "registers": 147,
+            "barriers": 3
+          }
+        }
+      ],
+      "original_cuda_sha256": "b8ed85438c06673f411ff4203080bfbacd0c0c2dc5cb624e6f10d4877fe7a716",
+      "comment_cuda_sha256": "793af4d4204ac4a1d5356f61415e690174f1b95f90005efde2858886ae3b000b"
+    },
+    {
+      "build": "tiny2",
+      "flags": [
+        "--gpu-architecture=compute_90a",
+        "--std=c++17",
+        "--generate-line-info",
+        "--device-as-default-execution-space",
+        "--include-path=/root/.cache/okc-cuda128/packages/nvidia/cuda_runtime/include",
+        "--include-path=/root/.cache/okc-cuda128/packages/nvidia/cuda_nvcc/include",
+        "--include-path=/root/.cache/okc-cuda128/cccl/nvidia/cuda_cccl/include",
+        "-DOKC_NS=3",
+        "-DOKC_NSF=3",
+        "-DOKC_FNST=4",
+        "-DOKC_PRMTSC=1",
+        "-DOKC_DQ7=1",
+        "-DOKC_NW=8",
+        "-DOKC_TINY=1",
+        "-DOKC_CPF=0",
+        "-DOKC_EPI4=0",
+        "-DOKC_FAST1=2",
+        "-DOKC_NACC=4",
+        "-DOKC_UWARP=0",
+        "-DOKC_WS=1",
+        "-DOKC_WSB=1",
+        "-DOKC_WSBL=2",
+        "-DOKC_WSBLK=1",
+        "-DOKC_FINPF=1"
+      ],
+      "entries": [
+        {
+          "symbol": "_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE",
+          "instructions": 5328,
+          "opcode_operand_sha256": "0c49c45b358d7043d52f9a3975b8e5b9211bf6b246da7042d5cd1781fbf0679c",
+          "resources": {
+            "stack_bytes": 0,
+            "spill_store_bytes": 0,
+            "spill_load_bytes": 0,
+            "registers": 147,
+            "barriers": 3
+          }
+        },
+        {
+          "symbol": "_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE",
+          "instructions": 5328,
+          "opcode_operand_sha256": "0c49c45b358d7043d52f9a3975b8e5b9211bf6b246da7042d5cd1781fbf0679c",
+          "resources": {
+            "stack_bytes": 0,
+            "spill_store_bytes": 0,
+            "spill_load_bytes": 0,
+            "registers": 147,
+            "barriers": 3
+          }
+        }
+      ],
+      "original_cuda_sha256": "b8ed85438c06673f411ff4203080bfbacd0c0c2dc5cb624e6f10d4877fe7a716",
+      "comment_cuda_sha256": "793af4d4204ac4a1d5356f61415e690174f1b95f90005efde2858886ae3b000b"
+    },
+    {
+      "build": "helper",
+      "flags": [
+        "--gpu-architecture=compute_90a",
+        "--std=c++17",
+        "--generate-line-info",
+        "--device-as-default-execution-space",
+        "--include-path=/root/.cache/okc-cuda128/packages/nvidia/cuda_runtime/include",
+        "--include-path=/root/.cache/okc-cuda128/packages/nvidia/cuda_nvcc/include",
+        "--include-path=/root/.cache/okc-cuda128/cccl/nvidia/cuda_cccl/include",
+        "-DOKC_NS=3",
+        "-DOKC_NSF=3",
+        "-DOKC_FNST=4",
+        "-DOKC_PRMTSC=1",
+        "-DOKC_DQ7=1",
+        "-DOKC_NW=8",
+        "-DOKC_TINY=1",
+        "-DOKC_SPLIT=1",
+        "-DOKC_CPF=0",
+        "-DOKC_EPI4=0",
+        "-DOKC_FAST1=2",
+        "-DOKC_NACC=4",
+        "-DOKC_UWARP=0",
+        "-DOKC_WS=1",
+        "-DOKC_WSB=1",
+        "-DOKC_WSBL=2",
+        "-DOKC_WSBLK=2",
+        "-DOKC_FINPF=1"
+      ],
+      "entries": [
+        {
+          "symbol": "_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE",
+          "instructions": 5304,
+          "opcode_operand_sha256": "2a77783767f131fb946e94c9ff9300a65c373d219ee4f5759405fbb91c552ab1",
+          "resources": {
+            "stack_bytes": 0,
+            "spill_store_bytes": 0,
+            "spill_load_bytes": 0,
+            "registers": 155,
+            "barriers": 3
+          }
+        },
+        {
+          "symbol": "_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE",
+          "instructions": 5304,
+          "opcode_operand_sha256": "2a77783767f131fb946e94c9ff9300a65c373d219ee4f5759405fbb91c552ab1",
+          "resources": {
+            "stack_bytes": 0,
+            "spill_store_bytes": 0,
+            "spill_load_bytes": 0,
+            "registers": 155,
+            "barriers": 3
+          }
+        }
+      ],
+      "original_cuda_sha256": "b8ed85438c06673f411ff4203080bfbacd0c0c2dc5cb624e6f10d4877fe7a716",
+      "comment_cuda_sha256": "793af4d4204ac4a1d5356f61415e690174f1b95f90005efde2858886ae3b000b"
+    }
+  ],
+  "GPU": false,
+  "scope": "Five selected native build keys, two bool entry instantiations per key; device-only adapters omit host linking/launch"
+}

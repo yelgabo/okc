@@ -1,5 +1,7 @@
 # Shared project steering
 
+Latest production size milestone: [Transparent comment-only hybrid fit](2026-11-01-production-comment-fit.md) - mask4 907642 B and mask15 951539 B fit with notices/anchors retained and actual source-factory/local selected compiler equivalence. Inherited owned progress contract blocks GPU/public readiness; separate repair and full runtime gates remain required.
+
 Latest projection terminal result: [Stage-local sparse-XOR loss](2026-11-01-projection-stage-xor-terminal.md) - dfcfdd01 PASS9/30, score 1.419146839 versus C2 1.527806483; all ten targets regress, all forty resource gates pass. Close exact stage-local/global BEFORE-A representations; no retry or port.
 
 Latest single-arm stage qualifier: [Stage-local projection qualification](2026-11-01-projection-stage-xor-release.md) - exact de1111b9/450781 B, fixed ten targets plus ordinary neighbors; five CPU host gates pass. Actual H200 admission, correctness, setup time and performance remain unqualified; root-only measurement decision.

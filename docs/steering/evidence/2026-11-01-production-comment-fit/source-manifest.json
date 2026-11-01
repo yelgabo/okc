@@ -1,0 +1,387 @@
+{
+  "results": {
+    "(32,)": {
+      "original_bytes": 1072104,
+      "comment_only_bytes": 907642,
+      "saved": 164462,
+      "margin_to_strict_cap": 92357,
+      "G_bytes": 620061,
+      "owned_bytes": 282153,
+      "no_blank_or_docstring_removal": true
+    },
+    "(16, 32)": {
+      "original_bytes": 1125548,
+      "comment_only_bytes": 951539,
+      "saved": 174009,
+      "margin_to_strict_cap": 48460,
+      "G_bytes": 620061,
+      "owned_bytes": 326021,
+      "no_blank_or_docstring_removal": true
+    }
+  },
+  "proofs": {
+    "G": {
+      "native": {
+        "ATT7_CUDA_SRC": {
+          "comment_bytes": 50856,
+          "protected_bytes": 1883,
+          "preserved_additional_comments": 0,
+          "saved_bytes": 48336,
+          "comments": 655,
+          "protected_comments": 18
+        },
+        "MOE_CUDA_SRC": {
+          "comment_bytes": 29149,
+          "protected_bytes": 769,
+          "preserved_additional_comments": 0,
+          "saved_bytes": 28015,
+          "comments": 373,
+          "protected_comments": 8
+        },
+        "bfp_CUDA_SRC": {
+          "comment_bytes": 1040,
+          "protected_bytes": 0,
+          "preserved_additional_comments": 0,
+          "saved_bytes": 1027,
+          "comments": 13,
+          "protected_comments": 0
+        },
+        "bfp_MBAR_HELPERS": {
+          "comment_bytes": 467,
+          "protected_bytes": 0,
+          "preserved_additional_comments": 0,
+          "saved_bytes": 462,
+          "comments": 5,
+          "protected_comments": 0
+        },
+        "bfp_TMA_SRC": {
+          "comment_bytes": 2655,
+          "protected_bytes": 0,
+          "preserved_additional_comments": 0,
+          "saved_bytes": 2612,
+          "comments": 43,
+          "protected_comments": 0
+        },
+        "bfp_MAP_SRC": {
+          "comment_bytes": 112,
+          "protected_bytes": 0,
+          "preserved_additional_comments": 0,
+          "saved_bytes": 111,
+          "comments": 1,
+          "protected_comments": 0
+        },
+        "bfp_GEMM_SRC": {
+          "comment_bytes": 302,
+          "protected_bytes": 0,
+          "preserved_additional_comments": 0,
+          "saved_bytes": 294,
+          "comments": 8,
+          "protected_comments": 0
+        },
+        "bfp_SK2_SRC": {
+          "comment_bytes": 6208,
+          "protected_bytes": 0,
+          "preserved_additional_comments": 4,
+          "saved_bytes": 5831,
+          "comments": 80,
+          "protected_comments": 0
+        },
+        "bfp_WIDE_SRC": {
+          "comment_bytes": 1559,
+          "protected_bytes": 0,
+          "preserved_additional_comments": 0,
+          "saved_bytes": 1539,
+          "comments": 20,
+          "protected_comments": 0
+        },
+        "bfp_GQ_SRC": {
+          "comment_bytes": 1952,
+          "protected_bytes": 0,
+          "preserved_additional_comments": 0,
+          "saved_bytes": 1926,
+          "comments": 26,
+          "protected_comments": 0
+        },
+        "_GRAFT_GLUE_CUDA": {
+          "comment_bytes": 1075,
+          "protected_bytes": 0,
+          "preserved_additional_comments": 0,
+          "saved_bytes": 1061,
+          "comments": 14,
+          "protected_comments": 0
+        },
+        "_GRAFT_B2_CUDA": {
+          "comment_bytes": 690,
+          "protected_bytes": 0,
+          "preserved_additional_comments": 0,
+          "saved_bytes": 682,
+          "comments": 8,
+          "protected_comments": 0
+        },
+        "_MA_ALT_SRCS['moe_helper0']": {
+          "comment_bytes": 25241,
+          "protected_bytes": 252,
+          "preserved_additional_comments": 0,
+          "saved_bytes": 24663,
+          "comments": 329,
+          "protected_comments": 3
+        },
+        "_SL_GLUE_CUDA": {
+          "comment_bytes": 1062,
+          "protected_bytes": 0,
+          "preserved_additional_comments": 0,
+          "saved_bytes": 1047,
+          "comments": 15,
+          "protected_comments": 0
+        },
+        "_ROUTER_FP32_CUDA": {
+          "comment_bytes": 0,
+          "protected_bytes": 0,
+          "preserved_additional_comments": 0,
+          "saved_bytes": 0,
+          "comments": 0,
+          "protected_comments": 0
+        }
+      },
+      "python": {
+        "comment_bytes": 24676,
+        "protected_bytes": 16312,
+        "saved_bytes": 8364,
+        "blank_lines_bytes": 541,
+        "docstring_bytes": 14062,
+        "docstrings_removed": false,
+        "blank_lines_removed": false
+      },
+      "preserved_runtime_comment_anchors": [
+        "\n// ---------------------------------------------------------------- wgmma helpers (sm_90a)\n__device__ __forceinline__ void wg_fence() { asm volatile(\"wgmma.fence.sync.aligned;\" ::: \"memory\"); }\n__device__ __forceinline__ void wg_commit() { asm volatile(\"wgmma.commit_group.sync.aligned;\" ::: \"memory\"); }\ntemplate <int N> __device__ __forceinline__ void wg_wait() { asm volatile(\"wgmma.wait_group.sync.aligned %0;\" :: \"n\"(N) : \"memory\"); }\n__device__ __forceinline__ void fence_async_smem() { asm volatile(\"fence.proxy.async.shared::cta;\" ::: \"memory\"); }\n\n\n// smem matrix descriptor: K-major, 128B swizzle, SBO = 1024 B (8 rows x 128 B)\n__device__ __forceinline__ uint64_t make_desc_sw128(uint32_t saddr) {\n  uint64_t d = 0;\n  d |= (uint64_t)((saddr & 0x3FFFF) >> 4);\n  d |= (uint64_t)1 << 16;                 // LBO (ignored for swizzled K-major)\n  d |= (uint64_t)(1024 >> 4) << 32;       // SBO\n  d |= (uint64_t)1 << 62;                 // 128B swizzle\n  return d;\n}\n\n\n",
+        "\nvoid gle_o(at::Tensor Ws, at::Tensor x, at::Tensor out, at::Tensor ptab, int64_t pmax, int64_t base4, int64_t M,\n           at::Tensor s, at::Tensor a, at::Tensor b, at::Tensor a2, at::Tensor p, at::Tensor uv, at::Tensor part, at::Tensor uvf) {\n  TORCH_CHECK(M >= 1 && M <= 8 && s.size(0) == M && uv.size(0) == 2 * M && uvf.size(0) == 2 * M && part.numel() >= 256 * M * 8, \"gle_o: shapes\");\n  g_gle = GleEpi{s.data_ptr<float>(), a.data_ptr<float>(), b.data_ptr<float>(), a2.data_ptr<float>(),\n                 reinterpret_cast<const __nv_bfloat16*>(p.data_ptr()), reinterpret_cast<__nv_bfloat16*>(uv.data_ptr()),\n                 part.data_ptr<float>(), uvf.data_ptr<float>()};\n  sk2(Ws, x, out, ptab, pmax, base4, M, 8192, 1024, 0, 8, 0, ptab);\n}\nvoid gle_pr(at::Tensor Ws, at::Tensor Wsr, at::Tensor x, at::Tensor out, at::Tensor outr, at::Tensor ptab, int64_t pmax,\n            int64_t base4, at::Tensor part, at::Tensor rcnt, int64_t M, at::Tensor x32, at::Tensor w32, int64_t wpf) {\n  // fused pooler (BF16 x rows) + FP32 router (FP32 x32 rows, FP32 weights w32) at M <= 8\n  TORCH_CHECK(M >= 1 && M <= 8 && x.size(0) == M && x32.size(0) == M && x32.scalar_type() == at::kFloat &&\n              w32.scalar_type() == at::kFloat && w32.size(0) == 256 && w32.size(1) == 8192, \"gle_pr: shapes\");\n  g_gle = GleEpi{};\n  g_gle.x32 = x32.data_ptr<float>(); g_gle.w32 = w32.data_ptr<float>(); g_gle.fpr = 1; g_gle.ilv = (int)wpf;\n  sk2f(Ws, Wsr, x, out, outr, ptab, pmax, base4, part, rcnt, M, 8);\n  g_gle = GleEpi{};\n}\n",
+        "        if (FUSE && st >= nst) {   // router stages:",
+        "        if (ilv ? (st % PER == OFF) : (FUSE && st >= nst)) {   // router stages:",
+        "        } else if (ep.fpr) {   // FP32 router stage j = st - nst: columns rq * 2048 + 512 j .. + 511\n          const int kb = rq * 2048 + (st - nst) * 512;\n          mbar_expect_tx(full0 + 8 * slot, 8 * 2048 + M * 2048);\n          for (int r = 0; r < 8; ++r)\n            bulk_g2s(s0 + r * 2048, reinterpret_cast<const uint8_t*>(ep.w32 + (size_t)(rt * 8 + r) * 8192 + kb), 2048, full0 + 8 * slot);\n          for (int t = 0; t < M; ++t)\n            bulk_g2s(s0 + 16384 + t * 2048, reinterpret_cast<const uint8_t*>(ep.x32 + (size_t)t * 8192 + kb), 2048, full0 + 8 * slot);\n        } else {   // router piece: global router stage rq * 4 + j of tile rt",
+        "        } else {   // router piece: global router stage rq * 4 + j of tile rt",
+        "  __shared__ __align__(16) float4 gx_s[64], gx_a[64], gx_b[64], gx_a2[64];\n  __shared__ __align__(16) uint2 gx_p[64];\n  // the epilogue's input-side vectors (residual stream row, alpha / beta / alpha2 / pre) go to shared memory by\n  // cp.async before the wait and are awaited only in the epilogue: no registers held across the main loop (2 CTAs / SM\n  // next to attention) and no stall behind the pre-wait weight stages\n  // ep.s is data['stream'], the layer's input residual stream: nothing in the call writes it, which is what makes this\n  // pre-wait copy safe (keep it that way: any in-call writer of data['stream'] must move this copy after the wait)\n  if (!FUSE && tid < 8 * M) {   // o only (this source also holds the fused pooler)\n    const size_t col = (size_t)cta * R + (tid & 7) * 4;\n    const uint32_t d0 = (uint32_t)__cvta_generic_to_shared(&gx_s[tid]);\n    asm volatile(\"cp.async.cg.shared.global [%0], [%1], 16;\" :: \"r\"(d0), \"l\"(ep.s + (size_t)(tid >> 3) * N + col) : \"memory\");\n    asm volatile(\"cp.async.cg.shared.global [%0], [%1], 16;\" :: \"r\"((uint32_t)__cvta_generic_to_shared(&gx_a[tid])), \"l\"(ep.a + col) : \"memory\");\n    asm volatile(\"cp.async.cg.shared.global [%0], [%1], 16;\" :: \"r\"((uint32_t)__cvta_generic_to_shared(&gx_b[tid])), \"l\"(ep.b + col) : \"memory\");\n    asm volatile(\"cp.async.cg.shared.global [%0], [%1], 16;\" :: \"r\"((uint32_t)__cvta_generic_to_shared(&gx_a2[tid])), \"l\"(ep.a2 + col) : \"memory\");\n    asm volatile(\"cp.async.ca.shared.global [%0], [%1], 8;\" :: \"r\"((uint32_t)__cvta_generic_to_shared(&gx_p[tid])), \"l\"(ep.p + col) : \"memory\");\n    asm volatile(\"cp.async.commit_group;\" ::: \"memory\");\n  }\n",
+        "  __syncthreads();\n  if (pdl) asm volatile(\"griddepcontrol.wait;\" ::: \"memory\");   // every thread",
+        "  const int P = (CL == 1 && pdl > 0) ? min(pdl & 15, min(NSTAGE, nst)) : 1;\n  const bool ilv = FUSE && ep.fpr && ep.ilv && (nstt % 4) == 0 && nstt / 4 > P;\n  const int PER = ilv ? nstt / 4 : (1 << 30);\n  const int OFF = ilv ? (ep.ilv == 2 ? P : PER - 1) : 0;   // router stage slot inside each period\n",
+        "  constexpr int R4 = R / 4;\n  if constexpr (!FUSE) {   // o: the gle epilogue; the fused pooler keeps the stock epilogue loop below\n  static_assert(R4 == 8 && CL == 1 && sizeof(OutT) == 2, \"gle epilogue: o8h geometry, BF16 out\");\n    const int tt = tid >> 3, row = (tid & 7) * 4;\n    const bool on = tid < R4 * M;\n    float q[7] = {0.f, 0.f, 0.f, 0.f, 0.f, 0.f, 0.f};\n    if (on) {\n      float4 v = make_float4(0.f, 0.f, 0.f, 0.f);\n      if constexpr (COMP) {\n#pragma unroll\n        for (int c = 0; c < NESC; ++c) {\n          v.x += corr[c * CSZ + tt * CP + row];\n          v.y += corr[c * CSZ + tt * CP + row + 1];\n          v.z += corr[c * CSZ + tt * CP + row + 2];\n          v.w += corr[c * CSZ + tt * CP + row + 3];\n        }\n      }\n#pragma unroll\n      for (int w = 0; w < WSK; ++w) {\n        const float4 p = *reinterpret_cast<const float4*>(red + (w * TOKS + tt) * RP + row);\n        v.x += p.x; v.y += p.y; v.z += p.z; v.w += p.w;\n      }\n      const size_t col = (size_t)cta * R + row;\n      OutT* o = out + (size_t)tt * N + col;\n      __nv_bfloat162 lo = __floats2bfloat162_rn(v.x, v.y), hi = __floats2bfloat162_rn(v.z, v.w);\n      uint2 pk;\n      pk.x = *reinterpret_cast<uint32_t*>(&lo);\n      pk.y = *reinterpret_cast<uint32_t*>(&hi);\n      *reinterpret_cast<uint2*>(o) = pk;\n      const float pf[4] = {__low2float(lo), __high2float(lo), __low2float(hi), __high2float(hi)};\n      asm volatile(\"cp.async.wait_all;\" ::: \"memory\");   // this thread's own copies\n      const uint2 xp = gx_p[tid];\n      const float4 xs = gx_s[tid], xa = gx_a[tid], xb = gx_b[tid], xa2 = gx_a2[tid];\n      const float4 xas = make_float4(__fmul_rn(xa.x, xs.x), __fmul_rn(xa.y, xs.y), __fmul_rn(xa.z, xs.z), __fmul_rn(xa.w, xs.w));\n      // pre = 1 + pre_ffn_norm in FP32 (the reference's (1 + w), not a BF16-rounded copy)\n      const float pp[4] = {__fadd_rn(1.f, __uint_as_float(xp.x << 16)), __fadd_rn(1.f, __uint_as_float(xp.x & 0xffff0000u)),\n                           __fadd_rn(1.f, __uint_as_float(xp.y << 16)), __fadd_rn(1.f, __uint_as_float(xp.y & 0xffff0000u))};\n      const float ex_as[4] = {xas.x, xas.y, xas.z, xas.w}, ex_b[4] = {xb.x, xb.y, xb.z, xb.w};\n      const float ex_a2[4] = {xa2.x, xa2.y, xa2.z, xa2.w};\n      float uu[4], vv[4];\n#pragma unroll\n      for (int j = 0; j < 4; ++j) {\n        const float as = ex_as[j], bp = __fmul_rn(ex_b[j], pf[j]);\n        uu[j] = __fmul_rn(as, pp[j]);\n        vv[j] = __fmul_rn(bp, pp[j]);\n        q[0] = __fmaf_rn(pf[j], pf[j], q[0]);\n        q[1] = __fmaf_rn(as, as, q[1]);\n        q[2] = __fmaf_rn(as, bp, q[2]);\n        q[3] = __fmaf_rn(bp, bp, q[3]);\n        if (col >= 1024) {\n          const float x = __fmul_rn(ex_a2[j], as), y = __fmul_rn(ex_a2[j], bp);\n          q[4] = __fmaf_rn(x, x, q[4]);\n          q[5] = __fmaf_rn(x, y, q[5]);\n          q[6] = __fmaf_rn(y, y, q[6]);\n        }\n      }\n      // u, v: FP32 rows for the router (uvf) and BF16 rows for the pooler (uv); rows tt (u) and M + tt (v)\n      auto put = [&](const float* f, size_t r) {\n        __nv_bfloat162 h0 = __floats2bfloat162_rn(f[0], f[1]), h1 = __floats2bfloat162_rn(f[2], f[3]);\n        uint2 hk;\n        hk.x = *reinterpret_cast<uint32_t*>(&h0); hk.y = *reinterpret_cast<uint32_t*>(&h1);\n        *reinterpret_cast<uint2*>(ep.uv + r * N + col) = hk;\n        *reinterpret_cast<float4*>(ep.uvf + r * N + col) = make_float4(f[0], f[1], f[2], f[3]);\n      };\n      put(uu, (size_t)tt);\n      put(vv, (size_t)(M + tt));\n    }\n    // the 8 lanes of one token (one aligned lane group) sum their columns: one partial row per (CTA, token)\n#pragma unroll\n    for (int k = 0; k < 7; ++k) {\n      q[k] += __shfl_xor_sync(0xffffffffu, q[k], 4);\n      q[k] += __shfl_xor_sync(0xffffffffu, q[k], 2);\n      q[k] += __shfl_xor_sync(0xffffffffu, q[k], 1);\n    }\n    if (on && (tid & 7) == 0) {\n      float4* pq = reinterpret_cast<float4*>(ep.part + ((size_t)cta * M + tt) * 8);\n      pq[0] = make_float4(q[0], q[1], q[2], q[3]);\n      pq[1] = make_float4(q[4], q[5], q[6], 0.f);\n    }\n  }\n  else\n  for (int idx = tid; idx < R4 * M; idx += NC) {\n",
+        "  float afi[8] = {0.f, 0.f, 0.f, 0.f, 0.f, 0.f, 0.f, 0.f};   // ilv: FP32 router accumulators (warp = router row)\n  for (int st = 0; st < (ilv ? nstt : nst); ++st) {\n    const int slot = st % NSTAGE;\n    mbar_wait(full0 + 8 * slot, (st / NSTAGE) & 1);\n    if constexpr (FUSE) if (ilv && st % PER == OFF) {   // an interleaved FP32 router stage\n      const float* ws = reinterpret_cast<const float*>(gbase + slot * SST) + warp * 512;\n      const float* xs = reinterpret_cast<const float*>(gbase + slot * SST + 16384);\n#pragma unroll\n      for (int i = 0; i < 4; ++i) {\n        const int k = lane * 4 + i * 128;\n        const float4 bw = *reinterpret_cast<const float4*>(ws + k);\n#pragma unroll\n        for (int t = 0; t < 8; ++t) if (t < M) {\n          const float4 a = *reinterpret_cast<const float4*>(xs + t * 512 + k);\n          afi[t] = fmaf(a.x, bw.x, afi[t]); afi[t] = fmaf(a.y, bw.y, afi[t]);\n          afi[t] = fmaf(a.z, bw.z, afi[t]); afi[t] = fmaf(a.w, bw.w, afi[t]);\n        }\n      }\n      __syncwarp();\n      if (lane == 0) mbar_arrive(empty0 + 8 * slot);\n      continue;\n    }\n",
+        "  if constexpr (FUSE) {\n    // router piece:",
+        "  if constexpr (FUSE) {\n    if (ep.fpr) {\n      static_assert(!FUSE || (NW == 8 && SST >= 32768), \"fp32 router stages: 8 consumer warps, 32 KB slots\");\n      // thread: column group cg = tid & 127 (4 of the stage's 512 columns) x all 8 router rows x tokens 4h .. 4h + 3\n      // (h = tid >> 7): every shared-memory float4 is read by 2 threads, not 8 warps; FP32 FMAs\n      const int cg = tid & 127, th = tid >> 7;\n      float af[32];\n#pragma unroll\n      for (int i = 0; i < 32; ++i) af[i] = 0.f;\n      for (int st = nst; st < nstt; ++st) {\n        const int slot = st % NSTAGE;\n        mbar_wait(full0 + 8 * slot, (st / NSTAGE) & 1);\n        const float* ws = reinterpret_cast<const float*>(gbase + slot * SST) + cg * 4;\n        const float* xs = reinterpret_cast<const float*>(gbase + slot * SST + 16384) + cg * 4;\n        float4 xa[4];\n#pragma unroll\n        for (int u = 0; u < 4; ++u)\n          xa[u] = (th * 4 + u < M) ? *reinterpret_cast<const float4*>(xs + (th * 4 + u) * 512) : make_float4(0.f, 0.f, 0.f, 0.f);\n#pragma unroll\n        for (int r = 0; r < 8; ++r) {\n          const float4 bw = *reinterpret_cast<const float4*>(ws + r * 512);\n#pragma unroll\n          for (int u = 0; u < 4; ++u) {\n            float v = af[r * 4 + u];\n            v = fmaf(xa[u].x, bw.x, v); v = fmaf(xa[u].y, bw.y, v); v = fmaf(xa[u].z, bw.z, v); v = fmaf(xa[u].w, bw.w, v);\n            af[r * 4 + u] = v;\n          }\n        }\n        __syncwarp();\n        if (lane == 0) mbar_arrive(empty0 + 8 * slot);\n      }\n      // reduction over the 128 column groups through the (now idle) ring: red[th][cg][33] (static indices only)\n      if constexpr (COMP) mbar_wait(cbar, 0);   // as the BF16 router: the escape warps are done with the ring\n      named_bar(1, NC);                         // and every consumer is done reading its last stage\n      float* red32 = reinterpret_cast<float*>(gbase);\n#pragma unroll\n      for (int i = 0; i < 32; ++i) red32[(th * 128 + cg) * 33 + i] = af[i];\n      named_bar(1, NC);\n      float* red2 = red32 + 256 * 33;\n      {\n        const int o = tid & 63, pq = tid >> 6, h = o >> 5, e = o & 31;\n        float v = 0.f;\n        for (int c = pq * 32; c < pq * 32 + 32; ++c) v += red32[(h * 128 + c) * 33 + e];\n        red2[pq * 64 + o] = v;\n      }\n      named_bar(1, NC);\n      if (tid < 64) {\n        const int h = tid >> 5, e = tid & 31, r = e >> 2, t = h * 4 + (e & 3);\n        const float v = red2[tid] + red2[64 + tid] + red2[128 + tid] + red2[192 + tid];\n        if (t < M) __stcg(part + ((size_t)rt * 4 + rq) * 32 * 8 + t * 8 + r, v);\n      }\n      named_bar(1, NC);\n    } else {\n    // router piece:",
+        "  if constexpr (FUSE) {\n    if (ilv) {   // interleaved FP32 router: warp butterflies of afi, then the 4-quarter reduction below\n#pragma unroll\n      for (int t = 0; t < 8; ++t)\n#pragma unroll\n        for (int d = 16; d; d >>= 1) afi[t] += __shfl_xor_sync(0xffffffffu, afi[t], d);\n      float mine = afi[0];\n#pragma unroll\n      for (int t = 1; t < 8; ++t) mine = lane == t ? afi[t] : mine;\n      if (lane < M) __stcg(part + ((size_t)rt * 4 + rq) * 32 * 8 + lane * 8 + warp, mine);\n      if constexpr (COMP) mbar_wait(cbar, 0);\n      named_bar(1, NC);\n    } else if (ep.fpr) {\n"
+      ],
+      "total_saved_before_factoring": 125970,
+      "input_sha256": "3bdbaed0ddbe8d8d1e4b63139d91292fea4b154baa47bcdd54363fdee4e63045",
+      "output_sha256": "f9a25f34ab6a6d4216679b00f94104f0e80871f1428b0e353c70cb2f0def03be"
+    },
+    "(32,)": {
+      "native": {
+        "_CUDA_SRC": {
+          "comment_bytes": 594,
+          "protected_bytes": 0,
+          "preserved_additional_comments": 0,
+          "saved_bytes": 586,
+          "comments": 8,
+          "protected_comments": 0
+        },
+        "_ONE_SRC": {
+          "comment_bytes": 32587,
+          "protected_bytes": 1072,
+          "preserved_additional_comments": 0,
+          "saved_bytes": 31113,
+          "comments": 415,
+          "protected_comments": 13
+        },
+        "_ONE_HOST_SRC": {
+          "comment_bytes": 2305,
+          "protected_bytes": 0,
+          "preserved_additional_comments": 0,
+          "saved_bytes": 2276,
+          "comments": 29,
+          "protected_comments": 0
+        },
+        "_BND_SRC": {
+          "comment_bytes": 907,
+          "protected_bytes": 736,
+          "preserved_additional_comments": 0,
+          "saved_bytes": 167,
+          "comments": 12,
+          "protected_comments": 8
+        },
+        "_MOE1_SRC": {
+          "comment_bytes": 26345,
+          "protected_bytes": 0,
+          "preserved_additional_comments": 0,
+          "saved_bytes": 26028,
+          "comments": 317,
+          "protected_comments": 0
+        },
+        "_MOE1_HOST_SRC": {
+          "comment_bytes": 920,
+          "protected_bytes": 17,
+          "preserved_additional_comments": 0,
+          "saved_bytes": 891,
+          "comments": 13,
+          "protected_comments": 1
+        },
+        "_DLPLT_CPP": {
+          "comment_bytes": 1814,
+          "protected_bytes": 321,
+          "preserved_additional_comments": 0,
+          "saved_bytes": 1474,
+          "comments": 23,
+          "protected_comments": 4
+        }
+      },
+      "python": {
+        "comment_bytes": 755,
+        "protected_bytes": 32,
+        "saved_bytes": 723,
+        "blank_lines_bytes": 93,
+        "docstring_bytes": 0,
+        "docstrings_removed": false,
+        "blank_lines_removed": false
+      },
+      "preserved_runtime_comment_anchors": [
+        "//@MOE1_DISPATCH@"
+      ],
+      "total_saved_before_factoring": 63593,
+      "input_sha256": "83c5436ad5801422f51377b32b168d27889a1b3ea4dc1e02097e646179b8101f",
+      "output_sha256": "7612276301d5da296d35995f852b51328f6f33d20c0fd7b9c17bec5fbfe8656c"
+    },
+    "(16, 32)": {
+      "native": {
+        "_CUDA_SRC": {
+          "comment_bytes": 594,
+          "protected_bytes": 0,
+          "preserved_additional_comments": 0,
+          "saved_bytes": 586,
+          "comments": 8,
+          "protected_comments": 0
+        },
+        "_ONE_SRC": {
+          "comment_bytes": 32587,
+          "protected_bytes": 1072,
+          "preserved_additional_comments": 0,
+          "saved_bytes": 31113,
+          "comments": 415,
+          "protected_comments": 13
+        },
+        "_ONE_HOST_SRC": {
+          "comment_bytes": 2305,
+          "protected_bytes": 0,
+          "preserved_additional_comments": 0,
+          "saved_bytes": 2276,
+          "comments": 29,
+          "protected_comments": 0
+        },
+        "_BND_SRC": {
+          "comment_bytes": 907,
+          "protected_bytes": 736,
+          "preserved_additional_comments": 0,
+          "saved_bytes": 167,
+          "comments": 12,
+          "protected_comments": 8
+        },
+        "_MOE1_SRC": {
+          "comment_bytes": 26345,
+          "protected_bytes": 0,
+          "preserved_additional_comments": 0,
+          "saved_bytes": 26028,
+          "comments": 317,
+          "protected_comments": 0
+        },
+        "_MOE1_HOST_SRC": {
+          "comment_bytes": 920,
+          "protected_bytes": 17,
+          "preserved_additional_comments": 0,
+          "saved_bytes": 891,
+          "comments": 13,
+          "protected_comments": 1
+        },
+        "_SKP_SRC": {
+          "comment_bytes": 1739,
+          "protected_bytes": 0,
+          "preserved_additional_comments": 0,
+          "saved_bytes": 1718,
+          "comments": 21,
+          "protected_comments": 0
+        },
+        "_SKP_WD_SRC": {
+          "comment_bytes": 8423,
+          "protected_bytes": 584,
+          "preserved_additional_comments": 0,
+          "saved_bytes": 7735,
+          "comments": 111,
+          "protected_comments": 7
+        },
+        "_DLPLT_CPP": {
+          "comment_bytes": 1814,
+          "protected_bytes": 321,
+          "preserved_additional_comments": 0,
+          "saved_bytes": 1474,
+          "comments": 23,
+          "protected_comments": 4
+        }
+      },
+      "python": {
+        "comment_bytes": 843,
+        "protected_bytes": 32,
+        "saved_bytes": 811,
+        "blank_lines_bytes": 100,
+        "docstring_bytes": 0,
+        "docstrings_removed": false,
+        "blank_lines_removed": false
+      },
+      "preserved_runtime_comment_anchors": [
+        "//@MOE1_DISPATCH@"
+      ],
+      "total_saved_before_factoring": 73134,
+      "input_sha256": "6de124667ee5b56c81771b4fd5d2591dc62e1bcfbf60f18baa680438d543bf42",
+      "output_sha256": "c1c6065a095efb407a15c8a1fe8f6936fc3078750b1ca7adb27447846342205e"
+    }
+  },
+  "assumption": "No constexpr/docstring/blankline removal; author/legal groups and runtime anchors retained. --emit writes readable candidates; source fit is not H200 qualification.",
+  "GPU": false,
+  "tool_lf_sha256": "ded97e8931277942b27151348d6018821260a653146c41280150e9b1ea6e4fc8",
+  "artifacts": {
+    "G-comment.py": {
+      "bytes": 620061,
+      "sha256": "0fadbabece84c447b5c197ee23372c19db8544055494d3dc3f0eb430d059cce2"
+    },
+    "G-original.py": {
+      "bytes": 720525,
+      "sha256": "a6f97289c7abc8e49e7b7943e63f9b8138a8682988bb4c1b2603e3704fdc6464"
+    },
+    "hybrid-mask15.py": {
+      "bytes": 951539,
+      "sha256": "d3f2b31ea0991e8b7e14709913e8a55d1304fe20fc47fd369e8a5f1c0334d689"
+    },
+    "hybrid-mask4.py": {
+      "bytes": 907642,
+      "sha256": "3b205d408edd8a238dec686fac306b5a28ac9136b42512939ae80db7c79611ec"
+    },
+    "owned-15-comment.py": {
+      "bytes": 326021,
+      "sha256": "c1c6065a095efb407a15c8a1fe8f6936fc3078750b1ca7adb27447846342205e"
+    },
+    "owned-15-original.py": {
+      "bytes": 399155,
+      "sha256": "6de124667ee5b56c81771b4fd5d2591dc62e1bcfbf60f18baa680438d543bf42"
+    },
+    "owned-4-comment.py": {
+      "bytes": 282153,
+      "sha256": "7612276301d5da296d35995f852b51328f6f33d20c0fd7b9c17bec5fbfe8656c"
+    },
+    "owned-4-original.py": {
+      "bytes": 345746,
+      "sha256": "83c5436ad5801422f51377b32b168d27889a1b3ea4dc1e02097e646179b8101f"
+    }
+  },
+  "unchanged_generation_inputs": {
+    "dl_verify_hybrid.py": "bf0c4b4b84a8da1f61c357a0f6667ca319b80168d0a54f6ca242c18fe017f4e5",
+    "dl_verify_hybrid_body.py": "889d7e2cda9cafb3216b3808cd440a41ec050ddcbff383e78ed994ed8e0b17a5",
+    "dl_g_production_slice.py": "2101d3e79c5bfc2d276eb08b79c54a327edd93beb76a2b5b9fd3bb0fdb7a278d",
+    "dl_g_literal_factor.py": "9b6fdccbe5dca08b1d7d3dea41f74eff46a652d1d8e887dec14ad124923a30af",
+    "dl_owned_verify_production.py": "916e8fb67ab8318bf8a2051895eeee95c71440cae1da369f18559ae36397d70e",
+    "dl_verify_pair_slices.py": "4ba6bb495b80b4444aa79de5ac9d9b87e3bc9e9a0009778c02256b3d931d629b"
+  }
+}
