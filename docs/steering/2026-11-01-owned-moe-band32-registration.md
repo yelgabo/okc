@@ -152,3 +152,9 @@ Terminal addendum: `a5c7c7e3fe344919` passed official/private math but band32 lo
 all six targeted rows and all four full-score factors; KEEP=false. See the
 [independent terminal report](2026-11-01-owned-moe-band32-terminal.md).
 No public/pure qualification or knob sweep follows. Production remains unchanged.
+
+Source-attribution correction,2026-11-01: the selected skinny setup is enclosed
+by `if(warp==kNW)` (helper warp8), not warp0 as written above. The same-warp
+`__syncwarp` publication reasoning remains valid. Fat-main setup caused the
+wording confusion; no device modification follows. The later cached-band32
+registration uses the corrected identity and adds explicit bounded-cache proof.
