@@ -1,0 +1,6 @@
+{
+  "instructions_identical": true,
+  "instruction_count": 2328,
+  "normalized_instruction_sha256": "2cc23924ab13071875970c9d8a66157bf9e99bf3f8fd347a988788e63ecbedca",
+  "normalization": "instruction address/encoding comments removed; ELF/debug data directives excluded; exact opcode/predicate/operands/targets retained"
+}

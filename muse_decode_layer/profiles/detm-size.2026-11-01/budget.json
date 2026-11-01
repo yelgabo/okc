@@ -1,0 +1,16 @@
+{
+  "original_owned_bytes": 504940,
+  "reduced_owned_bytes": 502168,
+  "saved_bytes": 2772,
+  "removed_unit": "ONE_DETM-off finalize_det helper only",
+  "original_device_sha256": "beba98d82228815d58d4a5be3e7a3836ef58064ad06085542f198782fca66708",
+  "reduced_device_sha256": "05d7e70bdf9f2bec4418838e7011a3766e71997d00c6b9aea55e6e51abb57884",
+  "unchanged_registration_and_python_AST": true,
+  "existing_harness_BODY_bytes": 40191,
+  "G_four_literal_floor": 520047,
+  "combined_lower_bound_with_existing_harness": 1062406,
+  "G_checkpoint_plain_bytes": 857866,
+  "combined_plain_checkpoint_bodies_and_existing_harness": 1400225,
+  "gpu_execution": false,
+  "H200_ready": false
+}

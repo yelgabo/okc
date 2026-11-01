@@ -1,0 +1,67 @@
+#if ONE_DETM
+// Request b's rows from the slots of every split whose rounded share of the flat partition
+// holds keys of b (the same arithmetic as the kernel's partition and seg_bounds), in split
+// order, warp 0 before warp 1. 128 threads: eight per head row.
+template <int SEGK>
+__device__ void finalize_det(const Params& p, const int* offs, int B, int G, int b,
+                             float v_scale, int tid) {
+    const float* part = reinterpret_cast<const float*>(p.dbg);
+    const int head = tid >> 3;
+    const int t8 = tid & 7;
+    const long long total_v = offs[B] - SEGK;
+    const int a = offs[b];
+    const int n_b = offs[b + 1] - a - SEGK;
+    float acc[8] = {0.f, 0.f, 0.f, 0.f, 0.f, 0.f, 0.f, 0.f};
+    float lsum = 0.f;
+    for (int s = 0; s < G; ++s) {
+        const int v0 = static_cast<int>(total_v * s / G);
+        const int v1 = static_cast<int>(total_v * (s + 1) / G);
+        if (!(a + n_b > v0 && a < v1)) {
+            continue;
+        }
+        const int s0 = max(v0, a) - a;
+        const int s1 = min(v1, a + n_b) - a;
+        const int lo_k = s0 > 0 ? (s0 & ~(BN - 1)) : 0;
+        const int hi_k = s1 < n_b ? (s1 & ~(BN - 1)) : n_b;
+        if (lo_k >= hi_k) {
+            continue;
+        }
+        for (int w = 0; w < 2; ++w) {
+            const float* row = part + det_slot(b, G, s, w, head);
+            const float4 x = ld_cg_f4(row + t8 * 8);
+            const float4 y = ld_cg_f4(row + t8 * 8 + 4);
+            acc[0] += x.x;
+            acc[1] += x.y;
+            acc[2] += x.z;
+            acc[3] += x.w;
+            acc[4] += y.x;
+            acc[5] += y.y;
+            acc[6] += y.z;
+            acc[7] += y.w;
+            lsum += __ldcg(row + 64);
+        }
+    }
+    const float inv = lsum > 0.f ? __fdividef(v_scale, lsum) : 0.f;
+    float ss = 0.f;
+#pragma unroll
+    for (int e = 0; e < 8; ++e) {
+        acc[e] = __bfloat162float(__float2bfloat16_rn(acc[e] * inv));
+        ss += acc[e] * acc[e];
+    }
+    ss = oct_sum(ss);
+    const float rn = rsqrtf(ss * (1.f / D) + EPS);
+    const uint4 graw = __ldg(reinterpret_cast<const uint4*>(
+        p.qkv + static_cast<size_t>(b) * QKV_STRIDE + GATE_OFF + head * D + t8 * 8));
+    const uint32_t gw[4] = {graw.x, graw.y, graw.z, graw.w};
+    uint32_t ow[4];
+#pragma unroll
+    for (int e = 0; e < 4; ++e) {
+        const float2 gt = __bfloat1622float2(*reinterpret_cast<const __nv_bfloat162*>(&gw[e]));
+        const __nv_bfloat162 o2 = __float22bfloat162_rn(
+            make_float2(acc[2 * e] * rn * sigmoid(gt.x), acc[2 * e + 1] * rn * sigmoid(gt.y)));
+        ow[e] = *reinterpret_cast<const uint32_t*>(&o2);
+    }
+    *reinterpret_cast<uint4*>(p.out + static_cast<size_t>(b) * HQ * D + head * D + t8 * 8) =
+        make_uint4(ow[0], ow[1], ow[2], ow[3]);
+}
+#endif
