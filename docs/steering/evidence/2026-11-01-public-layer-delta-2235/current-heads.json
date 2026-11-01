@@ -1,0 +1,162 @@
+[
+  {
+    "repo": "Kushagrabainsla/muse-spark-open",
+    "pushed_at": "2026-11-01T04:47:54Z",
+    "license": null,
+    "default_branch": "main",
+    "known_pin": "ca71144194e993c9769f20654fade8008c6868c7",
+    "head": "ca71144194e993c9769f20654fade8008c6868c7",
+    "commit_date": "2026-11-01T04:25:37Z",
+    "message": "Log L13: own boundary kernels not kept (exacter routing raises MoE work); measurement-noise note"
+  },
+  {
+    "repo": "Madhavan113/ParadigmKernelChallenge",
+    "pushed_at": "2026-10-29T20:47:01Z",
+    "license": null,
+    "default_branch": "main",
+    "known_pin": "721c62729fa0b407799692f311790643706f292d",
+    "head": "721c62729fa0b407799692f311790643706f292d",
+    "commit_date": "2026-10-29T20:47:00Z",
+    "message": "decode layer: recomposed with attention 012d92b (bulk-reduction merge ticket for per-request q1 plans: d16s ~-0.5 us, d1f ~-0.3 on the H200; other instances byte-identical); MoE/proj/glue unchanged"
+  },
+  {
+    "repo": "Okohedeki/autoinference",
+    "pushed_at": "2026-10-30T02:13:40Z",
+    "license": null,
+    "default_branch": "main",
+    "known_pin": "0454fb5059e95928c4236620142f51c287f572fb",
+    "head": "0454fb5059e95928c4236620142f51c287f572fb",
+    "commit_date": "2026-10-30T02:13:39Z",
+    "message": "Fetch the target alignment once per protein in the Boltz-2 backend"
+  },
+  {
+    "repo": "PostTrainLLM/posttrainllm",
+    "pushed_at": "2026-10-31T17:00:22Z",
+    "license": "MIT",
+    "default_branch": "main",
+    "known_pin": null,
+    "head": "2dd36b9a76d7db3a008979375ab1a6b2fc2f13eb",
+    "commit_date": "2026-10-31T17:00:19Z",
+    "message": "Clarify tied small-evaluation results in comparison guide (#221)"
+  },
+  {
+    "repo": "Ranoobaba/okc-campaign",
+    "pushed_at": "2026-10-25T17:00:19Z",
+    "license": null,
+    "default_branch": "master",
+    "known_pin": "3831ab3c3538a9878031b667624240bd24bb7082",
+    "head": "3831ab3c3538a9878031b667624240bd24bb7082",
+    "commit_date": "2026-10-25T17:00:18Z",
+    "message": "ledger: night campaign close-out"
+  },
+  {
+    "repo": "alygg77/okc-muse-spark-kernels",
+    "pushed_at": "2026-10-29T21:11:40Z",
+    "license": "Apache-2.0",
+    "default_branch": "main",
+    "known_pin": "6cae49a639ee6d14b929a5fd4a63c627f96d7dc0",
+    "head": "6cae49a639ee6d14b929a5fd4a63c627f96d7dc0",
+    "commit_date": "2026-10-29T21:11:39Z",
+    "message": "README, llms.txt: ask readers (and agents' users) to star the repo"
+  },
+  {
+    "repo": "coderredlab/runNburn",
+    "pushed_at": "2026-08-27T08:23:24Z",
+    "license": "Apache-2.0",
+    "default_branch": "main",
+    "known_pin": null,
+    "head": "f71c7eddac628d5f9b2bc08b6bf3c0fc9e74fc7a",
+    "commit_date": "2026-08-27T08:19:13Z",
+    "message": "fix(metal): initialize feature rows in batched verify result"
+  },
+  {
+    "repo": "hieptran1812/my-website",
+    "pushed_at": "2026-11-01T16:33:18Z",
+    "license": null,
+    "default_branch": "main",
+    "known_pin": null,
+    "head": "6b977e82c100de83ef1b5bca57b307ff775e606a",
+    "commit_date": "2026-11-01T16:32:47Z",
+    "message": "fix(macro-correlations): pre-Substack accuracy audit of all 45 posts"
+  },
+  {
+    "repo": "lilaclilac09/open-kernel-challenge",
+    "pushed_at": "2026-10-24T15:38:36Z",
+    "license": null,
+    "default_branch": "main",
+    "known_pin": "d9bdcc9f01dff1018f2f256a0a1a63911a16557e",
+    "head": "d9bdcc9f01dff1018f2f256a0a1a63911a16557e",
+    "commit_date": "2026-10-24T15:38:36Z",
+    "message": "muse_bf16_proj v6d: dual-output GEMV + ILP/ldg (no check; keep v6b board)"
+  },
+  {
+    "repo": "msaroufim/openkernelchallenge-audit",
+    "pushed_at": "2026-10-23T02:43:57Z",
+    "license": null,
+    "default_branch": "main",
+    "known_pin": null,
+    "head": "0a68efe41f9372478e3986283c954f39df7484a7",
+    "commit_date": "2026-10-23T02:43:54Z",
+    "message": "Add recovered evaluator worker source"
+  },
+  {
+    "repo": "ozgureyilmaz/okc-muse-kernels",
+    "pushed_at": "2026-10-27T17:28:03Z",
+    "license": "Apache-2.0",
+    "default_branch": "master",
+    "known_pin": "74daa3a6990168b52359c80955014a945fc7aa4e",
+    "head": "74daa3a6990168b52359c80955014a945fc7aa4e",
+    "commit_date": "2026-10-27T17:28:03Z",
+    "message": "Merge measured Muse BF16 kernel and scored result"
+  },
+  {
+    "repo": "ruwwww/open-kernel-challenge",
+    "pushed_at": "2026-10-29T18:35:19Z",
+    "license": null,
+    "default_branch": "main",
+    "known_pin": "3b15eb8a6a16e0519378e28ea6c9b44d04e0a613",
+    "head": "3b15eb8a6a16e0519378e28ea6c9b44d04e0a613",
+    "commit_date": "2026-10-29T18:35:16Z",
+    "message": "docs: update muse_prefill_layer to Rank 69 (1.7950x, 215.83 ms)"
+  },
+  {
+    "repo": "theluckystrike/muse-spark-open-kernels",
+    "pushed_at": "2026-10-23T10:04:14Z",
+    "license": null,
+    "default_branch": "main",
+    "known_pin": "778e47d7fe5836f6e19bb6d962caf02e40469035",
+    "head": "778e47d7fe5836f6e19bb6d962caf02e40469035",
+    "commit_date": "2026-10-23T10:04:11Z",
+    "message": "Open source must win"
+  },
+  {
+    "repo": "tommyyliu/okc",
+    "pushed_at": "2026-10-27T15:57:12Z",
+    "license": null,
+    "default_branch": "main",
+    "known_pin": "f134725e27f368588bd9ef27cb5e97d023b415a5",
+    "head": "f134725e27f368588bd9ef27cb5e97d023b415a5",
+    "commit_date": "2026-10-27T15:56:53Z",
+    "message": "Import muse_bf16_proj with its history"
+  },
+  {
+    "repo": "vjeux/okc-2026",
+    "pushed_at": "2026-10-28T02:03:36Z",
+    "license": "Apache-2.0",
+    "default_branch": "main",
+    "known_pin": "f35a41ee1c13e316dabbf772830d47b23b453393",
+    "head": "f35a41ee1c13e316dabbf772830d47b23b453393",
+    "commit_date": "2026-10-28T02:03:32Z",
+    "message": "v2: dead-code removal \u2014 switches, arch guards, dead branches gone; oracle + GPU gated"
+  },
+  {
+    "repo": "xharshvardhan/open-kernel-challenge",
+    "pushed_at": "2026-10-27T03:26:55Z",
+    "license": null,
+    "default_branch": "main",
+    "known_pin": "4958d3141aa977c4b6b26df7a8d06c90dd094ee9",
+    "head": "4958d3141aa977c4b6b26df7a8d06c90dd094ee9",
+    "commit_date": "2026-10-27T03:26:53Z",
+    "message": "Publish optimized GPU kernels and verified challenge results"
+  }
+]
