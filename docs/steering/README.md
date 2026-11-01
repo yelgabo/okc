@@ -1,5 +1,7 @@
 # Shared project steering
 
+Latest owned eligibility blocker: [Verify51 launch progress](2026-11-01-owned-verify-progress-addendum.md). Comment equivalence holds, but historical sms-sized ordinary/PDL launch lacks documented whole-grid co-residency for software waits. Separate cooperative/PDL-off repair and qualification required; no code or GPU action here.
+
 Latest packed hybrid host audit: [Real source factories and dispatcher](2026-11-01-hybrid-packed-host-review.md). Final3b205d40/d3f2b31e pass22 real native build-source captures,12 wrapper facades and2 removed-anchor negatives; old provisional files invalid. Source/host only; H200 setup/runtime/performance remain unqualified.
 
 Latest owned compiler gate: [Comment-only native equivalence](2026-11-01-owned-comment-compile.md). ONE L8 modes3/51 and MoE51 have identical normalized SASS/resources at revised notice-preserving pins. CPU-only; no runtime/performance qualification.
