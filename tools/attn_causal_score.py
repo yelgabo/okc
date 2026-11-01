@@ -18,6 +18,7 @@ def evaluate(path):
     assert receipt["board"] == "muse_attention_decode"
     result = receipt["result"]
     rows, inputs, overheads = {}, {}, {}
+    tallies = {}
     for line in result["log_tail"].splitlines():
         m = re.match(r"ABSUM cold b=\s*(\d+)\s+(sliding|full)\s+L=(\d+)\s+(.*?) null:", line)
         if m:
@@ -26,6 +27,9 @@ def evaluate(path):
         m = re.match(r"ABIN b=\s*1\s+full\s+L=1 in=(\d+)\s+(.*)", line)
         if m:
             inputs[int(m[1])] = {k: float(v) for k, v in re.findall(r"(\w+)=([+-][\d.]+)", m[2])}
+        if line.startswith("ABCHECKSUM "):
+            tallies = {name: (int(p), int(f), int(q)) for name, p, f, q in
+                       re.findall(r"(\w+)=(\d+)/(\d+)/(\d+)", line)}
     for r in result["records"]:
         if r.get("event") == "benchmark":
             c = r["case"]
@@ -56,13 +60,15 @@ def evaluate(path):
                for i, d in inputs.items()}
     all_faster = all(v < 0 for c in crosses.values() for v in c.values())
     null_gate = gain > 2 * max(abs(rnull), abs(lnull))
+    checks = all(tallies.get(a) == (19, 0, 0) for a in ("ctrl", "ctrl2", "late1", "late2"))
     return {"job": receipt["id"], "official_control_passed": result["passed"],
             "full_only_sensitivity_ratios": scores, "pooled_cross_ratio": math.exp(gain),
             "null_ratios": {"control": math.exp(rnull), "candidate": math.exp(lnull)},
             "per_input_candidate_minus_control_us": crosses,
             "all_crosses_faster": all_faster, "twice_null_gate": null_gate,
-            "numerical_gate": bool(result["passed"] and all_faster and null_gate),
-            "qualification": "rounded medians/borrowed official calibration; not candidate scores; inspect correctness tallies separately"}
+            "harness_all_19_passed": checks,
+            "registered_gate": bool(result["passed"] and checks and all_faster and null_gate),
+            "qualification": "rounded medians/borrowed official calibration; not candidate scores; verify owning source is value2 separately"}
 
 
 if __name__ == "__main__":
