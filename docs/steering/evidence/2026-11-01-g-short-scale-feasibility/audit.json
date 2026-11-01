@@ -1,0 +1,64 @@
+{
+  "status": "CLOSED_NO_EXACT_DEPENDENCY_REMOVAL",
+  "sources": [
+    {
+      "source_sha256": "1ec189dc6f306cec1694946eb62d64b54daf378c6fc1ada2f0f5e501e973ff2a",
+      "helper_sha256": "84f501957a280cb3703bf9a29843153557e280725457162cb8b203b74b8d0f9f",
+      "source_assignment_line": 12583,
+      "selected_scaled_sites": [
+        "const float v0f = (h ? sm.y : sm.x) * gsc * nw0, v1f = (h ? sm.w : sm.z) * gsc * nw1;",
+        "const float gt = (h ? sm.y : sm.x) * gsc, up = (h ? sm.w : sm.z) * gsc;",
+        "const float v0f = (h ? sm.y : sm.x) * gsc * nw0, v1f = (h ? sm.w : sm.z) * gsc * nw1;"
+      ],
+      "helper_scale_definitions": [
+        "const float gsc = p.gsA[ce] * TWO62;",
+        "const float gsc = p.gsB[ce] * TWO62;",
+        "const float gsc = p.gsA[ce] * TWO62;",
+        "const float gsc = p.gsB[ce] * TWO62;",
+        "const float gsc = (PB ? p.gsB[e] : p.gsA[e]) * TWO62;",
+        "const float gsc = lgs * TWO62;",
+        "const float gsc = p.gsA[ce] * TWO62;",
+        "const float gsc = p.gsB[ce] * TWO62;",
+        "const float gsc = p.gsA[e] * TWO62;",
+        "const float gsc = p.gsB[e] * TWO62;"
+      ]
+    },
+    {
+      "source_sha256": "ba9e327cd7b96595ace4d0c1d0d78fe27c128f23ed0debcda97c7169fc3164ab",
+      "helper_sha256": "b8ed85438c06673f411ff4203080bfbacd0c0c2dc5cb624e6f10d4877fe7a716",
+      "source_assignment_line": 12481,
+      "selected_scaled_sites": [
+        "const float v0f = fork_bf16((h ? sm.y : sm.x) * gsc) * nw0, v1f = fork_bf16((h ? sm.w : sm.z) * gsc) * nw1;",
+        "const float gt = fork_bf16((h ? sm.y : sm.x) * gsc), up = fork_bf16((h ? sm.w : sm.z) * gsc);",
+        "const float v0f = fork_bf16((h ? sm.y : sm.x) * gsc) * nw0, v1f = fork_bf16((h ? sm.w : sm.z) * gsc) * nw1;"
+      ],
+      "helper_scale_definitions": [
+        "const float gsc = p.gsA[ce] * TWO62;",
+        "const float gsc = p.gsB[ce] * TWO62;",
+        "const float gsc = p.gsA[ce] * TWO62;",
+        "const float gsc = p.gsB[ce] * TWO62;",
+        "const float gsc = (PB ? p.gsB[e] : p.gsA[e]) * TWO62;",
+        "const float gsc = lgs * TWO62;",
+        "const float gsc = p.gsA[ce] * TWO62;",
+        "const float gsc = p.gsB[ce] * TWO62;",
+        "const float gsc = p.gsA[e] * TWO62;",
+        "const float gsc = p.gsB[e] * TWO62;"
+      ]
+    }
+  ],
+  "reference_sha256": "764a3cf60282ae414b1210ee295a79c9225c1325c1808106572cc26096686938",
+  "counterexample": {
+    "v": 1.00390625,
+    "scale": 1.0078125,
+    "round_after_scale": 1.015625,
+    "round_before_scale_then_round": 1.0078125
+  },
+  "scale_product_preexists_G0": true,
+  "added_required_edge": "BF16 RNE after scale",
+  "instruction_evidence": "aafc32d short-pair-rne selected Tiny/Tiny2 compiler archives",
+  "actual_exposed_time_us": null,
+  "speedup_forecast": null,
+  "candidate_generated": false,
+  "GPU": false,
+  "official_calls": false
+}
