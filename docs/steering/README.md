@@ -534,3 +534,5 @@ Matched boundary confirmation completed. Both affected loads improved across bot
 Latest: [Dense projection transfer to the decode layer](2026-11-01-layer-dense-transfer.md).
 
 - 2026-11-01: [G #303 dense ROI closure](2026-11-01-g-rank303-dense-roi.md): all12 profile/score weights, +0.54474% comparator-gap sensitivity, no new compliant multi-load mechanism or quota request.
+
+- 2026-11-01: [Independent G pending-flush review](2026-11-01-g-pending-flush-independent-review.md): source-safety clearance for exact8195660 movement; publication/lifetime/progress proof, actual main/B4 compiler resources, no H200 or speedup claim.
