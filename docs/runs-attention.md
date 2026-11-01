@@ -3909,3 +3909,46 @@ A different gate must be preregistered and measured independently, never used to
 failed strict check as passing. The causal~0.24% performancegain remains farbelow live11.73%
 top10score gap; afterfreshmathclassification, close thismicroknob and reassess larger measured
 opportunities rather than continuinglate-tid sweeps.
+
+## Prospective official-math fresh gate, registered before dispatch
+
+This NEWgate answers official TASK math compliance for everyqueued input. It doesNOT turn
+3588375a529c4fe8 or26c8a3ea28554454 strict1e-4 failures into passes, and doesnotchange the
+native value2 candidate. Tool `tools/attn_make_fp32_fresh_gate.py` generates actualcandidate2
+plus independentcontrol0; pure candidate SHA remainscbee36a852fbc62f5491e75f957eeb4298dce2db50947984cdbbcd08aa69b356.
+
+Coverage: BOTHbatch1 sliding/full,2000uniqueqkv inputs each, everycandidate ANDcontrol output
+checked ondevice. For eachinput, ownFP32 attention references are computed twice (BF16queries
+and E4M3queries) from the fixedcachedpast and thatinput's actualstorednewKV. Control-graph
+prepass collectsactualnewKV for everyinput; candidatecache must exactlymatchthose rows, in
+addition to official8%cacheerror checks against own normalized/rotated/quantized raw rows.
+Thus the sharedFP32reference uses exactly the newKV that eachcheckedoutput attends; no stale
+new-row approximation. No reference.pyimport, cachedoutput reuse in kernel_fn or timed shortcut.
+
+Official criteria from reference.py/checks.py: globalrelativeL2 <=clamp(2.5*E4M3_reference_error
++0.015,0.03,0.15); worst64-element row <=5*thatbound with rownormfloor0.1*meanrownorm clamped
+1e-12; finiteoutputs; newK/VrelativeL2 <=0.08. Bound derivesonly from ownFP32/E4M3references,
+never fitted to candidate/null errors. Threeinputs per shape crosscheck BOTHbatched references
+against canonical `_ob_reference` beforequeue (relativeL2<1e-3, allowing reference summation
+rounding); eachshape's stalecompleteoutput, allzerooutput and +10oneheadcorruption must all
+be rejected. Independentcontrol must pass everyofficial-math check too. Workspace mustclean.
+Anyincompletecoverage orfailure aborts; prepare280s budget startsbeforeANYmodule compilation.
+No publicpromotion beforethisgate ANDactualcandidate officialtests/timing pass.
+
+CPUwork/shape model: atI2000,Hq16,T80001,D64, twoQK+PV references require
+8*I*Hq*T*D=1,310,736,384,000 multiply/add operations (not a measured runtime). Chunk32 limits
+simultaneouslylive score/concatenation/probability matrices to
+3*32*16*80001*4=491,526,144bytes; prior loop matrices are explicitlydeleted. TwoBF16reference
+banks require8,192,000bytes; qkvbank9,216,000bytes; decodedpastK/V~81.92MB; actualnewKVbanks
+~2.048MB. Additionalgraph/output/tensorallocator storage is not included in these analytic
+figures. Bothshape references and actualduration are printed duringrun; no projectedGPUtime.
+CPUalgebra tests compare flattenedbatched past+perinputnew attention with directcanonical
+nestedattention for empty/short/longerpast and native2KVheads/8groups/64dims, andcheckwork/byte
+arithmetic:2/2pass. Pythonandgeneratedsource compile. Runtimealso crosschecksRoPE/quantization
+math on canonicalreferences; CPUalgebra alone doesnotvalidateGPUexecution.
+
+Read-only CUDAresourceattributes are exposed through a new hostmethod in the generatedfile
+and printed byPython duringprepare; nativekernel bodies are unchanged. This avoids the
+bufferedC++prints missing from the failedstressreceipt. Everyindexedcheckerargument isruntime,
+not constexpr perinput, avoiding2000JITspecializations. Final280s guard failsclosed ifcoverage
+is not complete. Source/state controlseparate; ordinarysame-stream graph/copy dependencies.
