@@ -4,6 +4,16 @@ This is the stable entry point for steering reports across research, implementat
 and coordinator sessions. The user requested on 2026-10-29 that every project-steering
 report be checked into this repository so other sessions can read it.
 
+## Latest checkpoint: top-10 audit and Windows restart
+
+**[2026-10-31: Top-10 audit and restart handoff](2026-10-31-top10-restart-checkpoint.md)**
+
+Evidence `8f2c89b`; live layer rank371, best2.018705x against observed rank10 at2.379322x.
+Top10 needs17.864% more score; the existing experiment portfolio does not establish that gain.
+Official snapshots, current per-shape hotspot/score reconstruction, reconciled backlog and
+restart steps are saved. WSL2.7.14 installed; Windows requires restart before Linux/okc setup
+can finish. No kernel changes or new GPU jobs. Receipt-analysis tools fixed and4/4 tests pass.
+
 ## Family F registration, historical policy
 
 Current policy supersedes the adoption language below. All four tracks now have measurements,
@@ -355,6 +365,7 @@ recommendations, not execution of those tasks; check current code and run logs f
 
 | Report | Evidence snapshot | Scope |
 |---|---|---|
+| [2026-10-31 top-10 restart checkpoint](2026-10-31-top10-restart-checkpoint.md) | `8f2c89b`; official board snapshots | Feasibility, current receipt analysis, ranked backlog, tool fixes and exact WSL/CLI resume steps |
 | [2026-10-30 Family F registration](2026-10-30-family-f-donor-baseline.md) | ours `7a59655`; donor `6cae49a` | Separate donor-based baseline/hybrid family; F0/F1/F2 variants and independent problem tracks; registered/untested, no adoption or benchmark claim |
 | [2026-10-30 donor-first adoption](2026-10-30-donor-first-adoption.md) | ours `5b88889`; donor `6cae49a` | Correct premature restriction on whole-file replacement; exact donor versus release comparison first; choose donor, ours or measured hybrid before new invention |
 | [2026-10-30 alygg77 source audit](2026-10-30-alygg77-public-kernel-audit.md) | ours `269c110`; donor `6cae49a` | Scoped external measurements; selective projection routes; cluster residency; dense transfer/epilogue attribution; codec feasibility; attention provenance and KPERM overlap audit |
