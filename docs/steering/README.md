@@ -590,3 +590,4 @@ Latest: [Dense projection transfer to the decode layer](2026-11-01-layer-dense-t
 - [2026-11-01 G expert-run unit order proof obligations](2026-11-01-g-expert-run-order-proof.md): source-only bounded transpose specification; no GPU or production change.
 
 - 2026-11-01: [Owned standalone MoE locality scope](2026-11-01-owned-moe-locality-scope.md): exact incumbent8-row order vs old53c075 census; distinct transpose remains unmeasured but four retained standalone count cases have zero duplicates, so no implementation/check request.
+- 2026-11-01: [Owned standalone MoE locality scope and local population addendum](2026-11-01-owned-moe-locality-scope.md): exact incumbent8-row order; new preregistered64-bank local input census finds repeats14/32 atM16 and29/32 atM32, revising the old four-bank gate. Conditional score scenario+3.073%, not traffic/bound/forecast; exposed H200 opportunity still required, no kernel/check request.
