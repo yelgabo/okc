@@ -1,6 +1,6 @@
 {
-  "reviewed_at": "2026-11-01T01:16:00-07:00",
-  "snapshot": "6e078b5",
+  "reviewed_at": "2026-11-01T08:04:00-07:00",
+  "snapshot": "af3b550",
   "family_registry_update": {
     "date": "2026-10-30",
     "evidence_snapshot": "7a5965531103f275ac104d340ef30f1508e32353",
@@ -8,10 +8,10 @@
     "source": "steering/2026-10-30-family-f-donor-baseline.md"
   },
   "layer": {
-    "score": "2.0229×",
-    "interval": "1.9925–2.0532",
-    "job": "8f2780d7382047e6",
-    "note": "HMRG/PRQ port: first paired 1.0042 wins; repeat 1.0015 unresolved with all M1 off. Gate event unexplained. New late-tid2 standalone change is not included."
+    "score": "2.1261×",
+    "interval": "2.0942–2.1580",
+    "job": "607eb52bdaf24160",
+    "note": "The retained G1b4 stage-release layer passed 13 official tests and 56 private replays. The matched six-load layer comparison is pending."
   },
   "families": [
     {
@@ -21,10 +21,10 @@
       "label": "Combined layer gain; isolated A unresolved",
       "metric": "1.0052–1.0106×",
       "unit": "M1 + mode 51 paired layer ratios, two runs",
-      "summary": "Ring87 loses 2.2/2.9 µs at 128/256 layer routing. Skinny test_wait and duplicate disagree and fail their gates. Existing hybrid retained.",
-      "layer": "Scored bundle includes C1, revised route gate and HMRG/PRQ; isolated A gain unresolved",
+      "summary": "Position map, token locality, multiply decoder and direct/cached band32 variants fail their gates. Owned hybrid baseline retained.",
+      "layer": "Earlier owned layer tests combine M1 and mode 51. The current retained layer belongs to G.",
       "pending": [],
-      "limit": "Small-job-minority premise invalidated. Multicast count screen fails 6/8 cases; no physical traffic evidence. No new isolated layer gain.",
+      "limit": "Cached band32 improves over the failed direct schedule but loses against original. New scheduling work needs distinct measured opportunity.",
       "source": "runs-decode-layer.md",
       "outcomes": [
         "win",
@@ -51,10 +51,10 @@
       "label": "Ownership retained; alternative loses",
       "metric": "−2.1 / −3.8 µs",
       "unit": "128 / 256 tokens: mode 20 versus mode 16",
-      "summary": "Whole-owned phase A stays. Both-phase stream-K mode 79 loses 19.4/21.4 µs at 128/256 layer routing against 51.",
+      "summary": "Earlier ownership gains retained. Native fixed-owner screen and two owned attention cluster variants fail their gates.",
       "layer": "Present in tested layer descendants",
       "pending": [],
-      "limit": "Zero of six seeds win in each routing/size. One 32-token numerical gate miss. Earlier 72/74 losses remain; reopen with sub-1-µs critical-path fixups per share.",
+      "limit": "Hierarchical and complete-head cluster variants lose. External VP2 has different mechanics and remains an unresolved comparator lead.",
       "source": "runs-moe.md",
       "outcomes": [
         "win",
@@ -78,39 +78,61 @@
       "id": "E",
       "name": "Attention producer / consumer",
       "status": "win",
-      "label": "Standalone gain; layer repeat unresolved",
+      "label": "Historical gains; repaired-control gates",
       "metric": "1.0023928×",
       "unit": "Late-tid2 full-only standalone score sensitivity",
-      "summary": "Full-only late-tid2 passes paired and TASK-math gates; strict 1e-4 failures retained. HMRG/PRQ layer port wins once, then repeat is unresolved.",
-      "layer": "HMRG/PRQ port layer-tested and scored; late-tid2 port deferred",
+      "summary": "Owned QK2 missed its timing and cold-preparation gates. Instrumentation distorted all 12 wait measurements.",
+      "layer": "Historical owned code needs BF16 attention-value repair before reuse",
       "pending": [],
-      "limit": "Late-tid2 is a scheduling change, not a complete pipeline win. Q8 wrong-output probes are diagnostic. No additive phase-gain claim.",
+      "limit": "New studies use common repaired BF16 controls. Detailed wait sums support descriptive traces only; no accepted new pipeline change.",
       "source": "runs-attention.md",
       "outcomes": [
         "win",
         "loss"
       ],
       "evaluation_pending": [
-        "Explain M1 gate event and repeat under matched policies",
-        "Q8 copy/pacing mechanism attribution"
+        "Low-distortion short-path trace",
+        "Resolve distinct external attention mechanisms"
       ]
     },
     {
       "id": "F",
       "name": "Donor-based baseline and hybrid (alygg77)",
       "status": "win",
-      "label": "Owned projection wins; layer port inconclusive",
+      "label": "Historical donor and owned projection results",
       "metric": "1.0897–1.0949×",
       "unit": "F-LAYER paired weighted score ratio, not adoption",
-      "summary": "Owned C3 router FV and order+FV gains repeat at 128/256. C1/C2 historical gains retained. Recovered donor d1/v1 comparison remains policy-qualified.",
+      "summary": "Historical alygg77 comparisons retained. C3 router component wins remain; new QKV128 depth and push variants lose.",
       "layer": "PRQ layer descendant scored; no isolated projection/F gain",
       "pending": [],
       "evaluation_pending": [
         "Corrected GTICKET measurement",
         "Matched traffic/opportunity intervention"
       ],
-      "limit": "Donor remains measurement-only. Actual codec, dense, escape-ownership and rd16 ring variants lose. Prefill deferred; do not transfer its results to standalone MoE.",
+      "limit": "Family G has its own attributed-fork policy. C2 remains best projection score; C3 paired component gains and comparator precision caveats retained.",
       "source": "steering/2026-10-30-family-f-donor-baseline.md",
+      "outcomes": [
+        "win",
+        "loss"
+      ]
+    },
+    {
+      "id": "G",
+      "name": "Attributed keell0renz layer fork",
+      "status": "win",
+      "label": "Retained scored layer",
+      "metric": "2.1261×",
+      "unit": "Public layer score, 95% CI 2.0942–2.1580",
+      "summary": "G1b4 stage-release file retained. Repaired SC6 stage retirement wins matched standalone tests across six loads.",
+      "layer": "Scored in the full layer. Matched six-load comparison awaits testing.",
+      "pending": [
+        "Stage retirement versus the repaired G control across six matched layer loads"
+      ],
+      "evaluation_pending": [
+        "Registered six-load G control-versus-stage comparison"
+      ],
+      "limit": "The retained G1b4 layer includes stage retirement. The matched gain was measured in standalone MoE. The six-load layer comparison is registered.",
+      "source": "runs-decode-layer.md",
       "outcomes": [
         "win",
         "loss"
@@ -119,24 +141,19 @@
   ],
   "context_pending": [
     {
-      "name": "Layer repeatability",
-      "label": "Tested / unresolved repeat",
-      "summary": "HMRG/PRQ port 1.0042 wins once;1.0015 repeat unresolved with M1 off. Original0.14 gate event unexplained. Late-tid2 port deferred."
+      "name": "Short-path and selected-cell studies",
+      "label": "Prepared / H200 gates pending",
+      "summary": "Low-distortion short-path trace and selected verify32/sliding pair still need runtime validation. One-cell evidence has limited scope."
     },
     {
-      "name": "Projection C3 and closed variants",
-      "label": "Separate projection context",
-      "summary": "Router gains repeat at 128/256. Codec, dense qkv, escape ownership and rd16 ring lose. GTICKET fixes still lack a new measurement."
+      "name": "Observer invalidations",
+      "label": "Measured distortion",
+      "summary": "All 12 attention rows and all 12 G rows exceeded their timing-distortion limits. Their wait measurements cannot identify the bottleneck."
     },
     {
-      "name": "Timeline and counter limits",
-      "label": "Evidence qualification",
-      "summary": "All 24 traces retained. Actual routing counts invalid; corrected metadata lacks GPU retest. CUPTI denied. Uncovered time is not SM utilization."
-    },
-    {
-      "name": "Prefill",
-      "label": "Deferred / separate context",
-      "summary": "Recorded scored best 1.21656×. Other checked combinations remain unpromoted. Prefill success does not establish standalone MoE gains."
+      "name": "Owned scheduling and projection closures",
+      "label": "Tested losses",
+      "summary": "Direct/cached band32 and QKV128 depth/push changes fail gates. Prefill remains deferred."
     }
   ]
 }
