@@ -381,7 +381,7 @@ image; replay/math failure unresolved. All printed configs and resources saved i
 TMA physical row footprint and grouped StreamK fixups; no blind sameconfig rerun approved.
 
 Concrete source hypothesis found after failure: own grouped Triton row*stride uses signed
-I32 arithmetic. AtCAP16544,32*CAP*4096=2168430592 elements exceeds2^31; C1 stride8192
+I32 arithmetic. AtCAP16544,32*CAP*4096=2168455168 elements exceeds2^31; C1 stride8192
 exceeds2^32. This matches16384 failure onset, while smaller shapes fit. Every grouped
 row is now widened to tl.int64 BEFORE stride multiplication at four sites: gather,
 tailzero, SiLU, scatter. Original failing artifact preserved; corrected frozen source
@@ -389,6 +389,12 @@ tailzero, SiLU, scatter. Original failing artifact preserved; corrected frozen s
 fitsI32 but final offsets wrap; both contract tests pass. TMA A descriptor source
 `csrc/launcher/tensor.h:261–276` uses exact block_shape_m, no176->192 padding found.
 Independent exact-fix review requested; GPU confirmation still needed before causality claim.
+
+Independent audit confirms all four widened-before-stride sites and unchanged exact176-row
+TMA footprint. Root approved corrected single-factor gate f92ffc2953284a9a, dispatched
+from frozen `_masked_i64.py`, SHA256
+63eb4171f1813887b8f4c6b855770b54ebaa761f7176b1344ee21881002ded5f. Pending;
+only four pointer-width casts differ, no noStreamK/heuristic/zeroing change.
 
 ## Source facts (SGLang a55ab7d5, read from GitHub and hashed against the image)
 
