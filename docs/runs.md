@@ -2103,3 +2103,12 @@ Measured higher CTA residency fails to improve this schedule; serializing correc
 on an active compute warp is a plausible explanation, not an isolated timing attribution.
 Stop this ownership variant and local register-cap sweeps. Original dedicated escape warp
 and C3 production remain unchanged. Raw receipt plus CLI profile JSON/text committed.
+
+Scored exact frozen C3 fresh repeat2383f5173a934c63 dispatched by root. Source
+.build/today/proj_c3_repeat.py is previously checked61330d87d32c4190 pureC3
+SHA9fd8e794f7eb989943718348da2bf21ece934be3b4527b349eed34ccbceea4a4 plus trailingcomment;
+no new algorithm change. Earlier scoredC3 was7a15f46e673b43d5; component paired gains remain
+separate from fresh-run headline variation. Pending at dispatch.
+
+2383f5173a934c63 completed9tests:1.519919441x,CI1.497120649–1.542718233. CurrentbestC2
+1.527806x stays. Authorized fresh repeat, no newalgorithm gain. Receipt retained.

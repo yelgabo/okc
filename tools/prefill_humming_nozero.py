@@ -64,7 +64,14 @@ def bench(src):
 
 
 if __name__ == '__main__':
-    inp, pure, paired = map(Path, sys.argv[1:])
-    src = build(inp.read_text())
+    assert len(sys.argv) in (4, 5)
+    inp, pure, paired = map(Path, sys.argv[1:4])
+    original = inp.read_text()
+    if len(sys.argv) == 5:
+        assert sys.argv[4] == '--nostream'
+        anchor = '        ws={"rank":torch.empty((r,),dtype=torch.int32,device=dev),'
+        assert original.count(anchor) == 1
+        original = original.replace(anchor, '        for config in cfg: config["use_stream_k"]=False\n'+anchor)
+    src = build(original)
     pure.write_text(src)
     paired.write_text(bench(src))

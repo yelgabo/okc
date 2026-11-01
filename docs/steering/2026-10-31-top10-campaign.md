@@ -406,3 +406,98 @@ receipt times), not the addendum publication time. CPU route and masked-contract
 pass, generated root helpers/pure/bench files compile, and diff whitespace check passes.
 Plain reviewed GROUPED_MASKED c1f6023f03d34c72 and noStreamK74eb65dad3fa4e54 remain live;
 full source/config resource evidence must precede any promotion. No public stressbench sent.
+
+## User steering and four-problem continuation, October31 23:26 PDT
+
+**User instruction: "ignore prefill for now please".** Prefill is deferred. No further
+prefill optimization, integration, promotion or dispatch is authorized by the current work
+plan. Already dispatched jobs may finish and their receipts are retained for a later handoff.
+The active work is projection, attention, standalone MoE and decode layer. This is a scope
+priority change, not achievement of the original all-five top10 goal. No completion claim.
+
+Evidence root24cbef6 plus named worker commits below. Official snapshots fetched23:26 PDT
+are `evidence/2026-10-31-top10-campaign/board-2326-*.json` and board-summary-2326.json:
+
+| Active problem | Own rank | Best job / score | Observed rank10 | Required more score |
+|---|---:|---|---:|---:|
+|Projection|292|9eba96894ee1402e /1.527806|1.604517|5.02096%|
+|Attention|206|8914751e3b9f468b /2.604290|2.909794|11.73079%|
+|MoE|371|abe7651dbaa44458 /2.215712|2.595612|17.14577%|
+|Decode layer|377|8f2780d7382047e6 /2.022870|2.383392|17.82229%|
+
+Cutoffs moved on MoE/layer since23:03. The measured portfolio still does not cover these gaps.
+Scored unchanged controls: MoE116c5185b14b487d passes2.213803083x,CI2.180596037–2.247010129;
+projection2383f5173a934c63 passes1.519919441x,CI1.497120649–1.542718233. Existing best jobs
+stay selected. These fresh repeats are evidence of run variation, not algorithmic wins.
+
+### Active evidence and next experiments
+
+1. **Attention numerical classification:**26c8a3ea28554454 is terminal strict failure,
+   including BOTH shapes. Identical-code independent nulls also fail1e-4: sliding0b/0a
+   19/2000,maxrelativeL2~4.577e-4; candidate-null16/2000,max~4.581e-4. Full0b/0a10/2000,
+   max~2.316e-4, candidate-null12/2000,max~4.448e-4; fullcrosses10–14,max~4.523e-4.
+   All24FP32 samples pass, but do not establish compliance for all2000inputs. The gate stays
+   failed and no candidate is promoted. Prospective new gate checks EVERY queued output
+   directly against owned FP32 references and exact TASK global/row/cache bounds, with
+   zero/stale/order1 negative controls and canonical reference crosscheck. This answers
+   official mathematical compliance, not whether strict bitwise repeatability was achieved.
+   Budget280s; incomplete coverage fails closed. No native math/fence/late-tid sweep change.
+2. **Standalone MoE new structural backend:**ae8993f4e3e1435c compares owned51/duplicate
+   with Humming MASKED/duplicate at128/256, layer/std two heldoutseeds291/292 plus skew
+   correctness. Official judgedpath remains owned. Readonly original weights are shared;
+   scratch/locks/workspaces are independent. Test all replay outputs after graph timing too.
+   Registered gain must exceed3us128/4us256 and2xnull, all cases/gates complete under280s.
+   If launch/gather/tails erase GEMM gains, close without knob sweeps. This is distinct from
+   losing INDEXED8d64807ea7504495 and old mma.sync staged45/46 designs. No prefill speedup is
+   used as standalone evidence. Gamma must remain FP32(1+post_norm_w), matching production51.
+3. **Projection:**integrated escape experimentbac995b3b94541c4 loses all shapes despite
+   actual occupancy increases and no spills; stop that schedule. Current C2scorecard ranks
+   pooler largest scoreelasticity32.01%,unpooler22.79%,qkv22.55%. Delta-table has no measured
+   escape-only ceiling and poolerd1 actually selectsrd; defer it. Offline-only rd16 cp.async
+   shared-memory ring design targets overlap/register live ranges, distinct from losing
+   register PF1/2/3. It must prove staging ownership/alignment/tails, preserve MMA/escape
+   arithmetic and final barriers, query registers/spills/shared/blocks before timing and
+   abort if occupancy falls. Prior donor wholepath -.69–.90us was versus2265fa2, NOT current
+   C3, and cannot establish a present gain. No5%score prediction.
+4. **Decode layer:**latest profile still has MoE as major cost (e.g decode1 sliding34.7us,
+   39% in one profiled input); remaining glue launches are smaller. Profiling rows are not
+   isolated whole-step deltas. Wait for validated standalone mechanisms, then re-port with
+   matched policies and full six-load paired tests. No fusion/PDL/barrier change presumed
+   profitable. Original first prepared-regime gain and unresolved second result both stay.
+
+Projection large-M Lt diagnostic e15f6a9a9ff047ef completed before the deferral: pooler saves
+90.6–96.1us and unpooler109.2–117.8us atM16384 in paired checks; qkv fails2%gain threshold.
+The2527us profile row aggregates THREE calls, not one operation. These are prefill-only
+opportunities, now FROZEN; no integration/check is planned. Completed generator/result work
+is preserved on codex/today-proj through94a6e0b, not claimed to improve standalone projection.
+
+### Frozen prefill handoff — completed work only, no new promotions
+
+Before user deferral, nozero+noStreamK36d2347642e14e37 passed all4arm tests, repeatable gains
+~75/310/1700us at753/3012/16384, and2000fresh+64eager at32/753/3012 with allstats0. Scored
+pure1530ec79d50a4f69 had already been dispatched; it finished1.216560352x,
+CI1.198311946–1.234808757, official board now selects it at593. PureSHAa0fe61e7... is frozen
+in experiments/humming_nozero_nostream.py; no bench suffix submitted.
+
+Already dispatched combined nozero+noStreamK+bounded753/3012 e9bd4269a6584df8 passes
+1.273593087x,CI1.254489190–1.292696983; exactpureSHA
+abce3925a052d3cdc1c482e305904064945a7b4ccd2891c1b195fbe2d496b68d is frozen in
+experiments/humming_nozero_nostream_bounded.py. Not promoted or submitted after deferral.
+Experts-only deterministic bounded component21e98162b7114898 (prefill board) establishes compensation under
+allFalse configs (M753 -191–198us and M3012 -260–400us, duplicates~1us), rather than using
+cross-run scores to claim causality.
+
+Masked initial failurec1f6023f03d34c72 was traced to int32 grouped element-offset arithmetic:
+32*CAP16544*4096=2168455168 exceeds signed2^31, and G1 stride8192 also exceeds2^32.
+Earlier row-bounds-only reviews missed this width bug. Four casts BEFORE multiplication
+fix it; CPU address oracle added. Corrected f92ffc2953284a9a passes allofficial/benchmark
+checks1.294149997x. Already dispatched poisoned freshdefbb042449d44e7 passes registered
+matched eager envelope at32/753/3012, checkscore1.300970887x,CI1.281456324–1.320485450.
+It is not bitwise deterministic; strict/eager stats remain visible. Exactpure63eb4171... is
+frozen in worker artifacts; no promotion after user instruction. Independent row/offset-width
+proof plus hardware verification are both needed, not tests alone as memory-order evidence.
+
+Precision correction for later reuse: prefill baseline explicitly rounds effective postnorm
+weight toBF16; standalone production51 instead consumes FP32(1+w). The original standalone
+INDEXED losing adapter used the inherited BF16gamma; do not describe it as an exact51norm
+comparison. The new standalone MASKED diagnostic corrects gamma toFP32 before dispatch.

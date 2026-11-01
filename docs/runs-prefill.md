@@ -108,3 +108,41 @@ exact generated pure artifact in experiments/humming_nozero.py. No Mheuristic/St
 
 Further Humming heuristic/fresh-control failures are owned in docs/runs-moe.md with exact
 prefill board receipts; do not misattribute them to standalone MoE because of receipt folder.
+
+## October31 23:15 PDT: nozero paired result and deterministic validation dispatch
+
+Nozero four-arm2bd4f06042864771 passed5official tests and all24computing-arm checks
+(4arms x2seeds x3sizes), including NaN-poisoned outputs. Actual judgedpath is nozero,
+not control:1.262738192x,95%CI1.243797119–1.281679265. Never score this bench file.
+Purecandidate remains SHA561e41804f402d3e3cf931a70c416347763a13e90d98384e403533d0468a017b.
+
+|M|Z-R pairedus,seed271/272|Z2-R pairedus,seed271/272|R2-R nullus,seed271/272|
+|---|---|---|---|
+|753|-75.808/-80.512|-76.800/-78.592|+0.672/+0.064|
+|3012|-314.400/-309.920|-313.792/-313.536|-1.728/-2.208|
+|16384|-1705.791/-1752.192|-1699.680/-1749.184|-3.200/+4.000|
+
+All6seed/shape comparisons improve far beyond duplicated nulls. Whole-output clearing
+removed exactlyM*262144bytes per call:197394432/789577728/4294967296bytes at theseM.
+FilteredSiLU additionally skips nonlocal rows; do not claim clearing alone caused all timing.
+Original weight layout, Hummingcfg, BF16stage boundaries, FP32norm and ordering retained.
+
+Deterministic routed/noStreamK74eb65dad3fa4e54 passed5official tests and fresh32/753/3012
+2000queued+64eager each: all10reported stats exactly0, actualconfigsFalse. Score1.092871039x
+CI1.076477973–1.109264104: it costs time, so not adopted as a speedup. Next root check
+36d2347642e14e37 isolates nozero on this deterministic base, with same4arm/twoheldout bench
+then unchanged3-size freshgate; actual judgedpath bothnozero+noStreamK, noMpolicy.
+PureSHAa0fe61e771647b790e476b86159b7b43ea846a748a21ac09dd6151d36f74d855,
+experiments/humming_nozero_nostream.py. Pending; no public submission until actual gates.
+
+36d2347642e14e37 completed:5official tests plus24arm mathchecks pass; nozero gains repeat
+on noStreamKbase. 32/753/3012 fresh all10stats0. Check1.197430766x,CI1.179469304–1.217110281.
+Pure exactprefix/SHA verified before scored1530ec79d50a4f69 dispatch, excluding diagnostic
+suffix. It completed1.216560352x,CI1.198311946–1.234808757, before/around scope deferral;
+public board selects thisjob at23:26. No post-deferral submission occurred.
+
+Combined e9bd4269a6584df8 also completes5official/fresh checks:1.273593087x,
+CI1.254489190–1.292696983. Pure SHAabce3925a052d3cdc1c482e305904064945a7b4ccd2891c1b195fbe2d496b68d
+is archived in experiments/humming_nozero_nostream_bounded.py, NOT submitted/promoted.
+User now defers all prefill work; retain these completed receipts only. No further integration,
+optimization, dispatch or public submission until user resumes this problem.

@@ -4975,3 +4975,15 @@ via tools/moe_humming_candidate.py:5/5 official tests,0.911512837x,95%CI
 128=459.39/448.17,256=612.37/546.62. Profile with baseline eae9a6b7d5dd4809 before dispatch.
 The indexed routed heuristic is unsuitable as current persistent-kernel replacement;
 retain source and loss, do not infer masked/local-heuristic backend behavior from it.
+
+Scored historical-best47 fresh repeat116c5185b14b487d:PASS5tests,2.213803083x.
+Source `git show ec565a7:muse_moe_w4a16/submission.py` exactly235700bytes,
+SHAb35d321730f67b8157eef0683011b118bf3644dc5e9602ee29d823d8056c4e14 plus one trailing
+comment (frozen .build/today/moe_best47_repeat.py). Existing b50351288b504e81/5f381b8b6946492d
+check/paired evidence and abe7651dbaa44458 scored release validate that source. This is an
+authorized public fresh-control measurement, no new algorithmic speedup. Below best2.215712x.
+
+116c5185b14b487d95%CI2.180596037–2.247010129. Newreview correction: adapter8d648... cast
+FP32(1+post_norm_w) toBF16 inherited from PREFILL's explicit boundary. Standalone production51
+consumes FP32gamma; that adapter is not an exact51norm comparison (still a losing/unpromoted
+experiment). Correct new masked diagnostic before dispatch, preserve FP32gamma.
