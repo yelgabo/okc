@@ -1,0 +1,13 @@
+HUMINDEX workspace M=32 cfg=[{'block_shape': (8, 256, 128), 'warp_shape': (8, 32, 64), 'use_stream_k': True, 'use_f16_accum': False, 'num_stages': 4}, {'block_shape': (8, 128, 256), 'warp_shape': (8, 32, 64), 'use_stream_k': True, 'use_f16_accum': False, 'num_stages': 4}]
+HUMFRESH M32 replays2000 control64 [ctrl_rel,row,nonfinite,cand_rel,row,nonfinite,ctrl_share,cand_share,bad_metadata,zero_error] [0.0011457987129688263, 0.00909090880304575, 0.0, 0.0016903954092413187, 0.010416666977107525, 0.0, 0.046875, 0.5, 0.0, 0.0]
+Traceback (most recent call last):
+  File "/tmp/muse_prefill_layer-f7727b53/run/worker.py", line 423, in child_main
+    send(_setup_op(msg, module, state, sync, perf))
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/muse_prefill_layer-f7727b53/run/worker.py", line 322, in _setup_op
+    state["prep"] = prepare(weights)
+                    ^^^^^^^^^^^^^^^^
+  File "/tmp/muse_prefill_layer-f7727b53/run/submission.py", line 511, in prepare
+    assert re<=max(2**-7,2*ce) and rs<=2*cs+2/2000, "Humming fresh row/share exceeds eager envelope"
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Humming fresh row/share exceeds eager envelope

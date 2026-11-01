@@ -77,7 +77,8 @@ def _hi_workspace(x,state):
             raise RuntimeError("Humming scratch must be warmed eagerly before capture")
         r=m*8
         dev=x.device
-        estimate=m if hum.get("shape_estimate","routed")=="local" else r
+        policy=hum.get("shape_estimate","routed")
+        estimate=m if policy=="local" or (policy=="bounded" and m in (753,3012)) else r
         cfg=[_hcfg(layer.humming_config,shape_m=estimate,gemm_type="indexed",
                    use_f16_accum=False) for layer in hum["layers"]]
         ws={"rank":torch.empty((r,),dtype=torch.int32,device=dev),
@@ -138,7 +139,7 @@ def _experts(x,topk_weights,topk_ids,state):
 '''
 
 
-def build(src):
+def build(src,estimate="routed"):
     tree=ast.parse(src)
     fn=next(n for n in tree.body if isinstance(n,ast.FunctionDef) and n.name=='_experts')
     lines=src.splitlines(keepends=True)
@@ -147,6 +148,10 @@ def build(src):
     anchor='"bank": _marlin_bank(weights),'
     assert src.count(anchor)==1
     src=src.replace(anchor,'"hum": _hi_prepare(weights),')
+    assert estimate in ("routed","local","bounded")
+    if estimate!="routed":
+        src=src.replace('return {"layers":layers,"workspace":{}}',
+                        'return {"layers":layers,"workspace":{},"shape_estimate":'+repr(estimate)+'}')
     if not src.startswith('# okc:'):
         src='# okc: problem=muse_prefill_layer\n'+src
     ast.parse(src)
@@ -154,4 +159,4 @@ def build(src):
 
 
 if __name__=='__main__':
-    Path(sys.argv[2]).write_text(build(Path(sys.argv[1]).read_text()))
+    Path(sys.argv[2]).write_text(build(Path(sys.argv[1]).read_text(),sys.argv[3] if len(sys.argv)>3 else "routed"))
