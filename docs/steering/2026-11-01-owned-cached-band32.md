@@ -114,3 +114,24 @@ Cached128/256 prohibited path is avoided with unchanged control module. No sourc
 blocker found. The helper is warp8 (`warp==kNW`), not fat-main warp0; both new warp
 synchronizations cover that same helper warp. No child dispatch; root alone owns runtime
 qualification/remaining quota. CPU stand-ins do not establish GPU correctness or speed.
+
+
+## Terminal closure — 903e5b03411c4e2d
+
+Verified exact owning terminal standalone receipt in proj scratch, not another job.
+PASS5, official unmodified common-control2.1907877969x, CI[2.157925980,2.223649614];
+prepare89.029514s. All396 registered math checks passed, worst.0044490919/.0047336523.
+Actual H200 cached128regs/0local/156928B shared/288threads/1CTA admission; original/direct
+both130regs/0local/155520B. Admission is not achieved occupancy/utilization.
+
+Frozen cached-vs-original four whole-six-load factors:
+.9944701475/.9970045221/.9963643770/.9989035791, duplicate null.0096464802.
+Every-seed gate false, regression true, keep FALSE. Cached-vs-direct descriptive factors
+1.0437922205/1.0464522909/1.0442369072/1.0468981108 recover some direct-band loss,
+but fail to beat the actual control. Changed setup timing/shared layout/register behavior
+means this is not an isolated proof that division caused all direct-band slowdown.
+
+Close this exact cached representation. No production candidate, qualification, public
+submission, further band/cache/identity/representation sweep or retry. Known-good owned
+public bytes and frozen control policy remain unchanged. Proj/root own canonical terminal
+receipt/logs/run/ruled-out archive; no duplicate canonical profile copy made here.
