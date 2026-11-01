@@ -97,6 +97,10 @@ components, in the same process, before calling it lost again.
 
 | Experiment | Evidence | Rules out |
 |---|---|---|
+| Mode87:51 with four fixed-stride x slots, unchanged208896B budget, one fewer weight slot |39804be1a59c429c: outputs128/256 exact,5judge tests pass;128layer/std +2.2/+1.5us,256 +2.9/+3.9us, every256seed loses;32 inconclusive | This capacity tradeoff on current51, not all deeper rings. Reopen only with a different byte/weight-lead model or new measured locality evidence. No production change |
+
+| Experiment | Evidence | Rules out |
+|---|---|---|
 | Gate/up paired layout + fused SwiGLU | profiles: silu_and_mul 0.9-3.4% of MoE time | SwiGLU fusion as a material win |
 | Per-expert tile size (8 vs 16 per expert) | 8 never beat 16 above 12 tokens | per-expert tile selection |
 | Skipping Marlin's expert-parallel mode | saved 2-7 us but prepare() 36 -> 244 s | second Marlin build within the 300 s cap |
