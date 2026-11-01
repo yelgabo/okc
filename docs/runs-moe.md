@@ -116,6 +116,39 @@ fixed4slot/one-less-weight-slot tradeoff, not all deeper or per-job rings. Hypot
 weight lead outweighs extra x lead; neither purecause is isolated. Root asked to pivot to a
 structurally different official-library groupedMoE comparison, not repeat this geometry.
 
+### Primary-source Humming API feasibility (read-only, not a performance result)
+
+Source pinned `vllm-project/humming` commit948e6fd547e703065be51529ac1db5569256774e,
+inspected in ignored `.build/humming-api`; root separately probes the actual installed image.
+CurrentGitHub API cannot be assumed to match the image's package.
+
+- [`tests/kernels/humming/test_moe.py`](https://github.com/vllm-project/humming/blob/948e6fd547e703065be51529ac1db5569256774e/tests/kernels/humming/test_moe.py)
+  explicitly covers grouped-contiguous BF16 input/output with float4e2m1 weights,
+  float8e4m3 group scales,16-element scale groups and tensor secondary scales.
+- [`humming/schema/humming.py`](https://github.com/vllm-project/humming/blob/948e6fd547e703065be51529ac1db5569256774e/humming/schema/humming.py)
+  expects raw weight int32[E,N,K/8], scale[E,N,K/16], secondary scale[E,1]float32.
+  Original packed uint8 weights can be viewed as int32 without changing bits. Use
+  `HummingLayer.load_from_tensors`, NOT `load_from_unquantized` (which requantizes),
+  and call transform only in prepare. Preserve original NVFP4/E4M3/FP32 scale values.
+- [`humming/layer.py`](https://github.com/vllm-project/humming/blob/948e6fd547e703065be51529ac1db5569256774e/humming/layer.py)
+  exposes HummingLayer(shape_n,shape_k,weight_config,input_config,num_experts,torch_dtype)
+  and forward(expert_layout,compute_config,top_k,...). Config: weight float4e2m1,
+  bs float8e4m3, group16, tensor scale2; input/output BF16, input quantization disabled,
+  compute use_f16_accum=False. Original SGLang Marlin baseline likewise passes one FP32
+  tensor scale per local expert, so that tensor-granularity mapping is supported.
+- [`humming/testing/data.py`](https://github.com/vllm-project/humming/blob/948e6fd547e703065be51529ac1db5569256774e/humming/testing/data.py)
+  shows grouped-contiguous expert_layout as int64 exclusive-prefix offsets[E+1].
+  Gather BF16 route rows contiguously by expert; use top_k=1 once replicated. GEMM2 can
+  reuse the grouped ordering. Inverse scatter and weighted per-expert normalization
+  remain explicit. Test runner's `.item()`-sized allocation must NOT be copied into
+  timed kernel_fn: reserve fixed shape/config-derived capacity and pass device offsets.
+
+Legal integration must retain BF16 gate/up, BF16 filtered-SiLU product before GEMM2,
+BF16 GEMM2 output before per-expert RMSNorm, then routing weights. No FP8 activation
+shortcut, no routing-before-norm movement, no requantized weight cache. Prefer explicit
+GEMM stages over a fused MoE API that hides those boundaries. Compilation/correctness,
+nearby shapes, graph capture and speed remain entirely untested here.
+
 ## Source facts (SGLang a55ab7d5, read from GitHub and hashed against the image)
 
 - `fused_post_expert_norm_weighted_sum` falls back to PyTorch ops below
