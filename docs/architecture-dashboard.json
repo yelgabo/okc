@@ -1,6 +1,6 @@
 {
-  "reviewed_at": "2026-10-30T23:32:00-07:00",
-  "snapshot": "8f2c89b",
+  "reviewed_at": "2026-11-01T01:16:00-07:00",
+  "snapshot": "6e078b5",
   "family_registry_update": {
     "date": "2026-10-30",
     "evidence_snapshot": "7a5965531103f275ac104d340ef30f1508e32353",
@@ -8,10 +8,10 @@
     "source": "steering/2026-10-30-family-f-donor-baseline.md"
   },
   "layer": {
-    "score": "2.0187×",
-    "interval": "1.9884–2.0490",
-    "job": "7b84ed4346d5497b",
-    "note": "M1 + mode 51 + projection C1 with revised route-side gate. Both scored runs pass; report-only sensitivity misses remain. Improvement over 2.0148× is unresolved within uncertainty."
+    "score": "2.0229×",
+    "interval": "1.9925–2.0532",
+    "job": "8f2780d7382047e6",
+    "note": "HMRG/PRQ port: first paired 1.0042 wins; repeat 1.0015 unresolved with all M1 off. Gate event unexplained. New late-tid2 standalone change is not included."
   },
   "families": [
     {
@@ -21,10 +21,10 @@
       "label": "Combined layer gain; isolated A unresolved",
       "metric": "1.0052–1.0106×",
       "unit": "M1 + mode 51 paired layer ratios, two runs",
-      "summary": "Combined M1 + 51 paired gains remain. Mode 86 earlier x release passes correctness but misses its performance rule: −0.3/−0.6 µs at 128/256 layer routing.",
-      "layer": "New scored bundle includes C1 and revised gate; isolated A gain unresolved",
+      "summary": "Ring87 loses 2.2/2.9 µs at 128/256 layer routing. Skinny test_wait and duplicate disagree and fail their gates. Existing hybrid retained.",
+      "layer": "Scored bundle includes C1, revised route gate and HMRG/PRQ; isolated A gain unresolved",
       "pending": [],
-      "limit": "Isolated A gain unresolved. Between-run spread exceeds within-run nulls. M-B slices 2/3 are inconclusive and parked.",
+      "limit": "Small-job-minority premise invalidated. Multicast count screen fails 6/8 cases; no physical traffic evidence. No new isolated layer gain.",
       "source": "runs-decode-layer.md",
       "outcomes": [
         "win",
@@ -36,12 +36,12 @@
       "name": "Staged grouped MoE",
       "status": "loss",
       "label": "Retested loss",
-      "metric": "+30.4 / +24.4 µs",
-      "unit": "128 / 256 tokens versus mode 37",
-      "summary": "Modes 45 + 46 retest current components and lose on all six layer-routing seeds.",
+      "metric": "+180 / +232–235 µs",
+      "unit": "128 /256 tokens, masked library versus 51 on layer routing",
+      "summary": "GROUPED_MASKED passes math but loses across all measured128/256 layer/std cases. Earlier staged 45+46 losses remain.",
       "layer": "Stopped at complete-MoE component gate",
       "pending": [],
-      "limit": "Parked until phase B alone is below about 50 µs at 128 or the fused phase A tail disappears. This scopes the loss to the tested design.",
+      "limit": "Tested library GEMMs already exceed owned whole-call time in profiled256/std case. Do not reject every grouped design.",
       "source": "runs-moe.md"
     },
     {
@@ -78,23 +78,21 @@
       "id": "E",
       "name": "Attention producer / consumer",
       "status": "win",
-      "label": "PRQ retained; PBULK below bar or loses",
-      "metric": "−0.48 / −0.96 µs",
-      "unit": "PRQ31 cold sliding gain, 128 / 256 tokens",
-      "summary": "Corrected PBULK passes GPU checks. PBULK1 repeats +0.063%/+0.074% weighted score gains below its 0.10% bar; PBULK2 loses about 1.4/2.9 µs at decode16/32 full.",
-      "layer": "layer_hp tested inconclusive; workspace-pick bundle withdrawn",
-      "pending": [
-        "Pick-free PRQ attention bundle: whole-layer comparison"
-      ],
-      "limit": "PBULK variants stay off. 128/256 use unchanged code, so incidental timings are not PBULK gains. Prior NS/XPIPE losses remain. Pick-free PRQ layer test pending.",
+      "label": "Standalone gain; layer repeat unresolved",
+      "metric": "1.0023928×",
+      "unit": "Late-tid2 full-only standalone score sensitivity",
+      "summary": "Full-only late-tid2 passes paired and TASK-math gates; strict 1e-4 failures retained. HMRG/PRQ layer port wins once, then repeat is unresolved.",
+      "layer": "HMRG/PRQ port layer-tested and scored; late-tid2 port deferred",
+      "pending": [],
+      "limit": "Late-tid2 is a scheduling change, not a complete pipeline win. Q8 wrong-output probes are diagnostic. No additive phase-gain claim.",
       "source": "runs-attention.md",
       "outcomes": [
         "win",
-        "loss",
-        "pending"
+        "loss"
       ],
       "evaluation_pending": [
-        "Per-request tile-loop and d1 prologue diagnostics"
+        "Explain M1 gate event and repeat under matched policies",
+        "Q8 copy/pacing mechanism attribution"
       ]
     },
     {
@@ -104,15 +102,14 @@
       "label": "Owned projection wins; layer port inconclusive",
       "metric": "1.0897–1.0949×",
       "unit": "F-LAYER paired weighted score ratio, not adoption",
-      "summary": "Owned C1 versus projection release: 1.0092×. C2 versus C1: 1.0066×. Separate paired comparisons, never add. Donor four-track measurements remain.",
-      "layer": "C1 with revised route gate scored; layer gain unresolved; C2 paths not ported",
+      "summary": "Owned C3 router FV and order+FV gains repeat at 128/256. C1/C2 historical gains retained. Recovered donor d1/v1 comparison remains policy-qualified.",
+      "layer": "PRQ layer descendant scored; no isolated projection/F gain",
       "pending": [],
       "evaluation_pending": [
-        "Remaining owned mechanism implementations",
-        "Corrected GTICKET benchmark",
-        "Same-input donor/incumbent one-token kernel map"
+        "Corrected GTICKET measurement",
+        "Matched traffic/opportunity intervention"
       ],
-      "limit": "Latest recorded user policy forbids verbatim donor submission. MoE proxy-fence omissions, layer ordering/lifetime findings and precision questions remain. Passing output checks do not clear them.",
+      "limit": "Donor remains measurement-only. Actual codec, dense, escape-ownership and rd16 ring variants lose. Prefill deferred; do not transfer its results to standalone MoE.",
       "source": "steering/2026-10-30-family-f-donor-baseline.md",
       "outcomes": [
         "win",
@@ -122,24 +119,24 @@
   ],
   "context_pending": [
     {
-      "name": "Owned attention layer integration",
-      "label": "Family E / next comparison",
-      "summary": "PBULK correctness retest is complete. Variant 1 stays off below its timing bar; variant 2 loses. Pick-free PRQ attention still needs a layer comparison."
+      "name": "Layer repeatability",
+      "label": "Tested / unresolved repeat",
+      "summary": "HMRG/PRQ port 1.0042 wins once;1.0015 repeat unresolved with M1 off. Original0.14 gate event unexplained. Late-tid2 port deferred."
     },
     {
-      "name": "Layer gate and scored bundle",
-      "label": "Separate layer context",
-      "summary": "C1 port with revised route-side gate now scored at 2.0187×. Both repeats pass, with report-only sensitivity misses. Isolated C1 gain remains unresolved."
-    },
-    {
-      "name": "M-C one-token fusion",
-      "label": "Local loss / bench fault",
-      "summary": "C-1 loses 1.16 µs, 1.76%, in all nine local whole-step rounds. Later bench memory fault unresolved. C-2 unbuilt; same-input kernel comparison pending. C-1 is not architecture family C."
-    },
-    {
-      "name": "Router and codec preparations",
+      "name": "Projection C3 and closed variants",
       "label": "Separate projection context",
-      "summary": "GTICKET ordering review completed; 64-bit and fail-closed fixes await benchmark. rk-c/rk-d at 128/256 and cgemv/rd codec probes are prepared, unmeasured."
+      "summary": "Router gains repeat at 128/256. Codec, dense qkv, escape ownership and rd16 ring lose. GTICKET fixes still lack a new measurement."
+    },
+    {
+      "name": "Timeline and counter limits",
+      "label": "Evidence qualification",
+      "summary": "All 24 traces retained. Actual routing counts invalid; corrected metadata lacks GPU retest. CUPTI denied. Uncovered time is not SM utilization."
+    },
+    {
+      "name": "Prefill",
+      "label": "Deferred / separate context",
+      "summary": "Recorded scored best 1.21656×. Other checked combinations remain unpromoted. Prefill success does not establish standalone MoE gains."
     }
   ]
 }

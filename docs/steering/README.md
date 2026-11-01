@@ -104,7 +104,16 @@ The existing CUTLASS pooler, wide 8-stage picks, DCARRY/PK16/VHOIST and failed l
 are explicitly accounted for. No kernels, validation policies, GPU runs or submissions changed.
 This is separate from the layer's M1/tuner-stability work below.
 
-## Latest hourly report, 23:32
+## Latest hourly report, November 1 01:16
+
+**[2026-11-01 01:16 PDT: remote architecture evidence](2026-11-01-0116-performance-review.md)**
+
+Remote snapshot `6e078b5`, checkout left at `d6337e1`. Ring87 and skinny wait gates fail;
+masked grouped MoE loses. Late-tid2 attention is promoted standalone. Earlier PRQ layer
+port has one win and an unresolved repeat. C3 router gains remain component-only.
+Timeline routing counts are invalid and CUPTI access is denied. Prefill remains deferred.
+
+## Previous hourly report, 23:32
 
 **[2026-10-30 23:32 PDT: PBULK measured, mode 86 and fusion gates](2026-10-30-2332-performance-review.md)**
 
