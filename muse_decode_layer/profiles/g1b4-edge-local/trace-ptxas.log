@@ -1,0 +1,6 @@
+ptxas info    : 5439 bytes gmem
+ptxas info    : Compiling entry function '_ZN52_GLOBAL__N__00000000_15_exact_device_cu_692f7c7c_41521glue_cluster_boundaryILi4ELi32ELb0ELb0ELb1ELb0EEEvNS_8GlueArgsE' for 'sm_90a'
+ptxas info    : Function properties for _ZN52_GLOBAL__N__00000000_15_exact_device_cu_692f7c7c_41521glue_cluster_boundaryILi4ELi32ELb0ELb0ELb1ELb0EEEvNS_8GlueArgsE
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 64 registers, used 1 barriers, 384 bytes smem
+ptxas info    : Compile time = 27.496 ms

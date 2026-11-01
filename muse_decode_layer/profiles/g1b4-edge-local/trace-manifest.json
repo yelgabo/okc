@@ -1,0 +1,57 @@
+{
+  "source": ".build/today-attn/g1b4-edge-compile/device-adapter.cu",
+  "source_sha256": "d4110df3e1bc9f2de53934e7bfb3424fa8f08b69fc0f375bb953164023598a22",
+  "original_device_prefix_sha256": "a050daf1c436684f1cc866fb59420c322e7bc3881e05c56a4fbe0339191df4f8",
+  "compiled_device_prefix_sha256": "9bd796e4cc5b9a27fab201583b54780e38049c5f0c9ddefe0dbf84675cda677d",
+  "host_boundary": "template <int L, int MODE>\nstruct Instance {",
+  "virtual_headers": {
+    "type_traits": "#pragma once\nnamespace std { template<class T,T v> struct integral_constant {\nstatic constexpr T value=v; constexpr operator T() const noexcept {return value;}\n}; using true_type=integral_constant<bool,true>; using false_type=integral_constant<bool,false>; }\n",
+    "stdint.h": "#pragma once\n#include <cuda/std/cstdint>\n"
+  },
+  "options": [
+    "--gpu-architecture=compute_90a",
+    "--std=c++17",
+    "--generate-line-info",
+    "--device-as-default-execution-space",
+    "--include-path=/root/.cache/okc-cuda128/packages/nvidia/cuda_runtime/include",
+    "--include-path=/root/.cache/okc-cuda128/packages/nvidia/cuda_nvcc/include",
+    "--include-path=/root/.cache/okc-cuda128/cccl/nvidia/cuda_cccl/include",
+    "--use_fast_math"
+  ],
+  "declaration_adapter": {
+    "old": "constexpr float NEG_INF = -INFINITY;",
+    "new": "#define NEG_INF (__int_as_float((int)0xff800000u))"
+  },
+  "header_adapter": "Torch/ATen/algorithm/vector removed; cuda_runtime, CUDA cstdint, overflow float literal INFINITY (positive infinity); anonymous namespace closed after extract",
+  "nvrtc_status": 0,
+  "gpu_execution": false,
+  "lowered": [
+    "_ZN52_GLOBAL__N__00000000_15_exact_device_cu_692f7c7c_41521glue_cluster_boundaryILi4ELi32ELb0ELb0ELb1ELb0EEEvNS_8GlueArgsE"
+  ],
+  "ptx_sha256": "ae59854756ee26999b5ae53ec5616705b929dbcbae7973bf83f5e0a31c2b8725",
+  "cubin_sha256": "d4d16eb6d2ee5290d684c22899d6829c828dbc6fd7bc86c7a70721e37bc1876b",
+  "ptxas": [
+    "/root/.cache/okc-cuda128/packages/nvidia/cuda_nvcc/bin/ptxas",
+    "-arch=sm_90a",
+    "-O3",
+    "-v",
+    "--warn-on-spills",
+    ".build/today-attn/g1b4-edge-compile/device.ptx",
+    "-o",
+    ".build/today-attn/g1b4-edge-compile/device.cubin"
+  ],
+  "exitcode": 0,
+  "resources": {
+    "_ZN52_GLOBAL__N__00000000_15_exact_device_cu_692f7c7c_41521glue_cluster_boundaryILi4ELi32ELb0ELb0ELb1ELb0EEEvNS_8GlueArgsE": {
+      "stack_bytes": 0,
+      "spill_store_bytes": 0,
+      "spill_load_bytes": 0,
+      "registers": 64,
+      "barriers": 1
+    }
+  },
+  "ptx_launch_bounds": [
+    ".maxntid 128, 1, 1"
+  ],
+  "ptxas_wgmma_serialization_warnings": 0
+}
