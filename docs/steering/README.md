@@ -428,3 +428,5 @@ Hourly review history: [11:20 PDT performance review](2026-10-29-1120-performanc
 - [Owned skinny fixed32 expert-band source/compile feasibility](2026-11-01-owned-skinny-band32.md): fc28a77, CPU/source review and local sm90a only; H200 pending, no production change.
 
 - [Owned cached band32 schedule source/compile checkpoint](2026-11-01-owned-cached-band32.md): e99d848, bounded1400B shared schedule; no H200 claim.
+
+- [Attention VP2 BF16-output private requalification](2026-11-01-attention-vp2-bf16-requalification.md): 8f5155a, source-only audit and draft; no GPU qualification.
