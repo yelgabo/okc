@@ -1,0 +1,42 @@
+{
+  "source_sha256": "b35d321730f67b8157eef0683011b118bf3644dc5e9602ee29d823d8056c4e14",
+  "device_sha256": "954f387fbc56602606b7a6ad2cae0c14b5c9d22938727107294fd0678b847e3d",
+  "adapters": [
+    "remove torch/ATen includes and host extension/launch bodies",
+    "cstdint virtual fixed-width declarations",
+    "select existing sk8/3 only"
+  ],
+  "options": [
+    "--gpu-architecture=compute_90a",
+    "--std=c++17",
+    "--generate-line-info",
+    "--device-as-default-execution-space",
+    "--include-path=/root/.cache/okc-cuda128/packages/nvidia/cuda_runtime/include",
+    "--include-path=/root/.cache/okc-cuda128/packages/nvidia/cuda_nvcc/include",
+    "--include-path=/root/.cache/okc-cuda128/cccl/nvidia/cuda_cccl/include"
+  ],
+  "expressions": [
+    "&moe_main_kernel<47>",
+    "&sk_8_3_0::moe_fused_kernel<1>"
+  ],
+  "nvrtc_status": 0,
+  "gpu_execution": false,
+  "lowered": [
+    "_ZN53_GLOBAL__N__00000000_16_owned_decoder_cu_43c4bb4e_62515moe_main_kernelILi47EEEvNS_6ParamsE",
+    "_ZN53_GLOBAL__N__00000000_16_owned_decoder_cu_43c4bb4e_6258sk_8_3_016moe_fused_kernelILi1EEEvNS_6ParamsE"
+  ],
+  "cubin_sha256": "f2f11162f45e3b4b7ac283a04f4e5da53c4af0d25a477bf0a1181daf1ae99c0d",
+  "ptx_sha256": "18bb89d94bac942b1cd70c1985614b35f1288f9cac6203dd117637ce52911058",
+  "sass_sha256": "df44ce7def38ade8125b6a4ac433cefe0be935649947924d359bbf9d149f2f34",
+  "ptxas_command": [
+    "/root/.cache/okc-cuda128/packages/nvidia/cuda_nvcc/bin/ptxas",
+    "-arch=sm_90a",
+    "-O3",
+    "-v",
+    "--warn-on-spills",
+    "/root/.cache/okc-standalone-progress/control/device.ptx",
+    "-o",
+    "/root/.cache/okc-standalone-progress/control/device.cubin"
+  ],
+  "ptxas_status": 0
+}

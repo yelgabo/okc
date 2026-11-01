@@ -1,5 +1,7 @@
 # Shared project steering
 
+Latest standalone MoE compiler gate: [Historical progress repair](2026-11-01-standalone-moe-progress-compile.md) - exact7c915127 draft adds main47 spills versus ec565 control; skinny unchanged. Stop exact draft at no-new-spill gate; no GPU or official calls.
+
 Latest retained projection eligibility: [C2 progress scope](2026-11-01-c2-projection-progress.md) - active SK/RD waits are CTA-local; WD and RT use checked explicit cluster launches. No whole-grid residency defect found in selected custom paths; no GPU or production changes.
 
 Latest single-arm layer qualifier: [Repaired full-four-cell startup checks](2026-11-01-production-startup-qualifier.md) - exact4ad326c3/980787 B, normal timed path unchanged, private full-model/fresh/cache/empty/resource gates prepared and CPU-reviewed. H200 correctness, admission, setup and performance remain unmeasured; root-only official decision.
