@@ -428,3 +428,5 @@ Hourly review history: [11:20 PDT performance review](2026-10-29-1120-performanc
 - 2026-11-01: [G-stage public measurement eligibility](2026-11-01-g-stage-public-measurement-eligibility.md): no policy/license blocker for authorized single-arm measurement; final real-routing/fresh-state wrapper still requires review; no dispatch.
 
 - 2026-11-01: [G #303 dense ROI closure](2026-11-01-g-rank303-dense-roi.md): all12 profile/score weights, +0.54474% comparator-gap sensitivity, no new compliant multi-load mechanism or quota request.
+
+- 2026-11-01: [Independent G pending-flush review](2026-11-01-g-pending-flush-independent-review.md): source-safety clearance for exact8195660 movement; publication/lifetime/progress proof, actual main/B4 compiler resources, no H200 or speedup claim.
