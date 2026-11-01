@@ -559,6 +559,29 @@ Park the registered two-size/two-routing multicast hypothesis before GPUcopy/ful
 no narrowing to32-layer after failure. HBM/L2 bytes, multicast benefit and residency
 unmeasured. Dated audit addendum records exacttable and stopping/reopening scope.
 
+### November1 PDT: skinny full-slot wait policy, one hypothesis
+
+Check87f22aa71e614460 dispatched from `.build/today-moe/moe_skinny_testwait.py`, SHA256
+58bce614db8b5baefa5d5c264a87da51515272bd11d1dd577beb146d2eabe99b. Builder
+`tools/moe_skinny_testwait_check.py` at776b859. Root approved after independent
+today_proj read-review: exact generated hash/sourcegate verified; PTX8.7section
+9.7.13.15.16 gives same acquire-on-True for test/try, old defaults acquire/CTA;
+parity and only two skinnyfull call sites change. Globalhelper/fat/empty/hand/producer
+progress/watchdog/fences unchanged. No short hint, NS/prefetch or vote changes.
+
+Four independently compiled arms sk8w3s mode0, neutral unusedbit256, testbit128 and
+testduplicate384; private scratch, sharedreadonlyweights. New flags excluded from
+production policy. Resourcevectors regs/local/static/dyn/blocksSM/maxThreads must
+match exactly before timing; all16cases1/8/16/32 layer/std, heldout321/322 fixedrouter8,
+64eager+64postgraph mathchecks, cold20random rounds, original.008/.075 limits/spin0.
+Registered1% sixload contribution beyond2xnull and percase-regression gate; this
+fixedsk8/3 contribution assumes large128/256ratio1 and is NOT an officialpolicy score.
+Two corrected fully counted stamped2/130 twins after timing, optional265s guard;
+corecoverage280s failclosed and finalsummary<10KB. Production source untouched.
+Reviewer notes timeoutbreak can reach loads withoutTrue exactlyasbaseline; timeout
+flag rejection remains required, never an acquire proof or successfulmeasurement.
+Pending; no promotion before exactcandidate official/fresh gates.
+
 ## Source facts (SGLang a55ab7d5, read from GitHub and hashed against the image)
 
 - `fused_post_expert_norm_weighted_sum` falls back to PyTorch ops below
