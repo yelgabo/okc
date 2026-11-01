@@ -1,0 +1,18 @@
+{
+  "control_sha256": "ba9e327cd7b96595ace4d0c1d0d78fe27c128f23ed0debcda97c7169fc3164ab",
+  "helper_control_sha256": "b8ed85438c06673f411ff4203080bfbacd0c0c2dc5cb624e6f10d4877fe7a716",
+  "source_sha256": "19cfb4eeeb0dde21b142a23a880e8f921dfd02a63806a05649c40e6cc54e6a16",
+  "bytes": 870233,
+  "enabled": true,
+  "target": "Tiny/Tiny2 T1/T8, unsplit WS, NW8/FAST1=2",
+  "source_pairs": {
+    "gate_up": 1,
+    "down": 2
+  },
+  "h_unrolled_pair_sites_per_entry": 6,
+  "gamma_unchanged": true,
+  "format_ABI_unchanged": true,
+  "all_fences_retained": true,
+  "GPU": false,
+  "qualification": false
+}

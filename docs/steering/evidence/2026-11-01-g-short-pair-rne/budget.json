@@ -1,0 +1,38 @@
+{
+  "job": "607eb52bdaf24160",
+  "weighted_short_us": [
+    78.54904481802232,
+    115.99082289963329
+  ],
+  "conditional_factor_if_3us_saved_in_both_short_loads": 1.010916762999628,
+  "equal_short_us_cut_for_1percent_factor": 2.7531839899423933,
+  "unit_scenarios": [
+    {
+      "tokens": 1,
+      "maximum_jobs": 8,
+      "assumed_grid": 132,
+      "max_assigned_A_units": 32,
+      "max_assigned_B_units": 16,
+      "intended_saved_warp_conversion_instructions_before_unpack_cost": 64,
+      "ns_exposed_saving_per_intended_instruction_needed_for_3us": 46.875
+    },
+    {
+      "tokens": 8,
+      "maximum_jobs": 32,
+      "assumed_grid": 132,
+      "max_assigned_A_units": 125,
+      "max_assigned_B_units": 63,
+      "intended_saved_warp_conversion_instructions_before_unpack_cost": 376,
+      "ns_exposed_saving_per_intended_instruction_needed_for_3us": 7.9787234042553195
+    }
+  ],
+  "assumptions": [
+    "same US cut in both contexts of both short loads; other4loads unchanged",
+    "grid132 is an explicit scenario; exact runtime grid/jobcounts/stalls not retained here",
+    "alllocaljobs upperlimits8(T1),32(T8); actualroutingcanhavefewer and balancedunitassignmentassumed",
+    "counting intended packed-conversion savings ignores extra unpack/PRMT and gate dependency; compiled prototype fails this premise"
+  ],
+  "actual_exposed_time_us": null,
+  "latency_forecast": null,
+  "GPU": false
+}

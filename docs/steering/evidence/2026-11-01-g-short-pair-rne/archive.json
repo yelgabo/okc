@@ -1,0 +1,87 @@
+{
+  "files": [
+    {
+      "path": "tiny-control/input.cu.gz",
+      "bytes": 139768,
+      "sha256": "b8ed85438c06673f411ff4203080bfbacd0c0c2dc5cb624e6f10d4877fe7a716"
+    },
+    {
+      "path": "tiny-control/device.ptx.gz",
+      "bytes": 333680,
+      "sha256": "6e60ce9f2b78e4255bfcfc8f66f29d0cd08467b270264b64d96193f9f06c7866"
+    },
+    {
+      "path": "tiny-control/device.cubin.gz",
+      "bytes": 311600,
+      "sha256": "758bd9895c41674a36407567445624642f2cf588cfd9f10587b5661289c05bd9"
+    },
+    {
+      "path": "tiny-control/device.sass.gz",
+      "bytes": 2013961,
+      "sha256": "c63aba4bba0d1d262b959b85f71483cd2ae2d2a56f4a9eeb6cb0217bcee59410"
+    },
+    {
+      "path": "tiny-pair/input.cu.gz",
+      "bytes": 140758,
+      "sha256": "deac07c3e7cc5e08b9caf1dc952f787b93bb7779d05e7b811e85bc9be62bd161"
+    },
+    {
+      "path": "tiny-pair/device.ptx.gz",
+      "bytes": 332566,
+      "sha256": "968c793e00e8258eb72338dfbf957f83d314c1afa0b57f25613a2c9e4a66619c"
+    },
+    {
+      "path": "tiny-pair/device.cubin.gz",
+      "bytes": 311728,
+      "sha256": "80ce69a7d97cd997d087b0e3b9e360bf9102c944c804895424688289c4ef3d39"
+    },
+    {
+      "path": "tiny-pair/device.sass.gz",
+      "bytes": 2014404,
+      "sha256": "729443ddb4c8be6f7f8a4f626ff9550070f120c951d4f69bf419d88fdd2d75c0"
+    },
+    {
+      "path": "tiny2-control/input.cu.gz",
+      "bytes": 139768,
+      "sha256": "b8ed85438c06673f411ff4203080bfbacd0c0c2dc5cb624e6f10d4877fe7a716"
+    },
+    {
+      "path": "tiny2-control/device.ptx.gz",
+      "bytes": 336419,
+      "sha256": "ae94e8e28a2070912f6b1520a822fcfc4777e41d8ab3406643879e3377a6d298"
+    },
+    {
+      "path": "tiny2-control/device.cubin.gz",
+      "bytes": 314416,
+      "sha256": "d0fa4bd7fe7c76cf71e6f3cfe41b2b525e7e46a102515729140d71a90eee064c"
+    },
+    {
+      "path": "tiny2-control/device.sass.gz",
+      "bytes": 2031763,
+      "sha256": "09878b46ad35ea7e8b3155e2c4edf41cab8d141f05524fc183943b3b317f79c0"
+    },
+    {
+      "path": "tiny2-pair/input.cu.gz",
+      "bytes": 140758,
+      "sha256": "deac07c3e7cc5e08b9caf1dc952f787b93bb7779d05e7b811e85bc9be62bd161"
+    },
+    {
+      "path": "tiny2-pair/device.ptx.gz",
+      "bytes": 335305,
+      "sha256": "e5c6cfe13ef5a19670adf54dc95bab3e602b35892c8826176b6cc4707395432b"
+    },
+    {
+      "path": "tiny2-pair/device.cubin.gz",
+      "bytes": 314544,
+      "sha256": "33259b8a052ce833a5c104c03b5ef54f84c84650cef5700b4c5534ed04d8af8c"
+    },
+    {
+      "path": "tiny2-pair/device.sass.gz",
+      "bytes": 2032183,
+      "sha256": "88a3d3c57a144b07386e0f53063ab78e333d4b3253f9d97689e29cc9fbdd467c"
+    }
+  ],
+  "builds": 4,
+  "GPU": false,
+  "scope": "Compressed compiler evidence only, not runtime/source packaging"
+}
