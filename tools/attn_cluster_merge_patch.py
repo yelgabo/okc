@@ -10,7 +10,7 @@ def once(s,a,b):
 
 def patch_cuda(s):
     s=once(s,'#include <torch/extension.h>','#include <torch/extension.h>\n#include <cooperative_groups.h>\n#ifndef ONE_CLUSTER_MERGE\n#define ONE_CLUSTER_MERGE 0\n#endif')
-    s=once(s,'    const int split = blockIdx.x;','    const int split = blockIdx.x;\n    const bool clmerge = ONE_CLUSTER_MERGE && L == 8 && MODE == 3 && gridDim.x == 32 && gridDim.y == 1 && p.window == 2048;\n    static_assert(L != 8 || S::Q >= 128 * 68 * 4, "dead raw KV alias capacity");')
+    s=once(s,'    const int split = blockIdx.x;','    const int split = blockIdx.x;\n    const bool clmerge = ONE_CLUSTER_MERGE && L == 8 && MODE == 3 && gridDim.x == 32 && gridDim.y == 1 && p.window == 2048 && p.nc == 1;\n    static_assert(L != 8 || S::Q >= 128 * 68 * 4, "dead raw KV alias capacity");')
     anchor='        nact = COOP ? min(p.n_splits, (ntl + chunk - 1) / chunk) : 0;'
     s=once(s,anchor,anchor+'''
         if (clmerge) {
@@ -82,14 +82,21 @@ def patch_cuda(s):
     anchor='''        cfg.numAttrs = 1;
         const cudaError_t err = cudaLaunchKernelEx(&cfg, attn_one_kernel<L, MODE>, p);'''
     s=once(s,anchor,'''        cfg.numAttrs = 1;
-        if (ONE_CLUSTER_MERGE && L==8 && MODE==3 && gx==32 && gy==1 && p.window==2048) {
-            cudaFuncSetAttribute(attn_one_kernel<L,MODE>,cudaFuncAttributeNonPortableClusterSizeAllowed,1);
+        if (ONE_CLUSTER_MERGE && L==8 && MODE==3 && gx==32 && gy==1 && p.window==2048 && p.nc==1) {
             attr[1].id=cudaLaunchAttributeClusterDimension;
-            attr[1].val.clusterDim=dim3(16,1,1);
+            attr[1].val.clusterDim.x=16; attr[1].val.clusterDim.y=1; attr[1].val.clusterDim.z=1;
             cfg.numAttrs=2;
+            static bool cluster_checked=false;
+            if (!cluster_checked) {
+                int active_clusters=0;
+                TORCH_CHECK(cudaOccupancyMaxActiveClusters(&active_clusters,attn_one_kernel<L,MODE>,&cfg)==cudaSuccess && active_clusters>=2,
+                            "owned cluster cooperative residency requires both clusters");
+                cluster_checked=true;
+            }
         }
         const cudaError_t err = cudaLaunchKernelEx(&cfg, attn_one_kernel<L, MODE>, p);''')
     s=once(s, '#pragma unroll\n            if (clmerge) { cp_wait<0>(); csync(); }', '            if (clmerge) { cp_wait<0>(); csync(); }')
+    s=once(s, '            cudaFuncSetAttribute(kern, cudaFuncAttributeMaxDynamicSharedMemorySize, BYTES);', '            cudaFuncSetAttribute(kern, cudaFuncAttributeMaxDynamicSharedMemorySize, BYTES);\n            if (ONE_CLUSTER_MERGE && L==8 && MODE==3) TORCH_CHECK(cudaFuncSetAttribute(kern,cudaFuncAttributeNonPortableClusterSizeAllowed,1)==cudaSuccess, "cluster opt-in failed");')
     return s
 
 
