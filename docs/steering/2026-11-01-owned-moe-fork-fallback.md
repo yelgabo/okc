@@ -48,6 +48,15 @@ helper0/helper0df alias with WS1; large select repaired WGS main (B4FIN at32). S
 per-state and enabled only for corresponding WGS packs. Source-level integration
 cleared for root's off-board check; no GPU certification from this review.
 
+Later host-only delta `710f2b8`, patcherSHA
+29cd1d5ba10cae2208a8252769907f567f6624e28b560b4bd8c276f1ad3d9de6:
+seven Torch CPU tests independently pass. The retained bridge imports `_fork_time`,
+initial state records preparation start before builds, and200s admission/each-build
+checks select installed fallback with native eligibilityFalse. No new device edits or
+review blocker. This is an admission budget; it cannot interrupt an already-running
+nvcc build and does not prove preparation stays below300s. Regenerate/hash the final
+composed source if adopting this delta; older7935... clearance pins older bytes.
+
 ## Optional owned cooperative launch, not enabled in G1a/G1b
 
 Parent identified a launch-contract gap: ordinary owned launches avoid same-stream
