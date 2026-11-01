@@ -324,3 +324,9 @@ the public entry vjeux/okc-2026 with its design memos (see `docs/gap-analysis-20
 | Experiment | Evidence | Scope and revisit trigger |
 |---|---|---|
 | Actual full-only late-tid2 candidate with strict1e-4 fresh-output comparator | 3588375a529c4fe8 prepare failed: sliding17/2000 above threshold, maxrelativeL2~4.48e-4; fullstress/officialtests/timing not reached | No promotion despite passing pairedperformancegatea9b416a0c7324ecc. Attribute only after independent0-vs-0/2-vs-2 nulls on BOTHshapes with unchanged comparator; diagnostic26c8a3ea28554454 is the registered next step. Do not call this correctness loss or benignnoise before that evidence. |
+
+
+
+| 2026-10-31 | indexed routed noStreamK as performance-only replacement | 74eb65dad3fa4e54 | All fresh32/753/3012 stats exactly0; official pass1.092871 CI1.076478–1.109264 vs scored incumbent1.146466. Not promoted as a speed improvement. Deterministic base retained for isolated compensation experiments. |
+
+| 2026-10-31 | Standalone GROUPED_MASKED default schedule at128/256, exactFP32gamma | ae8993f4e3e1435c:5official,40eager+32graph armchecks pass;128 layer/std +145–184us,256 +203–235us; duplicateownednull<=2.69us.256std292 G1/G2=380.51us vsowned217.15us; total421.60us | This testeddefaultlibrary schedule128/256 loses materially; glue-only fusion cannot repair because GEMMs alone exceedowned. Not all TMA/dequantarchitectures. No fresh/tile rerun; reopen only with new mainloop/traffic evidence. |
