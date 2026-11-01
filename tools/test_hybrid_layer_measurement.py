@@ -1,9 +1,10 @@
 """Owning archived receipt and rejection gates; no simulated performance claim."""
 import copy
 import json
+import tempfile
 from pathlib import Path
 import unittest
-from hybrid_layer_measurement import compare, read, qualification
+from hybrid_layer_measurement import compare, read, qualification, owning_log
 
 ROOT=Path(__file__).resolve().parents[1]
 JOB='607eb52bdaf24160'
@@ -23,10 +24,10 @@ class Reader(unittest.TestCase):
         self.assertTrue(all(r['adjusted_change_percent']==r['raw_change_percent']==0 for r in summary['rows']))
 
     def test_wrong_owner_coverage_values_and_score_reject(self):
-        for field,value in (('id','other'),('board','muse_moe_w4a16'),('mode','check')):
+        for field,value in (('id','other'),('board','muse_moe_w4a16'),('mode','check'),('status','running'),('payload_ref','other.py')):
             d=copy.deepcopy(self.receipt);d[field]=value
             with self.assertRaises(AssertionError):read(d,JOB)
-        for change in ('missing','nan','weight','flag','score','test'):
+        for change in ('missing','nan','weight','flag','score','test','pending_result'):
             d=copy.deepcopy(self.receipt);result=d['result']
             row=next(r for r in result['records'] if r.get('event')=='benchmark')
             if change=='missing':result['records'].remove(row)
@@ -35,6 +36,7 @@ class Reader(unittest.TestCase):
             if change=='flag':row['flags']=['flagged']
             if change=='score':result['speedup']*=1.01
             if change=='test':next(r for r in result['records'] if r.get('event')=='test')['status']='fail'
+            if change=='pending_result':result['status']='running'
             with self.assertRaises(AssertionError,msg=change):read(d,JOB)
 
     def test_startup_missing_fallback_and_local_memory_reject(self):
@@ -42,8 +44,16 @@ class Reader(unittest.TestCase):
         for name in ('moe51','one8_mode3','one8_mode51'):
             log+=f'HYBRID_QUAL_RESOURCE {name} [96, 0, 0, 228736, 576, 576, 1, 132, 1, 132]\n'
         self.assertEqual(qualification(log)['startup_fields']['selected'],'4')
-        for bad in ('',log+log,log.replace('selected=4','selected=0'),log.replace('[96, 0,','[96, 8,'),log.replace('empty_checks=40','empty_checks=0')):
+        for bad in ('',log+log,log.replace('selected=4','selected=0'),log.replace('[96, 0,','[96, 8,'),log.replace('empty_checks=40','empty_checks=0'),log.replace('228736','999999'),log.replace('576, 576','512, 576')):
             with self.assertRaises(AssertionError):qualification(bad)
+
+    def test_log_path_is_bound_to_owning_receipt(self):
+        with tempfile.TemporaryDirectory() as folder:
+            p=Path(folder)/f'layer.{JOB}.log';p.write_text('own log')
+            receipt=copy.deepcopy(self.receipt);receipt['output']['log']=str(p)
+            self.assertEqual(owning_log(receipt,p)[0],'own log')
+            other=Path(folder)/f'other.{JOB}.log';other.write_bytes(p.read_bytes())
+            with self.assertRaises(AssertionError):owning_log(receipt,other)
 
 
 if __name__=='__main__':unittest.main()

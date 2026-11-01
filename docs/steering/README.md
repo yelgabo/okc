@@ -1,8 +1,10 @@
 # Shared project steering
 
+Latest root registration: [One fixed four-cell layer measurement](2026-11-01-owned-verify-public-measurement.md). Frozen4ad326c3/980787B, root7 host+2 builder tests pass, independent source/host/receipt-reader reviews clear. Authorized expiring-slot one-arm measurement pending root dispatch; no H200 performance claim or promotion.
+
 Latest single-arm layer qualifier: [Repaired full-four-cell startup checks](2026-11-01-production-startup-qualifier.md) - exact4ad326c3/980787 B, normal timed path unchanged, private full-model/fresh/cache/empty/resource gates prepared and CPU-reviewed. H200 correctness, admission, setup and performance remain unmeasured; root-only official decision.
 
-Latest measurement-reader review: [One-arm hybrid owning receipt](2026-11-01-hybrid-measurement-reader-review.md).46:16/six-load/raw-adjusted formulas pass; terminal/log/source/resource ownership safeguards identified for root before result interpretation.
+Latest measurement-reader review: [One-arm hybrid owning receipt](2026-11-01-hybrid-measurement-reader-review.md).46:16/six-load/raw-adjusted formulas pass; identified terminal/log/resource ownership gaps repaired and independently rechecked with4 tests. Server identity and physical source SHA remain separately associated by the upload manifest.
 
 Latest public startup source review: [Mask15 one-arm qualification wrapper](2026-11-01-public-mask15-startup-review.md). Independent12-cell selector/oracle/timed-path checks pass at4ad326c3; private empty/fresh coverage reviewed. H200 resources/capture/budget/performance unqualified.
 
@@ -563,6 +565,8 @@ accounting, and running a corrected matched whole-layer comparison. It records
 recommendations, not execution of those tasks; check current code and run logs for status.
 
 ## Report history
+
+- 2026-11-01: [Fixed four-cell public measurement registration](2026-11-01-owned-verify-public-measurement.md): exact980787B source, strict startup/full-score gates and no paired/promotion claim; own H200 result pending.
 
 - 2026-11-01 19:34 UTC: [Root production fit and progress-repair checkpoint](2026-11-01-reset-and-production-fit.md#1934-utc-addendum-source-fit-and-separate-progress-repair-cleared-locally): exact952309B core,12 root CPU tests and independent source review; startup qualifier/H200 still open.
 

@@ -1,0 +1,12 @@
+test_budget_and_sync_errors (hybrid_onearm_host_review_test.Tests.test_budget_and_sync_errors) ... ok
+test_empty_and_restore_fail_closed (hybrid_onearm_host_review_test.Tests.test_empty_and_restore_fail_closed) ... ok
+test_owners_guards_and_resources (hybrid_onearm_host_review_test.Tests.test_owners_guards_and_resources) ... ok
+test_stale_output_cache_route_reference_fail_closed (hybrid_onearm_host_review_test.Tests.test_stale_output_cache_route_reference_fail_closed) ... ok
+test_unsupported_scales_preserve_only_g (hybrid_onearm_host_review_test.Tests.test_unsupported_scales_preserve_only_g) ... ok
+test_whole_qualifier (hybrid_onearm_host_review_test.Tests.test_whole_qualifier) ... ok
+test_exact_cpp_getters_queries_and_fatal_errors (hybrid_onearm_resource_host_test.Tests.test_exact_cpp_getters_queries_and_fatal_errors) ... ok
+
+----------------------------------------------------------------------
+Ran 7 tests in 8.917s
+
+OK

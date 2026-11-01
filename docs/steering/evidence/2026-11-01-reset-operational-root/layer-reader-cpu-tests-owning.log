@@ -1,0 +1,9 @@
+test_archived_owner_full_score_and_raw_cells (test_hybrid_layer_measurement.Reader.test_archived_owner_full_score_and_raw_cells) ... ok
+test_log_path_is_bound_to_owning_receipt (test_hybrid_layer_measurement.Reader.test_log_path_is_bound_to_owning_receipt) ... ok
+test_startup_missing_fallback_and_local_memory_reject (test_hybrid_layer_measurement.Reader.test_startup_missing_fallback_and_local_memory_reject) ... ok
+test_wrong_owner_coverage_values_and_score_reject (test_hybrid_layer_measurement.Reader.test_wrong_owner_coverage_values_and_score_reject) ... ok
+
+----------------------------------------------------------------------
+Ran 4 tests in 0.007s
+
+OK

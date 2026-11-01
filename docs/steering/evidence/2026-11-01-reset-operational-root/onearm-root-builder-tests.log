@@ -1,0 +1,7 @@
+test_actual_resource_getter_cpp_normal_and_all_api_errors_fatal (prod_size_qualify_test.Qualifier.test_actual_resource_getter_cpp_normal_and_all_api_errors_fatal) ... ok
+test_oracle_preserves_arithmetic_thresholds_only_adds_finite_guards (prod_size_qualify_test.Qualifier.test_oracle_preserves_arithmetic_thresholds_only_adds_finite_guards) ... ok
+
+----------------------------------------------------------------------
+Ran 2 tests in 0.982s
+
+OK

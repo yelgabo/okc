@@ -5,6 +5,7 @@ Keep failed owning receipts even when this complete-result reader rejects them.
 """
 import argparse
 import ast
+import hashlib
 import json
 import math
 import re
@@ -31,7 +32,11 @@ def score(rows, median='median_ns', baseline='baseline_ns'):
 def read(receipt, job):
     assert receipt['id'] == job and receipt['board'] == 'muse_decode_layer'
     assert receipt['mode'] == 'run', 'expected a public single-arm measurement'
+    assert receipt['status'] == 'done', 'receipt is not terminal'
+    assert re.fullmatch('[0-9a-f]{64}', receipt['content_hash'])
+    assert receipt['payload_ref'] == 'muse_decode_layer/'+receipt['content_hash']+'.py'
     result = receipt['result']
+    assert result['status'] == 'ok'
     assert result['passed'] is True and result['returncode'] == 0
     assert result['checks']['ok'] is True and not result['checks'].get('flagged')
     assert not result['checks'].get('rejected') and not result['flags'] and not result['error']
@@ -61,7 +66,8 @@ def read(receipt, job):
     return rows, dict(job=job, official_score=official, official_ci=ci,
                      reconstructed_score=score(rows), prepare_seconds=setup[0]['prepare_s'],
                      tests=13, benchmarks=12, profiles=12, machine=result.get('machine'),
-                     evaluator=result.get('evaluator'))
+                     evaluator=result.get('evaluator'), server_content_hash=receipt['content_hash'],
+                     payload_ref=receipt['payload_ref'])
 
 
 def qualification(log):
@@ -78,10 +84,22 @@ def qualification(log):
     for vector in resources.values():
         assert len(vector) == 10 and all(type(x) is int and x >= 0 for x in vector)
         assert vector[1] == 0 and 0 < vector[4] <= vector[5]
+        assert vector[3] <= 227*1024
         assert vector[6] >= 1 and vector[7] > 0 and vector[8] == 1
         assert vector[9] == vector[6] * vector[7]
+    assert resources['moe51'][4] == 576
     return dict(startup_fields=fields, resources=resources,
                 extra_startup_lines=[s for s in log.splitlines() if s.startswith('HYBRID_QUAL_')])
+
+
+def owning_log(receipt, path):
+    # Run in the environment that owns the CLI output path (WSL for this run).
+    # An arbitrary supplied log cannot certify another job's qualification.
+    expected = Path(receipt['output']['log'])
+    assert path.resolve() == expected.resolve(), 'log is not the owning CLI output'
+    assert receipt['id'] in expected.name
+    raw = path.read_bytes()
+    return raw.decode('utf8'), hashlib.sha256(raw).hexdigest()
 
 
 def compare(new, old, job, control_job, log=None):
@@ -124,7 +142,9 @@ if __name__ == '__main__':
     p.add_argument('--job', required=True); p.add_argument('--control-job', default='607eb52bdaf24160')
     p.add_argument('--log', type=Path, required=True); p.add_argument('--output', type=Path, required=True)
     a = p.parse_args()
-    result = compare(json.loads(a.receipt.read_text()), json.loads(a.control.read_text()),
-                     a.job, a.control_job, a.log.read_text())
+    receipt = json.loads(a.receipt.read_text())
+    log, log_sha256 = owning_log(receipt, a.log)
+    result = compare(receipt, json.loads(a.control.read_text()), a.job, a.control_job, log)
+    result['owning_log_sha256'] = log_sha256
     a.output.write_text(json.dumps(result, indent=2, allow_nan=False)+'\n', encoding='utf8')
     print(json.dumps({k:result[k] for k in ('job','official_score','official_ci','prepare_seconds','score_ratio_to_archived_control')}))
