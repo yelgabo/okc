@@ -41,9 +41,9 @@ class TimelineTests(unittest.TestCase):
             for layer in ['s', 'f']:
                 for arm in ['owned', 'sglang']:
                     origin = rng.randrange(1_000_000_000)
-                    events = [(origin+i*10000+rng.randrange(2000), origin+(i+1)*10000+rng.randrange(4000), i%2,
-                               f'long_full_kernel_name<{i%20}, signature parameters>')
-                              for i in range(35)]
+                    events = [(origin+i*10000+rng.randrange(2000), origin+(i+1)*10000+rng.randrange(4000), i%3,
+                               f'long_full_kernel_name<{i%40}, signature parameters>')
+                              for i in range(56)]
                     rows.append({'case': case+layer, 'arm': arm, 'trace': summarize(events),
                                  'cold_us': [round(rng.uniform(50,500),3) for _ in range(5)],
                                  'profile_spans_us': [round(rng.uniform(50,500),3) for _ in range(3)],

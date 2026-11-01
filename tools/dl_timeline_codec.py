@@ -9,6 +9,28 @@ import struct
 import zlib
 
 
+def _put_uint(data, value):
+    if value < 0:
+        raise ValueError('negative timeline integer')
+    while value >= 128:
+        data.append((value & 127) | 128)
+        value >>= 7
+    data.append(value)
+
+
+def _get_uint(raw, at):
+    value = 0
+    shift = 0
+    while shift < 70:
+        part = raw[at]
+        at += 1
+        value |= (part & 127) << shift
+        if part < 128:
+            return value, at
+        shift += 7
+    raise ValueError('invalid timeline integer')
+
+
 def summarize(events):
     if not events:
         raise ValueError('no CUDA activities in isolated replay')
@@ -52,8 +74,9 @@ def encode_report(report, limit=11000):
         for start, stop, stream, name in events:
             # summarize() records 0.1us trace ticks, retained exactly in transport.
             now = round(start*10)
-            data.extend(struct.pack('<IIHH', now-previous, round(stop*10)-now,
-                                    streams.index(stream), ids[name]))
+            _put_uint(data, now-previous)
+            _put_uint(data, round(stop*10)-now)
+            _put_uint(data, ids[name]*len(streams)+streams.index(stream))
             previous = now
     metadata = json.dumps(packed, separators=(',', ':')).encode()
     raw = struct.pack('<I', len(metadata)) + metadata + data
@@ -72,8 +95,10 @@ def decode_report(blob):
         events = []
         previous = 0
         for event_idx in range(row.pop('_events')):
-            delta, duration, stream, name = struct.unpack_from('<IIHH', raw, at)
-            at += 12
+            delta, at = _get_uint(raw, at)
+            duration, at = _get_uint(raw, at)
+            code, at = _get_uint(raw, at)
+            name, stream = divmod(code, len(row['_streams']))
             start = previous + delta
             stop = start + duration
             previous = start
