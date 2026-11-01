@@ -4,6 +4,8 @@ This is the stable entry point for steering reports across research, implementat
 and coordinator sessions. The user requested on 2026-10-29 that every project-steering
 report be checked into this repository so other sessions can read it.
 
+**Latest attention boundary audit:** [2026-11-01 source, SASS and score sensitivity](2026-11-01-attention-next-boundary.md). No new justified check; exact full-context dependency and counter-access gaps recorded.
+
 ## Latest checkpoint: top-10 audit and Windows restart
 
 **Latest execution: [2026-10-31 post-login experiments](2026-10-31-post-login-experiments.md).**
@@ -31,22 +33,22 @@ Current policy supersedes the adoption language below. All four tracks now have 
 and donor code is measurement-only. Reimplement winning mechanisms in owned code.
 [Policy addendum](2026-10-30-family-f-donor-baseline.md#addendum-2026-10-31-user-decision-on-the-use-of-f-results).
 
-**[2026-10-30: Family F — Donor-based baseline and hybrid](2026-10-30-family-f-donor-baseline.md)**
+**[2026-10-30: Family F â€” Donor-based baseline and hybrid](2026-10-30-family-f-donor-baseline.md)**
 
 Registered at the user's request against evidence snapshot `7a59655`; donor
 `alygg77/okc-muse-spark-kernels` remains pinned at `6cae49a`.
-F is a first-class implementation/adoption family alongside A–E, not an incremental tweak
+F is a first-class implementation/adoption family alongside Aâ€“E, not an incremental tweak
 that must be folded into the incumbent. F0 is the exact donor, F1 a documented minimal
 conforming adaptation when required, and F2 a measured hybrid. F-PROJ and F-ATTN are the
 first independent comparison tracks; F-MOE and F-LAYER remain separately owned.
 Status: registered / untested against our releases. Archived donor scores are not F wins.
 Compare complete files and choose the better base; whole-file replacement is allowed.
-The dashboard data registers F while retaining the older A–E performance snapshot.
+The dashboard data registers F while retaining the older Aâ€“E performance snapshot.
 No kernels, validation gates, GPU jobs, releases or scored submissions changed.
 
 ## Previous decision: evaluate the complete donor as a replacement baseline
 
-**[2026-10-30: Donor-first adoption — test complete implementations before more invention](2026-10-30-donor-first-adoption.md)**
+**[2026-10-30: Donor-first adoption â€” test complete implementations before more invention](2026-10-30-donor-first-adoption.md)**
 
 Own snapshot `5b88889`; donor `alygg77/okc-muse-spark-kernels` at `6cae49a`.
 The user correctly challenged treating the better-ranked donor mainly as a list of ideas.
@@ -62,7 +64,7 @@ remain separately owned. The next deliverable must identify what code we should 
 
 ## Previous external-source steering: alygg77 measurement audit
 
-**[2026-10-30: alygg77 public kernels — measured constraints and a narrower next round](2026-10-30-alygg77-public-kernel-audit.md)**
+**[2026-10-30: alygg77 public kernels â€” measured constraints and a narrower next round](2026-10-30-alygg77-public-kernel-audit.md)**
 
 Own snapshot `269c110`; donor `alygg77/okc-muse-spark-kernels` at `6cae49a`.
 The supplied X post itself was not retrievable; this is an independently located repository
@@ -95,7 +97,7 @@ decides), the dense whole-tile sketch dropped (identical to the incumbent geomet
 
 ## Latest projection decision: corrected top-100 portfolio
 
-**[2026-10-30: Projection top-100 — corrected evidence and structural tests](2026-10-30-projection-top100-portfolio.md)**
+**[2026-10-30: Projection top-100 â€” corrected evidence and structural tests](2026-10-30-projection-top100-portfolio.md)**
 
 Evidence snapshot `c98018f`; verified scored receipt `d85d0081fa8a4a43`, 1.4975856x.
 The user's official-CLI cutoff is 1.5560x; the audit did not issue a new CLI query.
@@ -110,7 +112,7 @@ No kernel, gate, GPU run or submission changed. Attention and layer work remain 
 
 ## Previous standalone decision: attention and projection research roadmaps
 
-**[2026-10-30: Standalone attention and projection — widen the search](2026-10-30-attention-projection-standalone-roadmap.md)**
+**[2026-10-30: Standalone attention and projection â€” widen the search](2026-10-30-attention-projection-standalone-roadmap.md)**
 
 Evidence inspected through `a48edef` (preceded by `a2bdd7e`). The user explicitly wants better
 standings on both component problems, not only layer improvements. For these two owners,
@@ -228,7 +230,7 @@ input-history dependence remains an untested lead.
 
 ## Latest decision report: on course, with validation and prefetch priorities
 
-**[2026-10-29: Course check — validate overlap and isolate prefetch](2026-10-29-course-check-validation-prefetch.md)**
+**[2026-10-29: Course check â€” validate overlap and isolate prefetch](2026-10-29-course-check-validation-prefetch.md)**
 
 Evidence snapshot `b41cb8d` (October 30 02:19 UTC / October 29 19:19 PDT), unchanged from
 the preceding status answer. Keep the clean 2.014x release. Mode 51 passed its component gate
@@ -361,7 +363,7 @@ Addenda (2026-10-30): mode 43 built and dropped, 47 gated and kept; (3) warp ske
 
 ## Previous report
 
-**[2026-10-29 — After the overnight run](2026-10-29-overnight.md)**
+**[2026-10-29 â€” After the overnight run](2026-10-29-overnight.md)**
 
 Original evidence snapshot: `df03a59fc2ab02844e5003606e01b9a9de4bd5d2`.
 Publication addendum checked against `d0c062b4fd5a5342cf6df678709e0af9b2632b9d`:
