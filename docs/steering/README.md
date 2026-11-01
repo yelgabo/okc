@@ -6,7 +6,7 @@ report be checked into this repository so other sessions can read it.
 
 ## Latest review
 
-[November 1 attention results and a layer expert pipeline discrepancy](2026-11-01-attention-results-expert-pipeline.md) records the two attention decisions, current non-prefill ranks, corrected MoE attribution and the G1b4 qualification plan.
+[November 1 H200 expert win and attention results](2026-11-01-attention-results-expert-pipeline.md#h200-component-result) records a repeatable 1.85–2.87% improvement in the six-load MoE comparison, both attention decisions, non-prefill ranks and the pending whole-layer qualification.
 
 [November 1 independent review of the active improvement campaign](2026-11-01-active-campaign-direction.md) evaluates G1b4 qualification, the live rank-50 gap and standalone attention controls.
 

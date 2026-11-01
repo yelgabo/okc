@@ -5320,3 +5320,7 @@ architectures; per-expertfrontier measurement is next, notanotherSC6knobsweep.
 1c6ebc76b91d4b7f PASS5 and flags empty, 2.256419844× (95% CI 2.222573546–2.290266141), ordinary SC6 control. 6 benchmarks/6 profiles; all six attribution cases and the representative trace re-evaluation passed. Favorable fixed-owner model 1.003616/1.004271/1.003445 across seeds. Registered stop.
 
 2026-11-01 | 63f5a2a8ed2341d1 | a1031ff | Private component check of the Family G activation-slot retirement change. Exact source a08276dbd1dfe5551c360e2debe0fa67c4fdcfeb56d10ba347b858e3c60270c9 (388351 bytes), judged path repaired SC6 control. Four independent placements, three held-out inputs per load, all six workloads. Pending.
+
+63f5a2a8ed2341d1 terminal PASS 5/5, control 2.238110203x (95% CI 2.204538550-2.271681856), six workloads and six profiles. Stage retirement passed every held-out comparison (six-load factors 1.018493-1.028699). 72 each initial/fresh/all-remote/restored checks, three negative controls. Both arms 96 registers, zero local, 231168 dynamic shared, one CTA/SM. See stage-retire.63f5a2a8ed2341d1.analysis.json and the steering report for 18 timing rows and transfer limits.
+
+2026-11-01 | 46aafddc195c4c57 | exact candidate-only standalone treatment, 364234B SHA256 fde6b1ee532f77d4d2d3fc6bae337e2ceeea9d7e07e458a42a382b787100891b | root official off-board check following the controlled win, no public entry. Pending.
