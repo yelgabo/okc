@@ -332,8 +332,11 @@ Ordering source: [PTX8.7 section8.9.4 API synchronization](https://docs.nvidia.c
 Completed prior same-stream task synchronizes with next start; kernel/graph dependency
 boundaries participate in proxy-preserved base causality. Thus ordinary gather/tailzero/
 SiLU kernel completion orders global writes before subsequent TMA reads. No PDL,
-overlapping dependent kernels or runtime tensormap mutation; all Humming internal shared
-proxy fences preserved. Independent read-review requested before any masked dispatch.
+overlapping dependent kernels or helper-written tensormap mutation; all Humming internal
+fences preserved. Humming's existing grouped-C descriptor updates (`scheduler.cuh:333–345`)
+retain tensor_map_release_cta/tensor_map_acquire_cta; these are a separate library chain
+from the completed-kernel global-input visibility argument. Independent read-review
+requested before any masked dispatch.
 Correction: INDEXED disables TMA/warp specialization, not necessarily WGMMA. No instruction
 family comparison is measured without SASS. Masked exactNVFP4 support still needs GPU check.
 
