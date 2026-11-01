@@ -191,3 +191,38 @@ Authorized fresh-control repeats dispatched43026195f8c84ffb (layer) and8914751e3
 slots for confirmed candidates; these repeats measure run variation and are not new speedups.
 Paired-layer c0402e4c92bc4b20 was freshly verified running and must be waited, not restarted.
 All-five-board top10 objective remains active and unproved.
+
+## Progress addendum: layer promotion gate and installed backend compatibility
+
+Previous turn classifiedprogress. Paired-layerc0402e4c92bc4b20 completed: all24checks
+per arm, all6loads, pooled1.0042, allcrosses1.0036–1.0048, maxnull0.0007 inlog units;
+registered candfaster gate clears. Preparation258s. M1 policy at32 differs inoneinc arm,
+so attribute this to the complete prepared candidate rather than attention instructions alone.
+Root submitted exact checked layer_attn31s as8f2780d7382047e6, and dispatched independent
+confirmation9414182118414889 with newseeds620001/order701. Both results remain pending.
+Control repeat43026195f8c84ffb passed2.009960x CI1.979811–2.040110, unchanged algorithm.
+
+Humming capability checke30ec1bf8e8142df completed:0.1.12 installed and grouped API imports.
+This enables implementation, not a speedup claim. Exact-version investigation rejected a
+naive grouped_contiguous fixed-capacity mapping because the scheduler computes the last
+expert to shape_m, including unusedtail. MoE owner is preparing INDEXED device metadata
+with padded sorted localroutes, device counts and masked sentinels, retaining BF16/FP32
+boundaries and original packed NVFP4/E4M3/global scales. Root review precedes first dispatch.
+
+Official public board snapshot22:27PDT (ordered-row ranks, saved current-board-summary.json):
+
+| Problem | Rank | Best score | Observed rank10 |
+|---|---:|---:|---:|
+|Projection|292|1.527806x|1.604517x|
+|Attention|296|2.536566x|2.909794x|
+|MoE|371|2.215712x|2.593077x|
+|Decode layer|374|2.018705x|2.379322x|
+|Prefill|no row|none|see saved exact snapshot|
+
+No top10 requirement is met. Prefill's passed baseline scored0.999115x did not create a
+ranked entry; earlier wording stated the intended first-entry step, not verified board state.
+Projection's newbest9eba96894ee1402e hotspot table is appended to docs/hotspots.md with its
+baseline profile. Actual pair7 correctness now passes but its concrete scalar-plane decoder
+loses; that implementation is closed, not all optimized lossless codecs. Next projection
+work is a bounded low-shared-memory DSMEM large-tile test with actual cluster-residency gate,
+explicitly distinct from the previous200KB/one-CTA c4loss. Workers retain source and receipts.

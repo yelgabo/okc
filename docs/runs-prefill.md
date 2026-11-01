@@ -61,3 +61,20 @@ SiLU output, GEMM2, post-expert norm and weighted-sum boundaries. Expert layout 
 int64 prefix array. Any implementation needs fixed-capacity route buffers and device-only
 metadata generation; test helpers that use .item() to size outputs are not timed-call code.
 No backend candidate has been built or measured yet. Capability check still running.
+
+Capability result e30ec1bf8e8142df:5tests pass, unchanged baseline0.999768x
+(0.984771–1.014764). Installed Humming0.1.12,FlashInfer0.7.0.post1,TileLang0.1.12,
+CUTLASS4.8.0; HummingLayer/HummingLayerMethod import succeeds. This establishes availability,
+not backend performance. Raw receipt/profile records retained in profiles/.
+
+Compatibility correction: Hummingv0.1.12 at636ba85648c30ae2c2bfb335c9399593a67ecc1d
+grouped_contiguous schedules its last expert from shape_m, ignoring actual prefixend.
+Fixed capacityT*8 plus shorter activeprefix would therefore compute the unused tail as the
+last expert: do not build that inefficient mapping. Owner is preparing INDEXED metadata with
+only localexpert blocks, device num_tokens_padded, sentinel routeIDR=T*8 and appropriately
+padded sorted-ID capacity. Loader/GEMM writer bounds and both GEMMtop_k mappings must be
+verified before dispatch. No .item()/host count-based allocation is permitted in timedcalls.
+
+Board correction: the public snapshot at22:27PDT returns no yelgabo row for prefill despite
+the passed baseline scored0.999115x. The earlier 'establish an entry' language states intent;
+it did not establish a ranked entry. Actual prefill speedup is still required.

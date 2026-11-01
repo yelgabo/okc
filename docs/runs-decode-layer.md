@@ -748,3 +748,15 @@ failures. Below best2.018705x within ordinary run variance. Rawreceipt retained 
 Second authorized scored control repeat43026195f8c84ffb dispatched: same frozen
 layer_best.py plus comment-only repeat2, no new kernel change. Pending at dispatch;
 records fresh run variation while paired attention-port c0402e4c92bc4b20 is unresolved.
+
+Completed four-armc0402e4c92bc4b20: all24checks per arm pass; all6loads covered,
+fourprepares finish258s. Pooled inc/cand1.0042, crosses1.0036–1.0048, nulls0.9995/1.0007;
+registered decision candfaster. Perload pooled d1/d16/d32/v1/v16/v32 =
+1.0102/1.0022/1.0074/1.0020/1.0026/1.0008. M1 policy differs at32tokens: inc o+front,
+otherthree o. Thus this measures the complete prepared candidate, not isolated attention
+instruction latency. Candidate585d46e2... submitted as8f2780d7382047e6 after this gate.
+Independent repeat confirmation9414182118414889 dispatched with seeds620001/order701;
+same source,8rounds,6loads,dupown,deadline280s. First scored result pending at dispatch.
+
+Control repeat43026195f8c84ffb completed13tests pass,2.009960x CI1.979811–2.040110.
+No new speedup; keep control run variation visible. Receipts/profile records retained.
