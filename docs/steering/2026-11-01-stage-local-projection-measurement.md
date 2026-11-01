@@ -67,3 +67,11 @@ first two reset jobs. Top10/top50 remains unproved: the previous actual
 projection snapshot was rank317,1.5278x versus rank50 1.5858x / rank10 1.6090x;
 layer rank316,2.1261x versus2.2907x /2.4035x. These are dated observations,
 not deadline forecasts. No stage-local H200 result exists at registration.
+
+## Dispatch addendum
+
+Root dispatched own public projection job `dfcfdd01d6f04525` from exact committed
+source/preregistration `a08f501260ea7e9625c01aa4eeecda0934afa7f9`. CLI confirms
+`muse_bf16_proj`; local file equals its git blob byte-for-byte. Actual H200
+preparation/math/admission and performance remain pending. Root is waiting
+this job only; no duplicate, layer port or reset queue change.
