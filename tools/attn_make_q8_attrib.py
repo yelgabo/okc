@@ -5,10 +5,33 @@ omit math and have wrong outputs. Probe builds compile only instance8/51 to
 fit preparation budget; untouched control/control2 remain full normal builds.
 """
 from pathlib import Path
+import ast
 import subprocess
 import sys
 
 ROOT=Path(__file__).resolve().parent.parent
+
+
+# Reviewed diagnostic-only delta: pure6da000f -> instrumentedf2b7dfa.
+HOOK_PATCHES = (('// (the producer-bound pace).\n', '// (the producer-bound pace).\n// 4/5 (bench-only q_len8 producer builds): retain every acquire/release,\n// proxy fence, warpgroup fence/commit/wait and named barrier, omit tile math;\n// 4 reads real cached rows, 5 zero-fills them. Wrong outputs, never candidates.\n'), ('            constexpr uint32_t CPB = ONE_PROBE == 1 || ONE_PROBE == 3 ? 0u : 16u;\n', '            constexpr uint32_t CPB = ONE_PROBE == 1 || ONE_PROBE == 3 || ONE_PROBE == 5 ? 0u : 16u;\n'), ('            if constexpr (XPIPE != 0) {\n', '            if constexpr (PROD && (ONE_PROBE == 4 || ONE_PROBE == 5)) {\n                int st = cst;\n                for (int it = 0; it < ntiles; ++it) {\n                    float s_probe[32] = {};\n                    const bool common = DCARRY && it < it_c;\n                    acquire(it, st, common);\n                    // Same collective sequence as the current promoted QKOV loop;\n                    // empty wgmma groups retire trivially, no raw-stage readers.\n                    wg_fence();\n                    wg_commit();\n                    wg_wait<0>();\n                    reg_fence(s_probe);\n                    if constexpr (EREL) {\n                        release(st);\n                    }\n                    fence_proxy_async();\n                    named_sync(2 + hk, 128);\n                    wg_fence();\n                    wg_commit();\n                    wg_wait<0>();\n                    reg_fence(o);\n                    if constexpr (!EREL) {\n                        release(st);\n                    }\n                    st = cst;\n                }\n            } else if constexpr (XPIPE != 0) {\n'), ('#if ONE_DETM\n#define ONE_INSTANCES(X) X(1, 49)\n', '#if defined(ONE_ATTRIB_ONLY) && ONE_ATTRIB_ONLY\n#define ONE_INSTANCES(X) X(8, 51)\n#elif ONE_DETM\n#define ONE_INSTANCES(X) X(1, 49)\n'))
+
+def patch_probe_source(source):
+    """Fail closed on source drift or already instrumented input."""
+    for old, new in HOOK_PATCHES:
+        assert source.count(old) == 1, ('diagnostic hook pattern count', old[:100])
+        source = source.replace(old, new, 1)
+    return source
+
+
+def patch_generated_source(source):
+    nodes = [n for n in ast.parse(source).body if isinstance(n, ast.Assign)
+             and any(isinstance(t, ast.Name) and t.id == '_ONE_SRC' for t in n.targets)]
+    assert len(nodes) == 1, 'exactly one inlined owned source required'
+    node = nodes[0]
+    patched = patch_probe_source(ast.literal_eval(node.value))
+    lines = source.splitlines(keepends=True)
+    lines[node.lineno-1:node.end_lineno] = ['_ONE_SRC = ' + repr(patched) + '\n']
+    return ''.join(lines)
 
 GATE=r'''
 def _q8_resource_gate():
@@ -36,7 +59,7 @@ def main():
         "zero_probe@own=-DONE_PROBE=5,-DONE_ATTRIB_ONLY=1",
         "nocopy_probe@own=-DONE_PROBE=1,-DONE_ATTRIB_ONLY=1",
         "stamp_probe@own=-DONE_STAMP=1,-DONE_ATTRIB_ONLY=1"],check=True,cwd=ROOT)
-    src=out.read_text()
+    src=patch_generated_source(out.read_text())
     first,rest=src.split("\n",1)
     src=first+"\n# CHECK ONLY: wrong-output attribution probes; never score.\n"+rest
     marker="        yield batch, layer, q_len"
