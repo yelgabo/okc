@@ -47,6 +47,17 @@ their global epilogue writes, execute their own `__threadfence`, then join
 the final counter RMW, polls with GPU acquire for the full grid count, then
 all compute threads cross the retained post-CTA join before final reads.
 
+**Proof refinement:** WSBL2/WSBLK2 compute warps0/1 also write the last-B
+ybuf/ss tail, without their own threadfence. Their stores precede their
+full-NTL WS_JOIN; its matching leader arrival relays visibility to the retained
+leader GPU fence. This is not an all-writers-have-own-fence argument. PTX8.7
+§9.7.13.1 orders prior accesses across participating CTA-barrier threads;
+§8.9.4/8.9.5 supply synchronization and transitive causality. The path is
+tail-store→writer join→leader join→GPU fence→RMW chain→acquire→post-CTA join→
+generic final read. Every join participant/count and memory proxy is unchanged.
+The same CTA relay was also needed by the old acq_rel counter; the relaxed
+representation does not introduce this dependency.
+
 This reviewer independently read [PTX8.7 §§8.8–8.9](https://docs.nvidia.com/cuda/archive/12.8.0/parallel-thread-execution/index.html#memory-consistency-model).
 A fence preceding a strong write forms a release pattern; observation order
 can traverse atomic RMWs. Thus each CTA's fenced publication reaches the final
@@ -91,3 +102,25 @@ requires all six workloads, heldout natural routing, strict finite/.008 global/
 generation/replay checks, resource/admission and preparation/transport bounds.
 Require >=1% whole-six, >2x duplicate spread, each seed and per-load regression
 gates. No GPU or public qualification is implied by this source report.
+
+## Dated local compile addendum
+
+Selected compilation has now passed, superseding the pending status above.
+Independent evidence is committed/pushed as `9f7d072`, with the full comparison,
+compile driver and normalization verifier in the peer branch.
+Independent today_proj compiled the exact control and d33915c7 opt-in helper
+under actual Tiny/Tiny2 definitions, NS3/NSF3/FNST4/PRMTSC1/DQ7=1, CUDA12.8
+sm90a. This owner independently inspected its `comparison.json` source pins,
+options and resource vectors. Both versions of both entries have147registers,
+3barriers, zero stack/spill stores/spill loads, max288threads and min1CTA.
+These are local compiler resources, not H200 runtime admission or utilization.
+
+After removal of file/location directives, PTX differs only in the intended
+atomic instruction. SASS retains the returning `ATOMG.STRONG.GPU`; the changed
+block omits compiler-generated acq_rel MEMBAR/ERRBAR/CGAERRBAR/CCTL operations.
+Every explicit source fence and reader acquire remains. Other normalized
+math/barrier/memory operands are unchanged; tail padding/branch relocations
+are separately normalized. Tiny static instructions5272→5272; Tiny2
+5328→5320. These counts imply no latency forecast. The controlled representation
+clears the selected static gate; whole-source host compilation, H200 admission,
+capture/fresh math, preparation budget and performance remain unqualified.
