@@ -18,6 +18,8 @@ Latest standalone eligibility audit: [Historical MoE best progress gap](2026-11-
 
 Latest single-arm hybrid host review: [Actual startup qualification](2026-11-01-hybrid-onearm-host-review.md). Exact4ad326c3/980787B passes7 independentCPU tests:48/8/24 full +40empty/8emptycaps/32restored, getters/negativefailures. Scopedsource/host only; H20013/12,setup/runtime/score remain unqualified.
 
+Latest private short G host review: [Four-owner counter comparison](2026-11-01-g-short-rmw-host-review.md) - exactf0426f71/906841 B, six CPU orchestration/validator tests pass; normal judged entry stays original control. Native/CUDA arithmetic mocked; no H200/runtime/performance or dispatch clearance.
+
 Latest short G compiler screen: [Final-counter representation](2026-11-01-g-short-final-rmw-compile.md) - actual Tiny/Tiny2 PTX differs only one strong GPU atomic qualifier; SASS isolates its lowering block,147 registers/zero spills unchanged. Positive compiler gate only; no runtime gain or dispatch clearance.
 
 Latest G0-to-607e precision inventory: [Actual repairs and short-load gap](2026-11-01-g-upstream-precision-inventory.md) - exact active ATT7 pr8 BF16 round, conditional SK2 fence scope and all-eight-Lt selection verified; no per-repair causal cost. Short expert/finalization remains largest unresolved lead, no safe precision rollback or job request.
