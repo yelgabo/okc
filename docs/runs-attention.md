@@ -4018,7 +4018,8 @@ differences are0to1.137e-4relative sliding,1.286e-4to5.288e-4full (within regist
 referencecrosscheck; oneFP8queryfullsample hasmax4ULP on a small element). This is reference
 summationvariation, explicitlyretained; no threshold was retroactivelychanged.
 Fullprepare includingcompilation/selftests/freshreference/queue took233.05s (<280s guard).
-ReferenceGPUwork and tempbytes were measured through CPUelapsed with device sync, not projected.
+Referencecompute elapsed was measured by CPUwalltime with devicesync. Temporarybyte counts
+remain analyticshape calculations, not measuredallocation/SMutilization counters.
 
 Read-only CUDAresourceattributes are IDENTICAL candidate/control for all13instances.
 AffectedL1mode11:114registers,localbytes0,staticsmem0,dynamicsmem58960bytes,128threads,
@@ -4032,3 +4033,4 @@ records and descriptions preserved. This prospectivelyregistered official-math g
 differentquestion and doesnot erase those failures. No furthertuning of thelate-tid knob:
 finishpurefilevalidation/publicdecision underroot, then closeit and use freshinternal
 mode51 attribution before any newstructuralattention optimization.
+
