@@ -2,22 +2,22 @@
 
 Latest projection terminal: [SK-XOR single-arm H200 closure](2026-11-01-sk-xor-release-terminal.md). Public2b537518 PASS9/all10SX startup,1.394120x belowC2; all10targets regress. Exact production variant closed, no retry/layerport; dependency wording corrected.
 
-Latest single-arm source review: [SK-XOR production qualifier](2026-11-01-sk-xor-release-source-review.md). Exact685ffab5 source scope clear;5TorchCPU tests pass. H200/official performance remain unknown; root alone owns any authorized public measurement.
+Latest single-arm source review: [SK-XOR production qualifier](2026-11-01-sk-xor-release-source-review.md). Exact685ffab5 source scope clear;5TorchCPU tests pass. H200 production qualification and performance were subsequently measured in2b537518; see the terminal closure above.
 
-Latest private harness review: [SK-XOR final private scope](2026-11-01-sk-xor-private-harness-review.md). Exacte5d82cf2 source/host scope clear;9CPU tests pass. H200/runtime/performance and separate one-arm public qualifier remain unqualified.
+Latest private harness review: [SK-XOR final private scope](2026-11-01-sk-xor-private-harness-review.md). Exacte5d82cf2 source/host scope clear;9CPU tests pass. This private harness has not run on H200. The separate one-arm production file subsequently passed qualification and lost; see2b537518 above.
 
 Latest layer applicability: [607e / sparse-XOR projection map](2026-11-01-g-sk-xor-applicability.md). Exact12medians, direct BF16 qkv/O/un interfaces, fused PR exclusions, conditional1%layer budget and830130Bslim source plan. No port/GPU/public proposal.
 
-Latest independent projection proof: [SK sparse E7 repair](2026-11-01-sk-sparse-repair-independent.md). Exact4907db9 source/lifetime review and7CPU tests pass; exact helper also passes23local RTX bit checks including20changed-record graph replays. H200/projection math/performance remain unqualified; no official/public action.
+Latest independent projection proof: [SK sparse E7 repair](2026-11-01-sk-sparse-repair-independent.md). Exact4907db9 source/lifetime review and7CPU tests pass; exact helper also passes23local RTX bit checks including20changed-record graph replays. The separate production wrapper subsequently passed H200 math/resource gates and lost; this23-test helper proof alone is not a performance result.
 
 Latest owned low-token audit: [Immutable decode and activation-read feasibility](2026-11-01-owned-lowtoken-representation.md). Source/CPU traffic model; no candidate clears the admission/opportunity screen and no GPU action.
 
 Latest owned packaging audit: [Owned verify production closure NOFIT](2026-11-01-owned-verify-production-nofit.md). Three source/CPU tests and selected device SASS equivalence pass; all three source closures exceed the hybrid byte allowance. No H200 or public action.
 
 Latest MoE diagnostic addendum: [Native G stage observer terminal closure](2026-11-01-g-stage-observed-readiness.md), source5c1a1f8 / jobf147d06a64504c1e. Correctness passes; all detail attribution rows rejected.
-Latest single-arm artifact: [Owned sparse-XOR prepare-qualified projection](2026-11-01-projection-sparse-xor-release.md) - exact685ffab5/321640B, fixed ordinary buckets, fiveCPU host gates pass; no comparative timings. Actual H200 gates and prepare limit remain unproved; root-only measurement decision.
+Latest single-arm artifact: [Owned sparse-XOR prepare-qualified projection](2026-11-01-projection-sparse-xor-release.md) - exact685ffab5/321640B, fixed ordinary buckets, fiveCPU host gates pass; no comparative timings. H200123.33s preparation/all10active and PASS9/30 subsequently confirmed, but the production schedule lost; see terminal closure above.
 
-Latest owned projection prototype: [Sparse exact E7-XOR repair in SK](2026-11-01-projection-sparse-xor-prototype.md) - distinct correction dataflow, exact all-bit/actual-packer gates, local sm90a controls identical and SX spill-free. No H200 latency/score/prepare qualification; full30 paired gate pending.
+Latest owned projection prototype: [Sparse exact E7-XOR repair in SK](2026-11-01-projection-sparse-xor-prototype.md) - distinct correction dataflow, exact all-bit/actual-packer gates, local sm90a controls identical and SX spill-free. The separate global-record production wrapper subsequently scored1.394120× and is closed. No global-record retry or layer port is queued.
 
 Latest independent production review: [Owned pruning and fixed-mask dispatcher](2026-11-01-owned-production-independent-review.md) - nine host tests and final selected local compiler gate pass: WD776/boundary424/route1664 opcode/operand lists equal, resources unchanged. Every nonzero hybrid remains NOFIT; no H200/host-link/runtime qualification.
 
@@ -37,6 +37,9 @@ and coordinator sessions. The user requested on 2026-10-29 that every project-st
 report be checked into this repository so other sessions can read it.
 
 ## Latest review
+
+[November 1 sparse-repair experiment and H200 result](2026-11-01-projection-sparse-repair.md) records PASS9/30 with all10SX active, but1.394120× belowC21.527806×. Exact global-record variant closed; complete archive, resource vectors and a distinct stage-local delivery assessment retained. No new layer port is selected.
+
 **Latest attention boundary audit:** [2026-11-01 source, SASS and score sensitivity](2026-11-01-attention-next-boundary.md). No new justified check; exact full-context dependency and counter-access gaps recorded.
 
 ## Latest checkpoint: top-10 audit and Windows restart

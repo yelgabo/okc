@@ -1,0 +1,19 @@
+{
+  "utc": "2026-11-01T17:37:56.580519+00:00",
+  "problem": {
+    "name": "muse_bf16_proj",
+    "title": "Dense projections",
+    "limits": {
+      "scored": {
+        "per_day": 10,
+        "used": 4,
+        "left": 6
+      },
+      "checks": {
+        "per_day": 20,
+        "used": 20,
+        "left": 0
+      }
+    }
+  }
+}

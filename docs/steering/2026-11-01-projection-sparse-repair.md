@@ -142,3 +142,56 @@ layer experiment requires a separately built sub1MB file, native/fresh/model
 checks and paired full-six46/16 evidence. Keep the existing first reset jobs
 centralized and unchanged; do not duplicate them. No layer public slot is
 selected by this report.
+
+## Dispatch addendum: first official H200 observation pending
+
+Root dispatched public single-arm job `2b537518091248f1` after all42 CPU tests,
+independent source review, exact committed-file equality and live quota checks.
+Source `c138969`, registration `1bd55da`, exact321640B/SHA685ffab5 above.
+The CLI confirmed `muse_bf16_proj`; private checks0/public6 before dispatch,
+no other recent live job. This is the production file, not the private harness.
+H200 qualification, score and resource vectors are pending. No layer slot or
+reset job was changed. Root is waiting on this exact job.
+
+## Terminal addendum: qualified correctness, decisive performance loss
+
+Owning public job `2b537518091248f1` completed on H200: PASS9 official tests,
+all30 benchmarks/profiles, checks.ok and no flags. Preparation123.332824s.
+Actual coverage is10SX overrides/0fallbacks/110pick keys,160startup math,
+10captures/30changed-input replays. All40FULL/NF control/treatment resource
+vectors passed the stated no-local/derived-layout/nonregressed-admission gates.
+
+Actual score is **1.3941200708702308×**,95%CI
+[1.3732082698071773,1.4150318719332842], below C2's1.5278064829557674×.
+All ten target adjusted latencies regressed5.157–52.411%; raw latencies also
+regressed7.372–35.141%. Other20 cells split10faster/10slower. The independent
+six-load reconstruction exactly reproduces both official scores. Replacing
+only the ten new adjusted values into the archived old20 gives a conditional
+factor0.913729, not a paired score or causal attribution. Full rows, resources,
+source/receipt pins and the normalization archive are in
+[the terminal report](2026-11-01-sk-xor-release-terminal.md), integrated at
+`a240b29` (owner `8bbaa7f`).
+
+**Close this exact global-record/before-A production schedule.** No retry,
+post-hoc subset promotion, direct layer port or replacement of C2 is justified.
+The private global-record harness is preserved as evidence, not automatically
+queued for another check on a closed production variant. Existing first G
+reset jobs and the separate frozen four-cell verify comparison are unchanged.
+
+A distinct stage-local record representation is being assessed, not selected
+for a GPU run. Its source hypothesis copies the repair records in the same
+bulk weight-stage transfer, rebases offsets inside that stage and derives the
+arena capacity from actual immutable stage counts. It could remove the new
+main-warp global-record dependency without reinstating correction warps.
+The failed representation already leaves832–960B of rounded shared-stage
+padding, but whether records fit is a pack/runtime fact; no chosen cap or
+forecast gain is asserted. Exact inverse packing, byte/transaction accounting,
+shared-reader retirement, unchanged controls, compiler admission and full-score
+validation are still required. This is a new delivery representation, not a
+rerun of losing bytes or an after-A/tile/cap sweep.
+
+Safety does not establish free overlap: the before-A global-record chain can
+hold stage credits. MT2/UPW2 late-arrive paths (qkv32/O32/unpool32) release after
+MMA, so simply moving repair afterA is not universally after release. The
+independent review's dated correction distinguishes an acyclic memory protocol
+from this unmeasured backpressure. Actual counters/stall costs remain unknown.
