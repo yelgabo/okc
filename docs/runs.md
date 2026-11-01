@@ -2218,3 +2218,22 @@ thread fornextLDS. Threecopies/group destinations disjoint; consecutivegroupssam
 reuse occursaftercompletedoldgroup/LDS. No interthreadringreader, so no extraCTAvisibility
 handoff andnoTMA/wgmmaasyncproxyfenceclaim. OriginalfinalCTAbarrierunchanged.
 [PTX8.7 asynchronousoperations](https://docs.nvidia.com/cuda/archive/12.8.0/parallel-thread-execution/index.html#asynchronous-operations).
+
+Result `b103af15ba564ef6` (source dbfb451): all requested computing gates completed,
+prepare135.5s. Full old/ring FP64 and wholebaseline checks pass atM1/7/15/16, onehot probes
+exact; allfive arms pass twofresh capturedinputs. Resources fieldsregs/local/static/
+dynamic/blocks: old[64,24,32768,0,1],ring[64,0,32768,98304,1], same inindependentbuilds.
+Thus the zero-local/nondegraded-residency gate genuinelypasses; ring removesspills but
+stillretains64regs and1CTA. Measuredfull candidate versusproduction loses input0
+A+.480/B+.528us,input1 A+.528/B+.608us; only12–17of100 roundsfaster. No productionadoption.
+
+Old rebuiltcontrols versusprod are -.656/-.736us input0,-.544/-.784 input1, but only85–92
+of100faster, withold2-old median-.192us andMAD.304/.272; preregistered thresholds.608/.544us.
+This does not qualify a currentrd16promotion or erasehistoricalprefetchlosses. The ring's
+memory-onlyprobes21.79–21.95us versusold6.18–6.37us expose a costly pipeline asbuilt,
+but resources differ: bothprobe32regs/0local,old2CTA vsring1CTA owingtoSMEM. They are
+nonadditive diagnostics, not isolated costs tosubtractfromfull. No caps/PF sweep; close
+this1024-threadtwo-stageprivatecp.asyncring. No mechanism testedhere establishestop10.
+Raw receipt and normalizedCLIprofile JSON/text retained; unchangedC3aggregate below.
+Unchanged C3 judgedcontrol passes9/9 at1.536215x,95%CI1.513172–1.559258; this aggregate
+is not the losingringcandidate's score. Fourprojectionchecks remain for new evidence.

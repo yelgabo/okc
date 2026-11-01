@@ -287,3 +287,7 @@ the public entry vjeux/okc-2026 with its design memos (see `docs/gap-analysis-20
 | Experiment | Evidence | Closure / reopening trigger |
 |---|---|---|
 | M16384 qkv directLt heuristic plans vs pinned SGLang dispatcher | e15f6a9a9ff047ef: twoindependentplans each of layouts0/2, twoheldouts, paired-14.99 to-16.26us vs897–900us; nullunder1us; FP64/probe/nearby pass | Below preregistered2%gain17.95–17.99us, no promotion. Pooler/unpooler pass separately; do not lower qkvgate after seeing result. Reopen with new schedule/algorithm or wholelayer evidence sufficient to justify including smaller component gain. |
+
+| Experiment | Evidence | Closure / reopening trigger |
+|---|---|---|
+| rd16 pooler two-stage private-per-warp cp.async shared ring, MT2/WR2/WK16/KU8 | b103af15ba564ef6: all FP64/probe/nearby/fresh gates pass; old64regs/24Blocal/1CTA vsring64regs/0local/131072Bshared/1CTA. Ring loses+.480 to+.608us vsprod on2heldouts/2builds;12–17/100faster. Probeold2CTA vsring1CTA | This pipeline asbuilt; spills removed but no gain. No local caps/PF sweeps. Reopen only with a structurally different staging schedule and evidence it avoids measured pipeline cost; memory probes have differing occupancy, so not an additive phase decomposition. Rebuilt old small gain fails all-twin preregistered promotion gates. |
