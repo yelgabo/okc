@@ -6,6 +6,8 @@ report be checked into this repository so other sessions can read it.
 
 ## Latest review
 
+[November 1 G release priority and C3 closure](2026-11-01-g-roi-priority.md) records the user's ROI steering and the whole-layer decision gates.
+
 [November 1 H200 expert win and release decisions](2026-11-01-attention-results-expert-pipeline.md#h200-component-result) records the 1.85–2.87% paired MoE gain and 2.348799× direct qualification. It includes the [public C3 result and refreshed ranks](2026-11-01-attention-results-expert-pipeline.md#public-scored-slots) and [the 16:00 PST layer handoff](2026-11-01-attention-results-expert-pipeline.md#restart-at-the-layer-quota-reset).
 
 [November 1 independent review of the active improvement campaign](2026-11-01-active-campaign-direction.md) evaluates G1b4 qualification, the live rank-50 gap and standalone attention controls.
