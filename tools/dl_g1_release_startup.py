@@ -8,6 +8,7 @@ from pathlib import Path
 
 BASE = '295ca590a9d07a2491d600e1c96ec5583d29ae3220f619bc9e99adf62ef48491'
 CONTROL = '1607293eee3403109df5d37b6e2d1ee34b528c3578afa6c2c8668440afde1658'
+POST_STAGE_FLUSH = '8195660dec57d9ceb6d6ab71d048fd5c144e657d8ec44022c75b0f34ca88bca1'
 
 
 def _release_private_scratch(torch, buffers, sentinel):
@@ -179,8 +180,8 @@ def _release_long_graph_test(torch, size, graph, x, ids, tw, banks, routes, scor
 
 
 def build(source, baseline_stress=False):
-    expected = CONTROL if baseline_stress else BASE
-    if hashlib.sha256(source.encode()).hexdigest() != expected:
+    supported = (CONTROL,) if baseline_stress else (BASE, POST_STAGE_FLUSH)
+    if hashlib.sha256(source.encode()).hexdigest() not in supported:
         raise ValueError('unexpected pure layer for requested startup test')
     helpers = (_release_private_scratch, _release_routes, _release_verify, _release_expert_self_test)
     notice = '\n# Added by yelgabo, November 1, 2026: private-state startup validation.\n'
