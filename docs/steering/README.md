@@ -120,6 +120,8 @@ report be checked into this repository so other sessions can read it.
 
 ## Latest review
 
+[Three emphasized Family F lessons in both root instructions](2026-11-01-working-principles.md#november-1-addendum--three-emphasized-family-f-lessons) covers base selection, per-workload portfolios and implementation-scoped failures.
+
 [Clarification of the first public-repo lessons, Family F](2026-11-01-working-principles.md#november-1-clarification--lessons-from-the-first-public-repo-family-f) distinguishes the alygg77 study from the later Family G integration.
 
 [Working principles applied to both root instruction files](2026-11-01-working-principles.md#november-1-addendum--applied-in-both-root-instruction-files) records the ten mandatory research/execution rules, including lessons from public implementations.

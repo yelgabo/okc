@@ -51,3 +51,7 @@ The user distinguishes the earlier alygg77/okc-muse-spark-kernels study (Family 
 These lessons are already represented by the new root principles for architecture challenges, whole-implementation comparisons, minimal integration, scoped failures and implementation decisions. This clarification changes no candidate, permission, benchmark status or active G-first priority.
 
 Sources: [original alygg77 audit](2026-10-30-alygg77-public-kernel-audit.md), [donor-first correction](2026-10-30-donor-first-adoption.md), and [Family F registration and later policy](2026-10-30-family-f-donor-baseline.md).
+
+## November 1 addendum — three emphasized Family F lessons
+
+The user selected lessons1/3/5 from the Family F clarification. Both roots now explicitly require our base to earn its place against alternatives, per-workload selection followed by complete-dispatcher measurement, and scope a failed version to its exact implementation rather than excluding a family or a working public reference. Existing principles3/4/9 were strengthened instead of adding another parallel checklist. Verified identical sections and all three obligations. No candidate or permission change.
