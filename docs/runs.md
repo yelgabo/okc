@@ -1844,6 +1844,11 @@ Root dispatched scored C3 `7a15f46e673b43d5` from the exact frozen file SHA256
 `9fd8e794f7eb989943718348da2bf21ece934be3b4527b349eed34ccbceea4a4`, under today's explicit
 user authorization. Pending at this entry; do not infer a new board score before its receipt.
 
+Result addendum: `7a15f46e673b43d5` passed9/9,1.513805x (95%CI1.491098–1.536512), below
+C2's best headline1.527806x with overlapping intervals. No causal standalone-score regression
+is established by this single run; repeated paired router gains remain the adoption evidence.
+Receipt `profiles/scored.7a15f46e673b43d5.json`. Board incumbent remains C2 at this observation.
+
 ### Actual pair7 packed-stream experiment
 
 `0ab8f0510515473b` (check, muse_bf16_proj), source this branch after `ed506b0`, pending.
