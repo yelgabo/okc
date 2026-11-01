@@ -1,0 +1,56 @@
+{
+  "UTC": "2026-11-01T22:54:48.427497+00:00",
+  "scope": "Published author data/source hash and arithmetic internally verified from cached immutable primary GitHub blobs; not our GPU check or paired causal comparison",
+  "published_job": "beb82b4224554523",
+  "owned_job": "607eb52bdaf24160",
+  "source_sha256": "48655c1bef954efc8c894169eacc504c1338a44a102e18a62bd5a4d1f329e894",
+  "results_sha256": "c080972c31b577cb5a362e3142f44827c5ac7b0835f5005379ef11ab093c6efa",
+  "matched_published_correctness_rows": 13,
+  "verified_benchmark_cells": 12,
+  "verified_weighted_loads": [
+    {
+      "load": "decode 1",
+      "posttrain_weighted_mean_us": 119.23694534611083,
+      "owned607_weighted_mean_us": 78.54904481802232,
+      "owned_over_posttrain": 0.6587643166303603
+    },
+    {
+      "load": "decode 16",
+      "posttrain_weighted_mean_us": 244.0304055577172,
+      "owned607_weighted_mean_us": 158.24100957331896,
+      "owned_over_posttrain": 0.6484479227564631
+    },
+    {
+      "load": "decode 32",
+      "posttrain_weighted_mean_us": 302.97487381240796,
+      "owned607_weighted_mean_us": 191.73973579615884,
+      "owned_over_posttrain": 0.6328568880430585
+    },
+    {
+      "load": "verify 1",
+      "posttrain_weighted_mean_us": 191.9037068880307,
+      "owned607_weighted_mean_us": 115.99082289963329,
+      "owned_over_posttrain": 0.6044220029960651
+    },
+    {
+      "load": "verify 16",
+      "posttrain_weighted_mean_us": 539.6619848947023,
+      "owned607_weighted_mean_us": 269.347029111948,
+      "owned_over_posttrain": 0.4991032102520663
+    },
+    {
+      "load": "verify 32",
+      "posttrain_weighted_mean_us": 683.3461005101631,
+      "owned607_weighted_mean_us": 359.29721608943515,
+      "owned_over_posttrain": 0.5257909803263617
+    }
+  ],
+  "reconstructed_official_scores": {
+    "posttrain": 1.2503460946715155,
+    "owned607": 2.1260826764231098
+  },
+  "profiles_present_in_published_record": false,
+  "new_GPU_job": false,
+  "all12_posttrain_cell_latencies_slower": true,
+  "all6_posttrain_weighted_latencies_slower": true
+}

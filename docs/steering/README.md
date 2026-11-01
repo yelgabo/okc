@@ -2,7 +2,11 @@
 
 Latest root measurement registration: [RMW H200 resume after service recovery](2026-11-01-rmw-h200-resume.md). User explicitly resumed one fixed RMW run; prefill excluded. Recovered1fad terminal is infra_error/refunded=true, without measurements. Live22:32UTC layer quota2scored/0checks and no active jobs; exact97935e7d/914572B regeneration and dependency pins verified. Source unchanged; root owns one scored measurement and its own ID. Earlier pause snapshots below are historical for this request; reset automation stays paused.
 
-Dispatch update22:45:26UTC: RMW **3fd1317143304bd5** accepted from registrationfaa1bef, exact97935e7d/914572B, stillqueued/no worker assigned; own-ID wait in progress. Goal confirmed ACTIVE; reset automation separately paused. Fresh layer quota1scored/0checks. API is back, actual H200 execution has not begun. Measurement remains incomplete; retrieve3fd, never duplicate it. Exact resume command/reader/evidence in the latest report.
+Dispatch update22:55:18UTC: RMW **3fd1317143304bd5** accepted from registrationfaa1bef, exact97935e7d/914572B, stillqueued/no worker assigned. The first local1050s observation timed out; same-ID retrieval is reattached, not resubmitted. Goal ACTIVE; reset automation separately paused. Fresh layer quota1scored/0checks. No H200 execution/result yet. Exact resume command/reader/evidence in the latest report.
+
+Latest bounded source check: [G upstream refresh22:46UTC](2026-11-01-keell-upstream-refresh-2246.md), root1324636/ownerb5b48d2. Primary connector and independent advertised refs still8e30e1be; complete layer blob matches archivedG0 exactly. No new source revision/candidate or reason to repeat its precision/compiler audit. The separate source search and four content checks are completed below; root still owns3fd.
+
+Source-intake follow-up: [Public layer discovery and actual-content/per-cell addenda](2026-11-01-public-layer-delta-2235.md), through rootdcaf507. PostTrainLLM is complete Apache2 source with a matching published author-owned1.250346x record; all12 adjusted cells/all6 weighted loads slower than607. Root independently verifies both source/result hashes,13/12 records and official score arithmetic. Corrected sums versus normalized means; no paired or insertion forecast. [runNburn classification](2026-11-01-runnburn-source-discovery.md), root4935b6d: real Muse GGUF runtime, different challenge contract, no stronger OKC/H200 artifact established. Two other leads are articles/evaluator audit. No new performance candidate; missing component profiles remain a gap.
 
 Latest root handoff: [G candidate funnel and single-arm qualification](2026-11-01-g-candidate-funnel-qualification.md), evidence603ed5b. ONE surviving implemented performance treatment: common+shortRMW,914572B/SHA97935e7d; frozen code and7 rootCPU facade tests plus independent reviews pass. Actual H200 gates run in its own prepare; no prior private1% win or separate common GPU job is required merely to measure it. PDL/boundary/pairedRNE/scale/gamma lanes have scoped negative evidence, not extra candidates. No measured gain or top10/top50 feasibility established. Goal/reset PAUSED; accepted1fad outcome/live ledger/quota unknown after22:23UTC local CLI retrieval timeouts. See exact candidate/manifest, resume gates and machine graph in the report.
 
@@ -622,6 +626,11 @@ accounting, and running a corrected matched whole-layer comparison. It records
 recommendations, not execution of those tasks; check current code and run logs for status.
 
 ## Report history
+
+- [2026-11-01 public layer delta and content/per-cell follow-up](2026-11-01-public-layer-delta-2235.md): root8bed2f0/2f3f5d7/93a94db/786b1d3/dcaf507; complete PostTrain base actually read and published12-cell comparison verified; source discovery limits, unit correction and component gaps explicit.
+- [2026-11-01 runNburn actual-source classification](2026-11-01-runnburn-source-discovery.md): root4935b6d/owner8d917fa;737-path inventory, genuine Muse runtime, GGUF/f16/FP32 contract and source-associated H200 evidence gap; no adoption or competitor score inferred.
+
+- [2026-11-01 G upstream refresh22:46UTC](2026-11-01-keell-upstream-refresh-2246.md): root1324636/ownerb5b48d2; main/advertised refs unchanged, complete979654B layer blob matches archivedG0, no new credited lead or candidate.
 
 - [2026-11-01 common-RMW owning reader](2026-11-01-common-rmw-owning-reader.md): root5cedf46/30d6c99, six synthetic terminal/source/log/startup/resource/dispatch negatives; actual frozen metadata predicate, explicit unexercised fallback and corrected short-load comparison labels. No GPU result in fixtures.
 

@@ -1,0 +1,16 @@
+{
+  "start_UTC": "2026-11-01T22:33:56.602510+00:00",
+  "argv": [
+    "okc",
+    "status",
+    "3fd1317143304bd5",
+    "--wait",
+    "--json"
+  ],
+  "returncode": null,
+  "stdout": "",
+  "stderr": "",
+  "local_timeout": true,
+  "timeout_seconds": 1050,
+  "finished_UTC": "2026-11-01T22:51:26.706790+00:00"
+}
