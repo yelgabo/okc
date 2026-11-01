@@ -3,6 +3,40 @@
 Every `okc check` on `muse_moe_w4a16`, newest last. Scores are the judge's speedup over
 SGLang with its 95% interval. Profiles and logs are in `muse_moe_w4a16/profiles/`.
 
+## October31 PDT active top10 campaign (post-login)
+
+Source baseline `d3eeeda`. Two checks dispatched from `codex/today-moe`; neither is a scored
+submission. Existing precision, ordering, gate thresholds and production policy unchanged.
+
+| job | source/artifact | purpose | status at dispatch |
+|---|---|---|---|
+|7631974774944a2a | current submission.py copied unchanged to `.build/today-moe/production51.py`; SHA25666618198aafc4d14cfe0350bf561fe8abc66f3d5bc9f6df1dbd2518508297c01 | fresh single-file correctness/timing for owned mode51 policy before coordinator's scored runs | pending |
+|e06255199f6d4de1 | `.build/today-moe/xp_diag.py`; SHA25665439aaad129401c62c40400e2a2eaccf5a360255f318c1b8469ad85b7622e3a | producer readiness/empty-slot attribution before any ring resizing | pending |
+
+Diagnostic reproduction:
+
+```
+python3 tools/moe_make_bench_ab.py .build/today-moe/xp_base.py unused.py --nopub=1 --base=51 --sizes=128,256 --routings=layer,std --seeds=211,212 xp=56
+python3 tools/moe_xprod_diag_patch.py .build/today-moe/xp_base.py .build/today-moe/xp_diag.py
+```
+
+The generated file repurposes diagnostic56 as51 plus xproducer-only local counters, disabling
+56's old light/skew/gather instrumentation so consumers match51. Other production predicates
+are unchanged. Phase A/B and job<=4/>4 n-tile buckets each store ready cycles, empty-region
+cycles, stage count and readiness-event count. StaticA times its xready spin only; claimedB
+times the done_as acquire **and proxy-fence region**. Empty region includes clock overhead
+and first-lap paths without a barrier wait. These are regions, not pure spin or utilization.
+Mode56, like51, does not claim phaseA dynamically (claim_a/claim_lean false).
+
+Counter storage is16 int64 values at `(1<<20)-16384+cta*64` in inter, below existing stage
+stamps at1<<20. G<=256 bounds the entire reservation; the host asserts both this and allocation
+bounds. Numerical fat51/56 paths do not use inter; skinny modes are not active for this arm.
+Single lane0 xproducer owns each CTA's16 words and writes all counters including zeros every
+launch. Host reads only after synchronization. Root read-only review confirms no changed
+acquire, proxy fence, barrier or release, and no consumer lifetime/alias issue at these bounds.
+Instrumentation can change producer pacing/register use; compare its timing with clean51 and
+use counters directionally. This is attribution only, never a submission candidate.
+
 ## Source facts (SGLang a55ab7d5, read from GitHub and hashed against the image)
 
 - `fused_post_expert_norm_weighted_sum` falls back to PyTorch ops below
