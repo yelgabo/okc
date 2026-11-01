@@ -2,6 +2,8 @@
 
 Latest root registration: [One fixed four-cell layer measurement](2026-11-01-owned-verify-public-measurement.md). Frozen4ad326c3/980787B, root7 host+2 builder tests pass, independent source/host/receipt-reader reviews clear. Authorized expiring-slot one-arm measurement pending root dispatch; no H200 performance claim or promotion.
 
+Latest single-arm hybrid host review: [Actual startup qualification](2026-11-01-hybrid-onearm-host-review.md). Exact4ad326c3/980787B passes7 independentCPU tests:48/8/24 full +40empty/8emptycaps/32restored, getters/negativefailures. Scopedsource/host only; H20013/12,setup/runtime/score remain unqualified.
+
 Latest single-arm layer qualifier: [Repaired full-four-cell startup checks](2026-11-01-production-startup-qualifier.md) - exact4ad326c3/980787 B, normal timed path unchanged, private full-model/fresh/cache/empty/resource gates prepared and CPU-reviewed. H200 correctness, admission, setup and performance remain unmeasured; root-only official decision.
 
 Latest measurement-reader review: [One-arm hybrid owning receipt](2026-11-01-hybrid-measurement-reader-review.md).46:16/six-load/raw-adjusted formulas pass; identified terminal/log/resource ownership gaps repaired and independently rechecked with4 tests. Server identity and physical source SHA remain separately associated by the upload manifest.
