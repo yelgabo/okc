@@ -139,3 +139,16 @@ inherit that whole-grid defect. [Scoped C2 audit](2026-11-01-c2-projection-progr
 Read-only Kernarc registration/research was completed earlier; it created
 no new posting or standalone-code adoption. Credentials remain outside
 the repository. [Recorded research and source limits](2026-11-01-component-frontier-round.md).
+
+## Subsequent G-gap steering and concrete third check
+
+The user's upstream-performance question produced a full
+[G0-to607e integration inventory](2026-11-01-g0-607e-integration-gap.md),
+separating requirements, conservative choices and unmeasured cost. Its
+21:12UTC addendum supersedes this report's later-queue ranking: after the
+unchanged stage/serial-front checks, the next conditional private question
+is the exact906841B/f042 short-counter restoration. Its formal proof,
+selected compiler gate and root16 CPU tests pass; H200 performance is unknown.
+The existing reminder was updated in place; old owned-four-cell stays HOLD.
+Resolve accepted1fad and live service first, and retain same-runner controls
+and reported node/compiler/baseline identities after the migration.

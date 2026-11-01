@@ -1,6 +1,6 @@
 # Shared project steering
 
-Latest G integration decision: [Why G0 remains ahead of607e](2026-11-01-g0-607e-integration-gap.md). Exact5.77% score discrepancy remains unattributed; short expert paths dominate cross-job sizing, main-onlyMFIN/SC6 do not explain it. Mandatory repairs versus conservative choices, actual locality losses and one OFF short-counter restoration/proof+compile target recorded. No new H200 result;1fad outcome stillUNKNOWN.
+Latest G integration decision: [Why G0 remains ahead of607e, with21:12 handoff](2026-11-01-g0-607e-integration-gap.md). Exact5.77% gap remains unattributed; short expert paths lead. One OFF counter restoration has formal proof/selected compile and root16 CPU gates, exact906841B/f042 private check frozen after the unchanged first-two reset jobs. Service530 keeps1fad resultUNKNOWN; no gain/promotion claimed. Node/baseline identities and same-runner controls required on recovery.
 
 Latest root handoff: [Maintenance and measured-opportunity queue](2026-11-01-maintenance-and-progress-handoff.md). Accepted1fad70bbe3854cbc resultUNKNOWN after status/jobsAPI530; no retry/promotion. Exact980787B candidate/CPU reviews, fresh20:12 boards, MoEhistoricaleligibilitygap and conditional same-reset queue published. Top10/top50 remain unestablished.
 
@@ -601,6 +601,8 @@ accounting, and running a corrected matched whole-layer comparison. It records
 recommendations, not execution of those tasks; check current code and run logs for status.
 
 ## Report history
+
+- 2026-11-01 21:12UTC: [G-gap concrete handoff](2026-11-01-g0-607e-integration-gap.md#2112-utc-handoff-one-concrete-private-check-is-frozen): root16 tests, exact f042 third private check/strict reader and same existing conditional reminder; no new GPU result.
 
 - 2026-11-01: [G0-to607e unresolved integration gap and prioritized repair inventory](2026-11-01-g0-607e-integration-gap.md): exact three score identities/all12 readings, source requirements versus choices, existing attribution limits and next short-expert proof/score gate.
 

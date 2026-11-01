@@ -135,3 +135,60 @@ The broader roadmap is now explicit: favor this proof-backed, minimally
 changed short-expert question over an unrelated microtune once its gates clear.
 No ready large precision rollback or promise of G0/top50/top10 performance
 follows from this inventory.
+
+## 21:12 UTC handoff: one concrete private check is frozen
+
+Root integration checkpoint `6fe1134` now includes the
+[scoped PTX/epoch proof](2026-11-01-g-ordering-restoration-proof.md),
+[actual selected compiler/load census](2026-11-01-g-short-final-rmw-compile.md),
+[private source review](2026-11-01-short-rmw-private-review.md),
+[whole-host review](2026-11-01-g-short-rmw-host-review.md) and
+[strict owning reader](2026-11-01-short-rmw-owning-reader.md).
+The source change has an explicit memory-model argument and independently
+checked actual lowering; no fence was removed on numerical tests alone.
+
+Root double regeneration produces **906841 B**, SHA256
+`f0426f7160768de01997b271744542ae3442d0851a1c27e586ced322a8fc6864`.
+The private artifact is regenerated with
+`python tools/g_short_rmw_check.py ROOT SCRATCH/check.py`; never submit it
+publicly. Ready manifest and normalized dependency hashes:
+`muse_decode_layer/profiles/short-rmw-ready.2026-11-01/manifest.json`.
+Root reran11 actual source/score/host tests, PASS4.132s, plus the five owning
+reader tests, PASS0.011s. GPU/native/reference arithmetic services remain
+explicit CPU substitutes; these16 passes are not new H200 measurements.
+
+There are **two compiled variants per short module and four private state
+placements**, not four independent compilations. Both sides retain607e's
+stage-on WGS/B4 policy and other native families. The pure opt-in follows
+Tiny/Tiny2 families, including their valid smaller neighboring token counts;
+the private scored banks cover T1/T8. Generic/public correctness remains a
+separate clean qualification gate.
+
+Coverage is36 median rows,144 normal checks,144 fresh-final checks,144 model
+captures and32 empty checks. Empty precedes occupied work without manual
+counter reset. Eight changed-input replays are checked at their **final**
+output, not individually. The capsule retains medians, not24-sample vectors.
+Final owner/guard checks occur after printing, so a capsule alone is never
+success: the reader requires the own terminal private-check13tests/12bench/
+12profiles/flags/errors/setup gates before interpreting it. Private ratios
+are raw cold GPU-event whole-graph comparisons, not official adjusted scores.
+
+The **same** existing16:00PST reset reminder was updated/read back, with no
+new timer. It must first resolve accepted1fad70bbe3854cbc and fresh service/
+live-ledger/quota; then preserve full-G stage first, serial front second,
+and this private counter question next. Old owned-four-cell remains HOLD.
+The last root probe still returned530 for status/jobs/quota. No additional
+GPU job was dispatched. Code remains OFF and incumbent607e is retained.
+
+On node-migration recovery, record reported GPU/node/driver/runtime,
+evaluator image/code, baseline and compiler identity when available; mark
+missing provenance explicitly. Same-runner paired controls are the causal
+reference. Hardware/admission failures stay fatal. If1fad establishes a new
+validated incumbent, reconcile it before promotion: f042 is a607-lineage
+diagnostic and cannot by itself certify a combined hybrid improvement.
+
+The separate standalone MoE progress prototype68bf4c1f stays OFF: root's five
+CPU tests pass, but both native fatal representations fail main47's
+no-new-spill gate. That is a recorded local static miss, not a GPU slowdown
+or a reason to certify the old ordinary-launch source. It is unrelated to
+the new G short-counter candidate's positive bounded compiler gate.
