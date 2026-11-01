@@ -150,3 +150,84 @@ removal, reduced polling-clock frequency or relaxed acquire belongs in this test
 This is a proposed measurement, not dispatched work or a top10 forecast. Source
 supports semantic equivalence on successful waits; available counters do not prove
 a material recoverable wakeup cost. No kernel changes are included in this audit.
+
+## Dated addendum: November1 PDT, source prepared off production
+
+Root subsequently approved preparing the one-hypothesis harness, with one check
+authorized only after independent read-review by today_proj. Production submission.py
+is untouched. `tools/moe_skinny_testwait_check.py` generates a scratch source with flags
+0/256/128/384 (baseline, unused-bit independent neutral, test, independent testduplicate).
+All original kMode predicates mask only low15 and bits16/32/64; new bit128 controls
+only full_slot_ready. Bit256 has no predicate. Two call sites change, all other skinny
+code and the entire fat device source are preserved. New modes are excluded from the
+original production tuner candidate list. Host export adds resource queries only.
+
+`tools/test_moe_skinny_testwait_source.py` passes: removing the new host resource
+function/declaration and local helper, and restoring the two full-slot calls, restores
+the complete original CUDA/CPP/skinny strings exactly. No empty/hand/global/fat wait,
+watchdog, proxy fence or barrier changes. Generated Python syntax passes.
+
+The harness requires exact resource-vector equivalence before timing,64 eager and64
+postgraph mathematical checks across16 heldout cases,20 cold randomized rounds,
+the registered1% whole-six-load contribution/2xnull and per-case regression gates.
+Additional fully counted stamped2/130 twins run only AFTER paired timing, under a
+265s optional-stamp guard; incomplete stamps mean no new attribution claim. Core
+coverage remains required under280s. Final compact summary asserts under10KB so all
+case rows, resource vectors, math tally, stamp totals and decision survive the16KB
+receipt tail. No short hint, ring-depth, prefetch, precision or watchdog sweep.
+Independent read-review is pending; no GPU job yet at this checkpoint.
+
+November1 execution addendum: today_proj independently reviewed776b859 and verified
+generated SHA25658bce614db8b5baefa5d5c264a87da51515272bd11d1dd577beb146d2eabe99b,
+source test, successful-wait semantics, full-only scope, watchdog and helper progress,
+private states and resource gate. No blocker found for one diagnostic. Root standing
+approval then dispatched check87f22aa71e614460 on muse_moe_w4a16. TWSCORE is explicitly
+a fixedsk8/3 contribution with two large loads assumedunchanged, not the actual
+official policy score. The timeoutbreak has the baseline's preexisting behavior and
+must reject through ctr8; no successful ordering claim applies on a timeout. Pending.
+
+November1 harness correction:87f22aa71e614460 failed a first-case host formatting
+TypeError because the round loop variable shadowed built-inround(). No complete
+timing result or official score. Root authorized host-only round_idx correction and
+one corrected check252df4a54d764ca5. CUDA/CPP/skinny/variant constants remain exactly
+equal between frozenoriginal andv2. The CPU scaffold now executes the actual timing
+loop/formatter, scoregate and compactsummary using no-op CUDA scaffolding, tests both
+winning and losing synthetic decisions, and reproduces the original failure as a
+negativecontrol. Three tests pass. No threshold, kernel or hypothesis change; pending.
+
+November1 second harness failure:252df... reached optional stamps after the core
+loop but rank2 dtype-view slicing made the132x16 decode fail. Because core summary
+had not printed, no timing/contribution result is recoverable. V3 flattens first and
+prints core before stamps, with decoder-only errors explicitly no-attribution;
+execution/spin failures remain fatal. Six tests now execute actual host formatting,
+score/summary and optional decode/error/guard paths with officialCPU-onlyTorch2.10
+and a real4096x4096BF16 scratch tensor. Both winning/losing synthetic decisions,
+zero/full headers and the old reshape failure are covered. No GPU timing is inferred
+from these fixtures. Log at profiles/testwait_host_cpu.2026-11-01.log under MoE.
+Further source review/root authorization is required before another check.
+
+Final host-review addendum: reviewer caught GPU conversion/transfer still within the
+optionalcatch. Corrected before dispatch: flattened int64 counter snapshot/CPUtransfer
+is outside, only CPU reshape/header/math inside. Snapshottransfer errors are tested
+fatal. today_proj independently reran all6 tests and cleared exactV3SHA
+528dea8ff79888a2b8f6693e9c5c63c20210547d6128f9bf8fc80b9f9cdcb4d1. Root's conditional
+third/final retry authorized check9be599cf333a47c4. No CUDA/hypothesis/gate change;
+no fourth retry without new review. Pending, no recovered timing claim from old jobs.
+
+November 1 measured closure, source/dispatch commit036b581: final corrected check
+`9be599cf333a47c4` completed all16 cases,64eager+64graph checks, and all8 corrected
+stamp pairs. Exact resources match all4 arms:130regs,0local/static,155520dynamic,
+1block/SM,maxThreads288. Contribution test1.000956258 and independent duplicate
+0.998638858 versus null1.000295776 fail the preregistered1%/2xnull and per-case
+regression gates (KEEP=False). This is a fixedsk8/3 relative contribution with128/256
+assumedunchanged, not the official policy score. Official unchangedowned control
+passes5tests at2.207723314x CI2.174607465–2.240839164. No production change/promotion.
+
+Stamped mean CTA A/B full-wait regions are retained in runs-moe and receipt. Largest
+A reduction is .552us (M1layer), M32layer instead increases .122us; these are serial
+instrumented regions, not wall-time savings. No evidence for a useful polling-policy
+gain. Close this exact full-slot-only test_wait replacement; do not run a hint sweep
+or fourth retry under this authorization. New mechanism requires new evidence/review.
+All16 per-case timing rows and successful complete summaries remain in
+`muse_moe_w4a16/profiles/testwait.9be599cf333a47c4.*`. Old failed harnesses still do
+not supply timing claims. Parent coordinates report index and publication.

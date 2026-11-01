@@ -1,0 +1,19 @@
+test_actual_host_loop_format_and_score_gate_on_cpu (__main__.SkinnyWaitSource.test_actual_host_loop_format_and_score_gate_on_cpu) ... ok
+test_exact_scope (__main__.SkinnyWaitSource.test_exact_scope) ... ok
+test_host_formatters_are_not_shadowed_by_loops (__main__.SkinnyWaitSource.test_host_formatters_are_not_shadowed_by_loops) ... ok
+
+----------------------------------------------------------------------
+Ran 3 tests in 0.115s
+
+OK
+/root/.cache/okc-host-validate/lib/python3.14/site-packages/torch/_subclasses/functional_tensor.py:283: UserWarning: Failed to initialize NumPy: No module named 'numpy' (Triggered internally at /pytorch/torch/csrc/utils/tensor_numpy.cpp:84.)
+  cpu = _conversion_method_template(device=torch.device("cpu"))
+test_complete_real_tensor_decode_and_summary (__main__.HostStampCPU.test_complete_real_tensor_decode_and_summary) ... ok
+test_stamp_guard_and_execution_fail_closed (__main__.HostStampCPU.test_stamp_guard_and_execution_fail_closed) ... ok
+test_zero_and_shape_decode_failures_preserve_core (__main__.HostStampCPU.test_zero_and_shape_decode_failures_preserve_core) ... ok
+
+----------------------------------------------------------------------
+Ran 3 tests in 0.135s
+
+OK
+Host-only validation Torch=2.10.0+cpu CUDA_available=False

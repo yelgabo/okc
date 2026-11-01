@@ -559,6 +559,119 @@ Park the registered two-size/two-routing multicast hypothesis before GPUcopy/ful
 no narrowing to32-layer after failure. HBM/L2 bytes, multicast benefit and residency
 unmeasured. Dated audit addendum records exacttable and stopping/reopening scope.
 
+### November1 PDT: skinny full-slot wait policy, one hypothesis
+
+Check87f22aa71e614460 dispatched from `.build/today-moe/moe_skinny_testwait.py`, SHA256
+58bce614db8b5baefa5d5c264a87da51515272bd11d1dd577beb146d2eabe99b. Builder
+`tools/moe_skinny_testwait_check.py` at776b859. Root approved after independent
+today_proj read-review: exact generated hash/sourcegate verified; PTX8.7section
+9.7.13.15.16 gives same acquire-on-True for test/try, old defaults acquire/CTA;
+parity and only two skinnyfull call sites change. Globalhelper/fat/empty/hand/producer
+progress/watchdog/fences unchanged. No short hint, NS/prefetch or vote changes.
+
+Four independently compiled arms sk8w3s mode0, neutral unusedbit256, testbit128 and
+testduplicate384; private scratch, sharedreadonlyweights. New flags excluded from
+production policy. Resourcevectors regs/local/static/dyn/blocksSM/maxThreads must
+match exactly before timing; all16cases1/8/16/32 layer/std, heldout321/322 fixedrouter8,
+64eager+64postgraph mathchecks, cold20random rounds, original.008/.075 limits/spin0.
+Registered1% sixload contribution beyond2xnull and percase-regression gate; this
+fixedsk8/3 contribution assumes large128/256ratio1 and is NOT an officialpolicy score.
+Two corrected fully counted stamped2/130 twins after timing, optional265s guard;
+corecoverage280s failclosed and finalsummary<10KB. Production source untouched.
+Reviewer notes timeoutbreak can reach loads withoutTrue exactlyasbaseline; timeout
+flag rejection remains required, never an acquire proof or successfulmeasurement.
+Pending; no promotion before exactcandidate official/fresh gates.
+
+87f22aa71e614460 FAILED prepare in host harness formatting: `for round in range(20)`
+shadowed built-inround, then compact `round(v,3)` raised TypeError at firstcase summary.
+Baseline preparation/selftests completed, build153.6s, policy skinny1/8/16/32+51large,
+spin0. Exactresourcegate and firstcase math reached, but no resourcevector or complete
+16case table retained; no official score or wait-policy timing conclusion. Failedreceipt/log
+saved `profiles/testwait_harness.87f22aa71e614460.*`. This is a tooling error, not kernel loss.
+
+Root authorized one host-only correction. Changed loop variable to round_idx; all
+CUDA/CPP/skinny/variant constant values exactly equal between frozenoriginal andv2.
+Added CPU scaffold executing ACTUAL20-round hostloop, compactformatter, scoregate and
+summary via AST with no-op event/graph stubs. Synthetic winning and losing scoregate
+branches pass; a negativecontrol recreates the old shadowing TypeError. Three source/
+host tests pass, syntax passes. Correctedcheck252df4a54d764ca5 dispatched from
+`.build/today-moe/moe_skinny_testwait_v2.py`; same preregistration/reviewedCUDA, pending.
+
+252df4a54d764ca5 FAILED optional stamp-host decoding after the complete core loop:
+inter is rank2; `.view(int64)[:G*16]` sliced rows, so reshape132x16 saw2162688 elements.
+No core summary had yet printed, therefore no per-shape timing or contribution score
+is recoverable/claimed. Baseline build153.4s/selftests spin0; the stack location is
+after core math/timing, not evidence of a wait-policy win. Failedreceipt/log saved
+`profiles/testwait_stamp_harness.252df4a54d764ca5.*`. No newGPU authorized yet.
+
+Host-v3 repair flattens the dtype-view before selecting2112 counter values, prints
+the complete core summary BEFORE optional stamps, and catches only decoder errors
+as explicit no-attribution. Kernel execution and spin-timeout failures remain fatal
+outside that catch. Core280s/stamp265s guards and registered performance gates unchanged.
+Persistent local `/root/.cache/okc-host-validate` now has officialCPU-onlyTorch2.10.0
+(Python3.14); CUDA_availableFalse. It is host validation, not a GPU benchmark.
+
+Six tests pass: source scope, callable-shadow check, ACTUAL20-round loop/all16compact
+case formatting and winning/losing scoregate/summary; plus REAL CPU Torch2D4096x4096BF16
+inter decoding, full valid headers, zero-header rejection, reproducedoldreshapeerror,
+core-preserving error/guard summaries and fatal CUDA-execution/spin/coreguard branches.
+CPUfixture A/B wait values are synthetic and not reported as hardware measurements.
+Validation log `profiles/testwait_host_cpu.2026-11-01.log`. V3scratch source generated
+and syntaxchecked; independenttoday_proj host-source re-review requested before root
+decides whether to authorize a further corrected check. CUDA/constants unchanged.
+
+Independent v3 host review caught a further exception-scope issue before any retry:
+GPU `.double()`/`.cpu()` were still inside a broad decodercatch. Finalv3 moves a
+flattened int64 prefix snapshot/CPUtransfer OUTSIDE the catch, after launch/sync/spin
+checks. Only CPUint64 reshape/header/math is optional inside. Snapshottransfer error
+negativecontrol stays fatal; zero/badCPUheaders remain no-attribution. Actual2DTorch
+tests and source/formatter tests all pass6/6, independently rerun by today_proj.
+Verbose validation log `profiles/testwait_host_cpu_v3.2026-11-01.log`.
+
+Root authorized ONE third/final corrected retry after this clearance.9be599cf333a47c4
+dispatched from `_skinny_testwait_v3.py`, exact reviewedSHA256
+528dea8ff79888a2b8f6693e9c5c63c20210547d6128f9bf8fc80b9f9cdcb4d1. SameCUDA/constants
+and preregistered gates; no fourth retry without new root review. Core prints before
+optional stamps, finalsummary always on decoder/guard fallback; kernel/transfer/spin
+errors remain fatal. Pending, no performance or promotion claim.
+
+### November 1 final skinny FULL-slot wait-policy result: close
+
+Check `9be599cf333a47c4`, source/dispatch commit `036b581`, reviewed generated SHA256
+`528dea8ff79888a2b8f6693e9c5c63c20210547d6128f9bf8fc80b9f9cdcb4d1`, completed
+on H200. All 5 official tests pass. The official path remains owned production control:
+2.207723314x (95% CI 2.174607465–2.240839164), not a test_wait candidate score.
+Its median us at M1/8/16/32/128/256 are 27.401/68.636/95.941/134.509/192.134/237.144;
+baseline medians used by the receipt are 77.648/145.904/186.976/209.360/460.368/627.152.
+
+Complete four-arm timing evidence survives the receipt: all 16 layer/std cases at fixed
+seeds321/322, 64 eager +64 postgraph FP32 checks pass, spin flags0. All arms have exactly
+130 registers, 0 local/static bytes, 155520 dynamic bytes, 1 block/SM, maxThreads288.
+Fixed-sk8/3 six-load contribution multipliers: null1.000295776, test1.000956258,
+test duplicate0.998638858. These assume unchanged128/256 and are NOT actual official
+policy gains. Both the prospective >=1%/2xnull gate and per-case regression gate fail;
+KEEP=False. Exact two-full-slot test_wait mechanism closed; no production edit, fresh
+promotion check or fourth harness retry. Reopen only with new evidence/mechanism.
+
+Optional corrected stamped twins completed all8 cases. Mean CTA thread0 A/B full-wait
+regions in us (try_wait -> test_wait), not critical-path savings:
+
+| M / routing | A region | B region |
+|---|---:|---:|
+| 1 layer | 2.677 -> 2.125 | .226 -> .224 |
+| 1 std | 2.908 -> 2.494 | .380 -> .383 |
+| 8 layer | 5.897 -> 5.812 | 1.955 -> 1.769 |
+| 8 std | 5.794 -> 5.261 | 1.771 -> 1.761 |
+| 16 layer | 4.280 -> 4.119 | 1.321 -> 1.272 |
+| 16 std | 5.857 -> 5.858 | 1.953 -> 1.947 |
+| 32 layer | 4.791 -> 4.913 | 1.973 -> 1.996 |
+| 32 std | 8.031 -> 7.693 | 3.011 -> 2.998 |
+
+Modest changes in these instrumented regions do not produce a repeatable whole-kernel
+improvement. Raw per-case medians/paired deltas, all resource vectors, stamp rows and
+official profiles/receipt are preserved in `profiles/testwait.9be599cf333a47c4.*`.
+Earlier87f.../252df... remain distinct host failures with no recoverable timing claim.
+
 ## Source facts (SGLang a55ab7d5, read from GitHub and hashed against the image)
 
 - `fused_post_expert_norm_weighted_sum` falls back to PyTorch ops below
