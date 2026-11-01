@@ -2126,3 +2126,13 @@ selectedrow/fullKFP64, power2probes, nearbyM16383 candidateplan checks; all<.005
 Preregistered perinput/arm gain threshold max(2%baseline,2×duplicate-nullMAD); bothinputs
 and bothtwinplans must pass. Deadline240sprepare skipsremainingops explicitly. No prefill
 aggregateforecast; any promotion requires exactintegratedprefill official/freshvalidation.
+
+Deferred GEMV backlog (root reprioritized to prefill): keep original dedicated escape warp
+and precompute its exactFP32 original-minus-decoded delta into table ent.y inprepare, using
+same8-byte entry and retaining __fmul_rn/__fadd_rn/reduction order. Current cgemv reconstructs
+decodedweight and recomputes clamp/subtraction for every escaped entry every call; older
+skinny formats already store deltas, whereas cgemv deliberately stores original bits.
+No dispatch or speedup claim. Reopening requires actual escape-region critical-path evidence
+or larger potential than a tiny tail, exact originalGPU-subtraction vsnewtablebitidentity,
+allfiniteBF16×validbase CPU subtraction proof, FP64/probe/freshinput gates, and heldout
+paired gain beyond independentnulls. Integratedwarp loss does not prove this ALU is critical.
