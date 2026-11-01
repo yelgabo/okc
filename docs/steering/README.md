@@ -1,5 +1,7 @@
 # Shared project steering
 
+Latest packed hybrid host audit: [Real source factories and dispatcher](2026-11-01-hybrid-packed-host-review.md). Final3b205d40/d3f2b31e pass22 real native build-source captures,12 wrapper facades and2 removed-anchor negatives; old provisional files invalid. Source/host only; H200 setup/runtime/performance remain unqualified.
+
 Latest owned compiler gate: [Comment-only native equivalence](2026-11-01-owned-comment-compile.md). ONE L8 modes3/51 and MoE51 have identical normalized SASS/resources at revised notice-preserving pins. CPU-only; no runtime/performance qualification.
 
 Latest reset readiness: [Shared set-owner repair](2026-11-01-reset-host-readiness.md). Old stage/short/four-cell pins block on real G sets; narrow clone repair passes six CPU host tests and double regeneration. New pins require root review; actual H200 setup/capture remain unqualified. No queue or GPU action.
