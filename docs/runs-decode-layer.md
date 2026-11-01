@@ -754,3 +754,14 @@ Acceptance: whole-layer improvement beyond both nulls in all four cross-ratios o
 loads, no consistent context regression, all FP64/fresh/reference gates and policy attribution
 complete. Otherwise retain baseline and record loser; no automatic retry. Layer quota before
 dispatch12used/8left, standalone19used/1left untouched. Job pending source breadcrumb.
+
+Terminal **1e3349e377234e89**, source1ecf680: DONE/pass13, control-path score2.0260216001,
+95%CI[1.9956312761,2.0588187683]. Both prepares150s, comparisoncomplete152s, all32
+reference checks pass. Three exact pins accepted; FP64rel.001660–.001662,row.001714–.001751,
+exactprobe and3freshgraphs pass. v16 pooled1.0049 (fourcross1.0043–1.0056,null1.0011/1.0002),
+v32 pooled1.0129 (cross1.0118–1.0140,null1.0017/.9995); two-load pooled1.0089 beyond2×null.
+Paired4cross latencies: v16s-1.2..-2.0us, v16f-1.1..-2.2,v32s-4.1..-4.4,v32f-4.2..-4.8.
+Affected128/256 MoE/front/abnd/wide policies match. Unaffectedsmall-M front/M1/W4 differ
+between independentprepares; no full-six-load extrapolation from this receipt. Root requests
+common-prepared-policy all-six-load combined Lt+short-boundary follow-up; no public submit yet.
+Raw receipt and normalizedprofiles archived.
