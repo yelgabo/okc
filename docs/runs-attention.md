@@ -3701,3 +3701,50 @@ Acceptance: d1-full cold improvement on all3inputs beyond independent control va
 weighted standalone gain beyond nulls; then candidate-only official correctness and explicit
 SPEC-miss/fresh-input replay stress before any promotion. Unaffected shapes must not supply the
 gain through placement noise. No precision change; no fence, copy, commit, wait or barrier moved.
+
+### Late-tid first result, b4d75c3185744d0a
+
+Correct receipt board/id confirmed. Passed16/16 official tests; unchanged default-off control
+scored2.561845x (95%CI2.523418-2.613075). Control, late, ctrl2 each passed19/19 harnesschecks.
+Receipt/log `profiles/latetid.b4d75c3185744d0a.{json,log}`. No new resource counters.
+
+|Cold raw graph median, us|control|late|independent control2|
+|---|---:|---:|---:|
+|decode1 sliding|9.28|9.28|9.31|
+|decode1 full|17.28|16.80|17.15|
+|decode16 sliding (unchanged code)|13.06|12.86|13.12|
+|verify32 sliding (unchanged code)|19.97|20.16|20.06|
+
+D1-full candidate deltas on three held-out inputs: -0.51/-0.42/-0.45us;
+control2 deltas -0.13/-0.06/-0.10us. This is a localized positive signal, not a promotion.
+Raw ABSCORE late1.0020 versus null0.9985. Using rounded ABSUM medians and each official
+shape's replay-overhead calibration gives approximate all-shape ratios1.003026/0.998234.
+If unchanged instances are held equal to control, changed decode1-only ratios are
+1.002760/1.000249. These are scoring sensitivity estimates, not official candidate scores:
+the A/B graphs do not independently calibrate each arm's replay overhead. Unchanged decode16
+and verify32 readings show why the complete raw ratio cannot be credited to this mechanism.
+
+Four-arm confirmation dispatched: `ab53721b09854717`, sourcefac5188, generated with
+`--null --shapes all --inputs 3 --rounds 150 --seed 311103
+late1@own=-DONE_LATE_TID=1 late2@own=-DONE_LATE_TID=1,-DOKC_LATE_NULL=1`.
+The unused second flag forces a separate extension build; both candidates have independent
+workspace/preparation state, as do controlsctrl/ctrl2. Gates: all4 d1-full cross comparisons
+must improve consistently on all3inputs beyond control/candidate null differences; corrected
+changed-only aggregate gain must exceed twice the largest corrected changed-only null in log
+space; no material regression on affected d1sliding. If confirmed, run candidate-only official
+correctness and 2000fresh queued replays, including speculative-length misses, before promotion.
+
+## Scored control repeat2: new board score without algorithm change
+
+|date|job|commit|change|score (95%CI)|notes|
+|---|---|---|---|---|---|
+|2026-10-31|8914751e3b9f468b (root submit)|d3eeeda + repeatcomment2|Same owned PRQ31/HMRG1/pick-off control body|2.604290x (2.565226-2.643355)|Passed16/16 official tests; new best score caused by a repeat, not a new algorithm.|
+
+Receipt `profiles/scored.8914751e3b9f468b.json`; exact root file
+`.build/today/attention_repeat2.py` SHA256
+`b296c13ad2745336e97488e297fcde751a5fc10c818c92b6f2250656369efe75`.
+Default production flags remain ONE_LATE_TID0, PRQ31, HMRG1, workspacepick0.
+Do not attribute the score increase over2.534850 to late-tid: this file does not enable it.
+Latest best's full per-shape hotspot table appended to docs/hotspots.md with saved baseline
+receipt24daba2202e547d6. Kernel-profile plans remain decode sliding13/1/1, full11/49/49;
+verify sliding15/3/3, full11/51/51. Rank must be read live; no cutoff inferred here.
