@@ -580,3 +580,5 @@ Latest: [Dense projection transfer to the decode layer](2026-11-01-layer-dense-t
 - 2026-11-01: [Independent attention wait-trace review](2026-11-01-attention-wait-independent-review.md): finala882bd2 source/API cleared for scoped diagnostic afterallresourceparityfix; sixCPU+actualC++mockpass, no H200 or physicalmetricclaim.
 
 - 2026-11-01: [Independent G stage-probe device checkpoint](2026-11-01-g-stage-probe-independent-review.md): shared-field lifetime, exact trace bounds and actual SASS/resource review; final host artifact and source-version reconciliation remain open, no dispatch clearance.
+
+- [2026-11-01 MoE locality primary-source ledger](2026-11-01-moe-locality-primary-ledger.md): exact mapping bug, corrected PR3905 distinction, later grouped schedule scope, CPU coverage proof.
