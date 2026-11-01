@@ -2074,3 +2074,18 @@ Hardware correction: older M-C plan's3.35TB/s is H100SXM, not H200SXM. NVIDIA's 
 gives H2004.8TB/s, consistent with TASK floors. Do not infer near-floor status from3.35.
 A datasheet ceiling is not a measured recoverable gain. Prior benchmark receipts report
 H200,SM1980MHz/memory3201MHz at capture; no counters measure actual bandwidth here.
+
+### Original 12-bit GEMV: integrated escape consumer (resource threshold)
+
+Check `bac995b3b94541c4`, pending; generator `tools/proj_make_bench_cgemv_ie.py`.
+This changes ownership rather than compression: consumer warp0 applies the unchanged
+escape helper after its ordinary FMAs, eliminating the extra32-thread warp at launch.
+The original main reduction slots and escape slot, final sum order, full-mask shuffle,
+and final CTA barrier remain identical. CPU gate checks every escape entry has one
+owner and verifies unchanged helper/final-sum source tails; generated Python compiles.
+CPT1 retains32-register cap, CPT2 retains40. Four independently built arms (A/B old/inline)
+plus production are paired across two held-out inputs,100 cold randomized rounds each.
+Actual cudaFuncAttributes and occupancy are queried before candidate timing: skip if
+blocks/SM fail to increase or local memory appears. FP64 random and power-of-two probe
+correctness gates precede timing. Expected occupancy is a hypothesis until the receipt;
+no production change, register-cap sweep, or predicted speedup is authorized by this check.
