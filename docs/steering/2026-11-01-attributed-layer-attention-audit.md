@@ -102,3 +102,35 @@ mixed lengths and short contexts; every queued fresh input checked; negative
 stale/zero controls; different independently prepared states and recaptured
 graphs; sentinels/workspace reset invariants. Any attributed fork score remains
 unqualified until these tests and selected-path/resource evidence exist.
+
+## Offline conservative transform implemented (no new GPU)
+
+`tools/dl_fork_attention.py:patch_attention(source)->str` now transforms pinned
+layer text with exact-count assertions. Both q8/nonunit selection sites are
+excluded. Base false branch requires actual FA3 for scaled verify. Runtime
+fallback invokes a captured base function `_attention_fa3_base`, avoiding
+recursion through later global kernel_fn wrappers; it copies state with
+att_ok=False and fails closed if FA3 is absent.
+
+Original prepare initializes attention_scratch BEFORE tuners/warmup; explicit
+state is passed through `_decode_attention7` to `_launch7`, then row/cluster
+allocators. Each prepare owns separate maps and retained allocation history.
+Growing outside capture retains older buffers for existing graph pointers;
+growth during capture raises. Warmed calls keep existing buffers; allocators
+follow the current PyTorch stream exactly as before. ATT7_CUDA_SRC is byte
+identical; no device fence/barrier/PDL/math changed in this transform.
+
+CPU tests `tools/test_dl_fork_attention.py --source PRIVATE_PINNED_LAYER` pass
+2/2: exact source hash, CUDA string equality, all guards/signatures, whole
+Python compile, repeated patch rejection, distinct-state row/cluster buffers,
+growth retention, capture-growth rejection and nonrecursive FA3 dispatch.
+These are ownership/control-flow proofs, NOT GPU mathematical conformance.
+
+Concurrency contract: one prepared state's attention scratch must not be
+used by overlapping graph replays or eager calls. Different states have
+private scratch, but module-global _PF7 transient host prefetch configuration
+and other donor component globals still require root's multi-thread audit;
+this transform does not certify concurrent host-thread dispatch. Retain each
+state until all its captured graphs have finished and been destroyed. Root's
+PDL transform/decision remains separate; this patch does not silently alter
+that chain. All prior GPU coverage requirements remain outstanding.
