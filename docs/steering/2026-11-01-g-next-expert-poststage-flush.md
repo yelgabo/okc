@@ -124,3 +124,15 @@ Stop on any safety/correctness/resource failure, prepare>=300s, serialization re
 or no meaningful whole-score evidence. Delaying flush may lose useful overlap even though
 spills fall. Do not promise an improvement, retuneFCI, remove drains, or claim rank50 fromstatic
 counts. No new tuning sweep is authorized by this candidate.
+
+## Independent review addendum
+
+Reviewer today_proj cleared exact pure SHA8195660... and reran3CPUtests. Review commit
+`dd781ec`, `docs/steering/2026-11-01-g-pending-flush-independent-review.md`.
+Fixup-slot lifetime is additionally bounded by the original contiguous per-phase CTA range:
+a CTA owns the first stage of at most one trailing split unit; its initial partial unit
+belongs to an earlier CTA, and full interior units have slot=-1. Trailing-partial-first
+reordering preserves that ownership and does not duplicate a single-unit range. A/B fixup
+regions are separate. Therefore the delayed previous flush cannot encounter premature slot
+reuse/zeroing by this newly computed first stage of a later unit. All normal global joins,
+phase cleanup and cooperative admission remain unchanged. No H200 result is implied.
