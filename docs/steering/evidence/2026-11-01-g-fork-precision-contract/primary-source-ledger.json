@@ -1,0 +1,68 @@
+[
+  {
+    "url": "https://raw.githubusercontent.com/sgl-project/sglang/a55ab7d5ae1bba59ac351e55026fe7f7644ecc5f/python/sglang/srt/layers/muse_spark_layers.py",
+    "github": "https://github.com/sgl-project/sglang/blob/a55ab7d5ae1bba59ac351e55026fe7f7644ecc5f/python/sglang/srt/layers/muse_spark_layers.py",
+    "sha256": "930e66da715bae576ae681f2dfd8353a36a9ca469a229d88fa3f77bc1e74cef0",
+    "bytes": 10036
+  },
+  {
+    "url": "https://raw.githubusercontent.com/sgl-project/sglang/a55ab7d5ae1bba59ac351e55026fe7f7644ecc5f/python/sglang/srt/layers/quantization/unquant.py",
+    "github": "https://github.com/sgl-project/sglang/blob/a55ab7d5ae1bba59ac351e55026fe7f7644ecc5f/python/sglang/srt/layers/quantization/unquant.py",
+    "sha256": "f428022195466613e7e988265a1090862a5aa0557bb7a063c0c172f9bd3988c5",
+    "bytes": 52373
+  },
+  {
+    "url": "https://raw.githubusercontent.com/sgl-project/sglang/a55ab7d5ae1bba59ac351e55026fe7f7644ecc5f/python/sglang/srt/models/muse_spark.py",
+    "github": "https://github.com/sgl-project/sglang/blob/a55ab7d5ae1bba59ac351e55026fe7f7644ecc5f/python/sglang/srt/models/muse_spark.py",
+    "sha256": "7e5018b3cb2ef41ee6cf09407e91e28dde069e5a33719ea58beb0d7137087355",
+    "bytes": 70635
+  },
+  {
+    "url": "https://raw.githubusercontent.com/sgl-project/sglang/a55ab7d5ae1bba59ac351e55026fe7f7644ecc5f/python/sglang/kernels/ops/muse_spark_v12/fused_norm_residual.py",
+    "github": "https://github.com/sgl-project/sglang/blob/a55ab7d5ae1bba59ac351e55026fe7f7644ecc5f/python/sglang/kernels/ops/muse_spark_v12/fused_norm_residual.py",
+    "sha256": "61be2075b233c687f7b111bae06d4f9494c3032a8b0c2289c9ae10fc8c757493",
+    "bytes": 18762
+  },
+  {
+    "url": "https://raw.githubusercontent.com/sgl-project/sglang/a55ab7d5ae1bba59ac351e55026fe7f7644ecc5f/python/sglang/kernels/ops/muse_spark_v12/fused_post_expert_norm_weighted_sum_triton.py",
+    "github": "https://github.com/sgl-project/sglang/blob/a55ab7d5ae1bba59ac351e55026fe7f7644ecc5f/python/sglang/kernels/ops/muse_spark_v12/fused_post_expert_norm_weighted_sum_triton.py",
+    "sha256": "9b816e971817f96a22d2d09424dc8dfa6f6020e18de73fb895674c76494fe591",
+    "bytes": 3666
+  },
+  {
+    "url": "https://raw.githubusercontent.com/sgl-project/sglang/a55ab7d5ae1bba59ac351e55026fe7f7644ecc5f/python/sglang/kernels/ops/muse_spark_v12/norm_residual.py",
+    "github": "https://github.com/sgl-project/sglang/blob/a55ab7d5ae1bba59ac351e55026fe7f7644ecc5f/python/sglang/kernels/ops/muse_spark_v12/norm_residual.py",
+    "sha256": "7b63c2e855371e50d291b684e09135ac466f5a1444f75ce87f591b68dd47223a",
+    "bytes": 7865
+  },
+  {
+    "url": "https://raw.githubusercontent.com/sgl-project/sglang/a55ab7d5ae1bba59ac351e55026fe7f7644ecc5f/python/sglang/kernels/jit/csrc/muse_spark_v12/norm_residual.cuh",
+    "github": "https://github.com/sgl-project/sglang/blob/a55ab7d5ae1bba59ac351e55026fe7f7644ecc5f/python/sglang/kernels/jit/csrc/muse_spark_v12/norm_residual.cuh",
+    "sha256": "c227348c4d705183d377ac623a62b1ed6957eb8832fb0508f4ac99f1aa3cb0c8",
+    "bytes": 27749
+  },
+  {
+    "url": "https://raw.githubusercontent.com/sgl-project/sglang/a55ab7d5ae1bba59ac351e55026fe7f7644ecc5f/python/sglang/srt/layers/muse_spark_fp4_moe.py",
+    "github": "https://github.com/sgl-project/sglang/blob/a55ab7d5ae1bba59ac351e55026fe7f7644ecc5f/python/sglang/srt/layers/muse_spark_fp4_moe.py",
+    "sha256": "1d377424e4c1f486f72a0e8ea67ea41dca4bd3f6929aa3729f5f7480861ed352",
+    "bytes": 35367
+  },
+  {
+    "url": "https://raw.githubusercontent.com/pytorch/pytorch/v2.10.0/docs/source/notes/cuda.rst",
+    "github": "https://github.com/pytorch/pytorch/blob/v2.10.0/docs/source/notes/cuda.rst",
+    "sha256": "03af561d21443688d3f3db6e14f8a2de0d43913cf04d5bc1e322d13f3dbabe45",
+    "bytes": 76986
+  },
+  {
+    "url": "https://openkernelchallenge.dev/rules",
+    "retrieved": "2026-11-01",
+    "method": "Official-domain web search returned full Rules/Restrictions/Validation text; direct raw HTTP fetch403, no byte-exact rules snapshot",
+    "quote": "Activations stay BF16 wherever SGLang's kernel keeps them in BF16",
+    "unversioned": true
+  },
+  {
+    "url": "https://docs.nvidia.com/cuda/archive/12.8.1/cublas/index.html#gemmex-algorithm-numerical-behavior",
+    "method": "Primary documentation browsed",
+    "scope": "GEMM split-K numerical behavior; not contest permission"
+  }
+]

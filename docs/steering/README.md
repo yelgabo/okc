@@ -1,5 +1,7 @@
 # Shared project steering
 
+Latest G contract audit: [Precision requirements versus conservative policy](2026-11-01-g-fork-precision-contract.md). BF16 stage edges retained; internal split-partial bans distinguished from explicit rules; active JIT FP32 router clarified. No reopening, code or GPU action.
+
 Latest single-arm stage qualifier: [Stage-local projection qualification](2026-11-01-projection-stage-xor-release.md) - exact de1111b9/450781 B, fixed ten targets plus ordinary neighbors; five CPU host gates pass. Actual H200 admission, correctness, setup time and performance remain unqualified; root-only measurement decision.
 
 Latest stage-local source review: [Sparse stage arena proof](2026-11-01-sk-stage-repair-independent.md). Exactb726 format/lifetime and shared-helper RTX23bit checks pass. Separatede1111 single-arm qualifier source/5CPU tests clear; H200 resources/math/performance unqualified and global variant remains closed.
