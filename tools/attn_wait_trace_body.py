@@ -11,7 +11,7 @@ def _wait_resources():
         assert all(k in r for k in ((1,49),(8,51)))
         for k in ((1,49),(8,51)):
             assert r[k][1]==0 and r[k][-1]>=2,('wait spills/residency',name,k,r[k])
-            if name!='ctrl':assert r[k][2:]==_WAIT_RES['ctrl'][k][2:],('wait geometry',name,k,r[k])
+            if name!='ctrl':assert r[k]==_WAIT_RES['ctrl'][k],('wait geometry',name,k,r[k])
         _WAIT_RES[name]=r
     print('WAITRES',_WAIT_RES,flush=True)
 
