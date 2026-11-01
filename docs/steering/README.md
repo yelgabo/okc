@@ -1,6 +1,6 @@
 # Shared project steering
 
-Latest root checkpoint: [Reset and production fit, 19:34 UTC addendum](2026-11-01-reset-and-production-fit.md#1934-utc-addendum-source-fit-and-separate-progress-repair-cleared-locally). Repaired four-cell core952309B fits; root12 CPU tests and independent scoped progress review pass. A one-arm startup qualifier is being built; no H200 result or promotion, third private diagnostic remains held.
+Latest root checkpoint: [Reset and production fit, 19:34 UTC addendum](2026-11-01-reset-and-production-fit.md#1934-utc-addendum-source-fit-and-separate-progress-repair-cleared-locally). Repaired four-cell core952309B fits; root12 CPU tests and independent scoped progress review pass. Explicit private repaired regeneration and7 slice tests also pass after correcting a stale pre-set-repair fixture. A one-arm startup qualifier is being built; no H200 result or promotion, third private diagnostic remains held.
 
 Latest progress repair review: [Owned MODE51 cooperative/fatal-watchdog source audit](2026-11-01-owned-progress-repair-review.md). All explicit readiness polling paths trap on expiry; source-only clearance, H200 qualification pending.
 

@@ -31,8 +31,10 @@ class VerifyPair(unittest.TestCase):
         self.assertFalse(self.manifest["whole_six_load_score_claim"])
         self.assertFalse(self.manifest["H200_qualified"])
         _,old=selected_build(ROOT)
-        self.assertEqual(old["bytes"],850769)
-        self.assertEqual(old["sha256"],"305d8e2804d8d10c3fdda902d659c25177ce7ad31d7575dda803c318830e8dc7")
+        # d58b6ac's shared set-owner repair adds883 host bytes to this legacy
+        # single-cell builder too. The old850769 pin predates that repair.
+        self.assertEqual(old["bytes"],851652)
+        self.assertEqual(old["sha256"],"b8dcb1a9a97518371834833f674da063cc98b4c554e9a9b7ad1cccd5dec8ea02")
         self.assertIn("VERIFY_NATURAL_ROUTING_DRIFT",self.source)
         self.assertIn("VERIFY_FRESH_ROUTING_DRIFT",self.source)
         self.assertIn("VERIFY_WD_DIAGNOSTIC",self.source)

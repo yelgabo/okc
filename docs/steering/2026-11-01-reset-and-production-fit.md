@@ -215,3 +215,27 @@ HOLD until root finishes the new runtime-harness/source-pin review. The
 first two reset diagnostics and the existing one-shot schedule stay in
 place. No job was dispatched by this checkpoint, and no score/rank gain
 or top10/top50 feasibility is established.
+
+## Subsequent private regeneration check
+
+`reset_payload_regenerate.py --owned-progress` now explicitly composes the
+reviewed progress repair after building the private four-cell source. Its
+default path still reproduces historical unpatched packages. Root double
+regeneration yields the same stage907822/short904020 pins and new verify
+970042/094841bd pin above, and records the composition plus normalized
+verify-generator dependency hashes. The option does not dispatch a job,
+lift the canonical HOLD or claim runtime qualification.
+
+The old slice test initially failed on its historical single-cell byte pin:
+the shared set-owner fix adds883 bytes there too. Root verified that
+reversing only the embedded owner helper exactly restores850769 B /
+305d8e28; its current tracked helper produces851652 B /b8dcb1a9. Updated
+only that stale fixture pin. The seven slice/package/owner/transport tests
+then pass in7.836s. Both the initial failure and corrected transcript are
+retained. This is a tooling correction, not a new kernel experiment or
+reason to weaken the queue's runtime gates.
+
+Fresh19:38-named CLI snapshots show no live jobs, layer0 checks/2 scored
+slots, projection0/4, MoE0/8 and attention3/7. Re-query before actual
+dispatch because quotas are shared. The WSL CLI is `/usr/local/bin/okc`;
+the legacy coordinator's `~/.okc/bin/okc` path is not installed here.
