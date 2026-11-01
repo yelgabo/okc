@@ -256,3 +256,9 @@ the public entry vjeux/okc-2026 with its design memos (see `docs/gap-analysis-20
 | Experiment | Evidence | Scope and revisit trigger |
 |---|---|---|
 | General L1 SPEC late-tid scheduling, ONE_LATE_TID1, defaultoff | First check b4d75c3185744d0a; confirmation ab53721b09854717: d1full ~0.4us faster across builds/states/inputs, but written changed-only2x-null gate fails (late1/late2 approx1.007110/1.006037 vs null1.003640, threshold~1.007294) | Not promoted as the general knob affecting full and one-tile sliding; sliding's apparent benefit is reproduced by its null. Revisit with a non-one-tile SPEC L1 restriction based on repeated full-context evidence and a fresh full-only causal scoring gate. No math/fence/ordering change. |
+
+### Attention candidate strict replay gate, 2026-10-31 PDT
+
+| Experiment | Evidence | Scope and revisit trigger |
+|---|---|---|
+| Actual full-only late-tid2 candidate with strict1e-4 fresh-output comparator | 3588375a529c4fe8 prepare failed: sliding17/2000 above threshold, maxrelativeL2~4.48e-4; fullstress/officialtests/timing not reached | No promotion despite passing pairedperformancegatea9b416a0c7324ecc. Attribute only after independent0-vs-0/2-vs-2 nulls on BOTHshapes with unchanged comparator; diagnostic26c8a3ea28554454 is the registered next step. Do not call this correctness loss or benignnoise before that evidence. |
