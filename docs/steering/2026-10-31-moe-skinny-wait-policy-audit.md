@@ -150,3 +150,29 @@ removal, reduced polling-clock frequency or relaxed acquire belongs in this test
 This is a proposed measurement, not dispatched work or a top10 forecast. Source
 supports semantic equivalence on successful waits; available counters do not prove
 a material recoverable wakeup cost. No kernel changes are included in this audit.
+
+## Dated addendum: November1 PDT, source prepared off production
+
+Root subsequently approved preparing the one-hypothesis harness, with one check
+authorized only after independent read-review by today_proj. Production submission.py
+is untouched. `tools/moe_skinny_testwait_check.py` generates a scratch source with flags
+0/256/128/384 (baseline, unused-bit independent neutral, test, independent testduplicate).
+All original kMode predicates mask only low15 and bits16/32/64; new bit128 controls
+only full_slot_ready. Bit256 has no predicate. Two call sites change, all other skinny
+code and the entire fat device source are preserved. New modes are excluded from the
+original production tuner candidate list. Host export adds resource queries only.
+
+`tools/test_moe_skinny_testwait_source.py` passes: removing the new host resource
+function/declaration and local helper, and restoring the two full-slot calls, restores
+the complete original CUDA/CPP/skinny strings exactly. No empty/hand/global/fat wait,
+watchdog, proxy fence or barrier changes. Generated Python syntax passes.
+
+The harness requires exact resource-vector equivalence before timing,64 eager and64
+postgraph mathematical checks across16 heldout cases,20 cold randomized rounds,
+the registered1% whole-six-load contribution/2xnull and per-case regression gates.
+Additional fully counted stamped2/130 twins run only AFTER paired timing, under a
+265s optional-stamp guard; incomplete stamps mean no new attribution claim. Core
+coverage remains required under280s. Final compact summary asserts under10KB so all
+case rows, resource vectors, math tally, stamp totals and decision survive the16KB
+receipt tail. No short hint, ring-depth, prefetch, precision or watchdog sweep.
+Independent read-review is pending; no GPU job yet at this checkpoint.
