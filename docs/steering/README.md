@@ -28,6 +28,8 @@ Latest single-arm layer qualifier: [Repaired full-four-cell startup checks](2026
 
 Latest measurement-reader review: [One-arm hybrid owning receipt](2026-11-01-hybrid-measurement-reader-review.md).46:16/six-load/raw-adjusted formulas pass; identified terminal/log/resource ownership gaps repaired and independently rechecked with4 tests. Server identity and physical source SHA remain separately associated by the upload manifest.
 
+Latest ordering necessity/proof: [G0→607e and one minimal short-counter restoration](2026-11-01-g-ordering-restoration-proof.md). ExactTiny/Tiny2d339 explicitrelaxedATOM retainsfences/joins/acquire and hasconditionalsource+actualPTX/load proof; OFF/localcompileonly, no gainforecast orGPUaction.
+
 Latest standalone native repair review: [Historical main47/skinny1 progress](2026-11-01-standalone-progress-native-review.md). Two cooperative wrappers/sharedtrap and canonical credit/queue bounds reviewed;7c915 and sole authorized db0b8 termination screen subsequently fail no-new-spill static gate. Both closed, noGPU/performance claim.
 
 Latest public startup source review: [Mask15 one-arm qualification wrapper](2026-11-01-public-mask15-startup-review.md). Independent12-cell selector/oracle/timed-path checks pass at4ad326c3; private empty/fresh coverage reviewed. H200 resources/capture/budget/performance unqualified.
