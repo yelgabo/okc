@@ -109,3 +109,77 @@ comparator into production. If SC6 is small/neutral/losing, park it as the main
 explanation of the8.1% bundled discrepancy on this repaired backend. The separate
 per-expert producer/owner/final-read frontier probe is then the strongest causal
 next question at128/256; no unsafe MFIN flag should be enabled to get that answer.
+
+## Terminal H200 result: compression-first gate fails
+
+Actual MoE check `05e51ddeb7014dd9`, source commit7886294, frozen file375858B,
+SHA256 `54d819e6482aaaa16c8a4e6d38f60e1e98b044b8888120f40b5ab7f3bccfb4cf`.
+Receipt verifies board=muse_moe_w4a16, H200, mode=check, status=done, passed=true.
+All5 official tests pass. Official byte-arm score2.259310880x,
+95%CI2.225421217–2.293200543; prepare116.574s. This private attributed diagnostic
+is not a production candidate, and its cross-run score does not establish an owned
+gain or isolate any one repair against the earlier bundled comparator.
+
+All48 initial,48 fresh-pointer/replay and48 empty-local computing-arm comparisons
+pass. Worst independent-Marlin error is global.006205786, row.006743266. Official
+FP32-reference tests (including M4/33/257, skew128 and M1) report global errors
+.00447–.00461. No threshold was relaxed. Empty probes use real global IDs32..39,
+prefilled output17, and exact finite BF16zero. Replayed-output gates occur before
+timing and after it, not on a stale pre-replay capture result.
+
+| M | byte mean of 4 case/arm medians, us | SC6 mean of 4 case/arm medians, us | paired ratio A | paired ratio B |
+|---:|---:|---:|---:|---:|
+|1|35.248|35.184|1.001122|1.002923|
+|8|81.504|81.168|1.007443|1.001369|
+|16|91.360|91.300|0.995824|1.005487|
+|32|129.412|127.276|1.005924|1.027565|
+|128|183.776|183.208|0.998603|1.007684|
+|256|223.776|225.120|0.990032|0.997959|
+
+Each paired column geometrically averages the two seeds within its fixed duplicate
+pair. Do not select the better duplicate or M32 after seeing results. Across all
+six loads the registered paired ratios are **0.999806837 and1.007118932**. The
+duplicate absolute-log null is.006403393 (0.64034%; twice=1.28068%), and the
+case regression gate also fails: at256/seed901 the first SC6 arm is2.576us slower,
+above its2.112us one-percent allowance. Therefore the preregistered gate is FALSE.
+The balanced duplicate ratio1.003456225 is below null; it is not a repeatable win.
+
+Both main conditions have identical false/true vectors:96registers,0local bytes,
+0static shared,231168dynamic shared,1residentCTA/SM,576threads. Tiny/Tiny2 have
+149registers,0local/static,214784dynamic,1residentCTA,288threads; MID has152registers
+with the same remaining vector. These are function/occupancy-query resources,
+not measured SM utilization or HBM/L2 throughput. The grid is set from actual
+device SM count and launch-guarded, but the numeric count was not printed; no
+observed numeric grid claim is made.
+
+Official byte-arm per-load median latencies (different fresh official inputs from
+the paired fixture) are26.133/65.000/93.093/136.053/189.221/231.217us at
+M1/8/16/32/128/256. Preserve their distinction from the paired means above.
+
+Fresh board snapshot before dispatch: owned rank377 at2.2157x, rank50 at2.4534x
+(`48494e439a5749ff`), rank10 at2.6077x (`1084b630433041f9`). Exact owned receipt
+2.215712 still needs about10.727% more score to the displayed rank50 value.
+The exact historical combined external check2.395702934 remains about2.408%
+below that threshold. Neither this repair nor SC6 establishes top50 feasibility.
+
+Full receipts/log/profile/normalized summary:
+`muse_moe_w4a16/profiles/sc6_compare.05e51ddeb7014dd9.*`;
+dispatch and board files have the same sc6_compare prefix. Independent today_proj
+review cleared the exact frozen file and independently reran2source+4TorchCPU
+tests before dispatch. No public submit occurred; production sources unchanged.
+
+**Decision:** close compression-first as the explanation of the8.1% comparator
+discrepancy on this fully fenced/BF16 controlled backend. Do not implement or tune
+an owned compression port on this evidence, and do not spend another check on a
+selective M32 policy. This does not rule out compression with a materially different
+decoder/layout, cache behavior, or later low-cost combination; reopening requires
+new measured mechanism, not a tile/flag sweep.
+
+The smallest score-relevant engineering next action is the separately reviewed
+per-expert producer/owner/final-read frontier diagnostic on true standalone128/256
+inputs, with all synchronization retained. It must quantify its own instrumentation
+overhead and treat pre-epilogue writer samples as optimistic issue frontiers, not
+publication times. Only if the fixed-owner critical-path ceiling is meaningful
+should generation-safe readiness counters/finalization be implemented in owned
+code. Old bounded-poll MFIN remains prohibited; this result does not rehabilitate
+it. Existing owned published47 remains the submission recommendation for MoE.
