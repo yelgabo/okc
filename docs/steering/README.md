@@ -12,15 +12,17 @@ Supporting [primary-source provenance](2026-11-01-pasted-source-provenance.md) r
 H100 example and external BF16 result owners; [attention boundary map](2026-11-01-pasted-attention-boundaries.md)
 documents the seven existing specialization/fusion mechanisms. No measured top10 portfolio
 is established. Final MoE wait-policy9be599cf333a47c4 fails the registered performance gate;
-production unchanged. A diagnostic all12 owned/SGLang graph timeline collector is under
-review before dispatch. Timing activity is not physical HBM/SM utilization.
+production unchanged. First all12 timeline41788b39fb824179 failed only its final report-size
+guard; corrected diagnostic01183c2992eb4153 is confirmed running after independent review.
+Timing activity is not physical HBM/SM utilization; no new layer speedup is claimed.
 
 **Exact-paste attribution correction:** [November1 pasted-report review](2026-11-01-pasted-top10-report-review.md).
 The newly attached *Reaching the Top 10 in the Muse Spark Open Kernel Challenge* is a
 different document from the earlier audited *OKC Community Audit Verification and Judge-Run
 Execution Plan*. It has now been read in full and preserved with raw/normalized hashes.
-Fusion-first recommendations still require an explicit current-code boundary mapping;
-its estimated gain ranges are not measured results. External citation verification is incomplete.
+The initial identity report is preserved; current-code mapping and primary-example attribution
+are now in the newer reports above. Estimated gain ranges remain unmeasured; the remaining
+opaque citations are not automatically verified by resolving those primary examples.
 
 **Earlier checkpoint: [November1 four-track progress](2026-11-01-four-track-progress.md).**
 User defers prefill. Projection, attention, standalone MoE and decode layer remain active;

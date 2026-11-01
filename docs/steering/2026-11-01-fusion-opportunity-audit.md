@@ -164,3 +164,11 @@ and streams. Binary encoding remains lossless for those declared recorded coordi
 This changes measurement formatting only; kernels, weights, workload and prepared policies
 are unchanged. Four CPU tests pass. Independent larger-fixture review precedes one retry;
 another observation failure requires reassessing collection scope before more quota.
+
+Final transport review also found a56event/row synthetic case above budget with fixed-width
+records. Before dispatch, those records were replaced with unsigned varints for delta,
+duration and combined name/stream index. The independent56event×24row fixture now fits
+10264B and round-trips exactly; four WSL tests pass. Corrected source `d327abd`, payload
+984798B SHA256`dae91104f666fbfc323145dda56dfad39593e1631c12624f39b056b9bc26c66d`.
+Exact corrected layer job `01183c2992eb4153` is confirmed running. No kernel change or
+additional failed GPU check occurred during the offline transport corrections.

@@ -795,3 +795,9 @@ receipt/log in profiles/timeline.41788b39fb824179.*. Corrected hosttransport rec
 coordinates at explicit0.1us ratherthan0.001us; aggregate span/union remain rawresolution,
 cold eventtimes0.001us, fullnames/streams/order retained. FourCPUtests pass; independent
 review requiredbefore one correctedcheck. ProductionCUDA/kernel/input/policy unchanged.
+
+Correctedcheck01183c2992eb4153 dispatched/source d327abd and confirmedrunning.
+Payload984798B SHA256dae91104f666fbfc323145dda56dfad39593e1631c12624f39b056b9bc26c66d.
+Varint delta/duration/name-stream transport, explicit0.1us eventcoordinates; unchanged
+kernel/workload. Independent56events×24row fixture10264B<11000, exactroundtrip;
+WSL4CPUtests pass. No fourth/further observation retry without scope review ifthisfails.
