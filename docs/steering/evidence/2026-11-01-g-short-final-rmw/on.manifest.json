@@ -1,0 +1,10 @@
+{
+  "control_sha256": "ba9e327cd7b96595ace4d0c1d0d78fe27c128f23ed0debcda97c7169fc3164ab",
+  "helper_control_sha256": "b8ed85438c06673f411ff4203080bfbacd0c0c2dc5cb624e6f10d4877fe7a716",
+  "helper_patched_sha256": "9193a5e0aac01fdfba4c609f2b3400d9eead63bbd0949eaf09ddac05c350aec4",
+  "source_sha256": "d33915c7e8579d815a0adf8a182d685570185e8c6c1b5fd6c036854a5fbcdd44",
+  "bytes": 869551,
+  "enabled": true,
+  "gpu_execution": false,
+  "scope": "Tiny/Tiny2 final bc RMW only; all other finalizers unchanged"
+}

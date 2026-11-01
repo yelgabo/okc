@@ -1,5 +1,7 @@
 # Shared project steering
 
+Latest OFF native prototype: [Short helper final-counter RMW](2026-11-01-g-short-final-rmw-off.md). Exact607 Tiny/Tiny2 optional relaxed GPU RMW retains writer fences/acquire/joins and all math; threeCPUtests pass. Independent selected compile gate pending; no GPU/qualification/performance claim.
+
 Latest native repair audit: [G0 to607e expert inventory](2026-11-01-g-native-repair-inventory.md). Short helper paths carry the largest unexplained cross-profile gap; main MFIN/SC6 do not explain it. Required BF16/publication repairs separated from conservative PDL/YBF/DF choices; no large safe restoration or new GPU action.
 
 Latest standalone source stop: [OFF progress repair prototype](2026-11-01-standalone-progress-off-prototype.md). Exact68bf4c1f/241838B freezeshistoricalpolicy andstrictselectedchecks,5CPUtests pass; bothfatalrepresentations failmain47no-new-spillgate. ThreeOFFgates remainfalse; noGPUqualifier/slot/production change.
