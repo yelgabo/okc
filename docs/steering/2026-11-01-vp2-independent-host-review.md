@@ -90,3 +90,45 @@ counterfactual adjusted score, not an official candidate aggregate. A host
 or device failure is not a performance closure; a valid measured loss closes
 this exact comparator experiment without an automatic knob sweep. No
 shareability or adoption decision follows from this host clearance.
+
+## Dated addendum: final normal-entry and raw-score revision
+
+2026-11-01, superseding the artifact-specific clearance above. Final reviewed
+artifact is 411975 bytes, SHA256
+`78ce14e90f20cd3b406cd185d67d76e3624676739239d66032ff516e25a55d64`.
+The owner changed host routing/reporting only; this review makes no new
+device equivalence claim. Its normal judged entry now calls the returned
+private run closure on arm2 with `record=False`: eligible input uses VP2,
+other supported TP8 uses owned native, and unsupported TP8/non-TP8 delegates
+to the original owned dispatch (SGLang where applicable). Thus the earlier
+paragraph saying the judged path always remains owned does not describe
+this final artifact. It is still an authorized private comparator, not a
+public/adopted candidate.
+
+The updated independent seven-test suite passes in 7.019 seconds. It calls
+the actual normal entry wired to the returned closure, checks eligible VP2
+raw-pointer dispatch/output shape, nonunit-KV owned delegation, and non-TP8
+SGLang delegation. It inspects the actual closure's counter dictionary to
+prove normal calls leave private coverage ONE284/VP220 unchanged. Whole
+preparation with all nonunit-KV inputs now correctly fails the required
+`VP2_DISPATCH_COVERAGE` qualification despite legitimate owned fallback.
+The prior fixture treated successful all-fallback preparation as acceptable;
+the updated negative expressly rejects that incomplete experiment.
+
+All 36 report rows now retain RAW microseconds and 12 fixed historical
+offsets. Tests reconstruct both the embedded stale adjusted gate and raw
+gate exactly. The actual full-flow report still passes the 11000-byte
+guard. Prior fresh-input, stale-capture, finite math/cache, timing,
+calibration, budget, TF32 restoration and real-small-CPU dual-oracle tests
+remain passing under the same explicit CPU stand-in limitations.
+
+Reviewed the separate reader `tools/moe_attn_vp2_read.py`: it requires a
+passing/unflagged official receipt, complete16 tests/12 benchmarks and
+source/backend/plan/resource identities, then rebuilds the same paired
+score with all 12 contemporaneous official offsets. The preregistered
+decision requires that current adjusted gate plus every-seed raw cross
+ratio greater than1 and no raw regression. Historical-offset and raw
+1%-threshold keeps are descriptive. The reader is source-reviewed here;
+no terminal receipt exists in this review and no measured decision is made.
+Any actual nonpositive adjusted timing fails through the existing score
+gate. Root retains final receipt validation and dispatch ownership.
