@@ -63,6 +63,18 @@
       "submitted_at": 1793534312.3883686,
       "team": "yelgabo",
       "value": 10639.426326569794
+    },
+    "quota_at_0453_pst": {
+      "scored": {
+        "per_day": 10,
+        "used": 8,
+        "left": 2
+      },
+      "checks": {
+        "per_day": 20,
+        "used": 20,
+        "left": 0
+      }
     }
   },
   "muse_attention_decode": {
@@ -103,6 +115,18 @@
       "submitted_at": 1793510570.8706555,
       "team": "yelgabo",
       "value": 1446.1905945986007
+    },
+    "quota_at_0453_pst": {
+      "scored": {
+        "per_day": 10,
+        "used": 3,
+        "left": 7
+      },
+      "checks": {
+        "per_day": 20,
+        "used": 15,
+        "left": 5
+      }
     }
   },
   "muse_bf16_proj": {
@@ -145,6 +169,18 @@
       "submitted_at": 1793509752.4725015,
       "team": "yelgabo",
       "value": 3161.918773020326
+    },
+    "quota_at_0453_pst": {
+      "scored": {
+        "per_day": 10,
+        "used": 4,
+        "left": 6
+      },
+      "checks": {
+        "per_day": 20,
+        "used": 20,
+        "left": 0
+      }
     }
   },
   "muse_moe_w4a16": {
@@ -186,6 +222,18 @@
       "submitted_at": 1793321438.0973241,
       "team": "yelgabo",
       "value": 6069.607719056422
+    },
+    "quota_at_0453_pst": {
+      "scored": {
+        "per_day": 10,
+        "used": 2,
+        "left": 8
+      },
+      "checks": {
+        "per_day": 20,
+        "used": 17,
+        "left": 3
+      }
     }
   }
 }

@@ -6,6 +6,8 @@ report be checked into this repository so other sessions can read it.
 
 ## Latest review
 
+[November 1 campaign decision and high-load expert results](2026-11-01-g-public-layer-measurement.md#november-1-0448-pst--h200-result-and-submission-decision) gives the current submission, measured rank gaps, [stop and pivot criteria](2026-11-01-g-public-layer-measurement.md#campaign-stop-and-pivot-criteria) and the [remaining expert-traffic question](2026-11-01-g-highload-weight-census.md).
+
 [November 1, 04:48 PST — H200 result and recommended submission](2026-11-01-g-public-layer-measurement.md#november-1-0448-pst--h200-result-and-submission-decision) records the qualifying 2.095900× short-path result, the retained 2.126083× incumbent at rank 305 and the updated 12.60% gap to tenth.
 
 [November 1, 04:44 PST — concurrent pooler and router sent to H200](2026-11-01-g-public-layer-measurement.md#november-1-0444-pst--concurrent-short-producer) records the single-arm candidate, local GPU correctness scope and remaining cross-family byte budget.
@@ -458,6 +460,8 @@ accounting, and running a corrected matched whole-layer comparison. It records
 recommendations, not execution of those tasks; check current code and run logs for status.
 
 ## Report history
+
+- November 1, 04:56 PST. [High-load expert traffic census](2026-11-01-g-highload-weight-census.md) and [campaign decision thresholds](2026-11-01-g-public-layer-measurement.md#campaign-stop-and-pivot-criteria).
 
 - November 1, 04:48 PST. [Concurrent short producer H200 decision](2026-11-01-g-public-layer-measurement.md#november-1-0448-pst--h200-result-and-submission-decision). [Twelve measured cells](evidence/2026-11-01-g-public/stage-shapes.md#concurrent-short-pooler-and-router).
 
