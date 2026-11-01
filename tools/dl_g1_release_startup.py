@@ -7,6 +7,7 @@ from pathlib import Path
 
 
 BASE = '295ca590a9d07a2491d600e1c96ec5583d29ae3220f619bc9e99adf62ef48491'
+CONTROL = '1607293eee3403109df5d37b6e2d1ee34b528c3578afa6c2c8668440afde1658'
 
 
 def _release_private_scratch(torch, buffers, sentinel):
@@ -148,12 +149,51 @@ def prepare(weights):
 '''
 
 
-def build(source):
-    if hashlib.sha256(source.encode()).hexdigest() != BASE:
-        raise ValueError('expected the pinned pure G1b4 stage-retirement file')
+def _release_long_graph_test(torch, size, graph, x, ids, tw, banks, routes, scores,
+                             out, empty_out, helper_out, refs, deadline, reps=2000):
+    import time
+    if reps < 4 or reps % 4:
+        raise ValueError('expected complete routing-bank cycles')
+    for i in range(reps):
+        bank = i % 4
+        if i % 128 == 0 and deadline is not None and time.monotonic() >= deadline:
+            raise RuntimeError('G1b4 long private replay budget')
+        x.copy_(banks[bank])
+        ids.copy_(routes[bank])
+        tw.copy_(scores[bank])
+        graph.replay()
+    torch.cuda.synchronize()
+    _release_verify(torch, out, refs[bank])
+    if int(torch.count_nonzero(empty_out)) or int(torch.count_nonzero(helper_out)):
+        raise RuntimeError('G1b4 empty output after long replay')
+    # Also check occupied output immediately after the last all-remote replay.
+    x.copy_(banks[0])
+    ids.copy_(routes[0])
+    tw.copy_(scores[0])
+    graph.replay()
+    torch.cuda.synchronize()
+    _release_verify(torch, out, refs[0])
+    if int(torch.count_nonzero(empty_out)) or int(torch.count_nonzero(helper_out)):
+        raise RuntimeError('G1b4 empty helper failed after restoring occupied input')
+    print('G1B4_PRIVATE_LONG_OK', size, reps, 'remote_and_restored_checked', flush=True)
+
+
+def build(source, baseline_stress=False):
+    expected = CONTROL if baseline_stress else BASE
+    if hashlib.sha256(source.encode()).hexdigest() != expected:
+        raise ValueError('unexpected pure layer for requested startup test')
     helpers = (_release_private_scratch, _release_routes, _release_verify, _release_expert_self_test)
     notice = '\n# Added by yelgabo, November 1, 2026: private-state startup validation.\n'
-    output = source + notice + '\n\n'.join(inspect.getsource(f) for f in helpers) + '\n' + WRAPPER
+    validation = '\n\n'.join(inspect.getsource(f) for f in helpers)
+    if baseline_stress:
+        anchor = '            del graph\n'
+        assert validation.count(anchor) == 1
+        validation = validation.replace(anchor, '''            if native and size in (32, 33, 128, 256):
+                _release_long_graph_test(torch, size, graph, x, ids, tw, banks, routes, scores,
+                                         out, empty_out, helper_out, refs, deadline)
+''' + anchor)
+        validation += '\n\n' + inspect.getsource(_release_long_graph_test)
+    output = source + notice + validation + '\n' + WRAPPER
     before = ast.parse(source).body
     after = ast.parse(output).body
     assert all(ast.dump(x) == ast.dump(y) for x, y in zip(before, after))
@@ -170,8 +210,10 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('pure_stage', type=Path)
     parser.add_argument('output', type=Path)
+    parser.add_argument('--baseline-stress', action='store_true',
+                        help='build the G1b4 control with 2000 queued private replays at each of four sizes')
     args = parser.parse_args()
-    data = build(args.pure_stage.read_text('utf8'))
+    data = build(args.pure_stage.read_text('utf8'), args.baseline_stress)
     args.output.parent.mkdir(parents=True, exist_ok=True)
     args.output.write_bytes(data)
     print(len(data), hashlib.sha256(data).hexdigest())

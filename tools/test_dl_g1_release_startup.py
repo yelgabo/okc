@@ -6,7 +6,9 @@ import unittest
 import torch
 from torch.utils._python_dispatch import _disable_current_modes
 
-from dl_g1_release_startup import _release_expert_self_test, _release_private_scratch, _release_routes
+from dl_g1_release_startup import (
+    _release_expert_self_test, _release_long_graph_test, _release_private_scratch, _release_routes,
+)
 from test_dl_fork_moe_empty_cpu import Facade
 
 
@@ -86,6 +88,33 @@ class StartupTests(unittest.TestCase):
         self.assertTrue(torch.equal(src, private[0]) and bool((tails[0] == 73).all()))
         private[0].zero_()
         self.assertEqual(src.tolist(), [-1, 9, 3])
+
+    def test_long_private_sequence_finishes_remote_then_restores_occupied(self):
+        api = Facade()
+        banks = torch.arange(4, dtype=torch.float32).reshape(4, 1, 1).expand(4, 1, 8).bfloat16() + 1
+        routes = _release_routes(torch, 1, 'cpu')
+        scores = torch.full((4, 1, 8), .125)
+        x, ids, tw = banks[0].clone(), routes[0].clone(), scores[0].clone()
+        out, empty, helper = [torch.empty_like(x) for _ in range(3)]
+        ext = Expert(api, [])
+        refs = [torch.empty_like(x) for _ in range(4)]
+        for i in range(4):
+            ext.okc_run((), (), banks[i], routes[i], scores[i], refs[i], 0, 32, 132)
+        graph = api.cuda.CUDAGraph()
+        with api.cuda.graph(graph):
+            out.fill_(float('nan'))
+            ext.okc_run((), (), x, ids, tw, out, 0, 32, 132)
+            empty.fill_(17)
+            ext.okc_run((), (), x, routes[3], tw, empty, 0, 32, 132)
+            helper.fill_(-23)
+            ext.okc_run((), (), x, routes[3], tw, helper, 0, 32, 132)
+        args = (api, 1, graph, x, ids, tw, banks, routes, scores, out, empty, helper, refs)
+        with redirect_stdout(io.StringIO()):
+            _release_long_graph_test(*args, None, reps=20)
+        self.assertEqual(api.cuda.replays, 21)
+        self.assertTrue(torch.equal(out, refs[0]))
+        with self.assertRaisesRegex(RuntimeError, 'budget'):
+            _release_long_graph_test(*args, time.monotonic() - 1, reps=4)
 
 
 if __name__ == '__main__':
