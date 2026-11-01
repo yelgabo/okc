@@ -2356,3 +2356,14 @@ optimization/check/C3repeat; opaqueLtactualSASS remainsunobserved.
 ### 2026-11-01 offline async-mailbox scope closure
 
 No GPU job. Evidence e778443, C2 9eba96894ee1402e and old push4edaa20c98904404. Selected SK/RD reducers are CTA-local, RT already async complete_tx, old QKV push already dedicated async mailbox and lost. Full30-cell sensitivity: hypothetical1us from all16 SK/RT/RD operators gives1.066379526 factor, NOT measured reducer budget/forecast. No direct-port proposal; retain C2. Report docs/steering/2026-11-01-projection-mailbox-scope.md; reopen only distinct legal mechanism with exposed component evidence.
+
+
+### 2026-11-01 stage-local sparse XOR terminal LOSS (dfcfdd01d6f04525)
+
+- PUBLIC owning job `dfcfdd01d6f04525`, muse_bf16_proj DONE/PASS9, all30 benchmarks/profiles, checks.ok/no flags. Root dispatched; no worker official call.
+- Exact stage-local single-arm source `de1111b98072f5251ff9b2edd5d453cc22eb8fe1710a943c60922909cc796229`,450781B; source commits e27c86d/fd21fdf, root prereg a08f501260ea7e9625c01aa4eeecda0934afa7f9; analyzer correction ee972f1.
+- Score **1.4191468393881441**,95%CI[1.397859636797322,1.440434041978966], prepare129.385967127s; original C2 `9eba96894ee1402e`1.5278064829557674 remains primary comparator. Prior failed global `2b537518091248f1`1.3941200708702308 is secondary only.
+- All10 target cells regress versus archived C2: adjusted+6.274..40.738%,raw+5.860..30.694%; all10 overrides/0fallback/110keys/160math/10captures/30fresh. All40 runtime resource vectors have0local/0staticshared and stage FULL/NF admission equals C2; actual16/32B record arenas fit existing SX SST slack. No utilization/stall/traffic counters collected.
+- Exact30-cell/6-load score reconstruction passes; replacing only10 cells into archived C2 gives factor0.9263484356405296, explicitly an unpaired sensitivity scenario. Seeds/baselines/overhead/tuner differ; weight identity was not shared or established.
+- Canonical rawreceipt/profile/log/txt are root-owned under `muse_bf16_proj/profiles/stage-xor-release.dfcfdd01d6f04525.*`; decoded all30/6loads/40vectors/capacities/hashmanifest and report `docs/steering/2026-11-01-projection-stage-xor-terminal.md`. Six synthetic reader tests and3 independent terminal-data tests pass.
+- CLOSE exact stage-local BEFORE-A variant alongside global-record BEFORE-A loss; no automatic retry, cap/tile/stage/placement sweep, target dropping or layer port. No candidate promotion. Reopen only distinct dataflow/instruction evidence with credible full30>=1% paired opportunity and unchanged correctness/order/resource gates.
