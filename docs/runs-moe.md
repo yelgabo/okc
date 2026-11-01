@@ -698,6 +698,23 @@ not the judged production path. No new phase attribution; do not infer why metad
 time did not translate into latency. Close exactsinglewarp-map mechanism; no retry,
 sweep, promotion or production edit. Full profiles/receipt `profiles/position.85a113a3f11d47a5.*`.
 
+### November1 new architecture comparator, exact external source only
+
+Root authorized one donor-only off-board measurement after recovering keell0renz
+commit8e30e1be994db4310794b8d04e90d18d895deb84, not the older alygg77 comparator.
+`b65c4c878014416c` checks its standalone file byte-identically, SHA256
+2d931f09133d058053dda833b51f1867ea06cdcac0c912521ad37e8f7853185c; no patched
+harness/defines, concurrent GPU prepares, production edits or public submit.
+PASS5tests H200,2.395702934x CI2.359767390–2.431638478. Median us M1/8/16/32/128/256:
+25.114/63.252/91.149/122.315/176.505/211.115. This is8.123% above our published
+2.215712x across different runs/inputs, NOT matched-owned causal evidence; still
+2.408% below fresh rank50 threshold2.4534. Full receipt/log/profiles saved as
+`profiles/kel_exact.b65c4c878014416c.*`; board snapshot also saved. Modules built53s,
+SC6W active, skinnySC6off. MAIN96regs, small149regs, dedicatedM8issuer151regs,
+all local/static0; no occupancy/physical-traffic claim. Combined new architecture
+merits ordering/precision/license audit and matched isolation before adoption.
+One check spent; no more dispatched. See steering/2026-11-01-moe-architecture-comparison.md.
+
 ## Source facts (SGLang a55ab7d5, read from GitHub and hashed against the image)
 
 - `fused_post_expert_norm_weighted_sum` falls back to PyTorch ops below
