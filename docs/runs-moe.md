@@ -99,6 +99,23 @@ WGMMA-retire/release chains preserve phase/lifetime. Remaining constant3 stamp o
 compile out for87. This proves only the reviewed source chain, not compiled correctness
 or profitability. Fewer weight slots remain a coupled performance cost to measure.
 
+Ring4 result39804be1a59c429c:5/5 official tests pass, judged control2.201468x
+(95%CI2.168446–2.234490). Outputs at128/256 bitwise equal51 on every measured seed;
+32-token maximum relative difference3.5e-5. Gate fails clearly:
+
+| tokens | layer o87-51 us | std | skewed |
+|---|---:|---:|---:|
+|32 |+0.1 |-0.4 |-0.5 |
+|128 |+2.2 |+1.5 |+1.2 |
+|256 |+2.9 |+3.9 |+1.9 |
+
+Every256 seed loses;128layer/skewed everyseed loses. No confirmation/promotion warranted.
+Production source and allpolicy tables unchanged. Generator retained as reproducible parked
+experiment, receipt/log/profiletext in `profiles/ring4.39804be1a59c429c.*`. This rejects the
+fixed4slot/one-less-weight-slot tradeoff, not all deeper or per-job rings. Hypothesis: lost
+weight lead outweighs extra x lead; neither purecause is isolated. Root asked to pivot to a
+structurally different official-library groupedMoE comparison, not repeat this geometry.
+
 ## Source facts (SGLang a55ab7d5, read from GitHub and hashed against the image)
 
 - `fused_post_expert_norm_weighted_sum` falls back to PyTorch ops below
