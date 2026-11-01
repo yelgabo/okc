@@ -144,3 +144,20 @@ band32. The branch/control-flow representation worsens register liveness, failin
 prospective no-worse-register gate. No GPU or performance measurement. Root accepted
 closure; generator was restored exactly to fc28a77. The single band32 candidate and
 its review pin remain unchanged. No further identity or band-size sweep is proposed.
+
+
+## Final private harness source/API review
+
+Reviewed sibling proj artifact `owned_band32_check.py`,631897B SHA
+`493d1678f7d92ffb2a9908675fcfa33257d235bd3b88cfc0b8696e27108b4c0c`.
+Native Windows/WSL builders match. Independently executed all7 real TorchCPU tests:
+`cd okc-today-proj/tools && /root/.cache/okc-host-validate/bin/python -m unittest test_moe_band_host_cpu -v`.
+Actual18-case prepare scaffold, target-only dispatch, finite/reference/stale/budget
+negative controls, per-seed whole-score/null/regression gates, and realistic full-manifest
+transport pass. Reviewed actual namespace/module/private repack/scratch/input/capture
+calls, common BF16 gamma, finally-restored TF32, unchanged control on1/8/128/256 and
+judged entry, and resource gate allowing register/admission improvement without worse
+geometry/local/shared. No remaining source/API blocker found. The independent device
+publication review was4151ea5, integrated by root. CPU stand-ins do not qualify GPU math,
+capture, occupancy admission, prepare duration, correctness or latency; all stay fail-closed
+H200 gates. Root owns any ONE private dispatch and terminal archive; child did not dispatch.
