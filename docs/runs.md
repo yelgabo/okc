@@ -1873,3 +1873,25 @@ Build result: `0ab8f0510515473b` failed before GPU execution because the judge's
 PyTorch requires C++20, while the new small extension explicitly selected C++17. No codec
 correctness or performance inference follows. Changed only its compiler-standard flag to20;
 CPU gate passes again. Retry `962d2f9c1d9644f7` dispatched with the same codec design, pending.
+
+Actual stream result `962d2f9c1d9644f7`: passed9/9 on unchanged C3 judged path,
+1.529743x (95%CI1.506797–1.552689); every GPU stored-byte/escape weight roundtrip and
+FP64 random/power-of-two output check passed for qkv/o/pooler/slice. The CPU gate was also
+strengthened to execute real7-byte packed groups, LUT selection and sparse escape restoration
+over all65536 BF16 patterns in both pair positions (131072weights), passing.
+
+|m1 shape|actual pair7 minus cgemv us|duplicate null us|pair7 bytes / old packed bytes|
+|---|---:|---:|---:|
+|qkv_gate|+9.952|-0.064|27593216 /28403712|
+|o|+5.344|-0.032|12583424 /12713984|
+|pooler|+24.944|-0.048|49054208 /50495488|
+|unpooler slice|+4.384|0.000|6152704 /6316032|
+
+Measured conclusion: this scalar seven-byte-plane/LUT/FP32-GEMV implementation loses far
+more than its1–2.9% physical byte reduction can recover. It is not adopted and remains
+benchmark-only. Not established: denser codecs with vectorized loads, shared/register LUT
+placement or tensor-core consumers; the generic GEMV scaffold also differs from cgemv, so
+these numbers cannot isolate lookup cost or reject compression generally. No resource/SASS
+counters were captured for the new trial. No code in any production candidate changed for it.
+Reopening needs a vectorized decoder inside an already competitive kernel and a renewed work
+model, rather than another scalar packed-GEMV repeat. Logs/status are in profiles with this ID.

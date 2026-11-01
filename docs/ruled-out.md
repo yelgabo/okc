@@ -21,6 +21,10 @@ components, in the same process, before calling it lost again.
 
 | Experiment | Evidence | Rules out |
 |---|---|---|
+| Actual lossless pair7 cgemv trial:7 byte planes/warp,128-entry exponent LUT,sparse exact escapes,scalar FP32 GEMV |962d2f9c1d9644f7: all weight roundtrips and FP64 probes pass; qkv/o/pooler/slice +9.952/+5.344/+24.944/+4.384us vs12-bit cgemv; null<=0.064us; actual bytes save1–2.9% |This scalar packed-GEMV implementation, not all denser codes. No production adoption. Reopen with vectorized decode in a competitive consumer and measured decode costs; first0ab8f0510515473b was C++17/toolchain failure only |
+
+| Experiment | Evidence | Rules out |
+|---|---|---|
 | cgemv m1 / rd m8 codec factorial knock-ins (pair7/q12 timing models), October31 PDT |075dc89d74d144d6: pair7 model qkv1 +2.50us, pooler1 +6.34us, rdpool8 +1.23us; even bytes-only qkv1 +0.96us, pooler1 +4us; control/null within0.03–0.18us |This knock-in as positive evidence for immediate codec implementation. Unexpected bytes-only loss exposes branch/load/codegen perturbation; it does not establish all denser codecs lose. Reopen with a physically packed stream or cleaner memory/decode model, not another identical factorial |
 
 | Experiment | Evidence | Rules out |
