@@ -443,4 +443,4 @@ Hourly review history: [11:20 PDT performance review](2026-10-29-1120-performanc
 
 - 2026-11-01: [Independent G stage-probe device checkpoint](2026-11-01-g-stage-probe-independent-review.md): shared-field lifetime, exact trace bounds and actual SASS/resource review; final host artifact and source-version reconciliation remain open, no dispatch clearance.
 
-- 2026-11-01: [Owned standalone MoE locality scope](2026-11-01-owned-moe-locality-scope.md): exact incumbent8-row order vs old53c075 census; distinct transpose remains unmeasured but four retained standalone count cases have zero duplicates, so no implementation/check request.
+- 2026-11-01: [Owned standalone MoE locality scope and local population addendum](2026-11-01-owned-moe-locality-scope.md): exact incumbent8-row order; new preregistered64-bank local input census finds repeats14/32 atM16 and29/32 atM32, revising the old four-bank gate. Conditional score scenario+3.073%, not traffic/bound/forecast; exposed H200 opportunity still required, no kernel/check request.

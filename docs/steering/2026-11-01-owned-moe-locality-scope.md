@@ -138,3 +138,66 @@ whole-kernel critical time; then demand matched independent controls, fresh
 natural routes, exact BF16/FP32 boundaries, and >=1% whole-six-load benefit beyond
 2x null without posthoc narrowing to the positive layer32 samples. No blanket
 claim that all cache-aware schedules fail is warranted.
+
+## Dated addendum: preregistered local input-only population census
+
+This addendum **revises the narrow old-sample stopping gate above**. Root requested
+an independent local distribution census before treating four old standalone
+banks as representative. Before execution we fixed M16 and32 and every seed
+65001–65032 inclusive. All64 banks are retained; no outcome-based filtering,
+kernel implementation, model weight generation, benchmark or judge job occurred.
+
+Reusable tool: `tools/moe_owned_locality_census.py`. Full32-count vectors,
+selected groups, active experts, jobs, exact byte arithmetic and per-seed scenario
+results: `docs/steering/evidence/2026-11-01-owned-moe-locality/census.json`.
+It calls the existing `dl_g_next_expert_traffic.load_public_generator` AST loader,
+retaining original hidden-state RNG consumption, Student-t popularity.03, top8
+and busiest-rank rotation. Loader raw SHA256
+`cc2c5c3888ee16509f91006fa0b3d59d4c0dc750661c0ed6fbfc899b1b3af1e1`;
+reference LF SHA256
+`a7e0b4fa86aa477a4e7bb5745b2b258954d72636b6da153bd239a717927cba44`.
+
+Execution used `/root/.cache/okc-graph-cu128/bin/python`, Torch2.10.0+cu128,
+CUDA12.8, RTX5070 capability12.0,48SM. All original expert groups0–7 occur.
+The prior cross-H200 calibration failed249/256 masks at M256/seed4773; it was
+not rerun or claimed repaired here. These are independent local GPU distribution
+samples, **not reconstructed H200 official inputs**, layer routing, hardware
+traffic, timing or throughput measurements.
+
+|M|Banks with extra8-row jobs|Mean extra/requested bytes|Median|Max|Total extra jobs|Max expert count|
+|---|---:|---:|---:|---:|---:|---:|
+|16|14/32|4.537823%|0%|20%|16|16|
+|32|29/32|12.049895%|11.437908%|37.5%|67|32|
+
+Payload model is the owned byte-scale layout, **28,311,552 B per expert/job**:
+512A+256B units of36864 B. It does not reuse G's SC6 stage-byte model. Independently
+recomputed all64 records' job/active/extra-byte counts and count<=M invariants;
+analytical count1..8 fixtures have zero extra jobs, and a count16 fixture has
+two jobs/one unique payload. All checks passed.
+
+Conditional scenario: pair M16/M32 banks by the preregistered seed, multiply the
+`abe765...` adjusted medians by `(1-extra_request_fraction)`, leave the other four
+load medians unchanged, and recompute the full six-load score. Across32 pairs:
+geometric-mean factor **1.030729039**, median **1.026740660**, range
+**1.0–1.118265757**;26/32 exceed1%. This assumes every duplicated-request byte
+proportionally reduces the entire affected kernel's latency. It is **not a
+physical bound or forecast**: arithmetic remains necessary; cache hits may
+already serve these requests; the execution timeline, policy, batching and
+cross-backend distribution differ; and logical work order is not wall-clock
+reuse distance. No representative best seed is selected for a candidate.
+
+Reconciliation: the old four standalone count banks correctly had zero duplicate
+payload. They do not establish absence across the natural heavy-tailed population.
+This new fixed population supports a materially nonzero logical opportunity,
+especially at32, and keeps the distinct bounded same-expert job-by-output-unit
+transpose on the shortlist. It does **not** overturn the old all8-case multicast
+acceptance failure or turn token sorting into a win.
+
+Updated next gate: a transpose prototype may be considered after evidence that
+those extra requests cause exposed weight traffic under the real owned schedule
+(actual H200 input/count plus L2/DRAM or calibrated copy/whole-kernel evidence).
+Before any GPU experiment, prove identical complete unit ownership, helper
+credits, producer/consumer mapping and phase readiness, including partial jobs;
+preserve precision, fences and cooperative admission. Require preregistered
+whole-six-load gains beyond duplicate nulls, not a hot-seed-only result. No
+implementation or judge quota request is made in this addendum.
