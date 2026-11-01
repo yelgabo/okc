@@ -1,0 +1,50 @@
+{
+  "prepared_UTC": "2026-11-01T22:32:59.228228+00:00",
+  "source_commit": "82b4ac08711b4ec7403185c4d3dbc1181f99805b",
+  "source_introduction_commit": "603ed5b081d5c8a2a6be8c04ea7788d51078ab4b",
+  "source": "muse_decode_layer/cand/g1b4_common_short_rmw_release.py",
+  "source_bytes": 914572,
+  "source_sha256": "97935e7dc45d9fa69f5b4965bd70a5c2946cd8b829cedffb7a2aefc598cb53c7",
+  "physical_bytes_equal_committed_blob": true,
+  "fresh_regeneration_exact": true,
+  "dependency_hashes_verified": 12,
+  "arm": "short-rmw",
+  "kind": "single_fixed_arm_scored_measurement",
+  "user_authorization": "2026-11-01 explicit resume: check1fad, refresh quota, run RMW on H200 if service back; prefill excluded",
+  "app_saved_pause_superseded_by_explicit_user_resume_for_this_request": true,
+  "prior_accepted_job": "1fad70bbe3854cbc",
+  "prior_terminal": "infra_error",
+  "prior_refunded": true,
+  "current_layer_quota": {
+    "scored": {
+      "per_day": 10,
+      "used": 8,
+      "left": 2
+    },
+    "checks": {
+      "per_day": 20,
+      "used": 20,
+      "left": 0
+    }
+  },
+  "active_jobs": [],
+  "official_required": {
+    "tests": 13,
+    "benchmarks": 12,
+    "profiles": 12
+  },
+  "native_startup_required": {
+    "cells": 12,
+    "checks": 72,
+    "captures": 12,
+    "fresh_checked": 36,
+    "empty_checks": 60,
+    "empty_captures": 12,
+    "restored": 48
+  },
+  "native_RMW_exercise_required_for_attribution": true,
+  "H200_result": null,
+  "score": null,
+  "source_change": false,
+  "dispatch_job": null
+}

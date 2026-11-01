@@ -1,0 +1,14 @@
+{
+  "start_UTC": "2026-11-01T22:32:07.947983+00:00",
+  "argv": [
+    "okc",
+    "status",
+    "1fad70bbe3854cbc",
+    "--json"
+  ],
+  "returncode": 0,
+  "stdout": "{\n  \"board\": \"muse_decode_layer\",\n  \"call_id\": \"kc-1fad70bbe3854cbc\",\n  \"cluster\": \"sfo3\",\n  \"content_hash\": \"3075948e44ebc18430066103ff179ef3f1a6c2a09974ceeb522c0d01f86b8320\",\n  \"created_at\": 1793562974.3583002,\n  \"dedicated\": false,\n  \"duplicate_of\": null,\n  \"finished_at\": 1793572031.7160356,\n  \"id\": \"1fad70bbe3854cbc\",\n  \"mode\": \"run\",\n  \"payload_ref\": \"muse_decode_layer/3075948e44ebc18430066103ff179ef3f1a6c2a09974ceeb522c0d01f86b8320.py\",\n  \"refunded\": true,\n  \"result\": {\n    \"error\": \"the run hit an infrastructure error; it was refunded (it doesn't count against your daily cap), and its results aren't shown; you can submit the same code again\",\n    \"log_tail\": \"\",\n    \"records\": [],\n    \"score_us\": null,\n    \"speedup\": null,\n    \"speedup_ci\": null,\n    \"status\": \"infra_error\"\n  },\n  \"started_at\": 1793562986.5658185,\n  \"status\": \"failed\",\n  \"team\": \"yelgabo\"\n}\n",
+  "stderr": "",
+  "local_timeout": false,
+  "finished_UTC": "2026-11-01T22:32:09.016970+00:00"
+}

@@ -1,5 +1,7 @@
 # Shared project steering
 
+Latest root measurement registration: [RMW H200 resume after service recovery](2026-11-01-rmw-h200-resume.md). User explicitly resumed one fixed RMW run; prefill excluded. Recovered1fad terminal is infra_error/refunded=true, without measurements. Live22:32UTC layer quota2scored/0checks and no active jobs; exact97935e7d/914572B regeneration and dependency pins verified. Source unchanged; root owns one scored measurement and its own ID. Earlier pause snapshots below are historical for this request; reset automation stays paused.
+
 Latest root handoff: [G candidate funnel and single-arm qualification](2026-11-01-g-candidate-funnel-qualification.md), evidence603ed5b. ONE surviving implemented performance treatment: common+shortRMW,914572B/SHA97935e7d; frozen code and7 rootCPU facade tests plus independent reviews pass. Actual H200 gates run in its own prepare; no prior private1% win or separate common GPU job is required merely to measure it. PDL/boundary/pairedRNE/scale/gamma lanes have scoped negative evidence, not extra candidates. No measured gain or top10/top50 feasibility established. Goal/reset PAUSED; accepted1fad outcome/live ledger/quota unknown after22:23UTC local CLI retrieval timeouts. See exact candidate/manifest, resume gates and machine graph in the report.
 
 Archived root decision: [G integration-first minimum control and ordered ablations](2026-11-01-g-minimal-delta-plan.md), with dated single-arm addendum. Supersedes old reset order; historical5.77% causal cost remains unmeasured. The later startup qualifier permits shared hardware qualification inside one fixed RMW measurement. App goal/reset PAUSED, legacy artifacts HOLD, unrelated tuning deferred.
@@ -618,6 +620,8 @@ accounting, and running a corrected matched whole-layer comparison. It records
 recommendations, not execution of those tasks; check current code and run logs for status.
 
 ## Report history
+
+- [2026-11-01 RMW H200 resume registration](2026-11-01-rmw-h200-resume.md): evidence82b4ac0, explicit user resume;1fad recovered infra_error/refunded, live quota refreshed, exact fixed RMW source/gates registered before dispatch.
 
 - [2026-11-01 G candidate funnel and single-arm qualification](2026-11-01-g-candidate-funnel-qualification.md): evidence603ed5b; one frozen RMW measurement candidate, seven root CPU tests, scoped parallel closures and exact startup/resume gates. No H200 result; pause and accepted-job reconciliation retained.
 
