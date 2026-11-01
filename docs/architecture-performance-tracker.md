@@ -1,6 +1,6 @@
 # Architecture performance tracker
 
-Last review: 2026-11-01 08:04 MST. Evidence snapshot: `af3b550`.
+Last review: 2026-11-01 11:19 MST. Evidence snapshot: `fa8173a`.
 First review reconciles progress since `aab7d75`, the snapshot in the
 [architecture-family guide](architecture-families-2026-10-29.md).
 This is a review of recorded experiments, not a new benchmark run.
@@ -14,13 +14,87 @@ named control, not changes in aggregate score. Families overlap; their gains can
 |---|---|---|---|
 | A. Hybrid persistent/legacy MoE | Retained owned baseline; new variants fail gates | Position map, token locality, multiply decoder, direct band32 and cached band32 fail their aggregate/regression gates. | Cached schedule recovers direct-band overhead but fails against original. Physical traffic opportunity remains open. |
 | B. Staged grouped MoE | New masked library schedule loses | GROUPED_MASKED versus51 loses about 145-235 us across 128/256 layer/std cases, with math checks passing. Earlier45+46 losses remain. | Failure is scoped to tested library schedule; two GEMMs already exceed owned whole-call time in the profiled256 case. |
-| C. Owner-completes tiles | Earlier ownership gains retained; new designs close | Native fixed-owner frontier screen fails; owned attention hierarchical and complete-head cluster variants lose. | External VP2 uses a different implementation. Preserve comparator discrepancy and precision qualifications. |
+| C. Owner-completes tiles | Earlier ownership gains retained | The complete private VP2 design wins its eight-token sliding cell. Both owned cluster implementations previously lost. | The comparison leaves the contribution of output ownership unresolved. |
 | D. Dependency-aware scheduling | Dynamic claiming retained; new phase-A claim layouts lose | Phase-A modes 62/63 and K=0 controls 66/69 lose; lean claimed mode 68 is not timed. Earlier split-tail 52/53 losses stand. | Full ready-only queue remains untested. Reopen phase-A claims only after the no-work control ties mode 51 within 1 us at 128/256. |
-| E. Attention producer-consumer pipeline | Prior gains retained as historical evidence; new probes fail | Owned QK2 fails scoped timing gates and cold-prepare limit. Detailed wait trace fails all12 distortion gates. | BF16 attention-value boundary requires explicit repair before historical owned code reuse. Matched repaired controls are required. |
+| E. Attention producer-consumer pipeline | Private VP2 cell win, six-load gate failed | VP2 took 10.168 µs versus 10.784 µs for the owned control on eight-token sliding attention. All three held-outs missed the full-score gate. | The historical owned QK2 and wait-probe limits still apply. VP2 only changes the eight-token target. |
 | F. Donor-based baseline/hybrid | Historical alygg77 measurement track | Prior F comparisons and owned C3 router gains remain recorded. Two new QKV128 variants lose despite correctness/resource passes. | G has a separate attributed-fork policy. Projection C2 remains best scored, with C3 paired component wins retained. |
 | G. Attributed keell0renz layer fork | Retained scored layer2.126083x | Repaired SC6 stage retirement has matched component factors1.018493-1.028699; integrated G1b4 stage file passes13 official tests. | Matched six-load layer stage comparison remains queued. Independent public scores do not isolate stage effect. |
 
-## Latest review, November 1 08:04 MST
+## November 1 review at 11:19 Vancouver time
+
+Snapshot `fa8173a` covers 53 remote commits since `af3b550`. The private VP2 comparator
+saved 0.616 µs at eight-token sliding attention. Its six-load factors fell below the
+registered 1% threshold. The owned global sparse-XOR projection ran slower on all ten
+target cells than archived C2. The stage-local version has a dispatch receipt and awaits
+its own H200 result. Family G retains the 2.1261× layer entry.
+
+**E. The private VP2 comparator saved 0.616 µs (5.71%) at sliding verify batch 1, eight tokens. It missed the six-load acceptance gate.** Job `c79ddddb840a4fb7` used source `e86b0d5`, frozen at `23fb760`, with the external VP2 bundle from `8e30e1b`. Four independently prepared arms shared the same BF16 output boundary. Three held-out inputs per cell and 32 rotated cold rounds produced 36 timing rows. All 640 private math and cache checks passed. The private judged path passed 16 official tests and scored 2.594320× (95% CI 2.555405–2.633234). The interval applies to the official standalone score. [Official receipt](https://github.com/yelgabo/okc/blob/fa8173a/muse_attention_decode/profiles/vp2_bf16_private.c79ddddb840a4fb7.receipt.json)
+
+| Held-out seed | Owned mode 8/15 µs | VP2 µs | Delta µs | Delta % |
+|---|---:|---:|---:|---:|
+| 824731 | 10.856 | 10.136 | -0.720 | -6.63% |
+| 824737 | 10.744 | 10.144 | -0.600 | -5.58% |
+| 824743 | 10.752 | 10.224 | -0.528 | -4.91% |
+
+The four contemporaneously calibrated six-load comparisons ranged from 1.006309× to 1.009060×. The duplicate log-null was 0.002371. Every seed failed the combined gate, which required all four comparisons to clear both 1% and twice the duplicate noise. VP2 combines 128-key tiles, dedicated ownership and an asynchronous mailbox. The evidence isolates the bundle only. The earlier owned 64-key complete-head cluster loss stands. This round closed the automatic rewrite and promotion route. A new owned design would need independent evidence. [Terminal decision](https://github.com/yelgabo/okc/blob/fa8173a/docs/steering/2026-11-01-attention-vp2-bf16-terminal.md)
+
+At 128 and 256 tokens all four arms ran owned code. The following raw averages across the three seeds and two placements per arm record coverage. Differences measure variation among those unchanged-code placements.
+
+| Tokens | Context | Control µs | Comparator arm µs | Difference µs (%) |
+|---|---|---:|---:|---:|
+| 128 | sliding | 15.771 | 15.717 | -0.053 (-0.34%) |
+| 128 | full | 109.637 | 109.413 | -0.224 (-0.20%) |
+| 256 | sliding | 19.869 | 19.888 | +0.019 (+0.09%) |
+| 256 | full | 190.675 | 190.971 | +0.296 (+0.16%) |
+
+[Paired timing rows](https://github.com/yelgabo/okc/blob/fa8173a/muse_attention_decode/profiles/vp2_bf16_private.c79ddddb840a4fb7.analysis.json)
+
+**MoE.** This interval adds a CPU audit of low-token weight representations. It parks full BF16 expansion, scale expansion and generic activation caching pending evidence that decoding or activation handling limits the skinny kernel. The audit provides no H200 candidate timing, so A through D and the 128/256 A-vs-B decision keep their prior measured status. [MoE audit](https://github.com/yelgabo/okc/blob/fa8173a/docs/steering/2026-11-01-owned-lowtoken-representation.md)
+
+### Projection: global sparse XOR lost on all ten target cells. Stage-local XOR awaits its result.
+
+Job `2b537518091248f1` tested the owned global-record E7-XOR repair before activation loading (source `c138969`, registration `1bd55da`, SHA256 `685ffab5d1614343d3c46d505967ae6817e3784736297018c78984354333f765`). This H200 public run passed nine official tests with 30 timed cells and 30 profiles. All ten overrides executed with zero fallbacks. Startup passed 160 math checks, ten captures and 30 fresh-input checks in 123.33 seconds. All 40 resource vectors passed the local-memory, layout and CTA-admission gates. The candidate scored 1.394120071× (95% CI 1.373208270–1.415031872) against archived C2 job `9eba96894ee1402e` at 1.527806483× (1.504889386–1.550723580), an 8.75% lower point score. Each receipt contains one scored submission. Different inputs, machines, driver versions and calibration preclude a paired estimate or a mechanism-specific confidence interval. [Owning receipt](https://github.com/yelgabo/okc/blob/fa8173a/muse_bf16_proj/profiles/sk-xor-release.2b537518091248f1.receipt.json), [terminal analysis](https://github.com/yelgabo/okc/blob/fa8173a/docs/steering/2026-11-01-sk-xor-release-terminal.md).
+
+| Projection / tokens | Adjusted change vs C2 | Raw event change vs C2 |
+|---|---:|---:|
+| qkv_gate / 8 | +3.562 µs (+36.46%) | +4.176 µs (+30.53%) |
+| unpooler / 8 | +0.234 µs (+5.16%) | +0.624 µs (+7.37%) |
+| qkv_gate / 16 | +4.246 µs (+43.59%) | +4.128 µs (+29.66%) |
+| o / 16 | +1.544 µs (+28.77%) | +1.536 µs (+16.16%) |
+| pooler / 16 | +3.876 µs (+28.08%) | +3.648 µs (+20.00%) |
+| unpooler / 16 | +1.893 µs (+13.96%) | +1.456 µs (+8.15%) |
+| qkv_gate / 32 | +5.533 µs (+52.41%) | +5.184 µs (+35.14%) |
+| o / 32 | +1.457 µs (+24.83%) | +1.488 µs (+15.00%) |
+| pooler / 32 | +4.853 µs (+32.17%) | +5.008 µs (+26.37%) |
+| unpooler / 32 | +1.211 µs (+8.23%) | +1.488 µs (+8.08%) |
+
+
+At 128 and 256 tokens all five operators used existing C2 paths. The table gives across-receipt changes in the sum of five medians as coverage context. Attribution is limited to the ten target rows above. [All 30 cell medians, timing offsets and seeds](https://github.com/yelgabo/okc/blob/fa8173a/docs/steering/evidence/2026-11-01-sk-xor-release-terminal/rows30.csv).
+
+| Tokens | Adjusted C2 → candidate | Adjusted change | Raw C2 → candidate | Raw change |
+|---:|---:|---:|---:|---:|
+| 128 | 67.096 → 68.591 µs | +1.496 µs (+2.23%) | 87.168 → 89.568 µs | +2.400 µs (+2.75%) |
+| 256 | 82.416 → 84.070 µs | +1.654 µs (+2.01%) | 103.408 → 103.920 µs | +0.512 µs (+0.50%) |
+
+The recorded decision closes the global-record schedule and its layer port. The review corrects an earlier dependency claim. Global record loading can delay stage-credit publication and back up the producer, even with valid lifetime ordering. The public timing leaves the cause of the slowdown unresolved. C2 remains the projection entry. [Corrected explanation and decision](https://github.com/yelgabo/okc/blob/fa8173a/docs/steering/2026-11-01-sk-xor-release-terminal.md).
+
+Public job `dfcfdd01d6f04525` tests a distinct stage-local representation (source and preregistration `a08f501`, 450,781 bytes, SHA256 `de1111b98072f5251ff9b2edd5d453cc22eb8fe1710a943c60922909cc796229`). It derives capacity from supplied weights. It retains the same ten targets and 100 nearby keys with C2 as comparison, subject to unchanged C2 resource admission, 160 math checks, ten captures and 30 fresh replays before enabling overrides. Local CPU and source checks passed. H200 correctness, coverage, timings and scored outcome are pending at `fa8173a`. The 128/256 cells use the original C2 paths. [Dispatch receipt](https://github.com/yelgabo/okc/blob/fa8173a/muse_bf16_proj/profiles/stage-xor-release.2026-11-01/dispatch.json), [preregistration](https://github.com/yelgabo/okc/blob/fa8173a/docs/steering/2026-11-01-projection-stage-xor-release.md).
+
+Two offline projection audits recorded no new GPU timing. The local compilation found terminal waits needed for partials and ring reuse on the selected C2 WGMMA paths. The mailbox audit found that the selected SK/RD reducers are CTA-local and RT already uses async completion. Both score sensitivity scenarios are hypothetical. No layer or A–E performance attribution follows. [Lifetime audit](https://github.com/yelgabo/okc/blob/fa8173a/docs/steering/2026-11-01-projection-wgmma-lifetime-audit.md), [mailbox audit](https://github.com/yelgabo/okc/blob/fa8173a/docs/steering/2026-11-01-projection-mailbox-scope.md).
+
+### Family G precision and layer packaging
+
+The latest retained layer receipt is still `607eb52bdaf24160`, Family G stage retirement, 2.126082676× (95% CI 2.094191436–2.157973917). The board snapshot at 17:27 UTC on November 1 records layer rank 316. This review interval adds no layer H200 timing, paired result or submission. [Board snapshot](https://github.com/yelgabo/okc/blob/fa8173a/docs/steering/evidence/2026-11-01-projection-sk-xor-root/live-muse_decode_layer.json), [retained receipt](https://github.com/yelgabo/okc/blob/fa8173a/muse_decode_layer/profiles/scored.607eb52bdaf24160.json).
+
+The source audit at `bf75af6` narrows the earlier precision claim. The rules preserve BF16 activation boundaries where SGLang uses BF16, including the expert GEMM outputs before the next operator. The pinned JIT short router receives the unrounded FP32 normalized vector while the pooler receives BF16. The audit found no categorical rule requiring every internal split partial to be FP32. Keeping rs128 BF16 partial reductions, YBF and opaque Lt split-K paths disabled is a conservative implementation choice. MFIN can leave its poll before readiness, an independent reason to keep that path disabled. The audit measured no per-repair speedup and did not qualify a new release. [Precision contract and source identities](https://github.com/yelgabo/okc/blob/fa8173a/docs/steering/2026-11-01-g-fork-precision-contract.md).
+
+At 128 and 256 tokens, the private verify comparison now covers sliding and full contexts in one 968,389-byte package. A corrected owned-128 selector restores the recorded projection and boundary choices. Seven CPU tests and independent source review support that correction. H200 linking, capture, matching natural expert IDs, 96 reference checks and the 295-second local preparation guard remain open. These four cells cover two of six scored loads. The six-load G control-versus-stage comparison and short-path trace retain priority. [Private comparison review and runtime gates](https://github.com/yelgabo/okc/blob/fa8173a/docs/steering/2026-11-01-verify-four-cell-slice-review.md).
+
+The corresponding **production hybrid fails the size gate** for every nonzero override mask in the tested representation. The default is byte-identical to the 869,076-byte incumbent. One verify32 cell requires 1,072,104 bytes, both verify16 cells require 1,115,832, and all four require 1,125,548, against a strict limit below 1,000,000. The 16-mask matrix reproduced and 19 host tests passed. Local device-only builds preserve the selected WD, boundary and router instructions. This closes the current packaging approach without a runtime or latency result. [Production matrix and stop rule](https://github.com/yelgabo/okc/blob/fa8173a/docs/steering/2026-11-01-verify-hybrid-packaging.md).
+
+The separate sparse-XOR applicability map identifies 24 potential projection cells on four short loads. G uses SK2 and distinct packed weights. Direct transfer would require a separately qualified consumer and repack. The 128/256 Lt paths are outside this map. Its 830,130-byte figure is a source inventory with allowances, not a generated layer payload. No layer gain follows from the standalone projection experiments. [Layer applicability map](https://github.com/yelgabo/okc/blob/fa8173a/docs/steering/2026-11-01-g-sk-xor-applicability.md).
+
+## November 1 review at 08:04 Vancouver time
 
 Evidence snapshot `af3b550` contains187 remote commits since `6e078b5`. The local checkout
 remains on the documentation branch at `e79359f`. This review parsed135 added remote
@@ -2223,6 +2297,8 @@ paired differences.
 | G stage retirement, repaired SC6 | Same-process repaired control | -7.464 to -11.808 us (-3.70% to -5.88%) | -13.432 to -18.280 us (-5.91% to -7.56%) | 63f5a2a8ed2341d1;3heldouts, four private placements, six-load gates pass. [Remote evidence](https://github.com/yelgabo/okc/blob/af3b550/muse_moe_w4a16/profiles/stage-retire.63f5a2a8ed2341d1.analysis.json). |
 | Retained G layer versus owned combination | Independent owned cb71 public run | Weighted -16.034 us (-5.62%) | Weighted -26.968 us (-6.98%) | 607eb52bdaf24160; cross-run observation with different preparation/routing. [Source cells](https://github.com/yelgabo/okc/blob/af3b550/docs/steering/evidence/2026-11-01-g-public/stage-shapes.md). |
 | Projection QKV depth2, separate context | Same-run production | +0.512 to +0.640 us (+2.53% to +3.17%) | Treatment absent | 4542b2b04cb344ec;2inputs,100cold rounds, correctness/resources pass, timing gate fails. [Receipt](https://github.com/yelgabo/okc/blob/af3b550/muse_bf16_proj/profiles/qkv_depth.4542b2b04cb344ec.json). |
+| Owned global sparse-XOR projection, coverage context | Archived C2, independent run | Sum of five adjusted medians +1.496 µs (+2.23%) | Sum +1.654 µs (+2.01%) | `2b537518091248f1`. Both sizes use C2 paths. Only the ten target cells at 8/16/32 exercised sparse XOR. [Cell records](https://github.com/yelgabo/okc/blob/fa8173a/docs/steering/evidence/2026-11-01-sk-xor-release-terminal/rows30.csv). |
+| Private VP2 attention, coverage context | Matched BF16-output owned controls | Existing owned path | Existing owned path | `c79ddddb840a4fb7`. Only eight-token sliding attention exercised VP2. [Full-score result](https://github.com/yelgabo/okc/blob/fa8173a/docs/steering/2026-11-01-attention-vp2-bf16-terminal.md). |
 
 
 ## Small-token results and rejected changes
@@ -2255,6 +2331,13 @@ Losses matter as much as wins:
 
 ## Whole-layer outcome and attribution
 
+The November 1 contract audit distinguishes the required BF16 stage boundaries from the
+project’s conservative policy on internal partial reductions. It records the active JIT
+short router’s FP32 input. This source audit adds no paired layer timing. The four-cell
+private verify diagnostic fits its file budget, while each tested production hybrid exceeds
+the size limit. H200 qualification and matched six-load stage comparison remain pending.
+[Contract audit](https://github.com/yelgabo/okc/blob/fa8173a/docs/steering/2026-11-01-g-fork-precision-contract.md) · [Packaging results](https://github.com/yelgabo/okc/blob/fa8173a/docs/steering/2026-11-01-verify-hybrid-packaging.md)
+
 Retained Family G job `607eb52bdaf24160` scores2.126082676x, CI2.094191436-2.157973917,
 from `g1b4_stage_release.py`, SHA256 ba9e327cd7b96595ace4d0c1d0d78fe27c128f23ed0debcda97c7169fc3164ab.
 Its official13 tests and56 private replays pass. Matched standalone stage-retirement gains
@@ -2272,8 +2355,7 @@ remains untested. Further scheduling work needs a distinct mechanism and measure
 The G lineage has an approved attributed-fork policy, while F retains its alygg77 history.
 The retained G1b4 layer includes stage retirement. Its matched gain was measured in standalone MoE. The next registered check compares
 G control and stage candidates across six loads with matched natural routing and independent
-controls. The prepared short-path trace requires low-distortion rows. The selected verify32
-sliding cross-family package still needs H200 linking, preparation and oracle validation.
+controls. The prepared short-path trace requires low-distortion rows. The expanded four-cell verify diagnostic still needs H200 linking, preparation and oracle validation. The tested production packages exceed the byte limit.
 
 Historical owned attention requires the documented intermediate BF16 repair before reuse.
 The new QK2 and wait studies use repaired controls. The attention and G detail observers
@@ -2285,6 +2367,8 @@ Prefill remains deferred. The final recorded campaign goal remains unmet.
 [Family G qualification](https://github.com/yelgabo/okc/blob/af3b550/docs/steering/2026-11-01-family-g-qualification.md).
 
 ## Review history and checkpoint
+
+- 2026-11-01 11:19 MST (America/Vancouver). Local checkout `5e42a4b`, remote evidence `af3b550..fa8173a`. Reviewed 14 remote profile JSON files, run records, ruled-out entries and source audits. All 18 untracked local receipts already appear in the ledgers. New completed jobs `c79ddddb840a4fb7` and `2b537518091248f1` are recorded separately from the pending dispatch `dfcfdd01d6f04525`.
 
 - 2026-11-01 08:04 MST: reviewed remote `6e078b5..af3b550`,187 commits, run ledgers,
   profiles, ruled-out additions and final06:30PST handoff. Parsed135 new remote JSON

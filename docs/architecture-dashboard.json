@@ -1,6 +1,6 @@
 {
-  "reviewed_at": "2026-11-01T08:04:00-07:00",
-  "snapshot": "af3b550",
+  "reviewed_at": "2026-11-01T11:19:00-07:00",
+  "snapshot": "fa8173a",
   "family_registry_update": {
     "date": "2026-10-30",
     "evidence_snapshot": "7a5965531103f275ac104d340ef30f1508e32353",
@@ -54,7 +54,7 @@
       "summary": "Earlier ownership gains retained. Native fixed-owner screen and two owned attention cluster variants fail their gates.",
       "layer": "Present in tested layer descendants",
       "pending": [],
-      "limit": "Hierarchical and complete-head cluster variants lose. External VP2 has different mechanics and remains an unresolved comparator lead.",
+      "limit": "The private VP2 target win and owned cluster losses leave the contribution of output ownership unresolved.",
       "source": "runs-moe.md",
       "outcomes": [
         "win",
@@ -78,22 +78,19 @@
       "id": "E",
       "name": "Attention producer / consumer",
       "status": "win",
-      "label": "Historical gains; repaired-control gates",
-      "metric": "1.0023928×",
-      "unit": "Late-tid2 full-only standalone score sensitivity",
-      "summary": "Owned QK2 missed its timing and cold-preparation gates. Instrumentation distorted all 12 wait measurements.",
-      "layer": "Historical owned code needs BF16 attention-value repair before reuse",
+      "label": "VP2 cell win, full-score gate missed",
+      "metric": "−0.616 µs (−5.71%)",
+      "unit": "Private VP2 versus owned control, eight-token sliding attention",
+      "summary": "Across three held-outs, VP2 averaged 10.168 µs versus 10.784 µs for the owned control. All four six-load factors were below 1.01.",
+      "layer": "Private standalone comparison. Layer adoption closed for this variant.",
       "pending": [],
-      "limit": "New studies use common repaired BF16 controls. Detailed wait sums support descriptive traces only; no accepted new pipeline change.",
+      "limit": "640 private checks passed. The 128- and 256-token cells used the owned path. The result measures the complete VP2 variant.",
       "source": "runs-attention.md",
       "outcomes": [
         "win",
         "loss"
       ],
-      "evaluation_pending": [
-        "Low-distortion short-path trace",
-        "Resolve distinct external attention mechanisms"
-      ]
+      "evaluation_pending": []
     },
     {
       "id": "F",
@@ -131,7 +128,7 @@
       "evaluation_pending": [
         "Registered six-load G control-versus-stage comparison"
       ],
-      "limit": "The retained G1b4 layer includes stage retirement. The matched gain was measured in standalone MoE. The six-load layer comparison is registered.",
+      "limit": "The G audit retains BF16 stage boundaries and the FP32 short-router interface. The matched six-load layer comparison remains registered.",
       "source": "runs-decode-layer.md",
       "outcomes": [
         "win",
@@ -141,19 +138,19 @@
   ],
   "context_pending": [
     {
-      "name": "Short-path and selected-cell studies",
-      "label": "Prepared / H200 gates pending",
-      "summary": "Low-distortion short-path trace and selected verify32/sliding pair still need runtime validation. One-cell evidence has limited scope."
+      "name": "Stage-local sparse XOR",
+      "label": "Projection job pending",
+      "summary": "Job dfcfdd01d6f04525 awaits H200 results. The earlier global-record version passed correctness and regressed on every target cell."
     },
     {
-      "name": "Observer invalidations",
-      "label": "Measured distortion",
-      "summary": "All 12 attention rows and all 12 G rows exceeded their timing-distortion limits. Their wait measurements cannot identify the bottleneck."
+      "name": "Four-cell verify diagnostic",
+      "label": "Private diagnostic fits • production package exceeds limit",
+      "summary": "H200 qualification is pending for the diagnostic. Every tested production hybrid exceeds the file-size limit."
     },
     {
-      "name": "Owned scheduling and projection closures",
-      "label": "Tested losses",
-      "summary": "Direct/cached band32 and QKV128 depth/push changes fail gates. Prefill remains deferred."
+      "name": "G stage and short-path studies",
+      "label": "Layer checks pending",
+      "summary": "The retained G score is 2.1261×. A six-load stage comparison and fixed-routing short-path trace are registered."
     }
   ]
 }

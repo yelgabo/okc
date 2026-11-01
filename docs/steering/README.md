@@ -104,7 +104,11 @@ The existing CUTLASS pooler, wide 8-stage picks, DCARRY/PK16/VHOIST and failed l
 are explicitly accounted for. No kernels, validation policies, GPU runs or submissions changed.
 This is separate from the layer's M1/tuner-stability work below.
 
-## Latest hourly report, November 1 08:04 MST
+## Latest hourly report, November 1 11:19 Vancouver time
+
+The private VP2 comparator wins its target cell but misses the six-load gate. Global sparse XOR loses on all ten projection targets. The stage-local result is pending. [November 1 review](2026-11-01-1119-performance-review.md)
+
+## Previous hourly report, November 1 08:04 MST
 
 [Retained G layer and final measured outcomes](2026-11-01-0804-performance-review.md)
 records remote snapshot `af3b550`. Family G retains2.126083x. Owned Lt-plus-boundary
