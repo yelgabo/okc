@@ -443,6 +443,8 @@ recommendations, not execution of those tasks; check current code and run logs f
 
 ## Report history
 
+- [Whole-layer G versus owned comparison constraints](2026-11-01-layer-legacy-pair-closure.md). The legacy harness needs an adapter and exceeds the file limit when both complete sources are included in readable form.
+
 - [Attention outcomes, rank gaps and expert pipeline evidence](2026-11-01-attention-results-expert-pipeline.md), [complete-head screen](2026-11-01-attention-complete-output-clusters.md), [per-request QK study](2026-11-01-attention-per-request-qk2.md) and [owned layer control repair](2026-11-01-owned-layer-attention-boundary.md).
 
 - [G1b4 reset instructions, hashes and promotion criteria](2026-11-01-family-g-qualification.md#november-1-addendum--run-g1b4-at-the-next-reset) and [independent boundary review](2026-11-01-g1b4-attention-boundary-review.md).
