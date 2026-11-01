@@ -110,3 +110,12 @@ capture error, unsafe ordering, elapsed preparation guard, all-fallback drift, o
 whole-six-load result. One single-arm public score cannot causally prove the overlap win;
 use exact per-load results and noise limitations. Do not repeat the old losingT8 split blindly.
 Parent owns report index/push integration and actual public source/receipt.
+
+## Coordinator local-fixture completion
+
+Root reports final5b5ec1 exact wrapper/holder/router/Tritonroute/full startup fixture
+PASS on RTX5070 with32qualified fresh replays, both expected natural-route/owner manifests,
+and two concurrent captures plus20fresh overlap replays. Only the BFPsk2pooler arithmetic
+was represented by torchBF16linear. This closes local stream/API fixture execution;
+native H200 packed pooler correctness/performance and the official layer remain unqualified.
+Root archives owning local evidence; no H200 claim or dispatch by this worker.
