@@ -267,7 +267,31 @@ heuristics see R=M*8 versus estimated local M; actual tensor dimensions and devi
 remain unchanged, and no input-derived value chooses a policy. No zeroing removal is mixed in.
 All arms compare mathematical outputs with Marlin before timing; component time is not a
 whole-prefill score. HBSTOP explicitly marks incomplete coverage beyond the230s setup guard.
-No component result is claimed while this check is pending.
+Component7598f81b9b4645f9 completed5/5 official tests; control headline1.143518x
+(not an arm score). All six arm correctness checks and all sizes completed, no HBSTOP.
+At753, M minus R paired medians were -109/-162us on seeds271/272 (M2 -110/-162us),
+with R2 duplicate controls +1.8/+0.7us. At3012, M -228/-111us (M2 -230/-111us),
+R2 -1.1/-1.6us. At16384 results unresolved: M +9/-25us, M2 +44/+6us,
+R2 +37/+26us. Marlin versus indexedR medians at3012 were2467/2775 versus2024/2065us;
+at16384,13749/8780 versus9235/6687us. These establish component opportunity, not
+projected aggregate improvement. Receipt committed as `profiles/humming_component.7598f81b9b4645f9.json`.
+
+### Global local-M heuristic fresh gate: closed
+
+Checkec3618d1604e44ba used local-M estimate globally, same original four-bank fresh
+gate at32,64 eager controls and2000 queued replays. FAILED prepare before official tests.
+Metadata/nonfinite/zero-local errors all0, rel eager0.0011458 versus graph0.0016904,
+row0.00909 versus0.01042, but share of rel>1e-4 was0.046875 eager versus0.5 graph,
+violating the unchanged2x eager-share envelope. Small-shape heuristic changed BM24 to8.
+No math/latency score and no promotion; thresholds were not weakened. JSON/log committed
+as `profiles/humming_local.ec3618d1604e44ba.*`.
+
+New bounded policy is justified solely at paired-winner sizes753/3012; routed estimate
+remains at32 and unresolved16384. Checkd26a87ca2f484145 dispatched from
+`.build/today-moe/prefill_humming_bounded_stress.py`. Pure core is
+`.build/today-moe/prefill_humming_bounded.py`; diagnostic suffix runs the unchanged
+four-bank/64 eager/2000 queued gate at each of32,753,3012. No zero-removal or masked
+layout mixed in. CPU route contract oracle and generated syntax pass. Pending.
 
 ## Source facts (SGLang a55ab7d5, read from GitHub and hashed against the image)
 

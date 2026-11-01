@@ -16,7 +16,7 @@ class RouteCapacity(unittest.TestCase):
                 for i in order:
                     if 0<=ids[i]<32:
                         e=ids[i]; ranks[i]=counts[e]; counts[e]+=1
-                for bm in (16,32,64,104,128,160,176):
+                for bm in (8,16,24,32,64,104,128,160,176):
                     cap=((r+bm-1)//bm+32)*bm
                     padded=[(c+bm-1)//bm*bm for c in counts]
                     off=[0]
