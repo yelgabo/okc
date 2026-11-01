@@ -257,3 +257,23 @@ all synchronization preserved in legitimate computing arms. No new dense candida
 
 Objective remains active: allfiveboards must become verifiedtop10, and today's remaining
 checks/submits are still being used for evidence-selected experiments and checked candidates.
+
+### Same-round terminal/dispatch addendum
+
+First Hummingbe3cbc7f5a234c64 stopped inprepare on installed global-scale parameter shape:
+expected[32], supplied[32,1]. No kernel math/performance result exists. Corrected plain
+0de84000097946c9 uses original FP32scales reshaped to the installed parameter shape; frozen
+sourcebf6d95ae1cbba377dc5bd4a2cd9774815a54ebb26ddcfcab9a33834220c87232.
+Stress/release generator additionally asserts32elements and FP32destination; do not mutate
+the in-flight artifact or promote it without full official/fresh-input validation.
+
+Projection partition diagnostice6e5bd6d0a104faf now running at the same measured62-cluster
+geometry. Computing controls retain official/FP64/replay checks; memory-only/no-reduction
+arms are explicitly wrong-output timing probes, excluded from correctness and never scored.
+Their purpose is to decide whether dense mainloop or DSMEM retirement dominates the loss,
+not fabricate a fast but incomplete kernel. Old17.47us adjusted Lt and newer26.624us raw
+Lt are not interchangeable cross-run baselines.
+
+Merged attention df8ed3b while preserving both appended newbest hotspot tables (layer and
+unchanged attention control). Main worktree clean at15974d7 before this addendum. Public
+best layer/source remains8f2780d7382047e6/585d46e2.... Goal not complete or blocked.
