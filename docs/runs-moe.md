@@ -5392,3 +5392,19 @@ Exact493d1678 source unchanged, no production/pure qualification/public submissi
 Root owns canonical receipt/log/profile; independent decoded report and closure:
 docs/steering/2026-11-01-owned-moe-band32-terminal.md. Fixedband32 and offline
 153reg identity shortcut closed; no automatic band/cache/cap/credit sweep.
+
+
+## Owned cached-band32 six-arm private check, 2026-11-01
+
+Root dispatched LAST privateMoE check903e5b03411c4e2d (pending), exact945013B
+artifact SHA2564bf3864b23ef94213794558d86c862cf781acd1d3a0ed5a8667f4b4e223c39d2,
+harness6460509/cachepatche99d848/directfc28a77. Threeownedbinaries/sixprivate
+computingowners: control0/1,cached2/3,direct4/5; only16/32usecached/direct,
+otherfourloadsallcontrol. Samephysicalband32schedule/credits, new350u32shared
+representation1400rawB/+1408actualSmemgate. Seedspreregistered993727/993733/993739,
+all18rows/396mathchecks required; fourcrossctrl-vs-cached pooledANDallseed1pct/2xnull,
+regression/resource/finiteFP32ref/fresh32/skew/remote/post/spin/budget/11KB gates.
+Directcomparatordescriptiveonly. SevenactualTorchCPUhosttestsPASS, realistic
+transport4419B; no H200successclaim. Fullsourcepins/registration:
+docs/steering/2026-11-01-owned-cached-band32-registration.md. Rootownsstatus/raw
+receipt/log/profilearchive; nochildGPU, no publiccandidate unlessstrongfullscorewin.
