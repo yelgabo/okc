@@ -13,6 +13,8 @@ ROOT=Path(__file__).resolve().parent.parent
 GATE=r'''
 def _q8_resource_gate():
     mods={"ctrl":_ONE,**_AB_MODS}
+    required={"ctrl","ctrl2","read_probe","zero_probe","nocopy_probe","stamp_probe"}
+    assert set(mods)==required,f"Missing attribution arm: {required-set(mods)}"
     for name,mod in mods.items():
         lim=mod.attn_one_prepare()
         rows=[lim[i:i+5] for i in range(0,len(lim),5)]
