@@ -1,0 +1,37 @@
+{
+  "observed_at_utc": "2026-11-01T07:53:10.182576+00:00",
+  "rows": [
+    {
+      "problem": "muse_bf16_proj",
+      "rank": 294,
+      "job": "9eba96894ee1402e",
+      "speedup": 1.5278064829557674,
+      "rank10": 1.6045170224103136,
+      "additional_score_pct": 5.020959153553162
+    },
+    {
+      "problem": "muse_attention_decode",
+      "rank": 208,
+      "job": "8914751e3b9f468b",
+      "speedup": 2.6042902049472674,
+      "rank10": 2.9097939500308327,
+      "additional_score_pct": 11.730787317911506
+    },
+    {
+      "problem": "muse_moe_w4a16",
+      "rank": 372,
+      "job": "abe7651dbaa44458",
+      "speedup": 2.2157115620135492,
+      "rank10": 2.59561233396598,
+      "additional_score_pct": 17.14576836017374
+    },
+    {
+      "problem": "muse_decode_layer",
+      "rank": 379,
+      "job": "8f2780d7382047e6",
+      "speedup": 2.022870479185006,
+      "rank10": 2.383392362107082,
+      "additional_score_pct": 17.822291967369374
+    }
+  ]
+}

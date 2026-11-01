@@ -31,7 +31,7 @@ implementation or a future generated diagnostic.
 | Boundary | Existing path | Remaining hypothesis and required proof |
 |---|---|---|
 | QKV to attention | `kernel_fn:20997` materializes BF16 QKV; `_attn_path:21004` consumes it. Attention already performs QK norm, RoPE, direct FP8 cache writes, attention, output RMS and gate internally. | Projection-epilogue fusion is unmeasured. Preserve BF16 rounding before head RMS, cross-CTA head completeness, cache publication and existing barriers. M-C was an O/boundary experiment, not this fusion. |
-| O to post-attention boundary | Separate O projection at21005 followed by `_abnd`/SGLang at21008–21014. M1 is selected conditionally. | Prior M-C `ae9ce318e014edf` lost1.16us in9/9 before illegal access; not evidence of a safe winning implementation. No blanket claim that every fusion is closed. |
+| O to post-attention boundary | Separate O projection at21005 followed by `_abnd`/SGLang at21008–21014. M1 is selected conditionally. | Prior M-C `5ae9ce318e014edf` lost1.16us in9/9 before illegal access; not evidence of a safe winning implementation. No blanket claim that every fusion is closed. |
 | Pooler/router/top-k | `_moe_front:19976` supports one-launch skinny pooler/router, concatenated GEMM, and separate router overlap. `_moe_front_route:20036` calls fused routing/pre-expert normalization. | Fusion can remove overlap or add a join. T1 whole-front variant already lost2.08us across9rounds; fresh T1 route-fusion gate failed. Do not repeat generic T1 fusion absent a new measured mechanism. |
 | Routing to expert metadata | `_route_meta:17139` returns IDs/weights/local_start directly for fused MoE; no separate Marlin alignment there. Persistent CTAs build their own routing work. | Producer-emitted queues could reduce duplicated work, but require measured prologue cost plus publication/init/PDL proof. Standalone MoE inputs contain IDs/weights, not upstream logits/weights. |
 | Experts to aggregate | `_experts_run:17193`, `_moe1_run:17390`, fused final pass near8799. Existing persistent pipeline fuses dequant, G1, SwiGLU, G2, expert norm and routed sum. | Whole-expert persistence is already implemented. A literal CTA per expert can leave most of132SMs unused at T1. Preserve per-expert RMS before weighting and the aggregate BF16 rounding at8831–8835. |
@@ -139,3 +139,28 @@ ahead (`attn_one.cu:1011`,1423–1430,1484–1504), before the empty-slot wait a
 current-tile page-ID loads before that wait is not a new mechanism. The source audit is
 motivated by `8ac6563343f74bcd` but adds no GPU experiment. Actual compiler issue scheduling
 would need SASS evidence; address-offset arithmetic is a distinct unmeasured hypothesis.
+
+## November1 00:53PDT evidence refresh
+
+Fresh official board responses are archived in `evidence/2026-11-01-fusion-audit/`, with
+observation timestamp and exact owning jobs in `summary.json`. Ranks are now294 projection,
+208 attention,372 MoE and379 layer. Our scores and the four rank10 values are unchanged
+from00:05; score gaps remain5.02096%,11.73079%,17.14577%,17.82229%. No problem is top10.
+
+Attribution correction: the M-C row's initial15character identifier was missing its leading
+`5`. Correct full job is `5ae9ce318e014edf`, verified against its owning decode-layer run row.
+The measurement and closure are unchanged. The independent attention audit had the full ID.
+
+## Collector observation failure and bounded correction
+
+`41788b39fb824179` is terminal: preparation reached all24rows but the final encoded result
+was12192B, above the11000Bguard. No trace rows were printed, so no latency, overlap or
+fusion-opportunity inference is retained. No official score or correctness pass is claimed.
+Raw status/log are preserved in `muse_decode_layer/profiles/timeline.41788b39fb824179.*`.
+
+The corrected transport explicitly records trace coordinates at0.1us, while preserving
+raw-resolution aggregate spans/union,0.001us cold event measurements, all event names/order
+and streams. Binary encoding remains lossless for those declared recorded coordinates.
+This changes measurement formatting only; kernels, weights, workload and prepared policies
+are unchanged. Four CPU tests pass. Independent larger-fixture review precedes one retry;
+another observation failure requires reassessing collection scope before more quota.

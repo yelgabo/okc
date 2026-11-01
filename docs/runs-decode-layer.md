@@ -788,3 +788,10 @@ All12 scoredshapes, independent owned/SGLang inputs/state, actualsoft/agenticdis
 referenceargmax busiestEPgroup, fivecoldCUDAevent replays andthreeisolatedprofiledreplays/arm.
 Productionkernels/CUDA/policiesunchanged. FourCPUtests pass plusindependentreview.
 Complete24rows requiredwithin280s and11KBlogbudget; no score/improvementclaimedpendingresult.
+
+41788b39fb824179 terminal prepare failure: all24rows collected but encoded12192B exceeds
+11000Bguard; no timeline values printed/retained, no officialscore/correctnessresult. Raw
+receipt/log in profiles/timeline.41788b39fb824179.*. Corrected hosttransport records trace
+coordinates at explicit0.1us ratherthan0.001us; aggregate span/union remain rawresolution,
+cold eventtimes0.001us, fullnames/streams/order retained. FourCPUtests pass; independent
+review requiredbefore one correctedcheck. ProductionCUDA/kernel/input/policy unchanged.

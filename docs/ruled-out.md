@@ -354,6 +354,8 @@ the public entry vjeux/okc-2026 with its design memos (see `docs/gap-analysis-20
 
 | 2026-11-01 | Mode51 current-tile page-ID hoist before producer empty wait | Source audit6da000f attn_one.cu:1011,1423–1430,1441,1484–1504; motivated by8ac6563343f74bcd, no new GPUjob | Already prefetched three tiles ahead in12 page-ID registers/thread. Source motion is redundant. Reopen only with actual compiled issue/dependency evidence; address-offset arithmetic is distinct and unmeasured. Preserve raw-slot acquire and resource budget. |
 
+| 2026-11-01 | First all12 owned/SGLang timeline transport at1ns trace precision | 41788b39fb824179 all24collected, final12192B exceeds11000Bguard; preparefailed, no retainedtimings or officialscore | Host-observation failure only, not kernel/fusion result. Correct to explicit0.1us tracecoordinates while retaining raw aggregate metrics and all fullnames/streams/order, CPU+independentreview before one retry. |
+
 ### Offline Q8 layout bound, 2026-10-31 PDT
 
 | Proposal | Evidence | Scope / revisit trigger |

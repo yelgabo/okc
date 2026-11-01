@@ -29,7 +29,9 @@ def summarize(events):
         'union_us': union / 1000,
         'uncovered_us': (end - origin - union) / 1000,
         'sum_us': total / 1000,
-        'events': [[round((a-origin)/1000, 3), round((b-origin)/1000, 3), s, n]
+        # 0.1us trace coordinates; aggregate spans/union above retain raw resolution.
+        'coordinate_precision_us': 0.1,
+        'events': [[round((a-origin)/1000, 1), round((b-origin)/1000, 1), s, n]
                    for a, b, s, n in events],
     }
 
@@ -48,9 +50,9 @@ def encode_report(report, limit=11000):
         row['_events'] = len(events)
         previous = 0
         for start, stop, stream, name in events:
-            # summarize() rounds trace coordinates to integer nanoseconds already.
-            now = round(start*1000)
-            data.extend(struct.pack('<IIHH', now-previous, round(stop*1000)-now,
+            # summarize() records 0.1us trace ticks, retained exactly in transport.
+            now = round(start*10)
+            data.extend(struct.pack('<IIHH', now-previous, round(stop*10)-now,
                                     streams.index(stream), ids[name]))
             previous = now
     metadata = json.dumps(packed, separators=(',', ':')).encode()
@@ -75,7 +77,7 @@ def decode_report(blob):
             start = previous + delta
             stop = start + duration
             previous = start
-            events.append([start/1000, stop/1000, row['_streams'][stream], report['names'][name]])
+            events.append([start/10, stop/10, row['_streams'][stream], report['names'][name]])
         row['trace']['events'] = events
         del row['_streams']
     if at != len(raw):
