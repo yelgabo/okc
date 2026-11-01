@@ -1,5 +1,7 @@
 # Shared project steering
 
+Latest stage-local source review: [Sparse stage arena proof](2026-11-01-sk-stage-repair-independent.md). Exactb726aebd format/lifetime clear,3focused actualCPU tests pass. H200 resources/math/performance unqualified; closed global variant remains closed.
+
 Latest projection terminal: [SK-XOR single-arm H200 closure](2026-11-01-sk-xor-release-terminal.md). Public2b537518 PASS9/all10SX startup,1.394120x belowC2; all10targets regress. Exact production variant closed, no retry/layerport; dependency wording corrected.
 
 Latest single-arm source review: [SK-XOR production qualifier](2026-11-01-sk-xor-release-source-review.md). Exact685ffab5 source scope clear;5TorchCPU tests pass. H200/official performance remain unknown; root alone owns any authorized public measurement.
