@@ -171,7 +171,7 @@ def _moe(M=None, state=None):
 '''
 
 
-def patch_device(s, main):
+def patch_device(s, main, *, wgs_down_sites=None):
     # Public scope is intentionally restricted: the unreviewed non-WS/non-WGS
     # MAIN_FALLBACK_DEFINES must never become a silently selected alternative.
     guard='''
@@ -204,7 +204,7 @@ def patch_device(s, main):
     s=once(s,'(fork_bf16(1.f + __bfloat162float(__ldg(p.normw + n0 + 8)))) * gsc',
              'fork_bf16(1.f + __bfloat162float(__ldg(p.normw + n0 + 8)))')
     s,n=re.subn(r'd4\[([0-3h +]+)\] \* (w[01])',r'fork_bf16(d4[\1] * gsc) * \2',s)
-    assert n==(8 if main else 2),n
+    assert n == (wgs_down_sites if wgs_down_sites is not None else (8 if main else 2)), n
     if main:
         s=once(s,'#define OKC_YBF 1   // ybf: WGS ybuf in bf16',
                  '#define OKC_YBF 0   // fork: preserve FP32 gamma product after BF16 GEMM2 result')
