@@ -134,3 +134,17 @@ this transform does not certify concurrent host-thread dispatch. Retain each
 state until all its captured graphs have finished and been destroyed. Root's
 PDL transform/decision remains separate; this patch does not silently alter
 that chain. All prior GPU coverage requirements remain outstanding.
+
+### Additional fallback precision gap (not repaired by ownership transform)
+
+Existing fallback `_qk_prep`10422ff sums FP32 projection splits into query,
+key,value and gate arrays, then normalizes10448ff WITHOUT an intervening
+BF16 projection-output rounding boundary. Its `_f32_to_e4m3`10399ff also
+uses subnormal round-half-up rather than tie-to-even (comment says ties are
+measure-zero). Therefore selecting FA3 does not by itself establish reference
+precision. Root's projection/precision transform must restore the required
+BF16 output boundary and standard cache conversion before calling this a
+conservative fallback. Either materialize the summed BF16 QKV before prep,
+or establish equivalent BF16→FP32 casts of ALL six arrays after the split
+sum, including values and gate. This audit flags the exact location;902f117
+changes ownership/dispatch only and intentionally leaves device math intact.
