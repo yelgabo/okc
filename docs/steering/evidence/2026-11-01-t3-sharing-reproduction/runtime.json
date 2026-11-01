@@ -1,0 +1,37 @@
+{
+  "captured_utc": "2026-11-01T23:34:33.723160+00:00",
+  "app": {
+    "name": "t3code",
+    "version": "0.1.6",
+    "buildVersion": "0.1.6",
+    "t3codeCommitHash": "2359643cffa6"
+  },
+  "codex_version": "codex-cli 0.156.1",
+  "process": {
+    "ProcessId": 49376,
+    "HasAgentsEnabledOverride": false,
+    "FeatureFlags": [
+      "features.api_key_model_discovery=true",
+      "features.multi_agent=false",
+      "features.multi_agent_v2=false"
+    ]
+  },
+  "feature_check_command": "codex -c features.multi_agent=false -c features.multi_agent_v2=false features list",
+  "feature_check_selected_output": [
+    "agent_message_board                      under development  false",
+    "collaboration_modes                      removed            true",
+    "external_agent_memory_import             under development  false",
+    "multi_agent                              stable             false",
+    "multi_agent_mode                         removed            false",
+    "multi_agent_v2                           stable             false",
+    "use_agent_identity                       under development  false"
+  ],
+  "local_catalog_selected_fields": [
+    {
+      "slug": "gpt-6-astra",
+      "multi_agent_version": "v2",
+      "multi_agent_reasoning_effort": "xhigh"
+    }
+  ],
+  "catalog_note": "Read current shared home cache; not a captured per-request remote catalog response."
+}

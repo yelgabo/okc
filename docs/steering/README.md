@@ -822,3 +822,5 @@ Latest: [Dense projection transfer to the decode layer](2026-11-01-layer-dense-t
 - [2026-11-01 verify production packaging](2026-11-01-verify-hybrid-packaging.md): default607e unchanged, nine host contracts pass, all nonzero byte budgets fail; retained incumbent and explicit next gates.
 
 - [2026-11-01 sparse projection repair](2026-11-01-projection-sparse-repair.md): current source/host/bit proofs, standalone measurement registration and separate46/16layer budget; prefill excluded.
+
+- [2026-11-01 independent T3 sharing reproduction](2026-11-01-t3-sharing-reproduction.md): fresh baseline passes, native worker and plain follow-up fail; eight original/reproduction errors and runtime/history evidence archived. Existing issue21061 identified; public update drafted but not posted.

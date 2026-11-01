@@ -1,0 +1,676 @@
+[
+  {
+    "line": 1,
+    "timestamp": "2026-11-01T23:18:51.911Z",
+    "method": "initialize",
+    "client": {
+      "name": "T3 Code",
+      "title": "T3 Code",
+      "version": "0.1.6"
+    }
+  },
+  {
+    "line": 2,
+    "timestamp": "2026-11-01T23:18:51.962Z",
+    "method": "initialize:result",
+    "userAgent": "T3 Code/0.156.1 (Windows 10.0.26200; x86_64) unknown (T3 Code; 0.1.6)"
+  },
+  {
+    "line": 4,
+    "timestamp": "2026-11-01T23:18:51.963Z",
+    "direction": "outgoing",
+    "method": "thread/start",
+    "thread": "original_parent",
+    "params": {
+      "model": "gpt-6-astra"
+    },
+    "config_keys": [
+      "tools.update_plan.enabled",
+      "mcp_optional_startup_grace_ms",
+      "mcp_servers.t3-code"
+    ]
+  },
+  {
+    "line": 6,
+    "timestamp": "2026-11-01T23:18:53.059Z",
+    "direction": "incoming",
+    "method": "thread/start:result",
+    "thread": "original_parent",
+    "result": {
+      "model": "gpt-6-astra",
+      "modelProvider": "openai_token_sharing",
+      "reasoningEffort": "low"
+    }
+  },
+  {
+    "line": 16,
+    "timestamp": "2026-11-01T23:18:53.675Z",
+    "direction": "outgoing",
+    "method": "turn/start",
+    "thread": "original_parent",
+    "threadId": "01a19968-9e4f-74d1-b55e-25d1a3bfe702",
+    "params": {
+      "threadId": "01a19968-9e4f-74d1-b55e-25d1a3bfe702",
+      "model": "gpt-6-astra",
+      "effort": "medium",
+      "input_types": [
+        "text"
+      ],
+      "input_count": 1,
+      "plain_huh": false
+    }
+  },
+  {
+    "line": 104,
+    "timestamp": "2026-11-01T23:20:08.575Z",
+    "direction": "incoming",
+    "method": "turn/completed",
+    "thread": "original_parent",
+    "threadId": "01a19968-9e4f-74d1-b55e-25d1a3bfe702",
+    "turn": {
+      "id": "01a19968-a1f1-7e43-8e98-484d43b20474",
+      "status": "completed",
+      "error": null,
+      "startedAt": 1793575133,
+      "completedAt": 1793575208,
+      "durationMs": 74862
+    }
+  },
+  {
+    "line": 105,
+    "timestamp": "2026-11-01T23:20:40.723Z",
+    "direction": "outgoing",
+    "method": "turn/start",
+    "thread": "original_parent",
+    "threadId": "01a19968-9e4f-74d1-b55e-25d1a3bfe702",
+    "params": {
+      "threadId": "01a19968-9e4f-74d1-b55e-25d1a3bfe702",
+      "model": "gpt-6-astra",
+      "effort": "medium",
+      "input_types": [
+        "text"
+      ],
+      "input_count": 1,
+      "plain_huh": false
+    }
+  },
+  {
+    "line": 114,
+    "timestamp": "2026-11-01T23:20:50.605Z",
+    "direction": "incoming",
+    "method": "item/started",
+    "thread": "original_parent",
+    "threadId": "01a19968-9e4f-74d1-b55e-25d1a3bfe702",
+    "turnId": "01a1996a-4415-7b93-a917-35365eec9886",
+    "item": {
+      "type": "subAgentActivity",
+      "id": "call_5hN6cFCmVydGzEdqxmJGuaZx"
+    }
+  },
+  {
+    "line": 117,
+    "timestamp": "2026-11-01T23:20:50.613Z",
+    "direction": "incoming",
+    "method": "item/completed",
+    "thread": "original_parent",
+    "threadId": "01a19968-9e4f-74d1-b55e-25d1a3bfe702",
+    "turnId": "01a1996a-4415-7b93-a917-35365eec9886",
+    "item": {
+      "type": "subAgentActivity",
+      "id": "call_5hN6cFCmVydGzEdqxmJGuaZx"
+    }
+  },
+  {
+    "line": 128,
+    "timestamp": "2026-11-01T23:20:52.410Z",
+    "direction": "incoming",
+    "method": "error",
+    "thread": "original_worker",
+    "threadId": "01a1996a-6992-7c91-b571-35da58cfdcbb",
+    "params": {
+      "error": {
+        "message": "{\"error\":{\"message\":\"User subscription sharing currently supports only text, image, and file messages, item references, additional tools, compaction summaries, reasoning items, Web Search call items, developer function and custom tool call items, and programmatic tool calling items. Remove unsupported input items or use an API key instead.\",\"type\":\"invalid_request_error\",\"param\":\"input\",\"code\":\"subscription_sharing_unsupported_capability\"}}",
+        "codexErrorInfo": "other",
+        "additionalDetails": null,
+        "misalignment": null
+      },
+      "willRetry": false,
+      "threadId": "01a1996a-6992-7c91-b571-35da58cfdcbb",
+      "turnId": "01a1996a-6aac-7483-83fd-486b5b0ac1ed"
+    }
+  },
+  {
+    "line": 129,
+    "timestamp": "2026-11-01T23:20:52.415Z",
+    "direction": "incoming",
+    "method": "turn/completed",
+    "thread": "original_worker",
+    "threadId": "01a1996a-6992-7c91-b571-35da58cfdcbb",
+    "turn": {
+      "id": "01a1996a-6aac-7483-83fd-486b5b0ac1ed",
+      "status": "failed",
+      "error": {
+        "message": "{\"error\":{\"message\":\"User subscription sharing currently supports only text, image, and file messages, item references, additional tools, compaction summaries, reasoning items, Web Search call items, developer function and custom tool call items, and programmatic tool calling items. Remove unsupported input items or use an API key instead.\",\"type\":\"invalid_request_error\",\"param\":\"input\",\"code\":\"subscription_sharing_unsupported_capability\"}}",
+        "codexErrorInfo": "other",
+        "additionalDetails": null,
+        "misalignment": null
+      },
+      "startedAt": 1793575250,
+      "completedAt": 1793575252,
+      "durationMs": 1785
+    }
+  },
+  {
+    "line": 136,
+    "timestamp": "2026-11-01T23:20:57.154Z",
+    "direction": "incoming",
+    "method": "error",
+    "thread": "original_parent",
+    "threadId": "01a19968-9e4f-74d1-b55e-25d1a3bfe702",
+    "params": {
+      "error": {
+        "message": "{\"error\":{\"message\":\"User subscription sharing currently supports only text, image, and file messages, item references, additional tools, compaction summaries, reasoning items, Web Search call items, developer function and custom tool call items, and programmatic tool calling items. Remove unsupported input items or use an API key instead.\",\"type\":\"invalid_request_error\",\"param\":\"input\",\"code\":\"subscription_sharing_unsupported_capability\"}}",
+        "codexErrorInfo": "other",
+        "additionalDetails": null,
+        "misalignment": null
+      },
+      "willRetry": false,
+      "threadId": "01a19968-9e4f-74d1-b55e-25d1a3bfe702",
+      "turnId": "01a1996a-4415-7b93-a917-35365eec9886"
+    }
+  },
+  {
+    "line": 137,
+    "timestamp": "2026-11-01T23:20:57.157Z",
+    "direction": "incoming",
+    "method": "turn/completed",
+    "thread": "original_parent",
+    "threadId": "01a19968-9e4f-74d1-b55e-25d1a3bfe702",
+    "turn": {
+      "id": "01a1996a-4415-7b93-a917-35365eec9886",
+      "status": "failed",
+      "error": {
+        "message": "{\"error\":{\"message\":\"User subscription sharing currently supports only text, image, and file messages, item references, additional tools, compaction summaries, reasoning items, Web Search call items, developer function and custom tool call items, and programmatic tool calling items. Remove unsupported input items or use an API key instead.\",\"type\":\"invalid_request_error\",\"param\":\"input\",\"code\":\"subscription_sharing_unsupported_capability\"}}",
+        "codexErrorInfo": "other",
+        "additionalDetails": null,
+        "misalignment": null
+      },
+      "startedAt": 1793575240,
+      "completedAt": 1793575257,
+      "durationMs": 16331
+    }
+  },
+  {
+    "line": 142,
+    "timestamp": "2026-11-01T23:24:29.349Z",
+    "direction": "outgoing",
+    "method": "thread/resume",
+    "thread": "original_parent",
+    "params": {
+      "threadId": "01a19968-9e4f-74d1-b55e-25d1a3bfe702",
+      "model": "gpt-6.1-sol"
+    },
+    "config_keys": [
+      "tools.update_plan.enabled",
+      "mcp_optional_startup_grace_ms",
+      "mcp_servers.t3-code"
+    ]
+  },
+  {
+    "line": 143,
+    "timestamp": "2026-11-01T23:24:29.430Z",
+    "direction": "incoming",
+    "method": "thread/resume:result",
+    "thread": "original_parent",
+    "result": {
+      "model": "gpt-6-astra",
+      "modelProvider": "openai_token_sharing",
+      "reasoningEffort": "medium"
+    }
+  },
+  {
+    "line": 145,
+    "timestamp": "2026-11-01T23:24:29.879Z",
+    "direction": "outgoing",
+    "method": "turn/start",
+    "thread": "original_parent",
+    "threadId": "01a19968-9e4f-74d1-b55e-25d1a3bfe702",
+    "params": {
+      "threadId": "01a19968-9e4f-74d1-b55e-25d1a3bfe702",
+      "model": "gpt-6.1-sol",
+      "effort": "high",
+      "input_types": [
+        "text"
+      ],
+      "input_count": 1,
+      "plain_huh": false
+    }
+  },
+  {
+    "line": 154,
+    "timestamp": "2026-11-01T23:24:32.118Z",
+    "direction": "incoming",
+    "method": "error",
+    "thread": "original_parent",
+    "threadId": "01a19968-9e4f-74d1-b55e-25d1a3bfe702",
+    "params": {
+      "error": {
+        "message": "{\"error\":{\"message\":\"User subscription sharing currently supports only text, image, and file messages, item references, additional tools, compaction summaries, reasoning items, Web Search call items, developer function and custom tool call items, and programmatic tool calling items. Remove unsupported input items or use an API key instead.\",\"type\":\"invalid_request_error\",\"param\":\"input\",\"code\":\"subscription_sharing_unsupported_capability\"}}",
+        "codexErrorInfo": "other",
+        "additionalDetails": null,
+        "misalignment": null
+      },
+      "willRetry": false,
+      "threadId": "01a19968-9e4f-74d1-b55e-25d1a3bfe702",
+      "turnId": "01a1996d-c338-7b73-8bd5-e7edc4d1987e"
+    }
+  },
+  {
+    "line": 155,
+    "timestamp": "2026-11-01T23:24:32.120Z",
+    "direction": "incoming",
+    "method": "turn/completed",
+    "thread": "original_parent",
+    "threadId": "01a19968-9e4f-74d1-b55e-25d1a3bfe702",
+    "turn": {
+      "id": "01a1996d-c338-7b73-8bd5-e7edc4d1987e",
+      "status": "failed",
+      "error": {
+        "message": "{\"error\":{\"message\":\"User subscription sharing currently supports only text, image, and file messages, item references, additional tools, compaction summaries, reasoning items, Web Search call items, developer function and custom tool call items, and programmatic tool calling items. Remove unsupported input items or use an API key instead.\",\"type\":\"invalid_request_error\",\"param\":\"input\",\"code\":\"subscription_sharing_unsupported_capability\"}}",
+        "codexErrorInfo": "other",
+        "additionalDetails": null,
+        "misalignment": null
+      },
+      "startedAt": 1793575469,
+      "completedAt": 1793575472,
+      "durationMs": 2211
+    }
+  },
+  {
+    "line": 156,
+    "timestamp": "2026-11-01T23:26:42.683Z",
+    "direction": "outgoing",
+    "method": "turn/start",
+    "thread": "original_parent",
+    "threadId": "01a19968-9e4f-74d1-b55e-25d1a3bfe702",
+    "params": {
+      "threadId": "01a19968-9e4f-74d1-b55e-25d1a3bfe702",
+      "model": "gpt-6.1-sol",
+      "effort": "high",
+      "input_types": [
+        "text"
+      ],
+      "input_count": 1,
+      "plain_huh": true
+    }
+  },
+  {
+    "line": 164,
+    "timestamp": "2026-11-01T23:26:47.236Z",
+    "direction": "incoming",
+    "method": "error",
+    "thread": "original_parent",
+    "threadId": "01a19968-9e4f-74d1-b55e-25d1a3bfe702",
+    "params": {
+      "error": {
+        "message": "{\"error\":{\"message\":\"User subscription sharing currently supports only text, image, and file messages, item references, additional tools, compaction summaries, reasoning items, Web Search call items, developer function and custom tool call items, and programmatic tool calling items. Remove unsupported input items or use an API key instead.\",\"type\":\"invalid_request_error\",\"param\":\"input\",\"code\":\"subscription_sharing_unsupported_capability\"}}",
+        "codexErrorInfo": "other",
+        "additionalDetails": null,
+        "misalignment": null
+      },
+      "willRetry": false,
+      "threadId": "01a19968-9e4f-74d1-b55e-25d1a3bfe702",
+      "turnId": "01a1996f-c9fc-7570-9b1d-22eb78f97521"
+    }
+  },
+  {
+    "line": 165,
+    "timestamp": "2026-11-01T23:26:47.239Z",
+    "direction": "incoming",
+    "method": "turn/completed",
+    "thread": "original_parent",
+    "threadId": "01a19968-9e4f-74d1-b55e-25d1a3bfe702",
+    "turn": {
+      "id": "01a1996f-c9fc-7570-9b1d-22eb78f97521",
+      "status": "failed",
+      "error": {
+        "message": "{\"error\":{\"message\":\"User subscription sharing currently supports only text, image, and file messages, item references, additional tools, compaction summaries, reasoning items, Web Search call items, developer function and custom tool call items, and programmatic tool calling items. Remove unsupported input items or use an API key instead.\",\"type\":\"invalid_request_error\",\"param\":\"input\",\"code\":\"subscription_sharing_unsupported_capability\"}}",
+        "codexErrorInfo": "other",
+        "additionalDetails": null,
+        "misalignment": null
+      },
+      "startedAt": 1793575602,
+      "completedAt": 1793575607,
+      "durationMs": 4539
+    }
+  },
+  {
+    "line": 166,
+    "timestamp": "2026-11-01T23:26:56.876Z",
+    "direction": "outgoing",
+    "method": "thread/resume",
+    "thread": "original_parent",
+    "params": {
+      "threadId": "01a19968-9e4f-74d1-b55e-25d1a3bfe702",
+      "model": "gpt-6-astra"
+    },
+    "config_keys": [
+      "tools.update_plan.enabled",
+      "mcp_optional_startup_grace_ms",
+      "mcp_servers.t3-code"
+    ]
+  },
+  {
+    "line": 167,
+    "timestamp": "2026-11-01T23:26:56.882Z",
+    "direction": "incoming",
+    "method": "thread/resume:result",
+    "thread": "original_parent",
+    "result": {
+      "model": "gpt-6.1-sol",
+      "modelProvider": "openai_token_sharing",
+      "reasoningEffort": "high"
+    }
+  },
+  {
+    "line": 169,
+    "timestamp": "2026-11-01T23:26:57.350Z",
+    "direction": "outgoing",
+    "method": "turn/start",
+    "thread": "original_parent",
+    "threadId": "01a19968-9e4f-74d1-b55e-25d1a3bfe702",
+    "params": {
+      "threadId": "01a19968-9e4f-74d1-b55e-25d1a3bfe702",
+      "model": "gpt-6-astra",
+      "effort": "high",
+      "input_types": [
+        "text"
+      ],
+      "input_count": 1,
+      "plain_huh": false
+    }
+  },
+  {
+    "line": 177,
+    "timestamp": "2026-11-01T23:26:58.887Z",
+    "direction": "incoming",
+    "method": "error",
+    "thread": "original_parent",
+    "threadId": "01a19968-9e4f-74d1-b55e-25d1a3bfe702",
+    "params": {
+      "error": {
+        "message": "{\"error\":{\"message\":\"User subscription sharing currently supports only text, image, and file messages, item references, additional tools, compaction summaries, reasoning items, Web Search call items, developer function and custom tool call items, and programmatic tool calling items. Remove unsupported input items or use an API key instead.\",\"type\":\"invalid_request_error\",\"param\":\"input\",\"code\":\"subscription_sharing_unsupported_capability\"}}",
+        "codexErrorInfo": "other",
+        "additionalDetails": null,
+        "misalignment": null
+      },
+      "willRetry": false,
+      "threadId": "01a19968-9e4f-74d1-b55e-25d1a3bfe702",
+      "turnId": "01a19970-0347-7fd2-8eb7-df0a0fda1043"
+    }
+  },
+  {
+    "line": 178,
+    "timestamp": "2026-11-01T23:26:58.889Z",
+    "direction": "incoming",
+    "method": "turn/completed",
+    "thread": "original_parent",
+    "threadId": "01a19968-9e4f-74d1-b55e-25d1a3bfe702",
+    "turn": {
+      "id": "01a19970-0347-7fd2-8eb7-df0a0fda1043",
+      "status": "failed",
+      "error": {
+        "message": "{\"error\":{\"message\":\"User subscription sharing currently supports only text, image, and file messages, item references, additional tools, compaction summaries, reasoning items, Web Search call items, developer function and custom tool call items, and programmatic tool calling items. Remove unsupported input items or use an API key instead.\",\"type\":\"invalid_request_error\",\"param\":\"input\",\"code\":\"subscription_sharing_unsupported_capability\"}}",
+        "codexErrorInfo": "other",
+        "additionalDetails": null,
+        "misalignment": null
+      },
+      "startedAt": 1793575617,
+      "completedAt": 1793575618,
+      "durationMs": 1523
+    }
+  },
+  {
+    "line": 399,
+    "timestamp": "2026-11-01T23:31:40.915Z",
+    "direction": "outgoing",
+    "method": "thread/start",
+    "thread": "reproduction_parent",
+    "params": {
+      "model": "gpt-6-astra"
+    },
+    "config_keys": [
+      "tools.update_plan.enabled",
+      "mcp_optional_startup_grace_ms",
+      "mcp_servers.t3-code"
+    ]
+  },
+  {
+    "line": 401,
+    "timestamp": "2026-11-01T23:31:41.240Z",
+    "direction": "incoming",
+    "method": "thread/start:result",
+    "thread": "reproduction_parent",
+    "result": {
+      "model": "gpt-6-astra",
+      "modelProvider": "openai_token_sharing",
+      "reasoningEffort": "low"
+    }
+  },
+  {
+    "line": 414,
+    "timestamp": "2026-11-01T23:31:41.642Z",
+    "direction": "outgoing",
+    "method": "turn/start",
+    "thread": "reproduction_parent",
+    "threadId": "01a19974-57c5-7781-ab5c-2f71b614ec36",
+    "params": {
+      "threadId": "01a19974-57c5-7781-ab5c-2f71b614ec36",
+      "model": "gpt-6-astra",
+      "effort": "high",
+      "input_types": [
+        "text"
+      ],
+      "input_count": 1,
+      "plain_huh": false
+    }
+  },
+  {
+    "line": 431,
+    "timestamp": "2026-11-01T23:31:44.503Z",
+    "direction": "incoming",
+    "method": "turn/completed",
+    "thread": "reproduction_parent",
+    "threadId": "01a19974-57c5-7781-ab5c-2f71b614ec36",
+    "turn": {
+      "id": "01a19974-59cb-70e0-bf22-d7e8ce9b3c4c",
+      "status": "completed",
+      "error": null,
+      "startedAt": 1793575901,
+      "completedAt": 1793575904,
+      "durationMs": 2847
+    }
+  },
+  {
+    "line": 446,
+    "timestamp": "2026-11-01T23:32:16.932Z",
+    "direction": "outgoing",
+    "method": "turn/start",
+    "thread": "reproduction_parent",
+    "threadId": "01a19974-57c5-7781-ab5c-2f71b614ec36",
+    "params": {
+      "threadId": "01a19974-57c5-7781-ab5c-2f71b614ec36",
+      "model": "gpt-6-astra",
+      "effort": "high",
+      "input_types": [
+        "text"
+      ],
+      "input_count": 1,
+      "plain_huh": false
+    }
+  },
+  {
+    "line": 461,
+    "timestamp": "2026-11-01T23:32:20.952Z",
+    "direction": "incoming",
+    "method": "item/started",
+    "thread": "reproduction_parent",
+    "threadId": "01a19974-57c5-7781-ab5c-2f71b614ec36",
+    "turnId": "01a19974-e3a6-7282-82a3-f5a8d5827d9c",
+    "item": {
+      "type": "subAgentActivity",
+      "id": "call_I40PoJ89uytZbx1vIyC6Qe8z"
+    }
+  },
+  {
+    "line": 462,
+    "timestamp": "2026-11-01T23:32:20.953Z",
+    "direction": "incoming",
+    "method": "item/completed",
+    "thread": "reproduction_parent",
+    "threadId": "01a19974-57c5-7781-ab5c-2f71b614ec36",
+    "turnId": "01a19974-e3a6-7282-82a3-f5a8d5827d9c",
+    "item": {
+      "type": "subAgentActivity",
+      "id": "call_I40PoJ89uytZbx1vIyC6Qe8z"
+    }
+  },
+  {
+    "line": 475,
+    "timestamp": "2026-11-01T23:32:22.832Z",
+    "direction": "incoming",
+    "method": "error",
+    "thread": "reproduction_worker",
+    "threadId": "01a19974-f297-7791-8750-95c36b7ba898",
+    "params": {
+      "error": {
+        "message": "{\"error\":{\"message\":\"User subscription sharing currently supports only text, image, and file messages, item references, additional tools, compaction summaries, reasoning items, Web Search call items, developer function and custom tool call items, and programmatic tool calling items. Remove unsupported input items or use an API key instead.\",\"type\":\"invalid_request_error\",\"param\":\"input\",\"code\":\"subscription_sharing_unsupported_capability\"}}",
+        "codexErrorInfo": "other",
+        "additionalDetails": null,
+        "misalignment": null
+      },
+      "willRetry": false,
+      "threadId": "01a19974-f297-7791-8750-95c36b7ba898",
+      "turnId": "01a19974-f356-7883-8c21-cec07e848516"
+    }
+  },
+  {
+    "line": 476,
+    "timestamp": "2026-11-01T23:32:22.835Z",
+    "direction": "incoming",
+    "method": "turn/completed",
+    "thread": "reproduction_worker",
+    "threadId": "01a19974-f297-7791-8750-95c36b7ba898",
+    "turn": {
+      "id": "01a19974-f356-7883-8c21-cec07e848516",
+      "status": "failed",
+      "error": {
+        "message": "{\"error\":{\"message\":\"User subscription sharing currently supports only text, image, and file messages, item references, additional tools, compaction summaries, reasoning items, Web Search call items, developer function and custom tool call items, and programmatic tool calling items. Remove unsupported input items or use an API key instead.\",\"type\":\"invalid_request_error\",\"param\":\"input\",\"code\":\"subscription_sharing_unsupported_capability\"}}",
+        "codexErrorInfo": "other",
+        "additionalDetails": null,
+        "misalignment": null
+      },
+      "startedAt": 1793575940,
+      "completedAt": 1793575942,
+      "durationMs": 1868
+    }
+  },
+  {
+    "line": 488,
+    "timestamp": "2026-11-01T23:32:24.951Z",
+    "direction": "incoming",
+    "method": "error",
+    "thread": "reproduction_parent",
+    "threadId": "01a19974-57c5-7781-ab5c-2f71b614ec36",
+    "params": {
+      "error": {
+        "message": "{\"error\":{\"message\":\"User subscription sharing currently supports only text, image, and file messages, item references, additional tools, compaction summaries, reasoning items, Web Search call items, developer function and custom tool call items, and programmatic tool calling items. Remove unsupported input items or use an API key instead.\",\"type\":\"invalid_request_error\",\"param\":\"input\",\"code\":\"subscription_sharing_unsupported_capability\"}}",
+        "codexErrorInfo": "other",
+        "additionalDetails": null,
+        "misalignment": null
+      },
+      "willRetry": false,
+      "threadId": "01a19974-57c5-7781-ab5c-2f71b614ec36",
+      "turnId": "01a19974-e3a6-7282-82a3-f5a8d5827d9c"
+    }
+  },
+  {
+    "line": 489,
+    "timestamp": "2026-11-01T23:32:24.953Z",
+    "direction": "incoming",
+    "method": "turn/completed",
+    "thread": "reproduction_parent",
+    "threadId": "01a19974-57c5-7781-ab5c-2f71b614ec36",
+    "turn": {
+      "id": "01a19974-e3a6-7282-82a3-f5a8d5827d9c",
+      "status": "failed",
+      "error": {
+        "message": "{\"error\":{\"message\":\"User subscription sharing currently supports only text, image, and file messages, item references, additional tools, compaction summaries, reasoning items, Web Search call items, developer function and custom tool call items, and programmatic tool calling items. Remove unsupported input items or use an API key instead.\",\"type\":\"invalid_request_error\",\"param\":\"input\",\"code\":\"subscription_sharing_unsupported_capability\"}}",
+        "codexErrorInfo": "other",
+        "additionalDetails": null,
+        "misalignment": null
+      },
+      "startedAt": 1793575936,
+      "completedAt": 1793575944,
+      "durationMs": 7999
+    }
+  },
+  {
+    "line": 510,
+    "timestamp": "2026-11-01T23:32:34.521Z",
+    "direction": "outgoing",
+    "method": "turn/start",
+    "thread": "reproduction_parent",
+    "threadId": "01a19974-57c5-7781-ab5c-2f71b614ec36",
+    "params": {
+      "threadId": "01a19974-57c5-7781-ab5c-2f71b614ec36",
+      "model": "gpt-6-astra",
+      "effort": "high",
+      "input_types": [
+        "text"
+      ],
+      "input_count": 1,
+      "plain_huh": true
+    }
+  },
+  {
+    "line": 517,
+    "timestamp": "2026-11-01T23:32:35.750Z",
+    "direction": "incoming",
+    "method": "error",
+    "thread": "reproduction_parent",
+    "threadId": "01a19974-57c5-7781-ab5c-2f71b614ec36",
+    "params": {
+      "error": {
+        "message": "{\"error\":{\"message\":\"User subscription sharing currently supports only text, image, and file messages, item references, additional tools, compaction summaries, reasoning items, Web Search call items, developer function and custom tool call items, and programmatic tool calling items. Remove unsupported input items or use an API key instead.\",\"type\":\"invalid_request_error\",\"param\":\"input\",\"code\":\"subscription_sharing_unsupported_capability\"}}",
+        "codexErrorInfo": "other",
+        "additionalDetails": null,
+        "misalignment": null
+      },
+      "willRetry": false,
+      "threadId": "01a19974-57c5-7781-ab5c-2f71b614ec36",
+      "turnId": "01a19975-285a-74a0-8818-25a915be9c0d"
+    }
+  },
+  {
+    "line": 518,
+    "timestamp": "2026-11-01T23:32:35.752Z",
+    "direction": "incoming",
+    "method": "turn/completed",
+    "thread": "reproduction_parent",
+    "threadId": "01a19974-57c5-7781-ab5c-2f71b614ec36",
+    "turn": {
+      "id": "01a19975-285a-74a0-8818-25a915be9c0d",
+      "status": "failed",
+      "error": {
+        "message": "{\"error\":{\"message\":\"User subscription sharing currently supports only text, image, and file messages, item references, additional tools, compaction summaries, reasoning items, Web Search call items, developer function and custom tool call items, and programmatic tool calling items. Remove unsupported input items or use an API key instead.\",\"type\":\"invalid_request_error\",\"param\":\"input\",\"code\":\"subscription_sharing_unsupported_capability\"}}",
+        "codexErrorInfo": "other",
+        "additionalDetails": null,
+        "misalignment": null
+      },
+      "startedAt": 1793575954,
+      "completedAt": 1793575955,
+      "durationMs": 1216
+    }
+  }
+]
