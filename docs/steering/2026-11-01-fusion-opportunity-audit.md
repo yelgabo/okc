@@ -116,3 +116,26 @@ does not replace a public best. There is no new pure fusion candidate to submit 
 
 Collector review, dispatch and measurement results are to be appended below with exact
 job/source identifiers. No new layer performance result is claimed by this initial audit.
+
+## Dispatch addendum
+
+Collector source commit `097c38f`; generated payload984090B, SHA256
+`5affd5cc9dd480af2a49f89db678cc989dfcd593fdb011a459330e618151abe9`.
+Independent review cleared the reference argmax tie correction, baseline/input isolation,
+capture/reset path and profiler API. Four tests pass under the existing WSL CPU-Torch venv;
+the independently varied24row fixture encodes7952B, the35events/row stress fixture9752B,
+both losslessly below the11KB log guard. Encoding is binary delta/duration plus interned
+full names and streams; per-token local counts are recorded as an exact nine-bin histogram.
+The generated source retains candidate prefix and kernel AST unchanged and is below1MB.
+
+`okc check` returned exact layer job `41788b39fb824179`; direct status confirms running.
+This is a new dependency measurement, not another fusion implementation or a public submit.
+The preparation deadline is280s and incomplete reports fail closed. Diagnostic shape/dtype/
+finite checks are not new mathematical certification; original gates and subsequent official
+correctness remain relevant. No physical HBM/SM counters are claimed.
+
+Source-only attention pivot disposition: mode51 page IDs are already prefetched three tiles
+ahead (`attn_one.cu:1011`,1423–1430,1484–1504), before the empty-slot wait at1441. Moving
+current-tile page-ID loads before that wait is not a new mechanism. The source audit is
+motivated by `8ac6563343f74bcd` but adds no GPU experiment. Actual compiler issue scheduling
+would need SASS evidence; address-offset arithmetic is a distinct unmeasured hypothesis.

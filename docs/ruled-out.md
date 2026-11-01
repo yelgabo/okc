@@ -352,6 +352,8 @@ the public entry vjeux/okc-2026 with its design memos (see `docs/gap-analysis-20
 
 | 2026-11-01 | Skinny FULL-slot-only test_wait vs try_wait, fixed sk8/3, modes0/256/128/384 | 9be599cf333a47c4: all16cases,64eager+64graph checks, resources exact, all8stamp pairs complete. Contribution test1.000956258 / duplicate0.998638858 vs null1.000295776; >=1pct/2xnull and regression gates fail. Official unchangedowned control2.207723314 CI2.174607465-2.240839164 | Close this exact wait-policy replacement; no production promotion or fourth retry. Stamped regions shift modestly but not repeatable whole-kernel gain. No hint sweep under this authorization; reopen only with new evidence/mechanism. |
 
+| 2026-11-01 | Mode51 current-tile page-ID hoist before producer empty wait | Source audit6da000f attn_one.cu:1011,1423–1430,1441,1484–1504; motivated by8ac6563343f74bcd, no new GPUjob | Already prefetched three tiles ahead in12 page-ID registers/thread. Source motion is redundant. Reopen only with actual compiled issue/dependency evidence; address-offset arithmetic is distinct and unmeasured. Preserve raw-slot acquire and resource budget. |
+
 ### Offline Q8 layout bound, 2026-10-31 PDT
 
 | Proposal | Evidence | Scope / revisit trigger |

@@ -778,3 +778,13 @@ lost from logtail; observation failure,no math conclusion. Fixedtail03bb478f8b0b
 at16x1sliding and1x8sliding allpass/order1zero; prior0.14 event not reproduced or explained.
 Judged M1forcedoff; never promote diagnostic controlscore. Thresholds/CUDA unchanged.
 Helper tools/dl_make_m1_matched_diag.py; raw receipt evidence retained in profiles/.
+
+## November1 current-layer/SGLang all12 dependency timeline
+
+Source097c38f, generated984090B SHA256
+5affd5cc9dd480af2a49f89db678cc989dfcd593fdb011a459330e618151abe9.
+Check41788b39fb824179 dispatched and confirmedrunning; diagnostic-only, never publicsubmit.
+All12 scoredshapes, independent owned/SGLang inputs/state, actualsoft/agenticdistribution,
+referenceargmax busiestEPgroup, fivecoldCUDAevent replays andthreeisolatedprofiledreplays/arm.
+Productionkernels/CUDA/policiesunchanged. FourCPUtests pass plusindependentreview.
+Complete24rows requiredwithin280s and11KBlogbudget; no score/improvementclaimedpendingresult.
