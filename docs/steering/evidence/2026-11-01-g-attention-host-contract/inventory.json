@@ -1,0 +1,144 @@
+{
+  "g0": {
+    "path": ".build\\today\\kel\\kernels\\muse_decode_layer.py",
+    "sha256": "1ec189dc6f306cec1694946eb62d64b54daf378c6fc1ada2f0f5e501e973ff2a",
+    "bytes": 995999,
+    "literals": {
+      "ATT7_CUDA_SRC": {
+        "bytes": 191952,
+        "sha256": "575c21f8950cd19a379abd1d40f8f06c10f764b27b101c2ab417ac397ebc1b07"
+      },
+      "ATT7_CPP_SRC": {
+        "bytes": 657,
+        "sha256": "c6bb9a9f78b05b7f9b12a510d13eaada9878fc9e2d5188d5f8af5703c911aa74"
+      }
+    }
+  },
+  "607": {
+    "path": "muse_decode_layer\\cand\\g1b4_stage_release.py",
+    "sha256": "ba9e327cd7b96595ace4d0c1d0d78fe27c128f23ed0debcda97c7169fc3164ab",
+    "bytes": 869076,
+    "literals": {
+      "ATT7_CUDA_SRC": {
+        "bytes": 191991,
+        "sha256": "22c116a45f1817fbaf27a1cc3656380affad49d2cb2367dd23aac83f20b7cef5"
+      },
+      "ATT7_CPP_SRC": {
+        "bytes": 657,
+        "sha256": "c6bb9a9f78b05b7f9b12a510d13eaada9878fc9e2d5188d5f8af5703c911aa74"
+      }
+    }
+  },
+  "attention_delta": {
+    "cuda_exactly": [
+      "pr8 identity->BF16 RNE/widen",
+      "PDL host attribute1->0"
+    ],
+    "cpp_identical": true,
+    "PBULK_symbol_in_ATT7": false,
+    "cooperative_launch_API_in_ATT7": false
+  },
+  "owning_receipt": {
+    "job": "607eb52bdaf24160",
+    "sha256": "c641ede77cd5cd560b8df7ad2787d706654ebca7b9a63fa2bc49c1b9f6e00029",
+    "rows": [
+      {
+        "load": "decode 1",
+        "context": "sliding",
+        "L": 1,
+        "flat": false,
+        "mode": 13,
+        "progress_scope": "no selected inter-CTA waiting finalize"
+      },
+      {
+        "load": "decode 1",
+        "context": "full",
+        "L": 1,
+        "flat": false,
+        "mode": 11,
+        "progress_scope": "selected per-request software join"
+      },
+      {
+        "load": "decode 16",
+        "context": "sliding",
+        "L": 1,
+        "flat": false,
+        "mode": 1,
+        "progress_scope": "no selected inter-CTA waiting finalize"
+      },
+      {
+        "load": "decode 16",
+        "context": "full",
+        "L": 1,
+        "flat": true,
+        "mode": 0,
+        "progress_scope": "no selected inter-CTA waiting finalize"
+      },
+      {
+        "load": "decode 32",
+        "context": "sliding",
+        "L": 1,
+        "flat": false,
+        "mode": 1,
+        "progress_scope": "no selected inter-CTA waiting finalize"
+      },
+      {
+        "load": "decode 32",
+        "context": "full",
+        "L": 1,
+        "flat": true,
+        "mode": 0,
+        "progress_scope": "no selected inter-CTA waiting finalize"
+      },
+      {
+        "load": "verify 1",
+        "context": "sliding",
+        "L": 8,
+        "flat": false,
+        "mode": 15,
+        "progress_scope": "selected per-request software join"
+      },
+      {
+        "load": "verify 1",
+        "context": "full",
+        "L": 8,
+        "flat": false,
+        "mode": 11,
+        "progress_scope": "selected per-request software join"
+      },
+      {
+        "load": "verify 16",
+        "context": "sliding",
+        "L": 8,
+        "flat": false,
+        "mode": 3,
+        "progress_scope": "selected per-request software join"
+      },
+      {
+        "load": "verify 16",
+        "context": "full",
+        "L": 8,
+        "flat": true,
+        "mode": 0,
+        "progress_scope": "runtime flat q.coop not exported"
+      },
+      {
+        "load": "verify 32",
+        "context": "sliding",
+        "L": 8,
+        "flat": false,
+        "mode": 3,
+        "progress_scope": "selected per-request software join"
+      },
+      {
+        "load": "verify 32",
+        "context": "full",
+        "L": 8,
+        "flat": true,
+        "mode": 0,
+        "progress_scope": "runtime flat q.coop not exported"
+      }
+    ]
+  },
+  "status": "source/profile census only; no GPU, no cost attribution"
+}
