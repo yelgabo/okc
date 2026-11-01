@@ -138,3 +138,39 @@ lacks repeated payloads. Do not spend remaining checks on a full rewrite first.
 No new GPU dispatch, kernel change, promotion or scored submission accompanies this
 audit. Two CPU model tests pass. Root must reconcile this report with newer board
 and job receipts, update the shared index, and publish through the normal workflow.
+
+## Dated addendum: October31 PDT, fresh count screen fails
+
+Root subsequently authorized ONLY a fresh-count check, not a copy/multicast kernel.
+Check `53c07507b9fd4f8c` completed5/5 official tests; unchanged control2.201850463x,
+95%CI2.168822706–2.234878220. All98 original top-level AST nodes were identical to
+production51; CRLF normalized toLF in generation. No numerical/kernel/policy change.
+Fixed router8 and held-out311/312 were used. All requested counts/map rows survived
+the receipt tail, with actual deviceSM count132. Sources are committed
+`profiles/weight_count.53c07507b9fd4f8c.{json,log}` under the MoE directory.
+
+| tokens | routing | seed | jobs / active experts | logical duplicate requests | pairable request savings |
+|---|---|---:|---:|---:|---:|
+|16|layer|311|6 /6|0%|0%|
+|16|layer|312|9 /8|11.1111%|0%|
+|16|std|311|10 /10|0%|0%|
+|16|std|312|12 /12|0%|0%|
+|32|layer|311|11 /8|27.2727%|18.1818%|
+|32|layer|312|11 /7|36.3636%|18.1818%|
+|32|std|311|20 /20|0%|0%|
+|32|std|312|20 /20|0%|0%|
+
+The preregistered>=10% pairable savings criterion fails6/8 cases. Consecutive pairing
+misses the sole16/layer312 duplicate because of pair alignment; an improved pairing
+would still find no duplicates at all in the other16/layer case and all four std
+cases. Original neighboring-CTA same-step matches are0 in all eight cases. Every
+32-element count vector is in the owning log, not inferred from a maximum count.
+
+Disposition: park the registered standalone16/32 multicast/weight-reuse implementation
+before any full rewrite or copy-only GPU probe. Do not narrow to32-layer after this
+failure and call the original gate passed. This closes the tested cross-routing,
+two-size opportunity screen, not every conceivable cache/layout optimization.
+Physical HBM/L2 traffic, multicast gain and cluster residency remain unmeasured.
+No new copy kernel, fences, barriers, memory-ordering change or public promotion.
+Reopen only with materially different measured routing/traffic evidence or a new
+score-covered mechanism, not a repeat of these count seeds.
