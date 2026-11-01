@@ -27,6 +27,12 @@
     "expected_tx_bytes": 16640,
     "with_one_u64_mbarrier_bytes": 17416
   },
+  "v1_logical_partial_payload_not_hbm": {
+    "owned_global_updates_bytes": 1098240,
+    "owned_final_read_plus_zero_bytes": 66560,
+    "failed_HC_DSM_payload_bytes": 532480,
+    "VP2_DSM_payload_bytes": 540672
+  },
   "decision": "No source-only >=1% matched BF16 causal headroom established; requalify exact VP2 BF16 boundary before owned rewrite.",
   "scope": "No GPU; source fingerprints/structural facts/conditional arithmetic only."
 }

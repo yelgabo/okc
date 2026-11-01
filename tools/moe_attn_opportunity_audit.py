@@ -33,6 +33,9 @@ def inspect(root):
             'owned_complete_head_transport':{'owner_rows':4,'senders':16,'row_stride_f32':68,
              'buffer_bytes':16*4*68*4,'meaningful_bytes_per_sender':4*65*4,
              'expected_tx_bytes':16*4*65*4,'with_one_u64_mbarrier_bytes':16*4*68*4+8},
+            'v1_logical_partial_payload_not_hbm':{'owned_global_updates_bytes':33*128*65*4,
+             'owned_final_read_plus_zero_bytes':2*128*65*4,
+             'failed_HC_DSM_payload_bytes':32*64*65*4,'VP2_DSM_payload_bytes':32*16*1056},
             'decision':'No source-only >=1% matched BF16 causal headroom established; requalify exact VP2 BF16 boundary before owned rewrite.',
             'scope':'No GPU; source fingerprints/structural facts/conditional arithmetic only.'}
 
