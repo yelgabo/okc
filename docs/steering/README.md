@@ -6,7 +6,7 @@ report be checked into this repository so other sessions can read it.
 
 ## Latest review
 
-[November 1, 04:25 PST — reset check repair and second expert experiment](2026-11-01-g-public-layer-measurement.md#november-1-0425-pst--private-checks-before-the-reset) gives the current reproducible private payload, eight CPU tests and the two-stage retirement compile stop.
+[November 1, 04:25 PST — reset check repair and second expert experiment](2026-11-01-g-public-layer-measurement.md#november-1-0425-pst--private-checks-before-the-reset) gives the current reproducible private payload, nine CPU tests and the two-stage retirement compile stop.
 
 [November 1, 04:18 PST — public result and retained submission](2026-11-01-g-public-layer-measurement.md#november-1-0418-pst--keep-the-stage-retirement-release) records the 2.102308× expert-placement result, the 2.126083× incumbent at rank 304, the current non-prefill cutoffs and the two forward experiments.
 

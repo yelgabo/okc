@@ -104,6 +104,18 @@ class Gate(unittest.TestCase):
         flags[id(modules['b4']._module)]=('-DOKC_STAGE_RETIRE=1',)
         with self.assertRaises(AssertionError):env['_wl_judged_state'](production,stage)
 
+    def test_weight_signature_covers_unsampled_bytes_and_scalars(self):
+        import torch
+        body=Path(__file__).with_name('dl_g1_layer_body.py').read_text(encoding='utf8')
+        node=next(n for n in ast.parse(body).body if isinstance(n,ast.FunctionDef) and n.name=='_wl_weight_signature')
+        env={'torch':torch};exec(compile(ast.Module(body=[node],type_ignores=[]),'signature','exec'),env)
+        signature=env['_wl_weight_signature']
+        weights={'packed':torch.zeros(8192,dtype=torch.uint8),'scale':torch.tensor(.5)}
+        before=signature(weights)
+        self.assertEqual(before,signature(dict(reversed(weights.items()))))
+        weights['packed'][7]=1
+        self.assertNotEqual(before,signature(weights))
+
     def test_actual_b4_compiled_flag_gate(self):
         body=Path(__file__).with_name('dl_g1_layer_body.py').read_text(encoding='utf8')
         node=next(n for n in ast.parse(body).body if isinstance(n,ast.FunctionDef) and n.name=='_fork_native_moe')

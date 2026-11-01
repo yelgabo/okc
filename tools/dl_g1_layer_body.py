@@ -104,9 +104,12 @@ def _wl_weight_signature(weights):
     h=hashlib.sha256()
     for name,t in sorted(weights.items()):
         assert isinstance(t,torch.Tensor) and t.is_contiguous(),'unreviewed weight object'
-        raw=t.view(torch.uint8).reshape(-1);step=max(1,raw.numel()//128)
+        raw=t.reshape(-1).view(torch.uint8)
         h.update(repr((name,tuple(t.shape),str(t.dtype))).encode())
-        h.update(bytes(raw[::step][:128].cpu().tolist()))
+        # Decode and verify can run as separate private jobs. Compare the
+        # whole weight bank so a change between sampled bytes cannot pass.
+        for chunk in raw.split(8<<20):
+            h.update(memoryview(chunk.cpu().numpy()))
     return h.hexdigest()
 
 def _wl_empty(arms):

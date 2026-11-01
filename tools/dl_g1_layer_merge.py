@@ -6,9 +6,13 @@ def read(path):
     s=path.read_text(encoding='utf8')
     if path.suffix=='.json':
         obj=json.loads(s);r=obj.get('result',obj)
-        assert obj.get('status')=='done' and r.get('passed') and r.get('checks',{}).get('ok'),'terminal official receipt required'
+        assert obj.get('board')=='muse_decode_layer' and obj.get('mode')=='check' and obj.get('id'),'private layer job required'
+        assert obj.get('status')=='done' and r.get('passed') and r.get('checks',{}).get('ok') and r.get('flags')==[],'clean terminal official receipt required'
         tests=[x for x in r.get('records',[]) if x.get('event')=='test']
         assert len(tests)==13 and all(x.get('status')=='pass' for x in tests),'13officialcandidate tests required'
+        for event in ('benchmark','profile'):
+            cells=[x for x in r['records'] if x.get('event')==event]
+            assert len(cells)==12 and {x['index'] for x in cells}==set(range(12)),'incomplete official cells'
         s=r['log_tail']
     matches=re.findall(r'WL_STAGE_REPORT ([A-Za-z0-9+/=]+)',s)
     assert len(matches)==1,'exactly one complete WL report'
