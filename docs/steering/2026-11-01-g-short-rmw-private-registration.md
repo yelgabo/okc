@@ -62,7 +62,8 @@ The reused clone includes the already-reviewed set ownership fix.
   the full-six factor by>=1% and exceed2xduplicate log-null. Every context/load
   also obeys regression<=max(.5us,1%). Affected-only contributions are reported
   descriptively, not a replacement for the full-six gate. A pass in all banks
-  implies the pooled direction; all36raw rows are retained losslessly.
+  implies the pooled direction; all36unadjusted GPU-event median rows are
+  retained losslessly. The24individual sample vectors are not transported.
 -295s fail-closed budget begins before the original preparation and is checked
   during inner timing/fresh loops and before returning. Private report transport
   is the reused compressed diagnostic capsule, guarded<11000characters; full
@@ -92,3 +93,12 @@ any ambiguity in actual stage/control, missing coverage, relaxed threshold,
 unmatched ownership, compile/resource failure, budget or report loss. A losing
 complete check closes this exact representation; no automatic flag/fence sweep
 or public retry follows. No H200 result or estimated speedup is asserted.
+
+## Final source review addendum
+
+Independent source review `dd81b18` clears exactf042 scope; its two actual
+source/score tests independently pass. The final owner and scratch-guard checks
+run after the printed capsule. Therefore a printed report is not success: root
+must require the owning terminal13tests/12benchmarks/checks.ok/no-flags result
+before interpreting a private decision. Six CPU whole-orchestration tests have
+passed; their durable peer fixture publication remains the last handoff item.
