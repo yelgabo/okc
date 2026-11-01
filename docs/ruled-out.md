@@ -291,3 +291,7 @@ the public entry vjeux/okc-2026 with its design memos (see `docs/gap-analysis-20
 | Experiment | Evidence | Closure / reopening trigger |
 |---|---|---|
 | rd16 pooler two-stage private-per-warp cp.async shared ring, MT2/WR2/WK16/KU8 | b103af15ba564ef6: all FP64/probe/nearby/fresh gates pass; old64regs/24Blocal/1CTA vsring64regs/0local/131072Bshared/1CTA. Ring loses+.480 to+.608us vsprod on2heldouts/2builds;12–17/100faster. Probeold2CTA vsring1CTA | This pipeline asbuilt; spills removed but no gain. No local caps/PF sweeps. Reopen only with a structurally different staging schedule and evidence it avoids measured pipeline cost; memory probes have differing occupancy, so not an additive phase decomposition. Rebuilt old small gain fails all-twin preregistered promotion gates. |
+
+| Experiment | Evidence | Closure / reopening trigger |
+|---|---|---|
+| QKV128 owned64×128/3split/8stage WGMMA depth2 with matching stagei-2 release |4542b2b04cb344ec: fullFP64 M100/127/128/129,exactonehot,3freshgraphs pass; identical90regs/0local/197760Bshared/39clusters. Independentbuilds/twoheldouts depth2-prod+.512–.640us anddepth2-owncontrol+.512–.640us,9–19/100faster; rebuiltdepth1-prod-.048..+.064us | Depth2 alone as explanation of donorqbig lead; no localdepth sweep. Distinct push/stmatrixepilogue/CTA changes remainunattributed, so notallqbig mechanismsclosed. Reopen depthonly with new pipeline-specific evidence. |
