@@ -3952,3 +3952,14 @@ and printed byPython duringprepare; nativekernel bodies are unchanged. This avoi
 bufferedC++prints missing from the failedstressreceipt. Everyindexedcheckerargument isruntime,
 not constexpr perinput, avoiding2000JITspecializations. Final280s guard failsclosed ifcoverage
 is not complete. Source/state controlseparate; ordinarysame-stream graph/copy dependencies.
+
+|date|job|commit|change|score (95%CI)|notes|
+|---|---|---|---|---|---|
+|2026-10-31|80415fe736bb4890 (check)|c8e709a|NEWprospective official-math FP32 gate, candidate2 judgedpath|pending|Bothshapes2000uniqueinputs each, everycandidate/controloutput+cachechecked; canonicalbothreferencecrosschecks, negativecontrols,280sprepareguard.|
+
+Postdispatch tool-only correction e0e0533 restores savedtorch.allow_tf32 in try/finally after
+referencevalidation. Inflight80415fe736bb4890 usedc8e709a and therefore leaves allow_tf32False
+into its officialphase (typically alreadydefaultFalse). Nativecandidate is unchanged and
+usesexplicitmma; nevertheless anyscore from thisvalidationfile will be qualified and a
+cleanpurefile officialcheck is preferred beforepromotion. This doesnot alter the runningjob
+or retroactively change its receipt/source. Fullcomparison/checkprotocol above is unchanged.
