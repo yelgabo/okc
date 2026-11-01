@@ -3640,3 +3640,17 @@ These are drained early-exit kernel timings, not additive live-path timings: ear
 remove overlap and diagnostic branching can perturb compilation. Require a real A/B change
 before claiming an optimization. Main question is whether the residual d1-full difference is
 already present before query/new-row staging, or develops during it.
+
+## Authorized scored control repeat, 2026-10-31 PDT
+
+| date | job | commit | change | score (95% CI) | notes |
+|---|---|---|---|---|---|
+| 2026-10-31 | cccc131c55874949 (submit by root coordinator) | d3eeeda + repeat comment | Owned best attention source; PRQ31, HMRG1, workspace pick off; authorized daily scored control repeat | 2.534850x (2.496827-2.572873) | Passed all 16/16 official tests. Twelve benchmark and twelve profile records saved in profiles/scored.cccc131c55874949.json. No performance promotion: overlaps prior 2.537x entry and its interval. |
+
+Exact root file `.build/today/attention_best.py` SHA256
+`4d36ddbc94ed81bfe95e3395555cbf0cf117bbe505d73528a18564ea76c454ca`;
+source body is submission.py at d3eeeda after experimental address changes were reverted,
+plus the trailing comment `# Authorized daily scored control 2026-10-31, repeat 1.`.
+Selected kernel instances from receipt profiles: decode sliding batch1/16/32 modes13/1/1;
+decode full11/49/49; verify sliding15/3/3; verify full11/51/51. Receipt identifies
+board muse_attention_decode and id cccc131c55874949; no new resource counters were collected.
