@@ -179,16 +179,33 @@ class HostTests(unittest.TestCase):
         torch.set_num_threads(1);API.registry={};API.calls=[];API.stale=False;API.active=None
     def test_whole_prepare_36rows_owners_modes_and_transport(self):
         ns=namespace();prior=torch.backends.cuda.matmul.allow_tf32
-        with self.facade(),redirect_stdout(io.StringIO()) as log:owners,modules=ns['_vp_prepare']()
+        with self.facade(),redirect_stdout(io.StringIO()) as log:owners,modules,run=ns['_vp_prepare']()
         report=json.loads(next(l.split(' ',1)[1] for l in log.getvalue().splitlines() if l.startswith('VP2_PRIVATE_REPORT ')))
         self.assertEqual(report['counts'],dict(eager_extra=16,normal=144,fresh=336,post=144))
+        self.assertEqual(report['dispatch_counts'],dict(ONE=284,VP2=20))
+        self.assertEqual(report['row_kind'],'raw_us')
+        offsets={tuple(row[:3]):row[3] for row in report['fixed_offsets']}
+        adjusted=[[*row[:4],[v-offsets[tuple(row[:3])] for v in row[4]]] for row in report['rows']]
+        self.assertEqual(ns['_vp_score'](adjusted),report['gate'])
+        self.assertEqual(ns['_vp_score'](report['rows']),report['raw_gate'])
         self.assertEqual(len(report['rows']),36);self.assertEqual(len(report['plans']),48)
         self.assertLess(len(log.getvalue().encode()),11000)
         self.assertTrue(all(len(n['_ONE_STATE'])==1 for n in owners))
         self.assertTrue(all(b==1 and l==8 for b,l,k,_ in API.calls if k=='vp2'))
         self.assertTrue(any(k=='vp2' for b,l,k,_ in API.calls))
-        d=inputs(1,8,'tp8','full',1,'fixed','soft',1,1,1);d['config']['num_q_heads']=24
-        self.assertEqual(owners[0]['kernel_fn'](d),'sglang-fallback')
+        ns['_VP_RUN']=run
+        dispatch=next(cell.cell_contents for cell in run.__closure__
+                      if isinstance(cell.cell_contents,dict) and set(cell.cell_contents)=={'ONE','VP2'})
+        with self.facade():
+            d=inputs(1,8,'tp8','sliding',8,'fixed','soft',1,1,1)
+            self.assertEqual(ns['kernel_fn'](d).shape,(1,8,1024))
+            self.assertEqual(API.calls[-1][2],'vp2')
+            d['config']['kv_scale']=.5
+            ns['kernel_fn'](d);self.assertEqual(API.calls[-1][2],'owned')
+            d['config']['num_q_heads']=24
+            self.assertEqual(ns['kernel_fn'](d),'sglang-fallback')
+        self.assertEqual(report['dispatch_counts'],dict(ONE=284,VP2=20))
+        self.assertEqual(dispatch,dict(ONE=284,VP2=20))
         self.assertEqual(torch.backends.cuda.matmul.allow_tf32,prior)
     def test_stale_capture_is_fatal_and_restores_tf32(self):
         ns=namespace();API.stale=True;prior=torch.backends.cuda.matmul.allow_tf32
@@ -199,7 +216,7 @@ class HostTests(unittest.TestCase):
         def scaled(*args,**kwargs):
             data=inputs(*args,**kwargs);data['config']['kv_scale']=.5;return data
         ns['_ob_inputs']=scaled
-        with self.facade(),redirect_stdout(io.StringIO()):ns['_vp_prepare']()
+        with self.facade(),redirect_stdout(io.StringIO()),self.assertRaisesRegex(AssertionError,'VP2_DISPATCH_COVERAGE'):ns['_vp_prepare']()
         self.assertTrue(API.calls)
         self.assertFalse(any(k=='vp2' for b,l,k,_ in API.calls))
     def test_real_small_cpu_oracles_and_actual_checker(self):
