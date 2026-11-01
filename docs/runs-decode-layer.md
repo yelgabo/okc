@@ -821,3 +821,4 @@ a0da77c5f3c647c3 PASS13, control 2.017944x CI 1.987675–2.048213. Complete affe
 35f2b5d66f51465b PASS13 control 2.022121x CI 1.991789–2.052452. All 24 rows. Six-load 1.003428 vs threshold 1.001450 and 1.001829 vs 1.003343. Both affected loads faster, second seed misses aggregate gate. Preserve experiment for combination.
 2026-11-01 | 59cc1343940f4bcb | 68c769d plus tools/dl_make_concat_layout.py | matched physical weight layout for concat-r at 128/256 tokens, FP64 and whole-layer comparisons. Pending.
 59cc1343940f4bcb passed 13 tests, control 2.015711x CI 1.985476–2.045947. Contiguous K-major concatenated weight slower in every GEMM and whole-layer comparison, both seeds and sizes. Retain original.
+2026-11-01 | 3a5f879df0d44825 | off-board external comparator keell0renz at 8e30e1be, source 1ec189dc... | exact file check for current per-shape attribution. Never a public submission.
