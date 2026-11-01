@@ -203,3 +203,30 @@ decode, already present in the external source. Owned76/78 tests64254f49676c4ce6
 andc8fc5f669fa34d06 limit that existing alternative; the posts alone do not reopen
 it. They reinforce measuring the producer-to-final-owner critical path before
 assuming global rendezvous time is removable.
+
+## Subsequent source review, no second job by this owner
+
+Root's separate frontier generator was independently read-reviewed after the
+SC6 result. Current generated SHA at review:
+`76c5b0e7483aba481f605a4d2a93363e1e8e968288f0bf977660da115ff9628b`.
+The five-slot scratch ABI uses a zero-length unused fourth debug placeholder and
+an extent-checked fifth trace tensor. Writer locations are CTA/warp/expert private;
+the issue stamps precede PB epilogue stores and are not publication events.
+Macro-off code strips to the pinned original device body. Four independent CPU
+model/source/capsule tests pass. Three host review findings were repaired before
+clearance: assert the resource gate, check timed outputs before fresh-input copies,
+and use unique nonlocal global IDs32..39 for the empty case. No source-level
+blocker remains for root's diagnostic; no GPU correctness claim follows. The trace
+representative is the median of five saving bounds, not the median-latency trace.
+
+Root also proposed a simpler future publication design: keep original MFINoff,
+separately add complete per-expert publications, and defer the existing cooperative
+grid rendezvous/generation advance/cleanup until after every final read. This can
+avoid a new epoch scheme, because CE cleanup follows that retained rendezvous and
+the next ordinary same-stream call waits for completion. It still requires exact
+whole/split writer counts, participating-writer publication, acquire-before-read,
+the existing own-CTA join before shared-ring reuse, and no bounded poll fall-through.
+The relevant formal chain is in [PTX8.7 sections8.9.2–8.9.5](https://docs.nvidia.com/cuda/archive/12.8.0/parallel-thread-execution/index.html#memory-synchronization).
+No implementation is authorized before the measured frontier envelope clears;
+publication-only controls must price its overhead rather than compare solely to
+an unsafe flag-enabled variant.
