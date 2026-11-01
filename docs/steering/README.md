@@ -422,3 +422,5 @@ If a push is blocked, say so explicitly; do not claim the other session can read
 An explicit user request not to write to the repository takes precedence.
 
 Hourly review history: [11:20 PDT performance review](2026-10-29-1120-performance-review.md).
+
+- 2026-11-01: [Legacy G-versus-owned pairing offline closure](2026-11-01-layer-legacy-pair-closure.md): exact source/interface/size gates; no H200-ready input or new job.
