@@ -5331,3 +5331,6 @@ Root owns canonical profiles g-stage-check.f147d06a64504c1e.{json,log,txt}.
 Derived completecapsule/report: docs/steering/2026-11-01-g-stage-observed-readiness.md.
 New H200 route census yields conditional proportional three-pair six-load
 scenario1.012567/1.004403/1.004607, not measured gain/HBM/timing bound.
+
+
+| 2026-11-01 | No official job; local source/compiler gate | OFF68bf4c1f (native7c915127) | Exactec565 progress prototype: both cooperative launchers, queuecapacityguard, fatalwatchdog; frozen abe765policy/strictchecks | No score/GPU | 5CPU tests pass; nativeproof14d5687/c00895f. Independent localCUDA12.8 main47 spills12/112→16/128 (baselinealready16Bstack), skinnyunchanged. Authorized unreachable db0b8cc1 alsofails. Bothclosed atno-new-spillgate; all3OFFflagsfalse, fullgraphqualifierdesignonly. Reports standalone-progress-off-prototype and standalone-moe-progress-compile, commitsabd6652/a20ec47. No production/public/queue action. |
