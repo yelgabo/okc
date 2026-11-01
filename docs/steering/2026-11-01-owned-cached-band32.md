@@ -97,3 +97,20 @@ row.075 FP32, fresh/skew/poisoned remote exactzero/restoration, capture/state an
 coverage required. Cached must beat ORIGINAL, all four crosses/each seed >=1% whole-six-load
 and >2x null, with per-case regression gate. Direct comparison is attribution only.
 Root owns remaining quota/dispatch. No second representation/band/cache sweep on failure.
+
+
+## Final six-arm host/source clearance
+
+Frozen sibling artifact `owned_cached_band32_check.py`,945013B SHA
+`4bf3864b23ef94213794558d86c862cf781acd1d3a0ed5a8667f4b4e223c39d2`.
+Independently reran all7 actual TorchCPU host tests with
+`cd okc-today-proj/tools && /root/.cache/okc-host-validate/bin/python -m unittest test_moe_cached_band_host_cpu -v`:
+PASS. Actual18-case scaffold/396counts, six private owners/three binaries, target-only
+selection, finite math/reference/stale/budget negatives, per-seed whole-score/null/
+regression and descriptive direct controls, realistic11KB transport all exercised.
+Reviewed actual calls/resource gates: exact+1408B shared, no worse registers/local or
+admission; unchanged MAIN; common BF16/cooperative repair, finally-restored TF32.
+Cached128/256 prohibited path is avoided with unchanged control module. No source/API
+blocker found. The helper is warp8 (`warp==kNW`), not fat-main warp0; both new warp
+synchronizations cover that same helper warp. No child dispatch; root alone owns runtime
+qualification/remaining quota. CPU stand-ins do not establish GPU correctness or speed.
