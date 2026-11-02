@@ -1,7 +1,8 @@
 # Top100 attention implementation pass: specific STOP
 
 2026-11-02. Allocation/evidence base `a705900cbd9432ccaada88c29ef8661718dca038`;
-checkout `71eb71c1a67335d704e53d00632b4bf92ae38845`, branch `t3/6d331c83`,
+checkout `71eb71c1a67335d704e53d00632b4bf92ae38845`, initial branch `t3/6d331c83`
+(renamed externally during the task to publication branch `t3/attention-prototype`),
 remote `https://github.com/yelgabo/okc.git`. The intervening commit adds alignment/
 reference-access documentation, not an attention implementation. No children,
 GPU job, challenge CLI, install, default edit or public promotion. Captain retains
@@ -129,3 +130,23 @@ then captain may allocate the preregistered fresh-output, BF16-boundary and whol
 comparison. No component-duration sum substitutes for its >=1%/two-null every-seed
 gate. Missing exposed boundary cost and benefit exceeding integration cost are the
 decision gaps, not a shortage of tile variants.
+
+## November 2 publication addendum: independently completed profile priorities
+
+Read the parent's new evidence commit
+`80eef4dd2f4bdce0ed60bd5dc2c21ea67661c56e` directly with `git show`:
+`docs/steering/2026-11-02-top100-profile-priorities.md`. It independently reproduces
+the four routes above, including unequal verify w0 and PDL off. No attribution
+experiment may silently equalize those splits or change the grid.
+
+Use the actual endpoint weight: `C=(46*t_sliding+16*t_full)/62`, then
+`factor=product(C_control/C_treatment)^(1/6)`. A full-cell saving therefore enters
+its load at **16/62**, not at full weight. The report prioritizes the existing
+longer-token expert stream over attention on broad weighted opportunity, subject
+to actual exposed savings and implementation evidence. This supports returning
+this nonisolated attention lane; it does not establish either stream's speed.
+
+Any reopening starts with **uninstrumented complete attention and layer endpoints**,
+same source-selected grid/split and fresh retained outputs. The failed wait trace
+`3f44f891d0ef47db` remains inadmissible as causal timing evidence. No new observer,
+timebox extension, candidate, dispatch or weaker acceptance rule was introduced.

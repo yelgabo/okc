@@ -19,8 +19,8 @@
       "sha256_lf_utf8": "81af125a19b5939e34ebade3f1db2ef2df84945c38abb300c92e53e8d1abf3cc"
     },
     "docs/steering/2026-11-02-top100-attention-prototype.md": {
-      "sha256_bytes": "0eab305ecb97d78db2edad5f920ad4b12cd06fdd806c4dc1b329544a9e49b3fb",
-      "sha256_lf_utf8": "0eab305ecb97d78db2edad5f920ad4b12cd06fdd806c4dc1b329544a9e49b3fb"
+      "sha256_bytes": "45d96ef5a822b805bddddf297b5589ca3b9a68b2fac0e55f4e651e381db47618",
+      "sha256_lf_utf8": "45d96ef5a822b805bddddf297b5589ca3b9a68b2fac0e55f4e651e381db47618"
     },
     "docs/steering/evidence/2026-11-02-top100-attention-prototype/preregister.md": {
       "sha256_bytes": "0897ac80f63a694f079f9e4772a942030da81bb68182eacbca7781baa634ffb8",
@@ -31,8 +31,15 @@
       "sha256_lf_utf8": "2ce262c4f1debbf09c9c394a6537345a586648f8ee0cddc7b0f99e92a9117214"
     },
     "docs/steering/evidence/2026-11-02-top100-attention-prototype/hotspots.md": {
-      "sha256_bytes": "827fd834ac6e6ffd83689afa0e9061e664aa43a4daf5a3c4200380501fc3ac3f",
-      "sha256_lf_utf8": "b3539254a1c21653be28e593fa42b4a649ec3bebe15d5e020da73b55ac666ead"
+      "sha256_bytes": "ec134913a0841968cd8096405969fe8937af57ef37ba144c17694aafe34373a3",
+      "sha256_lf_utf8": "94803c564e95062f0c2b6c8ce782d05fba58e4e2686e473f9ac45fd99ebf0d76"
     }
+  },
+  "publication_branch": "t3/attention-prototype",
+  "late_profile_evidence": {
+    "commit": "80eef4dd2f4bdce0ed60bd5dc2c21ea67661c56e",
+    "path": "docs/steering/2026-11-02-top100-profile-priorities.md",
+    "sha256_git_blob_bytes": "c651fe1213711d4e77b10a37b8f3baeb1b6826eb1cc967c61e18f8984e3abd40",
+    "reconciliation": "selected routes agree; full cell weight 16/62; preserve grid/split; uninstrumented whole-call gate; STOP unchanged"
   }
 }

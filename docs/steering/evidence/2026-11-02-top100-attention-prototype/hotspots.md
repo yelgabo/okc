@@ -1,4 +1,4 @@
-﻿### muse_decode_layer: job cc474883117947c0, 2.109x (2.078-2.141)
+### muse_decode_layer: job cc474883117947c0, 2.109x (2.078-2.141)
 
 SGLang kernels from the baseline-as-submission run in `muse_decode_layer/baseline_profile/profiles/baseline.7d42771c3384449d.json`.
 
@@ -16,4 +16,3 @@ SGLang kernels from the baseline-as-submission run in `muse_decode_layer/baselin
 | verify 16 batch=16 ctx=80000 dist=soft layer=full page=1 q_len=8 spread=agentic | 16 | 687.3 | 332.6 | 188.7 | 3.6x | 1.8x | okc::moe_fused<true> 154.6us 45%<br>attn_kernel<8, true, 0> 104.9us 31%<br>nvjet_sm90_tst_128x64_64x8_1x2_h_bz_NNT 28.4us 8% | sglang::device::marlin_moe::Marlin<__nv_bfloat16 368.8us 52%<br>cutlass::device_kernel<flash::enable_sm90_or_lat 191.4us 27%<br>nvjet_sm90_tst_128x64_64x8_1x2_h_bz_TNT 28.9us 4% |
 | verify 32 batch=32 ctx=80000 dist=soft layer=sliding page=1 q_len=8 spread=agentic | 46 | 697.5 | 308.6 | 143.8 | 4.8x | 2.1x | okc::moe_fused<true> 201.7us 63%<br>nvjet_sm90_tss_144x64_64x8_1x1_v_bz_TNN 31.2us 10%<br>nvjet_sm90_tst_128x128_64x6_1x2_h_bz_coopA_NNT 26.0us 8% | sglang::device::marlin_moe::Marlin<__nv_bfloat16 513.0us 73%<br>nvjet_sm90_tst_128x128_64x6_2x1_v_bz_TNT 34.5us 5%<br>nvjet_sm90_tst_128x64_64x8_1x2_h_bz_TNT 31.0us 4% |
 | verify 32 batch=32 ctx=80000 dist=soft layer=full page=1 q_len=8 spread=agentic | 16 | 1047.8 | 473.1 | 267.2 | 3.9x | 1.8x | attn_kernel<8, true, 0> 185.2us 39%<br>okc::moe_fused<true> 184.8us 39%<br>nvjet_sm90_tss_144x64_64x8_1x1_v_bz_TNN 32.7us 7% | sglang::device::marlin_moe::Marlin<__nv_bfloat16 529.5us 48%<br>cutlass::device_kernel<flash::enable_sm90_or_lat 368.4us 33%<br>nvjet_sm90_tst_128x64_64x8_1x2_h_bz_TNT 38.5us 4% |
-
