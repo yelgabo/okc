@@ -1,0 +1,12 @@
+test_actual_gather_semantic_k_and_descriptor_negatives (test_wgs_k128_full_reuse.K128.test_actual_gather_semantic_k_and_descriptor_negatives) ... ok
+test_actual_scratch_and_odd_job_capacity (test_wgs_k128_full_reuse.K128.test_actual_scratch_and_odd_job_capacity) ... ok
+test_actual_source_factory (test_wgs_k128_full_reuse.K128.test_actual_source_factory) ... ok
+test_gateup_rows_and_inter_layout (test_wgs_k128_full_reuse.K128.test_gateup_rows_and_inter_layout) ... ok
+test_packing_semantic_sentinels (test_wgs_k128_full_reuse.K128.test_packing_semantic_sentinels) ... ok
+test_permutation_bijection_and_scale_identity (test_wgs_k128_full_reuse.K128.test_permutation_bijection_and_scale_identity) ... ok
+test_stage_split_and_publication_contract (test_wgs_k128_full_reuse.K128.test_stage_split_and_publication_contract) ... ok
+
+----------------------------------------------------------------------
+Ran 7 tests in 1.802s
+
+OK

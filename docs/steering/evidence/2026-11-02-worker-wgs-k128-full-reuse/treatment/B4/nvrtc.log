@@ -1,0 +1,65 @@
+exact_device.cu(2106): warning #177-D: variable "g" was declared but never referenced
+    const int wg = warp >> 2, wp = warp & 3, g = lane >> 2, wt = tid & 127;
+                                             ^
+          detected during:
+            instantiation of "void okc::wgs_phase<PB>(const okc::Params &, okc::Smem &, unsigned char *, int, int, int &) [with PB=false]" at line 2576
+            instantiation of "void okc::moe_fused<BIG>(okc::Params) [with BIG=false]" 
+
+Remark: The warnings can be suppressed with "-diag-suppress <warning-number>"
+
+exact_device.cu(147): warning #177-D: variable "okc::NRB" was declared but never referenced
+  constexpr int NRB = OKC_WS ? OKC_WSNR : 2;   // cross-warp partial-sum buffers
+                ^
+
+exact_device.cu(162): warning #177-D: variable "okc::UB_A" was declared but never referenced
+  constexpr int UB_A = RB_A / 16, UB_B = RB_B / 16;
+                ^
+
+exact_device.cu(162): warning #177-D: variable "okc::UB_B" was declared but never referenced
+  constexpr int UB_A = RB_A / 16, UB_B = RB_B / 16;
+                                  ^
+
+exact_device.cu(165): warning #177-D: variable "okc::BFLAG" was declared but never referenced
+  constexpr int BFLAG = 1 << 30;  // uslot: a phase-B unit prefetched at the end of phase A
+                ^
+
+exact_device.cu(171): warning #177-D: variable "okc::XP_SK" was declared but never referenced
+  constexpr int XP_SK = HD + 8;   // skinny x row pitch (bf16)
+                ^
+
+exact_device.cu(173): warning #177-D: variable "okc::XP_FT" was declared but never referenced
+  constexpr int XP_FT = KS + 8;   // fat x row pitch (bf16)
+                ^
+
+exact_device.cu(174): warning #177-D: variable "okc::NST" was declared but never referenced
+  constexpr int NST = 3;          // fat x stages
+                ^
+
+exact_device.cu(586): warning #177-D: variable "okc::X1P" was declared but never referenced
+  constexpr int X1P = 512 + 8;  // per-warp smem x rows for the 2nd n-tile (tokens 8..15), pitch in bf16
+                ^
+
+exact_device.cu(987): warning #177-D: variable "okc::NSF" was declared but never referenced
+  constexpr int NSF = OKC_NSF;
+                ^
+
+exact_device.cu(1685): warning #177-D: variable "okc::K128_MAX_GRID" was declared but never referenced
+  constexpr int K128_WGS = 2, K128_MAX_GRID = 264;
+                              ^
+
+exact_device.cu(1703): warning #177-D: variable "okc::MF_CE" was declared but never referenced
+  constexpr int MF_CE = 0, MF_EXIT = 64, MF_XR = 128, MF_XRS = 96, MF_DA = 512, MF_INTS = 8192;
+                ^
+
+exact_device.cu(1703): warning #177-D: variable "okc::MF_EXIT" was declared but never referenced
+  constexpr int MF_CE = 0, MF_EXIT = 64, MF_XR = 128, MF_XRS = 96, MF_DA = 512, MF_INTS = 8192;
+                           ^
+
+exact_device.cu(1703): warning #177-D: variable "okc::MF_XR" was declared but never referenced
+  constexpr int MF_CE = 0, MF_EXIT = 64, MF_XR = 128, MF_XRS = 96, MF_DA = 512, MF_INTS = 8192;
+                                         ^
+
+exact_device.cu(1866): warning #177-D: variable "okc::WGS_XROWS" was declared but never referenced
+  constexpr int WGS_XROWS = EMAX + 8 * JMAX;  // padded rows of all jobs, upper bound
+                ^
+
