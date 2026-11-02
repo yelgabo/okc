@@ -1,0 +1,24 @@
+{
+  "at": "2026-11-02T20:40:36.329388+00:00",
+  "assignment_commit": "c8538a57a61da4b35dabd23fe308a3c40490f060",
+  "assignment_remote_verified": true,
+  "direct_app_delivery": {
+    "thread_id": "01a19976-9e99-79c0-bab1-644bd8c0293a",
+    "title": "OKC Developer",
+    "sent": true,
+    "tool_is_error": false,
+    "pickup_acknowledgment_claimed": false
+  },
+  "separate_captain_handoff": "repository only; no direct acknowledgment claimed",
+  "monitor_update": {
+    "app_tool_success": true,
+    "readback_verified": true,
+    "id": "review-family-g-progress-and-dispatch-the-next-experiment",
+    "status": "ACTIVE",
+    "rrule": "FREQ=HOURLY;INTERVAL=1",
+    "target_thread_id": "01a1963f-0c8e-7d41-be02-0e691dcfcaf7",
+    "prompt_sha256": "c5f0af91035d69b63e2fe7990cce4de571e684941a9d6b077650c2bb36ac549d"
+  },
+  "new_judge_actions": 0,
+  "public_submission_permission_added": false
+}

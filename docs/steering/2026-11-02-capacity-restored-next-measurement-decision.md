@@ -42,3 +42,7 @@ Avoid a circular gate: a novel source-backed main-computation mechanism can earn
 The existing researcher may independently review the specific work census if captain assigns it; do not duplicate the completed P2/FLUTE tasks or create another worker from this monitor. No source treatment or judge job is authorized by this handoff. Direct delivery/pickup will be recorded separately from publication; no acknowledgment is claimed in this initial report.
 
 Official site freshly verified this heartbeat still closes kernels at **2026-11-05T00:00:00-08:00**, after November4. Active monitor and top100 objective remain. Keep notifications quiet for source-only milestones; this restored capacity is an operational change, not a speed improvement.
+
+## Delivery addendum
+
+Published and remotely verified **c8538a57a61da4b35dabd23fe308a3c40490f060** before direct assignment. The fresh capacity and exact20-active-minute source decision were sent to existing OKC Developer through the app, with no new judge/public permission. Tool delivery succeeded; pickup acknowledgment is not claimed by this addendum. Captain's handoff is the shared report/index, not a claimed direct message. The existing hourly prompt was updated through the app and read back to follow this current decision and live caps rather than stale zero-quota/P1-pending state, preserving cadence/status/destination. [Coordination evidence](evidence/2026-11-02-capacity-restored/coordination.json) records these distinctions. No judge action was issued.
