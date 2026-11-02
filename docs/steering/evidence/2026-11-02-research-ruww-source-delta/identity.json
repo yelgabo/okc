@@ -1,0 +1,59 @@
+{
+  "observed_utc": "2026-11-02T10:04:12.527638+00:00",
+  "checkout": "8689680cbc0ab0cc478d9ffa1e6c4e7bf7886425",
+  "scope": "Current HEAD identity and prior archives only; no repeat source/tree/receipt audit or target execution.",
+  "query": "https://api.github.com/repos/ruwwww/open-kernel-challenge/commits/main",
+  "current_head": "c035bf9d5a7d2445d8c8ee5ce49e63b8bb36f49d",
+  "current_tree": "30e57e197eab4886a03f72f92f9da8bcdc8b4bcd",
+  "current_commit_date": "2026-11-02T04:04:14Z",
+  "current_changed_files_against_parent": [
+    {
+      "path": "README.md",
+      "patch": "@@ -95,5 +95,5 @@ Evaluated under strict CUDA Graphs with cold L2 cache enforcement against SGLang\n ## Author & Credits\n \n - **Team:** `ruwwww`\n-- **Committer:** `kobeniw` (`kobeniw@users.noreply.github.com`)\n+- **Committer:** `kobeni anak kartap` (`kobeniw@users.noreply.github.com`)\n - **Challenge:** [Open Kernel Challenge](https://openkernelchallenge.dev/) (Meta & Andromeda)"
+    }
+  ],
+  "already_reviewed_pin": "c035bf9d5a7d2445d8c8ee5ce49e63b8bb36f49d",
+  "already_reviewed_source_path": "muse_decode_layer/submission.py",
+  "already_reviewed_source_identity": {
+    "bytes": 568813,
+    "sha256": "3cee8ba759569172a9f8a38c59e6589dd8045db0d414e6b33294604aad11ba0e",
+    "git_blob": "a2556dbdddf85ab6b72866bf756a5953d6be6521"
+  },
+  "prior_observed_utc": "2026-11-02T05:22:50.214989+00:00",
+  "prior_source_history": {
+    "muse_decode_layer/submission.py": [
+      {
+        "sha": "91b5733b6e683386e8978c6ae89f54f0f05233ef",
+        "date": "2026-10-29T13:50:36Z",
+        "message": "feat(decode): pin fused skinny swap-AB & pooler-router gemv (Rank 148, 2.0751x)"
+      },
+      {
+        "sha": "2758d98503e872b46558af13c8e47cfb627ce65f",
+        "date": "2026-10-29T09:27:13Z",
+        "message": "feat(decode): fused native CUDA decode layer megakernel (Rank 167, 2.0021x)"
+      }
+    ],
+    "muse_decode_layer/profiles/submission.f60b136cfdc242cb.json": [
+      {
+        "sha": "91b5733b6e683386e8978c6ae89f54f0f05233ef",
+        "date": "2026-10-29T13:50:36Z",
+        "message": "feat(decode): pin fused skinny swap-AB & pooler-router gemv (Rank 148, 2.0751x)"
+      }
+    ]
+  },
+  "prior_license_metadata": null,
+  "prior_license_like_paths": [],
+  "prior_tree_truncated": false,
+  "prior_evidence": [
+    {
+      "path": "docs\\steering\\evidence\\2026-11-01-ruwwww-complete-qualification\\analysis.json",
+      "sha256": "a61b67a9ea946b9c98deb85095489b2e3416e05c09f7f1ef381e3aed6dcbcd91"
+    },
+    {
+      "path": "docs\\steering\\evidence\\2026-11-02-long-dense-selection-join\\join.json",
+      "sha256": "757dbadd80cbf253efd780db7f3620529d55410f4f5b41b48425ede054e6f948"
+    }
+  ],
+  "completed_join_decision": "SCOPED_STOP: no newly identifiable retained-slower or equivalent-contract alternative selected plan. Existing join1942ff1 already established intended Lt policy; revalidated against unchanged owning files. No new implementation/test allocation justified.",
+  "decision": "STOP: exact already-reviewed immutable complete source and receipts; no new candidate or allocation."
+}
