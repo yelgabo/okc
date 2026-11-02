@@ -1,6 +1,6 @@
 {
-  "reviewed_at": "2026-11-01T14:49:00-07:00",
-  "snapshot": "d79089b",
+  "reviewed_at": "2026-11-02T04:32:00-07:00",
+  "snapshot": "57930d0",
   "family_registry_update": {
     "date": "2026-10-30",
     "evidence_snapshot": "7a5965531103f275ac104d340ef30f1508e32353",
@@ -11,7 +11,7 @@
     "score": "2.1261×",
     "interval": "2.0942–2.1580",
     "job": "607eb52bdaf24160",
-    "note": "G1b4 retains the verified score. Public four-cell job 1fad70bbe3854cbc was accepted. Its terminal result is unknown during service maintenance."
+    "note": "G1b4 retains the public score. The matched short-counter comparison missed its gate. G224 and timed SiLU passed correctness and were parked after single-run performance checks."
   },
   "families": [
     {
@@ -117,18 +117,14 @@
       "id": "G",
       "name": "Attributed keell0renz layer fork",
       "status": "win",
-      "label": "Retained scored layer",
+      "label": "Retained layer • counter test complete",
       "metric": "2.1261×",
       "unit": "Public layer score, 95% CI 2.0942–2.1580",
-      "summary": "G1b4 stage-release file retained. Repaired SC6 stage retirement wins matched standalone tests across six loads.",
-      "layer": "Retained scored layer. Previous stage comparison on hold.",
+      "summary": "The matched short-counter test measured −0.183% to +0.283% across twelve comparisons, below the 1% threshold.",
+      "layer": "Retained G1b4 scored 2.1261×. Four-cell verify ended in a refunded infrastructure failure.",
       "pending": [],
-      "evaluation_pending": [
-        "Recover accepted four-cell receipt",
-        "Qualify common control on H200",
-        "Rebase and register short-counter treatment"
-      ],
-      "limit": "One implemented G-gap treatment survives local gates. Its short-counter comparison requires a qualified common control. The full-family gamma prototype failed the MAIN spill gate.",
+      "evaluation_pending": [],
+      "limit": "Private G224 and timed SiLU scored 1.9747× and 2.0733× in separate runs. Their performance gates closed both candidates. The G0 gap remains unexplained.",
       "source": "runs-decode-layer.md",
       "outcomes": [
         "win",
@@ -138,19 +134,19 @@
   ],
   "context_pending": [
     {
-      "name": "Stage-local sparse XOR",
-      "label": "Projection loss • experiment closed",
-      "summary": "All ten targets ran slower than archived C2. Stage-local scored 1.4191× versus C2 at 1.5278× across separate runs."
+      "name": "Four-cell verify",
+      "label": "Infrastructure failure • refunded",
+      "summary": "1fad70bbe3854cbc produced no correctness or timing records at 128 or 256 tokens."
     },
     {
-      "name": "Four-cell public verify measurement",
-      "label": "Accepted • outcome unknown",
-      "summary": "Status retrieval for 1fad70bbe3854cbc returned HTTP 530. Its 128/256-token verify results require the terminal receipt. The private diagnostic remains on hold."
+      "name": "Outgoing dependency tests",
+      "label": "Setup failures • no timing verdict",
+      "summary": "The first check failed its graph query. The second found mismatched routing across arms during preparation. The tested path is closed."
     },
     {
-      "name": "G integration experiments",
-      "label": "Reset queue held",
-      "summary": "Common control 4cbb13a9 awaits H200 qualification. The short-counter treatment needs rebasing. The gamma prototype failed the compiler spill gate."
+      "name": "G224 and fully timed SiLU",
+      "label": "Correctness passed • both parked",
+      "summary": "Neither private check cleared performance triage. At the 11:30 UTC checkpoint, all three remaining private checks were reserved."
     }
   ]
 }

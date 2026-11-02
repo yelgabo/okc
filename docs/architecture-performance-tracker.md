@@ -1,6 +1,6 @@
 # Architecture performance tracker
 
-Last review: 2026-11-01 14:49 MST. Evidence snapshot: `d79089b`.
+Last review: 2026-11-02 04:32 MST. Evidence snapshot: `57930d0`.
 First review reconciles progress since `aab7d75`, the snapshot in the
 [architecture-family guide](architecture-families-2026-10-29.md).
 This is a review of recorded experiments, not a new benchmark run.
@@ -18,9 +18,78 @@ named control, not changes in aggregate score. Families overlap; their gains can
 | D. Dependency-aware scheduling | Dynamic claiming retained; new phase-A claim layouts lose | Phase-A modes 62/63 and K=0 controls 66/69 lose; lean claimed mode 68 is not timed. Earlier split-tail 52/53 losses stand. | Full ready-only queue remains untested. Reopen phase-A claims only after the no-work control ties mode 51 within 1 us at 128/256. |
 | E. Attention producer-consumer pipeline | Private VP2 cell win, six-load gate failed | VP2 took 10.168 µs versus 10.784 µs for the owned control on eight-token sliding attention. All three held-outs missed the full-score gate. | The historical owned QK2 and wait-probe limits still apply. VP2 only changes the eight-token target. |
 | F. Donor-based baseline/hybrid | Historical alygg77 measurement track | Prior F comparisons and owned C3 router gains remain recorded. Two new QKV128 variants lose despite correctness/resource passes. | G has a separate attributed-fork policy. Projection C2 remains best scored, with C3 paired component wins retained. |
-| G. Attributed keell0renz layer fork | Retained scored layer2.126083x | Repaired SC6 stage retirement has matched component factors1.018493-1.028699; integrated G1b4 stage file passes13 official tests. | Previous stage comparison held. Common control awaits H200 qualification, followed by the rebased short-counter treatment. Accepted four-cell outcome unknown. |
+| G. Attributed keell0renz layer fork | Retained layer 2.126083× | Matched short-counter test missed its gate. G224 and timed SiLU passed correctness and missed performance triage. | Four-cell verify ended in a refunded infrastructure error. Outgoing dependency tests failed setup. The G0 integration gap remains unresolved. |
+
+## November 2 review at 04:32 Vancouver time
+
+**G1b4 retains the verified layer score of 2.126083×.** Four-cell verify job `1fad70bbe3854cbc` ended in a refunded infrastructure error with no correctness or timing records. The legal-fixture short-counter comparison completed on the repaired common control. Its twelve matched six-load comparisons ranged from −0.183% to +0.283%, each below the 1% threshold. [Four-cell terminal record](https://github.com/yelgabo/okc/blob/57930d0/muse_decode_layer/profiles/g-owned-verify.1fad70bbe3854cbc.terminal.json) · [Matched counter decision](https://github.com/yelgabo/okc/blob/57930d0/docs/steering/2026-11-01-rmw-legal-fixture-terminal.md)
+
+Two subsequent private layer candidates passed all 13 official tests. G224 scored 1.974665× and the fully timed SiLU table scored 2.073289×. G224 was parked after its long-load comparisons. Timed SiLU missed its 1% follow-up threshold. Differences versus public G1b4 span separate runs with different seeds and machines. The run records below distinguish those observations from the matched counter experiment. [G224 decision](https://github.com/yelgabo/okc/blob/57930d0/docs/steering/2026-11-02-captain-g224-terminal-decision.md) · [Timed SiLU decision](https://github.com/yelgabo/okc/blob/57930d0/docs/steering/2026-11-02-captain-timed-silu-terminal-decision.md)
+
+
+### G layer qualification and results
+
+**G1b4 stage release remains the public incumbent**, job `607eb52bdaf24160`, 2.126082676× (95% CI 2.094191436–2.157973917). The previously accepted four-cell verify hybrid `1fad70bbe3854cbc` has a terminal infrastructure error and an explicit refund. The receipt contains no tests, timing or score. Its 128/256-token hybrid benefit remains unmeasured. [Public receipt](https://github.com/yelgabo/okc/blob/57930d0/muse_decode_layer/profiles/scored.607eb52bdaf24160.json) · [Refunded hybrid](https://github.com/yelgabo/okc/blob/57930d0/muse_decode_layer/profiles/g-owned-verify.1fad70bbe3854cbc.terminal.json)
+
+| H200 job | Candidate and control | Recorded outcome |
+|---|---|---|
+| [3fd1317143304bd5](https://github.com/yelgabo/okc/blob/57930d0/muse_decode_layer/profiles/g-common-rmw.3fd1317143304bd5.terminal.json) | Public common repairs + short-counter RMW, faa1befe, upload 97935e7d | 56 native startup replays completed before the 295 s preparation guard failed. Zero official tests or timings. The log does not identify the slow phase. |
+| [c1931f0c9e834485](https://github.com/yelgabo/okc/blob/57930d0/muse_decode_layer/profiles/g-common-rmw-v2.c1931f0c9e834485.json) | Private revised RMW ON, a0b6af2, upload 978b29f9 | Actual path exercised. 13 tests, 12 timing/profile cells, 109.270 s preparation. 2.121241049× (2.089422434–2.153059665). Point score 0.228% below historical 607e in an independent run. |
+| [16b4db27421d4714](https://github.com/yelgabo/okc/blob/57930d0/muse_decode_layer/profiles/g-common-rmw-pair.16b4db27421d4714.json) | Matched repaired-common OFF/ON, 2686a765, upload c4a5ee29 | H200 setup failed with CUDA 719 during occupied/empty graph replay or synchronization. No complete comparison, score or CI. The fixture diagnosis did not localize the fault. |
+| [c5e4f89672f743bb](https://github.com/yelgabo/okc/blob/57930d0/muse_decode_layer/profiles/g-common-rmw-pair-v4.c5e4f89672f743bb.json) | Corrected distinct-ID fixture, d5f29167, upload 785a90ca. Common OFF 4cbb13a9 versus RMW ON 2884adb6 | Valid comparison. All three banks failed the six-load gain gate. Official judged OFF passed 13 tests at 2.112499365× (2.080811875–2.144186856). RMW-only promotion closed. |
+| [9adfd4dbc98f4998](https://github.com/yelgabo/okc/blob/57930d0/muse_decode_layer/profiles/g-outgoing-pair.9adfd4dbc98f4998.json) | Outgoing dependency-edge comparison, 3d00a62, upload f25d714e | Graph-query binding failed during setup. Zero tests/timings. This run measures no PDL effect. |
+| [6f83ee875dd847c1](https://github.com/yelgabo/okc/blob/57930d0/muse_decode_layer/profiles/g-outgoing-driver-pair.6f83ee875dd847c1.json) | Repaired driver-query comparison, c40930c5, upload ad314060 | Routing equality assertion failed after 44 query contexts. Mismatch cause unresolved. Zero official tests/timings. Exact seam campaign closed on qualification failure. |
+| [e1271ad5e5e34b24](https://github.com/yelgabo/okc/blob/57930d0/docs/steering/evidence/2026-11-02-worker-g224-notice/terminal-status-resumed.json) | Private G224, preregistration 5b997e07, upload 0d84d0e3, native 53d09576 | 13 tests, 12 timing/profile cells, 56 startup replays. 1.974664686× (1.945044715–2.004284656), 98.750 s preparation. Exact candidate parked. |
+| [dc62cff972934f54](https://github.com/yelgabo/okc/blob/57930d0/docs/steering/2026-11-02-captain-timed-silu-terminal-decision.md) | Private fully timed WGS BF16 SiLU table, 9a1f6e4, upload d70a1bcc | 13 tests, 12 timing/profile cells, 56 startup replays. 2.073288676× (2.042189346–2.104388007), 112.536 s preparation. No favorable 1% screening signal. Exact candidate parked. At this snapshot the captain published an independent recomputation after reading the worker receipt. Worker raw archive publication was pending. |
+
+RMW's corrected paired test used four independent mutable arm placements, 24 randomized cold rounds per cell, six loads and three routing banks (993811/993817/993821). All 12 bank/cross six-load log gains lay between −0.001829079 and +0.002828144. None cleared the 1% and duplicate-noise gate. At 16-token sliding, bank 993821 also exceeded its regression allowance (+1.152 µs against a 1.020 µs cap). At 128 tokens the four-cross gain range across banks was −0.1705% to +0.3583%, and at 256 it was −0.3888% to +0.2371%. For OFF0 versus ON0, weighted latency deltas by bank were −0.755/−0.889/−0.253 µs at 128 and +0.613/−0.645/+1.335 µs at 256. The 128/256 paths do not use the short-counter treatment. The exact ON/OFF comparison closed with no conditional fourth run. [Method, checks and all arm medians](https://github.com/yelgabo/okc/blob/57930d0/docs/steering/2026-11-01-rmw-legal-fixture-terminal.md)
+
+G224 and the timed SiLU table each ran once on fresh inputs. The following are weighted sliding/full latency differences against the earlier public 607e job. They describe separate runs with different seeds and machines. Neither is a paired treatment estimate.
+
+| Tokens | Historical 607e | G224 difference | Timed SiLU difference |
+|---|---:|---:|---:|
+| 128 | 269.347 µs | +39.372 µs (+14.617%) | +6.102 µs (+2.2655%) |
+| 256 | 359.297 µs | +73.887 µs (+20.564%) | −0.802 µs (−0.2231%) |
+
+Against the separate repaired-common OFF history, G224 was 15.790% slower at 128 and 21.698% slower at 256. Timed SiLU's independent full score was 2.4832% below public 607e. These observations led to parking both candidates. No results isolate a spill, occupancy, pipeline or table effect. The public four-cell infrastructure failure, the failed outgoing-edge instruments and the valid matched RMW timing decision represent three different outcomes. [G224 calculation](https://github.com/yelgabo/okc/blob/57930d0/docs/steering/evidence/2026-11-02-captain-g224-terminal/verification.json) · [SiLU calculation](https://github.com/yelgabo/okc/blob/57930d0/docs/steering/evidence/2026-11-02-captain-timed-silu-terminal/recompute.json)
+
+Two short-path ideas stopped before H200 timing. The paired-rounding build preserved register and spill counts but added eight permutations and extended the dependency chain into the exponential. Moving the scale across the required BF16 rounding changed finite outputs in the CPU check. These are compiler and numerical feasibility decisions. [Paired-rounding screen](https://github.com/yelgabo/okc/blob/57930d0/docs/steering/2026-11-01-g-short-pair-rne.md) · [Scale feasibility](https://github.com/yelgabo/okc/blob/57930d0/docs/steering/2026-11-01-g-short-scale-feasibility.md)
+
+#### Timed SiLU and G224 workload detail
+
+| Load | Tokens | Table eligible | Historical control µs | Candidate µs | Cross-run difference µs (%) |
+|---|---:|---|---:|---:|---:|
+| decode 1 | 1 | No | 78.549 | 78.757 | +0.208 (+0.26%) |
+| decode 16 | 16 | No | 158.241 | 160.430 | +2.189 (+1.38%) |
+| decode 32 | 32 | Yes | 191.740 | 198.814 | +7.074 (+3.69%) |
+| verify 1 | 8 | No | 115.991 | 114.822 | -1.169 (-1.01%) |
+| verify 16 | 128 | Yes | 269.347 | 275.449 | +6.102 (+2.27%) |
+| verify 32 | 256 | Yes | 359.297 | 358.496 | -0.802 (-0.22%) |
+
+Each value weights sliding and full context 46:16. All six affected profile cells contain one table-build call, displayed as 1.0 µs in five cells and 1.2 µs in one. Those rounded profiler times cannot determine the isolated cost of lookup or the prior SiLU path. [Per-cell times and reconstruction](https://github.com/yelgabo/okc/blob/57930d0/docs/steering/evidence/2026-11-02-captain-timed-silu-terminal/recompute.json)
+
+**G224 cross-run detail.** Private whole-layer job `e1271ad5e5e34b24`, frozen native pin `53d09576`, publication `217a98c`, passed 13 official tests, 12 benchmark cells and 56 startup replays. Its score was 1.974665× (95% CI 1.945045–2.004285). Both historical controls used different seeds from all 12 current cells. The team parked G224. At 128/256 tokens the weighted per-token-load comparisons were:
+
+| Tokens | G224 µs | Public 607 µs | Difference µs (%) | Repaired OFF c5e4 µs | Difference µs (%) |
+|---|---:|---:|---:|---:|---:|
+| 128 | 308.719 | 269.347 | +39.372 (+14.62%) | 266.619 | +42.099 (+15.79%) |
+| 256 | 433.185 | 359.297 | +73.887 (+20.56%) | 355.950 | +77.235 (+21.70%) |
+
+[Weighted G224 evidence](https://github.com/yelgabo/okc/blob/57930d0/docs/steering/evidence/2026-11-02-captain-g224-terminal/verification.json) [G224 gate and remaining uncertainties](https://github.com/yelgabo/okc/blob/57930d0/docs/steering/2026-11-02-captain-g224-terminal-decision.md)
+
+The standalone MoE and attention run ledgers and profile trees have no new entries in this interval. SiLU and G224 are Family G whole-layer results. The comparison between A and B at 128/256 tokens still rests on prior paired MoE evidence. The expert-to-unpool PDL source screen stopped before a GPU test. Its candidate requires first-to-last CTA retirement spread and an independent-weight prefix large enough to improve the short path. Actual overlap and critical-path gain remain unmeasured. [PDL scope and resource screen](https://github.com/yelgabo/okc/blob/57930d0/docs/steering/2026-11-01-g-expert-unpool-pdl-edge.md)
+
+### Projection, prefill and scoreboard context
+
+The interval `d79089b..57930d0` adds no standalone projection or prefill receipts, candidate changes or ledger entries. C2 job `9eba96894ee1402e` holds the projection board entry at **1.527806483×**. The last stage-local sparse-XOR test (`dfcfdd01d6f04525`) and global test (`2b537518091248f1`) both lost across their ten targeted 8/16/32-token cells. The 128/256-token paths ran C2 code. There is no new timing, paired control or layer integration result for either representation in this interval. Prefill remains deferred. [Projection ledger](https://github.com/yelgabo/okc/blob/57930d0/docs/runs.md) · [Prefill ledger](https://github.com/yelgabo/okc/blob/57930d0/docs/runs-prefill.md)
+
+For the 128/256-token layer workloads, the archive review recovered the known fixed cuBLASLt policy from existing artifacts. The profile rows combine multiple calls, so the review could not establish operation-level exposed time or a gain from replacing the selected plans. The team closed this specific long-dense comparison. [Long-dense archive review](https://github.com/yelgabo/okc/blob/57930d0/docs/steering/2026-11-01-long-dense-archive-join.md)
+
+The November 2 07:14 UTC snapshot recorded projection rank **339** with C2, standalone MoE **411** at 2.215711562×, and attention **237** at 2.604290205×. Subsequent 10:51:40 UTC data put both overall and layer at **345**, with G job `607eb52bdaf24160` still at **2.126082676×**. The layer rank-100 score was 2.262745075×, about 6.43% above the incumbent. The overall endpoint reports rank only. [Component board snapshot](https://github.com/yelgabo/okc/blob/57930d0/docs/steering/2026-11-01-captain-rank0714-next-gate.md) · [10:51 board capture](https://github.com/yelgabo/okc/blob/57930d0/docs/steering/evidence/2026-11-02-captain-timed-silu-decision/boards.json)
 
 ## November 1 review at 14:49 Vancouver time
+
+Historical checkpoint. The November 2 review records the terminal receipts and replaces the pending common-control and short-counter statuses below.
 
 **G’s previous reset queue is on hold.** The new plan starts with recovery of accepted job `1fad70bbe3854cbc`. At 21:38 UTC the service still returned HTTP 530, so correctness, timing and score for all four 128/256-token verify cells remain unknown. The retained layer is still `607eb52bdaf24160` at 2.126083×. The previous stage comparison, short-path trace and private four-cell artifacts are held. [Integration plan and service status](https://github.com/yelgabo/okc/blob/d79089b/docs/steering/2026-11-01-g-minimal-delta-plan.md)
 
@@ -2355,6 +2424,8 @@ paired differences.
 | Private VP2 attention, coverage context | Matched BF16-output owned controls | Existing owned path | Existing owned path | `c79ddddb840a4fb7`. Only eight-token sliding attention exercised VP2. [Full-score result](https://github.com/yelgabo/okc/blob/fa8173a/docs/steering/2026-11-01-attention-vp2-bf16-terminal.md). |
 | Stage-local XOR coverage | Archived C2, sum of five adjusted medians | +1.140 µs (+1.70%) | +1.117 µs (+1.35%) | Cross-run observations on unchanged paths. Only the 8/16/32 targets used sparse XOR. [Cell records](https://github.com/yelgabo/okc/blob/08d336a/docs/steering/evidence/2026-11-01-projection-stage-xor-terminal/rows30.csv). |
 | Retained G versus upstream G0 | Earlier independent official runs | +10.676 µs (+4.13%) | +8.500 µs (+2.42%) | Weighted verify latency. Cross-run reconstruction of existing jobs, no isolated repair timing. [Source records](https://github.com/yelgabo/okc/blob/e1adc0e/docs/steering/evidence/2026-11-01-g-integration-gap/cross-job-gap.json). |
+| G224 gather schedule | Historical public G1b4 | Weighted verify latency +14.617% | +20.564% | `e1271ad5e5e34b24`, independent run, all 13 tests passed. [Source](https://github.com/yelgabo/okc/blob/57930d0/docs/steering/2026-11-02-captain-g224-terminal-decision.md). |
+| Fully timed G SiLU table | Historical public G1b4 | 275.449 vs 269.347 µs, +6.102 µs (+2.27%) | 358.496 vs 359.297 µs, −0.802 µs (−0.22%) | `dc62cff972934f54`, one private check, affected loads, unmatched seeds and nodes. [Reconstruction](https://github.com/yelgabo/okc/blob/57930d0/docs/steering/2026-11-02-captain-timed-silu-terminal-decision.md). |
 
 
 ## Small-token results and rejected changes
@@ -2387,12 +2458,7 @@ Losses matter as much as wins:
 
 ## Whole-layer outcome and attribution
 
-The November 1 contract audit distinguishes the required BF16 stage boundaries from the
-project’s conservative policy on internal partial reductions. It records the active JIT
-short router’s FP32 input. This source audit adds no paired layer timing. The four-cell
-private verify diagnostic fits its file budget, and the repaired production core now fits
-the size limit. H200 qualification and matched six-load stage comparison remain pending.
-[Contract audit](https://github.com/yelgabo/okc/blob/fa8173a/docs/steering/2026-11-01-g-fork-precision-contract.md) · [Packaging results](https://github.com/yelgabo/okc/blob/fa8173a/docs/steering/2026-11-01-verify-hybrid-packaging.md)
+Four-cell public job `1fad70bbe3854cbc` returned an infrastructure error and a refund. It supplies no H200 qualification at 128/256 tokens. The matched common-control trial `c5e4f89672f743bb` closed the short-counter treatment. Its official 2.112499× score measures the repaired control. The matched OFF/ON timings determine the counter decision. [Terminal analysis](https://github.com/yelgabo/okc/blob/57930d0/docs/steering/2026-11-01-rmw-legal-fixture-terminal.md)
 
 Retained Family G job `607eb52bdaf24160` scores2.126082676x, CI2.094191436-2.157973917,
 from `g1b4_stage_release.py`, SHA256 ba9e327cd7b96595ace4d0c1d0d78fe27c128f23ed0debcda97c7169fc3164ab.
@@ -2409,7 +2475,7 @@ ownership implementations retain their scoped outcomes. D's complete ready-only 
 remains untested. Further scheduling work needs a distinct mechanism and measured opportunity.
 
 The G lineage has an approved attributed-fork policy, while F retains its alygg77 history.
-The retained G1b4 layer includes stage retirement. Its matched gain was measured in standalone MoE. The old reset queue is held. Recover the accepted public result and qualify the common control before testing the rebased short-counter treatment. [Current plan](https://github.com/yelgabo/okc/blob/d79089b/docs/steering/2026-11-01-g-minimal-delta-plan.md).
+The retained G1b4 layer includes stage retirement. Its matched gain was measured in standalone MoE. The matched short-counter trial is complete. Both outgoing dependency tests stopped in setup. G224 and timed SiLU are parked, and the latest allocation reserves the three remaining private checks. [Latest decision](https://github.com/yelgabo/okc/blob/57930d0/docs/steering/2026-11-02-captain-timed-silu-terminal-decision.md)
 
 Historical owned attention requires the documented intermediate BF16 repair before reuse.
 The new QK2 and wait studies use repaired controls. The attention and G detail observers
@@ -2421,6 +2487,8 @@ Prefill remains deferred. The final recorded campaign goal remains unmet.
 [Family G qualification](https://github.com/yelgabo/okc/blob/af3b550/docs/steering/2026-11-01-family-g-qualification.md).
 
 ## Review history and checkpoint
+
+- 2026-11-02 04:32 Vancouver time. Reviewed local `54659c4` and remote `d79089b..57930d0` (158 commits), including the November 2 11:30 UTC campaign checkpoint. Parsed eight new remote profile JSON files and 18 previously logged local receipts. Terminal, invalidated and unmatched outcomes are recorded above with their owning jobs.
 
 - 2026-11-01 14:49 Vancouver time. Local `545513d`, remote `e1adc0e..d79089b`. The 21:38 UTC service checkpoint retains unknown status for `1fad70bbe3854cbc`. Two prepared profile manifests and the compiler closure add no H200 timing. 18 untracked local receipts are already logged.
 
