@@ -1,0 +1,35 @@
+{
+  "scope": "Source assertions and bounded Python model, not C++ execution or target qualification",
+  "native_sha256": "53d09576f86e93b9baaa0145dcbdf1b60d8736743677d0a4de60e89864d18492",
+  "variant_sha256": "d67dc8d1c32ad512048c2998229448a97aee3d7d530c3bb2bd6b4accfdc9dd05",
+  "variant_bytes": 1028254,
+  "clauses": 11,
+  "negative_cases": 11,
+  "admission_model_cases": 1584,
+  "unchanged_startup_functions": [
+    "prepare",
+    "_release_expert_self_test",
+    "_release_routes",
+    "_release_verify",
+    "_release_private_scratch"
+  ],
+  "startup_sizes": [
+    128,
+    32,
+    33,
+    256,
+    1,
+    8,
+    16
+  ],
+  "fallback": "explicit fatal rejection, no Marlin timing substitution",
+  "target_occupancy": "NOT_RUN",
+  "target_numerics": "NOT_RUN",
+  "target_timings": "NOT_RUN",
+  "caveats": [
+    "Assertions depend on exact pinned literal spellings",
+    "Bounded integer grid model is not execution of the CUDART wrapper",
+    "Startup AST identity proves retained test code, not that target tests passed",
+    "Append-only variant remains above the upload-size gate; packed successor requires separate verification"
+  ]
+}
