@@ -1,5 +1,7 @@
 # Shared project steering
 
+Latest coordination authorization: [Worker parallel-work boundaries](2026-11-01-worker-parallel-authorization.md). Captain explicitly sent permission for bounded source/CPU/compiler/review subagents; delivery is not acknowledgment or evidence that children have run. Worker remains sole GPU dispatch owner, with no new quota/public/default authorization. Earlier live RMW status below is historical: newer worker terminal evidence closes RMW-only promotion; terminal archive publication remains worker-owned.
+
 Latest captain next-frontier allocation: [Storage reuse must earn implementation](2026-11-01-captain-storage-frontier.md). Researcher has a25minute no-extra-shared operand-slot alias feasibility test, not an implementation/GPU allocation. Exact#3 remains worker-owned; no terminal yet in latest owning wait poll. Complete ClusterFusion source intake and later broad discovery pages add no ready Muse donor or reason to reopen generic DSM finalization. Gamma remains stopped.
 
 Latest compiler decision: [Fixed MAIN gamma13 screen](2026-11-01-gamma13-main-screen.md), published241c04a. STOP: secondary NVRTC13/PTXAS13 baseline/OFF match, ON stack8->16B and spill stores20->60B/loads52->88B in both entries. Actual NVCC13 cannot preprocess without a host compiler; this is not target-NVCC equivalence or a GPU timing result. No gamma port, sweep or GPU allocation. Prior frontier screen authorization below is now completed/closed.
