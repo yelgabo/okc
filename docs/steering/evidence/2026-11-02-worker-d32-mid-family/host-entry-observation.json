@@ -1,0 +1,44 @@
+{
+  "False": {
+    "actual_host_entry": "_ma_prepare",
+    "mock_native_math": true,
+    "prepared_keys": [
+      "main",
+      "mid",
+      "tiny",
+      "tiny2"
+    ],
+    "shapes": [
+      1,
+      8,
+      16,
+      32,
+      33,
+      128,
+      256
+    ],
+    "attestation": "D32_MID_SELECTION {'tokens': 32, 'key': 'mid', 'source_sha256': 'b8ed85438c06673f411ff4203080bfbacd0c0c2dc5cb624e6f10d4877fe7a716', 'defines': ['-DOKC_NW=8', '-DOKC_TINY=1', '-DOKC_SPLIT=1', '-DOKC_CPF=0', '-DOKC_EPI4=0', '-DOKC_FAST1=2', '-DOKC_NACC=4', '-DOKC_UWARP=0', '-DOKC_WS=1', '-DOKC_WSB=1', '-DOKC_WSBL=2', '-DOKC_WSBLK=2', '-DOKC_FINPF=1', '@moe_helper0df', '-DOKC_PRMTSC=1', '-DOKC_DQ7=1'], 'module': 'glue_moe_1b555edc8284ed23_sm90a', 'resource_query': None}\nFORK_MOE_ROUTE native repaired: cooperative+BF16, MFIN/DF/YBF/PDL off\n",
+    "resource_values": "UNMEASURED; helper exports no okc_attrs"
+  },
+  "True": {
+    "actual_host_entry": "_ma_prepare",
+    "mock_native_math": true,
+    "prepared_keys": [
+      "main",
+      "mid",
+      "tiny",
+      "tiny2"
+    ],
+    "shapes": [
+      1,
+      8,
+      16,
+      32,
+      33,
+      128,
+      256
+    ],
+    "attestation": "D32_MID_SELECTION {'tokens': 32, 'key': 'mid', 'source_sha256': 'b8ed85438c06673f411ff4203080bfbacd0c0c2dc5cb624e6f10d4877fe7a716', 'defines': ['-DOKC_NW=8', '-DOKC_TINY=1', '-DOKC_SPLIT=1', '-DOKC_CPF=0', '-DOKC_EPI4=0', '-DOKC_FAST1=2', '-DOKC_NACC=4', '-DOKC_UWARP=0', '-DOKC_WS=1', '-DOKC_WSB=1', '-DOKC_WSBL=2', '-DOKC_WSBLK=2', '-DOKC_FINPF=1', '@moe_helper0df', '-DOKC_PRMTSC=1', '-DOKC_DQ7=1'], 'module': 'glue_moe_1b555edc8284ed23_sm90a', 'resource_query': None}\nFORK_MOE_ROUTE native repaired: cooperative+BF16, MFIN/DF/YBF/PDL off\n",
+    "resource_values": "UNMEASURED; helper exports no okc_attrs"
+  }
+}

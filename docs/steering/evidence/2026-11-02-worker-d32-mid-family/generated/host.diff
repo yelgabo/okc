@@ -1,0 +1,66 @@
+--- ba9
++++ d32-mid-fixed
+@@ -6861,7 +6861,7 @@
+ MOE_TINY2_DEFINES = ('-DOKC_NW=8', '-DOKC_TINY=1', '-DOKC_CPF=0', '-DOKC_EPI4=0', '-DOKC_FAST1=2', '-DOKC_NACC=4', '-DOKC_UWARP=0', '-DOKC_WS=1', '-DOKC_WSB=1', '-DOKC_WSBL=2', '-DOKC_WSBLK=1', '-DOKC_FINPF=1')  # their second small-M build ( () = absent )
+ MOE_TINY2_MAX_M = 8
+ MOE_MID_DEFINES = ('-DOKC_NW=8', '-DOKC_TINY=1', '-DOKC_SPLIT=1', '-DOKC_CPF=0', '-DOKC_EPI4=0', '-DOKC_FAST1=2', '-DOKC_NACC=4', '-DOKC_UWARP=0', '-DOKC_WS=1', '-DOKC_WSB=1', '-DOKC_WSBL=2', '-DOKC_WSBLK=2', '-DOKC_FINPF=1')      # their mid-M build ( () = absent )
+-MOE_MID_MAX_M = 16
++MOE_MID_MAX_M = 32
+ 
+ 
+ _MA_PRMT_SCALES = True
+@@ -16801,7 +16801,7 @@
+             except RuntimeError as exc:
+                 st['_fork_build_errors'][m] = str(exc)[-300:]
+     # Each representative selects a different module/cache key.
+-    return [lambda m=m: build(m) for m in (1, 8, 16, 32, 128)]
++    return [lambda m=m: build(m) for m in (1, 8, 32, 128)]
+ 
+ def _fork_install_fallback(weights, st, reason):
+     st['_fork_native_eligible'] = False
+@@ -16828,8 +16828,9 @@
+     if not st['_fork_native_eligible'] or errors:
+         reason = 'native build failed '+str(sorted(errors.items())) if errors else 'scale/architecture fallback'
+         return _fork_install_fallback(weights, st, reason)
+-    if set(st['ma_ext']) != {'tiny','tiny2','mid','b4','main'}:
++    if set(st['ma_ext']) != {'tiny','tiny2','mid','main'}:
+         raise RuntimeError('unexpected native module keys: '+str(sorted(st['ma_ext'])))
++    mid_selection = _d32_mid_attest(st)
+     dev = weights['w13'].device
+     _fork_native_ma_prepare(weights, st)
+     torch.cuda.synchronize()
+@@ -16848,6 +16849,7 @@
+                 raise
+             return _fork_install_fallback(weights, st, str(exc)[-300:])
+         torch.cuda.synchronize()  # launch/execution faults remain fatal
++    print('D32_MID_SELECTION',mid_selection,flush=True)
+     st['_fork_moe_status']='native repaired: cooperative+BF16, MFIN/DF/YBF/PDL off'
+     print('FORK_MOE_ROUTE',st['_fork_moe_status'],flush=True)
+ 
+@@ -17238,3 +17240,26 @@
+     _release_expert_self_test(torch, weights, state, _moe, _fork_native_moe,
+                               _ma_make_scratch, _fork_prepare_marlin, SCRATCH_SENTINEL, deadline=deadline)
+     return state
++
++_D32_MID_EXPECTED_DEFINES=('-DOKC_NW=8', '-DOKC_TINY=1', '-DOKC_SPLIT=1', '-DOKC_CPF=0', '-DOKC_EPI4=0', '-DOKC_FAST1=2', '-DOKC_NACC=4', '-DOKC_UWARP=0', '-DOKC_WS=1', '-DOKC_WSB=1', '-DOKC_WSBL=2', '-DOKC_WSBLK=2', '-DOKC_FINPF=1', '@moe_helper0df', '-DOKC_PRMTSC=1', '-DOKC_DQ7=1')
++_D32_MID_SOURCE='b8ed85438c06673f411ff4203080bfbacd0c0c2dc5cb624e6f10d4877fe7a716'
++
++def _d32_mid_attest(st):
++    import hashlib
++    defines=tuple(MOE_MID_DEFINES)+tuple(st['ma_sfx'])
++    if DQ7 and '-DOKC_DQ7=1' not in defines:defines+=('-DOKC_DQ7=1',)
++    if defines!=_D32_MID_EXPECTED_DEFINES:raise RuntimeError('D32_MID_FLAG_DRIFT')
++    source=MOE_CUDA_SRC
++    for flag in defines:
++        if flag.startswith('@'):source=_MA_ALT_SRCS[flag[1:]]
++    digest=hashlib.sha256(source.encode()).hexdigest()
++    if digest!=_D32_MID_SOURCE:raise RuntimeError('D32_MID_SOURCE_DRIFT')
++    ext=_fork_native_moe(32,st)
++    if ext is not st['ma_ext']['mid'] or ext is not _fork_native_moe(16,st):
++        raise RuntimeError('D32_MID_SELECTION_DRIFT')
++    if ext._module is not _MA_EXTS.get(defines):raise RuntimeError('D32_MID_CACHE_IDENTITY')
++    if _fork_native_moe(33,st) is not st['ma_ext']['main']:raise RuntimeError('D32_MID_M33_DRIFT')
++    query=getattr(ext,'okc_attrs',None)
++    attrs=list(query()) if callable(query) else None
++    return dict(tokens=32,key='mid',source_sha256=digest,defines=list(defines),
++        module=getattr(ext._module,'__name__',type(ext._module).__name__),resource_query=attrs)

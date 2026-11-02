@@ -2,6 +2,13 @@
 
 This is the stable cross-session entry point. Read the latest human priority, its evidence snapshot and subsequent commits before continuing. Existing captain/worker ownership, correctness requirements and submission permissions remain in effect. A report is not an additional GPU dispatch.
 
+## Decode32 task inbox
+
+[Add research assignments and direction here](decode32/README.md). The
+"Review decode32 research tasks" chat is waiting for an assignment and checks
+this folder during work and through a five-minute heartbeat. Existing captain
+and developer ownership remains. [Setup and monitoring contract](2026-11-02-decode32-inbox.md).
+
 ## P0 owner assignment: OK Driver and OKC Developer
 
 **[November 2: Explicit decode32 owner directive and pickup ledger](2026-11-02-decode32-owner-directive.md)** — the user reiterated "make it priority for them please". D32 is the primary next performance assignment, ahead of unrelated short-load or large-verify-only work. The directive is also at the top of both root instruction files, `AGENTS.md` and `CLAUDE.md`.
@@ -18,7 +25,9 @@ Prioritize expert/B4 work in both contexts, then batch32 full-decode attention. 
 
 **[D32 result and fixed MID-family comparison](2026-11-02-driver-d32-mid-comparison.md)**: direct-weight own0b684a40 is terminal VALID but D32 sliding180.848us/full337.856us, weighted13.724704ms versus own baseline22.145344ms (1.61354x). Exact direct lane and held pair stopped; no D32 rescue signal. Overall1.926423591x does not pass its original gate. Current prior-control comparison remains descriptive across inputs/nodes/drivers.
 
-Captain retains one current-service unchanged607 calibration, then one cheap fixed17..32 MID-versus-B4 dispatcher implementation/ordinary private measurement, existing developer only. M33/other five loads stay control. Broad dense-bank GENERIC work proposed concurrently was **not delivered or started** and is now an unallocated secondary reserve under the newer D32 instruction. [Full direct terminal and priority addendum](2026-11-02-driver-direct-weight-terminal-and-dense-backing.md). Fresh23:33UTC:overall/layer376,7private layer/no-live; no new public authority. **Unchanged calibration94ef698e91964dfa accepted**,7private/no-live beforedispatch leaves6; captain owns wait. Existingdeveloper explicitly picked upMIDfamily at23:43UTC/firsttools/d32_mid_family.py. No MIDtargetjob orwinclaimed.
+**Current gate:** [unchanged calibration terminal and fixed MID qualification](2026-11-02-driver-d32-control-terminal-and-mid-gate.md). Own94ef is VALID2.091747685x; D32 C32=12.324230ms/1.811791x. Existing developer finished exacte607fb89 MID-at17..32, root CPU/source review accepts one ordinary private exploration after source publication and fresh no-live/quota. No target MID result yet.
+
+Captain retains one cheap fixed17..32 MID-versus-B4 ordinary private measurement, existing developer only. M33/other five loads stay control. Broad dense-bank GENERIC work proposed concurrently was **not delivered or started** and is now an unallocated secondary reserve under the newer D32 instruction. [Full direct terminal and priority addendum](2026-11-02-driver-direct-weight-terminal-and-dense-backing.md). Fresh23:33UTC:overall/layer376,7private layer/no-live; no new public authority. **Unchanged calibration94ef698e91964dfa is now terminal VALID**; captain archived fullraw/profile/D32/all-six evidence. Initial7private/no-live beforedispatch left6 before UTC reset; refresh live capacity. Existingdeveloper explicitly picked upMIDfamily at23:43UTC/firsttools/d32_mid_family.py. No MIDtargetjob orwinclaimed.
 
 ## Current execution handoff at the evidence snapshot
 
@@ -32,6 +41,9 @@ Captain retains one current-service unchanged607 calibration, then one cheap fix
 
 | Report | Evidence | Scope |
 |---|---|---|
+| [Calibration terminal and MID qualification gate](2026-11-02-driver-d32-control-terminal-and-mid-gate.md) | own94ef698e91964dfa; exactMIDe607fb89; independent source/CPU review | Unchanged calibration valid2.091747685x; D32 C32=12.324230ms,1.81179x. Fixed MID source accepted for one private exploration; no target result or public permission |
+| [Fixed MID implementation](2026-11-02-worker-d32-mid-family.md) | ba9 control; MIDb8; e607fb89/870649LF | Existing MID for17..32, unchanged shaders/math; actual entry/cache/neighbor CPU gates; target native/replay qualification pending |
+| [Decode32 inbox setup](2026-11-02-decode32-inbox.md) | bdbf35bf; user request | Shared task folder, waiting chat, periodic monitoring and preserved execution ownership |
 | [Decode32 owner directive](2026-11-02-decode32-owner-directive.md) | b9ca9dff and captain5b4a729a; explicit user follow-up | P0 in root instructions; captain pickup, direct developer delivery and explicit23:43UTC acknowledgment confirmed; current control94ef accepted |
 | [Captain D32 MID comparison](2026-11-02-driver-d32-mid-comparison.md) | b9ca9dff human priority; own0b terminal; source auditba9/b8 | DirectD32 negative closure, current-service control and fixed existing MID17..32 exploration; no new shader/math/packing/sweep |
 | [Direct terminal and superseded broad proposal](2026-11-02-driver-direct-weight-terminal-and-dense-backing.md) | own0b684a40;368b85c9; fullraw/profiles;23:33UTC | ExactPARK; broad P1 superseded before delivery; P0 calibration retained |

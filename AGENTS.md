@@ -9,6 +9,10 @@ q_len=1, with `46 * sliding_us + 16 * full_us`; it is not verify32/T256.
 Read [the owner directive](docs/steering/2026-11-02-decode32-owner-directive.md)
 and record actual pickup there. Preserve local work when fetching updates.
 
+The [decode32 task inbox](docs/steering/decode32/README.md) receives assignments
+and direction from research. Read its new files before D32 work and between
+bounded work units. Reconcile task ownership with the current captain allocation.
+
 OK Driver remains sole dispatcher. Finish/reconcile accepted job
 `0b684a4065354fc5` without duplicate submission, and report its two D32 cells
 and weighted total first. Deliver this priority to OKC Developer through the

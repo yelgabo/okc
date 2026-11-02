@@ -1,0 +1,98 @@
+{
+  "docs/steering/evidence/2026-11-02-driver-current-incumbent-control/accepted.json": {
+    "bytes": 369,
+    "sha256": "e3b39ae690abecd4ee9942942099dd9dd1f43a9a863e0c74db879e41aa79362c"
+  },
+  "docs/steering/evidence/2026-11-02-driver-current-incumbent-control/archive_terminal.py": {
+    "bytes": 3789,
+    "sha256": "cc9e08871b41a6786b3a0372a3865c5e518520117f0736c3798629ddee5ff748"
+  },
+  "docs/steering/evidence/2026-11-02-driver-current-incumbent-control/auth.stderr.txt": {
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "docs/steering/evidence/2026-11-02-driver-current-incumbent-control/auth.stdout.txt": {
+    "bytes": 9,
+    "sha256": "75a46881952a73ee4f7e2487cbc3dd97ae86319acadec9c0222bf4038486cf8f"
+  },
+  "docs/steering/evidence/2026-11-02-driver-current-incumbent-control/control.py": {
+    "bytes": 869198,
+    "sha256": "04314b16743988c5b172a945e0f10437d78a70bb847ddd865f4a5c1101d6b305"
+  },
+  "docs/steering/evidence/2026-11-02-driver-current-incumbent-control/dispatch-started.json": {
+    "bytes": 1108,
+    "sha256": "0323180ed0aab627afe5eea4db58807d915aae8c799d4a600e7fc754348d89c3"
+  },
+  "docs/steering/evidence/2026-11-02-driver-current-incumbent-control/dispatch.exit.txt": {
+    "bytes": 3,
+    "sha256": "13bf7b3039c63bf5a50491fa3cfd8eb4e699d1ba1436315aef9cbe5711530354"
+  },
+  "docs/steering/evidence/2026-11-02-driver-current-incumbent-control/dispatch.stderr.txt": {
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "docs/steering/evidence/2026-11-02-driver-current-incumbent-control/dispatch.stdout.json": {
+    "bytes": 73,
+    "sha256": "a738cb83f55bdc577efbd35f16ca57f0d6a2296ca965495321d7715673e5525b"
+  },
+  "docs/steering/evidence/2026-11-02-driver-current-incumbent-control/jobs.stderr.txt": {
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "docs/steering/evidence/2026-11-02-driver-current-incumbent-control/jobs.stdout.txt": {
+    "bytes": 14426,
+    "sha256": "4e2758ead39d757142df379943c3790eec83986d7020050ae76533905e93703c"
+  },
+  "docs/steering/evidence/2026-11-02-driver-current-incumbent-control/latest-status.json": {
+    "bytes": 405,
+    "sha256": "476813d251189ea0593f0b84605978459e2a676a8976af23808ebc0c54adfbf9"
+  },
+  "docs/steering/evidence/2026-11-02-driver-current-incumbent-control/preconditions.json": {
+    "bytes": 1108,
+    "sha256": "0323180ed0aab627afe5eea4db58807d915aae8c799d4a600e7fc754348d89c3"
+  },
+  "docs/steering/evidence/2026-11-02-driver-current-incumbent-control/profiles/control.94ef698e91964dfa.json": {
+    "bytes": 57792,
+    "sha256": "cb32e273ca6b7a52846101f503495551321eef1dbcc8dca14a75780da5f6ee2a"
+  },
+  "docs/steering/evidence/2026-11-02-driver-current-incumbent-control/profiles/control.94ef698e91964dfa.log": {
+    "bytes": 369,
+    "sha256": "6499b6142d73be1b11b3d769321a4d98d81948528cac631eb1c4a8eb617a17dd"
+  },
+  "docs/steering/evidence/2026-11-02-driver-current-incumbent-control/profiles/control.94ef698e91964dfa.txt": {
+    "bytes": 13882,
+    "sha256": "a1d0558516b96b2a74c789bfaee1823c4124892bd56e06aac6c3b8cf8a78c7c3"
+  },
+  "docs/steering/evidence/2026-11-02-driver-current-incumbent-control/quota.stderr.txt": {
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "docs/steering/evidence/2026-11-02-driver-current-incumbent-control/quota.stdout.txt": {
+    "bytes": 1631,
+    "sha256": "83dbdd6c5eab47b2ccceeeceb25a66255a6f627ac6664bbe2b50cd6a9d2a409d"
+  },
+  "docs/steering/evidence/2026-11-02-driver-current-incumbent-control/source-manifest.json": {
+    "bytes": 921,
+    "sha256": "bdcfdbad1a3a4410552149fa74f52d6ea88edfdbbc7f0dce299233cd51492baa"
+  },
+  "docs/steering/evidence/2026-11-02-driver-current-incumbent-control/status-wait.exit.txt": {
+    "bytes": 3,
+    "sha256": "13bf7b3039c63bf5a50491fa3cfd8eb4e699d1ba1436315aef9cbe5711530354"
+  },
+  "docs/steering/evidence/2026-11-02-driver-current-incumbent-control/status-wait.raw.json": {
+    "bytes": 76312,
+    "sha256": "0dcded71fd8b2c22d6b2cf849737f914890fc9bfe76411c5a790c98905fcf2f3"
+  },
+  "docs/steering/evidence/2026-11-02-driver-current-incumbent-control/status-wait.stderr.txt": {
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "docs/steering/evidence/2026-11-02-driver-current-incumbent-control/terminal-analysis.json": {
+    "bytes": 12808,
+    "sha256": "fdc75ea3d7b891d7dcf3cdccd3f6dc45da289f36283ad1c2b165949dc7e01c10"
+  },
+  "docs/steering/evidence/2026-11-02-driver-current-incumbent-control/upload-association.json": {
+    "bytes": 733,
+    "sha256": "f16f081d5d2870d427edb535512b2e76180862fa41973b8470be1f303523bf74"
+  }
+}
