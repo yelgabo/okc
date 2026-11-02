@@ -34,6 +34,8 @@ Parent integration68f2f67: cleanup repair reviewed;13 real-Torch and15 existing 
 
 ## Active top-100 execution
 
+[Reviewed component private-check proposal](2026-11-02-top100-moe-harness.md): parent12 tests PASS; frozen344689B/8f12932a executable proposal and mode-strict reader ready for captain's concrete one-check decision. Historical held draft preserved; no dispatch or GPU gain claimed.
+
 [Standalone component harness allocation](2026-11-02-top100-moe-adapter.md): parent reproduced10 real-Torch adapter tests; official candidate arm plus four-state matched component harness allocated, with frozen equal-six/null/regression gates. No dispatch or layer-speed claim.
 
 Parent harness integration: 22 source/facade tests reproduced. Existing WSL Torch2.10 environment recovered from prior host receipt and real storage probe passed; supersedes the earlier dependency-blocker conclusion. [Dated correction and bounded full host validation allocation](2026-11-02-top100-expert-harness.md). Draft remains held; no target result.

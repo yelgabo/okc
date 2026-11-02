@@ -227,6 +227,17 @@ class HarnessTests(unittest.TestCase):
                 prepare_small(namespace)
             self.assertTrue(all(torch.count_nonzero(tensor) == 0 for state in runtime.states for tensor in state['ma_scratch']))
 
+    def test_target_proposal_changes_only_explicit_hold(self):
+        source, manifest = harness.build(target_proposal=True)
+        self.assertEqual(source, self.source.replace('H_HOLD = True\n', 'H_HOLD = False\n'))
+        self.assertFalse(manifest['hold'])
+        self.assertFalse(manifest['dispatch_ready'])
+        self.assertFalse(manifest['gpu_qualified'])
+        self.assertEqual(manifest['runtime_id'], self.manifest['runtime_id'])
+        self.assertNotEqual(manifest['source_sha256'], self.manifest['source_sha256'])
+        with self.assertRaises(RuntimeError):
+            harness.build(target_proposal=1)
+
     def test_deterministic_pins_hold_and_compiler_rejection(self):
         self.assertEqual((self.source, self.manifest), harness.build())
         self.assertLess(len(self.source.encode()), 1_000_000)
@@ -317,6 +328,15 @@ class HarnessTests(unittest.TestCase):
         attest = dict(job=job, owning_log=raw['output']['log'], sha256=harness.sha(log), source_sha256=harness.sha(source))
         result = reader.read(raw, job, log, self.manifest, source, upload, attest)
         self.assertFalse(result['target_qualified'])
+        target, target_manifest = harness.build(target_proposal=True)
+        target_upload = dict(upload, source_sha256=harness.sha(target), source_bytes=len(target.encode()))
+        target_attest = dict(attest, source_sha256=harness.sha(target))
+        target_result = reader.read(raw, job, log, target_manifest, target.encode(), target_upload, target_attest)
+        self.assertFalse(target_result['target_qualified'])  # synthetic null still fails
+        with self.assertRaises(RuntimeError):
+            reader.read(raw, job, log, target_manifest, source, target_upload, target_attest)
+        with self.assertRaisesRegex(RuntimeError, 'boolean hold'):
+            reader.read(raw, job, log, dict(target_manifest, hold=0), target.encode(), target_upload, target_attest)
         for field, value in (('team', 'other'), ('id', '0' * 16), ('mode', 'submit'), ('board', 'muse_decode_layer'),
                              ('payload_ref', 'wrong'), ('status', 'running')):
             wrong = copy.deepcopy(raw)

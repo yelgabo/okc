@@ -24,7 +24,8 @@ def extract(source, name):
     return ast.get_source_segment(source, node)
 
 
-def build():
+def build(*, target_proposal=False):
+    adapter.require(type(target_proposal) is bool, 'target proposal mode')
     prefix, adapter_manifest = adapter.build()
     adapter.require(sha(prefix) == ADAPTER_PIN, 'harness adapter prefix')
     reference = (ROOT / 'muse_moe_w4a16/reference.py').read_text(encoding='utf8')
@@ -51,7 +52,7 @@ def build():
     runtime = Path(__file__).with_name('expert_top100_moe_harness_runtime.py').read_text(encoding='utf8')
     identity = sha(prefix + route_source + contract + runtime + json.dumps(descriptors, sort_keys=True))
     source = prefix + '\n' + route_source + '\n' + contract + '\n'
-    source += f'H_RUNTIME_ID = {identity!r}\nH_HOLD = True\nH_BUILD_CALLS = {descriptors!r}\n' + runtime
+    source += f'H_RUNTIME_ID = {identity!r}\nH_HOLD = {not target_proposal!r}\nH_BUILD_CALLS = {descriptors!r}\n' + runtime
     adapter.require(len(source.encode()) < 1_000_000, 'harness size')
     ast.parse(source)
     manifest = dict(allocation_commit='ca5cf8f00402b1804eb9176227a6072170226a14',
@@ -60,8 +61,9 @@ def build():
                     native_candidate_sha256=adapter.CANDIDATE_NATIVE, reference_sha256=REFERENCE_PIN,
                     nvfp4_sha256=NVFP4_PIN, route_source_sha256=sha(route_source),
                     compiler_calls=descriptors, official_arm='candidate2', adapter_official_arm='control',
-                    hold=True, dispatch_ready=False, gpu_qualified=False,
-                    pending=['parent source/host review and captain allocation; explicit held-source revision',
+                    hold=not target_proposal, dispatch_ready=False, gpu_qualified=False,
+                    pending=[('captain allocation for this exact private-check proposal' if target_proposal else
+                              'parent source/host review and captain allocation; explicit held-source revision'),
                              'target build/admission and four-placement memory/295s fit',
                              'independent official FP32 candidate correctness and all observed target replays',
                              'owning private receipt, six-load every-bank/cross/null/regression gate',
@@ -72,8 +74,10 @@ def build():
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--out', type=Path, required=True)
+    parser.add_argument('--target-proposal', action='store_true',
+                        help='Generate executable private-check proposal; does not dispatch or authorize a job')
     args = parser.parse_args()
-    source, manifest = build()
+    source, manifest = build(target_proposal=args.target_proposal)
     args.out.parent.mkdir(parents=True, exist_ok=True)
     args.out.write_bytes(source.encode())
     args.out.with_suffix('.manifest.json').write_bytes((json.dumps(manifest, indent=2) + '\n').encode())

@@ -1,0 +1,229 @@
+﻿{
+  "allocation_commit": "ca5cf8f00402b1804eb9176227a6072170226a14",
+  "source_sha256": "8f12932a4d0fc8a2ca42a165610fd7659d4db960d8c65c8ea97281b75ec46d5d",
+  "bytes": 344689,
+  "runtime_id": "0118b4f50c0427c8fa53ce6831b70362b15f722cf6db1a7724f46f82eb55e9cb",
+  "adapter_sha256": "19aeaf356be6329dea1031966a4b7efbab4f039748f122acc78300e670cb5b57",
+  "native_control_sha256": "c7c201ae145c6a33f2d5e6b1f80d2a6e56e8d75502f9fd09ace40927ad0f7c71",
+  "native_candidate_sha256": "3cc12ae09f1954013f5cc9be858120d29b12bf14fff267391b94c5000d2256ea",
+  "reference_sha256": "a7e0b4fa86aa477a4e7bb5745b2b258954d72636b6da153bd239a717927cba44",
+  "nvfp4_sha256": "cfdf37c7bc14b10f7353aba7d4632f4767401b92b4b073941a8030d9a961aaaf",
+  "route_source_sha256": "8cc24f629ec653a57e0d93d82e12ef124ef2a315fb1093a7109b52a923da61e5",
+  "compiler_calls": [
+    {
+      "name": "glue_moe_415a2bdc6eb73960_sm90a",
+      "cpp_sources": "bf9238761276c88ea043a8ebf161b30d912de2b4418b1b379273fb757d9b230d",
+      "cuda_sources": "b8ed85438c06673f411ff4203080bfbacd0c0c2dc5cb624e6f10d4877fe7a716",
+      "functions": [
+        "okc_run",
+        "okc_set_pdl"
+      ],
+      "extra_cuda_cflags": [
+        "-O3",
+        "-gencode=arch=compute_90a,code=sm_90a",
+        "-lineinfo",
+        "-DOKC_NS=3",
+        "-DOKC_FNST=4",
+        "-DOKC_NSF=3",
+        "-DOKC_NW=8",
+        "-DOKC_TINY=1",
+        "-DOKC_EPI4=0",
+        "-DOKC_FAST1=2",
+        "-DOKC_L2H=0",
+        "-DOKC_NACC=4",
+        "-DOKC_UWARP=0",
+        "-DOKC_WS=1",
+        "-DOKC_WSB=1",
+        "-DOKC_WSBL=2",
+        "-DOKC_WSBLK=2",
+        "-DOKC_FINPF=1",
+        "-DOKC_PRMTSC=1",
+        "-DOKC_DQ7=1"
+      ],
+      "verbose": false
+    },
+    {
+      "name": "glue_moe_b2495a009a910301_sm90a",
+      "cpp_sources": "bf9238761276c88ea043a8ebf161b30d912de2b4418b1b379273fb757d9b230d",
+      "cuda_sources": "b8ed85438c06673f411ff4203080bfbacd0c0c2dc5cb624e6f10d4877fe7a716",
+      "functions": [
+        "okc_run",
+        "okc_set_pdl"
+      ],
+      "extra_cuda_cflags": [
+        "-O3",
+        "-gencode=arch=compute_90a,code=sm_90a",
+        "-lineinfo",
+        "-DOKC_NS=3",
+        "-DOKC_FNST=4",
+        "-DOKC_NSF=3",
+        "-DOKC_NW=8",
+        "-DOKC_TINY=1",
+        "-DOKC_CPF=0",
+        "-DOKC_EPI4=0",
+        "-DOKC_FAST1=2",
+        "-DOKC_NACC=4",
+        "-DOKC_UWARP=0",
+        "-DOKC_WS=1",
+        "-DOKC_WSB=1",
+        "-DOKC_WSBL=2",
+        "-DOKC_WSBLK=1",
+        "-DOKC_FINPF=1",
+        "-DOKC_PRMTSC=1",
+        "-DOKC_DQ7=1"
+      ],
+      "verbose": false
+    },
+    {
+      "name": "glue_moe_1b555edc8284ed23_sm90a",
+      "cpp_sources": "bf9238761276c88ea043a8ebf161b30d912de2b4418b1b379273fb757d9b230d",
+      "cuda_sources": "b8ed85438c06673f411ff4203080bfbacd0c0c2dc5cb624e6f10d4877fe7a716",
+      "functions": [
+        "okc_run",
+        "okc_set_pdl"
+      ],
+      "extra_cuda_cflags": [
+        "-O3",
+        "-gencode=arch=compute_90a,code=sm_90a",
+        "-lineinfo",
+        "-DOKC_NS=3",
+        "-DOKC_FNST=4",
+        "-DOKC_NSF=3",
+        "-DOKC_NW=8",
+        "-DOKC_TINY=1",
+        "-DOKC_SPLIT=1",
+        "-DOKC_CPF=0",
+        "-DOKC_EPI4=0",
+        "-DOKC_FAST1=2",
+        "-DOKC_NACC=4",
+        "-DOKC_UWARP=0",
+        "-DOKC_WS=1",
+        "-DOKC_WSB=1",
+        "-DOKC_WSBL=2",
+        "-DOKC_WSBLK=2",
+        "-DOKC_FINPF=1",
+        "-DOKC_PRMTSC=1",
+        "-DOKC_DQ7=1"
+      ],
+      "verbose": false
+    },
+    {
+      "name": "glue_moe_7e37cd900cb88979_sm90a",
+      "cpp_sources": "bf9238761276c88ea043a8ebf161b30d912de2b4418b1b379273fb757d9b230d",
+      "cuda_sources": "c7c201ae145c6a33f2d5e6b1f80d2a6e56e8d75502f9fd09ace40927ad0f7c71",
+      "functions": [
+        "okc_run",
+        "okc_set_pdl",
+        "okc_attrs"
+      ],
+      "extra_cuda_cflags": [
+        "-O3",
+        "-gencode=arch=compute_90a,code=sm_90a",
+        "-lineinfo",
+        "-DOKC_NS=3",
+        "-DOKC_FNST=4",
+        "-DOKC_NSF=3",
+        "-DOKC_NW=16",
+        "-DOKC_FAST1=0",
+        "-DOKC_EPI4=0",
+        "-DOKC_WGS=1",
+        "-DOKC_B4FIN=1",
+        "-DOKC_SC6W=1",
+        "-DOKC_PRMTSC=1",
+        "-DOKC_DQ7=1"
+      ],
+      "verbose": false
+    },
+    {
+      "name": "glue_moe_45a005177ff52c30_sm90a",
+      "cpp_sources": "bf9238761276c88ea043a8ebf161b30d912de2b4418b1b379273fb757d9b230d",
+      "cuda_sources": "c7c201ae145c6a33f2d5e6b1f80d2a6e56e8d75502f9fd09ace40927ad0f7c71",
+      "functions": [
+        "okc_run",
+        "okc_set_pdl",
+        "okc_attrs"
+      ],
+      "extra_cuda_cflags": [
+        "-O3",
+        "-gencode=arch=compute_90a,code=sm_90a",
+        "-lineinfo",
+        "-DOKC_NS=3",
+        "-DOKC_FNST=4",
+        "-DOKC_NSF=3",
+        "-DOKC_NW=16",
+        "-DOKC_FAST1=0",
+        "-DOKC_EPI4=0",
+        "-DOKC_WGS=1",
+        "-DOKC_SC6W=1",
+        "-DOKC_PRMTSC=1",
+        "-DOKC_DQ7=1"
+      ],
+      "verbose": false
+    },
+    {
+      "name": "glue_moe_f1122d5a4d19ce1b_sm90a",
+      "cpp_sources": "bf9238761276c88ea043a8ebf161b30d912de2b4418b1b379273fb757d9b230d",
+      "cuda_sources": "3cc12ae09f1954013f5cc9be858120d29b12bf14fff267391b94c5000d2256ea",
+      "functions": [
+        "okc_run",
+        "okc_set_pdl",
+        "okc_attrs"
+      ],
+      "extra_cuda_cflags": [
+        "-O3",
+        "-gencode=arch=compute_90a,code=sm_90a",
+        "-lineinfo",
+        "-DOKC_NS=3",
+        "-DOKC_FNST=4",
+        "-DOKC_NSF=3",
+        "-DOKC_NW=16",
+        "-DOKC_FAST1=0",
+        "-DOKC_EPI4=0",
+        "-DOKC_WGS=1",
+        "-DOKC_B4FIN=1",
+        "-DOKC_SC6W=1",
+        "-DOKC_PRMTSC=1",
+        "-DOKC_DQ7=1"
+      ],
+      "verbose": false
+    },
+    {
+      "name": "glue_moe_0ff69d930942ed8f_sm90a",
+      "cpp_sources": "bf9238761276c88ea043a8ebf161b30d912de2b4418b1b379273fb757d9b230d",
+      "cuda_sources": "3cc12ae09f1954013f5cc9be858120d29b12bf14fff267391b94c5000d2256ea",
+      "functions": [
+        "okc_run",
+        "okc_set_pdl",
+        "okc_attrs"
+      ],
+      "extra_cuda_cflags": [
+        "-O3",
+        "-gencode=arch=compute_90a,code=sm_90a",
+        "-lineinfo",
+        "-DOKC_NS=3",
+        "-DOKC_FNST=4",
+        "-DOKC_NSF=3",
+        "-DOKC_NW=16",
+        "-DOKC_FAST1=0",
+        "-DOKC_EPI4=0",
+        "-DOKC_WGS=1",
+        "-DOKC_SC6W=1",
+        "-DOKC_PRMTSC=1",
+        "-DOKC_DQ7=1"
+      ],
+      "verbose": false
+    }
+  ],
+  "official_arm": "candidate2",
+  "adapter_official_arm": "control",
+  "hold": false,
+  "dispatch_ready": false,
+  "gpu_qualified": false,
+  "pending": [
+    "captain allocation for this exact private-check proposal",
+    "target build/admission and four-placement memory/295s fit",
+    "independent official FP32 candidate correctness and all observed target replays",
+    "owning private receipt, six-load every-bank/cross/null/regression gate",
+    "separate whole-layer qualification; no component-to-layer inference"
+  ]
+}

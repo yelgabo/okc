@@ -50,7 +50,8 @@ def capsule(log, manifest):
 
 
 def read(receipt, job, log, manifest, payload, upload, log_attestation):
-    expected_source, expected_manifest = build()
+    require(type(manifest.get('hold')) is bool, 'explicit boolean hold')
+    expected_source, expected_manifest = build(target_proposal=not manifest['hold'])
     require(manifest == expected_manifest and payload == expected_source.encode(), 'registered source/manifest')
     require(receipt['id'] == job and re.fullmatch('[a-f0-9]{16}', job) is not None, 'own private job')
     require(receipt['team'] == 'yelgabo' and receipt['board'] == 'muse_moe_w4a16'
