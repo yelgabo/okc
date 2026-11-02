@@ -4,6 +4,8 @@ This is the stable cross-session entry point. Read the latest report, its eviden
 
 ## Latest standalone component harness
 
+[Independent terminal monitor](2026-11-02-pregamma-terminal-monitor.md): fresh own56e0c8b receipt and frozen reader independently reproduced the valid negative. All24 matched component factors miss1%; exact treatment remains parked. Public incumbent unchanged, overall/layer365 at18:28UTC; layer0/MoE9 private checks, no live jobs. Existing held T1 proposal is for captain review only.
+
 [Captain terminal decision and T1 next task](2026-11-02-captain-pregamma-terminal-t1-next.md): own56e0c8b is a valid matched negative; independent reader reproduced, exact pre-gamma treatment PARKED. One separately bounded source/host-only T1 component adaptation allocated to existing worker; no target retry, new GPU permission or layer promotion. [Worker terminal archive](2026-11-02-worker-moe-component-terminal.md), db7800a3.
 
 [Captain one-check allocation](2026-11-02-captain-moe-one-check-allocation.md): exact executable8f12932a/344689LF and readerdc0fd553 independently regenerated/pinned. Existing worker alone authorized ONE private MoE check after fresh quota/no-live; no retry, public/scored action, tuning or layer-gate substitution.
@@ -86,12 +88,10 @@ Publication-time source progress: [owner-event amendment](2026-11-02-worker-pr-g
 
 | New report | Evidence | Scope |
 |---|---|---|
+| [2026-11-02 independent pre-gamma terminal monitor](2026-11-02-pregamma-terminal-monitor.md) | ce14d11f; own56e0c8b; fresh18:28UTC receipts | Frozen reader independently reproduced valid component loss; exact treatment parked, existing held T1 review next, ranks/quota/deadline verified |
 | [2026-11-02 standalone MoE harness](2026-11-02-top100-moe-harness.md) | 785846d; ca5cf8f; payload557c67fe | Candidate-official held component wrapper, real-host facade orchestration and strict owning reader; no target readiness or layer inference |
-<<<<<<< HEAD
 | [2026-11-02 standalone MoE adapter](2026-11-02-top100-moe-adapter.md) | ece009b; a58f058; payload19aeaf35 | Exact bounded component adapter and21 CPU tests; no target/candidate numerical or timing qualification; explicit missing gates |
-=======
 | [2026-11-02 expert real-Torch host validation](2026-11-02-top100-expert-host-validation.md) | ca945be; parent1f59b96; final CPU receipt | 13 real-Torch tests +22 inherited PASS; full generated private orchestration under explicit facades, guard cleanup fix; production/target gates and hold retained |
->>>>>>> 21fcb2e76c9bcfc00d30e4f7dfeb4eedf1a1ee50
 | [2026-11-02 expert harness STOP](2026-11-02-top100-expert-harness.md) | 62f0031; ec24fc6; bd6be96 | Held deterministic payload, strict reader,15 partial CPU tests; complete real-Torch host execution still missing; no target claim |
 | [2026-11-02 expert independent review](2026-11-02-top100-expert-review.md) | 4c9f507; dff221ae; ba9e327c | ACCEPT-LIMITED source/CPU; selected stores/readers, indexing/alignment/regions, arithmetic, publication/replay contracts and runtime gates |
 | [2026-11-02 attention prototype STOP](2026-11-02-top100-attention-prototype.md) | 71eb71c; a705900; cc474883117947c0 | Exact selected paths, continuity-switch confound, CPU checks and bounded reopening gate; no GPU result |

@@ -1,0 +1,19 @@
+{
+  "reader_exactly_reproduced": true,
+  "official_counts": {
+    "setup": 1,
+    "test": 5,
+    "benchmark": 6,
+    "profile": 6
+  },
+  "group_count": 6,
+  "cross_count": 24,
+  "factor_range": [
+    0.9786930411192241,
+    1.002283589613712
+  ],
+  "affected_regressions": 16,
+  "t1_conditional_required_factor": 1.0615201506010001,
+  "t1_conditional_latency_reduction": 0.05795476474579342,
+  "index_markers_removed_both_rows_preserved": true
+}
