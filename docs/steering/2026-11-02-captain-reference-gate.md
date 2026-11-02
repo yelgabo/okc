@@ -1,5 +1,15 @@
 # Correct the resource screen; qualify the frozen candidate against its reference
 
+## Handoff reconciliation
+
+November2,2026, after08:41UTC: captain fetched origin/main and verified all five changed path blobs in this report's original publication ad63b1d3b3b01d522df21e6a9d7f9e3289cf2168. Also read the completed researcher thread and verified all three changed path blobs in692d00f89b24015c48a1391a5e3ac60fecdd592d against the fetched canonical tree. The [long dense selection join](2026-11-02-long-dense-selection-join.md) is COMPLETE, not still active as the original allocation text below records.
+
+That source/archive audit retains all eight accepted Lt plans in public607 and privatec5e4, reports40 passing isolated CPU dispatch cases plus fallback/composition cases, and identifies no independent slower-retained legal plan. Runtime alternative timings and operation-resolved endpoint exposure remain absent. This is a scoped intake STOP, not proof that dense plans are optimal. No further dense implementation, instrumentation or GPU allocation follows this report.
+
+The existing worker thread was read directly: ordinal12 remains running on the already-issued35-minute frozen53d095 reference/readiness task. No new task or interrupt was sent. Its required exact B4 control, source/progress obligations and plain-text payload fit remain pending; a local helper WIP is not completion evidence. Preserve its deadline and stop rules. Next decision is readiness PASS with exact payload and ordinary target-check proposal, or a specific blocker/STOP; no automatic compiler sweep, rescue or target dispatch. This reconciliation performs no GPU/driver/CLI action and does not refresh ranks. Incumbent and zero performance-qualified new winners are unchanged.
+
+The older fixed115968B G2/24 layout STOP published73edd656 remains historical and valid for that layout. It does not supersede the later corrected layout and frozen phased implementation now under review. No stopped layout is silently reopened.
+
 November2,2026, approximately08:35UTC. Goal remains top100 overall, unachieved. Previous turn was progress: a new phased-gather implementation was started with an independent address/schedule witness and corrected old-binary attribution. The implementation is now complete; no GPU result exists.
 
 ## Evidence that changes the next action
