@@ -1,0 +1,22 @@
+{
+  "at": "2026-11-02T05:55:51.830Z",
+  "command": [
+    "wsl.exe",
+    "--cd",
+    "/mnt/c/Users/gretc/Documents/GitHub/okc",
+    "--exec",
+    "/usr/local/bin/okc",
+    "check",
+    ".build/outgoing-driver-pair/check.py",
+    "--no-wait",
+    "--json"
+  ],
+  "publication": "c40930c5e49efb05ff7ac476e34c8b50fdc1541a",
+  "source": "ad314060c98ccdde81a1a38b9f7454d7e4fdbb185d178094e3f197f9c8baa75b",
+  "reader_sha256": "a79a59c58d4035f7a247bdc247145827d9c5c000078602f2d5f7df699851f2b9",
+  "bytes": 943363,
+  "private_checks_left": 6,
+  "live_jobs": 0,
+  "one_new_check_maximum": true,
+  "next_failure_closes_seam": true
+}

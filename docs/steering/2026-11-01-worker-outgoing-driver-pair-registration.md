@@ -31,3 +31,9 @@ No local host compiler install/detour or compiler sweep occurred; **host/CUDA ta
 ## Dispatch discipline
 
 This preregistration is committed, pushed and all owned remote blobs verified **before dispatch**. Then regenerate the exact source, verify unchanged reader, query fresh authenticated quota and live jobs, and issue at most **one private check**. Record its own accepted ID/board/mode/team/server source association and wait only on that ID. Any failed preflight or source invariant stops dispatch; any later invalid instrument/target result closes the lane with no rescue. No accepted ID or performance result is asserted at preregistration. Zero new performance-qualified candidates.
+
+## November2 05:56UTC acceptance addendum
+
+Preregistration **c40930c5e49efb05ff7ac476e34c8b50fdc1541a** was pushed first; all10 owned remote blobs verified. Fresh authenticated preflight:6private/5scored available, no live job in returned inventory. Deterministic physical rebuild matched **ad314060/943363B**, owning reader **a79a59c5** unchanged.
+
+The sole newly accepted own job is **6f83ee875dd847c1**, muse_decode_layer/check, team yelgabo, createdNovember2 **05:55:55.771UTC**. Owning receipt queued/resultnull; server content identity **da049704a1a40c266af60cc2568b7e12966207a3ef7d664ef3c120250242ffd2** matches its payload_ref. This server identity is not the physical SHA256. Postaccept quota5private/5scored remaining,5checks used. Dispatch/intent/receipt/fresh preflight are retained beside the offline evidence. No target qualification or performance result is asserted. Wait only on this own ID; no retry/second dispatch or old-wait restart.
