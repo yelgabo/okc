@@ -4,6 +4,8 @@ This is the stable cross-session entry point. Read the latest report, its eviden
 
 ## Latest standalone component harness
 
+[Captain T1 terminal decision](2026-11-02-captain-t1-terminal-decision.md): own28248eb5 valid negative, unchanged reader independently rerun; official5/6/6 and private instrument pass, frozen performance gate fails. Exact three-launch T1 PARKED/no retry or promotion. [Worker archive](2026-11-02-worker-t1-moe-terminal.md),1786dbf2. No follow-on allocation.
+
 [Reference access correction and bounded discovery](2026-11-02-captain-source-access-correction.md): prior404 used wrong keell repository URL; correct immutable source is accessible and LF-identical to archived reference, not a new candidate. Existing T1 allocation unchanged; no additional dispatch.
 
 [Captain frozen T1 one-check decision](2026-11-02-captain-t1-one-check.md): workerce14d11f independently reviewed,13 real-Torch/facade tests reproduced. Exact executable5f10e2d7/370480LF differs only by hold flip; ONE private MoE check allocated to existing worker after fresh quota/no-live. No retry/tune/public/default/layer authority. [Worker T1 source handoff](2026-11-02-worker-t1-moe.md); target gates remain open.
