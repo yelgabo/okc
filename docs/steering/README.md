@@ -8,6 +8,10 @@ This is the stable cross-session entry point. Read the latest report, its eviden
 
 ## Latest private harness handoff
 
+[November 2: Real-Torch expert host validation](2026-11-02-top100-expert-host-validation.md) - implementation ca945be, parent1f59b96. New13 real-Torch tests plus22 inherited tests PASS. Actual generated wrapper/private orchestration completes all36rows/fourplacements in four caller-inference/weight-inference combinations;8592 CPU operator-tape replays per run. Reproduced and repaired aborted-preparation guard leaks; held payload now4cdd4268 (918522B), native candidate/control/pair unchanged. Production preparation/inventory and numerical kernels are substituted boundaries, not a full production PASS. Hold retained, no GPU/timing/admission or dispatch readiness; exact remaining gates and inference-front limitation are in the report.
+
+## Previous private harness handoff
+
 [Captain measurement continuity](2026-11-02-captain-measurement-continuity.md) independently confirms the previously installed WSL CPU Torch runtime with real storage/version behavior; no install/policy change or target equivalence claim. Parent owns real-host validation and the separate exact MoE adapter. Existing layer hold and single dispatch ownership remain; no new task or POST authorized.
 
 [November 2: Expert harness — STOP at CPU host gate](2026-11-02-top100-expert-harness.md) - implementation62f0031, parent ec24fc6. Deterministic918254B held draft c6f4c25d; exact607/candidate dual-build prefix retained. New15 stdlib tests plus existing3 pair/4 candidate tests pass, correction1f59b96 recovered the working existing WSL Torch2.10 CPU environment. The dependency blocker is cleared, but full generated-entry real-storage validation remains pending. Delivered prepare fails closed before builds. Target fit UNMEASURED; no dispatch/default/public change or continuation without parent decision.
@@ -68,7 +72,11 @@ Publication-time source progress: [owner-event amendment](2026-11-02-worker-pr-g
 
 | New report | Evidence | Scope |
 |---|---|---|
+<<<<<<< HEAD
 | [2026-11-02 standalone MoE adapter](2026-11-02-top100-moe-adapter.md) | ece009b; a58f058; payload19aeaf35 | Exact bounded component adapter and21 CPU tests; no target/candidate numerical or timing qualification; explicit missing gates |
+=======
+| [2026-11-02 expert real-Torch host validation](2026-11-02-top100-expert-host-validation.md) | ca945be; parent1f59b96; final CPU receipt | 13 real-Torch tests +22 inherited PASS; full generated private orchestration under explicit facades, guard cleanup fix; production/target gates and hold retained |
+>>>>>>> 21fcb2e76c9bcfc00d30e4f7dfeb4eedf1a1ee50
 | [2026-11-02 expert harness STOP](2026-11-02-top100-expert-harness.md) | 62f0031; ec24fc6; bd6be96 | Held deterministic payload, strict reader,15 partial CPU tests; complete real-Torch host execution still missing; no target claim |
 | [2026-11-02 expert independent review](2026-11-02-top100-expert-review.md) | 4c9f507; dff221ae; ba9e327c | ACCEPT-LIMITED source/CPU; selected stores/readers, indexing/alignment/regions, arithmetic, publication/replay contracts and runtime gates |
 | [2026-11-02 attention prototype STOP](2026-11-02-top100-attention-prototype.md) | 71eb71c; a705900; cc474883117947c0 | Exact selected paths, continuity-switch confound, CPU checks and bounded reopening gate; no GPU result |

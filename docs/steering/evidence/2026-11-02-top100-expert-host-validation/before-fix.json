@@ -1,0 +1,79 @@
+{
+  "torch": "2.10.0+cpu",
+  "cuda": null,
+  "source_sha256": "c6f4c25d0b059e0893225515868c9280b3bcb6434692e95b8ed931b9f5c01402",
+  "pins": {
+    "control": "ba9e327cd7b96595ace4d0c1d0d78fe27c128f23ed0debcda97c7169fc3164ab",
+    "candidate": "dff221ae6ccc2de35d7a4c123aea3e3eb1345d3685f6eb97e52cbbfef6a0c8c4",
+    "pair": "4d1a4b2cdfd1a737bf7388deaafcc27900729ae71314c5911e8d66423afe3e23",
+    "core": "721dd475176e2a602ac6d717254772e3790b77c3cafd80d4f96fb9f9830828b6"
+  },
+  "runs": [
+    {
+      "inference": false,
+      "inference_created_weights": false,
+      "rows": 36,
+      "checks": 144,
+      "fresh_checks": 1152,
+      "restores": 144,
+      "transitions": 96,
+      "replays": 8592,
+      "native_python_calls": 624,
+      "back_calls": 144,
+      "elapsed_host_seconds": 3.3840946100000053,
+      "decision_gate": false,
+      "owners_bytes": [
+        208,
+        208,
+        208,
+        208
+      ]
+    },
+    {
+      "inference": true,
+      "inference_created_weights": false,
+      "rows": 36,
+      "checks": 144,
+      "fresh_checks": 1152,
+      "restores": 144,
+      "transitions": 96,
+      "replays": 8592,
+      "native_python_calls": 624,
+      "back_calls": 144,
+      "elapsed_host_seconds": 2.860049539000002,
+      "decision_gate": false,
+      "owners_bytes": [
+        208,
+        208,
+        208,
+        208
+      ]
+    },
+    {
+      "inference": true,
+      "inference_created_weights": true,
+      "rows": 36,
+      "checks": 144,
+      "fresh_checks": 1152,
+      "restores": 144,
+      "transitions": 96,
+      "replays": 8592,
+      "native_python_calls": 624,
+      "back_calls": 144,
+      "elapsed_host_seconds": 2.9080438409999942,
+      "decision_gate": false,
+      "owners_bytes": [
+        208,
+        208,
+        208,
+        208
+      ]
+    }
+  ],
+  "tests_run": 7,
+  "failures": 8,
+  "errors": 0,
+  "successful": false,
+  "dispatch_ready": false,
+  "scope": "CPU real storage / deterministic device and mathematical facades"
+}

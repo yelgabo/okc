@@ -1,0 +1,18 @@
+{
+  "torch": "2.10.0+cpu",
+  "cuda": null,
+  "source_sha256": "c6f4c25d0b059e0893225515868c9280b3bcb6434692e95b8ed931b9f5c01402",
+  "pins": {
+    "control": "ba9e327cd7b96595ace4d0c1d0d78fe27c128f23ed0debcda97c7169fc3164ab",
+    "candidate": "dff221ae6ccc2de35d7a4c123aea3e3eb1345d3685f6eb97e52cbbfef6a0c8c4",
+    "pair": "4d1a4b2cdfd1a737bf7388deaafcc27900729ae71314c5911e8d66423afe3e23",
+    "core": "721dd475176e2a602ac6d717254772e3790b77c3cafd80d4f96fb9f9830828b6"
+  },
+  "runs": [],
+  "tests_run": 7,
+  "failures": 0,
+  "errors": 14,
+  "successful": false,
+  "dispatch_ready": false,
+  "scope": "CPU real storage / deterministic device and mathematical facades"
+}
