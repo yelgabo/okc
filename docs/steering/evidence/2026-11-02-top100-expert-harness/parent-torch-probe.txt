@@ -1,0 +1,6 @@
+﻿{
+  "python": "C:\\Users\\gretc\\.cache\\okc-host-validation\\Scripts\\python.exe",
+  "torch_distribution": "2.15.0+cpu",
+  "import_ok": false,
+  "error": "OSError(22, 'An Application Control policy has blocked this file.', None, 4551)"
+}

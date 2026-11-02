@@ -55,3 +55,11 @@ The generated payload intentionally preserves incumbent license/comment whitespa
 Captain remains sole dispatch owner. The latest inherited private quota was zero; it was not refreshed here and is not a new live observation. No scored/public substitute is authorized. No run row or technique-loss row is added because no new job, measured loss or kernel-family closure occurred. The top100 objective remains unmet; this pass produces a reproducible held draft and a specific missing host gate, not a performance-qualified candidate.
 
 Reproduce without importing the payload: `python tools/test_expert_top100_harness.py`; `python tools/expert_top100_harness.py --out tools/expert_top100_evidence/harness.py`. The generated `prepare` remains stopped. Parent owns the next decision; this implementation pass is finished.
+
+## Parent integration and environment gate, November 2
+
+Parent merged worker04f9e787 onto main after a58f058, preserving the standalone allocation. Reproduced all15 harness,3 pair-package and4 prototype CPU tests (22 total). These remain stdlib/facade/source tests, not actual Torch storage or GPU validation. No implementation or candidate bytes changed.
+
+The missing dependency was addressed concretely in an isolated external environment, C:/Users/gretc/.cache/okc-host-validation. CPU Torch2.15.0 installed successfully, but importing it fails with Windows Application Control error4551 while loading torch/lib/shm.dll or a dependency. See parent-torch-probe.txt in this report's evidence directory. No policy setting was changed or bypassed. Thus the prerequisite is now a verified execution-policy blocker in this environment, not simply a missing package. The delivered hold remains intact. A policy-approved Torch-capable environment is needed for the full real-storage host gate; installation alone is insufficient.
+
+The independent standalone adapter allocation at a58f058 continues. No target dispatch, public submission or measured improvement occurred. Captain retains dispatch ownership. Next useful gate remains executable host validation followed by an eligible concrete private component measurement; the separate layer quota is exhausted in the latest retained receipt. This integration is progress in retaining the completed implementation and reproducing its bounded checks; it does not satisfy top100 or runtime qualification.

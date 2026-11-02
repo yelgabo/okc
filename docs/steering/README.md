@@ -16,6 +16,8 @@ This is the stable cross-session entry point. Read the latest report, its eviden
 
 ## Active top-100 execution
 
+Parent harness integration: 22 source/facade tests reproduced. Isolated CPU Torch installed but import blocked by Windows Application Control4551; [dated evidence and next gate](2026-11-02-top100-expert-harness.md). Draft remains held; no target result.
+
 [November 2: Standalone expert qualification allocation](2026-11-02-top100-moe-qualification.md) - fresh quota: ten MoE private checks, zero layer checks. Bounded exact-component adapter implementation; no dispatch or measured gain, whole-layer gates retained.
 
 [November 2: Exact dual-build package](2026-11-02-top100-pair-package.md) - pre-gamma measurement preparation: source-identical control builds, state-local candidate selection, three CPU tests; no runtime ownership/timing qualification or dispatch readiness.
