@@ -1,0 +1,18 @@
+{
+  "base_sha256": "ba9e327cd7b96595ace4d0c1d0d78fe27c128f23ed0debcda97c7169fc3164ab",
+  "files": {
+    "candidate.py": {
+      "bytes": 872309,
+      "sha256": "5c2de030422f612e37ff186a88e8441cbad58c8db677bb9e273347e37bf90413"
+    },
+    "control.cu": {
+      "bytes": 191991,
+      "sha256": "22c116a45f1817fbaf27a1cc3656380affad49d2cb2367dd23aac83f20b7cef5"
+    },
+    "treatment.cu": {
+      "bytes": 192273,
+      "sha256": "4efb67147807327c18cea0554dd09fa733d0d686c8700c707d047205a528c8e0"
+    }
+  },
+  "scope": "source only; no target build, GPU numerical or performance result"
+}

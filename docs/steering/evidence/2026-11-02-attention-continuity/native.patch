@@ -1,0 +1,43 @@
+--- 
++++ 
+@@ -71,7 +71,7 @@
+                         // it finishes first on every SM) instead of by arrival
+ #define OKC_DBGON 0     // phase timestamps (diagnostic builds): compiled out, the checks cost cold instructions
+ #define OKC_BALPART 0   // flat: balanced integer shares (one 32-bit division) instead of c*T/G
+-#define OKC_CONT 0      // flat producer mode: one continuous stage pipeline across segments (no drain per segment)
++#define OKC_CONT 1      // flat producer mode: one continuous stage pipeline across segments (no drain per segment)
+ #define OKC_DYN 0       // flat producer mode: dynamic chunks claimed from a global counter (needs OKC_CONT)
+ #define OKC_FINWARM 0   // dry call of the last-CTA finalize during the prologue (instruction cache warm-up)
+ #define OKC_PVW1 1      // flat q_len 8: wait for the previous PV wgmma before the V transpose (frees its registers)
+@@ -2524,12 +2524,12 @@
+   // ---- merge: rescale to the fixed reference 2^0 and accumulate with FP32 atomics ----
+   bool do_red = true;
+   if constexpr (Cfg<L, FLAT>::F2) do_red = (warp >> 3) == 0;   // stream 1's state was merged into stream 0
+-  if (L == 1 && !CONT && !(OKC_NOXCH1 && !M_CL)) {
++  if (L == 1 && !(OKC_NOXCH1 && !M_CL)) {
+     // warps 2,3 (second key half) hand their state to warps 0,1 (same heads) through shared memory
+     // (OKC_NOXCH1: outside cluster mode both halves add their own rescaled state to the workspace instead)
+     cp_wait<0>();
+     csync<WS, NT>();
+-    float* xs = reinterpret_cast<float*>(S.k) + ((warp & 1) * 32 + lane) * 18;
++    float* xs = (CONT ? reinterpret_cast<float*>(reinterpret_cast<uint8_t*>(&S) + sizeof(Smem<L, FLAT>)) : reinterpret_cast<float*>(S.k)) + ((warp & 1) * 32 + lane) * 18;
+     if (wsub == 1) {
+       xs[0] = m_r[0];
+       xs[1] = l_r[0];
+@@ -3333,6 +3333,7 @@
+       mbar_fence_init();
+     }
+   }
++  if constexpr (Cfg<L, FLAT>::WS && OKC_CONT) __syncthreads(); // publish initialized full/empty barriers before role split
+   // segment list in shared memory (keeps the per-segment loop state out of registers)
+   if (threadIdx.x == 0 && !fpart) {
+     int b = 0, n = 0;
+@@ -3398,7 +3399,7 @@
+   Params p = p0;
+   p.pdlf = pdl ? 1 : 0;
+   static bool init = false;
+-  const int sm_f = (int)sizeof(Smem<L, true>) + 1024, sm_n = (int)sizeof(Smem<L, false>) + 1024;
++  const int sm_f = (int)sizeof(Smem<L, true>) + 1024 + ((L == 1 && Cfg<L, true>::WS && OKC_CONT) ? 64 * 18 * sizeof(float) : 0), sm_n = (int)sizeof(Smem<L, false>) + 1024;
+   const int sm = p.flat ? sm_f : sm_n;
+   static int occ_c = 0, occ_f = 0, nsm = 0;
+   static int occ_c1 = 0, occ_sp = 0, occ_sp1 = 0;   // (OKC_COOPGUARD) the coop ONE / SPEC / SPEC-ONE instances

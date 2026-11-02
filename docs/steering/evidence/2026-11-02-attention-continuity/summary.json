@@ -1,0 +1,227 @@
+{
+  "base_sha256": "ba9e327cd7b96595ace4d0c1d0d78fe27c128f23ed0debcda97c7169fc3164ab",
+  "candidate_sha256": "5c2de030422f612e37ff186a88e8441cbad58c8db677bb9e273347e37bf90413",
+  "launch_rows": [
+    {
+      "batch": 1,
+      "q_len": 1,
+      "window": 2048,
+      "splits": 32,
+      "flat": 0,
+      "copies": 1,
+      "cluster_size": 0,
+      "clusters": 1,
+      "coop": 0,
+      "w0": 1024,
+      "pdl": 0,
+      "module": "original"
+    },
+    {
+      "batch": 1,
+      "q_len": 1,
+      "window": 0,
+      "splits": 252,
+      "flat": 0,
+      "copies": 8,
+      "cluster_size": 0,
+      "clusters": 1,
+      "coop": 1,
+      "w0": 1024,
+      "pdl": 0,
+      "module": "original"
+    },
+    {
+      "batch": 16,
+      "q_len": 1,
+      "window": 2048,
+      "splits": 16,
+      "flat": 0,
+      "copies": 1,
+      "cluster_size": 0,
+      "clusters": 1,
+      "coop": 0,
+      "w0": 1024,
+      "pdl": 0,
+      "module": "original"
+    },
+    {
+      "batch": 16,
+      "q_len": 1,
+      "window": 0,
+      "splits": 264,
+      "flat": 1,
+      "copies": 1,
+      "cluster_size": 0,
+      "clusters": 1,
+      "coop": 0,
+      "w0": 1024,
+      "pdl": 0,
+      "module": "continuity"
+    },
+    {
+      "batch": 32,
+      "q_len": 1,
+      "window": 2048,
+      "splits": 8,
+      "flat": 0,
+      "copies": 1,
+      "cluster_size": 0,
+      "clusters": 1,
+      "coop": 0,
+      "w0": 1024,
+      "pdl": 0,
+      "module": "original"
+    },
+    {
+      "batch": 32,
+      "q_len": 1,
+      "window": 0,
+      "splits": 264,
+      "flat": 1,
+      "copies": 1,
+      "cluster_size": 0,
+      "clusters": 1,
+      "coop": 0,
+      "w0": 1024,
+      "pdl": 0,
+      "module": "continuity"
+    },
+    {
+      "batch": 1,
+      "q_len": 8,
+      "window": 2048,
+      "splits": 33,
+      "flat": 0,
+      "copies": 1,
+      "cluster_size": 0,
+      "clusters": 1,
+      "coop": 1,
+      "w0": 1024,
+      "pdl": 0,
+      "module": "original"
+    },
+    {
+      "batch": 1,
+      "q_len": 8,
+      "window": 0,
+      "splits": 252,
+      "flat": 0,
+      "copies": 8,
+      "cluster_size": 0,
+      "clusters": 1,
+      "coop": 1,
+      "w0": 1024,
+      "pdl": 0,
+      "module": "original"
+    },
+    {
+      "batch": 16,
+      "q_len": 8,
+      "window": 2048,
+      "splits": 8,
+      "flat": 0,
+      "copies": 1,
+      "cluster_size": 0,
+      "clusters": 1,
+      "coop": 1,
+      "w0": 1024,
+      "pdl": 0,
+      "module": "original"
+    },
+    {
+      "batch": 16,
+      "q_len": 8,
+      "window": 0,
+      "splits": 264,
+      "flat": 1,
+      "copies": 1,
+      "cluster_size": 0,
+      "clusters": 1,
+      "coop": 1,
+      "w0": 1135,
+      "pdl": 0,
+      "module": "continuity"
+    },
+    {
+      "batch": 32,
+      "q_len": 8,
+      "window": 2048,
+      "splits": 4,
+      "flat": 0,
+      "copies": 1,
+      "cluster_size": 0,
+      "clusters": 1,
+      "coop": 1,
+      "w0": 1024,
+      "pdl": 0,
+      "module": "original"
+    },
+    {
+      "batch": 32,
+      "q_len": 8,
+      "window": 0,
+      "splits": 264,
+      "flat": 1,
+      "copies": 1,
+      "cluster_size": 0,
+      "clusters": 1,
+      "coop": 1,
+      "w0": 1135,
+      "pdl": 0,
+      "module": "continuity"
+    }
+  ],
+  "compilation": [
+    {
+      "variant": "control",
+      "length": 1,
+      "manifest": "control-L1/manifest.json"
+    },
+    {
+      "variant": "control",
+      "length": 8,
+      "manifest": "control-L8/manifest.json"
+    },
+    {
+      "variant": "treatment",
+      "length": 1,
+      "manifest": "treatment-L1/manifest.json"
+    },
+    {
+      "variant": "treatment",
+      "length": 8,
+      "manifest": "treatment-L8/manifest.json"
+    }
+  ],
+  "resources": {
+    "L1": {
+      "registers": 128,
+      "barriers": 3,
+      "stack": 0,
+      "spill_store": 0,
+      "spill_load": 0,
+      "threads": 256,
+      "sizeof_smem": 61440,
+      "control_dynamic": 62464,
+      "treatment_dynamic": 67072
+    },
+    "L8": {
+      "registers": 80,
+      "barriers": 16,
+      "stack": 0,
+      "spill_store": 0,
+      "spill_load": 0,
+      "threads": 384,
+      "sizeof_smem": 113664,
+      "control_dynamic": 114688,
+      "treatment_dynamic": 114688
+    }
+  },
+  "cpu_exitcode": 0,
+  "scope": "Offline source/CPU/secondary compiler only; target correctness, host build, admission and timing NOT_RUN",
+  "adapters_initial_failures": [
+    "NVRTC rejects NVCC-only --expt-relaxed-constexpr",
+    "NVRTC builtins require installed library directory in LD_LIBRARY_PATH",
+    "cuda.h requires declaration-only stdlib.h virtual header; device extract already closes namespace; INFINITY declaration supplied"
+  ]
+}
