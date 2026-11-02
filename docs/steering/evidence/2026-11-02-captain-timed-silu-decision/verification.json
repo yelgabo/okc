@@ -1,0 +1,167 @@
+{
+  "at": "2026-11-02T10:40:44.916Z",
+  "worker_commit": "9a1f6e4533ae2ab7708134c29c88369f46b96fb4",
+  "remote_paths": [
+    {
+      "path": "docs/steering/2026-11-02-worker-timed-silu-table.md",
+      "bytes": 8757,
+      "sha256": "d050a2c16a5ee83501a6985cea799024f1b145e4cc8e552e411f1032c29c7570"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-worker-timed-silu-table/B4/codegen.ptx.txt",
+      "bytes": 430848,
+      "sha256": "c3ee716027738e2b6e8871e1e619c7fd0e4a4656d02f87692db603961344adc6"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-worker-timed-silu-table/B4/codegen.sass.txt",
+      "bytes": 674551,
+      "sha256": "f3b9ef012f8dc0d69960d1cfaa2db6e900e506c4b53449205b347594d199e237"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-worker-timed-silu-table/B4/compiled-selected.cu",
+      "bytes": 156571,
+      "sha256": "7bc4de356b9ba39cd39b3bf77151fb9eca9e3220f1144247253083a7110b6b57"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-worker-timed-silu-table/B4/manifest.json",
+      "bytes": 3153,
+      "sha256": "71fcfeb69a7f61ff55729fb9556f9dd8e9350670e9a2493572f31461c1978d21"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-worker-timed-silu-table/B4/nvrtc.log",
+      "bytes": 3270,
+      "sha256": "979087f5afff48cebd255420b6f57d3390083669da47116cd403239a8de200f9"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-worker-timed-silu-table/B4/ptxas.log",
+      "bytes": 1699,
+      "sha256": "0ad8716ffa16ba1d2f525a48ec44e67a4727dd556e23229e1b0bb23584684d2e"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-worker-timed-silu-table/MAIN/codegen.ptx.txt",
+      "bytes": 429744,
+      "sha256": "2036020cd8386a3ec4b3205b1b1bc76db2453863da46946940ebd64cbcff50ff"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-worker-timed-silu-table/MAIN/codegen.sass.txt",
+      "bytes": 589629,
+      "sha256": "39005f98bbb1de6d6ddba8bb42113cffafdb2272b65ca678d93b5ecf2f8aaf1b"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-worker-timed-silu-table/MAIN/compiled-selected.cu",
+      "bytes": 156571,
+      "sha256": "7bc4de356b9ba39cd39b3bf77151fb9eca9e3220f1144247253083a7110b6b57"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-worker-timed-silu-table/MAIN/manifest.json",
+      "bytes": 3132,
+      "sha256": "beb12b5549973c3724bf3981c3eb336afd18e139c3b3747e21dbca16874a6564"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-worker-timed-silu-table/MAIN/nvrtc.log",
+      "bytes": 3270,
+      "sha256": "979087f5afff48cebd255420b6f57d3390083669da47116cd403239a8de200f9"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-worker-timed-silu-table/MAIN/ptxas.log",
+      "bytes": 1687,
+      "sha256": "241c23ed0f8a1d7e743a8a3607e74ce1c6cc2d7f0b1e1dba1db5d948a7c5f078"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-worker-timed-silu-table/archive-manifest.json",
+      "bytes": 5605,
+      "sha256": "ec1bafe9f093f543b70eaaac9b7b2100405c7943d5ae1125fda08742180250e3"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-worker-timed-silu-table/archive.py",
+      "bytes": 6444,
+      "sha256": "892c19b685481d6f20e03180e48a56e4da63fd837e791829713f6d1a7d5a29d6"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-worker-timed-silu-table/cached-original-driver.py",
+      "bytes": 7180,
+      "sha256": "e695ef03bda22d86167b829618429c7d139c23ad9cf96294edd1211388d5620c"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-worker-timed-silu-table/compile-result.json",
+      "bytes": 29463,
+      "sha256": "77e7e3bc280ee80043fdd60eab825c959be45c8236b0bcf6bec6336b521e9262"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-worker-timed-silu-table/compile.log",
+      "bytes": 40291,
+      "sha256": "6f2aee912e7ec915b2ac24697cb91b48ae1f392c71bbb6c3efab7024d7355f35"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-worker-timed-silu-table/cpu-tests.log",
+      "bytes": 1031,
+      "sha256": "16e277ea5d994e8ba16be26418b5824cd84743112a90b08d1d5d87fa89ee2284"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-worker-timed-silu-table/final-link-codegen-roi.json",
+      "bytes": 10165,
+      "sha256": "ffefa73ab59a53757862e9d3133264f977aec64a83fdd2d45fd89fa36618b242"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-worker-timed-silu-table/generated/candidate.py",
+      "bytes": 870087,
+      "sha256": "d70a1bcc6202e37562b675fbab3251cdbe1b6fd81569442b3a179270aebae401"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-worker-timed-silu-table/generated/generation.json",
+      "bytes": 520,
+      "sha256": "1b9289ae10e71d76917c42985c714598906d99d2f6a2191919c7de2f5536c250"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-worker-timed-silu-table/generated/selected.cu",
+      "bytes": 156624,
+      "sha256": "f5344c9d8d82cae177050a8d4bfa80b3f5f88b9fcfb35f726f777d55ad22f355"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-worker-timed-silu-table/initial-loader-failure.json",
+      "bytes": 16665,
+      "sha256": "65b0d04b60ae2820129af796b820f7cf74501425f4fc44e3e90beaeea8f3ccf8"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-worker-timed-silu-table/initial-loader-failure.log",
+      "bytes": 990,
+      "sha256": "b77b8146f4137ee23822e62ce184a2a0da281acc65df2f79c3fdb749303ad06c"
+    },
+    {
+      "path": "tools/g_timed_silu_table.py",
+      "bytes": 12377,
+      "sha256": "531064bd1d2952564b835605bd21c686a9844635104f3ae31477a096b4ad8058"
+    },
+    {
+      "path": "tools/test_g_timed_silu_table.py",
+      "bytes": 8851,
+      "sha256": "af0bf4e0f67fc44a9faa98a81c3e1a40fcfe6cbdd8e94f183348939288c29634"
+    }
+  ],
+  "manifest_entries_verified": 26,
+  "candidate": {
+    "bytes": 870087,
+    "sha256": "d70a1bcc6202e37562b675fbab3251cdbe1b6fd81569442b3a179270aebae401"
+  },
+  "links": [
+    {
+      "family": "B4",
+      "device_equal": true,
+      "local_raw_files_verified": 4
+    },
+    {
+      "family": "MAIN",
+      "device_equal": true,
+      "local_raw_files_verified": 4
+    }
+  ],
+  "independent_CPU": "7/7 tests rerun after worker terminal publication, 4.764s unittest time; exact committed generator/tests hashes independently verified",
+  "GPU": false,
+  "research": {
+    "commit": "af3f9171a64d133ab5660906dde00f25c87650e1",
+    "remote_paths_verified": [
+      "docs/steering/2026-11-02-research-timed-silu-decision.md",
+      "docs/steering/evidence/2026-11-02-research-timed-silu-decision/decision.json"
+    ]
+  }
+}

@@ -1,0 +1,146 @@
+{
+  "at": "2026-11-02T10:51:40.073Z",
+  "layer": {
+    "url": "https://openkernelchallenge.dev/api/leaderboard/muse_decode_layer",
+    "sha256": "4111eb5cd852f28056ea4c7be550bf00e8ce8633891d5023714fc8834eaf9de6",
+    "bytes": 177720,
+    "file": "layer.json.gz.b64",
+    "our_rank": 345,
+    "our_row": {
+      "job": "607eb52bdaf24160",
+      "team": "yelgabo",
+      "speedup": 2.1260826764231093,
+      "submitted_at": 1793534312.3883686,
+      "attempts": 42,
+      "value": 10639.426326569794
+    },
+    "rank100": {
+      "job": "51ef846a5d7f44fe",
+      "team": "StartupBros",
+      "speedup": 2.2627450746752373,
+      "submitted_at": 1793610820.3530748,
+      "attempts": 9,
+      "value": 9996.839791263981
+    }
+  },
+  "overall": {
+    "url": "https://openkernelchallenge.dev/api/leaderboard",
+    "sha256": "1161df5e50edd18a1881ac502327389003dfab5856a65483bf968b2551dc516b",
+    "bytes": 82352,
+    "file": "overall.json.gz.b64",
+    "our_row": {
+      "rank": 345,
+      "team": "yelgabo",
+      "solved": 4
+    }
+  },
+  "intake_owners": [
+    {
+      "rank": 4,
+      "job": "9517c0c832c945c9",
+      "team": "caoshiyi",
+      "speedup": 2.4493377527996625,
+      "submitted_at": 1793615097.347754,
+      "screened_speedup": 2.392010218650912,
+      "attempts": 17,
+      "value": 9235.27185017434
+    },
+    {
+      "rank": 5,
+      "job": "4fbcc9c1595c4263",
+      "team": "tjiang-fair",
+      "speedup": 2.43615650576229,
+      "submitted_at": 1793613664.2175741,
+      "screened_speedup": 2.4329297226249134,
+      "attempts": 11,
+      "value": 9285.240889284309
+    },
+    {
+      "rank": 6,
+      "job": "326f238c7b28491d",
+      "team": "mpeng19",
+      "speedup": 2.4340588726442784,
+      "submitted_at": 1793606440.0881746,
+      "screened_speedup": 2.4190307620820706,
+      "attempts": 41,
+      "value": 9293.242761801434
+    },
+    {
+      "rank": 7,
+      "job": "56247eb610c24138",
+      "team": "reyanshsolis",
+      "speedup": 2.431587826874533,
+      "submitted_at": 1793574414.1283522,
+      "attempts": 29,
+      "value": 9302.686808181319
+    },
+    {
+      "rank": 8,
+      "job": "ab13801cb48b46e1",
+      "team": "AlexCuadron",
+      "speedup": 2.420498678914305,
+      "submitted_at": 1793584350.281495,
+      "screened_speedup": 2.412946098835377,
+      "attempts": 20,
+      "value": 9345.30565831424
+    },
+    {
+      "rank": 9,
+      "job": "6dbe89a361354f0f",
+      "team": "k9thebeast",
+      "speedup": 2.4106215475847526,
+      "submitted_at": 1793572029.3096504,
+      "screening": "screened",
+      "attempts": 8,
+      "value": 9383.59653453845
+    },
+    {
+      "rank": 12,
+      "job": "0585b7cd8ed1462d",
+      "team": "ntovas",
+      "speedup": 2.403492352546149,
+      "submitted_at": 1793540784.6411228,
+      "screening": "pending",
+      "screened_speedup": 2.3462738673160075,
+      "attempts": 52,
+      "value": 9411.429986884334
+    },
+    {
+      "rank": 20,
+      "job": "72407a17502647a8",
+      "team": "booth-algo",
+      "speedup": 2.368145391692584,
+      "submitted_at": 1793612452.976976,
+      "attempts": 24,
+      "value": 9551.905081230085
+    },
+    {
+      "rank": 87,
+      "job": "8e9364e4a9b24d28",
+      "team": "ysawa0",
+      "speedup": 2.2680051585486263,
+      "submitted_at": 1793609576.3314807,
+      "attempts": 33,
+      "value": 9973.654563676346
+    },
+    {
+      "rank": 88,
+      "job": "920f534224584612",
+      "team": "tanctl",
+      "speedup": 2.266729792876582,
+      "submitted_at": 1793612104.840872,
+      "attempts": 38,
+      "value": 9979.266197094372
+    },
+    {
+      "rank": 100,
+      "job": "51ef846a5d7f44fe",
+      "team": "StartupBros",
+      "speedup": 2.2627450746752373,
+      "submitted_at": 1793610820.3530748,
+      "attempts": 9,
+      "value": 9996.839791263981
+    }
+  ],
+  "GPU": false
+}
