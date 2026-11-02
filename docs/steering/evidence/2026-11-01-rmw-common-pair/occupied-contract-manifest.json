@@ -1,0 +1,22 @@
+{
+  "failing_source_sha256": "c4a5ee29bcfeca248c0fee638ed103e9f211f7a8cc32b86bd3bb642676bf45e3",
+  "terminal_archive_commit": "d756f298b7f52cba8c0b6baf46497b4ee0701d22",
+  "files": {
+    "docs/steering/2026-11-01-rmw-occupied-fixture-diagnosis.md": {
+      "bytes": 10401,
+      "sha256": "80915a7dda2367249ad61ca6f62f2a8442fb29b737619883b34d0d8b09115184"
+    },
+    "tools/test_g_common_rmw_pair_occupied_contract.py": {
+      "bytes": 6759,
+      "sha256": "a183e90c1226358a6665465f9bb9278dbf1df174d2bc789d80c3baae29224fa3"
+    },
+    "docs/steering/evidence/2026-11-01-rmw-common-pair/occupied-contract-cpu.json": {
+      "bytes": 8509,
+      "sha256": "14d647ee53e6063ddfb18d5db5de69f7dfbeae738835f86ed99a810ef6a7ef3f"
+    },
+    "docs/steering/evidence/2026-11-01-rmw-common-pair/occupied-contract-tests.txt": {
+      "bytes": 745,
+      "sha256": "0d047da2e68b24813d5956ff1a0f6ab7f266b8c25774c38a7424ca7c5b1e29b2"
+    }
+  }
+}

@@ -1,0 +1,10 @@
+test_exact_selected_native_predicate (__main__.FixtureDiagnosis.test_exact_selected_native_predicate) ... ok
+test_frozen_fixture_rejected_by_distinct_contract (__main__.FixtureDiagnosis.test_frozen_fixture_rejected_by_distinct_contract) ... ok
+test_frozen_native_count_model_reaches_t8_off0_fat_predicate (__main__.FixtureDiagnosis.test_frozen_native_count_model_reaches_t8_off0_fat_predicate) ... ok
+test_old_permissive_mock_misses_defect (__main__.FixtureDiagnosis.test_old_permissive_mock_misses_defect) ... ok
+test_proposed_legal_fixture_all_arms_transitions (__main__.FixtureDiagnosis.test_proposed_legal_fixture_all_arms_transitions) ... ok
+
+----------------------------------------------------------------------
+Ran 5 tests in 0.029s
+
+OK
