@@ -1,0 +1,9 @@
+# Architecture performance review, November 2 at 05:28 Vancouver time
+
+Evidence snapshot `8c0bfba`.
+
+The renewed G evaluation has two distinct entries. Exact G1b4 control job `cc474883117947c0` was accepted and queued with an empty result at this snapshot. Its purpose is to establish contemporary timings across all 12 cells. The serial candidate is registered at source `8c0bfba`, SHA256 `5d883c43db730990246d07a0e52800e01b3161973705b8cb785c26e0d3f08933`. It passed five CPU tests with mocked device boundaries and awaits the control’s terminal receipt before dispatch. [Control receipt](https://github.com/yelgabo/okc/blob/8c0bfba/docs/steering/evidence/2026-11-02-worker-short-serial-v2/control/accepted-status.json) · [Serial candidate registration](https://github.com/yelgabo/okc/blob/8c0bfba/docs/steering/2026-11-02-worker-short-serial-v2-registration.md)
+
+On eligible one- and eight-token inputs, the candidate runs the BF16 pooler followed by the FP32 router. The 128- and 256-token cells use incumbent dispatch and will help identify between-run drift. The plan permits a confirmation request if the six-load latency factor reaches 1.01, every load stays within the 1% regression limit, and the short workloads support the result. The earlier deadline stop produced no GPU timing. [Evaluation plan](https://github.com/yelgabo/okc/blob/8c0bfba/docs/steering/2026-11-02-captain-profile-refresh.md)
+
+The canonical archive for timed SiLU job `dc62cff972934f54` is now published at `d20670d`. This supplies the previously missing raw evidence for the 2.073289× result already counted. Family G’s retained public score is 2.126083×. This interval adds no measured family gain or loss. [Archived worker receipt and checks](https://github.com/yelgabo/okc/blob/8c0bfba/docs/steering/2026-11-02-worker-timed-silu-check.md)

@@ -104,7 +104,11 @@ The existing CUTLASS pooler, wide 8-stage picks, DCARRY/PK16/VHOIST and failed l
 are explicitly accounted for. No kernels, validation policies, GPU runs or submissions changed.
 This is separate from the layer's M1/tuner-stability work below.
 
-## Latest hourly report, November 2 04:32 Vancouver time
+## Latest hourly report, November 2 05:28 Vancouver time
+
+A fresh G1b4 control is queued. The serial short producer awaits its candidate run. The canonical timed SiLU receipt is available. [Review](2026-11-02-0528-performance-review.md)
+
+## Previous hourly report, November 2 04:32 Vancouver time
 
 The matched G short-counter treatment missed its gate. G224 and timed SiLU passed correctness and were parked. The four-cell infrastructure failure was refunded. [Review and job ledger](2026-11-02-0432-performance-review.md)
 

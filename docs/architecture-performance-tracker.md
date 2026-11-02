@@ -1,6 +1,6 @@
 # Architecture performance tracker
 
-Last review: 2026-11-02 04:32 MST. Evidence snapshot: `57930d0`.
+Last review: 2026-11-02 05:28 MST. Evidence snapshot: `8c0bfba`.
 First review reconciles progress since `aab7d75`, the snapshot in the
 [architecture-family guide](architecture-families-2026-10-29.md).
 This is a review of recorded experiments, not a new benchmark run.
@@ -18,7 +18,15 @@ named control, not changes in aggregate score. Families overlap; their gains can
 | D. Dependency-aware scheduling | Dynamic claiming retained; new phase-A claim layouts lose | Phase-A modes 62/63 and K=0 controls 66/69 lose; lean claimed mode 68 is not timed. Earlier split-tail 52/53 losses stand. | Full ready-only queue remains untested. Reopen phase-A claims only after the no-work control ties mode 51 within 1 us at 128/256. |
 | E. Attention producer-consumer pipeline | Private VP2 cell win, six-load gate failed | VP2 took 10.168 µs versus 10.784 µs for the owned control on eight-token sliding attention. All three held-outs missed the full-score gate. | The historical owned QK2 and wait-probe limits still apply. VP2 only changes the eight-token target. |
 | F. Donor-based baseline/hybrid | Historical alygg77 measurement track | Prior F comparisons and owned C3 router gains remain recorded. Two new QKV128 variants lose despite correctness/resource passes. | G has a separate attributed-fork policy. Projection C2 remains best scored, with C3 paired component wins retained. |
-| G. Attributed keell0renz layer fork | Retained layer 2.126083× | Matched short-counter test missed its gate. G224 and timed SiLU passed correctness and missed performance triage. | Four-cell verify ended in a refunded infrastructure error. Outgoing dependency tests failed setup. The G0 integration gap remains unresolved. |
+| G. Attributed keell0renz layer fork | Retained layer 2.126083× | Matched short-counter test missed its gate. G224 and timed SiLU passed correctness and missed performance triage. | Four-cell verify ended in a refunded infrastructure error. Outgoing dependency tests failed setup. Fresh G1b4 control queued. One- and eight-token serial producer awaits candidate dispatch. |
+
+## November 2 review at 05:28 Vancouver time
+
+The renewed G evaluation has two distinct entries. Exact G1b4 control job `cc474883117947c0` was accepted and queued with an empty result at this snapshot. Its purpose is to establish contemporary timings across all 12 cells. The serial candidate is registered at source `8c0bfba`, SHA256 `5d883c43db730990246d07a0e52800e01b3161973705b8cb785c26e0d3f08933`. It passed five CPU tests with mocked device boundaries and awaits the control’s terminal receipt before dispatch. [Control receipt](https://github.com/yelgabo/okc/blob/8c0bfba/docs/steering/evidence/2026-11-02-worker-short-serial-v2/control/accepted-status.json) · [Serial candidate registration](https://github.com/yelgabo/okc/blob/8c0bfba/docs/steering/2026-11-02-worker-short-serial-v2-registration.md)
+
+On eligible one- and eight-token inputs, the candidate runs the BF16 pooler followed by the FP32 router. The 128- and 256-token cells use incumbent dispatch and will help identify between-run drift. The plan permits a confirmation request if the six-load latency factor reaches 1.01, every load stays within the 1% regression limit, and the short workloads support the result. The earlier deadline stop produced no GPU timing. [Evaluation plan](https://github.com/yelgabo/okc/blob/8c0bfba/docs/steering/2026-11-02-captain-profile-refresh.md)
+
+The canonical archive for timed SiLU job `dc62cff972934f54` is now published at `d20670d`. This supplies the previously missing raw evidence for the 2.073289× result already counted. Family G’s retained public score is 2.126083×. This interval adds no measured family gain or loss. [Archived worker receipt and checks](https://github.com/yelgabo/okc/blob/8c0bfba/docs/steering/2026-11-02-worker-timed-silu-check.md)
 
 ## November 2 review at 04:32 Vancouver time
 
@@ -2475,7 +2483,7 @@ ownership implementations retain their scoped outcomes. D's complete ready-only 
 remains untested. Further scheduling work needs a distinct mechanism and measured opportunity.
 
 The G lineage has an approved attributed-fork policy, while F retains its alygg77 history.
-The retained G1b4 layer includes stage retirement. Its matched gain was measured in standalone MoE. The matched short-counter trial is complete. Both outgoing dependency tests stopped in setup. G224 and timed SiLU are parked, and the latest allocation reserves the three remaining private checks. [Latest decision](https://github.com/yelgabo/okc/blob/57930d0/docs/steering/2026-11-02-captain-timed-silu-terminal-decision.md)
+The retained G1b4 layer includes stage retirement. Its matched gain was measured in standalone MoE. The matched short-counter trial is complete. Both outgoing dependency tests stopped in setup. G224 and timed SiLU are parked. A new allocation covers a fresh incumbent control followed by one serial candidate, with the third check reserved. [Latest decision](https://github.com/yelgabo/okc/blob/57930d0/docs/steering/2026-11-02-captain-timed-silu-terminal-decision.md)
 
 Historical owned attention requires the documented intermediate BF16 repair before reuse.
 The new QK2 and wait studies use repaired controls. The attention and G detail observers
@@ -2487,6 +2495,8 @@ Prefill remains deferred. The final recorded campaign goal remains unmet.
 [Family G qualification](https://github.com/yelgabo/okc/blob/af3b550/docs/steering/2026-11-01-family-g-qualification.md).
 
 ## Review history and checkpoint
+
+- 2026-11-02 05:28 Vancouver time. Reviewed `57930d0..8c0bfba` from local `94fcf44`. Reconciled the canonical SiLU archive with its existing job ID and verified the separate queued control receipt. 18 local untracked receipts already appear in the run ledgers.
 
 - 2026-11-02 04:32 Vancouver time. Reviewed local `54659c4` and remote `d79089b..57930d0` (158 commits), including the November 2 11:30 UTC campaign checkpoint. Parsed eight new remote profile JSON files and 18 previously logged local receipts. Terminal, invalidated and unmatched outcomes are recorded above with their owning jobs.
 

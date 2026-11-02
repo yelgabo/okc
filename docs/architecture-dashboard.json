@@ -1,6 +1,6 @@
 {
-  "reviewed_at": "2026-11-02T04:32:00-07:00",
-  "snapshot": "57930d0",
+  "reviewed_at": "2026-11-02T05:28:00-07:00",
+  "snapshot": "8c0bfba",
   "family_registry_update": {
     "date": "2026-10-30",
     "evidence_snapshot": "7a5965531103f275ac104d340ef30f1508e32353",
@@ -123,7 +123,10 @@
       "summary": "The matched short-counter test measured −0.183% to +0.283% across twelve comparisons, below the 1% threshold.",
       "layer": "Retained G1b4 scored 2.1261×. Four-cell verify ended in a refunded infrastructure failure.",
       "pending": [],
-      "evaluation_pending": [],
+      "evaluation_pending": [
+        "Fresh G1b4 control cc474883117947c0",
+        "Short serial producer 5d883c43 after valid control receipt"
+      ],
       "limit": "Private G224 and timed SiLU scored 1.9747× and 2.0733× in separate runs. Their performance gates closed both candidates. The G0 gap remains unexplained.",
       "source": "runs-decode-layer.md",
       "outcomes": [
@@ -144,9 +147,9 @@
       "summary": "The first check failed its graph query. The second found mismatched routing across arms during preparation. The tested path is closed."
     },
     {
-      "name": "G224 and fully timed SiLU",
-      "label": "Correctness passed • both parked",
-      "summary": "Neither private check cleared performance triage. At the 11:30 UTC checkpoint, all three remaining private checks were reserved."
+      "name": "Short serial pooler and router",
+      "label": "Control queued • candidate registered",
+      "summary": "Fresh G1b4 control cc474883117947c0 has no result yet. The candidate changes eligible one- and eight-token inputs. The 128/256-token paths use incumbent dispatch."
     }
   ]
 }
