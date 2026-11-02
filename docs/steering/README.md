@@ -10,7 +10,8 @@ Publication-time source progress: [owner-event amendment](2026-11-02-worker-pr-g
 
 ## Current operational reports
 
-- [Captain PR host gate and finite target allocation](2026-11-02-captain-pr-host-gate.md): independent21CPU PASS and actual host-syntax PASS; ONE conditional ordinary private check, minimal treatment receipt, no public promotion or automatic retry.
+- [Captain PR host gate and finite target allocation](2026-11-02-captain-pr-host-gate.md): independent21CPU PASS and actual host-syntax PASS; own private check60b38a62a135442c accepted with minimal treatment receipt; pending target result, no public promotion or automatic retry.
+- [Short-output ownership source reserve](2026-11-02-research-short-output-ownership.md): current tiny already owns output tiles; concrete T1 three-launch alternative retains per-expert normalization but has no established exposed savings or implementation allocation.
 - [Captain PR cleanup/capture decision](2026-11-02-captain-pr-cleanup-capture.md): exact context-wide cleanup stopped; bounded owner-event repair, final check reserved; source counterexample is not a measured GPU failure.
 - [Graph-owned resource discriminator](2026-11-02-captain-b1-graph-owner-discriminator.md): documented graph-user-object lifetime alternative, source/CPU scope and no automatic target permission.
 - [Fresh incumbent and serial terminal monitor](2026-11-02-serial-terminal-monitor.md): owning receipts, weighted arithmetic, dated ranks/quota.
