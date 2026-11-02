@@ -1,0 +1,51 @@
+{
+  "kind": "CPU shared-memory necessary-condition accounting, NOT native occupancy execution",
+  "design_script_sha256": "8b89f01e8dab6824a3e02eae112ea016eb6bc69411d98f80ac135228d4f23cd7",
+  "official_header_sha256": "163b8f296ef2a33c799e2dc8c525b37166da9217bcc6a3c1d26b1c10aca5e22b",
+  "official_header": "/root/.cache/okc-cuda130-88/nvidia/cu13/include/cuda_occupancy.h",
+  "proposed_layout": {
+    "sizeof": 23776,
+    "ring_start": 23808
+  },
+  "dynamic_bytes": 115968,
+  "sm90_header_allocation_granularity": 128,
+  "cases": [
+    {
+      "reserved_per_block_assumption": 0,
+      "static_per_block_assumption": 0,
+      "allocated_per_block": 115968,
+      "two_block_bytes": 231936,
+      "capacity": 233472,
+      "shared_only_block_limit": 2
+    },
+    {
+      "reserved_per_block_assumption": 512,
+      "static_per_block_assumption": 0,
+      "allocated_per_block": 116480,
+      "two_block_bytes": 232960,
+      "capacity": 233472,
+      "shared_only_block_limit": 2
+    },
+    {
+      "reserved_per_block_assumption": 768,
+      "static_per_block_assumption": 0,
+      "allocated_per_block": 116736,
+      "two_block_bytes": 233472,
+      "capacity": 233472,
+      "shared_only_block_limit": 2
+    },
+    {
+      "reserved_per_block_assumption": 1024,
+      "static_per_block_assumption": 0,
+      "allocated_per_block": 116992,
+      "two_block_bytes": 233984,
+      "capacity": 233472,
+      "shared_only_block_limit": 1
+    }
+  ],
+  "max_dynamic_for_two_at_1024_reservation_and_zero_static": 115712,
+  "minimum_per_block_reduction_under_these_assumptions": 256,
+  "target_reserved_shared_memory": null,
+  "target_runtime_occupancy": null,
+  "source_binding_assertions": "PASS"
+}

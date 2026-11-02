@@ -1,5 +1,12 @@
 # Ruled out
 
+## November 2 UTC 2026 fixed G2/24 admission-accounting stop
+
+| Treatment | Evidence | Scope and reopening condition |
+| --- | --- | --- |
+| Fixed G2/24 proposed115968B dynamic shared perCTA | Captain CPU source-bound accounting, installed CUDA13 occupancy header163b8f29; no GPU/native occupancy query/compile. At reserved1024/static0, pair233984B exceeds233472B by512B; steering/2026-11-01-captain-g2-admission-stop.md. | STOP exact assumed layout before expensive build. Not a measured performance loss or all-twoCTA closure. Target reservation remains unqueried. Reopening needs authoritative changed property or separately proved complete allocation<=115712B dynamic at zero extra static under1024 reserve, plus unchanged pipeline/lifetime and actual target admission. No automatic header/ring/shape rescue or new quota allocation. |
+
+
 ## November 2 UTC 2026 repaired outgoing seam campaign closure
 
 | Treatment | Evidence | Closure and scope |
