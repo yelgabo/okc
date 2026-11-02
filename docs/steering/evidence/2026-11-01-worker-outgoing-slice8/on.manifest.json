@@ -1,0 +1,15 @@
+{
+  "input_sha256": "4cbb13a9a359c9fe870a94ebcabc4706447778849f71d4aa54e47d69abbd1280",
+  "source_sha256": "df18320fc4352a25fe2bd8d2371a43ef48ad3ea6a9d85bb6cf89d571855c3ad0",
+  "bytes": 875395,
+  "enabled": true,
+  "policy": 1073741826,
+  "reverse_exact": true,
+  "native_primary_unchanged": true,
+  "secondary_device_body_unchanged": true,
+  "secondary_host_adapter_changed": true,
+  "runtime_graph_support": "NOT_RUN",
+  "GPU_qualified": false,
+  "compiled_host": false,
+  "dispatch_enabled": false
+}
