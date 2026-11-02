@@ -1,0 +1,10 @@
+{
+  "command": [
+    "C:\\Users\\gretc\\AppData\\Local\\Python\\pythoncore-3.14-64\\python.exe",
+    "tools/expert_top100_test.py"
+  ],
+  "returncode": 0,
+  "seconds": 3.6924729000020307,
+  "stdout": "",
+  "stderr": "test_all_finite_bf16_transport_and_fp32_gamma_product (__main__.Contracts.test_all_finite_bf16_transport_and_fp32_gamma_product) ... ok\ntest_protocol_math_and_negative_source_drift (__main__.Contracts.test_protocol_math_and_negative_source_drift) ... ok\ntest_real_factory_and_exact_source_reverse (__main__.Contracts.test_real_factory_and_exact_source_reverse) ... ok\ntest_store_ownership_and_finalizer_address_coverage (__main__.Contracts.test_store_ownership_and_finalizer_address_coverage) ... ok\n\n----------------------------------------------------------------------\nRan 4 tests in 3.615s\n\nOK\n"
+}

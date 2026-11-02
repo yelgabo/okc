@@ -2,6 +2,10 @@
 
 This is the stable cross-session entry point. Read the latest report, its evidence date and subsequent commits before continuing. Existing captain/worker ownership, submission approvals and frozen experiment gates remain in effect; a research recommendation is not a GPU allocation.
 
+## Latest private harness handoff
+
+[November 2: Expert harness — STOP at CPU host gate](2026-11-02-top100-expert-harness.md) - implementation62f0031, parent ec24fc6. Deterministic918254B held draft c6f4c25d; exact607/candidate dual-build prefix retained. New15 stdlib tests plus existing3 pair/4 candidate tests pass, but the complete generated private loop has not run with real Torch; both checked Python environments lack Torch. Delivered prepare fails closed before builds. Target fit UNMEASURED; no dispatch/default/public change or continuation without parent decision.
+
 ## Latest independent expert review
 
 [November 2: Expert transport review — ACCEPT-LIMITED](2026-11-02-top100-expert-review.md) - evidence4c9f507, exact candidate dff221ae/incumbent ba9e327c. Selected B4/MAIN source contracts accepted for scratch retention; no proven candidate bug. Existing4 and independent4 CPU checks pass. Corrects the test's2048-versus3072 capacity and gamma/finalizer coverage descriptions; records explicit publication/replay assumptions and minimum target gates. No compilation/GPU/dispatch/default change; whole-six >=1%, twice-null and frozen regression gates retained.
@@ -54,6 +58,7 @@ Publication-time source progress: [owner-event amendment](2026-11-02-worker-pr-g
 
 | New report | Evidence | Scope |
 |---|---|---|
+| [2026-11-02 expert harness STOP](2026-11-02-top100-expert-harness.md) | 62f0031; ec24fc6; bd6be96 | Held deterministic payload, strict reader,15 partial CPU tests; complete real-Torch host execution still missing; no target claim |
 | [2026-11-02 expert independent review](2026-11-02-top100-expert-review.md) | 4c9f507; dff221ae; ba9e327c | ACCEPT-LIMITED source/CPU; selected stores/readers, indexing/alignment/regions, arithmetic, publication/replay contracts and runtime gates |
 | [2026-11-02 attention prototype STOP](2026-11-02-top100-attention-prototype.md) | 71eb71c; a705900; cc474883117947c0 | Exact selected paths, continuity-switch confound, CPU checks and bounded reopening gate; no GPU result |
 | [2026-11-02 status and next research](2026-11-02-status-and-next-research.md) | f3a93a2; be87457 cleanup correction; primary web sources | Actual status, finite hardware-compression discriminator, score budget, normalization-preserving output ownership, scoped research transfer |
