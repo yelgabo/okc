@@ -1,0 +1,22 @@
+{
+  "command": [
+    "wsl",
+    "--cd",
+    "/mnt/c/Users/gretc/Documents/GitHub/okc",
+    "--exec",
+    "/usr/local/bin/okc",
+    "check",
+    ".build/rmw-pair-v3/check.py",
+    "--no-wait",
+    "--json"
+  ],
+  "started_at": "2026-11-02T01:31:37.051Z",
+  "exitcode": 0,
+  "stderr": "",
+  "source": {
+    "bytes": 923915,
+    "sha256": "c4a5ee29bcfeca248c0fee638ed103e9f211f7a8cc32b86bd3bb642676bf45e3"
+  },
+  "preflight_live_count": 0,
+  "preflight_private_left": 9
+}

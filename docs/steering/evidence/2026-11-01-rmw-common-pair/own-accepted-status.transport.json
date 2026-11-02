@@ -1,0 +1,14 @@
+{
+  "command": [
+    "wsl",
+    "--cd",
+    "/mnt/c/Users/gretc/Documents/GitHub/okc",
+    "--exec",
+    "/usr/local/bin/okc",
+    "status",
+    "16b4db27421d4714",
+    "--json"
+  ],
+  "exitcode": 0,
+  "stderr": ""
+}

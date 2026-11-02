@@ -42,3 +42,11 @@ c193 measured normal production preparation **106.901449s**, total **109.269811s
 ## Registration and next gate
 
 Before registration: send these exact pins/assessment to captain, commit/push this preregistration, and refresh authenticated layer quota and latest jobs. Require positive private quota and no live owned layer job. Sole dispatch remains with this implementation thread. Next allowed action is one private check of the pinned upload, then wait on its exact accepted ID and archive the owning terminal receipt/log/profiles. No second experiment is implied.
+
+## Accepted private #2 — November 2, 01:31:40 UTC
+
+Implementation/preregistration commit **2686a7653d6cf2325e944f419cdf0f81e4b6308a** was pushed before registration; all20 changed remote-file identities were verified. Exact pins and runtime assessment were sent to captain before dispatch. Fresh authenticated preflight reported **9 private / 5 scored remaining**, with no live layer job in the latest jobs sample. Deterministic regeneration matched the frozen upload/manifest immediately before the single check call.
+
+**Own accepted job: 16b4db27421d4714**, board muse_decode_layer, mode check, team yelgabo, initial status queued/result null. Server content identity **09017717fcca125fa947d2e8e143da7409080668cd55c77d6229bf252d6ebed1** and matching payload_ref are separately archived; this server hash is not the physical upload SHA256. Acceptance, own status, raw quota/jobs and CLI transports are in the evidence directory. The immediate postaccept quota still reports9 private/5 scored; no inferred decrement or refund is asserted. **2/4 tranche slots have now been allocated by accepted IDs.**
+
+An exact-own-ID wait is running in exec session **92724**, using the recorded wait script/command. Its raw CLI stdout will be saved unchanged as own-terminal-receipt.json before interpretation, preserving64-bit seeds. No startup, performance, resource utilization, score, CI or promotion result exists at this checkpoint. Next gate is this job's terminal setup/official/paired capsule evidence under the frozen reader. A setup failure stops for a specific diagnosis. No retry, #3/#4 dispatch or public/scored action has been issued. README/index ownership was released after2686a76; this acceptance addendum does not edit the index.
