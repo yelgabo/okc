@@ -1,0 +1,213 @@
+[
+  {
+    "name": "glue_moe_7e37cd900cb88979_sm90a",
+    "functions": [
+      "okc_run",
+      "okc_set_pdl",
+      "okc_attrs"
+    ],
+    "extra_cuda_cflags": [
+      "-O3",
+      "-gencode=arch=compute_90a,code=sm_90a",
+      "-lineinfo",
+      "-DOKC_NS=3",
+      "-DOKC_FNST=4",
+      "-DOKC_NSF=3",
+      "-DOKC_NW=16",
+      "-DOKC_FAST1=0",
+      "-DOKC_EPI4=0",
+      "-DOKC_WGS=1",
+      "-DOKC_B4FIN=1",
+      "-DOKC_SC6W=1",
+      "-DOKC_PRMTSC=1",
+      "-DOKC_DQ7=1"
+    ],
+    "verbose": false,
+    "cuda_sha256": "c7c201ae145c6a33f2d5e6b1f80d2a6e56e8d75502f9fd09ace40927ad0f7c71",
+    "cpp_sha256": "bf9238761276c88ea043a8ebf161b30d912de2b4418b1b379273fb757d9b230d"
+  },
+  {
+    "name": "glue_moe_45a005177ff52c30_sm90a",
+    "functions": [
+      "okc_run",
+      "okc_set_pdl",
+      "okc_attrs"
+    ],
+    "extra_cuda_cflags": [
+      "-O3",
+      "-gencode=arch=compute_90a,code=sm_90a",
+      "-lineinfo",
+      "-DOKC_NS=3",
+      "-DOKC_FNST=4",
+      "-DOKC_NSF=3",
+      "-DOKC_NW=16",
+      "-DOKC_FAST1=0",
+      "-DOKC_EPI4=0",
+      "-DOKC_WGS=1",
+      "-DOKC_SC6W=1",
+      "-DOKC_PRMTSC=1",
+      "-DOKC_DQ7=1"
+    ],
+    "verbose": false,
+    "cuda_sha256": "c7c201ae145c6a33f2d5e6b1f80d2a6e56e8d75502f9fd09ace40927ad0f7c71",
+    "cpp_sha256": "bf9238761276c88ea043a8ebf161b30d912de2b4418b1b379273fb757d9b230d"
+  },
+  {
+    "name": "glue_moe_415a2bdc6eb73960_sm90a",
+    "functions": [
+      "okc_run",
+      "okc_set_pdl"
+    ],
+    "extra_cuda_cflags": [
+      "-O3",
+      "-gencode=arch=compute_90a,code=sm_90a",
+      "-lineinfo",
+      "-DOKC_NS=3",
+      "-DOKC_FNST=4",
+      "-DOKC_NSF=3",
+      "-DOKC_NW=8",
+      "-DOKC_TINY=1",
+      "-DOKC_EPI4=0",
+      "-DOKC_FAST1=2",
+      "-DOKC_L2H=0",
+      "-DOKC_NACC=4",
+      "-DOKC_UWARP=0",
+      "-DOKC_WS=1",
+      "-DOKC_WSB=1",
+      "-DOKC_WSBL=2",
+      "-DOKC_WSBLK=2",
+      "-DOKC_FINPF=1",
+      "-DOKC_PRMTSC=1",
+      "-DOKC_DQ7=1"
+    ],
+    "verbose": false,
+    "cuda_sha256": "b8ed85438c06673f411ff4203080bfbacd0c0c2dc5cb624e6f10d4877fe7a716",
+    "cpp_sha256": "bf9238761276c88ea043a8ebf161b30d912de2b4418b1b379273fb757d9b230d"
+  },
+  {
+    "name": "glue_moe_b2495a009a910301_sm90a",
+    "functions": [
+      "okc_run",
+      "okc_set_pdl"
+    ],
+    "extra_cuda_cflags": [
+      "-O3",
+      "-gencode=arch=compute_90a,code=sm_90a",
+      "-lineinfo",
+      "-DOKC_NS=3",
+      "-DOKC_FNST=4",
+      "-DOKC_NSF=3",
+      "-DOKC_NW=8",
+      "-DOKC_TINY=1",
+      "-DOKC_CPF=0",
+      "-DOKC_EPI4=0",
+      "-DOKC_FAST1=2",
+      "-DOKC_NACC=4",
+      "-DOKC_UWARP=0",
+      "-DOKC_WS=1",
+      "-DOKC_WSB=1",
+      "-DOKC_WSBL=2",
+      "-DOKC_WSBLK=1",
+      "-DOKC_FINPF=1",
+      "-DOKC_PRMTSC=1",
+      "-DOKC_DQ7=1"
+    ],
+    "verbose": false,
+    "cuda_sha256": "b8ed85438c06673f411ff4203080bfbacd0c0c2dc5cb624e6f10d4877fe7a716",
+    "cpp_sha256": "bf9238761276c88ea043a8ebf161b30d912de2b4418b1b379273fb757d9b230d"
+  },
+  {
+    "name": "glue_moe_1b555edc8284ed23_sm90a",
+    "functions": [
+      "okc_run",
+      "okc_set_pdl"
+    ],
+    "extra_cuda_cflags": [
+      "-O3",
+      "-gencode=arch=compute_90a,code=sm_90a",
+      "-lineinfo",
+      "-DOKC_NS=3",
+      "-DOKC_FNST=4",
+      "-DOKC_NSF=3",
+      "-DOKC_NW=8",
+      "-DOKC_TINY=1",
+      "-DOKC_SPLIT=1",
+      "-DOKC_CPF=0",
+      "-DOKC_EPI4=0",
+      "-DOKC_FAST1=2",
+      "-DOKC_NACC=4",
+      "-DOKC_UWARP=0",
+      "-DOKC_WS=1",
+      "-DOKC_WSB=1",
+      "-DOKC_WSBL=2",
+      "-DOKC_WSBLK=2",
+      "-DOKC_FINPF=1",
+      "-DOKC_PRMTSC=1",
+      "-DOKC_DQ7=1"
+    ],
+    "verbose": false,
+    "cuda_sha256": "b8ed85438c06673f411ff4203080bfbacd0c0c2dc5cb624e6f10d4877fe7a716",
+    "cpp_sha256": "bf9238761276c88ea043a8ebf161b30d912de2b4418b1b379273fb757d9b230d"
+  },
+  {
+    "name": "direct_weight_5626db33df5d2706",
+    "functions": [
+      "okc_run",
+      "okc_set_pdl",
+      "okc_attrs"
+    ],
+    "extra_cflags": [
+      "-std=c++20"
+    ],
+    "extra_cuda_cflags": [
+      "-O3",
+      "-std=c++20",
+      "-gencode=arch=compute_90a,code=sm_90a",
+      "-lineinfo",
+      "-DOKC_NS=3",
+      "-DOKC_FNST=4",
+      "-DOKC_NSF=3",
+      "-DOKC_NW=16",
+      "-DOKC_FAST1=0",
+      "-DOKC_EPI4=0",
+      "-DOKC_WGS=1",
+      "-DOKC_B4FIN=1",
+      "-DOKC_SC6W=1",
+      "-DOKC_PRMTSC=1",
+      "-DOKC_DQ7=1"
+    ],
+    "verbose": false,
+    "cuda_sha256": "f95fbb1124ac66b7dd2323a26a61368d0674e6ab079187c308f81ef77f2aba3a",
+    "cpp_sha256": "bf9238761276c88ea043a8ebf161b30d912de2b4418b1b379273fb757d9b230d"
+  },
+  {
+    "name": "direct_weight_4aaa7f12ec6fb5bf",
+    "functions": [
+      "okc_run",
+      "okc_set_pdl",
+      "okc_attrs"
+    ],
+    "extra_cflags": [
+      "-std=c++20"
+    ],
+    "extra_cuda_cflags": [
+      "-O3",
+      "-std=c++20",
+      "-gencode=arch=compute_90a,code=sm_90a",
+      "-lineinfo",
+      "-DOKC_NS=3",
+      "-DOKC_FNST=4",
+      "-DOKC_NSF=3",
+      "-DOKC_NW=16",
+      "-DOKC_FAST1=0",
+      "-DOKC_EPI4=0",
+      "-DOKC_WGS=1",
+      "-DOKC_SC6W=1",
+      "-DOKC_PRMTSC=1",
+      "-DOKC_DQ7=1"
+    ],
+    "verbose": false,
+    "cuda_sha256": "f95fbb1124ac66b7dd2323a26a61368d0674e6ab079187c308f81ef77f2aba3a",
+    "cpp_sha256": "bf9238761276c88ea043a8ebf161b30d912de2b4418b1b379273fb757d9b230d"
+  }
+]

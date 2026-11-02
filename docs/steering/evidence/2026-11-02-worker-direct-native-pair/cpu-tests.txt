@@ -1,0 +1,10 @@
+test_complete_entry_all_rows_inference_and_official_binding (__main__.DWPair.test_complete_entry_all_rows_inference_and_official_binding) ... ok
+test_exact_control_and_candidate_factory_calls (__main__.DWPair.test_exact_control_and_candidate_factory_calls) ... ok
+test_failures_restore_original_bindings_and_guards (__main__.DWPair.test_failures_restore_original_bindings_and_guards) ... ok
+test_hold_rebinding_mutation_and_wrong_module (__main__.DWPair.test_hold_rebinding_mutation_and_wrong_module) ... ok
+test_strict_reader_source_job_official_and_duplicate_negatives (__main__.DWPair.test_strict_reader_source_job_official_and_duplicate_negatives) ... ok
+
+----------------------------------------------------------------------
+Ran 5 tests in 16.875s
+
+OK

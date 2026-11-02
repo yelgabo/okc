@@ -1,0 +1,7 @@
+{
+  "source_sha256": "79c918b845f050de2c2395c5747bd9e4317539defd7b094ae48c5a8f43d864bb",
+  "bytes": 877705,
+  "candidate": "a27a1baff54f5496e339044760d1a58927af8733fa6af6fadcc68c60dcf140bd",
+  "official_arm": "direct_weight",
+  "dispatch_ready": false
+}

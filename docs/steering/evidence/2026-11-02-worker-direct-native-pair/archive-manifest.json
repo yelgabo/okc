@@ -1,0 +1,31 @@
+{
+  "at_utc": "2026-11-02T23:24:13.175356+00:00",
+  "files": {
+    "cpu-tests.txt": {
+      "bytes": 758,
+      "sha256": "01445c7fd4a5d3d478ebbf676326e7ee38a5e0fd0f3c0197687f3cca50d57266"
+    },
+    "harness-held.manifest.json": {
+      "bytes": 5750,
+      "sha256": "81a32f05073862b0f0f1701ccdfb7c9ca6d9f3016ef5f93f161d544e704331cf"
+    },
+    "harness-held.py": {
+      "bytes": 924023,
+      "sha256": "1b698fb85ae8d741245dcce79eea9db719874ef767636d435529ff1b64bff759"
+    },
+    "package.manifest.json": {
+      "bytes": 254,
+      "sha256": "a2066f48c2d750511d7230b1a313a4d966607ea840a235d2a2576d171da20a70"
+    },
+    "selected-compilation-descriptors.json": {
+      "bytes": 5235,
+      "sha256": "3a806866a1d537967da5391952a3b6dc89b42e94c9ec5d985a39d98b9d6e04a6"
+    }
+  },
+  "cpu_command": "/root/.cache/okc-host-validate/bin/python tools/test_dw_native_pair.py",
+  "cpu_tests": 5,
+  "cpu_exitcode": 0,
+  "gpu": false,
+  "compiler": false,
+  "judge_action": false
+}
