@@ -1,0 +1,44 @@
+[
+  {
+    "tokens": 1,
+    "geometric_factor_24": 0.7079982329022487,
+    "minimum": 0.6703977220784253,
+    "maximum": 0.738630652839599,
+    "scope": "descriptive 3banks*2distributions*4crosses, not acceptance gate"
+  },
+  {
+    "tokens": 8,
+    "geometric_factor_24": 0.9930466444507425,
+    "minimum": 0.9562256274610776,
+    "maximum": 1.0296406525909154,
+    "scope": "descriptive 3banks*2distributions*4crosses, not acceptance gate"
+  },
+  {
+    "tokens": 16,
+    "geometric_factor_24": 1.0007787129169246,
+    "minimum": 0.9848815027552408,
+    "maximum": 1.0225578309697432,
+    "scope": "descriptive 3banks*2distributions*4crosses, not acceptance gate"
+  },
+  {
+    "tokens": 32,
+    "geometric_factor_24": 0.9962191914328238,
+    "minimum": 0.9852901240424646,
+    "maximum": 1.00551014620129,
+    "scope": "descriptive 3banks*2distributions*4crosses, not acceptance gate"
+  },
+  {
+    "tokens": 128,
+    "geometric_factor_24": 0.9963792064515411,
+    "minimum": 0.9742525860485513,
+    "maximum": 1.010199816064657,
+    "scope": "descriptive 3banks*2distributions*4crosses, not acceptance gate"
+  },
+  {
+    "tokens": 256,
+    "geometric_factor_24": 0.9996637564113131,
+    "minimum": 0.985778370224701,
+    "maximum": 1.0100314758020414,
+    "scope": "descriptive 3banks*2distributions*4crosses, not acceptance gate"
+  }
+]
