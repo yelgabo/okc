@@ -1,0 +1,9 @@
+# Architecture performance review, November 2 at 09:46 Vancouver time
+
+Evidence snapshot `ca5cf8f`.
+
+The standalone MoE adapter for G’s pre-gamma expert candidate passed its CPU source and storage checks. Source `ece009b` reproduces the pinned control and candidate builds in a 323,514-byte payload. Ten adapter tests passed. The adapter accepts the current official 32-expert shard starting at zero and rejects other ranges. Its H200 build, FP32 numerical checks, replay and timings remain pending. [Adapter and source checks](https://github.com/yelgabo/okc/blob/ca5cf8f/docs/steering/2026-11-02-top100-moe-adapter.md)
+
+The new allocation covers construction of a paired component harness and receipt reader. The proposed timing gate requires a six-load geometric gain of at least 1% on every held-out routing bank and every cross, beyond twice the duplicate noise. The candidate targets 32/128/256 tokens. There is no dispatch ID or measured delta at any size. A component pass would justify a later layer test. [Registered component gates](https://github.com/yelgabo/okc/blob/ca5cf8f/docs/steering/2026-11-02-top100-moe-adapter.md)
+
+The existing CPU Torch runtime is available for host validation. The separate 918,254-byte layer harness still needs full generated-entry storage and ownership checks. Its preparation stops before native builds. The independent review narrowed the earlier CPU coverage claims for capacity, gamma and finalization. These are qualification updates only. G retains 2.126083×, and the A-versus-B decision still rests on existing paired MoE evidence. [Layer harness](https://github.com/yelgabo/okc/blob/ca5cf8f/docs/steering/2026-11-02-top100-expert-harness.md) · [Coverage review](https://github.com/yelgabo/okc/blob/ca5cf8f/docs/steering/2026-11-02-top100-expert-review.md)

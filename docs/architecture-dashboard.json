@@ -1,6 +1,6 @@
 {
-  "reviewed_at": "2026-11-02T08:49:00-07:00",
-  "snapshot": "049b223",
+  "reviewed_at": "2026-11-02T09:46:00-07:00",
+  "snapshot": "ca5cf8f",
   "family_registry_update": {
     "date": "2026-10-30",
     "evidence_snapshot": "7a5965531103f275ac104d340ef30f1508e32353",
@@ -150,8 +150,8 @@
     },
     {
       "name": "One-token and pre-gamma expert prototypes",
-      "label": "Offline evidence • awaiting H200 qualification",
-      "summary": "One design uses three launches at one token. The other changes pre-gamma transport at 32/128/256 tokens and has a state-local comparison package. Neither has target timings."
+      "label": "CPU adapter checked • paired harness pending",
+      "summary": "The pre-gamma MoE adapter passed CPU source and storage tests for the official shard. Paired component testing at 32/128/256 tokens requires a finished harness and dispatch approval. The separate one-token prototype also awaits H200 timing."
     }
   ]
 }

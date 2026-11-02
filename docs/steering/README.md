@@ -104,7 +104,11 @@ The existing CUTLASS pooler, wide 8-stage picks, DCARRY/PK16/VHOIST and failed l
 are explicitly accounted for. No kernels, validation policies, GPU runs or submissions changed.
 This is separate from the layer's M1/tuner-stability work below.
 
-## Latest hourly report, November 2 08:49 Vancouver time
+## Latest hourly report, November 2 09:46 Vancouver time
+
+The expert component adapter passed CPU checks. Its paired harness and target measurements remain pending. [Review and evidence](2026-11-02-0946-performance-review.md)
+
+## Previous hourly report, November 2 08:49 Vancouver time
 
 The PR buffer check failed host compilation before timing. Two expert prototypes have offline evidence, and an attention continuity toggle stopped at source review. [Review and evidence](2026-11-02-0849-performance-review.md)
 

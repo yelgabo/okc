@@ -1,6 +1,6 @@
 # Architecture performance tracker
 
-Last review: 2026-11-02 08:49 MST. Evidence snapshot: `049b223`.
+Last review: 2026-11-02 09:46 MST. Evidence snapshot: `ca5cf8f`.
 First review reconciles progress since `aab7d75`, the snapshot in the
 [architecture-family guide](architecture-families-2026-10-29.md).
 This is a review of recorded experiments, not a new benchmark run.
@@ -18,7 +18,15 @@ named control, not changes in aggregate score. Families overlap; their gains can
 | D. Dependency-aware scheduling | Dynamic claiming retained; new phase-A claim layouts lose | Phase-A modes 62/63 and K=0 controls 66/69 lose; lean claimed mode 68 is not timed. Earlier split-tail 52/53 losses stand. | Full ready-only queue remains untested. Reopen phase-A claims only after the no-work control ties mode 51 within 1 us at 128/256. |
 | E. Attention producer-consumer pipeline | Private VP2 cell win, six-load gate failed | VP2 took 10.168 µs versus 10.784 µs for the owned control on eight-token sliding attention. All three held-outs missed the full-score gate. | VP2 only changes the eight-token target. The proposed layer ring-continuity toggle also changes decode merge behavior and stopped at source review. |
 | F. Donor-based baseline/hybrid | Historical alygg77 measurement track | Prior F comparisons and owned C3 router gains remain recorded. Two new QKV128 variants lose despite correctness/resource passes. | G has a separate attributed-fork policy. Projection C2 remains best scored, with C3 paired component wins retained. |
-| G. Attributed keell0renz layer fork | Retained layer 2.126083× | Matched short-counter test missed its gate. G224 and timed SiLU passed correctness and missed performance triage. | Four-cell verify ended in a refunded infrastructure error. Outgoing dependency tests failed setup. Both fresh checks completed. The short serial policy missed confirmation gates. PR check failed target host compilation. The expert prototypes await target qualification. |
+| G. Attributed keell0renz layer fork | Retained layer 2.126083× | Matched short-counter test missed its gate. G224 and timed SiLU passed correctness and missed performance triage. | Four-cell verify ended in a refunded infrastructure error. Outgoing dependency tests failed setup. Both fresh checks completed. The short serial policy missed confirmation gates. PR check failed target host compilation. The pre-gamma standalone adapter passed CPU checks. The paired component harness is under construction. |
+
+## November 2 review at 09:46 Vancouver time
+
+The standalone MoE adapter for G’s pre-gamma expert candidate passed its CPU source and storage checks. Source `ece009b` reproduces the pinned control and candidate builds in a 323,514-byte payload. Ten adapter tests passed. The adapter accepts the current official 32-expert shard starting at zero and rejects other ranges. Its H200 build, FP32 numerical checks, replay and timings remain pending. [Adapter and source checks](https://github.com/yelgabo/okc/blob/ca5cf8f/docs/steering/2026-11-02-top100-moe-adapter.md)
+
+The new allocation covers construction of a paired component harness and receipt reader. The proposed timing gate requires a six-load geometric gain of at least 1% on every held-out routing bank and every cross, beyond twice the duplicate noise. The candidate targets 32/128/256 tokens. There is no dispatch ID or measured delta at any size. A component pass would justify a later layer test. [Registered component gates](https://github.com/yelgabo/okc/blob/ca5cf8f/docs/steering/2026-11-02-top100-moe-adapter.md)
+
+The existing CPU Torch runtime is available for host validation. The separate 918,254-byte layer harness still needs full generated-entry storage and ownership checks. Its preparation stops before native builds. The independent review narrowed the earlier CPU coverage claims for capacity, gamma and finalization. These are qualification updates only. G retains 2.126083×, and the A-versus-B decision still rests on existing paired MoE evidence. [Layer harness](https://github.com/yelgabo/okc/blob/ca5cf8f/docs/steering/2026-11-02-top100-expert-harness.md) · [Coverage review](https://github.com/yelgabo/okc/blob/ca5cf8f/docs/steering/2026-11-02-top100-expert-review.md)
 
 ## November 2 review at 08:49 Vancouver time
 
@@ -2531,6 +2539,8 @@ Prefill remains deferred. The final recorded campaign goal remains unmet.
 [Family G qualification](https://github.com/yelgabo/okc/blob/af3b550/docs/steering/2026-11-01-family-g-qualification.md).
 
 ## Review history and checkpoint
+
+- 2026-11-02 09:46 Vancouver time. Inspected `049b223..ca5cf8f` from local `b55ac28`. The new component adapter has CPU evidence and a registered measurement method. No new GPU job or timing. All 18 untracked local receipts already appear in the run logs.
 
 - 2026-11-02 08:49 Vancouver time. Reviewed `218a048..049b223` from local `282f081`, including the terminal PR receipt, ruled-out entries, expert prototype registrations and 15:30 UTC quota checkpoint. 18 local untracked receipts already appear in the run ledgers.
 
