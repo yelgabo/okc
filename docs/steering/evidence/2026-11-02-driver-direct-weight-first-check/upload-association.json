@@ -1,0 +1,17 @@
+{
+  "job": "0b684a4065354fc5",
+  "status": "done",
+  "team": "yelgabo",
+  "board": "muse_decode_layer",
+  "mode": "check",
+  "physical_source_sha256": "a27a1baff54f5496e339044760d1a58927af8733fa6af6fadcc68c60dcf140bd",
+  "source_bytes": 875672,
+  "implementation": "368b85c9",
+  "server_content_identifier": "b2bf4281a26819c6a77c985cbf67b0ba70a2f6228dcf97dabd4f0f581be27fa7",
+  "payload_ref": "muse_decode_layer/b2bf4281a26819c6a77c985cbf67b0ba70a2f6228dcf97dabd4f0f581be27fa7.py",
+  "association_limit": "Own POST/ID metadata association, not independent download of server payload.",
+  "result_status": "ok",
+  "cluster": "nyc3b",
+  "terminal_retrieved_at_utc": "2026-11-02T23:28:07.463164+00:00",
+  "terminal_receipt": "status-wait.raw.json"
+}

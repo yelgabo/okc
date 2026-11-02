@@ -1,0 +1,15 @@
+{
+  "source": "docs\\steering\\evidence\\2026-11-02-driver-current-incumbent-control\\control.py",
+  "sha256": "04314b16743988c5b172a945e0f10437d78a70bb847ddd865f4a5c1101d6b305",
+  "bytes": 869198,
+  "base_source": "muse_decode_layer/cand/g1b4_stage_release.py",
+  "base_sha256": "ba9e327cd7b96595ace4d0c1d0d78fe27c128f23ed0debcda97c7169fc3164ab",
+  "base_bytes": 869076,
+  "native_sha256": "c7c201ae145c6a33f2d5e6b1f80d2a6e56e8d75502f9fd09ace40927ad0f7c71",
+  "change": "One unused module metadata assignment and comment only; original869076B prefix and every original ASTnode identical.",
+  "original_AST_nodes_identical": true,
+  "no_CR_bytes": true,
+  "purpose": "Fresh current-pool baseline after all three architectural tests used driver580.159.03 versus retained control595.91.07; no improvement or matched-causal claim.",
+  "authorized_private_checks": 1,
+  "public_submission_authorized": false
+}
