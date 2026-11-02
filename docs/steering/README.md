@@ -1,5 +1,7 @@
 # Shared project steering
 
+Latest session recovery: [November 1 T3 recovery PR](2026-11-01-t3-sharing-recovery-pr.md). Open [PR #28962](https://github.com/pingdotgg/t3code/pull/28962), T3 head `332447ee`, evidence `9d15ccf`. Seven recovery regressions pass; isolated real-provider copied-history failure becomes successful portable-history recovery and follow-up. Expected configuration rejection is distinct from permanently stuck history; no verified `enable=true` workaround. Selected suite has four reproduced baseline Windows failures; aggregate runner traversal limitation documented. Live installation unchanged.
+
 Latest session reproduction: [November 1 clean T3 sharing failure](2026-11-01-t3-sharing-reproduction.md), evidence97a91df plus independent fresh-thread ordinals1-3. Baseline succeeds; native worker and plain `huh` follow-up fail. Raw error, persisted agent-message structure, ineffective disable flags and upstream issue21061/closed-unmerged PR20270 verified. Sanitized evidence and ready-to-post update prepared; no external issue/comment sent or campaign resumed.
 
 Latest backlog reconciliation: [November 1 immediate work while the researcher reviews](2026-11-01-immediate-backlog.md), evidence `97a91df`. Prioritize the existing inference-compatible qualifier repair, then its owning receipt reader; preserved owner branches/WIP remain untouched. Historical tracker and paper backlog now point to current closures. Documentation maintenance completed; no kernel changes, GPU jobs or automation resume.
