@@ -8,6 +8,8 @@ This is the stable cross-session entry point. Read the latest report, its eviden
 
 ## Latest private harness handoff
 
+Parent integration68f2f67: cleanup repair reviewed;13 real-Torch and15 existing harness tests reproduced. Production prepared-state/CUDA gates remain open; component harness allocation unchanged.
+
 [November 2: Real-Torch expert host validation](2026-11-02-top100-expert-host-validation.md) - implementation ca945be, parent1f59b96. New13 real-Torch tests plus22 inherited tests PASS. Actual generated wrapper/private orchestration completes all36rows/fourplacements in four caller-inference/weight-inference combinations;8592 CPU operator-tape replays per run. Reproduced and repaired aborted-preparation guard leaks; held payload now4cdd4268 (918522B), native candidate/control/pair unchanged. Production preparation/inventory and numerical kernels are substituted boundaries, not a full production PASS. Hold retained, no GPU/timing/admission or dispatch readiness; exact remaining gates and inference-front limitation are in the report.
 
 ## Previous private harness handoff

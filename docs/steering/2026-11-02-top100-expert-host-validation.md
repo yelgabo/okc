@@ -77,3 +77,9 @@ The13 new methods are: actual_facade_replay_not_python_callback; archived_payloa
 4. Target compiler/build,295-second complete preparation fit, CUDA ordering/progress and graph replay, full oracle/edge-value numerics, resource/admission and timing remain unmeasured. Keep the standalone adapter worker's ownership separate. A setup, identity, ownership, numerical, replay, progress or budget failure stops; no synthetic CPU timing can rescue it.
 5. Frozen all-bank, whole-six >=1% gain, gain above twice the independent-duplicate null, held-out banks and affected-row regression gates remain unchanged, as do release/external-source obligations. No measured performance improvement or candidate-family rejection occurred; no runs-log or ruled-out technique-loss row is appropriate.
 
+
+## Parent integration, November 2
+
+Parent merged21fcb2e as68f2f67, preserving both current standalone allocation and captain continuity entries during the index conflict. Independently reviewed the prepare exception paths: guard baseline is now captured before production preparation, failure resets to entry guards, success retains the official state baseline, and report serialization/budget/output failures also roll back guards. Candidate/native/pair sources are unchanged.
+
+Reproduced13 real-Torch tests with the existing WSL interpreter (26.537s, PASS) and15 existing harness tests after integration. The four generated-entry inference combinations and fault injections are host/facade evidence only, with the explicit production/model/CUDA substitutions described above. No expansion of the PASS scope, hold removal, target dispatch, resource claim or performance claim follows. Production prepared-state inventory and actual target execution remain open. The active standalone harness allocation atca5cf8f remains the next component measurement path; it is not replaced or duplicated by this integration.
