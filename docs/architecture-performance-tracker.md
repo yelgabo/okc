@@ -1,6 +1,6 @@
 # Architecture performance tracker
 
-Last review: 2026-11-02 09:46 MST. Evidence snapshot: `ca5cf8f`.
+Last review: 2026-11-02 10:44 MST. Evidence snapshot: `db7800a`.
 First review reconciles progress since `aab7d75`, the snapshot in the
 [architecture-family guide](architecture-families-2026-10-29.md).
 This is a review of recorded experiments, not a new benchmark run.
@@ -18,7 +18,24 @@ named control, not changes in aggregate score. Families overlap; their gains can
 | D. Dependency-aware scheduling | Dynamic claiming retained; new phase-A claim layouts lose | Phase-A modes 62/63 and K=0 controls 66/69 lose; lean claimed mode 68 is not timed. Earlier split-tail 52/53 losses stand. | Full ready-only queue remains untested. Reopen phase-A claims only after the no-work control ties mode 51 within 1 us at 128/256. |
 | E. Attention producer-consumer pipeline | Private VP2 cell win, six-load gate failed | VP2 took 10.168 µs versus 10.784 µs for the owned control on eight-token sliding attention. All three held-outs missed the full-score gate. | VP2 only changes the eight-token target. The proposed layer ring-continuity toggle also changes decode merge behavior and stopped at source review. |
 | F. Donor-based baseline/hybrid | Historical alygg77 measurement track | Prior F comparisons and owned C3 router gains remain recorded. Two new QKV128 variants lose despite correctness/resource passes. | G has a separate attributed-fork policy. Projection C2 remains best scored, with C3 paired component wins retained. |
-| G. Attributed keell0renz layer fork | Retained layer 2.126083× | Matched short-counter test missed its gate. G224 and timed SiLU passed correctness and missed performance triage. | Four-cell verify ended in a refunded infrastructure error. Outgoing dependency tests failed setup. Both fresh checks completed. The short serial policy missed confirmation gates. PR check failed target host compilation. The pre-gamma standalone adapter passed CPU checks. The paired component harness is under construction. |
+| G. Attributed keell0renz layer fork | Retained layer 2.126083× | Matched short-counter test missed its gate. G224 and timed SiLU passed correctness and missed performance triage. | Four-cell verify ended in a refunded infrastructure error. Outgoing dependency tests failed setup. Both fresh checks completed. The short serial policy missed confirmation gates. PR check failed target host compilation. Pre-gamma transport passed standalone H200 correctness but missed the paired gate in all 24 crosses. Parked before layer testing. |
+
+## November 2 review at 10:44 Vancouver time
+
+**G’s pre-gamma expert transport passed H200 correctness and missed its paired component speed target.** Private standalone MoE job `56e0c8b5634545e6` finished November 2 at 17:33:23 UTC. Registration `adcfa8e` pinned payload `8f12932a`, with G incumbent builds in placements 0/1 and pre-gamma builds in 2/3. All five official tests passed. The official candidate scored 2.332483× against the judge baseline (95% CI 2.297496–2.367471). The decision on changing G comes from the separate within-process comparison below. [Owning receipt](https://github.com/yelgabo/okc/blob/db7800a/docs/steering/evidence/2026-11-02-worker-moe-component/status-wait.raw.json) · [Terminal decision](https://github.com/yelgabo/okc/blob/db7800a/docs/steering/2026-11-02-worker-moe-component-terminal.md)
+
+Three held-out routing banks (1102031, 1102037, 1102049) each covered normal and skewed inputs. The harness recorded 1,152 timed replays, 216 captures and 54 restorations. All 24 equal-six-load control/candidate ratios fell below 1.01 (range 0.978693–1.002284). Sixteen of 18 affected size/bank/routing combinations had at least one regression of 1% or more. Duplicate placements provide noise estimates. The archive supplies no confidence interval for the paired effect. The exact treatment is parked at the component gate. [Frozen reader and original comparisons](https://github.com/yelgabo/okc/blob/db7800a/docs/steering/evidence/2026-11-02-worker-moe-component/frozen-reader-result.json)
+
+| Tokens | Mean control µs | Mean candidate µs | Change µs | Change |
+|---:|---:|---:|---:|---:|
+| 1 | 33.959 | 34.181 | +0.223 | +0.66% |
+| 8 | 60.173 | 60.045 | -0.128 | -0.21% |
+| 16 | 90.504 | 90.656 | +0.152 | +0.17% |
+| 32 | 93.296 | 94.217 | +0.921 | +0.99% |
+| 128 | 144.656 | 147.441 | +2.785 | +1.93% |
+| 256 | 196.451 | 199.229 | +2.779 | +1.41% |
+
+These descriptive differences average the two published placement means per side across the six routing groups. Only the 32/128/256-token paths contain the treatment. The gate uses each bank and cross individually. No whole-layer test followed. Family G retains its public 2.126083× layer entry. The one-token three-launch prototype remains a separate offline design. The A-versus-B conclusion at 128/256 still rests on the existing paired MoE evidence. [Source means](https://github.com/yelgabo/okc/blob/db7800a/docs/steering/evidence/2026-11-02-worker-moe-component/descriptive-load-summary.json)
 
 ## November 2 review at 09:46 Vancouver time
 
@@ -2478,6 +2495,7 @@ paired differences.
 | G224 gather schedule | Historical public G1b4 | Weighted verify latency +14.617% | +20.564% | `e1271ad5e5e34b24`, independent run, all 13 tests passed. [Source](https://github.com/yelgabo/okc/blob/57930d0/docs/steering/2026-11-02-captain-g224-terminal-decision.md). |
 | Fully timed G SiLU table | Historical public G1b4 | 275.449 vs 269.347 µs, +6.102 µs (+2.27%) | 358.496 vs 359.297 µs, −0.802 µs (−0.22%) | `dc62cff972934f54`, one private check, affected loads, unmatched seeds and nodes. [Reconstruction](https://github.com/yelgabo/okc/blob/57930d0/docs/steering/2026-11-02-captain-timed-silu-terminal-decision.md). |
 | G short serial policy, unchanged long paths | Fresh G1b4, separate run | +8.118 µs (+3.10%) | +10.431 µs (+2.97%) | `e4c8f00532b74d15` vs `cc474883117947c0`. Different seeds. Only 1/8-token cells exercised the treatment. [Exact comparison](https://github.com/yelgabo/okc/blob/fcf5452/docs/steering/2026-11-02-captain-serial-terminal-decision.md). |
+| G pre-gamma expert transport, standalone MoE | G incumbent controls, same process | +2.785 µs (+1.93%) | +2.779 µs (+1.41%) | `56e0c8b5634545e6`. Descriptive duplicate-placement means across three normal/skewed banks. [Source means](https://github.com/yelgabo/okc/blob/db7800a/docs/steering/evidence/2026-11-02-worker-moe-component/descriptive-load-summary.json). |
 
 
 ## Small-token results and rejected changes
@@ -2521,6 +2539,8 @@ with common preparation and private arm tensors. Both evidence scopes remain vis
 
 ## Decision and next evidence needed
 
+The pre-gamma component missed the registered 1% gate in all 24 six-load comparisons. The exact implementation is parked before layer integration. [Decision](https://github.com/yelgabo/okc/blob/db7800a/docs/steering/2026-11-02-worker-moe-component-terminal.md).
+
 A remains favored over tested B schedules at128/256. The latest owned position-map,
 locality, decoder and direct/cached band variants fail their registered gates. C's tested
 ownership implementations retain their scoped outcomes. D's complete ready-only scheduler
@@ -2539,6 +2559,8 @@ Prefill remains deferred. The final recorded campaign goal remains unmet.
 [Family G qualification](https://github.com/yelgabo/okc/blob/af3b550/docs/steering/2026-11-01-family-g-qualification.md).
 
 ## Review history and checkpoint
+
+- 2026-11-02 10:44 Vancouver time. Reviewed `ca5cf8f..db7800a` from local `5105841`. Verified terminal MoE job `56e0c8b5634545e6`, source placement means and closure. All 18 untracked local receipts already appear in the run logs.
 
 - 2026-11-02 09:46 Vancouver time. Inspected `049b223..ca5cf8f` from local `b55ac28`. The new component adapter has CPU evidence and a registered measurement method. No new GPU job or timing. All 18 untracked local receipts already appear in the run logs.
 

@@ -1,6 +1,6 @@
 {
-  "reviewed_at": "2026-11-02T09:46:00-07:00",
-  "snapshot": "ca5cf8f",
+  "reviewed_at": "2026-11-02T10:44:00-07:00",
+  "snapshot": "db7800a",
   "family_registry_update": {
     "date": "2026-10-30",
     "evidence_snapshot": "7a5965531103f275ac104d340ef30f1508e32353",
@@ -117,14 +117,14 @@
       "id": "G",
       "name": "Attributed keell0renz layer fork",
       "status": "win",
-      "label": "Retained layer • counter test complete",
+      "label": "Retained layer • pre-gamma component parked",
       "metric": "2.1261×",
       "unit": "Public layer score, 95% CI 2.0942–2.1580",
-      "summary": "The one- and eight-token serial path ran as intended. Both private runs passed correctness. The six-load latency factor of 0.969827× missed the 1.01 confirmation threshold.",
+      "summary": "Pre-gamma transport passed H200 correctness. All 24 matched six-load comparisons missed the 1% speed target. The experiment stopped before layer testing.",
       "layer": "G1b4 retains 2.1261×. The serial candidate is parked.",
       "pending": [],
       "evaluation_pending": [],
-      "limit": "Private G224 and timed SiLU scored 1.9747× and 2.0733× in separate runs. Their performance gates closed both candidates. The G0 gap remains unexplained.",
+      "limit": "Mean standalone latency change versus the G controls: +2.785 µs (+1.93%) at 128 tokens and +2.779 µs (+1.41%) at 256. The public layer score belongs to G1b4.",
       "source": "runs-decode-layer.md",
       "outcomes": [
         "win",
@@ -149,9 +149,9 @@
       "summary": "Job 60b38a62a135442c compiled with C++17 while target Torch required C++20. No test or timing cells ran. The private retry is quota-blocked."
     },
     {
-      "name": "One-token and pre-gamma expert prototypes",
-      "label": "CPU adapter checked • paired harness pending",
-      "summary": "The pre-gamma MoE adapter passed CPU source and storage tests for the official shard. Paired component testing at 32/128/256 tokens requires a finished harness and dispatch approval. The separate one-token prototype also awaits H200 timing."
+      "name": "G expert transport and one-token prototype",
+      "label": "Pre-gamma parked • one-token design awaits testing",
+      "summary": "Job 56e0c8b5634545e6 failed the component performance gate. The separate one-token three-launch design still has offline evidence only."
     }
   ]
 }
