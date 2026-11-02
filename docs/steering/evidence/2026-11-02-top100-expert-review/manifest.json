@@ -1,0 +1,16 @@
+{
+  "evidence_commit": "4c9f5078643a7137414ab9ae442aa319f2c895a4",
+  "files": {
+    "tools\\expert_top100_candidate.py": "dff221ae6ccc2de35d7a4c123aea3e3eb1345d3685f6eb97e52cbbfef6a0c8c4",
+    "muse_decode_layer\\cand\\g1b4_stage_release.py": "ba9e327cd7b96595ace4d0c1d0d78fe27c128f23ed0debcda97c7169fc3164ab",
+    "tools\\expert_top100_review_cpu.py": "a0f366237ce92642e39405e0416bc5852683b44c38dc5bcaa146e82d11b24f00"
+  },
+  "tests": 4,
+  "success": true,
+  "gpu": false,
+  "actual_EMAX": 3072,
+  "compact_y_end_bytes": 25165824,
+  "B4_partial_start_bytes": 49283072,
+  "B4_live_partial_end_bytes": 49545216,
+  "fixup_start_bytes": 50331648
+}

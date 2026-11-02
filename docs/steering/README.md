@@ -2,6 +2,10 @@
 
 This is the stable cross-session entry point. Read the latest report, its evidence date and subsequent commits before continuing. Existing captain/worker ownership, submission approvals and frozen experiment gates remain in effect; a research recommendation is not a GPU allocation.
 
+## Latest independent expert review
+
+[November 2: Expert transport review — ACCEPT-LIMITED](2026-11-02-top100-expert-review.md) - evidence4c9f507, exact candidate dff221ae/incumbent ba9e327c. Selected B4/MAIN source contracts accepted for scratch retention; no proven candidate bug. Existing4 and independent4 CPU checks pass. Corrects the test's2048-versus3072 capacity and gamma/finalizer coverage descriptions; records explicit publication/replay assumptions and minimum target gates. No compilation/GPU/dispatch/default change; whole-six >=1%, twice-null and frozen regression gates retained.
+
 ## Latest delegated profile evidence
 
 [November 2: Top100 profile priorities](2026-11-02-top100-profile-priorities.md) - evidence a705900/71eb71c; independently validates fresh cc474, public607 and historical baseline7d427, all12 routes and six-load weights. Read-only 15:28UTC receipts: overall/layer356, layer100 cutoff2.2659x, zero private checks. Expert/attention activities are not exposed savings; current baseline config identity differs. Captain dispatch and existing worker ownership unchanged.
@@ -46,6 +50,7 @@ Publication-time source progress: [owner-event amendment](2026-11-02-worker-pr-g
 
 | New report | Evidence | Scope |
 |---|---|---|
+| [2026-11-02 expert independent review](2026-11-02-top100-expert-review.md) | 4c9f507; dff221ae; ba9e327c | ACCEPT-LIMITED source/CPU; selected stores/readers, indexing/alignment/regions, arithmetic, publication/replay contracts and runtime gates |
 | [2026-11-02 attention prototype STOP](2026-11-02-top100-attention-prototype.md) | 71eb71c; a705900; cc474883117947c0 | Exact selected paths, continuity-switch confound, CPU checks and bounded reopening gate; no GPU result |
 | [2026-11-02 status and next research](2026-11-02-status-and-next-research.md) | f3a93a2; be87457 cleanup correction; primary web sources | Actual status, finite hardware-compression discriminator, score budget, normalization-preserving output ownership, scoped research transfer |
 | [Earlier full history](index-history-through-2026-11-02-1409.md) | exact former README blob8c413701 | All preceding reports and decisions, preserved without modification |
