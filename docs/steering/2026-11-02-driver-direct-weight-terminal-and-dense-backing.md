@@ -25,6 +25,10 @@ The three captain-directed body experiments now have valid correctness/admission
 
 Fresh23:33UTC: **overall/layer376**, incumbent607unchanged, layer1002.2690x; **7private layer/10scored slots and no live jobs**. Layer numeric gap is~6.72%; overall API gives ranks only. [Live summary](evidence/2026-11-02-driver-direct-weight-first-check/terminal-board-summary.json).
 
+## Latest-human-priority reconciliation (before delivery)
+
+Remote human steering **b9ca9dff**, [Decode32 priority](2026-11-02-decode32-priority.md), arrived concurrently before this report could be pushed. It supersedes the broad P1 allocation below **before any assignment, implementation or GPU action on it**. Broad dense backing is now an unallocated secondary reserve. **Do not start it from the historical P1 text.** P0 unchanged-incumbent calibration remains relevant, with D32 as the primary scorecard. The current fixed T32-family MID comparison is allocated in [the captain reconciliation](2026-11-02-driver-d32-mid-comparison.md). Preserve the original terminal result and all earlier scope statements.
+
 ## P0: one unchanged-incumbent calibration on the current service
 
 Allocate **ONE ordinary private layer check** of the exact public607 implementation now. Retained freshcc474 used driver595.91.07/node`n-434...`; all three new body checks used580.159.03 on differentnyc3b nodes. We verified those identities and avoided causal claims, but do not yet have a fresh unchanged control from the current service pool. This check validates the instrument/working baseline before another architecture result; it is **not an optimization, causal comparison or reason to reopen parked candidates**.
@@ -33,7 +37,7 @@ Prepared [control.py](evidence/2026-11-02-driver-current-incumbent-control/contr
 
 Captain alone dispatches after commit/remote/physical identity and fresh authenticated quota/no-live checks, then follows only its own ID. Require no duplicate/historical substitution, full13/12/12,56startup, actual source/backend/GPU/node/driver/evaluator and all six endpoints. Scheduler may choose a different node/pool: label the observed identity rather than pretending it is matched. Update current profile/uncertainty; no speedup/public-rank improvement is inferred from a control's score. No automatic retry. No source-only secondary recompilation is needed for the unchanged shader; the target run is the new environment qualification.
 
-## P1: actual selected dense-bank GENERIC backing, one fixed implementation
+## Historical P1 proposal, now unallocated: actual selected dense-bank backing
 
 Allocate existing OKC Developer **one60-active-minute implementation-or-STOP window**, while calibration runs. Own `tools/dense_generic_backing.py`, focused tests and worker-dense-generic-backing report/evidence. Start immutableba9; reuse the reviewed final graph-owner/owner-event/helper-local-RELAXED protocol, with **explicit C++20** and generalized exact tensor byte/dtype/shape handling. Do not merely retry PR alone. **Reserve one ordinary private full-layer check** when this fixed broad candidate is conforming/runnable and the calibration's outcome reconciled; captain alone decides/dispatches after recorded exact source/fresh quota/no-live. No public/default permission, new comparison framework, allocation variant or compression-layout tuning.
 
