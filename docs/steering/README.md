@@ -2,6 +2,10 @@
 
 This is the stable cross-session entry point. Read the latest report, its evidence date and subsequent commits before continuing. Existing captain/worker ownership, submission approvals and frozen experiment gates remain in effect; a research recommendation is not a GPU allocation.
 
+## Latest status and alignment assessment
+
+[November 2: Experiment alignment status](2026-11-02-experiment-alignment-status.md) - evidence 6110e4a. Current compression and T1 work follows research, but no new performance-qualified winner. PR target failed host compilation; private retry is quota-blocked. T1 has interim local secondary-compiler evidence only. Newer operational receipts supersede the research's earlier one-check snapshot; existing captain/worker ownership remains unchanged.
+
 ## Latest user-requested research: status and next decisions
 
 **[November 2: Status and next research](2026-11-02-status-and-next-research.md)** — evidence f3a93a2 through be87457. Public607 remains 2.126082676x; last verified monitor13:26UTC records overall/layer351, layer100cutoff2.2646x, one private/five scored slots and no live job. Fresh unchanged control2.109201357x and serial2.093072852x are separate-input runs, not a causal gain. G224/timed-SiLU/serial/RMW exact variants remain parked. Research recommends a finite actual-PR hardware-compression decision with ordinary-VMM and default-allocation controls, then only conditional expansion; a low-token output-ownership design must retain Muse's per-expert normalization. No new kernel, target run, permission, release or measured winner.
