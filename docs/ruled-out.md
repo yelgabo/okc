@@ -1,5 +1,11 @@
 # Ruled out
 
+## November 2 UTC 2026 fully timed SiLU ordinary target
+
+| Treatment | Evidence | Scope and reopening condition |
+| --- | --- | --- |
+| Frozen WGS fully timed65536-entry FP32 table d70a1bcc/870087B, nativef5344c9d | Own PRIVATEdc62cff972934f54, implementation9a1f6e4/preregc19d8b2. H200 PASS13tests/12bench/12profiles/56startup replays;2.073288676 CI[2.042189346,2.104388007], prepare112.535864s. Captain independently recomputed all12rows; steering/2026-11-02-captain-timed-silu-terminal-decision.md. | PARK exact treatment: no favorable>=1%signal, affected d32/v16 regress descriptively/v32nearflat; historical607 score ratio0.9751684 is unmatched, NOT causal family rejection. No repeat/rescue/matched-followon/public/default action. Reopen only on material new net-cost/exposure evidence or genuinely different justified design plus separate allocation, not another source/compiler audit. Old untimed eligibility HOLD separate. |
+
 ## November 2 UTC 2026 G224 ordinary target result
 
 | Treatment | Evidence | Scope and reopening condition |
