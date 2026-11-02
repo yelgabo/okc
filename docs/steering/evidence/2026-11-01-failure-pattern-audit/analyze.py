@@ -30,7 +30,11 @@ def main():
     for item in cohort["rows"]:
         job = item["job_id"]
         path = HERE / (job + ".json")
-        assert digest(path) == item["receipt_sha256"]
+        # The archived JSON was serialized as UTF-8/LF. Git may check it out
+        # as CRLF on Windows; verify that serialization rather than checkout
+        # newline conversion. This does not normalize receipt field values.
+        archived = path.read_text(encoding="utf-8").encode("utf-8")
+        assert hashlib.sha256(archived).hexdigest() == item["receipt_sha256"]
         data = json.loads(path.read_text())
         assert (data["id"], data["board"], data["team"]) == (
             job, "muse_decode_layer", "yelgabo"
