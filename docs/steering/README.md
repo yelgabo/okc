@@ -1,5 +1,7 @@
 # Shared project steering
 
+Latest corrected pair acceptance: [Legal occupied-fixture replacement](2026-11-01-rmw-legal-fixture-registration.md), preregd5f2916, own PRIVATE **c5e4f89672f743bb**, accepted November2 **02:22:46.573UTC**, queued/resultnull. Upload785a90ca/924005B;23CPU tests and unchanged native/timed source gates pass; captain independently verified upload/manifest. Worker owns wait11629 and acceptance archive;3/4slots used,#4freshheldout onlyifvalidpass. Another instrumentfailure ends thisRMWallocation; no public/scored authorization.
+
 Latest captain opportunity decision: [Post-failure whole-score scope sizing](2026-11-01-captain-opportunity-sizing.md). Official November2 02:06:57UTC overall329/1833, layer329/1173 at2.1261 versus cutoff2.2562. Explicit hypothetical scope arithmetic prioritizes broad legal expert/all-context mechanisms; narrow full-verify attention and short-RMW are contributions, not a sufficient sole roadmap. Profile subtraction is not an exposed-time bound or speed forecast.
 
 Latest owning paired failure archive: [Repaired-common paired terminal](2026-11-01-rmw-common-pair-terminal.md), commitd756f29, own16b4db27421d4714 setupFAIL112/719/no score; frozen reader rejects.237.58s worker wall is not prepare duration. Source/CPU fixture diagnosis only; no automatic retry or #3 reassignment.

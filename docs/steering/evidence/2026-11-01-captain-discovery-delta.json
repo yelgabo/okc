@@ -1,0 +1,280 @@
+{
+  "retrieved_utc": "2026-11-02T02:23:42.155Z",
+  "scope": "Independent bounded primary GitHub REST metadata/README/tree refresh; no GPU, source adoption or full legal/performance audit.",
+  "queries": [
+    {
+      "query": "\"muse spark\" kernel in:name,description,readme",
+      "status": 200,
+      "total": 279,
+      "retrieved_at": "2026-11-02T02:19:46.818Z",
+      "returned": 30,
+      "items": [
+        "FrankieBiz/Faultline",
+        "DavidFox998/meta-runway",
+        "devloadingbr/claude-code-crossmodel",
+        "pytorch/torchtitan",
+        "ashwinsreedhar28/day0-ready",
+        "midagedev/bloomery",
+        "tedliosu/custom_canny_xpu",
+        "surucuonur/meta-hackathon",
+        "fugeretrevin/Detonator",
+        "dobralaszloedgar/project_cad",
+        "oaustegard/experiments",
+        "NVIDIA-NeMo/Automodel",
+        "anomixer/openclaw-news",
+        "hxz0727/coding-plan-tracker",
+        "morganlinton/VulcanBench",
+        "seanudeke/Expectrail",
+        "averagebonsai/hypothesis",
+        "EliseTSB/assistant-basin",
+        "JustVugg/colibri",
+        "Yoelcanarion/fractalswarm",
+        "pramodthe/setout",
+        "tamnd/hn-daily-index",
+        "dionyziuz/proof_harness",
+        "yueyiming2009/ai-learning",
+        "Hecate0821/Scouter",
+        "KingCobra52/muse_bf16_optimization",
+        "SamPrimeaux/agentsam-sdk",
+        "tykimos/ai-whatchelin",
+        "Zijian-Ni/awesome-ai-agents-2026",
+        "pramodthe/3d_gen_model"
+      ]
+    },
+    {
+      "query": "\"muse_decode_layer\" in:readme",
+      "status": 200,
+      "total": 17,
+      "retrieved_at": "2026-11-02T02:19:47.274Z",
+      "returned": 17,
+      "items": [
+        "keell0renz/muse-open-kernel-challenge",
+        "Kushagrabainsla/muse-spark-open",
+        "trxphxle/okc-2026-muse-kernels",
+        "ScrashOff/okc-muse-kernels",
+        "alygg77/okc-muse-spark-kernels",
+        "ruwwww/open-kernel-challenge",
+        "zhebrak/muse-spark-kernels",
+        "sid19991/open-kernel-challenge",
+        "lee101/openkernels",
+        "vjeux/okc-2026",
+        "nibague/open-kernel-challenge",
+        "infraax/okc-kernel-challenge",
+        "xharshvardhan/open-kernel-challenge",
+        "operatorstack/open-kernel-challenge-solutions",
+        "chinesepowered/hack-argonspeed",
+        "lilaclilac09/open-kernel-challenge",
+        "theluckystrike/muse-spark-open-kernels"
+      ]
+    },
+    {
+      "query": "\"NVFP4\" \"Hopper\" \"MoE\" in:readme",
+      "status": 200,
+      "total": 290,
+      "retrieved_at": "2026-11-02T02:19:48.114Z",
+      "returned": 30,
+      "items": [
+        "hokwangchoi/hc-model-study",
+        "flashinfer-ai/flashinfer",
+        "ashwinsreedhar28/day0-ready",
+        "RueClaw/public-data",
+        "anseryuer/Local_LLM_Deployment_Guide_Chinese",
+        "ModelCloud/GPTQModel",
+        "nearai/cvm-compose-files",
+        "Kushagrabainsla/masters-thesis",
+        "WestWaters/pollard-weights",
+        "AtomicBot-ai/atomic-chat-conf",
+        "truespar/paddock",
+        "HGskrd/gpullmusagemodeler",
+        "chronarion/hecate",
+        "whitecircle/halo",
+        "ZJZ0405/zjz0405.github.io",
+        "1CatAI/1Cat-vLLM",
+        "turbo998/ai-infra-research",
+        "localai-org/vllm.cpp",
+        "ai-hpc/ai-hardware-engineer-roadmap",
+        "invergent-ai/surogate",
+        "KubeTEE-AI/kubetee-subnet",
+        "jalberty2018/awesome-comfyui",
+        "MrNirmata/MrNirmata",
+        "avifenesh/memra",
+        "defilantech/llmkube-runtimes",
+        "Marco-Lu2508/fLLM",
+        "MCJF28/cutlass-cute-zh",
+        "HaseebKhalid1507/Axon",
+        "defnotean/pseudobrain",
+        "VitaminDB/synaptix"
+      ]
+    },
+    {
+      "query": "\"openkernelchallenge.dev\" in:readme",
+      "status": 200,
+      "total": 12,
+      "retrieved_at": "2026-11-02T02:20:22.055Z",
+      "returned": 12,
+      "items": [
+        "nvbkdw/muse-spark-open-challenge",
+        "trxphxle/okc-2026-muse-kernels",
+        "alygg77/okc-muse-spark-kernels",
+        "ruwwww/open-kernel-challenge",
+        "randombullshitgo12/messy-qwen",
+        "chenwainuo/okc",
+        "sid19991/open-kernel-challenge",
+        "Aravind-11/muse-moe-w4a16",
+        "Reedo3/Muse_Attention_Decode",
+        "nibague/open-kernel-challenge",
+        "lilaclilac09/open-kernel-challenge",
+        "danyloooah-web/okc-claims"
+      ]
+    },
+    {
+      "query": "\"muse\" user:prateekm1007",
+      "status": 200,
+      "total": 0,
+      "retrieved_at": "2026-11-02T02:20:22.212Z",
+      "returned": 0,
+      "items": []
+    },
+    {
+      "query": "\"muse_bf16_proj\" in:readme",
+      "status": 200,
+      "total": 25,
+      "retrieved_at": "2026-11-02T02:20:22.828Z",
+      "returned": 25,
+      "items": [
+        "nvbkdw/muse-spark-open-challenge",
+        "asifehmad/openkernel-challenge",
+        "keell0renz/muse-open-kernel-challenge",
+        "Kushagrabainsla/muse-spark-open",
+        "ishnbl/muse_kernel",
+        "trxphxle/okc-2026-muse-kernels",
+        "Akshaysanthosh/h200-kernel-lab",
+        "ScrashOff/okc-muse-kernels",
+        "alygg77/okc-muse-spark-kernels",
+        "ruwwww/open-kernel-challenge",
+        "iyerramji/open-kernel-challenge",
+        "chenwainuo/okc",
+        "zhebrak/muse-spark-kernels",
+        "sid19991/open-kernel-challenge",
+        "lee101/openkernels",
+        "vjeux/okc-2026",
+        "ozgureyilmaz/okc-muse-kernels",
+        "nibague/open-kernel-challenge",
+        "infraax/okc-kernel-challenge",
+        "xharshvardhan/open-kernel-challenge",
+        "operatorstack/open-kernel-challenge-solutions",
+        "chinesepowered/hack-argonspeed",
+        "NathenFernandes/muse-bf16-proj",
+        "lilaclilac09/open-kernel-challenge",
+        "theluckystrike/muse-spark-open-kernels"
+      ]
+    }
+  ],
+  "pin_comparison": [
+    {
+      "repo": "nvbkdw/muse-spark-open-challenge",
+      "status": 200,
+      "current": "f13e75c51802e2cbc8f143a1128e88c66c15e74a",
+      "previous_full_intake_pin": "f13e75c51802e2cbc8f143a1128e88c66c15e74a"
+    },
+    {
+      "repo": "asifehmad/openkernel-challenge",
+      "status": 200,
+      "current": "b0409625de66f6c507e62440c947492d976a8186",
+      "previous_full_intake_pin": null
+    },
+    {
+      "repo": "KingCobra52/muse_bf16_optimization",
+      "status": 200,
+      "current": "1b17cdfd7b1d0b599ecc3a67ca1a91c298bd44a7",
+      "previous_full_intake_pin": null
+    },
+    {
+      "repo": "ishnbl/muse_kernel",
+      "status": 200,
+      "current": "aef4da6cd7c5ee005e2c0466ec747979ad5afc87",
+      "previous_full_intake_pin": "aef4da6cd7c5ee005e2c0466ec747979ad5afc87"
+    }
+  ],
+  "new_full_intake_metadata": [
+    {
+      "repo": "asifehmad/openkernel-challenge",
+      "pin": "b0409625de66f6c507e62440c947492d976a8186",
+      "tree_status": 200,
+      "truncated": false,
+      "paths": [
+        {
+          "path": "LICENSE",
+          "size": 10280,
+          "sha": "137069b823873b8bcf42979bcf8e9371052d26a2"
+        },
+        {
+          "path": "README.md",
+          "size": 8135,
+          "sha": "78b4848451cc2d3f6f605693aedab6bd16d476e1"
+        },
+        {
+          "path": "benchmarks/results",
+          "sha": "74bfc37591cf1e535de0759ffeeae31b2e0075a8"
+        },
+        {
+          "path": "benchmarks/results/.gitkeep",
+          "size": 0,
+          "sha": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391"
+        },
+        {
+          "path": "benchmarks/results/README.md",
+          "size": 240,
+          "sha": "51a74e474f35ae60393e4a42663efe943d6507be"
+        },
+        {
+          "path": "muse_bf16_proj/submission.py",
+          "size": 16961,
+          "sha": "502f8d5a0d0c5af6731b5746de8ab53345bdbd3e"
+        },
+        {
+          "path": "tests/test_submission.py",
+          "size": 5369,
+          "sha": "1c8c3099853ad023fcd2501ddbea098d6f97291e"
+        },
+        {
+          "path": "third_party/okc_snapshot/LICENSE",
+          "size": 11346,
+          "sha": "9c422689c8f5c317c7c65153b1209349ec57007e"
+        }
+      ],
+      "readme_status": 200,
+      "readme_sha256": "15a77c5b0dcf2c73b4eb012a65b0ff2c4dfe64c2b87b32832fabcab982464831",
+      "readme_lead": "# Muse BF16 projection — H200 development\n\nIndependent kernel candidate for `muse_bf16_proj`, targeting the Muse Spark Open\nKernel Challenge. **Best observed official off-board result: 1.162x speedup,\n4,157.4 µs, all nine correctness tests passed** (job `5cb5acb9d0a347fb`).\nThe router uses fused split-K for M<128 and a single packed high/low\nBF16 GEMM with FP32 output at M>=128. No leaderboard submission has been made.\n\n| Metric | Result |\n| --- | --- |\n| Official baseline | 4.8308 ms in a public October 24 API snapshot; live unverified |\n| Current leaderboard target | 2.93 ms user-supplied target; live rank unverified |\n| Best official-check latency | 4.1574 ms (job `5cb5acb9d0a347fb`) |\n| Best observed official-check speedup | 1.162x; 95%"
+    },
+    {
+      "repo": "KingCobra52/muse_bf16_optimization",
+      "pin": "1b17cdfd7b1d0b599ecc3a67ca1a91c298bd44a7",
+      "tree_status": 200,
+      "truncated": false,
+      "paths": [
+        {
+          "path": "README.md",
+          "size": 25,
+          "sha": "79b0d905b58159c4d1600375fabd2212032ec00c"
+        },
+        {
+          "path": "submission.py",
+          "size": 1299,
+          "sha": "6ce773a44036578450b1489df0030d65d2c67c0e"
+        }
+      ],
+      "readme_status": 200,
+      "readme_sha256": "9ff5012ee2d46de8a50ef8d8da53ff54920a4259aa70712ec860acacbe8c040e",
+      "readme_lead": "# muse_bf16_optimization\n"
+    }
+  ],
+  "finding": "No newly verified stronger complete layer implementation from these checks. asifehmad describes a projection-only1.162x historical private result, not a competitive layer implementation; KingCobra tree has1299Bsubmission and25BREADME, no readable layer result evidence. nvbkdw andishnbl pins unchanged from priorfullintake. Metadata/code size do not prove correctness or performance.",
+  "limits": [
+    "Broad Muse query279results: inspected first30sortedupdated, not exhausted.",
+    "NVFP4/Hopper/MoE query290results: first30only, not exhausted.",
+    "Exact layer17,alternate domain12,projection25 repo metadata fit returned pages.",
+    "General web search returned no usable tool content; do not treat that as evidence of absence.",
+    "No publicsource fetched here is adopted or dispatched."
+  ]
+}
