@@ -1,0 +1,65 @@
+[
+    {
+        "query":  "filename:muse-spark-open.yaml",
+        "result":  {
+                       "count":  8,
+                       "files":  [
+                                     {
+                                         "path":  "providers/openrouter/meta/muse-spark-open.yaml",
+                                         "repository":  "truefoundry/models",
+                                         "sha":  "159b36be41a05362f1d631fe6585f962a18062d1"
+                                     },
+                                     {
+                                         "path":  "models/fireworks/muse-spark-open.yaml",
+                                         "repository":  "mnfst/modelparams.dev",
+                                         "sha":  "b31849ee2d75a0d18e062d48cc7ec5b8c162c8a2"
+                                     },
+                                     {
+                                         "path":  "providers/google-vertex/meta/muse-spark-open.yaml",
+                                         "repository":  "truefoundry/models",
+                                         "sha":  "287673fe973fc9c8282e99e8a86e6800b927435f"
+                                     },
+                                     {
+                                         "path":  "data/models/muse-spark-open.yaml",
+                                         "repository":  "acforvs/archdb",
+                                         "sha":  "1278140e3c2468839782cab9b7e15915fbfb7e0b"
+                                     },
+                                     {
+                                         "path":  "providers/fireworks-ai/accounts/fireworks/models/muse-spark-open.yaml",
+                                         "repository":  "truefoundry/models",
+                                         "sha":  "160e99d915fcf323967237340fe3ac1001760fb2"
+                                     },
+                                     {
+                                         "path":  "data/outputs/meta/muse-spark-open.yaml",
+                                         "repository":  "hammer/labs",
+                                         "sha":  "313c75b84b281b75b30650d89df2bef484fb3c00"
+                                     },
+                                     {
+                                         "path":  "models/llm/muse-spark-open.yaml",
+                                         "repository":  "aiandlabs/dify-plugin",
+                                         "sha":  "b9d5d113b0490148b4b99ad83f01321b4d8281a1"
+                                     },
+                                     {
+                                         "path":  "gitm/planner/models/muse-spark-open.yaml",
+                                         "repository":  "GitM-Labs/runtime-open",
+                                         "sha":  "94807d4c3ce6c1174edca5d6b6bf06a192ae48f9"
+                                     }
+                                 ],
+                       "incomplete_results":  false
+                   },
+        "at_utc":  "2026-11-02T19:18:21.9180915Z",
+        "exit_code":  0
+    },
+    {
+        "query":  "filename:muse-spark-open.yaml path:configs",
+        "result":  {
+                       "count":  0,
+                       "files":  [
+
+                                 ],
+                       "incomplete_results":  false
+                   },
+        "at_utc":  "2026-11-02T19:18:22.3164366Z",
+        "exit_code":  0
+    }
+]

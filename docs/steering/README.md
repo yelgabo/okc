@@ -4,6 +4,8 @@ This is the stable cross-session entry point. Read the latest report, its eviden
 
 ## Latest human ROI priority
 
+[Evaluator-delta audit](2026-11-02-captain-evaluator-delta.md): three owning receipts validate; twelve declared benchmark cases match excluding only seed, with only the config file hash changing among listed evaluator files. Config semantics/dependency effects remain unresolved. No baseline repeat or target allocation; existing attention source task and net full-layer ROI gate remain binding.
+
 [T1 full-layer ROI and completed review](2026-11-02-t1-layer-roi-and-review-status.md): user asks to avoid tiny-optimization checks. T1 review/test already completed; exact28248eb5 treatment is parked, no second check. One-percent layer gain requires about4.565us net decode1 saving; a1% standalone gate could imply only0.340% layer gain under the stated conditional model. Before another target allocation, captain must record a credible >=1% net six-load layer contribution, exposed-time evidence, replacement costs, strongest alternative and stop rule; favor several-percent mechanisms. No new dispatch permission or acknowledgment is claimed.
 
 ## Latest standalone component harness
