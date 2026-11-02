@@ -1,0 +1,17 @@
+{
+  "base_sha256": "ba9e327cd7b96595ace4d0c1d0d78fe27c128f23ed0debcda97c7169fc3164ab",
+  "native_control_sha256": "c7c201ae145c6a33f2d5e6b1f80d2a6e56e8d75502f9fd09ace40927ad0f7c71",
+  "native_candidate_sha256": "3cc12ae09f1954013f5cc9be858120d29b12bf14fff267391b94c5000d2256ea",
+  "source_sha256": "4d1a4b2cdfd1a737bf7388deaafcc27900729ae71314c5911e8d66423afe3e23",
+  "bytes": 872355,
+  "default_arm": "control",
+  "scope": "dual-build source packaging; not a complete measurement harness",
+  "pending": [
+    "independent mutable preparations and ownership validation",
+    "candidate replay correctness",
+    "matched timing and strict owning reader",
+    "target compile and preparation budget"
+  ],
+  "gpu_qualified": false,
+  "dispatch_ready": false
+}
