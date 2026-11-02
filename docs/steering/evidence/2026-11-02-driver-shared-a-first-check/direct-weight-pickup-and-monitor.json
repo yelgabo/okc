@@ -1,0 +1,21 @@
+{
+  "allocation": "7a1b048a3d2ac1f317bb5fa59ca81b7132831e5d",
+  "remote_changed_blobs_verified": 22,
+  "direct_delivery": true,
+  "explicit_implementation_pickup": true,
+  "worker_chat": "01a19976-9e99-79c0-bab1-644bd8c0293a",
+  "active_turn": "01a19e86-21ee-7352-ad79-0ea2064afc78",
+  "start_epoch": 1793660953,
+  "first_owned_file": "tools/wgs_direct_weight_registers.py",
+  "window_active_minutes": 60,
+  "one_private_layer_check_reserved": true,
+  "judge_dispatched": false,
+  "worker_ack": "Immutableba9/c7, originalK256/16stage/fourWG/256rows/64tokens/math/packing/scratch/grid retained;544threads/3Xslots. Physicalst,neverseq%16. No SS/K128counterreuse/sweeps/POST/poll/default.",
+  "automation_readback": {
+    "status": "ACTIVE",
+    "rrule": "FREQ=HOURLY;INTERVAL=1",
+    "target_thread_id": "01a1963f-0c8e-7d41-be02-0e691dcfcaf7",
+    "updated_at": 1793660984200,
+    "new_current_allocation_and_old_SS_terminal_park_confirmed": true
+  }
+}

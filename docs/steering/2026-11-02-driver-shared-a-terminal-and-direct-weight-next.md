@@ -55,8 +55,13 @@ Developer owns`tools/wgs_direct_weight_registers.py`, focused address/selection/
 
 ## Independent reserve rejected while the job ran
 
-Packed-MoE hardware-compressible backing is not the next allocation. The [actual generator](../../muse_decode_layer/nvfp4.py) produces uniform random code bytes; canonical lossless code packing cannot be credited with systematic code entropy reduction. Selected WGS banks12/13 total840MiB, of which768MiB are codes and72MiB SC6 scales; unit banks10/11 add864MiB for short/MID routes. Changing original input banks0/3 would miss the actual readers.
+Packed-MoE hardware-compressible backing is not the next allocation. The [actual generator](../../muse_decode_layer/nvfp4.py), whose canonical Git SHA256 exactly matches the owning runner's challenge/nvfp4.py hashcfdf37c7, produces uniform random code bytes; canonical lossless code packing cannot be credited with systematic code entropy reduction. Selected WGS banks12/13 total840MiB, of which768MiB are codes and72MiB SC6 scales; unit banks10/11 add864MiB for short/MID routes. Changing original input banks0/3 would miss the actual readers.
 
 Even a deliberately generous WGS scenario eliminating all8.57% scale bytes and turning the same fraction of the **entire** profiled expert activity into endpoint savings gives only2.236% layer, not a physical ceiling or forecast. There is no evidence of useful compression of the random-code bulk. Existing BF16 PR/Lt-specific owner hooks also do not cover native startup/private/eager/captured readers; new exact-byte allocation and state-local native proxies would be required. No implementation/check is allocated. This is an ROI/source STOP for this proposal, not a general VMM safety prohibition or a result on trained/redundant weights. The earlier sparse-count SIMT reserve likewise lacks actual layer coverage and an instruction/traffic advantage; its scoped review remains in the allocation report.
 
 Delivery and explicit pickup of the new direct-weight implementation will be recorded separately. This terminal publication claims neither a third submitted job nor a speedup.
+
+
+## Direct implementation delivery and pickup
+
+After7a1b048a publication and verification of all22 changed remote blobs, captain directly assigned the fixed direct-weight implementation to existing OKC Developer. It explicitly acknowledged **IMPLEMENTATION pickup at23:09UTC**, created`tools/wgs_direct_weight_registers.py`, and accepted the60-active-minute window, fixed original K256 geometry/physical-stage address, no SS counter reuse/sweeps and no worker POST/poll/default change. This is implementation pickup, not a third submitted job or speed result. The hourly monitor was updated through the app and read back with cadence/destination preserved; it follows this current allocation and both exact terminal PARKs. [Coordination record](evidence/2026-11-02-driver-shared-a-first-check/direct-weight-pickup-and-monitor.json).

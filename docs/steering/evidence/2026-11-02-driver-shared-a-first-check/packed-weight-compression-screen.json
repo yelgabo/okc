@@ -31,5 +31,8 @@
     "preservegraphclone/exec/inflightuserobjectsandowner-eventsfinallycleanup",
     "replacebackingbefore56startup,notafter",
     "privatepointer/layout/cacheownership"
-  ]
+  ],
+  "input_generator_git_blob_sha256": "cfdf37c7bc14b10f7353aba7d4632f4767401b92b4b073941a8030d9a961aaaf",
+  "owning_evaluator_challenge_nvfp4_sha256": "cfdf37c7bc14b10f7353aba7d4632f4767401b92b4b073941a8030d9a961aaaf",
+  "generator_matches_owning_evaluator": true
 }
