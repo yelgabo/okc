@@ -1,0 +1,26 @@
+{
+  "terminal_commit": "87cfa4afb1328d51de4924570adc37ff1f3cca5a",
+  "new_service_calls": 0,
+  "files": [
+    {
+      "path": "docs/steering/2026-11-02-worker-short-serial-v2-strict-comparison.md",
+      "bytes": 3315,
+      "sha256": "c981bdf1d54a1b306f65992e8ce16803bbdf7399fd67adc4f44ed102f346acbe"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-worker-short-serial-v2/strict-receipt-comparison.json",
+      "bytes": 7409,
+      "sha256": "83fd0ce89cf9ea1c2965225f3b45e2101f84aed19264267af44d16b627cf521c"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-worker-short-serial-v2/strict-receipt-comparison.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-worker-short-serial-v2/strict-receipt-comparison-provenance.json",
+      "bytes": 1230,
+      "sha256": "b1cbf0f20d6cd66c9cb08459c5f035244ba5969325430975648b75e08f42ce23"
+    }
+  ]
+}

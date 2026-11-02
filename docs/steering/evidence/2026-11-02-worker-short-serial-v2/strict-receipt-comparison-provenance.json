@@ -1,0 +1,35 @@
+{
+  "command": [
+    "python3",
+    "tools/dl_compare_receipts.py",
+    "docs/steering/evidence/2026-11-02-worker-short-serial-v2/control/terminal-status.json",
+    "docs/steering/evidence/2026-11-02-worker-short-serial-v2/candidate/terminal-status.json",
+    "--control-job",
+    "cc474883117947c0",
+    "--candidate-job",
+    "e4c8f00532b74d15"
+  ],
+  "started": "2026-11-02T13:08:01.087Z",
+  "finished": "2026-11-02T13:08:04.595Z",
+  "exit_code": 0,
+  "allocation": "1df00005d3eceb467c38b17ac0d4cad632efbc78",
+  "terminal_commit": "87cfa4afb1328d51de4924570adc37ff1f3cca5a",
+  "new_service_calls": 0,
+  "inputs": [
+    {
+      "path": "tools/dl_compare_receipts.py",
+      "bytes": 8838,
+      "sha256": "f25ff02a37d33a0360a9446749d6dd709804062561b9dd013cda5c0584e90ca5"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-worker-short-serial-v2/control/terminal-status.json",
+      "bytes": 73717,
+      "sha256": "99fc065c3c13389922e9914a5a2ea15b69dd6786f954ef74d65cfe67c46170fd"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-worker-short-serial-v2/candidate/terminal-status.json",
+      "bytes": 74143,
+      "sha256": "e990c88b0533751532b8b508aa16e5fc2cc7f5e2aa1127672407723b9b7c4df7"
+    }
+  ]
+}
