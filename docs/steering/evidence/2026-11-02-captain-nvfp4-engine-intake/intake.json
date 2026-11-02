@@ -1,0 +1,75 @@
+{
+  "retrieved_utc": "2026-11-02T19:47:51.590964+00:00",
+  "repository": "axolotl-ai-cloud/axolotl",
+  "commit": "58deaee13ce0625e0b431ece379b91c7715b8aae",
+  "files": [
+    {
+      "path": "docs/nvfp4_lora.qmd",
+      "endpoint": "repos/axolotl-ai-cloud/axolotl/contents/docs/nvfp4_lora.qmd?ref=58deaee13ce0625e0b431ece379b91c7715b8aae",
+      "bytes": 16259,
+      "git_blob": "99ff28a45d56603e9fec7a1cd30e1c32121f6e78",
+      "sha256": "ec30ea2c27e018b46a2273b46912ab66db1c8099c5c7df43a32a2dd143225b5b"
+    },
+    {
+      "path": "src/axolotl/integrations/kernels/libs/sonicmoe/nvfp4.py",
+      "endpoint": "repos/axolotl-ai-cloud/axolotl/contents/src/axolotl/integrations/kernels/libs/sonicmoe/nvfp4.py?ref=58deaee13ce0625e0b431ece379b91c7715b8aae",
+      "bytes": 10150,
+      "git_blob": "c3caf680e775838753200ceea60ea122c53b7f35",
+      "sha256": "a8dddbe0173dc234cd6fc5ba3a0ddbd2aa86674974bdd3699da75a855e255d9b"
+    },
+    {
+      "path": "src/axolotl/integrations/kernels/libs/sonicmoe/nvfp4_lora.py",
+      "endpoint": "repos/axolotl-ai-cloud/axolotl/contents/src/axolotl/integrations/kernels/libs/sonicmoe/nvfp4_lora.py?ref=58deaee13ce0625e0b431ece379b91c7715b8aae",
+      "bytes": 38424,
+      "git_blob": "ccd96eee13a499f7f0b8a02f694632c84a96f5d0",
+      "sha256": "67661c51a17987d3117f1d1c2fcca50e44f3901fcaf47008116cc5a8298a852d"
+    },
+    {
+      "path": "src/axolotl/integrations/kernels/libs/sonicmoe/nvfp4_quant.py",
+      "endpoint": "repos/axolotl-ai-cloud/axolotl/contents/src/axolotl/integrations/kernels/libs/sonicmoe/nvfp4_quant.py?ref=58deaee13ce0625e0b431ece379b91c7715b8aae",
+      "bytes": 10785,
+      "git_blob": "46b7c2112fb983572b0535de03d51665a6a288e3",
+      "sha256": "af298cfe64529c38e94ee1984fe570bc8b7ff7528aa2d27490e7201f4b953575"
+    },
+    {
+      "path": "src/axolotl/integrations/kernels/libs/sonicmoe/triton_nvfp4.py",
+      "endpoint": "repos/axolotl-ai-cloud/axolotl/contents/src/axolotl/integrations/kernels/libs/sonicmoe/triton_nvfp4.py?ref=58deaee13ce0625e0b431ece379b91c7715b8aae",
+      "bytes": 24973,
+      "git_blob": "b572d019cd15b89dd7af800d3fd09a865019e0c1",
+      "sha256": "fefd87d426f679742f9cfb80692b9fa2df644663972b951f464ec7d6eede2707"
+    },
+    {
+      "path": "src/axolotl/integrations/kernels/libs/sonicmoe/fp4_cute.py",
+      "endpoint": "repos/axolotl-ai-cloud/axolotl/contents/src/axolotl/integrations/kernels/libs/sonicmoe/fp4_cute.py?ref=58deaee13ce0625e0b431ece379b91c7715b8aae",
+      "bytes": 10714,
+      "git_blob": "5acc048abc5126fcf109936c4cede0c1e43db85e",
+      "sha256": "baa574cc478ccb9736bac7a0f81a82d3e3d1b0a65a37b166ace74e64313d0512"
+    },
+    {
+      "path": "src/axolotl/integrations/kernels/libs/scattermoe_lora/marlin_w4a16/backend.py",
+      "endpoint": "repos/axolotl-ai-cloud/axolotl/contents/src/axolotl/integrations/kernels/libs/scattermoe_lora/marlin_w4a16/backend.py?ref=58deaee13ce0625e0b431ece379b91c7715b8aae",
+      "bytes": 15740,
+      "git_blob": "7c4eb1dd5928574c1f80dd933c5a0b719adc5e7a",
+      "sha256": "e1be6436d0aa7f50fb5976d4a5b2b08fec5d45185568b83ac6a403bf76681b28"
+    },
+    {
+      "path": "src/axolotl/integrations/kernels/libs/scattermoe_lora/marlin_w4a16/prep.py",
+      "endpoint": "repos/axolotl-ai-cloud/axolotl/contents/src/axolotl/integrations/kernels/libs/scattermoe_lora/marlin_w4a16/prep.py?ref=58deaee13ce0625e0b431ece379b91c7715b8aae",
+      "bytes": 13079,
+      "git_blob": "ded64a0e69af8ae6190cfa2d8c77bed0cd6f5bf4",
+      "sha256": "3197b5ee08b48ec73b49646698e8b26cdd04c861b2616d1b8d6bc861d6f9d13e"
+    },
+    {
+      "path": "src/axolotl/integrations/kernels/adapters/nvfp4_moe.py",
+      "endpoint": "repos/axolotl-ai-cloud/axolotl/contents/src/axolotl/integrations/kernels/adapters/nvfp4_moe.py?ref=58deaee13ce0625e0b431ece379b91c7715b8aae",
+      "bytes": 8662,
+      "git_blob": "c17258ce184120b9ff818f510637bf4c14633452",
+      "sha256": "052fe06659beac6e32923b8b68ec3c888033e962835799e4da434d04a6889d14"
+    }
+  ],
+  "limitations": [
+    "Foreign source downloaded only, never imported or executed.",
+    "Node-runtime gh authentication failed; shell-runtime gh used.",
+    "Selected file intake, not a complete repository audit."
+  ]
+}

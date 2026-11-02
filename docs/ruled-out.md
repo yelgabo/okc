@@ -1,5 +1,11 @@
 # Ruled out
 
+## November 2 UTC 2026 new NVFP4 library source screen
+
+| Treatment | Evidence | Scope and reopening condition |
+| --- | --- | --- |
+| Unmodified Axolotl58deaee SonicMoE NVFP4 helper as a complete Hopper Muse replacement | Captain source intake and independent CPU witness: `steering/2026-11-02-captain-nvfp4-engine-intake.md`; nine immutable file identities, gated activation extra-round witness; no target/job/score. | STOP unmodified drop-in/automatic wrapper allocation. Native W4A4 is not the Hopper path; inspected compatible fallback dequantizes, separate path is Marlin; per-expert Muse norm missing and generic helper boundary differs. Not a measured loss, whole-family rejection or official numerical failure. Reopen on compatible complete selected path with source-associated substantial net-layer evidence; scalar repair alone does not qualify. |
+
 ## November2UTC2026 exact pre-gamma standalone component target
 
 | Treatment | Evidence | Scope and reopening condition |

@@ -1,0 +1,20 @@
+{
+  "torch_version": "2.10.0+cpu",
+  "device": "cpu",
+  "sample_pairs": 8200,
+  "different_after_extra_round": 1443,
+  "different_with_original_formula_agreement": 1443,
+  "witness": {
+    "gate_bf16": -7.9375,
+    "up_bf16": 0.75,
+    "silu_fp32": -0.00283345440402627,
+    "single_round_bf16": -0.0021209716796875,
+    "original_formula_bf16": -0.0021209716796875,
+    "extra_round_bf16": -0.00213623046875
+  },
+  "limitations": [
+    "Independent transcription of scalar boundaries; no foreign module executed.",
+    "Not an exhaustive BF16 domain proof, target result or official rejection.",
+    "No whole-operator norm, GEMM or performance test."
+  ]
+}
