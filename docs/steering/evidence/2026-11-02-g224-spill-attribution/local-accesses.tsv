@@ -1,0 +1,375 @@
+family	entry	pc	opcode_operands	class	native_lines	ptx_line	ptx_text	innermost_loop_header	loop_has_HGMMA
+B4	_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE	0x4700	STL.64 [R1+0x90], RZ	activation_gather	1905,2569,2569	34819	@%p268 bra 	$L__BB8_208;	.L_x_111	False
+B4	_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE	0x4740	STL.64 [R1+0x98], RZ	activation_gather	1904,2569,2569	35164	add.s32 	%r342, %r12467, 2;	.L_x_111	False
+B4	_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE	0x4780	STL.64 [R1+0x68], RZ	activation_gather	1904,2569,2569	35520	add.s32 	%r394, %r12467, 4;	.L_x_111	False
+B4	_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE	0x47c0	STL.64 [R1+0x88], RZ	activation_gather	1905,2569,2569	34986	setp.ge.s32 	%p273, %r316, %r224;	.L_x_111	False
+B4	_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE	0x4800	STL.64 [R1+0x78], RZ	activation_gather	1905,2569,2569	35344	setp.ge.s32 	%p285, %r368, %r224;	.L_x_111	False
+B4	_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE	0x4840	STL.64 [R1+0x48], RZ	activation_gather	1904,2569,2569	35698	add.s32 	%r420, %r12467, 5;	.L_x_111	False
+B4	_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE	0x4880	STL.64 [R1+0x80], RZ	activation_gather	1904,2569,2569	35876	add.s32 	%r446, %r12467, 6;	.L_x_111	False
+B4	_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE	0x4be0	STL.64 [R1+0x98], R8	activation_gather	1918,2569,2569	34901	ld.global.nc.u32 %r12471, [%rd554];	.L_x_111	False
+B4	_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE	0x4bf0	STL.64 [R1+0x80], R2	activation_gather	1918,2569,2569	34901	ld.global.nc.u32 %r12471, [%rd554];	.L_x_111	False
+B4	_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE	0x4c00	STL [R1+0x5c], R5	activation_gather	1918,2569,2569	34901	ld.global.nc.u32 %r12471, [%rd554];	.L_x_111	False
+B4	_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE	0x4c10	STL [R1+0x58], R13	activation_gather	1918,2569,2569	34901	ld.global.nc.u32 %r12471, [%rd554];	.L_x_111	False
+B4	_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE	0x4c20	STL [R1+0x54], R14	activation_gather	1918,2569,2569	34901	ld.global.nc.u32 %r12471, [%rd554];	.L_x_111	False
+B4	_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE	0x4c30	STL [R1+0x50], R15	activation_gather	1918,2569,2569	34901	ld.global.nc.u32 %r12471, [%rd554];	.L_x_111	False
+B4	_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE	0x4c40	STL.64 [R1+0x70], RZ	activation_gather	1918,2569,2569	34901	ld.global.nc.u32 %r12471, [%rd554];	.L_x_111	False
+B4	_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE	0x4c80	STL.64 [R1+0x60], RZ	activation_gather	1909,2569,2569	35191	@%p279 bra 	$L__BB8_230;	.L_x_111	False
+B4	_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE	0x4cc0	STL.64 [R1+0x40], RZ	activation_gather	1909,2569,2569	35369	@%p285 bra 	$L__BB8_239;	.L_x_111	False
+B4	_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE	0x4cf0	STL.64 [R1+0x28], RZ	activation_gather	1909,2569,2569	34907	@%p267 bra 	$L__BB8_215;	.L_x_111	False
+B4	_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE	0x4fc0	STL.64 [R1+0x90], R76	activation_gather	1918,2569,2569	34975	ld.global.nc.u32 %r12476, [%rd575];	.L_x_111	False
+B4	_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE	0x5370	STL.64 [R1+0x88], R6	activation_gather	1914,2569,2569	35039	add.s64 	%rd2433, %rd607, %rd609;	.L_x_111	False
+B4	_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE	0x5380	STL.64 [R1+0x78], R6	activation_gather	1914,2569,2569	35039	add.s64 	%rd2433, %rd607, %rd609;	.L_x_111	False
+B4	_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE	0x5390	STL.64 [R1+0x20], RZ	activation_gather	1914,2569,2569	35039	add.s64 	%rd2433, %rd607, %rd609;	.L_x_111	False
+B4	_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE	0x53d0	STL.64 [R1+0x18], RZ	activation_gather	1909,2569,2569	35443	@%p285 bra 	$L__BB8_242;	.L_x_111	False
+B4	_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE	0x56d0	STL.64 [R1+0x68], R80	activation_gather	1916,2569,2569	35135	add.s64 	%rd639, %rd31, %rd638;	.L_x_111	False
+B4	_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE	0x5af0	STL.64 [R1+0x70], R76	activation_gather	1918,2569,2569	35259	ld.global.nc.u32 %r12491, [%rd654];	.L_x_111	False
+B4	_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE	0x5b00	STL.64 [R1+0x60], R14	activation_gather	1918,2569,2569	35259	ld.global.nc.u32 %r12491, [%rd654];	.L_x_111	False
+B4	_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE	0x5b10	STL.64 [R1+0x10], RZ	activation_gather	1918,2569,2569	35259	ld.global.nc.u32 %r12491, [%rd654];	.L_x_111	False
+B4	_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE	0x5b50	STL.64 [R1+0x8], RZ	activation_gather	1909,2569,2569	35725	@%p297 bra 	$L__BB8_257;	.L_x_111	False
+B4	_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE	0x5b90	STL.64 [R1], RZ	activation_gather	1909,2569,2569	35903	@%p303 bra 	$L__BB8_266;	.L_x_111	False
+B4	_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE	0x5eb0	STL.64 [R1+0x48], R88	activation_gather	1918,2569,2569	35337	ld.global.nc.u32 %r12495, [%rd676];	.L_x_111	False
+B4	_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE	0x6240	STL.64 [R1+0x28], R82	activation_gather	1914,2569,2569	35395	add.s64 	%rd2447, %rd707, %rd709;	.L_x_111	False
+B4	_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE	0x6570	STL.64 [R1+0x40], R88	activation_gather	1918,2569,2569	35515	ld.global.nc.u32 %r12505, [%rd726];	.L_x_111	False
+B4	_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE	0x6900	STL.64 [R1+0x18], R82	activation_gather	1914,2569,2569	35573	add.s64 	%rd2454, %rd757, %rd759;	.L_x_111	False
+B4	_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE	0x6c30	STL.64 [R1+0x20], R88	activation_gather	1918,2569,2569	35693	ld.global.nc.u32 %r12515, [%rd776];	.L_x_111	False
+B4	_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE	0x6fc0	STL.64 [R1+0x8], R82	activation_gather	1914,2569,2569	35751	add.s64 	%rd2461, %rd807, %rd809;	.L_x_111	False
+B4	_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE	0x72e0	STL.64 [R1+0x10], R88	activation_gather	1918,2569,2569	35871	ld.global.nc.u32 %r12525, [%rd826];	.L_x_111	False
+B4	_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE	0x79a0	STL.64 [R1], R92	activation_gather	1918,2569,2569	36049	ld.global.nc.u32 %r12535, [%rd876];	.L_x_111	False
+B4	_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE	0x7de0	STL [R1+0x38], R92	activation_gather	1910,2569,2569	36160	ld.shared.u32 	%r489, [%rd2438];	.L_x_111	False
+B4	_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE	0x7e10	STL [R1+0x30], R92	activation_gather	1911,2569,2569	36162	setp.ge.s32 	%p314, %r488, %r489;	.L_x_111	False
+B4	_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE	0x7e20	STL [R1+0x34], R93	activation_gather	1911,2569,2569	36162	setp.ge.s32 	%p314, %r488, %r489;	.L_x_111	False
+B4	_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE	0x7e50	LDL.LU R74, [R1+0x34]	activation_gather	1911,2569,2569	36164	@%p314 bra 	$L__BB8_278;	.L_x_111	False
+B4	_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE	0x7e60	STL [R1+0xa4], R2	activation_gather	1911,2569,2569	36164	@%p314 bra 	$L__BB8_278;	.L_x_111	False
+B4	_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE	0x7e70	STL [R1+0xa0], R0	activation_gather	1911,2569,2569	36164	@%p314 bra 	$L__BB8_278;	.L_x_111	False
+B4	_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE	0x7ea0	LDL.LU R0, [R1+0x30]	activation_gather	1916,2569,2569	36203	add.s64 	%rd939, %rd31, %rd938;	.L_x_111	False
+B4	_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE	0x8060	LDL.LU R73, [R1+0x38]	activation_gather	1917,2569,2569	36212	add.s64 	%rd923, %rd939, %rd940;	.L_x_111	False
+B4	_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE	0x80f0	LDL.LU R2, [R1+0xa4]	activation_gather	1914,2569,2569	36186	bfi.b32 	%r1927, %r1925, %r1926, 3, 29;	.L_x_111	False
+B4	_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE	0x8110	LDL.LU R0, [R1+0xa0]	activation_gather	1914,2569,2569	36186	bfi.b32 	%r1927, %r1925, %r1926, 3, 29;	.L_x_111	False
+B4	_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE	0x8150	STL.64 [R1+0xc8], R86	activation_gather	1918,2569,2569	36227	ld.global.nc.u32 %r12545, [%rd926];	.L_x_111	False
+B4	_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE	0x8160	LDL.LU.64 R86, [R1+0x80]	activation_gather	1918,2569,2569	36227	ld.global.nc.u32 %r12545, [%rd926];	.L_x_111	False
+B4	_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE	0x8170	STL.64 [R1+0xc0], R72	activation_gather	1918,2569,2569	36227	ld.global.nc.u32 %r12545, [%rd926];	.L_x_111	False
+B4	_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE	0x8180	LDL.LU.64 R72, [R1+0x98]	activation_gather	1918,2569,2569	36227	ld.global.nc.u32 %r12545, [%rd926];	.L_x_111	False
+B4	_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE	0x8190	STL.64 [R1+0xb8], R70	activation_gather	1918,2569,2569	36227	ld.global.nc.u32 %r12545, [%rd926];	.L_x_111	False
+B4	_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE	0x81a0	STL.64 [R1+0xb0], R68	activation_gather	1918,2569,2569	36227	ld.global.nc.u32 %r12545, [%rd926];	.L_x_111	False
+B4	_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE	0x81b0	LDL.64 R70, [R1+0x58]	activation_gather	1918,2569,2569	36227	ld.global.nc.u32 %r12545, [%rd926];	.L_x_111	False
+B4	_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE	0x81c0	LDL.64 R68, [R1+0x50]	activation_gather	1918,2569,2569	36227	ld.global.nc.u32 %r12545, [%rd926];	.L_x_111	False
+B4	_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE	0x81d0	STL.64 [R1+0xa8], R74	activation_gather	1918,2569,2569	36227	ld.global.nc.u32 %r12545, [%rd926];	.L_x_111	False
+B4	_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE	0x81e0	LDL.LU.64 R74, [R1+0x78]	activation_gather	1918,2569,2569	36227	ld.global.nc.u32 %r12545, [%rd926];	.L_x_111	False
+B4	_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE	0x81f0	STL.64 [R1+0xa0], R90	activation_gather	1918,2569,2569	36227	ld.global.nc.u32 %r12545, [%rd926];	.L_x_111	False
+B4	_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE	0x8200	LDL.LU.64 R90, [R1+0x90]	activation_gather	1918,2569,2569	36227	ld.global.nc.u32 %r12545, [%rd926];	.L_x_111	False
+B4	_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE	0x8230	LDL.LU.64 R86, [R1+0xc8]	activation_gather	1927,2569,2569	36232	setp.eq.s64 	%p315, %rd2427, 0;	.L_x_111	False
+B4	_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE	0x8270	LDL.LU.64 R72, [R1+0xc0]	activation_gather	1927,2569,2569	36238	setp.eq.s64 	%p316, %rd2429, 0;	.L_x_111	False
+B4	_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE	0x8280	LDL.LU.64 R70, [R1+0xb8]	activation_gather	1927,2569,2569	36238	setp.eq.s64 	%p316, %rd2429, 0;	.L_x_111	False
+B4	_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE	0x8290	LDL.LU.64 R68, [R1+0xb0]	activation_gather	1927,2569,2569	36238	setp.eq.s64 	%p316, %rd2429, 0;	.L_x_111	False
+B4	_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE	0x82a0	LDL.LU.64 R4, [R1+0x60]	activation_gather	1927,2569,2569	36238	setp.eq.s64 	%p316, %rd2429, 0;	.L_x_111	False
+B4	_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE	0x82f0	LDL.LU.64 R74, [R1+0xa8]	activation_gather	1927,2569,2569	36244	setp.eq.s64 	%p317, %rd2434, 0;	.L_x_111	False
+B4	_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE	0x8320	LDL.LU.64 R12, [R1+0x68]	activation_gather	1927,2569,2569	36262	setp.eq.s64 	%p320, %rd2443, 0;	.L_x_111	False
+B4	_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE	0x8350	LDL.LU.64 R4, [R1+0x48]	activation_gather	1927,2569,2569	36256	setp.eq.s64 	%p319, %rd2441, 0;	.L_x_111	False
+B4	_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE	0x8360	LDL.LU.64 R80, [R1+0x88]	activation_gather	1927,2569,2569	36256	setp.eq.s64 	%p319, %rd2441, 0;	.L_x_111	False
+B4	_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE	0x83a0	LDL.LU.64 R90, [R1+0xa0]	activation_gather	1927,2569,2569	36268	setp.eq.s64 	%p321, %rd2448, 0;	.L_x_111	False
+B4	_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE	0x83d0	LDL.LU.64 R80, [R1+0x18]	activation_gather	1927,2569,2569	36253	st.global.v4.u32 	[%rd2435], {%r12488, %r12487, %r12486, %r12485};	.L_x_111	False
+B4	_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE	0x83e0	LDL.LU.64 R12, [R1+0x20]	activation_gather	1927,2569,2569	36253	st.global.v4.u32 	[%rd2435], {%r12488, %r12487, %r12486, %r12485};	.L_x_111	False
+B4	_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE	0x83f0	LDL.LU.64 R2, [R1+0x70]	activation_gather	1927,2569,2569	36253	st.global.v4.u32 	[%rd2435], {%r12488, %r12487, %r12486, %r12485};	.L_x_111	False
+B4	_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE	0x8430	LDL.LU.64 R8, [R1+0x40]	activation_gather	1927,2569,2569	36280	setp.eq.s64 	%p323, %rd2455, 0;	.L_x_111	False
+B4	_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE	0x8450	LDL.LU.64 R10, [R1+0x28]	activation_gather	1927,2569,2569	36286	setp.eq.s64 	%p324, %rd2457, 0;	.L_x_111	False
+B4	_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE	0x8480	LDL.LU.64 R6, [R1+0x8]	activation_gather	1927,2569,2569	36274	setp.eq.s64 	%p322, %rd2450, 0;	.L_x_111	False
+B4	_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE	0x84b0	LDL.LU.64 R4, [R1+0x10]	activation_gather	1927,2569,2569	36265	st.global.v4.u32 	[%rd2442], {%r12498, %r12497, %r12496, %r12495};	.L_x_111	False
+B4	_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE	0x84c0	LDL.LU.64 R2, [R1]	activation_gather	1927,2569,2569	36265	st.global.v4.u32 	[%rd2442], {%r12498, %r12497, %r12496, %r12495};	.L_x_111	False
+B4	_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE	0x17ad0	STL.64 [R1+0x8], R6	phase_B_segment_control_or_epilogue	2578	48805	ld.shared.v2.u32 	{%r12560, %r2049}, [_ZN3okc8smem_rawE+3640];	-	-
+B4	_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE	0x17b00	STL [R1], RZ	phase_B_segment_control_or_epilogue	2578	48805	ld.shared.v2.u32 	{%r12560, %r2049}, [_ZN3okc8smem_rawE+3640];	-	-
+B4	_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE	0x17b70	STL [R1], RZ	phase_B_segment_control_or_epilogue	2218,2578,2578	48819	cvt.u64.u32 	%rd159, %r2055;	-	-
+B4	_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE	0x17bd0	STL.64 [R1+0x10], R4	phase_A_segment_control	1813,2217,2217,2576,2576	48818	or.b32  	%r2055, %r2054, 13396992;	-	-
+B4	_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE	0x17be0	LDL R3, [R1+0xc]	phase_A_segment_control	1813,2217,2217,2576,2576	48818	or.b32  	%r2055, %r2054, 13396992;	.L_x_445	True
+B4	_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE	0x17c70	STL [R1+0x4], R3	phase_B_segment_control_or_epilogue	2224,2578,2578	48840	setp.eq.s32 	%p367, %r557, 16;	.L_x_445	True
+B4	_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE	0x19730	STL [R1+0x8], R7	phase_B_segment_control_or_epilogue	1029,2165,2165,2187,2187,2229,2229,2578,2578	49959	wgmma.fence.sync.aligned;	.L_x_445	True
+B4	_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE	0x19830	LDL R66, [R1]	phase_B_segment_control_or_epilogue	2021,2178,2178,2187,2187,2229,2229,2578,2578	50005	@%p384 bra 	$L__BB8_413;	.L_x_445	True
+B4	_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE	0x1cf00	LDL.LU R16, [R1+0x8]	phase_B_segment_control_or_epilogue	2192,2229,2229,2578,2578	54965	@%p426 bra 	$L__BB8_458;	.L_x_445	True
+B4	_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE	0x1e2d0	LDL.64 R6, [R1+0x10]	phase_B_segment_control_or_epilogue	2000,2205,2205,2229,2229,2578,2578	55832	bra.uni 	$L__BB8_603;	.L_x_445	True
+B4	_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE	0x1e300	STL [R1], R3	phase_B_segment_control_or_epilogue	2196,2229,2229,2578,2578	54976	add.s64 	%rd1243, %rd146, %rd1248;	.L_x_445	True
+B4	_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE	0x1e310	LDL R87, [R1+0x4]	phase_B_segment_control_or_epilogue	2196,2229,2229,2578,2578	54976	add.s64 	%rd1243, %rd146, %rd1248;	.L_x_445	True
+B4	_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE	0x1f620	LDL R61, [R1]	phase_B_segment_control_or_epilogue	2021,2178,2178,2187,2187,2228,2228,2578,2578	52077	@%p470 bra 	$L__BB8_504;	.L_x_445	True
+B4	_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE	0x23ac0	LDL.64 R6, [R1+0x10]	phase_B_segment_control_or_epilogue	2000,2205,2205,2228,2228,2578,2578	62307	st.global.f32 	[%rd231+1024], %f325;	.L_x_445	True
+B4	_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE	0x23af0	STL [R1], R3	phase_B_segment_control_or_epilogue	2196,2228,2228,2578,2578	61726	add.s64 	%rd1450, %rd146, %rd1454;	.L_x_445	True
+B4	_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE	0x23b00	LDL R87, [R1+0x4]	phase_B_segment_control_or_epilogue	2196,2228,2228,2578,2578	61726	add.s64 	%rd1450, %rd146, %rd1454;	.L_x_445	True
+B4	_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE	0x24e00	LDL R67, [R1]	phase_B_segment_control_or_epilogue	2021,2178,2178,2187,2187,2227,2227,2578,2578	51041	@%p543 bra 	$L__BB8_582;	.L_x_445	True
+B4	_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE	0x28c90	LDL.64 R6, [R1+0x10]	phase_B_segment_control_or_epilogue	2000,2205,2205,2227,2227,2578,2578	58934	bra.uni 	$L__BB8_603;	.L_x_445	True
+B4	_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE	0x28cc0	STL [R1], R3	phase_B_segment_control_or_epilogue	2196,2227,2227,2578,2578	58624	add.s64 	%rd1636, %rd146, %rd1639;	.L_x_445	True
+B4	_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE	0x28cd0	LDL R87, [R1+0x4]	phase_B_segment_control_or_epilogue	2196,2227,2227,2578,2578	58624	add.s64 	%rd1636, %rd146, %rd1639;	.L_x_445	True
+B4	_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE	0x28d70	LDL.LU R4, [R1+0x4]	phase_B_segment_control_or_epilogue	2000,2205,2205,2228,2228,2578,2578	62307	st.global.f32 	[%rd231+1024], %f325;	.L_x_445	True
+B4	_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE	0x28d80	LDL R3, [R1+0xc]	phase_B_segment_control_or_epilogue	2000,2205,2205,2228,2228,2578,2578	62307	st.global.f32 	[%rd231+1024], %f325;	.L_x_445	True
+B4	_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE	0x28ed0	LDL.LU R0, [R1]	phase_B_segment_control_or_epilogue	2021,2234,2234,2578,2578	62339	@%p603 bra 	$L__BB8_649;	-	-
+B4	_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE	0x4700	STL.64 [R1+0x90], RZ	activation_gather	1905,2569,2569	3256	@%p268 bra 	$L__BB7_208;	.L_x_854	False
+B4	_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE	0x4740	STL.64 [R1+0x98], RZ	activation_gather	1904,2569,2569	3601	add.s32 	%r342, %r12467, 2;	.L_x_854	False
+B4	_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE	0x4780	STL.64 [R1+0x68], RZ	activation_gather	1904,2569,2569	3957	add.s32 	%r394, %r12467, 4;	.L_x_854	False
+B4	_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE	0x47c0	STL.64 [R1+0x88], RZ	activation_gather	1905,2569,2569	3423	setp.ge.s32 	%p273, %r316, %r224;	.L_x_854	False
+B4	_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE	0x4800	STL.64 [R1+0x78], RZ	activation_gather	1905,2569,2569	3781	setp.ge.s32 	%p285, %r368, %r224;	.L_x_854	False
+B4	_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE	0x4840	STL.64 [R1+0x48], RZ	activation_gather	1904,2569,2569	4135	add.s32 	%r420, %r12467, 5;	.L_x_854	False
+B4	_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE	0x4880	STL.64 [R1+0x80], RZ	activation_gather	1904,2569,2569	4313	add.s32 	%r446, %r12467, 6;	.L_x_854	False
+B4	_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE	0x4be0	STL.64 [R1+0x98], R8	activation_gather	1918,2569,2569	3338	ld.global.nc.u32 %r12471, [%rd554];	.L_x_854	False
+B4	_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE	0x4bf0	STL.64 [R1+0x80], R2	activation_gather	1918,2569,2569	3338	ld.global.nc.u32 %r12471, [%rd554];	.L_x_854	False
+B4	_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE	0x4c00	STL [R1+0x5c], R5	activation_gather	1918,2569,2569	3338	ld.global.nc.u32 %r12471, [%rd554];	.L_x_854	False
+B4	_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE	0x4c10	STL [R1+0x58], R13	activation_gather	1918,2569,2569	3338	ld.global.nc.u32 %r12471, [%rd554];	.L_x_854	False
+B4	_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE	0x4c20	STL [R1+0x54], R14	activation_gather	1918,2569,2569	3338	ld.global.nc.u32 %r12471, [%rd554];	.L_x_854	False
+B4	_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE	0x4c30	STL [R1+0x50], R15	activation_gather	1918,2569,2569	3338	ld.global.nc.u32 %r12471, [%rd554];	.L_x_854	False
+B4	_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE	0x4c40	STL.64 [R1+0x70], RZ	activation_gather	1918,2569,2569	3338	ld.global.nc.u32 %r12471, [%rd554];	.L_x_854	False
+B4	_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE	0x4c80	STL.64 [R1+0x60], RZ	activation_gather	1909,2569,2569	3628	@%p279 bra 	$L__BB7_230;	.L_x_854	False
+B4	_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE	0x4cc0	STL.64 [R1+0x40], RZ	activation_gather	1909,2569,2569	3806	@%p285 bra 	$L__BB7_239;	.L_x_854	False
+B4	_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE	0x4cf0	STL.64 [R1+0x28], RZ	activation_gather	1909,2569,2569	3344	@%p267 bra 	$L__BB7_215;	.L_x_854	False
+B4	_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE	0x4fc0	STL.64 [R1+0x90], R76	activation_gather	1918,2569,2569	3412	ld.global.nc.u32 %r12476, [%rd575];	.L_x_854	False
+B4	_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE	0x5370	STL.64 [R1+0x88], R6	activation_gather	1914,2569,2569	3476	add.s64 	%rd2433, %rd607, %rd609;	.L_x_854	False
+B4	_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE	0x5380	STL.64 [R1+0x78], R6	activation_gather	1914,2569,2569	3476	add.s64 	%rd2433, %rd607, %rd609;	.L_x_854	False
+B4	_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE	0x5390	STL.64 [R1+0x20], RZ	activation_gather	1914,2569,2569	3476	add.s64 	%rd2433, %rd607, %rd609;	.L_x_854	False
+B4	_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE	0x53d0	STL.64 [R1+0x18], RZ	activation_gather	1909,2569,2569	3880	@%p285 bra 	$L__BB7_242;	.L_x_854	False
+B4	_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE	0x56d0	STL.64 [R1+0x68], R80	activation_gather	1916,2569,2569	3572	add.s64 	%rd639, %rd31, %rd638;	.L_x_854	False
+B4	_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE	0x5af0	STL.64 [R1+0x70], R76	activation_gather	1918,2569,2569	3696	ld.global.nc.u32 %r12491, [%rd654];	.L_x_854	False
+B4	_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE	0x5b00	STL.64 [R1+0x60], R14	activation_gather	1918,2569,2569	3696	ld.global.nc.u32 %r12491, [%rd654];	.L_x_854	False
+B4	_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE	0x5b10	STL.64 [R1+0x10], RZ	activation_gather	1918,2569,2569	3696	ld.global.nc.u32 %r12491, [%rd654];	.L_x_854	False
+B4	_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE	0x5b50	STL.64 [R1+0x8], RZ	activation_gather	1909,2569,2569	4162	@%p297 bra 	$L__BB7_257;	.L_x_854	False
+B4	_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE	0x5b90	STL.64 [R1], RZ	activation_gather	1909,2569,2569	4340	@%p303 bra 	$L__BB7_266;	.L_x_854	False
+B4	_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE	0x5eb0	STL.64 [R1+0x48], R88	activation_gather	1918,2569,2569	3774	ld.global.nc.u32 %r12495, [%rd676];	.L_x_854	False
+B4	_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE	0x6240	STL.64 [R1+0x28], R82	activation_gather	1914,2569,2569	3832	add.s64 	%rd2447, %rd707, %rd709;	.L_x_854	False
+B4	_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE	0x6570	STL.64 [R1+0x40], R88	activation_gather	1918,2569,2569	3952	ld.global.nc.u32 %r12505, [%rd726];	.L_x_854	False
+B4	_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE	0x6900	STL.64 [R1+0x18], R82	activation_gather	1914,2569,2569	4010	add.s64 	%rd2454, %rd757, %rd759;	.L_x_854	False
+B4	_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE	0x6c30	STL.64 [R1+0x20], R88	activation_gather	1918,2569,2569	4130	ld.global.nc.u32 %r12515, [%rd776];	.L_x_854	False
+B4	_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE	0x6fc0	STL.64 [R1+0x8], R82	activation_gather	1914,2569,2569	4188	add.s64 	%rd2461, %rd807, %rd809;	.L_x_854	False
+B4	_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE	0x72e0	STL.64 [R1+0x10], R88	activation_gather	1918,2569,2569	4308	ld.global.nc.u32 %r12525, [%rd826];	.L_x_854	False
+B4	_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE	0x79a0	STL.64 [R1], R92	activation_gather	1918,2569,2569	4486	ld.global.nc.u32 %r12535, [%rd876];	.L_x_854	False
+B4	_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE	0x7de0	STL [R1+0x38], R92	activation_gather	1910,2569,2569	4597	ld.shared.u32 	%r489, [%rd2438];	.L_x_854	False
+B4	_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE	0x7e10	STL [R1+0x30], R92	activation_gather	1911,2569,2569	4599	setp.ge.s32 	%p314, %r488, %r489;	.L_x_854	False
+B4	_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE	0x7e20	STL [R1+0x34], R93	activation_gather	1911,2569,2569	4599	setp.ge.s32 	%p314, %r488, %r489;	.L_x_854	False
+B4	_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE	0x7e50	LDL.LU R74, [R1+0x34]	activation_gather	1911,2569,2569	4601	@%p314 bra 	$L__BB7_278;	.L_x_854	False
+B4	_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE	0x7e60	STL [R1+0xa4], R2	activation_gather	1911,2569,2569	4601	@%p314 bra 	$L__BB7_278;	.L_x_854	False
+B4	_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE	0x7e70	STL [R1+0xa0], R0	activation_gather	1911,2569,2569	4601	@%p314 bra 	$L__BB7_278;	.L_x_854	False
+B4	_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE	0x7ea0	LDL.LU R0, [R1+0x30]	activation_gather	1916,2569,2569	4640	add.s64 	%rd939, %rd31, %rd938;	.L_x_854	False
+B4	_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE	0x8060	LDL.LU R73, [R1+0x38]	activation_gather	1917,2569,2569	4649	add.s64 	%rd923, %rd939, %rd940;	.L_x_854	False
+B4	_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE	0x80f0	LDL.LU R2, [R1+0xa4]	activation_gather	1914,2569,2569	4623	bfi.b32 	%r1927, %r1925, %r1926, 3, 29;	.L_x_854	False
+B4	_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE	0x8110	LDL.LU R0, [R1+0xa0]	activation_gather	1914,2569,2569	4623	bfi.b32 	%r1927, %r1925, %r1926, 3, 29;	.L_x_854	False
+B4	_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE	0x8150	STL.64 [R1+0xc8], R86	activation_gather	1918,2569,2569	4664	ld.global.nc.u32 %r12545, [%rd926];	.L_x_854	False
+B4	_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE	0x8160	LDL.LU.64 R86, [R1+0x80]	activation_gather	1918,2569,2569	4664	ld.global.nc.u32 %r12545, [%rd926];	.L_x_854	False
+B4	_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE	0x8170	STL.64 [R1+0xc0], R72	activation_gather	1918,2569,2569	4664	ld.global.nc.u32 %r12545, [%rd926];	.L_x_854	False
+B4	_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE	0x8180	LDL.LU.64 R72, [R1+0x98]	activation_gather	1918,2569,2569	4664	ld.global.nc.u32 %r12545, [%rd926];	.L_x_854	False
+B4	_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE	0x8190	STL.64 [R1+0xb8], R70	activation_gather	1918,2569,2569	4664	ld.global.nc.u32 %r12545, [%rd926];	.L_x_854	False
+B4	_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE	0x81a0	STL.64 [R1+0xb0], R68	activation_gather	1918,2569,2569	4664	ld.global.nc.u32 %r12545, [%rd926];	.L_x_854	False
+B4	_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE	0x81b0	LDL.64 R70, [R1+0x58]	activation_gather	1918,2569,2569	4664	ld.global.nc.u32 %r12545, [%rd926];	.L_x_854	False
+B4	_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE	0x81c0	LDL.64 R68, [R1+0x50]	activation_gather	1918,2569,2569	4664	ld.global.nc.u32 %r12545, [%rd926];	.L_x_854	False
+B4	_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE	0x81d0	STL.64 [R1+0xa8], R74	activation_gather	1918,2569,2569	4664	ld.global.nc.u32 %r12545, [%rd926];	.L_x_854	False
+B4	_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE	0x81e0	LDL.LU.64 R74, [R1+0x78]	activation_gather	1918,2569,2569	4664	ld.global.nc.u32 %r12545, [%rd926];	.L_x_854	False
+B4	_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE	0x81f0	STL.64 [R1+0xa0], R90	activation_gather	1918,2569,2569	4664	ld.global.nc.u32 %r12545, [%rd926];	.L_x_854	False
+B4	_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE	0x8200	LDL.LU.64 R90, [R1+0x90]	activation_gather	1918,2569,2569	4664	ld.global.nc.u32 %r12545, [%rd926];	.L_x_854	False
+B4	_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE	0x8230	LDL.LU.64 R86, [R1+0xc8]	activation_gather	1927,2569,2569	4669	setp.eq.s64 	%p315, %rd2427, 0;	.L_x_854	False
+B4	_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE	0x8270	LDL.LU.64 R72, [R1+0xc0]	activation_gather	1927,2569,2569	4675	setp.eq.s64 	%p316, %rd2429, 0;	.L_x_854	False
+B4	_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE	0x8280	LDL.LU.64 R70, [R1+0xb8]	activation_gather	1927,2569,2569	4675	setp.eq.s64 	%p316, %rd2429, 0;	.L_x_854	False
+B4	_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE	0x8290	LDL.LU.64 R68, [R1+0xb0]	activation_gather	1927,2569,2569	4675	setp.eq.s64 	%p316, %rd2429, 0;	.L_x_854	False
+B4	_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE	0x82a0	LDL.LU.64 R4, [R1+0x60]	activation_gather	1927,2569,2569	4675	setp.eq.s64 	%p316, %rd2429, 0;	.L_x_854	False
+B4	_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE	0x82f0	LDL.LU.64 R74, [R1+0xa8]	activation_gather	1927,2569,2569	4681	setp.eq.s64 	%p317, %rd2434, 0;	.L_x_854	False
+B4	_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE	0x8320	LDL.LU.64 R12, [R1+0x68]	activation_gather	1927,2569,2569	4699	setp.eq.s64 	%p320, %rd2443, 0;	.L_x_854	False
+B4	_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE	0x8350	LDL.LU.64 R4, [R1+0x48]	activation_gather	1927,2569,2569	4693	setp.eq.s64 	%p319, %rd2441, 0;	.L_x_854	False
+B4	_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE	0x8360	LDL.LU.64 R80, [R1+0x88]	activation_gather	1927,2569,2569	4693	setp.eq.s64 	%p319, %rd2441, 0;	.L_x_854	False
+B4	_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE	0x83a0	LDL.LU.64 R90, [R1+0xa0]	activation_gather	1927,2569,2569	4705	setp.eq.s64 	%p321, %rd2448, 0;	.L_x_854	False
+B4	_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE	0x83d0	LDL.LU.64 R80, [R1+0x18]	activation_gather	1927,2569,2569	4690	st.global.v4.u32 	[%rd2435], {%r12488, %r12487, %r12486, %r12485};	.L_x_854	False
+B4	_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE	0x83e0	LDL.LU.64 R12, [R1+0x20]	activation_gather	1927,2569,2569	4690	st.global.v4.u32 	[%rd2435], {%r12488, %r12487, %r12486, %r12485};	.L_x_854	False
+B4	_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE	0x83f0	LDL.LU.64 R2, [R1+0x70]	activation_gather	1927,2569,2569	4690	st.global.v4.u32 	[%rd2435], {%r12488, %r12487, %r12486, %r12485};	.L_x_854	False
+B4	_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE	0x8430	LDL.LU.64 R8, [R1+0x40]	activation_gather	1927,2569,2569	4717	setp.eq.s64 	%p323, %rd2455, 0;	.L_x_854	False
+B4	_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE	0x8450	LDL.LU.64 R10, [R1+0x28]	activation_gather	1927,2569,2569	4723	setp.eq.s64 	%p324, %rd2457, 0;	.L_x_854	False
+B4	_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE	0x8480	LDL.LU.64 R6, [R1+0x8]	activation_gather	1927,2569,2569	4711	setp.eq.s64 	%p322, %rd2450, 0;	.L_x_854	False
+B4	_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE	0x84b0	LDL.LU.64 R4, [R1+0x10]	activation_gather	1927,2569,2569	4702	st.global.v4.u32 	[%rd2442], {%r12498, %r12497, %r12496, %r12495};	.L_x_854	False
+B4	_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE	0x84c0	LDL.LU.64 R2, [R1]	activation_gather	1927,2569,2569	4702	st.global.v4.u32 	[%rd2442], {%r12498, %r12497, %r12496, %r12495};	.L_x_854	False
+B4	_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE	0x17ad0	STL.64 [R1+0x8], R6	phase_B_segment_control_or_epilogue	2578	17242	ld.shared.v2.u32 	{%r12560, %r2049}, [_ZN3okc8smem_rawE+3640];	-	-
+B4	_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE	0x17b00	STL [R1], RZ	phase_B_segment_control_or_epilogue	2578	17242	ld.shared.v2.u32 	{%r12560, %r2049}, [_ZN3okc8smem_rawE+3640];	-	-
+B4	_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE	0x17b70	STL [R1], RZ	phase_B_segment_control_or_epilogue	2218,2578,2578	17256	cvt.u64.u32 	%rd159, %r2055;	-	-
+B4	_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE	0x17bd0	STL.64 [R1+0x10], R4	phase_A_segment_control	1813,2217,2217,2576,2576	17255	or.b32  	%r2055, %r2054, 13396992;	-	-
+B4	_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE	0x17be0	LDL R3, [R1+0xc]	phase_A_segment_control	1813,2217,2217,2576,2576	17255	or.b32  	%r2055, %r2054, 13396992;	.L_x_1188	True
+B4	_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE	0x17c70	STL [R1+0x4], R3	phase_B_segment_control_or_epilogue	2224,2578,2578	17277	setp.eq.s32 	%p367, %r557, 16;	.L_x_1188	True
+B4	_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE	0x19730	STL [R1+0x8], R7	phase_B_segment_control_or_epilogue	1029,2165,2165,2187,2187,2229,2229,2578,2578	18396	wgmma.fence.sync.aligned;	.L_x_1188	True
+B4	_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE	0x19830	LDL R66, [R1]	phase_B_segment_control_or_epilogue	2021,2178,2178,2187,2187,2229,2229,2578,2578	18442	@%p384 bra 	$L__BB7_413;	.L_x_1188	True
+B4	_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE	0x1cf00	LDL.LU R16, [R1+0x8]	phase_B_segment_control_or_epilogue	2192,2229,2229,2578,2578	23402	@%p426 bra 	$L__BB7_458;	.L_x_1188	True
+B4	_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE	0x1e2d0	LDL.64 R6, [R1+0x10]	phase_B_segment_control_or_epilogue	2000,2205,2205,2229,2229,2578,2578	24269	bra.uni 	$L__BB7_603;	.L_x_1188	True
+B4	_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE	0x1e300	STL [R1], R3	phase_B_segment_control_or_epilogue	2196,2229,2229,2578,2578	23413	add.s64 	%rd1243, %rd146, %rd1248;	.L_x_1188	True
+B4	_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE	0x1e310	LDL R87, [R1+0x4]	phase_B_segment_control_or_epilogue	2196,2229,2229,2578,2578	23413	add.s64 	%rd1243, %rd146, %rd1248;	.L_x_1188	True
+B4	_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE	0x1f620	LDL R61, [R1]	phase_B_segment_control_or_epilogue	2021,2178,2178,2187,2187,2228,2228,2578,2578	20514	@%p470 bra 	$L__BB7_504;	.L_x_1188	True
+B4	_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE	0x23ac0	LDL.64 R6, [R1+0x10]	phase_B_segment_control_or_epilogue	2000,2205,2205,2228,2228,2578,2578	30744	st.global.f32 	[%rd231+1024], %f325;	.L_x_1188	True
+B4	_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE	0x23af0	STL [R1], R3	phase_B_segment_control_or_epilogue	2196,2228,2228,2578,2578	30163	add.s64 	%rd1450, %rd146, %rd1454;	.L_x_1188	True
+B4	_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE	0x23b00	LDL R87, [R1+0x4]	phase_B_segment_control_or_epilogue	2196,2228,2228,2578,2578	30163	add.s64 	%rd1450, %rd146, %rd1454;	.L_x_1188	True
+B4	_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE	0x24e00	LDL R67, [R1]	phase_B_segment_control_or_epilogue	2021,2178,2178,2187,2187,2227,2227,2578,2578	19478	@%p543 bra 	$L__BB7_582;	.L_x_1188	True
+B4	_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE	0x28c90	LDL.64 R6, [R1+0x10]	phase_B_segment_control_or_epilogue	2000,2205,2205,2227,2227,2578,2578	27371	bra.uni 	$L__BB7_603;	.L_x_1188	True
+B4	_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE	0x28cc0	STL [R1], R3	phase_B_segment_control_or_epilogue	2196,2227,2227,2578,2578	27061	add.s64 	%rd1636, %rd146, %rd1639;	.L_x_1188	True
+B4	_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE	0x28cd0	LDL R87, [R1+0x4]	phase_B_segment_control_or_epilogue	2196,2227,2227,2578,2578	27061	add.s64 	%rd1636, %rd146, %rd1639;	.L_x_1188	True
+B4	_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE	0x28d70	LDL.LU R4, [R1+0x4]	phase_B_segment_control_or_epilogue	2000,2205,2205,2228,2228,2578,2578	30744	st.global.f32 	[%rd231+1024], %f325;	.L_x_1188	True
+B4	_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE	0x28d80	LDL R3, [R1+0xc]	phase_B_segment_control_or_epilogue	2000,2205,2205,2228,2228,2578,2578	30744	st.global.f32 	[%rd231+1024], %f325;	.L_x_1188	True
+B4	_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE	0x28ed0	LDL.LU R0, [R1]	phase_B_segment_control_or_epilogue	2021,2234,2234,2578,2578	30776	@%p603 bra 	$L__BB7_649;	-	-
+MAIN	_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE	0x4700	STL.64 [R1+0x90], RZ	activation_gather	1905,2569,2569	33549	@%p268 bra 	$L__BB8_208;	.L_x_111	False
+MAIN	_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE	0x4740	STL.64 [R1+0x98], RZ	activation_gather	1904,2569,2569	33894	add.s32 	%r342, %r12315, 2;	.L_x_111	False
+MAIN	_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE	0x4780	STL.64 [R1+0x68], RZ	activation_gather	1904,2569,2569	34250	add.s32 	%r394, %r12315, 4;	.L_x_111	False
+MAIN	_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE	0x47c0	STL.64 [R1+0x88], RZ	activation_gather	1905,2569,2569	33716	setp.ge.s32 	%p273, %r316, %r224;	.L_x_111	False
+MAIN	_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE	0x4800	STL.64 [R1+0x78], RZ	activation_gather	1905,2569,2569	34074	setp.ge.s32 	%p285, %r368, %r224;	.L_x_111	False
+MAIN	_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE	0x4840	STL.64 [R1+0x28], RZ	activation_gather	1904,2569,2569	34428	add.s32 	%r420, %r12315, 5;	.L_x_111	False
+MAIN	_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE	0x4880	STL.64 [R1+0x80], RZ	activation_gather	1904,2569,2569	34606	add.s32 	%r446, %r12315, 6;	.L_x_111	False
+MAIN	_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE	0x4bc0	STL.64 [R1+0x98], R4	activation_gather	1914,2569,2569	33589	add.s64 	%rd2387, %rd541, %rd543;	.L_x_111	False
+MAIN	_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE	0x4bd0	STL.64 [R1+0x80], R4	activation_gather	1914,2569,2569	33589	add.s64 	%rd2387, %rd541, %rd543;	.L_x_111	False
+MAIN	_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE	0x4be0	STL [R1+0x5c], R10	activation_gather	1914,2569,2569	33589	add.s64 	%rd2387, %rd541, %rd543;	.L_x_111	False
+MAIN	_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE	0x4bf0	STL [R1+0x58], R14	activation_gather	1914,2569,2569	33589	add.s64 	%rd2387, %rd541, %rd543;	.L_x_111	False
+MAIN	_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE	0x4c00	STL [R1+0x54], R15	activation_gather	1914,2569,2569	33589	add.s64 	%rd2387, %rd541, %rd543;	.L_x_111	False
+MAIN	_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE	0x4c10	STL [R1+0x50], R16	activation_gather	1914,2569,2569	33589	add.s64 	%rd2387, %rd541, %rd543;	.L_x_111	False
+MAIN	_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE	0x4c20	STL.64 [R1+0x70], RZ	activation_gather	1914,2569,2569	33589	add.s64 	%rd2387, %rd541, %rd543;	.L_x_111	False
+MAIN	_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE	0x4c60	STL.64 [R1+0x60], RZ	activation_gather	1909,2569,2569	33921	@%p279 bra 	$L__BB8_230;	.L_x_111	False
+MAIN	_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE	0x4ca0	STL.64 [R1+0x20], RZ	activation_gather	1909,2569,2569	34099	@%p285 bra 	$L__BB8_239;	.L_x_111	False
+MAIN	_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE	0x4cd0	STL.64 [R1+0x38], RZ	activation_gather	1909,2569,2569	33637	@%p267 bra 	$L__BB8_215;	.L_x_111	False
+MAIN	_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE	0x4fb0	STL.64 [R1+0x90], R8	activation_gather	1914,2569,2569	33670	add.s64 	%rd2389, %rd563, %rd565;	.L_x_111	False
+MAIN	_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE	0x4fe0	STL [R1+0x4c], R11	activation_gather	1918,2569,2569	33709	ld.global.nc.u32 %r12323, [%rd560];	.L_x_111	False
+MAIN	_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE	0x4ff0	STL [R1+0x48], R12	activation_gather	1918,2569,2569	33709	ld.global.nc.u32 %r12323, [%rd560];	.L_x_111	False
+MAIN	_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE	0x5000	STL [R1+0x44], R13	activation_gather	1918,2569,2569	33709	ld.global.nc.u32 %r12323, [%rd560];	.L_x_111	False
+MAIN	_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE	0x5010	STL [R1+0x40], R14	activation_gather	1918,2569,2569	33709	ld.global.nc.u32 %r12323, [%rd560];	.L_x_111	False
+MAIN	_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE	0x53a0	STL.64 [R1+0x88], R8	activation_gather	1914,2569,2569	33769	add.s64 	%rd2394, %rd591, %rd593;	.L_x_111	False
+MAIN	_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE	0x53b0	STL.64 [R1+0x78], R8	activation_gather	1914,2569,2569	33769	add.s64 	%rd2394, %rd591, %rd593;	.L_x_111	False
+MAIN	_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE	0x53c0	STL.64 [R1+0x18], RZ	activation_gather	1914,2569,2569	33769	add.s64 	%rd2394, %rd591, %rd593;	.L_x_111	False
+MAIN	_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE	0x5400	STL.64 [R1+0x10], RZ	activation_gather	1909,2569,2569	34173	@%p285 bra 	$L__BB8_242;	.L_x_111	False
+MAIN	_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE	0x5750	STL.64 [R1+0x68], R76	activation_gather	1918,2569,2569	33889	ld.global.nc.u32 %r12333, [%rd610];	.L_x_111	False
+MAIN	_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE	0x5b00	STL.64 [R1+0x70], R16	activation_gather	1914,2569,2569	33947	add.s64 	%rd2401, %rd641, %rd643;	.L_x_111	False
+MAIN	_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE	0x5b10	STL.64 [R1+0x60], R16	activation_gather	1914,2569,2569	33947	add.s64 	%rd2401, %rd641, %rd643;	.L_x_111	False
+MAIN	_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE	0x5b20	STL.64 [R1+0x8], RZ	activation_gather	1914,2569,2569	33947	add.s64 	%rd2401, %rd641, %rd643;	.L_x_111	False
+MAIN	_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE	0x5b60	STL.64 [R1], RZ	activation_gather	1909,2569,2569	34455	@%p297 bra 	$L__BB8_257;	.L_x_111	False
+MAIN	_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE	0x5eb0	STL.64 [R1+0x28], R88	activation_gather	1918,2569,2569	34067	ld.global.nc.u32 %r12343, [%rd660];	.L_x_111	False
+MAIN	_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE	0x6250	STL.64 [R1+0x38], R82	activation_gather	1914,2569,2569	34125	add.s64 	%rd2408, %rd691, %rd693;	.L_x_111	False
+MAIN	_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE	0x6580	STL.64 [R1+0x20], R88	activation_gather	1918,2569,2569	34245	ld.global.nc.u32 %r12353, [%rd710];	.L_x_111	False
+MAIN	_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE	0x6920	STL.64 [R1+0x10], R82	activation_gather	1914,2569,2569	34303	add.s64 	%rd2415, %rd741, %rd743;	.L_x_111	False
+MAIN	_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE	0x6c50	STL.64 [R1+0x18], R88	activation_gather	1918,2569,2569	34423	ld.global.nc.u32 %r12363, [%rd760];	.L_x_111	False
+MAIN	_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE	0x6ff0	STL.64 [R1], R82	activation_gather	1914,2569,2569	34481	add.s64 	%rd2422, %rd791, %rd793;	.L_x_111	False
+MAIN	_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE	0x7320	STL.64 [R1+0x8], R88	activation_gather	1918,2569,2569	34601	ld.global.nc.u32 %r12373, [%rd810];	.L_x_111	False
+MAIN	_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE	0x7df0	STL [R1+0x34], R3	activation_gather	1910,2569,2569	34890	ld.shared.u32 	%r489, [%rd2399];	.L_x_111	False
+MAIN	_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE	0x7e00	STL [R1+0x30], R92	activation_gather	1910,2569,2569	34890	ld.shared.u32 	%r489, [%rd2399];	.L_x_111	False
+MAIN	_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE	0x7e50	LDL.LU R74, [R1+0x30]	activation_gather	1911,2569,2569	34894	@%p314 bra 	$L__BB8_278;	.L_x_111	False
+MAIN	_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE	0x7e90	STL [R1+0xa0], R0	entry_other	2371	31048	mov.u32 	%r1, %tid.x;	.L_x_111	False
+MAIN	_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE	0x8040	LDL.LU R73, [R1+0x34]	activation_gather	1917,2569,2569	34942	add.s64 	%rd907, %rd923, %rd924;	.L_x_111	False
+MAIN	_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE	0x80d0	LDL.LU R0, [R1+0xa0]	activation_gather	1914,2569,2569	34916	bfi.b32 	%r1926, %r1924, %r1925, 3, 29;	.L_x_111	False
+MAIN	_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE	0x8120	STL.64 [R1+0xd8], R76	activation_gather	1918,2569,2569	34957	ld.global.nc.u32 %r12393, [%rd910];	.L_x_111	False
+MAIN	_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE	0x8130	LDL.LU.64 R76, [R1+0x80]	activation_gather	1918,2569,2569	34957	ld.global.nc.u32 %r12393, [%rd910];	.L_x_111	False
+MAIN	_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE	0x8140	STL.64 [R1+0xd0], R86	activation_gather	1918,2569,2569	34957	ld.global.nc.u32 %r12393, [%rd910];	.L_x_111	False
+MAIN	_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE	0x8150	LDL.LU.64 R86, [R1+0x98]	activation_gather	1918,2569,2569	34957	ld.global.nc.u32 %r12393, [%rd910];	.L_x_111	False
+MAIN	_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE	0x8160	STL.64 [R1+0xc8], R70	activation_gather	1918,2569,2569	34957	ld.global.nc.u32 %r12393, [%rd910];	.L_x_111	False
+MAIN	_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE	0x8170	STL.64 [R1+0xc0], R68	activation_gather	1918,2569,2569	34957	ld.global.nc.u32 %r12393, [%rd910];	.L_x_111	False
+MAIN	_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE	0x8180	LDL.64 R70, [R1+0x58]	activation_gather	1918,2569,2569	34957	ld.global.nc.u32 %r12393, [%rd910];	.L_x_111	False
+MAIN	_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE	0x8190	LDL.64 R68, [R1+0x50]	activation_gather	1918,2569,2569	34957	ld.global.nc.u32 %r12393, [%rd910];	.L_x_111	False
+MAIN	_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE	0x81a0	STL.64 [R1+0xb8], R90	activation_gather	1918,2569,2569	34957	ld.global.nc.u32 %r12393, [%rd910];	.L_x_111	False
+MAIN	_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE	0x81b0	LDL.LU.64 R90, [R1+0x78]	activation_gather	1918,2569,2569	34957	ld.global.nc.u32 %r12393, [%rd910];	.L_x_111	False
+MAIN	_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE	0x81c0	STL [R1+0xb0], R2	activation_gather	1918,2569,2569	34957	ld.global.nc.u32 %r12393, [%rd910];	.L_x_111	False
+MAIN	_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE	0x81d0	LDL.LU.64 R2, [R1+0x90]	activation_gather	1918,2569,2569	34957	ld.global.nc.u32 %r12393, [%rd910];	.L_x_111	False
+MAIN	_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE	0x81e0	STL.64 [R1+0xa8], R74	activation_gather	1918,2569,2569	34957	ld.global.nc.u32 %r12393, [%rd910];	.L_x_111	False
+MAIN	_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE	0x81f0	STL.64 [R1+0xa0], R72	activation_gather	1918,2569,2569	34957	ld.global.nc.u32 %r12393, [%rd910];	.L_x_111	False
+MAIN	_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE	0x8200	LDL.64 R74, [R1+0x48]	activation_gather	1918,2569,2569	34957	ld.global.nc.u32 %r12393, [%rd910];	.L_x_111	False
+MAIN	_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE	0x8210	LDL.64 R72, [R1+0x40]	activation_gather	1918,2569,2569	34957	ld.global.nc.u32 %r12393, [%rd910];	.L_x_111	False
+MAIN	_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE	0x8240	LDL.LU.64 R76, [R1+0xd8]	activation_gather	1927,2569,2569	34962	setp.eq.s64 	%p315, %rd2388, 0;	.L_x_111	False
+MAIN	_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE	0x8280	LDL.LU.64 R86, [R1+0xd0]	activation_gather	1927,2569,2569	34968	setp.eq.s64 	%p316, %rd2390, 0;	.L_x_111	False
+MAIN	_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE	0x8290	LDL.LU.64 R70, [R1+0xc8]	activation_gather	1927,2569,2569	34968	setp.eq.s64 	%p316, %rd2390, 0;	.L_x_111	False
+MAIN	_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE	0x82a0	LDL.LU.64 R68, [R1+0xc0]	activation_gather	1927,2569,2569	34968	setp.eq.s64 	%p316, %rd2390, 0;	.L_x_111	False
+MAIN	_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE	0x82b0	LDL.LU.64 R6, [R1+0x60]	activation_gather	1927,2569,2569	34968	setp.eq.s64 	%p316, %rd2390, 0;	.L_x_111	False
+MAIN	_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE	0x8300	LDL.LU.64 R90, [R1+0xb8]	activation_gather	1927,2569,2569	34974	setp.eq.s64 	%p317, %rd2395, 0;	.L_x_111	False
+MAIN	_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE	0x8330	LDL.LU.64 R14, [R1+0x68]	activation_gather	1927,2569,2569	34992	setp.eq.s64 	%p320, %rd2404, 0;	.L_x_111	False
+MAIN	_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE	0x8360	LDL.LU.64 R6, [R1+0x70]	activation_gather	1927,2569,2569	34986	setp.eq.s64 	%p319, %rd2402, 0;	.L_x_111	False
+MAIN	_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE	0x8370	LDL.LU.64 R80, [R1+0x88]	activation_gather	1927,2569,2569	34986	setp.eq.s64 	%p319, %rd2402, 0;	.L_x_111	False
+MAIN	_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE	0x83b0	LDL.LU R2, [R1+0xb0]	activation_gather	1927,2569,2569	35004	setp.eq.s64 	%p322, %rd2411, 0;	.L_x_111	False
+MAIN	_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE	0x83c0	LDL.LU.64 R74, [R1+0xa8]	activation_gather	1927,2569,2569	35004	setp.eq.s64 	%p322, %rd2411, 0;	.L_x_111	False
+MAIN	_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE	0x83d0	LDL.LU.64 R72, [R1+0xa0]	activation_gather	1927,2569,2569	35004	setp.eq.s64 	%p322, %rd2411, 0;	.L_x_111	False
+MAIN	_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE	0x8460	LDL.LU.64 R80, [R1+0x10]	activation_gather	1927,2569,2569	35010	setp.eq.s64 	%p323, %rd2416, 0;	.L_x_111	False
+MAIN	_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE	0x8470	LDL.LU.64 R14, [R1+0x18]	activation_gather	1927,2569,2569	35010	setp.eq.s64 	%p323, %rd2416, 0;	.L_x_111	False
+MAIN	_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE	0x8480	LDL.LU.64 R8, [R1+0x20]	activation_gather	1927,2569,2569	35010	setp.eq.s64 	%p323, %rd2416, 0;	.L_x_111	False
+MAIN	_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE	0x8490	LDL.LU.64 R10, [R1+0x38]	activation_gather	1927,2569,2569	35010	setp.eq.s64 	%p323, %rd2416, 0;	.L_x_111	False
+MAIN	_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE	0x84a0	LDL.LU.64 R12, [R1+0x28]	activation_gather	1927,2569,2569	35010	setp.eq.s64 	%p323, %rd2416, 0;	.L_x_111	False
+MAIN	_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE	0x84c0	LDL.LU.64 R6, [R1]	activation_gather	1927,2569,2569	34989	st.global.v4.u32 	[%rd2401], {%r12342, %r12341, %r12340, %r12339};	.L_x_111	False
+MAIN	_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE	0x84d0	LDL.LU.64 R4, [R1+0x8]	activation_gather	1927,2569,2569	34989	st.global.v4.u32 	[%rd2401], {%r12342, %r12341, %r12340, %r12339};	.L_x_111	False
+MAIN	_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE	0x17d30	STL.64 [R1], R6	phase_B_segment_control_or_epilogue	2578	47535	ld.shared.v2.u32 	{%r12408, %r2047}, [_ZN3okc8smem_rawE+3640];	-	-
+MAIN	_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE	0x17e00	STL.64 [R1+0x8], R4	phase_A_segment_control	1813,2217,2217,2576,2576	47548	or.b32  	%r2053, %r2052, 13396992;	-	-
+MAIN	_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE	0x17e10	LDL R4, [R1+0x4]	phase_A_segment_control	1813,2217,2217,2576,2576	47548	or.b32  	%r2053, %r2052, 13396992;	.L_x_359	True
+MAIN	_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE	0x19920	STL [R1], R20	phase_B_segment_control_or_epilogue	282,2163,2163,2187,2187,2229,2229,2578,2578	48682	{ mul.bf16x2 %r2483,%r2484,%r2481; }	.L_x_359	True
+MAIN	_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE	0x1ca70	LDL.LU R7, [R1]	phase_B_segment_control_or_epilogue	2192,2229,2229,2578,2578	53446	@%p404 bra 	$L__BB8_413;	.L_x_359	True
+MAIN	_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE	0x1d4b0	LDL.64 R16, [R1+0x8]	phase_B_segment_control_or_epilogue	1984,2205,2205,2229,2229,2578,2578	53948	bra.uni 	$L__BB8_495;	.L_x_359	True
+MAIN	_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE	0x21f80	LDL.64 R16, [R1+0x8]	phase_B_segment_control_or_epilogue	137,1984,1984,2205,2205,2228,2228,2578,2578	59556	st.global.L2::cache_hint.b32 [%rd1401], %f2355, %rd1402;	.L_x_359	True
+MAIN	_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE	0x26770	LDL.64 R16, [R1+0x8]	phase_B_segment_control_or_epilogue	1984,2205,2205,2227,2227,2578,2578	56678	bra.uni 	$L__BB8_495;	.L_x_359	True
+MAIN	_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE	0x26850	LDL R4, [R1+0x4]	phase_B_segment_control_or_epilogue	137,1984,1984,2205,2205,2228,2228,2578,2578	59556	st.global.L2::cache_hint.b32 [%rd1401], %f2355, %rd1402;	.L_x_359	True
+MAIN	_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE	0x4700	STL.64 [R1+0x90], RZ	activation_gather	1905,2569,2569	3256	@%p268 bra 	$L__BB7_208;	.L_x_680	False
+MAIN	_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE	0x4740	STL.64 [R1+0x98], RZ	activation_gather	1904,2569,2569	3601	add.s32 	%r342, %r12315, 2;	.L_x_680	False
+MAIN	_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE	0x4780	STL.64 [R1+0x68], RZ	activation_gather	1904,2569,2569	3957	add.s32 	%r394, %r12315, 4;	.L_x_680	False
+MAIN	_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE	0x47c0	STL.64 [R1+0x88], RZ	activation_gather	1905,2569,2569	3423	setp.ge.s32 	%p273, %r316, %r224;	.L_x_680	False
+MAIN	_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE	0x4800	STL.64 [R1+0x78], RZ	activation_gather	1905,2569,2569	3781	setp.ge.s32 	%p285, %r368, %r224;	.L_x_680	False
+MAIN	_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE	0x4840	STL.64 [R1+0x28], RZ	activation_gather	1904,2569,2569	4135	add.s32 	%r420, %r12315, 5;	.L_x_680	False
+MAIN	_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE	0x4880	STL.64 [R1+0x80], RZ	activation_gather	1904,2569,2569	4313	add.s32 	%r446, %r12315, 6;	.L_x_680	False
+MAIN	_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE	0x4bc0	STL.64 [R1+0x98], R4	activation_gather	1914,2569,2569	3296	add.s64 	%rd2387, %rd541, %rd543;	.L_x_680	False
+MAIN	_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE	0x4bd0	STL.64 [R1+0x80], R4	activation_gather	1914,2569,2569	3296	add.s64 	%rd2387, %rd541, %rd543;	.L_x_680	False
+MAIN	_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE	0x4be0	STL [R1+0x5c], R10	activation_gather	1914,2569,2569	3296	add.s64 	%rd2387, %rd541, %rd543;	.L_x_680	False
+MAIN	_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE	0x4bf0	STL [R1+0x58], R14	activation_gather	1914,2569,2569	3296	add.s64 	%rd2387, %rd541, %rd543;	.L_x_680	False
+MAIN	_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE	0x4c00	STL [R1+0x54], R15	activation_gather	1914,2569,2569	3296	add.s64 	%rd2387, %rd541, %rd543;	.L_x_680	False
+MAIN	_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE	0x4c10	STL [R1+0x50], R16	activation_gather	1914,2569,2569	3296	add.s64 	%rd2387, %rd541, %rd543;	.L_x_680	False
+MAIN	_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE	0x4c20	STL.64 [R1+0x70], RZ	activation_gather	1914,2569,2569	3296	add.s64 	%rd2387, %rd541, %rd543;	.L_x_680	False
+MAIN	_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE	0x4c60	STL.64 [R1+0x60], RZ	activation_gather	1909,2569,2569	3628	@%p279 bra 	$L__BB7_230;	.L_x_680	False
+MAIN	_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE	0x4ca0	STL.64 [R1+0x20], RZ	activation_gather	1909,2569,2569	3806	@%p285 bra 	$L__BB7_239;	.L_x_680	False
+MAIN	_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE	0x4cd0	STL.64 [R1+0x38], RZ	activation_gather	1909,2569,2569	3344	@%p267 bra 	$L__BB7_215;	.L_x_680	False
+MAIN	_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE	0x4fb0	STL.64 [R1+0x90], R8	activation_gather	1914,2569,2569	3377	add.s64 	%rd2389, %rd563, %rd565;	.L_x_680	False
+MAIN	_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE	0x4fe0	STL [R1+0x4c], R11	activation_gather	1918,2569,2569	3416	ld.global.nc.u32 %r12323, [%rd560];	.L_x_680	False
+MAIN	_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE	0x4ff0	STL [R1+0x48], R12	activation_gather	1918,2569,2569	3416	ld.global.nc.u32 %r12323, [%rd560];	.L_x_680	False
+MAIN	_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE	0x5000	STL [R1+0x44], R13	activation_gather	1918,2569,2569	3416	ld.global.nc.u32 %r12323, [%rd560];	.L_x_680	False
+MAIN	_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE	0x5010	STL [R1+0x40], R14	activation_gather	1918,2569,2569	3416	ld.global.nc.u32 %r12323, [%rd560];	.L_x_680	False
+MAIN	_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE	0x53a0	STL.64 [R1+0x88], R8	activation_gather	1914,2569,2569	3476	add.s64 	%rd2394, %rd591, %rd593;	.L_x_680	False
+MAIN	_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE	0x53b0	STL.64 [R1+0x78], R8	activation_gather	1914,2569,2569	3476	add.s64 	%rd2394, %rd591, %rd593;	.L_x_680	False
+MAIN	_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE	0x53c0	STL.64 [R1+0x18], RZ	activation_gather	1914,2569,2569	3476	add.s64 	%rd2394, %rd591, %rd593;	.L_x_680	False
+MAIN	_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE	0x5400	STL.64 [R1+0x10], RZ	activation_gather	1909,2569,2569	3880	@%p285 bra 	$L__BB7_242;	.L_x_680	False
+MAIN	_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE	0x5750	STL.64 [R1+0x68], R76	activation_gather	1918,2569,2569	3596	ld.global.nc.u32 %r12333, [%rd610];	.L_x_680	False
+MAIN	_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE	0x5b00	STL.64 [R1+0x70], R16	activation_gather	1914,2569,2569	3654	add.s64 	%rd2401, %rd641, %rd643;	.L_x_680	False
+MAIN	_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE	0x5b10	STL.64 [R1+0x60], R16	activation_gather	1914,2569,2569	3654	add.s64 	%rd2401, %rd641, %rd643;	.L_x_680	False
+MAIN	_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE	0x5b20	STL.64 [R1+0x8], RZ	activation_gather	1914,2569,2569	3654	add.s64 	%rd2401, %rd641, %rd643;	.L_x_680	False
+MAIN	_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE	0x5b60	STL.64 [R1], RZ	activation_gather	1909,2569,2569	4162	@%p297 bra 	$L__BB7_257;	.L_x_680	False
+MAIN	_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE	0x5eb0	STL.64 [R1+0x28], R88	activation_gather	1918,2569,2569	3774	ld.global.nc.u32 %r12343, [%rd660];	.L_x_680	False
+MAIN	_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE	0x6250	STL.64 [R1+0x38], R82	activation_gather	1914,2569,2569	3832	add.s64 	%rd2408, %rd691, %rd693;	.L_x_680	False
+MAIN	_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE	0x6580	STL.64 [R1+0x20], R88	activation_gather	1918,2569,2569	3952	ld.global.nc.u32 %r12353, [%rd710];	.L_x_680	False
+MAIN	_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE	0x6920	STL.64 [R1+0x10], R82	activation_gather	1914,2569,2569	4010	add.s64 	%rd2415, %rd741, %rd743;	.L_x_680	False
+MAIN	_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE	0x6c50	STL.64 [R1+0x18], R88	activation_gather	1918,2569,2569	4130	ld.global.nc.u32 %r12363, [%rd760];	.L_x_680	False
+MAIN	_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE	0x6ff0	STL.64 [R1], R82	activation_gather	1914,2569,2569	4188	add.s64 	%rd2422, %rd791, %rd793;	.L_x_680	False
+MAIN	_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE	0x7320	STL.64 [R1+0x8], R88	activation_gather	1918,2569,2569	4308	ld.global.nc.u32 %r12373, [%rd810];	.L_x_680	False
+MAIN	_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE	0x7df0	STL [R1+0x34], R3	activation_gather	1910,2569,2569	4597	ld.shared.u32 	%r489, [%rd2399];	.L_x_680	False
+MAIN	_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE	0x7e00	STL [R1+0x30], R92	activation_gather	1910,2569,2569	4597	ld.shared.u32 	%r489, [%rd2399];	.L_x_680	False
+MAIN	_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE	0x7e50	LDL.LU R74, [R1+0x30]	activation_gather	1911,2569,2569	4601	@%p314 bra 	$L__BB7_278;	.L_x_680	False
+MAIN	_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE	0x7e90	STL [R1+0xa0], R0	entry_other	2371	755	mov.u32 	%r1, %tid.x;	.L_x_680	False
+MAIN	_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE	0x8040	LDL.LU R73, [R1+0x34]	activation_gather	1917,2569,2569	4649	add.s64 	%rd907, %rd923, %rd924;	.L_x_680	False
+MAIN	_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE	0x80d0	LDL.LU R0, [R1+0xa0]	activation_gather	1914,2569,2569	4623	bfi.b32 	%r1926, %r1924, %r1925, 3, 29;	.L_x_680	False
+MAIN	_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE	0x8120	STL.64 [R1+0xd8], R76	activation_gather	1918,2569,2569	4664	ld.global.nc.u32 %r12393, [%rd910];	.L_x_680	False
+MAIN	_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE	0x8130	LDL.LU.64 R76, [R1+0x80]	activation_gather	1918,2569,2569	4664	ld.global.nc.u32 %r12393, [%rd910];	.L_x_680	False
+MAIN	_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE	0x8140	STL.64 [R1+0xd0], R86	activation_gather	1918,2569,2569	4664	ld.global.nc.u32 %r12393, [%rd910];	.L_x_680	False
+MAIN	_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE	0x8150	LDL.LU.64 R86, [R1+0x98]	activation_gather	1918,2569,2569	4664	ld.global.nc.u32 %r12393, [%rd910];	.L_x_680	False
+MAIN	_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE	0x8160	STL.64 [R1+0xc8], R70	activation_gather	1918,2569,2569	4664	ld.global.nc.u32 %r12393, [%rd910];	.L_x_680	False
+MAIN	_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE	0x8170	STL.64 [R1+0xc0], R68	activation_gather	1918,2569,2569	4664	ld.global.nc.u32 %r12393, [%rd910];	.L_x_680	False
+MAIN	_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE	0x8180	LDL.64 R70, [R1+0x58]	activation_gather	1918,2569,2569	4664	ld.global.nc.u32 %r12393, [%rd910];	.L_x_680	False
+MAIN	_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE	0x8190	LDL.64 R68, [R1+0x50]	activation_gather	1918,2569,2569	4664	ld.global.nc.u32 %r12393, [%rd910];	.L_x_680	False
+MAIN	_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE	0x81a0	STL.64 [R1+0xb8], R90	activation_gather	1918,2569,2569	4664	ld.global.nc.u32 %r12393, [%rd910];	.L_x_680	False
+MAIN	_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE	0x81b0	LDL.LU.64 R90, [R1+0x78]	activation_gather	1918,2569,2569	4664	ld.global.nc.u32 %r12393, [%rd910];	.L_x_680	False
+MAIN	_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE	0x81c0	STL [R1+0xb0], R2	activation_gather	1918,2569,2569	4664	ld.global.nc.u32 %r12393, [%rd910];	.L_x_680	False
+MAIN	_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE	0x81d0	LDL.LU.64 R2, [R1+0x90]	activation_gather	1918,2569,2569	4664	ld.global.nc.u32 %r12393, [%rd910];	.L_x_680	False
+MAIN	_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE	0x81e0	STL.64 [R1+0xa8], R74	activation_gather	1918,2569,2569	4664	ld.global.nc.u32 %r12393, [%rd910];	.L_x_680	False
+MAIN	_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE	0x81f0	STL.64 [R1+0xa0], R72	activation_gather	1918,2569,2569	4664	ld.global.nc.u32 %r12393, [%rd910];	.L_x_680	False
+MAIN	_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE	0x8200	LDL.64 R74, [R1+0x48]	activation_gather	1918,2569,2569	4664	ld.global.nc.u32 %r12393, [%rd910];	.L_x_680	False
+MAIN	_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE	0x8210	LDL.64 R72, [R1+0x40]	activation_gather	1918,2569,2569	4664	ld.global.nc.u32 %r12393, [%rd910];	.L_x_680	False
+MAIN	_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE	0x8240	LDL.LU.64 R76, [R1+0xd8]	activation_gather	1927,2569,2569	4669	setp.eq.s64 	%p315, %rd2388, 0;	.L_x_680	False
+MAIN	_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE	0x8280	LDL.LU.64 R86, [R1+0xd0]	activation_gather	1927,2569,2569	4675	setp.eq.s64 	%p316, %rd2390, 0;	.L_x_680	False
+MAIN	_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE	0x8290	LDL.LU.64 R70, [R1+0xc8]	activation_gather	1927,2569,2569	4675	setp.eq.s64 	%p316, %rd2390, 0;	.L_x_680	False
+MAIN	_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE	0x82a0	LDL.LU.64 R68, [R1+0xc0]	activation_gather	1927,2569,2569	4675	setp.eq.s64 	%p316, %rd2390, 0;	.L_x_680	False
+MAIN	_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE	0x82b0	LDL.LU.64 R6, [R1+0x60]	activation_gather	1927,2569,2569	4675	setp.eq.s64 	%p316, %rd2390, 0;	.L_x_680	False
+MAIN	_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE	0x8300	LDL.LU.64 R90, [R1+0xb8]	activation_gather	1927,2569,2569	4681	setp.eq.s64 	%p317, %rd2395, 0;	.L_x_680	False
+MAIN	_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE	0x8330	LDL.LU.64 R14, [R1+0x68]	activation_gather	1927,2569,2569	4699	setp.eq.s64 	%p320, %rd2404, 0;	.L_x_680	False
+MAIN	_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE	0x8360	LDL.LU.64 R6, [R1+0x70]	activation_gather	1927,2569,2569	4693	setp.eq.s64 	%p319, %rd2402, 0;	.L_x_680	False
+MAIN	_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE	0x8370	LDL.LU.64 R80, [R1+0x88]	activation_gather	1927,2569,2569	4693	setp.eq.s64 	%p319, %rd2402, 0;	.L_x_680	False
+MAIN	_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE	0x83b0	LDL.LU R2, [R1+0xb0]	activation_gather	1927,2569,2569	4711	setp.eq.s64 	%p322, %rd2411, 0;	.L_x_680	False
+MAIN	_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE	0x83c0	LDL.LU.64 R74, [R1+0xa8]	activation_gather	1927,2569,2569	4711	setp.eq.s64 	%p322, %rd2411, 0;	.L_x_680	False
+MAIN	_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE	0x83d0	LDL.LU.64 R72, [R1+0xa0]	activation_gather	1927,2569,2569	4711	setp.eq.s64 	%p322, %rd2411, 0;	.L_x_680	False
+MAIN	_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE	0x8460	LDL.LU.64 R80, [R1+0x10]	activation_gather	1927,2569,2569	4717	setp.eq.s64 	%p323, %rd2416, 0;	.L_x_680	False
+MAIN	_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE	0x8470	LDL.LU.64 R14, [R1+0x18]	activation_gather	1927,2569,2569	4717	setp.eq.s64 	%p323, %rd2416, 0;	.L_x_680	False
+MAIN	_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE	0x8480	LDL.LU.64 R8, [R1+0x20]	activation_gather	1927,2569,2569	4717	setp.eq.s64 	%p323, %rd2416, 0;	.L_x_680	False
+MAIN	_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE	0x8490	LDL.LU.64 R10, [R1+0x38]	activation_gather	1927,2569,2569	4717	setp.eq.s64 	%p323, %rd2416, 0;	.L_x_680	False
+MAIN	_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE	0x84a0	LDL.LU.64 R12, [R1+0x28]	activation_gather	1927,2569,2569	4717	setp.eq.s64 	%p323, %rd2416, 0;	.L_x_680	False
+MAIN	_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE	0x84c0	LDL.LU.64 R6, [R1]	activation_gather	1927,2569,2569	4696	st.global.v4.u32 	[%rd2401], {%r12342, %r12341, %r12340, %r12339};	.L_x_680	False
+MAIN	_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE	0x84d0	LDL.LU.64 R4, [R1+0x8]	activation_gather	1927,2569,2569	4696	st.global.v4.u32 	[%rd2401], {%r12342, %r12341, %r12340, %r12339};	.L_x_680	False
+MAIN	_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE	0x17d30	STL.64 [R1], R6	phase_B_segment_control_or_epilogue	2578	17242	ld.shared.v2.u32 	{%r12408, %r2047}, [_ZN3okc8smem_rawE+3640];	-	-
+MAIN	_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE	0x17e00	STL.64 [R1+0x8], R4	phase_A_segment_control	1813,2217,2217,2576,2576	17255	or.b32  	%r2053, %r2052, 13396992;	-	-
+MAIN	_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE	0x17e10	LDL R4, [R1+0x4]	phase_A_segment_control	1813,2217,2217,2576,2576	17255	or.b32  	%r2053, %r2052, 13396992;	.L_x_928	True
+MAIN	_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE	0x19920	STL [R1], R20	phase_B_segment_control_or_epilogue	282,2163,2163,2187,2187,2229,2229,2578,2578	18389	{ mul.bf16x2 %r2483,%r2484,%r2481; }	.L_x_928	True
+MAIN	_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE	0x1ca70	LDL.LU R7, [R1]	phase_B_segment_control_or_epilogue	2192,2229,2229,2578,2578	23153	@%p404 bra 	$L__BB7_413;	.L_x_928	True
+MAIN	_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE	0x1d4b0	LDL.64 R16, [R1+0x8]	phase_B_segment_control_or_epilogue	1984,2205,2205,2229,2229,2578,2578	23655	bra.uni 	$L__BB7_495;	.L_x_928	True
+MAIN	_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE	0x21f80	LDL.64 R16, [R1+0x8]	phase_B_segment_control_or_epilogue	137,1984,1984,2205,2205,2228,2228,2578,2578	29263	st.global.L2::cache_hint.b32 [%rd1401], %f2355, %rd1402;	.L_x_928	True
+MAIN	_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE	0x26770	LDL.64 R16, [R1+0x8]	phase_B_segment_control_or_epilogue	1984,2205,2205,2227,2227,2578,2578	26385	bra.uni 	$L__BB7_495;	.L_x_928	True
+MAIN	_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE	0x26850	LDL R4, [R1+0x4]	phase_B_segment_control_or_epilogue	137,1984,1984,2205,2205,2228,2228,2578,2578	29263	st.global.L2::cache_hint.b32 [%rd1401], %f2355, %rd1402;	.L_x_928	True
