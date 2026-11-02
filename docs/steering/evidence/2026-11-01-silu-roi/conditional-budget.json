@@ -1,0 +1,120 @@
+{
+  "evidence_commit": "5fdbd563114b0af7066a4727e0f7d1dbcf9aa9d2",
+  "source_path": "muse_decode_layer\\profiles\\scored.607eb52bdaf24160.json",
+  "source_sha256": "c641ede77cd5cd560b8df7ad2787d706654ebca7b9a63fa2bc49c1b9f6e00029",
+  "incumbent_job": "607eb52bdaf24160",
+  "upstream_job": "3a5f879df0d44825",
+  "target_score_factor": 1.0577154675926583,
+  "required_uniform_expert_duration_fraction": 0.10773058431329884,
+  "scenarios": [
+    {
+      "expert_duration_fraction": 0.01,
+      "whole_score_factor": 1.005087252061407
+    },
+    {
+      "expert_duration_fraction": 0.03,
+      "whole_score_factor": 1.0154207947141012
+    },
+    {
+      "expert_duration_fraction": 0.05,
+      "whole_score_factor": 1.0259720452071515
+    },
+    {
+      "expert_duration_fraction": 0.1,
+      "whole_score_factor": 1.053349661151511
+    }
+  ],
+  "method": "Subtract the chosen fraction of displayed expert-kernel profile time from adjusted latency in each of 12 cells; form 46/16 weighted times for six loads and geometric old/new ratios; hold baseline times fixed.",
+  "limitations": [
+    "Displayed profile times and adjusted benchmark medians come from different replays.",
+    "Assumes every expert microsecond saved leaves the layer critical path and replacement cost is zero.",
+    "No isolated SiLU duration, measured ceiling, cache behavior or speedup forecast.",
+    "Historical G0 and incumbent scores use different inputs and baseline observations."
+  ],
+  "cells": [
+    {
+      "load": "decode 1",
+      "context": "sliding",
+      "weight": 46,
+      "adjusted_us": 76.74810129226927,
+      "expert_profile_us": 29.8
+    },
+    {
+      "load": "decode 1",
+      "context": "full",
+      "weight": 16,
+      "adjusted_us": 83.72675745456237,
+      "expert_profile_us": 42.8
+    },
+    {
+      "load": "decode 16",
+      "context": "sliding",
+      "weight": 46,
+      "adjusted_us": 138.66071382597238,
+      "expert_profile_us": 77.0
+    },
+    {
+      "load": "decode 16",
+      "context": "full",
+      "weight": 16,
+      "adjusted_us": 214.53435984694036,
+      "expert_profile_us": 65.2
+    },
+    {
+      "load": "decode 32",
+      "context": "sliding",
+      "weight": 46,
+      "adjusted_us": 154.82044500163073,
+      "expert_profile_us": 70.6
+    },
+    {
+      "load": "decode 32",
+      "context": "full",
+      "weight": 16,
+      "adjusted_us": 297.8826968304272,
+      "expert_profile_us": 87.6
+    },
+    {
+      "load": "verify 1",
+      "context": "sliding",
+      "weight": 46,
+      "adjusted_us": 115.43186043519749,
+      "expert_profile_us": 71.6
+    },
+    {
+      "load": "verify 1",
+      "context": "full",
+      "weight": 16,
+      "adjusted_us": 117.59783998488622,
+      "expert_profile_us": 58.8
+    },
+    {
+      "load": "verify 16",
+      "context": "sliding",
+      "weight": 46,
+      "adjusted_us": 247.13099535493978,
+      "expert_profile_us": 155.3
+    },
+    {
+      "load": "verify 16",
+      "context": "full",
+      "weight": 16,
+      "adjusted_us": 333.21812616334677,
+      "expert_profile_us": 178.1
+    },
+    {
+      "load": "verify 32",
+      "context": "sliding",
+      "weight": 46,
+      "adjusted_us": 316.3895368878032,
+      "expert_profile_us": 204.8
+    },
+    {
+      "load": "verify 32",
+      "context": "full",
+      "weight": 16,
+      "adjusted_us": 482.6567937941269,
+      "expert_profile_us": 203.3
+    }
+  ]
+}
