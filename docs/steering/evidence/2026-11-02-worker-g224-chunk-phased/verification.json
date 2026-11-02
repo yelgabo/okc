@@ -1,0 +1,72 @@
+{
+  "decision": "STOP_FIXED_CHUNK_PHASED_RESOURCES",
+  "control_commit": "04e08381919c1c1be9b54326f80101bbd71418c8",
+  "authorization_commit": "d554937a0a51c1a903fa5546a8959fd9ecab1d10",
+  "source_pin": "53d09576f86e93b9baaa0145dcbdf1b60d8736743677d0a4de60e89864d18492",
+  "normalized_outside_gather_pin": "4de8a695f9a5ba6405c8d24f97e82b63ab0742d5f9f685ca99f818056c143fe4",
+  "validation": [
+    {
+      "family": "B4",
+      "options_exactly_equal_parent": true,
+      "layout_values": {
+        "wc": 1248,
+        "wcp": 1248,
+        "wcpB": 2272,
+        "sizeofwc": 1024,
+        "sizeofsmem": 23096
+      },
+      "rows": {
+        "_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE": {
+          "stack_bytes": 8,
+          "spill_store_bytes": 8,
+          "spill_load_bytes": 24,
+          "registers": 96,
+          "barriers": 16
+        },
+        "_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE": {
+          "stack_bytes": 8,
+          "spill_store_bytes": 8,
+          "spill_load_bytes": 24,
+          "registers": 96,
+          "barriers": 16
+        }
+      },
+      "rounded_register_blocks": {
+        "_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE": 2,
+        "_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE": 2
+      }
+    },
+    {
+      "family": "MAIN",
+      "options_exactly_equal_parent": true,
+      "layout_values": {
+        "wc": 1248,
+        "wcp": 1248,
+        "wcpB": 2272,
+        "sizeofwc": 1024,
+        "sizeofsmem": 23096
+      },
+      "rows": {
+        "_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE": {
+          "stack_bytes": 8,
+          "spill_store_bytes": 8,
+          "spill_load_bytes": 8,
+          "registers": 96,
+          "barriers": 16
+        },
+        "_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE": {
+          "stack_bytes": 8,
+          "spill_store_bytes": 8,
+          "spill_load_bytes": 8,
+          "registers": 96,
+          "barriers": 16
+        }
+      },
+      "rounded_register_blocks": {
+        "_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE": 2,
+        "_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE": 2
+      }
+    }
+  ],
+  "scope": "CPU source identity/options/archived byte integrity only; no GPU, runtime qualification, disassembly or speed measurement"
+}

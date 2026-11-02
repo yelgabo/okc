@@ -1,0 +1,9 @@
+test_all_counts_all_compute_threads_full_row_bijection (test_g_expert_g224_chunk_phased.ChunkPhasedContracts.test_all_counts_all_compute_threads_full_row_bijection) ... ok
+test_exact_parent_reverse_real_entry_and_fixed_flags (test_g_expert_g224_chunk_phased.ChunkPhasedContracts.test_exact_parent_reverse_real_entry_and_fixed_flags) ... ok
+test_lifetime_publication_and_j_reset_negatives (test_g_expert_g224_chunk_phased.ChunkPhasedContracts.test_lifetime_publication_and_j_reset_negatives) ... ok
+test_partial_batches_inside_job_padding_multiple_jobs_and_empty (test_g_expert_g224_chunk_phased.ChunkPhasedContracts.test_partial_batches_inside_job_padding_multiple_jobs_and_empty) ... ok
+
+----------------------------------------------------------------------
+Ran 4 tests in 20.528s
+
+OK

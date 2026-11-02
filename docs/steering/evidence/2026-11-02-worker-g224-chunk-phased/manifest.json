@@ -1,0 +1,135 @@
+{
+  "schema": "worker-g224-fixed-chunk-phased-stop-v1",
+  "authorization_commit": "d554937a0a51c1a903fa5546a8959fd9ecab1d10",
+  "unchanged_control_commit": "04e08381919c1c1be9b54326f80101bbd71418c8",
+  "decision": "STOP_FIXED_CHUNK_PHASED_RESOURCES",
+  "hash_domain": "canonical Git blob bytes; manifest excludes itself; compressed PTX/cubin decompressed hashes in each compiler manifest",
+  "files": [
+    {
+      "path": "tools/g_expert_g224_chunk_phased.py",
+      "git_blob": "44d12cf92ad864fd295bd8b2a6f40ec11dbf6c1b",
+      "sha256": "19bf7b5cebe1b18b36d085aee999c4f257f6a63d17ba8486cea1a20d78d174cf",
+      "bytes": 5373
+    },
+    {
+      "path": "tools/test_g_expert_g224_chunk_phased.py",
+      "git_blob": "4e0967304206f268eddb2acfe138644ad7309242",
+      "sha256": "4b218d117fa1bd1e91fc36837d2c7a2a1def4ef8300e42a2c69c4d54cd044283",
+      "bytes": 9682
+    },
+    {
+      "path": "tools/g_expert_g224_chunk_phased_compile.py",
+      "git_blob": "9472124fdcf2c5932f90faec0240f024b0accac3",
+      "sha256": "3a4e1e9f4239ed39114aaeede7211484d343feca8e1f7c9da8a089f6c68230e8",
+      "bytes": 4476
+    },
+    {
+      "path": "docs/steering/2026-11-02-worker-g224-chunk-phased.md",
+      "git_blob": "8d59096cb4169a9c4e0000387c9f90c1456fa673",
+      "sha256": "d4ce87dd29915e19d9576b26175683b7daacd416fd45092a42f79ae8657c7c7e",
+      "bytes": 9418
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-worker-g224-chunk-phased/B4-device.cubin.gz",
+      "git_blob": "63732113ad74ffc74a2ec30ce9175a88ef95e8d6",
+      "sha256": "a12d9f93a4ad9b6b8dff8d6560bf6ad4361c7786cc88bff4ce904e3aeae5bc7d",
+      "bytes": 358306
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-worker-g224-chunk-phased/B4-device.ptx.gz",
+      "git_blob": "6336db0cce76c62dcb8252cb871b3957e182715c",
+      "sha256": "df488f9a76c42f4be240cf0dabd21a02981e95e9caa8c36bd86149d5f8c5279c",
+      "bytes": 225457
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-worker-g224-chunk-phased/B4-manifest.json",
+      "git_blob": "e0136d440badb12b4b4129477dd60d40eed5d1a1",
+      "sha256": "64fafbbf074ba573cc0daa27b4fcf72443c46fb4c6c3b40a2ad22026c0d8a003",
+      "bytes": 4950
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-worker-g224-chunk-phased/B4-nvrtc.log",
+      "git_blob": "3b9a79cf24dc52b0d15359a3b56960aba30d0bfe",
+      "sha256": "ace35d2750c4c9857bbbf0a1b978c656c872cda6a2466e1def4f65c56a8034ce",
+      "bytes": 3479
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-worker-g224-chunk-phased/B4-ptxas.log",
+      "git_blob": "fb601373692b78ac82d48fe00eab70de5acf3927",
+      "sha256": "81f61c8129d124c420b285525ef1eb1899d507f3bf8d47604b62c7ea64d27eb8",
+      "bytes": 2270
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-worker-g224-chunk-phased/compile-result.json",
+      "git_blob": "015ba278db518f755891a5bcd760d7008b2ded3e",
+      "sha256": "708f54e4406060eac09c583700b60b434957d7c8e722a34493599ce6031b03f2",
+      "bytes": 14551
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-worker-g224-chunk-phased/compile.log",
+      "git_blob": "0093cf42dc3b60e1b55a99ee379cffb198b01f9e",
+      "sha256": "e490c26a94da70656575d22fa16e230512fb9949f75a629ff577f5aebb0132e3",
+      "bytes": 13142
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-worker-g224-chunk-phased/cpu-tests.txt",
+      "git_blob": "dea21814db163ad010454213f4f603515f399aec",
+      "sha256": "da7750c1ed5021e7a60f4a9f012c728433059f3e79d13b07aa5d79cf6cbd535c",
+      "bytes": 787
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-worker-g224-chunk-phased/gather.diff",
+      "git_blob": "2add6f7f4d7b18f277261d312aeaba910a7082d0",
+      "sha256": "9adf4fae8537ebb96f998343189dd7927c6e96045d591631fa5a84402366f2a1",
+      "bytes": 2292
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-worker-g224-chunk-phased/generated-manifest.json",
+      "git_blob": "cd62bd6df9001634e341574a77ee20bfd63ce26e",
+      "sha256": "c46ff54399c4341d959a8fe223f4b18f0522da9815a9f9473d5b926df266b719",
+      "bytes": 1179
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-worker-g224-chunk-phased/MAIN-device.cubin.gz",
+      "git_blob": "e0fc62608d588a407e976ca82525bfd5153a8f69",
+      "sha256": "819fb0cece5d25e7d38a3430ea9ad0dfb705fd321ba8b34ec804c8302d8f9249",
+      "bytes": 341034
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-worker-g224-chunk-phased/MAIN-device.ptx.gz",
+      "git_blob": "bc690adee8888ade4a7455fdd17e85f3b9b7e0a5",
+      "sha256": "915d8a9b6f2a531e07093f75dc1384532b6261285400a5e8cc2940052fb73a23",
+      "bytes": 215561
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-worker-g224-chunk-phased/MAIN-manifest.json",
+      "git_blob": "5b4c324628c015f3c465062e8bc675bec831cc8d",
+      "sha256": "56008453f4e0adbad46dc4f368d41cff7269aacc51e0d94b44a15dbb1b1b5cc1",
+      "bytes": 4933
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-worker-g224-chunk-phased/MAIN-nvrtc.log",
+      "git_blob": "3b9a79cf24dc52b0d15359a3b56960aba30d0bfe",
+      "sha256": "ace35d2750c4c9857bbbf0a1b978c656c872cda6a2466e1def4f65c56a8034ce",
+      "bytes": 3479
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-worker-g224-chunk-phased/MAIN-ptxas.log",
+      "git_blob": "ae0ea2aebc4253d1977ab8977a549fd32d9a62b5",
+      "sha256": "807a416da586eae21b846419e8031247c52e2e39d1674fb9e284fa60f99224ea",
+      "bytes": 2266
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-worker-g224-chunk-phased/selected.cu.gz",
+      "git_blob": "e428db8354e2e2d6316c836377f617c644837e49",
+      "sha256": "d3a60dd2ae37e5abc2359018e553e24b3a69e3edeee4afc859ff98be39e7003f",
+      "bytes": 39543
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-worker-g224-chunk-phased/verification.json",
+      "git_blob": "058192db0a51f4e9d84db0e139e99ba1c3cddfb7",
+      "sha256": "4ce3eff3583ac6369d1e165eebacd997f18b73962a896135af6c56f862a551c8",
+      "bytes": 2165
+    }
+  ]
+}
