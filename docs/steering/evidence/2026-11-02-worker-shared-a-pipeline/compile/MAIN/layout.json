@@ -1,0 +1,14 @@
+{
+  "sizeof_smem": 22240,
+  "aligned_header": 22272,
+  "rings": 199680,
+  "jmax": 88,
+  "fixup_floats": 5246976,
+  "threads": 672,
+  "A_offset": 35840,
+  "X_offset": 166912,
+  "dynamic_bytes": 221952,
+  "illustrative_reserved_block_bytes": 1024,
+  "assumed_total_with_reserved": 222976,
+  "actual_target_admission": "UNMEASURED"
+}

@@ -1,0 +1,19 @@
+{
+  "accessed_utc": "2026-11-02T22:53:21.985983+00:00",
+  "urls": [
+    "https://docs.nvidia.com/cuda/parallel-thread-execution/index.html#asynchronous-warpgroup-level-matrix-shared-memory-layout",
+    "https://docs.nvidia.com/cuda/parallel-thread-execution/index.html#asynchronous-warpgroup-level-matrix-async-proxy",
+    "https://docs.nvidia.com/cuda/parallel-thread-execution/index.html#asynchronous-warpgroup-level-matrix-instructions-wgmma-mma"
+  ],
+  "sections": [
+    "9.7.17.4 async proxy",
+    "9.7.17.5.1.2 shared-memory layouts/strides/descriptor",
+    "9.7.17.5.2 SS BF16 operands"
+  ],
+  "conclusions": [
+    "generic A writers fence.proxy.async before A-full publication",
+    "all four WGs wait_group0 before A/X empty release",
+    "K-major no-swizzle LBO128B SBO2048B and K16 descriptor increment16",
+    "SS BF16 instruction takes two descriptors and both transposition immediates0"
+  ]
+}

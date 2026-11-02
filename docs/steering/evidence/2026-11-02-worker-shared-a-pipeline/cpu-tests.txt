@@ -1,0 +1,11 @@
+test_actual_factories_and_unchanged_numerical_boundaries (test_wgs_shared_a_pipeline.SharedA.test_actual_factories_and_unchanged_numerical_boundaries) ... ok
+test_exhaustive_producer_store_and_ss_descriptor (test_wgs_shared_a_pipeline.SharedA.test_exhaustive_producer_store_and_ss_descriptor) ... ok
+test_full_k_raw_sc6_decode_bits_and_logical_matrix (test_wgs_shared_a_pipeline.SharedA.test_full_k_raw_sc6_decode_bits_and_logical_matrix) ... ok
+test_gather_epi_row_permutations (test_wgs_shared_a_pipeline.SharedA.test_gather_epi_row_permutations) ... ok
+test_publication_and_raw_A_X_retirement (test_wgs_shared_a_pipeline.SharedA.test_publication_and_raw_A_X_retirement) ... ok
+test_stage_order_ranges_scratch_and_bounds (test_wgs_shared_a_pipeline.SharedA.test_stage_order_ranges_scratch_and_bounds) ... ok
+
+----------------------------------------------------------------------
+Ran 6 tests in 2.198s
+
+OK
