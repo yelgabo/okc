@@ -1,0 +1,21 @@
+{
+  "source_sha256": "33f8c7804f9722a02c3aa0cb807b467a3945fb5e7eedc2d0c1b067167ced5bbd",
+  "bytes": 893550,
+  "frozen_candidate_sha256": "440f41b118eeb3676867e15d109c2d5f7da0213873f84a17c9d68d1af868703f",
+  "control_sha256": "ba9e327cd7b96595ace4d0c1d0d78fe27c128f23ed0debcda97c7169fc3164ab",
+  "native_control_sha256": "c7c201ae145c6a33f2d5e6b1f80d2a6e56e8d75502f9fd09ace40927ad0f7c71",
+  "native_candidate_sha256": "6366934e170d7abf386869b4c22874f373d8b1d812ccff3400f7753a665c6a4a",
+  "default_arm": "candidate",
+  "packing": "state-local K256/OFF or K128/ON dependency closures",
+  "status": "HELD_PACKAGE_ONLY",
+  "dispatch_ready": false,
+  "gpu": false,
+  "compile": false,
+  "remaining": [
+    "adapt existing full-layer prepare to clear inherited binding before private clone",
+    "retain candidate official state and validated cleanup",
+    "fresh full-generated-entry CPU failures/owner negatives",
+    "strict owning reader/manifest binding",
+    "prospective 295s prepare fit and captain allocation"
+  ]
+}
