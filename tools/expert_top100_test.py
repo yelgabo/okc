@@ -38,7 +38,9 @@ class Contracts(unittest.TestCase):
 
     def test_all_finite_bf16_transport_and_fp32_gamma_product(self):
         # Every finite raw BF16 encoding roundtrips, including signed zero/subnormals.
-        # Representative effective-gamma values cover sign, zero, subnormal and overflow.
+        # Representative raw-gamma samples; these do not cover cancellation near -1.
+        # Down-value subnormals are covered. Effective gamma cannot be subnormal.
+        # The independent review suite exhausts finite raw gamma and down edge cases.
         samples = [0, 0x8000, 1, 0x8001, 0x3f81, 0xbf81, 0x7f7f, 0xff7f]
         for bits in range(65536):
             if bits & 0x7f80 == 0x7f80:
@@ -75,10 +77,12 @@ class Contracts(unittest.TestCase):
                                     self.assertNotIn(addr, writes)
                                     writes.add(addr)
             self.assertEqual(writes, set(range(count * 4096)))
-        for tid in range(512):
-            self.assertEqual([tid * 8 + k for k in range(8)], list(range(tid * 8, (tid + 1) * 8)))
-        # Compact data ends before the unchanged FP32 fixup region even at EMAX.
-        self.assertLessEqual(2 * 4096 * 2048, 4 * 4096 * 2048)
+        # The independent review suite checks actual B4/MAIN reader pairs and
+        # the B4 partial region. Here check the pinned maximum fixup boundary.
+        native = bindings(proto.BASE.read_text(encoding='utf8'))['MOE_CUDA_SRC']
+        self.assertIn('constexpr int MMAX = 384, EMAX = MMAX * 8,', native)
+        emax = 384 * 8
+        self.assertLessEqual(2 * 4096 * emax, 4 * 4096 * emax)
 
     def test_protocol_math_and_negative_source_drift(self):
         old = bindings(proto.BASE.read_text())['MOE_CUDA_SRC']
