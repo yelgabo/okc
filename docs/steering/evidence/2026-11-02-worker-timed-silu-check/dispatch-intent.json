@@ -1,0 +1,22 @@
+{
+  "at": "2026-11-02T11:13:06.840309+00:00",
+  "captain_preregistration": "c19d8b2ba51b0436fb2d1195aeb0b137f05fb351",
+  "source_commit": "9a1f6e4533ae2ab7708134c29c88369f46b96fb4",
+  "command": [
+    "okc",
+    "check",
+    "muse_decode_layer",
+    "docs/steering/evidence/2026-11-02-worker-timed-silu-table/generated/candidate.py",
+    "--no-wait",
+    "--json"
+  ],
+  "source_sha256": "d70a1bcc6202e37562b675fbab3251cdbe1b6fd81569442b3a179270aebae401",
+  "bytes": 870087,
+  "native_sha256": "f5344c9d8d82cae177050a8d4bfa80b3f5f88b9fcfb35f726f777d55ad22f355",
+  "LF_only": true,
+  "final_newline": true,
+  "private_checks_left": 4,
+  "live_layer_jobs": 0,
+  "one_check_maximum": true,
+  "automatic_retry": false
+}

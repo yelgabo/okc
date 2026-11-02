@@ -1,0 +1,17 @@
+{
+  "job_id": "dc62cff972934f54",
+  "board": "muse_decode_layer",
+  "mode": "check",
+  "team": "yelgabo",
+  "source_publication": "9a1f6e4533ae2ab7708134c29c88369f46b96fb4",
+  "captain_preregistration": "c19d8b2ba51b0436fb2d1195aeb0b137f05fb351",
+  "physical_sha256": "d70a1bcc6202e37562b675fbab3251cdbe1b6fd81569442b3a179270aebae401",
+  "physical_bytes": 870087,
+  "native_sha256": "f5344c9d8d82cae177050a8d4bfa80b3f5f88b9fcfb35f726f777d55ad22f355",
+  "server_content_hash": "9d81f93b5c66212041d7864224fd5538c39df2a8b3b196c3a29e75892f8d5b7f",
+  "payload_ref": "muse_decode_layer/9d81f93b5c66212041d7864224fd5538c39df2a8b3b196c3a29e75892f8d5b7f.py",
+  "server_hash_is_not_physical_sha256": true,
+  "one_dispatch_invocation": true,
+  "automatic_retry": false,
+  "separate_server_payload_download": "NOT PERFORMED; association is exact dispatch input plus owning receipt"
+}
