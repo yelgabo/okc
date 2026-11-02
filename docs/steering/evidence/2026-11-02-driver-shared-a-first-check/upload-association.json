@@ -1,0 +1,15 @@
+{
+  "observed_at_utc": "2026-11-02T22:57:39.790012+00:00",
+  "job": "5adf172986ff43dc",
+  "status": "queued",
+  "team": "yelgabo",
+  "board": "muse_decode_layer",
+  "mode": "check",
+  "physical_source_sha256": "fbca3b75125dd45b3e2801358e95aa14a16750860482989a5fef444a576cd578",
+  "source_bytes": 894471,
+  "implementation": "dcb24972",
+  "server_content_identifier": "d697db44e259d52c65efcf11bd6ce68e1d6fba7d28e3f3f5c7a9bc086707acba",
+  "payload_ref": "muse_decode_layer/d697db44e259d52c65efcf11bd6ce68e1d6fba7d28e3f3f5c7a9bc086707acba.py",
+  "cluster": null,
+  "association_limit": "Matched own POST/ID receipt and payload metadata, not an independent server payload download."
+}
