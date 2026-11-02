@@ -1,0 +1,138 @@
+{
+  "observed_utc": "2026-11-02T10:57:16.751560+00:00",
+  "scope": "Public branches of concrete owner-linked source leads, no identity inference. Up to two pages each.",
+  "repositories": [
+    {
+      "repo": "caoshiyi/EAT",
+      "requests": [
+        {
+          "url": "https://api.github.com/repos/caoshiyi/EAT/branches?per_page=100&page=1",
+          "status": 200,
+          "response_sha256": "8650e0c27db6db730827331598bf040a9657f8ea3b216160ed649857272953b4",
+          "next": false
+        }
+      ],
+      "branches": [
+        {
+          "name": "chess",
+          "pin": "77d43eb44e43a5b92f03fddfcd9401cd63c67f00"
+        },
+        {
+          "name": "main",
+          "pin": "0a90500b5f87c26d2fb11013b95591dcf81ed0f8"
+        },
+        {
+          "name": "minecraft-run2",
+          "pin": "f668e82c1d8be66409197cb2794c9c937049332b"
+        },
+        {
+          "name": "release/gym-tasks",
+          "pin": "c4518a15e4679436c2077928a3e2a48cd41ce964"
+        },
+        {
+          "name": "release/m5-dragon-chess",
+          "pin": "97f867c4d9570c3b3a59a00831ba4568ac3de9fa"
+        }
+      ]
+    },
+    {
+      "repo": "caoshiyi/K-Search",
+      "requests": [
+        {
+          "url": "https://api.github.com/repos/caoshiyi/K-Search/branches?per_page=100&page=1",
+          "status": 200,
+          "response_sha256": "81a69379b2a34b2066de9fc60a17093129c7f2358560b5986222a6e7bb487682",
+          "next": false
+        }
+      ],
+      "branches": [
+        {
+          "name": "lry/dev",
+          "pin": "d2fee65f41872ec98f3d6aab2ef7e955315de5dc"
+        },
+        {
+          "name": "main",
+          "pin": "53c8fab9a5e8fab2c86610d24fbec5067f90e115"
+        }
+      ]
+    },
+    {
+      "repo": "booth-algo/agentic-serve",
+      "requests": [
+        {
+          "url": "https://api.github.com/repos/booth-algo/agentic-serve/branches?per_page=100&page=1",
+          "status": 200,
+          "response_sha256": "bafd6c2a1a53a434be8a4e401c713be8a117a9c7462166d5cac26853d3e28867",
+          "next": false
+        }
+      ],
+      "branches": [
+        {
+          "name": "fix/results-symlink",
+          "pin": "4c32a37aa6ca1db046dd981f16786ba439d96b49"
+        },
+        {
+          "name": "kev/table-gemm-wip",
+          "pin": "e056b99a53c00887abe0a081e8802955dd2f435b"
+        },
+        {
+          "name": "kev/validate-vs-measured",
+          "pin": "3e4a3bc55e94096b30fba6e90c4858fbeb503687"
+        },
+        {
+          "name": "kw/dataset_upload",
+          "pin": "c041e455bf7b9be08b7d6b4728cb28c2c68b1609"
+        },
+        {
+          "name": "kw/roofline-plot",
+          "pin": "8c6db599561aa5c33c9348dd2e3bb9219b87e921"
+        },
+        {
+          "name": "kw/roofline-scripts",
+          "pin": "a55504125821ae38074ddde07f4f30a1b75a0d9c"
+        },
+        {
+          "name": "main",
+          "pin": "f2991ed98c2841d2e093087ec24ca7491d0fdfc8"
+        },
+        {
+          "name": "work/20260511-024751",
+          "pin": "a369bd2cc5817eda2487b72263fafa79ec8623d2"
+        }
+      ]
+    },
+    {
+      "repo": "ntovas/vllm",
+      "requests": [
+        {
+          "url": "https://api.github.com/repos/ntovas/vllm/branches?per_page=100&page=1",
+          "status": 200,
+          "response_sha256": "856e728eb504aca593a96113b966b197f586abd1b1c5756386b426002f9d762c",
+          "next": false
+        }
+      ],
+      "branches": [
+        {
+          "name": "fix-ct-wna16-int8-marlin-gscale",
+          "pin": "74ad7553311fbdfb10d3cabad49f5e205ee4ae5d"
+        },
+        {
+          "name": "fix-ct-wna16-int8-marlin-gscale-v2",
+          "pin": "830262c6f4c97bc150ac53c329be4cf0b1548a52"
+        },
+        {
+          "name": "kv-offload-store-partial-tail-chunk",
+          "pin": "fada48bb2a199d278a36e95532441e31375d1e68"
+        },
+        {
+          "name": "main",
+          "pin": "187a0eb98aa42341d703f83421d693fa7585581b"
+        },
+        {
+          "name": "mtp-draft-prefill-skip-unused-moe-rows",
+          "pin": "80d255da46335de84ee1b9151c7b9e528cfcaec3"
+        }
+      ]
+    }
+  ]
+}

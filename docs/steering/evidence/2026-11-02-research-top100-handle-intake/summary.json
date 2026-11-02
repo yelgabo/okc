@@ -1,0 +1,120 @@
+{
+  "observed_utc": "2026-11-02T11:03:34.974387+00:00",
+  "started_utc": "2026-11-02T10:49:48Z",
+  "checkout_at_start": "af3f9171a64d133ab5660906dde00f25c87650e1",
+  "prior_evidence": [
+    {
+      "path": "docs\\steering\\evidence\\2026-11-01-captain-top100\\source-intake.json",
+      "sha256": "1dfbdb62b4a2953beea5b6ceda9e01a84ff3dddb804cab6c088715cb83b697a6"
+    },
+    {
+      "path": "docs\\steering\\evidence\\2026-11-01-captain-top100\\handle-leads.json",
+      "sha256": "4b11168a3880ac2b81885cba533038c45aae189d781a2671de7860f9d15613bf"
+    },
+    {
+      "path": "docs\\steering\\evidence\\2026-11-02-captain-reference-gate\\discovery.json",
+      "sha256": "c9ee1095488b687e8e046e63b9d682f2ba987259a437911cb7cafc29e71dfd28"
+    },
+    {
+      "path": "docs\\steering\\evidence\\2026-11-02-captain-timed-silu\\survey.json",
+      "sha256": "bf91b02a069b1f6b7056970962c9780e4e80ae12d7d6923ed1e46860db41e2c9"
+    }
+  ],
+  "deduplication": "Reused mpeng19 auto-inference tree f28ff938 and four other repo metadata reads; skipped unchanged ruww/Jacob/Keell complete-source audits. Prior tjiang mentions were comparisons, not owner inventory.",
+  "coverage": {
+    "exact_owners": 11,
+    "repo_gist_listing_pages": 22,
+    "HTTP200_terminal_pages": 22,
+    "public_repository_names": 199,
+    "gists": 1,
+    "concrete_default_trees": 9,
+    "concrete_nondefault_trees": 2,
+    "branch_lists": 4
+  },
+  "ranking_provenance": "User/captain supplied 10:49UTC snapshot; not independently refetched or source-bound here.",
+  "web_queries": [
+    "\"caoshiyi\" \"kernel\" challenge",
+    "\"tjiang-fair\" \"kernel\" challenge",
+    "\"booth-algo\" \"kernel\" challenge",
+    "\"tjiang-fair\" \"muse\"",
+    "\"booth-algo\" \"open kernel\"",
+    "\"reyanshsolis\" \"Open Kernel Challenge\"",
+    "\"AlexCuadron\" \"Open Kernel Challenge\"",
+    "\"k9thebeast\" \"kernel\"",
+    "\"ntovas\" \"muse_decode_layer\"",
+    "\"StartupBros\" \"muse_decode_layer\"",
+    "\"caoshiyi\" \"muse_decode_layer\""
+  ],
+  "useful_primary_web_leads": [
+    "https://github.com/caoshiyi/EAT",
+    "https://github.com/caoshiyi/K-Search",
+    "https://github.com/booth-algo/AgentPerfBench"
+  ],
+  "web_limits": "Batched search results are not exhaustive per-query inventories. Other results unrelated or Guild enrollment; no enrollment/accounts/contact/trade.",
+  "decision": "Scoped miss: no verified new complete OKC layer preparation/dispatch/source-to-receipt pair. Not proof implementations do not exist.",
+  "strongest_unresolved_lead": "caoshiyi/EAT README links caoshiyi/eat-kernels, public endpoint404 and not in own listing; no source bytes/ref/hash/receipt assigned.",
+  "gaps": [
+    "Arbitrary filenames, histories, other nondefault refs and unlinked organization repositories not semantically audited.",
+    "HTTP404 does not establish privacy/deletion/identity.",
+    "Unrelated framework license or team-best score cannot be transferred to unseen kernel.",
+    "Private/inaccessible/unindexed/new publications remain gaps."
+  ],
+  "next_gate": "Actually public complete source artifact/link or concrete relevant ref/content delta; no immediate repeat inventory, candidate adoption or target allocation.",
+  "files": [
+    {
+      "path": "docs/steering/evidence/2026-11-02-research-top100-handle-intake/booth-algo-agentic-serve.json",
+      "bytes": 19715,
+      "sha256": "f4e46cd266f8a875803710d0953468b2fd6dd4d2951491825f35927c78b98c9d"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-research-top100-handle-intake/booth-algo-AgentPerfBench.json",
+      "bytes": 5589,
+      "sha256": "7e2c293bdd1902f0c9360fbcc5a325214a652b1e39c3b20c73dc012a4f15c802"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-research-top100-handle-intake/branch-followups.json",
+      "bytes": 18845,
+      "sha256": "766b150f3c5beb116236f5655c88f2999e7b006ba2c21a457b1a9d660c5b851a"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-research-top100-handle-intake/branches.json",
+      "bytes": 4064,
+      "sha256": "832e89eaf161d1e07a3aeda60f9a8917262a911953a691d63e127f6a1232dddc"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-research-top100-handle-intake/caoshiyi-EAT.json",
+      "bytes": 12744,
+      "sha256": "f4c3b138287c45b41f08b6b5d70fcbb3a7846ed546c6b1a7d188c467f0874e7b"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-research-top100-handle-intake/caoshiyi-K-Search.json",
+      "bytes": 26980,
+      "sha256": "7a0f59b7b61376ece33ba1643031eb973320dd05b66fb6405e9dc9fb164234f5"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-research-top100-handle-intake/followups.json",
+      "bytes": 9959,
+      "sha256": "5b1f31ec3d5142eed5ccae57621852c54d2e8d2f0a70ac3f0e43fb50d5efc444"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-research-top100-handle-intake/full-tree-path-checks.json",
+      "bytes": 10248,
+      "sha256": "2bc3417b33cab81f007f6f85aa3304d20defd542e650bdba1d3c0824daa6c059"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-research-top100-handle-intake/ntovas-vllm.json",
+      "bytes": 21041,
+      "sha256": "2f8a79a616ac70d679c7c8fab90182c6a9a9368d75a52d7c4a1cb676e959359d"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-research-top100-handle-intake/owners.json",
+      "bytes": 18852,
+      "sha256": "2b5a44a93eee01d85a8fa29997b1a2c84a189dde7d19213295ca8585ec219be7"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-research-top100-handle-intake/vllm-model-lead.json",
+      "bytes": 2896,
+      "sha256": "6c5ad609942a7070f4efa19b2b5885433ae5ab10d50b96f65493868b86b40a28"
+    }
+  ]
+}

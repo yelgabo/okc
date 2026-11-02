@@ -1,0 +1,63 @@
+{
+  "repo": "booth-algo/AgentPerfBench",
+  "requests": [
+    {
+      "url": "https://api.github.com/repos/booth-algo/AgentPerfBench",
+      "status": 200,
+      "sha256": "9318b67310704beec40c637b6f2a1e22e315321151529ff3837796c47d78ac74",
+      "rate_remaining": "23"
+    },
+    {
+      "url": "https://api.github.com/repos/booth-algo/AgentPerfBench/commits/main",
+      "status": 200,
+      "sha256": "f8d0fe2ab16854ca730ecc06cd431ddde2fb5b5e3bf4f4358f381da556ff9151",
+      "rate_remaining": "22"
+    },
+    {
+      "url": "https://api.github.com/repos/booth-algo/AgentPerfBench/git/trees/0f0e560297660770591426228ea6fe8987b760fd?recursive=1",
+      "status": 200,
+      "sha256": "45d1f5f105c1aaaf6aeb636530c6233eb62e70a1c7a1b2766925e5736559d041",
+      "rate_remaining": "21"
+    }
+  ],
+  "pin": "0f0e560297660770591426228ea6fe8987b760fd",
+  "commit_date": "2026-05-07T03:23:59Z",
+  "license": {
+    "key": "mit",
+    "name": "MIT License",
+    "spdx_id": "MIT",
+    "url": "https://api.github.com/licenses/mit",
+    "node_id": "MDc6TGljZW5zZTEz"
+  },
+  "parent": null,
+  "tree_count": 81,
+  "truncated": false,
+  "relevant_paths": [
+    {
+      "path": "LICENSE",
+      "sha": "40ff181a9811650670fb3b65590c17a8a0c0a775",
+      "size": 1079
+    },
+    {
+      "path": "README.md",
+      "sha": "d3bd04ef0614222ffcc0e33f46a4694c53c5d642",
+      "size": 3553
+    },
+    {
+      "path": "benchmarking/inference/README.md",
+      "sha": "0a0b5295c3b485efd4004b482be5f3ec9d76e2a0",
+      "size": 3641
+    },
+    {
+      "path": "profiling/ncu/README.md",
+      "sha": "ba8a10872b14b25d0cbe2a436fec74d308a77148",
+      "size": 2401
+    }
+  ],
+  "readme": {
+    "url": "https://raw.githubusercontent.com/booth-algo/AgentPerfBench/0f0e560297660770591426228ea6fe8987b760fd/README.md",
+    "sha256": "bb74b31234bad89e393a99306773a5f83131efd3aaaecd88f24ca8e15b064d76",
+    "text": "# AgentPerfBench\n\nAgentPerfBench is the benchmark and profiling artifact repository for the\nagentic serving paper. This repo keeps the tooling needed to reproduce the\nbenchmark/profiling data. Generated result dumps are published separately and\nkept out of version control.\n\n## Contents\n\n- `benchmarking/inference/` \u2014 OpenAI-compatible serving benchmark runner,\n  workload profiles, trace replay, distributional synthetic replay, and sweep\n  scripts.\n- `benchmarking/inference/data/distributions/` \u2014 compact distributional\n  workload artifacts used by the synthetic profiles.\n- `benchmarking/tests/` \u2014 unit tests for profile registry, distributional\n  workloads, real-trace loading, and cache metadata.\n- `profiling/ncu/` \u2014 NVIDIA Nsight Compute and roofline profiling tools used\n  for per-layer/kernel profiling.\n- `docs/` \u2014 submission scope notes and artifact pointers.\n\nRaw trajectories and full benchmark outputs are intentionally not committed\nhere. They are published in the Hugging Face dataset artifact; see\n`docs/artifact-submission/scope.md`.\n\n## Quickstart\n\nThese commands exercise the repository without a GPU or model server:\n\n```bash\ngit clone https://github.com/booth-algo/AgentPerfBench.git\ncd AgentPerfBench\npython -m venv .venv\n. .venv/bin/activate\npip install -e .[dev]\nPYTHONPATH=benchmarking/inference python -m pytest -q benchmarking/tests\nPYTHONPATH=benchmarking/inference python -m src.benchmark.runner --list-profiles\npython benchmarking/inference/scripts/compile_sweep.py --scope synthetic --dry-run\n```\n\nFor full benchmark data collection against an OpenAI-compatible server, install\nruntime extras:\n\n```bash\npip install -e .[benchmark]\npython -c \"import src.benchmark.runner\"\n```\n\nFor NCU/roofline plotting, install profiling extras:\n\n```bash\npip install -e .[profiling]\n```\n\n## Run A Benchmark\n\nStart an OpenAI-compatible server such as vLLM, then run:\n\n```bash\ncd benchmarking/inference\nPYTHONPATH=. python -m src.benchmark.runner \\\n  --url http://localhost:8000/v1/chat/completions \\\n  --model meta-llama/Llama-3.1-8B-Instruct \\\n  --backend vllm \\\n  --profile chat-singleturn \\\n  --concurrency 10 \\\n  --num-requests 100 \\\n  --api-key test \\\n  --output results/chat-singleturn_c10.json\n```\n\nSynthetic profiles validated for the paper use the `*-synth` names, for\nexample `swebench-multiturn-synth`. The multi-turn synthetic profiles carry the\nAPC-aware replay settings directly: code-like filler, 3.8 chars/token\ncalibration, and a 1024-token shared prefix. `chat-singleturn-synth` is a\nsynthetic-scope ShareGPT baseline.\n\n## Compile And Run A Sweep\n\n```bash\ncd benchmarking/inference\npython scripts/compile_sweep.py --scope synthetic\nHOST_FILTER=target_a PY=/path/to/vllm/python \\\n  bash scripts/bench_orchestrator.sh --jobs scripts/bench_jobs.txt\n```\n\nThe public sweep manifest uses model-root placeholders rather than\nmachine-local paths. Set `APB_TARGET_A_MODEL_ROOT`, `APB_TARGET_B_MODEL_ROOT`,\n`APB_TARGET_C_MODEL_ROOT`, or `APB_TARGET_D_MODEL_ROOT` before compiling if your\nmodel cache is not mounted at `/models`. The logical target names are stable\noperator aliases for the public hardware families in\n`benchmarking/inference/configs/sweep.yaml`.\n\nUse `--dry-run` on `bench_orchestrator.sh` to inspect the generated launches\nwithout starting model servers.\n\n## Run Tests\n\n```bash\nPYTHONPATH=benchmarking/inference python -m pytest -q benchmarking/tests\n```\n\n## Profiling\n\nNCU profiling entrypoints live in `profiling/ncu/`. See\n`profiling/ncu/README.md` for the commands used for layer/kernel profiling.\n",
+    "complete": true
+  }
+}

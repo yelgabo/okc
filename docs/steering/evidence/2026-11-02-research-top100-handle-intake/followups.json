@@ -1,0 +1,287 @@
+{
+  "observed_utc": "2026-11-02T10:54:50.497845+00:00",
+  "reason": "Follow actual caoshiyi/EAT README source link and listed artifact/evaluation repositories, not guessed account aliases.",
+  "repositories": [
+    {
+      "repo": "caoshiyi/eat-kernels",
+      "requests": [
+        {
+          "url": "https://api.github.com/repos/caoshiyi/eat-kernels",
+          "status": 404,
+          "error": "{\"message\":\"Not Found\",\"documentation_url\":\"https://docs.github.com/rest/repos/repos#get-a-repository\",\"status\":\"404\"}"
+        }
+      ]
+    },
+    {
+      "repo": "caoshiyi/artifacts",
+      "requests": [
+        {
+          "url": "https://api.github.com/repos/caoshiyi/artifacts",
+          "status": 200,
+          "response_sha256": "8636e1d362300db1430422e1c0eb8b39f0053c1b2dd06bc3f27e053ce95a3961",
+          "rate_remaining": "16"
+        },
+        {
+          "url": "https://api.github.com/repos/caoshiyi/artifacts/commits/main",
+          "status": 200,
+          "response_sha256": "59c8bb9bb351e960c3d629c4752a6ac42c4fb5d5359ccdf8e18b916acb5253d3",
+          "rate_remaining": "15"
+        },
+        {
+          "url": "https://api.github.com/repos/caoshiyi/artifacts/git/trees/a8a8d901fbabaa88191fe5e57c35690b9a754e3d?recursive=1",
+          "status": 200,
+          "response_sha256": "103e20b231f93a6f88750308091c32a1f350b933a555b606fb9a2d90038ef7c9",
+          "rate_remaining": "14"
+        }
+      ],
+      "pin": "a8a8d901fbabaa88191fe5e57c35690b9a754e3d",
+      "date": "2024-11-28T22:59:19Z",
+      "license": null,
+      "parent": null,
+      "tree_count": 1,
+      "truncated": false,
+      "challenge_matches": [],
+      "paths": [
+        "README.md"
+      ],
+      "paths_limited": false,
+      "kernel_result_paths": []
+    },
+    {
+      "repo": "ntovas/ai-torture-chamber",
+      "requests": [
+        {
+          "url": "https://api.github.com/repos/ntovas/ai-torture-chamber",
+          "status": 200,
+          "response_sha256": "96dcfd5a6a1137333858c43d2366f3db55ef99257bf4c9c5930673195a6bd835",
+          "rate_remaining": "13"
+        },
+        {
+          "url": "https://api.github.com/repos/ntovas/ai-torture-chamber/commits/master",
+          "status": 200,
+          "response_sha256": "39357ff8a87884be05d85c1a7ecba48af8dfee0487d4cc63f355feeae4225473",
+          "rate_remaining": "12"
+        },
+        {
+          "url": "https://api.github.com/repos/ntovas/ai-torture-chamber/git/trees/7a292c6817a2963cdbec1e222a14cf8fbea5645d?recursive=1",
+          "status": 200,
+          "response_sha256": "02f9ecf593df8ed65796203c4ae5980f9d22517327e50ab894ada5d8b09f40f3",
+          "rate_remaining": "11"
+        }
+      ],
+      "pin": "7a292c6817a2963cdbec1e222a14cf8fbea5645d",
+      "date": "2026-09-30T18:42:54Z",
+      "license": {
+        "key": "other",
+        "name": "Other",
+        "spdx_id": "NOASSERTION",
+        "url": null,
+        "node_id": "MDc6TGljZW5zZTA="
+      },
+      "parent": "devurandom11/ai-torture-chamber",
+      "tree_count": 115,
+      "truncated": false,
+      "challenge_matches": [],
+      "paths": [
+        ".DS_Store",
+        "LICENSE",
+        "README.md",
+        "docs",
+        "docs/14b_plan.md",
+        "docs/reddit_post.md",
+        "exp23_pain_axis.py",
+        "exp29_pain_pleasure.py",
+        "exp30_max_valences.py",
+        "exp31_saw_button.py",
+        "exp31b_saw_v2.py",
+        "exp31c_saw_broad.py",
+        "exp32_valence_transcripts.py",
+        "exp33_nonhuman_valences.py",
+        "exp34_optimized_valence.py",
+        "exp35_blog_artifacts.py",
+        "exp36_signal_batteries.py",
+        "exp37_framing_battery.py",
+        "exp37b_deliberation.py",
+        "exp38_broad_harvest.py",
+        "exp39_control_vector.py",
+        "exp39b_transport.py",
+        "exp39c_transport_lean.py",
+        "exp40_betrayal.py",
+        "exp41_protocol_v3.py",
+        "exp42_topic_poking.py",
+        "exp43_faithful_extraction.py",
+        "exp44_valence_big5.py",
+        "live",
+        "live/Dockerfile",
+        "live/__pycache__",
+        "live/__pycache__/server.cpython-311.pyc",
+        "live/requirements.txt",
+        "live/server.py",
+        "runs",
+        "runs/.DS_Store",
+        "runs/exp23",
+        "runs/exp23/pain_dose_response.png",
+        "runs/exp23/pain_steering.json",
+        "runs/exp29",
+        "runs/exp29/steering_dose_response.png",
+        "runs/exp29/steering_sweep.json",
+        "runs/exp30",
+        "runs/exp30/max_valence_dose_response.png",
+        "runs/exp30/max_valences.json",
+        "runs/exp31",
+        "runs/exp31/saw_button.json",
+        "runs/exp31/saw_button.png",
+        "runs/exp31b",
+        "runs/exp31b/saw_button_v2.json",
+        "runs/exp31b/saw_button_v2.png",
+        "runs/exp31c",
+        "runs/exp31c/saw_button_v3_broad.json",
+        "runs/exp31c/saw_button_v3_broad.png",
+        "runs/exp32",
+        "runs/exp32/valence_transcripts.json",
+        "runs/exp33",
+        "runs/exp33/random_dirs.json",
+        "runs/exp33/top_dirs_transcripts.json",
+        "runs/exp34",
+        "runs/exp34/optimized_valence.json",
+        "runs/exp34/optimized_valence.png",
+        "runs/exp35",
+        "runs/exp35/dose_ladder.png",
+        "runs/exp35/saw_hero.png",
+        "runs/exp36",
+        "runs/exp36/signal_batteries.json",
+        "runs/exp36/signal_batteries.png",
+        "runs/exp37",
+        "runs/exp37/deliberation.json",
+        "runs/exp37/framing_battery.json",
+        "runs/exp37/framing_battery.png",
+        "runs/exp38",
+        "runs/exp38/best_quotes.json",
+        "runs/exp38/broad_pain_harvest.json",
+        "runs/exp38/harvest_scatter.png",
+        "runs/exp39",
+        "runs/exp39/broad_pain_direction.json",
+        "runs/exp39/cross_model_transport.json",
+        "runs/exp39/pain_cvector_qwen3-4b.gguf",
+        "runs/exp39/pain_dirs_14b.pt",
+        "runs/exp39/transport_residuals.json",
+        "runs/exp40",
+        "runs/exp40/betrayal.json",
+        "runs/exp41",
+        "runs/exp41/hypotheses.json",
+        "runs/exp41/smoke",
+        "runs/exp41/smoke/calibration.json",
+        "runs/exp41/smoke/config.json",
+        "runs/exp41/smoke/hypotheses.json",
+        "runs/exp41/smoke/protocol_v3.png",
+        "runs/exp41/smoke/results.json",
+        "runs/exp41/smoke/reveals.json",
+        "runs/exp41/smoke/trials.json",
+        "runs/exp43",
+        "runs/exp43/smoke",
+        "runs/exp43/smoke/button_compare.json",
+        "runs/exp43/smoke/comparison.json",
+        "runs/exp43/smoke/faithful_extraction.png",
+        "runs/exp43/smoke/faithful_vectors.json",
+        "runs/exp43/smoke/layer_curve.json",
+        "runs/exp44",
+        "runs/exp44/valence_big5.json",
+        "runs/exp44/valence_big5.png",
+        "site",
+        "site/.gitignore",
+        "site/dose_ladder.png",
+        "site/favicon.svg",
+        "site/icon.svg",
+        "site/index.html"
+      ],
+      "paths_limited": true,
+      "kernel_result_paths": [
+        "runs/exp41/smoke/results.json"
+      ]
+    },
+    {
+      "repo": "StartupBros/pi-evals-evidence",
+      "requests": [
+        {
+          "url": "https://api.github.com/repos/StartupBros/pi-evals-evidence",
+          "status": 200,
+          "response_sha256": "fa0ff2ba08579e308ed7fe6c3c9358bc8f9441d8cf0f5db3276e468366cd79b8",
+          "rate_remaining": "10"
+        },
+        {
+          "url": "https://api.github.com/repos/StartupBros/pi-evals-evidence/commits/main",
+          "status": 200,
+          "response_sha256": "ec5c8990e3133ce3ee580a7f44e23746b2d61ccc45dbbda8400698c1725616e4",
+          "rate_remaining": "9"
+        },
+        {
+          "url": "https://api.github.com/repos/StartupBros/pi-evals-evidence/git/trees/d2fbd36da4f1a9312c1e878a6fe6322c57a3e664?recursive=1",
+          "status": 200,
+          "response_sha256": "0af0185feb33f05c92906a48a63895113f3ad0e6b87f7da6c243a6f751600a20",
+          "rate_remaining": "8"
+        }
+      ],
+      "pin": "d2fbd36da4f1a9312c1e878a6fe6322c57a3e664",
+      "date": "2026-09-13T06:18:02Z",
+      "license": null,
+      "parent": null,
+      "tree_count": 1,
+      "truncated": false,
+      "challenge_matches": [],
+      "paths": [
+        "README.md"
+      ],
+      "paths_limited": false,
+      "kernel_result_paths": []
+    },
+    {
+      "repo": "booth-algo/llm-bench",
+      "requests": [
+        {
+          "url": "https://api.github.com/repos/booth-algo/llm-bench",
+          "status": 200,
+          "response_sha256": "4c776f6851901f1ecf41bf24e54cb39d433a22d9aaeb6749cf72092600fdce7e",
+          "rate_remaining": "7"
+        },
+        {
+          "url": "https://api.github.com/repos/booth-algo/llm-bench/commits/master",
+          "status": 200,
+          "response_sha256": "736f033225c64010e2f7e1f034cfb4a4652083f34cfec5ed46e437b79cbc63a5",
+          "rate_remaining": "6"
+        },
+        {
+          "url": "https://api.github.com/repos/booth-algo/llm-bench/git/trees/423dae785f8aa6bc0088eb974f5c44f4e3247735?recursive=1",
+          "status": 200,
+          "response_sha256": "d5db374c905be94495660987f0af86631b56d9307f3d574d014c43a7bd596c45",
+          "rate_remaining": "5"
+        }
+      ],
+      "pin": "423dae785f8aa6bc0088eb974f5c44f4e3247735",
+      "date": "2025-05-08T12:05:19Z",
+      "license": null,
+      "parent": null,
+      "tree_count": 15,
+      "truncated": false,
+      "challenge_matches": [],
+      "paths": [
+        ".gitignore",
+        "README.md",
+        "prompts",
+        "prompts/long_input_short_output.txt",
+        "prompts/short_input_long_output.txt",
+        "scripts",
+        "scripts/minimal-curl.sh",
+        "scripts/own_benchmark.sh",
+        "scripts/vllm_benchmark.sh",
+        "src",
+        "src/benchmark_dataset.py",
+        "src/test_benchmark_dataset.py",
+        "src/tftt_benchmark.py",
+        "src/throughput_benchmark.py",
+        "src/throughput_benchmark_vllm.py"
+      ],
+      "paths_limited": false,
+      "kernel_result_paths": []
+    }
+  ]
+}

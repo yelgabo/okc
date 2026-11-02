@@ -1,0 +1,403 @@
+{
+  "repo": "caoshiyi/K-Search",
+  "requests": [
+    {
+      "url": "https://api.github.com/repos/caoshiyi/K-Search",
+      "status": 200,
+      "sha256": "948d816f932b0482bbc7db5c4890adc7ac59adc348122d958ca97d866a319946",
+      "rate_remaining": "29"
+    },
+    {
+      "url": "https://api.github.com/repos/caoshiyi/K-Search/commits/main",
+      "status": 200,
+      "sha256": "d60a8f989da327c8f88bbd1bd53118675a40c6e472c02a42eec43e63f1b29cd2",
+      "rate_remaining": "28"
+    },
+    {
+      "url": "https://api.github.com/repos/caoshiyi/K-Search/git/trees/53c8fab9a5e8fab2c86610d24fbec5067f90e115?recursive=1",
+      "status": 200,
+      "sha256": "647e2613e61199ea88b9c9230c7b08c279aabb37521c09195de776e6fbb6e88b",
+      "rate_remaining": "27"
+    }
+  ],
+  "pin": "53c8fab9a5e8fab2c86610d24fbec5067f90e115",
+  "commit_date": "2026-06-01T20:54:48Z",
+  "license": {
+    "key": "apache-2.0",
+    "name": "Apache License 2.0",
+    "spdx_id": "Apache-2.0",
+    "url": "https://api.github.com/licenses/apache-2.0",
+    "node_id": "MDc6TGljZW5zZTI="
+  },
+  "parent": null,
+  "tree_count": 155,
+  "truncated": false,
+  "relevant_paths": [
+    {
+      "path": "LICENSE",
+      "sha": "55f8a8003d05477b696b0e79d37eb195b94c98f1",
+      "size": 11348
+    },
+    {
+      "path": "README.md",
+      "sha": "d996e464fbb0e697c33ef9dd21694967da0a9571",
+      "size": 12874
+    },
+    {
+      "path": "generate_kernels_and_eval.py",
+      "sha": "f68666c7a14f0c027e32e8e3440f5c0015bc8a2c",
+      "size": 20855
+    },
+    {
+      "path": "k_search/kernel_generators",
+      "sha": "1458e8391fca09cf0e4c5056ae8d4c7c774fac06",
+      "size": null
+    },
+    {
+      "path": "k_search/kernel_generators/__init__.py",
+      "sha": "521a4723e6987108142d02911be6da6b558e6b63",
+      "size": 42
+    },
+    {
+      "path": "k_search/kernel_generators/kernel_generator.py",
+      "sha": "103e56771490b5d45ce13ee9692915352261c7b7",
+      "size": 26136
+    },
+    {
+      "path": "k_search/kernel_generators/kernel_generator_prompts.py",
+      "sha": "dfd14fb28210c1da8f4e8f274f38226bc8d1ca3f",
+      "size": 5916
+    },
+    {
+      "path": "k_search/kernel_generators/kernel_generator_world_model.py",
+      "sha": "91cc3c62f83308ebc7e56b1edf2b074bf975d435",
+      "size": 45580
+    },
+    {
+      "path": "k_search/kernel_generators/world_model.py",
+      "sha": "ac3402e69d95cecaf4bf006f7e1737b03eff6501",
+      "size": 76014
+    },
+    {
+      "path": "k_search/kernel_generators/world_model_manager.py",
+      "sha": "3523de4a7fd8f58e695200d9032a586d3977e050",
+      "size": 95457
+    },
+    {
+      "path": "k_search/kernel_generators/world_model_prompts.py",
+      "sha": "17b408393dd48bfa8e5fbd63d9841eed73a01ed0",
+      "size": 18095
+    },
+    {
+      "path": "k_search/tasks/gpu_mode/libkernelbot",
+      "sha": "f934136e5a08ce422d6a1944ca71d00cf86f833e",
+      "size": null
+    },
+    {
+      "path": "k_search/tasks/gpu_mode/libkernelbot/__init__.py",
+      "sha": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "size": 0
+    },
+    {
+      "path": "k_search/tasks/gpu_mode/libkernelbot/consts.py",
+      "sha": "2eabc97c539640ec736b2f3c7b6a4d8904243659",
+      "size": 3929
+    },
+    {
+      "path": "k_search/tasks/gpu_mode/libkernelbot/run_eval.py",
+      "sha": "1b95e282c62e73551d2f03bd7fd4c384948013f2",
+      "size": 29281
+    },
+    {
+      "path": "k_search/tasks/gpu_mode/libkernelbot/task.py",
+      "sha": "e64b3900fb8048f3887daf31d4934a35db3b1396",
+      "size": 7036
+    },
+    {
+      "path": "k_search/tasks/gpu_mode/libkernelbot/utils.py",
+      "sha": "3702664d68f2098012703bbda40494e7f2e3aad5",
+      "size": 4031
+    },
+    {
+      "path": "k_search/tasks/kernelbench",
+      "sha": "8a2bd29ec2cbae3d164c3ef6b4870957a7caa34a",
+      "size": null
+    },
+    {
+      "path": "k_search/tasks/kernelbench/__init__.py",
+      "sha": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "size": 0
+    },
+    {
+      "path": "k_search/tasks/kernelbench/run_and_check.py",
+      "sha": "ae2808b019994fe011c0e5f8a297fbe1cafe124d",
+      "size": 17202
+    },
+    {
+      "path": "k_search/tasks/kernelbench_task.py",
+      "sha": "5c7a2ffd9542c30383d270d8eed19fdf63ba5165",
+      "size": 22445
+    },
+    {
+      "path": "results",
+      "sha": "a6814e68743db6fcf5a1dbac04f69093800a601f",
+      "size": null
+    },
+    {
+      "path": "results/gpumode_trimul",
+      "sha": "411baaf4c714dfb1d9a6d9e78e43381bb5214ba5",
+      "size": null
+    },
+    {
+      "path": "results/gpumode_trimul/TTT.py",
+      "sha": "3adff466eacca50041e362a9ff98b725cacaf5d0",
+      "size": 16495
+    },
+    {
+      "path": "results/gpumode_trimul/bench.sh",
+      "sha": "fc1361b5dfa5f91d111e1f465c936cf132c23372",
+      "size": 6516
+    },
+    {
+      "path": "results/gpumode_trimul/ksearch_best.py",
+      "sha": "a82b3d6fb010f3d6d0cde87219c6df0620c9e2c1",
+      "size": 11955
+    },
+    {
+      "path": "results/gpumode_trimul/shiyegao.py",
+      "sha": "81c5c7046dba688028e4552614fe8f6b80cbaf41",
+      "size": 73227
+    },
+    {
+      "path": "results/gpumode_trimul/zeyushen.py",
+      "sha": "d457e3c93bc888da25abaf9fad5907b609fcb796",
+      "size": 9438
+    },
+    {
+      "path": "results/gqa_paged",
+      "sha": "76adcc1c661caf1d1b31f7929b70b479c31f9907",
+      "size": null
+    },
+    {
+      "path": "results/gqa_paged/gqa_paged_decode_h32_kv4_d128_ps1",
+      "sha": "7778f767175c75611751b7075636ebce2347d7ef",
+      "size": null
+    },
+    {
+      "path": "results/gqa_paged/gqa_paged_decode_h32_kv4_d128_ps1/ksearch_best_gqa.cpp",
+      "sha": "a14133359deb5fb660c5855ff5b2caa17c832198",
+      "size": 1777
+    },
+    {
+      "path": "results/gqa_paged/gqa_paged_decode_h32_kv4_d128_ps1/ksearch_best_gqa.cu",
+      "sha": "3836a4fa2fa9fe8a2938bfe2a4c00b4e3ed46215",
+      "size": 15892
+    },
+    {
+      "path": "results/gqa_paged/gqa_paged_decode_h32_kv4_d128_ps1/ksearch_best_gqa.h",
+      "sha": "d832ec6e77180cdb0550cc92832227e3f8579114",
+      "size": 418
+    },
+    {
+      "path": "results/gqa_paged/gqa_paged_decode_h32_kv4_d128_ps1/oe_best_gqa.cpp",
+      "sha": "7239d84207af88d08ef981a7bad322bc5e4fbda1",
+      "size": 912
+    },
+    {
+      "path": "results/gqa_paged/gqa_paged_decode_h32_kv4_d128_ps1/oe_best_gqa.cu",
+      "sha": "8a91d11d7d49fae2f5efad3821486672f0388b04",
+      "size": 12312
+    },
+    {
+      "path": "results/gqa_paged/gqa_paged_decode_h32_kv4_d128_ps1/oe_best_gqa.h",
+      "sha": "b8c0cc1684735956405ca455ae58fd393512206f",
+      "size": 295
+    },
+    {
+      "path": "results/gqa_paged/gqa_paged_decode_h32_kv4_d128_ps1/shinka_best_gqa.cpp",
+      "sha": "7edbe73cee3deb1a08abcdbf88a8488784bd1acf",
+      "size": 1278
+    },
+    {
+      "path": "results/gqa_paged/gqa_paged_decode_h32_kv4_d128_ps1/shinka_best_gqa.cu",
+      "sha": "946a8376c279d2cec25c564b8d8a275c68bc2028",
+      "size": 9471
+    },
+    {
+      "path": "results/gqa_paged/gqa_paged_decode_h32_kv4_d128_ps1/shinka_best_gqa.h",
+      "sha": "eb7b519b5c8c908441c4093abe44c15743cf84e8",
+      "size": 408
+    },
+    {
+      "path": "results/mla_paged",
+      "sha": "53108bb289539626a6f162dccaa47c878ce41931",
+      "size": null
+    },
+    {
+      "path": "results/mla_paged/mla_paged_decode_h16_ckv512_kpe64_ps1",
+      "sha": "b92e8e58b2419b83fbc8326d8249ecd5b3bd0499",
+      "size": null
+    },
+    {
+      "path": "results/mla_paged/mla_paged_decode_h16_ckv512_kpe64_ps1/ksearch_best_mla_decode.cpp",
+      "sha": "a2f8ee2c3f4f84702601ede1d80da8a9acd047dd",
+      "size": 1596
+    },
+    {
+      "path": "results/mla_paged/mla_paged_decode_h16_ckv512_kpe64_ps1/ksearch_best_mla_decode.cu",
+      "sha": "30d61279d9764fa62daf005432eba504860cdccb",
+      "size": 21920
+    },
+    {
+      "path": "results/mla_paged/mla_paged_decode_h16_ckv512_kpe64_ps1/ksearch_best_mla_decode.h",
+      "sha": "caddc39f299708d3e0aa8550491c4a56eb525cfd",
+      "size": 328
+    },
+    {
+      "path": "results/mla_paged/mla_paged_decode_h16_ckv512_kpe64_ps1/oe_best_mla_decode.cpp",
+      "sha": "d9c0fa3fb8683f9be68f8d9de1e979497bc9b8c0",
+      "size": 1548
+    },
+    {
+      "path": "results/mla_paged/mla_paged_decode_h16_ckv512_kpe64_ps1/oe_best_mla_decode.cu",
+      "sha": "1c2e41d44143eff65f331b9c13d23191f4fa5b18",
+      "size": 24999
+    },
+    {
+      "path": "results/mla_paged/mla_paged_decode_h16_ckv512_kpe64_ps1/oe_best_mla_decode.h",
+      "sha": "caddc39f299708d3e0aa8550491c4a56eb525cfd",
+      "size": 328
+    },
+    {
+      "path": "results/mla_paged/mla_paged_decode_h16_ckv512_kpe64_ps1/shinka_best_mla_decode.cpp",
+      "sha": "54d4d517e83c8f8f680f2deb61a03d06edf9dff9",
+      "size": 1516
+    },
+    {
+      "path": "results/mla_paged/mla_paged_decode_h16_ckv512_kpe64_ps1/shinka_best_mla_decode.cu",
+      "sha": "326244cabb073d0284258609c75667bfaa8ec926",
+      "size": 16855
+    },
+    {
+      "path": "results/mla_paged/mla_paged_decode_h16_ckv512_kpe64_ps1/shinka_best_mla_decode.h",
+      "sha": "caddc39f299708d3e0aa8550491c4a56eb525cfd",
+      "size": 328
+    },
+    {
+      "path": "results/mla_paged/mla_paged_prefill_causal_h16_ckv512_kpe64_ps1",
+      "sha": "e4f8c8ee3e5919f9256a42147d0c6cd9d0f7a224",
+      "size": null
+    },
+    {
+      "path": "results/mla_paged/mla_paged_prefill_causal_h16_ckv512_kpe64_ps1/ksearch_best_mla_prefill.cpp",
+      "sha": "8656da39a366b1da4748a772b239a23591c0ea88",
+      "size": 1523
+    },
+    {
+      "path": "results/mla_paged/mla_paged_prefill_causal_h16_ckv512_kpe64_ps1/ksearch_best_mla_prefill.cu",
+      "sha": "f37749dbe352700d16f0b324e22d459e34471ca1",
+      "size": 15704
+    },
+    {
+      "path": "results/mla_paged/mla_paged_prefill_causal_h16_ckv512_kpe64_ps1/ksearch_best_mla_prefill.h",
+      "sha": "02c111be069c71546c84805b1cbb7e96344ac994",
+      "size": 359
+    },
+    {
+      "path": "results/mla_paged/mla_paged_prefill_causal_h16_ckv512_kpe64_ps1/oe_best_mla_prefill.cpp",
+      "sha": "ab878046052bdc60b365a27b1819660e96154293",
+      "size": 1746
+    },
+    {
+      "path": "results/mla_paged/mla_paged_prefill_causal_h16_ckv512_kpe64_ps1/oe_best_mla_prefill.cu",
+      "sha": "e8a6d732d3af0658c78b8a8e3fa3dd2732bd70f9",
+      "size": 11893
+    },
+    {
+      "path": "results/mla_paged/mla_paged_prefill_causal_h16_ckv512_kpe64_ps1/oe_best_mla_prefill.h",
+      "sha": "ba05907b1a6e68fd746c5712b1c7c341b8fa3d9f",
+      "size": 493
+    },
+    {
+      "path": "results/mla_paged/mla_paged_prefill_causal_h16_ckv512_kpe64_ps1/shinka_best_mla_prefill.cpp",
+      "sha": "5d02eaf442dd218e733f3c0e88b2ff323b66957c",
+      "size": 2566
+    },
+    {
+      "path": "results/mla_paged/mla_paged_prefill_causal_h16_ckv512_kpe64_ps1/shinka_best_mla_prefill.cu",
+      "sha": "a0ec90bb2adb9fa6842da6d105aca8cfb253afe5",
+      "size": 11613
+    },
+    {
+      "path": "results/mla_paged/mla_paged_prefill_causal_h16_ckv512_kpe64_ps1/shinka_best_mla_prefill.h",
+      "sha": "abf8b11cc7c6704f6eac389d5d044f5831a773ac",
+      "size": 469
+    },
+    {
+      "path": "results/moe",
+      "sha": "dbb5020b349fa37b12f6d1dd61b248d080523353",
+      "size": null
+    },
+    {
+      "path": "results/moe/moe_fp8_block_scale_ds_routing_topk8_ng8_kg4_e32_h7168_i2048",
+      "sha": "6635d0e0b79960be0f865c41f81aeb507c0a06e6",
+      "size": null
+    },
+    {
+      "path": "results/moe/moe_fp8_block_scale_ds_routing_topk8_ng8_kg4_e32_h7168_i2048/ksearch_best_moe.cpp",
+      "sha": "8edee77ad8d070e9b158add38c239b2cbfcc70c2",
+      "size": 3353
+    },
+    {
+      "path": "results/moe/moe_fp8_block_scale_ds_routing_topk8_ng8_kg4_e32_h7168_i2048/ksearch_best_moe.cu",
+      "sha": "7aaac09be70c8ef625fa01930c68fafa2974ad01",
+      "size": 22760
+    },
+    {
+      "path": "results/moe/moe_fp8_block_scale_ds_routing_topk8_ng8_kg4_e32_h7168_i2048/ksearch_best_moe.h",
+      "sha": "c1f5c3a04e6235ae9aaeb96a52c333a8752ff758",
+      "size": 1161
+    },
+    {
+      "path": "results/moe/moe_fp8_block_scale_ds_routing_topk8_ng8_kg4_e32_h7168_i2048/openevolve_best_moe.cpp",
+      "sha": "15d40159beeb09a27d6f36e5b32570d3c1ced706",
+      "size": 2298
+    },
+    {
+      "path": "results/moe/moe_fp8_block_scale_ds_routing_topk8_ng8_kg4_e32_h7168_i2048/openevolve_best_moe.cu",
+      "sha": "cfb318434c3990a7e56225bd75c9c4d355dd25ba",
+      "size": 23876
+    },
+    {
+      "path": "results/moe/moe_fp8_block_scale_ds_routing_topk8_ng8_kg4_e32_h7168_i2048/openevolve_best_moe.h",
+      "sha": "5cd3b633371bb823da0c31022b54ce808f8ac7e7",
+      "size": 600
+    },
+    {
+      "path": "results/moe/moe_fp8_block_scale_ds_routing_topk8_ng8_kg4_e32_h7168_i2048/shinka_best_moe.cpp",
+      "sha": "faa2c7628a2e13e6ebce983378796063d0f5cebc",
+      "size": 1868
+    },
+    {
+      "path": "results/moe/moe_fp8_block_scale_ds_routing_topk8_ng8_kg4_e32_h7168_i2048/shinka_best_moe.cu",
+      "sha": "05063b0c3bbca8f1889ca8bb070872e4b609798f",
+      "size": 12617
+    },
+    {
+      "path": "results/moe/moe_fp8_block_scale_ds_routing_topk8_ng8_kg4_e32_h7168_i2048/shinka_best_moe.h",
+      "sha": "6e822590beeb49b8d21c5b86028e6d42359b9745",
+      "size": 550
+    },
+    {
+      "path": "scripts/kernelbench_wm.sh",
+      "sha": "7d654ecffa27aa2fa8edd2e21f7d60e8940edad1",
+      "size": 4220
+    }
+  ],
+  "readme": {
+    "url": "https://raw.githubusercontent.com/caoshiyi/K-Search/53c8fab9a5e8fab2c86610d24fbec5067f90e115/README.md",
+    "sha256": "aeb1080cea05159989e6c3561f7245c795d927e99ec1b7d21a9b86edd32fa4aa",
+    "text": "<p align=\"center\">\n  <h1 align=\"center\">\ud83d\udd0d K-Search</h1>\n  <p align=\"center\">\n    <b>LLM-Driven GPU Kernel Optimization with Co-Evolving Intrinsic World Model</b>\n  </p>\n  <p align=\"center\">\n    <i>Automatically generate, evaluate, and iteratively optimize high-performance GPU kernels using frontier LLMs guided by a co-evolving world model.</i>\n  </p>\n  <p align=\"center\">\n    <a href=\"https://arxiv.org/pdf/2602.19128v1\"><img src=\"https://img.shields.io/badge/arXiv-2602.19128-b31b1b.svg\" alt=\"arXiv\"></a>\n    <a href=\"https://github.com/caoshiyi/K-Search/blob/main/LICENSE\"><img src=\"https://img.shields.io/badge/License-Apache%202.0-blue.svg\" alt=\"License: Apache 2.0\"></a>\n  </p>\n</p>\n\n<p align=\"center\">\n  <img src=\"assets/overview-2.png\" alt=\"K-Search System Overview\" width=\"90%\"/>\n</p>\n\n---\n\n## Overview\n\n**K-Search** is an automated kernel engineering system that uses large language models (GPT-5, Gemini etc.) to iteratively generate and optimize GPU kernels. Unlike one-shot code generation, K-Search maintains a **co-evolving world model** \u2014 a structured search tree that encodes hypotheses about kernel bottlenecks, design alternatives, and optimization strategies \u2014 guiding multi-round, evidence-driven search over the kernel design space efficiently.\n\n## Features\n\n- \u26a1 **Multi-Backend Task System** \u2014 Pluggable task backends for different kernel benchmarking ecosystems:\n  - [**FlashInfer-Bench**](https://bench.flashinfer.ai/) \u2014 MLA decode, GQA decode, MLA prefill, MoE kernels with full workload suites\n  - [**GPUMode**](https://www.gpumode.com/home) \u2014 Competition tasks (e.g., TriMul) with leaderboard evaluation\n  - [**KernelBench**](https://github.com/ScalingIntelligence/KernelBench) \u2014 PyTorch kernel optimization with 4 difficulty levels and 200+ problems\n  - **MLX (Apple Silicon)** \u2014 A local MLX task backend with latency, unified memory pressure, and Apple-specific throughput proxies\n\n- \ud83d\udcca **W&B Integration** \u2014 Full Weights & Biases logging with per-round score tracking, generated code artifacts, and world model snapshots.\n\n- \ud83d\udd0c **Multi-Model Support** \u2014 Works with any OpenAI-compatible API endpoint:\n  - OpenAI: `gpt-5.2`, `o3`\n  - Google: `gemini-3-pro-preview` (via compatible endpoint)\n  - Any model exposing a chat completions API\n\n- \ud83d\udcbe **Solution Persistence** \u2014 All generated solutions, evaluation reports, and world model snapshots are persisted to disk for resumption and analysis.\n\n## Architecture\n\n```\nk_search/\n\u251c\u2500\u2500 kernel_generators/\n\u2502   \u251c\u2500\u2500 kernel_generator.py             # Base LLM-driven kernel generator\n\u2502   \u251c\u2500\u2500 kernel_generator_world_model.py # World-model-aware generator (main loop)\n\u2502   \u251c\u2500\u2500 kernel_generator_prompts.py     # Prompt templates for generation/optimization\n\u2502   \u251c\u2500\u2500 world_model.py                  # World model data structures & JSON schema\n\u2502   \u251c\u2500\u2500 world_model_manager.py          # World model lifecycle (init/refine/select)\n\u2502   \u2514\u2500\u2500 world_model_prompts.py          # World-model-injected prompt templates\n\u251c\u2500\u2500 tasks/\n\u2502   \u251c\u2500\u2500 task_base.py                    # Task protocol, Solution, EvalResult types\n\u2502   \u251c\u2500\u2500 flashinfer_bench_task.py        # FlashInfer-Bench task adapter\n\u2502   \u251c\u2500\u2500 gpu_mode_task.py                # GPUMode TriMul task adapter\n\u2502   \u251c\u2500\u2500 kernelbench_task.py             # KernelBench task adapter\n\u2502   \u251c\u2500\u2500 flashinfer_bench/               # FlashInfer-specific prompts\n\u2502   \u251c\u2500\u2500 gpu_mode/                       # GPUMode evaluator, spec, utilities\n\u2502   \u2502   \u251c\u2500\u2500 evaluator.py\n\u2502   \u2502   \u251c\u2500\u2500 trimul/                     # Vendored TriMul problem (spec, eval, reference)\n\u2502   \u2502   \u2514\u2500\u2500 libkernelbot/              # Kernel evaluation harness\n\u2502   \u2514\u2500\u2500 kernelbench/                    # KernelBench evaluation harness\n\u2502       \u2514\u2500\u2500 run_and_check.py            # KernelBench evaluator (local/modal)\n\u2514\u2500\u2500 utils/\n    \u251c\u2500\u2500 paths.py                        # Artifact directory management\n    \u2514\u2500\u2500 solution_db.py                  # Solution database (JSONL persistence)\n```\n\n## Quick Start\n\n### Prerequisites\n\n- NVIDIA GPU (H100/B200 recommended)\n- An API key for an OpenAI-compatible LLM provider\n\n### Installation\n\n```bash\n# Clone the repository\ngit clone https://github.com/caoshiyi/K-Search.git\ncd K-Search\n\n# Install dependencies\nuv pip install openai wandb\nuv pip install git+https://github.com/caoshiyi/flashinfer-bench-ksearch.git\n```\n\nWe provide ready-to-use launch scripts under `scripts/` for both tasks. Before running, open the script and set the following variables at the top:\n\n- `KSEARCH_ROOT` \u2014 Path to this repo\n- `API_KEY` \u2014 Your OpenAI-compatible API key\n- `WANDB_API_KEY` \u2014 Your Weights & Biases API key\n\n### GPUMode TriMul\n\nEdit `scripts/gpumode_trimul_wm.sh` to set the required variables, then run:\n\n```bash\nbash scripts/gpumode_trimul_wm.sh\n```\n\nKey variables you can customize (see the script header for the full list):\n\n| Variable | Description | Default |\n|----------|-------------|---------|\n| `KSEARCH_ROOT` | Path to K-Search repo | \u2014 |\n| `API_KEY` | OpenAI-compatible API key | \u2014 |\n| `WANDB_API_KEY` | W&B API key | \u2014 |\n| `MODEL_NAME` | LLM model identifier | `gpt-5.2` |\n| `BASE_URL` | OpenAI-compatible API base URL | `https://us.api.openai.com/v1` |\n| `LANGUAGE` | Target language (`triton`, `cuda`) | `triton` |\n| `MAX_OPT_ROUNDS` | Maximum optimization rounds | `300` |\n\n### FlashInfer-Bench\n\nFirst, download the [FlashInfer Trace](https://huggingface.co/datasets/flashinfer-ai/flashinfer-trace) dataset:\n\n```bash\n# Requires git-lfs\ngit lfs install\ngit clone https://huggingface.co/datasets/flashinfer-ai/flashinfer-trace\n```\n\nThen edit `scripts/mla_decode_wm.sh` to set the required variables (including `DATASET_ROOT` pointing to the downloaded dataset), and run:\n\n```bash\nbash scripts/mla_decode_wm.sh\n```\n\nKey variables you can customize (see the script header for the full list):\n\n| Variable | Description | Default |\n|----------|-------------|---------|\n| `KSEARCH_ROOT` | Path to K-Search repo | \u2014 |\n| `DATASET_ROOT` | Path to downloaded `flashinfer-trace` dataset | \u2014 |\n| `API_KEY` | OpenAI-compatible API key | \u2014 |\n| `WANDB_API_KEY` | W&B API key | \u2014 |\n| `MODEL_NAME` | LLM model identifier | `gemini-3-pro-preview` |\n| `BASE_URL` | OpenAI-compatible API base URL | Gemini endpoint |\n| `DEFINITION` | Target kernel definition | `mla_paged_decode_h16_ckv512_kpe64_ps1` |\n| `LANGUAGE` | Target language (`triton`, `cuda`) | `cuda` |\n| `MAX_OPT_ROUNDS` | Maximum optimization rounds | `20` |\n\n### KernelBench\n\nFirst, install the KernelBench library with GPU support:\n\n```bash\nuv pip install \"kernelbench[gpu] @ git+https://github.com/ScalingIntelligence/KernelBench.git\"\n```\n\nEdit `scripts/kernelbench_wm.sh` to set the required variables, then run:\n\n```bash\nbash scripts/kernelbench_wm.sh\n```\n\nThis script can be used with any of the kernels in the [KernelBench dataset](https://huggingface.co/datasets/ScalingIntelligence/KernelBench). Key variables you can customize (see the script header for the full list):\n\n| Variable | Description | Default |\n|----------|-------------|---------|\n| `KSEARCH_ROOT` | Path to K-Search repo | `.` |\n| `API_KEY` | OpenAI-compatible API key | \u2014 |\n| `WANDB_API_KEY` | W&B API key | \u2014 |\n| `MODEL_NAME` | LLM model identifier | `gpt-5.2` |\n| `BASE_URL` | OpenAI-compatible API base URL | `https://api.openai.com/v1` |\n| `LEVEL` | KernelBench difficulty level (1-4) | `1` |\n| `PROBLEM_ID` | Problem ID within the level | `1` |\n| `EVAL_MODE` | Evaluation mode (`local` or `modal`) | `local` |\n| `TARGET_GPU` | Target GPU (e.g., `H100`, `A100-80GB`) | `H100` |\n| `LANGUAGE` | Target language (`cuda` or `triton`) | `triton` |\n| `MAX_OPT_ROUNDS` | Maximum optimization rounds | `50` |\n| `ARTIFACTS_DIR` | Base output directory | `.ksearch-output-kernelbench` |\n| `NUM_CORRECT_TRIALS` | Number of correctness validation trials | `5` |\n| `NUM_PERF_TRIALS` | Number of performance measurement trials | `100` |\n\n**Evaluation Modes:**\n\n- **Local**: Runs evaluation on your local GPU (requires CUDA-capable GPU)\n- **Modal**: Runs evaluation on cloud GPUs via [Modal](https://modal.com/) (requires Modal account)\n\n### MLX (Apple Silicon)\n\nOn Apple Silicon, install MLX:\n\n```bash\npython3 -m pip install -U mlx\n```\n\nThen run the MLX Mamba selective scan forward task:\n\n```bash\nbash scripts/mlx_mamba_wm.sh\n```\n\n## CLI Reference\n\n| Argument | Description | Default |\n|----------|-------------|---------|\n| `--task-source` | Task backend (`flashinfer`, `gpumode`, `kernelbench`, or `mlx`) | `flashinfer` |\n| `--definition` | Target kernel definition name | \u2014 |\n| `--model-name` | LLM model identifier | *required* |\n| `--base-url` | OpenAI-compatible API base URL | OpenAI default |\n| `--language` | Target language (`triton`, `python`, `cuda`, `mlx`) | `triton` |\n| `--target-gpu` | Target GPU architecture hint | `H100` |\n| `--max-opt-rounds` | Maximum optimization rounds | `5` |\n| `--world-model` | Enable co-evolving world model | off |\n| `--wm-stagnation-window` | Rounds without improvement before switching action | `5` |\n| `--wm-max-difficulty` | Max action difficulty (1\u20135) to attempt | `4` |\n| `--continue-from-solution` | Resume from an existing solution | \u2014 |\n| `--continue-from-world-model` | Resume WM state (`auto` or path to JSON) | \u2014 |\n| `--save-solutions` | Persist generated solutions to disk | off |\n| `--artifacts-dir` | Base directory for all K-Search artifacts | `.ksearch` |\n| `--wandb` | Enable Weights & Biases logging | off |\n| `--wandb-project` | W&B project name | `flashinfer-bench` |\n| `--run-name` | W&B run name | auto-generated |\n| `--kernelbench-level` | KernelBench difficulty level (1-4) | `1` |\n| `--kernelbench-problem-id` | KernelBench problem ID | `1` |\n| `--kernelbench-eval-mode` | KernelBench evaluation mode (`local` or `modal`) | `local` |\n| `--kernelbench-num-correct-trials` | Number of correctness trials | `5` |\n| `--kernelbench-num-perf-trials` | Number of performance trials | `100` |\n\n## Baselines\n\nK-Search includes adapter configurations for comparison with existing evolutionary kernel optimization systems:\n\n| System | Directory | Description |\n|--------|-----------|-------------|\n| **OpenEvolve** | `baselines/openevolve/` | Google's evolutionary code optimization framework |\n| **ShinkaEvolve** | `baselines/shinkaevolve/` | Evolutionary search with FlashInfer evaluator integration |\n\nBoth baselines are configured for the same kernel targets (MLA decode, GQA decode, MLA prefill, MoE) to enable direct comparison.\n\n## Results\n\n### FlashInfer-Bench\n\nK-Search significantly outperforms state-of-the-art evolutionary search methods on complex kernels from [FlashInfer-Bench](https://bench.flashinfer.ai/), achieving an average **2.10\u00d7** improvement over OpenEvolve and up to **14.3\u00d7** on MoE kernels.\n\n<p align=\"center\">\n  <img src=\"assets/main_figure.png\" alt=\"K-Search FlashInfer-Bench Results\" width=\"90%\"/>\n</p>\n\n### GPUMode TriMul\n\nK-Search achieves state-of-the-art performance on the [GPUMode TriMul](https://www.gpumode.com/home) task on H100 (**1028 \u00b5s**), surpassing both prior automated and human-designed solutions. The benchmark script (`results/gpumode_trimul/bench.sh`) evaluates kernels using the [gpu-mode/reference-kernels](https://github.com/gpu-mode/reference-kernels) upstream evaluator across 7 workload configurations, reporting per-benchmark latencies and geometric means with variance across multiple runs.\n\nGeometric mean latency across 7 benchmarks (3 runs, H100, PyTorch 2.8.0+cu128, Triton 3.4.0):\n\n| Submission ID | Leaderboard Score | Local Score | Std |\n|---------------|-------------------|-------------|-----|\n| **K-Search (ours)** | \u2014 | **1.028 ms** | 0.0007 ms |\n| shiyegao | 1.074 ms | 1.067 ms | 0.0013 ms |\n| TTT | 1.161 ms | 1.222 ms | 0.0018 ms |\n| zeyushen | 1.140 ms | 1.240 ms | 0.0057 ms |\n\n### Generated Kernels\n\nWe provide all generated kernels (K-Search, OpenEvolve, and ShinkaEvolve) under the `results/` folder for reproducibility and comparison:\n\n| Task | Directory |\n|------|-----------|\n| MLA Paged Decode | `results/mla_paged/mla_paged_decode_h16_ckv512_kpe64_ps1/` |\n| MLA Paged Prefill | `results/mla_paged/mla_paged_prefill_causal_h16_ckv512_kpe64_ps1/` |\n| GQA Paged Decode | `results/gqa_paged/gqa_paged_decode_h32_kv4_d128_ps1/` |\n| MoE FP8 | `results/moe/moe_fp8_block_scale_ds_routing_topk8_ng8_kg4_e32_h7168_i2048/` |\n| GPUMode TriMul | `results/gpumode_trimul/` |\n\n## Citation\n\nIf you find K-Search useful in your research, please cite our paper:\n\n```bibtex\n@article{cao2026k,\n  title={K-Search: LLM Kernel Generation via Co-Evolving Intrinsic World Model},\n  author={Cao, Shiyi and Mao, Ziming and Gonzalez, Joseph E and Stoica, Ion},\n  journal={arXiv preprint arXiv:2602.19128},\n  year={2026}\n}\n```\n",
+    "complete": true
+  }
+}
