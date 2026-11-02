@@ -1,0 +1,60 @@
+{
+  "at": "2026-11-02T10:06:55.229Z",
+  "source_commit": "8f3bb134c2aff8650c6aff4125d0ca9c84c6bc9f",
+  "incumbent_job": "607eb52bdaf24160",
+  "affected_loads": [
+    "decode 32",
+    "verify 16",
+    "verify 32"
+  ],
+  "scope": "B4/MAIN WGS T>=32; short paths unchanged",
+  "table_entries": 65536,
+  "entry_bytes": 4,
+  "table_bytes": 262144,
+  "nonlinear_per_local_route_token": 4096,
+  "entry_count_break_even_local_routes": 16,
+  "table_read_bytes_formula": "4*4096*R",
+  "table_write_bytes_per_affected_invocation": 262144,
+  "conditional_scenarios": [
+    {
+      "entire_expert_reduction": 0.05,
+      "whole_score_factor_no_replacement": 1.0132511554990087
+    },
+    {
+      "entire_expert_reduction": 0.1,
+      "whole_score_factor_no_replacement": 1.0270556719161281
+    },
+    {
+      "entire_expert_reduction": 0.15,
+      "whole_score_factor_no_replacement": 1.0414539643250207
+    },
+    {
+      "entire_expert_reduction": 0.2,
+      "whole_score_factor_no_replacement": 1.056490778882424
+    }
+  ],
+  "required_scenarios": [
+    {
+      "assumed_extra_us_per_affected_cell": 0,
+      "expert_reduction_for_one_percent_score": 0.037918400436829966,
+      "expert_reduction_for_current_layer100_point_ratio": 0.22494630770603719
+    },
+    {
+      "assumed_extra_us_per_affected_cell": 2,
+      "expert_reduction_for_one_percent_score": 0.05291635356011057,
+      "expert_reduction_for_current_layer100_point_ratio": 0.23982774892627545
+    },
+    {
+      "assumed_extra_us_per_affected_cell": 5,
+      "expert_reduction_for_one_percent_score": 0.07537441441696818,
+      "expert_reduction_for_current_layer100_point_ratio": 0.2621083694468025
+    }
+  ],
+  "limitations": [
+    "No isolated SiLU exposed latency measured.",
+    "Profile expert times and adjusted benchmarks are from different replays.",
+    "Uniform expert-duration subtraction is not SiLU time or a speed forecast.",
+    "Extra launch, all-domain generation, dependent lookup, occupancy/cache/traffic replacement costs unmeasured.",
+    "Layer100 point ratio is not a universal overall cutoff."
+  ]
+}

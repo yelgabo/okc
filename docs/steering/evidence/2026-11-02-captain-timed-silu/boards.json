@@ -1,0 +1,20 @@
+[
+  {
+    "file": "overall.json.gz.b64",
+    "url": "https://openkernelchallenge.dev/api/leaderboard",
+    "http_status": 200,
+    "raw_bytes": 82302,
+    "raw_sha256": "53ac80e6ffd0ec5025b2cccdc778251bcb2c54ee89dba21e3c5fecc9290ef1d0",
+    "encoding": "base64(gzip(UTF8 response))",
+    "gzip_sha256": "d9436b46ce14bd341f03219a36f54e8f49bee2ac3315a97411e7551ba14cbab8"
+  },
+  {
+    "file": "layer.json.gz.b64",
+    "url": "https://openkernelchallenge.dev/api/leaderboard/muse_decode_layer",
+    "http_status": 200,
+    "raw_bytes": 177545,
+    "raw_sha256": "2a3ff49178538f47b3a8f431e84466e61cb0407b4a7261cf3851ea13def0dba4",
+    "encoding": "base64(gzip(UTF8 response))",
+    "gzip_sha256": "25889de64f9e1060d3831e1134c6e0434651ce160b3a24ce718821d0f5580d78"
+  }
+]
