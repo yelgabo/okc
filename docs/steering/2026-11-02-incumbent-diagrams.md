@@ -1,5 +1,7 @@
 # Incumbent architecture diagrams, November 2
 
+The [in-layer profile update](2026-11-02-incumbent-inlayer-labels.md) supersedes the performance-badge scope recorded in this initial report.
+
 The [new diagram page](../incumbent-architecture-2026-11-02.html) shows the public G1b4 layer, its WGS producer and compute roles, and the gate/up-to-down handoff. Repository discovery covered tracked docs and hidden HTML in `/Users/gretchengabo/GitHub/okc`. Evidence is pinned to `e3e4b3460c1482421d22b8b8818a170dc23cb8c4`. The October 28 comparison and October 29 tutorial now link to this view as historical snapshots.
 
 The integrated incumbent is `muse_decode_layer/cand/g1b4_stage_release.py`, SHA256 `ba9e327cd7b96595ace4d0c1d0d78fe27c128f23ed0debcda97c7169fc3164ab`. Public job `607eb52bdaf24160` scores 2.126083× against SGLang, with a 95% interval of 2.094191–2.157974×. The page embeds all twelve same-job workload medians, including 128 and 256 tokens, with repeat counts. The selector shows the corresponding complete-layer time ratio and expert dispatch route. [Exact source](https://github.com/yelgabo/okc/blob/e3e4b34/muse_decode_layer/cand/g1b4_stage_release.py) · [Benchmark JSON](https://github.com/yelgabo/okc/blob/e3e4b34/muse_decode_layer/profiles/g1-stage-release.607eb52bdaf24160.json)

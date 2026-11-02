@@ -63,6 +63,10 @@ so future sessions load the correction without needing the original conversation
   the writing side before an mbarrier arrive, when generic stores feed wgmma or TMA reads)
   unless the PTX memory model shows the alternative is correct, and cite that section. The
   attention verify variants with bit 2 (var 2, 18) do this; submissions use the fenced ones.
+- **Use integrated evidence on incumbent diagrams.** Component speedup labels in an incumbent
+  layer diagram must use profiles or measurements of that exact integrated source. Keep
+  standalone problem scores in a separate comparison view. Name each baseline and workload,
+  disclose cross-run or truncated profiles, and separate kernel activity from endpoint savings.
 - **Keep audit attribution exact.** Verify every cited run ID against its owning receipt or
   run-log row. Distinguish what an uploaded report says from what its cited sources say;
   do not attribute a source recommendation to the upload without checking the upload text.

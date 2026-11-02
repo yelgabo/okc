@@ -1,0 +1,22 @@
+# Incumbent diagrams with in-layer profile labels
+
+The [diagram page](../incumbent-architecture-2026-11-02.html) now uses kernel profiles from the complete incumbent layer. The previous 1.528× label measured the separate projection problem, whose submitted file and workload differ from G1b4. The user asked where the whole-layer gain comes from, so all standalone score badges have been removed from this view. The architecture remains public G1b4, source SHA256 `ba9e327cd7b96595ace4d0c1d0d78fe27c128f23ed0debcda97c7169fc3164ab`. Its retained status was rechecked through `0712aff9`.
+
+The in-layer profiles come from public incumbent job `607eb52bdaf24160` and historical SGLang baseline-as-submission job `7d42771c3384449d`. Both execute complete layers. Their workload shapes match, with different input seeds and separate runs. Public607 contains same-job SGLang endpoint timings and candidate kernel profiles. The SGLang kernel profile is separate historical evidence. [Incumbent profile](https://github.com/yelgabo/okc/blob/e3e4b34/muse_decode_layer/profiles/g1-stage-release.607eb52bdaf24160.json) · [SGLang profile](https://github.com/yelgabo/okc/blob/e3e4b34/muse_decode_layer/baseline_profile/profiles/baseline.7d42771c3384449d.json) · [Documented provenance](https://github.com/yelgabo/okc/blob/e3e4b34/docs/steering/2026-11-02-captain-fresh-incumbent-profile.md)
+
+Every SGLang profile retains its twelve largest aggregate kernel rows, with smaller rows omitted. The G1b4 profiles have no omitted rows. Each displayed activity ratio is therefore an approximate lower bound for the named group, derived from times rounded to 0.1 µs. The inequality expresses archive completeness. It is not a confidence interval. Kernel durations already aggregate the reported call counts, so two calls at 353.6 µs contribute 353.6 µs.
+
+| Workload | Reported expert activity, SGLang → G1b4 | Reported attention activity | Reported dense activity |
+|---|---|---|---|
+| 128 tokens, sliding | 359.4 → 155.3 µs, ≥2.31× | 19.1 → 11.8 µs, ≥1.62× | 84.7 → 70.8 µs, ≥1.20× |
+| 128 tokens, full | 377.9 → 178.1 µs, ≥2.12× | 191.4 → 104.1 µs, ≥1.84× | 84.2 → 70.3 µs, ≥1.20× |
+| 256 tokens, sliding | 524.4 → 204.8 µs, ≥2.56× | 24.4 → 15.4 µs, ≥1.58× | 101.1 → 86.9 µs, ≥1.16× |
+| 256 tokens, full | 540.9 → 203.3 µs, ≥2.66× | 368.4 → 186.2 µs, ≥1.98× | 140.3 → 86.7 µs, ≥1.62× |
+
+Expert activity has the largest reported reduction at 128/256 tokens. At 32-token full context, attention has the largest reported reduction. These observations explain the visible profile pattern. The complete layer's same-job measured endpoint at 128 sliding is 539.568 → 247.131 µs, or 2.183×. The aggregate public layer score is 2.126×. Profile durations include waits and overlap, so adding the group reductions or assigning percentages of the whole-layer score would overstate attribution.
+
+The page embeds all twelve workloads and every included kernel row. The selector updates all three badges, the grouped table and its underlying rows together. Expert groups include reported Marlin, SiLU and post-expert work. Attention groups include reported FlashAttention core and combine rows. Dense groups include GEMM/GEMV and split-K reduction rows, with fused pooler/router work assigned to its containing dense kernel. Other visible rows and unshown baseline activity are reported separately. Fusion and aggregated kernel names prevent an exact split among the four dense operations.
+
+Two independent reviewers matched all embedded row names, durations, call counts and group sums against both owning profile JSONs. They checked the lower-bound interpretation and the separation of profile comparisons from causal whole-layer attribution. A DOM check exercised all twelve selector states. The root AGENTS.md now requires integrated evidence on incumbent diagram nodes and a separate view for standalone scores.
+
+Browser inspection covered the revised desktop SVG badges, the 256-token full-context table and the 390-pixel layout. The page stayed within the narrow viewport while diagrams scrolled inside their containers. Escape dismissal returned the diagram and focus to their original positions. All twelve endpoint states, thirty-six profile ratios and thirty-six activity pairs passed DOM checks. Independent review covered the arithmetic, row grouping and interpretation. The primary reviewer checked retained-incumbent status at 0712aff9 and the final presentation edits.

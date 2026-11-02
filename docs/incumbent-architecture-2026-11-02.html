@@ -16,8 +16,8 @@
 <header class="hero">
 <div>
 <p class="eyebrow">OKC · H200 · November 2, 2026</p>
-<h1>The incumbent layer,<br>with the measured gains.</h1>
-<p class="lede">G1b4 combines dense projection plans, fused attention and a persistent expert kernel. Follow the activation through the layer, then look inside the expert kernel’s weight and activation pipeline.</p>
+<h1>Inside the incumbent layer.<br>Where the time falls.</h1>
+<p class="lede">Compare the recorded kernel activity of G1b4 with the SGLang layer. The expert, attention and dense labels below follow the selected workload.</p>
 </div>
 <aside class="score">
 <span>Public whole-layer score</span>
@@ -34,74 +34,7 @@
 </nav>
 <section id="layer-flow">
 <h2>One layer, from QKV to the final residual</h2>
-<p class="note">The green badges locate the projection, attention and MoE benchmark results beside the operations they measure. Each standalone problem has its own submitted file. G1b4’s integrated code differs, especially its MoE backend. The 2.126× layer score is a separate measurement.</p>
-<figure>
-<div class="figure-top">
-<p>Logical data flow · boxes group related operations and launches</p>
-<button class="js-only" data-enlarge="layer-scroll">Enlarge layer diagram</button>
-</div>
-<div id="layer-scroll" class="diagram-scroll" tabindex="0" role="region" aria-label="Layer diagram, scroll horizontally on a narrow screen">
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 730" role="img" aria-labelledby="layer-title layer-desc">
-<title id="layer-title">Current G1b4 decoder layer</title>
-<desc id="layer-desc">Two rows show QKV, attention, O and residual, pooler and router, native expert kernel, unpooler and residual. Green badges mark separate public standalone benchmarks.</desc>
-<defs>
-<marker id="layer-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
-<path d="M0 0L10 5L0 10Z" fill="#dec18a"/>
-</marker>
-</defs>
-<rect x="60" y="28" width="255" height="80" rx="9" fill="#17251f" stroke="#48725d" stroke-width="1.5"/>
-<text x="76" y="64" class="badge-value">1.528×</text>
-<text x="76" y="89" class="badge-label">Standalone projections vs SGLang</text>
-<rect x="470" y="28" width="255" height="80" rx="9" fill="#17251f" stroke="#48725d" stroke-width="1.5"/>
-<text x="486" y="64" class="badge-value">2.604×</text>
-<text x="486" y="89" class="badge-label">Standalone attention vs SGLang</text>
-<rect x="60" y="170" width="270" height="130" rx="9" fill="#1b1b20" stroke="#686158" stroke-width="1.5"/>
-<text x="80" y="205" class="svg-title">QKV projection</text>
-<text x="80" y="234" class="sub">BF16 dense weights</text>
-<text x="80" y="259" class="sub">Lt plans at 128 / 256</text>
-<rect x="470" y="170" width="290" height="130" rx="9" fill="#1b1b20" stroke="#686158" stroke-width="1.5"/>
-<text x="490" y="205" class="svg-title">Attention</text>
-<text x="490" y="234" class="sub">QK norm · RoPE · KV cache</text>
-<text x="490" y="259" class="sub">Attention → BF16 → RMS / gate</text>
-<rect x="900" y="170" width="300" height="130" rx="9" fill="#1b1b20" stroke="#686158" stroke-width="1.5"/>
-<text x="920" y="205" class="svg-title">O + layer boundary</text>
-<text x="920" y="234" class="sub">Dense output projection</text>
-<text x="920" y="259" class="sub">Gated residual · pre-FFN norm</text>
-<path class="edge" d="M330 235H470" marker-end="url(#layer-arrow)"/>
-<text x="400" y="216" class="label" text-anchor="middle">Q / K / V</text>
-<path class="edge" d="M760 235H900" marker-end="url(#layer-arrow)"/>
-<text x="830" y="216" class="label" text-anchor="middle">Gated output</text>
-<text x="60" y="145" class="label">Attention input</text>
-<path class="edge" d="M1050 300V355H195V430" marker-end="url(#layer-arrow)"/>
-<text x="660" y="343" class="label" text-anchor="middle">8,192-feature FFN input</text>
-<rect x="60" y="430" width="270" height="145" rx="9" fill="#1b1b20" stroke="#686158" stroke-width="1.5"/>
-<text x="80" y="465" class="svg-title">Pooler + router</text>
-<text x="80" y="494" class="sub">Pool to 4,096 expert features</text>
-<text x="80" y="519" class="sub">Top 8 of 256 experts</text>
-<rect x="470" y="430" width="290" height="145" rx="9" fill="#1b1b20" stroke="#686158" stroke-width="1.5"/>
-<text x="490" y="465" class="svg-title">Native fused MoE</text>
-<text x="490" y="494" class="sub">32 experts local to this GPU</text>
-<text x="490" y="519" class="sub">Gate / up → SiLU → down</text>
-<rect x="482" y="600" width="255" height="80" rx="9" fill="#17251f" stroke="#48725d" stroke-width="1.5"/>
-<text x="498" y="636" class="badge-value">2.216×</text>
-<text x="498" y="661" class="badge-label">Separate owned MoE vs SGLang</text>
-<rect x="900" y="430" width="300" height="145" rx="9" fill="#1b1b20" stroke="#686158" stroke-width="1.5"/>
-<text x="920" y="465" class="svg-title">Unpool + layer boundary</text>
-<text x="920" y="494" class="sub">Return to 8,192 features</text>
-<text x="920" y="519" class="sub">Gated residual · output norms</text>
-<path class="edge" d="M330 500H470" marker-end="url(#layer-arrow)"/>
-<text x="400" y="475" class="label" text-anchor="middle">Inputs + routes</text>
-<path class="edge" d="M760 500H900" marker-end="url(#layer-arrow)"/>
-<text x="830" y="475" class="label" text-anchor="middle">Local expert sum</text>
-<path class="edge" d="M1200 500H1242V600" marker-end="url(#layer-arrow)"/>
-<text x="1242" y="625" class="label" text-anchor="middle">Output</text>
-<path class="skip" d="M1170 300V390H1140V430" marker-end="url(#layer-arrow)"/>
-<text x="1183" y="365" class="small">Saved s₁</text>
-<text x="60" y="710" class="small">Gold arrows show activations. Dashed arrow carries the FFN residual.</text>
-</svg>
-</div>
-<figcaption class="caption">Attention rounds its value vector to BF16 before output RMS and gating. Pooling and routing produce normalized expert inputs and weighted local assignments. The MoE output passes through the unpooler and the final residual boundary.</figcaption>
-</figure>
+<p class="note">Badges use profiles captured while running complete SGLang and G1b4 layers, in separate jobs. The SGLang archive retains its 12 largest kernel rows. Each ≥ label is an approximate lower bound from rounded profile rows. Dense kernels cover QKV, O, pooler/router GEMMs and unpooling together.</p>
 <div class="controls js-only">
 <label>Tokens<select id="tokens">
 <option value="1">1 · decode 1</option>
@@ -118,6 +51,79 @@
 </select>
 </label>
 </div>
+<figure>
+<div class="figure-top">
+<p><span id="profile-selection">128 tokens · sliding · in-layer profile comparison</span></p>
+<button class="js-only" data-enlarge="layer-scroll">Enlarge layer diagram</button>
+</div>
+<div id="layer-scroll" class="diagram-scroll" tabindex="0" role="region" aria-label="Layer diagram, scroll horizontally on a narrow screen">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 750" role="img" aria-labelledby="layer-title layer-desc">
+<title id="layer-title">Current G1b4 decoder layer</title>
+<desc id="layer-desc">Two rows show QKV, attention, O and residual, pooler and router, native expert kernel, unpooler and residual. Green badges compare reported kernel activity in the complete SGLang and G1b4 layers.</desc>
+<defs>
+<marker id="layer-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+<path d="M0 0L10 5L0 10Z" fill="#dec18a"/>
+</marker>
+</defs>
+<rect x="60" y="28" width="335" height="105" rx="9" fill="#17251f" stroke="#48725d" stroke-width="1.5"/>
+<text id="dense-speedup" x="76" y="63" class="badge-value">≥1.20×</text>
+<text x="76" y="88" class="badge-label">All dense + router GEMMs · profile</text>
+<text id="dense-times" x="76" y="114" class="badge-label">≥84.7 → 70.8 µs</text>
+<rect x="470" y="28" width="335" height="105" rx="9" fill="#17251f" stroke="#48725d" stroke-width="1.5"/>
+<text id="attention-speedup" x="486" y="63" class="badge-value">≥1.62×</text>
+<text x="486" y="88" class="badge-label">Attention group · in-layer profile</text>
+<text id="attention-times" x="486" y="114" class="badge-label">≥19.1 → 11.8 µs</text>
+<rect x="60" y="170" width="270" height="130" rx="9" fill="#1b1b20" stroke="#686158" stroke-width="1.5"/>
+<text x="80" y="205" class="svg-title">QKV projection</text>
+<text x="80" y="234" class="sub">BF16 dense weights</text>
+<text x="80" y="259" class="sub">Lt plans at 128 / 256</text>
+<rect x="470" y="170" width="290" height="130" rx="9" fill="#1b1b20" stroke="#686158" stroke-width="1.5"/>
+<text x="490" y="205" class="svg-title">Attention</text>
+<text x="490" y="234" class="sub">QK norm · RoPE · KV cache</text>
+<text x="490" y="259" class="sub">Attention → BF16 → RMS / gate</text>
+<rect x="900" y="170" width="300" height="130" rx="9" fill="#1b1b20" stroke="#686158" stroke-width="1.5"/>
+<text x="920" y="205" class="svg-title">O + layer boundary</text>
+<text x="920" y="234" class="sub">Dense output projection</text>
+<text x="920" y="259" class="sub">Gated residual · pre-FFN norm</text>
+<path class="edge" d="M330 235H470" marker-end="url(#layer-arrow)"/>
+<text x="400" y="216" class="label" text-anchor="middle">Q / K / V</text>
+<path class="edge" d="M760 235H900" marker-end="url(#layer-arrow)"/>
+<text x="830" y="216" class="label" text-anchor="middle">Gated output</text>
+<text id="profile-workload" x="900" y="64" class="svg-title">128 tokens · sliding</text>
+<text x="900" y="95" class="label">SGLang → G1b4 · activity µs</text>
+<text x="900" y="121" class="small">Separate runs · rounded profile rows</text>
+<text x="60" y="158" class="label">Attention input</text>
+<path class="edge" d="M1050 300V355H195V430" marker-end="url(#layer-arrow)"/>
+<text x="660" y="343" class="label" text-anchor="middle">8,192-feature FFN input</text>
+<rect x="60" y="430" width="270" height="145" rx="9" fill="#1b1b20" stroke="#686158" stroke-width="1.5"/>
+<text x="80" y="465" class="svg-title">Pooler + router</text>
+<text x="80" y="494" class="sub">Pool to 4,096 expert features</text>
+<text x="80" y="519" class="sub">Top 8 of 256 experts</text>
+<rect x="470" y="430" width="290" height="145" rx="9" fill="#1b1b20" stroke="#686158" stroke-width="1.5"/>
+<text x="490" y="465" class="svg-title">Native fused MoE</text>
+<text x="490" y="494" class="sub">32 experts local to this GPU</text>
+<text x="490" y="519" class="sub">Gate / up → SiLU → down</text>
+<rect x="465" y="600" width="335" height="105" rx="9" fill="#17251f" stroke="#48725d" stroke-width="1.5"/>
+<text id="moe-speedup" x="481" y="635" class="badge-value">≥2.31×</text>
+<text x="481" y="660" class="badge-label">Expert group · in-layer profile</text>
+<text id="moe-times" x="481" y="686" class="badge-label">≥359.4 → 155.3 µs</text>
+<rect x="900" y="430" width="300" height="145" rx="9" fill="#1b1b20" stroke="#686158" stroke-width="1.5"/>
+<text x="920" y="465" class="svg-title">Unpool + layer boundary</text>
+<text x="920" y="494" class="sub">Return to 8,192 features</text>
+<text x="920" y="519" class="sub">Gated residual · output norms</text>
+<path class="edge" d="M330 500H470" marker-end="url(#layer-arrow)"/>
+<text x="400" y="475" class="label" text-anchor="middle">Inputs + routes</text>
+<path class="edge" d="M760 500H900" marker-end="url(#layer-arrow)"/>
+<text x="830" y="475" class="label" text-anchor="middle">Local expert sum</text>
+<path class="edge" d="M1200 500H1242V600" marker-end="url(#layer-arrow)"/>
+<text x="1242" y="625" class="label" text-anchor="middle">Output</text>
+<path class="skip" d="M1170 300V390H1140V430" marker-end="url(#layer-arrow)"/>
+<text x="1183" y="365" class="small">Saved s₁</text>
+<text x="60" y="725" class="small">Gold arrows show activations. Dashed arrow carries the FFN residual.</text>
+</svg>
+</div>
+<figcaption class="caption">Attention rounds its value vector to BF16 before output RMS and gating. Pooling and routing produce normalized expert inputs and weighted local assignments. The MoE output passes through the unpooler and the final residual boundary.</figcaption>
+</figure>
 <div class="reading" aria-live="polite">
 <div>
 <span id="cell-label">128 tokens · sliding</span>
@@ -135,7 +141,7 @@
 <span id="cell-runs">20 timing repeats</span>
 </div>
 </div>
-<p class="note">These whole-layer times come from one public job with a same-job SGLang control. Component scores use their own workloads and controls. Multiplying component scores does not reconstruct the layer score.</p>
+<p class="note">The whole-layer timings above use a same-job SGLang control. The component profile comparisons use separate jobs with different input seeds. Kernel activities can overlap and include waits, so their differences do not add up to the whole-layer saving.</p>
 </section>
 <section id="inside-moe">
 <h2>Inside the retained expert kernel</h2>
@@ -211,17 +217,17 @@
 <path class="edge" d="M635 665H820" marker-end="url(#moe-arrow)"/>
 <text x="725" y="645" class="small" text-anchor="middle">Input tiles</text>
 <path class="edge" d="M960 600V580H850V563" marker-end="url(#moe-arrow)"/>
-<rect x="365" y="340" width="180" height="150" rx="9" fill="#17251f" stroke="#48725d" stroke-width="1.5"/>
-<text x="382" y="375" class="svg-title">1.018–1.029×</text>
-<text x="382" y="407" class="small">Paired MoE gain</text>
+<rect x="365" y="340" width="180" height="150" rx="9" fill="#1b1b20" stroke="#686158" stroke-width="1.5"/>
+<text x="382" y="375" class="svg-title">Slot lifetime</text>
+<text x="382" y="407" class="small">Complete stage</text>
 <text x="382" y="438" class="label">Retire → fence</text>
 <text x="382" y="465" class="label">→ release X slot</text>
 <path class="edge" d="M1125 520H1180V777H960V730" marker-end="url(#moe-arrow)"/>
 <text x="1110" y="759" class="small" text-anchor="end">Release X slot</text>
-<text x="365" y="812" class="small">Stage retirement badge compares three seed-level six-load aggregates.</text>
+<text x="365" y="812" class="small">Four compute groups + two producer warps = 576 threads per CTA.</text>
 </svg>
 </div>
-<figcaption class="caption">The 1.018–1.029× badge compares stage retirement with the repaired SC6 control in paired standalone MoE tests. The mechanism is in G1b4, while its isolated whole-layer contribution remains unmeasured. Cost-weighted stream-K may split an output unit across CTAs, with global partial sums and a designated finisher. The diagram shows the principal stage flow.</figcaption>
+<figcaption class="caption">Cost-weighted stream-K may split an output unit across CTAs, with global partial sums and a designated finisher. The diagram shows the principal stage flow.</figcaption>
 </figure>
 <figure>
 <div class="figure-top">
@@ -273,60 +279,15 @@
 </div>
 <figcaption class="caption">Phase A and Phase B belong to the same persistent launch. Intermediate rows are global storage. The activation producer observes readiness before it loads those rows into the shared activation ring.</figcaption>
 </figure>
-<p class="note">The November 2 proposal moves weight decoding into a separate producer and feeds shared BF16 operands to WGMMA. It is still in implementation. The incumbent shown here uses register operands and K256 stages.</p>
+
 </section>
 <section id="measurements">
-<h2>Measured performance</h2>
-<p class="note">All headline factors compare elapsed time against the corresponding SGLang benchmark. The retirement badge has a different control, named below. Intervals describe each public score within its run.</p>
-<div class="table-scroll">
-<table>
-<thead>
-<tr>
-<th>Measured problem</th>
-<th>Speedup against SGLang</th>
-<th>Owning receipt</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>Complete layer<small>Integrated G1b4</small>
-</td>
-<td class="num">2.126×<small>95% CI 2.094–2.158×</small>
-</td>
-<td>
-<a href="https://github.com/yelgabo/okc/blob/e3e4b3460c1482421d22b8b8818a170dc23cb8c4/muse_decode_layer/profiles/scored.607eb52bdaf24160.json" target="_blank" rel="noopener">607eb52bdaf24160</a>
-</td>
-</tr>
-<tr>
-<td>Projection benchmark<small>Separate standalone artifact</small>
-</td>
-<td class="num">1.528×<small>95% CI 1.505–1.551×</small>
-</td>
-<td>
-<a href="https://github.com/yelgabo/okc/blob/e3e4b3460c1482421d22b8b8818a170dc23cb8c4/muse_bf16_proj/profiles/scored.9eba96894ee1402e.json" target="_blank" rel="noopener">9eba96894ee1402e</a>
-</td>
-</tr>
-<tr>
-<td>Attention benchmark<small>Separate standalone artifact</small>
-</td>
-<td class="num">2.604×<small>95% CI 2.565–2.643×</small>
-</td>
-<td>
-<a href="https://github.com/yelgabo/okc/blob/e3e4b3460c1482421d22b8b8818a170dc23cb8c4/muse_attention_decode/profiles/scored.8914751e3b9f468b.json" target="_blank" rel="noopener">8914751e3b9f468b</a>
-</td>
-</tr>
-<tr>
-<td>Owned MoE benchmark<small>Separate standalone artifact</small>
-</td>
-<td class="num">2.216×<small>95% CI 2.182–2.249×</small>
-</td>
-<td>
-<a href="https://github.com/yelgabo/okc/blob/e3e4b3460c1482421d22b8b8818a170dc23cb8c4/muse_moe_w4a16/profiles/scored.abe7651dbaa44458.json" target="_blank" rel="noopener">abe7651dbaa44458</a>
-</td>
-</tr>
-</tbody>
-</table>
-</div>
+<h2>Where the recorded activity falls</h2>
+<p class="note" id="profile-pattern">At 128 tokens with sliding attention, expert work has the largest reported activity reduction.</p>
+<div class="table-scroll"><table><thead><tr><th>In-layer kernel group</th><th>SGLang group µs, lower bound</th><th>G1b4 µs</th><th>Activity ratio</th><th>Activity reduction µs, lower bound</th></tr></thead><tbody id="profile-groups"><tr><td>Dense kernels across the layer</td><td>≥84.7</td><td>70.8</td><td>≥1.20×</td><td>≥13.9</td></tr><tr><td>Attention</td><td>≥19.1</td><td>11.8</td><td>≥1.62×</td><td>≥7.3</td></tr><tr><td>Experts</td><td>≥359.4</td><td>155.3</td><td>≥2.31×</td><td>≥204.1</td></tr></tbody></table></div>
+<p class="note" id="profile-omissions">The SGLang archive omits 34.7 µs of smaller kernel rows for this workload.</p>
+<p class="note">These are GPU kernel activity comparisons across two runs. The ≥ sign accounts for omitted SGLang rows. A complete, matched stage attribution and an isolated whole-layer effect for each change remain unmeasured. The public whole-layer result is measured separately.</p>
+<details><summary>Kernel rows behind the selected labels</summary><p class="note">Times already aggregate the printed call count. Expert rows include Marlin, SiLU and post-expert work when listed. Attention includes listed FlashAttention core/combine rows. Dense includes listed GEMM/GEMV and split-K reductions. Fused pooler/router work stays with its containing dense kernel.</p><div class="table-scroll"><table><thead><tr><th>Profile</th><th>Group</th><th>Kernel row</th><th>Activity µs</th><th>Calls</th></tr></thead><tbody id="profile-kernels"></tbody></table></div></details>
 <details>
 <summary>All twelve incumbent workload timings</summary>
 <div class="table-scroll">
@@ -443,34 +404,14 @@
 </div>
 <p class="note">80k context · soft routing · agentic spread for multibatch workloads. Sliding and full-layer timings enter the score with weights 46 and 16.</p>
 </details>
-<details>
-<summary>Architecture sources and comparison boundaries</summary>
-<div class="evidence">
-<article>
-<h3>Exact integrated source</h3>
-<p>
-<a href="https://github.com/yelgabo/okc/blob/e3e4b3460c1482421d22b8b8818a170dc23cb8c4/muse_decode_layer/cand/g1b4_stage_release.py" target="_blank" rel="noopener">G1b4 public source</a> · SHA256 ba9e327cd7b96595ace4d0c1d0d78fe27c128f23ed0debcda97c7169fc3164ab. The active MAIN CUDA source starts at line 3842. The skinny helper has a separate source literal.</p>
-</article>
-<article>
-<h3>Stage retirement</h3>
-<p>
-<a href="https://github.com/yelgabo/okc/blob/e3e4b3460c1482421d22b8b8818a170dc23cb8c4/muse_moe_w4a16/profiles/stage-retire.63f5a2a8ed2341d1.analysis.json" target="_blank" rel="noopener">Paired test 63f5a2a8ed2341d1</a> · three routing seeds · four arm placements per size. The badge spans the seed-level six-load aggregate factors, not a confidence interval. <a href="https://github.com/yelgabo/okc/blob/e3e4b3460c1482421d22b8b8818a170dc23cb8c4/docs/steering/2026-11-01-wgs-stage-x-retire-review.md" target="_blank" rel="noopener">Ordering review</a>
-</p>
-</article>
-<article>
-<h3>Public shape timings</h3>
-<p>
-<a href="https://github.com/yelgabo/okc/blob/e3e4b3460c1482421d22b8b8818a170dc23cb8c4/muse_decode_layer/profiles/g1-stage-release.607eb52bdaf24160.json" target="_blank" rel="noopener">Full benchmark JSON</a> contains each baseline and candidate median and repeat count. <a href="https://github.com/yelgabo/okc/blob/e3e4b3460c1482421d22b8b8818a170dc23cb8c4/docs/steering/evidence/2026-11-01-g-public/stage-shapes.md" target="_blank" rel="noopener">Reconstructed public score</a> verifies the aggregate.</p>
-</article>
-<article>
-<h3>Separate component files</h3>
-<p>Standalone projections use C2, standalone attention uses the d3eeeda line, and the owned standalone MoE uses mode 47. These public scores locate measured work by component. They do not isolate a speedup for that component inside G1b4.</p>
-</article>
-</div>
-</details>
+<details><summary>Sources and comparison boundaries</summary><div class="evidence">
+<article><h3>Integrated incumbent</h3><p><a href="https://github.com/yelgabo/okc/blob/e3e4b3460c1482421d22b8b8818a170dc23cb8c4/muse_decode_layer/cand/g1b4_stage_release.py">G1b4 source ba9e327c</a>. Public job 607eb52bdaf24160 supplies 12 benchmark cells and 12 candidate kernel profiles.</p><p><a href="https://github.com/yelgabo/okc/blob/e3e4b3460c1482421d22b8b8818a170dc23cb8c4/muse_decode_layer/profiles/g1-stage-release.607eb52bdaf24160.json">Incumbent profile JSON</a></p></article>
+<article><h3>SGLang layer profile</h3><p>Historical job 7d42771c3384449d ran the baseline as the submission. Its profile keeps the largest 12 rows and an overall activity total. Small omitted rows have no stage assignment. Both runs use matching workload shapes with different input seeds.</p><p><a href="https://github.com/yelgabo/okc/blob/e3e4b3460c1482421d22b8b8818a170dc23cb8c4/muse_decode_layer/baseline_profile/profiles/baseline.7d42771c3384449d.json">SGLang profile JSON</a></p></article>
+<article><h3>Whole-layer timings</h3><p>The public layer score is 2.126× with a 95% interval of 2.094–2.158×. Its SGLang endpoint times come from the same job as G1b4. The component profile ratios have no recorded treatment confidence interval.</p></article>
+<article><h3>Architecture boundary</h3><p>The dense badge covers the dense kernels across the layer. Fusion and aggregated kernel names prevent splitting that activity exactly among QKV, O, pooler/router and unpooler. Every included row is visible above.</p></article>
+</div></details>
 </section>
-<footer class="foot">This view is pinned to e3e4b34. The newer shared-operand proposal has no measured gain. <a href="https://github.com/yelgabo/okc/blob/e3e4b3460c1482421d22b8b8818a170dc23cb8c4/docs/steering/2026-11-02-driver-shared-weight-pipeline.md" target="_blank" rel="noopener">Implementation status</a> · <a href="architecture-performance-tracker.md">Architecture performance tracker</a> · <a href="tutorials/diagram-1-incumbent-moe-tutorial.html">October 29 tutorial</a>
-<br>Design follows the charcoal, gold and warm type of the existing OKC tutorial. SVG, styles and benchmark data are embedded for offline viewing.</footer>
+<footer class="foot">Architecture and profile evidence pinned to e3e4b34. Incumbent identity rechecked through 0712aff9. <a href="architecture-performance-tracker.md">Architecture performance tracker</a> · <a href="steering/2026-11-02-incumbent-inlayer-labels.md">Profile grouping and validation</a><br>Design follows the existing OKC tutorial. SVG, styles and data are embedded for offline viewing.</footer>
 </main>
 <dialog id="diagram-dialog" aria-labelledby="dialog-title">
 <div class="figure-top">
@@ -494,39 +435,6 @@
         2.1579739165694556
       ],
       "source": "https://github.com/yelgabo/okc/blob/e3e4b3460c1482421d22b8b8818a170dc23cb8c4/muse_decode_layer/profiles/scored.607eb52bdaf24160.json"
-    },
-    {
-      "key": "projection",
-      "name": "Projection benchmark",
-      "job": "9eba96894ee1402e",
-      "score": 1.5278064829557674,
-      "ci": [
-        1.504889385711431,
-        1.5507235802001038
-      ],
-      "source": "https://github.com/yelgabo/okc/blob/e3e4b3460c1482421d22b8b8818a170dc23cb8c4/muse_bf16_proj/profiles/scored.9eba96894ee1402e.json"
-    },
-    {
-      "key": "attention",
-      "name": "Attention benchmark",
-      "job": "8914751e3b9f468b",
-      "score": 2.6042902049472674,
-      "ci": [
-        2.565225851873058,
-        2.643354558021476
-      ],
-      "source": "https://github.com/yelgabo/okc/blob/e3e4b3460c1482421d22b8b8818a170dc23cb8c4/muse_attention_decode/profiles/scored.8914751e3b9f468b.json"
-    },
-    {
-      "key": "moe",
-      "name": "Owned MoE benchmark",
-      "job": "abe7651dbaa44458",
-      "score": 2.2157115620135492,
-      "ci": [
-        2.182475888583346,
-        2.2489472354437523
-      ],
-      "source": "https://github.com/yelgabo/okc/blob/e3e4b3460c1482421d22b8b8818a170dc23cb8c4/muse_moe_w4a16/profiles/scored.abe7651dbaa44458.json"
     }
   ],
   "cells": [
@@ -626,7 +534,1899 @@
       "repeats": 20,
       "load": "verify 32"
     }
-  ]
+  ],
+  "profile_comparison": {
+    "sources": [
+      "muse_decode_layer/profiles/g1-stage-release.607eb52bdaf24160.json",
+      "muse_decode_layer/baseline_profile/profiles/baseline.7d42771c3384449d.json"
+    ],
+    "rows": [
+      {
+        "case": {
+          "batch": 1,
+          "ctx": 80000,
+          "dist": "soft",
+          "layer": "sliding",
+          "load": "decode 1",
+          "page": 1,
+          "repeats": 60,
+          "seed": 2594116087711408936,
+          "weight": 46
+        },
+        "candidate": {
+          "sums": {
+            "moe": 29.8,
+            "attention": 5.4,
+            "dense": 38.8,
+            "other_visible": 7.7,
+            "unlisted": -0.1
+          },
+          "rows": {
+            "moe": [
+              {
+                "name": "void okc::moe_fused<false>(okc::Params)",
+                "us": 29.8,
+                "calls": 1
+              }
+            ],
+            "attention": [
+              {
+                "name": "void (anonymous namespace)::attn_kernel<1, false, 13>((an...",
+                "us": 5.4,
+                "calls": 1
+              }
+            ],
+            "dense": [
+              {
+                "name": "void sk2_kernel_gle4944bfa97e00<1, 8, 4, 1, 8, 1, 6, true...",
+                "us": 17.9,
+                "calls": 1
+              },
+              {
+                "name": "void sk2_kernel<1, 8, 3, 1, 4, 2, 6, true, false, 1, 1, _...",
+                "us": 10.5,
+                "calls": 1
+              },
+              {
+                "name": "void sk2_kernel<1, 8, 4, 1, 4, 1, 4, true, false, 2, 1, _...",
+                "us": 6.0,
+                "calls": 1
+              },
+              {
+                "name": "void sk2_kernel<1, 8, 1, 1, 8, 2, 4, true, false, 2, 1, _...",
+                "us": 4.4,
+                "calls": 1
+              }
+            ],
+            "other_visible": [
+              {
+                "name": "void glue_cluster_boundary<4, 32, false, false, true, fal...",
+                "us": 3.4,
+                "calls": 1
+              },
+              {
+                "name": "_sl_cluster_finish",
+                "us": 2.3,
+                "calls": 1
+              },
+              {
+                "name": "_sl_tile_route",
+                "us": 2.0,
+                "calls": 1
+              }
+            ]
+          },
+          "total": 81.6,
+          "has_omissions": false
+        },
+        "baseline": {
+          "sums": {
+            "moe": 40.8,
+            "attention": 9.9,
+            "dense": 53.7,
+            "other_visible": 27.2,
+            "unlisted": 43.0
+          },
+          "rows": {
+            "moe": [
+              {
+                "name": "void sglang::device::marlin_moe::Marlin<__nv_bfloat16, 56...",
+                "us": 40.8,
+                "calls": 2
+              }
+            ],
+            "attention": [
+              {
+                "name": "void cutlass::device_kernel<flash::enable_sm90_or_later<f...",
+                "us": 9.9,
+                "calls": 1
+              }
+            ],
+            "dense": [
+              {
+                "name": "nvjet_sm90_tst_128x8_64x12_4x1_v_bz_splitK_TNT",
+                "us": 31.4,
+                "calls": 2
+              },
+              {
+                "name": "nvjet_sm90_tst_64x8_64x16_2x1_v_bz_TNT",
+                "us": 7.0,
+                "calls": 1
+              },
+              {
+                "name": "nvjet_sm90_tst_64x8_64x16_4x1_v_bz_splitK_TNT",
+                "us": 5.3,
+                "calls": 1
+              },
+              {
+                "name": "void dot_kernel<float, 128, 0, cublasDotParams<cublasGemv...",
+                "us": 5.0,
+                "calls": 1
+              },
+              {
+                "name": "void cublasLt::splitKreduce_kernel<32, 16, int, float, __...",
+                "us": 5.0,
+                "calls": 3
+              }
+            ],
+            "other_visible": [
+              {
+                "name": "void at::native::(anonymous namespace)::vectorized_layer_...",
+                "us": 6.3,
+                "calls": 1
+              },
+              {
+                "name": "void at::native::unrolled_elementwise_kernel<at::native::...",
+                "us": 5.8,
+                "calls": 2
+              },
+              {
+                "name": "void at::native::reduce_kernel<512, 1, at::native::Reduce...",
+                "us": 5.7,
+                "calls": 1
+              },
+              {
+                "name": "void at::native::elementwise_kernel<128, 2, at::native::g...",
+                "us": 4.8,
+                "calls": 3
+              },
+              {
+                "name": "void sglang::muse_spark_norm_residual_kernel<8192l, 256, ...",
+                "us": 4.6,
+                "calls": 1
+              }
+            ]
+          },
+          "total": 174.6,
+          "has_omissions": true
+        }
+      },
+      {
+        "case": {
+          "batch": 1,
+          "ctx": 80000,
+          "dist": "soft",
+          "layer": "full",
+          "load": "decode 1",
+          "page": 1,
+          "repeats": 60,
+          "seed": 2594202932468765874,
+          "weight": 16
+        },
+        "candidate": {
+          "sums": {
+            "moe": 42.8,
+            "attention": 12.1,
+            "dense": 38.9,
+            "other_visible": 7.2,
+            "unlisted": 0.0
+          },
+          "rows": {
+            "moe": [
+              {
+                "name": "void okc::moe_fused<false>(okc::Params)",
+                "us": 42.8,
+                "calls": 1
+              }
+            ],
+            "attention": [
+              {
+                "name": "void (anonymous namespace)::attn_kernel<1, false, 11>((an...",
+                "us": 12.1,
+                "calls": 1
+              }
+            ],
+            "dense": [
+              {
+                "name": "void sk2_kernel_gle4944bfa97e00<1, 8, 4, 1, 8, 1, 6, true...",
+                "us": 17.9,
+                "calls": 1
+              },
+              {
+                "name": "void sk2_kernel<1, 8, 3, 1, 4, 2, 6, true, false, 1, 1, _...",
+                "us": 10.6,
+                "calls": 1
+              },
+              {
+                "name": "void sk2_kernel<1, 8, 4, 1, 4, 1, 4, true, false, 2, 1, _...",
+                "us": 5.9,
+                "calls": 1
+              },
+              {
+                "name": "void sk2_kernel<1, 8, 1, 1, 8, 2, 4, true, false, 2, 1, _...",
+                "us": 4.5,
+                "calls": 1
+              }
+            ],
+            "other_visible": [
+              {
+                "name": "void glue_cluster_boundary<4, 32, false, false, true, fal...",
+                "us": 3.3,
+                "calls": 1
+              },
+              {
+                "name": "_sl_tile_route",
+                "us": 2.0,
+                "calls": 1
+              },
+              {
+                "name": "_sl_cluster_finish",
+                "us": 1.9,
+                "calls": 1
+              }
+            ]
+          },
+          "total": 101.0,
+          "has_omissions": false
+        },
+        "baseline": {
+          "sums": {
+            "moe": 45.0,
+            "attention": 25.2,
+            "dense": 54.3,
+            "other_visible": 23.0,
+            "unlisted": 41.4
+          },
+          "rows": {
+            "moe": [
+              {
+                "name": "void sglang::device::marlin_moe::Marlin<__nv_bfloat16, 56...",
+                "us": 45.0,
+                "calls": 2
+              }
+            ],
+            "attention": [
+              {
+                "name": "void cutlass::device_kernel<flash::enable_sm90_or_later<f...",
+                "us": 18.3,
+                "calls": 1
+              },
+              {
+                "name": "void cutlass::device_kernel<flash::FlashAttnFwdCombine<cu...",
+                "us": 6.9,
+                "calls": 1
+              }
+            ],
+            "dense": [
+              {
+                "name": "nvjet_sm90_tst_128x8_64x12_4x1_v_bz_splitK_TNT",
+                "us": 32.4,
+                "calls": 2
+              },
+              {
+                "name": "nvjet_sm90_tst_64x8_64x16_2x1_v_bz_TNT",
+                "us": 6.6,
+                "calls": 1
+              },
+              {
+                "name": "nvjet_sm90_tst_64x8_64x16_4x1_v_bz_splitK_TNT",
+                "us": 5.2,
+                "calls": 1
+              },
+              {
+                "name": "void dot_kernel<float, 128, 0, cublasDotParams<cublasGemv...",
+                "us": 5.1,
+                "calls": 1
+              },
+              {
+                "name": "void cublasLt::splitKreduce_kernel<32, 16, int, float, __...",
+                "us": 5.0,
+                "calls": 3
+              }
+            ],
+            "other_visible": [
+              {
+                "name": "void at::native::(anonymous namespace)::vectorized_layer_...",
+                "us": 6.8,
+                "calls": 1
+              },
+              {
+                "name": "void at::native::unrolled_elementwise_kernel<at::native::...",
+                "us": 5.9,
+                "calls": 2
+              },
+              {
+                "name": "void at::native::reduce_kernel<512, 1, at::native::Reduce...",
+                "us": 5.4,
+                "calls": 1
+              },
+              {
+                "name": "void at::native::elementwise_kernel<128, 2, at::native::g...",
+                "us": 4.9,
+                "calls": 3
+              }
+            ]
+          },
+          "total": 188.9,
+          "has_omissions": true
+        }
+      },
+      {
+        "case": {
+          "batch": 16,
+          "ctx": 80000,
+          "dist": "soft",
+          "layer": "sliding",
+          "load": "decode 16",
+          "page": 1,
+          "seed": 2594289777226122813,
+          "spread": "agentic",
+          "weight": 46
+        },
+        "candidate": {
+          "sums": {
+            "moe": 77.0,
+            "attention": 8.0,
+            "dense": 50.5,
+            "other_visible": 8.5,
+            "unlisted": 0.1
+          },
+          "rows": {
+            "moe": [
+              {
+                "name": "void okc::moe_fused<false>(okc::Params)",
+                "us": 77.0,
+                "calls": 1
+              }
+            ],
+            "attention": [
+              {
+                "name": "void (anonymous namespace)::attn_kernel<1, false, 1>((ano...",
+                "us": 8.0,
+                "calls": 1
+              }
+            ],
+            "dense": [
+              {
+                "name": "void sk2_kernel<1, 16, 4, 1, 8, 1, 5, true, false, 2, 1, ...",
+                "us": 18.9,
+                "calls": 1
+              },
+              {
+                "name": "void sk2_kernel<1, 16, 4, 1, 4, 1, 5, true, false, 2, 1, ...",
+                "us": 14.9,
+                "calls": 1
+              },
+              {
+                "name": "void sk2_kernel<1, 16, 3, 1, 4, 2, 5, true, false, 1, 1, ...",
+                "us": 10.6,
+                "calls": 1
+              },
+              {
+                "name": "void sk2_kernel<1, 16, 4, 1, 4, 1, 4, true, false, 2, 1, ...",
+                "us": 6.1,
+                "calls": 1
+              }
+            ],
+            "other_visible": [
+              {
+                "name": "void glue_cluster_boundary<4, 32, true, false, false, tru...",
+                "us": 3.4,
+                "calls": 1
+              },
+              {
+                "name": "void glue_cluster_boundary<4, 32, false, false, false, tr...",
+                "us": 3.1,
+                "calls": 1
+              },
+              {
+                "name": "_sl_tile_route",
+                "us": 2.0,
+                "calls": 1
+              }
+            ]
+          },
+          "total": 144.1,
+          "has_omissions": false
+        },
+        "baseline": {
+          "sums": {
+            "moe": 96.1,
+            "attention": 13.5,
+            "dense": 68.1,
+            "other_visible": 38.8,
+            "unlisted": 49.4
+          },
+          "rows": {
+            "moe": [
+              {
+                "name": "void sglang::device::marlin_moe::Marlin<__nv_bfloat16, 56...",
+                "us": 96.1,
+                "calls": 2
+              }
+            ],
+            "attention": [
+              {
+                "name": "void cutlass::device_kernel<flash::enable_sm90_or_later<f...",
+                "us": 13.5,
+                "calls": 1
+              }
+            ],
+            "dense": [
+              {
+                "name": "nvjet_sm90_tst_64x16_64x16_2x1_v_bz_TNT",
+                "us": 27.2,
+                "calls": 2
+              },
+              {
+                "name": "nvjet_sm90_tst_128x16_64x11_4x1_v_bz_splitK_TNT",
+                "us": 19.4,
+                "calls": 1
+              },
+              {
+                "name": "nvjet_sm90_tst_64x16_64x16_4x1_v_bz_splitK_TNT",
+                "us": 12.4,
+                "calls": 1
+              },
+              {
+                "name": "nvjet_sm90_tss_64x16_64x16_4x1_v_bz_splitK_NNT",
+                "us": 9.1,
+                "calls": 2
+              }
+            ],
+            "other_visible": [
+              {
+                "name": "void at::native::reduce_kernel<512, 1, at::native::Reduce...",
+                "us": 9.0,
+                "calls": 1
+              },
+              {
+                "name": "void at::native::elementwise_kernel<128, 2, at::native::g...",
+                "us": 8.7,
+                "calls": 3
+              },
+              {
+                "name": "void at::native::unrolled_elementwise_kernel<at::native::...",
+                "us": 6.6,
+                "calls": 2
+              },
+              {
+                "name": "void at::native::(anonymous namespace)::vectorized_layer_...",
+                "us": 5.6,
+                "calls": 1
+              },
+              {
+                "name": "void at::native::reduce_kernel<128, 4, at::native::Reduce...",
+                "us": 4.8,
+                "calls": 1
+              },
+              {
+                "name": "void sglang::muse_spark_norm_residual_kernel<8192l, 256, ...",
+                "us": 4.1,
+                "calls": 1
+              }
+            ]
+          },
+          "total": 265.9,
+          "has_omissions": true
+        }
+      },
+      {
+        "case": {
+          "batch": 16,
+          "ctx": 80000,
+          "dist": "soft",
+          "layer": "full",
+          "load": "decode 16",
+          "page": 1,
+          "seed": 2594376621983479753,
+          "spread": "agentic",
+          "weight": 16
+        },
+        "candidate": {
+          "sums": {
+            "moe": 65.2,
+            "attention": 87.5,
+            "dense": 48.4,
+            "other_visible": 9.3,
+            "unlisted": 0.1
+          },
+          "rows": {
+            "moe": [
+              {
+                "name": "void okc::moe_fused<false>(okc::Params)",
+                "us": 65.2,
+                "calls": 1
+              }
+            ],
+            "attention": [
+              {
+                "name": "void (anonymous namespace)::attn_kernel<1, true, 0>((anon...",
+                "us": 87.5,
+                "calls": 1
+              }
+            ],
+            "dense": [
+              {
+                "name": "void sk2_kernel<1, 16, 4, 1, 8, 1, 5, true, false, 2, 1, ...",
+                "us": 17.3,
+                "calls": 1
+              },
+              {
+                "name": "void sk2_kernel<1, 16, 4, 1, 4, 1, 5, true, false, 2, 1, ...",
+                "us": 14.6,
+                "calls": 1
+              },
+              {
+                "name": "void sk2_kernel<1, 16, 3, 1, 4, 2, 5, true, false, 1, 1, ...",
+                "us": 10.4,
+                "calls": 1
+              },
+              {
+                "name": "void sk2_kernel<1, 16, 4, 1, 4, 1, 4, true, false, 2, 1, ...",
+                "us": 6.1,
+                "calls": 1
+              }
+            ],
+            "other_visible": [
+              {
+                "name": "void glue_cluster_boundary<4, 32, true, false, false, tru...",
+                "us": 3.7,
+                "calls": 1
+              },
+              {
+                "name": "void glue_cluster_boundary<4, 32, false, false, false, tr...",
+                "us": 3.5,
+                "calls": 1
+              },
+              {
+                "name": "_sl_tile_route",
+                "us": 2.1,
+                "calls": 1
+              }
+            ]
+          },
+          "total": 210.5,
+          "has_omissions": false
+        },
+        "baseline": {
+          "sums": {
+            "moe": 109.9,
+            "attention": 191.4,
+            "dense": 69.9,
+            "other_visible": 38.6,
+            "unlisted": 46.8
+          },
+          "rows": {
+            "moe": [
+              {
+                "name": "void sglang::device::marlin_moe::Marlin<__nv_bfloat16, 56...",
+                "us": 109.9,
+                "calls": 2
+              }
+            ],
+            "attention": [
+              {
+                "name": "void cutlass::device_kernel<flash::enable_sm90_or_later<f...",
+                "us": 191.4,
+                "calls": 1
+              }
+            ],
+            "dense": [
+              {
+                "name": "nvjet_sm90_tst_64x16_64x16_2x1_v_bz_TNT",
+                "us": 28.1,
+                "calls": 2
+              },
+              {
+                "name": "nvjet_sm90_tst_128x16_64x11_4x1_v_bz_splitK_TNT",
+                "us": 19.3,
+                "calls": 1
+              },
+              {
+                "name": "nvjet_sm90_tst_64x16_64x16_4x1_v_bz_splitK_TNT",
+                "us": 12.4,
+                "calls": 1
+              },
+              {
+                "name": "nvjet_sm90_tss_64x16_64x16_4x1_v_bz_splitK_NNT",
+                "us": 10.1,
+                "calls": 2
+              }
+            ],
+            "other_visible": [
+              {
+                "name": "void at::native::reduce_kernel<512, 1, at::native::Reduce...",
+                "us": 8.9,
+                "calls": 1
+              },
+              {
+                "name": "void at::native::elementwise_kernel<128, 2, at::native::g...",
+                "us": 8.8,
+                "calls": 3
+              },
+              {
+                "name": "void at::native::unrolled_elementwise_kernel<at::native::...",
+                "us": 6.4,
+                "calls": 2
+              },
+              {
+                "name": "void at::native::(anonymous namespace)::vectorized_layer_...",
+                "us": 5.6,
+                "calls": 1
+              },
+              {
+                "name": "void at::native::reduce_kernel<128, 4, at::native::Reduce...",
+                "us": 4.7,
+                "calls": 1
+              },
+              {
+                "name": "void sglang::muse_spark_norm_residual_kernel<8192l, 256, ...",
+                "us": 4.2,
+                "calls": 1
+              }
+            ]
+          },
+          "total": 456.6,
+          "has_omissions": true
+        }
+      },
+      {
+        "case": {
+          "batch": 32,
+          "ctx": 80000,
+          "dist": "soft",
+          "layer": "sliding",
+          "load": "decode 32",
+          "page": 1,
+          "seed": 2594463466740836694,
+          "spread": "agentic",
+          "weight": 46
+        },
+        "candidate": {
+          "sums": {
+            "moe": 70.6,
+            "attention": 9.6,
+            "dense": 54.0,
+            "other_visible": 9.0,
+            "unlisted": -0.1
+          },
+          "rows": {
+            "moe": [
+              {
+                "name": "void okc::moe_fused<false>(okc::Params)",
+                "us": 70.6,
+                "calls": 1
+              }
+            ],
+            "attention": [
+              {
+                "name": "void (anonymous namespace)::attn_kernel<1, false, 1>((ano...",
+                "us": 9.6,
+                "calls": 1
+              }
+            ],
+            "dense": [
+              {
+                "name": "void sk2_kernel<2, 32, 4, 1, 8, 1, 3, true, false, 2, 1, ...",
+                "us": 20.4,
+                "calls": 1
+              },
+              {
+                "name": "void sk2_kernel<2, 32, 4, 2, 2, 2, 3, true, false, 1, 1, ...",
+                "us": 16.0,
+                "calls": 1
+              },
+              {
+                "name": "void sk2_kernel<2, 32, 3, 1, 4, 2, 4, true, false, 1, 1, ...",
+                "us": 11.4,
+                "calls": 1
+              },
+              {
+                "name": "void sk2_kernel<2, 32, 2, 2, 2, 2, 3, true, false, 1, 1, ...",
+                "us": 6.2,
+                "calls": 1
+              }
+            ],
+            "other_visible": [
+              {
+                "name": "_graft_row_boundary_pre",
+                "us": 6.9,
+                "calls": 2
+              },
+              {
+                "name": "_sl_tile_route",
+                "us": 2.1,
+                "calls": 1
+              }
+            ]
+          },
+          "total": 143.1,
+          "has_omissions": false
+        },
+        "baseline": {
+          "sums": {
+            "moe": 139.6,
+            "attention": 18.3,
+            "dense": 77.4,
+            "other_visible": 13.6,
+            "unlisted": 31.0
+          },
+          "rows": {
+            "moe": [
+              {
+                "name": "void sglang::device::marlin_moe::Marlin<__nv_bfloat16, 56...",
+                "us": 136.0,
+                "calls": 2
+              },
+              {
+                "name": "_post_expert_norm_weighted_sum_kernel",
+                "us": 3.6,
+                "calls": 1
+              }
+            ],
+            "attention": [
+              {
+                "name": "void cutlass::device_kernel<flash::enable_sm90_or_later<f...",
+                "us": 18.3,
+                "calls": 1
+              }
+            ],
+            "dense": [
+              {
+                "name": "nvjet_sm90_tst_64x32_64x16_2x1_v_bz_TNT",
+                "us": 27.4,
+                "calls": 2
+              },
+              {
+                "name": "nvjet_sm90_tst_128x32_64x10_4x1_v_bz_splitK_TNT",
+                "us": 19.9,
+                "calls": 1
+              },
+              {
+                "name": "nvjet_sm90_tst_64x32_64x16_4x1_v_bz_splitK_TNT",
+                "us": 12.6,
+                "calls": 1
+              },
+              {
+                "name": "nvjet_sm90_tss_32x64_64x16_4x1_v_bz_splitK_NNN",
+                "us": 9.6,
+                "calls": 2
+              },
+              {
+                "name": "void cublasLt::splitKreduce_kernel<32, 16, int, float, __...",
+                "us": 4.1,
+                "calls": 2
+              },
+              {
+                "name": "void cublasLt::splitKreduce_kernel<32, 16, int, float, fl...",
+                "us": 3.8,
+                "calls": 2
+              }
+            ],
+            "other_visible": [
+              {
+                "name": "void at::native::(anonymous namespace)::vectorized_layer_...",
+                "us": 5.6,
+                "calls": 1
+              },
+              {
+                "name": "void sglang::muse_spark_norm_residual_kernel<8192l, 256, ...",
+                "us": 4.2,
+                "calls": 1
+              },
+              {
+                "name": "void sglang::muse_spark_norm_residual_kernel<8192l, 256, ...",
+                "us": 3.8,
+                "calls": 1
+              }
+            ]
+          },
+          "total": 279.9,
+          "has_omissions": true
+        }
+      },
+      {
+        "case": {
+          "batch": 32,
+          "ctx": 80000,
+          "dist": "soft",
+          "layer": "full",
+          "load": "decode 32",
+          "page": 1,
+          "seed": 2594550311498193636,
+          "spread": "agentic",
+          "weight": 16
+        },
+        "candidate": {
+          "sums": {
+            "moe": 87.6,
+            "attention": 170.0,
+            "dense": 53.1,
+            "other_visible": 9.6,
+            "unlisted": -0.2
+          },
+          "rows": {
+            "moe": [
+              {
+                "name": "void okc::moe_fused<false>(okc::Params)",
+                "us": 87.6,
+                "calls": 1
+              }
+            ],
+            "attention": [
+              {
+                "name": "void (anonymous namespace)::attn_kernel<1, true, 0>((anon...",
+                "us": 170.0,
+                "calls": 1
+              }
+            ],
+            "dense": [
+              {
+                "name": "void sk2_kernel<2, 32, 4, 1, 8, 1, 3, true, false, 2, 1, ...",
+                "us": 19.6,
+                "calls": 1
+              },
+              {
+                "name": "void sk2_kernel<2, 32, 4, 2, 2, 2, 3, true, false, 1, 1, ...",
+                "us": 15.9,
+                "calls": 1
+              },
+              {
+                "name": "void sk2_kernel<2, 32, 3, 1, 4, 2, 4, true, false, 1, 1, ...",
+                "us": 11.4,
+                "calls": 1
+              },
+              {
+                "name": "void sk2_kernel<2, 32, 2, 2, 2, 2, 3, true, false, 1, 1, ...",
+                "us": 6.2,
+                "calls": 1
+              }
+            ],
+            "other_visible": [
+              {
+                "name": "_graft_row_boundary_pre",
+                "us": 7.5,
+                "calls": 2
+              },
+              {
+                "name": "_sl_tile_route",
+                "us": 2.1,
+                "calls": 1
+              }
+            ]
+          },
+          "total": 320.1,
+          "has_omissions": false
+        },
+        "baseline": {
+          "sums": {
+            "moe": 97.2,
+            "attention": 505.1,
+            "dense": 92.9,
+            "other_visible": 13.6,
+            "unlisted": 28.7
+          },
+          "rows": {
+            "moe": [
+              {
+                "name": "void sglang::device::marlin_moe::Marlin<__nv_bfloat16, 56...",
+                "us": 93.4,
+                "calls": 2
+              },
+              {
+                "name": "_post_expert_norm_weighted_sum_kernel",
+                "us": 3.8,
+                "calls": 1
+              }
+            ],
+            "attention": [
+              {
+                "name": "void cutlass::device_kernel<flash::enable_sm90_or_later<f...",
+                "us": 505.1,
+                "calls": 1
+              }
+            ],
+            "dense": [
+              {
+                "name": "nvjet_sm90_tst_64x32_64x16_2x1_v_bz_TNT",
+                "us": 26.7,
+                "calls": 2
+              },
+              {
+                "name": "nvjet_sm90_tss_32x64_64x16_4x1_v_bz_splitK_NNN",
+                "us": 23.6,
+                "calls": 2
+              },
+              {
+                "name": "nvjet_sm90_tst_128x32_64x10_4x1_v_bz_splitK_TNT",
+                "us": 20.8,
+                "calls": 1
+              },
+              {
+                "name": "nvjet_sm90_tst_64x32_64x16_4x1_v_bz_splitK_TNT",
+                "us": 12.5,
+                "calls": 1
+              },
+              {
+                "name": "void cublasLt::splitKreduce_kernel<32, 16, int, float, __...",
+                "us": 5.0,
+                "calls": 2
+              },
+              {
+                "name": "void cublasLt::splitKreduce_kernel<32, 16, int, float, fl...",
+                "us": 4.3,
+                "calls": 2
+              }
+            ],
+            "other_visible": [
+              {
+                "name": "void at::native::(anonymous namespace)::vectorized_layer_...",
+                "us": 5.6,
+                "calls": 1
+              },
+              {
+                "name": "void sglang::muse_spark_norm_residual_kernel<8192l, 256, ...",
+                "us": 4.2,
+                "calls": 1
+              },
+              {
+                "name": "void sglang::muse_spark_norm_residual_kernel<8192l, 256, ...",
+                "us": 3.8,
+                "calls": 1
+              }
+            ]
+          },
+          "total": 737.5,
+          "has_omissions": true
+        }
+      },
+      {
+        "case": {
+          "batch": 1,
+          "ctx": 80000,
+          "dist": "soft",
+          "layer": "sliding",
+          "load": "verify 1",
+          "page": 1,
+          "q_len": 8,
+          "seed": 2594637156255550579,
+          "weight": 46
+        },
+        "candidate": {
+          "sums": {
+            "moe": 71.6,
+            "attention": 7.4,
+            "dense": 38.5,
+            "other_visible": 6.6,
+            "unlisted": -0.1
+          },
+          "rows": {
+            "moe": [
+              {
+                "name": "void okc::moe_fused<false>(okc::Params)",
+                "us": 71.6,
+                "calls": 1
+              }
+            ],
+            "attention": [
+              {
+                "name": "void (anonymous namespace)::attn_kernel<8, false, 15>((an...",
+                "us": 7.4,
+                "calls": 1
+              }
+            ],
+            "dense": [
+              {
+                "name": "void sk2_kernel_gle4944bfa97e00<1, 8, 4, 1, 8, 1, 6, true...",
+                "us": 18.7,
+                "calls": 1
+              },
+              {
+                "name": "void sk2_kernel_narrow_5ca70d56e6dc<1, 8, 3, 1, 4, 2, 5, ...",
+                "us": 9.1,
+                "calls": 1
+              },
+              {
+                "name": "void sk2_kernel<1, 8, 4, 1, 4, 1, 4, true, false, 2, 1, _...",
+                "us": 6.0,
+                "calls": 1
+              },
+              {
+                "name": "void sk2_kernel<1, 8, 1, 1, 8, 2, 4, true, false, 2, 1, _...",
+                "us": 4.7,
+                "calls": 1
+              }
+            ],
+            "other_visible": [
+              {
+                "name": "void glue_cluster_boundary<4, 32, false, false, true, tru...",
+                "us": 3.0,
+                "calls": 1
+              },
+              {
+                "name": "_sl_tile_route",
+                "us": 1.9,
+                "calls": 1
+              },
+              {
+                "name": "_sl_cluster_finish",
+                "us": 1.7,
+                "calls": 1
+              }
+            ]
+          },
+          "total": 124.0,
+          "has_omissions": false
+        },
+        "baseline": {
+          "sums": {
+            "moe": 86.8,
+            "attention": 9.7,
+            "dense": 71.8,
+            "other_visible": 27.5,
+            "unlisted": 53.3
+          },
+          "rows": {
+            "moe": [
+              {
+                "name": "void sglang::device::marlin_moe::Marlin<__nv_bfloat16, 56...",
+                "us": 86.8,
+                "calls": 2
+              }
+            ],
+            "attention": [
+              {
+                "name": "void cutlass::device_kernel<flash::enable_sm90_or_later<f...",
+                "us": 9.7,
+                "calls": 1
+              }
+            ],
+            "dense": [
+              {
+                "name": "nvjet_sm90_tst_128x8_64x12_4x1_v_bz_splitK_TNT",
+                "us": 32.1,
+                "calls": 2
+              },
+              {
+                "name": "sm80_xmma_gemm_f32f32_f32f32_f32_tn_n_tilesize32x32x8_sta...",
+                "us": 12.6,
+                "calls": 1
+              },
+              {
+                "name": "sm80_xmma_gemm_f32f32_f32f32_f32_tn_n_tilesize32x32x8_sta...",
+                "us": 9.4,
+                "calls": 1
+              },
+              {
+                "name": "nvjet_sm90_tst_64x8_64x16_2x1_v_bz_TNT",
+                "us": 7.1,
+                "calls": 1
+              },
+              {
+                "name": "void cublasLt::splitKreduce_kernel<32, 16, int, float, __...",
+                "us": 5.5,
+                "calls": 3
+              },
+              {
+                "name": "nvjet_sm90_tst_64x8_64x16_4x1_v_bz_splitK_TNT",
+                "us": 5.1,
+                "calls": 1
+              }
+            ],
+            "other_visible": [
+              {
+                "name": "void at::native::reduce_kernel<512, 1, at::native::Reduce...",
+                "us": 9.1,
+                "calls": 1
+              },
+              {
+                "name": "void at::native::elementwise_kernel<128, 2, at::native::g...",
+                "us": 6.5,
+                "calls": 3
+              },
+              {
+                "name": "void at::native::(anonymous namespace)::vectorized_layer_...",
+                "us": 6.1,
+                "calls": 1
+              },
+              {
+                "name": "void at::native::unrolled_elementwise_kernel<at::native::...",
+                "us": 5.8,
+                "calls": 2
+              }
+            ]
+          },
+          "total": 249.1,
+          "has_omissions": true
+        }
+      },
+      {
+        "case": {
+          "batch": 1,
+          "ctx": 80000,
+          "dist": "soft",
+          "layer": "full",
+          "load": "verify 1",
+          "page": 1,
+          "q_len": 8,
+          "seed": 2594724001012907523,
+          "weight": 16
+        },
+        "candidate": {
+          "sums": {
+            "moe": 58.8,
+            "attention": 15.0,
+            "dense": 38.5,
+            "other_visible": 7.1,
+            "unlisted": 0.0
+          },
+          "rows": {
+            "moe": [
+              {
+                "name": "void okc::moe_fused<false>(okc::Params)",
+                "us": 58.8,
+                "calls": 1
+              }
+            ],
+            "attention": [
+              {
+                "name": "void (anonymous namespace)::attn_kernel<8, false, 11>((an...",
+                "us": 15.0,
+                "calls": 1
+              }
+            ],
+            "dense": [
+              {
+                "name": "void sk2_kernel_gle4944bfa97e00<1, 8, 4, 1, 8, 1, 6, true...",
+                "us": 18.6,
+                "calls": 1
+              },
+              {
+                "name": "void sk2_kernel_narrow_5ca70d56e6dc<1, 8, 3, 1, 4, 2, 5, ...",
+                "us": 9.3,
+                "calls": 1
+              },
+              {
+                "name": "void sk2_kernel<1, 8, 4, 1, 4, 1, 4, true, false, 2, 1, _...",
+                "us": 6.1,
+                "calls": 1
+              },
+              {
+                "name": "void sk2_kernel<1, 8, 1, 1, 8, 2, 4, true, false, 2, 1, _...",
+                "us": 4.5,
+                "calls": 1
+              }
+            ],
+            "other_visible": [
+              {
+                "name": "void glue_cluster_boundary<4, 32, false, false, true, tru...",
+                "us": 3.2,
+                "calls": 1
+              },
+              {
+                "name": "_sl_tile_route",
+                "us": 2.0,
+                "calls": 1
+              },
+              {
+                "name": "_sl_cluster_finish",
+                "us": 1.9,
+                "calls": 1
+              }
+            ]
+          },
+          "total": 119.4,
+          "has_omissions": false
+        },
+        "baseline": {
+          "sums": {
+            "moe": 115.4,
+            "attention": 25.7,
+            "dense": 67.1,
+            "other_visible": 27.5,
+            "unlisted": 54.2
+          },
+          "rows": {
+            "moe": [
+              {
+                "name": "void sglang::device::marlin_moe::Marlin<__nv_bfloat16, 56...",
+                "us": 115.4,
+                "calls": 2
+              }
+            ],
+            "attention": [
+              {
+                "name": "void cutlass::device_kernel<flash::enable_sm90_or_later<f...",
+                "us": 18.5,
+                "calls": 1
+              },
+              {
+                "name": "void cutlass::device_kernel<flash::FlashAttnFwdCombine<cu...",
+                "us": 7.2,
+                "calls": 1
+              }
+            ],
+            "dense": [
+              {
+                "name": "nvjet_sm90_tst_128x8_64x12_4x1_v_bz_splitK_TNT",
+                "us": 32.3,
+                "calls": 2
+              },
+              {
+                "name": "sm80_xmma_gemm_f32f32_f32f32_f32_tn_n_tilesize32x32x8_sta...",
+                "us": 12.9,
+                "calls": 1
+              },
+              {
+                "name": "sm80_xmma_gemm_f32f32_f32f32_f32_tn_n_tilesize32x32x8_sta...",
+                "us": 9.5,
+                "calls": 1
+              },
+              {
+                "name": "nvjet_sm90_tst_64x8_64x16_2x1_v_bz_TNT",
+                "us": 7.0,
+                "calls": 1
+              },
+              {
+                "name": "void cublasLt::splitKreduce_kernel<32, 16, int, float, __...",
+                "us": 5.4,
+                "calls": 3
+              }
+            ],
+            "other_visible": [
+              {
+                "name": "void at::native::reduce_kernel<512, 1, at::native::Reduce...",
+                "us": 9.0,
+                "calls": 1
+              },
+              {
+                "name": "void at::native::elementwise_kernel<128, 2, at::native::g...",
+                "us": 6.5,
+                "calls": 3
+              },
+              {
+                "name": "void at::native::(anonymous namespace)::vectorized_layer_...",
+                "us": 6.0,
+                "calls": 1
+              },
+              {
+                "name": "void at::native::unrolled_elementwise_kernel<at::native::...",
+                "us": 6.0,
+                "calls": 2
+              }
+            ]
+          },
+          "total": 289.9,
+          "has_omissions": true
+        }
+      },
+      {
+        "case": {
+          "batch": 16,
+          "ctx": 80000,
+          "dist": "soft",
+          "layer": "sliding",
+          "load": "verify 16",
+          "page": 1,
+          "q_len": 8,
+          "seed": 2594810845770264468,
+          "spread": "agentic",
+          "weight": 46
+        },
+        "candidate": {
+          "sums": {
+            "moe": 155.3,
+            "attention": 11.8,
+            "dense": 70.8,
+            "other_visible": 12.5,
+            "unlisted": 0.1
+          },
+          "rows": {
+            "moe": [
+              {
+                "name": "void okc::moe_fused<true>(okc::Params)",
+                "us": 155.3,
+                "calls": 1
+              }
+            ],
+            "attention": [
+              {
+                "name": "void (anonymous namespace)::attn_kernel<8, false, 3>((ano...",
+                "us": 11.8,
+                "calls": 1
+              }
+            ],
+            "dense": [
+              {
+                "name": "nvjet_sm90_tst_128x64_64x8_1x2_h_bz_NNT",
+                "us": 28.5,
+                "calls": 2
+              },
+              {
+                "name": "nvjet_sm90_tss_80x64_64x11_4x2_h_bz_coopB_TNN",
+                "us": 25.4,
+                "calls": 1
+              },
+              {
+                "name": "nvjet_sm90_tst_48x64_64x15_1x2_h_bz_TNN",
+                "us": 16.9,
+                "calls": 1
+              }
+            ],
+            "other_visible": [
+              {
+                "name": "_graft_row_boundary",
+                "us": 9.7,
+                "calls": 2
+              },
+              {
+                "name": "_graft_route",
+                "us": 2.8,
+                "calls": 1
+              }
+            ]
+          },
+          "total": 250.5,
+          "has_omissions": false
+        },
+        "baseline": {
+          "sums": {
+            "moe": 359.4,
+            "attention": 19.1,
+            "dense": 84.7,
+            "other_visible": 16.1,
+            "unlisted": 34.7
+          },
+          "rows": {
+            "moe": [
+              {
+                "name": "void sglang::device::marlin_moe::Marlin<__nv_bfloat16, 56...",
+                "us": 353.6,
+                "calls": 2
+              },
+              {
+                "name": "_post_expert_norm_weighted_sum_kernel",
+                "us": 5.8,
+                "calls": 1
+              }
+            ],
+            "attention": [
+              {
+                "name": "void cutlass::device_kernel<flash::enable_sm90_or_later<f...",
+                "us": 14.5,
+                "calls": 1
+              },
+              {
+                "name": "void cutlass::device_kernel<flash::FlashAttnFwdCombine<cu...",
+                "us": 4.6,
+                "calls": 1
+              }
+            ],
+            "dense": [
+              {
+                "name": "nvjet_sm90_tst_128x64_64x8_1x2_h_bz_TNT",
+                "us": 28.3,
+                "calls": 2
+              },
+              {
+                "name": "nvjet_sm90_tst_64x64_64x13_2x1_v_bz_TNT",
+                "us": 27.0,
+                "calls": 1
+              },
+              {
+                "name": "nvjet_sm90_tst_96x64_64x10_4x2_h_bz_splitK_TNN",
+                "us": 14.7,
+                "calls": 1
+              },
+              {
+                "name": "nvjet_sm90_tss_64x32_64x16_2x4_h_bz_splitK_NNT",
+                "us": 10.7,
+                "calls": 2
+              },
+              {
+                "name": "void cublasLt::splitKreduce_kernel<32, 16, int, float, fl...",
+                "us": 4.0,
+                "calls": 2
+              }
+            ],
+            "other_visible": [
+              {
+                "name": "void at::native::(anonymous namespace)::vectorized_layer_...",
+                "us": 6.1,
+                "calls": 1
+              },
+              {
+                "name": "void sglang::muse_spark_norm_residual_kernel<8192l, 256, ...",
+                "us": 5.0,
+                "calls": 1
+              },
+              {
+                "name": "void sglang::muse_spark_norm_residual_kernel<8192l, 256, ...",
+                "us": 5.0,
+                "calls": 1
+              }
+            ]
+          },
+          "total": 514.0,
+          "has_omissions": true
+        }
+      },
+      {
+        "case": {
+          "batch": 16,
+          "ctx": 80000,
+          "dist": "soft",
+          "layer": "full",
+          "load": "verify 16",
+          "page": 1,
+          "q_len": 8,
+          "seed": 2594897690527621414,
+          "spread": "agentic",
+          "weight": 16
+        },
+        "candidate": {
+          "sums": {
+            "moe": 178.1,
+            "attention": 104.1,
+            "dense": 70.3,
+            "other_visible": 12.2,
+            "unlisted": 0.1
+          },
+          "rows": {
+            "moe": [
+              {
+                "name": "void okc::moe_fused<true>(okc::Params)",
+                "us": 178.1,
+                "calls": 1
+              }
+            ],
+            "attention": [
+              {
+                "name": "void (anonymous namespace)::attn_kernel<8, true, 0>((anon...",
+                "us": 104.1,
+                "calls": 1
+              }
+            ],
+            "dense": [
+              {
+                "name": "nvjet_sm90_tst_128x64_64x8_1x2_h_bz_NNT",
+                "us": 28.6,
+                "calls": 2
+              },
+              {
+                "name": "nvjet_sm90_tss_80x64_64x11_4x2_h_bz_coopB_TNN",
+                "us": 24.9,
+                "calls": 1
+              },
+              {
+                "name": "nvjet_sm90_tst_48x64_64x15_1x2_h_bz_TNN",
+                "us": 16.8,
+                "calls": 1
+              }
+            ],
+            "other_visible": [
+              {
+                "name": "_graft_row_boundary",
+                "us": 9.4,
+                "calls": 2
+              },
+              {
+                "name": "_graft_route",
+                "us": 2.8,
+                "calls": 1
+              }
+            ]
+          },
+          "total": 364.8,
+          "has_omissions": false
+        },
+        "baseline": {
+          "sums": {
+            "moe": 377.9,
+            "attention": 191.4,
+            "dense": 84.2,
+            "other_visible": 15.0,
+            "unlisted": 36.3
+          },
+          "rows": {
+            "moe": [
+              {
+                "name": "void sglang::device::marlin_moe::Marlin<__nv_bfloat16, 56...",
+                "us": 368.8,
+                "calls": 2
+              },
+              {
+                "name": "_post_expert_norm_weighted_sum_kernel",
+                "us": 5.2,
+                "calls": 1
+              },
+              {
+                "name": "void sglang::act_and_mul_kernel<__nv_bfloat16, (sglang::A...",
+                "us": 3.9,
+                "calls": 1
+              }
+            ],
+            "attention": [
+              {
+                "name": "void cutlass::device_kernel<flash::enable_sm90_or_later<f...",
+                "us": 191.4,
+                "calls": 1
+              }
+            ],
+            "dense": [
+              {
+                "name": "nvjet_sm90_tst_128x64_64x8_1x2_h_bz_TNT",
+                "us": 28.9,
+                "calls": 2
+              },
+              {
+                "name": "nvjet_sm90_tst_64x64_64x13_2x1_v_bz_TNT",
+                "us": 25.7,
+                "calls": 1
+              },
+              {
+                "name": "nvjet_sm90_tst_96x64_64x10_4x2_h_bz_splitK_TNN",
+                "us": 15.1,
+                "calls": 1
+              },
+              {
+                "name": "nvjet_sm90_tss_64x32_64x16_2x4_h_bz_splitK_NNT",
+                "us": 10.6,
+                "calls": 2
+              },
+              {
+                "name": "void cublasLt::splitKreduce_kernel<32, 16, int, float, fl...",
+                "us": 3.9,
+                "calls": 2
+              }
+            ],
+            "other_visible": [
+              {
+                "name": "void at::native::(anonymous namespace)::vectorized_layer_...",
+                "us": 5.8,
+                "calls": 1
+              },
+              {
+                "name": "void sglang::muse_spark_norm_residual_kernel<8192l, 256, ...",
+                "us": 4.8,
+                "calls": 1
+              },
+              {
+                "name": "void sglang::muse_spark_norm_residual_kernel<8192l, 256, ...",
+                "us": 4.4,
+                "calls": 1
+              }
+            ]
+          },
+          "total": 704.8,
+          "has_omissions": true
+        }
+      },
+      {
+        "case": {
+          "batch": 32,
+          "ctx": 80000,
+          "dist": "soft",
+          "layer": "sliding",
+          "load": "verify 32",
+          "page": 1,
+          "q_len": 8,
+          "seed": 2594984535284978361,
+          "spread": "agentic",
+          "weight": 46
+        },
+        "candidate": {
+          "sums": {
+            "moe": 204.8,
+            "attention": 15.4,
+            "dense": 86.9,
+            "other_visible": 17.2,
+            "unlisted": 0.0
+          },
+          "rows": {
+            "moe": [
+              {
+                "name": "void okc::moe_fused<true>(okc::Params)",
+                "us": 204.8,
+                "calls": 1
+              }
+            ],
+            "attention": [
+              {
+                "name": "void (anonymous namespace)::attn_kernel<8, false, 3>((ano...",
+                "us": 15.4,
+                "calls": 1
+              }
+            ],
+            "dense": [
+              {
+                "name": "nvjet_sm90_tss_144x64_64x8_1x1_v_bz_TNN",
+                "us": 31.5,
+                "calls": 1
+              },
+              {
+                "name": "nvjet_sm90_tst_128x128_64x6_1x2_h_bz_coopA_NNT",
+                "us": 25.6,
+                "calls": 1
+              },
+              {
+                "name": "nvjet_sm90_tst_72x64_64x12_1x1_v_bz_TNN",
+                "us": 20.7,
+                "calls": 1
+              },
+              {
+                "name": "nvjet_sm90_tst_128x128_64x6_1x2_h_bz_coopA_NNN",
+                "us": 9.1,
+                "calls": 1
+              }
+            ],
+            "other_visible": [
+              {
+                "name": "_graft_row_boundary",
+                "us": 13.6,
+                "calls": 2
+              },
+              {
+                "name": "_graft_route",
+                "us": 3.6,
+                "calls": 1
+              }
+            ]
+          },
+          "total": 324.3,
+          "has_omissions": false
+        },
+        "baseline": {
+          "sums": {
+            "moe": 524.4,
+            "attention": 24.4,
+            "dense": 101.1,
+            "other_visible": 22.0,
+            "unlisted": 33.1
+          },
+          "rows": {
+            "moe": [
+              {
+                "name": "void sglang::device::marlin_moe::Marlin<__nv_bfloat16, 56...",
+                "us": 513.0,
+                "calls": 2
+              },
+              {
+                "name": "void sglang::act_and_mul_kernel<__nv_bfloat16, (sglang::A...",
+                "us": 5.8,
+                "calls": 1
+              },
+              {
+                "name": "_post_expert_norm_weighted_sum_kernel",
+                "us": 5.6,
+                "calls": 1
+              }
+            ],
+            "attention": [
+              {
+                "name": "void cutlass::device_kernel<flash::enable_sm90_or_later<f...",
+                "us": 20.1,
+                "calls": 1
+              },
+              {
+                "name": "void cutlass::device_kernel<flash::FlashAttnFwdCombine<cu...",
+                "us": 4.3,
+                "calls": 1
+              }
+            ],
+            "dense": [
+              {
+                "name": "nvjet_sm90_tst_128x128_64x6_2x1_v_bz_TNT",
+                "us": 34.5,
+                "calls": 2
+              },
+              {
+                "name": "nvjet_sm90_tst_128x64_64x8_1x2_h_bz_TNT",
+                "us": 31.0,
+                "calls": 1
+              },
+              {
+                "name": "nvjet_sm90_tst_96x64_64x10_2x4_h_bz_TNN",
+                "us": 22.4,
+                "calls": 1
+              },
+              {
+                "name": "nvjet_sm90_tss_64x32_64x16_1x2_h_bz_splitK_NNT",
+                "us": 13.2,
+                "calls": 2
+              }
+            ],
+            "other_visible": [
+              {
+                "name": "void sglang::muse_spark_norm_residual_kernel<8192l, 512, ...",
+                "us": 8.6,
+                "calls": 1
+              },
+              {
+                "name": "void sglang::muse_spark_norm_residual_kernel<8192l, 512, ...",
+                "us": 7.5,
+                "calls": 1
+              },
+              {
+                "name": "void at::native::(anonymous namespace)::vectorized_layer_...",
+                "us": 5.9,
+                "calls": 1
+              }
+            ]
+          },
+          "total": 705.0,
+          "has_omissions": true
+        }
+      },
+      {
+        "case": {
+          "batch": 32,
+          "ctx": 80000,
+          "dist": "soft",
+          "layer": "full",
+          "load": "verify 32",
+          "page": 1,
+          "q_len": 8,
+          "seed": 2595071380042335309,
+          "spread": "agentic",
+          "weight": 16
+        },
+        "candidate": {
+          "sums": {
+            "moe": 203.3,
+            "attention": 186.2,
+            "dense": 86.7,
+            "other_visible": 17.0,
+            "unlisted": 0.1
+          },
+          "rows": {
+            "moe": [
+              {
+                "name": "void okc::moe_fused<true>(okc::Params)",
+                "us": 203.3,
+                "calls": 1
+              }
+            ],
+            "attention": [
+              {
+                "name": "void (anonymous namespace)::attn_kernel<8, true, 0>((anon...",
+                "us": 186.2,
+                "calls": 1
+              }
+            ],
+            "dense": [
+              {
+                "name": "nvjet_sm90_tss_144x64_64x8_1x1_v_bz_TNN",
+                "us": 31.8,
+                "calls": 1
+              },
+              {
+                "name": "nvjet_sm90_tst_128x128_64x6_1x2_h_bz_coopA_NNT",
+                "us": 25.4,
+                "calls": 1
+              },
+              {
+                "name": "nvjet_sm90_tst_72x64_64x12_1x1_v_bz_TNN",
+                "us": 20.5,
+                "calls": 1
+              },
+              {
+                "name": "nvjet_sm90_tst_128x128_64x6_1x2_h_bz_coopA_NNN",
+                "us": 9.0,
+                "calls": 1
+              }
+            ],
+            "other_visible": [
+              {
+                "name": "_graft_row_boundary",
+                "us": 13.4,
+                "calls": 2
+              },
+              {
+                "name": "_graft_route",
+                "us": 3.6,
+                "calls": 1
+              }
+            ]
+          },
+          "total": 493.3,
+          "has_omissions": false
+        },
+        "baseline": {
+          "sums": {
+            "moe": 540.9,
+            "attention": 368.4,
+            "dense": 140.3,
+            "other_visible": 22.0,
+            "unlisted": 34.8
+          },
+          "rows": {
+            "moe": [
+              {
+                "name": "void sglang::device::marlin_moe::Marlin<__nv_bfloat16, 56...",
+                "us": 529.5,
+                "calls": 2
+              },
+              {
+                "name": "void sglang::act_and_mul_kernel<__nv_bfloat16, (sglang::A...",
+                "us": 5.8,
+                "calls": 1
+              },
+              {
+                "name": "_post_expert_norm_weighted_sum_kernel",
+                "us": 5.6,
+                "calls": 1
+              }
+            ],
+            "attention": [
+              {
+                "name": "void cutlass::device_kernel<flash::enable_sm90_or_later<f...",
+                "us": 368.4,
+                "calls": 1
+              }
+            ],
+            "dense": [
+              {
+                "name": "nvjet_sm90_tst_128x64_64x8_1x2_h_bz_TNT",
+                "us": 38.5,
+                "calls": 1
+              },
+              {
+                "name": "nvjet_sm90_tst_128x128_64x6_2x1_v_bz_TNT",
+                "us": 34.2,
+                "calls": 2
+              },
+              {
+                "name": "nvjet_sm90_tss_64x32_64x16_1x2_h_bz_splitK_NNT",
+                "us": 25.2,
+                "calls": 2
+              },
+              {
+                "name": "nvjet_sm90_tst_96x64_64x10_2x4_h_bz_TNN",
+                "us": 23.6,
+                "calls": 1
+              },
+              {
+                "name": "void cublasLt::splitKreduce_kernel<32, 16, int, float, fl...",
+                "us": 18.8,
+                "calls": 2
+              }
+            ],
+            "other_visible": [
+              {
+                "name": "void sglang::muse_spark_norm_residual_kernel<8192l, 512, ...",
+                "us": 8.5,
+                "calls": 1
+              },
+              {
+                "name": "void sglang::muse_spark_norm_residual_kernel<8192l, 512, ...",
+                "us": 7.5,
+                "calls": 1
+              },
+              {
+                "name": "void at::native::(anonymous namespace)::vectorized_layer_...",
+                "us": 6.0,
+                "calls": 1
+              }
+            ]
+          },
+          "total": 1106.4,
+          "has_omissions": true
+        }
+      }
+    ]
+  }
 }
 </script>
 <script>
@@ -642,6 +2442,23 @@ function update(){
  byId('cell-base').textContent=cell.baseline_us.toFixed(3)+' µs';
  byId('cell-own').textContent=cell.incumbent_us.toFixed(3)+' µs';
  byId('cell-runs').textContent=cell.repeats+' timing repeats';
+ const profile=data.profile_comparison.rows.find(r=>r.case.layer===context&&r.case.batch*(r.case.q_len||1)===tokens);
+ byId('profile-selection').textContent=tokens+' tokens · '+context+' · in-layer profile comparison';
+ byId('profile-workload').textContent=tokens+' tokens · '+context;
+ const names={dense:'Dense kernels across the layer',attention:'Attention',moe:'Experts'};
+ let biggest={key:'',drop:-Infinity};
+ byId('profile-groups').innerHTML=['dense','attention','moe'].map(key=>{
+  const baseline=profile.baseline.sums[key],candidate=profile.candidate.sums[key],ratio=baseline/candidate,drop=baseline-candidate;
+  byId(key+'-speedup').textContent='≥'+ratio.toFixed(2)+'×';
+  byId(key+'-times').textContent='≥'+baseline.toFixed(1)+' → '+candidate.toFixed(1)+' µs';
+  if(drop>biggest.drop)biggest={key,drop};
+  return '<tr><td>'+names[key]+'</td><td>≥'+baseline.toFixed(1)+'</td><td>'+candidate.toFixed(1)+'</td><td>≥'+ratio.toFixed(2)+'×</td><td>≥'+drop.toFixed(1)+'</td></tr>';
+ }).join('');
+ byId('profile-pattern').textContent='At '+tokens+' tokens with '+context+' attention, the largest reported activity reduction is at least '+biggest.drop.toFixed(1)+' µs in '+names[biggest.key].toLowerCase()+'. This is a profile observation across separate runs.';
+ byId('profile-omissions').textContent='The SGLang archive omits '+profile.baseline.sums.unlisted.toFixed(1)+' µs of smaller kernel rows for this workload. Other listed glue/normalization rows sum to '+profile.baseline.sums.other_visible.toFixed(1)+' µs in SGLang and '+profile.candidate.sums.other_visible.toFixed(1)+' µs in G1b4. Printed values are rounded to 0.1 µs.';
+ const escape=text=>text.replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+ byId('profile-kernels').innerHTML=['baseline','candidate'].flatMap(side=>Object.entries(profile[side].rows).flatMap(([group,rows])=>rows.map(row=>'<tr><td>'+(side==='baseline'?'SGLang 7d42771c':'G1b4 607eb52b')+'</td><td>'+(names[group]||'Other listed')+'</td><td>'+escape(row.name)+'</td><td>'+row.us.toFixed(1)+'</td><td>'+row.calls+'</td></tr>'))).join('');
+
  let found=false;
  document.querySelectorAll('.route').forEach(route=>{const active=!found&&tokens<=Number(route.dataset.max);route.classList.toggle('active',active);if(active)found=true;});
 }
