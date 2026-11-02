@@ -1,0 +1,219 @@
+{
+  "captured_utc": "2026-11-02T10:35:07.810Z",
+  "codex": {
+    "release": "rust-v0.166.0",
+    "tag_object": "593389380740f7b4762771573c447ccfdc59742f",
+    "commit": "6ff1e1ca3b30fc8b914720681fcf5fe62e95f856",
+    "note": "Public release source version matches installed CLI version; binary not rebuilt or source-attested."
+  },
+  "t3": {
+    "bundle": {
+      "name": "binCli-C12fvdZY.mjs",
+      "bytes": 14696322,
+      "sha256": "472d7e2d82900ae9da669da1dfd9cd4b7075f61e6e6ac9bda9d6dd9644550d25"
+    },
+    "excerpts": [
+      {
+        "marker": "CodexAdapterV2.toCodexInput",
+        "start_line": 230200,
+        "source": "\t\t\tconst toCodexInput = fn(\"CodexAdapterV2.toCodexInput\")(function* (turnInput) {\n\t\t\t\tconst inputItems = [];\n\t\t\t\tconst text = yield* providerMessageTextWithAttachmentPaths({\n\t\t\t\t\ttext: codexSkillMentionText(turnInput.message.text),\n\t\t\t\t\tattachments: turnInput.message.attachments,\n\t\t\t\t\tresolveExtractedTextPath: (path) => resolveExtractedTextPath(path).pipe(provideService(FileSystem, fileSystem)),\n\t\t\t\t\tresolveAttachmentPath: (attachment) => resolveAttachmentPath({\n\t\t\t\t\t\tattachmentsDir: serverConfig.attachmentsDir,\n\t\t\t\t\t\tattachment\n\t\t\t\t\t})\n\t\t\t\t});\n\t\t\t\tif (text.length > 0) inputItems.push({\n\t\t\t\t\ttype: \"text\",\n\t\t\t\t\ttext\n\t\t\t\t});\n\t\t\t\tconst attachmentItems = yield* forEach(turnInput.message.attachments.filter(isProviderNativeImageAttachment), resolveCodexAttachment, { concurrency: 1 });\n\t\t\t\tinputItems.push(...attachmentItems);\n\t\t\t\tif (inputItems.length === 0) return yield* toProtocolError(\"Turn requires non-empty text or attachments.\");\n\t\t\t\treturn inputItems;\n\t\t\t});"
+      },
+      {
+        "marker": "CodexAdapterV2.buildCodexTurnStartParams",
+        "start_line": 228665,
+        "source": "const buildCodexTurnStartParams = fn(\"CodexAdapterV2.buildCodexTurnStartParams\")(function* (input) {\n\tconst runtimeModeDefaults = codexRuntimeModeTurnDefaults(input.runtimePolicy.runtimeMode);\n\tconst approvalPolicy = input.runtimePolicy.approvalPolicy === void 0 ? runtimeModeDefaults.approvalPolicy : yield* decodeTurnApprovalPolicy(input.runtimePolicy.approvalPolicy);\n\tconst sandboxPolicy = input.runtimePolicy.sandboxPolicy === void 0 ? runtimeModeDefaults.sandboxPolicy : yield* decodeTurnSandboxPolicy(input.runtimePolicy.sandboxPolicy);\n\tconst selectedEffort = getModelSelectionStringOptionValue(input.modelSelection, \"reasoningEffort\") ?? codexDefaultReasoningEffortOverride(input.modelSelection.model);\n\tconst effort = selectedEffort === void 0 ? void 0 : yield* decodeTurnReasoningEffort(selectedEffort);\n\tconst serviceTier = input.omitServiceTier === true ? void 0 : getCodexServiceTierOptionValue(input.modelSelection);\n\tconst appContext = Object.fromEntries((input.appContext ?? []).map((entry) => [entry.key, {\n\t\tkind: \"untrusted\",\n\t\tvalue: entry.text\n\t}]));\n\tconst t3Context = input.hasT3Mcp === true ? buildCodexAdditionalContext({\n\t\tmodel: input.modelSelection.model,\n\t\treasoningEffort: effort ?? void 0\n\t}, {\n\t\tbrowser: input.browserToolsAvailable ?? true,\n\t\tdevice: input.deviceToolsAvailable ?? false\n\t}) : void 0;\n\tconst additionalContext = t3Context === void 0 && Object.keys(appContext).length === 0 ? void 0 : {\n\t\t...t3Context,\n\t\t...appContext\n\t};\n\treturn yield* decodeCodexTurnStartParamsWithCollaborationMode({\n\t\tthreadId: input.nativeThreadId,\n\t\tinput: input.codexInput,\n\t\t...additionalContext ? { additionalContext } : {},\n\t\tcwd: input.runtimePolicy.cwd,\n\t\tmodel: input.modelSelection.model,\n\t\tsummary: \"detailed\",\n\t\tapprovalsReviewer: runtimeModeDefaults.approvalsReviewer,\n\t\t...approvalPolicy === void 0 ? {} : { approvalPolicy },\n\t\t...sandboxPolicy === void 0 ? {} : { sandboxPolicy },\n\t\t...effort === void 0 ? {} : { effort },\n\t\t...serviceTier === void 0 ? {} : { serviceTier },\n\t\tcollaborationMode: {\n\t\t\tmode: input.runtimePolicy.interactionMode,\n\t\t\tsettings: {\n\t\t\t\tmodel: input.modelSelection.model,\n\t\t\t\t...effort === void 0 ? {} : { reasoning_effort: effort }\n\t\t\t}\n\t\t}\n\t});\n});"
+      },
+      {
+        "marker": "client.request(\"turn/start\", turnStartParams)",
+        "start_line": 232697,
+        "source": "\t\t\t\tconst started = yield* client.request(\"turn/start\", turnStartParams);\n\t\t\t\tconst previousTurn = previousTurns.get(started.turn.id) ?? (yield* get$7(activeTurns)).get(started.turn.id);\n\t\t\t\tif (previousTurn !== void 0 && previousTurn.input.attemptId !== turnInput.attemptId) return yield* new ProviderAdapterProtocolError({\n\t\t\t\t\tdriver: CODEX_PROVIDER,\n\t\t\t\t\tdetail: \"Codex returned a turn belonging to an earlier run. Stop the existing turn before retrying this message.\""
+      },
+      {
+        "marker": "const managedCodexLaunchArgs =",
+        "start_line": 237723,
+        "source": "const managedCodexLaunchArgs = (command, args) => [\n\t\"model_provider=\\\"openai_token_sharing\\\"\",\n\t`model_providers.openai_token_sharing={name=\"OpenAI Token Sharing\",base_url=\"https://api.openai.com/v1\",model_catalog_url=\"https://api.openai.com/v1/models\",wire_api=\"responses\",requires_openai_auth=false,supports_websockets=false,auth={command=${JSON.stringify(command)},args=${JSON.stringify(args)},timeout_ms=${COMMAND_TIMEOUT_MS},refresh_interval_ms=0}}`,\n\t\"features.api_key_model_discovery=true\",\n\t\"features.multi_agent=false\",\n\t\"features.multi_agent_v2=false\"\n].map((value) => `-c ${JSON.stringify(value)}`).join(\" \");"
+      }
+    ],
+    "actual_rpc": [
+      {
+        "line": 374,
+        "timestamp": "2026-11-02T09:54:44.348Z",
+        "method": "thread/start",
+        "param_keys": [
+          "config",
+          "cwd",
+          "model"
+        ],
+        "params": {
+          "model": "gpt-6.1-sol",
+          "cwd": "C:\\Users\\gretc\\Documents\\GitHub\\okc"
+        },
+        "config_keys": [
+          "tools.update_plan.enabled",
+          "mcp_optional_startup_grace_ms",
+          "mcp_servers.t3-code"
+        ],
+        "config_allowlisted": {},
+        "result": {
+          "model": "gpt-6.1-sol",
+          "modelProvider": "openai_token_sharing",
+          "reasoningEffort": "low"
+        }
+      },
+      {
+        "line": 384,
+        "timestamp": "2026-11-02T09:54:44.862Z",
+        "method": "turn/start",
+        "param_keys": [
+          "truncated",
+          "threadId"
+        ],
+        "params": {
+          "threadId": "01a19bae-c402-79c3-a27f-baff9e5fd2ac"
+        },
+        "additional_context_keys": []
+      }
+    ]
+  },
+  "original_worker_item": {
+    "timestamp": "2026-11-02T09:55:48.902Z",
+    "type": "agent_message",
+    "keys": [
+      "type",
+      "id",
+      "author",
+      "recipient",
+      "content",
+      "internal_chat_message_metadata_passthrough"
+    ],
+    "author": "/root",
+    "recipient": "/root/diagnostic_crosscheck",
+    "content": [
+      {
+        "type": "input_text",
+        "characters": 85
+      },
+      {
+        "type": "encrypted_content",
+        "characters": 524
+      }
+    ],
+    "content_omitted": true
+  },
+  "sources": [
+    {
+      "path": "codex-rs/core/src/config/mod.rs",
+      "url": "https://raw.githubusercontent.com/openai/codex/6ff1e1ca3b30fc8b914720681fcf5fe62e95f856/codex-rs/core/src/config/mod.rs",
+      "sha256": "e027e9fb2e4cd101abdb3984768eef07d1d0ac7c8aa631989011cd17bda0c6df",
+      "start_line": 1687,
+      "end_line": 1714,
+      "source": "    pub(crate) fn multi_agent_version_override(&self) -> Option<MultiAgentVersion> {\n        if self.features.enabled(Feature::MultiAgentV2) {\n            Some(MultiAgentVersion::V2)\n        } else if !self.agents_enabled {\n            Some(MultiAgentVersion::Disabled)\n        } else {\n            None\n        }\n    }\n\n    pub(crate) fn multi_agent_version_from_features(&self) -> MultiAgentVersion {\n        self.multi_agent_version_override().unwrap_or_else(|| {\n            if self.features.enabled(Feature::Collab) {\n                MultiAgentVersion::V1\n            } else {\n                MultiAgentVersion::Disabled\n            }\n        })\n    }\n\n    pub(crate) fn multi_agent_version_for_model(\n        &self,\n        model_multi_agent_version: Option<MultiAgentVersion>,\n    ) -> MultiAgentVersion {\n        self.multi_agent_version_override()\n            .or(model_multi_agent_version)\n            .unwrap_or_else(|| self.multi_agent_version_from_features())\n    }"
+    },
+    {
+      "path": "codex-rs/core/src/config/mod.rs",
+      "url": "https://raw.githubusercontent.com/openai/codex/6ff1e1ca3b30fc8b914720681fcf5fe62e95f856/codex-rs/core/src/config/mod.rs",
+      "sha256": "e027e9fb2e4cd101abdb3984768eef07d1d0ac7c8aa631989011cd17bda0c6df",
+      "start_line": 4106,
+      "end_line": 4110,
+      "source": "        let agents_enabled = cfg\n            .agents\n            .as_ref()\n            .and_then(|agents| agents.enabled)\n            .unwrap_or(true);"
+    },
+    {
+      "path": "codex-rs/protocol/src/models.rs",
+      "url": "https://raw.githubusercontent.com/openai/codex/6ff1e1ca3b30fc8b914720681fcf5fe62e95f856/codex-rs/protocol/src/models.rs",
+      "sha256": "753498bc730ba21ded710d9aa2b2f9163e6bbe4eaa18f1c25d998c36138a54f7",
+      "start_line": 937,
+      "end_line": 942,
+      "source": "#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, JsonSchema, TS)]\n#[serde(tag = \"type\", rename_all = \"snake_case\")]\npub enum AgentMessageInputContent {\n    InputText { text: String },\n    EncryptedContent { encrypted_content: String },\n}"
+    },
+    {
+      "path": "codex-rs/protocol/src/models.rs",
+      "url": "https://raw.githubusercontent.com/openai/codex/6ff1e1ca3b30fc8b914720681fcf5fe62e95f856/codex-rs/protocol/src/models.rs",
+      "sha256": "753498bc730ba21ded710d9aa2b2f9163e6bbe4eaa18f1c25d998c36138a54f7",
+      "start_line": 1050,
+      "end_line": 1052,
+      "source": "#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, JsonSchema, TS)]\n#[serde(tag = \"type\", rename_all = \"snake_case\")]\npub enum ResponseItem {"
+    },
+    {
+      "path": "codex-rs/protocol/src/models.rs",
+      "url": "https://raw.githubusercontent.com/openai/codex/6ff1e1ca3b30fc8b914720681fcf5fe62e95f856/codex-rs/protocol/src/models.rs",
+      "sha256": "753498bc730ba21ded710d9aa2b2f9163e6bbe4eaa18f1c25d998c36138a54f7",
+      "start_line": 1084,
+      "end_line": 1094,
+      "source": "    AgentMessage {\n        #[serde(default, skip_serializing_if = \"Option::is_none\")]\n        #[ts(optional)]\n        id: Option<ResponseItemId>,\n        author: String,\n        recipient: String,\n        content: Vec<AgentMessageInputContent>,\n        #[serde(default, skip_serializing_if = \"Option::is_none\")]\n        #[ts(optional)]\n        internal_chat_message_metadata_passthrough: Option<InternalChatMessageMetadataPassthrough>,\n    },"
+    },
+    {
+      "path": "codex-rs/core/src/client_common.rs",
+      "url": "https://raw.githubusercontent.com/openai/codex/6ff1e1ca3b30fc8b914720681fcf5fe62e95f856/codex-rs/core/src/client_common.rs",
+      "sha256": "43a540ecd99856644ec01c57708838779b118c3b583e218c9ef307e0dcefcb4b",
+      "start_line": 58,
+      "end_line": 66,
+      "source": "impl Prompt {\n    pub(crate) fn get_formatted_input_for_request(\n        &self,\n        model_info: &ModelInfo,\n    ) -> Vec<ResponseItem> {\n        let mut input = self.input.clone();\n        normalize_image_details(&mut input, model_info);\n        input\n    }"
+    },
+    {
+      "path": "codex-rs/core/src/client_common.rs",
+      "url": "https://raw.githubusercontent.com/openai/codex/6ff1e1ca3b30fc8b914720681fcf5fe62e95f856/codex-rs/core/src/client_common.rs",
+      "sha256": "43a540ecd99856644ec01c57708838779b118c3b583e218c9ef307e0dcefcb4b",
+      "start_line": 91,
+      "end_line": 105,
+      "source": "            ResponseItem::AdditionalTools { .. }\n            | ResponseItem::Reasoning { .. }\n            | ResponseItem::AgentMessage { .. }\n            | ResponseItem::LocalShellCall { .. }\n            | ResponseItem::FunctionCall { .. }\n            | ResponseItem::ToolSearchCall { .. }\n            | ResponseItem::CustomToolCall { .. }\n            | ResponseItem::ToolSearchOutput { .. }\n            | ResponseItem::WebSearchCall { .. }\n            | ResponseItem::ImageGenerationCall { .. }\n            | ResponseItem::Compaction { .. }\n            | ResponseItem::ConfigurationUpdate { .. }\n            | ResponseItem::CompactionTrigger { .. }\n            | ResponseItem::ContextCompaction { .. }\n            | ResponseItem::Other => {}"
+    },
+    {
+      "path": "codex-rs/core/src/client.rs",
+      "url": "https://raw.githubusercontent.com/openai/codex/6ff1e1ca3b30fc8b914720681fcf5fe62e95f856/codex-rs/core/src/client.rs",
+      "sha256": "6a2e95e2b7014c480f5c543b95f112d79c23551c281050cffaad85d32a9847db",
+      "start_line": 1031,
+      "end_line": 1036,
+      "source": "        let mut input = prompt.get_formatted_input_for_request(model_info);\n        if !self.reasoning_effort_override_enabled(model_info) {\n            // Unsupported models and disabled overrides must also accept saved history.\n            // Filter only the request copy; persisted history remains unchanged.\n            input.retain(|item| !matches!(item, ResponseItem::ConfigurationUpdate { .. }));\n        } else {"
+    },
+    {
+      "path": "codex-rs/core/src/client.rs",
+      "url": "https://raw.githubusercontent.com/openai/codex/6ff1e1ca3b30fc8b914720681fcf5fe62e95f856/codex-rs/core/src/client.rs",
+      "sha256": "6a2e95e2b7014c480f5c543b95f112d79c23551c281050cffaad85d32a9847db",
+      "start_line": 1154,
+      "end_line": 1163,
+      "source": "        let request = ResponsesApiRequest {\n            model: model_info.slug.clone(),\n            input,\n            tools,\n            tool_choice: \"auto\".to_string(),\n            parallel_tool_calls: prompt.parallel_tool_calls && !model_info.use_responses_lite,\n            reasoning: Some(reasoning),\n            store: false,\n            stream: true,\n            stream_options,"
+    },
+    {
+      "path": "codex-rs/codex-api/src/common.rs",
+      "url": "https://raw.githubusercontent.com/openai/codex/6ff1e1ca3b30fc8b914720681fcf5fe62e95f856/codex-rs/codex-api/src/common.rs",
+      "sha256": "d761418f9fe1fa4b5397f291fd6f8f041a8b9cf5800c134c665fe9bc5bed1e85",
+      "start_line": 280,
+      "end_line": 294,
+      "source": "#[derive(Debug, Serialize, Clone, PartialEq)]\npub struct ResponsesApiRequest {\n    // Keep routing fields first: serde serializes struct fields in declaration order, and\n    // gateways may inspect request bodies incrementally before potentially multi-megabyte input.\n    pub model: String,\n    pub stream: bool,\n    #[serde(skip_serializing_if = \"Option::is_none\")]\n    pub service_tier: Option<String>,\n    pub input: Vec<ResponseItem>,\n    #[serde(skip_serializing_if = \"Option::is_none\")]\n    pub tools: Option<ResponsesApiTools>,\n    pub tool_choice: String,\n    pub parallel_tool_calls: bool,\n    pub reasoning: Option<Reasoning>,\n    pub store: bool,"
+    },
+    {
+      "path": "codex-rs/codex-api/src/endpoint/responses.rs",
+      "url": "https://raw.githubusercontent.com/openai/codex/6ff1e1ca3b30fc8b914720681fcf5fe62e95f856/codex-rs/codex-api/src/endpoint/responses.rs",
+      "sha256": "4f2fff3da4ca3ca9fcfa40ada8e98a0229af296094e03febb4d823f32ef932c8",
+      "start_line": 70,
+      "end_line": 96,
+      "source": "    pub async fn stream_request(\n        &self,\n        request: ResponsesApiRequest,\n        options: ResponsesOptions,\n    ) -> Result<ResponseStream, ApiError> {\n        let ResponsesOptions {\n            session_id,\n            thread_id,\n            session_source,\n            extra_headers,\n            compression,\n            turn_state,\n        } = options;\n        let body = EncodedJsonBody::encode(&request)\n            .map_err(|e| ApiError::Stream(format!(\"failed to encode responses request: {e}\")))?;\n\n        let mut headers = extra_headers;\n        if let Some(ref thread_id) = thread_id {\n            insert_header(&mut headers, \"x-client-request-id\", thread_id);\n        }\n        headers.extend(build_session_headers(session_id, thread_id));\n        if let Some(subagent) = subagent_header(&session_source) {\n            insert_header(&mut headers, \"x-openai-subagent\", &subagent);\n        }\n\n        self.stream_encoded(body, headers, compression, turn_state)\n            .await"
+    },
+    {
+      "path": "codex-rs/codex-api/src/endpoint/responses.rs",
+      "url": "https://raw.githubusercontent.com/openai/codex/6ff1e1ca3b30fc8b914720681fcf5fe62e95f856/codex-rs/codex-api/src/endpoint/responses.rs",
+      "sha256": "4f2fff3da4ca3ca9fcfa40ada8e98a0229af296094e03febb4d823f32ef932c8",
+      "start_line": 135,
+      "end_line": 149,
+      "source": "        let stream_response = self\n            .session\n            .stream_encoded_json_with(\n                Method::POST,\n                \"/responses\",\n                extra_headers,\n                Some(body),\n                |req| {\n                    req.headers.insert(\n                        http::header::ACCEPT,\n                        HeaderValue::from_static(\"text/event-stream\"),\n                    );\n                    req.compression = request_compression;\n                },\n            )"
+    },
+    {
+      "path": "codex-rs/core/src/client_tool_metadata.rs",
+      "url": "https://raw.githubusercontent.com/openai/codex/6ff1e1ca3b30fc8b914720681fcf5fe62e95f856/codex-rs/core/src/client_tool_metadata.rs",
+      "sha256": "5ab63fe329b14ccafab4c58bb7c62d7e12c80249c2d0e63220a50d37db748230",
+      "start_line": 12,
+      "end_line": 40,
+      "source": "pub(super) fn bounded_input<T: Serialize>(\n    message: &T,\n    input: &[ResponseItem],\n) -> Option<Vec<ResponseItem>> {\n    if !input.iter().any(|item| {\n        item.executed_tool_call_metadata().is_some_and(|metadata| {\n            metadata.executed_tool_calls.is_some()\n                || metadata.cell_id.is_some()\n                || metadata.tool_calls_complete.is_some()\n        })\n    }) {\n        return None;\n    }\n    // Serialization errors belong to the transport's existing error path, not this soft budget.\n    let message_bytes = serialized_json_bytes(message).ok()?;\n    if message_bytes <= MAX_RESPONSE_MESSAGE_BYTES {\n        return None;\n    }\n    let before = metadata_metrics::metadata_bytes(input);\n    let mut bounded = input.to_vec();\n    let overage = message_bytes - MAX_RESPONSE_MESSAGE_BYTES;\n    bound_executed_tool_calls_for_message(&mut bounded, before.saturating_sub(overage));\n    let after = metadata_metrics::metadata_bytes(&bounded);\n    if before == after {\n        return None;\n    }\n    metadata_metrics::record_shedding(\"message\", before, after, codex_otel::global().as_ref());\n    // Ordinary content alone can exceed the soft limit. Preserve it and existing error handling.\n    Some(bounded)"
+    }
+  ],
+  "trace_search": {
+    "environment_CODEX_ROLLOUT_TRACE_ROOT": "empty",
+    "inventory": "rg --files --hidden .codex for trace.jsonl, manifest.json and inference names; plugins/skills/vendor/node_modules excluded",
+    "result": "No trace bundle returned within inspected inventory; this is not proof of absence outside that scope."
+  },
+  "failed_preflight": {
+    "worker_resume": "Copied V2 worker refused before inference: resume parent first; only mock GET /v1/models recorded.",
+    "script_syntax": "Initial generated Python newline quoting failed at parse time; corrected before successful capture.",
+    "scope": "Neither failure spawned a native child or reached a real inference service."
+  }
+}
