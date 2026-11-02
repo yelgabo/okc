@@ -22,8 +22,10 @@
     },
     {
       "path": "docs/steering/evidence/2026-11-02-worker-pr-graph-owner-events/cpu-final-stderr.txt",
-      "bytes": 2897,
-      "sha256": "7597e1ad79714fdf6b94b3f07da49bb2de0f5ec42f6972e218dc133fcd6bb65b"
+      "bytes": 2873,
+      "sha256": "fd752df9b4fcf702d7fc36577ecc3649af1216bb2c8940661f215542e55a5571",
+      "physical_sha256": "7597e1ad79714fdf6b94b3f07da49bb2de0f5ec42f6972e218dc133fcd6bb65b",
+      "physical_bytes": 2897
     },
     {
       "path": "docs/steering/evidence/2026-11-02-worker-pr-graph-owner-events/cpu-final.txt",
@@ -65,5 +67,6 @@
       "bytes": 9309,
       "sha256": "e5c134c14df309a381d5e5157bf89ff20238198ffe623866ad9cec8604b70e22"
     }
-  ]
+  ],
+  "transport_note": "Hashes below describe canonical published Git blobs; Windows CPU stderr physical CRLF is separately retained as physical_sha256 when different. No treatment change."
 }
