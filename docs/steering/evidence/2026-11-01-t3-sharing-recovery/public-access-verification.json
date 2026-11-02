@@ -1,0 +1,83 @@
+{
+  "url": "https://gist.github.com/yelgabo/2b98e4c3d9f83835e856f4931478f92e",
+  "id": "2b98e4c3d9f83835e856f4931478f92e",
+  "public": true,
+  "revision": "e555639aea128fd076c3fbe4eb92c6480e9b5ed1",
+  "verified_utc": "2026-11-02T00:04:39.470520+00:00",
+  "authentication": "none; urllib with User-Agent only",
+  "page_status": 200,
+  "files": [
+    {
+      "name": "README.md",
+      "status": 200,
+      "sha256": "9b83c1a8247c0ffeb859aa74aea5e5405b513b96621c11b661227aa559f43f50"
+    },
+    {
+      "name": "after-focused-tests.txt",
+      "status": 200,
+      "sha256": "d14741d339e9d8b4f8a7bf94b9ba655a68b53f15b427bcb65526d868036df537"
+    },
+    {
+      "name": "after-selected-tests.txt",
+      "status": 200,
+      "sha256": "5d462aaea91d0c5b5d93907f7a075870b2830adba7889e29ca73bd754576f104"
+    },
+    {
+      "name": "before-tests.txt",
+      "status": 200,
+      "sha256": "8b87d8510bbbd17e038feb0dbb6bce2fececeeecb197130e57159b34f7fc2961"
+    },
+    {
+      "name": "dependent-typechecks.txt",
+      "status": 200,
+      "sha256": "aceb9e51164931cf3b45af5df7e1f3324c5432925fea5cdd39a63514e30ba3f4"
+    },
+    {
+      "name": "knip.txt",
+      "status": 200,
+      "sha256": "dc61c4e3dfe3d7de25763f35ca9b69c59d9c0535cfc1810b22998006e3578ee3"
+    },
+    {
+      "name": "original-runtime-flags.json",
+      "status": 200,
+      "sha256": "8ad929fec0aafd1816b52d79a09b6cac3d34f213216eddb481e9c4f806972738"
+    },
+    {
+      "name": "protocol-reproduction.json",
+      "status": 200,
+      "sha256": "66fe19d820fff5aef88ad1ed2a00324add0a523fec69ed62d6f8340033259757"
+    },
+    {
+      "name": "rollout-reproduction-structure.json",
+      "status": 200,
+      "sha256": "452196f4dc070564356453f24477b2ee9c1c841313bcd56fd30b918e281d8731"
+    },
+    {
+      "name": "runtime-check.py",
+      "status": 200,
+      "sha256": "4cb69db480bd782d21a19f46726c77b652d791a8dc468521915d8af8475b061e"
+    },
+    {
+      "name": "runtime.json",
+      "status": 200,
+      "sha256": "6ba7e1aa165329d5680c776a03594812a5c9d8b5a8e1d4318d1e619533f6f623"
+    },
+    {
+      "name": "typecheck.txt",
+      "status": 200,
+      "sha256": "76b44f66ffb95fded3008354f3fbf2be0184095df78b318f39f0a24a5a4f5b13"
+    },
+    {
+      "name": "validation.json",
+      "status": 200,
+      "sha256": "a48ca56d25321a04ed212d5f1e653f756eafcd7ba5fff86b68448521c018442b"
+    }
+  ],
+  "pr_verification": {
+    "url": "https://github.com/pingdotgg/t3code/pull/28962",
+    "anonymous_status": 200,
+    "gist_link_present": true,
+    "private_repo_links_remaining": false,
+    "updated_at": "2026-11-02T00:04:44Z"
+  }
+}
