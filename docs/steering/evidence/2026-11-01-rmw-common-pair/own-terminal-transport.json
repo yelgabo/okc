@@ -1,0 +1,11 @@
+{
+  "command": [
+    "/usr/local/bin/okc",
+    "status",
+    "16b4db27421d4714",
+    "--wait",
+    "--json"
+  ],
+  "exitcode": 1,
+  "stderr": ""
+}

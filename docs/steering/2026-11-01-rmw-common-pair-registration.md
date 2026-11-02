@@ -59,3 +59,8 @@ Fresh exact-ID status at **2026-11-02T01:52:35.294Z** still reports **queued**, 
 There is no terminal receipt or capsule to evaluate at this checkpoint. No new judge dispatch, retry, source/harness edit or quota claim has been made. The blocker is the accepted job remaining queued; queue time provides no evidence about the 295s preparation budget or RMW performance. Sole implementation/measurement ownership remains here. Captain independently checks rank drift and newly relevant top-100 sources while this wait runs; that research does not change this frozen experiment.
 
 Next gate remains terminal collection on this same own ID, then the frozen reader, owning profile/run archive and scoped promotion/setup decision. The source/reader pins and stopping rules above remain unchanged. README/index ownership remains with captain; this addendum is sent for inclusion in that concurrent index update.
+
+
+## Terminal supersession — November 2, 02:00:03 UTC
+
+Own private16b4db27421d4714 is done with setup FAIL, passed=false/return112, CUDA launch failure719 at occupied-to-empty graph replay inspection. No official tests, benchmarks, profiles, score or capsule. Frozen reader rejects before capsule interpretation. See [terminal report and archived owning evidence](2026-11-01-rmw-common-pair-terminal.md). No RMW performance/promotion inference, retry or #3 dispatch. Bounded source/CPU fixture diagnosis is separately authorized; README remains with captain.

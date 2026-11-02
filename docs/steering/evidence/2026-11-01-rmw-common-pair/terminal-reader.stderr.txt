@@ -1,0 +1,8 @@
+Traceback (most recent call last):
+  File "/mnt/c/Users/gretc/Documents/GitHub/okc/tools/g_common_rmw_pair_read.py", line 164, in <module>
+    log,digest=owning_log(r,a.log,att);out=read(r,a.job,log);out['owning_log_sha256']=digest
+                                           ~~~~^^^^^^^^^^^^^
+  File "/mnt/c/Users/gretc/Documents/GitHub/okc/tools/g_common_rmw_pair_read.py", line 130, in read
+    r=receipt['result'];assert r['status']=='ok' and r['passed'] is True and r['returncode']==0
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError

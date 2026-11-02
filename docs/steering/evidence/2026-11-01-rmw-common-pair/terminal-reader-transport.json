@@ -1,0 +1,20 @@
+{
+  "command": [
+    "/root/.cache/okc-host-validate/bin/python",
+    "tools/g_common_rmw_pair_read.py",
+    "docs/steering/evidence/2026-11-01-rmw-common-pair/own-terminal-receipt.json",
+    "--job",
+    "16b4db27421d4714",
+    "--source",
+    ".build/rmw-pair-v3/check.py",
+    "--log",
+    "muse_decode_layer/profiles/g-common-rmw-pair.16b4db27421d4714.log",
+    "--archive-attestation",
+    "docs/steering/evidence/2026-11-01-rmw-common-pair/terminal-log-attestation.json",
+    "--output",
+    "docs/steering/evidence/2026-11-01-rmw-common-pair/terminal-reader-observation.json"
+  ],
+  "exitcode": 1,
+  "expected_rejection": true,
+  "reason": "Owning terminal official success is required before capsule interpretation."
+}
