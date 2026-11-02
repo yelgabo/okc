@@ -36,3 +36,12 @@ The **295s total guard** includes normal preparation, private exercise and clean
 ## Dispatch ownership and next gate
 
 Implementation thread is sole dispatcher. Publish these pins/results, refresh authenticated private quota and latest layer jobs, require positive private quota/no live layer job, regenerate/verify this exact upload again, and call check once with no-wait JSON. Wait only on its accepted own ID and confirm board/mode/source association. Next gate is terminal official success plus frozen reader/capsule evidence, or a specific setup failure stop. No additional approval cycle is required after these authorized conditions clear. Captain owns campaign/index updates; no README edit is included here.
+
+
+## Accepted replacement private #3 — November 2, 02:22:46 UTC
+
+Preregistration/implementation **d5f29167b34f78db864d22550b23f4a0516f6a21** was pushed before dispatch; all11 changed remote file identities were verified. Captain independently confirmed physical upload/manifest and the narrow delta. Fresh authenticated preflight showed **8private/5scored remaining**, with **no live layer job among latest50**. Deterministic regeneration and the physical785a90ca/924005B upload matched immediately before the single check call.
+
+**Own accepted ID c5e4f89672f743bb**, board muse_decode_layer, mode check, team yelgabo, created **2026-11-02T02:22:46.573Z**. First owning status is **queued/result null**. Server content hash **28d360741906efb0ff5a90be98b92a053aff04480442d92992d47907ee557cab** and payload reference match the owning receipt; that server identity is distinct from the physical SHA256. Immediate postaccept quota explicitly reports **7private/5scored remaining**, used3checks. **3/4 initial tranche slots now have accepted IDs.**
+
+Exact-own-ID wait is active in exec session **11629**, with script digest/command archived in wait-registration.json. It preserves raw terminal stdout before parsing. One new private check was issued; no public/scored action, duplicate registration or additional experiment. Source/reader/manifest are frozen for this accepted job. There is no startup, correctness, resource, paired timing, official score or promotion result yet. Next gate is this same job's owning terminal/frozen reader/archive decision. Further instrument failure stops the RMW lane; valid null/loss/subthreshold stops RMW-only promotion; #4 remains fresh heldout only after a valid #3 gate pass. README/index remains captain-owned.
