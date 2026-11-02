@@ -4,6 +4,8 @@ This is the stable cross-session entry point. Read the latest report, its eviden
 
 ## Latest human ROI priority
 
+[CAPTAIN TERMINAL: first K128 candidate measured, PARKED](2026-11-02-driver-k128-terminal.md): ownbf8671b4 passed13tests/12benchmarks with12completeprofiles and target2CTA/56replays, but1.965158178x versus public2.126082676x. Fixedimplementation and reservedconfirmation stopped; worker explicitly acknowledged. OKDriver remains captain/sole dispatcher. Fresh21:32UTC:9private layer checks,10scored,no live jobs,overall/layer371. Next material-candidate decision is captain-owned; no automatic retry, tuning, paired-harness continuation or public submission. Earlier pending states below are historical.
+
 [FIRST PRIVATE LAYER CHECK ACCEPTED: bf8671b4bfa845a2](2026-11-02-driver-k128-first-check.md): OKDriver dispatched exactly one ordinary private check of frozen15688256 /440f41b1 /885489LF candidate. Initialservice statusreceived; no target result yet. Captain owns own-ID wait/receipt; developer must not duplicate POST/poll or mutate source. Actual firstmeasurement replaces the source-review loop. Up toone subsequent matched confirmation remains reserved if useful; no public/default authority.
 
 [HUMAN: OK Driver takes over as captain; build and measure](2026-11-02-driver-captain-takeover.md): newest instruction supersedes earlier source-only gates. OK Driver is captain/sole judge dispatcher; prior T3 captain was user-stopped/goal-paused and stays paused. Existing OKC Developer owns ONE concrete native128-row/two-WG,K128,64-token-reuse candidate,90active-minute implementation window. Up to2private layer checks reserved: first real full-layer qualification/measurement, then matched confirmation if promising. No reset wait, generic source-review continuation, parameter sweep or public submission authority. Next milestone is pinned runnable candidate plus accepted job ID.
@@ -134,6 +136,7 @@ Publication-time source progress: [owner-event amendment](2026-11-02-worker-pr-g
 
 | New report | Evidence | Scope |
 |---|---|---|
+| [2026-11-02 captain K128 terminal](2026-11-02-driver-k128-terminal.md) | ownbf8671b4; source15688256/440f41b1; fullraw/profiles; fresh21:32UTCboards/quota | Valid first private layer measurement, unfavorable descriptive screen, exact candidate PARK/no confirmation; captain ownership retained |
 | [2026-11-02 first private K128 layer check](2026-11-02-driver-k128-first-check.md) | ownbf8671b4; source15688256/440f41b1; preflight10private/no-live | Accepted ordinary layer measurement; full target qualification and score pending; no public submission |
 | [2026-11-02 captain takeover and implementation](2026-11-02-driver-captain-takeover.md) | direct human takeover/build-and-measure instruction; fresh no-live/quota receipt | Transfers captain/dispatch toOKDriver, freezes oldT3captain, allocates one concrete full-reuse K128 native candidate and up to2private layer checks |
 | [2026-11-02 captain handle delta and FLUTE decision](2026-11-02-captain-handle-delta-and-flute-decision.md) | dbcb61db; f60dabe5; c8538a57; own live boards/source proofs | Paginated four-handle follow-up, completed FLUTE adoption/precision caveat, context correction; retains restored capacity and single existing scheduled-work task |

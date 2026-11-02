@@ -1,0 +1,74 @@
+{
+  "job": "bf8671b4bfa845a2",
+  "score": 1.965158178216973,
+  "CI": [
+    1.9356808055437182,
+    1.9946355508902274
+  ],
+  "official_pass": true,
+  "prepare_s": 108.018165902,
+  "admission_lines": [
+    "K128_ADMISSION b4=1 big=0 m=32 sm=132 grid=264 threads=320 dynamic=98048 static=0 local=16 regs=96 resident=2",
+    "K128_ADMISSION b4=0 big=0 m=33 sm=132 grid=264 threads=320 dynamic=98048 static=0 local=8 regs=96 resident=2",
+    "K128_ADMISSION b4=0 big=1 m=128 sm=132 grid=264 threads=320 dynamic=98048 static=0 local=8 regs=96 resident=2"
+  ],
+  "startup_lines": [
+    "G_RELEASE_STARTUP_OK native (128, 32, 33, 256, 1, 8, 16) 56 verified_replays"
+  ],
+  "rows": [
+    {
+      "load": "decode 1",
+      "candidate_us": 79.32502122155621,
+      "fresh_control_us": 78.76453088391268,
+      "descriptive_latency_change_pct": 0.7116024577986879,
+      "candidate_baseline_us": 175.95922410668382,
+      "fresh_baseline_us": 173.36206506156634
+    },
+    {
+      "load": "decode 16",
+      "candidate_us": 157.2149151472823,
+      "fresh_control_us": 152.01624972636304,
+      "descriptive_latency_change_pct": 3.419809020599529,
+      "candidate_baseline_us": 302.5233566821102,
+      "fresh_baseline_us": 301.7150956025768
+    },
+    {
+      "load": "decode 32",
+      "candidate_us": 208.95518548875833,
+      "fresh_control_us": 191.8978122973195,
+      "descriptive_latency_change_pct": 8.888779391091116,
+      "candidate_baseline_us": 358.30038560614474,
+      "fresh_baseline_us": 354.6477409770652
+    },
+    {
+      "load": "verify 1",
+      "candidate_us": 119.56807603431706,
+      "fresh_control_us": 112.68166177082166,
+      "descriptive_latency_change_pct": 6.111388628170378,
+      "candidate_baseline_us": 269.82555215457273,
+      "fresh_baseline_us": 263.0673500769321
+    },
+    {
+      "load": "verify 16",
+      "candidate_us": 319.2971633303378,
+      "fresh_control_us": 261.71304474650816,
+      "descriptive_latency_change_pct": 22.002769728045024,
+      "candidate_baseline_us": 573.3378149058309,
+      "fresh_baseline_us": 544.7576774073946
+    },
+    {
+      "load": "verify 32",
+      "candidate_us": 419.04503943189076,
+      "fresh_control_us": 351.0802216924128,
+      "descriptive_latency_change_pct": 19.358771454526156,
+      "candidate_baseline_us": 813.7692848611023,
+      "fresh_baseline_us": 787.8895486674963
+    }
+  ],
+  "descriptive_endpoint_factor_vs_fresh": 0.910733407046434,
+  "official_score_ratio_vs_public": 0.9243093883456718,
+  "current_node": "n-szupglbnophi2mfwuhxj2gr5an",
+  "fresh_control_node": "n-434neka4hbrvz7ee7sd46ord7g",
+  "evaluator_file_diffs": {},
+  "limitation": "Different jobs, inputs and GPU node/driver. These ratios are descriptive screening, not matched causal effects; no instruction-level attribution."
+}

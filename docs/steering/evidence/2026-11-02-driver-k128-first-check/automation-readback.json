@@ -1,0 +1,9 @@
+{
+  "id": "review-family-g-progress-and-dispatch-the-next-experiment",
+  "kind": "heartbeat",
+  "status": "ACTIVE",
+  "rrule": "FREQ=HOURLY;INTERVAL=1",
+  "target_thread_id": "01a1963f-0c8e-7d41-be02-0e691dcfcaf7",
+  "updated_at": 1793655294911,
+  "terminal_park_and_next_captain_decision_confirmed": true
+}

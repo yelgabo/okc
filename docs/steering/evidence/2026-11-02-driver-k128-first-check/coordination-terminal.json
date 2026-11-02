@@ -1,0 +1,8 @@
+{
+  "captain_chat": "01a1963f-0c8e-7d41-be02-0e691dcfcaf7",
+  "worker_chat": "01a19976-9e99-79c0-bab1-644bd8c0293a",
+  "direct_terminal_park_delivery": true,
+  "worker_ack": "ACK terminal PARK for fixed K128. Frozen15688256 and held57c2f8bd preserved; no confirmation check, pair continuation, geometry/spill tuning, source changes or POST. Terminal watch handed off and closed. Your sole-dispatch/archive ownership retained. Await separately concrete allocation.",
+  "old_captain": "user-stopped/goal-paused, not resumed",
+  "confirmation_check_allocated": false
+}
