@@ -1,6 +1,6 @@
 {
-  "reviewed_at": "2026-11-02T07:49:00-07:00",
-  "snapshot": "218a048",
+  "reviewed_at": "2026-11-02T08:49:00-07:00",
+  "snapshot": "049b223",
   "family_registry_update": {
     "date": "2026-10-30",
     "evidence_snapshot": "7a5965531103f275ac104d340ef30f1508e32353",
@@ -84,7 +84,7 @@
       "summary": "Across three held-outs, VP2 averaged 10.168 µs versus 10.784 µs for the owned control. All four six-load factors were below 1.01.",
       "layer": "Private standalone comparison. Layer adoption closed for this variant.",
       "pending": [],
-      "limit": "640 private checks passed. The 128- and 256-token cells used the owned path. The result measures the complete VP2 variant.",
+      "limit": "VP2 targets eight-token sliding attention. The proposed layer continuity toggle also changes decode merging and stopped at source review. No new pipeline timing.",
       "source": "runs-attention.md",
       "outcomes": [
         "win",
@@ -145,8 +145,13 @@
     },
     {
       "name": "Graph-owned PR buffer at 128/256 tokens",
-      "label": "Host checks passed • H200 check conditional",
-      "summary": "One private check is allocated after the worker adds plan-selection evidence. The target must confirm the intended allocations and pass correctness before timings can be interpreted."
+      "label": "Setup failed • no timing",
+      "summary": "Job 60b38a62a135442c compiled with C++17 while target Torch required C++20. No test or timing cells ran. The private retry is quota-blocked."
+    },
+    {
+      "name": "One-token and pre-gamma expert prototypes",
+      "label": "Offline evidence • awaiting H200 qualification",
+      "summary": "One design uses three launches at one token. The other changes pre-gamma transport at 32/128/256 tokens and has a state-local comparison package. Neither has target timings."
     }
   ]
 }

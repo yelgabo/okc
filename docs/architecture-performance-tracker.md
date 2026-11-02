@@ -1,6 +1,6 @@
 # Architecture performance tracker
 
-Last review: 2026-11-02 07:49 MST. Evidence snapshot: `218a048`.
+Last review: 2026-11-02 08:49 MST. Evidence snapshot: `049b223`.
 First review reconciles progress since `aab7d75`, the snapshot in the
 [architecture-family guide](architecture-families-2026-10-29.md).
 This is a review of recorded experiments, not a new benchmark run.
@@ -16,9 +16,19 @@ named control, not changes in aggregate score. Families overlap; their gains can
 | B. Staged grouped MoE | New masked library schedule loses | GROUPED_MASKED versus51 loses about 145-235 us across 128/256 layer/std cases, with math checks passing. Earlier45+46 losses remain. | Failure is scoped to tested library schedule; two GEMMs already exceed owned whole-call time in the profiled256 case. |
 | C. Owner-completes tiles | Earlier ownership gains retained | The complete private VP2 design wins its eight-token sliding cell. Both owned cluster implementations previously lost. | The comparison leaves the contribution of output ownership unresolved. |
 | D. Dependency-aware scheduling | Dynamic claiming retained; new phase-A claim layouts lose | Phase-A modes 62/63 and K=0 controls 66/69 lose; lean claimed mode 68 is not timed. Earlier split-tail 52/53 losses stand. | Full ready-only queue remains untested. Reopen phase-A claims only after the no-work control ties mode 51 within 1 us at 128/256. |
-| E. Attention producer-consumer pipeline | Private VP2 cell win, six-load gate failed | VP2 took 10.168 µs versus 10.784 µs for the owned control on eight-token sliding attention. All three held-outs missed the full-score gate. | The historical owned QK2 and wait-probe limits still apply. VP2 only changes the eight-token target. |
+| E. Attention producer-consumer pipeline | Private VP2 cell win, six-load gate failed | VP2 took 10.168 µs versus 10.784 µs for the owned control on eight-token sliding attention. All three held-outs missed the full-score gate. | VP2 only changes the eight-token target. The proposed layer ring-continuity toggle also changes decode merge behavior and stopped at source review. |
 | F. Donor-based baseline/hybrid | Historical alygg77 measurement track | Prior F comparisons and owned C3 router gains remain recorded. Two new QKV128 variants lose despite correctness/resource passes. | G has a separate attributed-fork policy. Projection C2 remains best scored, with C3 paired component wins retained. |
-| G. Attributed keell0renz layer fork | Retained layer 2.126083× | Matched short-counter test missed its gate. G224 and timed SiLU passed correctness and missed performance triage. | Four-cell verify ended in a refunded infrastructure error. Outgoing dependency tests failed setup. Both fresh checks completed. The short serial policy missed confirmation gates. Graph-owned PR passed host checks and has a conditional private allocation. H200 capability and timing remain open. |
+| G. Attributed keell0renz layer fork | Retained layer 2.126083× | Matched short-counter test missed its gate. G224 and timed SiLU passed correctness and missed performance triage. | Four-cell verify ended in a refunded infrastructure error. Outgoing dependency tests failed setup. Both fresh checks completed. The short serial policy missed confirmation gates. PR check failed target host compilation. The expert prototypes await target qualification. |
+
+## November 2 review at 08:49 Vancouver time
+
+**The graph-owned PR buffer check failed during host compilation.** Private layer job `60b38a62a135442c` used the candidate registered at `01b8e23` (882,844 bytes, SHA256 prefix `0f90a2a8`). An explicit C++17 flag followed C++20 on the actual compiler command, leaving a language standard below the target Torch headers’ requirement. The job exited setup with code 112 before any official tests, benchmark cells or profiles. Compression selection, buffer lifetime on H200 and latency at 128 and 256 tokens remain unmeasured. There is no score, timing delta, repeat count or confidence interval for this treatment. The separate queue and worker durations measure service activity. [Terminal receipt](https://github.com/yelgabo/okc/blob/049b223/docs/steering/evidence/2026-11-02-worker-pr-target/target/terminal-status.json) · [Build failure analysis](https://github.com/yelgabo/okc/blob/049b223/docs/steering/2026-11-02-worker-pr-target-terminal.md)
+
+The language-standard issue now has an offline regression check. At the 15:30 UTC status checkpoint the private quota was zero, five scored slots remained, and the job list was empty. A private retry requires available quota. Public G1b4 job `607eb52bdaf24160` retains 2.126083×. This PR backing experiment belongs to layer context. The A-versus-B choice at 128/256 still rests on the paired MoE measurements. [Quota and status](https://github.com/yelgabo/okc/blob/049b223/docs/steering/2026-11-02-pr-build-failure-monitor.md)
+
+**Family E source screen.** The standalone attention path already keeps the ring across segments. In the layer, the proposed continuity switch also changes decode merging and the synchronization point. CPU inspection covered 12 actual layer launch paths and four standalone plans. The team closed this switch as an isolated test. No GPU result was recorded for it. [Attention screen](https://github.com/yelgabo/okc/blob/049b223/docs/steering/2026-11-02-top100-attention-prototype.md)
+
+**Expert prototypes awaiting target evidence.** The one-token, three-launch expert design has local source, CPU and secondary compiler evidence. A separate B4/MAIN candidate changes the stored intermediate before gamma, targeting decode at 32 and verify at 128/256 tokens. Its package reproduces the original five control loader calls and binds the candidate to prepared state before capture. Three CPU tests passed. Runtime ownership, fresh replay correctness and whole-layer timing still require qualification. Neither prototype supplies a new family score. [One-token prototype](https://github.com/yelgabo/okc/blob/049b223/docs/steering/2026-11-02-worker-t1-three-launch.md) · [Pre-gamma source](https://github.com/yelgabo/okc/blob/049b223/docs/steering/2026-11-02-top100-expert-prototype.md) · [Comparison package](https://github.com/yelgabo/okc/blob/049b223/docs/steering/2026-11-02-top100-pair-package.md)
 
 ## November 2 review at 07:49 Vancouver time
 
@@ -2509,7 +2519,7 @@ ownership implementations retain their scoped outcomes. D's complete ready-only 
 remains untested. Further scheduling work needs a distinct mechanism and measured opportunity.
 
 The G lineage has an approved attributed-fork policy, while F retains its alygg77 history.
-The retained G1b4 layer includes stage retirement. Its matched gain was measured in standalone MoE. The matched short-counter trial is complete. Both outgoing dependency tests stopped in setup. G224 and timed SiLU are parked. The short serial candidate was parked after fresh control and candidate runs. One private check is conditionally allocated to PR buffer qualification. [Host qualification and allocation](https://github.com/yelgabo/okc/blob/218a048/docs/steering/2026-11-02-captain-pr-host-gate.md) · [Serial decision](https://github.com/yelgabo/okc/blob/fcf5452/docs/steering/2026-11-02-captain-serial-terminal-decision.md). [Latest decision](https://github.com/yelgabo/okc/blob/57930d0/docs/steering/2026-11-02-captain-timed-silu-terminal-decision.md)
+The retained G1b4 layer includes stage retirement. Its matched gain was measured in standalone MoE. The matched short-counter trial is complete. Both outgoing dependency tests stopped in setup. G224 and timed SiLU are parked. The short serial candidate was parked after fresh control and candidate runs. The PR check failed host compilation and private retry awaits quota. [Terminal evidence](https://github.com/yelgabo/okc/blob/049b223/docs/steering/evidence/2026-11-02-worker-pr-target/target/terminal-status.json). [Host qualification and allocation](https://github.com/yelgabo/okc/blob/218a048/docs/steering/2026-11-02-captain-pr-host-gate.md) · [Serial decision](https://github.com/yelgabo/okc/blob/fcf5452/docs/steering/2026-11-02-captain-serial-terminal-decision.md). [Latest decision](https://github.com/yelgabo/okc/blob/57930d0/docs/steering/2026-11-02-captain-timed-silu-terminal-decision.md)
 
 Historical owned attention requires the documented intermediate BF16 repair before reuse.
 The new QK2 and wait studies use repaired controls. The attention and G detail observers
@@ -2521,6 +2531,8 @@ Prefill remains deferred. The final recorded campaign goal remains unmet.
 [Family G qualification](https://github.com/yelgabo/okc/blob/af3b550/docs/steering/2026-11-01-family-g-qualification.md).
 
 ## Review history and checkpoint
+
+- 2026-11-02 08:49 Vancouver time. Reviewed `218a048..049b223` from local `282f081`, including the terminal PR receipt, ruled-out entries, expert prototype registrations and 15:30 UTC quota checkpoint. 18 local untracked receipts already appear in the run ledgers.
 
 - 2026-11-02 07:49 Vancouver time. Reviewed local `665b9c9` and remote `fcf5452..218a048`, including the ruled-out entry, source repair and conditional allocation. No new benchmark receipts. All 18 untracked local receipts already appear in the ledgers.
 
