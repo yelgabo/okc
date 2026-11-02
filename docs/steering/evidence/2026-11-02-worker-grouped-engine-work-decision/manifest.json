@@ -1,0 +1,10 @@
+{
+  "census.json": {
+    "bytes": 587611,
+    "sha256": "de46ef1e133c57bf4797e31c12962cecebd46df53d392856994635b93297e78c"
+  },
+  "census.py": {
+    "bytes": 6607,
+    "sha256": "b4a38f2daf48d9520fd0296ce8129678bc2b9ed8ea2d17498034f8ee705fc2ef"
+  }
+}
