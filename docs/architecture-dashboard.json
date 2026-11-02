@@ -1,6 +1,6 @@
 {
-  "reviewed_at": "2026-11-02T06:47:00-07:00",
-  "snapshot": "fcf5452",
+  "reviewed_at": "2026-11-02T07:49:00-07:00",
+  "snapshot": "218a048",
   "family_registry_update": {
     "date": "2026-10-30",
     "evidence_snapshot": "7a5965531103f275ac104d340ef30f1508e32353",
@@ -144,9 +144,9 @@
       "summary": "The first check failed its graph query. The second found mismatched routing across arms during preparation. The tested path is closed."
     },
     {
-      "name": "PR buffer lifetime at 128/256 tokens",
-      "label": "Source investigation only",
-      "summary": "Plain ownership stopped at the caller-graph lifetime requirement. A graph user-object alternative awaits implementation evidence. One private check remains reserved."
+      "name": "Graph-owned PR buffer at 128/256 tokens",
+      "label": "Host checks passed • H200 check conditional",
+      "summary": "One private check is allocated after the worker adds plan-selection evidence. The target must confirm the intended allocations and pass correctness before timings can be interpreted."
     }
   ]
 }
