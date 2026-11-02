@@ -1,0 +1,25 @@
+--- frozen-4c6d3f13.py
++++ receipt-candidate.py
+@@ -17518,3 +17518,22 @@
+         result[key] = value if key in ("layouts", "weight", "_pr_graph_owner") else copy.deepcopy(value, memo)
+     return result
+ _GraftPlan.__deepcopy__ = _pr_graph_plan_deepcopy
++
++
++_pr_graph_receipt_prepare = prepare
++def prepare(weights):
++    state = _pr_graph_receipt_prepare(weights)
++    import json as _pr_receipt_json
++    accepted = []
++    for tokens in (128, 256):
++        plan = state.get("graft_lt", {}).get(("pr", tokens))
++        owner = plan.get("_pr_graph_owner") if plan is not None else None
++        if owner is not None and plan.get("weight") is owner.tensor:
++            accepted.append(dict(tokens=tokens, shape=list(owner.tensor.shape),
++                                 dtype=str(owner.tensor.dtype), owner_tagged=True))
++    status = state.get("_pr_graph_status", "missing-status")
++    outcome = "ACTIVE_TREATMENT" if status == "generic-owned" and len(accepted) == 2 else "NO_TREATMENT"
++    print("PR_GRAPH_PREPARE_RECEIPT " + _pr_receipt_json.dumps(dict(schema_version=1,
++          status=status, outcome=outcome, accepted_pr_plans=accepted), sort_keys=True,
++          separators=(",", ":")), flush=True)
++    return state

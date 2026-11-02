@@ -1,0 +1,61 @@
+{
+  "frozen_utc": "2026-11-02T14:52:29.881Z",
+  "allocation": "218a048edded8e27272e74f5cf84d14c28a8e9e5",
+  "post_count": 0,
+  "files": [
+    {
+      "path": "tools/g_pr_graph_owner_receipt.py",
+      "bytes": 2930,
+      "sha256": "09f73edd5284d258da2964ce36e40ce9cd6df28aec248789c1af7edd3d3948e9",
+      "physical_sha256": "09f73edd5284d258da2964ce36e40ce9cd6df28aec248789c1af7edd3d3948e9"
+    },
+    {
+      "path": "tools/test_g_pr_graph_owner_receipt.py",
+      "bytes": 3861,
+      "sha256": "0904d0189419af55ca6747bcfe842b6047a1d397de2dabb3dbc7a84c5b459708",
+      "physical_sha256": "0904d0189419af55ca6747bcfe842b6047a1d397de2dabb3dbc7a84c5b459708"
+    },
+    {
+      "path": "docs/steering/2026-11-02-worker-pr-target-preregistration.md",
+      "bytes": 6202,
+      "sha256": "6e7fc6ebae753a6d7d79638e53123d51d14462a57f4872f6c28b5bb36490bc05",
+      "physical_sha256": "6e7fc6ebae753a6d7d79638e53123d51d14462a57f4872f6c28b5bb36490bc05"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-worker-pr-target/cpu.txt",
+      "bytes": 10339,
+      "sha256": "807912bdeb5e7265133b1d2c5e8d283056db29de79433ca0716f45fdbbdedc7b",
+      "physical_sha256": "a592228115553ceb8904e1ca4ca33aad0f9ed86b62b34a7a847736794eb78080"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-worker-pr-target/initial-path-failure.json",
+      "bytes": 165,
+      "sha256": "499945e258a2d897bb70fb66d3d042dc88314e2d8188dbcd37baa71c68f5ce71",
+      "physical_sha256": "3efbf388f7232dea190dd0f16cc3bc843aa565584d46157207fb30f32dcbe8eb"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-worker-pr-target/generated/candidate.py",
+      "bytes": 882844,
+      "sha256": "0f90a2a806dd5cb3247f1843f936621dfef7de4f9f2e104bd7898caee72e93fb",
+      "physical_sha256": "0f90a2a806dd5cb3247f1843f936621dfef7de4f9f2e104bd7898caee72e93fb"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-worker-pr-target/generated/generation.json",
+      "bytes": 649,
+      "sha256": "561f2a7750acd589e18afd0be0a6b2f8f802aca4b79e07630bed086ae8ee5451",
+      "physical_sha256": "561f2a7750acd589e18afd0be0a6b2f8f802aca4b79e07630bed086ae8ee5451"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-worker-pr-target/generated/receipt-append.py.txt",
+      "bytes": 961,
+      "sha256": "9c4820e03138fdf5a147cf5a4d1e0c03c2a71d9609d6ea248115b25696ea7958",
+      "physical_sha256": "9c4820e03138fdf5a147cf5a4d1e0c03c2a71d9609d6ea248115b25696ea7958"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-worker-pr-target/generated/receipt.diff",
+      "bytes": 1235,
+      "sha256": "10368f5bb779631307154988af09063c3b3a62ebf6b8218a93ce7d4a523384f6",
+      "physical_sha256": "10368f5bb779631307154988af09063c3b3a62ebf6b8218a93ce7d4a523384f6"
+    }
+  ]
+}

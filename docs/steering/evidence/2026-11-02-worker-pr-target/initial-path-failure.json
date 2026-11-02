@@ -1,0 +1,6 @@
+{
+  "error": "AttributeError: import-chain ROOT lookup",
+  "before_generation": true,
+  "target_calls": 0,
+  "repair": "derive evidence root from BASE.parents[2]"
+}
