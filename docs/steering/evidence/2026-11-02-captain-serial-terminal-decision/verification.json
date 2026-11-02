@@ -1,0 +1,20 @@
+{
+  "verified_utc": "2026-11-02T13:07:24.140Z",
+  "verifiedCommits": [
+    {
+      "commit": "87cfa4afb1328d51de4924570adc37ff1f3cca5a",
+      "files": 37,
+      "verified": true
+    },
+    {
+      "commit": "e3b815fc002fef850fb47f2850c748953bcea7df",
+      "files": 2,
+      "verified": true
+    }
+  ],
+  "worker_manifest_entries": 52,
+  "all_worker_entries_exact": true,
+  "source": "5d883c43db730990246d07a0e52800e01b3161973705b8cb785c26e0d3f08933",
+  "decision": "PARK_EXACT_SERIAL_NO_FOLLOWON",
+  "private_checks_reserved": 1
+}
