@@ -1,0 +1,3240 @@
+{
+  "retrieved_utc": "2026-11-01T23:48:41.253Z",
+  "pins": [
+    {
+      "repo": "keell0renz/muse-open-kernel-challenge",
+      "status": 200,
+      "pin": "8e30e1be994db4310794b8d04e90d18d895deb84",
+      "commit_date": "2026-11-01T07:11:09Z",
+      "tree": [
+        {
+          "path": "LESSONS.md",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "36fa83cb4e913f05a1f7feb83e216cb651d05a28",
+          "size": 7770,
+          "url": "https://api.github.com/repos/keell0renz/muse-open-kernel-challenge/git/blobs/36fa83cb4e913f05a1f7feb83e216cb651d05a28"
+        },
+        {
+          "path": "LICENSE",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "d645695673349e3947e8e5ae42332d0ac3164cd7",
+          "size": 11358,
+          "url": "https://api.github.com/repos/keell0renz/muse-open-kernel-challenge/git/blobs/d645695673349e3947e8e5ae42332d0ac3164cd7"
+        },
+        {
+          "path": "NOTICE",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "3d086c00575f0caca10942974e6ae65244be4703",
+          "size": 2471,
+          "url": "https://api.github.com/repos/keell0renz/muse-open-kernel-challenge/git/blobs/3d086c00575f0caca10942974e6ae65244be4703"
+        },
+        {
+          "path": "README.md",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "7c53568837d320d1cb294de490109bd85d419dc6",
+          "size": 4425,
+          "url": "https://api.github.com/repos/keell0renz/muse-open-kernel-challenge/git/blobs/7c53568837d320d1cb294de490109bd85d419dc6"
+        },
+        {
+          "path": "kernels",
+          "mode": "040000",
+          "type": "tree",
+          "sha": "479f346c32c6d1fdd41f804ddf6e08e2d6bd0ffd",
+          "url": "https://api.github.com/repos/keell0renz/muse-open-kernel-challenge/git/trees/479f346c32c6d1fdd41f804ddf6e08e2d6bd0ffd"
+        },
+        {
+          "path": "kernels/muse_attention_decode.py",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "607bc1567944361edf53466f74fe7c3fe4a1ec74",
+          "size": 281018,
+          "url": "https://api.github.com/repos/keell0renz/muse-open-kernel-challenge/git/blobs/607bc1567944361edf53466f74fe7c3fe4a1ec74"
+        },
+        {
+          "path": "kernels/muse_bf16_proj.py",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "f57e73d0e0248beecf1dc88e7d0f8ea1e4708472",
+          "size": 643105,
+          "url": "https://api.github.com/repos/keell0renz/muse-open-kernel-challenge/git/blobs/f57e73d0e0248beecf1dc88e7d0f8ea1e4708472"
+        },
+        {
+          "path": "kernels/muse_decode_layer.py",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "4aa86640b593add917e7f10e716dcc9ca24a077d",
+          "size": 979654,
+          "url": "https://api.github.com/repos/keell0renz/muse-open-kernel-challenge/git/blobs/4aa86640b593add917e7f10e716dcc9ca24a077d"
+        },
+        {
+          "path": "kernels/muse_moe_w4a16.py",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "521611ff84a1df48cc3e106e9d8a595e39688d8a",
+          "size": 360637,
+          "url": "https://api.github.com/repos/keell0renz/muse-open-kernel-challenge/git/blobs/521611ff84a1df48cc3e106e9d8a595e39688d8a"
+        },
+        {
+          "path": "kernels/muse_prefill_layer.py",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "c455520a2cc44f0c3c45a167d7a641baf516a76a",
+          "size": 370116,
+          "url": "https://api.github.com/repos/keell0renz/muse-open-kernel-challenge/git/blobs/c455520a2cc44f0c3c45a167d7a641baf516a76a"
+        }
+      ],
+      "truncated": false,
+      "readme": "# muse-open-kernel-challenge\n\nTeam **keell0renz**'s best fair kernels from the OKC Muse Spark Open Kernel Challenge (H200 SXM, `sm_90a`). One file per\nboard, each the exact file the judge timed (or a judge-checked successor of it). No cheats, no luck tricks in the code.\n\n**[LESSONS.md](LESSONS.md)**: what worked, what failed and why, judge facts, H200 numbers, method notes.\n\n## Results\n\nLeaderboard snapshot of 2026-10-31 17:14 CET (speedup = geomean over the board's scored shapes vs the SGLang baseline):\n\n| Board | Our speedup | Rank | Teams ranked | #1 | Gap to #1 |\n|---|---|---|---|---|---|\n| **decode layer** (= overall rank) | **2.2659** | **#38** | 1085 | 2.4178 (mpeng19) | 6.7% |\n| attention decode | 2.7168 | #35 | 1166 | 3.2221 (tjiang-fair) | 18.6% |\n| bf16 projections | 1.5876 | #26 | 1516 | 1.6523 (arashattar) | 4.1% |\n| prefill layer | 1.9134 | #29 | 729 | 2.0325 (zzz0906) | 6.2% |\n| MoE W4A16 (NVFP4) | 2.4203 | #58 | 1219 | 2.7578 (dolanzhao) | 13.9% |\n\n**Open-source standing.** As of 2026-11-01 this is the highest-ranked publicly available OKC code we know of on all five\nboards. The other public submissions we tracked rank lower (best: alygg77, decode #132, MoE #79, attention #80, bf16\n#162, prefill #57; then vjeux, chenwainuo, NathenFernandes, Madhavan113). ZhimaoL (decode #29) published their branches in\na public sglang fork but deleted them on 2026-11-01. Repos we did not find are not counted.\n\nA board row keeps a team's best submission, and the judge's run-to-run noise is about +-1.5% (1 sigma ~0.63%), so some rows are\nhigh draws of these files. The judge's own numbers for the files in this repo:\n\n| File | Judge runs of this exact code |\n|---|---|\n| `kernels/muse_decode_layer.py` | check 2.2641, submit 2.2532 (the 2.2659 row is the same kernels minus the last +0.27% change) |\n| `kernels/muse_moe_w4a16.py` | submits 2.3884 / 2.3893 (the 2.4203 row is a high draw of its predecessor) |\n| `kernels/muse_attention_decode.py` | row 2.7168 (a high draw; same-box screens 2.63-2.66) |\n| `kernels/muse_bf16_proj.py` | check 1.5742, submit 1.5690 (row 1.5876: its pre-fix twin) |\n| `kernels/muse_prefill_layer.py` | submit 1.9141 |\n\nAbout 460 logged experiments went into these over the challenge. Most were measured dead; the wins are small and stacked.\n\n## What is in each file\n\n- **decode layer**: the whole layer as a chain of ~9 kernels linked by programmatic dependent launch (PDL). The projections are\n  `sk2` TMA-ring GEMVs that read BF16 weights through a lossless 12-bit re-encoding with exact escape corrections; pooler and\n  router in one launch; Triton routing (split-K sum, sigmoid + bias top-8, pre-expert norm); a persistent NVFP4 W4A16 MoE\n  (TMA weight ring, warp-specialized issue, per-batch-size builds; for 17+ tokens a 4-warpgroup wgmma stream-K build with\n  lossless 6-bit block scales and warp-parallel stage ranges); unpooler; cluster-based residual / norm boundary.\n- **MoE W4A16**: the same MoE kernel standalone, with a dedicated build per scored batch size (bs 8 gets the ring-issuer\n  warp variant).\n- **attention decode**: one fused gated-attention kernel per call over the paged FP8 KV cache, split-KV with a TMA\n  bulk-reduction merge; ZhimaoL's verify-attention kernels for q_len 8.\n- **bf16 projections**: a per-shape dispatcher (picked from judge profiles) over public kernels plus our 12-bit lossless\n  weight format and pinned cuBLASLt plans for the large-m cells.\n- **prefill layer**: cuBLASLt GEMMs (tuned and pinned), ZhimaoL's FMHA with the N72 PV layout, a persistent MoE.\n\n## Running\n\nEach file implements the challenge's problem interface: `prepare(weights) -> state` (untimed) and\n`kernel_fn(data, state) -> outputs`, with the first line `# okc: problem=<name>`. The problem definitions, reference\nimplementations and judge belong to the challenge and are not included. Needs an H100 / H200 (`sm_90a`), CUDA 12.8+,\nPyTorch 2.11, Triton; every CUDA extension is JIT-built by `torch.utils.cpp_extension.load_inline` on first use.\n\nKnown issue: `muse_prefill_layer.py` mis-routes on the \"turn 1, full\" shape when its state is first used from a fresh OS\nthread on the default stream (root cause not found).\n\n## License and credits\n\nApache License 2.0 (`LICENSE`), the challenge's submission license. These files build on other teams' public Apache-2.0\nand MIT code; every file keeps its original attribution lines, and `NOTICE` lists them all.\n"
+    },
+    {
+      "repo": "nvbkdw/muse-spark-open-challenge",
+      "status": 200,
+      "pin": "f13e75c51802e2cbc8f143a1128e88c66c15e74a",
+      "commit_date": "2026-11-01T17:50:04Z",
+      "tree": [
+        {
+          "path": ".gitignore",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "d1d1256530423d4cc075b7afd10ed5b33a016be6",
+          "size": 115,
+          "url": "https://api.github.com/repos/nvbkdw/muse-spark-open-challenge/git/blobs/d1d1256530423d4cc075b7afd10ed5b33a016be6"
+        },
+        {
+          "path": "README.md",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "f4d6ec1ac29e557aa42d49701447b56fc2737677",
+          "size": 3170,
+          "url": "https://api.github.com/repos/nvbkdw/muse-spark-open-challenge/git/blobs/f4d6ec1ac29e557aa42d49701447b56fc2737677"
+        },
+        {
+          "path": "muse_bf16_proj",
+          "mode": "040000",
+          "type": "tree",
+          "sha": "1d209559ea301cbca75f4bdae7b4ffeeb3c2b737",
+          "url": "https://api.github.com/repos/nvbkdw/muse-spark-open-challenge/git/trees/1d209559ea301cbca75f4bdae7b4ffeeb3c2b737"
+        },
+        {
+          "path": "muse_bf16_proj/AGENTS.md",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "f7ac0dfe39ab6684e8243dbada2789230fcaee10",
+          "size": 2706,
+          "url": "https://api.github.com/repos/nvbkdw/muse-spark-open-challenge/git/blobs/f7ac0dfe39ab6684e8243dbada2789230fcaee10"
+        },
+        {
+          "path": "muse_bf16_proj/TASK.md",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "da91e807376dbf0b3ffc1f0b3fa7347351817be7",
+          "size": 8264,
+          "url": "https://api.github.com/repos/nvbkdw/muse-spark-open-challenge/git/blobs/da91e807376dbf0b3ffc1f0b3fa7347351817be7"
+        },
+        {
+          "path": "muse_bf16_proj/baseline.py",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "a4cde4b06c4c75622bafbd78d19fe4e3406c7a8d",
+          "size": 2397,
+          "url": "https://api.github.com/repos/nvbkdw/muse-spark-open-challenge/git/blobs/a4cde4b06c4c75622bafbd78d19fe4e3406c7a8d"
+        },
+        {
+          "path": "muse_bf16_proj/checks.py",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "bc51923c9041b04b0ce9e57348f10cfae84b73d9",
+          "size": 2484,
+          "url": "https://api.github.com/repos/nvbkdw/muse-spark-open-challenge/git/blobs/bc51923c9041b04b0ce9e57348f10cfae84b73d9"
+        },
+        {
+          "path": "muse_bf16_proj/reference.py",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "ab244d54a6b77bd990fe56f8eb047658f815c3ce",
+          "size": 5155,
+          "url": "https://api.github.com/repos/nvbkdw/muse-spark-open-challenge/git/blobs/ab244d54a6b77bd990fe56f8eb047658f815c3ce"
+        },
+        {
+          "path": "muse_bf16_proj/submission.py",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "6d6ad9b53a00095c810570a9c40f39272a33f9f9",
+          "size": 33069,
+          "url": "https://api.github.com/repos/nvbkdw/muse-spark-open-challenge/git/blobs/6d6ad9b53a00095c810570a9c40f39272a33f9f9"
+        },
+        {
+          "path": "muse_prefill_layer",
+          "mode": "040000",
+          "type": "tree",
+          "sha": "c375b928c724aa92d7512fa51458d4c2b08a98d4",
+          "url": "https://api.github.com/repos/nvbkdw/muse-spark-open-challenge/git/trees/c375b928c724aa92d7512fa51458d4c2b08a98d4"
+        },
+        {
+          "path": "muse_prefill_layer/AGENTS.md",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "6dda036652f97fe1424f21d268687b2617438074",
+          "size": 2714,
+          "url": "https://api.github.com/repos/nvbkdw/muse-spark-open-challenge/git/blobs/6dda036652f97fe1424f21d268687b2617438074"
+        },
+        {
+          "path": "muse_prefill_layer/TASK.md",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "a2c3b51a981085c76b3dcf55a01b1de76f6c62d8",
+          "size": 8706,
+          "url": "https://api.github.com/repos/nvbkdw/muse-spark-open-challenge/git/blobs/a2c3b51a981085c76b3dcf55a01b1de76f6c62d8"
+        },
+        {
+          "path": "muse_prefill_layer/baseline.py",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "7706aee5c085b4fc8819835e5a7ec4e3f59a0833",
+          "size": 18993,
+          "url": "https://api.github.com/repos/nvbkdw/muse-spark-open-challenge/git/blobs/7706aee5c085b4fc8819835e5a7ec4e3f59a0833"
+        },
+        {
+          "path": "muse_prefill_layer/checks.py",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "bc51923c9041b04b0ce9e57348f10cfae84b73d9",
+          "size": 2484,
+          "url": "https://api.github.com/repos/nvbkdw/muse-spark-open-challenge/git/blobs/bc51923c9041b04b0ce9e57348f10cfae84b73d9"
+        },
+        {
+          "path": "muse_prefill_layer/nvfp4.py",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "aa688f50e4bdbf500c5a09e9f546ec37c68e3dad",
+          "size": 5929,
+          "url": "https://api.github.com/repos/nvbkdw/muse-spark-open-challenge/git/blobs/aa688f50e4bdbf500c5a09e9f546ec37c68e3dad"
+        },
+        {
+          "path": "muse_prefill_layer/reference.py",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "f92aa2db6ba064bc686ed5369f979cfe00d4ff44",
+          "size": 35035,
+          "url": "https://api.github.com/repos/nvbkdw/muse-spark-open-challenge/git/blobs/f92aa2db6ba064bc686ed5369f979cfe00d4ff44"
+        },
+        {
+          "path": "muse_prefill_layer/submission.py",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "89ac071b1e09236424ad90683247b8cb04be5e34",
+          "size": 59068,
+          "url": "https://api.github.com/repos/nvbkdw/muse-spark-open-challenge/git/blobs/89ac071b1e09236424ad90683247b8cb04be5e34"
+        },
+        {
+          "path": "probes",
+          "mode": "040000",
+          "type": "tree",
+          "sha": "55fc33336c1e1450f05346b5915a0d8aa8519ca4",
+          "url": "https://api.github.com/repos/nvbkdw/muse-spark-open-challenge/git/trees/55fc33336c1e1450f05346b5915a0d8aa8519ca4"
+        },
+        {
+          "path": "probes/probe_env.py",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "38287dd907add7f1f50d3fafbac9fc27880725c8",
+          "size": 17569,
+          "url": "https://api.github.com/repos/nvbkdw/muse-spark-open-challenge/git/blobs/38287dd907add7f1f50d3fafbac9fc27880725c8"
+        },
+        {
+          "path": "probes/probe_moe.py",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "345aeec3a778cbd3f2b3b9e8f9b575d859187fd2",
+          "size": 61631,
+          "url": "https://api.github.com/repos/nvbkdw/muse-spark-open-challenge/git/blobs/345aeec3a778cbd3f2b3b9e8f9b575d859187fd2"
+        },
+        {
+          "path": "results",
+          "mode": "040000",
+          "type": "tree",
+          "sha": "edb3f33b9118b4a4c3f46f817e2d5ba8882dec55",
+          "url": "https://api.github.com/repos/nvbkdw/muse-spark-open-challenge/git/trees/edb3f33b9118b4a4c3f46f817e2d5ba8882dec55"
+        },
+        {
+          "path": "results/judge_runs.md",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "a24e16bed7c457fdf76c37100b4c7c066ad01d33",
+          "size": 11992,
+          "url": "https://api.github.com/repos/nvbkdw/muse-spark-open-challenge/git/blobs/a24e16bed7c457fdf76c37100b4c7c066ad01d33"
+        },
+        {
+          "path": "results/local_correctness.txt",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "9ce741118bf9b98796c4d8efba359d33195d8499",
+          "size": 348,
+          "url": "https://api.github.com/repos/nvbkdw/muse-spark-open-challenge/git/blobs/9ce741118bf9b98796c4d8efba359d33195d8499"
+        },
+        {
+          "path": "results/local_h100_bench.txt",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "0080ce286900441b4b1f56b4c6b4c44247f38462",
+          "size": 2402,
+          "url": "https://api.github.com/repos/nvbkdw/muse-spark-open-challenge/git/blobs/0080ce286900441b4b1f56b4c6b4c44247f38462"
+        },
+        {
+          "path": "results/prefill_judge_runs.md",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "3229d87d185064447c327a48e2660fb97a9a8669",
+          "size": 5500,
+          "url": "https://api.github.com/repos/nvbkdw/muse-spark-open-challenge/git/blobs/3229d87d185064447c327a48e2660fb97a9a8669"
+        },
+        {
+          "path": "results/prefill_local.txt",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "3c1ab232af6809d69d625e4b3f0a85bb3dc51eb8",
+          "size": 2301,
+          "url": "https://api.github.com/repos/nvbkdw/muse-spark-open-challenge/git/blobs/3c1ab232af6809d69d625e4b3f0a85bb3dc51eb8"
+        },
+        {
+          "path": "results/prefill_probe_moe_h200.log",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "87fdb95a0eb782ce527e3102b496ddf0ff706b28",
+          "size": 6515,
+          "url": "https://api.github.com/repos/nvbkdw/muse-spark-open-challenge/git/blobs/87fdb95a0eb782ce527e3102b496ddf0ff706b28"
+        },
+        {
+          "path": "results/prefill_sglang_baseline_profile_h200.txt",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "fff73175aa6ea2930274dc781baec0a9649731c5",
+          "size": 12712,
+          "url": "https://api.github.com/repos/nvbkdw/muse-spark-open-challenge/git/blobs/fff73175aa6ea2930274dc781baec0a9649731c5"
+        },
+        {
+          "path": "results/prefill_submit2_profile_h200.txt",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "f2294cbf1077091bd5383a066eb59cde336afeab",
+          "size": 13235,
+          "url": "https://api.github.com/repos/nvbkdw/muse-spark-open-challenge/git/blobs/f2294cbf1077091bd5383a066eb59cde336afeab"
+        },
+        {
+          "path": "results/probe10_h200.log",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "7c51937c56ee62ca0fdc6b93d43703f08abd34a9",
+          "size": 4723,
+          "url": "https://api.github.com/repos/nvbkdw/muse-spark-open-challenge/git/blobs/7c51937c56ee62ca0fdc6b93d43703f08abd34a9"
+        },
+        {
+          "path": "results/probe1_h200.log",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "6ece6afe950fc9973e7f4355fcf1c96f078802e8",
+          "size": 7164,
+          "url": "https://api.github.com/repos/nvbkdw/muse-spark-open-challenge/git/blobs/6ece6afe950fc9973e7f4355fcf1c96f078802e8"
+        },
+        {
+          "path": "results/probe2_h200.log",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "247de698013ba9ef1a1f55ffac279a0168b7a588",
+          "size": 5267,
+          "url": "https://api.github.com/repos/nvbkdw/muse-spark-open-challenge/git/blobs/247de698013ba9ef1a1f55ffac279a0168b7a588"
+        },
+        {
+          "path": "results/probe3_h200.log",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "c2228f4e60270b9306fe00c9ec69088e3640ea3f",
+          "size": 6676,
+          "url": "https://api.github.com/repos/nvbkdw/muse-spark-open-challenge/git/blobs/c2228f4e60270b9306fe00c9ec69088e3640ea3f"
+        },
+        {
+          "path": "results/probe4_h200.log",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "e68f3f61e7fbc0b6453a0030772ab22e36b7af37",
+          "size": 577,
+          "url": "https://api.github.com/repos/nvbkdw/muse-spark-open-challenge/git/blobs/e68f3f61e7fbc0b6453a0030772ab22e36b7af37"
+        },
+        {
+          "path": "results/probe5_h200.log",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "580dd76edf70faa1bcda4bbba65866b91047a1c7",
+          "size": 8636,
+          "url": "https://api.github.com/repos/nvbkdw/muse-spark-open-challenge/git/blobs/580dd76edf70faa1bcda4bbba65866b91047a1c7"
+        },
+        {
+          "path": "results/probe6_h200.log",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "d08c2f24fa9ae2e779ec8149085bbd32a88402d1",
+          "size": 7324,
+          "url": "https://api.github.com/repos/nvbkdw/muse-spark-open-challenge/git/blobs/d08c2f24fa9ae2e779ec8149085bbd32a88402d1"
+        },
+        {
+          "path": "results/probe7_h200.log",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "d457c5a57294cab01dd75fa19a872e5fc7e9d6bc",
+          "size": 5548,
+          "url": "https://api.github.com/repos/nvbkdw/muse-spark-open-challenge/git/blobs/d457c5a57294cab01dd75fa19a872e5fc7e9d6bc"
+        },
+        {
+          "path": "results/probe8_h200.log",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "451307ae7376257f6dfa3947a6d6f59117040142",
+          "size": 3872,
+          "url": "https://api.github.com/repos/nvbkdw/muse-spark-open-challenge/git/blobs/451307ae7376257f6dfa3947a6d6f59117040142"
+        },
+        {
+          "path": "results/probe9_h200.log",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "63fc473251e5f8dfc83a405c566e5fa643b7add5",
+          "size": 5206,
+          "url": "https://api.github.com/repos/nvbkdw/muse-spark-open-challenge/git/blobs/63fc473251e5f8dfc83a405c566e5fa643b7add5"
+        },
+        {
+          "path": "tools",
+          "mode": "040000",
+          "type": "tree",
+          "sha": "259d22bd30bd906ea26a127a07ef03f11a58e653",
+          "url": "https://api.github.com/repos/nvbkdw/muse-spark-open-challenge/git/trees/259d22bd30bd906ea26a127a07ef03f11a58e653"
+        },
+        {
+          "path": "tools/bench.py",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "651f78f5da2a5ba519cbd59d52ff2715a922d1af",
+          "size": 5957,
+          "url": "https://api.github.com/repos/nvbkdw/muse-spark-open-challenge/git/blobs/651f78f5da2a5ba519cbd59d52ff2715a922d1af"
+        },
+        {
+          "path": "tools/check.py",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "3f2f549a7532828571334782db65211bbe9ae54a",
+          "size": 1669,
+          "url": "https://api.github.com/repos/nvbkdw/muse-spark-open-challenge/git/blobs/3f2f549a7532828571334782db65211bbe9ae54a"
+        },
+        {
+          "path": "tools/experiments",
+          "mode": "040000",
+          "type": "tree",
+          "sha": "b905cd86b931c5b6af4be3a0aa0132eea5797053",
+          "url": "https://api.github.com/repos/nvbkdw/muse-spark-open-challenge/git/trees/b905cd86b931c5b6af4be3a0aa0132eea5797053"
+        },
+        {
+          "path": "tools/experiments/wgmma_rs_kernel.md",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "1cb6fda1ffd8548ea147559765d6d2a75070728b",
+          "size": 26513,
+          "url": "https://api.github.com/repos/nvbkdw/muse-spark-open-challenge/git/blobs/1cb6fda1ffd8548ea147559765d6d2a75070728b"
+        },
+        {
+          "path": "tools/make_probe.py",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "a14120fc927391c7368114b4cfe4aa9fb472b158",
+          "size": 5477,
+          "url": "https://api.github.com/repos/nvbkdw/muse-spark-open-challenge/git/blobs/a14120fc927391c7368114b4cfe4aa9fb472b158"
+        },
+        {
+          "path": "tools/micro.py",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "ffb09e85f108cb855fede0019f0a223208fb4656",
+          "size": 1612,
+          "url": "https://api.github.com/repos/nvbkdw/muse-spark-open-challenge/git/blobs/ffb09e85f108cb855fede0019f0a223208fb4656"
+        },
+        {
+          "path": "tools/prefill",
+          "mode": "040000",
+          "type": "tree",
+          "sha": "d4507b92bd05e9b086876175c75d638b2632aa24",
+          "url": "https://api.github.com/repos/nvbkdw/muse-spark-open-challenge/git/trees/d4507b92bd05e9b086876175c75d638b2632aa24"
+        },
+        {
+          "path": "tools/prefill/attn",
+          "mode": "040000",
+          "type": "tree",
+          "sha": "a3fb31b0c490289c37228d546e80b69ffc045481",
+          "url": "https://api.github.com/repos/nvbkdw/muse-spark-open-challenge/git/trees/a3fb31b0c490289c37228d546e80b69ffc045481"
+        },
+        {
+          "path": "tools/prefill/attn/ablate.py",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "fed258303e2b55f0125b36ef574123d5a2857ecf",
+          "size": 1567,
+          "url": "https://api.github.com/repos/nvbkdw/muse-spark-open-challenge/git/blobs/fed258303e2b55f0125b36ef574123d5a2857ecf"
+        },
+        {
+          "path": "tools/prefill/attn/attn_impl.py",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "2498cc502e17c0fc3dbb932606e5e2bb028d2bce",
+          "size": 40086,
+          "url": "https://api.github.com/repos/nvbkdw/muse-spark-open-challenge/git/blobs/2498cc502e17c0fc3dbb932606e5e2bb028d2bce"
+        },
+        {
+          "path": "tools/prefill/attn/bench_attn.py",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "bd93665b0c68288c853d5aa041cb10a526bb2d6e",
+          "size": 5986,
+          "url": "https://api.github.com/repos/nvbkdw/muse-spark-open-challenge/git/blobs/bd93665b0c68288c853d5aa041cb10a526bb2d6e"
+        },
+        {
+          "path": "tools/prefill/attn/clockcheck.py",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "9f1a2fd676a74ea8ed733b44019eff598e12d560",
+          "size": 1089,
+          "url": "https://api.github.com/repos/nvbkdw/muse-spark-open-challenge/git/blobs/9f1a2fd676a74ea8ed733b44019eff598e12d560"
+        },
+        {
+          "path": "tools/prefill/attn/common.py",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "64dfe08881ce7c2b97d12ae25861c91a6b5d39d1",
+          "size": 3833,
+          "url": "https://api.github.com/repos/nvbkdw/muse-spark-open-challenge/git/blobs/64dfe08881ce7c2b97d12ae25861c91a6b5d39d1"
+        },
+        {
+          "path": "tools/prefill/attn/gtune.py",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "9f73c11bcbd70f320c3b91c6b281d7fc3d1d2379",
+          "size": 580,
+          "url": "https://api.github.com/repos/nvbkdw/muse-spark-open-challenge/git/blobs/9f73c11bcbd70f320c3b91c6b281d7fc3d1d2379"
+        },
+        {
+          "path": "tools/prefill/attn/knobs.py",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "607f081bb18635d156728e2449ddc551edb89bc3",
+          "size": 915,
+          "url": "https://api.github.com/repos/nvbkdw/muse-spark-open-challenge/git/blobs/607f081bb18635d156728e2449ddc551edb89bc3"
+        },
+        {
+          "path": "tools/prefill/attn/make_submission.py",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "d8697014b833c8336c3d7a79209c9d830150f9db",
+          "size": 2035,
+          "url": "https://api.github.com/repos/nvbkdw/muse-spark-open-challenge/git/blobs/d8697014b833c8336c3d7a79209c9d830150f9db"
+        },
+        {
+          "path": "tools/prefill/attn/prof_fa3.py",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "28ef15797ff64c7220b4d2deceade077b670e9c4",
+          "size": 444,
+          "url": "https://api.github.com/repos/nvbkdw/muse-spark-open-challenge/git/blobs/28ef15797ff64c7220b4d2deceade077b670e9c4"
+        },
+        {
+          "path": "tools/prefill/attn/quick.py",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "6d3a7449e449515280cbf6f582ae3ce34fbedaa1",
+          "size": 2034,
+          "url": "https://api.github.com/repos/nvbkdw/muse-spark-open-challenge/git/blobs/6d3a7449e449515280cbf6f582ae3ce34fbedaa1"
+        },
+        {
+          "path": "tools/prefill/attn/quicktime.py",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "834a043b60e28c9ed800ba24bd5f67f741198a76",
+          "size": 1207,
+          "url": "https://api.github.com/repos/nvbkdw/muse-spark-open-challenge/git/blobs/834a043b60e28c9ed800ba24bd5f67f741198a76"
+        },
+        {
+          "path": "tools/prefill/attn/splits.py",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "511b2ed36ef900dfe4724d6d7e0a98ccaa14aaa9",
+          "size": 605,
+          "url": "https://api.github.com/repos/nvbkdw/muse-spark-open-challenge/git/blobs/511b2ed36ef900dfe4724d6d7e0a98ccaa14aaa9"
+        },
+        {
+          "path": "tools/prefill/attn/submission_attn.py",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "930a8fa29c226290db70899ba35897604f3af284",
+          "size": 56831,
+          "url": "https://api.github.com/repos/nvbkdw/muse-spark-open-challenge/git/blobs/930a8fa29c226290db70899ba35897604f3af284"
+        },
+        {
+          "path": "tools/prefill/bench_boundary.py",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "091d0ddfb7408b857d0c31b70f1f0d522737fd5f",
+          "size": 2637,
+          "url": "https://api.github.com/repos/nvbkdw/muse-spark-open-challenge/git/blobs/091d0ddfb7408b857d0c31b70f1f0d522737fd5f"
+        },
+        {
+          "path": "tools/prefill/bench_dense.py",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "cac9735993c701962e373185f1eadfbeba554a76",
+          "size": 1468,
+          "url": "https://api.github.com/repos/nvbkdw/muse-spark-open-challenge/git/blobs/cac9735993c701962e373185f1eadfbeba554a76"
+        },
+        {
+          "path": "tools/prefill/bench_fa3.py",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "0b66ecca767724feaf439f8551a49ba5025fa2e6",
+          "size": 2840,
+          "url": "https://api.github.com/repos/nvbkdw/muse-spark-open-challenge/git/blobs/0b66ecca767724feaf439f8551a49ba5025fa2e6"
+        },
+        {
+          "path": "tools/prefill/bench_humming.py",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "5493da269a996fdceee2abdf4bc657af98c09601",
+          "size": 4525,
+          "url": "https://api.github.com/repos/nvbkdw/muse-spark-open-challenge/git/blobs/5493da269a996fdceee2abdf4bc657af98c09601"
+        },
+        {
+          "path": "tools/prefill/bench_masked.py",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "b324bde132e9f9a21730499f2db57065c54aca1b",
+          "size": 1713,
+          "url": "https://api.github.com/repos/nvbkdw/muse-spark-open-challenge/git/blobs/b324bde132e9f9a21730499f2db57065c54aca1b"
+        },
+        {
+          "path": "tools/prefill/bench_overlap.py",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "8d5733bfa0e1c01f68f1cc7d66f2c5e61ef500e9",
+          "size": 2752,
+          "url": "https://api.github.com/repos/nvbkdw/muse-spark-open-challenge/git/blobs/8d5733bfa0e1c01f68f1cc7d66f2c5e61ef500e9"
+        },
+        {
+          "path": "tools/prefill/bench_overlap2.py",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "227a560bdeb32387edce8a8ba138bd989f732cdb",
+          "size": 2544,
+          "url": "https://api.github.com/repos/nvbkdw/muse-spark-open-challenge/git/blobs/227a560bdeb32387edce8a8ba138bd989f732cdb"
+        },
+        {
+          "path": "tools/prefill/bench_routing.py",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "737cba411a6b96adbe3387187f81cffda9195e7e",
+          "size": 7214,
+          "url": "https://api.github.com/repos/nvbkdw/muse-spark-open-challenge/git/blobs/737cba411a6b96adbe3387187f81cffda9195e7e"
+        },
+        {
+          "path": "tools/prefill/bench_split.py",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "70dab4b380d2377643ca25ad616f9743aeeec69e",
+          "size": 2271,
+          "url": "https://api.github.com/repos/nvbkdw/muse-spark-open-challenge/git/blobs/70dab4b380d2377643ca25ad616f9743aeeec69e"
+        },
+        {
+          "path": "tools/prefill/bench_split3.py",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "b8db339142c57437de89d6847e4fa8ee9fcf2a5f",
+          "size": 2808,
+          "url": "https://api.github.com/repos/nvbkdw/muse-spark-open-challenge/git/blobs/b8db339142c57437de89d6847e4fa8ee9fcf2a5f"
+        },
+        {
+          "path": "tools/prefill/judge.py",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "2386b30df136ff822462b6054bc490039ec0df39",
+          "size": 6293,
+          "url": "https://api.github.com/repos/nvbkdw/muse-spark-open-challenge/git/blobs/2386b30df136ff822462b6054bc490039ec0df39"
+        },
+        {
+          "path": "tools/prefill/make_probe.py",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "7356a14fc2129ad6e3f87cc1c608a2ffb968c7b8",
+          "size": 5184,
+          "url": "https://api.github.com/repos/nvbkdw/muse-spark-open-challenge/git/blobs/7356a14fc2129ad6e3f87cc1c608a2ffb968c7b8"
+        },
+        {
+          "path": "tools/prefill/moe_kernel",
+          "mode": "040000",
+          "type": "tree",
+          "sha": "1536d086b9cd8e6e6a0a0ea7b7d9ea84bdf2b7ab",
+          "url": "https://api.github.com/repos/nvbkdw/muse-spark-open-challenge/git/trees/1536d086b9cd8e6e6a0a0ea7b7d9ea84bdf2b7ab"
+        },
+        {
+          "path": "tools/prefill/moe_kernel/dist2.py",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "cb40cf73d8516603c5b56dad1cef290d90fcf3bd",
+          "size": 1127,
+          "url": "https://api.github.com/repos/nvbkdw/muse-spark-open-challenge/git/blobs/cb40cf73d8516603c5b56dad1cef290d90fcf3bd"
+        },
+        {
+          "path": "tools/prefill/moe_kernel/moe256.py",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "936c9205a6d331c2f7da1873c543bd8f8d157069",
+          "size": 29241,
+          "url": "https://api.github.com/repos/nvbkdw/muse-spark-open-challenge/git/blobs/936c9205a6d331c2f7da1873c543bd8f8d157069"
+        },
+        {
+          "path": "tools/prefill/moe_kernel/moe_fp4.py",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "9c48947fe828da44b21a0ccda3857abd86d21323",
+          "size": 29143,
+          "url": "https://api.github.com/repos/nvbkdw/muse-spark-open-challenge/git/blobs/9c48947fe828da44b21a0ccda3857abd86d21323"
+        },
+        {
+          "path": "tools/prefill/moe_kernel/quick.py",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "8db98d7b96eb520d6ba4a3cc8ad416a2a473a94b",
+          "size": 1060,
+          "url": "https://api.github.com/repos/nvbkdw/muse-spark-open-challenge/git/blobs/8db98d7b96eb520d6ba4a3cc8ad416a2a473a94b"
+        },
+        {
+          "path": "tools/prefill/moe_kernel/results.json",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "4f1d930996e7e8d7039f8259822a87e7631ba6d1",
+          "size": 4252,
+          "url": "https://api.github.com/repos/nvbkdw/muse-spark-open-challenge/git/blobs/4f1d930996e7e8d7039f8259822a87e7631ba6d1"
+        },
+        {
+          "path": "tools/prefill/moe_kernel/syn.py",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "7d49170defb194a317cd0b48798422060af3f712",
+          "size": 989,
+          "url": "https://api.github.com/repos/nvbkdw/muse-spark-open-challenge/git/blobs/7d49170defb194a317cd0b48798422060af3f712"
+        },
+        {
+          "path": "tools/prefill/moe_kernel/syn2.py",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "641049363c97992e4b3b3e126b5e6b5ab7cb021b",
+          "size": 251,
+          "url": "https://api.github.com/repos/nvbkdw/muse-spark-open-challenge/git/blobs/641049363c97992e4b3b3e126b5e6b5ab7cb021b"
+        },
+        {
+          "path": "tools/prefill/moe_kernel/test_hybrid.py",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "bce4d68d7f5509509e420b77f010adc469dcc55f",
+          "size": 3027,
+          "url": "https://api.github.com/repos/nvbkdw/muse-spark-open-challenge/git/blobs/bce4d68d7f5509509e420b77f010adc469dcc55f"
+        },
+        {
+          "path": "tools/prefill/moe_kernel/test_hybrid2.py",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "e409432d09864a171294fc16f8d0726ffa87578c",
+          "size": 2750,
+          "url": "https://api.github.com/repos/nvbkdw/muse-spark-open-challenge/git/blobs/e409432d09864a171294fc16f8d0726ffa87578c"
+        },
+        {
+          "path": "tools/prefill/moe_kernel/test_hybrid3.py",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "b64933d01bef7150fc1409514409eff4c0532a63",
+          "size": 2534,
+          "url": "https://api.github.com/repos/nvbkdw/muse-spark-open-challenge/git/blobs/b64933d01bef7150fc1409514409eff4c0532a63"
+        },
+        {
+          "path": "tools/prefill/moe_kernel/test_moe_fp4.py",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "b5a71356d88c9c656acb319eebc4e7ba4b169b74",
+          "size": 10485,
+          "url": "https://api.github.com/repos/nvbkdw/muse-spark-open-challenge/git/blobs/b5a71356d88c9c656acb319eebc4e7ba4b169b74"
+        },
+        {
+          "path": "tools/prefill/moe_kernel/test_single_variant.py",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "dd6bfae4e697ba6609b2dbf4f144a5af1c374960",
+          "size": 1947,
+          "url": "https://api.github.com/repos/nvbkdw/muse-spark-open-challenge/git/blobs/dd6bfae4e697ba6609b2dbf4f144a5af1c374960"
+        },
+        {
+          "path": "tools/prefill/prof.py",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "0bb446c28cccf73e8e24559cb3cc1fa761863821",
+          "size": 1317,
+          "url": "https://api.github.com/repos/nvbkdw/muse-spark-open-challenge/git/blobs/0bb446c28cccf73e8e24559cb3cc1fa761863821"
+        },
+        {
+          "path": "tools/prefill/robust.py",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "b207e06901210d9edf93b7d25c884dd416a3fa30",
+          "size": 1232,
+          "url": "https://api.github.com/repos/nvbkdw/muse-spark-open-challenge/git/blobs/b207e06901210d9edf93b7d25c884dd416a3fa30"
+        },
+        {
+          "path": "tools/prefill/route_stats.py",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "ea80195a471b1b041ccd2c543b3e5800117a5a7a",
+          "size": 728,
+          "url": "https://api.github.com/repos/nvbkdw/muse-spark-open-challenge/git/blobs/ea80195a471b1b041ccd2c543b3e5800117a5a7a"
+        },
+        {
+          "path": "tools/prefill/sweep_16k.py",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "3486cbdad70001d7c766e53cae3719d441b13639",
+          "size": 1410,
+          "url": "https://api.github.com/repos/nvbkdw/muse-spark-open-challenge/git/blobs/3486cbdad70001d7c766e53cae3719d441b13639"
+        },
+        {
+          "path": "tools/prefill/sweep_humming.py",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "9ae34309185881fadfc14e125394c3f8f1425da4",
+          "size": 2012,
+          "url": "https://api.github.com/repos/nvbkdw/muse-spark-open-challenge/git/blobs/9ae34309185881fadfc14e125394c3f8f1425da4"
+        },
+        {
+          "path": "tools/prof_shape.py",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "a3419c26082f8d6ea8cd3b2f0e247c0d1a4bf841",
+          "size": 1044,
+          "url": "https://api.github.com/repos/nvbkdw/muse-spark-open-challenge/git/blobs/a3419c26082f8d6ea8cd3b2f0e247c0d1a4bf841"
+        },
+        {
+          "path": "tools/robust.py",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "3e59df3d6d8fbac826aa7d9fb3e6408a4d01d82a",
+          "size": 1810,
+          "url": "https://api.github.com/repos/nvbkdw/muse-spark-open-challenge/git/blobs/3e59df3d6d8fbac826aa7d9fb3e6408a4d01d82a"
+        },
+        {
+          "path": "tools/stream_bench.py",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "54366c9096be198de898be4637f801e35b7b2f8e",
+          "size": 6453,
+          "url": "https://api.github.com/repos/nvbkdw/muse-spark-open-challenge/git/blobs/54366c9096be198de898be4637f801e35b7b2f8e"
+        },
+        {
+          "path": "tools/sweep1.py",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "9b8588bb00055c2fed22030b6c3f49f43dbfde99",
+          "size": 765,
+          "url": "https://api.github.com/repos/nvbkdw/muse-spark-open-challenge/git/blobs/9b8588bb00055c2fed22030b6c3f49f43dbfde99"
+        },
+        {
+          "path": "tools/sweep10.py",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "f9dc0ad410033cf670582a636deaa2797b3c0e1b",
+          "size": 1222,
+          "url": "https://api.github.com/repos/nvbkdw/muse-spark-open-challenge/git/blobs/f9dc0ad410033cf670582a636deaa2797b3c0e1b"
+        },
+        {
+          "path": "tools/sweep2.py",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "ac27338eb5bd51d1a2e26b80c1e51cc28628d297",
+          "size": 1037,
+          "url": "https://api.github.com/repos/nvbkdw/muse-spark-open-challenge/git/blobs/ac27338eb5bd51d1a2e26b80c1e51cc28628d297"
+        },
+        {
+          "path": "tools/sweep3.py",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "096ad70c03913883de5ce42d7e2f7a921bafa56a",
+          "size": 881,
+          "url": "https://api.github.com/repos/nvbkdw/muse-spark-open-challenge/git/blobs/096ad70c03913883de5ce42d7e2f7a921bafa56a"
+        },
+        {
+          "path": "tools/sweep5.py",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "dfb2017b7eae482267006764bb6d36d83b89db9c",
+          "size": 1194,
+          "url": "https://api.github.com/repos/nvbkdw/muse-spark-open-challenge/git/blobs/dfb2017b7eae482267006764bb6d36d83b89db9c"
+        },
+        {
+          "path": "tools/sweep6.py",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "97c6db0bd19897150a39f2b7dae74cae7a921512",
+          "size": 1132,
+          "url": "https://api.github.com/repos/nvbkdw/muse-spark-open-challenge/git/blobs/97c6db0bd19897150a39f2b7dae74cae7a921512"
+        },
+        {
+          "path": "tools/sweep7.py",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "7cfb34cdc08a33839b9bcef19a9183d5cc06cdad",
+          "size": 835,
+          "url": "https://api.github.com/repos/nvbkdw/muse-spark-open-challenge/git/blobs/7cfb34cdc08a33839b9bcef19a9183d5cc06cdad"
+        },
+        {
+          "path": "tools/sweep8.py",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "cfa1929f6c2347caf656cab3189b2a41baed2642",
+          "size": 656,
+          "url": "https://api.github.com/repos/nvbkdw/muse-spark-open-challenge/git/blobs/cfa1929f6c2347caf656cab3189b2a41baed2642"
+        },
+        {
+          "path": "tools/sweep9.py",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "7a8e748765dba1cbc1a0d41d4b459f24c8ac3868",
+          "size": 997,
+          "url": "https://api.github.com/repos/nvbkdw/muse-spark-open-challenge/git/blobs/7a8e748765dba1cbc1a0d41d4b459f24c8ac3868"
+        },
+        {
+          "path": "tools/timing.py",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "c4b5e0ff3383948a7e1af6ca2def7d8740624ccc",
+          "size": 1154,
+          "url": "https://api.github.com/repos/nvbkdw/muse-spark-open-challenge/git/blobs/c4b5e0ff3383948a7e1af6ca2def7d8740624ccc"
+        },
+        {
+          "path": "tools/timing2.py",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "3f619dafe5a3d9fe3a8890c3d0033c9b4b33ac73",
+          "size": 1520,
+          "url": "https://api.github.com/repos/nvbkdw/muse-spark-open-challenge/git/blobs/3f619dafe5a3d9fe3a8890c3d0033c9b4b33ac73"
+        }
+      ],
+      "truncated": false,
+      "readme": "# Muse Spark Open kernel challenge entries\n\nKernel-track entries for [openkernelchallenge.dev](https://openkernelchallenge.dev), developed on a local H100 and\nscored on the judge's H200.\n\n## `muse_prefill_layer` (whole decoder layer at prefill shapes)\n\n* `muse_prefill_layer/submission.py`: the submission (single file). The pipeline is:\n  * cuBLAS for the dense projections;\n  * one fused Triton kernel for QK-norm, RoPE, FP8 q and the FP8 K/V cache store;\n  * a custom FP8 GQA-packed wgmma attention kernel (CUDA source compiled in-process with NVRTC) for long\n    full-attention layers, and FA3 (sgl_kernel) elsewhere;\n  * row-chunked Triton boundary kernels (post-norm, residual gate, pre-norm);\n  * Triton routing (sigmoid, biased top-8, renormalization, slab-slot assignment), dispatch, SiLU·up and combine kernels;\n  * the routed experts as **humming** NVFP4 x BF16 grouped-masked wgmma GEMMs (humming is in the judge image):\n    two launches per GEMM (large tile for experts with >32 routes, small tile for the rest), run concurrently.\n* `muse_prefill_layer/{reference,checks,baseline,nvfp4}.py`, `TASK.md`, `AGENTS.md`: problem files from `okc init`.\n* `results/prefill_judge_runs.md`: every judge run, per shape. `results/prefill_*_profile_h200.txt`: judge profiles\n  (SGLang baseline and our latest submission). `results/prefill_probe_moe_h200.log`: on-judge diagnostics (real expert\n  routing distributions, boundary-kernel variants, humming config sweep on the real counts).\n* `tools/prefill/`:\n  * `judge.py`: local judge-like harness (reference checks + CUDA-graph replay timing with a cold L2).\n  * `robust.py`: extra correctness cases (kv_scale 1/64, spread lengths, page 64, odd lengths).\n  * `prof.py`: per-kernel profile of one case.\n  * `make_probe.py`: generates an on-judge diagnostic check run.\n  * `bench_*.py`, `sweep_*.py`: microbenchmarks behind each decision.\n  * `attn/`: the attention kernel's development (`attn_impl.py`, benchmarks).\n  * `moe_kernel/`: a custom NVFP4 grouped-GEMM experiment; correct, but not faster than humming end to end, so not used.\n\n```bash\nexport TORCH_EXTENSIONS_DIR=/scratch-nvme/okc/ext\npython tools/prefill/judge.py --cases tests,scored        # 5 judge tests + 8 scored shapes, correctness + timing\npython tools/prefill/robust.py                             # extra correctness cases\nokc check muse_prefill_layer/submission.py --json          # the real judge (H200)\npython tools/prefill/make_probe.py probes/probe_moe.py && okc check probes/probe_moe.py --json   # H200 diagnostics\n```\n\n## `muse_bf16_proj` (dense BF16 projections + FP32 router)\n\n* `muse_bf16_proj/submission.py`: the submission (single file, CUDA compiled with `load_inline`).\n* `results/judge_runs.md`, `results/probe*_h200.log`, `results/local_*`: judge results, on-judge sweeps, local logs.\n* `tools/`: `bench.py`, `check.py`, `robust.py`, `micro.py`, `timing2.py`, `stream_bench.py`, `make_probe.py` + `sweep*.py`.\n\n```bash\npython tools/check.py && python tools/robust.py && python tools/bench.py --reps 20\nokc check muse_bf16_proj/submission.py --json\n```\n\nSee the pull request descriptions for design, measurements and open issues.\n"
+    },
+    {
+      "repo": "ishnbl/muse_kernel",
+      "status": 200,
+      "pin": "aef4da6cd7c5ee005e2c0466ec747979ad5afc87",
+      "commit_date": "2026-10-31T14:08:23Z",
+      "tree": [
+        {
+          "path": ".gitignore",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "07f0d2cb7914be65b642658af596ba6ed095e355",
+          "size": 57,
+          "url": "https://api.github.com/repos/ishnbl/muse_kernel/git/blobs/07f0d2cb7914be65b642658af596ba6ed095e355"
+        },
+        {
+          "path": "CLAUDE.md",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "33d705b892adc7d27abbf461b63807b0ef8f761e",
+          "size": 4303,
+          "url": "https://api.github.com/repos/ishnbl/muse_kernel/git/blobs/33d705b892adc7d27abbf461b63807b0ef8f761e"
+        },
+        {
+          "path": "README.md",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "f2f051e23fc9639d1614e1f8b0f3d9739ea0e221",
+          "size": 5746,
+          "url": "https://api.github.com/repos/ishnbl/muse_kernel/git/blobs/f2f051e23fc9639d1614e1f8b0f3d9739ea0e221"
+        },
+        {
+          "path": "okcbench",
+          "mode": "040000",
+          "type": "tree",
+          "sha": "0b49891093c2988b956d60a34dd07ec0e3f1e146",
+          "url": "https://api.github.com/repos/ishnbl/muse_kernel/git/trees/0b49891093c2988b956d60a34dd07ec0e3f1e146"
+        },
+        {
+          "path": "okcbench/__init__.py",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "05bcdc1f86da8c0cda8231bde3160297bb0af116",
+          "size": 102,
+          "url": "https://api.github.com/repos/ishnbl/muse_kernel/git/blobs/05bcdc1f86da8c0cda8231bde3160297bb0af116"
+        },
+        {
+          "path": "okcbench/__main__.py",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "dd8a8c90e6b7af74ed3657ef5b74aaa5ebf0abd4",
+          "size": 52,
+          "url": "https://api.github.com/repos/ishnbl/muse_kernel/git/blobs/dd8a8c90e6b7af74ed3657ef5b74aaa5ebf0abd4"
+        },
+        {
+          "path": "okcbench/cli.py",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "efea1698f0af2da1ec035806d8e0de8e94f691b4",
+          "size": 31501,
+          "url": "https://api.github.com/repos/ishnbl/muse_kernel/git/blobs/efea1698f0af2da1ec035806d8e0de8e94f691b4"
+        },
+        {
+          "path": "okcbench/fetch.py",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "62c314f23bb4083fd8151cbd1ef1303bc4c90871",
+          "size": 4842,
+          "url": "https://api.github.com/repos/ishnbl/muse_kernel/git/blobs/62c314f23bb4083fd8151cbd1ef1303bc4c90871"
+        },
+        {
+          "path": "okcbench/harness.py",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "960685dbb563b24c18f054c1e3ac3a906e56e749",
+          "size": 12091,
+          "url": "https://api.github.com/repos/ishnbl/muse_kernel/git/blobs/960685dbb563b24c18f054c1e3ac3a906e56e749"
+        },
+        {
+          "path": "okcbench/lint.py",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "14d8a50b468d6a4e914c9c81e0e79516d5d7fdcc",
+          "size": 5354,
+          "url": "https://api.github.com/repos/ishnbl/muse_kernel/git/blobs/14d8a50b468d6a4e914c9c81e0e79516d5d7fdcc"
+        },
+        {
+          "path": "okcbench/problem.py",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "f5a9b8ae5fdc0a5810d70d1aed35958b261cf4cf",
+          "size": 9003,
+          "url": "https://api.github.com/repos/ishnbl/muse_kernel/git/blobs/f5a9b8ae5fdc0a5810d70d1aed35958b261cf4cf"
+        },
+        {
+          "path": "okcbench/stats.py",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "ca92d09cdf16929e3b649483e930aa9deaaf1bab",
+          "size": 2933,
+          "url": "https://api.github.com/repos/ishnbl/muse_kernel/git/blobs/ca92d09cdf16929e3b649483e930aa9deaaf1bab"
+        },
+        {
+          "path": "okcbench/util.py",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "ef3521da3c2e46b36b434707645066ee454eb938",
+          "size": 740,
+          "url": "https://api.github.com/repos/ishnbl/muse_kernel/git/blobs/ef3521da3c2e46b36b434707645066ee454eb938"
+        },
+        {
+          "path": "problems",
+          "mode": "040000",
+          "type": "tree",
+          "sha": "570c2f7ef97633ea17d269f76c60a31faf4190d5",
+          "url": "https://api.github.com/repos/ishnbl/muse_kernel/git/trees/570c2f7ef97633ea17d269f76c60a31faf4190d5"
+        },
+        {
+          "path": "problems/muse_attention_decode",
+          "mode": "040000",
+          "type": "tree",
+          "sha": "f2437ad3f33bb3af6b28f740b1cfd1161ca6d687",
+          "url": "https://api.github.com/repos/ishnbl/muse_kernel/git/trees/f2437ad3f33bb3af6b28f740b1cfd1161ca6d687"
+        },
+        {
+          "path": "problems/muse_attention_decode/AGENTS.md",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "022830ad5b238b619bee802f9ddb3c23f005a841",
+          "size": 2720,
+          "url": "https://api.github.com/repos/ishnbl/muse_kernel/git/blobs/022830ad5b238b619bee802f9ddb3c23f005a841"
+        },
+        {
+          "path": "problems/muse_attention_decode/TASK.md",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "13089e62828ceea600cf2a30bb8bad6c151d48e4",
+          "size": 9638,
+          "url": "https://api.github.com/repos/ishnbl/muse_kernel/git/blobs/13089e62828ceea600cf2a30bb8bad6c151d48e4"
+        },
+        {
+          "path": "problems/muse_attention_decode/baseline.py",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "2ac5e2e62360a28bcc03170c946b52347b021cfe",
+          "size": 6178,
+          "url": "https://api.github.com/repos/ishnbl/muse_kernel/git/blobs/2ac5e2e62360a28bcc03170c946b52347b021cfe"
+        },
+        {
+          "path": "problems/muse_attention_decode/cases.json",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "08338df5497e823d6ef0eec773743a3330f57082",
+          "size": 13540,
+          "url": "https://api.github.com/repos/ishnbl/muse_kernel/git/blobs/08338df5497e823d6ef0eec773743a3330f57082"
+        },
+        {
+          "path": "problems/muse_attention_decode/checks.py",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "bc51923c9041b04b0ce9e57348f10cfae84b73d9",
+          "size": 2484,
+          "url": "https://api.github.com/repos/ishnbl/muse_kernel/git/blobs/bc51923c9041b04b0ce9e57348f10cfae84b73d9"
+        },
+        {
+          "path": "problems/muse_attention_decode/meta.json",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "8812f8ae76446fc51948dfd5a94cf11591be6204",
+          "size": 6328,
+          "url": "https://api.github.com/repos/ishnbl/muse_kernel/git/blobs/8812f8ae76446fc51948dfd5a94cf11591be6204"
+        },
+        {
+          "path": "problems/muse_attention_decode/reference.py",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "490ef92dbfc085784802a65047f12ffbfda2ac32",
+          "size": 19275,
+          "url": "https://api.github.com/repos/ishnbl/muse_kernel/git/blobs/490ef92dbfc085784802a65047f12ffbfda2ac32"
+        },
+        {
+          "path": "problems/muse_attention_decode/submission.py",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "7cafe07522219f5d70a1d23f29e3ee2fbdb497b7",
+          "size": 5601,
+          "url": "https://api.github.com/repos/ishnbl/muse_kernel/git/blobs/7cafe07522219f5d70a1d23f29e3ee2fbdb497b7"
+        },
+        {
+          "path": "problems/muse_attention_decode/template.py",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "7cafe07522219f5d70a1d23f29e3ee2fbdb497b7",
+          "size": 5601,
+          "url": "https://api.github.com/repos/ishnbl/muse_kernel/git/blobs/7cafe07522219f5d70a1d23f29e3ee2fbdb497b7"
+        },
+        {
+          "path": "problems/muse_bf16_proj",
+          "mode": "040000",
+          "type": "tree",
+          "sha": "21bb4080f510078b6cb314b45c8ac6774174af68",
+          "url": "https://api.github.com/repos/ishnbl/muse_kernel/git/trees/21bb4080f510078b6cb314b45c8ac6774174af68"
+        },
+        {
+          "path": "problems/muse_bf16_proj/AGENTS.md",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "f7ac0dfe39ab6684e8243dbada2789230fcaee10",
+          "size": 2706,
+          "url": "https://api.github.com/repos/ishnbl/muse_kernel/git/blobs/f7ac0dfe39ab6684e8243dbada2789230fcaee10"
+        },
+        {
+          "path": "problems/muse_bf16_proj/NOTES.md",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "a9033ba778f220557d08abcf4633633a231273a3",
+          "size": 384,
+          "url": "https://api.github.com/repos/ishnbl/muse_kernel/git/blobs/a9033ba778f220557d08abcf4633633a231273a3"
+        },
+        {
+          "path": "problems/muse_bf16_proj/TASK.md",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "da91e807376dbf0b3ffc1f0b3fa7347351817be7",
+          "size": 8264,
+          "url": "https://api.github.com/repos/ishnbl/muse_kernel/git/blobs/da91e807376dbf0b3ffc1f0b3fa7347351817be7"
+        },
+        {
+          "path": "problems/muse_bf16_proj/baseline.py",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "a4cde4b06c4c75622bafbd78d19fe4e3406c7a8d",
+          "size": 2397,
+          "url": "https://api.github.com/repos/ishnbl/muse_kernel/git/blobs/a4cde4b06c4c75622bafbd78d19fe4e3406c7a8d"
+        },
+        {
+          "path": "problems/muse_bf16_proj/candidates",
+          "mode": "040000",
+          "type": "tree",
+          "sha": "30a313c0c5a72e3fa9e91a26f77bba31a2ef3605",
+          "url": "https://api.github.com/repos/ishnbl/muse_kernel/git/trees/30a313c0c5a72e3fa9e91a26f77bba31a2ef3605"
+        },
+        {
+          "path": "problems/muse_bf16_proj/candidates/001-triton-splitk.py",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "e543df95f54d74cda0d7848103bb22c3d8c4b940",
+          "size": 7352,
+          "url": "https://api.github.com/repos/ishnbl/muse_kernel/git/blobs/e543df95f54d74cda0d7848103bb22c3d8c4b940"
+        },
+        {
+          "path": "problems/muse_bf16_proj/cases.json",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "9e1fc81421eb54d32e5f663a4445d89df49cdcc7",
+          "size": 9530,
+          "url": "https://api.github.com/repos/ishnbl/muse_kernel/git/blobs/9e1fc81421eb54d32e5f663a4445d89df49cdcc7"
+        },
+        {
+          "path": "problems/muse_bf16_proj/checks.py",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "bc51923c9041b04b0ce9e57348f10cfae84b73d9",
+          "size": 2484,
+          "url": "https://api.github.com/repos/ishnbl/muse_kernel/git/blobs/bc51923c9041b04b0ce9e57348f10cfae84b73d9"
+        },
+        {
+          "path": "problems/muse_bf16_proj/meta.json",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "5b38cdf7981b35c965a063e80788acad5e8cf895",
+          "size": 4014,
+          "url": "https://api.github.com/repos/ishnbl/muse_kernel/git/blobs/5b38cdf7981b35c965a063e80788acad5e8cf895"
+        },
+        {
+          "path": "problems/muse_bf16_proj/reference.py",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "ab244d54a6b77bd990fe56f8eb047658f815c3ce",
+          "size": 5155,
+          "url": "https://api.github.com/repos/ishnbl/muse_kernel/git/blobs/ab244d54a6b77bd990fe56f8eb047658f815c3ce"
+        },
+        {
+          "path": "problems/muse_bf16_proj/submission.py",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "6ce773a44036578450b1489df0030d65d2c67c0e",
+          "size": 1299,
+          "url": "https://api.github.com/repos/ishnbl/muse_kernel/git/blobs/6ce773a44036578450b1489df0030d65d2c67c0e"
+        },
+        {
+          "path": "problems/muse_bf16_proj/template.py",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "6ce773a44036578450b1489df0030d65d2c67c0e",
+          "size": 1299,
+          "url": "https://api.github.com/repos/ishnbl/muse_kernel/git/blobs/6ce773a44036578450b1489df0030d65d2c67c0e"
+        },
+        {
+          "path": "problems/muse_decode_layer",
+          "mode": "040000",
+          "type": "tree",
+          "sha": "66d6ff2daf97c60e5b48e55308c497ed81e48e1c",
+          "url": "https://api.github.com/repos/ishnbl/muse_kernel/git/trees/66d6ff2daf97c60e5b48e55308c497ed81e48e1c"
+        },
+        {
+          "path": "problems/muse_decode_layer/AGENTS.md",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "4d69f6867322a260a2784096ab38d3219139c5d4",
+          "size": 2712,
+          "url": "https://api.github.com/repos/ishnbl/muse_kernel/git/blobs/4d69f6867322a260a2784096ab38d3219139c5d4"
+        },
+        {
+          "path": "problems/muse_decode_layer/TASK.md",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "fcf3c2e9c317578fe1b9edee0489d73e9aa85bfe",
+          "size": 9853,
+          "url": "https://api.github.com/repos/ishnbl/muse_kernel/git/blobs/fcf3c2e9c317578fe1b9edee0489d73e9aa85bfe"
+        },
+        {
+          "path": "problems/muse_decode_layer/baseline.py",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "7706aee5c085b4fc8819835e5a7ec4e3f59a0833",
+          "size": 18993,
+          "url": "https://api.github.com/repos/ishnbl/muse_kernel/git/blobs/7706aee5c085b4fc8819835e5a7ec4e3f59a0833"
+        },
+        {
+          "path": "problems/muse_decode_layer/cases.json",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "0a2617f7cc602c7f30907365fd2dea0d1d053695",
+          "size": 11865,
+          "url": "https://api.github.com/repos/ishnbl/muse_kernel/git/blobs/0a2617f7cc602c7f30907365fd2dea0d1d053695"
+        },
+        {
+          "path": "problems/muse_decode_layer/checks.py",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "bc51923c9041b04b0ce9e57348f10cfae84b73d9",
+          "size": 2484,
+          "url": "https://api.github.com/repos/ishnbl/muse_kernel/git/blobs/bc51923c9041b04b0ce9e57348f10cfae84b73d9"
+        },
+        {
+          "path": "problems/muse_decode_layer/meta.json",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "f5cf60d21aab39de0cc7b8bb7670ae9b2dce8bcb",
+          "size": 8817,
+          "url": "https://api.github.com/repos/ishnbl/muse_kernel/git/blobs/f5cf60d21aab39de0cc7b8bb7670ae9b2dce8bcb"
+        },
+        {
+          "path": "problems/muse_decode_layer/nvfp4.py",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "aa688f50e4bdbf500c5a09e9f546ec37c68e3dad",
+          "size": 5929,
+          "url": "https://api.github.com/repos/ishnbl/muse_kernel/git/blobs/aa688f50e4bdbf500c5a09e9f546ec37c68e3dad"
+        },
+        {
+          "path": "problems/muse_decode_layer/reference.py",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "f92aa2db6ba064bc686ed5369f979cfe00d4ff44",
+          "size": 35035,
+          "url": "https://api.github.com/repos/ishnbl/muse_kernel/git/blobs/f92aa2db6ba064bc686ed5369f979cfe00d4ff44"
+        },
+        {
+          "path": "problems/muse_decode_layer/submission.py",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "0a0fc36b7854c07f5047c1df4e08ee984a830651",
+          "size": 10691,
+          "url": "https://api.github.com/repos/ishnbl/muse_kernel/git/blobs/0a0fc36b7854c07f5047c1df4e08ee984a830651"
+        },
+        {
+          "path": "problems/muse_decode_layer/template.py",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "0a0fc36b7854c07f5047c1df4e08ee984a830651",
+          "size": 10691,
+          "url": "https://api.github.com/repos/ishnbl/muse_kernel/git/blobs/0a0fc36b7854c07f5047c1df4e08ee984a830651"
+        },
+        {
+          "path": "problems/muse_moe_w4a16",
+          "mode": "040000",
+          "type": "tree",
+          "sha": "10fb054898ee7ef231757f4ae5cfa215d67b4762",
+          "url": "https://api.github.com/repos/ishnbl/muse_kernel/git/trees/10fb054898ee7ef231757f4ae5cfa215d67b4762"
+        },
+        {
+          "path": "problems/muse_moe_w4a16/AGENTS.md",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "699b46245ad2f96c8ed4b757ec8ed5380363fcd6",
+          "size": 2706,
+          "url": "https://api.github.com/repos/ishnbl/muse_kernel/git/blobs/699b46245ad2f96c8ed4b757ec8ed5380363fcd6"
+        },
+        {
+          "path": "problems/muse_moe_w4a16/TASK.md",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "1755b9ecebe4f52825244681682b68822af97b97",
+          "size": 6782,
+          "url": "https://api.github.com/repos/ishnbl/muse_kernel/git/blobs/1755b9ecebe4f52825244681682b68822af97b97"
+        },
+        {
+          "path": "problems/muse_moe_w4a16/baseline.py",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "489b210f27a38ffb3f83b8da3f297b6f569ea57f",
+          "size": 7086,
+          "url": "https://api.github.com/repos/ishnbl/muse_kernel/git/blobs/489b210f27a38ffb3f83b8da3f297b6f569ea57f"
+        },
+        {
+          "path": "problems/muse_moe_w4a16/cases.json",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "495048595eaa73bbf2f7078afc7f0628caedea09",
+          "size": 2169,
+          "url": "https://api.github.com/repos/ishnbl/muse_kernel/git/blobs/495048595eaa73bbf2f7078afc7f0628caedea09"
+        },
+        {
+          "path": "problems/muse_moe_w4a16/checks.py",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "bc51923c9041b04b0ce9e57348f10cfae84b73d9",
+          "size": 2484,
+          "url": "https://api.github.com/repos/ishnbl/muse_kernel/git/blobs/bc51923c9041b04b0ce9e57348f10cfae84b73d9"
+        },
+        {
+          "path": "problems/muse_moe_w4a16/meta.json",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "08fa6c8fb21595501c943c457743f867c40a17a5",
+          "size": 4077,
+          "url": "https://api.github.com/repos/ishnbl/muse_kernel/git/blobs/08fa6c8fb21595501c943c457743f867c40a17a5"
+        },
+        {
+          "path": "problems/muse_moe_w4a16/nvfp4.py",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "aa688f50e4bdbf500c5a09e9f546ec37c68e3dad",
+          "size": 5929,
+          "url": "https://api.github.com/repos/ishnbl/muse_kernel/git/blobs/aa688f50e4bdbf500c5a09e9f546ec37c68e3dad"
+        },
+        {
+          "path": "problems/muse_moe_w4a16/reference.py",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "b937352204a206cc2de669d3aa36a014755afe86",
+          "size": 6764,
+          "url": "https://api.github.com/repos/ishnbl/muse_kernel/git/blobs/b937352204a206cc2de669d3aa36a014755afe86"
+        },
+        {
+          "path": "problems/muse_moe_w4a16/submission.py",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "8eeb6a4778875e37a1d9c55a5e27ee6079999847",
+          "size": 3088,
+          "url": "https://api.github.com/repos/ishnbl/muse_kernel/git/blobs/8eeb6a4778875e37a1d9c55a5e27ee6079999847"
+        },
+        {
+          "path": "problems/muse_moe_w4a16/template.py",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "8eeb6a4778875e37a1d9c55a5e27ee6079999847",
+          "size": 3088,
+          "url": "https://api.github.com/repos/ishnbl/muse_kernel/git/blobs/8eeb6a4778875e37a1d9c55a5e27ee6079999847"
+        },
+        {
+          "path": "problems/muse_prefill_layer",
+          "mode": "040000",
+          "type": "tree",
+          "sha": "9af0391b4c8940f8f7fa9c5cd9ea7360193a4690",
+          "url": "https://api.github.com/repos/ishnbl/muse_kernel/git/trees/9af0391b4c8940f8f7fa9c5cd9ea7360193a4690"
+        },
+        {
+          "path": "problems/muse_prefill_layer/AGENTS.md",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "6dda036652f97fe1424f21d268687b2617438074",
+          "size": 2714,
+          "url": "https://api.github.com/repos/ishnbl/muse_kernel/git/blobs/6dda036652f97fe1424f21d268687b2617438074"
+        },
+        {
+          "path": "problems/muse_prefill_layer/TASK.md",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "a2c3b51a981085c76b3dcf55a01b1de76f6c62d8",
+          "size": 8706,
+          "url": "https://api.github.com/repos/ishnbl/muse_kernel/git/blobs/a2c3b51a981085c76b3dcf55a01b1de76f6c62d8"
+        },
+        {
+          "path": "problems/muse_prefill_layer/baseline.py",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "7706aee5c085b4fc8819835e5a7ec4e3f59a0833",
+          "size": 18993,
+          "url": "https://api.github.com/repos/ishnbl/muse_kernel/git/blobs/7706aee5c085b4fc8819835e5a7ec4e3f59a0833"
+        },
+        {
+          "path": "problems/muse_prefill_layer/cases.json",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "f108ba4007864e4687e7965b347967b8e5a65f55",
+          "size": 9839,
+          "url": "https://api.github.com/repos/ishnbl/muse_kernel/git/blobs/f108ba4007864e4687e7965b347967b8e5a65f55"
+        },
+        {
+          "path": "problems/muse_prefill_layer/checks.py",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "bc51923c9041b04b0ce9e57348f10cfae84b73d9",
+          "size": 2484,
+          "url": "https://api.github.com/repos/ishnbl/muse_kernel/git/blobs/bc51923c9041b04b0ce9e57348f10cfae84b73d9"
+        },
+        {
+          "path": "problems/muse_prefill_layer/meta.json",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "49c18daae45223c216716385d797a29f97850468",
+          "size": 3105,
+          "url": "https://api.github.com/repos/ishnbl/muse_kernel/git/blobs/49c18daae45223c216716385d797a29f97850468"
+        },
+        {
+          "path": "problems/muse_prefill_layer/nvfp4.py",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "aa688f50e4bdbf500c5a09e9f546ec37c68e3dad",
+          "size": 5929,
+          "url": "https://api.github.com/repos/ishnbl/muse_kernel/git/blobs/aa688f50e4bdbf500c5a09e9f546ec37c68e3dad"
+        },
+        {
+          "path": "problems/muse_prefill_layer/reference.py",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "f92aa2db6ba064bc686ed5369f979cfe00d4ff44",
+          "size": 35035,
+          "url": "https://api.github.com/repos/ishnbl/muse_kernel/git/blobs/f92aa2db6ba064bc686ed5369f979cfe00d4ff44"
+        },
+        {
+          "path": "problems/muse_prefill_layer/submission.py",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "15e2cafa9040cfadc7045aca96417bbeb8707aa9",
+          "size": 10692,
+          "url": "https://api.github.com/repos/ishnbl/muse_kernel/git/blobs/15e2cafa9040cfadc7045aca96417bbeb8707aa9"
+        },
+        {
+          "path": "problems/muse_prefill_layer/template.py",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "15e2cafa9040cfadc7045aca96417bbeb8707aa9",
+          "size": 10692,
+          "url": "https://api.github.com/repos/ishnbl/muse_kernel/git/blobs/15e2cafa9040cfadc7045aca96417bbeb8707aa9"
+        },
+        {
+          "path": "scripts",
+          "mode": "040000",
+          "type": "tree",
+          "sha": "22d376868fe178fc09ca323d96572069a3c023d3",
+          "url": "https://api.github.com/repos/ishnbl/muse_kernel/git/trees/22d376868fe178fc09ca323d96572069a3c023d3"
+        },
+        {
+          "path": "scripts/okc-docker.sh",
+          "mode": "100755",
+          "type": "blob",
+          "sha": "386bfea891d873f6590bfec43f344ffb7880941c",
+          "size": 1079,
+          "url": "https://api.github.com/repos/ishnbl/muse_kernel/git/blobs/386bfea891d873f6590bfec43f344ffb7880941c"
+        },
+        {
+          "path": "scripts/selftest_bf16_proj.py",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "35b9f9c5fa2c99dff7fea2cc0d31e1661c5a54cc",
+          "size": 5831,
+          "url": "https://api.github.com/repos/ishnbl/muse_kernel/git/blobs/35b9f9c5fa2c99dff7fea2cc0d31e1661c5a54cc"
+        }
+      ],
+      "truncated": false,
+      "readme": "# okcbench: a local judge for the Open Kernel Challenge kernel track\n\nA harness for optimizing the five Muse Spark Open kernel problems on one H200. It generates the\ninputs, checks your kernel against the judge's reference, times it against SGLang's kernel the\nway the judge does, and profiles it. It runs on your own GPU, so you don't spend `okc check`\nruns on every change.\n\n```\nproblems/<name>/\n  reference.py checks.py nvfp4.py   the judge's spec: generate_input, ref_kernel, check_implementation\n  baseline.py                       SGLang's kernel (what you're timed against)\n  template.py                       plain-PyTorch starting point\n  submission.py                     your kernel (starts as template.py)\n  candidates/                       variants you're trying\n  TASK.md AGENTS.md meta.json       the problem statement, and the API's scored shapes and SGLang time\n  cases.json                        suites: tests (the gate), benchmarks (scored), nearby (perturbed)\nokcbench/                           the harness\nruns/<name>/                        results: <time>-<cmd>-<file>-<sha>/result.json, history.jsonl\nscripts/okc-docker.sh               runs okcbench inside the judge's image\n```\n\n## Setup (on the GPU machine)\n\nThe baseline imports SGLang, sgl_kernel and FA3, so run inside the image the judge uses:\n\n```bash\ndocker pull lmsysorg/sglang:dev-muse-spark-open\nscripts/okc-docker.sh bench -p muse_bf16_proj       # every command below works through this script\nscripts/okc-docker.sh --shell                       # or work inside the container: python -m okcbench ...\n```\n\n`python -m okcbench fetch` pulls the problem files again from the public API, for example if\nthey change. It never overwrites `submission.py` or `candidates/`. `fetch`, `cases`, `lint` and\n`history` need no GPU.\n\n## The pipeline\n\n| step | command | what it does |\n|---|---|---|\n| inputs | `cases <problem>` | Lists every case. Inputs are generated on the GPU by `reference.generate_input` from each case's seed. Fresh inputs for repeated calls use derived seeds. |\n| reference | (inside check) | `reference.check_implementation`: the judge's own check (FP64/FP32 reference, per-row bounds, probe rows, routing rules, FP8-query-scaled bounds, KV-cache writes). |\n| correctness | `check <file>` | Runs each test case on 2 fresh inputs. SGLang's kernel runs on the same inputs, so you can see its error next to yours and how much precision headroom you have. |\n| speed | `bench <file...>` | Runs the test gate first, then the scored shapes. Each side is captured once as a CUDA graph and replayed on fresh inputs with a cold L2. Your replays and SGLang's take turns, the order swaps every repetition, and the result is the median of paired ratios. The fixed cost of a graph replay is subtracted. Outputs of timed replays are checked too, which catches state cached from a previous input. The score is a weighted sum per load, then the geometric mean over loads, as on the leaderboard. |\n| profile | `profile <file>` | Per-kernel GPU time with torch.profiler (graph replays, cold L2), for your kernel and SGLang's side by side. Use `--tool ncu` for Nsight Compute (full set: DRAM%, SM%, L2 hit, occupancy, plus a details page) or `--tool nsys` for a timeline. |\n| raw data | `dump -p <problem>` | Saves inputs, reference outputs and SGLang outputs as `.pt` files, for debugging a kernel outside the harness. |\n| tracking | `history [problem]` | Every bench run with its file hash and speedup. `--best` sorts by speedup. |\n\nExamples:\n\n```bash\npython -m okcbench check problems/muse_moe_w4a16/submission.py\npython -m okcbench bench problems/muse_moe_w4a16/candidates/*.py            # several variants, one paired run\npython -m okcbench bench F.py --only \"load=decode 1\" --quick --skip-tests   # quick iteration on one load\npython -m okcbench bench F.py --cached-baseline --quick                     # skip re-timing SGLang (unpaired)\npython -m okcbench bench F.py --suite nearby                                # the final review also runs nearby shapes\npython -m okcbench profile F.py --only \"layer=pooler,m=16\"\npython -m okcbench profile F.py --only 3 --tool ncu --side sub\npython -m okcbench history muse_moe_w4a16 --best\n```\n\n`--only` takes comma-separated terms that must all match: a case index (`3`), a field\n(`load=verify 32`, `layer=router`) or a substring of the case label. Every command that runs\nkernels writes `result.json` (pass `--json` to get a machine-readable summary on stdout). The\nexit status is 0 if everything passed, 1 if a check failed, and 2 if something crashed, such\nas an illegal memory access.\n\n## Where this differs from the real judge\n\nTreat `okc check` as the final word. This harness is for iterating between those runs.\n\n- **Seeds.** The judge's seeds for test inputs and fresh inputs are its own. Here, test seeds are 9000+i and fresh inputs use derived seeds.\n- **Router seed on the layer problems.** The judge picks a router seed so the busiest GPU gets a target MoE load (`weights_fields`, from `router_load` in its task.yml, which isn't published). Without it, the expert load here can differ from the judge's. If you know the targets, add `router_load` / `router_distinct` to the benchmark entries in `cases.json`.\n- **Output checks during timing.** By default only the first 3 timed replays per case are checked (`--check-reps`). The judge checks every one.\n- **Graph replay cost.** The fixed cost subtracted is measured on your machine. The judge says about 4 µs; `--overhead-us 4` matches that.\n- **Limits.** The 10-minute run limit and the 300 s `prepare()` limit aren't enforced. Prepare times are printed so you can watch them.\n- **Static screen.** `lint` is an approximation of the judge's static screen.\n"
+    },
+    {
+      "repo": "Kushagrabainsla/muse-spark-open",
+      "status": 200,
+      "pin": "ca71144194e993c9769f20654fade8008c6868c7",
+      "commit_date": "2026-11-01T04:25:37Z",
+      "tree": [
+        {
+          "path": ".gitignore",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "29c9df62764c79de4a6d4d6627ebe0bcb0a9d2cc",
+          "size": 49,
+          "url": "https://api.github.com/repos/Kushagrabainsla/muse-spark-open/git/blobs/29c9df62764c79de4a6d4d6627ebe0bcb0a9d2cc"
+        },
+        {
+          "path": "README.md",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "bf2617367ab8bb3e523ff023afa434dd15cb6eaf",
+          "size": 7655,
+          "url": "https://api.github.com/repos/Kushagrabainsla/muse-spark-open/git/blobs/bf2617367ab8bb3e523ff023afa434dd15cb6eaf"
+        },
+        {
+          "path": "RESUME.md",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "527d919751c4b9d40a91cfda734c36ca76714769",
+          "size": 9502,
+          "url": "https://api.github.com/repos/Kushagrabainsla/muse-spark-open/git/blobs/527d919751c4b9d40a91cfda734c36ca76714769"
+        },
+        {
+          "path": "muse_attention_decode",
+          "mode": "040000",
+          "type": "tree",
+          "sha": "8cc9666a4d4b34618586ac3ff892ecc1fe68b35c",
+          "url": "https://api.github.com/repos/Kushagrabainsla/muse-spark-open/git/trees/8cc9666a4d4b34618586ac3ff892ecc1fe68b35c"
+        },
+        {
+          "path": "muse_attention_decode/AGENTS.md",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "022830ad5b238b619bee802f9ddb3c23f005a841",
+          "size": 2720,
+          "url": "https://api.github.com/repos/Kushagrabainsla/muse-spark-open/git/blobs/022830ad5b238b619bee802f9ddb3c23f005a841"
+        },
+        {
+          "path": "muse_attention_decode/EXPERIMENTS.md",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "a012e3cc4b521d2025f4bc410f85c2b516428468",
+          "size": 22582,
+          "url": "https://api.github.com/repos/Kushagrabainsla/muse-spark-open/git/blobs/a012e3cc4b521d2025f4bc410f85c2b516428468"
+        },
+        {
+          "path": "muse_attention_decode/TASK.md",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "13089e62828ceea600cf2a30bb8bad6c151d48e4",
+          "size": 9638,
+          "url": "https://api.github.com/repos/Kushagrabainsla/muse-spark-open/git/blobs/13089e62828ceea600cf2a30bb8bad6c151d48e4"
+        },
+        {
+          "path": "muse_attention_decode/baseline.py",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "2ac5e2e62360a28bcc03170c946b52347b021cfe",
+          "size": 6178,
+          "url": "https://api.github.com/repos/Kushagrabainsla/muse-spark-open/git/blobs/2ac5e2e62360a28bcc03170c946b52347b021cfe"
+        },
+        {
+          "path": "muse_attention_decode/bench.py",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "a9d73ebfae5db5b1cfd01c1e1e9f6a5e789802f5",
+          "size": 4682,
+          "url": "https://api.github.com/repos/Kushagrabainsla/muse-spark-open/git/blobs/a9d73ebfae5db5b1cfd01c1e1e9f6a5e789802f5"
+        },
+        {
+          "path": "muse_attention_decode/bench_multi.py",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "fcdbd2720a6f18061a9dde6e2ba0f8485a5f05a5",
+          "size": 2879,
+          "url": "https://api.github.com/repos/Kushagrabainsla/muse-spark-open/git/blobs/fcdbd2720a6f18061a9dde6e2ba0f8485a5f05a5"
+        },
+        {
+          "path": "muse_attention_decode/check_cuda.py",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "0f6ae730055c52f470281695bb3104eddf3da9dd",
+          "size": 1885,
+          "url": "https://api.github.com/repos/Kushagrabainsla/muse-spark-open/git/blobs/0f6ae730055c52f470281695bb3104eddf3da9dd"
+        },
+        {
+          "path": "muse_attention_decode/checks.py",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "bc51923c9041b04b0ce9e57348f10cfae84b73d9",
+          "size": 2484,
+          "url": "https://api.github.com/repos/Kushagrabainsla/muse-spark-open/git/blobs/bc51923c9041b04b0ce9e57348f10cfae84b73d9"
+        },
+        {
+          "path": "muse_attention_decode/prof.py",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "fc44068020d69de0129a322d8322ca4e4a316a9e",
+          "size": 853,
+          "url": "https://api.github.com/repos/Kushagrabainsla/muse-spark-open/git/blobs/fc44068020d69de0129a322d8322ca4e4a316a9e"
+        },
+        {
+          "path": "muse_attention_decode/profiles",
+          "mode": "040000",
+          "type": "tree",
+          "sha": "5b3a8b68d99185fea9e9eacc7bd2097f61516f9d",
+          "url": "https://api.github.com/repos/Kushagrabainsla/muse-spark-open/git/trees/5b3a8b68d99185fea9e9eacc7bd2097f61516f9d"
+        },
+        {
+          "path": "muse_attention_decode/profiles/submission.09b49ea4276e4306.json",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "44ad767a2c3bc93b7a8f79339a58807dd8a314f8",
+          "size": 77216,
+          "url": "https://api.github.com/repos/Kushagrabainsla/muse-spark-open/git/blobs/44ad767a2c3bc93b7a8f79339a58807dd8a314f8"
+        },
+        {
+          "path": "muse_attention_decode/profiles/submission.09b49ea4276e4306.log",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+          "size": 0,
+          "url": "https://api.github.com/repos/Kushagrabainsla/muse-spark-open/git/blobs/e69de29bb2d1d6434b8b29ae775ad8c2e48c5391"
+        },
+        {
+          "path": "muse_attention_decode/profiles/submission.09b49ea4276e4306.txt",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "f4d8c2c14b9991ba72915f2510b192eb3b37c707",
+          "size": 8620,
+          "url": "https://api.github.com/repos/Kushagrabainsla/muse-spark-open/git/blobs/f4d8c2c14b9991ba72915f2510b192eb3b37c707"
+        },
+        {
+          "path": "muse_attention_decode/profiles/submission.161f6859011940a9.json",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "a91f2b39b068fe03d707100d698fbaf8e0580326",
+          "size": 77455,
+          "url": "https://api.github.com/repos/Kushagrabainsla/muse-spark-open/git/blobs/a91f2b39b068fe03d707100d698fbaf8e0580326"
+        },
+        {
+          "path": "muse_attention_decode/profiles/submission.161f6859011940a9.log",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+          "size": 0,
+          "url": "https://api.github.com/repos/Kushagrabainsla/muse-spark-open/git/blobs/e69de29bb2d1d6434b8b29ae775ad8c2e48c5391"
+        },
+        {
+          "path": "muse_attention_decode/profiles/submission.161f6859011940a9.txt",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "ea4530fddb949a3602445b1be771dab9a2a6ff22",
+          "size": 8619,
+          "url": "https://api.github.com/repos/Kushagrabainsla/muse-spark-open/git/blobs/ea4530fddb949a3602445b1be771dab9a2a6ff22"
+        },
+        {
+          "path": "muse_attention_decode/profiles/submission.2c45705ab18b4339.json",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "101cf2f733fc160f354f5117411a2cf4080929a2",
+          "size": 80511,
+          "url": "https://api.github.com/repos/Kushagrabainsla/muse-spark-open/git/blobs/101cf2f733fc160f354f5117411a2cf4080929a2"
+        },
+        {
+          "path": "muse_attention_decode/profiles/submission.2c45705ab18b4339.log",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+          "size": 0,
+          "url": "https://api.github.com/repos/Kushagrabainsla/muse-spark-open/git/blobs/e69de29bb2d1d6434b8b29ae775ad8c2e48c5391"
+        },
+        {
+          "path": "muse_attention_decode/profiles/submission.2c45705ab18b4339.txt",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "072ce407f26c279e005bc249b1ee89001780b25e",
+          "size": 11699,
+          "url": "https://api.github.com/repos/Kushagrabainsla/muse-spark-open/git/blobs/072ce407f26c279e005bc249b1ee89001780b25e"
+        },
+        {
+          "path": "muse_attention_decode/profiles/submission.4dfff989c4eb4bce.json",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "ced2df258a8575756fc0b448805250fce8aaac1a",
+          "size": 78852,
+          "url": "https://api.github.com/repos/Kushagrabainsla/muse-spark-open/git/blobs/ced2df258a8575756fc0b448805250fce8aaac1a"
+        },
+        {
+          "path": "muse_attention_decode/profiles/submission.4dfff989c4eb4bce.log",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+          "size": 0,
+          "url": "https://api.github.com/repos/Kushagrabainsla/muse-spark-open/git/blobs/e69de29bb2d1d6434b8b29ae775ad8c2e48c5391"
+        },
+        {
+          "path": "muse_attention_decode/profiles/submission.4dfff989c4eb4bce.txt",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "80bdc1ba60287c8dfb2b8121f35a4c39b9d8a9bc",
+          "size": 10210,
+          "url": "https://api.github.com/repos/Kushagrabainsla/muse-spark-open/git/blobs/80bdc1ba60287c8dfb2b8121f35a4c39b9d8a9bc"
+        },
+        {
+          "path": "muse_attention_decode/profiles/submission.62e3d04b55e14fa8.json",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "6945f3e2522772d29bfb43b941a83a828c0d00a6",
+          "size": 79832,
+          "url": "https://api.github.com/repos/Kushagrabainsla/muse-spark-open/git/blobs/6945f3e2522772d29bfb43b941a83a828c0d00a6"
+        },
+        {
+          "path": "muse_attention_decode/profiles/submission.62e3d04b55e14fa8.log",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+          "size": 0,
+          "url": "https://api.github.com/repos/Kushagrabainsla/muse-spark-open/git/blobs/e69de29bb2d1d6434b8b29ae775ad8c2e48c5391"
+        },
+        {
+          "path": "muse_attention_decode/profiles/submission.62e3d04b55e14fa8.txt",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "96b4c97660ed2e68ed3917b2e180c62911d5b063",
+          "size": 11088,
+          "url": "https://api.github.com/repos/Kushagrabainsla/muse-spark-open/git/blobs/96b4c97660ed2e68ed3917b2e180c62911d5b063"
+        },
+        {
+          "path": "muse_attention_decode/profiles/submission.8d8e1bdca2c440de.json",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "57c640e2a1086a4ca64aba46441626597f1409f9",
+          "size": 78098,
+          "url": "https://api.github.com/repos/Kushagrabainsla/muse-spark-open/git/blobs/57c640e2a1086a4ca64aba46441626597f1409f9"
+        },
+        {
+          "path": "muse_attention_decode/profiles/submission.8d8e1bdca2c440de.log",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+          "size": 0,
+          "url": "https://api.github.com/repos/Kushagrabainsla/muse-spark-open/git/blobs/e69de29bb2d1d6434b8b29ae775ad8c2e48c5391"
+        },
+        {
+          "path": "muse_attention_decode/profiles/submission.8d8e1bdca2c440de.txt",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "c147784d9a692c09ea7493b896d2d09e79afeed6",
+          "size": 9510,
+          "url": "https://api.github.com/repos/Kushagrabainsla/muse-spark-open/git/blobs/c147784d9a692c09ea7493b896d2d09e79afeed6"
+        },
+        {
+          "path": "muse_attention_decode/profiles/submission.a2c76ca68c5148d2.json",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "63699ef083d46c6edcf6defbdec386d3d49a3859",
+          "size": 78620,
+          "url": "https://api.github.com/repos/Kushagrabainsla/muse-spark-open/git/blobs/63699ef083d46c6edcf6defbdec386d3d49a3859"
+        },
+        {
+          "path": "muse_attention_decode/profiles/submission.a2c76ca68c5148d2.log",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+          "size": 0,
+          "url": "https://api.github.com/repos/Kushagrabainsla/muse-spark-open/git/blobs/e69de29bb2d1d6434b8b29ae775ad8c2e48c5391"
+        },
+        {
+          "path": "muse_attention_decode/profiles/submission.a2c76ca68c5148d2.txt",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "95259b613b0a4f7cae82b7996e8490c73e83a578",
+          "size": 9857,
+          "url": "https://api.github.com/repos/Kushagrabainsla/muse-spark-open/git/blobs/95259b613b0a4f7cae82b7996e8490c73e83a578"
+        },
+        {
+          "path": "muse_attention_decode/profiles/submission.e3e7b06cb3d14e80.json",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "04b5e18a5638a71794f7605710106945e2590041",
+          "size": 78083,
+          "url": "https://api.github.com/repos/Kushagrabainsla/muse-spark-open/git/blobs/04b5e18a5638a71794f7605710106945e2590041"
+        },
+        {
+          "path": "muse_attention_decode/profiles/submission.e3e7b06cb3d14e80.log",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+          "size": 0,
+          "url": "https://api.github.com/repos/Kushagrabainsla/muse-spark-open/git/blobs/e69de29bb2d1d6434b8b29ae775ad8c2e48c5391"
+        },
+        {
+          "path": "muse_attention_decode/profiles/submission.e3e7b06cb3d14e80.txt",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "014ddb5293dd782965c4be6bb93ce970fb151fb0",
+          "size": 9509,
+          "url": "https://api.github.com/repos/Kushagrabainsla/muse-spark-open/git/blobs/014ddb5293dd782965c4be6bb93ce970fb151fb0"
+        },
+        {
+          "path": "muse_attention_decode/profiles/submission.f71bd3dd29a94d3b.json",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "6e21ad6f14f5efe84c86df1c7f14a35ff22cadd4",
+          "size": 77880,
+          "url": "https://api.github.com/repos/Kushagrabainsla/muse-spark-open/git/blobs/6e21ad6f14f5efe84c86df1c7f14a35ff22cadd4"
+        },
+        {
+          "path": "muse_attention_decode/profiles/submission.f71bd3dd29a94d3b.log",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+          "size": 0,
+          "url": "https://api.github.com/repos/Kushagrabainsla/muse-spark-open/git/blobs/e69de29bb2d1d6434b8b29ae775ad8c2e48c5391"
+        },
+        {
+          "path": "muse_attention_decode/profiles/submission.f71bd3dd29a94d3b.txt",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "9a67f21635a417fc11aa8d4de26d24728bf9a884",
+          "size": 9148,
+          "url": "https://api.github.com/repos/Kushagrabainsla/muse-spark-open/git/blobs/9a67f21635a417fc11aa8d4de26d24728bf9a884"
+        },
+        {
+          "path": "muse_attention_decode/reference.py",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "490ef92dbfc085784802a65047f12ffbfda2ac32",
+          "size": 19275,
+          "url": "https://api.github.com/repos/Kushagrabainsla/muse-spark-open/git/blobs/490ef92dbfc085784802a65047f12ffbfda2ac32"
+        },
+        {
+          "path": "muse_attention_decode/submission.py",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "bd642fb4298c6ee447ce35090517f937c8f3a6e2",
+          "size": 123258,
+          "url": "https://api.github.com/repos/Kushagrabainsla/muse-spark-open/git/blobs/bd642fb4298c6ee447ce35090517f937c8f3a6e2"
+        },
+        {
+          "path": "muse_attention_decode/submission_a1.py",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "bb6a452e56c5cfe9039c601e851e954798a0ad0b",
+          "size": 11546,
+          "url": "https://api.github.com/repos/Kushagrabainsla/muse-spark-open/git/blobs/bb6a452e56c5cfe9039c601e851e954798a0ad0b"
+        },
+        {
+          "path": "muse_attention_decode/submission_a10.py",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "c3df9eb98f7a6cdc897a97aafb6ddd59582c03d7",
+          "size": 78519,
+          "url": "https://api.github.com/repos/Kushagrabainsla/muse-spark-open/git/blobs/c3df9eb98f7a6cdc897a97aafb6ddd59582c03d7"
+        },
+        {
+          "path": "muse_attention_decode/submission_a13.py",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "e5036da624914800916e2b6e537d1f2b051ff1a1",
+          "size": 123712,
+          "url": "https://api.github.com/repos/Kushagrabainsla/muse-spark-open/git/blobs/e5036da624914800916e2b6e537d1f2b051ff1a1"
+        },
+        {
+          "path": "muse_attention_decode/submission_a14.py",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "a475897124df60f9462305bdeb9ee7635a099599",
+          "size": 122084,
+          "url": "https://api.github.com/repos/Kushagrabainsla/muse-spark-open/git/blobs/a475897124df60f9462305bdeb9ee7635a099599"
+        },
+        {
+          "path": "muse_attention_decode/submission_a15_cudamerge.py",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "9fedd8d01f8819b6d66fb4c8815dbbe8c1d016d5",
+          "size": 127887,
+          "url": "https://api.github.com/repos/Kushagrabainsla/muse-spark-open/git/blobs/9fedd8d01f8819b6d66fb4c8815dbbe8c1d016d5"
+        },
+        {
+          "path": "muse_attention_decode/submission_a15_fullattnc.py",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "7d7ea9612baac0681e94d38daa1340103f93445e",
+          "size": 129250,
+          "url": "https://api.github.com/repos/Kushagrabainsla/muse-spark-open/git/blobs/7d7ea9612baac0681e94d38daa1340103f93445e"
+        },
+        {
+          "path": "muse_attention_decode/submission_a2_triton_attn.py",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "68d07a1681b961f5e3d53bfb899319b6d3d41c72",
+          "size": 12716,
+          "url": "https://api.github.com/repos/Kushagrabainsla/muse-spark-open/git/blobs/68d07a1681b961f5e3d53bfb899319b6d3d41c72"
+        },
+        {
+          "path": "muse_attention_decode/submission_a3.py",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "eb851a580613184e5c31dd4d6672d2cec89abe83",
+          "size": 6355,
+          "url": "https://api.github.com/repos/Kushagrabainsla/muse-spark-open/git/blobs/eb851a580613184e5c31dd4d6672d2cec89abe83"
+        },
+        {
+          "path": "muse_attention_decode/submission_a4.py",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "41cce5e63aaa1bc2c741bfb5a7c28f367d77d8e7",
+          "size": 22598,
+          "url": "https://api.github.com/repos/Kushagrabainsla/muse-spark-open/git/blobs/41cce5e63aaa1bc2c741bfb5a7c28f367d77d8e7"
+        },
+        {
+          "path": "muse_attention_decode/submission_a5.py",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "5872dee3604d4f8667ec4112fddf72fcda2c12e0",
+          "size": 26917,
+          "url": "https://api.github.com/repos/Kushagrabainsla/muse-spark-open/git/blobs/5872dee3604d4f8667ec4112fddf72fcda2c12e0"
+        },
+        {
+          "path": "muse_attention_decode/submission_a9.py",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "acb92a4e448135dac8ae507869a09f3534980529",
+          "size": 63555,
+          "url": "https://api.github.com/repos/Kushagrabainsla/muse-spark-open/git/blobs/acb92a4e448135dac8ae507869a09f3534980529"
+        },
+        {
+          "path": "muse_attention_decode/sweep.py",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "715b253e5c583a8769b1e4e9526b328ae94676dd",
+          "size": 1330,
+          "url": "https://api.github.com/repos/Kushagrabainsla/muse-spark-open/git/blobs/715b253e5c583a8769b1e4e9526b328ae94676dd"
+        },
+        {
+          "path": "muse_attention_decode/sweep_cuda.py",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "3250c631bd63c2a3a14b669cf57fc88857bb41aa",
+          "size": 1257,
+          "url": "https://api.github.com/repos/Kushagrabainsla/muse-spark-open/git/blobs/3250c631bd63c2a3a14b669cf57fc88857bb41aa"
+        },
+        {
+          "path": "muse_attention_decode/timing.py",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "8d9b99e56edf3027713616cca3e74d3b9af64ff0",
+          "size": 1719,
+          "url": "https://api.github.com/repos/Kushagrabainsla/muse-spark-open/git/blobs/8d9b99e56edf3027713616cca3e74d3b9af64ff0"
+        },
+        {
+          "path": "muse_attention_decode/tools",
+          "mode": "040000",
+          "type": "tree",
+          "sha": "bd4089268dc6d3fda7a09f2b472877a4838fbae6",
+          "url": "https://api.github.com/repos/Kushagrabainsla/muse-spark-open/git/trees/bd4089268dc6d3fda7a09f2b472877a4838fbae6"
+        },
+        {
+          "path": "muse_attention_decode/tools/astress.py",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "dc4db619cb0e1dce94461dfd46008c7651d3c4f9",
+          "size": 2274,
+          "url": "https://api.github.com/repos/Kushagrabainsla/muse-spark-open/git/blobs/dc4db619cb0e1dce94461dfd46008c7651d3c4f9"
+        },
+        {
+          "path": "muse_attention_decode/tools/cclk2.py",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "551c0905b70cd30573639fb7e79f582310a1b364",
+          "size": 1629,
+          "url": "https://api.github.com/repos/Kushagrabainsla/muse-spark-open/git/blobs/551c0905b70cd30573639fb7e79f582310a1b364"
+        },
+        {
+          "path": "muse_attention_decode/tools/cclk3.py",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "e18f8d29c96ca1a5aaa5c4c44f2cf31d019e8e1a",
+          "size": 1670,
+          "url": "https://api.github.com/repos/Kushagrabainsla/muse-spark-open/git/blobs/e18f8d29c96ca1a5aaa5c4c44f2cf31d019e8e1a"
+        },
+        {
+          "path": "muse_attention_decode/tools/gather.py",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "87adaa6c21e75c35a668e3059cd853e552de9626",
+          "size": 2468,
+          "url": "https://api.github.com/repos/Kushagrabainsla/muse-spark-open/git/blobs/87adaa6c21e75c35a668e3059cd853e552de9626"
+        },
+        {
+          "path": "muse_attention_decode/tools/mkcclk2.py",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "4c8e3aba0859b1913127595a50c8d61df1a4bbad",
+          "size": 2331,
+          "url": "https://api.github.com/repos/Kushagrabainsla/muse-spark-open/git/blobs/4c8e3aba0859b1913127595a50c8d61df1a4bbad"
+        },
+        {
+          "path": "muse_attention_decode/tools/mkvclk.py",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "289e846f300bfccff710102651233e4792360311",
+          "size": 2647,
+          "url": "https://api.github.com/repos/Kushagrabainsla/muse-spark-open/git/blobs/289e846f300bfccff710102651233e4792360311"
+        },
+        {
+          "path": "muse_attention_decode/tools/nsk.sh",
+          "mode": "100755",
+          "type": "blob",
+          "sha": "a4cb8f54cada09fd81a5551cfa6563d3132f4ece",
+          "size": 490,
+          "url": "https://api.github.com/repos/Kushagrabainsla/muse-spark-open/git/blobs/a4cb8f54cada09fd81a5551cfa6563d3132f4ece"
+        },
+        {
+          "path": "muse_attention_decode/tools/prof2.py",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "e8a0338360b9dab9fc20d1160c0c837793ac5dcd",
+          "size": 1174,
+          "url": "https://api.github.com/repos/Kushagrabainsla/muse-spark-open/git/blobs/e8a0338360b9dab9fc20d1160c0c837793ac5dcd"
+        },
+        {
+          "path": "muse_attention_decode/tools/vclk.py",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "e8a17ebea23b400ee06583e70e929f1e5f299ad7",
+          "size": 1415,
+          "url": "https://api.github.com/repos/Kushagrabainsla/muse-spark-open/git/blobs/e8a17ebea23b400ee06583e70e929f1e5f299ad7"
+        },
+        {
+          "path": "muse_attention_decode/tools/vclk2.py",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "43386a259f14e77f558da5728e484931063114b6",
+          "size": 1467,
+          "url": "https://api.github.com/repos/Kushagrabainsla/muse-spark-open/git/blobs/43386a259f14e77f558da5728e484931063114b6"
+        },
+        {
+          "path": "muse_attention_decode/tools/wg_test.py",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "06cab8f7535d85349b5e61cf7e3d27b39ba6b261",
+          "size": 6504,
+          "url": "https://api.github.com/repos/Kushagrabainsla/muse-spark-open/git/blobs/06cab8f7535d85349b5e61cf7e3d27b39ba6b261"
+        },
+        {
+          "path": "muse_attention_decode/tools/wgclk.py",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "b75c00a8b9ae13a82e14fd221ae32ed4c1aa2f45",
+          "size": 1114,
+          "url": "https://api.github.com/repos/Kushagrabainsla/muse-spark-open/git/blobs/b75c00a8b9ae13a82e14fd221ae32ed4c1aa2f45"
+        },
+        {
+          "path": "muse_bf16_proj",
+          "mode": "040000",
+          "type": "tree",
+          "sha": "bf39f0a6d14de6558b3d3093bd7b5205d69fc925",
+          "url": "https://api.github.com/repos/Kushagrabainsla/muse-spark-open/git/trees/bf39f0a6d14de6558b3d3093bd7b5205d69fc925"
+        },
+        {
+          "path": "muse_bf16_proj/AGENTS.md",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "f7ac0dfe39ab6684e8243dbada2789230fcaee10",
+          "size": 2706,
+          "url": "https://api.github.com/repos/Kushagrabainsla/muse-spark-open/git/blobs/f7ac0dfe39ab6684e8243dbada2789230fcaee10"
+        },
+        {
+          "path": "muse_bf16_proj/EXPERIMENTS.md",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "be846e9e93f0292ad0ca6ff33e76aa4c94ebe2cf",
+          "size": 11606,
+          "url": "https://api.github.com/repos/Kushagrabainsla/muse-spark-open/git/blobs/be846e9e93f0292ad0ca6ff33e76aa4c94ebe2cf"
+        },
+        {
+          "path": "muse_bf16_proj/TASK.md",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "da91e807376dbf0b3ffc1f0b3fa7347351817be7",
+          "size": 8264,
+          "url": "https://api.github.com/repos/Kushagrabainsla/muse-spark-open/git/blobs/da91e807376dbf0b3ffc1f0b3fa7347351817be7"
+        },
+        {
+          "path": "muse_bf16_proj/baseline.py",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "a4cde4b06c4c75622bafbd78d19fe4e3406c7a8d",
+          "size": 2397,
+          "url": "https://api.github.com/repos/Kushagrabainsla/muse-spark-open/git/blobs/a4cde4b06c4c75622bafbd78d19fe4e3406c7a8d"
+        },
+        {
+          "path": "muse_bf16_proj/bench.py",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "e03ddf1fcbe04c90f6be9f965fc4d337c5c91624",
+          "size": 2767,
+          "url": "https://api.github.com/repos/Kushagrabainsla/muse-spark-open/git/blobs/e03ddf1fcbe04c90f6be9f965fc4d337c5c91624"
+        },
+        {
+          "path": "muse_bf16_proj/bwprobe.py",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "5e598987a8b4ba3665beb07202f9714e55408b7a",
+          "size": 1475,
+          "url": "https://api.github.com/repos/Kushagrabainsla/muse-spark-open/git/blobs/5e598987a8b4ba3665beb07202f9714e55408b7a"
+        },
+        {
+          "path": "muse_bf16_proj/checks.py",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "bc51923c9041b04b0ce9e57348f10cfae84b73d9",
+          "size": 2484,
+          "url": "https://api.github.com/repos/Kushagrabainsla/muse-spark-open/git/blobs/bc51923c9041b04b0ce9e57348f10cfae84b73d9"
+        },
+        {
+          "path": "muse_bf16_proj/ltprobe.py",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "c8bef9d8ddee0e5833ec3758c2c52358e9d165f0",
+          "size": 5682,
+          "url": "https://api.github.com/repos/Kushagrabainsla/muse-spark-open/git/blobs/c8bef9d8ddee0e5833ec3758c2c52358e9d165f0"
+        },
+        {
+          "path": "muse_bf16_proj/probe_deepgemm.py",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "6134a3319aa660152b61694ff57682aac221de22",
+          "size": 1828,
+          "url": "https://api.github.com/repos/Kushagrabainsla/muse-spark-open/git/blobs/6134a3319aa660152b61694ff57682aac221de22"
+        },
+        {
+          "path": "muse_bf16_proj/profiles",
+          "mode": "040000",
+          "type": "tree",
+          "sha": "462cf748b9724b4d7324b9c445d230cce155076c",
+          "url": "https://api.github.com/repos/Kushagrabainsla/muse-spark-open/git/trees/462cf748b9724b4d7324b9c445d230cce155076c"
+        },
+        {
+          "path": "muse_bf16_proj/profiles/submission.12e78e707e334d8a.json",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "c3d7e7f63bb8da5e40722ffe5a82e5afadaef1e1",
+          "size": 177693,
+          "url": "https://api.github.com/repos/Kushagrabainsla/muse-spark-open/git/blobs/c3d7e7f63bb8da5e40722ffe5a82e5afadaef1e1"
+        },
+        {
+          "path": "muse_bf16_proj/profiles/submission.12e78e707e334d8a.log",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+          "size": 0,
+          "url": "https://api.github.com/repos/Kushagrabainsla/muse-spark-open/git/blobs/e69de29bb2d1d6434b8b29ae775ad8c2e48c5391"
+        },
+        {
+          "path": "muse_bf16_proj/profiles/submission.12e78e707e334d8a.txt",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "855fb3a96aa463b5c3f4c1d79375009550612f58",
+          "size": 12857,
+          "url": "https://api.github.com/repos/Kushagrabainsla/muse-spark-open/git/blobs/855fb3a96aa463b5c3f4c1d79375009550612f58"
+        },
+        {
+          "path": "muse_bf16_proj/profiles/submission.4ed4a00394264da9.json",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "6128a73a657ae80b911b0917579450ec11d162fe",
+          "size": 177538,
+          "url": "https://api.github.com/repos/Kushagrabainsla/muse-spark-open/git/blobs/6128a73a657ae80b911b0917579450ec11d162fe"
+        },
+        {
+          "path": "muse_bf16_proj/profiles/submission.4ed4a00394264da9.log",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+          "size": 0,
+          "url": "https://api.github.com/repos/Kushagrabainsla/muse-spark-open/git/blobs/e69de29bb2d1d6434b8b29ae775ad8c2e48c5391"
+        },
+        {
+          "path": "muse_bf16_proj/profiles/submission.4ed4a00394264da9.txt",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "d7e1be256ad27ccf0ac9cdaa10a12fce42a3d926",
+          "size": 12504,
+          "url": "https://api.github.com/repos/Kushagrabainsla/muse-spark-open/git/blobs/d7e1be256ad27ccf0ac9cdaa10a12fce42a3d926"
+        },
+        {
+          "path": "muse_bf16_proj/profiles/submission.dd8d2d8273f14c13.json",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "7caa3f4f8eb8d2ee6591eff80ee44b003a2b4ae5",
+          "size": 178074,
+          "url": "https://api.github.com/repos/Kushagrabainsla/muse-spark-open/git/blobs/7caa3f4f8eb8d2ee6591eff80ee44b003a2b4ae5"
+        },
+        {
+          "path": "muse_bf16_proj/profiles/submission.dd8d2d8273f14c13.log",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+          "size": 0,
+          "url": "https://api.github.com/repos/Kushagrabainsla/muse-spark-open/git/blobs/e69de29bb2d1d6434b8b29ae775ad8c2e48c5391"
+        },
+        {
+          "path": "muse_bf16_proj/profiles/submission.dd8d2d8273f14c13.txt",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "784d45ae84f89d16341461d7fc43d62c4085c0e5",
+          "size": 12859,
+          "url": "https://api.github.com/repos/Kushagrabainsla/muse-spark-open/git/blobs/784d45ae84f89d16341461d7fc43d62c4085c0e5"
+        },
+        {
+          "path": "muse_bf16_proj/profiles/submission.ef865f5c5d0d4eea.json",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "f7cd24c0b9f7402a77fd1dd01ee7647a74bd564e",
+          "size": 178011,
+          "url": "https://api.github.com/repos/Kushagrabainsla/muse-spark-open/git/blobs/f7cd24c0b9f7402a77fd1dd01ee7647a74bd564e"
+        },
+        {
+          "path": "muse_bf16_proj/profiles/submission.ef865f5c5d0d4eea.log",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+          "size": 0,
+          "url": "https://api.github.com/repos/Kushagrabainsla/muse-spark-open/git/blobs/e69de29bb2d1d6434b8b29ae775ad8c2e48c5391"
+        },
+        {
+          "path": "muse_bf16_proj/profiles/submission.ef865f5c5d0d4eea.txt",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "d8ec35d602e61a90aef5cbcd911263f02626f79d",
+          "size": 12859,
+          "url": "https://api.github.com/repos/Kushagrabainsla/muse-spark-open/git/blobs/d8ec35d602e61a90aef5cbcd911263f02626f79d"
+        },
+        {
+          "path": "muse_bf16_proj/profiles/submission.fef2017d39ec4cc2.json",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "5feeaea95f429eb9c11cdafbfd606b5a6798434b",
+          "size": 177356,
+          "url": "https://api.github.com/repos/Kushagrabainsla/muse-spark-open/git/blobs/5feeaea95f429eb9c11cdafbfd606b5a6798434b"
+        },
+        {
+          "path": "muse_bf16_proj/profiles/submission.fef2017d39ec4cc2.log",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+          "size": 0,
+          "url": "https://api.github.com/repos/Kushagrabainsla/muse-spark-open/git/blobs/e69de29bb2d1d6434b8b29ae775ad8c2e48c5391"
+        },
+        {
+          "path": "muse_bf16_proj/profiles/submission.fef2017d39ec4cc2.txt",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "509b9a53c340f045a5b985bd3ac9f6266d12b6e1",
+          "size": 12504,
+          "url": "https://api.github.com/repos/Kushagrabainsla/muse-spark-open/git/blobs/509b9a53c340f045a5b985bd3ac9f6266d12b6e1"
+        },
+        {
+          "path": "muse_bf16_proj/reference.py",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "ab244d54a6b77bd990fe56f8eb047658f815c3ce",
+          "size": 5155,
+          "url": "https://api.github.com/repos/Kushagrabainsla/muse-spark-open/git/blobs/ab244d54a6b77bd990fe56f8eb047658f815c3ce"
+        },
+        {
+          "path": "muse_bf16_proj/submission.py",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "b0e0a983c2f47967428bef52495eacf2fc8f65bb",
+          "size": 20264,
+          "url": "https://api.github.com/repos/Kushagrabainsla/muse-spark-open/git/blobs/b0e0a983c2f47967428bef52495eacf2fc8f65bb"
+        },
+        {
+          "path": "muse_bf16_proj/submission_c12.py",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "75a40d10597d716189dd8b270ca6bded0dfb7298",
+          "size": 25878,
+          "url": "https://api.github.com/repos/Kushagrabainsla/muse-spark-open/git/blobs/75a40d10597d716189dd8b270ca6bded0dfb7298"
+        },
+        {
+          "path": "muse_bf16_proj/submission_cuda.py",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "6a33c3e4a656588a7a6365d1ad484f386f007557",
+          "size": 12207,
+          "url": "https://api.github.com/repos/Kushagrabainsla/muse-spark-open/git/blobs/6a33c3e4a656588a7a6365d1ad484f386f007557"
+        },
+        {
+          "path": "muse_bf16_proj/submission_e14.py",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "26dc10ae5234f56dce8f9f9ab7415d025108ee99",
+          "size": 17349,
+          "url": "https://api.github.com/repos/Kushagrabainsla/muse-spark-open/git/blobs/26dc10ae5234f56dce8f9f9ab7415d025108ee99"
+        },
+        {
+          "path": "muse_bf16_proj/submission_e15.py",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "b8b7640cc70b4e1910360c71efab96ec81f6e946",
+          "size": 18861,
+          "url": "https://api.github.com/repos/Kushagrabainsla/muse-spark-open/git/blobs/b8b7640cc70b4e1910360c71efab96ec81f6e946"
+        },
+        {
+          "path": "muse_bf16_proj/submission_triton.py",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "58b48fe82020be7947a04ae8d70f9e25a38eefa9",
+          "size": 6273,
+          "url": "https://api.github.com/repos/Kushagrabainsla/muse-spark-open/git/blobs/58b48fe82020be7947a04ae8d70f9e25a38eefa9"
+        },
+        {
+          "path": "muse_bf16_proj/sweep.py",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "8a495257bbea7099ef20d58319136e5ba09c9430",
+          "size": 2664,
+          "url": "https://api.github.com/repos/Kushagrabainsla/muse-spark-open/git/blobs/8a495257bbea7099ef20d58319136e5ba09c9430"
+        },
+        {
+          "path": "muse_bf16_proj/sweep_cuda.py",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "b866c043cba6bc92048cda5bd6562f09eed665a9",
+          "size": 2011,
+          "url": "https://api.github.com/repos/Kushagrabainsla/muse-spark-open/git/blobs/b866c043cba6bc92048cda5bd6562f09eed665a9"
+        },
+        {
+          "path": "muse_bf16_proj/sweep_gemm.py",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "1618a2f4773104b2a26ce2662eb9fcddc634ea38",
+          "size": 5109,
+          "url": "https://api.github.com/repos/Kushagrabainsla/muse-spark-open/git/blobs/1618a2f4773104b2a26ce2662eb9fcddc634ea38"
+        },
+        {
+          "path": "muse_bf16_proj/sweep_results.txt",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "e15b0035e9e6a670b705bf8882fed28f2385e61e",
+          "size": 5895,
+          "url": "https://api.github.com/repos/Kushagrabainsla/muse-spark-open/git/blobs/e15b0035e9e6a670b705bf8882fed28f2385e61e"
+        },
+        {
+          "path": "muse_bf16_proj/timing.py",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "8d9b99e56edf3027713616cca3e74d3b9af64ff0",
+          "size": 1719,
+          "url": "https://api.github.com/repos/Kushagrabainsla/muse-spark-open/git/blobs/8d9b99e56edf3027713616cca3e74d3b9af64ff0"
+        },
+        {
+          "path": "muse_bf16_proj/wgemm_probe.py",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "129aa4b8bc1b23bb0292783687c11d9bb7195372",
+          "size": 15556,
+          "url": "https://api.github.com/repos/Kushagrabainsla/muse-spark-open/git/blobs/129aa4b8bc1b23bb0292783687c11d9bb7195372"
+        },
+        {
+          "path": "muse_decode_layer",
+          "mode": "040000",
+          "type": "tree",
+          "sha": "a33c7228ab61db9ad31bff4ed8a9ae131056e9f3",
+          "url": "https://api.github.com/repos/Kushagrabainsla/muse-spark-open/git/trees/a33c7228ab61db9ad31bff4ed8a9ae131056e9f3"
+        },
+        {
+          "path": "muse_decode_layer/AGENTS.md",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "4d69f6867322a260a2784096ab38d3219139c5d4",
+          "size": 2712,
+          "url": "https://api.github.com/repos/Kushagrabainsla/muse-spark-open/git/blobs/4d69f6867322a260a2784096ab38d3219139c5d4"
+        },
+        {
+          "path": "muse_decode_layer/EXPERIMENTS.md",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "1a9ced14cebdcf7eb4f20711acaf0728309e6392",
+          "size": 8113,
+          "url": "https://api.github.com/repos/Kushagrabainsla/muse-spark-open/git/blobs/1a9ced14cebdcf7eb4f20711acaf0728309e6392"
+        },
+        {
+          "path": "muse_decode_layer/TASK.md",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "fcf3c2e9c317578fe1b9edee0489d73e9aa85bfe",
+          "size": 9853,
+          "url": "https://api.github.com/repos/Kushagrabainsla/muse-spark-open/git/blobs/fcf3c2e9c317578fe1b9edee0489d73e9aa85bfe"
+        },
+        {
+          "path": "muse_decode_layer/baseline.py",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "7706aee5c085b4fc8819835e5a7ec4e3f59a0833",
+          "size": 18993,
+          "url": "https://api.github.com/repos/Kushagrabainsla/muse-spark-open/git/blobs/7706aee5c085b4fc8819835e5a7ec4e3f59a0833"
+        },
+        {
+          "path": "muse_decode_layer/bench.py",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "855b4ad3630f8fc29f4688c0282ae7493a17b7a6",
+          "size": 4406,
+          "url": "https://api.github.com/repos/Kushagrabainsla/muse-spark-open/git/blobs/855b4ad3630f8fc29f4688c0282ae7493a17b7a6"
+        },
+        {
+          "path": "muse_decode_layer/build_layer.py",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "d363e22f09d13fa79f43abc1b7945a931a76e392",
+          "size": 11295,
+          "url": "https://api.github.com/repos/Kushagrabainsla/muse-spark-open/git/blobs/d363e22f09d13fa79f43abc1b7945a931a76e392"
+        },
+        {
+          "path": "muse_decode_layer/checks.py",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "bc51923c9041b04b0ce9e57348f10cfae84b73d9",
+          "size": 2484,
+          "url": "https://api.github.com/repos/Kushagrabainsla/muse-spark-open/git/blobs/bc51923c9041b04b0ce9e57348f10cfae84b73d9"
+        },
+        {
+          "path": "muse_decode_layer/nvfp4.py",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "aa688f50e4bdbf500c5a09e9f546ec37c68e3dad",
+          "size": 5929,
+          "url": "https://api.github.com/repos/Kushagrabainsla/muse-spark-open/git/blobs/aa688f50e4bdbf500c5a09e9f546ec37c68e3dad"
+        },
+        {
+          "path": "muse_decode_layer/profiles",
+          "mode": "040000",
+          "type": "tree",
+          "sha": "02f2c08637200aef1677561639d888fb26d14300",
+          "url": "https://api.github.com/repos/Kushagrabainsla/muse-spark-open/git/trees/02f2c08637200aef1677561639d888fb26d14300"
+        },
+        {
+          "path": "muse_decode_layer/profiles/submission.0455a1d7708c4763.json",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "db692195aeec1f030a2c1bba031765dff767e6be",
+          "size": 64483,
+          "url": "https://api.github.com/repos/Kushagrabainsla/muse-spark-open/git/blobs/db692195aeec1f030a2c1bba031765dff767e6be"
+        },
+        {
+          "path": "muse_decode_layer/profiles/submission.0455a1d7708c4763.log",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+          "size": 0,
+          "url": "https://api.github.com/repos/Kushagrabainsla/muse-spark-open/git/blobs/e69de29bb2d1d6434b8b29ae775ad8c2e48c5391"
+        },
+        {
+          "path": "muse_decode_layer/profiles/submission.0455a1d7708c4763.txt",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "f50063cafa48e7664511b8df126df99db8a04509",
+          "size": 19965,
+          "url": "https://api.github.com/repos/Kushagrabainsla/muse-spark-open/git/blobs/f50063cafa48e7664511b8df126df99db8a04509"
+        },
+        {
+          "path": "muse_decode_layer/profiles/submission.06c56c4c479c4f04.json",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "37bc337aafc323a38579b92c845074365af26fe3",
+          "size": 64431,
+          "url": "https://api.github.com/repos/Kushagrabainsla/muse-spark-open/git/blobs/37bc337aafc323a38579b92c845074365af26fe3"
+        },
+        {
+          "path": "muse_decode_layer/profiles/submission.06c56c4c479c4f04.log",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+          "size": 0,
+          "url": "https://api.github.com/repos/Kushagrabainsla/muse-spark-open/git/blobs/e69de29bb2d1d6434b8b29ae775ad8c2e48c5391"
+        },
+        {
+          "path": "muse_decode_layer/profiles/submission.06c56c4c479c4f04.txt",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "ec553f2d0666f1d90d624bf5bae83a05533aa613",
+          "size": 19966,
+          "url": "https://api.github.com/repos/Kushagrabainsla/muse-spark-open/git/blobs/ec553f2d0666f1d90d624bf5bae83a05533aa613"
+        },
+        {
+          "path": "muse_decode_layer/profiles/submission.0f44b63689ef41c9.json",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "56b5719598bea40146284438498ab7d6d7be167c",
+          "size": 64462,
+          "url": "https://api.github.com/repos/Kushagrabainsla/muse-spark-open/git/blobs/56b5719598bea40146284438498ab7d6d7be167c"
+        },
+        {
+          "path": "muse_decode_layer/profiles/submission.0f44b63689ef41c9.log",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+          "size": 0,
+          "url": "https://api.github.com/repos/Kushagrabainsla/muse-spark-open/git/blobs/e69de29bb2d1d6434b8b29ae775ad8c2e48c5391"
+        },
+        {
+          "path": "muse_decode_layer/profiles/submission.0f44b63689ef41c9.txt",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "e93c562d18cc732eb377771d664519ebfa43021b",
+          "size": 19968,
+          "url": "https://api.github.com/repos/Kushagrabainsla/muse-spark-open/git/blobs/e93c562d18cc732eb377771d664519ebfa43021b"
+        },
+        {
+          "path": "muse_decode_layer/profiles/submission.140d56f1376b4b19.json",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "df1f0030baba4f29f034dd6702a092052ade8551",
+          "size": 64474,
+          "url": "https://api.github.com/repos/Kushagrabainsla/muse-spark-open/git/blobs/df1f0030baba4f29f034dd6702a092052ade8551"
+        },
+        {
+          "path": "muse_decode_layer/profiles/submission.140d56f1376b4b19.log",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+          "size": 0,
+          "url": "https://api.github.com/repos/Kushagrabainsla/muse-spark-open/git/blobs/e69de29bb2d1d6434b8b29ae775ad8c2e48c5391"
+        },
+        {
+          "path": "muse_decode_layer/profiles/submission.140d56f1376b4b19.txt",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "ef90fa5cd8e4031f6778392fb38276cd36c472cc",
+          "size": 19967,
+          "url": "https://api.github.com/repos/Kushagrabainsla/muse-spark-open/git/blobs/ef90fa5cd8e4031f6778392fb38276cd36c472cc"
+        },
+        {
+          "path": "muse_decode_layer/profiles/submission.255ea7b35a2241e6.json",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "74e29ad3d8ef00eef404aba04da778c89c68c22f",
+          "size": 64512,
+          "url": "https://api.github.com/repos/Kushagrabainsla/muse-spark-open/git/blobs/74e29ad3d8ef00eef404aba04da778c89c68c22f"
+        },
+        {
+          "path": "muse_decode_layer/profiles/submission.255ea7b35a2241e6.log",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+          "size": 0,
+          "url": "https://api.github.com/repos/Kushagrabainsla/muse-spark-open/git/blobs/e69de29bb2d1d6434b8b29ae775ad8c2e48c5391"
+        },
+        {
+          "path": "muse_decode_layer/profiles/submission.255ea7b35a2241e6.txt",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "ac95b06a06cd84e106db43bbd10ee6d0f7751732",
+          "size": 19976,
+          "url": "https://api.github.com/repos/Kushagrabainsla/muse-spark-open/git/blobs/ac95b06a06cd84e106db43bbd10ee6d0f7751732"
+        },
+        {
+          "path": "muse_decode_layer/profiles/submission.272b1ed874e74d9d.json",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "c6eb2fd96b8ba196c4eef885b36ffafbd66f09df",
+          "size": 64479,
+          "url": "https://api.github.com/repos/Kushagrabainsla/muse-spark-open/git/blobs/c6eb2fd96b8ba196c4eef885b36ffafbd66f09df"
+        },
+        {
+          "path": "muse_decode_layer/profiles/submission.272b1ed874e74d9d.log",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+          "size": 0,
+          "url": "https://api.github.com/repos/Kushagrabainsla/muse-spark-open/git/blobs/e69de29bb2d1d6434b8b29ae775ad8c2e48c5391"
+        },
+        {
+          "path": "muse_decode_layer/profiles/submission.272b1ed874e74d9d.txt",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "89bd23ea01bf6b4389164d64886c0bd1a3ab5e09",
+          "size": 19975,
+          "url": "https://api.github.com/repos/Kushagrabainsla/muse-spark-open/git/blobs/89bd23ea01bf6b4389164d64886c0bd1a3ab5e09"
+        },
+        {
+          "path": "muse_decode_layer/profiles/submission.2ef27c0f07a84d2d.json",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "59f7e646cd38312836979e74d35c8ccc2a471920",
+          "size": 64530,
+          "url": "https://api.github.com/repos/Kushagrabainsla/muse-spark-open/git/blobs/59f7e646cd38312836979e74d35c8ccc2a471920"
+        },
+        {
+          "path": "muse_decode_layer/profiles/submission.2ef27c0f07a84d2d.log",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+          "size": 0,
+          "url": "https://api.github.com/repos/Kushagrabainsla/muse-spark-open/git/blobs/e69de29bb2d1d6434b8b29ae775ad8c2e48c5391"
+        },
+        {
+          "path": "muse_decode_layer/profiles/submission.2ef27c0f07a84d2d.txt",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "1534f904a1aa5aac9b0cc4ce9a00a89ff2c2df52",
+          "size": 19965,
+          "url": "https://api.github.com/repos/Kushagrabainsla/muse-spark-open/git/blobs/1534f904a1aa5aac9b0cc4ce9a00a89ff2c2df52"
+        },
+        {
+          "path": "muse_decode_layer/profiles/submission.66246e98c53c47a8.json",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "b3fff18499445dee85db483f75b68c44d513b198",
+          "size": 64495,
+          "url": "https://api.github.com/repos/Kushagrabainsla/muse-spark-open/git/blobs/b3fff18499445dee85db483f75b68c44d513b198"
+        },
+        {
+          "path": "muse_decode_layer/profiles/submission.66246e98c53c47a8.log",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+          "size": 0,
+          "url": "https://api.github.com/repos/Kushagrabainsla/muse-spark-open/git/blobs/e69de29bb2d1d6434b8b29ae775ad8c2e48c5391"
+        },
+        {
+          "path": "muse_decode_layer/profiles/submission.66246e98c53c47a8.txt",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "3a8d19cd56c4b0d3a19941dbb56b514f08335846",
+          "size": 19966,
+          "url": "https://api.github.com/repos/Kushagrabainsla/muse-spark-open/git/blobs/3a8d19cd56c4b0d3a19941dbb56b514f08335846"
+        },
+        {
+          "path": "muse_decode_layer/profiles/submission.6dd511ae799741ff.json",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "891deeeaf9fc66fd04c55749adf53bcbf4a4bf1d",
+          "size": 64466,
+          "url": "https://api.github.com/repos/Kushagrabainsla/muse-spark-open/git/blobs/891deeeaf9fc66fd04c55749adf53bcbf4a4bf1d"
+        },
+        {
+          "path": "muse_decode_layer/profiles/submission.6dd511ae799741ff.log",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+          "size": 0,
+          "url": "https://api.github.com/repos/Kushagrabainsla/muse-spark-open/git/blobs/e69de29bb2d1d6434b8b29ae775ad8c2e48c5391"
+        },
+        {
+          "path": "muse_decode_layer/profiles/submission.6dd511ae799741ff.txt",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "9bd70d609aec1fe461b32ead416aefc4f03d6d90",
+          "size": 19963,
+          "url": "https://api.github.com/repos/Kushagrabainsla/muse-spark-open/git/blobs/9bd70d609aec1fe461b32ead416aefc4f03d6d90"
+        },
+        {
+          "path": "muse_decode_layer/profiles/submission.7a0ba34ed4ee4181.json",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "d9cc86d4465cf63dc1f0bf4af32202bced1c1cc1",
+          "size": 64247,
+          "url": "https://api.github.com/repos/Kushagrabainsla/muse-spark-open/git/blobs/d9cc86d4465cf63dc1f0bf4af32202bced1c1cc1"
+        },
+        {
+          "path": "muse_decode_layer/profiles/submission.7a0ba34ed4ee4181.log",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+          "size": 0,
+          "url": "https://api.github.com/repos/Kushagrabainsla/muse-spark-open/git/blobs/e69de29bb2d1d6434b8b29ae775ad8c2e48c5391"
+        },
+        {
+          "path": "muse_decode_layer/profiles/submission.7a0ba34ed4ee4181.txt",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "f43d697268698d9d6c2e0481a3d0d2dd4bac9ee3",
+          "size": 19764,
+          "url": "https://api.github.com/repos/Kushagrabainsla/muse-spark-open/git/blobs/f43d697268698d9d6c2e0481a3d0d2dd4bac9ee3"
+        },
+        {
+          "path": "muse_decode_layer/profiles/submission.83992dc182754f7e.json",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "c2331b4d7b3ab6d3de7b77b5f481b2ef8f89380d",
+          "size": 64417,
+          "url": "https://api.github.com/repos/Kushagrabainsla/muse-spark-open/git/blobs/c2331b4d7b3ab6d3de7b77b5f481b2ef8f89380d"
+        },
+        {
+          "path": "muse_decode_layer/profiles/submission.83992dc182754f7e.log",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+          "size": 0,
+          "url": "https://api.github.com/repos/Kushagrabainsla/muse-spark-open/git/blobs/e69de29bb2d1d6434b8b29ae775ad8c2e48c5391"
+        },
+        {
+          "path": "muse_decode_layer/profiles/submission.83992dc182754f7e.txt",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "b14b41f4f7fb40ea6523a891b79d2f818f43cc44",
+          "size": 19966,
+          "url": "https://api.github.com/repos/Kushagrabainsla/muse-spark-open/git/blobs/b14b41f4f7fb40ea6523a891b79d2f818f43cc44"
+        },
+        {
+          "path": "muse_decode_layer/reference.py",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "f92aa2db6ba064bc686ed5369f979cfe00d4ff44",
+          "size": 35035,
+          "url": "https://api.github.com/repos/Kushagrabainsla/muse-spark-open/git/blobs/f92aa2db6ba064bc686ed5369f979cfe00d4ff44"
+        },
+        {
+          "path": "muse_decode_layer/submission.py",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "c003855fb057136ee06f38b4419f4812f92efa73",
+          "size": 199347,
+          "url": "https://api.github.com/repos/Kushagrabainsla/muse-spark-open/git/blobs/c003855fb057136ee06f38b4419f4812f92efa73"
+        },
+        {
+          "path": "muse_decode_layer/submission_l5.py",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "77e68d2be552d4403c78d286139e1274e0d802ff",
+          "size": 140792,
+          "url": "https://api.github.com/repos/Kushagrabainsla/muse-spark-open/git/blobs/77e68d2be552d4403c78d286139e1274e0d802ff"
+        },
+        {
+          "path": "muse_decode_layer/submission_l6.py",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "58755ca4689080a2b2edc3828ca0a2eeb05d9166",
+          "size": 144639,
+          "url": "https://api.github.com/repos/Kushagrabainsla/muse-spark-open/git/blobs/58755ca4689080a2b2edc3828ca0a2eeb05d9166"
+        },
+        {
+          "path": "muse_decode_layer/submission_l7.py",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "1c7f00963e64702ecd387d8836bb98f7c6a15a96",
+          "size": 183815,
+          "url": "https://api.github.com/repos/Kushagrabainsla/muse-spark-open/git/blobs/1c7f00963e64702ecd387d8836bb98f7c6a15a96"
+        },
+        {
+          "path": "muse_decode_layer/submission_starter.py",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "0a0fc36b7854c07f5047c1df4e08ee984a830651",
+          "size": 10691,
+          "url": "https://api.github.com/repos/Kushagrabainsla/muse-spark-open/git/blobs/0a0fc36b7854c07f5047c1df4e08ee984a830651"
+        },
+        {
+          "path": "muse_decode_layer/timing.py",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "8d9b99e56edf3027713616cca3e74d3b9af64ff0",
+          "size": 1719,
+          "url": "https://api.github.com/repos/Kushagrabainsla/muse-spark-open/git/blobs/8d9b99e56edf3027713616cca3e74d3b9af64ff0"
+        },
+        {
+          "path": "muse_moe_w4a16",
+          "mode": "040000",
+          "type": "tree",
+          "sha": "f742875dc5adc819321f76f49e054042030cfdd3",
+          "url": "https://api.github.com/repos/Kushagrabainsla/muse-spark-open/git/trees/f742875dc5adc819321f76f49e054042030cfdd3"
+        },
+        {
+          "path": "muse_moe_w4a16/AGENTS.md",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "699b46245ad2f96c8ed4b757ec8ed5380363fcd6",
+          "size": 2706,
+          "url": "https://api.github.com/repos/Kushagrabainsla/muse-spark-open/git/blobs/699b46245ad2f96c8ed4b757ec8ed5380363fcd6"
+        },
+        {
+          "path": "muse_moe_w4a16/EXPERIMENTS.md",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "fa232e92d4b084158cc93d8551d969c1ac940220",
+          "size": 19355,
+          "url": "https://api.github.com/repos/Kushagrabainsla/muse-spark-open/git/blobs/fa232e92d4b084158cc93d8551d969c1ac940220"
+        },
+        {
+          "path": "muse_moe_w4a16/TASK.md",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "1755b9ecebe4f52825244681682b68822af97b97",
+          "size": 6782,
+          "url": "https://api.github.com/repos/Kushagrabainsla/muse-spark-open/git/blobs/1755b9ecebe4f52825244681682b68822af97b97"
+        },
+        {
+          "path": "muse_moe_w4a16/baseline.py",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "489b210f27a38ffb3f83b8da3f297b6f569ea57f",
+          "size": 7086,
+          "url": "https://api.github.com/repos/Kushagrabainsla/muse-spark-open/git/blobs/489b210f27a38ffb3f83b8da3f297b6f569ea57f"
+        },
+        {
+          "path": "muse_moe_w4a16/bench.py",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "fcc8d2cb9342419dcce0ee9c65f6ec1044cb5d6d",
+          "size": 2717,
+          "url": "https://api.github.com/repos/Kushagrabainsla/muse-spark-open/git/blobs/fcc8d2cb9342419dcce0ee9c65f6ec1044cb5d6d"
+        },
+        {
+          "path": "muse_moe_w4a16/checks.py",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "bc51923c9041b04b0ce9e57348f10cfae84b73d9",
+          "size": 2484,
+          "url": "https://api.github.com/repos/Kushagrabainsla/muse-spark-open/git/blobs/bc51923c9041b04b0ce9e57348f10cfae84b73d9"
+        },
+        {
+          "path": "muse_moe_w4a16/mkdbg.py",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "3fd14d1f3445b4dbbccc64a2bcbadbfb038ab27a",
+          "size": 1490,
+          "url": "https://api.github.com/repos/Kushagrabainsla/muse-spark-open/git/blobs/3fd14d1f3445b4dbbccc64a2bcbadbfb038ab27a"
+        },
+        {
+          "path": "muse_moe_w4a16/mkdbg2.py",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "4055ba1d3ac2b55cbcfc74544a58695615fc4f4b",
+          "size": 2106,
+          "url": "https://api.github.com/repos/Kushagrabainsla/muse-spark-open/git/blobs/4055ba1d3ac2b55cbcfc74544a58695615fc4f4b"
+        },
+        {
+          "path": "muse_moe_w4a16/nvfp4.py",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "aa688f50e4bdbf500c5a09e9f546ec37c68e3dad",
+          "size": 5929,
+          "url": "https://api.github.com/repos/Kushagrabainsla/muse-spark-open/git/blobs/aa688f50e4bdbf500c5a09e9f546ec37c68e3dad"
+        },
+        {
+          "path": "muse_moe_w4a16/prof.py",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "4b696b220d38d191f3547d26493a176b94e0a4dc",
+          "size": 812,
+          "url": "https://api.github.com/repos/Kushagrabainsla/muse-spark-open/git/blobs/4b696b220d38d191f3547d26493a176b94e0a4dc"
+        },
+        {
+          "path": "muse_moe_w4a16/profiles",
+          "mode": "040000",
+          "type": "tree",
+          "sha": "23123a9c4b85598d0a9493253b76a23bc782d1f3",
+          "url": "https://api.github.com/repos/Kushagrabainsla/muse-spark-open/git/trees/23123a9c4b85598d0a9493253b76a23bc782d1f3"
+        },
+        {
+          "path": "muse_moe_w4a16/profiles/submission.069f543bb3604714.json",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "fe152286acf89973a04645c79e3128a475ab7f46",
+          "size": 54186,
+          "url": "https://api.github.com/repos/Kushagrabainsla/muse-spark-open/git/blobs/fe152286acf89973a04645c79e3128a475ab7f46"
+        },
+        {
+          "path": "muse_moe_w4a16/profiles/submission.069f543bb3604714.log",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+          "size": 0,
+          "url": "https://api.github.com/repos/Kushagrabainsla/muse-spark-open/git/blobs/e69de29bb2d1d6434b8b29ae775ad8c2e48c5391"
+        },
+        {
+          "path": "muse_moe_w4a16/profiles/submission.069f543bb3604714.txt",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "8de48af13441eabafe1934244beb56904699d8dc",
+          "size": 4963,
+          "url": "https://api.github.com/repos/Kushagrabainsla/muse-spark-open/git/blobs/8de48af13441eabafe1934244beb56904699d8dc"
+        },
+        {
+          "path": "muse_moe_w4a16/profiles/submission.1de976a74db64bfc.json",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "a9f5925b0ff72ade1d02dafb489292d9f6eacda6",
+          "size": 54770,
+          "url": "https://api.github.com/repos/Kushagrabainsla/muse-spark-open/git/blobs/a9f5925b0ff72ade1d02dafb489292d9f6eacda6"
+        },
+        {
+          "path": "muse_moe_w4a16/profiles/submission.1de976a74db64bfc.log",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+          "size": 0,
+          "url": "https://api.github.com/repos/Kushagrabainsla/muse-spark-open/git/blobs/e69de29bb2d1d6434b8b29ae775ad8c2e48c5391"
+        },
+        {
+          "path": "muse_moe_w4a16/profiles/submission.1de976a74db64bfc.txt",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "d57ca9c6d8fe2f3931768b51a09080eb4a9bc619",
+          "size": 5497,
+          "url": "https://api.github.com/repos/Kushagrabainsla/muse-spark-open/git/blobs/d57ca9c6d8fe2f3931768b51a09080eb4a9bc619"
+        },
+        {
+          "path": "muse_moe_w4a16/profiles/submission.41b7dab4282141cb.json",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "8b92b7502470e6b520a28eb898ed362e7035f122",
+          "size": 54771,
+          "url": "https://api.github.com/repos/Kushagrabainsla/muse-spark-open/git/blobs/8b92b7502470e6b520a28eb898ed362e7035f122"
+        },
+        {
+          "path": "muse_moe_w4a16/profiles/submission.41b7dab4282141cb.log",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+          "size": 0,
+          "url": "https://api.github.com/repos/Kushagrabainsla/muse-spark-open/git/blobs/e69de29bb2d1d6434b8b29ae775ad8c2e48c5391"
+        },
+        {
+          "path": "muse_moe_w4a16/profiles/submission.41b7dab4282141cb.txt",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "3c2071da9e3c8633f63a7435e220f9bb67a780da",
+          "size": 5496,
+          "url": "https://api.github.com/repos/Kushagrabainsla/muse-spark-open/git/blobs/3c2071da9e3c8633f63a7435e220f9bb67a780da"
+        },
+        {
+          "path": "muse_moe_w4a16/profiles/submission.561fb8dad29843aa.json",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "7ef2bd1f7b9465bd1ded158e443a16e82b93ddb3",
+          "size": 54848,
+          "url": "https://api.github.com/repos/Kushagrabainsla/muse-spark-open/git/blobs/7ef2bd1f7b9465bd1ded158e443a16e82b93ddb3"
+        },
+        {
+          "path": "muse_moe_w4a16/profiles/submission.561fb8dad29843aa.log",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+          "size": 0,
+          "url": "https://api.github.com/repos/Kushagrabainsla/muse-spark-open/git/blobs/e69de29bb2d1d6434b8b29ae775ad8c2e48c5391"
+        },
+        {
+          "path": "muse_moe_w4a16/profiles/submission.561fb8dad29843aa.txt",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "c0320cb030cf34db89598f64ff380bd977619a3b",
+          "size": 5497,
+          "url": "https://api.github.com/repos/Kushagrabainsla/muse-spark-open/git/blobs/c0320cb030cf34db89598f64ff380bd977619a3b"
+        },
+        {
+          "path": "muse_moe_w4a16/profiles/submission.61b7d5bdbc144f5c.json",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "143bcbd0d085a8e890152fcdb9e10bef89ff6713",
+          "size": 54787,
+          "url": "https://api.github.com/repos/Kushagrabainsla/muse-spark-open/git/blobs/143bcbd0d085a8e890152fcdb9e10bef89ff6713"
+        },
+        {
+          "path": "muse_moe_w4a16/profiles/submission.61b7d5bdbc144f5c.log",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+          "size": 0,
+          "url": "https://api.github.com/repos/Kushagrabainsla/muse-spark-open/git/blobs/e69de29bb2d1d6434b8b29ae775ad8c2e48c5391"
+        },
+        {
+          "path": "muse_moe_w4a16/profiles/submission.61b7d5bdbc144f5c.txt",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "a21b2fc98f16172baa099d0537f4821eceac8722",
+          "size": 5496,
+          "url": "https://api.github.com/repos/Kushagrabainsla/muse-spark-open/git/blobs/a21b2fc98f16172baa099d0537f4821eceac8722"
+        },
+        {
+          "path": "muse_moe_w4a16/profiles/submission.8770b04e6afa4157.json",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "4bd92880328259671f8d4eae4a94a4cf73f13e2e",
+          "size": 53812,
+          "url": "https://api.github.com/repos/Kushagrabainsla/muse-spark-open/git/blobs/4bd92880328259671f8d4eae4a94a4cf73f13e2e"
+        },
+        {
+          "path": "muse_moe_w4a16/profiles/submission.8770b04e6afa4157.log",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+          "size": 0,
+          "url": "https://api.github.com/repos/Kushagrabainsla/muse-spark-open/git/blobs/e69de29bb2d1d6434b8b29ae775ad8c2e48c5391"
+        },
+        {
+          "path": "muse_moe_w4a16/profiles/submission.8770b04e6afa4157.txt",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "bbd7a8b80dde33469f80c4ea6766d9f693deeb62",
+          "size": 4462,
+          "url": "https://api.github.com/repos/Kushagrabainsla/muse-spark-open/git/blobs/bbd7a8b80dde33469f80c4ea6766d9f693deeb62"
+        },
+        {
+          "path": "muse_moe_w4a16/profiles/submission.8ed31c368da34f94.json",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "cf75a32343decc36e2d1ecd2a807764b4f5b55d1",
+          "size": 53805,
+          "url": "https://api.github.com/repos/Kushagrabainsla/muse-spark-open/git/blobs/cf75a32343decc36e2d1ecd2a807764b4f5b55d1"
+        },
+        {
+          "path": "muse_moe_w4a16/profiles/submission.8ed31c368da34f94.log",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+          "size": 0,
+          "url": "https://api.github.com/repos/Kushagrabainsla/muse-spark-open/git/blobs/e69de29bb2d1d6434b8b29ae775ad8c2e48c5391"
+        },
+        {
+          "path": "muse_moe_w4a16/profiles/submission.8ed31c368da34f94.txt",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "dc194fbf6f4c2a5c901f530713a5b44e371f22bf",
+          "size": 4465,
+          "url": "https://api.github.com/repos/Kushagrabainsla/muse-spark-open/git/blobs/dc194fbf6f4c2a5c901f530713a5b44e371f22bf"
+        },
+        {
+          "path": "muse_moe_w4a16/profiles/submission.9e56c692773140b1.json",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "4014c91b90c43cfd1a99a443ca7528533c832308",
+          "size": 54779,
+          "url": "https://api.github.com/repos/Kushagrabainsla/muse-spark-open/git/blobs/4014c91b90c43cfd1a99a443ca7528533c832308"
+        },
+        {
+          "path": "muse_moe_w4a16/profiles/submission.9e56c692773140b1.log",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+          "size": 0,
+          "url": "https://api.github.com/repos/Kushagrabainsla/muse-spark-open/git/blobs/e69de29bb2d1d6434b8b29ae775ad8c2e48c5391"
+        },
+        {
+          "path": "muse_moe_w4a16/profiles/submission.9e56c692773140b1.txt",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "6840623204187462a6b0607bf1046ff470ae04ea",
+          "size": 5497,
+          "url": "https://api.github.com/repos/Kushagrabainsla/muse-spark-open/git/blobs/6840623204187462a6b0607bf1046ff470ae04ea"
+        },
+        {
+          "path": "muse_moe_w4a16/profiles/submission.de1b1c2076e04c41.json",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "7c7a4f35cfc3d135ed3eab6b0c4cf180066b8eca",
+          "size": 54760,
+          "url": "https://api.github.com/repos/Kushagrabainsla/muse-spark-open/git/blobs/7c7a4f35cfc3d135ed3eab6b0c4cf180066b8eca"
+        },
+        {
+          "path": "muse_moe_w4a16/profiles/submission.de1b1c2076e04c41.log",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+          "size": 0,
+          "url": "https://api.github.com/repos/Kushagrabainsla/muse-spark-open/git/blobs/e69de29bb2d1d6434b8b29ae775ad8c2e48c5391"
+        },
+        {
+          "path": "muse_moe_w4a16/profiles/submission.de1b1c2076e04c41.txt",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "4e5dcba40ba99909c7b39c19c38315a68c49b704",
+          "size": 5495,
+          "url": "https://api.github.com/repos/Kushagrabainsla/muse-spark-open/git/blobs/4e5dcba40ba99909c7b39c19c38315a68c49b704"
+        },
+        {
+          "path": "muse_moe_w4a16/reference.py",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "b937352204a206cc2de669d3aa36a014755afe86",
+          "size": 6764,
+          "url": "https://api.github.com/repos/Kushagrabainsla/muse-spark-open/git/blobs/b937352204a206cc2de669d3aa36a014755afe86"
+        },
+        {
+          "path": "muse_moe_w4a16/submission.py",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "505abc8b9e088373a6befcf9f3a8b281a4f5fa7f",
+          "size": 43145,
+          "url": "https://api.github.com/repos/Kushagrabainsla/muse-spark-open/git/blobs/505abc8b9e088373a6befcf9f3a8b281a4f5fa7f"
+        },
+        {
+          "path": "muse_moe_w4a16/submission_m11.py",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "c825ab2c71b6a2c217fd050a41dc6d401e404ce3",
+          "size": 33046,
+          "url": "https://api.github.com/repos/Kushagrabainsla/muse-spark-open/git/blobs/c825ab2c71b6a2c217fd050a41dc6d401e404ce3"
+        },
+        {
+          "path": "muse_moe_w4a16/submission_m14.py",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "2c01142534d6e0077a5425307bba33bc7b174974",
+          "size": 35007,
+          "url": "https://api.github.com/repos/Kushagrabainsla/muse-spark-open/git/blobs/2c01142534d6e0077a5425307bba33bc7b174974"
+        },
+        {
+          "path": "muse_moe_w4a16/submission_m16.py",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "8d0ee66b6afaf949c9c44a1132cb5772965c41de",
+          "size": 35366,
+          "url": "https://api.github.com/repos/Kushagrabainsla/muse-spark-open/git/blobs/8d0ee66b6afaf949c9c44a1132cb5772965c41de"
+        },
+        {
+          "path": "muse_moe_w4a16/submission_m22.py",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "35787110815cd1c927fb11a42c146d8012105d1d",
+          "size": 39149,
+          "url": "https://api.github.com/repos/Kushagrabainsla/muse-spark-open/git/blobs/35787110815cd1c927fb11a42c146d8012105d1d"
+        },
+        {
+          "path": "muse_moe_w4a16/submission_r.py",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "229e2ca4890788f7619a7e32b27c8c7f99040c28",
+          "size": 37667,
+          "url": "https://api.github.com/repos/Kushagrabainsla/muse-spark-open/git/blobs/229e2ca4890788f7619a7e32b27c8c7f99040c28"
+        },
+        {
+          "path": "muse_moe_w4a16/submission_r2.py",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "117c76b0238e70d521bd5791ee968abb17415535",
+          "size": 38947,
+          "url": "https://api.github.com/repos/Kushagrabainsla/muse-spark-open/git/blobs/117c76b0238e70d521bd5791ee968abb17415535"
+        },
+        {
+          "path": "muse_moe_w4a16/submission_r3.py",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "64f335c69fd71713a35bbc681b1ee05a6fbd2588",
+          "size": 39152,
+          "url": "https://api.github.com/repos/Kushagrabainsla/muse-spark-open/git/blobs/64f335c69fd71713a35bbc681b1ee05a6fbd2588"
+        },
+        {
+          "path": "muse_moe_w4a16/submission_wgmma.py",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "4d27e1685915ba914a531954de7785cf6d48f0c1",
+          "size": 38654,
+          "url": "https://api.github.com/repos/Kushagrabainsla/muse-spark-open/git/blobs/4d27e1685915ba914a531954de7785cf6d48f0c1"
+        },
+        {
+          "path": "muse_moe_w4a16/sweep.py",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "d08fb5648b5fad91e754816d1af2d89783e99390",
+          "size": 1074,
+          "url": "https://api.github.com/repos/Kushagrabainsla/muse-spark-open/git/blobs/d08fb5648b5fad91e754816d1af2d89783e99390"
+        },
+        {
+          "path": "muse_moe_w4a16/timing.py",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "8d9b99e56edf3027713616cca3e74d3b9af64ff0",
+          "size": 1719,
+          "url": "https://api.github.com/repos/Kushagrabainsla/muse-spark-open/git/blobs/8d9b99e56edf3027713616cca3e74d3b9af64ff0"
+        },
+        {
+          "path": "muse_moe_w4a16/tools",
+          "mode": "040000",
+          "type": "tree",
+          "sha": "5543fc7e0ae555d1c8dade7dae21cbed74823574",
+          "url": "https://api.github.com/repos/Kushagrabainsla/muse-spark-open/git/trees/5543fc7e0ae555d1c8dade7dae21cbed74823574"
+        },
+        {
+          "path": "muse_moe_w4a16/tools/icache.py",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "38c28371855addbc0360223e42b69453e7a77164",
+          "size": 2147,
+          "url": "https://api.github.com/repos/Kushagrabainsla/muse-spark-open/git/blobs/38c28371855addbc0360223e42b69453e7a77164"
+        },
+        {
+          "path": "muse_moe_w4a16/tools/sass_hist.py",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "5f72e5570d85cbe45b308baba50d8c541f3a0ed0",
+          "size": 1618,
+          "url": "https://api.github.com/repos/Kushagrabainsla/muse-spark-open/git/blobs/5f72e5570d85cbe45b308baba50d8c541f3a0ed0"
+        },
+        {
+          "path": "muse_moe_w4a16/tools/stress.py",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "2e7b7d8254037c0b31044f6361e881206b3c34b9",
+          "size": 1824,
+          "url": "https://api.github.com/repos/Kushagrabainsla/muse-spark-open/git/blobs/2e7b7d8254037c0b31044f6361e881206b3c34b9"
+        },
+        {
+          "path": "muse_moe_w4a16/tools/tprof.py",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "21859d558025d872bc18e1df53082c296a9e8d30",
+          "size": 854,
+          "url": "https://api.github.com/repos/Kushagrabainsla/muse-spark-open/git/blobs/21859d558025d872bc18e1df53082c296a9e8d30"
+        }
+      ],
+      "truncated": false,
+      "readme": "# Muse Spark Open Kernel Challenge — our kernels\n\nCustom CUDA / Triton kernels for the [Open Kernel Challenge](https://openkernelchallenge.dev) (Muse Spark Open,\none H200 per run). Each problem is one piece of a Muse decode step; a kernel is scored by how much faster it is\nthan SGLang's on the same inputs. The kernel track closes **2026-11-04, 11:59 pm PT**; the serving track runs\n2026-11-05 → 11-19.\n\n- Current state and what to do next: [RESUME.md](RESUME.md)\n- Full experiment history: each problem's `EXPERIMENTS.md`\n\n## Results (board, 2026-10-30)\n\n| Problem | What it is | Our speedup | Rank | Median | #1 | Job |\n|---|---|---|---|---|---|---|\n| [muse_attention_decode](muse_attention_decode) | gated attention decode over a paged FP8 cache | **1.525×** | 754 / 1152 | 1.79× | 3.22× | 09b49ea4276e4306 |\n| [muse_moe_w4a16](muse_moe_w4a16) | routed experts, NVFP4 weights | **1.704×** | 688 / 1206 | 1.81× | 2.76× | 069f543bb3604714 |\n| [muse_decode_layer](muse_decode_layer) | the whole decoder layer | **1.496×** | 703 / 1072 | 1.66× | 2.42× | 7a0ba34ed4ee4181 |\n| [muse_bf16_proj](muse_bf16_proj) | dense BF16 projections (skinny GEMMs) | **1.190×** | 1096 / 1502 | 1.24× | 1.65× | fef2017d39ec4cc2 |\n| overall kernel board | the 4 problems as one decode step | | 722 / 1722 | | | |\n\nSpeedup = geometric mean over the problem's loads (decode / verify at batch 1, 16, 32 and so on) of SGLang's\ntime over ours. Ranks, medians and #1 as of 2026-10-30 23:59 UTC. `muse_prefill_layer` is not entered.\n\n## Layout\n\nEach problem folder was created by `okc init` and has the same shape:\n\n| File | What |\n|---|---|\n| `TASK.md`, `AGENTS.md` | the problem statement, shapes, rules (from okc) |\n| `reference.py`, `checks.py` | the judge's reference and correctness checks (local copies) |\n| `baseline.py` | SGLang's kernel, the one we are timed against |\n| `submission.py` | **our kernel** = what is on the board |\n| `submission_*.py` | earlier versions and experiments, named by experiment id (A10, M16, L7, ...) |\n| `EXPERIMENTS.md` | every experiment: idea, numbers, result, submitted jobs, open ideas (\"## Next\") |\n| `bench.py` | judge-like timing of all scored shapes vs SGLang (`--check` runs the tests first) |\n| `timing.py` | CUDA-graph timing with a cold L2, as the judge does |\n| other `*.py`, `tools/` | sweeps, probes, profilers and stress tests for that problem (run on the pod) |\n| `profiles/` | the judge's output for each submitted job (`okc` saves it) |\n\n`muse_decode_layer/submission.py` is generated: `python3 muse_decode_layer/build_layer.py` splices the\nattention, MoE and projection submissions into SGLang's layer. Rerun it after changing any of them.\n\n## How we work\n\n1. **GPU:** since 2026-10-31 every test is an `okc check` (the judge's own H200: correctness, per-shape times and a\n   per-kernel profile; 20 per problem per day). Before that, a RunPod H200 SXM pod (`okc-musespark-*`, image\n   `lmsysorg/sglang:dev-muse-spark-open`) for profiling. An H100 is not a valid stand-in (MoE results did not carry over).\n2. **Copy** the problem folder to the pod (`/root/okc_<problem>`), run `bench.py --check` there. Local numbers track\n   the judge within a few percent.\n3. **Submit** with `~/.okc/bin/okc submit <problem>/submission.py` when the pod shows a clear gain (~3 %) and 0 check\n   failures; `okc check` for risky changes. Limits: 10 submits and 20 checks per problem per day.\n4. **Log** every experiment in that problem's `EXPERIMENTS.md` and keep `RESUME.md` current.\n\n## What our kernels do\n\n### Attention (`muse_attention_decode`)\n- **Sliding-window decode** (one launch, `attnc_kernel`): one CTA per (request, KV-head pair, key chunk); the chunks\n  of a request form one thread-block cluster. Each CTA normalizes and rotates its queries itself, the CTA holding\n  the new token writes it to the cache and into its own tile, keys stream through a `cp.async` ring into FP16\n  MMAs, and partial results are pushed into the merging CTA's shared memory (DSMEM), which applies the gated RMSNorm.\n- **Sliding-window verify** (8-token blocks, `attnpcc_kernel`): the same one-launch idea around a warp-specialized\n  wgmma kernel (a producer warpgroup copies and transposes, a consumer warpgroup runs FP8 wgmmas).\n- **Full-attention decode**: a fused Triton prep, a CUDA split-KV kernel, a Triton combine. **Full verify** stays\n  on SGLang's FA3 (our wgmma kernels only tie it).\n\n### MoE (`muse_moe_w4a16`)\nNVFP4 grouped GEMMs in CUDA. Routing happens inside the GEMM CTAs; only (token, local expert) pairs are computed,\neach touched expert's weights are streamed once; weights are repacked once so each warp load is a contiguous 512 B;\nE2M1 codes become BF16 by bit moves (exact); split-K partials go to FP32 accumulators with `red.global.add`; a\nnorm kernel applies the post-expert norm and the weighted sum. Kernels are chained with programmatic dependent launch.\n\n### Projections (`muse_bf16_proj`)\nUp to 32 tokens: a cluster split-K skinny GEMM (weights streamed by 16-byte loads straight into MMAs, partials summed\nover DSMEM). Above that, cuBLAS (as SGLang), plus a split-K Triton GEMM for the router.\n\n### Decode layer (`muse_decode_layer`)\nSGLang's layer with the three kernels above swapped in. Up to 32 tokens the pre-expert RMSNorm is folded away: the\npooler's write-out sums each token's squares and MoE gemm1 applies the norm while it stages x. Our kernels chain with\nprogrammatic dependent launch (each loads its weights before waiting for the previous one), and the pad / remap\nglue kernels are gone.\n\n## Lessons worth keeping\n\n- **Cold L2 means cold code.** The judge flushes L2 before every replay, so code that runs once per CTA (prologue,\n  epilogue) is fetched from DRAM on every call. In the attention verify kernel the merge took ~6900 cycles cold vs\n  ~2300 warm; having the idle producer warps run the merge code early (stores off) fixed most of it. Smaller code\n  helps; unrolled straight-line code hurt. (MoE is only 0–4 % affected.)\n- **Fixed costs dominate small batches.** Removing kernel launches (prep + attention + combine → one kernel) gave the\n  biggest attention gains; the remaining time is dependent DRAM reads (lengths → page table → keys).\n- **Watch what the compiler moves.** It sank a scale load to the end of a kernel (a cold DRAM read on the critical\n  path); loading all scalars up front and pinning them with an empty `asm` fixed it.\n- **Pushing beats pulling over DSMEM:** remote stores before a cluster barrier, local reads after it.\n- **Idle bandwidth is not free in a latency-bound phase.** Prefetching the next weights into L2 during attention made\n  the layer slower: the extra DRAM traffic lengthened the attention's dependent round trips.\n- **Programmatic dependent launch needs L2 reads.** A kernel that starts before its predecessor ends must read the\n  predecessor's output with `__ldcg`: its SM's L1 can still hold the last replay's data.\n- **Measure phases in the kernel** (`clock64` / `%globaltimer` per CTA): every big win came from finding the one slow\n  phase. `ncu` is not available on RunPod.\n- Ideas that did not pay off are in each `EXPERIMENTS.md` (e.g. 2-head full-verify CTAs, vector atomics in MoE,\n  12-bit lossless projection weights).\n\n## Open levers (by expected value)\n\n1. MoE: split-K atomics cost up to ~77 µs at batch 256; accumulating over k in registers would remove most of them.\n2. Attention: full verify at batch 16 / 32 (on FA3) is the weakest load (~1.05–1.2×).\n3. Attention decode: ~2 µs of prologue (two dependent DRAM reads) and the merge phase.\n4. Projections: small-batch tails and the `o` projection on cuBLAS.\n"
+    }
+  ]
+}
