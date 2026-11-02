@@ -1,0 +1,50 @@
+{
+  "fetched_utc": "2026-11-02T03:21:13.799Z",
+  "url": "https://openkernelchallenge.dev/assets/index-VBg5pvCv.js",
+  "http_status": 200,
+  "bundle_bytes": 448958,
+  "bundle_sha256": "25be306883059fe907ffba40f3f303427b9f88f861ae9ff62afec57762b72358",
+  "var_Fi_byte_offset": 432499,
+  "var_Fi_character_offset": 431355,
+  "rules_template_end_character_offset": 437765,
+  "decoded_rules_sha256": "9e05499894fd41236258c8acd0e44b7d22888ec32c774eda0561b1eca64a347e",
+  "rules_sections": [
+    "Rules",
+    "Environment",
+    "Kernels",
+    "Restrictions",
+    "Serving",
+    "Restrictions",
+    "Validation",
+    "Terms",
+    "Credits"
+  ],
+  "selected_paragraphs": [
+    {
+      "sha256": "605102be341454c80c8ae5f36bf3b000a789fb98405eac1a569de0bfe486f6d3",
+      "character_offset": 350,
+      "characters": 164
+    },
+    {
+      "sha256": "a15f1bc7e3d115188cbdb4d2e4a8fa160d1a8edf9c93d9de4490d6b37925f459",
+      "character_offset": 692,
+      "characters": 208
+    },
+    {
+      "sha256": "ba05ced94d77a5714478b80413116d65c05183ccb034537649f6fb310fd3dc7b",
+      "character_offset": 4643,
+      "characters": 368
+    }
+  ],
+  "limited_verbatim_excerpts": [
+    "do work outside the timed calls",
+    "so you can repack the weights however you like"
+  ],
+  "paraphrase": {
+    "prepare": "One untimed prepare invocation may repack supplied weights within 300 seconds.",
+    "validation": "The rules prohibit timing/harness manipulation, untimed computation, output caching/replay and disallowed precision changes.",
+    "universal_lut": "No explicit universal activation-function-table exception was found in the full decoded Rules text; that search result alone does not prove prohibition."
+  },
+  "decision": "HOLD: input-independent universal table differs from cached observed outputs, but precomputing SiLU work is not covered clearly by the explicit weight-repacking exception. No organizer contact or full harness."
+}
+

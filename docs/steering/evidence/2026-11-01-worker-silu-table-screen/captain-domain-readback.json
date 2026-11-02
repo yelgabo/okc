@@ -1,0 +1,18 @@
+{
+  "script": "docs/steering/evidence/2026-11-01-captain-silu-domain/check-domain.cjs",
+  "sha256": "b2a7d5fdc43fbef36cbc4c05f9e076e6bbf922d1d6dfe2006505862c27d743aa",
+  "exitcode": 0,
+  "worker_readback": {
+    "scope": "CPU IEEE-754 embedding and index only; not CUDA intrinsic, NaN payload, epilogue equivalence, legality or performance proof",
+    "counts": {
+      "raw_words": 65536,
+      "finite": 65280,
+      "infinity": 2,
+      "nan": 254,
+      "subnormal": 254,
+      "finite_roundtrip_failures": 0,
+      "finite_index_failures": 0,
+      "negative_zero_preserved": true
+    }
+  }
+}

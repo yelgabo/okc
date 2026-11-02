@@ -1,5 +1,11 @@
 # Ruled out
 
+## November 2 UTC 2026 universal SiLU table readiness HOLD
+
+| Treatment | Evidence | Scope and reopening gate |
+| --- | --- | --- |
+| Universal65536-entry FP32 SiLU table generated untimed from raw BF16 constants | Source/CPU only, no GPU job or compiler invocation. Served rules bundle25be3068; selected source785a90ca, MAIN85f7cf53/helper3a91956f; report steering/2026-11-01-universal-bf16-silu-table-screen.md. CPU finite/index proof is not CUDA math or speed evidence. | HOLD_RULE_ELIGIBILITY_BEFORE_IMPLEMENTATION, captain accepted. Input-independent universal tabulation differs from observed-output caching, but is not clearly covered by the explicit weight-repacking exception to untimed-work restrictions. Not declared illegal or a measured loss; no full harness/remaining-time build. Reopen only with eligibility resolution or materially different timed design and separate source/resource/numerical/GPU allocation. Zero qualified new performance candidates. |
+
 ## November 2 UTC 2026 matched RMW closure
 
 | Treatment | Evidence | Closure and reopening gate |
