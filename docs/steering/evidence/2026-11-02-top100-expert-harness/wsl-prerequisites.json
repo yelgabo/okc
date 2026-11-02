@@ -1,0 +1,12 @@
+{
+  "command": [
+    "wsl",
+    "-e",
+    "python3",
+    "/mnt/c/Users/gretc/.t3/worktrees/okc/t3-873721ac/tools/expert_top100_harness_probe.py"
+  ],
+  "returncode": 0,
+  "seconds": 3.7571198000005097,
+  "stdout": "{\n  \"executable\": \"/usr/bin/python3\",\n  \"version\": \"3.14.4 (main, Aug 20 2026, 10:41:58) [GCC 15.2.0]\",\n  \"platform\": \"Linux-6.18.33.2-microsoft-standard-WSL2-x86_64-with-glibc2.43\",\n  \"torch_spec\": null,\n  \"status\": \"STOP_CPU_HOST_GATE\"\n}\n",
+  "stderr": ""
+}

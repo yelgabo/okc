@@ -1,0 +1,10 @@
+{
+  "command": [
+    "C:\\Users\\gretc\\AppData\\Local\\Python\\pythoncore-3.14-64\\python.exe",
+    "tools/test_expert_top100_pair_package.py"
+  ],
+  "returncode": 0,
+  "seconds": 2.170999699999811,
+  "stdout": "",
+  "stderr": "test_real_compiler_inputs_and_source_identity (__main__.Packaging.test_real_compiler_inputs_and_source_identity) ... ok\ntest_source_drift_rejects_before_build (__main__.Packaging.test_source_drift_rejects_before_build) ... ok\ntest_state_binding_guards_and_duplicate_build_reuse (__main__.Packaging.test_state_binding_guards_and_duplicate_build_reuse) ... ok\n\n----------------------------------------------------------------------\nRan 3 tests in 2.094s\n\nOK\n"
+}

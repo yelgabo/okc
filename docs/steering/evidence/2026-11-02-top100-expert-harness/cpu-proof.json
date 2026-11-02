@@ -1,0 +1,103 @@
+{
+  "status": "STOP_CPU_HOST_GATE",
+  "base_commit": "ec24fc6188dbc31b9929bec48f41e9c58afacba8",
+  "archived_at": "2026-11-02T16:06:06.921318+00:00",
+  "historical_instrument_job": "c5e4f89672f743bb",
+  "candidate_sha256": "dff221ae6ccc2de35d7a4c123aea3e3eb1345d3685f6eb97e52cbbfef6a0c8c4",
+  "payload_sha256": "c6f4c25d0b059e0893225515868c9280b3bcb6434692e95b8ed931b9f5c01402",
+  "payload_bytes": 918254,
+  "tests": [
+    {
+      "name": "harness-cpu",
+      "returncode": 0
+    },
+    {
+      "name": "pair-cpu",
+      "returncode": 0
+    },
+    {
+      "name": "candidate-cpu",
+      "returncode": 0
+    },
+    {
+      "name": "windows-prerequisites",
+      "returncode": 0
+    },
+    {
+      "name": "wsl-prerequisites",
+      "returncode": 0
+    }
+  ],
+  "files": {
+    "tools/expert_top100_harness.py": {
+      "sha256": "331c72395a6102e327eb8995353dfb9896469464234701026e4ee57c2dbf9331",
+      "bytes": 6367
+    },
+    "tools/expert_top100_harness_contract.py": {
+      "sha256": "601779ff428b7ed64681110cb14f52c1aa7341aa214e28fd1acd2324e19cbcaf",
+      "bytes": 2930
+    },
+    "tools/expert_top100_harness_probe.py": {
+      "sha256": "ff767b9393e97d309659514fefe764aa444c85b4a22f8ad89f6c23bc29356d83",
+      "bytes": 479
+    },
+    "tools/expert_top100_harness_read.py": {
+      "sha256": "0288286d9e4f4461a74bedca29896ff87543e158e846191333e04532c2b9c798",
+      "bytes": 6304
+    },
+    "tools/expert_top100_harness_runtime.py": {
+      "sha256": "384866c3bbe2780024ab6ceafb497b2afe9e29ceca1b8e2bd1f2b219676848a1",
+      "bytes": 15952
+    },
+    "tools/test_expert_top100_harness.py": {
+      "sha256": "65131101c5422f07137228825bf9208f6b1f9ad9b30cb5c36bfc4dc1d178b57b",
+      "bytes": 16344
+    },
+    "tools/expert_top100_pair_package.py": {
+      "sha256": "abe458551c978e55a4f4b142127b8d0ece91dcae521c7497799418ece824a7bd",
+      "bytes": 3127
+    },
+    "tools/dl_g1_layer_owners.py": {
+      "sha256": "052781c3aea5bafd4f20f1b04da4b52757d98f15f315b1ff7a33169963db7309",
+      "bytes": 5441
+    },
+    "tools/dl_g1_layer_body.py": {
+      "sha256": "0a290a64e5d9b2188452d73ee3a2b55ecdf29be5709609df49a502402234e18d",
+      "bytes": 14205
+    },
+    "tools/g_common_rmw_pair.py": {
+      "sha256": "21793423414f304128b49609644ef8543c3b1b9426c78d90c8ace174844f833d",
+      "bytes": 7150
+    },
+    "tools/g_common_rmw_pair_body.py": {
+      "sha256": "b01df3fc7055300fb3dcc2cbf508bedf197e5ac50dbd9212b5c3e654e7d96027",
+      "bytes": 6365
+    },
+    "tools/g_common_rmw_pair_read.py": {
+      "sha256": "b67ed909a54181e22165b34675dcefd1ed984ba279dbb57b4319182c84edd8b0",
+      "bytes": 11085
+    },
+    "tools/g_common_release_budget.py": {
+      "sha256": "0563f85e77da6e12f5d9971bd27ef0341daed177bd6a8965fb5219fd26539ec3",
+      "bytes": 10586
+    },
+    "tools/prod_size_qualify.py": {
+      "sha256": "4a051e8183009b354413892446124109294984ff915303eabfdcd4ca49bd2dd5",
+      "bytes": 8321
+    },
+    "tools/dl_make_bench_pub.py": {
+      "sha256": "b286a256c8589ca4daf379c71ceb5e2cc94bdee3a738554c93bfcb1d95959722",
+      "bytes": 53885
+    },
+    "docs/steering/evidence/2026-11-02-top100-expert-review/parent-ptx-boundaries.json": {
+      "sha256": "9d2ab36c40a382c034db85b214436914e5bd20c150cb17d986a2a23b3b048f41",
+      "bytes": 4327
+    }
+  },
+  "limitations": [
+    "No complete private-loop CPU execution with real Torch",
+    "No CUDA compilation or execution",
+    "All target fit/numerical/performance gates unmeasured",
+    "Generated prepare fails closed before builds"
+  ]
+}
