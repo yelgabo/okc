@@ -1,0 +1,73 @@
+{
+  "source": ".build/worker-g224-reference/MAIN/original-selected.cu",
+  "source_sha256": "c7c201ae145c6a33f2d5e6b1f80d2a6e56e8d75502f9fd09ace40927ad0f7c71",
+  "original_device_prefix_sha256": "8203a0f0802335ad628806ad814e9fcc97d45ea46c271d8ba40ea3a2ee0cf906",
+  "compiled_device_prefix_sha256": "f26d214e694b9bb2512e297159e8425eb25cd25cb8d2b34c2486fb5ca08a7d32",
+  "host_boundary": "#include <torch/extension.h>",
+  "virtual_headers": {
+    "type_traits": "#pragma once\nnamespace std { template<class T,T v> struct integral_constant {\nstatic constexpr T value=v; constexpr operator T() const noexcept {return value;}\n}; using true_type=integral_constant<bool,true>; using false_type=integral_constant<bool,false>; }\n",
+    "stdint.h": "#pragma once\ntypedef signed char int8_t; typedef unsigned char uint8_t;\ntypedef signed short int16_t; typedef unsigned short uint16_t;\ntypedef signed int int32_t; typedef unsigned int uint32_t;\ntypedef signed long int64_t; typedef unsigned long uint64_t;\ntypedef signed long intptr_t; typedef unsigned long uintptr_t;\n"
+  },
+  "options": [
+    "--gpu-architecture=compute_90a",
+    "--std=c++17",
+    "--generate-line-info",
+    "--device-as-default-execution-space",
+    "--include-path=/root/.cache/okc-cuda130-88/nvidia/cu13/include",
+    "--include-path=/root/.cache/okc-cuda130-88/nvidia/cu13/include",
+    "--include-path=/root/.cache/okc-cuda130-88/cuda_cccl-linux-x86_64-13.0.85-archive/include",
+    "-DOKC_NS=3",
+    "-DOKC_FNST=4",
+    "-DOKC_NSF=3",
+    "-DOKC_NW=16",
+    "-DOKC_FAST1=0",
+    "-DOKC_EPI4=0",
+    "-DOKC_WGS=1",
+    "-DOKC_SC6W=1",
+    "-DOKC_PRMTSC=1",
+    "-DOKC_DQ7=1"
+  ],
+  "declaration_adapter": "__device__ __forceinline__ int wgs_cta_of(const Smem& S, int pb, int s, int G);\n",
+  "nvrtc_status": 0,
+  "gpu_execution": false,
+  "lowered": [
+    "_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE",
+    "_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE"
+  ],
+  "ptx_sha256": "275c98b308f9fc7d330e7100861ebb930af09d0bbd306333fa98bd661b24e054",
+  "cubin_sha256": "3c069d2715fcb4b235b1cedbc9b9ebbd6fe8cbe44e7954f643df3dcd291ce428",
+  "ptxas": [
+    "/root/.cache/okc-cuda130-88/nvidia/cu13/bin/ptxas",
+    "-arch=sm_90a",
+    "-O3",
+    "-v",
+    "--warn-on-spills",
+    ".build/worker-g224-reference/MAIN/device.ptx",
+    "-o",
+    ".build/worker-g224-reference/MAIN/device.cubin"
+  ],
+  "exitcode": 0,
+  "resources": {
+    "_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE": {
+      "stack_bytes": 8,
+      "spill_store_bytes": 20,
+      "spill_load_bytes": 52,
+      "registers": 96,
+      "barriers": 16
+    },
+    "_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE": {
+      "stack_bytes": 8,
+      "spill_store_bytes": 20,
+      "spill_load_bytes": 52,
+      "registers": 96,
+      "barriers": 16
+    }
+  },
+  "ptx_launch_bounds": [
+    ".maxntid 576, 1, 1",
+    ".minnctapersm 1",
+    ".maxntid 576, 1, 1",
+    ".minnctapersm 1"
+  ],
+  "ptxas_wgmma_serialization_warnings": 0
+}

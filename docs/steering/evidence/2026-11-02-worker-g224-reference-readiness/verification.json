@@ -1,0 +1,138 @@
+{
+  "decision": "SOURCE_CPU_REFERENCE_SCREEN_SURVIVOR_TARGET_NOT_RUN",
+  "utc": "2026-11-02T09:04:43.390Z",
+  "old_absolute_zero_gate": "FAILED_UNCHANGED",
+  "control_rows": [
+    {
+      "family": "B4",
+      "options_equal_except_intended_NW": true,
+      "reference_resources": {
+        "_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE": {
+          "stack_bytes": 16,
+          "spill_store_bytes": 120,
+          "spill_load_bytes": 216,
+          "registers": 96,
+          "barriers": 16
+        },
+        "_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE": {
+          "stack_bytes": 16,
+          "spill_store_bytes": 120,
+          "spill_load_bytes": 216,
+          "registers": 96,
+          "barriers": 16
+        }
+      },
+      "frozen_resources": {
+        "_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE": {
+          "stack_bytes": 8,
+          "spill_store_bytes": 8,
+          "spill_load_bytes": 24,
+          "registers": 96,
+          "barriers": 16
+        },
+        "_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE": {
+          "stack_bytes": 8,
+          "spill_store_bytes": 8,
+          "spill_load_bytes": 24,
+          "registers": 96,
+          "barriers": 16
+        }
+      },
+      "gate": {
+        "_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE": {
+          "no_worse": {
+            "stack_bytes": true,
+            "spill_store_bytes": true,
+            "spill_load_bytes": true,
+            "barriers": true
+          },
+          "registers_le96": true,
+          "conditional_rounded_register_blocks": 2,
+          "pass": true
+        },
+        "_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE": {
+          "no_worse": {
+            "stack_bytes": true,
+            "spill_store_bytes": true,
+            "spill_load_bytes": true,
+            "barriers": true
+          },
+          "registers_le96": true,
+          "conditional_rounded_register_blocks": 2,
+          "pass": true
+        }
+      },
+      "decoded_ptx_cubin_hashes_verified": true
+    },
+    {
+      "family": "MAIN",
+      "options_equal_except_intended_NW": true,
+      "reference_resources": {
+        "_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE": {
+          "stack_bytes": 8,
+          "spill_store_bytes": 20,
+          "spill_load_bytes": 52,
+          "registers": 96,
+          "barriers": 16
+        },
+        "_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE": {
+          "stack_bytes": 8,
+          "spill_store_bytes": 20,
+          "spill_load_bytes": 52,
+          "registers": 96,
+          "barriers": 16
+        }
+      },
+      "frozen_resources": {
+        "_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE": {
+          "stack_bytes": 8,
+          "spill_store_bytes": 8,
+          "spill_load_bytes": 8,
+          "registers": 96,
+          "barriers": 16
+        },
+        "_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE": {
+          "stack_bytes": 8,
+          "spill_store_bytes": 8,
+          "spill_load_bytes": 8,
+          "registers": 96,
+          "barriers": 16
+        }
+      },
+      "gate": {
+        "_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE": {
+          "no_worse": {
+            "stack_bytes": true,
+            "spill_store_bytes": true,
+            "spill_load_bytes": true,
+            "barriers": true
+          },
+          "registers_le96": true,
+          "conditional_rounded_register_blocks": 2,
+          "pass": true
+        },
+        "_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE": {
+          "no_worse": {
+            "stack_bytes": true,
+            "spill_store_bytes": true,
+            "spill_load_bytes": true,
+            "barriers": true
+          },
+          "registers_le96": true,
+          "conditional_rounded_register_blocks": 2,
+          "pass": true
+        }
+      },
+      "decoded_ptx_cubin_hashes_verified": true
+    }
+  ],
+  "cpu_tests": 10,
+  "payload": {
+    "bytes": 999601,
+    "sha256": "3615f0603a41184efec6f31a2ae88b080f6c4e049f77db16787896d0df6b009d"
+  },
+  "gpu": false,
+  "driver_query": false,
+  "host_nvcc": false,
+  "judge": false
+}
