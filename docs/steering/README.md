@@ -4,6 +4,8 @@ This is the stable cross-session entry point. Read the latest report, its eviden
 
 ## Latest standalone component harness
 
+[Isolated attention continuity implementation allocation](2026-11-02-captain-attention-continuity-allocation.md): after two valid MoE negatives, existing worker receives one50-active-minute source/CPU/fixed-secondary task. Preserve layer math/half-merge in dedicated scratch, explicit barrier-init publication and unchanged page pipeline/launch tuples. No GPU/CLI/POST/harness/default authorization; prior plain-toggle STOP remains scoped and valid.
+
 [Captain T1 terminal decision](2026-11-02-captain-t1-terminal-decision.md): own28248eb5 valid negative, unchanged reader independently rerun; official5/6/6 and private instrument pass, frozen performance gate fails. Exact three-launch T1 PARKED/no retry or promotion. [Worker archive](2026-11-02-worker-t1-moe-terminal.md),1786dbf2. No follow-on allocation.
 
 [Reference access correction and bounded discovery](2026-11-02-captain-source-access-correction.md): prior404 used wrong keell repository URL; correct immutable source is accessible and LF-identical to archived reference, not a new candidate. Existing T1 allocation unchanged; no additional dispatch.
