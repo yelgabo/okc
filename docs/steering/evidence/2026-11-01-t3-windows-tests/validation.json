@@ -1,0 +1,34 @@
+{
+  "date": "2026-11-01",
+  "timezone": "America/Los_Angeles",
+  "platform": "Windows / win32",
+  "source_repository": "https://github.com/pingdotgg/t3code",
+  "base_commit": "fa31b66bbb2ae5234205a8628a78e038d917202f",
+  "branch": "investigate/windows-worktree-tests",
+  "changed_file": "apps/server/src/orchestration-v2/ProviderTurnStartService.test.ts",
+  "base_file_git_blob": "05fc1b8545bb2e3de71c4baa7077f59669ccf0ed",
+  "corrected_file_git_blob": "5eca90709083ca52a65addd3b4dfee631cc02007",
+  "production_files_changed": false,
+  "versions": {
+    "vite_plus": "1.4.0",
+    "vitest": "5.0.5",
+    "vite_plus_node": "26.12.1",
+    "ambient_node": "24.16.0",
+    "effect": "4.0.5",
+    "effect_platform_node": "4.0.5",
+    "git": "2.54.0.windows.1"
+  },
+  "runs": [
+    {"id":"before-focused", "start_local":"16:12:20", "failed":4, "skipped":38, "log":"before-focused.txt"},
+    {"id":"after-focused", "start_local":"16:12:51", "passed":4, "skipped":38, "log":"after-focused.txt"},
+    {"id":"after-full", "start_local":"16:14:12", "passed":42, "skipped":0, "exit_code":0, "log":"after-full.txt"}
+  ],
+  "other_checks": [
+    {"command":"vp run --filter t3 typecheck", "exit_code":0, "log":"typecheck.txt"},
+    {"command":"vp fmt --check apps/server/src/orchestration-v2/ProviderTurnStartService.test.ts", "result":"All matched files use the correct format; observed terminal output"},
+    {"command":"vp lint --report-unused-disable-directives apps/server/src/orchestration-v2/ProviderTurnStartService.test.ts", "exit_code":0, "result":"No lint diagnostics; observed terminal output"},
+    {"command":"git diff --check", "exit_code":0}
+  ],
+  "evidence_processing": "Logs converted from PowerShell text encoding to UTF-8. Local checkout and user-home paths replaced with placeholders. PowerShell NativeCommandError framing around vp's informational stderr note is retained; it is not an additional test failure. Probe imports changed from absolute local file URLs to ./node_modules/ so the archived script can run when copied into apps/server.",
+  "limits": ["No Linux/macOS execution", "No live T3 installation or session-state changes", "No new PR or T3 push", "No repo-wide checks; aggregate check:changed not rerun during this audit"]
+}
