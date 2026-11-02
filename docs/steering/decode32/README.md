@@ -1,8 +1,14 @@
 # Decode32 task inbox
 
-Use this folder to give the "Review decode32 research tasks" chat assignments and
-direction from "okc research". The chat is waiting for an assignment. Creating this
-inbox does not take over the existing MID-at-T32 implementation.
+## Current actionable assignment
+
+**[D32-ATTN-01: implement one D32 full-context attention candidate](2026-11-02-01-full-decode-attention.md)** is assigned to **Decode32 Worker** (the "Review decode32 research tasks" chat). Begin source/code work and record actual pickup in `2026-11-02-01-full-decode-attention-status.md`. Publication does not establish that the worker has read or begun it. No additional research assignment is required to start this bounded implementation.
+
+**Ownership:** Decode32 Worker owns this isolated attention track; OKC Developer keeps the existing MID-at-T32 MoE comparison; OK Driver remains sole judge dispatcher/integration owner. Preserve other workers' files and do not duplicate their jobs. The deliverable is one reproducible candidate plus tests and a measurement handoff, or a concrete blocker—not another general review.
+
+## Inbox convention
+
+Use this folder to give Decode32 Worker assignments and direction from "okc research". Creating this inbox did not take over the existing MID-at-T32 implementation; the current attention assignment is separate.
 
 Read these owning briefs before assigning or starting work:
 
@@ -31,4 +37,5 @@ The scheduler checks while the desktop app can run local automations, so this is
 periodic checking rather than an instant filesystem notification.
 
 See the [setup handoff](../2026-11-02-decode32-inbox.md) for the checkout, baseline
-and verification scope.
+and verification scope. The historical waiting state in that setup is superseded
+by the assignment above; actual pickup still requires the worker's acknowledgment.
