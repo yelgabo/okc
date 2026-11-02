@@ -1,0 +1,129 @@
+{
+  "decision": "PINNED_SECONDARY_PTX_BOUNDARIES_PASS",
+  "records": [
+    {
+      "family": "b4",
+      "ptx_sha256": "8e0a4445a7849397d39160a484ab7c7d16674506d4175fefa822f310b0e1f35b",
+      "native_sha256": "3cc12ae09f1954013f5cc9be858120d29b12bf14fff267391b94c5000d2256ea",
+      "compiled_prefix_sha256": "474c9561454f1523e58875da18b823f2d1592ca24beef87f8b316d4b04a5dbb8",
+      "entries": {
+        "_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE": {
+          "product_count": 16,
+          "store_count": 216,
+          "product_examples": [
+            {
+              "ptx_line": 81742,
+              "instruction": "mul.rn.f32 \t%f25810, %f14623, %f14629;"
+            },
+            {
+              "ptx_line": 81743,
+              "instruction": "mul.rn.f32 \t%f25809, %f14622, %f14626;"
+            }
+          ],
+          "store_examples": [
+            {
+              "ptx_line": 47094,
+              "instruction": "st.global.L2::cache_hint.b16 [%rd2015], %rs625, %rd2018;"
+            },
+            {
+              "ptx_line": 47118,
+              "instruction": "st.global.L2::cache_hint.b16 [%rd2017], %rs629, %rd2018;"
+            }
+          ],
+          "product_other": []
+        },
+        "_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE": {
+          "product_count": 16,
+          "store_count": 216,
+          "product_examples": [
+            {
+              "ptx_line": 163644,
+              "instruction": "mul.rn.f32 \t%f25810, %f14623, %f14629;"
+            },
+            {
+              "ptx_line": 163645,
+              "instruction": "mul.rn.f32 \t%f25809, %f14622, %f14626;"
+            }
+          ],
+          "store_examples": [
+            {
+              "ptx_line": 128996,
+              "instruction": "st.global.L2::cache_hint.b16 [%rd2015], %rs625, %rd2018;"
+            },
+            {
+              "ptx_line": 129020,
+              "instruction": "st.global.L2::cache_hint.b16 [%rd2017], %rs629, %rd2018;"
+            }
+          ],
+          "product_other": []
+        }
+      }
+    },
+    {
+      "family": "main",
+      "ptx_sha256": "b2b0a13c5ab65296bea1a50af6efefd5cbd65f83a517891d30446cf4682094ae",
+      "native_sha256": "3cc12ae09f1954013f5cc9be858120d29b12bf14fff267391b94c5000d2256ea",
+      "compiled_prefix_sha256": "474c9561454f1523e58875da18b823f2d1592ca24beef87f8b316d4b04a5dbb8",
+      "entries": {
+        "_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE": {
+          "product_count": 128,
+          "store_count": 216,
+          "product_examples": [
+            {
+              "ptx_line": 72997,
+              "instruction": "mul.rn.f32 \t%f12910, %f12878, %f12882;"
+            },
+            {
+              "ptx_line": 72998,
+              "instruction": "mul.rn.f32 \t%f12911, %f12879, %f12885;"
+            }
+          ],
+          "store_examples": [
+            {
+              "ptx_line": 47284,
+              "instruction": "st.global.L2::cache_hint.b16 [%rd1631], %rs488, %rd1634;"
+            },
+            {
+              "ptx_line": 47308,
+              "instruction": "st.global.L2::cache_hint.b16 [%rd1633], %rs492, %rd1634;"
+            }
+          ],
+          "product_other": []
+        },
+        "_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE": {
+          "product_count": 128,
+          "store_count": 216,
+          "product_examples": [
+            {
+              "ptx_line": 148549,
+              "instruction": "mul.rn.f32 \t%f12910, %f12878, %f12882;"
+            },
+            {
+              "ptx_line": 148550,
+              "instruction": "mul.rn.f32 \t%f12911, %f12879, %f12885;"
+            }
+          ],
+          "store_examples": [
+            {
+              "ptx_line": 122836,
+              "instruction": "st.global.L2::cache_hint.b16 [%rd1631], %rs488, %rd1634;"
+            },
+            {
+              "ptx_line": 122860,
+              "instruction": "st.global.L2::cache_hint.b16 [%rd1633], %rs492, %rd1634;"
+            }
+          ],
+          "product_other": []
+        }
+      }
+    }
+  ],
+  "scope": "NVRTC12.8 PTX only; not target NVCC, SASS equivalence, runtime numerics or timing",
+  "source_lines": {
+    "reconstructed_product": 2027,
+    "compact_store_calls": [
+      1993,
+      1994
+    ]
+  }
+}
