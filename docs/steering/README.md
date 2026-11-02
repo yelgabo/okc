@@ -10,6 +10,8 @@ This is the stable cross-session entry point. Read the latest report, its eviden
 
 [November 2: Attention continuity prototype screen — specific STOP](2026-11-02-top100-attention-prototype.md) - isolated attention worker at 71eb71c/a705900; actual layer launch paths checked on CPU. Continuous ring already exists in standalone; dormant layer toggle also changes decode merge. No CUDA candidate, GPU run or promotion; captain retains dispatch and integration ownership.
 
+[November 2: Expert pre-gamma transport prototype](2026-11-02-top100-expert-prototype.md) - branch implementation handoff: one concrete B4/MAIN scratch candidate, CPU and secondary compiler survivor; MID unchanged. No measured gain or dispatch allocation. Evidence a705900/71eb71c plus profile audit80eef4d; existing captain and T1/compression owners preserved.
+
 [November 2: Delegated incumbent hotspot work](2026-11-02-top100-delegated-hotspots.md) - explicit user allocation: reuse fresh incumbent profiles, validate weighted priorities, and isolate attention and longer-token expert prototypes. Existing T1/compression owners preserved; no duplicate dispatch or automatic scored substitution.
 
 ## Latest status and alignment assessment
