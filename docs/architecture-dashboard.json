@@ -1,6 +1,6 @@
 {
-  "reviewed_at": "2026-11-02T11:53:00-07:00",
-  "snapshot": "1786dbf",
+  "reviewed_at": "2026-11-02T12:48:00-07:00",
+  "snapshot": "ba0e1ff",
   "family_registry_update": {
     "date": "2026-10-30",
     "evidence_snapshot": "7a5965531103f275ac104d340ef30f1508e32353",
@@ -41,7 +41,7 @@
       "summary": "GROUPED_MASKED passes math but loses across all measured128/256 layer/std cases. Earlier staged 45+46 losses remain.",
       "layer": "Stopped at complete-MoE component gate",
       "pending": [],
-      "limit": "Tested library GEMMs already exceed owned whole-call time in profiled256/std case. Do not reject every grouped design.",
+      "limit": "The grouped-contiguous Humming proposal is distinct from the measured masked loss. Its exact Muse configuration and net layer opportunity are unqualified.",
       "source": "runs-moe.md"
     },
     {
@@ -84,7 +84,7 @@
       "summary": "Across three held-outs, VP2 averaged 10.168 µs versus 10.784 µs for the owned control. All four six-load factors were below 1.01.",
       "layer": "Private standalone comparison. Layer adoption closed for this variant.",
       "pending": [],
-      "limit": "VP2 targets eight-token sliding attention. The proposed layer continuity toggle also changes decode merging and stopped at source review. No new pipeline timing.",
+      "limit": "The half-merge-preserving continuity candidate passed CPU source checks and is frozen before H200 testing. Its 0.560% scenario assumes a 7 µs saving on each of four cells.",
       "source": "runs-attention.md",
       "outcomes": [
         "win",
@@ -149,9 +149,9 @@
       "summary": "Job 60b38a62a135442c compiled with C++17 while target Torch required C++20. No test or timing cells ran. The private retry is quota-blocked."
     },
     {
-      "name": "One-token split and pre-gamma transport",
-      "label": "Component losses • both parked",
-      "summary": "The one-token split passed all five official tests. All 24 matched six-load factors missed the 1% threshold. Both expert variants stopped before layer integration."
+      "name": "Complete expert-engine proposals",
+      "label": "Source review closed • no target timings",
+      "summary": "Grouped-contiguous Humming lacks a qualified whole-layer path. Prepared BF16 expansion conflicts with the stored NVFP4 requirement. The earlier one-token and pre-gamma component losses remain recorded."
     }
   ]
 }

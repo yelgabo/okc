@@ -1,6 +1,6 @@
 # Architecture performance tracker
 
-Last review: 2026-11-02 11:53 MST. Evidence snapshot: `1786dbf`.
+Last review: 2026-11-02 12:48 MST. Evidence snapshot: `ba0e1ff`.
 First review reconciles progress since `aab7d75`, the snapshot in the
 [architecture-family guide](architecture-families-2026-10-29.md).
 This is a review of recorded experiments, not a new benchmark run.
@@ -13,12 +13,20 @@ named control, not changes in aggregate score. Families overlap; their gains can
 | Family | Current result | What has actually been measured | Visibility gap |
 |---|---|---|---|
 | A. Hybrid persistent/legacy MoE | Retained owned baseline; new variants fail gates | Position map, token locality, multiply decoder, direct band32 and cached band32 fail their aggregate/regression gates. | Cached schedule recovers direct-band overhead but fails against original. Physical traffic opportunity remains open. Historical standalone skinny/main47 progress remains unqualified. Both disabled repairs failed the compiler spill gate. |
-| B. Staged grouped MoE | New masked library schedule loses | GROUPED_MASKED versus51 loses about 145-235 us across 128/256 layer/std cases, with math checks passing. Earlier45+46 losses remain. | Failure is scoped to tested library schedule; two GEMMs already exceed owned whole-call time in the profiled256 case. |
+| B. Staged grouped MoE | New masked library schedule loses | GROUPED_MASKED versus51 loses about 145-235 us across 128/256 layer/std cases, with math checks passing. Earlier45+46 losses remain. | Failure is scoped to tested library schedule; two GEMMs already exceed owned whole-call time in the profiled 256 case. New grouped-contiguous Humming proposal stopped before measurement. |
 | C. Owner-completes tiles | Earlier ownership gains retained | The complete private VP2 design wins its eight-token sliding cell. Both owned cluster implementations previously lost. | The comparison leaves the contribution of output ownership unresolved. |
 | D. Dependency-aware scheduling | Dynamic claiming retained; new phase-A claim layouts lose | Phase-A modes 62/63 and K=0 controls 66/69 lose; lean claimed mode 68 is not timed. Earlier split-tail 52/53 losses stand. | Full ready-only queue remains untested. Reopen phase-A claims only after the no-work control ties mode 51 within 1 us at 128/256. |
-| E. Attention producer-consumer pipeline | Private VP2 cell win, six-load gate failed | VP2 took 10.168 µs versus 10.784 µs for the owned control on eight-token sliding attention. All three held-outs missed the full-score gate. | VP2 only changes the eight-token target. The proposed layer ring-continuity toggle also changes decode merge behavior and stopped at source review. |
+| E. Attention producer-consumer pipeline | Private VP2 cell win, six-load gate failed | VP2 took 10.168 µs versus 10.784 µs for the owned control on eight-token sliding attention. All three held-outs missed the full-score gate. | VP2 only changes the eight-token target. A later half-merge-preserving continuity source passed CPU checks and is frozen before H200 testing. |
 | F. Donor-based baseline/hybrid | Historical alygg77 measurement track | Prior F comparisons and owned C3 router gains remain recorded. Two new QKV128 variants lose despite correctness/resource passes. | G has a separate attributed-fork policy. Projection C2 remains best scored, with C3 paired component wins retained. |
 | G. Attributed keell0renz layer fork | Retained layer 2.126083× | Matched short-counter test missed its gate. G224 and timed SiLU passed correctness and missed performance triage. | Four-cell verify ended in a refunded infrastructure error. Outgoing dependency tests failed setup. Both fresh checks completed. The short serial policy missed confirmation gates. PR check failed target host compilation. Pre-gamma and one-token three-launch expert paths each passed standalone correctness and missed all 24 six-load comparisons. Both are parked before layer testing. |
+
+## November 2 review at 12:48 Vancouver time
+
+**Two complete expert-engine proposals stopped at source review.** The grouped-contiguous Humming design is a new Family B proposal. Reviewers found compatible formats in principle, but lacked an exact Muse configuration, numerical qualification and a whole-layer timing budget covering the added operations. Its outcome is untested. The earlier measured loss belongs to the masked grouped implementation. The second proposal would store a prepared BF16 weight bank. The task requires stored NVFP4 weights to remain NVFP4. The review also modeled 3.66× the logical weight bytes of eligible SC6 packing, or 3.56× those of ordinary packing. That estimate measures neither HBM traffic nor execution time. The proposal letters in the design report refer to those two alternatives. [Engine comparison](https://github.com/yelgabo/okc/blob/ba0e1ff/docs/steering/2026-11-02-worker-broad-expert-architecture.md) · [Independent feasibility review](https://github.com/yelgabo/okc/blob/ba0e1ff/docs/steering/2026-11-02-research-broad-expert-feasibility.md)
+
+**Family E has an isolated continuity source, currently frozen.** Revisions `19ab26c` and `6e18116` preserve the decode half-merge that confounded the older toggle. Seven CPU tests passed. A separate audit exercised 16 final-entry tuples. The normal selector falls back at batch 33, while directly overriding the module at the lower-level launch entry can bypass that guard. That finding scopes the source claim. A simultaneous duplicate draft was retired. Under the existing workload weights, even a hypothetical 7 µs whole-call saving in each of four affected full-context cells would yield only a 0.560% layer-score improvement. The team froze this candidate on that opportunity screen. [Source reconciliation](https://github.com/yelgabo/okc/blob/ba0e1ff/docs/steering/2026-11-02-worker-attention-continuity-reconciliation.md) · [Layer sensitivity calculation](https://github.com/yelgabo/okc/blob/ba0e1ff/docs/steering/2026-11-02-attention-roi-and-step-change-priorities.md)
+
+There are no new target job IDs, controls, timings or confidence intervals in this interval. A remains ahead of the tested staged B variants at 128/256 tokens. The newer Humming configuration and isolated attention source have no layer measurements at either size. G1b4 retains its verified 2.126083× result.
 
 ## November 2 review at 11:53 Vancouver time
 
@@ -2559,6 +2567,8 @@ with common preparation and private arm tensors. Both evidence scopes remain vis
 
 ## Decision and next evidence needed
 
+The latest complete-engine review closes both reviewed proposals at the source stage. Reopening grouped-contiguous Humming requires an exact legal workload and credible net whole-layer opportunity. The canonical attention continuity source is frozen pending stronger opportunity evidence. [Decisions](https://github.com/yelgabo/okc/blob/ba0e1ff/docs/steering/2026-11-02-captain-architecture-gate-reconciliation.md).
+
 The one-token expert split also failed on every targeted routing case. The paired component gate closes this specific three-launch candidate. [Terminal decision](https://github.com/yelgabo/okc/blob/1786dbf/docs/steering/2026-11-02-worker-t1-moe-terminal.md).
 
 The pre-gamma component missed the registered 1% gate in all 24 six-load comparisons. The exact implementation is parked before layer integration. [Decision](https://github.com/yelgabo/okc/blob/db7800a/docs/steering/2026-11-02-worker-moe-component-terminal.md).
@@ -2581,6 +2591,8 @@ Prefill remains deferred. The final recorded campaign goal remains unmet.
 [Family G qualification](https://github.com/yelgabo/okc/blob/af3b550/docs/steering/2026-11-01-family-g-qualification.md).
 
 ## Review history and checkpoint
+
+- 2026-11-02 12:48 Vancouver time. Reviewed `1786dbf..ba0e1ff` from local `4188c23`, including ruled-out changes, the canonical attention source and both expert-engine reviews. No new run-ledger or profile changes. All 18 untracked local receipts are already logged.
 
 - 2026-11-02 11:53 Vancouver time. Reviewed `db7800a..1786dbf` from local `5489860`. Verified terminal MoE job `28248eb5e5854041` and the reference-source correction. The new confirmation of the pre-gamma loss refers to its previously counted receipt. All 18 untracked local receipts already appear in the ledgers.
 
