@@ -44,4 +44,3 @@ result = {"scope": "Four exact board handles; public metadata only, paginated to
 (OUTPUT / "owners.json").write_text(json.dumps(result, indent=2) + "\n", encoding="utf8")
 print(json.dumps([{key: record[key] for key in ("owner", "resource", "returncode", "page_counts") if key in record}
                   for record in records], indent=2))
-

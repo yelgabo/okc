@@ -4,6 +4,8 @@ This is the stable cross-session entry point. Read the latest report, its eviden
 
 ## Latest human ROI priority
 
+Grouped-work decision873cdd87 is COMPLETE: no broad scheduled-math reduction versus native identified. [Captain adoption and next finite action](2026-11-02-captain-handle-delta-and-flute-decision.md#delivery-addendum-completed-grouped-work-result-and-next-finite-action) closes that premise and assigns the existing researcher one20-active-minute required-mainloop cost/overlap comparison, not another owner census or grouped harness. No target/compiler/public permission; delivery and pickup remain distinct.
+
 [Capacity restored and next measurement decision](2026-11-02-capacity-restored-next-measurement-decision.md): fresh12:36PM PST caps20private/10scored; layer10private and MoE18private remain, no live job/new public release. Do not wait for reset or reuse stale zero-quota claims. Current architecture STOPs/attention freeze remain. Existing worker gets one20-active-minute source/CPU comparison of actual scheduled matrix work: old Humming masked vs new grouped/compact vs native MID/B4/MAIN. Deliver a source-backed substantial complete-measurement case or scoped STOP; no kernel/harness/GPU/check/public permission. Captain owns the immediate next finite decision.
 
 The assignment/capacity update was directly sent afterc8538a57 remote verification; tool delivery succeeded, pickup acknowledgment not yet claimed. Existing hourly prompt/readback now tracks this current decision. No new judge action.

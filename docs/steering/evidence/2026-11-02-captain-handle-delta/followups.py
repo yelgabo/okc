@@ -66,4 +66,3 @@ for repository in REPOSITORIES:
 (OUTPUT / "followups.json").write_text(json.dumps({"records": records}, indent=2) + "\n", encoding="utf8")
 print(json.dumps([{key: record.get(key) for key in ("repository", "pin", "tree_entries", "tree_truncated", "name_hits", "files")}
                   for record in records], indent=2))
-
