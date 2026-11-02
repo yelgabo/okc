@@ -1,0 +1,60 @@
+{
+  "terminalCommit": "335887c195d859b402487d40923b51651892dd97",
+  "verified": [
+    {
+      "path": "docs/steering/2026-11-02-worker-pr-target-terminal.md",
+      "bytes": 6008,
+      "sha256": "f30f9335dce4d1ff98755ab5dbe9a7590f1228874e8e7e3afa0257c230323c71"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-worker-pr-target/generated/profiles/candidate.60b38a62a135442c.log",
+      "bytes": 16372,
+      "sha256": "387917007e3a773a114de2980aa2bffb92d2acfc1598f7920c55cbad54e7a344"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-worker-pr-target/target/final-jobs.json",
+      "bytes": 13823,
+      "sha256": "7fd96ca7466afd0ddacf6823e9af7053e5998e1492af3202f667a38736e12ff1"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-worker-pr-target/target/final-quota.json",
+      "bytes": 1537,
+      "sha256": "308c457086221faecb6b4a1809453668d33b5b26c83a1a164abbc562aca60f6f"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-worker-pr-target/target/setup-build-error.txt",
+      "bytes": 2001,
+      "sha256": "dc9d89cf66ce81a8355fcef8e8230dbe42a31b101a100badb996be9ecc8d4dcb"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-worker-pr-target/target/setup-record.json",
+      "bytes": 2216,
+      "sha256": "29f03d9ba3a4ae558264bf5b77570861b0b43367b4b725677ee3cb6c2c85179b"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-worker-pr-target/target/terminal-decision.json",
+      "bytes": 1776,
+      "sha256": "b6b98ac57d8e9afc6dbb52d0bd39081868a0eba270d8e8890622383991439174"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-worker-pr-target/target/terminal-log-tail.txt",
+      "bytes": 16372,
+      "sha256": "387917007e3a773a114de2980aa2bffb92d2acfc1598f7920c55cbad54e7a344"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-worker-pr-target/target/terminal-status.json",
+      "bytes": 22414,
+      "sha256": "291e2b74a2dd91d95cbe5116a44bfbc06c956e700b11892a9a9609164b277111"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-worker-pr-target/target/wait.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-worker-pr-target/terminal-archive-manifest.json",
+      "bytes": 6273,
+      "sha256": "971fac979abfef7f7b04ef1580acc54c69956f87dcefa821b7a55b6d7cc972fc"
+    }
+  ]
+}

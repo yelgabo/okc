@@ -1,0 +1,20 @@
+{
+  "scope": "offline target-language mismatch prevention; no source candidate repair or GPU",
+  "files": [
+    {
+      "path": "docs/steering/evidence/2026-11-02-captain-pr-target-contract/rejection/language-contract.json",
+      "bytes": 635,
+      "sha256": "aee56552592efa73f20c16d87e2bc4e58e5fe05a23d04c55f88ddb9dcef09bd6"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-captain-pr-target-contract/terminal-verification.json",
+      "bytes": 2414,
+      "sha256": "51a3776cfbdcb9a492bdb316c780079bb9f0dc98bb32499d22cf97a122499731"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-captain-pr-target-contract/tests.txt",
+      "bytes": 111,
+      "sha256": "fc2aa55a9587fff63bf6d2ea0753035c833cfa35abc22eb436caeaec48dade47"
+    }
+  ]
+}
