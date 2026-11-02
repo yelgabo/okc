@@ -1,0 +1,46 @@
+{
+  "at": "2026-11-02T04:50:14.623Z",
+  "commit": "3d00a6211e3b65e8399e1fabca6f0e05061514ab",
+  "files": [
+    {
+      "path": "docs/steering/2026-11-01-worker-outgoing-pair-registration.md",
+      "blob": "9ea9a549d34fce5967ca0d7493dba69aaeac7f9d"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-01-worker-outgoing-pair/check.py.gz",
+      "blob": "cd3e3bdb30fc78a8e757aa8df4097121c5a7b11a"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-01-worker-outgoing-pair/cpu-tests.txt",
+      "blob": "14e4e7bb22a5dc68ee550e747e64ce29637f0b4d"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-01-worker-outgoing-pair/manifest.json",
+      "blob": "d3d707911ac40e854d6b500b735ee4bc01b81332"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-01-worker-outgoing-pair/offline-pins.json",
+      "blob": "b075756192080fcb46198f8ce2c50e7420b3bc2e"
+    },
+    {
+      "path": "tools/g_outgoing_pair.py",
+      "blob": "f1819fb4c78013c30f7d59f7c610f496b2f7f59a"
+    },
+    {
+      "path": "tools/g_outgoing_pair_body.py",
+      "blob": "ceb48250c8048714e1a37b6ea58227f263c442b1"
+    },
+    {
+      "path": "tools/g_outgoing_pair_read.py",
+      "blob": "425b7ccc6cfc3bbcc0a95b9a64e308f4f9ed02e1"
+    },
+    {
+      "path": "tools/g_outgoing_seam_query.py",
+      "blob": "aa9485434cdea3241e6f1d3e900f2a6ac4da25d4"
+    },
+    {
+      "path": "tools/test_g_outgoing_pair.py",
+      "blob": "a4a4153721744c8bc7188502c961cd22ca5eae23"
+    }
+  ]
+}

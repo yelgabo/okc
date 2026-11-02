@@ -1,0 +1,14 @@
+{
+  "job": "9adfd4dbc98f4998",
+  "exec_session": 16147,
+  "command": [
+    "wsl.exe",
+    "--cd",
+    "/mnt/c/Users/gretc/Documents/GitHub/okc",
+    "--exec",
+    "/root/.cache/okc-host-validate/bin/python",
+    "docs/steering/evidence/2026-11-01-worker-outgoing-pair/wait-own.py"
+  ],
+  "script_sha256": "8812e301bcac1e12b856c4c17d6a0c02ec7b40159c97a4c24e45d31b279b0e7a",
+  "raw_stdout_saved_before_parsing": true
+}
