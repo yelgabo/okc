@@ -16,7 +16,7 @@ This is the stable cross-session entry point. Read the latest report, its eviden
 
 ## Active top-100 execution
 
-Parent harness integration: 22 source/facade tests reproduced. Isolated CPU Torch installed but import blocked by Windows Application Control4551; [dated evidence and next gate](2026-11-02-top100-expert-harness.md). Draft remains held; no target result.
+Parent harness integration: 22 source/facade tests reproduced. Existing WSL Torch2.10 environment recovered from prior host receipt and real storage probe passed; supersedes the earlier dependency-blocker conclusion. [Dated correction and bounded full host validation allocation](2026-11-02-top100-expert-harness.md). Draft remains held; no target result.
 
 [November 2: Standalone expert qualification allocation](2026-11-02-top100-moe-qualification.md) - fresh quota: ten MoE private checks, zero layer checks. Bounded exact-component adapter implementation; no dispatch or measured gain, whole-layer gates retained.
 

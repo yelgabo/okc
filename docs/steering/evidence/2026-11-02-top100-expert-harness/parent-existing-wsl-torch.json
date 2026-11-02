@@ -1,0 +1,6 @@
+﻿{
+  "python": "/root/.cache/okc-host-validate/bin/python",
+  "torch": "2.10.0+cpu",
+  "storage_bytes": 32,
+  "cuda_available": false
+}
