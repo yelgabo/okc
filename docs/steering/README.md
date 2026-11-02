@@ -1,5 +1,7 @@
 # Shared project steering
 
+Latest T3 test audit: [Four baseline Windows failures](2026-11-01-t3-windows-test-failures.md), evidence `abc66ce`. All four reproduce on upstream `fa31b66b`; one test-harness POSIX/native-path mismatch explains skipped recovery and unequal lease keys. Test-only correction passes all42 tests plus server typecheck and changed-file format/lint. Production uses native paths. Standalone patch retained; no new PR, existing PR change or live-install modification.
+
 Latest private dispatch: repaired ON check **c1931f0c9e834485** accepted November2 00:10:29UTC from implementation a0b6af2, mode check, correct layer board. First own receipt is queued/result null; no GPU qualification or performance claim yet. [Implementation/own-ID evidence](2026-11-01-qualifier-inference-repair.md). One of capped4 private checks used; no public submission or automatic retry.
 
 Latest implementation registration: [November 1 qualifier inference repair and first private H200 check](2026-11-01-qualifier-inference-repair.md). Final OFF32196b8b/918490B and ON978b29f9/918978B regenerate identically;32 CPU tests pass. Normal production preparation and native/timed source are unchanged. First repaired ON private check is registered with full startup/official/actual-exercise gates; no separate COMMON-first or private1% prerequisite for measurement. Initial tranche capped at4 private checks; single-arm result is descriptive, promotion retains matched all-six/held-out/duplicate-null/regression gates. Live reset5scored/10checks; public submission requires direct user authorization.
@@ -836,3 +838,5 @@ Latest: [Dense projection transfer to the decode layer](2026-11-01-layer-dense-t
 - [2026-11-01 sparse projection repair](2026-11-01-projection-sparse-repair.md): current source/host/bit proofs, standalone measurement registration and separate46/16layer budget; prefill excluded.
 
 - [2026-11-01 independent T3 sharing reproduction](2026-11-01-t3-sharing-reproduction.md): fresh baseline passes, native worker and plain follow-up fail; eight original/reproduction errors and runtime/history evidence archived. Existing issue21061 identified; public update drafted but not posted.
+
+- [2026-11-01 four T3 Windows test failures](2026-11-01-t3-windows-test-failures.md): one path-service mismatch, four failing baseline cases, all42 pass after test-only correction; separate patch and pinned receipts.
