@@ -2,14 +2,17 @@
 
 This is the stable cross-session entry point. Read the latest human priority, its evidence snapshot and subsequent commits before continuing. Existing captain/worker ownership, correctness requirements and submission permissions remain in effect. A report is not an additional GPU dispatch.
 
+## Latest assignment: Decode32 Worker — full-context attention
+
+**[D32-ATTN-01: implement one isolated full-decode attention candidate](decode32/2026-11-02-01-full-decode-attention.md)** is now posted for the user-created **Decode32 Worker**. The user clarified that it was waiting for tasks, not already implementing one. Start source/code work on T32/q_len1 full-context attention, independently of the existing MID MoE comparison. Deliver a reproducible full-layer candidate plus focused tests and a Driver measurement handoff, or a concrete blocker. Preferred cross-tile-overlap hypothesis must first be reconciled with actual selected code and prior scoped failures; no gain is assumed.
+
+**Ownership split:** Decode32 Worker owns the isolated attention track; OKC Developer retains MID-at-T32 MoE; OK Driver remains sole judge dispatcher/integration owner. No duplicate implementation or new public/default permission. The assignment is published in the watched folder; actual pickup is still to be recorded in `decode32/2026-11-02-01-full-decode-attention-status.md`. A commit is not an acknowledgment.
+
 ## Decode32 task inbox
 
-[Add research assignments and direction here](decode32/README.md). The
-"Review decode32 research tasks" chat is waiting for an assignment and checks
-this folder during work and through a five-minute heartbeat. Existing captain
-and developer ownership remains. [Setup and monitoring contract](2026-11-02-decode32-inbox.md).
+[Add research assignments and direction here](decode32/README.md). The "Review decode32 research tasks" chat / Decode32 Worker reads this folder during work and through its recorded periodic monitor. Its former waiting state is superseded by the assignment above, not by an assumed pickup. Existing captain and MoE developer ownership remains. [Setup and monitoring contract](2026-11-02-decode32-inbox.md).
 
-## P0 owner assignment: OK Driver and OKC Developer
+## Existing captain and MoE owner assignment
 
 **[November 2: Explicit decode32 owner directive and pickup ledger](2026-11-02-decode32-owner-directive.md)** — the user reiterated "make it priority for them please". D32 is the primary next performance assignment, ahead of unrelated short-load or large-verify-only work. The directive is also at the top of both root instruction files, `AGENTS.md` and `CLAUDE.md`.
 
@@ -39,6 +42,7 @@ Captain retains one current-service unchanged607 calibration, then one cheap fix
 
 | Report | Evidence | Scope |
 |---|---|---|
+| [D32-ATTN-01 implementation task](decode32/2026-11-02-01-full-decode-attention.md) | a4192dec inbox; user-created worker; existing D32 plan and continuity source | Separate Decode32 Worker attention track, candidate/tests handoff, sole Driver dispatch; pickup pending |
 | [Decode32 inbox setup](2026-11-02-decode32-inbox.md) | bdbf35bf; user request | Shared task folder, waiting chat, periodic monitoring and preserved execution ownership |
 | [Decode32 owner directive](2026-11-02-decode32-owner-directive.md) | b9ca9dff and captain5b4a729a; explicit user follow-up | P0 in root instructions; captain pickup confirmed; new developer delivery/acknowledgment not yet verified |
 | [Captain D32 MID comparison](2026-11-02-driver-d32-mid-comparison.md) | b9ca9dff human priority; own0b terminal; source auditba9/b8 | DirectD32 negative closure, current-service control and fixed existing MID17..32 exploration; no new shader/math/packing/sweep |
@@ -48,4 +52,4 @@ Captain retains one current-service unchanged607 calibration, then one cheap fix
 
 ## Publishing future steering
 
-Check substantive steering into `docs/steering/YYYY-MM-DD-<topic>.md`, update this latest pointer/history, and commit/push/verify in the same task. Pin evidence and owning jobs; distinguish measured effects, hypotheses and unknowns. Preserve concurrent work and earlier reports; never force-push. Documentation is not a new public-submission permission. The captain retains live execution/index coordination; this user-requested handoff does not create another worker.
+Check substantive steering into `docs/steering/YYYY-MM-DD-<topic>.md` or the user-designated `docs/steering/decode32/` inbox for D32 tasks, update this latest pointer/history, and commit/push/verify in the same task. Pin evidence and owning jobs; distinguish measured effects, hypotheses and unknowns. Preserve concurrent work and earlier reports; never force-push. Documentation is not a new public-submission permission. The captain retains live execution/index coordination; the new worker was created by the user, not by this research session.
