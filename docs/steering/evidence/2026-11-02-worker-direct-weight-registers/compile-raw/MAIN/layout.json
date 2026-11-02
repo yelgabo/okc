@@ -1,0 +1,14 @@
+{
+  "sizeof_smem": 22240,
+  "aligned_header": 22272,
+  "X_bytes": 98304,
+  "jmax": 88,
+  "fixup_floats": 5246336,
+  "threads": 544,
+  "X_slots": 3,
+  "X_slot_bytes": 32768,
+  "dynamic_bytes": 120576,
+  "assumed_reserved_bytes": 1024,
+  "illustrative_total": 121600,
+  "actual_target_admission": "UNMEASURED"
+}

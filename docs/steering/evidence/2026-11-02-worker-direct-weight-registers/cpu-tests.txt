@@ -1,0 +1,10 @@
+test_actual_factories_short_math_packing_and_scratch_invariance (test_wgs_direct_weight_registers.DirectWeight.test_actual_factories_short_math_packing_and_scratch_invariance) ... ok
+test_global_physical_address_both_phases_formats_all_units (test_wgs_direct_weight_registers.DirectWeight.test_global_physical_address_both_phases_formats_all_units) ... ok
+test_skewed_reordered_split_sequence_negative (test_wgs_direct_weight_registers.DirectWeight.test_skewed_reordered_split_sequence_negative) ... ok
+test_sole_X_producer_no_raw_path_and_retirement (test_wgs_direct_weight_registers.DirectWeight.test_sole_X_producer_no_raw_path_and_retirement) ... ok
+test_unchanged_lane_packet_coverage_and_register_math (test_wgs_direct_weight_registers.DirectWeight.test_unchanged_lane_packet_coverage_and_register_math) ... ok
+
+----------------------------------------------------------------------
+Ran 5 tests in 4.406s
+
+OK

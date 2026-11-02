@@ -1,0 +1,36 @@
+	and.b32  	%r18902, %r18901, 16383;
+	cvt.u64.u32 	%rd3489, %r18902;
+	or.b64  	%rd3490, %rd3489, 1099512152064;
+	add.s64 	%rd3474, %rd324, %rd3490;
+	.loc	1 2094 5, function_name $L__info_string17, inlined_at 1 2168 3
+	shl.b32 	%r1059, %r18891, 4;
+	or.b32  	%r18903, %r1059, %r18888;
+	cvt.u64.u32 	%rd3491, %r18903;
+	add.s64 	%rd3492, %rd323, %rd3491;
+	add.s64 	%rd3493, %rd73, %rd3492;
+	ld.global.v4.u32 	{%r18904, %r18905, %r18906, %r18907}, [%rd3493];
+	.loc	1 2114 5, function_name $L__info_string17, inlined_at 1 2168 3
+	cvt.u64.u32 	%rd3494, %r18893;
+	cvt.u64.u32 	%rd325, %r18892;
+	add.s64 	%rd3495, %rd3494, %rd323;
+	add.s64 	%rd3496, %rd73, %rd3495;
+	ld.global.v2.u32 	{%r18908, %r18909}, [%rd3496+8192];
+	.loc	1 2116 5, function_name $L__info_string17, inlined_at 1 2168 3
+	and.b32  	%r18481, %r18896, 1;
+	.loc	1 2116 5, function_name $L__info_string17, inlined_at 1 2168 3
+	.loc	1 1734 3, function_name $L__info_string5, inlined_at 1 2116 5
+	.loc	1 542 13, function_name $L__info_string6, inlined_at 1 1734 3
+	.loc	1 503 37, function_name $L__info_string7, inlined_at 1 542 13
+	mul.wide.s32 	%rd3497, %r18898, 8;
+	add.s64 	%rd3498, %rd501, %rd3497;
+	add.s64 	%rd326, %rd3498, 1040;
+	cvt.u32.u64 	%r18480, %rd326;
+	.loc	1 542 13, function_name $L__info_string6, inlined_at 1 1734 3
+	// begin inline asm
+	{
+ .reg .pred p;
+ WAIT_1:
+ mbarrier.try_wait.parity.shared::cta.b64 p, [%r18480], %r18481;
+ @!p bra WAIT_1;
+}
+
