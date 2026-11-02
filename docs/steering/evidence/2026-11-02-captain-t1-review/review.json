@@ -1,0 +1,15 @@
+{
+  "source_sha256": "5f10e2d73571d0cafa6d2fd4ab3dcf068f99979cf3d8c77470b63bab31fa0f58",
+  "bytes": 370480,
+  "reader_canonical_lf_sha256": "b1422b5cb05505b094c309c6fb4c11e5d9f7103de3a1e735bf9b632d3cca0ffa",
+  "hold_only_source_change": true,
+  "manifest_changed_keys": [
+    "source_sha256",
+    "bytes",
+    "hold"
+  ],
+  "worker_held_exact": true,
+  "independent_host_tests": 13,
+  "host_test_seconds": 28.882,
+  "target_qualified": false
+}

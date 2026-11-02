@@ -4,6 +4,8 @@ This is the stable cross-session entry point. Read the latest report, its eviden
 
 ## Latest standalone component harness
 
+[Captain frozen T1 one-check decision](2026-11-02-captain-t1-one-check.md): workerce14d11f independently reviewed,13 real-Torch/facade tests reproduced. Exact executable5f10e2d7/370480LF differs only by hold flip; ONE private MoE check allocated to existing worker after fresh quota/no-live. No retry/tune/public/default/layer authority. [Worker T1 source handoff](2026-11-02-worker-t1-moe.md); target gates remain open.
+
 [Independent terminal monitor](2026-11-02-pregamma-terminal-monitor.md): fresh own56e0c8b receipt and frozen reader independently reproduced the valid negative. All24 matched component factors miss1%; exact treatment remains parked. Public incumbent unchanged, overall/layer365 at18:28UTC; layer0/MoE9 private checks, no live jobs. Existing held T1 proposal is for captain review only.
 
 [Captain terminal decision and T1 next task](2026-11-02-captain-pregamma-terminal-t1-next.md): own56e0c8b is a valid matched negative; independent reader reproduced, exact pre-gamma treatment PARKED. One separately bounded source/host-only T1 component adaptation allocated to existing worker; no target retry, new GPU permission or layer promotion. [Worker terminal archive](2026-11-02-worker-moe-component-terminal.md), db7800a3.
