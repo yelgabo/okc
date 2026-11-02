@@ -1,5 +1,12 @@
 # Ruled out
 
+## November 2 UTC 2026 repaired outgoing seam campaign closure
+
+| Treatment | Evidence | Closure and scope |
+| --- | --- | --- |
+| Repaired driver-query four-placement outgoing seam, ad314060/943363B | Own PRIVATE6f83ee875dd847c1, terminaldba5a01; setup112/SRM_ROUTING_ARM_MISMATCH after44 returned query/edge checks by frozen control-flow inference; no complete capsule/official evaluation/score. Reader rejects. steering/2026-11-01-worker-outgoing-driver-pair-terminal.md. | Campaign seam lane CLOSED under1a20b31: no rescue/retry/third check or weakened guard. Invalid correctness/instrument qualification, NOT measured timing loss or general PDL impossibility. Mismatch arm/value/producer unlocalized; no full48-capture qualification. Preserve failed source/reader. A materially different future opportunity needs separate allocation, not implicit reopening. |
+
+
 ## November 2 UTC 2026 universal SiLU table readiness HOLD
 
 | Treatment | Evidence | Scope and reopening gate |
