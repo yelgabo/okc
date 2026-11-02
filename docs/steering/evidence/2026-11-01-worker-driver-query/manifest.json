@@ -36,18 +36,19 @@
     },
     {
       "path": "docs/steering/evidence/2026-11-01-worker-driver-query/header-sha256.txt",
-      "bytes": 377,
-      "sha256": "2c3bc9bfd3d1c44958a77c98e1d22b03d701c4b3711993e7ab6a3f47522329f0"
+      "bytes": 374,
+      "sha256": "99cfb0a7b40e4a8b95dcd59a50b678bbfddd1b993555ad132340952a6f8faab4"
     },
     {
       "path": "docs/steering/evidence/2026-11-01-worker-driver-query/runtime-interop.txt",
-      "bytes": 1556,
-      "sha256": "bbc51a3fdb624439e943b1c4b2fc439391d8e23fb7b58f3101f802703d3279fa"
+      "bytes": 1520,
+      "sha256": "0c4367dce341ab8ab4bcfaf8cb4a9e0ca20f6f3605c9055833b9f5ddc4cc3cd6"
     },
     {
       "path": "docs/steering/evidence/2026-11-01-worker-driver-query/driver-edge-abi.txt",
-      "bytes": 1734,
-      "sha256": "df1cc44772421a646a53038361187ceecb5371e9617408eebb64dfbb3564a235"
+      "bytes": 1696,
+      "sha256": "1abb502f3f31d2b41e8be4d9cd77d95173112a71142807e6b092895e1775d354"
     }
-  ]
+  ],
+  "hash_scope": "canonical committed blob bytes (Git normalizes text line endings)"
 }
