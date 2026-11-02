@@ -148,11 +148,11 @@ for family in ('B4', 'MAIN'):
                 loop_info.append({'header': loop['header'], 'tail': loop['tail'], 'instruction_count': len(loop['pcs']), 'min_pc': hex(min(loop['pcs'])), 'max_pc': hex(max(loop['pcs'])), 'contains_HGMMA': any('HGMMA' in instruction_map.get(pc, {}).get('instruction', '') for pc in loop['pcs'])})
             ptx_debug = ptx_map[row['pc']]['debug']
             ptx_line = int(re.search(r'line (\d+)', ptx_debug[0])[1]) if ptx_debug else None
-            gather_header = '.L_x_111'
-            phase_header = '.L_x_445' if family == 'B4' else '.L_x_359'
-            if any(loop['header'] == gather_header for loop in loop_info):
+            gather_header_pc = 0x4660
+            phase_header_pc = 0x17be0 if family == 'B4' else 0x17e10
+            if any(int(loop['min_pc'], 16) == gather_header_pc and not loop['contains_HGMMA'] for loop in loop_info):
                 execution_region = 'gather_batch_loop'
-            elif any(loop['header'] == phase_header for loop in loop_info):
+            elif any(int(loop['min_pc'], 16) == phase_header_pc and loop['contains_HGMMA'] for loop in loop_info):
                 execution_region = 'phase_B_outer_segment_loop_not_inner_stage_loop'
             else:
                 execution_region = 'phase_B_entry_or_final_drain'

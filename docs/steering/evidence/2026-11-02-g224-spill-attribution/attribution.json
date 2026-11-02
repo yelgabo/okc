@@ -3590,7 +3590,9 @@
             "phase_A_segment_control": 2
           },
           "counts_execution_region": {
-            "phase_B_entry_or_final_drain": 99
+            "gather_batch_loop": 76,
+            "phase_B_entry_or_final_drain": 5,
+            "phase_B_outer_segment_loop_not_inner_stage_loop": 18
           },
           "static_instruction_encoding_bytes": 1584,
           "static_operand_width_sum_not_executed_traffic": {
@@ -3616,7 +3618,7 @@
                 "  wgs_gather(p, S);"
               ],
               "role": "activation_gather",
-              "execution_region": "phase_B_entry_or_final_drain",
+              "execution_region": "gather_batch_loop",
               "ptx_line": 3256,
               "ptx_text": "\t@%p268 bra \t$L__BB7_208;",
               "cfg_node": ".L_x_822",
@@ -3650,7 +3652,7 @@
                 "  wgs_gather(p, S);"
               ],
               "role": "activation_gather",
-              "execution_region": "phase_B_entry_or_final_drain",
+              "execution_region": "gather_batch_loop",
               "ptx_line": 3601,
               "ptx_text": "\tadd.s32 \t%r342, %r12467, 2;",
               "cfg_node": ".L_x_822",
@@ -3684,7 +3686,7 @@
                 "  wgs_gather(p, S);"
               ],
               "role": "activation_gather",
-              "execution_region": "phase_B_entry_or_final_drain",
+              "execution_region": "gather_batch_loop",
               "ptx_line": 3957,
               "ptx_text": "\tadd.s32 \t%r394, %r12467, 4;",
               "cfg_node": ".L_x_822",
@@ -3718,7 +3720,7 @@
                 "  wgs_gather(p, S);"
               ],
               "role": "activation_gather",
-              "execution_region": "phase_B_entry_or_final_drain",
+              "execution_region": "gather_batch_loop",
               "ptx_line": 3423,
               "ptx_text": "\tsetp.ge.s32 \t%p273, %r316, %r224;",
               "cfg_node": ".L_x_822",
@@ -3752,7 +3754,7 @@
                 "  wgs_gather(p, S);"
               ],
               "role": "activation_gather",
-              "execution_region": "phase_B_entry_or_final_drain",
+              "execution_region": "gather_batch_loop",
               "ptx_line": 3781,
               "ptx_text": "\tsetp.ge.s32 \t%p285, %r368, %r224;",
               "cfg_node": ".L_x_822",
@@ -3786,7 +3788,7 @@
                 "  wgs_gather(p, S);"
               ],
               "role": "activation_gather",
-              "execution_region": "phase_B_entry_or_final_drain",
+              "execution_region": "gather_batch_loop",
               "ptx_line": 4135,
               "ptx_text": "\tadd.s32 \t%r420, %r12467, 5;",
               "cfg_node": ".L_x_822",
@@ -3820,7 +3822,7 @@
                 "  wgs_gather(p, S);"
               ],
               "role": "activation_gather",
-              "execution_region": "phase_B_entry_or_final_drain",
+              "execution_region": "gather_batch_loop",
               "ptx_line": 4313,
               "ptx_text": "\tadd.s32 \t%r446, %r12467, 6;",
               "cfg_node": ".L_x_822",
@@ -3854,7 +3856,7 @@
                 "  wgs_gather(p, S);"
               ],
               "role": "activation_gather",
-              "execution_region": "phase_B_entry_or_final_drain",
+              "execution_region": "gather_batch_loop",
               "ptx_line": 3338,
               "ptx_text": "\tld.global.nc.u32 %r12471, [%rd554];",
               "cfg_node": "BB446",
@@ -3888,7 +3890,7 @@
                 "  wgs_gather(p, S);"
               ],
               "role": "activation_gather",
-              "execution_region": "phase_B_entry_or_final_drain",
+              "execution_region": "gather_batch_loop",
               "ptx_line": 3338,
               "ptx_text": "\tld.global.nc.u32 %r12471, [%rd554];",
               "cfg_node": "BB446",
@@ -3922,7 +3924,7 @@
                 "  wgs_gather(p, S);"
               ],
               "role": "activation_gather",
-              "execution_region": "phase_B_entry_or_final_drain",
+              "execution_region": "gather_batch_loop",
               "ptx_line": 3338,
               "ptx_text": "\tld.global.nc.u32 %r12471, [%rd554];",
               "cfg_node": "BB446",
@@ -3956,7 +3958,7 @@
                 "  wgs_gather(p, S);"
               ],
               "role": "activation_gather",
-              "execution_region": "phase_B_entry_or_final_drain",
+              "execution_region": "gather_batch_loop",
               "ptx_line": 3338,
               "ptx_text": "\tld.global.nc.u32 %r12471, [%rd554];",
               "cfg_node": "BB446",
@@ -3990,7 +3992,7 @@
                 "  wgs_gather(p, S);"
               ],
               "role": "activation_gather",
-              "execution_region": "phase_B_entry_or_final_drain",
+              "execution_region": "gather_batch_loop",
               "ptx_line": 3338,
               "ptx_text": "\tld.global.nc.u32 %r12471, [%rd554];",
               "cfg_node": "BB446",
@@ -4024,7 +4026,7 @@
                 "  wgs_gather(p, S);"
               ],
               "role": "activation_gather",
-              "execution_region": "phase_B_entry_or_final_drain",
+              "execution_region": "gather_batch_loop",
               "ptx_line": 3338,
               "ptx_text": "\tld.global.nc.u32 %r12471, [%rd554];",
               "cfg_node": "BB446",
@@ -4058,7 +4060,7 @@
                 "  wgs_gather(p, S);"
               ],
               "role": "activation_gather",
-              "execution_region": "phase_B_entry_or_final_drain",
+              "execution_region": "gather_batch_loop",
               "ptx_line": 3338,
               "ptx_text": "\tld.global.nc.u32 %r12471, [%rd554];",
               "cfg_node": ".L_x_824",
@@ -4092,7 +4094,7 @@
                 "  wgs_gather(p, S);"
               ],
               "role": "activation_gather",
-              "execution_region": "phase_B_entry_or_final_drain",
+              "execution_region": "gather_batch_loop",
               "ptx_line": 3628,
               "ptx_text": "\t@%p279 bra \t$L__BB7_230;",
               "cfg_node": ".L_x_824",
@@ -4126,7 +4128,7 @@
                 "  wgs_gather(p, S);"
               ],
               "role": "activation_gather",
-              "execution_region": "phase_B_entry_or_final_drain",
+              "execution_region": "gather_batch_loop",
               "ptx_line": 3806,
               "ptx_text": "\t@%p285 bra \t$L__BB7_239;",
               "cfg_node": ".L_x_824",
@@ -4160,7 +4162,7 @@
                 "  wgs_gather(p, S);"
               ],
               "role": "activation_gather",
-              "execution_region": "phase_B_entry_or_final_drain",
+              "execution_region": "gather_batch_loop",
               "ptx_line": 3344,
               "ptx_text": "\t@%p267 bra \t$L__BB7_215;",
               "cfg_node": ".L_x_824",
@@ -4194,7 +4196,7 @@
                 "  wgs_gather(p, S);"
               ],
               "role": "activation_gather",
-              "execution_region": "phase_B_entry_or_final_drain",
+              "execution_region": "gather_batch_loop",
               "ptx_line": 3412,
               "ptx_text": "\tld.global.nc.u32 %r12476, [%rd575];",
               "cfg_node": "BB448",
@@ -4228,7 +4230,7 @@
                 "  wgs_gather(p, S);"
               ],
               "role": "activation_gather",
-              "execution_region": "phase_B_entry_or_final_drain",
+              "execution_region": "gather_batch_loop",
               "ptx_line": 3476,
               "ptx_text": "\tadd.s64 \t%rd2433, %rd607, %rd609;",
               "cfg_node": "BB451",
@@ -4262,7 +4264,7 @@
                 "  wgs_gather(p, S);"
               ],
               "role": "activation_gather",
-              "execution_region": "phase_B_entry_or_final_drain",
+              "execution_region": "gather_batch_loop",
               "ptx_line": 3476,
               "ptx_text": "\tadd.s64 \t%rd2433, %rd607, %rd609;",
               "cfg_node": "BB451",
@@ -4296,7 +4298,7 @@
                 "  wgs_gather(p, S);"
               ],
               "role": "activation_gather",
-              "execution_region": "phase_B_entry_or_final_drain",
+              "execution_region": "gather_batch_loop",
               "ptx_line": 3476,
               "ptx_text": "\tadd.s64 \t%rd2433, %rd607, %rd609;",
               "cfg_node": ".L_x_828",
@@ -4330,7 +4332,7 @@
                 "  wgs_gather(p, S);"
               ],
               "role": "activation_gather",
-              "execution_region": "phase_B_entry_or_final_drain",
+              "execution_region": "gather_batch_loop",
               "ptx_line": 3880,
               "ptx_text": "\t@%p285 bra \t$L__BB7_242;",
               "cfg_node": ".L_x_828",
@@ -4364,7 +4366,7 @@
                 "  wgs_gather(p, S);"
               ],
               "role": "activation_gather",
-              "execution_region": "phase_B_entry_or_final_drain",
+              "execution_region": "gather_batch_loop",
               "ptx_line": 3572,
               "ptx_text": "\tadd.s64 \t%rd639, %rd31, %rd638;",
               "cfg_node": "BB453",
@@ -4398,7 +4400,7 @@
                 "  wgs_gather(p, S);"
               ],
               "role": "activation_gather",
-              "execution_region": "phase_B_entry_or_final_drain",
+              "execution_region": "gather_batch_loop",
               "ptx_line": 3696,
               "ptx_text": "\tld.global.nc.u32 %r12491, [%rd654];",
               "cfg_node": "BB456",
@@ -4432,7 +4434,7 @@
                 "  wgs_gather(p, S);"
               ],
               "role": "activation_gather",
-              "execution_region": "phase_B_entry_or_final_drain",
+              "execution_region": "gather_batch_loop",
               "ptx_line": 3696,
               "ptx_text": "\tld.global.nc.u32 %r12491, [%rd654];",
               "cfg_node": "BB456",
@@ -4466,7 +4468,7 @@
                 "  wgs_gather(p, S);"
               ],
               "role": "activation_gather",
-              "execution_region": "phase_B_entry_or_final_drain",
+              "execution_region": "gather_batch_loop",
               "ptx_line": 3696,
               "ptx_text": "\tld.global.nc.u32 %r12491, [%rd654];",
               "cfg_node": ".L_x_832",
@@ -4500,7 +4502,7 @@
                 "  wgs_gather(p, S);"
               ],
               "role": "activation_gather",
-              "execution_region": "phase_B_entry_or_final_drain",
+              "execution_region": "gather_batch_loop",
               "ptx_line": 4162,
               "ptx_text": "\t@%p297 bra \t$L__BB7_257;",
               "cfg_node": ".L_x_832",
@@ -4534,7 +4536,7 @@
                 "  wgs_gather(p, S);"
               ],
               "role": "activation_gather",
-              "execution_region": "phase_B_entry_or_final_drain",
+              "execution_region": "gather_batch_loop",
               "ptx_line": 4340,
               "ptx_text": "\t@%p303 bra \t$L__BB7_266;",
               "cfg_node": ".L_x_832",
@@ -4568,7 +4570,7 @@
                 "  wgs_gather(p, S);"
               ],
               "role": "activation_gather",
-              "execution_region": "phase_B_entry_or_final_drain",
+              "execution_region": "gather_batch_loop",
               "ptx_line": 3774,
               "ptx_text": "\tld.global.nc.u32 %r12495, [%rd676];",
               "cfg_node": "BB458",
@@ -4602,7 +4604,7 @@
                 "  wgs_gather(p, S);"
               ],
               "role": "activation_gather",
-              "execution_region": "phase_B_entry_or_final_drain",
+              "execution_region": "gather_batch_loop",
               "ptx_line": 3832,
               "ptx_text": "\tadd.s64 \t%rd2447, %rd707, %rd709;",
               "cfg_node": "BB461",
@@ -4636,7 +4638,7 @@
                 "  wgs_gather(p, S);"
               ],
               "role": "activation_gather",
-              "execution_region": "phase_B_entry_or_final_drain",
+              "execution_region": "gather_batch_loop",
               "ptx_line": 3952,
               "ptx_text": "\tld.global.nc.u32 %r12505, [%rd726];",
               "cfg_node": "BB463",
@@ -4670,7 +4672,7 @@
                 "  wgs_gather(p, S);"
               ],
               "role": "activation_gather",
-              "execution_region": "phase_B_entry_or_final_drain",
+              "execution_region": "gather_batch_loop",
               "ptx_line": 4010,
               "ptx_text": "\tadd.s64 \t%rd2454, %rd757, %rd759;",
               "cfg_node": "BB466",
@@ -4704,7 +4706,7 @@
                 "  wgs_gather(p, S);"
               ],
               "role": "activation_gather",
-              "execution_region": "phase_B_entry_or_final_drain",
+              "execution_region": "gather_batch_loop",
               "ptx_line": 4130,
               "ptx_text": "\tld.global.nc.u32 %r12515, [%rd776];",
               "cfg_node": "BB468",
@@ -4738,7 +4740,7 @@
                 "  wgs_gather(p, S);"
               ],
               "role": "activation_gather",
-              "execution_region": "phase_B_entry_or_final_drain",
+              "execution_region": "gather_batch_loop",
               "ptx_line": 4188,
               "ptx_text": "\tadd.s64 \t%rd2461, %rd807, %rd809;",
               "cfg_node": "BB471",
@@ -4772,7 +4774,7 @@
                 "  wgs_gather(p, S);"
               ],
               "role": "activation_gather",
-              "execution_region": "phase_B_entry_or_final_drain",
+              "execution_region": "gather_batch_loop",
               "ptx_line": 4308,
               "ptx_text": "\tld.global.nc.u32 %r12525, [%rd826];",
               "cfg_node": "BB473",
@@ -4806,7 +4808,7 @@
                 "  wgs_gather(p, S);"
               ],
               "role": "activation_gather",
-              "execution_region": "phase_B_entry_or_final_drain",
+              "execution_region": "gather_batch_loop",
               "ptx_line": 4486,
               "ptx_text": "\tld.global.nc.u32 %r12535, [%rd876];",
               "cfg_node": "BB478",
@@ -4840,7 +4842,7 @@
                 "  wgs_gather(p, S);"
               ],
               "role": "activation_gather",
-              "execution_region": "phase_B_entry_or_final_drain",
+              "execution_region": "gather_batch_loop",
               "ptx_line": 4597,
               "ptx_text": "\tld.shared.u32 \t%r489, [%rd2438];",
               "cfg_node": "BB482",
@@ -4874,7 +4876,7 @@
                 "  wgs_gather(p, S);"
               ],
               "role": "activation_gather",
-              "execution_region": "phase_B_entry_or_final_drain",
+              "execution_region": "gather_batch_loop",
               "ptx_line": 4599,
               "ptx_text": "\tsetp.ge.s32 \t%p314, %r488, %r489;",
               "cfg_node": "BB482",
@@ -4908,7 +4910,7 @@
                 "  wgs_gather(p, S);"
               ],
               "role": "activation_gather",
-              "execution_region": "phase_B_entry_or_final_drain",
+              "execution_region": "gather_batch_loop",
               "ptx_line": 4599,
               "ptx_text": "\tsetp.ge.s32 \t%p314, %r488, %r489;",
               "cfg_node": "BB482",
@@ -4942,7 +4944,7 @@
                 "  wgs_gather(p, S);"
               ],
               "role": "activation_gather",
-              "execution_region": "phase_B_entry_or_final_drain",
+              "execution_region": "gather_batch_loop",
               "ptx_line": 4601,
               "ptx_text": "\t@%p314 bra \t$L__BB7_278;",
               "cfg_node": "BB483",
@@ -4976,7 +4978,7 @@
                 "  wgs_gather(p, S);"
               ],
               "role": "activation_gather",
-              "execution_region": "phase_B_entry_or_final_drain",
+              "execution_region": "gather_batch_loop",
               "ptx_line": 4601,
               "ptx_text": "\t@%p314 bra \t$L__BB7_278;",
               "cfg_node": "BB483",
@@ -5010,7 +5012,7 @@
                 "  wgs_gather(p, S);"
               ],
               "role": "activation_gather",
-              "execution_region": "phase_B_entry_or_final_drain",
+              "execution_region": "gather_batch_loop",
               "ptx_line": 4601,
               "ptx_text": "\t@%p314 bra \t$L__BB7_278;",
               "cfg_node": "BB483",
@@ -5044,7 +5046,7 @@
                 "  wgs_gather(p, S);"
               ],
               "role": "activation_gather",
-              "execution_region": "phase_B_entry_or_final_drain",
+              "execution_region": "gather_batch_loop",
               "ptx_line": 4640,
               "ptx_text": "\tadd.s64 \t%rd939, %rd31, %rd938;",
               "cfg_node": "BB483",
@@ -5078,7 +5080,7 @@
                 "  wgs_gather(p, S);"
               ],
               "role": "activation_gather",
-              "execution_region": "phase_B_entry_or_final_drain",
+              "execution_region": "gather_batch_loop",
               "ptx_line": 4649,
               "ptx_text": "\tadd.s64 \t%rd923, %rd939, %rd940;",
               "cfg_node": "BB483",
@@ -5112,7 +5114,7 @@
                 "  wgs_gather(p, S);"
               ],
               "role": "activation_gather",
-              "execution_region": "phase_B_entry_or_final_drain",
+              "execution_region": "gather_batch_loop",
               "ptx_line": 4623,
               "ptx_text": "\tbfi.b32 \t%r1927, %r1925, %r1926, 3, 29;",
               "cfg_node": "BB483",
@@ -5146,7 +5148,7 @@
                 "  wgs_gather(p, S);"
               ],
               "role": "activation_gather",
-              "execution_region": "phase_B_entry_or_final_drain",
+              "execution_region": "gather_batch_loop",
               "ptx_line": 4623,
               "ptx_text": "\tbfi.b32 \t%r1927, %r1925, %r1926, 3, 29;",
               "cfg_node": "BB483",
@@ -5180,7 +5182,7 @@
                 "  wgs_gather(p, S);"
               ],
               "role": "activation_gather",
-              "execution_region": "phase_B_entry_or_final_drain",
+              "execution_region": "gather_batch_loop",
               "ptx_line": 4664,
               "ptx_text": "\tld.global.nc.u32 %r12545, [%rd926];",
               "cfg_node": ".L_x_853",
@@ -5214,7 +5216,7 @@
                 "  wgs_gather(p, S);"
               ],
               "role": "activation_gather",
-              "execution_region": "phase_B_entry_or_final_drain",
+              "execution_region": "gather_batch_loop",
               "ptx_line": 4664,
               "ptx_text": "\tld.global.nc.u32 %r12545, [%rd926];",
               "cfg_node": ".L_x_853",
@@ -5248,7 +5250,7 @@
                 "  wgs_gather(p, S);"
               ],
               "role": "activation_gather",
-              "execution_region": "phase_B_entry_or_final_drain",
+              "execution_region": "gather_batch_loop",
               "ptx_line": 4664,
               "ptx_text": "\tld.global.nc.u32 %r12545, [%rd926];",
               "cfg_node": ".L_x_853",
@@ -5282,7 +5284,7 @@
                 "  wgs_gather(p, S);"
               ],
               "role": "activation_gather",
-              "execution_region": "phase_B_entry_or_final_drain",
+              "execution_region": "gather_batch_loop",
               "ptx_line": 4664,
               "ptx_text": "\tld.global.nc.u32 %r12545, [%rd926];",
               "cfg_node": ".L_x_853",
@@ -5316,7 +5318,7 @@
                 "  wgs_gather(p, S);"
               ],
               "role": "activation_gather",
-              "execution_region": "phase_B_entry_or_final_drain",
+              "execution_region": "gather_batch_loop",
               "ptx_line": 4664,
               "ptx_text": "\tld.global.nc.u32 %r12545, [%rd926];",
               "cfg_node": ".L_x_853",
@@ -5350,7 +5352,7 @@
                 "  wgs_gather(p, S);"
               ],
               "role": "activation_gather",
-              "execution_region": "phase_B_entry_or_final_drain",
+              "execution_region": "gather_batch_loop",
               "ptx_line": 4664,
               "ptx_text": "\tld.global.nc.u32 %r12545, [%rd926];",
               "cfg_node": ".L_x_853",
@@ -5384,7 +5386,7 @@
                 "  wgs_gather(p, S);"
               ],
               "role": "activation_gather",
-              "execution_region": "phase_B_entry_or_final_drain",
+              "execution_region": "gather_batch_loop",
               "ptx_line": 4664,
               "ptx_text": "\tld.global.nc.u32 %r12545, [%rd926];",
               "cfg_node": ".L_x_853",
@@ -5418,7 +5420,7 @@
                 "  wgs_gather(p, S);"
               ],
               "role": "activation_gather",
-              "execution_region": "phase_B_entry_or_final_drain",
+              "execution_region": "gather_batch_loop",
               "ptx_line": 4664,
               "ptx_text": "\tld.global.nc.u32 %r12545, [%rd926];",
               "cfg_node": ".L_x_853",
@@ -5452,7 +5454,7 @@
                 "  wgs_gather(p, S);"
               ],
               "role": "activation_gather",
-              "execution_region": "phase_B_entry_or_final_drain",
+              "execution_region": "gather_batch_loop",
               "ptx_line": 4664,
               "ptx_text": "\tld.global.nc.u32 %r12545, [%rd926];",
               "cfg_node": ".L_x_853",
@@ -5486,7 +5488,7 @@
                 "  wgs_gather(p, S);"
               ],
               "role": "activation_gather",
-              "execution_region": "phase_B_entry_or_final_drain",
+              "execution_region": "gather_batch_loop",
               "ptx_line": 4664,
               "ptx_text": "\tld.global.nc.u32 %r12545, [%rd926];",
               "cfg_node": ".L_x_853",
@@ -5520,7 +5522,7 @@
                 "  wgs_gather(p, S);"
               ],
               "role": "activation_gather",
-              "execution_region": "phase_B_entry_or_final_drain",
+              "execution_region": "gather_batch_loop",
               "ptx_line": 4664,
               "ptx_text": "\tld.global.nc.u32 %r12545, [%rd926];",
               "cfg_node": ".L_x_853",
@@ -5554,7 +5556,7 @@
                 "  wgs_gather(p, S);"
               ],
               "role": "activation_gather",
-              "execution_region": "phase_B_entry_or_final_drain",
+              "execution_region": "gather_batch_loop",
               "ptx_line": 4664,
               "ptx_text": "\tld.global.nc.u32 %r12545, [%rd926];",
               "cfg_node": ".L_x_853",
@@ -5588,7 +5590,7 @@
                 "  wgs_gather(p, S);"
               ],
               "role": "activation_gather",
-              "execution_region": "phase_B_entry_or_final_drain",
+              "execution_region": "gather_batch_loop",
               "ptx_line": 4669,
               "ptx_text": "\tsetp.eq.s64 \t%p315, %rd2427, 0;",
               "cfg_node": ".L_x_853",
@@ -5622,7 +5624,7 @@
                 "  wgs_gather(p, S);"
               ],
               "role": "activation_gather",
-              "execution_region": "phase_B_entry_or_final_drain",
+              "execution_region": "gather_batch_loop",
               "ptx_line": 4675,
               "ptx_text": "\tsetp.eq.s64 \t%p316, %rd2429, 0;",
               "cfg_node": ".L_x_853",
@@ -5656,7 +5658,7 @@
                 "  wgs_gather(p, S);"
               ],
               "role": "activation_gather",
-              "execution_region": "phase_B_entry_or_final_drain",
+              "execution_region": "gather_batch_loop",
               "ptx_line": 4675,
               "ptx_text": "\tsetp.eq.s64 \t%p316, %rd2429, 0;",
               "cfg_node": ".L_x_853",
@@ -5690,7 +5692,7 @@
                 "  wgs_gather(p, S);"
               ],
               "role": "activation_gather",
-              "execution_region": "phase_B_entry_or_final_drain",
+              "execution_region": "gather_batch_loop",
               "ptx_line": 4675,
               "ptx_text": "\tsetp.eq.s64 \t%p316, %rd2429, 0;",
               "cfg_node": ".L_x_853",
@@ -5724,7 +5726,7 @@
                 "  wgs_gather(p, S);"
               ],
               "role": "activation_gather",
-              "execution_region": "phase_B_entry_or_final_drain",
+              "execution_region": "gather_batch_loop",
               "ptx_line": 4675,
               "ptx_text": "\tsetp.eq.s64 \t%p316, %rd2429, 0;",
               "cfg_node": ".L_x_853",
@@ -5758,7 +5760,7 @@
                 "  wgs_gather(p, S);"
               ],
               "role": "activation_gather",
-              "execution_region": "phase_B_entry_or_final_drain",
+              "execution_region": "gather_batch_loop",
               "ptx_line": 4681,
               "ptx_text": "\tsetp.eq.s64 \t%p317, %rd2434, 0;",
               "cfg_node": ".L_x_853",
@@ -5792,7 +5794,7 @@
                 "  wgs_gather(p, S);"
               ],
               "role": "activation_gather",
-              "execution_region": "phase_B_entry_or_final_drain",
+              "execution_region": "gather_batch_loop",
               "ptx_line": 4699,
               "ptx_text": "\tsetp.eq.s64 \t%p320, %rd2443, 0;",
               "cfg_node": ".L_x_853",
@@ -5826,7 +5828,7 @@
                 "  wgs_gather(p, S);"
               ],
               "role": "activation_gather",
-              "execution_region": "phase_B_entry_or_final_drain",
+              "execution_region": "gather_batch_loop",
               "ptx_line": 4693,
               "ptx_text": "\tsetp.eq.s64 \t%p319, %rd2441, 0;",
               "cfg_node": ".L_x_853",
@@ -5860,7 +5862,7 @@
                 "  wgs_gather(p, S);"
               ],
               "role": "activation_gather",
-              "execution_region": "phase_B_entry_or_final_drain",
+              "execution_region": "gather_batch_loop",
               "ptx_line": 4693,
               "ptx_text": "\tsetp.eq.s64 \t%p319, %rd2441, 0;",
               "cfg_node": ".L_x_853",
@@ -5894,7 +5896,7 @@
                 "  wgs_gather(p, S);"
               ],
               "role": "activation_gather",
-              "execution_region": "phase_B_entry_or_final_drain",
+              "execution_region": "gather_batch_loop",
               "ptx_line": 4705,
               "ptx_text": "\tsetp.eq.s64 \t%p321, %rd2448, 0;",
               "cfg_node": ".L_x_853",
@@ -5928,7 +5930,7 @@
                 "  wgs_gather(p, S);"
               ],
               "role": "activation_gather",
-              "execution_region": "phase_B_entry_or_final_drain",
+              "execution_region": "gather_batch_loop",
               "ptx_line": 4690,
               "ptx_text": "\tst.global.v4.u32 \t[%rd2435], {%r12488, %r12487, %r12486, %r12485};",
               "cfg_node": ".L_x_853",
@@ -5962,7 +5964,7 @@
                 "  wgs_gather(p, S);"
               ],
               "role": "activation_gather",
-              "execution_region": "phase_B_entry_or_final_drain",
+              "execution_region": "gather_batch_loop",
               "ptx_line": 4690,
               "ptx_text": "\tst.global.v4.u32 \t[%rd2435], {%r12488, %r12487, %r12486, %r12485};",
               "cfg_node": ".L_x_853",
@@ -5996,7 +5998,7 @@
                 "  wgs_gather(p, S);"
               ],
               "role": "activation_gather",
-              "execution_region": "phase_B_entry_or_final_drain",
+              "execution_region": "gather_batch_loop",
               "ptx_line": 4690,
               "ptx_text": "\tst.global.v4.u32 \t[%rd2435], {%r12488, %r12487, %r12486, %r12485};",
               "cfg_node": ".L_x_853",
@@ -6030,7 +6032,7 @@
                 "  wgs_gather(p, S);"
               ],
               "role": "activation_gather",
-              "execution_region": "phase_B_entry_or_final_drain",
+              "execution_region": "gather_batch_loop",
               "ptx_line": 4717,
               "ptx_text": "\tsetp.eq.s64 \t%p323, %rd2455, 0;",
               "cfg_node": ".L_x_853",
@@ -6064,7 +6066,7 @@
                 "  wgs_gather(p, S);"
               ],
               "role": "activation_gather",
-              "execution_region": "phase_B_entry_or_final_drain",
+              "execution_region": "gather_batch_loop",
               "ptx_line": 4723,
               "ptx_text": "\tsetp.eq.s64 \t%p324, %rd2457, 0;",
               "cfg_node": ".L_x_853",
@@ -6098,7 +6100,7 @@
                 "  wgs_gather(p, S);"
               ],
               "role": "activation_gather",
-              "execution_region": "phase_B_entry_or_final_drain",
+              "execution_region": "gather_batch_loop",
               "ptx_line": 4711,
               "ptx_text": "\tsetp.eq.s64 \t%p322, %rd2450, 0;",
               "cfg_node": ".L_x_853",
@@ -6132,7 +6134,7 @@
                 "  wgs_gather(p, S);"
               ],
               "role": "activation_gather",
-              "execution_region": "phase_B_entry_or_final_drain",
+              "execution_region": "gather_batch_loop",
               "ptx_line": 4702,
               "ptx_text": "\tst.global.v4.u32 \t[%rd2442], {%r12498, %r12497, %r12496, %r12495};",
               "cfg_node": ".L_x_853",
@@ -6166,7 +6168,7 @@
                 "  wgs_gather(p, S);"
               ],
               "role": "activation_gather",
-              "execution_region": "phase_B_entry_or_final_drain",
+              "execution_region": "gather_batch_loop",
               "ptx_line": 4702,
               "ptx_text": "\tst.global.v4.u32 \t[%rd2442], {%r12498, %r12497, %r12496, %r12495};",
               "cfg_node": ".L_x_853",
@@ -6300,7 +6302,7 @@
                 "    wgs_phase<false>(p, S, ring, S.wgr[0], S.wgr[1], seq);"
               ],
               "role": "phase_A_segment_control",
-              "execution_region": "phase_B_entry_or_final_drain",
+              "execution_region": "phase_B_outer_segment_loop_not_inner_stage_loop",
               "ptx_line": 17255,
               "ptx_text": "\tor.b32  \t%r2055, %r2054, 13396992;",
               "cfg_node": ".L_x_1188",
@@ -6334,7 +6336,7 @@
                 "    wgs_phase<true>(p, S, ring, S.wgr[2], S.wgr[3], seq);"
               ],
               "role": "phase_B_segment_control_or_epilogue",
-              "execution_region": "phase_B_entry_or_final_drain",
+              "execution_region": "phase_B_outer_segment_loop_not_inner_stage_loop",
               "ptx_line": 17277,
               "ptx_text": "\tsetp.eq.s32 \t%p367, %r557, 16;",
               "cfg_node": ".L_x_1188",
@@ -6383,7 +6385,7 @@
                 "    wgs_phase<true>(p, S, ring, S.wgr[2], S.wgr[3], seq);"
               ],
               "role": "phase_B_segment_control_or_epilogue",
-              "execution_region": "phase_B_entry_or_final_drain",
+              "execution_region": "phase_B_outer_segment_loop_not_inner_stage_loop",
               "ptx_line": 18396,
               "ptx_text": "\twgmma.fence.sync.aligned;",
               "cfg_node": ".L_x_1003",
@@ -6432,7 +6434,7 @@
                 "    wgs_phase<true>(p, S, ring, S.wgr[2], S.wgr[3], seq);"
               ],
               "role": "phase_B_segment_control_or_epilogue",
-              "execution_region": "phase_B_entry_or_final_drain",
+              "execution_region": "phase_B_outer_segment_loop_not_inner_stage_loop",
               "ptx_line": 18442,
               "ptx_text": "\t@%p384 bra \t$L__BB7_413;",
               "cfg_node": "BB588",
@@ -6471,7 +6473,7 @@
                 "    wgs_phase<true>(p, S, ring, S.wgr[2], S.wgr[3], seq);"
               ],
               "role": "phase_B_segment_control_or_epilogue",
-              "execution_region": "phase_B_entry_or_final_drain",
+              "execution_region": "phase_B_outer_segment_loop_not_inner_stage_loop",
               "ptx_line": 23402,
               "ptx_text": "\t@%p426 bra \t$L__BB7_458;",
               "cfg_node": "BB610",
@@ -6515,7 +6517,7 @@
                 "    wgs_phase<true>(p, S, ring, S.wgr[2], S.wgr[3], seq);"
               ],
               "role": "phase_B_segment_control_or_epilogue",
-              "execution_region": "phase_B_entry_or_final_drain",
+              "execution_region": "phase_B_outer_segment_loop_not_inner_stage_loop",
               "ptx_line": 24269,
               "ptx_text": "\tbra.uni \t$L__BB7_603;",
               "cfg_node": ".L_x_1041",
@@ -6554,7 +6556,7 @@
                 "    wgs_phase<true>(p, S, ring, S.wgr[2], S.wgr[3], seq);"
               ],
               "role": "phase_B_segment_control_or_epilogue",
-              "execution_region": "phase_B_entry_or_final_drain",
+              "execution_region": "phase_B_outer_segment_loop_not_inner_stage_loop",
               "ptx_line": 23413,
               "ptx_text": "\tadd.s64 \t%rd1243, %rd146, %rd1248;",
               "cfg_node": ".L_x_1041",
@@ -6593,7 +6595,7 @@
                 "    wgs_phase<true>(p, S, ring, S.wgr[2], S.wgr[3], seq);"
               ],
               "role": "phase_B_segment_control_or_epilogue",
-              "execution_region": "phase_B_entry_or_final_drain",
+              "execution_region": "phase_B_outer_segment_loop_not_inner_stage_loop",
               "ptx_line": 23413,
               "ptx_text": "\tadd.s64 \t%rd1243, %rd146, %rd1248;",
               "cfg_node": ".L_x_1041",
@@ -6642,7 +6644,7 @@
                 "    wgs_phase<true>(p, S, ring, S.wgr[2], S.wgr[3], seq);"
               ],
               "role": "phase_B_segment_control_or_epilogue",
-              "execution_region": "phase_B_entry_or_final_drain",
+              "execution_region": "phase_B_outer_segment_loop_not_inner_stage_loop",
               "ptx_line": 20514,
               "ptx_text": "\t@%p470 bra \t$L__BB7_504;",
               "cfg_node": "BB632",
@@ -6686,7 +6688,7 @@
                 "    wgs_phase<true>(p, S, ring, S.wgr[2], S.wgr[3], seq);"
               ],
               "role": "phase_B_segment_control_or_epilogue",
-              "execution_region": "phase_B_entry_or_final_drain",
+              "execution_region": "phase_B_outer_segment_loop_not_inner_stage_loop",
               "ptx_line": 30744,
               "ptx_text": "\tst.global.f32 \t[%rd231+1024], %f325;",
               "cfg_node": ".L_x_1115",
@@ -6725,7 +6727,7 @@
                 "    wgs_phase<true>(p, S, ring, S.wgr[2], S.wgr[3], seq);"
               ],
               "role": "phase_B_segment_control_or_epilogue",
-              "execution_region": "phase_B_entry_or_final_drain",
+              "execution_region": "phase_B_outer_segment_loop_not_inner_stage_loop",
               "ptx_line": 30163,
               "ptx_text": "\tadd.s64 \t%rd1450, %rd146, %rd1454;",
               "cfg_node": ".L_x_1115",
@@ -6764,7 +6766,7 @@
                 "    wgs_phase<true>(p, S, ring, S.wgr[2], S.wgr[3], seq);"
               ],
               "role": "phase_B_segment_control_or_epilogue",
-              "execution_region": "phase_B_entry_or_final_drain",
+              "execution_region": "phase_B_outer_segment_loop_not_inner_stage_loop",
               "ptx_line": 30163,
               "ptx_text": "\tadd.s64 \t%rd1450, %rd146, %rd1454;",
               "cfg_node": ".L_x_1115",
@@ -6813,7 +6815,7 @@
                 "    wgs_phase<true>(p, S, ring, S.wgr[2], S.wgr[3], seq);"
               ],
               "role": "phase_B_segment_control_or_epilogue",
-              "execution_region": "phase_B_entry_or_final_drain",
+              "execution_region": "phase_B_outer_segment_loop_not_inner_stage_loop",
               "ptx_line": 19478,
               "ptx_text": "\t@%p543 bra \t$L__BB7_582;",
               "cfg_node": "BB670",
@@ -6857,7 +6859,7 @@
                 "    wgs_phase<true>(p, S, ring, S.wgr[2], S.wgr[3], seq);"
               ],
               "role": "phase_B_segment_control_or_epilogue",
-              "execution_region": "phase_B_entry_or_final_drain",
+              "execution_region": "phase_B_outer_segment_loop_not_inner_stage_loop",
               "ptx_line": 27371,
               "ptx_text": "\tbra.uni \t$L__BB7_603;",
               "cfg_node": ".L_x_1178",
@@ -6896,7 +6898,7 @@
                 "    wgs_phase<true>(p, S, ring, S.wgr[2], S.wgr[3], seq);"
               ],
               "role": "phase_B_segment_control_or_epilogue",
-              "execution_region": "phase_B_entry_or_final_drain",
+              "execution_region": "phase_B_outer_segment_loop_not_inner_stage_loop",
               "ptx_line": 27061,
               "ptx_text": "\tadd.s64 \t%rd1636, %rd146, %rd1639;",
               "cfg_node": ".L_x_1178",
@@ -6935,7 +6937,7 @@
                 "    wgs_phase<true>(p, S, ring, S.wgr[2], S.wgr[3], seq);"
               ],
               "role": "phase_B_segment_control_or_epilogue",
-              "execution_region": "phase_B_entry_or_final_drain",
+              "execution_region": "phase_B_outer_segment_loop_not_inner_stage_loop",
               "ptx_line": 27061,
               "ptx_text": "\tadd.s64 \t%rd1636, %rd146, %rd1639;",
               "cfg_node": ".L_x_1178",
@@ -6979,7 +6981,7 @@
                 "    wgs_phase<true>(p, S, ring, S.wgr[2], S.wgr[3], seq);"
               ],
               "role": "phase_B_segment_control_or_epilogue",
-              "execution_region": "phase_B_entry_or_final_drain",
+              "execution_region": "phase_B_outer_segment_loop_not_inner_stage_loop",
               "ptx_line": 30744,
               "ptx_text": "\tst.global.f32 \t[%rd231+1024], %f325;",
               "cfg_node": ".L_x_996",
@@ -7023,7 +7025,7 @@
                 "    wgs_phase<true>(p, S, ring, S.wgr[2], S.wgr[3], seq);"
               ],
               "role": "phase_B_segment_control_or_epilogue",
-              "execution_region": "phase_B_entry_or_final_drain",
+              "execution_region": "phase_B_outer_segment_loop_not_inner_stage_loop",
               "ptx_line": 30744,
               "ptx_text": "\tst.global.f32 \t[%rd231+1024], %f325;",
               "cfg_node": ".L_x_996",
@@ -7164,7 +7166,8 @@
         "_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE": 99,
         "_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE": 99,
         "g224_layout_anchor": 0
-      }
+      },
+      "validation": "PASS: both-bool local PC/opcode/region identity, all local PCs CFG-reachable, complete static operand-width match to assembler spill rows, no PTX local operations, seven of eight HGMMA-containing natural loops have no local accesses"
     },
     "MAIN": {
       "ptx_local_declarations_or_operations": [],
@@ -10318,7 +10321,9 @@
             "phase_A_segment_control": 2
           },
           "counts_execution_region": {
-            "phase_B_entry_or_final_drain": 88
+            "gather_batch_loop": 79,
+            "phase_B_entry_or_final_drain": 2,
+            "phase_B_outer_segment_loop_not_inner_stage_loop": 7
           },
           "static_instruction_encoding_bytes": 1408,
           "static_operand_width_sum_not_executed_traffic": {
@@ -10344,7 +10349,7 @@
                 "  wgs_gather(p, S);"
               ],
               "role": "activation_gather",
-              "execution_region": "phase_B_entry_or_final_drain",
+              "execution_region": "gather_batch_loop",
               "ptx_line": 3256,
               "ptx_text": "\t@%p268 bra \t$L__BB7_208;",
               "cfg_node": ".L_x_648",
@@ -10378,7 +10383,7 @@
                 "  wgs_gather(p, S);"
               ],
               "role": "activation_gather",
-              "execution_region": "phase_B_entry_or_final_drain",
+              "execution_region": "gather_batch_loop",
               "ptx_line": 3601,
               "ptx_text": "\tadd.s32 \t%r342, %r12315, 2;",
               "cfg_node": ".L_x_648",
@@ -10412,7 +10417,7 @@
                 "  wgs_gather(p, S);"
               ],
               "role": "activation_gather",
-              "execution_region": "phase_B_entry_or_final_drain",
+              "execution_region": "gather_batch_loop",
               "ptx_line": 3957,
               "ptx_text": "\tadd.s32 \t%r394, %r12315, 4;",
               "cfg_node": ".L_x_648",
@@ -10446,7 +10451,7 @@
                 "  wgs_gather(p, S);"
               ],
               "role": "activation_gather",
-              "execution_region": "phase_B_entry_or_final_drain",
+              "execution_region": "gather_batch_loop",
               "ptx_line": 3423,
               "ptx_text": "\tsetp.ge.s32 \t%p273, %r316, %r224;",
               "cfg_node": ".L_x_648",
@@ -10480,7 +10485,7 @@
                 "  wgs_gather(p, S);"
               ],
               "role": "activation_gather",
-              "execution_region": "phase_B_entry_or_final_drain",
+              "execution_region": "gather_batch_loop",
               "ptx_line": 3781,
               "ptx_text": "\tsetp.ge.s32 \t%p285, %r368, %r224;",
               "cfg_node": ".L_x_648",
@@ -10514,7 +10519,7 @@
                 "  wgs_gather(p, S);"
               ],
               "role": "activation_gather",
-              "execution_region": "phase_B_entry_or_final_drain",
+              "execution_region": "gather_batch_loop",
               "ptx_line": 4135,
               "ptx_text": "\tadd.s32 \t%r420, %r12315, 5;",
               "cfg_node": ".L_x_648",
@@ -10548,7 +10553,7 @@
                 "  wgs_gather(p, S);"
               ],
               "role": "activation_gather",
-              "execution_region": "phase_B_entry_or_final_drain",
+              "execution_region": "gather_batch_loop",
               "ptx_line": 4313,
               "ptx_text": "\tadd.s32 \t%r446, %r12315, 6;",
               "cfg_node": ".L_x_648",
@@ -10582,7 +10587,7 @@
                 "  wgs_gather(p, S);"
               ],
               "role": "activation_gather",
-              "execution_region": "phase_B_entry_or_final_drain",
+              "execution_region": "gather_batch_loop",
               "ptx_line": 3296,
               "ptx_text": "\tadd.s64 \t%rd2387, %rd541, %rd543;",
               "cfg_node": "BB406",
@@ -10616,7 +10621,7 @@
                 "  wgs_gather(p, S);"
               ],
               "role": "activation_gather",
-              "execution_region": "phase_B_entry_or_final_drain",
+              "execution_region": "gather_batch_loop",
               "ptx_line": 3296,
               "ptx_text": "\tadd.s64 \t%rd2387, %rd541, %rd543;",
               "cfg_node": "BB406",
@@ -10650,7 +10655,7 @@
                 "  wgs_gather(p, S);"
               ],
               "role": "activation_gather",
-              "execution_region": "phase_B_entry_or_final_drain",
+              "execution_region": "gather_batch_loop",
               "ptx_line": 3296,
               "ptx_text": "\tadd.s64 \t%rd2387, %rd541, %rd543;",
               "cfg_node": "BB406",
@@ -10684,7 +10689,7 @@
                 "  wgs_gather(p, S);"
               ],
               "role": "activation_gather",
-              "execution_region": "phase_B_entry_or_final_drain",
+              "execution_region": "gather_batch_loop",
               "ptx_line": 3296,
               "ptx_text": "\tadd.s64 \t%rd2387, %rd541, %rd543;",
               "cfg_node": "BB406",
@@ -10718,7 +10723,7 @@
                 "  wgs_gather(p, S);"
               ],
               "role": "activation_gather",
-              "execution_region": "phase_B_entry_or_final_drain",
+              "execution_region": "gather_batch_loop",
               "ptx_line": 3296,
               "ptx_text": "\tadd.s64 \t%rd2387, %rd541, %rd543;",
               "cfg_node": "BB406",
@@ -10752,7 +10757,7 @@
                 "  wgs_gather(p, S);"
               ],
               "role": "activation_gather",
-              "execution_region": "phase_B_entry_or_final_drain",
+              "execution_region": "gather_batch_loop",
               "ptx_line": 3296,
               "ptx_text": "\tadd.s64 \t%rd2387, %rd541, %rd543;",
               "cfg_node": "BB406",
@@ -10786,7 +10791,7 @@
                 "  wgs_gather(p, S);"
               ],
               "role": "activation_gather",
-              "execution_region": "phase_B_entry_or_final_drain",
+              "execution_region": "gather_batch_loop",
               "ptx_line": 3296,
               "ptx_text": "\tadd.s64 \t%rd2387, %rd541, %rd543;",
               "cfg_node": ".L_x_650",
@@ -10820,7 +10825,7 @@
                 "  wgs_gather(p, S);"
               ],
               "role": "activation_gather",
-              "execution_region": "phase_B_entry_or_final_drain",
+              "execution_region": "gather_batch_loop",
               "ptx_line": 3628,
               "ptx_text": "\t@%p279 bra \t$L__BB7_230;",
               "cfg_node": ".L_x_650",
@@ -10854,7 +10859,7 @@
                 "  wgs_gather(p, S);"
               ],
               "role": "activation_gather",
-              "execution_region": "phase_B_entry_or_final_drain",
+              "execution_region": "gather_batch_loop",
               "ptx_line": 3806,
               "ptx_text": "\t@%p285 bra \t$L__BB7_239;",
               "cfg_node": ".L_x_650",
@@ -10888,7 +10893,7 @@
                 "  wgs_gather(p, S);"
               ],
               "role": "activation_gather",
-              "execution_region": "phase_B_entry_or_final_drain",
+              "execution_region": "gather_batch_loop",
               "ptx_line": 3344,
               "ptx_text": "\t@%p267 bra \t$L__BB7_215;",
               "cfg_node": ".L_x_650",
@@ -10922,7 +10927,7 @@
                 "  wgs_gather(p, S);"
               ],
               "role": "activation_gather",
-              "execution_region": "phase_B_entry_or_final_drain",
+              "execution_region": "gather_batch_loop",
               "ptx_line": 3377,
               "ptx_text": "\tadd.s64 \t%rd2389, %rd563, %rd565;",
               "cfg_node": "BB408",
@@ -10956,7 +10961,7 @@
                 "  wgs_gather(p, S);"
               ],
               "role": "activation_gather",
-              "execution_region": "phase_B_entry_or_final_drain",
+              "execution_region": "gather_batch_loop",
               "ptx_line": 3416,
               "ptx_text": "\tld.global.nc.u32 %r12323, [%rd560];",
               "cfg_node": "BB408",
@@ -10990,7 +10995,7 @@
                 "  wgs_gather(p, S);"
               ],
               "role": "activation_gather",
-              "execution_region": "phase_B_entry_or_final_drain",
+              "execution_region": "gather_batch_loop",
               "ptx_line": 3416,
               "ptx_text": "\tld.global.nc.u32 %r12323, [%rd560];",
               "cfg_node": "BB408",
@@ -11024,7 +11029,7 @@
                 "  wgs_gather(p, S);"
               ],
               "role": "activation_gather",
-              "execution_region": "phase_B_entry_or_final_drain",
+              "execution_region": "gather_batch_loop",
               "ptx_line": 3416,
               "ptx_text": "\tld.global.nc.u32 %r12323, [%rd560];",
               "cfg_node": "BB408",
@@ -11058,7 +11063,7 @@
                 "  wgs_gather(p, S);"
               ],
               "role": "activation_gather",
-              "execution_region": "phase_B_entry_or_final_drain",
+              "execution_region": "gather_batch_loop",
               "ptx_line": 3416,
               "ptx_text": "\tld.global.nc.u32 %r12323, [%rd560];",
               "cfg_node": "BB408",
@@ -11092,7 +11097,7 @@
                 "  wgs_gather(p, S);"
               ],
               "role": "activation_gather",
-              "execution_region": "phase_B_entry_or_final_drain",
+              "execution_region": "gather_batch_loop",
               "ptx_line": 3476,
               "ptx_text": "\tadd.s64 \t%rd2394, %rd591, %rd593;",
               "cfg_node": "BB411",
@@ -11126,7 +11131,7 @@
                 "  wgs_gather(p, S);"
               ],
               "role": "activation_gather",
-              "execution_region": "phase_B_entry_or_final_drain",
+              "execution_region": "gather_batch_loop",
               "ptx_line": 3476,
               "ptx_text": "\tadd.s64 \t%rd2394, %rd591, %rd593;",
               "cfg_node": "BB411",
@@ -11160,7 +11165,7 @@
                 "  wgs_gather(p, S);"
               ],
               "role": "activation_gather",
-              "execution_region": "phase_B_entry_or_final_drain",
+              "execution_region": "gather_batch_loop",
               "ptx_line": 3476,
               "ptx_text": "\tadd.s64 \t%rd2394, %rd591, %rd593;",
               "cfg_node": ".L_x_654",
@@ -11194,7 +11199,7 @@
                 "  wgs_gather(p, S);"
               ],
               "role": "activation_gather",
-              "execution_region": "phase_B_entry_or_final_drain",
+              "execution_region": "gather_batch_loop",
               "ptx_line": 3880,
               "ptx_text": "\t@%p285 bra \t$L__BB7_242;",
               "cfg_node": ".L_x_654",
@@ -11228,7 +11233,7 @@
                 "  wgs_gather(p, S);"
               ],
               "role": "activation_gather",
-              "execution_region": "phase_B_entry_or_final_drain",
+              "execution_region": "gather_batch_loop",
               "ptx_line": 3596,
               "ptx_text": "\tld.global.nc.u32 %r12333, [%rd610];",
               "cfg_node": "BB413",
@@ -11262,7 +11267,7 @@
                 "  wgs_gather(p, S);"
               ],
               "role": "activation_gather",
-              "execution_region": "phase_B_entry_or_final_drain",
+              "execution_region": "gather_batch_loop",
               "ptx_line": 3654,
               "ptx_text": "\tadd.s64 \t%rd2401, %rd641, %rd643;",
               "cfg_node": "BB416",
@@ -11296,7 +11301,7 @@
                 "  wgs_gather(p, S);"
               ],
               "role": "activation_gather",
-              "execution_region": "phase_B_entry_or_final_drain",
+              "execution_region": "gather_batch_loop",
               "ptx_line": 3654,
               "ptx_text": "\tadd.s64 \t%rd2401, %rd641, %rd643;",
               "cfg_node": "BB416",
@@ -11330,7 +11335,7 @@
                 "  wgs_gather(p, S);"
               ],
               "role": "activation_gather",
-              "execution_region": "phase_B_entry_or_final_drain",
+              "execution_region": "gather_batch_loop",
               "ptx_line": 3654,
               "ptx_text": "\tadd.s64 \t%rd2401, %rd641, %rd643;",
               "cfg_node": ".L_x_658",
@@ -11364,7 +11369,7 @@
                 "  wgs_gather(p, S);"
               ],
               "role": "activation_gather",
-              "execution_region": "phase_B_entry_or_final_drain",
+              "execution_region": "gather_batch_loop",
               "ptx_line": 4162,
               "ptx_text": "\t@%p297 bra \t$L__BB7_257;",
               "cfg_node": ".L_x_658",
@@ -11398,7 +11403,7 @@
                 "  wgs_gather(p, S);"
               ],
               "role": "activation_gather",
-              "execution_region": "phase_B_entry_or_final_drain",
+              "execution_region": "gather_batch_loop",
               "ptx_line": 3774,
               "ptx_text": "\tld.global.nc.u32 %r12343, [%rd660];",
               "cfg_node": "BB418",
@@ -11432,7 +11437,7 @@
                 "  wgs_gather(p, S);"
               ],
               "role": "activation_gather",
-              "execution_region": "phase_B_entry_or_final_drain",
+              "execution_region": "gather_batch_loop",
               "ptx_line": 3832,
               "ptx_text": "\tadd.s64 \t%rd2408, %rd691, %rd693;",
               "cfg_node": "BB421",
@@ -11466,7 +11471,7 @@
                 "  wgs_gather(p, S);"
               ],
               "role": "activation_gather",
-              "execution_region": "phase_B_entry_or_final_drain",
+              "execution_region": "gather_batch_loop",
               "ptx_line": 3952,
               "ptx_text": "\tld.global.nc.u32 %r12353, [%rd710];",
               "cfg_node": "BB423",
@@ -11500,7 +11505,7 @@
                 "  wgs_gather(p, S);"
               ],
               "role": "activation_gather",
-              "execution_region": "phase_B_entry_or_final_drain",
+              "execution_region": "gather_batch_loop",
               "ptx_line": 4010,
               "ptx_text": "\tadd.s64 \t%rd2415, %rd741, %rd743;",
               "cfg_node": "BB426",
@@ -11534,7 +11539,7 @@
                 "  wgs_gather(p, S);"
               ],
               "role": "activation_gather",
-              "execution_region": "phase_B_entry_or_final_drain",
+              "execution_region": "gather_batch_loop",
               "ptx_line": 4130,
               "ptx_text": "\tld.global.nc.u32 %r12363, [%rd760];",
               "cfg_node": "BB428",
@@ -11568,7 +11573,7 @@
                 "  wgs_gather(p, S);"
               ],
               "role": "activation_gather",
-              "execution_region": "phase_B_entry_or_final_drain",
+              "execution_region": "gather_batch_loop",
               "ptx_line": 4188,
               "ptx_text": "\tadd.s64 \t%rd2422, %rd791, %rd793;",
               "cfg_node": "BB431",
@@ -11602,7 +11607,7 @@
                 "  wgs_gather(p, S);"
               ],
               "role": "activation_gather",
-              "execution_region": "phase_B_entry_or_final_drain",
+              "execution_region": "gather_batch_loop",
               "ptx_line": 4308,
               "ptx_text": "\tld.global.nc.u32 %r12373, [%rd810];",
               "cfg_node": "BB433",
@@ -11636,7 +11641,7 @@
                 "  wgs_gather(p, S);"
               ],
               "role": "activation_gather",
-              "execution_region": "phase_B_entry_or_final_drain",
+              "execution_region": "gather_batch_loop",
               "ptx_line": 4597,
               "ptx_text": "\tld.shared.u32 \t%r489, [%rd2399];",
               "cfg_node": "BB442",
@@ -11670,7 +11675,7 @@
                 "  wgs_gather(p, S);"
               ],
               "role": "activation_gather",
-              "execution_region": "phase_B_entry_or_final_drain",
+              "execution_region": "gather_batch_loop",
               "ptx_line": 4597,
               "ptx_text": "\tld.shared.u32 \t%r489, [%rd2399];",
               "cfg_node": "BB442",
@@ -11704,7 +11709,7 @@
                 "  wgs_gather(p, S);"
               ],
               "role": "activation_gather",
-              "execution_region": "phase_B_entry_or_final_drain",
+              "execution_region": "gather_batch_loop",
               "ptx_line": 4601,
               "ptx_text": "\t@%p314 bra \t$L__BB7_278;",
               "cfg_node": "BB443",
@@ -11733,7 +11738,7 @@
                 "  const int tid = threadIdx.x;"
               ],
               "role": "entry_other",
-              "execution_region": "phase_B_entry_or_final_drain",
+              "execution_region": "gather_batch_loop",
               "ptx_line": 755,
               "ptx_text": "\tmov.u32 \t%r1, %tid.x;",
               "cfg_node": "BB443",
@@ -11767,7 +11772,7 @@
                 "  wgs_gather(p, S);"
               ],
               "role": "activation_gather",
-              "execution_region": "phase_B_entry_or_final_drain",
+              "execution_region": "gather_batch_loop",
               "ptx_line": 4649,
               "ptx_text": "\tadd.s64 \t%rd907, %rd923, %rd924;",
               "cfg_node": "BB443",
@@ -11801,7 +11806,7 @@
                 "  wgs_gather(p, S);"
               ],
               "role": "activation_gather",
-              "execution_region": "phase_B_entry_or_final_drain",
+              "execution_region": "gather_batch_loop",
               "ptx_line": 4623,
               "ptx_text": "\tbfi.b32 \t%r1926, %r1924, %r1925, 3, 29;",
               "cfg_node": "BB443",
@@ -11835,7 +11840,7 @@
                 "  wgs_gather(p, S);"
               ],
               "role": "activation_gather",
-              "execution_region": "phase_B_entry_or_final_drain",
+              "execution_region": "gather_batch_loop",
               "ptx_line": 4664,
               "ptx_text": "\tld.global.nc.u32 %r12393, [%rd910];",
               "cfg_node": ".L_x_679",
@@ -11869,7 +11874,7 @@
                 "  wgs_gather(p, S);"
               ],
               "role": "activation_gather",
-              "execution_region": "phase_B_entry_or_final_drain",
+              "execution_region": "gather_batch_loop",
               "ptx_line": 4664,
               "ptx_text": "\tld.global.nc.u32 %r12393, [%rd910];",
               "cfg_node": ".L_x_679",
@@ -11903,7 +11908,7 @@
                 "  wgs_gather(p, S);"
               ],
               "role": "activation_gather",
-              "execution_region": "phase_B_entry_or_final_drain",
+              "execution_region": "gather_batch_loop",
               "ptx_line": 4664,
               "ptx_text": "\tld.global.nc.u32 %r12393, [%rd910];",
               "cfg_node": ".L_x_679",
@@ -11937,7 +11942,7 @@
                 "  wgs_gather(p, S);"
               ],
               "role": "activation_gather",
-              "execution_region": "phase_B_entry_or_final_drain",
+              "execution_region": "gather_batch_loop",
               "ptx_line": 4664,
               "ptx_text": "\tld.global.nc.u32 %r12393, [%rd910];",
               "cfg_node": ".L_x_679",
@@ -11971,7 +11976,7 @@
                 "  wgs_gather(p, S);"
               ],
               "role": "activation_gather",
-              "execution_region": "phase_B_entry_or_final_drain",
+              "execution_region": "gather_batch_loop",
               "ptx_line": 4664,
               "ptx_text": "\tld.global.nc.u32 %r12393, [%rd910];",
               "cfg_node": ".L_x_679",
@@ -12005,7 +12010,7 @@
                 "  wgs_gather(p, S);"
               ],
               "role": "activation_gather",
-              "execution_region": "phase_B_entry_or_final_drain",
+              "execution_region": "gather_batch_loop",
               "ptx_line": 4664,
               "ptx_text": "\tld.global.nc.u32 %r12393, [%rd910];",
               "cfg_node": ".L_x_679",
@@ -12039,7 +12044,7 @@
                 "  wgs_gather(p, S);"
               ],
               "role": "activation_gather",
-              "execution_region": "phase_B_entry_or_final_drain",
+              "execution_region": "gather_batch_loop",
               "ptx_line": 4664,
               "ptx_text": "\tld.global.nc.u32 %r12393, [%rd910];",
               "cfg_node": ".L_x_679",
@@ -12073,7 +12078,7 @@
                 "  wgs_gather(p, S);"
               ],
               "role": "activation_gather",
-              "execution_region": "phase_B_entry_or_final_drain",
+              "execution_region": "gather_batch_loop",
               "ptx_line": 4664,
               "ptx_text": "\tld.global.nc.u32 %r12393, [%rd910];",
               "cfg_node": ".L_x_679",
@@ -12107,7 +12112,7 @@
                 "  wgs_gather(p, S);"
               ],
               "role": "activation_gather",
-              "execution_region": "phase_B_entry_or_final_drain",
+              "execution_region": "gather_batch_loop",
               "ptx_line": 4664,
               "ptx_text": "\tld.global.nc.u32 %r12393, [%rd910];",
               "cfg_node": ".L_x_679",
@@ -12141,7 +12146,7 @@
                 "  wgs_gather(p, S);"
               ],
               "role": "activation_gather",
-              "execution_region": "phase_B_entry_or_final_drain",
+              "execution_region": "gather_batch_loop",
               "ptx_line": 4664,
               "ptx_text": "\tld.global.nc.u32 %r12393, [%rd910];",
               "cfg_node": ".L_x_679",
@@ -12175,7 +12180,7 @@
                 "  wgs_gather(p, S);"
               ],
               "role": "activation_gather",
-              "execution_region": "phase_B_entry_or_final_drain",
+              "execution_region": "gather_batch_loop",
               "ptx_line": 4664,
               "ptx_text": "\tld.global.nc.u32 %r12393, [%rd910];",
               "cfg_node": ".L_x_679",
@@ -12209,7 +12214,7 @@
                 "  wgs_gather(p, S);"
               ],
               "role": "activation_gather",
-              "execution_region": "phase_B_entry_or_final_drain",
+              "execution_region": "gather_batch_loop",
               "ptx_line": 4664,
               "ptx_text": "\tld.global.nc.u32 %r12393, [%rd910];",
               "cfg_node": ".L_x_679",
@@ -12243,7 +12248,7 @@
                 "  wgs_gather(p, S);"
               ],
               "role": "activation_gather",
-              "execution_region": "phase_B_entry_or_final_drain",
+              "execution_region": "gather_batch_loop",
               "ptx_line": 4664,
               "ptx_text": "\tld.global.nc.u32 %r12393, [%rd910];",
               "cfg_node": ".L_x_679",
@@ -12277,7 +12282,7 @@
                 "  wgs_gather(p, S);"
               ],
               "role": "activation_gather",
-              "execution_region": "phase_B_entry_or_final_drain",
+              "execution_region": "gather_batch_loop",
               "ptx_line": 4664,
               "ptx_text": "\tld.global.nc.u32 %r12393, [%rd910];",
               "cfg_node": ".L_x_679",
@@ -12311,7 +12316,7 @@
                 "  wgs_gather(p, S);"
               ],
               "role": "activation_gather",
-              "execution_region": "phase_B_entry_or_final_drain",
+              "execution_region": "gather_batch_loop",
               "ptx_line": 4664,
               "ptx_text": "\tld.global.nc.u32 %r12393, [%rd910];",
               "cfg_node": ".L_x_679",
@@ -12345,7 +12350,7 @@
                 "  wgs_gather(p, S);"
               ],
               "role": "activation_gather",
-              "execution_region": "phase_B_entry_or_final_drain",
+              "execution_region": "gather_batch_loop",
               "ptx_line": 4664,
               "ptx_text": "\tld.global.nc.u32 %r12393, [%rd910];",
               "cfg_node": ".L_x_679",
@@ -12379,7 +12384,7 @@
                 "  wgs_gather(p, S);"
               ],
               "role": "activation_gather",
-              "execution_region": "phase_B_entry_or_final_drain",
+              "execution_region": "gather_batch_loop",
               "ptx_line": 4669,
               "ptx_text": "\tsetp.eq.s64 \t%p315, %rd2388, 0;",
               "cfg_node": ".L_x_679",
@@ -12413,7 +12418,7 @@
                 "  wgs_gather(p, S);"
               ],
               "role": "activation_gather",
-              "execution_region": "phase_B_entry_or_final_drain",
+              "execution_region": "gather_batch_loop",
               "ptx_line": 4675,
               "ptx_text": "\tsetp.eq.s64 \t%p316, %rd2390, 0;",
               "cfg_node": ".L_x_679",
@@ -12447,7 +12452,7 @@
                 "  wgs_gather(p, S);"
               ],
               "role": "activation_gather",
-              "execution_region": "phase_B_entry_or_final_drain",
+              "execution_region": "gather_batch_loop",
               "ptx_line": 4675,
               "ptx_text": "\tsetp.eq.s64 \t%p316, %rd2390, 0;",
               "cfg_node": ".L_x_679",
@@ -12481,7 +12486,7 @@
                 "  wgs_gather(p, S);"
               ],
               "role": "activation_gather",
-              "execution_region": "phase_B_entry_or_final_drain",
+              "execution_region": "gather_batch_loop",
               "ptx_line": 4675,
               "ptx_text": "\tsetp.eq.s64 \t%p316, %rd2390, 0;",
               "cfg_node": ".L_x_679",
@@ -12515,7 +12520,7 @@
                 "  wgs_gather(p, S);"
               ],
               "role": "activation_gather",
-              "execution_region": "phase_B_entry_or_final_drain",
+              "execution_region": "gather_batch_loop",
               "ptx_line": 4675,
               "ptx_text": "\tsetp.eq.s64 \t%p316, %rd2390, 0;",
               "cfg_node": ".L_x_679",
@@ -12549,7 +12554,7 @@
                 "  wgs_gather(p, S);"
               ],
               "role": "activation_gather",
-              "execution_region": "phase_B_entry_or_final_drain",
+              "execution_region": "gather_batch_loop",
               "ptx_line": 4681,
               "ptx_text": "\tsetp.eq.s64 \t%p317, %rd2395, 0;",
               "cfg_node": ".L_x_679",
@@ -12583,7 +12588,7 @@
                 "  wgs_gather(p, S);"
               ],
               "role": "activation_gather",
-              "execution_region": "phase_B_entry_or_final_drain",
+              "execution_region": "gather_batch_loop",
               "ptx_line": 4699,
               "ptx_text": "\tsetp.eq.s64 \t%p320, %rd2404, 0;",
               "cfg_node": ".L_x_679",
@@ -12617,7 +12622,7 @@
                 "  wgs_gather(p, S);"
               ],
               "role": "activation_gather",
-              "execution_region": "phase_B_entry_or_final_drain",
+              "execution_region": "gather_batch_loop",
               "ptx_line": 4693,
               "ptx_text": "\tsetp.eq.s64 \t%p319, %rd2402, 0;",
               "cfg_node": ".L_x_679",
@@ -12651,7 +12656,7 @@
                 "  wgs_gather(p, S);"
               ],
               "role": "activation_gather",
-              "execution_region": "phase_B_entry_or_final_drain",
+              "execution_region": "gather_batch_loop",
               "ptx_line": 4693,
               "ptx_text": "\tsetp.eq.s64 \t%p319, %rd2402, 0;",
               "cfg_node": ".L_x_679",
@@ -12685,7 +12690,7 @@
                 "  wgs_gather(p, S);"
               ],
               "role": "activation_gather",
-              "execution_region": "phase_B_entry_or_final_drain",
+              "execution_region": "gather_batch_loop",
               "ptx_line": 4711,
               "ptx_text": "\tsetp.eq.s64 \t%p322, %rd2411, 0;",
               "cfg_node": ".L_x_679",
@@ -12719,7 +12724,7 @@
                 "  wgs_gather(p, S);"
               ],
               "role": "activation_gather",
-              "execution_region": "phase_B_entry_or_final_drain",
+              "execution_region": "gather_batch_loop",
               "ptx_line": 4711,
               "ptx_text": "\tsetp.eq.s64 \t%p322, %rd2411, 0;",
               "cfg_node": ".L_x_679",
@@ -12753,7 +12758,7 @@
                 "  wgs_gather(p, S);"
               ],
               "role": "activation_gather",
-              "execution_region": "phase_B_entry_or_final_drain",
+              "execution_region": "gather_batch_loop",
               "ptx_line": 4711,
               "ptx_text": "\tsetp.eq.s64 \t%p322, %rd2411, 0;",
               "cfg_node": ".L_x_679",
@@ -12787,7 +12792,7 @@
                 "  wgs_gather(p, S);"
               ],
               "role": "activation_gather",
-              "execution_region": "phase_B_entry_or_final_drain",
+              "execution_region": "gather_batch_loop",
               "ptx_line": 4717,
               "ptx_text": "\tsetp.eq.s64 \t%p323, %rd2416, 0;",
               "cfg_node": ".L_x_679",
@@ -12821,7 +12826,7 @@
                 "  wgs_gather(p, S);"
               ],
               "role": "activation_gather",
-              "execution_region": "phase_B_entry_or_final_drain",
+              "execution_region": "gather_batch_loop",
               "ptx_line": 4717,
               "ptx_text": "\tsetp.eq.s64 \t%p323, %rd2416, 0;",
               "cfg_node": ".L_x_679",
@@ -12855,7 +12860,7 @@
                 "  wgs_gather(p, S);"
               ],
               "role": "activation_gather",
-              "execution_region": "phase_B_entry_or_final_drain",
+              "execution_region": "gather_batch_loop",
               "ptx_line": 4717,
               "ptx_text": "\tsetp.eq.s64 \t%p323, %rd2416, 0;",
               "cfg_node": ".L_x_679",
@@ -12889,7 +12894,7 @@
                 "  wgs_gather(p, S);"
               ],
               "role": "activation_gather",
-              "execution_region": "phase_B_entry_or_final_drain",
+              "execution_region": "gather_batch_loop",
               "ptx_line": 4717,
               "ptx_text": "\tsetp.eq.s64 \t%p323, %rd2416, 0;",
               "cfg_node": ".L_x_679",
@@ -12923,7 +12928,7 @@
                 "  wgs_gather(p, S);"
               ],
               "role": "activation_gather",
-              "execution_region": "phase_B_entry_or_final_drain",
+              "execution_region": "gather_batch_loop",
               "ptx_line": 4717,
               "ptx_text": "\tsetp.eq.s64 \t%p323, %rd2416, 0;",
               "cfg_node": ".L_x_679",
@@ -12957,7 +12962,7 @@
                 "  wgs_gather(p, S);"
               ],
               "role": "activation_gather",
-              "execution_region": "phase_B_entry_or_final_drain",
+              "execution_region": "gather_batch_loop",
               "ptx_line": 4696,
               "ptx_text": "\tst.global.v4.u32 \t[%rd2401], {%r12342, %r12341, %r12340, %r12339};",
               "cfg_node": ".L_x_679",
@@ -12991,7 +12996,7 @@
                 "  wgs_gather(p, S);"
               ],
               "role": "activation_gather",
-              "execution_region": "phase_B_entry_or_final_drain",
+              "execution_region": "gather_batch_loop",
               "ptx_line": 4696,
               "ptx_text": "\tst.global.v4.u32 \t[%rd2401], {%r12342, %r12341, %r12340, %r12339};",
               "cfg_node": ".L_x_679",
@@ -13080,7 +13085,7 @@
                 "    wgs_phase<false>(p, S, ring, S.wgr[0], S.wgr[1], seq);"
               ],
               "role": "phase_A_segment_control",
-              "execution_region": "phase_B_entry_or_final_drain",
+              "execution_region": "phase_B_outer_segment_loop_not_inner_stage_loop",
               "ptx_line": 17255,
               "ptx_text": "\tor.b32  \t%r2053, %r2052, 13396992;",
               "cfg_node": ".L_x_928",
@@ -13129,7 +13134,7 @@
                 "    wgs_phase<true>(p, S, ring, S.wgr[2], S.wgr[3], seq);"
               ],
               "role": "phase_B_segment_control_or_epilogue",
-              "execution_region": "phase_B_entry_or_final_drain",
+              "execution_region": "phase_B_outer_segment_loop_not_inner_stage_loop",
               "ptx_line": 18389,
               "ptx_text": "\t{ mul.bf16x2 %r2483,%r2484,%r2481; }",
               "cfg_node": ".L_x_827",
@@ -13168,7 +13173,7 @@
                 "    wgs_phase<true>(p, S, ring, S.wgr[2], S.wgr[3], seq);"
               ],
               "role": "phase_B_segment_control_or_epilogue",
-              "execution_region": "phase_B_entry_or_final_drain",
+              "execution_region": "phase_B_outer_segment_loop_not_inner_stage_loop",
               "ptx_line": 23153,
               "ptx_text": "\t@%p404 bra \t$L__BB7_413;",
               "cfg_node": "BB562",
@@ -13212,7 +13217,7 @@
                 "    wgs_phase<true>(p, S, ring, S.wgr[2], S.wgr[3], seq);"
               ],
               "role": "phase_B_segment_control_or_epilogue",
-              "execution_region": "phase_B_entry_or_final_drain",
+              "execution_region": "phase_B_outer_segment_loop_not_inner_stage_loop",
               "ptx_line": 23655,
               "ptx_text": "\tbra.uni \t$L__BB7_495;",
               "cfg_node": ".L_x_851",
@@ -13261,7 +13266,7 @@
                 "    wgs_phase<true>(p, S, ring, S.wgr[2], S.wgr[3], seq);"
               ],
               "role": "phase_B_segment_control_or_epilogue",
-              "execution_region": "phase_B_entry_or_final_drain",
+              "execution_region": "phase_B_outer_segment_loop_not_inner_stage_loop",
               "ptx_line": 29263,
               "ptx_text": "\tst.global.L2::cache_hint.b32 [%rd1401], %f2355, %rd1402;",
               "cfg_node": ".L_x_890",
@@ -13305,7 +13310,7 @@
                 "    wgs_phase<true>(p, S, ring, S.wgr[2], S.wgr[3], seq);"
               ],
               "role": "phase_B_segment_control_or_epilogue",
-              "execution_region": "phase_B_entry_or_final_drain",
+              "execution_region": "phase_B_outer_segment_loop_not_inner_stage_loop",
               "ptx_line": 26385,
               "ptx_text": "\tbra.uni \t$L__BB7_495;",
               "cfg_node": ".L_x_925",
@@ -13354,7 +13359,7 @@
                 "    wgs_phase<true>(p, S, ring, S.wgr[2], S.wgr[3], seq);"
               ],
               "role": "phase_B_segment_control_or_epilogue",
-              "execution_region": "phase_B_entry_or_final_drain",
+              "execution_region": "phase_B_outer_segment_loop_not_inner_stage_loop",
               "ptx_line": 29263,
               "ptx_text": "\tst.global.L2::cache_hint.b32 [%rd1401], %f2355, %rd1402;",
               "cfg_node": ".L_x_820",
@@ -13454,7 +13459,8 @@
         "_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE": 88,
         "_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE": 88,
         "g224_layout_anchor": 0
-      }
+      },
+      "validation": "PASS: both-bool local PC/opcode/region identity, all local PCs CFG-reachable, complete static operand-width match to assembler spill rows, no PTX local operations, seven of eight HGMMA-containing natural loops have no local accesses"
     }
   }
 }
