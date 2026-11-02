@@ -108,6 +108,10 @@ def compare(control, candidate):
                          baseline_factor=after['baseline_ns'] / before['baseline_ns']))
     latency_factor = geometric_mean([row['latency_factor'] for row in rows])
     baseline_factor = geometric_mean([row['baseline_factor'] for row in rows])
+    short_factor = geometric_mean([row['latency_factor'] for row in rows
+                                   if row['load'] in ('d1', 'v1')])
+    unchanged_factor = geometric_mean([row['latency_factor'] for row in rows
+                                       if row['load'] not in ('d1', 'v1')])
     score_factor = candidate['score'] / control['score']
     if not math.isclose(score_factor, latency_factor * baseline_factor, rel_tol=1e-12):
         raise ValueError('score-factor decomposition failed')
@@ -122,11 +126,15 @@ def compare(control, candidate):
                 candidate={key:value for key,value in candidate.items() if key not in ('shapes', 'loads')},
                 loads=rows, cells=cells, adjusted_latency_factor=latency_factor,
                 baseline_factor=baseline_factor, official_score_factor=score_factor,
+                short_load_factor=short_factor, unchanged_long_load_factor=unchanged_factor,
+                short_only_counterfactual_factor=short_factor ** (2 / 6),
+                short_relative_to_long_full_score_factor=(short_factor / unchanged_factor) ** (2 / 6),
                 descriptive_screen=latency_factor >= 1.01 and all(
                     row['latency_change_percent'] <= 1.0 for row in rows),
                 performance_qualified=False, promotion_authorized=False,
                 limitations=['Independent jobs, not a matched causal experiment',
                              'Screen requires separate selected-route/profile verification',
+                             'Long loads are descriptive drift indicators, not randomized controls',
                              'Reported score CIs are not a confidence interval on treatment effect',
                              'Content hash is server identity, not physical upload SHA256'])
 

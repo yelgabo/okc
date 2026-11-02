@@ -35,6 +35,20 @@ class ReceiptComparisonTests(unittest.TestCase):
         self.assertAlmostEqual(result['official_score_factor'], 0.9996)
         self.assertTrue(result['descriptive_screen'])
         self.assertFalse(result['promotion_authorized'])
+        self.assertAlmostEqual(result['short_relative_to_long_full_score_factor'], 1)
+
+    def test_short_effect_is_not_long_load_drift(self):
+        candidate = copy.deepcopy(RECEIPT)
+        for record in candidate['result']['records']:
+            if record.get('event') == 'benchmark' and record['case']['batch'] == 1:
+                record['median_ns'] /= 1.06
+        candidate['result']['speedup'] *= 1.06 ** (2 / 6)
+        result = comparison.compare(comparison.validate(RECEIPT, JOB, 'run'),
+                                    comparison.validate(candidate, JOB, 'run'))
+        self.assertAlmostEqual(result['short_load_factor'], 1.06)
+        self.assertAlmostEqual(result['unchanged_long_load_factor'], 1)
+        self.assertAlmostEqual(result['short_only_counterfactual_factor'], 1.06 ** (2 / 6))
+        self.assertAlmostEqual(result['short_relative_to_long_full_score_factor'], 1.06 ** (2 / 6))
 
     def test_invalid_receipts_rejected(self):
         mutations = [('wrapper_ok_but_failed', lambda receipt: receipt['result'].update(passed=False, status='ok')),

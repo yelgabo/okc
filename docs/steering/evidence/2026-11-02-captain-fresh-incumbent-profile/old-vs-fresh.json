@@ -1,0 +1,239 @@
+{
+  "control": {
+    "score": 2.1260826764231093,
+    "job": "607eb52bdaf24160",
+    "mode": "run",
+    "team": "yelgabo",
+    "content_hash": "5cf950e1819c8c2bf0edf9bfdc0ccf05b191759c0a8263a45cd962f4e934ff5e",
+    "payload_ref": "muse_decode_layer/5cf950e1819c8c2bf0edf9bfdc0ccf05b191759c0a8263a45cd962f4e934ff5e.py",
+    "machine": {
+      "gpu_after": {
+        "clocks.max.sm": 1980,
+        "clocks.mem": 3201,
+        "clocks.sm": 1980,
+        "driver_version": "580.159.03",
+        "name": "NVIDIA H200",
+        "power.draw": 121.65,
+        "power.limit": 700,
+        "temperature.gpu": 33
+      },
+      "gpu_before": {
+        "clocks.max.sm": 1980,
+        "clocks.mem": 3201,
+        "clocks.sm": 345,
+        "driver_version": "580.159.03",
+        "name": "NVIDIA H200",
+        "power.draw": 77.57,
+        "power.limit": 700,
+        "temperature.gpu": 28
+      },
+      "node": "n-fwq5zu7sgu2oyb5nsz3gf5n23p"
+    },
+    "gpu": "H200",
+    "speedup_ci": [
+      2.0941914362767626,
+      2.1579739165694556
+    ]
+  },
+  "candidate": {
+    "score": 2.109201357227871,
+    "job": "cc474883117947c0",
+    "mode": "check",
+    "team": "yelgabo",
+    "content_hash": "5cf950e1819c8c2bf0edf9bfdc0ccf05b191759c0a8263a45cd962f4e934ff5e",
+    "payload_ref": "muse_decode_layer/5cf950e1819c8c2bf0edf9bfdc0ccf05b191759c0a8263a45cd962f4e934ff5e.py",
+    "machine": {
+      "gpu_after": {
+        "clocks.max.sm": 1980,
+        "clocks.mem": 3201,
+        "clocks.sm": 1980,
+        "driver_version": "595.91.07",
+        "name": "NVIDIA H200",
+        "power.draw": 130.28,
+        "power.limit": 700,
+        "temperature.gpu": 40
+      },
+      "gpu_before": {
+        "clocks.max.sm": 1980,
+        "clocks.mem": 3201,
+        "clocks.sm": 375,
+        "driver_version": "595.91.07",
+        "name": "NVIDIA H200",
+        "power.draw": 111.62,
+        "power.limit": 700,
+        "temperature.gpu": 37
+      },
+      "node": "n-434neka4hbrvz7ee7sd46ord7g"
+    },
+    "gpu": "H200",
+    "speedup_ci": [
+      2.077563336869453,
+      2.1408393775862886
+    ]
+  },
+  "loads": [
+    {
+      "load": "d1",
+      "control_adjusted_us": 78.54904481802234,
+      "candidate_adjusted_us": 78.76453088391268,
+      "control_raw_us": 82.4732921056209,
+      "candidate_raw_us": 84.46193378298513,
+      "latency_factor": 0.9972641738169185,
+      "latency_change_percent": 0.2743331461121823,
+      "baseline_factor": 1.0004169760444825
+    },
+    {
+      "load": "d16",
+      "control_adjusted_us": 158.24100957331893,
+      "candidate_adjusted_us": 152.01624972636304,
+      "control_raw_us": 160.17858660028824,
+      "candidate_raw_us": 156.83045286324716,
+      "latency_factor": 1.040947989824514,
+      "latency_change_percent": -3.933721014382008,
+      "baseline_factor": 0.9715857196193727
+    },
+    {
+      "load": "d32",
+      "control_adjusted_us": 191.73973579615884,
+      "candidate_adjusted_us": 191.8978122973195,
+      "control_raw_us": 197.64645133287675,
+      "candidate_raw_us": 195.8038674727563,
+      "latency_factor": 0.9991762464654066,
+      "latency_change_percent": 0.08244326639141875,
+      "baseline_factor": 0.9927314529588598
+    },
+    {
+      "load": "v1",
+      "control_adjusted_us": 115.99082289963329,
+      "candidate_adjusted_us": 112.68166177082166,
+      "control_raw_us": 121.22167743021441,
+      "candidate_raw_us": 117.23664523132385,
+      "latency_factor": 1.0293673440452271,
+      "latency_change_percent": -2.8529508163547046,
+      "baseline_factor": 0.9867941649154525
+    },
+    {
+      "load": "v16",
+      "control_adjusted_us": 269.347029111948,
+      "candidate_adjusted_us": 261.71304474650816,
+      "control_raw_us": 274.6085240956276,
+      "candidate_raw_us": 265.80696408787077,
+      "latency_factor": 1.029169292546476,
+      "latency_change_percent": -2.8342560118853055,
+      "baseline_factor": 0.9335294523284707
+    },
+    {
+      "load": "v32",
+      "control_adjusted_us": 359.29721608943515,
+      "candidate_adjusted_us": 351.0802216924128,
+      "control_raw_us": 362.28439259913665,
+      "candidate_raw_us": 353.87044664352175,
+      "latency_factor": 1.0234048912166331,
+      "latency_change_percent": -2.2869630013991005,
+      "baseline_factor": 0.9536582311943664
+    }
+  ],
+  "cells": [
+    {
+      "shape": "d16f",
+      "control_seed": 2594376621983479753,
+      "candidate_seed": 4882291277633346421,
+      "same_seed": false,
+      "latency_factor": 1.0384931461324038
+    },
+    {
+      "shape": "d16s",
+      "control_seed": 2594289777226122813,
+      "candidate_seed": 4882216442676380697,
+      "same_seed": false,
+      "latency_factor": 1.0422738802735823
+    },
+    {
+      "shape": "d1f",
+      "control_seed": 2594202932468765874,
+      "candidate_seed": 4882141607719414974,
+      "same_seed": false,
+      "latency_factor": 0.9999271275261649
+    },
+    {
+      "shape": "d1s",
+      "control_seed": 2594116087711408936,
+      "candidate_seed": 4882066772762449252,
+      "same_seed": false,
+      "latency_factor": 0.9962574145956137
+    },
+    {
+      "shape": "d32f",
+      "control_seed": 2594550311498193636,
+      "candidate_seed": 4882440947547277872,
+      "same_seed": false,
+      "latency_factor": 0.9614125906765288
+    },
+    {
+      "shape": "d32s",
+      "control_seed": 2594463466740836694,
+      "candidate_seed": 4882366112590312146,
+      "same_seed": false,
+      "latency_factor": 1.0261508168684328
+    },
+    {
+      "shape": "v16f",
+      "control_seed": 2594897690527621414,
+      "candidate_seed": 4882740287375140786,
+      "same_seed": false,
+      "latency_factor": 1.0017156040995938
+    },
+    {
+      "shape": "v16s",
+      "control_seed": 2594810845770264468,
+      "candidate_seed": 4882665452418175056,
+      "same_seed": false,
+      "latency_factor": 1.0425699159123298
+    },
+    {
+      "shape": "v1f",
+      "control_seed": 2594724001012907523,
+      "candidate_seed": 4882590617461209327,
+      "same_seed": false,
+      "latency_factor": 0.9948738082909032
+    },
+    {
+      "shape": "v1s",
+      "control_seed": 2594637156255550579,
+      "candidate_seed": 4882515782504243599,
+      "same_seed": false,
+      "latency_factor": 1.0421713135654769
+    },
+    {
+      "shape": "v32f",
+      "control_seed": 2595071380042335309,
+      "candidate_seed": 4882889957289072249,
+      "same_seed": false,
+      "latency_factor": 1.0200950471574421
+    },
+    {
+      "shape": "v32s",
+      "control_seed": 2594984535284978361,
+      "candidate_seed": 4882815122332106517,
+      "same_seed": false,
+      "latency_factor": 1.025169876921506
+    }
+  ],
+  "adjusted_latency_factor": 1.0197592982743413,
+  "baseline_factor": 0.9728373126003863,
+  "official_score_factor": 0.9920598952324661,
+  "short_load_factor": 1.013188617145583,
+  "unchanged_long_load_factor": 1.0230606010561925,
+  "short_only_counterfactual_factor": 1.0043770194637254,
+  "short_relative_to_long_full_score_factor": 0.996773111213116,
+  "descriptive_screen": true,
+  "performance_qualified": false,
+  "promotion_authorized": false,
+  "limitations": [
+    "Independent jobs, not a matched causal experiment",
+    "Screen requires separate selected-route/profile verification",
+    "Long loads are descriptive drift indicators, not randomized controls",
+    "Reported score CIs are not a confidence interval on treatment effect",
+    "Content hash is server identity, not physical upload SHA256"
+  ]
+}

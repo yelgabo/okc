@@ -1,0 +1,47 @@
+{
+  "analyzed_utc": "2026-11-02T12:49:01.121Z",
+  "allocation": "1df00005d3eceb467c38b17ac0d4cad632efbc78",
+  "control_source_sha256": "ba9e327cd7b96595ace4d0c1d0d78fe27c128f23ed0debcda97c7169fc3164ab",
+  "control_source_bytes": 869076,
+  "control_receipt_sha256": "99fc065c3c13389922e9914a5a2ea15b69dd6786f954ef74d65cfe67c46170fd",
+  "candidate_source_sha256": "5d883c43db730990246d07a0e52800e01b3161973705b8cb785c26e0d3f08933",
+  "candidate_source_bytes": 869931,
+  "control_startup": [
+    "G_RELEASE_STARTUP_OK native (128, 32, 33, 256, 1, 8, 16) 56 verified_replays"
+  ],
+  "control_queue_s": 595.461544752121,
+  "control_worker_s": 208.5306532382965,
+  "control_prepare_s": 107.986480825,
+  "researchVerification": [
+    {
+      "commit": "0bc206106eb24f0803491977de3d194d1ef67e9e",
+      "files": [
+        {
+          "path": "docs/steering/2026-11-02-research-competitor-delta.md",
+          "expected": "3638a8a4cd67363f403ccead79f810dff7711ecb",
+          "remote": "67f2424975afc295f2462d57c85b8a56c99577cf"
+        },
+        {
+          "path": "docs/steering/evidence/2026-11-02-research-competitor-delta/intake.json",
+          "expected": "6e223f9268dc0787beca6cb0a7d1969bf27d2e63",
+          "remote": "6e223f9268dc0787beca6cb0a7d1969bf27d2e63"
+        },
+        {
+          "path": "docs/steering/evidence/2026-11-02-research-competitor-delta/mechanisms.json",
+          "expected": "85310dbe5741b8927ed0af4de6d3d2b54158d601",
+          "remote": "85310dbe5741b8927ed0af4de6d3d2b54158d601"
+        }
+      ]
+    },
+    {
+      "commit": "f8c40f6d7ecf9485b1913c9558126ae2d429bc0e",
+      "files": [
+        {
+          "path": "docs/steering/2026-11-02-research-competitor-delta.md",
+          "expected": "67f2424975afc295f2462d57c85b8a56c99577cf",
+          "remote": "67f2424975afc295f2462d57c85b8a56c99577cf"
+        }
+      ]
+    }
+  ]
+}
