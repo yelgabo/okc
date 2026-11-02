@@ -11,7 +11,14 @@
   "acknowledgment_excerpt": "Attention is stopped at published safe source checkpoint6e1811647d0f525be53a0ebf28bc98e9ca10731e (initial19ab26cd), report docs/steering/2026-11-02-worker-attention-continuity.md. No more readiness/harness/tuning/target actions. This is an ROI reprioritization, not a measured attention loss.",
   "worker_ready_for_architecture_task": true,
   "separate_captain_direct_message_or_acknowledgment": false,
-  "next_assignment": "P1 as specified in2026-11-02-attention-roi-and-step-change-priorities.md; direct dispatch follows publication.",
+  "next_assignment": "P1 picked up under45-active-minute bound; no children/kernel/harness/compiler/GPU/CLI/POST/default work; captain/researcher independent review remains.",
   "attention_measured_gain": null,
-  "judge_dispatches_by_audit": 0
+  "judge_dispatches_by_audit": 0,
+  "architecture_assignment_directly_sent": true,
+  "published_assignment_commit": "588847c955bbcb00859ae6b289fa156e6699f7e9",
+  "architecture_pickup_acknowledged": true,
+  "worker_owned_report": "docs/steering/2026-11-02-worker-broad-expert-architecture.md",
+  "worker_owned_evidence": "docs/steering/evidence/2026-11-02-worker-broad-expert-architecture/",
+  "pickup_acknowledgment_excerpt": "P1 source-only architecture decision picked up. I will own docs/steering/2026-11-02-worker-broad-expert-architecture.md and evidence/2026-11-02-worker-broad-expert-architecture/.",
+  "updated_at": "2026-11-02T19:26:21.401098+00:00"
 }
