@@ -1,0 +1,60 @@
+{
+  "schema": 1,
+  "status": "STOP_FIXED_LAYOUT",
+  "hash_scope": "Canonical Git blob bytes after repository clean conversion for owned files; manifest excludes itself. Dependency hashes are physical read-only bytes.",
+  "files": [
+    {
+      "path": "docs/steering/2026-11-01-worker-g2-24-prototype.md",
+      "git_blob": "6c2a46d5858fedc52337fe955d84f656ffe43bce",
+      "bytes": 7990,
+      "sha256": "9c775b0766148b0e6b0aedb71b59d7dbdcf7a0ffb461273e2e8a73cf147f1aef"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-01-worker-g2-24-prototype/generator-unfinished.py.txt",
+      "git_blob": "ac77445203af4b72fce0d48608d7f579d57f8978",
+      "bytes": 11991,
+      "sha256": "29e982ec8e507e15c3d513f418473480adb83dd56eee127775a00d13c9df89d8"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-01-worker-g2-24-prototype/stop-evidence.json",
+      "git_blob": "df5bc40cb3c0b73d43a7b558cb528618bf49367f",
+      "bytes": 4545,
+      "sha256": "3707d7efd6f44f5c7804a5695a2a7b4d2161acc177916c41cac0b09043337194"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-01-worker-g2-24-prototype/cpu-accounting-replay.json",
+      "git_blob": "bd2610428de091a5ea774ee3e96677cb37dfeb8b",
+      "bytes": 1696,
+      "sha256": "71918c2017509b071831f674f31b2044049965d9ae55e70bdf984a872bffba5d"
+    }
+  ],
+  "dependencies": [
+    {
+      "path": "docs/steering/2026-11-01-expert-pipeline-next-contender.md",
+      "sha256": "4721d7a889c07a7a2cd3697ef88935dcc13b622efc65f9da1f6901f6f4e96d8a",
+      "scope": "Read-only dependency; not worker-owned or included in this commit."
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-01-expert-pipeline-next/analyze.py",
+      "sha256": "8b89f01e8dab6824a3e02eae112ea016eb6bc69411d98f80ac135228d4f23cd7",
+      "scope": "Read-only dependency; not worker-owned or included in this commit."
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-01-captain-g2-admission/accounting.py",
+      "sha256": "ee784cd8544804d62dcff7bfcff834313230bc52a2982df8b38b6af4bbe257b2",
+      "scope": "Read-only dependency; not worker-owned or included in this commit."
+    }
+  ],
+  "base_sha256": "ba9e327cd7b96595ace4d0c1d0d78fe27c128f23ed0debcda97c7169fc3164ab",
+  "native_sha256": "c7c201ae145c6a33f2d5e6b1f80d2a6e56e8d75502f9fd09ace40927ad0f7c71",
+  "installed_official_header_sha256": "163b8f296ef2a33c799e2dc8c525b37166da9217bcc6a3c1d26b1c10aca5e22b",
+  "unfinished_generator_executed": false,
+  "generated_variant": false,
+  "compiled_entries": 0,
+  "gpu": false,
+  "challenge_cli": false,
+  "judge_checks": 0,
+  "target_reserved_shared_memory": null,
+  "target_occupancy": null,
+  "stop": "115968 dynamic/CTA plus documented1024 reservation: two rounded116992 allocations exceed233472 by512. Conditional accounting, not target runtime measurement."
+}
