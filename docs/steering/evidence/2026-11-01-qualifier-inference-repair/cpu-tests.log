@@ -1,0 +1,37 @@
+test_actual_marlin_adapter_fallback_is_preserved_unexercised (test_g_common_release_budget.All12.test_actual_marlin_adapter_fallback_is_preserved_unexercised) ... ok
+test_actual_reference_reuse_and_complete_counts (test_g_common_release_budget.All12.test_actual_reference_reuse_and_complete_counts) ... ok
+test_actual_report_matches_pinned_reader (test_g_common_release_budget.All12.test_actual_report_matches_pinned_reader) ... ok
+test_cache_cleanup_after_validation_exception (test_g_common_release_budget.All12.test_cache_cleanup_after_validation_exception) ... ok
+test_caught_native_failure_and_actual_metadata (test_g_common_release_budget.All12.test_caught_native_failure_and_actual_metadata) ... ok
+test_complete_actual_orchestration_both_fixed_arms (test_g_common_release_budget.All12.test_complete_actual_orchestration_both_fixed_arms) ... ok
+test_context_and_cache_restore_on_private_and_normal_failure (test_g_common_release_budget.All12.test_context_and_cache_restore_on_private_and_normal_failure) ... ok
+test_failure_context_and_phase_log_bound (test_g_common_release_budget.All12.test_failure_context_and_phase_log_bound) ... ok
+test_finite_wrong_output_and_cache_rejected_after_memo_hits (test_g_common_release_budget.All12.test_finite_wrong_output_and_cache_rejected_after_memo_hits) ... ok
+test_fixed_arm_flag_and_fatal_cuda (test_g_common_release_budget.All12.test_fixed_arm_flag_and_fatal_cuda) ... ok
+test_full_prepare_inference_and_gradient_contexts_both_arms (test_g_common_release_budget.All12.test_full_prepare_inference_and_gradient_contexts_both_arms) ... ok
+test_reference_output_cache_and_guard_negatives (test_g_common_release_budget.All12.test_reference_output_cache_and_guard_negatives) ... ok
+test_repeated_prepare_has_independent_cache_epoch (test_g_common_release_budget.All12.test_repeated_prepare_has_independent_cache_epoch) ... ok
+test_resource_owner_and_budget_failures (test_g_common_release_budget.All12.test_resource_owner_and_budget_failures) ... ok
+test_stale_empty_capture_and_model_capture (test_g_common_release_budget.All12.test_stale_empty_capture_and_model_capture) ... ok
+test_exact_ids_distinct_bank_and_mutation (test_g_common_release_budget.ExactCache.test_exact_ids_distinct_bank_and_mutation) ... ok
+test_result_mutation_and_nonfinite_hit_are_fatal (test_g_common_release_budget.ExactCache.test_result_mutation_and_nonfinite_hit_are_fatal) ... ok
+test_snapshot_mutation_owner_change_and_nonfinite_miss (test_g_common_release_budget.ExactCache.test_snapshot_mutation_owner_change_and_nonfinite_miss) ... ok
+test_actual_dispatch_resources_identity_negatives (test_g_common_rmw_receipt.Reader.test_actual_dispatch_resources_identity_negatives) ... ok
+test_budget_cache_stats (test_g_common_rmw_receipt.Reader.test_budget_cache_stats) ... ok
+test_counts_pins_and_capsule_transport (test_g_common_rmw_receipt.Reader.test_counts_pins_and_capsule_transport) ... ok
+test_fallback_is_preserved_not_attributed (test_g_common_rmw_receipt.Reader.test_fallback_is_preserved_not_attributed) ... ok
+test_owning_log_and_source (test_g_common_rmw_receipt.Reader.test_owning_log_and_source) ... ok
+test_phase_coverage_and_new_source_registration (test_g_common_rmw_receipt.Reader.test_phase_coverage_and_new_source_registration) ... ok
+test_private_mode_is_explicit_for_success_failure_and_comparison (test_g_common_rmw_receipt.Reader.test_private_mode_is_explicit_for_success_failure_and_comparison) ... ok
+test_real_setup_failure_and_nonzero_cli_envelope (test_g_common_rmw_receipt.Reader.test_real_setup_failure_and_nonzero_cli_envelope) ... ok
+test_terminal_guards_before_capsule (test_g_common_rmw_receipt.Reader.test_terminal_guards_before_capsule) ... ok
+test_valid_complete_and_comparison (test_g_common_rmw_receipt.Reader.test_valid_complete_and_comparison) ... ok
+test_archived_owner_full_score_and_raw_cells (test_hybrid_layer_measurement.Reader.test_archived_owner_full_score_and_raw_cells) ... ok
+test_log_path_is_bound_to_owning_receipt (test_hybrid_layer_measurement.Reader.test_log_path_is_bound_to_owning_receipt) ... ok
+test_startup_missing_fallback_and_local_memory_reject (test_hybrid_layer_measurement.Reader.test_startup_missing_fallback_and_local_memory_reject) ... ok
+test_wrong_owner_coverage_values_and_score_reject (test_hybrid_layer_measurement.Reader.test_wrong_owner_coverage_values_and_score_reject) ... ok
+
+----------------------------------------------------------------------
+Ran 32 tests in 19.797s
+
+OK

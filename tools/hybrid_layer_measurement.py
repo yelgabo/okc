@@ -29,9 +29,9 @@ def score(rows, median='median_ns', baseline='baseline_ns'):
     ) for load in LOADS) / 6)
 
 
-def read(receipt, job):
+def read(receipt, job, mode='run'):
     assert receipt['id'] == job and receipt['board'] == 'muse_decode_layer'
-    assert receipt['mode'] == 'run', 'expected a public single-arm measurement'
+    assert mode in ('run', 'check') and receipt['mode'] == mode, 'unexpected measurement mode'
     assert receipt['status'] == 'done', 'receipt is not terminal'
     assert re.fullmatch('[0-9a-f]{64}', receipt['content_hash'])
     assert receipt['payload_ref'] == 'muse_decode_layer/'+receipt['content_hash']+'.py'
@@ -102,9 +102,9 @@ def owning_log(receipt, path):
     return raw.decode('utf8'), hashlib.sha256(raw).hexdigest()
 
 
-def compare(new, old, job, control_job, log=None):
-    rows, summary = read(new, job)
-    control, control_summary = read(old, control_job)
+def compare(new, old, job, control_job, log=None, mode='run', control_mode='run'):
+    rows, summary = read(new, job, mode)
+    control, control_summary = read(old, control_job, control_mode)
     output = []
     for load in LOADS:
         for layer in ('sliding', 'full'):

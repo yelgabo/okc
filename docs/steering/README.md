@@ -1,5 +1,7 @@
 # Shared project steering
 
+Latest implementation registration: [November 1 qualifier inference repair and first private H200 check](2026-11-01-qualifier-inference-repair.md). Final OFF32196b8b/918490B and ON978b29f9/918978B regenerate identically;32 CPU tests pass. Normal production preparation and native/timed source are unchanged. First repaired ON private check is registered with full startup/official/actual-exercise gates; no separate COMMON-first or private1% prerequisite for measurement. Initial tranche capped at4 private checks; single-arm result is descriptive, promotion retains matched all-six/held-out/duplicate-null/regression gates. Live reset5scored/10checks; public submission requires direct user authorization.
+
 Latest evidence-access correction: [T3 public evidence gist](2026-11-01-t3-evidence-visibility-correction.md). Prior PR evidence links pointed to this private repository and returned anonymous 404. Replaced with a public gist; all 13 files and the updated PR verified without authentication. Code remains `332447ee`; verification receipt records hashes and public revision.
 
 Latest captain direction: [November 1 top-100 plan and independent discovery](2026-11-01-captain-top100.md), evidence `aff51ef` plus official boards at 23:47 UTC. Overall/layer rank324; layer rank100 at2.2549x versus our2.1261x (6.058% score gap). Worker owns qualifier/reader repair and dispatch; captain owns research and gates. Finish repair, get one valid startup-qualified H200 result, then isolate common-OFF/RMW-ON; no additional COMMON-first blocker. G unchanged; broader discovery found no stronger verified conforming complete-file replacement. Target2.30x is planning, not forecast. No new kernel/GPU/public dispatch or automation resume; public dispatch needs direct user authorization.
@@ -646,6 +648,8 @@ accounting, and running a corrected matched whole-layer comparison. It records
 recommendations, not execution of those tasks; check current code and run logs for status.
 
 ## Report history
+
+- [2026-11-01 qualifier inference repair and first private H200 check](2026-11-01-qualifier-inference-repair.md): exact repaired ON/OFF pins,32 CPU tests, complete source invariants, explicit private receipt mode and bounded first-check registration.
 
 - [2026-11-01 RMW H200 terminal and cleared-goal stop](2026-11-01-rmw-terminal-stop-checkpoint.md): evidence0f090a1; failed owning3fd archived, no benchmark result, source295s failure scope, draft inference-mode blocker and branch/WIP pickup preserved. No active goal or new submission.
 - [2026-11-01 independent qualifier-budget review](2026-11-01-g-qualifier-budget-independent.md): rootda8c9c6/0f090a1; unknown failing cell/stage, bounded memo obligations and reproduced inference-mode draft failure.

@@ -1,0 +1,13 @@
+{
+  "observed_at": "2026-11-02T00:01:46.060Z",
+  "argv": [
+    "wsl.exe",
+    "--exec",
+    "/usr/local/bin/okc",
+    "problems",
+    "--json"
+  ],
+  "exit_code": 0,
+  "stdout": "{\n  \"problems\": [\n    {\n      \"name\": \"muse_bf16_proj\",\n      \"title\": \"Dense projections\",\n      \"limits\": {\n        \"scored\": {\n          \"per_day\": 5,\n          \"used\": 0,\n          \"left\": 5\n        },\n        \"checks\": {\n          \"per_day\": 10,\n          \"used\": 0,\n          \"left\": 10\n        }\n      }\n    },\n    {\n      \"name\": \"muse_attention_decode\",\n      \"title\": \"Gated attention decode\",\n      \"limits\": {\n        \"scored\": {\n          \"per_day\": 5,\n          \"used\": 0,\n          \"left\": 5\n        },\n        \"checks\": {\n          \"per_day\": 10,\n          \"used\": 0,\n          \"left\": 10\n        }\n      }\n    },\n    {\n      \"name\": \"muse_moe_w4a16\",\n      \"title\": \"Routed experts\",\n      \"limits\": {\n        \"scored\": {\n          \"per_day\": 5,\n          \"used\": 0,\n          \"left\": 5\n        },\n        \"checks\": {\n          \"per_day\": 10,\n          \"used\": 0,\n          \"left\": 10\n        }\n      }\n    },\n    {\n      \"name\": \"muse_decode_layer\",\n      \"title\": \"Whole decoder layer\",\n      \"limits\": {\n        \"scored\": {\n          \"per_day\": 5,\n          \"used\": 0,\n          \"left\": 5\n        },\n        \"checks\": {\n          \"per_day\": 10,\n          \"used\": 0,\n          \"left\": 10\n        }\n      }\n    },\n    {\n      \"name\": \"muse_prefill_layer\",\n      \"title\": \"Prefill layer\",\n      \"limits\": {\n        \"scored\": {\n          \"per_day\": 5,\n          \"used\": 0,\n          \"left\": 5\n        },\n        \"checks\": {\n          \"per_day\": 10,\n          \"used\": 0,\n          \"left\": 10\n        }\n      }\n    }\n  ]\n}\n",
+  "stderr": ""
+}

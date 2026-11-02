@@ -29,6 +29,20 @@ def capsule():
 def log(r):return 'G_COMMON_QUAL_DONE '+json.dumps(r)+'\n'
 
 class Reader(unittest.TestCase):
+    def test_private_mode_is_explicit_for_success_failure_and_comparison(self):
+        public=fixture();private=copy.deepcopy(public);private["mode"]="check"
+        with self.assertRaises(AssertionError):analyze(private,"synthetic123",log(capsule()),SOURCE)
+        out=analyze(private,"synthetic123",log(capsule()),SOURCE,public,"synthetic123",mode="check")
+        self.assertEqual(out["terminal_fields"]["mode"],"check");self.assertFalse(out["paired"])
+        with self.assertRaises(AssertionError):analyze(public,"synthetic123",log(capsule()),SOURCE,mode="check")
+        with self.assertRaises(AssertionError):analyze(private,"synthetic123",log(capsule()),SOURCE,private,"synthetic123",mode="check")
+        self.assertEqual(len(analyze(private,"synthetic123",log(capsule()),SOURCE,private,"synthetic123",mode="check",control_mode="check")["weighted_six"]),6)
+        failed=read_receipt(ROOT/"muse_decode_layer/profiles/g-common-rmw.3fd1317143304bd5.terminal.json");failed["mode"]="check"
+        with self.assertRaises(AssertionError):observe(failed,failed["id"],"",SOURCE)
+        self.assertEqual(observe(failed,failed["id"],"",SOURCE,mode="check")["qualification"]["status"],"setup_failed")
+        for mode in ("unknown",None):
+            with self.assertRaises(AssertionError):observe(failed,failed["id"],"",SOURCE,mode=mode)
+
     def test_valid_complete_and_comparison(self):
         out=analyze(fixture(),'synthetic123',log(capsule()),SOURCE,fixture(),control_job='synthetic123')
         self.assertTrue(out['qualification']['treatment_exercised']);self.assertFalse(out['paired']);self.assertIsNone(out['causal_RMW_effect'])
@@ -69,6 +83,79 @@ class Reader(unittest.TestCase):
         self.assertEqual(out['qualification']['status'],'unexercised');self.assertFalse(out['qualification']['treatment_exercised']);self.assertIsNone(out['causal_RMW_effect'])
         for bad in (text+log(capsule()),text.replace('rmw_exercised=0','rmw_exercised=1')):
             with self.assertRaises(AssertionError):analyze(fixture(),'synthetic123',bad,SOURCE)
+    def test_budget_cache_stats(self):
+        check=source_contract(SOURCE);check.requires_reference_cache=True
+        for hit in (0,1,95,96):
+            r=capsule();r['reference_cache']=dict(hit=hit,miss=144-hit,peak_entries=4)
+            self.assertEqual(qualification(log(r),check)['status'],'complete_native')
+        bad=[None,{},dict(hit=96,miss=48,peak_entries=3),dict(hit=97,miss=47,peak_entries=4),
+             dict(hit=0,miss=145,peak_entries=4),dict(hit=96.,miss=48,peak_entries=4),
+             dict(hit=True,miss=143,peak_entries=4),dict(hit=95,miss=48,peak_entries=4),
+             dict(hit=96,miss=48,peak_entries=4,extra=0)]
+        for value in bad:
+            r=capsule();r['reference_cache']=value
+            with self.assertRaises(AssertionError):qualification(log(r),check)
+        r=capsule()
+        with self.assertRaises(AssertionError):qualification(log(r),check)
+        # Valid fallback remains unexercised, without fictional native cache stats.
+        result=qualification('G_COMMON_QUAL_UNEXERCISED native_expert_Marlin_fallback rmw_exercised=0 backend\n',check)
+        self.assertFalse(result['treatment_exercised'])
+
+    def test_phase_coverage_and_new_source_registration(self):
+        check=source_contract(SOURCE)
+        check.requires_reference_cache=True;check.requires_prepare_phases=True
+        valid=capsule();valid['reference_cache']=dict(hit=96,miss=48,peak_entries=4)
+        valid['prepare_phases']=dict(PHASE_COUNTS,reference_back_miss=48)
+        valid['prepare_phase_seconds']={phase:0.01 for phase in valid['prepare_phases']}
+        valid['prepare_phase_elapsed_seconds']=sum(valid['prepare_phase_seconds'].values())
+        self.assertEqual(qualification(log(valid),check)['status'],'complete_native')
+        for key in valid['prepare_phases']:
+            for replacement in (0,True,float(valid['prepare_phases'][key])):
+                changed=copy.deepcopy(valid);changed['prepare_phases'][key]=replacement
+                with self.assertRaisesRegex(AssertionError,'prepare phase'):qualification(log(changed),check)
+        for replacement in (None,{},dict(valid['prepare_phases'],unexpected=1)):
+            changed=copy.deepcopy(valid);changed['prepare_phases']=replacement
+            with self.assertRaisesRegex(AssertionError,'prepare phase'):qualification(log(changed),check)
+        self.assertNotIn('82234b757e64242fa23d704a909c6996c602e3f0dae327fb66a67260243544d8',ALLOWED_SOURCES)
+        self.assertEqual(len(ALLOWED_SOURCES),3)
+        for change in (
+            lambda record:record.__setitem__('prepare_phase_seconds',{}),
+            lambda record:record['prepare_phase_seconds'].__setitem__('cleanup_begin',-1),
+            lambda record:record['prepare_phase_seconds'].__setitem__('cleanup_begin',True),
+            lambda record:record['prepare_phase_seconds'].__setitem__('cleanup_begin',float('nan')),
+            lambda record:record.__setitem__('prepare_phase_elapsed_seconds',295),
+            lambda record:record.__setitem__('prepare_phase_elapsed_seconds',1.0),
+            lambda record:record.__setitem__('prepare_phase_elapsed_seconds',True),
+        ):
+            changed=copy.deepcopy(valid);change(changed)
+            with self.assertRaises((AssertionError,ValueError)):qualification(log(changed),check)
+
+    def test_real_setup_failure_and_nonzero_cli_envelope(self):
+        receipt_path=ROOT/'muse_decode_layer/profiles/g-common-rmw.3fd1317143304bd5.terminal.json'
+        raw=read_receipt(receipt_path)
+        envelope=ROOT/'docs/steering/evidence/2026-11-01-rmw-wait-2258/persistent-wait-result.json'
+        self.assertEqual(read_receipt(envelope),raw)
+        archived=(ROOT/'muse_decode_layer/profiles/g-common-rmw.3fd1317143304bd5.log').read_text()
+        result=observe(raw,raw['id'],archived,SOURCE)
+        self.assertEqual(result['qualification']['status'],'setup_failed')
+        self.assertIsNone(result['official']['official_score']);self.assertFalse(result['release_decision'])
+        self.assertIsNone(result['causal_RMW_effect'])
+        for change in (
+            lambda receipt:receipt.__setitem__('id','wrong'),
+            lambda receipt:receipt.__setitem__('status','running'),
+            lambda receipt:receipt.__setitem__('payload_ref','wrong'),
+            lambda receipt:receipt['result'].__setitem__('speedup',1.1),
+            lambda receipt:receipt['result'].__setitem__('returncode',0),
+            lambda receipt:receipt['result']['records'].append(dict(event='benchmark',status='pass')),
+        ):
+            bad=copy.deepcopy(raw);change(bad)
+            with self.assertRaises(AssertionError):observe(bad,raw['id'],archived,SOURCE)
+        with tempfile.TemporaryDirectory() as directory:
+            path=Path(directory)/'bad.json'
+            for payload in ({'returncode':1},{'stdout':'not json'},{'stdout':'{}'}):
+                path.write_text(json.dumps(payload))
+                with self.assertRaises((AssertionError,ValueError)):read_receipt(path)
+
     def test_owning_log_and_source(self):
         with tempfile.TemporaryDirectory()as d:
             p=Path(d)/'synthetic123.log';p.write_bytes(log(capsule()).encode());r=fixture();r['output']['log']=str(p)
