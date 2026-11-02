@@ -1,0 +1,26 @@
+{
+  "reviewer": "root/ss_expert_geometry_review",
+  "decision": "SOURCE_FEASIBLE_FIXED_MID17to32_ORDINARY_EXPLORATION",
+  "base": "ba9",
+  "helper_native": "b8ed85438c06673f411ff4203080bfbacd0c0c2dc5cb624e6f10d4877fe7a716",
+  "bounded_closure_search": "No exactb8MIDT32targetclosurefound;ownedsk8w3s1fbb9fbf524f4ed7loss is caution,notexactbody",
+  "scope": [
+    "MIDlimit32",
+    "buildreps1,8,32,128 avoids sameMIDkeyconcurrency",
+    "actualprepared4keys+T32attestation",
+    "keep16/32/33all56startupandallnumerics",
+    "sourceMID288threads/<=8splitjobs<=60atT32<JMAX88;noM16devicehardcheck"
+  ],
+  "risks": [
+    "losesB4reuseforcounts>8",
+    "differentactivation/reductioncosts",
+    "actualwholelayerD32routinghistogramsnotavailable",
+    "targetM32math/admission/performanceunmeasured"
+  ],
+  "not_allowed": [
+    "newshader/math/packing/scratch",
+    "fakeB4tag/unusedB4build",
+    "helper/tile/thresholdsweep",
+    "same receipt posthocpromotion"
+  ]
+}
