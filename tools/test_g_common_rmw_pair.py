@@ -9,7 +9,7 @@ from g_short_rmw_check import build as old_build
 ROOT=Path(__file__).resolve().parents[1]
 os.environ['OKC_REPO_ROOT']=str(ROOT)
 os.environ['OKC_MOE_WORKTREE']=str(ROOT)
-os.environ['SRM_ARTIFACT']=str(ROOT/'.build/rmw-pair-v3/check.py')
+os.environ['SRM_ARTIFACT']=str(ROOT/'.build/rmw-pair-v4/check.py')
 import proj_g_short_rmw_host_test as old
 from test_g_common_release_host import Attention
 
@@ -42,7 +42,12 @@ def fixture():
 
 def native_run(self,*args):
     def op():
-        args[5].zero_();args[5].add_(1 if bool((args[3]>=0).any()) else 0)
+        ids=args[3];t=args[2].shape[0]
+        local=ids[ids>=0].to(torch.int64)
+        counts=torch.bincount(local,minlength=32)
+        assert int(counts.max())<=t,"SRP_FIXTURE_ROUTE_CAPACITY"
+        assert all(len(row[row>=0])==len(torch.unique(row[row>=0])) for row in ids),"SRP_FIXTURE_ROUTE_UNIQUE"
+        args[5].zero_();args[5].add_(1 if bool((ids>=0).any()) else 0)
     if old.G.active is not None:old.G.active.ops.append(op)
     op()
 
@@ -73,6 +78,30 @@ class Pair(unittest.TestCase):
             self.assertEqual(stats['oracle_checks'],576)
             self.assertEqual(r['seeds'],[993811,993817,993821])
             self.assertLess(len(base64.b64encode(zlib.compress(json.dumps(r).encode(),9))),11000)
+
+    def test_actual_entry_rejects_frozen_duplicate_fixture(self):
+        # Execute the old fixture through the actual generated prepare entry.
+        # Its first occupied T1 row violates the native per-expert capacity.
+        frozen=(ROOT/'.build/rmw-pair-v3/check.py').read_text()
+        ns,_,_,audit=fixture();saved=ns['_fork_native_moe']
+        exec(function(frozen,'_srp_occupied_empty'),ns)
+        with self.assertRaisesRegex(AssertionError,'SRP_FIXTURE_ROUTE_CAPACITY'):self.call(ns)
+        self.assertIs(ns['_fork_native_moe'],saved);self.assertFalse(audit.active)
+        self.assertIsNone(ns['_SRP_CACHE'])
+
+    def test_actual_entry_rejects_duplicate_below_capacity(self):
+        # T8 distributed IDs keep every expert count <=8 while one row repeats
+        # an expert: the distinct-ID contract must independently reject it.
+        occupied=function(SOURCE,'_srp_occupied_empty')
+        occupied=occupied.replace('for t in (1,8):','for t in (8,):')
+        occupied=occupied.replace('torch.arange(8,device=dev,dtype=torch.int32).expand(t,8).contiguous()',
+            'torch.arange(t*8,device=dev,dtype=torch.int32).reshape(t,8)%32')
+        occupied=occupied.replace('ids=occupied_ids.clone()',
+            'ids=occupied_ids.clone();ids[0,1]=ids[0,0]')
+        ns,_,_,audit=fixture();saved=ns['_fork_native_moe'];exec(occupied,ns)
+        with self.assertRaisesRegex(AssertionError,'SRP_FIXTURE_ROUTE_UNIQUE'):self.call(ns)
+        self.assertIs(ns['_fork_native_moe'],saved);self.assertFalse(audit.active)
+        self.assertIsNone(ns['_SRP_CACHE'])
 
     def test_failure_restores_and_cannot_print_success(self):
         for target in ('_WL_PREPARE','_wl_check','_srm_resource_gate'):
@@ -130,7 +159,7 @@ class Pair(unittest.TestCase):
         self.assertEqual(reader.MANIFEST,MANIFEST)
         result=reader.read(receipt(),'abc123',log(report))
         self.assertTrue(result['complete']);self.assertFalse(result['private_raw_gate'])
-        reader.verify_source(ROOT/'.build/rmw-pair-v3/check.py')
+        reader.verify_source(ROOT/'.build/rmw-pair-v4/check.py')
         changes=[lambda r:r.update(cleanup_restored=False),lambda r:r.update(common_control=False),
             lambda r:r.update(occupied_to_empty_checks=15),lambda r:r['actual_attention'].pop(),
             lambda r:r['common_resources']['tiny'][0].__setitem__(8,0),

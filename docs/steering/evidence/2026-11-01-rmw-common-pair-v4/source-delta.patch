@@ -1,0 +1,30 @@
+--- frozen-v3-c4a5ee29
++++ legal-fixture-v4-785a90ca
+@@ -17828,7 +17828,8 @@
+         for arm in arms:
+             dev=arm['qkv'].device
+             x=torch.randn((t,4096),device=dev,dtype=torch.bfloat16)
+-            ids=torch.zeros((t,8),device=dev,dtype=torch.int32)
++            occupied_ids=torch.arange(8,device=dev,dtype=torch.int32).expand(t,8).contiguous()
++            ids=occupied_ids.clone()
+             weights=torch.full((t,8),.125,device=dev,dtype=torch.float32)
+             out=torch.full_like(x,17);ext=_fork_native_moe(t,arm)
+             def call():
+@@ -17837,7 +17838,7 @@
+             graph=torch.cuda.CUDAGraph()
+             with torch.cuda.graph(graph):call()
+             for occupied in (True,False,True,False):
+-                _srp_budget();ids.fill_(0 if occupied else -1)
++                _srp_budget();ids.copy_(occupied_ids) if occupied else ids.fill_(-1)
+                 graph.replay();torch.cuda.synchronize()
+                 assert bool(torch.isfinite(out).all()),'SRP_OCCUPIED_EMPTY_NONFINITE'
+                 if occupied:
+@@ -17990,7 +17991,7 @@
+ _WL_PIN='4cbb13a9a359c9fe870a94ebcabc4706447778849f71d4aa54e47d69abbd1280'
+ _WL_CONFORMANCE={'candidate_pin': '4cbb13a9a359c9fe870a94ebcabc4706447778849f71d4aa54e47d69abbd1280', 'job_id': 'c1931f0c9e834485', 'scope': 'common + ON single-arm qualification; OFF official tests required in owning paired receipt', 'qualified_on_source_sha256': '978b29f955dbbab3a67aad0cc06a04148aba9d233ac95bdcac45d1efd141fc2a'}
+ _WL_DEVICE_SHA='aea9735e7d91a7d51a7afe63c8cf0774b5bbd15de6ab416bbc5acbd2469ddbd2'
+-_WL_CORE_SHA='d2e96c73998491eb20294b06b222b7f3742720a0dc5e9231287e11b4976b5ad0'
++_WL_CORE_SHA='e5229e040d90ddb2f27ef1072f49d346aac87c6c123ef66f2ea4124e9f2f732f'
+ def _srm_resource_gate(arms,budget):
+     result={}
+     for key,t in (('tiny',1),('tiny2',8),('mid',16),('b4',32),('main',128)):

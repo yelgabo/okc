@@ -67,7 +67,8 @@ def _srp_occupied_empty(arms):
         for arm in arms:
             dev=arm['qkv'].device
             x=torch.randn((t,4096),device=dev,dtype=torch.bfloat16)
-            ids=torch.zeros((t,8),device=dev,dtype=torch.int32)
+            occupied_ids=torch.arange(8,device=dev,dtype=torch.int32).expand(t,8).contiguous()
+            ids=occupied_ids.clone()
             weights=torch.full((t,8),.125,device=dev,dtype=torch.float32)
             out=torch.full_like(x,17);ext=_fork_native_moe(t,arm)
             def call():
@@ -76,7 +77,7 @@ def _srp_occupied_empty(arms):
             graph=torch.cuda.CUDAGraph()
             with torch.cuda.graph(graph):call()
             for occupied in (True,False,True,False):
-                _srp_budget();ids.fill_(0 if occupied else -1)
+                _srp_budget();ids.copy_(occupied_ids) if occupied else ids.fill_(-1)
                 graph.replay();torch.cuda.synchronize()
                 assert bool(torch.isfinite(out).all()),'SRP_OCCUPIED_EMPTY_NONFINITE'
                 if occupied:
