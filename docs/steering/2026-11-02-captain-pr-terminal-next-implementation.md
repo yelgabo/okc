@@ -1,5 +1,7 @@
 # PR target build failure and next implementation
 
+November2 dated correction: the content-delta access paragraph below used the wrong keell0renz/okc repository URL. The known keell0renz/muse-open-kernel-challenge source is accessible and identical to its archived LF pin. See [corrected primary retrieval](2026-11-02-captain-source-access-correction.md); historical404 receipts are preserved, not treated as a reference access blocker.
+
 November 2, 2026. Owning terminal archive `335887c`; job `60b38a62a135442c`; previous allocation `218a048`. This closes the pending result in the host-gate report. The top100 objective is not achieved and the public incumbent is unchanged.
 
 ## Actual outcome and accountability
