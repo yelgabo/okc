@@ -1,5 +1,28 @@
 # okc: Open Kernel Challenge work
 
+## P0 user directive: decode batch 32 (2026-11-02)
+
+The user explicitly reiterated: **"make it priority for them please"**.
+**OK Driver and OKC Developer: improving decode batch 32 is the primary next
+performance assignment**, not optional background research. This means T=32,
+q_len=1, with `46 * sliding_us + 16 * full_us`; it is not verify32/T256.
+Read [the owner directive](docs/steering/2026-11-02-decode32-owner-directive.md)
+and record actual pickup there. Preserve local work when fetching updates.
+
+OK Driver remains sole dispatcher. Finish/reconcile accepted job
+`0b684a4065354fc5` without duplicate submission, and report its two D32 cells
+and weighted total first. Deliver this priority to OKC Developer through the
+existing coordination channel and record delivery and acknowledgment separately.
+OKC Developer prioritizes the T32/B4 expert path in both contexts, then D32
+full-context attention, keeping other load winners unchanged. Pause new
+unrelated T1/T8 or T128/256-only performance work unless it is a necessary
+correctness/measurement dependency or the user changes priority. The first
+milestone is a reproducible D32 2.0x from the recorded 1.8632x, then 2.1-2.2x;
+these are targets, not promised gains. Existing correctness, frozen-run stop
+rules and submission permissions remain. This directive does not authorize a
+second dispatcher, new agents, duplicate jobs or public submission. A commit
+is not evidence of direct delivery or agent acknowledgment.
+
 Background and decisions: `docs/context.md`. Coordinator working method (agents, quota,
 submits, porting, traps): `.claude/agents/okc-coordinator.md`. Every run: `docs/runs.md` (bf16_proj),
 `docs/runs-moe.md`, `docs/runs-attention.md`.
