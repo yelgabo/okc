@@ -1,0 +1,8 @@
+test_real_compiler_inputs_and_source_identity (__main__.Packaging.test_real_compiler_inputs_and_source_identity) ... ok
+test_source_drift_rejects_before_build (__main__.Packaging.test_source_drift_rejects_before_build) ... ok
+test_state_binding_guards_and_duplicate_build_reuse (__main__.Packaging.test_state_binding_guards_and_duplicate_build_reuse) ... ok
+
+----------------------------------------------------------------------
+Ran 3 tests in 2.092s
+
+OK

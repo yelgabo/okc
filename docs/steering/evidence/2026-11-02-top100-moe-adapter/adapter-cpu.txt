@@ -1,0 +1,15 @@
+test_actual_compiler_calls_match_pinned_control_and_candidate (__main__.AdapterTests.test_actual_compiler_calls_match_pinned_control_and_candidate) ... ok
+test_actual_full_scratch_factory_sizes_initialization_and_guard_views (__main__.AdapterTests.test_actual_full_scratch_factory_sizes_initialization_and_guard_views) ... ok
+test_actual_prepare_and_all_entrypoint_routes (__main__.AdapterTests.test_actual_prepare_and_all_entrypoint_routes) ... ok
+test_deterministic_pins_closure_and_delivered_payload (__main__.AdapterTests.test_deterministic_pins_closure_and_delivered_payload) ... ok
+test_four_independent_preparations_and_guard_corruption (__main__.AdapterTests.test_four_independent_preparations_and_guard_corruption) ... ok
+test_invalid_config_metadata_arm_and_current_device (__main__.AdapterTests.test_invalid_config_metadata_arm_and_current_device) ... ok
+test_prepare_rejects_deadline_architecture_scales_and_capture (__main__.AdapterTests.test_prepare_rejects_deadline_architecture_scales_and_capture) ... ok
+test_real_cpu_packing_and_lossless_sc6_wgs_layout (__main__.AdapterTests.test_real_cpu_packing_and_lossless_sc6_wgs_layout) ... ok
+test_source_drift_rejects_delivered_files_and_edit_anchors (__main__.AdapterTests.test_source_drift_rejects_delivered_files_and_edit_anchors) ... ok
+test_weight_bank_adapter_metadata_and_global_scale_slicing (__main__.AdapterTests.test_weight_bank_adapter_metadata_and_global_scale_slicing) ... ok
+
+----------------------------------------------------------------------
+Ran 10 tests in 1.683s
+
+OK
