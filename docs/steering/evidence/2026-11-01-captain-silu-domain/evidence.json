@@ -1,0 +1,99 @@
+{
+  "evidence_base": "fda7d282f97b9be82332297f28b2c1427588e2d2",
+  "board_snapshots": [
+    {
+      "board": "overall",
+      "url": "https://openkernelchallenge.dev/api/leaderboard",
+      "started_at_utc": "2026-11-02T03:16:57.019Z",
+      "finished_at_utc": "2026-11-02T03:16:57.192Z",
+      "raw_sha256": "09e65aab9bbaf0f57e011a0f4ad9b3f6ebe000119f45d6529dc6d4dcc760a956",
+      "competitor_count": 1834,
+      "own": {
+        "rank": 334,
+        "team": "yelgabo",
+        "solved": 4
+      },
+      "rank100": {
+        "rank": 100,
+        "team": "EdDiboi",
+        "solved": 4
+      }
+    },
+    {
+      "board": "muse_decode_layer",
+      "url": "https://openkernelchallenge.dev/api/leaderboard/muse_decode_layer",
+      "started_at_utc": "2026-11-02T03:16:57.193Z",
+      "finished_at_utc": "2026-11-02T03:16:57.260Z",
+      "raw_sha256": "59c9b1f4132d0a7222dccc4d329739af69c755eee811a61d78923cd48829f276",
+      "competitor_count": 1174,
+      "own": {
+        "job": "607eb52bdaf24160",
+        "team": "yelgabo",
+        "speedup": 2.1260826764231093,
+        "submitted_at": 1793534312.3883686,
+        "attempts": 42,
+        "value": 10639.426326569794,
+        "rank": 334
+      },
+      "rank100": {
+        "job": "b0f8afabb94449ee",
+        "team": "EdDiboi",
+        "speedup": 2.256537450907553,
+        "submitted_at": 1793556834.0067058,
+        "attempts": 26,
+        "value": 10024.340606845404,
+        "rank": 100
+      }
+    }
+  ],
+  "first100_overall_layer_mismatches": 0,
+  "rank_scope": "Server overall ranks queried independently; layer ranks derive from server ordered rows excluding baseline teams. Agreement is observational, not proof of ranking formula.",
+  "layer_cutoff_factor": 1.0613592199076278,
+  "layer_required_latency_reduction_pct": 5.781192527160406,
+  "domain_proof": {
+    "scope": "CPU IEEE-754 embedding and index only; not CUDA intrinsic, NaN payload, epilogue equivalence, legality or performance proof",
+    "counts": {
+      "raw_words": 65536,
+      "finite": 65280,
+      "infinity": 2,
+      "nan": 254,
+      "subnormal": 254,
+      "finite_roundtrip_failures": 0,
+      "finite_index_failures": 0,
+      "negative_zero_preserved": true
+    }
+  },
+  "source": {
+    "path": ".build/rmw-pair-v4/check.py",
+    "sha256": "785a90ca08ddde0c3b194fc219a0645cb8cd14bac02620d8714f0b66163a0b66",
+    "bytes": 924005
+  },
+  "official_rules": {
+    "url": "https://openkernelchallenge.dev/assets/index-VBg5pvCv.js",
+    "sha256": "25be306883059fe907ffba40f3f303427b9f88f861ae9ff62afec57762b72358",
+    "bytes": 448958,
+    "rules_constant_offset": 431355,
+    "scope": "Full served rules inspected; no full copyrighted bundle archived; LUT eligibility unresolved."
+  },
+  "independent_discovery": {
+    "method": "GitHub repository metadata searches, not source adoption",
+    "queries": [
+      "user:EdDiboi",
+      "user:can1357 muse",
+      "user:pierrelouisdelx kernel",
+      "user:Selyss muse",
+      "user:pierrelouisdelx",
+      "user:Selyss",
+      "user:can1357 kernel"
+    ],
+    "conclusion": "No verified Muse challenge implementation from these returned metadata results. Broadened two empty keyword searches to user inventories; this is not exhaustive proof of absence. No code imported."
+  },
+  "terminal_archive": {
+    "publication": "339523d3f6138b5e44fa66ff9a39272a8c80a231",
+    "manifest_count": 19,
+    "manifest_failures": [],
+    "job": "c5e4f89672f743bb",
+    "decision": "RMW-only promotion closed; no fourth check"
+  }
+}
+
