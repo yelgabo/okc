@@ -1,0 +1,47 @@
+{
+  "source_sha256": "ad314060c98ccdde81a1a38b9f7454d7e4fdbb185d178094e3f197f9c8baa75b",
+  "bytes": 943363,
+  "control_sha256": "4cbb13a9a359c9fe870a94ebcabc4706447778849f71d4aa54e47d69abbd1280",
+  "device_sha256": "ee5647e692b3132b9f7ff5b937a6e722bf987104cea4419fb8654320ce6628d0",
+  "core_sha256": "bd22a8f4070d1245610a5639edc08c2c95856c9e249eb093877f95c205fe5f4d",
+  "conformance": {
+    "candidate_pin": "4cbb13a9a359c9fe870a94ebcabc4706447778849f71d4aa54e47d69abbd1280",
+    "authorization": "c4739708830cdb68ca138f83206de6945c4b0c82",
+    "scope": "outgoing seam requires owning runtime qualification; historical RMW PASS is not seam proof"
+  },
+  "prior_instrument_sha256": "785a90ca08ddde0c3b194fc219a0645cb8cd14bac02620d8714f0b66163a0b66",
+  "arms": [
+    "rawOFF1",
+    "rawOFF2",
+    "adapterOFF",
+    "adapterON"
+  ],
+  "seeds": [
+    993811,
+    993817,
+    993821
+  ],
+  "rows": 36,
+  "rounds": 24,
+  "flush_bytes": 268435456,
+  "total_guard_s": 295,
+  "build_census": {
+    "primary_native": 5,
+    "added_secondary_adapter": 1,
+    "original_secondary_factory_reused": true,
+    "attention_factory_reused": true,
+    "other_original_preparation_factories_unchanged": true
+  },
+  "host_compilation": "NOT_RUN; same allocated target check only",
+  "private_check_only": true,
+  "parent_upload_sha256": "f25d714e928835fba07741ca56fa8783137032f268652c22ec4f5511d771bc9a",
+  "driver_identity_namespace": "CUDA13:CUfunction",
+  "driver_link_flags": [
+    "-lcuda"
+  ],
+  "reverse_exact": true,
+  "schema": 4,
+  "allocation": "captain explicit one repaired check, November2 05:38UTC; next failure closes lane",
+  "repaired_authorization_commit": "1a20b31",
+  "host_delta_operations": 21
+}

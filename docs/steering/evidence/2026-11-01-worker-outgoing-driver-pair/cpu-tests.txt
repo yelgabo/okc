@@ -1,0 +1,31 @@
+test_exact_fixed_code_and_host_only_literal_changes (test_g_outgoing_driver_pair.IntegrationSpecific.test_exact_fixed_code_and_host_only_literal_changes) ... ok
+test_integrated_policy_owner_and_foreign_failure_negatives (test_g_outgoing_driver_pair.IntegrationSpecific.test_integrated_policy_owner_and_foreign_failure_negatives) ... ok
+test_reader_rejects_identity_and_linkage_drift (test_g_outgoing_driver_pair.IntegrationSpecific.test_reader_rejects_identity_and_linkage_drift) ... ok
+test_real_graph_entry_prefix_and_namespace_negatives (test_g_outgoing_driver_pair.IntegrationSpecific.test_real_graph_entry_prefix_and_namespace_negatives) ... ok
+test_real_loader_wires_linker_and_preserves_cuda_flags (test_g_outgoing_driver_pair.IntegrationSpecific.test_real_loader_wires_linker_and_preserves_cuda_flags) ... ok
+test_full_entry_and_owning_capsule (test_g_outgoing_driver_pair.RealEntry.test_full_entry_and_owning_capsule) ... ok
+test_graph_failure_restores_without_success (test_g_outgoing_driver_pair.RealEntry.test_graph_failure_restores_without_success) ... ok
+test_frozen_source_and_unchanged_instrument_paths (test_g_outgoing_driver_pair.ScoreAndEdges.test_frozen_source_and_unchanged_instrument_paths) ... ok
+test_graph_identity_and_edge_data_negatives (test_g_outgoing_driver_pair.ScoreAndEdges.test_graph_identity_and_edge_data_negatives) ... ok
+test_missing_duplicate_nonfinite_rows (test_g_outgoing_driver_pair.ScoreAndEdges.test_missing_duplicate_nonfinite_rows) ... ok
+test_net_mapping_and_non_cancelling_null (test_g_outgoing_driver_pair.ScoreAndEdges.test_net_mapping_and_non_cancelling_null) ... ok
+test_existing_edge_gates_not_weakened (test_g_outgoing_driver_query.DriverBridgeTests.test_existing_edge_gates_not_weakened) ... ok
+test_identity_namespace_and_old_stub_negatives (test_g_outgoing_driver_query.DriverBridgeTests.test_identity_namespace_and_old_stub_negatives) ... ok
+test_mixed_foreign_nodes_and_both_modes (test_g_outgoing_driver_query.DriverBridgeTests.test_mixed_foreign_nodes_and_both_modes) ... ok
+test_prefix_survives_foreign_node_failure (test_g_outgoing_driver_query.DriverBridgeTests.test_prefix_survives_foreign_node_failure) ... ok
+test_real_scratch_entry_calls_only_canonical_exports (test_g_outgoing_driver_query.DriverBridgeTests.test_real_scratch_entry_calls_only_canonical_exports) ... ok
+test_source_negatives_and_failed_pins (test_g_outgoing_driver_query.DriverBridgeTests.test_source_negatives_and_failed_pins) ... ok
+test_actual_unpool_factory_flags_including_nonzero_delay (test_g_short_outgoing_seam.OutgoingSeam.test_actual_unpool_factory_flags_including_nonzero_delay) ... ok
+test_bad_shape_route_selection_and_missing_state_fail_closed (test_g_short_outgoing_seam.OutgoingSeam.test_bad_shape_route_selection_and_missing_state_fail_closed) ... ok
+test_interleaved_controls_have_no_setter_or_policy_leak (test_g_short_outgoing_seam.OutgoingSeam.test_interleaved_controls_have_no_setter_or_policy_leak) ... ok
+test_native_device_prefix_exact_and_scoped_host_argument (test_g_short_outgoing_seam.OutgoingSeam.test_native_device_prefix_exact_and_scoped_host_argument) ... ok
+test_only_role_un_and_tokens_one_eight (test_g_short_outgoing_seam.OutgoingSeam.test_only_role_un_and_tokens_one_eight) ... ok
+test_real_dense_dispatch_both_arms_tokens_and_private_states (test_g_short_outgoing_seam.OutgoingSeam.test_real_dense_dispatch_both_arms_tokens_and_private_states) ... ok
+test_reverse_pins_and_exact_single_policy_delta (test_g_short_outgoing_seam.OutgoingSeam.test_reverse_pins_and_exact_single_policy_delta) ... ok
+test_selected_cl_one_x_data_is_after_wait_proxy (test_g_short_outgoing_seam.OutgoingSeam.test_selected_cl_one_x_data_is_after_wait_proxy) ... ok
+test_shared_extension_and_later_python_flag_changes_cannot_leak (test_g_short_outgoing_seam.OutgoingSeam.test_shared_extension_and_later_python_flag_changes_cannot_leak) ... ok
+
+----------------------------------------------------------------------
+Ran 26 tests in 25.755s
+
+OK
