@@ -1,8 +1,10 @@
 # Shared project steering
 
+Latest H200 result: [Repaired RMW arm terminal qualification](2026-11-01-rmw-v2-h200-terminal.md), own PRIVATEc1931f0c9e834485. Full native startup/RMWexercise and13tests/12benchmarks/12profiles PASS; prepare109.269811s. Score2.121241x,CI[2.089422,2.153060]; historical607 point comparison-0.227725% is unmatched, not an RMW effect/promotion. Six46:16loads, full raw/adjusted timings, phase+cleanup/resources and owning receipts archived.1/4 private tranche used;9checks/5scored/no live at terminal. No follow-on/public dispatch; next gate is matched attribution protocol and remaining G short-path budget.
+
 Latest T3 test audit: [Four baseline Windows failures](2026-11-01-t3-windows-test-failures.md), evidence `abc66ce`. All four reproduce on upstream `fa31b66b`; one test-harness POSIX/native-path mismatch explains skipped recovery and unequal lease keys. Test-only correction passes all42 tests plus server typecheck and changed-file format/lint. Production uses native paths. Standalone patch retained; no new PR, existing PR change or live-install modification.
 
-Latest private dispatch: repaired ON check **c1931f0c9e834485** accepted November2 00:10:29UTC from implementation a0b6af2, mode check, correct layer board. First own receipt is queued/result null; no GPU qualification or performance claim yet. [Implementation/own-ID evidence](2026-11-01-qualifier-inference-repair.md). One of capped4 private checks used; no public submission or automatic retry.
+Historical accepted-job snapshot: repaired ON check **c1931f0c9e834485** accepted November2 00:10:29UTC from implementation a0b6af2, mode check, correct layer board. First own receipt is queued/result null; no GPU qualification or performance claim yet. [Implementation/own-ID evidence](2026-11-01-qualifier-inference-repair.md). One of capped4 private checks used; no public submission or automatic retry.
 
 Latest implementation registration: [November 1 qualifier inference repair and first private H200 check](2026-11-01-qualifier-inference-repair.md). Final OFF32196b8b/918490B and ON978b29f9/918978B regenerate identically;32 CPU tests pass. Normal production preparation and native/timed source are unchanged. First repaired ON private check is registered with full startup/official/actual-exercise gates; no separate COMMON-first or private1% prerequisite for measurement. Initial tranche capped at4 private checks; single-arm result is descriptive, promotion retains matched all-six/held-out/duplicate-null/regression gates. Live reset5scored/10checks; public submission requires direct user authorization.
 
@@ -652,6 +654,8 @@ accounting, and running a corrected matched whole-layer comparison. It records
 recommendations, not execution of those tasks; check current code and run logs for status.
 
 ## Report history
+
+- [2026-11-01 repaired RMW arm H200 terminal result](2026-11-01-rmw-v2-h200-terminal.md): ownc193 complete-native qualification, actual RMWexercise,109.27s setup and2.121241x descriptive score; unmatched six-load/phase/resource evidence and next gate.
 
 - [2026-11-01 qualifier inference repair and first private H200 check](2026-11-01-qualifier-inference-repair.md): exact repaired ON/OFF pins,32 CPU tests, complete source invariants, explicit private receipt mode and bounded first-check registration.
 

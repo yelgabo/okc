@@ -1,0 +1,54 @@
+{
+  "job": "c1931f0c9e834485",
+  "source_sha256": "978b29f955dbbab3a67aad0cc06a04148aba9d233ac95bdcac45d1efd141fc2a",
+  "files": {
+    "docs/steering/evidence/2026-11-01-qualifier-inference-repair/c1931f0c9e834485.terminal.json": {
+      "bytes": 87664,
+      "sha256": "a6c51d6b971ba67d8074aeb7bd345f449d75f9db7acd5fc5cfa2ce74db8c62d8"
+    },
+    "docs/steering/evidence/2026-11-01-qualifier-inference-repair/c1931f0c9e834485.log": {
+      "bytes": 14044,
+      "sha256": "bb1f08781b14f03479f8a1e33d796eb49d73984c32ff069cd731b20ce32e82ff"
+    },
+    "docs/steering/evidence/2026-11-01-qualifier-inference-repair/c1931f0c9e834485.observation.json": {
+      "bytes": 72873,
+      "sha256": "07b8dc21f5b02f2a77c358addd75edd2077038cb1e001e7af3171ad52d896d4e"
+    },
+    "docs/steering/evidence/2026-11-01-qualifier-inference-repair/c1931f0c9e834485.measured-summary.json": {
+      "bytes": 2387,
+      "sha256": "696d0d4dad80e6a5e61024bed233d72dd32fad12f1a48dc983e793e2ac1a98d8"
+    },
+    "docs/steering/evidence/2026-11-01-qualifier-inference-repair/c1931f0c9e834485.hotspots.md": {
+      "bytes": 5694,
+      "sha256": "631144aed811a9dfaff4949ab5b8f434a49a91a85b7043b9bb2a116d11339058"
+    },
+    "docs/steering/evidence/2026-11-01-qualifier-inference-repair/own-terminal-cli.json": {
+      "bytes": 93772,
+      "sha256": "e9cd3993241d75330cf62000612c046bb323879dc56188cc641be40224255a4c"
+    },
+    "docs/steering/evidence/2026-11-01-qualifier-inference-repair/own-terminal-reader-cli.json": {
+      "bytes": 851,
+      "sha256": "4e5c0e81c25a4516329d29e5994633b7d735265af1969efb9feeea08f471f98d"
+    },
+    "docs/steering/evidence/2026-11-01-qualifier-inference-repair/terminal-jobs.json": {
+      "bytes": 16128,
+      "sha256": "5c66ca78225fb6defb91ea2be670462d38cfe4d6387f366c589035df447b8f13"
+    },
+    "docs/steering/evidence/2026-11-01-qualifier-inference-repair/terminal-quota.json": {
+      "bytes": 1951,
+      "sha256": "40b13741cd906a12b198877a42e140e7058c77cc5a93207957a39c9d32e6a102"
+    },
+    "muse_decode_layer/profiles/g-common-rmw-v2.c1931f0c9e834485.json": {
+      "bytes": 57705,
+      "sha256": "9e666b62abb6b4ff88a138b5a8bd6c5f9905101d3233ebf4b70d0279a3ca70e3"
+    },
+    "muse_decode_layer/profiles/g-common-rmw-v2.c1931f0c9e834485.log": {
+      "bytes": 14044,
+      "sha256": "bb1f08781b14f03479f8a1e33d796eb49d73984c32ff069cd731b20ce32e82ff"
+    },
+    "muse_decode_layer/profiles/g-common-rmw-v2.c1931f0c9e834485.txt": {
+      "bytes": 13831,
+      "sha256": "acf0c75dfe116e358d8cb1da0b49f74d580d9e83c4da35f33192f3ad6d8600ff"
+    }
+  }
+}

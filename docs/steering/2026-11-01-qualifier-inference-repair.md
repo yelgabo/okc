@@ -1,5 +1,11 @@
 # Qualifier inference repair and first H200 private-check registration
 
+Terminal addendum November2 00:49UTC: ownc1931f0c9e834485 PASSES complete native
+startup and official H200 evaluation in109.27s preparation,score2.121241x.
+The queued/null states below are historical. See the [terminal report](2026-11-01-rmw-v2-h200-terminal.md)
+for all six weighted loads, actual exercise/resources, phase/cleanup timing and
+the descriptive-only comparison. No promotion or additional dispatch.
+
 November 1, 2026, local Pacific time; registration after November 2 00:00 UTC reset.
 Implementation began from main aff51efe21c8fe112bd89e1360ef76145375b032;
 pre-registration evidence HEAD is 5705f88e3c0a527a91beacfeb5e9f25ad2e1d1fc.

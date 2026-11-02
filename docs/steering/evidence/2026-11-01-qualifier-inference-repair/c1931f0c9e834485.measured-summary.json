@@ -1,0 +1,75 @@
+{
+  "job": "c1931f0c9e834485",
+  "scope": "Unmatched descriptive comparison to historical607; not RMW causality or promotion",
+  "official_score": 2.1212410493206884,
+  "official_ci": [
+    2.089422433580878,
+    2.1530596650604985
+  ],
+  "control_job": "607eb52bdaf24160",
+  "control_score": 2.1260826764231093,
+  "score_ratio": 0.9977227474942008,
+  "official_log_gain": -0.0022798493885410652,
+  "official_percent_change": -0.22772525057992432,
+  "latency_only_log_gain": -0.0005463675050261879,
+  "latency_only_geomean_factor": 0.9994537817265194,
+  "latency_only_percent_gain": -0.054621827348057345,
+  "weighted_loads": [
+    {
+      "load": "decode 1",
+      "new_weighted_us": 77.72000133378246,
+      "old_weighted_us": 78.54904481802234,
+      "latency_change_percent": -1.0554469327546334
+    },
+    {
+      "load": "decode 16",
+      "new_weighted_us": 157.98884122989853,
+      "old_weighted_us": 158.24100957331893,
+      "latency_change_percent": -0.15935713763477466
+    },
+    {
+      "load": "decode 32",
+      "new_weighted_us": 197.41751489114174,
+      "old_weighted_us": 191.73973579615884,
+      "latency_change_percent": 2.9611906323992354
+    },
+    {
+      "load": "verify 1",
+      "new_weighted_us": 112.81525796508504,
+      "old_weighted_us": 115.9908228996333,
+      "latency_change_percent": -2.737772571280117
+    },
+    {
+      "load": "verify 16",
+      "new_weighted_us": 273.34101888272687,
+      "old_weighted_us": 269.347029111948,
+      "latency_change_percent": 1.4828415906227965
+    },
+    {
+      "load": "verify 32",
+      "new_weighted_us": 359.0607321773984,
+      "old_weighted_us": 359.29721608943515,
+      "latency_change_percent": -0.06581846489395193
+    }
+  ],
+  "prepare_seconds": 109.269811068,
+  "phase_elapsed_seconds": 109.26967187899936,
+  "normal_prepare_seconds": 106.90144866799892,
+  "private_plus_other_seconds": 2.3682232110004406,
+  "front_reference_bf16_fp8_seconds": 1.5390205929943477,
+  "reference_back_miss_seconds": 0.3015774749983393,
+  "cleanup_seconds": 0.00011183800052094739,
+  "reference_cache": {
+    "hit": 90,
+    "miss": 54,
+    "peak_entries": 4
+  },
+  "phase_events": 385,
+  "qualification": "complete_native",
+  "treatment_exercised": true,
+  "paired": false,
+  "promotion": false,
+  "causal_RMW_effect": null,
+  "started_at": "2026-11-02T00:45:20.293Z",
+  "finished_at": "2026-11-02T00:49:11.577Z"
+}
