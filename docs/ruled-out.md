@@ -1,5 +1,11 @@
 # Ruled out
 
+## November2UTC2026 exact pre-gamma standalone component target
+
+| Treatment | Evidence | Scope and reopening condition |
+| --- | --- | --- |
+| Frozen source8f12932a/344689LF bytes, candidate dff221ae/native3cc12ae0, two-control/two-candidate standalone instrument | Own PRIVATE56e0c8b5634545e6, preregadcfa8e5, allocation2f25832e. H200 PASS5official/6bench/6profiles,54cases/378observations/216captures/1152timings; prepare272.221708s. Strict frozen reader valid but component_pass=false: all6bank/distribution/all24equal-six cross factors below1.01;16of18affected cells flag>=1%regression. Official2.3324833815x CI[2.2974961308,2.3674706322] is versusSGLang, not the paired improvement. `steering/2026-11-02-worker-moe-component-terminal.md` and complete owning raw evidence. | PARK exact treatment/allocation, no repair/tune/retry/shape rescue/follow-on/public/default action. Valid negative component result, NOT generic pre-gamma-family rejection or measured layer loss. Unchanged-load drift retained; no instruction-level causal claim. Reopen only on material new decision-changing evidence and explicit new bounded allocation; remaining quota is not permission. |
+
 ## November 2 UTC 2026 fully timed SiLU ordinary target
 
 | Treatment | Evidence | Scope and reopening condition |
