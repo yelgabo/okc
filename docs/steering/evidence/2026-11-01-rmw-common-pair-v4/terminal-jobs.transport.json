@@ -1,0 +1,14 @@
+{
+  "command": [
+    "wsl",
+    "--cd",
+    "/mnt/c/Users/gretc/Documents/GitHub/okc",
+    "--exec",
+    "/usr/local/bin/okc",
+    "jobs",
+    "--json"
+  ],
+  "at": "2026-11-02T02:53:24.850Z",
+  "exitcode": 0,
+  "stderr": ""
+}

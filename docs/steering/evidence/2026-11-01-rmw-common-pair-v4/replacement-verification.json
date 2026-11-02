@@ -1,0 +1,49 @@
+{
+  "job": "c5e4f89672f743bb",
+  "archive_files_verified": 19,
+  "verified_paths": [
+    "docs/steering/evidence/2026-11-01-rmw-common-pair-v4/archive-terminal.py",
+    "docs/steering/evidence/2026-11-01-rmw-common-pair-v4/derive-terminal.py",
+    "docs/steering/evidence/2026-11-01-rmw-common-pair-v4/own-terminal-receipt.json",
+    "docs/steering/evidence/2026-11-01-rmw-common-pair-v4/own-terminal-transport.json",
+    "docs/steering/evidence/2026-11-01-rmw-common-pair-v4/terminal-derived.json",
+    "docs/steering/evidence/2026-11-01-rmw-common-pair-v4/terminal-jobs.json",
+    "docs/steering/evidence/2026-11-01-rmw-common-pair-v4/terminal-jobs.transport.json",
+    "docs/steering/evidence/2026-11-01-rmw-common-pair-v4/terminal-log-attestation.json",
+    "docs/steering/evidence/2026-11-01-rmw-common-pair-v4/terminal-quota.json",
+    "docs/steering/evidence/2026-11-01-rmw-common-pair-v4/terminal-quota.transport.json",
+    "docs/steering/evidence/2026-11-01-rmw-common-pair-v4/terminal-reader-observation.json",
+    "docs/steering/evidence/2026-11-01-rmw-common-pair-v4/terminal-reader-transport.json",
+    "docs/steering/evidence/2026-11-01-rmw-common-pair-v4/terminal-reader.stderr.txt",
+    "docs/steering/evidence/2026-11-01-rmw-common-pair-v4/terminal-reader.stdout.txt",
+    "docs/steering/evidence/2026-11-01-rmw-common-pair-v4/terminal-summary.json",
+    "docs/steering/evidence/2026-11-01-rmw-common-pair-v4/terminal-weighted-rows.csv",
+    "muse_decode_layer/profiles/g-common-rmw-pair-v4.c5e4f89672f743bb.json",
+    "muse_decode_layer/profiles/g-common-rmw-pair-v4.c5e4f89672f743bb.log",
+    "muse_decode_layer/profiles/g-common-rmw-pair-v4.c5e4f89672f743bb.txt"
+  ],
+  "frozen_pins_verified": [
+    ".build/rmw-pair-v4/check.py",
+    "tools/g_common_rmw_pair_read.py",
+    "tools/g_common_rmw_pair_manifest.json"
+  ],
+  "reader_exitcode": 0,
+  "reader_stdout": "{\"job\": \"c5e4f89672f743bb\", \"complete\": true, \"private_raw_gate\": false}",
+  "reader_stderr": "",
+  "nonfloat_fields_exact_and_floats_within_1e14_relative_1e15_absolute": true,
+  "cross_platform_numeric_differences": [
+    {
+      "path": "root.decision.seeds.2.sixload_log_contribution.2",
+      "archived": 0.0015062961728737883,
+      "local": 0.0015062961728737885
+    },
+    {
+      "path": "root.decision.seeds.2.raw_allrow_log_contribution.2",
+      "archived": 0.0013104917247237658,
+      "local": 0.001310491724723766
+    }
+  ],
+  "complete": true,
+  "private_raw_gate": false,
+  "scope": "Local CPU archive verification only; no judge, GPU, quota, or job-status requests"
+}

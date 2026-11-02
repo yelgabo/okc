@@ -1,0 +1,78 @@
+{
+  "docs/steering/evidence/2026-11-01-rmw-common-pair-v4/archive-terminal.py": {
+    "bytes": 3732,
+    "sha256": "8de4185dcea99a069e2ff6f4de56bb32978f2e0072a720940ec0d3b9ea95c01c"
+  },
+  "docs/steering/evidence/2026-11-01-rmw-common-pair-v4/derive-terminal.py": {
+    "bytes": 3824,
+    "sha256": "94e5ebe44c272398c0b2b4282c3a8da20da7de68d207f582442fbcfe3854c93d"
+  },
+  "docs/steering/evidence/2026-11-01-rmw-common-pair-v4/own-terminal-receipt.json": {
+    "bytes": 81204,
+    "sha256": "9bbdf8d0f63051259e6ff2aa90199d966059d8f97d8527252e37404e859ab653"
+  },
+  "docs/steering/evidence/2026-11-01-rmw-common-pair-v4/own-terminal-transport.json": {
+    "bytes": 147,
+    "sha256": "5fd7007440e482c1b592c5ee64d8cd129d9b80cc50406de8aa398c59449ed026"
+  },
+  "docs/steering/evidence/2026-11-01-rmw-common-pair-v4/terminal-derived.json": {
+    "bytes": 17923,
+    "sha256": "b45bd12aa57ff307e142b1e3e32fc952b3eb8d2d12aa86807ea751fcff73fd80"
+  },
+  "docs/steering/evidence/2026-11-01-rmw-common-pair-v4/terminal-jobs.json": {
+    "bytes": 13839,
+    "sha256": "3b3399d4daf2bf8786db7f507e5f81b406cc57b3d4220a65c4ead0087852a3cd"
+  },
+  "docs/steering/evidence/2026-11-01-rmw-common-pair-v4/terminal-jobs.transport.json": {
+    "bytes": 227,
+    "sha256": "f6a89cc5790ff5f905b9f60438cbb7203e67570989e26a77ea4bd30039a94d36"
+  },
+  "docs/steering/evidence/2026-11-01-rmw-common-pair-v4/terminal-log-attestation.json": {
+    "bytes": 313,
+    "sha256": "071346a751e1366fd2ed5f73be0a630b5e010a8adee896ca3116144787407468"
+  },
+  "docs/steering/evidence/2026-11-01-rmw-common-pair-v4/terminal-quota.json": {
+    "bytes": 1536,
+    "sha256": "0a290171aa1addc510184e02f1a88349cec504e120c08029d7baad01fbf2d971"
+  },
+  "docs/steering/evidence/2026-11-01-rmw-common-pair-v4/terminal-quota.transport.json": {
+    "bytes": 231,
+    "sha256": "9853b700ab510b852fd919a87b60a4f378da998dffd0553e3d1416ded51b9095"
+  },
+  "docs/steering/evidence/2026-11-01-rmw-common-pair-v4/terminal-reader-observation.json": {
+    "bytes": 240145,
+    "sha256": "e4728b9c4ce372a23645261679fc6f26e98441f3d2dd1da67127428af2875fe1"
+  },
+  "docs/steering/evidence/2026-11-01-rmw-common-pair-v4/terminal-reader-transport.json": {
+    "bytes": 710,
+    "sha256": "946727de5e617bbe81a0de88f77546be2ee83be8d47ac7335422025cc0b787de"
+  },
+  "docs/steering/evidence/2026-11-01-rmw-common-pair-v4/terminal-reader.stderr.txt": {
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "docs/steering/evidence/2026-11-01-rmw-common-pair-v4/terminal-reader.stdout.txt": {
+    "bytes": 73,
+    "sha256": "d9eab8dea3ffd1b7a334559c187eb170226ca5f1ae2c556c8fe5c1a43bf0128f"
+  },
+  "docs/steering/evidence/2026-11-01-rmw-common-pair-v4/terminal-summary.json": {
+    "bytes": 1717,
+    "sha256": "039e7585bf89885bb84998b37b0d6a5912f5b9835c294f7b2e947baf91382dbe"
+  },
+  "docs/steering/evidence/2026-11-01-rmw-common-pair-v4/terminal-weighted-rows.csv": {
+    "bytes": 3073,
+    "sha256": "e066e7f129ba4f8c7592567ffbb2474893f7aedc03a8e2727eade4e9c9bce6ad"
+  },
+  "muse_decode_layer/profiles/g-common-rmw-pair-v4.c5e4f89672f743bb.json": {
+    "bytes": 81204,
+    "sha256": "9bbdf8d0f63051259e6ff2aa90199d966059d8f97d8527252e37404e859ab653"
+  },
+  "muse_decode_layer/profiles/g-common-rmw-pair-v4.c5e4f89672f743bb.log": {
+    "bytes": 7941,
+    "sha256": "72a06b96a87fe712e272a80a86212de6638c7e36fede7d4e4ab983f10facc16f"
+  },
+  "muse_decode_layer/profiles/g-common-rmw-pair-v4.c5e4f89672f743bb.txt": {
+    "bytes": 13832,
+    "sha256": "dc8010620ab409dd5962847d33a126d1f2d029d241f4ccf08a35add2ef205c8f"
+  }
+}

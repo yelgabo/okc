@@ -1,0 +1,71 @@
+{
+  "job": "c5e4f89672f743bb",
+  "status": "done",
+  "result_status": "ok",
+  "passed": true,
+  "returncode": 0,
+  "checks": {
+    "flagged": [],
+    "ok": true,
+    "rejected": []
+  },
+  "flags": [],
+  "error": null,
+  "events": {
+    "setup": 1,
+    "test": 13,
+    "benchmark": 12,
+    "profile": 12
+  },
+  "setup": {
+    "baseline_copies": 2,
+    "baseline_prepare_pad": 2718720,
+    "copies": 1,
+    "error": null,
+    "event": "setup",
+    "first": "baseline",
+    "prepare_pad": 6615040,
+    "prepare_s": 178.253237769,
+    "status": "pass"
+  },
+  "created_at_utc": "2026-11-02T02:22:46.573432+00:00",
+  "started_at_utc": "2026-11-02T02:43:19.332235+00:00",
+  "finished_at_utc": "2026-11-02T02:48:30.159088+00:00",
+  "queue_s": 1232.758802652359,
+  "worker_wall_s": 310.8268530368805,
+  "gpu": "H200",
+  "machine": {
+    "gpu_after": {
+      "clocks.max.sm": 1980,
+      "clocks.mem": 3201,
+      "clocks.sm": 1980,
+      "driver_version": "595.91.07",
+      "name": "NVIDIA H200",
+      "power.draw": 130.72,
+      "power.limit": 700,
+      "temperature.gpu": 36
+    },
+    "gpu_before": {
+      "clocks.max.sm": 1980,
+      "clocks.mem": 3201,
+      "clocks.sm": 345,
+      "driver_version": "595.91.07",
+      "name": "NVIDIA H200",
+      "power.draw": 85.16,
+      "power.limit": 700,
+      "temperature.gpu": 32
+    },
+    "node": "n-2bbs7xxbcpmk3emdvrn5jsqeic"
+  },
+  "score_us": 10707.837538008971,
+  "speedup": 2.112499365040427,
+  "speedup_ci": [
+    2.0808118745648203,
+    2.144186855516033
+  ],
+  "capsule_present": true,
+  "wl_prep_present": true,
+  "reader_exitcode": 0,
+  "reader_observation_exists": true,
+  "source_sha256": "785a90ca08ddde0c3b194fc219a0645cb8cd14bac02620d8714f0b66163a0b66"
+}

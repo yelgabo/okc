@@ -1,5 +1,11 @@
 # Ruled out
 
+## November 2 UTC 2026 matched RMW closure
+
+| Treatment | Evidence | Closure and reopening gate |
+| --- | --- | --- |
+| Tiny/Tiny2 short final-counter RMW ON vs current repaired-common OFF, legal-fixture upload785a90ca | Own PRIVATE c5e4f89672f743bb; preregd5f29167/acceptancecc80a2c. Instrument/official PASS13tests/12bench/12profiles; frozen reader complete, gate=false. All12bank/cross whole-six logs -0.001829079..0.002828144, below1%and2xnull;993821 T16sliding OFF0->ON0 +1.151998us exceeds1.020480us cap. Exact report steering/2026-11-01-rmw-legal-fixture-terminal.md. | Close this RMW-only promotion in current repaired-common layer under frozen36rows/3banks/4placements/24cold/256MiB/46:16protocol. No#4heldout, selected-bank rescue or retry. UnchangedT16code variation is not causal RMW regression proof; subthreshold alone still closes. Does not reject every RMW design. Reopening requires a materially different mechanism/opportunity case and separate allocation, not source spelling/mask/seed chase. |
+
 ## November2 UTC2026 scoped compiler addendum
 
 |Treatment|Evidence|Closure and reopening gate|
