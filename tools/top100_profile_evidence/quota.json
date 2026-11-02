@@ -1,0 +1,99 @@
+{
+  "started_utc": "2026-11-02T15:28:26.616964+00:00",
+  "finished_utc": "2026-11-02T15:28:27.206881+00:00",
+  "command": [
+    "wsl",
+    "-d",
+    "Ubuntu",
+    "--exec",
+    "okc",
+    "problems",
+    "--json"
+  ],
+  "returncode": 0,
+  "data": {
+    "problems": [
+      {
+        "name": "muse_bf16_proj",
+        "title": "Dense projections",
+        "limits": {
+          "scored": {
+            "per_day": 5,
+            "used": 0,
+            "left": 5
+          },
+          "checks": {
+            "per_day": 10,
+            "used": 0,
+            "left": 10
+          }
+        }
+      },
+      {
+        "name": "muse_attention_decode",
+        "title": "Gated attention decode",
+        "limits": {
+          "scored": {
+            "per_day": 5,
+            "used": 0,
+            "left": 5
+          },
+          "checks": {
+            "per_day": 10,
+            "used": 0,
+            "left": 10
+          }
+        }
+      },
+      {
+        "name": "muse_moe_w4a16",
+        "title": "Routed experts",
+        "limits": {
+          "scored": {
+            "per_day": 5,
+            "used": 0,
+            "left": 5
+          },
+          "checks": {
+            "per_day": 10,
+            "used": 0,
+            "left": 10
+          }
+        }
+      },
+      {
+        "name": "muse_decode_layer",
+        "title": "Whole decoder layer",
+        "limits": {
+          "scored": {
+            "per_day": 5,
+            "used": 0,
+            "left": 5
+          },
+          "checks": {
+            "per_day": 10,
+            "used": 10,
+            "left": 0
+          }
+        }
+      },
+      {
+        "name": "muse_prefill_layer",
+        "title": "Prefill layer",
+        "limits": {
+          "scored": {
+            "per_day": 5,
+            "used": 0,
+            "left": 5
+          },
+          "checks": {
+            "per_day": 10,
+            "used": 0,
+            "left": 10
+          }
+        }
+      }
+    ]
+  },
+  "stderr": ""
+}

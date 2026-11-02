@@ -2,6 +2,10 @@
 
 This is the stable cross-session entry point. Read the latest report, its evidence date and subsequent commits before continuing. Existing captain/worker ownership, submission approvals and frozen experiment gates remain in effect; a research recommendation is not a GPU allocation.
 
+## Latest delegated profile evidence
+
+[November 2: Top100 profile priorities](2026-11-02-top100-profile-priorities.md) - evidence a705900/71eb71c; independently validates fresh cc474, public607 and historical baseline7d427, all12 routes and six-load weights. Read-only 15:28UTC receipts: overall/layer356, layer100 cutoff2.2659x, zero private checks. Expert/attention activities are not exposed savings; current baseline config identity differs. Captain dispatch and existing worker ownership unchanged.
+
 ## Active top-100 execution
 
 [November 2: Delegated incumbent hotspot work](2026-11-02-top100-delegated-hotspots.md) - explicit user allocation: reuse fresh incumbent profiles, validate weighted priorities, and isolate attention and longer-token expert prototypes. Existing T1/compression owners preserved; no duplicate dispatch or automatic scored substitution.
