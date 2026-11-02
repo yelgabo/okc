@@ -1,0 +1,21 @@
+--- expert_top100_moe_harness_read.py
++++ t1_moe_read.py
+@@ -4,8 +4,8 @@
+ from pathlib import Path
+ import re
+ 
+-from expert_top100_moe_harness import build, sha
+-from expert_top100_moe_harness_contract import CAPSULE_LIMIT, GLOBAL_TOL, ROW_TOL, decision, positive, require
++from t1_moe_harness import build, sha
++from t1_moe_contract import CAPSULE_LIMIT, GLOBAL_TOL, ROW_TOL, decision, positive, require
+ 
+ OFFICIAL = {(1, 'decode 1'), (16, 'decode 16'), (32, 'decode 32'),
+             (8, 'verify 1'), (128, 'verify 16'), (256, 'verify 32')}
+@@ -39,6 +39,7 @@
+     require(report['shared_tensor_storage'] == [], 'no unproven tensor sharing')
+     require(len(report['owners_bytes']) == 4 and all(type(value) is int and value > 0 for value in report['owners_bytes']), 'owners')
+     require(positive(report['prepare_s']) < 295, 'total preparation budget')
++    require(report['affected_tokens'] == [1] and manifest['affected_tokens'] == [1], 'T1-only affected set')
+     counters = report['counters']
+     require(counters['observations'] == 378 and counters['restorations'] == 54, '54 cases/seven observations')
+     require(counters['captures'] == 216 and counters['timed_replays'] == 1152, 'capture/timing coverage')

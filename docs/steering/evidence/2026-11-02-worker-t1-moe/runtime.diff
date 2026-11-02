@@ -1,0 +1,41 @@
+--- validated-runtime.py
++++ held-T1-runtime.py
+@@ -48,16 +48,17 @@
+     seen, result = set(), []
+     require(len({id(state['ma_ext']) for state in states}) == 4, 'private extension maps')
+     for index, state in enumerate(states):
+-        require(state['_expert_pair_arm'] is (index >= 2), 'placement binding')
++        require(state['_t1_arm'] is (index >= 2), 'placement binding')
++        require(len(state['t1_scratch']) == len(state['t1_guards']) == (3 if index >= 2 else 0), 'T1 guard inventory')
+         owned, byte_count = set(), 0
+-        for tensor in [*state['ma_w'], *(full for full, words in state['guards'])]:
++        for tensor in [*state['ma_w'], *(full for full, words in state['guards'] + state['t1_guards'])]:
+             storage = tensor.untyped_storage()
+             key = (str(tensor.device), storage.data_ptr())
+             require(key not in seen and key not in owned, 'private weight/scratch storage')
+             owned.add(key)
+             byte_count += storage.nbytes()
+         require(len(state['ma_scratch']) == len(state['guards']), 'scratch guard inventory')
+-        for tensor, (full, words) in zip(state['ma_scratch'], state['guards']):
++        for tensor, (full, words) in zip(state['ma_scratch'] + state['t1_scratch'], state['guards'] + state['t1_guards']):
+             require(tensor.untyped_storage().data_ptr() == full.untyped_storage().data_ptr()
+                     and tensor.data_ptr() == full.data_ptr() and tensor.numel() * tensor.element_size() <= words * 4,
+                     'scratch guard owner')
+@@ -75,6 +76,8 @@
+             for target, source in zip(state['ma_scratch'], initial):
+                 require(target.shape == source.shape and target.dtype == source.dtype, 'scratch reset metadata')
+                 target.copy_(source)
++            for tensor in state.get('t1_scratch', []):
++                tensor.zero_()
+             del initial
+             torch.cuda.synchronize(state['device'])
+             _expert_moe_check_guards(state)
+@@ -208,7 +211,7 @@
+                     if row is not None:
+                         rows.append(row)
+         report = dict(runtime_id=H_RUNTIME_ID, official_arm='candidate2', placement_arms=[False, False, True, True],
+-                      owners_bytes=owners, shared_tensor_storage=[], rows=rows, counters=counters)
++                      owners_bytes=owners, shared_tensor_storage=[], rows=rows, counters=counters, affected_tokens=[1])
+     finally:
+         load_inline = original_loader
+         _h_reset(states)

@@ -1,0 +1,18 @@
+test_actual_final_prepare_all54_cases_candidate_entry_and_cleanup (__main__.T1Tests.test_actual_final_prepare_all54_cases_candidate_entry_and_cleanup) ... ok
+test_actual_full_inference_entry_and_exact_scratch_metadata (__main__.T1Tests.test_actual_full_inference_entry_and_exact_scratch_metadata) ... ok
+test_actual_nine_sizes_both_arms_factories_flags_and_independent_states (__main__.T1Tests.test_actual_nine_sizes_both_arms_factories_flags_and_independent_states) ... ok
+test_actual_packing_row_order_unit_bytes_scales_and_gamma (__main__.T1Tests.test_actual_packing_row_order_unit_bytes_scales_and_gamma) ... ok
+test_deterministic_held_source_native_flags_and_no_pregamma (__main__.T1Tests.test_deterministic_held_source_native_flags_and_no_pregamma) ... ok
+test_exact_original_function_reversal_outside_guard_binding (__main__.T1Tests.test_exact_original_function_reversal_outside_guard_binding) ... ok
+test_extra_scratch_ownership_and_capture_restoration_fail_closed (__main__.T1Tests.test_extra_scratch_ownership_and_capture_restoration_fail_closed) ... ok
+test_factory_and_guard_negative_real_entry (__main__.T1Tests.test_factory_and_guard_negative_real_entry) ... ok
+test_frozen_native_precision_packing_flags_and_source_negatives (__main__.T1Tests.test_frozen_native_precision_packing_flags_and_source_negatives) ... ok
+test_no_stale_crossed_arm_or_unsupported_shard (__main__.T1Tests.test_no_stale_crossed_arm_or_unsupported_shard) ... ok
+test_original_complete_notices_retained (__main__.T1Tests.test_original_complete_notices_retained) ... ok
+test_strict_reader_synthetic_schema_source_mode_and_receipt_negatives (__main__.T1Tests.test_strict_reader_synthetic_schema_source_mode_and_receipt_negatives) ... ok
+test_t1_only_regression_set_whole_six_crosses_null_and_drift (__main__.T1Tests.test_t1_only_regression_set_whole_six_crosses_null_and_drift) ... ok
+
+----------------------------------------------------------------------
+Ran 13 tests in 29.417s
+
+OK
