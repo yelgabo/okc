@@ -1,0 +1,57 @@
+[
+  {
+    "file": "auth.txt",
+    "command": [
+      "okc",
+      "whoami"
+    ],
+    "started": "2026-11-02T13:03:01.827Z",
+    "finished": "2026-11-02T13:03:05.164Z",
+    "exit_code": 0
+  },
+  {
+    "file": "quota.json",
+    "command": [
+      "okc",
+      "problems",
+      "--json"
+    ],
+    "started": "2026-11-02T13:03:05.164Z",
+    "finished": "2026-11-02T13:03:05.633Z",
+    "exit_code": 0
+  },
+  {
+    "file": "jobs.json",
+    "command": [
+      "okc",
+      "jobs",
+      "--json"
+    ],
+    "started": "2026-11-02T13:03:05.633Z",
+    "finished": "2026-11-02T13:03:06.887Z",
+    "exit_code": 0
+  },
+  {
+    "file": "overall.json",
+    "command": [
+      "okc",
+      "leaderboard",
+      "--json"
+    ],
+    "started": "2026-11-02T13:03:06.887Z",
+    "finished": "2026-11-02T13:03:08.404Z",
+    "exit_code": 0
+  },
+  {
+    "file": "layer.json",
+    "command": [
+      "okc",
+      "leaderboard",
+      "muse_decode_layer",
+      "--json"
+    ],
+    "started": "2026-11-02T13:03:08.404Z",
+    "finished": "2026-11-02T13:03:09.983Z",
+    "exit_code": 0
+  }
+]
