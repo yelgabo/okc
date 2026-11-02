@@ -585,5 +585,3 @@ if __name__ == '__main__':
                         scope='CPU real storage / deterministic device and mathematical facades')
         output.write_text(json.dumps(evidence, indent=2) + '\n')
     sys.exit(not result.wasSuccessful())
-
-
