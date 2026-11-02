@@ -2,6 +2,10 @@
 
 This is the stable cross-session entry point. Read the latest report, its evidence date and subsequent commits before continuing. Existing captain/worker ownership, submission approvals and frozen experiment gates remain in effect; a research recommendation is not a GPU allocation.
 
+## Latest standalone component adapter
+
+[November 2: Exact standalone MoE adapter](2026-11-02-top100-moe-adapter.md) - implementation ece009b, allocation a58f058. Deterministic323514B payload preserves ba9e327c/c7c201ae control and dff221ae/3cc12ae candidate, exact compiler-call closure, explicit0/32 shard restriction and state-owned scratch. Ten adapter CPU tests plus eleven existing tests pass, including real CPU packing/storage. Full matched component harness, target preparation/build/numerics/replay/timing remain missing; dispatch_ready=false, no speed claim or layer-gate substitution.
+
 ## Latest private harness handoff
 
 [Captain measurement continuity](2026-11-02-captain-measurement-continuity.md) independently confirms the previously installed WSL CPU Torch runtime with real storage/version behavior; no install/policy change or target equivalence claim. Parent owns real-host validation and the separate exact MoE adapter. Existing layer hold and single dispatch ownership remain; no new task or POST authorized.
@@ -62,6 +66,7 @@ Publication-time source progress: [owner-event amendment](2026-11-02-worker-pr-g
 
 | New report | Evidence | Scope |
 |---|---|---|
+| [2026-11-02 standalone MoE adapter](2026-11-02-top100-moe-adapter.md) | ece009b; a58f058; payload19aeaf35 | Exact bounded component adapter and21 CPU tests; no target/candidate numerical or timing qualification; explicit missing gates |
 | [2026-11-02 expert harness STOP](2026-11-02-top100-expert-harness.md) | 62f0031; ec24fc6; bd6be96 | Held deterministic payload, strict reader,15 partial CPU tests; complete real-Torch host execution still missing; no target claim |
 | [2026-11-02 expert independent review](2026-11-02-top100-expert-review.md) | 4c9f507; dff221ae; ba9e327c | ACCEPT-LIMITED source/CPU; selected stores/readers, indexing/alignment/regions, arithmetic, publication/replay contracts and runtime gates |
 | [2026-11-02 attention prototype STOP](2026-11-02-top100-attention-prototype.md) | 71eb71c; a705900; cc474883117947c0 | Exact selected paths, continuity-switch confound, CPU checks and bounded reopening gate; no GPU result |
