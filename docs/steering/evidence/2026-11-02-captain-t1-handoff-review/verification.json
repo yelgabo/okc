@@ -1,0 +1,141 @@
+{
+  "workerCommit": "0d26672d701d8ff15c4ba6d4681e1a545b05798e",
+  "verifiedPublishedPaths": 28,
+  "manifestFiles": [
+    {
+      "path": "tools/g_t1_three_launch.py",
+      "bytes": 10804,
+      "sha256": "df94a90dbe2a8108c7a89ef63e9ce8c38c9ce97574c4b96a6fb1378b99d92f8c"
+    },
+    {
+      "path": "tools/t1_three_launch.cu",
+      "bytes": 10438,
+      "sha256": "b8db16f876d476b675ec33052cb9d2d28a9ff0bdb34482dfebdeaaaa4e8d133f"
+    },
+    {
+      "path": "tools/test_g_t1_three_launch.py",
+      "bytes": 18171,
+      "sha256": "ea925347c803e404ffe825b0b738a924bbcf2d3d2473e0cdc5a1a761163dd172"
+    },
+    {
+      "path": "docs/steering/2026-11-02-worker-t1-three-launch.md",
+      "bytes": 12247,
+      "sha256": "0ff764c597af4be737a531ceac1c1d2e15bf8bc6bd2df335f51fb0c32cdcb54d"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-worker-t1-three-launch/adapted-driver.py.txt",
+      "bytes": 7192,
+      "sha256": "98e9adbfcb5c04c0146f1863c2f63fc5a3fa06f724cabf9cb2857dc962810679"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-worker-t1-three-launch/codegen-inspection.json",
+      "bytes": 1668,
+      "sha256": "a8467121d7f15c857ff7217acfea8935ac537ec7af6e5fbc9fc22cd5247edc44"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-worker-t1-three-launch/compile-result.json",
+      "bytes": 6016,
+      "sha256": "54a12a72d7a6ef674731351a0864e891f4e3aab2e1222ee37715102760d32c61"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-worker-t1-three-launch/cpu-final.log",
+      "bytes": 1656,
+      "sha256": "aeab903389a330b6f77aeaf213625316d3b1fe9f391106c4c433c0692abadc55"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-worker-t1-three-launch/cpu-initial.log",
+      "bytes": 3493,
+      "sha256": "4014281448e5d11655bda8c2e92536202ca440ddbbbcc087d92703db4dc2925f"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-worker-t1-three-launch/cpu-source-guard-initial.log",
+      "bytes": 2255,
+      "sha256": "297034aca47c06919adab60e2f1cfb8c8a21bded41dc81a8f7568ef7330fd7ee"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-worker-t1-three-launch/first-compile.log",
+      "bytes": 868,
+      "sha256": "e3346329059d1795043e46995b2e6ad48555245464da2a391b2ba50f4301beae"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-worker-t1-three-launch/fixed-compile.log",
+      "bytes": 7480,
+      "sha256": "ff45031b91fd6cb53a2cd7d2823cbfcc63480973ce541377ea97631e06b21cb6"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-worker-t1-three-launch/original-seven-factories.json",
+      "bytes": 6580,
+      "sha256": "4fe0fe2ff82f5a0b162c50f5ec24a7e3ba1f0f7a5a83dede91d5da6a359eb511"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-worker-t1-three-launch/fixed-compile/device.cubin",
+      "bytes": 157504,
+      "sha256": "80231b74a2fedfd6ded096f46f07ba7040553d1ef3954092238cbba64ad62ccd"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-worker-t1-three-launch/fixed-compile/device.ptx",
+      "bytes": 199676,
+      "sha256": "b1c93ac1656ad766c8575dd31f154ea345fedd2dedbb27da41db19f158b43055"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-worker-t1-three-launch/fixed-compile/manifest.json",
+      "bytes": 3241,
+      "sha256": "f10bf9c5b941f6f85dcd16ad35f8e6c43c454588bb6cd2175552842813821b59"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-worker-t1-three-launch/fixed-compile/nvrtc.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-worker-t1-three-launch/fixed-compile/ptxas.log",
+      "bytes": 1035,
+      "sha256": "a9f73213e6d9bbfa1f887a6d20e1e606296768239670affc561babcdd4a589c0"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-worker-t1-three-launch/generated/append.py.txt",
+      "bytes": 15176,
+      "sha256": "c948b7284f994e4bebd28d153c5f55be8383003c61140609fa615096050e1a1b"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-worker-t1-three-launch/generated/binding.cpp",
+      "bytes": 185,
+      "sha256": "64986286b26616a9fe70c885b53aee9c409af0ed694cd16f1ece47df62193b75"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-worker-t1-three-launch/generated/candidate.py",
+      "bytes": 884252,
+      "sha256": "faed74a8f6f10c87927555267ad3b7e2804db84b73e3dd12677968c7b646e266"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-worker-t1-three-launch/generated/generation.json",
+      "bytes": 1061,
+      "sha256": "01d8cd64ee941f270da6c728709ec29322806a091caa4586f52ef5112c01fb8c"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-worker-t1-three-launch/generated/selected.cu",
+      "bytes": 12108,
+      "sha256": "dbdd3381cc9b823afb9e7d8678bba536cd5d6e3731896153aee9908652237447"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-worker-t1-three-launch/generated/source.diff",
+      "bytes": 15480,
+      "sha256": "796740214895641cf1fcc33b5792e9fa4fe6d26a0b27b4441f19c6ef736f8e8c"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-worker-t1-three-launch/initial-builtins-failure/compile-result.json",
+      "bytes": 2610,
+      "sha256": "37b82b67120f9fdb85aea2d49d6f259c7dab00747b4435557f408c45cbe0318c"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-worker-t1-three-launch/initial-builtins-failure/manifest.json",
+      "bytes": 1896,
+      "sha256": "66c556f5651ffa6eee4082e22a5d5e94e15dfef7215a77daa8668183ca3dccb7"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-worker-t1-three-launch/initial-builtins-failure/nvrtc.log",
+      "bytes": 122,
+      "sha256": "71ab682fc635c1dc54af59ce2bdd73a172880191e425d16161f8755c5cba5e61"
+    }
+  ]
+}

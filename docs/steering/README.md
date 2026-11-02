@@ -32,6 +32,8 @@ Publication-time source progress: [owner-event amendment](2026-11-02-worker-pr-g
 
 ## Current operational reports
 
+- [Captain independent T1 handoff review](2026-11-02-captain-t1-handoff-review.md): worker0d26672 frozen offline prototype verified; independent11CPU PASS and existing three-kernel secondary compile, no concrete source contradiction found. Host/GPU/replay/speed remain unqualified; task finished with no automatic target run or tuning cycle.
+- [Worker T1 three-launch implementation](2026-11-02-worker-t1-three-launch.md): exact source/native pins, real selection/packing/math/state contracts, fixed compiler receipts and competing costs; no GPU or performance claim.
 - [Independent PR build/quota monitor](2026-11-02-pr-build-failure-monitor.md): fresh own60b38 terminal confirms ordered C++17/target C++20 conflict, no tests/timing;15:30UTC rank356,0private/5scored,no live job. Human retry remains capacity-blocked; current T1/delegated scopes preserved. Existing hourly prompt refreshed through app tool/readback, cadence/destination unchanged.
 - [Captain PR terminal and next implementation](2026-11-02-captain-pr-terminal-next-implementation.md): own60b38a62a135442c setup-invalid from effective C++17 versus target C++20; no timing result or retry. Offline build-contract regression gate added; one bounded T1 three-launch source/CPU/compiler prototype allocated, no GPU permission. Dated addendum reconciles12f208d and exact-reference HTTP404 access limits without reopening surveys.
 - [Worker exact PR terminal archive](2026-11-02-worker-pr-target-terminal.md): owning diagnostics, missing qualification gates and zero private quota; host-standard failure is not a compression loss.

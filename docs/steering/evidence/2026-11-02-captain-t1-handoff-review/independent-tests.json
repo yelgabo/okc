@@ -1,0 +1,8 @@
+{
+  "command": "python -m unittest discover -s tools -p test_g_t1_three_launch.py -v",
+  "execSession": 91479,
+  "tests": 11,
+  "elapsed_s": 13.414,
+  "exitcode": 0,
+  "scope": "independent rerun of CPU/source contracts only; native boundaries mocked"
+}
