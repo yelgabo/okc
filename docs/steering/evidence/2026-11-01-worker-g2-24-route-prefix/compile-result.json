@@ -1,0 +1,76 @@
+{
+  "scope": "CPU-only NVRTC13/PTXAS13 compute90a/sm90a device prefix; virtual type_traits/stdint and declaration-only wgs_cta_of adapter. No host compile/link, NVCC, driver API, GPU, timing or target occupancy.",
+  "generator": {
+    "base": "muse_decode_layer/cand/g1b4_stage_release.py",
+    "base_sha256": "ba9e327cd7b96595ace4d0c1d0d78fe27c128f23ed0debcda97c7169fc3164ab",
+    "original_native_sha256": "c7c201ae145c6a33f2d5e6b1f80d2a6e56e8d75502f9fd09ace40927ad0f7c71",
+    "variant_sha256": "bd22962e25f94abc3c96aa31ebd594f08c63ec7881252dba12ca37590ab21b93",
+    "native_sha256": "ed082519a4312bc1012192134b2d2865016789802b0454381984260c7aa5ca6f",
+    "original_prefix_bytes": 869076,
+    "original_prefix_unchanged": true,
+    "append_only": true,
+    "gpu_execution": false,
+    "judge_dispatch": false
+  },
+  "driver_sha256": "e695ef03bda22d86167b829618429c7d139c23ad9cf96294edd1211388d5620c",
+  "started_epoch": 1793604667.0797243,
+  "records": [
+    {
+      "family": "B4",
+      "actual_flags": [
+        "-O3",
+        "-gencode=arch=compute_90a,code=sm_90a",
+        "-lineinfo",
+        "-DOKC_NS=3",
+        "-DOKC_FNST=4",
+        "-DOKC_NSF=3",
+        "-DOKC_NW=8",
+        "-DOKC_FAST1=0",
+        "-DOKC_EPI4=0",
+        "-DOKC_WGS=1",
+        "-DOKC_B4FIN=1",
+        "-DOKC_SC6W=1",
+        "-DOKC_PRMTSC=1",
+        "-DOKC_DQ7=1"
+      ],
+      "source_sha256": "ed082519a4312bc1012192134b2d2865016789802b0454381984260c7aa5ca6f",
+      "stop": "NVRTC status 6",
+      "manifest": {
+        "source": ".build/worker-g224-prefix-offline-stddef/B4/selected.cu",
+        "source_sha256": "ed082519a4312bc1012192134b2d2865016789802b0454381984260c7aa5ca6f",
+        "original_device_prefix_sha256": "d2acc1ae909aac05f7ca437e78c5299f97e786ca96176cb1afaa69594ad45ce2",
+        "compiled_device_prefix_sha256": "1f99c641cb9f3b84c578029c6ad58b7f56ffb434960ddcf225569916a4aa3176",
+        "host_boundary": "#include <torch/extension.h>",
+        "virtual_headers": {
+          "type_traits": "#pragma once\nnamespace std { template<class T,T v> struct integral_constant {\nstatic constexpr T value=v; constexpr operator T() const noexcept {return value;}\n}; using true_type=integral_constant<bool,true>; using false_type=integral_constant<bool,false>; }\n",
+          "stdint.h": "#pragma once\ntypedef signed char int8_t; typedef unsigned char uint8_t;\ntypedef signed short int16_t; typedef unsigned short uint16_t;\ntypedef signed int int32_t; typedef unsigned int uint32_t;\ntypedef signed long int64_t; typedef unsigned long uint64_t;\ntypedef signed long intptr_t; typedef unsigned long uintptr_t;\n"
+        },
+        "options": [
+          "--gpu-architecture=compute_90a",
+          "--std=c++17",
+          "--generate-line-info",
+          "--device-as-default-execution-space",
+          "--include-path=/root/.cache/okc-cuda130-88/nvidia/cu13/include",
+          "--include-path=/root/.cache/okc-cuda130-88/nvidia/cu13/include",
+          "--include-path=/root/.cache/okc-cuda130-88/cuda_cccl-linux-x86_64-13.0.85-archive/include",
+          "-DOKC_NS=3",
+          "-DOKC_FNST=4",
+          "-DOKC_NSF=3",
+          "-DOKC_NW=8",
+          "-DOKC_FAST1=0",
+          "-DOKC_EPI4=0",
+          "-DOKC_WGS=1",
+          "-DOKC_B4FIN=1",
+          "-DOKC_SC6W=1",
+          "-DOKC_PRMTSC=1",
+          "-DOKC_DQ7=1"
+        ],
+        "declaration_adapter": "__device__ __forceinline__ int wgs_cta_of(const Smem& S, int pb, int s, int G);\n",
+        "nvrtc_status": 6,
+        "gpu_execution": false
+      }
+    }
+  ],
+  "decision": "STOP",
+  "finished_epoch": 1793604667.231761
+}

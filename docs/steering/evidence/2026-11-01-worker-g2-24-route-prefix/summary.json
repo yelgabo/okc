@@ -1,0 +1,63 @@
+{
+  "decision": "STOP_REQUIRED_NATIVE_OFFSET_CONSTANT_PROOF_UNAVAILABLE",
+  "scope": "SOURCE_CPU_SECONDARY_COMPILE_ONLY",
+  "time_utc": "2026-11-02T07:36:27.234Z",
+  "tests": {
+    "command": "python -m unittest discover -s tools -p test_g_expert_g224_prefix.py -v",
+    "passed": 5,
+    "seconds": 11.533,
+    "not_full_progress_or_runtime_proof": true
+  },
+  "native_sha256": "ed082519a4312bc1012192134b2d2865016789802b0454381984260c7aa5ca6f",
+  "variant_sha256": "bd22962e25f94abc3c96aa31ebd594f08c63ec7881252dba12ca37590ab21b93",
+  "variant_bytes": 1023788,
+  "native_bytes": 149352,
+  "compiler_error_lines": [
+    "exact_device.cu(257): error: expression must have a constant value",
+    "exact_device.cu(257): error: expression must have a constant value",
+    "exact_device.cu(258): error: expression must have a constant value",
+    "exact_device.cu(258): error: expression must have a constant value"
+  ],
+  "resources": [
+    {
+      "family": "B4",
+      "entry": false,
+      "status": "NVRTC_CONSTANT_OFFSET_ERROR_NO_PTX"
+    },
+    {
+      "family": "B4",
+      "entry": true,
+      "status": "NVRTC_CONSTANT_OFFSET_ERROR_NO_PTX"
+    },
+    {
+      "family": "MAIN",
+      "entry": false,
+      "status": "NOT_ATTEMPTED_AFTER_STOP"
+    },
+    {
+      "family": "MAIN",
+      "entry": true,
+      "status": "NOT_ATTEMPTED_AFTER_STOP"
+    }
+  ],
+  "target_occupancy": "NOT_RUN",
+  "GPU": false,
+  "CLI": false,
+  "production_edits": false,
+  "limitations": [
+    "No full job inverse/split progress/ring-replay scheduler contract implemented before compiler STOP",
+    "CPU/source and real selected-factory stand-ins are not device execution or numerical qualification",
+    "No actual target reserve/occupancy/static-shared/register results",
+    "Host NVCC compile/link NOT_RUN"
+  ],
+  "installed_header": {
+    "path": "/root/.cache/okc-cuda130-88/cuda_cccl-linux-x86_64-13.0.85-archive/include/cccl/cuda/std/__cstddef/types.h",
+    "sha256": "73a074d0144f69c21b081d7e860cfb4acbe3adf8aa1cb72763c84d8c086586f9",
+    "lines": "26-31",
+    "rtc_offset_expression": "(::size_t) ((char*) &(((type*) 0)->member) - (char*) 0)"
+  },
+  "libraries": {
+    "nvrtc": "a49e67e8e74590f1e98de55c39c6287efd3f59e3c3797464d7bbe0fe01349b11",
+    "builtins": "91dcd944d01da9c0f08fff5d779db136a47f6d62bdb63bae900d2f481e92c3a2"
+  }
+}
