@@ -1,0 +1,45 @@
+{
+  "evidence_commit": "71eb71c1a67335d704e53d00632b4bf92ae38845",
+  "allocation_commit": "a705900cbd9432ccaada88c29ef8661718dca038",
+  "python": "3.14.5",
+  "outcome": "SOURCE_CPU_STOP_NO_CUDA_TREATMENT",
+  "gpu_dispatches": 0,
+  "compiler_runs": 0,
+  "checks": [
+    "12 actual layer launcher cases",
+    "4 actual standalone shape plans",
+    "changed-source negative rejected",
+    "seven receipt IDs verified",
+    "source-contract witnesses",
+    "git diff --check"
+  ],
+  "files": {
+    "tools/attention_top100_screen.py": {
+      "sha256_bytes": "81af125a19b5939e34ebade3f1db2ef2df84945c38abb300c92e53e8d1abf3cc",
+      "sha256_lf_utf8": "81af125a19b5939e34ebade3f1db2ef2df84945c38abb300c92e53e8d1abf3cc"
+    },
+    "docs/steering/2026-11-02-top100-attention-prototype.md": {
+      "sha256_bytes": "45d96ef5a822b805bddddf297b5589ca3b9a68b2fac0e55f4e651e381db47618",
+      "sha256_lf_utf8": "45d96ef5a822b805bddddf297b5589ca3b9a68b2fac0e55f4e651e381db47618"
+    },
+    "docs/steering/evidence/2026-11-02-top100-attention-prototype/preregister.md": {
+      "sha256_bytes": "0897ac80f63a694f079f9e4772a942030da81bb68182eacbca7781baa634ffb8",
+      "sha256_lf_utf8": "0897ac80f63a694f079f9e4772a942030da81bb68182eacbca7781baa634ffb8"
+    },
+    "docs/steering/evidence/2026-11-02-top100-attention-prototype/source-screen.json": {
+      "sha256_bytes": "6db8119801fab74b37d1537b9a7cb3cac6d80d8fa2c6c9528fee57448990a1e1",
+      "sha256_lf_utf8": "2ce262c4f1debbf09c9c394a6537345a586648f8ee0cddc7b0f99e92a9117214"
+    },
+    "docs/steering/evidence/2026-11-02-top100-attention-prototype/hotspots.md": {
+      "sha256_bytes": "ec134913a0841968cd8096405969fe8937af57ef37ba144c17694aafe34373a3",
+      "sha256_lf_utf8": "94803c564e95062f0c2b6c8ce782d05fba58e4e2686e473f9ac45fd99ebf0d76"
+    }
+  },
+  "publication_branch": "t3/attention-prototype",
+  "late_profile_evidence": {
+    "commit": "80eef4dd2f4bdce0ed60bd5dc2c21ea67661c56e",
+    "path": "docs/steering/2026-11-02-top100-profile-priorities.md",
+    "sha256_git_blob_bytes": "c651fe1213711d4e77b10a37b8f3baeb1b6826eb1cc967c61e18f8984e3abd40",
+    "reconciliation": "selected routes agree; full cell weight 16/62; preserve grid/split; uninstrumented whole-call gate; STOP unchanged"
+  }
+}
