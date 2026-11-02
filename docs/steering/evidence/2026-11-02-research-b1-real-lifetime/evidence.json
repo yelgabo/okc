@@ -1,0 +1,113 @@
+{
+  "scope": {
+    "started_utc": "2026-11-02T13:15:50Z",
+    "frozen_utc": "2026-11-02T13:20:32.921Z",
+    "allocation": "d02a9f273a0e59a999946c344524877322144c06",
+    "decision": "No demonstrated outer caller lifetime proof; conditional contract only",
+    "worker_files_read": false
+  },
+  "primary_sources": [
+    {
+      "url": "https://openkernelchallenge.dev/llms.txt",
+      "status": 200,
+      "sha256": "147237948bfff62ca4239bdef212f6f5a3d51fe49e1f82a54b34534f23f9d85f",
+      "bytes": 17531
+    },
+    {
+      "url": "https://openkernelchallenge.dev/api/v1/problems/muse_decode_layer",
+      "status": 200,
+      "sha256": "50c2897db21e6041d4d5b4d69aac8939bd9d66ff188d1a17766ffaa40f17e072",
+      "bytes": 98968
+    },
+    {
+      "url": "https://raw.githubusercontent.com/pytorch/pytorch/2b3ec34829036a65cd9d1398ea72a0167dc37470/torch/cuda/graphs.py",
+      "status": 200,
+      "sha256": "2ce9b12b17d39bba15e4f36dac0a6f2153f8ed40dd6464d0e188053732b7dbdf",
+      "bytes": 74753
+    },
+    {
+      "url": "https://raw.githubusercontent.com/pytorch/pytorch/2b3ec34829036a65cd9d1398ea72a0167dc37470/aten/src/ATen/cuda/CUDAGraph.h",
+      "status": 200,
+      "sha256": "203c4f7fc74b5598438614c42e7ef0a9d1388785ca6ce788ea579101f2fa1e0f",
+      "bytes": 9285
+    },
+    {
+      "url": "https://raw.githubusercontent.com/pytorch/pytorch/2b3ec34829036a65cd9d1398ea72a0167dc37470/aten/src/ATen/cuda/CUDAGraph.cpp",
+      "status": 200,
+      "sha256": "70d448a5e339391ce88fe12445df3c92f80e5c7931673fb3b8b560965dd9017e",
+      "bytes": 27997
+    }
+  ],
+  "official_problem_file_names": [
+    "template.py",
+    "baseline.py",
+    "reference.py",
+    "nvfp4.py",
+    "checks.py"
+  ],
+  "local_files": [
+    "muse_decode_layer/TASK.md",
+    "muse_decode_layer/reference.py",
+    "muse_decode_layer/cand/g1b4_stage_release.py"
+  ],
+  "source_ranges": {
+    "plan_copy": [
+      12176,
+      12183
+    ],
+    "plan_owner": [
+      12222,
+      12269
+    ],
+    "raw_pointer_consumer": [
+      12272,
+      12282
+    ],
+    "plan_install_and_prepare_sync": [
+      12450,
+      12474
+    ],
+    "local_composition_graphs": [
+      15252,
+      15274
+    ],
+    "composition_owners": [
+      15315,
+      15341
+    ],
+    "startup": [
+      17208,
+      17240
+    ]
+  },
+  "critical_literals": [
+    {
+      "url": "https://raw.githubusercontent.com/pytorch/pytorch/2b3ec34829036a65cd9d1398ea72a0167dc37470/torch/cuda/graphs.py",
+      "literal": "def retain_object(",
+      "meaning": "Explicit opt-in, not automatic PR retention"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/pytorch/pytorch/2b3ec34829036a65cd9d1398ea72a0167dc37470/torch/cuda/graphs.py",
+      "literal": "synchronize_before_release: bool = False",
+      "meaning": "Synchronization opt-in; inspected fire also swallows sync errors"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/pytorch/pytorch/2b3ec34829036a65cd9d1398ea72a0167dc37470/aten/src/ATen/cuda/CUDAGraph.cpp",
+      "literal": "void CUDAGraph::reset()",
+      "meaning": "Graph cleanup does not establish evaluator state lifetime"
+    }
+  ],
+  "missing": [
+    "Exact evaluator outer capture/replay/state-copy/teardown source",
+    "State strong reference retained until every graph is permanently retired",
+    "Exception and concurrent submission retirement order",
+    "Safe fail-closed cleanup after completion/context errors"
+  ],
+  "not_claimed": [
+    "Actual judge UAF",
+    "Harness source absent everywhere",
+    "Target support or eligibility",
+    "Performance benefit",
+    "Worker implementation correctness"
+  ]
+}
