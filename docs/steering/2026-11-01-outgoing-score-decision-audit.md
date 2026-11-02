@@ -1,5 +1,15 @@
 # Independent four-arm score decision audit
 
+## November2 04:49UTC differential review addendum
+
+Evidence base `ddb200aa615087f44bbb4cbf6fe6eec94a835674`. Previous goal turn was a verified wait with an independent CPU harness rerun: existing worker ordinal5 and researcher ordinal7 were authoritative running, not restarted. This turn completes an independent differential check against the actual worker reader rather than another source-only scoring proposal.
+
+The worker reader SHA256 `5435108e9eb729c7fe1f705244845cc7c916b9af780081e682c83ae81f736c1b` and embedded support SHA256 `07146ae3c3c5ac1d0e0871b1b49a1c62661ef28799768f6b76e35a05feaaacac` stayed unchanged across the comparison. [Differential tests](evidence/2026-11-01-captain-outgoing-qualification/test_worker_score_differential.py), [transcript](evidence/2026-11-01-captain-outgoing-qualification/worker-score-differential-tests.txt): **4/4 PASS**, including400 deterministic varied36-row inputs with exact equality of all3 bank records and final gate, an adapter-only false win, valid winner, one-bank failure, hidden context regression, invalid times and coverage. These are invented latencies, not GPU evidence. Arm labels/top-level gate names are intentionally different between implementations; bank records agree exactly.
+
+Captain independently reran the then-current real-entry suite under existing WSL `/root/.cache/okc-host-validate/bin/python`:6/6PASS in13.303s. Initial Windows default Python attempt lackedtorch and did not execute the real-entry tests; it is not a source failure. Worker subsequently reports15/15 final combined CPU/source/receipt/graph/resource tests and frozen upload `f25d714e928835fba07741ca56fa8783137032f268652c22ec4f5511d771bc9a`,934942bytes at04:47:48UTC; that later15-test result is worker-reported, not captain's6-test rerun. No accepted job yet at that checkpoint.
+
+Decision: no arithmetic blocker or additional readiness cycle. Worker completes its existing preregistration publication and fresh authenticated quota/no-live check, then the already allocated ONE private layer check. Target host compilation/resources/cooperative capture and295s fit are still NOT_RUN and qualify in that same check. No extra observer job, second dispatch, automatic retry, production-default change or public submission. Stop on instrument/runtime failure; a valid subthreshold result closes this fixed seam. Researcher's existing broader multi-load assignment continues unchanged. Zero newly performance-qualified candidates; no rank refresh or top100 completion claim.
+
 November1 Pacific / November2 UTC,2026. Evidence checkpoint `5c64b19` (literal commit prefix). This supplements, not replaces, the [one-check allocation](2026-11-01-outgoing-seam-qualification-decision.md). No GPU, check registration, source treatment, production default or public submission by the captain. Prior goal turn was progress: corrected selected compiler identity and published/dispatched the bounded worker/research allocations. Current live worker ordinal5 and researcher ordinal7 were checked; neither is restarted.
 
 ## Decision-relevant finding
