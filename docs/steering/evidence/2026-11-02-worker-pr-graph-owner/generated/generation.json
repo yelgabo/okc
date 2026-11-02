@@ -1,0 +1,19 @@
+{
+  "bytes": 879911,
+  "sha256": "25585f88ec8434023d31d54b78a7184c77959f2b589c870d714a6631b4f595be",
+  "exact_reversal": true,
+  "native_sources_unchanged": true,
+  "host_binding": "torch C++ extension, Driver VMM/user objects, one retirement thread per owner",
+  "host_cflags": [
+    "-O2",
+    "-std=c++17",
+    "-pthread"
+  ],
+  "host_ldflags": [
+    "-lcuda",
+    "-pthread",
+    "-Wl,-z,nodelete"
+  ],
+  "target_qualified": false,
+  "host_syntax_checked": false
+}

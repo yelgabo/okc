@@ -1,0 +1,25 @@
+{
+  "started_utc": "2026-11-02T13:41:05Z",
+  "readback_utc": "2026-11-02T13:58:27.781Z",
+  "scope": "Primary documentation HTTP source reads only; no driver or challenge service calls",
+  "files": [
+    {
+      "url": "https://docs.nvidia.com/cuda/archive/13.0.0/cuda-driver-api/group__CUDA__GRAPH.html",
+      "bytes": 692815,
+      "sha256": "da8dbb93d14374cfd71ff9df7f96fb2e4b74f1a21fb2b1cb9f6fc1821b84e614",
+      "signatures": [
+        " a stream. CUresult cuUserObjectCreate ( CUuserObject * object_out , void* ptr , CUhostFn destroy , unsigned int initialRefcount , unsigned int flags ) Create a user object. CUresult cuUserObjectRelease ( CUuserObject object , unsigned int count ) Release a reference to a user object. CUresult cuUserObjectRetain ( CUuserObject object , unsigned int count ) Retain a reference to a user object. Functions CUresult cuDeviceGetGraphMemAttribute ( CUdevice device , CUgrap",
+        "m a graph. CUresult cuGraphRetainUserObject ( CUgraph graph , CUuserObject object , unsigned int count , unsigned int flags ) Retain a reference to a user object from a graph. CUresult cuGraphUpload ( CUgraphExec hGraphExec , CUstream hStream ) Uploads an executable graph in a stream. CUresult cuUserObjectCreate ( CUuserObject * object_out , void* ptr , CUhostFn destroy , unsigned int initialRefcount , unsigned int flags ) Create a user object. CUresult cuUserObject",
+        "er object. CUresult cuUserObjectRelease ( CUuserObject object , unsigned int count ) Release a reference to a user object. CUresult cuUserObjectRetain ( CUuserObject object , unsigned int count ) Retain a reference to a user object. Functions CUresult cuDeviceGetGraphMemAttribute ( CUdevice device , CUgraphMem_attribute attr , void* value ) Query asynchronous allocation attributes related to graphs. Parameters device - Specifies the scope of the query attr - attribu"
+      ]
+    },
+    {
+      "url": "https://docs.nvidia.com/cuda/archive/13.0.0/cuda-driver-api/group__CUDA__STREAM.html",
+      "bytes": 237386,
+      "sha256": "ecafde02a830630a38324a924d1c45b080b9a6fda17613aa1e9c14ccfed8f63f",
+      "signatures": [
+        "attribute. CUresult cuStreamGetCaptureInfo ( CUstream hStream , CUstreamCaptureStatus * captureStatus_out , cuuint64_t* id_out , CUgraph * graph_out , const CUgraphNode ** dependencies_out , const CUgraphEdgeData ** edgeData_out , size_t* numDependencies_out ) Query a stream's capture state. CUresult cuStreamGetCtx ( CUstream hStream , CUcontext * pctx ) Query the context associated with a stream. CUresult cuStreamGetCtx_v2 ( CUstream hStream , CUcontext * pCtx , CU"
+      ]
+    }
+  ]
+}

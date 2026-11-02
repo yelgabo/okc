@@ -1,0 +1,66 @@
+{
+  "allocation": "41b3d803c687da6c950e47347d95e015223c473e",
+  "decision": "IMPLEMENTED_SOURCE_CPU_ONLY_TARGET_HOLD",
+  "files": [
+    {
+      "path": "tools/g_pr_graph_owner.py",
+      "bytes": 14428,
+      "sha256": "bb66f9d2ef46c69706c7205c8b9471bd54b77330619b1497dba23a82d235e167"
+    },
+    {
+      "path": "tools/test_g_pr_graph_owner.py",
+      "bytes": 15085,
+      "sha256": "92078abc787a071e328b24e0107768c4a080641e6639b602a215e9c5205aeb28"
+    },
+    {
+      "path": "docs/steering/2026-11-02-worker-pr-graph-owner.md",
+      "bytes": 10393,
+      "sha256": "dea7c09922166280b9adc380695a15cc838afb6c202ce6167159425500998c2c"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-worker-pr-graph-owner/decision.json",
+      "bytes": 996,
+      "sha256": "9d9332e9a8f6fc4908bd1159526bcd74c4b375b508f45df779df8eec53a62278"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-worker-pr-graph-owner/generated/candidate.py",
+      "bytes": 879911,
+      "sha256": "25585f88ec8434023d31d54b78a7184c77959f2b589c870d714a6631b4f595be"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-worker-pr-graph-owner/generated/generation.json",
+      "bytes": 469,
+      "sha256": "697987cf5913415bd8af5051e2e68d10a41b4013b8e0e99e0280218adc0ef717"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-worker-pr-graph-owner/generated/host.cpp",
+      "bytes": 8247,
+      "sha256": "edf8da0afd94bfc16cf107ff7ed3045a475abf5041aecc75e5e5a60e08193bd4"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-worker-pr-graph-owner/generation.log",
+      "bytes": 469,
+      "sha256": "697987cf5913415bd8af5051e2e68d10a41b4013b8e0e99e0280218adc0ef717"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-worker-pr-graph-owner/native-factories.json",
+      "bytes": 6070,
+      "sha256": "7ffada002dffcec0ccda09d45ed92e1292d1f70122c6e07b774ee2c91d09028a"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-worker-pr-graph-owner/primary-source-readback.json",
+      "bytes": 2631,
+      "sha256": "9682dd24a3a6bb6f58c885a7eed2e62ffeadd4812af3283363fcc8b579cd3dc7"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-worker-pr-graph-owner/tests-attempt1.log",
+      "bytes": 2673,
+      "sha256": "8df29fe10e535fe311f5cea3b80c0bc9d6bbe466a2d538c45296cc8a0b8273e8"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-worker-pr-graph-owner/tests.log",
+      "bytes": 1815,
+      "sha256": "d6e923d56c7c95f4056dff8d8df5b9bb70ca65a3fa686e951c12214465d6f0ef"
+    }
+  ]
+}

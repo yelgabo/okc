@@ -1,0 +1,267 @@
+{
+  "all_seven_equal": true,
+  "factories": [
+    {
+      "index": 0,
+      "fields": [
+        "name",
+        "cpp_sources",
+        "cuda_sources",
+        "functions",
+        "extra_cuda_cflags",
+        "verbose"
+      ],
+      "ordered_cuda_flags": [
+        "-O3",
+        "-gencode=arch=compute_90a,code=sm_90a",
+        "-lineinfo",
+        "-DOKC_NS=3",
+        "-DOKC_FNST=4",
+        "-DOKC_NSF=3",
+        "-DOKC_NW=8",
+        "-DOKC_TINY=1",
+        "-DOKC_EPI4=0",
+        "-DOKC_FAST1=2",
+        "-DOKC_L2H=0",
+        "-DOKC_NACC=4",
+        "-DOKC_UWARP=0",
+        "-DOKC_WS=1",
+        "-DOKC_WSB=1",
+        "-DOKC_WSBL=2",
+        "-DOKC_WSBLK=2",
+        "-DOKC_FINPF=1",
+        "-DOKC_PRMTSC=1",
+        "-DOKC_DQ7=1"
+      ],
+      "whole_dictionary_sha256": "23eb31fea8bf5859066ec99496effa71fceb92d48593975f2280f02e7704ba10"
+    },
+    {
+      "index": 1,
+      "fields": [
+        "name",
+        "cpp_sources",
+        "cuda_sources",
+        "functions",
+        "extra_cuda_cflags",
+        "verbose"
+      ],
+      "ordered_cuda_flags": [
+        "-O3",
+        "-gencode=arch=compute_90a,code=sm_90a",
+        "-lineinfo",
+        "-DOKC_NS=3",
+        "-DOKC_FNST=4",
+        "-DOKC_NSF=3",
+        "-DOKC_NW=8",
+        "-DOKC_TINY=1",
+        "-DOKC_CPF=0",
+        "-DOKC_EPI4=0",
+        "-DOKC_FAST1=2",
+        "-DOKC_NACC=4",
+        "-DOKC_UWARP=0",
+        "-DOKC_WS=1",
+        "-DOKC_WSB=1",
+        "-DOKC_WSBL=2",
+        "-DOKC_WSBLK=1",
+        "-DOKC_FINPF=1",
+        "-DOKC_PRMTSC=1",
+        "-DOKC_DQ7=1"
+      ],
+      "whole_dictionary_sha256": "fbcda9d4e6c2aac119b6280d72d7f24b66b1e35a68cdc5bad79cfc8504ed1d04"
+    },
+    {
+      "index": 2,
+      "fields": [
+        "name",
+        "cpp_sources",
+        "cuda_sources",
+        "functions",
+        "extra_cuda_cflags",
+        "verbose"
+      ],
+      "ordered_cuda_flags": [
+        "-O3",
+        "-gencode=arch=compute_90a,code=sm_90a",
+        "-lineinfo",
+        "-DOKC_NS=3",
+        "-DOKC_FNST=4",
+        "-DOKC_NSF=3",
+        "-DOKC_NW=8",
+        "-DOKC_TINY=1",
+        "-DOKC_SPLIT=1",
+        "-DOKC_CPF=0",
+        "-DOKC_EPI4=0",
+        "-DOKC_FAST1=2",
+        "-DOKC_NACC=4",
+        "-DOKC_UWARP=0",
+        "-DOKC_WS=1",
+        "-DOKC_WSB=1",
+        "-DOKC_WSBL=2",
+        "-DOKC_WSBLK=2",
+        "-DOKC_FINPF=1",
+        "-DOKC_PRMTSC=1",
+        "-DOKC_DQ7=1"
+      ],
+      "whole_dictionary_sha256": "724849611cba9d65d0cdaafa4ea4a527b26e1b5ad41014e7ac5794a0f1a96bb3"
+    },
+    {
+      "index": 3,
+      "fields": [
+        "name",
+        "cpp_sources",
+        "cuda_sources",
+        "functions",
+        "extra_cuda_cflags",
+        "verbose"
+      ],
+      "ordered_cuda_flags": [
+        "-O3",
+        "-gencode=arch=compute_90a,code=sm_90a",
+        "-lineinfo",
+        "-DOKC_NS=3",
+        "-DOKC_FNST=4",
+        "-DOKC_NSF=3",
+        "-DOKC_NW=16",
+        "-DOKC_FAST1=0",
+        "-DOKC_EPI4=0",
+        "-DOKC_WGS=1",
+        "-DOKC_B4FIN=1",
+        "-DOKC_SC6W=1",
+        "-DOKC_PRMTSC=1",
+        "-DOKC_DQ7=1"
+      ],
+      "whole_dictionary_sha256": "e5af875ea34ec79f76861fffd76ada00409c2ecf36aa4ea7100d63c1f4a64acf"
+    },
+    {
+      "index": 4,
+      "fields": [
+        "name",
+        "cpp_sources",
+        "cuda_sources",
+        "functions",
+        "extra_cuda_cflags",
+        "verbose"
+      ],
+      "ordered_cuda_flags": [
+        "-O3",
+        "-gencode=arch=compute_90a,code=sm_90a",
+        "-lineinfo",
+        "-DOKC_NS=3",
+        "-DOKC_FNST=4",
+        "-DOKC_NSF=3",
+        "-DOKC_NW=16",
+        "-DOKC_FAST1=0",
+        "-DOKC_EPI4=0",
+        "-DOKC_WGS=1",
+        "-DOKC_SC6W=1",
+        "-DOKC_PRMTSC=1",
+        "-DOKC_DQ7=1"
+      ],
+      "whole_dictionary_sha256": "d719dcc354ef2ea9f1606177718d2b553a0fd525198b11dcc9618fec47a1725d"
+    },
+    {
+      "index": 5,
+      "fields": [
+        "name",
+        "cpp_sources",
+        "cuda_sources",
+        "functions",
+        "extra_cuda_cflags",
+        "verbose"
+      ],
+      "ordered_cuda_flags": [
+        "-O3",
+        "-gencode=arch=compute_90a,code=sm_90a",
+        "-lineinfo",
+        "-DOKC_NS=3",
+        "-DOKC_FNST=4",
+        "-DOKC_NSF=3",
+        "-DOKC_NW=8",
+        "-DOKC_TINY=1",
+        "-DOKC_EPI4=0",
+        "-DOKC_FAST1=2",
+        "-DOKC_L2H=0",
+        "-DOKC_NACC=4",
+        "-DOKC_UWARP=0",
+        "-DOKC_WS=1",
+        "-DOKC_WSB=1",
+        "-DOKC_WSBL=2",
+        "-DOKC_WSBLK=2",
+        "-DOKC_FINPF=1",
+        "-DOKC_PRMTSC=1",
+        "-DOKC_DQ7=1",
+        "-DOKC_SHORT_FINAL_RELAXED=1"
+      ],
+      "whole_dictionary_sha256": "08d0d89a079435f8917049afac805b253211dd9f2d4d1560ed874258764e3717"
+    },
+    {
+      "index": 6,
+      "fields": [
+        "name",
+        "cpp_sources",
+        "cuda_sources",
+        "functions",
+        "extra_cuda_cflags",
+        "verbose"
+      ],
+      "ordered_cuda_flags": [
+        "-O3",
+        "-gencode=arch=compute_90a,code=sm_90a",
+        "-lineinfo",
+        "-DOKC_NS=3",
+        "-DOKC_FNST=4",
+        "-DOKC_NSF=3",
+        "-DOKC_NW=8",
+        "-DOKC_TINY=1",
+        "-DOKC_CPF=0",
+        "-DOKC_EPI4=0",
+        "-DOKC_FAST1=2",
+        "-DOKC_NACC=4",
+        "-DOKC_UWARP=0",
+        "-DOKC_WS=1",
+        "-DOKC_WSB=1",
+        "-DOKC_WSBL=2",
+        "-DOKC_WSBLK=1",
+        "-DOKC_FINPF=1",
+        "-DOKC_PRMTSC=1",
+        "-DOKC_DQ7=1",
+        "-DOKC_SHORT_FINAL_RELAXED=1"
+      ],
+      "whole_dictionary_sha256": "46b6e70f8a321e34c4e43343b0dc2d024e8e06bec155bc454cf259959d1cbe19"
+    }
+  ],
+  "routes": [
+    {
+      "tokens": 1,
+      "selected_key": "tiny"
+    },
+    {
+      "tokens": 8,
+      "selected_key": "tiny2"
+    },
+    {
+      "tokens": 16,
+      "selected_key": "mid"
+    },
+    {
+      "tokens": 32,
+      "selected_key": "b4"
+    },
+    {
+      "tokens": 33,
+      "selected_key": "main"
+    },
+    {
+      "tokens": 128,
+      "selected_key": "main"
+    },
+    {
+      "tokens": 256,
+      "selected_key": "main"
+    },
+    {
+      "tokens": 384,
+      "selected_key": "main"
+    }
+  ]
+}

@@ -1,0 +1,37 @@
+test_abort_and_eager_retirement_exactly_once (test_g_pr_graph_owner.Contracts.test_abort_and_eager_retirement_exactly_once) ... ok
+test_actual_final_prepare_and_both_plans (test_g_pr_graph_owner.Contracts.test_actual_final_prepare_and_both_plans) ... ok
+test_callback_signal_only_and_before_read_coverage (test_g_pr_graph_owner.Contracts.test_callback_signal_only_and_before_read_coverage) ... ok
+test_capture_clone_abort_inflight_destroy (test_g_pr_graph_owner.Contracts.test_capture_clone_abort_inflight_destroy) ... ok
+test_capture_hook_failures_prevent_lt_read (test_g_pr_graph_owner.Contracts.test_capture_hook_failures_prevent_lt_read) ... ok
+test_independent_interleaved_states_and_nonpr (test_g_pr_graph_owner.Contracts.test_independent_interleaved_states_and_nonpr) ... ok
+test_reused_handle_not_capture_cache (test_g_pr_graph_owner.Contracts.test_reused_handle_not_capture_cache) ... ok
+test_source_reversal_and_seven_factories (test_g_pr_graph_owner.Contracts.test_source_reversal_and_seven_factories) ... ok
+test_staged_fallback_keeps_actual_original_pr (test_g_pr_graph_owner.Contracts.test_staged_fallback_keeps_actual_original_pr) ... ok
+test_tagged_plan_deepcopy_alias_and_wrong_weight_negative (test_g_pr_graph_owner.Contracts.test_tagged_plan_deepcopy_alias_and_wrong_weight_negative) ... ERROR
+
+======================================================================
+ERROR: test_tagged_plan_deepcopy_alias_and_wrong_weight_negative (test_g_pr_graph_owner.Contracts.test_tagged_plan_deepcopy_alias_and_wrong_weight_negative)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/c/Users/gretc/Documents/GitHub/okc/tools/test_g_pr_graph_owner.py", line 237, in test_tagged_plan_deepcopy_alias_and_wrong_weight_negative
+    cloned=copy.deepcopy(plan)
+  File "/usr/lib/python3.14/copy.py", line 138, in deepcopy
+    y = copier(memo)
+  File "<string>", line 36, in _pr_graph_plan_deepcopy
+  File "/usr/lib/python3.14/copy.py", line 157, in deepcopy
+    y = _reconstruct(x, memo, *rv)
+  File "/usr/lib/python3.14/copy.py", line 240, in _reconstruct
+    state = deepcopy(state, memo)
+  File "/usr/lib/python3.14/copy.py", line 131, in deepcopy
+    y = copier(x, memo)
+  File "/usr/lib/python3.14/copy.py", line 202, in _deepcopy_dict
+    y[deepcopy(key, memo)] = deepcopy(value, memo)
+                             ~~~~~~~~^^^^^^^^^^^^^
+  File "/usr/lib/python3.14/copy.py", line 146, in deepcopy
+    rv = reductor(4)
+ValueError: ctypes objects containing pointers cannot be pickled
+
+----------------------------------------------------------------------
+Ran 10 tests in 11.199s
+
+FAILED (errors=1)
