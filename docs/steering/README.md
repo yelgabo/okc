@@ -104,7 +104,11 @@ The existing CUTLASS pooler, wide 8-stage picks, DCARRY/PK16/VHOIST and failed l
 are explicitly accounted for. No kernels, validation policies, GPU runs or submissions changed.
 This is separate from the layer's M1/tuner-stability work below.
 
-## Latest hourly report, November 2 05:28 Vancouver time
+## Latest hourly report, November 2 06:47 Vancouver time
+
+Short serial passed correctness but missed its confirmation thresholds. The last private check remains reserved. [Review and six-load timings](2026-11-02-0647-performance-review.md)
+
+## Previous hourly report, November 2 05:28 Vancouver time
 
 A fresh G1b4 control is queued. The serial short producer awaits its candidate run. The canonical timed SiLU receipt is available. [Review](2026-11-02-0528-performance-review.md)
 

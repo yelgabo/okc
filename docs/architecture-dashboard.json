@@ -1,6 +1,6 @@
 {
-  "reviewed_at": "2026-11-02T05:28:00-07:00",
-  "snapshot": "8c0bfba",
+  "reviewed_at": "2026-11-02T06:47:00-07:00",
+  "snapshot": "fcf5452",
   "family_registry_update": {
     "date": "2026-10-30",
     "evidence_snapshot": "7a5965531103f275ac104d340ef30f1508e32353",
@@ -11,7 +11,7 @@
     "score": "2.1261×",
     "interval": "2.0942–2.1580",
     "job": "607eb52bdaf24160",
-    "note": "G1b4 retains the public score. The matched short-counter comparison missed its gate. G224 and timed SiLU passed correctness and were parked after single-run performance checks."
+    "note": "Fresh private control 2.1092×, serial candidate 2.0931×. All six loads were slower in the candidate run, including unchanged workloads. The retained public layer is G1b4."
   },
   "families": [
     {
@@ -120,13 +120,10 @@
       "label": "Retained layer • counter test complete",
       "metric": "2.1261×",
       "unit": "Public layer score, 95% CI 2.0942–2.1580",
-      "summary": "The matched short-counter test measured −0.183% to +0.283% across twelve comparisons, below the 1% threshold.",
-      "layer": "Retained G1b4 scored 2.1261×. Four-cell verify ended in a refunded infrastructure failure.",
+      "summary": "The one- and eight-token serial path ran as intended. Both private runs passed correctness. The six-load latency factor of 0.969827× missed the 1.01 confirmation threshold.",
+      "layer": "G1b4 retains 2.1261×. The serial candidate is parked.",
       "pending": [],
-      "evaluation_pending": [
-        "Fresh G1b4 control cc474883117947c0",
-        "Short serial producer 5d883c43 after valid control receipt"
-      ],
+      "evaluation_pending": [],
       "limit": "Private G224 and timed SiLU scored 1.9747× and 2.0733× in separate runs. Their performance gates closed both candidates. The G0 gap remains unexplained.",
       "source": "runs-decode-layer.md",
       "outcomes": [
@@ -147,9 +144,9 @@
       "summary": "The first check failed its graph query. The second found mismatched routing across arms during preparation. The tested path is closed."
     },
     {
-      "name": "Short serial pooler and router",
-      "label": "Control queued • candidate registered",
-      "summary": "Fresh G1b4 control cc474883117947c0 has no result yet. The candidate changes eligible one- and eight-token inputs. The 128/256-token paths use incumbent dispatch."
+      "name": "PR buffer lifetime at 128/256 tokens",
+      "label": "Source investigation only",
+      "summary": "Plain ownership stopped at the caller-graph lifetime requirement. A graph user-object alternative awaits implementation evidence. One private check remains reserved."
     }
   ]
 }
