@@ -1,5 +1,11 @@
 # Ruled out
 
+## November2 UTC2026 scoped compiler addendum
+
+|Treatment|Evidence|Closure and reopening gate|
+|---|---|---|
+|Frozen full-family gamma ON d6756bb5, MAIN both bool entries, secondary CUDA13 screen|No GPU job; researcher report steering/2026-11-01-gamma13-main-screen.md, publication241c04a. NVRTC13.0.88/PTXAS13.0.88 baseline/OFF normalized equivalence; ON96regs/16bars unchanged but stack8->16B, spill stores20->60B, loads52->88B. Actual NVCC13 preprocessing unavailable without host compiler.|Stop this frozen resource treatment; no port/GPU/mask/cap/spelling sweep. Not target-NVCC equivalence, dynamic spill traffic or performance evidence; does not replace old12.8 closure. Reopening requires materially different justified mechanism/resource evidence, not c193 CUDA localSizeBytes0 or compiler-version speculation.|
+
 Every experiment that lost or was closed, with the evidence and what it rules out. Check here
 before proposing an experiment; reopen an entry only with new evidence that changes its
 measured ceiling, and say what that evidence is. Full details are in the runs logs named per
