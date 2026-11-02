@@ -1,0 +1,73 @@
+{
+  "standalone_phase_a": [
+    {
+      "tokens": 128,
+      "seed": 76111,
+      "whole": 638,
+      "whole_ntt_gt1": 115,
+      "whole_nonterminal": 506,
+      "whole_terminal": 132,
+      "split_segments": 196,
+      "whole_ntt1": 523
+    },
+    {
+      "tokens": 128,
+      "seed": 76117,
+      "split_segments": 222,
+      "whole": 625,
+      "whole_ntt_gt1": 128,
+      "whole_nonterminal": 493,
+      "whole_terminal": 132,
+      "whole_ntt1": 497
+    },
+    {
+      "tokens": 128,
+      "seed": 76123,
+      "whole": 608,
+      "whole_ntt_gt1": 196,
+      "whole_nonterminal": 476,
+      "whole_terminal": 132,
+      "split_segments": 192,
+      "whole_ntt1": 412
+    },
+    {
+      "tokens": 256,
+      "seed": 76111,
+      "split_segments": 222,
+      "whole": 657,
+      "whole_ntt_gt1": 321,
+      "whole_nonterminal": 525,
+      "whole_terminal": 132,
+      "whole_ntt1": 336
+    },
+    {
+      "tokens": 256,
+      "seed": 76117,
+      "whole": 727,
+      "whole_ntt_gt1": 361,
+      "whole_nonterminal": 595,
+      "whole_terminal": 132,
+      "split_segments": 210,
+      "whole_ntt1": 366
+    },
+    {
+      "tokens": 256,
+      "seed": 76123,
+      "split_segments": 236,
+      "whole": 746,
+      "whole_ntt_gt1": 323,
+      "whole_nonterminal": 614,
+      "whole_terminal": 132,
+      "whole_ntt1": 423
+    }
+  ],
+  "grid": 132,
+  "representative_range_matches": 12,
+  "scope": "Six standalone inputs, NOT layer observations. Terminal = last phase-A segment per CTA.",
+  "compressed_mailbox_max_bytes": 32768,
+  "caveat": "Address/count checks only; no GPU/timing/compile/numerical validation.",
+  "pins": {
+    "docs\\steering\\evidence\\2026-11-01-g-stage-probe\\f147d06a64504c1e.decoded.json": "85fbaf6bd2f009b67b0d48b1db06b7691b36fb449c22c606f50e71848bb1a3f0",
+    "muse_moe_w4a16\\profiles\\g-stage-check.f147d06a64504c1e.receipt.json": "18c9b9a84c737345b648ed8ed9949f113bd5face85af66e735bccb5812ec98ad"
+  }
+}
