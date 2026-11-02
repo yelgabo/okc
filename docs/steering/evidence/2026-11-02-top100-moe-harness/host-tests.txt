@@ -1,0 +1,16 @@
+test_bad_route_and_weight_normalization_through_prepare (__main__.HarnessTests.test_bad_route_and_weight_normalization_through_prepare) ... ok
+test_complete_entry_budget_and_ownership_fail_closed (__main__.HarnessTests.test_complete_entry_budget_and_ownership_fail_closed) ... ok
+test_complete_generated_orchestration_storage_replay_and_official_candidate (__main__.HarnessTests.test_complete_generated_orchestration_storage_replay_and_official_candidate) ... ok
+test_deterministic_pins_hold_and_compiler_rejection (__main__.HarnessTests.test_deterministic_pins_hold_and_compiler_rejection) ... ok
+test_exact_extracted_routing_and_capacity (__main__.HarnessTests.test_exact_extracted_routing_and_capacity) ... ok
+test_frozen_equal_six_cross_null_regression_gates (__main__.HarnessTests.test_frozen_equal_six_cross_null_regression_gates) ... ok
+test_full_failures_restore_inputs_graphs_loader_and_scratch (__main__.HarnessTests.test_full_failures_restore_inputs_graphs_loader_and_scratch) ... ok
+test_full_inference_context (__main__.HarnessTests.test_full_inference_context) ... ok
+test_guard_corruption_fails_closed (__main__.HarnessTests.test_guard_corruption_fails_closed) ... ok
+test_near_zero_and_row_errors (__main__.HarnessTests.test_near_zero_and_row_errors) ... ok
+test_receipts_actual_schema_and_negative_associations (__main__.HarnessTests.test_receipts_actual_schema_and_negative_associations) ... ok
+
+----------------------------------------------------------------------
+Ran 11 tests in 24.126s
+
+OK
