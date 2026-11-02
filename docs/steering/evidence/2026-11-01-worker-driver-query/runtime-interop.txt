@@ -1,0 +1,36 @@
+ *
+ * In order to use a ::cudaSurfaceObject_t in a CUDA Driver API function which takes a ::CUsurfObject,
+ * it is necessary to explicitly cast the ::cudaSurfaceObject_t to a ::CUsurfObject.
+ *
+ * \section CUDART_CUDA_module Interactions between CUfunction and cudaFunction_t
+ *
+ * The types ::CUfunction and ::cudaFunction_t represent the same data type and may be used
+ * interchangeably by casting the two types between each other.
+ *
+ * In order to use a ::cudaFunction_t in a CUDA Driver API function which takes a ::CUfunction,
+ * it is necessary to explicitly cast the ::cudaFunction_t to a ::CUfunction.
+ *
+ * \section CUDART_CUDA_library Interactions between CUkernel and cudaKernel_t
+ *
+ * The types ::CUkernel and ::cudaKernel_t represent the same data type and may be used
+ * interchangeably by casting the two types between each other.
+ *
+ * In order to use a ::cudaKernel_t in a CUDA Driver API function which takes a ::CUkernel,
+ * it is necessary to explicitly cast the ::cudaKernel_t to a ::CUkernel.
+ *
+ */
+
+ /**
+  * \brief Get pointer to device entry function that matches entry function \p symbolPtr
+  *
+  * Returns in \p functionPtr the device entry function corresponding to the symbol \p symbolPtr.
+  *
+  * \param functionPtr     - Returns the device entry function
+  * \param symbolPtr       - Pointer to device entry function to search for
+  *
+  * \return
+  * ::cudaSuccess
+  *
+  */
+extern __host__ cudaError_t CUDARTAPI cudaGetFuncBySymbol(cudaFunction_t* functionPtr, const void* symbolPtr);
+

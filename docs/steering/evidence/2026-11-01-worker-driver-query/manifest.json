@@ -1,0 +1,53 @@
+{
+  "at": "2026-11-02T05:33:16.200Z",
+  "scope": "SOURCE/CPU only; unintegrated read-only host query; no compiled/runtime proof",
+  "base_archive": "26b3b88b7a98920d0717d6d8ac0af8660677b199",
+  "immutable_manifest_files_verified": 32,
+  "failed_upload_sha256": "f25d714e928835fba07741ca56fa8783137032f268652c22ec4f5511d771bc9a",
+  "failed_reader_sha256": "5435108e9eb729c7fe1f705244845cc7c916b9af780081e682c83ae81f736c1b",
+  "tests": {
+    "exit": 0,
+    "count": 6,
+    "mocked_native": true
+  },
+  "host_compile": "NOT_RUN",
+  "driver_link": "-lcuda required, not tested/wired",
+  "gpu": "NOT_RUN",
+  "files": [
+    {
+      "path": "tools/g_outgoing_driver_query.py",
+      "bytes": 6144,
+      "sha256": "50246c23c2951c721bb4108cb03ebfdb8b8f2903b461d4cb569e3d93331ca235"
+    },
+    {
+      "path": "tools/test_g_outgoing_driver_query.py",
+      "bytes": 5047,
+      "sha256": "b839613b51fc6eba86df924edb32ef1eb667324dd651a1d882fb6c641da4d2c0"
+    },
+    {
+      "path": "docs/steering/2026-11-01-worker-driver-query.md",
+      "bytes": 6001,
+      "sha256": "d203241811f4b43900b42dc555a51876ee7713b4beb8d87220480afe4de15b6f"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-01-worker-driver-query/cpu-tests.txt",
+      "bytes": 950,
+      "sha256": "c8922e37ee74cabdc1bd8154de6d84981667068cfe5954ce118c16a6e31286d1"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-01-worker-driver-query/header-sha256.txt",
+      "bytes": 377,
+      "sha256": "2c3bc9bfd3d1c44958a77c98e1d22b03d701c4b3711993e7ab6a3f47522329f0"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-01-worker-driver-query/runtime-interop.txt",
+      "bytes": 1556,
+      "sha256": "bbc51a3fdb624439e943b1c4b2fc439391d8e23fb7b58f3101f802703d3279fa"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-01-worker-driver-query/driver-edge-abi.txt",
+      "bytes": 1734,
+      "sha256": "df1cc44772421a646a53038361187ceecb5371e9617408eebb64dfbb3564a235"
+    }
+  ]
+}

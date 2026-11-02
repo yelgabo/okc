@@ -1,0 +1,38 @@
+ * \brief Returns a graph's dependency edges
+ *
+ * Returns a list of \p hGraph's dependency edges. Edges are returned via corresponding
+ * indices in \p from, \p to and \p edgeData; that is, the node in \p to[i] has a
+ * dependency on the node in \p from[i] with data \p edgeData[i]. \p from and \p to may
+ * both be NULL, in which case this function only returns the number of edges in
+ * \p numEdges. Otherwise, \p numEdges entries will be filled in. If \p numEdges is higher
+ * than the actual number of edges, the remaining entries in \p from and \p to will be
+ * set to NULL, and the number of edges actually returned will be written to \p numEdges.
+ * \p edgeData may alone be NULL, in which case the edges must all have default (zeroed)
+ * edge data. Attempting a lossy query via NULL \p edgeData will result in
+ * ::CUDA_ERROR_LOSSY_QUERY. If \p edgeData is non-NULL then \p from and \p to must be
+ * as well.
+ *
+ * \param hGraph   - Graph to get the edges from
+ * \param from     - Location to return edge endpoints
+ * \param to       - Location to return edge endpoints
+ * \param edgeData - Optional location to return edge data
+ * \param numEdges - See description
+ *
+ * \return
+ * ::CUDA_SUCCESS,
+ * ::CUDA_ERROR_LOSSY_QUERY,
+ * ::CUDA_ERROR_DEINITIALIZED,
+ * ::CUDA_ERROR_NOT_INITIALIZED,
+ * ::CUDA_ERROR_INVALID_VALUE
+ * \note_graph_thread_safety
+ * \notefnerr
+ *
+ * \sa
+ * ::cuGraphGetNodes,
+ * ::cuGraphGetRootNodes,
+ * ::cuGraphAddDependencies,
+ * ::cuGraphRemoveDependencies,
+ * ::cuGraphNodeGetDependencies,
+ * ::cuGraphNodeGetDependentNodes
+ */
+CUresult CUDAAPI cuGraphGetEdges(CUgraph hGraph, CUgraphNode *from, CUgraphNode *to, CUgraphEdgeData *edgeData, size_t *numEdges);
