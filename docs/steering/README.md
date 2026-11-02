@@ -2,6 +2,13 @@
 
 This is the stable cross-session entry point. Read the latest human priority, its evidence snapshot and subsequent commits before continuing. Existing captain/worker ownership, correctness requirements and submission permissions remain in effect. A report is not an additional GPU dispatch.
 
+## Decode32 task inbox
+
+[Add research assignments and direction here](decode32/README.md). The
+"Review decode32 research tasks" chat is waiting for an assignment and checks
+this folder during work and through a five-minute heartbeat. Existing captain
+and developer ownership remains. [Setup and monitoring contract](2026-11-02-decode32-inbox.md).
+
 ## P0 owner assignment: OK Driver and OKC Developer
 
 **[November 2: Explicit decode32 owner directive and pickup ledger](2026-11-02-decode32-owner-directive.md)** — the user reiterated "make it priority for them please". D32 is the primary next performance assignment, ahead of unrelated short-load or large-verify-only work. The directive is also at the top of both root instruction files, `AGENTS.md` and `CLAUDE.md`.
@@ -32,6 +39,7 @@ Captain retains one current-service unchanged607 calibration, then one cheap fix
 
 | Report | Evidence | Scope |
 |---|---|---|
+| [Decode32 inbox setup](2026-11-02-decode32-inbox.md) | bdbf35bf; user request | Shared task folder, waiting chat, periodic monitoring and preserved execution ownership |
 | [Decode32 owner directive](2026-11-02-decode32-owner-directive.md) | b9ca9dff and captain5b4a729a; explicit user follow-up | P0 in root instructions; captain pickup confirmed; new developer delivery/acknowledgment not yet verified |
 | [Captain D32 MID comparison](2026-11-02-driver-d32-mid-comparison.md) | b9ca9dff human priority; own0b terminal; source auditba9/b8 | DirectD32 negative closure, current-service control and fixed existing MID17..32 exploration; no new shader/math/packing/sweep |
 | [Direct terminal and superseded broad proposal](2026-11-02-driver-direct-weight-terminal-and-dense-backing.md) | own0b684a40;368b85c9; fullraw/profiles;23:33UTC | ExactPARK; broad P1 superseded before delivery; P0 calibration retained |
