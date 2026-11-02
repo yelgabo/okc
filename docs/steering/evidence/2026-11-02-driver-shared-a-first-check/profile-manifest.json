@@ -1,0 +1,20 @@
+[
+  {
+    "kind": "log",
+    "path": "docs/steering/evidence/2026-11-02-worker-shared-a-pipeline/generated/profiles/candidate.5adf172986ff43dc.log",
+    "bytes": 700,
+    "sha256": "30b8d8fd3a72fdd564510297842db6f5a747ef0b9574855b4670c34a3e1be79d"
+  },
+  {
+    "kind": "json",
+    "path": "docs/steering/evidence/2026-11-02-worker-shared-a-pipeline/generated/profiles/candidate.5adf172986ff43dc.json",
+    "bytes": 57783,
+    "sha256": "d52c07040197b82beede2bc24d207d3894b794ae094aa458a794d14f0a07b7f8"
+  },
+  {
+    "kind": "text",
+    "path": "docs/steering/evidence/2026-11-02-worker-shared-a-pipeline/generated/profiles/candidate.5adf172986ff43dc.txt",
+    "bytes": 13888,
+    "sha256": "e43c5508e5ab55ad347ba95d45040ca978b0f58edfeabf191b74db0db923f840"
+  }
+]

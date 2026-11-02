@@ -1,0 +1,35 @@
+{
+  "reviewer": "root/next_material_measurement",
+  "decision": "SOURCE_ROI_STOP_NO_IMPLEMENTATION_OR_CHECK",
+  "edits": false,
+  "GPU_or_CLI_calls": false,
+  "input_generator_path": "muse_decode_layer\\nvfp4.py",
+  "input_generator_sha256": "23521756bcaa7ff8586b2965130622ef1f5f68a58268a4f6158f4ef1de80c65d",
+  "code_distribution": "uniform torch.randint(0,256) uint8, all16nibbles; packers losslessly permute bits",
+  "selected_WGS_indices": [
+    12,
+    13
+  ],
+  "WGS_MiB": 840,
+  "WGS_code_MiB": 768,
+  "WGS_scale_MiB": 72,
+  "selected_unit_indices": [
+    10,
+    11
+  ],
+  "unit_MiB": 864,
+  "WGS_affected_loads": [
+    "decode32",
+    "verify16",
+    "verify32"
+  ],
+  "conditional_eliminate_all_scales_full_expert_proportional_layer_gain": 0.02236,
+  "limitation": "Scenario, not exposedtime ceiling or forecast. No evidence of useful codebulk compression; not a genericVMM safety or trained-weight claim.",
+  "lifetime_requirements": [
+    "generalizeBF16specificallocationtoexactuint8",
+    "state-localnativeproxycoversALLstartup/private/eager/capturedreads",
+    "preservegraphclone/exec/inflightuserobjectsandowner-eventsfinallycleanup",
+    "replacebackingbefore56startup,notafter",
+    "privatepointer/layout/cacheownership"
+  ]
+}

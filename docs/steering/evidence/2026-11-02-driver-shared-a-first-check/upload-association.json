@@ -1,7 +1,6 @@
 {
-  "observed_at_utc": "2026-11-02T22:57:39.790012+00:00",
   "job": "5adf172986ff43dc",
-  "status": "queued",
+  "status": "done",
   "team": "yelgabo",
   "board": "muse_decode_layer",
   "mode": "check",
@@ -10,6 +9,10 @@
   "implementation": "dcb24972",
   "server_content_identifier": "d697db44e259d52c65efcf11bd6ce68e1d6fba7d28e3f3f5c7a9bc086707acba",
   "payload_ref": "muse_decode_layer/d697db44e259d52c65efcf11bd6ce68e1d6fba7d28e3f3f5c7a9bc086707acba.py",
-  "cluster": null,
-  "association_limit": "Matched own POST/ID receipt and payload metadata, not an independent server payload download."
+  "cluster": "nyc3b",
+  "association_limit": "Matched own POST/ID receipt and payload metadata, not an independent server payload download.",
+  "result_status": "ok",
+  "terminal_receipt": "status-wait.raw.json",
+  "initial_observed_at_utc": "2026-11-02T22:57:39.790012+00:00",
+  "terminal_retrieved_at_utc": "2026-11-02T23:05:55.008054+00:00"
 }

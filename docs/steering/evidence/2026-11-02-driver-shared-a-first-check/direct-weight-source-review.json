@@ -1,0 +1,27 @@
+{
+  "reviewer": "root/ss_expert_geometry_review",
+  "decision": "GO_ONE_FIXED_DIRECT_GLOBAL_RS_IMPLEMENTATION",
+  "scope": "Bounded read-only source/closure search of ruled-out, MoE/layer runs, steering and tools; no universal completeness claim",
+  "kernel_edits": false,
+  "judge_calls": false,
+  "base": "ba9/c7",
+  "fixed_geometry": "256rows/fourWG/64tokenreuse/K256/16stages,544threads=512compute+32X,oneCTA",
+  "physical_stage_rule": "Passs0..s1-1 explicitly; seq%16wrong for reordered/splitranges",
+  "global_weight_pointer": "(PB?p.wBs:p.wAs)+(((S.jE[u>>UBL]<<UBL)+(u&((1<<UBL)-1)))*16+physical_st)*WGS_STG+wg*WGS_PIECE",
+  "dynamic_shared_bytes": 120576,
+  "doneAs": "originalub>>1/count8",
+  "preserve": [
+    "immutablepreparedweightbanklifetime",
+    "threeXslots/proxyfences/readretirement",
+    "registerAfencing",
+    "allinterCTApublication/acquire/split/terminaldrains",
+    "allmath/packing/finalization/ranges"
+  ],
+  "costs": [
+    "globalLDG latency/cache/scoreboardversusLDS+bulkTMA",
+    "loseindependentthree-stageweightlookahead",
+    "same logicalHBMpayload;physicaltrafficunmeasured"
+  ],
+  "related_closures": "ProjectionRD/T1three-launch/Oct28legacyTMAregisterGEMM concern different bodies, not exactc7route",
+  "allocation_suggested": "one60-minute implementation and oneordinaryprivatecheck;no sweep or automaticretry"
+}
