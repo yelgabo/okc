@@ -1,5 +1,12 @@
 # Ruled out
 
+## November 2 UTC 2026 fixed chunk-phased resource screen and explicit prospective reopening
+
+| Treatment | Evidence | Scope and next decision |
+| --- | --- | --- |
+| Frozen chunk-phased G2 native53d09576 | Workerb61b722; allfour96regs/16barriers/8Bstack; B4stores8/loads24, MAIN8/8. Captain22remote paths/21manifest entries verified,4/4CPU PASS. steering/2026-11-02-worker-g224-chunk-phased.md. | Original absolute-zero gate FAILED, no timing inference. Separate captain reference decision2026-11-02-captain-reference-gate.md explicitly reopens frozen readiness ONLY because published original607 MAIN itself has8Bstack/20store/52load under secondary13. Need exactB4 comparator, no-worse resource screen, full changed progress proof and <=1MBplainpack before separately authorized target qualification. No new native edits/rescue/sweep or GPU; original registered failure preserved. |
+
+
 ## November 2 UTC 2026 corrected-storage G2/24 fixed resource stop
 
 | Treatment | Evidence | Scope and reopening condition |
