@@ -1,5 +1,7 @@
 # Shared project steering
 
+Latest compiled attribution: [Corrected gather/segment spill mapping](2026-11-02-g224-spill-attribution.md), researcherafeaa690 independently verified all14 remote paths. Gather dominates static local sites; six inner WGMMA stage loops local-free, but phase-B state also spills. Supports the single chunk-phased hypothesis, not a timing gain or sole-cause claim. Same four-entry zero-stack/spill gate and noGPU authorization. See allocation08:17UTCaddendum.
+
 Latest bounded implementation: [ONE chunk-phased G2 gather schedule](2026-11-02-captain-chunk-phased-allocation.md). Existing worker ordinal11 started: fixed eight-row batches but two sequential chunk phases to reduce simultaneous payload/address storage; all arithmetic/geometry/publication unchanged. Source-derived captain witness24counts/171ranges PASS, not transformed/native/progress proof. Maximum30min, same four-entry offline screen; ANY remaining stack/spills STOP, no second rescue. NoGPU/CLI/packaging/default/public action. Prior exacted082519 STOP remains. Researcher old-binary attribution separately active; zero qualified winners.
 
 

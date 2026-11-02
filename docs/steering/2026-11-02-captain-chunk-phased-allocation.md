@@ -34,3 +34,11 @@ Existing user-created worker task delivered by message47691dd8-7a07-4c30-a62d-af
 Existing researcher ordinal12 has independent read-only old-binary spill attribution running since08:00UTC, deadline20minutes. Do not duplicate it or claim preliminary notes as its final result. Its evidence can challenge this hypothesis and choose the next decision; no rescue or gate relaxation is authorized by attribution alone.
 
 Goal remains active/unachieved. Incumbent public607 unchanged, zero new performance-qualified winners. This allocation consumes no judge quota and does not establish a new rank or submission result.
+
+## 08:17UTC attribution addendum — hypothesis strengthened, gate unchanged
+
+The researcher's corrected publication afeaa69078160680ad450c5b381cd73325a728aa is now available: [G2 spill attribution](2026-11-02-g224-spill-attribution.md). Captain independently verified all14 publication paths at that corrected tree against fetched origin/main and inspected both bool entry inventories; [receipt](evidence/2026-11-02-captain-chunk-phased/attribution-verification.json). The initial d06b68b classifier had a bool-label binding defect caught and corrected by the researcher; do not use its superseded execution-region fields.
+
+Both bools agree: B4 has76 gather local instruction sites,18 phase-B outer-segment and5 entry/drain,99total; MAIN79/7/2,88total. Six inner WGMMA stage natural loops contain no local instructions in the corrected attribution. PTX has no explicit local declarations/operations; these are assembler spills. Gather dominates the existing static site/operand-width inventory, strengthening the specific lifetime hypothesis, but phase-B state remains a separate pressure source. Static sites/widths are not measured dynamic traffic or latency.
+
+Worker received this evidence as an active-run correction with NO expanded authorization: same one gather-only change, same30-minute/four-entry screen. Persistent phase-B spills still STOP it; no additional phase-B rewrite, cap change or weakened gate. The newly available attribution changes confidence in the source hypothesis, not candidate qualification or the incumbent. Researcher task publication is available while its terminal handoff is finishing; no new task was started.
