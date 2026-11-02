@@ -1,0 +1,11 @@
+{
+  "at": "2026-11-02T01:52:35.294Z",
+  "command": [
+    "/usr/local/bin/okc",
+    "status",
+    "16b4db27421d4714",
+    "--json"
+  ],
+  "exitcode": 0,
+  "stderr": ""
+}
