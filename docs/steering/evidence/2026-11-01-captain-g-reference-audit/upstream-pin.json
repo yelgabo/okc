@@ -1,0 +1,13 @@
+{
+  "retrieved_utc": "2026-11-02T03:27:39.822Z",
+  "repository": "keell0renz/muse-open-kernel-challenge",
+  "ref": "8e30e1be994db4310794b8d04e90d18d895deb84",
+  "branch_query": "https://api.github.com/repos/keell0renz/muse-open-kernel-challenge/branches/main",
+  "source": "https://raw.githubusercontent.com/keell0renz/muse-open-kernel-challenge/8e30e1be994db4310794b8d04e90d18d895deb84/kernels/muse_decode_layer.py",
+  "served_bytes": 979654,
+  "served_sha256": "82c098ae7534b20b5d80f59d547650cb0853fc7d5e313fe29e1e9d9373e1bb19",
+  "retained_raw_bytes": 995999,
+  "retained_raw_sha256": "1ec189dc6f306cec1694946eb62d64b54daf378c6fc1ada2f0f5e501e973ff2a",
+  "full_lf_normalized_equal": true,
+  "scope": "Pinned complete public implementation; same branch commit as prior audit, not new donor or new performance result."
+}

@@ -1,5 +1,7 @@
 # Shared project steering
 
+Latest captain audit: [Why Family G still trails the reference](2026-11-01-g-reference-gap-audit.md). Independent raw-receipt reconstruction locates the largest historical gaps at T1/T8; different H200 nodes/all12 seeds prevent a causal5.77% compliance-tax claim. [Selected short compiler audit](2026-11-01-worker-g-short-compiled-audit.md),337cfe7: donor/public equal147regs/zero spills, but repaired code adds40/42 non-NOP instructions and gate-round->widen->EX2 dependency; public607/current common OFF short factories match exactly. [Outgoing-only PDL seam](2026-11-01-g-short-arithmetic-and-pdl-seam.md),478f85e: one expert->sliced-unpool consumer edge may avoid blanket PDLoff while preserving ordinary incoming completion/cooperative expert admission. Worker allocated one bounded offline scratch candidate gate, no GPU/CLI/public/default authorization. No subagents; zero new qualified winners. RMW promotion remains closed; [universal SiLU table](2026-11-01-universal-bf16-silu-table-screen.md),5fdbd56, remains eligibility HOLD; [BF16 alias staging](2026-11-01-alias-exposure-and-bf16-staging.md),7b8d4b0, design-only. Earlier pending-status/authorization paragraphs below are historical where superseded.
+
 Latest captain measured decision: [RMW closure and candid candidate inventory](2026-11-01-captain-rmw-closure-and-nonlinear-screen.md). Terminal archive **339523d** is published: [full result](2026-11-01-rmw-legal-fixture-terminal.md), [independent replacement verification](2026-11-01-replacement-terminal-verification.md); captain rechecked all19 archive hashes. **Zero qualified new candidates.** RMW-only promotion CLOSED/no#4; universal SiLU-table screen HOLD before implementation on unresolved eligibility; BF16 ownership staging remains design-only. November2 03:16:57UTC overall334/1834, layer334/1174; layer100cutoff2.25653745x versusown2.12608268x. No new GPU/public action. **No subagents.**
 
 Latest ownership and execution handoff: [Replacement worker and immediate gates](2026-11-01-replacement-worker-handoff.md). User permanently retired the old worker; existing OpenKernel Worker1c3bc6ca is now sole implementation/dispatch owner. **NO subagents/delegates/workflows**, superseding earlier permission below. New worker is oriented to publish existing terminal WIP, then the bounded source-only SiLU screen; no GPU/public/default authorization. Corrected private c5e4f89672f743bb is a valid performance-gate failure: RMW-only promotion closed, no#4. Captain retains README; terminal publication verification is pending.
@@ -682,6 +684,12 @@ accounting, and running a corrected matched whole-layer comparison. It records
 recommendations, not execution of those tasks; check current code and run logs for status.
 
 ## Report history
+
+- [2026-11-01 — Captain G reference-gap audit and one outgoing-only next gate](2026-11-01-g-reference-gap-audit.md)
+- [2026-11-01 — Worker selected Tiny/Tiny2 compiler/dependency audit](2026-11-01-worker-g-short-compiled-audit.md),337cfe7
+- [2026-11-01 — Researcher short arithmetic and outgoing PDL seam](2026-11-01-g-short-arithmetic-and-pdl-seam.md),478f85e
+- [2026-11-01 — Universal BF16 SiLU table eligibility HOLD](2026-11-01-universal-bf16-silu-table-screen.md),5fdbd56
+- [2026-11-01 — Alias exposure and all-fragment BF16 staging design](2026-11-01-alias-exposure-and-bf16-staging.md),7b8d4b0
 
 - [2026-11-01 repaired RMW arm H200 terminal result](2026-11-01-rmw-v2-h200-terminal.md): ownc193 complete-native qualification, actual RMWexercise,109.27s setup and2.121241x descriptive score; unmatched six-load/phase/resource evidence and next gate.
 
