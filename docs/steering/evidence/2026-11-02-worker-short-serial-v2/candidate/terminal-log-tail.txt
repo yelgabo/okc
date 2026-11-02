@@ -1,0 +1,28 @@
+FORK_MOE_SCALE ('-DOKC_PRMTSC=1',) True
+FORK_MOE_ROUTE native repaired: cooperative+BF16, MFIN/DF/YBF/PDL off
+G1b4 backend native repaired: cooperative+BF16, MFIN/DF/YBF/PDL off Lt plans [('o', 128), ('o', 256), ('pr', 128), ('pr', 256), ('qkv', 128), ('qkv', 256), ('un', 128), ('un', 256)]
+G_RELEASE_STARTUP_OK native (128, 32, 33, 256, 1, 8, 16) 56 verified_replays
+USDT:2026-11-02 12:51:02 79:79 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-02 12:51:02 79:79 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-02 12:51:02 79:79 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-02 12:51:02 79:79 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-02 12:51:02 79:79 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-02 12:51:02 79:79 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-02 12:51:02 79:79 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-02 12:51:02 79:79 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-02 12:51:02 79:79 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-02 12:51:02 79:79 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-02 12:51:02 79:79 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-02 12:51:02 79:79 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-02 12:51:02 79:79 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-02 12:51:02 79:79 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-02 12:51:02 79:79 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-02 12:51:02 79:79 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-02 12:51:02 79:79 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-02 12:51:02 79:79 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-02 12:51:02 79:79 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-02 12:51:02 79:79 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-02 12:51:02 79:79 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-02 12:51:02 79:79 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-02 12:51:02 79:79 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-02 12:51:02 79:79 SyncActivityProfilerHandler.cpp:46] profiler_stop

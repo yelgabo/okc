@@ -1,0 +1,14 @@
+{
+  "job_id": "cc474883117947c0",
+  "physical_sha256": "ba9e327cd7b96595ace4d0c1d0d78fe27c128f23ed0debcda97c7169fc3164ab",
+  "physical_bytes": 869076,
+  "allocation": "1df00005d3eceb467c38b17ac0d4cad632efbc78",
+  "source_publication": "8c0bfba2e4d21fe8b0e5b9ad2dca4bbfbd398927",
+  "server_content_hash": "5cf950e1819c8c2bf0edf9bfdc0ccf05b191759c0a8263a45cd962f4e934ff5e",
+  "payload_ref": "muse_decode_layer/5cf950e1819c8c2bf0edf9bfdc0ccf05b191759c0a8263a45cd962f4e934ff5e.py",
+  "board": "muse_decode_layer",
+  "mode": "check",
+  "team": "yelgabo",
+  "server_hash_is_not_physical_sha256": true,
+  "independent_server_payload_download": false
+}

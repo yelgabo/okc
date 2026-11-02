@@ -1,0 +1,23 @@
+{
+  "at": "2026-11-02T12:37:22.404904+00:00",
+  "role": "single frozen serial candidate",
+  "allocation": "1df00005d3eceb467c38b17ac0d4cad632efbc78",
+  "source_publication": "8c0bfba2e4d21fe8b0e5b9ad2dca4bbfbd398927",
+  "source_sha256": "5d883c43db730990246d07a0e52800e01b3161973705b8cb785c26e0d3f08933",
+  "bytes": 869931,
+  "control_job": "cc474883117947c0",
+  "control_passed": true,
+  "private_checks_left": 2,
+  "preserve_checks": 1,
+  "live_layer_jobs": 0,
+  "command": [
+    "okc",
+    "check",
+    "muse_decode_layer",
+    "docs/steering/evidence/2026-11-02-worker-short-serial-v2/generated/candidate.py",
+    "--no-wait",
+    "--json"
+  ],
+  "one_POST": true,
+  "automatic_retry": false
+}
