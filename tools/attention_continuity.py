@@ -36,12 +36,8 @@ def transform(cuda):
 
 
 SELECTOR = '''
-def _attention_continuity_module(cfg, state):
-    if not (cfg["batch"] in (16, 32) and cfg["q_len"] in (1, 8)
-            and cfg["window"] == 0 and cfg["page_size"] == 1
-            and cfg["num_q_heads"] == 16 and cfg["num_kv_heads"] == 2
-            and cfg["head_dim"] == 64):
-        return None
+def _prepare_attention_continuity(state):
+    _att7()
     module = state.get("attention_continuity_module")
     if module is None:
         import os
@@ -53,6 +49,17 @@ def _attention_continuity_module(cfg, state):
             cuda_sources=ATT7_CONT_CUDA_SRC, functions=["run"],
             extra_cuda_cflags=["-DOKC_QDIRECT=0", "-DOKC_PK2=0", "-DOKC_W0ENABLE=1", "-O3", f"-DOKC_SM90={1 if major >= 9 else 0}", "--expt-relaxed-constexpr"], verbose=False)
         state["attention_continuity_module"] = module
+
+
+def _attention_continuity_module(cfg, state):
+    if not (cfg["batch"] in (16, 32) and cfg["q_len"] in (1, 8)
+            and cfg["window"] == 0 and cfg["page_size"] == 1
+            and cfg["num_q_heads"] == 16 and cfg["num_kv_heads"] == 2
+            and cfg["head_dim"] == 64):
+        return None
+    module = state.get("attention_continuity_module")
+    if module is None:
+        raise ValueError("continuity module must be prepared before attention entry")
     return module
 '''
 
@@ -82,6 +89,16 @@ def generate(text):
         derive += f'ATT7_CONT_CUDA_SRC = ATT7_CONT_CUDA_SRC.replace({old!r}, {new!r})\n'
     derive += SELECTOR + '\n'
     candidate = once(text, '\n_ATT7 = None', derive + '\n_ATT7 = None')
+    candidate = once(candidate, 'builders = [_att7, bfp__get_ext,',
+        'builders = [lambda: _prepare_attention_continuity(st), bfp__get_ext,')
+    guard = '''    if _mod is not None and _mod is attention_state.get("attention_continuity_module"):
+        expected = (264, 1, 0, 1, 1)
+        expected_tma = (1024 << 2) if L == 1 else ((1135 << 2) | 2)
+        if (n_splits, flat, cs, ncl, nc) != expected or tma != expected_tma:
+            raise ValueError("continuity launch geometry or flags drift")
+'''
+    candidate = once(candidate, '    (_mod or _att7()).run(qkv,',
+        guard + '    (_mod or _att7()).run(qkv,')
     candidate = once(candidate, 'attention_state=state, prefetch=prefetch, **pdl)',
         '_mod=_attention_continuity_module(cfg, state), attention_state=state, prefetch=prefetch, **pdl)')
     assert len(candidate.encode()) < 1_000_000

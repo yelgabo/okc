@@ -1,3 +1,4 @@
+test_actual_preparation_builds_before_capture (test_attention_continuity.Continuity.test_actual_preparation_builds_before_capture) ... ok
 test_actual_twelve_launches_and_final_binding (test_attention_continuity.Continuity.test_actual_twelve_launches_and_final_binding) ... ok
 test_generated_source_derivation (test_attention_continuity.Continuity.test_generated_source_derivation) ... ok
 test_identity_negative (test_attention_continuity.Continuity.test_identity_negative) ... ok
@@ -6,6 +7,6 @@ test_ring_and_page_lifetime_model (test_attention_continuity.Continuity.test_rin
 test_weighted_partition_ranges (test_attention_continuity.Continuity.test_weighted_partition_ranges) ... ok
 
 ----------------------------------------------------------------------
-Ran 6 tests in 0.426s
+Ran 7 tests in 0.392s
 
 OK

@@ -150,3 +150,32 @@ whole-six/regression gates. Source/compiler success supplies no promotion claim.
 
 All evidence bytes are pinned in [archive-manifest.json](evidence/2026-11-02-attention-continuity/archive-manifest.json).
 README remains captain-owned; this report is supplied for its next index update.
+
+## Prepared-state followup after user requested continued work
+
+The initial19ab26cd snapshot above compiled the second module lazily in the
+attention entry. That was unsuitable for reliable capture readiness. The current
+generator instead builds control and treatment in the existing preparation
+builder list and attaches treatment to explicit state. Target attention entry
+rejects a missing prepared module; it cannot initiate compilation. A guarded
+actual launch rejects changed split/flat/copy/cluster geometry, w0/coop/TMA bits
+or PDL rather than silently measuring another experiment. Both prepared states
+retain their own explicit module bindings; no global selector is introduced.
+
+Current exact generated candidate is **872908 LF bytes**, SHA256
+**e912a5f4378301d62cd978b5012bc5d334dd0894f135784cf0c6cb50c87d6631**.
+This supersedes the initial physical5c2de030 pin; that original remains preserved
+in19ab26cd. Native control/treatment literals and all four compiled artifacts are
+unchanged, so another compilation is unnecessary. **Seven CPU tests pass**,
+including actual preparation with stand-in compiler calls, one build per state,
+repeated prepare reuse, unchanged flags, missing-preparation rejection and actual
+launch-entry geometry/PDL negatives. The archive/manifest has been regenerated.
+
+No measured GPU savings can be reported. Captain's concurrent ROI work retains
+HOLD on target testing: the preceding user priority requires a credible net1%
+whole-six opportunity before spending a check. Public/scored authorization is
+absent and latest retained layer private capacity is0. The user's request to
+continue work is satisfied here by repairing a concrete preparation/measurement
+gap; source readiness does not create latency evidence. Do not quote0% savings:
+the latency delta remains **unmeasured**. Captain owns the next broader mechanism
+selection and index update.

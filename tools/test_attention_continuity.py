@@ -4,6 +4,8 @@ import json
 from pathlib import Path
 from types import SimpleNamespace as NS
 import unittest
+from unittest.mock import patch
+import sys
 from attention_continuity import generate, transform, ROOT, LAYER
 from attention_top100_screen import literal, function
 
@@ -75,6 +77,31 @@ class Continuity(unittest.TestCase):
         self.assertIs(env['_attention_continuity_module'](c,dict(attention_continuity_module=z)),z)
         for key,value in [('batch',2),('q_len',2),('window',2048),('page_size',2),('head_dim',128)]:
             self.assertIsNone(env['_attention_continuity_module'](dict(c,**{key:value}),{}))
+        with self.assertRaises(ValueError): env['_attention_continuity_module'](c,{})
+        # Actual launch entry rejects changed geometry/PDL rather than relabeling
+        # the drifted result as the registered continuity comparison.
+        c.update(sm_scale=.125,qk_scale_factor=1.,rope_theta=0.)
+        d=dict(config=c,qkv=NS(device='cpu-standin'),page_table=NS(shape=(16,86008)))
+        d.update({k:k for k in ('seq_lens','cache_loc','k_cache','v_cache','k_scale','v_scale')})
+        m=NS(run=lambda *a:None); st=dict(attention_scratch={},attention_continuity_module=m)
+        for override in (dict(n_splits=132),dict(w0=1000),dict(flat=0)):
+            with self.assertRaises(ValueError): original_launch(d,_mod=m,attention_state=st,pdl=False,**override)
+        with self.assertRaises(ValueError): original_launch(d,_mod=m,attention_state=st,pdl=True)
+
+    def test_actual_preparation_builds_before_capture(self):
+        calls=[]
+        env=dict(torch=NS(cuda=NS(get_device_capability=lambda:(9,0))),
+            _att7=lambda:calls.append('control'), ATT7_CPP_SRC='cpp',ATT7_CONT_CUDA_SRC=self.cuda)
+        prepare=function(self.tree,'_prepare_attention_continuity',env)
+        modules={'torch.utils.cpp_extension':NS(load_inline=lambda **kw:(calls.append(kw) or object()))}
+        a,b={},{}
+        with patch.dict(sys.modules,modules):
+            prepare(a); prepare(a); prepare(b)
+        builds=[x for x in calls if isinstance(x,dict)]
+        self.assertEqual(len(builds),2)
+        self.assertIsNot(a['attention_continuity_module'],b['attention_continuity_module'])
+        self.assertTrue(all(x['cuda_sources']==self.cuda for x in builds))
+        self.assertEqual(builds[0]['extra_cuda_cflags'],['-DOKC_QDIRECT=0','-DOKC_PK2=0','-DOKC_W0ENABLE=1','-O3','-DOKC_SM90=1','--expt-relaxed-constexpr'])
 
     def test_ring_and_page_lifetime_model(self):
         # Model is deliberately local; it does not prove arbitrary CUDA schedules.

@@ -3719,12 +3719,8 @@ ATT7_CONT_CUDA_SRC = ATT7_CONT_CUDA_SRC.replace('  // segment list in shared mem
 assert ATT7_CONT_CUDA_SRC.count('  const int sm_f = (int)sizeof(Smem<L, true>) + 1024, sm_n = (int)sizeof(Smem<L, false>) + 1024;\n') == 1
 ATT7_CONT_CUDA_SRC = ATT7_CONT_CUDA_SRC.replace('  const int sm_f = (int)sizeof(Smem<L, true>) + 1024, sm_n = (int)sizeof(Smem<L, false>) + 1024;\n', '  const int sm_f = (int)sizeof(Smem<L, true>) + 1024 + ((L == 1 && Cfg<L, true>::WS && OKC_CONT) ? 64 * 18 * sizeof(float) : 0), sm_n = (int)sizeof(Smem<L, false>) + 1024;\n')
 
-def _attention_continuity_module(cfg, state):
-    if not (cfg["batch"] in (16, 32) and cfg["q_len"] in (1, 8)
-            and cfg["window"] == 0 and cfg["page_size"] == 1
-            and cfg["num_q_heads"] == 16 and cfg["num_kv_heads"] == 2
-            and cfg["head_dim"] == 64):
-        return None
+def _prepare_attention_continuity(state):
+    _att7()
     module = state.get("attention_continuity_module")
     if module is None:
         import os
@@ -3736,6 +3732,17 @@ def _attention_continuity_module(cfg, state):
             cuda_sources=ATT7_CONT_CUDA_SRC, functions=["run"],
             extra_cuda_cflags=["-DOKC_QDIRECT=0", "-DOKC_PK2=0", "-DOKC_W0ENABLE=1", "-O3", f"-DOKC_SM90={1 if major >= 9 else 0}", "--expt-relaxed-constexpr"], verbose=False)
         state["attention_continuity_module"] = module
+
+
+def _attention_continuity_module(cfg, state):
+    if not (cfg["batch"] in (16, 32) and cfg["q_len"] in (1, 8)
+            and cfg["window"] == 0 and cfg["page_size"] == 1
+            and cfg["num_q_heads"] == 16 and cfg["num_kv_heads"] == 2
+            and cfg["head_dim"] == 64):
+        return None
+    module = state.get("attention_continuity_module")
+    if module is None:
+        raise ValueError("continuity module must be prepared before attention entry")
     return module
 
 
@@ -11198,7 +11205,7 @@ def prepare(weights):
     st["ma_sc6"] = bool(SC6_WGS and st["ma_sfx"] and _wgs_on() and _sc6_ok(weights["w13_sf"], weights["w2_sf"]))
     print("FORK_MOE_SCALE",st["ma_sfx"],st["ma_sc6"],flush=True)
     st["ma_ext"] = {}
-    builders = [_att7, bfp__get_ext, _graft_glue_module, _graft_b2_module, _sl_cluster_module]
+    builders = [lambda: _prepare_attention_continuity(st), bfp__get_ext, _graft_glue_module, _graft_b2_module, _sl_cluster_module]
     builders.extend(_fork_build_tasks(weights, st))
     ths = [threading.Thread(target=_build, args=(f,)) for f in builders]
     for th in ths:
@@ -11308,6 +11315,11 @@ def _launch7(data, dbg=None, _mod=None, pdl=None, attention_state=None, prefetch
     n_ctas = n_splits * (1 if flat else B) * pairs
     scratch, bar = _cluster_bufs7(n_ctas if cs > 1 else 1, L, device, owner)
     scale_log2 = cfg["sm_scale"] * cfg["qk_scale_factor"] * LOG2E
+    if _mod is not None and _mod is attention_state.get("attention_continuity_module"):
+        expected = (264, 1, 0, 1, 1)
+        expected_tma = (1024 << 2) if L == 1 else ((1135 << 2) | 2)
+        if (n_splits, flat, cs, ncl, nc) != expected or tma != expected_tma:
+            raise ValueError("continuity launch geometry or flags drift")
     (_mod or _att7()).run(qkv, data["seq_lens"], data["cache_loc"], data["k_cache"], data["v_cache"], page_table,
                   data["k_scale"], data["v_scale"], _inv_freq(cfg["rope_theta"], device), out, ws_acc, ws_l,
                   ws_cnt, B, L, hq, hkv, P, window, 1 if cfg["rope_theta"] else 0, n_splits, flat, nc, scale_log2,

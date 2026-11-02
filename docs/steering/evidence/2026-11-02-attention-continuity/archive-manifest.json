@@ -1,19 +1,19 @@
 {
   "docs/steering/evidence/2026-11-02-attention-continuity/candidate.py": {
-    "bytes": 872309,
-    "sha256": "5c2de030422f612e37ff186a88e8441cbad58c8db677bb9e273347e37bf90413"
+    "bytes": 872908,
+    "sha256": "e912a5f4378301d62cd978b5012bc5d334dd0894f135784cf0c6cb50c87d6631"
   },
   "docs/steering/evidence/2026-11-02-attention-continuity/control.cu": {
     "bytes": 191991,
     "sha256": "22c116a45f1817fbaf27a1cc3656380affad49d2cb2367dd23aac83f20b7cef5"
   },
   "docs/steering/evidence/2026-11-02-attention-continuity/cpu-tests.txt": {
-    "bytes": 754,
-    "sha256": "45c94959be4c834e89e2b27e12ff3558f7ced7c9696ad8f64f2e9611553c1909"
+    "bytes": 892,
+    "sha256": "d972288555fd34ca90a9690ac75502dbea0d72c829c052db4ccd93bf76f6399a"
   },
   "docs/steering/evidence/2026-11-02-attention-continuity/manifest.json": {
     "bytes": 588,
-    "sha256": "0fc502d93a7da6bfa81b02507a3bc186940ea705ad814e70c64746115b172cb5"
+    "sha256": "01ee510618e1d0956a9ba05a8e1fbfcc986c4f9417f20b79d9eb7783b524fc17"
   },
   "docs/steering/evidence/2026-11-02-attention-continuity/native.patch": {
     "bytes": 2701,
@@ -21,7 +21,7 @@
   },
   "docs/steering/evidence/2026-11-02-attention-continuity/summary.json": {
     "bytes": 4623,
-    "sha256": "a9edbb0d03288565cd111551bd66864f3a490972828d3b86a77584add4350866"
+    "sha256": "f5607fc760745e628795a8747b2c1ac62222771d39a7164a293f7e52c5efd426"
   },
   "docs/steering/evidence/2026-11-02-attention-continuity/treatment.cu": {
     "bytes": 192273,
