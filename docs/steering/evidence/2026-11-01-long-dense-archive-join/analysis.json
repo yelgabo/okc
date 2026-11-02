@@ -1,0 +1,1171 @@
+{
+  "observed_utc": "2026-11-02T05:36:23.312282+00:00",
+  "checkout": "55b3d05380eedc25f6a900113ef8663f9ed857cd",
+  "scope": "Existing source/archive AST and text only. No source execution, instrumentation, compiler, GPU, CLI or network.",
+  "interface": {
+    "path": "muse_decode_layer/baseline.py",
+    "bytes": 19339,
+    "sha256": "715237e330358a186beea7356186e596ceea7806cb1120a53ffb4249fe7cc54e",
+    "weight_shapes": {
+      "qkv": [
+        2304,
+        8192
+      ],
+      "o": [
+        8192,
+        1024
+      ],
+      "pr_pool_hi_lo": [
+        4608,
+        8192
+      ],
+      "un": [
+        8192,
+        4096
+      ]
+    }
+  },
+  "jobs": {
+    "607eb52bdaf24160": {
+      "source": {
+        "path": "muse_decode_layer/cand/g1b4_stage_release.py",
+        "bytes": 869076,
+        "sha256": "ba9e327cd7b96595ace4d0c1d0d78fe27c128f23ed0debcda97c7169fc3164ab"
+      },
+      "constants": {
+        "_GRAFT_LT_T": {
+          "line": 11558,
+          "text": "_GRAFT_LT_T = (128, 256)"
+        },
+        "_GRAFT_LT_PICKS": {
+          "line": 12200,
+          "text": "_GRAFT_LT_PICKS = {\n    (\"pr\", 256): ('tn', 2, True, [785979015234, 4294967331, 0, 562949953421312, 558779540176897, 60129542158, 292057776128, 0]),\n    (\"pr\", 128): ('tn', 1, True, [575525617730, 4294967331, 0, 1970324836974598, 558779540176897, 60129542158, 292057776128, 0]),\n    (\"o\", 256): ('nn', 2, False, [85899345986, 4294967331, 0, 1407374883553286, 558779540176897, 60129542158, 292058693646, 0]),\n    (\"un\", 256): ('nn', 2, False, [85899345986, 4294967331, 0, 1407374883553287, 558779540176897, 60129542158, 292058693646, 0]),\n    (\"un\", 128): ('nn', 2, False, [77309411394, 4294967331, 0, 1407374883553283, 558779540176897, 60129542158, 292058693646, 0]),\n    (\"qkv\", 128): ('tn', 16, False, [395136991298, 4294967331, 0, 1407374883553282, 558779540176897, 60129542158, 292058693646, 0]),\n    (\"o\", 128): ('nn', 8, False, [77309411394, 4294967331, 0, 1407374883553283, 558779540176897, 60129542158, 292058693646, 0]),\n}"
+        },
+        "_GRAFT_QKV256": {
+          "line": 12209,
+          "text": "_GRAFT_QKV256 = {\"id\": 66, \"tile\": 124, \"stages\": 35, \"splitk\": 1, \"red\": 0, \"swz\": 0, \"custom\": 0, \"cluster\": 2}"
+        }
+      },
+      "functions": {
+        "dense": {
+          "line": 12289,
+          "ast_sha256": "a6da09eab5318919fccf6bb7421879cb84b59d5333bd3efa4ce70351653631a0",
+          "text": "def dense(x, w, T, state=None, name=None):\n    plans = state.get(\"graft_lt\") if state is not None else None\n    plan = plans.get((name, T)) if plans and T > 32 else None\n    if plan is not None:\n        rq = _rq_gemm(state, name, x, T)\n        if rq is not None:\n            return rq.view(1, T, rq.shape[1]), 1\n        out = _graft_lt_run(x, plan)\n        return out.view(1, T, plan[\"n\"]), 1\n    return _vj_dense(x, w, T, state, name)"
+        },
+        "_graft_layouts": {
+          "line": 12187,
+          "ast_sha256": "fb4fc996b97aad764a13c5b805af2230bc68d599cb790d7b60096899a5bbaf9f",
+          "text": "def _graft_layouts(lt, m, n, k, mode, batch, fp32):\n    wa = (k, n // batch, k, k * n // batch) if mode == \"tn\" else (n // batch, k, n, n // batch)\n    result = []\n    for index, (rows, cols, ld, stride) in enumerate((wa, (k, m, k, 0), (n // batch, m, n, n // batch))):\n        desc = _GP()\n        lt.call(\"cublasLtMatrixLayoutCreate\", _C.byref(desc), 0 if fp32 and index == 2 else 14, rows, cols, ld)\n        count, offset = _GI(batch), _C.c_int64(stride)\n        lt.call(\"cublasLtMatrixLayoutSetAttribute\", desc, 5, _C.byref(count), _C.sizeof(count))\n        lt.call(\"cublasLtMatrixLayoutSetAttribute\", desc, 6, _C.byref(offset), _C.sizeof(offset))\n        result.append(desc)\n    return result"
+        },
+        "_graft_lt_plan": {
+          "line": 12222,
+          "ast_sha256": "eb5a16a4157b6442659251851ebc176243e8bf98e68eee55a63a0b9b3a0dc9cc",
+          "text": "def _graft_lt_plan(st):\n    lt_tn, lt_nn = _GraftLt(True), _GraftLt(False)\n    plans, status = {}, {}\n    src = {\"pr\": st[\"pr\"], \"o\": st[\"o\"], \"un\": st[\"unpool\"], \"qkv\": st[\"qkv\"]}\n    for (name, m), (mode, batch, fp32, words) in _GRAFT_LT_PICKS.items():\n        if m not in _GRAFT_LT_T:\n            continue\n        lt = lt_tn if mode == \"tn\" else lt_nn\n        if mode == \"tn\":\n            weight = src[name]\n            n, k = weight.shape\n        else:\n            key = \"graft_t_\" + name\n            if key not in st:\n                st[key] = src[name].t().contiguous()\n            weight = st[key]\n            k, n = weight.shape\n        assert weight.is_contiguous() and weight.data_ptr() % 128 == 0, (name, weight.data_ptr() % 128)\n        assert lt.workspace.data_ptr() % 256 == 0 and n % batch == 0 and (n // batch * 2) % 16 == 0\n        layouts = _graft_layouts(lt, m, n, k, mode, batch, fp32)\n        algo = _GraftAlgo((_C.c_uint64 * 8)(*words))\n        heur = _GraftHeur()\n        code = lt.lib.cublasLtMatmulAlgoCheck(lt.handle, lt.desc, *layouts, layouts[2], _C.byref(algo), _C.byref(heur))\n        status[(name, m)] = (code, heur.workspaceSize)\n        if code or heur.workspaceSize > lt.workspace.numel():\n            continue\n        if not _fork_lt_no_split(lt, algo):\n            status[(name,m)] = (\"rejected K split\", 0)\n            continue\n        plans[(name, m)] = _GraftPlan(lt=lt, layouts=layouts, algo=algo, weight=weight, n=n, fp32=fp32)\n    if 256 in _GRAFT_LT_T:\n        algo = _GraftAlgo()\n        lt_tn.call(\"cublasLtMatmulAlgoInit\", lt_tn.handle, 68, 0, 14, 14, 14, 14, _GRAFT_QKV256[\"id\"], _C.byref(algo))\n        for name, attr, ctype in _GRAFT_QKV256_ATTRS:\n            value = ctype(_GRAFT_QKV256[name])\n            lt_tn.call(\"cublasLtMatmulAlgoConfigSetAttribute\", _C.byref(algo), attr, _C.byref(value), _C.sizeof(value))\n        weight = st[\"qkv\"]\n        n, k = weight.shape\n        assert weight.is_contiguous() and weight.data_ptr() % 128 == 0\n        layouts = _graft_layouts(lt_tn, 256, n, k, \"tn\", 1, False)\n        heur = _GraftHeur()\n        code = lt_tn.lib.cublasLtMatmulAlgoCheck(lt_tn.handle, lt_tn.desc, *layouts, layouts[2], _C.byref(algo),\n                                                 _C.byref(heur))\n        status[(\"qkv\", 256)] = (code, heur.workspaceSize)\n        if not code and heur.workspaceSize <= lt_tn.workspace.numel() and _fork_lt_no_split(lt_tn, algo):\n            plans[(\"qkv\", 256)] = _GraftPlan(lt=lt_tn, layouts=layouts, algo=algo, weight=weight, n=n, fp32=False)\n    st[\"graft_lt\"] = plans\n    st[\"graft_lt_status\"] = {f\"{k[0]}:{k[1]}\": v for k, v in status.items()}"
+        },
+        "_graft_lt_run": {
+          "line": 12272,
+          "ast_sha256": "d819221df82d148bca83c836e0d0e39b83446e359954c41c237cd3994d92f63f",
+          "text": "def _graft_lt_run(x, plan):\n    x = x.contiguous()\n    assert x.data_ptr() % 16 == 0\n    out = torch.empty((x.shape[0], plan[\"n\"]), device=x.device,\n                      dtype=torch.float32 if plan[\"fp32\"] else torch.bfloat16)\n    lt = plan[\"lt\"]\n    a, b, c = plan[\"layouts\"]\n    lt.call(\"cublasLtMatmul\", lt.handle, lt.desc, _C.byref(lt.alpha), _GP(plan[\"weight\"].data_ptr()), a,\n            _GP(x.data_ptr()), b, _C.byref(lt.beta), _GP(out.data_ptr()), c, _GP(out.data_ptr()), c,\n            _C.byref(plan[\"algo\"]), _GP(lt.workspace.data_ptr()), lt.workspace.numel(),\n            _GP(torch.cuda.current_stream().cuda_stream))\n    return out"
+        },
+        "_graft_boundary": {
+          "line": 12306,
+          "ast_sha256": "58c0faeec993c388586b84e3b0168a1ab8303d042e39942cbce7cbb8d945182b",
+          "text": "def _graft_boundary(P, S, T, stream, st, post, s_out, h_out, nu=HIDDEN, router_out=None):\n    \"\"\"Returns True when a grafted kernel handled the boundary, else False (caller runs the base kernel).\"\"\"\n    g = st[\"graft\"]\n    if S != 1:\n        return False\n    br = P.view(T, -1)\n    width = br.shape[1]\n    pfx = \"2\" if post else \"1\"\n    if T <= 16 and br.dtype == torch.bfloat16:\n        _graft_al(br, stream, s_out, h_out)\n        if not post and width == HIDDEN:\n            _graft_glue_module().b1(br, stream, g[\"pre1\"], g[\"alpha1\"], g[\"beta1\"], h_out, s_out,\n                                    router_out if router_out is not None else s_out, router_out is not None)\n            return True\n        if post and width == 1024 and nu == 1024:\n            _graft_b2_module().b2s(br, stream, g[\"post2\"], g[\"pre2\"], g[\"alpha2\"], g[\"beta2\"], h_out, s_out)\n            return True\n        if post and width == HIDDEN and nu == HIDDEN:\n            _graft_glue_module().b2c(br, stream, g[\"post2\"], g[\"pre2\"], g[\"alpha2\"], g[\"beta2\"], h_out, s_out)\n            return True\n        return False\n    if 16 < T <= 32 and width == HIDDEN:\n        _graft_al(br, stream, s_out, h_out)\n        _graft_row_boundary_pre[(T,)](br, stream, g[\"post2\"], g[\"pre2\" if post else \"pre1\"], g[\"alpha\" + pfx],\n                                      g[\"beta\" + pfx], h_out, s_out, HIDDEN, width, post, 4, 32,\n                                      num_warps=32, launch_pdl=False)\n        return True\n    if T > 32 and width == HIDDEN:\n        _graft_al(br, stream, s_out, h_out)\n        _graft_row_boundary[(T,)](br, stream, g[\"post2\"], g[\"pre2\" if post else \"pre1\"], g[\"alpha\" + pfx],\n                                  g[\"beta\" + pfx], h_out, s_out, HIDDEN, width, post, 4, 16 if T > 192 else 32,\n                                  num_warps=16 if T > 192 else 32, launch_pdl=False)\n        return True\n    return False"
+        },
+        "_graft_after_attention": {
+          "line": 12342,
+          "ast_sha256": "a4f5bfd2bad425b1c9352890bc5f4c39c9138eaf8f8ef750b00a36901d2e652e",
+          "text": "def _graft_after_attention(data, state, o_in, gate, T):\n    \"\"\"Copy of the base _after_attention (one-program-per-token path) with the grafted boundary/route kernels.\n    Every kernel the graft does not cover falls back to the base kernel with the base arguments.\"\"\"\n    dev = o_in.device\n    f32 = dict(device=dev, dtype=torch.float32)\n    s1 = torch.empty((T, HIDDEN), **f32)\n    h = torch.empty((T, HIDDEN), device=dev, dtype=torch.bfloat16)\n    hr = torch.empty((T, HIDDEN), **f32) if T <= 8 else None\n    if gate is None:\n        P, S = dense(o_in, state[\"o\"], T, state, \"o\")\n    else:\n        P, S = dense_ng(o_in, gate, state[\"o\"], T, state)\n    if not _graft_boundary(P, S, T, data[\"stream\"], state, False, s1, h, router_out=hr):\n        _boundary1[(T,)](P, S, T, data[\"stream\"], state[\"gate1\"], state[\"gate1\"], state[\"g_preffn\"], s1, h, hr,\n                         WRITE_ROUTER=T <= 8, num_warps=state.get('compose_boundary_warps', {}).get(T, 16), USE_PDL=_pdl(T), launch_pdl=_pdl(T))\n    mmp = state.get(\"mm_pick\", {})\n    ppick = mmp.get((T, \"pr\"), mmp.get((_bucket(T), \"pr\"), False))\n    P, S = _pool_router_fp32(h, hr, T, state, ppick)\n    ids = torch.empty((T, 8), device=dev, dtype=torch.int32)\n    lids = torch.empty((T, 8), device=dev, dtype=torch.int32)\n    wts = torch.empty((T, 8), **f32)\n    moe = _pick_expert_backend(state[\"moe_pick\"].get(T, state[\"moe_pick\"].get(_bucket(T), \"agent\")),\n                               marlin_available=state[\"bank\"] is not None, agent_available=state[\"ma_ok\"])\n    use_marlin = moe == \"marlin\"\n    use_ma = moe == \"agent\"\n    if not (use_marlin or use_ma):\n        raise RuntimeError(\"no expert backend: neither the moe agent's kernel nor SGLang's Marlin is available\")\n    xm = torch.empty((T, D_EXPERT), device=dev, dtype=torch.bfloat16)\n    if S == -1:\n        pooled, logits = P\n        _graft_al(pooled, logits, xm, ids, wts, lids)\n        if T in (16, 32):\n            nw, parts = {16: (8, 1), 32: (8, 1)}[T]\n            _sl_tile_route[(T, parts + 1)](pooled, logits, logits, state[\"bias\"], state[\"g_preexp\"], ids, wts, xm,\n                data[\"local_start\"], lids, SPLIT=True, EARLY=False, MODE=0, PARTS=parts, PRELOAD=True,\n                num_warps=nw, launch_pdl=False)\n        else:\n            _graft_route[(T, 2)](pooled, logits, logits, state[\"bias\"], state[\"g_preexp\"], ids, wts, xm,\n                             data[\"local_start\"], lids, SPLIT=True, EARLY=_GRAFT_ROUTE_EARLY, PACKED=1 if T > 32 else 0, num_warps=4 if T > 32 else 1, launch_pdl=False)\n    elif S == 1 and P.shape[-1] == 4608 and P.dtype == torch.float32:\n        allp = P.view(T, 4608)\n        _graft_al(allp, xm, ids, wts, lids)\n        if T in (16, 32):\n            nw, parts = {16: (8, 1), 32: (8, 1)}[T]\n            _sl_tile_route[(T, parts + 1)](allp, allp, allp, state[\"bias\"], state[\"g_preexp\"], ids, wts, xm,\n                data[\"local_start\"], lids, SPLIT=False, EARLY=False, MODE=0, PARTS=parts, PRELOAD=True,\n                num_warps=nw, launch_pdl=False)\n        else:\n            _graft_route[(T, 2)](allp, allp, allp, state[\"bias\"], state[\"g_preexp\"], ids, wts, xm,\n                             data[\"local_start\"], lids, SPLIT=False, EARLY=_GRAFT_ROUTE_EARLY, PACKED=1 if T > 32 else 0, num_warps=4 if T > 32 else 1, launch_pdl=False)\n    else:\n        _route[(T,)](P, S, T, state[\"bias\"], state[\"g_preexp\"], ids, wts, xm, data[\"local_start\"], lids,\n                     PERMUTED=False, num_warps=8, USE_PDL=_pdl(T), launch_pdl=_pdl(T))\n    if use_ma:\n        m = torch.empty((T, D_EXPERT), device=dev, dtype=torch.bfloat16)\n        ext = _moe(T, state)\n        if MOE_HAS_PDL:\n            ext.okc_set_pdl(1 if _pdl(T) else 0)\n        for m0 in range(0, T, _MA_MMAX):\n            m1 = min(T, m0 + _MA_MMAX)\n            ext.okc_run(state[\"ma_w\"], state[\"ma_scratch\"], xm[m0:m1], lids[m0:m1], wts[m0:m1], m[m0:m1], 0, 32,\n                        state[\"nsm\"])\n    elif use_marlin:\n        m = _marlin_experts(xm, wts, lids, state)\n    wu = state[\"unpool_slice\"] if T <= 8 else state[\"unpool\"]\n    P, S = dense(m, wu, T, state, \"un\")\n    nu = wu.shape[0]\n    s2 = torch.empty((T, HIDDEN), **f32)\n    out = torch.empty((T, HIDDEN), device=dev, dtype=torch.bfloat16)\n    if not _graft_boundary(P, S, T, s1, state, True, s2, out, nu=nu):\n        _boundary2[(T,)](P, S, T, nu, s1, state[\"gate2\"], state[\"gate2\"], state[\"g_postffn\"], state[\"g_next\"],\n                         s2, out, num_warps=state.get('compose_boundary_warps', {}).get(T, 16), USE_PDL=_pdl(T), launch_pdl=_pdl(T))\n    return out, s2, ids"
+        },
+        "_policy_variant": {
+          "line": 15300,
+          "ast_sha256": "596ca01e8a5efc4e3f297daf248737ca3c2355fd4ee8a22de24b3443fae65765",
+          "text": "def _policy_variant(st,T,mode):\n    ss=dict(st)\n    ss['mm_pick']=dict(st['mm_pick'])\n    ss['graft_lt']=dict(st.get('graft_lt',{}))\n    ss['compose_graft_enabled']=dict(st.get('compose_graft_enabled',{}))\n    ss['compose_boundary_warps']=dict(st.get('compose_boundary_warps',{}))\n    graft,bw,drops=mode\n    ss['compose_graft_enabled'][T]=graft\n    ss['compose_boundary_warps'][T]=bw\n    for name in drops:ss['graft_lt'].pop((name,T),None)\n    return ss"
+        },
+        "_rq_gemm": {
+          "line": 16742,
+          "ast_sha256": "a6d11d77bafdfc4ca472fb9862c7de5400512ff283ed6a1b8385636aac720fce",
+          "text": "def _rq_gemm(state, name, x, T):\n    return None"
+        }
+      },
+      "receipt": {
+        "path": "muse_decode_layer/profiles/g1-stage-release.607eb52bdaf24160.json",
+        "bytes": 57777,
+        "sha256": "9ba1d7d77c00ae9a1bdba61c64ed93975566879f2767d473aa050c19fd6c573c",
+        "job_id": "607eb52bdaf24160",
+        "summary": {
+          "error": null,
+          "passed": true,
+          "score_us": 10639.426326569794,
+          "speedup": 2.1260826764231093,
+          "speedup_ci": [
+            2.0941914362767626,
+            2.1579739165694556
+          ],
+          "status": "ok",
+          "tests": 13,
+          "tests_passed": 13
+        },
+        "result": {},
+        "profile_count": 12,
+        "benchmark_count": 12
+      },
+      "log": {
+        "path": "muse_decode_layer/profiles/g1-stage-release.607eb52bdaf24160.log",
+        "bytes": 369,
+        "sha256": "6499b6142d73be1b11b3d769321a4d98d81948528cac631eb1c4a8eb617a17dd",
+        "lines": 4,
+        "accepted_plan_lines": [
+          {
+            "line": 3,
+            "text": "G1b4 backend native repaired: cooperative+BF16, MFIN/DF/YBF/PDL off Lt plans [('o', 128), ('o', 256), ('pr', 128), ('pr', 256), ('qkv', 128), ('qkv', 256), ('un', 128), ('un', 256)]"
+          }
+        ],
+        "composition_lines": []
+      },
+      "long_profiles": [
+        {
+          "case": {
+            "batch": 16,
+            "ctx": 80000,
+            "dist": "soft",
+            "layer": "sliding",
+            "load": "verify 16",
+            "page": 1,
+            "q_len": 8,
+            "seed": 2594810845770264468,
+            "spread": "agentic",
+            "weight": 46
+          },
+          "event": "profile",
+          "index": 8,
+          "report": "kernel                                                           GPU time  share  calls\nvoid okc::moe_fused<true>(okc::Params)                           155.3 \u00b5s  62.0%      1\nnvjet_sm90_tst_128x64_64x8_1x2_h_bz_NNT                           28.5 \u00b5s  11.4%      2\nnvjet_sm90_tss_80x64_64x11_4x2_h_bz_coopB_TNN                     25.4 \u00b5s  10.1%      1\nnvjet_sm90_tst_48x64_64x15_1x2_h_bz_TNN                           16.9 \u00b5s   6.8%      1\nvoid (anonymous namespace)::attn_kernel<8, false, 3>((ano...      11.8 \u00b5s   4.7%      1\n_graft_row_boundary                                                9.7 \u00b5s   3.9%      2\n_graft_route                                                       2.8 \u00b5s   1.1%      1\ntotal                                                            250.5 \u00b5s"
+        },
+        {
+          "case": {
+            "batch": 16,
+            "ctx": 80000,
+            "dist": "soft",
+            "layer": "full",
+            "load": "verify 16",
+            "page": 1,
+            "q_len": 8,
+            "seed": 2594897690527621414,
+            "spread": "agentic",
+            "weight": 16
+          },
+          "event": "profile",
+          "index": 9,
+          "report": "kernel                                                           GPU time  share  calls\nvoid okc::moe_fused<true>(okc::Params)                           178.1 \u00b5s  48.8%      1\nvoid (anonymous namespace)::attn_kernel<8, true, 0>((anon...     104.1 \u00b5s  28.5%      1\nnvjet_sm90_tst_128x64_64x8_1x2_h_bz_NNT                           28.6 \u00b5s   7.9%      2\nnvjet_sm90_tss_80x64_64x11_4x2_h_bz_coopB_TNN                     24.9 \u00b5s   6.8%      1\nnvjet_sm90_tst_48x64_64x15_1x2_h_bz_TNN                           16.8 \u00b5s   4.6%      1\n_graft_row_boundary                                                9.4 \u00b5s   2.6%      2\n_graft_route                                                       2.8 \u00b5s   0.8%      1\ntotal                                                            364.8 \u00b5s"
+        },
+        {
+          "case": {
+            "batch": 32,
+            "ctx": 80000,
+            "dist": "soft",
+            "layer": "sliding",
+            "load": "verify 32",
+            "page": 1,
+            "q_len": 8,
+            "seed": 2594984535284978361,
+            "spread": "agentic",
+            "weight": 46
+          },
+          "event": "profile",
+          "index": 10,
+          "report": "kernel                                                           GPU time  share  calls\nvoid okc::moe_fused<true>(okc::Params)                           204.8 \u00b5s  63.2%      1\nnvjet_sm90_tss_144x64_64x8_1x1_v_bz_TNN                           31.5 \u00b5s   9.7%      1\nnvjet_sm90_tst_128x128_64x6_1x2_h_bz_coopA_NNT                    25.6 \u00b5s   7.9%      1\nnvjet_sm90_tst_72x64_64x12_1x1_v_bz_TNN                           20.7 \u00b5s   6.4%      1\nvoid (anonymous namespace)::attn_kernel<8, false, 3>((ano...      15.4 \u00b5s   4.7%      1\n_graft_row_boundary                                               13.6 \u00b5s   4.2%      2\nnvjet_sm90_tst_128x128_64x6_1x2_h_bz_coopA_NNN                     9.1 \u00b5s   2.8%      1\n_graft_route                                                       3.6 \u00b5s   1.1%      1\ntotal                                                            324.3 \u00b5s"
+        },
+        {
+          "case": {
+            "batch": 32,
+            "ctx": 80000,
+            "dist": "soft",
+            "layer": "full",
+            "load": "verify 32",
+            "page": 1,
+            "q_len": 8,
+            "seed": 2595071380042335309,
+            "spread": "agentic",
+            "weight": 16
+          },
+          "event": "profile",
+          "index": 11,
+          "report": "kernel                                                           GPU time  share  calls\nvoid okc::moe_fused<true>(okc::Params)                           203.3 \u00b5s  41.2%      1\nvoid (anonymous namespace)::attn_kernel<8, true, 0>((anon...     186.2 \u00b5s  37.8%      1\nnvjet_sm90_tss_144x64_64x8_1x1_v_bz_TNN                           31.8 \u00b5s   6.5%      1\nnvjet_sm90_tst_128x128_64x6_1x2_h_bz_coopA_NNT                    25.4 \u00b5s   5.1%      1\nnvjet_sm90_tst_72x64_64x12_1x1_v_bz_TNN                           20.5 \u00b5s   4.2%      1\n_graft_row_boundary                                               13.4 \u00b5s   2.7%      2\nnvjet_sm90_tst_128x128_64x6_1x2_h_bz_coopA_NNN                     9.0 \u00b5s   1.8%      1\n_graft_route                                                       3.6 \u00b5s   0.7%      1\ntotal                                                            493.3 \u00b5s"
+        }
+      ],
+      "receipt_selection_keys": [],
+      "source_composition_lines": [
+        {
+          "line": 11489,
+          "text": "                         WRITE_ROUTER=T <= 8, num_warps=state.get('compose_boundary_warps', {}).get(T, 16), USE_PDL=_pdl(T), launch_pdl=_pdl(T))"
+        },
+        {
+          "line": 11546,
+          "text": "                         s2, out, num_warps=state.get('compose_boundary_warps', {}).get(T, 16), USE_PDL=_pdl(T), launch_pdl=_pdl(T))"
+        },
+        {
+          "line": 12356,
+          "text": "                         WRITE_ROUTER=T <= 8, num_warps=state.get('compose_boundary_warps', {}).get(T, 16), USE_PDL=_pdl(T), launch_pdl=_pdl(T))"
+        },
+        {
+          "line": 12413,
+          "text": "                         s2, out, num_warps=state.get('compose_boundary_warps', {}).get(T, 16), USE_PDL=_pdl(T), launch_pdl=_pdl(T))"
+        },
+        {
+          "line": 12421,
+          "text": "    if \"graft\" in state and T in _GRAFT_GLUE_T and state.get(\"compose_graft_enabled\", {}).get(T, T in (1, 8, 128, 256)):"
+        },
+        {
+          "line": 15304,
+          "text": "    ss['compose_graft_enabled']=dict(st.get('compose_graft_enabled',{}))"
+        },
+        {
+          "line": 15305,
+          "text": "    ss['compose_boundary_warps']=dict(st.get('compose_boundary_warps',{}))"
+        },
+        {
+          "line": 15307,
+          "text": "    ss['compose_graft_enabled'][T]=graft"
+        },
+        {
+          "line": 15308,
+          "text": "    ss['compose_boundary_warps'][T]=bw"
+        },
+        {
+          "line": 15318,
+          "text": "    st['compose_selection']=[]"
+        },
+        {
+          "line": 15319,
+          "text": "    st['compose_graft_enabled']={T:T in (1,8,128,256) for T in (1,8,16,32,128,256)}"
+        },
+        {
+          "line": 15320,
+          "text": "    st['compose_boundary_warps']={}"
+        },
+        {
+          "line": 15323,
+          "text": "        original=st['compose_graft_enabled'][T]"
+        },
+        {
+          "line": 15324,
+          "text": "        modes=[(original,16,()),(True,16,()),(False,16,()),(False,8,()),(False,4,())]"
+        },
+        {
+          "line": 15337,
+          "text": "        st['compose_graft_enabled'][T]=picked['compose_graft_enabled'][T]"
+        },
+        {
+          "line": 15338,
+          "text": "        st['compose_boundary_warps'][T]=picked['compose_boundary_warps'][T]"
+        },
+        {
+          "line": 15340,
+          "text": "        st['compose_selection'].append({'T':T,'region':'chain_policy','us':ts,'modes':modes,'choice':modes[best]})"
+        },
+        {
+          "line": 15729,
+          "text": "    if T in SL_CLUSTER_CONFIG and 'graft' in state and state.get('compose_graft_enabled', {}).get(T, True):"
+        },
+        {
+          "line": 15930,
+          "text": "    if T in SL_TILE_CONFIG and 'graft' in state and state.get('compose_graft_enabled', {}).get(T, True):"
+        },
+        {
+          "line": 16713,
+          "text": "            and state.get('compose_graft_enabled', {}).get(T, True) and T in SL_TILE_CONFIG and T in SL_CLUSTER_CONFIG):"
+        },
+        {
+          "line": 16736,
+          "text": "    cge = st.setdefault('compose_graft_enabled', {})"
+        }
+      ],
+      "long_composition_inference": {
+        "graft_enabled": true,
+        "mode": [
+          true,
+          16,
+          []
+        ],
+        "basis": "All four owning profiles name graft boundary/route; source's sole enabled mode has fallback warps16 and no plan drops.",
+        "actual_graft_boundary_warps": {
+          "128": 32,
+          "256": 16
+        }
+      }
+    },
+    "c1931f0c9e834485": {
+      "source": {
+        "path": ".build/rmw-v2/short-rmw.py",
+        "bytes": 918978,
+        "sha256": "978b29f955dbbab3a67aad0cc06a04148aba9d233ac95bdcac45d1efd141fc2a"
+      },
+      "constants": {
+        "_GRAFT_LT_T": {
+          "line": 11697,
+          "text": "_GRAFT_LT_T = (128, 256)"
+        },
+        "_GRAFT_LT_PICKS": {
+          "line": 12339,
+          "text": "_GRAFT_LT_PICKS = {\n    (\"pr\", 256): ('tn', 2, True, [785979015234, 4294967331, 0, 562949953421312, 558779540176897, 60129542158, 292057776128, 0]),\n    (\"pr\", 128): ('tn', 1, True, [575525617730, 4294967331, 0, 1970324836974598, 558779540176897, 60129542158, 292057776128, 0]),\n    (\"o\", 256): ('nn', 2, False, [85899345986, 4294967331, 0, 1407374883553286, 558779540176897, 60129542158, 292058693646, 0]),\n    (\"un\", 256): ('nn', 2, False, [85899345986, 4294967331, 0, 1407374883553287, 558779540176897, 60129542158, 292058693646, 0]),\n    (\"un\", 128): ('nn', 2, False, [77309411394, 4294967331, 0, 1407374883553283, 558779540176897, 60129542158, 292058693646, 0]),\n    (\"qkv\", 128): ('tn', 16, False, [395136991298, 4294967331, 0, 1407374883553282, 558779540176897, 60129542158, 292058693646, 0]),\n    (\"o\", 128): ('nn', 8, False, [77309411394, 4294967331, 0, 1407374883553283, 558779540176897, 60129542158, 292058693646, 0]),\n}"
+        },
+        "_GRAFT_QKV256": {
+          "line": 12348,
+          "text": "_GRAFT_QKV256 = {\"id\": 66, \"tile\": 124, \"stages\": 35, \"splitk\": 1, \"red\": 0, \"swz\": 0, \"custom\": 0, \"cluster\": 2}"
+        }
+      },
+      "functions": {
+        "dense": {
+          "line": 12428,
+          "ast_sha256": "a6da09eab5318919fccf6bb7421879cb84b59d5333bd3efa4ce70351653631a0",
+          "text": "def dense(x, w, T, state=None, name=None):\n    plans = state.get(\"graft_lt\") if state is not None else None\n    plan = plans.get((name, T)) if plans and T > 32 else None\n    if plan is not None:\n        rq = _rq_gemm(state, name, x, T)\n        if rq is not None:\n            return rq.view(1, T, rq.shape[1]), 1\n        out = _graft_lt_run(x, plan)\n        return out.view(1, T, plan[\"n\"]), 1\n    return _vj_dense(x, w, T, state, name)"
+        },
+        "_graft_layouts": {
+          "line": 12326,
+          "ast_sha256": "fb4fc996b97aad764a13c5b805af2230bc68d599cb790d7b60096899a5bbaf9f",
+          "text": "def _graft_layouts(lt, m, n, k, mode, batch, fp32):\n    wa = (k, n // batch, k, k * n // batch) if mode == \"tn\" else (n // batch, k, n, n // batch)\n    result = []\n    for index, (rows, cols, ld, stride) in enumerate((wa, (k, m, k, 0), (n // batch, m, n, n // batch))):\n        desc = _GP()\n        lt.call(\"cublasLtMatrixLayoutCreate\", _C.byref(desc), 0 if fp32 and index == 2 else 14, rows, cols, ld)\n        count, offset = _GI(batch), _C.c_int64(stride)\n        lt.call(\"cublasLtMatrixLayoutSetAttribute\", desc, 5, _C.byref(count), _C.sizeof(count))\n        lt.call(\"cublasLtMatrixLayoutSetAttribute\", desc, 6, _C.byref(offset), _C.sizeof(offset))\n        result.append(desc)\n    return result"
+        },
+        "_graft_lt_plan": {
+          "line": 12361,
+          "ast_sha256": "eb5a16a4157b6442659251851ebc176243e8bf98e68eee55a63a0b9b3a0dc9cc",
+          "text": "def _graft_lt_plan(st):\n    lt_tn, lt_nn = _GraftLt(True), _GraftLt(False)\n    plans, status = {}, {}\n    src = {\"pr\": st[\"pr\"], \"o\": st[\"o\"], \"un\": st[\"unpool\"], \"qkv\": st[\"qkv\"]}\n    for (name, m), (mode, batch, fp32, words) in _GRAFT_LT_PICKS.items():\n        if m not in _GRAFT_LT_T:\n            continue\n        lt = lt_tn if mode == \"tn\" else lt_nn\n        if mode == \"tn\":\n            weight = src[name]\n            n, k = weight.shape\n        else:\n            key = \"graft_t_\" + name\n            if key not in st:\n                st[key] = src[name].t().contiguous()\n            weight = st[key]\n            k, n = weight.shape\n        assert weight.is_contiguous() and weight.data_ptr() % 128 == 0, (name, weight.data_ptr() % 128)\n        assert lt.workspace.data_ptr() % 256 == 0 and n % batch == 0 and (n // batch * 2) % 16 == 0\n        layouts = _graft_layouts(lt, m, n, k, mode, batch, fp32)\n        algo = _GraftAlgo((_C.c_uint64 * 8)(*words))\n        heur = _GraftHeur()\n        code = lt.lib.cublasLtMatmulAlgoCheck(lt.handle, lt.desc, *layouts, layouts[2], _C.byref(algo), _C.byref(heur))\n        status[(name, m)] = (code, heur.workspaceSize)\n        if code or heur.workspaceSize > lt.workspace.numel():\n            continue\n        if not _fork_lt_no_split(lt, algo):\n            status[(name,m)] = (\"rejected K split\", 0)\n            continue\n        plans[(name, m)] = _GraftPlan(lt=lt, layouts=layouts, algo=algo, weight=weight, n=n, fp32=fp32)\n    if 256 in _GRAFT_LT_T:\n        algo = _GraftAlgo()\n        lt_tn.call(\"cublasLtMatmulAlgoInit\", lt_tn.handle, 68, 0, 14, 14, 14, 14, _GRAFT_QKV256[\"id\"], _C.byref(algo))\n        for name, attr, ctype in _GRAFT_QKV256_ATTRS:\n            value = ctype(_GRAFT_QKV256[name])\n            lt_tn.call(\"cublasLtMatmulAlgoConfigSetAttribute\", _C.byref(algo), attr, _C.byref(value), _C.sizeof(value))\n        weight = st[\"qkv\"]\n        n, k = weight.shape\n        assert weight.is_contiguous() and weight.data_ptr() % 128 == 0\n        layouts = _graft_layouts(lt_tn, 256, n, k, \"tn\", 1, False)\n        heur = _GraftHeur()\n        code = lt_tn.lib.cublasLtMatmulAlgoCheck(lt_tn.handle, lt_tn.desc, *layouts, layouts[2], _C.byref(algo),\n                                                 _C.byref(heur))\n        status[(\"qkv\", 256)] = (code, heur.workspaceSize)\n        if not code and heur.workspaceSize <= lt_tn.workspace.numel() and _fork_lt_no_split(lt_tn, algo):\n            plans[(\"qkv\", 256)] = _GraftPlan(lt=lt_tn, layouts=layouts, algo=algo, weight=weight, n=n, fp32=False)\n    st[\"graft_lt\"] = plans\n    st[\"graft_lt_status\"] = {f\"{k[0]}:{k[1]}\": v for k, v in status.items()}"
+        },
+        "_graft_lt_run": {
+          "line": 12411,
+          "ast_sha256": "d819221df82d148bca83c836e0d0e39b83446e359954c41c237cd3994d92f63f",
+          "text": "def _graft_lt_run(x, plan):\n    x = x.contiguous()\n    assert x.data_ptr() % 16 == 0\n    out = torch.empty((x.shape[0], plan[\"n\"]), device=x.device,\n                      dtype=torch.float32 if plan[\"fp32\"] else torch.bfloat16)\n    lt = plan[\"lt\"]\n    a, b, c = plan[\"layouts\"]\n    lt.call(\"cublasLtMatmul\", lt.handle, lt.desc, _C.byref(lt.alpha), _GP(plan[\"weight\"].data_ptr()), a,\n            _GP(x.data_ptr()), b, _C.byref(lt.beta), _GP(out.data_ptr()), c, _GP(out.data_ptr()), c,\n            _C.byref(plan[\"algo\"]), _GP(lt.workspace.data_ptr()), lt.workspace.numel(),\n            _GP(torch.cuda.current_stream().cuda_stream))\n    return out"
+        },
+        "_graft_boundary": {
+          "line": 12445,
+          "ast_sha256": "58c0faeec993c388586b84e3b0168a1ab8303d042e39942cbce7cbb8d945182b",
+          "text": "def _graft_boundary(P, S, T, stream, st, post, s_out, h_out, nu=HIDDEN, router_out=None):\n    \"\"\"Returns True when a grafted kernel handled the boundary, else False (caller runs the base kernel).\"\"\"\n    g = st[\"graft\"]\n    if S != 1:\n        return False\n    br = P.view(T, -1)\n    width = br.shape[1]\n    pfx = \"2\" if post else \"1\"\n    if T <= 16 and br.dtype == torch.bfloat16:\n        _graft_al(br, stream, s_out, h_out)\n        if not post and width == HIDDEN:\n            _graft_glue_module().b1(br, stream, g[\"pre1\"], g[\"alpha1\"], g[\"beta1\"], h_out, s_out,\n                                    router_out if router_out is not None else s_out, router_out is not None)\n            return True\n        if post and width == 1024 and nu == 1024:\n            _graft_b2_module().b2s(br, stream, g[\"post2\"], g[\"pre2\"], g[\"alpha2\"], g[\"beta2\"], h_out, s_out)\n            return True\n        if post and width == HIDDEN and nu == HIDDEN:\n            _graft_glue_module().b2c(br, stream, g[\"post2\"], g[\"pre2\"], g[\"alpha2\"], g[\"beta2\"], h_out, s_out)\n            return True\n        return False\n    if 16 < T <= 32 and width == HIDDEN:\n        _graft_al(br, stream, s_out, h_out)\n        _graft_row_boundary_pre[(T,)](br, stream, g[\"post2\"], g[\"pre2\" if post else \"pre1\"], g[\"alpha\" + pfx],\n                                      g[\"beta\" + pfx], h_out, s_out, HIDDEN, width, post, 4, 32,\n                                      num_warps=32, launch_pdl=False)\n        return True\n    if T > 32 and width == HIDDEN:\n        _graft_al(br, stream, s_out, h_out)\n        _graft_row_boundary[(T,)](br, stream, g[\"post2\"], g[\"pre2\" if post else \"pre1\"], g[\"alpha\" + pfx],\n                                  g[\"beta\" + pfx], h_out, s_out, HIDDEN, width, post, 4, 16 if T > 192 else 32,\n                                  num_warps=16 if T > 192 else 32, launch_pdl=False)\n        return True\n    return False"
+        },
+        "_graft_after_attention": {
+          "line": 12481,
+          "ast_sha256": "5cb01bd1294aac9832eaee8782b9b76b7e35eb9fe30cc7bba57630a10934fd11",
+          "text": "def _graft_after_attention(data, state, o_in, gate, T):\n    \"\"\"Copy of the base _after_attention (one-program-per-token path) with the grafted boundary/route kernels.\n    Every kernel the graft does not cover falls back to the base kernel with the base arguments.\"\"\"\n    dev = o_in.device\n    f32 = dict(device=dev, dtype=torch.float32)\n    s1 = torch.empty((T, HIDDEN), **f32)\n    h = torch.empty((T, HIDDEN), device=dev, dtype=torch.bfloat16)\n    hr = torch.empty((T, HIDDEN), **f32) if T <= 8 else None\n    if gate is None:\n        P, S = dense(o_in, state[\"o\"], T, state, \"o\")\n    else:\n        P, S = dense_ng(o_in, gate, state[\"o\"], T, state)\n    if not _graft_boundary(P, S, T, data[\"stream\"], state, False, s1, h, router_out=hr):\n        _boundary1[(T,)](P, S, T, data[\"stream\"], state[\"gate1\"], state[\"gate1\"], state[\"g_preffn\"], s1, h, hr,\n                         WRITE_ROUTER=T <= 8, num_warps=state.get('compose_boundary_warps', {}).get(T, 16), USE_PDL=_pdl(T), launch_pdl=_pdl(T))\n    mmp = state.get(\"mm_pick\", {})\n    ppick = mmp.get((T, \"pr\"), mmp.get((_bucket(T), \"pr\"), False))\n    P, S = _pool_router_fp32(h, hr, T, state, ppick)\n    ids = torch.empty((T, 8), device=dev, dtype=torch.int32)\n    lids = torch.empty((T, 8), device=dev, dtype=torch.int32)\n    wts = torch.empty((T, 8), **f32)\n    moe = _pick_expert_backend(state[\"moe_pick\"].get(T, state[\"moe_pick\"].get(_bucket(T), \"agent\")),\n                               marlin_available=state[\"bank\"] is not None, agent_available=state[\"ma_ok\"])\n    use_marlin = moe == \"marlin\"\n    use_ma = moe == \"agent\"\n    if not (use_marlin or use_ma):\n        raise RuntimeError(\"no expert backend: neither the moe agent's kernel nor SGLang's Marlin is available\")\n    xm = torch.empty((T, D_EXPERT), device=dev, dtype=torch.bfloat16)\n    if S == -1:\n        pooled, logits = P\n        _graft_al(pooled, logits, xm, ids, wts, lids)\n        if T in (16, 32):\n            nw, parts = {16: (8, 1), 32: (8, 1)}[T]\n            _sl_tile_route[(T, parts + 1)](pooled, logits, logits, state[\"bias\"], state[\"_g_preexp_effective\"], ids, wts, xm,\n                data[\"local_start\"], lids, SPLIT=True, EARLY=False, MODE=0, PARTS=parts, PRELOAD=True,\n                num_warps=nw, launch_pdl=False)\n        else:\n            _graft_route[(T, 2)](pooled, logits, logits, state[\"bias\"], state[\"_g_preexp_effective\"], ids, wts, xm,\n                             data[\"local_start\"], lids, SPLIT=True, EARLY=_GRAFT_ROUTE_EARLY, PACKED=1 if T > 32 else 0, num_warps=4 if T > 32 else 1, launch_pdl=False)\n    elif S == 1 and P.shape[-1] == 4608 and P.dtype == torch.float32:\n        allp = P.view(T, 4608)\n        _graft_al(allp, xm, ids, wts, lids)\n        if T in (16, 32):\n            nw, parts = {16: (8, 1), 32: (8, 1)}[T]\n            _sl_tile_route[(T, parts + 1)](allp, allp, allp, state[\"bias\"], state[\"_g_preexp_effective\"], ids, wts, xm,\n                data[\"local_start\"], lids, SPLIT=False, EARLY=False, MODE=0, PARTS=parts, PRELOAD=True,\n                num_warps=nw, launch_pdl=False)\n        else:\n            _graft_route[(T, 2)](allp, allp, allp, state[\"bias\"], state[\"_g_preexp_effective\"], ids, wts, xm,\n                             data[\"local_start\"], lids, SPLIT=False, EARLY=_GRAFT_ROUTE_EARLY, PACKED=1 if T > 32 else 0, num_warps=4 if T > 32 else 1, launch_pdl=False)\n    else:\n        _route[(T,)](P, S, T, state[\"bias\"], state[\"_g_preexp_effective\"], ids, wts, xm, data[\"local_start\"], lids,\n                     PERMUTED=False, num_warps=8, USE_PDL=_pdl(T), launch_pdl=_pdl(T))\n    if use_ma:\n        m = torch.empty((T, D_EXPERT), device=dev, dtype=torch.bfloat16)\n        ext = _moe(T, state)\n        if MOE_HAS_PDL:\n            ext.okc_set_pdl(1 if _pdl(T) else 0)\n        for m0 in range(0, T, _MA_MMAX):\n            m1 = min(T, m0 + _MA_MMAX)\n            ext.okc_run(state[\"ma_w\"], state[\"ma_scratch\"], xm[m0:m1], lids[m0:m1], wts[m0:m1], m[m0:m1], 0, 32,\n                        state[\"nsm\"])\n    elif use_marlin:\n        m = _marlin_experts(xm, wts, lids, state)\n    wu = state[\"unpool_slice\"] if T <= 8 else state[\"unpool\"]\n    P, S = dense(m, wu, T, state, \"un\")\n    nu = wu.shape[0]\n    s2 = torch.empty((T, HIDDEN), **f32)\n    out = torch.empty((T, HIDDEN), device=dev, dtype=torch.bfloat16)\n    if not _graft_boundary(P, S, T, s1, state, True, s2, out, nu=nu):\n        _boundary2[(T,)](P, S, T, nu, s1, state[\"gate2\"], state[\"gate2\"], state[\"g_postffn\"], state[\"g_next\"],\n                         s2, out, num_warps=state.get('compose_boundary_warps', {}).get(T, 16), USE_PDL=_pdl(T), launch_pdl=_pdl(T))\n    return out, s2, ids"
+        },
+        "_policy_variant": {
+          "line": 15466,
+          "ast_sha256": "596ca01e8a5efc4e3f297daf248737ca3c2355fd4ee8a22de24b3443fae65765",
+          "text": "def _policy_variant(st,T,mode):\n    ss=dict(st)\n    ss['mm_pick']=dict(st['mm_pick'])\n    ss['graft_lt']=dict(st.get('graft_lt',{}))\n    ss['compose_graft_enabled']=dict(st.get('compose_graft_enabled',{}))\n    ss['compose_boundary_warps']=dict(st.get('compose_boundary_warps',{}))\n    graft,bw,drops=mode\n    ss['compose_graft_enabled'][T]=graft\n    ss['compose_boundary_warps'][T]=bw\n    for name in drops:ss['graft_lt'].pop((name,T),None)\n    return ss"
+        },
+        "_rq_gemm": {
+          "line": 16908,
+          "ast_sha256": "a6d11d77bafdfc4ca472fb9862c7de5400512ff283ed6a1b8385636aac720fce",
+          "text": "def _rq_gemm(state, name, x, T):\n    return None"
+        }
+      },
+      "receipt": {
+        "path": "muse_decode_layer/profiles/g-common-rmw-v2.c1931f0c9e834485.json",
+        "bytes": 57705,
+        "sha256": "9e666b62abb6b4ff88a138b5a8bd6c5f9905101d3233ebf4b70d0279a3ca70e3",
+        "job_id": "c1931f0c9e834485",
+        "summary": {
+          "error": null,
+          "passed": true,
+          "score_us": 10663.71028754322,
+          "speedup": 2.1212410493206884,
+          "speedup_ci": [
+            2.089422433580878,
+            2.1530596650604985
+          ],
+          "status": "ok",
+          "tests": 13,
+          "tests_passed": 13
+        },
+        "result": {},
+        "profile_count": 12,
+        "benchmark_count": 12
+      },
+      "log": {
+        "path": "muse_decode_layer/profiles/g-common-rmw-v2.c1931f0c9e834485.log",
+        "bytes": 14044,
+        "sha256": "bb1f08781b14f03479f8a1e33d796eb49d73984c32ff069cd731b20ce32e82ff",
+        "lines": 191,
+        "accepted_plan_lines": [],
+        "composition_lines": []
+      },
+      "long_profiles": [
+        {
+          "case": {
+            "batch": 16,
+            "ctx": 80000,
+            "dist": "soft",
+            "layer": "sliding",
+            "load": "verify 16",
+            "page": 1,
+            "q_len": 8,
+            "seed": 929768113031387957,
+            "spread": "agentic",
+            "weight": 46
+          },
+          "event": "profile",
+          "index": 8,
+          "report": "kernel                                                           GPU time  share  calls\nvoid okc::moe_fused<true>(okc::Params)                           136.7 \u00b5s  59.1%      1\nnvjet_sm90_tst_128x64_64x8_1x2_h_bz_NNT                           28.9 \u00b5s  12.5%      2\nnvjet_sm90_tss_80x64_64x11_4x2_h_bz_coopB_TNN                     24.8 \u00b5s  10.7%      1\nnvjet_sm90_tst_48x64_64x15_1x2_h_bz_TNN                           16.7 \u00b5s   7.2%      1\nvoid (anonymous namespace)::attn_kernel<8, false, 3>((ano...      12.0 \u00b5s   5.2%      1\n_graft_row_boundary                                                9.4 \u00b5s   4.1%      2\n_graft_route                                                       2.8 \u00b5s   1.2%      1\ntotal                                                            231.3 \u00b5s"
+        },
+        {
+          "case": {
+            "batch": 16,
+            "ctx": 80000,
+            "dist": "soft",
+            "layer": "full",
+            "load": "verify 16",
+            "page": 1,
+            "q_len": 8,
+            "seed": 929995338843043971,
+            "spread": "agentic",
+            "weight": 16
+          },
+          "event": "profile",
+          "index": 9,
+          "report": "kernel                                                           GPU time  share  calls\nvoid okc::moe_fused<true>(okc::Params)                           183.5 \u00b5s  49.7%      1\nvoid (anonymous namespace)::attn_kernel<8, true, 0>((anon...     103.1 \u00b5s  27.9%      1\nnvjet_sm90_tst_128x64_64x8_1x2_h_bz_NNT                           29.1 \u00b5s   7.9%      2\nnvjet_sm90_tss_80x64_64x11_4x2_h_bz_coopB_TNN                     24.5 \u00b5s   6.6%      1\nnvjet_sm90_tst_48x64_64x15_1x2_h_bz_TNN                           16.7 \u00b5s   4.5%      1\n_graft_row_boundary                                                9.4 \u00b5s   2.5%      2\n_graft_route                                                       2.8 \u00b5s   0.8%      1\ntotal                                                            369.2 \u00b5s"
+        },
+        {
+          "case": {
+            "batch": 32,
+            "ctx": 80000,
+            "dist": "soft",
+            "layer": "sliding",
+            "load": "verify 32",
+            "page": 1,
+            "q_len": 8,
+            "seed": 930222564654699986,
+            "spread": "agentic",
+            "weight": 46
+          },
+          "event": "profile",
+          "index": 10,
+          "report": "kernel                                                           GPU time  share  calls\nvoid okc::moe_fused<true>(okc::Params)                           198.3 \u00b5s  62.3%      1\nnvjet_sm90_tss_144x64_64x8_1x1_v_bz_TNN                           32.2 \u00b5s  10.1%      1\nnvjet_sm90_tst_128x128_64x6_1x2_h_bz_coopA_NNT                    25.8 \u00b5s   8.1%      1\nnvjet_sm90_tst_72x64_64x12_1x1_v_bz_TNN                           20.3 \u00b5s   6.4%      1\nvoid (anonymous namespace)::attn_kernel<8, false, 3>((ano...      15.5 \u00b5s   4.9%      1\n_graft_row_boundary                                               13.6 \u00b5s   4.3%      2\nnvjet_sm90_tst_128x128_64x6_1x2_h_bz_coopA_NNN                     9.0 \u00b5s   2.8%      1\n_graft_route                                                       3.6 \u00b5s   1.1%      1\ntotal                                                            318.3 \u00b5s"
+        },
+        {
+          "case": {
+            "batch": 32,
+            "ctx": 80000,
+            "dist": "soft",
+            "layer": "full",
+            "load": "verify 32",
+            "page": 1,
+            "q_len": 8,
+            "seed": 930449790466356002,
+            "spread": "agentic",
+            "weight": 16
+          },
+          "event": "profile",
+          "index": 11,
+          "report": "kernel                                                           GPU time  share  calls\nvoid okc::moe_fused<true>(okc::Params)                           204.3 \u00b5s  41.4%      1\nvoid (anonymous namespace)::attn_kernel<8, true, 0>((anon...     186.0 \u00b5s  37.7%      1\nnvjet_sm90_tss_144x64_64x8_1x1_v_bz_TNN                           31.1 \u00b5s   6.3%      1\nnvjet_sm90_tst_128x128_64x6_1x2_h_bz_coopA_NNT                    25.7 \u00b5s   5.2%      1\nnvjet_sm90_tst_72x64_64x12_1x1_v_bz_TNN                           20.3 \u00b5s   4.1%      1\n_graft_row_boundary                                               13.2 \u00b5s   2.7%      2\nnvjet_sm90_tst_128x128_64x6_1x2_h_bz_coopA_NNN                     9.3 \u00b5s   1.9%      1\n_graft_route                                                       3.7 \u00b5s   0.8%      1\ntotal                                                            493.8 \u00b5s"
+        }
+      ],
+      "receipt_selection_keys": [],
+      "source_composition_lines": [
+        {
+          "line": 11628,
+          "text": "                         WRITE_ROUTER=T <= 8, num_warps=state.get('compose_boundary_warps', {}).get(T, 16), USE_PDL=_pdl(T), launch_pdl=_pdl(T))"
+        },
+        {
+          "line": 11685,
+          "text": "                         s2, out, num_warps=state.get('compose_boundary_warps', {}).get(T, 16), USE_PDL=_pdl(T), launch_pdl=_pdl(T))"
+        },
+        {
+          "line": 12495,
+          "text": "                         WRITE_ROUTER=T <= 8, num_warps=state.get('compose_boundary_warps', {}).get(T, 16), USE_PDL=_pdl(T), launch_pdl=_pdl(T))"
+        },
+        {
+          "line": 12552,
+          "text": "                         s2, out, num_warps=state.get('compose_boundary_warps', {}).get(T, 16), USE_PDL=_pdl(T), launch_pdl=_pdl(T))"
+        },
+        {
+          "line": 12560,
+          "text": "    if \"graft\" in state and T in _GRAFT_GLUE_T and state.get(\"compose_graft_enabled\", {}).get(T, T in (1, 8, 128, 256)):"
+        },
+        {
+          "line": 15470,
+          "text": "    ss['compose_graft_enabled']=dict(st.get('compose_graft_enabled',{}))"
+        },
+        {
+          "line": 15471,
+          "text": "    ss['compose_boundary_warps']=dict(st.get('compose_boundary_warps',{}))"
+        },
+        {
+          "line": 15473,
+          "text": "    ss['compose_graft_enabled'][T]=graft"
+        },
+        {
+          "line": 15474,
+          "text": "    ss['compose_boundary_warps'][T]=bw"
+        },
+        {
+          "line": 15484,
+          "text": "    st['compose_selection']=[]"
+        },
+        {
+          "line": 15485,
+          "text": "    st['compose_graft_enabled']={T:T in (1,8,128,256) for T in (1,8,16,32,128,256)}"
+        },
+        {
+          "line": 15486,
+          "text": "    st['compose_boundary_warps']={}"
+        },
+        {
+          "line": 15489,
+          "text": "        original=st['compose_graft_enabled'][T]"
+        },
+        {
+          "line": 15490,
+          "text": "        modes=[(original,16,()),(True,16,()),(False,16,()),(False,8,()),(False,4,())]"
+        },
+        {
+          "line": 15503,
+          "text": "        st['compose_graft_enabled'][T]=picked['compose_graft_enabled'][T]"
+        },
+        {
+          "line": 15504,
+          "text": "        st['compose_boundary_warps'][T]=picked['compose_boundary_warps'][T]"
+        },
+        {
+          "line": 15506,
+          "text": "        st['compose_selection'].append({'T':T,'region':'chain_policy','us':ts,'modes':modes,'choice':modes[best]})"
+        },
+        {
+          "line": 15895,
+          "text": "    if T in SL_CLUSTER_CONFIG and 'graft' in state and state.get('compose_graft_enabled', {}).get(T, True):"
+        },
+        {
+          "line": 16096,
+          "text": "    if T in SL_TILE_CONFIG and 'graft' in state and state.get('compose_graft_enabled', {}).get(T, True):"
+        },
+        {
+          "line": 16879,
+          "text": "            and state.get('compose_graft_enabled', {}).get(T, True) and T in SL_TILE_CONFIG and T in SL_CLUSTER_CONFIG):"
+        },
+        {
+          "line": 16902,
+          "text": "    cge = st.setdefault('compose_graft_enabled', {})"
+        }
+      ],
+      "long_composition_inference": {
+        "graft_enabled": true,
+        "mode": [
+          true,
+          16,
+          []
+        ],
+        "basis": "All four owning profiles name graft boundary/route; source's sole enabled mode has fallback warps16 and no plan drops.",
+        "actual_graft_boundary_warps": {
+          "128": 32,
+          "256": 16
+        }
+      }
+    },
+    "c5e4f89672f743bb": {
+      "source": {
+        "path": ".build/rmw-pair-v4/check.py",
+        "bytes": 924005,
+        "sha256": "785a90ca08ddde0c3b194fc219a0645cb8cd14bac02620d8714f0b66163a0b66"
+      },
+      "constants": {
+        "_GRAFT_LT_T": {
+          "line": 11713,
+          "text": "_GRAFT_LT_T = (128, 256)"
+        },
+        "_GRAFT_LT_PICKS": {
+          "line": 12355,
+          "text": "_GRAFT_LT_PICKS = {\n    (\"pr\", 256): ('tn', 2, True, [785979015234, 4294967331, 0, 562949953421312, 558779540176897, 60129542158, 292057776128, 0]),\n    (\"pr\", 128): ('tn', 1, True, [575525617730, 4294967331, 0, 1970324836974598, 558779540176897, 60129542158, 292057776128, 0]),\n    (\"o\", 256): ('nn', 2, False, [85899345986, 4294967331, 0, 1407374883553286, 558779540176897, 60129542158, 292058693646, 0]),\n    (\"un\", 256): ('nn', 2, False, [85899345986, 4294967331, 0, 1407374883553287, 558779540176897, 60129542158, 292058693646, 0]),\n    (\"un\", 128): ('nn', 2, False, [77309411394, 4294967331, 0, 1407374883553283, 558779540176897, 60129542158, 292058693646, 0]),\n    (\"qkv\", 128): ('tn', 16, False, [395136991298, 4294967331, 0, 1407374883553282, 558779540176897, 60129542158, 292058693646, 0]),\n    (\"o\", 128): ('nn', 8, False, [77309411394, 4294967331, 0, 1407374883553283, 558779540176897, 60129542158, 292058693646, 0]),\n}"
+        },
+        "_GRAFT_QKV256": {
+          "line": 12364,
+          "text": "_GRAFT_QKV256 = {\"id\": 66, \"tile\": 124, \"stages\": 35, \"splitk\": 1, \"red\": 0, \"swz\": 0, \"custom\": 0, \"cluster\": 2}"
+        }
+      },
+      "functions": {
+        "dense": {
+          "line": 12444,
+          "ast_sha256": "a6da09eab5318919fccf6bb7421879cb84b59d5333bd3efa4ce70351653631a0",
+          "text": "def dense(x, w, T, state=None, name=None):\n    plans = state.get(\"graft_lt\") if state is not None else None\n    plan = plans.get((name, T)) if plans and T > 32 else None\n    if plan is not None:\n        rq = _rq_gemm(state, name, x, T)\n        if rq is not None:\n            return rq.view(1, T, rq.shape[1]), 1\n        out = _graft_lt_run(x, plan)\n        return out.view(1, T, plan[\"n\"]), 1\n    return _vj_dense(x, w, T, state, name)"
+        },
+        "_graft_layouts": {
+          "line": 12342,
+          "ast_sha256": "fb4fc996b97aad764a13c5b805af2230bc68d599cb790d7b60096899a5bbaf9f",
+          "text": "def _graft_layouts(lt, m, n, k, mode, batch, fp32):\n    wa = (k, n // batch, k, k * n // batch) if mode == \"tn\" else (n // batch, k, n, n // batch)\n    result = []\n    for index, (rows, cols, ld, stride) in enumerate((wa, (k, m, k, 0), (n // batch, m, n, n // batch))):\n        desc = _GP()\n        lt.call(\"cublasLtMatrixLayoutCreate\", _C.byref(desc), 0 if fp32 and index == 2 else 14, rows, cols, ld)\n        count, offset = _GI(batch), _C.c_int64(stride)\n        lt.call(\"cublasLtMatrixLayoutSetAttribute\", desc, 5, _C.byref(count), _C.sizeof(count))\n        lt.call(\"cublasLtMatrixLayoutSetAttribute\", desc, 6, _C.byref(offset), _C.sizeof(offset))\n        result.append(desc)\n    return result"
+        },
+        "_graft_lt_plan": {
+          "line": 12377,
+          "ast_sha256": "eb5a16a4157b6442659251851ebc176243e8bf98e68eee55a63a0b9b3a0dc9cc",
+          "text": "def _graft_lt_plan(st):\n    lt_tn, lt_nn = _GraftLt(True), _GraftLt(False)\n    plans, status = {}, {}\n    src = {\"pr\": st[\"pr\"], \"o\": st[\"o\"], \"un\": st[\"unpool\"], \"qkv\": st[\"qkv\"]}\n    for (name, m), (mode, batch, fp32, words) in _GRAFT_LT_PICKS.items():\n        if m not in _GRAFT_LT_T:\n            continue\n        lt = lt_tn if mode == \"tn\" else lt_nn\n        if mode == \"tn\":\n            weight = src[name]\n            n, k = weight.shape\n        else:\n            key = \"graft_t_\" + name\n            if key not in st:\n                st[key] = src[name].t().contiguous()\n            weight = st[key]\n            k, n = weight.shape\n        assert weight.is_contiguous() and weight.data_ptr() % 128 == 0, (name, weight.data_ptr() % 128)\n        assert lt.workspace.data_ptr() % 256 == 0 and n % batch == 0 and (n // batch * 2) % 16 == 0\n        layouts = _graft_layouts(lt, m, n, k, mode, batch, fp32)\n        algo = _GraftAlgo((_C.c_uint64 * 8)(*words))\n        heur = _GraftHeur()\n        code = lt.lib.cublasLtMatmulAlgoCheck(lt.handle, lt.desc, *layouts, layouts[2], _C.byref(algo), _C.byref(heur))\n        status[(name, m)] = (code, heur.workspaceSize)\n        if code or heur.workspaceSize > lt.workspace.numel():\n            continue\n        if not _fork_lt_no_split(lt, algo):\n            status[(name,m)] = (\"rejected K split\", 0)\n            continue\n        plans[(name, m)] = _GraftPlan(lt=lt, layouts=layouts, algo=algo, weight=weight, n=n, fp32=fp32)\n    if 256 in _GRAFT_LT_T:\n        algo = _GraftAlgo()\n        lt_tn.call(\"cublasLtMatmulAlgoInit\", lt_tn.handle, 68, 0, 14, 14, 14, 14, _GRAFT_QKV256[\"id\"], _C.byref(algo))\n        for name, attr, ctype in _GRAFT_QKV256_ATTRS:\n            value = ctype(_GRAFT_QKV256[name])\n            lt_tn.call(\"cublasLtMatmulAlgoConfigSetAttribute\", _C.byref(algo), attr, _C.byref(value), _C.sizeof(value))\n        weight = st[\"qkv\"]\n        n, k = weight.shape\n        assert weight.is_contiguous() and weight.data_ptr() % 128 == 0\n        layouts = _graft_layouts(lt_tn, 256, n, k, \"tn\", 1, False)\n        heur = _GraftHeur()\n        code = lt_tn.lib.cublasLtMatmulAlgoCheck(lt_tn.handle, lt_tn.desc, *layouts, layouts[2], _C.byref(algo),\n                                                 _C.byref(heur))\n        status[(\"qkv\", 256)] = (code, heur.workspaceSize)\n        if not code and heur.workspaceSize <= lt_tn.workspace.numel() and _fork_lt_no_split(lt_tn, algo):\n            plans[(\"qkv\", 256)] = _GraftPlan(lt=lt_tn, layouts=layouts, algo=algo, weight=weight, n=n, fp32=False)\n    st[\"graft_lt\"] = plans\n    st[\"graft_lt_status\"] = {f\"{k[0]}:{k[1]}\": v for k, v in status.items()}"
+        },
+        "_graft_lt_run": {
+          "line": 12427,
+          "ast_sha256": "d819221df82d148bca83c836e0d0e39b83446e359954c41c237cd3994d92f63f",
+          "text": "def _graft_lt_run(x, plan):\n    x = x.contiguous()\n    assert x.data_ptr() % 16 == 0\n    out = torch.empty((x.shape[0], plan[\"n\"]), device=x.device,\n                      dtype=torch.float32 if plan[\"fp32\"] else torch.bfloat16)\n    lt = plan[\"lt\"]\n    a, b, c = plan[\"layouts\"]\n    lt.call(\"cublasLtMatmul\", lt.handle, lt.desc, _C.byref(lt.alpha), _GP(plan[\"weight\"].data_ptr()), a,\n            _GP(x.data_ptr()), b, _C.byref(lt.beta), _GP(out.data_ptr()), c, _GP(out.data_ptr()), c,\n            _C.byref(plan[\"algo\"]), _GP(lt.workspace.data_ptr()), lt.workspace.numel(),\n            _GP(torch.cuda.current_stream().cuda_stream))\n    return out"
+        },
+        "_graft_boundary": {
+          "line": 12461,
+          "ast_sha256": "58c0faeec993c388586b84e3b0168a1ab8303d042e39942cbce7cbb8d945182b",
+          "text": "def _graft_boundary(P, S, T, stream, st, post, s_out, h_out, nu=HIDDEN, router_out=None):\n    \"\"\"Returns True when a grafted kernel handled the boundary, else False (caller runs the base kernel).\"\"\"\n    g = st[\"graft\"]\n    if S != 1:\n        return False\n    br = P.view(T, -1)\n    width = br.shape[1]\n    pfx = \"2\" if post else \"1\"\n    if T <= 16 and br.dtype == torch.bfloat16:\n        _graft_al(br, stream, s_out, h_out)\n        if not post and width == HIDDEN:\n            _graft_glue_module().b1(br, stream, g[\"pre1\"], g[\"alpha1\"], g[\"beta1\"], h_out, s_out,\n                                    router_out if router_out is not None else s_out, router_out is not None)\n            return True\n        if post and width == 1024 and nu == 1024:\n            _graft_b2_module().b2s(br, stream, g[\"post2\"], g[\"pre2\"], g[\"alpha2\"], g[\"beta2\"], h_out, s_out)\n            return True\n        if post and width == HIDDEN and nu == HIDDEN:\n            _graft_glue_module().b2c(br, stream, g[\"post2\"], g[\"pre2\"], g[\"alpha2\"], g[\"beta2\"], h_out, s_out)\n            return True\n        return False\n    if 16 < T <= 32 and width == HIDDEN:\n        _graft_al(br, stream, s_out, h_out)\n        _graft_row_boundary_pre[(T,)](br, stream, g[\"post2\"], g[\"pre2\" if post else \"pre1\"], g[\"alpha\" + pfx],\n                                      g[\"beta\" + pfx], h_out, s_out, HIDDEN, width, post, 4, 32,\n                                      num_warps=32, launch_pdl=False)\n        return True\n    if T > 32 and width == HIDDEN:\n        _graft_al(br, stream, s_out, h_out)\n        _graft_row_boundary[(T,)](br, stream, g[\"post2\"], g[\"pre2\" if post else \"pre1\"], g[\"alpha\" + pfx],\n                                  g[\"beta\" + pfx], h_out, s_out, HIDDEN, width, post, 4, 16 if T > 192 else 32,\n                                  num_warps=16 if T > 192 else 32, launch_pdl=False)\n        return True\n    return False"
+        },
+        "_graft_after_attention": {
+          "line": 12497,
+          "ast_sha256": "5cb01bd1294aac9832eaee8782b9b76b7e35eb9fe30cc7bba57630a10934fd11",
+          "text": "def _graft_after_attention(data, state, o_in, gate, T):\n    \"\"\"Copy of the base _after_attention (one-program-per-token path) with the grafted boundary/route kernels.\n    Every kernel the graft does not cover falls back to the base kernel with the base arguments.\"\"\"\n    dev = o_in.device\n    f32 = dict(device=dev, dtype=torch.float32)\n    s1 = torch.empty((T, HIDDEN), **f32)\n    h = torch.empty((T, HIDDEN), device=dev, dtype=torch.bfloat16)\n    hr = torch.empty((T, HIDDEN), **f32) if T <= 8 else None\n    if gate is None:\n        P, S = dense(o_in, state[\"o\"], T, state, \"o\")\n    else:\n        P, S = dense_ng(o_in, gate, state[\"o\"], T, state)\n    if not _graft_boundary(P, S, T, data[\"stream\"], state, False, s1, h, router_out=hr):\n        _boundary1[(T,)](P, S, T, data[\"stream\"], state[\"gate1\"], state[\"gate1\"], state[\"g_preffn\"], s1, h, hr,\n                         WRITE_ROUTER=T <= 8, num_warps=state.get('compose_boundary_warps', {}).get(T, 16), USE_PDL=_pdl(T), launch_pdl=_pdl(T))\n    mmp = state.get(\"mm_pick\", {})\n    ppick = mmp.get((T, \"pr\"), mmp.get((_bucket(T), \"pr\"), False))\n    P, S = _pool_router_fp32(h, hr, T, state, ppick)\n    ids = torch.empty((T, 8), device=dev, dtype=torch.int32)\n    lids = torch.empty((T, 8), device=dev, dtype=torch.int32)\n    wts = torch.empty((T, 8), **f32)\n    moe = _pick_expert_backend(state[\"moe_pick\"].get(T, state[\"moe_pick\"].get(_bucket(T), \"agent\")),\n                               marlin_available=state[\"bank\"] is not None, agent_available=state[\"ma_ok\"])\n    use_marlin = moe == \"marlin\"\n    use_ma = moe == \"agent\"\n    if not (use_marlin or use_ma):\n        raise RuntimeError(\"no expert backend: neither the moe agent's kernel nor SGLang's Marlin is available\")\n    xm = torch.empty((T, D_EXPERT), device=dev, dtype=torch.bfloat16)\n    if S == -1:\n        pooled, logits = P\n        _graft_al(pooled, logits, xm, ids, wts, lids)\n        if T in (16, 32):\n            nw, parts = {16: (8, 1), 32: (8, 1)}[T]\n            _sl_tile_route[(T, parts + 1)](pooled, logits, logits, state[\"bias\"], state[\"_g_preexp_effective\"], ids, wts, xm,\n                data[\"local_start\"], lids, SPLIT=True, EARLY=False, MODE=0, PARTS=parts, PRELOAD=True,\n                num_warps=nw, launch_pdl=False)\n        else:\n            _graft_route[(T, 2)](pooled, logits, logits, state[\"bias\"], state[\"_g_preexp_effective\"], ids, wts, xm,\n                             data[\"local_start\"], lids, SPLIT=True, EARLY=_GRAFT_ROUTE_EARLY, PACKED=1 if T > 32 else 0, num_warps=4 if T > 32 else 1, launch_pdl=False)\n    elif S == 1 and P.shape[-1] == 4608 and P.dtype == torch.float32:\n        allp = P.view(T, 4608)\n        _graft_al(allp, xm, ids, wts, lids)\n        if T in (16, 32):\n            nw, parts = {16: (8, 1), 32: (8, 1)}[T]\n            _sl_tile_route[(T, parts + 1)](allp, allp, allp, state[\"bias\"], state[\"_g_preexp_effective\"], ids, wts, xm,\n                data[\"local_start\"], lids, SPLIT=False, EARLY=False, MODE=0, PARTS=parts, PRELOAD=True,\n                num_warps=nw, launch_pdl=False)\n        else:\n            _graft_route[(T, 2)](allp, allp, allp, state[\"bias\"], state[\"_g_preexp_effective\"], ids, wts, xm,\n                             data[\"local_start\"], lids, SPLIT=False, EARLY=_GRAFT_ROUTE_EARLY, PACKED=1 if T > 32 else 0, num_warps=4 if T > 32 else 1, launch_pdl=False)\n    else:\n        _route[(T,)](P, S, T, state[\"bias\"], state[\"_g_preexp_effective\"], ids, wts, xm, data[\"local_start\"], lids,\n                     PERMUTED=False, num_warps=8, USE_PDL=_pdl(T), launch_pdl=_pdl(T))\n    if use_ma:\n        m = torch.empty((T, D_EXPERT), device=dev, dtype=torch.bfloat16)\n        ext = _moe(T, state)\n        if MOE_HAS_PDL:\n            ext.okc_set_pdl(1 if _pdl(T) else 0)\n        for m0 in range(0, T, _MA_MMAX):\n            m1 = min(T, m0 + _MA_MMAX)\n            ext.okc_run(state[\"ma_w\"], state[\"ma_scratch\"], xm[m0:m1], lids[m0:m1], wts[m0:m1], m[m0:m1], 0, 32,\n                        state[\"nsm\"])\n    elif use_marlin:\n        m = _marlin_experts(xm, wts, lids, state)\n    wu = state[\"unpool_slice\"] if T <= 8 else state[\"unpool\"]\n    P, S = dense(m, wu, T, state, \"un\")\n    nu = wu.shape[0]\n    s2 = torch.empty((T, HIDDEN), **f32)\n    out = torch.empty((T, HIDDEN), device=dev, dtype=torch.bfloat16)\n    if not _graft_boundary(P, S, T, s1, state, True, s2, out, nu=nu):\n        _boundary2[(T,)](P, S, T, nu, s1, state[\"gate2\"], state[\"gate2\"], state[\"g_postffn\"], state[\"g_next\"],\n                         s2, out, num_warps=state.get('compose_boundary_warps', {}).get(T, 16), USE_PDL=_pdl(T), launch_pdl=_pdl(T))\n    return out, s2, ids"
+        },
+        "_policy_variant": {
+          "line": 15496,
+          "ast_sha256": "596ca01e8a5efc4e3f297daf248737ca3c2355fd4ee8a22de24b3443fae65765",
+          "text": "def _policy_variant(st,T,mode):\n    ss=dict(st)\n    ss['mm_pick']=dict(st['mm_pick'])\n    ss['graft_lt']=dict(st.get('graft_lt',{}))\n    ss['compose_graft_enabled']=dict(st.get('compose_graft_enabled',{}))\n    ss['compose_boundary_warps']=dict(st.get('compose_boundary_warps',{}))\n    graft,bw,drops=mode\n    ss['compose_graft_enabled'][T]=graft\n    ss['compose_boundary_warps'][T]=bw\n    for name in drops:ss['graft_lt'].pop((name,T),None)\n    return ss"
+        },
+        "_rq_gemm": {
+          "line": 16940,
+          "ast_sha256": "a6d11d77bafdfc4ca472fb9862c7de5400512ff283ed6a1b8385636aac720fce",
+          "text": "def _rq_gemm(state, name, x, T):\n    return None"
+        }
+      },
+      "receipt": {
+        "path": "muse_decode_layer/profiles/g-common-rmw-pair-v4.c5e4f89672f743bb.json",
+        "bytes": 81204,
+        "sha256": "9bbdf8d0f63051259e6ff2aa90199d966059d8f97d8527252e37404e859ab653",
+        "job_id": "c5e4f89672f743bb",
+        "summary": null,
+        "result": {
+          "passed": true,
+          "returncode": 0,
+          "score_us": 10707.837538008971,
+          "speedup": 2.112499365040427,
+          "status": "ok"
+        },
+        "profile_count": 12,
+        "benchmark_count": 12
+      },
+      "log": {
+        "path": "muse_decode_layer/profiles/g-common-rmw-pair-v4.c5e4f89672f743bb.log",
+        "bytes": 7941,
+        "sha256": "72a06b96a87fe712e272a80a86212de6638c7e36fede7d4e4ab983f10facc16f",
+        "lines": 6,
+        "accepted_plan_lines": [
+          {
+            "line": 3,
+            "text": "G1b4 backend native repaired: cooperative+BF16, MFIN/DF/YBF/PDL off Lt plans [('o', 128), ('o', 256), ('pr', 128), ('pr', 256), ('qkv', 128), ('qkv', 256), ('un', 128), ('un', 256)]"
+          }
+        ],
+        "composition_lines": []
+      },
+      "long_profiles": [
+        {
+          "case": {
+            "batch": 16,
+            "ctx": 80000,
+            "dist": "soft",
+            "layer": "sliding",
+            "load": "verify 16",
+            "page": 1,
+            "q_len": 8,
+            "seed": 1318257240588857054,
+            "spread": "agentic",
+            "weight": 46
+          },
+          "event": "profile",
+          "index": 8,
+          "report": "kernel                                                           GPU time  share  calls\nvoid okc::moe_fused<true>(okc::Params)                           157.3 \u00b5s  62.4%      1\nnvjet_sm90_tst_128x64_64x8_1x2_h_bz_NNT                           28.4 \u00b5s  11.3%      2\nnvjet_sm90_tss_80x64_64x11_4x2_h_bz_coopB_TNN                     25.1 \u00b5s   9.9%      1\nnvjet_sm90_tst_48x64_64x15_1x2_h_bz_TNN                           17.0 \u00b5s   6.8%      1\nvoid (anonymous namespace)::attn_kernel<8, false, 3>((ano...      12.2 \u00b5s   4.8%      1\n_graft_row_boundary                                                9.2 \u00b5s   3.7%      2\n_graft_route                                                       2.8 \u00b5s   1.1%      1\ntotal                                                            252.1 \u00b5s"
+        },
+        {
+          "case": {
+            "batch": 16,
+            "ctx": 80000,
+            "dist": "soft",
+            "layer": "full",
+            "load": "verify 16",
+            "page": 1,
+            "q_len": 8,
+            "seed": 1318489965204101544,
+            "spread": "agentic",
+            "weight": 16
+          },
+          "event": "profile",
+          "index": 9,
+          "report": "kernel                                                           GPU time  share  calls\nvoid okc::moe_fused<true>(okc::Params)                           144.8 \u00b5s  43.5%      1\nvoid (anonymous namespace)::attn_kernel<8, true, 0>((anon...     105.7 \u00b5s  31.7%      1\nnvjet_sm90_tst_128x64_64x8_1x2_h_bz_NNT                           28.6 \u00b5s   8.6%      2\nnvjet_sm90_tss_80x64_64x11_4x2_h_bz_coopB_TNN                     25.2 \u00b5s   7.6%      1\nnvjet_sm90_tst_48x64_64x15_1x2_h_bz_TNN                           16.5 \u00b5s   5.0%      1\n_graft_row_boundary                                                9.3 \u00b5s   2.8%      2\n_graft_route                                                       2.8 \u00b5s   0.8%      1\ntotal                                                            332.8 \u00b5s"
+        },
+        {
+          "case": {
+            "batch": 32,
+            "ctx": 80000,
+            "dist": "soft",
+            "layer": "sliding",
+            "load": "verify 32",
+            "page": 1,
+            "q_len": 8,
+            "seed": 1318722689819346035,
+            "spread": "agentic",
+            "weight": 46
+          },
+          "event": "profile",
+          "index": 10,
+          "report": "kernel                                                           GPU time  share  calls\nvoid okc::moe_fused<true>(okc::Params)                           192.5 \u00b5s  61.7%      1\nnvjet_sm90_tss_144x64_64x8_1x1_v_bz_TNN                           31.5 \u00b5s  10.1%      1\nnvjet_sm90_tst_128x128_64x6_1x2_h_bz_coopA_NNT                    26.1 \u00b5s   8.4%      1\nnvjet_sm90_tst_72x64_64x12_1x1_v_bz_TNN                           20.2 \u00b5s   6.5%      1\nvoid (anonymous namespace)::attn_kernel<8, false, 3>((ano...      15.4 \u00b5s   4.9%      1\n_graft_row_boundary                                               13.4 \u00b5s   4.3%      2\nnvjet_sm90_tst_128x128_64x6_1x2_h_bz_coopA_NNN                     8.9 \u00b5s   2.9%      1\n_graft_route                                                       3.8 \u00b5s   1.2%      1\ntotal                                                            311.9 \u00b5s"
+        },
+        {
+          "case": {
+            "batch": 32,
+            "ctx": 80000,
+            "dist": "soft",
+            "layer": "full",
+            "load": "verify 32",
+            "page": 1,
+            "q_len": 8,
+            "seed": 1318955414434590527,
+            "spread": "agentic",
+            "weight": 16
+          },
+          "event": "profile",
+          "index": 11,
+          "report": "kernel                                                           GPU time  share  calls\nvoid okc::moe_fused<true>(okc::Params)                           197.7 \u00b5s  40.4%      1\nvoid (anonymous namespace)::attn_kernel<8, true, 0>((anon...     187.0 \u00b5s  38.2%      1\nnvjet_sm90_tss_144x64_64x8_1x1_v_bz_TNN                           31.4 \u00b5s   6.4%      1\nnvjet_sm90_tst_128x128_64x6_1x2_h_bz_coopA_NNT                    26.2 \u00b5s   5.4%      1\nnvjet_sm90_tst_72x64_64x12_1x1_v_bz_TNN                           21.2 \u00b5s   4.3%      1\n_graft_row_boundary                                               13.5 \u00b5s   2.8%      2\nnvjet_sm90_tst_128x128_64x6_1x2_h_bz_coopA_NNN                     9.1 \u00b5s   1.8%      1\n_graft_route                                                       3.6 \u00b5s   0.7%      1\ntotal                                                            489.7 \u00b5s"
+        }
+      ],
+      "receipt_selection_keys": [],
+      "source_composition_lines": [
+        {
+          "line": 11644,
+          "text": "                         WRITE_ROUTER=T <= 8, num_warps=state.get('compose_boundary_warps', {}).get(T, 16), USE_PDL=_pdl(T), launch_pdl=_pdl(T))"
+        },
+        {
+          "line": 11701,
+          "text": "                         s2, out, num_warps=state.get('compose_boundary_warps', {}).get(T, 16), USE_PDL=_pdl(T), launch_pdl=_pdl(T))"
+        },
+        {
+          "line": 12511,
+          "text": "                         WRITE_ROUTER=T <= 8, num_warps=state.get('compose_boundary_warps', {}).get(T, 16), USE_PDL=_pdl(T), launch_pdl=_pdl(T))"
+        },
+        {
+          "line": 12568,
+          "text": "                         s2, out, num_warps=state.get('compose_boundary_warps', {}).get(T, 16), USE_PDL=_pdl(T), launch_pdl=_pdl(T))"
+        },
+        {
+          "line": 12576,
+          "text": "    if \"graft\" in state and T in _GRAFT_GLUE_T and state.get(\"compose_graft_enabled\", {}).get(T, T in (1, 8, 128, 256)):"
+        },
+        {
+          "line": 15500,
+          "text": "    ss['compose_graft_enabled']=dict(st.get('compose_graft_enabled',{}))"
+        },
+        {
+          "line": 15501,
+          "text": "    ss['compose_boundary_warps']=dict(st.get('compose_boundary_warps',{}))"
+        },
+        {
+          "line": 15503,
+          "text": "    ss['compose_graft_enabled'][T]=graft"
+        },
+        {
+          "line": 15504,
+          "text": "    ss['compose_boundary_warps'][T]=bw"
+        },
+        {
+          "line": 15514,
+          "text": "    st['compose_selection']=[]"
+        },
+        {
+          "line": 15515,
+          "text": "    st['compose_graft_enabled']={T:T in (1,8,128,256) for T in (1,8,16,32,128,256)}"
+        },
+        {
+          "line": 15516,
+          "text": "    st['compose_boundary_warps']={}"
+        },
+        {
+          "line": 15519,
+          "text": "        original=st['compose_graft_enabled'][T]"
+        },
+        {
+          "line": 15520,
+          "text": "        modes=[(original,16,()),(True,16,()),(False,16,()),(False,8,()),(False,4,())]"
+        },
+        {
+          "line": 15533,
+          "text": "        st['compose_graft_enabled'][T]=picked['compose_graft_enabled'][T]"
+        },
+        {
+          "line": 15534,
+          "text": "        st['compose_boundary_warps'][T]=picked['compose_boundary_warps'][T]"
+        },
+        {
+          "line": 15536,
+          "text": "        st['compose_selection'].append({'T':T,'region':'chain_policy','us':ts,'modes':modes,'choice':modes[best]})"
+        },
+        {
+          "line": 15925,
+          "text": "    if T in SL_CLUSTER_CONFIG and 'graft' in state and state.get('compose_graft_enabled', {}).get(T, True):"
+        },
+        {
+          "line": 16126,
+          "text": "    if T in SL_TILE_CONFIG and 'graft' in state and state.get('compose_graft_enabled', {}).get(T, True):"
+        },
+        {
+          "line": 16911,
+          "text": "            and state.get('compose_graft_enabled', {}).get(T, True) and T in SL_TILE_CONFIG and T in SL_CLUSTER_CONFIG):"
+        },
+        {
+          "line": 16934,
+          "text": "    cge = st.setdefault('compose_graft_enabled', {})"
+        }
+      ],
+      "long_composition_inference": {
+        "graft_enabled": true,
+        "mode": [
+          true,
+          16,
+          []
+        ],
+        "basis": "All four owning profiles name graft boundary/route; source's sole enabled mode has fallback warps16 and no plan drops.",
+        "actual_graft_boundary_warps": {
+          "128": 32,
+          "256": 16
+        }
+      }
+    },
+    "9adfd4dbc98f4998": {
+      "source": {
+        "path": "docs/steering/evidence/2026-11-01-worker-outgoing-pair/check.py.gz",
+        "bytes": 934942,
+        "sha256": "f25d714e928835fba07741ca56fa8783137032f268652c22ec4f5511d771bc9a"
+      },
+      "constants": {
+        "_GRAFT_LT_T": {
+          "line": 11722,
+          "text": "_GRAFT_LT_T = (128, 256)"
+        },
+        "_GRAFT_LT_PICKS": {
+          "line": 12364,
+          "text": "_GRAFT_LT_PICKS = {\n    (\"pr\", 256): ('tn', 2, True, [785979015234, 4294967331, 0, 562949953421312, 558779540176897, 60129542158, 292057776128, 0]),\n    (\"pr\", 128): ('tn', 1, True, [575525617730, 4294967331, 0, 1970324836974598, 558779540176897, 60129542158, 292057776128, 0]),\n    (\"o\", 256): ('nn', 2, False, [85899345986, 4294967331, 0, 1407374883553286, 558779540176897, 60129542158, 292058693646, 0]),\n    (\"un\", 256): ('nn', 2, False, [85899345986, 4294967331, 0, 1407374883553287, 558779540176897, 60129542158, 292058693646, 0]),\n    (\"un\", 128): ('nn', 2, False, [77309411394, 4294967331, 0, 1407374883553283, 558779540176897, 60129542158, 292058693646, 0]),\n    (\"qkv\", 128): ('tn', 16, False, [395136991298, 4294967331, 0, 1407374883553282, 558779540176897, 60129542158, 292058693646, 0]),\n    (\"o\", 128): ('nn', 8, False, [77309411394, 4294967331, 0, 1407374883553283, 558779540176897, 60129542158, 292058693646, 0]),\n}"
+        },
+        "_GRAFT_QKV256": {
+          "line": 12373,
+          "text": "_GRAFT_QKV256 = {\"id\": 66, \"tile\": 124, \"stages\": 35, \"splitk\": 1, \"red\": 0, \"swz\": 0, \"custom\": 0, \"cluster\": 2}"
+        }
+      },
+      "functions": {
+        "dense": {
+          "line": 12453,
+          "ast_sha256": "a6da09eab5318919fccf6bb7421879cb84b59d5333bd3efa4ce70351653631a0",
+          "text": "def dense(x, w, T, state=None, name=None):\n    plans = state.get(\"graft_lt\") if state is not None else None\n    plan = plans.get((name, T)) if plans and T > 32 else None\n    if plan is not None:\n        rq = _rq_gemm(state, name, x, T)\n        if rq is not None:\n            return rq.view(1, T, rq.shape[1]), 1\n        out = _graft_lt_run(x, plan)\n        return out.view(1, T, plan[\"n\"]), 1\n    return _vj_dense(x, w, T, state, name)"
+        },
+        "_graft_layouts": {
+          "line": 12351,
+          "ast_sha256": "fb4fc996b97aad764a13c5b805af2230bc68d599cb790d7b60096899a5bbaf9f",
+          "text": "def _graft_layouts(lt, m, n, k, mode, batch, fp32):\n    wa = (k, n // batch, k, k * n // batch) if mode == \"tn\" else (n // batch, k, n, n // batch)\n    result = []\n    for index, (rows, cols, ld, stride) in enumerate((wa, (k, m, k, 0), (n // batch, m, n, n // batch))):\n        desc = _GP()\n        lt.call(\"cublasLtMatrixLayoutCreate\", _C.byref(desc), 0 if fp32 and index == 2 else 14, rows, cols, ld)\n        count, offset = _GI(batch), _C.c_int64(stride)\n        lt.call(\"cublasLtMatrixLayoutSetAttribute\", desc, 5, _C.byref(count), _C.sizeof(count))\n        lt.call(\"cublasLtMatrixLayoutSetAttribute\", desc, 6, _C.byref(offset), _C.sizeof(offset))\n        result.append(desc)\n    return result"
+        },
+        "_graft_lt_plan": {
+          "line": 12386,
+          "ast_sha256": "eb5a16a4157b6442659251851ebc176243e8bf98e68eee55a63a0b9b3a0dc9cc",
+          "text": "def _graft_lt_plan(st):\n    lt_tn, lt_nn = _GraftLt(True), _GraftLt(False)\n    plans, status = {}, {}\n    src = {\"pr\": st[\"pr\"], \"o\": st[\"o\"], \"un\": st[\"unpool\"], \"qkv\": st[\"qkv\"]}\n    for (name, m), (mode, batch, fp32, words) in _GRAFT_LT_PICKS.items():\n        if m not in _GRAFT_LT_T:\n            continue\n        lt = lt_tn if mode == \"tn\" else lt_nn\n        if mode == \"tn\":\n            weight = src[name]\n            n, k = weight.shape\n        else:\n            key = \"graft_t_\" + name\n            if key not in st:\n                st[key] = src[name].t().contiguous()\n            weight = st[key]\n            k, n = weight.shape\n        assert weight.is_contiguous() and weight.data_ptr() % 128 == 0, (name, weight.data_ptr() % 128)\n        assert lt.workspace.data_ptr() % 256 == 0 and n % batch == 0 and (n // batch * 2) % 16 == 0\n        layouts = _graft_layouts(lt, m, n, k, mode, batch, fp32)\n        algo = _GraftAlgo((_C.c_uint64 * 8)(*words))\n        heur = _GraftHeur()\n        code = lt.lib.cublasLtMatmulAlgoCheck(lt.handle, lt.desc, *layouts, layouts[2], _C.byref(algo), _C.byref(heur))\n        status[(name, m)] = (code, heur.workspaceSize)\n        if code or heur.workspaceSize > lt.workspace.numel():\n            continue\n        if not _fork_lt_no_split(lt, algo):\n            status[(name,m)] = (\"rejected K split\", 0)\n            continue\n        plans[(name, m)] = _GraftPlan(lt=lt, layouts=layouts, algo=algo, weight=weight, n=n, fp32=fp32)\n    if 256 in _GRAFT_LT_T:\n        algo = _GraftAlgo()\n        lt_tn.call(\"cublasLtMatmulAlgoInit\", lt_tn.handle, 68, 0, 14, 14, 14, 14, _GRAFT_QKV256[\"id\"], _C.byref(algo))\n        for name, attr, ctype in _GRAFT_QKV256_ATTRS:\n            value = ctype(_GRAFT_QKV256[name])\n            lt_tn.call(\"cublasLtMatmulAlgoConfigSetAttribute\", _C.byref(algo), attr, _C.byref(value), _C.sizeof(value))\n        weight = st[\"qkv\"]\n        n, k = weight.shape\n        assert weight.is_contiguous() and weight.data_ptr() % 128 == 0\n        layouts = _graft_layouts(lt_tn, 256, n, k, \"tn\", 1, False)\n        heur = _GraftHeur()\n        code = lt_tn.lib.cublasLtMatmulAlgoCheck(lt_tn.handle, lt_tn.desc, *layouts, layouts[2], _C.byref(algo),\n                                                 _C.byref(heur))\n        status[(\"qkv\", 256)] = (code, heur.workspaceSize)\n        if not code and heur.workspaceSize <= lt_tn.workspace.numel() and _fork_lt_no_split(lt_tn, algo):\n            plans[(\"qkv\", 256)] = _GraftPlan(lt=lt_tn, layouts=layouts, algo=algo, weight=weight, n=n, fp32=False)\n    st[\"graft_lt\"] = plans\n    st[\"graft_lt_status\"] = {f\"{k[0]}:{k[1]}\": v for k, v in status.items()}"
+        },
+        "_graft_lt_run": {
+          "line": 12436,
+          "ast_sha256": "d819221df82d148bca83c836e0d0e39b83446e359954c41c237cd3994d92f63f",
+          "text": "def _graft_lt_run(x, plan):\n    x = x.contiguous()\n    assert x.data_ptr() % 16 == 0\n    out = torch.empty((x.shape[0], plan[\"n\"]), device=x.device,\n                      dtype=torch.float32 if plan[\"fp32\"] else torch.bfloat16)\n    lt = plan[\"lt\"]\n    a, b, c = plan[\"layouts\"]\n    lt.call(\"cublasLtMatmul\", lt.handle, lt.desc, _C.byref(lt.alpha), _GP(plan[\"weight\"].data_ptr()), a,\n            _GP(x.data_ptr()), b, _C.byref(lt.beta), _GP(out.data_ptr()), c, _GP(out.data_ptr()), c,\n            _C.byref(plan[\"algo\"]), _GP(lt.workspace.data_ptr()), lt.workspace.numel(),\n            _GP(torch.cuda.current_stream().cuda_stream))\n    return out"
+        },
+        "_graft_boundary": {
+          "line": 12470,
+          "ast_sha256": "58c0faeec993c388586b84e3b0168a1ab8303d042e39942cbce7cbb8d945182b",
+          "text": "def _graft_boundary(P, S, T, stream, st, post, s_out, h_out, nu=HIDDEN, router_out=None):\n    \"\"\"Returns True when a grafted kernel handled the boundary, else False (caller runs the base kernel).\"\"\"\n    g = st[\"graft\"]\n    if S != 1:\n        return False\n    br = P.view(T, -1)\n    width = br.shape[1]\n    pfx = \"2\" if post else \"1\"\n    if T <= 16 and br.dtype == torch.bfloat16:\n        _graft_al(br, stream, s_out, h_out)\n        if not post and width == HIDDEN:\n            _graft_glue_module().b1(br, stream, g[\"pre1\"], g[\"alpha1\"], g[\"beta1\"], h_out, s_out,\n                                    router_out if router_out is not None else s_out, router_out is not None)\n            return True\n        if post and width == 1024 and nu == 1024:\n            _graft_b2_module().b2s(br, stream, g[\"post2\"], g[\"pre2\"], g[\"alpha2\"], g[\"beta2\"], h_out, s_out)\n            return True\n        if post and width == HIDDEN and nu == HIDDEN:\n            _graft_glue_module().b2c(br, stream, g[\"post2\"], g[\"pre2\"], g[\"alpha2\"], g[\"beta2\"], h_out, s_out)\n            return True\n        return False\n    if 16 < T <= 32 and width == HIDDEN:\n        _graft_al(br, stream, s_out, h_out)\n        _graft_row_boundary_pre[(T,)](br, stream, g[\"post2\"], g[\"pre2\" if post else \"pre1\"], g[\"alpha\" + pfx],\n                                      g[\"beta\" + pfx], h_out, s_out, HIDDEN, width, post, 4, 32,\n                                      num_warps=32, launch_pdl=False)\n        return True\n    if T > 32 and width == HIDDEN:\n        _graft_al(br, stream, s_out, h_out)\n        _graft_row_boundary[(T,)](br, stream, g[\"post2\"], g[\"pre2\" if post else \"pre1\"], g[\"alpha\" + pfx],\n                                  g[\"beta\" + pfx], h_out, s_out, HIDDEN, width, post, 4, 16 if T > 192 else 32,\n                                  num_warps=16 if T > 192 else 32, launch_pdl=False)\n        return True\n    return False"
+        },
+        "_graft_after_attention": {
+          "line": 12506,
+          "ast_sha256": "5cb01bd1294aac9832eaee8782b9b76b7e35eb9fe30cc7bba57630a10934fd11",
+          "text": "def _graft_after_attention(data, state, o_in, gate, T):\n    \"\"\"Copy of the base _after_attention (one-program-per-token path) with the grafted boundary/route kernels.\n    Every kernel the graft does not cover falls back to the base kernel with the base arguments.\"\"\"\n    dev = o_in.device\n    f32 = dict(device=dev, dtype=torch.float32)\n    s1 = torch.empty((T, HIDDEN), **f32)\n    h = torch.empty((T, HIDDEN), device=dev, dtype=torch.bfloat16)\n    hr = torch.empty((T, HIDDEN), **f32) if T <= 8 else None\n    if gate is None:\n        P, S = dense(o_in, state[\"o\"], T, state, \"o\")\n    else:\n        P, S = dense_ng(o_in, gate, state[\"o\"], T, state)\n    if not _graft_boundary(P, S, T, data[\"stream\"], state, False, s1, h, router_out=hr):\n        _boundary1[(T,)](P, S, T, data[\"stream\"], state[\"gate1\"], state[\"gate1\"], state[\"g_preffn\"], s1, h, hr,\n                         WRITE_ROUTER=T <= 8, num_warps=state.get('compose_boundary_warps', {}).get(T, 16), USE_PDL=_pdl(T), launch_pdl=_pdl(T))\n    mmp = state.get(\"mm_pick\", {})\n    ppick = mmp.get((T, \"pr\"), mmp.get((_bucket(T), \"pr\"), False))\n    P, S = _pool_router_fp32(h, hr, T, state, ppick)\n    ids = torch.empty((T, 8), device=dev, dtype=torch.int32)\n    lids = torch.empty((T, 8), device=dev, dtype=torch.int32)\n    wts = torch.empty((T, 8), **f32)\n    moe = _pick_expert_backend(state[\"moe_pick\"].get(T, state[\"moe_pick\"].get(_bucket(T), \"agent\")),\n                               marlin_available=state[\"bank\"] is not None, agent_available=state[\"ma_ok\"])\n    use_marlin = moe == \"marlin\"\n    use_ma = moe == \"agent\"\n    if not (use_marlin or use_ma):\n        raise RuntimeError(\"no expert backend: neither the moe agent's kernel nor SGLang's Marlin is available\")\n    xm = torch.empty((T, D_EXPERT), device=dev, dtype=torch.bfloat16)\n    if S == -1:\n        pooled, logits = P\n        _graft_al(pooled, logits, xm, ids, wts, lids)\n        if T in (16, 32):\n            nw, parts = {16: (8, 1), 32: (8, 1)}[T]\n            _sl_tile_route[(T, parts + 1)](pooled, logits, logits, state[\"bias\"], state[\"_g_preexp_effective\"], ids, wts, xm,\n                data[\"local_start\"], lids, SPLIT=True, EARLY=False, MODE=0, PARTS=parts, PRELOAD=True,\n                num_warps=nw, launch_pdl=False)\n        else:\n            _graft_route[(T, 2)](pooled, logits, logits, state[\"bias\"], state[\"_g_preexp_effective\"], ids, wts, xm,\n                             data[\"local_start\"], lids, SPLIT=True, EARLY=_GRAFT_ROUTE_EARLY, PACKED=1 if T > 32 else 0, num_warps=4 if T > 32 else 1, launch_pdl=False)\n    elif S == 1 and P.shape[-1] == 4608 and P.dtype == torch.float32:\n        allp = P.view(T, 4608)\n        _graft_al(allp, xm, ids, wts, lids)\n        if T in (16, 32):\n            nw, parts = {16: (8, 1), 32: (8, 1)}[T]\n            _sl_tile_route[(T, parts + 1)](allp, allp, allp, state[\"bias\"], state[\"_g_preexp_effective\"], ids, wts, xm,\n                data[\"local_start\"], lids, SPLIT=False, EARLY=False, MODE=0, PARTS=parts, PRELOAD=True,\n                num_warps=nw, launch_pdl=False)\n        else:\n            _graft_route[(T, 2)](allp, allp, allp, state[\"bias\"], state[\"_g_preexp_effective\"], ids, wts, xm,\n                             data[\"local_start\"], lids, SPLIT=False, EARLY=_GRAFT_ROUTE_EARLY, PACKED=1 if T > 32 else 0, num_warps=4 if T > 32 else 1, launch_pdl=False)\n    else:\n        _route[(T,)](P, S, T, state[\"bias\"], state[\"_g_preexp_effective\"], ids, wts, xm, data[\"local_start\"], lids,\n                     PERMUTED=False, num_warps=8, USE_PDL=_pdl(T), launch_pdl=_pdl(T))\n    if use_ma:\n        m = torch.empty((T, D_EXPERT), device=dev, dtype=torch.bfloat16)\n        ext = _moe(T, state)\n        if MOE_HAS_PDL:\n            ext.okc_set_pdl(1 if _pdl(T) else 0)\n        for m0 in range(0, T, _MA_MMAX):\n            m1 = min(T, m0 + _MA_MMAX)\n            ext.okc_run(state[\"ma_w\"], state[\"ma_scratch\"], xm[m0:m1], lids[m0:m1], wts[m0:m1], m[m0:m1], 0, 32,\n                        state[\"nsm\"])\n    elif use_marlin:\n        m = _marlin_experts(xm, wts, lids, state)\n    wu = state[\"unpool_slice\"] if T <= 8 else state[\"unpool\"]\n    P, S = dense(m, wu, T, state, \"un\")\n    nu = wu.shape[0]\n    s2 = torch.empty((T, HIDDEN), **f32)\n    out = torch.empty((T, HIDDEN), device=dev, dtype=torch.bfloat16)\n    if not _graft_boundary(P, S, T, s1, state, True, s2, out, nu=nu):\n        _boundary2[(T,)](P, S, T, nu, s1, state[\"gate2\"], state[\"gate2\"], state[\"g_postffn\"], state[\"g_next\"],\n                         s2, out, num_warps=state.get('compose_boundary_warps', {}).get(T, 16), USE_PDL=_pdl(T), launch_pdl=_pdl(T))\n    return out, s2, ids"
+        },
+        "_policy_variant": {
+          "line": 15502,
+          "ast_sha256": "596ca01e8a5efc4e3f297daf248737ca3c2355fd4ee8a22de24b3443fae65765",
+          "text": "def _policy_variant(st,T,mode):\n    ss=dict(st)\n    ss['mm_pick']=dict(st['mm_pick'])\n    ss['graft_lt']=dict(st.get('graft_lt',{}))\n    ss['compose_graft_enabled']=dict(st.get('compose_graft_enabled',{}))\n    ss['compose_boundary_warps']=dict(st.get('compose_boundary_warps',{}))\n    graft,bw,drops=mode\n    ss['compose_graft_enabled'][T]=graft\n    ss['compose_boundary_warps'][T]=bw\n    for name in drops:ss['graft_lt'].pop((name,T),None)\n    return ss"
+        },
+        "_rq_gemm": {
+          "line": 16944,
+          "ast_sha256": "a6d11d77bafdfc4ca472fb9862c7de5400512ff283ed6a1b8385636aac720fce",
+          "text": "def _rq_gemm(state, name, x, T):\n    return None"
+        }
+      },
+      "receipt": {
+        "path": "muse_decode_layer/profiles/g-outgoing-pair.9adfd4dbc98f4998.json",
+        "bytes": 6553,
+        "sha256": "b470eb482e39c87f3d9329176a633d0c0ea21d503356134aa99c759d6e42df78",
+        "job_id": "9adfd4dbc98f4998",
+        "summary": null,
+        "result": {
+          "passed": false,
+          "returncode": 112,
+          "score_us": null,
+          "speedup": null,
+          "status": "ok"
+        },
+        "profile_count": 0,
+        "benchmark_count": 0
+      },
+      "log": {
+        "path": "muse_decode_layer/profiles/g-outgoing-pair.9adfd4dbc98f4998.log",
+        "bytes": 3133,
+        "sha256": "a3cb1cc284dbf8bd32ebe480a6abfea7fa199140ca3dae01686ba8ed4a1f528b",
+        "lines": 29,
+        "accepted_plan_lines": [
+          {
+            "line": 3,
+            "text": "G1b4 backend native repaired: cooperative+BF16, MFIN/DF/YBF/PDL off Lt plans [('o', 128), ('o', 256), ('pr', 128), ('pr', 256), ('qkv', 128), ('qkv', 256), ('un', 128), ('un', 256)]"
+          }
+        ],
+        "composition_lines": []
+      },
+      "long_profiles": [],
+      "receipt_selection_keys": [],
+      "source_composition_lines": [
+        {
+          "line": 11653,
+          "text": "                         WRITE_ROUTER=T <= 8, num_warps=state.get('compose_boundary_warps', {}).get(T, 16), USE_PDL=_pdl(T), launch_pdl=_pdl(T))"
+        },
+        {
+          "line": 11710,
+          "text": "                         s2, out, num_warps=state.get('compose_boundary_warps', {}).get(T, 16), USE_PDL=_pdl(T), launch_pdl=_pdl(T))"
+        },
+        {
+          "line": 12520,
+          "text": "                         WRITE_ROUTER=T <= 8, num_warps=state.get('compose_boundary_warps', {}).get(T, 16), USE_PDL=_pdl(T), launch_pdl=_pdl(T))"
+        },
+        {
+          "line": 12577,
+          "text": "                         s2, out, num_warps=state.get('compose_boundary_warps', {}).get(T, 16), USE_PDL=_pdl(T), launch_pdl=_pdl(T))"
+        },
+        {
+          "line": 12585,
+          "text": "    if \"graft\" in state and T in _GRAFT_GLUE_T and state.get(\"compose_graft_enabled\", {}).get(T, T in (1, 8, 128, 256)):"
+        },
+        {
+          "line": 15506,
+          "text": "    ss['compose_graft_enabled']=dict(st.get('compose_graft_enabled',{}))"
+        },
+        {
+          "line": 15507,
+          "text": "    ss['compose_boundary_warps']=dict(st.get('compose_boundary_warps',{}))"
+        },
+        {
+          "line": 15509,
+          "text": "    ss['compose_graft_enabled'][T]=graft"
+        },
+        {
+          "line": 15510,
+          "text": "    ss['compose_boundary_warps'][T]=bw"
+        },
+        {
+          "line": 15520,
+          "text": "    st['compose_selection']=[]"
+        },
+        {
+          "line": 15521,
+          "text": "    st['compose_graft_enabled']={T:T in (1,8,128,256) for T in (1,8,16,32,128,256)}"
+        },
+        {
+          "line": 15522,
+          "text": "    st['compose_boundary_warps']={}"
+        },
+        {
+          "line": 15525,
+          "text": "        original=st['compose_graft_enabled'][T]"
+        },
+        {
+          "line": 15526,
+          "text": "        modes=[(original,16,()),(True,16,()),(False,16,()),(False,8,()),(False,4,())]"
+        },
+        {
+          "line": 15539,
+          "text": "        st['compose_graft_enabled'][T]=picked['compose_graft_enabled'][T]"
+        },
+        {
+          "line": 15540,
+          "text": "        st['compose_boundary_warps'][T]=picked['compose_boundary_warps'][T]"
+        },
+        {
+          "line": 15542,
+          "text": "        st['compose_selection'].append({'T':T,'region':'chain_policy','us':ts,'modes':modes,'choice':modes[best]})"
+        },
+        {
+          "line": 15931,
+          "text": "    if T in SL_CLUSTER_CONFIG and 'graft' in state and state.get('compose_graft_enabled', {}).get(T, True):"
+        },
+        {
+          "line": 16132,
+          "text": "    if T in SL_TILE_CONFIG and 'graft' in state and state.get('compose_graft_enabled', {}).get(T, True):"
+        },
+        {
+          "line": 16915,
+          "text": "            and state.get('compose_graft_enabled', {}).get(T, True) and T in SL_TILE_CONFIG and T in SL_CLUSTER_CONFIG):"
+        },
+        {
+          "line": 16938,
+          "text": "    cge = st.setdefault('compose_graft_enabled', {})"
+        }
+      ],
+      "long_composition_inference": null
+    }
+  },
+  "function_comparison": {
+    "dense": {
+      "hashes": {
+        "607eb52bdaf24160": "a6da09eab5318919fccf6bb7421879cb84b59d5333bd3efa4ce70351653631a0",
+        "c1931f0c9e834485": "a6da09eab5318919fccf6bb7421879cb84b59d5333bd3efa4ce70351653631a0",
+        "c5e4f89672f743bb": "a6da09eab5318919fccf6bb7421879cb84b59d5333bd3efa4ce70351653631a0",
+        "9adfd4dbc98f4998": "a6da09eab5318919fccf6bb7421879cb84b59d5333bd3efa4ce70351653631a0"
+      },
+      "all_identical": true
+    },
+    "_rq_gemm": {
+      "hashes": {
+        "607eb52bdaf24160": "a6d11d77bafdfc4ca472fb9862c7de5400512ff283ed6a1b8385636aac720fce",
+        "c1931f0c9e834485": "a6d11d77bafdfc4ca472fb9862c7de5400512ff283ed6a1b8385636aac720fce",
+        "c5e4f89672f743bb": "a6d11d77bafdfc4ca472fb9862c7de5400512ff283ed6a1b8385636aac720fce",
+        "9adfd4dbc98f4998": "a6d11d77bafdfc4ca472fb9862c7de5400512ff283ed6a1b8385636aac720fce"
+      },
+      "all_identical": true
+    },
+    "_graft_lt_plan": {
+      "hashes": {
+        "607eb52bdaf24160": "eb5a16a4157b6442659251851ebc176243e8bf98e68eee55a63a0b9b3a0dc9cc",
+        "c1931f0c9e834485": "eb5a16a4157b6442659251851ebc176243e8bf98e68eee55a63a0b9b3a0dc9cc",
+        "c5e4f89672f743bb": "eb5a16a4157b6442659251851ebc176243e8bf98e68eee55a63a0b9b3a0dc9cc",
+        "9adfd4dbc98f4998": "eb5a16a4157b6442659251851ebc176243e8bf98e68eee55a63a0b9b3a0dc9cc"
+      },
+      "all_identical": true
+    },
+    "_graft_lt_run": {
+      "hashes": {
+        "607eb52bdaf24160": "d819221df82d148bca83c836e0d0e39b83446e359954c41c237cd3994d92f63f",
+        "c1931f0c9e834485": "d819221df82d148bca83c836e0d0e39b83446e359954c41c237cd3994d92f63f",
+        "c5e4f89672f743bb": "d819221df82d148bca83c836e0d0e39b83446e359954c41c237cd3994d92f63f",
+        "9adfd4dbc98f4998": "d819221df82d148bca83c836e0d0e39b83446e359954c41c237cd3994d92f63f"
+      },
+      "all_identical": true
+    },
+    "_graft_layouts": {
+      "hashes": {
+        "607eb52bdaf24160": "fb4fc996b97aad764a13c5b805af2230bc68d599cb790d7b60096899a5bbaf9f",
+        "c1931f0c9e834485": "fb4fc996b97aad764a13c5b805af2230bc68d599cb790d7b60096899a5bbaf9f",
+        "c5e4f89672f743bb": "fb4fc996b97aad764a13c5b805af2230bc68d599cb790d7b60096899a5bbaf9f",
+        "9adfd4dbc98f4998": "fb4fc996b97aad764a13c5b805af2230bc68d599cb790d7b60096899a5bbaf9f"
+      },
+      "all_identical": true
+    },
+    "_graft_boundary": {
+      "hashes": {
+        "607eb52bdaf24160": "58c0faeec993c388586b84e3b0168a1ab8303d042e39942cbce7cbb8d945182b",
+        "c1931f0c9e834485": "58c0faeec993c388586b84e3b0168a1ab8303d042e39942cbce7cbb8d945182b",
+        "c5e4f89672f743bb": "58c0faeec993c388586b84e3b0168a1ab8303d042e39942cbce7cbb8d945182b",
+        "9adfd4dbc98f4998": "58c0faeec993c388586b84e3b0168a1ab8303d042e39942cbce7cbb8d945182b"
+      },
+      "all_identical": true
+    },
+    "_policy_variant": {
+      "hashes": {
+        "607eb52bdaf24160": "596ca01e8a5efc4e3f297daf248737ca3c2355fd4ee8a22de24b3443fae65765",
+        "c1931f0c9e834485": "596ca01e8a5efc4e3f297daf248737ca3c2355fd4ee8a22de24b3443fae65765",
+        "c5e4f89672f743bb": "596ca01e8a5efc4e3f297daf248737ca3c2355fd4ee8a22de24b3443fae65765",
+        "9adfd4dbc98f4998": "596ca01e8a5efc4e3f297daf248737ca3c2355fd4ee8a22de24b3443fae65765"
+      },
+      "all_identical": true
+    },
+    "_graft_after_attention": {
+      "hashes": {
+        "607eb52bdaf24160": "a4f5bfd2bad425b1c9352890bc5f4c39c9138eaf8f8ef750b00a36901d2e652e",
+        "c1931f0c9e834485": "5cb01bd1294aac9832eaee8782b9b76b7e35eb9fe30cc7bba57630a10934fd11",
+        "c5e4f89672f743bb": "5cb01bd1294aac9832eaee8782b9b76b7e35eb9fe30cc7bba57630a10934fd11",
+        "9adfd4dbc98f4998": "5cb01bd1294aac9832eaee8782b9b76b7e35eb9fe30cc7bba57630a10934fd11"
+      },
+      "all_identical": false
+    }
+  },
+  "c5e4_private_capsule": {
+    "path": "docs/steering/evidence/2026-11-01-rmw-common-pair-v4/terminal-reader-observation.json",
+    "bytes": 240145,
+    "sha256": "e4728b9c4ce372a23645261679fc6f26e98441f3d2dd1da67127428af2875fe1",
+    "job": "c5e4f89672f743bb",
+    "complete": true,
+    "selection_keys": []
+  },
+  "ruwwww": {
+    "evidence": "docs/steering/evidence/2026-11-01-ruwwww-complete-qualification/analysis.json",
+    "pin": "c035bf9d5a7d2445d8c8ee5ce49e63b8bb36f49d",
+    "source": {
+      "bytes": 568813,
+      "sha256": "3cee8ba759569172a9f8a38c59e6589dd8045db0d414e6b33294604aad11ba0e",
+      "git_blob": "a2556dbdddf85ab6b72866bf756a5953d6be6521"
+    },
+    "job": "f60b136cfdc242cb",
+    "long_profiles": [
+      {
+        "case": {
+          "batch": 16,
+          "ctx": 80000,
+          "dist": "soft",
+          "layer": "sliding",
+          "load": "verify 16",
+          "page": 1,
+          "q_len": 8,
+          "seed": 4100169072123290290,
+          "spread": "agentic",
+          "weight": 46
+        },
+        "event": "profile",
+        "index": 8,
+        "report": "kernel                                                           GPU time  share  calls\nvoid okc::moe_fused<true>(okc::Params)                           122.2 \u00b5s  54.2%      1\nnvjet_sm90_tss_128x64_64x8_1x2_h_bz_TNT                           30.3 \u00b5s  13.4%      2\nnvjet_sm90_tss_96x64_64x10_4x2_h_bz_TNN                           26.1 \u00b5s  11.6%      1\nnvjet_sm90_tst_96x64_64x10_4x2_h_bz_splitK_TNN                    15.7 \u00b5s   7.0%      1\nvoid (anonymous namespace)::attn_kernel<8, false, 3>((ano...      11.7 \u00b5s   5.2%      1\n_boundary2                                                         5.8 \u00b5s   2.6%      1\n_boundary1                                                         5.7 \u00b5s   2.5%      1\n_route                                                             4.7 \u00b5s   2.1%      1\nvoid cublasLt::splitKreduce_kernel<32, 16, int, float, __...       3.2 \u00b5s   1.4%      1\ntotal                                                            225.4 \u00b5s"
+      },
+      {
+        "case": {
+          "batch": 16,
+          "ctx": 80000,
+          "dist": "soft",
+          "layer": "full",
+          "load": "verify 16",
+          "page": 1,
+          "q_len": 8,
+          "seed": 4100218220935086696,
+          "spread": "agentic",
+          "weight": 16
+        },
+        "event": "profile",
+        "index": 9,
+        "report": "kernel                                                           GPU time  share  calls\nvoid okc::moe_fused<true>(okc::Params)                           153.2 \u00b5s  43.9%      1\nvoid (anonymous namespace)::attn_kernel<8, true, 0>((anon...     103.7 \u00b5s  29.7%      1\nnvjet_sm90_tss_128x64_64x8_1x2_h_bz_TNT                           30.0 \u00b5s   8.6%      2\nnvjet_sm90_tss_96x64_64x10_4x2_h_bz_TNN                           26.6 \u00b5s   7.6%      1\nnvjet_sm90_tst_96x64_64x10_4x2_h_bz_splitK_TNN                    15.8 \u00b5s   4.5%      1\n_boundary2                                                         5.7 \u00b5s   1.6%      1\n_boundary1                                                         5.6 \u00b5s   1.6%      1\n_route                                                             5.4 \u00b5s   1.5%      1\nvoid cublasLt::splitKreduce_kernel<32, 16, int, float, __...       3.1 \u00b5s   0.9%      1\ntotal                                                            349.2 \u00b5s"
+      },
+      {
+        "case": {
+          "batch": 32,
+          "ctx": 80000,
+          "dist": "soft",
+          "layer": "sliding",
+          "load": "verify 32",
+          "page": 1,
+          "q_len": 8,
+          "seed": 4100267369746883103,
+          "spread": "agentic",
+          "weight": 46
+        },
+        "event": "profile",
+        "index": 10,
+        "report": "kernel                                                           GPU time  share  calls\nvoid okc::moe_fused<true>(okc::Params)                           214.3 \u00b5s  61.0%      1\nnvjet_sm90_tss_128x128_64x6_2x1_v_bz_TNT                          38.1 \u00b5s  10.8%      2\nnvjet_sm90_tss_80x128_64x8_4x2_h_bz_TNN                           34.4 \u00b5s   9.8%      1\nnvjet_sm90_tst_96x64_64x10_2x4_h_bz_TNN                           24.0 \u00b5s   6.8%      1\nvoid (anonymous namespace)::attn_kernel<8, false, 3>((ano...      15.3 \u00b5s   4.4%      1\n_boundary2                                                         9.7 \u00b5s   2.8%      1\n_boundary1                                                         9.6 \u00b5s   2.7%      1\n_route                                                             5.8 \u00b5s   1.6%      1\ntotal                                                            351.2 \u00b5s"
+      },
+      {
+        "case": {
+          "batch": 32,
+          "ctx": 80000,
+          "dist": "soft",
+          "layer": "full",
+          "load": "verify 32",
+          "page": 1,
+          "q_len": 8,
+          "seed": 4100316518558679511,
+          "spread": "agentic",
+          "weight": 16
+        },
+        "event": "profile",
+        "index": 11,
+        "report": "kernel                                                           GPU time  share  calls\nvoid okc::moe_fused<true>(okc::Params)                           226.1 \u00b5s  42.4%      1\nvoid (anonymous namespace)::attn_kernel<8, true, 0>((anon...     186.9 \u00b5s  35.0%      1\nnvjet_sm90_tss_128x128_64x6_2x1_v_bz_TNT                          37.2 \u00b5s   7.0%      2\nnvjet_sm90_tss_80x128_64x8_4x2_h_bz_TNN                           34.3 \u00b5s   6.4%      1\nnvjet_sm90_tst_96x64_64x10_2x4_h_bz_TNN                           23.7 \u00b5s   4.5%      1\n_boundary2                                                         9.9 \u00b5s   1.9%      1\n_boundary1                                                         9.6 \u00b5s   1.8%      1\n_route                                                             5.7 \u00b5s   1.1%      1\ntotal                                                            533.4 \u00b5s"
+      }
+    ]
+  },
+  "constant_texts_identical": {
+    "_GRAFT_LT_PICKS": true,
+    "_GRAFT_QKV256": true
+  },
+  "decision": "SCOPED STOP: no independent-material candidate. Plan-key acceptance recovered for607/c5e4/9ad; c193 only profile-compatible.607/c193/c5e4 long composition inferred enabled from unique graft boundaries and source modes.9ad has no official long profiles or composition state. Aggregated library rows do not give operation identity or exposure; no unmatched timing subtraction qualifies a replacement."
+}
