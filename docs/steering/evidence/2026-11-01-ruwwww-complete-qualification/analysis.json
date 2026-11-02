@@ -1,0 +1,976 @@
+{
+  "observed_utc": "2026-11-02T05:22:50.214989+00:00",
+  "checkout": "26b3b88b7a98920d0717d6d8ac0af8660677b199",
+  "scope": "Pinned GitHub tree/blobs/history/receipt and AST/source only; no module import, compiler, GPU, challenge CLI or donor census.",
+  "remote_pin": "c035bf9d5a7d2445d8c8ee5ce49e63b8bb36f49d",
+  "source": {
+    "bytes": 568813,
+    "sha256": "3cee8ba759569172a9f8a38c59e6589dd8045db0d414e6b33294604aad11ba0e",
+    "git_blob": "a2556dbdddf85ab6b72866bf756a5953d6be6521"
+  },
+  "source_path": "muse_decode_layer/submission.py",
+  "public607_lf": {
+    "bytes": 869076,
+    "sha256": "ba9e327cd7b96595ace4d0c1d0d78fe27c128f23ed0debcda97c7169fc3164ab",
+    "git_blob": "9b6ff6388708ce7e5a1fd3ca68b713bb4c9e77b9"
+  },
+  "common": {
+    "bytes": 871077,
+    "sha256": "4cbb13a9a359c9fe870a94ebcabc4706447778849f71d4aa54e47d69abbd1280",
+    "git_blob": "b5a2ab8d5f6c3bdba3c62e0ebaea512c432329fc"
+  },
+  "head_changed_paths": [
+    "README.md"
+  ],
+  "history": {
+    "muse_decode_layer/submission.py": [
+      {
+        "sha": "91b5733b6e683386e8978c6ae89f54f0f05233ef",
+        "date": "2026-10-29T13:50:36Z",
+        "message": "feat(decode): pin fused skinny swap-AB & pooler-router gemv (Rank 148, 2.0751x)"
+      },
+      {
+        "sha": "2758d98503e872b46558af13c8e47cfb627ce65f",
+        "date": "2026-10-29T09:27:13Z",
+        "message": "feat(decode): fused native CUDA decode layer megakernel (Rank 167, 2.0021x)"
+      }
+    ],
+    "muse_decode_layer/profiles/submission.f60b136cfdc242cb.json": [
+      {
+        "sha": "91b5733b6e683386e8978c6ae89f54f0f05233ef",
+        "date": "2026-10-29T13:50:36Z",
+        "message": "feat(decode): pin fused skinny swap-AB & pooler-router gemv (Rank 148, 2.0751x)"
+      }
+    ]
+  },
+  "unchanged_source_since": "91b5733b6e683386e8978c6ae89f54f0f05233ef",
+  "receipt_txt": {
+    "bytes": 15389,
+    "sha256": "bf9cdc08c810593f4fa4d6242eca3c6bfa8b24ef95ae6e3e92b0e273cb8a1821",
+    "git_blob": "3f42710cc51ea11dfedb7566932de64b083290e0",
+    "identity_or_pick_lines": []
+  },
+  "historical607": {
+    "job_id": "607eb52bdaf24160",
+    "bytes": 57777,
+    "sha256": "9ba1d7d77c00ae9a1bdba61c64ed93975566879f2767d473aa050c19fd6c573c",
+    "git_blob": "bdba5da4e8b8d008120f07a554355ee80d951eb3",
+    "cells": [
+      {
+        "case": {
+          "batch": 1,
+          "ctx": 80000,
+          "dist": "soft",
+          "layer": "sliding",
+          "load": "decode 1",
+          "page": 1,
+          "repeats": 60,
+          "seed": 2594116087711408936,
+          "weight": 46
+        },
+        "median_us": 76.74810129226927
+      },
+      {
+        "case": {
+          "batch": 1,
+          "ctx": 80000,
+          "dist": "soft",
+          "layer": "full",
+          "load": "decode 1",
+          "page": 1,
+          "repeats": 60,
+          "seed": 2594202932468765874,
+          "weight": 16
+        },
+        "median_us": 83.72675745456237
+      },
+      {
+        "case": {
+          "batch": 16,
+          "ctx": 80000,
+          "dist": "soft",
+          "layer": "sliding",
+          "load": "decode 16",
+          "page": 1,
+          "seed": 2594289777226122813,
+          "spread": "agentic",
+          "weight": 46
+        },
+        "median_us": 138.66071382597238
+      },
+      {
+        "case": {
+          "batch": 16,
+          "ctx": 80000,
+          "dist": "soft",
+          "layer": "full",
+          "load": "decode 16",
+          "page": 1,
+          "seed": 2594376621983479753,
+          "spread": "agentic",
+          "weight": 16
+        },
+        "median_us": 214.53435984694036
+      },
+      {
+        "case": {
+          "batch": 32,
+          "ctx": 80000,
+          "dist": "soft",
+          "layer": "sliding",
+          "load": "decode 32",
+          "page": 1,
+          "seed": 2594463466740836694,
+          "spread": "agentic",
+          "weight": 46
+        },
+        "median_us": 154.82044500163073
+      },
+      {
+        "case": {
+          "batch": 32,
+          "ctx": 80000,
+          "dist": "soft",
+          "layer": "full",
+          "load": "decode 32",
+          "page": 1,
+          "seed": 2594550311498193636,
+          "spread": "agentic",
+          "weight": 16
+        },
+        "median_us": 297.8826968304272
+      },
+      {
+        "case": {
+          "batch": 1,
+          "ctx": 80000,
+          "dist": "soft",
+          "layer": "sliding",
+          "load": "verify 1",
+          "page": 1,
+          "q_len": 8,
+          "seed": 2594637156255550579,
+          "weight": 46
+        },
+        "median_us": 115.43186043519749
+      },
+      {
+        "case": {
+          "batch": 1,
+          "ctx": 80000,
+          "dist": "soft",
+          "layer": "full",
+          "load": "verify 1",
+          "page": 1,
+          "q_len": 8,
+          "seed": 2594724001012907523,
+          "weight": 16
+        },
+        "median_us": 117.59783998488622
+      },
+      {
+        "case": {
+          "batch": 16,
+          "ctx": 80000,
+          "dist": "soft",
+          "layer": "sliding",
+          "load": "verify 16",
+          "page": 1,
+          "q_len": 8,
+          "seed": 2594810845770264468,
+          "spread": "agentic",
+          "weight": 46
+        },
+        "median_us": 247.13099535493978
+      },
+      {
+        "case": {
+          "batch": 16,
+          "ctx": 80000,
+          "dist": "soft",
+          "layer": "full",
+          "load": "verify 16",
+          "page": 1,
+          "q_len": 8,
+          "seed": 2594897690527621414,
+          "spread": "agentic",
+          "weight": 16
+        },
+        "median_us": 333.21812616334677
+      },
+      {
+        "case": {
+          "batch": 32,
+          "ctx": 80000,
+          "dist": "soft",
+          "layer": "sliding",
+          "load": "verify 32",
+          "page": 1,
+          "q_len": 8,
+          "seed": 2594984535284978361,
+          "spread": "agentic",
+          "weight": 46
+        },
+        "median_us": 316.3895368878032
+      },
+      {
+        "case": {
+          "batch": 32,
+          "ctx": 80000,
+          "dist": "soft",
+          "layer": "full",
+          "load": "verify 32",
+          "page": 1,
+          "q_len": 8,
+          "seed": 2595071380042335309,
+          "spread": "agentic",
+          "weight": 16
+        },
+        "median_us": 482.6567937941269
+      }
+    ]
+  },
+  "source_anchors": {
+    "remote": [
+      {
+        "line": 419,
+        "text": "__device__ __forceinline__ float pr8(float x) {"
+      },
+      {
+        "line": 5508,
+        "text": "#define OKC_WGSFCI 3"
+      },
+      {
+        "line": 5894,
+        "text": "        // the previous segment's deferred work, behind group OKC_WGSFCI of the first stage (scout: CI 3 lets this WG's"
+      },
+      {
+        "line": 5896,
+        "text": "        if (FIRST && ci == OKC_WGSFCI && pd.kind) wgs_flush<PB>(p, S, pd);"
+      },
+      {
+        "line": 6521,
+        "text": "    if (p.M >= OKC_BIGM) cudaLaunchKernelEx(&cfg, okc::moe_fused<true>, p);"
+      },
+      {
+        "line": 6522,
+        "text": "    else cudaLaunchKernelEx(&cfg, okc::moe_fused<false>, p);"
+      },
+      {
+        "line": 11159,
+        "text": "            ext.okc_set_pdl(1 if _pdl(T) else 0)"
+      }
+    ],
+    "common": [
+      {
+        "line": 3,
+        "text": "# st2l: st1l with OKC_WGSFCI 4 (E374)."
+      },
+      {
+        "line": 4,
+        "text": "# st1l: ybfl.py + OKC_WGSFCI 5 + weight-ring pacing at M <= 64 (E372)."
+      },
+      {
+        "line": 416,
+        "text": "__device__ __forceinline__ float pr8(float x) {"
+      },
+      {
+        "line": 3596,
+        "text": "    const cudaError_t launch=cudaLaunchCooperativeKernel((const void*)kern,grid,"
+      },
+      {
+        "line": 5599,
+        "text": "#define OKC_WGSFCI 4  // st2 (E374): the deferred flush at commit group 4 (FCI 3..7 sweep best)"
+      },
+      {
+        "line": 5794,
+        "text": "          {  // KPERM3: k8 group G = tid & 31 of stage tid >> 5 holds the bf16 pairs at stage offsets 2 B(G) + 64 t,"
+      },
+      {
+        "line": 5990,
+        "text": "    // KPERM3: K is permuted inside the stage so that step j of every load group is scale block 4 t + j for this lane:"
+      },
+      {
+        "line": 6054,
+        "text": "        // the previous segment's deferred work, behind group OKC_WGSFCI of the first stage (scout: CI 3 lets this WG's"
+      },
+      {
+        "line": 6056,
+        "text": "        if (FIRST && ci == OKC_WGSFCI && pd.kind) wgs_flush<PB>(p, S, pd);"
+      },
+      {
+        "line": 6863,
+        "text": "  const cudaError_t launch=cudaLaunchCooperativeKernel((const void*)kernel,dim3((unsigned)grid),"
+      },
+      {
+        "line": 7140,
+        "text": "    \"\"\"KPERM3: stage position p -> stage column k. p = 16 s + c (k16 step s = 4 lg + j, fragment column c of lane"
+      },
+      {
+        "line": 7184,
+        "text": "    s = s.permute(0, 5, 1, 2, 4, 6, 7, 3).contiguous().view(nub, 16, 4, 1024)  # ub, st, q, warp, g, t, j, h (KPERM3)"
+      },
+      {
+        "line": 11552,
+        "text": "            ext.okc_set_pdl(1 if _pdl(T) else 0)"
+      },
+      {
+        "line": 12427,
+        "text": "            ext.okc_set_pdl(1 if _pdl(T) else 0)"
+      },
+      {
+        "line": 14169,
+        "text": "#define OKC_WGSFCI 3"
+      },
+      {
+        "line": 14555,
+        "text": "        // the previous segment's deferred work, behind group OKC_WGSFCI of the first stage (scout: CI 3 lets this WG's"
+      },
+      {
+        "line": 14557,
+        "text": "        if (FIRST && ci == OKC_WGSFCI && pd.kind) wgs_flush<PB>(p, S, pd);"
+      },
+      {
+        "line": 15192,
+        "text": "  const cudaError_t launch=cudaLaunchCooperativeKernel((const void*)kernel,dim3((unsigned)grid),"
+      },
+      {
+        "line": 15735,
+        "text": "            ext.okc_set_pdl(1 if _pdl(T) else 0)"
+      },
+      {
+        "line": 15937,
+        "text": "            ext.okc_set_pdl(1 if _pdl(T) else 0)"
+      },
+      {
+        "line": 16127,
+        "text": "        defines = tuple(defines) + (\"-DOKC_SC6W=1\",)"
+      },
+      {
+        "line": 16723,
+        "text": "        mx.okc_set_pdl(1 if _pdl(T) else 0)"
+      }
+    ]
+  },
+  "license_metadata": null,
+  "tree_truncated": false,
+  "license_like_paths": [],
+  "receipt": {
+    "path": "muse_decode_layer/profiles/submission.f60b136cfdc242cb.json",
+    "bytes": 59268,
+    "sha256": "3552045aaf38d25e809c3839c93a8a5a0ba60d411937a25220dca3d11187ceee",
+    "git_blob": "b5688fa973bb9fc3b9e8a74d755f9bce0c18ed27",
+    "job_id": "f60b136cfdc242cb",
+    "problem": "muse_decode_layer",
+    "submission": "/home/kuroko/okc-workspace/muse_decode_layer/submission.py",
+    "summary": {
+      "error": null,
+      "passed": true,
+      "score_us": 10901.021853732493,
+      "speedup": 2.075062347687602,
+      "speedup_ci": [
+        2.043936412472288,
+        2.1061882829029157
+      ],
+      "status": "ok",
+      "tests": 13,
+      "tests_passed": 13
+    },
+    "source_identity_keys": [],
+    "cells": [
+      {
+        "case": {
+          "batch": 1,
+          "ctx": 80000,
+          "dist": "soft",
+          "layer": "sliding",
+          "load": "decode 1",
+          "page": 1,
+          "repeats": 60,
+          "seed": 4099775881628919078,
+          "weight": 46
+        },
+        "median_us": 77.58659561334649,
+        "baseline_us": 172.97600023448467
+      },
+      {
+        "case": {
+          "batch": 1,
+          "ctx": 80000,
+          "dist": "soft",
+          "layer": "full",
+          "load": "decode 1",
+          "page": 1,
+          "repeats": 60,
+          "seed": 4099825030440715476,
+          "weight": 16
+        },
+        "median_us": 84.17490858146931,
+        "baseline_us": 182.84799391403794
+      },
+      {
+        "case": {
+          "batch": 16,
+          "ctx": 80000,
+          "dist": "soft",
+          "layer": "sliding",
+          "load": "decode 16",
+          "page": 1,
+          "seed": 4099874179252511875,
+          "spread": "agentic",
+          "weight": 46
+        },
+        "median_us": 138.83145632198566,
+        "baseline_us": 267.1520016156137
+      },
+      {
+        "case": {
+          "batch": 16,
+          "ctx": 80000,
+          "dist": "soft",
+          "layer": "full",
+          "load": "decode 16",
+          "page": 1,
+          "seed": 4099923328064308275,
+          "spread": "agentic",
+          "weight": 16
+        },
+        "median_us": 212.35478931704,
+        "baseline_us": 435.02400256693363
+      },
+      {
+        "case": {
+          "batch": 32,
+          "ctx": 80000,
+          "dist": "soft",
+          "layer": "sliding",
+          "load": "decode 32",
+          "page": 1,
+          "seed": 4099972476876104676,
+          "spread": "agentic",
+          "weight": 46
+        },
+        "median_us": 158.09934803844934,
+        "baseline_us": 262.65599578619003
+      },
+      {
+        "case": {
+          "batch": 32,
+          "ctx": 80000,
+          "dist": "soft",
+          "layer": "full",
+          "load": "decode 32",
+          "page": 1,
+          "seed": 4100021625687901078,
+          "spread": "agentic",
+          "weight": 16
+        },
+        "median_us": 313.7163607588623,
+        "baseline_us": 612.1119996532798
+      },
+      {
+        "case": {
+          "batch": 1,
+          "ctx": 80000,
+          "dist": "soft",
+          "layer": "sliding",
+          "load": "verify 1",
+          "page": 1,
+          "q_len": 8,
+          "seed": 4100070774499697481,
+          "weight": 46
+        },
+        "median_us": 113.82606285881336,
+        "baseline_us": 268.2719985023141
+      },
+      {
+        "case": {
+          "batch": 1,
+          "ctx": 80000,
+          "dist": "soft",
+          "layer": "full",
+          "load": "verify 1",
+          "page": 1,
+          "q_len": 8,
+          "seed": 4100119923311493885,
+          "weight": 16
+        },
+        "median_us": 115.76245905043308,
+        "baseline_us": 267.47200870886445
+      },
+      {
+        "case": {
+          "batch": 16,
+          "ctx": 80000,
+          "dist": "soft",
+          "layer": "sliding",
+          "load": "verify 16",
+          "page": 1,
+          "q_len": 8,
+          "seed": 4100169072123290290,
+          "spread": "agentic",
+          "weight": 46
+        },
+        "median_us": 263.5476295543414,
+        "baseline_us": 539.7600154392421
+      },
+      {
+        "case": {
+          "batch": 16,
+          "ctx": 80000,
+          "dist": "soft",
+          "layer": "full",
+          "load": "verify 16",
+          "page": 1,
+          "q_len": 8,
+          "seed": 4100218220935086696,
+          "spread": "agentic",
+          "weight": 16
+        },
+        "median_us": 348.39247555928637,
+        "baseline_us": 716.2400027737021
+      },
+      {
+        "case": {
+          "batch": 32,
+          "ctx": 80000,
+          "dist": "soft",
+          "layer": "sliding",
+          "load": "verify 32",
+          "page": 1,
+          "q_len": 8,
+          "seed": 4100267369746883103,
+          "spread": "agentic",
+          "weight": 46
+        },
+        "median_us": 328.3866724440779,
+        "baseline_us": 698.5119893215597
+      },
+      {
+        "case": {
+          "batch": 32,
+          "ctx": 80000,
+          "dist": "soft",
+          "layer": "full",
+          "load": "verify 32",
+          "page": 1,
+          "q_len": 8,
+          "seed": 4100316518558679511,
+          "spread": "agentic",
+          "weight": 16
+        },
+        "median_us": 489.29104186060385,
+        "baseline_us": 1062.3200042173266
+      }
+    ],
+    "profiles": [
+      {
+        "case": {
+          "batch": 1,
+          "ctx": 80000,
+          "dist": "soft",
+          "layer": "sliding",
+          "load": "decode 1",
+          "page": 1,
+          "repeats": 60,
+          "seed": 4099775881628919078,
+          "weight": 46
+        },
+        "event": "profile",
+        "index": 0,
+        "report": "kernel                                                           GPU time  share  calls\nvoid okc::moe_fused<false>(okc::Params)                           22.9 \u00b5s  28.4%      1\nvoid sk2_kernel<1, 8, 4, 1, 8, 1, 6, true, false, 2, 1, _...      18.4 \u00b5s  22.9%      1\nvoid sk2_kernel<1, 8, 3, 1, 4, 2, 6, true, false, 1, 1, _...      10.6 \u00b5s  13.2%      1\nvoid sk2_kernel<1, 8, 4, 1, 4, 1, 4, true, false, 2, 1, _...       6.3 \u00b5s   7.8%      1\nvoid (anonymous namespace)::attn_kernel<1, false, 13>((an...       5.0 \u00b5s   6.2%      1\nvoid sk2_kernel<1, 8, 1, 1, 8, 2, 4, true, false, 2, 1, _...       4.6 \u00b5s   5.8%      1\n_boundary1                                                         4.4 \u00b5s   5.5%      1\n_boundary2                                                         4.3 \u00b5s   5.3%      1\n_route_split                                                       4.1 \u00b5s   5.0%      1\ntotal                                                             80.5 \u00b5s"
+      },
+      {
+        "case": {
+          "batch": 1,
+          "ctx": 80000,
+          "dist": "soft",
+          "layer": "full",
+          "load": "decode 1",
+          "page": 1,
+          "repeats": 60,
+          "seed": 4099825030440715476,
+          "weight": 16
+        },
+        "event": "profile",
+        "index": 1,
+        "report": "kernel                                                           GPU time  share  calls\nvoid okc::moe_fused<false>(okc::Params)                           28.8 \u00b5s  31.3%      1\nvoid sk2_kernel<1, 8, 4, 1, 8, 1, 6, true, false, 2, 1, _...      18.0 \u00b5s  19.7%      1\nvoid (anonymous namespace)::attn_kernel<1, false, 11>((an...      11.0 \u00b5s  12.0%      1\nvoid sk2_kernel<1, 8, 3, 1, 4, 2, 6, true, false, 1, 1, _...      10.0 \u00b5s  10.9%      1\nvoid sk2_kernel<1, 8, 4, 1, 4, 1, 4, true, false, 2, 1, _...       6.2 \u00b5s   6.7%      1\nvoid sk2_kernel<1, 8, 1, 1, 8, 2, 4, true, false, 2, 1, _...       4.7 \u00b5s   5.1%      1\n_boundary1                                                         4.5 \u00b5s   4.9%      1\n_boundary2                                                         4.3 \u00b5s   4.7%      1\n_route_split                                                       4.3 \u00b5s   4.7%      1\ntotal                                                             91.8 \u00b5s"
+      },
+      {
+        "case": {
+          "batch": 16,
+          "ctx": 80000,
+          "dist": "soft",
+          "layer": "sliding",
+          "load": "decode 16",
+          "page": 1,
+          "seed": 4099874179252511875,
+          "spread": "agentic",
+          "weight": 46
+        },
+        "event": "profile",
+        "index": 2,
+        "report": "kernel                                                           GPU time  share  calls\nvoid okc::moe_fused<false>(okc::Params)                           76.3 \u00b5s  51.5%      1\nvoid sk2_kernel<1, 16, 4, 1, 8, 1, 5, true, false, 2, 1, ...      18.8 \u00b5s  12.7%      1\nvoid sk2_kernel<1, 16, 4, 1, 4, 1, 5, true, false, 2, 1, ...      15.7 \u00b5s  10.6%      1\nvoid sk2_kernel<1, 16, 3, 1, 4, 2, 5, true, false, 1, 1, ...      10.8 \u00b5s   7.3%      1\nvoid (anonymous namespace)::attn_kernel<1, false, 1>((ano...       7.5 \u00b5s   5.0%      1\nvoid sk2_kernel<1, 16, 4, 1, 4, 1, 4, true, false, 2, 1, ...       6.4 \u00b5s   4.3%      1\n_boundary2                                                         4.5 \u00b5s   3.0%      1\n_boundary1                                                         4.3 \u00b5s   2.9%      1\n_route_split                                                       4.0 \u00b5s   2.7%      1\ntotal                                                            148.3 \u00b5s\nGPU busy (kernels overlap: PDL or streams)                       146.0 \u00b5s\nan overlapping kernel's time includes any wait for the one before it, so the rows add up to more"
+      },
+      {
+        "case": {
+          "batch": 16,
+          "ctx": 80000,
+          "dist": "soft",
+          "layer": "full",
+          "load": "decode 16",
+          "page": 1,
+          "seed": 4099923328064308275,
+          "spread": "agentic",
+          "weight": 16
+        },
+        "event": "profile",
+        "index": 3,
+        "report": "kernel                                                           GPU time  share  calls\nvoid (anonymous namespace)::attn_kernel<1, true, 0>((anon...      89.0 \u00b5s  40.1%      1\nvoid okc::moe_fused<false>(okc::Params)                           68.1 \u00b5s  30.7%      1\nvoid sk2_kernel<1, 16, 4, 1, 8, 1, 5, true, false, 2, 1, ...      17.8 \u00b5s   8.0%      1\nvoid sk2_kernel<1, 16, 4, 1, 4, 1, 5, true, false, 2, 1, ...      15.3 \u00b5s   6.9%      1\nvoid sk2_kernel<1, 16, 3, 1, 4, 2, 5, true, false, 1, 1, ...      10.1 \u00b5s   4.6%      1\nvoid sk2_kernel<1, 16, 4, 1, 4, 1, 4, true, false, 2, 1, ...       8.2 \u00b5s   3.7%      1\n_boundary2                                                         4.7 \u00b5s   2.1%      1\n_boundary1                                                         4.4 \u00b5s   2.0%      1\n_route_split                                                       4.3 \u00b5s   1.9%      1\ntotal                                                            222.0 \u00b5s\nGPU busy (kernels overlap: PDL or streams)                       216.0 \u00b5s\nan overlapping kernel's time includes any wait for the one before it, so the rows add up to more"
+      },
+      {
+        "case": {
+          "batch": 32,
+          "ctx": 80000,
+          "dist": "soft",
+          "layer": "sliding",
+          "load": "decode 32",
+          "page": 1,
+          "seed": 4099972476876104676,
+          "spread": "agentic",
+          "weight": 46
+        },
+        "event": "profile",
+        "index": 4,
+        "report": "kernel                                                           GPU time  share  calls\nvoid okc::moe_fused<false>(okc::Params)                           87.5 \u00b5s  51.1%      1\nvoid sk2_kernel<2, 32, 4, 1, 8, 1, 3, true, false, 2, 1, ...      22.0 \u00b5s  12.9%      1\nvoid sk2_kernel<2, 32, 4, 2, 2, 2, 3, true, false, 1, 1, ...      20.2 \u00b5s  11.8%      1\nvoid sk2_kernel<2, 32, 3, 1, 4, 2, 4, true, false, 1, 1, ...      11.9 \u00b5s   7.0%      1\nvoid (anonymous namespace)::attn_kernel<1, false, 1>((ano...       9.2 \u00b5s   5.4%      1\nvoid sk2_kernel<2, 32, 2, 2, 2, 2, 3, true, false, 1, 1, ...       7.3 \u00b5s   4.2%      1\n_boundary2                                                         4.7 \u00b5s   2.7%      1\n_boundary1                                                         4.4 \u00b5s   2.6%      1\n_route_split                                                       4.0 \u00b5s   2.4%      1\ntotal                                                            171.2 \u00b5s\nGPU busy (kernels overlap: PDL or streams)                       164.9 \u00b5s\nan overlapping kernel's time includes any wait for the one before it, so the rows add up to more"
+      },
+      {
+        "case": {
+          "batch": 32,
+          "ctx": 80000,
+          "dist": "soft",
+          "layer": "full",
+          "load": "decode 32",
+          "page": 1,
+          "seed": 4100021625687901078,
+          "spread": "agentic",
+          "weight": 16
+        },
+        "event": "profile",
+        "index": 5,
+        "report": "kernel                                                           GPU time  share  calls\nvoid (anonymous namespace)::attn_kernel<1, true, 0>((anon...     170.5 \u00b5s  53.1%      1\nvoid okc::moe_fused<false>(okc::Params)                           77.4 \u00b5s  24.1%      1\nvoid sk2_kernel<2, 32, 4, 1, 8, 1, 3, true, false, 2, 1, ...      20.8 \u00b5s   6.5%      1\nvoid sk2_kernel<2, 32, 4, 2, 2, 2, 3, true, false, 1, 1, ...      19.0 \u00b5s   5.9%      1\nvoid sk2_kernel<2, 32, 3, 1, 4, 2, 4, true, false, 1, 1, ...      11.5 \u00b5s   3.6%      1\nvoid sk2_kernel<2, 32, 2, 2, 2, 2, 3, true, false, 1, 1, ...       7.5 \u00b5s   2.3%      1\n_boundary1                                                         5.3 \u00b5s   1.6%      1\n_boundary2                                                         4.7 \u00b5s   1.5%      1\n_route_split                                                       4.4 \u00b5s   1.4%      1\ntotal                                                            321.0 \u00b5s\nGPU busy (kernels overlap: PDL or streams)                       309.6 \u00b5s\nan overlapping kernel's time includes any wait for the one before it, so the rows add up to more"
+      },
+      {
+        "case": {
+          "batch": 1,
+          "ctx": 80000,
+          "dist": "soft",
+          "layer": "sliding",
+          "load": "verify 1",
+          "page": 1,
+          "q_len": 8,
+          "seed": 4100070774499697481,
+          "weight": 46
+        },
+        "event": "profile",
+        "index": 6,
+        "report": "kernel                                                           GPU time  share  calls\nvoid okc::moe_fused<false>(okc::Params)                           57.4 \u00b5s  49.1%      1\nvoid sk2_kernel<1, 8, 4, 1, 8, 1, 6, true, false, 2, 1, _...      18.5 \u00b5s  15.8%      1\nvoid sk2_kernel<1, 8, 3, 1, 4, 2, 6, true, false, 1, 1, _...       9.9 \u00b5s   8.5%      1\nvoid (anonymous namespace)::attn_kernel<8, false, 15>((an...       7.2 \u00b5s   6.2%      1\nvoid sk2_kernel<1, 8, 4, 1, 4, 1, 4, true, false, 2, 1, _...       6.1 \u00b5s   5.2%      1\nvoid sk2_kernel<1, 8, 1, 1, 8, 2, 4, true, false, 2, 1, _...       5.3 \u00b5s   4.5%      1\n_boundary2                                                         4.3 \u00b5s   3.7%      1\n_boundary1                                                         4.2 \u00b5s   3.6%      1\n_route_split                                                       3.9 \u00b5s   3.3%      1\ntotal                                                            116.9 \u00b5s\nGPU busy (kernels overlap: PDL or streams)                       115.0 \u00b5s\nan overlapping kernel's time includes any wait for the one before it, so the rows add up to more"
+      },
+      {
+        "case": {
+          "batch": 1,
+          "ctx": 80000,
+          "dist": "soft",
+          "layer": "full",
+          "load": "verify 1",
+          "page": 1,
+          "q_len": 8,
+          "seed": 4100119923311493885,
+          "weight": 16
+        },
+        "event": "profile",
+        "index": 7,
+        "report": "kernel                                                           GPU time  share  calls\nvoid okc::moe_fused<false>(okc::Params)                           79.6 \u00b5s  53.6%      1\nvoid sk2_kernel<1, 8, 4, 1, 8, 1, 6, true, false, 2, 1, _...      19.3 \u00b5s  13.0%      1\nvoid (anonymous namespace)::attn_kernel<8, false, 11>((an...      14.8 \u00b5s  10.0%      1\nvoid sk2_kernel<1, 8, 3, 1, 4, 2, 6, true, false, 1, 1, _...      10.2 \u00b5s   6.9%      1\nvoid sk2_kernel<1, 8, 4, 1, 4, 1, 4, true, false, 2, 1, _...       6.3 \u00b5s   4.2%      1\nvoid sk2_kernel<1, 8, 1, 1, 8, 2, 4, true, false, 2, 1, _...       5.5 \u00b5s   3.7%      1\n_boundary2                                                         4.5 \u00b5s   3.1%      1\n_boundary1                                                         4.3 \u00b5s   2.9%      1\n_route_split                                                       3.9 \u00b5s   2.6%      1\ntotal                                                            148.4 \u00b5s\nGPU busy (kernels overlap: PDL or streams)                       146.5 \u00b5s\nan overlapping kernel's time includes any wait for the one before it, so the rows add up to more"
+      },
+      {
+        "case": {
+          "batch": 16,
+          "ctx": 80000,
+          "dist": "soft",
+          "layer": "sliding",
+          "load": "verify 16",
+          "page": 1,
+          "q_len": 8,
+          "seed": 4100169072123290290,
+          "spread": "agentic",
+          "weight": 46
+        },
+        "event": "profile",
+        "index": 8,
+        "report": "kernel                                                           GPU time  share  calls\nvoid okc::moe_fused<true>(okc::Params)                           122.2 \u00b5s  54.2%      1\nnvjet_sm90_tss_128x64_64x8_1x2_h_bz_TNT                           30.3 \u00b5s  13.4%      2\nnvjet_sm90_tss_96x64_64x10_4x2_h_bz_TNN                           26.1 \u00b5s  11.6%      1\nnvjet_sm90_tst_96x64_64x10_4x2_h_bz_splitK_TNN                    15.7 \u00b5s   7.0%      1\nvoid (anonymous namespace)::attn_kernel<8, false, 3>((ano...      11.7 \u00b5s   5.2%      1\n_boundary2                                                         5.8 \u00b5s   2.6%      1\n_boundary1                                                         5.7 \u00b5s   2.5%      1\n_route                                                             4.7 \u00b5s   2.1%      1\nvoid cublasLt::splitKreduce_kernel<32, 16, int, float, __...       3.2 \u00b5s   1.4%      1\ntotal                                                            225.4 \u00b5s"
+      },
+      {
+        "case": {
+          "batch": 16,
+          "ctx": 80000,
+          "dist": "soft",
+          "layer": "full",
+          "load": "verify 16",
+          "page": 1,
+          "q_len": 8,
+          "seed": 4100218220935086696,
+          "spread": "agentic",
+          "weight": 16
+        },
+        "event": "profile",
+        "index": 9,
+        "report": "kernel                                                           GPU time  share  calls\nvoid okc::moe_fused<true>(okc::Params)                           153.2 \u00b5s  43.9%      1\nvoid (anonymous namespace)::attn_kernel<8, true, 0>((anon...     103.7 \u00b5s  29.7%      1\nnvjet_sm90_tss_128x64_64x8_1x2_h_bz_TNT                           30.0 \u00b5s   8.6%      2\nnvjet_sm90_tss_96x64_64x10_4x2_h_bz_TNN                           26.6 \u00b5s   7.6%      1\nnvjet_sm90_tst_96x64_64x10_4x2_h_bz_splitK_TNN                    15.8 \u00b5s   4.5%      1\n_boundary2                                                         5.7 \u00b5s   1.6%      1\n_boundary1                                                         5.6 \u00b5s   1.6%      1\n_route                                                             5.4 \u00b5s   1.5%      1\nvoid cublasLt::splitKreduce_kernel<32, 16, int, float, __...       3.1 \u00b5s   0.9%      1\ntotal                                                            349.2 \u00b5s"
+      },
+      {
+        "case": {
+          "batch": 32,
+          "ctx": 80000,
+          "dist": "soft",
+          "layer": "sliding",
+          "load": "verify 32",
+          "page": 1,
+          "q_len": 8,
+          "seed": 4100267369746883103,
+          "spread": "agentic",
+          "weight": 46
+        },
+        "event": "profile",
+        "index": 10,
+        "report": "kernel                                                           GPU time  share  calls\nvoid okc::moe_fused<true>(okc::Params)                           214.3 \u00b5s  61.0%      1\nnvjet_sm90_tss_128x128_64x6_2x1_v_bz_TNT                          38.1 \u00b5s  10.8%      2\nnvjet_sm90_tss_80x128_64x8_4x2_h_bz_TNN                           34.4 \u00b5s   9.8%      1\nnvjet_sm90_tst_96x64_64x10_2x4_h_bz_TNN                           24.0 \u00b5s   6.8%      1\nvoid (anonymous namespace)::attn_kernel<8, false, 3>((ano...      15.3 \u00b5s   4.4%      1\n_boundary2                                                         9.7 \u00b5s   2.8%      1\n_boundary1                                                         9.6 \u00b5s   2.7%      1\n_route                                                             5.8 \u00b5s   1.6%      1\ntotal                                                            351.2 \u00b5s"
+      },
+      {
+        "case": {
+          "batch": 32,
+          "ctx": 80000,
+          "dist": "soft",
+          "layer": "full",
+          "load": "verify 32",
+          "page": 1,
+          "q_len": 8,
+          "seed": 4100316518558679511,
+          "spread": "agentic",
+          "weight": 16
+        },
+        "event": "profile",
+        "index": 11,
+        "report": "kernel                                                           GPU time  share  calls\nvoid okc::moe_fused<true>(okc::Params)                           226.1 \u00b5s  42.4%      1\nvoid (anonymous namespace)::attn_kernel<8, true, 0>((anon...     186.9 \u00b5s  35.0%      1\nnvjet_sm90_tss_128x128_64x6_2x1_v_bz_TNT                          37.2 \u00b5s   7.0%      2\nnvjet_sm90_tss_80x128_64x8_4x2_h_bz_TNN                           34.3 \u00b5s   6.4%      1\nnvjet_sm90_tst_96x64_64x10_2x4_h_bz_TNN                           23.7 \u00b5s   4.5%      1\n_boundary2                                                         9.9 \u00b5s   1.9%      1\n_boundary1                                                         9.6 \u00b5s   1.8%      1\n_route                                                             5.7 \u00b5s   1.1%      1\ntotal                                                            533.4 \u00b5s"
+      }
+    ]
+  },
+  "selected_functions": {
+    "dense": {
+      "remote": {
+        "line": 9928,
+        "text": "def dense(x, w, T, state=None, name=None):\n    \"\"\"Returns (partials [S, T, N] fp32, S). The tuner picks cuBLAS or the split-K Triton kernel per\n    (token count, weight matrix): cuBLAS wins on the o projection, the Triton one on the pooler+router.\"\"\"\n    N, K = w.shape\n    pick = state.get(\"mm_pick\", {}).get((T, name), False) if state is not None else False\n    if pick == \"bfp\" and T <= BFP_MAX_T and name in _BFP_LAYER and state.get(\"bfp\") is not None:\n        # bf16_proj's kernel (BF16 out, as SGLang's GEMM): the consumers read P as one [1, T, N] partial\n        return _bfp_gemm(state, name, x, T, N, K).view(1, T, N), 1\n    if pick is True or pick == \"bfp\":       # above BFP_MAX_T a bfp pick runs as cuBLAS (measured in the chain)\n        out = torch.mm(x, w.t(), out_dtype=torch.float32)\n        return out.view(1, T, N), 1\n    if T > 32:\n        out = torch.mm(x, w.t(), out_dtype=torch.float32)\n        return out.view(1, T, N), 1\n    BN, BK = 64, 128\n    BT = 16 if T <= 16 else 32\n    tiles = (N // BN) * triton.cdiv(T, BT)\n    S = 1\n    while tiles * S * 2 <= 600 and K // (S * 2) >= 2 * BK:\n        S *= 2\n    P = torch.empty((S, T, N), device=x.device, dtype=torch.float32)\n    grid = (N // BN, S, triton.cdiv(T, BT))\n    _gemm_splitk[grid](x, w, P, T, N, K, KSPLIT=K // S, BN=BN, BT=BT, BK=BK, num_warps=4, num_stages=4, USE_PDL=_pdl(T), launch_pdl=_pdl(T))\n    return P, S"
+      },
+      "common_final": {
+        "line": 12317,
+        "text": "def dense(x, w, T, state=None, name=None):\n    plans = state.get(\"graft_lt\") if state is not None else None\n    plan = plans.get((name, T)) if plans and T > 32 else None\n    if plan is not None:\n        rq = _rq_gemm(state, name, x, T)\n        if rq is not None:\n            return rq.view(1, T, rq.shape[1]), 1\n        out = _graft_lt_run(x, plan)\n        return out.view(1, T, plan[\"n\"]), 1\n    return _vj_dense(x, w, T, state, name)"
+      },
+      "diff": "--- \n\n+++ \n\n@@ -1,24 +1,10 @@\n\n def dense(x, w, T, state=None, name=None):\n-    \"\"\"Returns (partials [S, T, N] fp32, S). The tuner picks cuBLAS or the split-K Triton kernel per\n-    (token count, weight matrix): cuBLAS wins on the o projection, the Triton one on the pooler+router.\"\"\"\n-    N, K = w.shape\n-    pick = state.get(\"mm_pick\", {}).get((T, name), False) if state is not None else False\n-    if pick == \"bfp\" and T <= BFP_MAX_T and name in _BFP_LAYER and state.get(\"bfp\") is not None:\n-        # bf16_proj's kernel (BF16 out, as SGLang's GEMM): the consumers read P as one [1, T, N] partial\n-        return _bfp_gemm(state, name, x, T, N, K).view(1, T, N), 1\n-    if pick is True or pick == \"bfp\":       # above BFP_MAX_T a bfp pick runs as cuBLAS (measured in the chain)\n-        out = torch.mm(x, w.t(), out_dtype=torch.float32)\n-        return out.view(1, T, N), 1\n-    if T > 32:\n-        out = torch.mm(x, w.t(), out_dtype=torch.float32)\n-        return out.view(1, T, N), 1\n-    BN, BK = 64, 128\n-    BT = 16 if T <= 16 else 32\n-    tiles = (N // BN) * triton.cdiv(T, BT)\n-    S = 1\n-    while tiles * S * 2 <= 600 and K // (S * 2) >= 2 * BK:\n-        S *= 2\n-    P = torch.empty((S, T, N), device=x.device, dtype=torch.float32)\n-    grid = (N // BN, S, triton.cdiv(T, BT))\n-    _gemm_splitk[grid](x, w, P, T, N, K, KSPLIT=K // S, BN=BN, BT=BT, BK=BK, num_warps=4, num_stages=4, USE_PDL=_pdl(T), launch_pdl=_pdl(T))\n-    return P, S\n+    plans = state.get(\"graft_lt\") if state is not None else None\n+    plan = plans.get((name, T)) if plans and T > 32 else None\n+    if plan is not None:\n+        rq = _rq_gemm(state, name, x, T)\n+        if rq is not None:\n+            return rq.view(1, T, rq.shape[1]), 1\n+        out = _graft_lt_run(x, plan)\n+        return out.view(1, T, plan[\"n\"]), 1\n+    return _vj_dense(x, w, T, state, name)"
+    },
+    "prepare": {
+      "remote": {
+        "line": 10758,
+        "text": "def prepare(weights):\n    dev = weights[\"qkv_gate\"].device\n    router = weights[\"router\"].float()\n    hi = router.to(torch.bfloat16)\n    lo = (router - hi.float()).to(torch.bfloat16)\n    st = {}\n    st[\"qkv\"] = weights[\"qkv_gate\"].contiguous()\n    st[\"o\"] = weights[\"o\"].contiguous()\n    st[\"pr\"] = torch.cat([weights[\"pooler\"], hi, lo], 0).contiguous()\n    st[\"unpool\"] = weights[\"unpooler\"].contiguous()\n    st[\"unpool_slice\"] = weights[\"unpooler\"][:1024].contiguous()\n    # Every BF16 checkpoint weight stays BF16. Norms apply (1 + w), formed in\n    # FP32 at use; the post-expert weight is stored as SGLang stores it.\n    st[\"gate1\"] = weights[\"attn_residual_gate\"].contiguous()\n    st[\"gate2\"] = weights[\"ffn_residual_gate\"].contiguous()\n    st[\"g_preffn\"] = weights[\"pre_ffn_norm\"].contiguous()\n    st[\"g_preexp\"] = weights[\"pre_expert_norm\"].contiguous()\n    st[\"g_postexp\"] = weights[\"post_expert_norm\"].contiguous()   # BF16 as given; _pexp_norm_sum forms 1 + w\n    st[\"g_postffn\"] = weights[\"post_ffn_norm\"].contiguous()\n    st[\"g_next\"] = weights[\"next_pre_attn_norm\"].contiguous()\n    st[\"bias\"] = weights[\"router_bias\"].float().contiguous()\n    st[\"w13q\"] = _repack_q(weights[\"w13\"].view(torch.uint8), True)\n    st[\"w13s\"] = _repack_s(weights[\"w13_sf\"].view(torch.uint8), True)\n    st[\"gs13\"] = weights[\"w13_gs\"].float().contiguous()\n    st[\"w2q\"] = _repack_q(weights[\"w2\"].view(torch.uint8), False)\n    st[\"w2s\"] = _repack_s(weights[\"w2_sf\"].view(torch.uint8), False)\n    st[\"gs2\"] = weights[\"w2_gs\"].float().contiguous()\n    st[\"invf0\"] = torch.zeros(32, device=dev)\n    st[\"invf\"] = (1.0 / (ROPE_THETA ** (torch.arange(0, HEAD_DIM, 2, device=dev).float() / HEAD_DIM))).contiguous()\n    errs = []\n\n    def _build(fn):\n        try:\n            fn()\n        except Exception as ex:  # noqa: BLE001\n            errs.append(ex)\n\n    global _MA_SFX\n    _MA_SFX = _MA_SFX_IF_PRMT if (_MA_PRMT_SCALES and _ma_scales_prmt_exact(weights[\"w13_sf\"], weights[\"w2_sf\"])) else ()\n    ths = [threading.Thread(target=_build, args=(f,)) for f in (_att7, _moe, _moe_tiny, _moe_tiny2, _moe_mid)]  # ~85 s of nvcc, in parallel\n    for th in ths:\n        th.start()\n    for th in ths:\n        th.join()\n    if errs:\n        raise errs[0]\n    _ma_prepare(weights, st)\n    _bfp_prepare(weights, st)\n    st[\"nsm\"] = torch.cuda.get_device_properties(dev).multi_processor_count\n    st[\"fa3\"] = None\n    st[\"bank\"] = None\n    st[\"att_ok\"] = True\n    st[\"ma_ok\"] = True\n    st[\"pbmax\"] = 2\n    st[\"moe_pick\"] = {}\n    try:\n        from sgl_kernel.flash_attn import flash_attn_with_kvcache\n        st[\"fa3\"] = flash_attn_with_kvcache\n        st[\"bank\"] = _marlin_bank(weights)\n    except Exception as ex:  # noqa: BLE001  (local GPUs without sgl_kernel: fall back to our own kernels)\n        print(\"fallback (no sgl_kernel/sglang):\", repr(ex)[:200])\n    try:\n        _tune(st, log=_TUNE_LOG)\n    except Exception as ex:  # noqa: BLE001\n        print(\"tune failed:\", repr(ex)[:200], flush=True)\n        st[\"pbmax\"] = 2\n        st[\"moe_pick\"] = {}\n        st[\"gluev2\"] = {}\n        st[\"marlin_cfg\"] = {}\n        st[\"mm_pick\"] = {}\n    for k, v in PIN_PICK.items():      # in-chain winners the isolated tuner sometimes misses (no PDL in its timing)\n        st.setdefault(\"mm_pick\", {})[k] = v\n    torch.cuda.synchronize()\n    if st.get(\"att_ok\"):\n        _attn_selftest(st)     # every attention plan family once, on synthetic inputs\n    _check_guards()            # after the tuner (every moe build) and the attention self-test\n    return st"
+      },
+      "common_final": {
+        "line": 17262,
+        "text": "def prepare(weights):\n    import time\n    deadline = time.monotonic() + 295\n    state = _release_normal_prepare(weights)\n    _release_expert_self_test(torch, weights, state, _moe, _fork_native_moe,\n                              _ma_make_scratch, _fork_prepare_marlin, SCRATCH_SENTINEL, deadline=deadline)\n    return state"
+      },
+      "diff": "--- \n\n+++ \n\n@@ -1,77 +1,7 @@\n\n def prepare(weights):\n-    dev = weights[\"qkv_gate\"].device\n-    router = weights[\"router\"].float()\n-    hi = router.to(torch.bfloat16)\n-    lo = (router - hi.float()).to(torch.bfloat16)\n-    st = {}\n-    st[\"qkv\"] = weights[\"qkv_gate\"].contiguous()\n-    st[\"o\"] = weights[\"o\"].contiguous()\n-    st[\"pr\"] = torch.cat([weights[\"pooler\"], hi, lo], 0).contiguous()\n-    st[\"unpool\"] = weights[\"unpooler\"].contiguous()\n-    st[\"unpool_slice\"] = weights[\"unpooler\"][:1024].contiguous()\n-    # Every BF16 checkpoint weight stays BF16. Norms apply (1 + w), formed in\n-    # FP32 at use; the post-expert weight is stored as SGLang stores it.\n-    st[\"gate1\"] = weights[\"attn_residual_gate\"].contiguous()\n-    st[\"gate2\"] = weights[\"ffn_residual_gate\"].contiguous()\n-    st[\"g_preffn\"] = weights[\"pre_ffn_norm\"].contiguous()\n-    st[\"g_preexp\"] = weights[\"pre_expert_norm\"].contiguous()\n-    st[\"g_postexp\"] = weights[\"post_expert_norm\"].contiguous()   # BF16 as given; _pexp_norm_sum forms 1 + w\n-    st[\"g_postffn\"] = weights[\"post_ffn_norm\"].contiguous()\n-    st[\"g_next\"] = weights[\"next_pre_attn_norm\"].contiguous()\n-    st[\"bias\"] = weights[\"router_bias\"].float().contiguous()\n-    st[\"w13q\"] = _repack_q(weights[\"w13\"].view(torch.uint8), True)\n-    st[\"w13s\"] = _repack_s(weights[\"w13_sf\"].view(torch.uint8), True)\n-    st[\"gs13\"] = weights[\"w13_gs\"].float().contiguous()\n-    st[\"w2q\"] = _repack_q(weights[\"w2\"].view(torch.uint8), False)\n-    st[\"w2s\"] = _repack_s(weights[\"w2_sf\"].view(torch.uint8), False)\n-    st[\"gs2\"] = weights[\"w2_gs\"].float().contiguous()\n-    st[\"invf0\"] = torch.zeros(32, device=dev)\n-    st[\"invf\"] = (1.0 / (ROPE_THETA ** (torch.arange(0, HEAD_DIM, 2, device=dev).float() / HEAD_DIM))).contiguous()\n-    errs = []\n-\n-    def _build(fn):\n-        try:\n-            fn()\n-        except Exception as ex:  # noqa: BLE001\n-            errs.append(ex)\n-\n-    global _MA_SFX\n-    _MA_SFX = _MA_SFX_IF_PRMT if (_MA_PRMT_SCALES and _ma_scales_prmt_exact(weights[\"w13_sf\"], weights[\"w2_sf\"])) else ()\n-    ths = [threading.Thread(target=_build, args=(f,)) for f in (_att7, _moe, _moe_tiny, _moe_tiny2, _moe_mid)]  # ~85 s of nvcc, in parallel\n-    for th in ths:\n-        th.start()\n-    for th in ths:\n-        th.join()\n-    if errs:\n-        raise errs[0]\n-    _ma_prepare(weights, st)\n-    _bfp_prepare(weights, st)\n-    st[\"nsm\"] = torch.cuda.get_device_properties(dev).multi_processor_count\n-    st[\"fa3\"] = None\n-    st[\"bank\"] = None\n-    st[\"att_ok\"] = True\n-    st[\"ma_ok\"] = True\n-    st[\"pbmax\"] = 2\n-    st[\"moe_pick\"] = {}\n-    try:\n-        from sgl_kernel.flash_attn import flash_attn_with_kvcache\n-        st[\"fa3\"] = flash_attn_with_kvcache\n-        st[\"bank\"] = _marlin_bank(weights)\n-    except Exception as ex:  # noqa: BLE001  (local GPUs without sgl_kernel: fall back to our own kernels)\n-        print(\"fallback (no sgl_kernel/sglang):\", repr(ex)[:200])\n-    try:\n-        _tune(st, log=_TUNE_LOG)\n-    except Exception as ex:  # noqa: BLE001\n-        print(\"tune failed:\", repr(ex)[:200], flush=True)\n-        st[\"pbmax\"] = 2\n-        st[\"moe_pick\"] = {}\n-        st[\"gluev2\"] = {}\n-        st[\"marlin_cfg\"] = {}\n-        st[\"mm_pick\"] = {}\n-    for k, v in PIN_PICK.items():      # in-chain winners the isolated tuner sometimes misses (no PDL in its timing)\n-        st.setdefault(\"mm_pick\", {})[k] = v\n-    torch.cuda.synchronize()\n-    if st.get(\"att_ok\"):\n-        _attn_selftest(st)     # every attention plan family once, on synthetic inputs\n-    _check_guards()            # after the tuner (every moe build) and the attention self-test\n-    return st\n+    import time\n+    deadline = time.monotonic() + 295\n+    state = _release_normal_prepare(weights)\n+    _release_expert_self_test(torch, weights, state, _moe, _fork_native_moe,\n+                              _ma_make_scratch, _fork_prepare_marlin, SCRATCH_SENTINEL, deadline=deadline)\n+    return state"
+    },
+    "_after_attention": {
+      "remote": {
+        "line": 11088,
+        "text": "def _after_attention(data, state, o_in, gate, T):\n    \"\"\"o projection onwards: residual boundary, router, experts, unpooler, final boundary.\n    gate is None when o_in already carries rmsnorm(o) * sigmoid(gate). state[\"gluev2\"] picks between the\n    one-program-per-token boundary kernels and the parallel (atomic-sum) ones; the tuner chooses per T.\"\"\"\n    dev = o_in.device\n    f32 = dict(device=dev, dtype=torch.float32)\n    gv = state.get(\"gluev2\", {})\n    v2 = gv.get(T, gv.get(_bucket(T), False)) if FORCE_GLUEV2 is None else FORCE_GLUEV2\n    s1 = torch.empty((T, HIDDEN), **f32)\n    h = torch.empty((T, HIDDEN), device=dev, dtype=torch.bfloat16)\n    if v2:\n        # o projection with no K split (each program owns whole rows) + the boundary's four per-token sums\n        a_out = torch.empty((T, HIDDEN), **f32)\n        sums = torch.zeros((T, 4), **f32)\n        BN, BT, BK = 64, (16 if T <= 16 else 32), 128\n        _gemm_o[(HIDDEN // BN, triton.cdiv(T, BT))](\n            o_in, gate, state[\"o\"], a_out, sums, data[\"stream\"], state[\"gate1\"], state[\"gate1\"], T, HIDDEN,\n            K=1024, BN=BN, BT=BT, BK=BK, NORMGATE=gate is not None, num_warps=4, num_stages=3)\n        BC1 = 2048\n        _bnd1_apply[(T, HIDDEN // BC1)](a_out, sums, data[\"stream\"], state[\"gate1\"], state[\"gate1\"], state[\"g_preffn\"],\n                                        s1, h, N=HIDDEN, BC=BC1, num_warps=8)\n    else:\n        if gate is None:\n            P, S = dense(o_in, state[\"o\"], T, state, \"o\")\n        else:\n            P, S = dense_ng(o_in, gate, state[\"o\"], T, state)\n        _boundary1[(T,)](P, S, T, data[\"stream\"], state[\"gate1\"], state[\"gate1\"], state[\"g_preffn\"], s1, h,\n                         num_warps=16, USE_PDL=_pdl(T), launch_pdl=_pdl(T))\n    # 4. pooler + router (BF16 hi + lo rows, FP32 accumulation), routing, pre-expert norm\n    mmp = state.get(\"mm_pick\", {})\n    ppick = mmp.get((T, \"pr\"), mmp.get((_bucket(T), \"pr\"), False))\n    if ppick == \"bfpf\" and T <= 32 and state.get(\"bfp\") is not None:\n        # bf16_proj's fused pooler + router: one launch, both read h once (bf16 [T, 4096], fp32 [T, 256])\n        _bfp_pdl(T)\n        P, S = bfp_fused_pooler_router(h, state[\"bfp\"]), -1\n    elif ppick == \"bfp\" and state.get(\"bfp\") is not None:\n        pooled = _bfp_gemm(state, \"pool\", h, T, D_EXPERT, HIDDEN)          # bf16 [T, 4096]\n        logits = _bfp_gemm(state, \"router\", h, T, N_EXPERTS, HIDDEN)       # fp32 [T, 256], hi+lo already summed\n        P, S = (pooled, logits), -1\n    else:\n        P, S = dense(h, state[\"pr\"], T, state, \"pr\")\n    ids = torch.empty((T, 8), device=dev, dtype=torch.int32)\n    lids = torch.empty((T, 8), device=dev, dtype=torch.int32)\n    wts = torch.empty((T, 8), **f32)\n    moe = _pick_expert_backend(state[\"moe_pick\"].get(T, state[\"moe_pick\"].get(_bucket(T), \"agent\")),\n                               marlin_available=state[\"bank\"] is not None, agent_available=state[\"ma_ok\"])\n    use_marlin = moe == \"marlin\"\n    use_ma = moe == \"agent\"\n    if not (use_marlin or use_ma):\n        raise RuntimeError(\"no expert backend: neither the moe agent's kernel nor SGLang's Marlin is available\")\n    xm = torch.empty((T, D_EXPERT), device=dev, dtype=torch.bfloat16)\n    if S == -1:  # pooler and router came from the bf16_proj kernels as two separate tensors\n        pooled, logits = P\n        _route_split[(T,)](pooled, logits, state[\"bias\"], state[\"g_preexp\"], ids, wts, xm,\n                           data[\"local_start\"], lids, PERMUTED=not (use_marlin or use_ma), num_warps=8, USE_PDL=_pdl(T), launch_pdl=_pdl(T))\n    elif v2:\n        pool = torch.empty((T, D_EXPERT), **f32)\n        psum = torch.zeros((T,), **f32)\n        BCR = 1024\n        _route_a[(T, D_EXPERT // BCR)](P, S, T, state[\"bias\"], ids, wts, data[\"local_start\"], lids, pool, psum,\n                                       BC=BCR, num_warps=8)\n        _route_b[(T, D_EXPERT // BCR)](pool, psum, state[\"g_preexp\"], xm, BC=BCR,\n                                       PERMUTED=not (use_marlin or use_ma), num_warps=8)\n    else:\n        _route[(T,)](P, S, T, state[\"bias\"], state[\"g_preexp\"], ids, wts, xm, data[\"local_start\"], lids,\n                     PERMUTED=not (use_marlin or use_ma), num_warps=8, USE_PDL=_pdl(T), launch_pdl=_pdl(T))\n    # 5. experts\n    if use_ma:\n        m = torch.empty((T, D_EXPERT), device=dev, dtype=torch.bfloat16)\n        ext = _moe(T)   # the build their kernel_fn picks for this M, then at most MMAX tokens per launch, as theirs\n        if MOE_HAS_PDL:\n            ext.okc_set_pdl(1 if _pdl(T) else 0)\n        for m0 in range(0, T, _MA_MMAX):      # (their scratch is sized for MMAX: T > 384 would overrun it)\n            m1 = min(T, m0 + _MA_MMAX)\n            ext.okc_run(state[\"ma_w\"], state[\"ma_scratch\"], xm[m0:m1], lids[m0:m1], wts[m0:m1], m[m0:m1], 0, 32,\n                        state[\"nsm\"])     # lids: local expert index, -1 = another GPU's expert\n    elif use_marlin:\n        m = _marlin_experts(xm, wts, lids, state)\n    # 6. unpooler + post-FFN boundary + next layer's norm\n    wu = state[\"unpool_slice\"] if T <= 8 else state[\"unpool\"]\n    P, S = dense(m, wu, T, state, \"un\")\n    nu = wu.shape[0]\n    s2 = torch.empty((T, HIDDEN), **f32)\n    out = torch.empty((T, HIDDEN), device=dev, dtype=torch.bfloat16)\n    if v2:\n        fbuf = torch.zeros((T, HIDDEN), **f32)\n        sums2 = torch.zeros((T, 4), **f32)\n        BC2 = 1024\n        _bnd2_sums[(T, HIDDEN // BC2)](P, S, T, nu, s1, state[\"gate2\"], state[\"gate2\"], state[\"g_postffn\"], fbuf, sums2,\n                                       BC=BC2, num_warps=8)\n        _bnd2_apply[(T, HIDDEN // BC2)](fbuf, sums2, s1, state[\"gate2\"], state[\"gate2\"], state[\"g_next\"], s2, out,\n                                        N=HIDDEN, BC=BC2, num_warps=8)\n    else:\n        _boundary2[(T,)](P, S, T, nu, s1, state[\"gate2\"], state[\"gate2\"], state[\"g_postffn\"], state[\"g_next\"],\n                         s2, out, num_warps=16, USE_PDL=_pdl(T), launch_pdl=_pdl(T))\n    return out, s2, ids"
+      },
+      "common_final": {
+        "line": 16739,
+        "text": "def _after_attention(data, state, o_in, gate, T):\n    if (GLE_T.get(T, GLE_T.get(str(T), False)) and GLE_RC.get(T, 0) > 0 and gate is None and _pdl(T) and 'graft' in state\n            and state.get('compose_graft_enabled', {}).get(T, True) and T in SL_TILE_CONFIG and T in SL_CLUSTER_CONFIG):\n        mmp = state.get(\"mm_pick\", {})\n        ppick = mmp.get((T, \"pr\"), mmp.get((_bucket(T), \"pr\"), False))\n        opick = mmp.get((T, \"o\"), mmp.get((_bucket(T), \"o\"), False))\n        moe = _pick_expert_backend(state[\"moe_pick\"].get(T, state[\"moe_pick\"].get(_bucket(T), \"agent\")),\n                                   marlin_available=state[\"bank\"] is not None, agent_available=state[\"ma_ok\"])\n        gw = state.get('g_preffn')\n        if (ppick in (\"bfp\", \"bfpf\") and opick == \"bfp\" and moe == \"agent\" and state.get(\"bfp\") is not None\n                and state.get(\"router_fp32\") is not None and state.get(\"router_fp32_ext\") is not None\n                and gw is not None and gw.dtype == torch.bfloat16 and gw.numel() == HIDDEN and gw.is_contiguous()\n                and _gle_o_choice(state, T)):\n            return _gle_after_attention(data, state, o_in, gate, T)\n    return _gle_prior_after(data, state, o_in, gate, T)"
+      },
+      "diff": "--- \n\n+++ \n\n@@ -1,96 +1,15 @@\n\n def _after_attention(data, state, o_in, gate, T):\n-    \"\"\"o projection onwards: residual boundary, router, experts, unpooler, final boundary.\n-    gate is None when o_in already carries rmsnorm(o) * sigmoid(gate). state[\"gluev2\"] picks between the\n-    one-program-per-token boundary kernels and the parallel (atomic-sum) ones; the tuner chooses per T.\"\"\"\n-    dev = o_in.device\n-    f32 = dict(device=dev, dtype=torch.float32)\n-    gv = state.get(\"gluev2\", {})\n-    v2 = gv.get(T, gv.get(_bucket(T), False)) if FORCE_GLUEV2 is None else FORCE_GLUEV2\n-    s1 = torch.empty((T, HIDDEN), **f32)\n-    h = torch.empty((T, HIDDEN), device=dev, dtype=torch.bfloat16)\n-    if v2:\n-        # o projection with no K split (each program owns whole rows) + the boundary's four per-token sums\n-        a_out = torch.empty((T, HIDDEN), **f32)\n-        sums = torch.zeros((T, 4), **f32)\n-        BN, BT, BK = 64, (16 if T <= 16 else 32), 128\n-        _gemm_o[(HIDDEN // BN, triton.cdiv(T, BT))](\n-            o_in, gate, state[\"o\"], a_out, sums, data[\"stream\"], state[\"gate1\"], state[\"gate1\"], T, HIDDEN,\n-            K=1024, BN=BN, BT=BT, BK=BK, NORMGATE=gate is not None, num_warps=4, num_stages=3)\n-        BC1 = 2048\n-        _bnd1_apply[(T, HIDDEN // BC1)](a_out, sums, data[\"stream\"], state[\"gate1\"], state[\"gate1\"], state[\"g_preffn\"],\n-                                        s1, h, N=HIDDEN, BC=BC1, num_warps=8)\n-    else:\n-        if gate is None:\n-            P, S = dense(o_in, state[\"o\"], T, state, \"o\")\n-        else:\n-            P, S = dense_ng(o_in, gate, state[\"o\"], T, state)\n-        _boundary1[(T,)](P, S, T, data[\"stream\"], state[\"gate1\"], state[\"gate1\"], state[\"g_preffn\"], s1, h,\n-                         num_warps=16, USE_PDL=_pdl(T), launch_pdl=_pdl(T))\n-    # 4. pooler + router (BF16 hi + lo rows, FP32 accumulation), routing, pre-expert norm\n-    mmp = state.get(\"mm_pick\", {})\n-    ppick = mmp.get((T, \"pr\"), mmp.get((_bucket(T), \"pr\"), False))\n-    if ppick == \"bfpf\" and T <= 32 and state.get(\"bfp\") is not None:\n-        # bf16_proj's fused pooler + router: one launch, both read h once (bf16 [T, 4096], fp32 [T, 256])\n-        _bfp_pdl(T)\n-        P, S = bfp_fused_pooler_router(h, state[\"bfp\"]), -1\n-    elif ppick == \"bfp\" and state.get(\"bfp\") is not None:\n-        pooled = _bfp_gemm(state, \"pool\", h, T, D_EXPERT, HIDDEN)          # bf16 [T, 4096]\n-        logits = _bfp_gemm(state, \"router\", h, T, N_EXPERTS, HIDDEN)       # fp32 [T, 256], hi+lo already summed\n-        P, S = (pooled, logits), -1\n-    else:\n-        P, S = dense(h, state[\"pr\"], T, state, \"pr\")\n-    ids = torch.empty((T, 8), device=dev, dtype=torch.int32)\n-    lids = torch.empty((T, 8), device=dev, dtype=torch.int32)\n-    wts = torch.empty((T, 8), **f32)\n-    moe = _pick_expert_backend(state[\"moe_pick\"].get(T, state[\"moe_pick\"].get(_bucket(T), \"agent\")),\n-                               marlin_available=state[\"bank\"] is not None, agent_available=state[\"ma_ok\"])\n-    use_marlin = moe == \"marlin\"\n-    use_ma = moe == \"agent\"\n-    if not (use_marlin or use_ma):\n-        raise RuntimeError(\"no expert backend: neither the moe agent's kernel nor SGLang's Marlin is available\")\n-    xm = torch.empty((T, D_EXPERT), device=dev, dtype=torch.bfloat16)\n-    if S == -1:  # pooler and router came from the bf16_proj kernels as two separate tensors\n-        pooled, logits = P\n-        _route_split[(T,)](pooled, logits, state[\"bias\"], state[\"g_preexp\"], ids, wts, xm,\n-                           data[\"local_start\"], lids, PERMUTED=not (use_marlin or use_ma), num_warps=8, USE_PDL=_pdl(T), launch_pdl=_pdl(T))\n-    elif v2:\n-        pool = torch.empty((T, D_EXPERT), **f32)\n-        psum = torch.zeros((T,), **f32)\n-        BCR = 1024\n-        _route_a[(T, D_EXPERT // BCR)](P, S, T, state[\"bias\"], ids, wts, data[\"local_start\"], lids, pool, psum,\n-                                       BC=BCR, num_warps=8)\n-        _route_b[(T, D_EXPERT // BCR)](pool, psum, state[\"g_preexp\"], xm, BC=BCR,\n-                                       PERMUTED=not (use_marlin or use_ma), num_warps=8)\n-    else:\n-        _route[(T,)](P, S, T, state[\"bias\"], state[\"g_preexp\"], ids, wts, xm, data[\"local_start\"], lids,\n-                     PERMUTED=not (use_marlin or use_ma), num_warps=8, USE_PDL=_pdl(T), launch_pdl=_pdl(T))\n-    # 5. experts\n-    if use_ma:\n-        m = torch.empty((T, D_EXPERT), device=dev, dtype=torch.bfloat16)\n-        ext = _moe(T)   # the build their kernel_fn picks for this M, then at most MMAX tokens per launch, as theirs\n-        if MOE_HAS_PDL:\n-            ext.okc_set_pdl(1 if _pdl(T) else 0)\n-        for m0 in range(0, T, _MA_MMAX):      # (their scratch is sized for MMAX: T > 384 would overrun it)\n-            m1 = min(T, m0 + _MA_MMAX)\n-            ext.okc_run(state[\"ma_w\"], state[\"ma_scratch\"], xm[m0:m1], lids[m0:m1], wts[m0:m1], m[m0:m1], 0, 32,\n-                        state[\"nsm\"])     # lids: local expert index, -1 = another GPU's expert\n-    elif use_marlin:\n-        m = _marlin_experts(xm, wts, lids, state)\n-    # 6. unpooler + post-FFN boundary + next layer's norm\n-    wu = state[\"unpool_slice\"] if T <= 8 else state[\"unpool\"]\n-    P, S = dense(m, wu, T, state, \"un\")\n-    nu = wu.shape[0]\n-    s2 = torch.empty((T, HIDDEN), **f32)\n-    out = torch.empty((T, HIDDEN), device=dev, dtype=torch.bfloat16)\n-    if v2:\n-        fbuf = torch.zeros((T, HIDDEN), **f32)\n-        sums2 = torch.zeros((T, 4), **f32)\n-        BC2 = 1024\n-        _bnd2_sums[(T, HIDDEN // BC2)](P, S, T, nu, s1, state[\"gate2\"], state[\"gate2\"], state[\"g_postffn\"], fbuf, sums2,\n-                                       BC=BC2, num_warps=8)\n-        _bnd2_apply[(T, HIDDEN // BC2)](fbuf, sums2, s1, state[\"gate2\"], state[\"gate2\"], state[\"g_next\"], s2, out,\n-                                        N=HIDDEN, BC=BC2, num_warps=8)\n-    else:\n-        _boundary2[(T,)](P, S, T, nu, s1, state[\"gate2\"], state[\"gate2\"], state[\"g_postffn\"], state[\"g_next\"],\n-                         s2, out, num_warps=16, USE_PDL=_pdl(T), launch_pdl=_pdl(T))\n-    return out, s2, ids\n+    if (GLE_T.get(T, GLE_T.get(str(T), False)) and GLE_RC.get(T, 0) > 0 and gate is None and _pdl(T) and 'graft' in state\n+            and state.get('compose_graft_enabled', {}).get(T, True) and T in SL_TILE_CONFIG and T in SL_CLUSTER_CONFIG):\n+        mmp = state.get(\"mm_pick\", {})\n+        ppick = mmp.get((T, \"pr\"), mmp.get((_bucket(T), \"pr\"), False))\n+        opick = mmp.get((T, \"o\"), mmp.get((_bucket(T), \"o\"), False))\n+        moe = _pick_expert_backend(state[\"moe_pick\"].get(T, state[\"moe_pick\"].get(_bucket(T), \"agent\")),\n+                                   marlin_available=state[\"bank\"] is not None, agent_available=state[\"ma_ok\"])\n+        gw = state.get('g_preffn')\n+        if (ppick in (\"bfp\", \"bfpf\") and opick == \"bfp\" and moe == \"agent\" and state.get(\"bfp\") is not None\n+                and state.get(\"router_fp32\") is not None and state.get(\"router_fp32_ext\") is not None\n+                and gw is not None and gw.dtype == torch.bfloat16 and gw.numel() == HIDDEN and gw.is_contiguous()\n+                and _gle_o_choice(state, T)):\n+            return _gle_after_attention(data, state, o_in, gate, T)\n+    return _gle_prior_after(data, state, o_in, gate, T)"
+    },
+    "_boundary1": {
+      "remote": {
+        "line": 10324,
+        "text": "def _boundary1(P, S: tl.constexpr, T, STREAM, A1, B1, G, S1OUT, HOUT, USE_PDL: tl.constexpr = False):\n    t = tl.program_id(0)\n    offs = tl.arange(0, 8192)\n    a1v, b1v = _gate_ab(A1, offs)              # weights and the layer's input stream: no producer dependency\n    stv = tl.load(STREAM + t * 8192 + offs)\n    gw = 1.0 + tl.load(G + offs).to(tl.float32)\n    if USE_PDL:\n        tl.extra.cuda.gdc_launch_dependents()   # trigger early: dependents may become resident now\n        tl.extra.cuda.gdc_wait()   # P (the o-projection) is the producer's output\n    a = tl.zeros([8192], dtype=tl.float32)\n    for s in range(S):\n        a += tl.load(P + (s * T + t) * 8192 + offs)\n    n = a * tl.rsqrt(tl.sum(a * a, 0) / 8192.0 + 1e-8)\n    s1 = a1v * stv + b1v * n\n    tl.store(S1OUT + t * 8192 + offs, s1)\n    hh = s1 * tl.rsqrt(tl.sum(s1 * s1, 0) / 8192.0 + 1e-5) * gw\n    tl.store(HOUT + t * 8192 + offs, hh.to(tl.bfloat16))"
+      },
+      "common_final": {
+        "line": 10734,
+        "text": "def _boundary1(P, S: tl.constexpr, T, STREAM, A1, B1, G, S1OUT, HOUT, ROUTER_OUT, WRITE_ROUTER: tl.constexpr = False, USE_PDL: tl.constexpr = False):\n    t = tl.program_id(0)\n    offs = tl.arange(0, 8192)\n    a1v, b1v = _gate_ab(A1, offs)              # weights and the layer's input stream: no producer dependency\n    stv = tl.load(STREAM + t * 8192 + offs)\n    gw = 1.0 + tl.load(G + offs).to(tl.float32)\n    if USE_PDL:\n        tl.extra.cuda.gdc_launch_dependents()   # trigger early: dependents may become resident now\n        tl.extra.cuda.gdc_wait()   # P (the o-projection) is the producer's output\n    a = tl.zeros([8192], dtype=tl.float32)\n    for s in range(S):\n        a += tl.load(P + (s * T + t) * 8192 + offs)\n    a = a.to(tl.bfloat16).to(tl.float32)\n    n = a * tl.rsqrt(tl.sum(a * a, 0) / 8192.0 + 1e-8)\n    s1 = a1v * stv + b1v * n.to(tl.bfloat16).to(tl.float32)\n    tl.store(S1OUT + t * 8192 + offs, s1)\n    hh = s1 * tl.rsqrt(tl.sum(s1 * s1, 0) / 8192.0 + 1e-5) * gw\n    tl.store(HOUT + t * 8192 + offs, hh.to(tl.bfloat16))\n    if WRITE_ROUTER:\n        tl.store(ROUTER_OUT + t * 8192 + offs, hh)"
+      },
+      "diff": "--- \n\n+++ \n\n@@ -1,3 +1,3 @@\n\n-def _boundary1(P, S: tl.constexpr, T, STREAM, A1, B1, G, S1OUT, HOUT, USE_PDL: tl.constexpr = False):\n+def _boundary1(P, S: tl.constexpr, T, STREAM, A1, B1, G, S1OUT, HOUT, ROUTER_OUT, WRITE_ROUTER: tl.constexpr = False, USE_PDL: tl.constexpr = False):\n     t = tl.program_id(0)\n     offs = tl.arange(0, 8192)\n@@ -11,7 +11,10 @@\n\n     for s in range(S):\n         a += tl.load(P + (s * T + t) * 8192 + offs)\n+    a = a.to(tl.bfloat16).to(tl.float32)\n     n = a * tl.rsqrt(tl.sum(a * a, 0) / 8192.0 + 1e-8)\n-    s1 = a1v * stv + b1v * n\n+    s1 = a1v * stv + b1v * n.to(tl.bfloat16).to(tl.float32)\n     tl.store(S1OUT + t * 8192 + offs, s1)\n     hh = s1 * tl.rsqrt(tl.sum(s1 * s1, 0) / 8192.0 + 1e-5) * gw\n     tl.store(HOUT + t * 8192 + offs, hh.to(tl.bfloat16))\n+    if WRITE_ROUTER:\n+        tl.store(ROUTER_OUT + t * 8192 + offs, hh)"
+    },
+    "_boundary2": {
+      "remote": {
+        "line": 10455,
+        "text": "def _boundary2(P, S: tl.constexpr, T, NU: tl.constexpr, S1, A2, B2, GPOST, GNEXT, SOUT, HOUT,\n               USE_PDL: tl.constexpr = False):\n    t = tl.program_id(0)\n    offs = tl.arange(0, 8192)\n    m = offs < NU\n    gp = 1.0 + tl.load(GPOST + offs).to(tl.float32)      # weights, and S1 from _boundary1: every kernel between them (pooler/router, route,\n    gn = 1.0 + tl.load(GNEXT + offs).to(tl.float32)      # moe, unpooler) triggers only after its own wait, so _boundary1 completed before this kernel began\n    a2v, b2v = _gate_ab(A2, offs)\n    s1v = tl.load(S1 + t * 8192 + offs)\n    if USE_PDL:\n        tl.extra.cuda.gdc_launch_dependents()   # trigger early: dependents may become resident now\n        tl.extra.cuda.gdc_wait()   # P (the unpooler) is the producer's output\n    f = tl.zeros([8192], dtype=tl.float32)\n    for s in range(S):\n        f += tl.load(P + (s * T + t) * NU + offs, mask=m, other=0.0)\n    f = f * gp\n    n = f * tl.rsqrt(tl.sum(f * f, 0) / 8192.0 + 1e-8)\n    s2 = a2v * s1v + b2v * n\n    tl.store(SOUT + t * 8192 + offs, s2)\n    hh = s2 * tl.rsqrt(tl.sum(s2 * s2, 0) / 8192.0 + 1e-5) * gn\n    tl.store(HOUT + t * 8192 + offs, hh.to(tl.bfloat16))"
+      },
+      "common_final": {
+        "line": 10865,
+        "text": "def _boundary2(P, S: tl.constexpr, T, NU: tl.constexpr, S1, A2, B2, GPOST, GNEXT, SOUT, HOUT,\n               USE_PDL: tl.constexpr = False):\n    t = tl.program_id(0)\n    offs = tl.arange(0, 8192)\n    m = offs < NU\n    gp = 1.0 + tl.load(GPOST + offs).to(tl.float32)      # weights, and S1 from _boundary1: every kernel between them (pooler/router, route,\n    gn = 1.0 + tl.load(GNEXT + offs).to(tl.float32)      # moe, unpooler) triggers only after its own wait, so _boundary1 completed before this kernel began\n    a2v, b2v = _gate_ab(A2, offs)\n    if USE_PDL:\n        tl.extra.cuda.gdc_launch_dependents()   # trigger early: dependents may become resident now\n        tl.extra.cuda.gdc_wait()   # P (the unpooler) is the producer's output\n    s1v = tl.load(S1 + t * 8192 + offs)\n    f = tl.zeros([8192], dtype=tl.float32)\n    for s in range(S):\n        f += tl.load(P + (s * T + t) * NU + offs, mask=m, other=0.0)\n    f = (f.to(tl.bfloat16).to(tl.float32) * gp).to(tl.bfloat16).to(tl.float32)\n    n = f * tl.rsqrt(tl.sum(f * f, 0) / 8192.0 + 1e-8)\n    s2 = a2v * s1v + b2v * n.to(tl.bfloat16).to(tl.float32)\n    tl.store(SOUT + t * 8192 + offs, s2)\n    hh = s2 * tl.rsqrt(tl.sum(s2 * s2, 0) / 8192.0 + 1e-5) * gn\n    tl.store(HOUT + t * 8192 + offs, hh.to(tl.bfloat16))"
+      },
+      "diff": "--- \n\n+++ \n\n@@ -7,14 +7,14 @@\n\n     gn = 1.0 + tl.load(GNEXT + offs).to(tl.float32)      # moe, unpooler) triggers only after its own wait, so _boundary1 completed before this kernel began\n     a2v, b2v = _gate_ab(A2, offs)\n-    s1v = tl.load(S1 + t * 8192 + offs)\n     if USE_PDL:\n         tl.extra.cuda.gdc_launch_dependents()   # trigger early: dependents may become resident now\n         tl.extra.cuda.gdc_wait()   # P (the unpooler) is the producer's output\n+    s1v = tl.load(S1 + t * 8192 + offs)\n     f = tl.zeros([8192], dtype=tl.float32)\n     for s in range(S):\n         f += tl.load(P + (s * T + t) * NU + offs, mask=m, other=0.0)\n-    f = f * gp\n+    f = (f.to(tl.bfloat16).to(tl.float32) * gp).to(tl.bfloat16).to(tl.float32)\n     n = f * tl.rsqrt(tl.sum(f * f, 0) / 8192.0 + 1e-8)\n-    s2 = a2v * s1v + b2v * n\n+    s2 = a2v * s1v + b2v * n.to(tl.bfloat16).to(tl.float32)\n     tl.store(SOUT + t * 8192 + offs, s2)\n     hh = s2 * tl.rsqrt(tl.sum(s2 * s2, 0) / 8192.0 + 1e-5) * gn"
+    },
+    "_route": {
+      "remote": {
+        "line": 10344,
+        "text": "def _route(P, S: tl.constexpr, T, BIAS, GPRE, IDS, WTS, XOUT, LS, LIDS, PERMUTED: tl.constexpr, USE_PDL: tl.constexpr = False):\n    t = tl.program_id(0)\n    e = tl.arange(0, 256)\n    logit = tl.zeros([256], dtype=tl.float32)\n    pooled = tl.zeros([4096], dtype=tl.float32)\n    c = tl.arange(0, 4096)\n    biasv = tl.load(BIAS + e)                      # weights and local_start: no producer dependency\n    gpre = 1.0 + tl.load(GPRE + c).to(tl.float32)\n    lsv = tl.load(LS)\n    if USE_PDL:\n        tl.extra.cuda.gdc_launch_dependents()   # trigger early: dependents may become resident now\n        tl.extra.cuda.gdc_wait()   # P (pooler + router) is the producer's output\n    for s in range(S):\n        b = P + (s * T + t) * 4608\n        logit += tl.load(b + 4096 + e) + tl.load(b + 4352 + e)\n        pooled += tl.load(b + c)\n    sc = tl.sigmoid(logit * 0.1767766952966369)\n    sel = sc + biasv\n    k8 = tl.arange(0, 8)\n    ids = tl.zeros([8], dtype=tl.int32)\n    wv = tl.zeros([8], dtype=tl.float32)\n    for k in tl.static_range(8):\n        idx = tl.argmax(sel, 0)\n        val = tl.sum(tl.where(e == idx, sc, 0.0), 0)\n        ids = tl.where(k8 == k, idx, ids)\n        wv = tl.where(k8 == k, val, wv)\n        sel = tl.where(e == idx, float(\"-inf\"), sel)\n    wv = wv / (tl.sum(wv, 0) + 1e-15)\n    tl.store(IDS + t * 8 + k8, ids)\n    lid = (ids - lsv + 256) % 256\n    tl.store(LIDS + t * 8 + k8, tl.where(lid < 32, lid, -1))\n    tl.store(WTS + t * 8 + k8, wv)\n    x = pooled * tl.rsqrt(tl.sum(pooled * pooled, 0) / 4096.0 + 1e-5) * gpre\n    # BF16 activation, stored as exact fp16 in the MoE kernel's fragment-permuted layout\n    ch = c // 64\n    kk = c % 64\n    kb = kk // 16\n    r = kk % 16\n    if PERMUTED:\n        po = ((t * 64 + ch) * 4 + (r % 8) // 2) * 16 + kb * 4 + (r // 8) * 2 + (r % 2)\n        tl.store(XOUT + po, x.to(tl.bfloat16).to(tl.float16))\n    else:\n        tl.store(XOUT + t * 4096 + c, x.to(tl.bfloat16))"
+      },
+      "common_final": {
+        "line": 10757,
+        "text": "def _route(P, S: tl.constexpr, T, BIAS, GPRE, IDS, WTS, XOUT, LS, LIDS, PERMUTED: tl.constexpr, USE_PDL: tl.constexpr = False):\n    t = tl.program_id(0)\n    e = tl.arange(0, 256)\n    logit = tl.zeros([256], dtype=tl.float32)\n    pooled = tl.zeros([4096], dtype=tl.float32)\n    c = tl.arange(0, 4096)\n    biasv = tl.load(BIAS + e)                      # weights and local_start: no producer dependency\n    gpre = tl.load(GPRE + c).to(tl.float32)\n    lsv = tl.load(LS)\n    if USE_PDL:\n        tl.extra.cuda.gdc_launch_dependents()   # trigger early: dependents may become resident now\n        tl.extra.cuda.gdc_wait()   # P (pooler + router) is the producer's output\n    for s in range(S):\n        b = P + (s * T + t) * 4608\n        logit += tl.load(b + 4096 + e) + tl.load(b + 4352 + e)\n        pooled += tl.load(b + c)\n    pooled = pooled.to(tl.bfloat16).to(tl.float32)\n    sc = tl.sigmoid(logit * 0.1767766952966369)\n    sel = sc + biasv\n    k8 = tl.arange(0, 8)\n    ids = tl.zeros([8], dtype=tl.int32)\n    wv = tl.zeros([8], dtype=tl.float32)\n    for k in tl.static_range(8):\n        idx = tl.argmax(sel, 0)\n        val = tl.sum(tl.where(e == idx, sc, 0.0), 0)\n        ids = tl.where(k8 == k, idx, ids)\n        wv = tl.where(k8 == k, val, wv)\n        sel = tl.where(e == idx, float(\"-inf\"), sel)\n    wv = wv / (tl.sum(wv, 0) + 1e-15)\n    tl.store(IDS + t * 8 + k8, ids)\n    lid = (ids - lsv + 256) % 256\n    tl.store(LIDS + t * 8 + k8, tl.where(lid < 32, lid, -1))\n    tl.store(WTS + t * 8 + k8, wv)\n    x = pooled * tl.rsqrt(tl.sum(pooled * pooled, 0) / 4096.0 + 1e-5) * gpre\n    ch = c // 64\n    kk = c % 64\n    kb = kk // 16\n    r = kk % 16\n    if PERMUTED:\n        po = ((t * 64 + ch) * 4 + (r % 8) // 2) * 16 + kb * 4 + (r // 8) * 2 + (r % 2)\n        tl.store(XOUT + po, x.to(tl.bfloat16).to(tl.float16))\n    else:\n        tl.store(XOUT + t * 4096 + c, x.to(tl.bfloat16))"
+      },
+      "diff": "--- \n\n+++ \n\n@@ -6,5 +6,5 @@\n\n     c = tl.arange(0, 4096)\n     biasv = tl.load(BIAS + e)                      # weights and local_start: no producer dependency\n-    gpre = 1.0 + tl.load(GPRE + c).to(tl.float32)\n+    gpre = tl.load(GPRE + c).to(tl.float32)\n     lsv = tl.load(LS)\n     if USE_PDL:\n@@ -15,4 +15,5 @@\n\n         logit += tl.load(b + 4096 + e) + tl.load(b + 4352 + e)\n         pooled += tl.load(b + c)\n+    pooled = pooled.to(tl.bfloat16).to(tl.float32)\n     sc = tl.sigmoid(logit * 0.1767766952966369)\n     sel = sc + biasv\n@@ -32,5 +33,4 @@\n\n     tl.store(WTS + t * 8 + k8, wv)\n     x = pooled * tl.rsqrt(tl.sum(pooled * pooled, 0) / 4096.0 + 1e-5) * gpre\n-    # BF16 activation, stored as exact fp16 in the MoE kernel's fragment-permuted layout\n     ch = c // 64\n     kk = c % 64"
+    },
+    "_route_split": {
+      "remote": {
+        "line": 10390,
+        "text": "def _route_split(POOLED, LOGITS, BIAS, GPRE, IDS, WTS, XOUT, LS, LIDS, PERMUTED: tl.constexpr, USE_PDL: tl.constexpr = False):\n    \"\"\"Same as _route but the pooler output (bf16) and the router logits (fp32) arrive as separate tensors.\"\"\"\n    t = tl.program_id(0)\n    e = tl.arange(0, 256)\n    c = tl.arange(0, 4096)\n    biasv = tl.load(BIAS + e)                      # weights and local_start: no producer dependency\n    gpre = 1.0 + tl.load(GPRE + c).to(tl.float32)\n    lsv = tl.load(LS)\n    if USE_PDL:\n        tl.extra.cuda.gdc_launch_dependents()   # trigger early: dependents may become resident now\n        tl.extra.cuda.gdc_wait()   # pooled / logits are the producer's output\n    logit = tl.load(LOGITS + t * 256 + e)\n    pooled = tl.load(POOLED + t * 4096 + c).to(tl.float32)\n    sc = tl.sigmoid(logit * 0.1767766952966369)\n    sel = sc + biasv\n    k8 = tl.arange(0, 8)\n    ids = tl.zeros([8], dtype=tl.int32)\n    wv = tl.zeros([8], dtype=tl.float32)\n    for k in tl.static_range(8):\n        idx = tl.argmax(sel, 0)\n        val = tl.sum(tl.where(e == idx, sc, 0.0), 0)\n        ids = tl.where(k8 == k, idx, ids)\n        wv = tl.where(k8 == k, val, wv)\n        sel = tl.where(e == idx, float(\"-inf\"), sel)\n    wv = wv / (tl.sum(wv, 0) + 1e-15)\n    tl.store(IDS + t * 8 + k8, ids)\n    lid = (ids - lsv + 256) % 256\n    tl.store(LIDS + t * 8 + k8, tl.where(lid < 32, lid, -1))\n    tl.store(WTS + t * 8 + k8, wv)\n    x = pooled * tl.rsqrt(tl.sum(pooled * pooled, 0) / 4096.0 + 1e-5) * gpre\n    ch = c // 64\n    kk = c % 64\n    kb = kk // 16\n    r = kk % 16\n    if PERMUTED:\n        po = ((t * 64 + ch) * 4 + (r % 8) // 2) * 16 + kb * 4 + (r // 8) * 2 + (r % 2)\n        tl.store(XOUT + po, x.to(tl.bfloat16).to(tl.float16))\n    else:\n        tl.store(XOUT + t * 4096 + c, x.to(tl.bfloat16))"
+      },
+      "common_final": {
+        "line": 10803,
+        "text": "def _route_split(POOLED, LOGITS, BIAS, GPRE, IDS, WTS, XOUT, LS, LIDS, PERMUTED: tl.constexpr, USE_PDL: tl.constexpr = False):\n    \"\"\"Same as _route but the pooler output (bf16) and the router logits (fp32) arrive as separate tensors.\"\"\"\n    t = tl.program_id(0)\n    e = tl.arange(0, 256)\n    c = tl.arange(0, 4096)\n    biasv = tl.load(BIAS + e)                      # weights and local_start: no producer dependency\n    gpre = tl.load(GPRE + c).to(tl.float32)\n    lsv = tl.load(LS)\n    if USE_PDL:\n        tl.extra.cuda.gdc_launch_dependents()   # trigger early: dependents may become resident now\n        tl.extra.cuda.gdc_wait()   # pooled / logits are the producer's output\n    logit = tl.load(LOGITS + t * 256 + e)\n    pooled = tl.load(POOLED + t * 4096 + c).to(tl.float32)\n    sc = tl.sigmoid(logit * 0.1767766952966369)\n    sel = sc + biasv\n    k8 = tl.arange(0, 8)\n    ids = tl.zeros([8], dtype=tl.int32)\n    wv = tl.zeros([8], dtype=tl.float32)\n    for k in tl.static_range(8):\n        idx = tl.argmax(sel, 0)\n        val = tl.sum(tl.where(e == idx, sc, 0.0), 0)\n        ids = tl.where(k8 == k, idx, ids)\n        wv = tl.where(k8 == k, val, wv)\n        sel = tl.where(e == idx, float(\"-inf\"), sel)\n    wv = wv / (tl.sum(wv, 0) + 1e-15)\n    tl.store(IDS + t * 8 + k8, ids)\n    lid = (ids - lsv + 256) % 256\n    tl.store(LIDS + t * 8 + k8, tl.where(lid < 32, lid, -1))\n    tl.store(WTS + t * 8 + k8, wv)\n    x = pooled * tl.rsqrt(tl.sum(pooled * pooled, 0) / 4096.0 + 1e-5) * gpre\n    ch = c // 64\n    kk = c % 64\n    kb = kk // 16\n    r = kk % 16\n    if PERMUTED:\n        po = ((t * 64 + ch) * 4 + (r % 8) // 2) * 16 + kb * 4 + (r // 8) * 2 + (r % 2)\n        tl.store(XOUT + po, x.to(tl.bfloat16).to(tl.float16))\n    else:\n        tl.store(XOUT + t * 4096 + c, x.to(tl.bfloat16))"
+      },
+      "diff": "--- \n\n+++ \n\n@@ -5,5 +5,5 @@\n\n     c = tl.arange(0, 4096)\n     biasv = tl.load(BIAS + e)                      # weights and local_start: no producer dependency\n-    gpre = 1.0 + tl.load(GPRE + c).to(tl.float32)\n+    gpre = tl.load(GPRE + c).to(tl.float32)\n     lsv = tl.load(LS)\n     if USE_PDL:"
+    },
+    "_moe": {
+      "remote": {
+        "line": 6613,
+        "text": "def _moe(M=None):\n    \"\"\"Their kernel, in the build their kernel_fn would pick for this token count.\"\"\"\n    global _MOE, _MOE_TINY, _MOE_TINY2, _MOE_MID\n    if M is not None and MOE_TINY_DEFINES and M <= MOE_TINY_MAX_M:\n        if _MOE_TINY is None:\n            _MOE_TINY = _moe_build(MOE_TINY_DEFINES)\n        return _MOE_TINY\n    if M is not None and _moe_tiny2_ok() and M <= MOE_TINY2_MAX_M:\n        if _MOE_TINY2 is None:\n            _MOE_TINY2 = _moe_build(MOE_TINY2_DEFINES)\n        return _MOE_TINY2\n    if M is not None and MOE_MID_DEFINES and M <= MOE_MID_MAX_M:\n        if _MOE_MID is None:\n            _MOE_MID = _moe_build(MOE_MID_DEFINES)\n        return _MOE_MID\n    if _MOE is None:   # their M >= 64 rule: _main_defines(sfx) (the WGS build needs the PRMT decode, else fallback)\n        _MOE = _moe_build(_main_defines(_MA_SFX) if \"_main_defines\" in globals() else MOE_DEFINES)\n    return _MOE"
+      },
+      "common_final": {
+        "line": 16882,
+        "text": "def _moe(M=None, state=None):\n    if state is None:\n        return None  # suppress all old unconditional native background builds\n    if not state.get('_fork_native_eligible',False):\n        return _fork_moe_fallback(M,state)\n    return _fork_native_moe(M,state)"
+      },
+      "diff": "--- \n\n+++ \n\n@@ -1,18 +1,6 @@\n\n-def _moe(M=None):\n-    \"\"\"Their kernel, in the build their kernel_fn would pick for this token count.\"\"\"\n-    global _MOE, _MOE_TINY, _MOE_TINY2, _MOE_MID\n-    if M is not None and MOE_TINY_DEFINES and M <= MOE_TINY_MAX_M:\n-        if _MOE_TINY is None:\n-            _MOE_TINY = _moe_build(MOE_TINY_DEFINES)\n-        return _MOE_TINY\n-    if M is not None and _moe_tiny2_ok() and M <= MOE_TINY2_MAX_M:\n-        if _MOE_TINY2 is None:\n-            _MOE_TINY2 = _moe_build(MOE_TINY2_DEFINES)\n-        return _MOE_TINY2\n-    if M is not None and MOE_MID_DEFINES and M <= MOE_MID_MAX_M:\n-        if _MOE_MID is None:\n-            _MOE_MID = _moe_build(MOE_MID_DEFINES)\n-        return _MOE_MID\n-    if _MOE is None:   # their M >= 64 rule: _main_defines(sfx) (the WGS build needs the PRMT decode, else fallback)\n-        _MOE = _moe_build(_main_defines(_MA_SFX) if \"_main_defines\" in globals() else MOE_DEFINES)\n-    return _MOE\n+def _moe(M=None, state=None):\n+    if state is None:\n+        return None  # suppress all old unconditional native background builds\n+    if not state.get('_fork_native_eligible',False):\n+        return _fork_moe_fallback(M,state)\n+    return _fork_native_moe(M,state)"
+    },
+    "_ma_prepare": {
+      "remote": {
+        "line": 9759,
+        "text": "def _ma_prepare(weights, st):\n    dev = weights[\"w13\"].device\n    I = H = 4096\n    rb = torch.arange(I // 8, device=dev)\n    g = torch.arange(8, device=dev)\n    rowsA = torch.stack((8 * rb[:, None] + g[None, :], I + 8 * rb[:, None] + g[None, :]), 1).reshape(-1)\n    rowsB = torch.arange(H, device=dev)\n    wA, sA, wB, sB = [], [], [], []\n    for e in range(32):\n        wA.append(_pack_codes(weights[\"w13\"][e].view(torch.uint8), rowsA))\n        sA.append(_pack_scales(weights[\"w13_sf\"][e], rowsA))\n        wB.append(_pack_codes(weights[\"w2\"][e].view(torch.uint8), rowsB))\n        sB.append(_pack_scales(weights[\"w2_sf\"][e], rowsB))\n    lut = (torch.arange(256, dtype=torch.int32, device=dev).to(torch.uint8).view(torch.float8_e4m3fn).float()\n           * 2.0**64).to(torch.bfloat16).view(torch.int16).to(torch.int32) & 0xFFFF\n    lut = (lut | (lut << 16)).to(torch.int32)\n    st[\"ma_w\"] = [torch.cat(wA), torch.cat(sA), weights[\"w13_gs\"].float().contiguous(),\n                  torch.cat(wB), torch.cat(sB), weights[\"w2_gs\"].float().contiguous(),\n                  lut.contiguous(), weights[\"post_expert_norm\"].contiguous(),  # bf16; kernel forms 1 + w\n                  torch.cat([_fat_order(x, y) for x, y in zip(wA, sA)]),\n                  torch.cat([_fat_order(x, y) for x, y in zip(wB, sB)]),\n                  torch.cat([_unit_order(x, y) for x, y in zip(wA, sA)]),\n                  torch.cat([_unit_order(x, y) for x, y in zip(wB, sB)])]\n    if \"_wgs_on\" in globals() and _wgs_on():   # their prepare(): w[12], w[13] = the WGS copies (per 256-row unit)\n        st[\"ma_w\"].append(torch.cat([_wgs_copy(weights[\"w13\"][e].view(torch.uint8), weights[\"w13_sf\"][e], rowsA)\n                                     for e in range(32)]))\n        st[\"ma_w\"].append(torch.cat([_wgs_copy(weights[\"w2\"][e].view(torch.uint8), weights[\"w2_sf\"][e], rowsB)\n                                     for e in range(32)]))\n    # Scratch is sized for every build kernel_fn may pick: a scratch sized\n    # from the 64-token formula once let the 32-token MID build write past it.\n    st[\"ma_scratch\"] = [_guarded(t) for t in _ma_make_scratch(dev)]"
+      },
+      "common_final": {
+        "line": 16852,
+        "text": "def _ma_prepare(weights, st):\n    # All background compilation has joined. Reject preceding CUDA execution faults.\n    torch.cuda.synchronize()\n    errors = st.pop('_fork_build_errors')\n    if not st['_fork_native_eligible'] or errors:\n        reason = 'native build failed '+str(sorted(errors.items())) if errors else 'scale/architecture fallback'\n        return _fork_install_fallback(weights, st, reason)\n    if set(st['ma_ext']) != {'tiny','tiny2','mid','b4','main'}:\n        raise RuntimeError('unexpected native module keys: '+str(sorted(st['ma_ext'])))\n    dev = weights['w13'].device\n    _fork_native_ma_prepare(weights, st)\n    torch.cuda.synchronize()\n    for m in (1,8,16,32,33,128,256):\n        x=torch.zeros((m,4096),device=dev,dtype=torch.bfloat16)\n        ids=torch.full((m,8),-1,device=dev,dtype=torch.int32)\n        ids[:,0]=0  # one valid local route; no all-empty scheduler assumption\n        tw=torch.full((m,8),.125,device=dev,dtype=torch.float32)\n        out=torch.empty_like(x)\n        torch.cuda.synchronize()  # input setup faults cannot look like a resource miss\n        try:\n            _fork_native_moe(m,st).okc_run(st['ma_w'],st['ma_scratch'],x,ids,tw,out,0,32,\n                                         torch.cuda.get_device_properties(dev).multi_processor_count)\n        except RuntimeError as exc:\n            if 'FORK_MOE_RESOURCE' not in str(exc):\n                raise\n            return _fork_install_fallback(weights, st, str(exc)[-300:])\n        torch.cuda.synchronize()  # launch/execution faults remain fatal\n    st['_fork_moe_status']='native repaired: cooperative+BF16, MFIN/DF/YBF/PDL off'\n    print('FORK_MOE_ROUTE',st['_fork_moe_status'],flush=True)"
+      },
+      "diff": "--- \n\n+++ \n\n@@ -1,31 +1,29 @@\n\n def _ma_prepare(weights, st):\n-    dev = weights[\"w13\"].device\n-    I = H = 4096\n-    rb = torch.arange(I // 8, device=dev)\n-    g = torch.arange(8, device=dev)\n-    rowsA = torch.stack((8 * rb[:, None] + g[None, :], I + 8 * rb[:, None] + g[None, :]), 1).reshape(-1)\n-    rowsB = torch.arange(H, device=dev)\n-    wA, sA, wB, sB = [], [], [], []\n-    for e in range(32):\n-        wA.append(_pack_codes(weights[\"w13\"][e].view(torch.uint8), rowsA))\n-        sA.append(_pack_scales(weights[\"w13_sf\"][e], rowsA))\n-        wB.append(_pack_codes(weights[\"w2\"][e].view(torch.uint8), rowsB))\n-        sB.append(_pack_scales(weights[\"w2_sf\"][e], rowsB))\n-    lut = (torch.arange(256, dtype=torch.int32, device=dev).to(torch.uint8).view(torch.float8_e4m3fn).float()\n-           * 2.0**64).to(torch.bfloat16).view(torch.int16).to(torch.int32) & 0xFFFF\n-    lut = (lut | (lut << 16)).to(torch.int32)\n-    st[\"ma_w\"] = [torch.cat(wA), torch.cat(sA), weights[\"w13_gs\"].float().contiguous(),\n-                  torch.cat(wB), torch.cat(sB), weights[\"w2_gs\"].float().contiguous(),\n-                  lut.contiguous(), weights[\"post_expert_norm\"].contiguous(),  # bf16; kernel forms 1 + w\n-                  torch.cat([_fat_order(x, y) for x, y in zip(wA, sA)]),\n-                  torch.cat([_fat_order(x, y) for x, y in zip(wB, sB)]),\n-                  torch.cat([_unit_order(x, y) for x, y in zip(wA, sA)]),\n-                  torch.cat([_unit_order(x, y) for x, y in zip(wB, sB)])]\n-    if \"_wgs_on\" in globals() and _wgs_on():   # their prepare(): w[12], w[13] = the WGS copies (per 256-row unit)\n-        st[\"ma_w\"].append(torch.cat([_wgs_copy(weights[\"w13\"][e].view(torch.uint8), weights[\"w13_sf\"][e], rowsA)\n-                                     for e in range(32)]))\n-        st[\"ma_w\"].append(torch.cat([_wgs_copy(weights[\"w2\"][e].view(torch.uint8), weights[\"w2_sf\"][e], rowsB)\n-                                     for e in range(32)]))\n-    # Scratch is sized for every build kernel_fn may pick: a scratch sized\n-    # from the 64-token formula once let the 32-token MID build write past it.\n-    st[\"ma_scratch\"] = [_guarded(t) for t in _ma_make_scratch(dev)]\n+    # All background compilation has joined. Reject preceding CUDA execution faults.\n+    torch.cuda.synchronize()\n+    errors = st.pop('_fork_build_errors')\n+    if not st['_fork_native_eligible'] or errors:\n+        reason = 'native build failed '+str(sorted(errors.items())) if errors else 'scale/architecture fallback'\n+        return _fork_install_fallback(weights, st, reason)\n+    if set(st['ma_ext']) != {'tiny','tiny2','mid','b4','main'}:\n+        raise RuntimeError('unexpected native module keys: '+str(sorted(st['ma_ext'])))\n+    dev = weights['w13'].device\n+    _fork_native_ma_prepare(weights, st)\n+    torch.cuda.synchronize()\n+    for m in (1,8,16,32,33,128,256):\n+        x=torch.zeros((m,4096),device=dev,dtype=torch.bfloat16)\n+        ids=torch.full((m,8),-1,device=dev,dtype=torch.int32)\n+        ids[:,0]=0  # one valid local route; no all-empty scheduler assumption\n+        tw=torch.full((m,8),.125,device=dev,dtype=torch.float32)\n+        out=torch.empty_like(x)\n+        torch.cuda.synchronize()  # input setup faults cannot look like a resource miss\n+        try:\n+            _fork_native_moe(m,st).okc_run(st['ma_w'],st['ma_scratch'],x,ids,tw,out,0,32,\n+                                         torch.cuda.get_device_properties(dev).multi_processor_count)\n+        except RuntimeError as exc:\n+            if 'FORK_MOE_RESOURCE' not in str(exc):\n+                raise\n+            return _fork_install_fallback(weights, st, str(exc)[-300:])\n+        torch.cuda.synchronize()  # launch/execution faults remain fatal\n+    st['_fork_moe_status']='native repaired: cooperative+BF16, MFIN/DF/YBF/PDL off'\n+    print('FORK_MOE_ROUTE',st['_fork_moe_status'],flush=True)"
+    },
+    "_launch7": {
+      "remote": {
+        "line": 10861,
+        "text": "def _launch7(data, dbg=None, _mod=None, pdl=None, **override):\n    cfg = data[\"config\"]\n    B, L = cfg[\"batch\"], cfg[\"q_len\"]\n    hq, hkv, d, P = cfg[\"num_q_heads\"], cfg[\"num_kv_heads\"], cfg[\"head_dim\"], cfg[\"page_size\"]\n    qkv = data[\"qkv\"]\n    device = qkv.device\n    pairs = hkv // 2\n    window = cfg[\"window\"]\n    page_table = data[\"page_table\"]\n    out = torch.empty((B, L, hq * d), dtype=torch.bfloat16, device=device)\n    plan = _plan7(B, pairs, L, window, page_table.shape[1], P, device)\n    tuned = _TUNED7.get((B, L, bool(window), pairs))\n    if tuned and not override:\n        override = tuned\n    if override:\n        plan = dict(plan, **override)\n        if \"cs\" in override and override[\"cs\"] > 1:\n            plan[\"flat\"] = 0\n            if \"ncl\" not in override:\n                plan[\"ncl\"] = max(1, plan[\"n_splits\"] // override[\"cs\"])\n            plan[\"n_splits\"] = plan[\"cs\"] * plan[\"ncl\"]\n            if \"nc\" not in override:\n                plan[\"nc\"] = max(1, min(plan[\"ncl\"], 4))\n        elif \"n_splits\" in override and \"nc\" not in override:\n            plan[\"nc\"] = 1 if plan[\"flat\"] else max(1, min(plan[\"n_splits\"], 4))\n    n_splits, flat, cs, ncl, nc = plan[\"n_splits\"], plan[\"flat\"], plan[\"cs\"], plan[\"ncl\"], plan[\"nc\"]\n    # bit 0: TMA loads (compiled out by default); bit 1: cooperative finalize (all CTAs resident)\n    # cooperative finalize: only for the long single-request grids (their last-CTA finalize reads and zeroes\n    # tens of KB from one SM); the short sliding grids finalize faster in one CTA (measured on H200)\n    if flat:   # grid-wide finalize after all segments (the kernel re-checks residency)\n        coop = int(plan.get(\"coop\", int(OKC_FLATCOOP and L == 8 and\n                                        n_splits * pairs <= 2 * _num_sms7(device))))\n    else:\n        coop = int(plan.get(\"coop\", 0 if (cs > 1 or n_splits < 64) else\n                            int(n_splits * B * pairs <= 2 * _num_sms7(device))))\n    w0 = int(plan.get(\"w0\", (OKC_W0_L1 if L == 1 else OKC_W0_L8) if (flat and (coop or L == 1)) else\n                      (OKC_W0_PR if (coop and not flat and B * pairs == 1) else 1024)))\n    use_pdl = OKC_PDL if pdl is None else bool(pdl)\n    tma = int(plan.get(\"tma\", 0)) | (coop << 1) | (min(max(w0, 0), 4095) << 2) | (int(use_pdl) << 16)\n    if flat or cs <= 1:\n        cs, ncl = 0, 1\n    ws_acc, ws_l, ws_cnt = _workspace7(B * pairs * nc * L * 16, device)\n    n_ctas = n_splits * (1 if flat else B) * pairs\n    scratch, bar = _cluster_bufs7(n_ctas if cs > 1 else 1, L, device)\n    scale_log2 = cfg[\"sm_scale\"] * cfg[\"qk_scale_factor\"] * LOG2E\n    (_mod or _att7()).run(qkv, data[\"seq_lens\"], data[\"cache_loc\"], data[\"k_cache\"], data[\"v_cache\"], page_table,\n                  data[\"k_scale\"], data[\"v_scale\"], _inv_freq(cfg[\"rope_theta\"], device), out, ws_acc, ws_l,\n                  ws_cnt, B, L, hq, hkv, P, window, 1 if cfg[\"rope_theta\"] else 0, n_splits, flat, nc, scale_log2,\n                  dbg, cs, ncl, scratch, bar, tma)\n    return out"
+      },
+      "common_final": {
+        "line": 11263,
+        "text": "def _launch7(data, dbg=None, _mod=None, pdl=None, attention_state=None, prefetch=(0,0), **override):\n    assert attention_state is not None, \"explicit prepared attention owner required\"\n    owner = attention_state[\"attention_scratch\"]\n    cfg = data[\"config\"]\n    B, L = cfg[\"batch\"], cfg[\"q_len\"]\n    hq, hkv, d, P = cfg[\"num_q_heads\"], cfg[\"num_kv_heads\"], cfg[\"head_dim\"], cfg[\"page_size\"]\n    qkv = data[\"qkv\"]\n    device = qkv.device\n    pairs = hkv // 2\n    window = cfg[\"window\"]\n    page_table = data[\"page_table\"]\n    out = torch.empty((B, L, hq * d), dtype=torch.bfloat16, device=device)\n    plan = _plan7(B, pairs, L, window, page_table.shape[1], P, device)\n    tuned = _TUNED7.get((B, L, bool(window), pairs))\n    if tuned and not override:\n        override = tuned\n    if override:\n        plan = dict(plan, **override)\n        if \"cs\" in override and override[\"cs\"] > 1:\n            plan[\"flat\"] = 0\n            if \"ncl\" not in override:\n                plan[\"ncl\"] = max(1, plan[\"n_splits\"] // override[\"cs\"])\n            plan[\"n_splits\"] = plan[\"cs\"] * plan[\"ncl\"]\n            if \"nc\" not in override:\n                plan[\"nc\"] = max(1, min(plan[\"ncl\"], 4))\n        elif \"n_splits\" in override and \"nc\" not in override:\n            plan[\"nc\"] = 1 if plan[\"flat\"] else max(1, min(plan[\"n_splits\"], 4))\n    n_splits, flat, cs, ncl, nc = plan[\"n_splits\"], plan[\"flat\"], plan[\"cs\"], plan[\"ncl\"], plan[\"nc\"]\n    if flat:   # grid-wide finalize after all segments (the kernel re-checks residency)\n        coop = int(plan.get(\"coop\", int(OKC_FLATCOOP and L == 8 and\n                                        n_splits * pairs <= 2 * _num_sms7(device))))\n    else:\n        coop = int(plan.get(\"coop\", 0 if (cs > 1 or n_splits < 64) else\n                            int(n_splits * B * pairs <= 2 * _num_sms7(device))))\n    w0 = int(plan.get(\"w0\", (OKC_W0_L1 if L == 1 else OKC_W0_L8) if (flat and (coop or L == 1)) else\n                      (OKC_W0_PR if (coop and not flat and B * pairs == 1) else 1024)))\n    use_pdl = OKC_PDL if pdl is None else bool(pdl)\n    tma = int(plan.get(\"tma\", 0)) | (coop << 1) | (min(max(w0, 0), 4095) << 2) | (int(use_pdl) << 16)\n    if flat or cs <= 1:\n        cs, ncl = 0, 1\n    ws_acc, ws_l, ws_cnt = _workspace7(B * pairs * nc * L * 16, device, owner)\n    n_ctas = n_splits * (1 if flat else B) * pairs\n    scratch, bar = _cluster_bufs7(n_ctas if cs > 1 else 1, L, device, owner)\n    scale_log2 = cfg[\"sm_scale\"] * cfg[\"qk_scale_factor\"] * LOG2E\n    (_mod or _att7()).run(qkv, data[\"seq_lens\"], data[\"cache_loc\"], data[\"k_cache\"], data[\"v_cache\"], page_table,\n                  data[\"k_scale\"], data[\"v_scale\"], _inv_freq(cfg[\"rope_theta\"], device), out, ws_acc, ws_l,\n                  ws_cnt, B, L, hq, hkv, P, window, 1 if cfg[\"rope_theta\"] else 0, n_splits, flat, nc, scale_log2,\n                  dbg, cs, ncl, scratch, bar, tma, *prefetch)\n    return out"
+      },
+      "diff": "--- \n\n+++ \n\n@@ -1,3 +1,5 @@\n\n-def _launch7(data, dbg=None, _mod=None, pdl=None, **override):\n+def _launch7(data, dbg=None, _mod=None, pdl=None, attention_state=None, prefetch=(0,0), **override):\n+    assert attention_state is not None, \"explicit prepared attention owner required\"\n+    owner = attention_state[\"attention_scratch\"]\n     cfg = data[\"config\"]\n     B, L = cfg[\"batch\"], cfg[\"q_len\"]\n@@ -25,7 +27,4 @@\n\n             plan[\"nc\"] = 1 if plan[\"flat\"] else max(1, min(plan[\"n_splits\"], 4))\n     n_splits, flat, cs, ncl, nc = plan[\"n_splits\"], plan[\"flat\"], plan[\"cs\"], plan[\"ncl\"], plan[\"nc\"]\n-    # bit 0: TMA loads (compiled out by default); bit 1: cooperative finalize (all CTAs resident)\n-    # cooperative finalize: only for the long single-request grids (their last-CTA finalize reads and zeroes\n-    # tens of KB from one SM); the short sliding grids finalize faster in one CTA (measured on H200)\n     if flat:   # grid-wide finalize after all segments (the kernel re-checks residency)\n         coop = int(plan.get(\"coop\", int(OKC_FLATCOOP and L == 8 and\n@@ -40,11 +39,11 @@\n\n     if flat or cs <= 1:\n         cs, ncl = 0, 1\n-    ws_acc, ws_l, ws_cnt = _workspace7(B * pairs * nc * L * 16, device)\n+    ws_acc, ws_l, ws_cnt = _workspace7(B * pairs * nc * L * 16, device, owner)\n     n_ctas = n_splits * (1 if flat else B) * pairs\n-    scratch, bar = _cluster_bufs7(n_ctas if cs > 1 else 1, L, device)\n+    scratch, bar = _cluster_bufs7(n_ctas if cs > 1 else 1, L, device, owner)\n     scale_log2 = cfg[\"sm_scale\"] * cfg[\"qk_scale_factor\"] * LOG2E\n     (_mod or _att7()).run(qkv, data[\"seq_lens\"], data[\"cache_loc\"], data[\"k_cache\"], data[\"v_cache\"], page_table,\n                   data[\"k_scale\"], data[\"v_scale\"], _inv_freq(cfg[\"rope_theta\"], device), out, ws_acc, ws_l,\n                   ws_cnt, B, L, hq, hkv, P, window, 1 if cfg[\"rope_theta\"] else 0, n_splits, flat, nc, scale_log2,\n-                  dbg, cs, ncl, scratch, bar, tma)\n+                  dbg, cs, ncl, scratch, bar, tma, *prefetch)\n     return out"
+    },
+    "bfp__static_choice": {
+      "remote": {
+        "line": 9589,
+        "text": "def bfp__static_choice(layer, m, state):\n    route = bfp__route(layer, m, state[\"sm90\"])\n    if not state.get(\"old_paths\", True):\n        if route == \"skinny\":\n            route = \"sk2\" if (bfp__sk2_name(layer, m) in state.get(\"sk2\", {})\n                              and bfp__route_key(layer, m, \"sk2\") not in state.get(\"disabled\", ())) else \"torch\"\n        elif route == \"wide\" and layer != \"router\" and not bfp_WIDE_BF16:\n            route = \"torch\"\n    if route != \"torch\" and bfp__route_key(layer, m, route) in state.get(\"disabled\", ()):\n        # fall back: router -> the wgmma GEMM (validated earlier) when possible, else cuBLAS\n        route = \"gemm\" if (layer == \"router\" and route == \"wide\" and state[\"sm90\"]\n                           and bfp__route_key(layer, m, \"gemm\") not in state[\"disabled\"]) else \"torch\"\n    if route == \"skinny\":\n        mtk = bfp__mt_key(m)\n        return (\"skinny\", bfp_TMA_CONFIGS[(layer, mtk)], (layer, mtk))\n    return (route,)"
+      },
+      "common_final": {
+        "line": 10000,
+        "text": "def bfp__static_choice(layer, m, state):\n    route = bfp__route(layer, m, state[\"sm90\"])\n    if not state.get(\"old_paths\", True):\n        if route == \"skinny\":\n            route = \"sk2\" if (bfp__sk2_name(layer, m) in state.get(\"sk2\", {})\n                              and bfp__route_key(layer, m, \"sk2\") not in state.get(\"disabled\", ())) else \"torch\"\n        elif route == \"wide\" and layer != \"router\" and not bfp_WIDE_BF16:\n            route = \"torch\"\n    if route != \"torch\" and bfp__route_key(layer, m, route) in state.get(\"disabled\", ()):\n        route = \"gemm\" if (layer == \"router\" and route == \"wide\" and state[\"sm90\"]\n                           and bfp__route_key(layer, m, \"gemm\") not in state[\"disabled\"]) else \"torch\"\n    if route == \"skinny\":\n        mtk = bfp__mt_key(m)\n        return (\"skinny\", bfp_TMA_CONFIGS[(layer, mtk)], (layer, mtk))\n    return (route,)"
+      },
+      "diff": "--- \n\n+++ \n\n@@ -8,5 +8,4 @@\n\n             route = \"torch\"\n     if route != \"torch\" and bfp__route_key(layer, m, route) in state.get(\"disabled\", ()):\n-        # fall back: router -> the wgmma GEMM (validated earlier) when possible, else cuBLAS\n         route = \"gemm\" if (layer == \"router\" and route == \"wide\" and state[\"sm90\"]\n                            and bfp__route_key(layer, m, \"gemm\") not in state[\"disabled\"]) else \"torch\""
+    }
+  },
+  "large_literal_identities": {
+    "remote": [
+      {
+        "targets": [
+          "ATT7_CUDA_SRC"
+        ],
+        "line": 113,
+        "bytes": 191287,
+        "sha256": "281b0a2f4f6e528fe594a333d84f407b6aee611bd554f41d9baebefd1ecbae61",
+        "git_blob": "8ba8193993aa9f100241507ae013de1861562e20"
+      },
+      {
+        "targets": [
+          "MOE_CUDA_SRC"
+        ],
+        "line": 3860,
+        "bytes": 138096,
+        "sha256": "76568494bc33645de062e3129666338f755a8b7ea5704a5c2c921fdb69ef3d78",
+        "git_blob": "c8ace7727d2187f12cf981c3fbcc918939c1a58c"
+      }
+    ],
+    "common": [
+      {
+        "targets": [
+          "ATT7_CUDA_SRC"
+        ],
+        "line": 108,
+        "bytes": 193776,
+        "sha256": "fc9476460c27d90b2521593313f61fa97adfda14d1be07f16519acdaefafe106",
+        "git_blob": "e87c25ec3a4f155da701eb3f0811ef9907f9d6b9"
+      },
+      {
+        "targets": [
+          "MOE_CUDA_SRC"
+        ],
+        "line": 3869,
+        "bytes": 155790,
+        "sha256": "c7c201ae145c6a33f2d5e6b1f80d2a6e56e8d75502f9fd09ace40927ad0f7c71",
+        "git_blob": "10fdf0b766a0e68640fcbf1aec3b9d453ba6a58c"
+      },
+      {
+        "targets": [
+          "_MA_ALT_SRCS['moe_helper0']"
+        ],
+        "line": 12509,
+        "bytes": 139768,
+        "sha256": "b8ed85438c06673f411ff4203080bfbacd0c0c2dc5cb624e6f10d4877fe7a716",
+        "git_blob": "d4fe3c3410b5c0a38888ab4ecec5452f86c7bd66"
+      }
+    ]
+  },
+  "chord_correction": {
+    "chord_kernels/operator/grouped/heuristics.py": {
+      "bytes": 17859,
+      "sha256": "b66cb485accae3f8ce96c31eb3ebf6504298d470b204c5a3bc0aaec0f7700ea4",
+      "git_blob": "c272fe6ad8c5a6f24bdd0c1a23cbba3f25005bf4",
+      "line_count": 458,
+      "anchors": [
+        {
+          "line": 258,
+          "text": "def _ctas_per_sm(desc: W4A16GemmDesc, layout: W4A16Layout) -> int:"
+        },
+        {
+          "line": 268,
+          "text": "    (docs/performance.md): 2 CTAs wins 3-8% at ``block_m`` 16/24 once the"
+        },
+        {
+          "line": 269,
+          "text": "    doubled grid runs at least two waves, and loses 7-15% below that (one wave,"
+        },
+        {
+          "line": 279,
+          "text": "    if _get_pipeline_config(desc, layout, storage, 2).num_stages < 3:"
+        },
+        {
+          "line": 281,
+          "text": "    if _masked_num_blocks(desc, layout) < 2 * 2 * desc.num_sms:"
+        }
+      ]
+    },
+    "docs/performance.md": {
+      "bytes": 8588,
+      "sha256": "67c05acaa5733a70cb339f1bf162d78c33b37c8aff2c8db42458e43b03894b40",
+      "git_blob": "8381cdf7e9c57e4563f112b92b759eec5143991b",
+      "line_count": 169,
+      "anchors": []
+    }
+  }
+}

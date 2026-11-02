@@ -1,5 +1,13 @@
 # Broader expert pipeline: fixed two-CTA alternative, not yet a material contender
 
+## Dated attribution correction ? November 2, 2026, approximately05:22UTC
+
+Complete ruwwww qualification now resides in [the new report](2026-11-01-ruwwww-complete-qualification.md), superseding this report's preliminary receipt/adoption gap and layer inference from the standalone MoE. In particular, the layer literal itself has no KPERM3 definition; do not attribute the standalone source's packing defines to its complete selected layer.
+
+The3?8% favorable /7?15% unfavorable two-CTA numbers cited below are **author-reported empirical comments in `chord_kernels/operator/grouped/heuristics.py::_ctas_per_sm`**, not a retained controlled experiment/receipt or a two-CTA ablation table in `docs/performance.md#L152`. The phrase below calling these 'historical, unmatched measurements' overstates the available evidence; read it as author comments without a retained controlled receipt. The primary heuristic requires **at least two doubled-grid waves as well as at least three stages**, plus its masked-tile restrictions. Three stages alone is insufficient. This correction does not reopen G2/24; captain's HOLD remains.
+
+At our retained immutable pin `6199d44a863a165139d2fd8387b307bbe21f1ca9`, GitHub blob `c272fe6ad8c5a6f24bdd0c1a23cbba3f25005bf4` places the function at258, gain/loss comments at268?270, stage rejection at279 and doubled-grid rejection (`_masked_num_blocks < 2 * 2 * desc.num_sms`) at281. Function+blob are the robust locator where line numbering differs between reads. The API-returned performance document blob `8381cdf7e9c57e4563f112b92b759eec5143991b` has169lines in this read, not the captain's145-line observation; neither observation makes performance.md#L152 support those specific ablation numbers. The [new evidence](evidence/2026-11-01-ruwwww-complete-qualification/analysis.json) preserves both exact blob identities/line counts. Supersedes the locator and evidence-strength wording below, without changing any source pins or redesigning the mechanism.
+
 November1 Pacific / November2UTC2026. Bounded SOURCE/CPU allocation begun approximately04:17UTC; primary-source/evidence refresh04:53UTC. Evidence checkout `ddbed42cfa765307081dcd16309e78780f77f46c`; roadmap input5418771. No GPU, challenge CLI, compilation, installs, production edits, delegates, table work or outgoing-seam re-audit. Worker owns c473970 qualification. Captain owns README. Only this report and its evidence prefix are published.
 
 ## Decision for captain
