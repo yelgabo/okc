@@ -1,5 +1,7 @@
 # Architecture families, 2026-10-29
 
+[Current incumbent architecture and performance diagrams, November 2](incumbent-architecture-2026-11-02.html).
+
 Companion to the [steering plan](plan-2026-10-29-steering.md), preserving the five families
 from the [okc research conversation](https://chatgpt.com/c/6ae2a61c-e130-83e8-99a5-aa0567af0482).
 Repository evidence below is pinned to `aab7d75`. This document records existing results and

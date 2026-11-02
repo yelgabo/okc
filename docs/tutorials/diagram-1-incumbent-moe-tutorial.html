@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="dark">
-<title>Diagram-1 | The Incumbent MoE — Animated Tutorial</title>
+<title>October 29 MoE architecture tutorial</title>
 <style>
 :root{--bg:#11100f;--surface:#1d1a18;--panel:#26211e;--border:#514137;--text:#eee7e0;--muted:#aba093;--orange:#f1985b;--blue:#84afe0;--green:#77cba6;--gold:#f1c392}
 *{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:radial-gradient(ellipse 1000px 450px at 50% -150px,#39271d 0,transparent 85%),var(--bg);color:var(--text);font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;line-height:1.55}
@@ -20,9 +20,10 @@ input[type=range]{appearance:none;width:100%;height:7px;border-radius:5px;backgr
 <body>
 <main class="page">
 <div class="eyebrow">Diagram-1 Series / Visual GPU Tutorial</div>
-<h1 class="heading">Follow the orange squares<br>through the incumbent MoE.</h1>
-<p class="intro">An interactive, step-by-step explanation of what our current Muse MoE implementation <em>actually computes</em>. Watch features split, transform, land in GPU memory, get mixed by matrix multiplications, and combine across experts.</p>
-<div class="stamp">Recorded whole-layer incumbent: 1.964× · H200 · 128-token mode 28</div>
+<h1 class="heading">Follow the orange squares<br>through the October 29 MoE.</h1>
+<p class="intro">An interactive, step-by-step explanation of what the October 29 Muse MoE implementation <em>actually computes</em>. Watch features split, transform, land in GPU memory, get mixed by matrix multiplications, and combine across experts.</p>
+<div class="stamp">Historical October 29 snapshot · 1.964× · 128-token mode 28</div>
+<p class="sources"><a href="../incumbent-architecture-2026-11-02.html">Open the November 2 incumbent architecture and speedup diagrams</a>.</p>
 <nav class="chapters" aria-label="Tutorial chapters">
 <button class="chapter active" data-chapter="0" aria-current="step"><span class="tag">Chapter 01 · Before the kernel</span><strong>Routing &amp; preparation</strong><span>Which experts handle this token?</span></button>
 <button class="chapter" data-chapter="1"><span class="tag">Chapter 02 · diagram-1</span><strong>Gate, Up &amp; SiLU</strong><span>Watch the same squares enter Xᵦ.</span></button>
