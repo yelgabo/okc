@@ -22,6 +22,8 @@ This is the stable cross-session entry point. Read the latest report, its eviden
 
 ## Active top-100 execution
 
+[Standalone component harness allocation](2026-11-02-top100-moe-adapter.md): parent reproduced10 real-Torch adapter tests; official candidate arm plus four-state matched component harness allocated, with frozen equal-six/null/regression gates. No dispatch or layer-speed claim.
+
 Parent harness integration: 22 source/facade tests reproduced. Existing WSL Torch2.10 environment recovered from prior host receipt and real storage probe passed; supersedes the earlier dependency-blocker conclusion. [Dated correction and bounded full host validation allocation](2026-11-02-top100-expert-harness.md). Draft remains held; no target result.
 
 [November 2: Standalone expert qualification allocation](2026-11-02-top100-moe-qualification.md) - saved allocation-time quota: ten MoE private checks, zero layer checks; recheck before dispatch. Bounded exact-component adapter implementation; no dispatch or measured gain, whole-layer gates retained.
