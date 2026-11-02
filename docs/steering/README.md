@@ -4,6 +4,8 @@ This is the stable cross-session entry point. Read the latest report, its eviden
 
 ## Latest standalone component harness
 
+[Captain one-check allocation](2026-11-02-captain-moe-one-check-allocation.md): exact executable8f12932a/344689LF and readerdc0fd553 independently regenerated/pinned. Existing worker alone authorized ONE private MoE check after fresh quota/no-live; no retry, public/scored action, tuning or layer-gate substitution.
+
 [November 2: Bounded candidate-official MoE harness](2026-11-02-top100-moe-harness.md) - implementation785846d, allocationca5cf8f. Held344688B payload557c67fe preserves adapter19aeaf35 and exact native identities. Four independent placements/private captured inputs, all54 routing/replay cases, equal-six paired-cross/null/regression gates and strict standalone5/6/6 receipt reader. Eleven complete-entry reduced real-Torch/facade tests plus10 adapter regressions PASS. Full production preparation and all target gates remain open; dispatch_ready=false, no job or speed/layer claim.
 
 ## Latest standalone component adapter
