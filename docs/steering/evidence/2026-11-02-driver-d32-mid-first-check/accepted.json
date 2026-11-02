@@ -1,0 +1,8 @@
+{
+  "job": "a6fe2769779e4299",
+  "problem": "muse_decode_layer",
+  "physical_source_sha256": "e607fb894b7ca9fb8c0245d986e1c1894024295efd5b1509ac5b8314329ca089",
+  "source_commit": "28346bf563789879bcec28e52edeb05753a6b3f0",
+  "mode": "check",
+  "observed_utc": "2026-11-02T23:57:29.457980+00:00"
+}

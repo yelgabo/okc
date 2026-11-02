@@ -1,0 +1,102 @@
+{
+  "docs\\steering\\evidence\\2026-11-02-driver-d32-mid-first-check\\accepted.json": {
+    "bytes": 306,
+    "sha256": "9834bca9d02d7e8e4d4fa66e393df94ed741423bca0516d4920f263b2a07d40c"
+  },
+  "docs\\steering\\evidence\\2026-11-02-driver-d32-mid-first-check\\board-and-quota-summary.json": {
+    "bytes": 924,
+    "sha256": "3662de5a88103349876b169d1d6a2fcfef235cf4ef47b7797c465acfd5563e33"
+  },
+  "docs\\steering\\evidence\\2026-11-02-driver-d32-mid-first-check\\dispatch-started.json": {
+    "bytes": 758,
+    "sha256": "dd47389bdf937e6e8776c35185f2fa85477676c480ed282f7377c968a025f749"
+  },
+  "docs\\steering\\evidence\\2026-11-02-driver-d32-mid-first-check\\dispatch.exit.txt": {
+    "bytes": 3,
+    "sha256": "13bf7b3039c63bf5a50491fa3cfd8eb4e699d1ba1436315aef9cbe5711530354"
+  },
+  "docs\\steering\\evidence\\2026-11-02-driver-d32-mid-first-check\\dispatch.stderr.txt": {
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "docs\\steering\\evidence\\2026-11-02-driver-d32-mid-first-check\\dispatch.stdout.json": {
+    "bytes": 73,
+    "sha256": "023b2df1c140ddd27b74aff5f4dfe9a604a03f9a90f6291403e6dc2c0305719d"
+  },
+  "docs\\steering\\evidence\\2026-11-02-driver-d32-mid-first-check\\initial-status.json": {
+    "bytes": 407,
+    "sha256": "6d1b8201dc6b376e417287b20fce96eb64362ae0054e57f64b138bb22c7fc460"
+  },
+  "docs\\steering\\evidence\\2026-11-02-driver-d32-mid-first-check\\initial-status.stderr.txt": {
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "docs\\steering\\evidence\\2026-11-02-driver-d32-mid-first-check\\postaccept-quota.json": {
+    "bytes": 1631,
+    "sha256": "eb54301e641f60f3359c2986c7b19b05a88366cee7531d8d11c4f9a86f123c44"
+  },
+  "docs\\steering\\evidence\\2026-11-02-driver-d32-mid-first-check\\preconditions.json": {
+    "bytes": 758,
+    "sha256": "dd47389bdf937e6e8776c35185f2fa85477676c480ed282f7377c968a025f749"
+  },
+  "docs\\steering\\evidence\\2026-11-02-driver-d32-mid-first-check\\preflight-auth.stderr.txt": {
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "docs\\steering\\evidence\\2026-11-02-driver-d32-mid-first-check\\preflight-auth.stdout.json": {
+    "bytes": 9,
+    "sha256": "75a46881952a73ee4f7e2487cbc3dd97ae86319acadec9c0222bf4038486cf8f"
+  },
+  "docs\\steering\\evidence\\2026-11-02-driver-d32-mid-first-check\\preflight-jobs.stderr.txt": {
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "docs\\steering\\evidence\\2026-11-02-driver-d32-mid-first-check\\preflight-jobs.stdout.json": {
+    "bytes": 14424,
+    "sha256": "3ea8d542ffd28b0d5e9e038ee721d91bb066fcc6270656fa4bc05cd1dc82a5ce"
+  },
+  "docs\\steering\\evidence\\2026-11-02-driver-d32-mid-first-check\\preflight-layer.stderr.txt": {
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "docs\\steering\\evidence\\2026-11-02-driver-d32-mid-first-check\\preflight-layer.stdout.json": {
+    "bytes": 272604,
+    "sha256": "979869ced3f16b76ceba65926073c86b864ca665784bd8084c318da29e0c38a0"
+  },
+  "docs\\steering\\evidence\\2026-11-02-driver-d32-mid-first-check\\preflight-overall.stderr.txt": {
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "docs\\steering\\evidence\\2026-11-02-driver-d32-mid-first-check\\preflight-overall.stdout.json": {
+    "bytes": 157342,
+    "sha256": "c6456e0cd283aec4813a65c01d326dbf02a108784b075e12bdd9178126c6a339"
+  },
+  "docs\\steering\\evidence\\2026-11-02-driver-d32-mid-first-check\\preflight-quota.stderr.txt": {
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "docs\\steering\\evidence\\2026-11-02-driver-d32-mid-first-check\\preflight-quota.stdout.json": {
+    "bytes": 1631,
+    "sha256": "eb54301e641f60f3359c2986c7b19b05a88366cee7531d8d11c4f9a86f123c44"
+  },
+  "docs\\steering\\evidence\\2026-11-02-driver-d32-mid-first-check\\preflight-time.json": {
+    "bytes": 54,
+    "sha256": "775f26cee086554e8875cc0fe639082de3d7ea305b5f0d0ba41e4cd9b28d8305"
+  },
+  "docs\\steering\\evidence\\2026-11-02-driver-d32-mid-first-check\\publication.json": {
+    "bytes": 392,
+    "sha256": "4abe27c8b8dff310db0ff521b32dda0614b565190792c2b16fe6170f703b4f42"
+  },
+  "docs\\steering\\evidence\\2026-11-02-driver-d32-mid-first-check\\root-cpu-tests.txt": {
+    "bytes": 358,
+    "sha256": "92539e4dc84a319332e03f8d234d37efdb0a709da6972d43682c45ef8456d1ea"
+  },
+  "docs\\steering\\evidence\\2026-11-02-driver-d32-mid-first-check\\source-review.json": {
+    "bytes": 864,
+    "sha256": "8b93f7f029b47d741f39fd3f9a988f845521e653db979102ab363f4008f19651"
+  },
+  "docs\\steering\\evidence\\2026-11-02-driver-d32-mid-first-check\\upload-association.json": {
+    "bytes": 606,
+    "sha256": "cad78c08dd31d2f9874db4ea4d557c712f8962255de46a4a2e3764f2627061f7"
+  }
+}

@@ -2,6 +2,10 @@
 
 This is the stable cross-session entry point. Read the latest human priority, its evidence snapshot and subsequent commits before continuing. Existing captain/worker ownership, correctness requirements and submission permissions remain in effect. A report is not an additional GPU dispatch.
 
+## Active captain-owned measurement
+
+**[D32 MID private check a6fe2769779e4299 accepted](2026-11-02-driver-d32-mid-first-check.md)** — sourcee607fb89/870649LF, published28346bf5 and49remote blobs verified. Fresh6private/no-live, calibration94ef terminalvalid; one ordinary exploration, root alone waits. Require actualMID/native56replay and13/12/12 gates. No target result/public permission. Existing developer's frozen source and separate user-created attention implementation remain under their respective owners.
+
 ## Latest assignment: Decode32 Worker — full-context attention
 
 **[D32-ATTN-01: implement one isolated full-decode attention candidate](decode32/2026-11-02-01-full-decode-attention.md)** is now posted for the user-created **Decode32 Worker**. The user clarified that it was waiting for tasks, not already implementing one. Start source/code work on T32/q_len1 full-context attention, independently of the existing MID MoE comparison. Deliver a reproducible full-layer candidate plus focused tests and a Driver measurement handoff, or a concrete blocker. Preferred cross-tile-overlap hypothesis must first be reconciled with actual selected code and prior scoped failures; no gain is assumed.
@@ -44,6 +48,7 @@ Captain retains one cheap fixed17..32 MID-versus-B4 ordinary private measurement
 
 | Report | Evidence | Scope |
 |---|---|---|
+| [D32 MID accepted check](2026-11-02-driver-d32-mid-first-check.md) | own a6fe2769779e4299; source28346bf5/e607fb89 | One ordinary private exploration; fresh6checks/no-live; calibration done; target gates and scoped stop, no public/default authority |
 | [Calibration terminal and MID qualification gate](2026-11-02-driver-d32-control-terminal-and-mid-gate.md) | own94ef698e91964dfa; exactMIDe607fb89; independent source/CPU review | Unchanged calibration valid2.091747685x; D32 C32=12.324230ms,1.81179x. Fixed MID source accepted for one private exploration; no target result or public permission |
 | [Fixed MID implementation](2026-11-02-worker-d32-mid-family.md) | ba9 control; MIDb8; e607fb89/870649LF | Existing MID for17..32, unchanged shaders/math; actual entry/cache/neighbor CPU gates; target native/replay qualification pending |
 | [D32-ATTN-01 implementation task](decode32/2026-11-02-01-full-decode-attention.md) | a4192dec inbox; user-created worker; existing D32 plan and continuity source | Separate Decode32 Worker attention track, candidate/tests handoff, sole Driver dispatch; explicit23:55UTC pickup at69cf82b3 |
