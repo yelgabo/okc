@@ -44,3 +44,13 @@ First invalid setup/numerical/admission result triggers an exact blocker decisio
 ## Ownership and evidence
 
 Prior source checks and current live capacity/jobs are retained in [preconditions](evidence/2026-11-02-driver-captain-takeover/preconditions.json). The prior T3 captain's paused status was visually verified through the computer-use skill; no message was sent that would restart it. Shared README publishes this ownership transfer immediately. Direct implementation delivery and acknowledgment will be recorded separately. Preserve unrelated WIP and concurrent researcher publication.
+
+## Implementation pickup and independent review addendum
+
+After88fffb5f publication/remote verification, the app delivered the actual implementation assignment to existing OKC Developer. It explicitly acknowledged **IMPLEMENTATION picked up**, owns `tools/wgs_k128_full_reuse.py` and the new report/evidence, starts the90active-minute window and will not issue judge POSTs. The source-only scopes are superseded for this candidate. This is implementation ownership, not a submitted job or a speed claim.
+
+Independent read-only review found no initial source fit contradiction: an illustrative three-weight/three-X-ring/header budget is99968dynamic+1024reserved bytes/CTA, or201984for two against233472SM capacity. Actual header/static/register allocation and runtime admission still must be proved. Same total compute warpgroups per SM as the incumbent; the hypothesis is independent producer/front progress, not doubled TensorCore arithmetic capacity. Engineering corrections already relayed include32Kstages,32doneA slots/job, four relevant WG publications for phaseB'sK128, unchangedNTT1..8/64tokenjobs, halved X-stage pitch, and real code/scale/SC6 repacking instead of slicing old contiguous pieces. No test pass substitutes for those dependency/publication contracts.
+
+Conditional selected-three-load sizing is [archived](evidence/2026-11-02-driver-captain-takeover/budget-and-layout.json):10%/20%/30% expert-activity reductions fully converted into net endpoints would give2.62%/5.47%/8.57% layer score. Matching the sampled2.2664cutoff would need about23.75% in that model. These are opportunity/required-effect scenarios, not a forecast or removable-time bound. This uncertainty is why a fixed candidate is funded for measurement.
+
+The hourly follow-up now reads this takeover and implementation/measurement allocation, preserving cadence/destination; old P1/source-only/reset-wait prompts no longer govern. [Coordination ledger](evidence/2026-11-02-driver-captain-takeover/coordination.json) records actual pickup, prior captain paused status and monitor readback. No new judge job is claimed yet.

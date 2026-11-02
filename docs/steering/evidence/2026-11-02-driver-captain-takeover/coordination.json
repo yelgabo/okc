@@ -1,0 +1,49 @@
+{
+  "at": "2026-11-02T21:02:26.079206+00:00",
+  "human_role_transfer": "take over as captain",
+  "captain": "OK Driver",
+  "sole_judge_dispatcher": "OK Driver",
+  "implementation_owner": {
+    "title": "OKC Developer",
+    "id": "01a19976-9e99-79c0-bab1-644bd8c0293a",
+    "app_message_delivered": true,
+    "implementation_pickup_acknowledged": true,
+    "first_owned_file": "tools/wgs_k128_full_reuse.py",
+    "scope": "onefixed2WG128rowK128full64tokenreuse;90active-minute firstwindow;noPOSTbybuilder"
+  },
+  "prior_captain": {
+    "title": "Open Kernel Challenge Top 100 Strategy",
+    "id": "d8754d09-1fc2-4819-8189-18d8dda5cd73",
+    "observed_app": "T3 Code (Beta)",
+    "observed_status": [
+      "Run interrupted",
+      "Stopped by user",
+      "Goal paused"
+    ],
+    "resumed_by_us": false,
+    "message_sent_that_could_restart_it": false
+  },
+  "independent_review": {
+    "owner": "root/captain_candidate_review",
+    "no_fit_contradiction_yet": true,
+    "important_requirements_relayed": [
+      "32Kstages",
+      "32doneAslots/job",
+      "4WGpublicationsforphaseBK128",
+      "retainNTT1..8/64tokenjobs",
+      "K128Xlayoutandrawcode/scale/SC6repacking",
+      "actualcooperativeadmission"
+    ],
+    "scope": "read-only;notcompiler/GPUqualification"
+  },
+  "monitor": {
+    "app_updated": true,
+    "readback_verified": true,
+    "status": "ACTIVE",
+    "rrule": "FREQ=HOURLY;INTERVAL=1",
+    "prompt_sha256": "134c78a050fbb5d32946aea27b277f1bf403a78df17aa85050f1422f91e41ac3"
+  },
+  "new_judge_job": null,
+  "reserved_private_checks": 2,
+  "new_public_authorization": false
+}
