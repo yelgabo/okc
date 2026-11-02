@@ -1,0 +1,5 @@
+{
+  "path": "docs\\steering\\evidence\\2026-11-01-worker-outgoing-slice8\\summary.json",
+  "sha256": "116d27df3b5c611af7e988422244ab2798e03f228d9eedcc71452aa8110d27cb",
+  "status": "Uncommitted worker WIP observed read-only. Not independently executed, published, compiled or GPU qualified."
+}
