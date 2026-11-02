@@ -1,0 +1,32 @@
+{
+  "inspected_source_sha256": "3c1b45537d9cc8d8c237d93ee2d4a0a14b1c9c3d6d27e54e983535ab1ff996ce",
+  "inspected_host_sha256": "edf8da0afd94bfc16cf107ff7ed3045a475abf5041aecc75e5e5a60e08193bd4",
+  "context_sync_present": true,
+  "event_record_present": false,
+  "context_sync_counterexample": {
+    "events": [
+      "A eager read submitted",
+      "A host owner retired",
+      "B independent stream capture starts",
+      "A helper resumes",
+      "A helper requests context synchronization"
+    ],
+    "context_contains_active_capture": true,
+    "operation_permitted_by_capture_contract": false
+  },
+  "proposed_event_scope_model": {
+    "events": [
+      "A eager read submitted",
+      "A host owner retired",
+      "B independent stream capture starts",
+      "A helper resumes",
+      "A helper waits only A noncaptured completion event"
+    ],
+    "context_contains_active_capture": true,
+    "targets_unrelated_capture": false,
+    "operation_permitted_by_capture_contract": true,
+    "assumption": "event was recorded after A eager read outside capture"
+  },
+  "scope": "Synthetic contract schedule only. No actual CUDA/driver/compiler call or observed judge failure.",
+  "event_protocol_implemented_or_qualified": false
+}

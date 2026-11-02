@@ -1,0 +1,8 @@
+Command: WSL host-validate Python tools/test_g_pr_graph_owner.py
+Scope: unpublished inspected revision; CPU/source mocks only, not host/CUDA build or runtime.
+Exit: 0
+.............
+----------------------------------------------------------------------
+Ran 13 tests in 14.085s
+
+OK
