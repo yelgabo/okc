@@ -1,0 +1,169 @@
+{
+  "at": "2026-11-02T05:18:06.017Z",
+  "job": "9adfd4dbc98f4998",
+  "physical_upload_sha256": "f25d714e928835fba07741ca56fa8783137032f268652c22ec4f5511d771bc9a",
+  "frozen_reader_sha256": "5435108e9eb729c7fe1f705244845cc7c916b9af780081e682c83ae81f736c1b",
+  "outcome": "invalid/incomplete setup: graph query runtime failure; STOP allocation; no retry",
+  "files": [
+    {
+      "path": "docs/steering/evidence/2026-11-01-worker-outgoing-pair/accepted-status.json",
+      "bytes": 395,
+      "sha256": "20685c7a1f509ec3011f63d0d64089d8b8e26efa50a6430836304aa767b4cf26"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-01-worker-outgoing-pair/check.py.gz",
+      "bytes": 251509,
+      "sha256": "347a77302246b6a91c3148a7ba3eca3fe33e3b7ad817c331b553dc80323ad3cb"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-01-worker-outgoing-pair/cpu-tests.txt",
+      "bytes": 2283,
+      "sha256": "fc323b79148ee9c3950e3b8803fbc40cd04430813b8d39c4164b0af967b8fd3b"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-01-worker-outgoing-pair/dispatch-intent.json",
+      "bytes": 494,
+      "sha256": "3a634856097bdfd09986681a777e5d2d117867a232e55f327bd6bead7226d673"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-01-worker-outgoing-pair/dispatch.json",
+      "bytes": 69,
+      "sha256": "e2354bcbe1c24f2eadbc098a31e91738f1f76bec4b58a4322c2bb78d1562d63d"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-01-worker-outgoing-pair/dispatch.transport.json",
+      "bytes": 125,
+      "sha256": "45c3de405c1603bf4ca3b9eb1e7a6d70715143f61df4f38a051dbc1fe007617b"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-01-worker-outgoing-pair/frozen-reader-rejection.json",
+      "bytes": 1563,
+      "sha256": "65546207fbde8097952e6fab7e443607962c73d37e0b60b940e7e572c6b07272"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-01-worker-outgoing-pair/latest-status.json",
+      "bytes": 395,
+      "sha256": "20685c7a1f509ec3011f63d0d64089d8b8e26efa50a6430836304aa767b4cf26"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-01-worker-outgoing-pair/manifest.json",
+      "bytes": 1276,
+      "sha256": "00e1b3976836c2a00e9e7cb1fa004a9e7f25c8508607fea928c9c034b1e6d0d6"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-01-worker-outgoing-pair/native-resource-observation.json",
+      "bytes": 3500,
+      "sha256": "8413a55b61e1e28851982c0061fff2bbbb03b170853e8ff6f68b29989b98309a"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-01-worker-outgoing-pair/offline-pins.json",
+      "bytes": 2598,
+      "sha256": "98d6a424583ad26f9de00ac10553c51694dfaf16ef25a39ce90010907cce5327"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-01-worker-outgoing-pair/own-terminal-receipt.json",
+      "bytes": 6553,
+      "sha256": "b470eb482e39c87f3d9329176a633d0c0ea21d503356134aa99c759d6e42df78"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-01-worker-outgoing-pair/own-terminal-transport.json",
+      "bytes": 147,
+      "sha256": "302d93b0bd82977ef25ed5fbd2e41477c75a7b162e7a03d78223bd0aeb41b804"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-01-worker-outgoing-pair/post-dispatch-quota.json",
+      "bytes": 1536,
+      "sha256": "6490ba6b529326ae7c9c030cf612b02e6a3e1d377debfedcf319bf1798cc6b80"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-01-worker-outgoing-pair/preflight-jobs.json",
+      "bytes": 13839,
+      "sha256": "3b3399d4daf2bf8786db7f507e5f81b406cc57b3d4220a65c4ead0087852a3cd"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-01-worker-outgoing-pair/preflight-quota.json",
+      "bytes": 1536,
+      "sha256": "0a290171aa1addc510184e02f1a88349cec504e120c08029d7baad01fbf2d971"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-01-worker-outgoing-pair/preregistration-remote.json",
+      "bytes": 1468,
+      "sha256": "83409c4432af9575320fcad8f3b26a582bb99827186f0a57aea0a2c55dc5a8f4"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-01-worker-outgoing-pair/running-status.json",
+      "bytes": 395,
+      "sha256": "20685c7a1f509ec3011f63d0d64089d8b8e26efa50a6430836304aa767b4cf26"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-01-worker-outgoing-pair/terminal-quota.json",
+      "bytes": 1536,
+      "sha256": "6490ba6b529326ae7c9c030cf612b02e6a3e1d377debfedcf319bf1798cc6b80"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-01-worker-outgoing-pair/terminal-summary.json",
+      "bytes": 1615,
+      "sha256": "cffca337f5064b0ae3aa91687d06a16ad4abd8e78d4651108a2090fe6cd9a660"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-01-worker-outgoing-pair/wait-own.py",
+      "bytes": 842,
+      "sha256": "8812e301bcac1e12b856c4c17d6a0c02ec7b40159c97a4c24e45d31b279b0e7a"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-01-worker-outgoing-pair/wait-registration.json",
+      "bytes": 417,
+      "sha256": "84bcd8ef1dacc14a15f9a3cafb79541738efef6f17982fe68477985262742494"
+    },
+    {
+      "path": "tools/g_outgoing_seam_query.py",
+      "bytes": 2629,
+      "sha256": "c48b127634b8bcba86ac65567076a426c980213603e587f3dcfe219828a6a7a3"
+    },
+    {
+      "path": "tools/g_outgoing_pair_body.py",
+      "bytes": 6612,
+      "sha256": "07146ae3c3c5ac1d0e0871b1b49a1c62661ef28799768f6b76e35a05feaaacac"
+    },
+    {
+      "path": "tools/g_outgoing_pair.py",
+      "bytes": 7152,
+      "sha256": "73c45101a9ef492a8e86d12a9d68580211ded8a93ac1c57b33ce225ddca6dd22"
+    },
+    {
+      "path": "tools/g_outgoing_pair_read.py",
+      "bytes": 8723,
+      "sha256": "5435108e9eb729c7fe1f705244845cc7c916b9af780081e682c83ae81f736c1b"
+    },
+    {
+      "path": "tools/test_g_outgoing_pair.py",
+      "bytes": 8582,
+      "sha256": "6a3aec8660c3837787a0b7c1b419f87bad9a7a2c1abc64295a65b0ee18344db3"
+    },
+    {
+      "path": "docs/steering/2026-11-01-worker-outgoing-pair-registration.md",
+      "bytes": 10425,
+      "sha256": "e12bc5763d659d38cd5a7c237fe4d94f863d6d841e0a65776628108a253d4916"
+    },
+    {
+      "path": "docs/steering/2026-11-01-worker-outgoing-pair-terminal.md",
+      "bytes": 7728,
+      "sha256": "8119f9d1df22a3c08b9938d36a7aaa56fb40d0e50453db542315e22d16cadc07"
+    },
+    {
+      "path": "muse_decode_layer/profiles/g-outgoing-pair.9adfd4dbc98f4998.json",
+      "bytes": 6553,
+      "sha256": "b470eb482e39c87f3d9329176a633d0c0ea21d503356134aa99c759d6e42df78"
+    },
+    {
+      "path": "muse_decode_layer/profiles/g-outgoing-pair.9adfd4dbc98f4998.log",
+      "bytes": 3133,
+      "sha256": "a3cb1cc284dbf8bd32ebe480a6abfea7fa199140ca3dae01686ba8ed4a1f528b"
+    },
+    {
+      "path": "muse_decode_layer/profiles/g-outgoing-pair.9adfd4dbc98f4998.txt",
+      "bytes": 1674,
+      "sha256": "66691b05105d0b3846e39f7bf948ba635a83b7fda9de2867838065e615356b29"
+    }
+  ]
+}

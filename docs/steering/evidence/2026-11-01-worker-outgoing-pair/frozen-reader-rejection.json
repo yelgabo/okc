@@ -1,0 +1,26 @@
+{
+  "command": [
+    "wsl.exe",
+    "--cd",
+    "/mnt/c/Users/gretc/Documents/GitHub/okc",
+    "--exec",
+    "/root/.cache/okc-host-validate/bin/python",
+    "tools/g_outgoing_pair_read.py",
+    "docs/steering/evidence/2026-11-01-worker-outgoing-pair/own-terminal-receipt.json",
+    "--job",
+    "9adfd4dbc98f4998",
+    "--source",
+    ".build/outgoing-pair/check.py",
+    "--manifest",
+    "docs/steering/evidence/2026-11-01-worker-outgoing-pair/manifest.json",
+    "--log",
+    "/mnt/c/Users/gretc/Documents/GitHub/okc/.build/outgoing-pair/profiles/check.9adfd4dbc98f4998.log",
+    "--output",
+    ".build/outgoing-pair/reader-result.json"
+  ],
+  "exitcode": 1,
+  "stdout": "",
+  "stderr": "Traceback (most recent call last):\n  File \"/mnt/c/Users/gretc/Documents/GitHub/okc/tools/g_outgoing_pair_read.py\", line 118, in <module>\n    raw=args.log.read_bytes();output=read(receipt,args.job,raw.decode(\"utf8\"),manifest);output[\"owning_log_sha256\"]=hashlib.sha256(raw).hexdigest();args.output.write_text(json.dumps(output,indent=2,allow_nan=False)+\"\\n\");print(json.dumps(dict(job=args.job,complete=True,private_raw_gate=output[\"private_raw_gate\"])))\n                                     ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/mnt/c/Users/gretc/Documents/GitHub/okc/tools/g_outgoing_pair_read.py\", line 109, in read\n    return read_scope[\"read\"](receipt,job,log)\n           ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^\n  File \"<string>\", line 6, in read\nAssertionError\n",
+  "source_unchanged": true,
+  "reader_unchanged": true
+}

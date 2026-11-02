@@ -1,0 +1,29 @@
+FORK_MOE_SCALE ('-DOKC_PRMTSC=1',) True
+FORK_MOE_ROUTE native repaired: cooperative+BF16, MFIN/DF/YBF/PDL off
+G1b4 backend native repaired: cooperative+BF16, MFIN/DF/YBF/PDL off Lt plans [('o', 128), ('o', 256), ('pr', 128), ('pr', 256), ('qkv', 128), ('qkv', 256), ('un', 128), ('un', 256)]
+G_RELEASE_STARTUP_OK native (128, 32, 33, 256, 1, 8, 16) 56 verified_replays
+WL_PREP all mutable_bytes 334995616 arm_owned [334995616, 334995616, 334995616, 334995616] free 134490292224 outgoing_only_four_placements resources {'tiny': [[145, 0, 0, 214784, 1, 288, 145, 0, 0, 214784, 1, 288], [145, 0, 0, 214784, 1, 288, 145, 0, 0, 214784, 1, 288], [145, 0, 0, 214784, 1, 288, 145, 0, 0, 214784, 1, 288], [145, 0, 0, 214784, 1, 288, 145, 0, 0, 214784, 1, 288]], 'tiny2': [[145, 0, 0, 214784, 1, 288, 145, 0, 0, 214784, 1, 288], [145, 0, 0, 214784, 1, 288, 145, 0, 0, 214784, 1, 288], [145, 0, 0, 214784, 1, 288, 145, 0, 0, 214784, 1, 288], [145, 0, 0, 214784, 1, 288, 145, 0, 0, 214784, 1, 288]], 'mid': [[152, 0, 0, 214784, 1, 288, 152, 0, 0, 214784, 1, 288], [152, 0, 0, 214784, 1, 288, 152, 0, 0, 214784, 1, 288], [152, 0, 0, 214784, 1, 288, 152, 0, 0, 214784, 1, 288], [152, 0, 0, 214784, 1, 288, 152, 0, 0, 214784, 1, 288]], 'b4': [[96, 8, 0, 231168, 1, 576, 96, 8, 0, 231168, 1, 576], [96, 8, 0, 231168, 1, 576, 96, 8, 0, 231168, 1, 576], [96, 8, 0, 231168, 1, 576, 96, 8, 0, 231168, 1, 576], [96, 8, 0, 231168, 1, 576, 96, 8, 0, 231168, 1, 576]], 'main': [[96, 0, 0, 231168, 1, 576, 96, 0, 0, 231168, 1, 576], [96, 0, 0, 231168, 1, 576, 96, 0, 0, 231168, 1, 576], [96, 0, 0, 231168, 1, 576, 96, 0, 0, 231168, 1, 576], [96, 0, 0, 231168, 1, 576, 96, 0, 0, 231168, 1, 576]]}
+Traceback (most recent call last):
+  File "/tmp/muse_decode_layer-giga1ays/run/worker.py", line 423, in child_main
+    send(_setup_op(msg, module, state, sync, perf))
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/muse_decode_layer-giga1ays/run/worker.py", line 322, in _setup_op
+    state["prep"] = prepare(weights)
+                    ^^^^^^^^^^^^^^^^
+  File "/tmp/muse_decode_layer-giga1ays/run/submission.py", line 18307, in prepare
+    return _srp_prepare(weights)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/muse_decode_layer-giga1ays/run/submission.py", line 17952, in _srp_prepare
+    result,report=_wl_prepare(weights,production)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/muse_decode_layer-giga1ays/run/submission.py", line 18257, in _wl_prepare
+    arms[i]['_os_bank']=seed;captures[i]=_wl_capture(data[i],arms[i])
+                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/muse_decode_layer-giga1ays/run/submission.py", line 18148, in _wl_capture
+    _os_graph(graph,data,state)
+  File "/tmp/muse_decode_layer-giga1ays/run/submission.py", line 18403, in _os_graph
+    raw=list(query.seam_graph_edges(graph.raw_cuda_graph()))
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+torch.AcceleratorError: CUDA error: invalid device function
+Search for `cudaErrorInvalidDeviceFunction' in https://docs.nvidia.com/cuda/cuda-runtime-api/group__CUDART__TYPES.html for more information.
+

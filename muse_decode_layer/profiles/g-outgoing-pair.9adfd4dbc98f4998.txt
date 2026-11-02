@@ -1,0 +1,52 @@
+SYNTHESIZED OWNING FAILED-SETUP SUMMARY; NOT A GPU PROFILE
+{
+  "at": "2026-11-02T05:15:25.409Z",
+  "job": "9adfd4dbc98f4998",
+  "status": "done",
+  "private_mode": "check",
+  "board": "muse_decode_layer",
+  "passed": false,
+  "returncode": 112,
+  "gpu": "H200",
+  "machine": {
+    "gpu_after": {
+      "clocks.max.sm": 1980,
+      "clocks.mem": 3201,
+      "clocks.sm": 1980,
+      "driver_version": "595.91.07",
+      "name": "NVIDIA H200",
+      "power.draw": 128.71,
+      "power.limit": 700,
+      "temperature.gpu": 37
+    },
+    "gpu_before": {
+      "clocks.max.sm": 1980,
+      "clocks.mem": 3201,
+      "clocks.sm": 345,
+      "driver_version": "595.91.07",
+      "name": "NVIDIA H200",
+      "power.draw": 88.36,
+      "power.limit": 700,
+      "temperature.gpu": 36
+    },
+    "node": "n-2bbs7xxbcpmk3emdvrn5jsqeic"
+  },
+  "evaluator_sha256": "1ba270d841be831b06a5862f4094cd0d5072edfbd0f6e84b95f79248296367dd",
+  "created_at": "2026-11-02T04:51:11.656Z",
+  "started_at": "2026-11-02T05:08:41.850Z",
+  "finished_at": "2026-11-02T05:11:58.703Z",
+  "queue_seconds": 1050.1935670375824,
+  "worker_elapsed_seconds": 196.8531849384308,
+  "prepare_s": null,
+  "official_tests": 0,
+  "benchmarks": 0,
+  "profiles": 0,
+  "capsule_present": false,
+  "complete": false,
+  "private_raw_gate": null,
+  "decision": "STOP: runtime/instrument graph query failed; no retry; performance unqualified",
+  "exact_api_and_failing_placement": "unavailable in retained traceback",
+  "source_sha256": "f25d714e928835fba07741ca56fa8783137032f268652c22ec4f5511d771bc9a",
+  "reader_sha256": "5435108e9eb729c7fe1f705244845cc7c916b9af780081e682c83ae81f736c1b",
+  "frozen_reader_exitcode": 1
+}
