@@ -1,0 +1,25 @@
+{
+  "at_utc": "2026-11-02T12:08:59.228757+00:00",
+  "allocation": "80a207b7482f11ceffaf49a3adc9086ca1b37887",
+  "first_observed_receipt_utc": "2026-11-02T11:44:53.7121717Z",
+  "source_CPU_publish_deadline_utc": "2026-11-02T12:04:53.7121717Z",
+  "resume_observed_utc": "2026-11-02T12:07:04.0334133Z",
+  "decision": "STOP_SOURCE_CPU_PUBLICATION_DEADLINE_FAILED",
+  "failure": "apply_patch wrapper Python SyntaxError before invoking apply_patch; no implementation files created",
+  "base_sha256": "ba9e327cd7b96595ace4d0c1d0d78fe27c128f23ed0debcda97c7169fc3164ab",
+  "base_bytes": 869076,
+  "base_LF_only": true,
+  "implementation_paths_exist": {
+    "tools/g_short_serial_producer.py": false,
+    "tools/test_g_short_serial_producer.py": false,
+    "docs/steering/evidence/2026-11-02-worker-short-serial/generated/candidate.py": false
+  },
+  "new_checks": 0,
+  "new_compiles": 0,
+  "new_kernel_source_edits": 0,
+  "CPU_treatment_tests": "NOT RUN; no implemented treatment",
+  "CUDA_numeric_or_performance": "NOT RUN",
+  "family_closed": false,
+  "automatic_rescue": false,
+  "deadline_extension_requested": false
+}
