@@ -1,0 +1,8 @@
+test_identity_control_has_no_gain (test_dl_compare_receipts.ReceiptComparisonTests.test_identity_control_has_no_gain) ... ok
+test_invalid_receipts_rejected (test_dl_compare_receipts.ReceiptComparisonTests.test_invalid_receipts_rejected) ... ok
+test_latency_and_baseline_decomposition (test_dl_compare_receipts.ReceiptComparisonTests.test_latency_and_baseline_decomposition) ... ok
+
+----------------------------------------------------------------------
+Ran 3 tests in 0.004s
+
+OK

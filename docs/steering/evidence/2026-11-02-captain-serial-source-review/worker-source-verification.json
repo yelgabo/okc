@@ -1,0 +1,85 @@
+{
+  "commit": "8c0bfba2e4d21fe8b0e5b9ad2dca4bbfbd398927",
+  "verified": [
+    {
+      "path": "docs/steering/2026-11-02-worker-short-serial-v2-registration.md",
+      "expected": "7944745e9bd105d5032dc54fef8a4e893388e6f0",
+      "remote": "7944745e9bd105d5032dc54fef8a4e893388e6f0"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-worker-short-serial-v2/control/accepted-status.json",
+      "expected": "9d86447c128f7a199a53c018898da525f2a6d12a",
+      "remote": "9d86447c128f7a199a53c018898da525f2a6d12a"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-worker-short-serial-v2/control/dispatch-intent.json",
+      "expected": "7b66daccd2aaf9bad661d6b2968079601626107a",
+      "remote": "7b66daccd2aaf9bad661d6b2968079601626107a"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-worker-short-serial-v2/control/dispatch.json",
+      "expected": "bdea3e7f025d344bbe72dfd1bd1d1143493e6a07",
+      "remote": "bdea3e7f025d344bbe72dfd1bd1d1143493e6a07"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-worker-short-serial-v2/control/dispatch.stderr",
+      "expected": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "remote": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-worker-short-serial-v2/control/preflight-auth.txt",
+      "expected": "4595ae12ca122c87a0929113fc90bf5b36f2a68a",
+      "remote": "4595ae12ca122c87a0929113fc90bf5b36f2a68a"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-worker-short-serial-v2/control/preflight-jobs.json",
+      "expected": "a528dc492539df73c214d7012bc975ccaf5cd213",
+      "remote": "a528dc492539df73c214d7012bc975ccaf5cd213"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-worker-short-serial-v2/control/preflight-quota.json",
+      "expected": "08741e98f49ff8f43f99471e959919625d8fe6e4",
+      "remote": "08741e98f49ff8f43f99471e959919625d8fe6e4"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-worker-short-serial-v2/generated/candidate.py",
+      "expected": "1dcca162005ee93b8e5f57a13e98088ecb3e7731",
+      "remote": "1dcca162005ee93b8e5f57a13e98088ecb3e7731"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-worker-short-serial-v2/generated/generation.json",
+      "expected": "c35332662a848a448860be65505040bba9a5cba7",
+      "remote": "c35332662a848a448860be65505040bba9a5cba7"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-worker-short-serial-v2/generation.log",
+      "expected": "c35332662a848a448860be65505040bba9a5cba7",
+      "remote": "c35332662a848a448860be65505040bba9a5cba7"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-worker-short-serial-v2/source-publication-manifest.json",
+      "expected": "65430ee0ab3548e731002049c080744b6132a5ee",
+      "remote": "65430ee0ab3548e731002049c080744b6132a5ee"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-worker-short-serial-v2/tests-initial.log",
+      "expected": "13a59bacf740bbdfb9d46bad704b480fe75efea3",
+      "remote": "13a59bacf740bbdfb9d46bad704b480fe75efea3"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-worker-short-serial-v2/tests.log",
+      "expected": "266e08610fc612c3be27233e4360bac0df72d7cc",
+      "remote": "266e08610fc612c3be27233e4360bac0df72d7cc"
+    },
+    {
+      "path": "tools/g_short_serial_producer.py",
+      "expected": "23f7bc541129e9c978457b494fb7db051c5794c6",
+      "remote": "23f7bc541129e9c978457b494fb7db051c5794c6"
+    },
+    {
+      "path": "tools/test_g_short_serial_producer.py",
+      "expected": "295813d3b4499f47b615890129608e10b4c9a97d",
+      "remote": "295813d3b4499f47b615890129608e10b4c9a97d"
+    }
+  ]
+}
