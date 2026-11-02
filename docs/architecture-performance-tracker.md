@@ -1,6 +1,6 @@
 # Architecture performance tracker
 
-Last review: 2026-11-02 15:43 MST. Evidence snapshot: `13f5e41`.
+Last review: 2026-11-02 16:50 MST. Evidence snapshot: `bdbf35bf`.
 First review reconciles progress since `aab7d75`, the snapshot in the
 [architecture-family guide](architecture-families-2026-10-29.md).
 This is a review of recorded experiments, not a new benchmark run.
@@ -18,7 +18,96 @@ named control, not changes in aggregate score. Families overlap; their gains can
 | D. Dependency-aware scheduling | Dynamic claiming retained; new phase-A claim layouts lose | Phase-A modes 62/63 and K=0 controls 66/69 lose; lean claimed mode 68 is not timed. Earlier split-tail 52/53 losses stand. | Full ready-only queue remains untested. Reopen phase-A claims only after the no-work control ties mode 51 within 1 us at 128/256. |
 | E. Attention producer-consumer pipeline | Private VP2 cell win, six-load gate failed | VP2 took 10.168 µs versus 10.784 µs for the owned control on eight-token sliding attention. All three held-outs missed the full-score gate. | VP2 only changes the eight-token target. A later half-merge-preserving continuity source passed CPU checks and is frozen before H200 testing. |
 | F. Donor-based baseline/hybrid | Historical alygg77 measurement track | Prior F comparisons and owned C3 router gains remain recorded. Two new QKV128 variants lose despite correctness/resource passes. | G has a separate attributed-fork policy. Projection C2 remains best scored, with C3 paired component wins retained. |
-| G. Attributed keell0renz layer fork | Retained layer 2.126083× | Fixed two-front K128 passed correctness but lost at 128/256 in separate whole-layer runs. Confirmation canceled. Matched short-counter test missed its gate. G224 and timed SiLU passed correctness and missed performance triage. | Four-cell verify ended in a refunded infrastructure error. Outgoing dependency tests failed setup. Both fresh checks completed. The short serial policy missed confirmation gates. PR check failed target host compilation. Pre-gamma and one-token three-launch expert paths each passed standalone correctness and missed all 24 six-load comparisons. Both are parked before layer testing. |
+| G. Attributed keell0renz layer fork | Retained layer 2.126083×; shared-A/direct-weight parked | Both new whole-layer checks pass 13 tests and lose their continuation screens. Shared-A adds 205.381 / 277.062 µs at 128/256; direct weight adds 74.259 / 91.717 µs against fresh control in separate runs. Earlier K128, short-counter, G224 and SiLU losses remain scoped. | Current-service calibration and T32 MID comparison are allocated without accepted job IDs. Broad dense backing is unallocated reserve. Four-cell verify and outgoing setup failures remain unresolved. |
+
+## November 2 review at 16:50 Vancouver time
+
+**Both new G expert implementations passed correctness and lost their whole-layer continuation screens.** The shared-operand producer and direct weight delivery are parked, with confirmation and tuning canceled. Public G1b4 remains at 2.126083×. The comparison concerns these fixed implementations. Their pipelines execute expert work, so they remain in Family G. They supply no new attention-E or staged-B result. [Shared-A terminal](https://github.com/yelgabo/okc/blob/bdbf35bf/docs/steering/2026-11-02-driver-shared-a-terminal-and-direct-weight-next.md) · [Direct-weight terminal](https://github.com/yelgabo/okc/blob/bdbf35bf/docs/steering/2026-11-02-driver-direct-weight-terminal-and-dense-backing.md)
+
+### Decode batch 32 first
+
+D32 is 32 tokens with q_len=1. The new user priority targets a reproducible 2.0× on this load, followed by 2.1–2.2×. These are targets. Captain pickup is recorded, while developer delivery/pickup and accepted calibration/MID job IDs remain unestablished at this evidence pin. The next allocated comparison uses the existing MID helper for metadata 17–32, preserving MAIN at 33 and other standard-load routes. Broad dense backing is an unallocated reserve. [Owner directive](https://github.com/yelgabo/okc/blob/bdbf35bf/docs/steering/2026-11-02-decode32-owner-directive.md) · [Fixed comparison allocation](https://github.com/yelgabo/okc/blob/bdbf35bf/docs/steering/2026-11-02-driver-d32-mid-comparison.md)
+
+| Candidate | D32 sliding µs | D32 full µs | Weighted C32 ms | D32 ratio against own SGLang |
+|---|---:|---:|---:|---:|
+| Shared BF16 A producer | 264.996 | 408.819 | 18.730900 | 1.184293× |
+| Direct global weight-to-register delivery | 180.848 | 337.856 | 13.724704 | 1.613539× |
+
+C32 is `46 * sliding + 16 * full`, expressed in milliseconds. Unchanged G1b4 control `cc474883117947c0` measured 11.897664 ms. The shared-A and direct-weight normalized D32 endpoints were respectively 110.213 µs slower (+57.43%) and 29.468 µs slower (+15.36%) than that control in separate runs. [Direct D32 scorecard](https://github.com/yelgabo/okc/blob/bdbf35bf/docs/steering/2026-11-02-driver-d32-mid-comparison.md)
+
+### Shared BF16 A producer
+
+Private H200 job `5adf172986ff43dc`, revision `dcb24972`, physical source `fbca3b75`, completed at 23:03:31 UTC. All 13 correctness tests and 12 benchmarks passed, with 12 complete profiles and 56 startup replays. The score is **1.612794×**, with within-run 95% CI 1.588602–1.636986×. [Owning terminal receipt](https://github.com/yelgabo/okc/blob/bdbf35bf/docs/steering/evidence/2026-11-02-driver-shared-a-first-check/status-wait.raw.json) · [Endpoint calculations](https://github.com/yelgabo/okc/blob/bdbf35bf/docs/steering/evidence/2026-11-02-driver-shared-a-first-check/terminal-analysis.json)
+
+Each endpoint below is `(46 * sliding + 16 * full) / 62`. The control is the unchanged G1b4 job `cc474883117947c0`.
+
+| Load | Tokens | Candidate µs | Control µs | Delta µs | Delta % |
+|---|---:|---:|---:|---:|---:|
+| decode 1 | 1 | 79.008 | 78.765 | +0.244 | +0.31% |
+| decode 16 | 16 | 165.218 | 152.016 | +13.202 | +8.68% |
+| decode 32 | 32 | 302.111 | 191.898 | +110.213 | +57.43% |
+| verify 1 | 8 | 113.316 | 112.682 | +0.634 | +0.56% |
+| verify 16 | 128 | 467.094 | 261.713 | +205.381 | +78.48% |
+| verify 32 | 256 | 628.142 | 351.080 | +277.062 | +78.92% |
+
+Per-cell uncertainty below is repeat standard deviation from the raw receipt, in candidate/control order. It describes the within-run samples. There is no recorded paired treatment interval. Both arms have 60 repeats for decode 1 and 20 for other cells.
+
+| Tokens / context | Candidate µs | Control µs | Repeat SD µs, candidate / control |
+|---|---:|---:|---:|
+| 1 / sliding | 77.288 | 77.036 | 4.803 / 3.912 |
+| 1 / full | 83.955 | 83.733 | 3.770 / 4.155 |
+| 16 / sliding | 145.873 | 133.037 | 8.209 / 8.072 |
+| 16 / full | 220.834 | 206.582 | 8.932 / 11.385 |
+| 32 / sliding | 264.996 | 150.875 | 16.823 / 7.812 |
+| 32 / full | 408.819 | 309.839 | 21.421 / 8.874 |
+| 8 / sliding | 112.006 | 110.761 | 9.737 / 10.201 |
+| 8 / full | 117.082 | 118.204 | 9.423 / 10.824 |
+| 128 / sliding | 440.654 | 237.040 | 36.795 / 9.045 |
+| 128 / full | 543.107 | 332.647 | 26.027 / 10.321 |
+| 256 / sliding | 582.258 | 308.622 | 41.963 / 8.556 |
+| 256 / full | 760.059 | 473.149 | 36.233 / 8.212 |
+
+### Direct global weight-to-register delivery
+
+Private H200 job `0b684a4065354fc5`, revision `368b85c9`, physical source `a27a1baf`, completed at 23:26:37 UTC. All 13 correctness tests and 12 benchmarks passed, with 12 complete profiles and 56 startup replays. The score is **1.926424×**, with within-run 95% CI 1.897527–1.955320×. [Owning terminal receipt](https://github.com/yelgabo/okc/blob/bdbf35bf/docs/steering/evidence/2026-11-02-driver-direct-weight-first-check/status-wait.raw.json) · [Endpoint calculations](https://github.com/yelgabo/okc/blob/bdbf35bf/docs/steering/evidence/2026-11-02-driver-direct-weight-first-check/terminal-analysis.json)
+
+Each endpoint below is `(46 * sliding + 16 * full) / 62`. The control is the unchanged G1b4 job `cc474883117947c0`.
+
+| Load | Tokens | Candidate µs | Control µs | Delta µs | Delta % |
+|---|---:|---:|---:|---:|---:|
+| decode 1 | 1 | 78.860 | 78.765 | +0.095 | +0.12% |
+| decode 16 | 16 | 156.092 | 152.016 | +4.076 | +2.68% |
+| decode 32 | 32 | 221.366 | 191.898 | +29.468 | +15.36% |
+| verify 1 | 8 | 118.598 | 112.682 | +5.916 | +5.25% |
+| verify 16 | 128 | 335.972 | 261.713 | +74.259 | +28.37% |
+| verify 32 | 256 | 442.798 | 351.080 | +91.717 | +26.12% |
+
+Per-cell uncertainty below is repeat standard deviation from the raw receipt, in candidate/control order. It describes the within-run samples. There is no recorded paired treatment interval. Both arms have 60 repeats for decode 1 and 20 for other cells.
+
+| Tokens / context | Candidate µs | Control µs | Repeat SD µs, candidate / control |
+|---|---:|---:|---:|
+| 1 / sliding | 76.992 | 77.036 | 4.531 / 3.912 |
+| 1 / full | 84.231 | 83.733 | 3.865 / 4.155 |
+| 16 / sliding | 137.038 | 133.037 | 8.684 / 8.072 |
+| 16 / full | 210.873 | 206.582 | 5.757 / 11.385 |
+| 32 / sliding | 180.848 | 150.875 | 11.273 / 7.812 |
+| 32 / full | 337.856 | 309.839 | 14.145 / 8.874 |
+| 8 / sliding | 115.464 | 110.761 | 7.940 / 10.201 |
+| 8 / full | 127.608 | 118.204 | 8.348 / 10.824 |
+| 128 / sliding | 312.066 | 237.040 | 16.445 / 9.045 |
+| 128 / full | 404.703 | 332.647 | 10.639 / 10.321 |
+| 256 / sliding | 396.071 | 308.622 | 17.466 / 8.556 |
+| 256 / full | 577.137 | 473.149 | 16.135 / 8.212 |
+
+### Interpretation and next evidence
+
+Both candidates change B4/T32 and MAIN/T128/256, using soft routing at 80k context with agentic spread on multibatch loads. Exact routing histograms are absent. All twelve benchmark seeds, GPU node, cluster and driver differ from cc474 despite matching evaluator-file hashes. Unchanged smaller-token paths also drift. These are descriptive cross-run whole-layer losses. The records do not isolate spills, decoding throughput, shared bandwidth or global memory as the cause. [Control receipt](https://github.com/yelgabo/okc/blob/bdbf35bf/docs/steering/evidence/2026-11-02-captain-fresh-incumbent-profile/control.cc474883117947c0.json)
+
+Three fixed expert-body experiments have now passed validity gates and missed their continuation screens, counting the earlier two-front K128 test. The captain has changed the next allocation to an unchanged-incumbent calibration followed by the fixed MID-at-T32 comparison. A remains ahead of the staged B implementations tested at 128/256. These G outcomes leave that A-versus-B decision intact. [Current allocation and rationale](https://github.com/yelgabo/okc/blob/bdbf35bf/docs/steering/2026-11-02-driver-d32-mid-comparison.md)
+
+The new incumbent diagram labels use integrated-layer profiles. Their component activity ratios compare historical SGLang and G1b4 runs, with smaller SGLang rows omitted. They are approximate profile bounds and do not add up to causal shares of the whole-layer gain. [Diagram evidence correction](steering/2026-11-02-incumbent-inlayer-labels.md).
+
+Reviewed through `bdbf35bf`. New run IDs `5adf172986ff43dc` and `0b684a4065354fc5` are terminal and counted once. Parsed 18 untracked profile JSON files without modifying or staging them. Their job IDs are historical entries in the fetched run logs. Read-only live chat snapshots failed because the durable host was unavailable, so published delivery/acceptance gaps remain explicit. Independent review recomputed both source hashes, score/endpoints and repeat metadata.
 
 ## November 2 review at 15:43 Vancouver time
 
@@ -2540,6 +2629,8 @@ paired differences.
 | Retained G versus upstream G0 | Earlier independent official runs | +10.676 µs (+4.13%) | +8.500 µs (+2.42%) | Weighted verify latency. Cross-run reconstruction of existing jobs, no isolated repair timing. [Source records](https://github.com/yelgabo/okc/blob/e1adc0e/docs/steering/evidence/2026-11-01-g-integration-gap/cross-job-gap.json). |
 | G224 gather schedule | Historical public G1b4 | Weighted verify latency +14.617% | +20.564% | `e1271ad5e5e34b24`, independent run, all 13 tests passed. [Source](https://github.com/yelgabo/okc/blob/57930d0/docs/steering/2026-11-02-captain-g224-terminal-decision.md). |
 | Fully timed G SiLU table | Historical public G1b4 | 275.449 vs 269.347 µs, +6.102 µs (+2.27%) | 358.496 vs 359.297 µs, −0.802 µs (−0.22%) | `dc62cff972934f54`, one private check, affected loads, unmatched seeds and nodes. [Reconstruction](https://github.com/yelgabo/okc/blob/57930d0/docs/steering/2026-11-02-captain-timed-silu-terminal-decision.md). |
+| G shared-a, whole layer | Fresh G1b4, separate run | +205.381 µs (+78.48%) | +277.062 µs (+78.92%) | `5adf172986ff43dc`, revision `dcb24972`. [Receipt and calculations](https://github.com/yelgabo/okc/blob/bdbf35bf/docs/steering/evidence/2026-11-02-driver-shared-a-first-check/terminal-analysis.json) |
+| G direct-weight, whole layer | Fresh G1b4, separate run | +74.259 µs (+28.37%) | +91.717 µs (+26.12%) | `0b684a4065354fc5`, revision `368b85c9`. [Receipt and calculations](https://github.com/yelgabo/okc/blob/bdbf35bf/docs/steering/evidence/2026-11-02-driver-direct-weight-first-check/terminal-analysis.json) |
 | G fixed two-front K128, whole layer | Fresh G1b4, separate run | +57.584 µs (+22.00%) | +67.965 µs (+19.36%) | One private check per arm, different inputs and hardware environments. [Endpoint calculations](https://github.com/yelgabo/okc/blob/13f5e41/docs/steering/evidence/2026-11-02-driver-k128-first-check/terminal-analysis.json) |
 | G short serial policy, unchanged long paths | Fresh G1b4, separate run | +8.118 µs (+3.10%) | +10.431 µs (+2.97%) | `e4c8f00532b74d15` vs `cc474883117947c0`. Different seeds. Only 1/8-token cells exercised the treatment. [Exact comparison](https://github.com/yelgabo/okc/blob/fcf5452/docs/steering/2026-11-02-captain-serial-terminal-decision.md). |
 | G pre-gamma expert transport, standalone MoE | G incumbent controls, same process | +2.785 µs (+1.93%) | +2.779 µs (+1.41%) | `56e0c8b5634545e6`. Descriptive duplicate-placement means across three normal/skewed banks. [Source means](https://github.com/yelgabo/okc/blob/db7800a/docs/steering/evidence/2026-11-02-worker-moe-component/descriptive-load-summary.json). |
@@ -2576,6 +2667,8 @@ Losses matter as much as wins:
 
 ## Whole-layer outcome and attribution
 
+Shared-A and direct-weight expert variants have valid unfavorable whole-layer outcomes. Public G1b4 remains retained. [Latest terminal reconciliation](https://github.com/yelgabo/okc/blob/bdbf35bf/docs/steering/2026-11-02-driver-direct-weight-terminal-and-dense-backing.md)
+
 Four-cell public job `1fad70bbe3854cbc` returned an infrastructure error and a refund. It supplies no H200 qualification at 128/256 tokens. The matched common-control trial `c5e4f89672f743bb` closed the short-counter treatment. Its official 2.112499× score measures the repaired control. The matched OFF/ON timings determine the counter decision. [Terminal analysis](https://github.com/yelgabo/okc/blob/57930d0/docs/steering/2026-11-01-rmw-legal-fixture-terminal.md)
 
 Retained Family G job `607eb52bdaf24160` scores2.126082676x, CI2.094191436-2.157973917,
@@ -2587,9 +2680,9 @@ with common preparation and private arm tensors. Both evidence scopes remain vis
 
 ## Decision and next evidence needed
 
-The fixed two-front K128 check is closed. The shared-operand expert proposal awaits its first complete-layer measurement. [Next expert implementation](https://github.com/yelgabo/okc/blob/13f5e41/docs/steering/2026-11-02-driver-shared-weight-pipeline.md)
+The fixed K128, shared-A and direct-weight checks are closed. The next allocation prioritizes D32 through an unchanged-incumbent calibration and a fixed MID-helper comparison at 17–32 tokens. Broad dense backing remains unallocated reserve. [Current decision](https://github.com/yelgabo/okc/blob/bdbf35bf/docs/steering/2026-11-02-driver-d32-mid-comparison.md)
 
-The latest complete-engine review closes both reviewed proposals at the source stage. Reopening grouped-contiguous Humming requires an exact legal workload and credible net whole-layer opportunity. The canonical attention continuity source is frozen pending stronger opportunity evidence. [Decisions](https://github.com/yelgabo/okc/blob/ba0e1ff/docs/steering/2026-11-02-captain-architecture-gate-reconciliation.md).
+The earlier complete-engine review closed both reviewed proposals at the source stage. Reopening grouped-contiguous Humming requires an exact legal workload and credible net whole-layer opportunity. The canonical attention continuity source is frozen pending stronger opportunity evidence. [Decisions](https://github.com/yelgabo/okc/blob/ba0e1ff/docs/steering/2026-11-02-captain-architecture-gate-reconciliation.md).
 
 The one-token expert split also failed on every targeted routing case. The paired component gate closes this specific three-launch candidate. [Terminal decision](https://github.com/yelgabo/okc/blob/1786dbf/docs/steering/2026-11-02-worker-t1-moe-terminal.md).
 
@@ -2601,7 +2694,7 @@ ownership implementations retain their scoped outcomes. D's complete ready-only 
 remains untested. Further scheduling work needs a distinct mechanism and measured opportunity.
 
 The G lineage has an approved attributed-fork policy, while F retains its alygg77 history.
-The retained G1b4 layer includes stage retirement. Its matched gain was measured in standalone MoE. The matched short-counter trial is complete. Both outgoing dependency tests stopped in setup. G224 and timed SiLU are parked. The short serial candidate was parked after fresh control and candidate runs. The PR check failed host compilation and private retry awaits quota. [Terminal evidence](https://github.com/yelgabo/okc/blob/049b223/docs/steering/evidence/2026-11-02-worker-pr-target/target/terminal-status.json). [Host qualification and allocation](https://github.com/yelgabo/okc/blob/218a048/docs/steering/2026-11-02-captain-pr-host-gate.md) · [Serial decision](https://github.com/yelgabo/okc/blob/fcf5452/docs/steering/2026-11-02-captain-serial-terminal-decision.md). [Latest decision](https://github.com/yelgabo/okc/blob/57930d0/docs/steering/2026-11-02-captain-timed-silu-terminal-decision.md)
+The retained G1b4 layer includes stage retirement. Its matched gain was measured in standalone MoE. The matched short-counter trial is complete. Both outgoing dependency tests stopped in setup. G224 and timed SiLU are parked. The short serial candidate was parked after fresh control and candidate runs. The PR check failed host compilation and no retry is allocated. [Terminal evidence](https://github.com/yelgabo/okc/blob/049b223/docs/steering/evidence/2026-11-02-worker-pr-target/target/terminal-status.json). [Host qualification and allocation](https://github.com/yelgabo/okc/blob/218a048/docs/steering/2026-11-02-captain-pr-host-gate.md) · [Serial decision](https://github.com/yelgabo/okc/blob/fcf5452/docs/steering/2026-11-02-captain-serial-terminal-decision.md). [Latest decision](https://github.com/yelgabo/okc/blob/57930d0/docs/steering/2026-11-02-captain-timed-silu-terminal-decision.md)
 
 Historical owned attention requires the documented intermediate BF16 repair before reuse.
 The new QK2 and wait studies use repaired controls. The attention and G detail observers
@@ -2613,6 +2706,8 @@ Prefill remains deferred. The final recorded campaign goal remains unmet.
 [Family G qualification](https://github.com/yelgabo/okc/blob/af3b550/docs/steering/2026-11-01-family-g-qualification.md).
 
 ## Review history and checkpoint
+
+- November 2, 16:50 Vancouver. Inspected through `bdbf35bf`, including shared-A terminal 23:03:31 UTC, direct-weight terminal 23:26:37 UTC and D32 owner-priority pickup. [Current source checkpoint](https://github.com/yelgabo/okc/blob/bdbf35bf/docs/steering/2026-11-02-decode32-owner-directive.md)
 
 - November 2, 15:43 Vancouver. Inspected through `13f5e41`, including job `bf8671b4bfa845a2` completed at 21:20:44 UTC and the 22:39 UTC implementation allocation.
 

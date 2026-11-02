@@ -1,6 +1,6 @@
 {
-  "reviewed_at": "2026-11-02T15:43:00-07:00",
-  "snapshot": "13f5e41",
+  "reviewed_at": "2026-11-02T16:50:00-07:00",
+  "snapshot": "bdbf35bf",
   "family_registry_update": {
     "date": "2026-10-30",
     "evidence_snapshot": "7a5965531103f275ac104d340ef30f1508e32353",
@@ -11,7 +11,7 @@
     "score": "2.1261×",
     "interval": "2.0942–2.1580",
     "job": "607eb52bdaf24160",
-    "note": "Public G1b4 retains 2.126083×. Private K128 check bf8671b4bfa845a2 passed correctness but was slower at all six loads than fresh control cc474883117947c0 in separate runs."
+    "note": "Public607 retains2.126083×. Shared-A and direct-weight checks passed correctness but lost. D32 is the next priority. New control/MID accepted IDs are unestablished."
   },
   "families": [
     {
@@ -117,15 +117,17 @@
       "id": "G",
       "name": "Attributed keell0renz layer fork",
       "status": "win",
-      "label": "Retained layer • two-front K128 parked",
+      "label": "Retained layer • shared-A and direct-weight parked",
       "metric": "2.1261×",
       "unit": "Public layer score, 95% CI 2.0942–2.1580",
-      "summary": "The one-token three-launch expert was slower in all six normal/skewed routing cases. Both this candidate and pre-gamma missed every six-load promotion comparison.",
-      "layer": "Fixed K128 scored 1.965158× (95% CI 1.935681–1.994636×). Fresh-control cross-run latency rose 57.584 µs (22.00%) at 128 tokens and 67.965 µs (19.36%) at 256. Confirmation canceled.",
+      "summary": "Shared-A scored 1.612794× and direct weight scored 1.926424×. Both passed correctness and lost their cross-run whole-layer continuation screens.",
+      "layer": "Public G1b4 retains 2.126083×. At128/256, shared-A was 78.48%/78.92% slower and direct weight 28.37%/26.12% slower than fresh control in separate runs.",
       "pending": [],
-      "evaluation_pending": [],
-      "limit": "The three-launch candidate changed only T1. At 128/256 both arms used fused paths. The retained public score belongs to the complete G1b4 layer.",
-      "source": "steering/2026-11-02-1543-performance-review.md",
+      "evaluation_pending": [
+        "Fixed MID helper at metadata17–32, after unchanged-incumbent calibration"
+      ],
+      "limit": "D32 also regressed descriptively by57.43%/15.36%. Different seeds, nodes and drivers prevent matched causal attribution. Stops apply to these exact implementations.",
+      "source": "steering/2026-11-02-1650-performance-review.md",
       "outcomes": [
         "win",
         "loss"
@@ -154,9 +156,14 @@
       "summary": "Grouped-contiguous Humming lacks a qualified whole-layer path. Prepared BF16 expansion conflicts with the stored NVFP4 requirement. The earlier one-token and pre-gamma component losses remain recorded."
     },
     {
-      "name": "G producer-decoded shared operands",
-      "label": "Implementation funded • unmeasured",
-      "summary": "Separate decode group, four compute warpgroups and 256-row ownership. Targets 32/128/256 tokens. No target timing or layer gain yet."
+      "name": "D32 fixed MID-helper comparison",
+      "label": "Allocated • unmeasured",
+      "summary": "Existing helper at17–32 tokens, MAIN at33. Current-service control first. Accepted job IDs and developer pickup remain unestablished."
+    },
+    {
+      "name": "Broad dense-bank generic backing",
+      "label": "Unallocated reserve",
+      "summary": "Superseded before delivery by the D32 priority. No implementation or performance result is credited."
     }
   ]
 }
