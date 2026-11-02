@@ -23,3 +23,9 @@ Continue the two already allocated tasks without extending T1 or reopening PR, a
 An exact standalone adapter can make available capacity useful for target component compilation/numerics and a separately registered matched component discriminator. It cannot replace the complete layer outcome or transfer its score: routing adaptation, extra work, baseline and workload weighting must be reported in that board's own terms, not the layer's46:16 formula. A failed exact component may avoid a wasted layer slot; a component win is only a reason to test the whole layer later.
 
 No dispatch is authorized by this reconciliation. Captain retains the single dispatch decision, parent/delegates retain their source tasks, and existing worker remains the only intended job owner after a later explicit allocation. Receive the exact adapter/harness artifacts or scoped STOPs next; do not substitute another source survey or generic readiness report. Evidence that changes priority is an actual contract blocker, qualified target result or complete-call measurement, not available slot count alone.
+
+## November 2 index correction after continuation
+
+Re-read main at1a168319 and parent activity through its completed fourth run. A wait on that exact parent requesting delegated-work settlement returned timedOut=true; no delivered qualification result was established. No task was restarted, extended or duplicated. This continuation is a verified wait, not a new performance result.
+
+Corrected the index summary that still described missing Torch despite correction1f59b96 and the independently verified existing runtime. Relabeled component quota as saved allocation-time evidence, not current capacity. Full host validation and all target gates remain pending. Next action remains review of already owned artifacts when delivered; no hold removal, dispatch, score transfer or public action is authorized.

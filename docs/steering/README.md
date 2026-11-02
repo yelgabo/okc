@@ -6,7 +6,7 @@ This is the stable cross-session entry point. Read the latest report, its eviden
 
 [Captain measurement continuity](2026-11-02-captain-measurement-continuity.md) independently confirms the previously installed WSL CPU Torch runtime with real storage/version behavior; no install/policy change or target equivalence claim. Parent owns real-host validation and the separate exact MoE adapter. Existing layer hold and single dispatch ownership remain; no new task or POST authorized.
 
-[November 2: Expert harness — STOP at CPU host gate](2026-11-02-top100-expert-harness.md) - implementation62f0031, parent ec24fc6. Deterministic918254B held draft c6f4c25d; exact607/candidate dual-build prefix retained. New15 stdlib tests plus existing3 pair/4 candidate tests pass, but the complete generated private loop has not run with real Torch; both checked Python environments lack Torch. Delivered prepare fails closed before builds. Target fit UNMEASURED; no dispatch/default/public change or continuation without parent decision.
+[November 2: Expert harness — STOP at CPU host gate](2026-11-02-top100-expert-harness.md) - implementation62f0031, parent ec24fc6. Deterministic918254B held draft c6f4c25d; exact607/candidate dual-build prefix retained. New15 stdlib tests plus existing3 pair/4 candidate tests pass, correction1f59b96 recovered the working existing WSL Torch2.10 CPU environment. The dependency blocker is cleared, but full generated-entry real-storage validation remains pending. Delivered prepare fails closed before builds. Target fit UNMEASURED; no dispatch/default/public change or continuation without parent decision.
 
 ## Latest independent expert review
 
@@ -20,7 +20,7 @@ This is the stable cross-session entry point. Read the latest report, its eviden
 
 Parent harness integration: 22 source/facade tests reproduced. Existing WSL Torch2.10 environment recovered from prior host receipt and real storage probe passed; supersedes the earlier dependency-blocker conclusion. [Dated correction and bounded full host validation allocation](2026-11-02-top100-expert-harness.md). Draft remains held; no target result.
 
-[November 2: Standalone expert qualification allocation](2026-11-02-top100-moe-qualification.md) - fresh quota: ten MoE private checks, zero layer checks. Bounded exact-component adapter implementation; no dispatch or measured gain, whole-layer gates retained.
+[November 2: Standalone expert qualification allocation](2026-11-02-top100-moe-qualification.md) - saved allocation-time quota: ten MoE private checks, zero layer checks; recheck before dispatch. Bounded exact-component adapter implementation; no dispatch or measured gain, whole-layer gates retained.
 
 [November 2: Exact dual-build package](2026-11-02-top100-pair-package.md) - pre-gamma measurement preparation: source-identical control builds, state-local candidate selection, three CPU tests; no runtime ownership/timing qualification or dispatch readiness.
 
