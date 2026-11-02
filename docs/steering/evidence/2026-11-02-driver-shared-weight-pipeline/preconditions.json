@@ -1,0 +1,63 @@
+{
+  "observed_at_utc": "2026-11-02T22:39:25.642848+00:00",
+  "quota": [
+    [
+      "muse_bf16_proj",
+      20,
+      10
+    ],
+    [
+      "muse_attention_decode",
+      20,
+      10
+    ],
+    [
+      "muse_moe_w4a16",
+      18,
+      10
+    ],
+    [
+      "muse_decode_layer",
+      9,
+      10
+    ],
+    [
+      "muse_prefill_layer",
+      20,
+      10
+    ]
+  ],
+  "active_jobs": [],
+  "overall": {
+    "you": {
+      "rank": 374,
+      "team": "yelgabo",
+      "first": false,
+      "ahead": 373
+    },
+    "top100": {
+      "rank": 100,
+      "solved": 4,
+      "team": "ysawa0"
+    }
+  },
+  "layer": {
+    "you": {
+      "rank": 374,
+      "team": "yelgabo",
+      "speedup": 2.1261,
+      "first": false,
+      "ahead": 373,
+      "to_first": 1.1704
+    },
+    "top100": {
+      "attempts": 33,
+      "job": "8e9364e4a9b24d28",
+      "rank": 100,
+      "speedup": 2.268,
+      "submitted_at": 1793609576.3314807,
+      "team": "ysawa0",
+      "value": 9973.654563676346
+    }
+  }
+}

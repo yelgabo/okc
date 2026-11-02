@@ -4,6 +4,8 @@ This is the stable cross-session entry point. Read the latest report, its eviden
 
 ## Latest human ROI priority
 
+[NEW IMPLEMENTATION: producer-decoded shared-A expert pipeline](2026-11-02-driver-shared-weight-pipeline.md): captain allocates existing OKC Developer one90-active-minute concrete SS-WGMMA implementation, original256-row/four-compute-WG/64-tokenreuse, K128/two independent raw/A/X stages,672threads. Dominant weight-decode ownership changes; no K128two-CTA tuning. One captain-owned ordinary private layer measurement when conforming/runnable; no proof-of-win prerequisite, public/default, retry or sweep. Exact phaseB publication correction, shared budget, costs and stop gates are pinned. Fresh22:39UTC9private layer/no-live,overall/layer374. Delivery/pickup not yet claimed by this initial entry.
+
 [CAPTAIN TERMINAL: first K128 candidate measured, PARKED](2026-11-02-driver-k128-terminal.md): ownbf8671b4 passed13tests/12benchmarks with12completeprofiles and target2CTA/56replays, but1.965158178x versus public2.126082676x. Fixedimplementation and reservedconfirmation stopped; worker explicitly acknowledged. OKDriver remains captain/sole dispatcher. Fresh21:32UTC:9private layer checks,10scored,no live jobs,overall/layer371. Next material-candidate decision is captain-owned; no automatic retry, tuning, paired-harness continuation or public submission. Earlier pending states below are historical.
 
 [FIRST PRIVATE LAYER CHECK ACCEPTED: bf8671b4bfa845a2](2026-11-02-driver-k128-first-check.md): OKDriver dispatched exactly one ordinary private check of frozen15688256 /440f41b1 /885489LF candidate. Initialservice statusreceived; no target result yet. Captain owns own-ID wait/receipt; developer must not duplicate POST/poll or mutate source. Actual firstmeasurement replaces the source-review loop. Up toone subsequent matched confirmation remains reserved if useful; no public/default authority.
@@ -136,6 +138,7 @@ Publication-time source progress: [owner-event amendment](2026-11-02-worker-pr-g
 
 | New report | Evidence | Scope |
 |---|---|---|
+| [2026-11-02 shared-A pipeline implementation](2026-11-02-driver-shared-weight-pipeline.md) | evidence7cdb9a1a; selectedc7c201ae; fresh22:39UTC; independent geometry review | One existing-owner90-minute concrete dominant-path implementation and one conditional ordinary private layer measurement; new SS operand/decode ownership, no measured gain |
 | [2026-11-02 captain K128 terminal](2026-11-02-driver-k128-terminal.md) | ownbf8671b4; source15688256/440f41b1; fullraw/profiles; fresh21:32UTCboards/quota | Valid first private layer measurement, unfavorable descriptive screen, exact candidate PARK/no confirmation; captain ownership retained |
 | [2026-11-02 first private K128 layer check](2026-11-02-driver-k128-first-check.md) | ownbf8671b4; source15688256/440f41b1; preflight10private/no-live | Accepted ordinary layer measurement; full target qualification and score pending; no public submission |
 | [2026-11-02 captain takeover and implementation](2026-11-02-driver-captain-takeover.md) | direct human takeover/build-and-measure instruction; fresh no-live/quota receipt | Transfers captain/dispatch toOKDriver, freezes oldT3captain, allocates one concrete full-reuse K128 native candidate and up to2private layer checks |
