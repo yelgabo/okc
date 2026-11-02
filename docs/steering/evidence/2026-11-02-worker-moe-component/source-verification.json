@@ -1,0 +1,13 @@
+{
+  "observed_at": "2026-11-02T17:24:47.368600+00:00",
+  "allocation_commit": "2f25832e0a3385d2c6cc3ed347ac5cb5deae15c5",
+  "source_sha256": "8f12932a4d0fc8a2ca42a165610fd7659d4db960d8c65c8ea97281b75ec46d5d",
+  "source_bytes": 344689,
+  "physical_LF": true,
+  "archived_source_exact": true,
+  "manifest_structural_exact": true,
+  "reader_canonical_LF_sha256": "dc0fd553b8b4b701c7f6eaa99aff52abd9a2ab9191712c0d178bd5b3ae704b35",
+  "reader_physical_sha256": "68e571be52d81d7d7f57629b32702c693b01eab1f69dbebc62a4bd6522b39873",
+  "runtime_id": "0118b4f50c0427c8fa53ce6831b70362b15f722cf6db1a7724f46f82eb55e9cb",
+  "git_head": "2f25832e0a3385d2c6cc3ed347ac5cb5deae15c5"
+}
