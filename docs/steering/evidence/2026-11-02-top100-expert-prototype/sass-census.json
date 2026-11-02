@@ -1,0 +1,258 @@
+{
+  "b4": {
+    "control": {
+      "sass_sha256": "ffeeae18501baac79e0df30b0494d20e7f31e2e23d6193cd90a8f0c68aed9349",
+      "entries": {
+        "_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE": {
+          "instructions": 26984,
+          "wait_instructions": {
+            "WARPGROUP.DEPBAR.LE gsb0, 0x1 ;": 256,
+            "WARPGROUP.DEPBAR.LE gsb0, 0x0 ;": 48
+          },
+          "selected_counts": {
+            "BAR.SYNC.DEFER_BLOCKING": 59,
+            "MEMBAR.SC.CTA": 1,
+            "BAR.ARV": 1,
+            "MEMBAR.ALL.CTA": 121,
+            "MEMBAR.ALL.GPU": 56,
+            "ERRBAR;": 57,
+            "CGAERRBAR": 57,
+            "STL": 30,
+            "WARPGROUP.ARRIVE": 256,
+            "HGMMA.64x24x16.F32.BF16": 64,
+            "WARPGROUP.DEPBAR.LE": 304,
+            "LDL": 50,
+            "HGMMA.64x8x16.F32.BF16": 64,
+            "HGMMA.64x16x16.F32.BF16": 64,
+            "HGMMA.64x40x16.F32.BF16": 64,
+            "HGMMA.64x32x16.F32.BF16": 64,
+            "HGMMA.64x56x16.F32.BF16": 64,
+            "HGMMA.64x64x16.F32.BF16": 64,
+            "HGMMA.64x48x16.F32.BF16": 64,
+            "LDL.LU": 4,
+            "MEMBAR.SC.GPU": 1
+          }
+        },
+        "_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE": {
+          "instructions": 26984,
+          "wait_instructions": {
+            "WARPGROUP.DEPBAR.LE gsb0, 0x1 ;": 256,
+            "WARPGROUP.DEPBAR.LE gsb0, 0x0 ;": 48
+          },
+          "selected_counts": {
+            "BAR.SYNC.DEFER_BLOCKING": 59,
+            "MEMBAR.SC.CTA": 1,
+            "BAR.ARV": 1,
+            "MEMBAR.ALL.CTA": 121,
+            "MEMBAR.ALL.GPU": 56,
+            "ERRBAR;": 57,
+            "CGAERRBAR": 57,
+            "STL": 30,
+            "WARPGROUP.ARRIVE": 256,
+            "HGMMA.64x24x16.F32.BF16": 64,
+            "WARPGROUP.DEPBAR.LE": 304,
+            "LDL": 50,
+            "HGMMA.64x8x16.F32.BF16": 64,
+            "HGMMA.64x16x16.F32.BF16": 64,
+            "HGMMA.64x40x16.F32.BF16": 64,
+            "HGMMA.64x32x16.F32.BF16": 64,
+            "HGMMA.64x56x16.F32.BF16": 64,
+            "HGMMA.64x64x16.F32.BF16": 64,
+            "HGMMA.64x48x16.F32.BF16": 64,
+            "LDL.LU": 4,
+            "MEMBAR.SC.GPU": 1
+          }
+        }
+      }
+    },
+    "candidate": {
+      "sass_sha256": "15be6929dacc357803c1666247a8de50d8e38686aa547d1fd1fd85b4670025dd",
+      "entries": {
+        "_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE": {
+          "instructions": 27272,
+          "wait_instructions": {
+            "WARPGROUP.DEPBAR.LE gsb0, 0x1 ;": 256,
+            "WARPGROUP.DEPBAR.LE gsb0, 0x0 ;": 48
+          },
+          "selected_counts": {
+            "BAR.SYNC.DEFER_BLOCKING": 59,
+            "MEMBAR.SC.CTA": 1,
+            "BAR.ARV": 1,
+            "MEMBAR.ALL.CTA": 121,
+            "MEMBAR.ALL.GPU": 56,
+            "ERRBAR;": 57,
+            "CGAERRBAR": 57,
+            "WARPGROUP.ARRIVE": 256,
+            "HGMMA.64x24x16.F32.BF16": 64,
+            "WARPGROUP.DEPBAR.LE": 304,
+            "HGMMA.64x8x16.F32.BF16": 64,
+            "HGMMA.64x16x16.F32.BF16": 64,
+            "HGMMA.64x40x16.F32.BF16": 64,
+            "HGMMA.64x32x16.F32.BF16": 64,
+            "HGMMA.64x56x16.F32.BF16": 64,
+            "HGMMA.64x64x16.F32.BF16": 64,
+            "HGMMA.64x48x16.F32.BF16": 64,
+            "STL": 10,
+            "LDL": 8,
+            "LDL.LU": 1,
+            "MEMBAR.SC.GPU": 1
+          }
+        },
+        "_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE": {
+          "instructions": 27272,
+          "wait_instructions": {
+            "WARPGROUP.DEPBAR.LE gsb0, 0x1 ;": 256,
+            "WARPGROUP.DEPBAR.LE gsb0, 0x0 ;": 48
+          },
+          "selected_counts": {
+            "BAR.SYNC.DEFER_BLOCKING": 59,
+            "MEMBAR.SC.CTA": 1,
+            "BAR.ARV": 1,
+            "MEMBAR.ALL.CTA": 121,
+            "MEMBAR.ALL.GPU": 56,
+            "ERRBAR;": 57,
+            "CGAERRBAR": 57,
+            "WARPGROUP.ARRIVE": 256,
+            "HGMMA.64x24x16.F32.BF16": 64,
+            "WARPGROUP.DEPBAR.LE": 304,
+            "HGMMA.64x8x16.F32.BF16": 64,
+            "HGMMA.64x16x16.F32.BF16": 64,
+            "HGMMA.64x40x16.F32.BF16": 64,
+            "HGMMA.64x32x16.F32.BF16": 64,
+            "HGMMA.64x56x16.F32.BF16": 64,
+            "HGMMA.64x64x16.F32.BF16": 64,
+            "HGMMA.64x48x16.F32.BF16": 64,
+            "STL": 10,
+            "LDL": 8,
+            "LDL.LU": 1,
+            "MEMBAR.SC.GPU": 1
+          }
+        }
+      }
+    }
+  },
+  "main": {
+    "control": {
+      "sass_sha256": "bc8a347f6cf081f623d238b83ac1a4e2069a76a406a39270e510b8ea6ac90d5c",
+      "entries": {
+        "_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE": {
+          "instructions": 24112,
+          "wait_instructions": {
+            "WARPGROUP.DEPBAR.LE gsb0, 0x1 ;": 256,
+            "WARPGROUP.DEPBAR.LE gsb0, 0x0 ;": 48
+          },
+          "selected_counts": {
+            "BAR.SYNC.DEFER_BLOCKING": 60,
+            "MEMBAR.SC.CTA": 1,
+            "BAR.ARV": 1,
+            "MEMBAR.ALL.CTA": 121,
+            "MEMBAR.ALL.GPU": 56,
+            "ERRBAR;": 57,
+            "CGAERRBAR": 57,
+            "WARPGROUP.ARRIVE": 256,
+            "HGMMA.64x24x16.F32.BF16": 64,
+            "WARPGROUP.DEPBAR.LE": 304,
+            "HGMMA.64x8x16.F32.BF16": 64,
+            "HGMMA.64x16x16.F32.BF16": 64,
+            "HGMMA.64x40x16.F32.BF16": 64,
+            "HGMMA.64x32x16.F32.BF16": 64,
+            "HGMMA.64x56x16.F32.BF16": 64,
+            "HGMMA.64x64x16.F32.BF16": 64,
+            "HGMMA.64x48x16.F32.BF16": 64,
+            "STL": 1,
+            "LDL": 8,
+            "MEMBAR.SC.GPU": 1
+          }
+        },
+        "_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE": {
+          "instructions": 24112,
+          "wait_instructions": {
+            "WARPGROUP.DEPBAR.LE gsb0, 0x1 ;": 256,
+            "WARPGROUP.DEPBAR.LE gsb0, 0x0 ;": 48
+          },
+          "selected_counts": {
+            "BAR.SYNC.DEFER_BLOCKING": 60,
+            "MEMBAR.SC.CTA": 1,
+            "BAR.ARV": 1,
+            "MEMBAR.ALL.CTA": 121,
+            "MEMBAR.ALL.GPU": 56,
+            "ERRBAR;": 57,
+            "CGAERRBAR": 57,
+            "WARPGROUP.ARRIVE": 256,
+            "HGMMA.64x24x16.F32.BF16": 64,
+            "WARPGROUP.DEPBAR.LE": 304,
+            "HGMMA.64x8x16.F32.BF16": 64,
+            "HGMMA.64x16x16.F32.BF16": 64,
+            "HGMMA.64x40x16.F32.BF16": 64,
+            "HGMMA.64x32x16.F32.BF16": 64,
+            "HGMMA.64x56x16.F32.BF16": 64,
+            "HGMMA.64x64x16.F32.BF16": 64,
+            "HGMMA.64x48x16.F32.BF16": 64,
+            "STL": 1,
+            "LDL": 8,
+            "MEMBAR.SC.GPU": 1
+          }
+        }
+      }
+    },
+    "candidate": {
+      "sass_sha256": "a3efc0c7132430588ddea46ae6f2c786336bec8a28de4d741fefc774d445421c",
+      "entries": {
+        "_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE": {
+          "instructions": 24696,
+          "wait_instructions": {
+            "WARPGROUP.DEPBAR.LE gsb0, 0x1 ;": 256,
+            "WARPGROUP.DEPBAR.LE gsb0, 0x0 ;": 48
+          },
+          "selected_counts": {
+            "BAR.SYNC.DEFER_BLOCKING": 60,
+            "MEMBAR.SC.CTA": 1,
+            "BAR.ARV": 1,
+            "MEMBAR.ALL.CTA": 121,
+            "MEMBAR.ALL.GPU": 56,
+            "ERRBAR;": 57,
+            "CGAERRBAR": 57,
+            "WARPGROUP.ARRIVE": 256,
+            "HGMMA.64x24x16.F32.BF16": 64,
+            "WARPGROUP.DEPBAR.LE": 304,
+            "HGMMA.64x8x16.F32.BF16": 64,
+            "HGMMA.64x16x16.F32.BF16": 64,
+            "HGMMA.64x40x16.F32.BF16": 64,
+            "HGMMA.64x32x16.F32.BF16": 64,
+            "HGMMA.64x56x16.F32.BF16": 64,
+            "HGMMA.64x64x16.F32.BF16": 64,
+            "HGMMA.64x48x16.F32.BF16": 64,
+            "MEMBAR.SC.GPU": 1
+          }
+        },
+        "_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE": {
+          "instructions": 24696,
+          "wait_instructions": {
+            "WARPGROUP.DEPBAR.LE gsb0, 0x1 ;": 256,
+            "WARPGROUP.DEPBAR.LE gsb0, 0x0 ;": 48
+          },
+          "selected_counts": {
+            "BAR.SYNC.DEFER_BLOCKING": 60,
+            "MEMBAR.SC.CTA": 1,
+            "BAR.ARV": 1,
+            "MEMBAR.ALL.CTA": 121,
+            "MEMBAR.ALL.GPU": 56,
+            "ERRBAR;": 57,
+            "CGAERRBAR": 57,
+            "WARPGROUP.ARRIVE": 256,
+            "HGMMA.64x24x16.F32.BF16": 64,
+            "WARPGROUP.DEPBAR.LE": 304,
+            "HGMMA.64x8x16.F32.BF16": 64,
+            "HGMMA.64x16x16.F32.BF16": 64,
+            "HGMMA.64x40x16.F32.BF16": 64,
+            "HGMMA.64x32x16.F32.BF16": 64,
+            "HGMMA.64x56x16.F32.BF16": 64,
+            "HGMMA.64x64x16.F32.BF16": 64,
+            "HGMMA.64x48x16.F32.BF16": 64,
+            "MEMBAR.SC.GPU": 1
+          }
+        }
+      }
+    }
+  }
+}
