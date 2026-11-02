@@ -2,6 +2,10 @@
 
 This is the stable cross-session entry point. Read the latest report, its evidence date and subsequent commits before continuing. Existing captain/worker ownership, submission approvals and frozen experiment gates remain in effect; a research recommendation is not a GPU allocation.
 
+## Active top-100 execution
+
+[November 2: Delegated incumbent hotspot work](2026-11-02-top100-delegated-hotspots.md) - explicit user allocation: reuse fresh incumbent profiles, validate weighted priorities, and isolate attention and longer-token expert prototypes. Existing T1/compression owners preserved; no duplicate dispatch or automatic scored substitution.
+
 ## Latest status and alignment assessment
 
 [November 2: Experiment alignment status](2026-11-02-experiment-alignment-status.md) - evidence 6110e4a. Current compression and T1 work follows research, but no new performance-qualified winner. PR target failed host compilation; private retry is quota-blocked. T1 has interim local secondary-compiler evidence only. Newer operational receipts supersede the research's earlier one-check snapshot; existing captain/worker ownership remains unchanged.
