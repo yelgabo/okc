@@ -1,0 +1,14 @@
+test_actual_builders_sources_flags_and_cache_independence (__main__.ContinuityTests.test_actual_builders_sources_flags_and_cache_independence) ... ok
+test_actual_final_binding_all12_and_fallbacks (__main__.ContinuityTests.test_actual_final_binding_all12_and_fallbacks) ... ok
+test_all_original_python_ast_except_two_edits (__main__.ContinuityTests.test_all_original_python_ast_except_two_edits) ... ok
+test_key_newrow_and_causal_coverage (__main__.ContinuityTests.test_key_newrow_and_causal_coverage) ... ok
+test_native_exact_inverse_and_math (__main__.ContinuityTests.test_native_exact_inverse_and_math) ... ok
+test_pages_short_long_and_lifetime_negative (__main__.ContinuityTests.test_pages_short_long_and_lifetime_negative) ... ok
+test_plain_deterministic_and_wrong_source (__main__.ContinuityTests.test_plain_deterministic_and_wrong_source) ... ok
+test_ring_phase_and_early_reuse_negative (__main__.ContinuityTests.test_ring_phase_and_early_reuse_negative) ... ok
+test_state_module_ownership_and_scope_negatives (__main__.ContinuityTests.test_state_module_ownership_and_scope_negatives) ... ok
+
+----------------------------------------------------------------------
+Ran 9 tests in 15.910s
+
+OK

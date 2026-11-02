@@ -1,0 +1,232 @@
+{
+  "observed_utc": "2026-11-02T19:28:00Z",
+  "publication_commits": [
+    "19ab26cdda573a57db020dfa84decfe4c7fea52b",
+    "6e1811647d0f525be53a0ebf28bc98e9ca10731e"
+  ],
+  "candidate_sha256": "e912a5f4378301d62cd978b5012bc5d334dd0894f135784cf0c6cb50c87d6631",
+  "candidate_lf_bytes": 872908,
+  "archive_paths_verified": [
+    "docs/steering/evidence/2026-11-02-attention-continuity/candidate.py",
+    "docs/steering/evidence/2026-11-02-attention-continuity/control.cu",
+    "docs/steering/evidence/2026-11-02-attention-continuity/cpu-tests.txt",
+    "docs/steering/evidence/2026-11-02-attention-continuity/manifest.json",
+    "docs/steering/evidence/2026-11-02-attention-continuity/native.patch",
+    "docs/steering/evidence/2026-11-02-attention-continuity/summary.json",
+    "docs/steering/evidence/2026-11-02-attention-continuity/treatment.cu",
+    "docs/steering/evidence/2026-11-02-attention-continuity/control-L1/device.cu",
+    "docs/steering/evidence/2026-11-02-attention-continuity/control-L1/device.cubin",
+    "docs/steering/evidence/2026-11-02-attention-continuity/control-L1/device.ptx",
+    "docs/steering/evidence/2026-11-02-attention-continuity/control-L1/manifest.json",
+    "docs/steering/evidence/2026-11-02-attention-continuity/control-L1/nvrtc.log",
+    "docs/steering/evidence/2026-11-02-attention-continuity/control-L1/ptxas.log",
+    "docs/steering/evidence/2026-11-02-attention-continuity/control-L8/device.cu",
+    "docs/steering/evidence/2026-11-02-attention-continuity/control-L8/device.cubin",
+    "docs/steering/evidence/2026-11-02-attention-continuity/control-L8/device.ptx",
+    "docs/steering/evidence/2026-11-02-attention-continuity/control-L8/manifest.json",
+    "docs/steering/evidence/2026-11-02-attention-continuity/control-L8/nvrtc.log",
+    "docs/steering/evidence/2026-11-02-attention-continuity/control-L8/ptxas.log",
+    "docs/steering/evidence/2026-11-02-attention-continuity/treatment-L1/device.cu",
+    "docs/steering/evidence/2026-11-02-attention-continuity/treatment-L1/device.cubin",
+    "docs/steering/evidence/2026-11-02-attention-continuity/treatment-L1/device.ptx",
+    "docs/steering/evidence/2026-11-02-attention-continuity/treatment-L1/manifest.json",
+    "docs/steering/evidence/2026-11-02-attention-continuity/treatment-L1/nvrtc.log",
+    "docs/steering/evidence/2026-11-02-attention-continuity/treatment-L1/ptxas.log",
+    "docs/steering/evidence/2026-11-02-attention-continuity/treatment-L8/device.cu",
+    "docs/steering/evidence/2026-11-02-attention-continuity/treatment-L8/device.cubin",
+    "docs/steering/evidence/2026-11-02-attention-continuity/treatment-L8/device.ptx",
+    "docs/steering/evidence/2026-11-02-attention-continuity/treatment-L8/manifest.json",
+    "docs/steering/evidence/2026-11-02-attention-continuity/treatment-L8/nvrtc.log",
+    "docs/steering/evidence/2026-11-02-attention-continuity/treatment-L8/ptxas.log"
+  ],
+  "actual_final_kernel_cases": [
+    {
+      "batch": 1,
+      "length": 1,
+      "window": 2048,
+      "page": 1,
+      "actual_final_kernel_module": "control",
+      "full_argument_tuple_equal": true
+    },
+    {
+      "batch": 1,
+      "length": 1,
+      "window": 0,
+      "page": 1,
+      "actual_final_kernel_module": "control",
+      "full_argument_tuple_equal": true
+    },
+    {
+      "batch": 16,
+      "length": 1,
+      "window": 2048,
+      "page": 1,
+      "actual_final_kernel_module": "control",
+      "full_argument_tuple_equal": true
+    },
+    {
+      "batch": 16,
+      "length": 1,
+      "window": 0,
+      "page": 1,
+      "actual_final_kernel_module": "continuity",
+      "full_argument_tuple_equal": true
+    },
+    {
+      "batch": 32,
+      "length": 1,
+      "window": 2048,
+      "page": 1,
+      "actual_final_kernel_module": "control",
+      "full_argument_tuple_equal": true
+    },
+    {
+      "batch": 32,
+      "length": 1,
+      "window": 0,
+      "page": 1,
+      "actual_final_kernel_module": "continuity",
+      "full_argument_tuple_equal": true
+    },
+    {
+      "batch": 1,
+      "length": 8,
+      "window": 2048,
+      "page": 1,
+      "actual_final_kernel_module": "control",
+      "full_argument_tuple_equal": true
+    },
+    {
+      "batch": 1,
+      "length": 8,
+      "window": 0,
+      "page": 1,
+      "actual_final_kernel_module": "control",
+      "full_argument_tuple_equal": true
+    },
+    {
+      "batch": 16,
+      "length": 8,
+      "window": 2048,
+      "page": 1,
+      "actual_final_kernel_module": "control",
+      "full_argument_tuple_equal": true
+    },
+    {
+      "batch": 16,
+      "length": 8,
+      "window": 0,
+      "page": 1,
+      "actual_final_kernel_module": "continuity",
+      "full_argument_tuple_equal": true
+    },
+    {
+      "batch": 32,
+      "length": 8,
+      "window": 2048,
+      "page": 1,
+      "actual_final_kernel_module": "control",
+      "full_argument_tuple_equal": true
+    },
+    {
+      "batch": 32,
+      "length": 8,
+      "window": 0,
+      "page": 1,
+      "actual_final_kernel_module": "continuity",
+      "full_argument_tuple_equal": true
+    },
+    {
+      "batch": 33,
+      "length": 1,
+      "window": 0,
+      "page": 1,
+      "actual_final_kernel_module": "control",
+      "full_argument_tuple_equal": true
+    },
+    {
+      "batch": 4,
+      "length": 1,
+      "window": 2048,
+      "page": 64,
+      "actual_final_kernel_module": "control",
+      "full_argument_tuple_equal": true
+    },
+    {
+      "batch": 4,
+      "length": 8,
+      "window": 0,
+      "page": 64,
+      "actual_final_kernel_module": "control",
+      "full_argument_tuple_equal": true
+    },
+    {
+      "batch": 16,
+      "length": 1,
+      "window": 0,
+      "page": 64,
+      "actual_final_kernel_module": "control",
+      "full_argument_tuple_equal": true
+    }
+  ],
+  "resources_reused_not_recompiled": [
+    {
+      "length": 1,
+      "resources": [
+        {
+          "arm": "control",
+          "registers": 128,
+          "barriers": 3,
+          "stack_spill_bytes": [
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "arm": "treatment",
+          "registers": 128,
+          "barriers": 3,
+          "stack_spill_bytes": [
+            0,
+            0,
+            0
+          ]
+        }
+      ]
+    },
+    {
+      "length": 8,
+      "resources": [
+        {
+          "arm": "control",
+          "registers": 80,
+          "barriers": 16,
+          "stack_spill_bytes": [
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "arm": "treatment",
+          "registers": 80,
+          "barriers": 16,
+          "stack_spill_bytes": [
+            0,
+            0,
+            0
+          ]
+        }
+      ]
+    }
+  ],
+  "negative": {
+    "case": "B33 L1 full P1 direct _launch7 explicit prepared continuity module",
+    "final_kernel_correctly_selected_control": true,
+    "direct_entry_rejected": false,
+    "direct_entry_ran_continuity": true,
+    "scope": "Python stand-in source-scope guard violation, not an observed GPU corruption"
+  },
+  "decision": "NO_DUPLICATE_CANDIDATE_OR_COMPILER_RETRY; CANONICAL_DIRECT_ENTRY_SCOPE_GAP_FOR_CAPTAIN"
+}
