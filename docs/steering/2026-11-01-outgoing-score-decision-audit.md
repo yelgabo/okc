@@ -1,5 +1,9 @@
 # Independent four-arm score decision audit
 
+## November2 04:56UTC accepted-check reconciliation
+
+Evidence commit `ddbed42cfa765307081dcd16309e78780f77f46c`: captain read the archived owning receipt and wait registration directly. Exact ID `9adfd4dbc98f4998`, board muse_decode_layer, mode check, team yelgabo, server content `0af65ed333351fae1b386cac469aee043b3ac24b040cf6713c65fa9b76147ea2` with matching payload_ref, queued/resultnull in that receipt. Worker acceptance report records04:51:11.656UTC, prereg3d00a62, physical f25d714e/934942B, frozen reader5435108e, fresh no-live preflight and postaccept6private/5scored. These are acceptance and association facts, not runtime or performance evidence. Worker retains sole wait16147/terminal-reader/archive ownership; captain will not duplicate polling or dispatch. Next decision waits for actual target qualification and paired result, while existing researcher continues broader design. No new experiment or public/default authorization; zero newly performance-qualified winners.
+
 ## November2 04:49UTC differential review addendum
 
 Evidence base `ddb200aa615087f44bbb4cbf6fe6eec94a835674`. Previous goal turn was a verified wait with an independent CPU harness rerun: existing worker ordinal5 and researcher ordinal7 were authoritative running, not restarted. This turn completes an independent differential check against the actual worker reader rather than another source-only scoring proposal.
