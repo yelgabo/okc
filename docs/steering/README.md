@@ -4,11 +4,15 @@ This is the stable cross-session entry point. Read the latest report, its eviden
 
 ## Latest human ROI priority
 
+[Attention ROI and step-change priorities](2026-11-02-attention-roi-and-step-change-priorities.md): current human asks for10x thinking and a top100-capable path. Attention continuity is deprioritized; freeze delivered6e181/e912 source, HOLD target/harness/tuning (worker directly acknowledged). Even7us net in each four full cells gives only0.560% layer; sampled gap6.576%. P0captain protects pivot; P1existing OKC Developer picks up one45-active-minute no-quota complete expert-engine architecture decision, comparing whole dataflows and delivering two distinct designs plus a quantified substantial-layer path or scoped STOP. P2existing researcher independently reviews semantics/ROI. No new check/public authority; prior1%component gate is insufficient roadmap justification.
+
 [Evaluator-delta audit](2026-11-02-captain-evaluator-delta.md): three owning receipts validate; twelve declared benchmark cases match excluding only seed, with only the config file hash changing among listed evaluator files. Config semantics/dependency effects remain unresolved. No baseline repeat or target allocation; existing attention source task and net full-layer ROI gate remain binding.
 
 [T1 full-layer ROI and completed review](2026-11-02-t1-layer-roi-and-review-status.md): user asks to avoid tiny-optimization checks. T1 review/test already completed; exact28248eb5 treatment is parked, no second check. One-percent layer gain requires about4.565us net decode1 saving; a1% standalone gate could imply only0.340% layer gain under the stated conditional model. Before another target allocation, captain must record a credible >=1% net six-load layer contribution, exposed-time evidence, replacement costs, strongest alternative and stop rule; favor several-percent mechanisms. No new dispatch permission or acknowledgment is claimed.
 
 ## Latest standalone component harness
+
+[Attention delivered source checkpoint](2026-11-02-worker-attention-continuity.md):19ab26cd/6e181164, final872908LF/e912a5f4, native4efb6714. Worker reports7CPU/facade tests and fixed secondary resource comparisons; no target numerics or measured savings. Preserved under the current human ROI HOLD above, not queued for a check.
 
 [Isolated attention continuity implementation allocation](2026-11-02-captain-attention-continuity-allocation.md): after two valid MoE negatives, existing worker receives one50-active-minute source/CPU/fixed-secondary task. Preserve layer math/half-merge in dedicated scratch, explicit barrier-init publication and unchanged page pipeline/launch tuples. No GPU/CLI/POST/harness/default authorization; prior plain-toggle STOP remains scoped and valid.
 
@@ -102,6 +106,7 @@ Publication-time source progress: [owner-event amendment](2026-11-02-worker-pr-g
 
 | New report | Evidence | Scope |
 |---|---|---|
+| [2026-11-02 attention ROI and step-change queue](2026-11-02-attention-roi-and-step-change-priorities.md) | 8a05389d; cc474/607; delivered6e181; fresh11:22AM PST | Exact weighted attention sizing, target HOLD/worker acknowledgment,10x architecture-first reprioritization and concrete existing-owner work queue |
 | [2026-11-02 T1 layer ROI and review status](2026-11-02-t1-layer-roi-and-review-status.md) | 5f687801; own28248eb5; cc474/607; fresh11:10AM PST | Quantified complete-layer thresholds, independently reproduced matched T1 loss, completed captain timeline and user's no-tiny-check ROI gate |
 | [2026-11-02 independent pre-gamma terminal monitor](2026-11-02-pregamma-terminal-monitor.md) | ce14d11f; own56e0c8b; fresh18:28UTC receipts | Frozen reader independently reproduced valid component loss; exact treatment parked, existing held T1 review next, ranks/quota/deadline verified |
 | [2026-11-02 standalone MoE harness](2026-11-02-top100-moe-harness.md) | 785846d; ca5cf8f; payload557c67fe | Candidate-official held component wrapper, real-host facade orchestration and strict owning reader; no target readiness or layer inference |
