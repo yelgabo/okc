@@ -1,0 +1,475 @@
+{
+  "scope": {
+    "date": "2026-11-02",
+    "started_utc": "2026-11-02T12:13:57Z",
+    "evidence_frozen_utc": "2026-11-02T12:33:47.553Z",
+    "checkout": "C:/Users/gretc/Documents/GitHub/okc",
+    "origin": "https://github.com/yelgabo/okc.git",
+    "review_head": "8184227480d40ac66f27397ead31b75ec26b2def",
+    "prior_handle_intake": "0119db3",
+    "constraints": "source/archive/CPU only; no donor module import, GPU, compiler, challenge CLI, kernel edits, subagents"
+  },
+  "queries": [
+    {
+      "query": "search:\"muse_decode_layer\" in:readme",
+      "total_count": 17,
+      "returned": 17,
+      "incomplete_results": false
+    },
+    {
+      "query": "search:\"Open Kernel Challenge\"",
+      "total_count": 27,
+      "returned": 27,
+      "incomplete_results": false
+    },
+    {
+      "query": "search:\"Muse Spark\" kernel",
+      "total_count": 19,
+      "returned": 19,
+      "incomplete_results": false
+    },
+    {
+      "query": "search:muse-kernels",
+      "total_count": 28,
+      "returned": 28,
+      "incomplete_results": false
+    },
+    {
+      "query": "search:kernel-challenge user:smelov",
+      "total_count": 0,
+      "returned": 0,
+      "incomplete_results": false
+    },
+    {
+      "query": "search:\"muse_decode_layer\" in:readme fork:true",
+      "total_count": 17,
+      "returned": 17,
+      "incomplete_results": false
+    },
+    {
+      "query": "search:\"muse_moe_w4a16\" in:readme",
+      "total_count": 21,
+      "returned": 21,
+      "incomplete_results": false
+    },
+    {
+      "query": "search:\"openkernelchallenge.dev\" in:readme",
+      "total_count": 12,
+      "returned": 12,
+      "incomplete_results": false
+    },
+    {
+      "query": "search:\"Muse Spark Open\" in:readme",
+      "total_count": 938,
+      "returned": 100,
+      "incomplete_results": false
+    },
+    {
+      "query": "search:openkernelchallenge in:readme",
+      "total_count": 12,
+      "returned": 12,
+      "incomplete_results": false
+    },
+    {
+      "query": "search:\"muse_decode\"",
+      "total_count": 1,
+      "returned": 1,
+      "incomplete_results": false
+    },
+    {
+      "query": "search:\"muse_attention_decode\" in:readme",
+      "total_count": 18,
+      "returned": 18,
+      "incomplete_results": false
+    },
+    {
+      "query": "search:\"Muse\" \"H200\" \"kernel\" in:readme",
+      "total_count": 68,
+      "returned": 30,
+      "incomplete_results": false
+    },
+    {
+      "query": "search:\"open-kernel\" challenge fork:true",
+      "total_count": 29,
+      "returned": 29,
+      "incomplete_results": false
+    },
+    {
+      "query": "searchpage2:\"Muse Spark\" \"kernel\" in:readme",
+      "total_count": 282,
+      "returned": 30,
+      "incomplete_results": false
+    },
+    {
+      "query": "searchpage2:\"Muse Spark Open\" \"H200\" in:readme",
+      "total_count": 43,
+      "returned": 13,
+      "incomplete_results": false
+    }
+  ],
+  "query_endpoints": [
+    {
+      "url": "https://api.github.com/repos/vjeux/kernels",
+      "status": 404,
+      "date": "2026-11-02T12:15:08.226Z"
+    },
+    {
+      "url": "https://api.github.com/repos/smelov/kernel-challenge",
+      "status": 404,
+      "date": "2026-11-02T12:15:08.328Z"
+    },
+    {
+      "url": "https://api.github.com/repos/codelion/muse-kernels",
+      "status": 404,
+      "date": "2026-11-02T12:15:08.428Z"
+    },
+    {
+      "url": "https://api.github.com/repos/prateekkumar98/Research",
+      "status": 404,
+      "date": "2026-11-02T12:15:08.555Z"
+    },
+    {
+      "url": "https://api.github.com/search/repositories?q=%22muse_decode_layer%22%20in%3Areadme&sort=updated&per_page=100",
+      "status": 200,
+      "date": "2026-11-02T12:15:36.204Z"
+    },
+    {
+      "url": "https://api.github.com/search/repositories?q=%22Open%20Kernel%20Challenge%22&sort=updated&per_page=100",
+      "status": 200,
+      "date": "2026-11-02T12:15:36.951Z"
+    },
+    {
+      "url": "https://api.github.com/search/repositories?q=%22Muse%20Spark%22%20kernel&sort=updated&per_page=100",
+      "status": 200,
+      "date": "2026-11-02T12:15:37.871Z"
+    },
+    {
+      "url": "https://api.github.com/search/repositories?q=muse-kernels&sort=updated&per_page=100",
+      "status": 200,
+      "date": "2026-11-02T12:15:38.745Z"
+    },
+    {
+      "url": "https://api.github.com/search/repositories?q=kernel-challenge%20user%3Asmelov&sort=updated&per_page=100",
+      "status": 200,
+      "date": "2026-11-02T12:15:39.006Z"
+    },
+    {
+      "url": "https://api.github.com/search/repositories?q=%22muse_decode_layer%22%20in%3Areadme%20fork%3Atrue&sort=updated&per_page=100&page=1",
+      "status": 200,
+      "date": "2026-11-02T12:16:06.898Z"
+    },
+    {
+      "url": "https://api.github.com/search/repositories?q=%22muse_moe_w4a16%22%20in%3Areadme&sort=updated&per_page=100&page=1",
+      "status": 200,
+      "date": "2026-11-02T12:16:07.474Z"
+    },
+    {
+      "url": "https://api.github.com/search/repositories?q=%22openkernelchallenge.dev%22%20in%3Areadme&sort=updated&per_page=100&page=1",
+      "status": 200,
+      "date": "2026-11-02T12:16:07.962Z"
+    },
+    {
+      "url": "https://api.github.com/search/repositories?q=%22Muse%20Spark%20Open%22%20in%3Areadme&sort=updated&per_page=100&page=1",
+      "status": 200,
+      "date": "2026-11-02T12:16:10.315Z"
+    },
+    {
+      "url": "https://api.github.com/search/repositories?q=openkernelchallenge%20in%3Areadme&sort=updated&per_page=30&page=1",
+      "status": 200,
+      "date": "2026-11-02T12:16:34.134Z"
+    },
+    {
+      "url": "https://api.github.com/search/repositories?q=%22muse_decode%22&sort=updated&per_page=30&page=1",
+      "status": 200,
+      "date": "2026-11-02T12:16:34.363Z"
+    },
+    {
+      "url": "https://api.github.com/search/repositories?q=%22muse_attention_decode%22%20in%3Areadme&sort=updated&per_page=30&page=1",
+      "status": 200,
+      "date": "2026-11-02T12:16:34.872Z"
+    },
+    {
+      "url": "https://api.github.com/search/repositories?q=%22Muse%22%20%22H200%22%20%22kernel%22%20in%3Areadme&sort=updated&per_page=30&page=1",
+      "status": 200,
+      "date": "2026-11-02T12:16:35.735Z"
+    },
+    {
+      "url": "https://api.github.com/search/repositories?q=%22open-kernel%22%20challenge%20fork%3Atrue&sort=updated&per_page=30&page=1",
+      "status": 200,
+      "date": "2026-11-02T12:16:36.435Z"
+    },
+    {
+      "url": "https://api.github.com/search/code?q=muse_decode_layer+-repo%3Alee101%2Fopenkernels+-repo%3Arohanarun%2FAuto-research-agent&per_page=100&page=1",
+      "status": 401,
+      "date": "2026-11-02T12:17:20.714Z"
+    },
+    {
+      "url": "https://api.github.com/repos/arunjyotisarmarsece24-jpg/neuro-spark-accel",
+      "status": 200,
+      "date": "2026-11-02T12:17:39.792Z"
+    },
+    {
+      "url": "https://api.github.com/repos/arunjyotisarmarsece24-jpg/neuro-spark-accel/commits/main",
+      "status": 200,
+      "date": "2026-11-02T12:17:40.003Z"
+    },
+    {
+      "url": "https://api.github.com/repos/arunjyotisarmarsece24-jpg/neuro-spark-accel/git/trees/8d927a8556b4173027d4f9e1f3d57ffe7fdfd516?recursive=1",
+      "status": 200,
+      "date": "2026-11-02T12:17:40.174Z"
+    },
+    {
+      "url": "https://api.github.com/repos/Akshaysanthosh/h200-kernel-lab",
+      "status": 200,
+      "date": "2026-11-02T12:17:40.337Z"
+    },
+    {
+      "url": "https://api.github.com/repos/Akshaysanthosh/h200-kernel-lab/commits/main",
+      "status": 200,
+      "date": "2026-11-02T12:17:40.712Z"
+    },
+    {
+      "url": "https://api.github.com/repos/Akshaysanthosh/h200-kernel-lab/git/trees/80bba2043c561a732acbb350d14b74c58cc48302?recursive=1",
+      "status": 200,
+      "date": "2026-11-02T12:17:40.881Z"
+    },
+    {
+      "url": "https://api.github.com/repos/turbo998/ai-research-public",
+      "status": 200,
+      "date": "2026-11-02T12:17:41.073Z"
+    },
+    {
+      "url": "https://api.github.com/repos/turbo998/ai-research-public/commits/main",
+      "status": 200,
+      "date": "2026-11-02T12:17:41.339Z"
+    },
+    {
+      "url": "https://api.github.com/repos/turbo998/ai-research-public/git/trees/ca162e048e57f7eccea001eb0d25e95610bab7fe?recursive=1",
+      "status": 200,
+      "date": "2026-11-02T12:17:41.530Z"
+    },
+    {
+      "url": "https://api.github.com/repos/VirenLoka/Harness",
+      "status": 200,
+      "date": "2026-11-02T12:17:41.744Z"
+    },
+    {
+      "url": "https://api.github.com/repos/VirenLoka/Harness/commits/main",
+      "status": 200,
+      "date": "2026-11-02T12:17:41.914Z"
+    },
+    {
+      "url": "https://api.github.com/repos/VirenLoka/Harness/git/trees/2ac0e7e446a684281392927b9c9677e0568f46cc?recursive=1",
+      "status": 200,
+      "date": "2026-11-02T12:17:42.111Z"
+    },
+    {
+      "url": "https://api.github.com/repos/arunjyotisarmarsece24-jpg/neuro-spark-accel/git/blobs/7bb7133fd04eb3c10d7b877cb109f3877c7d0bec",
+      "status": 200,
+      "date": "2026-11-02T12:17:56.602Z"
+    },
+    {
+      "url": "https://api.github.com/repos/Akshaysanthosh/h200-kernel-lab/git/blobs/fbc957fa8ca683abb8a39b89cbc6dfecea07a59c",
+      "status": 200,
+      "date": "2026-11-02T12:17:56.764Z"
+    },
+    {
+      "url": "https://api.github.com/repos/Akshaysanthosh/h200-kernel-lab/git/blobs/b7b9f7ce40c0d266e2311a763fb892bf21a81e6f",
+      "status": 200,
+      "date": "2026-11-02T12:17:56.911Z"
+    },
+    {
+      "url": "https://api.github.com/repos/Akshaysanthosh/h200-kernel-lab/git/blobs/f78c4363dd3a7bfc7d5ca5468e2d6958056f4cb5",
+      "status": 200,
+      "date": "2026-11-02T12:17:57.043Z"
+    },
+    {
+      "url": "https://api.github.com/repos/Akshaysanthosh/h200-kernel-lab/git/blobs/045d5caf6c4e54ea979698f7f739b588748c6922",
+      "status": 200,
+      "date": "2026-11-02T12:18:15.638Z"
+    },
+    {
+      "url": "https://api.github.com/repos/Akshaysanthosh/h200-kernel-lab/git/blobs/a038c1281f24e3516e277d9ee203375e2f8de81d",
+      "status": 200,
+      "date": "2026-11-02T12:18:15.832Z"
+    },
+    {
+      "url": "https://api.github.com/repos/Akshaysanthosh/h200-kernel-lab/git/blobs/9af39b4eb4227aa853da2605313344885af5b72d",
+      "status": 200,
+      "date": "2026-11-02T12:18:16.018Z"
+    },
+    {
+      "url": "https://api.github.com/repos/Akshaysanthosh/h200-kernel-lab/git/blobs/9978e0ef53e10eff9b081903cc0ba867d7002580",
+      "status": 200,
+      "date": "2026-11-02T12:18:16.187Z"
+    },
+    {
+      "url": "https://api.github.com/repos/Akshaysanthosh/h200-kernel-lab/git/blobs/0627017a5b49e438b56d112c71418ab95920298d",
+      "status": 200,
+      "date": "2026-11-02T12:18:16.361Z"
+    },
+    {
+      "url": "https://api.github.com/repos/Akshaysanthosh/h200-kernel-lab/git/blobs/064b8eb3ba2e83c71c2335ea07c7043574652a23",
+      "status": 200,
+      "date": "2026-11-02T12:19:28.679Z"
+    },
+    {
+      "url": "https://api.github.com/repos/Akshaysanthosh/h200-kernel-lab/git/blobs/b59728b23f0bdcf7bfdd527a7ced1b6f8711efca",
+      "status": 200,
+      "date": "2026-11-02T12:19:28.880Z"
+    },
+    {
+      "url": "https://api.github.com/repos/Akshaysanthosh/h200-kernel-lab/git/blobs/85d90ef6802090b69d5f9fe1448c14649dc6592d",
+      "status": 200,
+      "date": "2026-11-02T12:20:11.759Z"
+    },
+    {
+      "url": "https://api.github.com/repos/Akshaysanthosh/h200-kernel-lab/git/blobs/785247575fa2d5fa07380636cba77be4125a5d8e",
+      "status": 200,
+      "date": "2026-11-02T12:20:11.905Z"
+    },
+    {
+      "url": "https://api.github.com/repos/Akshaysanthosh/h200-kernel-lab/git/blobs/6a2a68f1aa929b1a08d5b83687fd62f199855df1",
+      "status": 200,
+      "date": "2026-11-02T12:22:03.619Z"
+    },
+    {
+      "url": "https://api.github.com/users/smelov/repos?per_page=100&sort=updated&page=1",
+      "status": 200,
+      "date": "2026-11-02T12:24:01.539Z"
+    },
+    {
+      "url": "https://api.github.com/users/codelion/repos?per_page=100&sort=updated&page=1",
+      "status": 200,
+      "date": "2026-11-02T12:24:03.341Z"
+    },
+    {
+      "url": "https://api.github.com/users/prateekkumar98/repos?per_page=100&sort=updated&page=1",
+      "status": 200,
+      "date": "2026-11-02T12:24:03.576Z"
+    },
+    {
+      "url": "https://api.github.com/users/codelion/repos?per_page=100&sort=updated&page=2",
+      "status": 200,
+      "date": "2026-11-02T12:24:47.568Z"
+    },
+    {
+      "url": "https://api.github.com/search/repositories?q=%22Muse%20Spark%22%20%22kernel%22%20in%3Areadme&sort=updated&per_page=30&page=2",
+      "status": 200,
+      "date": "2026-11-02T12:24:48.414Z"
+    },
+    {
+      "url": "https://api.github.com/search/repositories?q=%22Muse%20Spark%20Open%22%20%22H200%22%20in%3Areadme&sort=updated&per_page=30&page=2",
+      "status": 200,
+      "date": "2026-11-02T12:24:49.037Z"
+    },
+    {
+      "url": "https://api.github.com/repos/Akshaysanthosh/h200-kernel-lab/git/blobs/8587dc1068a0f9be7b9dc361bce517283087e716",
+      "status": 200,
+      "date": "2026-11-02T12:26:24.047Z"
+    },
+    {
+      "url": "https://api.github.com/repos/Akshaysanthosh/h200-kernel-lab/git/blobs/687f46da04b5dbaa1fda9021bb0f9cf6ca30f81c",
+      "status": 200,
+      "date": "2026-11-02T12:26:24.235Z"
+    },
+    {
+      "url": "https://api.github.com/repos/Akshaysanthosh/h200-kernel-lab/git/blobs/5fb0a7c090736ed49dfc2dcce36c12a0f71fcbcb",
+      "status": 200,
+      "date": "2026-11-02T12:26:24.430Z"
+    },
+    {
+      "url": "https://api.github.com/repos/Akshaysanthosh/h200-kernel-lab/git/blobs/a941a285c33a24780998caa6f3a3229bd166e0d2",
+      "status": 200,
+      "date": "2026-11-02T12:26:53.359Z"
+    },
+    {
+      "url": "https://api.github.com/repos/Akshaysanthosh/h200-kernel-lab/git/blobs/3c1e0ed06bb9c63a01660b221109c1ca059e092d",
+      "status": 200,
+      "date": "2026-11-02T12:26:53.498Z"
+    },
+    {
+      "url": "https://api.github.com/repos/Akshaysanthosh/h200-kernel-lab/git/blobs/66e3198226c02cdeb639df852428c3b283473f5f",
+      "status": 200,
+      "date": "2026-11-02T12:26:53.618Z"
+    },
+    {
+      "url": "https://api.github.com/repos/Akshaysanthosh/h200-kernel-lab/git/blobs/40fe8bc714cf8bee4df8b1822b0f750a94b2bac9",
+      "status": 200,
+      "date": "2026-11-02T12:26:53.742Z"
+    },
+    {
+      "url": "https://api.github.com/repos/Akshaysanthosh/h200-kernel-lab/git/blobs/70392d911aa19907a92ece820d97747031cc8b80",
+      "status": 200,
+      "date": "2026-11-02T12:27:45.764Z"
+    },
+    {
+      "url": "https://api.github.com/repos/Akshaysanthosh/h200-kernel-lab/git/blobs/65ff86f9cab4bd9635773e09588a386cd5ca8856",
+      "status": 200,
+      "date": "2026-11-02T12:27:45.903Z"
+    },
+    {
+      "url": "https://api.github.com/repos/Akshaysanthosh/h200-kernel-lab/git/blobs/186155ebd6be6d776d3314908293d32a32822385",
+      "status": 200,
+      "date": "2026-11-02T12:27:46.085Z"
+    },
+    {
+      "url": "https://api.github.com/repos/Akshaysanthosh/h200-kernel-lab/git/blobs/63da6a11c9ddaad00decdb8660efde0e2ebfe175",
+      "status": 200,
+      "date": "2026-11-02T12:30:33.752Z"
+    },
+    {
+      "url": "https://api.github.com/repos/Akshaysanthosh/h200-kernel-lab/git/blobs/9978e0ef53e10eff9b081903cc0ba867d7002580",
+      "status": 200,
+      "date": "2026-11-02T12:31:18.933Z"
+    },
+    {
+      "url": "https://api.github.com/repos/Akshaysanthosh/h200-kernel-lab/git/blobs/f78c4363dd3a7bfc7d5ca5468e2d6958056f4cb5",
+      "status": 200,
+      "date": "2026-11-02T12:31:19.122Z"
+    },
+    {
+      "url": "https://api.github.com/repos/Akshaysanthosh/h200-kernel-lab/git/blobs/a038c1281f24e3516e277d9ee203375e2f8de81d",
+      "status": 200,
+      "date": "2026-11-02T12:31:47.422Z"
+    },
+    {
+      "url": "https://api.github.com/repos/Akshaysanthosh/h200-kernel-lab/git/blobs/0627017a5b49e438b56d112c71418ab95920298d",
+      "status": 200,
+      "date": "2026-11-02T12:31:47.566Z"
+    }
+  ],
+  "inventory": [
+    {
+      "repo": "arunjyotisarmarsece24-jpg/neuro-spark-accel",
+      "pin": "8d927a8556b4173027d4f9e1f3d57ffe7fdfd516",
+      "tree_entries": 32,
+      "truncated": false
+    },
+    {
+      "repo": "Akshaysanthosh/h200-kernel-lab",
+      "pin": "80bba2043c561a732acbb350d14b74c58cc48302",
+      "tree_entries": 451,
+      "truncated": false
+    },
+    {
+      "repo": "turbo998/ai-research-public",
+      "pin": "ca162e048e57f7eccea001eb0d25e95610bab7fe",
+      "tree_entries": 827,
+      "truncated": false
+    },
+    {
+      "repo": "VirenLoka/Harness",
+      "pin": "2ac0e7e446a684281392927b9c9677e0568f46cc",
+      "tree_entries": 214,
+      "truncated": false
+    }
+  ],
+  "limits": [
+    "Broad query pages are bounded, not global completeness.",
+    "Code search direct401; connector267-hit response truncated, residual69-hit page10 not exhaustively inspected.",
+    "No new complete layer and no positive measured whole-six mechanism found in inspected sources.",
+    "No newly measured GPU outcome; external paired microbenchmarks do not establish own layer effect."
+  ],
+  "mechanism_evidence": "mechanisms.json"
+}
