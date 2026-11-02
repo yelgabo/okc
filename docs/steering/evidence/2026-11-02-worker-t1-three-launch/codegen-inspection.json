@@ -1,0 +1,66 @@
+{
+  "scope": "Static secondary PTX operator inventory, not cycles/runtime or exact incumbent SASS equivalence",
+  "entries": {
+    "_ZN6okc_t17gate_upENS_6ParamsE": {
+      "mma.sync.aligned.m16n8k16.row.col.f32.bf16.bf16.f32": 32,
+      "mul.bf16x2": 128,
+      "cvt.rn.bf16": 3,
+      "ex2.approx": 1,
+      "div.approx": 1,
+      "rsqrt.approx": 0,
+      "ld.local": 0,
+      "st.local": 0,
+      "atom.": 0,
+      "bar.sync": 1
+    },
+    "_ZN6okc_t14downENS_6ParamsE": {
+      "mma.sync.aligned.m16n8k16.row.col.f32.bf16.bf16.f32": 32,
+      "mul.bf16x2": 128,
+      "cvt.rn.bf16": 4,
+      "ex2.approx": 0,
+      "div.approx": 0,
+      "rsqrt.approx": 0,
+      "ld.local": 0,
+      "st.local": 0,
+      "atom.": 0,
+      "bar.sync": 1
+    },
+    "_ZN6okc_t112norm_combineENS_6ParamsE": {
+      "mma.sync.aligned.m16n8k16.row.col.f32.bf16.bf16.f32": 0,
+      "mul.bf16x2": 0,
+      "cvt.rn.bf16": 1,
+      "ex2.approx": 0,
+      "div.approx": 0,
+      "rsqrt.approx": 8,
+      "ld.local": 0,
+      "st.local": 0,
+      "atom.": 0,
+      "bar.sync": 16
+    }
+  },
+  "resources": {
+    "_ZN6okc_t112norm_combineENS_6ParamsE": {
+      "stack_bytes": 0,
+      "spill_store_bytes": 0,
+      "spill_load_bytes": 0,
+      "registers": 32,
+      "barriers": 1
+    },
+    "_ZN6okc_t14downENS_6ParamsE": {
+      "stack_bytes": 0,
+      "spill_store_bytes": 0,
+      "spill_load_bytes": 0,
+      "registers": 64,
+      "barriers": 1
+    },
+    "_ZN6okc_t17gate_upENS_6ParamsE": {
+      "stack_bytes": 0,
+      "spill_store_bytes": 0,
+      "spill_load_bytes": 0,
+      "registers": 64,
+      "barriers": 1
+    }
+  },
+  "new_host_syntax_or_link": "NOT RUN",
+  "GPU": false
+}

@@ -1,0 +1,16 @@
+ptxas info    : 0 bytes gmem
+ptxas info    : Compiling entry function '_ZN6okc_t112norm_combineENS_6ParamsE' for 'sm_90a'
+ptxas info    : Function properties for _ZN6okc_t112norm_combineENS_6ParamsE
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 32 registers, used 1 barriers, 64 bytes smem
+ptxas info    : Compile time = 20.207 ms
+ptxas info    : Compiling entry function '_ZN6okc_t14downENS_6ParamsE' for 'sm_90a'
+ptxas info    : Function properties for _ZN6okc_t14downENS_6ParamsE
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 64 registers, used 1 barriers, 4096 bytes smem
+ptxas info    : Compile time = 20.964 ms
+ptxas info    : Compiling entry function '_ZN6okc_t17gate_upENS_6ParamsE' for 'sm_90a'
+ptxas info    : Function properties for _ZN6okc_t17gate_upENS_6ParamsE
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 64 registers, used 1 barriers, 4096 bytes smem
+ptxas info    : Compile time = 20.573 ms

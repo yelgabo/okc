@@ -1,0 +1,16 @@
+test_actual_final_prepare_dispatch_and_independent_states (test_g_t1_three_launch.Contracts.test_actual_final_prepare_dispatch_and_independent_states) ... ok
+test_actual_layer_expert_dispatch_block_t1_and_t8 (test_g_t1_three_launch.Contracts.test_actual_layer_expert_dispatch_block_t1_and_t8) ... ok
+test_actual_pack_bit_layout_and_selected_scale_embedding (test_g_t1_three_launch.Contracts.test_actual_pack_bit_layout_and_selected_scale_embedding) ... ok
+test_actual_t8_all_other_sizes_and_unsupported_fallback (test_g_t1_three_launch.Contracts.test_actual_t8_all_other_sizes_and_unsupported_fallback) ... ok
+test_all_local_pair_counts_zero_through_eight (test_g_t1_three_launch.Contracts.test_all_local_pair_counts_zero_through_eight) ... ok
+test_bf16_boundaries_and_no_global_norm (test_g_t1_three_launch.Contracts.test_bf16_boundaries_and_no_global_norm) ... ok
+test_deepcopy_and_prepare_failure_no_activation (test_g_t1_three_launch.Contracts.test_deepcopy_and_prepare_failure_no_activation) ... ok
+test_empty_varied_routes_stale_scratch_and_slot_order (test_g_t1_three_launch.Contracts.test_empty_varied_routes_stale_scratch_and_slot_order) ... ok
+test_exact_prefix_helpers_and_all_seven_factories (test_g_t1_three_launch.Contracts.test_exact_prefix_helpers_and_all_seven_factories) ... ok
+test_mutation_negatives_and_three_ordered_launches (test_g_t1_three_launch.Contracts.test_mutation_negatives_and_three_ordered_launches) ... ok
+test_ranges_slot_mapping_and_padding (test_g_t1_three_launch.Contracts.test_ranges_slot_mapping_and_padding) ... ok
+
+----------------------------------------------------------------------
+Ran 11 tests in 15.706s
+
+OK

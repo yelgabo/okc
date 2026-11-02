@@ -1,0 +1,195 @@
+
+ptxas info    : 0 bytes gmem
+ptxas info    : Compiling entry function '_ZN6okc_t112norm_combineENS_6ParamsE' for 'sm_90a'
+ptxas info    : Function properties for _ZN6okc_t112norm_combineENS_6ParamsE
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 32 registers, used 1 barriers, 64 bytes smem
+ptxas info    : Compile time = 20.207 ms
+ptxas info    : Compiling entry function '_ZN6okc_t14downENS_6ParamsE' for 'sm_90a'
+ptxas info    : Function properties for _ZN6okc_t14downENS_6ParamsE
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 64 registers, used 1 barriers, 4096 bytes smem
+ptxas info    : Compile time = 20.964 ms
+ptxas info    : Compiling entry function '_ZN6okc_t17gate_upENS_6ParamsE' for 'sm_90a'
+ptxas info    : Function properties for _ZN6okc_t17gate_upENS_6ParamsE
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 64 registers, used 1 barriers, 4096 bytes smem
+ptxas info    : Compile time = 20.573 ms
+
+LOCAL_COMPILE_RESOURCES {"_ZN6okc_t112norm_combineENS_6ParamsE": {"stack_bytes": 0, "spill_store_bytes": 0, "spill_load_bytes": 0, "registers": 32, "barriers": 1}, "_ZN6okc_t14downENS_6ParamsE": {"stack_bytes": 0, "spill_store_bytes": 0, "spill_load_bytes": 0, "registers": 64, "barriers": 1}, "_ZN6okc_t17gate_upENS_6ParamsE": {"stack_bytes": 0, "spill_store_bytes": 0, "spill_load_bytes": 0, "registers": 64, "barriers": 1}}
+{
+  "started_epoch": 1793632968.6312077,
+  "generation": {
+    "base_sha256": "ba9e327cd7b96595ace4d0c1d0d78fe27c128f23ed0debcda97c7169fc3164ab",
+    "source_sha256": "faed74a8f6f10c87927555267ad3b7e2804db84b73e3dd12677968c7b646e266",
+    "bytes": 884252,
+    "native_sha256": "dbdd3381cc9b823afb9e7d8678bba536cd5d6e3731896153aee9908652237447",
+    "cpp_sha256": "64986286b26616a9fe70c885b53aee9c409af0ed694cd16f1ece47df62193b75",
+    "exact_reverse": true,
+    "scope": "T1 only",
+    "scratch_bytes": 204800,
+    "selected_math_helpers": {
+      "bmul2": "4f9801530e41961bc688c269ad7fabb14ffcbb18fbdb4ceaff12e7ed37a63511",
+      "mma_bf16": "f71d61792142810353ec66ebfd731a1f729f84ed1c4d6de09476ec9a6c282702",
+      "dq4": "c90ec560bcf965cf41e6a24671155091cae2f85156d2e71bcd631b6ff9fd2545",
+      "fork_bf16": "dfdbc0cb6ab6aed22c1acdda50aa72fb54ac1f54dca90fb22d0431307ea8ab2a",
+      "probe_q": "39be16e703a905a7413b8357637073af5ceb636842644d4679f4e0b728b701c6"
+    },
+    "existing_factory_flags_unchanged": true,
+    "CUDA_numerics": "NOT RUN",
+    "target_qualified": false,
+    "performance_qualified": false,
+    "launches": 3,
+    "extra_launches": 2
+  },
+  "scope": "ONE NVRTC13/PTXAS13 sm90a device-prefix compilation; no host build/link, Driver, GPU or challenge CLI",
+  "driver_sha256": "e695ef03bda22d86167b829618429c7d139c23ad9cf96294edd1211388d5620c",
+  "adapted_driver_sha256": "98e9adbfcb5c04c0146f1863c2f63fc5a3fa06f724cabf9cb2857dc962810679",
+  "actual_flags": [
+    "-O3",
+    "-gencode=arch=compute_90a,code=sm_90a",
+    "-lineinfo",
+    "-DOKC_NS=3",
+    "-DOKC_FNST=4",
+    "-DOKC_NSF=3",
+    "-DOKC_NW=8",
+    "-DOKC_TINY=1",
+    "-DOKC_EPI4=0",
+    "-DOKC_FAST1=2",
+    "-DOKC_L2H=0",
+    "-DOKC_NACC=4",
+    "-DOKC_UWARP=0",
+    "-DOKC_WS=1",
+    "-DOKC_WSB=1",
+    "-DOKC_WSBL=2",
+    "-DOKC_WSBLK=2",
+    "-DOKC_FINPF=1",
+    "-DOKC_PRMTSC=1",
+    "-DOKC_DQ7=1"
+  ],
+  "actual_routes": [
+    {
+      "tokens": 1,
+      "selected_key": "tiny"
+    },
+    {
+      "tokens": 8,
+      "selected_key": "tiny2"
+    },
+    {
+      "tokens": 16,
+      "selected_key": "mid"
+    },
+    {
+      "tokens": 32,
+      "selected_key": "b4"
+    },
+    {
+      "tokens": 33,
+      "selected_key": "main"
+    },
+    {
+      "tokens": 128,
+      "selected_key": "main"
+    },
+    {
+      "tokens": 256,
+      "selected_key": "main"
+    },
+    {
+      "tokens": 384,
+      "selected_key": "main"
+    }
+  ],
+  "numerical_validation": "NOT RUN",
+  "target_qualified": false,
+  "compiler_manifest": {
+    "source": "docs/steering/evidence/2026-11-02-worker-t1-three-launch/generated/selected.cu",
+    "source_sha256": "dbdd3381cc9b823afb9e7d8678bba536cd5d6e3731896153aee9908652237447",
+    "original_device_prefix_sha256": "48265777217fe380bdec0ab9ef6ce3fe511118c022bcc3cd17ffbbdc030f0b6f",
+    "compiled_device_prefix_sha256": "48265777217fe380bdec0ab9ef6ce3fe511118c022bcc3cd17ffbbdc030f0b6f",
+    "host_boundary": "#include <torch/extension.h>",
+    "virtual_headers": {
+      "type_traits": "#pragma once\nnamespace std { template<class T,T v> struct integral_constant {\nstatic constexpr T value=v; constexpr operator T() const noexcept {return value;}\n}; using true_type=integral_constant<bool,true>; using false_type=integral_constant<bool,false>; }\n",
+      "stdint.h": "#pragma once\ntypedef signed char int8_t; typedef unsigned char uint8_t;\ntypedef signed short int16_t; typedef unsigned short uint16_t;\ntypedef signed int int32_t; typedef unsigned int uint32_t;\ntypedef signed long int64_t; typedef unsigned long uint64_t;\ntypedef signed long intptr_t; typedef unsigned long uintptr_t;\n"
+    },
+    "options": [
+      "--gpu-architecture=compute_90a",
+      "--std=c++17",
+      "--generate-line-info",
+      "--device-as-default-execution-space",
+      "--include-path=/root/.cache/okc-cuda130-88/nvidia/cu13/include",
+      "--include-path=/root/.cache/okc-cuda130-88/nvidia/cu13/include",
+      "--include-path=/root/.cache/okc-cuda130-88/cuda_cccl-linux-x86_64-13.0.85-archive/include",
+      "-DOKC_NS=3",
+      "-DOKC_FNST=4",
+      "-DOKC_NSF=3",
+      "-DOKC_NW=8",
+      "-DOKC_TINY=1",
+      "-DOKC_EPI4=0",
+      "-DOKC_FAST1=2",
+      "-DOKC_L2H=0",
+      "-DOKC_NACC=4",
+      "-DOKC_UWARP=0",
+      "-DOKC_WS=1",
+      "-DOKC_WSB=1",
+      "-DOKC_WSBL=2",
+      "-DOKC_WSBLK=2",
+      "-DOKC_FINPF=1",
+      "-DOKC_PRMTSC=1",
+      "-DOKC_DQ7=1"
+    ],
+    "declaration_adapter": null,
+    "nvrtc_status": 0,
+    "gpu_execution": false,
+    "lowered": [
+      "_ZN6okc_t17gate_upENS_6ParamsE",
+      "_ZN6okc_t14downENS_6ParamsE",
+      "_ZN6okc_t112norm_combineENS_6ParamsE"
+    ],
+    "ptx_sha256": "b1c93ac1656ad766c8575dd31f154ea345fedd2dedbb27da41db19f158b43055",
+    "cubin_sha256": "80231b74a2fedfd6ded096f46f07ba7040553d1ef3954092238cbba64ad62ccd",
+    "ptxas": [
+      "/root/.cache/okc-cuda130-88/nvidia/cu13/bin/ptxas",
+      "-arch=sm_90a",
+      "-O3",
+      "-v",
+      "--warn-on-spills",
+      "docs/steering/evidence/2026-11-02-worker-t1-three-launch/fixed-compile/device.ptx",
+      "-o",
+      "docs/steering/evidence/2026-11-02-worker-t1-three-launch/fixed-compile/device.cubin"
+    ],
+    "exitcode": 0,
+    "resources": {
+      "_ZN6okc_t112norm_combineENS_6ParamsE": {
+        "stack_bytes": 0,
+        "spill_store_bytes": 0,
+        "spill_load_bytes": 0,
+        "registers": 32,
+        "barriers": 1
+      },
+      "_ZN6okc_t14downENS_6ParamsE": {
+        "stack_bytes": 0,
+        "spill_store_bytes": 0,
+        "spill_load_bytes": 0,
+        "registers": 64,
+        "barriers": 1
+      },
+      "_ZN6okc_t17gate_upENS_6ParamsE": {
+        "stack_bytes": 0,
+        "spill_store_bytes": 0,
+        "spill_load_bytes": 0,
+        "registers": 64,
+        "barriers": 1
+      }
+    },
+    "ptx_launch_bounds": [
+      ".maxntid 256, 1, 1",
+      ".maxntid 256, 1, 1",
+      ".maxntid 256, 1, 1"
+    ],
+    "ptxas_wgmma_serialization_warnings": 0
+  },
+  "decision": "DEVICE_COMPILE_PASS_NOT_TARGET_QUALIFIED",
+  "finished_epoch": 1793632969.1219988
+}
