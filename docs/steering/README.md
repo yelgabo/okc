@@ -1,5 +1,7 @@
 # Shared project steering
 
+Latest paired implementation registration: [Repaired-common OFF/ON private attribution](2026-11-01-rmw-common-pair-registration.md). Upload c4a5ee29 / 923915B; current common OFF returned officially. Original36rows/3banks/4placements/24cold rounds and full-six/null/regression gates retained;16 CPU tests and selected source/compile gates pass.295s total fit plausible, not measured. Exactly one authorized private tranche#2 after fresh quota/no-live preflight; no public/scored authorization.
+
 Latest T3 test fix: [Windows startup test PR #28997](2026-11-01-t3-windows-test-pr.md), head `c9736009` on upstream `e6e2ab05`. One test-only path-service correction; all 42 tests and affected typechecks pass. Explicit repro/before/after sections and POSIX path example published; all 10 gist files and PR verified anonymously. Aggregate check stalled in ignored-file scan and is disclosed; prior recovery PR unchanged.
 
 Latest H200 result: [Repaired RMW arm terminal qualification](2026-11-01-rmw-v2-h200-terminal.md), own PRIVATEc1931f0c9e834485. Full native startup/RMWexercise and13tests/12benchmarks/12profiles PASS; prepare109.269811s. Score2.121241x,CI[2.089422,2.153060]; historical607 point comparison-0.227725% is unmatched, not an RMW effect/promotion. Six46:16loads, full raw/adjusted timings, phase+cleanup/resources and owning receipts archived.1/4 private tranche used;9checks/5scored/no live at terminal. No follow-on/public dispatch; next gate is matched attribution protocol and remaining G short-path budget.
