@@ -1,0 +1,37 @@
+{
+  "source_sha256": "f25d714e928835fba07741ca56fa8783137032f268652c22ec4f5511d771bc9a",
+  "bytes": 934942,
+  "control_sha256": "4cbb13a9a359c9fe870a94ebcabc4706447778849f71d4aa54e47d69abbd1280",
+  "device_sha256": "0bade8f35d9b4104e7f9731236ac6c699245198a6e28d4548454af048eee01e4",
+  "core_sha256": "71ec68ac38c57df76d5aa517f419a5d25e15a7cfd72cb849501400143ef86ad8",
+  "conformance": {
+    "candidate_pin": "4cbb13a9a359c9fe870a94ebcabc4706447778849f71d4aa54e47d69abbd1280",
+    "authorization": "c4739708830cdb68ca138f83206de6945c4b0c82",
+    "scope": "outgoing seam requires owning runtime qualification; historical RMW PASS is not seam proof"
+  },
+  "prior_instrument_sha256": "785a90ca08ddde0c3b194fc219a0645cb8cd14bac02620d8714f0b66163a0b66",
+  "arms": [
+    "rawOFF1",
+    "rawOFF2",
+    "adapterOFF",
+    "adapterON"
+  ],
+  "seeds": [
+    993811,
+    993817,
+    993821
+  ],
+  "rows": 36,
+  "rounds": 24,
+  "flush_bytes": 268435456,
+  "total_guard_s": 295,
+  "build_census": {
+    "primary_native": 5,
+    "added_secondary_adapter": 1,
+    "original_secondary_factory_reused": true,
+    "attention_factory_reused": true,
+    "other_original_preparation_factories_unchanged": true
+  },
+  "host_compilation": "NOT_RUN; owning check only",
+  "private_check_only": true
+}
