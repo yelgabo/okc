@@ -1,6 +1,6 @@
 # Architecture performance tracker
 
-Last review: 2026-11-02 12:48 MST. Evidence snapshot: `ba0e1ff`.
+Last review: 2026-11-02 15:43 MST. Evidence snapshot: `13f5e41`.
 First review reconciles progress since `aab7d75`, the snapshot in the
 [architecture-family guide](architecture-families-2026-10-29.md).
 This is a review of recorded experiments, not a new benchmark run.
@@ -18,7 +18,26 @@ named control, not changes in aggregate score. Families overlap; their gains can
 | D. Dependency-aware scheduling | Dynamic claiming retained; new phase-A claim layouts lose | Phase-A modes 62/63 and K=0 controls 66/69 lose; lean claimed mode 68 is not timed. Earlier split-tail 52/53 losses stand. | Full ready-only queue remains untested. Reopen phase-A claims only after the no-work control ties mode 51 within 1 us at 128/256. |
 | E. Attention producer-consumer pipeline | Private VP2 cell win, six-load gate failed | VP2 took 10.168 µs versus 10.784 µs for the owned control on eight-token sliding attention. All three held-outs missed the full-score gate. | VP2 only changes the eight-token target. A later half-merge-preserving continuity source passed CPU checks and is frozen before H200 testing. |
 | F. Donor-based baseline/hybrid | Historical alygg77 measurement track | Prior F comparisons and owned C3 router gains remain recorded. Two new QKV128 variants lose despite correctness/resource passes. | G has a separate attributed-fork policy. Projection C2 remains best scored, with C3 paired component wins retained. |
-| G. Attributed keell0renz layer fork | Retained layer 2.126083× | Matched short-counter test missed its gate. G224 and timed SiLU passed correctness and missed performance triage. | Four-cell verify ended in a refunded infrastructure error. Outgoing dependency tests failed setup. Both fresh checks completed. The short serial policy missed confirmation gates. PR check failed target host compilation. Pre-gamma and one-token three-launch expert paths each passed standalone correctness and missed all 24 six-load comparisons. Both are parked before layer testing. |
+| G. Attributed keell0renz layer fork | Retained layer 2.126083× | Fixed two-front K128 passed correctness but lost at 128/256 in separate whole-layer runs. Confirmation canceled. Matched short-counter test missed its gate. G224 and timed SiLU passed correctness and missed performance triage. | Four-cell verify ended in a refunded infrastructure error. Outgoing dependency tests failed setup. Both fresh checks completed. The short serial policy missed confirmation gates. PR check failed target host compilation. Pre-gamma and one-token three-launch expert paths each passed standalone correctness and missed all 24 six-load comparisons. Both are parked before layer testing. |
+
+## November 2 review at 15:43 Vancouver time
+
+The G fork’s fixed K128 two-front expert passed 13 correctness tests and all 12 whole-layer benchmarks in private H200 check `bf8671b4bfa845a2` (source `15688256`). It scored **1.965158×** (within-run 95% CI 1.935681–1.994636×). The team parked this implementation and canceled confirmation. Public G1b4 `607eb52bdaf24160` retains 2.126083×. [Terminal decision](https://github.com/yelgabo/okc/blob/13f5e41/docs/steering/2026-11-02-driver-k128-terminal.md)
+
+The two-CTA candidate changed expert execution at 32, 128 and 256 tokens. The following complete-layer endpoints weight sliding and full context 46:16. Control `cc474883117947c0` ran the unchanged G1b4 in a separate job. Both jobs used the same evaluator files but different inputs, GPU nodes and drivers. The candidate used soft routing at 80k context with agentic spread on multibatch loads. Each timing cell had 20 repeats, except decode 1 with 60. No paired treatment interval was recorded. [Owning receipt](https://github.com/yelgabo/okc/blob/13f5e41/docs/steering/evidence/2026-11-02-driver-k128-first-check/status-wait.raw.json) · [Endpoint calculations](https://github.com/yelgabo/okc/blob/13f5e41/docs/steering/evidence/2026-11-02-driver-k128-first-check/terminal-analysis.json)
+
+| Load | Tokens | Candidate µs | Control µs | Change µs | Change % |
+|---|---:|---:|---:|---:|---:|
+| decode 1 | 1 | 79.325 | 78.765 | +0.560 | +0.71% |
+| decode 16 | 16 | 157.215 | 152.016 | +5.199 | +3.42% |
+| decode 32 | 32 | 208.955 | 191.898 | +17.057 | +8.89% |
+| verify 1 | 8 | 119.568 | 112.682 | +6.886 | +6.11% |
+| verify 16 | 128 | 319.297 | 261.713 | +57.584 | +22.00% |
+| verify 32 | 256 | 419.045 | 351.080 | +67.965 | +19.36% |
+
+The observed regressions cover the complete layer. This run cannot separate the effects of the grid, tile geometry or scheduling. The next funded G proposal keeps 256 output rows per unit and four compute warpgroups. A separate producer would decode weights into shared BF16 operands. It targets 32/128/256 tokens and has no GPU timing. This is an expert pipeline, distinct from Family E attention. [Next expert implementation](https://github.com/yelgabo/okc/blob/13f5e41/docs/steering/2026-11-02-driver-shared-weight-pipeline.md)
+
+A still leads the staged B implementations tested at 128/256. The grouped-contiguous work census found that the native path already skips unoccupied token tiles. The proposed scheduler has no demonstrated reduction in padded matrix work at equal geometry. The FLUTE screen also found no qualified routed two-GEMM configuration with the required scaling. Neither source screen adds a timing result. [Scheduled work census](https://github.com/yelgabo/okc/blob/13f5e41/docs/steering/2026-11-02-worker-grouped-engine-work-decision.md) · [FLUTE source screen](https://github.com/yelgabo/okc/blob/13f5e41/docs/steering/2026-11-02-research-flute-engine-screen.md)
 
 ## November 2 review at 12:48 Vancouver time
 
@@ -2521,6 +2540,7 @@ paired differences.
 | Retained G versus upstream G0 | Earlier independent official runs | +10.676 µs (+4.13%) | +8.500 µs (+2.42%) | Weighted verify latency. Cross-run reconstruction of existing jobs, no isolated repair timing. [Source records](https://github.com/yelgabo/okc/blob/e1adc0e/docs/steering/evidence/2026-11-01-g-integration-gap/cross-job-gap.json). |
 | G224 gather schedule | Historical public G1b4 | Weighted verify latency +14.617% | +20.564% | `e1271ad5e5e34b24`, independent run, all 13 tests passed. [Source](https://github.com/yelgabo/okc/blob/57930d0/docs/steering/2026-11-02-captain-g224-terminal-decision.md). |
 | Fully timed G SiLU table | Historical public G1b4 | 275.449 vs 269.347 µs, +6.102 µs (+2.27%) | 358.496 vs 359.297 µs, −0.802 µs (−0.22%) | `dc62cff972934f54`, one private check, affected loads, unmatched seeds and nodes. [Reconstruction](https://github.com/yelgabo/okc/blob/57930d0/docs/steering/2026-11-02-captain-timed-silu-terminal-decision.md). |
+| G fixed two-front K128, whole layer | Fresh G1b4, separate run | +57.584 µs (+22.00%) | +67.965 µs (+19.36%) | One private check per arm, different inputs and hardware environments. [Endpoint calculations](https://github.com/yelgabo/okc/blob/13f5e41/docs/steering/evidence/2026-11-02-driver-k128-first-check/terminal-analysis.json) |
 | G short serial policy, unchanged long paths | Fresh G1b4, separate run | +8.118 µs (+3.10%) | +10.431 µs (+2.97%) | `e4c8f00532b74d15` vs `cc474883117947c0`. Different seeds. Only 1/8-token cells exercised the treatment. [Exact comparison](https://github.com/yelgabo/okc/blob/fcf5452/docs/steering/2026-11-02-captain-serial-terminal-decision.md). |
 | G pre-gamma expert transport, standalone MoE | G incumbent controls, same process | +2.785 µs (+1.93%) | +2.779 µs (+1.41%) | `56e0c8b5634545e6`. Descriptive duplicate-placement means across three normal/skewed banks. [Source means](https://github.com/yelgabo/okc/blob/db7800a/docs/steering/evidence/2026-11-02-worker-moe-component/descriptive-load-summary.json). |
 | G one-token expert split, unchanged large-token paths | Fused G control in same process | +0.339 µs (+0.23%) | +0.048 µs (+0.02%) | `28248eb5e5854041`. Means over duplicate placements and six routing cases. Only T1 changed. [Raw medians](https://github.com/yelgabo/okc/blob/1786dbf/docs/steering/evidence/2026-11-02-worker-t1-moe-check/frozen-reader-result.json). |
@@ -2567,6 +2587,8 @@ with common preparation and private arm tensors. Both evidence scopes remain vis
 
 ## Decision and next evidence needed
 
+The fixed two-front K128 check is closed. The shared-operand expert proposal awaits its first complete-layer measurement. [Next expert implementation](https://github.com/yelgabo/okc/blob/13f5e41/docs/steering/2026-11-02-driver-shared-weight-pipeline.md)
+
 The latest complete-engine review closes both reviewed proposals at the source stage. Reopening grouped-contiguous Humming requires an exact legal workload and credible net whole-layer opportunity. The canonical attention continuity source is frozen pending stronger opportunity evidence. [Decisions](https://github.com/yelgabo/okc/blob/ba0e1ff/docs/steering/2026-11-02-captain-architecture-gate-reconciliation.md).
 
 The one-token expert split also failed on every targeted routing case. The paired component gate closes this specific three-launch candidate. [Terminal decision](https://github.com/yelgabo/okc/blob/1786dbf/docs/steering/2026-11-02-worker-t1-moe-terminal.md).
@@ -2591,6 +2613,8 @@ Prefill remains deferred. The final recorded campaign goal remains unmet.
 [Family G qualification](https://github.com/yelgabo/okc/blob/af3b550/docs/steering/2026-11-01-family-g-qualification.md).
 
 ## Review history and checkpoint
+
+- November 2, 15:43 Vancouver. Inspected through `13f5e41`, including job `bf8671b4bfa845a2` completed at 21:20:44 UTC and the 22:39 UTC implementation allocation.
 
 - 2026-11-02 12:48 Vancouver time. Reviewed `1786dbf..ba0e1ff` from local `4188c23`, including ruled-out changes, the canonical attention source and both expert-engine reviews. No new run-ledger or profile changes. All 18 untracked local receipts are already logged.
 
