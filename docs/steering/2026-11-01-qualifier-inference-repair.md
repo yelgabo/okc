@@ -142,3 +142,28 @@ The2.30 objective is captain planning, not a predicted gain from this treatment.
 GPU outcome, module selection, elapsed prepare cost and performance remain unknown
 at registration. Captain published593ba80 and1483aa1, then released README ownership;
 this worker adds only the implementation link and preserves concurrent WIP.
+
+## Accepted own private check, November 2 00:10:29 UTC
+
+Registration and repair were committed/pushed before dispatch as
+a0b6af2ec00dfed54f37fd81de00c14098748711. Immediate source regeneration and
+quota/jobs preflight passed. The service accepted private check
+**c1931f0c9e834485**, correct board muse_decode_layer, mode check, final
+ON978b29f955dbbab3a67aad0cc06a04148aba9d233ac95bdcac45d1efd141fc2a/918978B.
+Initial own status is queued/result null; its server content hash is
+ce36aa2c06c6003cea3613d1e40d94f986d29cd38fc6352ccb7363b82aab30bd
+and is distinct from file SHA256. Exact accepted envelope, initial status,
+preflight and source association are archived in this report's evidence directory.
+
+This consumes the first of at most four private layer checks in the initial
+tranche. No public submission occurred. Sole dispatch ownership remains here;
+an own-ID wait is attached. While queued, no GPU identity, startup result,
+prepare duration, native exercise, official timing, score or causal effect is
+established. Next gate is this own terminal receipt; no new arm or blind retry
+is registered. The actual archived failure-reader CLI was rerun after the
+explicit private-mode option and still reports setup_failed/no score for old3fd.
+
+Latest observation 2026-11-02T00:13:17.236Z: ownc193 remains queued/result null.
+The post-dispatch live layer balance is9 private checks and5 scored slots left
+(one private used, zero scored used). No terminal result is claimed in this
+accepted-job handoff; next gate remains own-ID retrieval and evidence review.

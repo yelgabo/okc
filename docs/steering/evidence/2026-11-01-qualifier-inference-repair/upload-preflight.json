@@ -1,0 +1,153 @@
+{
+  "observed_at": "2026-11-02T00:10:26.819Z",
+  "implementation_commit": "a0b6af2ec00dfed54f37fd81de00c14098748711",
+  "source_sha256": "978b29f955dbbab3a67aad0cc06a04148aba9d233ac95bdcac45d1efd141fc2a",
+  "source_bytes": 918978,
+  "layer": {
+    "name": "muse_decode_layer",
+    "title": "Whole decoder layer",
+    "limits": {
+      "scored": {
+        "per_day": 5,
+        "used": 0,
+        "left": 5
+      },
+      "checks": {
+        "per_day": 10,
+        "used": 0,
+        "left": 10
+      }
+    }
+  },
+  "active": [],
+  "quota": {
+    "argv": [
+      "wsl.exe",
+      "--exec",
+      "/usr/local/bin/okc",
+      "problems",
+      "--json"
+    ],
+    "exit_code": 0,
+    "stdout": "{\n  \"problems\": [\n    {\n      \"name\": \"muse_bf16_proj\",\n      \"title\": \"Dense projections\",\n      \"limits\": {\n        \"scored\": {\n          \"per_day\": 5,\n          \"used\": 0,\n          \"left\": 5\n        },\n        \"checks\": {\n          \"per_day\": 10,\n          \"used\": 0,\n          \"left\": 10\n        }\n      }\n    },\n    {\n      \"name\": \"muse_attention_decode\",\n      \"title\": \"Gated attention decode\",\n      \"limits\": {\n        \"scored\": {\n          \"per_day\": 5,\n          \"used\": 0,\n          \"left\": 5\n        },\n        \"checks\": {\n          \"per_day\": 10,\n          \"used\": 0,\n          \"left\": 10\n        }\n      }\n    },\n    {\n      \"name\": \"muse_moe_w4a16\",\n      \"title\": \"Routed experts\",\n      \"limits\": {\n        \"scored\": {\n          \"per_day\": 5,\n          \"used\": 0,\n          \"left\": 5\n        },\n        \"checks\": {\n          \"per_day\": 10,\n          \"used\": 0,\n          \"left\": 10\n        }\n      }\n    },\n    {\n      \"name\": \"muse_decode_layer\",\n      \"title\": \"Whole decoder layer\",\n      \"limits\": {\n        \"scored\": {\n          \"per_day\": 5,\n          \"used\": 0,\n          \"left\": 5\n        },\n        \"checks\": {\n          \"per_day\": 10,\n          \"used\": 0,\n          \"left\": 10\n        }\n      }\n    },\n    {\n      \"name\": \"muse_prefill_layer\",\n      \"title\": \"Prefill layer\",\n      \"limits\": {\n        \"scored\": {\n          \"per_day\": 5,\n          \"used\": 0,\n          \"left\": 5\n        },\n        \"checks\": {\n          \"per_day\": 10,\n          \"used\": 0,\n          \"left\": 10\n        }\n      }\n    }\n  ]\n}\n",
+    "stderr": ""
+  },
+  "jobs": {
+    "argv": [
+      "wsl.exe",
+      "--exec",
+      "/usr/local/bin/okc",
+      "jobs",
+      "--json"
+    ],
+    "exit_code": 0,
+    "stdout": "[\n  {\n    \"flags\": [],\n    \"job_id\": \"3fd1317143304bd5\",\n    \"mode\": \"run\",\n    \"passed\": false,\n    \"problem\": \"muse_decode_layer\",\n    \"result_status\": \"ok\",\n    \"score\": null,\n    \"score_us\": null,\n    \"status\": \"done\",\n    \"submitted_at\": 1793572424.095212\n  },\n  {\n    \"flags\": [],\n    \"job_id\": \"1fad70bbe3854cbc\",\n    \"mode\": \"run\",\n    \"passed\": null,\n    \"problem\": \"muse_decode_layer\",\n    \"result_status\": \"infra_error\",\n    \"score\": null,\n    \"score_us\": null,\n    \"status\": \"failed\",\n    \"submitted_at\": 1793562974.3583002\n  },\n  {\n    \"flags\": [],\n    \"job_id\": \"dfcfdd01d6f04525\",\n    \"mode\": \"run\",\n    \"passed\": true,\n    \"problem\": \"muse_bf16_proj\",\n    \"result_status\": \"ok\",\n    \"score\": null,\n    \"score_us\": 3404.0170234130023,\n    \"status\": \"done\",\n    \"submitted_at\": 1793557090.7207968\n  },\n  {\n    \"flags\": [],\n    \"job_id\": \"2b537518091248f1\",\n    \"mode\": \"run\",\n    \"passed\": true,\n    \"problem\": \"muse_bf16_proj\",\n    \"result_status\": \"ok\",\n    \"score\": null,\n    \"score_us\": 3465.124777225639,\n    \"status\": \"done\",\n    \"submitted_at\": 1793554683.3669806\n  },\n  {\n    \"flags\": [],\n    \"job_id\": \"c79ddddb840a4fb7\",\n    \"mode\": \"check\",\n    \"passed\": true,\n    \"problem\": \"muse_attention_decode\",\n    \"result_status\": \"ok\",\n    \"score\": null,\n    \"score_us\": 1451.748626133615,\n    \"status\": \"done\",\n    \"submitted_at\": 1793547170.274349\n  },\n  {\n    \"flags\": [],\n    \"job_id\": \"903e5b03411c4e2d\",\n    \"mode\": \"check\",\n    \"passed\": true,\n    \"problem\": \"muse_moe_w4a16\",\n    \"result_status\": \"ok\",\n    \"score\": null,\n    \"score_us\": 6138.659353096406,\n    \"status\": \"done\",\n    \"submitted_at\": 1793543064.9774923\n  },\n  {\n    \"flags\": [],\n    \"job_id\": \"a5c7c7e3fe344919\",\n    \"mode\": \"check\",\n    \"passed\": true,\n    \"problem\": \"muse_moe_w4a16\",\n    \"result_status\": \"ok\",\n    \"score\": null,\n    \"score_us\": 6117.900213676287,\n    \"status\": \"done\",\n    \"submitted_at\": 1793542292.7774558\n  },\n  {\n    \"flags\": [],\n    \"job_id\": \"f147d06a64504c1e\",\n    \"mode\": \"check\",\n    \"passed\": true,\n    \"problem\": \"muse_moe_w4a16\",\n    \"result_status\": \"ok\",\n    \"score\": null,\n    \"score_us\": 5746.540010389314,\n    \"status\": \"done\",\n    \"submitted_at\": 1793540883.1180782\n  },\n  {\n    \"flags\": [],\n    \"job_id\": \"3f44f891d0ef47db\",\n    \"mode\": \"check\",\n    \"passed\": true,\n    \"problem\": \"muse_attention_decode\",\n    \"result_status\": \"ok\",\n    \"score\": null,\n    \"score_us\": 1512.1496091724161,\n    \"status\": \"done\",\n    \"submitted_at\": 1793539553.873381\n  },\n  {\n    \"flags\": [],\n    \"job_id\": \"942ebdec400d4e68\",\n    \"mode\": \"run\",\n    \"passed\": true,\n    \"problem\": \"muse_decode_layer\",\n    \"result_status\": \"ok\",\n    \"score\": null,\n    \"score_us\": 10792.641152557018,\n    \"status\": \"done\",\n    \"submitted_at\": 1793537028.8503997\n  },\n  {\n    \"flags\": [],\n    \"job_id\": \"27b2ed49fc6344ec\",\n    \"mode\": \"run\",\n    \"passed\": true,\n    \"problem\": \"muse_decode_layer\",\n    \"result_status\": \"ok\",\n    \"score\": null,\n    \"score_us\": 10759.743701731208,\n    \"status\": \"done\",\n    \"submitted_at\": 1793535200.7243984\n  },\n  {\n    \"flags\": [],\n    \"job_id\": \"74a29e0384324952\",\n    \"mode\": \"run\",\n    \"passed\": true,\n    \"problem\": \"muse_decode_layer\",\n    \"result_status\": \"ok\",\n    \"score\": null,\n    \"score_us\": 11018.865154844767,\n    \"status\": \"done\",\n    \"submitted_at\": 1793534638.2200422\n  },\n  {\n    \"flags\": [],\n    \"job_id\": \"607eb52bdaf24160\",\n    \"mode\": \"run\",\n    \"passed\": true,\n    \"problem\": \"muse_decode_layer\",\n    \"result_status\": \"ok\",\n    \"score\": null,\n    \"score_us\": 10639.426326569794,\n    \"status\": \"done\",\n    \"submitted_at\": 1793534312.3883686\n  },\n  {\n    \"flags\": [],\n    \"job_id\": \"40b9f54be6fe4d4e\",\n    \"mode\": \"run\",\n    \"passed\": true,\n    \"problem\": \"muse_bf16_proj\",\n    \"result_status\": \"ok\",\n    \"score\": null,\n    \"score_us\": 3186.4980220613547,\n    \"status\": \"done\",\n    \"submitted_at\": 1793533307.0012407\n  },\n  {\n    \"flags\": [],\n    \"job_id\": \"835253441a214a1c\",\n    \"mode\": \"check\",\n    \"passed\": true,\n    \"problem\": \"muse_moe_w4a16\",\n    \"result_status\": \"ok\",\n    \"score\": null,\n    \"score_us\": 6141.851296528711,\n    \"status\": \"done\",\n    \"submitted_at\": 1793532978.8293238\n  },\n  {\n    \"flags\": [],\n    \"job_id\": \"46aafddc195c4c57\",\n    \"mode\": \"check\",\n    \"passed\": true,\n    \"problem\": \"muse_moe_w4a16\",\n    \"result_status\": \"ok\",\n    \"score\": null,\n    \"score_us\": 5725.692982284411,\n    \"status\": \"done\",\n    \"submitted_at\": 1793532450.3590353\n  },\n  {\n    \"flags\": [],\n    \"job_id\": \"63f5a2a8ed2341d1\",\n    \"mode\": \"check\",\n    \"passed\": true,\n    \"problem\": \"muse_moe_w4a16\",\n    \"result_status\": \"ok\",\n    \"score\": null,\n    \"score_us\": 6008.864077605009,\n    \"status\": \"done\",\n    \"submitted_at\": 1793532179.092236\n  },\n  {\n    \"flags\": [],\n    \"job_id\": \"fe75e566c1ae4d51\",\n    \"mode\": \"check\",\n    \"passed\": false,\n    \"problem\": \"muse_attention_decode\",\n    \"result_status\": \"ok\",\n    \"score\": null,\n    \"score_us\": null,\n    \"status\": \"done\",\n    \"submitted_at\": 1793531138.1699111\n  },\n  {\n    \"flags\": [],\n    \"job_id\": \"eac485ea0d554e50\",\n    \"mode\": \"check\",\n    \"passed\": true,\n    \"problem\": \"muse_attention_decode\",\n    \"result_status\": \"ok\",\n    \"score\": null,\n    \"score_us\": 1512.475923068934,\n    \"status\": \"done\",\n    \"submitted_at\": 1793530741.3426971\n  },\n  {\n    \"flags\": [],\n    \"job_id\": \"1c6ebc76b91d4b7f\",\n    \"mode\": \"check\",\n    \"passed\": true,\n    \"problem\": \"muse_moe_w4a16\",\n    \"result_status\": \"ok\",\n    \"score\": null,\n    \"score_us\": 5960.105358079474,\n    \"status\": \"done\",\n    \"submitted_at\": 1793529750.550958\n  },\n  {\n    \"flags\": [],\n    \"job_id\": \"cd6805e7ebce45ee\",\n    \"mode\": \"check\",\n    \"passed\": true,\n    \"problem\": \"muse_attention_decode\",\n    \"result_status\": \"ok\",\n    \"score\": null,\n    \"score_us\": 1426.841504095996,\n    \"status\": \"done\",\n    \"submitted_at\": 1793529534.1873498\n  },\n  {\n    \"flags\": [],\n    \"job_id\": \"05e51ddeb7014dd9\",\n    \"mode\": \"check\",\n    \"passed\": true,\n    \"problem\": \"muse_moe_w4a16\",\n    \"result_status\": \"ok\",\n    \"score\": null,\n    \"score_us\": 5952.478749508835,\n    \"status\": \"done\",\n    \"submitted_at\": 1793529231.031241\n  },\n  {\n    \"flags\": [],\n    \"job_id\": \"736a5cbc977f4ad4\",\n    \"mode\": \"check\",\n    \"passed\": true,\n    \"problem\": \"muse_decode_layer\",\n    \"result_status\": \"ok\",\n    \"score\": null,\n    \"score_us\": 10951.178278651838,\n    \"status\": \"done\",\n    \"submitted_at\": 1793527244.6956496\n  },\n  {\n    \"flags\": [],\n    \"job_id\": \"ffe303a12a954304\",\n    \"mode\": \"check\",\n    \"passed\": false,\n    \"problem\": \"muse_decode_layer\",\n    \"result_status\": \"ok\",\n    \"score\": null,\n    \"score_us\": null,\n    \"status\": \"done\",\n    \"submitted_at\": 1793526602.678531\n  },\n  {\n    \"flags\": [],\n    \"job_id\": \"f74cbe27819147c1\",\n    \"mode\": \"check\",\n    \"passed\": true,\n    \"problem\": \"muse_attention_decode\",\n    \"result_status\": \"ok\",\n    \"score\": null,\n    \"score_us\": 1464.244039379676,\n    \"status\": \"done\",\n    \"submitted_at\": 1793526440.802427\n  },\n  {\n    \"flags\": [],\n    \"job_id\": \"606f47f251f34873\",\n    \"mode\": \"check\",\n    \"passed\": true,\n    \"problem\": \"muse_decode_layer\",\n    \"result_status\": \"ok\",\n    \"score\": null,\n    \"score_us\": 11248.423523655241,\n    \"status\": \"done\",\n    \"submitted_at\": 1793526222.7483203\n  },\n  {\n    \"flags\": [],\n    \"job_id\": \"caad524754b54680\",\n    \"mode\": \"check\",\n    \"passed\": false,\n    \"problem\": \"muse_decode_layer\",\n    \"result_status\": \"ok\",\n    \"score\": null,\n    \"score_us\": null,\n    \"status\": \"done\",\n    \"submitted_at\": 1793525799.0327864\n  },\n  {\n    \"flags\": [],\n    \"job_id\": \"3c6a2baf7b4b4bf3\",\n    \"mode\": \"check\",\n    \"passed\": true,\n    \"problem\": \"muse_bf16_proj\",\n    \"result_status\": \"ok\",\n    \"score\": null,\n    \"score_us\": 3071.044087992324,\n    \"status\": \"done\",\n    \"submitted_at\": 1793525536.738777\n  },\n  {\n    \"flags\": [],\n    \"job_id\": \"cb71acec29d141c6\",\n    \"mode\": \"run\",\n    \"passed\": true,\n    \"problem\": \"muse_decode_layer\",\n    \"result_status\": \"ok\",\n    \"score\": null,\n    \"score_us\": 11069.724066019202,\n    \"status\": \"done\",\n    \"submitted_at\": 1793524948.069978\n  },\n  {\n    \"flags\": [],\n    \"job_id\": \"47bec92021ef4bbe\",\n    \"mode\": \"check\",\n    \"passed\": true,\n    \"problem\": \"muse_decode_layer\",\n    \"result_status\": \"ok\",\n    \"score\": null,\n    \"score_us\": 11252.493013692108,\n    \"status\": \"done\",\n    \"submitted_at\": 1793524628.6616156\n  },\n  {\n    \"flags\": [],\n    \"job_id\": \"4862f8e0dc8a4b5a\",\n    \"mode\": \"check\",\n    \"passed\": true,\n    \"problem\": \"muse_attention_decode\",\n    \"result_status\": \"ok\",\n    \"score\": null,\n    \"score_us\": 1489.6031477696672,\n    \"status\": \"done\",\n    \"submitted_at\": 1793524556.0301635\n  },\n  {\n    \"flags\": [],\n    \"job_id\": \"b65c4c878014416c\",\n    \"mode\": \"check\",\n    \"passed\": true,\n    \"problem\": \"muse_moe_w4a16\",\n    \"result_status\": \"ok\",\n    \"score\": null,\n    \"score_us\": 5613.592490285424,\n    \"status\": \"done\",\n    \"submitted_at\": 1793524388.286509\n  },\n  {\n    \"flags\": [],\n    \"job_id\": \"828974e3bbcc4d9b\",\n    \"mode\": \"check\",\n    \"passed\": true,\n    \"problem\": \"muse_decode_layer\",\n    \"result_status\": \"ok\",\n    \"score\": null,\n    \"score_us\": 11191.949061932115,\n    \"status\": \"done\",\n    \"submitted_at\": 1793524307.2401779\n  },\n  {\n    \"flags\": [],\n    \"job_id\": \"3a5f879df0d44825\",\n    \"mode\": \"check\",\n    \"passed\": true,\n    \"problem\": \"muse_decode_layer\",\n    \"result_status\": \"ok\",\n    \"score\": null,\n    \"score_us\": 10058.873726017206,\n    \"status\": \"done\",\n    \"submitted_at\": 1793524199.345578\n  },\n  {\n    \"flags\": [],\n    \"job_id\": \"1e3349e377234e89\",\n    \"mode\": \"check\",\n    \"passed\": true,\n    \"problem\": \"muse_decode_layer\",\n    \"result_status\": \"ok\",\n    \"score\": null,\n    \"score_us\": 11164.885902015683,\n    \"status\": \"done\",\n    \"submitted_at\": 1793523713.7718425\n  },\n  {\n    \"flags\": [],\n    \"job_id\": \"59cc1343940f4bcb\",\n    \"mode\": \"check\",\n    \"passed\": true,\n    \"problem\": \"muse_decode_layer\",\n    \"result_status\": \"ok\",\n    \"score\": null,\n    \"score_us\": 11221.993521694501,\n    \"status\": \"done\",\n    \"submitted_at\": 1793523485.4763188\n  },\n  {\n    \"flags\": [],\n    \"job_id\": \"35f2b5d66f51465b\",\n    \"mode\": \"check\",\n    \"passed\": true,\n    \"problem\": \"muse_decode_layer\",\n    \"result_status\": \"ok\",\n    \"score\": null,\n    \"score_us\": 11186.425274924224,\n    \"status\": \"done\",\n    \"submitted_at\": 1793523089.1483686\n  },\n  {\n    \"flags\": [],\n    \"job_id\": \"a0da77c5f3c647c3\",\n    \"mode\": \"check\",\n    \"passed\": true,\n    \"problem\": \"muse_decode_layer\",\n    \"result_status\": \"ok\",\n    \"score\": null,\n    \"score_us\": 11209.57834363006,\n    \"status\": \"done\",\n    \"submitted_at\": 1793522758.2905014\n  },\n  {\n    \"flags\": [],\n    \"job_id\": \"85a113a3f11d47a5\",\n    \"mode\": \"check\",\n    \"passed\": true,\n    \"problem\": \"muse_moe_w4a16\",\n    \"result_status\": \"ok\",\n    \"score\": null,\n    \"score_us\": 6102.07737002024,\n    \"status\": \"done\",\n    \"submitted_at\": 1793522363.8789756\n  },\n  {\n    \"flags\": [],\n    \"job_id\": \"4edaa20c98904404\",\n    \"mode\": \"check\",\n    \"passed\": true,\n    \"problem\": \"muse_bf16_proj\",\n    \"result_status\": \"ok\",\n    \"score\": null,\n    \"score_us\": 3210.027848343318,\n    \"status\": \"done\",\n    \"submitted_at\": 1793522222.8354523\n  },\n  {\n    \"flags\": [],\n    \"job_id\": \"1023d9b0dcaa4c75\",\n    \"mode\": \"check\",\n    \"passed\": true,\n    \"problem\": \"muse_decode_layer\",\n    \"result_status\": \"ok\",\n    \"score\": null,\n    \"score_us\": 11223.673307094368,\n    \"status\": \"done\",\n    \"submitted_at\": 1793521917.8187566\n  },\n  {\n    \"flags\": [],\n    \"job_id\": \"4542b2b04cb344ec\",\n    \"mode\": \"check\",\n    \"passed\": true,\n    \"problem\": \"muse_bf16_proj\",\n    \"result_status\": \"ok\",\n    \"score\": null,\n    \"score_us\": 3183.373741927116,\n    \"status\": \"done\",\n    \"submitted_at\": 1793521512.8738787\n  },\n  {\n    \"flags\": [],\n    \"job_id\": \"e058cc5bb7ba4f97\",\n    \"mode\": \"check\",\n    \"passed\": true,\n    \"problem\": \"muse_bf16_proj\",\n    \"result_status\": \"ok\",\n    \"score\": null,\n    \"score_us\": 3155.687909339142,\n    \"status\": \"done\",\n    \"submitted_at\": 1793521047.495527\n  },\n  {\n    \"flags\": [],\n    \"job_id\": \"bfbedf7d48e248a0\",\n    \"mode\": \"check\",\n    \"passed\": true,\n    \"problem\": \"muse_moe_w4a16\",\n    \"result_status\": \"ok\",\n    \"score\": null,\n    \"score_us\": 6158.00509044046,\n    \"status\": \"done\",\n    \"submitted_at\": 1793520913.9416986\n  },\n  {\n    \"flags\": [],\n    \"job_id\": \"04f0339fa9f24807\",\n    \"mode\": \"check\",\n    \"passed\": true,\n    \"problem\": \"muse_decode_layer\",\n    \"result_status\": \"ok\",\n    \"score\": null,\n    \"score_us\": 22680.734983292252,\n    \"status\": \"done\",\n    \"submitted_at\": 1793520688.8753946\n  },\n  {\n    \"flags\": [],\n    \"job_id\": \"01183c2992eb4153\",\n    \"mode\": \"check\",\n    \"passed\": true,\n    \"problem\": \"muse_decode_layer\",\n    \"result_status\": \"ok\",\n    \"score\": null,\n    \"score_us\": 11212.308550824935,\n    \"status\": \"done\",\n    \"submitted_at\": 1793519911.1839526\n  },\n  {\n    \"flags\": [],\n    \"job_id\": \"41788b39fb824179\",\n    \"mode\": \"check\",\n    \"passed\": false,\n    \"problem\": \"muse_decode_layer\",\n    \"result_status\": \"ok\",\n    \"score\": null,\n    \"score_us\": null,\n    \"status\": \"done\",\n    \"submitted_at\": 1793519489.9875379\n  },\n  {\n    \"flags\": [],\n    \"job_id\": \"9be599cf333a47c4\",\n    \"mode\": \"check\",\n    \"passed\": true,\n    \"problem\": \"muse_moe_w4a16\",\n    \"result_status\": \"ok\",\n    \"score\": null,\n    \"score_us\": 6091.569497135868,\n    \"status\": \"done\",\n    \"submitted_at\": 1793518473.8426452\n  },\n  {\n    \"flags\": [],\n    \"job_id\": \"252df4a54d764ca5\",\n    \"mode\": \"check\",\n    \"passed\": false,\n    \"problem\": \"muse_moe_w4a16\",\n    \"result_status\": \"ok\",\n    \"score\": null,\n    \"score_us\": null,\n    \"status\": \"done\",\n    \"submitted_at\": 1793517467.858428\n  },\n  {\n    \"flags\": [],\n    \"job_id\": \"87f22aa71e614460\",\n    \"mode\": \"check\",\n    \"passed\": false,\n    \"problem\": \"muse_moe_w4a16\",\n    \"result_status\": \"ok\",\n    \"score\": null,\n    \"score_us\": null,\n    \"status\": \"done\",\n    \"submitted_at\": 1793517056.091381\n  }\n]\n",
+    "stderr": ""
+  },
+  "source_proof": {
+    "scope": "CPU/source only; no GPU execution",
+    "arms": {
+      "common": {
+        "arm": "common",
+        "base607_sha256": "ba9e327cd7b96595ace4d0c1d0d78fe27c128f23ed0debcda97c7169fc3164ab",
+        "common_input_sha256": "4cbb13a9a359c9fe870a94ebcabc4706447778849f71d4aa54e47d69abbd1280",
+        "source_sha256": "32196b8bc1c954e9b7f2c6667e6b3e0aeed14da0fed6fe53bc153c9d563e5047",
+        "bytes": 918490,
+        "reference": {
+          "helper_source_sha256": "54881e3c51e58af323021e439e8ea3dd8c63bb2db7b7dbb184ca60c22adc9e4a",
+          "prelude_sha256": "50a546330f1a0f3ad98d0d564b42858c1b960311b7e38880dfbce07b17b56f8f",
+          "copied_helpers_sha256": "2d4a1fbd192bc26d7e22434d50a65d1ca1342688f6857c025eac3b69adc9eb65",
+          "helper_names": [
+            "_ab_inputs",
+            "_ab_rms",
+            "_ab_rope",
+            "_ab_coeffs",
+            "_ab_attention",
+            "_ab_ref_front",
+            "_ab_deq",
+            "_ab_ref_back",
+            "_ab_local",
+            "_ab_check_routing",
+            "_ab_compare",
+            "_ab_validate"
+          ],
+          "helper_bytes": 13945
+        },
+        "owners_sha256": "1d888635f63a586496f49c5ac2cc7b0be994f29844421d919d241cd7a02eee00",
+        "body_sha256": "1762f2e5356cc05e49a98054666086d243b475185902defe84717a7fa5f56f0b",
+        "source_gpu_work_unchanged": true,
+        "timed_kernel_fn_AST_unchanged": true,
+        "prepare_only_host_audit": true,
+        "normal_audit_disabled": true,
+        "H200_qualified": false,
+        "dispatch_enabled": false,
+        "comparative_timings": false,
+        "prior_body_sha256": "1b0db77db3821cd2020f92a0cb05859980f8bf07c4814718764910f99c875a91",
+        "support_sha256": "c7b89d462b6301d6261fa5e36b0e273602a6f8f6159bcade40f2956904a412e1",
+        "prior_qualifier_sha256": "4e3895be33d3d8f60670b4e8138eb09654ddc6d64aa930170dc89cc3f019d270",
+        "budget_epoch": "exact-id-back-reference-cache-v2-inference-scope",
+        "cache_limit": 4,
+        "reference_math_unchanged": true,
+        "all_original_validation_counts_unchanged": true,
+        "measured_prepare_gain": null,
+        "regenerated_twice_identically": true,
+        "prior_complete_prefix_unchanged": true,
+        "unchanged_function_count": 204
+      },
+      "short-rmw": {
+        "arm": "short-rmw",
+        "base607_sha256": "ba9e327cd7b96595ace4d0c1d0d78fe27c128f23ed0debcda97c7169fc3164ab",
+        "common_input_sha256": "2884adb6d0d6947391c81cd67a0c727a04e7d41694d7c780cf8cee80dfa9dbcd",
+        "source_sha256": "978b29f955dbbab3a67aad0cc06a04148aba9d233ac95bdcac45d1efd141fc2a",
+        "bytes": 918978,
+        "reference": {
+          "helper_source_sha256": "54881e3c51e58af323021e439e8ea3dd8c63bb2db7b7dbb184ca60c22adc9e4a",
+          "prelude_sha256": "50a546330f1a0f3ad98d0d564b42858c1b960311b7e38880dfbce07b17b56f8f",
+          "copied_helpers_sha256": "2d4a1fbd192bc26d7e22434d50a65d1ca1342688f6857c025eac3b69adc9eb65",
+          "helper_names": [
+            "_ab_inputs",
+            "_ab_rms",
+            "_ab_rope",
+            "_ab_coeffs",
+            "_ab_attention",
+            "_ab_ref_front",
+            "_ab_deq",
+            "_ab_ref_back",
+            "_ab_local",
+            "_ab_check_routing",
+            "_ab_compare",
+            "_ab_validate"
+          ],
+          "helper_bytes": 13945
+        },
+        "owners_sha256": "1d888635f63a586496f49c5ac2cc7b0be994f29844421d919d241cd7a02eee00",
+        "body_sha256": "1762f2e5356cc05e49a98054666086d243b475185902defe84717a7fa5f56f0b",
+        "source_gpu_work_unchanged": true,
+        "timed_kernel_fn_AST_unchanged": true,
+        "prepare_only_host_audit": true,
+        "normal_audit_disabled": true,
+        "H200_qualified": false,
+        "dispatch_enabled": false,
+        "comparative_timings": false,
+        "prior_body_sha256": "1b0db77db3821cd2020f92a0cb05859980f8bf07c4814718764910f99c875a91",
+        "support_sha256": "c7b89d462b6301d6261fa5e36b0e273602a6f8f6159bcade40f2956904a412e1",
+        "prior_qualifier_sha256": "97935e7dc45d9fa69f5b4965bd70a5c2946cd8b829cedffb7a2aefc598cb53c7",
+        "budget_epoch": "exact-id-back-reference-cache-v2-inference-scope",
+        "cache_limit": 4,
+        "reference_math_unchanged": true,
+        "all_original_validation_counts_unchanged": true,
+        "measured_prepare_gain": null,
+        "regenerated_twice_identically": true,
+        "prior_complete_prefix_unchanged": true,
+        "unchanged_function_count": 204
+      }
+    },
+    "files": {
+      "tools\\g_common_release_budget.py": "59bc85ea026a6fb08ae389e8455f6a5b23e5828f337f311fb2bbc46425fa368f",
+      "tools\\test_g_common_release_budget.py": "fef14333fb83ffc66865b1543050ffa34a05eb03c4b984481bd57ab3ee660b0b",
+      "tools\\g_common_rmw_receipt.py": "eec5b1dc637dec634c67a01afa67a2867e02d819cd253ea149e1d5860b0df3b0",
+      "tools\\test_g_common_rmw_receipt.py": "ad93d2bb6012d0e67579ce7e67a6ff00f50d38dfef7e32db92437441966bc250",
+      "tools\\hybrid_layer_measurement.py": "2c108d31521dfc769c7af35ce3592ee52d175664a3550581054ea928d6dd896d"
+    }
+  }
+}

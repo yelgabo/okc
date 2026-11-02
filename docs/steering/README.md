@@ -1,5 +1,7 @@
 # Shared project steering
 
+Latest private dispatch: repaired ON check **c1931f0c9e834485** accepted November2 00:10:29UTC from implementation a0b6af2, mode check, correct layer board. First own receipt is queued/result null; no GPU qualification or performance claim yet. [Implementation/own-ID evidence](2026-11-01-qualifier-inference-repair.md). One of capped4 private checks used; no public submission or automatic retry.
+
 Latest implementation registration: [November 1 qualifier inference repair and first private H200 check](2026-11-01-qualifier-inference-repair.md). Final OFF32196b8b/918490B and ON978b29f9/918978B regenerate identically;32 CPU tests pass. Normal production preparation and native/timed source are unchanged. First repaired ON private check is registered with full startup/official/actual-exercise gates; no separate COMMON-first or private1% prerequisite for measurement. Initial tranche capped at4 private checks; single-arm result is descriptive, promotion retains matched all-six/held-out/duplicate-null/regression gates. Live reset5scored/10checks; public submission requires direct user authorization.
 
 Latest evidence-access correction: [T3 public evidence gist](2026-11-01-t3-evidence-visibility-correction.md). Prior PR evidence links pointed to this private repository and returned anonymous 404. Replaced with a public gist; all 13 files and the updated PR verified without authentication. Code remains `332447ee`; verification receipt records hashes and public revision.

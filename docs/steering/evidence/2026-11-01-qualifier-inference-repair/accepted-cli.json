@@ -1,0 +1,17 @@
+{
+  "observed_at": "2026-11-02T00:10:29.381Z",
+  "argv": [
+    "wsl.exe",
+    "--cd",
+    "/mnt/c/Users/gretc/Documents/GitHub/okc",
+    "--exec",
+    "/usr/local/bin/okc",
+    "check",
+    ".build/rmw-v2/short-rmw.py",
+    "--no-wait",
+    "--json"
+  ],
+  "exit_code": 0,
+  "stdout": "{\n  \"job_id\": \"c1931f0c9e834485\",\n  \"problem\": \"muse_decode_layer\"\n}\n",
+  "stderr": ""
+}
