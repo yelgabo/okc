@@ -263,7 +263,8 @@ def prepare(weights):
     _EH_START=time.monotonic();_EH_CACHE=None;_EH_BUILDS.clear()
     saved=(_ma_ext,_fork_native_moe,_ab_ref_back)
     tf32=torch.backends.cuda.matmul.allow_tf32
-    guard_mark=None;guard_ids=None
+    entry_mark=len(_GUARDS);entry_ids=set(_GUARDED_IDS)
+    guard_mark=entry_mark;guard_ids=entry_ids
     try:
         _ma_ext=_eh_build
         state=_EH_PREPARE(weights);_eh_budget()
@@ -273,17 +274,23 @@ def prepare(weights):
         _AB_DEQ.clear();torch.backends.cuda.matmul.allow_tf32=False
         with torch.inference_mode(False),torch.no_grad():report=_eh_private(weights,state)
         _eh_budget()
+    except BaseException:
+        guard_mark=entry_mark;guard_ids=entry_ids
+        raise
     finally:
         if _EH_CACHE is not None:_EH_CACHE.clear()
         _EH_CACHE=None;_AB_DEQ.clear()
         _ma_ext,_fork_native_moe,_ab_ref_back=saved
         torch.backends.cuda.matmul.allow_tf32=tf32
-        if guard_mark is not None:
-            del _GUARDS[guard_mark:];_GUARDED_IDS.clear();_GUARDED_IDS.update(guard_ids)
+        del _GUARDS[guard_mark:];_GUARDED_IDS.clear();_GUARDED_IDS.update(guard_ids)
         _EH_BUILDS.clear()
-    report.update(cleanup_restored=True,prepare_s=time.monotonic()-_EH_START)
-    blob=base64.b64encode(zlib.compress(json.dumps(report,separators=(',',':'),allow_nan=False).encode(),9)).decode()
-    assert len(blob)<11000,'EXPERT_REPORT_LOG_OVERFLOW'
-    _eh_budget();print('EXPERT_TOP100_REPORT '+blob,flush=True)
+    try:
+        report.update(cleanup_restored=True,prepare_s=time.monotonic()-_EH_START)
+        blob=base64.b64encode(zlib.compress(json.dumps(report,separators=(',',':'),allow_nan=False).encode(),9)).decode()
+        assert len(blob)<11000,'EXPERT_REPORT_LOG_OVERFLOW'
+        _eh_budget();print('EXPERT_TOP100_REPORT '+blob,flush=True)
+    except BaseException:
+        del _GUARDS[entry_mark:];_GUARDED_IDS.clear();_GUARDED_IDS.update(entry_ids)
+        raise
     return state
 '''
