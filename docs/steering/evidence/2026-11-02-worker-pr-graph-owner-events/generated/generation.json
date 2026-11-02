@@ -1,0 +1,9 @@
+{
+  "sha256": "c7b31929b173c883d0f69c7168c5b89f6e044e6bd9872dd307967b6406d41fc9",
+  "bytes": 881228,
+  "exact_reversal": true,
+  "native_sources_unchanged": true,
+  "host_syntax_checked": false,
+  "target_qualified": false,
+  "completion": "fresh per-eager-use events; graph references for captures"
+}

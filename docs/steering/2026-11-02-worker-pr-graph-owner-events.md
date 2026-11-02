@@ -1,0 +1,34 @@
+# PR graph-owner: narrow owner-event completion amendment
+
+November 2, 2026. Allocation: captain f3a93a2d96d42de3988371425d2cebb200e9bd85, <=10 active minutes, starting 14:15:34 UTC. Prior 6e454c18 implementation and d3715a74 STOP remain immutable. No target authorization is inferred.
+
+## Outcome and exact identity
+
+Implemented ONE event-scoped eager-completion amendment in tools/g_pr_graph_owner_events.py with actual-entry tests in tools/test_g_pr_graph_owner_events.py. Base remains exact ba9e327cd7b96595ace4d0c1d0d78fe27c128f23ed0debcda97c7169fc3164ab, 869076 LF bytes. Generated candidate SHA256 c7b31929b173c883d0f69c7168c5b89f6e044e6bd9872dd307967b6406d41fc9, 881228 LF bytes, final newline/all original provenance retained. Exact reversal restores ba9; all seven actual selected factory source/ordered-flag dictionaries and routes compare equal through inherited source-capture tests. Only original plan/run host integration plus appended owner binding differs.
+
+Decision: SOURCE_REPAIR_CPU_PASS_TARGET_HOLD. The old encompassing-context completion is removed, NOT merely dropped: fresh per-owner/per-eager-read events replace it. No host C++ compilation/linking, CUDA/Driver call, device execution, numerical/compression/timing validation, challenge CLI/service/check/public/default action. The reserved private check remains reserved. This is not a qualified VMM/performance candidate.
+
+## Actual integration and lifetime
+
+Actual _graft_lt_run obtains a ticket before the real Lt call and records it AFTER that call in finally, including exceptions after enqueue. The ticket retains the owner throughout submission and completion recording. Capture-active readers acquire the existing graph user reference and return event sentinel zero: no event creation/record node, edge mutation or captured completion synchronization. No handle-reuse cache. Eager readers create a distinct disable-timing event before enqueue; its handle is saved in the mapping; post-enqueue recording failure aborts rather than pretending completion or falling back to unsafe release. No event is re-recorded, so later stream activity cannot extend its completed prefix.
+
+Preparation bit-copy similarly owns an event, records after the copy attempt, synchronizes that exact event before publication, then checks the copy status. Staged allocation fallback remains ordinary PR. Graph clone/exec/inflight destruction still owns graph references; ordinary state PR remains unchanged and only two accepted PR plan weights use private backing. Immutable tagged deepcopy, metadata failclosed gates, independent states, unchanged native math/fences/flags/fallbacks remain inherited.
+
+The tensor storage holds the single caller user reference. After all host/tensor/graph references release, the CUDA callback still only performs the existing lock-free release-store signal. The separate retirement thread acquires that signal, pushes the retained context, synchronizes/destroys only saved owner events, then unmaps/releases/frees its mapping, pops context, and releases its primary-context lease. No cuCtxSynchronize/cuStreamSynchronize remains in the new host literal. User callback has no CUDA calls, allocation, wait or reverse helper dependency. The nodelete DSO linkage is unchanged. Event vectors are modified by GIL-held bindings while a Python owner is live; cleanup only reads them after no-future-use reference retirement and the release/acquire handoff. Native concurrency remains unexecuted.
+
+## CPU evidence and limits
+
+Initial event suite: 18 tests PASS in 33.994 seconds. Publication cpu-final-stderr.txt records the final suite after adding explicit independent-stream coverage. Tests reuse actual final prepare, pre-plan prepare, full Lt-plan/run and prepare-composition extraction, not just a generic refcount model. They retain all 13 prior identity/fallback/deepcopy/capture/abort/inflight/failure contracts. Added tests cover delayed A retirement while B capture is active; exceptions after actual Lt enqueue; fresh events/no captured eager events; record-failure failclosed cleanup; source copy-event ordering/finally coverage; and independent state/stream event ownership. These are mocks/source evidence, NOT native CUDA behavior. Mock fatal-record failure is represented by a Python exception and no-unmap state, whereas native policy is process abort.
+
+## Cleanup-contract recheck
+
+Read captain's full published report rather than repeating its survey. Targeted primary readback is archived as event-primary.html, vmm-primary.html and primary__ctx-primary.html, with hashes in the publication manifest. Driver CUDA13 Event Management specifies event recording takes a stream prefix and later stream uses do not modify it; synchronize waits only the event's recorded work. Event destruction can defer its own resources without waiting. Only noncaptured events are created/recorded here; default-stream restrictions remain applicable, not bypassed. The synthetic A/B test uses independent legal stream activity, not a claim that illegal legacy-stream work is made valid.
+
+Reviewed cuMemUnmap, cuMemRelease, cuMemAddressFree and cuDevicePrimaryCtxRelease: unmap uses the exact full mapped range; release/free follow removal of all readers and mappings; the mapping holds its primary-context lease until last cleanup. Primary release resets on the last context reference, so other legitimate independent context users must retain their own context usage; arbitrary external context reset/teardown is unsupported. These cleanup sections do not supply a blanket capture-independence or target guarantee; source recheck is not runtime proof. All failed cleanup/completion calls retain the fatal/no-unsafe-unmap policy. External asynchronous errors can still terminate the process. New per-eager-use event creation/recording/storage overhead is unmeasured and not claimed profitable.
+
+Primary URLs: https://docs.nvidia.com/cuda/archive/13.0.0/cuda-driver-api/group__CUDA__EVENT.html ; https://docs.nvidia.com/cuda/archive/13.0.0/cuda-driver-api/group__CUDA__VA.html ; https://docs.nvidia.com/cuda/archive/13.0.0/cuda-driver-api/group__CUDA__PRIMARY__CTX.html . Existing graph/callback proof remains fcf5452f, with the old context-sync clause superseded only by this implementation.
+
+## Next gate and stopping criteria
+
+Captain independently reviews exact published host code and event/cleanup contracts before ANY later allocation. Host ABI/build, actual capture legality/support, correct numerical results, generic compression realized, useful exposure and speed all remain unmeasured. No automatic compiler or reserved check, no readiness loop or further spelling/variant. A concrete cleanup/capture/refcount contradiction stops this exact amendment. README/shared ledgers remain captain-owned; this report is the worker handoff. Evidence and source commit are identified by the commit containing this report and its publication-manifest.json.
+
