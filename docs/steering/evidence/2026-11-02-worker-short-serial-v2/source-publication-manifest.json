@@ -1,0 +1,81 @@
+{
+  "allocation": "1df00005d3eceb467c38b17ac0d4cad632efbc78",
+  "candidate_sha256": "5d883c43db730990246d07a0e52800e01b3161973705b8cb785c26e0d3f08933",
+  "files": [
+    {
+      "path": "tools/g_short_serial_producer.py",
+      "bytes": 3074,
+      "sha256": "c149e50a2ce3f7dc9a9fd1db3210bd9251984db5d133da2c3e3c544b5a0a32a9"
+    },
+    {
+      "path": "tools/test_g_short_serial_producer.py",
+      "bytes": 12901,
+      "sha256": "83644f5ca8558945914abd9684b145dc8bd0ea0a56175a6c8159a4cba3156db9"
+    },
+    {
+      "path": "docs/steering/2026-11-02-worker-short-serial-v2-registration.md",
+      "bytes": 7959,
+      "sha256": "a3b93ccfcb5a6045030067503a873c98d7308233a8f2ec189032c9b332f1ad26"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-worker-short-serial-v2/generated/candidate.py",
+      "bytes": 869931,
+      "sha256": "5d883c43db730990246d07a0e52800e01b3161973705b8cb785c26e0d3f08933"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-worker-short-serial-v2/generated/generation.json",
+      "bytes": 6531,
+      "sha256": "b8c3561d13250de18e9c637d5404424e7774ae4f5652d1cd235d6f4648e8b0f9"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-worker-short-serial-v2/tests-initial.log",
+      "bytes": 636,
+      "sha256": "b390e2b53bb6c2ee41bb857d3f5b436b29865cf8b38b4238b1709bfa4f82e53e"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-worker-short-serial-v2/tests.log",
+      "bytes": 788,
+      "sha256": "c787cc18e1b05991979ff6d50d1fbacb49b21d66fe3ab7cba4cf3fab38ea7741"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-worker-short-serial-v2/generation.log",
+      "bytes": 6531,
+      "sha256": "b8c3561d13250de18e9c637d5404424e7774ae4f5652d1cd235d6f4648e8b0f9"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-worker-short-serial-v2/control/preflight-auth.txt",
+      "bytes": 8,
+      "sha256": "b250dbe87a45eecbcdba65d9c0509d9509a74e603e767b2d3191c28084b8a6f2"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-worker-short-serial-v2/control/preflight-quota.json",
+      "bytes": 1536,
+      "sha256": "a2a2f3ab2d18e147d75d211c54640e43031f6551a09a38a2c033c8e658a76ecd"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-worker-short-serial-v2/control/preflight-jobs.json",
+      "bytes": 13829,
+      "sha256": "ed8857a2bc54447576befd955d00f5eed6cdb648c7301cd10fc1ba5ef9e7b2c6"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-worker-short-serial-v2/control/dispatch-intent.json",
+      "bytes": 517,
+      "sha256": "dee7e9c56f122850601b7004946ac6686ff2de42c0676b9e37c304af51f4f1f1"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-worker-short-serial-v2/control/dispatch.json",
+      "bytes": 69,
+      "sha256": "282ad74207434f226e8e048dd1d4f2e3f784e25efbe1ea1c312b1d1d70fd5c53"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-worker-short-serial-v2/control/dispatch.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-worker-short-serial-v2/control/accepted-status.json",
+      "bytes": 395,
+      "sha256": "67595c15fd31849c4552788d7bb22ee23a09ae39d80a79bcb54af2ac3a6d2f9a"
+    }
+  ]
+}
