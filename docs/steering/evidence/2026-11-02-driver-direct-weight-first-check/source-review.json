@@ -1,0 +1,18 @@
+{
+  "reviewer": "root/ss_expert_geometry_review",
+  "decision": "CONDITIONAL_SOURCE_ACCEPT_ONE_ORDINARY_PRIVATE_CHECK",
+  "reviewed_native_sha256": "f95fbb1124ac66b7dd2323a26a61368d0674e6ab079187c308f81ef77f2aba3a",
+  "reviewed_native_bytes": 154173,
+  "reviewed_payload_sha256": "a27a1baff54f5496e339044760d1a58927af8733fa6af6fadcc68c60dcf140bd",
+  "reviewed_payload_bytes": 875672,
+  "contracts": [
+    "physicalstagepassedass0/stnotseq%16",
+    "globalimmutablecode/scaleloadsbeforeXwait/onegroupahead",
+    "noreachableWGSrawTMA/helper/BWwait/release/sharedrawread",
+    "soleX544/fulljoin/routing544",
+    "Xbase0/3slots32768/header22272/dynamic120576",
+    "Xready/retirement/proxy/register/global/interCTA/terminalfencesretained",
+    "originalK256/16stages/256rows/4WG/NTT/doneAsub>>1count8/packing/finalization/shortfactoriesretained"
+  ],
+  "limitation": "No GPUmath/admission/performance qualification. MAINspillsdisclosedrisk; nozero-spillveto. Earlier generatedfoldercomment-onlydifference not a readiness blocker."
+}

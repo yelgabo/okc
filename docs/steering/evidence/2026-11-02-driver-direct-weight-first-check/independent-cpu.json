@@ -1,0 +1,28 @@
+{
+  "observed_at_utc": "2026-11-02T23:15:29.966989+00:00",
+  "command": [
+    "wsl",
+    "-d",
+    "Ubuntu",
+    "--cd",
+    "/mnt/c/Users/gretc/Documents/GitHub/okc",
+    "--",
+    "/root/.cache/okc-host-validate/bin/python",
+    "-m",
+    "unittest",
+    "discover",
+    "-s",
+    "tools",
+    "-p",
+    "test_wgs_direct_weight_registers.py",
+    "-v"
+  ],
+  "exitcode": 0,
+  "physical_source_pins": {
+    "tools/wgs_direct_weight_registers.py": "22b571e6bd143789e84ec74afe778c9adea890dbb282f07019061c2181d28159",
+    "tools/test_wgs_direct_weight_registers.py": "3ab4c48b1ecf6833623c8578899058ca8e938897bf016f5d57ffd7094dcb037f",
+    ".build/direct-weight-registers/compile/generated/candidate.py": "a27a1baff54f5496e339044760d1a58927af8733fa6af6fadcc68c60dcf140bd"
+  },
+  "source_stable_during_run": true,
+  "limitation": "CPU source/selection/address/protocol checks, not target math/admission/performance or ordering-by-tests."
+}
