@@ -1,0 +1,252 @@
+--- donor/tiny2
++++ public607/tiny2
+@@ -81,6 +81,15 @@
+ #define OKC_NOLOAD 0
+ 
+ namespace okc {
++
++#if !OKC_WGS && !OKC_WS
++#error FORK_MOE_UNPROVEN_FALLBACK_select_owned_or_Marlin_adapter
++#endif
++#if OKC_WGS
++#undef OKC_MFIN
++#define OKC_MFIN 0
++#endif
++
+ 
+ #ifndef OKC_L2H
+ #define OKC_L2H 1
+@@ -403,6 +412,7 @@
+ 
+ // ---------------------------------------------------------------- epilogues (one 16-row block, tokens 2t,2t+1 of n-tile)
+ // r[0..1] rows g (gate / out row n0), r[2..3] rows g+8 (up / out row n1), tokens tk0 = 2t, 2t+1 relative to tile
++__device__ __forceinline__ float fork_bf16(float v) { return __bfloat162float(__float2bfloat16_rn(v)); }
+ __device__ __forceinline__ float probe_q(float v) {
+   return v;
+ }
+@@ -411,7 +421,7 @@
+   for (int h = 0; h < 2; ++h) {
+     int tk = tok0 + h;
+     if (tk < ntok) {
+-      float gt = r[h] * gsc, up = r[2 + h] * gsc;
++      float gt = fork_bf16(r[h] * gsc), up = fork_bf16(r[2 + h] * gsc);
+       float v = SILU_DIV(gt, 1.f + __expf(-gt)) * up;
+       st_keep_bf16(p.inter + ((size_t)(pstart + tk) * ID + col), __float2bfloat16(probe_q(v)));
+     }
+@@ -420,11 +430,11 @@
+ // returns per-token partial sum of squares (2 values) for this lane's two tokens
+ __device__ __forceinline__ void epi_B(const Params& p, int pstart, int ntok, int tok0, int n0, float gsc, const float* r,
+                                       float* sq) {
+-  const float w0 = 1.f + __bfloat162float(p.normw[n0]), w1 = 1.f + __bfloat162float(p.normw[n0 + 8]);
++  const float w0 = fork_bf16(1.f + __bfloat162float(p.normw[n0])), w1 = fork_bf16(1.f + __bfloat162float(p.normw[n0 + 8]));
+ #pragma unroll
+   for (int h = 0; h < 2; ++h) {
+     int tk = tok0 + h;
+-    float v0 = r[h] * gsc * w0, v1 = r[2 + h] * gsc * w1;
++    float v0 = fork_bf16(r[h] * gsc) * w0, v1 = fork_bf16(r[2 + h] * gsc) * w1;
+     sq[h] = v0 * v0 + v1 * v1;
+     if (tk < ntok) {
+       st_keep_f32(p.ybuf + ((size_t)(pstart + tk) * HD + n0), v0);
+@@ -603,7 +613,7 @@
+   if (PB && tid < 128) {
+     const int u0 = nU > 0 ? v0 : (S.uslot[seq0 % OKC_NS] & ~BFLAG);
+     const int rbq = (u0 < 0 ? 0 : u0) & (rbs - 1);
+-    nwc0 = 1.f + __bfloat162float(__ldg(p.normw + rbq * 16 + egg)); nwc1 = 1.f + __bfloat162float(__ldg(p.normw + rbq * 16 + egg + 8));
++    nwc0 = fork_bf16(1.f + __bfloat162float(__ldg(p.normw + rbq * 16 + egg))); nwc1 = fork_bf16(1.f + __bfloat162float(__ldg(p.normw + rbq * 16 + egg + 8)));
+   }
+   int nproc = 0;
+   for (int i = 0;; ++i) {
+@@ -621,7 +631,7 @@
+     if (PB) vn = i + 1 < nU ? v + 1 : S.uslot[(seq0 + i + 1) % OKC_NS];
+     if (PB && tid < 128 && vn >= 0) {
+       const int rbq = (vn & ~BFLAG) & (rbs - 1);
+-      nwn0 = 1.f + __bfloat162float(__ldg(p.normw + rbq * 16 + egg)); nwn1 = 1.f + __bfloat162float(__ldg(p.normw + rbq * 16 + egg + 8));
++      nwn0 = fork_bf16(1.f + __bfloat162float(__ldg(p.normw + rbq * 16 + egg))); nwn1 = fork_bf16(1.f + __bfloat162float(__ldg(p.normw + rbq * 16 + egg + 8)));
+     }
+     if (j != curj) {
+       curj = j;
+@@ -709,13 +719,13 @@
+       if (!PB) {
+         if (tk < cnt) {
+           const float gsc = p.gsA[ce] * TWO62;
+-          const float gt = s0 * gsc, up = s1 * gsc;
++          const float gt = fork_bf16(s0 * gsc), up = fork_bf16(s1 * gsc);
+           st_keep_bf16(p.inter + ((size_t)(st + tk) * ID + rb * 8 + gg), __float2bfloat16(probe_q(SILU_DIV(gt, 1.f + __expf(-gt)) * up)));
+         }
+       } else {
+         const float gsc = p.gsB[ce] * TWO62;
+         const int n0 = rb * 16 + gg;
+-        const float v0f = s0 * gsc * nwc0, v1f = s1 * gsc * nwc1;
++        const float v0f = fork_bf16(s0 * gsc) * nwc0, v1f = fork_bf16(s1 * gsc) * nwc1;
+         float sq = v0f * v0f + v1f * v1f;
+         if (tk < cnt) {
+           st_keep_f32(p.ybuf + ((size_t)(st + tk) * HD + n0), v0f);
+@@ -783,14 +793,14 @@
+   // phase B epilogue: prefetch (1 + post_norm_w) of the next unit's rows one unit ahead
+   float nwc0 = 0.f, nwc1 = 0.f;
+   const int egg = (tid & 31) >> 2;
+-  if (PB && tid < 128) { const int rbq = v0 % rbs; nwc0 = 1.f + __bfloat162float(__ldg(p.normw + rbq * 16 + egg)); nwc1 = 1.f + __bfloat162float(__ldg(p.normw + rbq * 16 + egg + 8)); }
++  if (PB && tid < 128) { const int rbq = v0 % rbs; nwc0 = fork_bf16(1.f + __bfloat162float(__ldg(p.normw + rbq * 16 + egg))); nwc1 = fork_bf16(1.f + __bfloat162float(__ldg(p.normw + rbq * 16 + egg + 8))); }
+   for (int i = 0; i < nU; ++i) {
+     const int v = v0 + i;
+     const int j = njF + v / rbs, rb = v - (v / rbs) * rbs;
+     float nwn0 = 0.f, nwn1 = 0.f;
+     if (PB && tid < 128 && i + 1 < nU) {
+       const int rbq = (v + 1) % rbs;
+-      nwn0 = 1.f + __bfloat162float(__ldg(p.normw + rbq * 16 + egg)); nwn1 = 1.f + __bfloat162float(__ldg(p.normw + rbq * 16 + egg + 8));
++      nwn0 = fork_bf16(1.f + __bfloat162float(__ldg(p.normw + rbq * 16 + egg))); nwn1 = fork_bf16(1.f + __bfloat162float(__ldg(p.normw + rbq * 16 + egg + 8)));
+     }
+     if (j != curj) {
+       curj = j;
+@@ -877,13 +887,13 @@
+       if (!PB) {
+         if (tk < cnt) {
+           const float gsc = p.gsA[ce] * TWO62;
+-          const float gt = s0 * gsc, up = s1 * gsc;
++          const float gt = fork_bf16(s0 * gsc), up = fork_bf16(s1 * gsc);
+           st_keep_bf16(p.inter + ((size_t)(st + tk) * ID + rb * 8 + gg), __float2bfloat16(probe_q(SILU_DIV(gt, 1.f + __expf(-gt)) * up)));
+         }
+       } else {
+         const float gsc = p.gsB[ce] * TWO62;
+         const int n0 = rb * 16 + gg;
+-        const float v0f = s0 * gsc * nwc0, v1f = s1 * gsc * nwc1;
++        const float v0f = fork_bf16(s0 * gsc) * nwc0, v1f = fork_bf16(s1 * gsc) * nwc1;
+         float sq = v0f * v0f + v1f * v1f;
+         if (tk < cnt) {
+           st_keep_f32(p.ybuf + ((size_t)(st + tk) * HD + n0), v0f);
+@@ -1450,6 +1460,7 @@
+     const int bb = q % NRB;
+     mbar_wait(S.wsre + bb, (uint32_t)(((q / NRB) & 1) ^ 1));  // the helper has consumed this buffer's previous unit
+     *reinterpret_cast<float4*>(&S.red[bb][warp][lane][0]) = make_float4(acc[0], acc[1], acc[2], acc[3]);
++    asm volatile("fence.proxy.async.shared::cta;\n" ::: "memory");
+     CTA_SYNC();
+     if (tid == 0) {
+       const int nA = S.wsr[1] - S.wsr[0], N = nA + (S.wsr[3] - S.wsr[2]);
+@@ -1471,11 +1482,11 @@
+     const int cnt = S.jC[j], st = S.jS[j], ce = S.jE[j];
+     const int n0 = rb * 16 + gg;
+     const float gsc = lgs * TWO62;
+-    const float nw0 = 1.f + __uint_as_float(lnw0 << 16), nw1 = 1.f + __uint_as_float(lnw1 << 16);
++    const float nw0 = fork_bf16(1.f + __uint_as_float(lnw0 << 16)), nw1 = fork_bf16(1.f + __uint_as_float(lnw1 << 16));
+ #pragma unroll
+     for (int h = 0; h < 2; ++h) {
+       const int tk = 2 * tt + h;
+-      const float v0f = (h ? sm.y : sm.x) * gsc * nw0, v1f = (h ? sm.w : sm.z) * gsc * nw1;
++      const float v0f = fork_bf16((h ? sm.y : sm.x) * gsc) * nw0, v1f = fork_bf16((h ? sm.w : sm.z) * gsc) * nw1;
+       float sq = v0f * v0f + v1f * v1f;
+       if (tk < cnt) {
+         st_keep_f32(p.ybuf + ((size_t)(st + tk) * HD + n0), v0f);
+@@ -1533,7 +1544,7 @@
+       for (int h = 0; h < 2; ++h) {
+         const int tk = 2 * tt + h;
+         if (tk < cnt) {
+-          const float gt = (h ? sm.y : sm.x) * gsc, up = (h ? sm.w : sm.z) * gsc;
++          const float gt = fork_bf16((h ? sm.y : sm.x) * gsc), up = fork_bf16((h ? sm.w : sm.z) * gsc);
+           st_keep_bf16(p.inter + ((size_t)(st + tk) * ID + rb * 8 + gg), __float2bfloat16(probe_q(SILU_DIV(gt, 1.f + __expf(-gt)) * up)));
+         }
+       }
+@@ -1551,11 +1562,11 @@
+     } else {
+       const float gsc = p.gsB[ce] * TWO62;
+       const int n0 = rb * 16 + gg;
+-      const float nw0 = 1.f + __bfloat162float(p.normw[n0]), nw1 = 1.f + __bfloat162float(p.normw[n0 + 8]);
++      const float nw0 = fork_bf16(1.f + __bfloat162float(p.normw[n0])), nw1 = fork_bf16(1.f + __bfloat162float(p.normw[n0 + 8]));
+ #pragma unroll
+       for (int h = 0; h < 2; ++h) {
+         const int tk = 2 * tt + h;
+-        const float v0f = (h ? sm.y : sm.x) * gsc * nw0, v1f = (h ? sm.w : sm.z) * gsc * nw1;
++        const float v0f = fork_bf16((h ? sm.y : sm.x) * gsc) * nw0, v1f = fork_bf16((h ? sm.w : sm.z) * gsc) * nw1;
+         float sq = v0f * v0f + v1f * v1f;
+         if (tk < cnt) {
+           st_keep_f32(p.ybuf + ((size_t)(st + tk) * HD + n0), v0f);
+@@ -1876,7 +1887,7 @@
+     for (int h = 0; h < 2; ++h) {
+       const int tk = nt * 8 + 2 * t + h;
+       if (tk < cnt) {
+-        const float gt = d4[h] * gsc, up = d4[2 + h] * gsc;
++        const float gt = fork_bf16(d4[h] * gsc), up = fork_bf16(d4[2 + h] * gsc);
+         const float v = SILU_DIV(gt, 1.f + __expf(-gt)) * up;
+         st_keep_bf16(xb + (size_t)((((col >> 8) * ntt + (tk >> 3)) * 32 + ((col & 255) >> 3)) * 64 + (tk & 7) * 8),
+                      __float2bfloat16(probe_q(v)));
+@@ -1886,13 +1897,13 @@
+     // y rows only: the per-route sum of squares is formed by the final pass from these rows (no shuffles / atomics)
+     const int n0 = r16 * 16 + g, tok0 = nt * 8 + 2 * t;
+     const float gsc = p.gsB[e] * TWO62;
+-    const float w0 = (1.f + __bfloat162float(__ldg(p.normw + n0))) * gsc, w1 = (1.f + __bfloat162float(__ldg(p.normw + n0 + 8))) * gsc;
++    const float w0 = fork_bf16(1.f + __bfloat162float(__ldg(p.normw + n0))), w1 = fork_bf16(1.f + __bfloat162float(__ldg(p.normw + n0 + 8)));
+ #pragma unroll
+     for (int h = 0; h < 2; ++h) {
+       const int tk = tok0 + h;
+       if (tk < cnt) {
+-        st_keep_f32(p.ybuf + ((size_t)(jst + tk) * HD + n0), d4[h] * w0);
+-        st_keep_f32(p.ybuf + ((size_t)(jst + tk) * HD + n0 + 8), d4[2 + h] * w1);
++        st_keep_f32(p.ybuf + ((size_t)(jst + tk) * HD + n0), fork_bf16(d4[h] * gsc) * w0);
++        st_keep_f32(p.ybuf + ((size_t)(jst + tk) * HD + n0 + 8), fork_bf16(d4[2 + h] * gsc) * w1);
+       }
+     }
+   }
+@@ -2416,7 +2427,8 @@
+   if (tid == 0) {
+     int* bc = p.ctr + 4 + (S.gen & 1);
+     __threadfence();
+-    const int old = atomicAdd(bc, 1);
++    int old;
++    asm volatile("atom.acq_rel.gpu.global.add.s32 %0, [%1], %2;\n" : "=r"(old) : "l"(bc), "r"(1) : "memory");
+     if (old == (int)gridDim.x - 1) atomicAdd(p.ctr + 3, 1);
+     while (ld_acquire(bc) < (int)gridDim.x) __nanosleep(64);
+   }
+@@ -2647,25 +2659,32 @@
+     attr = true;
+   }
+   cudaStream_t st = at::cuda::getCurrentCUDAStream();
+-  // large batches run the variant with the fat path inlined (and wgmma); small ones keep it out of line, which
+-  // leaves the skinny loop's code and registers as tuned
+-  if (g_okc_pdl) {
+-    cudaLaunchConfig_t cfg = {};
+-    cfg.gridDim = dim3((unsigned)grid);
+-    cfg.blockDim = dim3(okc::NTL);
+-    cfg.dynamicSmemBytes = sm;
+-    cfg.stream = st;
+-    cudaLaunchAttribute at[1];
+-    at[0].id = cudaLaunchAttributeProgrammaticStreamSerialization;
+-    at[0].val.programmaticStreamSerializationAllowed = 1;
+-    cfg.attrs = at;
+-    cfg.numAttrs = 1;
+-    if (p.M >= OKC_BIGM) cudaLaunchKernelEx(&cfg, okc::moe_fused<true>, p);
+-    else cudaLaunchKernelEx(&cfg, okc::moe_fused<false>, p);
+-    return;
+-  }
+-  if (p.M >= OKC_BIGM) okc::moe_fused<true><<<(int)grid, okc::NTL, sm, st>>>(p);
+-  else okc::moe_fused<false><<<(int)grid, okc::NTL, sm, st>>>(p);
+-}
+-
+-
++
++  // Ordinary same-stream cooperative launch: prior PDL producers finish first.
++  // No native launch may depend on an oversubscribed software grid barrier.
++  int device=0; cudaDeviceProp prop{}; int resident=0;
++  TORCH_CHECK(cudaGetDevice(&device)==cudaSuccess && cudaGetDeviceProperties(&prop,device)==cudaSuccess,
++              "FORK_MOE_RESOURCE device properties");
++  TORCH_CHECK(prop.major==9 && prop.minor==0 && prop.cooperativeLaunch,
++              "FORK_MOE_RESOURCE requires SM90 cooperative launch; use owned/Marlin adapter");
++  TORCH_CHECK(grid>0 && grid<=prop.multiProcessorCount && grid<=136 && grid<160,
++              "FORK_MOE_RESOURCE grid/fixup bound; use owned/Marlin adapter");
++  TORCH_CHECK(p.M>0 && p.M<=okc::MMAX && p.nloc==32 && p.lo==0,
++              "FORK_MOE_RESOURCE shape/local-ID ABI");
++  TORCH_CHECK(x.scalar_type()==torch::kBFloat16 && out.scalar_type()==torch::kBFloat16
++              && ids.scalar_type()==torch::kInt32 && tw.scalar_type()==torch::kFloat32,
++              "FORK_MOE_RESOURCE activation/routing dtype ABI");
++  auto kernel = p.M>=OKC_BIGM ? okc::moe_fused<true> : okc::moe_fused<false>;
++  TORCH_CHECK(cudaFuncSetAttribute(kernel,cudaFuncAttributeMaxDynamicSharedMemorySize,(int)sm)==cudaSuccess,
++              "FORK_MOE_RESOURCE dynamic shared-memory attribute");
++  TORCH_CHECK(cudaOccupancyMaxActiveBlocksPerMultiprocessor(&resident,kernel,okc::NTL,sm)==cudaSuccess
++              && resident>=1 && grid<=resident*prop.multiProcessorCount,
++              "FORK_MOE_RESOURCE cooperative residency");
++  void* args[]={&p};
++  const cudaError_t launch=cudaLaunchCooperativeKernel((const void*)kernel,dim3((unsigned)grid),
++      dim3(okc::NTL),args,sm,st);
++  TORCH_CHECK(launch==cudaSuccess,"FORK_MOE_LAUNCH ",cudaGetErrorString(launch));
++
++}
++
++

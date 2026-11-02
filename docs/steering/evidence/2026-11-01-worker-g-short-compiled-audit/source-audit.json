@@ -1,0 +1,881 @@
+{
+  "scope": "Exact source and two actual selected native factory calls under CPU stubs; no submission import or kernel execution. Source comparison, not causal latency attribution.",
+  "sources": {
+    "donor": {
+      "path": ".build/today/kel/kernels/muse_decode_layer.py",
+      "raw_sha256": "1ec189dc6f306cec1694946eb62d64b54daf378c6fc1ada2f0f5e501e973ff2a",
+      "lf_sha256": "82c098ae7534b20b5d80f59d547650cb0853fc7d5e313fe29e1e9d9373e1bb19",
+      "bytes": 995999,
+      "selected": [
+        {
+          "family": "tiny",
+          "cuda_sha256": "84f501957a280cb3703bf9a29843153557e280725457162cb8b203b74b8d0f9f",
+          "device_prefix_sha256": "017e35fad3bdb67fe0dcb720176480cd006e0b7d09a2aef86a1d0052d6483e8c",
+          "cpp_sha256": "bf9238761276c88ea043a8ebf161b30d912de2b4418b1b379273fb757d9b230d",
+          "flags": [
+            "-O3",
+            "-gencode=arch=compute_90a,code=sm_90a",
+            "-lineinfo",
+            "-DOKC_NS=3",
+            "-DOKC_FNST=4",
+            "-DOKC_NSF=3",
+            "-DOKC_NW=8",
+            "-DOKC_TINY=1",
+            "-DOKC_EPI4=0",
+            "-DOKC_FAST1=2",
+            "-DOKC_L2H=0",
+            "-DOKC_NACC=4",
+            "-DOKC_UWARP=0",
+            "-DOKC_WS=1",
+            "-DOKC_WSB=1",
+            "-DOKC_WSBL=2",
+            "-DOKC_WSBLK=2",
+            "-DOKC_FINPF=1",
+            "-DOKC_PRMTSC=1",
+            "-DOKC_DQ7=1"
+          ],
+          "functions": [
+            "okc_run",
+            "okc_set_pdl"
+          ],
+          "input": ".build\\worker-g-short-audit\\donor\\tiny\\input.cu"
+        },
+        {
+          "family": "tiny2",
+          "cuda_sha256": "84f501957a280cb3703bf9a29843153557e280725457162cb8b203b74b8d0f9f",
+          "device_prefix_sha256": "017e35fad3bdb67fe0dcb720176480cd006e0b7d09a2aef86a1d0052d6483e8c",
+          "cpp_sha256": "bf9238761276c88ea043a8ebf161b30d912de2b4418b1b379273fb757d9b230d",
+          "flags": [
+            "-O3",
+            "-gencode=arch=compute_90a,code=sm_90a",
+            "-lineinfo",
+            "-DOKC_NS=3",
+            "-DOKC_FNST=4",
+            "-DOKC_NSF=3",
+            "-DOKC_NW=8",
+            "-DOKC_TINY=1",
+            "-DOKC_CPF=0",
+            "-DOKC_EPI4=0",
+            "-DOKC_FAST1=2",
+            "-DOKC_NACC=4",
+            "-DOKC_UWARP=0",
+            "-DOKC_WS=1",
+            "-DOKC_WSB=1",
+            "-DOKC_WSBL=2",
+            "-DOKC_WSBLK=1",
+            "-DOKC_FINPF=1",
+            "-DOKC_PRMTSC=1",
+            "-DOKC_DQ7=1"
+          ],
+          "functions": [
+            "okc_run",
+            "okc_set_pdl"
+          ],
+          "input": ".build\\worker-g-short-audit\\donor\\tiny2\\input.cu"
+        }
+      ],
+      "base_policy": {
+        "PDL": true,
+        "MOE_DEFINES": [
+          "-DOKC_NW=16",
+          "-DOKC_FAST1=0",
+          "-DOKC_EPI4=0",
+          "-DOKC_WGS=1"
+        ],
+        "MOE_TINY_DEFINES": [
+          "-DOKC_NW=8",
+          "-DOKC_TINY=1",
+          "-DOKC_EPI4=0",
+          "-DOKC_FAST1=2",
+          "-DOKC_L2H=0",
+          "-DOKC_NACC=4",
+          "-DOKC_UWARP=0",
+          "-DOKC_WS=1",
+          "-DOKC_WSB=1",
+          "-DOKC_WSBL=2",
+          "-DOKC_WSBLK=2",
+          "@moe_helper0",
+          "-DOKC_FINPF=1"
+        ],
+        "MOE_TINY_MAX_M": 4,
+        "MOE_TINY2_DEFINES": [
+          "-DOKC_NW=8",
+          "-DOKC_TINY=1",
+          "-DOKC_CPF=0",
+          "-DOKC_EPI4=0",
+          "-DOKC_FAST1=2",
+          "-DOKC_NACC=4",
+          "-DOKC_UWARP=0",
+          "-DOKC_WS=1",
+          "-DOKC_WSB=1",
+          "-DOKC_WSBL=2",
+          "-DOKC_WSBLK=1",
+          "-DOKC_FINPF=1",
+          "@moe_helper0"
+        ],
+        "MOE_TINY2_MAX_M": 8,
+        "MOE_MID_DEFINES": [
+          "-DOKC_NW=8",
+          "-DOKC_TINY=1",
+          "-DOKC_SPLIT=1",
+          "-DOKC_CPF=0",
+          "-DOKC_EPI4=0",
+          "-DOKC_FAST1=2",
+          "-DOKC_NACC=4",
+          "-DOKC_UWARP=0",
+          "-DOKC_WS=1",
+          "-DOKC_WSB=1",
+          "-DOKC_WSBL=2",
+          "-DOKC_WSBLK=2",
+          "-DOKC_FINPF=1",
+          "@moe_helper0df"
+        ],
+        "MOE_MID_MAX_M": 16,
+        "MOE_HAS_PDL": true,
+        "SC6_WGS": true,
+        "DQ7": true,
+        "MFAB_LAYER": true
+      },
+      "stubbed_set_pdl_calls_not_runtime_edge_proof": [
+        [
+          0
+        ],
+        [
+          0
+        ],
+        [
+          0
+        ],
+        [
+          0
+        ]
+      ]
+    },
+    "public607": {
+      "path": "muse_decode_layer/cand/g1b4_stage_release.py",
+      "raw_sha256": "ba9e327cd7b96595ace4d0c1d0d78fe27c128f23ed0debcda97c7169fc3164ab",
+      "lf_sha256": "ba9e327cd7b96595ace4d0c1d0d78fe27c128f23ed0debcda97c7169fc3164ab",
+      "bytes": 869076,
+      "selected": [
+        {
+          "family": "tiny",
+          "cuda_sha256": "b8ed85438c06673f411ff4203080bfbacd0c0c2dc5cb624e6f10d4877fe7a716",
+          "device_prefix_sha256": "80ea6081901508d325d36650c2d6a3b739bc6d8f2649f804e12bc5de36874efe",
+          "cpp_sha256": "bf9238761276c88ea043a8ebf161b30d912de2b4418b1b379273fb757d9b230d",
+          "flags": [
+            "-O3",
+            "-gencode=arch=compute_90a,code=sm_90a",
+            "-lineinfo",
+            "-DOKC_NS=3",
+            "-DOKC_FNST=4",
+            "-DOKC_NSF=3",
+            "-DOKC_NW=8",
+            "-DOKC_TINY=1",
+            "-DOKC_EPI4=0",
+            "-DOKC_FAST1=2",
+            "-DOKC_L2H=0",
+            "-DOKC_NACC=4",
+            "-DOKC_UWARP=0",
+            "-DOKC_WS=1",
+            "-DOKC_WSB=1",
+            "-DOKC_WSBL=2",
+            "-DOKC_WSBLK=2",
+            "-DOKC_FINPF=1",
+            "-DOKC_PRMTSC=1",
+            "-DOKC_DQ7=1"
+          ],
+          "functions": [
+            "okc_run",
+            "okc_set_pdl"
+          ],
+          "input": ".build\\worker-g-short-audit\\public607\\tiny\\input.cu"
+        },
+        {
+          "family": "tiny2",
+          "cuda_sha256": "b8ed85438c06673f411ff4203080bfbacd0c0c2dc5cb624e6f10d4877fe7a716",
+          "device_prefix_sha256": "80ea6081901508d325d36650c2d6a3b739bc6d8f2649f804e12bc5de36874efe",
+          "cpp_sha256": "bf9238761276c88ea043a8ebf161b30d912de2b4418b1b379273fb757d9b230d",
+          "flags": [
+            "-O3",
+            "-gencode=arch=compute_90a,code=sm_90a",
+            "-lineinfo",
+            "-DOKC_NS=3",
+            "-DOKC_FNST=4",
+            "-DOKC_NSF=3",
+            "-DOKC_NW=8",
+            "-DOKC_TINY=1",
+            "-DOKC_CPF=0",
+            "-DOKC_EPI4=0",
+            "-DOKC_FAST1=2",
+            "-DOKC_NACC=4",
+            "-DOKC_UWARP=0",
+            "-DOKC_WS=1",
+            "-DOKC_WSB=1",
+            "-DOKC_WSBL=2",
+            "-DOKC_WSBLK=1",
+            "-DOKC_FINPF=1",
+            "-DOKC_PRMTSC=1",
+            "-DOKC_DQ7=1"
+          ],
+          "functions": [
+            "okc_run",
+            "okc_set_pdl"
+          ],
+          "input": ".build\\worker-g-short-audit\\public607\\tiny2\\input.cu"
+        }
+      ],
+      "base_policy": {
+        "PDL": false,
+        "MOE_DEFINES": [
+          "-DOKC_NW=16",
+          "-DOKC_FAST1=0",
+          "-DOKC_EPI4=0",
+          "-DOKC_WGS=1"
+        ],
+        "MOE_TINY_DEFINES": [
+          "-DOKC_NW=8",
+          "-DOKC_TINY=1",
+          "-DOKC_EPI4=0",
+          "-DOKC_FAST1=2",
+          "-DOKC_L2H=0",
+          "-DOKC_NACC=4",
+          "-DOKC_UWARP=0",
+          "-DOKC_WS=1",
+          "-DOKC_WSB=1",
+          "-DOKC_WSBL=2",
+          "-DOKC_WSBLK=2",
+          "@moe_helper0",
+          "-DOKC_FINPF=1"
+        ],
+        "MOE_TINY_MAX_M": 4,
+        "MOE_TINY2_DEFINES": [
+          "-DOKC_NW=8",
+          "-DOKC_TINY=1",
+          "-DOKC_CPF=0",
+          "-DOKC_EPI4=0",
+          "-DOKC_FAST1=2",
+          "-DOKC_NACC=4",
+          "-DOKC_UWARP=0",
+          "-DOKC_WS=1",
+          "-DOKC_WSB=1",
+          "-DOKC_WSBL=2",
+          "-DOKC_WSBLK=1",
+          "-DOKC_FINPF=1",
+          "@moe_helper0"
+        ],
+        "MOE_TINY2_MAX_M": 8,
+        "MOE_MID_DEFINES": [
+          "-DOKC_NW=8",
+          "-DOKC_TINY=1",
+          "-DOKC_SPLIT=1",
+          "-DOKC_CPF=0",
+          "-DOKC_EPI4=0",
+          "-DOKC_FAST1=2",
+          "-DOKC_NACC=4",
+          "-DOKC_UWARP=0",
+          "-DOKC_WS=1",
+          "-DOKC_WSB=1",
+          "-DOKC_WSBL=2",
+          "-DOKC_WSBLK=2",
+          "-DOKC_FINPF=1",
+          "@moe_helper0df"
+        ],
+        "MOE_MID_MAX_M": 16,
+        "MOE_HAS_PDL": false,
+        "SC6_WGS": true,
+        "DQ7": true
+      },
+      "stubbed_set_pdl_calls_not_runtime_edge_proof": [
+        [
+          0
+        ],
+        [
+          0
+        ]
+      ]
+    },
+    "common_off": {
+      "path": ".build/g-minimal-rootreview/common/on.py",
+      "raw_sha256": "4cbb13a9a359c9fe870a94ebcabc4706447778849f71d4aa54e47d69abbd1280",
+      "lf_sha256": "4cbb13a9a359c9fe870a94ebcabc4706447778849f71d4aa54e47d69abbd1280",
+      "bytes": 871077,
+      "selected": [
+        {
+          "family": "tiny",
+          "cuda_sha256": "b8ed85438c06673f411ff4203080bfbacd0c0c2dc5cb624e6f10d4877fe7a716",
+          "device_prefix_sha256": "80ea6081901508d325d36650c2d6a3b739bc6d8f2649f804e12bc5de36874efe",
+          "cpp_sha256": "bf9238761276c88ea043a8ebf161b30d912de2b4418b1b379273fb757d9b230d",
+          "flags": [
+            "-O3",
+            "-gencode=arch=compute_90a,code=sm_90a",
+            "-lineinfo",
+            "-DOKC_NS=3",
+            "-DOKC_FNST=4",
+            "-DOKC_NSF=3",
+            "-DOKC_NW=8",
+            "-DOKC_TINY=1",
+            "-DOKC_EPI4=0",
+            "-DOKC_FAST1=2",
+            "-DOKC_L2H=0",
+            "-DOKC_NACC=4",
+            "-DOKC_UWARP=0",
+            "-DOKC_WS=1",
+            "-DOKC_WSB=1",
+            "-DOKC_WSBL=2",
+            "-DOKC_WSBLK=2",
+            "-DOKC_FINPF=1",
+            "-DOKC_PRMTSC=1",
+            "-DOKC_DQ7=1"
+          ],
+          "functions": [
+            "okc_run",
+            "okc_set_pdl"
+          ],
+          "input": ".build\\worker-g-short-audit\\common_off\\tiny\\input.cu"
+        },
+        {
+          "family": "tiny2",
+          "cuda_sha256": "b8ed85438c06673f411ff4203080bfbacd0c0c2dc5cb624e6f10d4877fe7a716",
+          "device_prefix_sha256": "80ea6081901508d325d36650c2d6a3b739bc6d8f2649f804e12bc5de36874efe",
+          "cpp_sha256": "bf9238761276c88ea043a8ebf161b30d912de2b4418b1b379273fb757d9b230d",
+          "flags": [
+            "-O3",
+            "-gencode=arch=compute_90a,code=sm_90a",
+            "-lineinfo",
+            "-DOKC_NS=3",
+            "-DOKC_FNST=4",
+            "-DOKC_NSF=3",
+            "-DOKC_NW=8",
+            "-DOKC_TINY=1",
+            "-DOKC_CPF=0",
+            "-DOKC_EPI4=0",
+            "-DOKC_FAST1=2",
+            "-DOKC_NACC=4",
+            "-DOKC_UWARP=0",
+            "-DOKC_WS=1",
+            "-DOKC_WSB=1",
+            "-DOKC_WSBL=2",
+            "-DOKC_WSBLK=1",
+            "-DOKC_FINPF=1",
+            "-DOKC_PRMTSC=1",
+            "-DOKC_DQ7=1"
+          ],
+          "functions": [
+            "okc_run",
+            "okc_set_pdl"
+          ],
+          "input": ".build\\worker-g-short-audit\\common_off\\tiny2\\input.cu"
+        }
+      ],
+      "base_policy": {
+        "PDL": false,
+        "MOE_DEFINES": [
+          "-DOKC_NW=16",
+          "-DOKC_FAST1=0",
+          "-DOKC_EPI4=0",
+          "-DOKC_WGS=1"
+        ],
+        "MOE_TINY_DEFINES": [
+          "-DOKC_NW=8",
+          "-DOKC_TINY=1",
+          "-DOKC_EPI4=0",
+          "-DOKC_FAST1=2",
+          "-DOKC_L2H=0",
+          "-DOKC_NACC=4",
+          "-DOKC_UWARP=0",
+          "-DOKC_WS=1",
+          "-DOKC_WSB=1",
+          "-DOKC_WSBL=2",
+          "-DOKC_WSBLK=2",
+          "@moe_helper0",
+          "-DOKC_FINPF=1"
+        ],
+        "MOE_TINY_MAX_M": 4,
+        "MOE_TINY2_DEFINES": [
+          "-DOKC_NW=8",
+          "-DOKC_TINY=1",
+          "-DOKC_CPF=0",
+          "-DOKC_EPI4=0",
+          "-DOKC_FAST1=2",
+          "-DOKC_NACC=4",
+          "-DOKC_UWARP=0",
+          "-DOKC_WS=1",
+          "-DOKC_WSB=1",
+          "-DOKC_WSBL=2",
+          "-DOKC_WSBLK=1",
+          "-DOKC_FINPF=1",
+          "@moe_helper0"
+        ],
+        "MOE_TINY2_MAX_M": 8,
+        "MOE_MID_DEFINES": [
+          "-DOKC_NW=8",
+          "-DOKC_TINY=1",
+          "-DOKC_SPLIT=1",
+          "-DOKC_CPF=0",
+          "-DOKC_EPI4=0",
+          "-DOKC_FAST1=2",
+          "-DOKC_NACC=4",
+          "-DOKC_UWARP=0",
+          "-DOKC_WS=1",
+          "-DOKC_WSB=1",
+          "-DOKC_WSBL=2",
+          "-DOKC_WSBLK=2",
+          "-DOKC_FINPF=1",
+          "@moe_helper0df"
+        ],
+        "MOE_MID_MAX_M": 16,
+        "MOE_HAS_PDL": false,
+        "SC6_WGS": true,
+        "DQ7": true
+      },
+      "stubbed_set_pdl_calls_not_runtime_edge_proof": [
+        [
+          0
+        ],
+        [
+          0
+        ]
+      ]
+    }
+  },
+  "comparisons": {
+    "donor_to_public607": {
+      "tiny": {
+        "cuda_equal": false,
+        "device_prefix_equal": false,
+        "flags_equal": true,
+        "cpp_equal": true,
+        "patch": "docs\\steering\\evidence\\2026-11-01-worker-g-short-compiled-audit\\donor-to-public607-tiny.patch"
+      },
+      "tiny2": {
+        "cuda_equal": false,
+        "device_prefix_equal": false,
+        "flags_equal": true,
+        "cpp_equal": true,
+        "patch": "docs\\steering\\evidence\\2026-11-01-worker-g-short-compiled-audit\\donor-to-public607-tiny2.patch"
+      }
+    },
+    "public607_to_common_off": {
+      "tiny": {
+        "cuda_equal": true,
+        "device_prefix_equal": true,
+        "flags_equal": true,
+        "cpp_equal": true,
+        "patch": "docs\\steering\\evidence\\2026-11-01-worker-g-short-compiled-audit\\public607-to-common_off-tiny.patch"
+      },
+      "tiny2": {
+        "cuda_equal": true,
+        "device_prefix_equal": true,
+        "flags_equal": true,
+        "cpp_equal": true,
+        "patch": "docs\\steering\\evidence\\2026-11-01-worker-g-short-compiled-audit\\public607-to-common_off-tiny2.patch"
+      }
+    }
+  },
+  "artifact_manifest_inventory": [
+    {
+      "path": "docs\\steering\\evidence\\2026-11-01-production-comment-fit\\G-local\\helper-original\\manifest.json",
+      "sha256": "14bec45000c4c30bcaf3fbe79736331ef2798e36f3e045ff1e806c0cb6f8abba",
+      "source_sha256": "b8ed85438c06673f411ff4203080bfbacd0c0c2dc5cb624e6f10d4877fe7a716",
+      "device_prefix_sha256": "80ea6081901508d325d36650c2d6a3b739bc6d8f2649f804e12bc5de36874efe",
+      "flags": [
+        "-DOKC_NS=3",
+        "-DOKC_NSF=3",
+        "-DOKC_FNST=4",
+        "-DOKC_PRMTSC=1",
+        "-DOKC_DQ7=1",
+        "-DOKC_NW=8",
+        "-DOKC_TINY=1",
+        "-DOKC_SPLIT=1",
+        "-DOKC_CPF=0",
+        "-DOKC_EPI4=0",
+        "-DOKC_FAST1=2",
+        "-DOKC_NACC=4",
+        "-DOKC_UWARP=0",
+        "-DOKC_WS=1",
+        "-DOKC_WSB=1",
+        "-DOKC_WSBL=2",
+        "-DOKC_WSBLK=2",
+        "-DOKC_FINPF=1"
+      ],
+      "resources": {
+        "_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE": {
+          "stack_bytes": 0,
+          "spill_store_bytes": 0,
+          "spill_load_bytes": 0,
+          "registers": 155,
+          "barriers": 3
+        },
+        "_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE": {
+          "stack_bytes": 0,
+          "spill_store_bytes": 0,
+          "spill_load_bytes": 0,
+          "registers": 155,
+          "barriers": 3
+        }
+      },
+      "ptx_sha256": "b7199d4a04e987dde5c41ab9d23ff196fdf9cbb75635b8b7f91242c9350084d9",
+      "cubin_sha256": "ffabbddaeb37a594bb4c7688cdf5db5cdb8b6363f63d2364c55cb3d2526249a5"
+    },
+    {
+      "path": "docs\\steering\\evidence\\2026-11-01-production-comment-fit\\G-local\\tiny-original\\manifest.json",
+      "sha256": "4aeeea03940e01a6b8fcfa9eda8ef36435296b3c1cf63d428ace38c8dbc860b1",
+      "source_sha256": "b8ed85438c06673f411ff4203080bfbacd0c0c2dc5cb624e6f10d4877fe7a716",
+      "device_prefix_sha256": "80ea6081901508d325d36650c2d6a3b739bc6d8f2649f804e12bc5de36874efe",
+      "flags": [
+        "-DOKC_NS=3",
+        "-DOKC_NSF=3",
+        "-DOKC_FNST=4",
+        "-DOKC_PRMTSC=1",
+        "-DOKC_DQ7=1",
+        "-DOKC_NW=8",
+        "-DOKC_TINY=1",
+        "-DOKC_EPI4=0",
+        "-DOKC_FAST1=2",
+        "-DOKC_L2H=0",
+        "-DOKC_NACC=4",
+        "-DOKC_UWARP=0",
+        "-DOKC_WS=1",
+        "-DOKC_WSB=1",
+        "-DOKC_WSBL=2",
+        "-DOKC_WSBLK=2",
+        "-DOKC_FINPF=1"
+      ],
+      "resources": {
+        "_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE": {
+          "stack_bytes": 0,
+          "spill_store_bytes": 0,
+          "spill_load_bytes": 0,
+          "registers": 147,
+          "barriers": 3
+        },
+        "_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE": {
+          "stack_bytes": 0,
+          "spill_store_bytes": 0,
+          "spill_load_bytes": 0,
+          "registers": 147,
+          "barriers": 3
+        }
+      },
+      "ptx_sha256": "39830b4b71d9e4f11e27e34d7af5644e3187bd566ddc897d045c23d3cd4dfea2",
+      "cubin_sha256": "248f045467a3efdc4f0b466047a4d9372295508296bb0e3f0f4ac7523c31e6f7"
+    },
+    {
+      "path": "docs\\steering\\evidence\\2026-11-01-production-comment-fit\\G-local\\tiny2-original\\manifest.json",
+      "sha256": "9c3c93b2de80dd0abeacbed587cd1c14996627a60996f006336ee15cc861dded",
+      "source_sha256": "b8ed85438c06673f411ff4203080bfbacd0c0c2dc5cb624e6f10d4877fe7a716",
+      "device_prefix_sha256": "80ea6081901508d325d36650c2d6a3b739bc6d8f2649f804e12bc5de36874efe",
+      "flags": [
+        "-DOKC_NS=3",
+        "-DOKC_NSF=3",
+        "-DOKC_FNST=4",
+        "-DOKC_PRMTSC=1",
+        "-DOKC_DQ7=1",
+        "-DOKC_NW=8",
+        "-DOKC_TINY=1",
+        "-DOKC_CPF=0",
+        "-DOKC_EPI4=0",
+        "-DOKC_FAST1=2",
+        "-DOKC_NACC=4",
+        "-DOKC_UWARP=0",
+        "-DOKC_WS=1",
+        "-DOKC_WSB=1",
+        "-DOKC_WSBL=2",
+        "-DOKC_WSBLK=1",
+        "-DOKC_FINPF=1"
+      ],
+      "resources": {
+        "_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE": {
+          "stack_bytes": 0,
+          "spill_store_bytes": 0,
+          "spill_load_bytes": 0,
+          "registers": 147,
+          "barriers": 3
+        },
+        "_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE": {
+          "stack_bytes": 0,
+          "spill_store_bytes": 0,
+          "spill_load_bytes": 0,
+          "registers": 147,
+          "barriers": 3
+        }
+      },
+      "ptx_sha256": "c4abe60d93057ab49387fbcc731df25ce68ffed687fe5e77411c4fb8c595e19a",
+      "cubin_sha256": "93f2316588fad3928faab33c75c58d6ab91c073bb4edc7bff1fa253f87d87926"
+    },
+    {
+      "path": "docs\\steering\\evidence\\2026-11-01-g-short-pair-rne\\tiny-control\\manifest.json",
+      "sha256": "c758d58eff22f7d66a74158a968d2a02dce90a649e18fae29b1250c130b1ffb2",
+      "source_sha256": "b8ed85438c06673f411ff4203080bfbacd0c0c2dc5cb624e6f10d4877fe7a716",
+      "device_prefix_sha256": "80ea6081901508d325d36650c2d6a3b739bc6d8f2649f804e12bc5de36874efe",
+      "flags": [
+        "-DOKC_NS=3",
+        "-DOKC_NSF=3",
+        "-DOKC_FNST=4",
+        "-DOKC_PRMTSC=1",
+        "-DOKC_DQ7=1",
+        "-DOKC_NW=8",
+        "-DOKC_TINY=1",
+        "-DOKC_EPI4=0",
+        "-DOKC_FAST1=2",
+        "-DOKC_L2H=0",
+        "-DOKC_NACC=4",
+        "-DOKC_UWARP=0",
+        "-DOKC_WS=1",
+        "-DOKC_WSB=1",
+        "-DOKC_WSBL=2",
+        "-DOKC_WSBLK=2",
+        "-DOKC_FINPF=1"
+      ],
+      "resources": {
+        "_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE": {
+          "stack_bytes": 0,
+          "spill_store_bytes": 0,
+          "spill_load_bytes": 0,
+          "registers": 147,
+          "barriers": 3
+        }
+      },
+      "ptx_sha256": "6e60ce9f2b78e4255bfcfc8f66f29d0cd08467b270264b64d96193f9f06c7866",
+      "cubin_sha256": "758bd9895c41674a36407567445624642f2cf588cfd9f10587b5661289c05bd9"
+    },
+    {
+      "path": "docs\\steering\\evidence\\2026-11-01-g-short-pair-rne\\tiny2-control\\manifest.json",
+      "sha256": "b130d855152028687f029c869ac3178f02d5b6d1eb5250b0bb092ac5e9eef0da",
+      "source_sha256": "b8ed85438c06673f411ff4203080bfbacd0c0c2dc5cb624e6f10d4877fe7a716",
+      "device_prefix_sha256": "80ea6081901508d325d36650c2d6a3b739bc6d8f2649f804e12bc5de36874efe",
+      "flags": [
+        "-DOKC_NS=3",
+        "-DOKC_NSF=3",
+        "-DOKC_FNST=4",
+        "-DOKC_PRMTSC=1",
+        "-DOKC_DQ7=1",
+        "-DOKC_NW=8",
+        "-DOKC_TINY=1",
+        "-DOKC_CPF=0",
+        "-DOKC_EPI4=0",
+        "-DOKC_FAST1=2",
+        "-DOKC_NACC=4",
+        "-DOKC_UWARP=0",
+        "-DOKC_WS=1",
+        "-DOKC_WSB=1",
+        "-DOKC_WSBL=2",
+        "-DOKC_WSBLK=1",
+        "-DOKC_FINPF=1"
+      ],
+      "resources": {
+        "_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE": {
+          "stack_bytes": 0,
+          "spill_store_bytes": 0,
+          "spill_load_bytes": 0,
+          "registers": 147,
+          "barriers": 3
+        }
+      },
+      "ptx_sha256": "ae94e8e28a2070912f6b1520a822fcfc4777e41d8ab3406643879e3377a6d298",
+      "cubin_sha256": "d0fa4bd7fe7c76cf71e6f3cfe41b2b525e7e46a102515729140d71a90eee064c"
+    },
+    {
+      "path": "docs\\steering\\evidence\\2026-11-01-g-short-final-rmw-compile\\tiny-control\\manifest.json",
+      "sha256": "44ea822f67b79aaec93b6ced08dcfd2e814c5d81e1ac3adc092d98f6c14d1dd4",
+      "source_sha256": "b8ed85438c06673f411ff4203080bfbacd0c0c2dc5cb624e6f10d4877fe7a716",
+      "device_prefix_sha256": "80ea6081901508d325d36650c2d6a3b739bc6d8f2649f804e12bc5de36874efe",
+      "flags": [
+        "-DOKC_NS=3",
+        "-DOKC_NSF=3",
+        "-DOKC_FNST=4",
+        "-DOKC_PRMTSC=1",
+        "-DOKC_DQ7=1",
+        "-DOKC_NW=8",
+        "-DOKC_TINY=1",
+        "-DOKC_EPI4=0",
+        "-DOKC_FAST1=2",
+        "-DOKC_L2H=0",
+        "-DOKC_NACC=4",
+        "-DOKC_UWARP=0",
+        "-DOKC_WS=1",
+        "-DOKC_WSB=1",
+        "-DOKC_WSBL=2",
+        "-DOKC_WSBLK=2",
+        "-DOKC_FINPF=1"
+      ],
+      "resources": {
+        "_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE": {
+          "stack_bytes": 0,
+          "spill_store_bytes": 0,
+          "spill_load_bytes": 0,
+          "registers": 147,
+          "barriers": 3
+        }
+      },
+      "ptx_sha256": "6e60ce9f2b78e4255bfcfc8f66f29d0cd08467b270264b64d96193f9f06c7866",
+      "cubin_sha256": "758bd9895c41674a36407567445624642f2cf588cfd9f10587b5661289c05bd9"
+    },
+    {
+      "path": "docs\\steering\\evidence\\2026-11-01-g-short-final-rmw-compile\\tiny2-control\\manifest.json",
+      "sha256": "4375abb203e976328f0e943e0ba954f5b4a8c69fd28865febe07f329d17ea172",
+      "source_sha256": "b8ed85438c06673f411ff4203080bfbacd0c0c2dc5cb624e6f10d4877fe7a716",
+      "device_prefix_sha256": "80ea6081901508d325d36650c2d6a3b739bc6d8f2649f804e12bc5de36874efe",
+      "flags": [
+        "-DOKC_NS=3",
+        "-DOKC_NSF=3",
+        "-DOKC_FNST=4",
+        "-DOKC_PRMTSC=1",
+        "-DOKC_DQ7=1",
+        "-DOKC_NW=8",
+        "-DOKC_TINY=1",
+        "-DOKC_CPF=0",
+        "-DOKC_EPI4=0",
+        "-DOKC_FAST1=2",
+        "-DOKC_NACC=4",
+        "-DOKC_UWARP=0",
+        "-DOKC_WS=1",
+        "-DOKC_WSB=1",
+        "-DOKC_WSBL=2",
+        "-DOKC_WSBLK=1",
+        "-DOKC_FINPF=1"
+      ],
+      "resources": {
+        "_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE": {
+          "stack_bytes": 0,
+          "spill_store_bytes": 0,
+          "spill_load_bytes": 0,
+          "registers": 147,
+          "barriers": 3
+        }
+      },
+      "ptx_sha256": "ae94e8e28a2070912f6b1520a822fcfc4777e41d8ab3406643879e3377a6d298",
+      "cubin_sha256": "d0fa4bd7fe7c76cf71e6f3cfe41b2b525e7e46a102515729140d71a90eee064c"
+    },
+    {
+      "path": "docs\\steering\\evidence\\2026-11-01-g-native-gamma-compile\\mid-baseline\\manifest.json",
+      "sha256": "42ef1bd436a6f50937c7425004ad53e99ba22ab6a8de3d2238c1e21cf6585af1",
+      "source_sha256": "b8ed85438c06673f411ff4203080bfbacd0c0c2dc5cb624e6f10d4877fe7a716",
+      "device_prefix_sha256": "80ea6081901508d325d36650c2d6a3b739bc6d8f2649f804e12bc5de36874efe",
+      "flags": [
+        "-DOKC_NS=3",
+        "-DOKC_NSF=3",
+        "-DOKC_FNST=4",
+        "-DOKC_PRMTSC=1",
+        "-DOKC_DQ7=1",
+        "-DOKC_NW=8",
+        "-DOKC_TINY=1",
+        "-DOKC_SPLIT=1",
+        "-DOKC_CPF=0",
+        "-DOKC_EPI4=0",
+        "-DOKC_FAST1=2",
+        "-DOKC_NACC=4",
+        "-DOKC_UWARP=0",
+        "-DOKC_WS=1",
+        "-DOKC_WSB=1",
+        "-DOKC_WSBL=2",
+        "-DOKC_WSBLK=2",
+        "-DOKC_FINPF=1"
+      ],
+      "resources": {
+        "_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE": {
+          "stack_bytes": 0,
+          "spill_store_bytes": 0,
+          "spill_load_bytes": 0,
+          "registers": 155,
+          "barriers": 3
+        },
+        "_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE": {
+          "stack_bytes": 0,
+          "spill_store_bytes": 0,
+          "spill_load_bytes": 0,
+          "registers": 155,
+          "barriers": 3
+        }
+      },
+      "ptx_sha256": "b7199d4a04e987dde5c41ab9d23ff196fdf9cbb75635b8b7f91242c9350084d9",
+      "cubin_sha256": "ffabbddaeb37a594bb4c7688cdf5db5cdb8b6363f63d2364c55cb3d2526249a5"
+    },
+    {
+      "path": "docs\\steering\\evidence\\2026-11-01-g-native-gamma-compile\\tiny-baseline\\manifest.json",
+      "sha256": "a36ede3992201f8c062e1a500a37f2639ee87536dada90582d7e094e36e4b742",
+      "source_sha256": "b8ed85438c06673f411ff4203080bfbacd0c0c2dc5cb624e6f10d4877fe7a716",
+      "device_prefix_sha256": "80ea6081901508d325d36650c2d6a3b739bc6d8f2649f804e12bc5de36874efe",
+      "flags": [
+        "-DOKC_NS=3",
+        "-DOKC_NSF=3",
+        "-DOKC_FNST=4",
+        "-DOKC_PRMTSC=1",
+        "-DOKC_DQ7=1",
+        "-DOKC_NW=8",
+        "-DOKC_TINY=1",
+        "-DOKC_EPI4=0",
+        "-DOKC_FAST1=2",
+        "-DOKC_L2H=0",
+        "-DOKC_NACC=4",
+        "-DOKC_UWARP=0",
+        "-DOKC_WS=1",
+        "-DOKC_WSB=1",
+        "-DOKC_WSBL=2",
+        "-DOKC_WSBLK=2",
+        "-DOKC_FINPF=1"
+      ],
+      "resources": {
+        "_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE": {
+          "stack_bytes": 0,
+          "spill_store_bytes": 0,
+          "spill_load_bytes": 0,
+          "registers": 147,
+          "barriers": 3
+        },
+        "_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE": {
+          "stack_bytes": 0,
+          "spill_store_bytes": 0,
+          "spill_load_bytes": 0,
+          "registers": 147,
+          "barriers": 3
+        }
+      },
+      "ptx_sha256": "39830b4b71d9e4f11e27e34d7af5644e3187bd566ddc897d045c23d3cd4dfea2",
+      "cubin_sha256": "248f045467a3efdc4f0b466047a4d9372295508296bb0e3f0f4ac7523c31e6f7"
+    },
+    {
+      "path": "docs\\steering\\evidence\\2026-11-01-g-native-gamma-compile\\tiny2-baseline\\manifest.json",
+      "sha256": "d8531abbee6615665f2c29acf2e4445def2ac5470e576dc9265cd86ffce240e2",
+      "source_sha256": "b8ed85438c06673f411ff4203080bfbacd0c0c2dc5cb624e6f10d4877fe7a716",
+      "device_prefix_sha256": "80ea6081901508d325d36650c2d6a3b739bc6d8f2649f804e12bc5de36874efe",
+      "flags": [
+        "-DOKC_NS=3",
+        "-DOKC_NSF=3",
+        "-DOKC_FNST=4",
+        "-DOKC_PRMTSC=1",
+        "-DOKC_DQ7=1",
+        "-DOKC_NW=8",
+        "-DOKC_TINY=1",
+        "-DOKC_CPF=0",
+        "-DOKC_EPI4=0",
+        "-DOKC_FAST1=2",
+        "-DOKC_NACC=4",
+        "-DOKC_UWARP=0",
+        "-DOKC_WS=1",
+        "-DOKC_WSB=1",
+        "-DOKC_WSBL=2",
+        "-DOKC_WSBLK=1",
+        "-DOKC_FINPF=1"
+      ],
+      "resources": {
+        "_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE": {
+          "stack_bytes": 0,
+          "spill_store_bytes": 0,
+          "spill_load_bytes": 0,
+          "registers": 147,
+          "barriers": 3
+        },
+        "_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE": {
+          "stack_bytes": 0,
+          "spill_store_bytes": 0,
+          "spill_load_bytes": 0,
+          "registers": 147,
+          "barriers": 3
+        }
+      },
+      "ptx_sha256": "c4abe60d93057ab49387fbcc731df25ce68ffed687fe5e77411c4fb8c595e19a",
+      "cubin_sha256": "93f2316588fad3928faab33c75c58d6ab91c073bb4edc7bff1fa253f87d87926"
+    }
+  ]
+}

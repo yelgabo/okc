@@ -1,0 +1,400 @@
+{
+  "scope": "Secondary device-only NVRTC13/PTXAS13 sm90a, exact captured selected source and flags; no target NVCC equivalence, host wrapper compile/link, CUDA driver, GPU execution, judge or timing",
+  "driver_sha256": "e695ef03bda22d86167b829618429c7d139c23ad9cf96294edd1211388d5620c",
+  "started_utc_epoch": 1793590343.6745217,
+  "records": {
+    "donor/tiny": {
+      "manifest": {
+        "source": "/mnt/c/Users/gretc/Documents/GitHub/okc/.build/worker-g-short-audit/donor/tiny/input.cu",
+        "source_sha256": "84f501957a280cb3703bf9a29843153557e280725457162cb8b203b74b8d0f9f",
+        "original_device_prefix_sha256": "017e35fad3bdb67fe0dcb720176480cd006e0b7d09a2aef86a1d0052d6483e8c",
+        "compiled_device_prefix_sha256": "332420cb89c3ab7223abf03c3fb06505035fa9131650656264f89f63a276bbcd",
+        "host_boundary": "#include <torch/extension.h>",
+        "virtual_headers": {
+          "type_traits": "#pragma once\nnamespace std { template<class T,T v> struct integral_constant {\nstatic constexpr T value=v; constexpr operator T() const noexcept {return value;}\n}; using true_type=integral_constant<bool,true>; using false_type=integral_constant<bool,false>; }\n",
+          "stdint.h": "#pragma once\ntypedef signed char int8_t; typedef unsigned char uint8_t;\ntypedef signed short int16_t; typedef unsigned short uint16_t;\ntypedef signed int int32_t; typedef unsigned int uint32_t;\ntypedef signed long int64_t; typedef unsigned long uint64_t;\ntypedef signed long intptr_t; typedef unsigned long uintptr_t;\n"
+        },
+        "options": [
+          "--gpu-architecture=compute_90a",
+          "--std=c++17",
+          "--generate-line-info",
+          "--device-as-default-execution-space",
+          "--include-path=/root/.cache/okc-cuda130-88/nvidia/cu13/include",
+          "--include-path=/root/.cache/okc-cuda130-88/nvidia/cu13/include",
+          "--include-path=/root/.cache/okc-cuda130-88/cuda_cccl-linux-x86_64-13.0.85-archive/include",
+          "-DOKC_NS=3",
+          "-DOKC_FNST=4",
+          "-DOKC_NSF=3",
+          "-DOKC_NW=8",
+          "-DOKC_TINY=1",
+          "-DOKC_EPI4=0",
+          "-DOKC_FAST1=2",
+          "-DOKC_L2H=0",
+          "-DOKC_NACC=4",
+          "-DOKC_UWARP=0",
+          "-DOKC_WS=1",
+          "-DOKC_WSB=1",
+          "-DOKC_WSBL=2",
+          "-DOKC_WSBLK=2",
+          "-DOKC_FINPF=1",
+          "-DOKC_PRMTSC=1",
+          "-DOKC_DQ7=1"
+        ],
+        "declaration_adapter": "__device__ __forceinline__ int wgs_cta_of(const Smem& S, int pb, int s, int G);\n",
+        "nvrtc_status": 0,
+        "gpu_execution": false,
+        "lowered": [
+          "_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE",
+          "_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE"
+        ],
+        "ptx_sha256": "5bc2f32a10add048acc14c2c0a95f32a1a4936f74b3b34f36416999255d29f41",
+        "cubin_sha256": "b71f68b80cdb6fcf45b063f65d1e6b41c31bc4221542edf64010c21a8473c6b9",
+        "ptxas": [
+          "/root/.cache/okc-cuda130-88/nvidia/cu13/bin/ptxas",
+          "-arch=sm_90a",
+          "-O3",
+          "-v",
+          "--warn-on-spills",
+          "/mnt/c/Users/gretc/Documents/GitHub/okc/.build/worker-g-short-audit/donor/tiny/device.ptx",
+          "-o",
+          "/mnt/c/Users/gretc/Documents/GitHub/okc/.build/worker-g-short-audit/donor/tiny/device.cubin"
+        ],
+        "exitcode": 0,
+        "resources": {
+          "_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE": {
+            "stack_bytes": 0,
+            "spill_store_bytes": 0,
+            "spill_load_bytes": 0,
+            "registers": 147,
+            "barriers": 3
+          },
+          "_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE": {
+            "stack_bytes": 0,
+            "spill_store_bytes": 0,
+            "spill_load_bytes": 0,
+            "registers": 147,
+            "barriers": 3
+          }
+        },
+        "ptx_launch_bounds": [
+          ".maxntid 288, 1, 1",
+          ".minnctapersm 1",
+          ".maxntid 288, 1, 1",
+          ".minnctapersm 1"
+        ],
+        "ptxas_wgmma_serialization_warnings": 0
+      },
+      "artifacts": {
+        "input.cu": "84f501957a280cb3703bf9a29843153557e280725457162cb8b203b74b8d0f9f",
+        "device.ptx": "5bc2f32a10add048acc14c2c0a95f32a1a4936f74b3b34f36416999255d29f41",
+        "device.cubin": "b71f68b80cdb6fcf45b063f65d1e6b41c31bc4221542edf64010c21a8473c6b9",
+        "device.sass": "ac0afd0f5eeb3cdf995a12b72fdc35775ab2b83c85158c205f5a6bf14f07409c",
+        "ptxas.log": "5061e543af48dff99b7d2a5fc132b00f87f2b27bbd49fa0a1c2691ed724af937",
+        "nvrtc.log": "7d2d76374e385937c4e23899a3b2ffb700e74a3a8427ec83d033de5b879d3f3a"
+      },
+      "section_instruction_counts": {
+        "_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE": 5232,
+        "_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE": 5232
+      }
+    },
+    "donor/tiny2": {
+      "manifest": {
+        "source": "/mnt/c/Users/gretc/Documents/GitHub/okc/.build/worker-g-short-audit/donor/tiny2/input.cu",
+        "source_sha256": "84f501957a280cb3703bf9a29843153557e280725457162cb8b203b74b8d0f9f",
+        "original_device_prefix_sha256": "017e35fad3bdb67fe0dcb720176480cd006e0b7d09a2aef86a1d0052d6483e8c",
+        "compiled_device_prefix_sha256": "332420cb89c3ab7223abf03c3fb06505035fa9131650656264f89f63a276bbcd",
+        "host_boundary": "#include <torch/extension.h>",
+        "virtual_headers": {
+          "type_traits": "#pragma once\nnamespace std { template<class T,T v> struct integral_constant {\nstatic constexpr T value=v; constexpr operator T() const noexcept {return value;}\n}; using true_type=integral_constant<bool,true>; using false_type=integral_constant<bool,false>; }\n",
+          "stdint.h": "#pragma once\ntypedef signed char int8_t; typedef unsigned char uint8_t;\ntypedef signed short int16_t; typedef unsigned short uint16_t;\ntypedef signed int int32_t; typedef unsigned int uint32_t;\ntypedef signed long int64_t; typedef unsigned long uint64_t;\ntypedef signed long intptr_t; typedef unsigned long uintptr_t;\n"
+        },
+        "options": [
+          "--gpu-architecture=compute_90a",
+          "--std=c++17",
+          "--generate-line-info",
+          "--device-as-default-execution-space",
+          "--include-path=/root/.cache/okc-cuda130-88/nvidia/cu13/include",
+          "--include-path=/root/.cache/okc-cuda130-88/nvidia/cu13/include",
+          "--include-path=/root/.cache/okc-cuda130-88/cuda_cccl-linux-x86_64-13.0.85-archive/include",
+          "-DOKC_NS=3",
+          "-DOKC_FNST=4",
+          "-DOKC_NSF=3",
+          "-DOKC_NW=8",
+          "-DOKC_TINY=1",
+          "-DOKC_CPF=0",
+          "-DOKC_EPI4=0",
+          "-DOKC_FAST1=2",
+          "-DOKC_NACC=4",
+          "-DOKC_UWARP=0",
+          "-DOKC_WS=1",
+          "-DOKC_WSB=1",
+          "-DOKC_WSBL=2",
+          "-DOKC_WSBLK=1",
+          "-DOKC_FINPF=1",
+          "-DOKC_PRMTSC=1",
+          "-DOKC_DQ7=1"
+        ],
+        "declaration_adapter": "__device__ __forceinline__ int wgs_cta_of(const Smem& S, int pb, int s, int G);\n",
+        "nvrtc_status": 0,
+        "gpu_execution": false,
+        "lowered": [
+          "_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE",
+          "_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE"
+        ],
+        "ptx_sha256": "a9f9f5be6a7ae4a8fb43bc7cc92e81516009e9d9c384b87508c3c29278340a61",
+        "cubin_sha256": "0596b804ff128644a607fd0a9772db3426c98c428a36d7c1aa60effebaf8e024",
+        "ptxas": [
+          "/root/.cache/okc-cuda130-88/nvidia/cu13/bin/ptxas",
+          "-arch=sm_90a",
+          "-O3",
+          "-v",
+          "--warn-on-spills",
+          "/mnt/c/Users/gretc/Documents/GitHub/okc/.build/worker-g-short-audit/donor/tiny2/device.ptx",
+          "-o",
+          "/mnt/c/Users/gretc/Documents/GitHub/okc/.build/worker-g-short-audit/donor/tiny2/device.cubin"
+        ],
+        "exitcode": 0,
+        "resources": {
+          "_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE": {
+            "stack_bytes": 0,
+            "spill_store_bytes": 0,
+            "spill_load_bytes": 0,
+            "registers": 147,
+            "barriers": 3
+          },
+          "_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE": {
+            "stack_bytes": 0,
+            "spill_store_bytes": 0,
+            "spill_load_bytes": 0,
+            "registers": 147,
+            "barriers": 3
+          }
+        },
+        "ptx_launch_bounds": [
+          ".maxntid 288, 1, 1",
+          ".minnctapersm 1",
+          ".maxntid 288, 1, 1",
+          ".minnctapersm 1"
+        ],
+        "ptxas_wgmma_serialization_warnings": 0
+      },
+      "artifacts": {
+        "input.cu": "84f501957a280cb3703bf9a29843153557e280725457162cb8b203b74b8d0f9f",
+        "device.ptx": "a9f9f5be6a7ae4a8fb43bc7cc92e81516009e9d9c384b87508c3c29278340a61",
+        "device.cubin": "0596b804ff128644a607fd0a9772db3426c98c428a36d7c1aa60effebaf8e024",
+        "device.sass": "42bf416e45f9edce2a5452e2012334c2f537d42c3b415b0b0f711b43cf50d66b",
+        "ptxas.log": "4def46c8497b876cc04be2fc9cff9cd089eb7a492fe72d470d2e8594af767cf1",
+        "nvrtc.log": "7d2d76374e385937c4e23899a3b2ffb700e74a3a8427ec83d033de5b879d3f3a"
+      },
+      "section_instruction_counts": {
+        "_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE": 5272,
+        "_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE": 5272
+      }
+    },
+    "public607/tiny": {
+      "manifest": {
+        "source": "/mnt/c/Users/gretc/Documents/GitHub/okc/.build/worker-g-short-audit/public607/tiny/input.cu",
+        "source_sha256": "b8ed85438c06673f411ff4203080bfbacd0c0c2dc5cb624e6f10d4877fe7a716",
+        "original_device_prefix_sha256": "80ea6081901508d325d36650c2d6a3b739bc6d8f2649f804e12bc5de36874efe",
+        "compiled_device_prefix_sha256": "804d9c759882d100278b63adb61a568b6f66112f6eec5bb5ce451b0c50a60e5c",
+        "host_boundary": "#include <torch/extension.h>",
+        "virtual_headers": {
+          "type_traits": "#pragma once\nnamespace std { template<class T,T v> struct integral_constant {\nstatic constexpr T value=v; constexpr operator T() const noexcept {return value;}\n}; using true_type=integral_constant<bool,true>; using false_type=integral_constant<bool,false>; }\n",
+          "stdint.h": "#pragma once\ntypedef signed char int8_t; typedef unsigned char uint8_t;\ntypedef signed short int16_t; typedef unsigned short uint16_t;\ntypedef signed int int32_t; typedef unsigned int uint32_t;\ntypedef signed long int64_t; typedef unsigned long uint64_t;\ntypedef signed long intptr_t; typedef unsigned long uintptr_t;\n"
+        },
+        "options": [
+          "--gpu-architecture=compute_90a",
+          "--std=c++17",
+          "--generate-line-info",
+          "--device-as-default-execution-space",
+          "--include-path=/root/.cache/okc-cuda130-88/nvidia/cu13/include",
+          "--include-path=/root/.cache/okc-cuda130-88/nvidia/cu13/include",
+          "--include-path=/root/.cache/okc-cuda130-88/cuda_cccl-linux-x86_64-13.0.85-archive/include",
+          "-DOKC_NS=3",
+          "-DOKC_FNST=4",
+          "-DOKC_NSF=3",
+          "-DOKC_NW=8",
+          "-DOKC_TINY=1",
+          "-DOKC_EPI4=0",
+          "-DOKC_FAST1=2",
+          "-DOKC_L2H=0",
+          "-DOKC_NACC=4",
+          "-DOKC_UWARP=0",
+          "-DOKC_WS=1",
+          "-DOKC_WSB=1",
+          "-DOKC_WSBL=2",
+          "-DOKC_WSBLK=2",
+          "-DOKC_FINPF=1",
+          "-DOKC_PRMTSC=1",
+          "-DOKC_DQ7=1"
+        ],
+        "declaration_adapter": "__device__ __forceinline__ int wgs_cta_of(const Smem& S, int pb, int s, int G);\n",
+        "nvrtc_status": 0,
+        "gpu_execution": false,
+        "lowered": [
+          "_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE",
+          "_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE"
+        ],
+        "ptx_sha256": "198fd58be8d5e5655727ea49032a9bda0334b2617ca886d5bd889ce6d657d988",
+        "cubin_sha256": "daeb2f2a79257cfc33ea7c57a2a73733bd680c49d7c7df1be6ca97c5cf7b0d04",
+        "ptxas": [
+          "/root/.cache/okc-cuda130-88/nvidia/cu13/bin/ptxas",
+          "-arch=sm_90a",
+          "-O3",
+          "-v",
+          "--warn-on-spills",
+          "/mnt/c/Users/gretc/Documents/GitHub/okc/.build/worker-g-short-audit/public607/tiny/device.ptx",
+          "-o",
+          "/mnt/c/Users/gretc/Documents/GitHub/okc/.build/worker-g-short-audit/public607/tiny/device.cubin"
+        ],
+        "exitcode": 0,
+        "resources": {
+          "_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE": {
+            "stack_bytes": 0,
+            "spill_store_bytes": 0,
+            "spill_load_bytes": 0,
+            "registers": 147,
+            "barriers": 3
+          },
+          "_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE": {
+            "stack_bytes": 0,
+            "spill_store_bytes": 0,
+            "spill_load_bytes": 0,
+            "registers": 147,
+            "barriers": 3
+          }
+        },
+        "ptx_launch_bounds": [
+          ".maxntid 288, 1, 1",
+          ".minnctapersm 1",
+          ".maxntid 288, 1, 1",
+          ".minnctapersm 1"
+        ],
+        "ptxas_wgmma_serialization_warnings": 0
+      },
+      "artifacts": {
+        "input.cu": "b8ed85438c06673f411ff4203080bfbacd0c0c2dc5cb624e6f10d4877fe7a716",
+        "device.ptx": "198fd58be8d5e5655727ea49032a9bda0334b2617ca886d5bd889ce6d657d988",
+        "device.cubin": "daeb2f2a79257cfc33ea7c57a2a73733bd680c49d7c7df1be6ca97c5cf7b0d04",
+        "device.sass": "4b6c8272c574f4b8aed59495ed02611515943d0eb66cf9078216fb4aff9aef02",
+        "ptxas.log": "d13f28ba95eb864a28bf7c13278fb0253d2675d4fdddaef914a85acfc935c55e",
+        "nvrtc.log": "2e27d093d8e7ca71ff396d119e460a172b5dc85a771f64fecfe3fadf58f19142"
+      },
+      "section_instruction_counts": {
+        "_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE": 5272,
+        "_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE": 5272
+      }
+    },
+    "public607/tiny2": {
+      "manifest": {
+        "source": "/mnt/c/Users/gretc/Documents/GitHub/okc/.build/worker-g-short-audit/public607/tiny2/input.cu",
+        "source_sha256": "b8ed85438c06673f411ff4203080bfbacd0c0c2dc5cb624e6f10d4877fe7a716",
+        "original_device_prefix_sha256": "80ea6081901508d325d36650c2d6a3b739bc6d8f2649f804e12bc5de36874efe",
+        "compiled_device_prefix_sha256": "804d9c759882d100278b63adb61a568b6f66112f6eec5bb5ce451b0c50a60e5c",
+        "host_boundary": "#include <torch/extension.h>",
+        "virtual_headers": {
+          "type_traits": "#pragma once\nnamespace std { template<class T,T v> struct integral_constant {\nstatic constexpr T value=v; constexpr operator T() const noexcept {return value;}\n}; using true_type=integral_constant<bool,true>; using false_type=integral_constant<bool,false>; }\n",
+          "stdint.h": "#pragma once\ntypedef signed char int8_t; typedef unsigned char uint8_t;\ntypedef signed short int16_t; typedef unsigned short uint16_t;\ntypedef signed int int32_t; typedef unsigned int uint32_t;\ntypedef signed long int64_t; typedef unsigned long uint64_t;\ntypedef signed long intptr_t; typedef unsigned long uintptr_t;\n"
+        },
+        "options": [
+          "--gpu-architecture=compute_90a",
+          "--std=c++17",
+          "--generate-line-info",
+          "--device-as-default-execution-space",
+          "--include-path=/root/.cache/okc-cuda130-88/nvidia/cu13/include",
+          "--include-path=/root/.cache/okc-cuda130-88/nvidia/cu13/include",
+          "--include-path=/root/.cache/okc-cuda130-88/cuda_cccl-linux-x86_64-13.0.85-archive/include",
+          "-DOKC_NS=3",
+          "-DOKC_FNST=4",
+          "-DOKC_NSF=3",
+          "-DOKC_NW=8",
+          "-DOKC_TINY=1",
+          "-DOKC_CPF=0",
+          "-DOKC_EPI4=0",
+          "-DOKC_FAST1=2",
+          "-DOKC_NACC=4",
+          "-DOKC_UWARP=0",
+          "-DOKC_WS=1",
+          "-DOKC_WSB=1",
+          "-DOKC_WSBL=2",
+          "-DOKC_WSBLK=1",
+          "-DOKC_FINPF=1",
+          "-DOKC_PRMTSC=1",
+          "-DOKC_DQ7=1"
+        ],
+        "declaration_adapter": "__device__ __forceinline__ int wgs_cta_of(const Smem& S, int pb, int s, int G);\n",
+        "nvrtc_status": 0,
+        "gpu_execution": false,
+        "lowered": [
+          "_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE",
+          "_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE"
+        ],
+        "ptx_sha256": "b26eec52f86541e99ebaa41b1e1c91c64cbb0d5ef08238691a1666d101ef14ad",
+        "cubin_sha256": "32555ef36b24200fdbd599ea3d2d71f47a6ff0788d06dd82fc1bfc6ff08e7193",
+        "ptxas": [
+          "/root/.cache/okc-cuda130-88/nvidia/cu13/bin/ptxas",
+          "-arch=sm_90a",
+          "-O3",
+          "-v",
+          "--warn-on-spills",
+          "/mnt/c/Users/gretc/Documents/GitHub/okc/.build/worker-g-short-audit/public607/tiny2/device.ptx",
+          "-o",
+          "/mnt/c/Users/gretc/Documents/GitHub/okc/.build/worker-g-short-audit/public607/tiny2/device.cubin"
+        ],
+        "exitcode": 0,
+        "resources": {
+          "_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE": {
+            "stack_bytes": 0,
+            "spill_store_bytes": 0,
+            "spill_load_bytes": 0,
+            "registers": 147,
+            "barriers": 3
+          },
+          "_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE": {
+            "stack_bytes": 0,
+            "spill_store_bytes": 0,
+            "spill_load_bytes": 0,
+            "registers": 147,
+            "barriers": 3
+          }
+        },
+        "ptx_launch_bounds": [
+          ".maxntid 288, 1, 1",
+          ".minnctapersm 1",
+          ".maxntid 288, 1, 1",
+          ".minnctapersm 1"
+        ],
+        "ptxas_wgmma_serialization_warnings": 0
+      },
+      "artifacts": {
+        "input.cu": "b8ed85438c06673f411ff4203080bfbacd0c0c2dc5cb624e6f10d4877fe7a716",
+        "device.ptx": "b26eec52f86541e99ebaa41b1e1c91c64cbb0d5ef08238691a1666d101ef14ad",
+        "device.cubin": "32555ef36b24200fdbd599ea3d2d71f47a6ff0788d06dd82fc1bfc6ff08e7193",
+        "device.sass": "d6c8184d3a483590b0edc412ed0460811e611bcc030ec1ca691c0a4a10309fe6",
+        "ptxas.log": "bcb042ae91e6cf757df5fd385ba875b9c5b0b970a089cad864dbd2c323d80c16",
+        "nvrtc.log": "2e27d093d8e7ca71ff396d119e460a172b5dc85a771f64fecfe3fadf58f19142"
+      },
+      "section_instruction_counts": {
+        "_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE": 5320,
+        "_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE": 5320
+      }
+    }
+  },
+  "common_off_reuses_public607": {
+    "tiny": {
+      "cuda_equal": true,
+      "device_prefix_equal": true,
+      "flags_equal": true,
+      "cpp_equal": true,
+      "patch": "docs\\steering\\evidence\\2026-11-01-worker-g-short-compiled-audit\\public607-to-common_off-tiny.patch"
+    },
+    "tiny2": {
+      "cuda_equal": true,
+      "device_prefix_equal": true,
+      "flags_equal": true,
+      "cpp_equal": true,
+      "patch": "docs\\steering\\evidence\\2026-11-01-worker-g-short-compiled-audit\\public607-to-common_off-tiny2.patch"
+    }
+  },
+  "finished_utc_epoch": 1793590350.8667169
+}
