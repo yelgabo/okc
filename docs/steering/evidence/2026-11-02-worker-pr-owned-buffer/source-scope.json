@@ -1,0 +1,56 @@
+{
+  "started_utc": "2026-11-02T13:15:54Z",
+  "frozen_utc": "2026-11-02T13:24:34.662Z",
+  "allocation": "d02a9f273a0e59a999946c344524877322144c06",
+  "research": "f7763993d9504452b4d8b825eab7fa1e77fbe755",
+  "checkout": "C:\\Users\\gretc\\Documents\\GitHub\\okc",
+  "remote": "https://github.com/yelgabo/okc.git",
+  "tracked_paths": 4026,
+  "hidden_ignored_inventory_paths": 6317,
+  "tracked_caller_name_candidates": [
+    "docs/steering/evidence/2026-11-01-worker-g224-prefix-resource-stop/B4-executed-compile-runner.py",
+    "tools/attn_harness_dry.py"
+  ],
+  "hidden_ignored_caller_name_candidates": [
+    "docs\\steering\\evidence\\2026-11-01-worker-g224-prefix-resource-stop\\B4-executed-compile-runner.py",
+    "tools\\attn_harness_dry.py"
+  ],
+  "inventory_limitation": "Filename-name scope only; accessible TASK, AGENTS and selected source inspected. No assertion that every external or private harness is absent.",
+  "source_files": [
+    {
+      "path": "muse_decode_layer/cand/g1b4_stage_release.py",
+      "bytes": 869076,
+      "sha256": "ba9e327cd7b96595ace4d0c1d0d78fe27c128f23ed0debcda97c7169fc3164ab"
+    },
+    {
+      "path": "muse_decode_layer/TASK.md",
+      "bytes": 9985,
+      "sha256": "e69be33e7066493da1647b6c9dec9f025dca8469717133fe7447ac166055a126"
+    },
+    {
+      "path": "muse_decode_layer/AGENTS.md",
+      "bytes": 2746,
+      "sha256": "246a9d01149e082ef4c3769eb0d3c99b724cc2a6a245dc400c1ae14b89d655ef"
+    },
+    {
+      "path": "docs/steering/2026-11-02-captain-b1-owned-buffer-allocation.md",
+      "bytes": 6269,
+      "sha256": "e2c3d4ad9eb8a59d3d4d3750c799655107caf28adceaeffb3e707f9904031d09"
+    },
+    {
+      "path": "docs/steering/2026-11-02-research-compressible-allocation-gate.md",
+      "bytes": 19260,
+      "sha256": "a6be7496db2686c45ad622c95e7a1bd9f349efb9ecd3d1205cff6bbba6060d9e"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-research-compressible-allocation-gate/from-blob.json",
+      "bytes": 5251,
+      "sha256": "662f29c3a9aa6b1de42df010a01c614cdf449c73142e0825ab4da2cb7b9eab20"
+    }
+  ],
+  "candidate_emitted": false,
+  "base_changed": false,
+  "new_host_bindings": [],
+  "new_linkage": [],
+  "new_service_calls": 0
+}

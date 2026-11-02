@@ -1,0 +1,34 @@
+test_actual_entries_and_lifetime_counterexample (test_g_pr_compressed_owner.RetirementGateTests.test_actual_entries_and_lifetime_counterexample) ... FAIL
+test_exact_source_plan_scope (test_g_pr_compressed_owner.RetirementGateTests.test_exact_source_plan_scope) ... ok
+test_fail_closed_no_candidate (test_g_pr_compressed_owner.RetirementGateTests.test_fail_closed_no_candidate) ... ok
+test_pointer_commands_are_not_tensor_owners (test_g_pr_compressed_owner.RetirementGateTests.test_pointer_commands_are_not_tensor_owners) ... FAIL
+
+======================================================================
+FAIL: test_actual_entries_and_lifetime_counterexample (test_g_pr_compressed_owner.RetirementGateTests.test_actual_entries_and_lifetime_counterexample)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/c/Users/gretc/Documents/GitHub/okc/tools/test_g_pr_compressed_owner.py", line 120, in test_actual_entries_and_lifetime_counterexample
+    result = contract_evidence()
+  File "/mnt/c/Users/gretc/Documents/GitHub/okc/tools/test_g_pr_compressed_owner.py", line 87, in contract_evidence
+    first, second = env['prepare']({}), env['prepare']({})
+                    ~~~~~~~~~~~~~~^^^^
+  File "<string>", line 4, in prepare
+  File "<string>", line 23, in prepare
+  File "<string>", line 19, in _graft_lt_plan
+AssertionError
+
+======================================================================
+FAIL: test_pointer_commands_are_not_tensor_owners (test_g_pr_compressed_owner.RetirementGateTests.test_pointer_commands_are_not_tensor_owners)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/c/Users/gretc/Documents/GitHub/okc/tools/test_g_pr_compressed_owner.py", line 129, in test_pointer_commands_are_not_tensor_owners
+    state = env['prepare']({})
+  File "<string>", line 4, in prepare
+  File "<string>", line 23, in prepare
+  File "<string>", line 19, in _graft_lt_plan
+AssertionError
+
+----------------------------------------------------------------------
+Ran 4 tests in 1.259s
+
+FAILED (failures=2)

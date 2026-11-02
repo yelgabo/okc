@@ -1,0 +1,68 @@
+{
+  "decision": "STOP_MISSING_REAL_CALLER_GRAPH_RETIREMENT_CONTRACT",
+  "candidate_emitted": false,
+  "base_sha256": "ba9e327cd7b96595ace4d0c1d0d78fe27c128f23ed0debcda97c7169fc3164ab",
+  "base_bytes": 869076,
+  "pr_bytes": 75497472,
+  "pr_picks": {
+    "256": [
+      "tn",
+      2,
+      true
+    ],
+    "128": [
+      "tn",
+      1,
+      true
+    ]
+  },
+  "pre_plan_prepare_line": 12450,
+  "final_prepare_line": 17234,
+  "plan_line": 12222,
+  "run_line": 12272,
+  "added_host_bindings": [],
+  "added_driver_linkage": [],
+  "changed_native_sources": 0,
+  "compiler_calls": 0,
+  "driver_calls": 0,
+  "gpu_calls": 0,
+  "service_calls": 0,
+  "missing": [
+    "real caller graph/state ownership and destruction order",
+    "no future replay/submission before context completion",
+    "safe no-throw cleanup policy after completion/context errors"
+  ],
+  "not_implemented": [
+    "VMM allocation/capability/property stages",
+    "independent compressed PR bit-copy",
+    "rollback/fallback for allocation/copy/plan failures"
+  ],
+  "limitations": [
+    "CPU pointer-lifetime example is not an observed judge failure",
+    "No claim of target support, compression, eligibility or speed"
+  ],
+  "CPU_contracts": {
+    "actual_entries": [
+      "final prepare",
+      "pre-plan prepare",
+      "_graft_lt_plan",
+      "_graft_lt_run"
+    ],
+    "prepared_states": 2,
+    "bound_pr_plans_per_state": 2,
+    "interleaved_calls": 4,
+    "raw_pointer_commands_retained": [
+      4096,
+      6144,
+      4096,
+      6144
+    ],
+    "first_pr_owner_gone_after_prior_work_completion": true,
+    "second_state_independent": true,
+    "future_commands_can_remain_after_owner_drop": true,
+    "mock_only": true,
+    "observed_judge_failure": false,
+    "allocated_vmm_memory": false,
+    "candidate_generated": false
+  }
+}

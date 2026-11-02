@@ -1,0 +1,28 @@
+{
+  "_graft_lt_plan": [
+    {
+      "line": 12222,
+      "source": "def _graft_lt_plan(st):\n    lt_tn, lt_nn = _GraftLt(True), _GraftLt(False)\n    plans, status = {}, {}\n    src = {\"pr\": st[\"pr\"], \"o\": st[\"o\"], \"un\": st[\"unpool\"], \"qkv\": st[\"qkv\"]}\n    for (name, m), (mode, batch, fp32, words) in _GRAFT_LT_PICKS.items():\n        if m not in _GRAFT_LT_T:\n            continue\n        lt = lt_tn if mode == \"tn\" else lt_nn\n        if mode == \"tn\":\n            weight = src[name]\n            n, k = weight.shape\n        else:\n            key = \"graft_t_\" + name\n            if key not in st:\n                st[key] = src[name].t().contiguous()\n            weight = st[key]\n            k, n = weight.shape\n        assert weight.is_contiguous() and weight.data_ptr() % 128 == 0, (name, weight.data_ptr() % 128)\n        assert lt.workspace.data_ptr() % 256 == 0 and n % batch == 0 and (n // batch * 2) % 16 == 0\n        layouts = _graft_layouts(lt, m, n, k, mode, batch, fp32)\n        algo = _GraftAlgo((_C.c_uint64 * 8)(*words))\n        heur = _GraftHeur()\n        code = lt.lib.cublasLtMatmulAlgoCheck(lt.handle, lt.desc, *layouts, layouts[2], _C.byref(algo), _C.byref(heur))\n        status[(name, m)] = (code, heur.workspaceSize)\n        if code or heur.workspaceSize > lt.workspace.numel():\n            continue\n        if not _fork_lt_no_split(lt, algo):\n            status[(name,m)] = (\"rejected K split\", 0)\n            continue\n        plans[(name, m)] = _GraftPlan(lt=lt, layouts=layouts, algo=algo, weight=weight, n=n, fp32=fp32)\n    if 256 in _GRAFT_LT_T:\n        algo = _GraftAlgo()\n        lt_tn.call(\"cublasLtMatmulAlgoInit\", lt_tn.handle, 68, 0, 14, 14, 14, 14, _GRAFT_QKV256[\"id\"], _C.byref(algo))\n        for name, attr, ctype in _GRAFT_QKV256_ATTRS:\n            value = ctype(_GRAFT_QKV256[name])\n            lt_tn.call(\"cublasLtMatmulAlgoConfigSetAttribute\", _C.byref(algo), attr, _C.byref(value), _C.sizeof(value))\n        weight = st[\"qkv\"]\n        n, k = weight.shape\n        assert weight.is_contiguous() and weight.data_ptr() % 128 == 0\n        layouts = _graft_layouts(lt_tn, 256, n, k, \"tn\", 1, False)\n        heur = _GraftHeur()\n        code = lt_tn.lib.cublasLtMatmulAlgoCheck(lt_tn.handle, lt_tn.desc, *layouts, layouts[2], _C.byref(algo),\n                                                 _C.byref(heur))\n        status[(\"qkv\", 256)] = (code, heur.workspaceSize)\n        if not code and heur.workspaceSize <= lt_tn.workspace.numel() and _fork_lt_no_split(lt_tn, algo):\n            plans[(\"qkv\", 256)] = _GraftPlan(lt=lt_tn, layouts=layouts, algo=algo, weight=weight, n=n, fp32=False)\n    st[\"graft_lt\"] = plans\n    st[\"graft_lt_status\"] = {f\"{k[0]}:{k[1]}\": v for k, v in status.items()}"
+    }
+  ],
+  "_graft_lt_run": [
+    {
+      "line": 12272,
+      "source": "def _graft_lt_run(x, plan):\n    x = x.contiguous()\n    assert x.data_ptr() % 16 == 0\n    out = torch.empty((x.shape[0], plan[\"n\"]), device=x.device,\n                      dtype=torch.float32 if plan[\"fp32\"] else torch.bfloat16)\n    lt = plan[\"lt\"]\n    a, b, c = plan[\"layouts\"]\n    lt.call(\"cublasLtMatmul\", lt.handle, lt.desc, _C.byref(lt.alpha), _GP(plan[\"weight\"].data_ptr()), a,\n            _GP(x.data_ptr()), b, _C.byref(lt.beta), _GP(out.data_ptr()), c, _GP(out.data_ptr()), c,\n            _C.byref(plan[\"algo\"]), _GP(lt.workspace.data_ptr()), lt.workspace.numel(),\n            _GP(torch.cuda.current_stream().cuda_stream))\n    return out"
+    }
+  ],
+  "_GraftPlan": [
+    {
+      "line": 12176,
+      "source": "class _GraftPlan(dict):\n    def __deepcopy__(self, memo):\n        import copy\n        result = type(self)()\n        memo[id(self)] = result\n        for key, value in self.items():\n            result[key] = value if key == \"layouts\" else copy.deepcopy(value, memo)\n        return result"
+    }
+  ],
+  "final_prepare": {
+    "line": 17234,
+    "source": "def prepare(weights):\n    import time\n    deadline = time.monotonic() + 295\n    state = _release_normal_prepare(weights)\n    _release_expert_self_test(torch, weights, state, _moe, _fork_native_moe,\n                              _ma_make_scratch, _fork_prepare_marlin, SCRATCH_SENTINEL, deadline=deadline)\n    return state"
+  },
+  "pre_plan_prepare": {
+    "line": 12450,
+    "source": "def prepare(weights):\n    st = _vj_prepare(weights)   # the base tuner runs first, on the base kernels (no \"graft\" keys yet)\n    if _GRAFT_GLUE_T:\n        if st.get(\"bfp\") is not None:\n            for T in _GRAFT_GLUE_T:\n                if T <= 16:\n                    st[\"mm_pick\"][(T, \"o\")] = \"bfp\"\n        g = {}\n        for i, name in ((1, \"attn_residual_gate\"), (2, \"ffn_residual_gate\")):\n            gw = weights[name].float() / 0.3\n            beta = torch.sigmoid(gw)\n            g[\"alpha%d\" % i] = torch.sqrt(torch.clamp(torch.sigmoid(-gw) * (1. + beta), min=1.e-3)).contiguous()\n            g[\"beta%d\" % i] = beta.contiguous()\n        g[\"pre1\"] = (weights[\"pre_ffn_norm\"].float() + 1).to(torch.bfloat16).contiguous()\n        g[\"post2\"] = (weights[\"post_ffn_norm\"].float() + 1).to(torch.bfloat16).contiguous()\n        g[\"pre2\"] = (weights[\"next_pre_attn_norm\"].float() + 1).to(torch.bfloat16).contiguous()\n        for v in g.values():\n            assert v.data_ptr() % 128 == 0, v.data_ptr() % 128\n        st[\"graft\"] = g\n        _graft_glue_module()\n        _graft_b2_module()\n    if _GRAFT_LT_T:\n        _graft_lt_plan(st)\n    torch.cuda.synchronize()\n    return st"
+  }
+}

@@ -1,0 +1,9 @@
+test_actual_entries_and_lifetime_counterexample (test_g_pr_compressed_owner.RetirementGateTests.test_actual_entries_and_lifetime_counterexample) ... ok
+test_exact_source_plan_scope (test_g_pr_compressed_owner.RetirementGateTests.test_exact_source_plan_scope) ... ok
+test_fail_closed_no_candidate (test_g_pr_compressed_owner.RetirementGateTests.test_fail_closed_no_candidate) ... ok
+test_pointer_commands_are_not_tensor_owners (test_g_pr_compressed_owner.RetirementGateTests.test_pointer_commands_are_not_tensor_owners) ... ok
+
+----------------------------------------------------------------------
+Ran 4 tests in 1.323s
+
+OK
