@@ -1,0 +1,1629 @@
+{
+  "status": "ahead",
+  "total_commits": 103,
+  "base": "636ba85648c30ae2c2bfb335c9399593a67ecc1d",
+  "head": "948e6fd547e703065be51529ac1db5569256774e",
+  "raw_comparison_sha256": "4503b09186c1aa66f600f9a3aa34fd29d9572e00436c2ecb7c2538a21269b195",
+  "files": [
+    {
+      "filename": ".buildkite/pipeline.yml",
+      "sha": "b2b54ebc696a86d05cd7bec50b5aac01d5d36285",
+      "status": "added",
+      "additions": 163,
+      "deletions": 0,
+      "changes": 163,
+      "raw_url": "https://github.com/vllm-project/humming/raw/948e6fd547e703065be51529ac1db5569256774e/.buildkite%2Fpipeline.yml"
+    },
+    {
+      "filename": ".buildkite/run-tests.sh",
+      "sha": "d509ae6d10630cc55c66a18688d12e19b762095d",
+      "status": "added",
+      "additions": 37,
+      "deletions": 0,
+      "changes": 37,
+      "raw_url": "https://github.com/vllm-project/humming/raw/948e6fd547e703065be51529ac1db5569256774e/.buildkite%2Frun-tests.sh"
+    },
+    {
+      "filename": ".clang-format",
+      "sha": "0d22c7dc6012579af6e8eb52fa0577da9b483f0a",
+      "status": "modified",
+      "additions": 2,
+      "deletions": 1,
+      "changes": 3,
+      "raw_url": "https://github.com/vllm-project/humming/raw/948e6fd547e703065be51529ac1db5569256774e/.clang-format"
+    },
+    {
+      "filename": ".github/CODEOWNERS",
+      "sha": "13d10643392165a0403dea83f4bdee7d1f76adbc",
+      "status": "added",
+      "additions": 2,
+      "deletions": 0,
+      "changes": 2,
+      "raw_url": "https://github.com/vllm-project/humming/raw/948e6fd547e703065be51529ac1db5569256774e/.github%2FCODEOWNERS"
+    },
+    {
+      "filename": ".github/workflows/build-wheel.yml",
+      "sha": "4a87381224dfb2e2d1a14c8d5721a4143b1144bf",
+      "status": "modified",
+      "additions": 121,
+      "deletions": 3,
+      "changes": 124,
+      "raw_url": "https://github.com/vllm-project/humming/raw/948e6fd547e703065be51529ac1db5569256774e/.github%2Fworkflows%2Fbuild-wheel.yml"
+    },
+    {
+      "filename": ".gitignore",
+      "sha": "de3fd17e934415a69874e027432f1075929707a1",
+      "status": "modified",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2,
+      "raw_url": "https://github.com/vllm-project/humming/raw/948e6fd547e703065be51529ac1db5569256774e/.gitignore"
+    },
+    {
+      "filename": "AGENTS.md",
+      "sha": "363674bdce0b21d197afcf7bc01ea89feae3955c",
+      "status": "added",
+      "additions": 181,
+      "deletions": 0,
+      "changes": 181,
+      "raw_url": "https://github.com/vllm-project/humming/raw/948e6fd547e703065be51529ac1db5569256774e/AGENTS.md"
+    },
+    {
+      "filename": "README.md",
+      "sha": "148eea6b1cae8298fa7f5b50039a91fd52f18256",
+      "status": "modified",
+      "additions": 14,
+      "deletions": 1,
+      "changes": 15,
+      "raw_url": "https://github.com/vllm-project/humming/raw/948e6fd547e703065be51529ac1db5569256774e/README.md"
+    },
+    {
+      "filename": "benchmarks/bench_humming.py",
+      "sha": "a8f0090b2d94b200106f9c2211a5bec0509cb135",
+      "status": "modified",
+      "additions": 17,
+      "deletions": 18,
+      "changes": 35,
+      "raw_url": "https://github.com/vllm-project/humming/raw/948e6fd547e703065be51529ac1db5569256774e/benchmarks%2Fbench_humming.py"
+    },
+    {
+      "filename": "benchmarks/bench_marlin.py",
+      "sha": "60252100afd18fdd54e53e3a07fa4a01fe66d7bb",
+      "status": "modified",
+      "additions": 4,
+      "deletions": 2,
+      "changes": 6,
+      "raw_url": "https://github.com/vllm-project/humming/raw/948e6fd547e703065be51529ac1db5569256774e/benchmarks%2Fbench_marlin.py"
+    },
+    {
+      "filename": "docs/config.md",
+      "sha": "7615f826901751da639fe5720a0b5397a37337be",
+      "status": "modified",
+      "additions": 435,
+      "deletions": 81,
+      "changes": 516,
+      "raw_url": "https://github.com/vllm-project/humming/raw/948e6fd547e703065be51529ac1db5569256774e/docs%2Fconfig.md"
+    },
+    {
+      "filename": "humming/build.py",
+      "sha": "3d03bf9047b4a4a5857ecd609839cbef817e1df5",
+      "status": "modified",
+      "additions": 73,
+      "deletions": 48,
+      "changes": 121,
+      "raw_url": "https://github.com/vllm-project/humming/raw/948e6fd547e703065be51529ac1db5569256774e/humming%2Fbuild.py"
+    },
+    {
+      "filename": "humming/config/__init__.py",
+      "sha": "e0c5e7961b871f80b963922cc376d43c2750f7a8",
+      "status": "modified",
+      "additions": 25,
+      "deletions": 2,
+      "changes": 27,
+      "raw_url": "https://github.com/vllm-project/humming/raw/948e6fd547e703065be51529ac1db5569256774e/humming%2Fconfig%2F__init__.py"
+    },
+    {
+      "filename": "humming/config/base.py",
+      "sha": "4555b203049154050f28521328b4078554647d8f",
+      "status": "modified",
+      "additions": 29,
+      "deletions": 6,
+      "changes": 35,
+      "raw_url": "https://github.com/vllm-project/humming/raw/948e6fd547e703065be51529ac1db5569256774e/humming%2Fconfig%2Fbase.py"
+    },
+    {
+      "filename": "humming/config/config.py",
+      "sha": "ed5bdc916a3f37cb78108bed9a878165669d615b",
+      "status": "modified",
+      "additions": 425,
+      "deletions": 77,
+      "changes": 502,
+      "raw_url": "https://github.com/vllm-project/humming/raw/948e6fd547e703065be51529ac1db5569256774e/humming%2Fconfig%2Fconfig.py"
+    },
+    {
+      "filename": "humming/config/enum.py",
+      "sha": "9083472abd232e1f60b413d128b164ca2205f6ff",
+      "status": "modified",
+      "additions": 83,
+      "deletions": 0,
+      "changes": 83,
+      "raw_url": "https://github.com/vllm-project/humming/raw/948e6fd547e703065be51529ac1db5569256774e/humming%2Fconfig%2Fenum.py"
+    },
+    {
+      "filename": "humming/config/mma.py",
+      "sha": "f5dd5ffb8da0b36f81adb84ca43446ccbb4c264b",
+      "status": "modified",
+      "additions": 309,
+      "deletions": 11,
+      "changes": 320,
+      "raw_url": "https://github.com/vllm-project/humming/raw/948e6fd547e703065be51529ac1db5569256774e/humming%2Fconfig%2Fmma.py"
+    },
+    {
+      "filename": "humming/csrc/device_info.cpp",
+      "sha": "02f8b63f4e831e0b0b90385a08422472e989e5e9",
+      "status": "added",
+      "additions": 521,
+      "deletions": 0,
+      "changes": 521,
+      "raw_url": "https://github.com/vllm-project/humming/raw/948e6fd547e703065be51529ac1db5569256774e/humming%2Fcsrc%2Fdevice_info.cpp"
+    },
+    {
+      "filename": "humming/csrc/launcher/elf.h",
+      "sha": "ae44ef7204fd544f866b4040cf0b2510a0c0a989",
+      "status": "modified",
+      "additions": 5,
+      "deletions": 3,
+      "changes": 8,
+      "raw_url": "https://github.com/vllm-project/humming/raw/948e6fd547e703065be51529ac1db5569256774e/humming%2Fcsrc%2Flauncher%2Felf.h"
+    },
+    {
+      "filename": "humming/csrc/launcher/launcher.cpp",
+      "sha": "ae700401deacb2d3b2db18ddda0139545a33549c",
+      "status": "modified",
+      "additions": 228,
+      "deletions": 107,
+      "changes": 335,
+      "raw_url": "https://github.com/vllm-project/humming/raw/948e6fd547e703065be51529ac1db5569256774e/humming%2Fcsrc%2Flauncher%2Flauncher.cpp"
+    },
+    {
+      "filename": "humming/csrc/launcher/mapped_file.h",
+      "sha": "dca22133e32aca58057cf50180e8de2ff971db44",
+      "status": "added",
+      "additions": 105,
+      "deletions": 0,
+      "changes": 105,
+      "raw_url": "https://github.com/vllm-project/humming/raw/948e6fd547e703065be51529ac1db5569256774e/humming%2Fcsrc%2Flauncher%2Fmapped_file.h"
+    },
+    {
+      "filename": "humming/csrc/launcher/process_input.h",
+      "sha": "355e4b3ff4a17ff02136e4be2c5a6ec712c0e081",
+      "status": "added",
+      "additions": 591,
+      "deletions": 0,
+      "changes": 591,
+      "raw_url": "https://github.com/vllm-project/humming/raw/948e6fd547e703065be51529ac1db5569256774e/humming%2Fcsrc%2Flauncher%2Fprocess_input.h"
+    },
+    {
+      "filename": "humming/csrc/launcher/tensor.h",
+      "sha": "ee82dda27d30248e545112edf4dddb0fcc94d0e8",
+      "status": "modified",
+      "additions": 192,
+      "deletions": 42,
+      "changes": 234,
+      "raw_url": "https://github.com/vllm-project/humming/raw/948e6fd547e703065be51529ac1db5569256774e/humming%2Fcsrc%2Flauncher%2Ftensor.h"
+    },
+    {
+      "filename": "humming/csrc/launcher/tma.h",
+      "sha": "b7b55f583ba28eb2a9b35c8afa69157b70e38e43",
+      "status": "modified",
+      "additions": 8,
+      "deletions": 1,
+      "changes": 9,
+      "raw_url": "https://github.com/vllm-project/humming/raw/948e6fd547e703065be51529ac1db5569256774e/humming%2Fcsrc%2Flauncher%2Ftma.h"
+    },
+    {
+      "filename": "humming/csrc/launcher/torch_api.h",
+      "sha": "952027d71a71ac586128822b08e7660a97c5a60b",
+      "status": "modified",
+      "additions": 10,
+      "deletions": 0,
+      "changes": 10,
+      "raw_url": "https://github.com/vllm-project/humming/raw/948e6fd547e703065be51529ac1db5569256774e/humming%2Fcsrc%2Flauncher%2Ftorch_api.h"
+    },
+    {
+      "filename": "humming/csrc/launcher/utils.h",
+      "sha": "bd326d5d4ac919dc26dee25acb12ae04b27db70f",
+      "status": "modified",
+      "additions": 103,
+      "deletions": 19,
+      "changes": 122,
+      "raw_url": "https://github.com/vllm-project/humming/raw/948e6fd547e703065be51529ac1db5569256774e/humming%2Fcsrc%2Flauncher%2Futils.h"
+    },
+    {
+      "filename": "humming/csrc/nvrtc_compile.cpp",
+      "sha": "68dda9ac36b88f086ab63a5dc5235aa73a5cd9aa",
+      "status": "modified",
+      "additions": 77,
+      "deletions": 14,
+      "changes": 91,
+      "raw_url": "https://github.com/vllm-project/humming/raw/948e6fd547e703065be51529ac1db5569256774e/humming%2Fcsrc%2Fnvrtc_compile.cpp"
+    },
+    {
+      "filename": "humming/csrc/patch_cubin.cpp",
+      "sha": "877598851ab8fac91e2644b99954d5a591271a8a",
+      "status": "modified",
+      "additions": 49,
+      "deletions": 21,
+      "changes": 70,
+      "raw_url": "https://github.com/vllm-project/humming/raw/948e6fd547e703065be51529ac1db5569256774e/humming%2Fcsrc%2Fpatch_cubin.cpp"
+    },
+    {
+      "filename": "humming/device.py",
+      "sha": "e134faef31dc0b632c3c6b6123ccada5721fae7a",
+      "status": "added",
+      "additions": 152,
+      "deletions": 0,
+      "changes": 152,
+      "raw_url": "https://github.com/vllm-project/humming/raw/948e6fd547e703065be51529ac1db5569256774e/humming%2Fdevice.py"
+    },
+    {
+      "filename": "humming/dtypes.py",
+      "sha": "ae3a078bff2b4a82d8ee45f4a7b80fe2af728f97",
+      "status": "modified",
+      "additions": 34,
+      "deletions": 7,
+      "changes": 41,
+      "raw_url": "https://github.com/vllm-project/humming/raw/948e6fd547e703065be51529ac1db5569256774e/humming%2Fdtypes.py"
+    },
+    {
+      "filename": "humming/forward.py",
+      "sha": "1b638352c73be030dd1c6c3fb11a9dca655aad00",
+      "status": "modified",
+      "additions": 140,
+      "deletions": 64,
+      "changes": 204,
+      "raw_url": "https://github.com/vllm-project/humming/raw/948e6fd547e703065be51529ac1db5569256774e/humming%2Fforward.py"
+    },
+    {
+      "filename": "humming/include/humming/arith/epilogue_arith.cuh",
+      "sha": "7ad3a66fb8163a46d9cae5740d3765f1e16e1ec1",
+      "status": "modified",
+      "additions": 89,
+      "deletions": 35,
+      "changes": 124,
+      "raw_url": "https://github.com/vllm-project/humming/raw/948e6fd547e703065be51529ac1db5569256774e/humming%2Finclude%2Fhumming%2Farith%2Fepilogue_arith.cuh"
+    },
+    {
+      "filename": "humming/include/humming/arith/exp_offset.cuh",
+      "sha": "bd1bb23bd079b3818cb62402a3b0e4715e006de4",
+      "status": "modified",
+      "additions": 69,
+      "deletions": 37,
+      "changes": 106,
+      "raw_url": "https://github.com/vllm-project/humming/raw/948e6fd547e703065be51529ac1db5569256774e/humming%2Finclude%2Fhumming%2Farith%2Fexp_offset.cuh"
+    },
+    {
+      "filename": "humming/include/humming/arith/mainloop_arith.cuh",
+      "sha": "1b605f6a317698f5d5b996463c114bafb6fc0c5d",
+      "status": "modified",
+      "additions": 125,
+      "deletions": 83,
+      "changes": 208,
+      "raw_url": "https://github.com/vllm-project/humming/raw/948e6fd547e703065be51529ac1db5569256774e/humming%2Finclude%2Fhumming%2Farith%2Fmainloop_arith.cuh"
+    },
+    {
+      "filename": "humming/include/humming/datatype/base_conversion.cuh",
+      "sha": "08833aa54fffda1b40c41d5d3e245d5ccacbd28a",
+      "status": "modified",
+      "additions": 0,
+      "deletions": 50,
+      "changes": 50,
+      "raw_url": "https://github.com/vllm-project/humming/raw/948e6fd547e703065be51529ac1db5569256774e/humming%2Finclude%2Fhumming%2Fdatatype%2Fbase_conversion.cuh"
+    },
+    {
+      "filename": "humming/include/humming/datatype/dequant.cuh",
+      "sha": "624714736fd6678561855a0d5c07789886522700",
+      "status": "modified",
+      "additions": 79,
+      "deletions": 9,
+      "changes": 88,
+      "raw_url": "https://github.com/vllm-project/humming/raw/948e6fd547e703065be51529ac1db5569256774e/humming%2Finclude%2Fhumming%2Fdatatype%2Fdequant.cuh"
+    },
+    {
+      "filename": "humming/include/humming/datatype/dequant_fused.cuh",
+      "sha": "34fcd2b15ad8b76a89d6aaf0c06da5179b9316f0",
+      "status": "modified",
+      "additions": 10,
+      "deletions": 6,
+      "changes": 16,
+      "raw_url": "https://github.com/vllm-project/humming/raw/948e6fd547e703065be51529ac1db5569256774e/humming%2Finclude%2Fhumming%2Fdatatype%2Fdequant_fused.cuh"
+    },
+    {
+      "filename": "humming/include/humming/datatype/dequant_native.cuh",
+      "sha": "7a128ac9f5c33a0d13c4fbc54a620d229bb2db97",
+      "status": "added",
+      "additions": 159,
+      "deletions": 0,
+      "changes": 159,
+      "raw_url": "https://github.com/vllm-project/humming/raw/948e6fd547e703065be51529ac1db5569256774e/humming%2Finclude%2Fhumming%2Fdatatype%2Fdequant_native.cuh"
+    },
+    {
+      "filename": "humming/include/humming/datatype/dequant_single.cuh",
+      "sha": "8529b9be4e9d6096f7a589e826bace97bb5d5c3e",
+      "status": "modified",
+      "additions": 43,
+      "deletions": 13,
+      "changes": 56,
+      "raw_url": "https://github.com/vllm-project/humming/raw/948e6fd547e703065be51529ac1db5569256774e/humming%2Finclude%2Fhumming%2Fdatatype%2Fdequant_single.cuh"
+    },
+    {
+      "filename": "humming/include/humming/datatype/dtypes.cuh",
+      "sha": "4b9c7a3237e30f45e110344b1e3d7b3556f362da",
+      "status": "modified",
+      "additions": 7,
+      "deletions": 0,
+      "changes": 7,
+      "raw_url": "https://github.com/vllm-project/humming/raw/948e6fd547e703065be51529ac1db5569256774e/humming%2Finclude%2Fhumming%2Fdatatype%2Fdtypes.cuh"
+    },
+    {
+      "filename": "humming/include/humming/epilogue/gmem_writer.cuh",
+      "sha": "6b9dbd0aed470f915ab0e683e0fd5915bc8753bd",
+      "status": "modified",
+      "additions": 150,
+      "deletions": 52,
+      "changes": 202,
+      "raw_url": "https://github.com/vllm-project/humming/raw/948e6fd547e703065be51529ac1db5569256774e/humming%2Finclude%2Fhumming%2Fepilogue%2Fgmem_writer.cuh"
+    },
+    {
+      "filename": "humming/include/humming/epilogue/pipeline.cuh",
+      "sha": "3e8125eaf3f07b48fac56e66f30d54a81e870c97",
+      "status": "modified",
+      "additions": 99,
+      "deletions": 23,
+      "changes": 122,
+      "raw_url": "https://github.com/vllm-project/humming/raw/948e6fd547e703065be51529ac1db5569256774e/humming%2Finclude%2Fhumming%2Fepilogue%2Fpipeline.cuh"
+    },
+    {
+      "filename": "humming/include/humming/epilogue/smem_reducer.cuh",
+      "sha": "1a4fcc5a7bdb7d56e0166e758395c1cd9e384c85",
+      "status": "modified",
+      "additions": 31,
+      "deletions": 17,
+      "changes": 48,
+      "raw_url": "https://github.com/vllm-project/humming/raw/948e6fd547e703065be51529ac1db5569256774e/humming%2Finclude%2Fhumming%2Fepilogue%2Fsmem_reducer.cuh"
+    },
+    {
+      "filename": "humming/include/humming/epilogue/smem_writer.cuh",
+      "sha": "aafb142bfaf6f1507418f5a22bf5fdf1c19ca8a4",
+      "status": "modified",
+      "additions": 166,
+      "deletions": 20,
+      "changes": 186,
+      "raw_url": "https://github.com/vllm-project/humming/raw/948e6fd547e703065be51529ac1db5569256774e/humming%2Finclude%2Fhumming%2Fepilogue%2Fsmem_writer.cuh"
+    },
+    {
+      "filename": "humming/include/humming/kernel/dequant_weight.cuh",
+      "sha": "e1b4fba5edc09fc7b34b80e1b54da009aed53416",
+      "status": "modified",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2,
+      "raw_url": "https://github.com/vllm-project/humming/raw/948e6fd547e703065be51529ac1db5569256774e/humming%2Finclude%2Fhumming%2Fkernel%2Fdequant_weight.cuh"
+    },
+    {
+      "filename": "humming/include/humming/kernel/hadamard.cuh",
+      "sha": "ca777ae0b130b12d304eb5ff27305596f45ed100",
+      "status": "removed",
+      "additions": 0,
+      "deletions": 313,
+      "changes": 313,
+      "raw_url": "https://github.com/vllm-project/humming/raw/636ba85648c30ae2c2bfb335c9399593a67ecc1d/humming%2Finclude%2Fhumming%2Fkernel%2Fhadamard.cuh"
+    },
+    {
+      "filename": "humming/include/humming/kernel/hadamard_quant.cuh",
+      "sha": "f66e60c0d4c77d95f5947a55624a0ce479c1f114",
+      "status": "removed",
+      "additions": 0,
+      "deletions": 474,
+      "changes": 474,
+      "raw_url": "https://github.com/vllm-project/humming/raw/636ba85648c30ae2c2bfb335c9399593a67ecc1d/humming%2Finclude%2Fhumming%2Fkernel%2Fhadamard_quant.cuh"
+    },
+    {
+      "filename": "humming/include/humming/kernel/hadamard_quant_wide.cuh",
+      "sha": "3b2b3b19e8c9160df958083bdd08aa797706cbc6",
+      "status": "removed",
+      "additions": 0,
+      "deletions": 403,
+      "changes": 403,
+      "raw_url": "https://github.com/vllm-project/humming/raw/636ba85648c30ae2c2bfb335c9399593a67ecc1d/humming%2Finclude%2Fhumming%2Fkernel%2Fhadamard_quant_wide.cuh"
+    },
+    {
+      "filename": "humming/include/humming/kernel/humming.cuh",
+      "sha": "e6f04f2b5be43a50007561a64daac1df27175999",
+      "status": "modified",
+      "additions": 109,
+      "deletions": 33,
+      "changes": 142,
+      "raw_url": "https://github.com/vllm-project/humming/raw/948e6fd547e703065be51529ac1db5569256774e/humming%2Finclude%2Fhumming%2Fkernel%2Fhumming.cuh"
+    },
+    {
+      "filename": "humming/include/humming/kernel/humming_umma.cuh",
+      "sha": "a9d194555d6e5a93793d4ea35198b4da4224569a",
+      "status": "added",
+      "additions": 440,
+      "deletions": 0,
+      "changes": 440,
+      "raw_url": "https://github.com/vllm-project/humming/raw/948e6fd547e703065be51529ac1db5569256774e/humming%2Finclude%2Fhumming%2Fkernel%2Fhumming_umma.cuh"
+    },
+    {
+      "filename": "humming/include/humming/kernel/humming_ws.cuh",
+      "sha": "65b1082f8d61129b984e45ee1bc2eb41cb101fd3",
+      "status": "modified",
+      "additions": 121,
+      "deletions": 63,
+      "changes": 184,
+      "raw_url": "https://github.com/vllm-project/humming/raw/948e6fd547e703065be51529ac1db5569256774e/humming%2Finclude%2Fhumming%2Fkernel%2Fhumming_ws.cuh"
+    },
+    {
+      "filename": "humming/include/humming/kernel/pack_weight.cuh",
+      "sha": "f71323f43e956bd7339f085b11fe70fd02ac4136",
+      "status": "modified",
+      "additions": 4,
+      "deletions": 4,
+      "changes": 8,
+      "raw_url": "https://github.com/vllm-project/humming/raw/948e6fd547e703065be51529ac1db5569256774e/humming%2Finclude%2Fhumming%2Fkernel%2Fpack_weight.cuh"
+    },
+    {
+      "filename": "humming/include/humming/kernel/process.cuh",
+      "sha": "8f803098382279983ed82d8114e38a0dd2ad1e46",
+      "status": "modified",
+      "additions": 13,
+      "deletions": 5,
+      "changes": 18,
+      "raw_url": "https://github.com/vllm-project/humming/raw/948e6fd547e703065be51529ac1db5569256774e/humming%2Finclude%2Fhumming%2Fkernel%2Fprocess.cuh"
+    },
+    {
+      "filename": "humming/include/humming/kernel/process_input.cuh",
+      "sha": "37c9e4069cfd594073c37e588c5725f3475ee121",
+      "status": "added",
+      "additions": 301,
+      "deletions": 0,
+      "changes": 301,
+      "raw_url": "https://github.com/vllm-project/humming/raw/948e6fd547e703065be51529ac1db5569256774e/humming%2Finclude%2Fhumming%2Fkernel%2Fprocess_input.cuh"
+    },
+    {
+      "filename": "humming/include/humming/kernel/process_input/activation.cuh",
+      "sha": "a74b3293c20406bee00ba2f20d6df60ad0435c1b",
+      "status": "added",
+      "additions": 149,
+      "deletions": 0,
+      "changes": 149,
+      "raw_url": "https://github.com/vllm-project/humming/raw/948e6fd547e703065be51529ac1db5569256774e/humming%2Finclude%2Fhumming%2Fkernel%2Fprocess_input%2Factivation.cuh"
+    },
+    {
+      "filename": "humming/include/humming/kernel/process_input/context.cuh",
+      "sha": "11acae74e7e858d4602a729af1885c8c80c51ee2",
+      "status": "added",
+      "additions": 158,
+      "deletions": 0,
+      "changes": 158,
+      "raw_url": "https://github.com/vllm-project/humming/raw/948e6fd547e703065be51529ac1db5569256774e/humming%2Finclude%2Fhumming%2Fkernel%2Fprocess_input%2Fcontext.cuh"
+    },
+    {
+      "filename": "humming/include/humming/kernel/process_input/hadamard.cuh",
+      "sha": "9586b462e34d2e8e51cefba236472f5da0145ee4",
+      "status": "added",
+      "additions": 97,
+      "deletions": 0,
+      "changes": 97,
+      "raw_url": "https://github.com/vllm-project/humming/raw/948e6fd547e703065be51529ac1db5569256774e/humming%2Finclude%2Fhumming%2Fkernel%2Fprocess_input%2Fhadamard.cuh"
+    },
+    {
+      "filename": "humming/include/humming/kernel/process_input/quantization.cuh",
+      "sha": "db5b56444b58db2a8e567ba844163d6a68a2e1c3",
+      "status": "added",
+      "additions": 579,
+      "deletions": 0,
+      "changes": 579,
+      "raw_url": "https://github.com/vllm-project/humming/raw/948e6fd547e703065be51529ac1db5569256774e/humming%2Finclude%2Fhumming%2Fkernel%2Fprocess_input%2Fquantization.cuh"
+    },
+    {
+      "filename": "humming/include/humming/kernel/process_input/thread_task.cuh",
+      "sha": "554788c452df4a049c4bfa0f592cc261056fefb4",
+      "status": "added",
+      "additions": 41,
+      "deletions": 0,
+      "changes": 41,
+      "raw_url": "https://github.com/vllm-project/humming/raw/948e6fd547e703065be51529ac1db5569256774e/humming%2Finclude%2Fhumming%2Fkernel%2Fprocess_input%2Fthread_task.cuh"
+    },
+    {
+      "filename": "humming/include/humming/kernel/quant_weight.cuh",
+      "sha": "2cbe642b2de53044351485041df29be2ba060469",
+      "status": "modified",
+      "additions": 2,
+      "deletions": 2,
+      "changes": 4,
+      "raw_url": "https://github.com/vllm-project/humming/raw/948e6fd547e703065be51529ac1db5569256774e/humming%2Finclude%2Fhumming%2Fkernel%2Fquant_weight.cuh"
+    },
+    {
+      "filename": "humming/include/humming/memory/g2s_loader/loader_a.cuh",
+      "sha": "c01733f72440ead04e977932ce66eed19b2f568d",
+      "status": "modified",
+      "additions": 50,
+      "deletions": 13,
+      "changes": 63,
+      "raw_url": "https://github.com/vllm-project/humming/raw/948e6fd547e703065be51529ac1db5569256774e/humming%2Finclude%2Fhumming%2Fmemory%2Fg2s_loader%2Floader_a.cuh"
+    },
+    {
+      "filename": "humming/include/humming/memory/g2s_loader/loader_as.cuh",
+      "sha": "ddc5032ee7e7cbc633a35c76ab5d87079aebd726",
+      "status": "modified",
+      "additions": 190,
+      "deletions": 63,
+      "changes": 253,
+      "raw_url": "https://github.com/vllm-project/humming/raw/948e6fd547e703065be51529ac1db5569256774e/humming%2Finclude%2Fhumming%2Fmemory%2Fg2s_loader%2Floader_as.cuh"
+    },
+    {
+      "filename": "humming/include/humming/memory/g2s_loader/loader_b.cuh",
+      "sha": "ee5abb825228c9df2ec2c990bed4cb73f4820f49",
+      "status": "modified",
+      "additions": 140,
+      "deletions": 13,
+      "changes": 153,
+      "raw_url": "https://github.com/vllm-project/humming/raw/948e6fd547e703065be51529ac1db5569256774e/humming%2Finclude%2Fhumming%2Fmemory%2Fg2s_loader%2Floader_b.cuh"
+    },
+    {
+      "filename": "humming/include/humming/memory/g2s_loader/loader_bias.cuh",
+      "sha": "99cba1ae94bf201670d531c33d82e066f8568751",
+      "status": "modified",
+      "additions": 8,
+      "deletions": 1,
+      "changes": 9,
+      "raw_url": "https://github.com/vllm-project/humming/raw/948e6fd547e703065be51529ac1db5569256774e/humming%2Finclude%2Fhumming%2Fmemory%2Fg2s_loader%2Floader_bias.cuh"
+    },
+    {
+      "filename": "humming/include/humming/memory/g2s_loader/loader_bs.cuh",
+      "sha": "b4749cd412cc4eda7a72e87643be92d853904716",
+      "status": "modified",
+      "additions": 42,
+      "deletions": 13,
+      "changes": 55,
+      "raw_url": "https://github.com/vllm-project/humming/raw/948e6fd547e703065be51529ac1db5569256774e/humming%2Finclude%2Fhumming%2Fmemory%2Fg2s_loader%2Floader_bs.cuh"
+    },
+    {
+      "filename": "humming/include/humming/memory/g2s_loader/loader_bs2.cuh",
+      "sha": "4ff1203d9b18e2857b2180f2d5f867919c674aaa",
+      "status": "modified",
+      "additions": 8,
+      "deletions": 1,
+      "changes": 9,
+      "raw_url": "https://github.com/vllm-project/humming/raw/948e6fd547e703065be51529ac1db5569256774e/humming%2Finclude%2Fhumming%2Fmemory%2Fg2s_loader%2Floader_bs2.cuh"
+    },
+    {
+      "filename": "humming/include/humming/memory/g2s_loader/loader_bzp.cuh",
+      "sha": "e2092e03566fc2ac29364be1fe8cec6851eb4b95",
+      "status": "modified",
+      "additions": 13,
+      "deletions": 6,
+      "changes": 19,
+      "raw_url": "https://github.com/vllm-project/humming/raw/948e6fd547e703065be51529ac1db5569256774e/humming%2Finclude%2Fhumming%2Fmemory%2Fg2s_loader%2Floader_bzp.cuh"
+    },
+    {
+      "filename": "humming/include/humming/memory/g2s_pipeline.cuh",
+      "sha": "494e913b8580c535e5914691f0c533fd45ec440c",
+      "status": "modified",
+      "additions": 196,
+      "deletions": 63,
+      "changes": 259,
+      "raw_url": "https://github.com/vllm-project/humming/raw/948e6fd547e703065be51529ac1db5569256774e/humming%2Finclude%2Fhumming%2Fmemory%2Fg2s_pipeline.cuh"
+    },
+    {
+      "filename": "humming/include/humming/memory/s2r_loader/loader_a.cuh",
+      "sha": "3113850319d4f4615fea2d4c112447e8b88bd4c7",
+      "status": "modified",
+      "additions": 23,
+      "deletions": 1,
+      "changes": 24,
+      "raw_url": "https://github.com/vllm-project/humming/raw/948e6fd547e703065be51529ac1db5569256774e/humming%2Finclude%2Fhumming%2Fmemory%2Fs2r_loader%2Floader_a.cuh"
+    },
+    {
+      "filename": "humming/include/humming/memory/s2r_loader/loader_as.cuh",
+      "sha": "fa2f3431f4b74e36f230ab125c5fa178e38a7397",
+      "status": "modified",
+      "additions": 23,
+      "deletions": 12,
+      "changes": 35,
+      "raw_url": "https://github.com/vllm-project/humming/raw/948e6fd547e703065be51529ac1db5569256774e/humming%2Finclude%2Fhumming%2Fmemory%2Fs2r_loader%2Floader_as.cuh"
+    },
+    {
+      "filename": "humming/include/humming/memory/s2r_loader/loader_b.cuh",
+      "sha": "1da4bb076b6774f7b938a1866828f2f31edf9d1f",
+      "status": "modified",
+      "additions": 57,
+      "deletions": 5,
+      "changes": 62,
+      "raw_url": "https://github.com/vllm-project/humming/raw/948e6fd547e703065be51529ac1db5569256774e/humming%2Finclude%2Fhumming%2Fmemory%2Fs2r_loader%2Floader_b.cuh"
+    },
+    {
+      "filename": "humming/include/humming/memory/s2r_loader/loader_bias.cuh",
+      "sha": "7689ddc61bb75551a2257fc9f1ca89337d588108",
+      "status": "modified",
+      "additions": 10,
+      "deletions": 1,
+      "changes": 11,
+      "raw_url": "https://github.com/vllm-project/humming/raw/948e6fd547e703065be51529ac1db5569256774e/humming%2Finclude%2Fhumming%2Fmemory%2Fs2r_loader%2Floader_bias.cuh"
+    },
+    {
+      "filename": "humming/include/humming/memory/s2r_loader/loader_bs.cuh",
+      "sha": "548ab9ace5ba31bb861ac5656b597938c5e1a51e",
+      "status": "modified",
+      "additions": 85,
+      "deletions": 2,
+      "changes": 87,
+      "raw_url": "https://github.com/vllm-project/humming/raw/948e6fd547e703065be51529ac1db5569256774e/humming%2Finclude%2Fhumming%2Fmemory%2Fs2r_loader%2Floader_bs.cuh"
+    },
+    {
+      "filename": "humming/include/humming/memory/s2r_loader/loader_bzp.cuh",
+      "sha": "176bc76507921e8976e1c2ec72da3900d4fba938",
+      "status": "modified",
+      "additions": 3,
+      "deletions": 4,
+      "changes": 7,
+      "raw_url": "https://github.com/vllm-project/humming/raw/948e6fd547e703065be51529ac1db5569256774e/humming%2Finclude%2Fhumming%2Fmemory%2Fs2r_loader%2Floader_bzp.cuh"
+    },
+    {
+      "filename": "humming/include/humming/memory/s2r_pipeline.cuh",
+      "sha": "d0e6c66205ff423eebbcb2b4f72aed186fa47756",
+      "status": "modified",
+      "additions": 46,
+      "deletions": 12,
+      "changes": 58,
+      "raw_url": "https://github.com/vllm-project/humming/raw/948e6fd547e703065be51529ac1db5569256774e/humming%2Finclude%2Fhumming%2Fmemory%2Fs2r_pipeline.cuh"
+    },
+    {
+      "filename": "humming/include/humming/mma/all.cuh",
+      "sha": "e7ee90c2b37a31b4386eaefd13b8acfec281a145",
+      "status": "modified",
+      "additions": 6,
+      "deletions": 0,
+      "changes": 6,
+      "raw_url": "https://github.com/vllm-project/humming/raw/948e6fd547e703065be51529ac1db5569256774e/humming%2Finclude%2Fhumming%2Fmma%2Fall.cuh"
+    },
+    {
+      "filename": "humming/include/humming/mma/mxmma.cuh",
+      "sha": "39b970f1bfdafea2be20c3c36a1e19e23427a24e",
+      "status": "modified",
+      "additions": 21,
+      "deletions": 8,
+      "changes": 29,
+      "raw_url": "https://github.com/vllm-project/humming/raw/948e6fd547e703065be51529ac1db5569256774e/humming%2Finclude%2Fhumming%2Fmma%2Fmxmma.cuh"
+    },
+    {
+      "filename": "humming/include/humming/mma/umma.cuh",
+      "sha": "bd3fe90ca1aa5bb8d99b0b43f9689e4caae54f41",
+      "status": "added",
+      "additions": 392,
+      "deletions": 0,
+      "changes": 392,
+      "raw_url": "https://github.com/vllm-project/humming/raw/948e6fd547e703065be51529ac1db5569256774e/humming%2Finclude%2Fhumming%2Fmma%2Fumma.cuh"
+    },
+    {
+      "filename": "humming/include/humming/mma/wgmma.cuh",
+      "sha": "6f5953167f61804add0afd3513db9992856b6179",
+      "status": "modified",
+      "additions": 102,
+      "deletions": 30,
+      "changes": 132,
+      "raw_url": "https://github.com/vllm-project/humming/raw/948e6fd547e703065be51529ac1db5569256774e/humming%2Finclude%2Fhumming%2Fmma%2Fwgmma.cuh"
+    },
+    {
+      "filename": "humming/include/humming/mma/wmma.cuh",
+      "sha": "5a4804e2a442ce7340655f7db17bb328b09d5909",
+      "status": "modified",
+      "additions": 58,
+      "deletions": 17,
+      "changes": 75,
+      "raw_url": "https://github.com/vllm-project/humming/raw/948e6fd547e703065be51529ac1db5569256774e/humming%2Finclude%2Fhumming%2Fmma%2Fwmma.cuh"
+    },
+    {
+      "filename": "humming/include/humming/scheduler.cuh",
+      "sha": "fc1b820cce4b7f139bdacfca5b06c717bcc1e4aa",
+      "status": "modified",
+      "additions": 175,
+      "deletions": 99,
+      "changes": 274,
+      "raw_url": "https://github.com/vllm-project/humming/raw/948e6fd547e703065be51529ac1db5569256774e/humming%2Finclude%2Fhumming%2Fscheduler.cuh"
+    },
+    {
+      "filename": "humming/include/humming/utils/base.cuh",
+      "sha": "a6f0105cee1188e45af6e7d79df807714d16acd1",
+      "status": "modified",
+      "additions": 36,
+      "deletions": 0,
+      "changes": 36,
+      "raw_url": "https://github.com/vllm-project/humming/raw/948e6fd547e703065be51529ac1db5569256774e/humming%2Finclude%2Fhumming%2Futils%2Fbase.cuh"
+    },
+    {
+      "filename": "humming/include/humming/utils/context.cuh",
+      "sha": "07dd6d3b1abf8870ca144bfc8819e3e6a5dcaa0d",
+      "status": "modified",
+      "additions": 124,
+      "deletions": 7,
+      "changes": 131,
+      "raw_url": "https://github.com/vllm-project/humming/raw/948e6fd547e703065be51529ac1db5569256774e/humming%2Finclude%2Fhumming%2Futils%2Fcontext.cuh"
+    },
+    {
+      "filename": "humming/include/humming/utils/enum.cuh",
+      "sha": "cfd1353fde9e4ff1cc978db68aa5b06cafcce5be",
+      "status": "modified",
+      "additions": 32,
+      "deletions": 0,
+      "changes": 32,
+      "raw_url": "https://github.com/vllm-project/humming/raw/948e6fd547e703065be51529ac1db5569256774e/humming%2Finclude%2Fhumming%2Futils%2Fenum.cuh"
+    },
+    {
+      "filename": "humming/include/humming/utils/ptx/barrier.cuh",
+      "sha": "be32490b9d24cb12063f60885bf3c195dd0ba172",
+      "status": "modified",
+      "additions": 32,
+      "deletions": 18,
+      "changes": 50,
+      "raw_url": "https://github.com/vllm-project/humming/raw/948e6fd547e703065be51529ac1db5569256774e/humming%2Finclude%2Fhumming%2Futils%2Fptx%2Fbarrier.cuh"
+    },
+    {
+      "filename": "humming/include/humming/utils/ptx/legacy_load.cuh",
+      "sha": "870c41a664119b2234fd3482c511bea6b14c48ae",
+      "status": "modified",
+      "additions": 124,
+      "deletions": 30,
+      "changes": 154,
+      "raw_url": "https://github.com/vllm-project/humming/raw/948e6fd547e703065be51529ac1db5569256774e/humming%2Finclude%2Fhumming%2Futils%2Fptx%2Flegacy_load.cuh"
+    },
+    {
+      "filename": "humming/include/humming/utils/ptx/math.cuh",
+      "sha": "fe9ef02b07af0b3a9d7e35b60a562f13b247f58f",
+      "status": "modified",
+      "additions": 8,
+      "deletions": 0,
+      "changes": 8,
+      "raw_url": "https://github.com/vllm-project/humming/raw/948e6fd547e703065be51529ac1db5569256774e/humming%2Finclude%2Fhumming%2Futils%2Fptx%2Fmath.cuh"
+    },
+    {
+      "filename": "humming/include/humming/utils/ptx/shared.cuh",
+      "sha": "4f8df0f439bc06f0e01ad59ac0b7a8f9b313bac0",
+      "status": "modified",
+      "additions": 76,
+      "deletions": 9,
+      "changes": 85,
+      "raw_url": "https://github.com/vllm-project/humming/raw/948e6fd547e703065be51529ac1db5569256774e/humming%2Finclude%2Fhumming%2Futils%2Fptx%2Fshared.cuh"
+    },
+    {
+      "filename": "humming/include/humming/utils/ptx/tcgen05.cuh",
+      "sha": "15530caa32d497edb78272dbf4f903169aacb5da",
+      "status": "added",
+      "additions": 362,
+      "deletions": 0,
+      "changes": 362,
+      "raw_url": "https://github.com/vllm-project/humming/raw/948e6fd547e703065be51529ac1db5569256774e/humming%2Finclude%2Fhumming%2Futils%2Fptx%2Ftcgen05.cuh"
+    },
+    {
+      "filename": "humming/include/humming/utils/ptx/tma.cuh",
+      "sha": "5fea8de598638310806712b63ca0aa4dae415243",
+      "status": "modified",
+      "additions": 209,
+      "deletions": 22,
+      "changes": 231,
+      "raw_url": "https://github.com/vllm-project/humming/raw/948e6fd547e703065be51529ac1db5569256774e/humming%2Finclude%2Fhumming%2Futils%2Fptx%2Ftma.cuh"
+    },
+    {
+      "filename": "humming/include/humming/utils/ptx/warp.cuh",
+      "sha": "c18c46d9421e17681fef14e0fc1aa513e07772ec",
+      "status": "modified",
+      "additions": 7,
+      "deletions": 0,
+      "changes": 7,
+      "raw_url": "https://github.com/vllm-project/humming/raw/948e6fd547e703065be51529ac1db5569256774e/humming%2Finclude%2Fhumming%2Futils%2Fptx%2Fwarp.cuh"
+    },
+    {
+      "filename": "humming/include/humming/utils/ptx/wgmma.cuh",
+      "sha": "a1de75283d96b8ddaf426f76faf0283dcc3ea675",
+      "status": "modified",
+      "additions": 5,
+      "deletions": 0,
+      "changes": 5,
+      "raw_url": "https://github.com/vllm-project/humming/raw/948e6fd547e703065be51529ac1db5569256774e/humming%2Finclude%2Fhumming%2Futils%2Fptx%2Fwgmma.cuh"
+    },
+    {
+      "filename": "humming/include/humming/utils/storage.cuh",
+      "sha": "64d5ad59b8d61fd01ddeb538c75b349dbd7e5322",
+      "status": "modified",
+      "additions": 134,
+      "deletions": 48,
+      "changes": 182,
+      "raw_url": "https://github.com/vllm-project/humming/raw/948e6fd547e703065be51529ac1db5569256774e/humming%2Finclude%2Fhumming%2Futils%2Fstorage.cuh"
+    },
+    {
+      "filename": "humming/jit/compiler.py",
+      "sha": "5bcfa23f25e3c88272e9f9f9ad189bd61da83c24",
+      "status": "modified",
+      "additions": 42,
+      "deletions": 6,
+      "changes": 48,
+      "raw_url": "https://github.com/vllm-project/humming/raw/948e6fd547e703065be51529ac1db5569256774e/humming%2Fjit%2Fcompiler.py"
+    },
+    {
+      "filename": "humming/jit/runtime.py",
+      "sha": "2c0dd159d0bf41b7e72624ba1a720a79374980cd",
+      "status": "modified",
+      "additions": 64,
+      "deletions": 32,
+      "changes": 96,
+      "raw_url": "https://github.com/vllm-project/humming/raw/948e6fd547e703065be51529ac1db5569256774e/humming%2Fjit%2Fruntime.py"
+    },
+    {
+      "filename": "humming/kernel/dequant_weight.py",
+      "sha": "818afbcd3188feeee02a61a05dd86c9848afd290",
+      "status": "modified",
+      "additions": 2,
+      "deletions": 2,
+      "changes": 4,
+      "raw_url": "https://github.com/vllm-project/humming/raw/948e6fd547e703065be51529ac1db5569256774e/humming%2Fkernel%2Fdequant_weight.py"
+    },
+    {
+      "filename": "humming/kernel/hadamard.py",
+      "sha": "643b68e12a69f1bbaa5de8b7b0a1c0813886b597",
+      "status": "removed",
+      "additions": 0,
+      "deletions": 101,
+      "changes": 101,
+      "raw_url": "https://github.com/vllm-project/humming/raw/636ba85648c30ae2c2bfb335c9399593a67ecc1d/humming%2Fkernel%2Fhadamard.py"
+    },
+    {
+      "filename": "humming/kernel/hadamard_quant.py",
+      "sha": "8a44864d067c73f5c25bd6a2315460a0d5f2cee2",
+      "status": "removed",
+      "additions": 0,
+      "deletions": 144,
+      "changes": 144,
+      "raw_url": "https://github.com/vllm-project/humming/raw/636ba85648c30ae2c2bfb335c9399593a67ecc1d/humming%2Fkernel%2Fhadamard_quant.py"
+    },
+    {
+      "filename": "humming/kernel/hadamard_quant_wide.py",
+      "sha": "e53922361e8e9ffc4b064bfff68dc49eae6ba2e6",
+      "status": "removed",
+      "additions": 0,
+      "deletions": 156,
+      "changes": 156,
+      "raw_url": "https://github.com/vllm-project/humming/raw/636ba85648c30ae2c2bfb335c9399593a67ecc1d/humming%2Fkernel%2Fhadamard_quant_wide.py"
+    },
+    {
+      "filename": "humming/kernel/humming.py",
+      "sha": "a50fcccf0bffd2317f17054cce465f0f90855804",
+      "status": "modified",
+      "additions": 329,
+      "deletions": 122,
+      "changes": 451,
+      "raw_url": "https://github.com/vllm-project/humming/raw/948e6fd547e703065be51529ac1db5569256774e/humming%2Fkernel%2Fhumming.py"
+    },
+    {
+      "filename": "humming/kernel/pack_weight.py",
+      "sha": "be33f1c7b30b5533dfc4274df05dc33f0aab12f3",
+      "status": "modified",
+      "additions": 2,
+      "deletions": 2,
+      "changes": 4,
+      "raw_url": "https://github.com/vllm-project/humming/raw/948e6fd547e703065be51529ac1db5569256774e/humming%2Fkernel%2Fpack_weight.py"
+    },
+    {
+      "filename": "humming/kernel/process_input.py",
+      "sha": "6fb507f7036e1808362461ab334c0b0962d90306",
+      "status": "added",
+      "additions": 207,
+      "deletions": 0,
+      "changes": 207,
+      "raw_url": "https://github.com/vllm-project/humming/raw/948e6fd547e703065be51529ac1db5569256774e/humming%2Fkernel%2Fprocess_input.py"
+    },
+    {
+      "filename": "humming/kernel/process_mxfp4.py",
+      "sha": "e71014f37c2c24af95d2b9409cdaa075b2d75548",
+      "status": "modified",
+      "additions": 2,
+      "deletions": 2,
+      "changes": 4,
+      "raw_url": "https://github.com/vllm-project/humming/raw/948e6fd547e703065be51529ac1db5569256774e/humming%2Fkernel%2Fprocess_mxfp4.py"
+    },
+    {
+      "filename": "humming/kernel/quant_weight.py",
+      "sha": "5700074ea6ab1d50c40b9aaa47b61b20710742f2",
+      "status": "modified",
+      "additions": 2,
+      "deletions": 2,
+      "changes": 4,
+      "raw_url": "https://github.com/vllm-project/humming/raw/948e6fd547e703065be51529ac1db5569256774e/humming%2Fkernel%2Fquant_weight.py"
+    },
+    {
+      "filename": "humming/kernel/repack_weight.py",
+      "sha": "19b93008b2df560df5e79bc93ab1eeb741b57e97",
+      "status": "modified",
+      "additions": 8,
+      "deletions": 6,
+      "changes": 14,
+      "raw_url": "https://github.com/vllm-project/humming/raw/948e6fd547e703065be51529ac1db5569256774e/humming%2Fkernel%2Frepack_weight.py"
+    },
+    {
+      "filename": "humming/kernel/tops_bench.py",
+      "sha": "c77f1a00c9267d0b8c39e2791138d70268be4ce5",
+      "status": "modified",
+      "additions": 8,
+      "deletions": 6,
+      "changes": 14,
+      "raw_url": "https://github.com/vllm-project/humming/raw/948e6fd547e703065be51529ac1db5569256774e/humming%2Fkernel%2Ftops_bench.py"
+    },
+    {
+      "filename": "humming/kernel/unpack_weight.py",
+      "sha": "ff2830fa176a3843dc3f3fe7737a34a42e271257",
+      "status": "modified",
+      "additions": 2,
+      "deletions": 2,
+      "changes": 4,
+      "raw_url": "https://github.com/vllm-project/humming/raw/948e6fd547e703065be51529ac1db5569256774e/humming%2Fkernel%2Funpack_weight.py"
+    },
+    {
+      "filename": "humming/layer.py",
+      "sha": "b03854293bd5a90ea32d36b0ccf404035caa64c1",
+      "status": "modified",
+      "additions": 184,
+      "deletions": 47,
+      "changes": 231,
+      "raw_url": "https://github.com/vllm-project/humming/raw/948e6fd547e703065be51529ac1db5569256774e/humming%2Flayer.py"
+    },
+    {
+      "filename": "humming/ops/__init__.py",
+      "sha": "01505ce318e166bc882fad3af9de0ab36a404399",
+      "status": "modified",
+      "additions": 15,
+      "deletions": 181,
+      "changes": 196,
+      "raw_url": "https://github.com/vllm-project/humming/raw/948e6fd547e703065be51529ac1db5569256774e/humming%2Fops%2F__init__.py"
+    },
+    {
+      "filename": "humming/ops/bench.py",
+      "sha": "c9853d6e59f960bd78fc771bc329737251559284",
+      "status": "modified",
+      "additions": 10,
+      "deletions": 8,
+      "changes": 18,
+      "raw_url": "https://github.com/vllm-project/humming/raw/948e6fd547e703065be51529ac1db5569256774e/humming%2Fops%2Fbench.py"
+    },
+    {
+      "filename": "humming/ops/gemm.py",
+      "sha": "5fb1f57987ff4669c18637fff879909ff64f388f",
+      "status": "added",
+      "additions": 100,
+      "deletions": 0,
+      "changes": 100,
+      "raw_url": "https://github.com/vllm-project/humming/raw/948e6fd547e703065be51529ac1db5569256774e/humming%2Fops%2Fgemm.py"
+    },
+    {
+      "filename": "humming/ops/hadamard.py",
+      "sha": "5f2441644b1d5af3f883372b5974caa735fd3e0c",
+      "status": "removed",
+      "additions": 0,
+      "deletions": 197,
+      "changes": 197,
+      "raw_url": "https://github.com/vllm-project/humming/raw/636ba85648c30ae2c2bfb335c9399593a67ecc1d/humming%2Fops%2Fhadamard.py"
+    },
+    {
+      "filename": "humming/ops/input.py",
+      "sha": "2642b049d9228545209b54f3be5963a64ee151a0",
+      "status": "modified",
+      "additions": 176,
+      "deletions": 333,
+      "changes": 509,
+      "raw_url": "https://github.com/vllm-project/humming/raw/948e6fd547e703065be51529ac1db5569256774e/humming%2Fops%2Finput.py"
+    },
+    {
+      "filename": "humming/ops/launcher.py",
+      "sha": "593bad16f1155dab54319a696e6ea9733e67f28a",
+      "status": "added",
+      "additions": 73,
+      "deletions": 0,
+      "changes": 73,
+      "raw_url": "https://github.com/vllm-project/humming/raw/948e6fd547e703065be51529ac1db5569256774e/humming%2Fops%2Flauncher.py"
+    },
+    {
+      "filename": "humming/ops/moe.py",
+      "sha": "8705348e399a6afe97091fbc8dce300c491dd345",
+      "status": "removed",
+      "additions": 0,
+      "deletions": 0,
+      "changes": 0,
+      "raw_url": "https://github.com/vllm-project/humming/raw/636ba85648c30ae2c2bfb335c9399593a67ecc1d/humming%2Fops%2Fmoe.py"
+    },
+    {
+      "filename": "humming/ops/utils.py",
+      "sha": "6459f322b0a0a6b37d60ffd0df617476b3a4046d",
+      "status": "modified",
+      "additions": 0,
+      "deletions": 0,
+      "changes": 0,
+      "raw_url": "https://github.com/vllm-project/humming/raw/948e6fd547e703065be51529ac1db5569256774e/humming%2Fops%2Futils.py"
+    },
+    {
+      "filename": "humming/ops/weight.py",
+      "sha": "7cd63c8592ab2c6727547cca483b677a721a2d67",
+      "status": "modified",
+      "additions": 0,
+      "deletions": 0,
+      "changes": 0,
+      "raw_url": "https://github.com/vllm-project/humming/raw/948e6fd547e703065be51529ac1db5569256774e/humming%2Fops%2Fweight.py"
+    },
+    {
+      "filename": "humming/schema/__init__.py",
+      "sha": "d3d8afd385dcf605a5d3ada9db11d0df08053413",
+      "status": "modified",
+      "additions": 0,
+      "deletions": 0,
+      "changes": 0,
+      "raw_url": "https://github.com/vllm-project/humming/raw/948e6fd547e703065be51529ac1db5569256774e/humming%2Fschema%2F__init__.py"
+    },
+    {
+      "filename": "humming/schema/autoround.py",
+      "sha": "b0419b87576fdd2e01717141a58e00ef65e0c822",
+      "status": "modified",
+      "additions": 0,
+      "deletions": 0,
+      "changes": 0,
+      "raw_url": "https://github.com/vllm-project/humming/raw/948e6fd547e703065be51529ac1db5569256774e/humming%2Fschema%2Fautoround.py"
+    },
+    {
+      "filename": "humming/schema/awq.py",
+      "sha": "ab719542a82c7125e51dc830b8f12b3a5f0dd2a7",
+      "status": "modified",
+      "additions": 0,
+      "deletions": 0,
+      "changes": 0,
+      "raw_url": "https://github.com/vllm-project/humming/raw/948e6fd547e703065be51529ac1db5569256774e/humming%2Fschema%2Fawq.py"
+    },
+    {
+      "filename": "humming/schema/base.py",
+      "sha": "bb559e29fa291da085de2071c544b04bc05170eb",
+      "status": "modified",
+      "additions": 0,
+      "deletions": 0,
+      "changes": 0,
+      "raw_url": "https://github.com/vllm-project/humming/raw/948e6fd547e703065be51529ac1db5569256774e/humming%2Fschema%2Fbase.py"
+    },
+    {
+      "filename": "humming/schema/bitnet.py",
+      "sha": "d62f45432651c18b658dc4ff277d5cb09cabfae0",
+      "status": "modified",
+      "additions": 0,
+      "deletions": 0,
+      "changes": 0,
+      "raw_url": "https://github.com/vllm-project/humming/raw/948e6fd547e703065be51529ac1db5569256774e/humming%2Fschema%2Fbitnet.py"
+    },
+    {
+      "filename": "humming/schema/compressed_tensors.py",
+      "sha": "933019c165405b7322745a9ce0d535319049f572",
+      "status": "modified",
+      "additions": 0,
+      "deletions": 0,
+      "changes": 0,
+      "raw_url": "https://github.com/vllm-project/humming/raw/948e6fd547e703065be51529ac1db5569256774e/humming%2Fschema%2Fcompressed_tensors.py"
+    },
+    {
+      "filename": "humming/schema/fp8.py",
+      "sha": "5ad41bd35cd270c85ab8f2a1daa2ccee76ca7ac7",
+      "status": "modified",
+      "additions": 0,
+      "deletions": 0,
+      "changes": 0,
+      "raw_url": "https://github.com/vllm-project/humming/raw/948e6fd547e703065be51529ac1db5569256774e/humming%2Fschema%2Ffp8.py"
+    },
+    {
+      "filename": "humming/schema/gptq.py",
+      "sha": "a96bbcfc16888d9d26751ba1c05f9c0ab4901032",
+      "status": "modified",
+      "additions": 0,
+      "deletions": 0,
+      "changes": 0,
+      "raw_url": "https://github.com/vllm-project/humming/raw/948e6fd547e703065be51529ac1db5569256774e/humming%2Fschema%2Fgptq.py"
+    },
+    {
+      "filename": "humming/schema/humming.py",
+      "sha": "2090c9596bc35f95388eefd4a59d1dc1b3623629",
+      "status": "modified",
+      "additions": 0,
+      "deletions": 0,
+      "changes": 0,
+      "raw_url": "https://github.com/vllm-project/humming/raw/948e6fd547e703065be51529ac1db5569256774e/humming%2Fschema%2Fhumming.py"
+    },
+    {
+      "filename": "humming/schema/modelopt.py",
+      "sha": "ce3a8085a08c54d6ce7c0e6772269ab05bc6628f",
+      "status": "modified",
+      "additions": 0,
+      "deletions": 0,
+      "changes": 0,
+      "raw_url": "https://github.com/vllm-project/humming/raw/948e6fd547e703065be51529ac1db5569256774e/humming%2Fschema%2Fmodelopt.py"
+    },
+    {
+      "filename": "humming/schema/mxfp4.py",
+      "sha": "e0e9ce1d822b947073ea3461bfc767342208d901",
+      "status": "modified",
+      "additions": 0,
+      "deletions": 0,
+      "changes": 0,
+      "raw_url": "https://github.com/vllm-project/humming/raw/948e6fd547e703065be51529ac1db5569256774e/humming%2Fschema%2Fmxfp4.py"
+    },
+    {
+      "filename": "humming/schema/quark.py",
+      "sha": "dc3c55c42c10adb8e1bb7351327060722e002fc9",
+      "status": "added",
+      "additions": 0,
+      "deletions": 0,
+      "changes": 0,
+      "raw_url": "https://github.com/vllm-project/humming/raw/948e6fd547e703065be51529ac1db5569256774e/humming%2Fschema%2Fquark.py"
+    },
+    {
+      "filename": "humming/testing/benchmark.py",
+      "sha": "7183f8b81ac0018272cf0c39e5d76ad66a37030e",
+      "status": "modified",
+      "additions": 0,
+      "deletions": 0,
+      "changes": 0,
+      "raw_url": "https://github.com/vllm-project/humming/raw/948e6fd547e703065be51529ac1db5569256774e/humming%2Ftesting%2Fbenchmark.py"
+    },
+    {
+      "filename": "humming/testing/data.py",
+      "sha": "bd06e3f724486a889e96e56cc1efeff1495f5a24",
+      "status": "modified",
+      "additions": 0,
+      "deletions": 0,
+      "changes": 0,
+      "raw_url": "https://github.com/vllm-project/humming/raw/948e6fd547e703065be51529ac1db5569256774e/humming%2Ftesting%2Fdata.py"
+    },
+    {
+      "filename": "humming/testing/device.py",
+      "sha": "0e832e6cd650a23b99d7bf07871cb4cc68a2fd60",
+      "status": "modified",
+      "additions": 0,
+      "deletions": 0,
+      "changes": 0,
+      "raw_url": "https://github.com/vllm-project/humming/raw/948e6fd547e703065be51529ac1db5569256774e/humming%2Ftesting%2Fdevice.py"
+    },
+    {
+      "filename": "humming/testing/process_input.py",
+      "sha": "db38226cc2a9151cb55f220a6a3319809c9df15d",
+      "status": "added",
+      "additions": 0,
+      "deletions": 0,
+      "changes": 0,
+      "raw_url": "https://github.com/vllm-project/humming/raw/948e6fd547e703065be51529ac1db5569256774e/humming%2Ftesting%2Fprocess_input.py"
+    },
+    {
+      "filename": "humming/testing/runner.py",
+      "sha": "9aaac9304f7aa4e541c728f1190ee8808e3c0929",
+      "status": "modified",
+      "additions": 0,
+      "deletions": 0,
+      "changes": 0,
+      "raw_url": "https://github.com/vllm-project/humming/raw/948e6fd547e703065be51529ac1db5569256774e/humming%2Ftesting%2Frunner.py"
+    },
+    {
+      "filename": "humming/testing/tuning.py",
+      "sha": "fc83c74db762b8d394d0b5237364e3cb0ffe33ab",
+      "status": "modified",
+      "additions": 0,
+      "deletions": 0,
+      "changes": 0,
+      "raw_url": "https://github.com/vllm-project/humming/raw/948e6fd547e703065be51529ac1db5569256774e/humming%2Ftesting%2Ftuning.py"
+    },
+    {
+      "filename": "humming/transform.py",
+      "sha": "360993c5743f504824e9b3b7b88c18236495c093",
+      "status": "modified",
+      "additions": 0,
+      "deletions": 0,
+      "changes": 0,
+      "raw_url": "https://github.com/vllm-project/humming/raw/948e6fd547e703065be51529ac1db5569256774e/humming%2Ftransform.py"
+    },
+    {
+      "filename": "humming/tune/__init__.py",
+      "sha": "a43f0a9745e0e562cf7b42f941c3f189482370cd",
+      "status": "modified",
+      "additions": 0,
+      "deletions": 0,
+      "changes": 0,
+      "raw_url": "https://github.com/vllm-project/humming/raw/948e6fd547e703065be51529ac1db5569256774e/humming%2Ftune%2F__init__.py"
+    },
+    {
+      "filename": "humming/tune/base.py",
+      "sha": "a61b48aa7ebf6dffa602d07096a866fb3691dbb9",
+      "status": "modified",
+      "additions": 0,
+      "deletions": 0,
+      "changes": 0,
+      "raw_url": "https://github.com/vllm-project/humming/raw/948e6fd547e703065be51529ac1db5569256774e/humming%2Ftune%2Fbase.py"
+    },
+    {
+      "filename": "humming/tune/candidate.py",
+      "sha": "6c8f18f7ee24d9081e2f5c7348a09a6a164e2f4e",
+      "status": "added",
+      "additions": 0,
+      "deletions": 0,
+      "changes": 0,
+      "raw_url": "https://github.com/vllm-project/humming/raw/948e6fd547e703065be51529ac1db5569256774e/humming%2Ftune%2Fcandidate.py"
+    },
+    {
+      "filename": "humming/tune/ppu_sm80.py",
+      "sha": "2799138e4e98ffb1a738c2dbd729e5188ee5aa18",
+      "status": "added",
+      "additions": 0,
+      "deletions": 0,
+      "changes": 0,
+      "raw_url": "https://github.com/vllm-project/humming/raw/948e6fd547e703065be51529ac1db5569256774e/humming%2Ftune%2Fppu_sm80.py"
+    },
+    {
+      "filename": "humming/tune/process_input.py",
+      "sha": "9ef8797b8e135597c6401a8c1e034ab1128c16a3",
+      "status": "added",
+      "additions": 0,
+      "deletions": 0,
+      "changes": 0,
+      "raw_url": "https://github.com/vllm-project/humming/raw/948e6fd547e703065be51529ac1db5569256774e/humming%2Ftune%2Fprocess_input.py"
+    },
+    {
+      "filename": "humming/tune/raster.py",
+      "sha": "55eaf4c1661fe3b83e3448626da878a12cfe5f9f",
+      "status": "modified",
+      "additions": 0,
+      "deletions": 0,
+      "changes": 0,
+      "raw_url": "https://github.com/vllm-project/humming/raw/948e6fd547e703065be51529ac1db5569256774e/humming%2Ftune%2Fraster.py"
+    },
+    {
+      "filename": "humming/tune/sm100.py",
+      "sha": "c66169d012dfd04c9f1fae64f198cec5b575c9aa",
+      "status": "modified",
+      "additions": 0,
+      "deletions": 0,
+      "changes": 0,
+      "raw_url": "https://github.com/vllm-project/humming/raw/948e6fd547e703065be51529ac1db5569256774e/humming%2Ftune%2Fsm100.py"
+    },
+    {
+      "filename": "humming/tune/sm120.py",
+      "sha": "91e952babc8806ad86dc7a6b7828f28755783888",
+      "status": "modified",
+      "additions": 0,
+      "deletions": 0,
+      "changes": 0,
+      "raw_url": "https://github.com/vllm-project/humming/raw/948e6fd547e703065be51529ac1db5569256774e/humming%2Ftune%2Fsm120.py"
+    },
+    {
+      "filename": "humming/tune/sm121.py",
+      "sha": "eb031b7b4ab1c772cc26edf3d9db047551a07fe6",
+      "status": "added",
+      "additions": 0,
+      "deletions": 0,
+      "changes": 0,
+      "raw_url": "https://github.com/vllm-project/humming/raw/948e6fd547e703065be51529ac1db5569256774e/humming%2Ftune%2Fsm121.py"
+    },
+    {
+      "filename": "humming/tune/sm75.py",
+      "sha": "9fedfe5536c17f0865fdfbbf88475ffc537eb7d6",
+      "status": "modified",
+      "additions": 0,
+      "deletions": 0,
+      "changes": 0,
+      "raw_url": "https://github.com/vllm-project/humming/raw/948e6fd547e703065be51529ac1db5569256774e/humming%2Ftune%2Fsm75.py"
+    },
+    {
+      "filename": "humming/tune/sm8x.py",
+      "sha": "0c4e342f37ac366a8f3d620b5a8da3d39626fb60",
+      "status": "modified",
+      "additions": 0,
+      "deletions": 0,
+      "changes": 0,
+      "raw_url": "https://github.com/vllm-project/humming/raw/948e6fd547e703065be51529ac1db5569256774e/humming%2Ftune%2Fsm8x.py"
+    },
+    {
+      "filename": "humming/tune/sm90.py",
+      "sha": "4b53a2d0ef4faf36b693e0e68835d67e10005f7b",
+      "status": "modified",
+      "additions": 0,
+      "deletions": 0,
+      "changes": 0,
+      "raw_url": "https://github.com/vllm-project/humming/raw/948e6fd547e703065be51529ac1db5569256774e/humming%2Ftune%2Fsm90.py"
+    },
+    {
+      "filename": "humming/tune/sm90_h20.py",
+      "sha": "9bec0a7b6f4c9ab483a46c1ecee4daeb55b1a8d8",
+      "status": "modified",
+      "additions": 0,
+      "deletions": 0,
+      "changes": 0,
+      "raw_url": "https://github.com/vllm-project/humming/raw/948e6fd547e703065be51529ac1db5569256774e/humming%2Ftune%2Fsm90_h20.py"
+    },
+    {
+      "filename": "humming/tune/sm90_policies.py",
+      "sha": "fb4fa06254f3eb41d410b28965e70f1f6564f438",
+      "status": "added",
+      "additions": 0,
+      "deletions": 0,
+      "changes": 0,
+      "raw_url": "https://github.com/vllm-project/humming/raw/948e6fd547e703065be51529ac1db5569256774e/humming%2Ftune%2Fsm90_policies.py"
+    },
+    {
+      "filename": "humming/utils/cpu.py",
+      "sha": "074333c400aced46e3c02aa2bc0ff6f4f09a6f85",
+      "status": "added",
+      "additions": 0,
+      "deletions": 0,
+      "changes": 0,
+      "raw_url": "https://github.com/vllm-project/humming/raw/948e6fd547e703065be51529ac1db5569256774e/humming%2Futils%2Fcpu.py"
+    },
+    {
+      "filename": "humming/utils/cubin.py",
+      "sha": "d92153019e83425da3a0629b4a0e1157c222ba70",
+      "status": "modified",
+      "additions": 0,
+      "deletions": 0,
+      "changes": 0,
+      "raw_url": "https://github.com/vllm-project/humming/raw/948e6fd547e703065be51529ac1db5569256774e/humming%2Futils%2Fcubin.py"
+    },
+    {
+      "filename": "humming/utils/cuda.py",
+      "sha": "ab72c5b0d5b8544a879502a6785ea15c5d915998",
+      "status": "modified",
+      "additions": 0,
+      "deletions": 0,
+      "changes": 0,
+      "raw_url": "https://github.com/vllm-project/humming/raw/948e6fd547e703065be51529ac1db5569256774e/humming%2Futils%2Fcuda.py"
+    },
+    {
+      "filename": "humming/utils/device.py",
+      "sha": "da8a681295d1cd19d56078a411069c57dd55d837",
+      "status": "modified",
+      "additions": 0,
+      "deletions": 0,
+      "changes": 0,
+      "raw_url": "https://github.com/vllm-project/humming/raw/948e6fd547e703065be51529ac1db5569256774e/humming%2Futils%2Fdevice.py"
+    },
+    {
+      "filename": "humming/utils/jit.py",
+      "sha": "419b77f9c660274958139790a06d34319ee49f25",
+      "status": "modified",
+      "additions": 0,
+      "deletions": 0,
+      "changes": 0,
+      "raw_url": "https://github.com/vllm-project/humming/raw/948e6fd547e703065be51529ac1db5569256774e/humming%2Futils%2Fjit.py"
+    },
+    {
+      "filename": "humming/utils/math.py",
+      "sha": "d1d983a842865d0b1e09b7a06b502a1226a2c5e4",
+      "status": "added",
+      "additions": 0,
+      "deletions": 0,
+      "changes": 0,
+      "raw_url": "https://github.com/vllm-project/humming/raw/948e6fd547e703065be51529ac1db5569256774e/humming%2Futils%2Fmath.py"
+    },
+    {
+      "filename": "humming/utils/nvrtc.py",
+      "sha": "1770c0ca2a1e718df9c1c4626ad183595663cafb",
+      "status": "modified",
+      "additions": 0,
+      "deletions": 0,
+      "changes": 0,
+      "raw_url": "https://github.com/vllm-project/humming/raw/948e6fd547e703065be51529ac1db5569256774e/humming%2Futils%2Fnvrtc.py"
+    },
+    {
+      "filename": "humming/utils/smem.py",
+      "sha": "65182e759c339ddc8b9b6cae3e1fc5aebf88b3d8",
+      "status": "modified",
+      "additions": 0,
+      "deletions": 0,
+      "changes": 0,
+      "raw_url": "https://github.com/vllm-project/humming/raw/948e6fd547e703065be51529ac1db5569256774e/humming%2Futils%2Fsmem.py"
+    },
+    {
+      "filename": "humming/utils/weight.py",
+      "sha": "7a007244904a9562d9713205b3f28abd84eddb86",
+      "status": "modified",
+      "additions": 0,
+      "deletions": 0,
+      "changes": 0,
+      "raw_url": "https://github.com/vllm-project/humming/raw/948e6fd547e703065be51529ac1db5569256774e/humming%2Futils%2Fweight.py"
+    },
+    {
+      "filename": "pyproject.toml",
+      "sha": "c4fdaaced75178bafe89fdf5a7ccd1537c241135",
+      "status": "modified",
+      "additions": 0,
+      "deletions": 0,
+      "changes": 0,
+      "raw_url": "https://github.com/vllm-project/humming/raw/948e6fd547e703065be51529ac1db5569256774e/pyproject.toml"
+    },
+    {
+      "filename": "tests/kernels/humming/test_accumulation.py",
+      "sha": "22d87e7f0bc02db1ec52d0e6bb2795388dbd9ae5",
+      "status": "modified",
+      "additions": 0,
+      "deletions": 0,
+      "changes": 0,
+      "raw_url": "https://github.com/vllm-project/humming/raw/948e6fd547e703065be51529ac1db5569256774e/tests%2Fkernels%2Fhumming%2Ftest_accumulation.py"
+    },
+    {
+      "filename": "tests/kernels/humming/test_block_scaled.py",
+      "sha": "faf41f6cd255ffb0b9f5ad7a4603321baddfa5ae",
+      "status": "renamed",
+      "additions": 0,
+      "deletions": 0,
+      "changes": 0,
+      "raw_url": "https://github.com/vllm-project/humming/raw/948e6fd547e703065be51529ac1db5569256774e/tests%2Fkernels%2Fhumming%2Ftest_block_scaled.py"
+    },
+    {
+      "filename": "tests/kernels/humming/test_datatype.py",
+      "sha": "ea695f0b7f5083e2915e879e07eebc62f4d4c2f6",
+      "status": "modified",
+      "additions": 0,
+      "deletions": 0,
+      "changes": 0,
+      "raw_url": "https://github.com/vllm-project/humming/raw/948e6fd547e703065be51529ac1db5569256774e/tests%2Fkernels%2Fhumming%2Ftest_datatype.py"
+    },
+    {
+      "filename": "tests/kernels/humming/test_moe.py",
+      "sha": "fa52b55601b739139f1be482d363511357e1d302",
+      "status": "modified",
+      "additions": 0,
+      "deletions": 0,
+      "changes": 0,
+      "raw_url": "https://github.com/vllm-project/humming/raw/948e6fd547e703065be51529ac1db5569256774e/tests%2Fkernels%2Fhumming%2Ftest_moe.py"
+    },
+    {
+      "filename": "tests/kernels/humming/test_mxfp4.py",
+      "sha": "027d541918f1505cb809f7134d1842241e57505a",
+      "status": "modified",
+      "additions": 0,
+      "deletions": 0,
+      "changes": 0,
+      "raw_url": "https://github.com/vllm-project/humming/raw/948e6fd547e703065be51529ac1db5569256774e/tests%2Fkernels%2Fhumming%2Ftest_mxfp4.py"
+    },
+    {
+      "filename": "tests/kernels/humming/test_scale.py",
+      "sha": "b488fd1021e1220ab6868af59b3f8a349c0aaa94",
+      "status": "modified",
+      "additions": 0,
+      "deletions": 0,
+      "changes": 0,
+      "raw_url": "https://github.com/vllm-project/humming/raw/948e6fd547e703065be51529ac1db5569256774e/tests%2Fkernels%2Fhumming%2Ftest_scale.py"
+    },
+    {
+      "filename": "tests/kernels/humming/test_shape.py",
+      "sha": "90ea47fd1201fde23a6df3adb6c9314211a63b3e",
+      "status": "modified",
+      "additions": 0,
+      "deletions": 0,
+      "changes": 0,
+      "raw_url": "https://github.com/vllm-project/humming/raw/948e6fd547e703065be51529ac1db5569256774e/tests%2Fkernels%2Fhumming%2Ftest_shape.py"
+    },
+    {
+      "filename": "tests/kernels/humming/test_special_paths.py",
+      "sha": "9dc3607d3e22b77795fba28d7447f86ff8a7c8c2",
+      "status": "modified",
+      "additions": 0,
+      "deletions": 0,
+      "changes": 0,
+      "raw_url": "https://github.com/vllm-project/humming/raw/948e6fd547e703065be51529ac1db5569256774e/tests%2Fkernels%2Fhumming%2Ftest_special_paths.py"
+    },
+    {
+      "filename": "tests/kernels/humming/test_zero_point.py",
+      "sha": "417141794f4b584c8bc07ab97d776aaf103f565c",
+      "status": "modified",
+      "additions": 0,
+      "deletions": 0,
+      "changes": 0,
+      "raw_url": "https://github.com/vllm-project/humming/raw/948e6fd547e703065be51529ac1db5569256774e/tests%2Fkernels%2Fhumming%2Ftest_zero_point.py"
+    },
+    {
+      "filename": "tests/kernels/process_input/test_layout.py",
+      "sha": "8486a10d1cbebf0327291943d79348f10d9775e1",
+      "status": "added",
+      "additions": 0,
+      "deletions": 0,
+      "changes": 0,
+      "raw_url": "https://github.com/vllm-project/humming/raw/948e6fd547e703065be51529ac1db5569256774e/tests%2Fkernels%2Fprocess_input%2Ftest_layout.py"
+    },
+    {
+      "filename": "tests/kernels/process_input/test_matrix.py",
+      "sha": "4a6357389dc1da2e3f8a3c5884cbe60840574769",
+      "status": "added",
+      "additions": 0,
+      "deletions": 0,
+      "changes": 0,
+      "raw_url": "https://github.com/vllm-project/humming/raw/948e6fd547e703065be51529ac1db5569256774e/tests%2Fkernels%2Fprocess_input%2Ftest_matrix.py"
+    },
+    {
+      "filename": "tests/kernels/process_input/test_scale.py",
+      "sha": "cd4d1869c7c6affd959330ec6902d6b26fca7de8",
+      "status": "added",
+      "additions": 0,
+      "deletions": 0,
+      "changes": 0,
+      "raw_url": "https://github.com/vllm-project/humming/raw/948e6fd547e703065be51529ac1db5569256774e/tests%2Fkernels%2Fprocess_input%2Ftest_scale.py"
+    },
+    {
+      "filename": "tests/native/device_info_mock.cpp",
+      "sha": "472cc824ccd41da4f853ac4373212dae42804830",
+      "status": "added",
+      "additions": 0,
+      "deletions": 0,
+      "changes": 0,
+      "raw_url": "https://github.com/vllm-project/humming/raw/948e6fd547e703065be51529ac1db5569256774e/tests%2Fnative%2Fdevice_info_mock.cpp"
+    },
+    {
+      "filename": "tests/test_hadamard.py",
+      "sha": "cb2664350629f1c4eb3d7a21c725e0c28a7b0c70",
+      "status": "removed",
+      "additions": 0,
+      "deletions": 0,
+      "changes": 0,
+      "raw_url": "https://github.com/vllm-project/humming/raw/636ba85648c30ae2c2bfb335c9399593a67ecc1d/tests%2Ftest_hadamard.py"
+    },
+    {
+      "filename": "tests/test_hadamard_quant.py",
+      "sha": "15f13dca237155dab401b48b9688ec5bdbd6df25",
+      "status": "removed",
+      "additions": 0,
+      "deletions": 0,
+      "changes": 0,
+      "raw_url": "https://github.com/vllm-project/humming/raw/636ba85648c30ae2c2bfb335c9399593a67ecc1d/tests%2Ftest_hadamard_quant.py"
+    },
+    {
+      "filename": "tests/test_jit_infrastructure.py",
+      "sha": "a03516c735d9217a35eca204679ba62c43515cb1",
+      "status": "modified",
+      "additions": 0,
+      "deletions": 0,
+      "changes": 0,
+      "raw_url": "https://github.com/vllm-project/humming/raw/948e6fd547e703065be51529ac1db5569256774e/tests%2Ftest_jit_infrastructure.py"
+    },
+    {
+      "filename": "tests/test_sm8x_heuristics.py",
+      "sha": "d53050f09f099c64232d66a7e42a10ecc190d47a",
+      "status": "added",
+      "additions": 0,
+      "deletions": 0,
+      "changes": 0,
+      "raw_url": "https://github.com/vllm-project/humming/raw/948e6fd547e703065be51529ac1db5569256774e/tests%2Ftest_sm8x_heuristics.py"
+    },
+    {
+      "filename": "tests/test_sm90_h20_heuristics.py",
+      "sha": "ffaf5a0d8e9654322b31e5a15b294d0d71fecdca",
+      "status": "added",
+      "additions": 0,
+      "deletions": 0,
+      "changes": 0,
+      "raw_url": "https://github.com/vllm-project/humming/raw/948e6fd547e703065be51529ac1db5569256774e/tests%2Ftest_sm90_h20_heuristics.py"
+    },
+    {
+      "filename": "tests/test_sm90_heuristics.py",
+      "sha": "c0aa1d91f59264b0afb70d931d53ec58338fa0b0",
+      "status": "added",
+      "additions": 0,
+      "deletions": 0,
+      "changes": 0,
+      "raw_url": "https://github.com/vllm-project/humming/raw/948e6fd547e703065be51529ac1db5569256774e/tests%2Ftest_sm90_heuristics.py"
+    },
+    {
+      "filename": "tests/test_tuning_candidates.py",
+      "sha": "e5ee287cde7ef3769f5444d827ba8feaa15db6a5",
+      "status": "added",
+      "additions": 0,
+      "deletions": 0,
+      "changes": 0,
+      "raw_url": "https://github.com/vllm-project/humming/raw/948e6fd547e703065be51529ac1db5569256774e/tests%2Ftest_tuning_candidates.py"
+    }
+  ]
+}

@@ -1,0 +1,50 @@
+{
+  "analysis.json": {
+    "bytes": 5666,
+    "sha256": "4ed25c21c902fe88d0ac9649afc21832a9ee2864d311f37226285eb23aedc3f8"
+  },
+  "analyze.py": {
+    "bytes": 3365,
+    "sha256": "fae54c0f6818e724dc260ce6852240c23d133ba981c6a735a4bec7030a9daf58"
+  },
+  "compare_versions.py": {
+    "bytes": 1509,
+    "sha256": "0f22bc7c01cbaeefd876006d0694217130643cd6719190e4ffc878e6417a5e62"
+  },
+  "decision.json": {
+    "bytes": 1401,
+    "sha256": "07b2bfd9a12b6a2f6b2725a8f8f31f920cfbfcf0930eac6898bcbed062e409f0"
+  },
+  "finalize.py": {
+    "bytes": 2480,
+    "sha256": "e0821dd4d1c44ab186af89221f3a0c7454e4649c256823df2549708c217589ae"
+  },
+  "humming-version-delta.json": {
+    "bytes": 65506,
+    "sha256": "bbee78ea195fa8dc8124786d4861db5ad3d3500a0afde85fa4d3a3562ff78ba4"
+  },
+  "intake-paths.json": {
+    "bytes": 17850,
+    "sha256": "f048e083c32e2c2745dcd4b2b20894f0f384b1e3456e49ba9d1a6348058dd940"
+  },
+  "intake-receipts.json": {
+    "bytes": 368,
+    "sha256": "ecdd2630b340f44f3e57cb48383f68d8021fda0f371869232cba331178da34ca"
+  },
+  "intake.py": {
+    "bytes": 2402,
+    "sha256": "68e3fc22df2d7fae56474fabae0579401b76d3490a6e5d0e3aa518b19d24e15f"
+  },
+  "prior-source-manifest.json": {
+    "bytes": 757,
+    "sha256": "f89e69ee39c4a6ba5341a546c3eeb9bcd8b0aa01a8b4ea4844b797d89a33f1b5"
+  },
+  "source-manifest.json": {
+    "bytes": 61156,
+    "sha256": "8aa1d2971e13c705587ec876522c9871e915db2e87e640ea2ddf53aa12ce4baf"
+  },
+  "tree.json": {
+    "bytes": 92253,
+    "sha256": "a118d9e551bdcaa73644cdea1969a151fd9863592e13acdd59f7f92f2e7982a8"
+  }
+}

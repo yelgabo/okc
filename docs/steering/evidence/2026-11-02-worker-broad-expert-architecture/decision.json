@@ -1,0 +1,33 @@
+{
+  "at_utc": "2026-11-02T19:32:28.909774+00:00",
+  "head": "409757ec7fb4210a5f2cf10411fc172c9854966d",
+  "pin": "948e6fd547e703065be51529ac1db5569256774e",
+  "prior_pin": "636ba85648c30ae2c2bfb335c9399593a67ecc1d",
+  "inspected_paths": [
+    "humming/layer.py",
+    "humming/forward.py",
+    "humming/ops/gemm.py",
+    "humming/kernel/humming.py",
+    "humming/schema/humming.py",
+    "humming/config/mma.py",
+    "humming/config/enum.py",
+    "humming/tune/sm90.py",
+    "humming/tune/sm90_policies.py",
+    "humming/include/humming/scheduler.cuh",
+    "humming/include/humming/kernel/humming_ws.cuh",
+    "humming/include/humming/datatype/dequant.cuh",
+    "humming/include/humming/datatype/dequant_fused.cuh",
+    "humming/include/humming/datatype/dequant_prepare.cuh",
+    "humming/include/humming/arith/mainloop_arith.cuh",
+    "humming/include/humming/arith/epilogue_arith.cuh",
+    "tests/kernels/humming/test_moe.py",
+    "LICENSE"
+  ],
+  "scratch_only_third_party_directory": "/mnt/c/Users/gretc/Documents/GitHub/okc/.build/worker-broad-expert-architecture",
+  "foreign_source_published": false,
+  "acquired_files": 153,
+  "source_hash_verification": "PASS",
+  "source_acquisition_scope": "All humming/ implementation and API files plus README/LICENSE/MoE test at immutable tree; focused review paths listed separately.",
+  "decision": "NO ADEQUATE PATH FOUND",
+  "measured_savings": null
+}
