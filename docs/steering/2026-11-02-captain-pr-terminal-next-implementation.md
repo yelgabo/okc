@@ -40,3 +40,7 @@ This does not renew parked short serial-front or G224: front/router/unpool and l
 ## Immediate owners and remaining gaps
 
 Worker owns terminal archive, then this one offline prototype. Captain owns shared index/run/ruled-out rows and independent review. Researcher has completed the source screen; no further survey or competing GPU allocation is opened. Terminal PR compatibility failure has changed the next action; it has not produced a qualified winner. No standing permission is inferred from unused scored quota. Revisit target measurements only with eligible implemented evidence and a new explicit allocation after quota/permission reconciliation.
+
+### Later same-task reconciliation
+
+Worker received the user's direct "retry" at15:10UTC and checked authenticated quota at15:11UTC: still zero private checks and no live layer job. Its report `2026-11-02-worker-pr-retry-blocked.md`, commit `c9c54a871c30c717d651b670e2b1981839be4f57`, records no POST, source repair, compiler/GPU action or scored substitution. This user request is not denied by the preceding captain allocation closure; its immediate execution is quota-blocked and an unchanged upload would still fail the retained build contract. No reset-time job is scheduled. The separate offline T1 task starts after that completed blocked-retry response and does not authorize replacing private retry with public measurement. Consumed terminal and retry notifications were reconciled and removed from the captain queue rather than left as duplicate wakeups.
