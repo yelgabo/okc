@@ -1,0 +1,67 @@
+{
+  "scope": "Pinned header-equation CPU model, NOT native occupancy execution or target measurement",
+  "header_sha256": "163b8f296ef2a33c799e2dc8c525b37166da9217bcc6a3c1d26b1c10aca5e22b",
+  "threads_per_block": 320,
+  "warps_per_block": 10,
+  "assumptions": {
+    "registers_per_sm": 65536,
+    "registers_per_block": 65536,
+    "warp_size": 32,
+    "register_allocation_granularity": 256,
+    "subpartitions": 4,
+    "partitioned_gc": "off"
+  },
+  "two_cta_necessary_uniform_register_ceiling": 96,
+  "unrounded_incorrect_ceiling": 102,
+  "rows": [
+    {
+      "registers": 80,
+      "allocated_per_warp": 2560,
+      "warps_per_partition": 6,
+      "register_only_block_limit": 2
+    },
+    {
+      "registers": 88,
+      "allocated_per_warp": 2816,
+      "warps_per_partition": 5,
+      "register_only_block_limit": 2
+    },
+    {
+      "registers": 96,
+      "allocated_per_warp": 3072,
+      "warps_per_partition": 5,
+      "register_only_block_limit": 2
+    },
+    {
+      "registers": 97,
+      "allocated_per_warp": 3328,
+      "warps_per_partition": 4,
+      "register_only_block_limit": 1
+    },
+    {
+      "registers": 100,
+      "allocated_per_warp": 3328,
+      "warps_per_partition": 4,
+      "register_only_block_limit": 1
+    },
+    {
+      "registers": 102,
+      "allocated_per_warp": 3328,
+      "warps_per_partition": 4,
+      "register_only_block_limit": 1
+    },
+    {
+      "registers": 104,
+      "allocated_per_warp": 3328,
+      "warps_per_partition": 4,
+      "register_only_block_limit": 1
+    },
+    {
+      "registers": 128,
+      "allocated_per_warp": 4096,
+      "warps_per_partition": 4,
+      "register_only_block_limit": 1
+    }
+  ],
+  "target_occupancy": null
+}

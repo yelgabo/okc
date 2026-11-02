@@ -1,5 +1,13 @@
 # Ruled out
 
+## November 2 UTC 2026 corrected-storage G2/24 fixed resource stop
+
+| Treatment | Evidence | Scope and reopening condition |
+| --- | --- | --- |
+| Fixed320-thread FT24 corrected routing-prefix union, nativeed082519, dynamic115328 | Worker04e0838; MAIN false/true96regs,16barriers,224Bstack,364/260Bspill stores/loads; B4 false/true96regs,16barriers,208Bstack,384/280Bspills. Same-Smem secondary probes PASS; captain9/9CPU PASS. steering/2026-11-02-g2-compiled-resource-decision.md. | STOP exact implementation under registered zero-stack/spill gate. Not timing loss, target residency failure or all-twoCTA-family rejection. Full progress/numerics/target gates incomplete; Python1023788B fails archived upload budget. No packaging/cap/ring/shape sweep or GPU allocation. Existing read-only attribution may motivate a separately justified mechanism; no automatic rescue or gate relaxation. |
+
+
+
 ## November 2 UTC 2026 fixed G2/24 admission-accounting stop
 
 | Treatment | Evidence | Scope and reopening condition |
