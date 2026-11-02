@@ -1,5 +1,28 @@
 # okc: Open Kernel Challenge work
 
+## P0 user directive: decode batch 32 (2026-11-02)
+
+The user explicitly reiterated: **"make it priority for them please"**.
+**OK Driver and OKC Developer: improving decode batch 32 is the primary next
+performance assignment**, not optional background research. This means T=32,
+q_len=1, with `46 * sliding_us + 16 * full_us`; it is not verify32/T256.
+Read [the owner directive](docs/steering/2026-11-02-decode32-owner-directive.md)
+and record actual pickup there. Preserve local work when fetching updates.
+
+OK Driver remains sole dispatcher. Finish/reconcile accepted job
+`0b684a4065354fc5` without duplicate submission, and report its two D32 cells
+and weighted total first. Deliver this priority to OKC Developer through the
+existing coordination channel and record delivery and acknowledgment separately.
+OKC Developer prioritizes the T32/B4 expert path in both contexts, then D32
+full-context attention, keeping other load winners unchanged. Pause new
+unrelated T1/T8 or T128/256-only performance work unless it is a necessary
+correctness/measurement dependency or the user changes priority. The first
+milestone is a reproducible D32 2.0x from the recorded 1.8632x, then 2.1-2.2x;
+these are targets, not promised gains. Existing correctness, frozen-run stop
+rules and submission permissions remain. This directive does not authorize a
+second dispatcher, new agents, duplicate jobs or public submission. A commit
+is not evidence of direct delivery or agent acknowledgment.
+
 Background and decisions: `docs/context.md`. Coordinator working method (agents, quota,
 submits, porting, traps): `.claude/agents/okc-coordinator.md`. Every run: `docs/runs.md` (bf16_proj),
 `docs/runs-moe.md`, `docs/runs-attention.md`.
@@ -29,7 +52,7 @@ scored submissions beyond the user's existing permissions.
 
 Apply these principles when choosing work, reviewing results and handing off. Use the latest steering report for current priorities and reuse current dated evidence instead of repeating completed investigations.
 
-1. **Own discovery.** Search for stronger methods independently of user-supplied names. Search challenge/problem identifiers, inspect later result pages, and follow leaderboard handles, forks, upstream credits and primary research. Record queries, date, scope, access limits and useful pins. A search miss establishes only the result of that search. Distinguish independent discoveries from user-supplied leads.
+1. **Own discovery.** Search for stronger methods independently of user-supplied names. Search challenge/problem identifiers, inspect later result pages, and follow leaderboard handles, forks, upstream credits and primary research. Record queries, date, scope, access limits and useful pins. A search miss establishes only that a search found no matches. Distinguish independent discoveries from user-supplied leads.
 2. **Choose by the user's objective.** Compare plausible end-to-end benefit, implementation cost, uncertainty and quota with the strongest alternative before another experiment round. Reconsider the roadmap when evidence changes. A backlog entry or interesting local improvement does not establish priority. State what observation would change the choice.
 3. **Let evidence choose the starting point.** Our implementation must earn its place as the base. Compare a complete alternative before deciding to graft isolated ideas onto ours; choose a different base or a measured hybrid when evidence and the user's adoption policy support it. Identify necessary computation, bytes moved, producer/consumer dependencies and actual selected routes. Derive a materially different design before renewing local tuning and size its contribution to the real weighted score. Profiler totals, peak hardware rates and logical duplicate bytes alone do not establish exposed time that can be saved.
 4. **Compare complete implementations and choose per workload.** Pin and reproduce the full file, including preparation, packing, dispatch, scheduling and epilogues, before selecting individual ideas. A route may win on one workload and lose on another. Compare the actual choices per shape, preserve standalone and layer decisions, then measure the complete combined dispatcher rather than adding isolated gains. Shared ancestry does not establish performance parity. Separate a team's best leaderboard row, a published file's own result and a fresh matched comparison. Read active build flags and selected code paths. Record attribution, precision and ordering obligations before adoption.

@@ -2,6 +2,12 @@
 
 This is the stable cross-session entry point. Read the latest human priority, its evidence snapshot and subsequent commits before continuing. Existing captain/worker ownership, correctness requirements and submission permissions remain in effect. A report is not an additional GPU dispatch.
 
+## P0 owner assignment: OK Driver and OKC Developer
+
+**[November 2: Explicit decode32 owner directive and pickup ledger](2026-11-02-decode32-owner-directive.md)** — the user reiterated "make it priority for them please". D32 is the primary next performance assignment, ahead of unrelated short-load or large-verify-only work. The directive is also at the top of both root instruction files, `AGENTS.md` and `CLAUDE.md`.
+
+**Captain pickup is now confirmed:** concurrent commit `5b4a729a` explicitly adopted D32, deferred the unstarted broad dense-backing proposal, and allocated the fixed MID-at-T32 comparison below. Actual app delivery after5b4a729a remote verification and explicit23:43UTC developer pickup/firsttools/d32_mid_family.py are now recorded in the directive ledger and captain coordination evidence. This documentation update preserves that live allocation and creates no duplicate task, dispatcher, GPU run or public permission.
+
 ## Latest human priority: concentrate on decode batch 32
 
 **[November 2: Decode32 priority and weighted improvement plan](2026-11-02-decode32-priority.md)** — evidence `b325b965`. The user explicitly selects the `22.149 ms / 11.888 ms / 1.8632x` decode-batch32 row as the next objective. It is T32/q_len1, not verify32/T256. The row is `46*sliding + 16*full`, approximately 60% sliding and 40% full. First milestone: 2x, requiring 0.8135 ms saved from this load; 2.2x requires 1.8203 ms. These would contribute about 1.19%/2.81% to the six-load layer score if everything else stayed fixed, not guaranteed overall rank movements.
@@ -26,6 +32,7 @@ Captain retains one current-service unchanged607 calibration, then one cheap fix
 
 | Report | Evidence | Scope |
 |---|---|---|
+| [Decode32 owner directive](2026-11-02-decode32-owner-directive.md) | b9ca9dff and captain5b4a729a; explicit user follow-up | P0 in root instructions; captain pickup, direct developer delivery and explicit23:43UTC acknowledgment confirmed; current control94ef accepted |
 | [Captain D32 MID comparison](2026-11-02-driver-d32-mid-comparison.md) | b9ca9dff human priority; own0b terminal; source auditba9/b8 | DirectD32 negative closure, current-service control and fixed existing MID17..32 exploration; no new shader/math/packing/sweep |
 | [Direct terminal and superseded broad proposal](2026-11-02-driver-direct-weight-terminal-and-dense-backing.md) | own0b684a40;368b85c9; fullraw/profiles;23:33UTC | ExactPARK; broad P1 superseded before delivery; P0 calibration retained |
 | [Decode32 priority](2026-11-02-decode32-priority.md) | b325b965; public607; fresh cc474 profile; user row | D32-first target, weighted budgets, B4/full-decode attention order, running direct-weight reconciliation, shape-specific confirmation and all-load regression protection |
