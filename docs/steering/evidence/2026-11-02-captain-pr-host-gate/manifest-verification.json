@@ -1,0 +1,116 @@
+[
+  {
+    "path": "tools/g_pr_graph_owner_events.py",
+    "bytes": 5639,
+    "sha256": "63ed2416f8d52e801ea8067b26b4def6cc6d12dd5a0cfe0dedef5de9e8849bd8",
+    "pass": true
+  },
+  {
+    "path": "tools/test_g_pr_graph_owner_events.py",
+    "bytes": 6098,
+    "sha256": "3731ba6655677ab5a76984d67cf09b0b56190c0a7edde07e1ff7ccbb03000c7b",
+    "pass": true
+  },
+  {
+    "path": "docs/steering/2026-11-02-worker-pr-graph-owner-events.md",
+    "bytes": 6945,
+    "sha256": "aa028bdd4c76f2007fb70721b4196c48a87da02c7abaeefea5156c40b8f51e3a",
+    "pass": true
+  },
+  {
+    "path": "docs/steering/evidence/2026-11-02-worker-pr-graph-owner-events/cpu-final-stderr.txt",
+    "bytes": 2873,
+    "sha256": "fd752df9b4fcf702d7fc36577ecc3649af1216bb2c8940661f215542e55a5571",
+    "pass": true
+  },
+  {
+    "path": "docs/steering/evidence/2026-11-02-worker-pr-graph-owner-events/cpu-final.txt",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "pass": true
+  },
+  {
+    "path": "docs/steering/evidence/2026-11-02-worker-pr-graph-owner-events/cpu.txt",
+    "bytes": 6296,
+    "sha256": "cace17b885d609f85a20e848cba1502dd601d7c1539dd2268ee78a145f5c5348",
+    "pass": true
+  },
+  {
+    "path": "docs/steering/evidence/2026-11-02-worker-pr-graph-owner-events/event-primary.html",
+    "bytes": 94019,
+    "sha256": "2111973053bad763cb3cc9dcc2d0fde3cd20e2abd92e09758713738ac2365f14",
+    "pass": true
+  },
+  {
+    "path": "docs/steering/evidence/2026-11-02-worker-pr-graph-owner-events/primary__ctx-primary.html",
+    "bytes": 85692,
+    "sha256": "a64d6acd60b684508a54f4952f6055ecc29a14c5fd1d69774cc98be67a0a3f5e",
+    "pass": true
+  },
+  {
+    "path": "docs/steering/evidence/2026-11-02-worker-pr-graph-owner-events/vmm-primary.html",
+    "bytes": 150841,
+    "sha256": "68875e7d1799d14101ec39f35e9300a95fad327f4d705307ce1342b952bf8f2d",
+    "pass": true
+  },
+  {
+    "path": "docs/steering/evidence/2026-11-02-worker-pr-graph-owner-events/generated/candidate.py",
+    "bytes": 881228,
+    "sha256": "c7b31929b173c883d0f69c7168c5b89f6e044e6bd9872dd307967b6406d41fc9",
+    "pass": true
+  },
+  {
+    "path": "docs/steering/evidence/2026-11-02-worker-pr-graph-owner-events/generated/generation.json",
+    "bytes": 302,
+    "sha256": "1a7680cbb7b6b43b718f2a6900c38347b3816a29caf92a3e18c6e5dd4daa0d22",
+    "pass": true
+  },
+  {
+    "path": "docs/steering/evidence/2026-11-02-worker-pr-graph-owner-events/generated/host.cpp",
+    "bytes": 9309,
+    "sha256": "e5c134c14df309a381d5e5157bf89ff20238198ffe623866ad9cec8604b70e22",
+    "pass": true
+  },
+  {
+    "path": "tools/g_pr_graph_owner_relaxed.py",
+    "bytes": 3093,
+    "sha256": "f252a3819794e7a9027406c8513faa1b47028c0c87ed91351a457cc3caa4cd37",
+    "pass": true
+  },
+  {
+    "path": "tools/test_g_pr_graph_owner_relaxed.py",
+    "bytes": 3596,
+    "sha256": "61de412b424beb344c6545d0a60a0b15ceed15381eff616cc99c3ff829e5eff7",
+    "pass": true
+  },
+  {
+    "path": "docs/steering/2026-11-02-worker-pr-graph-owner-relaxed.md",
+    "bytes": 5596,
+    "sha256": "2282a02a2ca3f35794c8d71a6610444a3cc396ce78226c6fd9c60143b1fcc012",
+    "pass": true
+  },
+  {
+    "path": "docs/steering/evidence/2026-11-02-worker-pr-graph-owner-relaxed/cpu.txt",
+    "bytes": 3200,
+    "sha256": "2ad14ba57a00d48124fa95db8fe4d6c37176e8a2097910e4036855f2a390ec5c",
+    "pass": true
+  },
+  {
+    "path": "docs/steering/evidence/2026-11-02-worker-pr-graph-owner-relaxed/generated/candidate.py",
+    "bytes": 881883,
+    "sha256": "4c6d3f13e0b9c72c4d4ab67f440a35f6ae39a954c818f78d35f3ff3d9090423b",
+    "pass": true
+  },
+  {
+    "path": "docs/steering/evidence/2026-11-02-worker-pr-graph-owner-relaxed/generated/generation.json",
+    "bytes": 408,
+    "sha256": "b47c67cd41d3d2d2c943a2768fa4c61dd3e3a49c43ade640e33dc537d65678db",
+    "pass": true
+  },
+  {
+    "path": "docs/steering/evidence/2026-11-02-worker-pr-graph-owner-relaxed/generated/host.cpp",
+    "bytes": 9963,
+    "sha256": "a61640986eb181394636fa88b210e4ad6dccccf31617a3959ea17954f8762ca9",
+    "pass": true
+  }
+]

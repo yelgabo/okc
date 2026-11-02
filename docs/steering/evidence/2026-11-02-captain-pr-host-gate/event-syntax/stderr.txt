@@ -1,0 +1,8 @@
+In file included from /root/.cache/okc-host-validate/lib/python3.14/site-packages/torch/include/torch/csrc/Device.h:5,
+                 from /root/.cache/okc-host-validate/lib/python3.14/site-packages/torch/include/torch/csrc/api/include/torch/python.h:9,
+                 from /root/.cache/okc-host-validate/lib/python3.14/site-packages/torch/include/torch/extension.h:10,
+                 from /mnt/c/Users/gretc/Documents/GitHub/okc/docs/steering/evidence/2026-11-02-worker-pr-graph-owner-events/generated/host.cpp:2:
+/root/.cache/okc-host-validate/lib/python3.14/site-packages/torch/include/torch/csrc/python_headers.h:13:10: fatal error: Python.h: No such file or directory
+   13 | #include <Python.h>
+      |          ^~~~~~~~~~
+compilation terminated.
