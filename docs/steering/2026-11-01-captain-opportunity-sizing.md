@@ -2,6 +2,16 @@
 
 November 1,2026 Pacific / November 2 UTC. Evidence: owning measured run **c1931f0c9e834485**, archive **516a93a4fc5fc882565ff0d67661b03d798e2480**; paired failure archive **d756f298b7f52cba8c0b6baf46497b4ee0701d22**. This is scope arithmetic for allocating work, not a new optimization or forecast. Previous goal turn made progress by archiving the stop decision and sending bounded diagnosis; this turn adds independently reconstructed opportunity sizing and changes the research priority.
 
+## Published frontier decision
+
+November2 UTC reconciliation, evidence commit **553e36fcd10866b954a6171995a61ddff319f69a**: [researcher complete legal-frontier report](2026-11-01-legal-frontier-research.md) supersedes the pending-report wording in the earlier readiness addendum. Captain read its complete report and concurs with the narrow source distinction: G already defers bookkeeping/carries sequence state; nonsplit MAIN/B4 still executes actual nonlinear epilogue arithmetic on compute warpgroups after WGMMA completion. This identifies a research question, not measured exposed savings or a new qualified candidate.
+
+**Decision:** do not commission a naive shared-mailbox rewrite. Selected MAIN has231168B dynamic shared against233472B, only2304B headroom; the proposed minimum FP32 mailbox is8192B before double buffering. Global buffering or lifetime aliasing needs a bounded lifetime/progress/publication proof and an exposed-time case before implementation allocation. Existing Tiny helper offload and generic stitching are not independent new candidates. Preserve exact BF16 boundaries, FP32 SiLU arithmetic, norm and ordering. No direct MonoMoE/SM100 packed-exp adoption is eligible from this research.
+
+**Next owners and stopping gates:** worker continues only own accepted **c5e4f89672f743bb**, wait11629, frozen-reader/terminal/archive decision. Acceptance **cc80a2c**, upload785a90ca/924005B, postaccept7private/5scored and3/4 tranche slots remain the latest published acceptance evidence, not a terminal or promotion. Slot4 is fresh heldout only after valid qualification; another instrument failure stops RMW allocation. Researcher completes only the already authorized20minute fixed MAIN gamma baseline/OFF/ON offline screen; resource failure closes that screen, pass only reopens resource eligibility, not GPU/port authorization. No extra RMW prerequisite, sweep, or public/scored permission. Captain retains README/index and next allocation after actual results.
+
+**Gap that changes direction:** legal mailbox fit/progress plus evidence of materially exposed nonlinear time, or a complete legal alternative winning matched whole-layer measurements. Static traffic arithmetic, compiler success and literature speedups alone do not meet that gate. Last timestamped rank remains the02:06:57UTC snapshot below; no new rank query or public score change is claimed here.
+
 ## Current target and failed experiment
 
 Official CLI snapshots at **November2 02:06:57UTC** show overall **329/1833**, layer **329/1173**, our public speedup **2.1261**, layer rank100 **Cekaru2.2562**, job **d91101bb0e774cbd**. The rounded layer cutoff ratio is **1.06119185**. Overall is separately queried; no universal ranking formula is inferred. These are time-stamped standings, not a fixed deadline target. Private results cannot change our public entry.
