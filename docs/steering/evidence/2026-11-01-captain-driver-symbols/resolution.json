@@ -1,0 +1,20 @@
+{
+  "scope": "Local library load and symbol resolution only; no CUDA API invoked, no host compilation or target proof",
+  "libraries": [
+    {
+      "path": "/usr/lib/wsl/lib/libcuda.so",
+      "symbols": {
+        "cuGraphGetNodes": true,
+        "cuGraphNodeGetType": true,
+        "cuGraphKernelNodeGetParams_v2": true,
+        "cuGraphGetEdges_v2": true
+      }
+    },
+    {
+      "path": "/root/.cache/okc-cuda130/nvidia/cu13/lib/libcudart.so.13",
+      "symbols": {
+        "cudaGetFuncBySymbol": true
+      }
+    }
+  ]
+}
