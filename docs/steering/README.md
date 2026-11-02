@@ -1,5 +1,8 @@
 # Shared project steering
 
+Latest bounded implementation: [ONE chunk-phased G2 gather schedule](2026-11-02-captain-chunk-phased-allocation.md). Existing worker ordinal11 started: fixed eight-row batches but two sequential chunk phases to reduce simultaneous payload/address storage; all arithmetic/geometry/publication unchanged. Source-derived captain witness24counts/171ranges PASS, not transformed/native/progress proof. Maximum30min, same four-entry offline screen; ANY remaining stack/spills STOP, no second rescue. NoGPU/CLI/packaging/default/public action. Prior exacted082519 STOP remains. Researcher old-binary attribution separately active; zero qualified winners.
+
+
 Latest captain resource decision: [Corrected G2/24 fixed four-entry resource STOP](2026-11-02-g2-compiled-resource-decision.md). Worker04e0838 independently verified: all28 changed remote paths and27 archived manifest entries; captain9/9CPU PASS. MAIN and B4 both bools96regs/16barriers but224/208B stack and nonzero spills. Actual secondary compiled layout passes; NOT target NVCC/occupancy/numerical/timing evidence. Exact implementation stopped under registered gate; no packaging/sweep/GPU. Existing researcher has bounded read-only spill attribution, not rescue authorization. Incumbent unchanged, zero qualified new winners. Earlier active allocation paragraphs below are historical.
 
 
