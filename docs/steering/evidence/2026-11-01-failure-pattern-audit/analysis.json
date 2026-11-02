@@ -1,0 +1,50 @@
+{
+  "scope": "Six named recent G jobs, not all campaign jobs, provider errors or all performance experiments. Status reads only, no dispatch.",
+  "receipt_evidence_commit": "1a20b313dd8f64590a53efaca1dc9162f7818bda",
+  "classifications": [
+    {
+      "job_id": "1fad70bbe3854cbc",
+      "classification": "external_infrastructure_refunded"
+    },
+    {
+      "job_id": "3fd1317143304bd5",
+      "classification": "our_setup_budget_failure"
+    },
+    {
+      "job_id": "c1931f0c9e834485",
+      "classification": "completed_qualifier_not_matched_promotion"
+    },
+    {
+      "job_id": "16b4db27421d4714",
+      "classification": "our_setup_failure_invalid_fixture_found"
+    },
+    {
+      "job_id": "c5e4f89672f743bb",
+      "classification": "completed_matched_subthreshold"
+    },
+    {
+      "job_id": "9adfd4dbc98f4998",
+      "classification": "our_setup_failure_graph_query"
+    }
+  ],
+  "counts": {
+    "our_setup_failures": 3,
+    "external_infrastructure": 1,
+    "completed": 2
+  },
+  "source_facts": {
+    "failed_query_uses_runtime_accessor_on_every_kernel_node": true,
+    "graph_cpu_mock_returns_synthetic_rows_without_executing_cpp": true,
+    "old_native_mock_zeroes_output_without_route_contract_checks": true
+  },
+  "source_sha256": {
+    "tools\\g_outgoing_seam_query.py": "c48b127634b8bcba86ac65567076a426c980213603e587f3dcfe219828a6a7a3",
+    "tools\\test_g_outgoing_pair.py": "6a3aec8660c3837787a0b7c1b419f87bad9a7a2c1abc64295a65b0ee18344db3",
+    "tools\\proj_g_short_rmw_host_test.py": "433c1e351f3e8c8db96610ee766f879c0121e725a712a03b3195fd04f85d71aa"
+  },
+  "causality_limits": [
+    "Invalid fixture is established; the original 719 device instruction was not localized.",
+    "Graph binding failure is established; exact inner API/node/arm and runtime-driver cause remain unproved.",
+    "Three setup failures do not prove all were completely preventable without target execution."
+  ]
+}
