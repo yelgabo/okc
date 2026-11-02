@@ -1,5 +1,5 @@
 {
-  "generated_utc": "2026-11-02T00:01:39.563Z",
+  "generated_utc": "2026-11-02T00:05:18.358Z",
   "evidence_commit": "aff51ef",
   "files": [
     {
@@ -58,6 +58,11 @@
       "sha256": "c641ede77cd5cd560b8df7ad2787d706654ebca7b9a63fa2bc49c1b9f6e00029"
     },
     {
+      "path": "jobs-post-reset.json",
+      "bytes": 13815,
+      "sha256": "03fb3bb052cccdbbfe534ab24c95acce9e17bf9892549fa32823f85c8576b6e8"
+    },
+    {
       "path": "jobs.json",
       "bytes": 13815,
       "sha256": "03fb3bb052cccdbbfe534ab24c95acce9e17bf9892549fa32823f85c8576b6e8"
@@ -66,6 +71,11 @@
       "path": "official-rules.html",
       "bytes": 2839,
       "sha256": "7c31afbbe3b3b3eaea4f87b079fc62e2aa49934211506d3a494d56ab12c164d7"
+    },
+    {
+      "path": "quota-post-reset.json",
+      "bytes": 1537,
+      "sha256": "07fedd7dbc9a572fb7b94792f3367e3a75b674a98aae748f0174731f4cb69023"
     },
     {
       "path": "quota.json",
@@ -106,6 +116,11 @@
       "path": "upstream-lessons.txt",
       "bytes": 7770,
       "sha256": "e45473b7f090ea1e42755bc9b7acd45a4329c3cc1c916f4516967fde7aa5eb9d"
+    },
+    {
+      "path": "worker-readiness.json",
+      "bytes": 5164,
+      "sha256": "3a9a6d73aff58f105263d040f6e683f92fd3303c147e2c7a2cfd2e1b1310d222"
     }
   ]
 }
