@@ -1,0 +1,61 @@
+{
+  "evidence_checkout": "7456f0c060d289d20d1de68af2754a31342ec464",
+  "upstream_commit": "8e30e1be994db4310794b8d04e90d18d895deb84",
+  "sources": [
+    {
+      "path": ".build/today/kel/kernels/muse_decode_layer.py",
+      "raw_bytes": 995999,
+      "raw_sha256": "1ec189dc6f306cec1694946eb62d64b54daf378c6fc1ada2f0f5e501e973ff2a",
+      "lf_sha256": "82c098ae7534b20b5d80f59d547650cb0853fc7d5e313fe29e1e9d9373e1bb19"
+    },
+    {
+      "path": "muse_decode_layer/cand/g1b4_stage_release.py",
+      "raw_bytes": 869076,
+      "raw_sha256": "ba9e327cd7b96595ace4d0c1d0d78fe27c128f23ed0debcda97c7169fc3164ab",
+      "lf_sha256": "ba9e327cd7b96595ace4d0c1d0d78fe27c128f23ed0debcda97c7169fc3164ab"
+    }
+  ],
+  "common": {
+    "input_sha256": "ba9e327cd7b96595ace4d0c1d0d78fe27c128f23ed0debcda97c7169fc3164ab",
+    "source_sha256": "4cbb13a9a359c9fe870a94ebcabc4706447778849f71d4aa54e47d69abbd1280",
+    "bytes": 871077,
+    "enabled": true,
+    "default_off": true,
+    "scope": "Common inherited attention admission and preexpert coefficient repairs; not an upstream-to607 regression treatment",
+    "required_common_to_all_ablation_arms": true,
+    "H200_qualified": false,
+    "GPU": false,
+    "dispatch_enabled": false
+  },
+  "policy": [
+    {
+      "PDL": "True",
+      "MOE_HAS_PDL": "True",
+      "GLE_T": "{1: True}",
+      "GLE_FRT": "True",
+      "MOE_TINY_DEFINES": "('-DOKC_NW=8', '-DOKC_TINY=1', '-DOKC_EPI4=0', '-DOKC_FAST1=2', '-DOKC_L2H=0', '-DOKC_NACC=4', '-DOKC_UWARP=0', '-DOKC_WS=1', '-DOKC_WSB=1', '-DOKC_WSBL=2', '-DOKC_WSBLK=2')",
+      "MOE_TINY2_DEFINES": "('-DOKC_NW=8', '-DOKC_TINY=1', '-DOKC_CPF=0', '-DOKC_EPI4=0', '-DOKC_FAST1=2', '-DOKC_NACC=4', '-DOKC_UWARP=0', '-DOKC_WS=1', '-DOKC_WSB=1', '-DOKC_WSBL=2', '-DOKC_WSBLK=1', '-DOKC_FINPF=1')",
+      "bfp_SK2_PICK": "{('o', 8): 'o8h_r88', ('o', 16): 'o8h_r88', ('o', 32): 'o32h_r100', ('pooler', 8): 'pooler8h_r72', ('pooler', 16): 'pooler', ('pooler', 32): 'pooler32_r144', ('qkv_gate', 8): 'qkv8_r176', ('qkv_gate', 16): 'qkv16_r176', ('qkv_gate', 32): 'qkv32_r208', ('router', 8): 'router', ('router', 16): 'router', ('router', 32): 'router', ('unpooler', 8): 'slice8_r192', ('unpooler', 16): 'unpooler16h_r100', ('unpooler', 32): 'unpooler32_r144'}"
+    },
+    {
+      "PDL": "False",
+      "MOE_HAS_PDL": "False",
+      "GLE_T": "{}",
+      "GLE_FRT": "True",
+      "MOE_TINY_DEFINES": "('-DOKC_NW=8', '-DOKC_TINY=1', '-DOKC_EPI4=0', '-DOKC_FAST1=2', '-DOKC_L2H=0', '-DOKC_NACC=4', '-DOKC_UWARP=0', '-DOKC_WS=1', '-DOKC_WSB=1', '-DOKC_WSBL=2', '-DOKC_WSBLK=2')",
+      "MOE_TINY2_DEFINES": "('-DOKC_NW=8', '-DOKC_TINY=1', '-DOKC_CPF=0', '-DOKC_EPI4=0', '-DOKC_FAST1=2', '-DOKC_NACC=4', '-DOKC_UWARP=0', '-DOKC_WS=1', '-DOKC_WSB=1', '-DOKC_WSBL=2', '-DOKC_WSBLK=1', '-DOKC_FINPF=1')",
+      "bfp_SK2_PICK": "{('o', 8): 'o8h_r88', ('o', 16): 'o8h_r88', ('o', 32): 'o32h_r100', ('pooler', 8): 'pooler8h_r72', ('pooler', 16): 'pooler', ('pooler', 32): 'pooler32_r144', ('qkv_gate', 8): 'qkv8_r176', ('qkv_gate', 16): 'qkv16_r176', ('qkv_gate', 32): 'qkv32_r208', ('router', 8): 'router', ('router', 16): 'router', ('router', 32): 'router', ('unpooler', 8): 'slice8_r192', ('unpooler', 16): 'unpooler16h_r100', ('unpooler', 32): 'unpooler32_r144'}"
+    },
+    {
+      "PDL": "False",
+      "MOE_HAS_PDL": "False",
+      "GLE_T": "{}",
+      "GLE_FRT": "True",
+      "MOE_TINY_DEFINES": "('-DOKC_NW=8', '-DOKC_TINY=1', '-DOKC_EPI4=0', '-DOKC_FAST1=2', '-DOKC_L2H=0', '-DOKC_NACC=4', '-DOKC_UWARP=0', '-DOKC_WS=1', '-DOKC_WSB=1', '-DOKC_WSBL=2', '-DOKC_WSBLK=2')",
+      "MOE_TINY2_DEFINES": "('-DOKC_NW=8', '-DOKC_TINY=1', '-DOKC_CPF=0', '-DOKC_EPI4=0', '-DOKC_FAST1=2', '-DOKC_NACC=4', '-DOKC_UWARP=0', '-DOKC_WS=1', '-DOKC_WSB=1', '-DOKC_WSBL=2', '-DOKC_WSBLK=1', '-DOKC_FINPF=1')",
+      "bfp_SK2_PICK": "{('o', 8): 'o8h_r88', ('o', 16): 'o8h_r88', ('o', 32): 'o32h_r100', ('pooler', 8): 'pooler8h_r72', ('pooler', 16): 'pooler', ('pooler', 32): 'pooler32_r144', ('qkv_gate', 8): 'qkv8_r176', ('qkv_gate', 16): 'qkv16_r176', ('qkv_gate', 32): 'qkv32_r208', ('router', 8): 'router', ('router', 16): 'router', ('router', 32): 'router', ('unpooler', 8): 'slice8_r192', ('unpooler', 16): 'unpooler16h_r100', ('unpooler', 32): 'unpooler32_r144'}"
+    }
+  ],
+  "helper_and_sk2_common_equal_607": true,
+  "scope": "CPU AST/source only; no imports of kernel files, compilation, GPU, timing, or legal qualification"
+}
