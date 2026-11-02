@@ -1,5 +1,7 @@
 # Shared project steering
 
+Delayed07:40UTC checkpoint reconciled at08:56UTC in the [ordinary-check report](2026-11-02-captain-g224-ordinary-check-gate.md#delayed-checkpoint-reconciliation-november2-0856utc): historical ed082519 tooling STOP was superseded by owning07:59UTC same-Smem compiler-adapter evidence, then later frozen53d095. Original/NVCC assertions remain intact; no target qualification or renewed allocation is inferred.
+
 Latest next-check gate: [Frozen G2 ordinary qualification](2026-11-02-captain-g224-ordinary-check-gate.md). Captain independently regenerated exact53d095/d67dc8;11 admission clauses/11 removal negatives/1584 bounded grid-model cases PASS. Existing legal fresh/empty/replay startup retained, fail-closed occupancy>=2 and no fallback. SOURCE/MODEL only, NOT target qualification; payload still1028254B. Worker ordinal12 owns remaining proof/plainpack; no new diagnostic harness, tuning round or GPU authorization. Zero performance-qualified new winners.
 
 Latest reconciliation: [Reference-readiness and completed dense STOP](2026-11-02-captain-reference-gate.md#handoff-reconciliation). Captain verified all five ad63b1d publication blobs and all three researcher692d00f blobs against fetched origin/main. [Long dense selection join](2026-11-02-long-dense-selection-join.md) found no independent candidate; no new dense implementation or measurement allocation. Existing worker ordinal12 remains active on the SAME frozen G2 reference/proof/plainpack gate; no GPU authorization or new tuning loop. Incumbent unchanged.

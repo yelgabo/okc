@@ -1,5 +1,11 @@
 # Frozen G2: retain ordinary qualification, not another diagnostic harness
 
+## Delayed checkpoint reconciliation, November2 08:56UTC
+
+The newly delivered checkpoint dated before07:40:48UTC refers to historical ed082519/bd22962, published746f937. Preserve its initial unsupported-NVRTC-offset assertion STOP exactly; do not treat it as the current worker result or restart that investigation. The owning route-prefix report already has a07:59UTC addendum, publication04e08381919c1c1be9b54326f80101bbd71418c8, superseding tool-only blockage with fixed MAIN/B4 resource results. Its explicitly authorized same-Smem adapter replaces two nonconstant offset assertions ONLY in the secondary compiler input with independently checked emitted layout probes; actual generated/NVCC assertions remain intact. This is not an unmodified-target-build success or silent dropping of the production proof obligation.
+
+Later publication b61b722 freezes phased53d095, and the prospective reference comparison is recorded in ad63b1d. Thus this delayed historical message does not change the active frozen readiness allocation, revive old ed082519, authorize another compiler-spelling loop or establish a target result. Current source/progress and packaging publication remains worker-owned; no GPU/CLI/default action follows this reconciliation.
+
 November2,2026, approximately08:55UTC. Goal remains top100 overall; incumbent unchanged and no new performance-qualified winner. The previous captain turn completed remote-publication reconciliation, not a kernel speedup. This turn adds an independent executable source/model check that constrains the next target decision.
 
 ## Independent admission and startup evidence
