@@ -1,0 +1,88 @@
+﻿{
+    "captured_utc":  "2026-11-02T16:06:42.3917455Z",
+    "command":  "wsl -d Ubuntu --exec okc problems --json",
+    "receipt":  {
+                    "problems":  [
+                                     {
+                                         "name":  "muse_bf16_proj",
+                                         "title":  "Dense projections",
+                                         "limits":  {
+                                                        "scored":  {
+                                                                       "per_day":  5,
+                                                                       "used":  0,
+                                                                       "left":  5
+                                                                   },
+                                                        "checks":  {
+                                                                       "per_day":  10,
+                                                                       "used":  0,
+                                                                       "left":  10
+                                                                   }
+                                                    }
+                                     },
+                                     {
+                                         "name":  "muse_attention_decode",
+                                         "title":  "Gated attention decode",
+                                         "limits":  {
+                                                        "scored":  {
+                                                                       "per_day":  5,
+                                                                       "used":  0,
+                                                                       "left":  5
+                                                                   },
+                                                        "checks":  {
+                                                                       "per_day":  10,
+                                                                       "used":  0,
+                                                                       "left":  10
+                                                                   }
+                                                    }
+                                     },
+                                     {
+                                         "name":  "muse_moe_w4a16",
+                                         "title":  "Routed experts",
+                                         "limits":  {
+                                                        "scored":  {
+                                                                       "per_day":  5,
+                                                                       "used":  0,
+                                                                       "left":  5
+                                                                   },
+                                                        "checks":  {
+                                                                       "per_day":  10,
+                                                                       "used":  0,
+                                                                       "left":  10
+                                                                   }
+                                                    }
+                                     },
+                                     {
+                                         "name":  "muse_decode_layer",
+                                         "title":  "Whole decoder layer",
+                                         "limits":  {
+                                                        "scored":  {
+                                                                       "per_day":  5,
+                                                                       "used":  0,
+                                                                       "left":  5
+                                                                   },
+                                                        "checks":  {
+                                                                       "per_day":  10,
+                                                                       "used":  10,
+                                                                       "left":  0
+                                                                   }
+                                                    }
+                                     },
+                                     {
+                                         "name":  "muse_prefill_layer",
+                                         "title":  "Prefill layer",
+                                         "limits":  {
+                                                        "scored":  {
+                                                                       "per_day":  5,
+                                                                       "used":  0,
+                                                                       "left":  5
+                                                                   },
+                                                        "checks":  {
+                                                                       "per_day":  10,
+                                                                       "used":  0,
+                                                                       "left":  10
+                                                                   }
+                                                    }
+                                     }
+                                 ]
+                }
+}

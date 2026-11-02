@@ -12,6 +12,8 @@ This is the stable cross-session entry point. Read the latest report, its eviden
 
 ## Active top-100 execution
 
+[November 2: Standalone expert qualification allocation](2026-11-02-top100-moe-qualification.md) - fresh quota: ten MoE private checks, zero layer checks. Bounded exact-component adapter implementation; no dispatch or measured gain, whole-layer gates retained.
+
 [November 2: Exact dual-build package](2026-11-02-top100-pair-package.md) - pre-gamma measurement preparation: source-identical control builds, state-local candidate selection, three CPU tests; no runtime ownership/timing qualification or dispatch readiness.
 
 [November 2: Attention continuity prototype screen — specific STOP](2026-11-02-top100-attention-prototype.md) - isolated attention worker at 71eb71c/a705900; actual layer launch paths checked on CPU. Continuous ring already exists in standalone; dormant layer toggle also changes decode merge. No CUDA candidate, GPU run or promotion; captain retains dispatch and integration ownership.
