@@ -4,6 +4,8 @@ This is the stable cross-session entry point. Read the latest report, its eviden
 
 ## Latest standalone component adapter
 
+[Captain component adapter review](2026-11-02-captain-component-adapter-review.md): independent10-test CPU reproduction and source-contract review retain the exact adapter; cleanup repair inspected. Candidate-official component harness remains parent-owned and pending. No target allocation, numerical pass or measured gain.
+
 [November 2: Exact standalone MoE adapter](2026-11-02-top100-moe-adapter.md) - implementation ece009b, allocation a58f058. Deterministic323514B payload preserves ba9e327c/c7c201ae control and dff221ae/3cc12ae candidate, exact compiler-call closure, explicit0/32 shard restriction and state-owned scratch. Ten adapter CPU tests plus eleven existing tests pass, including real CPU packing/storage. Full matched component harness, target preparation/build/numerics/replay/timing remain missing; dispatch_ready=false, no speed claim or layer-gate substitution.
 
 ## Latest private harness handoff
