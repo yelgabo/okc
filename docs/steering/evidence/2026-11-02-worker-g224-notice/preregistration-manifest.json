@@ -1,0 +1,47 @@
+{
+  "source_sha256": "0d84d0e34303f2a154a914ace131cbae661cc61def18f7bfcbc20ed3f218cf76",
+  "files": [
+    {
+      "path": "tools/g224_notice_pack.py",
+      "git_blob": "ac8c3d7dd2a6752d2d44529e34e6c4b2f2679197",
+      "bytes": 4652,
+      "sha256": "a012cc498b4975e5c3bf71621a53c017a0d49089182d7fceb568f0d2e4caec7e"
+    },
+    {
+      "path": "tools/test_g224_notice_pack.py",
+      "git_blob": "1d398458bd02493df4eea8ffbc168d19c7a72b32",
+      "bytes": 1754,
+      "sha256": "c1f80bfba69fc11863f328b7a5bbb3b085826375dacf5621d83b74c60c38d71f"
+    },
+    {
+      "path": "docs/steering/2026-11-02-worker-g224-notice-registration.md",
+      "git_blob": "c3f7a077f3612fdc7ed0be80ee87e5942e0a0263",
+      "bytes": 5911,
+      "sha256": "f05e1637de4f95d560113f3548dc6531e6c3598a9aea0178af8cf9c620d614c3"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-worker-g224-notice/generate.log",
+      "git_blob": "f5c0ad7c2683c2390e3720d5129c782c8e0d3dc5",
+      "bytes": 4977,
+      "sha256": "5c1dbe880d00432ed862493ef69e4a65641fb915829fa36f065de850b3015485"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-worker-g224-notice/package-manifest.json",
+      "git_blob": "f5c0ad7c2683c2390e3720d5129c782c8e0d3dc5",
+      "bytes": 4977,
+      "sha256": "5c1dbe880d00432ed862493ef69e4a65641fb915829fa36f065de850b3015485"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-worker-g224-notice/tests.log",
+      "git_blob": "3e450e10662fc44039512ebceab11f1fa479ee3c",
+      "bytes": 103,
+      "sha256": "3ac5b79aa9ec6805d0e450b24fdfc26a52c94c46cd72a7a0197c4ef312bdd80d"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-02-worker-g224-notice/variant.py",
+      "git_blob": "1fb324dbe51b33e2bb5ad638d1e3dee75151bba5",
+      "bytes": 999492,
+      "sha256": "0d84d0e34303f2a154a914ace131cbae661cc61def18f7bfcbc20ed3f218cf76"
+    }
+  ]
+}
