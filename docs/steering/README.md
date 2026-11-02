@@ -4,6 +4,8 @@ This is the stable cross-session entry point. Read the latest report, its eviden
 
 ## Latest human ROI priority
 
+[Later-page competitor discovery and focused packed-engine allocation](2026-11-02-captain-later-page-discovery.md): previously unsearched pages2/3 reconciled against the broader inventory; no new complete candidate established. Register-A is already present in the incumbent, so an unpriced two-WG/K128 sketch is NOT implementation work. One25-active-minute source-only FLUTE screen is allocated to the existing researcher after publication; no GPU/harness/default permission. P2 is complete and attention remains frozen.
+
 [Independent new NVFP4 engine intake and completed P2 decision](2026-11-02-captain-nvfp4-engine-intake.md): pinned Axolotl integration is not a new native Hopper whole-Muse engine; distinguish Blackwell W4A4, timed dense-dequant fallback and separate Marlin source. An independently executed CPU witness disproves boundary identity of its generic gated helper. [P2 final review](2026-11-02-research-broad-expert-feasibility.md),ba0e1ff9, is now delivered and adopted: prepared expansion conflicts with stored precision; Humming lacks a substantial complete-path case; route-specific reuse and net-cost sensitivities retained. No wrapper/harness/check allocated. P2 is no longer pending.
 
 [Captain architecture-gate reconciliation](2026-11-02-captain-architecture-gate-reconciliation.md): retains P1's scoped STOP, identifies the earlier repository weight-storage blocker for prepared BF16 expansion, and preserves the uniform-routing model's explicit conditional scope. P2 Queue delivery actually started ordinal27; result remains pending. No new allocation. [Final attention reconciliation](2026-11-02-worker-attention-continuity-reconciliation.md),137a65a9, is indexed with its explicit-entry guard negative retained; default selector is not implicated and frozen low-ROI lane is not reopened.
@@ -116,6 +118,7 @@ Publication-time source progress: [owner-event amendment](2026-11-02-worker-pr-g
 
 | New report | Evidence | Scope |
 |---|---|---|
+| [2026-11-02 later-page discovery and next source gate](2026-11-02-captain-later-page-discovery.md) | main16b70479; authenticated pages2/3; FLUTE9eb83a12 metadata | No new complete competitor; no unpriced stage sketch implementation; one bounded existing-researcher source allocation, no GPU |
 | [2026-11-02 new NVFP4 engine intake](2026-11-02-captain-nvfp4-engine-intake.md) | Axolotl58deaee; independent Torch CPU witness | Nine source files pinned; actual hardware/backend path distinguished; extra-round counterexample; no target allocation |
 | [2026-11-02 completed P2 feasibility](2026-11-02-research-broad-expert-feasibility.md) | ba0e1ff9; P1c8aacece; cc474 | Reject present A/B allocation; stored-weight rule, route-specific reuse and replacement-cost sensitivities; source/CPU only |
 | [2026-11-02 captain architecture gate](2026-11-02-captain-architecture-gate-reconciliation.md) | f6fde7ad; c8aacece; b395d49b | Prepared-weight contract objection; conditional routing caveat; P2 running, no target allocation |
