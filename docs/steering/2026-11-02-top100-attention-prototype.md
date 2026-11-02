@@ -150,3 +150,11 @@ Any reopening starts with **uninstrumented complete attention and layer endpoint
 same source-selected grid/split and fresh retained outputs. The failed wait trace
 `3f44f891d0ef47db` remains inadmissible as causal timing evidence. No new observer,
 timebox extension, candidate, dispatch or weaker acceptance rule was introduced.
+
+## Parent acceptance, November 2
+
+Integrated `2803aa0cdf5ea8b882e93918f6ad5ee9c92b9fb8` via merge `b092a07cdf2b1ae81229257c652e1f17e29f69da`. Parent reran `python tools/attention_top100_screen.py --output <temporary-json>`: twelve actual layer routes, four standalone plans and changed-source rejection passed. Also inspected the earlier flat-kernel source comparison in `docs/runs-attention.md` and the attention-next-boundary report. The earlier standalone implementation explicitly used separate query-region scratch for its half-merge when its producer ring remains active. This reinforces that flipping the layer toggle is not an isolated scheduling treatment; it does not disprove a deliberate integration using disjoint scratch.
+
+Accept the bounded source-screen STOP and record it in `docs/ruled-out.md`; no fabricated run-log result is added because no target job occurred. Do not reject every possible port merely because the mechanism already exists in standalone. A distinct safe integration could be a future candidate, but would need to earn its priority against the current expert prototype and preserve the complete output/prepare/dispatch behavior. This pass supplies neither its implementation nor matched benefit, so no new attention allocation follows automatically.
+
+The next priority remains the already allocated longer-token expert implementation and existing T1 work. Reconcile their concrete artifacts before launching another speculative attention cycle. Private layer quota remains exhausted in the latest retained15:30UTC receipt; no fresh query or scored substitution was made here. The top100 objective stays active and unachieved.
