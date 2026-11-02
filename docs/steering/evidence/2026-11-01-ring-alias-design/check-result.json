@@ -1,0 +1,71 @@
+﻿{
+  "source_sha256": "ba9e327cd7b96595ace4d0c1d0d78fe27c128f23ed0debcda97c7169fc3164ab",
+  "cuda_sha256": "c7c201ae145c6a33f2d5e6b1f80d2a6e56e8d75502f9fd09ace40927ad0f7c71",
+  "checks": {
+    "three_weight_slots": "constexpr int WGS_NS = 3;",
+    "sc6_slot_stride": "UNIT_BYTES = UNIT_CODES + UNIT_SC;",
+    "per_thread_empty_count": "k < BX_F ? NT : k < BX_E ? 1 : NT",
+    "per_stage_activation_retire": "// All reads of this activation slot are complete before the ring can reuse it.",
+    "proxy_shared_fence": "fence.proxy.async.shared::cta;",
+    "proxy_global_fence": "fence.proxy.async.global;",
+    "deferred_flush_group_four": "#define OKC_WGSFCI 4",
+    "two_k16_steps_per_group": "#define OKC_WGSGS 2",
+    "weight_producer_early_lane_exit": "if ((threadIdx.x & 31) != 0) return;",
+    "selected_mfin_disabled": "#if OKC_WGS\n#undef OKC_MFIN\n#define OKC_MFIN 0"
+  },
+  "smem_mirror_size": 22240,
+  "ring_base": 22272,
+  "weight_slots": [
+    [
+      22272,
+      59136
+    ],
+    [
+      59136,
+      96000
+    ],
+    [
+      96000,
+      132864
+    ]
+  ],
+  "activation_slots": [
+    [
+      132864,
+      165632
+    ],
+    [
+      165632,
+      198400
+    ],
+    [
+      198400,
+      231168
+    ]
+  ],
+  "mailbox_by_slot": [
+    [
+      22272,
+      30464
+    ],
+    [
+      59136,
+      67328
+    ],
+    [
+      96000,
+      104192
+    ]
+  ],
+  "spare_completion_mbar_offset": 1136,
+  "reserved_sequence_scenarios": 384,
+  "abstract_interleavings": 21504,
+  "unsafe_trace": [
+    "all 512 original BW_E arrivals",
+    "producer issues sequence q+3 to same slot",
+    "compute stores mailbox into same slot"
+  ],
+  "streaming_invariant": "NTT-1 fragments must be consumed before final fragment can replace them; only final fragment can survive compute entering next unit.",
+  "overlap_deadline": "For unchanged pending doneA release, next segment first-stage ci4 wgs_flush must acquire helper completion before original release.",
+  "disclaimer": "CPU address/event consistency only. Mirror is not NVCC ABI measurement; event enumeration assumes required barriers/fences. Not a PTX memory-model proof, compiler/resource result, GPU correctness or timing evidence."
+}
