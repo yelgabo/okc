@@ -1,0 +1,38 @@
+[
+  {
+    "tokens": 1,
+    "control_over_candidate": 0.9986482423436536,
+    "percent_factor_change": -0.13517576563464306,
+    "cross_count": 24
+  },
+  {
+    "tokens": 8,
+    "control_over_candidate": 1.001989258488376,
+    "percent_factor_change": 0.19892584883760556,
+    "cross_count": 24
+  },
+  {
+    "tokens": 16,
+    "control_over_candidate": 1.0013671808268707,
+    "percent_factor_change": 0.13671808268707064,
+    "cross_count": 24
+  },
+  {
+    "tokens": 32,
+    "control_over_candidate": 0.9867816183745797,
+    "percent_factor_change": -1.3218381625420328,
+    "cross_count": 24
+  },
+  {
+    "tokens": 128,
+    "control_over_candidate": 0.9817040343457737,
+    "percent_factor_change": -1.829596565422631,
+    "cross_count": 24
+  },
+  {
+    "tokens": 256,
+    "control_over_candidate": 0.9854743362317224,
+    "percent_factor_change": -1.4525663768277575,
+    "cross_count": 24
+  }
+]
