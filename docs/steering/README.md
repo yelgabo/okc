@@ -18,6 +18,7 @@ Publication-time source progress: [owner-event amendment](2026-11-02-worker-pr-g
 
 ## Current operational reports
 
+- [Independent PR build/quota monitor](2026-11-02-pr-build-failure-monitor.md): fresh own60b38 terminal confirms ordered C++17/target C++20 conflict, no tests/timing;15:30UTC rank356,0private/5scored,no live job. Human retry remains capacity-blocked; current T1/delegated scopes preserved. Existing hourly prompt refreshed through app tool/readback, cadence/destination unchanged.
 - [Captain PR terminal and next implementation](2026-11-02-captain-pr-terminal-next-implementation.md): own60b38a62a135442c setup-invalid from effective C++17 versus target C++20; no timing result or retry. Offline build-contract regression gate added; one bounded T1 three-launch source/CPU/compiler prototype allocated, no GPU permission. Dated addendum reconciles12f208d and exact-reference HTTP404 access limits without reopening surveys.
 - [Worker exact PR terminal archive](2026-11-02-worker-pr-target-terminal.md): owning diagnostics, missing qualification gates and zero private quota; host-standard failure is not a compression loss.
 - [Captain PR host gate and finite target allocation](2026-11-02-captain-pr-host-gate.md): independent21CPU PASS and actual host-syntax PASS; own private check60b38a62a135442c accepted with minimal treatment receipt; pending target result, no public promotion or automatic retry.

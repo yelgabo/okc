@@ -1,0 +1,33 @@
+{
+  "board": "muse_decode_layer",
+  "you": {
+    "rank": 356,
+    "team": "yelgabo",
+    "speedup": 2.1261,
+    "first": false,
+    "ahead": 355,
+    "to_first": 1.1685
+  },
+  "cutoffs": [
+    {
+      "attempts": 19,
+      "job": "d74534aba84e4385",
+      "rank": 50,
+      "screened_speedup": 2.237612754533122,
+      "screening": "pending",
+      "speedup": 2.3104,
+      "submitted_at": 1792965933.672477,
+      "team": "bomboclatdaru",
+      "value": 9790.821901982874
+    },
+    {
+      "attempts": 31,
+      "job": "232de027eda1481f",
+      "rank": 100,
+      "speedup": 2.2659,
+      "submitted_at": 1793423180.69917,
+      "team": "keell0renz",
+      "value": 9982.801332192916
+    }
+  ]
+}

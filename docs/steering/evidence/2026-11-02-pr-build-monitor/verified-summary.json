@@ -1,0 +1,93 @@
+{
+  "at_utc": "2026-11-02T15:30:03.257437+00:00",
+  "evidence_commit": "2e8a7157fe75b3a188b88713f320dad32ded45b8",
+  "terminal": {
+    "job": "60b38a62a135442c",
+    "passed": false,
+    "returncode": 112,
+    "score": null,
+    "setup_only": true,
+    "effective_language_conflict_confirmed": true,
+    "prepare_s": null,
+    "gpu": "H200",
+    "node": "n-pe2w4ezypgo3uplzzi5nvj4iag",
+    "finished_utc": "2026-11-02T15:03:47.250419+00:00"
+  },
+  "layer_quota": {
+    "scored": {
+      "per_day": 5,
+      "used": 0,
+      "left": 5
+    },
+    "checks": {
+      "per_day": 10,
+      "used": 10,
+      "left": 0
+    }
+  },
+  "live_jobs": [],
+  "layer": {
+    "board": "muse_decode_layer",
+    "you": {
+      "rank": 356,
+      "team": "yelgabo",
+      "speedup": 2.1261,
+      "first": false,
+      "ahead": 355,
+      "to_first": 1.1685
+    },
+    "cutoffs": [
+      {
+        "attempts": 19,
+        "job": "d74534aba84e4385",
+        "rank": 50,
+        "screened_speedup": 2.237612754533122,
+        "screening": "pending",
+        "speedup": 2.3104,
+        "submitted_at": 1792965933.672477,
+        "team": "bomboclatdaru",
+        "value": 9790.821901982874
+      },
+      {
+        "attempts": 31,
+        "job": "232de027eda1481f",
+        "rank": 100,
+        "speedup": 2.2659,
+        "submitted_at": 1793423180.69917,
+        "team": "keell0renz",
+        "value": 9982.801332192916
+      }
+    ]
+  },
+  "overall": {
+    "board": "overall",
+    "you": {
+      "rank": 356,
+      "team": "yelgabo",
+      "first": false,
+      "ahead": 355
+    },
+    "cutoffs": [
+      {
+        "rank": 50,
+        "solved": 4,
+        "team": "bomboclatdaru"
+      },
+      {
+        "rank": 100,
+        "solved": 4,
+        "team": "keell0renz"
+      }
+    ]
+  },
+  "automation_readback": {
+    "id": "review-family-g-progress-and-dispatch-the-next-experiment",
+    "status": "ACTIVE",
+    "kind": "heartbeat",
+    "rrule": "FREQ=HOURLY;INTERVAL=1",
+    "target_thread_id": "01a1963f-0c8e-7d41-be02-0e691dcfcaf7",
+    "prompt_sha256": "bf038025d84059dc543dac2a1c46e80c4847e6fa8390af6f35b6d47e268ede59",
+    "updated_via_app_tool": true,
+    "schedule_and_destination_preserved": true
+  }
+}
