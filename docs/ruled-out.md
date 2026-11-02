@@ -4,6 +4,7 @@
 
 | Treatment | Evidence | Scope and reopening condition |
 | --- | --- | --- |
+| Unmodified FLUTE9eb83a12 as complete Muse expert drop-in | Research f60dabe5, captain source/CPU reconciliation: `steering/2026-11-02-captain-handle-delta-and-flute-decision.md`; group16 host rejection, exact codebook/cardinality and rounding witnesses; no GPU/job/score. | STOP automatic wrapper/harness allocation. Missing group16/postscale/routed complete callable and substantial net-cost case. Not a lookup-family ban, official numerical failure, or blanket prohibition of internal BF16 partials. Reopen on concrete changed compatible complete mechanism and defensible substantial measurement case; a foreign same-Muse benchmark is not a circular prerequisite. |
 | Unmodified Axolotl58deaee SonicMoE NVFP4 helper as a complete Hopper Muse replacement | Captain source intake and independent CPU witness: `steering/2026-11-02-captain-nvfp4-engine-intake.md`; nine immutable file identities, gated activation extra-round witness; no target/job/score. | STOP unmodified drop-in/automatic wrapper allocation. Native W4A4 is not the Hopper path; inspected compatible fallback dequantizes, separate path is Marlin; per-expert Muse norm missing and generic helper boundary differs. Not a measured loss, whole-family rejection or official numerical failure. Reopen on compatible complete selected path with source-associated substantial net-layer evidence; scalar repair alone does not qualify. |
 
 ## November2UTC2026 exact pre-gamma standalone component target

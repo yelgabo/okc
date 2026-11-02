@@ -1,0 +1,217 @@
+{
+  "records": [
+    {
+      "repository": "tonybolivar/tonybolivar",
+      "pin": "d385de7ebaa3dc00d311a8a58e8dc210d52083bc",
+      "default_branch": "main",
+      "tree_truncated": false,
+      "tree_entries": 1,
+      "name_hits": [],
+      "files": [
+        {
+          "path": "README.md",
+          "git_blob": "b1004cecbb7d7c951e07264a9eb7ab0659bc0884",
+          "bytes": 3161,
+          "sha256": "4bcb96bb8427f19dbdc30e4db01dd277cab9becfb703c3e656634ba47a4b1ce6",
+          "scratch_path": ".build\\captain-handle-delta\\tonybolivar__tonybolivar-README.md"
+        }
+      ],
+      "requests": [
+        {
+          "endpoint": "repos/tonybolivar/tonybolivar",
+          "at_utc": "2026-11-02T20:32:20.723200+00:00",
+          "returncode": 0,
+          "response_sha256": "b839fd0db2ec3c6445be9b4c2fc1929fe5f84d82956a1bff34d48424b3fb8332",
+          "stderr": ""
+        },
+        {
+          "endpoint": "repos/tonybolivar/tonybolivar/commits/main",
+          "at_utc": "2026-11-02T20:32:21.036420+00:00",
+          "returncode": 0,
+          "response_sha256": "930b6d4b5b9802737c91235ce8fbda383588ca52374051c123e58762f7b5dd97",
+          "stderr": ""
+        },
+        {
+          "endpoint": "repos/tonybolivar/tonybolivar/git/trees/d385de7ebaa3dc00d311a8a58e8dc210d52083bc?recursive=1",
+          "at_utc": "2026-11-02T20:32:21.396720+00:00",
+          "returncode": 0,
+          "response_sha256": "39c19629a2b70033bb1fa9b475df78c4f9a32d04e35b8e3e92ac1f503060100c",
+          "stderr": ""
+        },
+        {
+          "endpoint": "repos/tonybolivar/tonybolivar/git/blobs/b1004cecbb7d7c951e07264a9eb7ab0659bc0884",
+          "at_utc": "2026-11-02T20:32:21.729840+00:00",
+          "returncode": 0,
+          "response_sha256": "04e45985268a6bab4d2b6de7ed6d1efbc4c5df19f97a0117b5062fbb84c06881",
+          "stderr": ""
+        }
+      ]
+    },
+    {
+      "repository": "thomgardiner/sglang-sm120-nvfp4",
+      "pin": "e5509d20929f863110be4d5718df886800eaa138",
+      "default_branch": "main",
+      "tree_truncated": false,
+      "tree_entries": 110,
+      "name_hits": [
+        "bench/nvfp4_convert.py",
+        "receipts/bench-nvfp4all-bf16-n10-2026-09-06.jsonl",
+        "receipts/bench-nvfp4all-fp8-n10-2026-09-06.jsonl",
+        "receipts/ds-nvfp4all-fp8-gsm8k-2026-09-06.jsonl",
+        "receipts/ds-nvfp4all-fp8-mtbench-2026-09-06.jsonl",
+        "receipts/ds-nvfp4all-gsm8k-2026-09-06.jsonl",
+        "receipts/ds-nvfp4all-math500-2026-09-06.jsonl",
+        "receipts/ds-nvfp4all-mtbench-2026-09-06.jsonl",
+        "receipts/greedy-gpu1-nvfp4all-2026-09-06.json",
+        "receipts/greedy-gpu1-nvfp4all-fp8-2026-09-06.json",
+        "receipts/lmeval/nothink-nvfp4all",
+        "receipts/lmeval/nothink-nvfp4all/humaneval_executed.json",
+        "receipts/lmeval/nothink-nvfp4all/results_2026-09-06T04-05-33.240634.json",
+        "receipts/lmeval/nothink-nvfp4all/results_2026-09-06T04-32-30.581398.json",
+        "receipts/lmeval/nothink-nvfp4all/results_2026-09-06T05-03-08.114950.json",
+        "receipts/lmeval/nothink-nvfp4all/results_2026-09-06T05-21-32.405673.json",
+        "receipts/lmeval/nothink-nvfp4all/results_2026-09-06T05-22-01.282315.json",
+        "receipts/lmeval/nothink-nvfp4all/results_2026-09-06T05-28-20.694033.json",
+        "receipts/lmeval/nvfp4all",
+        "receipts/lmeval/nvfp4all/qwen3.8-27b",
+        "receipts/lmeval/nvfp4all/qwen3.8-27b/results_2026-09-06T02-15-48.698026.json",
+        "receipts/lmeval/nvfp4all/qwen3.8-27b/samples_gsm8k_2026-09-06T02-15-48.698026.jsonl",
+        "receipts/step/step-b12x-nvfp4all-fp8draft.json",
+        "receipts/step/step-b12x-nvfp4all.json"
+      ],
+      "files": [
+        {
+          "path": "README.md",
+          "git_blob": "f00f56796488eb76af886aa23ebbe19dd916d3e2",
+          "bytes": 4869,
+          "sha256": "8efbb3618249241ac963942e150f0faf44c3d9be82e1436ec3332d58b80f21fa",
+          "scratch_path": ".build\\captain-handle-delta\\thomgardiner__sglang-sm120-nvfp4-README.md"
+        }
+      ],
+      "requests": [
+        {
+          "endpoint": "repos/thomgardiner/sglang-sm120-nvfp4",
+          "at_utc": "2026-11-02T20:32:22.142446+00:00",
+          "returncode": 0,
+          "response_sha256": "75320830e196abfe50b5b96dc63fa61cd170c947fe4886c5275f9988ddfebfdd",
+          "stderr": ""
+        },
+        {
+          "endpoint": "repos/thomgardiner/sglang-sm120-nvfp4/commits/main",
+          "at_utc": "2026-11-02T20:32:22.641350+00:00",
+          "returncode": 0,
+          "response_sha256": "a85f3d8e8ff01d8a0a6e94c57c47682e6c4cf3b33c0fa624e8ab1cc41ce11224",
+          "stderr": ""
+        },
+        {
+          "endpoint": "repos/thomgardiner/sglang-sm120-nvfp4/git/trees/e5509d20929f863110be4d5718df886800eaa138?recursive=1",
+          "at_utc": "2026-11-02T20:32:22.942814+00:00",
+          "returncode": 0,
+          "response_sha256": "652676824856aa3c45d8b0cb525a904832532f6dedb983c210f1a4bc5d71f459",
+          "stderr": ""
+        },
+        {
+          "endpoint": "repos/thomgardiner/sglang-sm120-nvfp4/git/blobs/f00f56796488eb76af886aa23ebbe19dd916d3e2",
+          "at_utc": "2026-11-02T20:32:23.222189+00:00",
+          "returncode": 0,
+          "response_sha256": "ab6ba9cc20709373691a894eb0f23cbdc606f13c421acdf48f3a6b04fbaa4239",
+          "stderr": ""
+        }
+      ]
+    },
+    {
+      "repository": "abhishekgahlot2/mixture-of-kittens",
+      "pin": "3e1cf43ab93ad040afed52a45ab03cb490ffe4be",
+      "default_branch": "main",
+      "tree_truncated": false,
+      "tree_entries": 41,
+      "name_hits": [],
+      "files": [
+        {
+          "path": "README.md",
+          "git_blob": "5f203a11973c80ced3e36005aecb53918325c710",
+          "bytes": 10374,
+          "sha256": "e2d73a23f774f75f5c0b7683b5d0dcbc9cd62f301a3f88618045dde7c16f5ce6",
+          "scratch_path": ".build\\captain-handle-delta\\abhishekgahlot2__mixture-of-kittens-README.md"
+        }
+      ],
+      "requests": [
+        {
+          "endpoint": "repos/abhishekgahlot2/mixture-of-kittens",
+          "at_utc": "2026-11-02T20:32:23.706113+00:00",
+          "returncode": 0,
+          "response_sha256": "ffe1dc32387d52c27f73a0a02ad704bb9bff742c33cb21fea96e9a902a30d529",
+          "stderr": ""
+        },
+        {
+          "endpoint": "repos/abhishekgahlot2/mixture-of-kittens/commits/main",
+          "at_utc": "2026-11-02T20:32:24.137827+00:00",
+          "returncode": 0,
+          "response_sha256": "3b131b9428d519240902c8fcba6805e8ffc9db0517548565cd988120d825d647",
+          "stderr": ""
+        },
+        {
+          "endpoint": "repos/abhishekgahlot2/mixture-of-kittens/git/trees/3e1cf43ab93ad040afed52a45ab03cb490ffe4be?recursive=1",
+          "at_utc": "2026-11-02T20:32:24.460522+00:00",
+          "returncode": 0,
+          "response_sha256": "d6c6c8010348055904e58492977b9f9403e653cf3ba22d4ac05f70976e64d662",
+          "stderr": ""
+        },
+        {
+          "endpoint": "repos/abhishekgahlot2/mixture-of-kittens/git/blobs/5f203a11973c80ced3e36005aecb53918325c710",
+          "at_utc": "2026-11-02T20:32:24.778750+00:00",
+          "returncode": 0,
+          "response_sha256": "206460622c7cc179e8c38baf8b6af649962d05cd4c8f2eb50c94ec3eee201c86",
+          "stderr": ""
+        }
+      ]
+    },
+    {
+      "repository": "Fangzhou66/torchtitan",
+      "pin": "5059f32c58deb4b8463e8ff74a139acb8e9a8ce4",
+      "default_branch": "main",
+      "tree_truncated": false,
+      "tree_entries": 647,
+      "name_hits": [],
+      "files": [
+        {
+          "path": "README.md",
+          "git_blob": "b48058713d6aa26c520cef5184f259168835b3ad",
+          "bytes": 11619,
+          "sha256": "671c76620c75a7b6eb8a935d16a8e75f9236171fe4249103b0dac4befad3bf9a",
+          "scratch_path": ".build\\captain-handle-delta\\Fangzhou66__torchtitan-README.md"
+        }
+      ],
+      "requests": [
+        {
+          "endpoint": "repos/Fangzhou66/torchtitan",
+          "at_utc": "2026-11-02T20:32:25.285135+00:00",
+          "returncode": 0,
+          "response_sha256": "f91a6fc2d91c6d63f6a9a56817eed77574b873c8ecd0ac897dca5c3924554651",
+          "stderr": ""
+        },
+        {
+          "endpoint": "repos/Fangzhou66/torchtitan/commits/main",
+          "at_utc": "2026-11-02T20:32:25.759138+00:00",
+          "returncode": 0,
+          "response_sha256": "149442d3c564c3d59c1dbcde7f9f136b54185a1ec8357cb38edf112c034f0ea5",
+          "stderr": ""
+        },
+        {
+          "endpoint": "repos/Fangzhou66/torchtitan/git/trees/5059f32c58deb4b8463e8ff74a139acb8e9a8ce4?recursive=1",
+          "at_utc": "2026-11-02T20:32:26.464748+00:00",
+          "returncode": 0,
+          "response_sha256": "014ac9be940895dc2d1a8315c67d9e2b98a686ce46659172788c7de4ed1934e7",
+          "stderr": ""
+        },
+        {
+          "endpoint": "repos/Fangzhou66/torchtitan/git/blobs/b48058713d6aa26c520cef5184f259168835b3ad",
+          "at_utc": "2026-11-02T20:32:26.758286+00:00",
+          "returncode": 0,
+          "response_sha256": "fa59cb63753942d85f463c40247e5f63151a73d72ddac81fb8b1e8af68dbeddf",
+          "stderr": ""
+        }
+      ]
+    }
+  ]
+}

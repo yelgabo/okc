@@ -1,0 +1,50 @@
+{
+  "source_sha256": "ba9e327cd7b96595ace4d0c1d0d78fe27c128f23ed0debcda97c7169fc3164ab",
+  "group64_unique_values": 57,
+  "group64_single_table_capacity": 16,
+  "partial_rounding": {
+    "fp32": 1,
+    "mixed_bf16": 0
+  },
+  "global_postscale": {
+    "correct_boundary": 290,
+    "early_bf16": 288
+  },
+  "budgets": [
+    {
+      "target": 0.03,
+      "scenarios": [
+        {
+          "overhead_us_unmeasured": 0,
+          "required_fully_exposed_activity_fraction": 0.08797589086969398
+        },
+        {
+          "overhead_us_unmeasured": 5,
+          "required_fully_exposed_activity_fraction": 0.13458560446733858
+        },
+        {
+          "overhead_us_unmeasured": 10,
+          "required_fully_exposed_activity_fraction": 0.18099172114834133
+        }
+      ]
+    },
+    {
+      "target": 0.1,
+      "scenarios": [
+        {
+          "overhead_us_unmeasured": 0,
+          "required_fully_exposed_activity_fraction": 0.26992646845546264
+        },
+        {
+          "overhead_us_unmeasured": 5,
+          "required_fully_exposed_activity_fraction": 0.31625247466876094
+        },
+        {
+          "overhead_us_unmeasured": 10,
+          "required_fully_exposed_activity_fraction": 0.36235463195894413
+        }
+      ]
+    }
+  ],
+  "scope": "Own CPU arithmetic and source hash only; no donor import/execution or target APIs."
+}
