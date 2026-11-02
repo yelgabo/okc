@@ -1,0 +1,27 @@
+# Captain allocation: researcher and measured execution
+
+November 1, 2026 Pacific / November 2 UTC. Evidence baseline: repository HEAD **0b4b7454da2522e037f0bf1468692f2564d939b7**, paired implementation **2686a7653d6cf2325e944f419cdf0f81e4b6308a**, acceptance archive **c17d4a5aa17441ab40e8091018eece9e2cf328ea**, first H200 terminal archive **516a93a4fc5fc882565ff0d67661b03d798e2480**. This allocation adds research capacity, not another measurement prerequisite.
+
+## Execution remains first
+
+Worker retains sole GPU dispatch and the existing exact-ID wait for PRIVATE **16b4db27421d4714**, muse_decode_layer, check mode. Last observed receipt is **November 2, 01:52:35.294 UTC: queued/result null**. Accepted at 01:31:40 UTC, physical upload SHA256 **c4a5ee29bcfeca248c0fee638ed103e9f211f7a8cc32b86bd3bb642676bf45e3**, 923915 bytes. Queue time establishes neither setup fit nor performance. There is no terminal or promotion evidence for this pair. See [owning registration and status](2026-11-01-rmw-common-pair-registration.md). Captain does not duplicate its wait or dispatch.
+
+Two of the capped four private tranche slots are allocated by accepted IDs. The existing all-six 46:16 matched-bank, duplicate-null and regression gates remain frozen. A valid null, sub-threshold, inconsistent or regressing result ends RMW-only promotion this tranche. An instrument/setup failure stops for exact diagnosis, not a blind retry. Held-out confirmation is conditional on a genuine qualifying pair result; pure-file qualification is used only if needed. No scored/public submission authorization is added.
+
+The first repaired ON run **c1931f0c9e834485** passed native/official qualification with score **2.1212410493206884**; historical comparison is unmatched and does not establish an RMW effect. We have a qualified treatment, not yet a demonstrated faster candidate. The preparation checkpoint was met by the second accepted job; do not extend it into unrelated harness work.
+
+## Researcher brief sent
+
+User-hired researcher: <t3-thread://v2/471a5a44-f247-4d6c-b35d-7f45e6f30552/66651fd0-ac6b-4c4a-a719-cb26056d0fcb>. Worker: <t3-thread://v2/471a5a44-f247-4d6c-b35d-7f45e6f30552/86f07ab7-3f8f-42c9-8cc9-048171ef88c4>. Captain sent the concrete brief and notified worker during this task.
+
+Researcher owns speculative discovery and a new report/evidence only: no kernel edits, GPU calls, dispatch or submission. Captain owns README/index integration. Read closures before reopening; independently seek stronger complete implementations rather than assuming our base must win. First useful bounded finding should precede a sprawling survey. Deliver at most three ranked designs with six-load score contribution, engineering cost, uncertainty, safety obligations and smallest distinguishing experiment. Separate author results, our measurements, estimates and hypotheses.
+
+1. **Target-toolchain gamma feasibility, not automatic reopening.** The exact full-family gamma-precompute ON was CLOSED_RESOURCE under CUDA12.8 because MAIN spill stores/loads worsened despite fewer instructions; [compiler closure](2026-11-01-g-native-gamma-compile.md). Investigate whether a matching CUDA13 compiler comparison is feasible and has sufficient end-to-end upside to compete with architectural alternatives. Actual runner toolchain differences are only a reason to investigate. CUDA localSizeBytes is not PTXAS spill-byte evidence. Require equivalent flags, adapters and complete selected-family comparison before changing this closure. No short-only mask/cap/format sweep.
+2. **Materially different legal architecture.** Examine short expert ownership/dependencies and verify-attention consumer work, including exp throughput, against complete comparator implementations and their negative evidence. Identify necessary computation, bytes, producer/consumer dependencies and actually exposed time. Preserve BF16 boundaries, publication, proxy ordering, lifetime and progress. Peak rates and static instruction reductions are not forecast speedups. Do not renew the parked expert-to-unpool PDL edge without its missing retirement/prefix exposure and proof evidence.
+3. **Independent competition discovery.** Follow genuinely new leaderboard/source leads and primary research where they can change the next design. The unchanged complete alygg77 and keell0renz pins in prior intake are starting evidence, not new discoveries or legal drop-in candidates. Compare a full alternative before choosing isolated grafts; historical published scores are not fresh matched comparisons.
+
+## Decision and stopping criteria
+
+While the pair queues, research advances independently; it does not block the frozen terminal decision. Captain chooses the next implementation only after comparing plausible whole-score impact and cost with the strongest alternative. A compiler-only lead earns implementation work only with new distinguishing evidence and meaningful budget; a design lead needs selected-route source proof and a bounded measurable question. If research finds no material opening, report that limitation and the strongest remaining alternative rather than minting extra candidates from masks or audits.
+
+No new optimization result, updated leaderboard snapshot or target-toolchain compile is claimed by this allocation. Top-100 remains unachieved. Next gates: worker's same-own-ID terminal decision and researcher's first ranked actionable finding. Preserve concurrent repository work; captain publishes this report/index only.
