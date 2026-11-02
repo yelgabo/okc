@@ -1,5 +1,7 @@
 # Worker: corrected-storage G2/24 — executable source, compiler-proof STOP
 
+Latest status: the dated addendum below records the completed four-entry offline matrix and supersedes the initial tooling-only STOP with an actual fixed stack/spill resource STOP. Historical evidence remains immutable.
+
 November 1, 2026 Pacific / November 2 UTC. Allocation received 07:10:47 UTC; executable generator and five CPU contracts completed before the 07:40:48 checkpoint. Authorization: captain 5f904c445e73045beec58aa4d6d583fb8263e319, retaining original geometry allocation 206ccfbc82cb15066f12e66b21cccee2cf82308b. The old fixed-layout STOP 73edd656a52836ca85071bf5cb990b41e45387e2 and its archive are unchanged. No GPU, CUDA device/driver query, challenge CLI, quota query, judge dispatch, installation, subagent or production edit occurred.
 
 ## Decision
@@ -70,3 +72,42 @@ No more implementation, compile spelling sweep, toolchain installation, target j
 Only after all offline obligations pass and a separate explicit target allocation: one ordinary candidate check using existing prepare/official-reference/profile flow can test actual2*SM cooperative admission, legal distinct routes, empty/fresh/replay outputs and numerical split grouping, retaining compact resources before failure. No graph-query/four-arm harness is proposed. Even a future successful ordinary check would give descriptive timing, not a causal gain against a different historical H200 node. Current stage measures no performance improvement.
 
 README/shared ledgers remain captain-owned. This report, three uniquely named tools and the new evidence prefix are the only owned publication paths; old STOP archives and other sessions' WIP are preserved. Evidence file hashes are pinned by manifest.json and the publication Git commit.
+
+## Addendum: November 2, 2026 07:59 UTC — fixed four-entry resource STOP
+
+This addendum supersedes the initial tool-only stopping decision, not its historical evidence at746f93791049350880786bb4b184b433152d21ab. Captain explicitly authorized a bounded same-Smem NVRTC layout-probe adapter, then completion of the remaining fixed MAIN pair after B4 failed. No ring/header/geometry/math/compiler-flag rescue occurred. Actual selected CUDA remains ed082519a4312bc1012192134b2d2865016789802b0454381984260c7aa5ca6f; the original native assertions remain unchanged. Original production/public607, short selections, attention and secondary sources remain untouched.
+
+**Final decision: STOP_FIXED_RESOURCE_STACK_SPILLS, both MAIN and B4, both bools.** This is an actual secondary emitted-resource failure of this fixed implementation against the registered zero-stack/zero-spill gate, not the earlier unsupported offsetof witness and not a measured speed or target runtime failure. No target-qualified candidate or performance winner exists. No more compilation, packaging, tuning, GPU/CLI/query/harness work is pending.
+
+### Same-Smem layout proof and adapter boundary
+
+[Adapter](../../tools/g_expert_g224_prefix_nvrtc_layout.py) replaces only the two nonconstant RTC offset assertions in the compiler adapter, retaining actual CUDA/NVCC assertions. It appends five noinline device layout probes and an unlaunched adapter-only global anchor. Plain constant-return probes were optimized into the anchor despite noinline; the final probes use volatile inline PTX mov with an immediate constraint on the actual Smem expression. The returned PTX must contain exactly mov-literal, parameter-store and return in each probe; every value is checked before PTXAS. Anchor/probe functions are separate from the selected expert entry points and never launched. The adapter exact-reversal assertion rejects other device-prefix changes. Established virtual type_traits/stdint headers and declaration-only wgs_cta_of adapter remain disclosed.
+
+Both selected families emit and pass the same constants: wc1248, wcp1248, wcpB2272, sizeof(wc)1024, sizeof(Smem)23096. Thus wc/wcp share an address and the separate B prefix starts after their1024-byte extent. Existing sizeof, ringstart23168 and dynamic115328 static assertions also compile. This establishes this secondary frontend's actual Smem layout; it is not host NVCC compilation, union-concurrency/progress proof, numerical equivalence or target occupancy.
+
+[Full frozen compiler evidence](evidence/2026-11-01-worker-g224-prefix-resource-stop/manifest.json) includes both manifests, full PTX and cubins compressed losslessly with decompressed byte hashes, raw NVRTC/PTXAS logs, compiler entry receipts, readelf sections and executed B4 runner snapshot. The exact existing secondary driver is archived too. The first B4 anchor/parser development failures are retained as layout-anchor.log and layout-asm.log; the successful layout/resource attempts are layout-final.log and MAIN-layout-final.log. These are offline invocations, not challenge jobs.
+
+### Complete fixed resource matrix
+
+|Selected entry|Registers|Barriers|Stack B|Spill stores B|Spill loads B|Decision|
+|---|---:|---:|---:|---:|---:|---|
+|B4 false|96|16|208|384|280|STOP: stack/spills|
+|B4 true|96|16|208|384|280|STOP: stack/spills|
+|MAIN false|96|16|224|364|260|STOP: stack/spills|
+|MAIN true|96|16|224|364|260|STOP: stack/spills|
+
+All four entries emit maxntid320,1,1 and minnctapersm2. NVRTC and PTXAS exit0 for each family; the runner then deliberately exits1 on emitted stack/spills. PTXAS13.0.88 uses sm_90a, -O3, --warn-on-spills. Both NVRTC manifests retain compute_90a, C++17, lineinfo, NW8/NS3/FNST4/NSF3/WGS1/FAST1=0/EPI4=0/SC6W1/PRMTSC1/DQ7=1; the only family define difference is B4FIN1. Both bool instantiations are the actual selected moe_fused templates, not dormant alternatives. PTXAS reports zero C7513 serialization warnings in both receipts; absence of that warning is not progress or overlap proof.
+
+For compiled shared storage, PTX contains only the external dynamic shared declaration, no explicit static shared declaration. Each expert cubin .nv.shared section is1024B (readelf size000400); the unlaunched anchor has the same section size. This raw ELF fact does not establish whether that1024 is additional user shared storage or compiler/system reservation. No runtime sharedSizeBytes/reservedSharedMemPerBlock property was queried, and no overall two-CTA residency PASS is claimed. Dynamic request remains115328. The prior116352/block,232704/pair,768-margin calculation is only the conditional zero-additional-static plus1024-reserve model. The spill failure is decisive independent of this unresolved shared accounting.
+
+Captain's rounded register correction is enforced in the actual runner and executable negatives:320threads=10warps;256-register/warp rounding; four SMSPs with16384registers each. At R96,3072regs/warp permits5warps/SMSP,20/SM,2CTAs. R97..102 rounds3328, permits4warps/SMSP,16/SM,1CTA. Unrounded65536/(2*320)=102 is not the gate. This is a necessary header-equation CPU calculation under SM90 assumptions, not target occupancy. Installed header pin remains163b8f296ef2a33c799e2dc8c525b37166da9217bcc6a3c1d26b1c10aca5e22b. R96 does not waive stack/spill rejection.
+
+### CPU result, incomplete obligations and scope
+
+Combined source plus offline-receipt suite: **9/9 PASS in8.744s**, existing WSL host-validate Python; [receipt](evidence/2026-11-01-worker-g224-prefix-resource-stop/cpu-tests.txt). New executable tests replay compressed PTX/cubin hashes, exact four-entry rows/flags/layout, missing/wrong layout probes, lost native assertion, nonoverlap mutations and actual runner equation R96 versus R97..102. The original five actual-generated formula/factory contracts pass unchanged. These checks validate evidence/rejection logic, not performance.
+
+The previously listed full inverse/range/split-finisher scheduler, ring-last-reader event simulation and comprehensive replay/progress contracts remain incomplete: the decisive fixed resource STOP occurs first. They must not be relabeled PASS. Native host/NVCC compilation/link is NOT_RUN; no usable g++/clang++/nvcc was found in inspected WSL PATH, and no installation/detour occurred. Numerical split grouping, general runtime bounds/progress, actual cooperative admission and timing remain NOT_RUN.
+
+Append-only variant remains bd22962e25f94abc3c96aa31ebd594f08c63ec7881252dba12ca37590ab21b93,1023788B, above the1MB upload budget; no packaging work is performed. This is not targetREADY even apart from spills. The generator remains a real unfinished/unqualified scratch artifact, not a candidate that passed the complete source/CPU/compiler gate. No claim that all G2/two-CTA pipelines are impossible follows.
+
+There is **no next target test for this stopped fixed artifact**. Only a separately authorized future implementation that clears the full zero-spill/layout/progress/payload gates could justify the previously described minimal ordinary official-reference/profile qualification; no graph-query/four-arm harness is proposed. Current result changes the decision from tooling HOLD to fixed emitted-resource STOP, not to a GPU request. Captain owns README/shared closure.

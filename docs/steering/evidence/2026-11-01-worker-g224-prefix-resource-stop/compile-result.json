@@ -1,0 +1,159 @@
+{
+  "scope": "CPU-only NVRTC13/PTXAS13 compute90a/sm90a device prefix; virtual type_traits/stdint and declaration-only wgs_cta_of adapter. No host compile/link, NVCC, driver API, GPU, timing or target occupancy.",
+  "generator": {
+    "base": "muse_decode_layer/cand/g1b4_stage_release.py",
+    "base_sha256": "ba9e327cd7b96595ace4d0c1d0d78fe27c128f23ed0debcda97c7169fc3164ab",
+    "original_native_sha256": "c7c201ae145c6a33f2d5e6b1f80d2a6e56e8d75502f9fd09ace40927ad0f7c71",
+    "variant_sha256": "bd22962e25f94abc3c96aa31ebd594f08c63ec7881252dba12ca37590ab21b93",
+    "native_sha256": "ed082519a4312bc1012192134b2d2865016789802b0454381984260c7aa5ca6f",
+    "original_prefix_bytes": 869076,
+    "original_prefix_unchanged": true,
+    "append_only": true,
+    "gpu_execution": false,
+    "judge_dispatch": false
+  },
+  "driver_sha256": "e695ef03bda22d86167b829618429c7d139c23ad9cf96294edd1211388d5620c",
+  "adapted_driver_sha256": "75d651eaa373dd8b1eaa033f8793e4b7b64e0e7ef812109309370dd9364cc8fa",
+  "layout_adapter": "Captain-authorized two RTC-only offset assertions replaced by five emitted same-Smem probes; actual CUDA/NVCC source unchanged",
+  "started_epoch": 1793605717.0389833,
+  "records": [
+    {
+      "family": "B4",
+      "actual_flags": [
+        "-O3",
+        "-gencode=arch=compute_90a,code=sm_90a",
+        "-lineinfo",
+        "-DOKC_NS=3",
+        "-DOKC_FNST=4",
+        "-DOKC_NSF=3",
+        "-DOKC_NW=8",
+        "-DOKC_FAST1=0",
+        "-DOKC_EPI4=0",
+        "-DOKC_WGS=1",
+        "-DOKC_B4FIN=1",
+        "-DOKC_SC6W=1",
+        "-DOKC_PRMTSC=1",
+        "-DOKC_DQ7=1"
+      ],
+      "source_sha256": "ed082519a4312bc1012192134b2d2865016789802b0454381984260c7aa5ca6f",
+      "manifest": {
+        "source": ".build/worker-g224-prefix-layout-final/B4/selected.cu",
+        "source_sha256": "ed082519a4312bc1012192134b2d2865016789802b0454381984260c7aa5ca6f",
+        "original_device_prefix_sha256": "d2acc1ae909aac05f7ca437e78c5299f97e786ca96176cb1afaa69594ad45ce2",
+        "compiled_device_prefix_sha256": "f7dc3b2cf90a22af0d9f1c0c5e2ae4b993ce6d5c1098353d1fd433b34a43cbdc",
+        "host_boundary": "#include <torch/extension.h>",
+        "virtual_headers": {
+          "type_traits": "#pragma once\nnamespace std { template<class T,T v> struct integral_constant {\nstatic constexpr T value=v; constexpr operator T() const noexcept {return value;}\n}; using true_type=integral_constant<bool,true>; using false_type=integral_constant<bool,false>; }\n",
+          "stdint.h": "#pragma once\ntypedef signed char int8_t; typedef unsigned char uint8_t;\ntypedef signed short int16_t; typedef unsigned short uint16_t;\ntypedef signed int int32_t; typedef unsigned int uint32_t;\ntypedef signed long int64_t; typedef unsigned long uint64_t;\ntypedef signed long intptr_t; typedef unsigned long uintptr_t;\n"
+        },
+        "options": [
+          "--gpu-architecture=compute_90a",
+          "--std=c++17",
+          "--generate-line-info",
+          "--device-as-default-execution-space",
+          "--include-path=/root/.cache/okc-cuda130-88/nvidia/cu13/include",
+          "--include-path=/root/.cache/okc-cuda130-88/nvidia/cu13/include",
+          "--include-path=/root/.cache/okc-cuda130-88/cuda_cccl-linux-x86_64-13.0.85-archive/include",
+          "-DOKC_NS=3",
+          "-DOKC_FNST=4",
+          "-DOKC_NSF=3",
+          "-DOKC_NW=8",
+          "-DOKC_FAST1=0",
+          "-DOKC_EPI4=0",
+          "-DOKC_WGS=1",
+          "-DOKC_B4FIN=1",
+          "-DOKC_SC6W=1",
+          "-DOKC_PRMTSC=1",
+          "-DOKC_DQ7=1"
+        ],
+        "declaration_adapter": "__device__ __forceinline__ int wgs_cta_of(const Smem& S, int pb, int s, int G);\n",
+        "nvrtc_status": 0,
+        "gpu_execution": false,
+        "layout_probe_results": {
+          "wc": {
+            "value": 1248,
+            "expected": 1248,
+            "body": "\n\t.reg .b64 \t%rd<2>;\n\t.loc\t1 2870 0\n\n\n\t.loc\t1 2870 55\n\t// begin inline asm\n\tmov.u64 %rd1, 1248;\n\t// end inline asm\n\tst.param.b64 \t[func_retval0+0], %rd1;\n\tret;\n\n",
+            "ptx_body_sha256": "cdb54f3bb5b7c55ff4eaba7f577f2ed025c12f87539891671c390eb144964db6"
+          },
+          "wcp": {
+            "value": 1248,
+            "expected": 1248,
+            "body": "\n\t.reg .b64 \t%rd<2>;\n\t.loc\t1 2871 0\n\n\n\t.loc\t1 2871 55\n\t// begin inline asm\n\tmov.u64 %rd1, 1248;\n\t// end inline asm\n\tst.param.b64 \t[func_retval0+0], %rd1;\n\tret;\n\n",
+            "ptx_body_sha256": "812188ff1d77ad0399a6b400af83d597c6e3953b7e15c49fe60d9c5c196c5d1f"
+          },
+          "wcpB": {
+            "value": 2272,
+            "expected": 2272,
+            "body": "\n\t.reg .b64 \t%rd<2>;\n\t.loc\t1 2872 0\n\n\n\t.loc\t1 2872 55\n\t// begin inline asm\n\tmov.u64 %rd1, 2272;\n\t// end inline asm\n\tst.param.b64 \t[func_retval0+0], %rd1;\n\tret;\n\n",
+            "ptx_body_sha256": "03c3328cdc5033ef2c70dbbb2640e6c929869514d82956c9ff87b6dd2e8e7312"
+          },
+          "sizeofwc": {
+            "value": 1024,
+            "expected": 1024,
+            "body": "\n\t.reg .b64 \t%rd<2>;\n\t.loc\t1 2873 0\n\n\n\t.loc\t1 2873 55\n\t// begin inline asm\n\tmov.u64 %rd1, 1024;\n\t// end inline asm\n\tst.param.b64 \t[func_retval0+0], %rd1;\n\tret;\n\n",
+            "ptx_body_sha256": "fb04da87d928ece32e42ea139499b61c8e7ba9fa65d0c9efe28cd36784398a98"
+          },
+          "sizeofsmem": {
+            "value": 23096,
+            "expected": 23096,
+            "body": "\n\t.reg .b64 \t%rd<2>;\n\t.loc\t1 2874 0\n\n\n\t.loc\t1 2874 55\n\t// begin inline asm\n\tmov.u64 %rd1, 23096;\n\t// end inline asm\n\tst.param.b64 \t[func_retval0+0], %rd1;\n\tret;\n\n",
+            "ptx_body_sha256": "90442dfc2bd1c846f4a6e5684137a4c0a5a005d1f79f39a476e4fb988183596a"
+          }
+        },
+        "layout_anchor_resources": {
+          "stack_bytes": 0,
+          "spill_store_bytes": 0,
+          "spill_load_bytes": 0,
+          "registers": 8,
+          "barriers": 0
+        },
+        "lowered": [
+          "_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE",
+          "_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE"
+        ],
+        "ptx_sha256": "ad9a10a20a1532c605882eae8ce02d168a4dcac1906c3475fb05628e1cb7cbea",
+        "cubin_sha256": "dbcc51bcb6b586430755fc13bc477ec6f0803a09968ec7ea8947eaa0f660ce7f",
+        "ptxas": [
+          "/root/.cache/okc-cuda130-88/nvidia/cu13/bin/ptxas",
+          "-arch=sm_90a",
+          "-O3",
+          "-v",
+          "--warn-on-spills",
+          ".build/worker-g224-prefix-layout-final/B4/device.ptx",
+          "-o",
+          ".build/worker-g224-prefix-layout-final/B4/device.cubin"
+        ],
+        "exitcode": 0,
+        "resources": {
+          "_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE": {
+            "stack_bytes": 208,
+            "spill_store_bytes": 384,
+            "spill_load_bytes": 280,
+            "registers": 96,
+            "barriers": 16
+          },
+          "_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE": {
+            "stack_bytes": 208,
+            "spill_store_bytes": 384,
+            "spill_load_bytes": 280,
+            "registers": 96,
+            "barriers": 16
+          }
+        },
+        "ptx_launch_bounds": [
+          ".maxntid 320, 1, 1",
+          ".minnctapersm 2",
+          ".maxntid 320, 1, 1",
+          ".minnctapersm 2"
+        ],
+        "ptxas_wgmma_serialization_warnings": 0
+      },
+      "ptxas_log": "ptxas warning : Registers are spilled to local memory in function '_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE', 384 bytes spill stores, 280 bytes spill loads\nptxas warning : Registers are spilled to local memory in function '_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE', 384 bytes spill stores, 280 bytes spill loads\nptxas info    : 298 bytes gmem\nptxas info    : Compiling entry function '_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE' for 'sm_90a'\nptxas info    : Function properties for _ZN3okc9moe_fusedILb1EEEvNS_6ParamsE\n    208 bytes stack frame, 384 bytes spill stores, 280 bytes spill loads\nptxas info    : Used 96 registers, used 16 barriers, 208 bytes cumulative stack size\nptxas info    : Compile time = 601.616 ms\nptxas info    : Function properties for _ZN3okc10wgs_rangesERKNS_6ParamsERNS_4SmemE\n    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads\nptxas info    : Compiling entry function '_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE' for 'sm_90a'\nptxas info    : Function properties for _ZN3okc9moe_fusedILb0EEEvNS_6ParamsE\n    208 bytes stack frame, 384 bytes spill stores, 280 bytes spill loads\nptxas info    : Used 96 registers, used 16 barriers, 208 bytes cumulative stack size\nptxas info    : Compile time = 616.498 ms\nptxas info    : Function properties for _ZN3okc10wgs_rangesERKNS_6ParamsERNS_4SmemE\n    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads\nptxas info    : Compiling entry function 'g224_layout_anchor' for 'sm_90a'\nptxas info    : Function properties for g224_layout_anchor\n    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads\nptxas info    : Used 8 registers, used 0 barriers\nptxas info    : Compile time = 1.455 ms\nptxas info    : Function properties for g224_probe_sizeofsmem\n    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads\nptxas info    : Function properties for g224_probe_sizeofwc\n    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads\nptxas info    : Function properties for g224_probe_wc\n    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads\nptxas info    : Function properties for g224_probe_wcp\n    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads\nptxas info    : Function properties for g224_probe_wcpB\n    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads\n",
+      "resources_pass": false,
+      "stop": "G224_STOP emitted stack/spills"
+    }
+  ],
+  "decision": "STOP",
+  "finished_epoch": 1793605718.867501
+}
