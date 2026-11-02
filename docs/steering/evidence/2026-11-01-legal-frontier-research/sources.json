@@ -1,0 +1,100 @@
+[
+  {
+    "file": "alygg-negative.md",
+    "url": "https://raw.githubusercontent.com/alygg77/okc-muse-spark-kernels/6cae49a639ee6d14b929a5fd4a63c627f96d7dc0/docs/NEGATIVE_RESULTS.md",
+    "bytes": 30726,
+    "sha256": "2f3c826efe27f11d4f92ab4f4984cf615f90ba7249619c53575d032dc24f8720",
+    "retrieved_utc": "2026-11-02T02:04:51.163520+00:00"
+  },
+  {
+    "file": "monomoe-design.md",
+    "url": "https://raw.githubusercontent.com/flashinfer-ai/flashinfer/ce9f587b03f111b7a3aca8c9247bc4893653af15/docs/design_docs/monomoe_kernel.md",
+    "bytes": 28433,
+    "sha256": "9a888c815ce9472bd3ded74b177d48c43f811abddfd834889185cb8b3e3e2450",
+    "retrieved_utc": "2026-11-02T02:04:51.321276+00:00"
+  },
+  {
+    "file": "monomoe-interface.py",
+    "url": "https://raw.githubusercontent.com/flashinfer-ai/flashinfer/ce9f587b03f111b7a3aca8c9247bc4893653af15/flashinfer/fused_moe/monomoe.py",
+    "bytes": 13751,
+    "sha256": "01d66e2746ca00c145604825d762d2e01b7fc3cac0b9c81e65854902e330a17d",
+    "retrieved_utc": "2026-11-02T02:04:51.508657+00:00"
+  },
+  {
+    "file": "fa4-softmax.py",
+    "url": "https://raw.githubusercontent.com/Dao-AILab/flash-attention/4616f5116d33e3ba3cbb71d582caffcfcb49649c/flash_attn/cute/softmax.py",
+    "bytes": 32023,
+    "sha256": "aaddf3030dba7b9809c4fefae3caab22d0f22b9ecf5050601d6646aefb611a49",
+    "retrieved_utc": "2026-11-02T02:04:51.644512+00:00"
+  },
+  {
+    "file": "fa4-utils.py",
+    "url": "https://raw.githubusercontent.com/Dao-AILab/flash-attention/4616f5116d33e3ba3cbb71d582caffcfcb49649c/flash_attn/cute/utils.py",
+    "bytes": 39401,
+    "sha256": "7344b808aa4eb6ebc5c48ab821485e32feea1397a14a540433191e08895d9c33",
+    "retrieved_utc": "2026-11-02T02:04:51.790710+00:00"
+  },
+  {
+    "file": "fa4-sm90.py",
+    "url": "https://raw.githubusercontent.com/Dao-AILab/flash-attention/4616f5116d33e3ba3cbb71d582caffcfcb49649c/flash_attn/cute/flash_fwd_sm90.py",
+    "bytes": 73290,
+    "sha256": "c6da4474257654e9889c4ed33e1e0f9afa841c7ce2c1fe537ba437b1ed93829a",
+    "retrieved_utc": "2026-11-02T02:04:52.258874+00:00"
+  },
+  {
+    "file": "official-rules.html",
+    "url": "https://openkernelchallenge.dev/rules",
+    "bytes": 3206,
+    "sha256": "4816939dc8e3fcd97a5de3c5cf7ec18c2559c722139a1e0fa3706ce5c4ae0cb5",
+    "retrieved_utc": "2026-11-02T02:04:52.379860+00:00"
+  },
+  {
+    "file": "monomoe-monomoe_wrapper.cuh",
+    "url": "https://raw.githubusercontent.com/flashinfer-ai/flashinfer/ce9f587b03f111b7a3aca8c9247bc4893653af15/csrc/fused_moe/monomoe/monomoe_wrapper.cuh",
+    "bytes": 9332,
+    "sha256": "c65153c87b7d625d827c59a78d7a89c9708b9e8f863554a95d0f8c8cc31f3178",
+    "retrieved_utc": "2026-11-02T02:10:52.284364+00:00"
+  },
+  {
+    "file": "monomoe-moe.cuh",
+    "url": "https://raw.githubusercontent.com/flashinfer-ai/flashinfer/ce9f587b03f111b7a3aca8c9247bc4893653af15/csrc/fused_moe/monomoe/src/moe.cuh",
+    "bytes": 15836,
+    "sha256": "f21a01827c0d8c9bd54743ece448dddefac75c1220b7f25c8dd42d35cbdbe03f",
+    "retrieved_utc": "2026-11-02T02:10:52.565856+00:00"
+  },
+  {
+    "file": "monomoe-moe_up_projection.cuh",
+    "url": "https://raw.githubusercontent.com/flashinfer-ai/flashinfer/ce9f587b03f111b7a3aca8c9247bc4893653af15/csrc/fused_moe/monomoe/src/moe_up_projection.cuh",
+    "bytes": 26286,
+    "sha256": "09bc2b464f5f3c99506ac79a8930ff0877f83b0699416c9b94e44d0e22c081ea",
+    "retrieved_utc": "2026-11-02T02:10:52.776963+00:00"
+  },
+  {
+    "file": "monomoe-moe_down_projection.cuh",
+    "url": "https://raw.githubusercontent.com/flashinfer-ai/flashinfer/ce9f587b03f111b7a3aca8c9247bc4893653af15/csrc/fused_moe/monomoe/src/moe_down_projection.cuh",
+    "bytes": 40670,
+    "sha256": "dda5fc10ae29fdeabc5498bfd27e4f8b40a5b8b2bf5bae954051645c462e799b",
+    "retrieved_utc": "2026-11-02T02:10:52.918923+00:00"
+  },
+  {
+    "file": "monomoe-moe_internal.h",
+    "url": "https://raw.githubusercontent.com/flashinfer-ai/flashinfer/ce9f587b03f111b7a3aca8c9247bc4893653af15/csrc/fused_moe/monomoe/src/moe_internal.h",
+    "bytes": 41654,
+    "sha256": "6594b5de1450ec074f0c730ce7e9976f8f5e58162cfa4f556e1c16fd5e9b6655",
+    "retrieved_utc": "2026-11-02T02:10:53.080740+00:00"
+  },
+  {
+    "file": "monomoe-ptx_utils.h",
+    "url": "https://raw.githubusercontent.com/flashinfer-ai/flashinfer/ce9f587b03f111b7a3aca8c9247bc4893653af15/csrc/fused_moe/monomoe/src/ptx_utils.h",
+    "bytes": 14749,
+    "sha256": "c6b5b3bbad7bbfaa1298cbeb6cd2759d67f4dff96255d776b92f757a7d1454bd",
+    "retrieved_utc": "2026-11-02T02:10:53.261845+00:00"
+  },
+  {
+    "file": "monomoe-LICENSE",
+    "url": "https://raw.githubusercontent.com/flashinfer-ai/flashinfer/ce9f587b03f111b7a3aca8c9247bc4893653af15/LICENSE",
+    "bytes": 12332,
+    "sha256": "cb67c224f503e0a063908950b12f89a7280c6e527dcffac972aa114e4bf3c5de",
+    "retrieved_utc": "2026-11-02T02:10:53.449811+00:00"
+  }
+]
