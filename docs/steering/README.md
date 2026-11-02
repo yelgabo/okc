@@ -2,6 +2,10 @@
 
 This is the stable cross-session entry point. Read the latest report, its evidence date and subsequent commits before continuing. Existing captain/worker ownership, submission approvals and frozen experiment gates remain in effect; a research recommendation is not a GPU allocation.
 
+## Latest human ROI priority
+
+[T1 full-layer ROI and completed review](2026-11-02-t1-layer-roi-and-review-status.md): user asks to avoid tiny-optimization checks. T1 review/test already completed; exact28248eb5 treatment is parked, no second check. One-percent layer gain requires about4.565us net decode1 saving; a1% standalone gate could imply only0.340% layer gain under the stated conditional model. Before another target allocation, captain must record a credible >=1% net six-load layer contribution, exposed-time evidence, replacement costs, strongest alternative and stop rule; favor several-percent mechanisms. No new dispatch permission or acknowledgment is claimed.
+
 ## Latest standalone component harness
 
 [Isolated attention continuity implementation allocation](2026-11-02-captain-attention-continuity-allocation.md): after two valid MoE negatives, existing worker receives one50-active-minute source/CPU/fixed-secondary task. Preserve layer math/half-merge in dedicated scratch, explicit barrier-init publication and unchanged page pipeline/launch tuples. No GPU/CLI/POST/harness/default authorization; prior plain-toggle STOP remains scoped and valid.
@@ -96,6 +100,7 @@ Publication-time source progress: [owner-event amendment](2026-11-02-worker-pr-g
 
 | New report | Evidence | Scope |
 |---|---|---|
+| [2026-11-02 T1 layer ROI and review status](2026-11-02-t1-layer-roi-and-review-status.md) | 5f687801; own28248eb5; cc474/607; fresh11:10AM PST | Quantified complete-layer thresholds, independently reproduced matched T1 loss, completed captain timeline and user's no-tiny-check ROI gate |
 | [2026-11-02 independent pre-gamma terminal monitor](2026-11-02-pregamma-terminal-monitor.md) | ce14d11f; own56e0c8b; fresh18:28UTC receipts | Frozen reader independently reproduced valid component loss; exact treatment parked, existing held T1 review next, ranks/quota/deadline verified |
 | [2026-11-02 standalone MoE harness](2026-11-02-top100-moe-harness.md) | 785846d; ca5cf8f; payload557c67fe | Candidate-official held component wrapper, real-host facade orchestration and strict owning reader; no target readiness or layer inference |
 | [2026-11-02 standalone MoE adapter](2026-11-02-top100-moe-adapter.md) | ece009b; a58f058; payload19aeaf35 | Exact bounded component adapter and21 CPU tests; no target/candidate numerical or timing qualification; explicit missing gates |

@@ -1,0 +1,173 @@
+{
+  "evidence_commit": "5f68780152ff6f33bc5e8c967e85d41b23e391e7",
+  "fresh": {
+    "path": "docs/steering/evidence/2026-11-02-captain-fresh-incumbent-profile/control.cc474883117947c0.json",
+    "job": "cc474883117947c0",
+    "receipt_git_blob_sha256": "99fc065c3c13389922e9914a5a2ea15b69dd6786f954ef74d65cfe67c46170fd",
+    "weighted_decode1_us": 78.76453088391268,
+    "expert_activity_us": {
+      "sliding": 29.1,
+      "full": 22.6
+    },
+    "weighted_expert_activity_us": 27.422580645161293,
+    "activity_fraction_of_endpoint": 0.34815900428046903,
+    "net_endpoint_scenarios": [
+      {
+        "saving_us": 1,
+        "score_gain": 0.0021318280962117075
+      },
+      {
+        "saving_us": 2,
+        "score_gain": 0.004295881594625461
+      },
+      {
+        "saving_us": 3,
+        "score_gain": 0.006493077050979457
+      },
+      {
+        "saving_us": 5,
+        "score_gain": 0.01099075526757276
+      },
+      {
+        "saving_us": 10,
+        "score_gain": 0.022887098658771032
+      }
+    ],
+    "conditional_activity_scenarios": [
+      {
+        "activity_reduction": 0.1,
+        "net_saving_us_if_fully_exposed": 2.7422580645161294,
+        "score_gain_if_fully_exposed": 0.005923545063565516
+      },
+      {
+        "activity_reduction": 0.2,
+        "net_saving_us_if_fully_exposed": 5.484516129032259,
+        "score_gain_if_fully_exposed": 0.012101784140469585
+      },
+      {
+        "activity_reduction": 0.3,
+        "net_saving_us_if_fully_exposed": 8.226774193548387,
+        "score_gain_if_fully_exposed": 0.01855583525662219
+      },
+      {
+        "activity_reduction": 0.5,
+        "net_saving_us_if_fully_exposed": 13.711290322580647,
+        "score_gain_if_fully_exposed": 0.03238961178260524
+      }
+    ],
+    "score_thresholds": [
+      {
+        "score_gain": 0.01,
+        "required_net_us": 4.564779857689931,
+        "fraction_of_profiled_activity": 0.16646062297187136
+      },
+      {
+        "score_gain": 0.02,
+        "required_net_us": 8.823881527677733,
+        "fraction_of_profiled_activity": 0.3217742940336545
+      },
+      {
+        "score_gain": 0.03,
+        "required_net_us": 12.800476283562343,
+        "fraction_of_profiled_activity": 0.46678598375536123
+      }
+    ],
+    "conditional_layer_gain_at_one_percent_component_gate": 0.0034030805093052674
+  },
+  "public": {
+    "path": "muse_decode_layer/profiles/scored.607eb52bdaf24160.json",
+    "job": "607eb52bdaf24160",
+    "receipt_git_blob_sha256": "c641ede77cd5cd560b8df7ad2787d706654ebca7b9a63fa2bc49c1b9f6e00029",
+    "weighted_decode1_us": 78.54904481802232,
+    "expert_activity_us": {
+      "sliding": 29.8,
+      "full": 42.8
+    },
+    "weighted_expert_activity_us": 33.15483870967742,
+    "activity_fraction_of_endpoint": 0.4220909214935528,
+    "net_endpoint_scenarios": [
+      {
+        "saving_us": 1,
+        "score_gain": 0.0021377203205037443
+      },
+      {
+        "saving_us": 2,
+        "score_gain": 0.004307845589506476
+      },
+      {
+        "saving_us": 3,
+        "score_gain": 0.006511300084010019
+      },
+      {
+        "saving_us": 5,
+        "score_gain": 0.011022091281396307
+      },
+      {
+        "saving_us": 10,
+        "score_gain": 0.022955127227817673
+      }
+    ],
+    "conditional_activity_scenarios": [
+      {
+        "activity_reduction": 0.1,
+        "net_saving_us_if_fully_exposed": 3.3154838709677423,
+        "score_gain_if_fully_exposed": 0.0072135236600716635
+      },
+      {
+        "activity_reduction": 0.2,
+        "net_saving_us_if_fully_exposed": 6.630967741935485,
+        "score_gain_if_fully_exposed": 0.014807823997816882
+      },
+      {
+        "activity_reduction": 0.3,
+        "net_saving_us_if_fully_exposed": 9.946451612903227,
+        "score_gain_if_fully_exposed": 0.022822004414813524
+      },
+      {
+        "activity_reduction": 0.5,
+        "net_saving_us_if_fully_exposed": 16.57741935483871,
+        "score_gain_if_fully_exposed": 0.04029857468793563
+      }
+    ],
+    "score_thresholds": [
+      {
+        "score_gain": 0.01,
+        "required_net_us": 4.552291413435259,
+        "fraction_of_profiled_activity": 0.13730398308668323
+      },
+      {
+        "score_gain": 0.02,
+        "required_net_us": 8.7997409215579,
+        "fraction_of_profiled_activity": 0.26541347399133575
+      },
+      {
+        "score_gain": 0.03,
+        "required_net_us": 12.765456405389855,
+        "fraction_of_profiled_activity": 0.38502544129897404
+      }
+    ],
+    "conditional_layer_gain_at_one_percent_component_gate": 0.004136255768093733
+  },
+  "model": "Fixed baselines, other five loads unchanged; score factor=(D/(D-net_weighted_endpoint_saving))^(1/6). Activity conversion is hypothetical, not exposed savings or a bound.",
+  "matched_t1_result": {
+    "job": "28248eb5e5854041",
+    "factors": 24,
+    "control_candidate_factor_range": [
+      0.6703977220784253,
+      0.738630652839599
+    ],
+    "descriptive_geometric_control_candidate_factor": 0.7079982329022487,
+    "descriptive_candidate_latency_increase": 0.41243290382345776,
+    "component_pass": false,
+    "full_layer_gain": "unmeasured"
+  },
+  "current_layer100_scenario": {
+    "public_score": 2.1260826764231093,
+    "sampled_layer100": 2.2657,
+    "required_score_factor": 1.065668812001131,
+    "required_decode1_net_saving_us_using_fresh_endpoint": 24.98745849446202,
+    "fraction_of_fresh_profiled_activity": 0.9112001097851107,
+    "overall_rank_prediction": "not inferred"
+  },
+  "review_blocker": "none: review c66f5ce6 complete; target 28248eb5 completed; captain 5f687801 parks exact source with no follow-on allocation"
+}
