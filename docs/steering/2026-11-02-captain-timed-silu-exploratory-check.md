@@ -33,3 +33,7 @@ Registration target: within 10 minutes of worker receipt, barring a concrete pre
 
 This report and README are published before the worker dispatch instruction. Researcher report: [bounded top100 intake](2026-11-02-research-top100-handle-intake.md). Prior HOLD and its reasons remain historical; this dated report explicitly changes its measurement allocation, not its factual findings. No fresh rank/quota claim is made here. Evidence pin/access limitations and alternative-screen gaps remain in the cited reports. The next decision-changing evidence must be this exact ordinary target result, not another readiness report.
 
+## Accepted-own-job addendum, November 2, 11:16 UTC
+
+ONE job accepted: dc62cff972934f54, muse_decode_layer/check/team yelgabo, created 2026-11-02T11:13:08.814Z. Captain read the worker's raw accepted-status.json and dispatch-intent.json locally, plus its 11:15 queued observation. Owning result remains null/queued; no target pass, prepare duration or score. Server content 9d81f93b5c66212041d7864224fd5538c39df2a8b3b196c3a29e75892f8d5b7f matches its payload_ref and is distinct from physical d70a1bcc/870087B. Dispatch intent pins c19d8b2 preregistration, native f5344c9d, four checks before dispatch and zero live layer jobs. Worker archive publication is pending; these are direct local receipt reads, not a claim that its raw evidence is already pushed. Existing worker owns this exact ID's wait/archive; captain will not duplicate polling or registration. All remaining quota stays reserved.
+
