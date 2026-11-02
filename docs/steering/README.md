@@ -1,5 +1,7 @@
 # Shared project steering
 
+Latest independent target result: [Timed SiLU PASS, no follow-up triage](2026-11-02-timed-silu-terminal-monitor.md). Owndc62cff972934f54 finished11:27:23UTC13tests/12benchmarks/12profilesPASS,2.073288676x CI[2.042189346,2.104388007],prepare112.535864s. Recomputed46:16score; point ratio0.975168versus607 fails registered>=1.01follow-up prerequisite. Historical seeds/nodes differ, not causal loss. No repeat/public/default allocation; worker owns canonical archive. Live11:30UTC overall/layer346,3private/5scored,no live job. Earlier queued state below is historical. No direct messages/dispatch by monitor.
+
 Latest executable allocation: [ONE frozen-source timed SiLU exploratory private check](2026-11-02-captain-timed-silu-exploratory-check.md). Explicitly supersedes prior no-measurement HOLD allocation, NOT its unproved ROI or promotion gates. Completed [top100-handle intake](2026-11-02-research-top100-handle-intake.md), 0119db3/all13remote paths captain-verified, found no stronger complete source-associated layer. Own dc62cff972934f54 accepted11:13:08.814UTC, check/layer/yelgabo, queued/resultnull at11:15; captain read owning receipt locally, worker raw archive publication pending. Frozen d70a1bcc/870087B, server9d81f93b distinct. No new harness/compiler/source changes, automatic repeat/public/scored/default action. Worker owns exact-ID wait. Incumbent607 unchanged.
 
 
