@@ -1,5 +1,7 @@
 # muse_decode_layer runs
 
+Latest captain terminal addendum (2026-11-02 09:53UTC): PRIVATE **e1271ad5e5e34b24**, finished09:42:17.129UTC; prereg5b997e07, acceptance73e4774, terminal217a98c. Notice-corrected0d84d0e/999492B, native53d09576 unchanged. H200 done/passedtrue/return0,13tests/12benchmarks/12profiles,56native startup replays; **1.9746646855150114x CI[1.9450447152322863,2.0042846557977363]**, measured prepare98.749577628s; queue834.882672s/worker203.656080s distinct. Raw profiles/log/receipt under steering/evidence/2026-11-02-worker-g224-notice/variant.e1271ad5e5e34b24.* and terminal-status-resumed.json;33manifest entries+manifest captain-verified. Ordinary target correctness PASS, performance descriptive only; changed long-load warnings against both historical controls do not establish a causal loss. Exact candidate PARKED/no repeat/rescue/public/default action. Independent analysis steering/2026-11-02-captain-g224-terminal-decision.md. Wait27522 lost during tool transition; same-ID status wait32878 completed, no second POST. Public607 unchanged.
+
 Every `okc check` on `muse_decode_layer`, newest last. Scores are the judge's speedup over
 SGLang with its 95% interval. Profiles and logs are in `muse_decode_layer/profiles/`. The
 submission is baseline.py's call sequence with pieces ported from muse_moe_w4a16 and

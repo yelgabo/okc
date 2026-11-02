@@ -1,5 +1,11 @@
 # Ruled out
 
+## November 2 UTC 2026 G224 ordinary target result
+
+| Treatment | Evidence | Scope and reopening condition |
+| --- | --- | --- |
+| Frozen chunk-phased G2/24 native53d09576, notice-corrected0d84d0e/999492B | Own PRIVATEe1271ad5e5e34b24, terminal217a98c; H200 correctness13/13,12bench/12profiles,56startup replays; score1.974664685 CI[1.945044715,2.004284656], measured prepare98.749578s. Captain steering/2026-11-02-captain-g224-terminal-decision.md independently verifies archive/aggregation. | PARK exact candidate for performance/no follow-on check, NOT correctness failure or matched causal family rejection. Descriptive weighted T128/T256 latencies+14.617%/+20.564% versus607 and+15.790%/+21.698% versus repaired-commonc5e4; all seeds/nodes unmatched. No promising complete result justifies another quota use. No rescue/sweep/public/default change. Reopen only on new independent decision-changing evidence and separately allocated matched experiment; preserve earlier absolute-zero failure/prospective resource screen. |
+
 ## November 2 UTC 2026 fixed chunk-phased resource screen and explicit prospective reopening
 
 | Treatment | Evidence | Scope and next decision |
