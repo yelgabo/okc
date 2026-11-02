@@ -1,0 +1,134 @@
+{
+  "date": "2026-11-02",
+  "source": {
+    "path": "muse_decode_layer/cand/g1b4_stage_release.py",
+    "commit": "0ce0b23f53422a1883825ed0771a54992fa87d1c",
+    "sha256": "ba9e327cd7b96595ace4d0c1d0d78fe27c128f23ed0debcda97c7169fc3164ab",
+    "public_job": "607eb52bdaf24160",
+    "server_hash": "5cf950e1819c8c2bf0edf9bfdc0ccf05b191759c0a8263a45cd962f4e934ff5e",
+    "anchors": {
+      "defines": [
+        6858,
+        6862
+      ],
+      "loader": [
+        6893,
+        6918
+      ],
+      "helper": [
+        12481,
+        15170
+      ],
+      "dependency": [
+        13885,
+        13914
+      ],
+      "rounding_norm": [
+        14020,
+        14063
+      ],
+      "grid_barrier": [
+        14879,
+        14915
+      ],
+      "combine": [
+        14989,
+        15015
+      ],
+      "dispatch": [
+        16084,
+        16106
+      ],
+      "call": [
+        16682,
+        16699
+      ],
+      "fallback": [
+        16750,
+        16786
+      ],
+      "gate": [
+        16824,
+        16859
+      ]
+    }
+  },
+  "fresh": {
+    "receipt": "docs/steering/evidence/2026-11-02-captain-fresh-incumbent-profile/control.cc474883117947c0.json",
+    "job": "cc474883117947c0",
+    "d1_adjusted_us": 78.76453088391268,
+    "v1_adjusted_us": 112.68166177082166
+  },
+  "retained_routes": {
+    "report": "docs/steering/2026-11-01-g-tiny-weight-metadata-audit.md",
+    "commit": "cd010c83faf76b3ce98564c863cac75410a6ee19",
+    "log": "sc6_compare.05e51ddeb7014dd9.log",
+    "columns": [
+      "M",
+      "seed",
+      "P",
+      "E",
+      "maxcount"
+    ],
+    "rows": [
+      [
+        1,
+        901,
+        2,
+        2,
+        1
+      ],
+      [
+        1,
+        902,
+        3,
+        3,
+        1
+      ],
+      [
+        8,
+        901,
+        20,
+        11,
+        8
+      ],
+      [
+        8,
+        902,
+        15,
+        7,
+        8
+      ]
+    ],
+    "not_fresh_layer": true
+  },
+  "design": {
+    "T": 1,
+    "launches": 3,
+    "extra_launches": 2,
+    "phaseA_tiles_per_pair": 512,
+    "phaseB_tiles_per_pair": 256,
+    "phaseC_CTAs": 1,
+    "threads": 256,
+    "weight_bytes_per_expert": 28311552,
+    "flops_per_pair": 100663296,
+    "scratch_per_pair": {
+      "inter_bf16": 8192,
+      "y_fp32": 16384,
+      "norm_partials_fp32": 1024
+    }
+  },
+  "conditional_sensitivity": {
+    "d1_only_one_percent_us": 4.56477985768994,
+    "both_short_equal_one_percent_us": 2.725546948278982,
+    "assumptions": "Fixed baselines, unchanged remaining loads, net endpoint saving including all replacement costs; NOT exposure forecast"
+  },
+  "primary": {
+    "url": "https://docs.nvidia.com/cuda/archive/13.0.0/cuda-c-programming-guide/index.html#streams",
+    "http": 200,
+    "sha256": "01aff402194f0b4c57a96a91fdfccb63e2ee4a61d62efccbbf09b298212acf32",
+    "section": "6.2.8.5 Streams",
+    "paraphrase": "Commands in one stream execute in order; other streams need dependencies."
+  },
+  "decision": "Source-feasible T1 scheduling reserve only; no target or implementation allocation; T8 requires preserved unique-expert reuse."
+}
