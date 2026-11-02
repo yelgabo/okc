@@ -1,0 +1,60 @@
+{
+  "at_utc": "2026-11-02T05:15:24.147164+00:00",
+  "evidence_commit": "c447ca58e7558de94694c9275dfb419aaa4bb5c2",
+  "terminal": {
+    "id": "9adfd4dbc98f4998",
+    "status": "done",
+    "passed": false,
+    "returncode": 112,
+    "speedup": null,
+    "gpu": "H200",
+    "machine_node": "n-2bbs7xxbcpmk3emdvrn5jsqeic",
+    "setup": {
+      "baseline_copies": 2,
+      "baseline_prepare_pad": 27450368,
+      "copies": null,
+      "error": "AcceleratorError: CUDA error: invalid device function\nSearch for `cudaErrorInvalidDeviceFunction' in https://docs.nvidia.com/cuda/cuda-runtime-api/group__CUDART__TYPES.html for more information.\n",
+      "event": "setup",
+      "first": "submission",
+      "prepare_pad": null,
+      "prepare_s": null,
+      "status": "fail"
+    },
+    "finished_at_utc": "2026-11-02T05:11:58.703260+00:00",
+    "content_hash": "0af65ed333351fae1b386cac469aee043b3ac24b040cf6713c65fa9b76147ea2",
+    "baseline_sha256": "87d95a0c4b78f0fd6c772436b959330ca45652b10e82dfc8add9acf0549227d4"
+  },
+  "layer_quota": {
+    "scored": {
+      "per_day": 5,
+      "used": 0,
+      "left": 5
+    },
+    "checks": {
+      "per_day": 10,
+      "used": 4,
+      "left": 6
+    }
+  },
+  "live_jobs": [],
+  "layer-board": {
+    "rank": 339,
+    "team": "yelgabo",
+    "speedup": 2.1261,
+    "first": false,
+    "ahead": 338,
+    "to_first": 1.1685
+  },
+  "overall-board": {
+    "rank": 339,
+    "team": "yelgabo",
+    "first": false,
+    "ahead": 338
+  },
+  "retained_official_deadline": {
+    "source": ".build\\today\\official_site.js",
+    "sha256": "25be306883059fe907ffba40f3f303427b9f88f861ae9ff62afec57762b72358",
+    "kernels_closes": "2026-11-05T00:00:00-08:00",
+    "scope": "Previously retrieved official served bundle; not a fresh deadline retrieval."
+  }
+}
