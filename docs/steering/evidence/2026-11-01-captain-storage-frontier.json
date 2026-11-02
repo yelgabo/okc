@@ -1,0 +1,415 @@
+{
+  "retrieved_at_utc": "2026-11-02T02:41:12.422Z",
+  "evidence_base": "d59046d2ecc6c9ec206ea00396a17d890b895647",
+  "query": "\"muse spark\" kernel in:name,description,readme",
+  "sort": "updated desc",
+  "pages": [
+    {
+      "page": 2,
+      "per_page": 30,
+      "total": 279,
+      "incomplete_results": false,
+      "items": [
+        {
+          "name": "ephraimcrypto21/AgentWard-MuseVerify",
+          "pushed": "2026-11-01T22:41:19Z",
+          "branch": "main"
+        },
+        {
+          "name": "joshuaswarren/omarchy-mlx",
+          "pushed": "2026-11-02T01:36:26Z",
+          "branch": "main"
+        },
+        {
+          "name": "Twilight0/aliveos-repo",
+          "pushed": "2026-11-02T01:11:05Z",
+          "branch": "main"
+        },
+        {
+          "name": "dgrieser/ai-bench",
+          "pushed": "2026-11-01T22:33:53Z",
+          "branch": "main"
+        },
+        {
+          "name": "enhansome/enhansome-AI-Catalog",
+          "pushed": "2026-11-01T22:28:33Z",
+          "branch": "main"
+        },
+        {
+          "name": "Shrenzoo/unlock",
+          "pushed": "2026-11-01T22:43:50Z",
+          "branch": "main"
+        },
+        {
+          "name": "btsouth/player-two",
+          "pushed": "2026-11-02T02:30:43Z",
+          "branch": "main"
+        },
+        {
+          "name": "huggingface/trl",
+          "pushed": "2026-11-01T21:40:42Z",
+          "branch": "main"
+        },
+        {
+          "name": "Shelpuk-AI-Technology-Consulting/kitty-bridge",
+          "pushed": "2026-11-01T22:52:28Z",
+          "branch": "main"
+        },
+        {
+          "name": "DiegoLLBB/kernel-credit-lab",
+          "pushed": "2026-11-01T21:31:40Z",
+          "branch": "main"
+        },
+        {
+          "name": "Blaizzy/mlx-vlm",
+          "pushed": "2026-11-01T21:31:14Z",
+          "branch": "main"
+        },
+        {
+          "name": "mary-jeon/realcad",
+          "pushed": "2026-11-01T21:05:50Z",
+          "branch": "main"
+        },
+        {
+          "name": "Hisernberg/spanguard",
+          "pushed": "2026-11-01T20:47:02Z",
+          "branch": "main"
+        },
+        {
+          "name": "TRON-ABS/Novera",
+          "pushed": "2026-11-02T02:37:44Z",
+          "branch": "main"
+        },
+        {
+          "name": "enhansome/enhansome-local-llm",
+          "pushed": "2026-11-01T19:49:17Z",
+          "branch": "main"
+        },
+        {
+          "name": "qubitpage/carpathron-muse",
+          "pushed": "2026-11-01T19:12:04Z",
+          "branch": "main"
+        },
+        {
+          "name": "kbitz/mind-meld",
+          "pushed": "2026-11-01T18:41:11Z",
+          "branch": "main"
+        },
+        {
+          "name": "enhansome/enhansome-Awesome-AITools",
+          "pushed": "2026-11-01T18:36:30Z",
+          "branch": "main"
+        },
+        {
+          "name": "nuroctane/nur-cli",
+          "pushed": "2026-11-01T18:28:12Z",
+          "branch": "main"
+        },
+        {
+          "name": "nvbkdw/muse-spark-open-challenge",
+          "pushed": "2026-11-01T17:50:04Z",
+          "branch": "main"
+        },
+        {
+          "name": "tomsebastian10/devrescue",
+          "pushed": "2026-11-01T17:43:07Z",
+          "branch": "main"
+        },
+        {
+          "name": "RonanLabsAI/dgx-station-frontier",
+          "pushed": "2026-11-01T17:26:50Z",
+          "branch": "main"
+        },
+        {
+          "name": "zhongkaifu/TensorSharp",
+          "pushed": "2026-11-01T20:20:42Z",
+          "branch": "main"
+        },
+        {
+          "name": "mson-wagz/Floatwise",
+          "pushed": "2026-11-01T17:18:27Z",
+          "branch": "main"
+        },
+        {
+          "name": "enhansome/enhansome-vlm-architectures",
+          "pushed": "2026-11-01T17:10:20Z",
+          "branch": "main"
+        },
+        {
+          "name": "asifehmad/openkernel-challenge",
+          "pushed": "2026-11-01T19:33:18Z",
+          "branch": "feat/muse-bf16-proj"
+        },
+        {
+          "name": "YAMMYHONEY/lost-and-frame",
+          "pushed": "2026-11-01T16:57:54Z",
+          "branch": "main"
+        },
+        {
+          "name": "swaroski/reviewramble",
+          "pushed": "2026-11-01T16:00:03Z",
+          "branch": "main"
+        },
+        {
+          "name": "mehmetkahya0/AI-Catalog",
+          "pushed": "2026-11-01T15:56:15Z",
+          "branch": "main"
+        },
+        {
+          "name": "turbo998/ai-infra-research",
+          "pushed": "2026-11-01T15:37:59Z",
+          "branch": "main"
+        }
+      ]
+    },
+    {
+      "page": 3,
+      "per_page": 30,
+      "total": 279,
+      "incomplete_results": false,
+      "items": [
+        {
+          "name": "ikaijua/Awesome-AITools",
+          "pushed": "2026-11-01T14:55:46Z",
+          "branch": "main"
+        },
+        {
+          "name": "Looming41/pocketllm",
+          "pushed": "2026-11-01T14:46:39Z",
+          "branch": "main"
+        },
+        {
+          "name": "clare8151214/gpu-os-copilot",
+          "pushed": "2026-11-01T13:46:38Z",
+          "branch": "main"
+        },
+        {
+          "name": "icyklop/ai-math-catalogue",
+          "pushed": "2026-11-01T12:33:49Z",
+          "branch": "main"
+        },
+        {
+          "name": "sysretq0/android-kernel-builder",
+          "pushed": "2026-11-01T12:05:52Z",
+          "branch": "main"
+        },
+        {
+          "name": "SongJunSub/knowledge-garden",
+          "pushed": "2026-11-01T11:48:15Z",
+          "branch": "main"
+        },
+        {
+          "name": "Snestra/pi-t3-bridge",
+          "pushed": "2026-11-01T11:41:30Z",
+          "branch": "main"
+        },
+        {
+          "name": "jwgellard/crpg",
+          "pushed": "2026-11-01T12:45:01Z",
+          "branch": "master"
+        },
+        {
+          "name": "bobbyshop-vui/nimformers-framework",
+          "pushed": "2026-11-01T11:36:01Z",
+          "branch": "main"
+        },
+        {
+          "name": "alexeygrigorev/agent-quota-launcher",
+          "pushed": "2026-11-01T11:19:36Z",
+          "branch": "main"
+        },
+        {
+          "name": "adaptabyte/autoharness",
+          "pushed": "2026-11-01T11:09:35Z",
+          "branch": "master"
+        },
+        {
+          "name": "ziya-ai/ziya",
+          "pushed": "2026-11-01T10:38:42Z",
+          "branch": "main"
+        },
+        {
+          "name": "SiddharthManjul/Brier",
+          "pushed": "2026-11-01T10:32:55Z",
+          "branch": "main"
+        },
+        {
+          "name": "fjzzwxp/awesome-dsh-plugins",
+          "pushed": "2026-11-01T10:31:55Z",
+          "branch": "main"
+        },
+        {
+          "name": "7ankalis/repro",
+          "pushed": "2026-11-01T10:19:06Z",
+          "branch": "master"
+        },
+        {
+          "name": "toxicwind/ranch",
+          "pushed": "2026-11-01T09:58:50Z",
+          "branch": "main"
+        },
+        {
+          "name": "Hellinferno/ClaimLab",
+          "pushed": "2026-11-01T09:55:11Z",
+          "branch": "main"
+        },
+        {
+          "name": "simon-oz/AI-News",
+          "pushed": "2026-11-01T09:01:41Z",
+          "branch": "main"
+        },
+        {
+          "name": "sanketny8/ai-daily-digest",
+          "pushed": "2026-11-01T07:56:36Z",
+          "branch": "main"
+        },
+        {
+          "name": "jaalonso/Lecturas_GLC",
+          "pushed": "2026-11-01T07:11:46Z",
+          "branch": "master"
+        },
+        {
+          "name": "keell0renz/muse-open-kernel-challenge",
+          "pushed": "2026-11-01T07:11:10Z",
+          "branch": "main"
+        },
+        {
+          "name": "huzjie/ai-daily-hub",
+          "pushed": "2026-11-01T06:32:43Z",
+          "branch": "main"
+        },
+        {
+          "name": "KCL1104/Geminus",
+          "pushed": "2026-11-02T01:45:36Z",
+          "branch": "main"
+        },
+        {
+          "name": "Kushagrabainsla/muse-spark-open",
+          "pushed": "2026-11-01T04:47:54Z",
+          "branch": "main"
+        },
+        {
+          "name": "Rodert/awesome-deepSeek-harness",
+          "pushed": "2026-11-01T04:00:43Z",
+          "branch": "main"
+        },
+        {
+          "name": "mnmal-ai/synoptic",
+          "pushed": "2026-11-01T03:04:41Z",
+          "branch": "main"
+        },
+        {
+          "name": "thepastaclaw/review-system",
+          "pushed": "2026-11-02T02:40:05Z",
+          "branch": "main"
+        },
+        {
+          "name": "sgl-project/sglang-torchtpu",
+          "pushed": "2026-11-02T01:41:10Z",
+          "branch": "main"
+        },
+        {
+          "name": "tobocop2/lilbee",
+          "pushed": "2026-11-02T02:39:18Z",
+          "branch": "main"
+        },
+        {
+          "name": "jared-two-foxes/review",
+          "pushed": "2026-11-01T02:56:34Z",
+          "branch": "main"
+        }
+      ]
+    }
+  ],
+  "limits": "Only pages2/3 of279 broad matches; metadata screening, not complete intake of every result. Existing nvbkdw/keell/Kushagrabainsla leads were previously inventoried; no claim no stronger source exists.",
+  "clusterfusion": {
+    "repository": "xinhao-luo/ClusterFusion",
+    "commit": "8755446cb495a09e8bbaaf62fdda333c82ee7ade",
+    "tree_entries": 55,
+    "tree_truncated": false,
+    "tree_paths": [
+      ".gitignore",
+      "MANIFEST.in",
+      "README.md",
+      "assets",
+      "assets/cluster.png",
+      "assets/example.gif",
+      "assets/overview.png",
+      "chat",
+      "chat/chat.py",
+      "chat/llama",
+      "chat/llama/__init__.py",
+      "chat/llama/generation.py",
+      "chat/llama/model.py",
+      "chat/llama/tokenizer.py",
+      "clusterfusion",
+      "clusterfusion/__init__.py",
+      "include",
+      "include/5090",
+      "include/5090/llama",
+      "include/5090/llama/config.h",
+      "include/5090/llama/kernel.cuh",
+      "include/5090/llama/kernel_batch_sglang.cuh",
+      "include/5090/llama/kernel_sglang.cuh",
+      "include/5090/llama/llama_kernel_batch_sglang_dispatch.cu",
+      "include/5090/llama/llama_kernel_dispatch.cu",
+      "include/5090/llama/llama_kernel_sglang_dispatch.cu",
+      "include/H100",
+      "include/H100/deepseek",
+      "include/H100/deepseek/config.h",
+      "include/H100/deepseek/deepseek_kernel_dispatch.cu",
+      "include/H100/deepseek/kernel.cuh",
+      "include/H100/llama",
+      "include/H100/llama/config.h",
+      "include/H100/llama/kernel.cuh",
+      "include/H100/llama/kernel_batch_sglang.cuh",
+      "include/H100/llama/kernel_sglang.cuh",
+      "include/H100/llama/llama_kernel_batch_sglang_dispatch.cu",
+      "include/H100/llama/llama_kernel_dispatch.cu",
+      "include/H100/llama/llama_kernel_sglang_dispatch.cu",
+      "include/H100/norm",
+      "include/H100/norm/config.h",
+      "include/H100/norm/kernel.cuh",
+      "include/H100/norm/norm_kernel_dispatch.cu",
+      "include/dsm.cuh",
+      "include/pybind.cpp",
+      "pyproject.toml",
+      "scripts",
+      "scripts/llama2.sh",
+      "scripts/llama2_clusterfusion.sh",
+      "setup.py",
+      "tests",
+      "tests/test_llama.py",
+      "tests/test_llama_tilelang.py",
+      "tests/test_norm.py",
+      "tilelang_llama.py"
+    ],
+    "readme_sha256": "6d7847ff47a01bf810a809991a1ec165480683eb5d251a159ecfc94c2e7373f6",
+    "sources": {
+      "include/dsm.cuh": {
+        "bytes": 6953,
+        "sha256": "9427c07128aa7e1f58122291e396f0c0841782409b35da8c5e6f1ccc3b9d1ff5"
+      },
+      "include/H100/norm/config.h": {
+        "bytes": 276,
+        "sha256": "8ca99747e73b53c14a2ced353090d531a2daf337a57f72dd07997709f3839d13"
+      },
+      "include/H100/norm/kernel.cuh": {
+        "bytes": 2823,
+        "sha256": "d33d4f7b2c5c434b73d37535094ae9b76c0d9e06d309bc9e16217b202ecc4ae5"
+      },
+      "include/H100/norm/norm_kernel_dispatch.cu": {
+        "bytes": 759,
+        "sha256": "82b77dd19b4c2c5fdb5cde32e1f45fa4c7a2e7b828a9e1cc511958f7be41204a"
+      },
+      "include/H100/llama/config.h": {
+        "bytes": 1662,
+        "sha256": "4311411b016600dc28a5a1a01f56777e22799bd5793f78437203cba24031e5c3"
+      },
+      "include/H100/llama/llama_kernel_dispatch.cu": {
+        "bytes": 6414,
+        "sha256": "d77399609bc4279faf5f709290c88cb0ff29634d9c157ca1ecb555e737e446ac"
+      }
+    }
+  }
+}

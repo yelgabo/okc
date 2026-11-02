@@ -1,5 +1,7 @@
 # Shared project steering
 
+Latest captain next-frontier allocation: [Storage reuse must earn implementation](2026-11-01-captain-storage-frontier.md). Researcher has a25minute no-extra-shared operand-slot alias feasibility test, not an implementation/GPU allocation. Exact#3 remains worker-owned; no terminal yet in latest owning wait poll. Complete ClusterFusion source intake and later broad discovery pages add no ready Muse donor or reason to reopen generic DSM finalization. Gamma remains stopped.
+
 Latest compiler decision: [Fixed MAIN gamma13 screen](2026-11-01-gamma13-main-screen.md), published241c04a. STOP: secondary NVRTC13/PTXAS13 baseline/OFF match, ON stack8->16B and spill stores20->60B/loads52->88B in both entries. Actual NVCC13 cannot preprocess without a host compiler; this is not target-NVCC equivalence or a GPU timing result. No gamma port, sweep or GPU allocation. Prior frontier screen authorization below is now completed/closed.
 
 Latest legal-frontier research: [Actual nonlinear ownership versus generic stitching](2026-11-01-legal-frontier-research.md), evidence commit553e36f. Generic cross-unit stitching already exists in G; MAIN/B4 nonlinear epilogue ownership is distinct but not implementation-ready: minimum8192B shared mailbox exceeds2304B headroom, with exposed benefit/progress unresolved. Fixed MAIN gamma compiler screen remains researcher-owned, offline and bounded; it is not a prerequisite for private#3 or authorization for another GPU run. [Captain decision](2026-11-01-captain-opportunity-sizing.md#published-frontier-decision).
