@@ -2,6 +2,10 @@
 
 This is the stable cross-session entry point. Read the latest report, its evidence date and subsequent commits before continuing. Existing captain/worker ownership, submission approvals and frozen experiment gates remain in effect; a research recommendation is not a GPU allocation.
 
+## Latest standalone component harness
+
+[November 2: Bounded candidate-official MoE harness](2026-11-02-top100-moe-harness.md) - implementation785846d, allocationca5cf8f. Held344688B payload557c67fe preserves adapter19aeaf35 and exact native identities. Four independent placements/private captured inputs, all54 routing/replay cases, equal-six paired-cross/null/regression gates and strict standalone5/6/6 receipt reader. Eleven complete-entry reduced real-Torch/facade tests plus10 adapter regressions PASS. Full production preparation and all target gates remain open; dispatch_ready=false, no job or speed/layer claim.
+
 ## Latest standalone component adapter
 
 [Captain component adapter review](2026-11-02-captain-component-adapter-review.md): independent10-test CPU reproduction and source-contract review retain the exact adapter; cleanup repair inspected. Candidate-official component harness remains parent-owned and pending. No target allocation, numerical pass or measured gain.
@@ -76,6 +80,7 @@ Publication-time source progress: [owner-event amendment](2026-11-02-worker-pr-g
 
 | New report | Evidence | Scope |
 |---|---|---|
+| [2026-11-02 standalone MoE harness](2026-11-02-top100-moe-harness.md) | 785846d; ca5cf8f; payload557c67fe | Candidate-official held component wrapper, real-host facade orchestration and strict owning reader; no target readiness or layer inference |
 <<<<<<< HEAD
 | [2026-11-02 standalone MoE adapter](2026-11-02-top100-moe-adapter.md) | ece009b; a58f058; payload19aeaf35 | Exact bounded component adapter and21 CPU tests; no target/candidate numerical or timing qualification; explicit missing gates |
 =======
