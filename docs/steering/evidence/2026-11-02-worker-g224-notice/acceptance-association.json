@@ -1,0 +1,19 @@
+{
+  "at": "2026-11-02T09:28:15.929Z",
+  "job_id": "e1271ad5e5e34b24",
+  "mode": "check",
+  "board": "muse_decode_layer",
+  "team": "yelgabo",
+  "preregistration": "5b997e07b5532a2a2c83c1be21b2002760500944",
+  "physical_sha256": "0d84d0e34303f2a154a914ace131cbae661cc61def18f7bfcbc20ed3f218cf76",
+  "physical_bytes": 999492,
+  "server_content_hash": "d5c0ded18bd609bb8da2cfc35633d9a2ad593611ef03a0eb91a5356405bce2c9",
+  "payload_ref": "muse_decode_layer/d5c0ded18bd609bb8da2cfc35633d9a2ad593611ef03a0eb91a5356405bce2c9.py",
+  "created_at": 1793611498.591165,
+  "status": "queued",
+  "private_checks_after": 4,
+  "initial_received_quota_snapshot_was_stale": true,
+  "server_identity_is_not_physical_sha256": true,
+  "wait_session": 27522,
+  "second_check_authorized": false
+}

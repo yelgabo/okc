@@ -1,0 +1,9 @@
+{
+  "at": "2026-11-02T09:24:39.493Z",
+  "publication": "5b997e07b5532a2a2c83c1be21b2002760500944",
+  "remote_head": "5b997e07b5532a2a2c83c1be21b2002760500944",
+  "files_verified": 8,
+  "manifest_files": 7,
+  "source_hash_match": true,
+  "deterministic_rebuild_match": true
+}

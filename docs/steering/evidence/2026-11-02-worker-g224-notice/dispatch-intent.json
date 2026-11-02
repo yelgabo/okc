@@ -1,0 +1,17 @@
+{
+  "at": "2026-11-02T09:24:39.491Z",
+  "publication": "5b997e07b5532a2a2c83c1be21b2002760500944",
+  "command": [
+    "wsl",
+    "-e",
+    "bash",
+    "-lc",
+    "cd /mnt/c/Users/gretc/Documents/GitHub/okc && /usr/local/bin/okc check muse_decode_layer .build/worker-g224-notice/final/variant.py --no-wait --json"
+  ],
+  "source_sha256": "0d84d0e34303f2a154a914ace131cbae661cc61def18f7bfcbc20ed3f218cf76",
+  "bytes": 999492,
+  "private_checks_left": 5,
+  "live_layer_jobs": 0,
+  "one_check_maximum": true,
+  "automatic_retry": false
+}
