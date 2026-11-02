@@ -1,0 +1,12 @@
+test_actual_prepare_allocates_only_uninitialized_private_table (test_g_timed_silu_table.Contracts.test_actual_prepare_allocates_only_uninitialized_private_table) ... ok
+test_actual_seven_build_requests_and_routes (test_g_timed_silu_table.Contracts.test_actual_seven_build_requests_and_routes) ... ok
+test_domain_embedding_and_index (test_g_timed_silu_table.Contracts.test_domain_embedding_and_index) ... ok
+test_independent_main_helper_site_inventory (test_g_timed_silu_table.Contracts.test_independent_main_helper_site_inventory) ... ok
+test_per_invocation_empty_replay_has_no_conditional_producer (test_g_timed_silu_table.Contracts.test_per_invocation_empty_replay_has_no_conditional_producer) ... ok
+test_reject_native_and_actual_entry_mutations (test_g_timed_silu_table.Contracts.test_reject_native_and_actual_entry_mutations) ... ok
+test_reverse_and_licenses (test_g_timed_silu_table.Contracts.test_reverse_and_licenses) ... ok
+
+----------------------------------------------------------------------
+Ran 7 tests in 3.558s
+
+OK

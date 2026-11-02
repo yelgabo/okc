@@ -1,0 +1,12 @@
+{
+  "base_sha256": "ba9e327cd7b96595ace4d0c1d0d78fe27c128f23ed0debcda97c7169fc3164ab",
+  "source_sha256": "d70a1bcc6202e37562b675fbab3251cdbe1b6fd81569442b3a179270aebae401",
+  "bytes": 870087,
+  "exact_reverse": true,
+  "edits": 4,
+  "selected_native_sha256": "f5344c9d8d82cae177050a8d4bfa80b3f5f88b9fcfb35f726f777d55ad22f355",
+  "scope": "WGS B4/MAIN only; full 65536 entries on each timed native call; short paths unchanged",
+  "CUDA_numeric_equivalence": "NOT RUN",
+  "GPU": false,
+  "performance_qualified": false
+}

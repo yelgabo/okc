@@ -1,0 +1,770 @@
+{
+  "started_epoch": 1793614932.2857268,
+  "generation": {
+    "base_sha256": "ba9e327cd7b96595ace4d0c1d0d78fe27c128f23ed0debcda97c7169fc3164ab",
+    "source_sha256": "3427bb3b6138e23ae64e5b4ffe50755568f15a798f990b188b3eb969ed28e5bb",
+    "bytes": 869938,
+    "exact_reverse": true,
+    "edits": 2,
+    "selected_native_sha256": "7bc4de356b9ba39cd39b3bf77151fb9eca9e3220f1144247253083a7110b6b57",
+    "scope": "WGS B4/MAIN only; full 65536 entries on each timed native call; short paths unchanged",
+    "CUDA_numeric_equivalence": "NOT RUN",
+    "GPU": false,
+    "performance_qualified": false
+  },
+  "routes": [
+    {
+      "tokens": 1,
+      "selected_key": "tiny"
+    },
+    {
+      "tokens": 8,
+      "selected_key": "tiny2"
+    },
+    {
+      "tokens": 16,
+      "selected_key": "mid"
+    },
+    {
+      "tokens": 32,
+      "selected_key": "b4"
+    },
+    {
+      "tokens": 33,
+      "selected_key": "main"
+    },
+    {
+      "tokens": 128,
+      "selected_key": "main"
+    },
+    {
+      "tokens": 256,
+      "selected_key": "main"
+    },
+    {
+      "tokens": 384,
+      "selected_key": "main"
+    }
+  ],
+  "records": [
+    {
+      "family": "B4",
+      "control_manifest": {
+        "source": ".build/worker-g224-reference/B4/original-selected.cu",
+        "source_sha256": "c7c201ae145c6a33f2d5e6b1f80d2a6e56e8d75502f9fd09ace40927ad0f7c71",
+        "original_device_prefix_sha256": "8203a0f0802335ad628806ad814e9fcc97d45ea46c271d8ba40ea3a2ee0cf906",
+        "compiled_device_prefix_sha256": "f26d214e694b9bb2512e297159e8425eb25cd25cb8d2b34c2486fb5ca08a7d32",
+        "host_boundary": "#include <torch/extension.h>",
+        "virtual_headers": {
+          "type_traits": "#pragma once\nnamespace std { template<class T,T v> struct integral_constant {\nstatic constexpr T value=v; constexpr operator T() const noexcept {return value;}\n}; using true_type=integral_constant<bool,true>; using false_type=integral_constant<bool,false>; }\n",
+          "stdint.h": "#pragma once\ntypedef signed char int8_t; typedef unsigned char uint8_t;\ntypedef signed short int16_t; typedef unsigned short uint16_t;\ntypedef signed int int32_t; typedef unsigned int uint32_t;\ntypedef signed long int64_t; typedef unsigned long uint64_t;\ntypedef signed long intptr_t; typedef unsigned long uintptr_t;\n"
+        },
+        "options": [
+          "--gpu-architecture=compute_90a",
+          "--std=c++17",
+          "--generate-line-info",
+          "--device-as-default-execution-space",
+          "--include-path=/root/.cache/okc-cuda130-88/nvidia/cu13/include",
+          "--include-path=/root/.cache/okc-cuda130-88/nvidia/cu13/include",
+          "--include-path=/root/.cache/okc-cuda130-88/cuda_cccl-linux-x86_64-13.0.85-archive/include",
+          "-DOKC_NS=3",
+          "-DOKC_FNST=4",
+          "-DOKC_NSF=3",
+          "-DOKC_NW=16",
+          "-DOKC_FAST1=0",
+          "-DOKC_EPI4=0",
+          "-DOKC_WGS=1",
+          "-DOKC_B4FIN=1",
+          "-DOKC_SC6W=1",
+          "-DOKC_PRMTSC=1",
+          "-DOKC_DQ7=1"
+        ],
+        "declaration_adapter": "__device__ __forceinline__ int wgs_cta_of(const Smem& S, int pb, int s, int G);\n",
+        "nvrtc_status": 0,
+        "gpu_execution": false,
+        "lowered": [
+          "_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE",
+          "_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE"
+        ],
+        "ptx_sha256": "07e50fbe32ca0d28d770ebd66a1542e62de8ac7d48b50316ee3e7afdf49ce6e3",
+        "cubin_sha256": "a2bc8b02f0786e8d4467fce6c8bdb46f991193bb85b3378d3dfc14a09e58bf2a",
+        "ptxas": [
+          "/root/.cache/okc-cuda130-88/nvidia/cu13/bin/ptxas",
+          "-arch=sm_90a",
+          "-O3",
+          "-v",
+          "--warn-on-spills",
+          ".build/worker-g224-reference/B4/device.ptx",
+          "-o",
+          ".build/worker-g224-reference/B4/device.cubin"
+        ],
+        "exitcode": 0,
+        "resources": {
+          "_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE": {
+            "stack_bytes": 16,
+            "spill_store_bytes": 120,
+            "spill_load_bytes": 216,
+            "registers": 96,
+            "barriers": 16
+          },
+          "_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE": {
+            "stack_bytes": 16,
+            "spill_store_bytes": 120,
+            "spill_load_bytes": 216,
+            "registers": 96,
+            "barriers": 16
+          }
+        },
+        "ptx_launch_bounds": [
+          ".maxntid 576, 1, 1",
+          ".minnctapersm 1",
+          ".maxntid 576, 1, 1",
+          ".minnctapersm 1"
+        ],
+        "ptxas_wgmma_serialization_warnings": 0
+      },
+      "actual_flags": [
+        "-O3",
+        "-gencode=arch=compute_90a,code=sm_90a",
+        "-lineinfo",
+        "-DOKC_NS=3",
+        "-DOKC_FNST=4",
+        "-DOKC_NSF=3",
+        "-DOKC_NW=16",
+        "-DOKC_FAST1=0",
+        "-DOKC_EPI4=0",
+        "-DOKC_WGS=1",
+        "-DOKC_B4FIN=1",
+        "-DOKC_SC6W=1",
+        "-DOKC_PRMTSC=1",
+        "-DOKC_DQ7=1"
+      ],
+      "control_dir": "/mnt/c/Users/gretc/Documents/GitHub/okc/.build/worker-g224-reference/B4",
+      "treatment_manifest": {
+        "source": ".build/worker-timed-silu-table/B4/selected.cu",
+        "source_sha256": "7bc4de356b9ba39cd39b3bf77151fb9eca9e3220f1144247253083a7110b6b57",
+        "original_device_prefix_sha256": "78250a8695b00063c15a466c03033abdb95a86f397774b12cc5660e60a545427",
+        "compiled_device_prefix_sha256": "039fe560f11b669906af29b46e58c5794581b53e1d2d681ad4d72070e74a76cb",
+        "host_boundary": "#include <torch/extension.h>",
+        "virtual_headers": {
+          "type_traits": "#pragma once\nnamespace std { template<class T,T v> struct integral_constant {\nstatic constexpr T value=v; constexpr operator T() const noexcept {return value;}\n}; using true_type=integral_constant<bool,true>; using false_type=integral_constant<bool,false>; }\n",
+          "stdint.h": "#pragma once\ntypedef signed char int8_t; typedef unsigned char uint8_t;\ntypedef signed short int16_t; typedef unsigned short uint16_t;\ntypedef signed int int32_t; typedef unsigned int uint32_t;\ntypedef signed long int64_t; typedef unsigned long uint64_t;\ntypedef signed long intptr_t; typedef unsigned long uintptr_t;\n"
+        },
+        "options": [
+          "--gpu-architecture=compute_90a",
+          "--std=c++17",
+          "--generate-line-info",
+          "--device-as-default-execution-space",
+          "--include-path=/root/.cache/okc-cuda130-88/nvidia/cu13/include",
+          "--include-path=/root/.cache/okc-cuda130-88/nvidia/cu13/include",
+          "--include-path=/root/.cache/okc-cuda130-88/cuda_cccl-linux-x86_64-13.0.85-archive/include",
+          "-DOKC_NS=3",
+          "-DOKC_FNST=4",
+          "-DOKC_NSF=3",
+          "-DOKC_NW=16",
+          "-DOKC_FAST1=0",
+          "-DOKC_EPI4=0",
+          "-DOKC_WGS=1",
+          "-DOKC_B4FIN=1",
+          "-DOKC_SC6W=1",
+          "-DOKC_PRMTSC=1",
+          "-DOKC_DQ7=1"
+        ],
+        "declaration_adapter": "__device__ __forceinline__ int wgs_cta_of(const Smem& S, int pb, int s, int G);\n",
+        "nvrtc_status": 0,
+        "gpu_execution": false,
+        "lowered": [
+          "_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE",
+          "_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE",
+          "_ZN3okc22timed_silu_table_buildEPf"
+        ],
+        "ptx_sha256": "b8444aa2000fcdd08698cae3dac964df228468a98be41e44e40d319920ba94ae",
+        "cubin_sha256": "689e4e43590b80ded3c477a5ef0006294e8e3662284ec8c3f086972ce8937b53",
+        "ptxas": [
+          "/root/.cache/okc-cuda130-88/nvidia/cu13/bin/ptxas",
+          "-arch=sm_90a",
+          "-O3",
+          "-v",
+          "--warn-on-spills",
+          ".build/worker-timed-silu-table/B4/device.ptx",
+          "-o",
+          ".build/worker-timed-silu-table/B4/device.cubin"
+        ],
+        "exitcode": 0,
+        "resources": {
+          "_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE": {
+            "stack_bytes": 16,
+            "spill_store_bytes": 120,
+            "spill_load_bytes": 216,
+            "registers": 96,
+            "barriers": 16
+          },
+          "_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE": {
+            "stack_bytes": 16,
+            "spill_store_bytes": 120,
+            "spill_load_bytes": 216,
+            "registers": 96,
+            "barriers": 16
+          },
+          "_ZN3okc22timed_silu_table_buildEPf": {
+            "stack_bytes": 0,
+            "spill_store_bytes": 0,
+            "spill_load_bytes": 0,
+            "registers": 10,
+            "barriers": 0
+          }
+        },
+        "ptx_launch_bounds": [
+          ".maxntid 576, 1, 1",
+          ".minnctapersm 1",
+          ".maxntid 576, 1, 1",
+          ".minnctapersm 1"
+        ],
+        "ptxas_wgmma_serialization_warnings": 0
+      },
+      "resource_deltas": {
+        "_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE": {
+          "stack_bytes": 0,
+          "spill_store_bytes": 0,
+          "spill_load_bytes": 0,
+          "registers": 0,
+          "barriers": 0
+        },
+        "_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE": {
+          "stack_bytes": 0,
+          "spill_store_bytes": 0,
+          "spill_load_bytes": 0,
+          "registers": 0,
+          "barriers": 0
+        }
+      },
+      "resources_no_worse": true,
+      "bounds_equal": true,
+      "producer_resources": {
+        "_ZN3okc22timed_silu_table_buildEPf": {
+          "stack_bytes": 0,
+          "spill_store_bytes": 0,
+          "spill_load_bytes": 0,
+          "registers": 10,
+          "barriers": 0
+        }
+      },
+      "producer_no_spills": true,
+      "shared_layout_source_identical": true
+    },
+    {
+      "family": "MAIN",
+      "control_manifest": {
+        "source": ".build/worker-g224-reference/MAIN/original-selected.cu",
+        "source_sha256": "c7c201ae145c6a33f2d5e6b1f80d2a6e56e8d75502f9fd09ace40927ad0f7c71",
+        "original_device_prefix_sha256": "8203a0f0802335ad628806ad814e9fcc97d45ea46c271d8ba40ea3a2ee0cf906",
+        "compiled_device_prefix_sha256": "f26d214e694b9bb2512e297159e8425eb25cd25cb8d2b34c2486fb5ca08a7d32",
+        "host_boundary": "#include <torch/extension.h>",
+        "virtual_headers": {
+          "type_traits": "#pragma once\nnamespace std { template<class T,T v> struct integral_constant {\nstatic constexpr T value=v; constexpr operator T() const noexcept {return value;}\n}; using true_type=integral_constant<bool,true>; using false_type=integral_constant<bool,false>; }\n",
+          "stdint.h": "#pragma once\ntypedef signed char int8_t; typedef unsigned char uint8_t;\ntypedef signed short int16_t; typedef unsigned short uint16_t;\ntypedef signed int int32_t; typedef unsigned int uint32_t;\ntypedef signed long int64_t; typedef unsigned long uint64_t;\ntypedef signed long intptr_t; typedef unsigned long uintptr_t;\n"
+        },
+        "options": [
+          "--gpu-architecture=compute_90a",
+          "--std=c++17",
+          "--generate-line-info",
+          "--device-as-default-execution-space",
+          "--include-path=/root/.cache/okc-cuda130-88/nvidia/cu13/include",
+          "--include-path=/root/.cache/okc-cuda130-88/nvidia/cu13/include",
+          "--include-path=/root/.cache/okc-cuda130-88/cuda_cccl-linux-x86_64-13.0.85-archive/include",
+          "-DOKC_NS=3",
+          "-DOKC_FNST=4",
+          "-DOKC_NSF=3",
+          "-DOKC_NW=16",
+          "-DOKC_FAST1=0",
+          "-DOKC_EPI4=0",
+          "-DOKC_WGS=1",
+          "-DOKC_SC6W=1",
+          "-DOKC_PRMTSC=1",
+          "-DOKC_DQ7=1"
+        ],
+        "declaration_adapter": "__device__ __forceinline__ int wgs_cta_of(const Smem& S, int pb, int s, int G);\n",
+        "nvrtc_status": 0,
+        "gpu_execution": false,
+        "lowered": [
+          "_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE",
+          "_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE"
+        ],
+        "ptx_sha256": "275c98b308f9fc7d330e7100861ebb930af09d0bbd306333fa98bd661b24e054",
+        "cubin_sha256": "3c069d2715fcb4b235b1cedbc9b9ebbd6fe8cbe44e7954f643df3dcd291ce428",
+        "ptxas": [
+          "/root/.cache/okc-cuda130-88/nvidia/cu13/bin/ptxas",
+          "-arch=sm_90a",
+          "-O3",
+          "-v",
+          "--warn-on-spills",
+          ".build/worker-g224-reference/MAIN/device.ptx",
+          "-o",
+          ".build/worker-g224-reference/MAIN/device.cubin"
+        ],
+        "exitcode": 0,
+        "resources": {
+          "_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE": {
+            "stack_bytes": 8,
+            "spill_store_bytes": 20,
+            "spill_load_bytes": 52,
+            "registers": 96,
+            "barriers": 16
+          },
+          "_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE": {
+            "stack_bytes": 8,
+            "spill_store_bytes": 20,
+            "spill_load_bytes": 52,
+            "registers": 96,
+            "barriers": 16
+          }
+        },
+        "ptx_launch_bounds": [
+          ".maxntid 576, 1, 1",
+          ".minnctapersm 1",
+          ".maxntid 576, 1, 1",
+          ".minnctapersm 1"
+        ],
+        "ptxas_wgmma_serialization_warnings": 0
+      },
+      "actual_flags": [
+        "-O3",
+        "-gencode=arch=compute_90a,code=sm_90a",
+        "-lineinfo",
+        "-DOKC_NS=3",
+        "-DOKC_FNST=4",
+        "-DOKC_NSF=3",
+        "-DOKC_NW=16",
+        "-DOKC_FAST1=0",
+        "-DOKC_EPI4=0",
+        "-DOKC_WGS=1",
+        "-DOKC_SC6W=1",
+        "-DOKC_PRMTSC=1",
+        "-DOKC_DQ7=1"
+      ],
+      "control_dir": "/mnt/c/Users/gretc/Documents/GitHub/okc/.build/worker-g224-reference/MAIN",
+      "treatment_manifest": {
+        "source": ".build/worker-timed-silu-table/MAIN/selected.cu",
+        "source_sha256": "7bc4de356b9ba39cd39b3bf77151fb9eca9e3220f1144247253083a7110b6b57",
+        "original_device_prefix_sha256": "78250a8695b00063c15a466c03033abdb95a86f397774b12cc5660e60a545427",
+        "compiled_device_prefix_sha256": "039fe560f11b669906af29b46e58c5794581b53e1d2d681ad4d72070e74a76cb",
+        "host_boundary": "#include <torch/extension.h>",
+        "virtual_headers": {
+          "type_traits": "#pragma once\nnamespace std { template<class T,T v> struct integral_constant {\nstatic constexpr T value=v; constexpr operator T() const noexcept {return value;}\n}; using true_type=integral_constant<bool,true>; using false_type=integral_constant<bool,false>; }\n",
+          "stdint.h": "#pragma once\ntypedef signed char int8_t; typedef unsigned char uint8_t;\ntypedef signed short int16_t; typedef unsigned short uint16_t;\ntypedef signed int int32_t; typedef unsigned int uint32_t;\ntypedef signed long int64_t; typedef unsigned long uint64_t;\ntypedef signed long intptr_t; typedef unsigned long uintptr_t;\n"
+        },
+        "options": [
+          "--gpu-architecture=compute_90a",
+          "--std=c++17",
+          "--generate-line-info",
+          "--device-as-default-execution-space",
+          "--include-path=/root/.cache/okc-cuda130-88/nvidia/cu13/include",
+          "--include-path=/root/.cache/okc-cuda130-88/nvidia/cu13/include",
+          "--include-path=/root/.cache/okc-cuda130-88/cuda_cccl-linux-x86_64-13.0.85-archive/include",
+          "-DOKC_NS=3",
+          "-DOKC_FNST=4",
+          "-DOKC_NSF=3",
+          "-DOKC_NW=16",
+          "-DOKC_FAST1=0",
+          "-DOKC_EPI4=0",
+          "-DOKC_WGS=1",
+          "-DOKC_SC6W=1",
+          "-DOKC_PRMTSC=1",
+          "-DOKC_DQ7=1"
+        ],
+        "declaration_adapter": "__device__ __forceinline__ int wgs_cta_of(const Smem& S, int pb, int s, int G);\n",
+        "nvrtc_status": 0,
+        "gpu_execution": false,
+        "lowered": [
+          "_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE",
+          "_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE",
+          "_ZN3okc22timed_silu_table_buildEPf"
+        ],
+        "ptx_sha256": "60fd4567d24b84ee2387ab06cea8d70f45970fa314709599ccddb5a88817b7a1",
+        "cubin_sha256": "9de4042c4267fa3f1db8e00afd2bc8c4f8a7c620cbd6e1b5a23396c3b9fb0110",
+        "ptxas": [
+          "/root/.cache/okc-cuda130-88/nvidia/cu13/bin/ptxas",
+          "-arch=sm_90a",
+          "-O3",
+          "-v",
+          "--warn-on-spills",
+          ".build/worker-timed-silu-table/MAIN/device.ptx",
+          "-o",
+          ".build/worker-timed-silu-table/MAIN/device.cubin"
+        ],
+        "exitcode": 0,
+        "resources": {
+          "_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE": {
+            "stack_bytes": 8,
+            "spill_store_bytes": 20,
+            "spill_load_bytes": 52,
+            "registers": 96,
+            "barriers": 16
+          },
+          "_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE": {
+            "stack_bytes": 8,
+            "spill_store_bytes": 20,
+            "spill_load_bytes": 52,
+            "registers": 96,
+            "barriers": 16
+          },
+          "_ZN3okc22timed_silu_table_buildEPf": {
+            "stack_bytes": 0,
+            "spill_store_bytes": 0,
+            "spill_load_bytes": 0,
+            "registers": 10,
+            "barriers": 0
+          }
+        },
+        "ptx_launch_bounds": [
+          ".maxntid 576, 1, 1",
+          ".minnctapersm 1",
+          ".maxntid 576, 1, 1",
+          ".minnctapersm 1"
+        ],
+        "ptxas_wgmma_serialization_warnings": 0
+      },
+      "resource_deltas": {
+        "_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE": {
+          "stack_bytes": 0,
+          "spill_store_bytes": 0,
+          "spill_load_bytes": 0,
+          "registers": 0,
+          "barriers": 0
+        },
+        "_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE": {
+          "stack_bytes": 0,
+          "spill_store_bytes": 0,
+          "spill_load_bytes": 0,
+          "registers": 0,
+          "barriers": 0
+        }
+      },
+      "resources_no_worse": true,
+      "bounds_equal": true,
+      "producer_resources": {
+        "_ZN3okc22timed_silu_table_buildEPf": {
+          "stack_bytes": 0,
+          "spill_store_bytes": 0,
+          "spill_load_bytes": 0,
+          "registers": 10,
+          "barriers": 0
+        }
+      },
+      "producer_no_spills": true,
+      "shared_layout_source_identical": true
+    }
+  ],
+  "decision": "SECONDARY_SURVIVOR_NOT_TARGET_QUALIFIED",
+  "GPU": false,
+  "scope": "NVRTC13/PTXAS13 fixed exact cached controls; host NVCC/link and CUDA numerics NOT RUN",
+  "driver_sha256": "e695ef03bda22d86167b829618429c7d139c23ad9cf96294edd1211388d5620c",
+  "adapted_driver_sha256": "731ad007c50225196153aa7753a572848d9f50269c386191f2937e4a55dd04a1",
+  "coverage": {
+    "MAIN_original": [
+      {
+        "line": 453,
+        "declaration": "__device__ __forceinline__ void epi_A(const Params& p, int pstart, int ntok, int tok0, int col, float gsc, const float* r) {",
+        "text": "float v = SILU_DIV(gt, 1.f + __expf(-gt)) * up;"
+      },
+      {
+        "line": 777,
+        "declaration": "__device__ void skinny_ring(const Params& p, Smem& S, int v0, int v1, unsigned char* ring, uint64_t* bars, int& seq,",
+        "text": "st_keep_bf16(p.inter + ((size_t)(st + tk) * ID + rb * 8 + gg), __float2bfloat16(probe_q(SILU_DIV(gt, 1.f + __expf(-gt)) * up)));"
+      },
+      {
+        "line": 945,
+        "declaration": "__device__ void skinny_ring(const Params& p, Smem& S, int v0, int v1, unsigned char* ring, uint64_t* bars, int& seq,",
+        "text": "st_keep_bf16(p.inter + ((size_t)(st + tk) * ID + rb * 8 + gg), __float2bfloat16(probe_q(SILU_DIV(gt, 1.f + __expf(-gt)) * up)));"
+      },
+      {
+        "line": 1602,
+        "declaration": "__device__ void ws_helper(const Params& p, Smem& S, unsigned char* ring) {",
+        "text": "st_keep_bf16(p.inter + ((size_t)(st + tk) * ID + rb * 8 + gg), __float2bfloat16(probe_q(SILU_DIV(gt, 1.f + __expf(-gt)) * up)));"
+      },
+      {
+        "line": 1975,
+        "declaration": "__device__ __forceinline__ void wgs_epi_tile(const Params& p, const Smem& S, int j, int r16, int nt, const float* d4) {",
+        "text": "const float v = SILU_DIV(gt, 1.f + __expf(-gt)) * up;"
+      }
+    ],
+    "MAIN_treatment": [
+      {
+        "line": 454,
+        "declaration": "__device__ __forceinline__ void epi_A(const Params& p, int pstart, int ntok, int tok0, int col, float gsc, const float* r) {",
+        "text": "float v = SILU_DIV(gt, 1.f + __expf(-gt)) * up;"
+      },
+      {
+        "line": 778,
+        "declaration": "__device__ void skinny_ring(const Params& p, Smem& S, int v0, int v1, unsigned char* ring, uint64_t* bars, int& seq,",
+        "text": "st_keep_bf16(p.inter + ((size_t)(st + tk) * ID + rb * 8 + gg), __float2bfloat16(probe_q(SILU_DIV(gt, 1.f + __expf(-gt)) * up)));"
+      },
+      {
+        "line": 946,
+        "declaration": "__device__ void skinny_ring(const Params& p, Smem& S, int v0, int v1, unsigned char* ring, uint64_t* bars, int& seq,",
+        "text": "st_keep_bf16(p.inter + ((size_t)(st + tk) * ID + rb * 8 + gg), __float2bfloat16(probe_q(SILU_DIV(gt, 1.f + __expf(-gt)) * up)));"
+      },
+      {
+        "line": 1603,
+        "declaration": "__device__ void ws_helper(const Params& p, Smem& S, unsigned char* ring) {",
+        "text": "st_keep_bf16(p.inter + ((size_t)(st + tk) * ID + rb * 8 + gg), __float2bfloat16(probe_q(SILU_DIV(gt, 1.f + __expf(-gt)) * up)));"
+      },
+      {
+        "line": 1976,
+        "declaration": "__device__ __forceinline__ void wgs_epi_tile(const Params& p, const Smem& S, int j, int r16, int nt, const float* d4) {",
+        "text": "const float v = __ldg(p.silu_table + (__float_as_uint(gt) >> 16)) * up;"
+      }
+    ],
+    "helper_unchanged": [
+      {
+        "line": 425,
+        "declaration": "__device__ __forceinline__ void epi_A(const Params& p, int pstart, int ntok, int tok0, int col, float gsc, const float* r) {",
+        "text": "float v = SILU_DIV(gt, 1.f + __expf(-gt)) * up;"
+      },
+      {
+        "line": 723,
+        "declaration": "__device__ void skinny_ring(const Params& p, Smem& S, int v0, int v1, unsigned char* ring, uint64_t* bars, int& seq,",
+        "text": "st_keep_bf16(p.inter + ((size_t)(st + tk) * ID + rb * 8 + gg), __float2bfloat16(probe_q(SILU_DIV(gt, 1.f + __expf(-gt)) * up)));"
+      },
+      {
+        "line": 891,
+        "declaration": "__device__ void skinny_ring(const Params& p, Smem& S, int v0, int v1, unsigned char* ring, uint64_t* bars, int& seq,",
+        "text": "st_keep_bf16(p.inter + ((size_t)(st + tk) * ID + rb * 8 + gg), __float2bfloat16(probe_q(SILU_DIV(gt, 1.f + __expf(-gt)) * up)));"
+      },
+      {
+        "line": 1548,
+        "declaration": "__device__ void ws_helper(const Params& p, Smem& S, unsigned char* ring) {",
+        "text": "st_keep_bf16(p.inter + ((size_t)(st + tk) * ID + rb * 8 + gg), __float2bfloat16(probe_q(SILU_DIV(gt, 1.f + __expf(-gt)) * up)));"
+      },
+      {
+        "line": 1891,
+        "declaration": "__device__ __forceinline__ void wgs_epi_tile(const Params& p, const Smem& S, int j, int r16, int nt, const float* d4) {",
+        "text": "const float v = SILU_DIV(gt, 1.f + __expf(-gt)) * up;"
+      }
+    ]
+  },
+  "factory_capture": [
+    {
+      "index": 0,
+      "historical_short_RMW_ON": false,
+      "actual_flags": [
+        "-O3",
+        "-gencode=arch=compute_90a,code=sm_90a",
+        "-lineinfo",
+        "-DOKC_NS=3",
+        "-DOKC_FNST=4",
+        "-DOKC_NSF=3",
+        "-DOKC_NW=8",
+        "-DOKC_TINY=1",
+        "-DOKC_EPI4=0",
+        "-DOKC_FAST1=2",
+        "-DOKC_L2H=0",
+        "-DOKC_NACC=4",
+        "-DOKC_UWARP=0",
+        "-DOKC_WS=1",
+        "-DOKC_WSB=1",
+        "-DOKC_WSBL=2",
+        "-DOKC_WSBLK=2",
+        "-DOKC_FINPF=1",
+        "-DOKC_PRMTSC=1",
+        "-DOKC_DQ7=1"
+      ],
+      "original_name": "glue_moe_415a2bdc6eb73960_sm90a",
+      "treatment_name": "glue_moe_415a2bdc6eb73960_sm90a",
+      "original_cuda_sha256": "b8ed85438c06673f411ff4203080bfbacd0c0c2dc5cb624e6f10d4877fe7a716",
+      "treatment_cuda_sha256": "b8ed85438c06673f411ff4203080bfbacd0c0c2dc5cb624e6f10d4877fe7a716",
+      "cpp_equal": true,
+      "flags_equal": true,
+      "unchanged": true
+    },
+    {
+      "index": 1,
+      "historical_short_RMW_ON": false,
+      "actual_flags": [
+        "-O3",
+        "-gencode=arch=compute_90a,code=sm_90a",
+        "-lineinfo",
+        "-DOKC_NS=3",
+        "-DOKC_FNST=4",
+        "-DOKC_NSF=3",
+        "-DOKC_NW=8",
+        "-DOKC_TINY=1",
+        "-DOKC_CPF=0",
+        "-DOKC_EPI4=0",
+        "-DOKC_FAST1=2",
+        "-DOKC_NACC=4",
+        "-DOKC_UWARP=0",
+        "-DOKC_WS=1",
+        "-DOKC_WSB=1",
+        "-DOKC_WSBL=2",
+        "-DOKC_WSBLK=1",
+        "-DOKC_FINPF=1",
+        "-DOKC_PRMTSC=1",
+        "-DOKC_DQ7=1"
+      ],
+      "original_name": "glue_moe_b2495a009a910301_sm90a",
+      "treatment_name": "glue_moe_b2495a009a910301_sm90a",
+      "original_cuda_sha256": "b8ed85438c06673f411ff4203080bfbacd0c0c2dc5cb624e6f10d4877fe7a716",
+      "treatment_cuda_sha256": "b8ed85438c06673f411ff4203080bfbacd0c0c2dc5cb624e6f10d4877fe7a716",
+      "cpp_equal": true,
+      "flags_equal": true,
+      "unchanged": true
+    },
+    {
+      "index": 2,
+      "historical_short_RMW_ON": false,
+      "actual_flags": [
+        "-O3",
+        "-gencode=arch=compute_90a,code=sm_90a",
+        "-lineinfo",
+        "-DOKC_NS=3",
+        "-DOKC_FNST=4",
+        "-DOKC_NSF=3",
+        "-DOKC_NW=8",
+        "-DOKC_TINY=1",
+        "-DOKC_SPLIT=1",
+        "-DOKC_CPF=0",
+        "-DOKC_EPI4=0",
+        "-DOKC_FAST1=2",
+        "-DOKC_NACC=4",
+        "-DOKC_UWARP=0",
+        "-DOKC_WS=1",
+        "-DOKC_WSB=1",
+        "-DOKC_WSBL=2",
+        "-DOKC_WSBLK=2",
+        "-DOKC_FINPF=1",
+        "-DOKC_PRMTSC=1",
+        "-DOKC_DQ7=1"
+      ],
+      "original_name": "glue_moe_1b555edc8284ed23_sm90a",
+      "treatment_name": "glue_moe_1b555edc8284ed23_sm90a",
+      "original_cuda_sha256": "b8ed85438c06673f411ff4203080bfbacd0c0c2dc5cb624e6f10d4877fe7a716",
+      "treatment_cuda_sha256": "b8ed85438c06673f411ff4203080bfbacd0c0c2dc5cb624e6f10d4877fe7a716",
+      "cpp_equal": true,
+      "flags_equal": true,
+      "unchanged": true
+    },
+    {
+      "index": 3,
+      "historical_short_RMW_ON": false,
+      "actual_flags": [
+        "-O3",
+        "-gencode=arch=compute_90a,code=sm_90a",
+        "-lineinfo",
+        "-DOKC_NS=3",
+        "-DOKC_FNST=4",
+        "-DOKC_NSF=3",
+        "-DOKC_NW=16",
+        "-DOKC_FAST1=0",
+        "-DOKC_EPI4=0",
+        "-DOKC_WGS=1",
+        "-DOKC_B4FIN=1",
+        "-DOKC_SC6W=1",
+        "-DOKC_PRMTSC=1",
+        "-DOKC_DQ7=1"
+      ],
+      "original_name": "glue_moe_7e37cd900cb88979_sm90a",
+      "treatment_name": "glue_moe_f0f0c84101e27cad_sm90a",
+      "original_cuda_sha256": "c7c201ae145c6a33f2d5e6b1f80d2a6e56e8d75502f9fd09ace40927ad0f7c71",
+      "treatment_cuda_sha256": "7bc4de356b9ba39cd39b3bf77151fb9eca9e3220f1144247253083a7110b6b57",
+      "cpp_equal": true,
+      "flags_equal": true,
+      "unchanged": false
+    },
+    {
+      "index": 4,
+      "historical_short_RMW_ON": false,
+      "actual_flags": [
+        "-O3",
+        "-gencode=arch=compute_90a,code=sm_90a",
+        "-lineinfo",
+        "-DOKC_NS=3",
+        "-DOKC_FNST=4",
+        "-DOKC_NSF=3",
+        "-DOKC_NW=16",
+        "-DOKC_FAST1=0",
+        "-DOKC_EPI4=0",
+        "-DOKC_WGS=1",
+        "-DOKC_SC6W=1",
+        "-DOKC_PRMTSC=1",
+        "-DOKC_DQ7=1"
+      ],
+      "original_name": "glue_moe_45a005177ff52c30_sm90a",
+      "treatment_name": "glue_moe_c0f5ead5c18ca1eb_sm90a",
+      "original_cuda_sha256": "c7c201ae145c6a33f2d5e6b1f80d2a6e56e8d75502f9fd09ace40927ad0f7c71",
+      "treatment_cuda_sha256": "7bc4de356b9ba39cd39b3bf77151fb9eca9e3220f1144247253083a7110b6b57",
+      "cpp_equal": true,
+      "flags_equal": true,
+      "unchanged": false
+    },
+    {
+      "index": 5,
+      "historical_short_RMW_ON": true,
+      "actual_flags": [
+        "-O3",
+        "-gencode=arch=compute_90a,code=sm_90a",
+        "-lineinfo",
+        "-DOKC_NS=3",
+        "-DOKC_FNST=4",
+        "-DOKC_NSF=3",
+        "-DOKC_NW=8",
+        "-DOKC_TINY=1",
+        "-DOKC_EPI4=0",
+        "-DOKC_FAST1=2",
+        "-DOKC_L2H=0",
+        "-DOKC_NACC=4",
+        "-DOKC_UWARP=0",
+        "-DOKC_WS=1",
+        "-DOKC_WSB=1",
+        "-DOKC_WSBL=2",
+        "-DOKC_WSBLK=2",
+        "-DOKC_FINPF=1",
+        "-DOKC_PRMTSC=1",
+        "-DOKC_DQ7=1",
+        "-DOKC_SHORT_FINAL_RELAXED=1"
+      ],
+      "original_name": "glue_moe_9e6bbfe0262c2d14_sm90a",
+      "treatment_name": "glue_moe_9e6bbfe0262c2d14_sm90a",
+      "original_cuda_sha256": "b8ed85438c06673f411ff4203080bfbacd0c0c2dc5cb624e6f10d4877fe7a716",
+      "treatment_cuda_sha256": "b8ed85438c06673f411ff4203080bfbacd0c0c2dc5cb624e6f10d4877fe7a716",
+      "cpp_equal": true,
+      "flags_equal": true,
+      "unchanged": true
+    },
+    {
+      "index": 6,
+      "historical_short_RMW_ON": true,
+      "actual_flags": [
+        "-O3",
+        "-gencode=arch=compute_90a,code=sm_90a",
+        "-lineinfo",
+        "-DOKC_NS=3",
+        "-DOKC_FNST=4",
+        "-DOKC_NSF=3",
+        "-DOKC_NW=8",
+        "-DOKC_TINY=1",
+        "-DOKC_CPF=0",
+        "-DOKC_EPI4=0",
+        "-DOKC_FAST1=2",
+        "-DOKC_NACC=4",
+        "-DOKC_UWARP=0",
+        "-DOKC_WS=1",
+        "-DOKC_WSB=1",
+        "-DOKC_WSBL=2",
+        "-DOKC_WSBLK=1",
+        "-DOKC_FINPF=1",
+        "-DOKC_PRMTSC=1",
+        "-DOKC_DQ7=1",
+        "-DOKC_SHORT_FINAL_RELAXED=1"
+      ],
+      "original_name": "glue_moe_eb6eb33ac5f3a4a3_sm90a",
+      "treatment_name": "glue_moe_eb6eb33ac5f3a4a3_sm90a",
+      "original_cuda_sha256": "b8ed85438c06673f411ff4203080bfbacd0c0c2dc5cb624e6f10d4877fe7a716",
+      "treatment_cuda_sha256": "b8ed85438c06673f411ff4203080bfbacd0c0c2dc5cb624e6f10d4877fe7a716",
+      "cpp_equal": true,
+      "flags_equal": true,
+      "unchanged": true
+    }
+  ],
+  "finished_epoch": 1793614958.069221
+}

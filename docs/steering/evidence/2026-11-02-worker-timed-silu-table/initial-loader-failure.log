@@ -1,0 +1,16 @@
+nvrtc: error: failed to open libnvrtc-builtins.so.13.0.
+  Make sure that libnvrtc-builtins.so.13.0 is installed correctly.
+Traceback (most recent call last):
+  File "/mnt/c/Users/gretc/Documents/GitHub/okc/tools/g_timed_silu_table.py", line 207, in <module>
+    result = compile_fixed(args.out) if args.compile_fixed else generate(args.out)[1]
+             ~~~~~~~~~~~~~^^^^^^^^^^
+  File "/mnt/c/Users/gretc/Documents/GitHub/okc/tools/g_timed_silu_table.py", line 169, in compile_fixed
+    namespace['compile_source'](args)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "/mnt/c/Users/gretc/Documents/GitHub/okc/.build/research-gamma13/artifacts/adapted-driver.py", line 84, in compile_source
+    check(status)
+    ~~~~~^^^^^^^^
+  File "/mnt/c/Users/gretc/Documents/GitHub/okc/.build/research-gamma13/artifacts/adapted-driver.py", line 44, in check
+    if rc: raise RuntimeError('NVRTC status ' + str(rc))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+RuntimeError: NVRTC status 7
