@@ -1,6 +1,6 @@
 # Architecture performance tracker
 
-Last review: 2026-11-02 10:44 MST. Evidence snapshot: `db7800a`.
+Last review: 2026-11-02 11:53 MST. Evidence snapshot: `1786dbf`.
 First review reconciles progress since `aab7d75`, the snapshot in the
 [architecture-family guide](architecture-families-2026-10-29.md).
 This is a review of recorded experiments, not a new benchmark run.
@@ -18,7 +18,26 @@ named control, not changes in aggregate score. Families overlap; their gains can
 | D. Dependency-aware scheduling | Dynamic claiming retained; new phase-A claim layouts lose | Phase-A modes 62/63 and K=0 controls 66/69 lose; lean claimed mode 68 is not timed. Earlier split-tail 52/53 losses stand. | Full ready-only queue remains untested. Reopen phase-A claims only after the no-work control ties mode 51 within 1 us at 128/256. |
 | E. Attention producer-consumer pipeline | Private VP2 cell win, six-load gate failed | VP2 took 10.168 µs versus 10.784 µs for the owned control on eight-token sliding attention. All three held-outs missed the full-score gate. | VP2 only changes the eight-token target. The proposed layer ring-continuity toggle also changes decode merge behavior and stopped at source review. |
 | F. Donor-based baseline/hybrid | Historical alygg77 measurement track | Prior F comparisons and owned C3 router gains remain recorded. Two new QKV128 variants lose despite correctness/resource passes. | G has a separate attributed-fork policy. Projection C2 remains best scored, with C3 paired component wins retained. |
-| G. Attributed keell0renz layer fork | Retained layer 2.126083× | Matched short-counter test missed its gate. G224 and timed SiLU passed correctness and missed performance triage. | Four-cell verify ended in a refunded infrastructure error. Outgoing dependency tests failed setup. Both fresh checks completed. The short serial policy missed confirmation gates. PR check failed target host compilation. Pre-gamma transport passed standalone H200 correctness but missed the paired gate in all 24 crosses. Parked before layer testing. |
+| G. Attributed keell0renz layer fork | Retained layer 2.126083× | Matched short-counter test missed its gate. G224 and timed SiLU passed correctness and missed performance triage. | Four-cell verify ended in a refunded infrastructure error. Outgoing dependency tests failed setup. Both fresh checks completed. The short serial policy missed confirmation gates. PR check failed target host compilation. Pre-gamma and one-token three-launch expert paths each passed standalone correctness and missed all 24 six-load comparisons. Both are parked before layer testing. |
+
+## November 2 review at 11:53 Vancouver time
+
+**The one-token, three-launch expert path lost in all six targeted routing cases and was parked before layer testing.** Private H200 MoE check `28248eb5e5854041` tested native source `dbdd3381`, wrapper `ce14d11f`, registered at `9d7937d2`. The one-token profile confirmed gate/up, down and norm/combine all executed. The official candidate passed five tests and produced six benchmark cells and six profiles. It scored 2.165858× versus SGLang (95% CI 2.133370–2.198346). The within-process comparison against the fused G control determined the decision. [Terminal receipt and profile analysis](https://github.com/yelgabo/okc/blob/1786dbf/docs/steering/2026-11-02-worker-t1-moe-terminal.md)
+
+Four independent placements (two controls and two candidates) covered held-out banks 1102031, 1102037 and 1102049 with normal and skewed routing. The instrument recorded 1,152 timed replays, 216 captures, 54 restorations and clean final state. None of the 24 six-load comparisons reached the required 1.01 factor. All six targeted cells tripped the 1% regression rule. The one-token control/candidate geometric factor was 0.707998. The paired evidence supplies duplicate noise estimates and no formal paired confidence interval. [Frozen decision and individual medians](https://github.com/yelgabo/okc/blob/1786dbf/docs/steering/evidence/2026-11-02-worker-t1-moe-check/frozen-reader-result.json)
+
+| Tokens | Mean fused control µs | Mean candidate µs | Latency change |
+|---:|---:|---:|---:|
+| 1 | 34.143 | 48.353 | +14.211 µs (+41.62%) |
+| 8 | 59.811 | 60.269 | +0.459 µs (+0.77%) |
+| 16 | 90.409 | 90.412 | +0.003 µs (+0.00%) |
+| 32 | 91.455 | 91.732 | +0.277 µs (+0.30%) |
+| 128 | 144.997 | 145.336 | +0.339 µs (+0.23%) |
+| 256 | 197.500 | 197.548 | +0.048 µs (+0.02%) |
+
+These descriptive means average the published placement medians equally over both copies and six routing cases. Only the one-token row exercised the three-launch treatment. The 128/256 rows measure variation on fused paths shared by both arms. The exact implementation is closed with no layer follow-up. Its standalone result gives no new A-versus-B decision at 128/256. Family G retains 2.126083× on the layer board. [Scoped decision](https://github.com/yelgabo/okc/blob/1786dbf/docs/steering/2026-11-02-worker-t1-moe-terminal.md)
+
+The earlier reference-repository access failure was traced to a wrong repository URL. The correct keell0renz source is accessible and matches the archived reference. No new comparator run follows from that correction. [Source identity correction](https://github.com/yelgabo/okc/blob/1786dbf/docs/steering/2026-11-02-captain-source-access-correction.md)
 
 ## November 2 review at 10:44 Vancouver time
 
@@ -2496,6 +2515,7 @@ paired differences.
 | Fully timed G SiLU table | Historical public G1b4 | 275.449 vs 269.347 µs, +6.102 µs (+2.27%) | 358.496 vs 359.297 µs, −0.802 µs (−0.22%) | `dc62cff972934f54`, one private check, affected loads, unmatched seeds and nodes. [Reconstruction](https://github.com/yelgabo/okc/blob/57930d0/docs/steering/2026-11-02-captain-timed-silu-terminal-decision.md). |
 | G short serial policy, unchanged long paths | Fresh G1b4, separate run | +8.118 µs (+3.10%) | +10.431 µs (+2.97%) | `e4c8f00532b74d15` vs `cc474883117947c0`. Different seeds. Only 1/8-token cells exercised the treatment. [Exact comparison](https://github.com/yelgabo/okc/blob/fcf5452/docs/steering/2026-11-02-captain-serial-terminal-decision.md). |
 | G pre-gamma expert transport, standalone MoE | G incumbent controls, same process | +2.785 µs (+1.93%) | +2.779 µs (+1.41%) | `56e0c8b5634545e6`. Descriptive duplicate-placement means across three normal/skewed banks. [Source means](https://github.com/yelgabo/okc/blob/db7800a/docs/steering/evidence/2026-11-02-worker-moe-component/descriptive-load-summary.json). |
+| G one-token expert split, unchanged large-token paths | Fused G control in same process | +0.339 µs (+0.23%) | +0.048 µs (+0.02%) | `28248eb5e5854041`. Means over duplicate placements and six routing cases. Only T1 changed. [Raw medians](https://github.com/yelgabo/okc/blob/1786dbf/docs/steering/evidence/2026-11-02-worker-t1-moe-check/frozen-reader-result.json). |
 
 
 ## Small-token results and rejected changes
@@ -2539,6 +2559,8 @@ with common preparation and private arm tensors. Both evidence scopes remain vis
 
 ## Decision and next evidence needed
 
+The one-token expert split also failed on every targeted routing case. The paired component gate closes this specific three-launch candidate. [Terminal decision](https://github.com/yelgabo/okc/blob/1786dbf/docs/steering/2026-11-02-worker-t1-moe-terminal.md).
+
 The pre-gamma component missed the registered 1% gate in all 24 six-load comparisons. The exact implementation is parked before layer integration. [Decision](https://github.com/yelgabo/okc/blob/db7800a/docs/steering/2026-11-02-worker-moe-component-terminal.md).
 
 A remains favored over tested B schedules at128/256. The latest owned position-map,
@@ -2559,6 +2581,8 @@ Prefill remains deferred. The final recorded campaign goal remains unmet.
 [Family G qualification](https://github.com/yelgabo/okc/blob/af3b550/docs/steering/2026-11-01-family-g-qualification.md).
 
 ## Review history and checkpoint
+
+- 2026-11-02 11:53 Vancouver time. Reviewed `db7800a..1786dbf` from local `5489860`. Verified terminal MoE job `28248eb5e5854041` and the reference-source correction. The new confirmation of the pre-gamma loss refers to its previously counted receipt. All 18 untracked local receipts already appear in the ledgers.
 
 - 2026-11-02 10:44 Vancouver time. Reviewed `ca5cf8f..db7800a` from local `5105841`. Verified terminal MoE job `56e0c8b5634545e6`, source placement means and closure. All 18 untracked local receipts already appear in the run logs.
 

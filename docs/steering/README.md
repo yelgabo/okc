@@ -104,7 +104,11 @@ The existing CUTLASS pooler, wide 8-stage picks, DCARRY/PK16/VHOIST and failed l
 are explicitly accounted for. No kernels, validation policies, GPU runs or submissions changed.
 This is separate from the layer's M1/tuner-stability work below.
 
-## Latest hourly report, November 2 10:44 Vancouver time
+## Latest hourly report, November 2 11:53 Vancouver time
+
+The one-token expert split passed correctness and lost its paired MoE gate. [Review and timings](2026-11-02-1153-performance-review.md)
+
+## Previous hourly report, November 2 10:44 Vancouver time
 
 G pre-gamma transport passed component correctness and missed the paired performance gate. [Review and timings](2026-11-02-1044-performance-review.md)
 

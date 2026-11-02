@@ -1,6 +1,6 @@
 {
-  "reviewed_at": "2026-11-02T10:44:00-07:00",
-  "snapshot": "db7800a",
+  "reviewed_at": "2026-11-02T11:53:00-07:00",
+  "snapshot": "1786dbf",
   "family_registry_update": {
     "date": "2026-10-30",
     "evidence_snapshot": "7a5965531103f275ac104d340ef30f1508e32353",
@@ -117,14 +117,14 @@
       "id": "G",
       "name": "Attributed keell0renz layer fork",
       "status": "win",
-      "label": "Retained layer • pre-gamma component parked",
+      "label": "Retained layer • both expert variants parked",
       "metric": "2.1261×",
       "unit": "Public layer score, 95% CI 2.0942–2.1580",
-      "summary": "Pre-gamma transport passed H200 correctness. All 24 matched six-load comparisons missed the 1% speed target. The experiment stopped before layer testing.",
+      "summary": "The one-token three-launch expert was slower in all six normal/skewed routing cases. Both this candidate and pre-gamma missed every six-load promotion comparison.",
       "layer": "G1b4 retains 2.1261×. The serial candidate is parked.",
       "pending": [],
       "evaluation_pending": [],
-      "limit": "Mean standalone latency change versus the G controls: +2.785 µs (+1.93%) at 128 tokens and +2.779 µs (+1.41%) at 256. The public layer score belongs to G1b4.",
+      "limit": "The three-launch candidate changed only T1. At 128/256 both arms used fused paths. The retained public score belongs to the complete G1b4 layer.",
       "source": "runs-decode-layer.md",
       "outcomes": [
         "win",
@@ -149,9 +149,9 @@
       "summary": "Job 60b38a62a135442c compiled with C++17 while target Torch required C++20. No test or timing cells ran. The private retry is quota-blocked."
     },
     {
-      "name": "G expert transport and one-token prototype",
-      "label": "Pre-gamma parked • one-token design awaits testing",
-      "summary": "Job 56e0c8b5634545e6 failed the component performance gate. The separate one-token three-launch design still has offline evidence only."
+      "name": "One-token split and pre-gamma transport",
+      "label": "Component losses • both parked",
+      "summary": "The one-token split passed all five official tests. All 24 matched six-load factors missed the 1% threshold. Both expert variants stopped before layer integration."
     }
   ]
 }
