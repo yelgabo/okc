@@ -1,0 +1,24 @@
+# Post-failure opportunity decision: complete comparison and bounded discriminators
+
+November1 Pacific / November2UTC2026, approximately05:29UTC. Previous goal turn classified PROGRESS: published accountable failure analysis3e264e9 and verified remote report/index, not a rank improvement. Current evidence: researcher **dc9541c10d0e0cf3b5a5719374217fdb0cfa93e7**, worker terminal26b3b88, captain stop13e545c. No newly qualified winner; top100 remains unachieved.
+
+## What changed the decision
+
+The complete [ruwwww review](2026-11-01-ruwwww-complete-qualification.md) finished; this is no longer a pending comparison. Its latest push changes README, not the October29 layer. The associated own published f60b136cfdc242cb result is2.0750623477x with13tests/12benchmark/profile cells; source/receipt co-publication is not authenticated uploaded-source identity. Actual selected arithmetic misses required rounding/router properties, ordinary admission lacks the repaired progress proof, and the bounded license search found a reuse-permission gap. Accordingly no unmodified adoption or whole-file check. This is not an ancestry-based dismissal. Short BFP/fused-router top-level choices already exist in common; no new candidate is created by relabelling them.
+
+The remaining independent policy lead is ordinary-library long dense versus accepted common Lt/composition picks on V16/V32. Remote long endpoints are historically slower than607 and do not demonstrate positive gain; its material dense region alone does not establish exposed savings. The decisive cheapest next action is to join the EXISTING picks/profiles, not implement a policy or add an observer. If actual accepted picks are missing or no attributable discrepancy exists, stop this lead without GPU spend.
+
+G2/24 remains a genuine architectural design but high-cost/unqualified: duplicated activations, additional weight-job replays and broad ownership changes compete against at most author-comment performance evidence from another implementation. The approximately3% scenario is an investment screen, not a mandatory win threshold or proof smaller improvements are worthless. No new G2 build is allocated by this decision. The exact scalar scheduling suggestion also lacks a demonstrated whole-six benefit and does not justify starting a second small-short optimization while the current seam remains unresolved.
+
+## Delivered work, not another proposed plan
+
+Existing researcher received one15minute archive/source/CPU task at~05:27UTC, actual ordinal9 started, message2dc937bf-7456-464a-8b5d-01495c08e6f2: recover accepted graft_lt/composition picks, dimensions/output dtypes and owning dense profiles from c5e4/c193/9ad and607 where available, explicitly distinguishing those sources; compare with f60b ordinary-library only where attribution holds. Return at most one independently material candidate or exact scoped stop. If picks cannot be reconstructed, stop immediately. No instrumentation build, GPU/CLI/compiler/install/production/README or child agents.
+
+Worker ordinal5 was confirmed running with active source diagnosis, not assumed alive from an old lockfile. Existing15minute driver-query source/CPU allocation remains bounded near05:35UTC. Captain supplied the reliable direct apply_patch executable invocation after observing a PowerShell quoting failure; that local command failure is not a second judge or kernel failure. No full-harness regeneration, readiness cycle, compiler sweep or check is authorized. Return canonical identity/ABI/negative-test evidence or a blocker, explicitly not target runtime proof. Failed uploadf25d714e and reader5435108e stay frozen. Worker still owns sole dispatch; no job is live under this allocation.
+
+Captain owns README/index and campaign decisions. Next measurement choice requires both bounded outputs or their stated stopping gates, benefit/risk comparison and explicit allocation. A minimal identity bridge can reduce an instrument risk but does not itself establish PDL runtime support or earn another check. If both outputs stop, choose a materially different implementation mechanism rather than renewing either investigation without new evidence. No public/scored/default authorization is introduced.
+
+## Validation and gaps
+
+Researcher's four publication blobs were already independently reconciled in current history; captain read the complete selected-policy/precision/progress conclusions and actual receipt identity. No new numerical/performance result, active rank query or production modification in this task. Last rank339 from05:15UTC is historical, not current-now. Terminal quota6checks/5scored is likewise archived. Research/profile magnitudes are not causal savings, and no additive hybrid forecast is made. External identifier web queries in this turn returned no usable new complete candidate; that bounded search supplies no absence claim or new allocation.
+
