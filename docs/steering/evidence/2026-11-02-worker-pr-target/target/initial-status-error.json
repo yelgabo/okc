@@ -1,0 +1,7 @@
+{
+  "operation": "GET status 60b38a62a135442c --json",
+  "exit_status": 1,
+  "error": "connection reset by peer",
+  "acceptance_already_known": true,
+  "check_post_retried": false
+}

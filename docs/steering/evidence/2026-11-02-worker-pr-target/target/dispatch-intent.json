@@ -1,0 +1,21 @@
+{
+  "at": "2026-11-02T14:54:44.304Z",
+  "allocation": "218a048edded8e27272e74f5cf84d14c28a8e9e5",
+  "preregistration": "01b8e231ab92cd80bce3ed23eb73a3cf4183040f",
+  "source_sha256": "0f90a2a806dd5cb3247f1843f936621dfef7de4f9f2e104bd7898caee72e93fb",
+  "bytes": 882844,
+  "deterministic_rebuilds": 2,
+  "private_checks_left": 1,
+  "live_layer_jobs": 0,
+  "team": "yelgabo",
+  "command": [
+    "okc",
+    "check",
+    "muse_decode_layer",
+    "/mnt/c/Users/gretc/Documents/GitHub/okc/docs/steering/evidence/2026-11-02-worker-pr-target/generated/candidate.py",
+    "--no-wait",
+    "--json"
+  ],
+  "one_POST": true,
+  "automatic_retry": false
+}
