@@ -56,3 +56,4 @@ Entries are required fractions of the profiled expert activity, **not forecasts*
 
 Bounded conclusion: scoped STOP on the pinned overlap/fast-decode story. Missing current compiled scheduling and endpoint exposure are explicit unknowns, not a reason to reopen G224 or run a generic tile sweep. No kernel/harness edits, compile/install, foreign execution, GPU/Driver, judge/CLI/POST, quota use or default change. README/shared logs and concurrent WIP untouched.
 
+Validation:15 primary archive hashes and11 source-selection/predicate assertions pass. Analytical budgets cover only B4/MAIN. Publication completes within the20-active-minute bound; no runtime validation is claimed.
