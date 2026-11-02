@@ -1,0 +1,28 @@
+{
+  "observed_at_utc": "2026-11-02T22:54:16.434356+00:00",
+  "command": [
+    "wsl",
+    "-d",
+    "Ubuntu",
+    "--cd",
+    "/mnt/c/Users/gretc/Documents/GitHub/okc",
+    "--",
+    "/root/.cache/okc-host-validate/bin/python",
+    "-m",
+    "unittest",
+    "discover",
+    "-s",
+    "tools",
+    "-p",
+    "test_wgs_shared_a_pipeline.py",
+    "-v"
+  ],
+  "exitcode": 0,
+  "physical_source_pins": {
+    "tools/wgs_shared_a_pipeline.py": "4d13057d2b6d04356c5c3e32051b746b297bbceb68f73a00de6e2bb4a40c8891",
+    "tools/test_wgs_shared_a_pipeline.py": "f9efca4b0116bc375519079f69e941aee92cfede68959a506a798ac67eb0e5ad",
+    "docs/steering/evidence/2026-11-02-worker-shared-a-pipeline/generated/candidate.py": "fbca3b75125dd45b3e2801358e95aa14a16750860482989a5fef444a576cd578"
+  },
+  "source_stable_during_run": true,
+  "limitation": "CPU source/packing/selection/protocol tests; no target CUDA math, timing or ordering proof."
+}

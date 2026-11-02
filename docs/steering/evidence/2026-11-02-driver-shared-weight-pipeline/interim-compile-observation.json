@@ -1,0 +1,108 @@
+{
+  "observed_at_utc": "2026-11-02T22:48:51.064670+00:00",
+  "state": "MOVING_WORKER_SOURCE_NOT_FINAL",
+  "scope": "NVRTC13/PTXAS13 device-only C++20/header/declaration adapter; actual selected factory flags recorded; no host compilation/GPU",
+  "pins": {
+    "base_sha256": "ba9e327cd7b96595ace4d0c1d0d78fe27c128f23ed0debcda97c7169fc3164ab",
+    "control_native_sha256": "c7c201ae145c6a33f2d5e6b1f80d2a6e56e8d75502f9fd09ace40927ad0f7c71",
+    "native_sha256": "d654e3306a6b34aa1f45d3f39b586faea72538e9da7a14b079466c2499175594",
+    "candidate_sha256": "df8a51eda00d8d2b4fd26a1f00d11803454441572a1401ee55e99dc576f968f8",
+    "candidate_bytes": 892435,
+    "gpu": false,
+    "dispatch": false
+  },
+  "families": [
+    {
+      "family": "B4",
+      "flags": [
+        "-O3",
+        "-std=c++20",
+        "-gencode=arch=compute_90a,code=sm_90a",
+        "-lineinfo",
+        "-DOKC_NS=3",
+        "-DOKC_FNST=4",
+        "-DOKC_NSF=3",
+        "-DOKC_NW=16",
+        "-DOKC_FAST1=0",
+        "-DOKC_EPI4=0",
+        "-DOKC_WGS=1",
+        "-DOKC_B4FIN=1",
+        "-DOKC_SC6W=1",
+        "-DOKC_PRMTSC=1",
+        "-DOKC_DQ7=1"
+      ],
+      "host_flags": [
+        "-std=c++20"
+      ],
+      "resources": {
+        "_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE": {
+          "stack_bytes": 40,
+          "spill_store_bytes": 184,
+          "spill_load_bytes": 392,
+          "registers": 80,
+          "barriers": 16
+        },
+        "_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE": {
+          "stack_bytes": 40,
+          "spill_store_bytes": 184,
+          "spill_load_bytes": 392,
+          "registers": 80,
+          "barriers": 16
+        }
+      },
+      "launch_bounds": [
+        ".maxntid 672, 1, 1",
+        ".minnctapersm 1",
+        ".maxntid 672, 1, 1",
+        ".minnctapersm 1"
+      ],
+      "serialization_warnings": 0
+    },
+    {
+      "family": "MAIN",
+      "flags": [
+        "-O3",
+        "-std=c++20",
+        "-gencode=arch=compute_90a,code=sm_90a",
+        "-lineinfo",
+        "-DOKC_NS=3",
+        "-DOKC_FNST=4",
+        "-DOKC_NSF=3",
+        "-DOKC_NW=16",
+        "-DOKC_FAST1=0",
+        "-DOKC_EPI4=0",
+        "-DOKC_WGS=1",
+        "-DOKC_SC6W=1",
+        "-DOKC_PRMTSC=1",
+        "-DOKC_DQ7=1"
+      ],
+      "host_flags": [
+        "-std=c++20"
+      ],
+      "resources": {
+        "_ZN3okc9moe_fusedILb1EEEvNS_6ParamsE": {
+          "stack_bytes": 24,
+          "spill_store_bytes": 108,
+          "spill_load_bytes": 192,
+          "registers": 80,
+          "barriers": 16
+        },
+        "_ZN3okc9moe_fusedILb0EEEvNS_6ParamsE": {
+          "stack_bytes": 24,
+          "spill_store_bytes": 108,
+          "spill_load_bytes": 192,
+          "registers": 80,
+          "barriers": 16
+        }
+      },
+      "launch_bounds": [
+        ".maxntid 672, 1, 1",
+        ".minnctapersm 1",
+        ".maxntid 672, 1, 1",
+        ".minnctapersm 1"
+      ],
+      "serialization_warnings": 0
+    }
+  ],
+  "next_gate": "Worker focused CPU tests and frozen final publication; independent read-only protocol review in parallel. No judge job yet."
+}

@@ -1,0 +1,30 @@
+{
+  "observed_at_utc": "2026-11-02T22:49:57.410173+00:00",
+  "reviewer": "root/ss_expert_geometry_review",
+  "decision": "CONDITIONAL_SOURCE_ACCEPT_ONE_ORDINARY_PRIVATE_TARGET_CHECK",
+  "reviewed_generator_sha256": "5ed784b0d5c020949475c578d29535aafdf54d97b8f50bc8f7d5dcd68341a3ff",
+  "reviewed_native_sha256": "d654e3306a6b34aa1f45d3f39b586faea72538e9da7a14b079466c2499175594",
+  "reviewed_native_bytes": 152796,
+  "reviewed_payload_sha256": "df8a51eda00d8d2b4fd26a1f00d11803454441572a1401ee55e99dc576f968f8",
+  "reviewed_payload_bytes": 892435,
+  "kernel_edits": false,
+  "judge_calls": false,
+  "contracts": [
+    "672roles/fulljoin;544rangebarrier;128decodebarrierID8",
+    "rawfull1/empty128;Afull128/empty512;Xfull1/empty512",
+    "everydecoderproxyfencebeforeAfull;rawreleaseafterreads;barrierbeforerefill",
+    "onlyconsumedprefills0/1then n+2<total;continuousA-Bparity;emptyrange",
+    "allconsumerswait0beforeA/Xempty",
+    "SSdescriptors/K128stride/fourfragmentpairstoresmatchmapping",
+    "32stageranges/splits/finishers;original256rowunitIDs/UBL5A4B;doneAsubcount4",
+    "phaseterminalflushbeforedependentB;finalreadretirement"
+  ],
+  "corrections": "Severalcommentsstilldescribeold256K/twoAunit/FCI4;executablelogicuses128K/oneAunit/CI3. Documentationonly,notblocker.",
+  "remaining_gates": [
+    "workerCPU packing/bit/selection/protocol checks",
+    "finalsourcefreeze and physical/remote identity",
+    "actualtarget hostbuild/admission/reference/fresh/replay/math",
+    "ordinary official tests/benchmarks/profiles and fullsix performance"
+  ],
+  "claim_limit": "No GPU correctness, target admission, ordering-by-tests, performance or public eligibility claim."
+}

@@ -1,0 +1,33 @@
+{
+  "observed_at_utc": "2026-11-02T22:55:11.269482+00:00",
+  "reviewer": "root/sparse_expert_body_followup",
+  "scope": "One read-only independent arithmetic/ownership hypothesis while shared-A implementation proceeds; no edits, GPU, CLI, chats or allocation",
+  "decision": "NO_ALLOCATION_MISSING_MATERIAL_COVERAGE_AND_INSTRUCTION_ADVANTAGE",
+  "hypothesis": "SIMT/GEMV body for per-expert count<=2 inside larger-global-M calls, both contractions, unchanged larger-count WGS and full finalization",
+  "existing_path": "Selected WGS uses NTTceilcount/8 for all jobs; no SIMTselected. MID usesBF16mma.sync too. Exactc7 forcesMFIN0: actualfull-gridnormrendezvousremains.",
+  "historical_census_source": "docs/steering/2026-11-01-g-highload-weight-census.md",
+  "owning_historical_job": "1c6ebc76b91d4b7f",
+  "historical_bank": "M256/seed4517",
+  "jobs": 21,
+  "routes": 337,
+  "padded_rows": 408,
+  "count_le_2": {
+    "jobs": 3,
+    "actual_routes": 4,
+    "padded_rows": 24,
+    "padded_matrix_work_fraction": 0.058823529411764705
+  },
+  "count_le_4": {
+    "jobs": 5,
+    "actual_routes": 11,
+    "padded_rows": 40,
+    "padded_matrix_work_fraction": 0.09803921568627451
+  },
+  "unknowns": [
+    "fresh layer per-expert countcoverage",
+    "actual exposed elapsedtime",
+    "scalarFFMA issue/reduction costsversusWGMMA",
+    "net layout/weighttraffic/finalizationcosts"
+  ],
+  "scope_limit": "No measured SIMTloss or generalfamilyclosure. Distinct from globalT1 three-launch28248eb5 loss; distinction alone is no positive ROI proof. Shared-A priority retained."
+}

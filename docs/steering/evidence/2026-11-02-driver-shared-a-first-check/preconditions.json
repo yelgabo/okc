@@ -1,0 +1,38 @@
+{
+  "at_utc": "2026-11-02T22:55:42.390205+00:00",
+  "owner_chat": "01a1963f-0c8e-7d41-be02-0e691dcfcaf7",
+  "allocation": "13f5e41f",
+  "implementation": "dcb24972",
+  "payload": "docs/steering/evidence/2026-11-02-worker-shared-a-pipeline/generated/candidate.py",
+  "sha256": "fbca3b75125dd45b3e2801358e95aa14a16750860482989a5fef444a576cd578",
+  "bytes": 894471,
+  "team": "yelgabo",
+  "layer_quota": {
+    "name": "muse_decode_layer",
+    "title": "Whole decoder layer",
+    "limits": {
+      "scored": {
+        "per_day": 10,
+        "used": 0,
+        "left": 10
+      },
+      "checks": {
+        "per_day": 20,
+        "used": 11,
+        "left": 9
+      }
+    }
+  },
+  "live_jobs": [],
+  "command": [
+    "wsl",
+    "-d",
+    "Ubuntu",
+    "--",
+    "/usr/local/bin/okc",
+    "check",
+    "/mnt/c/Users/gretc/Documents/GitHub/okc/docs/steering/evidence/2026-11-02-worker-shared-a-pipeline/generated/candidate.py",
+    "--no-wait",
+    "--json"
+  ]
+}

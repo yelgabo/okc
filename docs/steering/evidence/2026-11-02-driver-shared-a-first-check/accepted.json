@@ -1,0 +1,9 @@
+{
+  "job": "5adf172986ff43dc",
+  "mode": "check",
+  "problem": "muse_decode_layer",
+  "source_sha256": "fbca3b75125dd45b3e2801358e95aa14a16750860482989a5fef444a576cd578",
+  "source_bytes": 894471,
+  "implementation": "dcb24972",
+  "accepted_at_utc": "2026-11-02T22:55:44.116344+00:00"
+}
