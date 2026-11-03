@@ -1411,3 +1411,51 @@ the box the layer has order noise downstream of the attention too, and the det s
 Control, pdl8d on the same box: its off arm at T = 8 full drifted 7.35e-3 by itself, so all six edges passed at full, but the
 sliding final stress drifted (s2 6.39e-3 against off 5.09e-3) and the gate turned T = 8 off. The same order noise thus flips
 pdl8d's rule either way, depending on whether the off arm happens to repeat; pdl8e's stages do not depend on that.
+
+### PDL8e check `61c009066a5d40a6` (g1b4_pdl8e.py 27b5f252)
+
+**Result: VALID 13/13, 10,441.7 us, 2.166x (95% CI 2.134 to 2.199)** against pdl8d's check 10,443.9 (4a737387f88b4d7d) and the
+public pdl8d run f931abf568544018. At T = 8 the new gate turned all six edges on, both attention edges included. Stages at the
+judge (out / s2 against the PDL-off output; ids mismatches 0 everywhere):
+
+| stage | layer | off | on | verdict |
+|---|---|---|---|---|
+| det | full | 7.25e-3 / 6.15e-3 | 7.25e-3 / 6.15e-3 | clean |
+| det_fresh | full | 7.25e-3 / 6.15e-3 | 7.25e-3 / 6.15e-3 | clean |
+| fresh | full | 7.25e-3 / 6.66e-3 | 7.25e-3 / 6.66e-3 | clean (bound 1e-2) |
+| fixed | full | 3.40e-3 / 2.83e-3 | 6.80e-3 / 4.67e-3 | clean (bound 1e-2) |
+| det | sliding | 9.26e-4 / 1.15e-3 | 9.26e-4 / 1.15e-3 | clean |
+| det_fresh | sliding | 9.26e-4 / 1.15e-3 | 9.26e-4 / 1.15e-3 | clean |
+| fresh | sliding | 7.30e-3 / 7.02e-3 | 7.30e-3 / 7.02e-3 | clean (bound 1e-2) |
+| fixed | sliding | 7.30e-3 / 7.02e-3 | 7.30e-3 / 7.02e-3 | clean (bound 1e-2) |
+
+The paired A/B saving at T = 8 was 4.70 us at sliding and 5.79 at full (9 of 9 each), weighted 4.98 us; pdl8d's four edges saved
+2.27 / 2.91 at the judge. **But the unchanged pdl8b stress at T = 16 drifted: s2 was 4.40e-3 on against 3.70e-3 off (out 5.78e-3
+on both), so T = 16 ran PDL off in this check.** T = 1 and T = 32 passed. Prepare log `PDL8 six-load estimate +2.53%`, enabled
+{1, 8, 32}.
+
+| cell | 61c009066a5d40a6 | pdl8d 4a737387f88b4d7d | delta |
+|---|---:|---:|---:|
+| decode 1 sliding | 71.03 | 70.8 | +0.2 |
+| decode 1 full | 78.22 | 77.0 | +1.2 |
+| decode 16 sliding | 133.05 | 127.7 | +5.4 (PDL off at T = 16) |
+| decode 16 full | 210.28 | 205.2 | +5.1 (PDL off at T = 16) |
+| decode 32 sliding | 142.54 | 149.4 | -6.9 |
+| decode 32 full | 299.32 | 306.8 | -7.5 |
+| verify 1 sliding | 112.21 | 112.9 | -0.7 |
+| verify 1 full | 115.51 | 118.7 | -3.2 |
+| verify 16 sliding | 250.00 | 245.1 | +4.9 |
+| verify 16 full | 332.46 | 336.9 | -4.4 |
+| verify 32 sliding | 308.05 | 321.0 | -13.0 |
+| verify 32 full | 483.94 | 483.9 | +0.0 |
+
+Keep rule (six-load below 10,443.9, every stage clean at every T, both T = 8 attention edges on): **not met.** The score is 2.2 us
+lower, inside the draw spread, and the T = 16 stress was not clean. Both attention edges were on and every T = 8 stage was clean.
+Verify 1 dropped by 0.7 / 3.2 us against pdl8d's check, less than the 2.4 / 2.9 us difference between the two arms' in-prepare
+A/B savings; the MoE row moves with routing between draws.
+
+The T = 16 failure is the same kind of order noise: the T = 16 path in pdl8e is pdl8d's code, which passed this stress in
+4a737387f88b4d7d. pdl8b's rule (PDL-on within the off arm's own drift, on one fixed input) fails whenever the on arm happens to
+pick a merge order that the off arm did not reach in its 2000 replays. The next step is to give T = 1 / 16 / 32 the same
+det / fresh gate as T = 8, so that the abort-to-off decision depends on a race test rather than on that draw.
+Receipts: `muse_decode_layer/cand/profiles/g1b4_pdl8e.61c009066a5d40a6.{json,log,txt}`.
