@@ -1,0 +1,41 @@
+-------------------------------------------------------  ------------  ------------  ------------  ------------  ------------  ------------  ------------  ------------  ------------  ------------  
+                                                   Name    Self CPU %      Self CPU   CPU total %     CPU total  CPU time avg     Self CUDA   Self CUDA %    CUDA total  CUDA time avg    # of Calls  
+-------------------------------------------------------  ------------  ------------  ------------  ------------  ------------  ------------  ------------  ------------  ------------  ------------  
+std::enable_if<!(false), void>::type internal::gemvx...         0.00%       0.000us         0.00%       0.000us       0.000us     175.334us        35.11%     175.334us      87.667us             2  
+void cutlass::Kernel2<cutlass_80_wmma_tensorop_s1616...         0.00%       0.000us         0.00%       0.000us       0.000us     144.059us        28.84%     144.059us      48.020us             3  
+void cutlass::Kernel2<cutlass_80_wmma_tensorop_s1616...         0.00%       0.000us         0.00%       0.000us       0.000us     125.256us        25.08%     125.256us     125.256us             1  
+                                 pool_dense_fallback_T8         0.00%       0.000us         0.00%       0.000us       0.000us     125.256us        25.08%     125.256us     125.256us             1  
+                                 pool_dense_fallback_T1         0.00%       0.000us         0.00%       0.000us       0.000us     110.643us        22.15%     110.643us     110.643us             1  
+                                  qkv_dense_fallback_T8         0.00%       0.000us         0.00%       0.000us       0.000us      82.918us        16.60%      82.918us      82.918us             1  
+                                  qkv_dense_fallback_T1         0.00%       0.000us         0.00%       0.000us       0.000us      64.691us        12.95%      64.691us      64.691us             1  
+std::enable_if<!(false), void>::type internal::gemvx...         0.00%       0.000us         0.00%       0.000us       0.000us      47.519us         9.51%      47.519us      23.760us             2  
+                                    o_dense_fallback_T8         0.00%       0.000us         0.00%       0.000us       0.000us      35.527us         7.11%      35.527us      35.527us             1  
+                                    o_dense_fallback_T1         0.00%       0.000us         0.00%       0.000us       0.000us      29.292us         5.87%      29.292us      29.292us             1  
+                                   un_dense_fallback_T8         0.00%       0.000us         0.00%       0.000us       0.000us      25.614us         5.13%      25.614us      25.614us             1  
+                                   un_dense_fallback_T1         0.00%       0.000us         0.00%       0.000us       0.000us      18.227us         3.65%      18.227us      18.227us             1  
+                                     _sl_cluster_finish         0.00%       0.000us         0.00%       0.000us       0.000us       3.741us         0.75%       3.741us       1.871us             2  
+                                         _sl_tile_route         0.00%       0.000us         0.00%       0.000us       0.000us       3.518us         0.70%       3.518us       1.759us             2  
+                                 final_norm_residual_T8         0.00%       0.000us         0.00%       0.000us       0.000us       2.174us         0.44%       2.174us       2.174us             1  
+                                     route_preexpert_T8         0.00%       0.000us         0.00%       0.000us       0.000us       1.887us         0.38%       1.887us       1.887us             1  
+                                     route_preexpert_T1         0.00%       0.000us         0.00%       0.000us       0.000us       1.631us         0.33%       1.631us       1.631us             1  
+                                 final_norm_residual_T1         0.00%       0.000us         0.00%       0.000us       0.000us       1.567us         0.31%       1.567us       1.567us             1  
+                                  qkv_dense_fallback_T1         4.77%     230.546us        82.93%       4.009ms       4.009ms       0.000us         0.00%       0.000us       0.000us             1  
+                                Activity Buffer Request        76.84%       3.714ms        76.84%       3.714ms       3.714ms       0.000us         0.00%       0.000us       0.000us             1  
+                                  cudaStreamIsCapturing         0.34%      16.594us         0.34%      16.594us       1.383us       0.000us         0.00%       0.000us       0.000us            12  
+                                        cudaGraphLaunch         3.50%     169.270us         3.50%     169.270us      14.106us       0.000us         0.00%       0.000us       0.000us            12  
+                                   cudaDriverGetVersion         0.01%       0.643us         0.01%       0.643us       0.054us       0.000us         0.00%       0.000us       0.000us            12  
+                                    o_dense_fallback_T1         1.11%      53.482us         1.83%      88.318us      88.318us       0.000us         0.00%       0.000us       0.000us             1  
+                                 pool_dense_fallback_T1         0.21%      10.189us         0.41%      19.607us      19.607us       0.000us         0.00%       0.000us       0.000us             1  
+                                   un_dense_fallback_T1         0.14%       6.644us         0.31%      15.049us      15.049us       0.000us         0.00%       0.000us       0.000us             1  
+                                     route_preexpert_T1         0.14%       6.744us         0.33%      15.820us      15.820us       0.000us         0.00%       0.000us       0.000us             1  
+                                 final_norm_residual_T1         0.19%       9.125us         0.39%      18.875us      18.875us       0.000us         0.00%       0.000us       0.000us             1  
+                                  qkv_dense_fallback_T8         0.15%       7.312us         0.35%      16.721us      16.721us       0.000us         0.00%       0.000us       0.000us             1  
+                                    o_dense_fallback_T8         0.12%       5.921us         0.26%      12.654us      12.654us       0.000us         0.00%       0.000us       0.000us             1  
+                                 pool_dense_fallback_T8         0.17%       8.065us         0.36%      17.603us      17.603us       0.000us         0.00%       0.000us       0.000us             1  
+                                   un_dense_fallback_T8         0.14%       6.562us         0.31%      14.838us      14.838us       0.000us         0.00%       0.000us       0.000us             1  
+                                     route_preexpert_T8         0.14%       6.672us         0.30%      14.337us      14.337us       0.000us         0.00%       0.000us       0.000us             1  
+                                 final_norm_residual_T8         0.13%       6.051us         0.32%      15.259us      15.259us       0.000us         0.00%       0.000us       0.000us             1  
+                                  cudaDeviceSynchronize        11.91%     575.860us        11.91%     575.860us     287.930us       0.000us         0.00%       0.000us       0.000us             2  
+-------------------------------------------------------  ------------  ------------  ------------  ------------  ------------  ------------  ------------  ------------  ------------  ------------  
+Self CPU time total: 4.834ms
+Self CUDA time total: 499.427us

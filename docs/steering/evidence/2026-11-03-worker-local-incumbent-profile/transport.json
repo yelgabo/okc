@@ -1,0 +1,17 @@
+{
+  "local_run_exit_code": 0,
+  "collector_session": 6803,
+  "command": "wsl --cd /mnt/c/Users/gretc/Documents/GitHub/okc --exec /root/.cache/okc-graph-cu128/bin/python tools/local_incumbent_profile.py",
+  "run_start": "2026-11-03T08:51:20.558766+00:00",
+  "release_audit_exit_code": 0,
+  "release_audit_initial_error": "WSL CPU environment has no rg executable; reran successfully with Windows Python and native rg.",
+  "public_refresh_commands": "okc leaderboard <each of five boards> --json",
+  "public_refresh_exit_codes": [
+    0,
+    0,
+    0,
+    0,
+    0
+  ],
+  "public_or_private_dispatch": false
+}

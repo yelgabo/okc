@@ -1,0 +1,74 @@
+[
+  {
+    "stage": "qkv_dense_fallback",
+    "tokens": 1,
+    "kernel_name": "std::enable_if<!(false), void>::type internal::gemvx::kernel<int, int, __nv_bfloat16, float, float, float, false, true, true, false, 7, false, cublasGemvParamsEx<int, cublasGemvTensorStridedBatched<__nv_bfloat16 const>, cublasGemvTensorStridedBatched<float const>, cublasGemvTensorStridedBatched<float>, float> >(cublasGemvParamsEx<int, cublasGemvTensorStridedBatched<__nv_bfloat16 const>, cublasGemvTensorStridedBatched<float const>, cublasGemvTensorStridedBatched<float>, float>)",
+    "gpu_duration_us": 64.691
+  },
+  {
+    "stage": "o_dense_fallback",
+    "tokens": 1,
+    "kernel_name": "std::enable_if<!(false), void>::type internal::gemvx::kernel<int, int, __nv_bfloat16, float, float, float, false, true, true, false, 6, false, cublasGemvParamsEx<int, cublasGemvTensorStridedBatched<__nv_bfloat16 const>, cublasGemvTensorStridedBatched<float const>, cublasGemvTensorStridedBatched<float>, float> >(cublasGemvParamsEx<int, cublasGemvTensorStridedBatched<__nv_bfloat16 const>, cublasGemvTensorStridedBatched<float const>, cublasGemvTensorStridedBatched<float>, float>)",
+    "gpu_duration_us": 29.292
+  },
+  {
+    "stage": "pool_dense_fallback",
+    "tokens": 1,
+    "kernel_name": "std::enable_if<!(false), void>::type internal::gemvx::kernel<int, int, __nv_bfloat16, float, float, float, false, true, true, false, 7, false, cublasGemvParamsEx<int, cublasGemvTensorStridedBatched<__nv_bfloat16 const>, cublasGemvTensorStridedBatched<float const>, cublasGemvTensorStridedBatched<float>, float> >(cublasGemvParamsEx<int, cublasGemvTensorStridedBatched<__nv_bfloat16 const>, cublasGemvTensorStridedBatched<float const>, cublasGemvTensorStridedBatched<float>, float>)",
+    "gpu_duration_us": 110.643
+  },
+  {
+    "stage": "un_dense_fallback",
+    "tokens": 1,
+    "kernel_name": "std::enable_if<!(false), void>::type internal::gemvx::kernel<int, int, __nv_bfloat16, float, float, float, false, true, true, false, 6, false, cublasGemvParamsEx<int, cublasGemvTensorStridedBatched<__nv_bfloat16 const>, cublasGemvTensorStridedBatched<float const>, cublasGemvTensorStridedBatched<float>, float> >(cublasGemvParamsEx<int, cublasGemvTensorStridedBatched<__nv_bfloat16 const>, cublasGemvTensorStridedBatched<float const>, cublasGemvTensorStridedBatched<float>, float>)",
+    "gpu_duration_us": 18.227
+  },
+  {
+    "stage": "route_preexpert",
+    "tokens": 1,
+    "kernel_name": "_sl_tile_route",
+    "gpu_duration_us": 1.631
+  },
+  {
+    "stage": "final_norm_residual",
+    "tokens": 1,
+    "kernel_name": "_sl_cluster_finish",
+    "gpu_duration_us": 1.567
+  },
+  {
+    "stage": "qkv_dense_fallback",
+    "tokens": 8,
+    "kernel_name": "void cutlass::Kernel2<cutlass_80_wmma_tensorop_s161616gemm_bf16_16x16_128x2_tn_align8>(cutlass_80_wmma_tensorop_s161616gemm_bf16_16x16_128x2_tn_align8::Params)",
+    "gpu_duration_us": 82.918
+  },
+  {
+    "stage": "o_dense_fallback",
+    "tokens": 8,
+    "kernel_name": "void cutlass::Kernel2<cutlass_80_wmma_tensorop_s161616gemm_bf16_16x16_128x2_tn_align8>(cutlass_80_wmma_tensorop_s161616gemm_bf16_16x16_128x2_tn_align8::Params)",
+    "gpu_duration_us": 35.527
+  },
+  {
+    "stage": "pool_dense_fallback",
+    "tokens": 8,
+    "kernel_name": "void cutlass::Kernel2<cutlass_80_wmma_tensorop_s161616gemm_bf16_16x16_128x1_tn_align8>(cutlass_80_wmma_tensorop_s161616gemm_bf16_16x16_128x1_tn_align8::Params)",
+    "gpu_duration_us": 125.256
+  },
+  {
+    "stage": "un_dense_fallback",
+    "tokens": 8,
+    "kernel_name": "void cutlass::Kernel2<cutlass_80_wmma_tensorop_s161616gemm_bf16_16x16_128x2_tn_align8>(cutlass_80_wmma_tensorop_s161616gemm_bf16_16x16_128x2_tn_align8::Params)",
+    "gpu_duration_us": 25.614
+  },
+  {
+    "stage": "route_preexpert",
+    "tokens": 8,
+    "kernel_name": "_sl_tile_route",
+    "gpu_duration_us": 1.887
+  },
+  {
+    "stage": "final_norm_residual",
+    "tokens": 8,
+    "kernel_name": "_sl_cluster_finish",
+    "gpu_duration_us": 2.174
+  }
+]

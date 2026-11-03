@@ -1,0 +1,16 @@
+{
+  "device_capability": [
+    12,
+    0
+  ],
+  "native_admission_expression": "prop.major==9 && prop.minor==0 && prop.cooperativeLaunch",
+  "native_admission_major_minor_passes": false,
+  "source_guard_occurrences": 2,
+  "native_whole_layer_executed": false,
+  "complete_layer_prepare_executed": false,
+  "portable_stage_bodies_modified": false,
+  "production_source_modified": false,
+  "selected_h200_projection_executed": false,
+  "projection_route": "existing dense(...), mm_pick[(T,name)]=True",
+  "documentation": "https://docs.nvidia.com/cuda/archive/12.9.2/blackwell-compatibility-guide/index.html"
+}

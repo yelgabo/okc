@@ -1,0 +1,86 @@
+{
+  "archived_at": "2026-11-03T08:54:55.122420+00:00",
+  "files": [
+    {
+      "path": "docs/steering/evidence/2026-11-03-worker-local-incumbent-profile/architecture-scope.json",
+      "bytes": 609,
+      "sha256": "88eba1c2c8f5f226270197bd58aa5e6330dd186e7da2b0a69a570fb6f3729055"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-03-worker-local-incumbent-profile/hardware-after.txt",
+      "bytes": 261,
+      "sha256": "24449d105b9a9469b509d659a236d3fa52c906e879aec91890df16adb5625213"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-03-worker-local-incumbent-profile/kernel-events.json",
+      "bytes": 3985,
+      "sha256": "5a2f9fb5c51d6ae4ed648bdbdc2aefdc028ef9464f1cdb216f08df1dae8842d1"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-03-worker-local-incumbent-profile/profiler.txt",
+      "bytes": 7784,
+      "sha256": "a9f74d31d456c453bba376a92ce89d4cfd23ae122d4c9431d529c8db221f4145"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-03-worker-local-incumbent-profile/release-audit.json",
+      "bytes": 17965,
+      "sha256": "8dc490bce2529f5960946e86d7fea4bac302d714d3c1dbbf32d3a0cb9033f1a9"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-03-worker-local-incumbent-profile/result.json",
+      "bytes": 23931,
+      "sha256": "c4d7b71b241556707f2b1dc076ce8f17def2a37208c27a9a5d499544967799a9"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-03-worker-local-incumbent-profile/run.log",
+      "bytes": 6505,
+      "sha256": "e68c392c35e4053ef560fc32947af112f0dc61c7b446a274fd01b1e7ae82748c"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-03-worker-local-incumbent-profile/trace.json",
+      "bytes": 36707,
+      "sha256": "eff5c83c25a3b886a08e79f296889fa18979ca7d7ed0b7df213f5a516a59314d"
+    },
+    {
+      "path": "docs/steering/evidence/2026-11-03-worker-local-incumbent-profile/transport.json",
+      "bytes": 608,
+      "sha256": "dca33ba5720dd9070a6aeb4b645883509ff3083d3c8e970efe01ed97f2848834"
+    },
+    {
+      "path": "tools/local_incumbent_profile.py",
+      "bytes": 9096,
+      "sha256": "e77239e734bad17caaef847e44dedabda9996229690e2431fb60d10f8fa98568"
+    },
+    {
+      "path": "muse_decode_layer/cand/g1b4_stage_release.py",
+      "bytes": 869076,
+      "sha256": "ba9e327cd7b96595ace4d0c1d0d78fe27c128f23ed0debcda97c7169fc3164ab"
+    },
+    {
+      "path": "docs/releases/public-snapshots/muse_attention_decode.leaderboard.json",
+      "bytes": 279931,
+      "sha256": "593b19d05585906bcc6c2d99f68749c69b76a6fc1b345112ea32da6f6223a243"
+    },
+    {
+      "path": "docs/releases/public-snapshots/muse_bf16_proj.leaderboard.json",
+      "bytes": 362131,
+      "sha256": "5358b3e3bb3037d20a6efad435ffa49c65a6d5a8cce9ae417082d7a122789825"
+    },
+    {
+      "path": "docs/releases/public-snapshots/muse_decode_layer.leaderboard.json",
+      "bytes": 264910,
+      "sha256": "c32aa44da26b7ab609cb3a9da0f71bbee92be626ec9039faf36e8691cd06ffc2"
+    },
+    {
+      "path": "docs/releases/public-snapshots/muse_moe_w4a16.leaderboard.json",
+      "bytes": 290811,
+      "sha256": "5e82748ef635b6f63c830567578233e823d40b1294778cd4fbe421d2cc79069e"
+    },
+    {
+      "path": "docs/releases/public-snapshots/muse_prefill_layer.leaderboard.json",
+      "bytes": 180489,
+      "sha256": "7e277bb0111d3b4a1632eece389b91a890228d3b8cc3ec5e36153e7e5aac061f"
+    }
+  ],
+  "source_git_sha256": "ba9e327cd7b96595ace4d0c1d0d78fe27c128f23ed0debcda97c7169fc3164ab"
+}

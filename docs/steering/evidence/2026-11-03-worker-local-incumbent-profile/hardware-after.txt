@@ -1,0 +1,2 @@
+name, driver_version, memory.total [MiB], memory.used [MiB], utilization.gpu [%], temperature.gpu, clocks.current.sm [MHz], clocks.current.memory [MHz], power.draw [W]
+NVIDIA GeForce RTX 5070, 610.88, 12227 MiB, 6860 MiB, 14 %, 37, 1702 MHz, 14001 MHz, 51.69 W
