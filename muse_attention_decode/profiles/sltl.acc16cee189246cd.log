@@ -1,0 +1,94 @@
+11.74 s17=12.38 s21=13.95 s22=14.75 t=78s
+TLSL b=32 sliding L=8 tlA_probe rep=3 ctas=256 active=224 ghz=1.797 span=14.53 tiles=(3.0, 5.0, 5.0) entry=0.00/0.13/0.22 idx=0.85/1.12/1.81 kvissue=0.42/0.63/1.13 qgrp=0.04/0.06/0.30 prep=1.07/1.45/2.77 first=449137.16/1731043.34/1998165.71 loop=392562.65/659687.61/1941593.07 red=0.34/0.77/1.25 loopend=6.05/8.77/11.52 end=11.58/13.50/14.53 tilegap=0.00/0.00/0.00 barrier=1.05/2.12/5.76 fin=0.71/0.90/1.83 crit=c202:sm70:t5 s0=0.16 s4=1.47 s6=2.24 s8=2.27 s13=3.78 s24=188311.04 s16=11.52 s17=12.10 s21=13.66 s22=14.53 t=78s
+TLSL b=32 sliding L=8 tlA_probe rep=4 ctas=256 active=224 ghz=1.798 span=14.75 tiles=(3.0, 5.0, 5.0) entry=0.00/0.13/0.22 idx=0.85/1.14/1.82 kvissue=0.41/0.62/1.05 qgrp=0.04/0.07/0.45 prep=1.08/1.44/2.54 first=431357.28/1711991.30/1978884.14 loop=409474.66/676370.47/1957004.22 red=0.33/0.77/1.23 loopend=6.21/8.90/11.81 end=11.52/13.54/14.75 tilegap=0.00/0.00/0.00 barrier=1.02/2.12/5.22 fin=0.70/0.91/1.76 crit=c13:sm125:t5 s0=0.16 s4=1.22 s6=2.18 s8=2.21 s13=3.81 s24=172559.87 s16=11.14 s17=12.06 s21=13.92 s22=14.75 t=78s
+ABORDER seed=311401 rounds=150 inputs=3 timing_seeds=[1000, 1001, 1002] arms=['ctrl', 'tl_probe', 'tlA_probe', 'spA', 'spB', 'spC', 'ctrl2']
+ABPLAN b=16 sliding L=1 ctrl=[splits=16,nc=1,mode=1] tl_probe=[splits=16,nc=1,mode=1] tlA_probe=[splits=16,nc=1,mode=1,splits_override=32] spA=[splits=16,nc=1,mode=1,splits_override=32] spB=[splits=16,nc=1,mode=1,splits_override=11] spC=[splits=16,nc=1,mode=1,splits_override=8] ctrl2=[splits=16,nc=1,mode=1]
+ABCOLD b=16 sliding L=1 in=0 ctrl=12.90 tl_probe=13.22 tlA_probe=16.22 spA=15.07 spB=12.90 spC=12.83 ctrl2=13.15 cap0=ctrl2 t=78s
+ABWARM b=16 sliding L=1 in=0 ctrl=7.28 tl_probe=7.70 tlA_probe=11.54 spA=10.48 spB=7.52 spC=7.69 ctrl2=7.58 t=78s
+ABCOLD b=16 sliding L=1 in=1 ctrl=12.83 tl_probe=13.34 tlA_probe=16.45 spA=15.26 spB=13.02 spC=12.83 ctrl2=12.96 cap0=tlA_probe t=78s
+ABWARM b=16 sliding L=1 in=1 ctrl=7.29 tl_probe=7.74 tlA_probe=11.61 spA=10.49 spB=7.55 spC=7.73 ctrl2=7.57 t=78s
+ABCOLD b=16 sliding L=1 in=2 ctrl=12.80 tl_probe=13.18 tlA_probe=16.42 spA=15.04 spB=12.99 spC=12.83 ctrl2=13.09 cap0=spB t=78s
+ABWARM b=16 sliding L=1 in=2 ctrl=7.50 tl_probe=7.82 tlA_probe=11.60 spA=10.50 spB=7.57 spC=7.80 ctrl2=7.58 t=78s
+ABCOLD b=16 sliding L=1 pooled ctrl=12.86 tl_probe=13.25 tlA_probe=16.38 spA=15.10 spB=12.96 spC=12.83 ctrl2=13.06
+ABWARM b=16 sliding L=1 pooled ctrl=7.31 tl_probe=7.73 tlA_probe=11.58 spA=10.49 spB=7.55 spC=7.72 ctrl2=7.58
+ABPLAN b=32 sliding L=1 ctrl=[splits=8,nc=1,mode=1] tl_probe=[splits=8,nc=1,mode=1] tlA_probe=[splits=8,nc=1,mode=1,splits_override=16] spA=[splits=8,nc=1,mode=1,splits_override=16] spB=[splits=8,nc=1,mode=1,splits_override=11] spC=[splits=8,nc=1,mode=1,splits_override=6] ctrl2=[splits=8,nc=1,mode=1]
+ABCOLD b=32 sliding L=1 in=0 ctrl=15.55 tl_probe=15.84 tlA_probe=19.30 spA=18.24 spB=15.81 spC=16.35 ctrl2=15.58 cap0=ctrl2 t=78s
+ABWARM b=32 sliding L=1 in=0 ctrl=9.57 tl_probe=10.04 tlA_probe=14.09 spA=12.93 spB=9.74 spC=10.93 ctrl2=9.57 t=78s
+ABCOLD b=32 sliding L=1 in=1 ctrl=15.71 tl_probe=15.94 tlA_probe=19.42 spA=18.24 spB=15.87 spC=16.54 ctrl2=15.74 cap0=ctrl t=79s
+ABWARM b=32 sliding L=1 in=1 ctrl=9.53 tl_probe=10.04 tlA_probe=14.02 spA=12.89 spB=9.73 spC=10.88 ctrl2=9.62 t=79s
+ABCOLD b=32 sliding L=1 in=2 ctrl=15.68 tl_probe=16.06 tlA_probe=19.49 spA=18.24 spB=15.84 spC=16.51 ctrl2=15.62 cap0=ctrl2 t=79s
+ABWARM b=32 sliding L=1 in=2 ctrl=9.55 tl_probe=10.12 tlA_probe=14.03 spA=12.92 spB=9.77 spC=10.88 ctrl2=9.65 t=79s
+ABCOLD b=32 sliding L=1 pooled ctrl=15.65 tl_probe=15.94 tlA_probe=19.39 spA=18.24 spB=15.84 spC=16.45 ctrl2=15.65
+ABWARM b=32 sliding L=1 pooled ctrl=9.56 tl_probe=10.05 tlA_probe=14.04 spA=12.91 spB=9.75 spC=10.90 ctrl2=9.62
+ABPLAN b=16 sliding L=8 ctrl=[splits=8,nc=1,mode=3] tl_probe=[splits=8,nc=1,mode=3] tlA_probe=[splits=8,nc=1,mode=3,splits_override=16] spA=[splits=8,nc=1,mode=3,splits_override=16] spB=[splits=8,nc=1,mode=3,splits_override=11] spC=[splits=8,nc=1,mode=3,splits_override=6] ctrl2=[splits=8,nc=1,mode=3]
+ABCOLD b=16 sliding L=8 in=0 ctrl=15.58 tl_probe=16.00 tlA_probe=16.54 spA=16.16 spB=16.10 spC=16.16 ctrl2=15.62 cap0=tl_probe t=79s
+ABWARM b=16 sliding L=8 in=0 ctrl=11.30 tl_probe=11.95 tlA_probe=12.48 spA=12.19 spB=12.15 spC=12.16 ctrl2=11.47 t=79s
+ABCOLD b=16 sliding L=8 in=1 ctrl=15.71 tl_probe=15.94 tlA_probe=16.64 spA=16.29 spB=16.29 spC=16.29 ctrl2=15.65 cap0=tl_probe t=79s
+ABWARM b=16 sliding L=8 in=1 ctrl=11.44 tl_probe=11.72 tlA_probe=12.42 spA=12.11 spB=12.03 spC=11.99 ctrl2=11.37 t=79s
+ABCOLD b=16 sliding L=8 in=2 ctrl=15.58 tl_probe=16.03 tlA_probe=16.64 spA=16.26 spB=16.19 spC=16.26 ctrl2=15.81 cap0=ctrl t=79s
+ABWARM b=16 sliding L=8 in=2 ctrl=11.54 tl_probe=11.88 tlA_probe=12.43 spA=12.06 spB=12.06 spC=12.04 ctrl2=11.42 t=79s
+ABCOLD b=16 sliding L=8 pooled ctrl=15.62 tl_probe=16.00 tlA_probe=16.58 spA=16.22 spB=16.19 spC=16.26 ctrl2=15.68
+ABWARM b=16 sliding L=8 pooled ctrl=11.44 tl_probe=11.88 tlA_probe=12.44 spA=12.12 spB=12.07 spC=12.04 ctrl2=11.43
+ABPLAN b=32 sliding L=8 ctrl=[splits=4,nc=1,mode=3] tl_probe=[splits=4,nc=1,mode=3] tlA_probe=[splits=4,nc=1,mode=3,splits_override=8] spA=[splits=4,nc=1,mode=3,splits_override=8] spB=[splits=4,nc=1,mode=3,splits_override=6] spC=[splits=4,nc=1,mode=3,splits_override=3] ctrl2=[splits=4,nc=1,mode=3]
+ABCOLD b=32 sliding L=8 in=0 ctrl=19.81 tl_probe=20.16 tlA_probe=19.84 spA=19.39 spB=20.45 spC=22.05 ctrl2=19.84 cap0=ctrl t=79s
+ABWARM b=32 sliding L=8 in=0 ctrl=14.99 tl_probe=15.55 tlA_probe=15.70 spA=15.10 spB=16.06 spC=17.73 ctrl2=14.98 t=79s
+ABCOLD b=32 sliding L=8 in=1 ctrl=19.74 tl_probe=20.26 tlA_probe=19.87 spA=19.30 spB=20.26 spC=22.02 ctrl2=19.68 cap0=ctrl2 t=80s
+ABWARM b=32 sliding L=8 in=1 ctrl=15.07 tl_probe=15.57 tlA_probe=15.67 spA=15.02 spB=16.14 spC=17.74 ctrl2=15.09 t=80s
+ABCOLD b=32 sliding L=8 in=2 ctrl=20.00 tl_probe=20.48 tlA_probe=20.06 spA=19.58 spB=20.58 spC=22.11 ctrl2=20.00 cap0=ctrl t=80s
+ABWARM b=32 sliding L=8 in=2 ctrl=15.04 tl_probe=15.55 tlA_probe=15.70 spA=15.06 spB=16.15 spC=17.91 ctrl2=15.07 t=80s
+ABCOLD b=32 sliding L=8 pooled ctrl=19.84 tl_probe=20.26 tlA_probe=19.90 spA=19.42 spB=20.45 spC=22.05 ctrl2=19.84
+ABWARM b=32 sliding L=8 pooled ctrl=15.04 tl_probe=15.56 tlA_probe=15.68 spA=15.06 spB=16.14 spC=17.78 ctrl2=15.05
+TLSUM b=16 sliding L=1 tl_probe reps=5 entry_med=0.13 entry_max=0.22 idx_med=0.94 idx_max=1.33 kvissue_med=0.71 kvissue_max=0.93 qgrp_med=0.04 qgrp_max=0.20 prep_med=0.41 prep_max=0.76 first_med=1.26 first_max=2.59 loop_med=1.83 loop_max=2.83 red_med=0.26 red_max=0.40 loopend_med=5.50 loopend_max=6.30 end_med=7.17 end_max=8.45 tilegap_med=1.19 tilegap_max=2.22 ticket_med=1.09 ticket_max=1.80 fin_med=0.86 fin_max=0.96 span=8.45 crit_s0=0.10 crit_s4=1.06 crit_s6=1.86 crit_s8=1.89 crit_s13=2.27 crit_s24=4.10 crit_s16=5.70 crit_s17=6.05 crit_s19=7.65 crit_s20=8.45
+TLSUM b=32 sliding L=1 tl_probe reps=5 entry_med=0.10 entry_max=0.22 idx_med=0.95 idx_max=1.37 kvissue_med=0.93 kvissue_max=1.21 qgrp_med=0.06 qgrp_max=0.23 prep_med=0.42 prep_max=0.80 first_med=1.12 first_max=2.33 loop_med=4.28 loop_max=5.58 red_med=0.24 red_max=0.41 loopend_med=8.06 loopend_max=9.02 end_med=9.38 end_max=10.98 tilegap_med=1.19 tilegap_max=2.47 ticket_med=0.85 ticket_max=1.24 fin_med=0.88 fin_max=1.02 span=10.98 crit_s0=0.13 crit_s4=1.06 crit_s6=2.11 crit_s8=2.14 crit_s13=2.56 crit_s24=4.35 crit_s16=9.02 crit_s17=9.38 crit_s19=10.05 crit_s20=10.98
+TLSUM b=16 sliding L=8 tl_probe reps=5 entry_med=0.10 entry_max=0.19 idx_med=0.99 idx_max=1.27 kvissue_med=0.45 kvissue_max=0.47 qgrp_med=0.04 qgrp_max=0.21 prep_med=1.08 prep_max=1.43 first_med=1207838.24 first_max=2281210.37 loop_med=1333496.58 loop_max=2294580.76 red_med=0.76 red_max=1.12 loopend_med=7.20 loopend_max=8.00 end_med=10.30 end_max=11.04 tilegap_med=0.00 tilegap_max=0.00 barrier_med=1.58 barrier_max=3.46 fin_med=0.85 fin_max=0.99 span=11.04 crit_s0=0.10 crit_s4=0.96 crit_s6=1.38 crit_s8=1.44 crit_s13=2.53 crit_s24=720820.26 crit_s16=7.26 crit_s17=8.29 crit_s21=10.21 crit_s22=11.04
+TLSUM b=32 sliding L=8 tl_probe reps=5 entry_med=0.10 entry_max=0.19 idx_med=1.01 idx_max=1.59 kvissue_med=0.46 kvissue_max=0.56 qgrp_med=0.18 qgrp_max=0.50 prep_med=1.09 prep_max=1.44 first_med=1333674.84 first_max=2346137.20 loop_med=1240741.99 loop_max=2333373.49 red_med=0.77 red_max=0.92 loopend_med=10.94 loopend_max=12.03 end_med=14.30 end_max=15.30 tilegap_med=0.00 tilegap_max=0.00 barrier_med=1.57 barrier_max=4.42 fin_med=0.95 fin_max=1.17 span=15.30 crit_s0=0.10 crit_s4=1.28 crit_s6=1.73 crit_s8=1.76 crit_s13=2.78 crit_s24=663932.29 crit_s16=11.62 crit_s17=12.45 crit_s21=14.37 crit_s22=15.30
+TLSUM b=16 sliding L=1 tlA_probe reps=5 entry_med=0.13 entry_max=6.37 idx_med=0.87 idx_max=1.50 kvissue_med=0.46 kvissue_max=0.75 qgrp_med=0.05 qgrp_max=0.24 prep_med=0.43 prep_max=0.84 first_med=1.97 first_max=2.68 loop_med=0.68 loop_max=1.08 red_med=0.29 red_max=0.75 loopend_med=4.93 loopend_max=9.38 end_med=7.01 end_max=11.07 tilegap_med=0.00 tilegap_max=0.00 ticket_med=1.21 ticket_max=2.26 fin_med=0.86 fin_max=0.96 span=11.07 crit_s0=6.18 crit_s4=6.82 crit_s6=7.30 crit_s8=7.46 crit_s13=7.94 crit_s24=8.19 crit_s16=9.02 crit_s17=9.54 crit_s19=10.37 crit_s20=11.07
+TLSUM b=32 sliding L=1 tlA_probe reps=5 entry_med=0.13 entry_max=8.26 idx_med=0.98 idx_max=1.58 kvissue_med=1.42 kvissue_max=1.89 qgrp_med=0.08 qgrp_max=0.43 prep_med=0.45 prep_max=1.04 first_med=1.02 first_max=3.16 loop_med=2.23 loop_max=4.23 red_med=0.29 red_max=0.69 loopend_med=7.10 loopend_max=12.67 end_med=8.93 end_max=14.53 tilegap_med=1.51 tilegap_max=3.56 ticket_med=1.03 ticket_max=2.00 fin_med=0.87 fin_max=1.29 span=14.53 crit_s0=8.26 crit_s4=9.22 crit_s6=10.37 crit_s8=10.43 crit_s13=11.10 crit_s24=11.36 crit_s16=12.67 crit_s17=12.86 crit_s19=13.66 crit_s20=14.53
+TLSUM b=16 sliding L=8 tlA_probe reps=5 entry_med=0.10 entry_max=0.22 idx_med=1.07 idx_max=1.54 kvissue_med=0.46 kvissue_max=0.72 qgrp_med=0.05 qgrp_max=0.33 prep_med=1.28 prep_max=2.40 first_med=1812447.99 first_max=2076274.80 loop_med=562484.23 loop_max=1815158.56 red_med=0.76 red_max=1.14 loopend_med=6.14 loopend_max=8.90 end_med=10.69 end_max=11.49 tilegap_med=0.00 tilegap_max=0.00 barrier_med=2.16 barrier_max=4.64 fin_med=0.80 fin_max=1.52 span=11.49 crit_s0=0.19 crit_s4=1.18 crit_s6=1.76 crit_s8=1.82 crit_s13=2.88 crit_s24=282598.72 crit_s16=6.53 crit_s17=7.30 crit_s21=10.72 crit_s22=11.49
+TLSUM b=32 sliding L=8 tlA_probe reps=5 entry_med=0.13 entry_max=0.22 idx_med=1.15 idx_max=1.85 kvissue_med=0.63 kvissue_max=1.16 qgrp_med=0.07 qgrp_max=0.38 prep_med=1.44 prep_max=2.44 first_med=1739436.22 first_max=2005147.97 loop_med=638779.63 loop_max=1913975.10 red_med=0.76 red_max=1.25 loopend_med=8.80 loopend_max=11.74 end_med=13.54 end_max=14.75 tilegap_med=0.00 tilegap_max=0.00 barrier_med=2.11 barrier_max=5.76 fin_med=0.90 fin_max=1.79 span=14.75 crit_s0=0.16 crit_s4=1.38 crit_s6=2.18 crit_s8=2.21 crit_s13=3.81 crit_s24=204233.98 crit_s16=11.14 crit_s17=12.06 crit_s21=13.92 crit_s22=14.75
+ABADDR ctrl:acc=0x14a78e000000,l=0x14a843a3e200,cnt=0x14a843a08200 tl_probe:acc=0x14a742000000,l=0x14a843aa6200,cnt=0x14a843ae6200 tlA_probe:acc=0x14a743000000,l=0x14a843b06200,cnt=0x14a843b46200 spA:acc=0x14a744000000,l=0x14a843b66200,cnt=0x14a843ba6200 spB:acc=0x14a745000000,l=0x14a780a00000,cnt=0x14a843bc6200 spC:acc=0x14a746000000,l=0x14a780a40000,cnt=0x14a780a80000 ctrl2:acc=0x14a747000000,l=0x14a780aa0000,cnt=0x14a780ae0000
+ABSUM cold b=16 sliding L=1 ctrl=12.86 tl_probe=13.25 tlA_probe=16.38 spA=15.10 spB=12.96 spC=12.83 ctrl2=13.06 null:ctrl2-ctrl=+0.19 d:tl_probe=+0.38 d:tlA_probe=+3.52 d:spA=+2.24 d:spB=+0.10 d:spC=-0.03
+ABSUM warm b=16 sliding L=1 ctrl=7.31 tl_probe=7.73 tlA_probe=11.58 spA=10.49 spB=7.55 spC=7.72 ctrl2=7.58 null:ctrl2-ctrl=+0.27 d:tl_probe=+0.42 d:tlA_probe=+4.27 d:spA=+3.18 d:spB=+0.24 d:spC=+0.41
+ABSUM cold b=32 sliding L=1 ctrl=15.65 tl_probe=15.94 tlA_probe=19.39 spA=18.24 spB=15.84 spC=16.45 ctrl2=15.65 null:ctrl2-ctrl=+0.00 d:tl_probe=+0.29 d:tlA_probe=+3.74 d:spA=+2.59 d:spB=+0.19 d:spC=+0.80
+ABSUM warm b=32 sliding L=1 ctrl=9.56 tl_probe=10.05 tlA_probe=14.04 spA=12.91 spB=9.75 spC=10.90 ctrl2=9.62 null:ctrl2-ctrl=+0.06 d:tl_probe=+0.49 d:tlA_probe=+4.48 d:spA=+3.35 d:spB=+0.19 d:spC=+1.34
+ABSUM cold b=16 sliding L=8 ctrl=15.62 tl_probe=16.00 tlA_probe=16.58 spA=16.22 spB=16.19 spC=16.26 ctrl2=15.68 null:ctrl2-ctrl=+0.06 d:tl_probe=+0.38 d:tlA_probe=+0.96 d:spA=+0.61 d:spB=+0.58 d:spC=+0.64
+ABSUM warm b=16 sliding L=8 ctrl=11.44 tl_probe=11.88 tlA_probe=12.44 spA=12.12 spB=12.07 spC=12.04 ctrl2=11.43 null:ctrl2-ctrl=-0.02 d:tl_probe=+0.43 d:tlA_probe=+1.00 d:spA=+0.67 d:spB=+0.63 d:spC=+0.59
+ABSUM cold b=32 sliding L=8 ctrl=19.84 tl_probe=20.26 tlA_probe=19.90 spA=19.42 spB=20.45 spC=22.05 ctrl2=19.84 null:ctrl2-ctrl=+0.00 d:tl_probe=+0.42 d:tlA_probe=+0.06 d:spA=-0.42 d:spB=+0.61 d:spC=+2.21
+ABSUM warm b=32 sliding L=8 ctrl=15.04 tl_probe=15.56 tlA_probe=15.68 spA=15.06 spB=16.14 spC=17.78 ctrl2=15.05 null:ctrl2-ctrl=+0.01 d:tl_probe=+0.52 d:tlA_probe=+0.65 d:spA=+0.02 d:spB=+1.10 d:spC=+2.74
+ABIN b=16 sliding L=1 in=0 spA=+2.18 spB=+0.00 spC=-0.06 ctrl2=+0.26
+ABIN b=16 sliding L=1 in=1 spA=+2.43 spB=+0.19 spC=+0.00 ctrl2=+0.13
+ABIN b=16 sliding L=1 in=2 spA=+2.24 spB=+0.19 spC=+0.03 ctrl2=+0.29
+ABIN b=32 sliding L=1 in=0 spA=+2.69 spB=+0.26 spC=+0.80 ctrl2=+0.03
+ABIN b=32 sliding L=1 in=1 spA=+2.53 spB=+0.16 spC=+0.83 ctrl2=+0.03
+ABIN b=32 sliding L=1 in=2 spA=+2.56 spB=+0.16 spC=+0.83 ctrl2=-0.06
+ABIN b=16 sliding L=8 in=0 spA=+0.58 spB=+0.51 spC=+0.58 ctrl2=+0.03
+ABIN b=16 sliding L=8 in=1 spA=+0.58 spB=+0.58 spC=+0.58 ctrl2=-0.06
+ABIN b=16 sliding L=8 in=2 spA=+0.67 spB=+0.61 spC=+0.67 ctrl2=+0.22
+ABIN b=32 sliding L=8 in=0 spA=-0.42 spB=+0.64 spC=+2.24 ctrl2=+0.03
+ABIN b=32 sliding L=8 in=1 spA=-0.45 spB=+0.51 spC=+2.27 ctrl2=-0.06
+ABIN b=32 sliding L=8 in=2 spA=-0.42 spB=+0.58 spC=+2.11 ctrl2=+0.00
+ABCHECKSUM ctrl=4/0/0 tl_probe=0/0/4 tlA_probe=0/0/4 spA=4/0/0 spB=4/0/0 spC=4/0/0 ctrl2=4/0/0 (pass/fail/probe)
+USDT:2026-11-03 10:05:59 76:76 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 10:05:59 76:76 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 10:05:59 76:76 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 10:05:59 76:76 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 10:05:59 76:76 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 10:05:59 76:76 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 10:05:59 76:76 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 10:05:59 76:76 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 10:05:59 76:76 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 10:05:59 76:76 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 10:05:59 76:76 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 10:05:59 76:76 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 10:05:59 76:76 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 10:05:59 76:76 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 10:05:59 76:76 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 10:05:59 76:76 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 10:05:59 76:76 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 10:05:59 76:76 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 10:05:59 76:76 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 10:05:59 76:76 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 10:05:59 76:76 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 10:05:59 76:76 SyncActivityProfilerHandler.cpp:46] profiler_stop
+USDT:2026-11-03 10:05:59 76:76 SyncActivityProfilerHandler.cpp:39] profiler_start
+USDT:2026-11-03 10:05:59 76:76 SyncActivityProfilerHandler.cpp:46] profiler_stop
