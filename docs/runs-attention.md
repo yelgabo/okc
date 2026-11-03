@@ -4572,3 +4572,46 @@ rounds, seed 311404. Gate as for the split arms: -0.5 us cold on a cell on all t
 beyond the null, no other cell worse. Hypothesis: same-address red contention (7 / 4 CTAs adding
 32 KB each into one request's rows) sets the verify reds and barrier at 0.8 + 1.9 us; nc removes
 it at the cost of one more dependent round trip per copy in the finalize.
+
+### Result: e468255b7f9948c6, more workspace copies and the cooperative decode both lose
+
+Receipt `profiles/slhost.e468255b7f9948c6.{json,log,dispatch.json}` (bench SHA256 7c9643f4).
+Control 16/16, 2.521x (CI 2.483-2.559), no flags; ABCHECKSUM 4/0 on every arm. Cold pooled
+us, arm - ctrl (null ctrl2 - ctrl within 0.10; every input has the same sign):
+
+| cell | ctrl | nc2 | nc4 | dcoop |
+|---|---:|---:|---:|---:|
+| decode 16 sliding | 12.86 | +0.22 | +0.93 | +0.80 |
+| decode 32 sliding | 15.49 | +0.48 | +1.15 | +1.06 |
+| verify 16 sliding | 15.42 | +0.42 | +1.22 | (control plan) |
+| verify 32 sliding | 19.65 | +0.51 | +2.30 | (control plan) |
+
+Warm rows agree (nc2 +0.27 to +0.53, nc4 +0.87 to +1.67, dcoop +0.92 / +0.99). Same-address red
+contention is not what the verify tail pays: removing it (nc4 at verify 32 gives every split its
+own copy) costs more in the finalize's extra round trips than it saves. The grid barrier is
+slower than the ticket at decode by 0.8-1.1 us. Closed in ruled-out.md.
+
+## Lane summary (third attention lane, 2026-11-03): no candidate
+
+Four of six checks spent (acc16cee189246cd, fd482cc58ac440e1, b27e873b98f34ff9,
+e468255b7f9948c6), each against its own control and null; no arm met its gate, nothing goes to
+the promotion queue, the confirming check was not used. Public best stays 8914751e3b9f468b.
+
+Where the time goes (cold, critical CTA, acc16cee189246cd / fd482cc58ac440e1):
+decode 16 sliding 8.4 us = 2.3 prologue (seq length plus page-index round trip 1.0, prologue
+cp.async issue 0.8, query work 0.4) + 1.8 first-tile DRAM wait (8 MB requested at once, about
+the DRAM rate) + 1.6 loop + 2.75 merge tail (reds 0.35, ticket 1.6, finalize 0.8). Decode 32
+adds two tiles at 1.1-1.2 us, which is the DRAM rate for 256 CTAs (3.8 TB/s). Verify 16 / 32
+(11.0 / 15.3 us): loop 4.7 / 8.8 us at 0.8-0.9 us per tile with the tile already in smem, so it
+is the q_len 8 tile body; the 8/3 loop body is 588 SASS instructions per thread per tile (76
+ISETP, 46 IMAD, 40 FMUL, 37 LDS, 34 FSEL / FMNMX / MUFU), about 1,170 issue cycles per tile
+for eight warps, i.e. issue-bound; merge tail 3.8 / 3.7 us (reds 0.6-1.0, barrier 1.9, finalize
+0.9). Verify minus decode: batch 16 +2.6 = loop +1.3, tail +1.0, prologue +0.3; batch 32 +4.3 =
+loop +2.4, tail +1.7.
+
+Ruled out on this kernel: other split counts (copied public counts are at the optimum within 0.4
+us), ring depth 4 / 5, the last arriver's poll, 2 / 4 workspace copies, the cooperative
+finalize at decode. What is left is structural: a q_len 8 tile body with fewer instructions per
+tile (masking only on the boundary tile, address math hoisted per segment, the DCARRY / VHOIST
+carries of mode 51 brought to the per-request loop), and a merge tail with fewer dependent L2
+round trips than reds, release RMW and reload. Neither fits one check with a stop rule today.
