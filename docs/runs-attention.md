@@ -4359,3 +4359,51 @@ fresh-input replay gate. Fail: ruled-out row with the per-cell numbers.
 Decision rule for the next candidate: b_solo / b_co near 1 (the late CTA does not speed up when
 alone) means a run-time split of each pair's keys can recover most of the 12 / 23 us pair gap;
 near the pair's combined rate means it cannot.
+
+### Result: 4c0b0674c46d4ec2, timeline read and per-head ring loss
+
+Receipt `profiles/q8tl.4c0b0674c46d4ec2.{json,log}` (board muse_attention_decode, bench source
+1b692161, content hash 27295ef8). Unchanged control passed 16/16 official tests, 2.517172x
+(95% CI 2.479415-2.568544), checks.ok, no flags; every correct-output arm 2/2 ABCHECK (hs's
+output against the control's, workspace clean); resource gate before timing: ctrl / ctrl2 /
+stamp_probe 107,104 bytes, hs / stamphs_probe 107,168 bytes, all two CTAs per SM, 264 resident.
+The log tail kept the STSUM medians of the stamp_probe calls, not its per-call TLINE rows.
+
+| cell, cold us | ctrl | ctrl2 | null | stamp_probe | hs | hs - ctrl by input |
+|---|---:|---:|---:|---:|---:|---|
+| verify 16 full | 113.86 | 113.09 | -0.77 | +3.49 | 136.03 (+22.18) | +20.77 / +24.42 |
+| verify 32 full | 194.34 | 193.60 | -0.74 | +5.02 | 244.51 (+50.18) | +50.21 / +50.56 |
+
+Warm: hs +19.0 / +57.4 us. The per-head ring loses on both cells by far more than the gate;
+closed (docs/ruled-out.md).
+
+Timeline of the control-equivalent stamp build (STSUM, medians of five cold calls, v16 / v32):
+
+| quantity | v16 | v32 |
+|---|---:|---:|
+| producer tiles ahead of the consumer when it passes a full barrier | 4.0 | 4.0 |
+| producer slot pass to consumer full pass, per tile | 3.7 us | 3.6 us |
+| consumer time per tile outside the full-barrier wait | 1.0 us | 1.0 us |
+| consumer full-barrier wait, whole run (thread 0) | 12.5 us | 16.4 us |
+| producer empty-slot wait, whole run (thread 0) | 31.8 us | 65.9 us |
+| warpgroup 1 minus warpgroup 0, full pass of the same tile | 0.0 us | -0.1 us |
+| a: tiles per us of the CTA of each SM that ends first | 0.9 | 1.0 |
+| b_co: its partner's rate while both run | 0.8 | 0.8 |
+| b_solo: the partner's rate after the first ends | 1.0 | 1.2 |
+| partner's time alone | 11.4 us | 21.9 us |
+| SM loop end, median / max | 101.7 / 107.1 | 185.8 / 191.1 |
+| model: both CTAs at co-run rates to a common end, median / max | 96.6 / 102.3 | 178.8 / 184.9 |
+
+Answers. (1) The producer waits on empty slots because the ring is full: it is four tiles (the
+whole ring) ahead whenever a consumer takes a tile, and a tile sits 3.6 us between the
+producer's slot pass and the consumer's full pass. Each CTA's pace is its consumers' 1.0 us per
+tile; the two warpgroups pass each tile together (skew 0.0 us), so no fixed per-stage barrier
+cost between them shows up. The consumer-math-removed probe of 8ac6563343f74bcd stayed at the
+same time because the memory side then binds at about the same rate; the two limits are close.
+(2) Bytes in flight: answered statically above (mode 51 has more per SM than mode 49).
+(3) Decoupling the warpgroups (hs) has nothing to recover (skew 0) and costs 20-50 us.
+The pair imbalance is real: the partner speeds up to 1.0-1.2 tiles/us when alone, below the
+pair's 1.7-1.8 together, so the SM runs under capacity for 11 / 22 us. A run-time split of each
+pair's keys that holds the co-run rates to a common end models at -4.8 / -6.2 us on the last SM
+(the kernel end) and -5.1 / -7.0 us at the median SM; it does not touch the cross-SM spread
+(model median to max 5.7 / 6.1 us).
