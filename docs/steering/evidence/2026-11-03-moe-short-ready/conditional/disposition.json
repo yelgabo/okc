@@ -7,5 +7,10 @@
   "confirmation_dispatched": false,
   "release_check_dispatched": false,
   "public_submission": false,
-  "disposition": "Park both conditional drafts: failed registered screen. No qualification or public approval."
+  "disposition": "Park both conditional drafts: failed registered screen and incomplete cross-lane publication proof. Neither draft was dispatched; no GPU qualification or public approval.",
+  "publication_proof_complete": false,
+  "publication_audits": [
+    "25ad1c20",
+    "1fd98d1e"
+  ]
 }

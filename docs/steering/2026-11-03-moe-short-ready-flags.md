@@ -1,6 +1,6 @@
 # Distributed A-ready publication for Tiny and Tiny2
 
-November3,2026 Pacific. MOE-SHORT-READY-01 is the single next short-load candidate after own timeline f4012a0531af4013. No new candidate GPU job yet. MoE owner implements and measures; General retains independent validation support. Public control5df/C7 and every unrelated owner remain intact.
+November3,2026 Pacific. MOE-SHORT-READY-01 e3e2495464f34b2c is terminal. Tested correctness and coverage pass; the registered performance gate fails. Independent source reviews also identify an unresolved cross-lane publication proof. Retain public control5df/C7. This candidate is stopped, unintegrated and ineligible for release; no own GPU job remains active.
 
 ## Evidence and mechanism
 
@@ -12,13 +12,13 @@ A different option is to move late A epilogues to compute warps, similar to curr
 
 The earlier short-RMW c5e4f89672f743bb changes the final global-barrier counter's memory ordering and failed its complete gate. This candidate preserves that final counter exactly and changes the separate phase-A readiness representation. It is not a retry of that treatment, NS4, row-owned full-K, WGS prefix, queue or scale/group work. See the archived short-RMW source/terminal reports.
 
-## Memory, coverage and progress proof
+## Memory, coverage and progress obligations
 
 Use existing reserved int32 words p.doneA[128+cta]. JMAX is below128 and128+136 is below512; the next xready region begins at512 and the second sum buffer begins at1024. Static assertions enforce these boundaries. No new scratch allocation or host argument is needed. Every flag has one writer and resets after the original global B-completion barrier. Initial scratch is zero, and same-stream completion orders reset before the next graph replay. Other paths keep their original source and storage behavior.
 
 For job j let its A unit interval be[L,R), total A units T and grid G. CTA c owns[floor(T*c/G),floor(T*(c+1)/G)). Its intersecting CTAs are first=ceil(G*(L+1)/T)-1 through last=ceil(G*R/T)-1 inclusive. All products fit32bits under G<=136 and32jobs. Positive contributions partition exactly the job, so the old sum reaches RB_A if and only if all those CTA flags are ready. This preserves the existing coarse publication point, including a CTA spanning jobs. Empty routing executes no B units or division.
 
-Keep each helper lane's original GPU fence and original warp join. The leader's aligned st.relaxed.gpu.global.u32 following that fenced relay is a release pattern; GPU acquire reads observe it. The retained __syncwarp redistributes the lane-wise acquired visibility before generic inter reads. This is an inference from [PTX8.7 release/acquire and synchronization rules](https://docs.nvidia.com/cuda/archive/12.8.0/parallel-thread-execution/index.html#memory-consistency-model) and [CUDA12.8.1 warp synchronization](https://docs.nvidia.com/cuda/archive/12.8.1/cuda-c-programming-guide/index.html#synchronization-functions), applied to these exact operations. The vote alone is not a memory barrier. No writer fence or generic-to-async proxy fence is removed.
+The selected producer retains each helper lane's original GPU fence, then the warp join, then lane0's aligned st.relaxed.gpu.global.u32. For lane0's own preceding stores, the fence and strong relaxed store form a release pattern. The join relays the other lanes' stores after lane0's fence. The argument does not establish that those stores precede the first operation of lane0's release pattern. Whole-warp publication therefore remains unproved. Consumer GPU acquire reads, votes and the retained __syncwarp before generic inter reads do not supply this missing producer edge. No writer or generic-to-async proxy fence was removed. See the [independent General audit](2026-11-03-general-ready-flag-audit.md#publication-proof-gap) and [research cross-check](2026-11-03-research-ready-proof-crosscheck.md#publication-result-the-written-proof-is-not-closed). Neither review demonstrates an H200 stale read or a complete allowed PTX execution; passing tests and the predecessor's related publication shape cannot close the proof.
 
 A producers never wait for B. Each resident CTA publishes before its helper reaches B. Consumer waits depend only on prior A work, and original cooperative admission remains. Reset occurs only after every compute warp and helper passed the existing B join and full-grid barrier. Preserve the original final publication/acquire, generation advance and sum-buffer parity. CPU schedules, compiler lowering and GPU tests establish separate facts; tests alone do not prove ordering.
 
@@ -34,11 +34,11 @@ Stop exact design on any correctness, policy, source, coverage, budget, drift, r
 
 Pairedb6107a783c8ded6dc626f6cfa99e7e1b53201e5225bd2073f736c69125f16964/490593bytes, native helper974d7743bb8d049150fe46b62f84c2308158e382588903f185d8155c787faf20, runtime8e2dd47c28fb0f82c6261bef869185b3b93781b171eeb8e06938712200c588c8. Five CPU integration/source/mapping tests pass, plus two short-gate arithmetic tests. The final targeted two-test pass checks the delivered tracked receipt fixture, positive owning-reader association, wrong job, a missing reset observation and failed complete evidence with otherwise favorable performance rows. Full host orchestration covers54cases/378observations/216captures/1152synthetic timings/54restores and1512flag-zero checks. These tests use real CPU Torch storage and explicit CUDA/native facades; synthetic timings are not a GPU gain.
 
-The actual native wait function also passes24CPU warp-model cases with32lanes, withheld publication, visibility after the modelled warp join and exact contributor sets. A last-contributor omission fails as expected. This models the primitive contracts and exercises the actual wait/address code; it does not execute PTX on a GPU.
+The actual native wait function also passes24CPU warp-model cases with32lanes, withheld publication, visibility after the modelled warp join and exact contributor sets. A last-contributor omission fails as expected. The CPU producer uses C++ release stores, a stronger publication operation than the selected relaxed PTX store. This exercises wait/address/convergence and contributor coverage under that stronger model. It neither executes PTX nor proves the native cross-lane publication edge.
 
 Both actual Tiny/Tiny2 variants compile with CUDA12.8.1 SM90a locally,154registers/3barriers/zero stack or spills. Original controls use145registers and are unchanged from the timeline builds. Both entries lower the new publication to STG.E.STRONG.GPU, retain explicit acquire loads/votes, all8proxy-fence sites and both original final acq_rel RMW sites. Register counts, source coverage, memory-model reasoning and measured H200 speed remain separate facts. Full compiler diagnostics and source/adaptor pins are archived; full SASS stays ignored under .build per the repository audit.
 
-No independent native review or target result is claimed. The independent General support validates the preceding actual timeline export; it does not certify this candidate. Fresh shared preflight before dispatch currently shows3MoE private checks left and other accepted owner jobs. One new private source may be queued, with no duplicate, cancellation or other-ID waiter.
+These local checks preceded dispatch and were not an independent native GPU review. The terminal target result is below. Subsequent independent General and research source reviews validate contributor mapping/reset placement and identify the publication proof gap. Neither review certifies the candidate. The recorded dispatch preflight had3MoE private checks left; that historical quota is not a current dispatch authorization.
 
 ## Reconciled concurrent short-load evidence
 
@@ -48,9 +48,9 @@ The other timeline reports about1.7–1.8us ready waiting on its judge-input obs
 
 ## Accepted private check
 
-Own e3e2495464f34b2c accepted once for pairedb6107a78/490593bytes, published73ab76cf/reconciled8fad06be, dispatch intent9e778ae6. Fresh quota had3checks left; shared live jobs were recorded before the POST. Accepted ID persisted before collection or other measurement. One own-ID foreground waiter writes ignored .build/moe-short-ready/status-wait.raw.json. No target outcome yet.
+Own e3e2495464f34b2c accepted once for pairedb6107a78/490593bytes, published73ab76cf/reconciled8fad06be, dispatch intent9e778ae6. Fresh quota had3checks left; shared live jobs were recorded before the POST. Accepted ID persisted before collection or other measurement. The sole own-ID foreground waiter wrote ignored .build/moe-short-ready/status-wait.raw.json and has ended with exit0. The complete terminal archive is below.
 
-## Conditional follow-through prepared while the screen runs
+## Conditional follow-through prepared during the screen
 
 Tools/moe_short_ready_confirm.py fixes held-out banks2203011/2203017/2203029, disjoint from the screen and its fresh97offset banks. Its two CPU tests establish that only BANKS and runtime identity change, the exact helper/compiler requests remain, and the original screen/gate module stays immutable. No seed search or alternate held-out bank is allowed. No confirmation is dispatched unless the complete frozen screen passes.
 
@@ -58,7 +58,7 @@ Tools/moe_short_ready_release.py prepares a single-arm draft from exact approved
 
 ## Terminal decision: stop exact flags and retain the incumbent
 
-Own e3e2495464f34b2c is complete. PASS5tests/6benchmarks/6profiles, no flags, return0. Strict source/job/manifest reader accepts full54cases/36timed rows,378observations/216captures/1152cold replays/54restores, all seven compiler requests and1512zeroed flag observations. Prepare252.570135seconds; worst global/row paired errors0.000085418680/0.000300182204. Collector95504 ended0 before archival. This establishes the tested correctness and coverage, separately from memory-model inference and speed.
+Own e3e2495464f34b2c is complete. PASS5tests/6benchmarks/6profiles, no flags, return0. Strict source/job/manifest reader accepts full54cases/36timed rows,378observations/216captures/1152cold replays/54restores, all seven compiler requests and1512zeroed flag observations. Prepare252.570135seconds; worst global/row paired errors0.000085418680/0.000300182204. Collector95504 ended0 before archival. This establishes the tested correctness and coverage. The cross-lane publication proof remains incomplete, independently of those passing tests and the failed speed gate.
 
 The frozen performance gate fails. No short cell qualifies;0/6bank/distribution groups resolve a whole-six gain,11affected rows breach the regression gate and one unchanged T128/normal bank1102037 row breaches its drift envelope. Across all24owner-cross/bank/distribution comparisons, median T1 savings are negative1.079999us and T8 negative0.592000us. Thus the candidate is slower at both target medians. Unchanged-path drift limits precise attribution; it does not repair the failed benefit gate.
 
@@ -73,9 +73,13 @@ The frozen performance gate fails. No short cell qualifies;0/6bank/distribution 
 
 Positive savings mean faster. The matched table and official score measure different inputs/timing procedures; they are not pooled. Official candidate2 is5815.571639us/2.312498381x, CI[2.277810905,2.347185857]. It is above the verified terminal public-board point5737.988910us, job2821fdb184d740b1, rank330 at this snapshot. Physical source attribution of that other owner's public run remains with its owner. The user's fixed5559.8us target is still178.188910us below the board point.
 
-Stop this exact readiness representation and retain the original job-counter helper. Do not retry, change flag layouts/lanes/epochs/granularity, remove fences, select favorable masks or infer a general distributed-flag loss. The result does not identify whether scan/issue overhead, publication timing or another cost caused the loss. The original observed dependency wait is not a recovered speedup. No near-ceiling claim follows.
+Stop this exact readiness representation for both the failed performance gate and incomplete publication proof. Retain the original job-counter helper. Do not retry, change flag layouts/lanes/epochs/granularity, remove fences, select favorable masks or infer a general distributed-flag loss. The result does not identify whether scan/issue overhead, publication timing or another cost caused the loss. The original observed dependency wait is not a recovered speedup. No near-ceiling claim follows.
 
-The prepared held-out70da64b4 and pure release00f13180 drafts remain unsubmitted, unqualified and unintegrated because their screen condition failed. No public action follows and no public permission was requested for a losing file. All raw receipt/profiles, strict analysis and the conditional disposition are archived in evidence/2026-11-03-moe-short-ready.
+The prepared held-out70da64b4 and pure release00f13180 drafts remain unsubmitted, unqualified and unintegrated because their screen condition failed and the publication proof is incomplete. No public action follows and no public permission was requested for a losing file. All raw receipt/profiles, strict analysis and the conditional disposition are archived in evidence/2026-11-03-moe-short-ready.
+
+## Independent publication review, November3
+
+General25ad1c20 and research1fd98d1e reviewed the frozen helper974d7743 from pairedb6107a78. Both independently checked contributor intervals and reset placement. Both found the missing nonleader-store-to-leader-release edge. This is a limitation of the publication argument, not a demonstrated wrong GPU output or a proven baseline defect. No source repair or additional GPU run follows for this stopped implementation. The root AGENTS.md now requires an explicit cross-lane relay/release proof and disclosure of stronger CPU-model operations. The owner's resulting prose and standing-rule edits have not received another independent review.
 
 ## Qualified refill required
 
