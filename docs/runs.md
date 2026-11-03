@@ -2301,3 +2301,32 @@ cell alone is expected to give 0.5-1.0 us. Stop: at most four checks for this ow
 for this candidate set, a second only to repeat a result inside the noise of the first.
 Prepare budget: 106 s judged for C2; the additions are 7 GEMV self-tests at m = 1, 6 rd self-tests
 and about 20 extra tuner arms.
+
+2026-11-02 | 793602020fd64ce9 | check (private) | worktree a4699e78 | `muse_bf16_proj/experiments/ramp_c2.py` SHA256 81ac9617: C2 plus the ramp candidates above (cgemv row pairs per CTA on o / slice / qkv_gate at m = 1; rdo8r2, rdo8k4, rdo16, rdo16k4). Quota before: 20 of 20 BF16 checks. Pending.
+
+793602020fd64ce9 done, PASS 9 tests, 30 cells, no flags, prepare 90.8 s. Score 1.5248608038311624x (95% CI
+1.5019878917736948-1.5477337158886297) against C2 1.5278064829557674x (1.5049-1.5507): inside the CI.
+Status JSON `muse_bf16_proj/profiles/ramp_c2.793602020fd64ce9.json`, log tail `.log` beside it.
+
+Tuner (in-process, cold L2, 24 reps): o m = 1: o8 10.0, rdo8 9.7, rdo8r2 9.7, rdo8k4 10.0, cgemv 9.5,
+cgemv_r4c2 9.3, cgemv_r8c2 9.3, cgemv_r16c2 9.1, cgemv_r4 9.3 -> cgemv_r16c2; o m = 8: rdo8 9.6, rdo8r2
+10.0, rdo8k4 10.1 -> rdo8; o m = 16: o16 9.6, rdo16 9.9, rdo16k4 10.2 -> o16; unpooler m = 1: cgemv 7.7,
+cgemv_r2 7.7, cgemv_r4 7.8 -> cgemv; qkv_gate m = 1: cgemv 13.1, cgemv_r2 14.3 -> cgemv. Every candidate
+passed the FP64 self-test (no `disabled` line).
+
+Judged cells, C2 -> this check (us): decode 1: qkv_gate 9.06 -> 8.97, o 5.04 -> 5.06 (the one changed
+pick), pooler 13.52 -> 13.47, unpooler 3.73 -> 3.65, router 3.84 -> 3.80. verify 1 (m = 8): qkv_gate 9.77
+-> 9.73, o 5.48 -> 5.25, pooler 13.42 -> 12.92, unpooler 4.53 -> 4.36, router 4.47 -> 3.75; all five
+verify 1 picks are unchanged kernels, so these are run-to-run noise, as are decode 16 (+0.27 to +0.77 on
+unchanged picks) and pooler m = 128 (+1.44) / qkv_gate and o m = 256 (+0.85 / +0.79, cuBLASLt picks).
+
+Decision: loss on the acceptance rule (targeted decode 1 cells summed -0.09 us, verify 1 unchanged
+kernels). The CTA-launch-ramp hypothesis for o at m = 1 is rejected by a clean test: 256 CTAs of 544
+threads holding all 12.6 MB in one wave judged the same as 4096 CTAs of 96 threads (5.06 vs 5.04); the
+in-process 0.4 us is not reproduced by the judge. Reading of the 30 cells: every short cell sits at about
+2 us of per-launch fixed cost plus bytes at 4.3-4.5 TB/s (o 5.0 = 2.1 + 12.6 MB, router m = 1 3.8 = 2.1
++ 8 MB, slice 3.7 = 2.1 + 6.3 MB), so the distance to the "byte floor" is launch latency plus DRAM
+latency plus the epilogue, not a ramp. No second check: the per-cell noise between runs (0.5-0.8 us on
+unchanged kernels) exceeds any remaining expected effect. The candidate file stays in
+`muse_bf16_proj/experiments/ramp_c2.py` (every judged kernel SASS-identical or register-identical to
+C2); the tracked production file is unchanged.

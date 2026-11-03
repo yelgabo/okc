@@ -48,4 +48,4 @@ hash, affected cells before and after, decision. Chat-only results do not count.
 
 ## Ledger
 
-(empty at creation)
+- BF16 (CUDA Optimizer), 2026-11-02 23:57 PT: check 793602020fd64ce9, source a4699e78 (`muse_bf16_proj/experiments/ramp_c2.py`, SHA256 81ac9617). Cells before -> after (us): decode 1 o 5.04 -> 5.06 (pick cgemv -> cgemv_r16c2, 256 CTAs of 544 threads), unpooler 3.73 -> 3.65, router 3.84 -> 3.80 (unchanged picks); verify 1 o 5.48 -> 5.25, unpooler 4.53 -> 4.36, router 4.47 -> 3.75 (all unchanged picks, run noise). Score 1.5249x vs 1.5278x, inside the CI. Decision: loss, nothing ships; the ramp hypothesis is rejected for o at m = 1 (one-wave 256-CTA form judged equal to the 4096-CTA form) and the short cells sit at about 2 us of fixed per-launch cost plus bytes at 4.3-4.5 TB/s. Details in docs/runs.md and docs/ruled-out.md.
