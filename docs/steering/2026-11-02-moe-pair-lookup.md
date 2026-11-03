@@ -43,3 +43,7 @@ Twelve CPU tests pass:4codec/source/gate,7actual Torch packing/ownership/fallbac
 [Payload and full compiler/packing pins](evidence/2026-11-02-moe-pairlut/paired.manifest.json), [source](evidence/2026-11-02-moe-pairlut/paired.py), [local resources](evidence/2026-11-02-moe-pairlut/resources.json), [archive manifest](evidence/2026-11-02-moe-pairlut/archive-manifest.json). Runtime requires all7registered compiler requests observed and owner table lengths256/256/16640/16640 with identical original prefixes. Persistent verified compiler caching is allowed; mutable input/state caching is not.
 
 No target outcome is known. Public approval covered5df257af only. Author checked these claims against the frozen source and outputs; independent review was unavailable under the user's no-new-agents instruction. Publish the exact source, verify remote bytes, then perform fresh shared jobs/quota preflight and one private POST. Record the accepted own ID before any overlapping work. A successful matched screen needs independent held-out confirmation; an unsuccessful screen stops this exact treatment.
+
+## Accepted private screen
+
+Ownc985bbdb2980407a accepted for frozen542cd650/541745bytes, published5ff38524. Fresh shared list hadzero live jobs; MoE checks12left before dispatch. Exact accepted ID and source association are archived. No target result yet; collect only this ID with one foreground waiter.
