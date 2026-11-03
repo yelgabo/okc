@@ -1,0 +1,24 @@
+{
+  "state": "DISPATCH_STARTED",
+  "experiment": "MOE-FACTOR-Y-01",
+  "source_sha256": "78506b743ace84e1fc0b088fe7fe3b23009f3de0bf5136e20413504026e07492",
+  "source_commit": "e2b3c17f",
+  "at": "2026-11-03T06:58:11.847615+00:00",
+  "live_jobs": [],
+  "quota": {
+    "name": "muse_moe_w4a16",
+    "title": "Routed experts",
+    "limits": {
+      "scored": {
+        "per_day": 10,
+        "used": 1,
+        "left": 9
+      },
+      "checks": {
+        "per_day": 20,
+        "used": 10,
+        "left": 10
+      }
+    }
+  }
+}

@@ -1,6 +1,6 @@
 # Lossless factorized expert-output storage
 
-November2,2026 Pacific. MOE-FACTOR-Y-01 is the next owned B4/MAIN implementation. Public5df257af remains5788.720720us; user target5559.8us remains open. The prior pair lookup and direct input screens passed correctness and lost their complete matched gates. Their exact variants remain stopped. General owns the separate T8/T16 row-owned build. No GPU job is active here.
+November2,2026 Pacific. MOE-FACTOR-Y-01 is the next owned B4/MAIN implementation. Public5df257af remains5788.720720us; user target5559.8us remains open. The prior pair lookup and direct input screens passed correctness and lost their complete matched gates. Their exact variants remain stopped. General owns the separate T8/T16 row-owned build. No GPU job was active at the design freeze.
 
 ## Exact intermediate instead of a wider product
 
@@ -39,3 +39,7 @@ Four local CUDA12.8.1 SM90a entries compile with exit0. Both candidate B4/MAIN b
 The runtime keeps seven actual compiler-request pins, four independent owners, original256word lookup buffers,54case/36row coverage and the unchanged complete-six/drift gate. All preparation/cleanup/serialization/budget failures retain bounded partial evidence and remain failed. The full-reader fixture uses retained target timing rows under an explicitly synthetic source association to test report size and rejection. No new GPU score follows from these tests. Author checked the proof and sources; independent review remains unavailable.
 
 The local CUDA12.8.1 header confirms the raw-store conversion uses cvt.rn.bf16.f32 on SM80+, matching the incumbent fork_bf16 primitive. [Conversion check](evidence/2026-11-02-moe-factor-y/conversion-contract.json). No conversion flag or tolerance changed.
+
+## Accepted private screen
+
+Own7479372115c64702 accepted for frozen78506b74/348783bytes, publishede2b3c17f. Fresh shared list hadzero live jobs, with10MoE private checks left before dispatch. Accepted own source/job association is archived. Follow only this ID with one foreground waiter. No target result yet.
