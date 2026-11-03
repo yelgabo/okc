@@ -5464,3 +5464,10 @@ Own PRIVATE `b38a9ed6dc9743e9`, revision51d6286b/payload1e857ad4,344267 bytes, a
 
 
 GOPT-WS-03 terminal `b38a9ed6dc9743e9`, revision51d6286b/payload1e857ad4: PASS5/6/6, no flags, return0;54 private cases/378 observations/216 captures/1152 cold timings/54 restorations pass. Worst global/row0.000277548359/0.000820404966, preparation254.148312s. All6 affected T8/T16 bank/distribution groups fail the frozen performance gate;24 aggregate factors0.979717–1.017916, descriptive geomean1.001545;7 affected regression rows, no unchanged-load guard breach. Official versusSGLang2.331049144x,95%CI2.296083406–2.366014881, is not a matched gain. Retain original norm updates/NS3, stop exact treatment; no confirmation/layer/default/public change. [All36 rows, uncertainty, identities and collection limits](steering/2026-11-02-general-ws-norm-aggregation.md#terminal-decision-retain-baseline-stop-exact-aggregation). Full artifacts under `muse_moe_w4a16/profiles/gopt-ws-norm-2026-11-02/`.
+
+
+## November2 MOE-BQUEUE-01 registration
+
+OKC MoE Worker owns the new B4/MAIN whole-unit phase-B queue, with unchanged weighted phase A and skinny builds. Native99a6888d versusc7c201ae; paired4c8c470f,354612bytes. Four local CUDA12.8.1 bool entries pass96regs/zero stack/spills, three source and two real-Torch CPU facade tests pass. No GPU outcome yet. One complete four-state/three-bank/two-distribution/six-load private comparison under295s, original1%/duplicate-null/regression/correctness gates. [Source, proof, stop and accepted-job state](steering/2026-11-02-moe-worker-queue-experiment.md). Public permissions unchanged.
+
+Own private MOE-BQUEUE-01 accepted `e044121f822d47b1`, source publishedb56bd8f1/paired4c8c470f. One POST,16checks/no live jobs at preflight. Shell wrapper exit1 after accepted JSON due zsh reserved status; no duplicate or retry. Target result pending. [Accepted record](steering/evidence/2026-11-02-moe-bqueue/accepted.json).

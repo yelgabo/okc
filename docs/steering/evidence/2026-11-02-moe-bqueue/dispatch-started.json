@@ -1,0 +1,10 @@
+{
+  "experiment": "MOE-BQUEUE-01",
+  "state": "dispatch-started",
+  "source_sha256": "4c8c470f408815616472746b99bcda4ae3bdcedb201bd0833284e15f29e685c5",
+  "published_commit": "b56bd8f1e1509d267539c8344477ac4472c6f92d",
+  "started_at": "2026-11-03T04:17:17.972566+00:00",
+  "live_jobs": [],
+  "moe_checks_left": 16,
+  "public_submission": false
+}
