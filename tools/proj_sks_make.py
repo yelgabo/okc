@@ -334,11 +334,84 @@ struct SkCfg {""")
     return src
 
 
+def build_ablate():
+    """Timing-only attribution of the stream-K cost: arms <base>sj (reds kept, no fence, counter
+    or finisher) and <base>sr (no reds and no join; each red sits behind a compare that never
+    holds, so the MMAs stay live). Their outputs are wrong, so they skip the self-test and only
+    appear in `ablate qkv_gate` lines beside the incumbent and the full stream-K config."""
+    src = build()
+    src = sub(src, '    "qkv32s": (2, 32, 3, 1, 4, 2, 4),\n',
+              '    "qkv32s": (2, 32, 3, 1, 4, 2, 4),\n'
+              '    "qkv8sj": (1, 8, 3, 1, 4, 4, 4), "qkv8sr": (1, 8, 3, 1, 4, 4, 4),\n'
+              '    "qkv16sj": (1, 16, 3, 1, 4, 2, 5), "qkv16sr": (1, 16, 3, 1, 4, 2, 5),\n'
+              '    "qkv32sj": (2, 32, 3, 1, 4, 2, 4), "qkv32sr": (2, 32, 3, 1, 4, 2, 4),\n')
+    src = sub(src, '    SK_NACC[_nm] |= SK_SKS\n',
+              '    SK_NACC[_nm] |= SK_SKS\n'
+              'for _b in ("qkv8", "qkv16", "qkv32"):\n'
+              '    SK_NACC[_b + "sj"] |= SK_SKS | 4096\n'
+              '    SK_NACC[_b + "sr"] |= SK_SKS | 8192\n')
+    src = sub(src, 'SK_FULL = {nm for nm in SK_GEOM if nm not in ("qkv32", "qkv32s")}\n',
+              'SK_FULL = {nm for nm in SK_GEOM if not nm.startswith("qkv32")}\n')
+    src = sub(src, "    static constexpr bool SKS = (NACC & 2048) != 0;\n",
+              "    static constexpr bool SKS = (NACC & 2048) != 0;\n"
+              "    // Attribution only: SKNOJ skips the join, SKNOR also skips the reds (outputs wrong).\n"
+              "    static constexpr bool SKNOJ = (NACC & 4096) != 0;\n"
+              "    static constexpr bool SKNOR = (NACC & 8192) != 0;\n")
+    # SKNOJ's reds are never read back or cleared, so they go to a second region, leaving the
+    # real partials clean for any later launch of a picked config.
+    src = sub(src, "__device__ __align__(16) float sks_acc[SKS_CAP];\n",
+              "__device__ __align__(16) float sks_acc[2 * SKS_CAP];\n")
+    src = sub(src, "float* accp = sks_acc + (size_t)(rb + (gs0 + st) / tst) * R;",
+              "float* accp = sks_acc + (C::SKNOJ ? SKS_CAP : 0) + (size_t)(rb + (gs0 + st) / tst) * R;")
+    src = sub(src, "float* accp = sks_acc + (size_t)(rb + sg) * R;",
+              "float* accp = sks_acc + (C::SKNOJ ? SKS_CAP : 0) + (size_t)(rb + sg) * R;")
+    src = sub(src, "        if constexpr (C::SKS) {\n            constexpr int JN = NC + NESC * 32;\n",
+              "        if constexpr (C::SKS && !C::SKNOJ && !C::SKNOR) {\n            constexpr int JN = NC + NESC * 32;\n")
+    src = sub(src, "                        if (tok < M) {\n                            sks_red2(",
+              "                        if (tok < M && (!C::SKNOR || v[0] == 1.2345e-30f)) {\n"
+              "                            sks_red2(")
+    src = sub(src, "                        if (tok + 8 < M) {\n                            sks_red2(",
+              "                        if (tok + 8 < M && (!C::SKNOR || v[2] == 1.2345e-30f)) {\n"
+              "                            sks_red2(")
+    src = sub(src, """                                sks_red1(accp + (size_t)lane * N + (e0 >> 16),
+                                         __int_as_float(stab[2 * pe + 1]) * lds_bf16(xa));
+""", """                                const float dv = __int_as_float(stab[2 * pe + 1]) * lds_bf16(xa);
+                                if (!C::SKNOR || dv == 1.2345e-30f) {
+                                    sks_red1(accp + (size_t)lane * N + (e0 >> 16), dv);
+                                }
+""")
+    src = sub(src, '        if layer == "pooler":\n            packed_pooler = packed\n',
+              '        if layer == "pooler":\n            packed_pooler = packed\n'
+              '        if layer == "qkv_gate":\n            sks_packed = packed\n')
+    src = sub(src, '    print(f"prepare done {time.time() - t0:.1f} s")\n', '''    try:
+        w = state["qkv_gate"]
+        n, k = w.shape
+        tab, pmax = sks_packed["tabs"][(24, n)]
+        for b, base in ((8, "qkv8"), (16, "qkv16"), (32, "qkv32")):
+            names = [base, base + "s", base + "sj", base + "sr"]
+            fns = [_sk_runner(ext, nm, sks_packed["streams"][base], tab, pmax, sks_packed["base4"], n, k,
+                              torch.bfloat16, diag) for nm in names]
+            x, _ = _gen_x(b, k, gen, dev)
+            us = _time_candidates(fns, x, flush)
+            us2 = _time_candidates(fns[::-1], x, flush)[::-1]
+            print(f"ablate qkv_gate m={b}: "
+                  + ", ".join(f"{nm} {t:.2f}/{t2:.2f}" for nm, t, t2 in zip(names, us, us2)))
+        torch.cuda.synchronize()
+        diag.zero_()
+    except Exception as exc:
+        torch.cuda.synchronize()
+        print(f"ablate qkv_gate: failed ({type(exc).__name__}: {str(exc)[-300:]})")
+    print(f"prepare done {time.time() - t0:.1f} s")
+''')
+    return src
+
+
 if __name__ == "__main__":
     p = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     p.add_argument("out", nargs="?", type=Path, default=ROOT / "muse_bf16_proj/experiments/qkv_sks.py")
     p.add_argument("--clean", action="store_true")
+    p.add_argument("--ablate", action="store_true")
     a = p.parse_args()
-    text = build(a.clean)
+    text = build_ablate() if a.ablate else build(a.clean)
     a.out.write_text(text)
     print(f"wrote {a.out} SHA256 {hashlib.sha256(text.encode()).hexdigest()}")
