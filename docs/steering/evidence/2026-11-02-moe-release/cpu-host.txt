@@ -1,0 +1,8 @@
+/usr/local/lib/python3.12/dist-packages/torch/_subclasses/functional_tensor.py:368: UserWarning: Failed to initialize NumPy: No module named 'numpy' (Triggered internally at /__w/pytorch/pytorch/torch/csrc/utils/tensor_numpy.cpp:84.)
+  cpu = _conversion_method_template(device=torch.device("cpu"))
+test_exact_control_and_owned_forwarding (test_moe_control_release.Release.test_exact_control_and_owned_forwarding) ... ok
+
+----------------------------------------------------------------------
+Ran 1 test in 2.705s
+
+OK
