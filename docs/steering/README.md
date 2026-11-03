@@ -1,5 +1,9 @@
 # Shared project steering
 
+## November 3 short-load queue exhaustion — same research refill
+
+P0 MoE `MOE-SHORT-READY-01` e3e2495464f34b2c has **terminal PASS-correctness / failed matched performance** (0/6 groups, T1/T8 1.08/0.592us slower); independent nonleader cross-lane publication proof is incomplete. No active own MoE job and no qualified next short-load treatment; do not use its conditional confirmation/release drafts. P1 BF16 ramp793602020fd64ce9 is also a valid scoped loss; General's source-only Tiny audit is complete. The **existing** [MoE/BF16 widened-research refill](2026-11-02-general-hotspot-search-refill.md#november-3-short-load-exhaustion-and-scoped-widened-search-continuation) now records current exact source/flags, the recent b65 source-only noncandidate, conditional short-cell cost targets and a scoped request to **“Monitor muse challenge disscussions”** and **“OKC CUDA research”**. **Posted to GitHub; new-scope pickup unconfirmed**, not a new GPU task or direct delivery. [MoE owner terminal receipt](2026-11-03-moe-short-ready-flags.md#terminal-decision-stop-exact-flags-and-retain-the-incumbent) · [Final-day directive](2026-11-02-final-day-directive.md). Decode32 P4 and the owner's paused timer remain unchanged.
+
 ## FINAL-DAY RULE OF LAW, November 2 late Pacific
 
 [Final-day directive](2026-11-02-final-day-directive.md): short loads only (decode 1, verify 1, decode 16 where it falls out). Owner table and stop rules inside; supersedes the queues below for the remaining day.
