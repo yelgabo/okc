@@ -1,5 +1,9 @@
 # Shared project steering
 
+## Decode32 next action and progress watch
+
+**[D32-06: continue directly to matched attention confirmation](decode32/2026-11-02-06-confirm-attention-and-progress-watch.md)** — the user asked research to watch the Decode32 inbox for inactivity. At evidence779b06ad, attention job17383751c6a24010 is terminal valid with C32=11.882275ms; confirmation, not another architecture review, is the already-authorized next step. Decode32 Worker keeps end-to-end execution authority and should record the accepted confirmation ID or a concrete blocker in STATUS.md. An hourly conditional research-side GitHub watch is enabled for new outcomes, blockers and documented missing continuation. This is not proof the local worker is asleep or a direct wake-up. No GPU dispatch, kernel change or new public permission. The watched inbox is updated; the other project owners remain unchanged.
+
 ## CUDA optimizer / round-2 research alignment — actual optimizer plan not yet inspected
 
 [Evidence-scoped alignment review](2026-11-02-cuda-optimizer-alignment.md), evidence df237d36: a narrow code-specific optimizer pass can proceed alongside round-2 research. The exact named optimizer plan/patch and full CUDA research report were not located in the inspected pushed files or available file searches, so this is **not a verdict on its current approach**. Use the actual selected source, avoid recounting shipped overlap repairs or assuming occupancy equals speed, and distinguish scoped losses from new mechanisms. The missing item is one current plan/diff, not another review framework. No pause, new allocation, handoff requirement, kernel/job change or submission permission. Decode32 Worker's live candidate and end-to-end authority below remain unchanged.
@@ -39,7 +43,7 @@ Root instructions load the reference index for future CUDA work.
 D32-04 is read and execution continues directly. The [score-lookahead experiment](decode32/2026-11-02-01-full-decode-attention-experiment.md)
 pins candidate `5a580c7a`, six focused CPU tests and the fixed CUDA 12.8.1 device
 builds. The [compact ledger](decode32/STATUS.md) records the source and own job.
-Target results remain pending; no intermediate handoff is required.
+Its earlier pending checkpoint is superseded by the terminal result above; no intermediate handoff is required.
 
 ## Completed pre-existing MID measurement
 
@@ -87,9 +91,10 @@ M33/other five loads stay control. Broad dense-bank GENERIC work proposed concur
 
 | Report | Evidence | Scope |
 |---|---|---|
+| [D32 confirmation continuation and watch](decode32/2026-11-02-06-confirm-attention-and-progress-watch.md) | 779b06ad; own17383751; user watch request | Already-authorized matched confirmation; hourly conditional research watch; no proof of sleep or new measured gain |
 | [H200 research intake and application](2026-11-02-cuda-research-application.md) | ba9/c7 source; complete attachment; CPU regressions and local CUDA 12.8.1 build | Eight reference documents, full section/recommendation coverage, compiler-status repair; no runtime optimization or target gain claimed |
 | [CUDA optimizer alignment](2026-11-02-cuda-optimizer-alignment.md) | df237d36; native repair inventory; K128 terminal | Provisional guidance; named optimizer plan and exact CUDA report not retrieved; no candidate verdict or ownership change |
-| [D32 attention experiment](decode32/2026-11-02-01-full-decode-attention-experiment.md) | ba9 control; 5a580c7a candidate; six CPU tests and fixed device builds | Direct private measurement under D32-04; target results pending |
+| [D32 attention experiment](decode32/2026-11-02-01-full-decode-attention-experiment.md) | ba9 control; 5a580c7a candidate; six CPU tests and fixed device builds | Initial private check now terminal; see first result and D32-06 confirmation continuation |
 | [D32-04: research plans, worker executes](decode32/2026-11-02-04-research-plan-worker-execute.md) | a3ba392c; user's medium-effort instruction; existing L1 score-carry source brief | Fixed candidate design, focused checks and direct private measurement; no repeated review/planning or handoffs; correctness retained |
 | [D32-02: end-to-end ownership](decode32/2026-11-02-02-end-to-end-ownership.md) | 28346bf; latest user instruction; publication reconciled with65b94dcc | Batch32-only implementation through private checks and integration; no recurring handoffs; rest of project unchanged |
 | [D32 MID terminal / one-time retirement](2026-11-02-driver-d32-mid-terminal.md) | own a6fe2769779e4299/e607fb89; control94ef | VALID13/12/12/native56; no usefulD32signal,exactPARK; raw/profiles/portablederivative archived; futureD32execution directlynewowner |
