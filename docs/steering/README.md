@@ -4,11 +4,15 @@
 
 - Rule for the remaining day: [final-day directive](2026-11-02-final-day-directive.md) (short loads only; owner table and ledger inside).
 - Queue state: the first dated section below this list.
-- Latest audit: [repository audit, November 2 23:08](2026-11-02-2308-repo-audit.md) and [driver monitor 12:22 UTC](2026-11-03-driver-monitor-1222.md).
+- Latest audit: [repository audit, November 2 23:08](2026-11-02-2308-repo-audit.md) and [driver monitor 16:26 UTC](2026-11-03-driver-monitor-1626.md).
 - Latest research: [public techniques sweep, November 3 01:15](2026-11-03-0115-public-techniques-research.md).
 - Latest performance review: [November 2 18:54](2026-11-02-1854-performance-review.md).
 - Priorities: [user priority override](2026-11-02-incumbent-hotspot-goal.md#latest-user-priority-override--november-2-2026-pacific) as modified by the final-day directive.
 - Public entries per problem: [release manifest](../release-manifest.md).
+
+## November 3 16:26 UTC source-only reserve
+
+[Current monitor](2026-11-03-driver-monitor-1626.md): new AutoclickerI final rebinding selects RVC at M1/M8,not the original SMALLM_VAR body. Distinct M1direct-slot/norm reserve needs required numerical/ordering/progress and complete-cost qualification. One bounded source-only review directly sent to the existing researcher; pickup unverified,no GPU/public/default authority. BCLM2 retains its owner's first reset slot. Public scores unchanged;fresh audit15leads/zero gaps. [Selected-source addendum](2026-11-03-scout-autoclicker-s22-1405.md#dated-selected-dispatch-qualification--november3-1626utc-root).
 
 ## November 3 12:22 UTC execution checkpoint
 
@@ -47,6 +51,8 @@ P0 MoE `MOE-SHORT-READY-01` e3e2495464f34b2c has **terminal PASS-correctness / f
 [Gap reframe](2026-11-02-top100-gap-reframe.md): the geomean pays 4-8x more per microsecond at decode 1 / verify 1 than at verify 32, and those loads are nine-launch latency chains at 1.8x the byte floor. Proposes a persistent post-attention kernel for T <= 8 (hypothesis: the whole 6.8% layer gap), with a MoE T=1/T=8 timeline and a two-stage fusion microbench as the first decisive tests.
 
 ## Audits and monitors, November 2 to 3
+
+[Driver monitor16:26UTC](2026-11-03-driver-monitor-1626.md): final-selector correction,new M1reserve qualification,existing BCLM/PDL ownership and fresh release guard.
 
 [Public scout: AutoclickerI's readable S22 layer](2026-11-03-scout-autoclicker-s22-1405.md) pins `85aed1fb`, verifies 75 captured files and statically reconstructs all 61 embedded files to the archived wrapper's source. Uploaded October 27 H200 receipt reports 1.8892x; lab freeze-state and server upload binding limits remain explicit. New source reference, no reproduced gain or new GPU assignment.
 
